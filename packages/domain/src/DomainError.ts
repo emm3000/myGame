@@ -33,6 +33,10 @@ export type DomainError =
   | { readonly kind: 'HintOnRecognition'; readonly wordId: WordId }
   | { readonly kind: 'UnknownChoice'; readonly wordId: WordId }
   | { readonly kind: 'LessonNotFound'; readonly lessonId: LessonId }
+  | { readonly kind: 'PlacementNotOffered' }
+  | { readonly kind: 'PlacementAlreadyTaken' }
+  | { readonly kind: 'PlacementBandNotAsked'; readonly band: number }
+  | { readonly kind: 'InvalidPlacementAnswers'; readonly band: number }
   | { readonly kind: 'LessonAlreadyStudied'; readonly lessonId: LessonId }
   | { readonly kind: 'LessonUnderStudy'; readonly lessonId: LessonId }
   | { readonly kind: 'LessonStudyNotFound'; readonly lessonId: LessonId }

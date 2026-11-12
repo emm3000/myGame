@@ -4,6 +4,7 @@ import type {
   HeldCard,
   Instant,
   LessonSlot,
+  PlacementScore,
   PlayerId,
   Result,
   TipKind,
@@ -16,6 +17,7 @@ export type TownWithSchool = {
   readonly lessonSlot: LessonSlot
   readonly cards: ReadonlyArray<HeldCard>
   readonly heldOutWords: ReadonlyArray<Headword>
+  readonly placementScores: ReadonlyArray<PlacementScore>
   readonly guidanceDismissedAt: Instant | undefined
   readonly seenTips: ReadonlyArray<TipKind>
 }

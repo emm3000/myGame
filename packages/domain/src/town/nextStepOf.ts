@@ -1,11 +1,12 @@
 import type { DomainError } from '../DomainError'
-import type { Headword } from '../learning/BandStart'
+import type { Band, Headword } from '../learning/BandStart'
 import { dueCardsAt } from '../learning/dueCardsAt'
 import type { HeldCard } from '../learning/HeldCard'
 import type { Lesson, LessonId } from '../learning/Lesson'
 import { readFirstOf } from '../learning/readFirstOf'
 import { wordsEnteringOf } from '../learning/wordsEnteringOf'
 import type { MemoryTerms } from '../memory/MemoryTerms'
+import type { BandCatalog } from '../ports/BandCatalog'
 import { ok, type Result } from '../Result'
 import type { Instant } from '../time/Instant'
 import { admitSchoolLesson } from './admitSchoolLesson'
@@ -30,10 +31,12 @@ export type NextStepReading = {
   readonly lessonSlot: LessonSlot
   readonly cards: ReadonlyArray<HeldCard>
   readonly heldOutWords: ReadonlyArray<Headword>
+  readonly placedOutBands: ReadonlyArray<Band>
 }
 
 export type NextStepTerms = {
   readonly lessons: ReadonlyArray<Lesson>
+  readonly bands: Pick<BandCatalog, 'bandOfLesson'>
   readonly memoryTerms: MemoryTerms
   readonly catalog: TownCatalog
 }
@@ -52,11 +55,20 @@ const lessonRunningStep = (
   return { kind: 'lessonRunning', producer: isStanding ? null : producer }
 }
 
+const isPlacedOut = (
+  { id }: Lesson,
+  placedOutBands: ReadonlyArray<Band>,
+  bands: Pick<BandCatalog, 'bandOfLesson'>,
+): boolean => {
+  const band = bands.bandOfLesson(id)
+  return band !== undefined && placedOutBands.includes(band)
+}
+
 const lessonStep = (
-  { town, lessonSlot, cards, heldOutWords }: NextStepReading,
-  { lessons, catalog }: NextStepTerms,
+  { town, lessonSlot, cards, heldOutWords, placedOutBands }: NextStepReading,
+  { lessons, bands, catalog }: NextStepTerms,
 ): Result<NextStep, DomainError> => {
-  for (const lesson of lessons) {
+  for (const lesson of lessons.filter((shelved) => !isPlacedOut(shelved, placedOutBands, bands))) {
     const admitted = admitSchoolLesson(
       lesson,
       wordsEnteringOf(lesson, heldOutWords).length,

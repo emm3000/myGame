@@ -852,6 +852,174 @@
         "required": ["answer"],
         "additionalProperties": false
       },
+      "Placement": {
+        "oneOf": [
+          {
+            "$ref": "#/components/schemas/OfferedPlacement"
+          },
+          {
+            "$ref": "#/components/schemas/AskingPlacement"
+          },
+          {
+            "$ref": "#/components/schemas/ClosedPlacement"
+          }
+        ],
+        "discriminator": {
+          "propertyName": "kind",
+          "mapping": {
+            "offered": "#/components/schemas/OfferedPlacement",
+            "asking": "#/components/schemas/AskingPlacement",
+            "closed": "#/components/schemas/ClosedPlacement"
+          }
+        }
+      },
+      "OfferedPlacement": {
+        "type": "object",
+        "properties": {
+          "kind": {
+            "type": "string",
+            "enum": ["offered"]
+          }
+        },
+        "required": ["kind"],
+        "additionalProperties": false
+      },
+      "AskingPlacement": {
+        "type": "object",
+        "properties": {
+          "kind": {
+            "type": "string",
+            "enum": ["asking"]
+          },
+          "band": {
+            "$ref": "#/components/schemas/PlacementBand"
+          },
+          "items": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/PlacementItem"
+            },
+            "minItems": 1,
+            "maxItems": 30
+          },
+          "scores": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/PlacementScore"
+            }
+          }
+        },
+        "required": ["kind", "band", "items", "scores"],
+        "additionalProperties": false
+      },
+      "PlacementBand": {
+        "type": "integer",
+        "enum": [1, 2, 3]
+      },
+      "PlacementItem": {
+        "type": "object",
+        "properties": {
+          "wordId": {
+            "type": "string",
+            "minLength": 1
+          },
+          "word": {
+            "type": "string",
+            "minLength": 1
+          },
+          "choices": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "choiceId": {
+                  "type": "string",
+                  "minLength": 1
+                },
+                "gloss": {
+                  "type": "string",
+                  "minLength": 1
+                }
+              },
+              "required": ["choiceId", "gloss"],
+              "additionalProperties": false
+            },
+            "minItems": 1,
+            "maxItems": 4
+          }
+        },
+        "required": ["wordId", "word", "choices"],
+        "additionalProperties": false
+      },
+      "PlacementScore": {
+        "type": "object",
+        "properties": {
+          "band": {
+            "$ref": "#/components/schemas/PlacementBand"
+          },
+          "score": {
+            "type": "integer",
+            "minimum": 0,
+            "maximum": 30
+          },
+          "takenAt": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "isPlacedOut": {
+            "type": "boolean"
+          }
+        },
+        "required": ["band", "score", "takenAt", "isPlacedOut"],
+        "additionalProperties": false
+      },
+      "ClosedPlacement": {
+        "type": "object",
+        "properties": {
+          "kind": {
+            "type": "string",
+            "enum": ["closed"]
+          },
+          "scores": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/PlacementScore"
+            }
+          }
+        },
+        "required": ["kind", "scores"],
+        "additionalProperties": false
+      },
+      "PlacementAnswers": {
+        "type": "object",
+        "properties": {
+          "band": {
+            "$ref": "#/components/schemas/PlacementBand"
+          },
+          "answers": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "wordId": {
+                  "type": "string",
+                  "minLength": 1
+                },
+                "choiceId": {
+                  "type": "string",
+                  "minLength": 1
+                }
+              },
+              "required": ["wordId", "choiceId"],
+              "additionalProperties": false
+            },
+            "minItems": 1,
+            "maxItems": 30
+          }
+        },
+        "required": ["band", "answers"],
+        "additionalProperties": false
+      },
       "Report": {
         "type": "object",
         "properties": {
@@ -3241,6 +3409,122 @@
                 }
               }
             }
+          }
+        }
+      }
+    },
+    "/placement": {
+      "get": {
+        "security": [
+          {
+            "sessionBearer": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "The placement offered, the band it asks with its words and choices, or the stored scores once it is closed.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Placement"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "No live session: neither a session cookie nor, without one, an Authorization bearer token names one. Empty body."
+          }
+        }
+      },
+      "post": {
+        "security": [
+          {
+            "sessionBearer": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "The placement begun: the api drew each band’s sample and asks band 1.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Placement"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "No live session: neither a session cookie nor, without one, an Authorization bearer token names one. Empty body."
+          },
+          "409": {
+            "description": "PlacementAlreadyTaken, a placement taken or skipped before, or PlacementNotOffered, a band started or band 1 not drafted. Empty body."
+          }
+        }
+      }
+    },
+    "/placement/skip": {
+      "post": {
+        "security": [
+          {
+            "sessionBearer": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "The placement skipped for good; the player starts at lesson 1.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Placement"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "No live session: neither a session cookie nor, without one, an Authorization bearer token names one. Empty body."
+          },
+          "409": {
+            "description": "PlacementAlreadyTaken, a placement taken or skipped before, or PlacementNotOffered, a band started or band 1 not drafted. Empty body."
+          }
+        }
+      }
+    },
+    "/placement/answers": {
+      "post": {
+        "security": [
+          {
+            "sessionBearer": []
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/PlacementAnswers"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "The band scored: the next band asked once it passes at 29 of 30, else the placement closed.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Placement"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "A malformed body, or InvalidPlacementAnswers: not one offered choice for each asked word. Empty body."
+          },
+          "401": {
+            "description": "No live session: neither a session cookie nor, without one, an Authorization bearer token names one. Empty body."
+          },
+          "409": {
+            "description": "PlacementBandNotAsked: the check does not ask that band. Empty body."
           }
         }
       }

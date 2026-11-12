@@ -281,6 +281,13 @@
       "when": 1794453885529,
       "tag": "0039_goals_and_tips",
       "breakpoints": true
+    },
+    {
+      "idx": 40,
+      "version": "7",
+      "when": 1794485351574,
+      "tag": "0040_placement",
+      "breakpoints": true
     }
   ]
 }

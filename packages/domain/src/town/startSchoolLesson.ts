@@ -4,13 +4,15 @@ import { bandStartDrawn } from '../learning/bandStartDrawn'
 import { heldOutWordsOf } from '../learning/heldOutWordsOf'
 import type { Lesson, LessonId } from '../learning/Lesson'
 import { wordsEnteringOf } from '../learning/wordsEnteringOf'
+import { placedOutBandsOf } from '../placement/placedOutBandsOf'
+import { placementScoresOf } from '../placement/placementScoresOf'
 import type { PlayerId } from '../player/PlayerId'
 import type { BandCatalog } from '../ports/BandCatalog'
 import type { BandStartRepository } from '../ports/BandStartRepository'
 import type { CardRepository } from '../ports/CardRepository'
 import type { Clock } from '../ports/Clock'
 import type { LessonCatalog } from '../ports/LessonCatalog'
-import type { PlacedOutBands } from '../ports/PlacedOutBands'
+import type { PlacementRepository } from '../ports/PlacementRepository'
 import type { RandomSource } from '../ports/RandomSource'
 import { err, ok, type Result } from '../Result'
 import { Duration } from '../time/Duration'
@@ -41,7 +43,7 @@ export type StartSchoolLessonDependencies = {
   readonly cards: CardRepository
   readonly bandStarts: BandStartRepository
   readonly bands: BandCatalog
-  readonly placedOutBands: PlacedOutBands
+  readonly placements: Pick<PlacementRepository, 'placementOf'>
   readonly random: RandomSource
   readonly lessons: Pick<LessonCatalog, 'lessonOf'>
   readonly news: TownNews
@@ -84,18 +86,18 @@ const bandStartDrawnFor = async (
   playerId: PlayerId,
   lesson: Lesson,
   started: ReadonlyArray<BandStart>,
-  { bands, placedOutBands, random }: StartSchoolLessonDependencies,
+  { bands, placements, random }: StartSchoolLessonDependencies,
   now: Instant,
 ): Promise<Result<BandStart | undefined, DomainError>> => {
   const band = bands.bandOfLesson(lesson.id)
   if (band === undefined || started.some((start) => start.band === band)) {
     return ok(undefined)
   }
-  const placedOut = await placedOutBands.placedOutBandsOf(playerId)
-  if (!placedOut.ok) {
-    return placedOut
+  const placement = await placements.placementOf(playerId)
+  if (!placement.ok) {
+    return placement
   }
-  if (placedOut.value.includes(band)) {
+  if (placedOutBandsOf(placementScoresOf(placement.value)).includes(band)) {
     return ok(undefined)
   }
   return ok(bandStartDrawn(band, bands.wordsOfBand(band), now, random))

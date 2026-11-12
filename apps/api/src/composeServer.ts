@@ -6,7 +6,6 @@ import {
   defaultMemoryTerms,
   type IdGenerator,
   type MemoryTerms,
-  type PlacedOutBands,
   type RandomSource,
   type RegionMapReader,
   type TownCatalog,
@@ -27,7 +26,6 @@ import { Argon2Passwords } from './adapters/system/Argon2Passwords'
 import { CryptoIdGenerator } from './adapters/system/CryptoIdGenerator'
 import { CryptoRandomSource } from './adapters/system/CryptoRandomSource'
 import { CryptoSessionTokens } from './adapters/system/CryptoSessionTokens'
-import { NoPlacedOutBands } from './adapters/system/NoPlacedOutBands'
 import { SystemClock } from './adapters/system/SystemClock'
 import { createApp } from './app'
 import type { Accounts } from './auth/Accounts'
@@ -94,7 +92,6 @@ export type ComposedServer = MailSettings & {
   readonly clock: Clock
   readonly ids: IdGenerator
   readonly random: RandomSource
-  readonly placedOutBands: PlacedOutBands
   readonly towns: TownReader
   readonly townNews: TownNewsReader
   readonly regionMap: RegionMapReader
@@ -129,7 +126,6 @@ export function composeServer(
     clock: new SystemClock(),
     ids: new CryptoIdGenerator(),
     random: new CryptoRandomSource(),
-    placedOutBands: new NoPlacedOutBands(),
     accounts: new DrizzleAccounts(database),
     reportClosings: new DrizzleReportClosings(database),
     passwords: new Argon2Passwords(),

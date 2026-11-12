@@ -24,7 +24,6 @@ import {
   Instant,
   type MemoryTerms,
   ok,
-  type PlacedOutBands,
   placeHiringOrder,
   type RandomSource,
   type RegionMapReader,
@@ -64,13 +63,12 @@ export type TownDependencies = CurrentTownDependencies &
     readonly lessons: LessonLibrary
     readonly memoryTerms: MemoryTerms
     readonly random: RandomSource
-    readonly placedOutBands: PlacedOutBands
     readonly regionMap: RegionMapReader
     readonly cleanUps: CleanUpReader
   }
 
 export const townRoutes = (dependencies: TownDependencies): OpenAPIHono => {
-  const { townCatalog: catalog, lessons, memoryTerms, random, placedOutBands } = dependencies
+  const { townCatalog: catalog, lessons, memoryTerms, random } = dependencies
   const answerReading = (c: Context, reading: Result<TownReading, DomainError>): Response => {
     if (!reading.ok) {
       return answerRefusal(c, reading.error)
@@ -380,7 +378,6 @@ export const townRoutes = (dependencies: TownDependencies): OpenAPIHono => {
               news: stores.townNews,
               lessons,
               bands: lessons,
-              placedOutBands,
               random,
               catalog,
               clock,

@@ -20,6 +20,7 @@ export type TownStores = Pick<
   | 'reviewLog'
   | 'earnedSkills'
   | 'bandStarts'
+  | 'placements'
   | 'regionMap'
   | 'cleanUps'
   | 'seenTips'

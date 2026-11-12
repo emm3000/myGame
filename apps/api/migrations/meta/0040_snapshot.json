@@ -1,0 +1,2290 @@
+{
+  "id": "537190d3-00e7-499f-9131-28a31247e182",
+  "prevId": "c1d6a531-2673-45e3-9d8a-fe3ac978dc7e",
+  "version": "7",
+  "dialect": "postgresql",
+  "tables": {
+    "public.account_tokens": {
+      "name": "account_tokens",
+      "schema": "",
+      "columns": {
+        "token_digest": {
+          "name": "token_digest",
+          "type": "text",
+          "primaryKey": true,
+          "notNull": true
+        },
+        "player_id": {
+          "name": "player_id",
+          "type": "uuid",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "kind": {
+          "name": "kind",
+          "type": "account_token_kind",
+          "typeSchema": "public",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "expires_at": {
+          "name": "expires_at",
+          "type": "timestamp with time zone",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "used_at": {
+          "name": "used_at",
+          "type": "timestamp with time zone",
+          "primaryKey": false,
+          "notNull": false
+        }
+      },
+      "indexes": {},
+      "foreignKeys": {
+        "account_tokens_player_id_players_id_fk": {
+          "name": "account_tokens_player_id_players_id_fk",
+          "tableFrom": "account_tokens",
+          "tableTo": "players",
+          "columnsFrom": [
+            "player_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "cascade",
+          "onUpdate": "no action"
+        }
+      },
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {},
+      "policies": {},
+      "checkConstraints": {
+        "account_tokens_token_digest_hex": {
+          "name": "account_tokens_token_digest_hex",
+          "value": "\"account_tokens\".\"token_digest\" ~ '^[0-9a-f]{64}$'"
+        }
+      },
+      "isRLSEnabled": false
+    },
+    "public.band_starts": {
+      "name": "band_starts",
+      "schema": "",
+      "columns": {
+        "player_id": {
+          "name": "player_id",
+          "type": "uuid",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "band": {
+          "name": "band",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "started_at": {
+          "name": "started_at",
+          "type": "timestamp with time zone",
+          "primaryKey": false,
+          "notNull": true
+        }
+      },
+      "indexes": {},
+      "foreignKeys": {
+        "band_starts_player_id_players_id_fk": {
+          "name": "band_starts_player_id_players_id_fk",
+          "tableFrom": "band_starts",
+          "tableTo": "players",
+          "columnsFrom": [
+            "player_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "cascade",
+          "onUpdate": "no action"
+        }
+      },
+      "compositePrimaryKeys": {
+        "band_starts_pkey": {
+          "name": "band_starts_pkey",
+          "columns": [
+            "player_id",
+            "band"
+          ]
+        }
+      },
+      "uniqueConstraints": {},
+      "policies": {},
+      "checkConstraints": {
+        "band_starts_band_known": {
+          "name": "band_starts_band_known",
+          "value": "\"band_starts\".\"band\" BETWEEN 1 AND 3"
+        }
+      },
+      "isRLSEnabled": false
+    },
+    "public.cards": {
+      "name": "cards",
+      "schema": "",
+      "columns": {
+        "player_id": {
+          "name": "player_id",
+          "type": "uuid",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "word_id": {
+          "name": "word_id",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "state": {
+          "name": "state",
+          "type": "memory_state",
+          "typeSchema": "public",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "step": {
+          "name": "step",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "stability": {
+          "name": "stability",
+          "type": "double precision",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "difficulty": {
+          "name": "difficulty",
+          "type": "double precision",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "last_review_at": {
+          "name": "last_review_at",
+          "type": "timestamp with time zone",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "last_rating": {
+          "name": "last_rating",
+          "type": "memory_rating",
+          "typeSchema": "public",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "entered_at": {
+          "name": "entered_at",
+          "type": "timestamp with time zone",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "retained_at": {
+          "name": "retained_at",
+          "type": "timestamp with time zone",
+          "primaryKey": false,
+          "notNull": false
+        }
+      },
+      "indexes": {},
+      "foreignKeys": {
+        "cards_player_id_players_id_fk": {
+          "name": "cards_player_id_players_id_fk",
+          "tableFrom": "cards",
+          "tableTo": "players",
+          "columnsFrom": [
+            "player_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "cascade",
+          "onUpdate": "no action"
+        }
+      },
+      "compositePrimaryKeys": {
+        "cards_pkey": {
+          "name": "cards_pkey",
+          "columns": [
+            "player_id",
+            "word_id"
+          ]
+        }
+      },
+      "uniqueConstraints": {},
+      "policies": {},
+      "checkConstraints": {
+        "cards_step_terms": {
+          "name": "cards_step_terms",
+          "value": "(\"cards\".\"step\" IS NULL) = (\"cards\".\"state\"::text = 'review') AND (\"cards\".\"step\" IS NULL OR \"cards\".\"step\" >= 0)"
+        },
+        "cards_review_terms": {
+          "name": "cards_review_terms",
+          "value": "num_nulls(\"cards\".\"stability\", \"cards\".\"difficulty\", \"cards\".\"last_review_at\", \"cards\".\"last_rating\") IN (0, 4) AND (\"cards\".\"last_review_at\" IS NOT NULL OR \"cards\".\"state\"::text = 'learning')"
+        },
+        "cards_memory_bounds": {
+          "name": "cards_memory_bounds",
+          "value": "(\"cards\".\"stability\" IS NULL OR \"cards\".\"stability\" > 0) AND (\"cards\".\"difficulty\" IS NULL OR \"cards\".\"difficulty\" BETWEEN 1 AND 10)"
+        },
+        "cards_retained_at_last_review": {
+          "name": "cards_retained_at_last_review",
+          "value": "\"cards\".\"retained_at\" IS NULL OR \"cards\".\"retained_at\" = \"cards\".\"last_review_at\""
+        }
+      },
+      "isRLSEnabled": false
+    },
+    "public.earned_skills": {
+      "name": "earned_skills",
+      "schema": "",
+      "columns": {
+        "player_id": {
+          "name": "player_id",
+          "type": "uuid",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "lesson_id": {
+          "name": "lesson_id",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "resource": {
+          "name": "resource",
+          "type": "town_resource",
+          "typeSchema": "public",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "rate_percent": {
+          "name": "rate_percent",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "earned_at": {
+          "name": "earned_at",
+          "type": "timestamp with time zone",
+          "primaryKey": false,
+          "notNull": true
+        }
+      },
+      "indexes": {},
+      "foreignKeys": {
+        "earned_skills_player_id_players_id_fk": {
+          "name": "earned_skills_player_id_players_id_fk",
+          "tableFrom": "earned_skills",
+          "tableTo": "players",
+          "columnsFrom": [
+            "player_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "cascade",
+          "onUpdate": "no action"
+        }
+      },
+      "compositePrimaryKeys": {
+        "earned_skills_pkey": {
+          "name": "earned_skills_pkey",
+          "columns": [
+            "player_id",
+            "lesson_id"
+          ]
+        }
+      },
+      "uniqueConstraints": {},
+      "policies": {},
+      "checkConstraints": {
+        "earned_skills_rate_percent_positive": {
+          "name": "earned_skills_rate_percent_positive",
+          "value": "\"earned_skills\".\"rate_percent\" >= 1"
+        }
+      },
+      "isRLSEnabled": false
+    },
+    "public.held_out_words": {
+      "name": "held_out_words",
+      "schema": "",
+      "columns": {
+        "player_id": {
+          "name": "player_id",
+          "type": "uuid",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "band": {
+          "name": "band",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "headword": {
+          "name": "headword",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        }
+      },
+      "indexes": {},
+      "foreignKeys": {
+        "held_out_words_band_start_fk": {
+          "name": "held_out_words_band_start_fk",
+          "tableFrom": "held_out_words",
+          "tableTo": "band_starts",
+          "columnsFrom": [
+            "player_id",
+            "band"
+          ],
+          "columnsTo": [
+            "player_id",
+            "band"
+          ],
+          "onDelete": "cascade",
+          "onUpdate": "no action"
+        }
+      },
+      "compositePrimaryKeys": {
+        "held_out_words_pkey": {
+          "name": "held_out_words_pkey",
+          "columns": [
+            "player_id",
+            "headword"
+          ]
+        }
+      },
+      "uniqueConstraints": {},
+      "policies": {},
+      "checkConstraints": {},
+      "isRLSEnabled": false
+    },
+    "public.pending_reviews": {
+      "name": "pending_reviews",
+      "schema": "",
+      "columns": {
+        "player_id": {
+          "name": "player_id",
+          "type": "uuid",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "word_id": {
+          "name": "word_id",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "hint_shown": {
+          "name": "hint_shown",
+          "type": "boolean",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "near_miss_answer": {
+          "name": "near_miss_answer",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        }
+      },
+      "indexes": {},
+      "foreignKeys": {
+        "pending_reviews_player_id_players_id_fk": {
+          "name": "pending_reviews_player_id_players_id_fk",
+          "tableFrom": "pending_reviews",
+          "tableTo": "players",
+          "columnsFrom": [
+            "player_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "cascade",
+          "onUpdate": "no action"
+        },
+        "pending_reviews_card_fk": {
+          "name": "pending_reviews_card_fk",
+          "tableFrom": "pending_reviews",
+          "tableTo": "cards",
+          "columnsFrom": [
+            "player_id",
+            "word_id"
+          ],
+          "columnsTo": [
+            "player_id",
+            "word_id"
+          ],
+          "onDelete": "cascade",
+          "onUpdate": "no action"
+        }
+      },
+      "compositePrimaryKeys": {
+        "pending_reviews_pkey": {
+          "name": "pending_reviews_pkey",
+          "columns": [
+            "player_id",
+            "word_id"
+          ]
+        }
+      },
+      "uniqueConstraints": {},
+      "policies": {},
+      "checkConstraints": {},
+      "isRLSEnabled": false
+    },
+    "public.placement_scores": {
+      "name": "placement_scores",
+      "schema": "",
+      "columns": {
+        "player_id": {
+          "name": "player_id",
+          "type": "uuid",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "band": {
+          "name": "band",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "score": {
+          "name": "score",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "taken_at": {
+          "name": "taken_at",
+          "type": "timestamp with time zone",
+          "primaryKey": false,
+          "notNull": true
+        }
+      },
+      "indexes": {},
+      "foreignKeys": {
+        "placement_scores_placement_fk": {
+          "name": "placement_scores_placement_fk",
+          "tableFrom": "placement_scores",
+          "tableTo": "placements",
+          "columnsFrom": [
+            "player_id"
+          ],
+          "columnsTo": [
+            "player_id"
+          ],
+          "onDelete": "cascade",
+          "onUpdate": "no action"
+        }
+      },
+      "compositePrimaryKeys": {
+        "placement_scores_pkey": {
+          "name": "placement_scores_pkey",
+          "columns": [
+            "player_id",
+            "band"
+          ]
+        }
+      },
+      "uniqueConstraints": {},
+      "policies": {},
+      "checkConstraints": {
+        "placement_scores_band_known": {
+          "name": "placement_scores_band_known",
+          "value": "\"placement_scores\".\"band\" BETWEEN 1 AND 3"
+        },
+        "placement_scores_score_range": {
+          "name": "placement_scores_score_range",
+          "value": "\"placement_scores\".\"score\" BETWEEN 0 AND 30"
+        }
+      },
+      "isRLSEnabled": false
+    },
+    "public.placement_words": {
+      "name": "placement_words",
+      "schema": "",
+      "columns": {
+        "player_id": {
+          "name": "player_id",
+          "type": "uuid",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "band": {
+          "name": "band",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "position": {
+          "name": "position",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "word_id": {
+          "name": "word_id",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        }
+      },
+      "indexes": {},
+      "foreignKeys": {
+        "placement_words_placement_fk": {
+          "name": "placement_words_placement_fk",
+          "tableFrom": "placement_words",
+          "tableTo": "placements",
+          "columnsFrom": [
+            "player_id"
+          ],
+          "columnsTo": [
+            "player_id"
+          ],
+          "onDelete": "cascade",
+          "onUpdate": "no action"
+        }
+      },
+      "compositePrimaryKeys": {
+        "placement_words_pkey": {
+          "name": "placement_words_pkey",
+          "columns": [
+            "player_id",
+            "band",
+            "position"
+          ]
+        }
+      },
+      "uniqueConstraints": {
+        "placement_words_word_unique": {
+          "name": "placement_words_word_unique",
+          "nullsNotDistinct": false,
+          "columns": [
+            "player_id",
+            "band",
+            "word_id"
+          ]
+        }
+      },
+      "policies": {},
+      "checkConstraints": {
+        "placement_words_band_known": {
+          "name": "placement_words_band_known",
+          "value": "\"placement_words\".\"band\" BETWEEN 1 AND 3"
+        },
+        "placement_words_position_positive": {
+          "name": "placement_words_position_positive",
+          "value": "\"placement_words\".\"position\" >= 1"
+        }
+      },
+      "isRLSEnabled": false
+    },
+    "public.placements": {
+      "name": "placements",
+      "schema": "",
+      "columns": {
+        "player_id": {
+          "name": "player_id",
+          "type": "uuid",
+          "primaryKey": true,
+          "notNull": true
+        },
+        "kind": {
+          "name": "kind",
+          "type": "placement_kind",
+          "typeSchema": "public",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "decided_at": {
+          "name": "decided_at",
+          "type": "timestamp with time zone",
+          "primaryKey": false,
+          "notNull": true
+        }
+      },
+      "indexes": {},
+      "foreignKeys": {
+        "placements_player_id_players_id_fk": {
+          "name": "placements_player_id_players_id_fk",
+          "tableFrom": "placements",
+          "tableTo": "players",
+          "columnsFrom": [
+            "player_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "cascade",
+          "onUpdate": "no action"
+        }
+      },
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {},
+      "policies": {},
+      "checkConstraints": {},
+      "isRLSEnabled": false
+    },
+    "public.player_seen_tips": {
+      "name": "player_seen_tips",
+      "schema": "",
+      "columns": {
+        "player_id": {
+          "name": "player_id",
+          "type": "uuid",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "tip": {
+          "name": "tip",
+          "type": "town_tip",
+          "typeSchema": "public",
+          "primaryKey": false,
+          "notNull": true
+        }
+      },
+      "indexes": {},
+      "foreignKeys": {
+        "player_seen_tips_player_id_players_id_fk": {
+          "name": "player_seen_tips_player_id_players_id_fk",
+          "tableFrom": "player_seen_tips",
+          "tableTo": "players",
+          "columnsFrom": [
+            "player_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "cascade",
+          "onUpdate": "no action"
+        }
+      },
+      "compositePrimaryKeys": {
+        "player_seen_tips_pkey": {
+          "name": "player_seen_tips_pkey",
+          "columns": [
+            "player_id",
+            "tip"
+          ]
+        }
+      },
+      "uniqueConstraints": {},
+      "policies": {},
+      "checkConstraints": {},
+      "isRLSEnabled": false
+    },
+    "public.players": {
+      "name": "players",
+      "schema": "",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "uuid",
+          "primaryKey": true,
+          "notNull": true
+        },
+        "email": {
+          "name": "email",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "password_hash": {
+          "name": "password_hash",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "created_at": {
+          "name": "created_at",
+          "type": "timestamp with time zone",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "email_verified_at": {
+          "name": "email_verified_at",
+          "type": "timestamp with time zone",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "report_read_at": {
+          "name": "report_read_at",
+          "type": "timestamp with time zone",
+          "primaryKey": false,
+          "notNull": true
+        }
+      },
+      "indexes": {
+        "players_email_unique": {
+          "name": "players_email_unique",
+          "columns": [
+            {
+              "expression": "lower(\"email\")",
+              "asc": true,
+              "isExpression": true,
+              "nulls": "last"
+            }
+          ],
+          "isUnique": true,
+          "concurrently": false,
+          "method": "btree",
+          "with": {}
+        }
+      },
+      "foreignKeys": {},
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {},
+      "policies": {},
+      "checkConstraints": {},
+      "isRLSEnabled": false
+    },
+    "public.review_log": {
+      "name": "review_log",
+      "schema": "",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "bigint",
+          "primaryKey": true,
+          "notNull": true,
+          "identity": {
+            "type": "always",
+            "name": "review_log_id_seq",
+            "schema": "public",
+            "increment": "1",
+            "startWith": "1",
+            "minValue": "1",
+            "maxValue": "9223372036854775807",
+            "cache": "1",
+            "cycle": false
+          }
+        },
+        "player_id": {
+          "name": "player_id",
+          "type": "uuid",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "word_id": {
+          "name": "word_id",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "reviewed_at": {
+          "name": "reviewed_at",
+          "type": "timestamp with time zone",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "format": {
+          "name": "format",
+          "type": "review_format",
+          "typeSchema": "public",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "answer": {
+          "name": "answer",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "near_miss_answer": {
+          "name": "near_miss_answer",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "hint_shown": {
+          "name": "hint_shown",
+          "type": "boolean",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "rating": {
+          "name": "rating",
+          "type": "memory_rating",
+          "typeSchema": "public",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "elapsed_days": {
+          "name": "elapsed_days",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "before_state": {
+          "name": "before_state",
+          "type": "memory_state",
+          "typeSchema": "public",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "before_step": {
+          "name": "before_step",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "before_stability": {
+          "name": "before_stability",
+          "type": "double precision",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "before_difficulty": {
+          "name": "before_difficulty",
+          "type": "double precision",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "before_last_review_at": {
+          "name": "before_last_review_at",
+          "type": "timestamp with time zone",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "before_last_rating": {
+          "name": "before_last_rating",
+          "type": "memory_rating",
+          "typeSchema": "public",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "before_entered_at": {
+          "name": "before_entered_at",
+          "type": "timestamp with time zone",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "before_retained_at": {
+          "name": "before_retained_at",
+          "type": "timestamp with time zone",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "after_state": {
+          "name": "after_state",
+          "type": "memory_state",
+          "typeSchema": "public",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "after_step": {
+          "name": "after_step",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "after_stability": {
+          "name": "after_stability",
+          "type": "double precision",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "after_difficulty": {
+          "name": "after_difficulty",
+          "type": "double precision",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "after_last_review_at": {
+          "name": "after_last_review_at",
+          "type": "timestamp with time zone",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "after_last_rating": {
+          "name": "after_last_rating",
+          "type": "memory_rating",
+          "typeSchema": "public",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "after_entered_at": {
+          "name": "after_entered_at",
+          "type": "timestamp with time zone",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "after_retained_at": {
+          "name": "after_retained_at",
+          "type": "timestamp with time zone",
+          "primaryKey": false,
+          "notNull": false
+        }
+      },
+      "indexes": {
+        "review_log_player_order": {
+          "name": "review_log_player_order",
+          "columns": [
+            {
+              "expression": "player_id",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            },
+            {
+              "expression": "reviewed_at",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            },
+            {
+              "expression": "id",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            }
+          ],
+          "isUnique": false,
+          "concurrently": false,
+          "method": "btree",
+          "with": {}
+        }
+      },
+      "foreignKeys": {
+        "review_log_player_id_players_id_fk": {
+          "name": "review_log_player_id_players_id_fk",
+          "tableFrom": "review_log",
+          "tableTo": "players",
+          "columnsFrom": [
+            "player_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "cascade",
+          "onUpdate": "no action"
+        }
+      },
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {},
+      "policies": {},
+      "checkConstraints": {
+        "review_log_elapsed_days_terms": {
+          "name": "review_log_elapsed_days_terms",
+          "value": "(\"review_log\".\"elapsed_days\" IS NULL) = (\"review_log\".\"before_last_review_at\" IS NULL) AND (\"review_log\".\"elapsed_days\" IS NULL OR \"review_log\".\"elapsed_days\" >= 0)"
+        }
+      },
+      "isRLSEnabled": false
+    },
+    "public.sessions": {
+      "name": "sessions",
+      "schema": "",
+      "columns": {
+        "token_digest": {
+          "name": "token_digest",
+          "type": "text",
+          "primaryKey": true,
+          "notNull": true
+        },
+        "player_id": {
+          "name": "player_id",
+          "type": "uuid",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "expires_at": {
+          "name": "expires_at",
+          "type": "timestamp with time zone",
+          "primaryKey": false,
+          "notNull": true
+        }
+      },
+      "indexes": {},
+      "foreignKeys": {
+        "sessions_player_id_players_id_fk": {
+          "name": "sessions_player_id_players_id_fk",
+          "tableFrom": "sessions",
+          "tableTo": "players",
+          "columnsFrom": [
+            "player_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "cascade",
+          "onUpdate": "no action"
+        }
+      },
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {},
+      "policies": {},
+      "checkConstraints": {
+        "sessions_token_digest_hex": {
+          "name": "sessions_token_digest_hex",
+          "value": "\"sessions\".\"token_digest\" ~ '^[0-9a-f]{64}$'"
+        }
+      },
+      "isRLSEnabled": false
+    },
+    "public.site_clean_ups": {
+      "name": "site_clean_ups",
+      "schema": "",
+      "columns": {
+        "town_id": {
+          "name": "town_id",
+          "type": "uuid",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "sent_at": {
+          "name": "sent_at",
+          "type": "timestamp with time zone",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "region": {
+          "name": "region",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "area": {
+          "name": "area",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "site": {
+          "name": "site",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "cleaned_at": {
+          "name": "cleaned_at",
+          "type": "timestamp with time zone",
+          "primaryKey": false,
+          "notNull": true
+        }
+      },
+      "indexes": {
+        "site_clean_ups_site_order": {
+          "name": "site_clean_ups_site_order",
+          "columns": [
+            {
+              "expression": "region",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            },
+            {
+              "expression": "area",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            },
+            {
+              "expression": "site",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            },
+            {
+              "expression": "cleaned_at",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            }
+          ],
+          "isUnique": false,
+          "concurrently": false,
+          "method": "btree",
+          "with": {}
+        }
+      },
+      "foreignKeys": {
+        "site_clean_ups_town_id_towns_id_fk": {
+          "name": "site_clean_ups_town_id_towns_id_fk",
+          "tableFrom": "site_clean_ups",
+          "tableTo": "towns",
+          "columnsFrom": [
+            "town_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "cascade",
+          "onUpdate": "no action"
+        }
+      },
+      "compositePrimaryKeys": {
+        "site_clean_ups_pkey": {
+          "name": "site_clean_ups_pkey",
+          "columns": [
+            "town_id",
+            "sent_at"
+          ]
+        }
+      },
+      "uniqueConstraints": {},
+      "policies": {},
+      "checkConstraints": {
+        "site_clean_ups_site_positive": {
+          "name": "site_clean_ups_site_positive",
+          "value": "\"site_clean_ups\".\"region\" >= 1 AND \"site_clean_ups\".\"area\" >= 1 AND \"site_clean_ups\".\"site\" >= 1"
+        },
+        "site_clean_ups_cleaned_after_sent": {
+          "name": "site_clean_ups_cleaned_after_sent",
+          "value": "\"site_clean_ups\".\"cleaned_at\" >= \"site_clean_ups\".\"sent_at\""
+        }
+      },
+      "isRLSEnabled": false
+    },
+    "public.town_buildings": {
+      "name": "town_buildings",
+      "schema": "",
+      "columns": {
+        "town_id": {
+          "name": "town_id",
+          "type": "uuid",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "building": {
+          "name": "building",
+          "type": "town_building",
+          "typeSchema": "public",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "level": {
+          "name": "level",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true
+        }
+      },
+      "indexes": {},
+      "foreignKeys": {
+        "town_buildings_town_id_towns_id_fk": {
+          "name": "town_buildings_town_id_towns_id_fk",
+          "tableFrom": "town_buildings",
+          "tableTo": "towns",
+          "columnsFrom": [
+            "town_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "cascade",
+          "onUpdate": "no action"
+        }
+      },
+      "compositePrimaryKeys": {
+        "town_buildings_pkey": {
+          "name": "town_buildings_pkey",
+          "columns": [
+            "town_id",
+            "building"
+          ]
+        }
+      },
+      "uniqueConstraints": {},
+      "policies": {},
+      "checkConstraints": {
+        "town_buildings_level_whole": {
+          "name": "town_buildings_level_whole",
+          "value": "\"town_buildings\".\"level\" >= 0"
+        }
+      },
+      "isRLSEnabled": false
+    },
+    "public.town_events": {
+      "name": "town_events",
+      "schema": "",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "bigint",
+          "primaryKey": true,
+          "notNull": true,
+          "identity": {
+            "type": "always",
+            "name": "town_events_id_seq",
+            "schema": "public",
+            "increment": "1",
+            "startWith": "1",
+            "minValue": "1",
+            "maxValue": "9223372036854775807",
+            "cache": "1",
+            "cycle": false
+          }
+        },
+        "town_id": {
+          "name": "town_id",
+          "type": "uuid",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "kind": {
+          "name": "kind",
+          "type": "town_event_kind",
+          "typeSchema": "public",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "building": {
+          "name": "building",
+          "type": "town_building",
+          "typeSchema": "public",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "level": {
+          "name": "level",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "lesson_id": {
+          "name": "lesson_id",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "resource": {
+          "name": "resource",
+          "type": "town_resource",
+          "typeSchema": "public",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "rate_percent": {
+          "name": "rate_percent",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "hire": {
+          "name": "hire",
+          "type": "town_hire",
+          "typeSchema": "public",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "count": {
+          "name": "count",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "stopped_count": {
+          "name": "stopped_count",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "region": {
+          "name": "region",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "area": {
+          "name": "area",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "site": {
+          "name": "site",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "amount_money": {
+          "name": "amount_money",
+          "type": "double precision",
+          "primaryKey": false,
+          "notNull": true,
+          "default": 0
+        },
+        "amount_food": {
+          "name": "amount_food",
+          "type": "double precision",
+          "primaryKey": false,
+          "notNull": true,
+          "default": 0
+        },
+        "amount_power": {
+          "name": "amount_power",
+          "type": "double precision",
+          "primaryKey": false,
+          "notNull": true,
+          "default": 0
+        },
+        "amount_material": {
+          "name": "amount_material",
+          "type": "double precision",
+          "primaryKey": false,
+          "notNull": true,
+          "default": 0
+        },
+        "occurred_at": {
+          "name": "occurred_at",
+          "type": "timestamp with time zone",
+          "primaryKey": false,
+          "notNull": true
+        }
+      },
+      "indexes": {
+        "town_events_town_order": {
+          "name": "town_events_town_order",
+          "columns": [
+            {
+              "expression": "town_id",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            },
+            {
+              "expression": "occurred_at",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            },
+            {
+              "expression": "id",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            }
+          ],
+          "isUnique": false,
+          "concurrently": false,
+          "method": "btree",
+          "with": {}
+        }
+      },
+      "foreignKeys": {
+        "town_events_town_id_towns_id_fk": {
+          "name": "town_events_town_id_towns_id_fk",
+          "tableFrom": "town_events",
+          "tableTo": "towns",
+          "columnsFrom": [
+            "town_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "cascade",
+          "onUpdate": "no action"
+        }
+      },
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {},
+      "policies": {},
+      "checkConstraints": {
+        "town_events_building_terms": {
+          "name": "town_events_building_terms",
+          "value": "CASE WHEN \"town_events\".\"kind\"::text IN ('building_work_finished', 'building_work_stopped') THEN \"town_events\".\"building\" IS NOT NULL AND \"town_events\".\"level\" IS NOT NULL AND \"town_events\".\"level\" >= 1 ELSE \"town_events\".\"building\" IS NULL AND \"town_events\".\"level\" IS NULL END"
+        },
+        "town_events_site_terms": {
+          "name": "town_events_site_terms",
+          "value": "num_nonnulls(\"town_events\".\"region\", \"town_events\".\"area\", \"town_events\".\"site\") = 0 OR (num_nonnulls(\"town_events\".\"region\", \"town_events\".\"area\", \"town_events\".\"site\") = 3 AND \"town_events\".\"region\" >= 1 AND \"town_events\".\"area\" >= 1 AND \"town_events\".\"site\" >= 1)"
+        },
+        "town_events_amount_money_whole": {
+          "name": "town_events_amount_money_whole",
+          "value": "\"town_events\".\"amount_money\" >= 0 AND \"town_events\".\"amount_money\" = trunc(\"town_events\".\"amount_money\")"
+        },
+        "town_events_amount_food_whole": {
+          "name": "town_events_amount_food_whole",
+          "value": "\"town_events\".\"amount_food\" >= 0 AND \"town_events\".\"amount_food\" = trunc(\"town_events\".\"amount_food\")"
+        },
+        "town_events_amount_power_whole": {
+          "name": "town_events_amount_power_whole",
+          "value": "\"town_events\".\"amount_power\" >= 0 AND \"town_events\".\"amount_power\" = trunc(\"town_events\".\"amount_power\")"
+        },
+        "town_events_amount_material_whole": {
+          "name": "town_events_amount_material_whole",
+          "value": "\"town_events\".\"amount_material\" >= 0 AND \"town_events\".\"amount_material\" = trunc(\"town_events\".\"amount_material\")"
+        }
+      },
+      "isRLSEnabled": false
+    },
+    "public.town_hires": {
+      "name": "town_hires",
+      "schema": "",
+      "columns": {
+        "town_id": {
+          "name": "town_id",
+          "type": "uuid",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "hire": {
+          "name": "hire",
+          "type": "town_hire",
+          "typeSchema": "public",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "count": {
+          "name": "count",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true
+        }
+      },
+      "indexes": {},
+      "foreignKeys": {
+        "town_hires_town_id_towns_id_fk": {
+          "name": "town_hires_town_id_towns_id_fk",
+          "tableFrom": "town_hires",
+          "tableTo": "towns",
+          "columnsFrom": [
+            "town_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "cascade",
+          "onUpdate": "no action"
+        }
+      },
+      "compositePrimaryKeys": {
+        "town_hires_pkey": {
+          "name": "town_hires_pkey",
+          "columns": [
+            "town_id",
+            "hire"
+          ]
+        }
+      },
+      "uniqueConstraints": {},
+      "policies": {},
+      "checkConstraints": {
+        "town_hires_count_whole": {
+          "name": "town_hires_count_whole",
+          "value": "\"town_hires\".\"count\" >= 0"
+        }
+      },
+      "isRLSEnabled": false
+    },
+    "public.town_hiring_orders": {
+      "name": "town_hiring_orders",
+      "schema": "",
+      "columns": {
+        "town_id": {
+          "name": "town_id",
+          "type": "uuid",
+          "primaryKey": true,
+          "notNull": true
+        },
+        "hire": {
+          "name": "hire",
+          "type": "town_hire",
+          "typeSchema": "public",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "count": {
+          "name": "count",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "cost_money": {
+          "name": "cost_money",
+          "type": "double precision",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "cost_food": {
+          "name": "cost_food",
+          "type": "double precision",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "cost_power": {
+          "name": "cost_power",
+          "type": "double precision",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "cost_material": {
+          "name": "cost_material",
+          "type": "double precision",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "seconds_per_hire": {
+          "name": "seconds_per_hire",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "started_at": {
+          "name": "started_at",
+          "type": "timestamp with time zone",
+          "primaryKey": false,
+          "notNull": true
+        }
+      },
+      "indexes": {},
+      "foreignKeys": {
+        "town_hiring_orders_town_id_towns_id_fk": {
+          "name": "town_hiring_orders_town_id_towns_id_fk",
+          "tableFrom": "town_hiring_orders",
+          "tableTo": "towns",
+          "columnsFrom": [
+            "town_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "cascade",
+          "onUpdate": "no action"
+        }
+      },
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {},
+      "policies": {},
+      "checkConstraints": {
+        "town_hiring_orders_count_positive": {
+          "name": "town_hiring_orders_count_positive",
+          "value": "\"town_hiring_orders\".\"count\" >= 1"
+        },
+        "town_hiring_orders_seconds_per_hire_positive": {
+          "name": "town_hiring_orders_seconds_per_hire_positive",
+          "value": "\"town_hiring_orders\".\"seconds_per_hire\" >= 1"
+        },
+        "town_hiring_orders_cost_money_whole": {
+          "name": "town_hiring_orders_cost_money_whole",
+          "value": "\"town_hiring_orders\".\"cost_money\" >= 0 AND \"town_hiring_orders\".\"cost_money\" = trunc(\"town_hiring_orders\".\"cost_money\")"
+        },
+        "town_hiring_orders_cost_food_whole": {
+          "name": "town_hiring_orders_cost_food_whole",
+          "value": "\"town_hiring_orders\".\"cost_food\" >= 0 AND \"town_hiring_orders\".\"cost_food\" = trunc(\"town_hiring_orders\".\"cost_food\")"
+        },
+        "town_hiring_orders_cost_power_whole": {
+          "name": "town_hiring_orders_cost_power_whole",
+          "value": "\"town_hiring_orders\".\"cost_power\" >= 0 AND \"town_hiring_orders\".\"cost_power\" = trunc(\"town_hiring_orders\".\"cost_power\")"
+        },
+        "town_hiring_orders_cost_material_whole": {
+          "name": "town_hiring_orders_cost_material_whole",
+          "value": "\"town_hiring_orders\".\"cost_material\" >= 0 AND \"town_hiring_orders\".\"cost_material\" = trunc(\"town_hiring_orders\".\"cost_material\")"
+        }
+      },
+      "isRLSEnabled": false
+    },
+    "public.town_jobs": {
+      "name": "town_jobs",
+      "schema": "",
+      "columns": {
+        "town_id": {
+          "name": "town_id",
+          "type": "uuid",
+          "primaryKey": true,
+          "notNull": true
+        },
+        "region": {
+          "name": "region",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "area": {
+          "name": "area",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "site": {
+          "name": "site",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "worker_count": {
+          "name": "worker_count",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "truck_count": {
+          "name": "truck_count",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "hours": {
+          "name": "hours",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "sent_at": {
+          "name": "sent_at",
+          "type": "timestamp with time zone",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "one_way_seconds": {
+          "name": "one_way_seconds",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "pay_money": {
+          "name": "pay_money",
+          "type": "double precision",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "pay_food": {
+          "name": "pay_food",
+          "type": "double precision",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "pay_power": {
+          "name": "pay_power",
+          "type": "double precision",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "pay_material": {
+          "name": "pay_material",
+          "type": "double precision",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "pay_percent_money": {
+          "name": "pay_percent_money",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "pay_percent_food": {
+          "name": "pay_percent_food",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "pay_percent_power": {
+          "name": "pay_percent_power",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "pay_percent_material": {
+          "name": "pay_percent_material",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "called_back_at": {
+          "name": "called_back_at",
+          "type": "timestamp with time zone",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "waste_size": {
+          "name": "waste_size",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "waste": {
+          "name": "waste",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "strength": {
+          "name": "strength",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "has_arrived": {
+          "name": "has_arrived",
+          "type": "boolean",
+          "primaryKey": false,
+          "notNull": true,
+          "default": false
+        }
+      },
+      "indexes": {},
+      "foreignKeys": {
+        "town_jobs_town_id_towns_id_fk": {
+          "name": "town_jobs_town_id_towns_id_fk",
+          "tableFrom": "town_jobs",
+          "tableTo": "towns",
+          "columnsFrom": [
+            "town_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "cascade",
+          "onUpdate": "no action"
+        }
+      },
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {},
+      "policies": {},
+      "checkConstraints": {
+        "town_jobs_site_positive": {
+          "name": "town_jobs_site_positive",
+          "value": "\"town_jobs\".\"region\" >= 1 AND \"town_jobs\".\"area\" >= 1 AND \"town_jobs\".\"site\" >= 1"
+        },
+        "town_jobs_team_not_empty": {
+          "name": "town_jobs_team_not_empty",
+          "value": "\"town_jobs\".\"worker_count\" >= 0 AND \"town_jobs\".\"truck_count\" >= 0 AND \"town_jobs\".\"worker_count\" + \"town_jobs\".\"truck_count\" >= 1"
+        },
+        "town_jobs_clean_up_terms": {
+          "name": "town_jobs_clean_up_terms",
+          "value": "(\"town_jobs\".\"waste_size\" IS NULL AND \"town_jobs\".\"waste\" IS NULL AND \"town_jobs\".\"strength\" IS NULL AND NOT \"town_jobs\".\"has_arrived\" AND \"town_jobs\".\"hours\" >= 1) OR (\"town_jobs\".\"waste_size\" IS NOT NULL AND \"town_jobs\".\"waste\" IS NOT NULL AND \"town_jobs\".\"strength\" IS NOT NULL AND \"town_jobs\".\"waste_size\" BETWEEN 1 AND 3 AND \"town_jobs\".\"waste\" >= 0 AND \"town_jobs\".\"strength\" >= 1 AND \"town_jobs\".\"hours\" = 0 AND NOT (\"town_jobs\".\"has_arrived\" AND \"town_jobs\".\"called_back_at\" IS NOT NULL))"
+        },
+        "town_jobs_one_way_seconds_whole": {
+          "name": "town_jobs_one_way_seconds_whole",
+          "value": "\"town_jobs\".\"one_way_seconds\" >= 0"
+        },
+        "town_jobs_pay_money_whole": {
+          "name": "town_jobs_pay_money_whole",
+          "value": "\"town_jobs\".\"pay_money\" >= 0 AND \"town_jobs\".\"pay_money\" = trunc(\"town_jobs\".\"pay_money\")"
+        },
+        "town_jobs_pay_food_whole": {
+          "name": "town_jobs_pay_food_whole",
+          "value": "\"town_jobs\".\"pay_food\" >= 0 AND \"town_jobs\".\"pay_food\" = trunc(\"town_jobs\".\"pay_food\")"
+        },
+        "town_jobs_pay_power_whole": {
+          "name": "town_jobs_pay_power_whole",
+          "value": "\"town_jobs\".\"pay_power\" >= 0 AND \"town_jobs\".\"pay_power\" = trunc(\"town_jobs\".\"pay_power\")"
+        },
+        "town_jobs_pay_material_whole": {
+          "name": "town_jobs_pay_material_whole",
+          "value": "\"town_jobs\".\"pay_material\" >= 0 AND \"town_jobs\".\"pay_material\" = trunc(\"town_jobs\".\"pay_material\")"
+        },
+        "town_jobs_pay_percents_positive": {
+          "name": "town_jobs_pay_percents_positive",
+          "value": "\"town_jobs\".\"pay_percent_money\" >= 1 AND \"town_jobs\".\"pay_percent_food\" >= 1 AND \"town_jobs\".\"pay_percent_power\" >= 1 AND \"town_jobs\".\"pay_percent_material\" >= 1"
+        },
+        "town_jobs_called_back_after_sent": {
+          "name": "town_jobs_called_back_after_sent",
+          "value": "\"town_jobs\".\"called_back_at\" IS NULL OR \"town_jobs\".\"called_back_at\" >= \"town_jobs\".\"sent_at\""
+        }
+      },
+      "isRLSEnabled": false
+    },
+    "public.town_lesson_slots": {
+      "name": "town_lesson_slots",
+      "schema": "",
+      "columns": {
+        "town_id": {
+          "name": "town_id",
+          "type": "uuid",
+          "primaryKey": true,
+          "notNull": true
+        },
+        "lesson_id": {
+          "name": "lesson_id",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "started_at": {
+          "name": "started_at",
+          "type": "timestamp with time zone",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "finishes_at": {
+          "name": "finishes_at",
+          "type": "timestamp with time zone",
+          "primaryKey": false,
+          "notNull": true
+        }
+      },
+      "indexes": {},
+      "foreignKeys": {
+        "town_lesson_slots_town_id_towns_id_fk": {
+          "name": "town_lesson_slots_town_id_towns_id_fk",
+          "tableFrom": "town_lesson_slots",
+          "tableTo": "towns",
+          "columnsFrom": [
+            "town_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "cascade",
+          "onUpdate": "no action"
+        }
+      },
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {},
+      "policies": {},
+      "checkConstraints": {
+        "town_lesson_slots_started_before_finish": {
+          "name": "town_lesson_slots_started_before_finish",
+          "value": "\"town_lesson_slots\".\"started_at\" <= \"town_lesson_slots\".\"finishes_at\""
+        }
+      },
+      "isRLSEnabled": false
+    },
+    "public.town_waiting_work": {
+      "name": "town_waiting_work",
+      "schema": "",
+      "columns": {
+        "town_id": {
+          "name": "town_id",
+          "type": "uuid",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "position": {
+          "name": "position",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "building": {
+          "name": "building",
+          "type": "town_building",
+          "typeSchema": "public",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "level": {
+          "name": "level",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "cost_money": {
+          "name": "cost_money",
+          "type": "double precision",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "cost_food": {
+          "name": "cost_food",
+          "type": "double precision",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "cost_power": {
+          "name": "cost_power",
+          "type": "double precision",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "cost_material": {
+          "name": "cost_material",
+          "type": "double precision",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "duration_seconds": {
+          "name": "duration_seconds",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true
+        }
+      },
+      "indexes": {},
+      "foreignKeys": {
+        "town_waiting_work_town_id_towns_id_fk": {
+          "name": "town_waiting_work_town_id_towns_id_fk",
+          "tableFrom": "town_waiting_work",
+          "tableTo": "towns",
+          "columnsFrom": [
+            "town_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "cascade",
+          "onUpdate": "no action"
+        }
+      },
+      "compositePrimaryKeys": {
+        "town_waiting_work_pkey": {
+          "name": "town_waiting_work_pkey",
+          "columns": [
+            "town_id",
+            "position"
+          ]
+        }
+      },
+      "uniqueConstraints": {},
+      "policies": {},
+      "checkConstraints": {
+        "town_waiting_work_position_whole": {
+          "name": "town_waiting_work_position_whole",
+          "value": "\"town_waiting_work\".\"position\" >= 0"
+        },
+        "town_waiting_work_level_positive": {
+          "name": "town_waiting_work_level_positive",
+          "value": "\"town_waiting_work\".\"level\" >= 1"
+        },
+        "town_waiting_work_duration_whole": {
+          "name": "town_waiting_work_duration_whole",
+          "value": "\"town_waiting_work\".\"duration_seconds\" >= 0"
+        },
+        "town_waiting_work_cost_money_whole": {
+          "name": "town_waiting_work_cost_money_whole",
+          "value": "\"town_waiting_work\".\"cost_money\" >= 0 AND \"town_waiting_work\".\"cost_money\" = trunc(\"town_waiting_work\".\"cost_money\")"
+        },
+        "town_waiting_work_cost_food_whole": {
+          "name": "town_waiting_work_cost_food_whole",
+          "value": "\"town_waiting_work\".\"cost_food\" >= 0 AND \"town_waiting_work\".\"cost_food\" = trunc(\"town_waiting_work\".\"cost_food\")"
+        },
+        "town_waiting_work_cost_power_whole": {
+          "name": "town_waiting_work_cost_power_whole",
+          "value": "\"town_waiting_work\".\"cost_power\" >= 0 AND \"town_waiting_work\".\"cost_power\" = trunc(\"town_waiting_work\".\"cost_power\")"
+        },
+        "town_waiting_work_cost_material_whole": {
+          "name": "town_waiting_work_cost_material_whole",
+          "value": "\"town_waiting_work\".\"cost_material\" >= 0 AND \"town_waiting_work\".\"cost_material\" = trunc(\"town_waiting_work\".\"cost_material\")"
+        }
+      },
+      "isRLSEnabled": false
+    },
+    "public.towns": {
+      "name": "towns",
+      "schema": "",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "uuid",
+          "primaryKey": true,
+          "notNull": true
+        },
+        "player_id": {
+          "name": "player_id",
+          "type": "uuid",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "region": {
+          "name": "region",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "area": {
+          "name": "area",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "site": {
+          "name": "site",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "name": {
+          "name": "name",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "money": {
+          "name": "money",
+          "type": "double precision",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "food": {
+          "name": "food",
+          "type": "double precision",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "power": {
+          "name": "power",
+          "type": "double precision",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "material": {
+          "name": "material",
+          "type": "double precision",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "stored_at": {
+          "name": "stored_at",
+          "type": "timestamp with time zone",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "full_since_money": {
+          "name": "full_since_money",
+          "type": "timestamp with time zone",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "full_since_food": {
+          "name": "full_since_food",
+          "type": "timestamp with time zone",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "full_since_power": {
+          "name": "full_since_power",
+          "type": "timestamp with time zone",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "full_since_material": {
+          "name": "full_since_material",
+          "type": "timestamp with time zone",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "work_building": {
+          "name": "work_building",
+          "type": "town_building",
+          "typeSchema": "public",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "work_level": {
+          "name": "work_level",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "work_started_at": {
+          "name": "work_started_at",
+          "type": "timestamp with time zone",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "work_finishes_at": {
+          "name": "work_finishes_at",
+          "type": "timestamp with time zone",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "work_cost_money": {
+          "name": "work_cost_money",
+          "type": "double precision",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "work_cost_food": {
+          "name": "work_cost_food",
+          "type": "double precision",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "work_cost_power": {
+          "name": "work_cost_power",
+          "type": "double precision",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "work_cost_material": {
+          "name": "work_cost_material",
+          "type": "double precision",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "guidance_dismissed_at": {
+          "name": "guidance_dismissed_at",
+          "type": "timestamp with time zone",
+          "primaryKey": false,
+          "notNull": false
+        }
+      },
+      "indexes": {},
+      "foreignKeys": {
+        "towns_player_id_players_id_fk": {
+          "name": "towns_player_id_players_id_fk",
+          "tableFrom": "towns",
+          "tableTo": "players",
+          "columnsFrom": [
+            "player_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "cascade",
+          "onUpdate": "no action"
+        }
+      },
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {
+        "towns_player_unique": {
+          "name": "towns_player_unique",
+          "nullsNotDistinct": false,
+          "columns": [
+            "player_id"
+          ]
+        },
+        "towns_site_unique": {
+          "name": "towns_site_unique",
+          "nullsNotDistinct": false,
+          "columns": [
+            "region",
+            "area",
+            "site"
+          ]
+        }
+      },
+      "policies": {},
+      "checkConstraints": {
+        "towns_work_slot_terms": {
+          "name": "towns_work_slot_terms",
+          "value": "num_nonnulls(\"towns\".\"work_building\", \"towns\".\"work_level\", \"towns\".\"work_started_at\", \"towns\".\"work_finishes_at\", \"towns\".\"work_cost_money\", \"towns\".\"work_cost_food\", \"towns\".\"work_cost_power\", \"towns\".\"work_cost_material\") = 0 OR (num_nonnulls(\"towns\".\"work_building\", \"towns\".\"work_level\", \"towns\".\"work_started_at\", \"towns\".\"work_finishes_at\", \"towns\".\"work_cost_money\", \"towns\".\"work_cost_food\", \"towns\".\"work_cost_power\", \"towns\".\"work_cost_material\") = 8 AND \"towns\".\"work_level\" >= 1 AND \"towns\".\"work_started_at\" <= \"towns\".\"work_finishes_at\" AND \"towns\".\"work_cost_money\" >= 0 AND \"towns\".\"work_cost_money\" = trunc(\"towns\".\"work_cost_money\") AND \"towns\".\"work_cost_food\" >= 0 AND \"towns\".\"work_cost_food\" = trunc(\"towns\".\"work_cost_food\") AND \"towns\".\"work_cost_power\" >= 0 AND \"towns\".\"work_cost_power\" = trunc(\"towns\".\"work_cost_power\") AND \"towns\".\"work_cost_material\" >= 0 AND \"towns\".\"work_cost_material\" = trunc(\"towns\".\"work_cost_material\"))"
+        },
+        "towns_address_positive": {
+          "name": "towns_address_positive",
+          "value": "\"towns\".\"region\" >= 1 AND \"towns\".\"area\" >= 1 AND \"towns\".\"site\" >= 1"
+        },
+        "towns_money_whole": {
+          "name": "towns_money_whole",
+          "value": "\"towns\".\"money\" >= 0 AND \"towns\".\"money\" = trunc(\"towns\".\"money\")"
+        },
+        "towns_food_whole": {
+          "name": "towns_food_whole",
+          "value": "\"towns\".\"food\" >= 0 AND \"towns\".\"food\" = trunc(\"towns\".\"food\")"
+        },
+        "towns_power_whole": {
+          "name": "towns_power_whole",
+          "value": "\"towns\".\"power\" >= 0 AND \"towns\".\"power\" = trunc(\"towns\".\"power\")"
+        },
+        "towns_material_whole": {
+          "name": "towns_material_whole",
+          "value": "\"towns\".\"material\" >= 0 AND \"towns\".\"material\" = trunc(\"towns\".\"material\")"
+        }
+      },
+      "isRLSEnabled": false
+    }
+  },
+  "enums": {
+    "public.account_token_kind": {
+      "name": "account_token_kind",
+      "schema": "public",
+      "values": [
+        "reset",
+        "verify"
+      ]
+    },
+    "public.memory_rating": {
+      "name": "memory_rating",
+      "schema": "public",
+      "values": [
+        "again",
+        "hard",
+        "good",
+        "easy"
+      ]
+    },
+    "public.memory_state": {
+      "name": "memory_state",
+      "schema": "public",
+      "values": [
+        "learning",
+        "review",
+        "relearning"
+      ]
+    },
+    "public.placement_kind": {
+      "name": "placement_kind",
+      "schema": "public",
+      "values": [
+        "taken",
+        "skipped"
+      ]
+    },
+    "public.review_format": {
+      "name": "review_format",
+      "schema": "public",
+      "values": [
+        "recognition",
+        "recall"
+      ]
+    },
+    "public.town_building": {
+      "name": "town_building",
+      "schema": "public",
+      "values": [
+        "homes",
+        "farm",
+        "factory",
+        "power_station",
+        "storage",
+        "school",
+        "office"
+      ]
+    },
+    "public.town_event_kind": {
+      "name": "town_event_kind",
+      "schema": "public",
+      "values": [
+        "building_work_finished",
+        "building_work_stopped",
+        "lesson_studied",
+        "lesson_stopped",
+        "skill_earned",
+        "hiring_delivered",
+        "hiring_stopped",
+        "job_back",
+        "job_called_back",
+        "clean_up_done",
+        "clean_up_failed",
+        "became_city"
+      ]
+    },
+    "public.town_hire": {
+      "name": "town_hire",
+      "schema": "public",
+      "values": [
+        "worker",
+        "truck"
+      ]
+    },
+    "public.town_resource": {
+      "name": "town_resource",
+      "schema": "public",
+      "values": [
+        "money",
+        "food",
+        "power",
+        "material"
+      ]
+    },
+    "public.town_tip": {
+      "name": "town_tip",
+      "schema": "public",
+      "values": [
+        "people",
+        "seasons",
+        "waiting_list",
+        "office",
+        "jobs",
+        "full_store"
+      ]
+    }
+  },
+  "schemas": {},
+  "sequences": {},
+  "roles": {},
+  "policies": {},
+  "views": {},
+  "_meta": {
+    "columns": {},
+    "schemas": {},
+    "tables": {}
+  }
+}

@@ -172,6 +172,68 @@ describe('JsonLessonCatalog', () => {
     expect(catalog.wordsOfBand(1).map(({ headword }) => headword)).not.toContain('the')
   })
 
+  it("offers as band 1's placement words the lexicon's band 1 entries", () => {
+    const catalog = JsonLessonCatalog.fromDirectory(shippedContent)
+
+    expect(catalog.placementWordsOf(1)).toContainEqual({
+      id: 'lesson-1-1',
+      word: 'home',
+      gloss: 'hogar',
+      isChrome: true,
+    })
+  })
+
+  it('marks every word of a band lesson as a placement word outside the chrome', () => {
+    const catalog = JsonLessonCatalog.fromDirectory(shippedContent)
+    const bandLessonWordIds = catalog
+      .lessons()
+      .slice(16)
+      .flatMap(({ words }) => words.map(({ id }) => id))
+
+    expect(
+      catalog
+        .placementWordsOf(1)
+        .filter(({ isChrome }) => !isChrome)
+        .map(({ id }) => id),
+    ).toEqual(expect.arrayContaining(bandLessonWordIds))
+  })
+
+  it('offers no off-list word for placement', () => {
+    const directory = contentCopy()
+    const lexicon = JSON.parse(readFileSync(lessonsFile(directory, 'words.json'), 'utf8'))
+    const offList = {
+      id: 'off-list-word',
+      lemma: 'upgrade',
+      partOfSpeech: 'noun',
+      frame: 'The upgrade is done.',
+      gappedFrame: 'The ____ is done.',
+      gloss: { es: 'mejora' },
+      isOffList: true,
+    }
+    writeJson(directory, 'words.json', [...lexicon, offList])
+    const catalog = JsonLessonCatalog.fromDirectory(directory)
+    const offered = [1, 2, 3].flatMap((band) => catalog.placementWordsOf(band))
+
+    expect(offered.map(({ id }) => id)).not.toContain('off-list-word')
+  })
+
+  it('offers no lexicon entry without an es gloss for placement', () => {
+    const directory = contentCopy()
+    const lexicon = JSON.parse(readFileSync(lessonsFile(directory, 'words.json'), 'utf8'))
+    const untaught = {
+      id: 'untaught-word',
+      lemma: 'say',
+      partOfSpeech: 'verb',
+      frame: 'I say it.',
+      gappedFrame: 'I ____ it.',
+      gloss: {},
+    }
+    writeJson(directory, 'words.json', [...lexicon, untaught])
+    const catalog = JsonLessonCatalog.fromDirectory(directory)
+
+    expect(catalog.placementWordsOf(1).map(({ id }) => id)).not.toContain('untaught-word')
+  })
+
   it('reads lesson 1 as the lessons table of the setting writes it, row for row', () => {
     const lesson = JsonLessonCatalog.fromDirectory(shippedContent).lessonOf('lesson-1')
 

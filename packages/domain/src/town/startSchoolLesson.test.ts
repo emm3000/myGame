@@ -1,15 +1,16 @@
 import { assert, describe, expect, it } from 'vitest'
 import type { Lesson } from '../learning/Lesson'
 import { MemoryCard } from '../memory/MemoryCard'
+import type { Placement } from '../placement/Placement'
 import type { Clock } from '../ports/Clock'
 import type { RandomSource } from '../ports/RandomSource'
-import { ok } from '../Result'
 import { firstItemsRandom } from '../testing/firstItemsRandom'
 import { inMemoryBandStarts, type OwnedBandStart } from '../testing/inMemoryBandStarts'
 import { inMemoryBands } from '../testing/inMemoryBands'
 import { inMemoryCards, type OwnedCard } from '../testing/inMemoryCards'
 import { inMemoryLessonSlots } from '../testing/inMemoryLessonSlots'
 import { inMemoryLessons } from '../testing/inMemoryLessons'
+import { inMemoryPlacements } from '../testing/inMemoryPlacements'
 import { inMemoryTownNews } from '../testing/inMemoryTownNews'
 import { inMemoryTowns } from '../testing/inMemoryTowns'
 import { lessonOne } from '../testing/lessonOne'
@@ -102,6 +103,13 @@ const bandsOf = inMemoryBands([
   },
 ])
 
+const placementPassing = (bands: ReadonlyArray<number>): Placement => ({
+  kind: 'taken',
+  begunAt: hoursAfterEpoch(1),
+  samples: [],
+  scores: bands.map((band) => ({ band, score: 29, takenAt: hoursAfterEpoch(1) })),
+})
+
 type Setup = {
   readonly bandStarts?: ReadonlyArray<OwnedBandStart>
   readonly placedOut?: ReadonlyArray<number>
@@ -132,7 +140,11 @@ const schoolOf = ({
     lessons: inMemoryLessons([lessonOne, lessonTwo, bandLesson, bandLessonTwo], []),
     bandStarts: inMemoryBandStarts(bandStarts),
     bands: bandsOf,
-    placedOutBands: { placedOutBandsOf: async () => ok(placedOut) },
+    placements: inMemoryPlacements(
+      placedOut.length === 0
+        ? []
+        : [{ playerId: 'player-1', placement: placementPassing(placedOut) }],
+    ),
     random,
     news: inMemoryTownNews(),
     catalog,

@@ -29,6 +29,26 @@ export type { MemoryRating } from './memory/MemoryRating'
 export { defaultMemoryTerms, type FsrsParameters, type MemoryTerms } from './memory/MemoryTerms'
 export { retrievabilityOf } from './memory/retrievabilityOf'
 export { reviewMemoryCard } from './memory/reviewMemoryCard'
+export {
+  type AnswerPlacementCommand,
+  type AnswerPlacementDependencies,
+  answerPlacement,
+  type PlacementAnswer,
+} from './placement/answerPlacement'
+export { type BeginPlacementDependencies, beginPlacement } from './placement/beginPlacement'
+export type {
+  Placement,
+  PlacementSample,
+  PlacementScore,
+  SkippedPlacement,
+  TakenPlacement,
+} from './placement/Placement'
+export type { PlacementItem, PlacementView } from './placement/PlacementView'
+export type { PlacementWord } from './placement/PlacementWord'
+export { placedOutBandsOf } from './placement/placedOutBandsOf'
+export { placementScoresOf } from './placement/placementScoresOf'
+export { readPlacement } from './placement/readPlacement'
+export { type SkipPlacementDependencies, skipPlacement } from './placement/skipPlacement'
 export type { PlayerId } from './player/PlayerId'
 export type { BandCatalog } from './ports/BandCatalog'
 export type { BandStartRepository } from './ports/BandStartRepository'
@@ -37,7 +57,8 @@ export type { Clock } from './ports/Clock'
 export type { IdGenerator } from './ports/IdGenerator'
 export type { LessonCatalog } from './ports/LessonCatalog'
 export type { PendingReviewRepository } from './ports/PendingReviewRepository'
-export type { PlacedOutBands } from './ports/PlacedOutBands'
+export type { PlacementRepository } from './ports/PlacementRepository'
+export type { PlacementWordCatalog } from './ports/PlacementWordCatalog'
 export type { RandomSource } from './ports/RandomSource'
 export type { ReviewLog } from './ports/ReviewLog'
 export { err, ok, type Result } from './Result'
