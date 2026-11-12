@@ -2,6 +2,13 @@
 <resources>
     <string name="map_area">Zona {area}</string>
     <string name="map_back_to_own_area">Volver a tu zona</string>
+    <string name="map_clean_up_out_done">Tu equipo limpió los residuos.</string>
+    <string name="map_clean_up_out_failed">Tu equipo no pudo limpiar los residuos.</string>
+    <string name="map_clean_up_out_title">Limpieza</string>
+    <string name="map_clean_up_pay">Limpiar los residuos paga {amounts}</string>
+    <string name="map_clean_up_short">Tu equipo no puede limpiar estos residuos. Volverá sin pago.</string>
+    <string name="map_clean_up_strength">Tu equipo: {strength}</string>
+    <string name="map_clean_up_title">Limpiar los residuos del sitio {site}</string>
     <string name="map_duration_hours">{hours} h</string>
     <string name="map_duration_hours_minutes">{hours} h {minutes} min</string>
     <string name="map_duration_minutes">{minutes} min</string>
@@ -39,6 +46,8 @@
     <string name="map_refusal_job_not_found">Este trabajo ya terminó.</string>
     <string name="map_refusal_job_site_out_of_bounds">Ese sitio no está en el mapa.</string>
     <string name="map_refusal_job_to_own_site">Ese sitio es tu pueblo. Elige otro sitio.</string>
+    <string name="map_refusal_no_waste_yet">Ese sitio está limpio por ahora. Vuelve más tarde.</string>
+    <string name="map_refusal_not_a_waste_site">Ese sitio no tiene residuos. Elige un sitio con residuos.</string>
     <string name="map_refusal_not_enough_hires_at_home">{hire, select, worker {{count, plural, =1 {El equipo necesita 1 trabajador} other {El equipo necesita {count, number,0} trabajadores}} y tienes {atHome} en casa.} truck {{count, plural, =1 {El equipo necesita 1 camión} other {El equipo necesita {count, number,0} camiones}} y tienes {atHome} en casa.} other {{count, plural, =1 {El equipo necesita 1 camión} other {El equipo necesita {count, number,0} camiones}} y tienes {atHome} en casa.}}</string>
     <string name="map_refusal_site_held">En ese sitio hay otro pueblo. Elige un sitio libre.</string>
     <string name="map_refusal_team_already_out">Tu equipo ya está fuera. Espera a que vuelva.</string>
@@ -57,4 +66,7 @@
     <string name="map_title">Mapa</string>
     <string name="map_try_again">Volver a intentarlo</string>
     <string name="map_waiting">Esperando</string>
+    <string name="map_waste">Residuos: {waste}</string>
+    <string name="map_waste_site">Sitio con residuos</string>
+    <string name="map_waste_size">Tamaño {size}</string>
 </resources>
