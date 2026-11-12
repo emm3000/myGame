@@ -137,8 +137,8 @@ slice (Decision 1), recorded by ADR 029.
   alone already.
 - **A store's fill instant is answered, shown within 8 h, and stored
   once reached** (Decision 7, the owner's answer on full since; #465,
-  #467, PRs #479 and #481). `deriveFullAt(fief, catalog)` in
-  `packages/domain/src/fief/deriveFullAt.ts` answers per resource the
+  #467, PRs #479 and #481). `deriveFullAt(town, catalog)` in
+  `packages/domain/src/town/deriveFullAt.ts` answers per resource the
   instant the stock reaches the warehouse capacity from the fief as
   stored, walking the season segments `materializeStocks` walks and
   flooring at each boundary: the crossing instant inside its segment,
@@ -146,7 +146,7 @@ slice (Decision 1), recorded by ADR 029.
   above the capacity the stored `fullSince`, or `storedAt` when none is
   stored, as for a store full since before migration 0028. The overview
   answers it as
-  `resources.<kind>.fullAt`. A cell whose `fullAt` falls within 8 h of
+  `stocks.<kind>.fullAt`. A cell whose `fullAt` falls within 8 h of
   `readAt` reads *lleno 19:00*, or *lleno mañana 03:00*, in place of its
   rate, the 8 h a web constant in `FiefStatus`; a full store reads
   *lleno* in rust, as shipped before. `Fief.fullSince` (`FullSince`, an
@@ -595,3 +595,14 @@ ADR 035 replaces the digest with **the Report**: the reviews due first, then the
 ## Amendment (2026-11-12)
 
 A blocked card action still sends (#981, `.claude/rules/android-architecture.md`, The client never decides). `CardAction`'s `blocked` keeps the dashed look, the tab order and its reason as the description, but its `Button` is `marked`: it carries no `aria-disabled`, since it still acts, and the api's answer is drawn inline. Only an entry that builds no request (`invalidEntry`) and a max-level button keep `blocked`, with `aria-disabled` and the press swallowed. S22 reads "announced with its reason".
+
+## Amendment (2026-11-12, town names)
+
+The cutover deleted the fief code Decision 7 names. Each name below maps to its town successor on trunk; the decision itself stands.
+
+- `fief/deriveFullAt` is `deriveFullAt(town, catalog)` in `packages/domain/src/town/deriveFullAt.ts`.
+- `resources.<kind>.fullAt` is `stocks.<kind>.fullAt` on the town overview (`StockSchema` in `packages/contracts/src/TownOverview.ts`).
+- `materializeStocks` has no single successor: the season walk is `storesAfterSeasonSegment` in `packages/domain/src/town/storesAfterSeasonSegment.ts`, which `deriveFullAt` and `accrueTown` share.
+- `Fief.accruedTo` has no successor: `accrueTown(town, catalog, at)` in `packages/domain/src/town/accrueTown.ts` is the accrual step, and `Town` stores `storedAt`.
+- `rebaseFullSince` keeps its name in `packages/domain/src/town/rebaseFullSince.ts`; `Town.fullSince` is stored in the `full_since_<resource>` columns of the `towns` table.
+- `FiefStatus` has no successor on trunk: `apps/web/src/town/TownStocks.tsx` and Android's `StocksSection.kt` draw the stocks, and neither reads `fullAt` yet (the web halves are #1026 and #1027).
