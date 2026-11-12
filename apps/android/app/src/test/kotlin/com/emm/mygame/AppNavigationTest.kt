@@ -43,6 +43,8 @@ import com.emm.mygame.core.network.SignedInPlayer
 import com.emm.mygame.core.network.Terrain
 import com.emm.mygame.core.network.TownBuildingKind
 import com.emm.mygame.core.network.TownLabel
+import com.emm.mygame.core.network.TownNews
+import com.emm.mygame.core.network.TownNewsReadResult
 import com.emm.mygame.core.network.TownReadResult
 import com.emm.mygame.core.network.TownReport
 import com.emm.mygame.core.network.TownRepository
@@ -408,6 +410,19 @@ class AppNavigationTest {
         openReport(TownReport(dueCount = 3, readFirst = emptyList(), nextDueAt = null, news = emptyList()))
 
         composeRule.onNodeWithText("Repasos pendientes: 3").assertIsDisplayed()
+    }
+
+    @Test
+    fun `opens the news from its row on the Report`() {
+        signedInAtTown()
+        openReport(TownReport(dueCount = 0, readFirst = emptyList(), nextDueAt = null, news = emptyList()))
+        reportsFake.answerNews(
+            TownNewsReadResult.Read(listOf(TownNews.BuildingWorkFinished(readAt, TownBuildingKind.Homes, level = 2))),
+        )
+
+        composeRule.onNodeWithText("Leer todas las noticias").performScrollTo().performClick()
+
+        waitForLine("Hogares: ahora en nivel 2.")
     }
 
     @Test

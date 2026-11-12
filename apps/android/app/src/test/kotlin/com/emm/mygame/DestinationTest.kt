@@ -13,6 +13,7 @@ class DestinationTest {
             Destination.Town,
             Destination.School,
             Destination.Report,
+            Destination.News,
             Destination.Map,
             Destination.Review,
             Destination.LessonWords(LessonId("lesson-2"), walked = listOf(LessonId("lesson-1"))),

@@ -2,6 +2,7 @@ package com.emm.mygame.core.network
 
 import com.emm.mygame.core.network.generated.apis.DefaultApi
 import com.emm.mygame.core.network.generated.models.Report
+import com.emm.mygame.core.network.generated.models.TownNewsFeed
 import java.io.IOException
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.withContext
@@ -29,6 +30,21 @@ internal class ApiReportRepository(
         } catch (expectedOutage: IOException) {
             ReportCloseResult.Unreachable
         }
+    }
+
+    override suspend fun news(): TownNewsReadResult = withContext(ioDispatcher) {
+        try {
+            newsOrUnreachable(api.townNewsGet())
+        } catch (expectedOutage: IOException) {
+            TownNewsReadResult.Unreachable
+        } catch (expectedMalformedBody: SerializationException) {
+            TownNewsReadResult.Unreachable
+        }
+    }
+
+    private fun newsOrUnreachable(response: Response<TownNewsFeed>): TownNewsReadResult {
+        val feed: TownNewsFeed = response.body() ?: return TownNewsReadResult.Unreachable
+        return TownNewsReadResult.Read(feed.toTownNews())
     }
 
     private fun readOrUnreachable(response: Response<Report>): ReportReadResult {

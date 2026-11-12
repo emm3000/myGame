@@ -47,6 +47,7 @@ fun ReportRoute(
         onIntent = viewModel::onIntent,
         onReviewsOpen = navigation.onReviewsOpen,
         onLessonOpen = navigation.onLessonOpen,
+        onNewsOpen = navigation.onNewsOpen,
         modifier = modifier,
     )
 }

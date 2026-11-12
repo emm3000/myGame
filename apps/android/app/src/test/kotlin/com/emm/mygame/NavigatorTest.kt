@@ -302,6 +302,53 @@ class NavigatorTest {
     }
 
     @Test
+    fun `opens the news above the Report`() {
+        val backStack: MutableList<NavKey> = mutableListOf(Destination.Town, Destination.Report)
+
+        Navigator(backStack).openNews()
+
+        assertEquals(listOf(Destination.Town, Destination.Report, Destination.News), backStack)
+    }
+
+    @Test
+    fun `returns to the Report on back from the news`() {
+        val backStack: MutableList<NavKey> = mutableListOf(Destination.Town, Destination.Report, Destination.News)
+
+        Navigator(backStack).back()
+
+        assertEquals(listOf(Destination.Town, Destination.Report), backStack)
+    }
+
+    @Test
+    fun `returns to the town on its tab from the news`() {
+        val backStack: MutableList<NavKey> = mutableListOf(Destination.Town, Destination.Report, Destination.News)
+
+        Navigator(backStack).openTown()
+
+        assertEquals(listOf<NavKey>(Destination.Town), backStack)
+    }
+
+    @Test
+    fun `opens the news from the Report only`() {
+        val backStack: MutableList<NavKey> = mutableListOf(Destination.Town)
+
+        Navigator(backStack).openNews()
+
+        assertEquals(listOf<NavKey>(Destination.Town), backStack)
+    }
+
+    @Test
+    fun `opens no news while signing out`() {
+        val backStack: MutableList<NavKey> = mutableListOf(Destination.Town, Destination.Report)
+        val navigator: Navigator = Navigator(backStack)
+        navigator.signingOut()
+
+        navigator.openNews()
+
+        assertEquals(listOf(Destination.Town, Destination.Report), backStack)
+    }
+
+    @Test
     fun `opens the map above the town`() {
         val backStack: MutableList<NavKey> = mutableListOf(Destination.Town)
 

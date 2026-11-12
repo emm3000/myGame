@@ -54,6 +54,8 @@ class ReportScreenTest {
 
     private val lessonOpens: MutableList<LessonId> = mutableListOf()
 
+    private var newsOpens: Int = 0
+
     private val unreadFarm: ReportUiState.ReportNews =
         ReportUiState.ReportNews.Unread(listOf(finishedFarm), ReportUiState.CloseRequest.Idle)
 
@@ -65,6 +67,7 @@ class ReportScreenTest {
                     onIntent = { intents += it },
                     onReviewsOpen = { reviewOpens += 1 },
                     onLessonOpen = { lesson: LessonId -> lessonOpens += lesson },
+                    onNewsOpen = { newsOpens += 1 },
                 )
             }
         }
@@ -198,6 +201,22 @@ class ReportScreenTest {
         show(contentWith(dueCount = 0, news = unreadFarm))
 
         assertTrue(topOf("No tienes repasos pendientes ahora.") < topOf("NOTICIAS DEL PUEBLO"))
+    }
+
+    @Test
+    fun `opens the news from its row on the Report`() {
+        show(contentWith(news = unreadFarm))
+
+        composeRule.onNodeWithText("Leer todas las noticias").performScrollTo().performClick()
+
+        assertEquals(1, newsOpens)
+    }
+
+    @Test
+    fun `offers the news row with no news unread`() {
+        show(contentWith(news = ReportUiState.ReportNews.Closed))
+
+        composeRule.onNodeWithText("Leer todas las noticias").performScrollTo().assertIsDisplayed()
     }
 
     @Test

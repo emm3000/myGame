@@ -7,6 +7,8 @@ interface ReportRepository {
     suspend fun read(): ReportReadResult
 
     suspend fun close(): ReportCloseResult
+
+    suspend fun news(): TownNewsReadResult
 }
 
 fun ReportRepository(

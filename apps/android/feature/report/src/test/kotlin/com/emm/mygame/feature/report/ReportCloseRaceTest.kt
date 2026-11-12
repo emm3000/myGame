@@ -4,6 +4,7 @@ import androidx.lifecycle.viewModelScope
 import com.emm.mygame.core.network.ReportCloseResult
 import com.emm.mygame.core.network.ReportReadResult
 import com.emm.mygame.core.network.ReportRepository
+import com.emm.mygame.core.network.TownNewsReadResult
 import com.emm.mygame.core.testing.FakeSessionRepository
 import com.emm.mygame.core.testing.MainDispatcherRule
 import com.emm.mygame.core.testing.TestClock
@@ -80,5 +81,7 @@ class ReportCloseRaceTest {
         }
 
         override suspend fun close(): ReportCloseResult = ReportCloseResult.Closed
+
+        override suspend fun news(): TownNewsReadResult = TownNewsReadResult.Read(emptyList())
     }
 }
