@@ -9,8 +9,9 @@ import {
 } from '@mygame/catalog'
 import { type ResourceKind, ResourceKindSchema, type TownOverview } from '@mygame/contracts'
 import { skillLevelOf } from '@mygame/domain'
-import { type ReactElement, useId } from 'react'
+import { type ReactElement, type Ref, useId } from 'react'
 import { capitalize } from '../design-system/capitalize'
+import { focusTargetClass } from '../design-system/focusTargetClass'
 import { formatQuantity } from '../design-system/formatQuantity'
 import { resourceAccent } from '../design-system/resourceAccent'
 import { SeasonLine } from '../design-system/SeasonLine'
@@ -87,7 +88,12 @@ function TownSeason({ town }: { readonly town: LiveTown }): ReactElement | null 
   )
 }
 
-export function TownStocks({ town }: { readonly town: LiveTown }): ReactElement {
+export interface TownStocksProps {
+  readonly town: LiveTown
+  readonly titleRef: Ref<HTMLHeadingElement>
+}
+
+export function TownStocks({ town, titleRef }: TownStocksProps): ReactElement {
   const { overview, stocks } = town
   const titleId = useId()
   const Icon = resourceAccent.people
@@ -96,7 +102,12 @@ export function TownStocks({ town }: { readonly town: LiveTown }): ReactElement 
       aria-labelledby={titleId}
       className="flex flex-col gap-3 rounded-md border border-line bg-surface-raised p-5"
     >
-      <h3 id={titleId} className="m-0 font-sans text-heading text-ink">
+      <h3
+        id={titleId}
+        ref={titleRef}
+        tabIndex={-1}
+        className={`m-0 font-sans text-heading text-ink ${focusTargetClass}`}
+      >
         {townStocks()}
       </h3>
       <ul

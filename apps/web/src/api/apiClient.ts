@@ -9,6 +9,7 @@ import {
   type FoundTown,
   type JobQuote,
   JobQuoteSchema,
+  type MarkTipSeen,
   type PlaceHiringOrder,
   type BuildingKind as PlaceKind,
   type Player,
@@ -33,6 +34,7 @@ import {
   type StartLessonRequest,
   type StopBuildingWork,
   type StopHiringOrder,
+  type TipKind,
   type TownNewsFeed,
   TownNewsFeedSchema,
   type TownOverview,
@@ -72,6 +74,8 @@ export interface ApiClient {
   answerReview(answer: AnsweredReview): Promise<ApiOutcome<ReviewAnswer>>
   report(): Promise<ApiOutcome<Report>>
   closeReport(): Promise<ApiRefusal | undefined>
+  markTipSeen(tip: TipKind): Promise<ApiRefusal | undefined>
+  dismissGuidance(): Promise<ApiRefusal | undefined>
   verifyEmail(token: string): Promise<ApiRefusal | undefined>
   resendVerification(): Promise<ApiRefusal | undefined>
   forgotPassword(email: string): Promise<ApiRefusal | undefined>
@@ -239,6 +243,12 @@ export const createApiClient = (baseUrl: string): ApiClient => {
       return response === undefined ? unexpected : bodyOf(response, ReportSchema)
     },
     closeReport: async () => refusalOrNothing(await send('/report/close', { method: 'POST' })),
+    markTipSeen: async (tip) => {
+      const request: MarkTipSeen = { tip }
+      return refusalOrNothing(await send(`/town/tips/${request.tip}`, { method: 'POST' }))
+    },
+    dismissGuidance: async () =>
+      refusalOrNothing(await send('/town/guidance/dismissal', { method: 'POST' })),
     verifyEmail: async (token) => {
       const request: VerifyEmailRequest = { token }
       return refusalOrNothing(await postJson('/auth/verify-email', request))

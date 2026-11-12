@@ -123,6 +123,8 @@ export const stubApiClient = (overrides: Partial<ApiClient> = {}): ApiClient => 
     value: { dueCount: 0, due: [], readFirst: [], nextDueAt: null, news: [] },
   }),
   closeReport: async () => undefined,
+  markTipSeen: async () => undefined,
+  dismissGuidance: async () => undefined,
   verifyEmail: async () => undefined,
   resendVerification: async () => undefined,
   forgotPassword: async () => undefined,

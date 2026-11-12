@@ -12,6 +12,7 @@ import { TownReadFailed } from '../../town/TownReadFailed'
 import { useFoundTown } from '../../town/useFoundTown'
 import { useLayoutTown } from '../../town/useLayoutTown'
 import type { TownHandle } from '../../town/useTown'
+import { useTownGuidance } from '../../town/useTownGuidance'
 import { useTownHiring } from '../../town/useTownHiring'
 import { useTownWork } from '../../town/useTownWork'
 
@@ -39,16 +40,21 @@ function TownHomePage({
   apiClient,
   town,
   registered,
+  readSequence,
   adopt,
 }: {
   readonly apiClient: ApiClient
   readonly town: LiveTown
   readonly registered: Registered
+  readonly readSequence: number
   readonly adopt: TownHandle['adopt']
 }): ReactElement {
   const work = useTownWork(apiClient, adopt, town.overview.readAt)
   const hiring = useTownHiring(apiClient, adopt, town.overview.readAt)
-  return <TownHome town={town} registered={registered} work={work} hiring={hiring} />
+  const guidance = useTownGuidance(apiClient, town.overview, readSequence)
+  return (
+    <TownHome town={town} registered={registered} work={work} hiring={hiring} guidance={guidance} />
+  )
 }
 
 const townSkeletonGroups: LoadingSkeletonProps['groups'] = [
@@ -86,6 +92,7 @@ function TownAnswer({
           apiClient={apiClient}
           town={town.state.town}
           registered={town.state.registered}
+          readSequence={town.state.readSequence}
           adopt={town.adopt}
         />
       )
