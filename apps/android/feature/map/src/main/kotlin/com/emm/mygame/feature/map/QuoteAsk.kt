@@ -48,7 +48,7 @@ internal fun cleanUpQuoteOf(result: CleanUpQuoteResult): QuoteAnswer = QuoteAnsw
             strength = result.strength,
             waste = result.waste,
             pay = payLinesOf(result.pay),
-            isShort = result.strength < result.waste,
+            isShort = !result.covers,
         )
         is CleanUpQuoteResult.Refused -> MapUiState.CleanUpQuote.Refused(result.refusal)
         CleanUpQuoteResult.Unreachable -> MapUiState.CleanUpQuote.Unreachable

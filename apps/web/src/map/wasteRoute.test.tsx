@@ -1,4 +1,4 @@
-import { refusalNoWasteYet, refusalTeamAlreadyOut } from '@mygame/catalog'
+import { mapCleanUpShort, refusalNoWasteYet, refusalTeamAlreadyOut } from '@mygame/catalog'
 import type { CleanUpQuote, RegionMap, SendCleanUp, TownOverview } from '@mygame/contracts'
 import { act, fireEvent, screen, within } from '@testing-library/react'
 import { afterEach, beforeEach, expect, it, vi } from 'vitest'
@@ -48,10 +48,11 @@ const teamAtHome: TownOverview = {
 
 const noPay = { money: 0, food: 0, power: 0, material: 0 }
 
-const quoteOf = (strength: number, waste: number, pay = noPay): CleanUpQuote => ({
+const quoteOf = (strength: number, waste: number, covers: boolean, pay = noPay): CleanUpQuote => ({
   strength,
   waste,
   pay,
+  covers,
 })
 
 const showMap = async (town: TownOverview, overrides: Partial<ApiClient> = {}): Promise<void> => {
@@ -145,7 +146,7 @@ it("reads the team against the waste from the server's quote", async () => {
   await showMap(teamAtHome, {
     quoteCleanUp: async (cleanUp) => {
       quoted.push(cleanUp)
-      return { ok: true, value: quoteOf(14, 12, { ...noPay, money: 24, material: 12 }) }
+      return { ok: true, value: quoteOf(14, 12, true, { ...noPay, money: 24, material: 12 }) }
     },
   })
 
@@ -162,7 +163,7 @@ it("reads the team against the waste from the server's quote", async () => {
 
 it('warns when the team cannot cover the waste', async () => {
   await showMap(teamAtHome, {
-    quoteCleanUp: async () => ({ ok: true, value: quoteOf(4, 30) }),
+    quoteCleanUp: async () => ({ ok: true, value: quoteOf(4, 30, false) }),
   })
 
   const form = openCleanUpForm(6)
@@ -177,10 +178,22 @@ it('warns when the team cannot cover the waste', async () => {
   expect(accessibleDescriptionOf(sendButton(form))).toBe('')
 })
 
+it('reads whether the team covers the waste from the server, never from its strength', async () => {
+  await showMap(teamAtHome, {
+    quoteCleanUp: async () => ({ ok: true, value: quoteOf(30, 4, false) }),
+  })
+
+  const form = openCleanUpForm(6)
+  enterTeam(form, { 'Trabajadores a enviar': '2' })
+  await passSeconds(0)
+
+  expect(within(form).getByText(mapCleanUpShort())).toBeDefined()
+})
+
 it('still sends a team that cannot cover the waste, as the server decides', async () => {
   const sent: Array<SendCleanUp> = []
   await showMap(teamAtHome, {
-    quoteCleanUp: async () => ({ ok: true, value: quoteOf(4, 30) }),
+    quoteCleanUp: async () => ({ ok: true, value: quoteOf(4, 30, false) }),
     sendCleanUp: async (cleanUp) => {
       sent.push(cleanUp)
       return { ok: true, value: teamAtHome }
@@ -201,7 +214,7 @@ it('asks no quote for a team with nobody in it', async () => {
   await showMap(teamAtHome, {
     quoteCleanUp: async (cleanUp) => {
       quoted.push(cleanUp)
-      return { ok: true, value: quoteOf(1, 5) }
+      return { ok: true, value: quoteOf(1, 5, false) }
     },
   })
 
@@ -236,7 +249,7 @@ it('sends a clean-up once on a double click', async () => {
 
 it('reads a refused clean-up under the form', async () => {
   await showMap(teamAtHome, {
-    quoteCleanUp: async () => ({ ok: true, value: quoteOf(3, 5) }),
+    quoteCleanUp: async () => ({ ok: true, value: quoteOf(3, 5, false) }),
     sendCleanUp: async () => ({
       ok: false,
       refusal: 'NoWasteYet',
@@ -271,7 +284,7 @@ it('reads a refused quote under the form and keeps the send open', async () => {
 
 it('drops a refused clean-up once the player edits the team', async () => {
   await showMap(teamAtHome, {
-    quoteCleanUp: async () => ({ ok: true, value: quoteOf(3, 5) }),
+    quoteCleanUp: async () => ({ ok: true, value: quoteOf(3, 5, false) }),
     sendCleanUp: async () => ({
       ok: false,
       refusal: 'NoWasteYet',

@@ -96,7 +96,7 @@ class CleanUpRepositoryTest {
     }
 
     @Test
-    fun `answers the strength, the waste and the pay the api quotes`() = runTest {
+    fun `answers the strength, the waste, the pay and the cover the api quotes`() = runTest {
         api.enqueue(json(200, QUOTE))
 
         assertEquals(
@@ -109,6 +109,7 @@ class CleanUpRepositoryTest {
                     TownResourceKind.Power to 0L,
                     TownResourceKind.Material to 36L,
                 ),
+                covers = false,
             ),
             town().quoteCleanUp(target, team),
         )
@@ -158,7 +159,7 @@ class CleanUpRepositoryTest {
 
     private companion object {
         const val QUOTE: String =
-            """{"strength":6,"waste":12,"pay":{"money":24,"food":0,"power":0,"material":36}}"""
+            """{"strength":6,"waste":12,"pay":{"money":24,"food":0,"power":0,"material":36},"covers":false}"""
         const val STOCK: String = """{"amount":120,"ratePerHour":30.5,"capacity":1000}"""
         const val FLAT: String = """{"level":1,"nextLevel":null}"""
         const val TERMS: String =

@@ -107,7 +107,7 @@ internal fun cleanUpQuoteResultOf(response: Response<CleanUpQuote>): CleanUpQuot
 }
 
 private fun CleanUpQuote.toQuoted(): CleanUpQuoteResult =
-    CleanUpQuoteResult.Quoted(strength = strength, waste = waste, pay = pay.toPay())
+    CleanUpQuoteResult.Quoted(strength = strength, waste = waste, pay = pay.toPay(), covers = covers)
 
 private fun JobPhase.toJobPhase(): TownSnapshot.JobPhase? = when (this) {
     JobPhase.outbound -> TownSnapshot.JobPhase.Outbound

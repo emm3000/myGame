@@ -1,10 +1,15 @@
 import { describe, expect, it } from 'vitest'
 import { CleanUpQuoteSchema } from './index'
 
-const quote = { strength: 6, waste: 6, pay: { money: 12, food: 0, power: 0, material: 18 } }
+const quote = {
+  strength: 6,
+  waste: 6,
+  pay: { money: 12, food: 0, power: 0, material: 18 },
+  covers: true,
+}
 
 describe('CleanUpQuoteSchema', () => {
-  it("parses the team's strength, the site's waste and the pay a clean-up would bring", () => {
+  it("parses the team's strength, the site's waste, the pay a clean-up would bring and whether the team covers the waste", () => {
     expect(CleanUpQuoteSchema.parse(quote)).toEqual(quote)
   })
 
@@ -20,7 +25,13 @@ describe('CleanUpQuoteSchema', () => {
     expect(CleanUpQuoteSchema.safeParse({ ...quote, waste: 1.5 }).success).toBe(false)
   })
 
-  it('rejects a quote with a field beyond the strength, the waste and the pay', () => {
+  it('rejects a quote that does not say whether the team covers the waste', () => {
+    const { covers: _covers, ...withoutCovers } = quote
+
+    expect(CleanUpQuoteSchema.safeParse(withoutCovers).success).toBe(false)
+  })
+
+  it('rejects a quote with a field beyond the strength, the waste, the pay and the cover', () => {
     expect(CleanUpQuoteSchema.safeParse({ ...quote, size: 1 }).success).toBe(false)
   })
 })

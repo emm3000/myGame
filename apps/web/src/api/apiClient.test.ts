@@ -216,8 +216,13 @@ it('posts the clean-up to the town clean-ups', async () => {
   expect(JSON.parse(String(init?.body))).toEqual(cleanUp)
 })
 
-it('posts the clean-up to the clean-ups quote and answers its strength, waste and pay', async () => {
-  const quote = { strength: 6, waste: 9, pay: { money: 0, food: 0, power: 0, material: 0 } }
+it('posts the clean-up to the clean-ups quote and answers its strength, waste, pay and cover', async () => {
+  const quote = {
+    strength: 6,
+    waste: 9,
+    pay: { money: 0, food: 0, power: 0, material: 0 },
+    covers: false,
+  }
   const fetch = answeringFetch(200, quote)
   const cleanUp = { site: { area: 3, site: 4 }, team: { worker: 6, truck: 0 } }
 

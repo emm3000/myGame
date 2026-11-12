@@ -7,6 +7,7 @@ export const CleanUpQuoteSchema = z
     strength: WholeCountSchema.positive(),
     waste: WholeCountSchema.positive(),
     pay: ResourceAmountsSchema,
+    covers: z.boolean(),
   })
   .meta({ id: 'CleanUpQuote' })
 

@@ -119,7 +119,10 @@ class MapCleanUpViewModelTest {
     @Test
     fun `draws the strength, the waste and the pay of a team that covers the waste`() = runTest {
         val viewModel: MapViewModel = cleanUpFilled()
-        towns.regions.answerCleanUpQuote(cleanUpFor, CleanUpQuoteResult.Quoted(strength = 12, waste = 12, pay = pay))
+        towns.regions.answerCleanUpQuote(
+            cleanUpFor,
+            CleanUpQuoteResult.Quoted(strength = 12, waste = 12, pay = pay, covers = true),
+        )
         runCurrent()
 
         assertEquals(
@@ -137,9 +140,27 @@ class MapCleanUpViewModelTest {
     }
 
     @Test
+    fun `reads whether the team covers the waste from the api, never from its strength`() = runTest {
+        val viewModel: MapViewModel = cleanUpFilled()
+        towns.regions.answerCleanUpQuote(
+            cleanUpFor,
+            CleanUpQuoteResult.Quoted(strength = 30, waste = 4, pay = noPay, covers = false),
+        )
+        runCurrent()
+
+        assertEquals(
+            MapUiState.CleanUpQuote.Quoted(strength = 30, waste = 4, pay = emptyList(), isShort = true),
+            cleanUpFormOf(viewModel)?.quote,
+        )
+    }
+
+    @Test
     fun `warns when the team cannot cover the waste`() = runTest {
         val viewModel: MapViewModel = cleanUpFilled()
-        towns.regions.answerCleanUpQuote(cleanUpFor, CleanUpQuoteResult.Quoted(strength = 8, waste = 12, pay = noPay))
+        towns.regions.answerCleanUpQuote(
+            cleanUpFor,
+            CleanUpQuoteResult.Quoted(strength = 8, waste = 12, pay = noPay, covers = false),
+        )
         runCurrent()
 
         assertEquals(
@@ -156,7 +177,10 @@ class MapCleanUpViewModelTest {
 
         advanceTimeBy(5.seconds)
         runCurrent()
-        towns.regions.answerCleanUpQuote(cleanUpFor, CleanUpQuoteResult.Quoted(strength = 12, waste = 12, pay = pay))
+        towns.regions.answerCleanUpQuote(
+            cleanUpFor,
+            CleanUpQuoteResult.Quoted(strength = 12, waste = 12, pay = pay, covers = true),
+        )
         runCurrent()
 
         val asked: Int = towns.regions.cleanUpQuotes.count { request: FakeRegionRepository.CleanUpRequest ->
@@ -202,7 +226,7 @@ class MapCleanUpViewModelTest {
         val viewModel: MapViewModel = cleanUpFilled(workers = "1", trucks = "0")
         towns.regions.answerCleanUpQuote(
             cleanUpFor.copy(team = mapOf(TownHireKind.Worker to 1, TownHireKind.Truck to 0)),
-            CleanUpQuoteResult.Quoted(strength = 2, waste = 12, pay = noPay),
+            CleanUpQuoteResult.Quoted(strength = 2, waste = 12, pay = noPay, covers = false),
         )
         runCurrent()
 

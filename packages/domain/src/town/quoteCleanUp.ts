@@ -3,6 +3,7 @@ import type { Clock } from '../ports/Clock'
 import { ok, type Result } from '../Result'
 import type { CleanUpOrder } from './CleanUpOrder'
 import type { CleanUpQuote } from './CleanUpQuote'
+import { coversWaste } from './coversWaste'
 import { type CleanUpDispatchDependencies, dispatchedCleanUpOf } from './dispatchedCleanUpOf'
 
 export type QuoteCleanUpDependencies = CleanUpDispatchDependencies & {
@@ -18,5 +19,5 @@ export const quoteCleanUp = async (
     return dispatched
   }
   const { cleanUp, pay } = dispatched.value.job
-  return ok({ strength: cleanUp.strength, waste: cleanUp.waste, pay })
+  return ok({ strength: cleanUp.strength, waste: cleanUp.waste, pay, covers: coversWaste(cleanUp) })
 }

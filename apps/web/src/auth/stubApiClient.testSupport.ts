@@ -101,7 +101,12 @@ export const stubApiClient = (overrides: Partial<ApiClient> = {}): ApiClient => 
   callJobBack: async () => ({ ok: true, value: knownTown }),
   quoteCleanUp: async () => ({
     ok: true,
-    value: { strength: 1, waste: 1, pay: { money: 0, food: 0, power: 0, material: 0 } },
+    value: {
+      strength: 1,
+      waste: 1,
+      pay: { money: 0, food: 0, power: 0, material: 0 },
+      covers: true,
+    },
   }),
   sendCleanUp: async () => ({ ok: true, value: knownTown }),
   startLesson: async () => ({ ok: true, value: knownTown }),
