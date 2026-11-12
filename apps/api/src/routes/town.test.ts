@@ -12,7 +12,7 @@ import {
   type TownOverview,
   TownOverviewSchema,
 } from '@mygame/contracts'
-import { type Clock, Instant, type TownRepository } from '@mygame/domain'
+import { type Clock, Instant } from '@mygame/domain'
 import { Client } from 'pg'
 import {
   afterAll,
@@ -25,7 +25,7 @@ import {
   it,
   vi,
 } from 'vitest'
-import type { Transaction } from '../adapters/postgres/postgresTransaction'
+import type { Transaction, TransactionStores } from '../adapters/postgres/postgresTransaction'
 import { createApp } from '../app'
 import { type ComposedServer, composeServer } from '../composeServer'
 import { mailEnvironment } from '../composeServer.testSupport'
@@ -103,11 +103,12 @@ const signal = (): { readonly promise: Promise<void>; readonly resolve: () => vo
 }
 
 const pausingFirstRead = (
-  towns: TownRepository,
+  towns: TransactionStores['towns'],
   afterRead: () => Promise<void>,
-): TownRepository => {
+): TransactionStores['towns'] => {
   let hasRead = false
   return {
+    townWithSchoolOf: (playerId) => towns.townWithSchoolOf(playerId),
     holdsTown: (playerId) => towns.holdsTown(playerId),
     occupiedSites: () => towns.occupiedSites(),
     save: (town) => towns.save(town),
@@ -1520,6 +1521,112 @@ describe('the town route', () => {
       assert(answered.nextDueAt !== null)
       expect(answered.nextStep).toEqual({ kind: 'lessonToStudy', lessonId: 'lesson-2' })
       expect(Date.parse(answered.nextDueAt)).toBeGreaterThan(firstReviewAt)
+    })
+  })
+
+  describe('the guidance', () => {
+    const readCaughtUp = (cookie: string): Promise<Response> =>
+      Promise.resolve(
+        createApp({
+          ...server,
+          clock,
+          lessons: { ...server.lessons, lessons: () => [] },
+        }).request('/town', { headers: { cookie } }),
+      )
+
+    const markTipSeen = (cookie: string, tip: string): Promise<Response> =>
+      Promise.resolve(app.request(`/town/tips/${tip}`, { method: 'POST', headers: { cookie } }))
+
+    const dismissGuidance = (cookie: string): Promise<Response> =>
+      Promise.resolve(
+        app.request('/town/guidance/dismissal', { method: 'POST', headers: { cookie } }),
+      )
+
+    it('answers the next goal only when caught up', async () => {
+      const cookie = await signUpWithTown('ana@example.com')
+
+      const studying = await overviewOf(await readTown(cookie))
+      const caughtUp = await overviewOf(await readCaughtUp(cookie))
+
+      expect(studying.nextStep).toEqual({ kind: 'lessonToStudy', lessonId: 'lesson-1' })
+      expect(caughtUp.nextStep).toEqual({
+        kind: 'caughtUp',
+        goal: {
+          position: 1,
+          count: 9,
+          building: 'farm',
+          level: 1,
+          state: 'pending',
+          missing: { resources: { money: 0, food: 0, power: 0, material: 0 }, people: 0 },
+        },
+      })
+    })
+
+    it('answers the goal underway while its level is being built', async () => {
+      const cookie = await signUpWithTown('ana@example.com')
+      await startWork(cookie, 'farm')
+
+      const caughtUp = await overviewOf(await readCaughtUp(cookie))
+
+      expect(caughtUp.nextStep).toEqual({
+        kind: 'caughtUp',
+        goal: { position: 1, count: 9, building: 'farm', level: 1, state: 'underway' },
+      })
+    })
+
+    it('dismisses the guidance', async () => {
+      const cookie = await signUpWithTown('ana@example.com')
+
+      const dismissal = await dismissGuidance(cookie)
+      const caughtUp = await overviewOf(await readCaughtUp(cookie))
+
+      expect(dismissal.status).toBe(204)
+      expect(caughtUp.nextStep).toEqual({ kind: 'caughtUp', goal: null })
+    })
+
+    it('refuses to dismiss the guidance of a player with no town as TownNotFound', async () => {
+      const cookie = await signUp('ana@example.com')
+
+      const response = await dismissGuidance(cookie)
+
+      expect(response.status).toBe(404)
+      expect(await refusalOf(response)).toEqual({ kind: 'TownNotFound' })
+    })
+
+    it('answers no tip while no concept matters', async () => {
+      const cookie = await signUpWithTown('ana@example.com')
+
+      expect((await overviewOf(await readTown(cookie))).tip).toBeNull()
+    })
+
+    it('answers the tip of a concept that matters', async () => {
+      const cookie = await signUpWithTown('ana@example.com')
+
+      const started = await overviewOf(await startWork(cookie, 'farm'))
+
+      expect(started.tip).toBe('waitingList')
+    })
+
+    it('marks a tip seen once', async () => {
+      const cookie = await signUpWithTown('ana@example.com')
+      await startWork(cookie, 'farm')
+
+      const statuses = [
+        (await markTipSeen(cookie, 'waitingList')).status,
+        (await markTipSeen(cookie, 'waitingList')).status,
+      ]
+      const read = await overviewOf(await readTown(cookie))
+
+      expect(statuses).toEqual([204, 204])
+      expect(read.tip).toBeNull()
+    })
+
+    it('answers an unknown tip with an empty 400', async () => {
+      const cookie = await signUpWithTown('ana@example.com')
+
+      const response = await markTipSeen(cookie, 'peasants')
+
+      expect([response.status, await response.text()]).toEqual([400, ''])
     })
   })
 

@@ -1,5 +1,6 @@
 import { z } from 'zod'
 import { BuildingKindSchema } from './BuildingKind'
+import { GoalSchema } from './Goal'
 import { WholeCountSchema } from './Wire'
 
 const ProducerSchema = BuildingKindSchema.extract(['farm', 'factory', 'powerStation'])
@@ -29,6 +30,7 @@ const LessonToStudyStepSchema = z
 const CaughtUpStepSchema = z
   .strictObject({
     kind: z.literal('caughtUp'),
+    goal: z.lazy(() => GoalSchema).nullable(),
   })
   .meta({ id: 'CaughtUpStep' })
 

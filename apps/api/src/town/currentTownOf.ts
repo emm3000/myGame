@@ -49,7 +49,7 @@ const persistedResolveOf = (
         catalog: dependencies.townCatalog,
         clock,
       })
-      return changed.ok ? townReadingOf(changed.value.town, clock.now(), stores) : changed
+      return changed.ok ? townReadingOf(playerId, clock.now(), stores.towns) : changed
     },
     dependencies,
   )
@@ -77,9 +77,9 @@ export const currentTownOf = async (
   if (stored.value === undefined) {
     return err({ kind: 'TownNotFound', playerId })
   }
-  const { lessonSlot, cards, heldOutWords } = stored.value
-  const isUnchanged = dryRun.value.events.length === 0 && !isLessonFinishedBy(lessonSlot, readAt)
+  const isUnchanged =
+    dryRun.value.events.length === 0 && !isLessonFinishedBy(stored.value.lessonSlot, readAt)
   return isUnchanged
-    ? ok({ town: dryRun.value.town, at: readAt, lessonSlot, cards, heldOutWords })
+    ? ok({ ...stored.value, town: dryRun.value.town, at: readAt })
     : persistedResolveOf(playerId, dependencies)
 }

@@ -2173,6 +2173,11 @@
           "nextStep": {
             "$ref": "#/components/schemas/NextStep"
           },
+          "tip": {
+            "type": "string",
+            "nullable": true,
+            "enum": ["people", "seasons", "waitingList", "office", "jobs", "fullStore", null]
+          },
           "nextDueAt": {
             "type": "string",
             "nullable": true,
@@ -2200,6 +2205,7 @@
           "lessonSlot",
           "learning",
           "nextStep",
+          "tip",
           "nextDueAt",
           "readAt"
         ],
@@ -2516,9 +2522,110 @@
           "kind": {
             "type": "string",
             "enum": ["caughtUp"]
+          },
+          "goal": {
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/Goal"
+              },
+              {
+                "nullable": true
+              }
+            ]
           }
         },
-        "required": ["kind"],
+        "required": ["kind", "goal"],
+        "additionalProperties": false
+      },
+      "Goal": {
+        "oneOf": [
+          {
+            "$ref": "#/components/schemas/PendingGoal"
+          },
+          {
+            "$ref": "#/components/schemas/UnderwayGoal"
+          }
+        ],
+        "discriminator": {
+          "propertyName": "state",
+          "mapping": {
+            "pending": "#/components/schemas/PendingGoal",
+            "underway": "#/components/schemas/UnderwayGoal"
+          }
+        }
+      },
+      "PendingGoal": {
+        "type": "object",
+        "properties": {
+          "position": {
+            "type": "integer",
+            "minimum": 0,
+            "exclusiveMinimum": true
+          },
+          "count": {
+            "type": "integer",
+            "minimum": 0,
+            "exclusiveMinimum": true
+          },
+          "building": {
+            "type": "string",
+            "enum": ["homes", "farm", "factory", "powerStation", "storage", "school", "office"]
+          },
+          "level": {
+            "type": "integer",
+            "minimum": 0,
+            "exclusiveMinimum": true
+          },
+          "state": {
+            "type": "string",
+            "enum": ["pending"]
+          },
+          "missing": {
+            "type": "object",
+            "properties": {
+              "resources": {
+                "$ref": "#/components/schemas/ResourceAmounts"
+              },
+              "people": {
+                "type": "integer",
+                "minimum": 0
+              }
+            },
+            "required": ["resources", "people"],
+            "additionalProperties": false
+          }
+        },
+        "required": ["position", "count", "building", "level", "state", "missing"],
+        "additionalProperties": false
+      },
+      "UnderwayGoal": {
+        "type": "object",
+        "properties": {
+          "position": {
+            "type": "integer",
+            "minimum": 0,
+            "exclusiveMinimum": true
+          },
+          "count": {
+            "type": "integer",
+            "minimum": 0,
+            "exclusiveMinimum": true
+          },
+          "building": {
+            "type": "string",
+            "enum": ["homes", "farm", "factory", "powerStation", "storage", "school", "office"]
+          },
+          "level": {
+            "type": "integer",
+            "minimum": 0,
+            "exclusiveMinimum": true
+          },
+          "state": {
+            "type": "string",
+            "enum": ["underway"]
+          }
+        },
+        "required": ["position", "count", "building", "level", "state"],
         "additionalProperties": false
       },
       "TownNewsFeed": {
@@ -4044,6 +4151,64 @@
           },
           "409": {
             "description": "LessonStudyNotFound.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/town/tips/{tip}": {
+      "post": {
+        "security": [
+          {
+            "sessionBearer": []
+          }
+        ],
+        "parameters": [
+          {
+            "schema": {
+              "type": "string",
+              "enum": ["people", "seasons", "waitingList", "office", "jobs", "fullStore"]
+            },
+            "required": true,
+            "name": "tip",
+            "in": "path"
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "The tip is marked seen; marking it again changes nothing."
+          },
+          "400": {
+            "description": "A malformed tip. Empty body."
+          },
+          "401": {
+            "description": "No live session: neither a session cookie nor, without one, an Authorization bearer token names one. Empty body."
+          }
+        }
+      }
+    },
+    "/town/guidance/dismissal": {
+      "post": {
+        "security": [
+          {
+            "sessionBearer": []
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "The town’s guidance is dismissed; no read answers a goal again."
+          },
+          "401": {
+            "description": "No live session: neither a session cookie nor, without one, an Authorization bearer token names one. Empty body."
+          },
+          "404": {
+            "description": "TownNotFound: the player holds no town yet.",
             "content": {
               "application/json": {
                 "schema": {

@@ -63,7 +63,8 @@ export const knownTown: TownOverview = {
   skills: [],
   lessonSlot: null,
   learning: { cap: 15, inLearning: 0, retainedWords: null },
-  nextStep: { kind: 'caughtUp' },
+  nextStep: { kind: 'caughtUp', goal: null },
+  tip: null,
   nextDueAt: null,
   readAt: '2026-11-10T09:00:00.000Z',
 }
