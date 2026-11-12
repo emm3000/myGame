@@ -7,7 +7,7 @@ import com.emm.mygame.core.network.generated.models.Job
 import com.emm.mygame.core.network.generated.models.JobPhase
 import com.emm.mygame.core.network.generated.models.JobQuote
 import com.emm.mygame.core.network.generated.models.NotEnoughHiresAtHomeErrorParams
-import com.emm.mygame.core.network.generated.models.NotEnoughResourcesErrorParamsMissing
+import com.emm.mygame.core.network.generated.models.ResourceAmounts
 import com.emm.mygame.core.network.generated.models.SendJob
 import com.emm.mygame.core.network.generated.models.SendJobSite
 import com.emm.mygame.core.network.generated.models.Team
@@ -54,7 +54,7 @@ private fun CleanUpJob.toJob(): TownSnapshot.Job? {
 
 private fun Team.toHires(): Map<TownHireKind, Int> = mapOf(TownHireKind.Worker to worker, TownHireKind.Truck to truck)
 
-private fun NotEnoughResourcesErrorParamsMissing.toPay(): Map<TownResourceKind, Long> = mapOf(
+private fun ResourceAmounts.toPay(): Map<TownResourceKind, Long> = mapOf(
     TownResourceKind.Money to money.toLong(),
     TownResourceKind.Food to food.toLong(),
     TownResourceKind.Power to power.toLong(),
@@ -81,18 +81,11 @@ internal fun jobResultOf(response: Response<TownOverview>, snapshot: TownSnapsho
 internal fun quoteResultOf(response: Response<JobQuote>): JobQuoteResult {
     val quote: JobQuote? = response.body()
     if (response.isSuccessful) {
-        return if (quote == null) JobQuoteResult.Unreachable else JobQuoteResult.Quoted(quote.payByResource())
+        return if (quote == null) JobQuoteResult.Unreachable else JobQuoteResult.Quoted(quote.pay.toPay())
     }
     val refusal: WireRefusal = response.wireRefusal() ?: return JobQuoteResult.Unreachable
     return JobQuoteResult.Refused(refusal.toJobRefusal())
 }
-
-private fun JobQuote.payByResource(): Map<TownResourceKind, Long> = mapOf(
-    TownResourceKind.Money to pay.money.toLong(),
-    TownResourceKind.Food to pay.food.toLong(),
-    TownResourceKind.Power to pay.power.toLong(),
-    TownResourceKind.Material to pay.material.toLong(),
-)
 
 private fun JobPhase.toJobPhase(): TownSnapshot.JobPhase? = when (this) {
     JobPhase.outbound -> TownSnapshot.JobPhase.Outbound

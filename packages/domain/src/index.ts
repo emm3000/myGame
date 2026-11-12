@@ -69,6 +69,7 @@ export { buildingKinds } from './town/buildingKinds'
 export { buildPercentAt } from './town/buildPercentAt'
 export type { CleanUp } from './town/CleanUp'
 export type { CleanUpOrder } from './town/CleanUpOrder'
+export type { CleanUpQuote } from './town/CleanUpQuote'
 export type { CleanUpReader } from './town/CleanUpReader'
 export type { CleanUpRepository } from './town/CleanUpRepository'
 export {
@@ -126,6 +127,7 @@ export {
   type PlaceHiringOrderDependencies,
   placeHiringOrder,
 } from './town/placeHiringOrder'
+export { type QuoteCleanUpDependencies, quoteCleanUp } from './town/quoteCleanUp'
 export { type QuoteJobDependencies, quoteJob } from './town/quoteJob'
 export type { RegionMap, RegionSite, SiteWaste } from './town/RegionMap'
 export type { RegionMapReader, SiteHolder } from './town/RegionMapReader'
