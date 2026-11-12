@@ -1,4 +1,4 @@
-import { refusalNoWasteYet } from '@mygame/catalog'
+import { refusalNoWasteYet, refusalTeamAlreadyOut } from '@mygame/catalog'
 import type { CleanUpQuote, RegionMap, SendCleanUp, TownOverview } from '@mygame/contracts'
 import { act, fireEvent, screen, within } from '@testing-library/react'
 import { afterEach, beforeEach, expect, it, vi } from 'vitest'
@@ -250,6 +250,45 @@ it('reads a refused clean-up under the form', async () => {
   await passSeconds(0)
 
   expect(within(form).getByRole('alert').textContent).toBe(refusalNoWasteYet())
+})
+
+it('reads a refused quote under the form and keeps the send open', async () => {
+  await showMap(teamAtHome, {
+    quoteCleanUp: async () => ({
+      ok: false,
+      refusal: 'TeamAlreadyOut',
+      error: { kind: 'TeamAlreadyOut' },
+    }),
+  })
+
+  const form = openCleanUpForm(4)
+  enterTeam(form, { 'Trabajadores a enviar': '3' })
+  await passSeconds(0)
+
+  expect(within(form).getByRole('alert').textContent).toBe(refusalTeamAlreadyOut())
+  expect(sendButton(form).getAttribute('aria-disabled')).not.toBe('true')
+})
+
+it('drops a refused clean-up once the player edits the team', async () => {
+  await showMap(teamAtHome, {
+    quoteCleanUp: async () => ({ ok: true, value: quoteOf(3, 5) }),
+    sendCleanUp: async () => ({
+      ok: false,
+      refusal: 'NoWasteYet',
+      error: { kind: 'NoWasteYet' },
+    }),
+  })
+
+  const form = openCleanUpForm(4)
+  enterTeam(form, { 'Trabajadores a enviar': '3' })
+  fireEvent.click(sendButton(form))
+  await passSeconds(0)
+  expect(within(form).getByRole('alert').textContent).toBe(refusalNoWasteYet())
+
+  enterTeam(form, { 'Trabajadores a enviar': '4' })
+  await passSeconds(0)
+
+  expect(within(form).queryByRole('alert')).toBeNull()
 })
 
 const instantAfter = (seconds: number): string => new Date(readAt + seconds * 1000).toISOString()
