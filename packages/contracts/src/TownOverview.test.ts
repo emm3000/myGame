@@ -115,7 +115,8 @@ const overview = (overrides: Record<string, unknown> = {}): Record<string, unkno
   skills: [earnedFood],
   lessonSlot: lessonUnderStudy,
   learning: { cap: 15, inLearning: 5, retainedWords: null },
-  nextStep: { kind: 'caughtUp' },
+  nextStep: { kind: 'caughtUp', goal: null },
+  tip: null,
   nextDueAt: null,
   readAt: '2026-11-10T08:58:00.000Z',
   ...overrides,
@@ -318,10 +319,62 @@ describe('TownOverviewSchema next step', () => {
     expect(TownOverviewSchema.parse(overview({ nextStep })).nextStep).toEqual(nextStep)
   })
 
-  it('refuses a field on caughtUp', () => {
+  it('reads caught up with no goal', () => {
     const nextStep = { kind: 'caughtUp', goal: null }
 
+    expect(TownOverviewSchema.parse(overview({ nextStep })).nextStep).toEqual(nextStep)
+  })
+
+  it('reads caught up with a pending goal and what it misses', () => {
+    const goal = {
+      position: 2,
+      count: 9,
+      building: 'factory',
+      level: 1,
+      state: 'pending',
+      missing: { resources: { money: 0, food: 0, power: 0, material: 30 }, people: 1 },
+    }
+
+    const read = TownOverviewSchema.parse(overview({ nextStep: { kind: 'caughtUp', goal } }))
+
+    expect(read.nextStep).toEqual({ kind: 'caughtUp', goal })
+  })
+
+  it('reads caught up with a goal underway', () => {
+    const goal = { position: 1, count: 9, building: 'farm', level: 1, state: 'underway' }
+
+    const read = TownOverviewSchema.parse(overview({ nextStep: { kind: 'caughtUp', goal } }))
+
+    expect(read.nextStep).toEqual({ kind: 'caughtUp', goal })
+  })
+
+  it('refuses caught up without its goal', () => {
+    const nextStep = { kind: 'caughtUp' }
+
     expect(TownOverviewSchema.safeParse(overview({ nextStep })).success).toBe(false)
+  })
+
+  it('refuses a goal underway that names what it misses', () => {
+    const goal = {
+      position: 1,
+      count: 9,
+      building: 'farm',
+      level: 1,
+      state: 'underway',
+      missing: { resources: { money: 0, food: 0, power: 0, material: 0 }, people: 0 },
+    }
+
+    const parsed = TownOverviewSchema.safeParse(overview({ nextStep: { kind: 'caughtUp', goal } }))
+
+    expect(parsed.success).toBe(false)
+  })
+
+  it('refuses a goal at position 0', () => {
+    const goal = { position: 0, count: 9, building: 'farm', level: 1, state: 'underway' }
+
+    const parsed = TownOverviewSchema.safeParse(overview({ nextStep: { kind: 'caughtUp', goal } }))
+
+    expect(parsed.success).toBe(false)
   })
 
   it('refuses an overview without its next step', () => {
@@ -340,5 +393,21 @@ describe('TownOverviewSchema next step', () => {
     const { nextDueAt: _, ...withoutNextDueAt } = overview()
 
     expect(TownOverviewSchema.safeParse(withoutNextDueAt).success).toBe(false)
+  })
+})
+
+describe('TownOverviewSchema tip', () => {
+  it('reads the tip to show', () => {
+    expect(TownOverviewSchema.parse(overview({ tip: 'waitingList' })).tip).toBe('waitingList')
+  })
+
+  it('refuses a tip the town does not know', () => {
+    expect(TownOverviewSchema.safeParse(overview({ tip: 'peasants' })).success).toBe(false)
+  })
+
+  it('refuses an overview without its tip', () => {
+    const { tip: _, ...withoutTip } = overview()
+
+    expect(TownOverviewSchema.safeParse(withoutTip).success).toBe(false)
   })
 })

@@ -15,17 +15,22 @@ import { TransactionRollbackError } from 'drizzle-orm'
 import type { NodePgDatabase } from 'drizzle-orm/node-postgres'
 import type { Accounts } from '../../auth/Accounts'
 import type { AccountTokens } from '../../auth/AccountTokens'
+import type { GuidanceDismissals } from '../../town/GuidanceDismissals'
+import type { SeenTips } from '../../town/SeenTips'
 import type { TownNewsReader } from '../../town/TownNewsReader'
+import type { TownReader } from '../../town/TownReader'
 import { DrizzleAccounts } from './DrizzleAccounts'
 import { DrizzleAccountTokens } from './DrizzleAccountTokens'
 import { DrizzleBandStarts } from './DrizzleBandStarts'
 import { DrizzleCardRepository } from './DrizzleCardRepository'
 import { DrizzleCleanUpRepository } from './DrizzleCleanUpRepository'
 import { DrizzleEarnedSkills } from './DrizzleEarnedSkills'
+import { DrizzleGuidanceDismissals } from './DrizzleGuidanceDismissals'
 import { DrizzleLessonSlots } from './DrizzleLessonSlots'
 import { DrizzlePendingReviewRepository } from './DrizzlePendingReviewRepository'
 import { DrizzleRegionMap } from './DrizzleRegionMap'
 import { DrizzleReviewLog } from './DrizzleReviewLog'
+import { DrizzleSeenTips } from './DrizzleSeenTips'
 import { DrizzleTownNews } from './DrizzleTownNews'
 import { DrizzleTownRepository } from './DrizzleTownRepository'
 
@@ -35,13 +40,15 @@ export type TransactionStores = {
   readonly cards: CardRepository
   readonly pendingReviews: PendingReviewRepository
   readonly reviewLog: ReviewLog
-  readonly towns: TownRepository
+  readonly towns: TownRepository & Pick<TownReader, 'townWithSchoolOf'>
   readonly townNews: TownNews & TownNewsReader
   readonly lessonSlots: LessonSlotRepository
   readonly earnedSkills: EarnedSkillRepository
   readonly bandStarts: BandStartRepository
   readonly regionMap: RegionMapReader
   readonly cleanUps: CleanUpRepository
+  readonly seenTips: SeenTips
+  readonly guidanceDismissals: GuidanceDismissals
 }
 
 export type Transaction = <T, E>(
@@ -69,6 +76,8 @@ export const postgresTransaction =
           bandStarts: new DrizzleBandStarts(transaction),
           regionMap: new DrizzleRegionMap(transaction),
           cleanUps: new DrizzleCleanUpRepository(transaction),
+          seenTips: new DrizzleSeenTips(transaction),
+          guidanceDismissals: new DrizzleGuidanceDismissals(transaction),
         })
         if (!outcome.ok) {
           refused = outcome

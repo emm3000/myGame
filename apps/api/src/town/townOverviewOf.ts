@@ -20,6 +20,7 @@ import {
   hiringEndsAt,
   type Instant,
   type MemoryTerms,
+  nextGoalOf,
   nextStepOf,
   noHires,
   ok,
@@ -29,6 +30,7 @@ import {
   seasonAt,
   type Town,
   type TownCatalog,
+  tipOf,
   townLabelOf,
   type WaitingList,
 } from '@mygame/domain'
@@ -252,25 +254,79 @@ const hiringOf = ({ town, at }: TownReading, catalog: TownCatalog): TownOverview
   }
 }
 
+type Goal = Extract<TownOverview['nextStep'], { kind: 'caughtUp' }>['goal']
+
+const goalOf = (reading: TownReading, catalog: TownCatalog): Result<Goal, DomainError> => {
+  if (reading.guidanceDismissedAt !== undefined) {
+    return ok(null)
+  }
+  const goal = nextGoalOf(reading.town, reading.at, catalog)
+  if (!goal.ok) {
+    return goal
+  }
+  const next = goal.value
+  if (next === undefined) {
+    return ok(null)
+  }
+  const { position, count, building, level } = next
+  return ok(
+    next.state === 'underway'
+      ? { position, count, building, level, state: 'underway' }
+      : {
+          position,
+          count,
+          building,
+          level,
+          state: 'pending',
+          missing: { resources: { ...next.missing.resources }, people: next.missing.people },
+        },
+  )
+}
+
+const nextStepOfReading = (
+  reading: TownReading,
+  catalog: TownCatalog,
+  lessons: LessonLibrary,
+  memoryTerms: MemoryTerms,
+): Result<TownOverview['nextStep'], DomainError> => {
+  const step = nextStepOf(reading, { lessons: lessons.lessons(), memoryTerms, catalog })
+  if (!step.ok) {
+    return step
+  }
+  switch (step.value.kind) {
+    case 'reviews':
+      return ok({ ...step.value, readFirst: [...step.value.readFirst] })
+    case 'lessonRunning':
+    case 'lessonToStudy':
+      return ok(step.value)
+    case 'caughtUp': {
+      const goal = goalOf(reading, catalog)
+      return goal.ok ? ok({ kind: 'caughtUp', goal: goal.value }) : goal
+    }
+  }
+}
+
 const guidanceOf = (
   reading: TownReading,
   catalog: TownCatalog,
   lessons: LessonLibrary,
   memoryTerms: MemoryTerms,
-): Result<Pick<TownOverview, 'nextStep' | 'nextDueAt'>, DomainError> => {
-  const step = nextStepOf(reading, { lessons: lessons.lessons(), memoryTerms, catalog })
-  if (!step.ok) {
-    return step
+): Result<Pick<TownOverview, 'nextStep' | 'tip' | 'nextDueAt'>, DomainError> => {
+  const nextStep = nextStepOfReading(reading, catalog, lessons, memoryTerms)
+  if (!nextStep.ok) {
+    return nextStep
+  }
+  const tip = tipOf(reading, catalog)
+  if (!tip.ok) {
+    return tip
   }
   const nextDueAt = nextDueAtOf(reading.cards, reading.at, memoryTerms)
   if (!nextDueAt.ok) {
     return nextDueAt
   }
   return ok({
-    nextStep:
-      step.value.kind === 'reviews'
-        ? { ...step.value, readFirst: [...step.value.readFirst] }
-        : step.value,
+    nextStep: nextStep.value,
+    tip: tip.value ?? null,
     nextDueAt: nextDueAt.value === null ? null : isoOf(nextDueAt.value),
   })
 }

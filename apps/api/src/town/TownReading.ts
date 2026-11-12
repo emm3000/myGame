@@ -1,9 +1,6 @@
-import type { Headword, HeldCard, Instant, LessonSlot, Town } from '@mygame/domain'
+import type { Instant } from '@mygame/domain'
+import type { TownWithSchool } from './TownReader'
 
-export type TownReading = {
-  readonly town: Town
+export type TownReading = TownWithSchool & {
   readonly at: Instant
-  readonly lessonSlot: LessonSlot
-  readonly cards: ReadonlyArray<HeldCard>
-  readonly heldOutWords: ReadonlyArray<Headword>
 }

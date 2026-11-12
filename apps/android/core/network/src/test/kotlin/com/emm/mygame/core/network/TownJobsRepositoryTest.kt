@@ -303,7 +303,7 @@ class TownJobsRepositoryTest {
                 """"terms":{"worker":$TERMS,"truck":$TERMS}},"job":null,""" +
                 """"lessons":[],"skills":[],"lessonSlot":null,""" +
                 """"learning":{"cap":10,"inLearning":0,"retainedWords":null},""" +
-                """"nextStep":{"kind":"caughtUp"},"nextDueAt":null,""" +
+                """"nextStep":{"kind":"caughtUp","goal":null},"tip":null,"nextDueAt":null,""" +
                 """"readAt":"2026-11-05T10:05:00.000Z"}"""
         val TOWN_WITH_JOB: String = TOWN.replace(""""job":null""", """"job":$JOB""")
         const val CLEAN_UP: String =

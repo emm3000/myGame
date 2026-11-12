@@ -1,44 +1,18 @@
-import {
-  type BandStartRepository,
-  type DomainError,
-  heldOutWordsOf,
-  type Instant,
-  type LessonSlotRepository,
-  ok,
-  type Result,
-  type Town,
-} from '@mygame/domain'
-import type { CardReader } from '../learning/CardReader'
+import { type DomainError, err, type Instant, ok, type PlayerId, type Result } from '@mygame/domain'
+import type { TownReader } from './TownReader'
 import type { TownReading } from './TownReading'
 
-export type SchoolStores = {
-  readonly lessonSlots: Pick<LessonSlotRepository, 'lessonSlotOf'>
-  readonly cards: CardReader
-  readonly bandStarts: Pick<BandStartRepository, 'bandStartsOf'>
-}
-
 export const townReadingOf = async (
-  town: Town,
+  playerId: PlayerId,
   at: Instant,
-  { lessonSlots, cards, bandStarts }: SchoolStores,
+  towns: Pick<TownReader, 'townWithSchoolOf'>,
 ): Promise<Result<TownReading, DomainError>> => {
-  const lessonSlot = await lessonSlots.lessonSlotOf(town.id)
-  if (!lessonSlot.ok) {
-    return lessonSlot
+  const stored = await towns.townWithSchoolOf(playerId)
+  if (!stored.ok) {
+    return stored
   }
-  const held = await cards.cardsOf(town.playerId)
-  if (!held.ok) {
-    return held
+  if (stored.value === undefined) {
+    return err({ kind: 'TownNotFound', playerId })
   }
-  const starts = await bandStarts.bandStartsOf(town.playerId)
-  if (!starts.ok) {
-    return starts
-  }
-  return ok({
-    town,
-    at,
-    lessonSlot: lessonSlot.value,
-    cards: held.value,
-    heldOutWords: heldOutWordsOf(starts.value),
-  })
+  return ok({ ...stored.value, at })
 }

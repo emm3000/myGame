@@ -4,6 +4,7 @@ import {
   CleanUpQuoteSchema,
   FoundTownSchema,
   JobQuoteSchema,
+  MarkTipSeenSchema,
   PlaceHiringOrderSchema,
   SendCleanUpSchema,
   SendJobSchema,
@@ -238,6 +239,27 @@ export const townDeclarations = {
         200: overviewResponse('The town with the lesson stopped; nothing is studied.'),
         404: townNotFoundResponse,
         409: refusalResponse('LessonStudyNotFound.'),
+      },
+    }),
+  ),
+  markTipSeen: createRoute(
+    signedInRoute({
+      method: 'post',
+      path: '/tips/{tip}',
+      request: { params: MarkTipSeenSchema },
+      responses: {
+        204: { description: 'The tip is marked seen; marking it again changes nothing.' },
+        400: malformedResponse('tip'),
+      },
+    }),
+  ),
+  dismissGuidance: createRoute(
+    signedInRoute({
+      method: 'post',
+      path: '/guidance/dismissal',
+      responses: {
+        204: { description: 'The town’s guidance is dismissed; no read answers a goal again.' },
+        404: townNotFoundResponse,
       },
     }),
   ),

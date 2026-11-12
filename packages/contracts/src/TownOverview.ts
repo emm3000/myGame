@@ -10,6 +10,7 @@ import { ResourceKindSchema } from './ResourceKind'
 import { SeasonKindSchema } from './SeasonKind'
 import { SiteAddressSchema } from './SiteAddress'
 import { TerrainSchema } from './Terrain'
+import { TipKindSchema } from './TipKind'
 import { TownJobSchema } from './TownJob'
 import {
   BuildingLevelSchema,
@@ -112,6 +113,7 @@ export const TownOverviewSchema = z
     lessonSlot: LessonUnderStudySchema.nullable(),
     learning: LearningLoadSchema,
     nextStep: NextStepSchema,
+    tip: TipKindSchema.nullable(),
     nextDueAt: InstantSchema.nullable(),
     readAt: InstantSchema,
   })
