@@ -24,6 +24,7 @@ import {
   nextStepOf,
   noHires,
   ok,
+  placedOutBandsOf,
   type ResourceKind,
   type Result,
   requiredOfficeLevelOf,
@@ -289,7 +290,10 @@ const nextStepOfReading = (
   lessons: LessonLibrary,
   memoryTerms: MemoryTerms,
 ): Result<TownOverview['nextStep'], DomainError> => {
-  const step = nextStepOf(reading, { lessons: lessons.lessons(), memoryTerms, catalog })
+  const step = nextStepOf(
+    { ...reading, placedOutBands: placedOutBandsOf(reading.placementScores) },
+    { lessons: lessons.lessons(), bands: lessons, memoryTerms, catalog },
+  )
   if (!step.ok) {
     return step
   }

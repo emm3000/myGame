@@ -5,6 +5,7 @@ import type {
   EarnedSkillRepository,
   LessonSlotRepository,
   PendingReviewRepository,
+  PlacementRepository,
   RegionMapReader,
   Result,
   ReviewLog,
@@ -28,6 +29,7 @@ import { DrizzleEarnedSkills } from './DrizzleEarnedSkills'
 import { DrizzleGuidanceDismissals } from './DrizzleGuidanceDismissals'
 import { DrizzleLessonSlots } from './DrizzleLessonSlots'
 import { DrizzlePendingReviewRepository } from './DrizzlePendingReviewRepository'
+import { DrizzlePlacements } from './DrizzlePlacements'
 import { DrizzleRegionMap } from './DrizzleRegionMap'
 import { DrizzleReviewLog } from './DrizzleReviewLog'
 import { DrizzleSeenTips } from './DrizzleSeenTips'
@@ -45,6 +47,7 @@ export type TransactionStores = {
   readonly lessonSlots: LessonSlotRepository
   readonly earnedSkills: EarnedSkillRepository
   readonly bandStarts: BandStartRepository
+  readonly placements: PlacementRepository
   readonly regionMap: RegionMapReader
   readonly cleanUps: CleanUpRepository
   readonly seenTips: SeenTips
@@ -74,6 +77,7 @@ export const postgresTransaction =
           lessonSlots: new DrizzleLessonSlots(transaction),
           earnedSkills: new DrizzleEarnedSkills(transaction),
           bandStarts: new DrizzleBandStarts(transaction),
+          placements: new DrizzlePlacements(transaction),
           regionMap: new DrizzleRegionMap(transaction),
           cleanUps: new DrizzleCleanUpRepository(transaction),
           seenTips: new DrizzleSeenTips(transaction),

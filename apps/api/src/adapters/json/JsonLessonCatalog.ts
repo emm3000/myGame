@@ -6,6 +6,7 @@ import {
   type LessonId,
   type LessonSkill,
   type LessonWord,
+  type PlacementWord,
   type WordId,
 } from '@mygame/domain'
 import { frameWordsOf } from '../../contentGate/frameWordsOf'
@@ -97,12 +98,41 @@ const bandWordsOf = ({
   return bands
 }
 
+const placementWordsOf = ({
+  curriculum,
+  lessons,
+  lexicon,
+  ranks,
+}: LessonContentFiles): ReadonlyMap<Band, ReadonlyArray<PlacementWord>> => {
+  const chromeWordIds = new Set(
+    lessons
+      .slice(0, curriculum.chromeLessonCount)
+      .flatMap(({ words }) => words.map(({ id }) => id)),
+  )
+  const bands = new Map<Band, ReadonlyArray<PlacementWord>>()
+  for (const entry of lexicon) {
+    const rank = ranks.get(headwordOf(entry.lemma))
+    if (rank !== undefined && entry.gloss.es !== undefined) {
+      const band = bandOfRank(rank)
+      const word = {
+        id: entry.id,
+        word: entry.lemma,
+        gloss: entry.gloss.es,
+        isChrome: chromeWordIds.has(entry.id),
+      }
+      bands.set(band, [...(bands.get(band) ?? []), word])
+    }
+  }
+  return bands
+}
+
 export class JsonLessonCatalog implements LessonLibrary {
   constructor(
     private readonly shelved: ReadonlyArray<ShelvedLesson>,
     private readonly headwords: ReadonlySet<string>,
     private readonly lessonBands: ReadonlyMap<LessonId, Band>,
     private readonly bandWords: ReadonlyMap<Band, ReadonlyArray<BandWord>>,
+    private readonly placementWords: ReadonlyMap<Band, ReadonlyArray<PlacementWord>>,
   ) {}
 
   static fromDirectory(directory: string): JsonLessonCatalog {
@@ -112,6 +142,7 @@ export class JsonLessonCatalog implements LessonLibrary {
       new Set(files.ranks.keys()),
       lessonBandsOf(files),
       bandWordsOf(files),
+      placementWordsOf(files),
     )
   }
 
@@ -133,6 +164,10 @@ export class JsonLessonCatalog implements LessonLibrary {
 
   wordsOfBand(band: Band): ReadonlyArray<BandWord> {
     return this.bandWords.get(band) ?? []
+  }
+
+  placementWordsOf(band: Band): ReadonlyArray<PlacementWord> {
+    return this.placementWords.get(band) ?? []
   }
 
   lessons(): ReadonlyArray<ShelvedLesson> {

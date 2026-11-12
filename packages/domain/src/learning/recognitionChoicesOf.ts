@@ -1,4 +1,6 @@
+import { choiceIdsOf } from '../hash/choiceIdsOf'
 import { mixed32 } from '../hash/mixed32'
+import { textHashOf } from '../hash/textHashOf'
 import type { MemoryCard } from '../memory/MemoryCard'
 import { compareWordIds } from './compareWordIds'
 import type { HeldCard } from './HeldCard'
@@ -15,10 +17,7 @@ type HashedWord = {
 
 const hashOf = (wordId: WordId, keyMilliseconds: number): number => {
   const seeded = mixed32(mixed32(keyMilliseconds >>> 0) ^ Math.floor(keyMilliseconds / HIGH_WORD))
-  return [...wordId].reduce(
-    (hash, character) => mixed32(hash ^ (character.codePointAt(0) ?? 0)),
-    seeded,
-  )
+  return textHashOf(wordId, seeded)
 }
 
 const byHashThenWord = (left: HashedWord, right: HashedWord): number =>
@@ -29,20 +28,8 @@ export type RecognitionChoice = {
   readonly wordId: WordId
 }
 
-const HEX_DIGITS = 8
-
-const hexOf = (hash: number): string => hash.toString(16).padStart(HEX_DIGITS, '0')
-
 const withChoiceIds = (offered: ReadonlyArray<HashedWord>): ReadonlyArray<RecognitionChoice> => {
-  const choices: Array<RecognitionChoice> = []
-  for (const { wordId, hash } of offered) {
-    let candidate = hash
-    while (choices.some(({ choiceId }) => choiceId === hexOf(candidate))) {
-      candidate = mixed32(candidate)
-    }
-    choices.push({ choiceId: hexOf(candidate), wordId })
-  }
-  return choices
+  return choiceIdsOf(offered).map(({ choiceId, wordId }) => ({ choiceId, wordId }))
 }
 
 export const recognitionChoicesOf = (

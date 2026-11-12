@@ -4,6 +4,9 @@ import type { Lesson } from '../learning/Lesson'
 import { MemoryCard } from '../memory/MemoryCard'
 import { defaultMemoryTerms } from '../memory/MemoryTerms'
 import { reviewMemoryCard } from '../memory/reviewMemoryCard'
+import { placedOutBandsOf } from '../placement/placedOutBandsOf'
+import { placementScoresOf } from '../placement/placementScoresOf'
+import { inMemoryBands } from '../testing/inMemoryBands'
 import { lessonOne } from '../testing/lessonOne'
 import { plainTownSettings, townCatalogOf } from '../testing/townCatalogOf'
 import { type TownShape, townOf } from '../testing/townFixtures'
@@ -36,6 +39,11 @@ const skillOn = (resource: ResourceKind): Lesson['skill'] => ({ resource, ratePe
 
 const curriculum = [lessonNumbered(1), lessonNumbered(2), lessonNumbered(3), lessonNumbered(4)]
 
+const bandsOfCurriculum = inMemoryBands([
+  { band: 1, lessonIds: ['lesson-2', 'lesson-3'], words: [] },
+  { band: 2, lessonIds: ['lesson-4'], words: [] },
+])
+
 const runningLessonOne: LessonSlot = {
   kind: 'busy',
   lessonId: 'lesson-1',
@@ -59,6 +67,7 @@ const readingOf = (
   lessonSlot: { kind: 'idle' },
   cards: [],
   heldOutWords: [],
+  placedOutBands: [],
   at: readAt,
   ...overrides,
   town: townOf({ storedAt: readAt, ...overrides.town }),
@@ -69,7 +78,12 @@ const stepOf = (
   lessons: ReadonlyArray<Lesson> = curriculum,
   townCatalog: TownCatalog = catalog,
 ): ReturnType<typeof nextStepOf> =>
-  nextStepOf(reading, { lessons, memoryTerms: defaultMemoryTerms, catalog: townCatalog })
+  nextStepOf(reading, {
+    lessons,
+    bands: bandsOfCurriculum,
+    memoryTerms: defaultMemoryTerms,
+    catalog: townCatalog,
+  })
 
 const answered = (reading: NextStepReading, lessons?: ReadonlyArray<Lesson>): unknown => {
   const step = stepOf(reading, lessons)
@@ -110,6 +124,7 @@ describe('nextStepOf', () => {
   it('refuses a card on a step the memory terms lack', () => {
     const step = nextStepOf(readingOf({ cards: waitingCardsOf(lessonNumbered(1)) }), {
       lessons: curriculum,
+      bands: bandsOfCurriculum,
       memoryTerms: { ...defaultMemoryTerms, learningStepsSeconds: [] },
       catalog,
     })
@@ -220,6 +235,31 @@ describe('nextStepOf', () => {
     const reading = readingOf({ cards: waitingCardsOf(studied) })
 
     expect(answered(reading, lessons)).toEqual({ kind: 'lessonToStudy', lessonId: 'lesson-3' })
+  })
+
+  it('steps past the lessons of a placed-out band to the first lesson of the band failed', () => {
+    const reading = readingOf({
+      cards: waitingCardsOf(lessonNumbered(1)),
+      placedOutBands: [1],
+    })
+
+    expect(answered(reading)).toEqual({ kind: 'lessonToStudy', lessonId: 'lesson-4' })
+  })
+
+  it('keeps an unstudied chrome lesson first for a placed-out player', () => {
+    expect(answered(readingOf({ placedOutBands: [1, 2] }))).toEqual({
+      kind: 'lessonToStudy',
+      lessonId: 'lesson-1',
+    })
+  })
+
+  it('starts a skipped player at lesson 1', () => {
+    const skipped = placedOutBandsOf(placementScoresOf({ kind: 'skipped', skippedAt: readAt }))
+
+    expect(answered(readingOf({ placedOutBands: skipped }))).toEqual({
+      kind: 'lessonToStudy',
+      lessonId: 'lesson-1',
+    })
   })
 
   it('counts only the words entering against the cap', () => {

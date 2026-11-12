@@ -34,6 +34,7 @@ import type { TownReader, TownWithSchool } from '../../town/TownReader'
 import { byEarnedAt } from '../byEarnedAt'
 import { aggregatedCardsOf, heldCardsOf } from './aggregatedCards'
 import { aggregatedHeldOutWordsOf, heldOutHeadwordsOf } from './aggregatedHeldOutWords'
+import { aggregatedPlacementScoresOf, placementScoresFrom } from './aggregatedPlacementScores'
 import { aggregatedSeenTipsOf, seenTipsFrom } from './aggregatedSeenTips'
 import type { PostgresSession } from './connectPostgres'
 import { jsonAggregateOf } from './jsonAggregateOf'
@@ -651,6 +652,7 @@ export class DrizzleTownRepository implements TownReader, TownRepository {
         lessonSlot: townLessonSlots,
         cards: aggregatedCardsOf(towns.playerId),
         heldOutWords: aggregatedHeldOutWordsOf(towns.playerId),
+        placementScores: aggregatedPlacementScoresOf(towns.playerId),
         seenTips: aggregatedSeenTipsOf(towns.playerId),
       })
       .from(towns)
@@ -672,6 +674,7 @@ export class DrizzleTownRepository implements TownReader, TownRepository {
       lessonSlot: lessonSlotOf(row.lessonSlot),
       cards: cards.value,
       heldOutWords: heldOutHeadwordsOf(row.heldOutWords),
+      placementScores: placementScoresFrom(row.placementScores),
       guidanceDismissedAt: instantOf(row.town.guidanceDismissedAt) ?? undefined,
       seenTips: seenTipsFrom(row.seenTips),
     })

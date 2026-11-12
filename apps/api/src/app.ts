@@ -7,12 +7,14 @@ import { sessionBearerScheme, sessionBearerSecurityScheme } from './http/respons
 import { type AuthDependencies, authRoutes } from './routes/auth'
 import { healthDeclarations } from './routes/healthDeclarations'
 import { type LearningRouteDependencies, learningRoutes } from './routes/learning'
+import { type PlacementRouteDependencies, placementRoutes } from './routes/placement'
 import { type ReportRouteDependencies, reportRoutes } from './routes/report'
 import { type TownDependencies, townRoutes } from './routes/town'
 import { type TownMapDependencies, townMapRoutes } from './routes/townMap'
 
 export type AppDependencies = AuthDependencies &
   LearningRouteDependencies &
+  PlacementRouteDependencies &
   ReportRouteDependencies &
   TownDependencies &
   TownMapDependencies & {
@@ -36,6 +38,7 @@ export const createApp = (dependencies: AppDependencies): OpenAPIHono => {
   app
     .route('/auth', authRoutes(dependencies))
     .route('/reviews', learningRoutes(dependencies))
+    .route('/placement', placementRoutes(dependencies))
     .route('/report', reportRoutes(dependencies))
     .route('/town/map', townMapRoutes(dependencies))
     .route('/town', townRoutes(dependencies))
