@@ -10,6 +10,7 @@ import {
   Duration,
   deliveredHiresOf,
   deriveBuildDurationSeconds,
+  deriveFullAt,
   deriveHireDurationSeconds,
   derivePeople,
   deriveResourceRates,
@@ -46,6 +47,24 @@ type BuildingState = TownOverview['buildings'][BuildingKind]
 
 type BuildingWork = TownOverview['work']['waitingList'][number]
 
+type FullAtOnWire = Readonly<Record<ResourceKind, string | null>>
+
+const isoOrNullOf = (instant: Instant | null): string | null =>
+  instant === null ? null : isoOf(instant)
+
+const fullAtOnWireOf = (town: Town, catalog: TownCatalog): Result<FullAtOnWire, DomainError> => {
+  const fullAt = deriveFullAt(town, catalog)
+  if (!fullAt.ok) {
+    return fullAt
+  }
+  return ok({
+    money: isoOrNullOf(fullAt.value.money),
+    food: isoOrNullOf(fullAt.value.food),
+    power: isoOrNullOf(fullAt.value.power),
+    material: isoOrNullOf(fullAt.value.material),
+  })
+}
+
 const stocksOf = (
   { town, at }: TownReading,
   catalog: TownCatalog,
@@ -62,10 +81,15 @@ const stocksOf = (
   if (!capacity.ok) {
     return capacity
   }
+  const fullAt = fullAtOnWireOf(town, catalog)
+  if (!fullAt.ok) {
+    return fullAt
+  }
   const stockOf = (resource: ResourceKind): TownOverview['stocks'][ResourceKind] => ({
     amount: accrual.value.stocks[resource],
     ratePerHour: rates.value[resource],
     capacity: capacity.value,
+    fullAt: fullAt.value[resource],
   })
   return ok({
     money: stockOf('money'),

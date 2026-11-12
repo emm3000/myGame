@@ -127,7 +127,10 @@ it('marks a waiting build pill as busy', async () => {
 it('marks a level the stocks cannot pay with the shortfall', async () => {
   await showTown({
     ...knownTown,
-    stocks: { ...knownTown.stocks, material: { amount: 30, ratePerHour: 0, capacity: 5000 } },
+    stocks: {
+      ...knownTown.stocks,
+      material: { amount: 30, ratePerHour: 0, capacity: 5000, fullAt: null },
+    },
   })
 
   const button = buildButtonOf(namesPlacesFarm())
@@ -279,7 +282,10 @@ const pressFarmBuildOf = async (town: TownOverview): Promise<ReadonlyArray<strin
 it('sends a level the stocks cannot pay, since the api decides', async () => {
   const started = await pressFarmBuildOf({
     ...knownTown,
-    stocks: { ...knownTown.stocks, material: { amount: 30, ratePerHour: 0, capacity: 5000 } },
+    stocks: {
+      ...knownTown.stocks,
+      material: { amount: 30, ratePerHour: 0, capacity: 5000, fullAt: null },
+    },
   })
 
   expect(started).toEqual(['farm'])
@@ -298,7 +304,10 @@ it('reads the api refusal of a level sent while marked short', async () => {
   await showTown(
     {
       ...knownTown,
-      stocks: { ...knownTown.stocks, material: { amount: 30, ratePerHour: 0, capacity: 5000 } },
+      stocks: {
+        ...knownTown.stocks,
+        material: { amount: 30, ratePerHour: 0, capacity: 5000, fullAt: null },
+      },
     },
     {
       startBuildingWork: async () => ({

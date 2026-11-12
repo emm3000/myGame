@@ -24,10 +24,10 @@ export const knownTown: TownOverview = {
   terrain: 'fields',
   season: null,
   stocks: {
-    money: { amount: 500, ratePerHour: 60, capacity: 5000 },
-    food: { amount: 400, ratePerHour: 120, capacity: 5000 },
-    power: { amount: 300, ratePerHour: 20, capacity: 5000 },
-    material: { amount: 600, ratePerHour: 90, capacity: 5000 },
+    money: { amount: 500, ratePerHour: 60, capacity: 5000, fullAt: null },
+    food: { amount: 400, ratePerHour: 120, capacity: 5000, fullAt: null },
+    power: { amount: 300, ratePerHour: 20, capacity: 5000, fullAt: null },
+    material: { amount: 600, ratePerHour: 90, capacity: 5000, fullAt: null },
   },
   people: { supplied: 120, free: 24, atWork: 96 },
   buildings: {
