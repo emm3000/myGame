@@ -60,6 +60,8 @@ export const fixedCopyKeys: ReadonlySet<string> = new Set([
   'android.map.map_refusal_job_not_found',
   'android.map.map_refusal_job_site_out_of_bounds',
   'android.map.map_refusal_job_to_own_site',
+  'android.map.map_refusal_no_waste_yet',
+  'android.map.map_refusal_not_a_waste_site',
   'android.map.map_refusal_not_enough_hires_at_home',
   'android.map.map_refusal_site_held',
   'android.map.map_refusal_team_already_out',
