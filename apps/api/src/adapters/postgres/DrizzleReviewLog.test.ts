@@ -1,4 +1,4 @@
-import { Instant, type PlayerId, type ReviewLogEntry } from '@mygame/domain'
+import { Instant, type PlayerId, type ReviewLogEntry, type StoredMemoryCard } from '@mygame/domain'
 import { asc, eq } from 'drizzle-orm'
 import { drizzle } from 'drizzle-orm/node-postgres'
 import { Pool } from 'pg'
@@ -6,7 +6,7 @@ import { afterAll, beforeAll } from 'vitest'
 import { reviewLogContract } from '../reviewLogContract'
 import { DrizzleReviewLog } from './DrizzleReviewLog'
 import { reviewLog } from './schema'
-import { storedMemoryCardOf } from './storedMemoryCards'
+import { cardColumnsOf, storedMemoryCardOf } from './storedMemoryCards'
 
 function databaseUrl(): string {
   const url = process.env.DATABASE_URL
@@ -42,6 +42,47 @@ const registerPlayers = async (playerIds: ReadonlyArray<string>): Promise<void> 
   }
 }
 
+type ColumnValue = readonly [column: string, value: unknown]
+
+const cardColumnValuesOf = (
+  side: 'before' | 'after',
+  stored: StoredMemoryCard,
+): ReadonlyArray<ColumnValue> => {
+  const columns = cardColumnsOf(stored)
+  return [
+    [`${side}_state`, columns.state],
+    [`${side}_step`, columns.step],
+    [`${side}_stability`, columns.stability],
+    [`${side}_difficulty`, columns.difficulty],
+    [`${side}_last_review_at`, columns.lastReviewAt],
+    [`${side}_last_rating`, columns.lastRating],
+    [`${side}_entered_at`, columns.enteredAt],
+    [`${side}_retained_at`, columns.retainedAt],
+  ]
+}
+
+const logBeforeTheShownFrame = async (entry: ReviewLogEntry): Promise<void> => {
+  const columnValues: ReadonlyArray<ColumnValue> = [
+    ['player_id', entry.playerId],
+    ['word_id', entry.wordId],
+    ['reviewed_at', new Date(entry.reviewedAt.epochMilliseconds)],
+    ['format', entry.format],
+    ['answer', entry.answer],
+    ['near_miss_answer', entry.nearMissAnswer],
+    ['hint_shown', entry.hintShown],
+    ['rating', entry.rating],
+    ['elapsed_days', entry.elapsedDays],
+    ...cardColumnValuesOf('before', entry.before),
+    ...cardColumnValuesOf('after', entry.after),
+  ]
+  const columns = columnValues.map(([column]) => column)
+  const placeholders = columnValues.map((_, index) => `$${index + 1}`)
+  await pool.query(
+    `INSERT INTO review_log (${columns.join(', ')}) VALUES (${placeholders.join(', ')})`,
+    columnValues.map(([, value]) => value),
+  )
+}
+
 type LoggedRow = typeof reviewLog.$inferSelect
 
 const loggedEntryOf = (row: LoggedRow): ReviewLogEntry => ({
@@ -54,6 +95,7 @@ const loggedEntryOf = (row: LoggedRow): ReviewLogEntry => ({
   hintShown: row.hintShown,
   rating: row.rating,
   elapsedDays: row.elapsedDays,
+  shownFrame: row.shownFrame,
   before: storedMemoryCardOf(
     {
       state: row.beforeState,
@@ -93,5 +135,10 @@ const loggedEntriesOf = async (playerId: PlayerId): Promise<ReadonlyArray<Review
 
 reviewLogContract('DrizzleReviewLog', async () => {
   await emptyDatabase()
-  return { reviewLog: new DrizzleReviewLog(drizzle(pool)), registerPlayers, loggedEntriesOf }
+  return {
+    reviewLog: new DrizzleReviewLog(drizzle(pool)),
+    registerPlayers,
+    logBeforeTheShownFrame,
+    loggedEntriesOf,
+  }
 })

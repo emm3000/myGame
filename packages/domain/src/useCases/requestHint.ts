@@ -1,5 +1,6 @@
 import type { DomainError } from '../DomainError'
 import { admitDueReview } from '../learning/admitDueReview'
+import { freshPendingReview } from '../learning/freshPendingReview'
 import type { WordId } from '../learning/Lesson'
 import { normalizedAnswerOf } from '../learning/normalizedAnswerOf'
 import { reviewFormatOf } from '../learning/ReviewFormat'
@@ -65,8 +66,8 @@ export const requestHint = async (
   }
   const pending = await pendingReviews.pendingReviewOf(playerId, wordId)
   const marked = await pendingReviews.save(playerId, wordId, {
+    ...(pending ?? freshPendingReview),
     hintShown: true,
-    nearMissAnswer: pending?.nearMissAnswer ?? null,
   })
   if (!marked.ok) {
     return marked

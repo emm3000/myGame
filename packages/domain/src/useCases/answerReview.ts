@@ -1,5 +1,6 @@
 import type { DomainError } from '../DomainError'
 import { admitDueReview, type DueReview } from '../learning/admitDueReview'
+import { freshPendingReview } from '../learning/freshPendingReview'
 import { gradeTypedAnswer } from '../learning/gradeTypedAnswer'
 import type { HeldCard } from '../learning/HeldCard'
 import { isLessonRetained } from '../learning/isLessonRetained'
@@ -96,16 +97,18 @@ const logEntryOf = (
   now: Instant,
 ): ReviewLogEntry => {
   const before = review.held.card.stored
+  const { nearMissAnswer, hintShown, shownFrame } = pending ?? freshPendingReview
   return {
     playerId: command.playerId,
     wordId: command.wordId,
     reviewedAt: now,
     format: reviewFormatOf(review.held.card),
     answer: command.answer,
-    nearMissAnswer: pending?.nearMissAnswer ?? null,
-    hintShown: pending?.hintShown ?? false,
+    nearMissAnswer,
+    hintShown,
     rating,
     elapsedDays: before.lastReviewAt === null ? null : wholeDaysBetween(before.lastReviewAt, now),
+    shownFrame,
     before,
     after: after.stored,
   }
@@ -182,7 +185,7 @@ const markNearMiss = async (
   pendingReviews: PendingReviewRepository,
 ): Promise<Result<AnsweredReview, DomainError>> => {
   const marked = await pendingReviews.save(playerId, wordId, {
-    hintShown: pending?.hintShown ?? false,
+    ...(pending ?? freshPendingReview),
     nearMissAnswer: answer,
   })
   return marked.ok ? ok({ kind: 'nearMiss' }) : marked

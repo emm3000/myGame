@@ -6,6 +6,9 @@ reviewLogContract('MemoryReviewLog', async () => {
   return {
     reviewLog,
     registerPlayers: async () => {},
+    logBeforeTheShownFrame: async (entry) => {
+      await reviewLog.append({ ...entry, shownFrame: null })
+    },
     loggedEntriesOf: async (playerId) => reviewLog.entriesOf(playerId),
   }
 })

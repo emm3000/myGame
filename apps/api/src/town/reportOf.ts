@@ -2,19 +2,16 @@ import type { Report } from '@mygame/contracts'
 import {
   type Clock,
   type DomainError,
-  dueCardsAt,
   err,
   type Instant,
   ok,
   type PlayerId,
   type Result,
-  readFirstOf,
   resolveTown,
   type TownCatalog,
   type TownEvent,
 } from '@mygame/domain'
 import type { Refusal } from '../http/Refusal'
-import { learnerOf } from '../learning/learnerOf'
 import { type ReviewTerms, reviewsOf } from '../learning/reviewsOf'
 import { type MutateTownDependencies, mutateTown, type TownStores } from './mutateTown'
 import type { ReportClosings } from './ReportClosings'
@@ -56,28 +53,19 @@ export const reportOf = async (
   return mutateTown(
     playerId,
     async (stores, clock) => {
-      const learner = await learnerOf(playerId, stores)
-      if (!learner.ok) {
-        return learner
-      }
-      const readAt = clock.now()
-      const reviews = reviewsOf(learner.value, readAt, dependencies)
+      const reviews = await reviewsOf(playerId, stores, clock, dependencies)
       if (!reviews.ok) {
         return reviews
-      }
-      const dueCards = dueCardsAt(learner.value.cards, readAt, dependencies.memoryTerms)
-      if (!dueCards.ok) {
-        return dueCards
       }
       const news = await newsSinceOf(playerId, closedAt, stores, clock, dependencies.townCatalog)
       if (!news.ok) {
         return news
       }
-      const { due, nextDueAt } = reviews.value
+      const { due, readFirst, nextDueAt } = reviews.value
       return ok({
         dueCount: due.length,
         due,
-        readFirst: [...readFirstOf(dependencies.lessons.lessons(), dueCards.value)],
+        readFirst,
         nextDueAt,
         news: news.value.map(townNewsItemOf),
       })

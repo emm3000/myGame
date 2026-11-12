@@ -57,6 +57,34 @@ const runSql = async (statement: string): Promise<void> => {
   }
 }
 
+const loggedFramesOf = async (wordId: string): Promise<ReadonlyArray<string | null>> => {
+  const client = new Client({ connectionString: databaseUrl() })
+  await client.connect()
+  try {
+    const logged = await client.query<{ shown_frame: string | null }>(
+      'SELECT shown_frame FROM review_log WHERE word_id = $1 ORDER BY id',
+      [wordId],
+    )
+    return logged.rows.map((row) => row.shown_frame)
+  } finally {
+    await client.end()
+  }
+}
+
+const pendingFramesOf = async (wordId: string): Promise<ReadonlyArray<string | null>> => {
+  const client = new Client({ connectionString: databaseUrl() })
+  await client.connect()
+  try {
+    const pending = await client.query<{ shown_frame: string | null }>(
+      'SELECT shown_frame FROM pending_reviews WHERE word_id = $1',
+      [wordId],
+    )
+    return pending.rows.map((row) => row.shown_frame)
+  } finally {
+    await client.end()
+  }
+}
+
 const signal = (): { readonly promise: Promise<void>; readonly resolve: () => void } => {
   let resolve = (): void => {}
   const promise = new Promise<void>((settle) => {
@@ -665,6 +693,35 @@ describe('the learning routes', () => {
       await runSql('DELETE FROM towns')
 
       expect((await readReviews(player)).due).toHaveLength(5)
+    })
+
+    it('stores one frame for two concurrent reads of one due card', async () => {
+      const player = await studyLessonOne()
+      clock.setTo(lessonFinishesAt)
+      const firstHasRead = signal()
+      const secondHasAnswered = signal()
+      const secondIsBlockedOrHasAnswered = untilPlayerBlockedOrAnswered(secondHasAnswered.promise)
+      const racingApp = createApp({
+        ...server,
+        clock,
+        inTransaction: pausingFirstTransaction(server.inTransaction, async () => {
+          firstHasRead.resolve()
+          await secondIsBlockedOrHasAnswered
+        }),
+      })
+      const readDue = (): Promise<Response> =>
+        Promise.resolve(racingApp.request('/reviews', { headers: { cookie: player.cookie } }))
+
+      const first = readDue()
+      await firstHasRead.promise
+      const second = readDue().then((response) => {
+        secondHasAnswered.resolve()
+        return response
+      })
+      const statuses = (await Promise.all([first, second])).map(({ status }) => status)
+
+      expect(statuses).toEqual([200, 200])
+      expect(await pendingFramesOf('lesson-1-2')).toEqual(['We are at school.'])
     })
   })
 
@@ -1315,6 +1372,78 @@ describe('the learning routes', () => {
       expect(report.due.find(({ wordId }) => wordId === 'lesson-1-2')).toEqual(
         await recallOfSchool(player),
       )
+    })
+
+    it('shows the recall frame first shown again though the stage has grown since', async () => {
+      const player = await studyToTheFirstRecall()
+      await recallOfSchool(player)
+      await placeOutOfBandOne()
+
+      expect(await recallOfSchool(player)).toMatchObject({ gappedFrame: 'We are at ____.' })
+    })
+
+    it('shows the recall frame the Report first showed though the stage has grown since', async () => {
+      const player = await studyToTheFirstRecall()
+      await send(player, 'GET', '/report')
+      await placeOutOfBandOne()
+
+      expect(await recallOfSchool(player)).toMatchObject({ gappedFrame: 'We are at ____.' })
+    })
+
+    it('logs the frame the recall showed though the stage admits another at the answer', async () => {
+      const player = await studyToTheFirstRecall()
+      await recallOfSchool(player)
+      await placeOutOfBandOne()
+
+      await answered(player, 'lesson-1-2', 'school')
+
+      expect((await loggedFramesOf('lesson-1-2')).at(-1)).toBe('We are at ____.')
+    })
+
+    it('logs the later frame a recall showed', async () => {
+      const player = await studyToTheFirstRecall()
+      await placeOutOfBandOne()
+      await recallOfSchool(player)
+
+      await answered(player, 'lesson-1-2', 'school')
+
+      expect((await loggedFramesOf('lesson-1-2')).at(-1)).toBe('My ____ is new.')
+    })
+
+    it('logs the frame shown through a hint and a near-miss', async () => {
+      const player = await studyToTheFirstRecall()
+      await recallOfSchool(player)
+      await placeOutOfBandOne()
+      await hint(player, 'lesson-1-2')
+      await answered(player, 'lesson-1-2', 'scool')
+
+      await answered(player, 'lesson-1-2', 'school')
+
+      expect((await loggedFramesOf('lesson-1-2')).at(-1)).toBe('We are at ____.')
+    })
+
+    it('logs the full anchor each recognition showed', async () => {
+      await studyToTheFirstRecall()
+
+      expect(await loggedFramesOf('lesson-1-2')).toEqual(['We are at school.', 'We are at school.'])
+    })
+
+    it('chooses the recall frame anew once the review is rated', async () => {
+      const player = await studyToTheFirstRecall()
+      await recallOfSchool(player)
+      await placeOutOfBandOne()
+      await answered(player, 'lesson-1-2', 'school')
+      clock.setTo(secondRecallAt)
+
+      expect(await recallOfSchool(player)).toMatchObject({ gappedFrame: 'My ____ is new.' })
+    })
+
+    it('logs no frame for an answer no read showed', async () => {
+      const player = await studyToTheFirstRecall()
+
+      await answered(player, 'lesson-1-2', 'school')
+
+      expect((await loggedFramesOf('lesson-1-2')).at(-1)).toBeNull()
     })
 
     it('shows the anchor in recognition though the stage reaches a later frame', async () => {

@@ -373,6 +373,23 @@ ticket that first needs it.
   row from the change on holds it (ADR 036, rule 8), so calibration
   and check 8 can tell a hard word from a hard sentence. Rows written
   before it hold none.
+- **A due review keeps the frame it first showed.** The server stores
+  that frame's text on the card's pending review (ADR 036) at the first
+  read that shows the review, and every later read shows it again. A
+  hint and a near-miss keep it, and the rating copies it into the log
+  and deletes the pending review, so the next review chooses anew. The
+  stage can grow between a read and its answer, when a lesson finishes
+  or a band is placed out of, so a frame chosen again at the answer
+  could be one the player never saw. A frame corrected in place
+  reaches a due review only after its rating, since the log holds the
+  text the player saw. An answer to a review no read has shown since
+  this change logs no frame. ADR 027 (Decision 9) refuses a GET that
+  writes, because a read in another tab, a prefetch or a reload would
+  record an act the player never made. This write is safe from that:
+  the stored frame is what every later read shows, so a read nobody
+  looked at changes neither what the player then sees nor what the log
+  then holds, and the storage itself keeps the first frame against any
+  later write.
 - **The lexicon entry's `frame` and `gappedFrame` become `frames`**, a
   list of 1 to 3 `{ frame, gappedFrame }`, each later one with its
   `fromLessonId`. The anchor frame comes first, and no other field
@@ -462,6 +479,19 @@ ticket that first needs it.
   last frame on the card, and ADR 036 keeps the card FSRS state alone,
   or a read of the log, which the domain never reads. Rejected for the
   hash of the key instant, which may show one frame twice in a row.
+- **The shown frame chosen again at the answer.** It needs no stored
+  row, but the stage can grow between the read and the answer, and the
+  log would then hold a frame the player never saw. Rejected.
+- **The shown frame sent back by the client with the answer.** The
+  client would name what the server chose, against N1, and the answer's
+  wire shape would change for both clients. The answer already refuses
+  a rating of its own. Rejected.
+- **The shown frame derived from the stage at the card's due instant**,
+  so the read and the answer compute the same one and nothing is
+  stored. It needs the stage as of a past instant, and a content or
+  terms change deployed between the read and the answer still moves
+  the choice. Rejected for the frame kept on the pending review, which
+  already carries the hint and the near-miss to the log.
 - **Frames as stage-gated text variants** without a cap. Unbounded
   owner review, and frames no recall reaches for months. Rejected for
   three.
@@ -479,7 +509,9 @@ ticket that first needs it.
 - `gradeTypedAnswer` and `requestHint` change for units;
   `ReviewHintSchema` changes shape, the OpenAPI client is regenerated,
   and Android's and the web's hint lines follow.
-- The review log gains a column for the frame shown, a migration.
+- The review log and the pending review each gain a column for the
+  frame shown, one migration. A read of the reviews or of the Report
+  writes a pending review the first time it shows a due card.
 - ADR 036's rules 4 and 8, ADR 037's frame rule, order, stage,
   placement and holdout, and ADR 039's lesson counts read units and
   later frames as above. Their status lines say so.
@@ -532,5 +564,5 @@ ticket that first needs it.
   *Cognitive Science*, 43(1). https://doi.org/10.1111/cogs.12705
 - Alejo-González, R. (2010). Making sense of phrasal verbs. *AILA
   Review*, 23, 50–71. https://doi.org/10.1075/aila.23.04ale
-- ADR 035, ADR 036, ADR 037, ADR 038, ADR 039, ADR 041, ADR 042,
-  ADR 043.
+- ADR 027, ADR 035, ADR 036, ADR 037, ADR 038, ADR 039, ADR 041,
+  ADR 042, ADR 043.

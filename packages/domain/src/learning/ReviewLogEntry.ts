@@ -15,6 +15,7 @@ export type ReviewLogEntry = {
   readonly hintShown: boolean
   readonly rating: MemoryRating
   readonly elapsedDays: number | null
+  readonly shownFrame: string | null
   readonly before: StoredMemoryCard
   readonly after: StoredMemoryCard
 }

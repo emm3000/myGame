@@ -2,7 +2,7 @@ export type { DomainError } from './DomainError'
 export { anchorFrameOf } from './learning/anchorFrameOf'
 export type { Band, BandStart, BandWord, Headword } from './learning/BandStart'
 export { cardsInLearningOf } from './learning/cardsInLearningOf'
-export { type DueCard, dueCardsAt } from './learning/dueCardsAt'
+export type { DueCard } from './learning/dueCardsAt'
 export { gradeTypedAnswer, type TypedAnswerGrade } from './learning/gradeTypedAnswer'
 export type { HeldCard } from './learning/HeldCard'
 export { headwordOf } from './learning/headwordOf'
@@ -24,7 +24,6 @@ export { type ReviewFormat, reviewFormatOf } from './learning/ReviewFormat'
 export type { ReviewLogEntry } from './learning/ReviewLogEntry'
 export { readableWordsOf } from './learning/readableWordsOf'
 export { readFirstOf } from './learning/readFirstOf'
-export { recallFrameOf } from './learning/recallFrameOf'
 export { type RecognitionChoice, recognitionChoicesOf } from './learning/recognitionChoicesOf'
 export { type RetainedWords, retainedWordsOf } from './learning/retainedWordsOf'
 export { skillLevelOf } from './learning/skillLevelOf'
@@ -249,3 +248,9 @@ export {
   type RequestHintDependencies,
   requestHint,
 } from './useCases/requestHint'
+export {
+  type ShowDueReviewsCommand,
+  type ShowDueReviewsDependencies,
+  type ShownReview,
+  showDueReviews,
+} from './useCases/showDueReviews'

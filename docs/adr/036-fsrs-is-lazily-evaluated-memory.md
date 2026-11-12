@@ -1,5 +1,5 @@
 ---
-status: proposed, rule 7 amended by ADR 037 and ADR 039, rules 1, 6 and 7 read the town and the school from ADR 040, rules 4 and 8 amended for units and frames by ADR 044
+status: proposed, rule 7 amended by ADR 037 and ADR 039, rules 1, 6 and 7 read the town and the school from ADR 040, rules 4 and 8 and the pending review amended for units and frames by ADR 044
 date: 2026-11-04
 ---
 # FSRS is lazily evaluated memory
@@ -103,7 +103,9 @@ metric needs (§8.2), not for a claim of more learning.
   rule 4 must remember across requests and never changes the card, so
   the card stays the FSRS state and nothing else. A hint is refused on
   a card that is not due and on a card reviewed by recognition, and
-  writes nothing then.
+  writes nothing then. (Amended by ADR 044: it also holds `shownFrame`,
+  the frame the review first showed, so it exists from the first read
+  that shows a due card until the rating.)
 - **Retrievability is derived on read**: 0 before the first review,
   otherwise `R = (1 + FACTOR × t / S)^DECAY`, with `DECAY = −w20`,
   `FACTOR = 0.9^(1 / DECAY) − 1` and `t` the whole days since
