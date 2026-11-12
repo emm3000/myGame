@@ -440,6 +440,75 @@ it('reads one refusal when the send is refused as its quote was', async () => {
   ).toEqual([refusalNotEnoughHiresAtHome({ hire: 'worker', count: 5, atHome: 3 })])
 })
 
+it('reads the refusal of the new team once the player changes a refused one', async () => {
+  const shortOf = (job: SendJob) =>
+    ({
+      ok: false,
+      refusal: 'NotEnoughHiresAtHome',
+      error: {
+        kind: 'NotEnoughHiresAtHome',
+        params: { hire: 'worker', count: job.team.worker, atHome: 3 },
+      },
+    }) as const
+  await showMap('/map', teamAtHome, {
+    quoteJob: async (job) => shortOf(job),
+    sendJob: async (job) => shortOf(job),
+  })
+
+  const form = openJobForm(2)
+  enterTeam(form, { 'Trabajadores a enviar': '5' })
+  await passSeconds(0)
+  fireEvent.click(sendButton(form))
+  await passSeconds(0)
+  enterTeam(form, { 'Trabajadores a enviar': '4' })
+  await passSeconds(0)
+
+  expect(
+    within(form)
+      .getAllByRole('alert')
+      .map((alert) => alert.textContent),
+  ).toEqual([refusalNotEnoughHiresAtHome({ hire: 'worker', count: 4, atHome: 3 })])
+})
+
+it('stops asking the pay again once the player changes the team', async () => {
+  const quoted: Array<number> = []
+  await showMap('/map', teamAtHome, {
+    quoteJob: async (job) => {
+      quoted.push(job.team.worker)
+      return job.team.worker === 2
+        ? { ok: false, refusal: 'Unexpected' }
+        : { ok: true, value: { pay: { money: 0, food: 1, power: 0, material: 0 } } }
+    },
+  })
+
+  const form = openJobForm(2)
+  enterTeam(form, { 'Trabajadores a enviar': '2' })
+  await passSeconds(0)
+  enterTeam(form, { 'Trabajadores a enviar': '1' })
+  await passSeconds(10)
+
+  expect(quoted).toEqual([2, 1])
+})
+
+it('stops asking the pay again once the form closes', async () => {
+  const quoted: Array<SendJob> = []
+  await showMap('/map', teamAtHome, {
+    quoteJob: async (job) => {
+      quoted.push(job)
+      return { ok: false, refusal: 'Unexpected' }
+    },
+  })
+
+  const form = openJobForm(2)
+  enterTeam(form, { 'Trabajadores a enviar': '2' })
+  await passSeconds(0)
+  fireEvent.click(screen.getByRole('button', { name: 'Enviar un equipo al sitio 2' }))
+  await passSeconds(10)
+
+  expect(screen.queryByRole('region', { name: 'Trabajo en el sitio 2' })).toBeNull()
+  expect(quoted).toHaveLength(1)
+})
+
 it('asks the pay again a moment after the server could not be reached', async () => {
   const answers: Array<Awaited<ReturnType<ApiClient['quoteJob']>>> = [
     { ok: false, refusal: 'Unexpected' },

@@ -41,7 +41,7 @@ internal data class MapChoices(
 ) {
 
     fun keptAfterRead(): MapChoices = copy(
-        send = if (send == MapUiState.SendRequest.Waiting) send else MapUiState.SendRequest.Idle,
+        send = unansweredSend(),
         callBack = if (callBack == MapUiState.CallBackRequest.Waiting) callBack else MapUiState.CallBackRequest.Idle,
     )
 
@@ -50,8 +50,14 @@ internal data class MapChoices(
     fun choosing(site: Int): MapChoices = copy(
         chosen = if (chosen == site) null else site,
         entries = JobEntries.first,
-        send = if (send == MapUiState.SendRequest.Waiting) send else MapUiState.SendRequest.Idle,
+        send = unansweredSend(),
     )
+
+    fun entering(field: MapIntent.JobField, entry: String): MapChoices =
+        copy(entries = entries.with(field, entry), send = unansweredSend())
+
+    private fun unansweredSend(): MapUiState.SendRequest =
+        if (send == MapUiState.SendRequest.Waiting) send else MapUiState.SendRequest.Idle
 
     companion object {
         val none: MapChoices = MapChoices(
