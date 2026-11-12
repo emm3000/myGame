@@ -23,6 +23,7 @@
     <string name="report_news_loading">Estamos leyendo las noticias…</string>
     <string name="report_news_none">No hay noticias.</string>
     <string name="report_news_pay">Pago: {amounts}</string>
+    <string name="report_news_refund">Recuperaste: {amounts}</string>
     <string name="report_news_skill_earned" formatted="false">Ganaste una habilidad de {resource}: +{percent} % de {resource}.</string>
     <string name="report_news_title">Noticias del pueblo</string>
     <string name="report_next_review">Siguiente repaso:</string>
