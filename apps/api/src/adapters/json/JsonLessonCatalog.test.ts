@@ -239,6 +239,16 @@ describe('JsonLessonCatalog', () => {
       { id: 'lesson-14', theme: 'Ready for winter' },
       { id: 'lesson-15', theme: 'The next area' },
       { id: 'lesson-16', theme: 'The report' },
+      { id: 'lesson-17', theme: 'A talk with the mayor' },
+      { id: 'lesson-18', theme: 'My first day' },
+      { id: 'lesson-19', theme: 'A day with children' },
+      { id: 'lesson-20', theme: 'The town show' },
+      { id: 'lesson-21', theme: 'Life in a new place' },
+      { id: 'lesson-22', theme: 'Fixing a problem' },
+      { id: 'lesson-23', theme: 'Write it well' },
+      { id: 'lesson-24', theme: 'A lot of time' },
+      { id: 'lesson-25', theme: 'A company in town' },
+      { id: 'lesson-26', theme: 'Even more work' },
     ])
   })
 

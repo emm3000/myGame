@@ -995,7 +995,7 @@ describe('the learning routes', () => {
       assert(lessonOne !== undefined)
       return {
         ...lessonOne,
-        id: 'lesson-17',
+        id: 'lesson-fixture-holdout',
         theme: 'Saying and thinking',
         words: bandLessonHeadwords.map((headword) => ({
           id: `word-${headword}`,
@@ -1055,7 +1055,7 @@ describe('the learning routes', () => {
     it("stores a tenth of band 1's card words outside the chrome lessons", async () => {
       const player = await signUpWithATown()
 
-      expect((await startLesson(player, 'lesson-17')).status).toBe(200)
+      expect((await startLesson(player, 'lesson-fixture-holdout')).status).toBe(200)
 
       expect(await heldOutCount()).toBe(87)
     })
@@ -1064,7 +1064,7 @@ describe('the learning routes', () => {
       const player = await signUpWithATown()
       clock.setTo(lessonStartsAt)
 
-      await startLesson(player, 'lesson-17')
+      await startLesson(player, 'lesson-fixture-holdout')
 
       expect(await storedRows('SELECT band, started_at AS "startedAt" FROM band_starts')).toEqual([
         { band: 1, startedAt: new Date(lessonStartsAt) },
@@ -1083,18 +1083,18 @@ describe('the learning routes', () => {
       const player = await signUpWithATown()
       await startLesson(player, 'lesson-1')
 
-      expect((await startLesson(player, 'lesson-17')).status).toBe(409)
+      expect((await startLesson(player, 'lesson-fixture-holdout')).status).toBe(409)
 
       expect(await storedRows('SELECT band FROM band_starts')).toEqual([])
     })
 
     it('keeps the draw when a stopped lesson starts again', async () => {
       const player = await signUpWithATown()
-      await startLesson(player, 'lesson-17')
+      await startLesson(player, 'lesson-fixture-holdout')
       const drawn = await storedRows('SELECT headword FROM held_out_words ORDER BY headword')
-      await stopLesson(player, 'lesson-17')
+      await stopLesson(player, 'lesson-fixture-holdout')
 
-      await startLesson(player, 'lesson-17')
+      await startLesson(player, 'lesson-fixture-holdout')
 
       expect(await storedRows('SELECT headword FROM held_out_words ORDER BY headword')).toEqual(
         drawn,
@@ -1110,7 +1110,7 @@ describe('the learning routes', () => {
       })
       const player = await signUpWithATown()
       clock.setTo(lessonStartsAt)
-      await startLesson(player, 'lesson-17')
+      await startLesson(player, 'lesson-fixture-holdout')
 
       const running = await readTown(player)
       clock.setTo(lessonFinishesAt)
@@ -1118,7 +1118,7 @@ describe('the learning routes', () => {
 
       const readWordsOf = ({ lessons }: TownOverview): ReadonlyArray<string> =>
         lessons
-          .find(({ id }) => id === 'lesson-17')
+          .find(({ id }) => id === 'lesson-fixture-holdout')
           ?.words.flatMap(({ reading }) => (reading === null ? [] : [reading.word])) ?? []
       const heldOutContentIn = ({ lessons }: TownOverview): ReadonlyArray<string> =>
         stringsIn(lessons).filter((text) => ['say', 'gloss of say', 'They say it.'].includes(text))
@@ -1137,9 +1137,9 @@ describe('the learning routes', () => {
       const player = await signUpWithATown()
       clock.setTo(lessonStartsAt)
 
-      const { lessons } = await overviewOf(await startLesson(player, 'lesson-17'))
+      const { lessons } = await overviewOf(await startLesson(player, 'lesson-fixture-holdout'))
 
-      const lesson = lessons.find(({ id }) => id === 'lesson-17')
+      const lesson = lessons.find(({ id }) => id === 'lesson-fixture-holdout')
       expect(lesson?.words.find(({ wordId }) => wordId === 'word-say')?.reading).toBeNull()
     })
 
@@ -1152,7 +1152,7 @@ describe('the learning routes', () => {
       })
       const player = await signUpWithATown()
       clock.setTo(lessonStartsAt)
-      await startLesson(player, 'lesson-17')
+      await startLesson(player, 'lesson-fixture-holdout')
       clock.setTo(lessonFinishesAt)
 
       const { due } = await readReviews(player)
@@ -1174,7 +1174,7 @@ describe('the learning routes', () => {
       })
       const player = await signUpWithATown()
       clock.setTo(lessonStartsAt)
-      await startLesson(player, 'lesson-17')
+      await startLesson(player, 'lesson-fixture-holdout')
       const headwordOf = (wordId: string): string => wordId.replace('word-', '')
       const recognizeTheBandLesson = async (): Promise<void> => {
         for (const review of (await readReviews(player)).due) {
@@ -1206,7 +1206,7 @@ describe('the learning routes', () => {
       )
 
       expect(earned.map(({ lessonId, words }) => ({ lessonId, words }))).toEqual([
-        { lessonId: 'lesson-17', words: ['time', 'year', 'think', 'come'] },
+        { lessonId: 'lesson-fixture-holdout', words: ['time', 'year', 'think', 'come'] },
       ])
     })
 
@@ -1219,7 +1219,7 @@ describe('the learning routes', () => {
       })
       const player = await signUpWithATown()
       clock.setTo(lessonStartsAt)
-      await startLesson(player, 'lesson-17')
+      await startLesson(player, 'lesson-fixture-holdout')
       clock.setTo(lessonFinishesAt)
 
       const { due } = await readReviews(player)

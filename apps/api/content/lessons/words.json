@@ -718,5 +718,455 @@
     "gappedFrame": "Try it ____.",
     "gloss": { "es": "otra vez" },
     "definition": "one more time"
+  },
+  {
+    "id": "word-76",
+    "lemma": "say",
+    "partOfSpeech": "verb",
+    "frame": "What does the mayor say?",
+    "gappedFrame": "What does the mayor ____?",
+    "gloss": { "es": "decir" },
+    "definition": "to speak words that other people can hear"
+  },
+  {
+    "id": "word-77",
+    "lemma": "know",
+    "partOfSpeech": "verb",
+    "frame": "Do you know this word?",
+    "gappedFrame": "Do you ____ this word?",
+    "gloss": { "es": "saber" },
+    "definition": "to have the answer in your mind"
+  },
+  {
+    "id": "word-78",
+    "lemma": "good",
+    "partOfSpeech": "adjective",
+    "frame": "The pay is good.",
+    "gappedFrame": "The pay is ____.",
+    "gloss": { "es": "bueno" },
+    "definition": "not bad; what you want it to be"
+  },
+  {
+    "id": "word-79",
+    "lemma": "time",
+    "partOfSpeech": "noun",
+    "frame": "I have no time today.",
+    "gappedFrame": "I have no ____ today.",
+    "gloss": { "es": "tiempo" },
+    "definition": "what we measure in hours and days"
+  },
+  {
+    "id": "word-80",
+    "lemma": "new",
+    "partOfSpeech": "adjective",
+    "frame": "We have a new mayor.",
+    "gappedFrame": "We have a ____ mayor.",
+    "gloss": { "es": "nuevo" },
+    "definition": "not old; here for the first time"
+  },
+  {
+    "id": "word-81",
+    "lemma": "one",
+    "partOfSpeech": "adjective",
+    "frame": "I have one job.",
+    "gappedFrame": "I have ____ job.",
+    "gloss": { "es": "uno" },
+    "definition": "the first number"
+  },
+  {
+    "id": "word-82",
+    "lemma": "get",
+    "partOfSpeech": "verb",
+    "frame": "You get food at the school.",
+    "gappedFrame": "You ____ food at the school.",
+    "gloss": { "es": "recibir" },
+    "definition": "to have something come to you"
+  },
+  {
+    "id": "word-83",
+    "lemma": "take",
+    "partOfSpeech": "verb",
+    "frame": "Take the truck to the farm.",
+    "gappedFrame": "____ the truck to the farm.",
+    "gloss": { "es": "llevar" },
+    "definition": "to bring something with you to another place"
+  },
+  {
+    "id": "word-84",
+    "lemma": "first",
+    "partOfSpeech": "adjective",
+    "frame": "This is my first job.",
+    "gappedFrame": "This is my ____ job.",
+    "gloss": { "es": "primero" },
+    "definition": "before all the others"
+  },
+  {
+    "id": "word-85",
+    "lemma": "thing",
+    "partOfSpeech": "noun",
+    "frame": "What is this thing?",
+    "gappedFrame": "What is this ____?",
+    "gloss": { "es": "cosa" },
+    "definition": "what you call something when you do not say its name"
+  },
+  {
+    "id": "word-86",
+    "lemma": "there",
+    "partOfSpeech": "adverb",
+    "frame": "The farm is over there.",
+    "gappedFrame": "The farm is over ____.",
+    "gloss": { "es": "allí" },
+    "definition": "in that place"
+  },
+  {
+    "id": "word-87",
+    "lemma": "child",
+    "partOfSpeech": "noun",
+    "frame": "Is your child at school?",
+    "gappedFrame": "Is your ____ at school?",
+    "gloss": { "es": "niño o niña" },
+    "definition": "a young person who is not yet a man or a woman"
+  },
+  {
+    "id": "word-88",
+    "lemma": "look",
+    "partOfSpeech": "verb",
+    "frame": "Look at the map.",
+    "gappedFrame": "____ at the map.",
+    "gloss": { "es": "mirar" },
+    "definition": "to use your eyes to see"
+  },
+  {
+    "id": "word-89",
+    "lemma": "use",
+    "partOfSpeech": "verb",
+    "frame": "We use power at the factory.",
+    "gappedFrame": "We ____ power at the factory.",
+    "gloss": { "es": "usar" },
+    "definition": "to have something do a job for you"
+  },
+  {
+    "id": "word-90",
+    "lemma": "last",
+    "partOfSpeech": "adjective",
+    "frame": "This is the last lesson.",
+    "gappedFrame": "This is the ____ lesson.",
+    "gloss": { "es": "último" },
+    "definition": "after all the others"
+  },
+  {
+    "id": "word-91",
+    "lemma": "like",
+    "partOfSpeech": "verb",
+    "frame": "Do you like your job?",
+    "gappedFrame": "Do you ____ your job?",
+    "gloss": { "es": "gustar" },
+    "definition": "to think that someone or something is good"
+  },
+  {
+    "id": "word-92",
+    "lemma": "very",
+    "partOfSpeech": "adverb",
+    "frame": "The school is very full.",
+    "gappedFrame": "The school is ____ full.",
+    "gloss": { "es": "muy" },
+    "definition": "more than a little"
+  },
+  {
+    "id": "word-93",
+    "lemma": "make",
+    "partOfSpeech": "verb",
+    "frame": "We make material at the factory.",
+    "gappedFrame": "We ____ material at the factory.",
+    "gloss": { "es": "hacer" },
+    "definition": "to build something or to get it ready"
+  },
+  {
+    "id": "word-94",
+    "lemma": "man",
+    "partOfSpeech": "noun",
+    "frame": "That man is the mayor.",
+    "gappedFrame": "That ____ is the mayor.",
+    "gloss": { "es": "hombre" },
+    "definition": "a person who is not a woman or a child"
+  },
+  {
+    "id": "word-95",
+    "lemma": "show",
+    "partOfSpeech": "verb",
+    "frame": "Show me the way.",
+    "gappedFrame": "____ me the way.",
+    "gloss": { "es": "mostrar" },
+    "definition": "to let someone see something"
+  },
+  {
+    "id": "word-96",
+    "lemma": "think",
+    "partOfSpeech": "verb",
+    "frame": "I think this is the way.",
+    "gappedFrame": "I ____ this is the way.",
+    "gloss": { "es": "pensar" },
+    "definition": "to use your mind to have an idea"
+  },
+  {
+    "id": "word-97",
+    "lemma": "want",
+    "partOfSpeech": "verb",
+    "frame": "I want to work at the office.",
+    "gappedFrame": "I ____ to work at the office.",
+    "gloss": { "es": "querer" },
+    "definition": "to feel that you would like to have something"
+  },
+  {
+    "id": "word-98",
+    "lemma": "life",
+    "partOfSpeech": "noun",
+    "frame": "Life in the city is good.",
+    "gappedFrame": "____ in the city is good.",
+    "gloss": { "es": "vida" },
+    "definition": "all that a person does from the first day to the last"
+  },
+  {
+    "id": "word-99",
+    "lemma": "place",
+    "partOfSpeech": "noun",
+    "frame": "This is a good place for a farm.",
+    "gappedFrame": "This is a good ____ for a farm.",
+    "gloss": { "es": "lugar" },
+    "definition": "a part of the world where something is"
+  },
+  {
+    "id": "word-100",
+    "lemma": "only",
+    "partOfSpeech": "adverb",
+    "frame": "We have only one job.",
+    "gappedFrame": "We have ____ one job.",
+    "gloss": { "es": "solo" },
+    "definition": "not more than that"
+  },
+  {
+    "id": "word-101",
+    "lemma": "see",
+    "partOfSpeech": "verb",
+    "frame": "Can you see the river?",
+    "gappedFrame": "Can you ____ the river?",
+    "gloss": { "es": "ver" },
+    "definition": "to know something with your eyes"
+  },
+  {
+    "id": "word-102",
+    "lemma": "find",
+    "partOfSpeech": "verb",
+    "frame": "Can you find the office?",
+    "gappedFrame": "Can you ____ the office?",
+    "gloss": { "es": "encontrar" },
+    "definition": "to look for something and get it"
+  },
+  {
+    "id": "word-103",
+    "lemma": "change",
+    "partOfSpeech": "verb",
+    "frame": "Can you change this word?",
+    "gappedFrame": "Can you ____ this word?",
+    "gloss": { "es": "cambiar" },
+    "definition": "to make something new or not the same"
+  },
+  {
+    "id": "word-104",
+    "lemma": "problem",
+    "partOfSpeech": "noun",
+    "frame": "We have a problem at the factory.",
+    "gappedFrame": "We have a ____ at the factory.",
+    "gloss": { "es": "problema" },
+    "definition": "something that is not right and needs work"
+  },
+  {
+    "id": "word-105",
+    "lemma": "right",
+    "partOfSpeech": "adjective",
+    "frame": "Is this the right way?",
+    "gappedFrame": "Is this the ____ way?",
+    "gloss": { "es": "correcto" },
+    "definition": "good for the work; true"
+  },
+  {
+    "id": "word-106",
+    "lemma": "well",
+    "partOfSpeech": "adverb",
+    "frame": "She works well.",
+    "gappedFrame": "She works ____.",
+    "gloss": { "es": "bien" },
+    "definition": "in a good way"
+  },
+  {
+    "id": "word-107",
+    "lemma": "tell",
+    "partOfSpeech": "verb",
+    "frame": "Tell me about your job.",
+    "gappedFrame": "____ me about your job.",
+    "gloss": { "es": "contar" },
+    "definition": "to give news or words to someone"
+  },
+  {
+    "id": "word-108",
+    "lemma": "mean",
+    "partOfSpeech": "verb",
+    "frame": "What does this word mean?",
+    "gappedFrame": "What does this word ____?",
+    "gloss": { "es": "significar" },
+    "definition": "to give the idea of a word"
+  },
+  {
+    "id": "word-109",
+    "lemma": "write",
+    "partOfSpeech": "verb",
+    "frame": "Write your name on the list.",
+    "gappedFrame": "____ your name on the list.",
+    "gloss": { "es": "escribir" },
+    "definition": "to put words on paper"
+  },
+  {
+    "id": "word-110",
+    "lemma": "same",
+    "partOfSpeech": "adjective",
+    "frame": "We have the same job.",
+    "gappedFrame": "We have the ____ job.",
+    "gloss": { "es": "mismo" },
+    "definition": "not different"
+  },
+  {
+    "id": "word-111",
+    "lemma": "just",
+    "partOfSpeech": "adverb",
+    "frame": "I just got home from work.",
+    "gappedFrame": "I ____ got home from work.",
+    "gloss": { "es": "acabar de" },
+    "definition": "a short time ago"
+  },
+  {
+    "id": "word-112",
+    "lemma": "how",
+    "partOfSpeech": "adverb",
+    "frame": "How do you get to the farm?",
+    "gappedFrame": "____ do you get to the farm?",
+    "gloss": { "es": "cómo" },
+    "definition": "in what way"
+  },
+  {
+    "id": "word-113",
+    "lemma": "here",
+    "partOfSpeech": "adverb",
+    "frame": "Is the mayor here today?",
+    "gappedFrame": "Is the mayor ____ today?",
+    "gloss": { "es": "aquí" },
+    "definition": "in this place"
+  },
+  {
+    "id": "word-114",
+    "lemma": "long",
+    "partOfSpeech": "adjective",
+    "frame": "The day is long.",
+    "gappedFrame": "The day is ____.",
+    "gloss": { "es": "largo" },
+    "definition": "with much time from the start to the end"
+  },
+  {
+    "id": "word-115",
+    "lemma": "lot",
+    "partOfSpeech": "noun",
+    "frame": "We have a lot of food.",
+    "gappedFrame": "We have a ____ of food.",
+    "gloss": { "es": "montón" },
+    "definition": "a large number or amount"
+  },
+  {
+    "id": "word-116",
+    "lemma": "then",
+    "partOfSpeech": "adverb",
+    "frame": "Come to the office, then go home.",
+    "gappedFrame": "Come to the office, ____ go home.",
+    "gloss": { "es": "luego" },
+    "definition": "after that"
+  },
+  {
+    "id": "word-117",
+    "lemma": "company",
+    "partOfSpeech": "noun",
+    "frame": "I work for a company in the city.",
+    "gappedFrame": "I work for a ____ in the city.",
+    "gloss": { "es": "empresa" },
+    "definition": "a group of people who work to make and sell things"
+  },
+  {
+    "id": "word-118",
+    "lemma": "give",
+    "partOfSpeech": "verb",
+    "frame": "We give food to the people.",
+    "gappedFrame": "We ____ food to the people.",
+    "gloss": { "es": "dar" },
+    "definition": "to let someone have something"
+  },
+  {
+    "id": "word-119",
+    "lemma": "really",
+    "partOfSpeech": "adverb",
+    "frame": "Do you really need more food?",
+    "gappedFrame": "Do you ____ need more food?",
+    "gloss": { "es": "de verdad" },
+    "definition": "in a true way"
+  },
+  {
+    "id": "word-120",
+    "lemma": "feel",
+    "partOfSpeech": "verb",
+    "frame": "I feel good today.",
+    "gappedFrame": "I ____ good today.",
+    "gloss": { "es": "sentir" },
+    "definition": "to know in your body or mind how you are"
+  },
+  {
+    "id": "word-121",
+    "lemma": "also",
+    "partOfSpeech": "adverb",
+    "frame": "I also work at the farm.",
+    "gappedFrame": "I ____ work at the farm.",
+    "gloss": { "es": "también" },
+    "definition": "and more; as well"
+  },
+  {
+    "id": "word-122",
+    "lemma": "even",
+    "partOfSpeech": "adverb",
+    "frame": "Even the mayor works here.",
+    "gappedFrame": "____ the mayor works here.",
+    "gloss": { "es": "incluso" },
+    "definition": "a word that adds more than you expect"
+  },
+  {
+    "id": "word-123",
+    "lemma": "before",
+    "partOfSpeech": "adverb",
+    "frame": "Have you been here before?",
+    "gappedFrame": "Have you been here ____?",
+    "gloss": { "es": "antes" },
+    "definition": "some time ago"
+  },
+  {
+    "id": "word-124",
+    "lemma": "too",
+    "partOfSpeech": "adverb",
+    "frame": "The school is too full.",
+    "gappedFrame": "The school is ____ full.",
+    "gloss": { "es": "demasiado" },
+    "definition": "more than you need or want"
+  },
+  {
+    "id": "word-125",
+    "lemma": "still",
+    "partOfSpeech": "adverb",
+    "frame": "Is the school still full?",
+    "gappedFrame": "Is the school ____ full?",
+    "gloss": { "es": "todavía" },
+    "definition": "up to now and not changed"
   }
 ]
