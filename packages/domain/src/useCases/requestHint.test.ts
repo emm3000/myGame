@@ -98,18 +98,41 @@ describe('requestHint', () => {
     expect(await pendingReviews.pendingReviewOf(learner, 'school')).toEqual({
       hintShown: true,
       nearMissAnswer: null,
+      shownFrame: null,
     })
   })
 
   it('keeps the near-miss already pending', async () => {
     const { pendingReviews, dependencies } = arrange(recallCard, dueAtOf(recallCard))
-    await pendingReviews.save(learner, 'school', { hintShown: false, nearMissAnswer: 'scool' })
+    await pendingReviews.save(learner, 'school', {
+      hintShown: false,
+      nearMissAnswer: 'scool',
+      shownFrame: null,
+    })
 
     await requestHint({ playerId: learner, wordId: 'school' }, dependencies)
 
     expect(await pendingReviews.pendingReviewOf(learner, 'school')).toEqual({
       hintShown: true,
       nearMissAnswer: 'scool',
+      shownFrame: null,
+    })
+  })
+
+  it('keeps the frame the review showed', async () => {
+    const { pendingReviews, dependencies } = arrange(recallCard, dueAtOf(recallCard))
+    await pendingReviews.save(learner, 'school', {
+      hintShown: false,
+      nearMissAnswer: null,
+      shownFrame: 'My ____ is new.',
+    })
+
+    await requestHint({ playerId: learner, wordId: 'school' }, dependencies)
+
+    expect(await pendingReviews.pendingReviewOf(learner, 'school')).toEqual({
+      hintShown: true,
+      nearMissAnswer: null,
+      shownFrame: 'My ____ is new.',
     })
   })
 

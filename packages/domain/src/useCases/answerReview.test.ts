@@ -1,5 +1,7 @@
 import { assert, describe, expect, it } from 'vitest'
 import type { HeldCard } from '../learning/HeldCard'
+import type { Lesson } from '../learning/Lesson'
+import type { PendingReview } from '../learning/PendingReview'
 import { recognitionChoicesOf } from '../learning/recognitionChoicesOf'
 import { dueInstantOf } from '../memory/dueInstantOf'
 import { MemoryCard } from '../memory/MemoryCard'
@@ -26,6 +28,7 @@ import { Town } from '../town/Town'
 import type { TownRepository } from '../town/TownRepository'
 import type { TownSkill } from '../town/TownSkill'
 import { answerReview } from './answerReview'
+import { showDueReviews } from './showDueReviews'
 
 const MILLISECONDS_PER_MINUTE = 60_000
 
@@ -132,6 +135,31 @@ const arrange = (
   }
   return { towns, skills, news, cards, pendingReviews, reviewLog, dependencies }
 }
+
+const lessonWithALaterFrame: Lesson = {
+  ...lessonOne,
+  words: lessonOne.words.map((word) =>
+    word.id === 'school'
+      ? {
+          ...word,
+          frames: [
+            word.frames[0],
+            {
+              frame: 'My school is new.',
+              gappedFrame: 'My ____ is new.',
+              fromLessonId: 'lesson-2',
+            },
+          ],
+        }
+      : word,
+  ),
+}
+
+const shownAs = (shownFrame: string): PendingReview => ({
+  hintShown: false,
+  nearMissAnswer: null,
+  shownFrame,
+})
 
 const skillsOf = async (skills: EarnedSkillRepository): Promise<ReadonlyArray<TownSkill>> => {
   const earned = await skills.skillsOf(learner)
@@ -303,9 +331,64 @@ describe('answerReview', () => {
         hintShown: false,
         rating: 'again',
         elapsedDays: null,
+        shownFrame: null,
         before: entered.stored,
         after: heldCardOf(cards, 'school').card.stored,
       },
+    ])
+  })
+
+  it('logs the frame the recall showed', async () => {
+    const { pendingReviews, reviewLog, dependencies } = arrange(
+      [ownedBy('school', recallCard)],
+      dueAtOf(recallCard),
+    )
+    const lessons = inMemoryLessons([lessonWithALaterFrame], headwords)
+    await showDueReviews(
+      {
+        playerId: learner,
+        cards: [{ wordId: 'school', card: recallCard }],
+        stage: ['lesson-1', 'lesson-2'],
+      },
+      { pendingReviews, lessons, clock: dependencies.clock, terms: defaultMemoryTerms },
+    )
+
+    await answerReview(
+      { playerId: learner, wordId: 'school', answer: 'school' },
+      { ...dependencies, lessons },
+    )
+
+    expect(reviewLog.entries()).toMatchObject([{ shownFrame: 'My ____ is new.' }])
+  })
+
+  it('logs the frame the recognition showed', async () => {
+    const entered = MemoryCard.entered(lessonFinish)
+    const { pendingReviews, reviewLog, dependencies } = arrange(
+      [ownedBy('school', entered), ownedBy('home', entered)],
+      lessonFinish,
+    )
+    await pendingReviews.save(learner, 'school', shownAs('I walk to school every day.'))
+
+    await answerReview(
+      { playerId: learner, wordId: 'school', answer: choiceIdOf('school', 'school', entered) },
+      dependencies,
+    )
+
+    expect(reviewLog.entries()).toMatchObject([{ shownFrame: 'I walk to school every day.' }])
+  })
+
+  it('logs the frame shown before a near-miss', async () => {
+    const { pendingReviews, reviewLog, dependencies } = arrange(
+      [ownedBy('school', recallCard)],
+      dueAtOf(recallCard),
+    )
+    await pendingReviews.save(learner, 'school', shownAs('My ____ is new.'))
+    await answerReview({ playerId: learner, wordId: 'school', answer: 'scool' }, dependencies)
+
+    await answerReview({ playerId: learner, wordId: 'school', answer: 'school' }, dependencies)
+
+    expect(reviewLog.entries()).toMatchObject([
+      { nearMissAnswer: 'scool', shownFrame: 'My ____ is new.' },
     ])
   })
 
@@ -342,7 +425,11 @@ describe('answerReview', () => {
       [ownedBy('school', recallCard)],
       dueAtOf(recallCard),
     )
-    await pendingReviews.save(learner, 'school', { hintShown: true, nearMissAnswer: null })
+    await pendingReviews.save(learner, 'school', {
+      hintShown: true,
+      nearMissAnswer: null,
+      shownFrame: null,
+    })
 
     const answered = await answerReview(
       { playerId: learner, wordId: 'school', answer: 'school' },
@@ -372,6 +459,7 @@ describe('answerReview', () => {
     expect(await pendingReviews.pendingReviewOf(learner, 'school')).toEqual({
       hintShown: false,
       nearMissAnswer: 'scool',
+      shownFrame: null,
     })
   })
 
@@ -531,7 +619,11 @@ describe('answerReview', () => {
       retainedExceptSchool(firstRecallDoneCard),
       lastRecallAt,
     )
-    await pendingReviews.save(learner, 'school', { hintShown: true, nearMissAnswer: null })
+    await pendingReviews.save(learner, 'school', {
+      hintShown: true,
+      nearMissAnswer: null,
+      shownFrame: null,
+    })
 
     await answerReview({ playerId: learner, wordId: 'school', answer: 'school' }, dependencies)
 

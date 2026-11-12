@@ -5,16 +5,31 @@ import type { PendingReviewRepository } from '../ports/PendingReviewRepository'
 import { ok } from '../Result'
 
 export const inMemoryPendingReviews = (): PendingReviewRepository => {
-  const keyOf = (playerId: PlayerId, wordId: WordId): string => `${playerId}/${wordId}`
-  const pending = new Map<string, PendingReview>()
+  const pendingByPlayer = new Map<PlayerId, Map<WordId, PendingReview>>()
+  const pendingOf = (playerId: PlayerId): Map<WordId, PendingReview> => {
+    const held = pendingByPlayer.get(playerId) ?? new Map<WordId, PendingReview>()
+    pendingByPlayer.set(playerId, held)
+    return held
+  }
+  const store = (playerId: PlayerId, wordId: WordId, review: PendingReview): void => {
+    const shownFrame = pendingOf(playerId).get(wordId)?.shownFrame ?? review.shownFrame
+    pendingOf(playerId).set(wordId, { ...review, shownFrame })
+  }
   return {
-    pendingReviewOf: async (playerId, wordId) => pending.get(keyOf(playerId, wordId)),
+    pendingReviewOf: async (playerId, wordId) => pendingOf(playerId).get(wordId),
+    pendingReviewsOf: async (playerId) => new Map(pendingOf(playerId)),
     save: async (playerId, wordId, review) => {
-      pending.set(keyOf(playerId, wordId), review)
+      store(playerId, wordId, review)
+      return ok(undefined)
+    },
+    saveAll: async (playerId, reviews) => {
+      for (const [wordId, review] of reviews) {
+        store(playerId, wordId, review)
+      }
       return ok(undefined)
     },
     delete: async (playerId, wordId) => {
-      pending.delete(keyOf(playerId, wordId))
+      pendingOf(playerId).delete(wordId)
       return ok(undefined)
     },
   }

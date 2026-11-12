@@ -10,6 +10,7 @@ import { describe, expect, it } from 'vitest'
 export type ReviewLogFixture = {
   readonly reviewLog: ReviewLog
   readonly registerPlayers: (playerIds: ReadonlyArray<PlayerId>) => Promise<void>
+  readonly logBeforeTheShownFrame: (entry: ReviewLogEntry) => Promise<void>
   readonly loggedEntriesOf: (playerId: PlayerId) => Promise<ReadonlyArray<ReviewLogEntry>>
 }
 
@@ -71,6 +72,7 @@ const firstRecognition: ReviewLogEntry = {
   hintShown: false,
   rating: 'good',
   elapsedDays: null,
+  shownFrame: 'I walk to school every day.',
   before: enteredSchool,
   after: recognizedSchool,
 }
@@ -85,6 +87,7 @@ const retainingRecall: ReviewLogEntry = {
   hintShown: true,
   rating: 'hard',
   elapsedDays: 11,
+  shownFrame: 'I walk to ____ every day.',
   before: reviewedSchool,
   after: retainedSchool,
 }
@@ -120,6 +123,26 @@ export const reviewLogContract = (
       await reviewLog.append(retainingRecall)
 
       expect(await loggedEntriesOf(ana)).toEqual([firstRecognition, retainingRecall])
+    })
+
+    it('stores the frame shown', async () => {
+      const { reviewLog, registerPlayers, loggedEntriesOf } = await arrange()
+      await registerPlayers([ana])
+
+      await reviewLog.append(retainingRecall)
+
+      expect(await loggedEntriesOf(ana)).toMatchObject([
+        { shownFrame: 'I walk to ____ every day.' },
+      ])
+    })
+
+    it('reads a row written before the column as no frame', async () => {
+      const { registerPlayers, logBeforeTheShownFrame, loggedEntriesOf } = await arrange()
+      await registerPlayers([ana])
+
+      await logBeforeTheShownFrame(firstRecognition)
+
+      expect(await loggedEntriesOf(ana)).toEqual([{ ...firstRecognition, shownFrame: null }])
     })
 
     it('keeps the log of one player from another', async () => {

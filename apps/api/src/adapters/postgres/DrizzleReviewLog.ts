@@ -34,6 +34,7 @@ export class DrizzleReviewLog implements ReviewLog {
       hintShown: entry.hintShown,
       rating: entry.rating,
       elapsedDays: entry.elapsedDays,
+      shownFrame: entry.shownFrame,
       beforeState: before.state,
       beforeStep: before.step,
       beforeStability: before.stability,

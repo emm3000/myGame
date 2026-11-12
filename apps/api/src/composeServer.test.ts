@@ -413,7 +413,11 @@ describe('a review transaction from the composed server', () => {
 
     await server.inTransaction(async ({ cards, pendingReviews }) => {
       await cards.save(ana, { wordId: 'school', card: MemoryCard.entered(foundedAt) })
-      await pendingReviews.save(ana, 'school', { hintShown: true, nearMissAnswer: null })
+      await pendingReviews.save(ana, 'school', {
+        hintShown: true,
+        nearMissAnswer: null,
+        shownFrame: null,
+      })
       return err('refused')
     })
 

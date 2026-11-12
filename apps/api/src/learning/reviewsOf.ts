@@ -1,26 +1,25 @@
 import type { DueReview, Reviews } from '@mygame/contracts'
 import {
-  anchorFrameOf,
+  type Clock,
   type DomainError,
-  type DueCard,
-  dueCardsAt,
   dueInstantOf,
-  err,
   type HeldCard,
   type Instant,
   type MemoryTerms,
   ok,
+  type PlayerId,
   type Result,
   readFirstOf,
-  recallFrameOf,
   recognitionChoicesOf,
   reviewFormatOf,
-  type Stage,
+  type ShownReview,
+  showDueReviews,
   stageOf,
 } from '@mygame/domain'
 import { isoOf } from '../http/isoOf'
+import type { TownStores } from '../town/mutateTown'
 import type { LessonLibrary } from './LessonLibrary'
-import type { Learner } from './learnerOf'
+import { learnerOf } from './learnerOf'
 
 export type ReviewTerms = {
   readonly lessons: LessonLibrary
@@ -28,31 +27,23 @@ export type ReviewTerms = {
 }
 
 const dueReviewOf = (
-  due: DueCard,
+  { lesson, word, due, shownFrame }: ShownReview,
   cards: ReadonlyArray<HeldCard>,
-  stage: Stage,
-  lessons: LessonLibrary,
-): Result<DueReview, DomainError> => {
-  const lesson = lessons.lessonOfWord(due.wordId)
-  const word = lesson?.words.find(({ id }) => id === due.wordId)
-  if (lesson === undefined || word === undefined) {
-    return err({ kind: 'UnknownWord', wordId: due.wordId })
-  }
+): DueReview => {
   const asked = { wordId: word.id, lessonId: lesson.id, dueAt: isoOf(due.dueAt) }
   if (reviewFormatOf(due.card) === 'recall') {
-    const { gappedFrame } = recallFrameOf(word, due.card, stage)
-    return ok({ ...asked, mode: 'recall', gloss: word.gloss, gappedFrame })
+    return { ...asked, mode: 'recall', gloss: word.gloss, gappedFrame: shownFrame }
   }
-  return ok({
+  return {
     ...asked,
     mode: 'recognition',
     word: word.acceptedForms[0],
-    frame: anchorFrameOf(word).frame,
+    frame: shownFrame,
     choices: recognitionChoicesOf(word.id, lesson, due.card, cards).flatMap(
       ({ choiceId, wordId }) =>
         lesson.words.filter(({ id }) => id === wordId).map(({ gloss }) => ({ choiceId, gloss })),
     ),
-  })
+  }
 }
 
 export const nextDueAtOf = (
@@ -74,31 +65,37 @@ export const nextDueAtOf = (
   return ok(next)
 }
 
-export const reviewsOf = (
-  { cards, placedOutBands }: Learner,
-  readAt: Instant,
+export const reviewsOf = async (
+  playerId: PlayerId,
+  stores: Pick<TownStores, 'cards' | 'placements' | 'pendingReviews'>,
+  clock: Clock,
   { lessons, memoryTerms }: ReviewTerms,
-): Result<Reviews, DomainError> => {
-  const dueCards = dueCardsAt(cards, readAt, memoryTerms)
-  if (!dueCards.ok) {
-    return dueCards
+): Promise<Result<Reviews, DomainError>> => {
+  const learner = await learnerOf(playerId, stores)
+  if (!learner.ok) {
+    return learner
   }
-  const stage = stageOf(lessons.lessons(), cards, placedOutBands, lessons)
-  const due: Array<DueReview> = []
-  for (const dueCard of dueCards.value) {
-    const review = dueReviewOf(dueCard, cards, stage, lessons)
-    if (!review.ok) {
-      return review
-    }
-    due.push(review.value)
+  const { cards, placedOutBands } = learner.value
+  const shown = await showDueReviews(
+    { playerId, cards, stage: stageOf(lessons.lessons(), cards, placedOutBands, lessons) },
+    { pendingReviews: stores.pendingReviews, lessons, clock, terms: memoryTerms },
+  )
+  if (!shown.ok) {
+    return shown
   }
+  const readAt = clock.now()
   const nextDueAt = nextDueAtOf(cards, readAt, memoryTerms)
   if (!nextDueAt.ok) {
     return nextDueAt
   }
   return ok({
-    due,
-    readFirst: [...readFirstOf(lessons.lessons(), dueCards.value)],
+    due: shown.value.map((review) => dueReviewOf(review, cards)),
+    readFirst: [
+      ...readFirstOf(
+        lessons.lessons(),
+        shown.value.map(({ due }) => due),
+      ),
+    ],
     nextDueAt: nextDueAt.value === null ? null : isoOf(nextDueAt.value),
     readAt: isoOf(readAt),
   })

@@ -116,6 +116,7 @@ export const pendingReviews = pgTable(
     wordId: text('word_id').notNull(),
     hintShown: boolean('hint_shown').notNull(),
     nearMissAnswer: text('near_miss_answer'),
+    shownFrame: text('shown_frame'),
   },
   (table) => [
     primaryKey({ name: 'pending_reviews_pkey', columns: [table.playerId, table.wordId] }),
@@ -142,6 +143,7 @@ export const reviewLog = pgTable(
     hintShown: boolean('hint_shown').notNull(),
     rating: memoryRating('rating').notNull(),
     elapsedDays: integer('elapsed_days'),
+    shownFrame: text('shown_frame'),
     beforeState: memoryState('before_state').notNull(),
     beforeStep: integer('before_step'),
     beforeStability: doublePrecision('before_stability'),
