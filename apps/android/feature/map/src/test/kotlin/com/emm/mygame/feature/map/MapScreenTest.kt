@@ -216,6 +216,19 @@ class MapScreenTest {
     }
 
     @Test
+    fun `draws one refusal when the send is refused as its quote was`() {
+        val refused: MapUiState.Content = contentOf(
+            form = readyForm.copy(quote = MapUiState.PayQuote.Refused(TownJobRefusal.TeamAlreadyOut)),
+        ).copy(send = MapUiState.SendRequest.Refused(site = 1, refusal = TownJobRefusal.TeamAlreadyOut))
+
+        show(refused)
+
+        composeRule
+            .onAllNodesWithText("Tu equipo ya está fuera. Espera a que vuelva.", useUnmergedTree = true)
+            .assertCountEquals(1)
+    }
+
+    @Test
     fun `draws the quote's refusal in place of the block line`() {
         show(contentOf(form = nobodyForm.copy(quote = MapUiState.PayQuote.Refused(TownJobRefusal.InvalidTeam))))
 

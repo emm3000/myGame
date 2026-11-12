@@ -63,7 +63,9 @@ export function JobForm({ id, target, town, job, onSent }: JobFormProps): ReactE
       <p aria-live="polite" className="m-0 font-sans text-body text-ink empty:absolute">
         {payLine}
       </p>
-      {quoted?.ok === false && <FormAlert message={refusalLineOf(quoted.refusal, quoted.error)} />}
+      {quoted?.ok === false && refused === undefined && (
+        <FormAlert message={refusalLineOf(quoted.refusal, quoted.error)} />
+      )}
       <CardAction
         type="button"
         label={form.actionLabel}
