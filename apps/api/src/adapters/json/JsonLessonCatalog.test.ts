@@ -224,6 +224,23 @@ describe('JsonLessonCatalog', () => {
     expect(offered.map(({ id }) => id)).not.toContain('off-list-word')
   })
 
+  it('offers no frame word for placement', () => {
+    const directory = contentCopy()
+    const lexicon = JSON.parse(readFileSync(lessonsFile(directory, 'words.json'), 'utf8'))
+    const frameWord = {
+      id: 'frame-word',
+      lemma: 'the',
+      partOfSpeech: 'adjective',
+      frame: 'I see the town.',
+      gappedFrame: 'I see ____ town.',
+      gloss: { es: 'el' },
+    }
+    writeJson(directory, 'words.json', [...lexicon, frameWord])
+    const catalog = JsonLessonCatalog.fromDirectory(directory)
+
+    expect(catalog.placementWordsOf(1).map(({ id }) => id)).not.toContain('frame-word')
+  })
+
   it('offers no lexicon entry without an es gloss for placement', () => {
     const directory = contentCopy()
     const lexicon = JSON.parse(readFileSync(lessonsFile(directory, 'words.json'), 'utf8'))

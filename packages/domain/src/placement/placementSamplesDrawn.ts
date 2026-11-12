@@ -25,9 +25,12 @@ const isBandDrafted = (band: Band, { words, bands }: PlacementContent): boolean 
   return bandWords.length > 0 && bandWords.every(({ headword }) => entered.has(headword))
 }
 
+const isNextBandOpen = (band: Band, { bands }: PlacementContent): boolean =>
+  bands.wordsOfBand(band + 1).length === 0 || bands.hasLessons(band + 1)
+
 const isBandPlaceable = (band: Band, content: PlacementContent): boolean =>
   isBandDrafted(band, content) &&
-  content.bands.hasLessons(band + 1) &&
+  isNextBandOpen(band, content) &&
   drawableWordIdsOf(band, content.words).length >= PLACEMENT_SAMPLE_SIZE
 
 const placeableBandsOf = (content: PlacementContent): ReadonlyArray<Band> => {
