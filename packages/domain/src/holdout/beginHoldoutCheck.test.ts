@@ -2,13 +2,6 @@ import { assert, describe, expect, it } from 'vitest'
 import type { PlacementWord } from '../placement/PlacementWord'
 import type { RandomSource } from '../ports/RandomSource'
 import { firstItemsRandom } from '../testing/firstItemsRandom'
-import { inMemoryBandStarts } from '../testing/inMemoryBandStarts'
-import { inMemoryCards, type OwnedCard } from '../testing/inMemoryCards'
-import { inMemoryLessons } from '../testing/inMemoryLessons'
-import { inMemoryPlacementWords } from '../testing/placementWords'
-import type { Instant } from '../time/Instant'
-import { beginHoldoutCheck } from './beginHoldoutCheck'
-import type { HoldoutCheck, HoldoutCheckWeek } from './HoldoutCheck'
 import {
   ana,
   bandOneStart,
@@ -19,7 +12,14 @@ import {
   studiedLesson,
   unstudiedLesson,
   weeksAfterStart,
-} from './holdoutFixtures'
+} from '../testing/holdoutFixtures'
+import { inMemoryBandStarts } from '../testing/inMemoryBandStarts'
+import { inMemoryCards, type OwnedCard } from '../testing/inMemoryCards'
+import { inMemoryLessons } from '../testing/inMemoryLessons'
+import { inMemoryPlacementWords } from '../testing/placementWords'
+import type { Instant } from '../time/Instant'
+import { beginHoldoutCheck } from './beginHoldoutCheck'
+import type { HoldoutCheck, HoldoutCheckWeek } from './HoldoutCheck'
 
 type BeginShape = {
   readonly now?: Instant

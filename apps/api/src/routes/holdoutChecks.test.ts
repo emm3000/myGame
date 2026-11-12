@@ -1,11 +1,17 @@
 import { fileURLToPath } from 'node:url'
 import { type HoldoutChecks, HoldoutChecksSchema } from '@mygame/contracts'
-import { type Clock, Instant, type RandomSource } from '@mygame/domain'
+import { type BandStartRepository, type Clock, Instant, type RandomSource } from '@mygame/domain'
 import { Client, type QueryResultRow } from 'pg'
 import { afterAll, assert, beforeAll, beforeEach, describe, expect, it } from 'vitest'
+import type { Transaction } from '../adapters/postgres/postgresTransaction'
 import { createApp } from '../app'
 import { type ComposedServer, composeServer } from '../composeServer'
 import { mailEnvironment } from '../composeServer.testSupport'
+import {
+  isWaitingOnALock,
+  lockedPlayerReadQuery,
+  lockProbeLimit,
+} from '../lockWaitProbe.testSupport'
 
 const contentDirectory = fileURLToPath(new URL('../../content/', import.meta.url))
 
@@ -41,6 +47,73 @@ const storedRows = async <Row extends QueryResultRow>(
     return (await client.query<Row>(statement)).rows
   } finally {
     await client.end()
+  }
+}
+
+const signal = (): { readonly promise: Promise<void>; readonly resolve: () => void } => {
+  let resolve = (): void => {}
+  const promise = new Promise<void>((settle) => {
+    resolve = settle
+  })
+  return { promise, resolve }
+}
+
+const pausingFirstStartsRead = (
+  bandStarts: BandStartRepository,
+  afterRead: () => Promise<void>,
+): BandStartRepository => {
+  let hasRead = false
+  return {
+    save: (playerId, start) => bandStarts.save(playerId, start),
+    saveCheck: (playerId, band, check) => bandStarts.saveCheck(playerId, band, check),
+    bandStartsOf: async (playerId) => {
+      const read = await bandStarts.bandStartsOf(playerId)
+      if (!hasRead) {
+        hasRead = true
+        await afterRead()
+      }
+      return read
+    },
+  }
+}
+
+const pausingFirstTransaction = (
+  inTransaction: Transaction,
+  afterFirstStartsRead: () => Promise<void>,
+): Transaction => {
+  let transactions = 0
+  return (work) => {
+    transactions += 1
+    const isFirst = transactions === 1
+    return inTransaction((stores) =>
+      work(
+        isFirst
+          ? {
+              ...stores,
+              bandStarts: pausingFirstStartsRead(stores.bandStarts, afterFirstStartsRead),
+            }
+          : stores,
+      ),
+    )
+  }
+}
+
+const untilPlayerBlockedOrAnswered = async (secondAnswer: Promise<unknown>): Promise<void> => {
+  let hasAnswered = false
+  void secondAnswer.then(() => {
+    hasAnswered = true
+  })
+  const observer = new Client({ connectionString: databaseUrl() })
+  await observer.connect()
+  try {
+    for (let probes = 0; probes < lockProbeLimit; probes += 1) {
+      if (hasAnswered || (await isWaitingOnALock(observer, [lockedPlayerReadQuery]))) {
+        return
+      }
+    }
+    throw new Error('The second answer neither waited on the player lock nor finished')
+  } finally {
+    await observer.end()
   }
 }
 
@@ -183,6 +256,30 @@ describe('the holdout check routes', () => {
     expect(stored.filter(({ is_held_out }) => !is_held_out)).toHaveLength(2)
   })
 
+  it('begins a check over fewer practised words than held-out ones', async () => {
+    const mostlyHeldOut = ['see', 'find', 'change', 'problem']
+    app = createApp({
+      ...server,
+      clock,
+      random: {
+        sampleOf: (items, count) =>
+          items.some((item) => item === 'see')
+            ? [
+                ...items.filter((item) => mostlyHeldOut.some((headword) => headword === item)),
+                ...items.filter(
+                  (item) => ![...mostlyHeldOut, 'right'].some((word) => word === item),
+                ),
+              ].slice(0, count)
+            : server.random.sampleOf(items, count),
+      },
+    })
+    await studiedBandOne()
+
+    const asking = await begunAt(8)
+
+    expect(asking.items).toHaveLength(5)
+  })
+
   it('stores the scores of a check taken', async () => {
     await studiedBandOne()
     const asking = await begunAt(8)
@@ -196,6 +293,43 @@ describe('the holdout check routes', () => {
     expect(
       await storedRows('SELECT week, kind, held_out_score, practised_score FROM holdout_checks'),
     ).toEqual([{ week: 8, kind: 'taken', held_out_score: 2, practised_score: 2 }])
+  })
+
+  it('serializes two concurrent answers to one check of a player with no town', async () => {
+    await studiedBandOne()
+    const asking = await begunAt(8)
+    const player = await signedInAt(8)
+    await storedRows('DELETE FROM towns')
+    const firstHasRead = signal()
+    const secondHasAnswered = signal()
+    const secondIsBlockedOrHasAnswered = untilPlayerBlockedOrAnswered(secondHasAnswered.promise)
+    const racingApp = createApp({
+      ...server,
+      clock,
+      random: everyTenthFirst,
+      inTransaction: pausingFirstTransaction(server.inTransaction, async () => {
+        firstHasRead.resolve()
+        await secondIsBlockedOrHasAnswered
+      }),
+    })
+    const answerRight = (): Promise<Response> =>
+      Promise.resolve(
+        racingApp.request('/holdout-checks/1/8/answers', {
+          method: 'POST',
+          headers: { cookie: player.cookie, 'content-type': 'application/json' },
+          body: JSON.stringify({ answers: allRight(asking) }),
+        }),
+      )
+
+    const first = answerRight()
+    await firstHasRead.promise
+    const second = answerRight().then((response) => {
+      secondHasAnswered.resolve()
+      return response
+    })
+    const statuses = (await Promise.all([first, second])).map(({ status }) => status)
+
+    expect(statuses).toEqual([200, 409])
   })
 
   it('refuses to begin a check not due yet', async () => {

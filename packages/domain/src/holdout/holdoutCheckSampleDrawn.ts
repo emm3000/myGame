@@ -27,6 +27,9 @@ export const holdoutCheckSampleDrawn = (
   const practised = ofStudiedLessons
     .filter(({ id }) => held.some(({ wordId }) => wordId === id))
     .map(({ id }) => id)
-  const asked = [...heldOutWordIds, ...random.sampleOf(practised, heldOutWordIds.length)]
+  const asked = [
+    ...heldOutWordIds,
+    ...random.sampleOf(practised, Math.min(practised.length, heldOutWordIds.length)),
+  ]
   return { wordIds: random.sampleOf(asked, asked.length), heldOutWordIds }
 }

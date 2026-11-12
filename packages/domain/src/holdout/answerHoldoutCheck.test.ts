@@ -1,10 +1,5 @@
 import { assert, describe, expect, it } from 'vitest'
 import type { PlacementItem } from '../placement/PlacementView'
-import { inMemoryBandStarts } from '../testing/inMemoryBandStarts'
-import { inMemoryPlacementWords } from '../testing/placementWords'
-import type { Instant } from '../time/Instant'
-import { answerHoldoutCheck } from './answerHoldoutCheck'
-import type { HoldoutCheck } from './HoldoutCheck'
 import {
   ana,
   bandOneStart,
@@ -12,7 +7,12 @@ import {
   heldOutOfStudied,
   practisedOfStudied,
   weeksAfterStart,
-} from './holdoutFixtures'
+} from '../testing/holdoutFixtures'
+import { inMemoryBandStarts } from '../testing/inMemoryBandStarts'
+import { inMemoryPlacementWords } from '../testing/placementWords'
+import type { Instant } from '../time/Instant'
+import { answerHoldoutCheck } from './answerHoldoutCheck'
+import type { HoldoutCheck } from './HoldoutCheck'
 import { readHoldoutChecks } from './readHoldoutChecks'
 
 const heldOutIds = heldOutOfStudied.map(({ id }) => id)
