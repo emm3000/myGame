@@ -32,10 +32,10 @@ Totals of rows already folded out of Recent.
 | 2 | sonnet:medium | 2 | 0 | 0 | 2 | 0 |
 | 2 | opus:medium | 77 | 61 | 7 | 7 | 2 |
 | 2 | sonnet:high | 3 | 0 | 0 | 2 | 1 |
-| 2 | opus:high | 60 | 43 | 10 | 5 | 2 |
+| 2 | opus:high | 61 | 44 | 10 | 5 | 2 |
 | 3 | opus:medium | 25 | 16 | 4 | 4 | 1 |
 | 4 | opus:high | 68 | 58 | 2 | 3 | 5 |
-| 3 | opus:high | 103 | 72 | 10 | 15 | 5 |
+| 3 | opus:high | 105 | 74 | 10 | 15 | 5 |
 | 1 | opus:high | 11 | 2 | 1 | 7 | 1 |
 | 1 | fable:high | 43 | 31 | 1 | 8 | 3 |
 | 5 | fable:high | 18 | 18 | 0 | 0 | 0 |
@@ -47,9 +47,6 @@ Last 20 PRs, oldest first. Model:effort is what actually ran, which may differ f
 
 | PR | Issue | Row | Model:effort | First review | Cause | Peer in k | Peer out k | Review k | Peer USD | Rounds | Model min | Lines +/- | Later bug |
 |---|---|---|---|---|---|---|---|---|---|---|---|---|---|
-| #955 | #781 | 4 | opus:high | MERGE | | 5666 | 27 | 106 | 10.41 | 1 | 23 | +4205/-63 | |
-| #956 | #952 | 2 | opus:high | MERGE | | 6256 | 22 | 51 | 2.75 | 1 | 4 | +60/-2 | |
-| #957 | #782 | 3 | opus:high | FIX FIRST | checklist | 21608 | 66 | 113 | 7.74 | 2 | 12 | +1590/-21 | |
 | #959 | #950 | 2 | opus:high | MERGE | | 1416 | 6 | 25 | 0.82 | 1 | 1 | +1/-7 | |
 | #960 | #783 | 2 | opus:high | MERGE | | 7270 | 28 | 116 | 7.77 | 1 | 17 | +1542/-25 | |
 | #961 | #784 | 3 | opus:high | MERGE | | 18046 | 58 | 143 | 18.86 | 1 | 40 | +2984/-115 | |
@@ -67,3 +64,6 @@ Last 20 PRs, oldest first. Model:effort is what actually ran, which may differ f
 | #983 | #981 | 3 | opus:high | MERGE | | 32719 | 91 | 150 | | 3 | | +573/-89 | |
 | #974 | #742 | 1 | sonnet:low | FIX FIRST | spec | 5994 | 42 | 95 | | 2 | | +680/-16 | |
 | #984 | #789 | 4 | opus:high | FIX FIRST | spec | 20470 | 79 | 140 | | 2 | | +3357/-26 | |
+| #988 | #790 | 3 | opus:high | MERGE | | 14318 | 39 | 95 | | 1 | | +619/-115 | |
+| #989 | #776 | 2 | opus:high | MERGE | | 23513 | 65 | 75 | | 1 | | +760/-63 | |
+| #992 | #986 | 3 | opus:high | MERGE | | 12773 | 54 | 75 | | 1 | | +497/-26 | |
