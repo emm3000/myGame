@@ -24,7 +24,9 @@ internal class ApiTownRepository(
     private val ioDispatcher: CoroutineDispatcher,
     private val clock: Clock,
     private val tokenStore: TokenStore,
-) : TownRepository {
+    regionReader: RegionReader,
+) : TownRepository,
+    RegionReader by regionReader {
 
     private val _town: MutableStateFlow<HeldTown?> = MutableStateFlow(null)
 
@@ -80,29 +82,11 @@ internal class ApiTownRepository(
             api.townHiringHireStartedAtDelete(hire = hire.toWireHire().value, startedAt = startedAt.toOffsetDateTime())
         }
 
-    override suspend fun readMap(area: Int?): RegionMapResult = withContext(ioDispatcher) {
-        try {
-            regionMapResultOf(if (area == null) api.townMapGet() else api.townMapAreaGet(area = area.toString()))
-        } catch (expectedOutage: IOException) {
-            RegionMapResult.Unreachable
-        } catch (expectedMalformedBody: SerializationException) {
-            RegionMapResult.Unreachable
-        }
-    }
-
     override suspend fun sendJob(target: JobTarget, team: Map<TownHireKind, Int>, hours: Int): TownJobResult =
         answering(TownJobResult.Unreachable, ::jobResultOf) { api.townJobsPost(sendJobOf(target, team, hours)) }
 
-    override suspend fun quoteJob(target: JobTarget, team: Map<TownHireKind, Int>, hours: Int): JobQuoteResult =
-        withContext(ioDispatcher) {
-            try {
-                quoteResultOf(api.townJobsQuotePost(sendJobOf(target, team, hours)))
-            } catch (expectedOutage: IOException) {
-                JobQuoteResult.Unreachable
-            } catch (expectedMalformedBody: SerializationException) {
-                JobQuoteResult.Unreachable
-            }
-        }
+    override suspend fun sendCleanUp(target: JobTarget, team: Map<TownHireKind, Int>): TownJobResult =
+        answering(TownJobResult.Unreachable, ::jobResultOf) { api.townCleanUpsPost(sendCleanUpOf(target, team)) }
 
     override suspend fun callJobBack(sentAt: Instant): TownJobResult =
         answering(TownJobResult.Unreachable, ::jobResultOf) {

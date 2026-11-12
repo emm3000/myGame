@@ -14,6 +14,10 @@ sealed interface TownJobRefusal {
 
     data object SiteHeld : TownJobRefusal
 
+    data object NotAWasteSite : TownJobRefusal
+
+    data object NoWasteYet : TownJobRefusal
+
     data class NotEnoughHiresAtHome(val hire: TownHireKind, val count: Int, val atHome: Int) : TownJobRefusal
 
     data object JobNotFound : TownJobRefusal

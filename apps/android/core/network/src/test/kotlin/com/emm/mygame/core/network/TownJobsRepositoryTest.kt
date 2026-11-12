@@ -49,7 +49,7 @@ class TownJobsRepositoryTest {
             TownSnapshot.Job(
                 site = TownSite(region = 1, area = 3, site = 5),
                 team = team,
-                hours = 2,
+                task = TownSnapshot.JobTask.Hours(hours = 2),
                 pay = mapOf(
                     TownResourceKind.Money to 120L,
                     TownResourceKind.Food to 0L,
@@ -68,7 +68,7 @@ class TownJobsRepositoryTest {
     }
 
     @Test
-    fun `reads a clean-up out as a job of no hours`() = runTest {
+    fun `reads a clean-up out with the size and the waste fixed at dispatch`() = runTest {
         api.enqueue(json(200, TOWN_WITH_CLEAN_UP))
 
         val read: TownSnapshot = (town().read() as TownReadResult.Read).town
@@ -77,7 +77,7 @@ class TownJobsRepositoryTest {
             TownSnapshot.Job(
                 site = TownSite(region = 1, area = 1, site = 12),
                 team = mapOf(TownHireKind.Worker to 6, TownHireKind.Truck to 0),
-                hours = 0,
+                task = TownSnapshot.JobTask.CleanUp(size = WasteSize.Small, waste = 6),
                 pay = mapOf(
                     TownResourceKind.Money to 12L,
                     TownResourceKind.Food to 0L,
@@ -93,6 +93,13 @@ class TownJobsRepositoryTest {
             ),
             read.job,
         )
+    }
+
+    @Test
+    fun `answers unreachable for a clean-up size the client does not know`() = runTest {
+        api.enqueue(json(200, TOWN_WITH_CLEAN_UP.replace(""""size":1""", """"size":4""")))
+
+        assertEquals(TownReadResult.Unreachable, town().read())
     }
 
     @Test

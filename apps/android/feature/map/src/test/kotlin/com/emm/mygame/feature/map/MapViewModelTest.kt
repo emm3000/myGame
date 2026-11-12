@@ -51,7 +51,8 @@ class MapViewModelTest {
 
     private fun blockOf(viewModel: MapViewModel): MapUiState.JobBlock? = contentOf(viewModel).form?.block
 
-    private fun quoteOf(viewModel: MapViewModel): MapUiState.PayQuote? = contentOf(viewModel).form?.quote
+    private fun quoteOf(viewModel: MapViewModel): MapUiState.PayQuote? =
+        (contentOf(viewModel).form as? MapUiState.JobForm)?.quote
 
     private fun askedCountOf(request: FakeRegionRepository.JobRequest): Int =
         towns.regions.quotes.count { asked: FakeRegionRepository.JobRequest -> asked == request }
@@ -311,6 +312,7 @@ class MapViewModelTest {
 
         assertEquals(
             MapUiState.JobOut(
+                kind = MapUiState.JobKind.Job,
                 site = TownSite(region = 1, area = 1, site = 1),
                 workers = 2,
                 trucks = 1,

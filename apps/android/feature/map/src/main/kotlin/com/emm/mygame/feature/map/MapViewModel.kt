@@ -3,11 +3,8 @@ package com.emm.mygame.feature.map
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.emm.mygame.core.network.HeldTown
-import com.emm.mygame.core.network.JobQuoteResult
-import com.emm.mygame.core.network.JobTarget
 import com.emm.mygame.core.network.RegionMap
 import com.emm.mygame.core.network.RegionMapResult
-import com.emm.mygame.core.network.TownHireKind
 import com.emm.mygame.core.network.TownJobResult
 import com.emm.mygame.core.network.TownReadResult
 import com.emm.mygame.core.network.TownRepository
@@ -63,7 +60,7 @@ class MapViewModel(private val towns: TownRepository, private val clock: Clock) 
 
     private var quoteAsked: QuoteAsk? = null
 
-    private var quoted: MapUiState.PayQuote? = null
+    private var quoted: QuoteAnswer? = null
 
     private var quoteRead: Job? = null
 
@@ -146,11 +143,10 @@ class MapViewModel(private val towns: TownRepository, private val clock: Clock) 
         if (choices.send == MapUiState.SendRequest.Waiting) return
         val site: Int = choices.chosen ?: return
         val map: RegionMap = (area as? AreaRead.Read)?.map ?: return
-        val team: Map<TownHireKind, Int> = choices.entries.team() ?: return
-        val hours: Int = choices.entries.hoursCount() ?: return
+        val request: SiteSend = siteSendOf(map, site, choices.entries) ?: return
         drawChoices(choices.copy(send = MapUiState.SendRequest.Waiting))
         viewModelScope.launch {
-            when (val answer: TownJobResult = towns.sendJob(JobTarget(map.area, site), team, hours)) {
+            when (val answer: TownJobResult = towns.sent(request)) {
                 is TownJobResult.Answered ->
                     restartFrom(answer.town, choices.closed().copy(send = MapUiState.SendRequest.Idle))
                 is TownJobResult.Refused ->
@@ -206,12 +202,11 @@ class MapViewModel(private val towns: TownRepository, private val clock: Clock) 
         if (ask == null) return
         quoteRead = viewModelScope.launch {
             do {
-                val answer: JobQuoteResult = towns.quoteJob(ask.target, ask.team, ask.hours)
-                quoted = payQuoteOf(answer)
+                val answer: QuoteAnswer = towns.quoted(ask.send)
+                quoted = answer
                 draw()
-                val isUnreachable: Boolean = answer == JobQuoteResult.Unreachable
-                if (isUnreachable) delay(unreachableQuoteRetry)
-            } while (isUnreachable)
+                if (answer.isUnreachable) delay(unreachableQuoteRetry)
+            } while (answer.isUnreachable)
         }
     }
 
@@ -221,8 +216,7 @@ class MapViewModel(private val towns: TownRepository, private val clock: Clock) 
         return quoteAskOf(map, town, choices)
     }
 
-    private fun drawnQuote(): MapUiState.PayQuote? =
-        if (quoteAsked == null) null else quoted ?: MapUiState.PayQuote.Asking
+    private fun drawnQuote(): QuoteAnswer? = quoteAsked?.let { ask: QuoteAsk -> quoted ?: askingFor(ask) }
 
     private fun stateOf(read: AreaRead, town: TownSnapshot?): MapUiState {
         if (isTownFailed) return MapUiState.Failed

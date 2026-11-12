@@ -1,5 +1,6 @@
 package com.emm.mygame.core.network
 
+import com.emm.mygame.core.network.generated.apis.DefaultApi
 import kotlin.time.Clock
 import kotlin.time.Instant
 import kotlinx.coroutines.CoroutineDispatcher
@@ -32,10 +33,13 @@ fun TownRepository(
     sessionEnds: SessionEnds,
     ioDispatcher: CoroutineDispatcher,
     clock: Clock,
-): TownRepository =
-    ApiTownRepository(
-        api = signedInApi(baseUrl = baseUrl, tokenStore = tokenStore, sessionEnds = sessionEnds),
+): TownRepository {
+    val api: DefaultApi = signedInApi(baseUrl = baseUrl, tokenStore = tokenStore, sessionEnds = sessionEnds)
+    return ApiTownRepository(
+        api = api,
         ioDispatcher = ioDispatcher,
         clock = clock,
         tokenStore = tokenStore,
+        regionReader = ApiRegionReader(api = api, ioDispatcher = ioDispatcher),
     )
+}

@@ -12,6 +12,7 @@ import com.emm.mygame.core.network.TownReadResult
 import com.emm.mygame.core.network.TownResourceKind
 import com.emm.mygame.core.network.TownSite
 import com.emm.mygame.core.network.TownSnapshot
+import com.emm.mygame.core.network.WasteSize
 import com.emm.mygame.core.testing.FakeTownRepository
 import com.emm.mygame.core.testing.TestClock
 import com.emm.mygame.core.testing.hiringOf
@@ -32,9 +33,9 @@ internal fun regionMapOf(
     lastArea: Int = 3,
     terrain: Terrain = Terrain.River,
     sites: List<RegionMap.Site> = listOf(
-        RegionMap.Site(site = 1, town = null),
-        RegionMap.Site(site = 2, town = RegionMap.SiteTown(name = "Hillcrest", isOwn = false)),
-        RegionMap.Site(site = 3, town = RegionMap.SiteTown(name = "Riverton", isOwn = true)),
+        RegionMap.Site(site = 1, town = null, waste = null),
+        RegionMap.Site(site = 2, town = RegionMap.SiteTown(name = "Hillcrest", isOwn = false), waste = null),
+        RegionMap.Site(site = 3, town = RegionMap.SiteTown(name = "Riverton", isOwn = true), waste = null),
     ),
 ): RegionMap = RegionMap(region = 1, area = area, lastArea = lastArea, terrain = terrain, sites = sites)
 
@@ -52,13 +53,38 @@ internal fun jobOf(
 ): TownSnapshot.Job = TownSnapshot.Job(
     site = TownSite(region = 1, area = 1, site = 1),
     team = mapOf(TownHireKind.Worker to workers, TownHireKind.Truck to trucks),
-    hours = 2,
+    task = TownSnapshot.JobTask.Hours(hours = 2),
     pay = pay,
     phase = phase,
     sentAt = sentAt,
     arrivesAt = sentAt + 10.minutes,
     leavesAt = sentAt + 10.minutes + 2.hours,
     returnsAt = sentAt + 20.minutes + 2.hours,
+    calledBackAt = null,
+)
+
+internal fun wasteSiteOf(site: Int = 4, size: WasteSize = WasteSize.Medium, waste: Int = 12): RegionMap.Site =
+    RegionMap.Site(site = site, town = null, waste = RegionMap.SiteWaste(size = size, waste = waste))
+
+internal fun cleanUpOf(
+    phase: TownSnapshot.JobPhase = TownSnapshot.JobPhase.Outbound,
+    pay: Map<TownResourceKind, Long> = mapOf(
+        TownResourceKind.Money to 24L,
+        TownResourceKind.Food to 0L,
+        TownResourceKind.Power to 0L,
+        TownResourceKind.Material to 36L,
+    ),
+    sentAt: Instant = readInstant,
+): TownSnapshot.Job = TownSnapshot.Job(
+    site = TownSite(region = 1, area = 1, site = 4),
+    team = mapOf(TownHireKind.Worker to 3, TownHireKind.Truck to 1),
+    task = TownSnapshot.JobTask.CleanUp(size = WasteSize.Medium, waste = 12),
+    pay = pay,
+    phase = phase,
+    sentAt = sentAt,
+    arrivesAt = sentAt + 10.minutes,
+    leavesAt = sentAt + 10.minutes,
+    returnsAt = sentAt + 20.minutes,
     calledBackAt = null,
 )
 

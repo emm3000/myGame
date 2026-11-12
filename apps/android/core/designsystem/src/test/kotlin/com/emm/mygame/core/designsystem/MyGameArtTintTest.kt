@@ -20,4 +20,9 @@ class MyGameArtTintTest {
     fun `tints a word's silhouette with on-block`() {
         assertEquals(lightColors.onBlock, lightColors.tintOf(MyGameArtTint.OnBlock))
     }
+
+    @Test
+    fun `tints a waste silhouette with ink-muted`() {
+        assertEquals(darkColors.inkMuted, darkColors.tintOf(MyGameArtTint.InkMuted))
+    }
 }
