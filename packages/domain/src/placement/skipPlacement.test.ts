@@ -61,7 +61,12 @@ describe('skipPlacement', () => {
 
   it('refuses a skip to a player who started band 1', async () => {
     const { dependencies } = skipOf({
-      starts: [{ playerId: ana, start: { band: 1, startedAt: firstSignInAt, heldOutWords: [] } }],
+      starts: [
+        {
+          playerId: ana,
+          start: { band: 1, startedAt: firstSignInAt, heldOutWords: [], checks: [] },
+        },
+      ],
     })
 
     expect(await skipPlacement({ playerId: ana }, dependencies)).toEqual({

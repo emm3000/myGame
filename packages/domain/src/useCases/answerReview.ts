@@ -1,4 +1,5 @@
 import type { DomainError } from '../DomainError'
+import { type ReleaseContent, releasedLessonsOf } from '../holdout/releasedLessonsOf'
 import { admitDueReview, type DueReview } from '../learning/admitDueReview'
 import { freshPendingReview } from '../learning/freshPendingReview'
 import { gradeTypedAnswer } from '../learning/gradeTypedAnswer'
@@ -16,6 +17,7 @@ import type { MemoryTerms } from '../memory/MemoryTerms'
 import { reviewMemoryCard } from '../memory/reviewMemoryCard'
 import { wholeDaysBetween } from '../memory/wholeDaysBetween'
 import type { PlayerId } from '../player/PlayerId'
+import type { BandStartRepository } from '../ports/BandStartRepository'
 import type { CardRepository } from '../ports/CardRepository'
 import type { Clock } from '../ports/Clock'
 import type { LessonCatalog } from '../ports/LessonCatalog'
@@ -39,8 +41,9 @@ export type AnswerReviewCommand = {
   readonly answer: string
 }
 
-export type AnswerReviewDependencies = {
+export type AnswerReviewDependencies = ReleaseContent & {
   readonly cards: CardRepository
+  readonly bandStarts: Pick<BandStartRepository, 'bandStartsOf'>
   readonly pendingReviews: PendingReviewRepository
   readonly reviewLog: ReviewLog
   readonly lessons: LessonCatalog
@@ -170,10 +173,17 @@ const skillEarnedBy = async (
   dependencies: AnswerReviewDependencies,
 ): Promise<Result<TownSkill | undefined, DomainError>> => {
   const { lesson } = review
-  const afterReview = cards.map((held) =>
-    held.wordId === review.word.id ? { wordId: held.wordId, card } : held,
+  const starts = await dependencies.bandStarts.bandStartsOf(playerId)
+  if (!starts.ok) {
+    return starts
+  }
+  const released = releasedLessonsOf(starts.value, cards, dependencies).flatMap(({ words }) =>
+    words.map(({ id }) => id),
   )
-  if (!isLessonRetained(lesson, afterReview)) {
+  const afterReview = cards
+    .filter(({ wordId }) => !released.includes(wordId))
+    .map((held) => (held.wordId === review.word.id ? { wordId: held.wordId, card } : held))
+  if (released.includes(review.word.id) || !isLessonRetained(lesson, afterReview)) {
     return ok(undefined)
   }
   return earnSkill(playerId, lesson, earnedAt, dependencies)

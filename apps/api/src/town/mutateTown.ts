@@ -1,4 +1,5 @@
 import {
+  type BandCatalog,
   type Clock,
   type DomainError,
   type LessonCatalog,
@@ -32,7 +33,8 @@ export type TownMutation<T> = (stores: TownStores, clock: Clock) => Promise<Resu
 export type MutateTownDependencies = {
   readonly inTransaction: Transaction
   readonly clock: Clock
-  readonly lessons: Pick<LessonCatalog, 'lessonOf'>
+  readonly lessons: Pick<LessonCatalog, 'lessonOf' | 'lessonOfWord'> &
+    Pick<BandCatalog, 'wordsOfBand'>
 }
 
 export const mutateTown = <T>(
@@ -55,6 +57,7 @@ export const mutateTown = <T>(
       cards: stores.cards,
       bandStarts: stores.bandStarts,
       lessons,
+      bands: lessons,
       news: stores.townNews,
       clock: mutationClock,
     })

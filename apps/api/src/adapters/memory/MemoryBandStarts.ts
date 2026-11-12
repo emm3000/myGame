@@ -1,7 +1,9 @@
 import {
+  type Band,
   type BandStart,
   type BandStartRepository,
   type DomainError,
+  type HoldoutCheck,
   ok,
   type PlayerId,
   type Result,
@@ -20,6 +22,28 @@ export class MemoryBandStarts implements BandStartRepository {
       const heldOutWords = [...start.heldOutWords].sort()
       this.starts.set(playerId, [...started, { ...start, heldOutWords }])
     }
+    return ok(undefined)
+  }
+
+  async saveCheck(
+    playerId: PlayerId,
+    band: Band,
+    check: HoldoutCheck,
+  ): Promise<Result<void, DomainError>> {
+    const started = this.starts.get(playerId) ?? []
+    this.starts.set(
+      playerId,
+      started.map((start) =>
+        start.band === band
+          ? {
+              ...start,
+              checks: [...start.checks.filter(({ week }) => week !== check.week), check].sort(
+                (left, right) => left.week - right.week,
+              ),
+            }
+          : start,
+      ),
+    )
     return ok(undefined)
   }
 }

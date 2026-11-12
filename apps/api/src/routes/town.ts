@@ -405,7 +405,7 @@ export const townRoutes = (dependencies: TownDependencies): OpenAPIHono => {
         async (stores, clock) => {
           const change = await stopSchoolLesson(
             { playerId, lessonId: request.data.lessonId },
-            { ...stores, news: stores.townNews, lessons, catalog, clock },
+            { ...stores, news: stores.townNews, lessons, bands: lessons, catalog, clock },
           )
           return change.ok ? townReadingOf(playerId, clock.now(), stores.towns) : change
         },

@@ -1,4 +1,10 @@
-import { type BandStart, type BandStartRepository, Instant, type PlayerId } from '@mygame/domain'
+import {
+  type BandStart,
+  type BandStartRepository,
+  type HoldoutCheck,
+  Instant,
+  type PlayerId,
+} from '@mygame/domain'
 import { describe, expect, it } from 'vitest'
 
 export type BandStartRepositoryFixture = {
@@ -13,12 +19,37 @@ const bandOneStart: BandStart = {
   band: 1,
   startedAt: Instant.fromEpochMilliseconds(Date.parse('2026-11-23T09:10:00Z')),
   heldOutWords: ['know', 'make', 'say'],
+  checks: [],
 }
 
 const bandTwoStart: BandStart = {
   band: 2,
   startedAt: Instant.fromEpochMilliseconds(Date.parse('2027-03-01T09:10:00Z')),
   heldOutWords: ['advice'],
+  checks: [],
+}
+
+const begunAt = Instant.fromEpochMilliseconds(Date.parse('2027-01-18T09:10:00Z'))
+
+const begunCheck: HoldoutCheck = {
+  kind: 'begun',
+  week: 8,
+  begunAt,
+  sample: { wordIds: ['word-say', 'word-time', 'word-know'], heldOutWordIds: ['word-know'] },
+}
+
+const takenCheck: HoldoutCheck = {
+  ...begunCheck,
+  kind: 'taken',
+  heldOutScore: 1,
+  practisedScore: 0,
+  takenAt: Instant.fromEpochMilliseconds(Date.parse('2027-01-18T09:20:00Z')),
+}
+
+const skippedCheck: HoldoutCheck = {
+  kind: 'skipped',
+  week: 8,
+  skippedAt: Instant.fromEpochMilliseconds(Date.parse('2027-01-18T09:30:00Z')),
 }
 
 export const bandStartRepositoryContract = (
@@ -87,6 +118,62 @@ export const bandStartRepositoryContract = (
       await starts.save(bruno, bandOneStart)
 
       expect(await starts.bandStartsOf(bruno)).toEqual({ ok: true, value: [bandOneStart] })
+    })
+    it('reads back a begun check with its sample in the order it asks', async () => {
+      const { starts, registerPlayers } = await arrange()
+      await registerPlayers([ana])
+      await starts.save(ana, bandOneStart)
+
+      await starts.saveCheck(ana, 1, begunCheck)
+
+      expect(await starts.bandStartsOf(ana)).toEqual({
+        ok: true,
+        value: [{ ...bandOneStart, checks: [begunCheck] }],
+      })
+    })
+
+    it('replaces a begun check with its result', async () => {
+      const { starts, registerPlayers } = await arrange()
+      await registerPlayers([ana])
+      await starts.save(ana, bandOneStart)
+      await starts.saveCheck(ana, 1, begunCheck)
+
+      await starts.saveCheck(ana, 1, takenCheck)
+
+      expect(await starts.bandStartsOf(ana)).toEqual({
+        ok: true,
+        value: [{ ...bandOneStart, checks: [takenCheck] }],
+      })
+    })
+
+    it('drops the sample of a check skipped after it was begun', async () => {
+      const { starts, registerPlayers } = await arrange()
+      await registerPlayers([ana])
+      await starts.save(ana, bandOneStart)
+      await starts.saveCheck(ana, 1, begunCheck)
+
+      await starts.saveCheck(ana, 1, skippedCheck)
+
+      expect(await starts.bandStartsOf(ana)).toEqual({
+        ok: true,
+        value: [{ ...bandOneStart, checks: [skippedCheck] }],
+      })
+    })
+
+    it('keeps each band’s checks to its own start, in week order', async () => {
+      const { starts, registerPlayers } = await arrange()
+      await registerPlayers([ana])
+      await starts.save(ana, bandOneStart)
+      await starts.save(ana, bandTwoStart)
+      const releasing: HoldoutCheck = { ...skippedCheck, week: 24 }
+
+      await starts.saveCheck(ana, 1, releasing)
+      await starts.saveCheck(ana, 1, takenCheck)
+
+      expect(await starts.bandStartsOf(ana)).toEqual({
+        ok: true,
+        value: [{ ...bandOneStart, checks: [takenCheck, releasing] }, bandTwoStart],
+      })
     })
   })
 }

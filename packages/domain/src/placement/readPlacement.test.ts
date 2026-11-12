@@ -32,7 +32,7 @@ const begunPlacement: TakenPlacement = {
   scores: [],
 }
 
-const bandOneStart: BandStart = { band: 1, startedAt: firstSignInAt, heldOutWords: [] }
+const bandOneStart: BandStart = { band: 1, startedAt: firstSignInAt, heldOutWords: [], checks: [] }
 
 type ReadShape = {
   readonly stored?: ReadonlyArray<OwnedPlacement>

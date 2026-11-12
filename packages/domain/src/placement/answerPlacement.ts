@@ -1,6 +1,5 @@
 import type { DomainError } from '../DomainError'
 import type { Band, BandStart } from '../learning/BandStart'
-import type { WordId } from '../learning/Lesson'
 import type { PlayerId } from '../player/PlayerId'
 import type { BandStartRepository } from '../ports/BandStartRepository'
 import type { Clock } from '../ports/Clock'
@@ -10,13 +9,9 @@ import { err, ok, type Result } from '../Result'
 import { askedSampleOf } from './askedSampleOf'
 import type { PlacementSample, TakenPlacement } from './Placement'
 import type { PlacementView } from './PlacementView'
-import { type PlacementQuestion, placementQuestionsOf } from './placementQuestionsOf'
+import { placementQuestionsOf } from './placementQuestionsOf'
 import { placementViewOf } from './placementViewOf'
-
-export type PlacementAnswer = {
-  readonly wordId: WordId
-  readonly choiceId: string
-}
+import { type PlacementAnswer, rightWordIdsOf } from './rightWordIdsOf'
 
 export type AnswerPlacementCommand = {
   readonly playerId: PlayerId
@@ -57,29 +52,6 @@ const askedPlacementOf = async (
   return ok({ placement, sample, starts: starts.value })
 }
 
-const isOffered = (question: PlacementQuestion, answer: PlacementAnswer | undefined): boolean =>
-  question.choices.some(({ choiceId }) => choiceId === answer?.choiceId)
-
-const isRight = (question: PlacementQuestion, answer: PlacementAnswer | undefined): boolean =>
-  question.choices.find(({ choiceId }) => choiceId === answer?.choiceId)?.word.id ===
-  question.word.id
-
-const scoreOf = (
-  questions: ReadonlyArray<PlacementQuestion>,
-  answers: ReadonlyArray<PlacementAnswer>,
-): number | undefined => {
-  const answerOf = (question: PlacementQuestion): PlacementAnswer | undefined =>
-    answers.find(({ wordId }) => wordId === question.word.id)
-  const isComplete =
-    answers.length === questions.length &&
-    new Set(answers.map(({ wordId }) => wordId)).size === answers.length &&
-    questions.every((question) => isOffered(question, answerOf(question)))
-  if (!isComplete) {
-    return undefined
-  }
-  return questions.filter((question) => isRight(question, answerOf(question))).length
-}
-
 export const answerPlacement = async (
   command: AnswerPlacementCommand,
   dependencies: AnswerPlacementDependencies,
@@ -89,13 +61,16 @@ export const answerPlacement = async (
     return asked
   }
   const { placement, sample, starts } = asked.value
-  const score = scoreOf(placementQuestionsOf(sample, dependencies.words), command.answers)
-  if (score === undefined) {
+  const right = rightWordIdsOf(placementQuestionsOf(sample, dependencies.words), command.answers)
+  if (right === undefined) {
     return err({ kind: 'InvalidPlacementAnswers', band: command.band })
   }
   const scored: TakenPlacement = {
     ...placement,
-    scores: [...placement.scores, { band: command.band, score, takenAt: dependencies.clock.now() }],
+    scores: [
+      ...placement.scores,
+      { band: command.band, score: right.length, takenAt: dependencies.clock.now() },
+    ],
   }
   const saved = await dependencies.placements.save(command.playerId, scored)
   if (!saved.ok) {

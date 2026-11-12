@@ -1,4 +1,5 @@
 import { describe, expect, it } from 'vitest'
+import type { BandStart } from '../learning/BandStart'
 import { inMemoryLessons } from '../testing/inMemoryLessons'
 import { lessonOne } from '../testing/lessonOne'
 import { Instant } from '../time/Instant'
@@ -18,6 +19,13 @@ const finishedSlotOf = (lessonId: string): LessonSlot => ({
   finishesAt,
 })
 
+const bandStartHolding = (heldOutWords: ReadonlyArray<string>): BandStart => ({
+  band: 1,
+  startedAt,
+  heldOutWords,
+  checks: [],
+})
+
 describe('settledLessonSlot', () => {
   it('settles a finished lesson gone from the catalog as an empty slot', () => {
     const settled = settledLessonSlot(
@@ -35,7 +43,7 @@ describe('settledLessonSlot', () => {
     const settled = settledLessonSlot(
       finishedSlotOf('lesson-1'),
       [],
-      ['money', 'food'],
+      [bandStartHolding(['money', 'food'])],
       inMemoryLessons([lessonOne], []),
       afterFinish,
     )
@@ -47,7 +55,7 @@ describe('settledLessonSlot', () => {
     const settled = settledLessonSlot(
       finishedSlotOf('lesson-1'),
       [],
-      ['home', 'school', 'work', 'money', 'food'],
+      [bandStartHolding(['home', 'school', 'work', 'money', 'food'])],
       inMemoryLessons([lessonOne], []),
       afterFinish,
     )

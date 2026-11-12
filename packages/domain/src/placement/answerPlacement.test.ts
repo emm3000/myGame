@@ -5,10 +5,11 @@ import { inMemoryBandStarts, type OwnedBandStart } from '../testing/inMemoryBand
 import { inMemoryPlacements } from '../testing/inMemoryPlacements'
 import { placementContentOf, placementWordsOfBand } from '../testing/placementWords'
 import { Instant } from '../time/Instant'
-import { answerPlacement, type PlacementAnswer } from './answerPlacement'
+import { answerPlacement } from './answerPlacement'
 import type { Placement, TakenPlacement } from './Placement'
 import type { PlacementItem } from './PlacementView'
 import { readPlacement } from './readPlacement'
+import type { PlacementAnswer } from './rightWordIdsOf'
 
 const ana = 'player-ana'
 
@@ -152,7 +153,7 @@ describe('answerPlacement', () => {
   })
 
   it('refuses an answer once the band it asks has started', async () => {
-    const bandOneStart: BandStart = { band: 1, startedAt: begunAt, heldOutWords: [] }
+    const bandOneStart: BandStart = { band: 1, startedAt: begunAt, heldOutWords: [], checks: [] }
     const { dependencies } = placementOf({ starts: [{ playerId: ana, start: bandOneStart }] })
 
     expect(await answerPlacement({ playerId: ana, band: 1, answers: [] }, dependencies)).toEqual({

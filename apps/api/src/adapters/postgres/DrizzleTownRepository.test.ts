@@ -56,7 +56,7 @@ const registerPlayers = async (playerIds: ReadonlyArray<string>): Promise<void> 
 
 const truncateAll = async (): Promise<void> => {
   await pool.query(
-    'TRUNCATE players, towns, town_buildings, town_waiting_work, town_events, town_lesson_slots, town_hires, town_hiring_orders, town_jobs, site_clean_ups, player_seen_tips, earned_skills, band_starts, held_out_words, placements, placement_words, placement_scores, cards, pending_reviews, review_log, sessions, account_tokens',
+    'TRUNCATE players, towns, town_buildings, town_waiting_work, town_events, town_lesson_slots, town_hires, town_hiring_orders, town_jobs, site_clean_ups, player_seen_tips, earned_skills, band_starts, held_out_words, holdout_checks, holdout_check_words, placements, placement_words, placement_scores, cards, pending_reviews, review_log, sessions, account_tokens',
   )
 }
 
@@ -126,13 +126,59 @@ describe('DrizzleTownRepository as a TownReader', () => {
     const startedAt = instantAt('2026-11-10T08:55:00Z')
     const bandStarts = new DrizzleBandStarts(session)
     assert((await reader.save(anasTown(ana))).ok)
-    assert((await bandStarts.save(ana, { band: 2, startedAt, heldOutWords: ['say'] })).ok)
-    assert((await bandStarts.save(ana, { band: 1, startedAt, heldOutWords: ['know'] })).ok)
-    assert((await bandStarts.save(otherPlayer, { band: 1, startedAt, heldOutWords: ['go'] })).ok)
+    assert(
+      (await bandStarts.save(ana, { band: 2, startedAt, heldOutWords: ['say'], checks: [] })).ok,
+    )
+    assert(
+      (await bandStarts.save(ana, { band: 1, startedAt, heldOutWords: ['know'], checks: [] })).ok,
+    )
+    assert(
+      (await bandStarts.save(otherPlayer, { band: 1, startedAt, heldOutWords: ['go'], checks: [] }))
+        .ok,
+    )
 
     const read = await reader.townWithSchoolOf(ana)
 
     expect(read.ok && read.value?.heldOutWords).toEqual(['know', 'say'])
+  })
+
+  it('leaves out the held-out words of a band once its 24-week check is closed', async () => {
+    await truncateAll()
+    await registerPlayers([ana])
+    const session = drizzle(pool)
+    const reader = new DrizzleTownRepository(session, 'lockFree')
+    const startedAt = instantAt('2026-11-10T08:55:00Z')
+    const closedAt = instantAt('2027-04-27T09:00:00Z')
+    const bandStarts = new DrizzleBandStarts(session)
+    assert((await reader.save(anasTown(ana))).ok)
+    assert(
+      (await bandStarts.save(ana, { band: 1, startedAt, heldOutWords: ['know'], checks: [] })).ok,
+    )
+    assert(
+      (await bandStarts.save(ana, { band: 2, startedAt, heldOutWords: ['say'], checks: [] })).ok,
+    )
+    const sample = { wordIds: [], heldOutWordIds: [] }
+    const eightWeeks = {
+      kind: 'taken',
+      week: 8,
+      begunAt: startedAt,
+      sample,
+      heldOutScore: 0,
+      practisedScore: 0,
+      takenAt: closedAt,
+    } as const
+    assert(
+      (await bandStarts.saveCheck(ana, 1, { kind: 'skipped', week: 24, skippedAt: closedAt })).ok,
+    )
+    assert((await bandStarts.saveCheck(ana, 2, eightWeeks)).ok)
+    assert(
+      (await bandStarts.saveCheck(ana, 2, { kind: 'begun', week: 24, begunAt: closedAt, sample }))
+        .ok,
+    )
+
+    const read = await reader.townWithSchoolOf(ana)
+
+    expect(read.ok && read.value?.heldOutWords).toEqual(['say'])
   })
 
   it('reads no held-out word before a band starts', async () => {

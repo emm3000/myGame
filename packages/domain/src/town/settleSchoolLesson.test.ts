@@ -2,6 +2,7 @@ import { assert, describe, expect, it } from 'vitest'
 import { MemoryCard } from '../memory/MemoryCard'
 import type { Clock } from '../ports/Clock'
 import { inMemoryBandStarts, type OwnedBandStart } from '../testing/inMemoryBandStarts'
+import { inMemoryBands } from '../testing/inMemoryBands'
 import { inMemoryCards } from '../testing/inMemoryCards'
 import { inMemoryLessonSlots } from '../testing/inMemoryLessonSlots'
 import { inMemoryLessons } from '../testing/inMemoryLessons'
@@ -47,6 +48,7 @@ const schoolOf = (slot: LessonSlot, bandStarts: ReadonlyArray<OwnedBandStart> = 
     bandStarts: inMemoryBandStarts(bandStarts),
     cards: inMemoryCards([]),
     lessons: inMemoryLessons([lessonOne], []),
+    bands: inMemoryBands([]),
     news: inMemoryTownNews(),
     clock: frozenClock,
   }
@@ -61,11 +63,11 @@ describe('settleSchoolLesson', () => {
     const school = schoolOf(finishedLesson, [
       {
         playerId: 'player-1',
-        start: { band: 1, startedAt: hoursAfterEpoch(1), heldOutWords: ['say'] },
+        start: { band: 1, startedAt: hoursAfterEpoch(1), heldOutWords: ['say'], checks: [] },
       },
       {
         playerId: 'player-1',
-        start: { band: 2, startedAt: hoursAfterEpoch(1), heldOutWords: ['money'] },
+        start: { band: 2, startedAt: hoursAfterEpoch(1), heldOutWords: ['money'], checks: [] },
       },
     ])
 

@@ -1,4 +1,32 @@
 export type { DomainError } from './DomainError'
+export {
+  type AnswerHoldoutCheckCommand,
+  type AnswerHoldoutCheckDependencies,
+  answerHoldoutCheck,
+} from './holdout/answerHoldoutCheck'
+export {
+  type BeginHoldoutCheckCommand,
+  type BeginHoldoutCheckDependencies,
+  beginHoldoutCheck,
+} from './holdout/beginHoldoutCheck'
+export type {
+  BegunHoldoutCheck,
+  HoldoutCheck,
+  HoldoutCheckSample,
+  HoldoutCheckWeek,
+  SkippedHoldoutCheck,
+  TakenHoldoutCheck,
+} from './holdout/HoldoutCheck'
+export type { HoldoutCheckView } from './holdout/HoldoutCheckView'
+export { HOLDOUT_CHECK_WEEKS, RELEASING_WEEK } from './holdout/holdoutCheckWeeks'
+export {
+  type ReadHoldoutChecksDependencies,
+  readHoldoutChecks,
+} from './holdout/readHoldoutChecks'
+export {
+  type SkipHoldoutCheckDependencies,
+  skipHoldoutCheck,
+} from './holdout/skipHoldoutCheck'
 export { anchorFrameOf } from './learning/anchorFrameOf'
 export type { Band, BandStart, BandWord, Headword } from './learning/BandStart'
 export { cardsInLearningOf } from './learning/cardsInLearningOf'
@@ -6,7 +34,7 @@ export type { DueCard } from './learning/dueCardsAt'
 export { gradeTypedAnswer, type TypedAnswerGrade } from './learning/gradeTypedAnswer'
 export type { HeldCard } from './learning/HeldCard'
 export { headwordOf } from './learning/headwordOf'
-export { heldOutWordsOf } from './learning/heldOutWordsOf'
+export { heldOutWordsAt } from './learning/heldOutWordsAt'
 export { isUnitLemma } from './learning/isUnitLemma'
 export { isWordRetained } from './learning/isWordRetained'
 export type {
@@ -45,7 +73,6 @@ export {
   type AnswerPlacementCommand,
   type AnswerPlacementDependencies,
   answerPlacement,
-  type PlacementAnswer,
 } from './placement/answerPlacement'
 export { type BeginPlacementDependencies, beginPlacement } from './placement/beginPlacement'
 export type {
@@ -60,6 +87,7 @@ export type { PlacementWord } from './placement/PlacementWord'
 export { placedOutBandsOf } from './placement/placedOutBandsOf'
 export { placementScoresOf } from './placement/placementScoresOf'
 export { readPlacement } from './placement/readPlacement'
+export type { PlacementAnswer } from './placement/rightWordIdsOf'
 export { type SkipPlacementDependencies, skipPlacement } from './placement/skipPlacement'
 export type { PlayerId } from './player/PlayerId'
 export type { BandCatalog } from './ports/BandCatalog'
