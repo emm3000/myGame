@@ -111,6 +111,7 @@ export {
   callJobBack,
 } from './town/callJobBack'
 export { deliveredHiresOf } from './town/deliveredHiresOf'
+export { deriveFullAt, type FullAt } from './town/deriveFullAt'
 export { deriveHireDurationSeconds } from './town/deriveHireDurationSeconds'
 export { deriveLessonDurationSeconds } from './town/deriveLessonDurationSeconds'
 export { derivePeople } from './town/derivePeople'
