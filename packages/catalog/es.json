@@ -304,6 +304,7 @@
   "android.signin.sign_up_title": "Crea tu cuenta",
   "android.signin.verification_banner_line": "Confirma tu correo",
   "android.signin.verification_banner_resend": "Reenviar",
+  "android.signin.verification_banner_sending": "Enviando",
   "android.signin.verification_banner_sent": "Enviado. Revisa tu correo.",
   "android.signin.verification_banner_unreachable": "No hemos podido hablar con el servidor. Vuelve a intentarlo en un momento.",
   "android.signin.verification_refusal_mail_not_sent": "No hemos podido enviarlo.",
