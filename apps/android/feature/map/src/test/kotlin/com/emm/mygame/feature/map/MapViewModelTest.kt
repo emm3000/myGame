@@ -186,7 +186,7 @@ class MapViewModelTest {
                 workersAtHome = 3,
                 trucksAtHome = 1,
                 block = MapUiState.JobBlock.InvalidTeam,
-                quote = MapUiState.PayQuote.Asking,
+                quote = null,
             ),
             contentOf(viewModel).form,
         )
@@ -407,6 +407,15 @@ class MapViewModelTest {
 
         viewModel.onIntent(MapIntent.JobEntryChanged(MapIntent.JobField.Hours, "x"))
 
+        assertEquals(emptyList<FakeRegionRepository.JobRequest>(), towns.regions.quotes)
+        assertNull(quoteOf(viewModel))
+    }
+
+    @Test
+    fun `asks no quote while the team is empty`() = runTest {
+        val viewModel: MapViewModel = formFilled(workers = "0", trucks = "0", hours = "3")
+
+        assertEquals(emptyList<FakeRegionRepository.JobRequest>(), towns.regions.quotes)
         assertNull(quoteOf(viewModel))
     }
 
