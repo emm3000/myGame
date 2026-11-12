@@ -17,6 +17,12 @@ export const mailVerificationSubject = (): string => `Confirma tu correo`
 export const mailVerificationText = ({ link }: { readonly link: string | number }): string => `Confirma que este correo es el de tu feudo abriendo este enlace:\n\n${String(link)}\n\nEl enlace vale 24 horas y una sola vez. Si caduca, pide otro desde tu feudo.\n\nSi no has fundado ningún feudo, ignora este correo.`
 export const mapArea = ({ area }: { readonly area: string | number }): string => `Zona ${String(area)}`
 export const mapBackToOwnArea = (): string => `Volver a tu zona`
+export const mapCleanUpAction = (): string => `Limpiar los residuos`
+export const mapCleanUpActionTo = ({ site }: { readonly site: string | number }): string => `Limpiar los residuos del sitio ${String(site)}`
+export const mapCleanUpShort = (): string => `Tu equipo no puede limpiar todos estos residuos. Envía más trabajadores o camiones.`
+export const mapCleanUpTeam = ({ strength }: { readonly strength: string | number }): string => `Tu equipo: ${String(strength)}`
+export const mapCleanUpTitle = ({ site }: { readonly site: string | number }): string => `Limpieza en el sitio ${String(site)}`
+export const mapCleanUpOutTitle = (): string => `Limpieza de residuos`
 export const mapFree = (): string => `Libre`
 export const mapJobAtHome = ({ count }: { readonly count: string | number }): string => `${String(count)} en casa`
 export const mapJobCountNeeded = (): string => `Envía un número entero: 0, 1, 2 o más.`
@@ -46,6 +52,8 @@ export const mapSendTeam = (): string => `Enviar un equipo`
 export const mapSendTeamTo = ({ site }: { readonly site: string | number }): string => `Enviar un equipo al sitio ${String(site)}`
 export const mapSite = ({ site }: { readonly site: string | number }): string => `Sitio ${String(site)}`
 export const mapTitle = (): string => `Mapa`
+export const mapWasteAmount = ({ waste }: { readonly waste: string | number }): string => `Residuos: ${String(waste)}`
+export const mapWasteSize = ({ size }: { readonly size: string | number }): string => `Sitio con residuos, tamaño ${String(size)}`
 export const namesHiresTruck = (): string => `Camiones`
 export const namesHiresWorker = (): string => `Trabajadores`
 export const namesPlacesFactory = (): string => `Fábrica`
