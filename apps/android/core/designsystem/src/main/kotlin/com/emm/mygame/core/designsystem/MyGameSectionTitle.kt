@@ -14,3 +14,11 @@ fun MyGameSectionTitle(text: String, modifier: Modifier = Modifier) {
         modifier = modifier.semantics { heading() },
     )
 }
+
+@PreviewMyGame
+@Composable
+private fun MyGameSectionTitlePreview() {
+    MyGamePreviewSurface {
+        MyGameSectionTitle(text = "Places")
+    }
+}

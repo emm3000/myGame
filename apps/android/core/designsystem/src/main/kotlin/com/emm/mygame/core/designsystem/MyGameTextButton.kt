@@ -29,3 +29,12 @@ fun MyGameTextButton(
         )
     }
 }
+
+@PreviewMyGame
+@Composable
+private fun MyGameTextButtonPreview() {
+    MyGamePreviewSurface {
+        MyGameTextButton(label = "Sign out", isBusy = false, busyDescription = "Signing out", onClick = {})
+        MyGameTextButton(label = "Sign out", isBusy = true, busyDescription = "Signing out", onClick = {})
+    }
+}

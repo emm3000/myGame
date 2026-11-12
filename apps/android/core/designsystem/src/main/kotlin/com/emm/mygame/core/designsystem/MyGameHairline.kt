@@ -20,3 +20,13 @@ fun MyGameHairline(modifier: Modifier = Modifier) {
             .background(MyGameTheme.colors.line),
     )
 }
+
+@PreviewMyGame
+@Composable
+private fun MyGameHairlinePreview() {
+    MyGamePreviewSurface {
+        MyGameText(text = "The farm reached level 2.", style = MyGameTypography.body, color = MyGameTheme.colors.ink)
+        MyGameHairline()
+        MyGameText(text = "Three new words to review.", style = MyGameTypography.body, color = MyGameTheme.colors.ink)
+    }
+}

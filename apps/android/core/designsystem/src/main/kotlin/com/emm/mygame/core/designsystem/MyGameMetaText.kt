@@ -15,3 +15,11 @@ fun MyGameMetaText(text: String, color: Color, modifier: Modifier = Modifier) {
         modifier = modifier.semantics { contentDescription = text },
     )
 }
+
+@PreviewMyGame
+@Composable
+private fun MyGameMetaTextPreview() {
+    MyGamePreviewSurface {
+        MyGameMetaText(text = "Town news", color = MyGameTheme.colors.inkMuted)
+    }
+}

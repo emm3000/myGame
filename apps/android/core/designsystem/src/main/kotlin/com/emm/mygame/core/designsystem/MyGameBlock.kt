@@ -10,6 +10,8 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.semantics.semantics
+import androidx.compose.ui.tooling.preview.PreviewParameter
+import androidx.compose.ui.tooling.preview.PreviewParameterProvider
 
 @Composable
 fun MyGameBlock(hue: MyGameBlockHue, modifier: Modifier = Modifier, content: @Composable ColumnScope.() -> Unit) {
@@ -22,4 +24,20 @@ fun MyGameBlock(hue: MyGameBlockHue, modifier: Modifier = Modifier, content: @Co
             .padding(MyGameSpacing.step6),
         content = content,
     )
+}
+
+private class BlockHues : PreviewParameterProvider<MyGameBlockHue> {
+
+    override val values: Sequence<MyGameBlockHue> = MyGameBlockHue.entries.asSequence()
+}
+
+@PreviewMyGame
+@Composable
+private fun MyGameBlockPreview(@PreviewParameter(BlockHues::class) hue: MyGameBlockHue) {
+    MyGamePreviewSurface {
+        MyGameBlock(hue = hue) {
+            MyGameMetaText(text = "Lesson 1", color = MyGameTheme.colors.onBlockMuted)
+            MyGameText(text = "At the market", style = MyGameTypography.display, color = MyGameTheme.colors.onBlock)
+        }
+    }
 }

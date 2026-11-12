@@ -36,3 +36,11 @@ internal fun MyGameTextTarget(
         content()
     }
 }
+
+@PreviewMyGame
+@Composable
+private fun MyGameTextLinkPreview() {
+    MyGamePreviewSurface {
+        MyGameTextLink(label = "Open the map", onClick = {})
+    }
+}

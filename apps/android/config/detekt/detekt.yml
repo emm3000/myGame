@@ -50,6 +50,7 @@ complexity:
     ignoreOverridden: false
     ignoreAnnotatedFunctions:
       - 'Preview'
+      - 'PreviewMyGame'
 
 naming:
   active: true

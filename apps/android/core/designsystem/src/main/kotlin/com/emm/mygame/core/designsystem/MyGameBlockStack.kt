@@ -44,3 +44,15 @@ private fun BoxScope.StackedBlock(hue: MyGameBlockHue, degrees: Float, modifier:
             .semantics { hideFromAccessibility() },
     ) { }
 }
+
+@PreviewMyGame
+@Composable
+private fun MyGameBlockStackPreview() {
+    MyGamePreviewSurface {
+        MyGameBlockStack(nearHue = MyGameBlockHue.Mint, farHue = MyGameBlockHue.Lavender, dealtKey = null) {
+            MyGameBlock(hue = MyGameBlockHue.Peach) {
+                MyGameText(text = "harvest", style = MyGameTypography.display, color = MyGameTheme.colors.onBlock)
+            }
+        }
+    }
+}

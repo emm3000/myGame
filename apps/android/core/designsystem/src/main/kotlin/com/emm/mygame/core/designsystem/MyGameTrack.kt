@@ -41,3 +41,13 @@ fun MyGameTrack(filled: Float, color: Color, modifier: Modifier = Modifier) {
         )
     }
 }
+
+@PreviewMyGame
+@Composable
+private fun MyGameTrackPreview() {
+    MyGamePreviewSurface {
+        MyGameTrack(filled = 0f, color = MyGameTheme.colors.action)
+        MyGameTrack(filled = 0.4f, color = MyGameTheme.colors.action)
+        MyGameTrack(filled = 1f, color = MyGameTheme.colors.action)
+    }
+}

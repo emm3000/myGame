@@ -29,3 +29,18 @@ fun MyGameNextStepBlock(
         countdown()
     }
 }
+
+@PreviewMyGame
+@Composable
+private fun MyGameNextStepBlockPreview() {
+    MyGamePreviewSurface {
+        MyGameNextStepBlock(
+            title = "Next step",
+            line = "Study lesson 2",
+            detail = "Five new words wait at the school.",
+        ) {
+            MyGameCountdownLine(words = "Ready in", time = "04:05", ground = MyGameCountdownGround.Block)
+        }
+        MyGameNextStepBlock(title = "Next step", line = "Review your words", detail = null)
+    }
+}

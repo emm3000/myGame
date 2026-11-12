@@ -28,3 +28,14 @@ fun MyGameCountdownLine(
         MyGameText(text = time, style = MyGameTypography.heading.withTabularFigures(), color = timeColor)
     }
 }
+
+@PreviewMyGame
+@Composable
+private fun MyGameCountdownLinePreview() {
+    MyGamePreviewSurface {
+        MyGameCountdownLine(words = "Ready in", time = "12:40", ground = MyGameCountdownGround.Paper)
+        MyGameBlock(hue = MyGameBlockHue.Peach) {
+            MyGameCountdownLine(words = "Ready in", time = "12:40", ground = MyGameCountdownGround.Block)
+        }
+    }
+}

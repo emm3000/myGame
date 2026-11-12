@@ -41,6 +41,13 @@ None. No KDoc, no `//`, no `/* */`, no commented-out code, no `// region` banner
 - Composable callbacks start with `on`: `onIntent`, `onDismiss`.
 - The MVI type names live in `android-architecture.md`.
 
+## Previews
+
+- Every public `core:designsystem` component and every stateless `<Feature>Screen` carries a `private` preview in its own file, named `<Composable>Preview` (or `<Composable><Variant>Preview` for a second one, `MyGameOutlinedButtonBadgePreview`), annotated `@PreviewMyGame` and wrapped in `MyGamePreviewSurface`. `@PreviewMyGame` is the one multipreview, in `core:designsystem`: Day and Night at phone width, and Day at a large font scale. `MyGamePreviewSurface` applies `MyGameTheme` on the `surface` ground.
+- A preview is fed by fixed values: a literal component state, a `UiState` built by hand, a fixed `Instant`, `onIntent = {}`. A component with a list of states takes them through `@PreviewParameter` over a `private` `PreviewParameterProvider`, or an `internal` one beside the shared composable when previews of several components in one module read the same states (`MyGamePillStates` in `MyGamePill.kt`). A preview builds without a ViewModel, a repository, a `Context` lookup or `Clock.System`, so Studio renders it.
+- A preview's sample text is a fixture, not UI copy: it stays in the preview, outside `packages/catalog`.
+- The names are what detekt reads: the Compose rules want a multipreview named with the `Preview` prefix, and `UnusedPrivateMember` spares a preview by its `Preview` suffix, since its `ignoreAnnotated` matches `@Preview` and not `@PreviewMyGame`.
+
 ## detekt
 
 detekt with the Compose rules is the Android leg's linter. Its thresholds live only in `apps/android/config/detekt/detekt.yml`; this file never copies a number. Guard clauses are the default shape of every function (Flat control flow in `principles.md`), and `ReturnCount` does not count them. When a function trips a complexity rule, the fix is shape, never a suppression: a guard clause instead of a nested `if`, a `when` instead of an `else if` chain, a named step instead of nested `let` / `also` / `apply` / `run`.
