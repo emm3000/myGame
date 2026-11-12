@@ -1,8 +1,10 @@
 import { z } from 'zod'
+import { BuildingKindSchema } from './BuildingKind'
 import { ResourceAmountsSchema } from './ResourceAmounts'
 import { ResourceKindSchema } from './ResourceKind'
 import { SeasonKindSchema } from './SeasonKind'
 import { TerrainSchema } from './Terrain'
+import { TipKindSchema } from './TipKind'
 import { InstantSchema, QuantitySchema, WholeCountSchema } from './Wire'
 
 const TownSeasonsSchema = z.strictObject({
@@ -54,6 +56,15 @@ const WasteContentSchema = z.strictObject({
   }),
 })
 
+const GoalContentSchema = z.strictObject({
+  building: BuildingKindSchema,
+  level: WholeCountSchema.positive(),
+})
+
+const TipsContentSchema = z
+  .array(TipKindSchema)
+  .refine((tips) => new Set(tips).size === tips.length)
+
 export const TownContentSchema = z.strictObject({
   startingStocks: ResourceAmountsSchema,
   taxRatePerHour: QuantitySchema,
@@ -66,6 +77,8 @@ export const TownContentSchema = z.strictObject({
   job: JobContentSchema,
   waste: WasteContentSchema,
   seasons: TownSeasonsSchema,
+  goals: z.array(GoalContentSchema),
+  tips: TipsContentSchema,
 })
 
 export type TownContent = z.infer<typeof TownContentSchema>

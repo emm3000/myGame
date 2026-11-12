@@ -206,6 +206,7 @@ export const towns = pgTable(
     workCostFood: doublePrecision('work_cost_food'),
     workCostPower: doublePrecision('work_cost_power'),
     workCostMaterial: doublePrecision('work_cost_material'),
+    guidanceDismissedAt: timestamp('guidance_dismissed_at', { withTimezone: true }),
   },
   (table) => [
     unique('towns_player_unique').on(table.playerId),
@@ -513,4 +514,24 @@ export const townEvents = pgTable(
     wholeAmount('town_events_amount_power_whole', table.amountPower),
     wholeAmount('town_events_amount_material_whole', table.amountMaterial),
   ],
+)
+
+export const townTip = pgEnum('town_tip', [
+  'people',
+  'seasons',
+  'waiting_list',
+  'office',
+  'jobs',
+  'full_store',
+])
+
+export const playerSeenTips = pgTable(
+  'player_seen_tips',
+  {
+    playerId: uuid('player_id')
+      .notNull()
+      .references(() => players.id, { onDelete: 'cascade' }),
+    tip: townTip('tip').notNull(),
+  },
+  (table) => [primaryKey({ name: 'player_seen_tips_pkey', columns: [table.playerId, table.tip] })],
 )

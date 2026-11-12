@@ -42,6 +42,7 @@ export { type StopBuildingWork, StopBuildingWorkSchema } from './StopBuildingWor
 export { type StopHiringOrder, StopHiringOrderSchema } from './StopHiringOrder'
 export { type StopLessonRequest, StopLessonRequestSchema } from './StopLessonRequest'
 export { type Terrain, TerrainSchema } from './Terrain'
+export { type TipKind, TipKindSchema } from './TipKind'
 export { type TownContent, TownContentSchema } from './TownContent'
 export { type TownNewsFeed, TownNewsFeedSchema } from './TownNewsFeed'
 export { type TownNewsItem, TownNewsItemSchema } from './TownNewsItem'

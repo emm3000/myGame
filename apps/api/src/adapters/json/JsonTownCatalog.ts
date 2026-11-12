@@ -108,6 +108,16 @@ const officeOf = (buildings: ReadonlyArray<BuildingContent>): OfficeContent => {
 
 const keyOf = (building: BuildingKind, level: number): string => `${building}:${level}`
 
+const refuseUnknownGoals = (
+  settings: TownSettings,
+  levels: ReadonlyMap<string, BuildingLevel>,
+): void => {
+  const unknown = settings.goals.find(({ building, level }) => !levels.has(keyOf(building, level)))
+  if (unknown !== undefined) {
+    throw new Error(`Content goal ${unknown.building} ${unknown.level} names no level`)
+  }
+}
+
 export class JsonTownCatalog implements TownCatalog {
   private readonly levels: ReadonlyMap<string, BuildingLevel>
   private readonly hireTerms: Readonly<Record<HireKind, HireTerms>>
@@ -121,6 +131,7 @@ export class JsonTownCatalog implements TownCatalog {
         .map((level) => [keyOf(level.building, level.level), level]),
     )
     this.settings = settingsOf(town)
+    refuseUnknownGoals(this.settings, this.levels)
   }
 
   static fromDirectory(directory: string): JsonTownCatalog {
