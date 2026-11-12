@@ -23,11 +23,11 @@ const hiringTown: TownOverview = {
   },
 }
 
-it('names the count before a running order when the count is not a whole count', () => {
+it('asks for a whole count before naming a running order', () => {
   const card = hireCardOf('worker', '', liveTownAt(hiringTown, 0))
 
   expect(card.kind === 'open' ? card.state : undefined).toEqual({
-    kind: 'blocked',
+    kind: 'invalidEntry',
     reason: 'Contrata 1 o más.',
   })
 })

@@ -15,6 +15,7 @@ import com.emm.mygame.core.designsystem.MyGameSpacing
 import com.emm.mygame.core.designsystem.MyGameText
 import com.emm.mygame.core.designsystem.MyGameTheme
 import com.emm.mygame.core.designsystem.MyGameTypography
+import com.emm.mygame.core.network.TownJobRefusal
 import com.emm.mygame.core.ui.icuStringResource
 
 @Composable
@@ -22,7 +23,7 @@ internal fun TeamFormCard(
     form: MapUiState.SiteForm,
     title: String,
     send: MapUiState.SendRequest,
-    isQuoteRefused: Boolean,
+    quoteRefusal: TownJobRefusal?,
     onIntent: (MapIntent) -> Unit,
     modifier: Modifier = Modifier,
     extraFields: @Composable () -> Unit = {},
@@ -30,7 +31,10 @@ internal fun TeamFormCard(
 ) {
     val reason: String? = form.block?.let { block: MapUiState.JobBlock -> jobBlockLineOf(block) }
     val isSendAnswered: Boolean = send.isAnsweredFor(form.site)
-    val isApiAnswered: Boolean = isSendAnswered || isQuoteRefused
+    val isApiAnswered: Boolean = isSendAnswered || quoteRefusal != null
+    val quoteReason: String? = quoteRefusal?.takeUnless { isSendAnswered }?.let { refusal: TownJobRefusal ->
+        jobRefusalLineOf(refusal)
+    }
     MyGameCard(modifier = modifier) {
         Column(
             verticalArrangement = Arrangement.spacedBy(MyGameSpacing.step3),
@@ -63,7 +67,7 @@ internal fun TeamFormCard(
                 isBusy = send == MapUiState.SendRequest.Waiting,
                 busyDescription = stringResource(R.string.map_waiting),
                 onClick = { onIntent(MapIntent.SendTapped) },
-                blockedReason = reason,
+                blockedReason = reason ?: quoteReason,
             )
             reason?.takeUnless { isApiAnswered }?.let { line: String ->
                 MyGameText(

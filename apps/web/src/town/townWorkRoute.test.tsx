@@ -124,22 +124,20 @@ it('marks a waiting build pill as busy', async () => {
   expect((await waitingBuildPill()).getAttribute('aria-busy')).toBe('true')
 })
 
-it('disables a level the stocks cannot pay and names the shortfall', async () => {
+it('marks a level the stocks cannot pay with the shortfall', async () => {
   await showTown({
     ...knownTown,
     stocks: { ...knownTown.stocks, material: { amount: 30, ratePerHour: 0, capacity: 5000 } },
   })
 
   const button = buildButtonOf(namesPlacesFarm())
-  expect(button.getAttribute('aria-disabled')).toBe('true')
   expect(accessibleDescriptionOf(button)).toBe('Necesitas 50 de material más.')
 })
 
-it('disables a level the free people cannot staff', async () => {
+it('marks a level the free people cannot staff with the people short', async () => {
   await showTown({ ...knownTown, people: { supplied: 97, free: 1, atWork: 96 } })
 
   const button = buildButtonOf(namesPlacesFarm())
-  expect(button.getAttribute('aria-disabled')).toBe('true')
   expect(accessibleDescriptionOf(button)).toBe('Gente necesaria: 2. Libre: 1.')
 })
 
@@ -171,7 +169,7 @@ it('shows work waiting behind the slot in order', async () => {
   expect(entries[1]).toContain(namesPlacesFarm())
 })
 
-it('blocks every level while the waiting list is full', async () => {
+it('marks every level while the waiting list is full', async () => {
   await showTown(
     withWork(homesBeingBuilt, [workOn('school', 2, 240, 600), workOn('farm', 1, 600, 900)]),
   )
@@ -263,4 +261,67 @@ it('shows a refused start with its message under the place', async () => {
   expect(within(placeCard(namesPlacesFarm())).getByRole('alert').textContent).toBe(
     refusalNotEnoughResources(),
   )
+})
+
+const pressFarmBuildOf = async (town: TownOverview): Promise<ReadonlyArray<string>> => {
+  const started: Array<string> = []
+  await showTown(town, {
+    startBuildingWork: async (building) => {
+      started.push(building)
+      return { ok: true, value: town }
+    },
+  })
+  fireEvent.click(buildButtonOf(namesPlacesFarm()))
+  await passSeconds(0)
+  return started
+}
+
+it('sends a level the stocks cannot pay, since the api decides', async () => {
+  const started = await pressFarmBuildOf({
+    ...knownTown,
+    stocks: { ...knownTown.stocks, material: { amount: 30, ratePerHour: 0, capacity: 5000 } },
+  })
+
+  expect(started).toEqual(['farm'])
+})
+
+it('sends a level the free people cannot staff, since the api decides', async () => {
+  const started = await pressFarmBuildOf({
+    ...knownTown,
+    people: { supplied: 97, free: 1, atWork: 96 },
+  })
+
+  expect(started).toEqual(['farm'])
+})
+
+it('reads the api refusal of a level sent while marked short', async () => {
+  await showTown(
+    {
+      ...knownTown,
+      stocks: { ...knownTown.stocks, material: { amount: 30, ratePerHour: 0, capacity: 5000 } },
+    },
+    {
+      startBuildingWork: async () => ({
+        ok: false,
+        refusal: 'NotEnoughResources',
+        error: {
+          kind: 'NotEnoughResources',
+          params: { missing: { money: 0, food: 0, power: 0, material: 50 } },
+        },
+      }),
+    },
+  )
+
+  fireEvent.click(buildButtonOf(namesPlacesFarm()))
+  await passSeconds(0)
+
+  expect(within(placeCard(namesPlacesFarm())).getByRole('alert')).toBeDefined()
+})
+
+it('sends a level while the waiting list is full, since the api decides', async () => {
+  const started = await pressFarmBuildOf(
+    withWork(homesBeingBuilt, [workOn('school', 2, 240, 600), workOn('storage', 1, 600, 900)]),
+  )
+
+  expect(started).toEqual(['farm'])
 })

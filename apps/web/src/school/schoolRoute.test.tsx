@@ -402,7 +402,7 @@ it('stops a lesson once on a double click', async () => {
   expect(stopLesson).toHaveBeenCalledTimes(1)
 })
 
-it('blocks a lesson whose school level is too low and names the level', async () => {
+it('marks a lesson whose school level is too low with the level', async () => {
   await showSchool(
     schoolOf({
       lessons: [lessonOf(1, { isStudied: true }), lessonOf(2, { requiredSchoolLevel: 2 })],
@@ -410,7 +410,6 @@ it('blocks a lesson whose school level is too low and names the level', async ()
   )
 
   const study = studyButtonOf(2)
-  expect(study.getAttribute('aria-disabled')).toBe('true')
   expect(accessibleDescriptionOf(study)).toBe(schoolLessonNeedsSchool({ level: 2 }))
 })
 
@@ -776,4 +775,46 @@ it.each<[string, Partial<ApiClient>]>([
   expect(screen.getAllByRole('heading', { level: 1 }).map((h1) => h1.textContent)).toEqual([
     namesPlacesSchool(),
   ])
+})
+
+const pressStudyOf = async (town: TownOverview, number: number): Promise<ReadonlyArray<string>> => {
+  const started: Array<string> = []
+  await showSchool(town, {
+    startLesson: async (lessonId) => {
+      started.push(lessonId)
+      return { ok: true, value: town }
+    },
+  })
+  fireEvent.click(studyButtonOf(number))
+  await passSeconds(0)
+  return started
+}
+
+it('sends a lesson marked past the cap, since the api decides', async () => {
+  const started = await pressStudyOf(
+    schoolOf({ learning: { cap: 15, inLearning: 12, retainedWords: null } }),
+    1,
+  )
+
+  expect(started).toEqual(['lesson-1'])
+})
+
+it('sends a lesson whose school level is marked too low, since the api decides', async () => {
+  const started = await pressStudyOf(
+    schoolOf({
+      lessons: [lessonOf(1, { isStudied: true }), lessonOf(2, { requiredSchoolLevel: 2 })],
+    }),
+    2,
+  )
+
+  expect(started).toEqual(['lesson-2'])
+})
+
+it('sends a lesson while another one runs in the slot, since the api decides', async () => {
+  const started = await pressStudyOf(
+    schoolOf({ lessons: [lessonOf(1), lessonOf(2)], lessonSlot: lessonOneStudying }),
+    2,
+  )
+
+  expect(started).toEqual(['lesson-2'])
 })

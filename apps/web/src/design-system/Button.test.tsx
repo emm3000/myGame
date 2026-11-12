@@ -35,6 +35,33 @@ it('never submits its form when a blocked submit button is pressed', () => {
   expect(onSubmit).not.toHaveBeenCalled()
 })
 
+it('fires the action of a marked button when pressed', () => {
+  const onClick = vi.fn()
+  render(
+    <Button type="button" tone="primary" availability="marked" onClick={onClick}>
+      Upgrade
+    </Button>,
+  )
+
+  fireEvent.click(screen.getByRole('button', { name: 'Upgrade' }))
+
+  expect(onClick).toHaveBeenCalledTimes(1)
+})
+
+it('never announces a marked button disabled, since it still acts', () => {
+  render(
+    <Button type="button" tone="primary" availability="marked">
+      Upgrade
+    </Button>,
+  )
+
+  expect(screen.getByRole('button', { name: 'Upgrade' }).getAttribute('aria-disabled')).toBeNull()
+})
+
+it('draws a marked button with the dashed border of a blocked one', () => {
+  expect(classesOf('quiet', 'marked')).toContain('border-dashed')
+})
+
 it('fires the action of an available button when pressed', () => {
   const onClick = vi.fn()
   render(

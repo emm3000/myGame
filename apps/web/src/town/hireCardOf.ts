@@ -59,7 +59,7 @@ const freePeopleOf = ({ overview }: LiveTown): number | undefined =>
 
 function stateOf(terms: HireTerms, count: number | undefined, town: LiveTown): OrderActionState {
   if (count === undefined) {
-    return { kind: 'blocked', reason: townOfficeCountNeeded() }
+    return { kind: 'invalidEntry', reason: townOfficeCountNeeded() }
   }
   if (town.overview.hiring.order !== null) {
     return { kind: 'blocked', reason: townOfficeBusy() }

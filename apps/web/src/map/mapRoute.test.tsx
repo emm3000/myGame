@@ -21,6 +21,9 @@ import {
 } from '../auth/stubApiClient.testSupport'
 import { accessibleDescriptionOf } from '../design-system/accessibleDescriptionOf.testSupport'
 
+const reasonOf = (button: HTMLElement): HTMLElement | null =>
+  document.getElementById(button.getAttribute('aria-describedby') ?? '')
+
 const readAt = Date.parse(knownTown.readAt)
 
 beforeEach(() => {
@@ -398,7 +401,7 @@ it('blocks a team count that is not a whole count', async () => {
   expect(accessibleDescriptionOf(sendButton(form))).toBe('Envía un número entero: 0, 1, 2 o más.')
 })
 
-it('asks the pay of a second job while a team is out and reads the refusal', async () => {
+it('asks the pay of a second job while a team is out and marks the send with the refusal', async () => {
   const quoted: Array<SendJob> = []
   await showMap('/map', jobIn('working', teamAtHome), {
     quoteJob: async (job) => {
@@ -412,8 +415,31 @@ it('asks the pay of a second job while a team is out and reads the refusal', asy
   await passSeconds(0)
 
   expect(quoted).toEqual([{ site: { area: 1, site: 2 }, team: { worker: 1, truck: 0 }, hours: 1 }])
-  expect(within(form).getByRole('alert').textContent).toBe(refusalTeamAlreadyOut())
-  expect(sendButton(form).getAttribute('aria-disabled')).not.toBe('true')
+  expect(reasonOf(sendButton(form))?.getAttribute('aria-live')).toBe('polite')
+  expect(accessibleDescriptionOf(sendButton(form))).toBe(refusalTeamAlreadyOut())
+})
+
+it('sends a job its refused quote marks, since the api decides', async () => {
+  const sent: Array<SendJob> = []
+  await showMap('/map', jobIn('working', teamAtHome), {
+    quoteJob: async () => ({
+      ok: false,
+      refusal: 'TeamAlreadyOut',
+      error: { kind: 'TeamAlreadyOut' },
+    }),
+    sendJob: async (job) => {
+      sent.push(job)
+      return { ok: false, refusal: 'TeamAlreadyOut', error: { kind: 'TeamAlreadyOut' } }
+    },
+  })
+
+  const form = openJobForm(2)
+  enterTeam(form, { 'Trabajadores a enviar': '1' })
+  await passSeconds(0)
+  fireEvent.click(sendButton(form))
+  await passSeconds(0)
+
+  expect(sent).toEqual([{ site: { area: 1, site: 2 }, team: { worker: 1, truck: 0 }, hours: 1 }])
 })
 
 it('reads one refusal when the send is refused as its quote was', async () => {
@@ -440,7 +466,7 @@ it('reads one refusal when the send is refused as its quote was', async () => {
   ).toEqual([refusalNotEnoughHiresAtHome({ hire: 'worker', count: 5, atHome: 3 })])
 })
 
-it('reads the refusal of the new team once the player changes a refused one', async () => {
+it('marks the send with the refusal of the new team once the player changes a refused one', async () => {
   const shortOf = (job: SendJob) =>
     ({
       ok: false,
@@ -463,11 +489,10 @@ it('reads the refusal of the new team once the player changes a refused one', as
   enterTeam(form, { 'Trabajadores a enviar': '4' })
   await passSeconds(0)
 
-  expect(
-    within(form)
-      .getAllByRole('alert')
-      .map((alert) => alert.textContent),
-  ).toEqual([refusalNotEnoughHiresAtHome({ hire: 'worker', count: 4, atHome: 3 })])
+  expect(within(form).queryByRole('alert')).toBeNull()
+  expect(accessibleDescriptionOf(sendButton(form))).toBe(
+    refusalNotEnoughHiresAtHome({ hire: 'worker', count: 4, atHome: 3 }),
+  )
 })
 
 it('stops asking the pay again once the player changes the team', async () => {

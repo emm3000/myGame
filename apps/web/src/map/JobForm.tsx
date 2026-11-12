@@ -7,6 +7,7 @@ import { refusalLineOf } from '../refusals/refusalLineOf'
 import type { LiveTown } from '../town/liveTown'
 import { firstJobEntries, type JobEntries, jobFormOf } from './jobFormOf'
 import { jobPayLineOf } from './jobPayLineOf'
+import { sendStateOf } from './sendStateOf'
 import { sentKeyOf, type TownJob } from './useJob'
 import { useQuote } from './useQuote'
 
@@ -64,14 +65,15 @@ export function JobForm({ id, target, town, job, onSent }: JobFormProps): ReactE
       <p aria-live="polite" className="m-0 font-sans text-body text-ink empty:absolute">
         {payLine}
       </p>
-      {quoted?.ok === false && refused === undefined && (
+      {quoted?.ok === false && quoted.refusal === 'Unexpected' && refused === undefined && (
         <FormAlert message={refusalLineOf(quoted.refusal, quoted.error)} />
       )}
       <CardAction
         type="button"
         label={form.actionLabel}
-        state={form.state}
+        state={sendStateOf(form.state, quoted, refused !== undefined)}
         isWaiting={job.isSending}
+        announcesReason
         onAction={onSend}
       />
       {refused !== undefined && (

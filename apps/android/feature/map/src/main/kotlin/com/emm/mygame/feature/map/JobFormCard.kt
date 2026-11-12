@@ -27,7 +27,7 @@ internal fun JobFormCard(
         form = form,
         title = icuStringResource(R.string.map_job_title, "site" to form.site.toString()),
         send = send,
-        isQuoteRefused = form.quote is MapUiState.PayQuote.Refused,
+        quoteRefusal = (form.quote as? MapUiState.PayQuote.Refused)?.refusal,
         onIntent = onIntent,
         modifier = modifier,
         extraFields = {

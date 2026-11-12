@@ -47,7 +47,7 @@ export function jobFormOf(
     state:
       admitted.kind === 'ready'
         ? { kind: 'affordable' }
-        : { kind: 'blocked', reason: admitted.reason },
+        : { kind: 'invalidEntry', reason: admitted.reason },
     job: admitted.kind === 'ready' ? admitted.job : undefined,
   }
 }

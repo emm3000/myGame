@@ -39,7 +39,7 @@ export function TextField(props: TextFieldProps): ReactElement {
         onChange={(event) => props.onChange(event.target.value)}
         aria-invalid={hasError}
         aria-describedby={describedBy === '' ? undefined : describedBy}
-        className={`min-h-control rounded-md border bg-surface-raised px-3 py-2 font-sans text-body text-ink focus-visible:outline-3 focus-visible:outline-offset-2 focus-visible:outline-focus ${hasError ? 'border-destructive-ink' : 'border-line-strong'}`}
+        className={`min-h-control rounded-md border bg-surface-raised px-3 py-2 font-sans text-body text-ink focus-visible:outline-3 focus-visible:outline-offset-2 focus-visible:outline-focus disabled:cursor-not-allowed disabled:border-dashed disabled:bg-surface-sunken disabled:text-ink-muted ${hasError ? 'border-destructive-ink' : 'border-line-strong'}`}
       />
       {props.hint === undefined ? null : (
         <span id={hintId} className="font-sans text-caption text-ink-muted">

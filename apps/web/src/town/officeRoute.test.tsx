@@ -165,11 +165,10 @@ it('counts the hires the team holds per kind', async () => {
   expect(within(hireCard(namesHiresTruck())).getByText('Tu equipo: 1 camión')).toBeDefined()
 })
 
-it('blocks a hire the free people cannot staff', async () => {
+it('marks a hire the free people cannot staff with the people short', async () => {
   await showTown({ ...officeTown, people: { supplied: 97, free: 0, atWork: 97 } })
 
   const hire = within(hireCard(namesHiresWorker())).getByRole('button', { name: /^Contratar/ })
-  expect(hire.getAttribute('aria-disabled')).toBe('true')
   expect(accessibleDescriptionOf(hire)).toBe('Gente necesaria: 1. Libres: 0.')
 })
 
@@ -261,4 +260,57 @@ it('waits only on the kind being placed', async () => {
   const truckHire = within(hireCard(namesHiresTruck())).getByRole('button', { name: /^Contratar/ })
   expect(workerHire.getAttribute('aria-busy')).toBe('true')
   expect(truckHire.getAttribute('aria-busy')).not.toBe('true')
+})
+
+const pressWorkerHireOf = async (town: TownOverview): Promise<ReadonlyArray<PlaceHiringOrder>> => {
+  const placed: Array<PlaceHiringOrder> = []
+  await showTown(town, {
+    placeHiringOrder: async (order) => {
+      placed.push(order)
+      return { ok: true, value: town }
+    },
+  })
+  fireEvent.click(within(hireCard(namesHiresWorker())).getByRole('button', { name: /^Contratar/ }))
+  await passSeconds(0)
+  return placed
+}
+
+it('sends a hire the stocks cannot pay, since the api decides', async () => {
+  const placed = await pressWorkerHireOf({
+    ...officeTown,
+    stocks: { ...officeTown.stocks, money: { amount: 10, ratePerHour: 0, capacity: 5000 } },
+  })
+
+  expect(placed).toEqual([{ hire: 'worker', count: 1 }])
+})
+
+it('sends a hire the free people cannot staff, since the api decides', async () => {
+  const placed = await pressWorkerHireOf({
+    ...officeTown,
+    people: { supplied: 97, free: 0, atWork: 97 },
+  })
+
+  expect(placed).toEqual([{ hire: 'worker', count: 1 }])
+})
+
+it('sends a second hire while an order runs, since the api decides', async () => {
+  expect(await pressWorkerHireOf(hiringWorkers(1, 3))).toEqual([{ hire: 'worker', count: 1 }])
+})
+
+it('sends no hire for a count that is not a whole count', async () => {
+  const placed: Array<PlaceHiringOrder> = []
+  await showTown(officeTown, {
+    placeHiringOrder: async (order) => {
+      placed.push(order)
+      return { ok: true, value: officeTown }
+    },
+  })
+  const workers = hireCard(namesHiresWorker())
+  fireEvent.change(within(workers).getByLabelText('Trabajadores a contratar'), {
+    target: { value: '2.5' },
+  })
+  fireEvent.click(within(workers).getByRole('button', { name: /^Contratar/ }))
+  await passSeconds(0)
+
+  expect(placed).toEqual([])
 })

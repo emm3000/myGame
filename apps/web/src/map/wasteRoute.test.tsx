@@ -17,6 +17,9 @@ import {
 import { accessibleDescriptionOf } from '../design-system/accessibleDescriptionOf.testSupport'
 import type { WasteSize } from '../design-system/WasteSize'
 
+const reasonOf = (button: HTMLElement): HTMLElement | null =>
+  document.getElementById(button.getAttribute('aria-describedby') ?? '')
+
 const readAt = Date.parse(knownTown.readAt)
 
 beforeEach(() => {
@@ -265,7 +268,7 @@ it('reads a refused clean-up under the form', async () => {
   expect(within(form).getByRole('alert').textContent).toBe(refusalNoWasteYet())
 })
 
-it('reads a refused quote under the form and keeps the send open', async () => {
+it('marks the send with the reason of a refused quote', async () => {
   await showMap(teamAtHome, {
     quoteCleanUp: async () => ({
       ok: false,
@@ -278,8 +281,31 @@ it('reads a refused quote under the form and keeps the send open', async () => {
   enterTeam(form, { 'Trabajadores a enviar': '3' })
   await passSeconds(0)
 
-  expect(within(form).getByRole('alert').textContent).toBe(refusalTeamAlreadyOut())
-  expect(sendButton(form).getAttribute('aria-disabled')).not.toBe('true')
+  expect(reasonOf(sendButton(form))?.getAttribute('aria-live')).toBe('polite')
+  expect(accessibleDescriptionOf(sendButton(form))).toBe(refusalTeamAlreadyOut())
+})
+
+it('sends a clean-up its refused quote marks, since the api decides', async () => {
+  const sent: Array<SendCleanUp> = []
+  await showMap(teamAtHome, {
+    quoteCleanUp: async () => ({
+      ok: false,
+      refusal: 'TeamAlreadyOut',
+      error: { kind: 'TeamAlreadyOut' },
+    }),
+    sendCleanUp: async (cleanUp) => {
+      sent.push(cleanUp)
+      return { ok: false, refusal: 'TeamAlreadyOut', error: { kind: 'TeamAlreadyOut' } }
+    },
+  })
+
+  const form = openCleanUpForm(4)
+  enterTeam(form, { 'Trabajadores a enviar': '3' })
+  await passSeconds(0)
+  fireEvent.click(sendButton(form))
+  await passSeconds(0)
+
+  expect(sent).toEqual([{ site: { area: 1, site: 4 }, team: { worker: 3, truck: 0 } }])
 })
 
 it('drops a refused clean-up once the player edits the team', async () => {
