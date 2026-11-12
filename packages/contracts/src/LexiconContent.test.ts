@@ -29,6 +29,16 @@ describe('LexiconContentSchema', () => {
     expect(LexiconContentSchema.parse([password])).toEqual([password])
   })
 
+  it('parses a multi-word unit with the list that names it', () => {
+    const giveUp = { ...school, id: 'word-1', lemma: 'give up', source: 'phave' }
+
+    expect(LexiconContentSchema.parse([giveUp])).toEqual([giveUp])
+  })
+
+  it('rejects a source no unit list names', () => {
+    expect(LexiconContentSchema.safeParse([{ ...school, source: 'ngsl' }]).success).toBe(false)
+  })
+
   it('parses a word not yet glossed in any scaffold', () => {
     const unglossed = { ...school, gloss: {}, definition: undefined }
 
