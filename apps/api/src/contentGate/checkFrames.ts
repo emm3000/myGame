@@ -1,5 +1,5 @@
 import type { LexiconEntry } from '../adapters/json/lessonContentFilesOf'
-import { frameWordsOf } from './frameWordsOf'
+import { frameWordAdmissionsOf } from './frameWordAdmissionsOf'
 import type { GateContent } from './GateContent'
 import { lemmaWordsOf } from './lemmaWordsOf'
 import { type Reading, readingOf } from './readingOf'
@@ -21,13 +21,11 @@ type FrameTerms = {
 }
 
 const termsOf = (content: GateContent): FrameTerms => {
-  const { grammar, curriculum, lessons } = content
+  const { curriculum, lessons } = content
   const positionOf = (lessonId: string): number => curriculum.lessonIds.indexOf(lessonId) + 1
   return {
     reading: readingTermsOf(content),
-    admittedAt: new Map(
-      [...frameWordsOf(grammar)].map(([word, lessonId]) => [word, positionOf(lessonId)]),
-    ),
+    admittedAt: frameWordAdmissionsOf(content),
     taughtAt: new Map(
       lessons.flatMap(({ content, words }) =>
         words.map(({ lemma }) => [lemma.toLowerCase(), positionOf(content.id)] as const),
@@ -87,8 +85,12 @@ const lemmaFailures = (
   if (held !== words.join(' ')) {
     return [`${entry.id}: frame holds ${entry.lemma} as ${held}, not in its own form`]
   }
+  const together = new RegExp(`\\b${words.join('\\s+')}\\b`, 'i')
+  if (!together.test(entry.frame)) {
+    return [`${entry.id}: frame holds ${entry.lemma} with its words apart, not together`]
+  }
   const gaps = words.map(() => gap).join(' ')
-  const gapped = entry.frame.replace(new RegExp(`\\b${words.join('\\s+')}\\b`, 'i'), gaps)
+  const gapped = entry.frame.replace(together, gaps)
   return gapped === entry.gappedFrame
     ? []
     : [`${entry.id}: gapped frame is not its frame with ${entry.lemma} replaced by ${gaps}`]

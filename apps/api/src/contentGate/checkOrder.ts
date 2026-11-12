@@ -1,5 +1,6 @@
 import { bandOfRank } from '../adapters/json/bandOfRank'
 import type { LessonOfFiles, LexiconEntry } from '../adapters/json/lessonContentFilesOf'
+import { frameWordAdmissionsOf } from './frameWordAdmissionsOf'
 import { frameWordsOf } from './frameWordsOf'
 import type { GateContent } from './GateContent'
 import { isUnit } from './isUnit'
@@ -91,14 +92,6 @@ type UnitTerms = {
   readonly taught: ReadonlySet<string>
   readonly admittedAt: ReadonlyMap<string, number>
 }
-
-const admissionsOf = ({ grammar, curriculum }: GateContent): ReadonlyMap<string, number> =>
-  new Map(
-    [...frameWordsOf(grammar)].map(([word, lessonId]) => [
-      word,
-      curriculum.lessonIds.indexOf(lessonId) + 1,
-    ]),
-  )
 
 const readinessFailures = (
   lessonId: string,
@@ -198,7 +191,7 @@ const lessonFailures = (
 
 export const checkOrder = (content: GateContent): ReadonlyArray<string> => {
   const bands = bandsOf(content)
-  const admittedAt = admissionsOf(content)
+  const admittedAt = frameWordAdmissionsOf(content)
   const taught = new Set<string>()
   const failures = content.lessons.flatMap((lesson, index) => {
     const found = lessonFailures(
