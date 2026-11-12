@@ -213,6 +213,7 @@ describe('JsonLessonCatalog', () => {
     const bandLessonWordIds = catalog
       .lessons()
       .slice(16)
+      .filter(({ id }) => catalog.bandOfLesson(id) !== undefined)
       .flatMap(({ words }) => words.map(({ id }) => id))
 
     expect(
@@ -349,6 +350,7 @@ describe('JsonLessonCatalog', () => {
       { id: 'lesson-24', theme: 'A lot of time' },
       { id: 'lesson-25', theme: 'A company in town' },
       { id: 'lesson-26', theme: 'Even more work' },
+      { id: 'lesson-27', theme: 'What is new in town' },
     ])
   })
 

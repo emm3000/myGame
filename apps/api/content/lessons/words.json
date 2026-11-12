@@ -1234,5 +1234,75 @@
     "frames": [{ "frame": "Is the school still full?", "gappedFrame": "Is the school ____ full?" }],
     "gloss": { "es": "todavía" },
     "definition": "up to now and not changed"
+  },
+  {
+    "id": "word-126",
+    "lemma": "go on",
+    "partOfSpeech": "verb",
+    "source": "phave",
+    "frames": [
+      {
+        "frame": "Things like this go on in many towns.",
+        "gappedFrame": "Things like this ____ ____ in many towns."
+      }
+    ],
+    "gloss": { "es": "pasar" },
+    "definition": "to happen"
+  },
+  {
+    "id": "word-127",
+    "lemma": "come back",
+    "partOfSpeech": "verb",
+    "source": "phave",
+    "frames": [
+      {
+        "frame": "When will the mayor come back from the city?",
+        "gappedFrame": "When will the mayor ____ ____ from the city?"
+      }
+    ],
+    "gloss": { "es": "volver" },
+    "definition": "to return to a place"
+  },
+  {
+    "id": "word-128",
+    "lemma": "find out",
+    "partOfSpeech": "verb",
+    "source": "phave",
+    "frames": [
+      {
+        "frame": "Can you find out what time the office closes?",
+        "gappedFrame": "Can you ____ ____ what time the office closes?"
+      }
+    ],
+    "gloss": { "es": "averiguar" },
+    "definition": "to learn something that you did not know"
+  },
+  {
+    "id": "word-129",
+    "lemma": "such as",
+    "partOfSpeech": "adverb",
+    "source": "phrase",
+    "frames": [
+      {
+        "frame": "The town needs workers for places such as the farm and the factory.",
+        "gappedFrame": "The town needs workers for places ____ ____ the farm and the factory."
+      }
+    ],
+    "gloss": { "es": "como por ejemplo" },
+    "definition": "for example"
+  },
+  {
+    "id": "word-130",
+    "lemma": "I mean",
+    "partOfSpeech": "adverb",
+    "source": "phrase",
+    "frames": [
+      {
+        "frame": "She is at the school, I mean, at the office.",
+        "gappedFrame": "She is at the school, ____ ____, at the office."
+      }
+    ],
+    "gloss": { "es": "quiero decir" },
+    "definition": "said when you change what you just said, or say it in a clearer way"
   }
 ]
