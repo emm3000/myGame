@@ -340,7 +340,7 @@ const guidanceOf = (
   return ok({
     nextStep: nextStep.value,
     tip: tip.value ?? null,
-    nextDueAt: nextDueAt.value === null ? null : isoOf(nextDueAt.value),
+    nextDueAt: isoOrNullOf(nextDueAt.value),
   })
 }
 
