@@ -32,7 +32,10 @@ internal fun JobFormCard(
     modifier: Modifier = Modifier,
 ) {
     val reason: String? = form.block?.let { block: MapUiState.JobBlock -> jobBlockLineOf(block) }
-    val isApiAnswered: Boolean = send.isAnsweredFor(form.site) || form.quote is MapUiState.PayQuote.Refused
+    val isSendAnswered: Boolean = send.isAnsweredFor(form.site)
+    val isApiAnswered: Boolean = isSendAnswered || form.quote is MapUiState.PayQuote.Refused
+    val quote: MapUiState.PayQuote? =
+        form.quote?.takeUnless { shown: MapUiState.PayQuote -> isSendAnswered && shown !is MapUiState.PayQuote.Quoted }
     MyGameCard(modifier = modifier) {
         Column(
             verticalArrangement = Arrangement.spacedBy(MyGameSpacing.step3),
@@ -64,7 +67,7 @@ internal fun JobFormCard(
                 field = MapIntent.JobField.Hours,
                 onIntent = onIntent,
             )
-            form.quote?.let { quote: MapUiState.PayQuote -> QuoteLine(quote = quote) }
+            quote?.let { shown: MapUiState.PayQuote -> QuoteLine(quote = shown) }
             MyGameButton(
                 label = stringResource(R.string.map_job_send),
                 isBusy = send == MapUiState.SendRequest.Waiting,

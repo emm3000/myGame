@@ -416,6 +416,30 @@ it('asks the pay of a second job while a team is out and reads the refusal', asy
   expect(sendButton(form).getAttribute('aria-disabled')).not.toBe('true')
 })
 
+it('reads one refusal when the send is refused as its quote was', async () => {
+  const refusal = {
+    ok: false,
+    refusal: 'NotEnoughHiresAtHome',
+    error: { kind: 'NotEnoughHiresAtHome', params: { hire: 'worker', count: 5, atHome: 3 } },
+  } as const
+  await showMap('/map', teamAtHome, {
+    quoteJob: async () => refusal,
+    sendJob: async () => refusal,
+  })
+
+  const form = openJobForm(2)
+  enterTeam(form, { 'Trabajadores a enviar': '5' })
+  await passSeconds(0)
+  fireEvent.click(sendButton(form))
+  await passSeconds(0)
+
+  expect(
+    within(form)
+      .getAllByRole('alert')
+      .map((alert) => alert.textContent),
+  ).toEqual([refusalNotEnoughHiresAtHome({ hire: 'worker', count: 5, atHome: 3 })])
+})
+
 it('asks the pay again a moment after the server could not be reached', async () => {
   const answers: Array<Awaited<ReturnType<ApiClient['quoteJob']>>> = [
     { ok: false, refusal: 'Unexpected' },
