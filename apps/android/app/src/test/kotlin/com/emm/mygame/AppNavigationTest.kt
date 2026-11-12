@@ -135,7 +135,7 @@ class AppNavigationTest {
         inLearning: Int = 0,
         retainedWords: RetainedWords? = null,
         lessons: List<TownSnapshot.Lesson> = listOf(lessonOf(firstLesson, listOf(waterWord))),
-        nextStep: NextStep = NextStep.CaughtUp,
+        nextStep: NextStep = NextStep.CaughtUp(goal = null),
     ): TownSnapshot = TownSnapshot(
         name = "Riverton",
         label = TownLabel.Town,
@@ -155,6 +155,7 @@ class AppNavigationTest {
         hiring = hiringOf(),
         job = null,
         nextStep = nextStep,
+        tip = null,
         nextDueAt = null,
         readAt = readAt,
     )

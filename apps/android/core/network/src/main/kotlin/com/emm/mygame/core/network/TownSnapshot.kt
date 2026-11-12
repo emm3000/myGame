@@ -19,6 +19,7 @@ data class TownSnapshot(
     val hiring: Hiring,
     val job: Job?,
     val nextStep: NextStep,
+    val tip: TipKind?,
     val nextDueAt: Instant?,
     val readAt: Instant,
 ) {

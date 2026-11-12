@@ -59,6 +59,7 @@ internal fun TownOverview.toSnapshot(): TownSnapshot? {
         hiring = townHiring,
         job = townJob,
         nextStep = step,
+        tip = tip?.toTipKind(),
         nextDueAt = nextDueAt?.toKotlinInstant(),
         readAt = readAt.toKotlinInstant(),
     )
@@ -162,7 +163,7 @@ private fun TownOverviewBuildingsHomesNextLevel.toNextLevel(): TownSnapshot.Next
     people = people,
 )
 
-private fun ResourceAmounts.toCosts(): List<TownSnapshot.Cost> = listOf(
+internal fun ResourceAmounts.toCosts(): List<TownSnapshot.Cost> = listOf(
     TownSnapshot.Cost(TownResourceKind.Money, money.toLong()),
     TownSnapshot.Cost(TownResourceKind.Food, food.toLong()),
     TownSnapshot.Cost(TownResourceKind.Power, power.toLong()),

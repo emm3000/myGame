@@ -58,7 +58,7 @@ fun TownSnapshot.nextStepCard(): NextStepCard = when (val step: NextStep = nextS
         action = NextStepCard.Action.ReadWords(lessonSlot?.lesson),
     )
     is NextStep.LessonToStudy -> lessonToStudyCard(step.lesson)
-    NextStep.CaughtUp -> NextStepCard(
+    is NextStep.CaughtUp -> NextStepCard(
         line = NextStepCard.Line.NoReviewsDue,
         detail = null,
         countdown = nextReviewCountdown(),

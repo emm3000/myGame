@@ -169,7 +169,7 @@ class NextStepSectionTest {
 
     @Test
     fun `opens the Report when caught up`() {
-        show(townOf(nextStep = NextStep.CaughtUp))
+        show(townOf(nextStep = NextStep.CaughtUp(goal = null)))
 
         pill("Ir al informe").performClick()
 
@@ -178,7 +178,7 @@ class NextStepSectionTest {
 
     @Test
     fun `tells when the next review is due once caught up`() {
-        show(townOf(nextStep = NextStep.CaughtUp, nextDueAt = readInstant + 30.seconds))
+        show(townOf(nextStep = NextStep.CaughtUp(goal = null), nextDueAt = readInstant + 30.seconds))
 
         composeRule.onNodeWithText("No tienes repasos pendientes ahora.").assertExists()
         composeRule.onNodeWithText("Siguiente repaso:").assertExists()
@@ -194,7 +194,7 @@ class NextStepSectionTest {
             townOf(nextStep = NextStep.Reviews(3, readFirst = emptyList())),
             townOf(nextStep = NextStep.LessonRunning(NextStep.Producer.Farm), lessonSlot = runningLesson),
             townOf(nextStep = NextStep.LessonToStudy(secondLesson)),
-            townOf(nextStep = NextStep.CaughtUp),
+            townOf(nextStep = NextStep.CaughtUp(goal = null)),
         )
 
         steps.forEach { town: TownSnapshot ->
@@ -270,6 +270,7 @@ class NextStepSectionTest {
                 mutations = TownMutations.none,
                 registered = TownRegistered.nothing,
                 hireEntries = emptyMap(),
+                closed = ClosedGuidance.none,
             )
 
     private fun show(town: TownSnapshot) {

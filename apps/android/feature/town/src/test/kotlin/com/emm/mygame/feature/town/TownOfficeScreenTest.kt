@@ -293,6 +293,8 @@ class TownOfficeScreenTest {
         places = emptyList(),
         nextStep = caughtUpCard,
         nextStepTime = null,
+        goal = null,
+        tip = null,
         start = TownUiState.StartStatus.Idle,
         stop = TownUiState.StopStatus.Idle,
         office = shown,

@@ -2,8 +2,10 @@ package com.emm.mygame.feature.town
 
 import com.emm.mygame.core.network.NextStepCard
 import com.emm.mygame.core.network.SeasonKind
+import com.emm.mygame.core.network.TipKind
 import com.emm.mygame.core.network.TownBuildingKind
 import com.emm.mygame.core.network.TownFoundRefusal
+import com.emm.mygame.core.network.TownGoal
 import com.emm.mygame.core.network.TownHireKind
 import com.emm.mygame.core.network.TownHiringRefusal
 import com.emm.mygame.core.network.TownLabel
@@ -33,6 +35,8 @@ sealed interface TownUiState {
         val places: List<PlaceCard>,
         val nextStep: NextStepCard,
         val nextStepTime: NextStepTime?,
+        val goal: TownGoal?,
+        val tip: TipKind?,
         val start: StartStatus,
         val stop: StopStatus,
         val office: OfficeLine,

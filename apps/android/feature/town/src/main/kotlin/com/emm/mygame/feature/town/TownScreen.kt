@@ -13,19 +13,33 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.heading
 import androidx.compose.ui.semantics.semantics
+import androidx.compose.ui.tooling.preview.PreviewParameter
+import androidx.compose.ui.tooling.preview.PreviewParameterProvider
 import com.emm.mygame.core.designsystem.MyGameErrorBanner
 import com.emm.mygame.core.designsystem.MyGameHeader
 import com.emm.mygame.core.designsystem.MyGameMetaText
+import com.emm.mygame.core.designsystem.MyGamePreviewSurface
 import com.emm.mygame.core.designsystem.MyGameSizes
 import com.emm.mygame.core.designsystem.MyGameSkeleton
 import com.emm.mygame.core.designsystem.MyGameSkeletonBlocks
 import com.emm.mygame.core.designsystem.MyGameSpacing
 import com.emm.mygame.core.designsystem.MyGameTextButton
 import com.emm.mygame.core.designsystem.MyGameTheme
+import com.emm.mygame.core.designsystem.PreviewMyGame
 import com.emm.mygame.core.network.LessonId
+import com.emm.mygame.core.network.SeasonKind
+import com.emm.mygame.core.network.TipKind
+import com.emm.mygame.core.network.TownBuildingKind
+import com.emm.mygame.core.network.TownGoal
+import com.emm.mygame.core.network.TownResourceKind
+import com.emm.mygame.core.network.TownSnapshot
 import com.emm.mygame.core.network.TownLabel
 import com.emm.mygame.core.network.NextStepCard
 import com.emm.mygame.core.ui.icuStringResource
+import kotlin.time.Duration.Companion.days
+import kotlin.time.Duration.Companion.hours
+import kotlin.time.Duration.Companion.minutes
+import kotlin.time.Instant
 
 @Composable
 fun TownScreen(
@@ -141,6 +155,7 @@ private fun TownHome(
         header()
         NextStepSection(
             content = content,
+            onIntent = onIntent,
             onSchoolOpen = onSchoolOpen,
             onReportOpen = onReportOpen,
             onReviewsOpen = onReviewsOpen,
@@ -149,8 +164,12 @@ private fun TownHome(
         TownDoors(dueCount = content.dueCount(), onSchoolOpen = onSchoolOpen, onReportOpen = onReportOpen)
         TownSkyline(content = content)
         StocksSection(content = content)
+        TipNote(tip = content.tip, place = TipPlace.Stocks, onIntent = onIntent)
         BuildingWorkSection(content = content, onIntent = onIntent)
+        TipNote(tip = content.tip, place = TipPlace.Work, onIntent = onIntent)
+        TipNote(tip = content.tip, place = TipPlace.Places, onIntent = onIntent)
         PlacesSection(content = content, onIntent = onIntent, onSchoolOpen = onSchoolOpen)
+        TipNote(tip = content.tip, place = TipPlace.Office, onIntent = onIntent)
         OfficeSection(office = content.office, onIntent = onIntent)
     }
 }
@@ -170,3 +189,87 @@ private fun labelOf(label: TownLabel): Int = when (label) {
 }
 
 private fun TownUiState.Content.dueCount(): Int = (nextStep.line as? NextStepCard.Line.ReviewsDue)?.count ?: 0
+
+private val previewNextReviewAt: Instant = Instant.parse("2026-11-14T23:15:00Z")
+
+private val previewHome: TownUiState.Content = TownUiState.Content(
+    name = "Riverton",
+    label = TownLabel.Town,
+    stocks = TownResourceKind.entries.map { kind: TownResourceKind ->
+        TownUiState.StockLine(kind = kind, amount = 350, capacity = 1000, ratePerHour = 20, skillLevel = 0)
+    },
+    people = TownUiState.PeopleLine(free = 19, atWork = 1),
+    season = TownUiState.SeasonLine(kind = SeasonKind.Summer, year = 2, remaining = 3.days),
+    slot = TownUiState.SlotLine.Idle,
+    waitingList = emptyList(),
+    places = listOf(
+        TownUiState.PlaceCard(
+            kind = TownBuildingKind.Factory,
+            level = 0,
+            raisedFrom = null,
+            isInWork = false,
+            next = TownUiState.NextLevelLine(
+                level = 1,
+                costs = listOf(
+                    TownUiState.CostLine(TownResourceKind.Money, amount = 400, isShort = true),
+                    TownUiState.CostLine(TownResourceKind.Material, amount = 120, isShort = false),
+                ),
+                duration = 2.minutes,
+                people = 1,
+            ),
+            block = null,
+        ),
+    ),
+    nextStep = NextStepCard(
+        line = NextStepCard.Line.NoReviewsDue,
+        detail = null,
+        countdown = NextStepCard.Countdown.NextReview(at = previewNextReviewAt),
+        action = NextStepCard.Action.GoToReport,
+    ),
+    nextStepTime = TownUiState.NextStepTime(remaining = 71.hours, finishesAt = previewNextReviewAt),
+    goal = TownGoal(
+        position = 2,
+        count = 9,
+        building = TownBuildingKind.Factory,
+        level = 1,
+        state = TownGoal.State.Pending(
+            resources = listOf(TownSnapshot.Cost(TownResourceKind.Money, 50)),
+            people = 0,
+        ),
+    ),
+    tip = TipKind.Seasons,
+    start = TownUiState.StartStatus.Idle,
+    stop = TownUiState.StopStatus.Idle,
+    office = TownUiState.OfficeLine(
+        hiring = TownUiState.HiringLine.Idle,
+        hires = emptyList(),
+        place = TownUiState.HireStatus.Idle,
+        stop = TownUiState.HireStopStatus.Idle,
+    ),
+)
+
+private class TownScreenStates : PreviewParameterProvider<TownUiState> {
+
+    override val values: Sequence<TownUiState> = sequenceOf(
+        TownUiState.Loading,
+        TownUiState.Failed,
+        TownUiState.Naming(name = "Riverton", status = TownUiState.NamingStatus.Idle),
+        previewHome,
+    )
+}
+
+@PreviewMyGame
+@Composable
+private fun TownScreenPreview(@PreviewParameter(TownScreenStates::class) state: TownUiState) {
+    MyGamePreviewSurface {
+        TownScreen(
+            state = state,
+            onIntent = {},
+            onSchoolOpen = {},
+            onReportOpen = {},
+            onMapOpen = {},
+            onReviewsOpen = {},
+            onLessonOpen = {},
+        )
+    }
+}

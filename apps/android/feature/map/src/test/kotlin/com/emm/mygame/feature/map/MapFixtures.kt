@@ -112,7 +112,8 @@ internal fun townOf(
     lessonSlot = null,
     hiring = hiringOf(workers = workers, trucks = trucks),
     job = job,
-    nextStep = NextStep.CaughtUp,
+    nextStep = NextStep.CaughtUp(goal = null),
+    tip = null,
     nextDueAt = null,
     readAt = readAt,
 )

@@ -1,7 +1,9 @@
 package com.emm.mygame.feature.town
 
+import com.emm.mygame.core.network.NextStep
 import com.emm.mygame.core.network.NextStepCard
 import com.emm.mygame.core.network.SeasonInForce
+import com.emm.mygame.core.network.TipKind
 import com.emm.mygame.core.network.TownBuildingKind
 import com.emm.mygame.core.network.TownHireKind
 import com.emm.mygame.core.network.TownRegistered
@@ -19,6 +21,7 @@ internal fun TownSnapshot.contentAt(
     mutations: TownMutations,
     registered: TownRegistered,
     hireEntries: Map<TownHireKind, String>,
+    closed: ClosedGuidance,
 ): TownUiState.Content {
     val lines: List<TownUiState.StockLine> = stocks
         .sortedBy { stock: TownSnapshot.Stock -> stock.kind.ordinal }
@@ -38,6 +41,8 @@ internal fun TownSnapshot.contentAt(
             .map { place: TownSnapshot.Building -> place.cardWith(drawn, this, registered) },
         nextStep = card,
         nextStepTime = card.countdown?.timeAt(now, gap),
+        goal = (nextStep as? NextStep.CaughtUp)?.goal?.takeUnless { closed.isGoalClosed },
+        tip = tip?.takeUnless { shown: TipKind -> shown in closed.tips },
         start = mutations.start,
         stop = mutations.stop,
         office = officeLineAt(now = now, gap = gap, drawn = drawn, entries = hireEntries, mutations = mutations),

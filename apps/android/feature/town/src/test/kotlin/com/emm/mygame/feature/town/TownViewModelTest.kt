@@ -352,7 +352,7 @@ class TownViewModelTest {
     @Test
     fun `counts the next review down between reads`() = runTest {
         val viewModel: TownViewModel = homeViewModel(
-            townOf(nextStep = NextStep.CaughtUp, nextDueAt = readInstant + 5.minutes),
+            townOf(nextStep = NextStep.CaughtUp(goal = null), nextDueAt = readInstant + 5.minutes),
         )
 
         advanceTimeBy(1.minutes)
@@ -365,7 +365,7 @@ class TownViewModelTest {
     fun `gives the next review's finish on the device's clock`() = runTest {
         val aheadOfTheServer: Instant = readInstant + 2.hours
         val viewModel: TownViewModel = homeViewModel(
-            townOf(nextStep = NextStep.CaughtUp, nextDueAt = readInstant + 5.minutes),
+            townOf(nextStep = NextStep.CaughtUp(goal = null), nextDueAt = readInstant + 5.minutes),
             start = aheadOfTheServer,
         )
 

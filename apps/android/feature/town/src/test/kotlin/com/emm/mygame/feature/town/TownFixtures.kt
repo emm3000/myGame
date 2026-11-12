@@ -5,6 +5,7 @@ import com.emm.mygame.core.network.LessonId
 import com.emm.mygame.core.network.NextStep
 import com.emm.mygame.core.network.NextStepCard
 import com.emm.mygame.core.network.SeasonInForce
+import com.emm.mygame.core.network.TipKind
 import com.emm.mygame.core.network.TownBuildingKind
 import com.emm.mygame.core.network.TownLabel
 import com.emm.mygame.core.network.TownResourceKind
@@ -75,11 +76,12 @@ internal fun townOf(
     seasonInForce: SeasonInForce? = null,
     seasonEndsAt: Instant? = null,
     lessonSlot: TownSnapshot.LessonSlot? = null,
-    nextStep: NextStep = NextStep.CaughtUp,
+    nextStep: NextStep = NextStep.CaughtUp(goal = null),
     nextDueAt: Instant? = null,
     readAt: Instant = readInstant,
     skills: List<TownSnapshot.EarnedSkill> = emptyList(),
     hiring: TownSnapshot.Hiring = hiringOf(),
+    tip: TipKind? = null,
 ): TownSnapshot = TownSnapshot(
     name = name,
     label = label,
@@ -96,6 +98,7 @@ internal fun townOf(
     hiring = hiring,
     job = null,
     nextStep = nextStep,
+    tip = tip,
     nextDueAt = nextDueAt,
     readAt = readAt,
 )

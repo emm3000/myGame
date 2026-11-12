@@ -73,7 +73,7 @@ class TownRepositoryTest {
 
         val read: TownSnapshot = (town().read() as TownReadResult.Read).town
 
-        assertEquals(NextStep.CaughtUp, read.nextStep)
+        assertEquals(NextStep.CaughtUp(goal = null), read.nextStep)
         assertEquals(null, read.nextDueAt)
     }
 
