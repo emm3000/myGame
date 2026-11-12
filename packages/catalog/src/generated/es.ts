@@ -148,6 +148,7 @@ export const reportNewsLessonStopped = (): string => `Paraste el estudio de una 
 export const reportNewsLessonStudied = (): string => `Estudiaste una lección.`
 export const reportNewsNone = (): string => `No hay noticias.`
 export const reportNewsPay = ({ amounts }: { readonly amounts: string | number }): string => `Pago: ${String(amounts)}`
+export const reportNewsRefund = ({ amounts }: { readonly amounts: string | number }): string => `Recuperaste: ${String(amounts)}`
 export const reportNewsSkillEarned = ({ percent, resource }: { readonly percent: string | number; readonly resource: string | number }): string => `Ganaste una habilidad de ${String(resource)}: +${String(percent)} % de ${String(resource)}.`
 export const reportNewsTitle = (): string => `Noticias del pueblo`
 export const reportNoReviewsDue = (): string => `No tienes repasos pendientes ahora.`
