@@ -30,6 +30,7 @@ import com.emm.mygame.core.designsystem.MyGameSizes
 import com.emm.mygame.core.designsystem.MyGameTheme
 import com.emm.mygame.core.designsystem.OUTLINED_PILL
 import com.emm.mygame.core.network.ReviewHint
+import com.emm.mygame.core.network.ReviewHintWord
 import com.emm.mygame.core.network.ReviewRefusal
 import com.emm.mygame.core.network.TownResourceKind
 import org.junit.Assert.assertEquals
@@ -304,7 +305,7 @@ class ReviewLookTest {
 
     @Test
     fun `sets a given hint under the check`() {
-        draw(answering.copy(card = recall.copy(hint = ReviewHint(firstLetter = "h", letterCount = 4))))
+        draw(answering.copy(card = recall.copy(hint = homeHint)))
 
         val pillBottom: Dp = composeRule.onNodeWithTag(INK_PILL).getUnclippedBoundsInRoot().bottom
         val hintTop: Dp = composeRule.onNodeWithText("Empieza por «h» y tiene 4 letras.")
@@ -314,7 +315,7 @@ class ReviewLookTest {
 
     @Test
     fun `leaves the hint out of a rated recall`() {
-        draw(wrongRecall.copy(card = recall.copy(hint = ReviewHint(firstLetter = "h", letterCount = 4))))
+        draw(wrongRecall.copy(card = recall.copy(hint = homeHint)))
 
         composeRule.onNodeWithText("Empieza por «h» y tiene 4 letras.").assertDoesNotExist()
     }
@@ -347,3 +348,5 @@ class ReviewLookTest {
         }
     }
 }
+
+private val homeHint: ReviewHint = ReviewHint(words = listOf(ReviewHintWord(firstLetter = "h", letterCount = 4)))

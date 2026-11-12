@@ -668,15 +668,14 @@ describe('the learning routes', () => {
   })
 
   describe('the hint route', () => {
-    it('answers the first letter and the letter count of a due recall', async () => {
+    it('answers the first letter and the letter count of each word of a due recall', async () => {
       const player = await studyToTheFirstRecall()
 
       const response = await hint(player, 'lesson-1-2')
 
       expect(response.status).toBe(200)
       expect(ReviewHintSchema.parse(await response.json())).toEqual({
-        firstLetter: 's',
-        letterCount: 6,
+        words: [{ firstLetter: 's', letterCount: 6 }],
       })
     })
 

@@ -684,6 +684,20 @@
       "ReviewHint": {
         "type": "object",
         "properties": {
+          "words": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/ReviewHintWord"
+            },
+            "minItems": 1
+          }
+        },
+        "required": ["words"],
+        "additionalProperties": false
+      },
+      "ReviewHintWord": {
+        "type": "object",
+        "properties": {
           "firstLetter": {
             "type": "string",
             "minLength": 1

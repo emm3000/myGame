@@ -5,7 +5,7 @@ import {
   reviewNearMiss,
   reviewRecallPrompt,
 } from '@mygame/catalog'
-import { type DueReview, ReviewAnswerRequestSchema } from '@mygame/contracts'
+import { type DueReview, ReviewAnswerRequestSchema, type ReviewHint } from '@mygame/contracts'
 import type { FormEvent, ReactElement, Ref } from 'react'
 import { Button } from '../design-system/Button'
 import { TextField } from '../design-system/TextField'
@@ -24,12 +24,27 @@ export interface RecallCardProps {
   readonly verdictRef: Ref<HTMLElement>
 }
 
+type WordHintLine = {
+  readonly hintSoFar: string
+  readonly text: string
+}
+
+const hintLinesOf = (words: ReviewHint['words']): ReadonlyArray<WordHintLine> =>
+  words.reduce<ReadonlyArray<WordHintLine>>((lines, word) => {
+    const text = reviewHint(word)
+    return lines.concat({ hintSoFar: `${lines.at(-1)?.hintSoFar ?? ''}${text}\n`, text })
+  }, [])
+
 function HintLine({ review }: { readonly review: ReviewHandle }): ReactElement {
   if (review.hint !== undefined) {
     return (
-      <p className="m-0 font-sans text-body text-ink">
-        {reviewHint({ firstLetter: review.hint.firstLetter, letterCount: review.hint.letterCount })}
-      </p>
+      <div className="flex flex-col gap-1">
+        {hintLinesOf(review.hint.words).map(({ hintSoFar, text }) => (
+          <p key={hintSoFar} className="m-0 font-sans text-body text-ink">
+            {text}
+          </p>
+        ))}
+      </div>
     )
   }
   return (

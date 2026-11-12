@@ -50,11 +50,11 @@ it("reads the due reviews from the player's reviews", async () => {
 })
 
 it("asks the hint of a word on the player's reviews", async () => {
-  const fetch = answeringFetch(200, { firstLetter: 's', letterCount: 6 })
+  const fetch = answeringFetch(200, { words: [{ firstLetter: 's', letterCount: 6 }] })
 
   const outcome = await createApiClient('/api').reviewHint('lesson-1-2')
 
-  expect(outcome).toEqual({ ok: true, value: { firstLetter: 's', letterCount: 6 } })
+  expect(outcome).toEqual({ ok: true, value: { words: [{ firstLetter: 's', letterCount: 6 }] } })
   const [url, init] = fetch.mock.calls[0] ?? []
   expect(url).toBe('/api/reviews/lesson-1-2/hint')
   expect(init?.method).toBe('POST')

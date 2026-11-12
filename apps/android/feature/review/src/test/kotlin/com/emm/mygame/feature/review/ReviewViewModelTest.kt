@@ -5,6 +5,7 @@ import com.emm.mygame.core.network.ChoiceId
 import com.emm.mygame.core.network.RaisedSkill
 import com.emm.mygame.core.network.ReviewAnswerResult
 import com.emm.mygame.core.network.ReviewHint
+import com.emm.mygame.core.network.ReviewHintWord
 import com.emm.mygame.core.network.ReviewHintResult
 import com.emm.mygame.core.network.ReviewRefusal
 import com.emm.mygame.core.network.ReviewVerdict
@@ -464,7 +465,7 @@ class ReviewViewModelTest {
         val learning: FakeLearningRepository = FakeLearningRepository()
         val viewModel: ReviewViewModel = openReview(learning)
         learning.answerRead(dueNow(homeRecall))
-        learning.answerHint(ReviewHintResult.Hinted(ReviewHint(firstLetter = "h", letterCount = 4)))
+        learning.answerHint(ReviewHintResult.Hinted(homeHint))
         learning.answerReview(ReviewAnswerResult.Answered(ReviewVerdict.NearMiss))
 
         viewModel.state.test {
@@ -475,7 +476,7 @@ class ReviewViewModelTest {
             viewModel.onIntent(ReviewIntent.CheckTapped)
             val nearMiss: ReviewUiState.Reviewing = awaitStep { it == ReviewUiState.ReviewStep.NearMiss }
             assertEquals(
-                ReviewHint(firstLetter = "h", letterCount = 4),
+                homeHint,
                 (nearMiss.card as ReviewUiState.ReviewCard.Recall).hint,
             )
         }
@@ -596,3 +597,5 @@ class ReviewViewModelTest {
         }
     }
 }
+
+private val homeHint: ReviewHint = ReviewHint(words = listOf(ReviewHintWord(firstLetter = "h", letterCount = 4)))

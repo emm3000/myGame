@@ -99,7 +99,7 @@ class LearningRepositoryTest {
 
     @Test
     fun `posts the hint of the word it names on the player's reviews`() = runTest {
-        api.enqueue(json(200, """{"firstLetter":"s","letterCount":6}"""))
+        api.enqueue(json(200, GIVE_UP_HINT_BODY))
 
         learning().hint(WordId("lesson-1-2"))
 
@@ -108,11 +108,18 @@ class LearningRepositoryTest {
     }
 
     @Test
-    fun `answers the first letter and the letter count of the hint`() = runTest {
-        api.enqueue(json(200, """{"firstLetter":"s","letterCount":6}"""))
+    fun `answers the first letter and the letter count of each word of the hint`() = runTest {
+        api.enqueue(json(200, GIVE_UP_HINT_BODY))
 
         assertEquals(
-            ReviewHintResult.Hinted(ReviewHint(firstLetter = "s", letterCount = 6)),
+            ReviewHintResult.Hinted(
+                ReviewHint(
+                    words = listOf(
+                        ReviewHintWord(firstLetter = "g", letterCount = 4),
+                        ReviewHintWord(firstLetter = "u", letterCount = 2),
+                    ),
+                ),
+            ),
             learning().hint(WordId("lesson-1-2")),
         )
     }
@@ -295,3 +302,6 @@ class LearningRepositoryTest {
             """{"kind":"wrong","word":"home","gloss":"casa","dueAt":"2026-11-10T09:11:00.000Z"}"""
     }
 }
+
+private const val GIVE_UP_HINT_BODY: String =
+    """{"words":[{"firstLetter":"g","letterCount":4},{"firstLetter":"u","letterCount":2}]}"""

@@ -33,6 +33,7 @@ import com.emm.mygame.core.network.ChoiceId
 import com.emm.mygame.core.network.LessonId
 import com.emm.mygame.core.network.ReviewChoice
 import com.emm.mygame.core.network.ReviewHint
+import com.emm.mygame.core.network.ReviewHintWord
 import com.emm.mygame.core.network.SchoolPathCounts
 import com.emm.mygame.core.network.TownResourceKind
 import com.emm.mygame.core.network.WordId
@@ -191,7 +192,20 @@ private val previewRecall: ReviewUiState.ReviewCard.Recall = ReviewUiState.Revie
     gloss = "casa",
     gappedFrame = "She goes ___ at six.",
     typed = "h",
-    hint = ReviewHint(firstLetter = "h", letterCount = 4),
+    hint = ReviewHint(words = listOf(ReviewHintWord(firstLetter = "h", letterCount = 4))),
+)
+
+private val previewUnitRecall: ReviewUiState.ReviewCard.Recall = ReviewUiState.ReviewCard.Recall(
+    wordId = WordId("lesson-units-1"),
+    gloss = "rendirse",
+    gappedFrame = "She will not ____ ____.",
+    typed = "g",
+    hint = ReviewHint(
+        words = listOf(
+            ReviewHintWord(firstLetter = "g", letterCount = 4),
+            ReviewHintWord(firstLetter = "u", letterCount = 2),
+        ),
+    ),
 )
 
 private val previewReviewing: ReviewUiState.Reviewing = ReviewUiState.Reviewing(
@@ -207,6 +221,7 @@ private class ReviewUiStates : PreviewParameterProvider<ReviewUiState> {
     override val values: Sequence<ReviewUiState> = sequenceOf(
         previewReviewing,
         previewReviewing.copy(card = previewRecall),
+        previewReviewing.copy(card = previewUnitRecall),
         previewReviewing.copy(
             card = previewRecognition.copy(chosen = ChoiceId("4e5f6a7b")),
             step = ReviewUiState.ReviewStep.Correct(
