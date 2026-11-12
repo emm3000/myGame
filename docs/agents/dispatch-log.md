@@ -32,10 +32,10 @@ Totals of rows already folded out of Recent.
 | 2 | sonnet:medium | 2 | 0 | 0 | 2 | 0 |
 | 2 | opus:medium | 77 | 61 | 7 | 7 | 2 |
 | 2 | sonnet:high | 3 | 0 | 0 | 2 | 1 |
-| 2 | opus:high | 56 | 40 | 10 | 4 | 2 |
+| 2 | opus:high | 59 | 42 | 10 | 5 | 2 |
 | 3 | opus:medium | 25 | 16 | 4 | 4 | 1 |
 | 4 | opus:high | 67 | 58 | 2 | 3 | 4 |
-| 3 | opus:high | 100 | 70 | 10 | 15 | 5 |
+| 3 | opus:high | 101 | 71 | 10 | 15 | 5 |
 | 1 | opus:high | 11 | 2 | 1 | 7 | 1 |
 | 1 | fable:high | 43 | 31 | 1 | 8 | 3 |
 | 5 | fable:high | 18 | 18 | 0 | 0 | 0 |
@@ -47,10 +47,6 @@ Last 20 PRs, oldest first. Model:effort is what actually ran, which may differ f
 
 | PR | Issue | Row | Model:effort | First review | Cause | Peer in k | Peer out k | Review k | Peer USD | Rounds | Model min | Lines +/- | Later bug |
 |---|---|---|---|---|---|---|---|---|---|---|---|---|---|
-| #943 | #777 | 4 | opus:high | FIX FIRST | checklist | 20167 | 82 | 280 | 9.32 | 2 | 17 | +3349/-101 | |
-| #944 | #939 | 1 | sonnet:low | MERGE | | 1149 | 4 | 26 | 0.46 | 1 | 0 | +3/-2 | |
-| #945 | #942 | 3 | opus:high | MERGE | | 1343 | 15 | 38 | 1.09 | 1 | 2 | +6/-0 | |
-| #946 | #778 | 3 | opus:high | MERGE | | 11291 | 48 | 72 | 4.82 | 1 | 8 | +1037/-9 | |
 | #947 | #941 | 1 | sonnet:low | FIX FIRST | checklist | 1339 | 5 | 28 | 0.36 | 2 | 0 | +3/-162 | |
 | #948 | #938 | 3 | opus:high | MERGE | | 4172 | 15 | 61 | 1.84 | 1 | 3 | +160/-168 | |
 | #949 | #940 | 2 | opus:high | MERGE | | 2928 | 17 | 39 | 1.67 | 1 | 3 | +171/-1 | |
@@ -67,3 +63,7 @@ Last 20 PRs, oldest first. Model:effort is what actually ran, which may differ f
 | #968 | #774 | 2 | opus:high | MERGE | | 17452 | 46 | 75 | | 1 | | +424/-42 | |
 | #970 | #963 | 2 | opus:high | FIX FIRST | judgment | 29983 | 95 | 110 | | 3 | | +635/-99 | |
 | #969 | #786 | 3 | opus:high | FIX FIRST | judgment | 35883 | 93 | 95 | | 2 | | +1058/-221 | |
+| #972 | #965 | 3 | opus:high | MERGE | | 11893 | 42 | 75 | | 1 | | +759/-491 | |
+| #973 | #971 | 2 | opus:high | FIX FIRST | judgment | 33322 | 78 | 85 | | 2 | | +314/-75 | |
+| #977 | #787 | 2 | opus:high | MERGE | | 33641 | 92 | 75 | | 1 | | +764/-114 | |
+| #978 | #788 | 2 | opus:high | MERGE | | 47099 | 137 | 160 | | 3 | | +1472/-172 | |
