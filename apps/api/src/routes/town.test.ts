@@ -297,17 +297,23 @@ describe('the town route', () => {
       })
     })
 
-    it('answers the instant each store fills, null for a store that never does', async () => {
+    it('answers the instant each store fills', async () => {
       const ana = await signUpWithTown('ana@example.com')
 
       const { stocks } = await overviewOf(await readTown(ana))
 
-      expect([
-        stocks.money.fullAt,
-        stocks.food.fullAt,
-        stocks.power.fullAt,
-        stocks.material.fullAt,
-      ]).toEqual(['2026-11-06T14:00:00.000Z', '2026-11-10T17:36:00.000Z', null, null])
+      expect([stocks.money.fullAt, stocks.food.fullAt]).toEqual([
+        '2026-11-06T14:00:00.000Z',
+        '2026-11-10T17:36:00.000Z',
+      ])
+    })
+
+    it('answers no fill instant for a store that never fills', async () => {
+      const ana = await signUpWithTown('ana@example.com')
+
+      const { stocks } = await overviewOf(await readTown(ana))
+
+      expect([stocks.power.fullAt, stocks.material.fullAt]).toEqual([null, null])
     })
 
     it('offers each building’s next level with its cost, duration and people', async () => {

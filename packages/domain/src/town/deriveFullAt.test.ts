@@ -61,6 +61,35 @@ const winterFoodSettings: TownSettings = {
   },
 }
 
+const tenthOfFood = { ...unscaled, food: 10 }
+
+const dailyTenthFoodSettings: TownSettings = {
+  ...plainTownSettings,
+  seasons: {
+    ...plainTownSettings.seasons,
+    daysPerSeason: 1,
+    productionPercent: {
+      spring: tenthOfFood,
+      summer: tenthOfFood,
+      fall: tenthOfFood,
+      winter: tenthOfFood,
+    },
+  },
+}
+
+const winterTenthFoodSettings: TownSettings = {
+  ...plainTownSettings,
+  seasons: {
+    ...plainTownSettings.seasons,
+    productionPercent: {
+      spring: noFood,
+      summer: noFood,
+      fall: noFood,
+      winter: tenthOfFood,
+    },
+  },
+}
+
 const boundaryCrossingTown = (): Town =>
   townOf({
     area: 2,
@@ -114,6 +143,44 @@ describe('deriveFullAt', () => {
 
     assert(fullAt.ok)
     expect(fullAt.value.food).toEqual(hoursAfterEpoch(3 * HOURS_PER_SEASON + 10))
+  })
+
+  it('keeps walking a filling store after a store at rate 0 settles', () => {
+    const slowFarmTown = townOf({
+      area: 2,
+      stocks: { money: 0, food: 0, power: 0, material: 0 },
+      storedAt: hoursAfterEpoch(0),
+      buildingLevels: { farm: 1 },
+    })
+
+    const fullAt = deriveFullAt(slowFarmTown, townCatalogOf(dailyTenthFoodSettings))
+
+    assert(fullAt.ok)
+    expect([fullAt.value.food, fullAt.value.material]).toEqual([
+      Instant.fromEpochMilliseconds(
+        hoursAfterEpoch(13 * 24 + 21).epochMilliseconds + 20 * MILLISECONDS_PER_MINUTE,
+      ),
+      null,
+    ])
+  })
+
+  it('counts the unchanged segments again from 0 after a segment of growth', () => {
+    const winterFarmTown = townOf({
+      area: 2,
+      stocks: { money: 0, food: 0, power: 0, material: 0 },
+      storedAt: hoursAfterEpoch(1),
+      buildingLevels: { farm: 1 },
+    })
+
+    const fullAt = deriveFullAt(winterFarmTown, townCatalogOf(winterTenthFoodSettings))
+
+    assert(fullAt.ok)
+    expect(fullAt.value.food).toEqual(
+      Instant.fromEpochMilliseconds(
+        hoursAfterEpoch(7 * HOURS_PER_SEASON + 165).epochMilliseconds +
+          20 * MILLISECONDS_PER_MINUTE,
+      ),
+    )
   })
 
   it('answers the stored instant for a full store', () => {
