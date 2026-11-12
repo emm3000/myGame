@@ -13,6 +13,7 @@
     <string name="town_finish_tomorrow">mañana {time}</string>
     <string name="town_finish_with_clock">{timeLeft} · {clock}</string>
     <string name="town_full">Lleno: {capacity}</string>
+    <string name="town_full_at">Lleno {clock}</string>
     <string name="town_go_to_school">Ir a la escuela</string>
     <string name="town_goal_close">Cerrar la meta</string>
     <string name="town_goal_line">Meta {position} de {count}: {place}, nivel {level}</string>
@@ -85,6 +86,8 @@
     <string name="town_places_title_city">Tu ciudad</string>
     <string name="town_places_title_town">Tu pueblo</string>
     <string name="town_rate">+{rate} / h</string>
+    <string name="town_ready_at">Lista {clock}</string>
+    <string name="town_ready_in">Lista en {timeLeft}</string>
     <string name="town_refusal_blank_town_name">Escribe un nombre para tu pueblo.</string>
     <string name="town_refusal_building_work_not_found">La obra del nivel {level} ya no está en la lista. Quizá ya terminó.</string>
     <string name="town_refusal_hiring_not_enough_people">Esta contratación necesita {requiredPeople, plural, =1 {1 persona libre} other {{requiredPeople, number,0} personas libres}} y tienes {freePeople}. Sube el nivel de tus hogares.</string>
