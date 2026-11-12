@@ -78,6 +78,7 @@ internal data class QuoteAsk(
 internal fun quoteAskOf(map: RegionMap, town: TownSnapshot, choices: MapChoices): QuoteAsk? {
     val site: Int = choices.chosen ?: return null
     val team: Map<TownHireKind, Int> = choices.entries.team() ?: return null
+    if (team.values.sum() == 0) return null
     val hours: Int = choices.entries.hoursCount() ?: return null
     return QuoteAsk(JobTarget(map.area, site), team, hours, town.seasonEndsAt)
 }
