@@ -31,7 +31,7 @@ internal fun stockOf(
     amount: Long = 100,
     ratePerHour: Double = 0.0,
     capacity: Long = 1000,
-): TownSnapshot.Stock = TownSnapshot.Stock(kind, amount, ratePerHour, capacity)
+): TownSnapshot.Stock = TownSnapshot.Stock(kind, amount, ratePerHour, capacity, fullAt = null)
 
 internal fun stocksOf(vararg changed: TownSnapshot.Stock): List<TownSnapshot.Stock> =
     TownResourceKind.entries.map { kind: TownResourceKind ->

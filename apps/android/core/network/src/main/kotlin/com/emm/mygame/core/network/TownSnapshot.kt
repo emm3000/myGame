@@ -24,7 +24,13 @@ data class TownSnapshot(
     val readAt: Instant,
 ) {
 
-    data class Stock(val kind: TownResourceKind, val amount: Long, val ratePerHour: Double, val capacity: Long)
+    data class Stock(
+        val kind: TownResourceKind,
+        val amount: Long,
+        val ratePerHour: Double,
+        val capacity: Long,
+        val fullAt: Instant?,
+    )
 
     data class People(val supplied: Int, val free: Int, val atWork: Int)
 

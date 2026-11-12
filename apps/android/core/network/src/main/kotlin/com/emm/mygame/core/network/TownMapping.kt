@@ -151,6 +151,7 @@ private fun TownOverviewStocksMoney.toStock(kind: TownResourceKind): TownSnapsho
     amount = amount.toLong(),
     ratePerHour = ratePerHour,
     capacity = capacity.toLong(),
+    fullAt = fullAt?.toKotlinInstant(),
 )
 
 private fun TownOverviewBuildingsHomes.toBuilding(kind: TownBuildingKind): TownSnapshot.Building =

@@ -200,7 +200,7 @@ class TownGuidanceRepositoryTest {
                 """"missing":{"resources":{"money":40,"food":0,"power":0,"material":15},"people":3}}"""
         const val UNDERWAY_GOAL: String =
             """{"position":1,"count":9,"building":"powerStation","level":1,"state":"underway"}"""
-        const val STOCK: String = """{"amount":120,"ratePerHour":30.5,"capacity":1000}"""
+        const val STOCK: String = """{"amount":120,"ratePerHour":30.5,"capacity":1000,"fullAt":null}"""
         const val FLAT: String = """{"level":1,"nextLevel":null}"""
         const val HIRING: String =
             """{"order":null,"hires":{"worker":0,"truck":0},"terms":{""" +
