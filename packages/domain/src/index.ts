@@ -115,6 +115,7 @@ export { type JobSeason, jobSeasonAt } from './town/jobSeasonAt'
 export { type BusyLessonSlot, idleLessonSlot, type LessonSlot } from './town/LessonSlot'
 export type { LessonSlotRepository } from './town/LessonSlotRepository'
 export { lowestFreePeopleOf } from './town/lowestFreePeopleOf'
+export { type GoalShortfall, type NextGoal, nextGoalOf } from './town/nextGoalOf'
 export {
   type NextStep,
   type NextStepReading,
@@ -177,6 +178,7 @@ export {
 } from './town/stopSchoolLesson'
 export { studyPercentAt } from './town/studyPercentAt'
 export type { Terrain } from './town/Terrain'
+export type { TipKind } from './town/TipKind'
 export { type ChangedTown, type StoredTown, Town, type TownFounding } from './town/Town'
 export { TownAddress } from './town/TownAddress'
 export type { TownCatalog } from './town/TownCatalog'
@@ -191,11 +193,14 @@ export type {
   JobTerms,
   ProductionPercent,
   TownDurationPercent,
+  TownGoal,
   TownSeasons,
   TownSettings,
 } from './town/TownSettings'
 export type { TownSkill } from './town/TownSkill'
 export { terrainOf } from './town/terrainOf'
+export { tipKinds } from './town/tipKinds'
+export { type TipReading, tipOf } from './town/tipOf'
 export { townLabelOf } from './town/townLabelOf'
 export type { WasteSize } from './town/WasteSize'
 export {

@@ -106,6 +106,26 @@ describe('JsonTownCatalog', () => {
     ])
   })
 
+  it('hands the domain goals that each name a level the content holds', () => {
+    const catalog = shippedCatalog()
+    const { goals } = catalog.townSettings()
+
+    expect(
+      goals.filter(({ building, level }) => catalog.levelOf(building, level) === undefined),
+    ).toEqual([])
+  })
+
+  it('fails at start-up on a goal at a level the content lacks', () => {
+    const directory = withTownContent(
+      rewritten('town.json', (content) => ({
+        ...content,
+        goals: [{ building: 'farm', level: 11 }],
+      })),
+    )
+
+    expect(startingUpOn(directory)).toThrow('Content goal farm 11 names no level')
+  })
+
   it('fails at start-up on a building file that describes another building', () => {
     const directory = withTownContent(
       rewritten('farm.json', (farm) => ({ ...farm, building: 'factory' })),

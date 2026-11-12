@@ -34,6 +34,7 @@ import type { TownReader, TownWithSchool } from '../../town/TownReader'
 import { byEarnedAt } from '../byEarnedAt'
 import { aggregatedCardsOf, heldCardsOf } from './aggregatedCards'
 import { aggregatedHeldOutWordsOf, heldOutHeadwordsOf } from './aggregatedHeldOutWords'
+import { aggregatedSeenTipsOf, seenTipsFrom } from './aggregatedSeenTips'
 import type { PostgresSession } from './connectPostgres'
 import { jsonAggregateOf } from './jsonAggregateOf'
 import { lessonSlotOf } from './lessonSlotOf'
@@ -57,6 +58,8 @@ export type TownRead = 'lockedForUpdate' | 'lockFree'
 type StoredTownBuilding = (typeof townBuilding.enumValues)[number]
 
 type TownRow = typeof towns.$inferSelect
+
+type SavedTownRow = Omit<TownRow, 'guidanceDismissedAt'>
 
 type WaitingRow = typeof townWaitingWork.$inferSelect
 
@@ -491,7 +494,7 @@ const townFrom = ({
   })
 }
 
-const rowOf = (town: Town): TownRow => ({
+const rowOf = (town: Town): SavedTownRow => ({
   id: town.id,
   playerId: town.playerId,
   region: town.address.region,
@@ -648,6 +651,7 @@ export class DrizzleTownRepository implements TownReader, TownRepository {
         lessonSlot: townLessonSlots,
         cards: aggregatedCardsOf(towns.playerId),
         heldOutWords: aggregatedHeldOutWordsOf(towns.playerId),
+        seenTips: aggregatedSeenTipsOf(towns.playerId),
       })
       .from(towns)
       .leftJoin(townLessonSlots, eq(townLessonSlots.townId, towns.id))
@@ -668,6 +672,8 @@ export class DrizzleTownRepository implements TownReader, TownRepository {
       lessonSlot: lessonSlotOf(row.lessonSlot),
       cards: cards.value,
       heldOutWords: heldOutHeadwordsOf(row.heldOutWords),
+      guidanceDismissedAt: instantOf(row.town.guidanceDismissedAt) ?? undefined,
+      seenTips: seenTipsFrom(row.seenTips),
     })
   }
 

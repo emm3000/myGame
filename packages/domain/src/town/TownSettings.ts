@@ -1,8 +1,10 @@
 import type { SeasonDates } from '../season/SeasonDates'
 import type { SeasonKind } from '../season/SeasonKind'
+import type { BuildingKind } from './BuildingKind'
 import type { ResourceKind } from './ResourceKind'
 import type { Stocks } from './Stocks'
 import type { Terrain } from './Terrain'
+import type { TipKind } from './TipKind'
 import type { WasteSize } from './WasteSize'
 
 export type ProductionPercent = Readonly<Record<ResourceKind, number>>
@@ -40,6 +42,11 @@ export type WasteTerms = {
   readonly sizes: Readonly<Record<WasteSize, WasteSizeTerms>>
 }
 
+export type TownGoal = {
+  readonly building: BuildingKind
+  readonly level: number
+}
+
 export type TownSettings = {
   readonly startingStocks: Stocks
   readonly taxRatePerHour: number
@@ -52,4 +59,6 @@ export type TownSettings = {
   readonly job: JobTerms
   readonly waste: WasteTerms
   readonly seasons: TownSeasons
+  readonly goals: ReadonlyArray<TownGoal>
+  readonly tips: ReadonlyArray<TipKind>
 }

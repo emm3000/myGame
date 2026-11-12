@@ -50,6 +50,8 @@ export const plainTownSettings: TownSettings = {
       winter: { build: 100, study: 100, hire: 100, road: 100 },
     },
   },
+  goals: [],
+  tips: [],
 }
 
 const levelTerms = (level: number): Pick<BuildingLevel, 'level' | 'cost' | 'durationSeconds'> => ({

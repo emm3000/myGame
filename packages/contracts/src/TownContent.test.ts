@@ -53,6 +53,11 @@ const townContent = (overrides: Record<string, unknown> = {}): unknown => ({
     productionPercent,
     durationPercent,
   },
+  goals: [
+    { building: 'farm', level: 1 },
+    { building: 'factory', level: 1 },
+  ],
+  tips: ['people', 'waitingList'],
   ...overrides,
 })
 
@@ -189,5 +194,40 @@ describe('TownContentSchema', () => {
     const startingStocks = { money: 400.5, food: 300, power: 200, material: 500 }
 
     expect(TownContentSchema.safeParse(townContent({ startingStocks })).success).toBe(false)
+  })
+
+  it('parses the goals in their order', () => {
+    expect(TownContentSchema.parse(townContent()).goals).toEqual([
+      { building: 'farm', level: 1 },
+      { building: 'factory', level: 1 },
+    ])
+  })
+
+  it('refuses a goal at level 0', () => {
+    const goals = [{ building: 'farm', level: 0 }]
+
+    expect(TownContentSchema.safeParse(townContent({ goals })).success).toBe(false)
+  })
+
+  it('refuses a goal on a building the town lacks', () => {
+    const goals = [{ building: 'library', level: 1 }]
+
+    expect(TownContentSchema.safeParse(townContent({ goals })).success).toBe(false)
+  })
+
+  it('parses the tips in their order', () => {
+    expect(TownContentSchema.parse(townContent()).tips).toEqual(['people', 'waitingList'])
+  })
+
+  it('refuses a tip the town does not know', () => {
+    const tips = ['peasants']
+
+    expect(TownContentSchema.safeParse(townContent({ tips })).success).toBe(false)
+  })
+
+  it('refuses a tip listed twice', () => {
+    const tips = ['people', 'office', 'people']
+
+    expect(TownContentSchema.safeParse(townContent({ tips })).success).toBe(false)
   })
 })

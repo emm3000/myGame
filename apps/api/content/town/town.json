@@ -111,5 +111,44 @@
         "road": 100
       }
     }
-  }
+  },
+  "goals": [
+    {
+      "building": "farm",
+      "level": 1
+    },
+    {
+      "building": "factory",
+      "level": 1
+    },
+    {
+      "building": "powerStation",
+      "level": 1
+    },
+    {
+      "building": "storage",
+      "level": 1
+    },
+    {
+      "building": "homes",
+      "level": 2
+    },
+    {
+      "building": "office",
+      "level": 1
+    },
+    {
+      "building": "school",
+      "level": 2
+    },
+    {
+      "building": "farm",
+      "level": 2
+    },
+    {
+      "building": "factory",
+      "level": 2
+    }
+  ],
+  "tips": ["people", "seasons", "waitingList", "office", "jobs", "fullStore"]
 }
