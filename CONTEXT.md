@@ -12,7 +12,7 @@ The game is Townword, a present-day town the player grows into a city (ADR 035).
 - **Region** — the great area a town lies in, a number in the data. Areas and sites inside it are numbered. Replaces *galaxy*.
 - **Area** — a numbered part of a region with the content's `sitesPerArea` sites and one terrain, shared by every site in it. Replaces *system*.
 - **Site** — the numbered place in an area that one town holds; free until a town is founded on it.
-- **Region map** — one area of the viewer's region at a time, its sites free or holding a town, the town's own area first, browsable from area 1 to one past the last area holding a town (ADR 014). Its screen is not shipped yet (ADR 041).
+- **Region map** — one area of the viewer's region at a time, its sites free or holding a town, the town's own area first, browsable from area 1 to one past the last area holding a town (ADR 014).
 - **Terrain** — what an area is made of: fields, river or hills. It adds the content's `terrainBonusPerHour` to the rate of the resource it favours (fields food, river power, hills material), on top of the producers, and forbids nothing.
 
 ## Resources
@@ -42,7 +42,7 @@ The game is Townword, a present-day town the player grows into a city (ADR 035).
 ## Hires and jobs
 
 - **Hire** — a worker or a truck, hired at the office in one hiring order at a time, occupying people and eating nothing. A **team** is the hires sent out together (ADR 018, ADR 021, ADR 040).
-- **Job** — a team's trip to a free site for whole hours, coming back with **pay** fixed at dispatch from the site's terrain, never money; **called back** before it ends, it returns with the partial pay. One team out at a time; its hires stay counted and occupied while away. Its screen is not shipped yet (ADR 019, ADR 040, ADR 041).
+- **Job** — a team's trip to a free site for whole hours, coming back with **pay** fixed at dispatch from the site's terrain, never money; **called back** before it ends, it returns with the partial pay. One team out at a time; its hires stay counted and occupied while away (ADR 019, ADR 040).
 - **Waste site** — a free site holding waste of one of three **sizes**, placed by a hash of its address on the content's fraction of the free sites; its **waste** regrows from 0 at its last clean-up up to the size's most, and a site never cleaned holds the most (ADR 020, ADR 040).
 - **Clean-up** — a team's trip to a waste site with no hours there; the waste and the team's **strength** (the sum of each hire's strength) are fixed at dispatch. A team whose strength covers the waste cleans it at the arrival, the site's waste starting again from 0, and comes back with money and material per point of waste, capped by the carry; a smaller team comes back with nothing. Nobody is lost. Called back on the way out, it cleans nothing (ADR 020, ADR 040).
 
