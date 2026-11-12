@@ -13,13 +13,13 @@ import androidx.lifecycle.LifecycleRegistry
 import androidx.lifecycle.compose.LocalLifecycleOwner
 import com.emm.mygame.core.designsystem.MyGameTheme
 import com.emm.mygame.core.network.TownHireKind
-import com.emm.mygame.core.network.TownSnapshot
-import com.emm.mygame.core.testing.hiringOf
-import kotlin.time.Duration.Companion.minutes
 import com.emm.mygame.core.network.TownReadResult
+import com.emm.mygame.core.network.TownSnapshot
 import com.emm.mygame.core.testing.FakeSessionRepository
 import com.emm.mygame.core.testing.FakeTownRepository
+import com.emm.mygame.core.testing.hiringOf
 import kotlin.time.Clock
+import kotlin.time.Duration.Companion.minutes
 import kotlin.time.Instant
 import org.junit.Assert.assertEquals
 import org.junit.Rule

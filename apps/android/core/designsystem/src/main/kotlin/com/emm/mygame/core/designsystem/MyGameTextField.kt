@@ -36,6 +36,7 @@ fun MyGameTextField(
     keyboardActions: KeyboardActions = KeyboardActions.Default,
     contentType: ContentType? = null,
     supportingText: String? = null,
+    isEnabled: Boolean = true,
 ) {
     val colors: MyGameColors = MyGameTheme.colors
     val shape: Shape = RoundedCornerShape(MyGameRadii.md)
@@ -44,9 +45,10 @@ fun MyGameTextField(
         BasicTextField(
             value = value,
             onValueChange = onValueChange,
+            enabled = isEnabled,
             readOnly = isReadOnly,
             singleLine = true,
-            textStyle = MyGameTypography.body.copy(color = colors.ink),
+            textStyle = MyGameTypography.body.copy(color = if (isEnabled) colors.ink else colors.inkMuted),
             cursorBrush = SolidColor(colors.ink),
             keyboardOptions = keyboardOptions,
             keyboardActions = keyboardActions,
@@ -64,7 +66,7 @@ fun MyGameTextField(
                         modifier = Modifier
                             .fillMaxWidth()
                             .defaultMinSize(minHeight = MyGameSizes.control)
-                            .background(colors.surfaceRaised, shape)
+                            .background(if (isEnabled) colors.surfaceRaised else colors.surfaceSunken, shape)
                             .border(MyGameStrokeWidths.hairline, colors.lineStrong, shape)
                             .padding(horizontal = MyGameSpacing.step3),
                     ) {

@@ -72,7 +72,7 @@ private fun TownSnapshot.hireFormOf(
     val offer: TownUiState.HireOffer? = count?.let { counted: Int -> offerOf(terms, counted, drawn) }
     return TownUiState.HireForm(
         entry = entry,
-        isEntryReadOnly = hiring.order != null,
+        isEntryDisabled = hiring.order != null,
         offer = offer,
         block = blockOf(offer, drawn),
     )

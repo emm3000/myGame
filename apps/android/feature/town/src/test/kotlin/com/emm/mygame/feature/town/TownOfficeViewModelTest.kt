@@ -129,6 +129,20 @@ class TownOfficeViewModelTest {
     }
 
     @Test
+    fun `disables the count field while an order runs`() = runTest {
+        val viewModel: TownViewModel = homeViewModel(hiringTown)
+
+        assertEquals(true, formOf(viewModel, TownHireKind.Worker).isEntryDisabled)
+    }
+
+    @Test
+    fun `opens the count field while no order runs`() = runTest {
+        val viewModel: TownViewModel = homeViewModel(townOf())
+
+        assertEquals(false, formOf(viewModel, TownHireKind.Worker).isEntryDisabled)
+    }
+
+    @Test
     fun `names too few free people for the hires`() = runTest {
         val viewModel: TownViewModel = homeViewModel(townOf(people = TownSnapshot.People(10, free = 2, atWork = 8)))
 

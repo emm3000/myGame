@@ -79,6 +79,8 @@ export const fixedCopyKeys: ReadonlySet<string> = new Set([
   'android.school.school_refusal_unexpected',
   'android.town.town_refusal_blank_town_name',
   'android.town.town_refusal_building_work_not_found',
+  'android.town.town_refusal_hiring_not_enough_people',
+  'android.town.town_refusal_hiring_not_enough_resources',
   'android.town.town_refusal_hiring_order_not_found',
   'android.town.town_refusal_hiring_slot_busy',
   'android.town.town_refusal_not_enough_people',
