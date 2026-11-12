@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="placement_band">Banda {band}</string>
+    <string name="placement_choose">Elige un significado para seguir.</string>
+    <string name="placement_closed_none">No tienes ninguna prueba de nivel pendiente. Tus lecciones te esperan en la escuela.</string>
+    <string name="placement_failed">No hemos podido leer tu prueba de nivel.</string>
+    <string name="placement_loading">Estamos leyendo tu prueba de nivel…</string>
+    <string name="placement_next">Siguiente</string>
+    <string name="placement_not_placed_out">No superada.</string>
+    <string name="placement_offer_line">¿Ya sabes algo de inglés? Una prueba corta te deja empezar más adelante.</string>
+    <string name="placement_offer_link">Hacer la prueba de nivel</string>
+    <string name="placement_offer_resume_link">Seguir con la prueba de nivel</string>
+    <string name="placement_offered_line">Verás palabras en inglés de una en una y elegirás qué significa cada una. Si conoces casi todas las de una banda, sus lecciones cuentan como sabidas y te las saltas. Solo puedes hacerla una vez.</string>
+    <string name="placement_offered_skip_line">Si la saltas, empiezas por la lección 1.</string>
+    <string name="placement_placed_out">Superada: sus lecciones cuentan como sabidas.</string>
+    <string name="placement_progress">Palabra {number} de {total}</string>
+    <string name="placement_prompt">¿Qué significa?</string>
+    <string name="placement_result_band">Banda {band}: {score, plural, =1 {1 acierto} other {{score, number,0} aciertos}}</string>
+    <string name="placement_result_title">Tu resultado</string>
+    <string name="placement_retry">Volver a intentarlo</string>
+    <string name="placement_send_band">Enviar la banda {band}</string>
+    <string name="placement_sending">Enviando…</string>
+    <string name="placement_skip">Saltar la prueba</string>
+    <string name="placement_start">Empezar la prueba</string>
+    <string name="placement_title">Prueba de nivel</string>
+    <string name="placement_to_town">Volver a tu pueblo</string>
+    <string name="placement_unreachable">No hemos podido hablar con el servidor. Vuelve a intentarlo en un momento.</string>
+</resources>
