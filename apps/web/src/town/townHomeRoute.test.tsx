@@ -281,8 +281,8 @@ it('projects each stock between reads up to storage', async () => {
     ...knownTown,
     stocks: {
       ...knownTown.stocks,
-      food: { amount: 1000, ratePerHour: 3600, capacity: 5000 },
-      power: { amount: 4990, ratePerHour: 3600, capacity: 5000 },
+      food: { amount: 1000, ratePerHour: 3600, capacity: 5000, fullAt: null },
+      power: { amount: 4990, ratePerHour: 3600, capacity: 5000, fullAt: null },
     },
   }
   await showTown(

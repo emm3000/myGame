@@ -1698,9 +1698,14 @@
                   "capacity": {
                     "type": "integer",
                     "minimum": 0
+                  },
+                  "fullAt": {
+                    "type": "string",
+                    "nullable": true,
+                    "format": "date-time"
                   }
                 },
-                "required": ["amount", "ratePerHour", "capacity"],
+                "required": ["amount", "ratePerHour", "capacity", "fullAt"],
                 "additionalProperties": false
               },
               "food": {
@@ -1717,9 +1722,14 @@
                   "capacity": {
                     "type": "integer",
                     "minimum": 0
+                  },
+                  "fullAt": {
+                    "type": "string",
+                    "nullable": true,
+                    "format": "date-time"
                   }
                 },
-                "required": ["amount", "ratePerHour", "capacity"],
+                "required": ["amount", "ratePerHour", "capacity", "fullAt"],
                 "additionalProperties": false
               },
               "power": {
@@ -1736,9 +1746,14 @@
                   "capacity": {
                     "type": "integer",
                     "minimum": 0
+                  },
+                  "fullAt": {
+                    "type": "string",
+                    "nullable": true,
+                    "format": "date-time"
                   }
                 },
-                "required": ["amount", "ratePerHour", "capacity"],
+                "required": ["amount", "ratePerHour", "capacity", "fullAt"],
                 "additionalProperties": false
               },
               "material": {
@@ -1755,9 +1770,14 @@
                   "capacity": {
                     "type": "integer",
                     "minimum": 0
+                  },
+                  "fullAt": {
+                    "type": "string",
+                    "nullable": true,
+                    "format": "date-time"
                   }
                 },
-                "required": ["amount", "ratePerHour", "capacity"],
+                "required": ["amount", "ratePerHour", "capacity", "fullAt"],
                 "additionalProperties": false
               }
             },

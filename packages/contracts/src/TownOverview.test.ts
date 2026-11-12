@@ -1,7 +1,7 @@
 import { describe, expect, it } from 'vitest'
 import { TownOverviewSchema } from './index'
 
-const stock = { amount: 300, ratePerHour: 12.5, capacity: 1000 }
+const stock = { amount: 300, ratePerHour: 12.5, capacity: 1000, fullAt: null }
 
 const idle = { level: 0, nextLevel: null }
 
@@ -409,5 +409,21 @@ describe('TownOverviewSchema tip', () => {
     const { tip: _, ...withoutTip } = overview()
 
     expect(TownOverviewSchema.safeParse(withoutTip).success).toBe(false)
+  })
+})
+
+describe('TownOverviewSchema stock fill instant', () => {
+  it('reads the instant a store fills', () => {
+    const filling = { ...stock, fullAt: '2026-11-10T19:00:00.000Z' }
+    const stocks = { money: stock, food: filling, power: stock, material: stock }
+
+    expect(TownOverviewSchema.parse(overview({ stocks })).stocks.food.fullAt).toBe(filling.fullAt)
+  })
+
+  it('refuses a stock without its fill instant', () => {
+    const { fullAt: _, ...withoutFullAt } = stock
+    const stocks = { money: stock, food: withoutFullAt, power: stock, material: stock }
+
+    expect(TownOverviewSchema.safeParse(overview({ stocks })).success).toBe(false)
   })
 })

@@ -175,7 +175,10 @@ it('marks a hire the free people cannot staff with the people short', async () =
 it('blocks a hire the stocks cannot pay and names the shortfall', async () => {
   await showTown({
     ...officeTown,
-    stocks: { ...officeTown.stocks, money: { amount: 10, ratePerHour: 0, capacity: 5000 } },
+    stocks: {
+      ...officeTown.stocks,
+      money: { amount: 10, ratePerHour: 0, capacity: 5000, fullAt: null },
+    },
   })
 
   const hire = within(hireCard(namesHiresWorker())).getByRole('button', { name: /^Contratar/ })
@@ -278,7 +281,10 @@ const pressWorkerHireOf = async (town: TownOverview): Promise<ReadonlyArray<Plac
 it('sends a hire the stocks cannot pay, since the api decides', async () => {
   const placed = await pressWorkerHireOf({
     ...officeTown,
-    stocks: { ...officeTown.stocks, money: { amount: 10, ratePerHour: 0, capacity: 5000 } },
+    stocks: {
+      ...officeTown.stocks,
+      money: { amount: 10, ratePerHour: 0, capacity: 5000, fullAt: null },
+    },
   })
 
   expect(placed).toEqual([{ hire: 'worker', count: 1 }])
