@@ -15,8 +15,11 @@ import androidx.compose.ui.semantics.ProgressBarRangeInfo
 import androidx.compose.ui.semantics.heading
 import androidx.compose.ui.semantics.progressBarRangeInfo
 import androidx.compose.ui.semantics.semantics
+import androidx.compose.ui.tooling.preview.PreviewParameter
+import androidx.compose.ui.tooling.preview.PreviewParameterProvider
 import com.emm.mygame.core.designsystem.MyGameButton
 import com.emm.mygame.core.designsystem.MyGameErrorBanner
+import com.emm.mygame.core.designsystem.MyGamePreviewSurface
 import com.emm.mygame.core.designsystem.MyGameSizes
 import com.emm.mygame.core.designsystem.MyGameSkeleton
 import com.emm.mygame.core.designsystem.MyGameSkeletonBlocks
@@ -25,8 +28,17 @@ import com.emm.mygame.core.designsystem.MyGameText
 import com.emm.mygame.core.designsystem.MyGameTheme
 import com.emm.mygame.core.designsystem.MyGameTrack
 import com.emm.mygame.core.designsystem.MyGameTypography
+import com.emm.mygame.core.designsystem.PreviewMyGame
+import com.emm.mygame.core.network.ChoiceId
 import com.emm.mygame.core.network.LessonId
+import com.emm.mygame.core.network.ReviewChoice
+import com.emm.mygame.core.network.ReviewHint
+import com.emm.mygame.core.network.SchoolPathCounts
+import com.emm.mygame.core.network.TownResourceKind
+import com.emm.mygame.core.network.WordId
 import com.emm.mygame.core.ui.icuStringResource
+import kotlin.time.Duration.Companion.hours
+import kotlin.time.Instant
 
 @Composable
 fun ReviewScreen(
@@ -160,4 +172,77 @@ private fun ReviewAction(
         modifier = modifier,
         blockedReason = if (isRecallEmpty) stringResource(R.string.review_check_empty) else null,
     )
+}
+
+private val previewRecognition: ReviewUiState.ReviewCard.Recognition = ReviewUiState.ReviewCard.Recognition(
+    wordId = WordId("lesson-1-2"),
+    word = "school",
+    frame = "The kids walk to school.",
+    choices = listOf(
+        ReviewChoice(id = ChoiceId("0a1b2c3d"), gloss = "dinero"),
+        ReviewChoice(id = ChoiceId("4e5f6a7b"), gloss = "escuela"),
+        ReviewChoice(id = ChoiceId("8c9d0e1f"), gloss = "granja"),
+    ),
+    chosen = null,
+)
+
+private val previewRecall: ReviewUiState.ReviewCard.Recall = ReviewUiState.ReviewCard.Recall(
+    wordId = WordId("lesson-1-1"),
+    gloss = "casa",
+    gappedFrame = "She goes ___ at six.",
+    typed = "h",
+    hint = ReviewHint(firstLetter = "h", letterCount = 4),
+)
+
+private val previewReviewing: ReviewUiState.Reviewing = ReviewUiState.Reviewing(
+    walked = 1,
+    dueCount = 4,
+    card = previewRecognition,
+    step = ReviewUiState.ReviewStep.Answering,
+    isDealtFromStack = false,
+)
+
+private class ReviewUiStates : PreviewParameterProvider<ReviewUiState> {
+
+    override val values: Sequence<ReviewUiState> = sequenceOf(
+        previewReviewing,
+        previewReviewing.copy(card = previewRecall),
+        previewReviewing.copy(
+            card = previewRecognition.copy(chosen = ChoiceId("4e5f6a7b")),
+            step = ReviewUiState.ReviewStep.Correct(
+                skill = ReviewUiState.SkillLine(
+                    resource = TownResourceKind.Food,
+                    level = 2,
+                    ratePercent = 10,
+                    rates = ReviewUiState.SkillRates(before = 60L, after = 66L),
+                    words = listOf("school", "home"),
+                ),
+            ),
+        ),
+        previewReviewing.copy(
+            card = previewRecall.copy(typed = "house", hint = null),
+            step = ReviewUiState.ReviewStep.Wrong(correct = "home"),
+        ),
+        previewReviewing.copy(step = ReviewUiState.ReviewStep.Unreachable),
+        ReviewUiState.NothingDue(
+            remaining = 3.hours,
+            dueAt = Instant.parse("2026-11-05T13:00:00Z"),
+            path = ReviewUiState.LessonPath(
+                number = 1,
+                counts = SchoolPathCounts(held = 5, read = 5, reviewed = 3, learned = 1),
+            ),
+        ),
+        ReviewUiState.LessonReady(lesson = LessonId("lesson-2"), number = 2),
+        ReviewUiState.NoCards,
+        ReviewUiState.Loading,
+        ReviewUiState.Failed,
+    )
+}
+
+@PreviewMyGame
+@Composable
+private fun ReviewScreenPreview(@PreviewParameter(ReviewUiStates::class) state: ReviewUiState) {
+    MyGamePreviewSurface {
+        ReviewScreen(state = state, onIntent = {}, onLessonOpen = {}, onTownOpen = {})
+    }
 }

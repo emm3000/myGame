@@ -17,6 +17,8 @@ import androidx.compose.ui.semantics.LiveRegionMode
 import androidx.compose.ui.semantics.heading
 import androidx.compose.ui.semantics.liveRegion
 import androidx.compose.ui.semantics.semantics
+import androidx.compose.ui.tooling.preview.PreviewParameter
+import androidx.compose.ui.tooling.preview.PreviewParameterProvider
 import com.emm.mygame.core.designsystem.MyGameBlock
 import com.emm.mygame.core.designsystem.MyGameBlockHue
 import com.emm.mygame.core.designsystem.MyGameButton
@@ -27,6 +29,7 @@ import com.emm.mygame.core.designsystem.MyGameErrorBanner
 import com.emm.mygame.core.designsystem.MyGameInlineAlert
 import com.emm.mygame.core.designsystem.MyGameMetaText
 import com.emm.mygame.core.designsystem.MyGameOutlinedButton
+import com.emm.mygame.core.designsystem.MyGamePreviewSurface
 import com.emm.mygame.core.designsystem.MyGameSizes
 import com.emm.mygame.core.designsystem.MyGameSkeleton
 import com.emm.mygame.core.designsystem.MyGameSkeletonBlocks
@@ -36,6 +39,7 @@ import com.emm.mygame.core.designsystem.MyGameTextButton
 import com.emm.mygame.core.designsystem.MyGameTextLink
 import com.emm.mygame.core.designsystem.MyGameTheme
 import com.emm.mygame.core.designsystem.MyGameTypography
+import com.emm.mygame.core.designsystem.PreviewMyGame
 import com.emm.mygame.core.designsystem.formatQuantity
 import com.emm.mygame.core.network.LessonId
 import com.emm.mygame.core.network.TownNews
@@ -223,5 +227,43 @@ private fun UnreadNews(
             busyDescription = stringResource(R.string.report_waiting),
             onClick = { onIntent(ReportIntent.CloseTapped) },
         )
+    }
+}
+
+private val previewUnread: ReportUiState.ReportNews.Unread = ReportUiState.ReportNews.Unread(
+    items = previewTownNews.take(2),
+    close = ReportUiState.CloseRequest.Idle,
+)
+
+private val previewContent: ReportUiState.Content = ReportUiState.Content(
+    dueCount = 3,
+    firstUnread = null,
+    nextReview = null,
+    news = previewUnread,
+    receivedAt = previewReceivedAt,
+)
+
+private class ReportUiStates : PreviewParameterProvider<ReportUiState> {
+
+    override val values: Sequence<ReportUiState> = sequenceOf(
+        previewContent,
+        previewContent.copy(firstUnread = LessonId("lesson-2"), news = ReportUiState.ReportNews.Closed),
+        previewContent.copy(
+            dueCount = 0,
+            nextReview = Instant.parse("2026-11-05T13:30:00Z"),
+            news = ReportUiState.ReportNews.None,
+        ),
+        previewContent.copy(news = previewUnread.copy(close = ReportUiState.CloseRequest.Unreachable)),
+        ReportUiState.Loading,
+        ReportUiState.Failed,
+        ReportUiState.SigningOut,
+    )
+}
+
+@PreviewMyGame
+@Composable
+private fun ReportScreenPreview(@PreviewParameter(ReportUiStates::class) state: ReportUiState) {
+    MyGamePreviewSurface {
+        ReportScreen(state = state, onIntent = {}, onReviewsOpen = {}, onLessonOpen = {}, onNewsOpen = {})
     }
 }

@@ -13,7 +13,12 @@ import com.emm.mygame.core.designsystem.MyGameSpacing
 import com.emm.mygame.core.designsystem.MyGameText
 import com.emm.mygame.core.designsystem.MyGameTheme
 import com.emm.mygame.core.designsystem.MyGameTypography
+import com.emm.mygame.core.network.TownAmount
+import com.emm.mygame.core.network.TownBuildingKind
+import com.emm.mygame.core.network.TownHireKind
 import com.emm.mygame.core.network.TownNews
+import com.emm.mygame.core.network.TownResourceKind
+import com.emm.mygame.core.network.TownSite
 import java.time.ZoneId
 import kotlin.time.Instant
 
@@ -57,3 +62,28 @@ private fun NewsLines(news: TownNews, receivedAt: Instant, modifier: Modifier = 
         }
     }
 }
+
+internal val previewReceivedAt: Instant = Instant.parse("2026-11-05T10:00:00Z")
+
+internal val previewTownNews: List<TownNews> = listOf(
+    TownNews.BuildingWorkFinished(
+        occurredAt = Instant.parse("2026-11-05T09:40:00Z"),
+        building = TownBuildingKind.Farm,
+        level = 2,
+    ),
+    TownNews.JobBack(
+        occurredAt = Instant.parse("2026-11-05T08:15:00Z"),
+        site = TownSite(region = 1, area = 2, site = 1),
+        pay = listOf(TownAmount(TownResourceKind.Money, 120L), TownAmount(TownResourceKind.Material, 40L)),
+    ),
+    TownNews.SkillEarned(
+        occurredAt = Instant.parse("2026-11-04T18:30:00Z"),
+        resource = TownResourceKind.Food,
+        ratePercent = 5,
+    ),
+    TownNews.HiringDelivered(
+        occurredAt = Instant.parse("2026-11-04T17:00:00Z"),
+        hire = TownHireKind.Worker,
+        count = 2,
+    ),
+)

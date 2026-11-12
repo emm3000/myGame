@@ -18,14 +18,18 @@ import androidx.compose.ui.semantics.liveRegion
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardType
+import androidx.compose.ui.tooling.preview.PreviewParameter
+import androidx.compose.ui.tooling.preview.PreviewParameterProvider
 import com.emm.mygame.core.designsystem.MyGameButton
 import com.emm.mygame.core.designsystem.MyGameInlineAlert
+import com.emm.mygame.core.designsystem.MyGamePreviewSurface
 import com.emm.mygame.core.designsystem.MyGameSpacing
 import com.emm.mygame.core.designsystem.MyGameText
 import com.emm.mygame.core.designsystem.MyGameTextField
 import com.emm.mygame.core.designsystem.MyGameTextLink
 import com.emm.mygame.core.designsystem.MyGameTheme
 import com.emm.mygame.core.designsystem.MyGameTypography
+import com.emm.mygame.core.designsystem.PreviewMyGame
 
 @Composable
 fun ForgotPasswordScreen(
@@ -101,4 +105,31 @@ private fun Confirmation(modifier: Modifier = Modifier) {
         color = MyGameTheme.colors.ink,
         modifier = modifier.semantics { liveRegion = LiveRegionMode.Polite },
     )
+}
+
+private val previewForgotForm: ForgotPasswordUiState.Form = ForgotPasswordUiState.Form(
+    email = "ana@example.com",
+    status = ForgotPasswordUiState.FormStatus.Idle,
+)
+
+private class ForgotPasswordUiStates : PreviewParameterProvider<ForgotPasswordUiState> {
+
+    override val values: Sequence<ForgotPasswordUiState> = sequenceOf(
+        previewForgotForm.copy(email = ""),
+        previewForgotForm,
+        previewForgotForm.copy(status = ForgotPasswordUiState.FormStatus.Sending),
+        previewForgotForm.copy(email = "ana@", status = ForgotPasswordUiState.FormStatus.MalformedEmail),
+        previewForgotForm.copy(status = ForgotPasswordUiState.FormStatus.Unexpected),
+        ForgotPasswordUiState.Sent,
+    )
+}
+
+@PreviewMyGame
+@Composable
+private fun ForgotPasswordScreenPreview(
+    @PreviewParameter(ForgotPasswordUiStates::class) state: ForgotPasswordUiState,
+) {
+    MyGamePreviewSurface {
+        ForgotPasswordScreen(state = state, onIntent = {}, onSignInOpen = {})
+    }
 }
