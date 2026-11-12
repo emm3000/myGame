@@ -1,14 +1,11 @@
 import type { DomainError } from '../DomainError'
 import { err, ok, type Result } from '../Result'
-import { nextSeasonBoundaryAfter } from '../season/nextSeasonBoundaryAfter'
 import type { Instant } from '../time/Instant'
-import { deriveResourceRates, type ResourceRates } from './deriveResourceRates'
 import { deriveStorageCapacity } from './deriveStorageCapacity'
 import type { FullSince } from './FullSince'
-import type { ResourceKind } from './ResourceKind'
-import { resourceKinds } from './resourceKinds'
 import type { Stocks } from './Stocks'
-import { type Store, storeAfterSegment } from './storeAfterSegment'
+import { type Stores, storedStoresOf } from './storedStoresOf'
+import { storesAfterSeasonSegment } from './storesAfterSeasonSegment'
 import type { Town } from './Town'
 import type { TownCatalog } from './TownCatalog'
 
@@ -17,53 +14,20 @@ export type Accrual = {
   readonly fullSince: FullSince
 }
 
-type Stores = Readonly<Record<ResourceKind, Store>>
-
-const storedStoresOf = (town: Town, capacity: number): Stores => {
-  const storeOf = (resource: ResourceKind): Store => ({
-    amount: town.stocks[resource],
-    fullSince:
-      town.stocks[resource] >= capacity ? (town.fullSince[resource] ?? town.storedAt) : null,
-  })
-  return {
-    money: storeOf('money'),
-    food: storeOf('food'),
-    power: storeOf('power'),
-    material: storeOf('material'),
-  }
-}
-
-const storesAfterSegment = (
-  stores: Stores,
-  rates: ResourceRates,
-  capacity: number,
-  from: Instant,
-  to: Instant,
-): Stores => {
-  const storeOf = (resource: ResourceKind): Store =>
-    storeAfterSegment(stores[resource], rates[resource], capacity, from, to)
-  return {
-    money: storeOf('money'),
-    food: storeOf('food'),
-    power: storeOf('power'),
-    material: storeOf('material'),
-  }
-}
-
-const accrualOf = (stores: Stores): Accrual => {
-  const stocks: Record<ResourceKind, number> = { money: 0, food: 0, power: 0, material: 0 }
-  const fullSince: Record<ResourceKind, Instant | null> = {
-    money: null,
-    food: null,
-    power: null,
-    material: null,
-  }
-  for (const resource of resourceKinds) {
-    stocks[resource] = stores[resource].amount
-    fullSince[resource] = stores[resource].fullSince
-  }
-  return { stocks, fullSince }
-}
+const accrualOf = (stores: Stores): Accrual => ({
+  stocks: {
+    money: stores.money.amount,
+    food: stores.food.amount,
+    power: stores.power.amount,
+    material: stores.material.amount,
+  },
+  fullSince: {
+    money: stores.money.fullSince,
+    food: stores.food.fullSince,
+    power: stores.power.fullSince,
+    material: stores.material.fullSince,
+  },
+})
 
 export const accrueTown = (
   town: Town,
@@ -80,20 +44,19 @@ export const accrueTown = (
   let segmentStart = town.storedAt
   let stores = storedStoresOf(town, capacity.value)
   while (segmentStart.epochMilliseconds < to.epochMilliseconds) {
-    const boundary = nextSeasonBoundaryAfter(segmentStart, catalog.townSettings())
-    const segmentEnd = boundary.epochMilliseconds < to.epochMilliseconds ? boundary : to
-    const rates = deriveResourceRates(
-      town.buildingLevels,
-      town.terrain,
-      town.skills,
+    const segment = storesAfterSeasonSegment(
+      town,
       catalog,
+      capacity.value,
+      stores,
       segmentStart,
+      to,
     )
-    if (!rates.ok) {
-      return rates
+    if (!segment.ok) {
+      return segment
     }
-    stores = storesAfterSegment(stores, rates.value, capacity.value, segmentStart, segmentEnd)
-    segmentStart = segmentEnd
+    stores = segment.value.stores
+    segmentStart = segment.value.segmentEnd
   }
   return ok(accrualOf(stores))
 }

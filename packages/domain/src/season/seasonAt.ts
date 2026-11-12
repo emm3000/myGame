@@ -10,7 +10,7 @@ export type Season = {
 
 const MILLISECONDS_PER_DAY = 86_400_000
 
-const SEASONS_PER_YEAR = 4
+export const SEASONS_PER_YEAR = 4
 
 const seasonKindAt = (positionInYear: number): SeasonKind => {
   switch (positionInYear) {
