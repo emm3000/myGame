@@ -230,6 +230,10 @@ export const townBuild = ({ level }: { readonly level: string | number }): strin
 export const townCostName = ({ resource }: { readonly resource: string | number }): string => `de ${String(resource)}`
 export const townFull = ({ capacity }: { readonly capacity: string | number }): string => `Lleno: ${String(capacity)}`
 export const townGoToSchool = (): string => `Ir a la escuela`
+export const townGoalClose = (): string => `Cerrar la meta`
+export const townGoalLine = ({ count, level, place, position }: { readonly count: string | number; readonly level: string | number; readonly place: string | number; readonly position: string | number }): string => `Meta ${String(position)} de ${String(count)}: ${String(place)}, nivel ${String(level)}`
+export const townGoalPeople = ({ count }: { readonly count: string | number }): string => `Gente libre necesaria: ${String(count)}.`
+export const townGoalReady = (): string => `Tienes lo que hace falta.`
 export const townInWork = (): string => `En construcción`
 export const townLabelCity = (): string => `Ciudad`
 export const townLabelTown = (): string => `Pueblo`
@@ -281,6 +285,14 @@ export const townShortfall = ({ missing }: { readonly missing: string | number }
 export const townSkylineBuilt = ({ built, total }: { readonly built: string | number; readonly total: string | number }): string => `${String(built)} de ${String(total)} construidos`
 export const townStockOf = ({ capacity }: { readonly capacity: string | number }): string => `de ${String(capacity)}`
 export const townStocks = (): string => `En el almacén`
+export const townTipClose = (): string => `Cerrar el consejo`
+export const townTipFullStore = (): string => `Cuando el dinero, la comida, la energía o el material están llenos, tu pueblo no gana más. Construye el almacén para guardar más.`
+export const townTipJobs = (): string => `Tus trabajadores y camiones están libres. Envía un equipo a un trabajo en el mapa a cambio de un pago.`
+export const townTipOffice = (): string => `En la oficina puedes contratar trabajadores y camiones. Envíalos a trabajos en el mapa.`
+export const townTipPeople = (): string => `Las obras necesitan gente libre. Construye los hogares para tener más gente.`
+export const townTipSeasons = (): string => `En primavera, verano, otoño e invierno, tu pueblo puede ganar más o menos.`
+export const townTipTitle = (): string => `Consejo`
+export const townTipWaitingList = (): string => `Mientras haya una obra en marcha, otras obras pueden esperar en la lista de espera. Empiezan cuando esa obra esté lista.`
 export const townTopLevel = (): string => `Nivel máximo`
 export const townTryAgain = (): string => `Volver a intentarlo`
 export const townWorkDone = (): string => `La obra está lista. Estamos leyendo tu pueblo otra vez…`
