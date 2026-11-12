@@ -32,10 +32,10 @@ Totals of rows already folded out of Recent.
 | 2 | sonnet:medium | 2 | 0 | 0 | 2 | 0 |
 | 2 | opus:medium | 77 | 61 | 7 | 7 | 2 |
 | 2 | sonnet:high | 3 | 0 | 0 | 2 | 1 |
-| 2 | opus:high | 54 | 39 | 10 | 3 | 2 |
+| 2 | opus:high | 56 | 40 | 10 | 4 | 2 |
 | 3 | opus:medium | 25 | 16 | 4 | 4 | 1 |
 | 4 | opus:high | 67 | 58 | 2 | 3 | 4 |
-| 3 | opus:high | 99 | 70 | 10 | 14 | 5 |
+| 3 | opus:high | 100 | 70 | 10 | 15 | 5 |
 | 1 | opus:high | 11 | 2 | 1 | 7 | 1 |
 | 1 | fable:high | 43 | 31 | 1 | 8 | 3 |
 | 5 | fable:high | 18 | 18 | 0 | 0 | 0 |
@@ -47,9 +47,6 @@ Last 20 PRs, oldest first. Model:effort is what actually ran, which may differ f
 
 | PR | Issue | Row | Model:effort | First review | Cause | Peer in k | Peer out k | Review k | Peer USD | Rounds | Model min | Lines +/- | Later bug |
 |---|---|---|---|---|---|---|---|---|---|---|---|---|---|
-| #935 | #751 | 2 | opus:high | FIX FIRST | checklist | 19689 | 79 | 144 | 9.90 | 2 | 14 | +26/-0 | |
-| #936 | #887 | 2 | opus:high | MERGE | | 11786 | 39 | 59 | 4.73 | 1 | 7 | +238/-3 | |
-| #937 | #753 | 4 | opus:high | MERGE | | 26086 | 71 | 126 | 18.91 | 1 | 37 | +4394/-51048 | |
 | #943 | #777 | 4 | opus:high | FIX FIRST | checklist | 20167 | 82 | 280 | 9.32 | 2 | 17 | +3349/-101 | |
 | #944 | #939 | 1 | sonnet:low | MERGE | | 1149 | 4 | 26 | 0.46 | 1 | 0 | +3/-2 | |
 | #945 | #942 | 3 | opus:high | MERGE | | 1343 | 15 | 38 | 1.09 | 1 | 2 | +6/-0 | |
@@ -67,3 +64,6 @@ Last 20 PRs, oldest first. Model:effort is what actually ran, which may differ f
 | #961 | #784 | 3 | opus:high | MERGE | | 18046 | 58 | 143 | 18.86 | 1 | 40 | +2984/-115 | |
 | #962 | #958 | 3 | opus:high | MERGE | | 22683 | 63 | 91 | 7.85 | 1 | 10 | +756/-133 | |
 | #964 | #785 | 4 | opus:high | MERGE | | 25037 | 100 | 124 | | 1 | | +3587/-73 | |
+| #968 | #774 | 2 | opus:high | MERGE | | 17452 | 46 | 75 | | 1 | | +424/-42 | |
+| #970 | #963 | 2 | opus:high | FIX FIRST | judgment | 29983 | 95 | 110 | | 3 | | +635/-99 | |
+| #969 | #786 | 3 | opus:high | FIX FIRST | judgment | 35883 | 93 | 95 | | 2 | | +1058/-221 | |
