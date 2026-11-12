@@ -151,6 +151,7 @@ class ReportSkeletonTest {
                     onIntent = { intent: ReportIntent -> intents += intent },
                     onReviewsOpen = { },
                     onLessonOpen = { },
+                    onNewsOpen = { },
                 )
             }
         }

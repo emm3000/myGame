@@ -5,7 +5,6 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.safeDrawingPadding
 import androidx.compose.foundation.rememberScrollState
@@ -25,7 +24,6 @@ import com.emm.mygame.core.designsystem.MyGameCard
 import com.emm.mygame.core.designsystem.MyGameCountdownGround
 import com.emm.mygame.core.designsystem.MyGameCountdownLine
 import com.emm.mygame.core.designsystem.MyGameErrorBanner
-import com.emm.mygame.core.designsystem.MyGameHairline
 import com.emm.mygame.core.designsystem.MyGameInlineAlert
 import com.emm.mygame.core.designsystem.MyGameMetaText
 import com.emm.mygame.core.designsystem.MyGameOutlinedButton
@@ -35,6 +33,7 @@ import com.emm.mygame.core.designsystem.MyGameSkeletonBlocks
 import com.emm.mygame.core.designsystem.MyGameSpacing
 import com.emm.mygame.core.designsystem.MyGameText
 import com.emm.mygame.core.designsystem.MyGameTextButton
+import com.emm.mygame.core.designsystem.MyGameTextLink
 import com.emm.mygame.core.designsystem.MyGameTheme
 import com.emm.mygame.core.designsystem.MyGameTypography
 import com.emm.mygame.core.designsystem.formatQuantity
@@ -50,6 +49,7 @@ fun ReportScreen(
     onIntent: (ReportIntent) -> Unit,
     onReviewsOpen: () -> Unit,
     onLessonOpen: (LessonId) -> Unit,
+    onNewsOpen: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
     Column(
@@ -77,7 +77,11 @@ fun ReportScreen(
             loadingLabel = stringResource(R.string.report_loading),
             blocks = reportBlocks,
         ) {
-            ReportState(state = state, onIntent = onIntent, onReviewsOpen = onReviewsOpen, onLessonOpen = onLessonOpen)
+            ReportState(
+                state = state,
+                onIntent = onIntent,
+                navigation = ReportScreenLinks(onReviewsOpen, onLessonOpen, onNewsOpen),
+            )
         }
         MyGameTextButton(
             label = stringResource(R.string.report_sign_out),
@@ -88,13 +92,14 @@ fun ReportScreen(
     }
 }
 
+private class ReportScreenLinks(
+    val onReviewsOpen: () -> Unit,
+    val onLessonOpen: (LessonId) -> Unit,
+    val onNewsOpen: () -> Unit,
+)
+
 @Composable
-private fun ReportState(
-    state: ReportUiState,
-    onIntent: (ReportIntent) -> Unit,
-    onReviewsOpen: () -> Unit,
-    onLessonOpen: (LessonId) -> Unit,
-) {
+private fun ReportState(state: ReportUiState, onIntent: (ReportIntent) -> Unit, navigation: ReportScreenLinks) {
     when (state) {
         ReportUiState.Loading, ReportUiState.SigningOut -> Unit
         ReportUiState.Failed -> MyGameErrorBanner(
@@ -103,8 +108,12 @@ private fun ReportState(
             onAction = { onIntent(ReportIntent.RetryTapped) },
         )
         is ReportUiState.Content -> {
-            ReviewsDueSection(content = state, onReviewsOpen = onReviewsOpen, onLessonOpen = onLessonOpen)
-            NewsSection(content = state, onIntent = onIntent)
+            ReviewsDueSection(
+                content = state,
+                onReviewsOpen = navigation.onReviewsOpen,
+                onLessonOpen = navigation.onLessonOpen,
+            )
+            NewsSection(content = state, onIntent = onIntent, onNewsOpen = navigation.onNewsOpen)
         }
     }
 }
@@ -174,6 +183,7 @@ private fun NothingDue(nextReview: Instant?, receivedAt: Instant, modifier: Modi
 private fun NewsSection(
     content: ReportUiState.Content,
     onIntent: (ReportIntent) -> Unit,
+    onNewsOpen: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
     Column(verticalArrangement = Arrangement.spacedBy(MyGameSpacing.step3), modifier = modifier) {
@@ -183,14 +193,15 @@ private fun NewsSection(
             modifier = Modifier.semantics { heading() },
         )
         when (val news: ReportUiState.ReportNews = content.news) {
-            ReportUiState.ReportNews.None -> EmptyLine(line = stringResource(R.string.report_news_none))
-            ReportUiState.ReportNews.Closed -> EmptyLine(
+            ReportUiState.ReportNews.None -> NewsNote(line = stringResource(R.string.report_news_none))
+            ReportUiState.ReportNews.Closed -> NewsNote(
                 line = stringResource(R.string.report_news_closed),
                 modifier = Modifier.semantics(mergeDescendants = true) { liveRegion = LiveRegionMode.Polite },
             )
             is ReportUiState.ReportNews.Unread ->
                 UnreadNews(unread = news, receivedAt = content.receivedAt, onIntent = onIntent)
         }
+        MyGameTextLink(label = stringResource(R.string.report_news_all), onClick = onNewsOpen)
     }
 }
 
@@ -201,14 +212,8 @@ private fun UnreadNews(
     onIntent: (ReportIntent) -> Unit,
     modifier: Modifier = Modifier,
 ) {
-    val zone: ZoneId = ZoneId.systemDefault()
     Column(verticalArrangement = Arrangement.spacedBy(MyGameSpacing.step3), modifier = modifier) {
-        Column {
-            unread.items.forEach { news: TownNews ->
-                MyGameHairline()
-                NewsItem(news = news, receivedAt = receivedAt, zone = zone)
-            }
-        }
+        Column { unread.items.forEach { news: TownNews -> NewsRow(news = news, receivedAt = receivedAt) } }
         if (unread.close == ReportUiState.CloseRequest.Unreachable) {
             MyGameInlineAlert(message = stringResource(R.string.report_refusal_unexpected))
         }
@@ -217,38 +222,6 @@ private fun UnreadNews(
             isBusy = unread.close == ReportUiState.CloseRequest.Waiting,
             busyDescription = stringResource(R.string.report_waiting),
             onClick = { onIntent(ReportIntent.CloseTapped) },
-        )
-    }
-}
-
-@Composable
-private fun NewsItem(news: TownNews, receivedAt: Instant, zone: ZoneId, modifier: Modifier = Modifier) {
-    val resources: Resources = LocalResources.current
-    Column(
-        verticalArrangement = Arrangement.spacedBy(MyGameSpacing.step1),
-        modifier = modifier.padding(vertical = MyGameSpacing.step3),
-    ) {
-        MyGameText(
-            text = resources.instantLabelOf(news.occurredAt, receivedAt, zone),
-            style = MyGameTypography.caption,
-            color = MyGameTheme.colors.inkMuted,
-        )
-        MyGameText(text = resources.newsLineOf(news), style = MyGameTypography.body, color = MyGameTheme.colors.ink)
-        resources.payLineOf(news)?.let { pay: String ->
-            MyGameText(text = pay, style = MyGameTypography.caption, color = MyGameTheme.colors.inkMuted)
-        }
-    }
-}
-
-@Composable
-private fun EmptyLine(line: String, modifier: Modifier = Modifier) {
-    Column(modifier = modifier.fillMaxWidth()) {
-        MyGameHairline()
-        MyGameText(
-            text = line,
-            style = MyGameTypography.body,
-            color = MyGameTheme.colors.ink,
-            modifier = Modifier.padding(vertical = MyGameSpacing.step3),
         )
     }
 }

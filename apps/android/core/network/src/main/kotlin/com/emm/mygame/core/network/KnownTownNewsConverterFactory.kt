@@ -13,7 +13,9 @@ import com.emm.mygame.core.network.generated.models.LessonStoppedNews
 import com.emm.mygame.core.network.generated.models.LessonStudiedNews
 import com.emm.mygame.core.network.generated.models.Report
 import com.emm.mygame.core.network.generated.models.SkillEarnedNews
+import com.emm.mygame.core.network.generated.models.TownNewsFeed
 import java.lang.reflect.Type
+import kotlinx.serialization.KSerializer
 import kotlinx.serialization.SerializationException
 import kotlinx.serialization.json.Json
 import kotlinx.serialization.json.JsonArray
@@ -30,16 +32,19 @@ internal class KnownTownNewsConverterFactory(private val json: Json) : Converter
         type: Type,
         annotations: Array<out Annotation>,
         retrofit: Retrofit,
-    ): Converter<ResponseBody, *>? =
-        if (type == Report::class.java) Converter(::decodeReport) else null
+    ): Converter<ResponseBody, *>? = when (type) {
+        Report::class.java -> Converter { body: ResponseBody -> decode(body, Report.serializer(), NEWS) }
+        TownNewsFeed::class.java -> Converter { body: ResponseBody -> decode(body, TownNewsFeed.serializer(), ITEMS) }
+        else -> null
+    }
 
-    private fun decodeReport(body: ResponseBody): Report {
-        val report: JsonObject = body.use { json.parseToJsonElement(it.string()) } as? JsonObject
-            ?: throw SerializationException("A report is a JSON object")
-        val news: JsonArray = report[NEWS] as? JsonArray
-            ?: throw SerializationException("A report lists news")
+    private fun <Body> decode(body: ResponseBody, serializer: KSerializer<Body>, listed: String): Body {
+        val answer: JsonObject = body.use { json.parseToJsonElement(it.string()) } as? JsonObject
+            ?: throw SerializationException("A body that lists news is a JSON object")
+        val news: JsonArray = answer[listed] as? JsonArray
+            ?: throw SerializationException("A body that lists news holds them in $listed")
         val knownNews: JsonArray = JsonArray(news.filterNot(::isOfUnknownKind))
-        return json.decodeFromJsonElement(Report.serializer(), JsonObject(report + (NEWS to knownNews)))
+        return json.decodeFromJsonElement(serializer, JsonObject(answer + (listed to knownNews)))
     }
 
     private fun isOfUnknownKind(item: JsonElement): Boolean {
@@ -49,6 +54,7 @@ internal class KnownTownNewsConverterFactory(private val json: Json) : Converter
 
     private companion object {
         const val NEWS: String = "news"
+        const val ITEMS: String = "items"
         const val KIND: String = "kind"
 
         val knownKinds: Set<String> = setOf(

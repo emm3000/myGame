@@ -36,6 +36,7 @@ import com.emm.mygame.core.designsystem.MyGameSpacing
 import com.emm.mygame.core.designsystem.MyGameTheme
 import com.emm.mygame.core.network.LessonId
 import com.emm.mygame.feature.map.MapRoute
+import com.emm.mygame.feature.report.NewsRoute
 import com.emm.mygame.feature.report.ReportNavigation
 import com.emm.mygame.feature.report.ReportRoute
 import com.emm.mygame.feature.review.ReviewRoute
@@ -118,6 +119,7 @@ private fun EntryProviderScope<NavKey>.signedInEntries(chrome: SignedInChrome) {
     townEntry(chrome)
     schoolEntry(chrome)
     reportEntry(chrome)
+    newsEntry(chrome)
     mapEntry(chrome)
     lessonWordsEntry(chrome)
     entry<Destination.Review> {
@@ -203,10 +205,24 @@ private fun EntryProviderScope<NavKey>.reportEntry(chrome: SignedInChrome) {
                 navigation = ReportNavigation(
                     onReviewsOpen = navigator::openReviews,
                     onLessonOpen = { lesson: LessonId -> navigator.openLesson(lesson, walked = emptyList()) },
+                    onNewsOpen = navigator::openNews,
                     onSigningOut = navigator::signingOut,
                     onSignedOut = { navigator.signedOut(isSessionEnded = false) },
                 ),
             )
+        }
+    }
+}
+
+private fun EntryProviderScope<NavKey>.newsEntry(chrome: SignedInChrome) {
+    val dependencies: AppDependencies = chrome.dependencies
+    entry<Destination.News> {
+        SignedInFrame(
+            isTownHome = false,
+            doesScreenReadTown = false,
+            chrome = chrome,
+        ) {
+            NewsRoute(reports = dependencies.reports, clock = dependencies.clock)
         }
     }
 }
@@ -299,4 +315,5 @@ private fun NavKey?.statusScreen(): TownStatusScreen = when (val destination: De
     is Destination.LessonWords -> TownStatusScreen.LessonWords(destination.lesson)
     Destination.Review -> TownStatusScreen.Reviews
     Destination.Report -> TownStatusScreen.ReadsNoTown
+    Destination.News -> TownStatusScreen.ReadsNoTown
 }

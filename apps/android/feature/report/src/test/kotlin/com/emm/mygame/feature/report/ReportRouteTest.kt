@@ -40,6 +40,7 @@ class ReportRouteTest {
                         navigation = ReportNavigation(
                             onReviewsOpen = {},
                             onLessonOpen = {},
+                            onNewsOpen = {},
                             onSigningOut = {},
                             onSignedOut = {},
                         ),

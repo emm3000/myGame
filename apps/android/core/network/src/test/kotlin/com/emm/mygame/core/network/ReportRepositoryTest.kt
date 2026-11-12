@@ -316,6 +316,58 @@ class ReportRepositoryTest {
         assertEquals(ReportCloseResult.Unreachable, repository.close())
     }
 
+    @Test
+    fun `reads the town news at its path with the bearer`() = runTest {
+        api.enqueue(json(200, feedOf()))
+
+        reports().news()
+
+        val request: RecordedRequest = api.takeRequest()
+        assertEquals("GET", request.method)
+        assertEquals("/town/news", request.url.encodedPath)
+        assertEquals("Bearer opaque-token", request.headers["Authorization"])
+    }
+
+    @Test
+    fun `reads the town news in the order the api answers`() = runTest {
+        api.enqueue(json(200, feedOf("${becameCity()},${lesson("lessonStudied")}")))
+
+        assertEquals(
+            TownNewsReadResult.Read(listOf(TownNews.BecameCity(occurredAt), TownNews.LessonStudied(occurredAt))),
+            reports().news(),
+        )
+    }
+
+    @Test
+    fun `skips a town news kind the client does not know`() = runTest {
+        val unknownKind: String = """{"kind":"festivalHeld","occurredAt":"2026-11-05T09:10:00.000Z"}"""
+        api.enqueue(json(200, feedOf("$unknownKind,${becameCity()}")))
+
+        assertEquals(TownNewsReadResult.Read(listOf(TownNews.BecameCity(occurredAt))), reports().news())
+    }
+
+    @Test
+    fun `answers unreachable for a body that is not a news feed`() = runTest {
+        api.enqueue(json(200, "[]"))
+
+        assertEquals(TownNewsReadResult.Unreachable, reports().news())
+    }
+
+    @Test
+    fun `answers unreachable when the town news fails`() = runTest {
+        api.enqueue(json(500, "{}"))
+
+        assertEquals(TownNewsReadResult.Unreachable, reports().news())
+    }
+
+    @Test
+    fun `answers unreachable when the town news cannot reach the api`() = runTest {
+        val repository: ReportRepository = reports()
+        api.close()
+
+        assertEquals(TownNewsReadResult.Unreachable, repository.news())
+    }
+
     private suspend fun TestScope.read(): TownReport = (reports().read() as ReportReadResult.Read).report
 
     private fun TestScope.reports(): ReportRepository {
@@ -338,6 +390,8 @@ class ReportRepositoryTest {
         readFirst: String = "",
         nextDueAt: String = "null",
     ): String = """{"dueCount":$dueCount,"due":[],"readFirst":[$readFirst],"nextDueAt":$nextDueAt,"news":[$news]}"""
+
+    private fun feedOf(items: String = ""): String = """{"items":[$items]}"""
 
     private fun buildingWork(kind: String, building: String): String =
         """{"kind":"$kind","params":{"building":"$building","level":2},"occurredAt":"$OCCURRED_AT"}"""
