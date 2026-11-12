@@ -66,7 +66,7 @@ class TownOfficeScreenTest {
     )
 
     private val shortOfMoney: TownUiState.HireBlock =
-        TownUiState.HireBlock.Resources(listOf(TownUiState.Shortfall(TownResourceKind.Money, 20)))
+        TownUiState.HireBlock.Resources(listOf(TownUiState.Shortfall(TownResourceKind.Money, 20)), ready = null)
 
     private val shortOfMoneyLine: String = "Necesitas 20 de dinero más."
 
@@ -126,9 +126,27 @@ class TownOfficeScreenTest {
 
     @Test
     fun `names the shortfall of the hires`() {
-        show(blocked(TownUiState.HireBlock.Resources(listOf(TownUiState.Shortfall(TownResourceKind.Money, 20)))))
+        show(blocked(shortOfMoney))
 
         assertBlockedBy("Necesitas 20 de dinero más.")
+    }
+
+    @Test
+    fun `names the minute the resources for the hires arrive`() {
+        show(blocked(shortOfMoneyUntil(TownUiState.ReadyTime(remaining = 24.minutes, readyAt = readInstant))))
+
+        composeRule.onNodeWithText("Lista en 24 min").performScrollTo().assertIsDisplayed()
+    }
+
+    @Test
+    fun `drops the ready minute once the api refused the hire`() {
+        val refused: TownUiState.HireStatus =
+            TownUiState.HireStatus.Refused(TownHireKind.Worker, TownHiringRefusal.NotEnoughResources)
+        val ready: TownUiState.ReadyTime = TownUiState.ReadyTime(remaining = 24.minutes, readyAt = readInstant)
+
+        show(blocked(shortOfMoneyUntil(ready)).copy(place = refused))
+
+        composeRule.onNodeWithText("Lista en 24 min").assertDoesNotExist()
     }
 
     @Test
@@ -255,6 +273,9 @@ class TownOfficeScreenTest {
 
         composeRule.onNodeWithText("Esta contratación ya terminó.").performScrollTo().assertIsDisplayed()
     }
+
+    private fun shortOfMoneyUntil(ready: TownUiState.ReadyTime): TownUiState.HireBlock =
+        TownUiState.HireBlock.Resources(listOf(TownUiState.Shortfall(TownResourceKind.Money, 20)), ready = ready)
 
     private fun blocked(block: TownUiState.HireBlock): TownUiState.OfficeLine =
         office.copy(hires = listOf(workers.copy(form = workerForm.copy(block = block)), lockedTrucks))

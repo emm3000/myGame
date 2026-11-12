@@ -331,7 +331,7 @@ class TownScreenTest {
 
     @Test
     fun `names one shortfall`() {
-        show(blocked(TownUiState.BlockReason.Resources(listOf(TownUiState.Shortfall(TownResourceKind.Food, 20)))))
+        show(blocked(shortOf(TownResourceKind.Food, 20)))
 
         assertBlockedBy("Necesitas 20 de comida más.")
     }
@@ -346,6 +346,7 @@ class TownScreenTest {
                         TownUiState.Shortfall(TownResourceKind.Food, 6),
                         TownUiState.Shortfall(TownResourceKind.Power, 7),
                     ),
+                    ready = null,
                 ),
             ),
         )

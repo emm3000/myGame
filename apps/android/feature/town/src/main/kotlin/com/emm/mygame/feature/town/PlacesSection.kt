@@ -17,17 +17,21 @@ import androidx.compose.ui.semantics.heading
 import androidx.compose.ui.semantics.hideFromAccessibility
 import androidx.compose.ui.semantics.liveRegion
 import androidx.compose.ui.semantics.semantics
+import androidx.compose.ui.tooling.preview.PreviewParameter
+import androidx.compose.ui.tooling.preview.PreviewParameterProvider
 import com.emm.mygame.core.designsystem.MyGameHairline
 import com.emm.mygame.core.designsystem.MyGameIcon
 import com.emm.mygame.core.designsystem.MyGameInlineAlert
 import com.emm.mygame.core.designsystem.MyGameOutlinedButton
 import com.emm.mygame.core.designsystem.MyGamePlaceArt
+import com.emm.mygame.core.designsystem.MyGamePreviewSurface
 import com.emm.mygame.core.designsystem.MyGameSizes
 import com.emm.mygame.core.designsystem.MyGameSpacing
 import com.emm.mygame.core.designsystem.MyGameText
 import com.emm.mygame.core.designsystem.MyGameTextLink
 import com.emm.mygame.core.designsystem.MyGameTheme
 import com.emm.mygame.core.designsystem.MyGameTypography
+import com.emm.mygame.core.designsystem.PreviewMyGame
 import com.emm.mygame.core.designsystem.formatQuantity
 import com.emm.mygame.core.designsystem.withTabularFigures
 import com.emm.mygame.core.network.TownBuildingKind
@@ -35,6 +39,9 @@ import com.emm.mygame.core.network.TownLabel
 import com.emm.mygame.core.network.TownResourceKind
 import com.emm.mygame.core.ui.formatIcu
 import com.emm.mygame.core.ui.icuStringResource
+import kotlin.time.Duration.Companion.hours
+import kotlin.time.Duration.Companion.minutes
+import kotlin.time.Instant
 
 @Composable
 internal fun PlacesSection(
@@ -185,6 +192,9 @@ private fun NextLevel(
                 modifier = Modifier.semantics { hideFromAccessibility() },
             )
         }
+        (block as? TownUiState.BlockReason.Resources)?.ready?.let { ready: TownUiState.ReadyTime ->
+            ReadyLine(ready = ready)
+        }
     }
 }
 
@@ -274,4 +284,38 @@ private fun joinedOf(items: List<String>, pairPattern: String, morePattern: Stri
 private fun placesTitleOf(label: TownLabel): Int = when (label) {
     TownLabel.Town -> R.string.town_places_title_town
     TownLabel.City -> R.string.town_places_title_city
+}
+
+private val previewNextLevel: TownUiState.NextLevelLine = TownUiState.NextLevelLine(
+    level = 2,
+    costs = listOf(TownUiState.CostLine(TownResourceKind.Food, amount = 120, isShort = true)),
+    duration = 3.minutes,
+    people = 2,
+)
+
+private fun shortOfFoodUntil(ready: TownUiState.ReadyTime): TownUiState.BlockReason =
+    TownUiState.BlockReason.Resources(listOf(TownUiState.Shortfall(TownResourceKind.Food, amount = 40)), ready = ready)
+
+private class ReadyLineStates : PreviewParameterProvider<TownUiState.BlockReason> {
+
+    override val values: Sequence<TownUiState.BlockReason> = sequenceOf(
+        shortOfFoodUntil(TownUiState.ReadyTime(24.minutes, Instant.parse("2026-11-12T15:24:00Z"))),
+        shortOfFoodUntil(TownUiState.ReadyTime(2.hours, Instant.parse("2026-11-12T13:00:00Z"))),
+        shortOfFoodUntil(TownUiState.ReadyTime(23.hours, Instant.parse("2026-11-13T11:00:00Z"))),
+        TownUiState.BlockReason.PeopleShort(needed = 2, free = 0),
+    )
+}
+
+@PreviewMyGame
+@Composable
+private fun NextLevelReadyPreview(@PreviewParameter(ReadyLineStates::class) block: TownUiState.BlockReason) {
+    MyGamePreviewSurface {
+        NextLevel(
+            building = TownBuildingKind.Farm,
+            next = previewNextLevel,
+            block = block,
+            isWaiting = false,
+            onIntent = {},
+        )
+    }
 }

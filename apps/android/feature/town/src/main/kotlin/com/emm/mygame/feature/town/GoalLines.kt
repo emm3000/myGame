@@ -62,7 +62,10 @@ private fun pendingLinesOf(pending: TownGoal.State.Pending): List<String> {
 }
 
 private fun List<TownSnapshot.Cost>.toShortfalls(): TownUiState.BlockReason.Resources =
-    TownUiState.BlockReason.Resources(map { cost: TownSnapshot.Cost -> TownUiState.Shortfall(cost.kind, cost.amount) })
+    TownUiState.BlockReason.Resources(
+        shortfalls = map { cost: TownSnapshot.Cost -> TownUiState.Shortfall(cost.kind, cost.amount) },
+        ready = null,
+    )
 
 private class GoalStates : PreviewParameterProvider<TownGoal> {
 

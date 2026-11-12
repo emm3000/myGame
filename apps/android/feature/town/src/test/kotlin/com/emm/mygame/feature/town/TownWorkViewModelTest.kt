@@ -81,7 +81,7 @@ class TownWorkViewModelTest {
         )
 
         assertEquals(
-            TownUiState.BlockReason.Resources(listOf(TownUiState.Shortfall(TownResourceKind.Money, 20))),
+            shortOf(TownResourceKind.Money, 20),
             placeOf(viewModel, TownBuildingKind.Farm).block,
         )
     }

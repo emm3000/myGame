@@ -110,6 +110,9 @@ internal val idleOffice: TownUiState.OfficeLine = TownUiState.OfficeLine(
     stop = TownUiState.HireStopStatus.Idle,
 )
 
+internal fun shortOf(kind: TownResourceKind, amount: Long): TownUiState.BlockReason.Resources =
+    TownUiState.BlockReason.Resources(listOf(TownUiState.Shortfall(kind, amount)), ready = null)
+
 internal val caughtUpCard: NextStepCard = townOf().nextStepCard()
 
 internal fun contentOf(viewModel: TownViewModel): TownUiState.Content = viewModel.state.value as TownUiState.Content

@@ -114,7 +114,7 @@ class TownLookTest {
             }
         }
         val shortOffer: TownUiState.PlaceCard = farmOffer.copy(
-            block = TownUiState.BlockReason.Resources(listOf(TownUiState.Shortfall(TownResourceKind.Money, 30))),
+            block = shortOf(TownResourceKind.Money, 30),
         )
         val storageOffer: TownUiState.PlaceCard = farmOffer.copy(kind = TownBuildingKind.Storage)
         val offers: TownUiState.Content = riverton.copy(places = listOf(farmOffer, storageOffer))
@@ -214,7 +214,7 @@ class TownLookTest {
     @Test
     fun `says a shortfall in words`() {
         val short: TownUiState.PlaceCard = farmOffer.copy(
-            block = TownUiState.BlockReason.Resources(listOf(TownUiState.Shortfall(TownResourceKind.Money, 30))),
+            block = shortOf(TownResourceKind.Money, 30),
         )
 
         var warningInk: Color = Color.Unspecified
