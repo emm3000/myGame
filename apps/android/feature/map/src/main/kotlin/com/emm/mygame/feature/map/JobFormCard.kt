@@ -89,7 +89,7 @@ internal fun JobFormCard(
 }
 
 @Composable
-private fun JobField(
+internal fun JobField(
     value: String,
     label: String,
     field: MapIntent.JobField,
@@ -109,7 +109,7 @@ private fun JobField(
     )
 }
 
-private fun MapUiState.SendRequest.isAnsweredFor(site: Int): Boolean = when (this) {
+internal fun MapUiState.SendRequest.isAnsweredFor(site: Int): Boolean = when (this) {
     is MapUiState.SendRequest.Refused -> this.site == site
     is MapUiState.SendRequest.Unreachable -> this.site == site
     MapUiState.SendRequest.Idle, MapUiState.SendRequest.Waiting -> false
@@ -135,7 +135,7 @@ private fun QuoteLine(quote: MapUiState.PayQuote, modifier: Modifier = Modifier)
 }
 
 @Composable
-private fun SendAnswer(site: Int, send: MapUiState.SendRequest, modifier: Modifier = Modifier) {
+internal fun SendAnswer(site: Int, send: MapUiState.SendRequest, modifier: Modifier = Modifier) {
     val message: String? = when (send) {
         is MapUiState.SendRequest.Refused -> if (send.site == site) jobRefusalLineOf(send.refusal) else null
         is MapUiState.SendRequest.Unreachable ->

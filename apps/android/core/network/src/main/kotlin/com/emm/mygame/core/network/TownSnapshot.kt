@@ -84,7 +84,7 @@ data class TownSnapshot(
     data class Job(
         val site: TownSite,
         val team: Map<TownHireKind, Int>,
-        val hours: Int,
+        val task: JobTask,
         val pay: Map<TownResourceKind, Long>,
         val phase: JobPhase,
         val sentAt: Instant,
@@ -93,6 +93,13 @@ data class TownSnapshot(
         val returnsAt: Instant,
         val calledBackAt: Instant?,
     )
+
+    sealed interface JobTask {
+
+        data class Hours(val hours: Int) : JobTask
+
+        data class CleanUp(val size: WasteSize, val waste: Int) : JobTask
+    }
 
     enum class JobPhase {
         Outbound,

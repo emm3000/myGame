@@ -45,6 +45,7 @@ class MapScreenTest {
     private val readyForm: MapUiState.JobForm = nobodyForm.copy(workers = "2", trucks = "1", hours = "3", block = null)
 
     private val outbound: MapUiState.JobOut = MapUiState.JobOut(
+        kind = MapUiState.JobKind.Job,
         site = TownSite(region = 1, area = 2, site = 4),
         workers = 2,
         trucks = 1,

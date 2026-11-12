@@ -3,11 +3,13 @@ package com.emm.mygame.core.network
 import com.emm.mygame.core.network.generated.models.ApiError
 import com.emm.mygame.core.network.generated.models.BareApiError
 import com.emm.mygame.core.network.generated.models.CleanUpJob
+import com.emm.mygame.core.network.generated.models.CleanUpQuote
 import com.emm.mygame.core.network.generated.models.Job
 import com.emm.mygame.core.network.generated.models.JobPhase
 import com.emm.mygame.core.network.generated.models.JobQuote
 import com.emm.mygame.core.network.generated.models.NotEnoughHiresAtHomeErrorParams
 import com.emm.mygame.core.network.generated.models.ResourceAmounts
+import com.emm.mygame.core.network.generated.models.SendCleanUp
 import com.emm.mygame.core.network.generated.models.SendJob
 import com.emm.mygame.core.network.generated.models.SendJobSite
 import com.emm.mygame.core.network.generated.models.Team
@@ -25,7 +27,7 @@ private fun Job.toJob(): TownSnapshot.Job? {
     return TownSnapshot.Job(
         site = site.toTownSite(),
         team = team.toHires(),
-        hours = hours,
+        task = TownSnapshot.JobTask.Hours(hours = hours),
         pay = pay.toPay(),
         phase = jobPhase,
         sentAt = sentAt.toKotlinInstant(),
@@ -38,10 +40,11 @@ private fun Job.toJob(): TownSnapshot.Job? {
 
 private fun CleanUpJob.toJob(): TownSnapshot.Job? {
     val jobPhase: TownSnapshot.JobPhase = phase.toJobPhase() ?: return null
+    val wasteSize: WasteSize = propertySize.toWasteSize() ?: return null
     return TownSnapshot.Job(
         site = site.toTownSite(),
         team = team.toHires(),
-        hours = 0,
+        task = TownSnapshot.JobTask.CleanUp(size = wasteSize, waste = waste),
         pay = pay.toPay(),
         phase = jobPhase,
         sentAt = sentAt.toKotlinInstant(),
@@ -63,11 +66,18 @@ private fun ResourceAmounts.toPay(): Map<TownResourceKind, Long> = mapOf(
 
 internal fun sendJobOf(target: JobTarget, team: Map<TownHireKind, Int>, hours: Int): SendJob = SendJob(
     site = SendJobSite(area = target.area, site = target.site),
-    team = Team(
-        worker = team.getOrDefault(TownHireKind.Worker, 0),
-        truck = team.getOrDefault(TownHireKind.Truck, 0),
-    ),
+    team = teamOf(team),
     hours = hours,
+)
+
+private fun teamOf(team: Map<TownHireKind, Int>): Team = Team(
+    worker = team.getOrDefault(TownHireKind.Worker, 0),
+    truck = team.getOrDefault(TownHireKind.Truck, 0),
+)
+
+internal fun sendCleanUpOf(target: JobTarget, team: Map<TownHireKind, Int>): SendCleanUp = SendCleanUp(
+    site = SendJobSite(area = target.area, site = target.site),
+    team = teamOf(team),
 )
 
 internal fun jobResultOf(response: Response<TownOverview>, snapshot: TownSnapshot?): TownJobResult {
@@ -87,6 +97,18 @@ internal fun quoteResultOf(response: Response<JobQuote>): JobQuoteResult {
     return JobQuoteResult.Refused(refusal.toJobRefusal())
 }
 
+internal fun cleanUpQuoteResultOf(response: Response<CleanUpQuote>): CleanUpQuoteResult {
+    val quote: CleanUpQuote? = response.body()
+    if (response.isSuccessful) {
+        return if (quote == null) CleanUpQuoteResult.Unreachable else quote.toQuoted()
+    }
+    val refusal: WireRefusal = response.wireRefusal() ?: return CleanUpQuoteResult.Unreachable
+    return CleanUpQuoteResult.Refused(refusal.toJobRefusal())
+}
+
+private fun CleanUpQuote.toQuoted(): CleanUpQuoteResult =
+    CleanUpQuoteResult.Quoted(strength = strength, waste = waste, pay = pay.toPay())
+
 private fun JobPhase.toJobPhase(): TownSnapshot.JobPhase? = when (this) {
     JobPhase.outbound -> TownSnapshot.JobPhase.Outbound
     JobPhase.working -> TownSnapshot.JobPhase.Working
@@ -100,6 +122,8 @@ private val jobRefusals: Map<BareApiError.Kind, TownJobRefusal> = mapOf(
     BareApiError.Kind.TeamAlreadyOut to TownJobRefusal.TeamAlreadyOut,
     BareApiError.Kind.JobToOwnSite to TownJobRefusal.JobToOwnSite,
     BareApiError.Kind.SiteHeld to TownJobRefusal.SiteHeld,
+    BareApiError.Kind.NotAWasteSite to TownJobRefusal.NotAWasteSite,
+    BareApiError.Kind.NoWasteYet to TownJobRefusal.NoWasteYet,
     BareApiError.Kind.JobNotFound to TownJobRefusal.JobNotFound,
     BareApiError.Kind.JobAlreadyReturning to TownJobRefusal.JobAlreadyReturning,
     BareApiError.Kind.TownNotFound to TownJobRefusal.TownNotFound,

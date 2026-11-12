@@ -34,7 +34,7 @@ internal fun JobOutCard(
             modifier = Modifier.padding(vertical = MyGameSpacing.step4),
         ) {
             MyGameText(
-                text = stringResource(R.string.map_job_out_title),
+                text = stringResource(jobOutTitleOf(jobOut.kind)),
                 style = MyGameTypography.heading,
                 color = MyGameTheme.colors.ink,
                 modifier = Modifier.semantics { heading() },
@@ -59,6 +59,9 @@ internal fun JobOutCard(
                 color = MyGameTheme.colors.inkMuted,
             )
             JobCountdown(jobOut = jobOut)
+            (jobOut.kind as? MapUiState.JobKind.CleanUp)?.let { cleanUp: MapUiState.JobKind.CleanUp ->
+                CleanUpLines(cleanUp = cleanUp)
+            }
             if (jobOut.pay.isNotEmpty()) {
                 MyGameText(
                     text = payLineOf(jobOut),
@@ -96,6 +99,26 @@ private fun JobCountdown(jobOut: MapUiState.JobOut, modifier: Modifier = Modifie
             text = finishLabelOf(jobOut.remaining, jobOut.finishesAt),
             style = MyGameTypography.heading,
             color = MyGameTheme.colors.ink,
+        )
+    }
+}
+
+@Composable
+private fun CleanUpLines(cleanUp: MapUiState.JobKind.CleanUp) {
+    MyGameText(
+        text = icuStringResource(R.string.map_waste, "waste" to cleanUp.waste.toString()),
+        style = MyGameTypography.caption,
+        color = MyGameTheme.colors.inkMuted,
+    )
+    cleanUp.outcome?.let { outcome: MapUiState.CleanUpOutcome ->
+        MyGameText(
+            text = stringResource(cleanUpOutcomeLineOf(outcome)),
+            style = MyGameTypography.body,
+            color = if (outcome == MapUiState.CleanUpOutcome.Cleaned) {
+                MyGameTheme.colors.ink
+            } else {
+                MyGameTheme.colors.warningInk
+            },
         )
     }
 }

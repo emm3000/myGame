@@ -1,7 +1,5 @@
 package com.emm.mygame.feature.map
 
-import com.emm.mygame.core.network.JobQuoteResult
-import com.emm.mygame.core.network.JobTarget
 import com.emm.mygame.core.network.RegionMap
 import com.emm.mygame.core.network.TownHireKind
 import com.emm.mygame.core.network.TownResourceKind
@@ -74,27 +72,6 @@ private fun wholeCountFrom(least: Int, entry: String): Int? {
     return entry.toIntOrNull()?.takeIf { count: Int -> count >= least }
 }
 
-internal data class QuoteAsk(
-    val target: JobTarget,
-    val team: Map<TownHireKind, Int>,
-    val hours: Int,
-    val seasonEndsAt: Instant?,
-)
-
-internal fun quoteAskOf(map: RegionMap, town: TownSnapshot, choices: MapChoices): QuoteAsk? {
-    val site: Int = choices.chosen ?: return null
-    val team: Map<TownHireKind, Int> = choices.entries.team() ?: return null
-    if (team.values.sum() == 0) return null
-    val hours: Int = choices.entries.hoursCount() ?: return null
-    return QuoteAsk(JobTarget(map.area, site), team, hours, town.seasonEndsAt)
-}
-
-internal fun payQuoteOf(result: JobQuoteResult): MapUiState.PayQuote = when (result) {
-    is JobQuoteResult.Quoted -> MapUiState.PayQuote.Quoted(payLinesOf(result.pay))
-    is JobQuoteResult.Refused -> MapUiState.PayQuote.Refused(result.refusal)
-    JobQuoteResult.Unreachable -> MapUiState.PayQuote.Unreachable
-}
-
 internal fun TownSnapshot.readInstants(): List<Instant> = listOfNotNull(job?.nextInstant(), seasonEndsAt)
 
 internal fun TownSnapshot.readInstantsAfter(now: Instant): List<Instant> =
@@ -112,22 +89,43 @@ internal fun mapContentOf(
     now: Instant,
     gap: Duration,
     choices: MapChoices,
-    quote: MapUiState.PayQuote?,
+    quote: QuoteAnswer?,
 ): MapUiState.Content = MapUiState.Content(
     areaLine = MapUiState.AreaLine(area = map.area, terrain = map.terrain),
     previousArea = (map.area - 1).takeIf { area: Int -> area >= 1 },
     nextArea = (map.area + 1).takeIf { area: Int -> area <= map.lastArea },
     sites = map.sites.map(::siteRowOf),
-    form = choices.chosen?.let { site: Int -> town.jobFormOf(site, choices.entries, quote) },
+    form = choices.chosen?.let { site: Int -> town.siteFormOf(map, site, choices.entries, quote) },
     send = choices.send,
     jobOut = town.job?.jobOutAt(now, gap),
     callBack = choices.callBack,
 )
 
 private fun siteRowOf(site: RegionMap.Site): MapUiState.SiteRow {
-    val town: RegionMap.SiteTown = site.town ?: return MapUiState.SiteRow.Free(site.site)
+    val town: RegionMap.SiteTown = site.town ?: return freeSiteRowOf(site.site, site.waste)
     if (town.isOwn) return MapUiState.SiteRow.Own(site.site, town.name)
     return MapUiState.SiteRow.Town(site.site, town.name)
+}
+
+private fun freeSiteRowOf(site: Int, waste: RegionMap.SiteWaste?): MapUiState.SiteRow =
+    if (waste == null) MapUiState.SiteRow.Free(site) else MapUiState.SiteRow.Waste(site, waste.size, waste.waste)
+
+private fun TownSnapshot.siteFormOf(
+    map: RegionMap,
+    site: Int,
+    entries: JobEntries,
+    quote: QuoteAnswer?,
+): MapUiState.SiteForm {
+    if (!map.isWasteSite(site)) return jobFormOf(site, entries, (quote as? QuoteAnswer.Job)?.quote)
+    return MapUiState.CleanUpForm(
+        site = site,
+        workers = entries.workers,
+        trucks = entries.trucks,
+        workersAtHome = hiring.hires.getValue(TownHireKind.Worker),
+        trucksAtHome = hiring.hires.getValue(TownHireKind.Truck),
+        block = entries.teamBlock(),
+        quote = (quote as? QuoteAnswer.CleanUp)?.quote,
+    )
 }
 
 private fun TownSnapshot.jobFormOf(
@@ -146,15 +144,21 @@ private fun TownSnapshot.jobFormOf(
 )
 
 private fun JobEntries.jobBlock(): MapUiState.JobBlock? {
+    teamBlock()?.let { block: MapUiState.JobBlock -> return block }
+    if (hoursCount() == null) return MapUiState.JobBlock.HoursNeeded
+    return null
+}
+
+private fun JobEntries.teamBlock(): MapUiState.JobBlock? {
     val team: Map<TownHireKind, Int> = team() ?: return MapUiState.JobBlock.CountNeeded
     if (team.values.sum() == 0) return MapUiState.JobBlock.InvalidTeam
-    if (hoursCount() == null) return MapUiState.JobBlock.HoursNeeded
     return null
 }
 
 private fun TownSnapshot.Job.jobOutAt(now: Instant, gap: Duration): MapUiState.JobOut {
     val next: Instant = nextInstant()
     return MapUiState.JobOut(
+        kind = kindOf(),
         site = site,
         workers = team.getValue(TownHireKind.Worker),
         trucks = team.getValue(TownHireKind.Truck),
@@ -166,7 +170,20 @@ private fun TownSnapshot.Job.jobOutAt(now: Instant, gap: Duration): MapUiState.J
     )
 }
 
-private fun payLinesOf(pay: Map<TownResourceKind, Long>): List<MapUiState.PayLine> =
+private fun TownSnapshot.Job.kindOf(): MapUiState.JobKind = when (val held: TownSnapshot.JobTask = task) {
+    is TownSnapshot.JobTask.Hours -> MapUiState.JobKind.Job
+    is TownSnapshot.JobTask.CleanUp -> MapUiState.JobKind.CleanUp(waste = held.waste, outcome = cleanUpOutcome())
+}
+
+private fun TownSnapshot.Job.cleanUpOutcome(): MapUiState.CleanUpOutcome? {
+    val isPaid: Boolean = pay.values.any { amount: Long -> amount > 0 }
+    if (phase == TownSnapshot.JobPhase.Returning) {
+        return if (isPaid) MapUiState.CleanUpOutcome.Cleaned else MapUiState.CleanUpOutcome.NotCleaned
+    }
+    return if (isPaid) null else MapUiState.CleanUpOutcome.Short
+}
+
+internal fun payLinesOf(pay: Map<TownResourceKind, Long>): List<MapUiState.PayLine> =
     TownResourceKind.entries.mapNotNull { resource: TownResourceKind ->
         pay.getValue(resource).takeIf { amount: Long -> amount > 0 }?.let { amount: Long ->
             MapUiState.PayLine(resource, amount)

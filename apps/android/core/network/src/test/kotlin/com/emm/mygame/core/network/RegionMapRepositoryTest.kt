@@ -67,14 +67,47 @@ class RegionMapRepositoryTest {
                     lastArea = 40,
                     terrain = Terrain.River,
                     sites = listOf(
-                        RegionMap.Site(site = 1, town = null),
-                        RegionMap.Site(site = 2, town = RegionMap.SiteTown(name = "Riverton", isOwn = true)),
-                        RegionMap.Site(site = 3, town = RegionMap.SiteTown(name = "Oakdale", isOwn = false)),
+                        RegionMap.Site(site = 1, town = null, waste = null),
+                        RegionMap.Site(
+                            site = 2,
+                            town = RegionMap.SiteTown(name = "Riverton", isOwn = true),
+                            waste = null,
+                        ),
+                        RegionMap.Site(
+                            site = 3,
+                            town = RegionMap.SiteTown(name = "Oakdale", isOwn = false),
+                            waste = null,
+                        ),
                     ),
                 ),
             ),
             town().readMap(area = 2),
         )
+    }
+
+    @Test
+    fun `reads the size and the waste of each waste site`() = runTest {
+        val sizes: Map<String, WasteSize> =
+            mapOf("1" to WasteSize.Small, "2" to WasteSize.Medium, "3" to WasteSize.Large)
+        val towns: TownRepository = town()
+
+        sizes.forEach { (wire: String, size: WasteSize) ->
+            val wasteSite: String = """{"site":1,"town":null,"waste":{"size":$wire,"waste":12}}"""
+            api.enqueue(json(200, MAP.replace(WASTE_FREE_SITE, wasteSite)))
+
+            assertEquals(
+                RegionMap.SiteWaste(size = size, waste = 12),
+                (towns.readMap(area = null) as RegionMapResult.Read).map.sites.first().waste,
+            )
+        }
+    }
+
+    @Test
+    fun `answers unreachable for a waste size the client does not know`() = runTest {
+        val wasteSite: String = """{"site":1,"town":null,"waste":{"size":4,"waste":12}}"""
+        api.enqueue(json(200, MAP.replace(WASTE_FREE_SITE, wasteSite)))
+
+        assertEquals(RegionMapResult.Unreachable, town().readMap(area = null))
     }
 
     @Test
@@ -159,9 +192,10 @@ class RegionMapRepositoryTest {
         MockResponse.Builder().code(code).addHeader("Content-Type", "application/json").body(body).build()
 
     private companion object {
+        const val WASTE_FREE_SITE: String = """{"site":1,"town":null,"waste":null}"""
         const val MAP: String =
             """{"region":1,"area":2,"lastArea":40,"terrain":"river","sites":[""" +
-                """{"site":1,"town":null,"waste":null},""" +
+                "$WASTE_FREE_SITE," +
                 """{"site":2,"town":{"name":"Riverton","isOwn":true},"waste":null},""" +
                 """{"site":3,"town":{"name":"Oakdale","isOwn":false},"waste":null}]}"""
         const val STOCK: String = """{"amount":120,"ratePerHour":30.5,"capacity":1000}"""

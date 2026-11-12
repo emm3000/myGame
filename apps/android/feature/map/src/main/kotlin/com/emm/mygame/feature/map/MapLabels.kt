@@ -11,6 +11,7 @@ import com.emm.mygame.core.network.TownHireKind
 import com.emm.mygame.core.network.TownJobRefusal
 import com.emm.mygame.core.network.TownResourceKind
 import com.emm.mygame.core.network.TownSnapshot
+import com.emm.mygame.core.network.WasteSize
 import com.emm.mygame.core.projection.FinishClock
 import com.emm.mygame.core.projection.finishClockOf
 import com.emm.mygame.core.ui.getIcuString
@@ -43,6 +44,8 @@ internal fun terrainNameOf(terrain: Terrain): Int = when (terrain) {
     Terrain.Hills -> R.string.map_terrain_hills
 }
 
+internal fun sizeNumberOf(size: WasteSize): Int = size.ordinal + 1
+
 internal fun phaseWordsOf(phase: TownSnapshot.JobPhase): Int = when (phase) {
     TownSnapshot.JobPhase.Outbound -> R.string.map_job_out_outbound
     TownSnapshot.JobPhase.Working -> R.string.map_job_out_working
@@ -73,6 +76,23 @@ internal fun quotedPayLineOf(quote: MapUiState.PayQuote.Quoted): String {
     return resources.getIcuString(R.string.map_job_pay, "amounts" to resources.amountsOf(quote.pay))
 }
 
+@Composable
+internal fun quotedCleanUpPayLineOf(quote: MapUiState.CleanUpQuote.Quoted): String {
+    val resources: Resources = LocalResources.current
+    return resources.getIcuString(R.string.map_clean_up_pay, "amounts" to resources.amountsOf(quote.pay))
+}
+
+internal fun cleanUpOutcomeLineOf(outcome: MapUiState.CleanUpOutcome): Int = when (outcome) {
+    MapUiState.CleanUpOutcome.Short -> R.string.map_clean_up_short
+    MapUiState.CleanUpOutcome.Cleaned -> R.string.map_clean_up_out_done
+    MapUiState.CleanUpOutcome.NotCleaned -> R.string.map_clean_up_out_failed
+}
+
+internal fun jobOutTitleOf(kind: MapUiState.JobKind): Int = when (kind) {
+    MapUiState.JobKind.Job -> R.string.map_job_out_title
+    is MapUiState.JobKind.CleanUp -> R.string.map_clean_up_out_title
+}
+
 private fun Resources.amountsOf(pay: List<MapUiState.PayLine>): String {
     val amounts: List<String> = pay.map { line: MapUiState.PayLine ->
         getIcuString(
@@ -100,6 +120,8 @@ internal fun jobRefusalLineOf(refusal: TownJobRefusal): String = when (refusal) 
     TownJobRefusal.TeamAlreadyOut -> stringResource(R.string.map_refusal_team_already_out)
     TownJobRefusal.JobToOwnSite -> stringResource(R.string.map_refusal_job_to_own_site)
     TownJobRefusal.SiteHeld -> stringResource(R.string.map_refusal_site_held)
+    TownJobRefusal.NotAWasteSite -> stringResource(R.string.map_refusal_not_a_waste_site)
+    TownJobRefusal.NoWasteYet -> stringResource(R.string.map_refusal_no_waste_yet)
     is TownJobRefusal.NotEnoughHiresAtHome -> notEnoughHiresLineOf(refusal.hire, refusal.count, refusal.atHome)
     TownJobRefusal.JobNotFound -> stringResource(R.string.map_refusal_job_not_found)
     TownJobRefusal.JobAlreadyReturning -> stringResource(R.string.map_refusal_job_already_returning)

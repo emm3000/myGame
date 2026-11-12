@@ -1,5 +1,6 @@
 package com.emm.mygame.core.testing
 
+import com.emm.mygame.core.network.CleanUpQuoteResult
 import com.emm.mygame.core.network.JobQuoteResult
 import com.emm.mygame.core.network.JobTarget
 import com.emm.mygame.core.network.RegionMapResult
@@ -17,6 +18,13 @@ class FakeRegionRepository(private val onAnswered: (TownJobResult.Answered) -> U
     private val jobAnswers: Channel<TownJobResult> = Channel(Channel.UNLIMITED)
 
     private val quoteAnswers: MutableMap<JobRequest, CompletableDeferred<JobQuoteResult>> = mutableMapOf()
+
+    private val cleanUpQuoteAnswers: MutableMap<CleanUpRequest, CompletableDeferred<CleanUpQuoteResult>> =
+        mutableMapOf()
+
+    private val _cleanUpSends: MutableList<CleanUpRequest> = mutableListOf()
+
+    private val _cleanUpQuotes: MutableList<CleanUpRequest> = mutableListOf()
 
     private val _mapReads: MutableList<Int?> = mutableListOf()
 
@@ -38,6 +46,12 @@ class FakeRegionRepository(private val onAnswered: (TownJobResult.Answered) -> U
     val callBacks: List<Instant>
         get() = _callBacks.toList()
 
+    val cleanUpSends: List<CleanUpRequest>
+        get() = _cleanUpSends.toList()
+
+    val cleanUpQuotes: List<CleanUpRequest>
+        get() = _cleanUpQuotes.toList()
+
     fun answerMap(result: RegionMapResult) {
         mapAnswers.trySend(result)
     }
@@ -48,6 +62,10 @@ class FakeRegionRepository(private val onAnswered: (TownJobResult.Answered) -> U
 
     fun answerQuote(request: JobRequest, result: JobQuoteResult) {
         quoteAnswerFor(request).complete(result)
+    }
+
+    fun answerCleanUpQuote(request: CleanUpRequest, result: CleanUpQuoteResult) {
+        cleanUpQuoteAnswerFor(request).complete(result)
     }
 
     override suspend fun readMap(area: Int?): RegionMapResult {
@@ -67,6 +85,18 @@ class FakeRegionRepository(private val onAnswered: (TownJobResult.Answered) -> U
         return answer.await().also { quoteAnswers.remove(request, answer) }
     }
 
+    override suspend fun sendCleanUp(target: JobTarget, team: Map<TownHireKind, Int>): TownJobResult {
+        _cleanUpSends += CleanUpRequest(target, team)
+        return answeredJob()
+    }
+
+    override suspend fun quoteCleanUp(target: JobTarget, team: Map<TownHireKind, Int>): CleanUpQuoteResult {
+        val request: CleanUpRequest = CleanUpRequest(target, team)
+        _cleanUpQuotes += request
+        val answer: CompletableDeferred<CleanUpQuoteResult> = cleanUpQuoteAnswerFor(request)
+        return answer.await().also { cleanUpQuoteAnswers.remove(request, answer) }
+    }
+
     override suspend fun callJobBack(sentAt: Instant): TownJobResult {
         _callBacks += sentAt
         return answeredJob()
@@ -78,6 +108,11 @@ class FakeRegionRepository(private val onAnswered: (TownJobResult.Answered) -> U
 
     private fun quoteAnswerFor(request: JobRequest): CompletableDeferred<JobQuoteResult> =
         quoteAnswers.getOrPut(request) { CompletableDeferred() }
+
+    private fun cleanUpQuoteAnswerFor(request: CleanUpRequest): CompletableDeferred<CleanUpQuoteResult> =
+        cleanUpQuoteAnswers.getOrPut(request) { CompletableDeferred() }
+
+    data class CleanUpRequest(val target: JobTarget, val team: Map<TownHireKind, Int>)
 
     data class JobRequest(val target: JobTarget, val team: Map<TownHireKind, Int>, val hours: Int)
 }
