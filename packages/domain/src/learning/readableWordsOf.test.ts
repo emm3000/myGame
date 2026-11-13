@@ -18,6 +18,7 @@ const lesson: Lesson = {
     id: lemma,
     acceptedForms: [lemma],
     gloss: `gloss of ${lemma}`,
+    definition: `definition of gloss of ${lemma}`,
     frames: [{ frame: `A frame of ${lemma}.`, gappedFrame: 'A frame of ____.' }],
   })),
 }

@@ -32,10 +32,14 @@ const lessonWordOf = (lessonId: LessonId, entry: LexiconEntry): LessonWord => {
   if (entry.gloss.es === undefined) {
     throw new Error(`Word ${entry.id} of lesson ${lessonId} has no es gloss`)
   }
+  if (entry.definition === undefined) {
+    throw new Error(`Word ${entry.id} of lesson ${lessonId} has no definition`)
+  }
   return {
     id: entry.id,
     acceptedForms: [entry.lemma, ...(entry.acceptedForms ?? [])],
     gloss: entry.gloss.es,
+    definition: entry.definition,
     frames: entry.frames,
   }
 }
@@ -99,31 +103,27 @@ const bandWordsOf = ({
   return bands
 }
 
-const placementWordsOf = ({
-  curriculum,
-  grammar,
-  lessons,
-  lexicon,
-  ranks,
-}: LessonContentFiles): ReadonlyMap<Band, ReadonlyArray<PlacementWord>> => {
-  const chromeWordIds = new Set(
-    lessons
-      .slice(0, curriculum.chromeLessonCount)
-      .flatMap(({ words }) => words.map(({ id }) => id)),
-  )
+const placementWordsOf = (
+  { grammar, lexicon, ranks }: LessonContentFiles,
+  chromeLessons: ReadonlyArray<ShelvedLesson>,
+): ReadonlyMap<Band, ReadonlyArray<PlacementWord>> => {
+  const chromeWordIds = new Set(chromeLessons.flatMap(({ words }) => words.map(({ id }) => id)))
   const frameWords = frameWordsOf(grammar)
   const bands = new Map<Band, ReadonlyArray<PlacementWord>>()
-  for (const entry of lexicon) {
-    const headword = headwordOf(entry.lemma)
+  for (const { id, lemma, gloss, definition } of lexicon) {
+    const headword = headwordOf(lemma)
     const rank = ranks.get(headword)
-    if (rank !== undefined && entry.gloss.es !== undefined && !frameWords.has(headword)) {
+    const es = gloss.es
+    const isPlaceable = es !== undefined && definition !== undefined && !frameWords.has(headword)
+    if (rank !== undefined && isPlaceable) {
       const band = bandOfRank(rank)
       const word = {
-        id: entry.id,
+        id,
         headword,
-        word: entry.lemma,
-        gloss: entry.gloss.es,
-        isChrome: chromeWordIds.has(entry.id),
+        word: lemma,
+        gloss: es,
+        definition,
+        isChrome: chromeWordIds.has(id),
       }
       bands.set(band, [...(bands.get(band) ?? []), word])
     }
@@ -138,16 +138,22 @@ export class JsonLessonCatalog implements LessonLibrary {
     private readonly lessonBands: ReadonlyMap<LessonId, Band>,
     private readonly bandWords: ReadonlyMap<Band, ReadonlyArray<BandWord>>,
     private readonly placementWords: ReadonlyMap<Band, ReadonlyArray<PlacementWord>>,
+    private readonly chromeShelf: ReadonlyArray<ShelvedLesson>,
   ) {}
 
   static fromDirectory(directory: string): JsonLessonCatalog {
     const files = lessonContentFilesOf(directory)
+    const shelved = files.lessons.map((lesson, index) =>
+      shelvedLessonOf(lesson, index + 1, files.curriculum),
+    )
+    const chromeShelf = shelved.slice(0, files.curriculum.chromeLessonCount)
     return new JsonLessonCatalog(
-      files.lessons.map((lesson, index) => shelvedLessonOf(lesson, index + 1, files.curriculum)),
+      shelved,
       new Set(files.ranks.keys()),
       lessonBandsOf(files),
       bandWordsOf(files),
-      placementWordsOf(files),
+      placementWordsOf(files, chromeShelf),
+      chromeShelf,
     )
   }
 
@@ -181,5 +187,9 @@ export class JsonLessonCatalog implements LessonLibrary {
 
   lessons(): ReadonlyArray<ShelvedLesson> {
     return this.shelved
+  }
+
+  chromeLessons(): ReadonlyArray<ShelvedLesson> {
+    return this.chromeShelf
   }
 }

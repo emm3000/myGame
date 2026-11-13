@@ -10,8 +10,8 @@ import {
   type PlayerId,
   type Result,
   readFirstOf,
-  recognitionChoicesOf,
-  reviewFormatOf,
+  reviewPromptOf,
+  type Scaffold,
   type ShownReview,
   showDueReviews,
   stageOf,
@@ -29,21 +29,14 @@ export type ReviewTerms = {
 const dueReviewOf = (
   { lesson, word, due, shownFrame }: ShownReview,
   cards: ReadonlyArray<HeldCard>,
+  scaffold: Scaffold,
 ): DueReview => {
   const asked = { wordId: word.id, lessonId: lesson.id, dueAt: isoOf(due.dueAt) }
-  if (reviewFormatOf(due.card) === 'recall') {
-    return { ...asked, mode: 'recall', gloss: word.gloss, gappedFrame: shownFrame }
+  const prompt = reviewPromptOf({ lesson, word, card: due.card, shownFrame }, cards, scaffold)
+  if (prompt.mode === 'recall') {
+    return { ...asked, ...prompt }
   }
-  return {
-    ...asked,
-    mode: 'recognition',
-    word: word.acceptedForms[0],
-    frame: shownFrame,
-    choices: recognitionChoicesOf(word.id, lesson, due.card, cards).flatMap(
-      ({ choiceId, wordId }) =>
-        lesson.words.filter(({ id }) => id === wordId).map(({ gloss }) => ({ choiceId, gloss })),
-    ),
-  }
+  return { ...asked, ...prompt, choices: [...prompt.choices] }
 }
 
 export const nextDueAtOf = (
@@ -67,7 +60,7 @@ export const nextDueAtOf = (
 
 export const reviewsOf = async (
   playerId: PlayerId,
-  stores: Pick<TownStores, 'cards' | 'placements' | 'pendingReviews'>,
+  stores: Pick<TownStores, 'accounts' | 'cards' | 'placements' | 'pendingReviews'>,
   clock: Clock,
   { lessons, memoryTerms }: ReviewTerms,
 ): Promise<Result<Reviews, DomainError>> => {
@@ -75,7 +68,7 @@ export const reviewsOf = async (
   if (!learner.ok) {
     return learner
   }
-  const { cards, placedOutBands } = learner.value
+  const { cards, placedOutBands, scaffold } = learner.value
   const shown = await showDueReviews(
     { playerId, cards, stage: stageOf(lessons.lessons(), cards, placedOutBands, lessons) },
     { pendingReviews: stores.pendingReviews, lessons, clock, terms: memoryTerms },
@@ -89,7 +82,7 @@ export const reviewsOf = async (
     return nextDueAt
   }
   return ok({
-    due: shown.value.map((review) => dueReviewOf(review, cards)),
+    due: shown.value.map((review) => dueReviewOf(review, cards, scaffold)),
     readFirst: [
       ...readFirstOf(
         lessons.lessons(),

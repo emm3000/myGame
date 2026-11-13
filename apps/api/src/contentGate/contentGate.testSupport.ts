@@ -40,11 +40,18 @@ export const entryOf = (
 })
 
 export const lessonOneLexicon: ReadonlyArray<LexiconEntry> = [
-  entryOf('lesson-1-1', 'home', 'This is my home.'),
-  entryOf('lesson-1-2', 'school', 'We are at school.'),
-  entryOf('lesson-1-3', 'work', 'They work for us.', { partOfSpeech: 'verb' }),
-  entryOf('lesson-1-4', 'money', 'I do not have much money.'),
-  entryOf('lesson-1-5', 'food', 'We have food for you.'),
+  entryOf('lesson-1-1', 'home', 'This is my home.', { definition: 'we have food at this' }),
+  entryOf('lesson-1-2', 'school', 'We are at school.', {
+    definition: 'they work at this for money',
+  }),
+  entryOf('lesson-1-3', 'work', 'They work for us.', {
+    partOfSpeech: 'verb',
+    definition: 'you do this for money',
+  }),
+  entryOf('lesson-1-4', 'money', 'I do not have much money.', {
+    definition: 'you have this for food',
+  }),
+  entryOf('lesson-1-5', 'food', 'We have food for you.', { definition: 'we have this at home' }),
 ]
 
 type GrammarStructure = GrammarContent['structures'][number]

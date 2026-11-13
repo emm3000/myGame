@@ -50,6 +50,7 @@ const lessonOf = (number: number, wordCount: number): TownOverview['lessons'][nu
     wordId: `word-${number}-${index}`,
     standing: 'notStarted',
     reading: null,
+    support: { shown: 'beside', text: 'gloss', language: 'es' },
   })),
 })
 

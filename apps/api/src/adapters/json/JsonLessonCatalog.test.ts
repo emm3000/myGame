@@ -5,6 +5,7 @@ import { join } from 'node:path'
 import { fileURLToPath } from 'node:url'
 import { afterEach, describe, expect, it } from 'vitest'
 import { JsonLessonCatalog } from './JsonLessonCatalog'
+import { shippedCurriculum } from './shippedCurriculum.testSupport'
 
 const shippedContent = fileURLToPath(new URL('../../../content/', import.meta.url))
 
@@ -198,6 +199,7 @@ describe('JsonLessonCatalog', () => {
       headword: 'home',
       word: 'home',
       gloss: 'hogar',
+      definition: 'the place where you live',
       isChrome: true,
     })
   })
@@ -475,6 +477,34 @@ describe('JsonLessonCatalog', () => {
 
     expect(() => JsonLessonCatalog.fromDirectory(directory)).toThrow(
       'Word lesson-1-1 of lesson lesson-1 has no es gloss',
+    )
+  })
+
+  it('fails start-up on a taught word without its definition', () => {
+    const directory = contentCopy()
+    const [home, ...others] = readJson(directory, 'words.json') as unknown as Array<object>
+    const { definition: _, ...withoutDefinition } = home as { readonly definition: string }
+    writeJson(directory, 'words.json', [withoutDefinition, ...others])
+
+    expect(() => JsonLessonCatalog.fromDirectory(directory)).toThrow(
+      'Word lesson-1-1 of lesson lesson-1 has no definition',
+    )
+  })
+
+  it("carries each word's definition from the lexicon", () => {
+    const lesson = JsonLessonCatalog.fromDirectory(shippedContent).lessonOf('lesson-1')
+
+    expect(lesson?.words[0]?.definition).toBe('the place where you live')
+  })
+
+  it('lists as chrome lessons the first lessons the curriculum counts as chrome', () => {
+    const catalog = JsonLessonCatalog.fromDirectory(shippedContent)
+
+    expect(catalog.chromeLessons().map(({ id }) => id)).toEqual(
+      catalog
+        .lessons()
+        .slice(0, shippedCurriculum.chromeLessonCount)
+        .map(({ id }) => id),
     )
   })
 

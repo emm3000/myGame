@@ -1,5 +1,6 @@
 import type { DomainError } from '../DomainError'
 import type { Band } from '../learning/BandStart'
+import type { Scaffold } from '../learning/Scaffold'
 import type { PlayerId } from '../player/PlayerId'
 import type { BandStartRepository } from '../ports/BandStartRepository'
 import type { CardRepository } from '../ports/CardRepository'
@@ -17,6 +18,7 @@ export type BeginHoldoutCheckCommand = {
   readonly playerId: PlayerId
   readonly band: Band
   readonly week: HoldoutCheckWeek
+  readonly scaffold: Scaffold
 }
 
 export type BeginHoldoutCheckDependencies = HoldoutCheckContent & {
@@ -27,7 +29,7 @@ export type BeginHoldoutCheckDependencies = HoldoutCheckContent & {
 }
 
 export const beginHoldoutCheck = async (
-  { playerId, band, week }: BeginHoldoutCheckCommand,
+  { playerId, band, week, scaffold }: BeginHoldoutCheckCommand,
   dependencies: BeginHoldoutCheckDependencies,
 ): Promise<Result<HoldoutCheckView, DomainError>> => {
   const { bandStarts, cards, random, clock } = dependencies
@@ -39,7 +41,7 @@ export const beginHoldoutCheck = async (
   const start = due.value
   const stored = checkOfWeek(start, week)
   if (stored?.kind === 'begun') {
-    return ok(askingViewOf(band, stored, dependencies.words))
+    return ok(askingViewOf(band, stored, dependencies.words, scaffold))
   }
   const held = await cards.cardsOf(playerId)
   if (!held.ok) {
@@ -55,5 +57,5 @@ export const beginHoldoutCheck = async (
   if (!saved.ok) {
     return saved
   }
-  return ok(askingViewOf(band, begun, dependencies.words))
+  return ok(askingViewOf(band, begun, dependencies.words, scaffold))
 }

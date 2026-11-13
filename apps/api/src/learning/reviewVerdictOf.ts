@@ -3,6 +3,7 @@ import {
   type DomainError,
   deriveResourceRates,
   dueInstantOf,
+  glossOf,
   type MemoryTerms,
   ok,
   type Result,
@@ -69,7 +70,7 @@ export const reviewVerdictOf = (
   catalog: TownCatalog,
   terms: MemoryTerms,
 ): Result<ReviewVerdict, DomainError> => {
-  const { answered, word } = outcome
+  const { answered, word, scaffold } = outcome
   if (answered.kind === 'nearMiss') {
     return ok({ kind: 'nearMiss' })
   }
@@ -77,7 +78,11 @@ export const reviewVerdictOf = (
   if (!dueAt.ok) {
     return dueAt
   }
-  const shown = { word: word.acceptedForms[0], gloss: word.gloss, dueAt: isoOf(dueAt.value) }
+  const shown = {
+    word: word.acceptedForms[0],
+    gloss: glossOf(word, scaffold),
+    dueAt: isoOf(dueAt.value),
+  }
   if (answered.rating === 'again') {
     return ok({ ...shown, kind: 'wrong' })
   }

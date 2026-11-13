@@ -14,6 +14,7 @@ const wordOf = (id: string): LessonWord => ({
   id,
   acceptedForms: [id],
   gloss: id,
+  definition: `definition of ${id}`,
   frames: [{ frame: `The ${id} is new.`, gappedFrame: 'The ____ is new.' }],
 })
 

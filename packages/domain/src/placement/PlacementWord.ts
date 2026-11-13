@@ -6,5 +6,6 @@ export type PlacementWord = {
   readonly headword: Headword
   readonly word: string
   readonly gloss: string
+  readonly definition: string
   readonly isChrome: boolean
 }

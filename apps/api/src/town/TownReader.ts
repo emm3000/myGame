@@ -7,6 +7,7 @@ import type {
   PlacementScore,
   PlayerId,
   Result,
+  Scaffold,
   TipKind,
   Town,
   TownRepository,
@@ -20,6 +21,7 @@ export type TownWithSchool = {
   readonly placementScores: ReadonlyArray<PlacementScore>
   readonly guidanceDismissedAt: Instant | undefined
   readonly seenTips: ReadonlyArray<TipKind>
+  readonly scaffold: Scaffold
 }
 
 export interface TownReader extends Omit<TownRepository, 'save'> {

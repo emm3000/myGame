@@ -1,5 +1,4 @@
-import type { Scaffold } from '@mygame/contracts'
-import type { Instant, PlayerId } from '@mygame/domain'
+import type { Instant, PlayerId, Scaffold } from '@mygame/domain'
 
 export type NewPlayer = {
   readonly id: PlayerId
@@ -35,7 +34,7 @@ export interface Accounts {
   lockPlayer(playerId: PlayerId): Promise<void>
   markEmailVerified(playerId: PlayerId, now: Instant): Promise<void>
   storePasswordHash(playerId: PlayerId, passwordHash: string): Promise<void>
-  storeScaffold(playerId: PlayerId, scaffold: Scaffold): Promise<StoredPlayer | undefined>
+  storeScaffold(playerId: PlayerId, scaffold: Scaffold): Promise<StoredPlayer>
   openSession(session: Session): Promise<void>
   renewSession(token: string, now: Instant, expiresAt: Instant): Promise<PlayerId | undefined>
   closeSession(token: string): Promise<void>

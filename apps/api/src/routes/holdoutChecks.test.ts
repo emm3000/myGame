@@ -280,6 +280,38 @@ describe('the holdout check routes', () => {
     expect(asking.items).toHaveLength(5)
   })
 
+  const definitionOf = (wordId: string): string =>
+    server.lessons.placementWordsOf(1).find(({ id }) => id === wordId)?.definition ?? ''
+
+  it('asks a check under none with the definitions as the choices', async () => {
+    const studying = await studiedBandOne()
+    expect((await send(studying, 'PUT', '/player/scaffold', { scaffold: 'none' })).status).toBe(200)
+
+    const { items } = await begunAt(8)
+
+    expect(
+      items.every(({ wordId, choices }) =>
+        choices.some(({ gloss }) => gloss === definitionOf(wordId)),
+      ),
+    ).toBe(true)
+  })
+
+  it('reads a check begun under es with the definitions as the choices once under none', async () => {
+    await studiedBandOne()
+    await begunAt(8)
+    const player = await signedInAt(8)
+    expect((await send(player, 'PUT', '/player/scaffold', { scaffold: 'none' })).status).toBe(200)
+
+    const [asking] = await checksOf(await send(player, 'GET', '/holdout-checks'))
+
+    assert(asking?.kind === 'asking')
+    expect(
+      asking.items.every(({ wordId, choices }) =>
+        choices.some(({ gloss }) => gloss === definitionOf(wordId)),
+      ),
+    ).toBe(true)
+  })
+
   it('stores the scores of a check taken', async () => {
     await studiedBandOne()
     const asking = await begunAt(8)

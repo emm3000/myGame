@@ -1,6 +1,7 @@
 import { z } from 'zod'
 import { ResourceKindSchema } from './ResourceKind'
 import { BuildingLevelSchema, DurationSecondsSchema, WholeCountSchema } from './Wire'
+import { WordSupportSchema } from './WordSupport'
 
 const WordStandingSchema = z.enum(['notStarted', 'recognize', 'recall', 'hold', 'retained'])
 
@@ -25,6 +26,7 @@ export const LessonStateSchema = z.strictObject({
       wordId: z.string().min(1),
       standing: WordStandingSchema,
       reading: WordReadingSchema.nullable(),
+      support: z.lazy(() => WordSupportSchema).nullable(),
     }),
   ),
 })

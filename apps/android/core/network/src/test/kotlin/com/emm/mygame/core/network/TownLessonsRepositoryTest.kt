@@ -236,8 +236,9 @@ class TownLessonsRepositoryTest {
             """{"id":"lesson-1","theme":"A day in town","durationSeconds":150,"requiredSchoolLevel":2,""" +
                 """"skill":{"resource":"food","ratePercent":5},"isStudied":true,""" +
                 """"words":[{"wordId":"word-1","standing":"recognize",""" +
-                """"reading":{"word":"home","gloss":"hogar","frame":"This is my home."}},""" +
-                """{"wordId":"word-2","standing":"retained","reading":null}]}"""
+                """"reading":{"word":"home","gloss":"hogar","frame":"This is my home."},""" +
+                """"support":{"shown":"beside","text":"hogar","language":"es"}},""" +
+                """{"wordId":"word-2","standing":"retained","reading":null,"support":null}]}"""
         const val SKILL: String =
             """{"lessonId":"lesson-1","resource":"food","ratePercent":5,"earnedAt":"2026-11-04T10:00:00.000Z"}"""
         const val HIRING: String =
@@ -258,7 +259,8 @@ class TownLessonsRepositoryTest {
                 """"lessonSlot":{"lessonId":"lesson-1","startedAt":"2026-11-05T10:00:00.000Z",""" +
                 """"finishesAt":"2026-11-05T10:20:00.000Z"},""" +
                 """"learning":{"cap":10,"inLearning":8,"retainedWords":null},""" +
-                """"nextStep":{"kind":"caughtUp","goal":null},"tip":null,"nextDueAt":null,""" +
+                """"nextStep":{"kind":"caughtUp","goal":null},"tip":null,""" +
+                """"chromePhase":"scaffold","nextDueAt":null,""" +
                 """"readAt":"2026-11-05T10:05:00.000Z"}"""
     }
 }

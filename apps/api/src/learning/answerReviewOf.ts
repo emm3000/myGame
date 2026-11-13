@@ -8,6 +8,7 @@ import {
   ok,
   type PlayerId,
   type Result,
+  type Scaffold,
   type Town,
   type TownSkill,
   type WordId,
@@ -15,10 +16,12 @@ import {
 import { mutateTown } from '../town/mutateTown'
 import type { LearningDependencies } from './LearningDependencies'
 import type { LessonLibrary } from './LessonLibrary'
+import { scaffoldOf } from './scaffoldOf'
 
 export type ReviewOutcome = {
   readonly answered: AnsweredReview
   readonly word: LessonWord
+  readonly scaffold: Scaffold
   readonly skills: ReadonlyArray<TownSkill>
   readonly town: Town | undefined
   readonly skillWords: ReadonlyArray<string>
@@ -96,6 +99,7 @@ export const answerReviewOf = (
       return ok({
         answered: answered.value,
         word,
+        scaffold: await scaffoldOf(playerId, stores.accounts),
         skills: skills.value,
         town: town.value,
         skillWords: skillWords.value,

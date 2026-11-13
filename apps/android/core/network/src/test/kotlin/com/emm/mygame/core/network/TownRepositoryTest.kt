@@ -761,7 +761,8 @@ class TownRepositoryTest {
                 """"lessonSlot":{"lessonId":"lesson-1","startedAt":"2026-11-05T10:00:00.000Z",""" +
                 """"finishesAt":"2026-11-05T10:20:00.000Z"},""" +
                 """"learning":{"cap":10,"inLearning":0,"retainedWords":null},""" +
-                """"nextStep":{"kind":"caughtUp","goal":null},"tip":null,"nextDueAt":null,""" +
+                """"nextStep":{"kind":"caughtUp","goal":null},"tip":null,""" +
+                """"chromePhase":"scaffold","nextDueAt":null,""" +
                 """"readAt":"2026-11-05T10:05:00.000Z"}"""
 
         val TOWN_WITH_RETAINED_WORDS: String =

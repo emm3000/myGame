@@ -41,6 +41,7 @@ import { jsonAggregateOf } from './jsonAggregateOf'
 import { lessonSlotOf } from './lessonSlotOf'
 import {
   earnedSkills,
+  players,
   townBuilding,
   townBuildings,
   townHire,
@@ -654,8 +655,10 @@ export class DrizzleTownRepository implements TownReader, TownRepository {
         heldOutWords: aggregatedHeldOutWordsOf(towns.playerId),
         placementScores: aggregatedPlacementScoresOf(towns.playerId),
         seenTips: aggregatedSeenTipsOf(towns.playerId),
+        scaffold: players.scaffold,
       })
       .from(towns)
+      .innerJoin(players, eq(players.id, towns.playerId))
       .leftJoin(townLessonSlots, eq(townLessonSlots.townId, towns.id))
       .where(eq(towns.playerId, playerId))
     if (row === undefined) {
@@ -677,6 +680,7 @@ export class DrizzleTownRepository implements TownReader, TownRepository {
       placementScores: placementScoresFrom(row.placementScores),
       guidanceDismissedAt: instantOf(row.town.guidanceDismissedAt) ?? undefined,
       seenTips: seenTipsFrom(row.seenTips),
+      scaffold: row.scaffold,
     })
   }
 

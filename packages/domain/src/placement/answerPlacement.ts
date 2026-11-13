@@ -1,5 +1,6 @@
 import type { DomainError } from '../DomainError'
 import type { Band, BandStart } from '../learning/BandStart'
+import type { Scaffold } from '../learning/Scaffold'
 import type { PlayerId } from '../player/PlayerId'
 import type { BandStartRepository } from '../ports/BandStartRepository'
 import type { Clock } from '../ports/Clock'
@@ -17,6 +18,7 @@ export type AnswerPlacementCommand = {
   readonly playerId: PlayerId
   readonly band: Band
   readonly answers: ReadonlyArray<PlacementAnswer>
+  readonly scaffold: Scaffold
 }
 
 export type AnswerPlacementDependencies = {
@@ -61,7 +63,10 @@ export const answerPlacement = async (
     return asked
   }
   const { placement, sample, starts } = asked.value
-  const right = rightWordIdsOf(placementQuestionsOf(sample, dependencies.words), command.answers)
+  const right = rightWordIdsOf(
+    placementQuestionsOf(sample, dependencies.words, command.scaffold),
+    command.answers,
+  )
   if (right === undefined) {
     return err({ kind: 'InvalidPlacementAnswers', band: command.band })
   }
@@ -76,5 +81,5 @@ export const answerPlacement = async (
   if (!saved.ok) {
     return saved
   }
-  return ok(placementViewOf(scored, starts, dependencies.words))
+  return ok(placementViewOf(scored, starts, dependencies.words, command.scaffold))
 }

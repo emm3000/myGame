@@ -47,6 +47,7 @@ const lessonOf = (number: number, overrides: Partial<Lesson> = {}): Lesson => ({
     wordId: `lesson-${number}-${index + 1}`,
     standing: 'recognize',
     reading: null,
+    support: { shown: 'beside', text: 'gloss', language: 'es' },
   })),
   ...overrides,
 })

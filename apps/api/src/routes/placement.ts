@@ -17,6 +17,7 @@ import { honoPathOf } from '../http/honoPath'
 import { type RequirePlayerDependencies, requirePlayer } from '../http/requirePlayer'
 import type { LearningDependencies } from '../learning/LearningDependencies'
 import { placementBodyOf } from '../learning/placementBodyOf'
+import { scaffoldOf } from '../learning/scaffoldOf'
 import { mutateTown } from '../town/mutateTown'
 import { placementDeclarations } from './placementDeclarations'
 
@@ -49,7 +50,11 @@ export const placementRoutes = (dependencies: PlacementRouteDependencies): OpenA
       const playerId = c.var.playerId
       const view = await mutateTown(
         playerId,
-        (stores) => readPlacement({ playerId }, { ...stores, ...content }),
+        async (stores) =>
+          readPlacement(
+            { playerId, scaffold: await scaffoldOf(playerId, stores.accounts) },
+            { ...stores, ...content },
+          ),
         dependencies,
       )
       return answerPlacementView(c, view)
@@ -65,7 +70,8 @@ export const placementRoutes = (dependencies: PlacementRouteDependencies): OpenA
         playerId,
         async (stores, clock) => {
           const begun = await beginPlacement({ playerId }, { ...stores, ...content, random, clock })
-          return begun.ok ? readPlacement({ playerId }, { ...stores, ...content }) : begun
+          const scaffold = await scaffoldOf(playerId, stores.accounts)
+          return begun.ok ? readPlacement({ playerId, scaffold }, { ...stores, ...content }) : begun
         },
         dependencies,
       )
@@ -82,7 +88,10 @@ export const placementRoutes = (dependencies: PlacementRouteDependencies): OpenA
         playerId,
         async (stores, clock) => {
           const skipped = await skipPlacement({ playerId }, { ...stores, ...content, clock })
-          return skipped.ok ? readPlacement({ playerId }, { ...stores, ...content }) : skipped
+          const scaffold = await scaffoldOf(playerId, stores.accounts)
+          return skipped.ok
+            ? readPlacement({ playerId, scaffold }, { ...stores, ...content })
+            : skipped
         },
         dependencies,
       )
@@ -101,9 +110,14 @@ export const placementRoutes = (dependencies: PlacementRouteDependencies): OpenA
       const playerId = c.var.playerId
       const view = await mutateTown(
         playerId,
-        (stores, clock) =>
+        async (stores, clock) =>
           answerPlacement(
-            { playerId, band: request.data.band, answers: request.data.answers },
+            {
+              playerId,
+              band: request.data.band,
+              answers: request.data.answers,
+              scaffold: await scaffoldOf(playerId, stores.accounts),
+            },
             { ...stores, ...content, clock },
           ),
         dependencies,

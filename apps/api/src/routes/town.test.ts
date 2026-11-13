@@ -29,6 +29,7 @@ import type { Transaction, TransactionStores } from '../adapters/postgres/postgr
 import { createApp } from '../app'
 import { type ComposedServer, composeServer } from '../composeServer'
 import { mailEnvironment } from '../composeServer.testSupport'
+import type { LessonLibrary } from '../learning/LessonLibrary'
 import {
   isWaitingOnALock,
   lockedPlayerReadQuery,
@@ -92,6 +93,18 @@ const jsonRequest = (method: string, cookie: string, body: unknown): RequestInit
   method,
   headers: { cookie, 'content-type': 'application/json' },
   body: JSON.stringify(body),
+})
+
+const withNoLessons = (lessons: LessonLibrary): LessonLibrary => ({
+  lessonOf: (lessonId) => lessons.lessonOf(lessonId),
+  lessonOfWord: (wordId) => lessons.lessonOfWord(wordId),
+  isHeadword: (word) => lessons.isHeadword(word),
+  bandOfLesson: (lessonId) => lessons.bandOfLesson(lessonId),
+  wordsOfBand: (band) => lessons.wordsOfBand(band),
+  hasLessons: (band) => lessons.hasLessons(band),
+  placementWordsOf: (band) => lessons.placementWordsOf(band),
+  lessons: () => [],
+  chromeLessons: () => [],
 })
 
 const signal = (): { readonly promise: Promise<void>; readonly resolve: () => void } => {
@@ -1462,7 +1475,7 @@ describe('the town route', () => {
       const emptied = createApp({
         ...server,
         clock,
-        lessons: { ...server.lessons, lessons: () => [] },
+        lessons: withNoLessons(server.lessons),
       })
 
       const read = await emptied.request('/town', { headers: { cookie } })
@@ -1549,7 +1562,7 @@ describe('the town route', () => {
         createApp({
           ...server,
           clock,
-          lessons: { ...server.lessons, lessons: () => [] },
+          lessons: withNoLessons(server.lessons),
         }).request('/town', { headers: { cookie } }),
       )
 

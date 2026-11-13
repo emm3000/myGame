@@ -31,6 +31,7 @@ const wordOf = (id: string): LessonWord => ({
   id,
   acceptedForms: ['home'],
   gloss: 'hogar',
+  definition: 'the place where you live',
   frames: [anchor, frameForLessonTwo, frameForLessonThree],
 })
 

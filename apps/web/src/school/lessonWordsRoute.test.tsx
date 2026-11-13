@@ -51,12 +51,14 @@ const readableWord = (word: string): LessonWord => ({
   wordId: `id-${word}`,
   standing: 'recognize',
   reading: { word, gloss: `gloss of ${word}`, frame: `A frame of ${word}.` },
+  support: { shown: 'beside', text: `gloss of ${word}`, language: 'es' },
 })
 
 const reviewedWord = (word: string): LessonWord => ({
   wordId: `id-${word}`,
   standing: 'recall',
   reading: null,
+  support: { shown: 'beside', text: 'gloss', language: 'es' },
 })
 
 const lessonOf = (number: number, words: ReadonlyArray<LessonWord>): Lesson => ({
@@ -303,7 +305,12 @@ it('shows the rest of a lesson with some words already reviewed', async () => {
 })
 
 it('never shows a word that carries no reading', async () => {
-  const heldOut: LessonWord = { wordId: 'id-say', standing: 'notStarted', reading: null }
+  const heldOut: LessonWord = {
+    wordId: 'id-say',
+    standing: 'notStarted',
+    reading: null,
+    support: null,
+  }
   const town = townOf({
     lessons: [lessonOf(1, [heldOut, readableWord('time')])],
     lessonSlot: running('lesson-1'),
@@ -314,7 +321,12 @@ it('never shows a word that carries no reading', async () => {
   expect(screen.queryByText('id-say')).toBeNull()
 })
 
-const notStartedWord: LessonWord = { wordId: 'id-word', standing: 'notStarted', reading: null }
+const notStartedWord: LessonWord = {
+  wordId: 'id-word',
+  standing: 'notStarted',
+  reading: null,
+  support: { shown: 'beside', text: 'gloss', language: 'es' },
+}
 
 it.each([
   ['a stopped or an unstudied lesson', '/school/lesson-1', [lessonOf(1, [notStartedWord])]],

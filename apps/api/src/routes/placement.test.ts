@@ -3,6 +3,7 @@ import { type Placement, PlacementSchema } from '@mygame/contracts'
 import { type Clock, Instant } from '@mygame/domain'
 import { Client, type QueryResultRow } from 'pg'
 import { afterAll, assert, beforeAll, beforeEach, describe, expect, it } from 'vitest'
+import { shippedCurriculum } from '../adapters/json/shippedCurriculum.testSupport'
 import { createApp } from '../app'
 import { type ComposedServer, composeServer } from '../composeServer'
 import { mailEnvironment } from '../composeServer.testSupport'
@@ -48,6 +49,7 @@ const draftedBandOneOf = (lessons: LessonLibrary): LessonLibrary => ({
   hasLessons: (band) => band === 2 || lessons.hasLessons(band),
   placementWordsOf: (band) => lessons.placementWordsOf(band),
   lessons: () => lessons.lessons(),
+  chromeLessons: () => lessons.chromeLessons(),
 })
 
 type AskingPlacement = Extract<Placement, { readonly kind: 'asking' }>
@@ -171,12 +173,70 @@ describe('the placement routes', () => {
     const player = await signUp()
     const chromeWordIds = server.lessons
       .lessons()
-      .slice(0, 16)
+      .slice(0, shippedCurriculum.chromeLessonCount)
       .flatMap(({ words }) => words.map(({ id }) => id))
 
     const asking = await begun(player)
 
     expect(asking.items.filter(({ wordId }) => chromeWordIds.includes(wordId))).toEqual([])
+  })
+
+  const definitionOf = (wordId: string): string =>
+    server.lessons.placementWordsOf(1).find(({ id }) => id === wordId)?.definition ?? ''
+
+  const chooseNone = async (player: Player): Promise<void> => {
+    expect((await send(player, 'PUT', '/player/scaffold', { scaffold: 'none' })).status).toBe(200)
+  }
+
+  const isOfferedByDefinition = ({ items }: AskingPlacement): boolean =>
+    items.every(({ wordId, choices }) =>
+      choices.some(({ gloss }) => gloss === definitionOf(wordId)),
+    )
+
+  it('begins a placement under none with the definitions as the choices', async () => {
+    const player = await signUp()
+    await chooseNone(player)
+
+    expect(isOfferedByDefinition(await begun(player))).toBe(true)
+  })
+
+  it('reads a placement under none with the definitions as the choices', async () => {
+    const player = await signUp()
+    await begun(player)
+    await chooseNone(player)
+
+    const placement = await placementOf(await send(player, 'GET', '/placement'))
+
+    assert(placement.kind === 'asking')
+    expect(isOfferedByDefinition(placement)).toBe(true)
+  })
+
+  it('grades a placement under none by the definitions it offered', async () => {
+    const drafted = draftedBandOneOf(server.lessons)
+    app = createApp({
+      ...server,
+      clock: frozenClock,
+      lessons: {
+        ...drafted,
+        placementWordsOf: (band) =>
+          drafted.placementWordsOf(band).map((word) => ({ ...word, gloss: 'misma glosa' })),
+      },
+    })
+    const player = await signUp()
+    await chooseNone(player)
+    const { items } = await begun(player)
+    const answers = items.map(({ wordId, choices }, index) => {
+      const isRight = (gloss: string): boolean => gloss === definitionOf(wordId)
+      const chosen = choices.find(({ gloss }) => (index === 0 ? !isRight(gloss) : isRight(gloss)))
+      return { wordId, choiceId: chosen?.choiceId ?? '' }
+    })
+
+    const response = await send(player, 'POST', '/placement/answers', { band: 1, answers })
+
+    expect(response.status).toBe(200)
+    expect(await storedRows('SELECT band, score FROM placement_scores')).toEqual([
+      { band: 1, score: 29 },
+    ])
   })
 
   it('refuses a second placement with an empty body', async () => {

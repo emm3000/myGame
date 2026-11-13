@@ -36,6 +36,7 @@ const wordOf = (lemma: string): LessonWord => ({
   id: lemma.includes(' ') ? `unit-${lemma.replace(' ', '-')}` : `word-${lemma}`,
   acceptedForms: [lemma],
   gloss: lemma,
+  definition: `definition of ${lemma}`,
   frames: [{ frame: lemma, gappedFrame: '____' }],
 })
 

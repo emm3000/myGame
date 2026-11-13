@@ -44,6 +44,7 @@ const unitLesson: Lesson = {
       id: 'give-up',
       acceptedForms: ['give up'],
       gloss: 'rendirse',
+      definition: 'definition of rendirse',
       frames: [{ frame: 'She will not give up.', gappedFrame: 'She will not ____ ____.' }],
     },
   ],

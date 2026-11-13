@@ -3,6 +3,7 @@ import {
   type DomainError,
   err,
   type Instant,
+  isLessonFinishedBy,
   type LessonSlot,
   ok,
   type PlayerId,
@@ -33,8 +34,8 @@ const alreadyRead = (town: Town | undefined, towns: TownReader): TownRepository 
   save: async () => ok(undefined),
 })
 
-const isLessonFinishedBy = (slot: LessonSlot, readAt: Instant): boolean =>
-  slot.kind === 'busy' && slot.finishesAt.epochMilliseconds <= readAt.epochMilliseconds
+const isSlotFinishedBy = (slot: LessonSlot, readAt: Instant): boolean =>
+  slot.kind === 'busy' && isLessonFinishedBy(slot, readAt)
 
 const persistedResolveOf = (
   playerId: PlayerId,
@@ -78,7 +79,7 @@ export const currentTownOf = async (
     return err({ kind: 'TownNotFound', playerId })
   }
   const isUnchanged =
-    dryRun.value.events.length === 0 && !isLessonFinishedBy(stored.value.lessonSlot, readAt)
+    dryRun.value.events.length === 0 && !isSlotFinishedBy(stored.value.lessonSlot, readAt)
   return isUnchanged
     ? ok({ ...stored.value, town: dryRun.value.town, at: readAt })
     : persistedResolveOf(playerId, dependencies)

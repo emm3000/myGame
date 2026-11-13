@@ -40,7 +40,14 @@ const lessonOf = (number: number): TownOverview['lessons'][number] => ({
   requiredSchoolLevel: 1,
   skill: { resource: 'food', ratePercent: 5 },
   isStudied: false,
-  words: [{ wordId: `word-${number}`, standing: 'notStarted', reading: null }],
+  words: [
+    {
+      wordId: `word-${number}`,
+      standing: 'notStarted',
+      reading: null,
+      support: { shown: 'beside', text: 'gloss', language: 'es' },
+    },
+  ],
 })
 
 const lessons = [lessonOf(1), lessonOf(2)]

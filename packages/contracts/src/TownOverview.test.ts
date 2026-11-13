@@ -5,6 +5,8 @@ const stock = { amount: 300, ratePerHour: 12.5, capacity: 1000, fullAt: null }
 
 const idle = { level: 0, nextLevel: null }
 
+const besideSchool = { shown: 'beside', text: 'escuela', language: 'es' }
+
 const lessonOne = {
   id: 'lesson-1',
   theme: 'A day in town',
@@ -13,11 +15,17 @@ const lessonOne = {
   skill: { resource: 'food', ratePercent: 5 },
   isStudied: true,
   words: [
-    { wordId: 'lesson-1-1', standing: 'retained', reading: null },
+    {
+      wordId: 'lesson-1-1',
+      standing: 'retained',
+      reading: null,
+      support: { shown: 'onTap', text: 'the place where you live', language: 'en' },
+    },
     {
       wordId: 'lesson-1-2',
       standing: 'recognize',
       reading: { word: 'school', gloss: 'escuela', frame: 'We are at school.' },
+      support: besideSchool,
     },
   ],
 }
@@ -117,6 +125,7 @@ const overview = (overrides: Record<string, unknown> = {}): Record<string, unkno
   learning: { cap: 15, inLearning: 5, retainedWords: null },
   nextStep: { kind: 'caughtUp', goal: null },
   tip: null,
+  chromePhase: 'scaffold',
   nextDueAt: null,
   readAt: '2026-11-10T08:58:00.000Z',
   ...overrides,
@@ -207,7 +216,15 @@ describe('TownOverviewSchema', () => {
   })
 
   it("rejects a lemma outside a lesson word's reading", () => {
-    const words = [{ wordId: 'lesson-1-1', standing: 'recall', reading: null, lemma: 'home' }]
+    const words = [
+      {
+        wordId: 'lesson-1-1',
+        standing: 'recall',
+        reading: null,
+        support: besideSchool,
+        lemma: 'home',
+      },
+    ]
 
     expect(
       TownOverviewSchema.safeParse(overview({ lessons: [{ ...lessonOne, words }] })).success,
@@ -215,7 +232,9 @@ describe('TownOverviewSchema', () => {
   })
 
   it('rejects a standing the school path does not have', () => {
-    const words = [{ wordId: 'lesson-1-1', standing: 'learned', reading: null }]
+    const words = [
+      { wordId: 'lesson-1-1', standing: 'learned', reading: null, support: besideSchool },
+    ]
 
     expect(
       TownOverviewSchema.safeParse(overview({ lessons: [{ ...lessonOne, words }] })).success,
@@ -224,11 +243,57 @@ describe('TownOverviewSchema', () => {
 
   it('rejects a reading without its frame', () => {
     const reading = { word: 'home', gloss: 'hogar' }
-    const words = [{ wordId: 'lesson-1-1', standing: 'notStarted', reading }]
+    const words = [{ wordId: 'lesson-1-1', standing: 'notStarted', reading, support: besideSchool }]
 
     expect(
       TownOverviewSchema.safeParse(overview({ lessons: [{ ...lessonOne, words }] })).success,
     ).toBe(false)
+  })
+
+  it('rejects a lesson word without its support', () => {
+    const words = [{ wordId: 'lesson-1-1', standing: 'notStarted', reading: null }]
+
+    expect(
+      TownOverviewSchema.safeParse(overview({ lessons: [{ ...lessonOne, words }] })).success,
+    ).toBe(false)
+  })
+
+  it('parses a held-out word with no support', () => {
+    const words = [{ wordId: 'lesson-1-1', standing: 'notStarted', reading: null, support: null }]
+
+    expect(
+      TownOverviewSchema.parse(overview({ lessons: [{ ...lessonOne, words }] })).lessons[0]?.words,
+    ).toEqual(words)
+  })
+
+  it('rejects a support shown neither beside nor on tap', () => {
+    const support = { ...besideSchool, shown: 'hidden' }
+    const words = [{ wordId: 'lesson-1-1', standing: 'notStarted', reading: null, support }]
+
+    expect(
+      TownOverviewSchema.safeParse(overview({ lessons: [{ ...lessonOne, words }] })).success,
+    ).toBe(false)
+  })
+
+  it('rejects a support in a language Townword does not show', () => {
+    const support = { ...besideSchool, language: 'fr' }
+    const words = [{ wordId: 'lesson-1-1', standing: 'notStarted', reading: null, support }]
+
+    expect(
+      TownOverviewSchema.safeParse(overview({ lessons: [{ ...lessonOne, words }] })).success,
+    ).toBe(false)
+  })
+
+  it('parses each chrome phase', () => {
+    expect(
+      ['scaffold', 'both', 'english'].map(
+        (chromePhase) => TownOverviewSchema.parse(overview({ chromePhase })).chromePhase,
+      ),
+    ).toEqual(['scaffold', 'both', 'english'])
+  })
+
+  it('rejects a chrome phase the scaffold does not have', () => {
+    expect(TownOverviewSchema.safeParse(overview({ chromePhase: 'spanish' })).success).toBe(false)
   })
 
   it('rejects a skill earned on a medieval resource', () => {
