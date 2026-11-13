@@ -11,7 +11,6 @@ import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.heading
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.tooling.preview.PreviewParameter
@@ -35,7 +34,12 @@ import com.emm.mygame.core.network.TownResourceKind
 import com.emm.mygame.core.network.TownSite
 import com.emm.mygame.core.network.TownSnapshot
 import com.emm.mygame.core.network.WasteSize
-import com.emm.mygame.core.ui.icuStringResource
+import com.emm.mygame.core.ui.ChromePhase
+import com.emm.mygame.core.ui.CopyLanguage
+import com.emm.mygame.core.ui.ProvideCopyLanguage
+import com.emm.mygame.core.ui.ScaffoldLanguage
+import com.emm.mygame.core.ui.chromeResource
+import com.emm.mygame.core.ui.fixedCopyResource
 import kotlin.time.Duration.Companion.minutes
 import kotlin.time.Instant
 
@@ -56,14 +60,14 @@ fun MapScreen(state: MapUiState, onIntent: (MapIntent) -> Unit, modifier: Modifi
             ),
     ) {
         MyGameText(
-            text = stringResource(R.string.map_title),
+            label = chromeResource(R.string.map_title),
             style = MyGameTypography.display,
             color = MyGameTheme.colors.ink,
             modifier = Modifier.semantics { heading() },
         )
         MyGameSkeleton(
             isLoading = state == MapUiState.Loading,
-            loadingLabel = stringResource(R.string.map_loading),
+            loadingLabel = chromeResource(R.string.map_loading).spoken,
             blocks = mapBlocks,
         ) {
             MapState(state = state, onIntent = onIntent)
@@ -76,14 +80,14 @@ private fun MapState(state: MapUiState, onIntent: (MapIntent) -> Unit) {
     when (state) {
         MapUiState.Loading -> Unit
         MapUiState.Failed -> MyGameErrorBanner(
-            message = stringResource(R.string.map_refusal_unexpected),
-            actionLabel = stringResource(R.string.map_try_again),
+            message = fixedCopyResource(R.string.map_refusal_unexpected),
+            actionLabel = chromeResource(R.string.map_try_again),
             onAction = { onIntent(MapIntent.RetryTapped) },
         )
         MapUiState.AreaNotFound -> Column(verticalArrangement = Arrangement.spacedBy(MyGameSpacing.step3)) {
-            MyGameInlineAlert(message = stringResource(R.string.map_refusal_area_not_found))
+            MyGameInlineAlert(message = fixedCopyResource(R.string.map_refusal_area_not_found))
             MyGameTextLink(
-                label = stringResource(R.string.map_back_to_own_area),
+                label = chromeResource(R.string.map_back_to_own_area),
                 onClick = { onIntent(MapIntent.OwnAreaTapped) },
             )
         }
@@ -123,13 +127,13 @@ private fun MapContent(content: MapUiState.Content, onIntent: (MapIntent) -> Uni
 private fun AreaHeader(areaLine: MapUiState.AreaLine, modifier: Modifier = Modifier) {
     Column(modifier = modifier) {
         MyGameText(
-            text = icuStringResource(R.string.map_area, "area" to areaLine.area.toString()),
+            label = chromeResource(R.string.map_area, "area" to areaLine.area.toString()),
             style = MyGameTypography.heading,
             color = MyGameTheme.colors.ink,
             modifier = Modifier.semantics { heading() },
         )
         MyGameText(
-            text = stringResource(terrainNameOf(areaLine.terrain)),
+            label = chromeResource(terrainNameOf(areaLine.terrain)),
             style = MyGameTypography.caption,
             color = MyGameTheme.colors.inkMuted,
         )
@@ -141,13 +145,13 @@ private fun AreaLinks(content: MapUiState.Content, onIntent: (MapIntent) -> Unit
     Row(horizontalArrangement = Arrangement.spacedBy(MyGameSpacing.step6), modifier = modifier) {
         content.previousArea?.let { area: Int ->
             MyGameTextLink(
-                label = stringResource(R.string.map_previous),
+                label = chromeResource(R.string.map_previous),
                 onClick = { onIntent(MapIntent.AreaTapped(area)) },
             )
         }
         content.nextArea?.let { area: Int ->
             MyGameTextLink(
-                label = stringResource(R.string.map_next),
+                label = chromeResource(R.string.map_next),
                 onClick = { onIntent(MapIntent.AreaTapped(area)) },
             )
         }
@@ -234,5 +238,41 @@ private class MapUiStates : PreviewParameterProvider<MapUiState> {
 private fun MapScreenPreview(@PreviewParameter(MapUiStates::class) state: MapUiState) {
     MyGamePreviewSurface {
         MapScreen(state = state, onIntent = {})
+    }
+}
+
+private class MapLanguages : PreviewParameterProvider<CopyLanguage> {
+
+    override val values: Sequence<CopyLanguage> = sequenceOf(
+        CopyLanguage(ScaffoldLanguage.Spanish, ChromePhase.Scaffold),
+        CopyLanguage(ScaffoldLanguage.Spanish, ChromePhase.Both),
+        CopyLanguage(ScaffoldLanguage.Spanish, ChromePhase.English),
+        CopyLanguage(ScaffoldLanguage.None, ChromePhase.English),
+    )
+}
+
+@PreviewMyGame
+@Composable
+private fun MapScreenLanguagePreview(@PreviewParameter(MapLanguages::class) language: CopyLanguage) {
+    ProvideCopyLanguage(language = language) {
+        MyGamePreviewSurface {
+            MapScreen(state = previewContent.copy(form = previewJobForm, jobOut = previewJobOut), onIntent = {})
+        }
+    }
+}
+
+@PreviewMyGame
+@Composable
+private fun MapScreenCleanUpBothPreview() {
+    ProvideCopyLanguage(language = CopyLanguage(ScaffoldLanguage.Spanish, ChromePhase.Both)) {
+        MyGamePreviewSurface {
+            MapScreen(
+                state = previewContent.copy(
+                    form = previewCleanUpForm,
+                    send = MapUiState.SendRequest.Refused(site = 4, refusal = TownJobRefusal.NoWasteYet),
+                ),
+                onIntent = {},
+            )
+        }
     }
 }

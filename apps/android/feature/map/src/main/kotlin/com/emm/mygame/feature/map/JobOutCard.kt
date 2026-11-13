@@ -7,7 +7,6 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.heading
 import androidx.compose.ui.semantics.semantics
 import com.emm.mygame.core.designsystem.MyGameCard
@@ -19,7 +18,9 @@ import com.emm.mygame.core.designsystem.MyGameSpacing
 import com.emm.mygame.core.designsystem.MyGameText
 import com.emm.mygame.core.designsystem.MyGameTheme
 import com.emm.mygame.core.designsystem.MyGameTypography
-import com.emm.mygame.core.ui.icuStringResource
+import com.emm.mygame.core.ui.PlayerCopy
+import com.emm.mygame.core.ui.chromeResource
+import com.emm.mygame.core.ui.rememberPlayerCopy
 
 @Composable
 internal fun JobOutCard(
@@ -34,13 +35,13 @@ internal fun JobOutCard(
             modifier = Modifier.padding(vertical = MyGameSpacing.step4),
         ) {
             MyGameText(
-                text = stringResource(jobOutTitleOf(jobOut.kind)),
+                label = chromeResource(jobOutTitleOf(jobOut.kind)),
                 style = MyGameTypography.heading,
                 color = MyGameTheme.colors.ink,
                 modifier = Modifier.semantics { heading() },
             )
             MyGameText(
-                text = icuStringResource(
+                label = chromeResource(
                     R.string.map_job_out_site,
                     "region" to jobOut.site.region.toString(),
                     "area" to jobOut.site.area.toString(),
@@ -50,7 +51,7 @@ internal fun JobOutCard(
                 color = MyGameTheme.colors.ink,
             )
             MyGameText(
-                text = icuStringResource(
+                label = chromeResource(
                     R.string.map_job_out_team,
                     "workers" to jobOut.workers,
                     "trucks" to jobOut.trucks,
@@ -64,16 +65,18 @@ internal fun JobOutCard(
             }
             if (jobOut.pay.isNotEmpty()) {
                 MyGameText(
-                    text = payLineOf(jobOut),
+                    label = rememberPlayerCopy().chrome {
+                        text(R.string.map_job_out_pay, "amounts" to amountsOf(jobOut.pay))
+                    },
                     style = MyGameTypography.caption,
                     color = MyGameTheme.colors.inkMuted,
                 )
             }
             if (jobOut.canCallBack) {
                 MyGameOutlinedButton(
-                    label = stringResource(R.string.map_job_out_call_back),
+                    label = chromeResource(R.string.map_job_out_call_back),
                     isBusy = callBack == MapUiState.CallBackRequest.Waiting,
-                    busyDescription = stringResource(R.string.map_waiting),
+                    busyDescription = chromeResource(R.string.map_waiting).spoken,
                     onClick = { onIntent(MapIntent.CallBackTapped) },
                 )
             }
@@ -84,6 +87,7 @@ internal fun JobOutCard(
 
 @Composable
 private fun JobCountdown(jobOut: MapUiState.JobOut, modifier: Modifier = Modifier) {
+    val copy: PlayerCopy = rememberPlayerCopy()
     Row(
         verticalAlignment = Alignment.CenterVertically,
         horizontalArrangement = Arrangement.spacedBy(MyGameSpacing.step2),
@@ -91,12 +95,12 @@ private fun JobCountdown(jobOut: MapUiState.JobOut, modifier: Modifier = Modifie
     ) {
         MyGameIcon(icon = MyGameIcons.hourglass, tint = MyGameTheme.colors.inkMuted)
         MyGameText(
-            text = stringResource(phaseWordsOf(jobOut.phase)),
+            label = copy.chrome(phaseWordsOf(jobOut.phase)),
             style = MyGameTypography.body,
             color = MyGameTheme.colors.ink,
         )
         MyGameText(
-            text = finishLabelOf(jobOut.remaining, jobOut.finishesAt),
+            label = copy.chrome { finishLabelOf(jobOut.remaining, jobOut.finishesAt) },
             style = MyGameTypography.heading,
             color = MyGameTheme.colors.ink,
         )
@@ -106,13 +110,13 @@ private fun JobCountdown(jobOut: MapUiState.JobOut, modifier: Modifier = Modifie
 @Composable
 private fun CleanUpLines(cleanUp: MapUiState.JobKind.CleanUp) {
     MyGameText(
-        text = icuStringResource(R.string.map_waste, "waste" to cleanUp.waste.toString()),
+        label = chromeResource(R.string.map_waste, "waste" to cleanUp.waste.toString()),
         style = MyGameTypography.caption,
         color = MyGameTheme.colors.inkMuted,
     )
     cleanUp.outcome?.let { outcome: MapUiState.CleanUpOutcome ->
         MyGameText(
-            text = stringResource(cleanUpOutcomeLineOf(outcome)),
+            label = chromeResource(cleanUpOutcomeLineOf(outcome)),
             style = MyGameTypography.body,
             color = if (outcome == MapUiState.CleanUpOutcome.Cleaned) {
                 MyGameTheme.colors.ink
@@ -125,9 +129,10 @@ private fun CleanUpLines(cleanUp: MapUiState.JobKind.CleanUp) {
 
 @Composable
 private fun CallBackAnswer(callBack: MapUiState.CallBackRequest, modifier: Modifier = Modifier) {
+    val copy: PlayerCopy = rememberPlayerCopy()
     val message: String? = when (callBack) {
-        is MapUiState.CallBackRequest.Refused -> jobRefusalLineOf(callBack.refusal)
-        MapUiState.CallBackRequest.Unreachable -> stringResource(R.string.map_refusal_unexpected)
+        is MapUiState.CallBackRequest.Refused -> copy.fixedCopy { jobRefusalLineOf(callBack.refusal) }
+        MapUiState.CallBackRequest.Unreachable -> copy.fixedCopy(R.string.map_refusal_unexpected)
         MapUiState.CallBackRequest.Idle, MapUiState.CallBackRequest.Waiting -> null
     }
     if (message != null) MyGameInlineAlert(message = message, modifier = modifier)

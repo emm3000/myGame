@@ -5,7 +5,6 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.padding
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.heading
 import androidx.compose.ui.semantics.semantics
 import com.emm.mygame.core.designsystem.MyGameOutlinedButton
@@ -14,7 +13,9 @@ import com.emm.mygame.core.designsystem.MyGameSpacing
 import com.emm.mygame.core.designsystem.MyGameText
 import com.emm.mygame.core.designsystem.MyGameTheme
 import com.emm.mygame.core.designsystem.MyGameTypography
-import com.emm.mygame.core.ui.icuStringResource
+import com.emm.mygame.core.ui.PlayerCopy
+import com.emm.mygame.core.ui.chromeResource
+import com.emm.mygame.core.ui.rememberPlayerCopy
 
 @Composable
 internal fun SiteItem(
@@ -28,7 +29,7 @@ internal fun SiteItem(
         modifier = modifier.padding(vertical = MyGameSpacing.step4),
     ) {
         MyGameText(
-            text = icuStringResource(R.string.map_site, "site" to row.site.toString()),
+            label = chromeResource(R.string.map_site, "site" to row.site.toString()),
             style = MyGameTypography.title,
             color = MyGameTheme.colors.ink,
             modifier = Modifier.semantics { heading() },
@@ -40,7 +41,7 @@ internal fun SiteItem(
             is MapUiState.SiteRow.Own -> {
                 TownName(name = row.name)
                 MyGameText(
-                    text = stringResource(R.string.map_own_town),
+                    label = chromeResource(R.string.map_own_town),
                     style = MyGameTypography.caption,
                     color = MyGameTheme.colors.inkMuted,
                 )
@@ -56,7 +57,7 @@ private fun FreeSite(
     onIntent: (MapIntent) -> Unit,
 ) {
     MyGameText(
-        text = stringResource(R.string.map_free),
+        label = chromeResource(R.string.map_free),
         style = MyGameTypography.caption,
         color = MyGameTheme.colors.inkMuted,
     )
@@ -73,17 +74,17 @@ private fun WasteSite(
 ) {
     MyGamePlaceArt(art = wasteArtOf(row.size), risenFrom = null)
     MyGameText(
-        text = stringResource(R.string.map_waste_site),
+        label = chromeResource(R.string.map_waste_site),
         style = MyGameTypography.body,
         color = MyGameTheme.colors.ink,
     )
     MyGameText(
-        text = icuStringResource(R.string.map_waste_size, "size" to sizeNumberOf(row.size).toString()),
+        label = chromeResource(R.string.map_waste_size, "size" to sizeNumberOf(row.size).toString()),
         style = MyGameTypography.caption,
         color = MyGameTheme.colors.inkMuted,
     )
     MyGameText(
-        text = icuStringResource(R.string.map_waste, "waste" to row.waste.toString()),
+        label = chromeResource(R.string.map_waste, "waste" to row.waste.toString()),
         style = MyGameTypography.caption,
         color = MyGameTheme.colors.inkMuted,
     )
@@ -94,13 +95,14 @@ private fun WasteSite(
 
 @Composable
 private fun SendTeamButton(site: Int, onIntent: (MapIntent) -> Unit, modifier: Modifier = Modifier) {
+    val copy: PlayerCopy = rememberPlayerCopy()
     MyGameOutlinedButton(
-        label = stringResource(R.string.map_send_team),
+        label = copy.chrome(R.string.map_send_team),
         isBusy = false,
-        busyDescription = stringResource(R.string.map_waiting),
+        busyDescription = copy.chrome(R.string.map_waiting).spoken,
         onClick = { onIntent(MapIntent.SendTeamTapped(site)) },
         modifier = modifier,
-        accessibleName = icuStringResource(R.string.map_send_team_to, "site" to site.toString()),
+        accessibleName = copy.chrome(R.string.map_send_team_to, "site" to site.toString()).spoken,
     )
 }
 
