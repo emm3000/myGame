@@ -9,6 +9,7 @@ import com.emm.mygame.core.network.LearningRepository
 import com.emm.mygame.core.network.LessonId
 import com.emm.mygame.core.network.RaisedSkill
 import com.emm.mygame.core.network.ReviewAnswerResult
+import com.emm.mygame.core.network.ReviewHint
 import com.emm.mygame.core.network.ReviewHintResult
 import com.emm.mygame.core.network.ReviewVerdict
 import com.emm.mygame.core.network.ReviewsReadResult
@@ -65,7 +66,7 @@ class ReviewViewModel(
             is ReviewIntent.AnswerChanged -> edit { card: ReviewUiState.ReviewCard ->
                 (card as? ReviewUiState.ReviewCard.Recall)?.copy(typed = intent.answer) ?: card
             }
-            is ReviewIntent.SupportTapped -> tapSupport(intent.span)
+            is ReviewIntent.SupportTapped -> tapSupport(intent.spanIndex)
             ReviewIntent.HintTapped -> hint()
             ReviewIntent.CheckTapped -> check()
             ReviewIntent.NextTapped -> next()
@@ -144,9 +145,9 @@ class ReviewViewModel(
         path = towns.town.value?.town?.pathAtTheEnd(),
     )
 
-    private fun tapSupport(span: Int) {
+    private fun tapSupport(spanIndex: Int) {
         val reviewing: ReviewUiState.Reviewing = _state.value as? ReviewUiState.Reviewing ?: return
-        _state.value = reviewing.copy(card = reviewing.card.withSupportTapped(span))
+        _state.value = reviewing.copy(card = reviewing.card.withSupportTapped(spanIndex))
     }
 
     private fun edit(change: (ReviewUiState.ReviewCard) -> ReviewUiState.ReviewCard) {
@@ -161,7 +162,7 @@ class ReviewViewModel(
         viewModelScope.launch {
             when (val answer: ReviewHintResult = learning.hint(recall.wordId)) {
                 is ReviewHintResult.Hinted -> drawn { current: ReviewUiState.Reviewing ->
-                    current.copy(card = recall.copy(hint = answer.hint), step = ReviewUiState.ReviewStep.Answering)
+                    current.copy(card = current.card.withHint(answer.hint), step = ReviewUiState.ReviewStep.Answering)
                 }
                 is ReviewHintResult.Refused -> stepTo(ReviewUiState.ReviewStep.Refused(answer.refusal))
                 ReviewHintResult.Unreachable -> stepTo(ReviewUiState.ReviewStep.Unreachable)
@@ -241,8 +242,13 @@ private fun DueReview.toCard(): ReviewUiState.ReviewCard = when (this) {
     )
 }
 
-private fun ReviewUiState.ReviewCard.withSupportTapped(span: Int): ReviewUiState.ReviewCard {
-    val shown: Int? = if (openSpan == span) null else span
+private fun ReviewUiState.ReviewCard.withHint(hint: ReviewHint): ReviewUiState.ReviewCard = when (this) {
+    is ReviewUiState.ReviewCard.Recognition -> this
+    is ReviewUiState.ReviewCard.Recall -> copy(hint = hint)
+}
+
+private fun ReviewUiState.ReviewCard.withSupportTapped(spanIndex: Int): ReviewUiState.ReviewCard {
+    val shown: Int? = if (openSpan == spanIndex) null else spanIndex
     return when (this) {
         is ReviewUiState.ReviewCard.Recognition -> copy(openSpan = shown)
         is ReviewUiState.ReviewCard.Recall -> copy(openSpan = shown)

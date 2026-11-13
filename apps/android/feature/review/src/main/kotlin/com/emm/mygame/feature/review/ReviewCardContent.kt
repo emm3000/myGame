@@ -159,7 +159,8 @@ private fun ReviewBlock(
                 frame = frame,
                 openPiece = openSpan,
                 style = MyGameTypography.reading,
-                onPieceTap = { span: Int -> onIntent(ReviewIntent.SupportTapped(span)) },
+                onPieceTap = { spanIndex: Int -> onIntent(ReviewIntent.SupportTapped(spanIndex)) },
+                modifier = Modifier.semantics { liveRegion = LiveRegionMode.Polite },
             )
             frame.openedSupportOf(openSpan)?.let { support: MyGameWordSupport -> MyGameSupportLine(support = support) }
         }

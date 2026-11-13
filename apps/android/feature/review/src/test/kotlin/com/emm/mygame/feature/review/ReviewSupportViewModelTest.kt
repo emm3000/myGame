@@ -2,6 +2,9 @@ package com.emm.mygame.feature.review
 
 import app.cash.turbine.test
 import com.emm.mygame.core.network.ReviewAnswerResult
+import com.emm.mygame.core.network.ReviewHint
+import com.emm.mygame.core.network.ReviewHintResult
+import com.emm.mygame.core.network.ReviewHintWord
 import com.emm.mygame.core.network.ReviewVerdict
 import com.emm.mygame.core.testing.FakeLearningRepository
 import com.emm.mygame.core.testing.MainDispatcherRule
@@ -24,7 +27,7 @@ class ReviewSupportViewModelTest {
 
         viewModel.state.test {
             awaitReviewing()
-            viewModel.onIntent(ReviewIntent.SupportTapped(span = 1))
+            viewModel.onIntent(ReviewIntent.SupportTapped(spanIndex = 1))
             assertEquals(1, awaitReviewing().card.openSpan)
         }
     }
@@ -37,9 +40,9 @@ class ReviewSupportViewModelTest {
 
         viewModel.state.test {
             awaitReviewing()
-            viewModel.onIntent(ReviewIntent.SupportTapped(span = 1))
+            viewModel.onIntent(ReviewIntent.SupportTapped(spanIndex = 1))
             awaitReviewing()
-            viewModel.onIntent(ReviewIntent.SupportTapped(span = 1))
+            viewModel.onIntent(ReviewIntent.SupportTapped(spanIndex = 1))
             assertEquals(null, awaitReviewing().card.openSpan)
         }
     }
@@ -52,9 +55,9 @@ class ReviewSupportViewModelTest {
 
         viewModel.state.test {
             awaitReviewing()
-            viewModel.onIntent(ReviewIntent.SupportTapped(span = 1))
+            viewModel.onIntent(ReviewIntent.SupportTapped(spanIndex = 1))
             awaitReviewing()
-            viewModel.onIntent(ReviewIntent.SupportTapped(span = 3))
+            viewModel.onIntent(ReviewIntent.SupportTapped(spanIndex = 3))
             assertEquals(3, awaitReviewing().card.openSpan)
         }
     }
@@ -67,7 +70,7 @@ class ReviewSupportViewModelTest {
 
         viewModel.state.test {
             awaitReviewing()
-            viewModel.onIntent(ReviewIntent.SupportTapped(span = 1))
+            viewModel.onIntent(ReviewIntent.SupportTapped(spanIndex = 1))
             assertEquals(null, (awaitReviewing().card as ReviewUiState.ReviewCard.Recognition).chosen)
         }
     }
@@ -82,7 +85,8 @@ class ReviewSupportViewModelTest {
 
         viewModel.state.test {
             awaitReviewing()
-            viewModel.onIntent(ReviewIntent.SupportTapped(span = 1))
+            viewModel.onIntent(ReviewIntent.SupportTapped(spanIndex = 1))
+            assertEquals(1, awaitReviewing().card.openSpan)
             viewModel.onIntent(ReviewIntent.AnswerChanged("home"))
             viewModel.onIntent(ReviewIntent.CheckTapped)
             awaitStep { it is ReviewUiState.ReviewStep.Correct }
@@ -106,11 +110,31 @@ class ReviewSupportViewModelTest {
             viewModel.onIntent(ReviewIntent.AnswerChanged("home"))
             viewModel.onIntent(ReviewIntent.CheckTapped)
             awaitStep { it is ReviewUiState.ReviewStep.Correct }
-            viewModel.onIntent(ReviewIntent.SupportTapped(span = 1))
+            viewModel.onIntent(ReviewIntent.SupportTapped(spanIndex = 1))
             assertEquals(1, awaitReviewing().card.openSpan)
         }
     }
 
     private val correctHome: ReviewVerdict =
         ReviewVerdict.Correct(word = "home", gloss = "casa", dueAt = firstReadAt + 10.minutes, earnedSkill = null)
+
+    @Test
+    fun `keeps a support opened while the hint is asked`() = runTest {
+        val learning: FakeLearningRepository = FakeLearningRepository()
+        val viewModel: ReviewViewModel = openReview(learning)
+        learning.answerRead(dueNow(goesRecall))
+
+        viewModel.state.test {
+            awaitReviewing()
+            viewModel.onIntent(ReviewIntent.HintTapped)
+            awaitStep { it == ReviewUiState.ReviewStep.Hinting }
+            viewModel.onIntent(ReviewIntent.SupportTapped(spanIndex = 1))
+            awaitReviewing()
+            learning.answerHint(ReviewHintResult.Hinted(goesHint))
+            val hinted: ReviewUiState.Reviewing = awaitStep { it == ReviewUiState.ReviewStep.Answering }
+            assertEquals(1, hinted.card.openSpan)
+        }
+    }
 }
+
+private val goesHint: ReviewHint = ReviewHint(words = listOf(ReviewHintWord(firstLetter = "g", letterCount = 4)))

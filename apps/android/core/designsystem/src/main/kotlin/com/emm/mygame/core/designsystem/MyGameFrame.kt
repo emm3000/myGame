@@ -5,7 +5,7 @@ import androidx.compose.runtime.Immutable
 @Immutable
 data class MyGameFrame(val pieces: List<MyGameFramePiece>) {
 
-    fun openedSupportOf(piece: Int?): MyGameWordSupport? = piece
+    fun openedSupportOf(pieceIndex: Int?): MyGameWordSupport? = pieceIndex
         ?.let { index: Int -> pieces.getOrNull(index)?.support }
         ?.takeIf(MyGameWordSupport::isOnTap)
 }

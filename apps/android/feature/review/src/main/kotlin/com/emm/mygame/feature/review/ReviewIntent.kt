@@ -10,7 +10,7 @@ sealed interface ReviewIntent {
 
     data class AnswerChanged(val answer: String) : ReviewIntent
 
-    data class SupportTapped(val span: Int) : ReviewIntent
+    data class SupportTapped(val spanIndex: Int) : ReviewIntent
 
     data object HintTapped : ReviewIntent
 

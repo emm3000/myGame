@@ -5,6 +5,7 @@ import androidx.compose.ui.semantics.SemanticsProperties
 import androidx.compose.ui.test.assertCountEquals
 import androidx.compose.ui.test.hasClickAction
 import androidx.compose.ui.test.hasText
+import androidx.compose.ui.test.isHeading
 import androidx.compose.ui.test.junit4.ComposeContentTestRule
 import androidx.compose.ui.test.junit4.createComposeRule
 import androidx.compose.ui.test.onAllNodesWithText
@@ -16,6 +17,7 @@ import com.emm.mygame.core.designsystem.MyGameTheme
 import com.emm.mygame.core.network.LessonName
 import com.emm.mygame.core.network.TownSnapshot
 import org.junit.Assert.assertEquals
+import org.junit.Assert.assertTrue
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -34,6 +36,15 @@ class LessonWordsSupportScreenTest {
         draw(readingOf(homeWord))
 
         composeRule.onNode(hasText("home hogar")).assertExists()
+    }
+
+    @Test
+    fun `lets the screen reader reach the word as a heading when its support is on tap`() {
+        draw(readingOf(drinkWaterWord(aguaOnTap)))
+
+        val heading: SemanticsNode = composeRule.onNode(isHeading() and hasText("water")).fetchSemanticsNode()
+        assertEquals("water", heading.config[SemanticsProperties.Text].joinToString())
+        assertTrue(heading.config.isMergingSemanticsOfDescendants)
     }
 
     @Test
@@ -60,7 +71,7 @@ class LessonWordsSupportScreenTest {
 
     @Test
     fun `shows the gloss of a frame word on tap`() {
-        draw(readingOf(drinkWaterWord(aguaOnTap), LessonWordsUiState.ShownSupport.Frame(span = 1)))
+        draw(readingOf(drinkWaterWord(aguaOnTap), LessonWordsUiState.ShownSupport.Frame(spanIndex = 1)))
 
         assertEquals(LocaleList("es"), localeOf("beber"))
     }

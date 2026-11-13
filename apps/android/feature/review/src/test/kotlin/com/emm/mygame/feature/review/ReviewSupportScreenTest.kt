@@ -105,7 +105,7 @@ class ReviewSupportScreenTest {
 
         composeRule.onNodeWithText("walk").performClick()
 
-        assertEquals(listOf<ReviewIntent>(ReviewIntent.SupportTapped(span = 1)), intents)
+        assertEquals(listOf<ReviewIntent>(ReviewIntent.SupportTapped(spanIndex = 1)), intents)
     }
 
     @Test
@@ -123,7 +123,7 @@ class ReviewSupportScreenTest {
 
         composeRule.onNodeWithText("goes").performClick()
 
-        assertEquals(listOf<ReviewIntent>(ReviewIntent.SupportTapped(span = 1)), intents)
+        assertEquals(listOf<ReviewIntent>(ReviewIntent.SupportTapped(spanIndex = 1)), intents)
     }
 
     @Test
