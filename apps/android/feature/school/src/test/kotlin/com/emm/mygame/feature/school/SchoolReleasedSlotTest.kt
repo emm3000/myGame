@@ -78,7 +78,7 @@ class SchoolReleasedSlotTest {
     fun `draws the running released lesson by its band and set in the slot`() {
         show(contentAt(readInstant + 30.seconds))
 
-        composeRule.onAllNodesWithText("Palabras que vuelven: banda 2, grupo 3").onFirst().assertExists()
+        composeRule.onAllNodesWithText("Palabras que vuelven: banda 2, grupo\u00A03").onFirst().assertExists()
         composeRule.onAllNodesWithText("Lección 0", substring = true).assertCountEquals(0)
     }
 
@@ -86,7 +86,7 @@ class SchoolReleasedSlotTest {
     fun `draws the finished released lesson by its band and set in the slot`() {
         show(contentAt(readInstant + 150.seconds))
 
-        composeRule.onAllNodesWithText("Palabras que vuelven: banda 2, grupo 3").onFirst().assertExists()
+        composeRule.onAllNodesWithText("Palabras que vuelven: banda 2, grupo\u00A03").onFirst().assertExists()
         composeRule.onAllNodesWithText("Lección 0", substring = true).assertCountEquals(0)
     }
 
@@ -112,7 +112,7 @@ class SchoolReleasedSlotTest {
     fun `offers the words of the running released lesson by its band and set`() {
         show(contentAt(readInstant + 30.seconds))
 
-        composeRule.onNodeWithText("Palabras que vuelven: banda 2, grupo 3 · Leer las palabras").assertExists()
+        composeRule.onNodeWithText("Palabras que vuelven: banda 2, grupo\u00A03 · Leer las palabras").assertExists()
     }
 
     private fun contentAt(now: Instant): SchoolUiState.Content =

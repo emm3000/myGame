@@ -65,7 +65,7 @@ class SchoolNextStepTest {
     fun `numbers the released lesson by its set in the band`() {
         show(contentOf(releasedStep))
 
-        composeRule.onNodeWithText("Palabras que vuelven: banda 2, grupo 3").assertExists()
+        composeRule.onNodeWithText("Palabras que vuelven: banda 2, grupo\u00A03").assertExists()
     }
 
     @Test
