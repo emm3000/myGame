@@ -1,6 +1,7 @@
 package com.emm.mygame.feature.school
 
 import androidx.compose.runtime.CompositionLocalProvider
+import androidx.compose.ui.test.junit4.ComposeContentTestRule
 import androidx.compose.ui.test.junit4.createComposeRule
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.assertIsDisplayed
@@ -23,7 +24,7 @@ import org.robolectric.RobolectricTestRunner
 class SchoolRouteTest {
 
     @get:Rule
-    val composeRule = createComposeRule()
+    val composeRule: ComposeContentTestRule = createComposeRule()
 
     private val towns: FakeTownRepository = FakeTownRepository()
 
