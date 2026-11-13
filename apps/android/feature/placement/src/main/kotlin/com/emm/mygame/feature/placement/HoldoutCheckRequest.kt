@@ -8,7 +8,7 @@ sealed interface HoldoutCheckRequest {
 
     data class Waiting(val action: HoldoutCheckAction) : HoldoutCheckRequest
 
-    data class Refused(val refusal: HoldoutCheckRefusal) : HoldoutCheckRequest
+    data class Refused(val action: HoldoutCheckAction, val refusal: HoldoutCheckRefusal) : HoldoutCheckRequest
 
     data object Unreachable : HoldoutCheckRequest
 }

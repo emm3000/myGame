@@ -1,9 +1,9 @@
 package com.emm.mygame
 
 import android.app.Application
+import com.emm.mygame.core.network.HoldoutCheckRepository
 import com.emm.mygame.core.network.KeystoreTokenCipher
 import com.emm.mygame.core.network.LearningRepository
-import com.emm.mygame.core.network.HoldoutCheckRepository
 import com.emm.mygame.core.network.PlacementRepository
 import com.emm.mygame.core.network.PlayerLanguage
 import com.emm.mygame.core.network.PlayerLanguages

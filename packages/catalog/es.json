@@ -222,7 +222,7 @@
   "android.school.school_go_to_school": "Ir a la escuela",
   "android.school.school_holdout_note": "1 de cada 10 palabras se aparta para dos pruebas posteriores y vuelve después de la última.",
   "android.school.school_holdout_open": "Abrir la prueba",
-  "android.school.school_holdout_row": "Tienes pendiente una prueba de palabras de la banda {band}.",
+  "android.school.school_holdout_row": "Tienes pendiente una prueba de palabras de la banda {band}, semana {week}.",
   "android.school.school_learning": "Palabras en aprendizaje: {inLearning} de {cap}",
   "android.school.school_learning_full": "{count, plural, =1 {La siguiente lección trae 1 palabra.} other {La siguiente lección trae {count, number,0} palabras.}} Empieza los repasos.",
   "android.school.school_lesson_cap_reached": "Palabras en aprendizaje: {inLearning} de {cap}. Esta lección trae {count}.",

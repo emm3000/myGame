@@ -202,7 +202,7 @@ class HoldoutCheckViewModelTest {
         runCurrent()
 
         assertEquals(
-            dueIdle.copy(request = HoldoutCheckRequest.Refused(HoldoutCheckRefusal.NotOpen)),
+            dueIdle.copy(request = HoldoutCheckRequest.Refused(HoldoutCheckAction.Begin, HoldoutCheckRefusal.NotOpen)),
             viewModel.state.value,
         )
     }
@@ -364,7 +364,10 @@ class HoldoutCheckViewModelTest {
         holdoutChecks.answerChange(HoldoutCheckChangeResult.Refused(HoldoutCheckRefusal.NotOpen))
         runCurrent()
 
-        assertEquals(HoldoutCheckRequest.Refused(HoldoutCheckRefusal.NotOpen), askingOf(viewModel).request)
+        assertEquals(
+            HoldoutCheckRequest.Refused(HoldoutCheckAction.Answers, HoldoutCheckRefusal.NotOpen),
+            askingOf(viewModel).request,
+        )
     }
 
     @Test
@@ -386,7 +389,10 @@ class HoldoutCheckViewModelTest {
         holdoutChecks.answerChange(HoldoutCheckChangeResult.Refused(HoldoutCheckRefusal.InvalidRequest))
         runCurrent()
 
-        assertEquals(HoldoutCheckRequest.Refused(HoldoutCheckRefusal.InvalidRequest), askingOf(viewModel).request)
+        assertEquals(
+            HoldoutCheckRequest.Refused(HoldoutCheckAction.Answers, HoldoutCheckRefusal.InvalidRequest),
+            askingOf(viewModel).request,
+        )
     }
 
     @Test

@@ -134,7 +134,7 @@ class SchoolScreenTest {
             }
         }
 
-        showing("Tienes pendiente una prueba de palabras de la banda 1.")
+        showing("Tienes pendiente una prueba de palabras de la banda 1, semana 8.")
     }
 
     @Test

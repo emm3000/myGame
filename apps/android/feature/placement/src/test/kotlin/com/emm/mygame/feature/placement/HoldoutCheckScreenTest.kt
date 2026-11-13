@@ -96,14 +96,22 @@ class HoldoutCheckScreenTest {
 
     @Test
     fun `draws the check not open inline beside the due line`() {
-        showing(dueEighthWeek.copy(request = HoldoutCheckRequest.Refused(HoldoutCheckRefusal.NotOpen)))
+        showing(
+            dueEighthWeek.copy(
+                request = HoldoutCheckRequest.Refused(HoldoutCheckAction.Begin, HoldoutCheckRefusal.NotOpen),
+            ),
+        )
 
         composeRule.onNodeWithText("Esta prueba no está abierta ahora.").assertIsDisplayed()
     }
 
     @Test
     fun `draws the refusal beside the words of a refused send`() {
-        showing(askingLastWordChosen.copy(request = HoldoutCheckRequest.Refused(HoldoutCheckRefusal.NotOpen)))
+        showing(
+            askingLastWordChosen.copy(
+                request = HoldoutCheckRequest.Refused(HoldoutCheckAction.Answers, HoldoutCheckRefusal.NotOpen),
+            ),
+        )
 
         composeRule.onNodeWithText("Esta prueba no está abierta ahora.").performScrollTo().assertIsDisplayed()
     }
@@ -157,9 +165,35 @@ class HoldoutCheckScreenTest {
 
     @Test
     fun `draws the unsaved answers line beside the words of an invalid send`() {
-        showing(askingLastWordChosen.copy(request = HoldoutCheckRequest.Refused(HoldoutCheckRefusal.InvalidRequest)))
+        showing(
+            askingLastWordChosen.copy(
+                request = HoldoutCheckRequest.Refused(HoldoutCheckAction.Answers, HoldoutCheckRefusal.InvalidRequest),
+            ),
+        )
 
         composeRule.onNodeWithText("No hemos podido guardar tus respuestas.").performScrollTo().assertIsDisplayed()
+    }
+
+    @Test
+    fun `draws the check not open when the api cannot take a start`() {
+        showing(
+            dueEighthWeek.copy(
+                request = HoldoutCheckRequest.Refused(HoldoutCheckAction.Begin, HoldoutCheckRefusal.InvalidRequest),
+            ),
+        )
+
+        composeRule.onNodeWithText("Esta prueba no está abierta ahora.").performScrollTo().assertIsDisplayed()
+    }
+
+    @Test
+    fun `draws the check not open when the api cannot take a skip`() {
+        showing(
+            dueEighthWeek.copy(
+                request = HoldoutCheckRequest.Refused(HoldoutCheckAction.Skip, HoldoutCheckRefusal.InvalidRequest),
+            ),
+        )
+
+        composeRule.onNodeWithText("Esta prueba no está abierta ahora.").performScrollTo().assertIsDisplayed()
     }
 
     @Test
