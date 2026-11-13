@@ -6,6 +6,9 @@ import androidx.compose.foundation.selection.selectableGroup
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.semantics.contentDescription
+import androidx.compose.ui.semantics.heading
+import androidx.compose.ui.semantics.semantics
 import com.emm.mygame.core.designsystem.MyGameChoiceRow
 import com.emm.mygame.core.designsystem.MyGameSpacing
 import com.emm.mygame.core.designsystem.MyGameText
@@ -20,15 +23,19 @@ internal fun ScaffoldChoice(
     onPick: (PlayerScaffold) -> Unit,
     modifier: Modifier = Modifier,
 ) {
+    val question: String = stringResource(R.string.scaffold_label)
     Column(verticalArrangement = Arrangement.spacedBy(MyGameSpacing.step2), modifier = modifier) {
         MyGameText(
-            text = stringResource(R.string.scaffold_label),
+            text = question,
             style = MyGameTypography.label,
             color = MyGameTheme.colors.ink,
+            modifier = Modifier.semantics { heading() },
         )
         Column(
             verticalArrangement = Arrangement.spacedBy(MyGameSpacing.step2),
-            modifier = Modifier.selectableGroup(),
+            modifier = Modifier
+                .selectableGroup()
+                .semantics { contentDescription = question },
         ) {
             PlayerScaffold.entries.forEach { scaffold: PlayerScaffold ->
                 MyGameChoiceRow(

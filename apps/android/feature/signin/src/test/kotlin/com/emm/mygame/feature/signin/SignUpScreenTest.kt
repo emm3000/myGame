@@ -14,6 +14,7 @@ import androidx.compose.ui.test.hasAnyAncestor
 import androidx.compose.ui.test.hasContentDescription
 import androidx.compose.ui.test.hasSetTextAction
 import androidx.compose.ui.test.hasText
+import androidx.compose.ui.test.isHeading
 import androidx.compose.ui.test.isSelectable
 import androidx.compose.ui.test.junit4.ComposeContentTestRule
 import androidx.compose.ui.test.junit4.createComposeRule
@@ -31,6 +32,7 @@ import org.robolectric.RobolectricTestRunner
 
 private const val SPANISH_OPTION: String = "Español: una traducción junto a cada palabra nueva"
 private const val NONE_OPTION: String = "Ninguno: todo en inglés, con definiciones en inglés"
+private const val QUESTION: String = "Idioma de ayuda"
 private const val CHANGE_LINE: String = "Puedes cambiarlo cuando quieras en Ajustes."
 
 @RunWith(RobolectricTestRunner::class)
@@ -85,6 +87,20 @@ class SignUpScreenTest {
         drawForm()
 
         composeRule.onAllNodes(isRadioButton() and hasAnyAncestor(isSelectableGroup())).assertCountEquals(2)
+    }
+
+    @Test
+    fun `reads the help language question as a heading`() {
+        drawForm()
+
+        composeRule.onNode(hasText(QUESTION) and isHeading()).assertExists()
+    }
+
+    @Test
+    fun `names the help language group with its question`() {
+        drawForm()
+
+        composeRule.onNode(isSelectableGroup() and hasContentDescription(QUESTION)).assertExists()
     }
 
     @Test
