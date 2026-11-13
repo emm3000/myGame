@@ -17,5 +17,6 @@ internal fun HoldoutCheckRequestLine(request: HoldoutCheckRequest, modifier: Mod
 }
 
 private fun refusalLineOf(refusal: HoldoutCheckRefusal): Int = when (refusal) {
-    HoldoutCheckRefusal.NotOpen, HoldoutCheckRefusal.InvalidRequest -> R.string.placement_holdout_refused
+    HoldoutCheckRefusal.NotOpen -> R.string.placement_holdout_refused
+    HoldoutCheckRefusal.InvalidRequest -> R.string.placement_holdout_refusal_invalid
 }

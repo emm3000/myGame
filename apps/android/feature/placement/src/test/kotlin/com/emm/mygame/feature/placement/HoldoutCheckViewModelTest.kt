@@ -183,14 +183,14 @@ class HoldoutCheckViewModelTest {
     }
 
     @Test
-    fun `draws the done line after a skip`() = runTest {
+    fun `draws the skipped line after a skip`() = runTest {
         val viewModel: HoldoutCheckViewModel = reading(firstBandEighthWeekDue)
 
         viewModel.onIntent(HoldoutCheckIntent.SkipTapped)
         holdoutChecks.answerChange(HoldoutCheckChangeResult.Changed(listOf(secondBandTwentyFourthWeekDue)))
         runCurrent()
 
-        assertEquals(HoldoutCheckUiState.Done, viewModel.state.value)
+        assertEquals(HoldoutCheckUiState.Skipped, viewModel.state.value)
     }
 
     @Test
@@ -353,7 +353,7 @@ class HoldoutCheckViewModelTest {
         holdoutChecks.answerChange(HoldoutCheckChangeResult.Changed(emptyList()))
         runCurrent()
 
-        assertEquals(HoldoutCheckUiState.Done, viewModel.state.value)
+        assertEquals(HoldoutCheckUiState.Answered, viewModel.state.value)
     }
 
     @Test

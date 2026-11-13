@@ -88,7 +88,11 @@ private fun HoldoutCheckState(
         )
         is HoldoutCheckUiState.Due -> HoldoutCheckDue(due = state, onIntent = onIntent)
         is HoldoutCheckUiState.Asking -> HoldoutCheckAsking(asking = state, onIntent = onIntent)
-        HoldoutCheckUiState.Done -> HoldoutCheckEnd(line = R.string.placement_holdout_done, onTownOpen = onTownOpen)
+        HoldoutCheckUiState.Answered -> HoldoutCheckEnd(line = R.string.placement_holdout_done, onTownOpen = onTownOpen)
+        HoldoutCheckUiState.Skipped -> HoldoutCheckEnd(
+            line = R.string.placement_holdout_skipped,
+            onTownOpen = onTownOpen,
+        )
     }
 }
 
@@ -142,7 +146,8 @@ private class HoldoutCheckScreenStates : PreviewParameterProvider<HoldoutCheckUi
         previewDue,
         previewAsking.copy(shownIndex = 0, chosen = emptyMap()),
         previewAsking.copy(request = HoldoutCheckRequest.Waiting(HoldoutCheckAction.Answers)),
-        HoldoutCheckUiState.Done,
+        HoldoutCheckUiState.Answered,
+        HoldoutCheckUiState.Skipped,
         previewDue.copy(request = HoldoutCheckRequest.Refused(HoldoutCheckRefusal.NotOpen)),
         previewAsking.copy(request = HoldoutCheckRequest.Refused(HoldoutCheckRefusal.NotOpen)),
         HoldoutCheckUiState.Failed,
