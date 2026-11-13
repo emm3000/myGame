@@ -2,6 +2,7 @@ import { reviewRecognitionPrompt } from '@mygame/catalog'
 import type { DueReview } from '@mygame/contracts'
 import type { FormEvent, ReactElement, Ref } from 'react'
 import { CheckAction } from './CheckAction'
+import { frameTextOf } from './frameTextOf'
 import { RatedVerdictLines } from './RatedVerdictLines'
 import { ReviewBlock } from './ReviewBlock'
 import type { ReviewHandle } from './useReview'
@@ -21,7 +22,7 @@ export function RecognitionCard({ card, review, verdictRef }: RecognitionCardPro
   }
   return (
     <>
-      <ReviewBlock cue={card.word} cueLang="en" frame={card.frame} review={review} />
+      <ReviewBlock cue={card.word} cueLang="en" frame={frameTextOf(card.frame)} review={review} />
       <form onSubmit={submit} className="flex flex-col gap-4">
         <fieldset
           disabled={review.answered !== undefined}

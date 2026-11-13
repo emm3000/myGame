@@ -89,6 +89,13 @@ const lemmaFailures = (
     : [`${label}: gapped frame is not its frame with ${entry.lemma} replaced by ${gaps}`]
 }
 
+const noCardSenseFailures = ({ frame, noCardSense, label }: LessonFrame): ReadonlyArray<string> => {
+  const tokens = tokensOf(frame)
+  return noCardSense
+    .filter((form) => !tokens.includes(form))
+    .map((form) => `${label}: names ${form} in no card sense, a token its frame does not hold`)
+}
+
 const frameFailures = (frame: LessonFrame, terms: FrameTerms): ReadonlyArray<string> => {
   const words = lemmaWordsOf(frame.entry.lemma)
   const readings = tokensOf(frame.frame).map((token) => ({
@@ -116,7 +123,7 @@ const frameFailures = (frame: LessonFrame, terms: FrameTerms): ReadonlyArray<str
       .map(({ token }) => token)
       .join(' '),
   )
-  return [...failures, ...lemmaFailures(occurrences, frame)]
+  return [...failures, ...lemmaFailures(occurrences, frame), ...noCardSenseFailures(frame)]
 }
 
 export const checkFrames = (content: GateContent): ReadonlyArray<string> => {

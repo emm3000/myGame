@@ -2,15 +2,19 @@ import { z } from 'zod'
 
 const MAXIMUM_FRAMES = 3
 
+const NoCardSenseSchema = z.array(z.string().regex(/^[a-z]+$/)).min(1)
+
 const AnchorFrameSchema = z.strictObject({
   frame: z.string().min(1),
   gappedFrame: z.string().min(1),
+  noCardSense: NoCardSenseSchema.optional(),
 })
 
 const LaterFrameSchema = z.strictObject({
   frame: z.string().min(1),
   gappedFrame: z.string().min(1),
   fromLessonId: z.string().min(1),
+  noCardSense: NoCardSenseSchema.optional(),
 })
 
 const FramesSchema = z

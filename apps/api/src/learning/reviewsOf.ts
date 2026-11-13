@@ -3,6 +3,7 @@ import {
   type Clock,
   type DomainError,
   dueInstantOf,
+  type FrameReader,
   type HeldCard,
   type Instant,
   type MemoryTerms,
@@ -11,7 +12,6 @@ import {
   type Result,
   readFirstOf,
   reviewPromptOf,
-  type Scaffold,
   type ShownReview,
   showDueReviews,
   stageOf,
@@ -28,15 +28,14 @@ export type ReviewTerms = {
 
 const dueReviewOf = (
   { lesson, word, due, shownFrame }: ShownReview,
-  cards: ReadonlyArray<HeldCard>,
-  scaffold: Scaffold,
+  reader: FrameReader,
 ): DueReview => {
   const asked = { wordId: word.id, lessonId: lesson.id, dueAt: isoOf(due.dueAt) }
-  const prompt = reviewPromptOf({ lesson, word, card: due.card, shownFrame }, cards, scaffold)
+  const prompt = reviewPromptOf({ lesson, word, card: due.card, shownFrame }, reader)
   if (prompt.mode === 'recall') {
-    return { ...asked, ...prompt }
+    return { ...asked, ...prompt, gappedFrame: [...prompt.gappedFrame] }
   }
-  return { ...asked, ...prompt, choices: [...prompt.choices] }
+  return { ...asked, ...prompt, frame: [...prompt.frame], choices: [...prompt.choices] }
 }
 
 export const nextDueAtOf = (
@@ -82,7 +81,9 @@ export const reviewsOf = async (
     return nextDueAt
   }
   return ok({
-    due: shown.value.map((review) => dueReviewOf(review, cards, scaffold)),
+    due: shown.value.map((review) =>
+      dueReviewOf(review, { cards, placedOutBands, scaffold, lessons }),
+    ),
     readFirst: [
       ...readFirstOf(
         lessons.lessons(),

@@ -10,6 +10,7 @@ import type { FormEvent, ReactElement, Ref } from 'react'
 import { Button } from '../design-system/Button'
 import { TextField } from '../design-system/TextField'
 import { CheckAction } from './CheckAction'
+import { frameTextOf } from './frameTextOf'
 import { RatedVerdictLines } from './RatedVerdictLines'
 import { ReviewBlock } from './ReviewBlock'
 import type { ReviewHandle } from './useReview'
@@ -85,7 +86,12 @@ export function RecallCard({ card, review, verdictRef }: RecallCardProps): React
   }
   return (
     <>
-      <ReviewBlock cue={card.gloss} cueLang="es" frame={card.gappedFrame} review={review} />
+      <ReviewBlock
+        cue={card.gloss}
+        cueLang="es"
+        frame={frameTextOf(card.gappedFrame)}
+        review={review}
+      />
       <form onSubmit={submit} className="flex flex-col gap-4">
         <p className="m-0 font-sans text-caption text-ink-muted">{reviewRecallPrompt()}</p>
         <TextField

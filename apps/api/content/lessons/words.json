@@ -28,6 +28,7 @@
       {
         "frame": "What time does school start?",
         "gappedFrame": "What time does ____ start?",
+        "noCardSense": ["time"],
         "fromLessonId": "lesson-18"
       },
       {
@@ -73,6 +74,7 @@
       {
         "frame": "How much money do you make?",
         "gappedFrame": "How much ____ do you make?",
+        "noCardSense": ["how", "make"],
         "fromLessonId": "lesson-25"
       }
     ],
@@ -136,6 +138,7 @@
       {
         "frame": "How many people are on your team?",
         "gappedFrame": "How many ____ are on your team?",
+        "noCardSense": ["how"],
         "fromLessonId": "lesson-25"
       }
     ],
@@ -216,6 +219,7 @@
       {
         "frame": "She is looking for a job.",
         "gappedFrame": "She is looking for a ____.",
+        "noCardSense": ["looking"],
         "fromLessonId": "lesson-20"
       }
     ],
@@ -229,7 +233,8 @@
     "frames": [
       {
         "frame": "The pay for this work is food.",
-        "gappedFrame": "The ____ for this work is food."
+        "gappedFrame": "The ____ for this work is food.",
+        "noCardSense": ["work"]
       },
       {
         "frame": "The pay at the factory is good.",
@@ -272,11 +277,13 @@
     "frames": [
       {
         "frame": "People need work in the spring.",
-        "gappedFrame": "People need work in the ____."
+        "gappedFrame": "People need work in the ____.",
+        "noCardSense": ["work"]
       },
       {
         "frame": "We start work on the farm in the spring.",
         "gappedFrame": "We start work on the farm in the ____.",
+        "noCardSense": ["work"],
         "fromLessonId": "lesson-8"
       },
       {
@@ -345,6 +352,7 @@
       {
         "frame": "Summer is the best time of the year.",
         "gappedFrame": "____ is the best time of the year.",
+        "noCardSense": ["time"],
         "fromLessonId": "lesson-18"
       }
     ],
@@ -405,6 +413,7 @@
       {
         "frame": "I am at the office right now.",
         "gappedFrame": "I am at the office right ____.",
+        "noCardSense": ["right"],
         "fromLessonId": "lesson-23"
       }
     ],
@@ -488,6 +497,7 @@
       {
         "frame": "How long do I have to wait?",
         "gappedFrame": "How long do I have to ____?",
+        "noCardSense": ["how"],
         "fromLessonId": "lesson-25"
       }
     ],
@@ -508,6 +518,7 @@
       {
         "frame": "Last year we had no power.",
         "gappedFrame": "Last ____ we had no power.",
+        "noCardSense": ["last"],
         "fromLessonId": "lesson-20"
       }
     ],
@@ -521,7 +532,8 @@
     "frames": [
       {
         "frame": "Many people go to the city for work.",
-        "gappedFrame": "Many people go to the ____ for work."
+        "gappedFrame": "Many people go to the ____ for work.",
+        "noCardSense": ["work"]
       },
       {
         "frame": "What city are you from?",
@@ -648,7 +660,11 @@
     "lemma": "start",
     "partOfSpeech": "verb",
     "frames": [
-      { "frame": "When do you start work?", "gappedFrame": "When do you ____ work?" },
+      {
+        "frame": "When do you start work?",
+        "gappedFrame": "When do you ____ work?",
+        "noCardSense": ["work"]
+      },
       {
         "frame": "Can we start now?",
         "gappedFrame": "Can we ____ now?",
@@ -819,7 +835,8 @@
     "frames": [
       {
         "frame": "The farm has no work in winter.",
-        "gappedFrame": "The farm has no work in ____."
+        "gappedFrame": "The farm has no work in ____.",
+        "noCardSense": ["work"]
       },
       {
         "frame": "We are ready for winter.",
@@ -849,6 +866,7 @@
       {
         "frame": "I have a lesson after work.",
         "gappedFrame": "I have a ____ after work.",
+        "noCardSense": ["work"],
         "fromLessonId": "lesson-25"
       }
     ],
@@ -869,6 +887,7 @@
       {
         "frame": "How much do you earn?",
         "gappedFrame": "How much do you ____?",
+        "noCardSense": ["how"],
         "fromLessonId": "lesson-25"
       }
     ],
@@ -942,7 +961,8 @@
     "frames": [
       {
         "frame": "We clean the school after work.",
-        "gappedFrame": "We ____ the school after work."
+        "gappedFrame": "We ____ the school after work.",
+        "noCardSense": ["work"]
       },
       {
         "frame": "We need to clean up the river.",
@@ -970,6 +990,7 @@
       {
         "frame": "There is waste in the river.",
         "gappedFrame": "There is ____ in the river.",
+        "noCardSense": ["there"],
         "fromLessonId": "lesson-20"
       },
       {
@@ -986,7 +1007,11 @@
     "lemma": "truck",
     "partOfSpeech": "noun",
     "frames": [
-      { "frame": "We go to work in a truck.", "gappedFrame": "We go to work in a ____." },
+      {
+        "frame": "We go to work in a truck.",
+        "gappedFrame": "We go to work in a ____.",
+        "noCardSense": ["work"]
+      },
       {
         "frame": "The truck is back from the city.",
         "gappedFrame": "The ____ is back from the city.",
@@ -1125,7 +1150,11 @@
     "lemma": "stop",
     "partOfSpeech": "verb",
     "frames": [
-      { "frame": "When do you stop work?", "gappedFrame": "When do you ____ work?" },
+      {
+        "frame": "When do you stop work?",
+        "gappedFrame": "When do you ____ work?",
+        "noCardSense": ["work"]
+      },
       {
         "frame": "The truck will stop at the farm.",
         "gappedFrame": "The truck will ____ at the farm.",
@@ -1154,6 +1183,7 @@
       {
         "frame": "How long did you study today?",
         "gappedFrame": "How long did you ____ today?",
+        "noCardSense": ["how"],
         "fromLessonId": "lesson-25"
       }
     ],
@@ -1378,6 +1408,7 @@
       {
         "frame": "The school is at the top of the hill.",
         "gappedFrame": "The school is at the top of the ____.",
+        "noCardSense": ["top"],
         "fromLessonId": "lesson-15"
       },
       {
@@ -1403,6 +1434,7 @@
       {
         "frame": "There is no storage in this office.",
         "gappedFrame": "There is no ____ in this office.",
+        "noCardSense": ["there"],
         "fromLessonId": "lesson-20"
       }
     ],
@@ -1423,6 +1455,7 @@
       {
         "frame": "How much money is due?",
         "gappedFrame": "How much money is ____?",
+        "noCardSense": ["how"],
         "fromLessonId": "lesson-25"
       }
     ],
@@ -1466,6 +1499,7 @@
       {
         "frame": "She knows the area well.",
         "gappedFrame": "She knows the ____ well.",
+        "noCardSense": ["knows"],
         "fromLessonId": "lesson-24"
       }
     ],
@@ -1489,6 +1523,7 @@
       {
         "frame": "The review will take an hour.",
         "gappedFrame": "The ____ will take an hour.",
+        "noCardSense": ["take"],
         "fromLessonId": "lesson-19"
       }
     ],
@@ -1591,6 +1626,7 @@
       {
         "frame": "There is waste on the site.",
         "gappedFrame": "There is waste on the ____.",
+        "noCardSense": ["there"],
         "fromLessonId": "lesson-20"
       }
     ],
@@ -1624,7 +1660,8 @@
     "frames": [
       {
         "frame": "We close the office at the end of the day.",
-        "gappedFrame": "We ____ the office at the end of the day."
+        "gappedFrame": "We ____ the office at the end of the day.",
+        "noCardSense": ["end"]
       },
       {
         "frame": "The school will close for the summer.",
@@ -1634,6 +1671,7 @@
       {
         "frame": "What time does the office close?",
         "gappedFrame": "What time does the office ____?",
+        "noCardSense": ["time"],
         "fromLessonId": "lesson-18"
       }
     ],
@@ -1974,7 +2012,11 @@
     "lemma": "just",
     "partOfSpeech": "adverb",
     "frames": [
-      { "frame": "I just got home from work.", "gappedFrame": "I ____ got home from work." }
+      {
+        "frame": "I just got home from work.",
+        "gappedFrame": "I ____ got home from work.",
+        "noCardSense": ["got", "work"]
+      }
     ],
     "gloss": { "es": "acabar de" },
     "definition": "a short time ago"
@@ -1984,7 +2026,11 @@
     "lemma": "how",
     "partOfSpeech": "adverb",
     "frames": [
-      { "frame": "How do you get to the farm?", "gappedFrame": "____ do you get to the farm?" }
+      {
+        "frame": "How do you get to the farm?",
+        "gappedFrame": "____ do you get to the farm?",
+        "noCardSense": ["get"]
+      }
     ],
     "gloss": { "es": "cómo" },
     "definition": "in what way"
@@ -2119,7 +2165,8 @@
     "frames": [
       {
         "frame": "Things like this go on in many towns.",
-        "gappedFrame": "Things like this ____ ____ in many towns."
+        "gappedFrame": "Things like this ____ ____ in many towns.",
+        "noCardSense": ["like"]
       }
     ],
     "gloss": { "es": "pasar" },
@@ -2147,7 +2194,8 @@
     "frames": [
       {
         "frame": "Can you find out what time the office closes?",
-        "gappedFrame": "Can you ____ ____ what time the office closes?"
+        "gappedFrame": "Can you ____ ____ what time the office closes?",
+        "noCardSense": ["time"]
       }
     ],
     "gloss": { "es": "averiguar" },

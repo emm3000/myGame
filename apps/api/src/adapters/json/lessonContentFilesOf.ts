@@ -26,6 +26,7 @@ export type LessonContentFiles = {
   readonly lessons: ReadonlyArray<LessonOfFiles>
   readonly lexicon: LexiconContent
   readonly ranks: ReadonlyMap<string, number>
+  readonly forms: ReadonlyMap<string, ReadonlySet<string>>
 }
 
 const headwordHeader = 'Lemma,SFI Rank,SFI,Adjusted Frequency per Million (U)'
@@ -97,6 +98,20 @@ const ranksOfFile = (directory: string): ReadonlyMap<string, number> => {
   }
 }
 
+const formsOfTeachingList = (directory: string): ReadonlyMap<string, ReadonlySet<string>> => {
+  const forms = new Map<string, Set<string>>()
+  const rows = readFileSync(lessonsFile(directory, 'ngsl-1.2-lemmatized-for-teaching.csv'), 'utf8')
+    .split(/\r?\n/)
+    .filter((row) => row !== '' && !row.startsWith('##'))
+    .map((row) => row.toLowerCase().split(','))
+  for (const [headword = '', ...inflections] of rows) {
+    for (const form of [headword, ...inflections]) {
+      forms.set(form, new Set([...(forms.get(form) ?? []), headword]))
+    }
+  }
+  return forms
+}
+
 export const lessonContentFilesOf = (directory: string): LessonContentFiles => {
   const curriculum = parsedFile(lessonsFile(directory, 'curriculum.json'), CurriculumContentSchema)
   const lexicon = parsedFile(lessonsFile(directory, 'words.json'), LexiconContentSchema)
@@ -106,5 +121,6 @@ export const lessonContentFilesOf = (directory: string): LessonContentFiles => {
     lessons: curriculum.lessonIds.map((lessonId) => lessonOfFile(directory, lessonId, lexicon)),
     lexicon,
     ranks: ranksOfFile(directory),
+    forms: formsOfTeachingList(directory),
   }
 }

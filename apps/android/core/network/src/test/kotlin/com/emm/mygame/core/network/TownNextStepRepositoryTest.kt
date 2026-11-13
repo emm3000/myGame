@@ -153,7 +153,8 @@ class TownNextStepRepositoryTest {
         const val READ_RELEASED: String =
             """{"id":"released-2-1","band":2,"position":1,"durationSeconds":300,"requiredSchoolLevel":1,""" +
                 """"isStudied":true,"words":[{"wordId":"word-1","standing":"recall","reading":""" +
-                """{"word":"ticket","gloss":"boleto","frame":"I buy a ticket."},"support":null}]}"""
+                """{"word":"ticket","gloss":"boleto","frame":[{"text":"I buy a ","support":null},""" +
+                """{"text":"ticket","support":null},{"text":".","support":null}]},"support":null}]}"""
         const val HIRING: String =
             """{"order":null,"hires":{"worker":0,"truck":0},"terms":{""" +
                 """"worker":{"cost":{"money":40,"food":0,"power":0,"material":0},"secondsPerHire":60,""" +

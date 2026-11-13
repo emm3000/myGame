@@ -652,8 +652,11 @@
             "minLength": 1
           },
           "frame": {
-            "type": "string",
-            "minLength": 1
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/FrameSpan"
+            },
+            "minItems": 1
           },
           "choices": {
             "type": "array",
@@ -675,6 +678,46 @@
           }
         },
         "required": ["wordId", "lessonId", "dueAt", "mode", "word", "frame", "choices"],
+        "additionalProperties": false
+      },
+      "FrameSpan": {
+        "type": "object",
+        "properties": {
+          "text": {
+            "type": "string",
+            "minLength": 1
+          },
+          "support": {
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/WordSupport"
+              },
+              {
+                "nullable": true
+              }
+            ]
+          }
+        },
+        "required": ["text", "support"],
+        "additionalProperties": false
+      },
+      "WordSupport": {
+        "type": "object",
+        "properties": {
+          "shown": {
+            "type": "string",
+            "enum": ["beside", "onTap"]
+          },
+          "text": {
+            "type": "string",
+            "minLength": 1
+          },
+          "language": {
+            "type": "string",
+            "enum": ["es", "en"]
+          }
+        },
+        "required": ["shown", "text", "language"],
         "additionalProperties": false
       },
       "RecallReview": {
@@ -701,8 +744,11 @@
             "minLength": 1
           },
           "gappedFrame": {
-            "type": "string",
-            "minLength": 1
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/FrameSpan"
+            },
+            "minItems": 1
           }
         },
         "required": ["wordId", "lessonId", "dueAt", "mode", "gloss", "gappedFrame"],
@@ -2446,8 +2492,11 @@
                             "minLength": 1
                           },
                           "frame": {
-                            "type": "string",
-                            "minLength": 1
+                            "type": "array",
+                            "items": {
+                              "$ref": "#/components/schemas/FrameSpan"
+                            },
+                            "minItems": 1
                           }
                         },
                         "required": ["word", "gloss", "frame"],
@@ -2536,8 +2585,11 @@
                             "minLength": 1
                           },
                           "frame": {
-                            "type": "string",
-                            "minLength": 1
+                            "type": "array",
+                            "items": {
+                              "$ref": "#/components/schemas/FrameSpan"
+                            },
+                            "minItems": 1
                           }
                         },
                         "required": ["word", "gloss", "frame"],
@@ -2938,25 +2990,6 @@
           "size",
           "waste"
         ],
-        "additionalProperties": false
-      },
-      "WordSupport": {
-        "type": "object",
-        "properties": {
-          "shown": {
-            "type": "string",
-            "enum": ["beside", "onTap"]
-          },
-          "text": {
-            "type": "string",
-            "minLength": 1
-          },
-          "language": {
-            "type": "string",
-            "enum": ["es", "en"]
-          }
-        },
-        "required": ["shown", "text", "language"],
         "additionalProperties": false
       },
       "NextStep": {

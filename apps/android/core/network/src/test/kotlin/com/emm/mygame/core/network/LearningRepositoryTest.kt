@@ -281,10 +281,13 @@ class LearningRepositoryTest {
         const val TWO_DUE: String =
             """{"due":[""" +
                 """{"mode":"recognition","wordId":"lesson-1-2","lessonId":"lesson-1",""" +
-                """"dueAt":"2026-11-10T09:00:00.000Z","word":"school","frame":"The kids walk to school.",""" +
+                """"dueAt":"2026-11-10T09:00:00.000Z","word":"school","frame":[{"text":"The kids ","support":null},""" +
+                """{"text":"walk","support":{"shown":"beside","text":"caminar","language":"es"}},""" +
+                """{"text":" to school.","support":null}],""" +
                 """"choices":[{"choiceId":"0a1b2c3d","gloss":"escuela"},{"choiceId":"4e5f6a7b","gloss":"comida"}]},""" +
                 """{"mode":"recall","wordId":"lesson-1-1","lessonId":"lesson-1",""" +
-                """"dueAt":"2026-11-10T09:01:00.000Z","gloss":"casa","gappedFrame":"She goes ___ at six."}""" +
+                """"dueAt":"2026-11-10T09:01:00.000Z","gloss":"casa",""" +
+                """"gappedFrame":[{"text":"She goes ___ at six.","support":null}]}""" +
                 """],"readFirst":["lesson-1"],"nextDueAt":"2026-11-10T09:10:00.000Z",""" +
                 """"readAt":"2026-11-10T08:59:30.000Z"}"""
         const val NEAR_MISS: String = """{"kind":"nearMiss"}"""

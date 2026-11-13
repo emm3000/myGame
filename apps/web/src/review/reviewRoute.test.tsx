@@ -62,7 +62,11 @@ const homeRecognition: DueReview = {
   dueAt: '2026-09-22T11:58:00.000Z',
   mode: 'recognition',
   word: 'home',
-  frame: 'We have a new home in this town.',
+  frame: [
+    { text: 'We have a new home in this ', support: null },
+    { text: 'town', support: { shown: 'beside', text: 'pueblo', language: 'es' } },
+    { text: '.', support: null },
+  ],
   choices: [
     { choiceId: 'choice-a', gloss: 'escuela' },
     { choiceId: 'choice-b', gloss: 'hogar' },
@@ -76,7 +80,7 @@ const schoolRecall: DueReview = {
   dueAt: '2026-09-22T11:59:00.000Z',
   mode: 'recall',
   gloss: 'escuela',
-  gappedFrame: 'I walk to ____ every day.',
+  gappedFrame: [{ text: 'I walk to ____ every day.', support: null }],
 }
 
 const withReviews = (
@@ -521,7 +525,9 @@ it('draws a card as one block with the word in word and the frame in reading', a
   const block = screen.getByRole('region', { name: 'home' })
 
   expect(classesOf(within(block).getByRole('heading', { level: 2 }))).toContain('text-word')
-  expect(classesOf(within(block).getByText(homeRecognition.frame))).toContain('text-reading')
+  expect(classesOf(within(block).getByText('We have a new home in this town.'))).toContain(
+    'text-reading',
+  )
 })
 
 it('keeps the answer and the pill off the block', async () => {

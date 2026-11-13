@@ -64,7 +64,7 @@ const recallOf = (lessonId: string, word: string): DueReview => ({
   dueAt: knownTown.readAt,
   mode: 'recall',
   gloss: `gloss of ${word}`,
-  gappedFrame: 'I walk to ____ every day.',
+  gappedFrame: [{ text: 'I walk to ____ every day.', support: null }],
 })
 
 const reviewsOf = (

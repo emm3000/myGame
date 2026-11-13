@@ -61,6 +61,30 @@ describe('LexiconContentSchema', () => {
     expect(LexiconContentSchema.parse([varied])).toEqual([varied])
   })
 
+  it('parses a frame with the token forms it uses in no card sense', () => {
+    const likeThis = {
+      ...school,
+      frames: [
+        { ...anchor, noCardSense: ['like'] },
+        { ...laterFrameFor('lesson-2'), noCardSense: ['right'] },
+      ],
+    }
+
+    expect(LexiconContentSchema.parse([likeThis])).toEqual([likeThis])
+  })
+
+  it('rejects an empty list of forms in no card sense', () => {
+    const frames = [{ ...anchor, noCardSense: [] }]
+
+    expect(LexiconContentSchema.safeParse([{ ...school, frames }]).success).toBe(false)
+  })
+
+  it('rejects a form in no card sense that is not one lowercase token', () => {
+    const frames = [{ ...anchor, noCardSense: ['Right now'] }]
+
+    expect(LexiconContentSchema.safeParse([{ ...school, frames }]).success).toBe(false)
+  })
+
   it('rejects a word with no frame', () => {
     expect(LexiconContentSchema.safeParse([{ ...school, frames: [] }]).success).toBe(false)
   })

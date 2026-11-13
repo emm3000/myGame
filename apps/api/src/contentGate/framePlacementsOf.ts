@@ -1,4 +1,3 @@
-import type { LaterFrame } from '@mygame/domain'
 import type { LessonOfFiles, LexiconEntry } from '../adapters/json/lessonContentFilesOf'
 import type { GateContent } from './GateContent'
 import { isUnitLesson } from './isUnitLesson'
@@ -10,6 +9,7 @@ export type LessonFrame = {
   readonly lessonId: string
   readonly position: number
   readonly label: string
+  readonly noCardSense: ReadonlyArray<string>
 }
 
 export type FramePlacements = {
@@ -21,6 +21,8 @@ type Placement =
   | { readonly kind: 'placed'; readonly frame: LessonFrame }
   | { readonly kind: 'misplaced'; readonly failure: string }
 
+type LexiconFrame = Extract<LexiconEntry['frames'][number], { readonly fromLessonId: string }>
+
 type TaughtWord = {
   readonly entry: LexiconEntry
   readonly lessonId: string
@@ -29,7 +31,7 @@ type TaughtWord = {
 
 const laterPlacementOf = (
   { entry, lessonId: ownLessonId, position: ownPosition }: TaughtWord,
-  { frame, gappedFrame, fromLessonId }: LaterFrame,
+  { frame, gappedFrame, fromLessonId, noCardSense = [] }: LexiconFrame,
   lessons: ReadonlyArray<LessonOfFiles>,
 ): Placement => {
   const naming = `${entry.id}: later frame names ${fromLessonId}`
@@ -53,6 +55,7 @@ const laterPlacementOf = (
       lessonId: fromLessonId,
       position: index + 1,
       label: `${entry.id}, later frame for ${fromLessonId}`,
+      noCardSense,
     },
   }
 }
@@ -61,9 +64,12 @@ const placementsOf = (
   word: TaughtWord,
   lessons: ReadonlyArray<LessonOfFiles>,
 ): ReadonlyArray<Placement> => {
-  const [anchor, ...laterFrames] = word.entry.frames
+  const [{ frame, gappedFrame, noCardSense = [] }, ...laterFrames] = word.entry.frames
   return [
-    { kind: 'placed', frame: { ...word, ...anchor, label: word.entry.id } },
+    {
+      kind: 'placed',
+      frame: { ...word, frame, gappedFrame, noCardSense, label: word.entry.id },
+    },
     ...laterFrames.map((later) => laterPlacementOf(word, later, lessons)),
   ]
 }

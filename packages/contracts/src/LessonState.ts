@@ -1,4 +1,5 @@
 import { z } from 'zod'
+import { FrameSpanSchema } from './FrameSpan'
 import { ResourceKindSchema } from './ResourceKind'
 import { BuildingLevelSchema, DurationSecondsSchema, WholeCountSchema } from './Wire'
 import { WordSupportSchema } from './WordSupport'
@@ -8,7 +9,7 @@ const WordStandingSchema = z.enum(['notStarted', 'recognize', 'recall', 'hold', 
 const WordReadingSchema = z.strictObject({
   word: z.string().min(1),
   gloss: z.string().min(1),
-  frame: z.string().min(1),
+  frame: z.array(FrameSpanSchema).min(1),
 })
 
 export const LessonWordStateSchema = z.strictObject({

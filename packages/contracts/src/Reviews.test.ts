@@ -7,7 +7,13 @@ const recognitionOfHome = {
   lessonId: 'lesson-1',
   dueAt: '2026-11-10T09:00:00.000Z',
   word: 'home',
-  frame: 'We have a new home in this town.',
+  frame: [
+    { text: 'We have a new ', support: null },
+    { text: 'home', support: null },
+    { text: ' in this ', support: null },
+    { text: 'town', support: { shown: 'beside', text: 'pueblo', language: 'es' } },
+    { text: '.', support: null },
+  ],
   choices: [
     { choiceId: '5c0e91a2', gloss: 'dinero' },
     { choiceId: 'e17b3f08', gloss: 'hogar' },
@@ -20,7 +26,11 @@ const recallOfSchool = {
   lessonId: 'lesson-1',
   dueAt: '2026-11-12T09:10:00.000Z',
   gloss: 'escuela',
-  gappedFrame: 'I walk to ____ every day.',
+  gappedFrame: [
+    { text: 'I walk to ____ every ', support: null },
+    { text: 'day', support: { shown: 'onTap', text: 'día', language: 'es' } },
+    { text: '.', support: null },
+  ],
 }
 
 const readAt = '2026-11-12T09:00:00.000Z'
@@ -60,6 +70,54 @@ describe('ReviewsSchema', () => {
     expect(
       ReviewsSchema.safeParse({
         due: [{ ...recallOfSchool, word: 'school' }],
+        readFirst: [],
+        nextDueAt: null,
+        readAt,
+      }).success,
+    ).toBe(false)
+  })
+
+  it('rejects a recognition whose frame holds no span', () => {
+    expect(
+      ReviewsSchema.safeParse({
+        due: [{ ...recognitionOfHome, frame: [] }],
+        readFirst: [],
+        nextDueAt: null,
+        readAt,
+      }).success,
+    ).toBe(false)
+  })
+
+  it('rejects a recall whose gapped frame is a plain string', () => {
+    expect(
+      ReviewsSchema.safeParse({
+        due: [{ ...recallOfSchool, gappedFrame: 'I walk to ____ every day.' }],
+        readFirst: [],
+        nextDueAt: null,
+        readAt,
+      }).success,
+    ).toBe(false)
+  })
+
+  it('rejects a span with no text', () => {
+    const frame = [{ text: '', support: null }]
+
+    expect(
+      ReviewsSchema.safeParse({
+        due: [{ ...recognitionOfHome, frame }],
+        readFirst: [],
+        nextDueAt: null,
+        readAt,
+      }).success,
+    ).toBe(false)
+  })
+
+  it('rejects a span carrying a field it does not define', () => {
+    const frame = [{ text: 'We have a new home.', support: null, wordId: 'lesson-1-1' }]
+
+    expect(
+      ReviewsSchema.safeParse({
+        due: [{ ...recognitionOfHome, frame }],
         readFirst: [],
         nextDueAt: null,
         readAt,

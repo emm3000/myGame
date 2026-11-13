@@ -26,7 +26,7 @@ private fun RecognitionReview.toRecognition(): DueReview.Recognition = DueReview
     lesson = LessonId(lessonId),
     dueAt = dueAt.toKotlinInstant(),
     word = word,
-    frame = frame,
+    frame = frame.joinedText(),
     choices = choices.map { choice: RecognitionReviewChoicesInner ->
         ReviewChoice(id = ChoiceId(choice.choiceId), gloss = choice.gloss)
     },
@@ -37,7 +37,7 @@ private fun RecallReview.toRecall(): DueReview.Recall = DueReview.Recall(
     lesson = LessonId(lessonId),
     dueAt = dueAt.toKotlinInstant(),
     gloss = gloss,
-    gappedFrame = gappedFrame,
+    gappedFrame = gappedFrame.joinedText(),
 )
 
 internal fun WireReviewVerdict.toReviewVerdict(): ReviewVerdict = when (this) {

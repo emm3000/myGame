@@ -416,7 +416,11 @@ describe('the learning routes', () => {
       expect(lessons[0]?.words[1]).toEqual({
         wordId: 'lesson-1-2',
         standing: 'notStarted',
-        reading: { word: 'school', gloss: 'escuela', frame: 'We are at school.' },
+        reading: {
+          word: 'school',
+          gloss: 'escuela',
+          frame: [{ text: 'We are at school.', support: null }],
+        },
         support: { shown: 'beside', text: 'escuela', language: 'es' },
       })
     })
@@ -433,7 +437,7 @@ describe('the learning routes', () => {
         reading: {
           word: 'school',
           gloss: 'a place where children go to learn',
-          frame: 'We are at school.',
+          frame: [{ text: 'We are at school.', support: null }],
         },
         support: { shown: 'beside', text: 'a place where children go to learn', language: 'en' },
       })
@@ -777,7 +781,10 @@ describe('the learning routes', () => {
       const recognition = await dueReviewOf(player, 'lesson-1-2')
 
       assert(recognition.mode === 'recognition')
-      expect([recognition.word, recognition.frame]).toEqual(['school', 'We are at school.'])
+      expect([recognition.word, recognition.frame]).toEqual([
+        'school',
+        [{ text: 'We are at school.', support: null }],
+      ])
       expect(recognition.choices.map(({ gloss }) => gloss).sort()).toEqual([
         'comida',
         'dinero',
@@ -835,7 +842,7 @@ describe('the learning routes', () => {
         lessonId: 'lesson-1',
         dueAt: firstRecallAt,
         gloss: 'escuela',
-        gappedFrame: 'We are at ____.',
+        gappedFrame: [{ text: 'We are at ____.', support: null }],
       })
       expect(recalls.map(({ mode }) => mode)).toEqual(wordIds.map(() => 'recall'))
       expect(wordIds.filter((wordId) => body.includes(`"${lemmaOf(wordId)}"`))).toEqual([])
@@ -1271,6 +1278,8 @@ describe('the learning routes', () => {
         placementWordsOf: (band) => lessons.placementWordsOf(band),
         lessons: () => [...lessons.lessons(), lesson],
         chromeLessons: () => lessons.chromeLessons(),
+        frameTokensOf: (wordId, frame) => lessons.frameTokensOf(wordId, frame),
+        answerFormsOf: (wordId) => lessons.answerFormsOf(wordId),
       }
     }
 
@@ -1527,6 +1536,8 @@ describe('the learning routes', () => {
         placementWordsOf: (band) => lessons.placementWordsOf(band),
         lessons: () => shelved,
         chromeLessons: () => lessons.chromeLessons(),
+        frameTokensOf: (wordId, frame) => lessons.frameTokensOf(wordId, frame),
+        answerFormsOf: (wordId) => lessons.answerFormsOf(wordId),
       }
     }
 
@@ -1552,14 +1563,18 @@ describe('the learning routes', () => {
     it('shows the anchor in recall while the stage reaches no later frame', async () => {
       const player = await studyToTheFirstRecall()
 
-      expect(await recallOfSchool(player)).toMatchObject({ gappedFrame: 'We are at ____.' })
+      expect(await recallOfSchool(player)).toMatchObject({
+        gappedFrame: [{ text: 'We are at ____.', support: null }],
+      })
     })
 
     it('shows a later frame in recall once the stage reaches its lesson', async () => {
       const player = await studyToTheFirstRecall()
       await placeOutOfBandOne()
 
-      expect(await recallOfSchool(player)).toMatchObject({ gappedFrame: 'My ____ is new.' })
+      expect(await recallOfSchool(player)).toMatchObject({
+        gappedFrame: [{ text: 'My ____ is new.', support: null }],
+      })
     })
 
     it('shows the Report the recall frame the reviews route shows', async () => {
@@ -1578,7 +1593,9 @@ describe('the learning routes', () => {
       await recallOfSchool(player)
       await placeOutOfBandOne()
 
-      expect(await recallOfSchool(player)).toMatchObject({ gappedFrame: 'We are at ____.' })
+      expect(await recallOfSchool(player)).toMatchObject({
+        gappedFrame: [{ text: 'We are at ____.', support: null }],
+      })
     })
 
     it('shows the recall frame the Report first showed though the stage has grown since', async () => {
@@ -1586,7 +1603,9 @@ describe('the learning routes', () => {
       await send(player, 'GET', '/report')
       await placeOutOfBandOne()
 
-      expect(await recallOfSchool(player)).toMatchObject({ gappedFrame: 'We are at ____.' })
+      expect(await recallOfSchool(player)).toMatchObject({
+        gappedFrame: [{ text: 'We are at ____.', support: null }],
+      })
     })
 
     it('logs the frame the recall showed though the stage admits another at the answer', async () => {
@@ -1634,7 +1653,9 @@ describe('the learning routes', () => {
       await answered(player, 'lesson-1-2', 'school')
       clock.setTo(secondRecallAt)
 
-      expect(await recallOfSchool(player)).toMatchObject({ gappedFrame: 'My ____ is new.' })
+      expect(await recallOfSchool(player)).toMatchObject({
+        gappedFrame: [{ text: 'My ____ is new.', support: null }],
+      })
     })
 
     it('logs no frame for an answer no read showed', async () => {
@@ -1652,7 +1673,7 @@ describe('the learning routes', () => {
 
       expect(await dueReviewOf(player, 'lesson-1-2')).toMatchObject({
         mode: 'recognition',
-        frame: 'We are at school.',
+        frame: [{ text: 'We are at school.', support: null }],
       })
     })
 
@@ -1666,7 +1687,7 @@ describe('the learning routes', () => {
       expect(lessons[0]?.words[1]?.reading).toEqual({
         word: 'school',
         gloss: 'escuela',
-        frame: 'We are at school.',
+        frame: [{ text: 'We are at school.', support: null }],
       })
     })
   })

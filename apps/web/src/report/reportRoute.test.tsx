@@ -67,7 +67,11 @@ const homeRecognition: DueReview = {
   dueAt: minutesAgo(2),
   mode: 'recognition',
   word: 'home',
-  frame: 'We have a new home in this town.',
+  frame: [
+    { text: 'We have a new home in this ', support: null },
+    { text: 'town', support: { shown: 'beside', text: 'pueblo', language: 'es' } },
+    { text: '.', support: null },
+  ],
   choices: [
     { choiceId: 'choice-a', gloss: 'escuela' },
     { choiceId: 'choice-b', gloss: 'hogar' },

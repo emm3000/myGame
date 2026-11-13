@@ -2,6 +2,7 @@ import type { CurriculumContent } from '@mygame/contracts'
 import {
   type Band,
   type BandWord,
+  type FrameToken,
   headwordOf,
   type LessonId,
   type LessonSkill,
@@ -19,6 +20,7 @@ import {
   type LexiconEntry,
   lessonContentFilesOf,
 } from './lessonContentFilesOf'
+import { type ResolvedFrames, resolvedFramesOf } from './resolvedFramesOf'
 
 const skillAt = (position: number, { skill }: CurriculumContent): LessonSkill => {
   const resource = skill.cycle[(position - 1) % skill.cycle.length]
@@ -139,6 +141,7 @@ export class JsonLessonCatalog implements LessonLibrary {
     private readonly bandWords: ReadonlyMap<Band, ReadonlyArray<BandWord>>,
     private readonly placementWords: ReadonlyMap<Band, ReadonlyArray<PlacementWord>>,
     private readonly chromeShelf: ReadonlyArray<ShelvedLesson>,
+    private readonly resolvedFrames: ResolvedFrames,
   ) {}
 
   static fromDirectory(directory: string): JsonLessonCatalog {
@@ -154,6 +157,7 @@ export class JsonLessonCatalog implements LessonLibrary {
       bandWordsOf(files),
       placementWordsOf(files, chromeShelf),
       chromeShelf,
+      resolvedFramesOf(files),
     )
   }
 
@@ -191,5 +195,13 @@ export class JsonLessonCatalog implements LessonLibrary {
 
   chromeLessons(): ReadonlyArray<ShelvedLesson> {
     return this.chromeShelf
+  }
+
+  frameTokensOf(wordId: WordId, frame: string): ReadonlyArray<FrameToken> | undefined {
+    return this.resolvedFrames.tokens.get(wordId)?.get(frame)
+  }
+
+  answerFormsOf(wordId: WordId): ReadonlySet<string> {
+    return this.resolvedFrames.answerForms.get(wordId) ?? new Set()
   }
 }

@@ -28,7 +28,7 @@ const recognitionOf = (word: string, gloss: string): DueReview => ({
   dueAt: readAt,
   mode: 'recognition',
   word,
-  frame: `We have a ${word} in this town.`,
+  frame: [{ text: `We have a ${word} in this town.`, support: null }],
   choices: [
     { choiceId: `choice-${word}`, gloss },
     { choiceId: 'choice-other', gloss: 'dinero' },

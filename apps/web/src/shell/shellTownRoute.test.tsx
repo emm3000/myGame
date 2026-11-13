@@ -161,7 +161,7 @@ it('lowers the due count once a review is answered', async () => {
     dueAt: instantAfter(-60),
     mode: 'recall',
     gloss: 'río',
-    gappedFrame: 'The ____ is cold.',
+    gappedFrame: [{ text: 'The ____ is cold.', support: null }],
   }
   let answers = 0
   const client = signedInClient({

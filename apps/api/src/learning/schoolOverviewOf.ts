@@ -1,11 +1,11 @@
 import { PlacementBandSchema, type TownOverview } from '@mygame/contracts'
 import {
-  anchorFrameOf,
   type Band,
   cardsInLearningOf,
   chromePhaseOf,
   type DomainError,
   deriveLessonDurationSeconds,
+  type FrameReader,
   glossOf,
   type Headword,
   type HeldCard,
@@ -18,6 +18,7 @@ import {
   type ReleasedLesson,
   type Result,
   readableWordsOf,
+  readingFrameOf,
   retainedWordsOf,
   type Scaffold,
   type SchoolLesson,
@@ -75,7 +76,7 @@ const wordStateOf = (
   word: LessonWord,
   held: HeldCard | undefined,
   view: WordView,
-  scaffold: Scaffold,
+  reader: FrameReader,
 ): LessonWordState => {
   const { isReadable } = view
   return {
@@ -84,11 +85,11 @@ const wordStateOf = (
     reading: isReadable
       ? {
           word: word.acceptedForms[0],
-          gloss: glossOf(word, scaffold),
-          frame: anchorFrameOf(word).frame,
+          gloss: glossOf(word, reader.scaffold),
+          frame: [...readingFrameOf(word, reader)],
         }
       : null,
-    support: supportStateOf(word, held, view, scaffold),
+    support: supportStateOf(word, held, view, reader.scaffold),
   }
 }
 
@@ -117,7 +118,7 @@ const lessonWordsOf = (
           isEntering: entering.includes(word),
           isPlacedOut,
         },
-        scaffold,
+        { cards, placedOutBands, scaffold, lessons },
       ),
     ),
   }
