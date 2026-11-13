@@ -9,7 +9,7 @@
     <string name="forgot_password_to_sign_in">Sign in to your town</string>
     <string name="forgot_password_unexpected">We could not reach the server. Try again in a moment.</string>
     <string name="sign_in_brand">Townword</string>
-    <string name="sign_in_checking_session">Reading your session…</string>
+    <string name="sign_in_checking_session">Checking your session…</string>
     <string name="sign_in_email">Email</string>
     <string name="sign_in_forgot_password">Forgot your password?</string>
     <string name="sign_in_password">Password</string>

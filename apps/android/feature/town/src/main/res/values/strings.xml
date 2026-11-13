@@ -89,13 +89,13 @@
     <string name="town_ready_at">Ready {clock}</string>
     <string name="town_ready_in">Ready in {timeLeft}</string>
     <string name="town_refusal_blank_town_name">Write a name for your town.</string>
-    <string name="town_refusal_building_work_not_found">The work for level {level} is no longer on the list. It may be done.</string>
+    <string name="town_refusal_building_work_not_found">The work for level {level} is no longer on the list. It may have finished.</string>
     <string name="town_refusal_hiring_not_enough_people">This hire needs {requiredPeople, number,0} of your free people and you have {freePeople}. Build the next level of your homes.</string>
     <string name="town_refusal_hiring_not_enough_resources">You do not have what you need to pay for this hire. Wait and try again.</string>
     <string name="town_refusal_hiring_order_not_found">This hiring has already ended.</string>
     <string name="town_refusal_hiring_slot_busy">You are already hiring. Wait for that hiring to end.</string>
     <string name="town_refusal_not_enough_people">This work needs {requiredPeople, plural, =1 {1 free person} other {{requiredPeople, number,0} free people}} and you have {freePeople}. Build your homes to a higher level.</string>
-    <string name="town_refusal_not_enough_resources">You do not have enough for this work. Wait for your stocks to grow.</string>
+    <string name="town_refusal_not_enough_resources">You do not have enough for this work. Wait until your town makes more.</string>
     <string name="town_refusal_office_too_low">Your office is at level {officeLevel}. This hire needs level {requiredOfficeLevel}.</string>
     <string name="town_refusal_player_already_holds_town">You already have a town. You can have only one.</string>
     <string name="town_refusal_top_level_reached">This building is already at its top level, {level}.</string>

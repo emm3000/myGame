@@ -45,7 +45,7 @@
     <string name="school_path_studied">Studied</string>
     <string name="school_refusal_learning_cap_reached">Words in learning: {cardsInLearning} of {learningCap}. Review them before you start another lesson.</string>
     <string name="school_refusal_lesson_already_studied">You already studied that lesson: its words are in your reviews.</string>
-    <string name="school_refusal_lesson_school_too_low">That lesson needs a school of a higher level. Raise its level first.</string>
+    <string name="school_refusal_lesson_school_too_low">That lesson needs a school of a higher level. Build it to a higher level first.</string>
     <string name="school_refusal_lesson_study_not_found">The school is no longer studying that lesson. There is nothing to stop.</string>
     <string name="school_refusal_lesson_under_study">The school is already studying that lesson. Wait for it to finish.</string>
     <string name="school_refusal_study_slot_busy">The school is already studying a lesson. Wait for it to finish.</string>
