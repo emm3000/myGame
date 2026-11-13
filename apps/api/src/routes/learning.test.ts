@@ -252,6 +252,7 @@ describe('the learning routes', () => {
       body: JSON.stringify({
         email: 'ana@example.com',
         password: 'hierro-y-lana',
+        scaffold: 'es',
       }),
     })
     return { cookie: sessionCookieOf(response) }

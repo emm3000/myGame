@@ -1,3 +1,4 @@
+import type { Scaffold } from '@mygame/contracts'
 import type { Instant, PlayerId } from '@mygame/domain'
 import { and, eq, gt, sql } from 'drizzle-orm'
 import type {
@@ -16,6 +17,13 @@ import { violatedUniqueConstraint } from './violatedUniqueConstraint'
 const dateOf = (instant: Instant): Date => new Date(instant.epochMilliseconds)
 
 const emailVerified = sql<boolean>`${players.emailVerifiedAt} IS NOT NULL`
+
+const storedPlayerColumns = {
+  id: players.id,
+  email: players.email,
+  emailVerified,
+  scaffold: players.scaffold,
+}
 
 export class DrizzleAccounts implements Accounts {
   constructor(private readonly database: PostgresSession) {}
@@ -42,6 +50,7 @@ export class DrizzleAccounts implements Accounts {
         id: players.id,
         email: players.email,
         emailVerified,
+        scaffold: players.scaffold,
         passwordHash: players.passwordHash,
       })
       .from(players)
@@ -51,7 +60,7 @@ export class DrizzleAccounts implements Accounts {
 
   async playerOf(playerId: PlayerId): Promise<StoredPlayer | undefined> {
     const [found] = await this.database
-      .select({ id: players.id, email: players.email, emailVerified })
+      .select(storedPlayerColumns)
       .from(players)
       .where(eq(players.id, playerId))
     return found
@@ -74,6 +83,15 @@ export class DrizzleAccounts implements Accounts {
 
   async storePasswordHash(playerId: PlayerId, passwordHash: string): Promise<void> {
     await this.database.update(players).set({ passwordHash }).where(eq(players.id, playerId))
+  }
+
+  async storeScaffold(playerId: PlayerId, scaffold: Scaffold): Promise<StoredPlayer | undefined> {
+    const [stored] = await this.database
+      .update(players)
+      .set({ scaffold })
+      .where(eq(players.id, playerId))
+      .returning(storedPlayerColumns)
+    return stored
   }
 
   async openSession(session: Session): Promise<void> {

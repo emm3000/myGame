@@ -45,6 +45,7 @@ const playerOf = (stored: StoredPlayer): Player => ({
   id: stored.id,
   email: stored.email,
   emailVerified: stored.emailVerified,
+  scaffold: stored.scaffold,
 })
 
 const answerDone = (c: Context, done: Result<void, Refusal>): Response =>

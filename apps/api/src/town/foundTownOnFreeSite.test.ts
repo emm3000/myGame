@@ -48,6 +48,7 @@ const withSignedUpPlayers = async (
       email: `${playerId}@example.com`,
       passwordHash: 'argon2id-hash',
       createdAt: foundedAt,
+      scaffold: 'es',
     })
   }
 }

@@ -36,10 +36,17 @@
           },
           "emailVerified": {
             "type": "boolean"
+          },
+          "scaffold": {
+            "$ref": "#/components/schemas/Scaffold"
           }
         },
-        "required": ["id", "email", "emailVerified"],
+        "required": ["id", "email", "emailVerified", "scaffold"],
         "additionalProperties": false
+      },
+      "Scaffold": {
+        "type": "string",
+        "enum": ["es", "none"]
       },
       "ApiError": {
         "oneOf": [
@@ -486,9 +493,12 @@
           "password": {
             "type": "string",
             "minLength": 8
+          },
+          "scaffold": {
+            "$ref": "#/components/schemas/Scaffold"
           }
         },
-        "required": ["email", "password"]
+        "required": ["email", "password", "scaffold"]
       },
       "NativeSession": {
         "type": "object",
@@ -553,6 +563,16 @@
           }
         },
         "required": ["token", "password"],
+        "additionalProperties": false
+      },
+      "ScaffoldChange": {
+        "type": "object",
+        "properties": {
+          "scaffold": {
+            "$ref": "#/components/schemas/Scaffold"
+          }
+        },
+        "required": ["scaffold"],
         "additionalProperties": false
       },
       "Reviews": {
@@ -3412,6 +3432,43 @@
                 }
               }
             }
+          }
+        }
+      }
+    },
+    "/player/scaffold": {
+      "put": {
+        "security": [
+          {
+            "sessionBearer": []
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ScaffoldChange"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "The player with the scaffold language changed; no card changes.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Player"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "A malformed body. Empty body."
+          },
+          "401": {
+            "description": "No live session: neither a session cookie nor, without one, an Authorization bearer token names one. Empty body."
           }
         }
       }

@@ -41,6 +41,7 @@ reportClosingsContract('DrizzleReportClosings', async () => {
         email: `${playerId}@example.com`,
         passwordHash: 'argon2id-hash',
         createdAt: at,
+        scaffold: 'es',
       })
     },
   }

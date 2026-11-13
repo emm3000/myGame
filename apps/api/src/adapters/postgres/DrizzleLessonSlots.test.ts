@@ -26,8 +26,8 @@ const registerTowns = async (townIds: ReadonlyArray<string>): Promise<void> => {
   for (const [index, townId] of townIds.entries()) {
     const playerId = `00000000-0000-4000-8000-00000000000${index + 1}`
     await pool.query(
-      `INSERT INTO players (id, email, password_hash, created_at, report_read_at)
-       VALUES ($1, $2, 'argon2id-hash', '2026-11-05T08:00:00Z', '2026-11-05T08:00:00Z')`,
+      `INSERT INTO players (id, email, password_hash, created_at, report_read_at, scaffold)
+       VALUES ($1, $2, 'argon2id-hash', '2026-11-05T08:00:00Z', '2026-11-05T08:00:00Z', 'es')`,
       [playerId, `${playerId}@example.com`],
     )
     await pool.query(

@@ -9,6 +9,7 @@ import { healthDeclarations } from './routes/healthDeclarations'
 import { holdoutCheckRoutes } from './routes/holdoutChecks'
 import { type LearningRouteDependencies, learningRoutes } from './routes/learning'
 import { type PlacementRouteDependencies, placementRoutes } from './routes/placement'
+import { type PlayerRouteDependencies, playerRoutes } from './routes/player'
 import { type ReportRouteDependencies, reportRoutes } from './routes/report'
 import { type TownDependencies, townRoutes } from './routes/town'
 import { type TownMapDependencies, townMapRoutes } from './routes/townMap'
@@ -16,6 +17,7 @@ import { type TownMapDependencies, townMapRoutes } from './routes/townMap'
 export type AppDependencies = AuthDependencies &
   LearningRouteDependencies &
   PlacementRouteDependencies &
+  PlayerRouteDependencies &
   ReportRouteDependencies &
   TownDependencies &
   TownMapDependencies & {
@@ -38,6 +40,7 @@ export const createApp = (dependencies: AppDependencies): OpenAPIHono => {
   })
   app
     .route('/auth', authRoutes(dependencies))
+    .route('/player', playerRoutes(dependencies))
     .route('/reviews', learningRoutes(dependencies))
     .route('/placement', placementRoutes(dependencies))
     .route('/holdout-checks', holdoutCheckRoutes(dependencies))

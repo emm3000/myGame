@@ -175,7 +175,7 @@ describe('the holdout check routes', () => {
     const signedUp = await app.request('/auth/sign-up', {
       method: 'POST',
       headers: { 'content-type': 'application/json' },
-      body: JSON.stringify({ email: 'ana@example.com', password: 'hierro-y-lana' }),
+      body: JSON.stringify({ email: 'ana@example.com', password: 'hierro-y-lana', scaffold: 'es' }),
     })
     const [cookie = ''] = (signedUp.headers.get('set-cookie') ?? '').split(';')
     const player = { cookie }

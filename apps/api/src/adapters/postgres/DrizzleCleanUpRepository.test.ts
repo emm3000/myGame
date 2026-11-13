@@ -41,6 +41,7 @@ cleanUpRepositoryContract('DrizzleCleanUpRepository', async (heldTowns) => {
       passwordHash: 'argon2id-hash',
       createdAt: new Date('2026-11-10T08:00:00Z'),
       reportReadAt: new Date('2026-11-10T08:00:00Z'),
+      scaffold: 'es',
     })
     assert((await townRepository.save(town)).ok)
   }

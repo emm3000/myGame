@@ -32,8 +32,8 @@ const emptyDatabase = async (): Promise<void> => {
 const registerPlayers = async (playerIds: ReadonlyArray<string>): Promise<void> => {
   for (const playerId of playerIds) {
     await pool.query(
-      `INSERT INTO players (id, email, password_hash, created_at, report_read_at)
-       VALUES ($1, $2, 'argon2id-hash', '2026-11-11T08:00:00Z', '2026-11-11T08:00:00Z')`,
+      `INSERT INTO players (id, email, password_hash, created_at, report_read_at, scaffold)
+       VALUES ($1, $2, 'argon2id-hash', '2026-11-11T08:00:00Z', '2026-11-11T08:00:00Z', 'es')`,
       [playerId, `${playerId}@example.com`],
     )
   }

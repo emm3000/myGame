@@ -5,6 +5,7 @@ const signedInPlayer = {
   id: '4f7c1c2e-8a4b-4d1e-9f3a-2b6c8d0e1f2a',
   email: 'aldara@example.com',
   emailVerified: true,
+  scaffold: 'es',
 }
 
 const nativeSession = {

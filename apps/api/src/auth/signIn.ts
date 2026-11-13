@@ -28,6 +28,7 @@ export const signIn = async (
     id: credentials.id,
     email: credentials.email,
     emailVerified: credentials.emailVerified,
+    scaffold: credentials.scaffold,
   }
   return ok({ player, session })
 }

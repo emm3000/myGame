@@ -26,6 +26,7 @@ const fillSignUp = async (request: SignUpRequest): Promise<void> => {
 const newcomer: SignUpRequest = {
   email: 'aldonza@example.com',
   password: 'piedra-y-lodo',
+  scaffold: 'es',
 }
 
 it('shows the Spanish message for a taken email', async () => {

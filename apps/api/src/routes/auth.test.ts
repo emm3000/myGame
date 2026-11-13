@@ -117,7 +117,7 @@ const sessionCookieOf = (response: Response): string => {
   return pair
 }
 
-const anasSignUp = { email: 'ana@example.com', password: 'hierro-y-lana' }
+const anasSignUp = { email: 'ana@example.com', password: 'hierro-y-lana', scaffold: 'es' }
 
 const tokenOf = (mail: Mail | undefined): string => {
   const link = mail?.text.split('\n').find((line) => line.startsWith(mailEnvironment.WEB_URL))
@@ -173,6 +173,24 @@ describe('the auth routes', () => {
     expect(response.status).toBe(201)
     PlayerSchema.parse(await response.json())
     expect(await storedTowns()).toBe(0)
+  })
+
+  it.each(['/auth/sign-up', '/auth/sign-up/native'])(
+    'stores on %s the scaffold language the player picks at sign-up',
+    async (route) => {
+      await app.request(route, post({ ...anasSignUp, scaffold: 'none' }))
+      const signedIn = await app.request('/auth/sign-in', post(anasSignUp))
+
+      expect(PlayerSchema.parse(await signedIn.json()).scaffold).toBe('none')
+    },
+  )
+
+  it('refuses a sign-up without a scaffold language as a malformed request', async () => {
+    const { scaffold: _, ...withoutScaffold } = anasSignUp
+    const response = await app.request('/auth/sign-up', post(withoutScaffold))
+
+    expect(response.status).toBe(400)
+    expect(await response.text()).toBe('')
   })
 
   it.each(['/auth/sign-up', '/auth/sign-up/native'])(
@@ -758,7 +776,7 @@ describe('the auth routes', () => {
     const brunosCookie = sessionCookieOf(
       await app.request(
         '/auth/sign-up',
-        post({ email: 'bruno@example.com', password: 'piedra-y-oro' }),
+        post({ email: 'bruno@example.com', password: 'piedra-y-oro', scaffold: 'es' }),
       ),
     )
 

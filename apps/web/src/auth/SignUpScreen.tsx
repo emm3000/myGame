@@ -20,7 +20,7 @@ import { TextLink } from '../design-system/TextLink'
 import { refusalLineOf } from '../refusals/refusalLineOf'
 import { AuthPanel } from './AuthPanel'
 
-type SignUpField = keyof SignUpRequest
+type SignUpField = Exclude<keyof SignUpRequest, 'scaffold'>
 
 type FieldErrors = Partial<Record<SignUpField, string>>
 
@@ -54,7 +54,7 @@ const fieldErrorsOf = (request: SignUpRequest): FieldErrors => {
 }
 
 export function SignUpScreen(props: SignUpScreenProps): ReactElement {
-  const [request, setRequest] = useState<SignUpRequest>({ email: '', password: '' })
+  const [request, setRequest] = useState<SignUpRequest>({ email: '', password: '', scaffold: 'es' })
   const [clientErrors, setClientErrors] = useState<FieldErrors>({})
   const refusedField = props.refusal === undefined ? undefined : refusalFields[props.refusal]
   const errors: FieldErrors =

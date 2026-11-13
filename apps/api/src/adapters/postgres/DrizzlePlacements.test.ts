@@ -37,6 +37,7 @@ const registerPlayers = async (playerIds: ReadonlyArray<string>): Promise<void> 
         createdAt: new Date('2026-11-04T08:00:00Z'),
         digestAcknowledgedAt: new Date('2026-11-04T08:00:00Z'),
         reportReadAt: new Date('2026-11-04T08:00:00Z'),
+        scaffold: 'es' as const,
       })),
     )
 }

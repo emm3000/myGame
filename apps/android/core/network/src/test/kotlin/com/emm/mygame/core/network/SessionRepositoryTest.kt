@@ -370,7 +370,7 @@ class SessionRepositoryTest {
         val signUpRequest: RecordedRequest = api.takeRequestWithin()
         assertEquals("/api/auth/sign-up/native", signUpRequest.url.encodedPath)
         assertEquals(
-            """{"email":"elena@encinar.es","password":"hierro-y-lana"}""",
+            """{"email":"elena@encinar.es","password":"hierro-y-lana","scaffold":"es"}""",
             signUpRequest.body?.utf8(),
         )
         assertEquals("Bearer fresh-session", api.takeRequestWithin().headers["Authorization"])
@@ -643,7 +643,8 @@ class SessionRepositoryTest {
     private fun refusalJson(kind: String): String = """{"kind":"$kind"}"""
 
     private fun playerJson(email: String, isEmailVerified: Boolean): String =
-        """{"id":"0b6f2f2e-6a43-4a8e-9c4e-2f1d3c4b5a69","email":"$email","emailVerified":$isEmailVerified}"""
+        """{"id":"0b6f2f2e-6a43-4a8e-9c4e-2f1d3c4b5a69","email":"$email",""" +
+            """"emailVerified":$isEmailVerified,"scaffold":"es"}"""
 
     private fun json(code: Int, body: String): MockResponse =
         MockResponse.Builder().code(code).addHeader("Content-Type", "application/json").body(body).build()

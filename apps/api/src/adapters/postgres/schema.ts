@@ -29,6 +29,8 @@ export const reviewFormat = pgEnum('review_format', ['recognition', 'recall'])
 
 export const accountTokenKind = pgEnum('account_token_kind', ['reset', 'verify'])
 
+export const scaffold = pgEnum('scaffold', ['es', 'none'])
+
 export const players = pgTable(
   'players',
   {
@@ -38,6 +40,7 @@ export const players = pgTable(
     createdAt: timestamp('created_at', { withTimezone: true }).notNull(),
     emailVerifiedAt: timestamp('email_verified_at', { withTimezone: true }),
     reportReadAt: timestamp('report_read_at', { withTimezone: true }).notNull(),
+    scaffold: scaffold('scaffold').notNull(),
   },
   (table) => [uniqueIndex('players_email_unique').on(sql`lower(${table.email})`)],
 )

@@ -11,6 +11,7 @@ import { mailEnvironment } from './composeServer.testSupport'
 import { authDeclarations } from './routes/authDeclarations'
 import { healthDeclarations } from './routes/healthDeclarations'
 import { learningDeclarations } from './routes/learningDeclarations'
+import { playerDeclarations } from './routes/playerDeclarations'
 import { reportDeclarations } from './routes/reportDeclarations'
 import { townDeclarations } from './routes/townDeclarations'
 import { townMapDeclarations } from './routes/townMapDeclarations'
@@ -48,6 +49,7 @@ const mounted: ReadonlyArray<readonly [string, Readonly<Record<string, RouteConf
   ['', healthDeclarations],
   ['/auth', authDeclarations],
   ['/reviews', learningDeclarations],
+  ['/player', playerDeclarations],
   ['/report', reportDeclarations],
   ['/town', townDeclarations],
   ['/town/map', townMapDeclarations],
@@ -78,19 +80,19 @@ const exchanges: ReadonlyArray<Exchange> = [
   {
     operation: 'POST /auth/sign-up',
     caller: 'signedOut',
-    body: { email: 'carla@example.com', password: 'hierro-y-lana' },
+    body: { email: 'carla@example.com', password: 'hierro-y-lana', scaffold: 'es' },
     status: 201,
   },
   {
     operation: 'POST /auth/sign-up',
     caller: 'signedOut',
-    body: { email: 'dario@example.com', password: 'corta' },
+    body: { email: 'dario@example.com', password: 'corta', scaffold: 'es' },
     status: 400,
   },
   {
     operation: 'POST /auth/sign-up',
     caller: 'signedOut',
-    body: { email: 'carla@example.com', password: 'hierro-y-lana' },
+    body: { email: 'carla@example.com', password: 'hierro-y-lana', scaffold: 'es' },
     status: 409,
   },
   {
@@ -167,6 +169,14 @@ const exchanges: ReadonlyArray<Exchange> = [
     body: { answer: 'home', rating: 'good' },
     status: 400,
   },
+  {
+    operation: 'PUT /player/scaffold',
+    caller: 'signedOut',
+    body: { scaffold: 'none' },
+    status: 401,
+  },
+  { operation: 'PUT /player/scaffold', caller: 'ana', body: { scaffold: 'fr' }, status: 400 },
+  { operation: 'PUT /player/scaffold', caller: 'ana', body: { scaffold: 'es' }, status: 200 },
   { operation: 'GET /report', caller: 'ana', status: 200 },
   { operation: 'POST /report/close', caller: 'ana', status: 204 },
   { operation: 'GET /town', caller: 'signedOut', status: 401 },
@@ -501,19 +511,19 @@ const exchanges: ReadonlyArray<Exchange> = [
   {
     operation: 'POST /auth/sign-up/native',
     caller: 'signedOut',
-    body: { email: 'elena@example.com', password: 'hierro-y-lana' },
+    body: { email: 'elena@example.com', password: 'hierro-y-lana', scaffold: 'es' },
     status: 201,
   },
   {
     operation: 'POST /auth/sign-up/native',
     caller: 'signedOut',
-    body: { email: 'dario@example.com', password: 'corta' },
+    body: { email: 'dario@example.com', password: 'corta', scaffold: 'es' },
     status: 400,
   },
   {
     operation: 'POST /auth/sign-up/native',
     caller: 'signedOut',
-    body: { email: 'elena@example.com', password: 'hierro-y-lana' },
+    body: { email: 'elena@example.com', password: 'hierro-y-lana', scaffold: 'es' },
     status: 409,
   },
   { operation: 'POST /auth/sign-out', caller: 'ana', status: 204 },
@@ -545,7 +555,7 @@ describe('the OpenAPI conformance', () => {
     const response = await app.request('/auth/sign-up', {
       method: 'POST',
       headers: { 'content-type': 'application/json' },
-      body: JSON.stringify({ email, password: 'hierro-y-lana' }),
+      body: JSON.stringify({ email, password: 'hierro-y-lana', scaffold: 'es' }),
     })
     expect(response.status).toBe(201)
     PlayerSchema.parse(await response.json())
