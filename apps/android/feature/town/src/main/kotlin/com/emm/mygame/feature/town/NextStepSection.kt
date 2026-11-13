@@ -4,7 +4,6 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.res.stringResource
 import com.emm.mygame.core.designsystem.MyGameBlockHue
 import com.emm.mygame.core.designsystem.MyGameBlockStack
 import com.emm.mygame.core.designsystem.MyGameButton
@@ -18,7 +17,9 @@ import com.emm.mygame.core.network.LessonId
 import com.emm.mygame.core.network.NextStep
 import com.emm.mygame.core.network.NextStepCard
 import com.emm.mygame.core.network.TownGoal
-import com.emm.mygame.core.ui.icuStringResource
+import com.emm.mygame.core.ui.CopyReader
+import com.emm.mygame.core.ui.PlayerCopy
+import com.emm.mygame.core.ui.rememberPlayerCopy
 
 @Composable
 internal fun NextStepSection(
@@ -31,22 +32,23 @@ internal fun NextStepSection(
     modifier: Modifier = Modifier,
 ) {
     val card: NextStepCard = content.nextStep
+    val copy: PlayerCopy = rememberPlayerCopy()
     Column(verticalArrangement = Arrangement.spacedBy(MyGameSpacing.step5), modifier = modifier) {
         MyGameBlockStack(nearHue = MyGameBlockHue.Lavender, farHue = MyGameBlockHue.Mint, dealtKey = null) {
             MyGameNextStepBlock(
-                title = stringResource(R.string.town_next_title),
-                line = lineOf(card.line),
-                detail = card.detail?.let { detail: NextStepCard.Detail -> detailOf(detail) }
-                    ?: content.goal?.let { goal: TownGoal -> goalLineOf(goal) },
+                title = copy.chrome(R.string.town_next_title),
+                line = copy.chrome { lineOf(card.line) },
+                detail = card.detail?.let { detail: NextStepCard.Detail -> copy.chrome { detailOf(detail) } }
+                    ?: content.goal?.let { goal: TownGoal -> copy.chrome { goalLineOf(goal) } },
             ) {
                 content.goal?.let { goal: TownGoal -> GoalState(goal = goal) }
                 NextStepCountdown(countdown = card.countdown, time = content.nextStepTime)
             }
         }
         MyGameButton(
-            label = actionLabelOf(card.action),
+            label = copy.chrome { actionLabelOf(card.action) },
             isBusy = false,
-            busyDescription = stringResource(R.string.town_waiting),
+            busyDescription = copy.chrome(R.string.town_waiting).spoken,
             onClick = {
                 when (val action: NextStepCard.Action = card.action) {
                     is NextStepCard.Action.ReadWords -> action.lesson?.let(onLessonOpen) ?: onSchoolOpen()
@@ -58,9 +60,9 @@ internal fun NextStepSection(
         )
         if (content.goal != null) {
             MyGameTextButton(
-                label = stringResource(R.string.town_goal_close),
+                label = copy.chrome(R.string.town_goal_close),
                 isBusy = false,
-                busyDescription = stringResource(R.string.town_waiting),
+                busyDescription = copy.chrome(R.string.town_waiting).spoken,
                 onClick = { onIntent(TownIntent.GoalClosed) },
             )
         }
@@ -74,28 +76,26 @@ private fun NextStepCountdown(
     modifier: Modifier = Modifier,
 ) {
     if (countdown == null || time == null) return
+    val copy: PlayerCopy = rememberPlayerCopy()
     MyGameCountdownLine(
-        words = countdownWordsOf(countdown),
-        time = finishLabelOf(time.remaining, time.finishesAt),
+        words = copy.chrome { countdownWordsOf(countdown) },
+        time = copy.chrome { finishLabelOf(time.remaining, time.finishesAt) },
         ground = MyGameCountdownGround.Block,
         modifier = modifier,
     )
 }
 
-@Composable
-private fun lineOf(line: NextStepCard.Line): String = when (line) {
+private fun CopyReader.lineOf(line: NextStepCard.Line): String = when (line) {
     is NextStepCard.Line.ReviewsDue ->
-        icuStringResource(R.string.town_next_reviews_due, "count" to formatQuantity(line.count.toLong()))
-    NextStepCard.Line.Studying -> stringResource(R.string.town_next_studying)
-    is NextStepCard.Line.Lesson ->
-        icuStringResource(R.string.town_next_lesson_title, "number" to line.number.toString())
-    NextStepCard.Line.NoReviewsDue -> stringResource(R.string.town_next_no_reviews_due)
+        text(R.string.town_next_reviews_due, "count" to formatQuantity(line.count.toLong()))
+    NextStepCard.Line.Studying -> text(R.string.town_next_studying)
+    is NextStepCard.Line.Lesson -> text(R.string.town_next_lesson_title, "number" to line.number.toString())
+    NextStepCard.Line.NoReviewsDue -> text(R.string.town_next_no_reviews_due)
 }
 
-@Composable
-private fun detailOf(detail: NextStepCard.Detail): String = when (detail) {
-    is NextStepCard.Detail.Build -> stringResource(buildLineOf(detail.producer))
-    is NextStepCard.Detail.Words -> icuStringResource(R.string.town_next_lesson_words, "count" to detail.count)
+private fun CopyReader.detailOf(detail: NextStepCard.Detail): String = when (detail) {
+    is NextStepCard.Detail.Build -> text(buildLineOf(detail.producer))
+    is NextStepCard.Detail.Words -> text(R.string.town_next_lesson_words, "count" to detail.count)
 }
 
 private fun buildLineOf(producer: NextStep.Producer): Int = when (producer) {
@@ -104,17 +104,15 @@ private fun buildLineOf(producer: NextStep.Producer): Int = when (producer) {
     NextStep.Producer.PowerStation -> R.string.town_next_build_power_station
 }
 
-@Composable
-private fun countdownWordsOf(countdown: NextStepCard.Countdown): String = when (countdown) {
+private fun CopyReader.countdownWordsOf(countdown: NextStepCard.Countdown): String = when (countdown) {
     is NextStepCard.Countdown.LessonReady ->
-        icuStringResource(R.string.town_next_lesson_ready_in, "number" to countdown.number.toString())
-    is NextStepCard.Countdown.NextReview -> stringResource(R.string.town_next_review)
+        text(R.string.town_next_lesson_ready_in, "number" to countdown.number.toString())
+    is NextStepCard.Countdown.NextReview -> text(R.string.town_next_review)
 }
 
-@Composable
-private fun actionLabelOf(action: NextStepCard.Action): String = when (action) {
-    is NextStepCard.Action.ReadWords -> stringResource(R.string.town_next_read_words)
-    NextStepCard.Action.StartReviews -> stringResource(R.string.town_next_start_reviews)
-    is NextStepCard.Action.Study -> icuStringResource(R.string.town_next_study, "number" to action.number.toString())
-    NextStepCard.Action.GoToReport -> stringResource(R.string.town_next_go_to_report)
+private fun CopyReader.actionLabelOf(action: NextStepCard.Action): String = when (action) {
+    is NextStepCard.Action.ReadWords -> text(R.string.town_next_read_words)
+    NextStepCard.Action.StartReviews -> text(R.string.town_next_start_reviews)
+    is NextStepCard.Action.Study -> text(R.string.town_next_study, "number" to action.number.toString())
+    NextStepCard.Action.GoToReport -> text(R.string.town_next_go_to_report)
 }

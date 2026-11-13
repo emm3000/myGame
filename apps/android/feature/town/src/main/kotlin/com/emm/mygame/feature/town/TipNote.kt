@@ -5,7 +5,6 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.padding
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.heading
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.tooling.preview.PreviewParameter
@@ -20,6 +19,7 @@ import com.emm.mygame.core.designsystem.MyGameTheme
 import com.emm.mygame.core.designsystem.MyGameTypography
 import com.emm.mygame.core.designsystem.PreviewMyGame
 import com.emm.mygame.core.network.TipKind
+import com.emm.mygame.core.ui.chromeResource
 
 @Composable
 internal fun TipNote(tip: TipKind?, place: TipPlace, onIntent: (TownIntent) -> Unit, modifier: Modifier = Modifier) {
@@ -30,19 +30,19 @@ internal fun TipNote(tip: TipKind?, place: TipPlace, onIntent: (TownIntent) -> U
             modifier = Modifier.padding(top = MyGameSpacing.step3),
         ) {
             MyGameMetaText(
-                text = stringResource(R.string.town_tip_title),
+                label = chromeResource(R.string.town_tip_title),
                 color = MyGameTheme.colors.inkMuted,
                 modifier = Modifier.semantics { heading() },
             )
             MyGameText(
-                text = stringResource(lineOf(tip)),
+                label = chromeResource(lineOf(tip)),
                 style = MyGameTypography.body,
                 color = MyGameTheme.colors.ink,
             )
             MyGameTextButton(
-                label = stringResource(R.string.town_tip_close),
+                label = chromeResource(R.string.town_tip_close),
                 isBusy = false,
-                busyDescription = stringResource(R.string.town_waiting),
+                busyDescription = chromeResource(R.string.town_waiting).spoken,
                 onClick = { onIntent(TownIntent.TipClosed(tip)) },
             )
         }

@@ -8,7 +8,6 @@ import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.heading
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.input.ImeAction
@@ -24,6 +23,8 @@ import com.emm.mygame.core.designsystem.MyGameTheme
 import com.emm.mygame.core.designsystem.MyGameTypography
 import com.emm.mygame.core.network.TownBuildingKind
 import com.emm.mygame.core.network.TownFoundRefusal
+import com.emm.mygame.core.ui.chromeResource
+import com.emm.mygame.core.ui.fixedCopyResource
 
 private val placesToName: List<TownBuildingKind> = listOf(TownBuildingKind.Homes, TownBuildingKind.School)
 
@@ -37,19 +38,19 @@ internal fun NamingSection(naming: TownUiState.Naming, onIntent: (TownIntent) ->
         ) {
             NamingArt()
             MyGameText(
-                text = stringResource(R.string.town_naming_title),
+                label = chromeResource(R.string.town_naming_title),
                 style = MyGameTypography.title,
                 color = MyGameTheme.colors.ink,
                 modifier = Modifier.semantics { heading() },
             )
             MyGameText(
-                text = stringResource(R.string.town_naming_mayor),
+                label = chromeResource(R.string.town_naming_mayor),
                 style = MyGameTypography.body,
                 color = MyGameTheme.colors.ink,
             )
             MyGameTextField(
                 value = naming.name,
-                label = stringResource(R.string.town_naming_field),
+                label = chromeResource(R.string.town_naming_field),
                 isSecret = false,
                 isReadOnly = isSubmitting,
                 keyboardOptions = KeyboardOptions(
@@ -60,7 +61,7 @@ internal fun NamingSection(naming: TownUiState.Naming, onIntent: (TownIntent) ->
                 onValueChange = { name: String -> onIntent(TownIntent.NameChanged(name)) },
             )
             namingAlertOf(naming.status)?.let { message: Int ->
-                MyGameInlineAlert(message = stringResource(message))
+                MyGameInlineAlert(message = fixedCopyResource(message))
             }
             NamingAction(status = naming.status, onIntent = onIntent)
         }
@@ -84,17 +85,17 @@ private fun NamingAction(
 ) {
     if (status == TownUiState.NamingStatus.Refused(TownFoundRefusal.PlayerAlreadyHoldsTown)) {
         MyGameButton(
-            label = stringResource(R.string.town_naming_go_to_town),
+            label = chromeResource(R.string.town_naming_go_to_town),
             isBusy = false,
-            busyDescription = stringResource(R.string.town_waiting),
+            busyDescription = chromeResource(R.string.town_waiting).spoken,
             onClick = { onIntent(TownIntent.GoToTownTapped) },
             modifier = modifier,
         )
     } else {
         MyGameButton(
-            label = stringResource(R.string.town_naming_submit),
+            label = chromeResource(R.string.town_naming_submit),
             isBusy = status == TownUiState.NamingStatus.Submitting,
-            busyDescription = stringResource(R.string.town_waiting),
+            busyDescription = chromeResource(R.string.town_waiting).spoken,
             onClick = { onIntent(TownIntent.NameSubmitted) },
             modifier = modifier,
         )

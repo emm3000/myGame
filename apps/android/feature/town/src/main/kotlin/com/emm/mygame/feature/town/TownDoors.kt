@@ -5,11 +5,15 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.res.stringResource
 import com.emm.mygame.core.designsystem.MyGameOutlinedButton
 import com.emm.mygame.core.designsystem.MyGameSpacing
 import com.emm.mygame.core.designsystem.formatQuantity
-import com.emm.mygame.core.ui.icuStringResource
+import com.emm.mygame.core.ui.PlayerCopy
+import com.emm.mygame.core.ui.rememberPlayerCopy
+
+private fun PlayerCopy.reportWithDue(figure: String): String = chrome {
+    "${text(R.string.town_door_report)} ${text(R.string.town_next_reviews_due, "count" to figure)}"
+}.spoken
 
 @Composable
 internal fun TownDoors(
@@ -18,28 +22,27 @@ internal fun TownDoors(
     onReportOpen: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
-    val busyDescription: String = stringResource(R.string.town_waiting)
-    val report: String = stringResource(R.string.town_door_report)
+    val copy: PlayerCopy = rememberPlayerCopy()
+    val busyDescription: String = copy.chrome(R.string.town_waiting).spoken
     val figure: String = formatQuantity(dueCount.toLong())
-    val due: String = icuStringResource(R.string.town_next_reviews_due, "count" to figure)
     Row(
         horizontalArrangement = Arrangement.spacedBy(MyGameSpacing.step3),
         modifier = modifier.fillMaxWidth(),
     ) {
         MyGameOutlinedButton(
-            label = stringResource(R.string.town_place_school),
+            label = copy.chrome(R.string.town_place_school),
             isBusy = false,
             busyDescription = busyDescription,
             onClick = onSchoolOpen,
             modifier = Modifier.weight(1f),
         )
         MyGameOutlinedButton(
-            label = report,
+            label = copy.chrome(R.string.town_door_report),
             isBusy = false,
             busyDescription = busyDescription,
             onClick = onReportOpen,
             modifier = Modifier.weight(1f),
-            accessibleName = if (dueCount > 0) "$report $due" else null,
+            accessibleName = if (dueCount > 0) copy.reportWithDue(figure) else null,
             badge = if (dueCount > 0) figure else null,
         )
     }
