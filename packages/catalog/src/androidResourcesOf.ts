@@ -1,4 +1,5 @@
 import { type AndroidModule, androidKeyOf, androidModules, isAndroidKey } from './androidKeyOf'
+import type { Catalogs, Language } from './Catalogs'
 import type { GeneratedFile } from './GeneratedFile'
 import type { Messages } from './Messages'
 
@@ -41,18 +42,31 @@ const androidStringsOf = (messages: Messages): ReadonlyArray<AndroidString> =>
     .map(([key, pattern]) => ({ ...androidKeyOf(key), pattern }))
     .sort((left, right) => (left.resourceName < right.resourceName ? -1 : 1))
 
-export const androidResourcesOf = (messages: Messages): ReadonlyArray<GeneratedFile> => {
-  const strings = androidStringsOf(messages)
-  return androidModules.flatMap((module) => {
-    const moduleStrings = strings.filter((string) => string.module === module)
-    if (moduleStrings.length === 0) {
-      return []
-    }
-    return [
-      {
-        path: `${moduleDirectoryOf(module)}/src/main/res/values/strings.xml`,
-        contents: stringsXmlOf(moduleStrings),
-      },
-    ]
-  })
+const valuesDirectoryOf = (language: Language): string =>
+  language === 'en' ? 'values' : 'values-es'
+
+const moduleResourcesOf = (
+  module: AndroidModule,
+  language: Language,
+  strings: ReadonlyArray<AndroidString>,
+): ReadonlyArray<GeneratedFile> => {
+  const moduleStrings = strings.filter((string) => string.module === module)
+  if (moduleStrings.length === 0) {
+    return []
+  }
+  return [
+    {
+      path: `${moduleDirectoryOf(module)}/src/main/res/${valuesDirectoryOf(language)}/strings.xml`,
+      contents: stringsXmlOf(moduleStrings),
+    },
+  ]
+}
+
+export const androidResourcesOf = ({ en, es }: Catalogs): ReadonlyArray<GeneratedFile> => {
+  const english = androidStringsOf(en)
+  const spanish = androidStringsOf(es)
+  return androidModules.flatMap((module) => [
+    ...moduleResourcesOf(module, 'en', english),
+    ...moduleResourcesOf(module, 'es', spanish),
+  ])
 }

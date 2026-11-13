@@ -3,16 +3,19 @@ import { androidResourcesOf } from './androidResourcesOf'
 
 describe('androidResourcesOf', () => {
   it('writes nothing for a catalog without android keys', () => {
-    const webOnly = { 'mail.reset.subject': 'Cambia tu contraseña' }
+    const webOnly = { en: { 'mail.reset.subject': 'Change your password' }, es: {} }
 
     expect(androidResourcesOf(webOnly)).toEqual([])
   })
 
   it('writes one strings.xml per module holding keys, with its resources sorted', () => {
     const twoModules = {
-      'android.signin.sign_in_title': 'Entra en tu feudo',
-      'android.app.app_name': 'Vadoalto',
-      'android.signin.sign_in_email': 'Correo',
+      en: {
+        'android.signin.sign_in_title': 'Sign in to your town',
+        'android.app.app_name': 'Townword',
+        'android.signin.sign_in_email': 'Email',
+      },
+      es: {},
     }
 
     expect(androidResourcesOf(twoModules)).toEqual([
@@ -21,7 +24,7 @@ describe('androidResourcesOf', () => {
         contents: [
           '<?xml version="1.0" encoding="utf-8"?>',
           '<resources>',
-          '    <string name="app_name">Vadoalto</string>',
+          '    <string name="app_name">Townword</string>',
           '</resources>',
           '',
         ].join('\n'),
@@ -31,8 +34,8 @@ describe('androidResourcesOf', () => {
         contents: [
           '<?xml version="1.0" encoding="utf-8"?>',
           '<resources>',
-          '    <string name="sign_in_email">Correo</string>',
-          '    <string name="sign_in_title">Entra en tu feudo</string>',
+          '    <string name="sign_in_email">Email</string>',
+          '    <string name="sign_in_title">Sign in to your town</string>',
           '</resources>',
           '',
         ].join('\n'),
@@ -40,8 +43,22 @@ describe('androidResourcesOf', () => {
     ])
   })
 
+  it('writes English into values and Spanish into values-es', () => {
+    const bothLanguages = {
+      en: { 'android.app.app_name': 'Townword' },
+      es: { 'android.app.app_name': 'Townword en español' },
+    }
+
+    expect(androidResourcesOf(bothLanguages).map(({ path }) => path)).toEqual([
+      'apps/android/app/src/main/res/values/strings.xml',
+      'apps/android/app/src/main/res/values-es/strings.xml',
+    ])
+    expect(androidResourcesOf(bothLanguages)[0]?.contents).toContain('>Townword<')
+    expect(androidResourcesOf(bothLanguages)[1]?.contents).toContain('>Townword en español<')
+  })
+
   it('escapes what XML and Android resources read as markup', () => {
-    const marked = { 'android.review.review_note': `@A & <b> l'"x"\\\nfin` }
+    const marked = { en: { 'android.review.review_note': `@A & <b> l'"x"\\\nfin` }, es: {} }
 
     expect(androidResourcesOf(marked)[0]?.contents).toContain(
       `<string name="review_note">\\@A &amp; &lt;b> l\\'\\"x\\"\\\\\\nfin</string>`,
@@ -49,15 +66,15 @@ describe('androidResourcesOf', () => {
   })
 
   it('escapes a leading question mark', () => {
-    const question = { 'android.town.map_question': '?Dónde' }
+    const question = { en: { 'android.town.map_question': '?Where' }, es: {} }
 
     expect(androidResourcesOf(question)[0]?.contents).toContain(
-      '<string name="map_question">\\?Dónde</string>',
+      '<string name="map_question">\\?Where</string>',
     )
   })
 
   it('marks a string holding a percent sign as not formatted', () => {
-    const percent = { 'android.review.review_rate': '{rate} %' }
+    const percent = { en: { 'android.review.review_rate': '{rate} %' }, es: {} }
 
     expect(androidResourcesOf(percent)[0]?.contents).toContain(
       '<string name="review_rate" formatted="false">{rate} %</string>',
@@ -65,7 +82,7 @@ describe('androidResourcesOf', () => {
   })
 
   it('refuses an android key outside a known module', () => {
-    const unknownModule = { 'android.army.army_title': 'Ejército' }
+    const unknownModule = { en: { 'android.army.army_title': 'Army' }, es: {} }
 
     expect(() => androidResourcesOf(unknownModule)).toThrow(/android\.army\.army_title/)
   })

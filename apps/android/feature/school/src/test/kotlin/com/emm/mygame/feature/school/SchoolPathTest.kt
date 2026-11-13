@@ -196,7 +196,7 @@ class SchoolPathTest {
     }
 
     @Test
-    @Config(qualifiers = "w360dp-h640dp")
+    @Config(qualifiers = "+w360dp-h640dp")
     @GraphicsMode(GraphicsMode.Mode.NATIVE)
     fun `fits the reward on one line on a narrow phone`() {
         val widest: TownSnapshot.Lesson = lessonOf(

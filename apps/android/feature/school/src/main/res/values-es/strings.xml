@@ -1,0 +1,73 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="school_duration_hours">{hours} h</string>
+    <string name="school_duration_hours_minutes">{hours} h {minutes} min</string>
+    <string name="school_duration_minutes">{minutes} min</string>
+    <string name="school_duration_minutes_seconds">{minutes}:{seconds}</string>
+    <string name="school_finish_day">{day} {time}</string>
+    <string name="school_finish_tomorrow">mañana {time}</string>
+    <string name="school_finish_with_clock">{timeLeft} · {clock}</string>
+    <string name="school_go_to_school">Ir a la escuela</string>
+    <string name="school_learning">Palabras en aprendizaje: {inLearning} de {cap}</string>
+    <string name="school_learning_full">{count, plural, =1 {La siguiente lección trae 1 palabra.} other {La siguiente lección trae {count, number,0} palabras.}} Empieza los repasos.</string>
+    <string name="school_lesson_cap_reached">Palabras en aprendizaje: {inLearning} de {cap}. Esta lección trae {count}.</string>
+    <string name="school_lesson_needs_school">Necesita la escuela en nivel {level}</string>
+    <string name="school_lesson_next">Siguiente lección</string>
+    <string name="school_lesson_nothing_to_read">Ahora no hay palabras para leer.</string>
+    <string name="school_lesson_read_words">Leer las palabras</string>
+    <string name="school_lesson_reward" formatted="false">Habilidad: {resource} +{percent} %</string>
+    <string name="school_lesson_slot_busy">La escuela está estudiando la lección {number}.</string>
+    <string name="school_lesson_studied">Estudiada</string>
+    <string name="school_lesson_study">Estudiar la lección {number}</string>
+    <string name="school_lesson_studying">En estudio</string>
+    <string name="school_lesson_summary">{words} · {skill}</string>
+    <string name="school_lesson_title">Lección {number}</string>
+    <string name="school_lesson_word_next">Siguiente palabra</string>
+    <string name="school_lesson_word_position">Palabra {number} de {count}</string>
+    <string name="school_lesson_word_then">Cuando termine la lección, empiezan los repasos.</string>
+    <string name="school_lesson_words">{count, plural, =1 {1 palabra} other {{count, number,0} palabras}}</string>
+    <string name="school_lessons">Lecciones</string>
+    <string name="school_level">Nivel {level}</string>
+    <string name="school_loading">Estamos leyendo tu pueblo…</string>
+    <string name="school_next_build_factory">Construye la fábrica</string>
+    <string name="school_next_build_farm">Construye la granja</string>
+    <string name="school_next_build_power_station">Construye la central eléctrica</string>
+    <string name="school_next_go_to_report">Ir al informe</string>
+    <string name="school_next_lesson_ready_in">Lección {number} lista en</string>
+    <string name="school_next_no_reviews_due">No tienes repasos pendientes ahora.</string>
+    <string name="school_next_review">Siguiente repaso:</string>
+    <string name="school_next_reviews_due">Repasos pendientes: {count}</string>
+    <string name="school_next_title">Tu siguiente paso</string>
+    <string name="school_path_count">{count} de {total}</string>
+    <string name="school_path_learned">Aprendidas</string>
+    <string name="school_path_read">Leídas</string>
+    <string name="school_path_reviewed">Repasadas</string>
+    <string name="school_path_studied">Estudiadas</string>
+    <string name="school_refusal_learning_cap_reached">Palabras en aprendizaje: {cardsInLearning} de {learningCap}. Repásalas antes de empezar otra lección.</string>
+    <string name="school_refusal_lesson_already_studied">Ya estudiaste esa lección: sus palabras están en tu repaso.</string>
+    <string name="school_refusal_lesson_school_too_low">Esa lección necesita una escuela de más nivel. Súbela primero.</string>
+    <string name="school_refusal_lesson_study_not_found">La escuela ya no estudia esa lección. No queda nada que parar.</string>
+    <string name="school_refusal_lesson_under_study">La escuela ya está estudiando esa lección. Espera a que termine.</string>
+    <string name="school_refusal_study_slot_busy">La escuela ya tiene un estudio en marcha. Espera a que termine.</string>
+    <string name="school_refusal_town_not_found">Aún no tienes pueblo. Ponle nombre para fundarlo.</string>
+    <string name="school_refusal_unexpected">No hemos podido hablar con el servidor. Vuelve a intentarlo en un momento.</string>
+    <string name="school_resource_food">comida</string>
+    <string name="school_resource_material">material</string>
+    <string name="school_resource_money">dinero</string>
+    <string name="school_resource_power">energía</string>
+    <string name="school_skill_name">Habilidad de {resource}, nivel {level}</string>
+    <string name="school_skill_rate" formatted="false">+{percent} % de {resource}</string>
+    <string name="school_skills">Tus habilidades</string>
+    <string name="school_skills_none">Aún no tienes habilidades.</string>
+    <string name="school_slot_done">La lección está lista. Estamos leyendo tu pueblo otra vez…</string>
+    <string name="school_slot_idle">Ahora no hay ninguna lección en estudio.</string>
+    <string name="school_slot_refund">Si lo paras, la lección queda por estudiar y puedes volver a empezarla.</string>
+    <string name="school_slot_stop">Parar el estudio</string>
+    <string name="school_slot_stop_of">Parar el estudio de la lección {number}</string>
+    <string name="school_slot_title">En estudio</string>
+    <string name="school_start_reviews">Empezar los repasos</string>
+    <string name="school_study_with_duration">{action} · {duration}</string>
+    <string name="school_title">Escuela</string>
+    <string name="school_try_again">Volver a intentarlo</string>
+    <string name="school_waiting">Esperando</string>
+</resources>

@@ -1,147 +1,147 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <string name="town_amount">{amount} de {resource}</string>
-    <string name="town_at_top_level">Ya está en su nivel más alto.</string>
-    <string name="town_build">Construir nivel {level}</string>
+    <string name="town_amount">{amount} {resource}</string>
+    <string name="town_at_top_level">It is at the top level.</string>
+    <string name="town_build">Build level {level}</string>
     <string name="town_build_with_duration">{action} · {duration}</string>
-    <string name="town_door_report">Informe</string>
+    <string name="town_door_report">Report</string>
     <string name="town_duration_hours">{hours} h</string>
     <string name="town_duration_hours_minutes">{hours} h {minutes} min</string>
     <string name="town_duration_minutes">{minutes} min</string>
     <string name="town_duration_minutes_seconds">{minutes}:{seconds}</string>
     <string name="town_finish_day">{day} {time}</string>
-    <string name="town_finish_tomorrow">mañana {time}</string>
+    <string name="town_finish_tomorrow">tomorrow {time}</string>
     <string name="town_finish_with_clock">{timeLeft} · {clock}</string>
-    <string name="town_full">Lleno: {capacity}</string>
-    <string name="town_full_at">Lleno {clock}</string>
-    <string name="town_go_to_school">Ir a la escuela</string>
-    <string name="town_goal_close">Cerrar la meta</string>
-    <string name="town_goal_line">Meta {position} de {count}: {place}, nivel {level}</string>
-    <string name="town_goal_people">Gente libre necesaria: {count}.</string>
-    <string name="town_goal_ready">Tienes lo que hace falta.</string>
-    <string name="town_in_work">En construcción</string>
-    <string name="town_label_city">Ciudad</string>
-    <string name="town_label_town">Pueblo</string>
-    <string name="town_level">Nivel {level}</string>
+    <string name="town_full">Full: {capacity}</string>
+    <string name="town_full_at">Full {clock}</string>
+    <string name="town_go_to_school">Go to the school</string>
+    <string name="town_goal_close">Close the goal</string>
+    <string name="town_goal_line">Goal {position} of {count}: {place}, level {level}</string>
+    <string name="town_goal_people">Free people needed: {count}.</string>
+    <string name="town_goal_ready">You have what it needs.</string>
+    <string name="town_in_work">In work</string>
+    <string name="town_label_city">City</string>
+    <string name="town_label_town">Town</string>
+    <string name="town_level">Level {level}</string>
     <string name="town_level_in_work">{level} · {inWork}</string>
     <string name="town_list_more">{listed}, {item}</string>
-    <string name="town_list_pair">{listed} y {last}</string>
-    <string name="town_loading">Estamos leyendo tu pueblo…</string>
-    <string name="town_map_line">Envía un equipo a un trabajo.</string>
-    <string name="town_map_link">Ir al mapa</string>
-    <string name="town_map_title">Mapa</string>
-    <string name="town_naming_field">Nombre del pueblo</string>
-    <string name="town_naming_go_to_town">Ir a tu pueblo</string>
-    <string name="town_naming_mayor">Ahora diriges tu propio pueblo.</string>
-    <string name="town_naming_submit">Empezar</string>
-    <string name="town_naming_title">Ponle nombre a tu pueblo</string>
-    <string name="town_next_build_factory">Construye la fábrica</string>
-    <string name="town_next_build_farm">Construye la granja</string>
-    <string name="town_next_build_power_station">Construye la central eléctrica</string>
-    <string name="town_next_go_to_report">Ir al informe</string>
-    <string name="town_next_lesson_ready_in">Lección {number} lista en</string>
-    <string name="town_next_lesson_title">Lección {number}</string>
-    <string name="town_next_lesson_words">{count, plural, =1 {1 palabra} other {{count, number,0} palabras}}</string>
-    <string name="town_next_no_reviews_due">No tienes repasos pendientes ahora.</string>
-    <string name="town_next_read_words">Leer las palabras</string>
-    <string name="town_next_review">Siguiente repaso:</string>
-    <string name="town_next_reviews_due">Repasos pendientes: {count}</string>
-    <string name="town_next_start_reviews">Empezar los repasos</string>
-    <string name="town_next_study">Estudiar la lección {number}</string>
-    <string name="town_next_studying">En estudio</string>
-    <string name="town_next_title">Tu siguiente paso</string>
-    <string name="town_not_built">Sin construir</string>
-    <string name="town_office_busy">Espera a que termine esta contratación.</string>
-    <string name="town_office_count_needed">Contrata 1 o más.</string>
-    <string name="town_office_count_truck">Camiones a contratar</string>
-    <string name="town_office_count_worker">Trabajadores a contratar</string>
-    <string name="town_office_delivered">{delivered} de {count} contratados</string>
-    <string name="town_office_done">La contratación terminó. Estamos leyendo tu pueblo otra vez…</string>
-    <string name="town_office_hire_any_truck">Contratar camiones</string>
-    <string name="town_office_hire_any_worker">Contratar trabajadores</string>
-    <string name="town_office_hire_truck">{count, plural, =1 {Contratar 1 camión} other {Contratar {count, number,0} camiones}}</string>
-    <string name="town_office_hire_worker">{count, plural, =1 {Contratar 1 trabajador} other {Contratar {count, number,0} trabajadores}}</string>
-    <string name="town_office_hiring">Contratación</string>
-    <string name="town_office_idle">Ahora no hay ninguna contratación.</string>
-    <string name="town_office_name_truck">Camiones</string>
-    <string name="town_office_name_worker">Trabajadores</string>
-    <string name="town_office_needs_level">Necesita la oficina en nivel {level}</string>
-    <string name="town_office_people_cost">{count, plural, =1 {1 persona} other {{count, number,0} personas}}</string>
-    <string name="town_office_refund">Si la paras, recuperas el costo de las contrataciones que no llegaron.</string>
-    <string name="town_office_stop">Parar la contratación</string>
-    <string name="town_office_stop_of_truck">Parar la contratación de camiones</string>
-    <string name="town_office_stop_of_worker">Parar la contratación de trabajadores</string>
-    <string name="town_office_team_truck">Tu equipo: {count, plural, =1 {1 camión} other {{count, number,0} camiones}}</string>
-    <string name="town_office_team_worker">Tu equipo: {count, plural, =1 {1 trabajador} other {{count, number,0} trabajadores}}</string>
-    <string name="town_people">Gente: {free, plural, =1 {1 libre} other {{free, number,0} libres}}, {atWork} trabajando</string>
-    <string name="town_people_at_work">Gente trabajando: +{people}</string>
-    <string name="town_people_short">Gente necesaria: {needed}. {free, plural, =1 {Libre: 1} other {Libres: {free, number,0}}}.</string>
-    <string name="town_place_factory">Fábrica</string>
-    <string name="town_place_farm">Granja</string>
-    <string name="town_place_homes">Hogares</string>
-    <string name="town_place_office">Oficina</string>
-    <string name="town_place_power_station">Central eléctrica</string>
-    <string name="town_place_school">Escuela</string>
-    <string name="town_place_storage">Almacén</string>
-    <string name="town_places_title_city">Tu ciudad</string>
-    <string name="town_places_title_town">Tu pueblo</string>
+    <string name="town_list_pair">{listed} and {last}</string>
+    <string name="town_loading">Reading your town…</string>
+    <string name="town_map_line">Send a team on a job.</string>
+    <string name="town_map_link">Go to the map</string>
+    <string name="town_map_title">Map</string>
+    <string name="town_naming_field">Town name</string>
+    <string name="town_naming_go_to_town">Go to your town</string>
+    <string name="town_naming_mayor">You are the mayor.</string>
+    <string name="town_naming_submit">Start</string>
+    <string name="town_naming_title">Name your town</string>
+    <string name="town_next_build_factory">Build the factory</string>
+    <string name="town_next_build_farm">Build the farm</string>
+    <string name="town_next_build_power_station">Build the power station</string>
+    <string name="town_next_go_to_report">Go to the Report</string>
+    <string name="town_next_lesson_ready_in">Lesson {number} ready in</string>
+    <string name="town_next_lesson_title">Lesson {number}</string>
+    <string name="town_next_lesson_words">{count, plural, =1 {1 word} other {{count, number,0} words}}</string>
+    <string name="town_next_no_reviews_due">No reviews due now.</string>
+    <string name="town_next_read_words">Read the words</string>
+    <string name="town_next_review">Next review:</string>
+    <string name="town_next_reviews_due">Reviews due: {count}</string>
+    <string name="town_next_start_reviews">Start the reviews</string>
+    <string name="town_next_study">Study lesson {number}</string>
+    <string name="town_next_studying">Studying</string>
+    <string name="town_next_title">What is next</string>
+    <string name="town_not_built">Not built</string>
+    <string name="town_office_busy">Wait for this hiring to end.</string>
+    <string name="town_office_count_needed">Hire 1 or more.</string>
+    <string name="town_office_count_truck">Trucks to hire</string>
+    <string name="town_office_count_worker">Workers to hire</string>
+    <string name="town_office_delivered">{delivered} of {count} hired</string>
+    <string name="town_office_done">The hiring is done. Reading your town again…</string>
+    <string name="town_office_hire_any_truck">Hire trucks</string>
+    <string name="town_office_hire_any_worker">Hire workers</string>
+    <string name="town_office_hire_truck">{count, plural, =1 {Hire 1 truck} other {Hire {count, number,0} trucks}}</string>
+    <string name="town_office_hire_worker">{count, plural, =1 {Hire 1 worker} other {Hire {count, number,0} workers}}</string>
+    <string name="town_office_hiring">Hiring</string>
+    <string name="town_office_idle">No hiring now.</string>
+    <string name="town_office_name_truck">Trucks</string>
+    <string name="town_office_name_worker">Workers</string>
+    <string name="town_office_needs_level">Needs office level {level}</string>
+    <string name="town_office_people_cost">{count, plural, =1 {1 of your people} other {{count, number,0} people}}</string>
+    <string name="town_office_refund">Stop it and the cost of the hires that did not come comes back to you.</string>
+    <string name="town_office_stop">Stop hiring</string>
+    <string name="town_office_stop_of_truck">Stop hiring trucks</string>
+    <string name="town_office_stop_of_worker">Stop hiring workers</string>
+    <string name="town_office_team_truck">Your team: {count, plural, =1 {1 truck} other {{count, number,0} trucks}}</string>
+    <string name="town_office_team_worker">Your team: {count, plural, =1 {1 worker} other {{count, number,0} workers}}</string>
+    <string name="town_people">People: {free, plural, =1 {1 free} other {{free, number,0} free}}, {atWork} at work</string>
+    <string name="town_people_at_work">People at work: +{people}</string>
+    <string name="town_people_short">People needed: {needed}. {free, plural, =1 {Free: 1} other {Free: {free, number,0}}}.</string>
+    <string name="town_place_factory">Factory</string>
+    <string name="town_place_farm">Farm</string>
+    <string name="town_place_homes">Homes</string>
+    <string name="town_place_office">Office</string>
+    <string name="town_place_power_station">Power station</string>
+    <string name="town_place_school">School</string>
+    <string name="town_place_storage">Storage</string>
+    <string name="town_places_title_city">Your city</string>
+    <string name="town_places_title_town">Your town</string>
     <string name="town_rate">+{rate} / h</string>
-    <string name="town_ready_at">Lista {clock}</string>
-    <string name="town_ready_in">Lista en {timeLeft}</string>
-    <string name="town_refusal_blank_town_name">Escribe un nombre para tu pueblo.</string>
-    <string name="town_refusal_building_work_not_found">La obra del nivel {level} ya no está en la lista. Quizá ya terminó.</string>
-    <string name="town_refusal_hiring_not_enough_people">Esta contratación necesita {requiredPeople, plural, =1 {1 persona libre} other {{requiredPeople, number,0} personas libres}} y tienes {freePeople}. Sube el nivel de tus hogares.</string>
-    <string name="town_refusal_hiring_not_enough_resources">No tienes recursos suficientes para esta contratación. Espera a que crezcan tus reservas.</string>
-    <string name="town_refusal_hiring_order_not_found">Esta contratación ya terminó.</string>
-    <string name="town_refusal_hiring_slot_busy">Ya tienes una contratación en curso. Espera a que termine.</string>
-    <string name="town_refusal_not_enough_people">Esta obra necesita {requiredPeople, plural, =1 {1 persona libre} other {{requiredPeople, number,0} personas libres}} y tienes {freePeople}. Sube el nivel de tus hogares.</string>
-    <string name="town_refusal_not_enough_resources">No tienes recursos suficientes para esta obra. Espera a que crezcan tus reservas.</string>
-    <string name="town_refusal_office_too_low">Tu oficina está en nivel {officeLevel} y esta contratación necesita el nivel {requiredOfficeLevel}.</string>
-    <string name="town_refusal_player_already_holds_town">Ya tienes un pueblo. Solo puedes tener uno.</string>
-    <string name="town_refusal_top_level_reached">Este edificio ya está en su nivel más alto, el {level}.</string>
-    <string name="town_refusal_town_not_found">Aún no tienes pueblo. Ponle nombre para fundarlo.</string>
-    <string name="town_refusal_unexpected">No hemos podido hablar con el servidor. Vuelve a intentarlo en un momento.</string>
-    <string name="town_refusal_waiting_list_full">{cap, plural, =1 {La lista de espera ya tiene 1 obra.} other {La lista de espera ya tiene {cap, number,0} obras.}} Espera a que termine alguna.</string>
-    <string name="town_resource_food">comida</string>
+    <string name="town_ready_at">Ready {clock}</string>
+    <string name="town_ready_in">Ready in {timeLeft}</string>
+    <string name="town_refusal_blank_town_name">Write a name for your town.</string>
+    <string name="town_refusal_building_work_not_found">The work for level {level} is no longer on the list. It may be done.</string>
+    <string name="town_refusal_hiring_not_enough_people">This hire needs {requiredPeople, number,0} of your free people and you have {freePeople}. Build the next level of your homes.</string>
+    <string name="town_refusal_hiring_not_enough_resources">You do not have what you need to pay for this hire. Wait and try again.</string>
+    <string name="town_refusal_hiring_order_not_found">This hiring has already ended.</string>
+    <string name="town_refusal_hiring_slot_busy">You are already hiring. Wait for that hiring to end.</string>
+    <string name="town_refusal_not_enough_people">This work needs {requiredPeople, plural, =1 {1 free person} other {{requiredPeople, number,0} free people}} and you have {freePeople}. Build your homes to a higher level.</string>
+    <string name="town_refusal_not_enough_resources">You do not have enough for this work. Wait for your stocks to grow.</string>
+    <string name="town_refusal_office_too_low">Your office is at level {officeLevel}. This hire needs level {requiredOfficeLevel}.</string>
+    <string name="town_refusal_player_already_holds_town">You already have a town. You can have only one.</string>
+    <string name="town_refusal_top_level_reached">This building is already at its top level, {level}.</string>
+    <string name="town_refusal_town_not_found">You have no town yet. Name it to start it.</string>
+    <string name="town_refusal_unexpected">We could not reach the server. Try again in a moment.</string>
+    <string name="town_refusal_waiting_list_full">{cap, plural, =1 {The waiting list already holds 1 work.} other {The waiting list already holds {cap, number,0} works.}} Wait for one to finish.</string>
+    <string name="town_resource_food">food</string>
     <string name="town_resource_material">material</string>
-    <string name="town_resource_money">dinero</string>
-    <string name="town_resource_power">energía</string>
-    <string name="town_season_days">{days, plural, =1 {{days, number,0} día} other {{days, number,0} días}}</string>
-    <string name="town_season_ends_in">{season} termina en {timeLeft}</string>
-    <string name="town_season_fall">otoño</string>
-    <string name="town_season_line">{season}, año {year}</string>
+    <string name="town_resource_money">money</string>
+    <string name="town_resource_power">power</string>
+    <string name="town_season_days">{days, plural, =1 {{days, number,0} day} other {{days, number,0} days}}</string>
+    <string name="town_season_ends_in">{season} ends in {timeLeft}</string>
+    <string name="town_season_fall">fall</string>
+    <string name="town_season_line">{season}, year {year}</string>
     <string name="town_season_separator">·</string>
-    <string name="town_season_spring">primavera</string>
-    <string name="town_season_summer">verano</string>
-    <string name="town_season_winter">invierno</string>
-    <string name="town_short_mark">, falta</string>
-    <string name="town_shortfall">Necesitas {missing} más.</string>
-    <string name="town_sign_out">Salir</string>
-    <string name="town_skill_name">Habilidad de {resource}, nivel {level}</string>
-    <string name="town_skyline_built">{built} de {total} construidos</string>
-    <string name="town_status_finish_close">Cerrar</string>
-    <string name="town_status_finish_line">La lección {number} terminó.</string>
-    <string name="town_stock_of">de {capacity}</string>
-    <string name="town_stocks">En el almacén</string>
-    <string name="town_tip_close">Cerrar el consejo</string>
-    <string name="town_tip_full_store">Cuando el dinero, la comida, la energía o el material están llenos, tu pueblo no gana más. Construye el almacén para guardar más.</string>
-    <string name="town_tip_jobs">Tus trabajadores y camiones están libres. Envía un equipo a un trabajo en el mapa a cambio de un pago.</string>
-    <string name="town_tip_office">En la oficina puedes contratar trabajadores y camiones. Envíalos a trabajos en el mapa.</string>
-    <string name="town_tip_people">Las obras necesitan gente libre. Construye los hogares para tener más gente.</string>
-    <string name="town_tip_seasons">En primavera, verano, otoño e invierno, tu pueblo puede ganar más o menos.</string>
-    <string name="town_tip_title">Consejo</string>
-    <string name="town_tip_waiting_list">Mientras haya una obra en marcha, otras obras pueden esperar en la lista de espera. Empiezan cuando esa obra esté lista.</string>
+    <string name="town_season_spring">spring</string>
+    <string name="town_season_summer">summer</string>
+    <string name="town_season_winter">winter</string>
+    <string name="town_short_mark">, you need more</string>
+    <string name="town_shortfall">You need {missing} more.</string>
+    <string name="town_sign_out">Sign out</string>
+    <string name="town_skill_name">Level {level} {resource} skill</string>
+    <string name="town_skyline_built">{built} of {total} built</string>
+    <string name="town_status_finish_close">Close</string>
+    <string name="town_status_finish_line">Lesson {number} is done.</string>
+    <string name="town_stock_of">of {capacity}</string>
+    <string name="town_stocks">In storage</string>
+    <string name="town_tip_close">Close the tip</string>
+    <string name="town_tip_full_store">When money, food, power or material is full, your town earns no more of it. Build the storage for more.</string>
+    <string name="town_tip_jobs">Your workers and trucks are free. Send a team on a job on the map for pay.</string>
+    <string name="town_tip_office">At the office you can hire workers and trucks. Send them on jobs on the map.</string>
+    <string name="town_tip_people">Building work needs free people. Build the homes for more people.</string>
+    <string name="town_tip_seasons">In spring, summer, fall and winter, your town can earn more, or not as much.</string>
+    <string name="town_tip_title">Tip</string>
+    <string name="town_tip_waiting_list">When building work is on, other building work can wait on the waiting list. It starts when that work is ready.</string>
     <string name="town_title">{name} · {label}</string>
-    <string name="town_top_level">Nivel máximo</string>
-    <string name="town_try_again">Volver a intentarlo</string>
-    <string name="town_waiting">Esperando</string>
-    <string name="town_work_done">La obra está lista. Estamos leyendo tu pueblo otra vez…</string>
-    <string name="town_work_idle">Ahora no hay ninguna obra.</string>
-    <string name="town_work_ready">Lista</string>
-    <string name="town_work_refund">Si la paras, recuperas todo lo que costó, y lo mismo por cada obra en espera que dependa de ella.</string>
-    <string name="town_work_stop">Parar la obra</string>
-    <string name="town_work_stop_of">Parar la obra: {place}, nivel {level}</string>
-    <string name="town_work_title">Obra</string>
-    <string name="town_work_waiting_list">Lista de espera</string>
+    <string name="town_top_level">Top level</string>
+    <string name="town_try_again">Try again</string>
+    <string name="town_waiting">Waiting</string>
+    <string name="town_work_done">The work is done. Reading your town again…</string>
+    <string name="town_work_idle">No building work now.</string>
+    <string name="town_work_ready">Ready</string>
+    <string name="town_work_refund">Stop it and all it cost comes back to you. So does the cost of any work on the waiting list that needs it.</string>
+    <string name="town_work_stop">Stop the work</string>
+    <string name="town_work_stop_of">Stop the work: {place}, level {level}</string>
+    <string name="town_work_title">Building work</string>
+    <string name="town_work_waiting_list">Waiting list</string>
     <string name="town_work_waiting_list_summary">{title} · {finish}</string>
 </resources>

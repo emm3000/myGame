@@ -15,7 +15,7 @@ English for every identifier, file, directory, branch, commit and doc. Player-fa
 
 ## Game content
 
-Names players see come from `docs/setting/` and `CONTEXT.md`, never invented in code. The identifier stays English (`storage`); the player-facing label lives only in `packages/catalog` (`es.json`), which generates the web's and the api's functions and the Android string resources (ADR 038).
+Names players see come from `docs/setting/` and `CONTEXT.md`, never invented in code. The identifier stays English (`storage`); the player-facing label lives only in `packages/catalog` (`en.json` and `es.json`), which generates the web's and the api's functions and the Android string resources (ADR 038).
 
 ## Rejected
 

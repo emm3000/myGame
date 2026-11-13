@@ -1,16 +1,11 @@
 import { type MessageFormatElement, parse } from '@formatjs/icu-messageformat-parser'
 import { argumentUsesOf } from './argumentUsesOf'
+import type { Catalogs, Language } from './Catalogs'
 import type { Messages } from './Messages'
-
-export type Language = 'en' | 'es'
-
-export type Catalogs = {
-  readonly en: Messages
-  readonly es: Messages
-}
 
 export type CatalogProblem =
   | { readonly kind: 'missingFromEs'; readonly key: string }
+  | { readonly kind: 'missingFromEn'; readonly key: string }
   | { readonly kind: 'unparsable'; readonly language: Language; readonly key: string }
   | { readonly kind: 'argumentsDiffer'; readonly key: string }
   | { readonly kind: 'voseo'; readonly key: string; readonly word: string }
@@ -61,6 +56,11 @@ const missingFromEs = ({ en, es }: Catalogs): ReadonlyArray<CatalogProblem> =>
     .filter((key) => !(key in es))
     .map((key) => ({ kind: 'missingFromEs', key }))
 
+const missingFromEn = ({ en, es }: Catalogs): ReadonlyArray<CatalogProblem> =>
+  Object.keys(es)
+    .filter((key) => !(key in en))
+    .map((key) => ({ kind: 'missingFromEn', key }))
+
 const unparsable = (language: Language, messages: Messages): ReadonlyArray<CatalogProblem> =>
   Object.entries(messages)
     .filter(([, message]) => parsedOrUndefined(message) === undefined)
@@ -89,6 +89,7 @@ const voseo = (es: Messages): ReadonlyArray<CatalogProblem> =>
 
 export const catalogProblemsOf = (catalogs: Catalogs): ReadonlyArray<CatalogProblem> => [
   ...missingFromEs(catalogs),
+  ...missingFromEn(catalogs),
   ...unparsable('en', catalogs.en),
   ...unparsable('es', catalogs.es),
   ...argumentsDiffer(catalogs),

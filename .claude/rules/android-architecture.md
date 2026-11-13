@@ -73,4 +73,4 @@ rg -e 'stringResource|painterResource' -e '\bR\.' -e 'BuildConfig' -e '@Preview'
 
 ## Copy
 
-UI copy lives in `res/values/strings.xml`, never as a literal in Kotlin. Every `strings.xml` is generated from `packages/catalog/es.json` and never edited by hand; its strings are ICU MessageFormat with named arguments, read through `core:ui`'s `icuStringResource` or `getIcuString` (`apps/android/CLAUDE.md`, Gotchas). A preview's sample text is a fixture, not UI copy, and stays in the preview (`kotlin-style.md`, Previews).
+UI copy lives in `res/values/strings.xml`, never as a literal in Kotlin. Every `strings.xml` is generated from `packages/catalog`, `values/` from `en.json` and `values-es/` from `es.json`, and never edited by hand; its strings are ICU MessageFormat with named arguments, read through `core:ui`'s `icuStringResource` or `getIcuString` (`apps/android/CLAUDE.md`, Gotchas). A preview's sample text is a fixture, not UI copy, and stays in the preview (`kotlin-style.md`, Previews).
