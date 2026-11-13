@@ -1,5 +1,6 @@
-import { mailVerificationSubject, mailVerificationText } from '@mygame/catalog'
+import { fixedCopyOf } from './fixedCopyOf'
 import type { MailDelivery, Mailer } from './Mailer'
+import type { MailRecipient } from './MailRecipient'
 
 export type SendVerificationMailDependencies = {
   readonly mailer: Mailer
@@ -7,12 +8,14 @@ export type SendVerificationMailDependencies = {
 }
 
 export const sendVerificationMail = (
-  email: string,
+  { email, scaffold }: MailRecipient,
   token: string,
   { mailer, webUrl }: SendVerificationMailDependencies,
-): Promise<MailDelivery> =>
-  mailer.send({
+): Promise<MailDelivery> => {
+  const copy = fixedCopyOf(scaffold)
+  return mailer.send({
     to: email,
-    subject: mailVerificationSubject(),
-    text: mailVerificationText({ link: `${webUrl}/verify-email?token=${token}` }),
+    subject: copy.mailVerificationSubject(),
+    text: copy.mailVerificationText({ link: `${webUrl}/verify-email?token=${token}` }),
   })
+}

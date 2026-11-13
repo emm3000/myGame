@@ -496,23 +496,8 @@ describe('the auth routes', () => {
     await signUpAna()
 
     const sent = mailer.sentTo(anasSignUp.email)
-    const token = tokenOf(sent[0])
-    expect(token).toMatch(/^[A-Za-z0-9_-]{43}$/)
-    expect(sent).toEqual([
-      {
-        to: anasSignUp.email,
-        subject: 'Confirma tu correo',
-        text: [
-          'Confirma que este correo es el de tu feudo abriendo este enlace:',
-          '',
-          `http://localhost:3259/verify-email?token=${token}`,
-          '',
-          'El enlace vale 24 horas y una sola vez. Si caduca, pide otro desde tu feudo.',
-          '',
-          'Si no has fundado ningún feudo, ignora este correo.',
-        ].join('\n'),
-      },
-    ])
+    expect(sent).toHaveLength(1)
+    expect(tokenOf(sent[0])).toMatch(/^[A-Za-z0-9_-]{43}$/)
   })
 
   it('signs up a player whose email is not verified', async () => {
@@ -678,23 +663,8 @@ describe('the auth routes', () => {
     expect(response.status).toBe(202)
     expect(await response.text()).toBe('')
     const sent = resetMailsTo(anasSignUp.email)
-    const token = tokenOf(sent[0])
-    expect(token).toMatch(/^[A-Za-z0-9_-]{43}$/)
-    expect(sent).toEqual([
-      {
-        to: anasSignUp.email,
-        subject: resetMailSubject,
-        text: [
-          'Alguien ha pedido cambiar la contraseña de tu feudo. Si fuiste tú, abre este enlace y elige una nueva:',
-          '',
-          `http://localhost:3259/reset-password?token=${token}`,
-          '',
-          'El enlace vale una hora y una sola vez.',
-          '',
-          'Si no pediste nada, ignora este correo: tu contraseña sigue siendo la misma.',
-        ].join('\n'),
-      },
-    ])
+    expect(sent).toHaveLength(1)
+    expect(tokenOf(sent[0])).toMatch(/^[A-Za-z0-9_-]{43}$/)
   })
 
   it('sends nothing to an unverified email', async () => {

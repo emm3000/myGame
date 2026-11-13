@@ -208,3 +208,7 @@ out-of-scope line. Nothing else here changes.
 ## Second amendment (2026-11-04)
 
 ADR 035 makes the mail copy per language: the verify and reset mails follow the player's scaffold language, settled by ADR 038 with the rest of the copy. The tokens, their digests and the player lock are unchanged. Until the town rebuild's tickets ship, the code keeps the terms this ADR names. Nothing else here changes.
+
+## Third amendment (2026-11-13)
+
+ADR 038 settles the mail's language, as the second amendment deferred: the api renders the verify and reset mails, subject and text alike, from `packages/catalog` in the stored player's scaffold language at send time, Spanish for `es` and English for `none` (#746). The copy already lives under the catalog's `mail.*` keys, moved there from `apps/api/src/mail/mailCopy.ts` by ADR 038's step 2. A reset request for an unknown or unverified address still sends nothing and answers 202 as for any other, so no mail goes to an address without a player. The links, their lifetimes, the tokens, their digests and the player lock are unchanged. Nothing else here changes.

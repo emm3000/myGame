@@ -3,6 +3,7 @@ import type { Transaction } from '../adapters/postgres/postgresTransaction'
 import type { CryptoSessionTokens } from '../adapters/system/CryptoSessionTokens'
 import type { Refusal } from '../http/Refusal'
 import { issueAccountToken } from './issueAccountToken'
+import type { MailRecipient } from './MailRecipient'
 import { type SendVerificationMailDependencies, sendVerificationMail } from './sendVerificationMail'
 
 export type ResendVerificationMailDependencies = SendVerificationMailDependencies & {
@@ -12,7 +13,7 @@ export type ResendVerificationMailDependencies = SendVerificationMailDependencie
 }
 
 type VerifyLink = {
-  readonly email: string
+  readonly recipient: MailRecipient
   readonly token: string
 }
 
@@ -34,7 +35,7 @@ export const resendVerificationMail = async (
         clock,
         sessionTokens,
       })
-      return ok({ email: player.email, token })
+      return ok({ recipient: { email: player.email, scaffold: player.scaffold }, token })
     },
   )
   if (!issued.ok) {
@@ -43,7 +44,7 @@ export const resendVerificationMail = async (
   if (issued.value === undefined) {
     return ok(undefined)
   }
-  const delivery = await sendVerificationMail(issued.value.email, issued.value.token, {
+  const delivery = await sendVerificationMail(issued.value.recipient, issued.value.token, {
     mailer,
     webUrl,
   })

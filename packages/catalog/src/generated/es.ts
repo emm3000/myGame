@@ -12,9 +12,9 @@ export const authSignUpSwitchPrompt = (): string => `¿Ya tienes cuenta?`
 export const authSignUpTitle = (): string => `Crea tu cuenta`
 export const authTagline = (): string => `Aprende inglés mientras tu pueblo crece.`
 export const mailResetSubject = (): string => `Cambia tu contraseña`
-export const mailResetText = ({ link }: { readonly link: string | number }): string => `Alguien ha pedido cambiar la contraseña de tu feudo. Si fuiste tú, abre este enlace y elige una nueva:\n\n${String(link)}\n\nEl enlace vale una hora y una sola vez.\n\nSi no pediste nada, ignora este correo: tu contraseña sigue siendo la misma.`
+export const mailResetText = ({ link }: { readonly link: string | number }): string => `Alguien ha pedido cambiar tu contraseña de Townword. Si fuiste tú, abre este enlace y elige una nueva:\n\n${String(link)}\n\nEl enlace vale una hora y una sola vez.\n\nSi no pediste nada, ignora este correo: tu contraseña sigue siendo la misma.`
 export const mailVerificationSubject = (): string => `Confirma tu correo`
-export const mailVerificationText = ({ link }: { readonly link: string | number }): string => `Confirma que este correo es el de tu feudo abriendo este enlace:\n\n${String(link)}\n\nEl enlace vale 24 horas y una sola vez. Si caduca, pide otro desde tu feudo.\n\nSi no has fundado ningún feudo, ignora este correo.`
+export const mailVerificationText = ({ link }: { readonly link: string | number }): string => `Confirma que este correo es el de tu pueblo abriendo este enlace:\n\n${String(link)}\n\nEl enlace vale 24 horas y una sola vez. Si caduca, pide otro desde tu pueblo.\n\nSi no has fundado ningún pueblo, ignora este correo.`
 export const mapArea = ({ area }: { readonly area: string | number }): string => `Zona ${String(area)}`
 export const mapBackToOwnArea = (): string => `Volver a tu zona`
 export const mapCleanUpAction = (): string => `Limpiar los residuos`
