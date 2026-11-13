@@ -92,7 +92,10 @@ internal class Navigator(private val backStack: MutableList<NavKey>) {
 
     fun openHoldoutCheck(band: PlacementBand, week: HoldoutCheckWeek) {
         if (!areLinksEnabled) return
-        if (backStack.lastOrNull() == Destination.School) backStack.add(Destination.HoldoutCheck(band, week))
+        when (backStack.lastOrNull()) {
+            Destination.Town, Destination.School -> backStack.add(Destination.HoldoutCheck(band, week))
+            else -> Unit
+        }
     }
 
     fun openReviews() {

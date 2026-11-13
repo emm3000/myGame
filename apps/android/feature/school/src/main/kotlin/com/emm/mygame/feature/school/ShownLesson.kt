@@ -21,6 +21,7 @@ import com.emm.mygame.core.designsystem.MyGameTheme
 import com.emm.mygame.core.designsystem.MyGameTypography
 import com.emm.mygame.core.designsystem.blockHueOf
 import com.emm.mygame.core.network.LessonId
+import com.emm.mygame.core.network.LessonName
 import com.emm.mygame.core.ui.icuStringResource
 
 internal const val LESSON_BLOCK_LINE: String = "lesson_block_line"
@@ -47,7 +48,14 @@ internal fun ShownLesson(
             )
         }
         running?.let { slot: SchoolUiState.SlotLine.Running ->
-            ReadWordsPill(running = slot, shown = card.lesson, onLessonOpen = onLessonOpen)
+            (slot.name as? LessonName.Shelved)?.let { shelved: LessonName.Shelved ->
+                ReadWordsPill(
+                    running = slot.lesson,
+                    number = shelved.number,
+                    shown = card.lesson,
+                    onLessonOpen = onLessonOpen,
+                )
+            }
         }
         StartAnswer(lesson = card.lesson, start = content.start)
     }
@@ -132,24 +140,24 @@ private fun StudyAction(
 
 @Composable
 private fun ReadWordsPill(
-    running: SchoolUiState.SlotLine.Running,
+    running: LessonId,
+    number: Int,
     shown: LessonId,
     onLessonOpen: (LessonId) -> Unit,
     modifier: Modifier = Modifier,
 ) {
     MyGameButton(
-        label = readWordsLabelOf(running.lesson, running.number, shown),
+        label = readWordsLabelOf(running, number, shown),
         isBusy = false,
         busyDescription = stringResource(R.string.school_waiting),
-        onClick = { onLessonOpen(running.lesson) },
+        onClick = { onLessonOpen(running) },
         modifier = modifier,
     )
 }
 
 @Composable
 private fun blockLineOf(block: SchoolUiState.LessonBlock): String = when (block) {
-    is SchoolUiState.LessonBlock.SlotBusy ->
-        icuStringResource(R.string.school_lesson_slot_busy, "number" to block.number.toString())
+    is SchoolUiState.LessonBlock.SlotBusy -> slotBusyLineOf(block.name)
     is SchoolUiState.LessonBlock.SchoolTooLow ->
         icuStringResource(R.string.school_lesson_needs_school, "level" to block.requiredLevel.toString())
     is SchoolUiState.LessonBlock.CapReached -> icuStringResource(
@@ -161,7 +169,7 @@ private fun blockLineOf(block: SchoolUiState.LessonBlock): String = when (block)
 }
 
 @Composable
-private fun StartAnswer(
+internal fun StartAnswer(
     lesson: LessonId,
     start: SchoolUiState.LessonRequest,
     modifier: Modifier = Modifier,

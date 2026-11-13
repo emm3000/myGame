@@ -32,8 +32,11 @@ import com.emm.mygame.core.designsystem.MyGameTrack
 import com.emm.mygame.core.designsystem.MyGameTypography
 import com.emm.mygame.core.designsystem.PreviewMyGame
 import com.emm.mygame.core.designsystem.withTabularFigures
+import com.emm.mygame.core.network.HoldoutCheckWeek
 import com.emm.mygame.core.network.LessonId
+import com.emm.mygame.core.network.LessonName
 import com.emm.mygame.core.network.NextStepCard
+import com.emm.mygame.core.network.PlacementBand
 import com.emm.mygame.core.network.SchoolPathCounts
 import com.emm.mygame.core.network.TownLessonRefusal
 import com.emm.mygame.core.network.TownResourceKind
@@ -48,6 +51,7 @@ fun SchoolScreen(
     onReviewsOpen: () -> Unit,
     onLessonOpen: (LessonId) -> Unit,
     onReportOpen: () -> Unit,
+    onHoldoutCheckOpen: (PlacementBand, HoldoutCheckWeek) -> Unit,
     modifier: Modifier = Modifier,
     holdoutChecks: @Composable () -> Unit = {},
 ) {
@@ -81,6 +85,7 @@ fun SchoolScreen(
                 onReviewsOpen = onReviewsOpen,
                 onLessonOpen = onLessonOpen,
                 onReportOpen = onReportOpen,
+                onHoldoutCheckOpen = onHoldoutCheckOpen,
                 holdoutChecks = holdoutChecks,
             )
         }
@@ -94,6 +99,7 @@ private fun SchoolState(
     onReviewsOpen: () -> Unit,
     onLessonOpen: (LessonId) -> Unit,
     onReportOpen: () -> Unit,
+    onHoldoutCheckOpen: (PlacementBand, HoldoutCheckWeek) -> Unit,
     holdoutChecks: @Composable () -> Unit,
 ) {
     when (state) {
@@ -112,6 +118,7 @@ private fun SchoolState(
             onReviewsOpen = onReviewsOpen,
             onLessonOpen = onLessonOpen,
             onReportOpen = onReportOpen,
+            onHoldoutCheckOpen = onHoldoutCheckOpen,
             holdoutChecks = holdoutChecks,
         )
     }
@@ -134,19 +141,22 @@ private fun SchoolContent(
     onReviewsOpen: () -> Unit,
     onLessonOpen: (LessonId) -> Unit,
     onReportOpen: () -> Unit,
+    onHoldoutCheckOpen: (PlacementBand, HoldoutCheckWeek) -> Unit,
     holdoutChecks: @Composable () -> Unit,
     modifier: Modifier = Modifier,
 ) {
-    val shown: SchoolUiState.LessonCard? = content.shown
+    val shown: SchoolUiState.LessonCard? = content.shown.takeUnless { content.isNextStepAhead }
     Column(verticalArrangement = Arrangement.spacedBy(MyGameSpacing.step6), modifier = modifier) {
         SchoolTitle(level = content.schoolLevel)
         holdoutChecks()
         if (shown == null) {
             SchoolNextStep(
                 content = content,
+                onIntent = onIntent,
                 onReviewsOpen = onReviewsOpen,
                 onLessonOpen = onLessonOpen,
                 onReportOpen = onReportOpen,
+                onHoldoutCheckOpen = onHoldoutCheckOpen,
             )
         } else {
             ShownLesson(
@@ -269,6 +279,8 @@ private fun SkillItem(skill: SchoolUiState.SkillLine, modifier: Modifier = Modif
 
 private val previewFirstLesson: LessonId = LessonId("lesson-1")
 
+private val previewReleasedLesson: LessonId = LessonId("released-2-1")
+
 private val previewSecondLesson: LessonId = LessonId("lesson-2")
 
 private val previewOpenLesson: SchoolUiState.LessonCard = SchoolUiState.LessonCard(
@@ -318,7 +330,7 @@ private val previewContent: SchoolUiState.Content = SchoolUiState.Content(
 private val previewStudying: SchoolUiState.Content = previewContent.copy(
     slot = SchoolUiState.SlotLine.Busy(
         lesson = previewFirstLesson,
-        number = 1,
+        name = LessonName.Shelved(number = 1),
         remaining = 2.minutes,
         total = 150.seconds,
     ),
@@ -341,6 +353,23 @@ private class SchoolUiStates : PreviewParameterProvider<SchoolUiState> {
             start = SchoolUiState.LessonRequest.Refused(previewFirstLesson, TownLessonRefusal.StudySlotBusy),
         ),
         previewContent.copy(start = SchoolUiState.LessonRequest.Unreachable(previewFirstLesson)),
+        previewContent.copy(
+            nextStep = NextStepCard(
+                line = NextStepCard.Line.HoldoutCheck(PlacementBand.First),
+                detail = null,
+                countdown = null,
+                action = NextStepCard.Action.OpenHoldoutCheck(PlacementBand.First, HoldoutCheckWeek.Eighth),
+            ),
+        ),
+        previewContent.copy(
+            nextStep = NextStepCard(
+                line = NextStepCard.Line.ReleasedLesson(PlacementBand.Second, number = 1),
+                detail = null,
+                countdown = null,
+                action = NextStepCard.Action.StudyReleased(previewReleasedLesson),
+            ),
+            start = SchoolUiState.LessonRequest.Refused(previewReleasedLesson, TownLessonRefusal.StudySlotBusy),
+        ),
         SchoolUiState.Loading,
         SchoolUiState.Failed,
     )
@@ -350,6 +379,13 @@ private class SchoolUiStates : PreviewParameterProvider<SchoolUiState> {
 @Composable
 private fun SchoolScreenPreview(@PreviewParameter(SchoolUiStates::class) state: SchoolUiState) {
     MyGamePreviewSurface {
-        SchoolScreen(state = state, onIntent = {}, onReviewsOpen = {}, onLessonOpen = {}, onReportOpen = {})
+        SchoolScreen(
+            state = state,
+            onIntent = {},
+            onReviewsOpen = {},
+            onLessonOpen = {},
+            onReportOpen = {},
+            onHoldoutCheckOpen = { _, _ -> },
+        )
     }
 }

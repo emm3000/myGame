@@ -29,7 +29,7 @@ private fun knownCheckOf(
     return checkAt(band, week)
 }
 
-private fun WireHoldoutCheckWeek.toWeek(): HoldoutCheckWeek? = when (this) {
+internal fun WireHoldoutCheckWeek.toWeek(): HoldoutCheckWeek? = when (this) {
     WireHoldoutCheckWeek._8 -> HoldoutCheckWeek.Eighth
     WireHoldoutCheckWeek._24 -> HoldoutCheckWeek.TwentyFourth
     WireHoldoutCheckWeek.unknown_default_open_api -> null

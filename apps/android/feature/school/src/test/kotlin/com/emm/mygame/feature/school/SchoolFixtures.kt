@@ -2,6 +2,7 @@ package com.emm.mygame.feature.school
 
 import androidx.lifecycle.viewModelScope
 import com.emm.mygame.core.network.LessonId
+import com.emm.mygame.core.network.LessonName
 import com.emm.mygame.core.network.NextStep
 import com.emm.mygame.core.network.NextStepCard
 import com.emm.mygame.core.network.SeasonInForce
@@ -30,6 +31,8 @@ internal val readInstant: Instant = Instant.parse("2026-11-05T10:00:00Z")
 internal val firstLesson: LessonId = LessonId("lesson-1")
 
 internal val secondLesson: LessonId = LessonId("lesson-2")
+
+internal val firstLessonName: LessonName = LessonName.Shelved(number = 1)
 
 internal fun lessonOf(
     id: LessonId = firstLesson,
@@ -75,6 +78,7 @@ internal fun townOf(
     nextStep: NextStep = NextStep.CaughtUp(goal = null),
     nextDueAt: Instant? = null,
     readAt: Instant = readInstant,
+    releasedLessons: List<TownSnapshot.ReleasedLesson> = emptyList(),
 ): TownSnapshot = TownSnapshot(
     name = "Riverton",
     label = TownLabel.Town,
@@ -88,6 +92,7 @@ internal fun townOf(
     ),
     work = TownSnapshot.Work(slot = workSlot, waitingList = emptyList(), cap = 2),
     lessons = lessons,
+    releasedLessons = releasedLessons,
     skills = skills,
     learning = learning,
     lessonSlot = lessonSlot,

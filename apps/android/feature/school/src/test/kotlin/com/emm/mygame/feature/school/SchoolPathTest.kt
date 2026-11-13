@@ -100,6 +100,7 @@ class SchoolPathTest {
                     onReviewsOpen = { reviewOpens += 1 },
                     onLessonOpen = { lesson: LessonId -> lessonOpens += lesson },
                     onReportOpen = { },
+                    onHoldoutCheckOpen = { _, _ -> },
                 )
             }
         }

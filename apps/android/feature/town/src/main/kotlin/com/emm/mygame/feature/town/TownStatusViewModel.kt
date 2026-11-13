@@ -7,7 +7,7 @@ import com.emm.mygame.core.network.LessonId
 import com.emm.mygame.core.network.NextStep
 import com.emm.mygame.core.network.TownRepository
 import com.emm.mygame.core.network.TownSnapshot
-import com.emm.mygame.core.network.numberOf
+import com.emm.mygame.core.network.nameOf
 import com.emm.mygame.core.network.registeredBetween
 import com.emm.mygame.core.projection.countdownTo
 import com.emm.mygame.core.projection.repaintDelay
@@ -126,12 +126,12 @@ private fun TownSnapshot.statusAt(now: Instant, gap: Duration, finished: LessonI
     TownStatusUiState(
         running = lessonSlot?.let { slot: TownSnapshot.LessonSlot ->
             TownStatusUiState.RunningLesson(
-                number = numberOf(slot.lesson),
+                name = nameOf(slot.lesson),
                 remaining = countdownTo(finishesAt = slot.finishesAt, now = now),
                 finishesAt = slot.finishesAt - gap,
             )
         },
         notice = finished?.let { lesson: LessonId ->
-            TownStatusUiState.FinishNotice(numberOf(lesson), (nextStep as? NextStep.Reviews)?.readFirst?.firstOrNull())
+            TownStatusUiState.FinishNotice(nameOf(lesson), (nextStep as? NextStep.Reviews)?.readFirst?.firstOrNull())
         },
     )

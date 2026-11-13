@@ -200,6 +200,7 @@ private fun EntryProviderScope<NavKey>.townEntry(chrome: SignedInChrome) {
                     onMapOpen = navigator::openMap,
                     onReviewsOpen = navigator::openReviews,
                     onLessonOpen = { lesson: LessonId -> navigator.openLesson(lesson, walked = emptyList()) },
+                    onHoldoutCheckOpen = navigator::openHoldoutCheck,
                     onSigningOut = navigator::signingOut,
                     onSignedOut = { navigator.signedOut(isSessionEnded = false) },
                 ),
@@ -232,6 +233,7 @@ private fun EntryProviderScope<NavKey>.schoolEntry(chrome: SignedInChrome) {
                 onReviewsOpen = navigator::openReviews,
                 onLessonOpen = { lesson: LessonId -> navigator.openLesson(lesson, walked = emptyList()) },
                 onReportOpen = navigator::openReport,
+                onHoldoutCheckOpen = navigator::openHoldoutCheck,
                 holdoutChecks = {
                     HoldoutCheckRowsRoute(
                         holdoutChecks = dependencies.holdoutChecks,

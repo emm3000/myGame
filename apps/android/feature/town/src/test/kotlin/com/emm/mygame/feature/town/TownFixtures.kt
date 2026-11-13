@@ -83,6 +83,7 @@ internal fun townOf(
     skills: List<TownSnapshot.EarnedSkill> = emptyList(),
     hiring: TownSnapshot.Hiring = hiringOf(),
     tip: TipKind? = null,
+    releasedLessons: List<TownSnapshot.ReleasedLesson> = emptyList(),
 ): TownSnapshot = TownSnapshot(
     name = name,
     label = label,
@@ -93,6 +94,7 @@ internal fun townOf(
     buildings = places,
     work = TownSnapshot.Work(slot = slot, waitingList = waitingList, cap = cap),
     lessons = emptyList(),
+    releasedLessons = releasedLessons,
     skills = skills,
     learning = TownSnapshot.Learning(cap = 10, inLearning = 0, retainedWords = null),
     lessonSlot = lessonSlot,

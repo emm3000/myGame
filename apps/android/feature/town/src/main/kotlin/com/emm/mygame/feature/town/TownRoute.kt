@@ -33,6 +33,7 @@ fun TownRoute(
             viewModel.effects.collect { effect: TownEffect ->
                 when (effect) {
                     TownEffect.SignedOut -> currentNavigation.onSignedOut()
+                    is TownEffect.HoldoutCheckOpened -> currentNavigation.onHoldoutCheckOpen(effect.band, effect.week)
                 }
             }
         }

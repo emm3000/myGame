@@ -50,6 +50,7 @@ internal fun TownSnapshot.contentAt(
         tip = tip?.takeUnless { shown: TipKind -> shown in closed.tips },
         start = mutations.start,
         stop = mutations.stop,
+        lessonStart = mutations.lessonStart,
         office = officeLineAt(now = now, gap = gap, drawn = drawn, entries = hireEntries, mutations = mutations),
     )
 }

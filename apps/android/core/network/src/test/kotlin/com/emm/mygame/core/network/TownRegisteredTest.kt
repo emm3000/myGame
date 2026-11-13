@@ -13,6 +13,8 @@ class TownRegisteredTest {
 
     private val runningLesson: LessonId = LessonId("lesson-1")
 
+    private val releasedLesson: LessonId = LessonId("released-2-3")
+
     @Test
     fun `registers nothing when two reads agree`() {
         val town: TownSnapshot = townOf(homesLevel = 2, retained = RetainedWords(count = 1, total = 5))
@@ -109,6 +111,14 @@ class TownRegisteredTest {
         assertNull(registeredBetween(before, after).finishedLesson)
     }
 
+    @Test
+    fun `registers the running released lesson the later read holds studied`() {
+        val before: TownSnapshot = townOf(slot = releasedLesson, studied = emptySet())
+        val after: TownSnapshot = townOf(slot = null, studied = setOf(releasedLesson))
+
+        assertEquals(releasedLesson, registeredBetween(before, after).finishedLesson)
+    }
+
     private fun townOf(
         homesLevel: Int = 1,
         farmLevel: Int = 1,
@@ -128,6 +138,7 @@ class TownRegisteredTest {
         ),
         work = TownSnapshot.Work(slot = null, waitingList = emptyList(), cap = 2),
         lessons = listOf(lessonOf(runningLesson, isStudied = runningLesson in studied)),
+        releasedLessons = listOf(releasedOf(isStudied = releasedLesson in studied)),
         skills = emptyList(),
         learning = TownSnapshot.Learning(cap = 10, inLearning = 0, retainedWords = retained),
         lessonSlot = slot?.let { lesson: LessonId ->
@@ -139,6 +150,16 @@ class TownRegisteredTest {
         tip = null,
         nextDueAt = null,
         readAt = firstReadAt,
+    )
+
+    private fun releasedOf(isStudied: Boolean): TownSnapshot.ReleasedLesson = TownSnapshot.ReleasedLesson(
+        id = releasedLesson,
+        band = PlacementBand.Second,
+        position = 3,
+        duration = 5.minutes,
+        requiredSchoolLevel = 1,
+        isStudied = isStudied,
+        wordCount = 5,
     )
 
     private fun lessonOf(id: LessonId, isStudied: Boolean): TownSnapshot.Lesson = TownSnapshot.Lesson(

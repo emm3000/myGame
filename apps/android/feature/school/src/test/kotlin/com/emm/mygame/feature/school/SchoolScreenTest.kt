@@ -76,7 +76,7 @@ class SchoolScreenTest {
     )
 
     private fun busySlot(remaining: Duration): SchoolUiState.SlotLine.Busy =
-        SchoolUiState.SlotLine.Busy(firstLesson, number = 1, remaining = remaining, total = 150.seconds)
+        SchoolUiState.SlotLine.Busy(firstLesson, firstLessonName, remaining = remaining, total = 150.seconds)
 
     private val lessonOpens: MutableList<LessonId> = mutableListOf()
 
@@ -94,6 +94,7 @@ class SchoolScreenTest {
                     onReviewsOpen = { },
                     onLessonOpen = { lesson: LessonId -> lessonOpens += lesson },
                     onReportOpen = { },
+                    onHoldoutCheckOpen = { _, _ -> },
                 )
             }
         }
@@ -127,6 +128,7 @@ class SchoolScreenTest {
                     onReviewsOpen = {},
                     onLessonOpen = {},
                     onReportOpen = {},
+                    onHoldoutCheckOpen = { _, _ -> },
                     holdoutChecks = {
                         HoldoutCheckRows(HoldoutCheckRowsUiState(listOf(firstBandDue)), onHoldoutCheckOpen = {})
                     },
@@ -286,7 +288,7 @@ class SchoolScreenTest {
 
     @Test
     fun `names the running lesson on a busy school`() {
-        show(blocked(SchoolUiState.LessonBlock.SlotBusy(number = 1)))
+        show(blocked(SchoolUiState.LessonBlock.SlotBusy(name = firstLessonName)))
 
         announcing("La escuela está estudiando la lección 1.")
     }
@@ -464,7 +466,7 @@ class SchoolScreenTest {
     fun `keeps a refused stop beside a finished lesson`() {
         show(
             idleSchool.copy(
-                slot = SchoolUiState.SlotLine.Done(firstLesson, number = 1),
+                slot = SchoolUiState.SlotLine.Done(firstLesson, firstLessonName),
                 stop = SchoolUiState.LessonRequest.Refused(firstLesson, TownLessonRefusal.LessonStudyNotFound),
             ),
         )
@@ -558,7 +560,7 @@ class SchoolScreenTest {
 
     @Test
     fun `draws a finished lesson while the town reads again`() {
-        show(idleSchool.copy(slot = SchoolUiState.SlotLine.Done(firstLesson, number = 1), lessons = emptyList()))
+        show(idleSchool.copy(slot = SchoolUiState.SlotLine.Done(firstLesson, firstLessonName), lessons = emptyList()))
 
         showing("Lección 1")
         showing("La lección está lista. Estamos leyendo tu pueblo otra vez…")

@@ -12,6 +12,7 @@ import com.emm.mygame.core.network.generated.models.TownOverviewHiring
 import com.emm.mygame.core.network.generated.models.TownOverviewHiringOrder
 import com.emm.mygame.core.network.generated.models.TownOverviewHiringTermsWorker
 import com.emm.mygame.core.network.generated.models.TownOverviewLessonsInner
+import com.emm.mygame.core.network.generated.models.TownOverviewReleasedLessonsInner
 import com.emm.mygame.core.network.generated.models.TownOverviewSeason
 import com.emm.mygame.core.network.generated.models.TownOverviewSkillsInner
 import com.emm.mygame.core.network.generated.models.TownOverviewStocksMoney
@@ -21,9 +22,7 @@ import kotlin.time.Duration.Companion.seconds
 internal fun TownOverview.toSnapshot(): TownSnapshot? {
     val townLabel: TownLabel = label.toTownLabel() ?: return null
     val townWork: TownSnapshot.Work = work.toWork() ?: return null
-    val townLessons: List<TownSnapshot.Lesson> = lessons.map { lesson: TownOverviewLessonsInner ->
-        lesson.toLesson() ?: return null
-    }
+    val townLessons: TownLessons = toTownLessons() ?: return null
     val earnedSkills: List<TownSnapshot.EarnedSkill> = skills.map { skill: TownOverviewSkillsInner ->
         skill.toEarnedSkill() ?: return null
     }
@@ -52,7 +51,8 @@ internal fun TownOverview.toSnapshot(): TownSnapshot? {
             buildings.office.toBuilding(TownBuildingKind.Office),
         ),
         work = townWork,
-        lessons = townLessons,
+        lessons = townLessons.shelved,
+        releasedLessons = townLessons.released,
         skills = earnedSkills,
         learning = learning.toLearning(),
         lessonSlot = lessonSlot?.toLessonSlot(),
@@ -78,6 +78,18 @@ internal fun TownBuildingKind.toWireBuilding(): StartBuildingWork.Building = whe
 internal fun TownHireKind.toWireHire(): PlaceHiringOrder.Hire = when (this) {
     TownHireKind.Worker -> PlaceHiringOrder.Hire.worker
     TownHireKind.Truck -> PlaceHiringOrder.Hire.truck
+}
+
+private class TownLessons(val shelved: List<TownSnapshot.Lesson>, val released: List<TownSnapshot.ReleasedLesson>)
+
+private fun TownOverview.toTownLessons(): TownLessons? {
+    val shelved: List<TownSnapshot.Lesson> = lessons.map { lesson: TownOverviewLessonsInner ->
+        lesson.toLesson() ?: return null
+    }
+    val released: List<TownSnapshot.ReleasedLesson> = releasedLessons.map { lesson: TownOverviewReleasedLessonsInner ->
+        lesson.toReleasedLesson() ?: return null
+    }
+    return TownLessons(shelved, released)
 }
 
 private fun TownOverviewWork.toWork(): TownSnapshot.Work? {

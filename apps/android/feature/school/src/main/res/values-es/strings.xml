@@ -20,6 +20,7 @@
     <string name="school_lesson_read_words">Leer las palabras</string>
     <string name="school_lesson_reward" formatted="false">Habilidad: {resource} +{percent} %</string>
     <string name="school_lesson_slot_busy">La escuela está estudiando la lección {number}.</string>
+    <string name="school_lesson_slot_busy_released">La escuela está estudiando las palabras que vuelven de la banda {band}, grupo {number}.</string>
     <string name="school_lesson_studied">Estudiada</string>
     <string name="school_lesson_study">Estudiar la lección {number}</string>
     <string name="school_lesson_studying">En estudio</string>
@@ -56,6 +57,7 @@
     <string name="school_refusal_town_not_found">Aún no tienes pueblo. Ponle nombre para fundarlo.</string>
     <string name="school_refusal_unexpected">No hemos podido hablar con el servidor. Vuelve a intentarlo en un momento.</string>
     <string name="school_released_lesson">Palabras que vuelven: banda {band}, grupo {number}</string>
+    <string name="school_released_lesson_study">Estudiar las palabras que vuelven</string>
     <string name="school_resource_food">comida</string>
     <string name="school_resource_material">material</string>
     <string name="school_resource_money">dinero</string>
@@ -69,6 +71,7 @@
     <string name="school_slot_refund">Si lo paras, la lección queda por estudiar y puedes volver a empezarla.</string>
     <string name="school_slot_stop">Parar el estudio</string>
     <string name="school_slot_stop_of">Parar el estudio de la lección {number}</string>
+    <string name="school_slot_stop_of_released">Parar el estudio de las palabras que vuelven de la banda {band}, grupo {number}</string>
     <string name="school_slot_title">En estudio</string>
     <string name="school_start_reviews">Empezar los repasos</string>
     <string name="school_study_with_duration">{action} · {duration}</string>

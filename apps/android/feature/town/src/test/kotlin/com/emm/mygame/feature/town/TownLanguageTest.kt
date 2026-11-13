@@ -9,6 +9,7 @@ import androidx.compose.ui.test.onAllNodesWithText
 import androidx.compose.ui.test.onFirst
 import androidx.compose.ui.unit.DpRect
 import com.emm.mygame.core.designsystem.MyGameTheme
+import com.emm.mygame.core.network.LessonName
 import com.emm.mygame.core.network.TownBuildingKind
 import com.emm.mygame.core.network.TownFoundRefusal
 import com.emm.mygame.core.network.TownHireKind
@@ -335,7 +336,9 @@ class TownLanguageTest {
 
     @Test
     fun `draws the lesson status English over Spanish in the both phase`() {
-        showStatus(bothPhase, TownStatusUiState(running = null, notice = TownStatusUiState.FinishNotice(2, null)))
+        val notice = TownStatusUiState.FinishNotice(LessonName.Shelved(2), firstUnread = null)
+
+        showStatus(bothPhase, TownStatusUiState(running = null, notice = notice))
 
         assertEnglishOverSpanish("Lesson 2 is done.", "La lección 2 terminó.")
         assertEnglishOverSpanish("Start the reviews", "Empezar los repasos")
@@ -344,7 +347,8 @@ class TownLanguageTest {
 
     @Test
     fun `draws the lesson countdown in English in the English phase`() {
-        val running = TownStatusUiState.RunningLesson(number = 3, remaining = 5.minutes, finishesAt = readInstant)
+        val running =
+            TownStatusUiState.RunningLesson(LessonName.Shelved(3), remaining = 5.minutes, finishesAt = readInstant)
 
         showStatus(englishPhase, TownStatusUiState(running = running, notice = null))
 

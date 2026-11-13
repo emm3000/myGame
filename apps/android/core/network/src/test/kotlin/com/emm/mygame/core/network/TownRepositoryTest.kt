@@ -759,7 +759,7 @@ class TownRepositoryTest {
                 """"waitingList":[{"building":"school","level":3,"cost":$NOTHING,""" +
                 """"startsAt":"2026-11-05T10:10:00.000Z","finishesAt":"2026-11-05T10:30:00.000Z"}],"cap":2},""" +
                 """"hiring":$HIRING,"job":null,""" +
-                """"lessons":[],"skills":[],""" +
+                """"lessons":[],"releasedLessons":[],"dueHoldoutChecks":[],"skills":[],""" +
                 """"lessonSlot":{"lessonId":"lesson-1","startedAt":"2026-11-05T10:00:00.000Z",""" +
                 """"finishesAt":"2026-11-05T10:20:00.000Z"},""" +
                 """"learning":{"cap":10,"inLearning":0,"retainedWords":null},""" +

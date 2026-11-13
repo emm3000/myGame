@@ -62,6 +62,14 @@ class TownViewModel(
         onAnswered = ::restartFrom,
     )
 
+    private val lessonStart: TownLessonStart = TownLessonStart(
+        towns = towns,
+        scope = viewModelScope,
+        mutations = { mutations },
+        onDrawn = ::drawMutations,
+        onAnswered = ::restartFrom,
+    )
+
     private val guidance: TownGuidance = TownGuidance(
         towns = towns,
         scope = viewModelScope,
@@ -91,6 +99,9 @@ class TownViewModel(
             is TownIntent.StopHiringTapped -> if (shown != null) hiring.stop(intent.target)
             is TownIntent.TipClosed -> if (shown != null) guidance.closeTip(intent.tip)
             TownIntent.GoalClosed -> if (shown != null) guidance.closeGoal()
+            is TownIntent.HoldoutCheckTapped ->
+                viewModelScope.launch { _effects.send(TownEffect.HoldoutCheckOpened(intent.band, intent.week)) }
+            is TownIntent.ReleasedLessonTapped -> if (shown != null) lessonStart.start(intent.lesson)
             TownIntent.SignOutTapped -> signOut()
         }
     }

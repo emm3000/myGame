@@ -5,6 +5,7 @@ import com.emm.mygame.core.designsystem.MyGameIcons
 import com.emm.mygame.core.network.SeasonKind
 import com.emm.mygame.core.network.TownBuildingKind
 import com.emm.mygame.core.network.TownHiringRefusal
+import com.emm.mygame.core.network.TownLessonRefusal
 import com.emm.mygame.core.network.TownResourceKind
 import com.emm.mygame.core.network.TownWorkRefusal
 import com.emm.mygame.core.projection.FinishClock
@@ -172,4 +173,18 @@ private fun CopyReader.clockLabelOf(finish: FinishClock): String {
             "time" to time,
         )
     }
+}
+
+internal fun CopyReader.lessonRefusalLineOf(refusal: TownLessonRefusal): String = when (refusal) {
+    is TownLessonRefusal.LearningCapReached -> text(
+        R.string.town_refusal_learning_cap_reached,
+        "cardsInLearning" to refusal.inLearning.toString(),
+        "learningCap" to refusal.cap.toString(),
+    )
+    TownLessonRefusal.StudySlotBusy -> text(R.string.town_refusal_study_slot_busy)
+    TownLessonRefusal.LessonSchoolTooLow -> text(R.string.town_refusal_lesson_school_too_low)
+    TownLessonRefusal.LessonAlreadyStudied -> text(R.string.town_refusal_lesson_already_studied)
+    TownLessonRefusal.LessonUnderStudy -> text(R.string.town_refusal_lesson_under_study)
+    TownLessonRefusal.TownNotFound -> text(R.string.town_refusal_town_not_found)
+    TownLessonRefusal.LessonStudyNotFound, TownLessonRefusal.Unrecognized -> text(R.string.town_refusal_unexpected)
 }

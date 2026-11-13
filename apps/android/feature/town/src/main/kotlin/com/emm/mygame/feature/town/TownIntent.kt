@@ -1,5 +1,8 @@
 package com.emm.mygame.feature.town
 
+import com.emm.mygame.core.network.HoldoutCheckWeek
+import com.emm.mygame.core.network.LessonId
+import com.emm.mygame.core.network.PlacementBand
 import com.emm.mygame.core.network.TipKind
 import com.emm.mygame.core.network.TownBuildingKind
 import com.emm.mygame.core.network.TownHireKind
@@ -31,6 +34,10 @@ sealed interface TownIntent {
     data class TipClosed(val tip: TipKind) : TownIntent
 
     data object GoalClosed : TownIntent
+
+    data class HoldoutCheckTapped(val band: PlacementBand, val week: HoldoutCheckWeek) : TownIntent
+
+    data class ReleasedLessonTapped(val lesson: LessonId) : TownIntent
 
     data object SignOutTapped : TownIntent
 }

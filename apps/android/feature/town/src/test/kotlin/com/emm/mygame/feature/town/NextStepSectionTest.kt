@@ -19,8 +19,11 @@ import com.emm.mygame.core.designsystem.BLOCK_HUE
 import com.emm.mygame.core.designsystem.INK_PILL
 import com.emm.mygame.core.designsystem.MyGameBlockHue
 import com.emm.mygame.core.designsystem.MyGameTheme
+import com.emm.mygame.core.network.HoldoutCheckWeek
 import com.emm.mygame.core.network.LessonId
 import com.emm.mygame.core.network.NextStep
+import com.emm.mygame.core.network.PlacementBand
+import com.emm.mygame.core.network.TownLessonRefusal
 import com.emm.mygame.core.network.TownRegistered
 import com.emm.mygame.core.network.TownResourceKind
 import com.emm.mygame.core.network.TownSnapshot
@@ -52,7 +55,15 @@ class NextStepSectionTest {
     private val runningLesson: TownSnapshot.LessonSlot =
         TownSnapshot.LessonSlot(secondLesson, readInstant, readInstant + 7.minutes)
 
+    private val releasedLesson: LessonId = LessonId("released-2-3")
+
+    private val dueCheck: NextStep = NextStep.HoldoutCheck(PlacementBand.Second, HoldoutCheckWeek.TwentyFourth)
+
+    private val releasedStep: NextStep = NextStep.ReleasedLesson(releasedLesson, PlacementBand.Second, position = 3)
+
     private val lessonOpens: MutableList<LessonId> = mutableListOf()
+
+    private val intents: MutableList<TownIntent> = mutableListOf()
 
     private var reviewsOpens: Int = 0
 
@@ -168,6 +179,70 @@ class NextStepSectionTest {
     }
 
     @Test
+    fun `names the band of a due check`() {
+        show(townOf(nextStep = dueCheck))
+
+        composeRule.onNodeWithText("Prueba de palabras de la banda 2").assertExists()
+    }
+
+    @Test
+    fun `opens the due check by its band and week`() {
+        show(townOf(nextStep = dueCheck))
+
+        pill("Abrir la prueba").performClick()
+
+        assertEquals(
+            listOf<TownIntent>(TownIntent.HoldoutCheckTapped(PlacementBand.Second, HoldoutCheckWeek.TwentyFourth)),
+            intents,
+        )
+    }
+
+    @Test
+    fun `numbers the released lesson by its set in the band`() {
+        show(townOf(nextStep = releasedStep))
+
+        composeRule.onNodeWithText("Palabras que vuelven: banda 2, grupo 3").assertExists()
+    }
+
+    @Test
+    fun `starts the released lesson from the pill`() {
+        show(townOf(nextStep = releasedStep))
+
+        pill("Estudiar las palabras que vuelven").performClick()
+
+        assertEquals(listOf<TownIntent>(TownIntent.ReleasedLessonTapped(releasedLesson)), intents)
+    }
+
+    @Test
+    fun `draws a refused released lesson start under the pill`() {
+        val refused: TownUiState.Content = contentOf(townOf(nextStep = releasedStep))
+            .copy(lessonStart = TownUiState.LessonStartStatus.Refused(TownLessonRefusal.StudySlotBusy))
+        composeRule.setContent { MyGameTheme { Screen(refused) } }
+
+        composeRule.onNodeWithText("La escuela ya tiene un estudio en marcha. Espera a que termine.").assertExists()
+    }
+
+    @Test
+    fun `draws no lesson number while a released lesson runs`() {
+        val runningReleased: TownSnapshot.LessonSlot =
+            TownSnapshot.LessonSlot(releasedLesson, readInstant, readInstant + 7.minutes)
+        show(townOf(nextStep = NextStep.LessonRunning(producer = null), lessonSlot = runningReleased))
+
+        composeRule.onAllNodesWithText("Lección 0", substring = true).assertCountEquals(0)
+    }
+
+    @Test
+    fun `opens the school for the words of a running released lesson`() {
+        val runningReleased: TownSnapshot.LessonSlot =
+            TownSnapshot.LessonSlot(releasedLesson, readInstant, readInstant + 7.minutes)
+        show(townOf(nextStep = NextStep.LessonRunning(producer = null), lessonSlot = runningReleased))
+
+        pill("Leer las palabras").performClick()
+
+        assertEquals(1, schoolOpens)
+    }
+
+    @Test
     fun `opens the Report when caught up`() {
         show(townOf(nextStep = NextStep.CaughtUp(goal = null)))
 
@@ -194,6 +269,8 @@ class NextStepSectionTest {
             townOf(nextStep = NextStep.Reviews(3, readFirst = emptyList())),
             townOf(nextStep = NextStep.LessonRunning(NextStep.Producer.Farm), lessonSlot = runningLesson),
             townOf(nextStep = NextStep.LessonToStudy(secondLesson)),
+            townOf(nextStep = dueCheck),
+            townOf(nextStep = releasedStep),
             townOf(nextStep = NextStep.CaughtUp(goal = null)),
         )
 
@@ -281,7 +358,7 @@ class NextStepSectionTest {
     private fun Screen(state: TownUiState) {
         TownScreen(
             state = state,
-            onIntent = { },
+            onIntent = { intent: TownIntent -> intents += intent },
             onSchoolOpen = { schoolOpens += 1 },
             onReportOpen = { reportOpens += 1 },
             onMapOpen = {},

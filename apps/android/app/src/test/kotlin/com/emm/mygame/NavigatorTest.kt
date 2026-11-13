@@ -654,12 +654,30 @@ class NavigatorTest {
     }
 
     @Test
-    fun `opens no holdout check from the town`() {
+    fun `opens the holdout check above the town`() {
         val backStack: MutableList<NavKey> = mutableListOf(Destination.Town)
 
         Navigator(backStack).openHoldoutCheck(PlacementBand.First, HoldoutCheckWeek.Eighth)
 
+        assertEquals(listOf(Destination.Town, firstBandEighthWeek), backStack)
+    }
+
+    @Test
+    fun `returns to the town on back from a holdout check the town opened`() {
+        val backStack: MutableList<NavKey> = mutableListOf(Destination.Town, firstBandEighthWeek)
+
+        Navigator(backStack).back()
+
         assertEquals(listOf<NavKey>(Destination.Town), backStack)
+    }
+
+    @Test
+    fun `opens no holdout check from the Report`() {
+        val backStack: MutableList<NavKey> = mutableListOf(Destination.Town, Destination.Report)
+
+        Navigator(backStack).openHoldoutCheck(PlacementBand.First, HoldoutCheckWeek.Eighth)
+
+        assertEquals(listOf(Destination.Town, Destination.Report), backStack)
     }
 
     @Test

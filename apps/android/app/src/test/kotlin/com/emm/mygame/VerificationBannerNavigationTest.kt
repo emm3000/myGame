@@ -98,6 +98,7 @@ class VerificationBannerNavigationTest {
         ),
         work = TownSnapshot.Work(slot = null, waitingList = emptyList(), cap = 2),
         lessons = emptyList(),
+        releasedLessons = emptyList(),
         skills = emptyList(),
         learning = TownSnapshot.Learning(cap = 10, inLearning = 0, retainedWords = null),
         lessonSlot = null,

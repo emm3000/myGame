@@ -13,6 +13,7 @@ data class TownSnapshot(
     val buildings: List<Building>,
     val work: Work,
     val lessons: List<Lesson>,
+    val releasedLessons: List<ReleasedLesson>,
     val skills: List<EarnedSkill>,
     val learning: Learning,
     val lessonSlot: LessonSlot?,
@@ -59,6 +60,16 @@ data class TownSnapshot(
         val wordCount: Int,
         val readings: List<WordReading>,
         val standings: List<WordStanding>,
+    )
+
+    data class ReleasedLesson(
+        val id: LessonId,
+        val band: PlacementBand,
+        val position: Int,
+        val duration: Duration,
+        val requiredSchoolLevel: Int,
+        val isStudied: Boolean,
+        val wordCount: Int,
     )
 
     data class WordReading(val word: String, val gloss: String, val frame: String)

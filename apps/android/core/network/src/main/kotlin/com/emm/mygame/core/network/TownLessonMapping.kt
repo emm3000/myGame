@@ -7,6 +7,7 @@ import com.emm.mygame.core.network.generated.models.TownOverviewLessonsInner
 import com.emm.mygame.core.network.generated.models.TownOverviewLessonsInnerSkill
 import com.emm.mygame.core.network.generated.models.TownOverviewLessonsInnerWordsInner
 import com.emm.mygame.core.network.generated.models.TownOverviewLessonsInnerWordsInnerReading
+import com.emm.mygame.core.network.generated.models.TownOverviewReleasedLessonsInner
 import com.emm.mygame.core.network.generated.models.TownOverviewSkillsInner
 import kotlin.time.Duration.Companion.seconds
 
@@ -22,6 +23,19 @@ internal fun TownOverviewLessonsInner.toLesson(): TownSnapshot.Lesson? {
         wordCount = words.size,
         readings = words.mapNotNull { word: TownOverviewLessonsInnerWordsInner -> word.reading?.toWordReading() },
         standings = words.mapNotNull { word: TownOverviewLessonsInnerWordsInner -> word.standing.toWordStanding() },
+    )
+}
+
+internal fun TownOverviewReleasedLessonsInner.toReleasedLesson(): TownSnapshot.ReleasedLesson? {
+    val released: PlacementBand = band.toBand() ?: return null
+    return TownSnapshot.ReleasedLesson(
+        id = LessonId(id),
+        band = released,
+        position = position,
+        duration = durationSeconds.seconds,
+        requiredSchoolLevel = requiredSchoolLevel,
+        isStudied = isStudied,
+        wordCount = words.size,
     )
 }
 

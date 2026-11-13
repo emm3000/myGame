@@ -9,6 +9,7 @@ import com.emm.mygame.core.network.TownGoal
 import com.emm.mygame.core.network.TownHireKind
 import com.emm.mygame.core.network.TownHiringRefusal
 import com.emm.mygame.core.network.TownLabel
+import com.emm.mygame.core.network.TownLessonRefusal
 import com.emm.mygame.core.network.TownResourceKind
 import com.emm.mygame.core.network.TownWorkRefusal
 import kotlin.time.Duration
@@ -40,6 +41,7 @@ sealed interface TownUiState {
         val start: StartStatus,
         val stop: StopStatus,
         val office: OfficeLine,
+        val lessonStart: LessonStartStatus = LessonStartStatus.Idle,
     ) : TownUiState
 
     sealed interface NamingStatus {
@@ -122,6 +124,17 @@ sealed interface TownUiState {
         data class PeopleShort(val needed: Int, val free: Int) : BlockReason
 
         data class Resources(val shortfalls: List<Shortfall>, val ready: ReadyTime?) : BlockReason
+    }
+
+    sealed interface LessonStartStatus {
+
+        data object Idle : LessonStartStatus
+
+        data object Waiting : LessonStartStatus
+
+        data class Refused(val refusal: TownLessonRefusal) : LessonStartStatus
+
+        data object Unreachable : LessonStartStatus
     }
 
     sealed interface StartStatus {
