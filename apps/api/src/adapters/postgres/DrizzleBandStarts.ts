@@ -11,8 +11,8 @@ import {
 } from '@mygame/domain'
 import { and, asc, eq, sql } from 'drizzle-orm'
 import type { PostgresSession } from './connectPostgres'
+import { holdoutCheckOf } from './holdoutCheckOf'
 import { bandStarts, heldOutWords, holdoutChecks, holdoutCheckWords } from './schema'
-import { holdoutCheckOf } from './storedHoldoutChecks'
 
 type CheckRow = typeof holdoutChecks.$inferSelect
 

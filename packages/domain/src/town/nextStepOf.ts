@@ -1,6 +1,6 @@
 import type { DomainError } from '../DomainError'
+import type { DueHoldoutCheck } from '../holdout/DueHoldoutCheck'
 import { dueHoldoutChecksOf } from '../holdout/dueHoldoutChecksOf'
-import type { HoldoutCheckWeek } from '../holdout/HoldoutCheck'
 import type { ReleasedLesson } from '../holdout/ReleasedLesson'
 import type { Band, BandStart, Headword } from '../learning/BandStart'
 import { dueCardsAt } from '../learning/dueCardsAt'
@@ -26,7 +26,7 @@ export type NextStep =
       readonly count: number
       readonly readFirst: ReadonlyArray<LessonId>
     }
-  | { readonly kind: 'holdoutCheck'; readonly band: Band; readonly week: HoldoutCheckWeek }
+  | ({ readonly kind: 'holdoutCheck' } & DueHoldoutCheck)
   | { readonly kind: 'lessonRunning'; readonly producer: ProducerBuilding | null }
   | {
       readonly kind: 'releasedLesson'

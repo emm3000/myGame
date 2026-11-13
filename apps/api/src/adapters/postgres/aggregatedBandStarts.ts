@@ -1,6 +1,7 @@
 import { type BandStart, Instant } from '@mygame/domain'
 import { asc, type Column, eq, type SQL, sql } from 'drizzle-orm'
 import { z } from 'zod'
+import { holdoutCheckOf } from './holdoutCheckOf'
 import { jsonAggregateOf } from './jsonAggregateOf'
 import {
   bandStarts,
@@ -9,7 +10,6 @@ import {
   holdoutChecks,
   holdoutCheckWords,
 } from './schema'
-import { holdoutCheckOf } from './storedHoldoutChecks'
 
 const TimestampSchema = z.string().transform((iso) => new Date(iso))
 

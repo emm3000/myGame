@@ -7,7 +7,6 @@ import {
   buildingKinds,
   buildPercentAt,
   type DomainError,
-  type DueHoldoutCheck,
   Duration,
   deliveredHiresOf,
   deriveBuildDurationSeconds,
@@ -297,14 +296,9 @@ const goalOf = (reading: TownReading, catalog: TownCatalog): Result<Goal, Domain
   )
 }
 
-type Holdout = {
-  readonly released: ReadonlyArray<ReleasedLesson>
-  readonly dueChecks: ReadonlyArray<DueHoldoutCheck>
-}
-
 const nextStepOfReading = (
   reading: TownReading,
-  { released }: Holdout,
+  released: ReadonlyArray<ReleasedLesson>,
   catalog: TownCatalog,
   lessons: LessonLibrary,
   memoryTerms: MemoryTerms,
@@ -334,15 +328,12 @@ const nextStepOfReading = (
 
 const guidanceOf = (
   reading: TownReading,
-  holdout: Holdout,
+  released: ReadonlyArray<ReleasedLesson>,
   catalog: TownCatalog,
   lessons: LessonLibrary,
   memoryTerms: MemoryTerms,
-): Result<
-  Pick<TownOverview, 'nextStep' | 'tip' | 'nextDueAt' | 'dueHoldoutChecks'>,
-  DomainError
-> => {
-  const nextStep = nextStepOfReading(reading, holdout, catalog, lessons, memoryTerms)
+): Result<Pick<TownOverview, 'nextStep' | 'tip' | 'nextDueAt'>, DomainError> => {
+  const nextStep = nextStepOfReading(reading, released, catalog, lessons, memoryTerms)
   if (!nextStep.ok) {
     return nextStep
   }
@@ -356,10 +347,6 @@ const guidanceOf = (
   }
   return ok({
     nextStep: nextStep.value,
-    dueHoldoutChecks: holdout.dueChecks.map(({ band, week }) => ({
-      band: PlacementBandSchema.parse(band),
-      week,
-    })),
     tip: tip.value ?? null,
     nextDueAt: isoOrNullOf(nextDueAt.value),
   })
@@ -392,15 +379,15 @@ export const townOverviewOf = (
   if (!work.ok) {
     return work
   }
-  const holdout = {
-    released: releasedLessonsOf(reading.bandStarts, reading.cards, { lessons, bands: lessons }),
-    dueChecks: dueHoldoutChecksOf(reading.bandStarts, at),
-  }
-  const school = schoolOverviewOf(reading, catalog, lessons, holdout.released)
+  const released = releasedLessonsOf(reading.bandStarts, reading.cards, {
+    lessons,
+    bands: lessons,
+  })
+  const school = schoolOverviewOf(reading, catalog, lessons, released)
   if (!school.ok) {
     return school
   }
-  const guidance = guidanceOf(reading, holdout, catalog, lessons, memoryTerms)
+  const guidance = guidanceOf(reading, released, catalog, lessons, memoryTerms)
   if (!guidance.ok) {
     return guidance
   }
@@ -418,6 +405,10 @@ export const townOverviewOf = (
     hiring: hiringOf(reading, catalog),
     job: jobStateOf(town, at),
     ...school.value,
+    dueHoldoutChecks: dueHoldoutChecksOf(reading.bandStarts, at).map(({ band, week }) => ({
+      band: PlacementBandSchema.parse(band),
+      week,
+    })),
     ...guidance.value,
     readAt: isoOf(at),
   })

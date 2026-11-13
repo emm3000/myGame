@@ -223,17 +223,36 @@ it('reads a lesson of a single word in the singular', async () => {
   expect(within(card()).getByText('1 palabra')).toBeDefined()
 })
 
-it('names a due check by its band and opens the school', async () => {
-  await showTown(townAt({ kind: 'holdoutCheck', band: 2, week: 8 }))
+const dueCheck: NextStep = { kind: 'holdoutCheck', band: 2, week: 8 }
+
+const releasedSetThree: NextStep = {
+  kind: 'releasedLesson',
+  lessonId: 'released-1-3',
+  band: 1,
+  position: 3,
+}
+
+it('names a due check by its band', async () => {
+  await showTown(townAt(dueCheck))
 
   expect(within(card()).getByText(townNextHoldoutCheck({ band: 2 }))).toBeDefined()
+})
+
+it('opens the school from a due check', async () => {
+  await showTown(townAt(dueCheck))
+
   expect(pill(townGoToSchool()).getAttribute('href')).toBe('/school')
 })
 
-it('names a released lesson by its band and set and opens the school', async () => {
-  await showTown(townAt({ kind: 'releasedLesson', lessonId: 'released-1-3', band: 1, position: 3 }))
+it('names a released lesson by its band and set', async () => {
+  await showTown(townAt(releasedSetThree))
 
   expect(within(card()).getByText(townNextReleasedLesson({ band: 1, number: 3 }))).toBeDefined()
+})
+
+it('opens the school from a released lesson', async () => {
+  await showTown(townAt(releasedSetThree))
+
   expect(pill(townGoToSchool()).getAttribute('href')).toBe('/school')
 })
 
