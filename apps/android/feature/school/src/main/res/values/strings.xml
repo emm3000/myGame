@@ -8,6 +8,9 @@
     <string name="school_finish_tomorrow">tomorrow {time}</string>
     <string name="school_finish_with_clock">{timeLeft} · {clock}</string>
     <string name="school_go_to_school">Go to the school</string>
+    <string name="school_holdout_note">1 word in 10 is kept back for two later checks and comes back after the last one.</string>
+    <string name="school_holdout_open">Open the check</string>
+    <string name="school_holdout_row">A word check for band {band} is due.</string>
     <string name="school_learning">Words in learning: {inLearning} of {cap}</string>
     <string name="school_learning_full">{count, plural, =1 {The next lesson needs 1 word.} other {The next lesson needs {count, number,0} words.}} Start the reviews.</string>
     <string name="school_lesson_cap_reached">Words in learning: {inLearning} of {cap}. This lesson needs {count}.</string>
@@ -33,6 +36,7 @@
     <string name="school_next_build_farm">Build the farm</string>
     <string name="school_next_build_power_station">Build the power station</string>
     <string name="school_next_go_to_report">Go to the Report</string>
+    <string name="school_next_holdout_check">Word check for band {band}</string>
     <string name="school_next_lesson_ready_in">Lesson {number} ready in</string>
     <string name="school_next_no_reviews_due">No reviews due now.</string>
     <string name="school_next_review">Next review:</string>
@@ -51,6 +55,7 @@
     <string name="school_refusal_study_slot_busy">The school is already studying a lesson. Wait for it to finish.</string>
     <string name="school_refusal_town_not_found">You have no town yet. Name it to start it.</string>
     <string name="school_refusal_unexpected">We could not reach the server. Try again in a moment.</string>
+    <string name="school_released_lesson">Returning words: band {band}, set {number}</string>
     <string name="school_resource_food">food</string>
     <string name="school_resource_material">material</string>
     <string name="school_resource_money">money</string>

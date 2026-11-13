@@ -4,6 +4,16 @@
     <string name="placement_choose">Elige un significado para seguir.</string>
     <string name="placement_closed_none">No tienes ninguna prueba de nivel pendiente. Tus lecciones te esperan en la escuela.</string>
     <string name="placement_failed">No hemos podido leer tu prueba de nivel.</string>
+    <string name="placement_holdout_done">Gracias. Tus respuestas están guardadas.</string>
+    <string name="placement_holdout_due_line">Banda {band}, semana {week}: una prueba con palabras que estudiaste y palabras que se apartaron. Tu resultado no cambia tus lecciones.</string>
+    <string name="placement_holdout_failed">No hemos podido leer tu prueba.</string>
+    <string name="placement_holdout_loading">Estamos leyendo tu prueba…</string>
+    <string name="placement_holdout_refused">Esta prueba no está abierta ahora.</string>
+    <string name="placement_holdout_send">Enviar tus respuestas</string>
+    <string name="placement_holdout_skip">Saltar la prueba</string>
+    <string name="placement_holdout_skip_line">Tus lecciones son las mismas tanto si la haces como si la saltas.</string>
+    <string name="placement_holdout_start">Empezar la prueba</string>
+    <string name="placement_holdout_title">Prueba de palabras</string>
     <string name="placement_loading">Estamos leyendo tu prueba de nivel…</string>
     <string name="placement_next">Siguiente</string>
     <string name="placement_not_placed_out">No superada.</string>

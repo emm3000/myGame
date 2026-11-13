@@ -39,11 +39,13 @@
     <string name="town_next_build_farm">Build the farm</string>
     <string name="town_next_build_power_station">Build the power station</string>
     <string name="town_next_go_to_report">Go to the Report</string>
+    <string name="town_next_holdout_check">Word check for band {band}</string>
     <string name="town_next_lesson_ready_in">Lesson {number} ready in</string>
     <string name="town_next_lesson_title">Lesson {number}</string>
     <string name="town_next_lesson_words">{count, plural, =1 {1 word} other {{count, number,0} words}}</string>
     <string name="town_next_no_reviews_due">No reviews due now.</string>
     <string name="town_next_read_words">Read the words</string>
+    <string name="town_next_released_lesson">Returning words: band {band}, set {number}</string>
     <string name="town_next_review">Next review:</string>
     <string name="town_next_reviews_due">Reviews due: {count}</string>
     <string name="town_next_start_reviews">Start the reviews</string>
