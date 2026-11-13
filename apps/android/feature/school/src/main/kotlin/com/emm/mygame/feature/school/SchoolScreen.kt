@@ -145,7 +145,7 @@ private fun SchoolContent(
     holdoutChecks: @Composable () -> Unit,
     modifier: Modifier = Modifier,
 ) {
-    val shown: SchoolUiState.LessonCard? = content.shown.takeUnless { content.isNextStepAhead }
+    val shown: SchoolUiState.LessonCard? = content.blockLesson
     Column(verticalArrangement = Arrangement.spacedBy(MyGameSpacing.step6), modifier = modifier) {
         SchoolTitle(level = content.schoolLevel)
         holdoutChecks()
