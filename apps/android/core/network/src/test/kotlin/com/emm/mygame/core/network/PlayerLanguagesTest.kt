@@ -3,6 +3,8 @@ package com.emm.mygame.core.network
 import com.emm.mygame.core.testing.FakeTokenCipher
 import com.emm.mygame.core.testing.TestClock
 import java.io.File
+import java.util.concurrent.ConcurrentHashMap
+import java.util.concurrent.CountDownLatch
 import java.util.concurrent.TimeUnit
 import kotlin.time.Instant
 import kotlinx.coroutines.CoroutineStart
@@ -11,8 +13,10 @@ import kotlinx.coroutines.async
 import kotlinx.coroutines.test.TestScope
 import kotlinx.coroutines.test.UnconfinedTestDispatcher
 import kotlinx.coroutines.test.runTest
+import mockwebserver3.Dispatcher
 import mockwebserver3.MockResponse
 import mockwebserver3.MockWebServer
+import mockwebserver3.RecordedRequest
 import org.junit.After
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertNull
@@ -104,12 +108,16 @@ class PlayerLanguagesTest {
         api.enqueue(session(code = 200, scaffold = "es", chromePhase = "scaffold"))
         sessions().signIn("ines@sotoverde.es", "contrasena")
         api.takeRequest(REQUEST_WAIT_SECONDS, TimeUnit.SECONDS)
-        api.enqueue(json(200, playerJson(scaffold = "es", chromePhase = "scaffold"), answerDelaySeconds = 1L))
-        api.enqueue(json(200, TOWN_READ_IN_THE_BOTH_PHASE))
+        val answers = HeldAnswers()
+        val restoreAnswer: CountDownLatch =
+            answers.holding(SESSION_PATH, json(200, playerJson(scaffold = "es", chromePhase = "scaffold")))
+        answers.answering(TOWN_PATH, json(200, TOWN_READ_IN_THE_BOTH_PHASE))
+        api.dispatcher = answers
 
         val restore: Deferred<RestoreResult> = async(start = CoroutineStart.UNDISPATCHED) { sessions().restore() }
         api.takeRequest(REQUEST_WAIT_SECONDS, TimeUnit.SECONDS)
         town().read()
+        restoreAnswer.countDown()
         restore.await()
 
         assertEquals(PlayerLanguage(PlayerScaffold.Spanish, PlayerChromePhase.Both), languages.language.value)
@@ -142,12 +150,15 @@ class PlayerLanguagesTest {
         api.enqueue(session(code = 200, scaffold = "es", chromePhase = "scaffold"))
         sessions().signIn("ines@sotoverde.es", "contrasena")
         api.takeRequest(REQUEST_WAIT_SECONDS, TimeUnit.SECONDS)
-        api.enqueue(json(200, TOWN_READ_IN_THE_BOTH_PHASE, answerDelaySeconds = 1L))
-        api.enqueue(MockResponse.Builder().code(204).build())
+        val answers = HeldAnswers()
+        val townAnswer: CountDownLatch = answers.holding(TOWN_PATH, json(200, TOWN_READ_IN_THE_BOTH_PHASE))
+        answers.answering(SIGN_OUT_PATH, MockResponse.Builder().code(204).build())
+        api.dispatcher = answers
 
         val read: Deferred<TownReadResult> = async(start = CoroutineStart.UNDISPATCHED) { town().read() }
         api.takeRequest(REQUEST_WAIT_SECONDS, TimeUnit.SECONDS)
         sessions().signOut()
+        townAnswer.countDown()
         read.await()
 
         assertNull(languages.language.value)
@@ -177,16 +188,38 @@ class PlayerLanguagesTest {
         """{"id":"0b6f2f2e-6a43-4a8e-9c4e-2f1d3c4b5a69","email":"ines@sotoverde.es",""" +
             """"emailVerified":true,"scaffold":"$scaffold","chromePhase":"$chromePhase"}"""
 
-    private fun json(code: Int, body: String, answerDelaySeconds: Long = 0L): MockResponse =
+    private fun json(code: Int, body: String): MockResponse =
         MockResponse.Builder()
             .code(code)
             .addHeader("Content-Type", "application/json")
             .body(body)
-            .headersDelay(answerDelaySeconds, TimeUnit.SECONDS)
             .build()
+
+    private class HeldAnswers : Dispatcher() {
+        private val answers: MutableMap<String, Pair<MockResponse, CountDownLatch>> = ConcurrentHashMap()
+
+        fun holding(path: String, response: MockResponse): CountDownLatch {
+            val release = CountDownLatch(1)
+            answers[path] = response to release
+            return release
+        }
+
+        fun answering(path: String, response: MockResponse) {
+            answers[path] = response to CountDownLatch(0)
+        }
+
+        override fun dispatch(request: RecordedRequest): MockResponse {
+            val (response: MockResponse, release: CountDownLatch) = answers.getValue(request.url.encodedPath)
+            release.await(REQUEST_WAIT_SECONDS, TimeUnit.SECONDS)
+            return response
+        }
+    }
 
     private companion object {
         const val REQUEST_WAIT_SECONDS: Long = 5L
+        const val SESSION_PATH: String = "/api/auth/session"
+        const val TOWN_PATH: String = "/api/town"
+        const val SIGN_OUT_PATH: String = "/api/auth/sign-out"
         const val BOTH_PHASE: String = """"chromePhase":"both""""
         const val ENGLISH_PHASE: String = """"chromePhase":"english""""
         const val NOTHING: String = """{"money":0,"food":0,"power":0,"material":0}"""
