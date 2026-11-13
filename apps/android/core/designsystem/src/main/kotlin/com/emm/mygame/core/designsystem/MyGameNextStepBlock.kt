@@ -13,18 +13,35 @@ fun MyGameNextStepBlock(
     modifier: Modifier = Modifier,
     countdown: @Composable () -> Unit = {},
 ) {
+    MyGameNextStepBlock(
+        title = MyGameLabel(text = title, translation = null),
+        line = MyGameLabel(text = line, translation = null),
+        detail = detail?.let { shown: String -> MyGameLabel(text = shown, translation = null) },
+        modifier = modifier,
+        countdown = countdown,
+    )
+}
+
+@Composable
+fun MyGameNextStepBlock(
+    title: MyGameLabel,
+    line: MyGameLabel,
+    detail: MyGameLabel?,
+    modifier: Modifier = Modifier,
+    countdown: @Composable () -> Unit = {},
+) {
     MyGameBlock(
         hue = MyGameBlockHue.Peach,
         modifier = modifier.semantics(mergeDescendants = true) { },
     ) {
         MyGameMetaText(
-            text = title,
+            label = title,
             color = MyGameTheme.colors.onBlockMuted,
             modifier = Modifier.semantics { heading() },
         )
-        MyGameText(text = line, style = MyGameTypography.display, color = MyGameTheme.colors.onBlock)
-        detail?.let { shown: String ->
-            MyGameText(text = shown, style = MyGameTypography.body, color = MyGameTheme.colors.onBlock)
+        MyGameText(label = line, style = MyGameTypography.display, color = MyGameTheme.colors.onBlock)
+        detail?.let { shown: MyGameLabel ->
+            MyGameText(label = shown, style = MyGameTypography.body, color = MyGameTheme.colors.onBlock)
         }
         countdown()
     }
@@ -42,5 +59,13 @@ private fun MyGameNextStepBlockPreview() {
             MyGameCountdownLine(words = "Ready in", time = "04:05", ground = MyGameCountdownGround.Block)
         }
         MyGameNextStepBlock(title = "Next step", line = "Review your words", detail = null)
+        MyGameNextStepBlock(
+            title = MyGameLabel(text = "Next step", translation = "Siguiente paso"),
+            line = MyGameLabel(text = "Study lesson 2", translation = "Estudia la lección 2"),
+            detail = MyGameLabel(
+                text = "Five new words wait at the school.",
+                translation = "Cinco palabras nuevas te esperan en la escuela.",
+            ),
+        )
     }
 }

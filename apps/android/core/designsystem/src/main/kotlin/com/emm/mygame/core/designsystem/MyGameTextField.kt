@@ -18,6 +18,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.autofill.ContentType
 import androidx.compose.ui.graphics.Shape
 import androidx.compose.ui.graphics.SolidColor
+import androidx.compose.ui.semantics.clearAndSetSemantics
 import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.contentType
 import androidx.compose.ui.semantics.semantics
@@ -40,10 +41,45 @@ fun MyGameTextField(
     supportingText: String? = null,
     isEnabled: Boolean = true,
 ) {
+    MyGameTextField(
+        value = value,
+        label = MyGameLabel(text = label, translation = null),
+        isSecret = isSecret,
+        isReadOnly = isReadOnly,
+        keyboardOptions = keyboardOptions,
+        onValueChange = onValueChange,
+        modifier = modifier,
+        keyboardActions = keyboardActions,
+        contentType = contentType,
+        supportingText = supportingText,
+        isEnabled = isEnabled,
+    )
+}
+
+@Composable
+fun MyGameTextField(
+    value: String,
+    label: MyGameLabel,
+    isSecret: Boolean,
+    isReadOnly: Boolean,
+    keyboardOptions: KeyboardOptions,
+    onValueChange: (String) -> Unit,
+    modifier: Modifier = Modifier,
+    keyboardActions: KeyboardActions = KeyboardActions.Default,
+    contentType: ContentType? = null,
+    supportingText: String? = null,
+    isEnabled: Boolean = true,
+) {
     val colors: MyGameColors = MyGameTheme.colors
     val shape: Shape = RoundedCornerShape(MyGameRadii.md)
+    val hiddenWhenTranslated: Modifier = if (label.translation == null) Modifier else Modifier.clearAndSetSemantics { }
     Column(verticalArrangement = Arrangement.spacedBy(MyGameSpacing.step1), modifier = modifier.fillMaxWidth()) {
-        MyGameText(text = label, style = MyGameTypography.label, color = colors.inkMuted)
+        MyGameText(
+            label = label,
+            style = MyGameTypography.label,
+            color = colors.inkMuted,
+            modifier = hiddenWhenTranslated,
+        )
         BasicTextField(
             value = value,
             onValueChange = onValueChange,
@@ -58,7 +94,7 @@ fun MyGameTextField(
             modifier = Modifier
                 .fillMaxWidth()
                 .semantics {
-                    contentDescription = label
+                    contentDescription = label.spoken
                     if (contentType != null) this.contentType = contentType
                 },
             decorationBox = { field ->
@@ -121,6 +157,21 @@ private fun MyGameTextFieldPreview(@PreviewParameter(TextFieldStates::class) sta
             onValueChange = {},
             supportingText = state.supportingText,
             isEnabled = state.isEnabled,
+        )
+    }
+}
+
+@PreviewMyGame
+@Composable
+private fun MyGameTextFieldTranslatedPreview() {
+    MyGamePreviewSurface {
+        MyGameTextField(
+            value = "Riverton",
+            label = MyGameLabel(text = "Town name", translation = "Nombre del pueblo"),
+            isSecret = false,
+            isReadOnly = false,
+            keyboardOptions = KeyboardOptions.Default,
+            onValueChange = {},
         )
     }
 }
