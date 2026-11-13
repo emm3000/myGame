@@ -70,6 +70,8 @@ data class TownSnapshot(
         val requiredSchoolLevel: Int,
         val isStudied: Boolean,
         val wordCount: Int,
+        val readings: List<WordReading>,
+        val standings: List<WordStanding>,
     )
 
     data class WordReading(val word: String, val gloss: String, val frame: String)

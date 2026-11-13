@@ -7,10 +7,8 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.LiveRegionMode
 import androidx.compose.ui.semantics.heading
-import androidx.compose.ui.semantics.hideFromAccessibility
 import androidx.compose.ui.semantics.liveRegion
 import androidx.compose.ui.semantics.semantics
-import androidx.compose.ui.semantics.testTag
 import com.emm.mygame.core.designsystem.MyGameBlock
 import com.emm.mygame.core.designsystem.MyGameButton
 import com.emm.mygame.core.designsystem.MyGameInlineAlert
@@ -23,8 +21,6 @@ import com.emm.mygame.core.designsystem.blockHueOf
 import com.emm.mygame.core.network.LessonId
 import com.emm.mygame.core.network.LessonName
 import com.emm.mygame.core.ui.icuStringResource
-
-internal const val LESSON_BLOCK_LINE: String = "lesson_block_line"
 
 @Composable
 internal fun ShownLesson(
@@ -48,14 +44,7 @@ internal fun ShownLesson(
             )
         }
         running?.let { slot: SchoolUiState.SlotLine.Running ->
-            (slot.name as? LessonName.Shelved)?.let { shelved: LessonName.Shelved ->
-                ReadWordsPill(
-                    running = slot.lesson,
-                    number = shelved.number,
-                    shown = card.lesson,
-                    onLessonOpen = onLessonOpen,
-                )
-            }
+            ReadWordsPill(running = slot.lesson, name = slot.name, shown = card.lesson, onLessonOpen = onLessonOpen)
         }
         StartAnswer(lesson = card.lesson, start = content.start)
     }
@@ -124,47 +113,24 @@ private fun StudyAction(
                 blockedReason = reason,
             )
         }
-        reason?.let { line: String ->
-            MyGameText(
-                text = line,
-                style = MyGameTypography.caption,
-                color = MyGameTheme.colors.warningInk,
-                modifier = Modifier.semantics {
-                    hideFromAccessibility()
-                    testTag = LESSON_BLOCK_LINE
-                },
-            )
-        }
+        reason?.let { line: String -> BlockLine(line = line) }
     }
 }
 
 @Composable
 private fun ReadWordsPill(
     running: LessonId,
-    number: Int,
+    name: LessonName,
     shown: LessonId,
     onLessonOpen: (LessonId) -> Unit,
     modifier: Modifier = Modifier,
 ) {
     MyGameButton(
-        label = readWordsLabelOf(running, number, shown),
+        label = readWordsLabelOf(running, name, shown),
         isBusy = false,
         busyDescription = stringResource(R.string.school_waiting),
         onClick = { onLessonOpen(running) },
         modifier = modifier,
-    )
-}
-
-@Composable
-private fun blockLineOf(block: SchoolUiState.LessonBlock): String = when (block) {
-    is SchoolUiState.LessonBlock.SlotBusy -> slotBusyLineOf(block.name)
-    is SchoolUiState.LessonBlock.SchoolTooLow ->
-        icuStringResource(R.string.school_lesson_needs_school, "level" to block.requiredLevel.toString())
-    is SchoolUiState.LessonBlock.CapReached -> icuStringResource(
-        R.string.school_lesson_cap_reached,
-        "inLearning" to block.inLearning.toString(),
-        "cap" to block.cap.toString(),
-        "count" to block.wordCount.toString(),
     )
 }
 

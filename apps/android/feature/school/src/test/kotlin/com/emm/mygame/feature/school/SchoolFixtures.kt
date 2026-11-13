@@ -5,6 +5,7 @@ import com.emm.mygame.core.network.LessonId
 import com.emm.mygame.core.network.LessonName
 import com.emm.mygame.core.network.NextStep
 import com.emm.mygame.core.network.NextStepCard
+import com.emm.mygame.core.network.PlacementBand
 import com.emm.mygame.core.network.SeasonInForce
 import com.emm.mygame.core.network.TownBuildingKind
 import com.emm.mygame.core.network.TownLabel
@@ -127,3 +128,23 @@ internal fun TestScope.schoolReadingFrom(towns: FakeTownRepository, town: TownSn
     runCurrent()
     return viewModel
 }
+
+internal fun releasedLessonOf(
+    id: LessonId,
+    position: Int,
+    band: PlacementBand = PlacementBand.Second,
+    isStudied: Boolean = false,
+    wordCount: Int = 5,
+    readings: List<TownSnapshot.WordReading> = emptyList(),
+    standings: List<WordStanding> = List(size = wordCount) { WordStanding.NotStarted },
+): TownSnapshot.ReleasedLesson = TownSnapshot.ReleasedLesson(
+    id = id,
+    band = band,
+    position = position,
+    duration = 150.seconds,
+    requiredSchoolLevel = 1,
+    isStudied = isStudied,
+    wordCount = wordCount,
+    readings = readings,
+    standings = standings,
+)

@@ -69,6 +69,7 @@ class SchoolScreenTest {
         slot = SchoolUiState.SlotLine.Idle,
         skills = emptyList(),
         lessons = listOf(readyLesson),
+        releasedLessons = emptyList(),
         nextStep = caughtUpCard,
         nextStepTime = null,
         start = SchoolUiState.LessonRequest.Idle,

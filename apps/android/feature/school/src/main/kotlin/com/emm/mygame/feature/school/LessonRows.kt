@@ -16,6 +16,7 @@ import androidx.compose.ui.semantics.heading
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.semantics.testTag
 import com.emm.mygame.core.designsystem.MyGameHairline
+import com.emm.mygame.core.designsystem.MyGameOutlinedButton
 import com.emm.mygame.core.designsystem.MyGameSizes
 import com.emm.mygame.core.designsystem.MyGameSpacing
 import com.emm.mygame.core.designsystem.MyGameText
@@ -24,6 +25,7 @@ import com.emm.mygame.core.designsystem.MyGameTypography
 import com.emm.mygame.core.network.SchoolPathCounts
 import com.emm.mygame.core.ui.SchoolPath
 import com.emm.mygame.core.ui.SchoolPathSteps
+import com.emm.mygame.core.ui.fixedCopyResource
 import com.emm.mygame.core.ui.icuStringResource
 
 internal const val LESSON_ROW: String = "lesson_row"
@@ -37,7 +39,7 @@ internal fun LessonRows(
     val cards: List<SchoolUiState.LessonCard> = content.lessons.filter { card: SchoolUiState.LessonCard ->
         card.lesson != content.shown?.lesson
     }
-    if (cards.isEmpty()) return
+    if (cards.isEmpty() && content.releasedLessons.isEmpty()) return
     Column(verticalArrangement = Arrangement.spacedBy(MyGameSpacing.step1), modifier = modifier) {
         MyGameText(
             text = stringResource(R.string.school_lessons),
@@ -49,6 +51,69 @@ internal fun LessonRows(
             if (index > 0) MyGameHairline()
             LessonRow(card = card, onIntent = onIntent)
         }
+        content.releasedLessons.forEachIndexed { index: Int, card: SchoolUiState.ReleasedLessonCard ->
+            if (index > 0 || cards.isNotEmpty()) MyGameHairline()
+            ReleasedLessonRow(card = card, start = content.start, onIntent = onIntent)
+        }
+    }
+}
+
+@Composable
+private fun ReleasedLessonRow(
+    card: SchoolUiState.ReleasedLessonCard,
+    start: SchoolUiState.LessonRequest,
+    onIntent: (SchoolIntent) -> Unit,
+    modifier: Modifier = Modifier,
+) {
+    Column(
+        verticalArrangement = Arrangement.spacedBy(MyGameSpacing.step3),
+        modifier = modifier
+            .fillMaxWidth()
+            .padding(vertical = MyGameSpacing.step3),
+    ) {
+        Column(
+            verticalArrangement = Arrangement.spacedBy(MyGameSpacing.step1),
+            modifier = Modifier.semantics(mergeDescendants = true) { },
+        ) {
+            LessonHeading(title = lessonTitleOf(card.name), state = card.state)
+            MyGameText(
+                text = icuStringResource(R.string.school_lesson_words, "count" to card.wordCount),
+                style = MyGameTypography.caption,
+                color = MyGameTheme.colors.inkMuted,
+            )
+        }
+        LessonPath(path = card.path)
+        (card.state as? SchoolUiState.LessonState.Open)?.let { open: SchoolUiState.LessonState.Open ->
+            ReleasedStudyAction(card = card, block = open.block, start = start, onIntent = onIntent)
+        }
+    }
+}
+
+@Composable
+private fun ReleasedStudyAction(
+    card: SchoolUiState.ReleasedLessonCard,
+    block: SchoolUiState.LessonBlock?,
+    start: SchoolUiState.LessonRequest,
+    onIntent: (SchoolIntent) -> Unit,
+    modifier: Modifier = Modifier,
+) {
+    val reason: String? = block?.let { blocked: SchoolUiState.LessonBlock -> blockLineOf(blocked) }
+    val label: String = icuStringResource(
+        R.string.school_study_with_duration,
+        "action" to fixedCopyResource(R.string.school_released_lesson_study),
+        "duration" to durationLabelOf(card.duration),
+    )
+    Column(verticalArrangement = Arrangement.spacedBy(MyGameSpacing.step2), modifier = modifier) {
+        MyGameOutlinedButton(
+            label = label,
+            isBusy = start == SchoolUiState.LessonRequest.Waiting,
+            busyDescription = stringResource(R.string.school_waiting),
+            onClick = { onIntent(SchoolIntent.StudyTapped(card.lesson)) },
+            blockedReason = reason,
+            accessibleName = "${lessonTitleOf(card.name)} · $label",
+        )
+        reason?.let { line: String -> BlockLine(line = line) }
+        StartAnswer(lesson = card.lesson, start = start)
     }
 }
 
@@ -108,24 +173,34 @@ private fun LessonTarget(
             .then(target)
             .padding(vertical = MyGameSpacing.step3),
     ) {
-        Row(horizontalArrangement = Arrangement.spacedBy(MyGameSpacing.step3)) {
-            MyGameText(
-                text = icuStringResource(R.string.school_lesson_title, "number" to card.number.toString()),
-                style = MyGameTypography.title,
-                color = MyGameTheme.colors.ink,
-                modifier = Modifier.alignByBaseline(),
-            )
-            statusOf(card.state)?.let { status: Int ->
-                MyGameText(
-                    text = stringResource(status),
-                    style = MyGameTypography.caption,
-                    color = MyGameTheme.colors.inkMuted,
-                    modifier = Modifier.alignByBaseline(),
-                )
-            }
-        }
+        LessonHeading(
+            title = icuStringResource(R.string.school_lesson_title, "number" to card.number.toString()),
+            state = card.state,
+        )
         MyGameText(text = card.theme, style = MyGameTypography.body, color = MyGameTheme.colors.ink)
         MyGameText(text = lessonSummaryOf(card), style = MyGameTypography.caption, color = MyGameTheme.colors.inkMuted)
+    }
+}
+
+@Composable
+private fun LessonHeading(title: String, state: SchoolUiState.LessonState, modifier: Modifier = Modifier) {
+    Row(horizontalArrangement = Arrangement.spacedBy(MyGameSpacing.step3), modifier = modifier) {
+        MyGameText(
+            text = title,
+            style = MyGameTypography.title,
+            color = MyGameTheme.colors.ink,
+            modifier = Modifier
+                .weight(1f, fill = false)
+                .alignByBaseline(),
+        )
+        statusOf(state)?.let { status: Int ->
+            MyGameText(
+                text = stringResource(status),
+                style = MyGameTypography.caption,
+                color = MyGameTheme.colors.inkMuted,
+                modifier = Modifier.alignByBaseline(),
+            )
+        }
     }
 }
 

@@ -79,10 +79,33 @@ class TownNextStepRepositoryTest {
                     requiredSchoolLevel = 1,
                     isStudied = false,
                     wordCount = 1,
+                    readings = emptyList(),
+                    standings = listOf(WordStanding.NotStarted),
                 ),
             ),
             read.releasedLessons,
         )
+    }
+
+    @Test
+    fun `reads the words of a released lesson`() = runTest {
+        api.enqueue(json(200, TOWN.replace(""""releasedLessons":[]""", """"releasedLessons":[$READ_RELEASED]""")))
+
+        val read: TownSnapshot = (town().read() as TownReadResult.Read).town
+
+        assertEquals(
+            listOf(TownSnapshot.WordReading(word = "ticket", gloss = "boleto", frame = "I buy a ticket.")),
+            read.releasedLessons.single().readings,
+        )
+    }
+
+    @Test
+    fun `reads the standing of each word of a released lesson`() = runTest {
+        api.enqueue(json(200, TOWN.replace(""""releasedLessons":[]""", """"releasedLessons":[$READ_RELEASED]""")))
+
+        val read: TownSnapshot = (town().read() as TownReadResult.Read).town
+
+        assertEquals(listOf(WordStanding.Recall), read.releasedLessons.single().standings)
     }
 
     @Test
@@ -127,6 +150,10 @@ class TownNextStepRepositoryTest {
             """{"id":"released-2-1","band":2,"position":1,"durationSeconds":300,"requiredSchoolLevel":1,""" +
                 """"isStudied":false,"words":[{"wordId":"word-1","standing":"notStarted","reading":null,""" +
                 """"support":null}]}"""
+        const val READ_RELEASED: String =
+            """{"id":"released-2-1","band":2,"position":1,"durationSeconds":300,"requiredSchoolLevel":1,""" +
+                """"isStudied":true,"words":[{"wordId":"word-1","standing":"recall","reading":""" +
+                """{"word":"ticket","gloss":"boleto","frame":"I buy a ticket."},"support":null}]}"""
         const val HIRING: String =
             """{"order":null,"hires":{"worker":0,"truck":0},"terms":{""" +
                 """"worker":{"cost":{"money":40,"food":0,"power":0,"material":0},"secondsPerHire":60,""" +

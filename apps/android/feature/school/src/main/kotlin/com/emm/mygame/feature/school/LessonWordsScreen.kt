@@ -46,6 +46,8 @@ import com.emm.mygame.core.designsystem.blockHueOf
 import com.emm.mygame.core.designsystem.dashedFrame
 import com.emm.mygame.core.designsystem.withTabularFigures
 import com.emm.mygame.core.designsystem.wordStyle
+import com.emm.mygame.core.network.LessonName
+import com.emm.mygame.core.network.PlacementBand
 import com.emm.mygame.core.network.TownSnapshot
 import com.emm.mygame.core.ui.icuStringResource
 import kotlin.time.Duration
@@ -132,12 +134,14 @@ private fun NothingToRead(onSchoolOpen: () -> Unit, modifier: Modifier = Modifie
 private fun LessonHeader(reading: LessonWordsUiState.Reading, modifier: Modifier = Modifier) {
     Column(verticalArrangement = Arrangement.spacedBy(MyGameSpacing.step1), modifier = modifier) {
         MyGameText(
-            text = icuStringResource(R.string.school_lesson_title, "number" to reading.number.toString()),
+            text = lessonTitleOf(reading.name),
             style = MyGameTypography.title,
             color = MyGameTheme.colors.ink,
             modifier = Modifier.semantics { heading() },
         )
-        MyGameText(text = reading.theme, style = MyGameTypography.reading, color = MyGameTheme.colors.ink)
+        reading.theme?.let { theme: String ->
+            MyGameText(text = theme, style = MyGameTypography.reading, color = MyGameTheme.colors.ink)
+        }
     }
 }
 
@@ -273,7 +277,7 @@ private fun ReviewsFollow(onSchoolOpen: () -> Unit, modifier: Modifier = Modifie
 }
 
 private val previewReading: LessonWordsUiState.Reading = LessonWordsUiState.Reading(
-    number = 1,
+    name = LessonName.Shelved(number = 1),
     theme = "A day in town",
     words = listOf(
         TownSnapshot.WordReading(word = "home", gloss = "hogar", frame = "This is my home."),
@@ -289,6 +293,7 @@ private class LessonWordsUiStates : PreviewParameterProvider<LessonWordsUiState>
     override val values: Sequence<LessonWordsUiState> = sequenceOf(
         previewReading,
         previewReading.copy(index = 1, remaining = null, wayOn = LessonWordsUiState.WayOn.Reviews),
+        previewReading.copy(name = LessonName.Released(PlacementBand.Second, set = 1), theme = null),
         LessonWordsUiState.NothingToRead,
         LessonWordsUiState.Loading,
         LessonWordsUiState.Failed,

@@ -36,6 +36,8 @@ internal fun TownOverviewReleasedLessonsInner.toReleasedLesson(): TownSnapshot.R
         requiredSchoolLevel = requiredSchoolLevel,
         isStudied = isStudied,
         wordCount = words.size,
+        readings = words.mapNotNull { word: TownOverviewLessonsInnerWordsInner -> word.reading?.toWordReading() },
+        standings = words.mapNotNull { word: TownOverviewLessonsInnerWordsInner -> word.standing.toWordStanding() },
     )
 }
 
