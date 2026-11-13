@@ -2,9 +2,9 @@ import type { ForgotPasswordRequest } from '@mygame/contracts'
 import { type Clock, ok } from '@mygame/domain'
 import type { Transaction } from '../adapters/postgres/postgresTransaction'
 import type { CryptoSessionTokens } from '../adapters/system/CryptoSessionTokens'
-import type { FailureSink } from '../http/FailureSink'
-import { thrownCauseOf } from '../http/thrownCauseOf'
-import type { AfterResponse } from './AfterResponse'
+import type { AfterResponse } from '../afterResponse/AfterResponse'
+import type { FailureSink } from '../failures/FailureSink'
+import { thrownCauseOf } from '../failures/thrownCauseOf'
 import { fixedCopyOf } from './fixedCopyOf'
 import { issueAccountToken } from './issueAccountToken'
 import type { MailDelivery, Mailer } from './Mailer'
@@ -25,7 +25,7 @@ type ResetLink = {
   readonly token: string
 }
 
-const resetMailLine = (cause: string): string => `reset mail ${cause}`
+const resetRequestLine = (cause: string): string => `reset request ${cause}`
 
 const sendResetMail = async (
   request: ForgotPasswordRequest,
@@ -64,11 +64,13 @@ export const requestPasswordReset = (
   const { afterResponse, failureSink } = dependencies
   const reportUnsent = (delivery: MailDelivery | undefined): void => {
     if (delivery === 'failed') {
-      failureSink.write(resetMailLine('MailNotSent'))
+      failureSink.write(resetRequestLine('MailNotSent'))
     }
   }
   const reportThrown = (error: unknown): void => {
-    failureSink.write(resetMailLine(error instanceof Error ? thrownCauseOf(error) : typeof error))
+    failureSink.write(
+      resetRequestLine(error instanceof Error ? thrownCauseOf(error) : typeof error),
+    )
   }
   afterResponse.defer(sendResetMail(request, dependencies).then(reportUnsent, reportThrown))
 }

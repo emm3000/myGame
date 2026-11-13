@@ -713,7 +713,7 @@ describe('the auth routes', () => {
     await server.afterResponse.settled()
   })
 
-  it('reports a reset mail whose send threw by the error class alone', async () => {
+  it('reports a reset request whose send threw by the error class alone', async () => {
     await verifiedAna()
     const failures: Array<string> = []
     const throwingApp = createApp({
@@ -726,7 +726,7 @@ describe('the auth routes', () => {
     await forgotPassword(anasSignUp.email, throwingApp)
     await server.afterResponse.settled()
 
-    expect(failures).toEqual(['reset mail TypeError'])
+    expect(failures).toEqual(['reset request TypeError'])
   })
 
   it('answers 202 when the reset link cannot be sent', async () => {
@@ -734,11 +734,12 @@ describe('the auth routes', () => {
     const failingApp = createApp({ ...server, clock, mailer: MemoryMailer.failing() })
 
     const response = await forgotPassword(anasSignUp.email, failingApp)
+    await server.afterResponse.settled()
 
     expect(response.status).toBe(202)
   })
 
-  it('reports a reset mail it could not send without its address', async () => {
+  it('reports a reset request whose mail could not be sent without its address', async () => {
     await verifiedAna()
     const failures: Array<string> = []
     const failingApp = createApp({
@@ -751,7 +752,7 @@ describe('the auth routes', () => {
     await forgotPassword(anasSignUp.email, failingApp)
     await server.afterResponse.settled()
 
-    expect(failures).toEqual(['reset mail MailNotSent'])
+    expect(failures).toEqual(['reset request MailNotSent'])
   })
 
   it('refuses a reset request with a malformed email', async () => {

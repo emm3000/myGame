@@ -612,6 +612,7 @@ describe('the OpenAPI conformance', () => {
         },
         ...(body === undefined ? {} : { body: JSON.stringify(body) }),
       })
+      await server.afterResponse.settled()
 
       expect(response.status).toBe(status)
       const declaration = declarationsByOperation.get(operation)

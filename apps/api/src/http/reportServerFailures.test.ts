@@ -7,8 +7,8 @@ import { MemoryMailer } from '../adapters/memory/MemoryMailer'
 import { createApp } from '../app'
 import { type ComposedServer, composeServer } from '../composeServer'
 import { mailEnvironment } from '../composeServer.testSupport'
+import type { FailureSink } from '../failures/FailureSink'
 import type { ReportClosings } from '../town/ReportClosings'
-import type { FailureSink } from './FailureSink'
 
 const contentDirectory = fileURLToPath(new URL('../../content/', import.meta.url))
 

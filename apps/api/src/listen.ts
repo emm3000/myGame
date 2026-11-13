@@ -11,7 +11,10 @@ const server = composeServer(process.env, fileURLToPath(new URL('../content/', i
 const listener = serve({ fetch: server.fetch, port })
 
 async function drainAndClose(): Promise<void> {
-  await Promise.race([server.afterResponse.settled(), setTimeout(drainBoundMilliseconds)])
+  const abandoned = await server.afterResponse.unsettledAfter(setTimeout(drainBoundMilliseconds))
+  if (abandoned > 0) {
+    server.failureSink.write(`shutdown DeferredWorkAbandoned ${abandoned}`)
+  }
   await server.close()
 }
 
