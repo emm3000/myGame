@@ -32,15 +32,12 @@ fun TownRoute(
         withContext(Dispatchers.Main.immediate) {
             viewModel.effects.collect { effect: TownEffect ->
                 when (effect) {
+                    TownEffect.SigningOut -> currentNavigation.onSigningOut()
                     TownEffect.SignedOut -> currentNavigation.onSignedOut()
                     is TownEffect.HoldoutCheckOpened -> currentNavigation.onHoldoutCheckOpen(effect.band, effect.week)
                 }
             }
         }
-    }
-    val isSigningOut: Boolean = state == TownUiState.SigningOut
-    LaunchedEffect(isSigningOut) {
-        if (isSigningOut) currentNavigation.onSigningOut()
     }
     LifecycleStartEffect(viewModel) {
         viewModel.onIntent(TownIntent.ScreenShown)

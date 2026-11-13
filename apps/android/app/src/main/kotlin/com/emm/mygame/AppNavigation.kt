@@ -20,6 +20,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.retain.retain
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.layout.WindowInsetsRulers
 import androidx.lifecycle.compose.LifecycleStartEffect
@@ -74,7 +75,8 @@ internal fun AppNavigation(
     backStack: NavBackStack<NavKey> = rememberNavBackStack(Destination.SignIn(isSessionEnded = false)),
     status: TownStatusViewModel = viewModel { TownStatusViewModel(dependencies.towns, dependencies.clock) },
 ) {
-    val navigator: Navigator = remember(backStack) { Navigator(backStack) }
+    val links: NavigationLinks = retain { NavigationLinks() }
+    val navigator: Navigator = remember(backStack, links) { Navigator(backStack, links) }
     LaunchedEffect(navigator) {
         navigator.followSessionEnds(dependencies.sessionEnds.ended)
     }

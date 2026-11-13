@@ -33,7 +33,7 @@ class NavigatorTest {
     fun `opens sign-up above sign-in`() {
         val backStack: MutableList<NavKey> = mutableListOf(signIn)
 
-        Navigator(backStack).openSignUp()
+        Navigator(backStack, NavigationLinks()).openSignUp()
 
         assertEquals(listOf(signIn, Destination.SignUp), backStack)
     }
@@ -42,7 +42,7 @@ class NavigatorTest {
     fun `returns to sign-in on back from sign-up`() {
         val backStack: MutableList<NavKey> = mutableListOf(signIn, Destination.SignUp)
 
-        Navigator(backStack).back()
+        Navigator(backStack, NavigationLinks()).back()
 
         assertEquals(listOf(signIn), backStack)
     }
@@ -51,7 +51,7 @@ class NavigatorTest {
     fun `returns to the sign-in below when sign-up links to it`() {
         val backStack: MutableList<NavKey> = mutableListOf(signIn, Destination.SignUp)
 
-        Navigator(backStack).openSignIn()
+        Navigator(backStack, NavigationLinks()).openSignIn()
 
         assertEquals(listOf(signIn), backStack)
     }
@@ -60,7 +60,7 @@ class NavigatorTest {
     fun `opens the reset request above sign-in`() {
         val backStack: MutableList<NavKey> = mutableListOf(signIn)
 
-        Navigator(backStack).openForgotPassword()
+        Navigator(backStack, NavigationLinks()).openForgotPassword()
 
         assertEquals(listOf(signIn, Destination.ForgotPassword), backStack)
     }
@@ -69,7 +69,7 @@ class NavigatorTest {
     fun `returns to sign-in on back from the reset request`() {
         val backStack: MutableList<NavKey> = mutableListOf(signIn, Destination.ForgotPassword)
 
-        Navigator(backStack).back()
+        Navigator(backStack, NavigationLinks()).back()
 
         assertEquals(listOf(signIn), backStack)
     }
@@ -78,7 +78,7 @@ class NavigatorTest {
     fun `returns to the sign-in below when the reset request links to it`() {
         val backStack: MutableList<NavKey> = mutableListOf(signIn, Destination.ForgotPassword)
 
-        Navigator(backStack).openSignIn()
+        Navigator(backStack, NavigationLinks()).openSignIn()
 
         assertEquals(listOf(signIn), backStack)
     }
@@ -87,7 +87,7 @@ class NavigatorTest {
     fun `opens no reset request above sign-up`() {
         val backStack: MutableList<NavKey> = mutableListOf(signIn, Destination.SignUp)
 
-        Navigator(backStack).openForgotPassword()
+        Navigator(backStack, NavigationLinks()).openForgotPassword()
 
         assertEquals(listOf(signIn, Destination.SignUp), backStack)
     }
@@ -96,7 +96,7 @@ class NavigatorTest {
     fun `leaves the last screen to the system on back`() {
         val backStack: MutableList<NavKey> = mutableListOf(signIn)
 
-        Navigator(backStack).back()
+        Navigator(backStack, NavigationLinks()).back()
 
         assertEquals(listOf(signIn), backStack)
     }
@@ -105,7 +105,7 @@ class NavigatorTest {
     fun `opens the town alone once signed up`() {
         val backStack: MutableList<NavKey> = mutableListOf(signIn, Destination.SignUp)
 
-        Navigator(backStack).signedIn()
+        Navigator(backStack, NavigationLinks()).signedIn()
 
         assertEquals(listOf(Destination.Town), backStack)
     }
@@ -114,7 +114,7 @@ class NavigatorTest {
     fun `opens the town alone once signed in`() {
         val backStack: MutableList<NavKey> = mutableListOf(signIn)
 
-        Navigator(backStack).signedIn()
+        Navigator(backStack, NavigationLinks()).signedIn()
 
         assertEquals(listOf(Destination.Town), backStack)
     }
@@ -123,7 +123,7 @@ class NavigatorTest {
     fun `opens the school above the town`() {
         val backStack: MutableList<NavKey> = mutableListOf(Destination.Town)
 
-        Navigator(backStack).openSchool()
+        Navigator(backStack, NavigationLinks()).openSchool()
 
         assertEquals(listOf(Destination.Town, Destination.School), backStack)
     }
@@ -132,7 +132,7 @@ class NavigatorTest {
     fun `keeps one school when it is opened twice`() {
         val backStack: MutableList<NavKey> = mutableListOf(Destination.Town, Destination.School)
 
-        Navigator(backStack).openSchool()
+        Navigator(backStack, NavigationLinks()).openSchool()
 
         assertEquals(listOf(Destination.Town, Destination.School), backStack)
     }
@@ -141,7 +141,7 @@ class NavigatorTest {
     fun `opens no school above sign-in`() {
         val backStack: MutableList<NavKey> = mutableListOf(signIn)
 
-        Navigator(backStack).openSchool()
+        Navigator(backStack, NavigationLinks()).openSchool()
 
         assertEquals(listOf<NavKey>(signIn), backStack)
     }
@@ -149,7 +149,7 @@ class NavigatorTest {
     @Test
     fun `stays on the Report on a back gesture while signing out`() {
         val backStack: MutableList<NavKey> = mutableListOf(Destination.Town, Destination.Report)
-        val navigator: Navigator = Navigator(backStack)
+        val navigator: Navigator = Navigator(backStack, NavigationLinks())
         navigator.signingOut()
 
         navigator.back()
@@ -160,7 +160,7 @@ class NavigatorTest {
     @Test
     fun `opens no school while signing out`() {
         val backStack: MutableList<NavKey> = mutableListOf(Destination.Town)
-        val navigator: Navigator = Navigator(backStack)
+        val navigator: Navigator = Navigator(backStack, NavigationLinks())
         navigator.signingOut()
 
         navigator.openSchool()
@@ -172,7 +172,7 @@ class NavigatorTest {
     fun `returns to the town on back from the school`() {
         val backStack: MutableList<NavKey> = mutableListOf(Destination.Town, Destination.School)
 
-        Navigator(backStack).back()
+        Navigator(backStack, NavigationLinks()).back()
 
         assertEquals(listOf<NavKey>(Destination.Town), backStack)
     }
@@ -181,7 +181,7 @@ class NavigatorTest {
     fun `returns to the town below the school from the town tab`() {
         val backStack: MutableList<NavKey> = mutableListOf(Destination.Town, Destination.School)
 
-        Navigator(backStack).openTown()
+        Navigator(backStack, NavigationLinks()).openTown()
 
         assertEquals(listOf<NavKey>(Destination.Town), backStack)
     }
@@ -190,14 +190,14 @@ class NavigatorTest {
     fun `returns to sign-in alone once signed out`() {
         val backStack: MutableList<NavKey> = mutableListOf(Destination.Town, Destination.Report)
 
-        Navigator(backStack).signedOut(isSessionEnded = false)
+        Navigator(backStack, NavigationLinks()).signedOut(isSessionEnded = false)
 
         assertEquals(listOf(signIn), backStack)
     }
 
     @Test
     fun `disables the tabs while signing out`() {
-        val navigator: Navigator = Navigator(mutableListOf(Destination.Town))
+        val navigator: Navigator = Navigator(mutableListOf(Destination.Town), NavigationLinks())
 
         navigator.signingOut()
 
@@ -207,7 +207,7 @@ class NavigatorTest {
     @Test
     fun `enables the tabs again for the next session`() {
         val backStack: MutableList<NavKey> = mutableListOf(Destination.Town)
-        val navigator: Navigator = Navigator(backStack)
+        val navigator: Navigator = Navigator(backStack, NavigationLinks())
         navigator.signingOut()
         navigator.signedOut(isSessionEnded = false)
 
@@ -227,7 +227,7 @@ class NavigatorTest {
         )
 
         signedInStacks.forEach { backStack: MutableList<NavKey> ->
-            Navigator(backStack).followSessionEnds(flowOf(Unit))
+            Navigator(backStack, NavigationLinks()).followSessionEnds(flowOf(Unit))
 
             assertEquals(listOf(sessionEndedSignIn), backStack)
         }
@@ -237,7 +237,7 @@ class NavigatorTest {
     fun `shows the session-ended line when the session ends on a plain sign-in`() = runTest {
         val backStack: MutableList<NavKey> = mutableListOf(signIn)
 
-        Navigator(backStack).followSessionEnds(flowOf(Unit))
+        Navigator(backStack, NavigationLinks()).followSessionEnds(flowOf(Unit))
 
         assertEquals(listOf(sessionEndedSignIn), backStack)
     }
@@ -247,7 +247,7 @@ class NavigatorTest {
         val shown: Destination.SignIn = Destination.SignIn(isSessionEnded = true)
         val backStack: MutableList<NavKey> = mutableListOf(shown)
 
-        Navigator(backStack).followSessionEnds(flowOf(Unit, Unit))
+        Navigator(backStack, NavigationLinks()).followSessionEnds(flowOf(Unit, Unit))
 
         assertSame(shown, backStack.single())
     }
@@ -256,7 +256,7 @@ class NavigatorTest {
     fun `stays on the town when the town tab is tapped`() {
         val backStack: MutableList<NavKey> = mutableListOf(Destination.Town)
 
-        Navigator(backStack).openTown()
+        Navigator(backStack, NavigationLinks()).openTown()
 
         assertEquals(listOf(Destination.Town), backStack)
     }
@@ -265,7 +265,7 @@ class NavigatorTest {
     fun `opens the Report above the town`() {
         val backStack: MutableList<NavKey> = mutableListOf(Destination.Town)
 
-        Navigator(backStack).openReport()
+        Navigator(backStack, NavigationLinks()).openReport()
 
         assertEquals(listOf(Destination.Town, Destination.Report), backStack)
     }
@@ -274,7 +274,7 @@ class NavigatorTest {
     fun `keeps one Report on a second tap of its tab`() {
         val backStack: MutableList<NavKey> = mutableListOf(Destination.Town, Destination.Report)
 
-        Navigator(backStack).openReport()
+        Navigator(backStack, NavigationLinks()).openReport()
 
         assertEquals(listOf(Destination.Town, Destination.Report), backStack)
     }
@@ -283,7 +283,7 @@ class NavigatorTest {
     fun `replaces the school with the Report`() {
         val backStack: MutableList<NavKey> = mutableListOf(Destination.Town, Destination.School)
 
-        Navigator(backStack).openReport()
+        Navigator(backStack, NavigationLinks()).openReport()
 
         assertEquals(listOf(Destination.Town, Destination.Report), backStack)
     }
@@ -292,7 +292,7 @@ class NavigatorTest {
     fun `returns to the Report from the review on its tab`() {
         val backStack: MutableList<NavKey> = mutableListOf(Destination.Town, Destination.Report, Destination.Review)
 
-        Navigator(backStack).openReport()
+        Navigator(backStack, NavigationLinks()).openReport()
 
         assertEquals(listOf(Destination.Town, Destination.Report), backStack)
     }
@@ -301,7 +301,7 @@ class NavigatorTest {
     fun `leaves the school behind on the Report tab from a review opened there`() {
         val backStack: MutableList<NavKey> = mutableListOf(Destination.Town, Destination.School, Destination.Review)
 
-        Navigator(backStack).openReport()
+        Navigator(backStack, NavigationLinks()).openReport()
 
         assertEquals(listOf(Destination.Town, Destination.Report), backStack)
     }
@@ -310,7 +310,7 @@ class NavigatorTest {
     fun `opens the news above the Report`() {
         val backStack: MutableList<NavKey> = mutableListOf(Destination.Town, Destination.Report)
 
-        Navigator(backStack).openNews()
+        Navigator(backStack, NavigationLinks()).openNews()
 
         assertEquals(listOf(Destination.Town, Destination.Report, Destination.News), backStack)
     }
@@ -319,7 +319,7 @@ class NavigatorTest {
     fun `returns to the Report on back from the news`() {
         val backStack: MutableList<NavKey> = mutableListOf(Destination.Town, Destination.Report, Destination.News)
 
-        Navigator(backStack).back()
+        Navigator(backStack, NavigationLinks()).back()
 
         assertEquals(listOf(Destination.Town, Destination.Report), backStack)
     }
@@ -328,7 +328,7 @@ class NavigatorTest {
     fun `returns to the town on its tab from the news`() {
         val backStack: MutableList<NavKey> = mutableListOf(Destination.Town, Destination.Report, Destination.News)
 
-        Navigator(backStack).openTown()
+        Navigator(backStack, NavigationLinks()).openTown()
 
         assertEquals(listOf<NavKey>(Destination.Town), backStack)
     }
@@ -337,7 +337,7 @@ class NavigatorTest {
     fun `opens the news from the Report only`() {
         val backStack: MutableList<NavKey> = mutableListOf(Destination.Town)
 
-        Navigator(backStack).openNews()
+        Navigator(backStack, NavigationLinks()).openNews()
 
         assertEquals(listOf<NavKey>(Destination.Town), backStack)
     }
@@ -345,7 +345,7 @@ class NavigatorTest {
     @Test
     fun `opens no news while signing out`() {
         val backStack: MutableList<NavKey> = mutableListOf(Destination.Town, Destination.Report)
-        val navigator: Navigator = Navigator(backStack)
+        val navigator: Navigator = Navigator(backStack, NavigationLinks())
         navigator.signingOut()
 
         navigator.openNews()
@@ -357,7 +357,7 @@ class NavigatorTest {
     fun `opens the settings above the Report`() {
         val backStack: MutableList<NavKey> = mutableListOf(Destination.Town, Destination.Report)
 
-        Navigator(backStack).openSettings()
+        Navigator(backStack, NavigationLinks()).openSettings()
 
         assertEquals(listOf(Destination.Town, Destination.Report, Destination.Settings), backStack)
     }
@@ -366,7 +366,7 @@ class NavigatorTest {
     fun `returns to the Report on back from the settings`() {
         val backStack: MutableList<NavKey> = mutableListOf(Destination.Town, Destination.Report, Destination.Settings)
 
-        Navigator(backStack).back()
+        Navigator(backStack, NavigationLinks()).back()
 
         assertEquals(listOf(Destination.Town, Destination.Report), backStack)
     }
@@ -375,7 +375,7 @@ class NavigatorTest {
     fun `returns to the town from the settings`() {
         val backStack: MutableList<NavKey> = mutableListOf(Destination.Town, Destination.Report, Destination.Settings)
 
-        Navigator(backStack).openTown()
+        Navigator(backStack, NavigationLinks()).openTown()
 
         assertEquals(listOf<NavKey>(Destination.Town), backStack)
     }
@@ -384,7 +384,7 @@ class NavigatorTest {
     fun `opens the settings from the Report only`() {
         val backStack: MutableList<NavKey> = mutableListOf(Destination.Town)
 
-        Navigator(backStack).openSettings()
+        Navigator(backStack, NavigationLinks()).openSettings()
 
         assertEquals(listOf<NavKey>(Destination.Town), backStack)
     }
@@ -392,7 +392,7 @@ class NavigatorTest {
     @Test
     fun `opens no settings while signing out`() {
         val backStack: MutableList<NavKey> = mutableListOf(Destination.Town, Destination.Report)
-        val navigator: Navigator = Navigator(backStack)
+        val navigator: Navigator = Navigator(backStack, NavigationLinks())
         navigator.signingOut()
 
         navigator.openSettings()
@@ -404,7 +404,7 @@ class NavigatorTest {
     fun `opens the map above the town`() {
         val backStack: MutableList<NavKey> = mutableListOf(Destination.Town)
 
-        Navigator(backStack).openMap()
+        Navigator(backStack, NavigationLinks()).openMap()
 
         assertEquals(listOf(Destination.Town, Destination.Map), backStack)
     }
@@ -413,7 +413,7 @@ class NavigatorTest {
     fun `returns to the town on back from the map`() {
         val backStack: MutableList<NavKey> = mutableListOf(Destination.Town, Destination.Map)
 
-        Navigator(backStack).openTown()
+        Navigator(backStack, NavigationLinks()).openTown()
 
         assertEquals(listOf<NavKey>(Destination.Town), backStack)
     }
@@ -422,7 +422,7 @@ class NavigatorTest {
     fun `opens the placement above the town`() {
         val backStack: MutableList<NavKey> = mutableListOf(Destination.Town)
 
-        Navigator(backStack).openPlacement()
+        Navigator(backStack, NavigationLinks()).openPlacement()
 
         assertEquals(listOf(Destination.Town, Destination.Placement), backStack)
     }
@@ -431,7 +431,7 @@ class NavigatorTest {
     fun `returns to the town from the placement`() {
         val backStack: MutableList<NavKey> = mutableListOf(Destination.Town, Destination.Placement)
 
-        Navigator(backStack).openTown()
+        Navigator(backStack, NavigationLinks()).openTown()
 
         assertEquals(listOf<NavKey>(Destination.Town), backStack)
     }
@@ -440,7 +440,7 @@ class NavigatorTest {
     fun `opens no placement from sign-in`() {
         val backStack: MutableList<NavKey> = mutableListOf(signIn)
 
-        Navigator(backStack).openPlacement()
+        Navigator(backStack, NavigationLinks()).openPlacement()
 
         assertEquals(listOf<NavKey>(signIn), backStack)
     }
@@ -448,7 +448,7 @@ class NavigatorTest {
     @Test
     fun `opens no placement while signing out`() {
         val backStack: MutableList<NavKey> = mutableListOf(Destination.Town)
-        val navigator: Navigator = Navigator(backStack)
+        val navigator: Navigator = Navigator(backStack, NavigationLinks())
         navigator.signingOut()
 
         navigator.openPlacement()
@@ -460,7 +460,7 @@ class NavigatorTest {
     fun `opens no Report from sign-in`() {
         val backStack: MutableList<NavKey> = mutableListOf(signIn)
 
-        Navigator(backStack).openReport()
+        Navigator(backStack, NavigationLinks()).openReport()
 
         assertEquals(listOf<NavKey>(signIn), backStack)
     }
@@ -469,7 +469,7 @@ class NavigatorTest {
     fun `opens the reviews above the town`() {
         val backStack: MutableList<NavKey> = mutableListOf(Destination.Town)
 
-        Navigator(backStack).openReviews()
+        Navigator(backStack, NavigationLinks()).openReviews()
 
         assertEquals(listOf(Destination.Town, Destination.Review), backStack)
     }
@@ -478,7 +478,7 @@ class NavigatorTest {
     fun `opens the reviews above the Report`() {
         val backStack: MutableList<NavKey> = mutableListOf(Destination.Town, Destination.Report)
 
-        Navigator(backStack).openReviews()
+        Navigator(backStack, NavigationLinks()).openReviews()
 
         assertEquals(listOf(Destination.Town, Destination.Report, Destination.Review), backStack)
     }
@@ -487,7 +487,7 @@ class NavigatorTest {
     fun `opens the reviews above the school`() {
         val backStack: MutableList<NavKey> = mutableListOf(Destination.Town, Destination.School)
 
-        Navigator(backStack).openReviews()
+        Navigator(backStack, NavigationLinks()).openReviews()
 
         assertEquals(listOf(Destination.Town, Destination.School, Destination.Review), backStack)
     }
@@ -495,7 +495,7 @@ class NavigatorTest {
     @Test
     fun `opens the reviews once on a double tap`() {
         val backStack: MutableList<NavKey> = mutableListOf(Destination.Town, Destination.Report)
-        val navigator: Navigator = Navigator(backStack)
+        val navigator: Navigator = Navigator(backStack, NavigationLinks())
 
         navigator.openReviews()
         navigator.openReviews()
@@ -507,7 +507,7 @@ class NavigatorTest {
     fun `returns to the Report on back from the review`() {
         val backStack: MutableList<NavKey> = mutableListOf(Destination.Town, Destination.Report, Destination.Review)
 
-        Navigator(backStack).back()
+        Navigator(backStack, NavigationLinks()).back()
 
         assertEquals(listOf(Destination.Town, Destination.Report), backStack)
     }
@@ -516,7 +516,7 @@ class NavigatorTest {
     fun `returns to the school on back from a review opened there`() {
         val backStack: MutableList<NavKey> = mutableListOf(Destination.Town, Destination.School, Destination.Review)
 
-        Navigator(backStack).back()
+        Navigator(backStack, NavigationLinks()).back()
 
         assertEquals(listOf(Destination.Town, Destination.School), backStack)
     }
@@ -525,7 +525,7 @@ class NavigatorTest {
     fun `returns to the town on its tab from the Report`() {
         val backStack: MutableList<NavKey> = mutableListOf(Destination.Town, Destination.Report)
 
-        Navigator(backStack).openTown()
+        Navigator(backStack, NavigationLinks()).openTown()
 
         assertEquals(listOf<NavKey>(Destination.Town), backStack)
     }
@@ -534,7 +534,7 @@ class NavigatorTest {
     fun `returns to the town on its tab from a review`() {
         val backStack: MutableList<NavKey> = mutableListOf(Destination.Town, Destination.Report, Destination.Review)
 
-        Navigator(backStack).openTown()
+        Navigator(backStack, NavigationLinks()).openTown()
 
         assertEquals(listOf<NavKey>(Destination.Town), backStack)
     }
@@ -543,7 +543,7 @@ class NavigatorTest {
     fun `leaves sign-in alone when the session ends on the Report`() {
         val backStack: MutableList<NavKey> = mutableListOf(Destination.Town, Destination.Report, Destination.Review)
 
-        Navigator(backStack).signedOut(isSessionEnded = true)
+        Navigator(backStack, NavigationLinks()).signedOut(isSessionEnded = true)
 
         assertEquals(listOf<NavKey>(sessionEndedSignIn), backStack)
     }
@@ -551,7 +551,7 @@ class NavigatorTest {
     @Test
     fun `opens no Report while signing out`() {
         val backStack: MutableList<NavKey> = mutableListOf(Destination.Town)
-        val navigator: Navigator = Navigator(backStack)
+        val navigator: Navigator = Navigator(backStack, NavigationLinks())
         navigator.signingOut()
 
         navigator.openReport()
@@ -562,7 +562,7 @@ class NavigatorTest {
     @Test
     fun `opens no reviews while signing out`() {
         val backStack: MutableList<NavKey> = mutableListOf(Destination.Town, Destination.Report)
-        val navigator: Navigator = Navigator(backStack)
+        val navigator: Navigator = Navigator(backStack, NavigationLinks())
         navigator.signingOut()
 
         navigator.openReviews()
@@ -574,7 +574,7 @@ class NavigatorTest {
     fun `opens a lesson's words above the town`() {
         val backStack: MutableList<NavKey> = mutableListOf(Destination.Town)
 
-        Navigator(backStack).openLesson(firstLesson, walked = emptyList())
+        Navigator(backStack, NavigationLinks()).openLesson(firstLesson, walked = emptyList())
 
         assertEquals(listOf(Destination.Town, firstWords), backStack)
     }
@@ -583,7 +583,7 @@ class NavigatorTest {
     fun `opens a lesson's words above the Report`() {
         val backStack: MutableList<NavKey> = mutableListOf(Destination.Town, Destination.Report)
 
-        Navigator(backStack).openLesson(firstLesson, walked = emptyList())
+        Navigator(backStack, NavigationLinks()).openLesson(firstLesson, walked = emptyList())
 
         assertEquals(listOf(Destination.Town, Destination.Report, firstWords), backStack)
     }
@@ -592,7 +592,7 @@ class NavigatorTest {
     fun `opens a lesson's words above the school`() {
         val backStack: MutableList<NavKey> = mutableListOf(Destination.Town, Destination.School)
 
-        Navigator(backStack).openLesson(firstLesson, walked = emptyList())
+        Navigator(backStack, NavigationLinks()).openLesson(firstLesson, walked = emptyList())
 
         assertEquals(listOf(Destination.Town, Destination.School, firstWords), backStack)
     }
@@ -601,7 +601,7 @@ class NavigatorTest {
     fun `takes the place of the lesson it walks on from`() {
         val backStack: MutableList<NavKey> = mutableListOf(Destination.Town, Destination.Report, firstWords)
 
-        Navigator(backStack).openLesson(secondLesson, walked = listOf(firstLesson))
+        Navigator(backStack, NavigationLinks()).openLesson(secondLesson, walked = listOf(firstLesson))
 
         assertEquals(listOf(Destination.Town, Destination.Report, secondWords), backStack)
     }
@@ -610,7 +610,7 @@ class NavigatorTest {
     fun `takes the place of the reviews that stopped at a finished lesson`() {
         val backStack: MutableList<NavKey> = mutableListOf(Destination.Town, Destination.School, Destination.Review)
 
-        Navigator(backStack).openLesson(firstLesson, walked = emptyList())
+        Navigator(backStack, NavigationLinks()).openLesson(firstLesson, walked = emptyList())
 
         assertEquals(listOf(Destination.Town, Destination.School, firstWords), backStack)
     }
@@ -618,7 +618,7 @@ class NavigatorTest {
     @Test
     fun `opens no lesson while signing out`() {
         val backStack: MutableList<NavKey> = mutableListOf(Destination.Town, Destination.Report)
-        val navigator: Navigator = Navigator(backStack)
+        val navigator: Navigator = Navigator(backStack, NavigationLinks())
         navigator.signingOut()
 
         navigator.openLesson(firstLesson, walked = emptyList())
@@ -630,7 +630,7 @@ class NavigatorTest {
     fun `opens the reviews above a lesson's words`() {
         val backStack: MutableList<NavKey> = mutableListOf(Destination.Town, Destination.Report, firstWords)
 
-        Navigator(backStack).openReviews()
+        Navigator(backStack, NavigationLinks()).openReviews()
 
         assertEquals(listOf(Destination.Town, Destination.Report, firstWords, Destination.Review), backStack)
     }
@@ -639,7 +639,7 @@ class NavigatorTest {
     fun `goes back to the school from a lesson's words`() {
         val backStack: MutableList<NavKey> = mutableListOf(Destination.Town, Destination.Report, firstWords)
 
-        Navigator(backStack).openSchool()
+        Navigator(backStack, NavigationLinks()).openSchool()
 
         assertEquals(listOf(Destination.Town, Destination.School), backStack)
     }
@@ -648,7 +648,7 @@ class NavigatorTest {
     fun `returns to the town from a lesson's words`() {
         val backStack: MutableList<NavKey> = mutableListOf(Destination.Town, Destination.School, firstWords)
 
-        Navigator(backStack).openTown()
+        Navigator(backStack, NavigationLinks()).openTown()
 
         assertEquals(listOf<NavKey>(Destination.Town), backStack)
     }
@@ -657,7 +657,7 @@ class NavigatorTest {
     fun `opens the Report tab from a lesson's words`() {
         val backStack: MutableList<NavKey> = mutableListOf(Destination.Town, Destination.School, firstWords)
 
-        Navigator(backStack).openReport()
+        Navigator(backStack, NavigationLinks()).openReport()
 
         assertEquals(listOf(Destination.Town, Destination.Report), backStack)
     }
@@ -666,7 +666,7 @@ class NavigatorTest {
     fun `opens the holdout check of its band and week above the school`() {
         val backStack: MutableList<NavKey> = mutableListOf(Destination.Town, Destination.School)
 
-        Navigator(backStack).openHoldoutCheck(PlacementBand.First, HoldoutCheckWeek.Eighth)
+        Navigator(backStack, NavigationLinks()).openHoldoutCheck(PlacementBand.First, HoldoutCheckWeek.Eighth)
 
         assertEquals(listOf(Destination.Town, Destination.School, firstBandEighthWeek), backStack)
     }
@@ -675,7 +675,7 @@ class NavigatorTest {
     fun `returns to the school on back from the holdout check`() {
         val backStack: MutableList<NavKey> = mutableListOf(Destination.Town, Destination.School, firstBandEighthWeek)
 
-        Navigator(backStack).back()
+        Navigator(backStack, NavigationLinks()).back()
 
         assertEquals(listOf(Destination.Town, Destination.School), backStack)
     }
@@ -684,7 +684,7 @@ class NavigatorTest {
     fun `returns to the town from the holdout check`() {
         val backStack: MutableList<NavKey> = mutableListOf(Destination.Town, Destination.School, firstBandEighthWeek)
 
-        Navigator(backStack).openTown()
+        Navigator(backStack, NavigationLinks()).openTown()
 
         assertEquals(listOf<NavKey>(Destination.Town), backStack)
     }
@@ -692,7 +692,7 @@ class NavigatorTest {
     @Test
     fun `keeps one holdout check on a double tap`() {
         val backStack: MutableList<NavKey> = mutableListOf(Destination.Town, Destination.School)
-        val navigator: Navigator = Navigator(backStack)
+        val navigator: Navigator = Navigator(backStack, NavigationLinks())
 
         navigator.openHoldoutCheck(PlacementBand.First, HoldoutCheckWeek.Eighth)
         navigator.openHoldoutCheck(PlacementBand.First, HoldoutCheckWeek.Eighth)
@@ -704,7 +704,7 @@ class NavigatorTest {
     fun `opens the holdout check above the town`() {
         val backStack: MutableList<NavKey> = mutableListOf(Destination.Town)
 
-        Navigator(backStack).openHoldoutCheck(PlacementBand.First, HoldoutCheckWeek.Eighth)
+        Navigator(backStack, NavigationLinks()).openHoldoutCheck(PlacementBand.First, HoldoutCheckWeek.Eighth)
 
         assertEquals(listOf(Destination.Town, firstBandEighthWeek), backStack)
     }
@@ -713,7 +713,7 @@ class NavigatorTest {
     fun `returns to the town on back from a holdout check the town opened`() {
         val backStack: MutableList<NavKey> = mutableListOf(Destination.Town, firstBandEighthWeek)
 
-        Navigator(backStack).back()
+        Navigator(backStack, NavigationLinks()).back()
 
         assertEquals(listOf<NavKey>(Destination.Town), backStack)
     }
@@ -722,7 +722,7 @@ class NavigatorTest {
     fun `opens no holdout check from the Report`() {
         val backStack: MutableList<NavKey> = mutableListOf(Destination.Town, Destination.Report)
 
-        Navigator(backStack).openHoldoutCheck(PlacementBand.First, HoldoutCheckWeek.Eighth)
+        Navigator(backStack, NavigationLinks()).openHoldoutCheck(PlacementBand.First, HoldoutCheckWeek.Eighth)
 
         assertEquals(listOf(Destination.Town, Destination.Report), backStack)
     }
@@ -730,7 +730,7 @@ class NavigatorTest {
     @Test
     fun `opens no holdout check while signing out`() {
         val backStack: MutableList<NavKey> = mutableListOf(Destination.Town, Destination.School)
-        val navigator: Navigator = Navigator(backStack)
+        val navigator: Navigator = Navigator(backStack, NavigationLinks())
         navigator.signingOut()
 
         navigator.openHoldoutCheck(PlacementBand.First, HoldoutCheckWeek.Eighth)

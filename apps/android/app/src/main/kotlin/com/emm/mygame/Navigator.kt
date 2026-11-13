@@ -1,21 +1,18 @@
 package com.emm.mygame
 
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.setValue
 import androidx.navigation3.runtime.NavKey
 import com.emm.mygame.core.network.HoldoutCheckWeek
 import com.emm.mygame.core.network.LessonId
 import com.emm.mygame.core.network.PlacementBand
 import kotlinx.coroutines.flow.Flow
 
-internal class Navigator(private val backStack: MutableList<NavKey>) {
+internal class Navigator(private val backStack: MutableList<NavKey>, private val links: NavigationLinks) {
 
-    var areLinksEnabled: Boolean by mutableStateOf(true)
-        private set
+    val areLinksEnabled: Boolean
+        get() = links.areEnabled
 
     fun signingOut() {
-        areLinksEnabled = false
+        links.areEnabled = false
     }
 
     fun back() {
@@ -43,7 +40,7 @@ internal class Navigator(private val backStack: MutableList<NavKey>) {
     }
 
     fun signedOut(isSessionEnded: Boolean) {
-        areLinksEnabled = true
+        links.areEnabled = true
         backStack.showAlone(listOf(Destination.SignIn(isSessionEnded = isSessionEnded)))
     }
 

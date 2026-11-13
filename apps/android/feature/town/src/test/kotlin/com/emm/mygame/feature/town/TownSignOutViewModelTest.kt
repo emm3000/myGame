@@ -37,9 +37,24 @@ class TownSignOutViewModelTest {
         viewModel.effects.test {
             viewModel.onIntent(TownIntent.SignOutTapped)
 
+            assertEquals(TownEffect.SigningOut, awaitItem())
             assertEquals(TownEffect.SignedOut, awaitItem())
         }
         assertEquals(1, sessions.signOutCount)
+    }
+
+    @Test
+    fun `tells the route it is signing out once however often sign-out is tapped`() = runTest {
+        val viewModel: TownViewModel = townAnswering(TownReadResult.NoTown)
+
+        viewModel.effects.test {
+            viewModel.onIntent(TownIntent.SignOutTapped)
+            viewModel.onIntent(TownIntent.SignOutTapped)
+            runCurrent()
+
+            assertEquals(TownEffect.SigningOut, awaitItem())
+            expectNoEvents()
+        }
     }
 
     @Test
@@ -50,6 +65,7 @@ class TownSignOutViewModelTest {
         viewModel.effects.test {
             viewModel.onIntent(TownIntent.SignOutTapped)
 
+            assertEquals(TownEffect.SigningOut, awaitItem())
             assertEquals(TownEffect.SignedOut, awaitItem())
         }
         assertEquals(1, sessions.signOutCount)
@@ -65,13 +81,14 @@ class TownSignOutViewModelTest {
     }
 
     @Test
-    fun `tells the route nothing until the session has ended`() = runTest {
+    fun `tells the route once that it is signing out until the session has ended`() = runTest {
         val viewModel: TownViewModel = townAnswering(TownReadResult.NoTown)
 
         viewModel.effects.test {
             viewModel.onIntent(TownIntent.SignOutTapped)
             runCurrent()
 
+            assertEquals(TownEffect.SigningOut, awaitItem())
             expectNoEvents()
         }
     }
