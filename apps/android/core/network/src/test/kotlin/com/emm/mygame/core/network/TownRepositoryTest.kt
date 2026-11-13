@@ -375,12 +375,7 @@ class TownRepositoryTest {
             SeasonInForce(
                 SeasonKind.Fall,
                 year = 1,
-                productionPercents = mapOf(
-                    TownResourceKind.Money to 100,
-                    TownResourceKind.Food to 100,
-                    TownResourceKind.Power to 100,
-                    TownResourceKind.Material to 100,
-                ),
+                productionPercent = SeasonProductionPercent(money = 100, food = 100, power = 100, material = 100),
                 durationPercent = SeasonDurationPercent(build = 100, study = 100, hire = 100, road = 75),
             ),
             read.seasonInForce,
@@ -398,13 +393,8 @@ class TownRepositoryTest {
         val season: SeasonInForce? = (town().read() as TownReadResult.Read).town.seasonInForce
 
         assertEquals(
-            mapOf(
-                TownResourceKind.Money to 90,
-                TownResourceKind.Food to 125,
-                TownResourceKind.Power to 75,
-                TownResourceKind.Material to 110,
-            ),
-            season?.productionPercents,
+            SeasonProductionPercent(money = 90, food = 125, power = 75, material = 110),
+            season?.productionPercent,
         )
         assertEquals(SeasonDurationPercent(build = 75, study = 80, hire = 120, road = 95), season?.durationPercent)
     }

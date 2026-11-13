@@ -144,11 +144,11 @@ private fun TownOverviewSeason.toSeasonInForce(): SeasonInForce? {
     return SeasonInForce(
         kind = seasonKind,
         year = year,
-        productionPercents = mapOf(
-            TownResourceKind.Money to productionPercent.money,
-            TownResourceKind.Food to productionPercent.food,
-            TownResourceKind.Power to productionPercent.power,
-            TownResourceKind.Material to productionPercent.material,
+        productionPercent = SeasonProductionPercent(
+            money = productionPercent.money,
+            food = productionPercent.food,
+            power = productionPercent.power,
+            material = productionPercent.material,
         ),
         durationPercent = SeasonDurationPercent(
             build = durationPercent.build,

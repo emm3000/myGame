@@ -1,6 +1,7 @@
 package com.emm.mygame.feature.town
 
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
@@ -337,7 +338,7 @@ class TownLookTest {
 
     @Test
     fun `draws each production mark under the season line`() {
-        val season = TownUiState.SeasonLine(
+        val season: TownUiState.SeasonLine = TownUiState.SeasonLine(
             SeasonKind.Summer,
             year = 2,
             remaining = 24.hours,
@@ -391,7 +392,7 @@ class TownLookTest {
 
     @Test
     fun `names each season on the build mark`() {
-        val home = mutableStateOf<TownUiState>(riverton)
+        val home: MutableState<TownUiState> = mutableStateOf(riverton)
         composeRule.setContent { MyGameTheme { Home(home.value) } }
 
         seasonWords.forEach { (season: SeasonKind, word: String) ->
@@ -404,7 +405,7 @@ class TownLookTest {
 
     @Test
     fun `draws each season's icon beside the build mark`() {
-        val home = mutableStateOf<TownUiState>(riverton)
+        val home: MutableState<TownUiState> = mutableStateOf(riverton)
         composeRule.setContent { MyGameTheme { Home(home.value) } }
 
         seasonIcons.forEach { (season: SeasonKind, icon: ImageVector) ->
@@ -417,7 +418,7 @@ class TownLookTest {
 
     @Test
     fun `draws the season's icon beside a production mark`() {
-        val season = TownUiState.SeasonLine(
+        val season: TownUiState.SeasonLine = TownUiState.SeasonLine(
             SeasonKind.Winter,
             year = 2,
             remaining = 24.hours,
