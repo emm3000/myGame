@@ -4,6 +4,16 @@
     <string name="placement_choose">Choose a meaning to go on.</string>
     <string name="placement_closed_none">You have no placement to take. Your lessons wait in the school.</string>
     <string name="placement_failed">We couldn\'t read your placement.</string>
+    <string name="placement_holdout_done">Thanks. Your answers are saved.</string>
+    <string name="placement_holdout_due_line">Band {band}, week {week}: a check of words you studied and words kept back. Your score does not change your lessons.</string>
+    <string name="placement_holdout_failed">We couldn\'t read your check.</string>
+    <string name="placement_holdout_loading">Reading your check…</string>
+    <string name="placement_holdout_refused">This check is not open now.</string>
+    <string name="placement_holdout_send">Send your answers</string>
+    <string name="placement_holdout_skip">Skip the check</string>
+    <string name="placement_holdout_skip_line">Your lessons are the same whether you take it or skip it.</string>
+    <string name="placement_holdout_start">Start the check</string>
+    <string name="placement_holdout_title">Word check</string>
     <string name="placement_loading">Reading your placement…</string>
     <string name="placement_next">Next</string>
     <string name="placement_not_placed_out">Not placed out.</string>

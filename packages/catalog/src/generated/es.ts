@@ -249,7 +249,9 @@ export const townNextBuildFactory = (): string => `Construye la fábrica`
 export const townNextBuildFarm = (): string => `Construye la granja`
 export const townNextBuildPowerStation = (): string => `Construye la central eléctrica`
 export const townNextGoToReport = (): string => `Ir al informe`
+export const townNextHoldoutCheck = ({ band }: { readonly band: string | number }): string => `Prueba de palabras de la banda ${String(band)}`
 export const townNextLessonReadyIn = ({ number }: { readonly number: string | number }): string => `Lección ${String(number)} lista en`
+export const townNextReleasedLesson = ({ band, number }: { readonly band: string | number; readonly number: string | number }): string => `Palabras que vuelven: banda ${String(band)}, grupo ${String(number)}`
 export const townNextTitle = (): string => `Tu siguiente paso`
 export const townNotBuilt = (): string => `Sin construir`
 export const townOfficeBusy = (): string => `Espera a que termine esta contratación.`

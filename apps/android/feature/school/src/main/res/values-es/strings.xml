@@ -8,6 +8,9 @@
     <string name="school_finish_tomorrow">mañana {time}</string>
     <string name="school_finish_with_clock">{timeLeft} · {clock}</string>
     <string name="school_go_to_school">Ir a la escuela</string>
+    <string name="school_holdout_note">1 de cada 10 palabras se aparta para dos pruebas posteriores y vuelve después de la última.</string>
+    <string name="school_holdout_open">Abrir la prueba</string>
+    <string name="school_holdout_row">Tienes pendiente una prueba de palabras de la banda {band}.</string>
     <string name="school_learning">Palabras en aprendizaje: {inLearning} de {cap}</string>
     <string name="school_learning_full">{count, plural, =1 {La siguiente lección trae 1 palabra.} other {La siguiente lección trae {count, number,0} palabras.}} Empieza los repasos.</string>
     <string name="school_lesson_cap_reached">Palabras en aprendizaje: {inLearning} de {cap}. Esta lección trae {count}.</string>
@@ -33,6 +36,7 @@
     <string name="school_next_build_farm">Construye la granja</string>
     <string name="school_next_build_power_station">Construye la central eléctrica</string>
     <string name="school_next_go_to_report">Ir al informe</string>
+    <string name="school_next_holdout_check">Prueba de palabras de la banda {band}</string>
     <string name="school_next_lesson_ready_in">Lección {number} lista en</string>
     <string name="school_next_no_reviews_due">No tienes repasos pendientes ahora.</string>
     <string name="school_next_review">Siguiente repaso:</string>
@@ -51,6 +55,7 @@
     <string name="school_refusal_study_slot_busy">La escuela ya tiene un estudio en marcha. Espera a que termine.</string>
     <string name="school_refusal_town_not_found">Aún no tienes pueblo. Ponle nombre para fundarlo.</string>
     <string name="school_refusal_unexpected">No hemos podido hablar con el servidor. Vuelve a intentarlo en un momento.</string>
+    <string name="school_released_lesson">Palabras que vuelven: banda {band}, grupo {number}</string>
     <string name="school_resource_food">comida</string>
     <string name="school_resource_material">material</string>
     <string name="school_resource_money">dinero</string>
