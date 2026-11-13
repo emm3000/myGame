@@ -44,6 +44,7 @@
     <string name="report_resource_money">dinero</string>
     <string name="report_resource_power">energía</string>
     <string name="report_reviews_due">Repasos pendientes: {count}</string>
+    <string name="report_settings">Ajustes</string>
     <string name="report_sign_out">Salir</string>
     <string name="report_start_reviews">Empezar los repasos</string>
     <string name="report_title">Informe</string>

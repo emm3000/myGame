@@ -44,6 +44,7 @@
     <string name="report_resource_money">money</string>
     <string name="report_resource_power">power</string>
     <string name="report_reviews_due">Reviews due: {count}</string>
+    <string name="report_settings">Settings</string>
     <string name="report_sign_out">Sign out</string>
     <string name="report_start_reviews">Start the reviews</string>
     <string name="report_title">Report</string>
