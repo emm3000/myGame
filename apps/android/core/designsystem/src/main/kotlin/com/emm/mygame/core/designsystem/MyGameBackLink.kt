@@ -8,6 +8,16 @@ import androidx.compose.ui.Modifier
 
 @Composable
 fun MyGameBackLink(label: String, isEnabled: Boolean, onClick: () -> Unit, modifier: Modifier = Modifier) {
+    MyGameBackLink(
+        label = MyGameLabel(text = label, translation = null),
+        isEnabled = isEnabled,
+        onClick = onClick,
+        modifier = modifier,
+    )
+}
+
+@Composable
+fun MyGameBackLink(label: MyGameLabel, isEnabled: Boolean, onClick: () -> Unit, modifier: Modifier = Modifier) {
     val colors: MyGameColors = MyGameTheme.colors
     MyGameTextTarget(isEnabled = isEnabled, onClick = onClick, modifier = modifier) {
         Row(
@@ -15,7 +25,7 @@ fun MyGameBackLink(label: String, isEnabled: Boolean, onClick: () -> Unit, modif
             verticalAlignment = Alignment.CenterVertically,
         ) {
             MyGameIcon(icon = MyGameIcons.back, tint = colors.inkMuted)
-            MyGameMetaText(text = label, color = colors.inkMuted)
+            MyGameMetaText(label = label, color = colors.inkMuted)
         }
     }
 }

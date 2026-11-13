@@ -14,6 +14,23 @@ fun MyGameTextButton(
     onClick: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
+    MyGameTextButton(
+        label = MyGameLabel(text = label, translation = null),
+        isBusy = isBusy,
+        busyDescription = busyDescription,
+        onClick = onClick,
+        modifier = modifier,
+    )
+}
+
+@Composable
+fun MyGameTextButton(
+    label: MyGameLabel,
+    isBusy: Boolean,
+    busyDescription: String,
+    onClick: () -> Unit,
+    modifier: Modifier = Modifier,
+) {
     val colors: MyGameColors = MyGameTheme.colors
     MyGameTextTarget(
         isEnabled = !isBusy,
@@ -23,7 +40,7 @@ fun MyGameTextButton(
         },
     ) {
         MyGameText(
-            text = label,
+            label = label,
             style = MyGameTypography.label.copy(textDecoration = TextDecoration.Underline),
             color = if (isBusy) colors.inkMuted else colors.ink,
         )

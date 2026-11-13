@@ -33,7 +33,7 @@ private var SemanticsPropertyReceiver.pillBadge: String by PILL_BADGE
 @Composable
 internal fun MyGamePill(
     look: MyGamePillLook,
-    label: String,
+    label: MyGameLabel,
     isBusy: Boolean,
     busyDescription: String,
     onClick: () -> Unit,
@@ -66,7 +66,7 @@ internal fun MyGamePill(
     ) {
         if (isBusy) MyGameIcon(icon = MyGameIcons.hourglass, tint = ink)
         MyGameText(
-            text = label,
+            label = label,
             style = look.style.copy(textAlign = TextAlign.Center),
             color = ink,
             modifier = if (accessibleName == null) Modifier else Modifier.clearAndSetSemantics { },

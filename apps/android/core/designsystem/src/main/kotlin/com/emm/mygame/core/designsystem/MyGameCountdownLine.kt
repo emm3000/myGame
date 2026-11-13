@@ -14,6 +14,21 @@ fun MyGameCountdownLine(
     ground: MyGameCountdownGround,
     modifier: Modifier = Modifier,
 ) {
+    MyGameCountdownLine(
+        words = MyGameLabel(text = words, translation = null),
+        time = time,
+        ground = ground,
+        modifier = modifier,
+    )
+}
+
+@Composable
+fun MyGameCountdownLine(
+    words: MyGameLabel,
+    time: String,
+    ground: MyGameCountdownGround,
+    modifier: Modifier = Modifier,
+) {
     val colors: MyGameColors = MyGameTheme.colors
     val lineColor: Color = if (ground == MyGameCountdownGround.Block) colors.onBlockMuted else colors.inkMuted
     val timeColor: Color = if (ground == MyGameCountdownGround.Block) colors.onBlock else colors.ink
@@ -24,7 +39,7 @@ fun MyGameCountdownLine(
         modifier = modifier,
     ) {
         MyGameIcon(icon = MyGameIcons.hourglass, tint = lineColor)
-        MyGameText(text = words, style = MyGameTypography.caption.withTabularFigures(), color = lineColor)
+        MyGameText(label = words, style = MyGameTypography.caption.withTabularFigures(), color = lineColor)
         MyGameText(text = time, style = MyGameTypography.heading.withTabularFigures(), color = timeColor)
     }
 }
