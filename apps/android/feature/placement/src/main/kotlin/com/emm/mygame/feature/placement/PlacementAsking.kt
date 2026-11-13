@@ -5,7 +5,6 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.selection.selectableGroup
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.LiveRegionMode
 import androidx.compose.ui.semantics.heading
 import androidx.compose.ui.semantics.liveRegion
@@ -23,7 +22,7 @@ import com.emm.mygame.core.designsystem.wordStyle
 import com.emm.mygame.core.network.PlacementChoice
 import com.emm.mygame.core.network.PlacementItem
 import com.emm.mygame.core.network.PlacementScore
-import com.emm.mygame.core.ui.icuStringResource
+import com.emm.mygame.core.ui.fixedCopyResource
 
 @Composable
 internal fun PlacementAsking(
@@ -38,7 +37,7 @@ internal fun PlacementAsking(
         WordBlock(item = asking.shown, index = asking.shownIndex)
         Column(verticalArrangement = Arrangement.spacedBy(MyGameSpacing.step2)) {
             MyGameText(
-                text = stringResource(R.string.placement_prompt),
+                text = fixedCopyResource(R.string.placement_prompt),
                 style = MyGameTypography.caption,
                 color = MyGameTheme.colors.inkMuted,
             )
@@ -57,7 +56,7 @@ internal fun PlacementAsking(
             }
         }
         if (asking.request == PlacementRequest.Unreachable) {
-            MyGameInlineAlert(message = stringResource(R.string.placement_unreachable))
+            MyGameInlineAlert(message = fixedCopyResource(R.string.placement_unreachable))
         }
         AskingAction(asking = asking, onIntent = onIntent)
     }
@@ -85,12 +84,12 @@ private fun AskingAction(
     modifier: Modifier = Modifier,
 ) {
     val blockedReason: String? =
-        if (asking.chosenForShown == null) stringResource(R.string.placement_choose) else null
+        if (asking.chosenForShown == null) fixedCopyResource(R.string.placement_choose) else null
     if (!asking.isLastShown) {
         MyGameButton(
-            label = stringResource(R.string.placement_next),
+            label = fixedCopyResource(R.string.placement_next),
             isBusy = false,
-            busyDescription = stringResource(R.string.placement_sending),
+            busyDescription = fixedCopyResource(R.string.placement_sending),
             onClick = { onIntent(PlacementIntent.NextTapped) },
             modifier = modifier,
             blockedReason = blockedReason,
@@ -98,9 +97,9 @@ private fun AskingAction(
         return
     }
     MyGameButton(
-        label = icuStringResource(R.string.placement_send_band, "band" to asking.band.number.toString()),
+        label = fixedCopyResource(R.string.placement_send_band, "band" to asking.band.number.toString()),
         isBusy = asking.request is PlacementRequest.Waiting,
-        busyDescription = stringResource(R.string.placement_sending),
+        busyDescription = fixedCopyResource(R.string.placement_sending),
         onClick = { onIntent(PlacementIntent.BandSent) },
         modifier = modifier,
         blockedReason = blockedReason,
