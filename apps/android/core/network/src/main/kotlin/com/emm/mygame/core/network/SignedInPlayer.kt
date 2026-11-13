@@ -1,3 +1,3 @@
 package com.emm.mygame.core.network
 
-data class SignedInPlayer(val email: String, val isEmailVerified: Boolean)
+data class SignedInPlayer(val email: String, val isEmailVerified: Boolean, val scaffold: PlayerScaffold?)

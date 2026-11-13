@@ -41,6 +41,7 @@ class ReportRouteTest {
                             onReviewsOpen = {},
                             onLessonOpen = {},
                             onNewsOpen = {},
+                            onSettingsOpen = {},
                             onSigningOut = {},
                             onSignedOut = {},
                         ),

@@ -58,6 +58,7 @@ fun ReportScreen(
     onReviewsOpen: () -> Unit,
     onLessonOpen: (LessonId) -> Unit,
     onNewsOpen: () -> Unit,
+    onSettingsOpen: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
     Column(
@@ -91,6 +92,19 @@ fun ReportScreen(
                 navigation = ReportScreenLinks(onReviewsOpen, onLessonOpen, onNewsOpen),
             )
         }
+        AccountLinks(state = state, onIntent = onIntent, onSettingsOpen = onSettingsOpen)
+    }
+}
+
+@Composable
+private fun AccountLinks(
+    state: ReportUiState,
+    onIntent: (ReportIntent) -> Unit,
+    onSettingsOpen: () -> Unit,
+    modifier: Modifier = Modifier,
+) {
+    Column(modifier = modifier) {
+        MyGameTextLink(label = fixedCopyResource(R.string.report_settings), onClick = onSettingsOpen)
         MyGameTextButton(
             label = fixedCopyResource(R.string.report_sign_out),
             isBusy = state == ReportUiState.SigningOut,
@@ -268,7 +282,14 @@ private class ReportUiStates : PreviewParameterProvider<ReportUiState> {
 @Composable
 private fun ReportScreenPreview(@PreviewParameter(ReportUiStates::class) state: ReportUiState) {
     MyGamePreviewSurface {
-        ReportScreen(state = state, onIntent = {}, onReviewsOpen = {}, onLessonOpen = {}, onNewsOpen = {})
+        ReportScreen(
+            state = state,
+            onIntent = {},
+            onReviewsOpen = {},
+            onLessonOpen = {},
+            onNewsOpen = {},
+            onSettingsOpen = {},
+        )
     }
 }
 
@@ -287,7 +308,14 @@ private class ReportLanguages : PreviewParameterProvider<CopyLanguage> {
 private fun ReportScreenLanguagePreview(@PreviewParameter(ReportLanguages::class) language: CopyLanguage) {
     ProvideCopyLanguage(language = language) {
         MyGamePreviewSurface {
-            ReportScreen(state = previewContent, onIntent = {}, onReviewsOpen = {}, onLessonOpen = {}, onNewsOpen = {})
+            ReportScreen(
+                state = previewContent,
+                onIntent = {},
+                onReviewsOpen = {},
+                onLessonOpen = {},
+                onNewsOpen = {},
+                onSettingsOpen = {},
+            )
         }
     }
 }

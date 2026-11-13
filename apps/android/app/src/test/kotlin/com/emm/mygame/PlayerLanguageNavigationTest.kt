@@ -112,7 +112,11 @@ class PlayerLanguageNavigationTest {
 
     @Test
     fun `draws a screen the chrome has not reached in the scaffold language on an English phone`() {
-        sessionsFake.answerRestore(RestoreResult.SignedIn(SignedInPlayer("ines@example.com", isEmailVerified = false)))
+        sessionsFake.answerRestore(
+            RestoreResult.SignedIn(
+                SignedInPlayer("ines@example.com", isEmailVerified = false, scaffold = PlayerScaffold.Spanish),
+            ),
+        )
 
         showReport(PlayerLanguage(PlayerScaffold.Spanish, PlayerChromePhase.English))
 

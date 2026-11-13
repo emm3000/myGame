@@ -16,6 +16,8 @@ interface SessionRepository {
 
     suspend fun resendVerification(): VerificationResendResult
 
+    suspend fun changeScaffold(scaffold: PlayerScaffold): ScaffoldChangeResult
+
     suspend fun signOut()
 }
 

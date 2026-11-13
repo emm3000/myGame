@@ -55,6 +55,7 @@ class ReportLanguageTest {
                         onReviewsOpen = {},
                         onLessonOpen = {},
                         onNewsOpen = {},
+                        onSettingsOpen = {},
                     )
                 }
             }

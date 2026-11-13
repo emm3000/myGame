@@ -17,6 +17,7 @@ import com.emm.mygame.core.network.HoldoutCheckRepository
 import com.emm.mygame.core.network.LearningRepository
 import com.emm.mygame.core.network.PlacementRepository
 import com.emm.mygame.core.network.PlayerLanguage
+import com.emm.mygame.core.network.PlayerScaffold
 import com.emm.mygame.core.network.ReportRepository
 import com.emm.mygame.core.network.RestoreResult
 import com.emm.mygame.core.network.SessionEnds
@@ -65,7 +66,11 @@ class SignUpNavigationTest {
     @Test
     fun `opens Name your town after sign-up`() {
         sessionsFake.answerRestore(RestoreResult.SignedOut)
-        sessionsFake.answerSignUp(SignUpResult.SignedIn(SignedInPlayer("elena@example.com", isEmailVerified = true)))
+        sessionsFake.answerSignUp(
+            SignUpResult.SignedIn(
+                SignedInPlayer("elena@example.com", isEmailVerified = true, scaffold = PlayerScaffold.Spanish),
+            ),
+        )
         repeat(READS_AVAILABLE) { townsFake.answerRead(TownReadResult.NoTown) }
         composeRule.setContent {
             MyGameTheme {

@@ -56,6 +56,8 @@ class ReportScreenTest {
 
     private var newsOpens: Int = 0
 
+    private var settingsOpens: Int = 0
+
     private val unreadFarm: ReportUiState.ReportNews =
         ReportUiState.ReportNews.Unread(listOf(finishedFarm), ReportUiState.CloseRequest.Idle)
 
@@ -68,6 +70,7 @@ class ReportScreenTest {
                     onReviewsOpen = { reviewOpens += 1 },
                     onLessonOpen = { lesson: LessonId -> lessonOpens += lesson },
                     onNewsOpen = { newsOpens += 1 },
+                    onSettingsOpen = { settingsOpens += 1 },
                 )
             }
         }
@@ -333,6 +336,34 @@ class ReportScreenTest {
         listOf("Repasos pendientes: 1", "NOTICIAS DEL PUEBLO", "Cerrar las noticias").forEach { line: String ->
             assertTrue(unclippedTopOf(line) < signOutTop)
         }
+    }
+
+    @Test
+    fun `opens the settings from beside sign-out`() {
+        show(contentWith(news = unreadFarm))
+
+        composeRule.onNodeWithText("Ajustes").performScrollTo().performClick()
+
+        assertEquals(1, settingsOpens)
+    }
+
+    @Test
+    fun `keeps the settings on a Report that failed to read`() {
+        show(ReportUiState.Failed)
+
+        composeRule.onNodeWithText("Ajustes").performScrollTo().performClick()
+
+        assertEquals(1, settingsOpens)
+    }
+
+    @Test
+    fun `sets the settings beside sign-out at the foot of the Report`() {
+        show(contentWith(dueCount = 1, news = unreadFarm))
+
+        val settingsTop: Dp = unclippedTopOf("Ajustes")
+
+        assertTrue(unclippedTopOf("Cerrar las noticias") < settingsTop)
+        assertTrue(settingsTop < unclippedTopOf("Salir"))
     }
 
     @Test

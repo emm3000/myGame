@@ -35,6 +35,7 @@ import com.emm.mygame.core.network.Placement
 import com.emm.mygame.core.network.PlacementReadResult
 import com.emm.mygame.core.network.PlacementRepository
 import com.emm.mygame.core.network.PlayerLanguage
+import com.emm.mygame.core.network.PlayerScaffold
 import com.emm.mygame.core.network.RegionMap
 import com.emm.mygame.core.network.RegionMapResult
 import com.emm.mygame.core.network.ReportReadResult
@@ -113,7 +114,9 @@ class AppNavigationTest {
     private val readAt: Instant = Instant.parse("2026-11-05T10:00:00Z")
 
     private val verifiedSession: RestoreResult =
-        RestoreResult.SignedIn(SignedInPlayer("player@example.com", isEmailVerified = true))
+        RestoreResult.SignedIn(
+            SignedInPlayer("player@example.com", isEmailVerified = true, scaffold = PlayerScaffold.Spanish),
+        )
 
     private val noReviews: ReviewsReadResult.Read = ReviewsReadResult.Read(
         DueReviews(due = emptyList(), readFirst = emptyList(), nextDueAt = null, readAt = readAt),

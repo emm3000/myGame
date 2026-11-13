@@ -11,6 +11,8 @@ class PlayerLanguages(tokenStore: TokenStore) {
 
     private val sentReads: AtomicLong = AtomicLong()
 
+    private var lastForgottenOrder: Long = 0L
+
     private var scaffold: Held<PlayerScaffold>? = null
 
     private var chromePhase: Held<PlayerChromePhase>? = null
@@ -27,6 +29,7 @@ class PlayerLanguages(tokenStore: TokenStore) {
 
     internal fun answered(read: LanguageRead, answeredScaffold: PlayerScaffold?, answeredPhase: PlayerChromePhase?) {
         synchronized(holding) {
+            if (read.order <= lastForgottenOrder) return
             scaffold = scaffold.fresherOf(answeredScaffold, read.order)
             chromePhase = chromePhase.fresherOf(answeredPhase, read.order)
             _language.value = languageOf(scaffold?.value, chromePhase?.value)
@@ -35,6 +38,7 @@ class PlayerLanguages(tokenStore: TokenStore) {
 
     private fun forget() {
         synchronized(holding) {
+            lastForgottenOrder = sentReads.get()
             scaffold = null
             chromePhase = null
             _language.value = null

@@ -152,6 +152,7 @@ class ReportSkeletonTest {
                     onReviewsOpen = { },
                     onLessonOpen = { },
                     onNewsOpen = { },
+                    onSettingsOpen = { },
                 )
             }
         }
