@@ -1,5 +1,6 @@
 package com.emm.mygame.feature.review
 
+import androidx.annotation.StringRes
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Arrangement
@@ -14,7 +15,6 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.platform.testTag
-import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.LiveRegionMode
 import androidx.compose.ui.semantics.liveRegion
 import androidx.compose.ui.semantics.semantics
@@ -42,7 +42,11 @@ import com.emm.mygame.core.designsystem.rememberRegisteredFraction
 import com.emm.mygame.core.designsystem.withTabularFigures
 import com.emm.mygame.core.network.ReviewRefusal
 import com.emm.mygame.core.network.TownResourceKind
-import com.emm.mygame.core.ui.icuStringResource
+import com.emm.mygame.core.ui.CopyReader
+import com.emm.mygame.core.ui.PlayerCopy
+import com.emm.mygame.core.ui.chromeResource
+import com.emm.mygame.core.ui.fixedCopyResource
+import com.emm.mygame.core.ui.rememberPlayerCopy
 
 internal const val RIGHT_ICON: String = "review_right_icon"
 
@@ -63,7 +67,7 @@ internal fun ReviewStepLine(
         is ReviewUiState.ReviewStep.Refused ->
             RefusalLine(refusal = step.refusal, onIntent = onIntent, modifier = modifier)
         ReviewUiState.ReviewStep.Unreachable ->
-            MyGameInlineAlert(message = stringResource(R.string.review_unreachable), modifier = modifier)
+            MyGameInlineAlert(message = fixedCopyResource(R.string.review_unreachable), modifier = modifier)
         is ReviewUiState.ReviewStep.Correct -> CorrectLine(step = step, modifier = modifier)
         is ReviewUiState.ReviewStep.Wrong ->
             WrongLine(yours = reviewing.card.shownAnswer.orEmpty(), correct = step.correct, modifier = modifier)
@@ -72,11 +76,11 @@ internal fun ReviewStepLine(
 
 @Composable
 private fun RefusalLine(refusal: ReviewRefusal, onIntent: (ReviewIntent) -> Unit, modifier: Modifier = Modifier) {
-    val message: String = stringResource(refusalLineOf(refusal))
+    val message: String = fixedCopyResource(refusalLineOf(refusal))
     if (refusal.asksForAReread()) {
         MyGameErrorBanner(
             message = message,
-            actionLabel = stringResource(R.string.review_retry),
+            actionLabel = chromeResource(R.string.review_retry),
             onAction = { onIntent(ReviewIntent.RetryTapped) },
             modifier = modifier,
         )
@@ -90,7 +94,7 @@ private fun NearMissLine(modifier: Modifier = Modifier) {
     val colors: MyGameColors = MyGameTheme.colors
     val shape: RoundedCornerShape = RoundedCornerShape(MyGameRadii.md)
     MyGameText(
-        text = stringResource(R.string.review_near_miss),
+        text = fixedCopyResource(R.string.review_near_miss),
         style = MyGameTypography.body,
         color = colors.ink,
         modifier = modifier
@@ -120,36 +124,39 @@ private fun CorrectLine(step: ReviewUiState.ReviewStep.Correct, modifier: Modifi
         verticalArrangement = Arrangement.spacedBy(MyGameSpacing.step2),
         modifier = modifier.semantics(mergeDescendants = true) { liveRegion = LiveRegionMode.Polite },
     ) {
-        VerdictLine(icon = MyGameIcons.check, tag = RIGHT_ICON, text = stringResource(R.string.review_correct))
+        VerdictLine(icon = MyGameIcons.check, tag = RIGHT_ICON, text = fixedCopyResource(R.string.review_correct))
         step.skill?.let { skill: ReviewUiState.SkillLine -> SkillEarned(skill = skill) }
     }
 }
 
 @Composable
 private fun SkillEarned(skill: ReviewUiState.SkillLine, modifier: Modifier = Modifier) {
-    val resource: String = stringResource(skillResourceNameOf(skill.resource))
+    val copy: PlayerCopy = rememberPlayerCopy()
+    val resourceName: Int = skillResourceNameOf(skill.resource)
     Column(verticalArrangement = Arrangement.spacedBy(MyGameSpacing.step1), modifier = modifier) {
         MyGameText(
-            text = icuStringResource(
-                R.string.review_skill_earned,
-                "resource" to resource,
-                "level" to skill.level.toString(),
-            ),
+            label = copy.chrome {
+                text(R.string.review_skill_earned, "resource" to text(resourceName), "level" to skill.level.toString())
+            },
             style = MyGameTypography.title,
             color = MyGameTheme.colors.ink,
         )
         MyGameText(
-            text = icuStringResource(
-                R.string.review_skill_rate,
-                "percent" to percentLabelOf(skill.ratePercent.toDouble()),
-                "resource" to resource,
-            ),
+            label = copy.chrome {
+                text(
+                    R.string.review_skill_rate,
+                    "percent" to skill.ratePercent.toString(),
+                    "resource" to text(resourceName),
+                )
+            },
             style = MyGameTypography.caption,
             color = MyGameTheme.colors.ink,
         )
-        skill.rates?.let { rates: ReviewUiState.SkillRates -> RatesLine(resource = resource, rates = rates) }
+        skill.rates?.let { rates: ReviewUiState.SkillRates ->
+            RatesLine(line = copy.fixedCopy { ratesLineOf(resourceName, rates) }, rates = rates)
+        }
         MyGameText(
-            text = wordsLineOf(stringResource(R.string.review_skill_words), skill.words),
+            text = wordsLineOf(copy.fixedCopy(R.string.review_skill_words), skill.words),
             style = MyGameTypography.body,
             color = MyGameTheme.colors.ink,
         )
@@ -157,15 +164,10 @@ private fun SkillEarned(skill: ReviewUiState.SkillLine, modifier: Modifier = Mod
 }
 
 @Composable
-private fun RatesLine(resource: String, rates: ReviewUiState.SkillRates, modifier: Modifier = Modifier) {
+private fun RatesLine(line: String, rates: ReviewUiState.SkillRates, modifier: Modifier = Modifier) {
     val fraction: Float = rememberRegisteredFraction(MyGameRegisteredRow.Rate, rates)
     MyGameText(
-        text = icuStringResource(
-            R.string.review_skill_rates,
-            "resource" to resource.replaceFirstChar { first: Char -> first.titlecase(spanish) },
-            "before" to formatQuantity(rates.before),
-            "after" to formatQuantity(rates.after),
-        ),
+        text = line,
         style = MyGameTypography.body.withTabularFigures(),
         color = MyGameTheme.colors.ink,
         modifier = modifier
@@ -173,6 +175,13 @@ private fun RatesLine(resource: String, rates: ReviewUiState.SkillRates, modifie
             .registering(MyGameRegisteredRow.Rate, fraction),
     )
 }
+
+private fun CopyReader.ratesLineOf(@StringRes resourceName: Int, rates: ReviewUiState.SkillRates): String = text(
+    R.string.review_skill_rates,
+    "resource" to text(resourceName).replaceFirstChar { first: Char -> first.titlecase(locale) },
+    "before" to formatQuantity(rates.before),
+    "after" to formatQuantity(rates.after),
+)
 
 private fun wordsLineOf(label: String, words: List<String>): AnnotatedString = buildAnnotatedString {
     append(label)
@@ -186,19 +195,19 @@ private fun WrongLine(yours: String, correct: String, modifier: Modifier = Modif
         verticalArrangement = Arrangement.spacedBy(MyGameSpacing.step2),
         modifier = modifier.semantics(mergeDescendants = true) { liveRegion = LiveRegionMode.Polite },
     ) {
-        VerdictLine(icon = MyGameIcons.cross, tag = WRONG_ICON, text = stringResource(R.string.review_wrong))
+        VerdictLine(icon = MyGameIcons.cross, tag = WRONG_ICON, text = fixedCopyResource(R.string.review_wrong))
         MyGameText(
-            text = icuStringResource(R.string.review_yours, "answer" to yours),
+            text = fixedCopyResource(R.string.review_yours, "answer" to yours),
             style = MyGameTypography.body,
             color = MyGameTheme.colors.ink,
         )
         MyGameText(
-            text = withBoldForm(icuStringResource(R.string.review_correct_form, "answer" to correct), correct),
+            text = withBoldForm(fixedCopyResource(R.string.review_correct_form, "answer" to correct), correct),
             style = MyGameTypography.body,
             color = MyGameTheme.colors.ink,
         )
         MyGameText(
-            text = stringResource(R.string.review_returns),
+            text = fixedCopyResource(R.string.review_returns),
             style = MyGameTypography.caption,
             color = MyGameTheme.colors.ink,
         )
@@ -220,6 +229,7 @@ private fun ReviewRefusal.asksForAReread(): Boolean = when (this) {
     ReviewRefusal.HintOnRecognition, ReviewRefusal.Unrecognized -> false
 }
 
+@StringRes
 private fun skillResourceNameOf(resource: TownResourceKind): Int = when (resource) {
     TownResourceKind.Money -> R.string.review_skill_resource_money
     TownResourceKind.Food -> R.string.review_skill_resource_food
@@ -227,6 +237,7 @@ private fun skillResourceNameOf(resource: TownResourceKind): Int = when (resourc
     TownResourceKind.Material -> R.string.review_skill_resource_material
 }
 
+@StringRes
 private fun refusalLineOf(refusal: ReviewRefusal): Int = when (refusal) {
     ReviewRefusal.ReviewNotDue -> R.string.review_refusal_not_due
     ReviewRefusal.HintOnRecognition -> R.string.review_refusal_hint_on_recognition

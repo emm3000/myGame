@@ -14,7 +14,6 @@ import androidx.compose.foundation.layout.windowInsetsPadding
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.LiveRegionMode
 import androidx.compose.ui.semantics.liveRegion
 import androidx.compose.ui.semantics.semantics
@@ -29,6 +28,11 @@ import com.emm.mygame.core.designsystem.MyGameTextButton
 import com.emm.mygame.core.designsystem.MyGameTheme
 import com.emm.mygame.core.designsystem.MyGameTypography
 import com.emm.mygame.core.designsystem.PreviewMyGame
+import com.emm.mygame.core.ui.ChromePhase
+import com.emm.mygame.core.ui.CopyLanguage
+import com.emm.mygame.core.ui.ProvideCopyLanguage
+import com.emm.mygame.core.ui.ScaffoldLanguage
+import com.emm.mygame.core.ui.fixedCopyResource
 
 @Composable
 fun VerificationBannerScreen(
@@ -63,16 +67,16 @@ private fun Banner(
                 modifier = Modifier.weight(1f).padding(vertical = MyGameSpacing.step2),
             ) {
                 MyGameText(
-                    text = stringResource(R.string.verification_banner_line),
+                    text = fixedCopyResource(R.string.verification_banner_line),
                     style = MyGameTypography.caption,
                     color = MyGameTheme.colors.inkMuted,
                 )
                 ResendOutcome(resend = resend)
             }
             MyGameTextButton(
-                label = stringResource(R.string.verification_banner_resend),
+                label = fixedCopyResource(R.string.verification_banner_resend),
                 isBusy = resend == VerificationBannerUiState.Resend.Sending,
-                busyDescription = stringResource(R.string.verification_banner_sending),
+                busyDescription = fixedCopyResource(R.string.verification_banner_sending),
                 onClick = { onIntent(VerificationBannerIntent.ResendTapped) },
             )
         }
@@ -84,17 +88,17 @@ private fun ResendOutcome(resend: VerificationBannerUiState.Resend, modifier: Mo
     when (resend) {
         VerificationBannerUiState.Resend.Idle, VerificationBannerUiState.Resend.Sending -> Unit
         VerificationBannerUiState.Resend.Sent -> MyGameText(
-            text = stringResource(R.string.verification_banner_sent),
+            text = fixedCopyResource(R.string.verification_banner_sent),
             style = MyGameTypography.caption,
             color = MyGameTheme.colors.ink,
             modifier = modifier.semantics { liveRegion = LiveRegionMode.Polite },
         )
         VerificationBannerUiState.Resend.MailNotSent -> MyGameInlineAlert(
-            message = stringResource(R.string.verification_refusal_mail_not_sent),
+            message = fixedCopyResource(R.string.verification_refusal_mail_not_sent),
             modifier = modifier,
         )
         VerificationBannerUiState.Resend.Unreachable -> MyGameInlineAlert(
-            message = stringResource(R.string.verification_banner_unreachable),
+            message = fixedCopyResource(R.string.verification_banner_unreachable),
             modifier = modifier,
         )
     }
@@ -118,5 +122,17 @@ private fun VerificationBannerScreenPreview(
 ) {
     MyGamePreviewSurface {
         VerificationBannerScreen(state = state, onIntent = {})
+    }
+}
+
+@PreviewMyGame
+@Composable
+private fun VerificationBannerScreenBothPhasePreview(
+    @PreviewParameter(VerificationBannerUiStates::class) state: VerificationBannerUiState,
+) {
+    ProvideCopyLanguage(language = CopyLanguage(ScaffoldLanguage.Spanish, ChromePhase.Both)) {
+        MyGamePreviewSurface {
+            VerificationBannerScreen(state = state, onIntent = {})
+        }
     }
 }
