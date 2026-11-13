@@ -21,6 +21,7 @@ import com.emm.mygame.core.designsystem.OUTLINED_PILL
 import com.emm.mygame.core.network.LearningRepository
 import com.emm.mygame.core.network.NextStep
 import com.emm.mygame.core.network.PlacementRepository
+import com.emm.mygame.core.network.PlayerLanguage
 import com.emm.mygame.core.network.ReportReadResult
 import com.emm.mygame.core.network.ReportRepository
 import com.emm.mygame.core.network.RestoreResult
@@ -42,6 +43,8 @@ import com.emm.mygame.core.testing.FakeTownRepository
 import com.emm.mygame.core.testing.hiringOf
 import kotlin.time.Clock
 import kotlin.time.Instant
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.StateFlow
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertTrue
 import org.junit.Rule
@@ -65,6 +68,7 @@ class VerificationBannerNavigationTest {
     private val dependencies: AppDependencies = object : AppDependencies {
         override val clock: Clock = Clock.System
         override val sessionEnds: SessionEnds = SessionEnds()
+        override val playerLanguage: StateFlow<PlayerLanguage?> = MutableStateFlow(null)
         override val sessions: SessionRepository = sessionsFake
         override val towns: TownRepository = townsFake
         override val learning: LearningRepository = FakeLearningRepository()

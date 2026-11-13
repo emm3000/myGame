@@ -178,13 +178,18 @@ class TownGuidanceRepositoryTest {
         assertEquals(TownGuidanceResult.Unreachable, town().dismissGuidance())
     }
 
-    private fun TestScope.town(): TownRepository = TownRepository(
-        baseUrl = api.url("/api/").toString(),
-        tokenStore = TokenStore(File(folder.root, "session"), FakeTokenCipher()).apply { write("opaque-session") },
-        sessionEnds = SessionEnds(),
-        ioDispatcher = UnconfinedTestDispatcher(testScheduler),
-        clock = TestClock(testScheduler, aMinuteBeforeTheRead),
-    )
+    private fun TestScope.town(): TownRepository {
+        val store: TokenStore =
+            TokenStore(File(folder.root, "session"), FakeTokenCipher()).apply { write("opaque-session") }
+        return TownRepository(
+            baseUrl = api.url("/api/").toString(),
+            tokenStore = store,
+            languages = PlayerLanguages(store),
+            sessionEnds = SessionEnds(),
+            ioDispatcher = UnconfinedTestDispatcher(testScheduler),
+            clock = TestClock(testScheduler, aMinuteBeforeTheRead),
+        )
+    }
 
     private fun townWithGoal(goal: String): String = TOWN.replace(""""goal":null""", """"goal":$goal""")
 

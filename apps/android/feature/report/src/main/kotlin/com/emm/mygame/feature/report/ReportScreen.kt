@@ -1,6 +1,5 @@
 package com.emm.mygame.feature.report
 
-import android.content.res.Resources
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -11,8 +10,6 @@ import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.platform.LocalResources
-import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.LiveRegionMode
 import androidx.compose.ui.semantics.heading
 import androidx.compose.ui.semantics.liveRegion
@@ -43,7 +40,14 @@ import com.emm.mygame.core.designsystem.PreviewMyGame
 import com.emm.mygame.core.designsystem.formatQuantity
 import com.emm.mygame.core.network.LessonId
 import com.emm.mygame.core.network.TownNews
-import com.emm.mygame.core.ui.icuStringResource
+import com.emm.mygame.core.ui.ChromePhase
+import com.emm.mygame.core.ui.CopyLanguage
+import com.emm.mygame.core.ui.PlayerCopy
+import com.emm.mygame.core.ui.ProvideCopyLanguage
+import com.emm.mygame.core.ui.ScaffoldLanguage
+import com.emm.mygame.core.ui.chromeResource
+import com.emm.mygame.core.ui.fixedCopyResource
+import com.emm.mygame.core.ui.rememberPlayerCopy
 import java.time.ZoneId
 import kotlin.time.Instant
 
@@ -71,14 +75,14 @@ fun ReportScreen(
             ),
     ) {
         MyGameText(
-            text = stringResource(R.string.report_title),
+            label = chromeResource(R.string.report_title),
             style = MyGameTypography.display,
             color = MyGameTheme.colors.ink,
             modifier = Modifier.semantics { heading() },
         )
         MyGameSkeleton(
             isLoading = state == ReportUiState.Loading,
-            loadingLabel = stringResource(R.string.report_loading),
+            loadingLabel = chromeResource(R.string.report_loading).spoken,
             blocks = reportBlocks,
         ) {
             ReportState(
@@ -88,9 +92,9 @@ fun ReportScreen(
             )
         }
         MyGameTextButton(
-            label = stringResource(R.string.report_sign_out),
+            label = fixedCopyResource(R.string.report_sign_out),
             isBusy = state == ReportUiState.SigningOut,
-            busyDescription = stringResource(R.string.report_waiting),
+            busyDescription = chromeResource(R.string.report_waiting).spoken,
             onClick = { onIntent(ReportIntent.SignOutTapped) },
         )
     }
@@ -107,8 +111,8 @@ private fun ReportState(state: ReportUiState, onIntent: (ReportIntent) -> Unit, 
     when (state) {
         ReportUiState.Loading, ReportUiState.SigningOut -> Unit
         ReportUiState.Failed -> MyGameErrorBanner(
-            message = stringResource(R.string.report_refusal_unexpected),
-            actionLabel = stringResource(R.string.report_try_again),
+            message = fixedCopyResource(R.string.report_refusal_unexpected),
+            actionLabel = chromeResource(R.string.report_try_again),
             onAction = { onIntent(ReportIntent.RetryTapped) },
         )
         is ReportUiState.Content -> {
@@ -142,18 +146,18 @@ private fun ReviewsDueSection(
     Column(verticalArrangement = Arrangement.spacedBy(MyGameSpacing.step3), modifier = modifier) {
         MyGameBlock(hue = MyGameBlockHue.Periwinkle) {
             MyGameText(
-                text = icuStringResource(R.string.report_reviews_due, "count" to formatQuantity(dueCount.toLong())),
+                label = chromeResource(R.string.report_reviews_due, "count" to formatQuantity(dueCount.toLong())),
                 style = MyGameTypography.display,
                 color = MyGameTheme.colors.onBlock,
                 modifier = Modifier.semantics { heading() },
             )
         }
         MyGameButton(
-            label = stringResource(
+            label = chromeResource(
                 if (firstUnread == null) R.string.report_start_reviews else R.string.report_read_words,
             ),
             isBusy = false,
-            busyDescription = stringResource(R.string.report_waiting),
+            busyDescription = chromeResource(R.string.report_waiting).spoken,
             onClick = { if (firstUnread == null) onReviewsOpen() else onLessonOpen(firstUnread) },
         )
     }
@@ -161,21 +165,21 @@ private fun ReviewsDueSection(
 
 @Composable
 private fun NothingDue(nextReview: Instant?, receivedAt: Instant, modifier: Modifier = Modifier) {
-    val resources: Resources = LocalResources.current
+    val copy: PlayerCopy = rememberPlayerCopy()
     MyGameCard(modifier = modifier) {
         Column(
             verticalArrangement = Arrangement.spacedBy(MyGameSpacing.step3),
             modifier = Modifier.padding(vertical = MyGameSpacing.step4),
         ) {
             MyGameText(
-                text = stringResource(R.string.report_no_reviews_due),
+                label = chromeResource(R.string.report_no_reviews_due),
                 style = MyGameTypography.body,
                 color = MyGameTheme.colors.ink,
             )
             nextReview?.let { dueAt: Instant ->
                 MyGameCountdownLine(
-                    words = stringResource(R.string.report_next_review),
-                    time = resources.nextReviewLabelOf(dueAt, receivedAt, ZoneId.systemDefault()),
+                    words = chromeResource(R.string.report_next_review),
+                    time = copy.chrome { nextReviewLabelOf(dueAt, receivedAt, ZoneId.systemDefault()) }.spoken,
                     ground = MyGameCountdownGround.Paper,
                 )
             }
@@ -192,20 +196,20 @@ private fun NewsSection(
 ) {
     Column(verticalArrangement = Arrangement.spacedBy(MyGameSpacing.step3), modifier = modifier) {
         MyGameMetaText(
-            text = stringResource(R.string.report_news_title),
+            label = chromeResource(R.string.report_news_title),
             color = MyGameTheme.colors.inkMuted,
             modifier = Modifier.semantics { heading() },
         )
         when (val news: ReportUiState.ReportNews = content.news) {
-            ReportUiState.ReportNews.None -> NewsNote(line = stringResource(R.string.report_news_none))
+            ReportUiState.ReportNews.None -> NewsNote(line = chromeResource(R.string.report_news_none))
             ReportUiState.ReportNews.Closed -> NewsNote(
-                line = stringResource(R.string.report_news_closed),
+                line = chromeResource(R.string.report_news_closed),
                 modifier = Modifier.semantics(mergeDescendants = true) { liveRegion = LiveRegionMode.Polite },
             )
             is ReportUiState.ReportNews.Unread ->
                 UnreadNews(unread = news, receivedAt = content.receivedAt, onIntent = onIntent)
         }
-        MyGameTextLink(label = stringResource(R.string.report_news_all), onClick = onNewsOpen)
+        MyGameTextLink(label = chromeResource(R.string.report_news_all), onClick = onNewsOpen)
     }
 }
 
@@ -219,12 +223,12 @@ private fun UnreadNews(
     Column(verticalArrangement = Arrangement.spacedBy(MyGameSpacing.step3), modifier = modifier) {
         Column { unread.items.forEach { news: TownNews -> NewsRow(news = news, receivedAt = receivedAt) } }
         if (unread.close == ReportUiState.CloseRequest.Unreachable) {
-            MyGameInlineAlert(message = stringResource(R.string.report_refusal_unexpected))
+            MyGameInlineAlert(message = fixedCopyResource(R.string.report_refusal_unexpected))
         }
         MyGameOutlinedButton(
-            label = stringResource(R.string.report_news_close),
+            label = chromeResource(R.string.report_news_close),
             isBusy = unread.close == ReportUiState.CloseRequest.Waiting,
-            busyDescription = stringResource(R.string.report_waiting),
+            busyDescription = chromeResource(R.string.report_waiting).spoken,
             onClick = { onIntent(ReportIntent.CloseTapped) },
         )
     }
@@ -265,5 +269,25 @@ private class ReportUiStates : PreviewParameterProvider<ReportUiState> {
 private fun ReportScreenPreview(@PreviewParameter(ReportUiStates::class) state: ReportUiState) {
     MyGamePreviewSurface {
         ReportScreen(state = state, onIntent = {}, onReviewsOpen = {}, onLessonOpen = {}, onNewsOpen = {})
+    }
+}
+
+private class ReportLanguages : PreviewParameterProvider<CopyLanguage> {
+
+    override val values: Sequence<CopyLanguage> = sequenceOf(
+        CopyLanguage(ScaffoldLanguage.Spanish, ChromePhase.Scaffold),
+        CopyLanguage(ScaffoldLanguage.Spanish, ChromePhase.Both),
+        CopyLanguage(ScaffoldLanguage.Spanish, ChromePhase.English),
+        CopyLanguage(ScaffoldLanguage.None, ChromePhase.English),
+    )
+}
+
+@PreviewMyGame
+@Composable
+private fun ReportLanguagePreview(@PreviewParameter(ReportLanguages::class) language: CopyLanguage) {
+    ProvideCopyLanguage(language = language) {
+        MyGamePreviewSurface {
+            ReportScreen(state = previewContent, onIntent = {}, onReviewsOpen = {}, onLessonOpen = {}, onNewsOpen = {})
+        }
     }
 }

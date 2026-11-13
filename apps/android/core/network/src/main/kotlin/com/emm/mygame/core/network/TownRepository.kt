@@ -32,6 +32,7 @@ interface TownRepository :
 fun TownRepository(
     baseUrl: String,
     tokenStore: TokenStore,
+    languages: PlayerLanguages,
     sessionEnds: SessionEnds,
     ioDispatcher: CoroutineDispatcher,
     clock: Clock,
@@ -42,6 +43,7 @@ fun TownRepository(
         ioDispatcher = ioDispatcher,
         clock = clock,
         tokenStore = tokenStore,
+        languages = languages,
         regionReader = ApiRegionReader(api = api, ioDispatcher = ioDispatcher),
         guidance = ApiTownGuidance(api = api, ioDispatcher = ioDispatcher),
     )

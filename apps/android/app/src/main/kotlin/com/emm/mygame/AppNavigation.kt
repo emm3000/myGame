@@ -22,7 +22,6 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.layout.WindowInsetsRulers
-import androidx.compose.ui.res.stringResource
 import androidx.lifecycle.compose.LifecycleStartEffect
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
@@ -39,6 +38,8 @@ import com.emm.mygame.core.designsystem.MyGameHeader
 import com.emm.mygame.core.designsystem.MyGameSpacing
 import com.emm.mygame.core.designsystem.MyGameTheme
 import com.emm.mygame.core.network.LessonId
+import com.emm.mygame.core.network.PlayerLanguage
+import com.emm.mygame.core.ui.chromeResource
 import com.emm.mygame.feature.map.MapRoute
 import com.emm.mygame.feature.placement.PlacementOfferRoute
 import com.emm.mygame.feature.placement.PlacementRoute
@@ -100,10 +101,11 @@ internal fun AppNavigation(
             townStatus = townStatus,
             modifier = Modifier.weight(1f),
         )
-        VerificationBannerRoute(
-            sessions = dependencies.sessions,
-            isSessionOpen = shown.statusScreen() != TownStatusScreen.Outside,
-        )
+        val isSessionOpen: Boolean = shown.statusScreen() != TownStatusScreen.Outside
+        val language: PlayerLanguage? by dependencies.playerLanguage.collectAsStateWithLifecycle()
+        InPlayerLanguage(language = language.takeIf { isSessionOpen }) {
+            VerificationBannerRoute(sessions = dependencies.sessions, isSessionOpen = isSessionOpen)
+        }
     }
 }
 
@@ -330,6 +332,22 @@ private fun SignedInFrame(
     modifier: Modifier = Modifier,
     content: @Composable () -> Unit,
 ) {
+    val language: PlayerLanguage? by chrome.dependencies.playerLanguage.collectAsStateWithLifecycle()
+    InPlayerLanguage(language = language) {
+        FramedScreen(isTownHome = isTownHome, doesScreenReadTown = doesScreenReadTown, chrome = chrome, modifier) {
+            content()
+        }
+    }
+}
+
+@Composable
+private fun FramedScreen(
+    isTownHome: Boolean,
+    doesScreenReadTown: Boolean,
+    chrome: SignedInChrome,
+    modifier: Modifier = Modifier,
+    content: @Composable () -> Unit,
+) {
     val framedInsets: WindowInsets =
         if (isTownHome) WindowInsets.ime else WindowInsets.ime.union(WindowInsets.statusBars)
     Column(modifier = modifier.fillMaxSize().background(MyGameTheme.colors.surface)) {
@@ -339,7 +357,7 @@ private fun SignedInFrame(
                 end = { RetainedWordsRing(towns = chrome.dependencies.towns, doesScreenReadTown = doesScreenReadTown) },
             ) {
                 MyGameBackLink(
-                    label = stringResource(R.string.navigation_town),
+                    label = chromeResource(R.string.navigation_town),
                     isEnabled = chrome.navigator.areLinksEnabled,
                     onClick = chrome.navigator::openTown,
                 )

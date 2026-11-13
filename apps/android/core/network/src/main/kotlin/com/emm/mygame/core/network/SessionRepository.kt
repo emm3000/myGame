@@ -22,6 +22,7 @@ interface SessionRepository {
 fun SessionRepository(
     baseUrl: String,
     tokenStore: TokenStore,
+    languages: PlayerLanguages,
     sessionEnds: SessionEnds,
     ioDispatcher: CoroutineDispatcher,
 ): SessionRepository =
@@ -30,6 +31,7 @@ fun SessionRepository(
         openingApi = accountApi(baseUrl = baseUrl),
         signOutApi = signOutApi(baseUrl = baseUrl, tokenStore = tokenStore, callTimeout = signOutTimeout),
         tokenStore = tokenStore,
+        languages = languages,
         ioDispatcher = ioDispatcher,
     )
 

@@ -22,6 +22,7 @@ internal class ApiSessionRepository(
     private val openingApi: DefaultApi,
     private val signOutApi: DefaultApi,
     private val tokenStore: TokenStore,
+    private val languages: PlayerLanguages,
     private val ioDispatcher: CoroutineDispatcher,
 ) : SessionRepository {
 
@@ -46,7 +47,8 @@ internal class ApiSessionRepository(
             RestoreResult.SignedOut
         } else {
             try {
-                restoredOrSignedOut(api.authSessionGet())
+                val read: LanguageRead = languages.sending()
+                restoredOrSignedOut(api.authSessionGet(), read)
             } catch (expectedOutage: IOException) {
                 RestoreResult.Unreachable
             } catch (expectedMalformedBody: SerializationException) {
@@ -96,6 +98,7 @@ internal class ApiSessionRepository(
         val session: NativeSession? = response.body()
         if (response.isSuccessful && session != null) {
             tokenStore.write(session.token)
+            languages.answered(languages.sending(), session.player)
             return SignUpResult.SignedIn(session.player.toSignedInPlayer())
         }
         if (response.code() !in clientErrorCodes) return SignUpResult.Unreachable
@@ -106,6 +109,7 @@ internal class ApiSessionRepository(
         val session: NativeSession? = response.body()
         if (response.isSuccessful && session != null) {
             tokenStore.write(session.token)
+            languages.answered(languages.sending(), session.player)
             return SignInResult.SignedIn(session.player.toSignedInPlayer())
         }
         val refusal: WireRefusal = response.wireRefusal() ?: return SignInResult.Unreachable
@@ -124,10 +128,13 @@ internal class ApiSessionRepository(
         else -> VerificationResendResult.Unreachable
     }
 
-    private fun restoredOrSignedOut(response: Response<Player>): RestoreResult {
+    private fun restoredOrSignedOut(response: Response<Player>, read: LanguageRead): RestoreResult {
         val player: Player? = response.body()
         return when {
-            response.isSuccessful && player != null -> RestoreResult.SignedIn(player.toSignedInPlayer())
+            response.isSuccessful && player != null -> {
+                languages.answered(read, player)
+                RestoreResult.SignedIn(player.toSignedInPlayer())
+            }
             response.code() == HttpURLConnection.HTTP_UNAUTHORIZED -> RestoreResult.SignedOut
             else -> RestoreResult.Unreachable
         }
@@ -144,6 +151,10 @@ private fun BareApiError.Kind?.toSignUpRefusal(): SignUpRefusal = when (this) {
     BareApiError.Kind.EmailTaken -> SignUpRefusal.EmailTaken
     BareApiError.Kind.MalformedEmail -> SignUpRefusal.MalformedEmail
     else -> SignUpRefusal.Unrecognized
+}
+
+private fun PlayerLanguages.answered(read: LanguageRead, player: Player) {
+    answered(read, player.scaffold.toPlayerScaffold(), player.chromePhase.toPlayerChromePhase())
 }
 
 private fun Player.toSignedInPlayer(): SignedInPlayer = SignedInPlayer(email = email, isEmailVerified = emailVerified)

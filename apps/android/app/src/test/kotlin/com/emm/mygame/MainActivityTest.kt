@@ -12,7 +12,15 @@ class MainActivityTest {
 
     @Test
     @Config(qualifiers = "en")
-    fun `draws in Spanish on an English phone, since every player's scaffold is es`() {
+    fun `reads English on an English phone before any player is read`() {
+        val activity: MainActivity = Robolectric.buildActivity(MainActivity::class.java).setup().get()
+
+        assertEquals("Town", activity.getString(R.string.navigation_town))
+    }
+
+    @Test
+    @Config(qualifiers = "es")
+    fun `reads Spanish on a Spanish phone before any player is read`() {
         val activity: MainActivity = Robolectric.buildActivity(MainActivity::class.java).setup().get()
 
         assertEquals("Pueblo", activity.getString(R.string.navigation_town))
