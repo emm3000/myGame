@@ -10,6 +10,7 @@ import { NextStepSchema } from './NextStep'
 import { ReleasedLessonStateSchema } from './ReleasedLessonState'
 import { ResourceAmountsSchema } from './ResourceAmounts'
 import { ResourceKindSchema } from './ResourceKind'
+import { SeasonDurationPercentSchema } from './SeasonDurationPercent'
 import { SeasonKindSchema } from './SeasonKind'
 import { SiteAddressSchema } from './SiteAddress'
 import { TerrainSchema } from './Terrain'
@@ -63,6 +64,10 @@ const TownSeasonSchema = z.strictObject({
   kind: SeasonKindSchema,
   year: WholeCountSchema.positive(),
   endsAt: InstantSchema,
+  productionPercent: z
+    .record(ResourceKindSchema, WholeCountSchema.positive())
+    .meta({ required: ResourceKindSchema.options }),
+  durationPercent: SeasonDurationPercentSchema,
 })
 
 const HiringOrderStateSchema = z.strictObject({

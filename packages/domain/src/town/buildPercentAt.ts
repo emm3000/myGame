@@ -1,12 +1,6 @@
-import { seasonAt } from '../season/seasonAt'
 import type { Instant } from '../time/Instant'
+import { seasonPercentsAt } from './seasonPercentsAt'
 import type { TownSettings } from './TownSettings'
 
-const UNCHANGED_PERCENT = 100
-
-export const buildPercentAt = (instant: Instant, settings: TownSettings): number => {
-  const season = seasonAt(instant, settings)
-  return season === undefined
-    ? UNCHANGED_PERCENT
-    : settings.seasons.durationPercent[season.kind].build
-}
+export const buildPercentAt = (instant: Instant, settings: TownSettings): number =>
+  seasonPercentsAt(instant, settings).durationPercent.build

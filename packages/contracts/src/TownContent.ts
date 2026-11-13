@@ -2,6 +2,7 @@ import { z } from 'zod'
 import { BuildingKindSchema } from './BuildingKind'
 import { ResourceAmountsSchema } from './ResourceAmounts'
 import { ResourceKindSchema } from './ResourceKind'
+import { SeasonDurationPercentSchema } from './SeasonDurationPercent'
 import { SeasonKindSchema } from './SeasonKind'
 import { TerrainSchema } from './Terrain'
 import { TipKindSchema } from './TipKind'
@@ -14,15 +15,7 @@ const TownSeasonsSchema = z.strictObject({
     SeasonKindSchema,
     z.record(ResourceKindSchema, WholeCountSchema.positive()),
   ),
-  durationPercent: z.record(
-    SeasonKindSchema,
-    z.strictObject({
-      build: WholeCountSchema.positive(),
-      study: WholeCountSchema.positive(),
-      hire: WholeCountSchema.positive(),
-      road: WholeCountSchema.positive(),
-    }),
-  ),
+  durationPercent: z.record(SeasonKindSchema, SeasonDurationPercentSchema),
 })
 
 const JobContentSchema = z.strictObject({
