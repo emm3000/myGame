@@ -126,6 +126,7 @@ const overview = (overrides: Record<string, unknown> = {}): Record<string, unkno
   lessons: [lessonOne],
   releasedLessons: [],
   dueHoldoutChecks: [],
+  hasBandStarted: false,
   skills: [earnedFood],
   lessonSlot: lessonUnderStudy,
   learning: { cap: 15, inLearning: 5, retainedWords: null },
@@ -335,6 +336,16 @@ describe('TownOverviewSchema', () => {
         (chromePhase) => TownOverviewSchema.parse(overview({ chromePhase })).chromePhase,
       ),
     ).toEqual(['scaffold', 'both', 'english'])
+  })
+
+  it('carries whether any band has started', () => {
+    expect(TownOverviewSchema.parse(overview({ hasBandStarted: true })).hasBandStarted).toBe(true)
+  })
+
+  it('rejects an overview that does not say whether a band has started', () => {
+    const { hasBandStarted: _, ...withoutBandStart } = overview()
+
+    expect(TownOverviewSchema.safeParse(withoutBandStart).success).toBe(false)
   })
 
   it('rejects a chrome phase the scaffold does not have', () => {

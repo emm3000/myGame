@@ -2639,6 +2639,9 @@
               "additionalProperties": false
             }
           },
+          "hasBandStarted": {
+            "type": "boolean"
+          },
           "skills": {
             "type": "array",
             "items": {
@@ -2755,6 +2758,7 @@
           "lessons",
           "releasedLessons",
           "dueHoldoutChecks",
+          "hasBandStarted",
           "skills",
           "lessonSlot",
           "learning",

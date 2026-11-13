@@ -20,6 +20,7 @@ export type {
   TakenHoldoutCheck,
 } from './holdout/HoldoutCheck'
 export type { HoldoutCheckView } from './holdout/HoldoutCheckView'
+export { hasBandStartedAt } from './holdout/hasBandStartedAt'
 export { HOLDOUT_CHECK_WEEKS, RELEASING_WEEK } from './holdout/holdoutCheckWeeks'
 export type { ReleasedLesson } from './holdout/ReleasedLesson'
 export {

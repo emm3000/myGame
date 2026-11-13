@@ -90,6 +90,7 @@ internal fun townOf(
     nextDueAt: Instant? = null,
     readAt: Instant = readInstant,
     releasedLessons: List<TownSnapshot.ReleasedLesson> = emptyList(),
+    hasBandStarted: Boolean = false,
 ): TownSnapshot = TownSnapshot(
     name = "Riverton",
     label = TownLabel.Town,
@@ -104,6 +105,7 @@ internal fun townOf(
     work = TownSnapshot.Work(slot = workSlot, waitingList = emptyList(), cap = 2),
     lessons = lessons,
     releasedLessons = releasedLessons,
+    hasBandStarted = hasBandStarted,
     skills = skills,
     learning = learning,
     lessonSlot = lessonSlot,

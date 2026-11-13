@@ -28,6 +28,7 @@ sealed interface SchoolUiState {
         val nextStepTime: NextStepTime?,
         val start: LessonRequest,
         val stop: LessonRequest,
+        val isHoldoutNoteShown: Boolean,
         val selected: LessonId? = null,
     ) : SchoolUiState {
 

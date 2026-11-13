@@ -109,6 +109,7 @@ class SchoolLookTest {
         nextStepTime = null,
         start = SchoolUiState.LessonRequest.Idle,
         stop = SchoolUiState.LessonRequest.Idle,
+        isHoldoutNoteShown = false,
     )
 
     private val everyLessonStudied: SchoolUiState.Content =

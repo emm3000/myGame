@@ -14,6 +14,7 @@ data class TownSnapshot(
     val work: Work,
     val lessons: List<Lesson>,
     val releasedLessons: List<ReleasedLesson>,
+    val hasBandStarted: Boolean,
     val skills: List<EarnedSkill>,
     val learning: Learning,
     val lessonSlot: LessonSlot?,

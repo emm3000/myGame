@@ -1679,6 +1679,24 @@ describe('the town route', () => {
       }))
     }
 
+    it('says no band has started for a player who started none', async () => {
+      const cookie = await signUpWithTown('ana@example.com')
+
+      const overview = await overviewOf(await readTown(cookie))
+
+      expect(overview.hasBandStarted).toBe(false)
+    })
+
+    it('says a band has started before its first check is due', async () => {
+      const cookie = await signUpWithTown('ana@example.com')
+      await bandOneStarted(7, 'none')
+
+      const overview = await overviewOf(await readTown(cookie))
+
+      expect(overview.dueHoldoutChecks).toEqual([])
+      expect(overview.hasBandStarted).toBe(true)
+    })
+
     it('names a due check as the next step 8 weeks after the band’s start', async () => {
       const cookie = await signUpWithTown('ana@example.com')
       await bandOneStarted(8, 'none')

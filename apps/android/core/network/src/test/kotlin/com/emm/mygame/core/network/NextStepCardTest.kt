@@ -114,6 +114,7 @@ class NextStepCardTest {
         work = TownSnapshot.Work(slot = null, waitingList = emptyList(), cap = 2),
         lessons = listOf(shelvedLessonOf()),
         releasedLessons = listOf(releasedLessonOf()),
+        hasBandStarted = false,
         skills = emptyList(),
         learning = TownSnapshot.Learning(cap = 10, inLearning = 0, retainedWords = null),
         lessonSlot = running?.let { lesson: LessonId ->

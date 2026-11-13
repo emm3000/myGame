@@ -139,6 +139,7 @@ class TownRegisteredTest {
         work = TownSnapshot.Work(slot = null, waitingList = emptyList(), cap = 2),
         lessons = listOf(lessonOf(runningLesson, isStudied = runningLesson in studied)),
         releasedLessons = listOf(releasedOf(isStudied = releasedLesson in studied)),
+        hasBandStarted = false,
         skills = emptyList(),
         learning = TownSnapshot.Learning(cap = 10, inLearning = 0, retainedWords = retained),
         lessonSlot = slot?.let { lesson: LessonId ->

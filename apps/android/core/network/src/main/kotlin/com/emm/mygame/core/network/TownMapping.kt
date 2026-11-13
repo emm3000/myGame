@@ -53,6 +53,7 @@ internal fun TownOverview.toSnapshot(): TownSnapshot? {
         work = townWork,
         lessons = townLessons.shelved,
         releasedLessons = townLessons.released,
+        hasBandStarted = hasBandStarted,
         skills = earnedSkills,
         learning = learning.toLearning(),
         lessonSlot = lessonSlot?.toLessonSlot(),
