@@ -34,6 +34,7 @@ internal fun TownSnapshot.contentAt(
         nextStepTime = card.countdown?.timeAt(now, gap),
         start = mutations.start,
         stop = mutations.stop,
+        isHoldoutNoteShown = hasBandStarted,
         selected = selected,
     )
 }

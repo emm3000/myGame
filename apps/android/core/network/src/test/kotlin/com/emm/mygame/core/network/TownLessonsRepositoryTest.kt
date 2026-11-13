@@ -72,6 +72,24 @@ class TownLessonsRepositoryTest {
     }
 
     @Test
+    fun `reads that no band has started`() = runTest {
+        api.enqueue(json(200, TOWN))
+
+        val read: TownSnapshot = (town().read() as TownReadResult.Read).town
+
+        assertEquals(false, read.hasBandStarted)
+    }
+
+    @Test
+    fun `reads that a band has started`() = runTest {
+        api.enqueue(json(200, TOWN.replace(""""hasBandStarted":false""", """"hasBandStarted":true""")))
+
+        val read: TownSnapshot = (town().read() as TownReadResult.Read).town
+
+        assertEquals(true, read.hasBandStarted)
+    }
+
+    @Test
     fun `reads each earned skill with its resource and percent`() = runTest {
         api.enqueue(json(200, TOWN))
 
@@ -270,7 +288,8 @@ class TownLessonsRepositoryTest {
                 """"storage":$FLAT,"school":$FLAT,"office":$FLAT},""" +
                 """"work":{"slot":null,"waitingList":[],"cap":2},""" +
                 """"hiring":$HIRING,"job":null,""" +
-                """"lessons":[$LESSON],"releasedLessons":[],"dueHoldoutChecks":[],"skills":[$SKILL],""" +
+                """"lessons":[$LESSON],"releasedLessons":[],"dueHoldoutChecks":[],""" +
+                """"hasBandStarted":false,"skills":[$SKILL],""" +
                 """"lessonSlot":{"lessonId":"lesson-1","startedAt":"2026-11-05T10:00:00.000Z",""" +
                 """"finishesAt":"2026-11-05T10:20:00.000Z"},""" +
                 """"learning":{"cap":10,"inLearning":8,"retainedWords":null},""" +

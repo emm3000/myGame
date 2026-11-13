@@ -36,6 +36,7 @@ import kotlin.time.Duration.Companion.hours
 import kotlin.time.Duration.Companion.minutes
 import kotlin.time.Duration.Companion.seconds
 import org.junit.Assert.assertEquals
+import org.junit.Assert.assertTrue
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -76,6 +77,7 @@ class SchoolScreenTest {
         nextStepTime = null,
         start = SchoolUiState.LessonRequest.Idle,
         stop = SchoolUiState.LessonRequest.Idle,
+        isHoldoutNoteShown = false,
     )
 
     private fun busySlot(remaining: Duration): SchoolUiState.SlotLine.Busy =
@@ -140,6 +142,32 @@ class SchoolScreenTest {
         }
 
         showing("Tienes pendiente una prueba de palabras de la banda 1, semana 8.")
+    }
+
+    @Test
+    fun `draws the holdout note once a band has started`() {
+        show(idleSchool.copy(isHoldoutNoteShown = true))
+
+        showing(HOLDOUT_NOTE)
+    }
+
+    @Test
+    fun `draws no holdout note while no band has started`() {
+        show(idleSchool)
+
+        composeRule.onAllNodesWithText(HOLDOUT_NOTE).assertCountEquals(0)
+    }
+
+    @Test
+    fun `draws the holdout note under the lessons`() {
+        show(idleSchool.copy(lessons = listOf(readyLesson, secondCard), isHoldoutNoteShown = true))
+
+        val lessonRow: SemanticsNode =
+            composeRule.onNodeWithText("Work and money", substring = true).fetchSemanticsNode()
+        val lessonsBottom: Float = lessonRow.positionInRoot.y + lessonRow.size.height
+        val noteTop: Float = composeRule.onNodeWithText(HOLDOUT_NOTE).fetchSemanticsNode().positionInRoot.y
+
+        assertTrue("note at $noteTop under the lessons ending at $lessonsBottom", noteTop > lessonsBottom)
     }
 
     @Test
@@ -643,6 +671,8 @@ class SchoolScreenTest {
 
     private companion object {
         const val READING_LINE: String = "Estamos leyendo tu pueblo…"
+        const val HOLDOUT_NOTE: String =
+            "1 de cada 10 palabras se aparta para dos pruebas posteriores y vuelve después de la última."
         const val REVEAL_MARGIN_MILLIS: Long = 50
     }
 }

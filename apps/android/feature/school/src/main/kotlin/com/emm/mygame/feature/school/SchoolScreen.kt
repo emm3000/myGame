@@ -183,9 +183,20 @@ private fun SchoolContent(
             )
         }
         LessonRows(content = content, onIntent = onIntent)
+        if (content.isHoldoutNoteShown) HoldoutNote()
         LessonSlotSection(slot = content.slot, stop = content.stop, onIntent = onIntent)
         SkillsSection(content = content)
     }
+}
+
+@Composable
+private fun HoldoutNote(modifier: Modifier = Modifier) {
+    MyGameText(
+        text = fixedCopyResource(R.string.school_holdout_note),
+        style = MyGameTypography.body,
+        color = MyGameTheme.colors.inkMuted,
+        modifier = modifier,
+    )
 }
 
 @Composable
@@ -357,6 +368,7 @@ private val previewContent: SchoolUiState.Content = SchoolUiState.Content(
     nextStepTime = null,
     start = SchoolUiState.LessonRequest.Idle,
     stop = SchoolUiState.LessonRequest.Idle,
+    isHoldoutNoteShown = true,
 )
 
 private val previewStudying: SchoolUiState.Content = previewContent.copy(

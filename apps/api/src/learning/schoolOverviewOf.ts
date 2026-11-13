@@ -9,6 +9,7 @@ import {
   glossOf,
   type Headword,
   type HeldCard,
+  hasBandStartedAt,
   heldOutWordsAt,
   isLessonPlacedOut,
   type LessonSlot,
@@ -36,7 +37,13 @@ import type { LessonLibrary, ShelvedLesson } from './LessonLibrary'
 
 type SchoolOverview = Pick<
   TownOverview,
-  'lessons' | 'releasedLessons' | 'skills' | 'lessonSlot' | 'learning' | 'chromePhase'
+  | 'lessons'
+  | 'releasedLessons'
+  | 'hasBandStarted'
+  | 'skills'
+  | 'lessonSlot'
+  | 'learning'
+  | 'chromePhase'
 >
 
 type LessonState = TownOverview['lessons'][number]
@@ -188,6 +195,7 @@ export const schoolOverviewOf = (
     releasedLessons: released.map((lesson) =>
       releasedLessonStateOf(lesson, learner, lessons, durationOf(lesson)),
     ),
+    hasBandStarted: hasBandStartedAt(bandStarts, at),
     skills: town.skills.map(({ lessonId, resource, ratePercent, earnedAt }) => ({
       lessonId,
       resource,

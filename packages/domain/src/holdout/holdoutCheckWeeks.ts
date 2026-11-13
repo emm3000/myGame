@@ -9,7 +9,7 @@ export const HOLDOUT_CHECK_WEEKS: ReadonlyArray<HoldoutCheckWeek> = [8, 24]
 
 export const RELEASING_WEEK: HoldoutCheckWeek = 24
 
-const isWeekReached = ({ startedAt }: BandStart, week: number, now: Instant): boolean =>
+export const isWeekReached = ({ startedAt }: BandStart, week: number, now: Instant): boolean =>
   now.epochMilliseconds - startedAt.epochMilliseconds >= week * MILLISECONDS_PER_WEEK
 
 const isClosed = (start: BandStart, week: HoldoutCheckWeek): boolean => {

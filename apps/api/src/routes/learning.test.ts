@@ -1333,6 +1333,14 @@ describe('the learning routes', () => {
       ])
     })
 
+    it('answers that a band has started on the start that draws it', async () => {
+      const player = await signUpWithATown()
+
+      const response = await startLesson(player, 'lesson-fixture-holdout')
+
+      expect(TownOverviewSchema.parse(await response.json()).hasBandStarted).toBe(true)
+    })
+
     it('draws nothing when a chrome lesson starts', async () => {
       const player = await signUpWithATown()
 

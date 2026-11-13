@@ -221,7 +221,8 @@ class TownGuidanceRepositoryTest {
                 """"storage":$FLAT,"school":$FLAT,"office":$FLAT},""" +
                 """"work":{"slot":null,"waitingList":[],"cap":2},""" +
                 """"hiring":$HIRING,"job":null,""" +
-                """"lessons":[],"releasedLessons":[],"dueHoldoutChecks":[],"skills":[],"lessonSlot":null,""" +
+                """"lessons":[],"releasedLessons":[],"dueHoldoutChecks":[],""" +
+                """"hasBandStarted":false,"skills":[],"lessonSlot":null,""" +
                 """"learning":{"cap":10,"inLearning":0,"retainedWords":null},""" +
                 """"nextStep":{"kind":"caughtUp","goal":null},"tip":null,""" +
                 """"chromePhase":"scaffold","nextDueAt":null,""" +

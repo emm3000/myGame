@@ -88,6 +88,20 @@ class SchoolViewModelTest {
     }
 
     @Test
+    fun `shows the holdout note once a band has started`() = runTest {
+        val viewModel: SchoolViewModel = schoolReading(townOf(hasBandStarted = true))
+
+        assertEquals(true, contentOf(viewModel).isHoldoutNoteShown)
+    }
+
+    @Test
+    fun `hides the holdout note while no band has started`() = runTest {
+        val viewModel: SchoolViewModel = schoolReading(townOf(hasBandStarted = false))
+
+        assertEquals(false, contentOf(viewModel).isHoldoutNoteShown)
+    }
+
+    @Test
     fun `draws the level of the school`() = runTest {
         val viewModel: SchoolViewModel = schoolReading(townOf(schoolLevel = 3))
 

@@ -120,6 +120,7 @@ export const TownOverviewSchema = z
     lessons: z.array(LessonStateSchema),
     releasedLessons: z.array(ReleasedLessonStateSchema),
     dueHoldoutChecks: z.array(DueHoldoutCheckStateSchema),
+    hasBandStarted: z.boolean(),
     skills: z.array(EarnedSkillSchema),
     lessonSlot: LessonUnderStudySchema.nullable(),
     learning: LearningLoadSchema,
