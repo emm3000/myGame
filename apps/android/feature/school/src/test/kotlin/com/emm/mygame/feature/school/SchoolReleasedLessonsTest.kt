@@ -184,6 +184,7 @@ class SchoolReleasedLessonsTest {
             .fetchSemanticsNode().config[SemanticsActions.GetTextLayoutResult].action?.invoke(results)
 
         val layout: TextLayoutResult = results.first()
+        assertTrue(layout.lineCount > 1)
         assertEquals(
             layout.getLineForOffset(secondSetTitle.indexOf("grupo")),
             layout.getLineForOffset(secondSetTitle.length - 1),
@@ -205,6 +206,15 @@ class SchoolReleasedLessonsTest {
             .onAllNodesWithText(secondSetTitle, useUnmergedTree = true)
             .assertCountEquals(1)
         composeRule.onNodeWithText(firstSetTitle).assertExists()
+    }
+
+    @Test
+    fun `keeps the released lesson's row while a chosen lesson takes the next step's place`() {
+        val releasedNext: TownSnapshot =
+            shelvedAndReleased.copy(nextStep = NextStep.ReleasedLesson(secondSet, PlacementBand.Second, 2))
+        show(contentOf(releasedNext).copy(selected = firstLesson))
+
+        composeRule.onAllNodesWithText(secondSetTitle, useUnmergedTree = true).assertCountEquals(1)
     }
 
     @Test
