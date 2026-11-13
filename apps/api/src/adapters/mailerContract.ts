@@ -26,17 +26,20 @@ export const mailerContract = (adapter: string, arrange: () => Promise<MailerFix
     it('delivers the subject and the text as given', async () => {
       const { mailer, deliveredTo } = await arrange()
 
-      await mailer.send(verificationMail)
+      const delivery = await mailer.send(verificationMail)
 
-      expect(await deliveredTo(verificationMail.to)).toEqual([verificationMail])
+      expect([delivery, await deliveredTo(verificationMail.to)]).toEqual([
+        'sent',
+        [verificationMail],
+      ])
     })
 
     it('delivers nothing to another recipient', async () => {
       const { mailer, deliveredTo } = await arrange()
 
-      await mailer.send(verificationMail)
+      const delivery = await mailer.send(verificationMail)
 
-      expect(await deliveredTo('sancho@example.com')).toEqual([])
+      expect([delivery, await deliveredTo('sancho@example.com')]).toEqual(['sent', []])
     })
 
     it('answers failed when the server cannot be reached', async () => {
