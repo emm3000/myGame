@@ -1,8 +1,6 @@
 package com.emm.mygame.feature.town
 
-import androidx.compose.runtime.Composable
 import androidx.compose.ui.graphics.vector.ImageVector
-import androidx.compose.ui.res.stringResource
 import com.emm.mygame.core.designsystem.MyGameIcons
 import com.emm.mygame.core.network.SeasonKind
 import com.emm.mygame.core.network.TownBuildingKind
@@ -11,7 +9,7 @@ import com.emm.mygame.core.network.TownResourceKind
 import com.emm.mygame.core.network.TownWorkRefusal
 import com.emm.mygame.core.projection.FinishClock
 import com.emm.mygame.core.projection.finishClockOf
-import com.emm.mygame.core.ui.icuStringResource
+import com.emm.mygame.core.ui.CopyReader
 import java.time.ZoneId
 import java.time.format.DateTimeFormatter
 import java.util.Locale
@@ -28,11 +26,12 @@ private const val SECONDS_PER_HOUR: Long = 3600
 
 private const val MINUTES_PER_HOUR: Long = 60
 
-private val spanish: Locale = Locale.forLanguageTag("es")
+private const val SPANISH_LANGUAGE: String = "es"
 
 private val clockFormat: DateTimeFormatter = DateTimeFormatter.ofPattern("HH:mm")
 
-private val dayFormat: DateTimeFormatter = DateTimeFormatter.ofPattern("d MMM", spanish)
+private fun dayFormatIn(locale: Locale): DateTimeFormatter =
+    DateTimeFormatter.ofPattern(if (locale.language == SPANISH_LANGUAGE) "d MMM" else "MMM d", locale)
 
 internal fun placeNameOf(kind: TownBuildingKind): Int = when (kind) {
     TownBuildingKind.Homes -> R.string.town_place_homes
@@ -72,61 +71,61 @@ internal fun seasonNameOf(kind: SeasonKind): Int = when (kind) {
     SeasonKind.Winter -> R.string.town_season_winter
 }
 
-internal fun capitalized(name: String): String = name.replaceFirstChar { first: Char -> first.titlecase(spanish) }
+internal fun CopyReader.capitalized(name: String): String =
+    name.replaceFirstChar { first: Char -> first.titlecase(locale) }
+
+internal fun CopyReader.shortMarked(spoken: String, isShort: Boolean): String =
+    if (isShort) spoken + text(R.string.town_short_mark) else spoken
 
 internal fun wholeSecondsOf(duration: Duration): Long =
     ceil(duration.toDouble(DurationUnit.SECONDS)).toLong()
 
-@Composable
-internal fun workRefusalLineOf(refusal: TownWorkRefusal): String = when (refusal) {
-    is TownWorkRefusal.WaitingListFull ->
-        icuStringResource(R.string.town_refusal_waiting_list_full, "cap" to refusal.cap)
+internal fun CopyReader.workRefusalLineOf(refusal: TownWorkRefusal): String = when (refusal) {
+    is TownWorkRefusal.WaitingListFull -> text(R.string.town_refusal_waiting_list_full, "cap" to refusal.cap)
     is TownWorkRefusal.TopLevelReached ->
-        icuStringResource(R.string.town_refusal_top_level_reached, "level" to refusal.level.toString())
-    is TownWorkRefusal.NotEnoughPeople -> icuStringResource(
+        text(R.string.town_refusal_top_level_reached, "level" to refusal.level.toString())
+    is TownWorkRefusal.NotEnoughPeople -> text(
         R.string.town_refusal_not_enough_people,
         "requiredPeople" to refusal.required,
         "freePeople" to refusal.free.toString(),
     )
-    TownWorkRefusal.NotEnoughResources -> stringResource(R.string.town_refusal_not_enough_resources)
+    TownWorkRefusal.NotEnoughResources -> text(R.string.town_refusal_not_enough_resources)
     is TownWorkRefusal.BuildingWorkNotFound ->
-        icuStringResource(R.string.town_refusal_building_work_not_found, "level" to refusal.level.toString())
-    TownWorkRefusal.TownNotFound -> stringResource(R.string.town_refusal_town_not_found)
-    TownWorkRefusal.Unrecognized -> stringResource(R.string.town_refusal_unexpected)
+        text(R.string.town_refusal_building_work_not_found, "level" to refusal.level.toString())
+    TownWorkRefusal.TownNotFound -> text(R.string.town_refusal_town_not_found)
+    TownWorkRefusal.Unrecognized -> text(R.string.town_refusal_unexpected)
 }
 
-@Composable
-internal fun hiringRefusalLineOf(refusal: TownHiringRefusal): String = when (refusal) {
-    is TownHiringRefusal.OfficeTooLow -> icuStringResource(
+internal fun CopyReader.hiringRefusalLineOf(refusal: TownHiringRefusal): String = when (refusal) {
+    is TownHiringRefusal.OfficeTooLow -> text(
         R.string.town_refusal_office_too_low,
         "officeLevel" to refusal.officeLevel.toString(),
         "requiredOfficeLevel" to refusal.requiredOfficeLevel.toString(),
     )
-    TownHiringRefusal.HiringSlotBusy -> stringResource(R.string.town_refusal_hiring_slot_busy)
-    is TownHiringRefusal.NotEnoughPeople -> icuStringResource(
+    TownHiringRefusal.HiringSlotBusy -> text(R.string.town_refusal_hiring_slot_busy)
+    is TownHiringRefusal.NotEnoughPeople -> text(
         R.string.town_refusal_hiring_not_enough_people,
         "requiredPeople" to refusal.required,
         "freePeople" to refusal.free.toString(),
     )
-    TownHiringRefusal.NotEnoughResources -> stringResource(R.string.town_refusal_hiring_not_enough_resources)
-    TownHiringRefusal.HiringOrderNotFound -> stringResource(R.string.town_refusal_hiring_order_not_found)
-    TownHiringRefusal.TownNotFound -> stringResource(R.string.town_refusal_town_not_found)
-    TownHiringRefusal.Unrecognized -> stringResource(R.string.town_refusal_unexpected)
+    TownHiringRefusal.NotEnoughResources -> text(R.string.town_refusal_hiring_not_enough_resources)
+    TownHiringRefusal.HiringOrderNotFound -> text(R.string.town_refusal_hiring_order_not_found)
+    TownHiringRefusal.TownNotFound -> text(R.string.town_refusal_town_not_found)
+    TownHiringRefusal.Unrecognized -> text(R.string.town_refusal_unexpected)
 }
 
-@Composable
-internal fun durationLabelOf(duration: Duration): String {
+internal fun CopyReader.durationLabelOf(duration: Duration): String {
     val whole: Long = wholeSecondsOf(duration)
     val hours: Long = whole / SECONDS_PER_HOUR
     val minutes: Long = whole % SECONDS_PER_HOUR / SECONDS_PER_MINUTE
     return when {
-        hours == 0L -> icuStringResource(
+        hours == 0L -> text(
             R.string.town_duration_minutes_seconds,
             "minutes" to minutes.toString(),
             "seconds" to (whole % SECONDS_PER_MINUTE).toString().padStart(2, '0'),
         )
-        minutes == 0L -> icuStringResource(R.string.town_duration_hours, "hours" to hours.toString())
-        else -> icuStringResource(
+        minutes == 0L -> text(R.string.town_duration_hours, "hours" to hours.toString())
+        else -> text(
             R.string.town_duration_hours_minutes,
             "hours" to hours.toString(),
             "minutes" to minutes.toString(),
@@ -134,47 +133,42 @@ internal fun durationLabelOf(duration: Duration): String {
     }
 }
 
-@Composable
-internal fun timeLeftLabelOf(remaining: Duration): String {
+internal fun CopyReader.timeLeftLabelOf(remaining: Duration): String {
     val whole: Long = wholeSecondsOf(remaining)
     if (whole < SECONDS_PER_MINUTE || whole >= SECONDS_PER_HOUR) return durationLabelOf(whole.seconds)
-    return icuStringResource(R.string.town_duration_minutes, "minutes" to (whole / SECONDS_PER_MINUTE).toString())
+    return text(R.string.town_duration_minutes, "minutes" to (whole / SECONDS_PER_MINUTE).toString())
 }
 
-@Composable
-internal fun finishLabelOf(remaining: Duration, finishesAt: Instant): String {
+internal fun CopyReader.finishLabelOf(remaining: Duration, finishesAt: Instant): String {
     val timeLeft: String = timeLeftLabelOf(remaining)
     if (wholeSecondsOf(remaining).seconds <= 1.hours) return timeLeft
     val finish: FinishClock = finishClockOf(finishesAt, remaining, ZoneId.systemDefault())
-    return icuStringResource(R.string.town_finish_with_clock, "timeLeft" to timeLeft, "clock" to clockLabelOf(finish))
+    return text(R.string.town_finish_with_clock, "timeLeft" to timeLeft, "clock" to clockLabelOf(finish))
 }
 
-@Composable
-internal fun readyLabelOf(ready: TownUiState.ReadyTime): String {
+internal fun CopyReader.readyLabelOf(ready: TownUiState.ReadyTime): String {
     val minutesLeft: Long = ceil(wholeSecondsOf(ready.remaining).toDouble() / SECONDS_PER_MINUTE).toLong()
     if (minutesLeft < MINUTES_PER_HOUR) {
-        val timeLeft: String = icuStringResource(R.string.town_duration_minutes, "minutes" to minutesLeft.toString())
-        return icuStringResource(R.string.town_ready_in, "timeLeft" to timeLeft)
+        val timeLeft: String = text(R.string.town_duration_minutes, "minutes" to minutesLeft.toString())
+        return text(R.string.town_ready_in, "timeLeft" to timeLeft)
     }
     val finish: FinishClock = finishClockOf(ready.readyAt, ready.remaining, ZoneId.systemDefault())
-    return icuStringResource(R.string.town_ready_at, "clock" to clockLabelOf(finish))
+    return text(R.string.town_ready_at, "clock" to clockLabelOf(finish))
 }
 
-@Composable
-internal fun fillLabelOf(fill: TownUiState.FillTime): String {
+internal fun CopyReader.fillLabelOf(fill: TownUiState.FillTime): String {
     val finish: FinishClock = finishClockOf(fill.fullAt, fill.remaining, ZoneId.systemDefault())
-    return icuStringResource(R.string.town_full_at, "clock" to clockLabelOf(finish))
+    return text(R.string.town_full_at, "clock" to clockLabelOf(finish))
 }
 
-@Composable
-private fun clockLabelOf(finish: FinishClock): String {
+private fun CopyReader.clockLabelOf(finish: FinishClock): String {
     val time: String = finish.at.format(clockFormat)
     return when (finish.day) {
         FinishClock.Day.Today -> time
-        FinishClock.Day.Tomorrow -> icuStringResource(R.string.town_finish_tomorrow, "time" to time)
-        FinishClock.Day.Later -> icuStringResource(
+        FinishClock.Day.Tomorrow -> text(R.string.town_finish_tomorrow, "time" to time)
+        FinishClock.Day.Later -> text(
             R.string.town_finish_day,
-            "day" to finish.at.format(dayFormat),
+            "day" to finish.at.format(dayFormatIn(locale)),
             "time" to time,
         )
     }

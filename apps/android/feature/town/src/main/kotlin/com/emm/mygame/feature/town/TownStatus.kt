@@ -9,19 +9,28 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.testTag
-import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.LiveRegionMode
 import androidx.compose.ui.semantics.liveRegion
 import androidx.compose.ui.semantics.semantics
 import com.emm.mygame.core.designsystem.MyGameCountdownGround
 import com.emm.mygame.core.designsystem.MyGameCountdownLine
 import com.emm.mygame.core.designsystem.MyGameOutlinedButton
+import com.emm.mygame.core.designsystem.MyGamePreviewSurface
 import com.emm.mygame.core.designsystem.MyGameSpacing
 import com.emm.mygame.core.designsystem.MyGameText
 import com.emm.mygame.core.designsystem.MyGameTheme
 import com.emm.mygame.core.designsystem.MyGameTypography
+import com.emm.mygame.core.designsystem.PreviewMyGame
 import com.emm.mygame.core.network.LessonId
-import com.emm.mygame.core.ui.icuStringResource
+import com.emm.mygame.core.ui.ChromePhase
+import com.emm.mygame.core.ui.CopyLanguage
+import com.emm.mygame.core.ui.PlayerCopy
+import com.emm.mygame.core.ui.ProvideCopyLanguage
+import com.emm.mygame.core.ui.ScaffoldLanguage
+import com.emm.mygame.core.ui.chromeResource
+import com.emm.mygame.core.ui.rememberPlayerCopy
+import kotlin.time.Duration.Companion.minutes
+import kotlin.time.Instant
 
 const val TOWN_STATUS: String = "town_status"
 
@@ -55,9 +64,10 @@ fun TownStatus(
 
 @Composable
 private fun RunningLessonLine(running: TownStatusUiState.RunningLesson, modifier: Modifier = Modifier) {
+    val copy: PlayerCopy = rememberPlayerCopy()
     MyGameCountdownLine(
-        words = icuStringResource(R.string.town_next_lesson_ready_in, "number" to running.number.toString()),
-        time = finishLabelOf(running.remaining, running.finishesAt),
+        words = copy.chrome(R.string.town_next_lesson_ready_in, "number" to running.number.toString()),
+        time = copy.chrome { finishLabelOf(running.remaining, running.finishesAt) },
         ground = MyGameCountdownGround.Paper,
         modifier = modifier,
     )
@@ -70,17 +80,17 @@ private fun FinishNoticeRows(
     onOpen: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
-    val waiting: String = stringResource(R.string.town_waiting)
+    val waiting: String = chromeResource(R.string.town_waiting).spoken
     Column(verticalArrangement = Arrangement.spacedBy(MyGameSpacing.step2), modifier = modifier) {
         MyGameText(
-            text = icuStringResource(R.string.town_status_finish_line, "number" to notice.number.toString()),
+            label = chromeResource(R.string.town_status_finish_line, "number" to notice.number.toString()),
             style = MyGameTypography.label,
             color = MyGameTheme.colors.ink,
             modifier = Modifier.semantics { liveRegion = LiveRegionMode.Polite },
         )
         Row(horizontalArrangement = Arrangement.spacedBy(MyGameSpacing.step2)) {
             MyGameOutlinedButton(
-                label = stringResource(
+                label = chromeResource(
                     if (notice.firstUnread == null) R.string.town_next_start_reviews else R.string.town_next_read_words,
                 ),
                 isBusy = false,
@@ -89,11 +99,33 @@ private fun FinishNoticeRows(
                 modifier = Modifier.weight(1f),
             )
             MyGameOutlinedButton(
-                label = stringResource(R.string.town_status_finish_close),
+                label = chromeResource(R.string.town_status_finish_close),
                 isBusy = false,
                 busyDescription = waiting,
                 onClick = onClose,
                 modifier = Modifier.weight(1f),
+            )
+        }
+    }
+}
+
+@PreviewMyGame
+@Composable
+private fun TownStatusBothPreview() {
+    ProvideCopyLanguage(language = CopyLanguage(ScaffoldLanguage.Spanish, ChromePhase.Both)) {
+        MyGamePreviewSurface {
+            TownStatus(
+                state = TownStatusUiState(
+                    running = TownStatusUiState.RunningLesson(
+                        number = 3,
+                        remaining = 4.minutes,
+                        finishesAt = Instant.parse("2026-11-12T15:04:00Z"),
+                    ),
+                    notice = TownStatusUiState.FinishNotice(number = 2, firstUnread = null),
+                ),
+                onNoticeClose = {},
+                onLessonOpen = {},
+                onReviewsOpen = {},
             )
         }
     }

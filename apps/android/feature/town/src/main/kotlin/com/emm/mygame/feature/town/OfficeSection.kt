@@ -7,7 +7,6 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.heading
 import androidx.compose.ui.semantics.semantics
 import com.emm.mygame.core.designsystem.MyGameCard
@@ -24,7 +23,9 @@ import com.emm.mygame.core.designsystem.MyGameTypography
 import com.emm.mygame.core.designsystem.withTabularFigures
 import com.emm.mygame.core.network.TownBuildingKind
 import com.emm.mygame.core.network.TownHireKind
-import com.emm.mygame.core.ui.icuStringResource
+import com.emm.mygame.core.ui.PlayerCopy
+import com.emm.mygame.core.ui.chromeResource
+import com.emm.mygame.core.ui.rememberPlayerCopy
 
 @Composable
 internal fun OfficeSection(
@@ -34,7 +35,7 @@ internal fun OfficeSection(
 ) {
     Column(verticalArrangement = Arrangement.spacedBy(MyGameSpacing.step3), modifier = modifier) {
         MyGameText(
-            text = stringResource(placeNameOf(TownBuildingKind.Office)),
+            label = chromeResource(placeNameOf(TownBuildingKind.Office)),
             style = MyGameTypography.heading,
             color = MyGameTheme.colors.ink,
             modifier = Modifier.semantics { heading() },
@@ -47,7 +48,7 @@ internal fun OfficeSection(
                 HiringHeading()
                 when (val hiring: TownUiState.HiringLine = office.hiring) {
                     TownUiState.HiringLine.Idle -> MyGameText(
-                        text = stringResource(R.string.town_office_idle),
+                        label = chromeResource(R.string.town_office_idle),
                         style = MyGameTypography.caption,
                         color = MyGameTheme.colors.inkMuted,
                     )
@@ -75,7 +76,7 @@ private fun HiringHeading(modifier: Modifier = Modifier) {
     ) {
         MyGameIcon(icon = MyGameIcons.slot, tint = MyGameTheme.colors.inkMuted)
         MyGameText(
-            text = stringResource(R.string.town_office_hiring),
+            label = chromeResource(R.string.town_office_hiring),
             style = MyGameTypography.heading,
             color = MyGameTheme.colors.ink,
             modifier = Modifier.semantics { heading() },
@@ -91,13 +92,13 @@ private fun HiringTitle(hire: TownHireKind, count: Int, delivered: Int, modifier
         modifier = modifier,
     ) {
         MyGameText(
-            text = stringResource(hireNameOf(hire)),
+            label = chromeResource(hireNameOf(hire)),
             style = MyGameTypography.title,
             color = MyGameTheme.colors.ink,
             modifier = Modifier.weight(1f),
         )
         MyGameText(
-            text = icuStringResource(
+            label = chromeResource(
                 R.string.town_office_delivered,
                 "delivered" to delivered.toString(),
                 "count" to count.toString(),
@@ -118,7 +119,7 @@ private fun DoneHiring(hiring: TownUiState.HiringLine.Done, modifier: Modifier =
         ) {
             MyGameIcon(icon = MyGameIcons.check, tint = MyGameTheme.colors.ink)
             MyGameText(
-                text = stringResource(R.string.town_office_done),
+                label = chromeResource(R.string.town_office_done),
                 style = MyGameTypography.caption,
                 color = MyGameTheme.colors.ink,
             )
@@ -133,24 +134,25 @@ private fun BusyHiring(
     onIntent: (TownIntent) -> Unit,
     modifier: Modifier = Modifier,
 ) {
+    val copy: PlayerCopy = rememberPlayerCopy()
     Column(verticalArrangement = Arrangement.spacedBy(MyGameSpacing.step3), modifier = modifier) {
         HiringTitle(hire = hiring.target.hire, count = hiring.count, delivered = hiring.delivered)
-        RunningCountdown(text = finishLabelOf(hiring.remaining, hiring.finishesAt))
+        RunningCountdown(label = copy.chrome { finishLabelOf(hiring.remaining, hiring.finishesAt) })
         MyGameTrack(
             filled = 1f - (hiring.remaining / hiring.total).toFloat(),
             color = MyGameTheme.colors.action,
         )
         MyGameText(
-            text = stringResource(R.string.town_office_refund),
+            label = copy.chrome(R.string.town_office_refund),
             style = MyGameTypography.caption,
             color = MyGameTheme.colors.inkMuted,
         )
         MyGameOutlinedButton(
-            label = stringResource(R.string.town_office_stop),
+            label = copy.chrome(R.string.town_office_stop),
             isBusy = stop == TownUiState.HireStopStatus.Waiting,
-            busyDescription = stringResource(R.string.town_waiting),
+            busyDescription = copy.chrome(R.string.town_waiting).spoken,
             onClick = { onIntent(TownIntent.StopHiringTapped(hiring.target)) },
-            accessibleName = stringResource(stopOfHireOf(hiring.target.hire)),
+            accessibleName = copy.chrome(stopOfHireOf(hiring.target.hire)).spoken,
         )
         StopHiringAnswer(stop = stop)
     }
@@ -158,9 +160,10 @@ private fun BusyHiring(
 
 @Composable
 private fun StopHiringAnswer(stop: TownUiState.HireStopStatus, modifier: Modifier = Modifier) {
+    val copy: PlayerCopy = rememberPlayerCopy()
     val message: String? = when (stop) {
-        is TownUiState.HireStopStatus.Refused -> hiringRefusalLineOf(stop.refusal)
-        TownUiState.HireStopStatus.Unreachable -> stringResource(R.string.town_refusal_unexpected)
+        is TownUiState.HireStopStatus.Refused -> copy.fixedCopy { hiringRefusalLineOf(stop.refusal) }
+        TownUiState.HireStopStatus.Unreachable -> copy.fixedCopy(R.string.town_refusal_unexpected)
         TownUiState.HireStopStatus.Idle, TownUiState.HireStopStatus.Waiting -> null
     }
     if (message != null) MyGameInlineAlert(message = message, modifier = modifier)

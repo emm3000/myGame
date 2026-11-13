@@ -10,13 +10,13 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.testTag
-import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.heading
 import androidx.compose.ui.semantics.semantics
 import com.emm.mygame.core.designsystem.MyGameCard
 import com.emm.mygame.core.designsystem.MyGameIcon
 import com.emm.mygame.core.designsystem.MyGameIcons
 import com.emm.mygame.core.designsystem.MyGameInlineAlert
+import com.emm.mygame.core.designsystem.MyGameLabel
 import com.emm.mygame.core.designsystem.MyGameOutlinedButton
 import com.emm.mygame.core.designsystem.MyGameSectionTitle
 import com.emm.mygame.core.designsystem.MyGameSpacing
@@ -25,7 +25,9 @@ import com.emm.mygame.core.designsystem.MyGameTheme
 import com.emm.mygame.core.designsystem.MyGameTrack
 import com.emm.mygame.core.designsystem.MyGameTypography
 import com.emm.mygame.core.designsystem.withTabularFigures
-import com.emm.mygame.core.ui.icuStringResource
+import com.emm.mygame.core.ui.PlayerCopy
+import com.emm.mygame.core.ui.chromeResource
+import com.emm.mygame.core.ui.rememberPlayerCopy
 
 internal const val WORK_DONE_ICON: String = "work_done_icon"
 
@@ -44,7 +46,7 @@ internal fun BuildingWorkSection(
                 WorkHeading()
                 when (val slot: TownUiState.SlotLine = content.slot) {
                     TownUiState.SlotLine.Idle -> MyGameText(
-                        text = stringResource(R.string.town_work_idle),
+                        label = chromeResource(R.string.town_work_idle),
                         style = MyGameTypography.caption,
                         color = MyGameTheme.colors.inkMuted,
                     )
@@ -66,7 +68,7 @@ private fun WorkHeading(modifier: Modifier = Modifier) {
     ) {
         MyGameIcon(icon = MyGameIcons.slot, tint = MyGameTheme.colors.inkMuted)
         MyGameText(
-            text = stringResource(R.string.town_work_title),
+            label = chromeResource(R.string.town_work_title),
             style = MyGameTypography.heading,
             color = MyGameTheme.colors.ink,
             modifier = Modifier.semantics { heading() },
@@ -88,7 +90,7 @@ private fun DoneSlot(slot: TownUiState.SlotLine.Done, modifier: Modifier = Modif
                 modifier = Modifier.testTag(WORK_DONE_ICON),
             )
             MyGameText(
-                text = stringResource(R.string.town_work_done),
+                label = chromeResource(R.string.town_work_done),
                 style = MyGameTypography.caption,
                 color = MyGameTheme.colors.ink,
             )
@@ -106,7 +108,7 @@ private fun BusySlot(
     val target: TownUiState.WorkTarget = TownUiState.WorkTarget(slot.building, slot.level)
     Column(verticalArrangement = Arrangement.spacedBy(MyGameSpacing.step3), modifier = modifier) {
         WorkTitle(target = target)
-        RunningCountdown(text = finishLabelOf(slot.remaining, slot.finishesAt))
+        RunningCountdown(label = rememberPlayerCopy().chrome { finishLabelOf(slot.remaining, slot.finishesAt) })
         MyGameTrack(
             filled = 1f - (slot.remaining / slot.total).toFloat(),
             color = MyGameTheme.colors.action,
@@ -124,11 +126,13 @@ private fun WaitingList(content: TownUiState.Content, onIntent: (TownIntent) -> 
             modifier = Modifier.padding(vertical = MyGameSpacing.step4),
         ) {
             MyGameSectionTitle(
-                text = icuStringResource(
-                    R.string.town_work_waiting_list_summary,
-                    "title" to stringResource(R.string.town_work_waiting_list),
-                    "finish" to finishLabelOf(last.remaining, last.finishesAt),
-                ),
+                label = rememberPlayerCopy().chrome {
+                    text(
+                        R.string.town_work_waiting_list_summary,
+                        "title" to text(R.string.town_work_waiting_list),
+                        "finish" to finishLabelOf(last.remaining, last.finishesAt),
+                    )
+                },
             )
             content.waitingList.forEach { waiting: TownUiState.WaitingLine ->
                 WaitingItem(waiting = waiting, stop = content.stop, onIntent = onIntent)
@@ -156,14 +160,16 @@ private fun WaitingItem(
                 horizontalArrangement = Arrangement.spacedBy(MyGameSpacing.step2),
             ) {
                 MyGameText(
-                    text = stringResource(placeNameOf(target.building)),
+                    label = chromeResource(placeNameOf(target.building)),
                     style = MyGameTypography.body,
                     color = MyGameTheme.colors.ink,
                 )
                 WorkLevel(level = target.level)
             }
             if (waiting.remaining.isPositive()) {
-                RunningCountdown(text = finishLabelOf(waiting.remaining, waiting.finishesAt))
+                RunningCountdown(
+                    label = rememberPlayerCopy().chrome { finishLabelOf(waiting.remaining, waiting.finishesAt) },
+                )
             } else {
                 FinishedCountdown()
             }
@@ -180,7 +186,7 @@ private fun WorkTitle(target: TownUiState.WorkTarget, modifier: Modifier = Modif
         modifier = modifier,
     ) {
         MyGameText(
-            text = stringResource(placeNameOf(target.building)),
+            label = chromeResource(placeNameOf(target.building)),
             style = MyGameTypography.title,
             color = MyGameTheme.colors.ink,
             modifier = Modifier.weight(1f),
@@ -192,7 +198,7 @@ private fun WorkTitle(target: TownUiState.WorkTarget, modifier: Modifier = Modif
 @Composable
 private fun WorkLevel(level: Int, modifier: Modifier = Modifier) {
     MyGameText(
-        text = icuStringResource(R.string.town_level, "level" to level.toString()),
+        label = chromeResource(R.string.town_level, "level" to level.toString()),
         style = MyGameTypography.caption.withTabularFigures(),
         color = MyGameTheme.colors.inkMuted,
         modifier = modifier,
@@ -200,7 +206,7 @@ private fun WorkLevel(level: Int, modifier: Modifier = Modifier) {
 }
 
 @Composable
-internal fun RunningCountdown(text: String, modifier: Modifier = Modifier) {
+internal fun RunningCountdown(label: MyGameLabel, modifier: Modifier = Modifier) {
     Row(
         verticalAlignment = Alignment.CenterVertically,
         horizontalArrangement = Arrangement.spacedBy(MyGameSpacing.step2),
@@ -208,7 +214,7 @@ internal fun RunningCountdown(text: String, modifier: Modifier = Modifier) {
     ) {
         MyGameIcon(icon = MyGameIcons.hourglass, tint = MyGameTheme.colors.inkMuted)
         MyGameText(
-            text = text,
+            label = label,
             style = MyGameTypography.heading.withTabularFigures(),
             color = MyGameTheme.colors.ink,
         )
@@ -224,7 +230,7 @@ private fun FinishedCountdown(modifier: Modifier = Modifier) {
     ) {
         MyGameIcon(icon = MyGameIcons.hourglass, tint = MyGameTheme.colors.ink)
         MyGameText(
-            text = stringResource(R.string.town_work_ready),
+            label = chromeResource(R.string.town_work_ready),
             style = MyGameTypography.caption,
             color = MyGameTheme.colors.ink,
         )
@@ -238,22 +244,25 @@ private fun StopControl(
     onIntent: (TownIntent) -> Unit,
     modifier: Modifier = Modifier,
 ) {
+    val copy: PlayerCopy = rememberPlayerCopy()
     Column(verticalArrangement = Arrangement.spacedBy(MyGameSpacing.step2), modifier = modifier) {
         MyGameText(
-            text = stringResource(R.string.town_work_refund),
+            label = copy.chrome(R.string.town_work_refund),
             style = MyGameTypography.caption,
             color = MyGameTheme.colors.inkMuted,
         )
         MyGameOutlinedButton(
-            label = stringResource(R.string.town_work_stop),
+            label = copy.chrome(R.string.town_work_stop),
             isBusy = stop is TownUiState.StopStatus.Waiting,
-            busyDescription = stringResource(R.string.town_waiting),
+            busyDescription = copy.chrome(R.string.town_waiting).spoken,
             onClick = { onIntent(TownIntent.StopTapped(target.building, target.level)) },
-            accessibleName = icuStringResource(
-                R.string.town_work_stop_of,
-                "place" to stringResource(placeNameOf(target.building)),
-                "level" to target.level.toString(),
-            ),
+            accessibleName = copy.chrome {
+                text(
+                    R.string.town_work_stop_of,
+                    "place" to text(placeNameOf(target.building)),
+                    "level" to target.level.toString(),
+                )
+            }.spoken,
         )
         StopAnswer(target = target, stop = stop)
     }
@@ -261,10 +270,12 @@ private fun StopControl(
 
 @Composable
 private fun StopAnswer(target: TownUiState.WorkTarget, stop: TownUiState.StopStatus, modifier: Modifier = Modifier) {
+    val copy: PlayerCopy = rememberPlayerCopy()
     val message: String? = when (stop) {
-        is TownUiState.StopStatus.Refused -> if (stop.target == target) workRefusalLineOf(stop.refusal) else null
+        is TownUiState.StopStatus.Refused ->
+            if (stop.target == target) copy.fixedCopy { workRefusalLineOf(stop.refusal) } else null
         is TownUiState.StopStatus.Unreachable ->
-            if (stop.target == target) stringResource(R.string.town_refusal_unexpected) else null
+            if (stop.target == target) copy.fixedCopy(R.string.town_refusal_unexpected) else null
         TownUiState.StopStatus.Idle, is TownUiState.StopStatus.Waiting -> null
     }
     if (message != null) MyGameInlineAlert(message = message, modifier = modifier)

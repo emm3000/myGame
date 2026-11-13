@@ -9,7 +9,6 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.clearAndSetSemantics
 import androidx.compose.ui.semantics.heading
 import androidx.compose.ui.semantics.semantics
@@ -29,7 +28,10 @@ import com.emm.mygame.core.designsystem.PreviewMyGame
 import com.emm.mygame.core.designsystem.formatQuantity
 import com.emm.mygame.core.designsystem.withTabularFigures
 import com.emm.mygame.core.network.TownResourceKind
-import com.emm.mygame.core.ui.icuStringResource
+import com.emm.mygame.core.ui.CopyReader
+import com.emm.mygame.core.ui.PlayerCopy
+import com.emm.mygame.core.ui.chromeResource
+import com.emm.mygame.core.ui.rememberPlayerCopy
 import java.time.LocalDateTime
 import java.time.ZoneId
 import kotlin.time.Duration.Companion.hours
@@ -45,7 +47,7 @@ internal fun StocksSection(content: TownUiState.Content, modifier: Modifier = Mo
             modifier = Modifier.padding(vertical = MyGameSpacing.step4),
         ) {
             MyGameText(
-                text = stringResource(R.string.town_stocks),
+                label = chromeResource(R.string.town_stocks),
                 style = MyGameTypography.heading,
                 color = MyGameTheme.colors.ink,
                 modifier = Modifier.semantics { heading() },
@@ -69,6 +71,7 @@ internal fun StocksSection(content: TownUiState.Content, modifier: Modifier = Mo
 
 @Composable
 private fun StockItem(stock: TownUiState.StockLine, modifier: Modifier = Modifier) {
+    val copy: PlayerCopy = rememberPlayerCopy()
     val capacity: String = formatQuantity(stock.capacity)
     Column(verticalArrangement = Arrangement.spacedBy(MyGameSpacing.step1), modifier = modifier) {
         Row(
@@ -77,7 +80,7 @@ private fun StockItem(stock: TownUiState.StockLine, modifier: Modifier = Modifie
         ) {
             MyGameIcon(icon = resourceIconOf(stock.kind), tint = MyGameTheme.colors.ink)
             MyGameText(
-                text = capitalized(stringResource(resourceNameOf(stock.kind))),
+                label = copy.chrome { capitalized(text(resourceNameOf(stock.kind))) },
                 style = MyGameTypography.label,
                 color = MyGameTheme.colors.ink,
             )
@@ -92,17 +95,18 @@ private fun StockItem(stock: TownUiState.StockLine, modifier: Modifier = Modifie
             modifier = Modifier.fillMaxWidth(),
         ) {
             MyGameText(
-                text = if (stock.isFull) {
-                    icuStringResource(R.string.town_full, "capacity" to capacity)
-                } else {
-                    icuStringResource(R.string.town_stock_of, "capacity" to capacity)
-                },
+                label = copy.chrome(
+                    if (stock.isFull) R.string.town_full else R.string.town_stock_of,
+                    "capacity" to capacity,
+                ),
                 style = MyGameTypography.caption.withTabularFigures(),
                 color = MyGameTheme.colors.inkMuted,
             )
             MyGameText(
-                text = stock.fill?.let { fill: TownUiState.FillTime -> fillLabelOf(fill) }
-                    ?: icuStringResource(R.string.town_rate, "rate" to formatQuantity(stock.ratePerHour)),
+                label = copy.chrome {
+                    stock.fill?.let { fill: TownUiState.FillTime -> fillLabelOf(fill) }
+                        ?: text(R.string.town_rate, "rate" to formatQuantity(stock.ratePerHour))
+                },
                 style = MyGameTypography.caption.withTabularFigures(),
                 color = MyGameTheme.colors.inkMuted,
             )
@@ -116,11 +120,13 @@ private fun StockItem(stock: TownUiState.StockLine, modifier: Modifier = Modifie
 private fun SkillMark(stock: TownUiState.StockLine, modifier: Modifier = Modifier) {
     if (stock.skillLevel == 0) return
     MyGameText(
-        text = icuStringResource(
-            R.string.town_skill_name,
-            "resource" to stringResource(resourceNameOf(stock.kind)),
-            "level" to stock.skillLevel.toString(),
-        ),
+        label = rememberPlayerCopy().chrome {
+            text(
+                R.string.town_skill_name,
+                "resource" to text(resourceNameOf(stock.kind)),
+                "level" to stock.skillLevel.toString(),
+            )
+        },
         style = MyGameTypography.caption,
         color = MyGameTheme.colors.ink,
         modifier = modifier,
@@ -136,7 +142,7 @@ private fun PeopleRow(people: TownUiState.PeopleLine, modifier: Modifier = Modif
     ) {
         MyGameIcon(icon = MyGameIcons.people, tint = MyGameTheme.colors.ink)
         MyGameText(
-            text = icuStringResource(
+            label = chromeResource(
                 R.string.town_people,
                 "free" to people.free,
                 "atWork" to people.atWork.toString(),
@@ -149,7 +155,7 @@ private fun PeopleRow(people: TownUiState.PeopleLine, modifier: Modifier = Modif
 
 @Composable
 private fun SeasonRow(season: TownUiState.SeasonLine, modifier: Modifier = Modifier) {
-    val name: String = capitalized(stringResource(seasonNameOf(season.kind)))
+    val copy: PlayerCopy = rememberPlayerCopy()
     FlowRow(
         horizontalArrangement = Arrangement.spacedBy(MyGameSpacing.step2),
         verticalArrangement = Arrangement.spacedBy(MyGameSpacing.step1),
@@ -161,33 +167,39 @@ private fun SeasonRow(season: TownUiState.SeasonLine, modifier: Modifier = Modif
             modifier = Modifier.align(Alignment.CenterVertically),
         )
         MyGameText(
-            text = icuStringResource(R.string.town_season_line, "season" to name, "year" to season.year.toString()),
+            label = copy.chrome {
+                text(R.string.town_season_line, "season" to seasonLabelOf(season), "year" to season.year.toString())
+            },
             style = MyGameTypography.caption,
             color = MyGameTheme.colors.ink,
         )
         MyGameText(
-            text = stringResource(R.string.town_season_separator),
+            label = copy.chrome(R.string.town_season_separator),
             style = MyGameTypography.caption,
             color = MyGameTheme.colors.inkMuted,
             modifier = Modifier.clearAndSetSemantics { },
         )
         MyGameText(
-            text = icuStringResource(
-                R.string.town_season_ends_in,
-                "season" to name,
-                "timeLeft" to seasonTimeLeftOf(season),
-            ),
+            label = copy.chrome {
+                text(
+                    R.string.town_season_ends_in,
+                    "season" to seasonLabelOf(season),
+                    "timeLeft" to seasonTimeLeftOf(season),
+                )
+            },
             style = MyGameTypography.caption.withTabularFigures(),
             color = MyGameTheme.colors.inkMuted,
         )
     }
 }
 
-@Composable
-private fun seasonTimeLeftOf(season: TownUiState.SeasonLine): String {
+private fun CopyReader.seasonLabelOf(season: TownUiState.SeasonLine): String =
+    capitalized(text(seasonNameOf(season.kind)))
+
+private fun CopyReader.seasonTimeLeftOf(season: TownUiState.SeasonLine): String {
     val days: Long = season.remaining.inWholeDays
     if (days < 1) return timeLeftLabelOf(season.remaining)
-    return icuStringResource(R.string.town_season_days, "days" to days.toInt())
+    return text(R.string.town_season_days, "days" to days.toInt())
 }
 
 private fun previewLocalInstantOf(local: LocalDateTime): Instant =

@@ -10,7 +10,6 @@ import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.heading
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.tooling.preview.PreviewParameter
@@ -27,15 +26,21 @@ import com.emm.mygame.core.designsystem.MyGameTextButton
 import com.emm.mygame.core.designsystem.MyGameTheme
 import com.emm.mygame.core.designsystem.PreviewMyGame
 import com.emm.mygame.core.network.LessonId
+import com.emm.mygame.core.network.NextStepCard
 import com.emm.mygame.core.network.SeasonKind
 import com.emm.mygame.core.network.TipKind
 import com.emm.mygame.core.network.TownBuildingKind
 import com.emm.mygame.core.network.TownGoal
+import com.emm.mygame.core.network.TownLabel
 import com.emm.mygame.core.network.TownResourceKind
 import com.emm.mygame.core.network.TownSnapshot
-import com.emm.mygame.core.network.TownLabel
-import com.emm.mygame.core.network.NextStepCard
-import com.emm.mygame.core.ui.icuStringResource
+import com.emm.mygame.core.ui.ChromePhase
+import com.emm.mygame.core.ui.CopyLanguage
+import com.emm.mygame.core.ui.ProvideCopyLanguage
+import com.emm.mygame.core.ui.ScaffoldLanguage
+import com.emm.mygame.core.ui.chromeResource
+import com.emm.mygame.core.ui.fixedCopyResource
+import com.emm.mygame.core.ui.rememberPlayerCopy
 import kotlin.time.Duration.Companion.days
 import kotlin.time.Duration.Companion.hours
 import kotlin.time.Duration.Companion.minutes
@@ -71,7 +76,7 @@ fun TownScreen(
     ) {
         MyGameSkeleton(
             isLoading = state == TownUiState.Loading,
-            loadingLabel = stringResource(R.string.town_loading),
+            loadingLabel = chromeResource(R.string.town_loading).spoken,
             blocks = townBlocks,
         ) {
             TownState(state = state, onIntent = onIntent) { content: TownUiState.Content ->
@@ -106,8 +111,8 @@ private fun TownState(
         TownUiState.Loading -> Unit
         TownUiState.Failed -> {
             MyGameErrorBanner(
-                message = stringResource(R.string.town_refusal_unexpected),
-                actionLabel = stringResource(R.string.town_try_again),
+                message = fixedCopyResource(R.string.town_refusal_unexpected),
+                actionLabel = chromeResource(R.string.town_try_again),
                 onAction = { onIntent(TownIntent.RetryTapped) },
             )
             SignOut(isBusy = false, onIntent = onIntent)
@@ -134,9 +139,9 @@ private val townBlocks: MyGameSkeletonBlocks = MyGameSkeletonBlocks(
 @Composable
 private fun SignOut(isBusy: Boolean, onIntent: (TownIntent) -> Unit, modifier: Modifier = Modifier) {
     MyGameTextButton(
-        label = stringResource(R.string.town_sign_out),
+        label = fixedCopyResource(R.string.town_sign_out),
         isBusy = isBusy,
-        busyDescription = stringResource(R.string.town_waiting),
+        busyDescription = chromeResource(R.string.town_waiting).spoken,
         onClick = { onIntent(TownIntent.SignOutTapped) },
         modifier = modifier,
     )
@@ -179,7 +184,9 @@ private fun TownHome(
 @Composable
 private fun TownTitle(name: String, label: TownLabel, modifier: Modifier = Modifier) {
     MyGameMetaText(
-        text = icuStringResource(R.string.town_title, "name" to name, "label" to stringResource(labelOf(label))),
+        label = rememberPlayerCopy().chrome {
+            text(R.string.town_title, "name" to name, "label" to text(labelOf(label)))
+        },
         color = MyGameTheme.colors.inkMuted,
         modifier = modifier.semantics { heading() },
     )
@@ -258,6 +265,52 @@ private class TownScreenStates : PreviewParameterProvider<TownUiState> {
         TownUiState.Naming(name = "Riverton", status = TownUiState.NamingStatus.Idle),
         previewHome,
     )
+}
+
+private class TownLanguages : PreviewParameterProvider<CopyLanguage> {
+
+    override val values: Sequence<CopyLanguage> = sequenceOf(
+        CopyLanguage(ScaffoldLanguage.Spanish, ChromePhase.Scaffold),
+        CopyLanguage(ScaffoldLanguage.Spanish, ChromePhase.Both),
+        CopyLanguage(ScaffoldLanguage.Spanish, ChromePhase.English),
+        CopyLanguage(ScaffoldLanguage.None, ChromePhase.English),
+    )
+}
+
+@PreviewMyGame
+@Composable
+private fun TownScreenLanguagePreview(@PreviewParameter(TownLanguages::class) language: CopyLanguage) {
+    ProvideCopyLanguage(language = language) {
+        MyGamePreviewSurface {
+            TownScreen(
+                state = previewHome,
+                onIntent = {},
+                onSchoolOpen = {},
+                onReportOpen = {},
+                onMapOpen = {},
+                onReviewsOpen = {},
+                onLessonOpen = {},
+            )
+        }
+    }
+}
+
+@PreviewMyGame
+@Composable
+private fun TownScreenNamingBothPreview() {
+    ProvideCopyLanguage(language = CopyLanguage(ScaffoldLanguage.Spanish, ChromePhase.Both)) {
+        MyGamePreviewSurface {
+            TownScreen(
+                state = TownUiState.Naming(name = "Riverton", status = TownUiState.NamingStatus.Idle),
+                onIntent = {},
+                onSchoolOpen = {},
+                onReportOpen = {},
+                onMapOpen = {},
+                onReviewsOpen = {},
+                onLessonOpen = {},
+            )
+        }
+    }
 }
 
 @PreviewMyGame

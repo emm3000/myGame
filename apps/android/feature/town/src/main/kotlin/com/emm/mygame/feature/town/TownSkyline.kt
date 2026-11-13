@@ -19,7 +19,7 @@ import com.emm.mygame.core.designsystem.MyGamePlaceArt
 import com.emm.mygame.core.designsystem.MyGameStrokeWidths
 import com.emm.mygame.core.designsystem.MyGameTheme
 import com.emm.mygame.core.network.TownBuildingKind
-import com.emm.mygame.core.ui.icuStringResource
+import com.emm.mygame.core.ui.chromeResource
 
 private const val PLACE_WIDTH: Float = 100f
 
@@ -45,11 +45,11 @@ internal fun TownSkyline(content: TownUiState.Content, modifier: Modifier = Modi
         content.places.firstOrNull { place: TownUiState.PlaceCard -> place.kind == kind }
     }
     val levels: List<Int> = places.map { place: TownUiState.PlaceCard? -> place?.level ?: 0 }
-    val description: String = icuStringResource(
+    val description: String = chromeResource(
         R.string.town_skyline_built,
         "built" to levels.count { level: Int -> level > 0 }.toString(),
         "total" to placesAlongTheLine.size.toString(),
-    )
+    ).spoken
     BoxWithConstraints(
         modifier = modifier
             .fillMaxWidth()

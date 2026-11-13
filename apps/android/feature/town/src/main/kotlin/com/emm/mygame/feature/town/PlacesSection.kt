@@ -9,7 +9,6 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.LiveRegionMode
 import androidx.compose.ui.semantics.clearAndSetSemantics
 import androidx.compose.ui.semantics.contentDescription
@@ -22,6 +21,7 @@ import androidx.compose.ui.tooling.preview.PreviewParameterProvider
 import com.emm.mygame.core.designsystem.MyGameHairline
 import com.emm.mygame.core.designsystem.MyGameIcon
 import com.emm.mygame.core.designsystem.MyGameInlineAlert
+import com.emm.mygame.core.designsystem.MyGameLabel
 import com.emm.mygame.core.designsystem.MyGameOutlinedButton
 import com.emm.mygame.core.designsystem.MyGamePlaceArt
 import com.emm.mygame.core.designsystem.MyGamePreviewSurface
@@ -37,8 +37,10 @@ import com.emm.mygame.core.designsystem.withTabularFigures
 import com.emm.mygame.core.network.TownBuildingKind
 import com.emm.mygame.core.network.TownLabel
 import com.emm.mygame.core.network.TownResourceKind
-import com.emm.mygame.core.ui.formatIcu
-import com.emm.mygame.core.ui.icuStringResource
+import com.emm.mygame.core.ui.CopyReader
+import com.emm.mygame.core.ui.PlayerCopy
+import com.emm.mygame.core.ui.chromeResource
+import com.emm.mygame.core.ui.rememberPlayerCopy
 import kotlin.time.Duration.Companion.hours
 import kotlin.time.Duration.Companion.minutes
 import kotlin.time.Instant
@@ -52,7 +54,7 @@ internal fun PlacesSection(
 ) {
     Column(verticalArrangement = Arrangement.spacedBy(MyGameSpacing.step1), modifier = modifier) {
         MyGameText(
-            text = stringResource(placesTitleOf(content.label)),
+            label = chromeResource(placesTitleOf(content.label)),
             style = MyGameTypography.heading,
             color = MyGameTheme.colors.ink,
             modifier = Modifier.semantics { heading() },
@@ -101,7 +103,7 @@ private fun PlaceItem(
         }
         StartAnswer(building = place.kind, start = start)
         if (place.kind == TownBuildingKind.School) {
-            MyGameTextLink(label = stringResource(R.string.town_go_to_school), onClick = onSchoolOpen)
+            MyGameTextLink(label = chromeResource(R.string.town_go_to_school), onClick = onSchoolOpen)
         }
     }
 }
@@ -115,41 +117,36 @@ private fun PlaceName(place: TownUiState.PlaceCard, modifier: Modifier = Modifie
     }
     Column(modifier = modifier.then(spoken)) {
         MyGameText(
-            text = stringResource(placeNameOf(place.kind)),
+            label = chromeResource(placeNameOf(place.kind)),
             style = MyGameTypography.title,
             color = MyGameTheme.colors.ink,
             modifier = Modifier.semantics { heading() },
         )
         MyGameText(
-            text = levelLabelOf(place),
+            label = rememberPlayerCopy().chrome { levelLabelOf(place) },
             style = MyGameTypography.caption.withTabularFigures(),
             color = MyGameTheme.colors.inkMuted,
         )
     }
 }
 
-@Composable
-private fun levelLabelOf(place: TownUiState.PlaceCard): String {
-    val inWork: String = stringResource(R.string.town_in_work)
-    if (place.level == 0) return if (place.isInWork) inWork else stringResource(R.string.town_not_built)
-    val level: String = icuStringResource(R.string.town_level, "level" to place.level.toString())
-    return if (place.isInWork) {
-        icuStringResource(R.string.town_level_in_work, "level" to level, "inWork" to inWork)
-    } else {
-        level
-    }
+private fun CopyReader.levelLabelOf(place: TownUiState.PlaceCard): String {
+    val inWork: String = text(R.string.town_in_work)
+    if (place.level == 0) return if (place.isInWork) inWork else text(R.string.town_not_built)
+    val level: String = text(R.string.town_level, "level" to place.level.toString())
+    return if (place.isInWork) text(R.string.town_level_in_work, "level" to level, "inWork" to inWork) else level
 }
 
 @Composable
 private fun AtTopLevel(modifier: Modifier = Modifier) {
     Column(verticalArrangement = Arrangement.spacedBy(MyGameSpacing.step2), modifier = modifier) {
         MyGameText(
-            text = stringResource(R.string.town_at_top_level),
+            label = chromeResource(R.string.town_at_top_level),
             style = MyGameTypography.caption,
             color = MyGameTheme.colors.inkMuted,
         )
         MyGameText(
-            text = stringResource(R.string.town_top_level),
+            label = chromeResource(R.string.town_top_level),
             style = MyGameTypography.label,
             color = MyGameTheme.colors.ink,
         )
@@ -165,28 +162,31 @@ private fun NextLevel(
     onIntent: (TownIntent) -> Unit,
     modifier: Modifier = Modifier,
 ) {
-    val reason: String? = block?.let { blocked: TownUiState.BlockReason -> blockLineOf(blocked) }
+    val copy: PlayerCopy = rememberPlayerCopy()
+    val reason: MyGameLabel? = block?.let { blocked: TownUiState.BlockReason -> copy.blockLineOf(blocked) }
     Column(verticalArrangement = Arrangement.spacedBy(MyGameSpacing.step2), modifier = modifier) {
         MyGameText(
-            text = icuStringResource(R.string.town_people_at_work, "people" to next.people.toString()),
+            label = copy.chrome(R.string.town_people_at_work, "people" to next.people.toString()),
             style = MyGameTypography.caption,
             color = MyGameTheme.colors.inkMuted,
         )
         Costs(next = next)
         MyGameOutlinedButton(
-            label = icuStringResource(
-                R.string.town_build_with_duration,
-                "action" to icuStringResource(R.string.town_build, "level" to next.level.toString()),
-                "duration" to durationLabelOf(next.duration),
-            ),
+            label = copy.chrome {
+                text(
+                    R.string.town_build_with_duration,
+                    "action" to text(R.string.town_build, "level" to next.level.toString()),
+                    "duration" to durationLabelOf(next.duration),
+                )
+            },
             isBusy = isWaiting,
-            busyDescription = stringResource(R.string.town_waiting),
+            busyDescription = copy.chrome(R.string.town_waiting).spoken,
             onClick = { onIntent(TownIntent.BuildTapped(building)) },
-            blockedReason = reason,
+            blockedReason = reason?.spoken,
         )
-        reason?.let { line: String ->
+        reason?.let { line: MyGameLabel ->
             MyGameText(
-                text = line,
+                label = line,
                 style = MyGameTypography.caption,
                 color = MyGameTheme.colors.warningInk,
                 modifier = Modifier.semantics { hideFromAccessibility() },
@@ -211,8 +211,9 @@ private fun Costs(next: TownUiState.NextLevelLine, modifier: Modifier = Modifier
 
 @Composable
 internal fun CostItem(cost: TownUiState.CostLine, modifier: Modifier = Modifier) {
-    val spoken: String = amountLineOf(cost.kind, cost.amount)
-    val description: String = if (cost.isShort) spoken + stringResource(R.string.town_short_mark) else spoken
+    val description: String = rememberPlayerCopy().chrome {
+        shortMarked(amountLineOf(cost.kind, cost.amount), cost.isShort)
+    }.spoken
     Row(
         verticalAlignment = Alignment.CenterVertically,
         horizontalArrangement = Arrangement.spacedBy(MyGameSpacing.step1),
@@ -233,52 +234,46 @@ internal fun CostItem(cost: TownUiState.CostLine, modifier: Modifier = Modifier)
 
 @Composable
 private fun StartAnswer(building: TownBuildingKind, start: TownUiState.StartStatus, modifier: Modifier = Modifier) {
+    val copy: PlayerCopy = rememberPlayerCopy()
     val message: String? = when (start) {
-        is TownUiState.StartStatus.Refused -> if (start.building == building) workRefusalLineOf(start.refusal) else null
+        is TownUiState.StartStatus.Refused ->
+            if (start.building == building) copy.fixedCopy { workRefusalLineOf(start.refusal) } else null
         is TownUiState.StartStatus.Unreachable ->
-            if (start.building == building) stringResource(R.string.town_refusal_unexpected) else null
+            if (start.building == building) copy.fixedCopy(R.string.town_refusal_unexpected) else null
         TownUiState.StartStatus.Idle, is TownUiState.StartStatus.Waiting -> null
     }
     if (message != null) MyGameInlineAlert(message = message, modifier = modifier)
 }
 
-@Composable
-private fun blockLineOf(block: TownUiState.BlockReason): String = when (block) {
-    is TownUiState.BlockReason.WaitingListFull ->
-        icuStringResource(R.string.town_refusal_waiting_list_full, "cap" to block.cap)
+private fun PlayerCopy.blockLineOf(block: TownUiState.BlockReason): MyGameLabel = when (block) {
+    is TownUiState.BlockReason.WaitingListFull -> MyGameLabel(
+        text = fixedCopy(R.string.town_refusal_waiting_list_full, "cap" to block.cap),
+        translation = null,
+    )
     is TownUiState.BlockReason.PeopleShort ->
-        icuStringResource(R.string.town_people_short, "needed" to block.needed.toString(), "free" to block.free)
-    is TownUiState.BlockReason.Resources -> shortfallLineOf(block)
+        chrome(R.string.town_people_short, "needed" to block.needed.toString(), "free" to block.free)
+    is TownUiState.BlockReason.Resources -> chrome { shortfallLineOf(block) }
 }
 
-@Composable
-internal fun shortfallLineOf(block: TownUiState.BlockReason.Resources): String {
+internal fun CopyReader.shortfallLineOf(block: TownUiState.BlockReason.Resources): String {
     val amounts: List<String> = block.shortfalls.map { shortfall: TownUiState.Shortfall ->
         amountLineOf(shortfall.kind, shortfall.amount)
     }
-    return icuStringResource(
-        R.string.town_shortfall,
-        "missing" to joinedOf(
-            items = amounts,
-            pairPattern = stringResource(R.string.town_list_pair),
-            morePattern = stringResource(R.string.town_list_more),
-        ),
-    )
+    return text(R.string.town_shortfall, "missing" to joinedOf(amounts))
 }
 
-@Composable
-private fun amountLineOf(kind: TownResourceKind, amount: Long): String = icuStringResource(
+private fun CopyReader.amountLineOf(kind: TownResourceKind, amount: Long): String = text(
     R.string.town_amount,
     "amount" to formatQuantity(amount),
-    "resource" to stringResource(resourceNameOf(kind)),
+    "resource" to text(resourceNameOf(kind)),
 )
 
-private fun joinedOf(items: List<String>, pairPattern: String, morePattern: String): String {
+private fun CopyReader.joinedOf(items: List<String>): String {
     if (items.size < 2) return items.joinToString()
     val head: String = items.dropLast(1).reduce { listed: String, item: String ->
-        morePattern.formatIcu("listed" to listed, "item" to item)
+        text(R.string.town_list_more, "listed" to listed, "item" to item)
     }
-    return pairPattern.formatIcu("listed" to head, "last" to items.last())
+    return text(R.string.town_list_pair, "listed" to head, "last" to items.last())
 }
 
 private fun placesTitleOf(label: TownLabel): Int = when (label) {

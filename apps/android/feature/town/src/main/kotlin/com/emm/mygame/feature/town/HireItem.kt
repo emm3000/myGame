@@ -10,7 +10,6 @@ import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.clearAndSetSemantics
 import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.heading
@@ -21,6 +20,7 @@ import androidx.compose.ui.text.input.KeyboardType
 import com.emm.mygame.core.designsystem.MyGameIcon
 import com.emm.mygame.core.designsystem.MyGameIcons
 import com.emm.mygame.core.designsystem.MyGameInlineAlert
+import com.emm.mygame.core.designsystem.MyGameLabel
 import com.emm.mygame.core.designsystem.MyGameOutlinedButton
 import com.emm.mygame.core.designsystem.MyGameSizes
 import com.emm.mygame.core.designsystem.MyGameSpacing
@@ -31,7 +31,10 @@ import com.emm.mygame.core.designsystem.MyGameTypography
 import com.emm.mygame.core.designsystem.formatQuantity
 import com.emm.mygame.core.designsystem.withTabularFigures
 import com.emm.mygame.core.network.TownHireKind
-import com.emm.mygame.core.ui.icuStringResource
+import com.emm.mygame.core.ui.CopyReader
+import com.emm.mygame.core.ui.PlayerCopy
+import com.emm.mygame.core.ui.chromeResource
+import com.emm.mygame.core.ui.rememberPlayerCopy
 
 @Composable
 internal fun HireItem(
@@ -47,19 +50,19 @@ internal fun HireItem(
     ) {
         Column {
             MyGameText(
-                text = stringResource(hireNameOf(card.kind)),
+                label = chromeResource(hireNameOf(card.kind)),
                 style = MyGameTypography.title,
                 color = MyGameTheme.colors.ink,
                 modifier = Modifier.semantics { heading() },
             )
             MyGameText(
-                text = icuStringResource(teamOf(card.kind), "count" to card.team),
+                label = chromeResource(teamOf(card.kind), "count" to card.team),
                 style = MyGameTypography.caption,
                 color = MyGameTheme.colors.inkMuted,
             )
         }
         MyGameText(
-            text = icuStringResource(R.string.town_office_needs_level, "level" to card.requiredOfficeLevel.toString()),
+            label = chromeResource(R.string.town_office_needs_level, "level" to card.requiredOfficeLevel.toString()),
             style = MyGameTypography.caption,
             color = if (form == null) MyGameTheme.colors.warningInk else MyGameTheme.colors.inkMuted,
         )
@@ -85,12 +88,13 @@ private fun HireForm(
     onIntent: (TownIntent) -> Unit,
     modifier: Modifier = Modifier,
 ) {
-    val reason: String? = form.block?.let { blocked: TownUiState.HireBlock -> hireBlockLineOf(blocked) }
+    val copy: PlayerCopy = rememberPlayerCopy()
+    val reason: MyGameLabel? = form.block?.let { blocked: TownUiState.HireBlock -> copy.hireBlockLineOf(blocked) }
     val offer: TownUiState.HireOffer? = form.offer
     Column(verticalArrangement = Arrangement.spacedBy(MyGameSpacing.step2), modifier = modifier) {
         MyGameTextField(
             value = form.entry,
-            label = stringResource(countLabelOf(kind)),
+            label = copy.chrome(countLabelOf(kind)),
             isSecret = false,
             isReadOnly = false,
             keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number, imeAction = ImeAction.Done),
@@ -99,15 +103,15 @@ private fun HireForm(
         )
         if (offer != null) HireCosts(offer = offer)
         MyGameOutlinedButton(
-            label = if (offer == null) stringResource(hireAnyOf(kind)) else hireLabelOf(kind, offer),
+            label = if (offer == null) copy.chrome(hireAnyOf(kind)) else copy.chrome { hireLabelOf(kind, offer) },
             isBusy = isWaiting,
-            busyDescription = stringResource(R.string.town_waiting),
+            busyDescription = copy.chrome(R.string.town_waiting).spoken,
             onClick = { onIntent(TownIntent.HireTapped(kind)) },
-            blockedReason = reason,
+            blockedReason = reason?.spoken,
         )
-        reason?.takeUnless { isAnswered }?.let { line: String ->
+        reason?.takeUnless { isAnswered }?.let { line: MyGameLabel ->
             MyGameText(
-                text = line,
+                label = line,
                 style = MyGameTypography.caption,
                 color = MyGameTheme.colors.warningInk,
                 modifier = Modifier.semantics { hideFromAccessibility() },
@@ -132,8 +136,9 @@ private fun HireCosts(offer: TownUiState.HireOffer, modifier: Modifier = Modifie
 
 @Composable
 private fun PeopleCost(people: Long, isShort: Boolean, modifier: Modifier = Modifier) {
-    val spoken: String = icuStringResource(R.string.town_office_people_cost, "count" to people)
-    val description: String = if (isShort) spoken + stringResource(R.string.town_short_mark) else spoken
+    val description: String = rememberPlayerCopy().chrome {
+        shortMarked(text(R.string.town_office_people_cost, "count" to people), isShort)
+    }.spoken
     Row(
         verticalAlignment = Alignment.CenterVertically,
         horizontalArrangement = Arrangement.spacedBy(MyGameSpacing.step1),
@@ -154,10 +159,12 @@ private fun PeopleCost(people: Long, isShort: Boolean, modifier: Modifier = Modi
 
 @Composable
 private fun HireAnswer(kind: TownHireKind, place: TownUiState.HireStatus, modifier: Modifier = Modifier) {
+    val copy: PlayerCopy = rememberPlayerCopy()
     val message: String? = when (place) {
-        is TownUiState.HireStatus.Refused -> if (place.hire == kind) hiringRefusalLineOf(place.refusal) else null
+        is TownUiState.HireStatus.Refused ->
+            if (place.hire == kind) copy.fixedCopy { hiringRefusalLineOf(place.refusal) } else null
         is TownUiState.HireStatus.Unreachable ->
-            if (place.hire == kind) stringResource(R.string.town_refusal_unexpected) else null
+            if (place.hire == kind) copy.fixedCopy(R.string.town_refusal_unexpected) else null
         TownUiState.HireStatus.Idle, is TownUiState.HireStatus.Waiting -> null
     }
     if (message != null) MyGameInlineAlert(message = message, modifier = modifier)
@@ -169,21 +176,19 @@ private fun TownUiState.HireStatus.isAnsweredFor(kind: TownHireKind): Boolean = 
     TownUiState.HireStatus.Idle, is TownUiState.HireStatus.Waiting -> false
 }
 
-@Composable
-private fun hireLabelOf(kind: TownHireKind, offer: TownUiState.HireOffer): String = icuStringResource(
+private fun CopyReader.hireLabelOf(kind: TownHireKind, offer: TownUiState.HireOffer): String = text(
     R.string.town_build_with_duration,
-    "action" to icuStringResource(hireOf(kind), "count" to offer.count),
+    "action" to text(hireOf(kind), "count" to offer.count),
     "duration" to durationLabelOf(offer.duration),
 )
 
-@Composable
-private fun hireBlockLineOf(block: TownUiState.HireBlock): String = when (block) {
-    TownUiState.HireBlock.CountNeeded -> stringResource(R.string.town_office_count_needed)
-    TownUiState.HireBlock.Busy -> stringResource(R.string.town_office_busy)
+private fun PlayerCopy.hireBlockLineOf(block: TownUiState.HireBlock): MyGameLabel = when (block) {
+    TownUiState.HireBlock.CountNeeded -> chrome(R.string.town_office_count_needed)
+    TownUiState.HireBlock.Busy -> chrome(R.string.town_office_busy)
     is TownUiState.HireBlock.PeopleShort ->
-        icuStringResource(R.string.town_people_short, "needed" to block.needed.toString(), "free" to block.free)
+        chrome(R.string.town_people_short, "needed" to block.needed.toString(), "free" to block.free)
     is TownUiState.HireBlock.Resources ->
-        shortfallLineOf(TownUiState.BlockReason.Resources(block.shortfalls, ready = null))
+        chrome { shortfallLineOf(TownUiState.BlockReason.Resources(block.shortfalls, ready = null)) }
 }
 
 internal fun hireNameOf(kind: TownHireKind): Int = when (kind) {
