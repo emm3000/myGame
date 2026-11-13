@@ -15,3 +15,8 @@ internal fun ChromePhase.toPlayerChromePhase(): PlayerChromePhase? = when (this)
     ChromePhase.english -> PlayerChromePhase.English
     ChromePhase.unknown_default_open_api -> null
 }
+
+internal fun PlayerScaffold.toScaffold(): Scaffold = when (this) {
+    PlayerScaffold.Spanish -> Scaffold.es
+    PlayerScaffold.None -> Scaffold.none
+}

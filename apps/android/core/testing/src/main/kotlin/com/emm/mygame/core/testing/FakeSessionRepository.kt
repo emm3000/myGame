@@ -1,6 +1,7 @@
 package com.emm.mygame.core.testing
 
 import com.emm.mygame.core.network.PasswordResetRequestResult
+import com.emm.mygame.core.network.PlayerScaffold
 import com.emm.mygame.core.network.RestoreResult
 import com.emm.mygame.core.network.SessionRepository
 import com.emm.mygame.core.network.SignInResult
@@ -74,8 +75,8 @@ class FakeSessionRepository : SessionRepository {
         return signInAnswers.receive()
     }
 
-    override suspend fun signUp(email: String, password: String): SignUpResult {
-        signUps += SignUpAttempt(email = email, password = password)
+    override suspend fun signUp(email: String, password: String, scaffold: PlayerScaffold): SignUpResult {
+        signUps += SignUpAttempt(email = email, password = password, scaffold = scaffold)
         return signUpAnswers.receive()
     }
 
@@ -96,5 +97,5 @@ class FakeSessionRepository : SessionRepository {
 
     data class SignInAttempt(val email: String, val password: String)
 
-    data class SignUpAttempt(val email: String, val password: String)
+    data class SignUpAttempt(val email: String, val password: String, val scaffold: PlayerScaffold)
 }

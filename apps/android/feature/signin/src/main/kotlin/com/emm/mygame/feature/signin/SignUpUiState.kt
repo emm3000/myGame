@@ -1,5 +1,6 @@
 package com.emm.mygame.feature.signin
 
+import com.emm.mygame.core.network.PlayerScaffold
 import com.emm.mygame.core.network.SignUpRefusal
 
 sealed interface SignUpUiState {
@@ -7,7 +8,12 @@ sealed interface SignUpUiState {
     val canSwitchToSignIn: Boolean
         get() = this is Form && status != FormStatus.Submitting
 
-    data class Form(val email: String, val password: String, val status: FormStatus) : SignUpUiState
+    data class Form(
+        val scaffold: PlayerScaffold,
+        val email: String,
+        val password: String,
+        val status: FormStatus,
+    ) : SignUpUiState
 
     sealed interface FormStatus {
 

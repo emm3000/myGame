@@ -25,6 +25,7 @@ import com.emm.mygame.core.designsystem.MyGameSpacing
 import com.emm.mygame.core.designsystem.MyGameTextField
 import com.emm.mygame.core.designsystem.MyGameTheme
 import com.emm.mygame.core.designsystem.PreviewMyGame
+import com.emm.mygame.core.network.PlayerScaffold
 import com.emm.mygame.core.network.SignUpRefusal
 
 @Composable
@@ -63,6 +64,11 @@ private fun SignUpForm(
 ) {
     val isSubmitting: Boolean = form.status == SignUpUiState.FormStatus.Submitting
     Column(verticalArrangement = Arrangement.spacedBy(MyGameSpacing.step4), modifier = modifier) {
+        ScaffoldChoice(
+            picked = form.scaffold,
+            isEnabled = !isSubmitting,
+            onPick = { scaffold: PlayerScaffold -> onIntent(SignUpIntent.ScaffoldPicked(scaffold)) },
+        )
         MyGameTextField(
             value = form.email,
             label = stringResource(R.string.sign_in_email),
@@ -124,6 +130,7 @@ private fun refusalMessageOf(refusal: SignUpRefusal): Int = when (refusal) {
 }
 
 private val previewSignUpForm: SignUpUiState.Form = SignUpUiState.Form(
+    scaffold = PlayerScaffold.Spanish,
     email = "ana@example.com",
     password = "maple-hollow",
     status = SignUpUiState.FormStatus.Idle,
@@ -133,7 +140,8 @@ private class SignUpUiStates : PreviewParameterProvider<SignUpUiState> {
 
     override val values: Sequence<SignUpUiState> = sequenceOf(
         previewSignUpForm.copy(email = "", password = ""),
-        previewSignUpForm,
+        previewSignUpForm.copy(scaffold = PlayerScaffold.None, email = "", password = ""),
+        previewSignUpForm.copy(scaffold = PlayerScaffold.None),
         previewSignUpForm.copy(status = SignUpUiState.FormStatus.Submitting),
         previewSignUpForm.copy(status = SignUpUiState.FormStatus.Refused(SignUpRefusal.EmailTaken)),
         previewSignUpForm.copy(status = SignUpUiState.FormStatus.Unreachable),

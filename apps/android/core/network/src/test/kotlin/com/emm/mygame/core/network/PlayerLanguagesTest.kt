@@ -66,7 +66,7 @@ class PlayerLanguagesTest {
     fun `holds the none scaffold and the english phase a sign-up names`() = runTest {
         api.enqueue(session(code = 201, scaffold = "none", chromePhase = "english"))
 
-        sessions().signUp("elena@encinar.es", "contrasena")
+        sessions().signUp("elena@encinar.es", "contrasena", PlayerScaffold.None)
 
         assertEquals(PlayerLanguage(PlayerScaffold.None, PlayerChromePhase.English), languages.language.value)
     }
