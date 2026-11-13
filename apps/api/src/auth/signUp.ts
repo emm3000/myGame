@@ -55,6 +55,6 @@ export const signUp = async (
     return signedUp
   }
   const { player, session, verifyToken } = signedUp.value
-  await sendVerificationMail(player.email, verifyToken, { mailer, webUrl })
+  await sendVerificationMail(player, verifyToken, { mailer, webUrl })
   return ok({ player, session })
 }

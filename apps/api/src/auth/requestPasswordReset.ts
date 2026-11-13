@@ -1,10 +1,11 @@
-import { mailResetSubject, mailResetText } from '@mygame/catalog'
 import type { ForgotPasswordRequest } from '@mygame/contracts'
 import { type Clock, ok } from '@mygame/domain'
 import type { Transaction } from '../adapters/postgres/postgresTransaction'
 import type { CryptoSessionTokens } from '../adapters/system/CryptoSessionTokens'
+import { fixedCopyOf } from './fixedCopyOf'
 import { issueAccountToken } from './issueAccountToken'
 import type { Mailer } from './Mailer'
+import type { MailRecipient } from './MailRecipient'
 
 export type RequestPasswordResetDependencies = {
   readonly inTransaction: Transaction
@@ -15,7 +16,7 @@ export type RequestPasswordResetDependencies = {
 }
 
 type ResetLink = {
-  readonly email: string
+  readonly recipient: MailRecipient
   readonly token: string
 }
 
@@ -34,15 +35,17 @@ export const requestPasswordReset = async (
         clock,
         sessionTokens,
       })
-      return ok({ email: player.email, token })
+      return ok({ recipient: { email: player.email, scaffold: player.scaffold }, token })
     },
   )
   if (!issued.ok || issued.value === undefined) {
     return
   }
+  const { recipient, token } = issued.value
+  const copy = fixedCopyOf(recipient.scaffold)
   await mailer.send({
-    to: issued.value.email,
-    subject: mailResetSubject(),
-    text: mailResetText({ link: `${webUrl}/reset-password?token=${issued.value.token}` }),
+    to: recipient.email,
+    subject: copy.mailResetSubject(),
+    text: copy.mailResetText({ link: `${webUrl}/reset-password?token=${token}` }),
   })
 }

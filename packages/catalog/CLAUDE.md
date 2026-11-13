@@ -10,9 +10,9 @@ The message catalog: every line of copy a player reads, per language, as ICU Mes
 
 ## Files
 
-- `es.json`, `en.json` — one flat object per language, key to ICU string, keys sorted, one key set: every key is in both (ADR 038 step 4, #745). Only `es.json` generates the TypeScript.
-- `src/index.ts` — the only entry; it re-exports `src/generated/es.ts`. Consumers (`apps/api`, `apps/web`) import from `@mygame/catalog`, never a path under `src/`.
-- `src/generated/es.ts` — generated, committed, excluded from Biome in `biome.json`. Never edit it by hand.
+- `es.json`, `en.json` — one flat object per language, key to ICU string, keys sorted, one key set: every key is in both (ADR 038 step 4, #745). Each generates its TypeScript.
+- `src/index.ts` — the only entry: it re-exports `src/generated/es.ts` flat, the Spanish the web draws, and both languages as the namespaces `en` and `es`, which the api picks between by the player's scaffold (`apps/api/src/auth/fixedCopyOf.ts`, #746). Consumers (`apps/api`, `apps/web`) import from `@mygame/catalog`, never a path under `src/`.
+- `src/generated/en.ts` and `src/generated/es.ts` — generated, committed, excluded from Biome in `biome.json`. Never edit them by hand.
 - `apps/android/<module>/src/main/res/values/strings.xml` and `values-es/strings.xml` — generated for every module holding an `android.<module>.*` key, `values/` from `en.json` (Android's default locale) and `values-es/` from `es.json`; the whole file is generated, so no `strings.xml` is hand-written. All eight modules (`app`, `map`, `placement`, `report`, `review`, `school`, `signin`, `town`) hold keys. The app draws in the player's scaffold language through a configuration context (`MainActivity`), never by the phone's locale alone, so every player, all `es` until the scaffold reaches the client, reads `values-es/` (ADR 038).
 
 ## Key shape

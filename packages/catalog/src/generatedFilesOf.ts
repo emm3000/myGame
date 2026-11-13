@@ -4,6 +4,7 @@ import type { GeneratedFile } from './GeneratedFile'
 import { typeScriptOf } from './typeScriptOf'
 
 export const generatedFilesOf = (catalogs: Catalogs): ReadonlyArray<GeneratedFile> => [
+  { path: 'packages/catalog/src/generated/en.ts', contents: typeScriptOf(catalogs.en) },
   { path: 'packages/catalog/src/generated/es.ts', contents: typeScriptOf(catalogs.es) },
   ...androidResourcesOf(catalogs),
 ]
