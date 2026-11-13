@@ -28,6 +28,7 @@ import com.emm.mygame.core.designsystem.MyGameTheme
 import com.emm.mygame.core.designsystem.MyGameTypography
 import com.emm.mygame.core.designsystem.PreviewMyGame
 import com.emm.mygame.core.network.ChoiceId
+import com.emm.mygame.core.network.HoldoutCheckRefusal
 import com.emm.mygame.core.network.HoldoutCheckWeek
 import com.emm.mygame.core.network.PlacementBand
 import com.emm.mygame.core.network.PlacementChoice
@@ -142,8 +143,8 @@ private class HoldoutCheckScreenStates : PreviewParameterProvider<HoldoutCheckUi
         previewAsking.copy(shownIndex = 0, chosen = emptyMap()),
         previewAsking.copy(request = HoldoutCheckRequest.Waiting(HoldoutCheckAction.Answers)),
         HoldoutCheckUiState.Done,
-        previewDue.copy(request = HoldoutCheckRequest.Refused),
-        previewAsking.copy(request = HoldoutCheckRequest.Refused),
+        previewDue.copy(request = HoldoutCheckRequest.Refused(HoldoutCheckRefusal.NotOpen)),
+        previewAsking.copy(request = HoldoutCheckRequest.Refused(HoldoutCheckRefusal.NotOpen)),
         HoldoutCheckUiState.Failed,
         HoldoutCheckUiState.NotOpen,
     )

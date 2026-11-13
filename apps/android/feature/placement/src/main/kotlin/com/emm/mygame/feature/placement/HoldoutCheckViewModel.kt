@@ -95,7 +95,7 @@ class HoldoutCheckViewModel(
     private fun answered(action: HoldoutCheckAction, answer: HoldoutCheckChangeResult) {
         when (answer) {
             is HoldoutCheckChangeResult.Changed -> _state.value = changedStateOf(action, answer.checks)
-            is HoldoutCheckChangeResult.Refused -> drawRequest(HoldoutCheckRequest.Refused)
+            is HoldoutCheckChangeResult.Refused -> drawRequest(HoldoutCheckRequest.Refused(answer.refusal))
             HoldoutCheckChangeResult.Unreachable -> drawRequest(HoldoutCheckRequest.Unreachable)
         }
     }

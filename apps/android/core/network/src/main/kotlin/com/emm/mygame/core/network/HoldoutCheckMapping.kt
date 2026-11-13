@@ -3,6 +3,7 @@ package com.emm.mygame.core.network
 import com.emm.mygame.core.network.generated.models.HoldoutChecks
 import com.emm.mygame.core.network.generated.models.HoldoutCheckState as WireHoldoutCheck
 import com.emm.mygame.core.network.generated.models.HoldoutCheckWeek as WireHoldoutCheckWeek
+import com.emm.mygame.core.network.generated.models.PlacementBand as WirePlacementBand
 
 internal fun HoldoutChecks.toChecks(): List<HoldoutCheck>? {
     val known: List<HoldoutCheck> = checks.mapNotNull(::checkOf)
@@ -10,16 +11,22 @@ internal fun HoldoutChecks.toChecks(): List<HoldoutCheck>? {
 }
 
 private fun checkOf(check: WireHoldoutCheck): HoldoutCheck? = when (check) {
-    is WireHoldoutCheck.DueWrapper -> {
-        val band: PlacementBand? = check.value.band.toBand()
-        val week: HoldoutCheckWeek? = check.value.week.toWeek()
-        if (band == null || week == null) null else HoldoutCheck.Due(band, week)
+    is WireHoldoutCheck.DueWrapper -> knownCheckOf(check.value.band, check.value.week) { band, week ->
+        HoldoutCheck.Due(band, week)
     }
-    is WireHoldoutCheck.AskingWrapper -> {
-        val band: PlacementBand? = check.value.band.toBand()
-        val week: HoldoutCheckWeek? = check.value.week.toWeek()
-        if (band == null || week == null) null else HoldoutCheck.Asking(band, week, check.value.items.map(::itemOf))
+    is WireHoldoutCheck.AskingWrapper -> knownCheckOf(check.value.band, check.value.week) { band, week ->
+        HoldoutCheck.Asking(band, week, check.value.items.map(::itemOf))
     }
+}
+
+private fun knownCheckOf(
+    wireBand: WirePlacementBand,
+    wireWeek: WireHoldoutCheckWeek,
+    checkAt: (PlacementBand, HoldoutCheckWeek) -> HoldoutCheck,
+): HoldoutCheck? {
+    val band: PlacementBand = wireBand.toBand() ?: return null
+    val week: HoldoutCheckWeek = wireWeek.toWeek() ?: return null
+    return checkAt(band, week)
 }
 
 private fun WireHoldoutCheckWeek.toWeek(): HoldoutCheckWeek? = when (this) {

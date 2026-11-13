@@ -1,12 +1,14 @@
 package com.emm.mygame.feature.placement
 
 import androidx.compose.ui.test.assertIsDisplayed
+import androidx.compose.ui.test.assertIsNotEnabled
 import androidx.compose.ui.test.junit4.ComposeContentTestRule
 import androidx.compose.ui.test.junit4.createComposeRule
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
 import androidx.compose.ui.test.performScrollTo
 import com.emm.mygame.core.designsystem.MyGameTheme
+import com.emm.mygame.core.network.HoldoutCheckRefusal
 import com.emm.mygame.core.network.HoldoutCheckWeek
 import com.emm.mygame.core.network.PlacementBand
 import com.emm.mygame.core.ui.ChromePhase
@@ -93,15 +95,15 @@ class HoldoutCheckScreenTest {
     }
 
     @Test
-    fun `draws the refusal inline on a 409`() {
-        showing(dueEighthWeek.copy(request = HoldoutCheckRequest.Refused))
+    fun `draws the check not open inline beside the due line`() {
+        showing(dueEighthWeek.copy(request = HoldoutCheckRequest.Refused(HoldoutCheckRefusal.NotOpen)))
 
         composeRule.onNodeWithText("Esta prueba no está abierta ahora.").assertIsDisplayed()
     }
 
     @Test
     fun `draws the refusal beside the words of a refused send`() {
-        showing(askingLastWordChosen.copy(request = HoldoutCheckRequest.Refused))
+        showing(askingLastWordChosen.copy(request = HoldoutCheckRequest.Refused(HoldoutCheckRefusal.NotOpen)))
 
         composeRule.onNodeWithText("Esta prueba no está abierta ahora.").performScrollTo().assertIsDisplayed()
     }
@@ -156,12 +158,41 @@ class HoldoutCheckScreenTest {
     }
 
     @Test
-    fun `draws the failed read with its retry`() {
+    fun `draws the failed read`() {
         showing(HoldoutCheckUiState.Failed)
 
         composeRule.onNodeWithText("No hemos podido leer tu prueba.").assertIsDisplayed()
+    }
+
+    @Test
+    fun `reads again from the failed read`() {
+        showing(HoldoutCheckUiState.Failed)
+
         composeRule.onNodeWithText("Volver a intentarlo").performClick()
 
         assertEquals(listOf(HoldoutCheckIntent.RetryTapped), intents)
+    }
+
+    @Test
+    fun `draws the check not open with the way back`() {
+        showing(HoldoutCheckUiState.NotOpen)
+
+        composeRule.onNodeWithText("Volver a tu pueblo").performScrollTo().performClick()
+
+        assertEquals(1, townOpens)
+    }
+
+    @Test
+    fun `holds the choices while the answers are sent`() {
+        showing(askingLastWordChosen.copy(request = HoldoutCheckRequest.Waiting(HoldoutCheckAction.Answers)))
+
+        composeRule.onNodeWithText("correr").performScrollTo().assertIsNotEnabled()
+    }
+
+    @Test
+    fun `draws the start busy while the begin waits`() {
+        showing(dueEighthWeek.copy(request = HoldoutCheckRequest.Waiting(HoldoutCheckAction.Begin)))
+
+        composeRule.onNodeWithText("Empezar la prueba").performScrollTo().assertIsNotEnabled()
     }
 }

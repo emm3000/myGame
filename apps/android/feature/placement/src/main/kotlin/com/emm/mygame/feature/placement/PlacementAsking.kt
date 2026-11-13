@@ -7,20 +7,16 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.LiveRegionMode
-import androidx.compose.ui.semantics.ProgressBarRangeInfo
 import androidx.compose.ui.semantics.heading
 import androidx.compose.ui.semantics.liveRegion
-import androidx.compose.ui.semantics.progressBarRangeInfo
 import androidx.compose.ui.semantics.semantics
 import com.emm.mygame.core.designsystem.MyGameBlock
 import com.emm.mygame.core.designsystem.MyGameButton
 import com.emm.mygame.core.designsystem.MyGameChoiceRow
 import com.emm.mygame.core.designsystem.MyGameInlineAlert
-import com.emm.mygame.core.designsystem.MyGameMetaText
 import com.emm.mygame.core.designsystem.MyGameSpacing
 import com.emm.mygame.core.designsystem.MyGameText
 import com.emm.mygame.core.designsystem.MyGameTheme
-import com.emm.mygame.core.designsystem.MyGameTrack
 import com.emm.mygame.core.designsystem.MyGameTypography
 import com.emm.mygame.core.designsystem.blockHueOf
 import com.emm.mygame.core.designsystem.wordStyle
@@ -38,7 +34,7 @@ internal fun PlacementAsking(
     val isWaiting: Boolean = asking.request is PlacementRequest.Waiting
     Column(verticalArrangement = Arrangement.spacedBy(MyGameSpacing.step4), modifier = modifier) {
         asking.scores.forEach { score: PlacementScore -> BandScore(score = score) }
-        AskingProgress(asking = asking)
+        AskingProgress(band = asking.band, shownIndex = asking.shownIndex, total = asking.items.size)
         WordBlock(item = asking.shown, index = asking.shownIndex)
         Column(verticalArrangement = Arrangement.spacedBy(MyGameSpacing.step2)) {
             MyGameText(
@@ -64,31 +60,6 @@ internal fun PlacementAsking(
             MyGameInlineAlert(message = stringResource(R.string.placement_unreachable))
         }
         AskingAction(asking = asking, onIntent = onIntent)
-    }
-}
-
-@Composable
-private fun AskingProgress(asking: PlacementUiState.Asking, modifier: Modifier = Modifier) {
-    val filled: Float = (asking.shownIndex + 1).toFloat() / asking.items.size
-    Column(verticalArrangement = Arrangement.spacedBy(MyGameSpacing.step2), modifier = modifier) {
-        MyGameMetaText(
-            text = icuStringResource(R.string.placement_band, "band" to asking.band.number.toString()),
-            color = MyGameTheme.colors.inkMuted,
-        )
-        MyGameText(
-            text = icuStringResource(
-                R.string.placement_progress,
-                "number" to (asking.shownIndex + 1).toString(),
-                "total" to asking.items.size.toString(),
-            ),
-            style = MyGameTypography.caption,
-            color = MyGameTheme.colors.inkMuted,
-        )
-        MyGameTrack(
-            filled = filled,
-            color = MyGameTheme.colors.action,
-            modifier = Modifier.semantics { progressBarRangeInfo = ProgressBarRangeInfo(filled, 0f..1f) },
-        )
     }
 }
 
