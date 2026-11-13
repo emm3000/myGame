@@ -3,6 +3,7 @@ package com.emm.mygame.feature.map
 import androidx.compose.ui.test.SemanticsMatcher
 import androidx.compose.ui.test.assertCountEquals
 import androidx.compose.ui.test.assertIsDisplayed
+import androidx.compose.ui.test.junit4.ComposeContentTestRule
 import androidx.compose.ui.test.junit4.createComposeRule
 import androidx.compose.ui.test.onAllNodesWithText
 import androidx.compose.ui.test.onNodeWithContentDescription
@@ -31,7 +32,7 @@ import com.emm.mygame.core.designsystem.R as DesignSystemR
 class MapCleanUpScreenTest {
 
     @get:Rule
-    val composeRule = createComposeRule()
+    val composeRule: ComposeContentTestRule = createComposeRule()
 
     private val intents: MutableList<MapIntent> = mutableListOf()
 

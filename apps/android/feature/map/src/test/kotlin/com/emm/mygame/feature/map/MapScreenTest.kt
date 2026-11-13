@@ -3,6 +3,7 @@ package com.emm.mygame.feature.map
 import androidx.compose.ui.semantics.SemanticsProperties
 import androidx.compose.ui.test.SemanticsMatcher
 import androidx.compose.ui.test.assertIsDisplayed
+import androidx.compose.ui.test.junit4.ComposeContentTestRule
 import androidx.compose.ui.test.junit4.createComposeRule
 import androidx.compose.ui.test.onNodeWithContentDescription
 import androidx.compose.ui.test.onNodeWithText
@@ -27,7 +28,7 @@ import org.robolectric.RobolectricTestRunner
 class MapScreenTest {
 
     @get:Rule
-    val composeRule = createComposeRule()
+    val composeRule: ComposeContentTestRule = createComposeRule()
 
     private val intents: MutableList<MapIntent> = mutableListOf()
 
