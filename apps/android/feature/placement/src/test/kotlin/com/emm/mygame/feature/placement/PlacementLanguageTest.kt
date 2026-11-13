@@ -43,7 +43,7 @@ class PlacementLanguageTest {
         request = PlacementRequest.Idle,
     )
 
-    private val result: PlacementUiState.Closed = PlacementUiState.Closed(listOf(firstBandPassed))
+    private val placedOutResult: PlacementUiState.Closed = PlacementUiState.Closed(listOf(firstBandPassed))
 
     private fun show(language: CopyLanguage, state: PlacementUiState) {
         composeRule.setContent {
@@ -105,6 +105,7 @@ class PlacementLanguageTest {
     }
 
     @Test
+    @Config(qualifiers = "es")
     fun `draws the placement in English under none`() {
         show(noScaffold, offered)
 
@@ -121,6 +122,7 @@ class PlacementLanguageTest {
     }
 
     @Test
+    @Config(qualifiers = "es")
     fun `draws the asked band in English under none`() {
         show(noScaffold, lastWordChosen)
 
@@ -130,7 +132,7 @@ class PlacementLanguageTest {
 
     @Test
     fun `draws the result in Spanish for an es player in the English phase`() {
-        show(englishPhase, result)
+        show(englishPhase, placedOutResult)
 
         assertDrawn("Tu resultado", "Banda 1: 30 aciertos", "Superada: sus lecciones cuentan como sabidas.")
         assertDrawn("Volver a tu pueblo")
@@ -138,8 +140,9 @@ class PlacementLanguageTest {
     }
 
     @Test
+    @Config(qualifiers = "es")
     fun `draws the result in English under none`() {
-        show(noScaffold, result)
+        show(noScaffold, placedOutResult)
 
         assertDrawn("Your result", "Band 1: 30 right", "Placed out: its lessons count as known.", "Back to your town")
         assertNotDrawn("Tu resultado", "Banda 1: 30 aciertos", "Volver a tu pueblo")
@@ -162,6 +165,7 @@ class PlacementLanguageTest {
     }
 
     @Test
+    @Config(qualifiers = "es")
     fun `draws the offer row in English under none`() {
         showOffer(noScaffold, PlacementOfferUiState.Asking)
 
