@@ -4,7 +4,9 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.navigation3.runtime.NavKey
+import com.emm.mygame.core.network.HoldoutCheckWeek
 import com.emm.mygame.core.network.LessonId
+import com.emm.mygame.core.network.PlacementBand
 import kotlinx.coroutines.flow.Flow
 
 internal class Navigator(private val backStack: MutableList<NavKey>) {
@@ -37,12 +39,12 @@ internal class Navigator(private val backStack: MutableList<NavKey>) {
     }
 
     fun signedIn() {
-        showAlone(listOf(Destination.Town))
+        backStack.showAlone(listOf(Destination.Town))
     }
 
     fun signedOut(isSessionEnded: Boolean) {
         areLinksEnabled = true
-        showAlone(listOf(Destination.SignIn(isSessionEnded = isSessionEnded)))
+        backStack.showAlone(listOf(Destination.SignIn(isSessionEnded = isSessionEnded)))
     }
 
     suspend fun followSessionEnds(ended: Flow<Unit>) {
@@ -54,7 +56,7 @@ internal class Navigator(private val backStack: MutableList<NavKey>) {
         when (backStack.lastOrNull()) {
             Destination.Town -> backStack.add(Destination.School)
             is Destination.LessonWords -> {
-                backToTown()
+                backStack.backToTown()
                 backStack.add(Destination.School)
             }
             else -> Unit
@@ -88,6 +90,11 @@ internal class Navigator(private val backStack: MutableList<NavKey>) {
         openFromTown(Destination.Placement)
     }
 
+    fun openHoldoutCheck(band: PlacementBand, week: HoldoutCheckWeek) {
+        if (!areLinksEnabled) return
+        if (backStack.lastOrNull() == Destination.School) backStack.add(Destination.HoldoutCheck(band, week))
+    }
+
     fun openReviews() {
         if (!areLinksEnabled) return
         when (backStack.lastOrNull()) {
@@ -98,27 +105,27 @@ internal class Navigator(private val backStack: MutableList<NavKey>) {
     }
 
     fun openTown() {
-        if (backStack.lastOrNull().isAboveTown()) backToTown()
+        if (backStack.lastOrNull().isAboveTown()) backStack.backToTown()
     }
 
     private fun openFromTown(shownNext: Destination) {
         if (!areLinksEnabled) return
         val shown: NavKey? = backStack.lastOrNull()
         if (shown != Destination.Town && !shown.isAboveTown()) return
-        backToTown()
+        backStack.backToTown()
         backStack.add(shownNext)
     }
+}
 
-    private fun backToTown() {
-        backStack.subList(backStack.indexOf(Destination.Town) + 1, backStack.size).clear()
-    }
+private fun MutableList<NavKey>.backToTown() {
+    subList(indexOf(Destination.Town) + 1, size).clear()
+}
 
-    private fun showAlone(destinations: List<Destination>) {
-        if (backStack == destinations) return
-        val replaced: Int = backStack.size
-        backStack.addAll(destinations)
-        repeat(replaced) { backStack.removeAt(0) }
-    }
+private fun MutableList<NavKey>.showAlone(destinations: List<Destination>) {
+    if (this == destinations) return
+    val replaced: Int = size
+    addAll(destinations)
+    repeat(replaced) { removeAt(0) }
 }
 
 private fun NavKey?.isAboveTown(): Boolean = when (this) {
@@ -128,6 +135,7 @@ private fun NavKey?.isAboveTown(): Boolean = when (this) {
     Destination.Map,
     Destination.Review,
     Destination.Placement,
+    is Destination.HoldoutCheck,
     is Destination.LessonWords,
     -> true
     else -> false

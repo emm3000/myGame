@@ -1,5 +1,6 @@
 package com.emm.mygame
 
+import com.emm.mygame.core.network.HoldoutCheckRepository
 import com.emm.mygame.core.network.LearningRepository
 import com.emm.mygame.core.network.PlacementRepository
 import com.emm.mygame.core.network.PlayerLanguage
@@ -27,4 +28,6 @@ interface AppDependencies {
     val reports: ReportRepository
 
     val placements: PlacementRepository
+
+    val holdoutChecks: HoldoutCheckRepository
 }

@@ -1,7 +1,9 @@
 package com.emm.mygame
 
 import androidx.navigation3.runtime.NavKey
+import com.emm.mygame.core.network.HoldoutCheckWeek
 import com.emm.mygame.core.network.LessonId
+import com.emm.mygame.core.network.PlacementBand
 import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.test.runTest
 import org.junit.Assert.assertEquals
@@ -23,6 +25,9 @@ class NavigatorTest {
 
     private val secondWords: Destination.LessonWords =
         Destination.LessonWords(secondLesson, walked = listOf(firstLesson))
+
+    private val firstBandEighthWeek: Destination.HoldoutCheck =
+        Destination.HoldoutCheck(PlacementBand.First, HoldoutCheckWeek.Eighth)
 
     @Test
     fun `opens sign-up above sign-in`() {
@@ -608,5 +613,63 @@ class NavigatorTest {
         Navigator(backStack).openReport()
 
         assertEquals(listOf(Destination.Town, Destination.Report), backStack)
+    }
+
+    @Test
+    fun `opens the holdout check of its band and week above the school`() {
+        val backStack: MutableList<NavKey> = mutableListOf(Destination.Town, Destination.School)
+
+        Navigator(backStack).openHoldoutCheck(PlacementBand.First, HoldoutCheckWeek.Eighth)
+
+        assertEquals(listOf(Destination.Town, Destination.School, firstBandEighthWeek), backStack)
+    }
+
+    @Test
+    fun `returns to the school on back from the holdout check`() {
+        val backStack: MutableList<NavKey> = mutableListOf(Destination.Town, Destination.School, firstBandEighthWeek)
+
+        Navigator(backStack).back()
+
+        assertEquals(listOf(Destination.Town, Destination.School), backStack)
+    }
+
+    @Test
+    fun `returns to the town from the holdout check`() {
+        val backStack: MutableList<NavKey> = mutableListOf(Destination.Town, Destination.School, firstBandEighthWeek)
+
+        Navigator(backStack).openTown()
+
+        assertEquals(listOf<NavKey>(Destination.Town), backStack)
+    }
+
+    @Test
+    fun `keeps one holdout check on a double tap`() {
+        val backStack: MutableList<NavKey> = mutableListOf(Destination.Town, Destination.School)
+        val navigator: Navigator = Navigator(backStack)
+
+        navigator.openHoldoutCheck(PlacementBand.First, HoldoutCheckWeek.Eighth)
+        navigator.openHoldoutCheck(PlacementBand.First, HoldoutCheckWeek.Eighth)
+
+        assertEquals(listOf(Destination.Town, Destination.School, firstBandEighthWeek), backStack)
+    }
+
+    @Test
+    fun `opens no holdout check from the town`() {
+        val backStack: MutableList<NavKey> = mutableListOf(Destination.Town)
+
+        Navigator(backStack).openHoldoutCheck(PlacementBand.First, HoldoutCheckWeek.Eighth)
+
+        assertEquals(listOf<NavKey>(Destination.Town), backStack)
+    }
+
+    @Test
+    fun `opens no holdout check while signing out`() {
+        val backStack: MutableList<NavKey> = mutableListOf(Destination.Town, Destination.School)
+        val navigator: Navigator = Navigator(backStack)
+        navigator.signingOut()
+
+        navigator.openHoldoutCheck(PlacementBand.First, HoldoutCheckWeek.Eighth)
+
+        assertEquals(listOf(Destination.Town, Destination.School), backStack)
     }
 }

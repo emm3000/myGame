@@ -41,12 +41,15 @@ import com.emm.mygame.core.network.LessonId
 import com.emm.mygame.core.network.PlayerLanguage
 import com.emm.mygame.core.ui.chromeResource
 import com.emm.mygame.feature.map.MapRoute
+import com.emm.mygame.feature.placement.HoldoutCheckRoute
 import com.emm.mygame.feature.placement.PlacementOfferRoute
 import com.emm.mygame.feature.placement.PlacementRoute
 import com.emm.mygame.feature.report.NewsRoute
 import com.emm.mygame.feature.report.ReportNavigation
 import com.emm.mygame.feature.report.ReportRoute
 import com.emm.mygame.feature.review.ReviewRoute
+import com.emm.mygame.feature.school.HoldoutCheckRow
+import com.emm.mygame.feature.school.HoldoutCheckRowsRoute
 import com.emm.mygame.feature.school.LessonWalk
 import com.emm.mygame.feature.school.LessonWordsNavigation
 import com.emm.mygame.feature.school.LessonWordsRoute
@@ -159,6 +162,7 @@ private fun EntryProviderScope<NavKey>.signedInEntries(chrome: SignedInChrome) {
     newsEntry(chrome)
     mapEntry(chrome)
     placementEntry(chrome)
+    holdoutCheckEntry(chrome)
     lessonWordsEntry(chrome)
     entry<Destination.Review> {
         SignedInFrame(
@@ -228,6 +232,12 @@ private fun EntryProviderScope<NavKey>.schoolEntry(chrome: SignedInChrome) {
                 onReviewsOpen = navigator::openReviews,
                 onLessonOpen = { lesson: LessonId -> navigator.openLesson(lesson, walked = emptyList()) },
                 onReportOpen = navigator::openReport,
+                holdoutChecks = {
+                    HoldoutCheckRowsRoute(
+                        holdoutChecks = dependencies.holdoutChecks,
+                        onHoldoutCheckOpen = { row: HoldoutCheckRow -> navigator.openHoldoutCheck(row.band, row.week) },
+                    )
+                },
             )
         }
     }
@@ -295,6 +305,25 @@ private fun EntryProviderScope<NavKey>.placementEntry(chrome: SignedInChrome) {
             chrome = chrome,
         ) {
             PlacementRoute(placements = dependencies.placements, onTownOpen = navigator::openTown)
+        }
+    }
+}
+
+private fun EntryProviderScope<NavKey>.holdoutCheckEntry(chrome: SignedInChrome) {
+    val dependencies: AppDependencies = chrome.dependencies
+    val navigator: Navigator = chrome.navigator
+    entry<Destination.HoldoutCheck> { check: Destination.HoldoutCheck ->
+        SignedInFrame(
+            isTownHome = false,
+            doesScreenReadTown = false,
+            chrome = chrome,
+        ) {
+            HoldoutCheckRoute(
+                holdoutChecks = dependencies.holdoutChecks,
+                band = check.band,
+                week = check.week,
+                onTownOpen = navigator::openTown,
+            )
         }
     }
 }
@@ -391,4 +420,5 @@ private fun NavKey?.statusScreen(): TownStatusScreen = when (val destination: De
     Destination.Report -> TownStatusScreen.ReadsNoTown
     Destination.News -> TownStatusScreen.ReadsNoTown
     Destination.Placement -> TownStatusScreen.ReadsNoTown
+    is Destination.HoldoutCheck -> TownStatusScreen.ReadsNoTown
 }
