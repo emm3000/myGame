@@ -10,8 +10,17 @@ describe('catalogProblemsOf', () => {
     expect(catalogProblemsOf(enAhead)).toEqual([{ kind: 'missingFromEs', key: 'town.title' }])
   })
 
+  it('reports a key of es missing from en', () => {
+    const esAhead = { en: {}, es: { 'town.title': 'Tu pueblo' } }
+
+    expect(catalogProblemsOf(esAhead)).toEqual([{ kind: 'missingFromEn', key: 'town.title' }])
+  })
+
   it('reports a message that does not parse', () => {
-    const unclosedArgument = { en: {}, es: { 'town.fillsAt': 'Se llena a las {time' } }
+    const unclosedArgument = {
+      en: { 'town.fillsAt': 'Fills at {time}' },
+      es: { 'town.fillsAt': 'Se llena a las {time' },
+    }
 
     expect(catalogProblemsOf(unclosedArgument)).toEqual([
       { kind: 'unparsable', language: 'es', key: 'town.fillsAt' },
@@ -30,7 +39,10 @@ describe('catalogProblemsOf', () => {
   })
 
   it('reports a voseo form in es as a whole word, accents included', () => {
-    const voseo = { en: {}, es: { 'town.hint': 'Si querés más madera, Mirá el aserradero.' } }
+    const voseo = {
+      en: { 'town.hint': 'For more wood, look at the sawmill.' },
+      es: { 'town.hint': 'Si querés más madera, Mirá el aserradero.' },
+    }
 
     expect(catalogProblemsOf(voseo)).toEqual([
       { kind: 'voseo', key: 'town.hint', word: 'querés' },
@@ -40,7 +52,7 @@ describe('catalogProblemsOf', () => {
 
   it('leaves a voseo form inside a longer word unreported', () => {
     const tuteo = {
-      en: {},
+      en: { 'town.hint': 'You know the sawmill holds the town.' },
       es: { 'town.hint': 'Vosotros sabéis que el aserradero sostiene el feudo.' },
     }
 

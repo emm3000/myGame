@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="app_name">Townword</string>
-    <string name="navigation_town">Pueblo</string>
-    <string name="shell_retained_words">{count} de {total, plural, =1 {1 palabra aprendida} other {{total, number,0} palabras aprendidas}}</string>
+    <string name="navigation_town">Town</string>
+    <string name="shell_retained_words">{count} of {total, plural, =1 {1 word} other {{total, number,0} words}} learned</string>
 </resources>

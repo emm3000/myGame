@@ -132,7 +132,7 @@ class ReviewLookTest {
     }
 
     @Test
-    @Config(qualifiers = "w900dp-h1200dp")
+    @Config(qualifiers = "+w900dp-h1200dp")
     fun `sets the word at 52 sp on a wide window`() {
         draw(answering)
 
@@ -140,7 +140,7 @@ class ReviewLookTest {
     }
 
     @Test
-    @Config(qualifiers = "w900dp-h1200dp")
+    @Config(qualifiers = "+w900dp-h1200dp")
     fun `sets a recall's cue at 52 sp on a wide window`() {
         draw(answering.copy(card = recall))
 

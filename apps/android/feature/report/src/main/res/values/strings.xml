@@ -1,53 +1,53 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <string name="report_amount">{amount} de {resource}</string>
+    <string name="report_amount">{amount} {resource}</string>
     <string name="report_day">{day}, {time}</string>
     <string name="report_day_of_year">{day} {year}, {time}</string>
-    <string name="report_loading">Estamos leyendo tu informe…</string>
-    <string name="report_news_all">Leer todas las noticias</string>
-    <string name="report_news_became_city">Tu pueblo ahora es una ciudad.</string>
-    <string name="report_news_building_work_finished">{place}: ahora en nivel {level}.</string>
-    <string name="report_news_building_work_stopped">Paraste la obra: {place}, nivel {level}.</string>
-    <string name="report_news_clean_up_done">Tu equipo limpió los residuos de la región {region}, zona {area}, sitio {site}.</string>
-    <string name="report_news_clean_up_failed">Tu equipo no pudo limpiar los residuos de la región {region}, zona {area}, sitio {site}.</string>
-    <string name="report_news_close">Cerrar las noticias</string>
-    <string name="report_news_closed">Cerraste las noticias.</string>
-    <string name="report_news_hiring_delivered_truck">{count, plural, =1 {Contrataste 1 camión.} other {Contrataste {count, number,0} camiones.}}</string>
-    <string name="report_news_hiring_delivered_worker">{count, plural, =1 {Contrataste 1 trabajador.} other {Contrataste {count, number,0} trabajadores.}}</string>
-    <string name="report_news_hiring_stopped_truck">Paraste la contratación de camiones: {delivered, plural, =1 {llegó 1} other {llegaron {delivered, number,0}}} de {count}.</string>
-    <string name="report_news_hiring_stopped_worker">Paraste la contratación de trabajadores: {delivered, plural, =1 {llegó 1} other {llegaron {delivered, number,0}}} de {count}.</string>
-    <string name="report_news_job_back">Tu equipo volvió de la región {region}, zona {area}, sitio {site}.</string>
-    <string name="report_news_job_called_back">Llamaste de vuelta a tu equipo de la región {region}, zona {area}, sitio {site}.</string>
-    <string name="report_news_lesson_stopped">Paraste el estudio de una lección.</string>
-    <string name="report_news_lesson_studied">Estudiaste una lección.</string>
-    <string name="report_news_loading">Estamos leyendo las noticias…</string>
-    <string name="report_news_none">No hay noticias.</string>
-    <string name="report_news_pay">Pago: {amounts}</string>
-    <string name="report_news_refund">Recuperaste: {amounts}</string>
-    <string name="report_news_skill_earned" formatted="false">Ganaste una habilidad de {resource}: +{percent} % de {resource}.</string>
-    <string name="report_news_title">Noticias del pueblo</string>
-    <string name="report_next_review">Siguiente repaso:</string>
+    <string name="report_loading">Reading your Report…</string>
+    <string name="report_news_all">Read all the news</string>
+    <string name="report_news_became_city">Your town is now a city.</string>
+    <string name="report_news_building_work_finished">{place}: now level {level}.</string>
+    <string name="report_news_building_work_stopped">You stopped the work: {place}, level {level}.</string>
+    <string name="report_news_clean_up_done">Your team cleaned the waste at region {region}, area {area}, site {site}.</string>
+    <string name="report_news_clean_up_failed">Your team could not clean the waste at region {region}, area {area}, site {site}.</string>
+    <string name="report_news_close">Close the news</string>
+    <string name="report_news_closed">You closed the news.</string>
+    <string name="report_news_hiring_delivered_truck">{count, plural, =1 {You hired 1 truck.} other {You hired {count, number,0} trucks.}}</string>
+    <string name="report_news_hiring_delivered_worker">{count, plural, =1 {You hired 1 worker.} other {You hired {count, number,0} workers.}}</string>
+    <string name="report_news_hiring_stopped_truck">You stopped hiring trucks: {delivered} of {count} came.</string>
+    <string name="report_news_hiring_stopped_worker">You stopped hiring workers: {delivered} of {count} came.</string>
+    <string name="report_news_job_back">Your team came back from region {region}, area {area}, site {site}.</string>
+    <string name="report_news_job_called_back">You called your team back from region {region}, area {area}, site {site}.</string>
+    <string name="report_news_lesson_stopped">You stopped studying a lesson.</string>
+    <string name="report_news_lesson_studied">You studied a lesson.</string>
+    <string name="report_news_loading">Reading the news…</string>
+    <string name="report_news_none">No news.</string>
+    <string name="report_news_pay">Pay: {amounts}</string>
+    <string name="report_news_refund">Back to you: {amounts}</string>
+    <string name="report_news_skill_earned" formatted="false">You earned a {resource} skill: +{percent} % {resource}.</string>
+    <string name="report_news_title">Town News</string>
+    <string name="report_next_review">Next review:</string>
     <string name="report_next_review_day">{day} {time}</string>
-    <string name="report_next_review_tomorrow">mañana {time}</string>
-    <string name="report_no_reviews_due">No tienes repasos pendientes ahora.</string>
-    <string name="report_place_factory">Fábrica</string>
-    <string name="report_place_farm">Granja</string>
-    <string name="report_place_homes">Hogares</string>
-    <string name="report_place_office">Oficina</string>
-    <string name="report_place_power_station">Central eléctrica</string>
-    <string name="report_place_school">Escuela</string>
-    <string name="report_place_storage">Almacén</string>
-    <string name="report_read_words">Leer las palabras</string>
-    <string name="report_refusal_unexpected">No hemos podido hablar con el servidor. Vuelve a intentarlo en un momento.</string>
-    <string name="report_resource_food">comida</string>
+    <string name="report_next_review_tomorrow">tomorrow {time}</string>
+    <string name="report_no_reviews_due">No reviews due now.</string>
+    <string name="report_place_factory">Factory</string>
+    <string name="report_place_farm">Farm</string>
+    <string name="report_place_homes">Homes</string>
+    <string name="report_place_office">Office</string>
+    <string name="report_place_power_station">Power station</string>
+    <string name="report_place_school">School</string>
+    <string name="report_place_storage">Storage</string>
+    <string name="report_read_words">Read the words</string>
+    <string name="report_refusal_unexpected">We could not reach the server. Try again in a moment.</string>
+    <string name="report_resource_food">food</string>
     <string name="report_resource_material">material</string>
-    <string name="report_resource_money">dinero</string>
-    <string name="report_resource_power">energía</string>
-    <string name="report_reviews_due">Repasos pendientes: {count}</string>
-    <string name="report_sign_out">Salir</string>
-    <string name="report_start_reviews">Empezar los repasos</string>
-    <string name="report_title">Informe</string>
-    <string name="report_today">Hoy, {time}</string>
-    <string name="report_try_again">Volver a intentarlo</string>
-    <string name="report_waiting">Esperando</string>
+    <string name="report_resource_money">money</string>
+    <string name="report_resource_power">power</string>
+    <string name="report_reviews_due">Reviews due: {count}</string>
+    <string name="report_sign_out">Sign out</string>
+    <string name="report_start_reviews">Start the reviews</string>
+    <string name="report_title">Report</string>
+    <string name="report_today">Today, {time}</string>
+    <string name="report_try_again">Try again</string>
+    <string name="report_waiting">Waiting</string>
 </resources>
