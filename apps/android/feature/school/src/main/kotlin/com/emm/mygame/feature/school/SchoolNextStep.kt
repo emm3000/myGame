@@ -4,10 +4,10 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.res.stringResource
 import com.emm.mygame.core.designsystem.MyGameButton
 import com.emm.mygame.core.designsystem.MyGameCountdownGround
 import com.emm.mygame.core.designsystem.MyGameCountdownLine
+import com.emm.mygame.core.designsystem.MyGameLabel
 import com.emm.mygame.core.designsystem.MyGameNextStepBlock
 import com.emm.mygame.core.designsystem.MyGameSpacing
 import com.emm.mygame.core.designsystem.formatQuantity
@@ -16,8 +16,9 @@ import com.emm.mygame.core.network.LessonId
 import com.emm.mygame.core.network.NextStep
 import com.emm.mygame.core.network.NextStepCard
 import com.emm.mygame.core.network.PlacementBand
-import com.emm.mygame.core.ui.fixedCopyResource
-import com.emm.mygame.core.ui.icuStringResource
+import com.emm.mygame.core.ui.CopyReader
+import com.emm.mygame.core.ui.PlayerCopy
+import com.emm.mygame.core.ui.rememberPlayerCopy
 
 @Composable
 internal fun SchoolNextStep(
@@ -30,19 +31,20 @@ internal fun SchoolNextStep(
     modifier: Modifier = Modifier,
 ) {
     val card: NextStepCard = content.nextStep
+    val copy: PlayerCopy = rememberPlayerCopy()
     Column(verticalArrangement = Arrangement.spacedBy(MyGameSpacing.step5), modifier = modifier) {
         MyGameNextStepBlock(
-            title = stringResource(R.string.school_next_title),
-            line = lineOf(card.line),
-            detail = card.detail?.let { detail: NextStepCard.Detail -> detailOf(detail) },
+            title = copy.chrome(R.string.school_next_title),
+            line = copy.lineOf(card.line),
+            detail = card.detail?.let { detail: NextStepCard.Detail -> copy.detailOf(detail) },
         ) {
             NextStepCountdown(countdown = card.countdown, time = content.nextStepTime)
         }
         MyGameButton(
-            label = actionLabelOf(card.action),
+            label = copy.actionLabelOf(card.action),
             isBusy = card.action is NextStepCard.Action.StudyReleased &&
                 content.start == SchoolUiState.LessonRequest.Waiting,
-            busyDescription = stringResource(R.string.school_waiting),
+            busyDescription = copy.chrome(R.string.school_waiting).spoken,
             onClick = {
                 when (val action: NextStepCard.Action = card.action) {
                     is NextStepCard.Action.ReadWords -> action.lesson?.let(onLessonOpen)
@@ -67,34 +69,29 @@ private fun NextStepCountdown(
     modifier: Modifier = Modifier,
 ) {
     if (countdown == null || time == null) return
+    val copy: PlayerCopy = rememberPlayerCopy()
     MyGameCountdownLine(
-        words = countdownWordsOf(countdown),
-        time = finishLabelOf(time.remaining, time.finishesAt),
+        words = copy.chrome { countdownWordsOf(countdown) },
+        time = copy.chrome { finishLabelOf(time.remaining, time.finishesAt) },
         ground = MyGameCountdownGround.Block,
         modifier = modifier,
     )
 }
 
-@Composable
-private fun lineOf(line: NextStepCard.Line): String = when (line) {
+private fun PlayerCopy.lineOf(line: NextStepCard.Line): MyGameLabel = when (line) {
     is NextStepCard.Line.ReviewsDue ->
-        icuStringResource(R.string.school_next_reviews_due, "count" to formatQuantity(line.count.toLong()))
+        chrome(R.string.school_next_reviews_due, "count" to formatQuantity(line.count.toLong()))
     is NextStepCard.Line.HoldoutCheck ->
-        fixedCopyResource(R.string.school_next_holdout_check, "band" to line.band.number.toString())
-    NextStepCard.Line.Studying -> stringResource(R.string.school_slot_title)
-    is NextStepCard.Line.ReleasedLesson -> fixedCopyResource(
-        R.string.school_released_lesson,
-        "band" to line.band.number.toString(),
-        "number" to line.number.toString(),
-    )
-    is NextStepCard.Line.Lesson -> icuStringResource(R.string.school_lesson_title, "number" to line.number.toString())
-    NextStepCard.Line.NoReviewsDue -> stringResource(R.string.school_next_no_reviews_due)
+        fixedLabelOf(fixedCopy(R.string.school_next_holdout_check, "band" to line.band.number.toString()))
+    NextStepCard.Line.Studying -> chrome(R.string.school_slot_title)
+    is NextStepCard.Line.ReleasedLesson -> releasedTitleOf(line.band, set = line.number)
+    is NextStepCard.Line.Lesson -> chrome(R.string.school_lesson_title, "number" to line.number.toString())
+    NextStepCard.Line.NoReviewsDue -> chrome(R.string.school_next_no_reviews_due)
 }
 
-@Composable
-private fun detailOf(detail: NextStepCard.Detail): String = when (detail) {
-    is NextStepCard.Detail.Build -> stringResource(buildLineOf(detail.producer))
-    is NextStepCard.Detail.Words -> icuStringResource(R.string.school_lesson_words, "count" to detail.count)
+private fun PlayerCopy.detailOf(detail: NextStepCard.Detail): MyGameLabel = when (detail) {
+    is NextStepCard.Detail.Build -> chrome(buildLineOf(detail.producer))
+    is NextStepCard.Detail.Words -> chrome(R.string.school_lesson_words, "count" to detail.count)
 }
 
 private fun buildLineOf(producer: NextStep.Producer): Int = when (producer) {
@@ -103,20 +100,17 @@ private fun buildLineOf(producer: NextStep.Producer): Int = when (producer) {
     NextStep.Producer.PowerStation -> R.string.school_next_build_power_station
 }
 
-@Composable
-private fun countdownWordsOf(countdown: NextStepCard.Countdown): String = when (countdown) {
+private fun CopyReader.countdownWordsOf(countdown: NextStepCard.Countdown): String = when (countdown) {
     is NextStepCard.Countdown.LessonReady ->
-        icuStringResource(R.string.school_next_lesson_ready_in, "number" to countdown.number.toString())
-    is NextStepCard.Countdown.NextReview -> stringResource(R.string.school_next_review)
+        text(R.string.school_next_lesson_ready_in, "number" to countdown.number.toString())
+    is NextStepCard.Countdown.NextReview -> text(R.string.school_next_review)
 }
 
-@Composable
-private fun actionLabelOf(action: NextStepCard.Action): String = when (action) {
-    is NextStepCard.Action.ReadWords -> stringResource(R.string.school_lesson_read_words)
-    NextStepCard.Action.StartReviews -> stringResource(R.string.school_start_reviews)
-    is NextStepCard.Action.OpenHoldoutCheck -> fixedCopyResource(R.string.school_holdout_open)
-    is NextStepCard.Action.StudyReleased -> fixedCopyResource(R.string.school_released_lesson_study)
-    is NextStepCard.Action.Study ->
-        icuStringResource(R.string.school_lesson_study, "number" to action.number.toString())
-    NextStepCard.Action.GoToReport -> stringResource(R.string.school_next_go_to_report)
+private fun PlayerCopy.actionLabelOf(action: NextStepCard.Action): MyGameLabel = when (action) {
+    is NextStepCard.Action.ReadWords -> chrome(R.string.school_lesson_read_words)
+    NextStepCard.Action.StartReviews -> chrome(R.string.school_start_reviews)
+    is NextStepCard.Action.OpenHoldoutCheck -> fixedLabelOf(fixedCopy(R.string.school_holdout_open))
+    is NextStepCard.Action.StudyReleased -> fixedLabelOf(fixedCopy(R.string.school_released_lesson_study))
+    is NextStepCard.Action.Study -> chrome(R.string.school_lesson_study, "number" to action.number.toString())
+    NextStepCard.Action.GoToReport -> chrome(R.string.school_next_go_to_report)
 }

@@ -14,7 +14,6 @@ import androidx.compose.foundation.verticalScroll
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.LiveRegionMode
 import androidx.compose.ui.semantics.ProgressBarRangeInfo
 import androidx.compose.ui.semantics.heading
@@ -30,6 +29,7 @@ import com.emm.mygame.core.designsystem.MyGameButton
 import com.emm.mygame.core.designsystem.MyGameErrorBanner
 import com.emm.mygame.core.designsystem.MyGameIcon
 import com.emm.mygame.core.designsystem.MyGameIcons
+import com.emm.mygame.core.designsystem.MyGameLabel
 import com.emm.mygame.core.designsystem.MyGamePreviewSurface
 import com.emm.mygame.core.designsystem.MyGameSizes
 import com.emm.mygame.core.designsystem.MyGameSkeleton
@@ -49,7 +49,13 @@ import com.emm.mygame.core.designsystem.wordStyle
 import com.emm.mygame.core.network.LessonName
 import com.emm.mygame.core.network.PlacementBand
 import com.emm.mygame.core.network.TownSnapshot
-import com.emm.mygame.core.ui.icuStringResource
+import com.emm.mygame.core.ui.ChromePhase
+import com.emm.mygame.core.ui.CopyLanguage
+import com.emm.mygame.core.ui.ProvideCopyLanguage
+import com.emm.mygame.core.ui.ScaffoldLanguage
+import com.emm.mygame.core.ui.chromeResource
+import com.emm.mygame.core.ui.fixedCopyResource
+import com.emm.mygame.core.ui.rememberPlayerCopy
 import kotlin.time.Duration
 import kotlin.time.Duration.Companion.minutes
 
@@ -74,7 +80,7 @@ fun LessonWordsScreen(
     ) {
         MyGameSkeleton(
             isLoading = state == LessonWordsUiState.Loading,
-            loadingLabel = stringResource(R.string.school_loading),
+            loadingLabel = chromeResource(R.string.school_loading).spoken,
             blocks = lessonWordsBlocks,
         ) {
             LessonWordsState(state = state, onIntent = onIntent, onWayOn = onWayOn, onSchoolOpen = onSchoolOpen)
@@ -92,8 +98,8 @@ private fun LessonWordsState(
     when (state) {
         LessonWordsUiState.Loading -> Unit
         LessonWordsUiState.Failed -> MyGameErrorBanner(
-            message = stringResource(R.string.school_refusal_unexpected),
-            actionLabel = stringResource(R.string.school_try_again),
+            message = fixedCopyResource(R.string.school_refusal_unexpected),
+            actionLabel = chromeResource(R.string.school_try_again),
             onAction = { onIntent(LessonWordsIntent.RetryTapped) },
         )
         LessonWordsUiState.NothingToRead -> NothingToRead(onSchoolOpen = onSchoolOpen)
@@ -121,11 +127,11 @@ private fun NothingToRead(onSchoolOpen: () -> Unit, modifier: Modifier = Modifie
     ) {
         Column(verticalArrangement = Arrangement.spacedBy(MyGameSpacing.step3)) {
             MyGameText(
-                text = stringResource(R.string.school_lesson_nothing_to_read),
+                label = chromeResource(R.string.school_lesson_nothing_to_read),
                 style = MyGameTypography.body,
                 color = MyGameTheme.colors.ink,
             )
-            MyGameTextLink(label = stringResource(R.string.school_go_to_school), onClick = onSchoolOpen)
+            MyGameTextLink(label = chromeResource(R.string.school_go_to_school), onClick = onSchoolOpen)
         }
     }
 }
@@ -134,7 +140,7 @@ private fun NothingToRead(onSchoolOpen: () -> Unit, modifier: Modifier = Modifie
 private fun LessonHeader(reading: LessonWordsUiState.Reading, modifier: Modifier = Modifier) {
     Column(verticalArrangement = Arrangement.spacedBy(MyGameSpacing.step1), modifier = modifier) {
         MyGameText(
-            text = lessonTitleOf(reading.name),
+            label = rememberPlayerCopy().lessonTitleOf(reading.name),
             style = MyGameTypography.title,
             color = MyGameTheme.colors.ink,
             modifier = Modifier.semantics { heading() },
@@ -154,12 +160,12 @@ private fun RunningTime(remaining: Duration, modifier: Modifier = Modifier) {
     ) {
         MyGameIcon(icon = MyGameIcons.hourglass, tint = MyGameTheme.colors.inkMuted)
         MyGameText(
-            text = stringResource(R.string.school_slot_title),
+            label = chromeResource(R.string.school_slot_title),
             style = MyGameTypography.label,
             color = MyGameTheme.colors.inkMuted,
         )
         MyGameText(
-            text = timeLeftLabelOf(remaining),
+            label = rememberPlayerCopy().chrome { timeLeftLabelOf(remaining) },
             style = MyGameTypography.heading.withTabularFigures(),
             color = MyGameTheme.colors.ink,
         )
@@ -184,7 +190,7 @@ private fun WordBlock(reading: LessonWordsUiState.Reading, modifier: Modifier = 
         modifier = modifier.semantics(mergeDescendants = true) { liveRegion = LiveRegionMode.Polite },
     ) {
         MyGameText(
-            text = icuStringResource(
+            label = chromeResource(
                 R.string.school_lesson_word_position,
                 "number" to (reading.index + 1).toString(),
                 "count" to reading.words.size.toString(),
@@ -223,7 +229,7 @@ private fun WordActions(
                 if (!reading.isLastWord) NextWordLink(onNextWord = onNextWord)
             }
             !reading.isLastWord -> InkPill(
-                label = stringResource(R.string.school_lesson_word_next),
+                label = chromeResource(R.string.school_lesson_word_next),
                 onClick = onNextWord,
             )
             else -> ReviewsFollow(onSchoolOpen = onSchoolOpen)
@@ -237,19 +243,19 @@ private fun WayOnButton(
     onWayOn: (LessonWordsUiState.WayOn) -> Unit,
     modifier: Modifier = Modifier,
 ) {
-    val label: String = when (wayOn) {
-        is LessonWordsUiState.WayOn.Lesson -> stringResource(R.string.school_lesson_next)
-        LessonWordsUiState.WayOn.Reviews -> stringResource(R.string.school_start_reviews)
+    val label: MyGameLabel = when (wayOn) {
+        is LessonWordsUiState.WayOn.Lesson -> chromeResource(R.string.school_lesson_next)
+        LessonWordsUiState.WayOn.Reviews -> chromeResource(R.string.school_start_reviews)
     }
     InkPill(label = label, onClick = { onWayOn(wayOn) }, modifier = modifier)
 }
 
 @Composable
-private fun InkPill(label: String, onClick: () -> Unit, modifier: Modifier = Modifier) {
+private fun InkPill(label: MyGameLabel, onClick: () -> Unit, modifier: Modifier = Modifier) {
     MyGameButton(
         label = label,
         isBusy = false,
-        busyDescription = stringResource(R.string.school_waiting),
+        busyDescription = chromeResource(R.string.school_waiting).spoken,
         onClick = onClick,
         modifier = modifier,
     )
@@ -258,7 +264,7 @@ private fun InkPill(label: String, onClick: () -> Unit, modifier: Modifier = Mod
 @Composable
 private fun NextWordLink(onNextWord: () -> Unit, modifier: Modifier = Modifier) {
     MyGameTextLink(
-        label = stringResource(R.string.school_lesson_word_next),
+        label = chromeResource(R.string.school_lesson_word_next),
         onClick = onNextWord,
         modifier = modifier,
     )
@@ -268,11 +274,11 @@ private fun NextWordLink(onNextWord: () -> Unit, modifier: Modifier = Modifier) 
 private fun ReviewsFollow(onSchoolOpen: () -> Unit, modifier: Modifier = Modifier) {
     Column(verticalArrangement = Arrangement.spacedBy(MyGameSpacing.step2), modifier = modifier) {
         MyGameText(
-            text = stringResource(R.string.school_lesson_word_then),
+            label = chromeResource(R.string.school_lesson_word_then),
             style = MyGameTypography.body,
             color = MyGameTheme.colors.ink,
         )
-        MyGameTextLink(label = stringResource(R.string.school_go_to_school), onClick = onSchoolOpen)
+        MyGameTextLink(label = chromeResource(R.string.school_go_to_school), onClick = onSchoolOpen)
     }
 }
 
@@ -305,5 +311,32 @@ private class LessonWordsUiStates : PreviewParameterProvider<LessonWordsUiState>
 private fun LessonWordsScreenPreview(@PreviewParameter(LessonWordsUiStates::class) state: LessonWordsUiState) {
     MyGamePreviewSurface {
         LessonWordsScreen(state = state, onIntent = {}, onWayOn = {}, onSchoolOpen = {})
+    }
+}
+
+@PreviewMyGame
+@Composable
+private fun LessonWordsScreenLanguagePreview(
+    @PreviewParameter(SchoolLanguages::class) language: CopyLanguage,
+) {
+    ProvideCopyLanguage(language = language) {
+        MyGamePreviewSurface {
+            LessonWordsScreen(state = previewReading, onIntent = {}, onWayOn = {}, onSchoolOpen = {})
+        }
+    }
+}
+
+@PreviewMyGame
+@Composable
+private fun LessonWordsScreenReleasedBothPreview() {
+    ProvideCopyLanguage(language = CopyLanguage(ScaffoldLanguage.Spanish, ChromePhase.Both)) {
+        MyGamePreviewSurface {
+            LessonWordsScreen(
+                state = previewReading.copy(name = LessonName.Released(PlacementBand.Second, set = 1), theme = null),
+                onIntent = {},
+                onWayOn = {},
+                onSchoolOpen = {},
+            )
+        }
     }
 }

@@ -8,7 +8,6 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.testTag
-import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.ProgressBarRangeInfo
 import androidx.compose.ui.semantics.heading
 import androidx.compose.ui.semantics.progressBarRangeInfo
@@ -25,6 +24,9 @@ import com.emm.mygame.core.designsystem.MyGameTrack
 import com.emm.mygame.core.designsystem.MyGameTypography
 import com.emm.mygame.core.designsystem.withTabularFigures
 import com.emm.mygame.core.network.LessonName
+import com.emm.mygame.core.ui.PlayerCopy
+import com.emm.mygame.core.ui.chromeResource
+import com.emm.mygame.core.ui.rememberPlayerCopy
 
 internal const val LESSON_DONE_ICON: String = "lesson_done_icon"
 
@@ -35,6 +37,7 @@ internal fun LessonSlotSection(
     onIntent: (SchoolIntent) -> Unit,
     modifier: Modifier = Modifier,
 ) {
+    val copy: PlayerCopy = rememberPlayerCopy()
     Column(verticalArrangement = Arrangement.spacedBy(MyGameSpacing.step3), modifier = modifier) {
         MyGameCard {
             Column(
@@ -44,7 +47,7 @@ internal fun LessonSlotSection(
                 SlotHeading()
                 when (slot) {
                     SchoolUiState.SlotLine.Idle -> MyGameText(
-                        text = stringResource(R.string.school_slot_idle),
+                        label = copy.chrome(R.string.school_slot_idle),
                         style = MyGameTypography.caption,
                         color = MyGameTheme.colors.inkMuted,
                     )
@@ -53,7 +56,7 @@ internal fun LessonSlotSection(
                 }
             }
         }
-        requestAnswerOf(stop)?.let { line: String -> MyGameInlineAlert(message = line) }
+        copy.requestAnswerOf(stop)?.let { line: String -> MyGameInlineAlert(message = line) }
     }
 }
 
@@ -66,7 +69,7 @@ private fun SlotHeading(modifier: Modifier = Modifier) {
     ) {
         MyGameIcon(icon = MyGameIcons.slot, tint = MyGameTheme.colors.inkMuted)
         MyGameText(
-            text = stringResource(R.string.school_slot_title),
+            label = chromeResource(R.string.school_slot_title),
             style = MyGameTypography.heading,
             color = MyGameTheme.colors.ink,
             modifier = Modifier.semantics { heading() },
@@ -77,7 +80,7 @@ private fun SlotHeading(modifier: Modifier = Modifier) {
 @Composable
 private fun LessonTitle(name: LessonName, modifier: Modifier = Modifier) {
     MyGameText(
-        text = lessonTitleOf(name),
+        label = rememberPlayerCopy().lessonTitleOf(name),
         style = MyGameTypography.title,
         color = MyGameTheme.colors.ink,
         modifier = modifier,
@@ -98,7 +101,7 @@ private fun DoneSlot(slot: SchoolUiState.SlotLine.Done, modifier: Modifier = Mod
                 modifier = Modifier.testTag(LESSON_DONE_ICON),
             )
             MyGameText(
-                text = stringResource(R.string.school_slot_done),
+                label = chromeResource(R.string.school_slot_done),
                 style = MyGameTypography.caption,
                 color = MyGameTheme.colors.ink,
             )
@@ -113,6 +116,7 @@ private fun BusySlot(
     onIntent: (SchoolIntent) -> Unit,
     modifier: Modifier = Modifier,
 ) {
+    val copy: PlayerCopy = rememberPlayerCopy()
     Column(verticalArrangement = Arrangement.spacedBy(MyGameSpacing.step3), modifier = modifier) {
         LessonTitle(name = slot.name)
         Row(
@@ -121,7 +125,7 @@ private fun BusySlot(
         ) {
             MyGameIcon(icon = MyGameIcons.hourglass, tint = MyGameTheme.colors.inkMuted)
             MyGameText(
-                text = timeLeftLabelOf(slot.remaining),
+                label = copy.chrome { timeLeftLabelOf(slot.remaining) },
                 style = MyGameTypography.heading.withTabularFigures(),
                 color = MyGameTheme.colors.ink,
             )
@@ -133,16 +137,16 @@ private fun BusySlot(
             modifier = Modifier.semantics { progressBarRangeInfo = ProgressBarRangeInfo(filled, 0f..1f) },
         )
         MyGameText(
-            text = stringResource(R.string.school_slot_refund),
+            label = copy.chrome(R.string.school_slot_refund),
             style = MyGameTypography.caption,
             color = MyGameTheme.colors.inkMuted,
         )
         MyGameOutlinedButton(
-            label = stringResource(R.string.school_slot_stop),
+            label = copy.chrome(R.string.school_slot_stop),
             isBusy = stop == SchoolUiState.LessonRequest.Waiting,
-            busyDescription = stringResource(R.string.school_waiting),
+            busyDescription = copy.chrome(R.string.school_waiting).spoken,
             onClick = { onIntent(SchoolIntent.StopTapped(slot.lesson)) },
-            accessibleName = slotStopNameOf(slot.name),
+            accessibleName = copy.slotStopNameOf(slot.name),
         )
     }
 }
