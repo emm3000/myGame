@@ -29,7 +29,10 @@ afterEach(() => {
   }
 })
 
-const catalogWithLemma = (wordId: string, lemma: string): JsonLessonCatalog => {
+const catalogWithEntry = (
+  wordId: string,
+  change: Readonly<Record<string, unknown>>,
+): JsonLessonCatalog => {
   const directory = mkdtempSync(join(tmpdir(), 'mygame-frames-'))
   copies.push(directory)
   cpSync(shippedContent, directory, { recursive: true })
@@ -39,7 +42,7 @@ const catalogWithLemma = (wordId: string, lemma: string): JsonLessonCatalog => {
   )
   writeFileSync(
     wordsFile,
-    JSON.stringify(lexicon.map((entry) => (entry.id === wordId ? { ...entry, lemma } : entry))),
+    JSON.stringify(lexicon.map((entry) => (entry.id === wordId ? { ...entry, ...change } : entry))),
   )
   return JsonLessonCatalog.fromDirectory(directory)
 }
@@ -88,10 +91,14 @@ const supportOf = (spans: FrameSpans, text: string): unknown => {
 const readingOf = (wordId: string, lessons: JsonLessonCatalog = shipped): FrameSpans =>
   readingFrameOf(taughtOf(wordId, lessons).word, readerOf('es', lessons))
 
-const recallOf = (wordId: string, gappedFrame: string): FrameSpans => {
+const recallOf = (
+  wordId: string,
+  gappedFrame: string,
+  lessons: JsonLessonCatalog = shipped,
+): FrameSpans => {
   const prompt = reviewPromptOf(
-    { ...taughtOf(wordId), card: cardInReview(), shownFrame: gappedFrame },
-    readerOf('none'),
+    { ...taughtOf(wordId, lessons), card: cardInReview(), shownFrame: gappedFrame },
+    readerOf('none', lessons),
   )
   assert(prompt.mode === 'recall')
   return prompt.gappedFrame
@@ -166,7 +173,7 @@ describe('the frames the content resolves', () => {
   })
 
   it('never supports a form two card words share', () => {
-    const lessons = catalogWithLemma('word-28', 'town')
+    const lessons = catalogWithEntry('word-28', { lemma: 'town' })
 
     expect(supportedTexts(readingOf('word-38', lessons))).toEqual([])
   })
@@ -219,6 +226,14 @@ describe('the frames the content resolves', () => {
 
   it("drops write's support on a recall of word", () => {
     expect(supportOf(recallOf('word-52', 'Write this ____ on the list.'), 'Write')).toBeNull()
+  })
+
+  it('drops a support holding an accepted form of the answer on a recall', () => {
+    const lessons = catalogWithEntry('word-109', { acceptedForms: ['call'] })
+
+    expect(
+      supportOf(recallOf('word-109', '____ your name on the list.', lessons), 'name'),
+    ).toBeNull()
   })
 
   it('keeps a neighbour support holding no form of the answer on a recall', () => {

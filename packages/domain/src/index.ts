@@ -39,7 +39,6 @@ export type { DueCard } from './learning/dueCardsAt'
 export type { FrameReader } from './learning/FrameReader'
 export type { FrameSpan, FrameSpans } from './learning/FrameSpan'
 export type { FrameToken } from './learning/FrameToken'
-export { frameSpansOf, type Withholding } from './learning/frameSpansOf'
 export { glossOf } from './learning/glossOf'
 export { gradeTypedAnswer, type TypedAnswerGrade } from './learning/gradeTypedAnswer'
 export type { HeldCard } from './learning/HeldCard'
@@ -68,7 +67,6 @@ export { readingFrameOf } from './learning/readingFrameOf'
 export { type RecognitionChoice, recognitionChoicesOf } from './learning/recognitionChoicesOf'
 export { type RetainedWords, retainedWordsOf } from './learning/retainedWordsOf'
 export {
-  type ReviewChoice,
   type ReviewPrompt,
   reviewPromptOf,
   type ShownWord,
