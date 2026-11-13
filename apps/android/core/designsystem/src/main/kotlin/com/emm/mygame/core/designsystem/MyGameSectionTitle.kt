@@ -7,11 +7,16 @@ import androidx.compose.ui.semantics.semantics
 
 @Composable
 fun MyGameSectionTitle(text: String, modifier: Modifier = Modifier) {
+    MyGameSectionTitle(label = MyGameLabel(text = text, translation = null), modifier = modifier)
+}
+
+@Composable
+fun MyGameSectionTitle(label: MyGameLabel, modifier: Modifier = Modifier) {
     MyGameText(
-        text = text,
+        label = label,
         style = MyGameTypography.label,
         color = MyGameTheme.colors.inkMuted,
-        modifier = modifier.semantics { heading() },
+        modifier = modifier.semantics(mergeDescendants = label.translation != null) { heading() },
     )
 }
 
@@ -20,5 +25,6 @@ fun MyGameSectionTitle(text: String, modifier: Modifier = Modifier) {
 private fun MyGameSectionTitlePreview() {
     MyGamePreviewSurface {
         MyGameSectionTitle(text = "Places")
+        MyGameSectionTitle(label = MyGameLabel(text = "Places", translation = "Lugares"))
     }
 }
