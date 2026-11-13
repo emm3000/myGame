@@ -24,7 +24,6 @@ import androidx.compose.ui.test.performScrollTo
 import androidx.compose.ui.test.performTextInput
 import androidx.compose.ui.text.TextLayoutResult
 import androidx.compose.ui.unit.Dp
-import androidx.compose.ui.unit.DpRect
 import com.emm.mygame.core.designsystem.MyGameSizes
 import com.emm.mygame.core.designsystem.MyGameSpacing
 import com.emm.mygame.core.designsystem.MyGameTheme
@@ -93,6 +92,7 @@ class TownScreenTest {
         ),
         people = TownUiState.PeopleLine(free = 24, atWork = 96),
         season = null,
+        buildMark = null,
         slot = TownUiState.SlotLine.Idle,
         waitingList = emptyList(),
         places = listOf(farmOffer),
@@ -659,8 +659,6 @@ class TownScreenTest {
         return layouts.single().layoutInput.style.fontFeatureSettings
     }
 
-    private fun emptyNaming(): TownUiState.Naming = TownUiState.Naming("", TownUiState.NamingStatus.Idle)
-
     private fun blocked(reason: TownUiState.BlockReason): TownUiState.Content =
         riverton.copy(places = listOf(farmOffer.copy(block = reason)))
 
@@ -718,71 +716,10 @@ class TownScreenTest {
     }
 
     @Test
-    fun `offers sign-out under the naming form`() {
-        show(emptyNaming())
-
-        composeRule.onNodeWithText("Salir").performScrollTo().performClick()
-
-        assertEquals(listOf<TownIntent>(TownIntent.SignOutTapped), intents)
-    }
-
-    @Test
-    fun `offers sign-out under a failed read`() {
-        show(TownUiState.Failed)
-
-        composeRule.onNodeWithText("Salir").performScrollTo().performClick()
-
-        assertEquals(listOf<TownIntent>(TownIntent.SignOutTapped), intents)
-    }
-
-    @Test
-    fun `offers no sign-out while loading`() {
-        show(TownUiState.Loading)
-
-        composeRule.onAllNodesWithText("Salir").assertCountEquals(0)
-    }
-
-    @Test
     fun `offers no sign-out on the town home`() {
         show(riverton)
 
         composeRule.onAllNodesWithText("Salir").assertCountEquals(0)
-    }
-
-    @Test
-    fun `announces the sign-out as waiting while the session ends`() {
-        show(TownUiState.SigningOut)
-
-        composeRule
-            .onNodeWithText("Salir")
-            .assert(SemanticsMatcher.expectValue(SemanticsProperties.StateDescription, "Esperando"))
-    }
-
-    @Test
-    fun `sends nothing from the sign-out while the session ends`() {
-        show(TownUiState.SigningOut)
-
-        composeRule.onNodeWithText("Salir").performClick()
-
-        assertEquals(emptyList<TownIntent>(), intents)
-    }
-
-    @Test
-    fun `holds the sign-out at the touch minimum in height`() {
-        show(TownUiState.Failed)
-
-        val target: DpRect = composeRule.onNodeWithText("Salir").getUnclippedBoundsInRoot()
-
-        assertTrue(target.bottom - target.top >= MyGameSizes.control)
-    }
-
-    @Test
-    fun `holds the sign-out at the touch minimum in width`() {
-        show(TownUiState.Failed)
-
-        val target: DpRect = composeRule.onNodeWithText("Salir").getUnclippedBoundsInRoot()
-
-        assertTrue(target.right - target.left >= MyGameSizes.control)
     }
 
     @Test

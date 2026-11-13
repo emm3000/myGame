@@ -39,6 +39,7 @@ import com.emm.mygame.core.network.TownLabel
 import com.emm.mygame.core.network.TownResourceKind
 import com.emm.mygame.core.ui.CopyReader
 import com.emm.mygame.core.ui.PlayerCopy
+import com.emm.mygame.core.ui.SeasonMark
 import com.emm.mygame.core.ui.chromeResource
 import com.emm.mygame.core.ui.rememberPlayerCopy
 import kotlin.time.Duration.Companion.hours
@@ -59,11 +60,25 @@ internal fun PlacesSection(
             color = MyGameTheme.colors.ink,
             modifier = Modifier.semantics { heading() },
         )
+        content.buildMark?.let { mark: TownUiState.DurationMark -> BuildMarkRow(mark = mark) }
         content.places.forEachIndexed { index: Int, place: TownUiState.PlaceCard ->
             if (index > 0) MyGameHairline()
             PlaceItem(place = place, start = content.start, onIntent = onIntent, onSchoolOpen = onSchoolOpen)
         }
     }
+}
+
+@Composable
+private fun BuildMarkRow(mark: TownUiState.DurationMark, modifier: Modifier = Modifier) {
+    SeasonMark(
+        icon = seasonIconOf(mark.season),
+        label = chromeResource(
+            R.string.town_season_build_mark,
+            "season" to seasonSelectorOf(mark.season),
+            "percent" to mark.percent.toString(),
+        ),
+        modifier = modifier,
+    )
 }
 
 @Composable

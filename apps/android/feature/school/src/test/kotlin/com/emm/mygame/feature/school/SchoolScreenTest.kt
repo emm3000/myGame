@@ -70,6 +70,7 @@ class SchoolScreenTest {
         skills = emptyList(),
         lessons = listOf(readyLesson),
         releasedLessons = emptyList(),
+        studyMark = null,
         nextStep = caughtUpCard,
         nextStepTime = null,
         start = SchoolUiState.LessonRequest.Idle,

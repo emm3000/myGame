@@ -58,6 +58,7 @@ class TownReadyLineScreenTest {
         ),
         people = TownUiState.PeopleLine(free = 24, atWork = 96),
         season = null,
+        buildMark = null,
         slot = TownUiState.SlotLine.Idle,
         waitingList = emptyList(),
         places = listOf(farmOffer),

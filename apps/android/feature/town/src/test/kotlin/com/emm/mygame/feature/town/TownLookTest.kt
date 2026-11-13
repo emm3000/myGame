@@ -1,11 +1,16 @@
 package com.emm.mygame.feature.town
 
+import androidx.compose.runtime.Composable
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.semantics.SemanticsActions
+import androidx.compose.ui.test.SemanticsMatcher
 import androidx.compose.ui.test.assertCountEquals
 import androidx.compose.ui.test.assertIsDisplayed
 import androidx.compose.ui.test.getUnclippedBoundsInRoot
+import androidx.compose.ui.test.hasAnyDescendant
+import androidx.compose.ui.test.hasText
 import androidx.compose.ui.test.junit4.createComposeRule
 import androidx.compose.ui.test.onAllNodesWithTag
 import androidx.compose.ui.test.onAllNodesWithText
@@ -19,16 +24,17 @@ import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.DpRect
 import com.emm.mygame.core.designsystem.INK_PILL
+import com.emm.mygame.core.designsystem.MyGameIcons
 import com.emm.mygame.core.designsystem.MyGameTheme
 import com.emm.mygame.core.designsystem.MyGameTypography
 import com.emm.mygame.core.designsystem.OUTLINED_PILL
-import com.emm.mygame.core.network.SeasonInForce
 import com.emm.mygame.core.network.SeasonKind
 import com.emm.mygame.core.network.TownBuildingKind
 import com.emm.mygame.core.network.TownLabel
 import com.emm.mygame.core.network.TownRegistered
 import com.emm.mygame.core.network.TownResourceKind
 import com.emm.mygame.core.network.TownSnapshot
+import com.emm.mygame.core.ui.SEASON_MARK_ICON
 import kotlin.time.Duration
 import kotlin.time.Duration.Companion.hours
 import kotlin.time.Duration.Companion.minutes
@@ -77,6 +83,7 @@ class TownLookTest {
         ),
         people = TownUiState.PeopleLine(free = 24, atWork = 96),
         season = null,
+        buildMark = null,
         slot = TownUiState.SlotLine.Idle,
         waitingList = emptyList(),
         places = listOf(farmOffer),
@@ -286,7 +293,12 @@ class TownLookTest {
 
     @Test
     fun `counts the season in force down in days`() {
-        val season = TownUiState.SeasonLine(SeasonKind.Fall, year = 2, remaining = 49.hours)
+        val season = TownUiState.SeasonLine(
+            SeasonKind.Fall,
+            year = 2,
+            remaining = 49.hours,
+            productionMarks = emptyList(),
+        )
 
         show(riverton.copy(season = season))
 
@@ -296,7 +308,12 @@ class TownLookTest {
 
     @Test
     fun `counts the last day of a season down by the clock`() {
-        val season = TownUiState.SeasonLine(SeasonKind.Spring, year = 1, remaining = 30.minutes)
+        val season = TownUiState.SeasonLine(
+            SeasonKind.Spring,
+            year = 1,
+            remaining = 30.minutes,
+            productionMarks = emptyList(),
+        )
 
         show(riverton.copy(season = season))
 
@@ -305,12 +322,111 @@ class TownLookTest {
 
     @Test
     fun `sets the season under the people`() {
-        val season = TownUiState.SeasonLine(SeasonKind.Fall, year = 2, remaining = 24.hours)
+        val season = TownUiState.SeasonLine(
+            SeasonKind.Fall,
+            year = 2,
+            remaining = 24.hours,
+            productionMarks = emptyList(),
+        )
 
         show(riverton.copy(season = season))
 
         assertTrue(topOf(PEOPLE) < topOf("Otoño, año 2"))
         assertTrue(topOf("Otoño termina en 1 día") < topOf("Obra"))
+    }
+
+    @Test
+    fun `draws each production mark under the season line`() {
+        val season = TownUiState.SeasonLine(
+            SeasonKind.Summer,
+            year = 2,
+            remaining = 24.hours,
+            productionMarks = listOf(
+                TownUiState.ProductionMark(TownResourceKind.Food, percent = 125),
+                TownUiState.ProductionMark(TownResourceKind.Power, percent = 75),
+            ),
+        )
+
+        show(riverton.copy(season = season))
+
+        assertTrue(topOf("Verano termina en 1 día") < topOf(SUMMER_FOOD))
+        assertTrue(topOf(SUMMER_FOOD) < topOf("Verano: energía al 75 %"))
+        assertTrue(topOf("Verano: energía al 75 %") < topOf("Obra"))
+    }
+
+    @Test
+    fun `draws the build mark directly under the places title`() {
+        show(riverton.copy(buildMark = TownUiState.DurationMark(SeasonKind.Summer, percent = 75)))
+
+        assertTrue(topOf("Tu pueblo") < topOf(SUMMER_BUILD))
+        assertTrue(topOf(SUMMER_BUILD) < topOf("Granja"))
+    }
+
+    @Test
+    fun `draws no build mark while the overview answers none`() {
+        show(riverton)
+
+        composeRule.onAllNodesWithText(SUMMER_BUILD).assertCountEquals(0)
+    }
+
+    @Test
+    fun `sets a season mark in caption`() {
+        show(riverton.copy(buildMark = TownUiState.DurationMark(SeasonKind.Summer, percent = 75)))
+
+        assertEquals(MyGameTypography.caption.fontSize, textStyleOf(SUMMER_BUILD).fontSize)
+    }
+
+    @Test
+    fun `sets a season mark in ink-muted`() {
+        var inkMuted: Color = Color.Unspecified
+        composeRule.setContent {
+            MyGameTheme {
+                inkMuted = MyGameTheme.colors.inkMuted
+                Home(riverton.copy(buildMark = TownUiState.DurationMark(SeasonKind.Summer, percent = 75)))
+            }
+        }
+
+        assertEquals(inkMuted, textStyleOf(SUMMER_BUILD).color)
+    }
+
+    @Test
+    fun `names each season on the build mark`() {
+        val home = mutableStateOf<TownUiState>(riverton)
+        composeRule.setContent { MyGameTheme { Home(home.value) } }
+
+        seasonWords.forEach { (season: SeasonKind, word: String) ->
+            home.value = riverton.copy(buildMark = TownUiState.DurationMark(season, percent = 75))
+            composeRule.waitForIdle()
+
+            composeRule.onNodeWithText("$word: las obras tardan el 75 % del tiempo").assertExists()
+        }
+    }
+
+    @Test
+    fun `draws each season's icon beside the build mark`() {
+        val home = mutableStateOf<TownUiState>(riverton)
+        composeRule.setContent { MyGameTheme { Home(home.value) } }
+
+        seasonIcons.forEach { (season: SeasonKind, icon: ImageVector) ->
+            home.value = riverton.copy(buildMark = TownUiState.DurationMark(season, percent = 75))
+            composeRule.waitForIdle()
+
+            composeRule.onNode(markOf(icon, text = "las obras tardan el 75 % del tiempo")).assertExists()
+        }
+    }
+
+    @Test
+    fun `draws the season's icon beside a production mark`() {
+        val season = TownUiState.SeasonLine(
+            SeasonKind.Winter,
+            year = 2,
+            remaining = 24.hours,
+            productionMarks = listOf(TownUiState.ProductionMark(TownResourceKind.Power, percent = 75)),
+        )
+
+        show(riverton.copy(season = season))
+
+        composeRule.onNode(markOf(MyGameIcons.winter, text = "Invierno: energía al 75 %")).assertExists()
     }
 
     @Test
@@ -326,12 +442,12 @@ class TownLookTest {
     @Test
     fun `reads the season in force from the town`() {
         val town: TownSnapshot = townOf(
-            seasonInForce = SeasonInForce(SeasonKind.Winter, year = 3),
+            seasonInForce = seasonOf(SeasonKind.Winter).copy(year = 3),
             seasonEndsAt = readInstant + 1.hours,
         )
 
         assertEquals(
-            TownUiState.SeasonLine(SeasonKind.Winter, year = 3, remaining = 1.hours),
+            TownUiState.SeasonLine(SeasonKind.Winter, year = 3, remaining = 1.hours, productionMarks = emptyList()),
             town.readContent().season,
         )
     }
@@ -346,24 +462,44 @@ class TownLookTest {
     private fun topOf(text: String): Dp = composeRule.onAllNodesWithText(text).onLast().getUnclippedBoundsInRoot().top
 
     private fun show(state: TownUiState) {
-        composeRule.setContent {
-            MyGameTheme {
-                TownScreen(
-                    state = state,
-                    onIntent = { },
-                    onSchoolOpen = { },
-                    onReportOpen = { },
-                    onMapOpen = {},
-                    onReviewsOpen = { },
-                    onLessonOpen = { },
-                )
-            }
-        }
+        composeRule.setContent { MyGameTheme { Home(state) } }
     }
+
+    @Composable
+    private fun Home(state: TownUiState) {
+        TownScreen(
+            state = state,
+            onIntent = { },
+            onSchoolOpen = { },
+            onReportOpen = { },
+            onMapOpen = {},
+            onReviewsOpen = { },
+            onLessonOpen = { },
+        )
+    }
+
+    private fun markOf(icon: ImageVector, text: String): SemanticsMatcher =
+        SemanticsMatcher.expectValue(SEASON_MARK_ICON, icon) and hasAnyDescendant(hasText(text, substring = true))
 
     private companion object {
         const val MONEY_SHORT: String = "Necesitas 30 de dinero más."
         const val PEOPLE: String = "Gente: 24 libres, 96 trabajando"
+        const val SUMMER_FOOD: String = "Verano: comida al 125 %"
+        const val SUMMER_BUILD: String = "Verano: las obras tardan el 75 % del tiempo"
+
+        val seasonWords: Map<SeasonKind, String> = mapOf(
+            SeasonKind.Spring to "Primavera",
+            SeasonKind.Summer to "Verano",
+            SeasonKind.Fall to "Otoño",
+            SeasonKind.Winter to "Invierno",
+        )
+
+        val seasonIcons: Map<SeasonKind, ImageVector> = mapOf(
+            SeasonKind.Spring to MyGameIcons.spring,
+            SeasonKind.Summer to MyGameIcons.summer,
+            SeasonKind.Fall to MyGameIcons.fall,
+            SeasonKind.Winter to MyGameIcons.winter,
+        )
     }
 
     private fun TownSnapshot.readContent(): TownUiState.Content = contentAt(
