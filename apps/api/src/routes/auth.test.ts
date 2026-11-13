@@ -4,9 +4,10 @@ import { type Clock, Instant, ok } from '@mygame/domain'
 import { Client } from 'pg'
 import { afterAll, beforeAll, beforeEach, describe, expect, it } from 'vitest'
 import { MemoryMailer } from '../adapters/memory/MemoryMailer'
+import type { Transaction } from '../adapters/postgres/postgresTransaction'
 import { createApp } from '../app'
 import { accountTokenExpiryFrom } from '../auth/accountTokenExpiryFrom'
-import type { Mail, MailDelivery, Mailer } from '../auth/Mailer'
+import type { Mail } from '../auth/Mailer'
 import { tokenDigest } from '../auth/tokenDigest'
 import { type ComposedServer, composeServer } from '../composeServer'
 import { mailEnvironment } from '../composeServer.testSupport'
@@ -118,27 +119,6 @@ const sessionCookieOf = (response: Response): string => {
 }
 
 const anasSignUp = { email: 'ana@example.com', password: 'hierro-y-lana', scaffold: 'es' }
-
-type HeldMailer = Mailer & {
-  readonly handed: ReadonlyArray<Mail>
-  readonly release: () => void
-}
-
-const heldMailer = (): HeldMailer => {
-  const handed: Array<Mail> = []
-  let release = (): void => {}
-  const held = new Promise<MailDelivery>((resolve) => {
-    release = () => resolve('sent')
-  })
-  return {
-    send: (mail) => {
-      handed.push(mail)
-      return held
-    },
-    handed,
-    release: () => release(),
-  }
-}
 
 const tokenOf = (mail: Mail | undefined): string => {
   const link = mail?.text.split('\n').find((line) => line.startsWith(mailEnvironment.WEB_URL))
@@ -694,6 +674,7 @@ describe('the auth routes', () => {
     await signUpAna()
 
     const response = await forgotPassword(anasSignUp.email)
+    await server.afterResponse.settled()
 
     expect(response.status).toBe(202)
     expect(resetMailsTo(anasSignUp.email)).toEqual([])
@@ -705,23 +686,47 @@ describe('the auth routes', () => {
 
     const known = await forgotPassword(anasSignUp.email)
     const unknown = await forgotPassword('nadie@example.com')
+    await server.afterResponse.settled()
 
     expect([unknown.status, await unknown.text()]).toEqual([known.status, await known.text()])
     expect(mailer.sentTo('nadie@example.com')).toEqual([])
   })
 
-  it('answers a reset request before its mail is sent', async () => {
-    await verifiedAna()
-    const mailer = heldMailer()
+  it('answers a reset request before it looks the address up', async () => {
+    let lookups = 0
+    let release = (): void => {}
+    const released = new Promise<void>((resolve) => {
+      release = resolve
+    })
+    const heldTransaction: Transaction = (work) => {
+      lookups += 1
+      return released.then(() => server.inTransaction(work))
+    }
 
-    const response = await forgotPassword(anasSignUp.email, createApp({ ...server, mailer }))
+    const response = await forgotPassword(
+      anasSignUp.email,
+      createApp({ ...server, clock, mailer, inTransaction: heldTransaction }),
+    )
 
-    expect([response.status, mailer.handed.map((mail) => mail.to)]).toEqual([
-      202,
-      [anasSignUp.email],
-    ])
-    mailer.release()
+    expect([response.status, lookups]).toEqual([202, 1])
+    release()
     await server.afterResponse.settled()
+  })
+
+  it('reports a reset mail whose send threw by the error class alone', async () => {
+    await verifiedAna()
+    const failures: Array<string> = []
+    const throwingApp = createApp({
+      ...server,
+      clock,
+      mailer: { send: () => Promise.reject(new TypeError('ana@example.com refused')) },
+      failureSink: { write: (line) => failures.push(line) },
+    })
+
+    await forgotPassword(anasSignUp.email, throwingApp)
+    await server.afterResponse.settled()
+
+    expect(failures).toEqual(['reset mail TypeError'])
   })
 
   it('answers 202 when the reset link cannot be sent', async () => {

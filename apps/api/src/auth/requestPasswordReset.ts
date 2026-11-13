@@ -3,10 +3,11 @@ import { type Clock, ok } from '@mygame/domain'
 import type { Transaction } from '../adapters/postgres/postgresTransaction'
 import type { CryptoSessionTokens } from '../adapters/system/CryptoSessionTokens'
 import type { FailureSink } from '../http/FailureSink'
+import { thrownCauseOf } from '../http/thrownCauseOf'
 import type { AfterResponse } from './AfterResponse'
 import { fixedCopyOf } from './fixedCopyOf'
 import { issueAccountToken } from './issueAccountToken'
-import type { Mailer } from './Mailer'
+import type { MailDelivery, Mailer } from './Mailer'
 import type { MailRecipient } from './MailRecipient'
 
 export type RequestPasswordResetDependencies = {
@@ -19,25 +20,17 @@ export type RequestPasswordResetDependencies = {
   readonly failureSink: FailureSink
 }
 
-const unsentResetMailLine = 'reset mail MailNotSent'
-
 type ResetLink = {
   readonly recipient: MailRecipient
   readonly token: string
 }
 
-export const requestPasswordReset = async (
+const resetMailLine = (cause: string): string => `reset mail ${cause}`
+
+const sendResetMail = async (
   request: ForgotPasswordRequest,
-  {
-    inTransaction,
-    clock,
-    sessionTokens,
-    mailer,
-    webUrl,
-    afterResponse,
-    failureSink,
-  }: RequestPasswordResetDependencies,
-): Promise<void> => {
+  { inTransaction, clock, sessionTokens, mailer, webUrl }: RequestPasswordResetDependencies,
+): Promise<MailDelivery | undefined> => {
   const issued = await inTransaction<ResetLink | undefined, never>(
     async ({ accounts, accountTokens }) => {
       const player = await accounts.credentialsOf(request.email)
@@ -53,21 +46,29 @@ export const requestPasswordReset = async (
     },
   )
   if (!issued.ok || issued.value === undefined) {
-    return
+    return undefined
   }
   const { recipient, token } = issued.value
   const copy = fixedCopyOf(recipient.scaffold)
-  const reportUnsent = (): void => failureSink.write(unsentResetMailLine)
-  const delivery = mailer.send({
+  return mailer.send({
     to: recipient.email,
     subject: copy.mailResetSubject(),
     text: copy.mailResetText({ link: `${webUrl}/reset-password?token=${token}` }),
   })
-  afterResponse.defer(
-    delivery.then((sent) => {
-      if (sent === 'failed') {
-        reportUnsent()
-      }
-    }, reportUnsent),
-  )
+}
+
+export const requestPasswordReset = (
+  request: ForgotPasswordRequest,
+  dependencies: RequestPasswordResetDependencies,
+): void => {
+  const { afterResponse, failureSink } = dependencies
+  const reportUnsent = (delivery: MailDelivery | undefined): void => {
+    if (delivery === 'failed') {
+      failureSink.write(resetMailLine('MailNotSent'))
+    }
+  }
+  const reportThrown = (error: unknown): void => {
+    failureSink.write(resetMailLine(error instanceof Error ? thrownCauseOf(error) : typeof error))
+  }
+  afterResponse.defer(sendResetMail(request, dependencies).then(reportUnsent, reportThrown))
 }
