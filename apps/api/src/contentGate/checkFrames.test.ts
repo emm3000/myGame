@@ -88,6 +88,38 @@ describe('content gate check 3, the frame rule', () => {
     expect(checkFrames(afterLessonOne(newHomes))).toEqual([])
   })
 
+  it('passes a frame naming a token it holds in no card sense', () => {
+    const newHomes = {
+      ...entryOf('word-1', 'new', 'We have new homes.', { partOfSpeech: 'adjective' }),
+      frames: [
+        { frame: 'We have new homes.', gappedFrame: 'We have ____ homes.', noCardSense: ['homes'] },
+      ],
+    } satisfies LexiconEntry
+
+    expect(checkFrames(afterLessonOne(newHomes))).toEqual([])
+  })
+
+  it('fails a form in no card sense that its frame does not hold', () => {
+    const newHomes = {
+      ...entryOf('word-1', 'new', 'We have new homes.', { partOfSpeech: 'adjective' }),
+      frames: [
+        { frame: 'We have new homes.', gappedFrame: 'We have ____ homes.', noCardSense: ['home'] },
+      ],
+    } satisfies LexiconEntry
+
+    expect(checkFrames(afterLessonOne(newHomes))).toEqual([
+      'word-1: names home in no card sense, a token its frame does not hold',
+    ])
+  })
+
+  it('fails a form in no card sense that a later frame does not hold', () => {
+    const later = { ...laterFrameOf('home', 'We leave home.', 'lesson-3'), noCardSense: ['new'] }
+
+    expect(checkFrames(homeWithLaterFrame(later))).toEqual([
+      'lesson-1-1, later frame for lesson-3: names new in no card sense, a token its frame does not hold',
+    ])
+  })
+
   it('passes a frame holding its off-list lemma', () => {
     const password = entryOf('word-1', 'password', 'This is my password.', { isOffList: true })
 

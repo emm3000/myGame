@@ -45,7 +45,7 @@ const schoolRecall: DueReview = {
   dueAt: knownTown.readAt,
   mode: 'recall',
   gloss: 'escuela',
-  gappedFrame: 'I walk to ____ every day.',
+  gappedFrame: [{ text: 'I walk to ____ every day.', support: null }],
 }
 
 const correctSchool: ReviewAnswer['verdict'] = {

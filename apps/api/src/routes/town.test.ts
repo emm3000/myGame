@@ -115,6 +115,8 @@ const withNoLessons = (lessons: LessonLibrary): LessonLibrary => ({
   placementWordsOf: (band) => lessons.placementWordsOf(band),
   lessons: () => [],
   chromeLessons: () => [],
+  frameTokensOf: (wordId, frame) => lessons.frameTokensOf(wordId, frame),
+  answerFormsOf: (wordId) => lessons.answerFormsOf(wordId),
 })
 
 const signal = (): { readonly promise: Promise<void>; readonly resolve: () => void } => {

@@ -10,6 +10,7 @@ export { type CurriculumContent, CurriculumContentSchema } from './CurriculumCon
 export { type DueReview, DueReviewSchema } from './DueReview'
 export { type ForgotPasswordRequest, ForgotPasswordRequestSchema } from './ForgotPasswordRequest'
 export { type FoundTown, FoundTownSchema } from './FoundTown'
+export { type FrameSpan, FrameSpanSchema } from './FrameSpan'
 export { type GrammarContent, GrammarContentSchema } from './GrammarContent'
 export { type HealthResponse, HealthResponseSchema } from './HealthResponse'
 export { type HireKind, HireKindSchema } from './HireKind'

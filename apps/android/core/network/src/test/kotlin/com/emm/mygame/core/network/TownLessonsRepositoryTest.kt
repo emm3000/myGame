@@ -241,7 +241,7 @@ class TownLessonsRepositoryTest {
             """{"id":"lesson-1","theme":"A day in town","durationSeconds":150,"requiredSchoolLevel":2,""" +
                 """"skill":{"resource":"food","ratePercent":5},"isStudied":true,""" +
                 """"words":[{"wordId":"word-1","standing":"recognize",""" +
-                """"reading":{"word":"home","gloss":"hogar","frame":"This is my home."},""" +
+                """"reading":{"word":"home","gloss":"hogar","frame":[{"text":"This is my home.","support":null}]},""" +
                 """"support":{"shown":"beside","text":"hogar","language":"es"}},""" +
                 """{"wordId":"word-2","standing":"retained","reading":null,"support":null}]}"""
         const val SKILL: String =

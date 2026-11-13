@@ -7,7 +7,7 @@ const recall = {
   dueAt: '2026-11-12T09:10:00.000Z',
   mode: 'recall',
   gloss: 'hogar',
-  gappedFrame: 'I go ___ after work.',
+  gappedFrame: [{ text: 'I go ___ after work.', support: null }],
 }
 
 const finishedFarm = {

@@ -1,4 +1,5 @@
 import { z } from 'zod'
+import { FrameSpanSchema } from './FrameSpan'
 import { InstantSchema } from './Wire'
 
 const ReviewedWordSchema = z.strictObject({
@@ -10,7 +11,7 @@ const ReviewedWordSchema = z.strictObject({
 const RecognitionReviewSchema = ReviewedWordSchema.extend({
   mode: z.literal('recognition'),
   word: z.string().min(1),
-  frame: z.string().min(1),
+  frame: z.array(FrameSpanSchema).min(1),
   choices: z.array(
     z.strictObject({
       choiceId: z.string().min(1),
@@ -22,7 +23,7 @@ const RecognitionReviewSchema = ReviewedWordSchema.extend({
 const RecallReviewSchema = ReviewedWordSchema.extend({
   mode: z.literal('recall'),
   gloss: z.string().min(1),
-  gappedFrame: z.string().min(1),
+  gappedFrame: z.array(FrameSpanSchema).min(1),
 }).meta({ id: 'RecallReview' })
 
 export const DueReviewSchema = z

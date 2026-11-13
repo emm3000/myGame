@@ -51,7 +51,7 @@ private fun TownOverviewLessonsInnerWordsInner.Standing.toWordStanding(): WordSt
 }
 
 private fun TownOverviewLessonsInnerWordsInnerReading.toWordReading(): TownSnapshot.WordReading =
-    TownSnapshot.WordReading(word = word, gloss = gloss, frame = frame)
+    TownSnapshot.WordReading(word = word, gloss = gloss, frame = frame.joinedText())
 
 internal fun TownOverviewSkillsInner.toEarnedSkill(): TownSnapshot.EarnedSkill? {
     val kind: TownResourceKind = resource.toTownResourceKind() ?: return null

@@ -24,7 +24,11 @@ const lessonOne = {
     {
       wordId: 'lesson-1-2',
       standing: 'recognize',
-      reading: { word: 'school', gloss: 'escuela', frame: 'We are at school.' },
+      reading: {
+        word: 'school',
+        gloss: 'escuela',
+        frame: [{ text: 'We are at school.', support: null }],
+      },
       support: besideSchool,
     },
   ],
@@ -276,6 +280,15 @@ describe('TownOverviewSchema', () => {
   it('rejects a reading without its frame', () => {
     const reading = { word: 'home', gloss: 'hogar' }
     const words = [{ wordId: 'lesson-1-1', standing: 'notStarted', reading, support: besideSchool }]
+
+    expect(
+      TownOverviewSchema.safeParse(overview({ lessons: [{ ...lessonOne, words }] })).success,
+    ).toBe(false)
+  })
+
+  it('rejects a reading whose frame is a plain string', () => {
+    const reading = { word: 'school', gloss: 'escuela', frame: 'We are at school.' }
+    const words = [{ wordId: 'lesson-1-2', standing: 'recognize', reading, support: besideSchool }]
 
     expect(
       TownOverviewSchema.safeParse(overview({ lessons: [{ ...lessonOne, words }] })).success,
