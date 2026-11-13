@@ -32,9 +32,9 @@
     <string name="review_recall_prompt">How do you say it in English?</string>
     <string name="review_recognition_prompt">What does it mean?</string>
     <string name="review_refusal_hint_on_recognition">You choose this word from a list, so it has no hint. The hint comes when you have to write it.</string>
-    <string name="review_refusal_not_due">That word is not due yet. Go back to the review to see the ones that are.</string>
-    <string name="review_refusal_unknown_choice">That choice is no longer on the card. Go back to the review to see it again.</string>
-    <string name="review_refusal_word_not_held">That word is not in your lessons. Go back to the review.</string>
+    <string name="review_refusal_not_due">That word is not due yet. Go back to your reviews to see the ones that are.</string>
+    <string name="review_refusal_unknown_choice">That choice is no longer on the card. Go back to your reviews to see it again.</string>
+    <string name="review_refusal_word_not_held">That word is not in your lessons. Go back to your reviews.</string>
     <string name="review_retry">Try again</string>
     <string name="review_returns">This word will come back in a few minutes.</string>
     <string name="review_skill_earned">Skill earned: {resource}, level {level}.</string>
