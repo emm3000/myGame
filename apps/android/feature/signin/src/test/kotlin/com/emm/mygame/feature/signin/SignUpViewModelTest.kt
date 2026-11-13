@@ -20,7 +20,8 @@ class SignUpViewModelTest {
     @get:Rule
     val mainDispatcher: MainDispatcherRule = MainDispatcherRule()
 
-    private val elena: SignedInPlayer = SignedInPlayer(email = "elena@encinar.es", isEmailVerified = true)
+    private val elena: SignedInPlayer =
+        SignedInPlayer(email = "elena@encinar.es", isEmailVerified = true, scaffold = PlayerScaffold.Spanish)
 
     @Test
     fun `opens on a blank form`() = runTest {

@@ -354,6 +354,53 @@ class NavigatorTest {
     }
 
     @Test
+    fun `opens the settings above the Report`() {
+        val backStack: MutableList<NavKey> = mutableListOf(Destination.Town, Destination.Report)
+
+        Navigator(backStack).openSettings()
+
+        assertEquals(listOf(Destination.Town, Destination.Report, Destination.Settings), backStack)
+    }
+
+    @Test
+    fun `returns to the Report on back from the settings`() {
+        val backStack: MutableList<NavKey> = mutableListOf(Destination.Town, Destination.Report, Destination.Settings)
+
+        Navigator(backStack).back()
+
+        assertEquals(listOf(Destination.Town, Destination.Report), backStack)
+    }
+
+    @Test
+    fun `returns to the town from the settings`() {
+        val backStack: MutableList<NavKey> = mutableListOf(Destination.Town, Destination.Report, Destination.Settings)
+
+        Navigator(backStack).openTown()
+
+        assertEquals(listOf<NavKey>(Destination.Town), backStack)
+    }
+
+    @Test
+    fun `opens the settings from the Report only`() {
+        val backStack: MutableList<NavKey> = mutableListOf(Destination.Town)
+
+        Navigator(backStack).openSettings()
+
+        assertEquals(listOf<NavKey>(Destination.Town), backStack)
+    }
+
+    @Test
+    fun `opens no settings while signing out`() {
+        val backStack: MutableList<NavKey> = mutableListOf(Destination.Town, Destination.Report)
+        val navigator: Navigator = Navigator(backStack)
+        navigator.signingOut()
+
+        navigator.openSettings()
+
+        assertEquals(listOf(Destination.Town, Destination.Report), backStack)
+    }
+
+    @Test
     fun `opens the map above the town`() {
         val backStack: MutableList<NavKey> = mutableListOf(Destination.Town)
 

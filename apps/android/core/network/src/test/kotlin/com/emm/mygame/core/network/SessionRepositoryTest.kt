@@ -49,7 +49,12 @@ class SessionRepositoryTest {
 
         val result: SignInResult = repository(tokenStore()).signIn("ines@sotoverde.es", "contrasena")
 
-        assertEquals(SignInResult.SignedIn(SignedInPlayer(email = "ines@sotoverde.es", isEmailVerified = true)), result)
+        assertEquals(
+            SignInResult.SignedIn(
+                SignedInPlayer(email = "ines@sotoverde.es", isEmailVerified = true, scaffold = PlayerScaffold.Spanish),
+            ),
+            result,
+        )
     }
 
     @Test
@@ -167,7 +172,9 @@ class SessionRepositoryTest {
         val result: RestoreResult = repository(store).restore()
 
         assertEquals(
-            RestoreResult.SignedIn(SignedInPlayer(email = "ines@sotoverde.es", isEmailVerified = true)),
+            RestoreResult.SignedIn(
+                SignedInPlayer(email = "ines@sotoverde.es", isEmailVerified = true, scaffold = PlayerScaffold.Spanish),
+            ),
             result,
         )
     }
@@ -366,7 +373,12 @@ class SessionRepositoryTest {
         val result: SignUpResult = sessions.signUp("elena@encinar.es", "hierro-y-lana", PlayerScaffold.Spanish)
         sessions.restore()
 
-        assertEquals(SignUpResult.SignedIn(SignedInPlayer(email = "elena@encinar.es", isEmailVerified = true)), result)
+        assertEquals(
+            SignUpResult.SignedIn(
+                SignedInPlayer(email = "elena@encinar.es", isEmailVerified = true, scaffold = PlayerScaffold.Spanish),
+            ),
+            result,
+        )
         val signUpRequest: RecordedRequest = api.takeRequestWithin()
         assertEquals("/api/auth/sign-up/native", signUpRequest.url.encodedPath)
         assertEquals(
@@ -558,7 +570,9 @@ class SessionRepositoryTest {
         val result: RestoreResult = repository(store).restore()
 
         assertEquals(
-            RestoreResult.SignedIn(SignedInPlayer(email = "ines@sotoverde.es", isEmailVerified = false)),
+            RestoreResult.SignedIn(
+                SignedInPlayer(email = "ines@sotoverde.es", isEmailVerified = false, scaffold = PlayerScaffold.Spanish),
+            ),
             result,
         )
     }

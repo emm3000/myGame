@@ -2,6 +2,7 @@ package com.emm.mygame.feature.signin
 
 import app.cash.turbine.ReceiveTurbine
 import app.cash.turbine.test
+import com.emm.mygame.core.network.PlayerScaffold
 import com.emm.mygame.core.network.RefusalKind
 import com.emm.mygame.core.network.RestoreResult
 import com.emm.mygame.core.network.SignInResult
@@ -20,7 +21,8 @@ class SignInViewModelTest {
     @get:Rule
     val mainDispatcher: MainDispatcherRule = MainDispatcherRule()
 
-    private val ines: SignedInPlayer = SignedInPlayer(email = "ines@sotoverde.es", isEmailVerified = true)
+    private val ines: SignedInPlayer =
+        SignedInPlayer(email = "ines@sotoverde.es", isEmailVerified = true, scaffold = PlayerScaffold.Spanish)
 
     @Test
     fun `checks the stored session at launch`() = runTest {

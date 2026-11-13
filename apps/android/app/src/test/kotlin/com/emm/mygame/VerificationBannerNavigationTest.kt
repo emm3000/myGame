@@ -23,6 +23,7 @@ import com.emm.mygame.core.network.LearningRepository
 import com.emm.mygame.core.network.NextStep
 import com.emm.mygame.core.network.PlacementRepository
 import com.emm.mygame.core.network.PlayerLanguage
+import com.emm.mygame.core.network.PlayerScaffold
 import com.emm.mygame.core.network.ReportReadResult
 import com.emm.mygame.core.network.ReportRepository
 import com.emm.mygame.core.network.RestoreResult
@@ -80,10 +81,14 @@ class VerificationBannerNavigationTest {
     }
 
     private val unverifiedSession: RestoreResult =
-        RestoreResult.SignedIn(SignedInPlayer("player@example.com", isEmailVerified = false))
+        RestoreResult.SignedIn(
+            SignedInPlayer("player@example.com", isEmailVerified = false, scaffold = PlayerScaffold.Spanish),
+        )
 
     private val verifiedSession: RestoreResult =
-        RestoreResult.SignedIn(SignedInPlayer("player@example.com", isEmailVerified = true))
+        RestoreResult.SignedIn(
+            SignedInPlayer("player@example.com", isEmailVerified = true, scaffold = PlayerScaffold.Spanish),
+        )
 
     private val heldTown: TownSnapshot = TownSnapshot(
         name = "Riverton",

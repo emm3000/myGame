@@ -48,6 +48,7 @@ fun ReportRoute(
         onReviewsOpen = navigation.onReviewsOpen,
         onLessonOpen = navigation.onLessonOpen,
         onNewsOpen = navigation.onNewsOpen,
+        onSettingsOpen = navigation.onSettingsOpen,
         modifier = modifier,
     )
 }

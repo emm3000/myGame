@@ -46,11 +46,6 @@ internal fun ScaffoldChoice(
                 )
             }
         }
-        MyGameText(
-            text = stringResource(R.string.scaffold_change_line),
-            style = MyGameTypography.caption,
-            color = MyGameTheme.colors.inkMuted,
-        )
     }
 }
 

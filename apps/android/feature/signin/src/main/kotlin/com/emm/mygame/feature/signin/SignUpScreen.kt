@@ -22,8 +22,10 @@ import com.emm.mygame.core.designsystem.MyGameErrorBanner
 import com.emm.mygame.core.designsystem.MyGameInlineAlert
 import com.emm.mygame.core.designsystem.MyGamePreviewSurface
 import com.emm.mygame.core.designsystem.MyGameSpacing
+import com.emm.mygame.core.designsystem.MyGameText
 import com.emm.mygame.core.designsystem.MyGameTextField
 import com.emm.mygame.core.designsystem.MyGameTheme
+import com.emm.mygame.core.designsystem.MyGameTypography
 import com.emm.mygame.core.designsystem.PreviewMyGame
 import com.emm.mygame.core.network.PlayerScaffold
 import com.emm.mygame.core.network.SignUpRefusal
@@ -64,11 +66,18 @@ private fun SignUpForm(
 ) {
     val isSubmitting: Boolean = form.status == SignUpUiState.FormStatus.Submitting
     Column(verticalArrangement = Arrangement.spacedBy(MyGameSpacing.step4), modifier = modifier) {
-        ScaffoldChoice(
-            picked = form.scaffold,
-            isEnabled = !isSubmitting,
-            onPick = { scaffold: PlayerScaffold -> onIntent(SignUpIntent.ScaffoldPicked(scaffold)) },
-        )
+        Column(verticalArrangement = Arrangement.spacedBy(MyGameSpacing.step2)) {
+            ScaffoldChoice(
+                picked = form.scaffold,
+                isEnabled = !isSubmitting,
+                onPick = { scaffold: PlayerScaffold -> onIntent(SignUpIntent.ScaffoldPicked(scaffold)) },
+            )
+            MyGameText(
+                text = stringResource(R.string.scaffold_change_line),
+                style = MyGameTypography.caption,
+                color = MyGameTheme.colors.inkMuted,
+            )
+        }
         MyGameTextField(
             value = form.email,
             label = stringResource(R.string.sign_in_email),

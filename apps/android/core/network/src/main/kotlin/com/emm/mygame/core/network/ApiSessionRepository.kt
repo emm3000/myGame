@@ -5,6 +5,7 @@ import com.emm.mygame.core.network.generated.models.BareApiError
 import com.emm.mygame.core.network.generated.models.ForgotPasswordRequest
 import com.emm.mygame.core.network.generated.models.NativeSession
 import com.emm.mygame.core.network.generated.models.Player
+import com.emm.mygame.core.network.generated.models.ScaffoldChange
 import com.emm.mygame.core.network.generated.models.SignInRequest
 import com.emm.mygame.core.network.generated.models.SignUpRequest
 import java.io.IOException
@@ -12,6 +13,7 @@ import java.net.HttpURLConnection
 import java.security.GeneralSecurityException
 import java.security.ProviderException
 import kotlinx.coroutines.CoroutineDispatcher
+import kotlinx.coroutines.NonCancellable
 import kotlinx.coroutines.withContext
 import kotlinx.serialization.SerializationException
 import retrofit2.Response
@@ -64,6 +66,18 @@ internal class ApiSessionRepository(
             VerificationResendResult.Unreachable
         }
     }
+
+    override suspend fun changeScaffold(scaffold: PlayerScaffold): ScaffoldChangeResult =
+        withContext(ioDispatcher + NonCancellable) {
+            try {
+                val read: LanguageRead = languages.sending()
+                changedOrRefused(api.playerScaffoldPut(ScaffoldChange(scaffold = scaffold.toScaffold())), read)
+            } catch (expectedOutage: IOException) {
+                ScaffoldChangeResult.Unreachable
+            } catch (expectedMalformedBody: SerializationException) {
+                ScaffoldChangeResult.Unreachable
+            }
+        }
 
     override suspend fun signOut(): Unit = withContext(ioDispatcher) {
         try {
@@ -128,6 +142,16 @@ internal class ApiSessionRepository(
         else -> VerificationResendResult.Unreachable
     }
 
+    private fun changedOrRefused(response: Response<Player>, read: LanguageRead): ScaffoldChangeResult {
+        val player: Player? = response.body()
+        if (response.isSuccessful && player != null) {
+            languages.answered(read, player)
+            return ScaffoldChangeResult.Changed(player.toSignedInPlayer())
+        }
+        if (response.code() == HttpURLConnection.HTTP_BAD_REQUEST) return ScaffoldChangeResult.Refused
+        return ScaffoldChangeResult.Unreachable
+    }
+
     private fun restoredOrSignedOut(response: Response<Player>, read: LanguageRead): RestoreResult {
         val player: Player? = response.body()
         return when {
@@ -157,4 +181,5 @@ private fun PlayerLanguages.answered(read: LanguageRead, player: Player) {
     answered(read, player.scaffold.toPlayerScaffold(), player.chromePhase.toPlayerChromePhase())
 }
 
-private fun Player.toSignedInPlayer(): SignedInPlayer = SignedInPlayer(email = email, isEmailVerified = emailVerified)
+private fun Player.toSignedInPlayer(): SignedInPlayer =
+    SignedInPlayer(email = email, isEmailVerified = emailVerified, scaffold = scaffold.toPlayerScaffold())

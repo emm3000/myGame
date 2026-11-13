@@ -1,6 +1,7 @@
 package com.emm.mygame.feature.signin
 
 import app.cash.turbine.test
+import com.emm.mygame.core.network.PlayerScaffold
 import com.emm.mygame.core.network.RestoreResult
 import com.emm.mygame.core.network.SignedInPlayer
 import com.emm.mygame.core.network.VerificationResendResult
@@ -19,10 +20,14 @@ class VerificationBannerViewModelTest {
     private val sessions: FakeSessionRepository = FakeSessionRepository()
 
     private val unverifiedSession: RestoreResult =
-        RestoreResult.SignedIn(SignedInPlayer(email = "ines@sotoverde.es", isEmailVerified = false))
+        RestoreResult.SignedIn(
+            SignedInPlayer(email = "ines@sotoverde.es", isEmailVerified = false, scaffold = PlayerScaffold.Spanish),
+        )
 
     private val verifiedSession: RestoreResult =
-        RestoreResult.SignedIn(SignedInPlayer(email = "ines@sotoverde.es", isEmailVerified = true))
+        RestoreResult.SignedIn(
+            SignedInPlayer(email = "ines@sotoverde.es", isEmailVerified = true, scaffold = PlayerScaffold.Spanish),
+        )
 
     @Test
     fun `draws the banner while the email is unverified`() = runTest {

@@ -55,6 +55,7 @@ import com.emm.mygame.feature.school.LessonWordsNavigation
 import com.emm.mygame.feature.school.LessonWordsRoute
 import com.emm.mygame.feature.school.SchoolRoute
 import com.emm.mygame.feature.signin.ForgotPasswordRoute
+import com.emm.mygame.feature.signin.SettingsRoute
 import com.emm.mygame.feature.signin.SignInRoute
 import com.emm.mygame.feature.signin.SignUpRoute
 import com.emm.mygame.feature.signin.VerificationBannerRoute
@@ -160,6 +161,7 @@ private fun EntryProviderScope<NavKey>.signedInEntries(chrome: SignedInChrome) {
     schoolEntry(chrome)
     reportEntry(chrome)
     newsEntry(chrome)
+    settingsEntry(chrome)
     mapEntry(chrome)
     placementEntry(chrome)
     holdoutCheckEntry(chrome)
@@ -262,6 +264,7 @@ private fun EntryProviderScope<NavKey>.reportEntry(chrome: SignedInChrome) {
                     onReviewsOpen = navigator::openReviews,
                     onLessonOpen = { lesson: LessonId -> navigator.openLesson(lesson, walked = emptyList()) },
                     onNewsOpen = navigator::openNews,
+                    onSettingsOpen = navigator::openSettings,
                     onSigningOut = navigator::signingOut,
                     onSignedOut = { navigator.signedOut(isSessionEnded = false) },
                 ),
@@ -279,6 +282,20 @@ private fun EntryProviderScope<NavKey>.newsEntry(chrome: SignedInChrome) {
             chrome = chrome,
         ) {
             NewsRoute(reports = dependencies.reports, clock = dependencies.clock)
+        }
+    }
+}
+
+private fun EntryProviderScope<NavKey>.settingsEntry(chrome: SignedInChrome) {
+    val dependencies: AppDependencies = chrome.dependencies
+    val navigator: Navigator = chrome.navigator
+    entry<Destination.Settings> {
+        SignedInFrame(
+            isTownHome = false,
+            doesScreenReadTown = false,
+            chrome = chrome,
+        ) {
+            SettingsRoute(sessions = dependencies.sessions, onTownOpen = navigator::openTown)
         }
     }
 }
@@ -421,6 +438,7 @@ private fun NavKey?.statusScreen(): TownStatusScreen = when (val destination: De
     Destination.Review -> TownStatusScreen.Reviews
     Destination.Report -> TownStatusScreen.ReadsNoTown
     Destination.News -> TownStatusScreen.ReadsNoTown
+    Destination.Settings -> TownStatusScreen.ReadsNoTown
     Destination.Placement -> TownStatusScreen.ReadsNoTown
     is Destination.HoldoutCheck -> TownStatusScreen.ReadsNoTown
 }

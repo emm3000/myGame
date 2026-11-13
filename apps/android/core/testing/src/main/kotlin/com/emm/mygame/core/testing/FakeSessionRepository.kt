@@ -3,6 +3,7 @@ package com.emm.mygame.core.testing
 import com.emm.mygame.core.network.PasswordResetRequestResult
 import com.emm.mygame.core.network.PlayerScaffold
 import com.emm.mygame.core.network.RestoreResult
+import com.emm.mygame.core.network.ScaffoldChangeResult
 import com.emm.mygame.core.network.SessionRepository
 import com.emm.mygame.core.network.SignInResult
 import com.emm.mygame.core.network.SignUpResult
@@ -22,6 +23,10 @@ class FakeSessionRepository : SessionRepository {
     private val resendAnswers: Channel<VerificationResendResult> = Channel(Channel.UNLIMITED)
 
     private val signOutAnswers: Channel<Unit> = Channel(Channel.UNLIMITED)
+
+    private val scaffoldChangeAnswers: Channel<ScaffoldChangeResult> = Channel(Channel.UNLIMITED)
+
+    private val pickedScaffolds: MutableList<PlayerScaffold> = mutableListOf()
 
     private val attempts: MutableList<SignInAttempt> = mutableListOf()
 
@@ -44,6 +49,9 @@ class FakeSessionRepository : SessionRepository {
     val passwordResetEmails: List<String>
         get() = resetEmails.toList()
 
+    val scaffoldChanges: List<PlayerScaffold>
+        get() = pickedScaffolds.toList()
+
     fun answerRestore(result: RestoreResult) {
         restoreAnswers.trySend(result)
     }
@@ -62,6 +70,10 @@ class FakeSessionRepository : SessionRepository {
 
     fun answerResend(result: VerificationResendResult) {
         resendAnswers.trySend(result)
+    }
+
+    fun answerScaffoldChange(result: ScaffoldChangeResult) {
+        scaffoldChangeAnswers.trySend(result)
     }
 
     fun answerSignOut() {
@@ -88,6 +100,11 @@ class FakeSessionRepository : SessionRepository {
     override suspend fun resendVerification(): VerificationResendResult {
         resendCount += 1
         return resendAnswers.receive()
+    }
+
+    override suspend fun changeScaffold(scaffold: PlayerScaffold): ScaffoldChangeResult {
+        pickedScaffolds += scaffold
+        return scaffoldChangeAnswers.receive()
     }
 
     override suspend fun signOut() {
