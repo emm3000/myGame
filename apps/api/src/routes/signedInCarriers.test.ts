@@ -44,7 +44,7 @@ const truncateAccounts = async (): Promise<void> => {
   }
 }
 
-const anasSignUp = { email: 'ana@example.com', password: 'hierro-y-lana' }
+const anasSignUp = { email: 'ana@example.com', password: 'hierro-y-lana', scaffold: 'es' }
 
 const sessionCookieOf = (response: Response): string => {
   const [pair = ''] = (response.headers.get('set-cookie') ?? '').split(';')

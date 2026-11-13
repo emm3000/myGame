@@ -57,7 +57,7 @@ describe('the region map route', () => {
     const response = await app.request('/auth/sign-up', {
       method: 'POST',
       headers: { 'content-type': 'application/json' },
-      body: JSON.stringify({ email, password: 'hierro-y-lana' }),
+      body: JSON.stringify({ email, password: 'hierro-y-lana', scaffold: 'es' }),
     })
     PlayerSchema.parse(await response.json())
     return sessionCookieOf(response)

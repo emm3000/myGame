@@ -90,7 +90,7 @@ describe('the placement routes', () => {
     const response = await app.request('/auth/sign-up', {
       method: 'POST',
       headers: { 'content-type': 'application/json' },
-      body: JSON.stringify({ email: 'ana@example.com', password: 'hierro-y-lana' }),
+      body: JSON.stringify({ email: 'ana@example.com', password: 'hierro-y-lana', scaffold: 'es' }),
     })
     const [cookie = ''] = (response.headers.get('set-cookie') ?? '').split(';')
     return { cookie }

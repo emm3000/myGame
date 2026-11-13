@@ -44,6 +44,7 @@ function aPlayer(id: string, email: string): typeof players.$inferInsert {
     passwordHash: 'argon2id-hash',
     createdAt: new Date('2026-09-22T08:00:00Z'),
     reportReadAt: new Date('2026-09-22T08:00:00Z'),
+    scaffold: 'es',
   }
 }
 
@@ -1695,5 +1696,50 @@ describe('the holdout checks migration', () => {
         [holdoutOwnerId],
       ),
     ).rejects.toThrow('holdout_checks_band_start_fk')
+  })
+})
+
+const scaffoldOwnerId = '00000000-0000-4000-8000-0000000000a9'
+
+const migrationsBeforeTheScaffold = 43
+
+describe('the scaffold migration', () => {
+  let client: Client
+
+  beforeEach(async () => {
+    client = await openEmptyDatabase()
+    await migratedThroughNext(client, migrationsBeforeTheScaffold, async () => {
+      await client.query(
+        `INSERT INTO players (id, email, password_hash, created_at, report_read_at)
+         VALUES ($1, 'learner@example.com', 'argon2id-hash', '2026-11-12T08:00:00Z', '2026-11-12T08:00:00Z')`,
+        [scaffoldOwnerId],
+      )
+    })
+  })
+
+  afterEach(async () => {
+    await closeWithoutChanges(client)
+  })
+
+  it('sets the scaffold of every player stored before the migration to es', async () => {
+    const stored = await client.query('SELECT id, scaffold FROM players')
+
+    expect(stored.rows).toEqual([{ id: scaffoldOwnerId, scaffold: 'es' }])
+  })
+
+  it('refuses a player stored without a scaffold', async () => {
+    await expect(
+      client.query(
+        `INSERT INTO players (id, email, password_hash, created_at, report_read_at)
+         VALUES ('00000000-0000-4000-8000-0000000000aa', 'newcomer@example.com', 'argon2id-hash',
+           '2026-11-13T08:00:00Z', '2026-11-13T08:00:00Z')`,
+      ),
+    ).rejects.toThrow('null value in column "scaffold"')
+  })
+
+  it('refuses a scaffold language Townword does not offer', async () => {
+    await expect(
+      client.query(`UPDATE players SET scaffold = 'fr' WHERE id = $1`, [scaffoldOwnerId]),
+    ).rejects.toThrow('invalid input value for enum scaffold')
   })
 })

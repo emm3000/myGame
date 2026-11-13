@@ -77,7 +77,7 @@ describe('the server failure report', () => {
     const response = await app.request('/auth/sign-up', {
       method: 'POST',
       headers: { 'content-type': 'application/json' },
-      body: JSON.stringify({ email: anasEmail, password: anasPassword }),
+      body: JSON.stringify({ email: anasEmail, password: anasPassword, scaffold: 'es' }),
     })
     expect(response.status).toBe(201)
     PlayerSchema.parse(await response.json())
@@ -191,7 +191,7 @@ describe('the server failure report', () => {
     app.request('/auth/sign-up', {
       method: 'POST',
       headers: { 'content-type': 'application/json' },
-      body: JSON.stringify({ email: brunosEmail, password: anasPassword }),
+      body: JSON.stringify({ email: brunosEmail, password: anasPassword, scaffold: 'es' }),
     })
 
   it('writes one line naming a failed query by its class and its Postgres code', async () => {

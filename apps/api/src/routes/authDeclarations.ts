@@ -2,7 +2,6 @@ import { createRoute } from '@hono/zod-openapi'
 import {
   ForgotPasswordRequestSchema,
   NativeSessionSchema,
-  PlayerSchema,
   ResetPasswordRequestSchema,
   SignInRequestSchema,
   SignUpRequestSchema,
@@ -10,8 +9,7 @@ import {
 } from '@mygame/contracts'
 import { type ResponseDeclaration, refusalResponse } from '../http/refusalResponse'
 import { jsonBody, jsonResponse, signedInRoute } from '../http/responseDeclarations'
-
-const PlayerComponent = PlayerSchema.meta({ id: 'Player' })
+import { PlayerComponent } from './playerComponent'
 
 const playerResponse = (description: string): ResponseDeclaration =>
   jsonResponse(description, PlayerComponent)
