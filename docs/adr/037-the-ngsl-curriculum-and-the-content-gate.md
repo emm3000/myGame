@@ -1,5 +1,5 @@
 ---
-status: proposed, the skill amended by ADR 039, chrome examples changed by ADR 040, the item data, the order, the frame rule, the stage and the holdout widened for units and later frames, and the next lesson after placement clarified, by ADR 044
+status: proposed, the skill amended by ADR 039, chrome examples changed by ADR 040, the item data, the order, the frame rule, the stage and the holdout widened for units and later frames, and the next lesson after placement clarified, by ADR 044, check 7 delegated by its amendment of 2026-11-12
 date: 2026-11-04
 ---
 # The NGSL curriculum and the content gate
@@ -212,14 +212,15 @@ word it means in the content, or the gate fails it.
    vocabulary, and never holds its own lemma in any form.
 6. **Grammar.** No token is a frame word or an inflection the inventory
    admits after the lesson or the variant's lesson.
-7. **The owner's review.** Every pull request that adds or changes a
+7. **The content review.** Every pull request that adds or changes a
    gloss, a frame, a definition or a text lists each one in a table in
-   its body, and it is merged only after the owner approves it on the
-   pull request; then the orchestrator merges it, as every pull request
-   (`docs/agents/multi-session.md`). GitHub refuses an approving review
-   from a pull request's own author, so the owner's approval is a
-   comment saying so. The owner reads Spanish glosses for meaning and
-   for the tú rule (ADR 038).
+   its body. *Amended 2026-11-12:* the owner delegated this review on
+   2026-11-05 and repeated it on 2026-11-12, so an opus:high reviewer
+   validates the table, reading Spanish glosses for meaning and for the
+   tú rule (ADR 038), and the orchestrator notes the delegation on the
+   pull request before merging it, as every pull request
+   (`docs/agents/multi-session.md`). Anything irreversible or
+   outward-facing still waits for the owner.
 8. **After launch, item statistics.** A word whose Again rate or FSRS
    difficulty is an outlier in its band is listed for the owner from the
    review log (ADR 036, rule 8); it never changes a card.
