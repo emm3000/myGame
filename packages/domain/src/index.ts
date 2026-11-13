@@ -278,6 +278,7 @@ export { terrainOf } from './town/terrainOf'
 export { tipKinds } from './town/tipKinds'
 export { type TipReading, tipOf } from './town/tipOf'
 export { townLabelOf } from './town/townLabelOf'
+export { type TownSeason, townSeasonAt } from './town/townSeasonAt'
 export type { WasteSize } from './town/WasteSize'
 export {
   type AnsweredReview,

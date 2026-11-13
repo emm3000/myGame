@@ -329,7 +329,13 @@ it('keeps the pay of the last team when an earlier quote answers after it', asyn
 it('asks the pay again when the season turns', async () => {
   const inSeason = (kind: 'spring' | 'summer', endsInSeconds: number): TownOverview => ({
     ...teamAtHome,
-    season: { kind, year: 1, endsAt: instantAfter(endsInSeconds) },
+    season: {
+      kind,
+      year: 1,
+      endsAt: instantAfter(endsInSeconds),
+      productionPercent: { money: 100, food: 100, power: 100, material: 100 },
+      durationPercent: { build: 100, study: 100, hire: 100, road: 100 },
+    },
   })
   const reads = [inSeason('spring', 30), inSeason('summer', 3600)]
   const quotedSeasons: Array<number> = []

@@ -4,8 +4,9 @@ import { coversWaste } from './coversWaste'
 import type { Hires } from './Hires'
 import type { CleanUpJob } from './Job'
 import { jobOneWaySeconds } from './jobOneWaySeconds'
-import { jobSeasonAt, unchangedPayPercent } from './jobSeasonAt'
+import { jobSeasonAt } from './jobSeasonAt'
 import type { SiteAddress } from './SiteAddress'
+import { unchangedProductionPercent } from './seasonPercentsAt'
 import { strengthOf } from './strengthOf'
 import type { Town } from './Town'
 import type { TownCatalog } from './TownCatalog'
@@ -36,7 +37,7 @@ export const cleanUpJobOf = (
     sentAt: now,
     oneWaySeconds: jobOneWaySeconds(town.address, site, team, catalog, roadPercent),
     pay: coversWaste({ strength, waste }) ? cleanUpPayOf(waste, team, catalog) : noPay,
-    payPercent: unchangedPayPercent,
+    payPercent: unchangedProductionPercent,
     cleanUp: { size, waste, strength, hasArrived: false },
   }
 }

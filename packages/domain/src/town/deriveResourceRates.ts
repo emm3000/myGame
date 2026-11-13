@@ -1,10 +1,10 @@
 import type { DomainError } from '../DomainError'
 import { err, ok, type Result } from '../Result'
-import { seasonAt } from '../season/seasonAt'
 import type { Instant } from '../time/Instant'
 import type { BuildingLevels } from './BuildingLevels'
 import type { ProducerBuilding } from './producerOf'
 import type { ResourceKind } from './ResourceKind'
+import { seasonPercentsAt } from './seasonPercentsAt'
 import type { Terrain } from './Terrain'
 import type { TownCatalog } from './TownCatalog'
 import type { TownSkill } from './TownSkill'
@@ -30,14 +30,6 @@ const producerRate = (
     return err({ kind: 'UnknownTownBuildingLevel', building, level })
   }
   return ok(found.ratePerHour)
-}
-
-const noSeasonBeforeEpoch: ResourceRates = { money: 100, food: 100, power: 100, material: 100 }
-
-const seasonPercentsAt = (at: Instant, catalog: TownCatalog): ResourceRates => {
-  const { seasons } = catalog.townSettings()
-  const season = seasonAt(at, catalog.townSettings())
-  return season === undefined ? noSeasonBeforeEpoch : seasons.productionPercent[season.kind]
 }
 
 const percentsOf = (
@@ -83,7 +75,7 @@ export const deriveResourceRates = (
     power: power.value,
     material: material.value,
   }
-  const percents = seasonPercentsAt(at, catalog)
+  const percents = seasonPercentsAt(at, catalog.townSettings()).productionPercent
   const scaled = (resource: ResourceKind): number =>
     scaledRate(
       base[resource] + (resource === bonus ? terrainBonusPerHour : 0),

@@ -32,11 +32,11 @@ import {
   type Result,
   releasedLessonsOf,
   requiredOfficeLevelOf,
-  seasonAt,
   type Town,
   type TownCatalog,
   tipOf,
   townLabelOf,
+  townSeasonAt,
   type WaitingList,
 } from '@mygame/domain'
 import { isoOf } from '../http/isoOf'
@@ -199,10 +199,16 @@ const workOf = (town: Town, catalog: TownCatalog): Result<TownOverview['work'], 
 }
 
 const seasonOf = (at: Instant, catalog: TownCatalog): TownOverview['season'] => {
-  const season = seasonAt(at, catalog.townSettings())
+  const season = townSeasonAt(at, catalog.townSettings())
   return season === undefined
     ? null
-    : { kind: season.kind, year: season.year, endsAt: isoOf(season.endsAt) }
+    : {
+        kind: season.kind,
+        year: season.year,
+        endsAt: isoOf(season.endsAt),
+        productionPercent: { ...season.productionPercent },
+        durationPercent: { ...season.durationPercent },
+      }
 }
 
 const peopleOf = (

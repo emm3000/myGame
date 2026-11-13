@@ -1802,9 +1802,62 @@
               "endsAt": {
                 "type": "string",
                 "format": "date-time"
+              },
+              "productionPercent": {
+                "type": "object",
+                "properties": {
+                  "money": {
+                    "type": "integer",
+                    "minimum": 0,
+                    "exclusiveMinimum": true
+                  },
+                  "food": {
+                    "type": "integer",
+                    "minimum": 0,
+                    "exclusiveMinimum": true
+                  },
+                  "power": {
+                    "type": "integer",
+                    "minimum": 0,
+                    "exclusiveMinimum": true
+                  },
+                  "material": {
+                    "type": "integer",
+                    "minimum": 0,
+                    "exclusiveMinimum": true
+                  }
+                },
+                "required": ["money", "food", "power", "material"]
+              },
+              "durationPercent": {
+                "type": "object",
+                "properties": {
+                  "build": {
+                    "type": "integer",
+                    "minimum": 0,
+                    "exclusiveMinimum": true
+                  },
+                  "study": {
+                    "type": "integer",
+                    "minimum": 0,
+                    "exclusiveMinimum": true
+                  },
+                  "hire": {
+                    "type": "integer",
+                    "minimum": 0,
+                    "exclusiveMinimum": true
+                  },
+                  "road": {
+                    "type": "integer",
+                    "minimum": 0,
+                    "exclusiveMinimum": true
+                  }
+                },
+                "required": ["build", "study", "hire", "road"],
+                "additionalProperties": false
               }
             },
-            "required": ["kind", "year", "endsAt"],
+            "required": ["kind", "year", "endsAt", "productionPercent", "durationPercent"],
             "additionalProperties": false
           },
           "stocks": {

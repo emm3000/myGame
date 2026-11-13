@@ -43,6 +43,15 @@ const millisecondsPerMinute = 60_000
 
 const signedUpAt = Date.parse('2026-11-05T08:00:00Z')
 
+const minutesFromSignUpTo = (instant: string): number =>
+  (Date.parse(instant) - signedUpAt) / millisecondsPerMinute
+
+const minutesToSummer = minutesFromSignUpTo('2026-11-09T00:00:00Z')
+
+const minutesToWinter = minutesFromSignUpTo('2026-11-23T00:00:00Z')
+
+const minutesToADayBeforeEpoch = minutesFromSignUpTo('2026-10-04T00:00:00Z')
+
 type MovableClock = Clock & { readonly advanceMinutes: (minutes: number) => void }
 
 const movableClock = (): MovableClock => {
@@ -309,6 +318,67 @@ describe('the town route', () => {
         work: { slot: null, waitingList: [], cap: 4 },
         readAt: '2026-11-05T08:00:00.000Z',
       })
+    })
+
+    it('answers summer’s build percent', async () => {
+      const ana = await signUpWithTown('ana@example.com')
+      clock.advanceMinutes(minutesToSummer)
+
+      const { season, buildings } = await overviewOf(await readTown(ana))
+
+      expect([
+        season?.kind,
+        season?.durationPercent.build,
+        buildings.farm.nextLevel?.durationSeconds,
+      ]).toEqual(['summer', 75, 90])
+    })
+
+    it('answers summer’s food percent', async () => {
+      const ana = await signUpWithTown('ana@example.com')
+      clock.advanceMinutes(minutesToSummer)
+
+      const { season, stocks } = await overviewOf(await readTown(ana))
+
+      expect([season?.kind, season?.productionPercent.food, stocks.food.ratePerHour]).toEqual([
+        'summer',
+        125,
+        6.25,
+      ])
+    })
+
+    it('answers winter’s study percent', async () => {
+      const ana = await signUpWithTown('ana@example.com')
+      clock.advanceMinutes(minutesToWinter)
+
+      const { season, lessons } = await overviewOf(await readTown(ana))
+
+      expect([season?.kind, season?.durationPercent.study, lessons[0]?.durationSeconds]).toEqual([
+        'winter',
+        75,
+        225,
+      ])
+    })
+
+    it('answers the hire percent in force', async () => {
+      const ana = await signUpWithTown('ana@example.com')
+      clock.advanceMinutes(minutesToSummer - 1)
+
+      const { season, hiring } = await overviewOf(await readTown(ana))
+
+      expect([season?.kind, season?.durationPercent, hiring.terms.worker.secondsPerHire]).toEqual([
+        'spring',
+        { build: 100, study: 100, hire: 75, road: 100 },
+        90,
+      ])
+    })
+
+    it('answers no percents before the epoch', async () => {
+      clock.advanceMinutes(minutesToADayBeforeEpoch)
+      const ana = await signUpWithTown('ana@example.com')
+
+      const { season, buildings } = await overviewOf(await readTown(ana))
+
+      expect([season, buildings.farm.nextLevel?.durationSeconds]).toEqual([null, 120])
     })
 
     it('answers the instant each store fills', async () => {

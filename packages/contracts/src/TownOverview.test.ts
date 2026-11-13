@@ -133,7 +133,37 @@ const overview = (overrides: Record<string, unknown> = {}): Record<string, unkno
   ...overrides,
 })
 
+const summer = {
+  kind: 'summer',
+  year: 2,
+  endsAt: '2026-11-16T00:00:00.000Z',
+  productionPercent: { money: 100, food: 125, power: 100, material: 100 },
+  durationPercent: { build: 75, study: 100, hire: 100, road: 100 },
+}
+
 describe('TownOverviewSchema', () => {
+  it('parses a season with its production and duration percents', () => {
+    expect(TownOverviewSchema.parse(overview({ season: summer })).season).toEqual(summer)
+  })
+
+  it('rejects a season missing the production percent of a resource', () => {
+    const { power: _, ...threeResources } = summer.productionPercent
+
+    expect(
+      TownOverviewSchema.safeParse(
+        overview({ season: { ...summer, productionPercent: threeResources } }),
+      ).success,
+    ).toBe(false)
+  })
+
+  it('rejects a season duration percent of 0', () => {
+    const durationPercent = { ...summer.durationPercent, road: 0 }
+
+    expect(
+      TownOverviewSchema.safeParse(overview({ season: { ...summer, durationPercent } })).success,
+    ).toBe(false)
+  })
+
   it('parses a job out with its pay and its instants', () => {
     expect(TownOverviewSchema.parse(overview({ job: jobOut })).job).toEqual(jobOut)
   })

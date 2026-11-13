@@ -1,15 +1,6 @@
-import { seasonAt } from '../season/seasonAt'
 import type { Instant } from '../time/Instant'
+import { seasonPercentsAt } from './seasonPercentsAt'
 import type { ProductionPercent, TownSettings } from './TownSettings'
-
-const UNCHANGED_PERCENT = 100
-
-export const unchangedPayPercent: ProductionPercent = {
-  money: UNCHANGED_PERCENT,
-  food: UNCHANGED_PERCENT,
-  power: UNCHANGED_PERCENT,
-  material: UNCHANGED_PERCENT,
-}
 
 export type JobSeason = {
   readonly roadPercent: number
@@ -17,12 +8,6 @@ export type JobSeason = {
 }
 
 export const jobSeasonAt = (instant: Instant, settings: TownSettings): JobSeason => {
-  const season = seasonAt(instant, settings)
-  if (season === undefined) {
-    return { roadPercent: UNCHANGED_PERCENT, payPercent: unchangedPayPercent }
-  }
-  return {
-    roadPercent: settings.seasons.durationPercent[season.kind].road,
-    payPercent: settings.seasons.productionPercent[season.kind],
-  }
+  const { durationPercent, productionPercent } = seasonPercentsAt(instant, settings)
+  return { roadPercent: durationPercent.road, payPercent: productionPercent }
 }

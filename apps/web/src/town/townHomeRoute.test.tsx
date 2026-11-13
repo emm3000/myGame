@@ -428,7 +428,13 @@ it('writes the season under the stocks', async () => {
   await showTown(
     serving({
       ...knownTown,
-      season: { kind: 'fall', year: 2, endsAt: '2026-11-13T09:00:00.000Z' },
+      season: {
+        kind: 'fall',
+        year: 2,
+        endsAt: '2026-11-13T09:00:00.000Z',
+        productionPercent: { money: 100, food: 100, power: 100, material: 100 },
+        durationPercent: { build: 100, study: 100, hire: 100, road: 75 },
+      },
     }),
   )
 
@@ -458,7 +464,13 @@ it('reads the town again when its season ends', async () => {
   let reads = 0
   const endingSeason: TownOverview = {
     ...knownTown,
-    season: { kind: 'fall', year: 1, endsAt: '2026-11-10T09:00:30.000Z' },
+    season: {
+      kind: 'fall',
+      year: 1,
+      endsAt: '2026-11-10T09:00:30.000Z',
+      productionPercent: { money: 100, food: 100, power: 100, material: 100 },
+      durationPercent: { build: 100, study: 100, hire: 100, road: 75 },
+    },
   }
   await showTown(
     serving(endingSeason, {

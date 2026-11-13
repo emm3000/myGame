@@ -1,12 +1,12 @@
 import type { DomainError } from '../DomainError'
 import { err, ok, type Result } from '../Result'
-import { seasonAt } from '../season/seasonAt'
 import type { Instant } from '../time/Instant'
 import { accrueTown } from './accrueTown'
 import { buildingKinds } from './buildingKinds'
 import { derivePeople } from './derivePeople'
 import { hireKinds } from './hireKinds'
 import { resourceKinds } from './resourceKinds'
+import { seasonPercentsAt } from './seasonPercentsAt'
 import type { TipKind } from './TipKind'
 import type { Town } from './Town'
 import type { TownCatalog } from './TownCatalog'
@@ -44,12 +44,7 @@ const lacksPeople: Trigger = ({ town }, catalog) => {
 }
 
 const changesProduction: Trigger = ({ at }, catalog) => {
-  const settings = catalog.townSettings()
-  const season = seasonAt(at, settings)
-  if (season === undefined) {
-    return ok(false)
-  }
-  const percent = settings.seasons.productionPercent[season.kind]
+  const percent = seasonPercentsAt(at, catalog.townSettings()).productionPercent
   return ok(resourceKinds.some((resource) => percent[resource] !== UNCHANGED_PERCENT))
 }
 

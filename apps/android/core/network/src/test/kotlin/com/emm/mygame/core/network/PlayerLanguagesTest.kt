@@ -237,7 +237,9 @@ class PlayerLanguagesTest {
                 """"people":1,"requiredOfficeLevel":3}}}"""
         const val TOWN_READ_IN_THE_BOTH_PHASE: String =
             """{"name":"Riverton","label":"town","site":{"region":1,"area":1,"site":1},"terrain":"fields",""" +
-                """"season":{"kind":"fall","year":1,"endsAt":"2026-11-08T00:00:00.000Z"},""" +
+                """"season":{"kind":"fall","year":1,"endsAt":"2026-11-08T00:00:00.000Z",""" +
+                """"productionPercent":{"money":100,"food":100,"power":100,"material":100},""" +
+                """"durationPercent":{"build":100,"study":100,"hire":100,"road":75}},""" +
                 """"stocks":{"money":{"amount":120,"ratePerHour":30.5,"capacity":1000,""" +
                 """"fullAt":"2026-11-06T14:51:09.000Z"},""" +
                 """"food":{"amount":80,"ratePerHour":12,"capacity":1000,"fullAt":null},""" +
