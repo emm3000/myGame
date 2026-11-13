@@ -34,6 +34,10 @@ import com.emm.mygame.core.network.PlacementBand
 import com.emm.mygame.core.network.PlacementChoice
 import com.emm.mygame.core.network.PlacementItem
 import com.emm.mygame.core.network.WordId
+import com.emm.mygame.core.ui.ChromePhase
+import com.emm.mygame.core.ui.CopyLanguage
+import com.emm.mygame.core.ui.ProvideCopyLanguage
+import com.emm.mygame.core.ui.ScaffoldLanguage
 import com.emm.mygame.core.ui.fixedCopyResource
 
 @Composable
@@ -162,5 +166,17 @@ private class HoldoutCheckScreenStates : PreviewParameterProvider<HoldoutCheckUi
 private fun HoldoutCheckScreenPreview(@PreviewParameter(HoldoutCheckScreenStates::class) state: HoldoutCheckUiState) {
     MyGamePreviewSurface {
         HoldoutCheckScreen(state = state, onIntent = {}, onTownOpen = {})
+    }
+}
+
+@PreviewMyGame
+@Composable
+private fun HoldoutCheckScreenBothPreview(
+    @PreviewParameter(HoldoutCheckScreenStates::class) state: HoldoutCheckUiState,
+) {
+    ProvideCopyLanguage(language = CopyLanguage(ScaffoldLanguage.Spanish, ChromePhase.Both)) {
+        MyGamePreviewSurface {
+            HoldoutCheckScreen(state = state, onIntent = {}, onTownOpen = {})
+        }
     }
 }

@@ -5,7 +5,6 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.heading
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.tooling.preview.PreviewParameter
@@ -22,6 +21,11 @@ import com.emm.mygame.core.designsystem.MyGameTheme
 import com.emm.mygame.core.designsystem.MyGameTypography
 import com.emm.mygame.core.designsystem.PreviewMyGame
 import com.emm.mygame.core.network.PlacementRepository
+import com.emm.mygame.core.ui.ChromePhase
+import com.emm.mygame.core.ui.CopyLanguage
+import com.emm.mygame.core.ui.ProvideCopyLanguage
+import com.emm.mygame.core.ui.ScaffoldLanguage
+import com.emm.mygame.core.ui.fixedCopyResource
 
 @Composable
 fun PlacementOfferRoute(
@@ -49,18 +53,18 @@ fun PlacementOfferRow(state: PlacementOfferUiState, onPlacementOpen: () -> Unit,
         MyGameHairline()
         Column {
             MyGameText(
-                text = stringResource(R.string.placement_title),
+                text = fixedCopyResource(R.string.placement_title),
                 style = MyGameTypography.title,
                 color = MyGameTheme.colors.ink,
                 modifier = Modifier.semantics { heading() },
             )
             MyGameText(
-                text = stringResource(R.string.placement_offer_line),
+                text = fixedCopyResource(R.string.placement_offer_line),
                 style = MyGameTypography.caption,
                 color = MyGameTheme.colors.inkMuted,
             )
         }
-        MyGameTextLink(label = stringResource(link), onClick = onPlacementOpen)
+        MyGameTextLink(label = fixedCopyResource(link), onClick = onPlacementOpen)
     }
 }
 
@@ -74,5 +78,15 @@ private class PlacementOfferStates : PreviewParameterProvider<PlacementOfferUiSt
 private fun PlacementOfferRowPreview(@PreviewParameter(PlacementOfferStates::class) state: PlacementOfferUiState) {
     MyGamePreviewSurface {
         PlacementOfferRow(state = state, onPlacementOpen = {})
+    }
+}
+
+@PreviewMyGame
+@Composable
+private fun PlacementOfferRowBothPreview(@PreviewParameter(PlacementOfferStates::class) state: PlacementOfferUiState) {
+    ProvideCopyLanguage(language = CopyLanguage(ScaffoldLanguage.Spanish, ChromePhase.Both)) {
+        MyGamePreviewSurface {
+            PlacementOfferRow(state = state, onPlacementOpen = {})
+        }
     }
 }

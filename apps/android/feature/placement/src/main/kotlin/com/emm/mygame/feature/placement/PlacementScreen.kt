@@ -10,7 +10,6 @@ import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.heading
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.tooling.preview.PreviewParameter
@@ -31,6 +30,11 @@ import com.emm.mygame.core.network.PlacementChoice
 import com.emm.mygame.core.network.PlacementItem
 import com.emm.mygame.core.network.PlacementScore
 import com.emm.mygame.core.network.WordId
+import com.emm.mygame.core.ui.ChromePhase
+import com.emm.mygame.core.ui.CopyLanguage
+import com.emm.mygame.core.ui.ProvideCopyLanguage
+import com.emm.mygame.core.ui.ScaffoldLanguage
+import com.emm.mygame.core.ui.fixedCopyResource
 
 @Composable
 fun PlacementScreen(
@@ -50,14 +54,14 @@ fun PlacementScreen(
             .padding(bottom = MyGameSpacing.step8),
     ) {
         MyGameText(
-            text = stringResource(R.string.placement_title),
+            text = fixedCopyResource(R.string.placement_title),
             style = MyGameTypography.display,
             color = MyGameTheme.colors.ink,
             modifier = Modifier.semantics { heading() },
         )
         MyGameSkeleton(
             isLoading = state == PlacementUiState.Loading,
-            loadingLabel = stringResource(R.string.placement_loading),
+            loadingLabel = fixedCopyResource(R.string.placement_loading),
             blocks = placementBlocks,
         ) {
             PlacementState(state = state, onIntent = onIntent, onTownOpen = onTownOpen)
@@ -70,8 +74,8 @@ private fun PlacementState(state: PlacementUiState, onIntent: (PlacementIntent) 
     when (state) {
         PlacementUiState.Loading -> Unit
         PlacementUiState.Failed -> MyGameErrorBanner(
-            message = stringResource(R.string.placement_failed),
-            actionLabel = stringResource(R.string.placement_retry),
+            message = fixedCopyResource(R.string.placement_failed),
+            actionLabel = fixedCopyResource(R.string.placement_retry),
             onAction = { onIntent(PlacementIntent.RetryTapped) },
         )
         is PlacementUiState.Offered -> PlacementOffered(offered = state, onIntent = onIntent)
@@ -121,5 +125,15 @@ private class PlacementScreenStates : PreviewParameterProvider<PlacementUiState>
 private fun PlacementScreenPreview(@PreviewParameter(PlacementScreenStates::class) state: PlacementUiState) {
     MyGamePreviewSurface {
         PlacementScreen(state = state, onIntent = {}, onTownOpen = {})
+    }
+}
+
+@PreviewMyGame
+@Composable
+private fun PlacementScreenBothPreview(@PreviewParameter(PlacementScreenStates::class) state: PlacementUiState) {
+    ProvideCopyLanguage(language = CopyLanguage(ScaffoldLanguage.Spanish, ChromePhase.Both)) {
+        MyGamePreviewSurface {
+            PlacementScreen(state = state, onIntent = {}, onTownOpen = {})
+        }
     }
 }

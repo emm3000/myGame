@@ -4,7 +4,6 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.heading
 import androidx.compose.ui.semantics.semantics
 import com.emm.mygame.core.designsystem.MyGameButton
@@ -14,7 +13,7 @@ import com.emm.mygame.core.designsystem.MyGameText
 import com.emm.mygame.core.designsystem.MyGameTheme
 import com.emm.mygame.core.designsystem.MyGameTypography
 import com.emm.mygame.core.network.PlacementScore
-import com.emm.mygame.core.ui.icuStringResource
+import com.emm.mygame.core.ui.fixedCopyResource
 
 @Composable
 internal fun PlacementResult(
@@ -25,13 +24,13 @@ internal fun PlacementResult(
     Column(verticalArrangement = Arrangement.spacedBy(MyGameSpacing.step4), modifier = modifier) {
         if (closed.scores.isEmpty()) {
             MyGameText(
-                text = stringResource(R.string.placement_closed_none),
+                text = fixedCopyResource(R.string.placement_closed_none),
                 style = MyGameTypography.body,
                 color = MyGameTheme.colors.ink,
             )
         } else {
             MyGameText(
-                text = stringResource(R.string.placement_result_title),
+                text = fixedCopyResource(R.string.placement_result_title),
                 style = MyGameTypography.title,
                 color = MyGameTheme.colors.ink,
                 modifier = Modifier.semantics { heading() },
@@ -39,9 +38,9 @@ internal fun PlacementResult(
             closed.scores.forEach { score: PlacementScore -> BandScore(score = score) }
         }
         MyGameButton(
-            label = stringResource(R.string.placement_to_town),
+            label = fixedCopyResource(R.string.placement_to_town),
             isBusy = false,
-            busyDescription = stringResource(R.string.placement_sending),
+            busyDescription = fixedCopyResource(R.string.placement_sending),
             onClick = onTownOpen,
         )
     }
@@ -59,7 +58,7 @@ internal fun BandScore(score: PlacementScore, modifier: Modifier = Modifier) {
 private fun BandScoreLines(score: PlacementScore, modifier: Modifier = Modifier) {
     Column(modifier = modifier.semantics(mergeDescendants = true) {}) {
         MyGameText(
-            text = icuStringResource(
+            text = fixedCopyResource(
                 R.string.placement_result_band,
                 "band" to score.band.number.toString(),
                 "score" to score.score,
@@ -68,7 +67,7 @@ private fun BandScoreLines(score: PlacementScore, modifier: Modifier = Modifier)
             color = MyGameTheme.colors.ink,
         )
         MyGameText(
-            text = stringResource(
+            text = fixedCopyResource(
                 if (score.isPlacedOut) R.string.placement_placed_out else R.string.placement_not_placed_out,
             ),
             style = MyGameTypography.caption,
