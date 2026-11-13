@@ -546,3 +546,34 @@ missing. `derivePeople` supplies 30, 40, 50 and 60 at levels 2 to 5.
   `apps/api/src/learning/schoolOverviewOf.ts`, `reviewsOf.ts`;
   `apps/api/content/town/`; `docs/setting/chrome.md`.
 - PRD W6, W10.
+
+## Amendment (2026-11-13)
+
+#1056 puts the holdout (ADR 037, ADR 041) on the next step, which ADR 037
+and ADR 041 left unordered. The table above gains two rows, so the first
+state that holds now reads:
+
+| Priority | `kind` | When | The button goes to | It also says |
+|---|---|---|---|---|
+| 1 | `reviews` | a card is due | the first lesson of `readFirst`, else `/reviews` | how many; a running lesson's time |
+| 2 | `holdoutCheck` | a band's 8- or 24-week check is due | the check (on the web, the school) | the band |
+| 3 | `lessonRunning` | the lesson slot is busy | the lesson's words | the producer to build, if any |
+| 4 | `releasedLesson` | a released lesson can start | the lesson's start (on the web, the school) | the band and the set; when the next review is due |
+| 5 | `lessonToStudy` | the next lesson can start | the school | when the next review is due |
+| 6 | `caughtUp` | none of the above | the Report | the next building goal, if any; when the next review is due |
+
+- **A due check comes after the reviews and before any lesson**: the
+  reviews are due now and cost minutes, while a check is bound to its
+  week and falls due on read (ADR 005), and a lesson studied first would
+  add cards the check was not drawn over. It wins over a running lesson
+  too, since the lesson runs on its own.
+- **A released lesson comes before the next shelved lesson**: the
+  held-out words were studied once with their lesson and come back
+  before new words, as ADR 037's release says. It is named only when
+  `admitSchoolLesson` admits it, so the school's level and the learning
+  cap rule it exactly as they rule a shelved one, and only after its
+  band's 24-week check is taken or skipped.
+- Both are the server's answer (N1). The due check is the one rule
+  `/holdout-checks` reads (`dueHoldoutChecksOf`), and the released
+  lessons the ones `startSchoolLesson` admits (`releasedLessonsOf`), so
+  two reads at one instant never disagree.

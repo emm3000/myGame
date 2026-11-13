@@ -88,7 +88,7 @@ The game is Townword, a present-day town the player grows into a city (ADR 035).
 - **In learning** — a card whose stability is under 7 days; not the card's FSRS learning state, which lasts minutes. The **learning cap**, set by the school's level, bounds how many cards are in learning once a lesson's words enter, so a lesson start past it is refused (ADR 040).
 - **Word reading** — a word shown with its gloss and frame, from its lesson's start until its first review, never for a held-out word. It teaches the word, and changes no card (ADR 042).
 - **School path** — a lesson's words on the way to its skill, counted by each word's **standing**: not started, recognize, recall, hold, retained. A standing is derived from the card, so a lapse moves it back, and so does a Hard on a retained word (ADR 042).
-- **Next step** — the card first on every town home, the one place the player goes next: reviews, a running lesson, a lesson to study, or caught up, the first that holds, answered by the server. Only caught up shows a goal, a building's. Its screen title is *What is next* (ADR 042).
+- **Next step** — the card first on every town home, the one place the player goes next: reviews, a due holdout check, a running lesson, a released lesson, a lesson to study, or caught up, the first that holds, answered by the server (#1056). Only caught up shows a goal, a building's. Its screen title is *What is next* (ADR 042).
 
 ## The Report and Town News
 
