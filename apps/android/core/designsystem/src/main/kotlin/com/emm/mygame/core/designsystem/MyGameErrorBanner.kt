@@ -16,6 +16,16 @@ import androidx.compose.ui.semantics.semantics
 
 @Composable
 fun MyGameErrorBanner(message: String, actionLabel: String, onAction: () -> Unit, modifier: Modifier = Modifier) {
+    MyGameErrorBanner(
+        message = message,
+        actionLabel = MyGameLabel(text = actionLabel, translation = null),
+        onAction = onAction,
+        modifier = modifier,
+    )
+}
+
+@Composable
+fun MyGameErrorBanner(message: String, actionLabel: MyGameLabel, onAction: () -> Unit, modifier: Modifier = Modifier) {
     val colors: MyGameColors = MyGameTheme.colors
     Row(
         horizontalArrangement = Arrangement.spacedBy(MyGameSpacing.step3),

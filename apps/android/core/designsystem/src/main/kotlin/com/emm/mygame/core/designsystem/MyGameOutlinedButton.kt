@@ -18,6 +18,29 @@ fun MyGameOutlinedButton(
     accessibleName: String? = null,
     badge: String? = null,
 ) {
+    MyGameOutlinedButton(
+        label = MyGameLabel(text = label, translation = null),
+        isBusy = isBusy,
+        busyDescription = busyDescription,
+        onClick = onClick,
+        modifier = modifier,
+        blockedReason = blockedReason,
+        accessibleName = accessibleName,
+        badge = badge,
+    )
+}
+
+@Composable
+fun MyGameOutlinedButton(
+    label: MyGameLabel,
+    isBusy: Boolean,
+    busyDescription: String,
+    onClick: () -> Unit,
+    modifier: Modifier = Modifier,
+    blockedReason: String? = null,
+    accessibleName: String? = null,
+    badge: String? = null,
+) {
     val colors: MyGameColors = MyGameTheme.colors
     MyGamePill(
         look = MyGamePillLook(

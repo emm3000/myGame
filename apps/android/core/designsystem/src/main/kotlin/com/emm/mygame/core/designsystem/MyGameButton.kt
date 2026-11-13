@@ -16,6 +16,27 @@ fun MyGameButton(
     blockedReason: String? = null,
     accessibleName: String? = null,
 ) {
+    MyGameButton(
+        label = MyGameLabel(text = label, translation = null),
+        isBusy = isBusy,
+        busyDescription = busyDescription,
+        onClick = onClick,
+        modifier = modifier,
+        blockedReason = blockedReason,
+        accessibleName = accessibleName,
+    )
+}
+
+@Composable
+fun MyGameButton(
+    label: MyGameLabel,
+    isBusy: Boolean,
+    busyDescription: String,
+    onClick: () -> Unit,
+    modifier: Modifier = Modifier,
+    blockedReason: String? = null,
+    accessibleName: String? = null,
+) {
     val colors: MyGameColors = MyGameTheme.colors
     MyGamePill(
         look = MyGamePillLook(

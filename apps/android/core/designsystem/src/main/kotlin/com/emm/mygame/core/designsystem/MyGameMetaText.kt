@@ -8,11 +8,16 @@ import androidx.compose.ui.semantics.semantics
 
 @Composable
 fun MyGameMetaText(text: String, color: Color, modifier: Modifier = Modifier) {
+    MyGameMetaText(label = MyGameLabel(text = text, translation = null), color = color, modifier = modifier)
+}
+
+@Composable
+fun MyGameMetaText(label: MyGameLabel, color: Color, modifier: Modifier = Modifier) {
     MyGameText(
-        text = text.uppercase(),
+        label = label.uppercase(),
         style = MyGameTypography.meta,
         color = color,
-        modifier = modifier.semantics { contentDescription = text },
+        modifier = modifier.semantics { contentDescription = label.spoken },
     )
 }
 

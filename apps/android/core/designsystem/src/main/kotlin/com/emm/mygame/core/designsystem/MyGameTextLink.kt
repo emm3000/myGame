@@ -11,9 +11,14 @@ import androidx.compose.ui.text.style.TextDecoration
 
 @Composable
 fun MyGameTextLink(label: String, onClick: () -> Unit, modifier: Modifier = Modifier) {
+    MyGameTextLink(label = MyGameLabel(text = label, translation = null), onClick = onClick, modifier = modifier)
+}
+
+@Composable
+fun MyGameTextLink(label: MyGameLabel, onClick: () -> Unit, modifier: Modifier = Modifier) {
     MyGameTextTarget(isEnabled = true, onClick = onClick, modifier = modifier) {
         MyGameText(
-            text = label,
+            label = label,
             style = MyGameTypography.button.copy(textDecoration = TextDecoration.Underline),
             color = MyGameTheme.colors.action,
         )
