@@ -3,6 +3,7 @@ package com.emm.mygame.feature.town
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.ui.test.hasText
 import androidx.compose.ui.test.junit4.ComposeContentTestRule
+import androidx.compose.ui.test.junit4.StateRestorationTester
 import androidx.compose.ui.test.junit4.createComposeRule
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
@@ -120,14 +121,19 @@ class TownRouteTest {
         assertEquals(listOf(PlacementBand.Second to HoldoutCheckWeek.TwentyFourth), holdoutCheckOpens)
     }
 
-    private fun tapSignOutFromTheNamingForm() {
+    private fun tapSignOutFromTheNamingForm(): StateRestorationTester {
         towns.answerRead(TownReadResult.NoTown)
-        composeRule.setContent {
+        val frozenClock: Clock = object : Clock {
+            override fun now(): Instant = readInstant
+        }
+        val viewModel: TownViewModel = TownViewModel(towns, sessions, frozenClock)
+        val restoration: StateRestorationTester = StateRestorationTester(composeRule)
+        restoration.setContent {
             MyGameTheme {
                 TownRoute(
                     towns = towns,
                     sessions = sessions,
-                    clock = Clock.System,
+                    clock = frozenClock,
                     navigation = TownNavigation(
                         onSchoolOpen = {},
                         onReportOpen = {},
@@ -138,17 +144,29 @@ class TownRouteTest {
                         onSigningOut = { signingOuts += 1 },
                         onSignedOut = { signedOuts += 1 },
                     ),
+                    viewModel = viewModel,
                 )
             }
         }
         composeRule.waitUntil { composeRule.onAllNodes(hasText("Salir")).fetchSemanticsNodes().isNotEmpty() }
         composeRule.onNodeWithText("Salir").performScrollTo().performClick()
         composeRule.waitForIdle()
+        return restoration
     }
 
     @Test
     fun `tells the navigation the session is ending`() {
         tapSignOutFromTheNamingForm()
+
+        assertEquals(1, signingOuts)
+    }
+
+    @Test
+    fun `tells the navigation once when the screen is rebuilt mid-sign-out`() {
+        val restoration: StateRestorationTester = tapSignOutFromTheNamingForm()
+
+        restoration.emulateSavedInstanceStateRestore()
+        composeRule.waitForIdle()
 
         assertEquals(1, signingOuts)
     }

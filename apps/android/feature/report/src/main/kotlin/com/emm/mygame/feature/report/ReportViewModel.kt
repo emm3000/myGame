@@ -113,6 +113,7 @@ class ReportViewModel(
         viewModelScope.coroutineContext.cancelChildren()
         _state.value = ReportUiState.SigningOut
         viewModelScope.launch {
+            _effects.send(ReportEffect.SigningOut)
             sessions.signOut()
             _effects.send(ReportEffect.SignedOut)
         }

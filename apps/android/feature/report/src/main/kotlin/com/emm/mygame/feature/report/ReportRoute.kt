@@ -29,14 +29,11 @@ fun ReportRoute(
         withContext(Dispatchers.Main.immediate) {
             viewModel.effects.collect { effect: ReportEffect ->
                 when (effect) {
+                    ReportEffect.SigningOut -> currentNavigation.onSigningOut()
                     ReportEffect.SignedOut -> currentNavigation.onSignedOut()
                 }
             }
         }
-    }
-    val isSigningOut: Boolean = state == ReportUiState.SigningOut
-    LaunchedEffect(isSigningOut) {
-        if (isSigningOut) currentNavigation.onSigningOut()
     }
     LifecycleStartEffect(viewModel) {
         viewModel.onIntent(ReportIntent.ScreenShown)

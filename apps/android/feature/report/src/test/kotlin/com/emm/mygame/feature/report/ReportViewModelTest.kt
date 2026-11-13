@@ -40,6 +40,32 @@ class ReportViewModelTest {
     }
 
     @Test
+    fun `tells the route once that it is signing out while the session ends`() = runTest {
+        val viewModel: ReportViewModel = signedInReport()
+
+        viewModel.effects.test {
+            viewModel.onIntent(ReportIntent.SignOutTapped)
+
+            assertEquals(ReportEffect.SigningOut, awaitItem())
+            expectNoEvents()
+        }
+    }
+
+    @Test
+    fun `tells the route it is signing out once however often sign-out is tapped`() = runTest {
+        val viewModel: ReportViewModel = signedInReport()
+
+        viewModel.effects.test {
+            viewModel.onIntent(ReportIntent.SignOutTapped)
+            viewModel.onIntent(ReportIntent.SignOutTapped)
+            runCurrent()
+
+            assertEquals(ReportEffect.SigningOut, awaitItem())
+            expectNoEvents()
+        }
+    }
+
+    @Test
     fun `signs out and tells the route`() = runTest {
         val viewModel: ReportViewModel = signedInReport()
         sessions.answerSignOut()
@@ -47,6 +73,7 @@ class ReportViewModelTest {
         viewModel.effects.test {
             viewModel.onIntent(ReportIntent.SignOutTapped)
 
+            assertEquals(ReportEffect.SigningOut, awaitItem())
             assertEquals(ReportEffect.SignedOut, awaitItem())
         }
     }

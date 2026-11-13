@@ -213,6 +213,7 @@ class TownViewModel(
         viewModelScope.coroutineContext.cancelChildren()
         _state.value = TownUiState.SigningOut
         viewModelScope.launch {
+            _effects.send(TownEffect.SigningOut)
             sessions.signOut()
             _effects.send(TownEffect.SignedOut)
         }
