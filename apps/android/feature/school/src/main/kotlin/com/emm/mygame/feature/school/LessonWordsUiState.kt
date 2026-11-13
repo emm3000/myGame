@@ -36,7 +36,7 @@ sealed interface LessonWordsUiState {
         private fun shownSupportOf(): WordSupport? = when (shownSupport) {
             null -> null
             ShownSupport.Word -> word.support
-            is ShownSupport.Frame -> word.frame.getOrNull(shownSupport.span)?.support
+            is ShownSupport.Frame -> word.frame.getOrNull(shownSupport.spanIndex)?.support
         }
     }
 
@@ -44,7 +44,7 @@ sealed interface LessonWordsUiState {
 
         data object Word : ShownSupport
 
-        data class Frame(val span: Int) : ShownSupport
+        data class Frame(val spanIndex: Int) : ShownSupport
     }
 
     sealed interface WayOn {

@@ -16,6 +16,7 @@ import androidx.compose.ui.test.assertCountEquals
 import androidx.compose.ui.test.assertHeightIsAtLeast
 import androidx.compose.ui.test.assertWidthIsAtLeast
 import androidx.compose.ui.test.hasClickAction
+import androidx.compose.ui.test.hasText
 import androidx.compose.ui.test.junit4.ComposeContentTestRule
 import androidx.compose.ui.test.junit4.createComposeRule
 import androidx.compose.ui.test.onNodeWithTag
@@ -65,6 +66,24 @@ class MyGameFrameTextTest {
         showFrame(walkFrame(onTap))
 
         composeRule.onNodeWithText("The kids walk to school.").assertExists()
+    }
+
+    @Test
+    fun `gives the screen reader the whole frame as one focusable sentence`() {
+        showFrame(walkFrame(onTap))
+
+        val sentence: SemanticsNode = composeRule.onNodeWithText("The kids walk to school.").fetchSemanticsNode()
+        assertTrue(sentence.config.isMergingSemanticsOfDescendants)
+    }
+
+    @Test
+    fun `keeps each word on tap its own focusable button inside the sentence`() {
+        showFrame(walkFrame(onTap))
+
+        val word: SemanticsNode = composeRule.onNode(hasText("walk") and hasClickAction()).fetchSemanticsNode()
+        assertTrue(word.config.isMergingSemanticsOfDescendants)
+        val sentence: String? = word.parent?.config?.getOrNull(SemanticsProperties.Text)?.joinToString()
+        assertEquals("The kids walk to school.", sentence)
     }
 
     @Test

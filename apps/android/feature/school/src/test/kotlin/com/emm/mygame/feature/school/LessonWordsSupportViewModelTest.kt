@@ -34,7 +34,7 @@ class LessonWordsSupportViewModelTest {
     fun `opens the support of the tapped frame word`() = runTest {
         val viewModel: LessonWordsViewModel = lessonWordsReadingFrom(towns, reports, finishedTown)
 
-        viewModel.onIntent(LessonWordsIntent.SupportTapped(LessonWordsUiState.ShownSupport.Frame(span = 1)))
+        viewModel.onIntent(LessonWordsIntent.SupportTapped(LessonWordsUiState.ShownSupport.Frame(spanIndex = 1)))
 
         assertEquals(beberOnTap, readingOf(viewModel).openSupport)
     }
@@ -62,7 +62,7 @@ class LessonWordsSupportViewModelTest {
         val viewModel: LessonWordsViewModel = lessonWordsReadingFrom(towns, reports, finishedTown)
 
         viewModel.onIntent(LessonWordsIntent.SupportTapped(LessonWordsUiState.ShownSupport.Word))
-        viewModel.onIntent(LessonWordsIntent.SupportTapped(LessonWordsUiState.ShownSupport.Frame(span = 1)))
+        viewModel.onIntent(LessonWordsIntent.SupportTapped(LessonWordsUiState.ShownSupport.Frame(spanIndex = 1)))
 
         assertEquals(beberOnTap, readingOf(viewModel).openSupport)
     }

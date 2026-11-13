@@ -116,7 +116,7 @@ class ReviewLookTest {
     fun `sets the frame on the block`() {
         draw(answering)
 
-        composeRule.onNode(hasText("The kids walk to school.") and theBlock).assertExists()
+        composeRule.onNode(hasText("The kids walk to school.") and hasAnyAncestor(theBlock)).assertExists()
     }
 
     @Test

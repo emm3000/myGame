@@ -54,7 +54,7 @@ fun MyGameFrameText(
         itemVerticalAlignment = Alignment.CenterVertically,
         modifier = modifier
             .fillMaxWidth()
-            .semantics {
+            .semantics(mergeDescendants = true) {
                 text = spokenFrameOf(frame)
                 frameStyle = ink
             },

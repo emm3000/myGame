@@ -218,10 +218,10 @@ private fun WordBlock(
         )
         MyGameFrameText(
             frame = word.frame.toMyGameFrame(),
-            openPiece = (reading.shownSupport as? LessonWordsUiState.ShownSupport.Frame)?.span,
+            openPiece = (reading.shownSupport as? LessonWordsUiState.ShownSupport.Frame)?.spanIndex,
             style = MyGameTypography.reading,
-            onPieceTap = { span: Int ->
-                onIntent(LessonWordsIntent.SupportTapped(LessonWordsUiState.ShownSupport.Frame(span)))
+            onPieceTap = { spanIndex: Int ->
+                onIntent(LessonWordsIntent.SupportTapped(LessonWordsUiState.ShownSupport.Frame(spanIndex)))
             },
         )
         reading.openSupport?.let { support: WordSupport -> MyGameSupportLine(support = support.toMyGameSupport()) }
@@ -358,7 +358,7 @@ private class LessonWordsUiStates : PreviewParameterProvider<LessonWordsUiState>
         previewReading,
         previewReading.copy(index = 1, remaining = null, wayOn = LessonWordsUiState.WayOn.Reviews),
         previewReading.copy(index = 1, shownSupport = LessonWordsUiState.ShownSupport.Word),
-        previewReading.copy(shownSupport = LessonWordsUiState.ShownSupport.Frame(span = 1)),
+        previewReading.copy(shownSupport = LessonWordsUiState.ShownSupport.Frame(spanIndex = 1)),
         previewReading.copy(
             words = previewReading.words.map { word: TownSnapshot.WordReading ->
                 word.copy(support = previewDefinition)
