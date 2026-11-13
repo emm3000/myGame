@@ -30,10 +30,12 @@ import { CryptoRandomSource } from './adapters/system/CryptoRandomSource'
 import { CryptoSessionTokens } from './adapters/system/CryptoSessionTokens'
 import { SystemClock } from './adapters/system/SystemClock'
 import { VercelAfterResponse } from './adapters/vercel/VercelAfterResponse'
+import type { AfterResponse } from './afterResponse/AfterResponse'
+import type { AfterResponseDrain } from './afterResponse/AfterResponseDrain'
 import { createApp } from './app'
 import type { Accounts } from './auth/Accounts'
 import type { Mailer } from './auth/Mailer'
-import type { FailureSink } from './http/FailureSink'
+import type { FailureSink } from './failures/FailureSink'
 import type { CardReader } from './learning/CardReader'
 import type { ChromeProgressReader } from './learning/ChromeProgressReader'
 import type { LessonLibrary } from './learning/LessonLibrary'
@@ -109,7 +111,7 @@ export type ComposedServer = MailSettings & {
   readonly inTransaction: Transaction
   readonly isSessionCookieSecure: boolean
   readonly failureSink: FailureSink
-  readonly afterResponse: VercelAfterResponse
+  readonly afterResponse: AfterResponse & AfterResponseDrain
   readonly close: () => Promise<void>
 }
 
@@ -145,7 +147,7 @@ export function composeServer(
     cards: new DrizzleCardRepository(database),
     isSessionCookieSecure,
     failureSink: standardErrorSink,
-    afterResponse: new VercelAfterResponse(waitUntil),
+    afterResponse: new VercelAfterResponse(waitUntil, standardErrorSink),
     ...mail,
   }
   return {

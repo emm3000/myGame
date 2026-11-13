@@ -1,6 +1,6 @@
 import type { Context, MiddlewareHandler } from 'hono'
-import type { FailureSink } from './FailureSink'
-import { thrownCauseOf } from './thrownCauseOf'
+import type { FailureSink } from '../failures/FailureSink'
+import { thrownCauseOf } from '../failures/thrownCauseOf'
 
 const lowestServerFailureStatus = 500
 

@@ -1,6 +1,6 @@
 import { OpenAPIHono } from '@hono/zod-openapi'
 import type { HealthResponse } from '@mygame/contracts'
-import type { FailureSink } from './http/FailureSink'
+import type { FailureSink } from './failures/FailureSink'
 import { honoPathOf } from './http/honoPath'
 import { reportServerFailures } from './http/reportServerFailures'
 import { sessionBearerScheme, sessionBearerSecurityScheme } from './http/responseDeclarations'
