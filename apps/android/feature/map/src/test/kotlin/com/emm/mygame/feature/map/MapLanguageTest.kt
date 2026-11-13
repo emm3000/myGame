@@ -19,8 +19,11 @@ import com.emm.mygame.core.ui.ChromePhase
 import com.emm.mygame.core.ui.CopyLanguage
 import com.emm.mygame.core.ui.ProvideCopyLanguage
 import com.emm.mygame.core.ui.ScaffoldLanguage
+import java.time.LocalDateTime
+import java.time.ZoneId
 import kotlin.time.Duration.Companion.days
 import kotlin.time.Duration.Companion.minutes
+import kotlin.time.Instant
 import org.junit.Assert.assertTrue
 import org.junit.Rule
 import org.junit.Test
@@ -78,10 +81,14 @@ class MapLanguageTest {
         canCallBack = true,
     )
 
-    private val jobForThreeDays: MapUiState.JobOut =
-        workingJob.copy(remaining = 3.days, finishesAt = readInstant + 3.days)
+    private val localNoonOnNovemberEighth: Instant = Instant.fromEpochMilliseconds(
+        LocalDateTime.of(2026, 11, 8, 12, 0).atZone(ZoneId.systemDefault()).toInstant().toEpochMilli(),
+    )
 
-    private val area: MapUiState.Content = MapUiState.Content(
+    private val jobForThreeDays: MapUiState.JobOut =
+        workingJob.copy(remaining = 3.days, finishesAt = localNoonOnNovemberEighth)
+
+    private val riverAreaWithJobOut: MapUiState.Content = MapUiState.Content(
         areaLine = MapUiState.AreaLine(area = 1, terrain = Terrain.River),
         previousArea = null,
         nextArea = 2,
@@ -97,9 +104,9 @@ class MapLanguageTest {
     )
 
     private val refusedSend: MapUiState.Content =
-        area.copy(send = MapUiState.SendRequest.Refused(site = 1, refusal = TownJobRefusal.SiteHeld))
+        riverAreaWithJobOut.copy(send = MapUiState.SendRequest.Refused(site = 1, refusal = TownJobRefusal.SiteHeld))
 
-    private fun show(language: CopyLanguage, state: MapUiState = area) {
+    private fun show(language: CopyLanguage, state: MapUiState = riverAreaWithJobOut) {
         composeRule.setContent {
             ProvideCopyLanguage(language = language) {
                 MyGameTheme {
@@ -185,6 +192,7 @@ class MapLanguageTest {
     }
 
     @Test
+    @Config(qualifiers = "es")
     fun `draws the map in English under none`() {
         show(noScaffold, refusedSend)
 
@@ -196,14 +204,14 @@ class MapLanguageTest {
 
     @Test
     fun `writes a later finish day the English way in the English phase`() {
-        show(englishPhase, area.copy(jobOut = jobForThreeDays))
+        show(englishPhase, riverAreaWithJobOut.copy(jobOut = jobForThreeDays))
 
         composeRule.onNode(hasText("Nov 8", substring = true), useUnmergedTree = true).assertExists()
     }
 
     @Test
     fun `writes a later finish day the Spanish way in the Spanish phase`() {
-        show(spanishPhase, area.copy(jobOut = jobForThreeDays))
+        show(spanishPhase, riverAreaWithJobOut.copy(jobOut = jobForThreeDays))
 
         composeRule.onNode(hasText("8 nov", substring = true), useUnmergedTree = true).assertExists()
     }
@@ -226,7 +234,7 @@ class MapLanguageTest {
 
     @Test
     fun `draws the empty team line in Spanish for an es player in the English phase`() {
-        show(englishPhase, area.copy(form = emptyTeamForm))
+        show(englishPhase, riverAreaWithJobOut.copy(form = emptyTeamForm))
 
         assertDrawn("Workers to send", "Elige al menos un trabajador o un camión para el equipo.")
         assertNotDrawn("Choose at least one worker or truck for the team.")
