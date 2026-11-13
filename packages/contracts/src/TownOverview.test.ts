@@ -120,6 +120,8 @@ const overview = (overrides: Record<string, unknown> = {}): Record<string, unkno
   },
   job: null,
   lessons: [lessonOne],
+  releasedLessons: [],
+  dueHoldoutChecks: [],
   skills: [earnedFood],
   lessonSlot: lessonUnderStudy,
   learning: { cap: 15, inLearning: 5, retainedWords: null },
@@ -347,6 +349,55 @@ describe('TownOverviewSchema', () => {
   })
 })
 
+describe('TownOverviewSchema holdout', () => {
+  const releasedLesson = {
+    id: 'released-1-1',
+    band: 1,
+    position: 1,
+    durationSeconds: 300,
+    requiredSchoolLevel: 1,
+    isStudied: false,
+    words: lessonOne.words,
+  }
+
+  it('reads the due checks by band and week', () => {
+    const dueHoldoutChecks = [
+      { band: 1, week: 24 },
+      { band: 2, week: 8 },
+    ]
+
+    expect(TownOverviewSchema.parse(overview({ dueHoldoutChecks })).dueHoldoutChecks).toEqual(
+      dueHoldoutChecks,
+    )
+  })
+
+  it('reads a released lesson with its band, set and words', () => {
+    const releasedLessons = [releasedLesson]
+
+    expect(TownOverviewSchema.parse(overview({ releasedLessons })).releasedLessons).toEqual(
+      releasedLessons,
+    )
+  })
+
+  it('refuses a released lesson with a skill, since it earns none', () => {
+    const releasedLessons = [{ ...releasedLesson, skill: lessonOne.skill }]
+
+    expect(TownOverviewSchema.safeParse(overview({ releasedLessons })).success).toBe(false)
+  })
+
+  it('refuses a released lesson with a theme', () => {
+    const releasedLessons = [{ ...releasedLesson, theme: lessonOne.theme }]
+
+    expect(TownOverviewSchema.safeParse(overview({ releasedLessons })).success).toBe(false)
+  })
+
+  it('rejects an overview without its due checks', () => {
+    const { dueHoldoutChecks: _, ...withoutChecks } = overview()
+
+    expect(TownOverviewSchema.safeParse(withoutChecks).success).toBe(false)
+  })
+})
+
 describe('TownOverviewSchema next step', () => {
   it('reads the reviews with their count and the lessons to read first', () => {
     const nextStep = { kind: 'reviews', count: 3, readFirst: ['lesson-1'] }
@@ -382,6 +433,30 @@ describe('TownOverviewSchema next step', () => {
     const nextStep = { kind: 'lessonToStudy', lessonId: 'lesson-2' }
 
     expect(TownOverviewSchema.parse(overview({ nextStep })).nextStep).toEqual(nextStep)
+  })
+
+  it('reads a due check by its band and week', () => {
+    const nextStep = { kind: 'holdoutCheck', band: 1, week: 8 }
+
+    expect(TownOverviewSchema.parse(overview({ nextStep })).nextStep).toEqual(nextStep)
+  })
+
+  it('refuses a check on a week the holdout lacks', () => {
+    const nextStep = { kind: 'holdoutCheck', band: 1, week: 12 }
+
+    expect(TownOverviewSchema.safeParse(overview({ nextStep })).success).toBe(false)
+  })
+
+  it('reads a released lesson by its id, band and set', () => {
+    const nextStep = { kind: 'releasedLesson', lessonId: 'released-1-2', band: 1, position: 2 }
+
+    expect(TownOverviewSchema.parse(overview({ nextStep })).nextStep).toEqual(nextStep)
+  })
+
+  it('refuses a released lesson numbered from 0', () => {
+    const nextStep = { kind: 'releasedLesson', lessonId: 'released-1-0', band: 1, position: 0 }
+
+    expect(TownOverviewSchema.safeParse(overview({ nextStep })).success).toBe(false)
   })
 
   it('reads caught up with no goal', () => {

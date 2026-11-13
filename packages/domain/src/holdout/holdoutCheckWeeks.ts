@@ -32,3 +32,6 @@ export const isHoldoutCheckDue = (
     !isClosed(start, week)
   )
 }
+
+export const dueWeeksOf = (start: BandStart, now: Instant): ReadonlyArray<HoldoutCheckWeek> =>
+  HOLDOUT_CHECK_WEEKS.filter((week) => isHoldoutCheckDue(start, week, now))

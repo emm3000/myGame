@@ -1,4 +1,4 @@
-import type { TownOverview } from '@mygame/contracts'
+import { PlacementBandSchema, type TownOverview } from '@mygame/contracts'
 import {
   accrueTown,
   type BuildingKind,
@@ -7,6 +7,7 @@ import {
   buildingKinds,
   buildPercentAt,
   type DomainError,
+  type DueHoldoutCheck,
   Duration,
   deliveredHiresOf,
   deriveBuildDurationSeconds,
@@ -15,6 +16,7 @@ import {
   derivePeople,
   deriveResourceRates,
   deriveStorageCapacity,
+  dueHoldoutChecksOf,
   type HireKind,
   type Hires,
   hirePercentAt,
@@ -26,8 +28,10 @@ import {
   noHires,
   ok,
   placedOutBandsOf,
+  type ReleasedLesson,
   type ResourceKind,
   type Result,
+  releasedLessonsOf,
   requiredOfficeLevelOf,
   seasonAt,
   type Town,
@@ -293,14 +297,20 @@ const goalOf = (reading: TownReading, catalog: TownCatalog): Result<Goal, Domain
   )
 }
 
+type Holdout = {
+  readonly released: ReadonlyArray<ReleasedLesson>
+  readonly dueChecks: ReadonlyArray<DueHoldoutCheck>
+}
+
 const nextStepOfReading = (
   reading: TownReading,
+  { released }: Holdout,
   catalog: TownCatalog,
   lessons: LessonLibrary,
   memoryTerms: MemoryTerms,
 ): Result<TownOverview['nextStep'], DomainError> => {
   const step = nextStepOf(
-    { ...reading, placedOutBands: placedOutBandsOf(reading.placementScores) },
+    { ...reading, released, placedOutBands: placedOutBandsOf(reading.placementScores) },
     { lessons: lessons.lessons(), bands: lessons, memoryTerms, catalog },
   )
   if (!step.ok) {
@@ -309,6 +319,9 @@ const nextStepOfReading = (
   switch (step.value.kind) {
     case 'reviews':
       return ok({ ...step.value, readFirst: [...step.value.readFirst] })
+    case 'holdoutCheck':
+    case 'releasedLesson':
+      return ok({ ...step.value, band: PlacementBandSchema.parse(step.value.band) })
     case 'lessonRunning':
     case 'lessonToStudy':
       return ok(step.value)
@@ -321,11 +334,15 @@ const nextStepOfReading = (
 
 const guidanceOf = (
   reading: TownReading,
+  holdout: Holdout,
   catalog: TownCatalog,
   lessons: LessonLibrary,
   memoryTerms: MemoryTerms,
-): Result<Pick<TownOverview, 'nextStep' | 'tip' | 'nextDueAt'>, DomainError> => {
-  const nextStep = nextStepOfReading(reading, catalog, lessons, memoryTerms)
+): Result<
+  Pick<TownOverview, 'nextStep' | 'tip' | 'nextDueAt' | 'dueHoldoutChecks'>,
+  DomainError
+> => {
+  const nextStep = nextStepOfReading(reading, holdout, catalog, lessons, memoryTerms)
   if (!nextStep.ok) {
     return nextStep
   }
@@ -339,6 +356,10 @@ const guidanceOf = (
   }
   return ok({
     nextStep: nextStep.value,
+    dueHoldoutChecks: holdout.dueChecks.map(({ band, week }) => ({
+      band: PlacementBandSchema.parse(band),
+      week,
+    })),
     tip: tip.value ?? null,
     nextDueAt: isoOrNullOf(nextDueAt.value),
   })
@@ -371,11 +392,15 @@ export const townOverviewOf = (
   if (!work.ok) {
     return work
   }
-  const school = schoolOverviewOf(reading, catalog, lessons)
+  const holdout = {
+    released: releasedLessonsOf(reading.bandStarts, reading.cards, { lessons, bands: lessons }),
+    dueChecks: dueHoldoutChecksOf(reading.bandStarts, at),
+  }
+  const school = schoolOverviewOf(reading, catalog, lessons, holdout.released)
   if (!school.ok) {
     return school
   }
-  const guidance = guidanceOf(reading, catalog, lessons, memoryTerms)
+  const guidance = guidanceOf(reading, holdout, catalog, lessons, memoryTerms)
   if (!guidance.ok) {
     return guidance
   }

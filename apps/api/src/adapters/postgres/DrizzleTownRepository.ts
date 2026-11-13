@@ -32,8 +32,8 @@ import { eq, sql } from 'drizzle-orm'
 import { z } from 'zod'
 import type { TownReader, TownWithSchool } from '../../town/TownReader'
 import { byEarnedAt } from '../byEarnedAt'
+import { aggregatedBandStartsOf, bandStartsFrom } from './aggregatedBandStarts'
 import { aggregatedCardsOf, heldCardsOf } from './aggregatedCards'
-import { aggregatedHeldOutWordsOf, heldOutHeadwordsOf } from './aggregatedHeldOutWords'
 import { aggregatedPlacementScoresOf, placementScoresFrom } from './aggregatedPlacementScores'
 import { aggregatedSeenTipsOf, seenTipsFrom } from './aggregatedSeenTips'
 import type { PostgresSession } from './connectPostgres'
@@ -652,7 +652,7 @@ export class DrizzleTownRepository implements TownReader, TownRepository {
         skills: aggregatedSkills,
         lessonSlot: townLessonSlots,
         cards: aggregatedCardsOf(towns.playerId),
-        heldOutWords: aggregatedHeldOutWordsOf(towns.playerId),
+        bandStarts: aggregatedBandStartsOf(towns.playerId),
         placementScores: aggregatedPlacementScoresOf(towns.playerId),
         seenTips: aggregatedSeenTipsOf(towns.playerId),
         scaffold: players.scaffold,
@@ -676,7 +676,7 @@ export class DrizzleTownRepository implements TownReader, TownRepository {
       town: town.value,
       lessonSlot: lessonSlotOf(row.lessonSlot),
       cards: cards.value,
-      heldOutWords: heldOutHeadwordsOf(row.heldOutWords),
+      bandStarts: bandStartsFrom(row.bandStarts),
       placementScores: placementScoresFrom(row.placementScores),
       guidanceDismissedAt: instantOf(row.town.guidanceDismissedAt) ?? undefined,
       seenTips: seenTipsFrom(row.seenTips),

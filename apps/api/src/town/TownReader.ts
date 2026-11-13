@@ -1,6 +1,6 @@
 import type {
+  BandStart,
   DomainError,
-  Headword,
   HeldCard,
   Instant,
   LessonSlot,
@@ -17,7 +17,7 @@ export type TownWithSchool = {
   readonly town: Town
   readonly lessonSlot: LessonSlot
   readonly cards: ReadonlyArray<HeldCard>
-  readonly heldOutWords: ReadonlyArray<Headword>
+  readonly bandStarts: ReadonlyArray<BandStart>
   readonly placementScores: ReadonlyArray<PlacementScore>
   readonly guidanceDismissedAt: Instant | undefined
   readonly seenTips: ReadonlyArray<TipKind>

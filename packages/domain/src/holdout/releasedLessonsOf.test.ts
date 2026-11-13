@@ -238,23 +238,27 @@ describe('releasedLessonsOf', () => {
   }))
 
   const releasedIdsOf = (starts: ReadonlyArray<BandStart>) =>
-    releasedLessonsOf(starts, cards, content).map(({ id, words }) => ({
+    releasedLessonsOf(starts, cards, content).map(({ id, band, position, words }) => ({
       id,
+      band,
+      position,
       words: words.map(({ id: wordId }) => wordId),
     }))
 
   it('holds a unit back while another band holding one of its words is not released', () => {
     const starts = [startOf(1, ['say'], [releasedAt(24)]), startOf(2, ['so'], [])]
 
-    expect(releasedIdsOf(starts)).toEqual([{ id: 'released-1-1', words: ['word-say'] }])
+    expect(releasedIdsOf(starts)).toEqual([
+      { id: 'released-1-1', band: 1, position: 1, words: ['word-say'] },
+    ])
   })
 
   it('releases a unit with the band whose words are released last', () => {
     const starts = [startOf(1, ['say'], [releasedAt(24)]), startOf(2, ['so'], [releasedAt(30)])]
 
     expect(releasedIdsOf(starts)).toEqual([
-      { id: 'released-1-1', words: ['word-say'] },
-      { id: 'released-2-1', words: ['unit-say-so'] },
+      { id: 'released-1-1', band: 1, position: 1, words: ['word-say'] },
+      { id: 'released-2-1', band: 2, position: 1, words: ['unit-say-so'] },
     ])
   })
 

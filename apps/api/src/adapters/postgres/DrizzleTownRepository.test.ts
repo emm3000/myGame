@@ -133,33 +133,9 @@ describe('DrizzleTownRepository as a TownReader', () => {
     expect(read.ok && read.value?.scaffold).toBe('none')
   })
 
-  it("reads the player's held-out words of every band with the town", async () => {
+  it("reads the player's band starts with their held-out words and checks with the town", async () => {
     await truncateAll()
     await registerPlayers([ana, otherPlayer])
-    const session = drizzle(pool)
-    const reader = new DrizzleTownRepository(session, 'lockFree')
-    const startedAt = instantAt('2026-11-10T08:55:00Z')
-    const bandStarts = new DrizzleBandStarts(session)
-    assert((await reader.save(anasTown(ana))).ok)
-    assert(
-      (await bandStarts.save(ana, { band: 2, startedAt, heldOutWords: ['say'], checks: [] })).ok,
-    )
-    assert(
-      (await bandStarts.save(ana, { band: 1, startedAt, heldOutWords: ['know'], checks: [] })).ok,
-    )
-    assert(
-      (await bandStarts.save(otherPlayer, { band: 1, startedAt, heldOutWords: ['go'], checks: [] }))
-        .ok,
-    )
-
-    const read = await reader.townWithSchoolOf(ana)
-
-    expect(read.ok && read.value?.heldOutWords).toEqual(['know', 'say'])
-  })
-
-  it('leaves out the held-out words of a band once its 24-week check is closed', async () => {
-    await truncateAll()
-    await registerPlayers([ana])
     const session = drizzle(pool)
     const reader = new DrizzleTownRepository(session, 'lockFree')
     const startedAt = instantAt('2026-11-10T08:55:00Z')
@@ -167,36 +143,50 @@ describe('DrizzleTownRepository as a TownReader', () => {
     const bandStarts = new DrizzleBandStarts(session)
     assert((await reader.save(anasTown(ana))).ok)
     assert(
-      (await bandStarts.save(ana, { band: 1, startedAt, heldOutWords: ['know'], checks: [] })).ok,
-    )
-    assert(
       (await bandStarts.save(ana, { band: 2, startedAt, heldOutWords: ['say'], checks: [] })).ok,
     )
-    const sample = { wordIds: [], heldOutWordIds: [] }
-    const eightWeeks = {
-      kind: 'taken',
-      week: 8,
-      begunAt: startedAt,
-      sample,
-      heldOutScore: 0,
-      practisedScore: 0,
-      takenAt: closedAt,
-    } as const
+    assert(
+      (await bandStarts.save(ana, { band: 1, startedAt, heldOutWords: ['know', 'go'], checks: [] }))
+        .ok,
+    )
+    assert(
+      (await bandStarts.save(otherPlayer, { band: 1, startedAt, heldOutWords: ['go'], checks: [] }))
+        .ok,
+    )
+    const sample = { wordIds: ['word-say', 'word-time'], heldOutWordIds: ['word-say'] }
     assert(
       (await bandStarts.saveCheck(ana, 1, { kind: 'skipped', week: 24, skippedAt: closedAt })).ok,
     )
-    assert((await bandStarts.saveCheck(ana, 2, eightWeeks)).ok)
+    assert(
+      (
+        await bandStarts.saveCheck(ana, 2, {
+          kind: 'taken',
+          week: 8,
+          begunAt: startedAt,
+          sample,
+          heldOutScore: 1,
+          practisedScore: 2,
+          takenAt: closedAt,
+        })
+      ).ok,
+    )
     assert(
       (await bandStarts.saveCheck(ana, 2, { kind: 'begun', week: 24, begunAt: closedAt, sample }))
         .ok,
     )
+    const stored = await bandStarts.bandStartsOf(ana)
+    assert(stored.ok)
 
     const read = await reader.townWithSchoolOf(ana)
 
-    expect(read.ok && read.value?.heldOutWords).toEqual(['say'])
+    expect(read.ok && read.value?.bandStarts).toEqual(stored.value)
+    expect(stored.value.map(({ band, heldOutWords }) => ({ band, heldOutWords }))).toEqual([
+      { band: 1, heldOutWords: ['go', 'know'] },
+      { band: 2, heldOutWords: ['say'] },
+    ])
   })
 
-  it('reads no held-out word before a band starts', async () => {
+  it('reads no band start before a band starts', async () => {
     await truncateAll()
     await registerPlayers([ana])
     const reader = new DrizzleTownRepository(drizzle(pool), 'lockFree')
@@ -204,7 +194,7 @@ describe('DrizzleTownRepository as a TownReader', () => {
 
     const read = await reader.townWithSchoolOf(ana)
 
-    expect(read.ok && read.value?.heldOutWords).toEqual([])
+    expect(read.ok && read.value?.bandStarts).toEqual([])
   })
 
   it('reads an idle school for a town with no lesson slot row', async () => {

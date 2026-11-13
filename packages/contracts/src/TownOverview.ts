@@ -2,10 +2,12 @@ import { z } from 'zod'
 import { BuildingKindSchema } from './BuildingKind'
 import { BuildingWorkSchema } from './BuildingWork'
 import { ChromePhaseSchema } from './ChromePhase'
+import { DueHoldoutCheckStateSchema } from './DueHoldoutCheckState'
 import { EarnedSkillSchema } from './EarnedSkill'
 import { HireKindSchema } from './HireKind'
 import { LessonStateSchema } from './LessonState'
 import { NextStepSchema } from './NextStep'
+import { ReleasedLessonStateSchema } from './ReleasedLessonState'
 import { ResourceAmountsSchema } from './ResourceAmounts'
 import { ResourceKindSchema } from './ResourceKind'
 import { SeasonKindSchema } from './SeasonKind'
@@ -111,6 +113,8 @@ export const TownOverviewSchema = z
     }),
     job: z.lazy(() => TownJobSchema).nullable(),
     lessons: z.array(LessonStateSchema),
+    releasedLessons: z.array(ReleasedLessonStateSchema),
+    dueHoldoutChecks: z.array(DueHoldoutCheckStateSchema),
     skills: z.array(EarnedSkillSchema),
     lessonSlot: LessonUnderStudySchema.nullable(),
     learning: LearningLoadSchema,

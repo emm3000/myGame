@@ -3,7 +3,7 @@ import type { PgTable } from 'drizzle-orm/pg-core'
 
 export const jsonAggregateOf = (
   table: PgTable,
-  fields: Readonly<Record<string, Column>>,
+  fields: Readonly<Record<string, Column | SQL>>,
   owner: SQL,
   order: SQL,
 ): SQL<unknown> => {
