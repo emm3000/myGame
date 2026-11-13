@@ -1,6 +1,7 @@
 package com.emm.mygame.feature.school
 
 import androidx.compose.ui.test.assertCountEquals
+import androidx.compose.ui.test.junit4.ComposeContentTestRule
 import androidx.compose.ui.test.junit4.createComposeRule
 import androidx.compose.ui.test.onAllNodesWithText
 import androidx.compose.ui.test.onFirst
@@ -26,7 +27,7 @@ import org.robolectric.RobolectricTestRunner
 class SchoolReleasedSlotTest {
 
     @get:Rule
-    val composeRule = createComposeRule()
+    val composeRule: ComposeContentTestRule = createComposeRule()
 
     private val releasedLesson: LessonId = LessonId("released-2-3")
 
