@@ -15,6 +15,7 @@ import androidx.test.ext.junit.rules.ActivityScenarioRule
 import com.emm.mygame.core.designsystem.MyGameTheme
 import com.emm.mygame.core.network.LearningRepository
 import com.emm.mygame.core.network.PlacementRepository
+import com.emm.mygame.core.network.PlayerLanguage
 import com.emm.mygame.core.network.ReportRepository
 import com.emm.mygame.core.network.RestoreResult
 import com.emm.mygame.core.network.SessionEnds
@@ -29,6 +30,8 @@ import com.emm.mygame.core.testing.FakeReportRepository
 import com.emm.mygame.core.testing.FakeSessionRepository
 import com.emm.mygame.core.testing.FakeTownRepository
 import kotlin.time.Clock
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.StateFlow
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -48,6 +51,7 @@ class SignUpNavigationTest {
     private val dependencies: AppDependencies = object : AppDependencies {
         override val clock: Clock = Clock.System
         override val sessionEnds: SessionEnds = SessionEnds()
+        override val playerLanguage: StateFlow<PlayerLanguage?> = MutableStateFlow(null)
         override val sessions: SessionRepository = sessionsFake
         override val towns: TownRepository = townsFake
         override val learning: LearningRepository = FakeLearningRepository()

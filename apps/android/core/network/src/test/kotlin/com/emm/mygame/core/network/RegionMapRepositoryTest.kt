@@ -180,13 +180,18 @@ class RegionMapRepositoryTest {
         assertNotNull(towns.town.value)
     }
 
-    private fun TestScope.town(): TownRepository = TownRepository(
-        baseUrl = api.url("/api/").toString(),
-        tokenStore = TokenStore(File(folder.root, "session"), FakeTokenCipher()).apply { write("opaque-session") },
-        sessionEnds = SessionEnds(),
-        ioDispatcher = UnconfinedTestDispatcher(testScheduler),
-        clock = TestClock(testScheduler, Instant.parse("2026-11-05T10:00:00Z")),
-    )
+    private fun TestScope.town(): TownRepository {
+        val store: TokenStore =
+            TokenStore(File(folder.root, "session"), FakeTokenCipher()).apply { write("opaque-session") }
+        return TownRepository(
+            baseUrl = api.url("/api/").toString(),
+            tokenStore = store,
+            languages = PlayerLanguages(store),
+            sessionEnds = SessionEnds(),
+            ioDispatcher = UnconfinedTestDispatcher(testScheduler),
+            clock = TestClock(testScheduler, Instant.parse("2026-11-05T10:00:00Z")),
+        )
+    }
 
     private fun json(code: Int, body: String): MockResponse =
         MockResponse.Builder().code(code).addHeader("Content-Type", "application/json").body(body).build()

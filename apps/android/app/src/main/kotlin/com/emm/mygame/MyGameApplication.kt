@@ -4,6 +4,8 @@ import android.app.Application
 import com.emm.mygame.core.network.KeystoreTokenCipher
 import com.emm.mygame.core.network.LearningRepository
 import com.emm.mygame.core.network.PlacementRepository
+import com.emm.mygame.core.network.PlayerLanguage
+import com.emm.mygame.core.network.PlayerLanguages
 import com.emm.mygame.core.network.ReportRepository
 import com.emm.mygame.core.network.SessionEnds
 import com.emm.mygame.core.network.SessionRepository
@@ -12,6 +14,7 @@ import com.emm.mygame.core.network.TownRepository
 import java.io.File
 import kotlin.time.Clock
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.flow.StateFlow
 
 class MyGameApplication : Application(), AppDependencies {
 
@@ -26,10 +29,15 @@ class MyGameApplication : Application(), AppDependencies {
 
     override val sessionEnds: SessionEnds = SessionEnds()
 
+    private val languages: PlayerLanguages by lazy { PlayerLanguages(tokenStore) }
+
+    override val playerLanguage: StateFlow<PlayerLanguage?> by lazy { languages.language }
+
     override val sessions: SessionRepository by lazy {
         SessionRepository(
             baseUrl = BuildConfig.API_BASE_URL,
             tokenStore = tokenStore,
+            languages = languages,
             sessionEnds = sessionEnds,
             ioDispatcher = Dispatchers.IO,
         )
@@ -39,6 +47,7 @@ class MyGameApplication : Application(), AppDependencies {
         TownRepository(
             baseUrl = BuildConfig.API_BASE_URL,
             tokenStore = tokenStore,
+            languages = languages,
             sessionEnds = sessionEnds,
             ioDispatcher = Dispatchers.IO,
             clock = clock,

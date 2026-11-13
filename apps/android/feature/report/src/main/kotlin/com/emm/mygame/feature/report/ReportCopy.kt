@@ -1,7 +1,5 @@
 package com.emm.mygame.feature.report
 
-import android.content.res.Resources
-import android.icu.text.ListFormatter
 import androidx.annotation.StringRes
 import com.emm.mygame.core.designsystem.formatQuantity
 import com.emm.mygame.core.network.TownAmount
@@ -12,35 +10,36 @@ import com.emm.mygame.core.network.TownResourceKind
 import com.emm.mygame.core.network.TownSite
 import com.emm.mygame.core.projection.FinishClock
 import com.emm.mygame.core.projection.finishClockOf
-import com.emm.mygame.core.ui.getIcuString
+import com.emm.mygame.core.ui.CopyReader
 import java.time.LocalDateTime
 import java.time.ZoneId
 import java.time.format.DateTimeFormatter
 import java.util.Locale
 import kotlin.time.Instant
 
-private val spanish: Locale = Locale.forLanguageTag("es")
-
 private val clockFormat: DateTimeFormatter = DateTimeFormatter.ofPattern("HH:mm")
 
-private val dayFormat: DateTimeFormatter = DateTimeFormatter.ofPattern("d MMM", spanish)
+private fun dayFormatIn(locale: Locale): DateTimeFormatter =
+    DateTimeFormatter.ofPattern(if (locale.language == SPANISH_LANGUAGE) "d MMM" else "MMM d", locale)
 
-private val spanishListFormat: ListFormatter = ListFormatter.getInstance(spanish)
+private const val SPANISH_LANGUAGE: String = "es"
 
-internal fun Resources.newsLineOf(news: TownNews): String = when (news) {
+internal class NewsAmounts(@param:StringRes val line: Int, val amounts: List<TownAmount>)
+
+internal fun CopyReader.newsLineOf(news: TownNews): String = when (news) {
     is TownNews.BuildingWorkFinished ->
         workLineOf(R.string.report_news_building_work_finished, news.building, news.level)
     is TownNews.BuildingWorkStopped ->
         workLineOf(R.string.report_news_building_work_stopped, news.building, news.level)
-    is TownNews.LessonStudied -> getString(R.string.report_news_lesson_studied)
-    is TownNews.LessonStopped -> getString(R.string.report_news_lesson_stopped)
-    is TownNews.SkillEarned -> getIcuString(
+    is TownNews.LessonStudied -> text(R.string.report_news_lesson_studied)
+    is TownNews.LessonStopped -> text(R.string.report_news_lesson_stopped)
+    is TownNews.SkillEarned -> text(
         R.string.report_news_skill_earned,
-        "resource" to getString(resourceNameOf(news.resource)),
+        "resource" to text(resourceNameOf(news.resource)),
         "percent" to news.ratePercent.toString(),
     )
-    is TownNews.HiringDelivered -> getIcuString(hiringDeliveredOf(news.hire), "count" to news.count)
-    is TownNews.HiringStopped -> getIcuString(
+    is TownNews.HiringDelivered -> text(hiringDeliveredOf(news.hire), "count" to news.count)
+    is TownNews.HiringStopped -> text(
         hiringStoppedOf(news.hire),
         "delivered" to news.delivered,
         "count" to (news.delivered + news.stopped).toString(),
@@ -49,15 +48,15 @@ internal fun Resources.newsLineOf(news: TownNews): String = when (news) {
     is TownNews.JobCalledBack -> siteLineOf(R.string.report_news_job_called_back, news.site)
     is TownNews.CleanUpDone -> siteLineOf(R.string.report_news_clean_up_done, news.site)
     is TownNews.CleanUpFailed -> siteLineOf(R.string.report_news_clean_up_failed, news.site)
-    is TownNews.BecameCity -> getString(R.string.report_news_became_city)
+    is TownNews.BecameCity -> text(R.string.report_news_became_city)
 }
 
-internal fun Resources.amountsLineOf(news: TownNews): String? = when (news) {
-    is TownNews.JobBack -> amountsPhraseOf(R.string.report_news_pay, news.pay)
-    is TownNews.JobCalledBack -> amountsPhraseOf(R.string.report_news_pay, news.pay)
-    is TownNews.CleanUpDone -> amountsPhraseOf(R.string.report_news_pay, news.reward)
-    is TownNews.BuildingWorkStopped -> amountsPhraseOf(R.string.report_news_refund, news.refund)
-    is TownNews.HiringStopped -> amountsPhraseOf(R.string.report_news_refund, news.refund)
+internal fun newsAmountsOf(news: TownNews): NewsAmounts? = when (news) {
+    is TownNews.JobBack -> paid(R.string.report_news_pay, news.pay)
+    is TownNews.JobCalledBack -> paid(R.string.report_news_pay, news.pay)
+    is TownNews.CleanUpDone -> paid(R.string.report_news_pay, news.reward)
+    is TownNews.BuildingWorkStopped -> paid(R.string.report_news_refund, news.refund)
+    is TownNews.HiringStopped -> paid(R.string.report_news_refund, news.refund)
     is TownNews.BuildingWorkFinished,
     is TownNews.LessonStudied,
     is TownNews.LessonStopped,
@@ -68,26 +67,40 @@ internal fun Resources.amountsLineOf(news: TownNews): String? = when (news) {
     -> null
 }
 
-internal fun Resources.nextReviewLabelOf(nextReview: Instant, receivedAt: Instant, zone: ZoneId): String {
+private fun paid(@StringRes line: Int, amounts: List<TownAmount>): NewsAmounts? =
+    if (amounts.isEmpty()) null else NewsAmounts(line, amounts)
+
+internal fun CopyReader.amountsLineOf(paid: NewsAmounts): String {
+    val quantities: List<String> = paid.amounts.map { held: TownAmount ->
+        text(
+            R.string.report_amount,
+            "amount" to formatQuantity(held.amount),
+            "resource" to text(resourceNameOf(held.resource)),
+        )
+    }
+    return text(paid.line, "amounts" to listOf(quantities))
+}
+
+internal fun CopyReader.nextReviewLabelOf(nextReview: Instant, receivedAt: Instant, zone: ZoneId): String {
     val finish: FinishClock = finishClockOf(nextReview, nextReview - receivedAt, zone)
     val time: String = finish.at.format(clockFormat)
     return when (finish.day) {
         FinishClock.Day.Today -> time
-        FinishClock.Day.Tomorrow -> getIcuString(R.string.report_next_review_tomorrow, "time" to time)
+        FinishClock.Day.Tomorrow -> text(R.string.report_next_review_tomorrow, "time" to time)
         FinishClock.Day.Later ->
-            getIcuString(R.string.report_next_review_day, "day" to finish.at.format(dayFormat), "time" to time)
+            text(R.string.report_next_review_day, "day" to finish.at.format(dayFormatIn(locale)), "time" to time)
     }
 }
 
-internal fun Resources.instantLabelOf(occurredAt: Instant, receivedAt: Instant, zone: ZoneId): String {
+internal fun CopyReader.instantLabelOf(occurredAt: Instant, receivedAt: Instant, zone: ZoneId): String {
     val occurred: LocalDateTime = localOf(occurredAt, zone)
     val received: LocalDateTime = localOf(receivedAt, zone)
     val time: String = occurred.format(clockFormat)
-    val day: String = occurred.format(dayFormat)
+    val day: String = occurred.format(dayFormatIn(locale))
     return when {
-        occurred.toLocalDate() == received.toLocalDate() -> getIcuString(R.string.report_today, "time" to time)
-        occurred.year == received.year -> getIcuString(R.string.report_day, "day" to day, "time" to time)
-        else -> getIcuString(
+        occurred.toLocalDate() == received.toLocalDate() -> text(R.string.report_today, "time" to time)
+        occurred.year == received.year -> text(R.string.report_day, "day" to day, "time" to time)
+        else -> text(
             R.string.report_day_of_year,
             "day" to day,
             "year" to occurred.year.toString(),
@@ -99,27 +112,15 @@ internal fun Resources.instantLabelOf(occurredAt: Instant, receivedAt: Instant, 
 private fun localOf(instant: Instant, zone: ZoneId): LocalDateTime =
     LocalDateTime.ofInstant(java.time.Instant.ofEpochMilli(instant.toEpochMilliseconds()), zone)
 
-private fun Resources.workLineOf(@StringRes line: Int, building: TownBuildingKind, level: Int): String =
-    getIcuString(line, "place" to getString(placeNameOf(building)), "level" to level.toString())
+private fun CopyReader.workLineOf(@StringRes line: Int, building: TownBuildingKind, level: Int): String =
+    text(line, "place" to text(placeNameOf(building)), "level" to level.toString())
 
-private fun Resources.siteLineOf(@StringRes line: Int, site: TownSite): String = getIcuString(
+private fun CopyReader.siteLineOf(@StringRes line: Int, site: TownSite): String = text(
     line,
     "region" to site.region.toString(),
     "area" to site.area.toString(),
     "site" to site.site.toString(),
 )
-
-private fun Resources.amountsPhraseOf(@StringRes line: Int, amounts: List<TownAmount>): String? {
-    if (amounts.isEmpty()) return null
-    val quantities: List<String> = amounts.map { held: TownAmount ->
-        getIcuString(
-            R.string.report_amount,
-            "amount" to formatQuantity(held.amount),
-            "resource" to getString(resourceNameOf(held.resource)),
-        )
-    }
-    return getIcuString(line, "amounts" to spanishListFormat.format(quantities))
-}
 
 @StringRes
 private fun hiringDeliveredOf(hire: TownHireKind): Int = when (hire) {

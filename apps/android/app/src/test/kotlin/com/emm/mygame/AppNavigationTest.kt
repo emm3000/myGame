@@ -29,14 +29,15 @@ import com.emm.mygame.core.designsystem.PILL_BADGE
 import com.emm.mygame.core.network.DueReviews
 import com.emm.mygame.core.network.LearningRepository
 import com.emm.mygame.core.network.LessonId
-import com.emm.mygame.core.network.RegionMap
-import com.emm.mygame.core.network.RegionMapResult
-import com.emm.mygame.core.network.ReportReadResult
+import com.emm.mygame.core.network.NextStep
 import com.emm.mygame.core.network.Placement
 import com.emm.mygame.core.network.PlacementReadResult
 import com.emm.mygame.core.network.PlacementRepository
+import com.emm.mygame.core.network.PlayerLanguage
+import com.emm.mygame.core.network.RegionMap
+import com.emm.mygame.core.network.RegionMapResult
+import com.emm.mygame.core.network.ReportReadResult
 import com.emm.mygame.core.network.ReportRepository
-import com.emm.mygame.core.network.NextStep
 import com.emm.mygame.core.network.RestoreResult
 import com.emm.mygame.core.network.RetainedWords
 import com.emm.mygame.core.network.ReviewsReadResult
@@ -66,6 +67,8 @@ import kotlin.time.Duration
 import kotlin.time.Duration.Companion.minutes
 import kotlin.time.Duration.Companion.seconds
 import kotlin.time.Instant
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.runBlocking
 import org.junit.Assert.assertEquals
 import org.junit.Rule
@@ -96,6 +99,7 @@ class AppNavigationTest {
     private val dependencies: AppDependencies = object : AppDependencies {
         override val clock: Clock = movableClock
         override val sessionEnds: SessionEnds = SessionEnds()
+        override val playerLanguage: StateFlow<PlayerLanguage?> = MutableStateFlow(null)
         override val sessions: SessionRepository = sessionsFake
         override val towns: TownRepository = townsFake
         override val learning: LearningRepository = learningFake
