@@ -10,6 +10,7 @@ import androidx.compose.ui.test.assertCountEquals
 import androidx.compose.ui.test.getUnclippedBoundsInRoot
 import androidx.compose.ui.test.hasAnyDescendant
 import androidx.compose.ui.test.hasText
+import androidx.compose.ui.test.junit4.ComposeContentTestRule
 import androidx.compose.ui.test.junit4.createComposeRule
 import androidx.compose.ui.test.onAllNodesWithText
 import androidx.compose.ui.test.onLast
@@ -36,7 +37,7 @@ import org.robolectric.RobolectricTestRunner
 class MapRoadMarkLookTest {
 
     @get:Rule
-    val composeRule = createComposeRule()
+    val composeRule: ComposeContentTestRule = createComposeRule()
 
     private val pay: List<MapUiState.PayLine> = listOf(
         MapUiState.PayLine(TownResourceKind.Money, 120L),
