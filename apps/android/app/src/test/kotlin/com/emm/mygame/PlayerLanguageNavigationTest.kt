@@ -141,6 +141,19 @@ class PlayerLanguageNavigationTest {
     }
 
     @Test
+    fun `keeps the Report in the player's language while it signs out`() {
+        showReport(PlayerLanguage(PlayerScaffold.Spanish, PlayerChromePhase.Scaffold))
+
+        composeRule.onNodeWithText("Salir").performScrollTo().performClick()
+        composeRule.waitForIdle()
+        latestRead.value = null
+        composeRule.waitForIdle()
+
+        composeRule.onAllNodesWithText("Informe").assertCountEquals(1)
+        composeRule.onAllNodesWithText("Report").assertCountEquals(0)
+    }
+
+    @Test
     fun `keeps every link open after a sign-out that forgets the player's language`() {
         showReport(PlayerLanguage(PlayerScaffold.Spanish, PlayerChromePhase.Scaffold))
 
