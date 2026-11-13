@@ -27,9 +27,11 @@ import com.emm.mygame.core.designsystem.MyGameTypography
 import com.emm.mygame.core.designsystem.PreviewMyGame
 import com.emm.mygame.core.designsystem.formatQuantity
 import com.emm.mygame.core.designsystem.withTabularFigures
+import com.emm.mygame.core.network.SeasonKind
 import com.emm.mygame.core.network.TownResourceKind
 import com.emm.mygame.core.ui.CopyReader
 import com.emm.mygame.core.ui.PlayerCopy
+import com.emm.mygame.core.ui.SeasonMark
 import com.emm.mygame.core.ui.chromeResource
 import com.emm.mygame.core.ui.rememberPlayerCopy
 import java.time.LocalDateTime
@@ -64,7 +66,7 @@ internal fun StocksSection(content: TownUiState.Content, modifier: Modifier = Mo
             }
             MyGameHairline()
             PeopleRow(people = content.people)
-            content.season?.let { season: TownUiState.SeasonLine -> SeasonRow(season = season) }
+            content.season?.let { season: TownUiState.SeasonLine -> SeasonLines(season = season) }
         }
     }
 }
@@ -154,6 +156,14 @@ private fun PeopleRow(people: TownUiState.PeopleLine, modifier: Modifier = Modif
 }
 
 @Composable
+private fun SeasonLines(season: TownUiState.SeasonLine) {
+    SeasonRow(season = season)
+    season.productionMarks.forEach { mark: TownUiState.ProductionMark ->
+        ProductionMarkRow(season = season.kind, mark = mark)
+    }
+}
+
+@Composable
 private fun SeasonRow(season: TownUiState.SeasonLine, modifier: Modifier = Modifier) {
     val copy: PlayerCopy = rememberPlayerCopy()
     FlowRow(
@@ -191,6 +201,22 @@ private fun SeasonRow(season: TownUiState.SeasonLine, modifier: Modifier = Modif
             color = MyGameTheme.colors.inkMuted,
         )
     }
+}
+
+@Composable
+private fun ProductionMarkRow(season: SeasonKind, mark: TownUiState.ProductionMark, modifier: Modifier = Modifier) {
+    SeasonMark(
+        icon = seasonIconOf(season),
+        label = rememberPlayerCopy().chrome {
+            text(
+                R.string.town_season_production_mark,
+                "season" to seasonSelectorOf(season),
+                "resource" to text(resourceNameOf(mark.resource)),
+                "percent" to mark.percent.toString(),
+            )
+        },
+        modifier = modifier,
+    )
 }
 
 private fun CopyReader.seasonLabelOf(season: TownUiState.SeasonLine): String =

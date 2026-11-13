@@ -141,7 +141,22 @@ private fun TownOverviewHiringTermsWorker.toHireTerms(): TownSnapshot.HireTerms 
 
 private fun TownOverviewSeason.toSeasonInForce(): SeasonInForce? {
     val seasonKind: SeasonKind = kind.toSeasonKind() ?: return null
-    return SeasonInForce(kind = seasonKind, year = year)
+    return SeasonInForce(
+        kind = seasonKind,
+        year = year,
+        productionPercents = mapOf(
+            TownResourceKind.Money to productionPercent.money,
+            TownResourceKind.Food to productionPercent.food,
+            TownResourceKind.Power to productionPercent.power,
+            TownResourceKind.Material to productionPercent.material,
+        ),
+        durationPercent = SeasonDurationPercent(
+            build = durationPercent.build,
+            study = durationPercent.study,
+            hire = durationPercent.hire,
+            road = durationPercent.road,
+        ),
+    )
 }
 
 private fun TownOverviewSeason.Kind.toSeasonKind(): SeasonKind? = when (this) {

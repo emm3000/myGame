@@ -211,7 +211,13 @@ private val previewHome: TownUiState.Content = TownUiState.Content(
         TownUiState.StockLine(kind = kind, amount = 350, capacity = 1000, ratePerHour = 20, skillLevel = 0, fill = null)
     },
     people = TownUiState.PeopleLine(free = 19, atWork = 1),
-    season = TownUiState.SeasonLine(kind = SeasonKind.Summer, year = 2, remaining = 3.days),
+    season = TownUiState.SeasonLine(
+        kind = SeasonKind.Summer,
+        year = 2,
+        remaining = 3.days,
+        productionMarks = listOf(TownUiState.ProductionMark(TownResourceKind.Food, percent = 125)),
+    ),
+    buildMark = TownUiState.DurationMark(SeasonKind.Summer, percent = 75),
     slot = TownUiState.SlotLine.Idle,
     waitingList = emptyList(),
     places = listOf(
@@ -267,6 +273,15 @@ private class TownScreenStates : PreviewParameterProvider<TownUiState> {
         TownUiState.Failed,
         TownUiState.Naming(name = "Riverton", status = TownUiState.NamingStatus.Idle),
         previewHome,
+        previewHome.copy(
+            season = TownUiState.SeasonLine(
+                kind = SeasonKind.Winter,
+                year = 2,
+                remaining = 2.days,
+                productionMarks = listOf(TownUiState.ProductionMark(TownResourceKind.Power, percent = 75)),
+            ),
+            buildMark = null,
+        ),
         previewHome.copy(
             nextStep = NextStepCard(
                 line = NextStepCard.Line.HoldoutCheck(PlacementBand.First),

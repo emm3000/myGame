@@ -4,6 +4,7 @@ import com.emm.mygame.core.network.LessonId
 import com.emm.mygame.core.network.LessonName
 import com.emm.mygame.core.network.NextStepCard
 import com.emm.mygame.core.network.SchoolPathCounts
+import com.emm.mygame.core.network.SeasonKind
 import com.emm.mygame.core.network.TownLessonRefusal
 import com.emm.mygame.core.network.TownResourceKind
 import kotlin.time.Duration
@@ -22,6 +23,7 @@ sealed interface SchoolUiState {
         val skills: List<SkillLine>,
         val lessons: List<LessonCard>,
         val releasedLessons: List<ReleasedLessonCard>,
+        val studyMark: DurationMark?,
         val nextStep: NextStepCard,
         val nextStepTime: NextStepTime?,
         val start: LessonRequest,
@@ -50,6 +52,8 @@ sealed interface SchoolUiState {
     }
 
     data class NextStepTime(val remaining: Duration, val finishesAt: Instant)
+
+    data class DurationMark(val season: SeasonKind, val percent: Int)
 
     data class LearningLine(val inLearning: Int, val cap: Int, val wordsPastCap: Int?)
 

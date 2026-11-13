@@ -62,6 +62,7 @@
     <string name="school_resource_material">material</string>
     <string name="school_resource_money">dinero</string>
     <string name="school_resource_power">energía</string>
+    <string name="school_season_study_mark" formatted="false">{season, select, spring {Primavera} summer {Verano} fall {Otoño} winter {Invierno} other {Invierno}}: las lecciones tardan el {percent} % del tiempo</string>
     <string name="school_skill_name">Habilidad de {resource}, nivel {level}</string>
     <string name="school_skill_rate" formatted="false">+{percent} % de {resource}</string>
     <string name="school_skills">Tus habilidades</string>

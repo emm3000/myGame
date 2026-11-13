@@ -6,7 +6,9 @@ import com.emm.mygame.core.network.LessonName
 import com.emm.mygame.core.network.NextStep
 import com.emm.mygame.core.network.NextStepCard
 import com.emm.mygame.core.network.PlacementBand
+import com.emm.mygame.core.network.SeasonDurationPercent
 import com.emm.mygame.core.network.SeasonInForce
+import com.emm.mygame.core.network.SeasonKind
 import com.emm.mygame.core.network.TownBuildingKind
 import com.emm.mygame.core.network.TownLabel
 import com.emm.mygame.core.network.TownReadResult
@@ -66,6 +68,13 @@ internal fun slotOf(
 
 internal fun workOf(finishesAt: Instant): TownSnapshot.WorkItem =
     TownSnapshot.WorkItem(TownBuildingKind.School, level = 2, startsAt = readInstant, finishesAt = finishesAt)
+
+internal fun seasonOf(kind: SeasonKind, study: Int): SeasonInForce = SeasonInForce(
+    kind = kind,
+    year = 1,
+    productionPercents = TownResourceKind.entries.associateWith { 100 },
+    durationPercent = SeasonDurationPercent(build = 100, study = study, hire = 100, road = 100),
+)
 
 internal fun townOf(
     lessons: List<TownSnapshot.Lesson> = listOf(lessonOf()),

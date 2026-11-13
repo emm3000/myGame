@@ -26,6 +26,7 @@ import com.emm.mygame.core.network.LessonId
 import com.emm.mygame.core.network.SchoolPathCounts
 import com.emm.mygame.core.ui.SchoolPath
 import com.emm.mygame.core.ui.SchoolPathSteps
+import com.emm.mygame.core.ui.SeasonMark
 import com.emm.mygame.core.ui.CopyReader
 import com.emm.mygame.core.ui.PlayerCopy
 import com.emm.mygame.core.ui.chromeResource
@@ -53,6 +54,7 @@ internal fun LessonRows(
             color = MyGameTheme.colors.ink,
             modifier = Modifier.semantics { heading() },
         )
+        content.studyMark?.let { mark: SchoolUiState.DurationMark -> StudyMarkRow(mark = mark) }
         cards.forEachIndexed { index: Int, card: SchoolUiState.LessonCard ->
             if (index > 0) MyGameHairline()
             LessonRow(card = card, onIntent = onIntent)
@@ -62,6 +64,19 @@ internal fun LessonRows(
             ReleasedLessonRow(card = card, start = content.start, onIntent = onIntent)
         }
     }
+}
+
+@Composable
+private fun StudyMarkRow(mark: SchoolUiState.DurationMark, modifier: Modifier = Modifier) {
+    SeasonMark(
+        icon = seasonIconOf(mark.season),
+        label = chromeResource(
+            R.string.school_season_study_mark,
+            "season" to seasonSelectorOf(mark.season),
+            "percent" to mark.percent.toString(),
+        ),
+        modifier = modifier,
+    )
 }
 
 @Composable

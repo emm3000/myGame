@@ -2,7 +2,6 @@ package com.emm.mygame.feature.town
 
 import com.emm.mygame.core.network.NextStep
 import com.emm.mygame.core.network.NextStepCard
-import com.emm.mygame.core.network.SeasonInForce
 import com.emm.mygame.core.network.TipKind
 import com.emm.mygame.core.network.TownBuildingKind
 import com.emm.mygame.core.network.TownHireKind
@@ -39,6 +38,7 @@ internal fun TownSnapshot.contentAt(
         stocks = lines,
         people = TownUiState.PeopleLine(free = people.free, atWork = people.atWork),
         season = seasonLineAt(now),
+        buildMark = seasonInForce?.buildMark(),
         slot = work.slot?.slotLineAt(now, gap) ?: TownUiState.SlotLine.Idle,
         waitingList = work.waitingList.map { item: TownSnapshot.WorkItem -> item.waitingLineAt(now, gap) },
         places = buildings
@@ -66,12 +66,6 @@ internal fun TownSnapshot.nearestCountdownAt(now: Instant): Duration? =
 
 private fun NextStepCard.Countdown.timeAt(now: Instant, gap: Duration): TownUiState.NextStepTime =
     TownUiState.NextStepTime(remaining = countdownTo(finishesAt = at, now = now), finishesAt = at - gap)
-
-private fun TownSnapshot.seasonLineAt(now: Instant): TownUiState.SeasonLine? {
-    val inForce: SeasonInForce = seasonInForce ?: return null
-    val endsAt: Instant = seasonEndsAt ?: return null
-    return TownUiState.SeasonLine(inForce.kind, inForce.year, countdownTo(finishesAt = endsAt, now = now))
-}
 
 private fun TownSnapshot.changesOnTheirOwn(): List<Instant> =
     listOfNotNull(work.slot?.finishesAt, lessonSlot?.finishesAt, hiring.order?.endsAt, seasonEndsAt, nextDueAt)

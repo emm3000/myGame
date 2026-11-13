@@ -31,6 +31,7 @@ sealed interface TownUiState {
         val stocks: List<StockLine>,
         val people: PeopleLine,
         val season: SeasonLine?,
+        val buildMark: DurationMark?,
         val slot: SlotLine,
         val waitingList: List<WaitingLine>,
         val places: List<PlaceCard>,
@@ -74,7 +75,16 @@ sealed interface TownUiState {
 
     data class PeopleLine(val free: Int, val atWork: Int)
 
-    data class SeasonLine(val kind: SeasonKind, val year: Int, val remaining: Duration)
+    data class SeasonLine(
+        val kind: SeasonKind,
+        val year: Int,
+        val remaining: Duration,
+        val productionMarks: List<ProductionMark>,
+    )
+
+    data class ProductionMark(val resource: TownResourceKind, val percent: Int)
+
+    data class DurationMark(val season: SeasonKind, val percent: Int)
 
     sealed interface SlotLine {
 

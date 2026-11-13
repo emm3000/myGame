@@ -65,6 +65,13 @@ internal fun seasonIconOf(kind: SeasonKind): ImageVector = when (kind) {
     SeasonKind.Winter -> MyGameIcons.winter
 }
 
+internal fun seasonSelectorOf(kind: SeasonKind): String = when (kind) {
+    SeasonKind.Spring -> "spring"
+    SeasonKind.Summer -> "summer"
+    SeasonKind.Fall -> "fall"
+    SeasonKind.Winter -> "winter"
+}
+
 internal fun seasonNameOf(kind: SeasonKind): Int = when (kind) {
     SeasonKind.Spring -> R.string.town_season_spring
     SeasonKind.Summer -> R.string.town_season_summer

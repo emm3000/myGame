@@ -37,6 +37,7 @@ import com.emm.mygame.core.network.LessonName
 import com.emm.mygame.core.network.NextStepCard
 import com.emm.mygame.core.network.PlacementBand
 import com.emm.mygame.core.network.SchoolPathCounts
+import com.emm.mygame.core.network.SeasonKind
 import com.emm.mygame.core.network.TownLessonRefusal
 import com.emm.mygame.core.network.TownResourceKind
 import com.emm.mygame.core.ui.ChromePhase
@@ -346,6 +347,7 @@ private val previewContent: SchoolUiState.Content = SchoolUiState.Content(
     ),
     lessons = listOf(previewOpenLesson, previewBlockedLesson),
     releasedLessons = listOf(previewReleasedOpen, previewReleasedNext),
+    studyMark = SchoolUiState.DurationMark(SeasonKind.Winter, percent = 75),
     nextStep = NextStepCard(
         line = NextStepCard.Line.Lesson(number = 1),
         detail = NextStepCard.Detail.Words(count = 5),
@@ -414,6 +416,7 @@ private class SchoolUiStates : PreviewParameterProvider<SchoolUiState> {
 
     override val values: Sequence<SchoolUiState> = sequenceOf(
         previewContent,
+        previewContent.copy(studyMark = SchoolUiState.DurationMark(SeasonKind.Summer, percent = 125)),
         previewStudying,
         previewReleasedStudying,
         previewReleasedStudied,

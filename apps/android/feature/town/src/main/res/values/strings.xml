@@ -115,10 +115,12 @@
     <string name="town_resource_material">material</string>
     <string name="town_resource_money">money</string>
     <string name="town_resource_power">power</string>
+    <string name="town_season_build_mark" formatted="false">{season, select, spring {Spring} summer {Summer} fall {Fall} winter {Winter} other {Winter}}: {percent} % of the hours for building work</string>
     <string name="town_season_days">{days, plural, =1 {{days, number,0} day} other {{days, number,0} days}}</string>
     <string name="town_season_ends_in">{season} ends in {timeLeft}</string>
     <string name="town_season_fall">fall</string>
     <string name="town_season_line">{season}, year {year}</string>
+    <string name="town_season_production_mark" formatted="false">{season, select, spring {Spring} summer {Summer} fall {Fall} winter {Winter} other {Winter}}: {resource} at {percent} %</string>
     <string name="town_season_separator">·</string>
     <string name="town_season_spring">spring</string>
     <string name="town_season_summer">summer</string>

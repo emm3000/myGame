@@ -4,7 +4,9 @@ import androidx.lifecycle.viewModelScope
 import com.emm.mygame.core.network.LessonId
 import com.emm.mygame.core.network.NextStep
 import com.emm.mygame.core.network.NextStepCard
+import com.emm.mygame.core.network.SeasonDurationPercent
 import com.emm.mygame.core.network.SeasonInForce
+import com.emm.mygame.core.network.SeasonKind
 import com.emm.mygame.core.network.TipKind
 import com.emm.mygame.core.network.TownBuildingKind
 import com.emm.mygame.core.network.TownLabel
@@ -64,6 +66,21 @@ internal fun workOf(
 
 internal fun lessonEndingAt(finishesAt: Instant): TownSnapshot.LessonSlot =
     TownSnapshot.LessonSlot(LessonId("lesson-1"), readInstant, finishesAt)
+
+internal fun emptyNaming(): TownUiState.Naming = TownUiState.Naming("", TownUiState.NamingStatus.Idle)
+
+internal fun seasonOf(
+    kind: SeasonKind,
+    production: Map<TownResourceKind, Int> = emptyMap(),
+    build: Int = 100,
+): SeasonInForce = SeasonInForce(
+    kind = kind,
+    year = 1,
+    productionPercents = TownResourceKind.entries.associateWith { resource: TownResourceKind ->
+        production[resource] ?: 100
+    },
+    durationPercent = SeasonDurationPercent(build = build, study = 100, hire = 100, road = 100),
+)
 
 internal fun townOf(
     name: String = "Riverton",

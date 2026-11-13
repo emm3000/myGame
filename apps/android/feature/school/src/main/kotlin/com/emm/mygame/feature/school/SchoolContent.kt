@@ -3,6 +3,8 @@ package com.emm.mygame.feature.school
 import com.emm.mygame.core.network.LessonId
 import com.emm.mygame.core.network.LessonName
 import com.emm.mygame.core.network.NextStepCard
+import com.emm.mygame.core.network.SeasonInForce
+import com.emm.mygame.core.network.UNSCALED_PERCENT
 import com.emm.mygame.core.network.TownBuildingKind
 import com.emm.mygame.core.network.TownSnapshot
 import com.emm.mygame.core.network.nameOf
@@ -27,6 +29,7 @@ internal fun TownSnapshot.contentAt(
         skills = skills.mapIndexed { index: Int, skill: TownSnapshot.EarnedSkill -> skill.lineAt(index, skills) },
         lessons = lessons.map { lesson: TownSnapshot.Lesson -> lesson.cardIn(this) },
         releasedLessons = releasedLessons.map { lesson: TownSnapshot.ReleasedLesson -> lesson.cardIn(this) },
+        studyMark = seasonInForce?.studyMark(),
         nextStep = card,
         nextStepTime = card.countdown?.timeAt(now, gap),
         start = mutations.start,
@@ -34,6 +37,11 @@ internal fun TownSnapshot.contentAt(
         selected = selected,
     )
 }
+
+private fun SeasonInForce.studyMark(): SchoolUiState.DurationMark? =
+    SchoolUiState.DurationMark(kind, durationPercent.study).takeUnless { mark: SchoolUiState.DurationMark ->
+        mark.percent == UNSCALED_PERCENT
+    }
 
 internal fun TownSnapshot.nextChangeAfter(now: Instant): Instant? =
     listOfNotNull(work.slot?.finishesAt, lessonSlot?.finishesAt, seasonEndsAt, nextDueAt)

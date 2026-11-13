@@ -4,12 +4,14 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.semantics.SemanticsActions
 import androidx.compose.ui.test.SemanticsMatcher
 import androidx.compose.ui.test.assertCountEquals
 import androidx.compose.ui.test.assertIsDisplayed
 import androidx.compose.ui.test.getUnclippedBoundsInRoot
 import androidx.compose.ui.test.hasAnyAncestor
+import androidx.compose.ui.test.hasAnyDescendant
 import androidx.compose.ui.test.hasClickAction
 import androidx.compose.ui.test.hasContentDescription
 import androidx.compose.ui.test.hasTestTag
@@ -17,6 +19,7 @@ import androidx.compose.ui.test.hasText
 import androidx.compose.ui.test.junit4.createComposeRule
 import androidx.compose.ui.test.onAllNodesWithTag
 import androidx.compose.ui.test.onAllNodesWithText
+import androidx.compose.ui.test.onFirst
 import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
@@ -29,12 +32,15 @@ import com.emm.mygame.core.designsystem.BLOCK_HUE
 import com.emm.mygame.core.designsystem.HAIRLINE
 import com.emm.mygame.core.designsystem.INK_PILL
 import com.emm.mygame.core.designsystem.MyGameBlockHue
+import com.emm.mygame.core.designsystem.MyGameIcons
 import com.emm.mygame.core.designsystem.MyGameTheme
 import com.emm.mygame.core.designsystem.OUTLINED_PILL
 import com.emm.mygame.core.network.LessonId
 import com.emm.mygame.core.network.NextStepCard
 import com.emm.mygame.core.network.SchoolPathCounts
+import com.emm.mygame.core.network.SeasonKind
 import com.emm.mygame.core.network.TownResourceKind
+import com.emm.mygame.core.ui.SEASON_MARK_ICON
 import kotlin.time.Duration.Companion.minutes
 import kotlin.time.Duration.Companion.seconds
 import org.junit.Assert.assertEquals
@@ -97,6 +103,7 @@ class SchoolLookTest {
         skills = emptyList(),
         lessons = listOf(openFirst, openSecond, openThird),
         releasedLessons = emptyList(),
+        studyMark = null,
         nextStep = caughtUpCard,
         nextStepTime = null,
         start = SchoolUiState.LessonRequest.Idle,
@@ -119,6 +126,51 @@ class SchoolLookTest {
     private val theBlock: SemanticsMatcher = SemanticsMatcher.keyIsDefined(BLOCK_HUE)
 
     private val inTheBlock: SemanticsMatcher = hasAnyAncestor(theBlock)
+
+    @Test
+    fun `draws the study mark directly above the lesson rows`() {
+        show(idleSchool.copy(studyMark = SchoolUiState.DurationMark(SeasonKind.Winter, percent = 75)))
+
+        val firstRowTop: Dp = composeRule.onAllNodesWithTag(LESSON_ROW).onFirst().getUnclippedBoundsInRoot().top
+        assertTrue(topOf("Lecciones") < topOf(WINTER_STUDY))
+        assertTrue(topOf(WINTER_STUDY) < firstRowTop)
+    }
+
+    @Test
+    fun `names each season on the study mark`() {
+        var shown: SchoolUiState by mutableStateOf(idleSchool)
+        showLive { shown }
+
+        seasonWords.forEach { (season: SeasonKind, word: String) ->
+            shown = idleSchool.copy(studyMark = SchoolUiState.DurationMark(season, percent = 75))
+            composeRule.waitForIdle()
+
+            composeRule.onNodeWithText("$word: las lecciones tardan el 75 % del tiempo").assertExists()
+        }
+    }
+
+    @Test
+    fun `draws each season's icon beside the study mark`() {
+        var shown: SchoolUiState by mutableStateOf(idleSchool)
+        showLive { shown }
+
+        seasonIcons.forEach { (season: SeasonKind, icon: ImageVector) ->
+            shown = idleSchool.copy(studyMark = SchoolUiState.DurationMark(season, percent = 75))
+            composeRule.waitForIdle()
+
+            composeRule.onNode(
+                SemanticsMatcher.expectValue(SEASON_MARK_ICON, icon) and
+                    hasAnyDescendant(hasText("las lecciones tardan el 75 % del tiempo", substring = true)),
+            ).assertExists()
+        }
+    }
+
+    @Test
+    fun `draws no study mark while the overview answers none`() {
+        show(idleSchool)
+
+        composeRule.onAllNodesWithText(WINTER_STUDY).assertCountEquals(0)
+    }
 
     @Test
     fun `holds one ink pill on the school`() {
@@ -481,11 +533,17 @@ class SchoolLookTest {
         return results.first().layoutInput.style
     }
 
+    private fun topOf(text: String): Dp = composeRule.onNodeWithText(text).getUnclippedBoundsInRoot().top
+
     private fun show(state: SchoolUiState) {
+        showLive { state }
+    }
+
+    private fun showLive(state: () -> SchoolUiState) {
         composeRule.setContent {
             MyGameTheme {
                 SchoolScreen(
-                    state = state,
+                    state = state(),
                     onIntent = { intent: SchoolIntent -> intents += intent },
                     onReviewsOpen = { reviewOpens += 1 },
                     onLessonOpen = { lesson: LessonId -> lessonOpens += lesson },
@@ -494,5 +552,23 @@ class SchoolLookTest {
                 )
             }
         }
+    }
+
+    private companion object {
+        const val WINTER_STUDY: String = "Invierno: las lecciones tardan el 75 % del tiempo"
+
+        val seasonWords: Map<SeasonKind, String> = mapOf(
+            SeasonKind.Spring to "Primavera",
+            SeasonKind.Summer to "Verano",
+            SeasonKind.Fall to "Otoño",
+            SeasonKind.Winter to "Invierno",
+        )
+
+        val seasonIcons: Map<SeasonKind, ImageVector> = mapOf(
+            SeasonKind.Spring to MyGameIcons.spring,
+            SeasonKind.Summer to MyGameIcons.summer,
+            SeasonKind.Fall to MyGameIcons.fall,
+            SeasonKind.Winter to MyGameIcons.winter,
+        )
     }
 }
