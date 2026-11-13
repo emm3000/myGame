@@ -16,7 +16,7 @@ fun MyGameCountdownLine(
 ) {
     MyGameCountdownLine(
         words = MyGameLabel(text = words, translation = null),
-        time = time,
+        time = MyGameLabel(text = time, translation = null),
         ground = ground,
         modifier = modifier,
     )
@@ -25,7 +25,7 @@ fun MyGameCountdownLine(
 @Composable
 fun MyGameCountdownLine(
     words: MyGameLabel,
-    time: String,
+    time: MyGameLabel,
     ground: MyGameCountdownGround,
     modifier: Modifier = Modifier,
 ) {
@@ -40,7 +40,7 @@ fun MyGameCountdownLine(
     ) {
         MyGameIcon(icon = MyGameIcons.hourglass, tint = lineColor)
         MyGameText(label = words, style = MyGameTypography.caption.withTabularFigures(), color = lineColor)
-        MyGameText(text = time, style = MyGameTypography.heading.withTabularFigures(), color = timeColor)
+        MyGameText(label = time, style = MyGameTypography.heading.withTabularFigures(), color = timeColor)
     }
 }
 

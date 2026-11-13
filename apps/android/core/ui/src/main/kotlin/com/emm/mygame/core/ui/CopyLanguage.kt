@@ -6,17 +6,6 @@ import androidx.compose.runtime.ProvidableCompositionLocal
 import androidx.compose.runtime.ReadOnlyComposable
 import androidx.compose.runtime.staticCompositionLocalOf
 
-enum class ScaffoldLanguage {
-    Spanish,
-    None,
-}
-
-enum class ChromePhase {
-    Scaffold,
-    Both,
-    English,
-}
-
 data class CopyLanguage(val scaffold: ScaffoldLanguage, val chromePhase: ChromePhase)
 
 private val LocalCopyLanguage: ProvidableCompositionLocal<CopyLanguage?> = staticCompositionLocalOf { null }

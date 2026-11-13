@@ -13,13 +13,15 @@ class CopyReader internal constructor(private val resources: Resources, val loca
     fun text(@StringRes id: Int, vararg arguments: Pair<String, Any>): String =
         MessageFormat(resources.getString(id), locale).format(mapOf(*arguments))
 
-    fun listOf(items: List<String>): String = ListFormatter.getInstance(locale).format(items)
+    fun listPhraseOf(items: List<String>): String = ListFormatter.getInstance(locale).format(items)
 }
 
-internal fun Context.copyReaderIn(locale: Locale): CopyReader {
+internal fun Context.copyReaderIn(locale: Locale): CopyReader = CopyReader(resourcesIn(locale), locale)
+
+internal fun Context.resourcesIn(locale: Locale): Resources {
     val configuration: Configuration = Configuration(resources.configuration)
     configuration.setLocale(locale)
-    return CopyReader(createConfigurationContext(configuration).resources, locale)
+    return createConfigurationContext(configuration).resources
 }
 
 internal fun Context.phoneCopyReader(): CopyReader = CopyReader(resources, resources.configuration.locales[0])

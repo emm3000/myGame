@@ -179,7 +179,7 @@ private fun NothingDue(nextReview: Instant?, receivedAt: Instant, modifier: Modi
             nextReview?.let { dueAt: Instant ->
                 MyGameCountdownLine(
                     words = chromeResource(R.string.report_next_review),
-                    time = copy.chrome { nextReviewLabelOf(dueAt, receivedAt, ZoneId.systemDefault()) }.spoken,
+                    time = copy.chrome { nextReviewLabelOf(dueAt, receivedAt, ZoneId.systemDefault()) },
                     ground = MyGameCountdownGround.Paper,
                 )
             }
@@ -284,7 +284,7 @@ private class ReportLanguages : PreviewParameterProvider<CopyLanguage> {
 
 @PreviewMyGame
 @Composable
-private fun ReportLanguagePreview(@PreviewParameter(ReportLanguages::class) language: CopyLanguage) {
+private fun ReportScreenLanguagePreview(@PreviewParameter(ReportLanguages::class) language: CopyLanguage) {
     ProvideCopyLanguage(language = language) {
         MyGamePreviewSurface {
             ReportScreen(state = previewContent, onIntent = {}, onReviewsOpen = {}, onLessonOpen = {}, onNewsOpen = {})

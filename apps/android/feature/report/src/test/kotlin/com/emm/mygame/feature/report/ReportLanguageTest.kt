@@ -2,22 +2,28 @@ package com.emm.mygame.feature.report
 
 import androidx.compose.ui.test.assertCountEquals
 import androidx.compose.ui.test.getUnclippedBoundsInRoot
+import androidx.compose.ui.test.hasText
 import androidx.compose.ui.test.junit4.ComposeContentTestRule
 import androidx.compose.ui.test.junit4.createComposeRule
 import androidx.compose.ui.test.onAllNodesWithText
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.unit.DpRect
+import com.emm.mygame.core.designsystem.MyGameLabel
 import com.emm.mygame.core.designsystem.MyGameTheme
 import com.emm.mygame.core.ui.ChromePhase
 import com.emm.mygame.core.ui.CopyLanguage
+import com.emm.mygame.core.ui.PlayerCopy
 import com.emm.mygame.core.ui.ProvideCopyLanguage
 import com.emm.mygame.core.ui.ScaffoldLanguage
+import org.junit.Assert.assertEquals
 import org.junit.Assert.assertTrue
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.robolectric.RobolectricTestRunner
+import org.robolectric.RuntimeEnvironment
 import org.robolectric.annotation.Config
+import kotlin.time.Duration.Companion.days
 
 @RunWith(RobolectricTestRunner::class)
 @Config(qualifiers = "en")
@@ -34,12 +40,17 @@ class ReportLanguageTest {
         receivedAt = readInstant,
     )
 
-    private fun show(language: CopyLanguage) {
+    private val nothingDueUntilTomorrow: ReportUiState.Content = dueWithNews.copy(
+        dueCount = 0,
+        nextReview = readInstant + 1.days,
+    )
+
+    private fun show(language: CopyLanguage, state: ReportUiState.Content = dueWithNews) {
         composeRule.setContent {
             ProvideCopyLanguage(language = language) {
                 MyGameTheme {
                     ReportScreen(
-                        state = dueWithNews,
+                        state = state,
                         onIntent = {},
                         onReviewsOpen = {},
                         onLessonOpen = {},
@@ -61,6 +72,9 @@ class ReportLanguageTest {
     private fun lineOf(text: String): DpRect =
         composeRule.onNodeWithText(text, useUnmergedTree = true).getUnclippedBoundsInRoot()
 
+    private fun lineStarting(text: String): DpRect =
+        composeRule.onNode(hasText(text, substring = true), useUnmergedTree = true).getUnclippedBoundsInRoot()
+
     @Test
     fun `draws the Report in Spanish in the Spanish phase`() {
         show(CopyLanguage(ScaffoldLanguage.Spanish, ChromePhase.Scaffold))
@@ -79,6 +93,30 @@ class ReportLanguageTest {
         assertTrue(lineOf("Report").bottom <= lineOf("Informe").top)
         assertTrue(lineOf("Start the reviews").bottom <= lineOf("Empezar los repasos").top)
         assertTrue(lineOf("Close the news").bottom <= lineOf("Cerrar las noticias").top)
+    }
+
+    @Test
+    fun `draws the next review's time in English over Spanish in the both phase`() {
+        show(CopyLanguage(ScaffoldLanguage.Spanish, ChromePhase.Both), nothingDueUntilTomorrow)
+
+        assertTrue(lineStarting("tomorrow").bottom <= lineStarting("mañana").top)
+    }
+
+    @Test
+    fun `draws a line both languages write alike once in the both phase`() {
+        val copy: PlayerCopy =
+            PlayerCopy(RuntimeEnvironment.getApplication(), CopyLanguage(ScaffoldLanguage.Spanish, ChromePhase.Both))
+
+        assertEquals(MyGameLabel(text = "09:00", translation = null), copy.chrome { "09:00" })
+    }
+
+    @Test
+    fun `writes a later day of the next review the English way in the English phase`() {
+        val inThreeDays: ReportUiState.Content = nothingDueUntilTomorrow.copy(nextReview = readInstant + 3.days)
+
+        show(CopyLanguage(ScaffoldLanguage.Spanish, ChromePhase.English), inThreeDays)
+
+        composeRule.onNode(hasText("Nov 8", substring = true)).assertExists()
     }
 
     @Test
