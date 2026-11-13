@@ -35,10 +35,12 @@ class HoldoutCheckRowsTest {
     }
 
     @Test
-    fun `draws the band of a due check`() {
+    fun `draws the band and the week of a due check`() {
         showing(HoldoutCheckRowsUiState(listOf(secondBandEighthWeek)))
 
-        composeRule.onNodeWithText("Tienes pendiente una prueba de palabras de la banda 2.").assertIsDisplayed()
+        composeRule
+            .onNodeWithText("Tienes pendiente una prueba de palabras de la banda 2, semana 8.")
+            .assertIsDisplayed()
     }
 
     @Test
@@ -59,6 +61,19 @@ class HoldoutCheckRowsTest {
         )
 
         composeRule.onAllNodesWithText("Abrir la prueba").assertCountEquals(2)
+    }
+
+    @Test
+    fun `tells apart the two due checks of one band by their week`() {
+        showing(
+            HoldoutCheckRowsUiState(
+                listOf(secondBandEighthWeek, HoldoutCheckRow(PlacementBand.Second, HoldoutCheckWeek.TwentyFourth)),
+            ),
+        )
+
+        composeRule
+            .onNodeWithText("Tienes pendiente una prueba de palabras de la banda 2, semana 24.")
+            .assertIsDisplayed()
     }
 
     @Test

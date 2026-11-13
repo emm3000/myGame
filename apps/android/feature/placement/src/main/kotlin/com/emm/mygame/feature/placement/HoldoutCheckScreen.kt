@@ -148,8 +148,10 @@ private class HoldoutCheckScreenStates : PreviewParameterProvider<HoldoutCheckUi
         previewAsking.copy(request = HoldoutCheckRequest.Waiting(HoldoutCheckAction.Answers)),
         HoldoutCheckUiState.Answered,
         HoldoutCheckUiState.Skipped,
-        previewDue.copy(request = HoldoutCheckRequest.Refused(HoldoutCheckRefusal.NotOpen)),
-        previewAsking.copy(request = HoldoutCheckRequest.Refused(HoldoutCheckRefusal.NotOpen)),
+        previewDue.copy(request = HoldoutCheckRequest.Refused(HoldoutCheckAction.Begin, HoldoutCheckRefusal.NotOpen)),
+        previewAsking.copy(
+            request = HoldoutCheckRequest.Refused(HoldoutCheckAction.Answers, HoldoutCheckRefusal.NotOpen),
+        ),
         HoldoutCheckUiState.Failed,
         HoldoutCheckUiState.NotOpen,
     )

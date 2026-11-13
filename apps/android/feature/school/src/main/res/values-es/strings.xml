@@ -10,7 +10,7 @@
     <string name="school_go_to_school">Ir a la escuela</string>
     <string name="school_holdout_note">1 de cada 10 palabras se aparta para dos pruebas posteriores y vuelve después de la última.</string>
     <string name="school_holdout_open">Abrir la prueba</string>
-    <string name="school_holdout_row">Tienes pendiente una prueba de palabras de la banda {band}.</string>
+    <string name="school_holdout_row">Tienes pendiente una prueba de palabras de la banda {band}, semana {week}.</string>
     <string name="school_learning">Palabras en aprendizaje: {inLearning} de {cap}</string>
     <string name="school_learning_full">{count, plural, =1 {La siguiente lección trae 1 palabra.} other {La siguiente lección trae {count, number,0} palabras.}} Empieza los repasos.</string>
     <string name="school_lesson_cap_reached">Palabras en aprendizaje: {inLearning} de {cap}. Esta lección trae {count}.</string>

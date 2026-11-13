@@ -10,13 +10,18 @@ import com.emm.mygame.core.ui.fixedCopyResource
 internal fun HoldoutCheckRequestLine(request: HoldoutCheckRequest, modifier: Modifier = Modifier) {
     val line: Int = when (request) {
         HoldoutCheckRequest.Idle, is HoldoutCheckRequest.Waiting -> return
-        is HoldoutCheckRequest.Refused -> refusalLineOf(request.refusal)
+        is HoldoutCheckRequest.Refused -> refusalLineOf(request.action, request.refusal)
         HoldoutCheckRequest.Unreachable -> R.string.placement_unreachable
     }
     MyGameInlineAlert(message = fixedCopyResource(line), modifier = modifier)
 }
 
-private fun refusalLineOf(refusal: HoldoutCheckRefusal): Int = when (refusal) {
+private fun refusalLineOf(action: HoldoutCheckAction, refusal: HoldoutCheckRefusal): Int = when (refusal) {
     HoldoutCheckRefusal.NotOpen -> R.string.placement_holdout_refused
-    HoldoutCheckRefusal.InvalidRequest -> R.string.placement_holdout_refusal_invalid
+    HoldoutCheckRefusal.InvalidRequest -> invalidRequestLineOf(action)
+}
+
+private fun invalidRequestLineOf(action: HoldoutCheckAction): Int = when (action) {
+    HoldoutCheckAction.Begin, HoldoutCheckAction.Skip -> R.string.placement_holdout_refused
+    HoldoutCheckAction.Answers -> R.string.placement_holdout_refusal_invalid
 }

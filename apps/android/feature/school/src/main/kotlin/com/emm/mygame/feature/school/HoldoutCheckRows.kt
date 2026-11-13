@@ -61,7 +61,11 @@ private fun HoldoutCheckRowLine(
     Column(verticalArrangement = Arrangement.spacedBy(MyGameSpacing.step2), modifier = modifier) {
         MyGameHairline()
         MyGameText(
-            text = fixedCopyResource(R.string.school_holdout_row, "band" to row.band.number.toString()),
+            text = fixedCopyResource(
+                R.string.school_holdout_row,
+                "band" to row.band.number.toString(),
+                "week" to row.week.number.toString(),
+            ),
             style = MyGameTypography.body,
             color = MyGameTheme.colors.ink,
         )
