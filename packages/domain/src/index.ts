@@ -9,6 +9,8 @@ export {
   type BeginHoldoutCheckDependencies,
   beginHoldoutCheck,
 } from './holdout/beginHoldoutCheck'
+export type { DueHoldoutCheck } from './holdout/DueHoldoutCheck'
+export { dueHoldoutChecksOf } from './holdout/dueHoldoutChecksOf'
 export type {
   BegunHoldoutCheck,
   HoldoutCheck,
@@ -19,10 +21,12 @@ export type {
 } from './holdout/HoldoutCheck'
 export type { HoldoutCheckView } from './holdout/HoldoutCheckView'
 export { HOLDOUT_CHECK_WEEKS, RELEASING_WEEK } from './holdout/holdoutCheckWeeks'
+export type { ReleasedLesson } from './holdout/ReleasedLesson'
 export {
   type ReadHoldoutChecksDependencies,
   readHoldoutChecks,
 } from './holdout/readHoldoutChecks'
+export { type ReleaseContent, releasedLessonsOf } from './holdout/releasedLessonsOf'
 export {
   type SkipHoldoutCheckDependencies,
   skipHoldoutCheck,
@@ -46,6 +50,7 @@ export type {
   LessonId,
   LessonSkill,
   LessonWord,
+  SchoolLesson,
   WordFrame,
   WordId,
 } from './learning/Lesson'

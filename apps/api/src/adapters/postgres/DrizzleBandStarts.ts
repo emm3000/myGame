@@ -3,9 +3,7 @@ import {
   type BandStart,
   type BandStartRepository,
   type DomainError,
-  HOLDOUT_CHECK_WEEKS,
   type HoldoutCheck,
-  type HoldoutCheckWeek,
   Instant,
   ok,
   type PlayerId,
@@ -14,58 +12,13 @@ import {
 import { and, asc, eq, sql } from 'drizzle-orm'
 import type { PostgresSession } from './connectPostgres'
 import { bandStarts, heldOutWords, holdoutChecks, holdoutCheckWords } from './schema'
+import { holdoutCheckOf } from './storedHoldoutChecks'
 
 type CheckRow = typeof holdoutChecks.$inferSelect
-
-type CheckWordRow = Pick<
-  typeof holdoutCheckWords.$inferSelect,
-  'band' | 'week' | 'wordId' | 'isHeldOut'
->
 
 const instantOf = (date: Date): Instant => Instant.fromEpochMilliseconds(date.getTime())
 
 const dateOf = (instant: Instant): Date => new Date(instant.epochMilliseconds)
-
-const weekOf = (week: number): HoldoutCheckWeek => {
-  const known = HOLDOUT_CHECK_WEEKS.find((checkWeek) => checkWeek === week)
-  if (known === undefined) {
-    throw new Error(`Holdout check week ${week} is unknown`)
-  }
-  return known
-}
-
-const required = <T>(value: T | null, column: string): T => {
-  if (value === null) {
-    throw new Error(`Holdout check column ${column} is null`)
-  }
-  return value
-}
-
-const checkOf = (row: CheckRow, words: ReadonlyArray<CheckWordRow>): HoldoutCheck => {
-  const week = weekOf(row.week)
-  if (row.kind === 'skipped') {
-    return { kind: 'skipped', week, skippedAt: instantOf(required(row.closedAt, 'closed_at')) }
-  }
-  const asked = words.filter((word) => word.band === row.band && word.week === row.week)
-  const begun = {
-    week,
-    begunAt: instantOf(required(row.begunAt, 'begun_at')),
-    sample: {
-      wordIds: asked.map(({ wordId }) => wordId),
-      heldOutWordIds: asked.filter(({ isHeldOut }) => isHeldOut).map(({ wordId }) => wordId),
-    },
-  }
-  if (row.kind === 'begun') {
-    return { kind: 'begun', ...begun }
-  }
-  return {
-    kind: 'taken',
-    ...begun,
-    heldOutScore: required(row.heldOutScore, 'held_out_score'),
-    practisedScore: required(row.practisedScore, 'practised_score'),
-    takenAt: instantOf(required(row.closedAt, 'closed_at')),
-  }
-}
 
 type CheckChanges = Omit<CheckRow, 'playerId' | 'band' | 'week'>
 
@@ -134,7 +87,12 @@ export class DrizzleBandStarts implements BandStartRepository {
         heldOutWords: words.filter((word) => word.band === band).map(({ headword }) => headword),
         checks: checks
           .filter((check) => check.band === band)
-          .map((row) => checkOf(row, checkWords)),
+          .map((row) =>
+            holdoutCheckOf(
+              row,
+              checkWords.filter((word) => word.band === row.band && word.week === row.week),
+            ),
+          ),
       })),
     )
   }

@@ -3,7 +3,7 @@ import type { Band } from './BandStart'
 import type { Lesson } from './Lesson'
 
 export const isLessonPlacedOut = (
-  { id }: Lesson,
+  { id }: Pick<Lesson, 'id'>,
   placedOutBands: ReadonlyArray<Band>,
   bands: Pick<BandCatalog, 'bandOfLesson'>,
 ): boolean => {

@@ -1,4 +1,4 @@
-import type { TownOverview } from '@mygame/contracts'
+import { PlacementBandSchema, type TownOverview } from '@mygame/contracts'
 import {
   anchorFrameOf,
   type Band,
@@ -9,15 +9,18 @@ import {
   glossOf,
   type Headword,
   type HeldCard,
+  heldOutWordsAt,
   isLessonPlacedOut,
   type LessonSlot,
   type LessonWord,
   ok,
   placedOutBandsOf,
+  type ReleasedLesson,
   type Result,
   readableWordsOf,
   retainedWordsOf,
   type Scaffold,
+  type SchoolLesson,
   schoolLevelOf,
   studyPercentAt,
   supportLevelOf,
@@ -32,10 +35,12 @@ import type { LessonLibrary, ShelvedLesson } from './LessonLibrary'
 
 type SchoolOverview = Pick<
   TownOverview,
-  'lessons' | 'skills' | 'lessonSlot' | 'learning' | 'chromePhase'
+  'lessons' | 'releasedLessons' | 'skills' | 'lessonSlot' | 'learning' | 'chromePhase'
 >
 
 type LessonState = TownOverview['lessons'][number]
+
+type ReleasedLessonState = TownOverview['releasedLessons'][number]
 
 type LearnerState = {
   readonly cards: ReadonlyArray<HeldCard>
@@ -87,12 +92,11 @@ const wordStateOf = (
   }
 }
 
-const lessonStateOf = (
-  lesson: ShelvedLesson,
+const lessonWordsOf = (
+  lesson: SchoolLesson,
   learner: LearnerState,
   lessons: LessonLibrary,
-  durationSeconds: number,
-): LessonState => {
+): Pick<LessonState, 'isStudied' | 'words'> => {
   const { cards, heldOutWords, lessonSlot, placedOutBands, scaffold } = learner
   const isRunning = lessonSlot.kind === 'busy' && lessonSlot.lessonId === lesson.id
   const readable = readableWordsOf(lesson, heldOutWords, cards, isRunning)
@@ -103,11 +107,6 @@ const lessonStateOf = (
     held: cards.find(({ wordId }) => wordId === word.id),
   }))
   return {
-    id: lesson.id,
-    theme: lesson.theme,
-    durationSeconds,
-    requiredSchoolLevel: lesson.requiredSchoolLevel,
-    skill: { ...lesson.skill },
     isStudied: words.some(({ held }) => held !== undefined),
     words: words.map(({ word, held }) =>
       wordStateOf(
@@ -124,6 +123,34 @@ const lessonStateOf = (
   }
 }
 
+const lessonStateOf = (
+  lesson: ShelvedLesson,
+  learner: LearnerState,
+  lessons: LessonLibrary,
+  durationSeconds: number,
+): LessonState => ({
+  id: lesson.id,
+  theme: lesson.theme,
+  durationSeconds,
+  requiredSchoolLevel: lesson.requiredSchoolLevel,
+  skill: { ...lesson.skill },
+  ...lessonWordsOf(lesson, learner, lessons),
+})
+
+const releasedLessonStateOf = (
+  lesson: ReleasedLesson,
+  learner: LearnerState,
+  lessons: LessonLibrary,
+  durationSeconds: number,
+): ReleasedLessonState => ({
+  id: lesson.id,
+  band: PlacementBandSchema.parse(lesson.band),
+  position: lesson.position,
+  durationSeconds,
+  requiredSchoolLevel: lesson.requiredSchoolLevel,
+  ...lessonWordsOf(lesson, learner, lessons),
+})
+
 const lessonSlotOf = (slot: LessonSlot): TownOverview['lessonSlot'] =>
   slot.kind === 'idle'
     ? null
@@ -134,9 +161,10 @@ const lessonSlotOf = (slot: LessonSlot): TownOverview['lessonSlot'] =>
       }
 
 export const schoolOverviewOf = (
-  { town, at, lessonSlot, cards, heldOutWords, placementScores, scaffold }: TownReading,
+  { town, at, lessonSlot, cards, bandStarts, placementScores, scaffold }: TownReading,
   catalog: TownCatalog,
   lessons: LessonLibrary,
+  released: ReadonlyArray<ReleasedLesson>,
 ): Result<SchoolOverview, DomainError> => {
   const school = schoolLevelOf(town.buildingLevels.school, catalog)
   if (!school.ok) {
@@ -145,26 +173,20 @@ export const schoolOverviewOf = (
   const studyPercent = studyPercentAt(at, catalog.townSettings())
   const learner = {
     cards,
-    heldOutWords,
+    heldOutWords: heldOutWordsAt(bandStarts, at),
     lessonSlot,
     placedOutBands: placedOutBandsOf(placementScores),
     scaffold,
   }
+  const durationOf = ({ durationSeconds }: SchoolLesson): number =>
+    deriveLessonDurationSeconds(durationSeconds, school.value.lessonPercent, studyPercent)
   return ok({
     lessons: lessons
       .lessons()
-      .map((lesson) =>
-        lessonStateOf(
-          lesson,
-          learner,
-          lessons,
-          deriveLessonDurationSeconds(
-            lesson.durationSeconds,
-            school.value.lessonPercent,
-            studyPercent,
-          ),
-        ),
-      ),
+      .map((lesson) => lessonStateOf(lesson, learner, lessons, durationOf(lesson))),
+    releasedLessons: released.map((lesson) =>
+      releasedLessonStateOf(lesson, learner, lessons, durationOf(lesson)),
+    ),
     skills: town.skills.map(({ lessonId, resource, ratePercent, earnedAt }) => ({
       lessonId,
       resource,

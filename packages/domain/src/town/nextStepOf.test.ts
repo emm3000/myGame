@@ -1,4 +1,7 @@
 import { assert, describe, expect, it } from 'vitest'
+import type { HoldoutCheck } from '../holdout/HoldoutCheck'
+import type { ReleasedLesson } from '../holdout/ReleasedLesson'
+import type { BandStart } from '../learning/BandStart'
 import type { HeldCard } from '../learning/HeldCard'
 import type { Lesson } from '../learning/Lesson'
 import { MemoryCard } from '../memory/MemoryCard'
@@ -52,6 +55,28 @@ const runningLessonOne: LessonSlot = {
   finishesAt,
 }
 
+const MILLISECONDS_PER_WEEK = 7 * 24 * 3_600_000
+
+const bandStartOf = (
+  heldOutWords: ReadonlyArray<string>,
+  { weeksAgo = 1, checks = [] }: { weeksAgo?: number; checks?: ReadonlyArray<HoldoutCheck> } = {},
+): BandStart => ({
+  band: 1,
+  startedAt: Instant.fromEpochMilliseconds(
+    readAt.epochMilliseconds - weeksAgo * MILLISECONDS_PER_WEEK,
+  ),
+  heldOutWords,
+  checks,
+})
+
+const releasedLessonOf = (
+  position: number,
+  overrides: Partial<Pick<ReleasedLesson, 'requiredSchoolLevel'>> = {},
+): ReleasedLesson => {
+  const { skill: _, ...shelved } = lessonNumbered(10 + position)
+  return { ...shelved, id: `released-1-${position}`, band: 1, position, ...overrides }
+}
+
 const unreviewedCardsOf = ({ words }: Lesson): ReadonlyArray<HeldCard> =>
   words.map(({ id }) => ({ wordId: id, card: MemoryCard.entered(enteredAt) }))
 
@@ -67,7 +92,8 @@ const readingOf = (
 ): NextStepReading => ({
   lessonSlot: { kind: 'idle' },
   cards: [],
-  heldOutWords: [],
+  bandStarts: [],
+  released: [],
   placedOutBands: [],
   at: readAt,
   ...overrides,
@@ -285,10 +311,97 @@ describe('nextStepOf', () => {
   it('counts only the words entering against the cap', () => {
     const reading = readingOf({
       cards: curriculum.slice(0, 3).flatMap(waitingCardsOf).slice(1),
-      heldOutWords: ['home', 'school', 'work', 'money'],
+      bandStarts: [bandStartOf(['home', 'school', 'work', 'money'])],
     })
 
     expect(answered(reading)).toEqual({ kind: 'lessonToStudy', lessonId: 'lesson-4' })
+  })
+
+  it('names a due check after the due reviews', () => {
+    const reading = readingOf({
+      cards: unreviewedCardsOf(lessonNumbered(2)),
+      bandStarts: [bandStartOf([], { weeksAgo: 8 })],
+    })
+
+    expect(answered(reading)).toEqual({ kind: 'reviews', count: 5, readFirst: ['lesson-2'] })
+  })
+
+  it('names a due check before a lesson', () => {
+    const reading = readingOf({ bandStarts: [bandStartOf([], { weeksAgo: 8 })] })
+
+    expect(answered(reading)).toEqual({ kind: 'holdoutCheck', band: 1, week: 8 })
+  })
+
+  it('names a due check over a running lesson', () => {
+    const reading = readingOf({
+      lessonSlot: runningLessonOne,
+      bandStarts: [bandStartOf([], { weeksAgo: 24 })],
+    })
+
+    expect(answered(reading)).toEqual({ kind: 'holdoutCheck', band: 1, week: 24 })
+  })
+
+  it('names a begun check that is still due', () => {
+    const begun: HoldoutCheck = {
+      kind: 'begun',
+      week: 8,
+      begunAt: readAt,
+      sample: { wordIds: [], heldOutWordIds: [] },
+    }
+    const reading = readingOf({ bandStarts: [bandStartOf([], { weeksAgo: 8, checks: [begun] })] })
+
+    expect(answered(reading)).toEqual({ kind: 'holdoutCheck', band: 1, week: 8 })
+  })
+
+  it('names no check once it is skipped', () => {
+    const skipped: HoldoutCheck = { kind: 'skipped', week: 8, skippedAt: readAt }
+    const reading = readingOf({
+      bandStarts: [bandStartOf([], { weeksAgo: 8, checks: [skipped] })],
+    })
+
+    expect(answered(reading)).toEqual({ kind: 'lessonToStudy', lessonId: 'lesson-1' })
+  })
+
+  it('names an admitted released lesson before the next shelved lesson', () => {
+    const reading = readingOf({ released: [releasedLessonOf(1), releasedLessonOf(2)] })
+
+    expect(answered(reading)).toEqual({
+      kind: 'releasedLesson',
+      lessonId: 'released-1-1',
+      band: 1,
+      position: 1,
+    })
+  })
+
+  it('steps past a released lesson already studied', () => {
+    const studied = releasedLessonOf(1)
+    const reading = readingOf({
+      cards: waitingCardsOf({ ...studied, skill: skillOn('money') }),
+      released: [studied, releasedLessonOf(2)],
+    })
+
+    expect(answered(reading)).toEqual({
+      kind: 'releasedLesson',
+      lessonId: 'released-1-2',
+      band: 1,
+      position: 2,
+    })
+  })
+
+  it('never names a released lesson the school level refuses', () => {
+    const reading = readingOf({ released: [releasedLessonOf(1, { requiredSchoolLevel: 2 })] })
+
+    expect(answered(reading)).toEqual({ kind: 'lessonToStudy', lessonId: 'lesson-1' })
+  })
+
+  it('answers lessonRunning over an admitted released lesson', () => {
+    const reading = readingOf({
+      lessonSlot: runningLessonOne,
+      released: [releasedLessonOf(1)],
+      town: { buildingLevels: { farm: 1 } },
+    })
+
+    expect(answered(reading)).toEqual({ kind: 'lessonRunning', producer: null })
   })
 
   it('answers caughtUp when the cap is full', () => {

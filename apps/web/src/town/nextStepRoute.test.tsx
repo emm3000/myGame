@@ -9,11 +9,14 @@ import {
   schoolLessonTitle,
   schoolLessonWords,
   schoolSlotTitle,
+  townGoToSchool,
   townNextBuildFactory,
   townNextBuildFarm,
   townNextBuildPowerStation,
   townNextGoToReport,
+  townNextHoldoutCheck,
   townNextLessonReadyIn,
+  townNextReleasedLesson,
   townNextTitle,
   townSkylineBuilt,
 } from '@mygame/catalog'
@@ -218,6 +221,20 @@ it('reads a lesson of a single word in the singular', async () => {
   await showTown(townAt({ kind: 'lessonToStudy', lessonId: 'lesson-2' }))
 
   expect(within(card()).getByText('1 palabra')).toBeDefined()
+})
+
+it('names a due check by its band and opens the school', async () => {
+  await showTown(townAt({ kind: 'holdoutCheck', band: 2, week: 8 }))
+
+  expect(within(card()).getByText(townNextHoldoutCheck({ band: 2 }))).toBeDefined()
+  expect(pill(townGoToSchool()).getAttribute('href')).toBe('/school')
+})
+
+it('names a released lesson by its band and set and opens the school', async () => {
+  await showTown(townAt({ kind: 'releasedLesson', lessonId: 'released-1-3', band: 1, position: 3 }))
+
+  expect(within(card()).getByText(townNextReleasedLesson({ band: 1, number: 3 }))).toBeDefined()
+  expect(pill(townGoToSchool()).getAttribute('href')).toBe('/school')
 })
 
 it('opens the Report when caught up', async () => {

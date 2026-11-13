@@ -62,6 +62,8 @@ export const knownTown: TownOverview = {
   },
   job: null,
   lessons: [],
+  releasedLessons: [],
+  dueHoldoutChecks: [],
   skills: [],
   lessonSlot: null,
   learning: { cap: 15, inLearning: 0, retainedWords: null },

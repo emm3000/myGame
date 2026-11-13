@@ -2,11 +2,12 @@ import type { BandStart } from '../learning/BandStart'
 import { compareWordIds } from '../learning/compareWordIds'
 import type { HeldCard } from '../learning/HeldCard'
 import { isUnitLemma } from '../learning/isUnitLemma'
-import type { Lesson, LessonWord, SchoolLesson } from '../learning/Lesson'
+import type { Lesson, LessonWord } from '../learning/Lesson'
 import { lemmaWordsOf } from '../learning/lemmaWordsOf'
 import type { BandCatalog } from '../ports/BandCatalog'
 import type { LessonCatalog } from '../ports/LessonCatalog'
 import type { Instant } from '../time/Instant'
+import type { ReleasedLesson } from './ReleasedLesson'
 import { releasedAtOf } from './releasedAtOf'
 
 const RELEASED_LESSON_WORD_COUNT = 5
@@ -123,8 +124,10 @@ const releasedLessonOf = (
   { start }: Release,
   items: ReadonlyArray<ReleasedItem>,
   position: number,
-): SchoolLesson => ({
-  id: `released-${start.band}-${position + 1}`,
+): ReleasedLesson => ({
+  id: `released-${start.band}-${position}`,
+  band: start.band,
+  position,
   durationSeconds: Math.max(...items.map(({ from }) => from.durationSeconds)),
   requiredSchoolLevel: Math.max(...items.map(({ from }) => from.requiredSchoolLevel)),
   words: items.map(({ word }) => word),
@@ -134,7 +137,7 @@ export const releasedLessonsOf = (
   starts: ReadonlyArray<BandStart>,
   held: ReadonlyArray<HeldCard>,
   content: ReleaseContent,
-): ReadonlyArray<SchoolLesson> =>
+): ReadonlyArray<ReleasedLesson> =>
   starts.flatMap((start) => {
     const releasedAt = releasedAtOf(start)
     if (releasedAt === undefined) {
@@ -142,6 +145,6 @@ export const releasedLessonsOf = (
     }
     const release = { start, releasedAt }
     return lessonsOfFive(releasedItemsOf(release, starts, held, content)).map((items, position) =>
-      releasedLessonOf(release, items, position),
+      releasedLessonOf(release, items, position + 1),
     )
   })

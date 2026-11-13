@@ -11,6 +11,13 @@ const WordReadingSchema = z.strictObject({
   frame: z.string().min(1),
 })
 
+export const LessonWordStateSchema = z.strictObject({
+  wordId: z.string().min(1),
+  standing: WordStandingSchema,
+  reading: WordReadingSchema.nullable(),
+  support: z.lazy(() => WordSupportSchema).nullable(),
+})
+
 export const LessonStateSchema = z.strictObject({
   id: z.string().min(1),
   theme: z.string().min(1),
@@ -21,12 +28,5 @@ export const LessonStateSchema = z.strictObject({
     ratePercent: WholeCountSchema.positive(),
   }),
   isStudied: z.boolean(),
-  words: z.array(
-    z.strictObject({
-      wordId: z.string().min(1),
-      standing: WordStandingSchema,
-      reading: WordReadingSchema.nullable(),
-      support: z.lazy(() => WordSupportSchema).nullable(),
-    }),
-  ),
+  words: z.array(LessonWordStateSchema),
 })

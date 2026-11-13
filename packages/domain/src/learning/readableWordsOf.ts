@@ -4,7 +4,7 @@ import type { Lesson, LessonWord } from './Lesson'
 import { wordsEnteringOf } from './wordsEnteringOf'
 
 export const readableWordsOf = (
-  lesson: Lesson,
+  lesson: Pick<Lesson, 'words'>,
   heldOut: ReadonlyArray<Headword>,
   cards: ReadonlyArray<HeldCard>,
   isRunning: boolean,

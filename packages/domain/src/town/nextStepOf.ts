@@ -1,9 +1,13 @@
 import type { DomainError } from '../DomainError'
-import type { Band, Headword } from '../learning/BandStart'
+import { dueHoldoutChecksOf } from '../holdout/dueHoldoutChecksOf'
+import type { HoldoutCheckWeek } from '../holdout/HoldoutCheck'
+import type { ReleasedLesson } from '../holdout/ReleasedLesson'
+import type { Band, BandStart, Headword } from '../learning/BandStart'
 import { dueCardsAt } from '../learning/dueCardsAt'
 import type { HeldCard } from '../learning/HeldCard'
+import { heldOutWordsAt } from '../learning/heldOutWordsAt'
 import { isLessonPlacedOut } from '../learning/isLessonPlacedOut'
-import type { Lesson, LessonId } from '../learning/Lesson'
+import type { Lesson, LessonId, SchoolLesson } from '../learning/Lesson'
 import { readFirstOf } from '../learning/readFirstOf'
 import { wordsEnteringOf } from '../learning/wordsEnteringOf'
 import type { MemoryTerms } from '../memory/MemoryTerms'
@@ -22,7 +26,14 @@ export type NextStep =
       readonly count: number
       readonly readFirst: ReadonlyArray<LessonId>
     }
+  | { readonly kind: 'holdoutCheck'; readonly band: Band; readonly week: HoldoutCheckWeek }
   | { readonly kind: 'lessonRunning'; readonly producer: ProducerBuilding | null }
+  | {
+      readonly kind: 'releasedLesson'
+      readonly lessonId: LessonId
+      readonly band: Band
+      readonly position: number
+    }
   | { readonly kind: 'lessonToStudy'; readonly lessonId: LessonId }
   | { readonly kind: 'caughtUp' }
 
@@ -31,7 +42,8 @@ export type NextStepReading = {
   readonly at: Instant
   readonly lessonSlot: LessonSlot
   readonly cards: ReadonlyArray<HeldCard>
-  readonly heldOutWords: ReadonlyArray<Headword>
+  readonly bandStarts: ReadonlyArray<BandStart>
+  readonly released: ReadonlyArray<ReleasedLesson>
   readonly placedOutBands: ReadonlyArray<Band>
 }
 
@@ -56,35 +68,75 @@ const lessonRunningStep = (
   return { kind: 'lessonRunning', producer: isStanding ? null : producer }
 }
 
-const lessonStep = (
-  { town, lessonSlot, cards, heldOutWords, placedOutBands }: NextStepReading,
-  { lessons, bands, catalog }: NextStepTerms,
-): Result<NextStep, DomainError> => {
-  for (const lesson of lessons.filter(
-    (shelved) => !isLessonPlacedOut(shelved, placedOutBands, bands),
-  )) {
-    const admitted = admitSchoolLesson(
-      lesson,
-      wordsEnteringOf(lesson, heldOutWords).length,
-      { held: cards, slot: lessonSlot },
-      town.buildingLevels.school,
-      catalog,
-    )
-    if (admitted.ok) {
-      return ok({ kind: 'lessonToStudy', lessonId: lesson.id })
-    }
-    if (admitted.error.kind === 'UnknownTownBuildingLevel') {
+const isAdmitted = (
+  lesson: SchoolLesson,
+  heldOut: ReadonlyArray<Headword>,
+  { town, lessonSlot, cards }: NextStepReading,
+  catalog: TownCatalog,
+): Result<boolean, DomainError> => {
+  const admitted = admitSchoolLesson(
+    lesson,
+    wordsEnteringOf(lesson, heldOut).length,
+    { held: cards, slot: lessonSlot },
+    town.buildingLevels.school,
+    catalog,
+  )
+  if (admitted.ok) {
+    return ok(true)
+  }
+  return admitted.error.kind === 'UnknownTownBuildingLevel' ? admitted : ok(false)
+}
+
+const firstAdmittedOf = <Admissible extends SchoolLesson>(
+  lessons: ReadonlyArray<Admissible>,
+  reading: NextStepReading,
+  catalog: TownCatalog,
+): Result<Admissible | undefined, DomainError> => {
+  const heldOut = heldOutWordsAt(reading.bandStarts, reading.at)
+  for (const lesson of lessons) {
+    const admitted = isAdmitted(lesson, heldOut, reading, catalog)
+    if (!admitted.ok) {
       return admitted
     }
+    if (admitted.value) {
+      return ok(lesson)
+    }
   }
-  return ok({ kind: 'caughtUp' })
+  return ok(undefined)
+}
+
+const lessonStep = (
+  reading: NextStepReading,
+  { lessons, bands, catalog }: NextStepTerms,
+): Result<NextStep, DomainError> => {
+  const released = firstAdmittedOf(reading.released, reading, catalog)
+  if (!released.ok) {
+    return released
+  }
+  if (released.value !== undefined) {
+    const { id, band, position } = released.value
+    return ok({ kind: 'releasedLesson', lessonId: id, band, position })
+  }
+  const shelved = firstAdmittedOf(
+    lessons.filter((lesson) => !isLessonPlacedOut(lesson, reading.placedOutBands, bands)),
+    reading,
+    catalog,
+  )
+  if (!shelved.ok) {
+    return shelved
+  }
+  return ok(
+    shelved.value === undefined
+      ? { kind: 'caughtUp' }
+      : { kind: 'lessonToStudy', lessonId: shelved.value.id },
+  )
 }
 
 export const nextStepOf = (
   reading: NextStepReading,
   terms: NextStepTerms,
 ): Result<NextStep, DomainError> => {
-  const { town, at, lessonSlot, cards } = reading
+  const { town, at, lessonSlot, cards, bandStarts } = reading
   const due = dueCardsAt(cards, at, terms.memoryTerms)
   if (!due.ok) {
     return due
@@ -95,6 +147,10 @@ export const nextStepOf = (
       count: due.value.length,
       readFirst: readFirstOf(terms.lessons, due.value),
     })
+  }
+  const [dueCheck] = dueHoldoutChecksOf(bandStarts, at)
+  if (dueCheck !== undefined) {
+    return ok({ kind: 'holdoutCheck', ...dueCheck })
   }
   if (lessonSlot.kind === 'busy') {
     return ok(lessonRunningStep(lessonSlot, town, terms.lessons))

@@ -2428,6 +2428,112 @@
               "additionalProperties": false
             }
           },
+          "releasedLessons": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "id": {
+                  "type": "string",
+                  "minLength": 1
+                },
+                "band": {
+                  "$ref": "#/components/schemas/PlacementBand"
+                },
+                "position": {
+                  "type": "integer",
+                  "minimum": 1
+                },
+                "durationSeconds": {
+                  "type": "integer",
+                  "minimum": 0,
+                  "exclusiveMinimum": true
+                },
+                "requiredSchoolLevel": {
+                  "type": "integer",
+                  "minimum": 0,
+                  "exclusiveMinimum": true
+                },
+                "isStudied": {
+                  "type": "boolean"
+                },
+                "words": {
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "properties": {
+                      "wordId": {
+                        "type": "string",
+                        "minLength": 1
+                      },
+                      "standing": {
+                        "type": "string",
+                        "enum": ["notStarted", "recognize", "recall", "hold", "retained"]
+                      },
+                      "reading": {
+                        "type": "object",
+                        "nullable": true,
+                        "properties": {
+                          "word": {
+                            "type": "string",
+                            "minLength": 1
+                          },
+                          "gloss": {
+                            "type": "string",
+                            "minLength": 1
+                          },
+                          "frame": {
+                            "type": "string",
+                            "minLength": 1
+                          }
+                        },
+                        "required": ["word", "gloss", "frame"],
+                        "additionalProperties": false
+                      },
+                      "support": {
+                        "allOf": [
+                          {
+                            "$ref": "#/components/schemas/WordSupport"
+                          },
+                          {
+                            "nullable": true
+                          }
+                        ]
+                      }
+                    },
+                    "required": ["wordId", "standing", "reading", "support"],
+                    "additionalProperties": false
+                  }
+                }
+              },
+              "required": [
+                "id",
+                "band",
+                "position",
+                "durationSeconds",
+                "requiredSchoolLevel",
+                "isStudied",
+                "words"
+              ],
+              "additionalProperties": false
+            }
+          },
+          "dueHoldoutChecks": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "band": {
+                  "$ref": "#/components/schemas/PlacementBand"
+                },
+                "week": {
+                  "$ref": "#/components/schemas/HoldoutCheckWeek"
+                }
+              },
+              "required": ["band", "week"],
+              "additionalProperties": false
+            }
+          },
           "skills": {
             "type": "array",
             "items": {
@@ -2542,6 +2648,8 @@
           "hiring",
           "job",
           "lessons",
+          "releasedLessons",
+          "dueHoldoutChecks",
           "skills",
           "lessonSlot",
           "learning",
@@ -2804,7 +2912,13 @@
             "$ref": "#/components/schemas/ReviewsStep"
           },
           {
+            "$ref": "#/components/schemas/HoldoutCheckStep"
+          },
+          {
             "$ref": "#/components/schemas/LessonRunningStep"
+          },
+          {
+            "$ref": "#/components/schemas/ReleasedLessonStep"
           },
           {
             "$ref": "#/components/schemas/LessonToStudyStep"
@@ -2817,7 +2931,9 @@
           "propertyName": "kind",
           "mapping": {
             "reviews": "#/components/schemas/ReviewsStep",
+            "holdoutCheck": "#/components/schemas/HoldoutCheckStep",
             "lessonRunning": "#/components/schemas/LessonRunningStep",
+            "releasedLesson": "#/components/schemas/ReleasedLessonStep",
             "lessonToStudy": "#/components/schemas/LessonToStudyStep",
             "caughtUp": "#/components/schemas/CaughtUpStep"
           }
@@ -2846,6 +2962,23 @@
         "required": ["kind", "count", "readFirst"],
         "additionalProperties": false
       },
+      "HoldoutCheckStep": {
+        "type": "object",
+        "properties": {
+          "kind": {
+            "type": "string",
+            "enum": ["holdoutCheck"]
+          },
+          "band": {
+            "$ref": "#/components/schemas/PlacementBand"
+          },
+          "week": {
+            "$ref": "#/components/schemas/HoldoutCheckWeek"
+          }
+        },
+        "required": ["kind", "band", "week"],
+        "additionalProperties": false
+      },
       "LessonRunningStep": {
         "type": "object",
         "properties": {
@@ -2860,6 +2993,28 @@
           }
         },
         "required": ["kind", "producer"],
+        "additionalProperties": false
+      },
+      "ReleasedLessonStep": {
+        "type": "object",
+        "properties": {
+          "kind": {
+            "type": "string",
+            "enum": ["releasedLesson"]
+          },
+          "lessonId": {
+            "type": "string",
+            "minLength": 1
+          },
+          "band": {
+            "$ref": "#/components/schemas/PlacementBand"
+          },
+          "position": {
+            "type": "integer",
+            "minimum": 1
+          }
+        },
+        "required": ["kind", "lessonId", "band", "position"],
         "additionalProperties": false
       },
       "LessonToStudyStep": {

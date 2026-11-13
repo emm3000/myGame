@@ -8,11 +8,14 @@ import {
   schoolLessonTitle,
   schoolLessonWords,
   schoolSlotTitle,
+  townGoToSchool,
   townNextBuildFactory,
   townNextBuildFarm,
   townNextBuildPowerStation,
   townNextGoToReport,
+  townNextHoldoutCheck,
   townNextLessonReadyIn,
+  townNextReleasedLesson,
 } from '@mygame/catalog'
 import type { NextStep } from '@mygame/contracts'
 import type { SlotCountdown } from '../design-system/CountdownLine'
@@ -108,6 +111,23 @@ function lessonToStudyCardOf(
   }
 }
 
+const holdoutCheckCardOf = ({ band }: Step<'holdoutCheck'>): NextStepCardContent => ({
+  line: townNextHoldoutCheck({ band }),
+  detail: undefined,
+  countdown: undefined,
+  action: { label: townGoToSchool(), to: '/school' },
+})
+
+const releasedLessonCardOf = (
+  { band, position }: Step<'releasedLesson'>,
+  town: LiveTown,
+): NextStepCardContent => ({
+  line: townNextReleasedLesson({ band, number: position }),
+  detail: undefined,
+  countdown: nextReviewCountdownOf(town),
+  action: { label: townGoToSchool(), to: '/school' },
+})
+
 const caughtUpCardOf = (town: LiveTown): NextStepCardContent => ({
   line: reportNoReviewsDue(),
   detail: undefined,
@@ -120,8 +140,12 @@ export function nextStepCardOf(town: LiveTown): NextStepCardContent {
   switch (nextStep.kind) {
     case 'reviews':
       return reviewsCardOf(nextStep, town)
+    case 'holdoutCheck':
+      return holdoutCheckCardOf(nextStep)
     case 'lessonRunning':
       return lessonRunningCardOf(nextStep, town)
+    case 'releasedLesson':
+      return releasedLessonCardOf(nextStep, town)
     case 'lessonToStudy':
       return lessonToStudyCardOf(nextStep, town)
     case 'caughtUp':
