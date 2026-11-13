@@ -174,6 +174,7 @@ class ReviewEndScreenTest {
             gappedFrame = homeRecall.gappedFrame,
             typed = "home",
             hint = null,
+            openSpan = null,
         ),
         step = ReviewUiState.ReviewStep.Correct(
             skill = ReviewUiState.SkillLine(

@@ -17,12 +17,16 @@ import androidx.compose.ui.text.input.KeyboardType
 import com.emm.mygame.core.designsystem.MyGameBlock
 import com.emm.mygame.core.designsystem.MyGameBlockStack
 import com.emm.mygame.core.designsystem.MyGameChoiceRow
+import com.emm.mygame.core.designsystem.MyGameFrame
+import com.emm.mygame.core.designsystem.MyGameFrameText
 import com.emm.mygame.core.designsystem.MyGameOutlinedButton
 import com.emm.mygame.core.designsystem.MyGameSpacing
+import com.emm.mygame.core.designsystem.MyGameSupportLine
 import com.emm.mygame.core.designsystem.MyGameText
 import com.emm.mygame.core.designsystem.MyGameTextField
 import com.emm.mygame.core.designsystem.MyGameTheme
 import com.emm.mygame.core.designsystem.MyGameTypography
+import com.emm.mygame.core.designsystem.MyGameWordSupport
 import com.emm.mygame.core.designsystem.blockHueOf
 import com.emm.mygame.core.designsystem.wordStyle
 import com.emm.mygame.core.network.REVIEW_ANSWER_MAX_LENGTH
@@ -41,7 +45,13 @@ internal fun RecognitionCard(
 ) {
     val isLocked: Boolean = reviewing.isBusy || reviewing.isRated
     Column(verticalArrangement = Arrangement.spacedBy(MyGameSpacing.step4), modifier = modifier) {
-        ReviewBlock(cue = card.word, frame = card.frame, reviewing = reviewing)
+        ReviewBlock(
+            cue = card.word,
+            frame = card.frame.toMyGameFrame(),
+            openSpan = card.openSpan,
+            reviewing = reviewing,
+            onIntent = onIntent,
+        )
         Column(verticalArrangement = Arrangement.spacedBy(MyGameSpacing.step2)) {
             Prompt(text = fixedCopyResource(R.string.review_recognition_prompt))
             Column(
@@ -69,7 +79,13 @@ internal fun RecallCard(
     modifier: Modifier = Modifier,
 ) {
     Column(verticalArrangement = Arrangement.spacedBy(MyGameSpacing.step4), modifier = modifier) {
-        ReviewBlock(cue = card.gloss, frame = card.gappedFrame, reviewing = reviewing)
+        ReviewBlock(
+            cue = card.gloss,
+            frame = card.gappedFrame.toMyGameFrame(),
+            openSpan = card.openSpan,
+            reviewing = reviewing,
+            onIntent = onIntent,
+        )
         Prompt(text = fixedCopyResource(R.string.review_recall_prompt))
         RecallField(
             typed = card.typed,
@@ -115,8 +131,10 @@ internal fun HintLine(
 @Composable
 private fun ReviewBlock(
     cue: String,
-    frame: String,
+    frame: MyGameFrame,
+    openSpan: Int?,
     reviewing: ReviewUiState.Reviewing,
+    onIntent: (ReviewIntent) -> Unit,
     modifier: Modifier = Modifier,
 ) {
     val walked: Int = reviewing.walked
@@ -137,7 +155,13 @@ private fun ReviewBlock(
                 color = MyGameTheme.colors.onBlock,
                 modifier = Modifier.semantics { heading() },
             )
-            MyGameText(text = frame, style = MyGameTypography.reading, color = MyGameTheme.colors.onBlock)
+            MyGameFrameText(
+                frame = frame,
+                openPiece = openSpan,
+                style = MyGameTypography.reading,
+                onPieceTap = { span: Int -> onIntent(ReviewIntent.SupportTapped(span)) },
+            )
+            frame.openedSupportOf(openSpan)?.let { support: MyGameWordSupport -> MyGameSupportLine(support = support) }
         }
     }
 }

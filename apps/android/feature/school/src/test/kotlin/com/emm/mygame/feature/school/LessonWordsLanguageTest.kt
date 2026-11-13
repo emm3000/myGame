@@ -44,6 +44,7 @@ class LessonWordsLanguageTest {
         index = 0,
         remaining = 3.minutes,
         wayOn = null,
+        shownSupport = null,
     )
 
     private val lastWordOfAReleasedLesson: LessonWordsUiState.Reading = firstWordWhileStudying.copy(
@@ -104,7 +105,7 @@ class LessonWordsLanguageTest {
     fun `draws the lesson's words in English in the English phase`() {
         show(englishPhase)
 
-        assertDrawn("Lesson 1", "Studying", "3 min", "Word 1 of 2", "Next word", "home", "hogar")
+        assertDrawn("Lesson 1", "Studying", "3 min", "Word 1 of 2", "Next word", "home hogar")
         assertNotDrawn("Lección 1", "En estudio", "Palabra 1 de 2", "Siguiente palabra")
     }
 

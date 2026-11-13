@@ -46,6 +46,8 @@ class LessonWordsViewModel(
 
     private var wordIndex: Int = 0
 
+    private var shownSupport: LessonWordsUiState.ShownSupport? = null
+
     private var gap: Duration = Duration.ZERO
 
     private var isShown: Boolean = true
@@ -60,6 +62,7 @@ class LessonWordsViewModel(
             LessonWordsIntent.ScreenHidden -> hide()
             LessonWordsIntent.RetryTapped -> if (_state.value == LessonWordsUiState.Failed) open()
             LessonWordsIntent.NextWordTapped -> showNextWord()
+            is LessonWordsIntent.SupportTapped -> tapSupport(intent.support)
         }
     }
 
@@ -104,7 +107,14 @@ class LessonWordsViewModel(
     private fun showNextWord() {
         val reading: LessonWordsUiState.Reading = _state.value as? LessonWordsUiState.Reading ?: return
         wordIndex = minOf(reading.index + 1, reading.words.lastIndex)
-        _state.value = reading.copy(index = wordIndex)
+        shownSupport = null
+        _state.value = reading.copy(index = wordIndex, shownSupport = shownSupport)
+    }
+
+    private fun tapSupport(support: LessonWordsUiState.ShownSupport) {
+        val reading: LessonWordsUiState.Reading = _state.value as? LessonWordsUiState.Reading ?: return
+        shownSupport = if (shownSupport == support) null else support
+        _state.value = reading.copy(shownSupport = shownSupport)
     }
 
     private suspend fun follow(first: LessonRead, firstReadAt: Instant?) {
@@ -136,7 +146,10 @@ class LessonWordsViewModel(
 
     private fun draw(read: LessonRead) {
         shown = read
-        _state.value = read.stateOf(walk, wordIndex, serverNow())
+        val drawnWord: TownSnapshot.WordReading? = (_state.value as? LessonWordsUiState.Reading)?.word
+        val next: LessonWordsUiState = read.stateOf(walk, wordIndex, shownSupport, serverNow())
+        if (next is LessonWordsUiState.Reading && drawnWord != null && next.word != drawnWord) shownSupport = null
+        _state.value = if (next is LessonWordsUiState.Reading) next.copy(shownSupport = shownSupport) else next
     }
 
     private suspend fun read(): LessonAnswer {

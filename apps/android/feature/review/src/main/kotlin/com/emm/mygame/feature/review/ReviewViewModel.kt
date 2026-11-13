@@ -65,6 +65,7 @@ class ReviewViewModel(
             is ReviewIntent.AnswerChanged -> edit { card: ReviewUiState.ReviewCard ->
                 (card as? ReviewUiState.ReviewCard.Recall)?.copy(typed = intent.answer) ?: card
             }
+            is ReviewIntent.SupportTapped -> tapSupport(intent.span)
             ReviewIntent.HintTapped -> hint()
             ReviewIntent.CheckTapped -> check()
             ReviewIntent.NextTapped -> next()
@@ -142,6 +143,11 @@ class ReviewViewModel(
         dueAt = nextDueAt - gap,
         path = towns.town.value?.town?.pathAtTheEnd(),
     )
+
+    private fun tapSupport(span: Int) {
+        val reviewing: ReviewUiState.Reviewing = _state.value as? ReviewUiState.Reviewing ?: return
+        _state.value = reviewing.copy(card = reviewing.card.withSupportTapped(span))
+    }
 
     private fun edit(change: (ReviewUiState.ReviewCard) -> ReviewUiState.ReviewCard) {
         val reviewing: ReviewUiState.Reviewing = answerable() ?: return
@@ -223,6 +229,7 @@ private fun DueReview.toCard(): ReviewUiState.ReviewCard = when (this) {
         frame = frame,
         choices = choices,
         chosen = null,
+        openSpan = null,
     )
     is DueReview.Recall -> ReviewUiState.ReviewCard.Recall(
         wordId = wordId,
@@ -230,7 +237,16 @@ private fun DueReview.toCard(): ReviewUiState.ReviewCard = when (this) {
         gappedFrame = gappedFrame,
         typed = "",
         hint = null,
+        openSpan = null,
     )
+}
+
+private fun ReviewUiState.ReviewCard.withSupportTapped(span: Int): ReviewUiState.ReviewCard {
+    val shown: Int? = if (openSpan == span) null else span
+    return when (this) {
+        is ReviewUiState.ReviewCard.Recognition -> copy(openSpan = shown)
+        is ReviewUiState.ReviewCard.Recall -> copy(openSpan = shown)
+    }
 }
 
 private fun ReviewUiState.ReviewCard.sentAnswer(): String? = when (this) {

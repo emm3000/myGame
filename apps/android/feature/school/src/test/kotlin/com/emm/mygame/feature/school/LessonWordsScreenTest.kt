@@ -3,9 +3,9 @@ package com.emm.mygame.feature.school
 import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.ui.semantics.ProgressBarRangeInfo
-import androidx.compose.ui.semantics.SemanticsActions
 import androidx.compose.ui.semantics.SemanticsProperties
 import androidx.compose.ui.test.SemanticsMatcher
+import androidx.compose.ui.test.hasText
 import androidx.compose.ui.test.SemanticsNodeInteractionCollection
 import androidx.compose.ui.test.assertCountEquals
 import androidx.compose.ui.test.junit4.ComposeContentTestRule
@@ -16,11 +16,10 @@ import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
 import androidx.compose.ui.test.performScrollTo
-import androidx.compose.ui.test.performSemanticsAction
-import androidx.compose.ui.text.TextLayoutResult
 import androidx.compose.ui.unit.TextUnit
 import androidx.compose.ui.unit.sp
 import com.emm.mygame.core.designsystem.BLOCK_HUE
+import com.emm.mygame.core.designsystem.FRAME_STYLE
 import com.emm.mygame.core.designsystem.INK_PILL
 import com.emm.mygame.core.designsystem.MyGameBlockHue
 import com.emm.mygame.core.designsystem.MyGameTheme
@@ -52,6 +51,7 @@ class LessonWordsScreenTest {
         index = 0,
         remaining = null,
         wayOn = LessonWordsUiState.WayOn.Reviews,
+        shownSupport = null,
     )
 
     private val finishedLastWord: LessonWordsUiState.Reading = finishedFirstWord.copy(index = 1)
@@ -78,8 +78,7 @@ class LessonWordsScreenTest {
     fun `shows one word at a time with its gloss and frame`() {
         draw(finishedFirstWord)
 
-        composeRule.onNodeWithText("home").assertExists()
-        composeRule.onNodeWithText("hogar").assertExists()
+        composeRule.onNodeWithText("home hogar").assertExists()
         composeRule.onNodeWithText("This is my home.").assertExists()
         composeRule.onNodeWithText("water").assertDoesNotExist()
     }
@@ -88,7 +87,7 @@ class LessonWordsScreenTest {
     fun `sets the word at 44 sp on a phone`() {
         draw(finishedFirstWord)
 
-        assertEquals(44.sp, fontSizeOf("home"))
+        assertEquals(44.sp, headingFontSize())
     }
 
     @Test
@@ -96,7 +95,7 @@ class LessonWordsScreenTest {
     fun `sets the word at 52 sp on a wide window`() {
         draw(finishedFirstWord)
 
-        assertEquals(52.sp, fontSizeOf("home"))
+        assertEquals(52.sp, headingFontSize())
     }
 
     @Test
@@ -257,15 +256,9 @@ class LessonWordsScreenTest {
 
     private fun inkPills(): SemanticsNodeInteractionCollection = composeRule.onAllNodesWithTag(INK_PILL)
 
-    private fun fontSizeOf(text: String): TextUnit {
-        val layouts: MutableList<TextLayoutResult> = mutableListOf()
-        composeRule.onNodeWithText(text, useUnmergedTree = true)
-            .performSemanticsAction(SemanticsActions.GetTextLayoutResult) {
-                    read: (MutableList<TextLayoutResult>) -> Boolean ->
-                read(layouts)
-            }
-        return layouts.first().layoutInput.style.fontSize
-    }
+    private fun headingFontSize(): TextUnit =
+        composeRule.onNode(hasText("home hogar") and SemanticsMatcher.keyIsDefined(FRAME_STYLE))
+            .fetchSemanticsNode().config[FRAME_STYLE].fontSize
 
     private companion object {
         val halfWay: ProgressBarRangeInfo = ProgressBarRangeInfo(0.5f, 0f..1f)

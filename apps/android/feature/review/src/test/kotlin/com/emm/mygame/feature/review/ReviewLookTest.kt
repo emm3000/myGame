@@ -23,6 +23,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.sp
 import com.emm.mygame.core.designsystem.BLOCK_HUE
+import com.emm.mygame.core.designsystem.FRAME_STYLE
 import com.emm.mygame.core.designsystem.INK_PILL
 import com.emm.mygame.core.designsystem.MyGameBlockHue
 import com.emm.mygame.core.designsystem.MyGameColors
@@ -57,6 +58,7 @@ class ReviewLookTest {
         frame = schoolRecognition.frame,
         choices = schoolRecognition.choices,
         chosen = schoolRecognition.choices.first().id,
+        openSpan = null,
     )
 
     private val recall: ReviewUiState.ReviewCard.Recall = ReviewUiState.ReviewCard.Recall(
@@ -65,6 +67,7 @@ class ReviewLookTest {
         gappedFrame = homeRecall.gappedFrame,
         typed = "house",
         hint = null,
+        openSpan = null,
     )
 
     private val answering: ReviewUiState.Reviewing = ReviewUiState.Reviewing(
@@ -120,8 +123,8 @@ class ReviewLookTest {
     fun `sets the frame in reading on the block's ink`() {
         draw(answering)
 
-        assertEquals(20.sp, styleOf("The kids walk to school.").fontSize)
-        assertEquals(colors.onBlock, styleOf("The kids walk to school.").color)
+        assertEquals(20.sp, frameStyle().fontSize)
+        assertEquals(colors.onBlock, frameStyle().color)
     }
 
     @Test
@@ -336,6 +339,10 @@ class ReviewLookTest {
     }
 
     private fun styleOf(text: String): TextStyle = layoutOf(text).layoutInput.style
+
+    private fun frameStyle(): TextStyle =
+        composeRule.onNode(hasText("The kids walk to school.") and SemanticsMatcher.keyIsDefined(FRAME_STYLE))
+            .fetchSemanticsNode().config[FRAME_STYLE]
 
     private fun textOf(text: String): AnnotatedString = layoutOf(text).layoutInput.text
 

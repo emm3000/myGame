@@ -74,7 +74,7 @@ data class TownSnapshot(
         val standings: List<WordStanding>,
     )
 
-    data class WordReading(val word: String, val gloss: String, val frame: String)
+    data class WordReading(val word: String, val frame: List<FrameSpan>, val support: WordSupport?)
 
     data class LessonSkill(val resource: TownResourceKind, val ratePercent: Int)
 

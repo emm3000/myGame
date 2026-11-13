@@ -9,4 +9,6 @@ sealed interface LessonWordsIntent {
     data object RetryTapped : LessonWordsIntent
 
     data object NextWordTapped : LessonWordsIntent
+
+    data class SupportTapped(val support: LessonWordsUiState.ShownSupport) : LessonWordsIntent
 }

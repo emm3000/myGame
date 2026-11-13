@@ -27,6 +27,7 @@ import com.emm.mygame.core.designsystem.MyGameTheme
 import com.emm.mygame.core.designsystem.OUTLINED_PILL
 import com.emm.mygame.core.designsystem.PILL_BADGE
 import com.emm.mygame.core.network.DueReviews
+import com.emm.mygame.core.network.FrameSpan
 import com.emm.mygame.core.network.HoldoutCheckRepository
 import com.emm.mygame.core.network.LearningRepository
 import com.emm.mygame.core.network.LessonId
@@ -56,6 +57,7 @@ import com.emm.mygame.core.network.TownReport
 import com.emm.mygame.core.network.TownRepository
 import com.emm.mygame.core.network.TownResourceKind
 import com.emm.mygame.core.network.TownSnapshot
+import com.emm.mygame.core.network.WordSupport
 import com.emm.mygame.core.testing.FakeHoldoutCheckRepository
 import com.emm.mygame.core.testing.FakeLearningRepository
 import com.emm.mygame.core.testing.FakePlacementRepository
@@ -128,9 +130,20 @@ class AppNavigationTest {
 
     private val secondLesson: LessonId = LessonId("lesson-2")
 
-    private val waterWord: TownSnapshot.WordReading = TownSnapshot.WordReading("water", "agua", "I drink water.")
+    private val waterWord: TownSnapshot.WordReading = wordReadingOf("water", "agua", "I drink water.")
 
-    private val townWord: TownSnapshot.WordReading = TownSnapshot.WordReading("town", "pueblo", "We live in a town.")
+    private val townWord: TownSnapshot.WordReading = wordReadingOf("town", "pueblo", "We live in a town.")
+
+    private fun wordReadingOf(word: String, gloss: String, frame: String): TownSnapshot.WordReading =
+        TownSnapshot.WordReading(
+            word = word,
+            frame = listOf(FrameSpan(text = frame, support = null)),
+            support = WordSupport(
+                shown = WordSupport.Shown.Beside,
+                text = gloss,
+                language = WordSupport.Language.Spanish,
+            ),
+        )
 
     private val walkReport: TownReport =
         TownReport(dueCount = 3, readFirst = listOf(firstLesson, secondLesson), nextDueAt = null, news = emptyList())
