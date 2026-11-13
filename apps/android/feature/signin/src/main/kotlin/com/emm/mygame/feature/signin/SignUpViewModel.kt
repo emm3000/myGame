@@ -1,7 +1,9 @@
 package com.emm.mygame.feature.signin
 
+import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.emm.mygame.core.network.PlayerScaffold
 import com.emm.mygame.core.network.SessionRepository
 import com.emm.mygame.core.network.SignUpResult
 import kotlinx.coroutines.channels.Channel
@@ -13,10 +15,19 @@ import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 
-class SignUpViewModel(private val sessions: SessionRepository) : ViewModel() {
+class SignUpViewModel(
+    private val sessions: SessionRepository,
+    private val savedState: SavedStateHandle,
+    phoneScaffold: PlayerScaffold,
+) : ViewModel() {
 
     private val _state: MutableStateFlow<SignUpUiState> = MutableStateFlow(
-        SignUpUiState.Form(email = "", password = "", status = SignUpUiState.FormStatus.Idle),
+        SignUpUiState.Form(
+            scaffold = savedState[PICKED_SCAFFOLD] ?: phoneScaffold,
+            email = "",
+            password = "",
+            status = SignUpUiState.FormStatus.Idle,
+        ),
     )
 
     val state: StateFlow<SignUpUiState> = _state.asStateFlow()
@@ -27,6 +38,7 @@ class SignUpViewModel(private val sessions: SessionRepository) : ViewModel() {
 
     fun onIntent(intent: SignUpIntent) {
         when (intent) {
+            is SignUpIntent.ScaffoldPicked -> pick(intent.scaffold)
             is SignUpIntent.EmailChanged -> updateForm { copy(email = intent.email) }
             is SignUpIntent.PasswordChanged -> updateForm { copy(password = intent.password) }
             SignUpIntent.SubmitTapped -> submit()
@@ -39,7 +51,11 @@ class SignUpViewModel(private val sessions: SessionRepository) : ViewModel() {
         if (form.status == SignUpUiState.FormStatus.Submitting) return
         _state.value = form.copy(status = SignUpUiState.FormStatus.Submitting)
         viewModelScope.launch {
-            val answer: SignUpResult = sessions.signUp(email = form.email, password = form.password)
+            val answer: SignUpResult = sessions.signUp(
+                email = form.email,
+                password = form.password,
+                scaffold = form.scaffold,
+            )
             when (answer) {
                 is SignUpResult.SignedIn -> _effects.send(SignUpEffect.SignedIn)
                 is SignUpResult.Refused ->
@@ -47,6 +63,12 @@ class SignUpViewModel(private val sessions: SessionRepository) : ViewModel() {
                 SignUpResult.Unreachable -> _state.value = form.copy(status = SignUpUiState.FormStatus.Unreachable)
             }
         }
+    }
+
+    private fun pick(scaffold: PlayerScaffold) {
+        updateForm { copy(scaffold = scaffold) }
+        val form: SignUpUiState.Form = _state.value as? SignUpUiState.Form ?: return
+        savedState[PICKED_SCAFFOLD] = form.scaffold
     }
 
     private fun retry() {
@@ -62,5 +84,9 @@ class SignUpViewModel(private val sessions: SessionRepository) : ViewModel() {
                 current
             }
         }
+    }
+
+    private companion object {
+        const val PICKED_SCAFFOLD: String = "pickedScaffold"
     }
 }

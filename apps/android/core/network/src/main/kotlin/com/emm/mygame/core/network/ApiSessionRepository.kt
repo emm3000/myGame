@@ -5,7 +5,6 @@ import com.emm.mygame.core.network.generated.models.BareApiError
 import com.emm.mygame.core.network.generated.models.ForgotPasswordRequest
 import com.emm.mygame.core.network.generated.models.NativeSession
 import com.emm.mygame.core.network.generated.models.Player
-import com.emm.mygame.core.network.generated.models.Scaffold
 import com.emm.mygame.core.network.generated.models.SignInRequest
 import com.emm.mygame.core.network.generated.models.SignUpRequest
 import java.io.IOException
@@ -31,9 +30,10 @@ internal class ApiSessionRepository(
             signedInOrRefused(openingApi.authSignInNativePost(SignInRequest(email = email, password = password)))
         }
 
-    override suspend fun signUp(email: String, password: String): SignUpResult =
+    override suspend fun signUp(email: String, password: String, scaffold: PlayerScaffold): SignUpResult =
         openingSession(unreachable = SignUpResult.Unreachable) {
-            val request: SignUpRequest = SignUpRequest(email = email, password = password, scaffold = Scaffold.es)
+            val request: SignUpRequest =
+                SignUpRequest(email = email, password = password, scaffold = scaffold.toScaffold())
             signedUpOrRefused(openingApi.authSignUpNativePost(request))
         }
 

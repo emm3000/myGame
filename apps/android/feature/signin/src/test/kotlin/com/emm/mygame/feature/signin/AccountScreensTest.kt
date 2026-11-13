@@ -13,6 +13,7 @@ import androidx.compose.ui.test.junit4.createComposeRule
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.text.AnnotatedString
 import com.emm.mygame.core.designsystem.MyGameTheme
+import com.emm.mygame.core.network.PlayerScaffold
 import com.emm.mygame.core.network.RefusalKind
 import com.emm.mygame.core.network.SignUpRefusal
 import org.junit.Assert.assertEquals
@@ -85,7 +86,7 @@ class AccountScreensTest {
 
     private fun signUp(status: SignUpUiState.FormStatus): @Composable () -> Unit = {
         SignUpScreen(
-            state = SignUpUiState.Form(email = "", password = "", status = status),
+            state = SignUpUiState.Form(scaffold = PlayerScaffold.Spanish, email = "", password = "", status = status),
             onIntent = {},
             onSignInOpen = {},
         )
