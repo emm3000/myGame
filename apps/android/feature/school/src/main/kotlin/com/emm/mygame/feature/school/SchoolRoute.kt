@@ -23,6 +23,7 @@ fun SchoolRoute(
     onLessonOpen: (LessonId) -> Unit,
     onReportOpen: () -> Unit,
     modifier: Modifier = Modifier,
+    holdoutChecks: @Composable () -> Unit = {},
     viewModel: SchoolViewModel = viewModel { SchoolViewModel(towns, clock) },
 ) {
     val state: SchoolUiState by viewModel.state.collectAsStateWithLifecycle()
@@ -47,5 +48,6 @@ fun SchoolRoute(
         onLessonOpen = onLessonOpen,
         onReportOpen = onReportOpen,
         modifier = modifier,
+        holdoutChecks = holdoutChecks,
     )
 }

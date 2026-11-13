@@ -24,7 +24,9 @@ import com.emm.mygame.core.designsystem.MyGameTheme
 import com.emm.mygame.core.designsystem.MyGameTransitions
 import com.emm.mygame.core.designsystem.OUTLINED_PILL
 import com.emm.mygame.core.designsystem.SKELETON_BLOCK
+import com.emm.mygame.core.network.HoldoutCheckWeek
 import com.emm.mygame.core.network.LessonId
+import com.emm.mygame.core.network.PlacementBand
 import com.emm.mygame.core.network.SchoolPathCounts
 import com.emm.mygame.core.network.TownLessonRefusal
 import com.emm.mygame.core.network.TownResourceKind
@@ -113,6 +115,27 @@ class SchoolScreenTest {
 
     private fun refusedStart(refusal: TownLessonRefusal): SchoolUiState.Content =
         idleSchool.copy(start = SchoolUiState.LessonRequest.Refused(firstLesson, refusal))
+
+    @Test
+    fun `draws the due checks the school is handed`() {
+        val firstBandDue: HoldoutCheckRow = HoldoutCheckRow(PlacementBand.First, HoldoutCheckWeek.Eighth)
+        composeRule.setContent {
+            MyGameTheme {
+                SchoolScreen(
+                    state = idleSchool,
+                    onIntent = {},
+                    onReviewsOpen = {},
+                    onLessonOpen = {},
+                    onReportOpen = {},
+                    holdoutChecks = {
+                        HoldoutCheckRows(HoldoutCheckRowsUiState(listOf(firstBandDue)), onHoldoutCheckOpen = {})
+                    },
+                )
+            }
+        }
+
+        showing("Tienes pendiente una prueba de palabras de la banda 1.")
+    }
 
     @Test
     fun `draws the skeleton's blocks while a slow read loads`() {

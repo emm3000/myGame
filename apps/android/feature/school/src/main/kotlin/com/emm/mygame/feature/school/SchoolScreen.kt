@@ -49,6 +49,7 @@ fun SchoolScreen(
     onLessonOpen: (LessonId) -> Unit,
     onReportOpen: () -> Unit,
     modifier: Modifier = Modifier,
+    holdoutChecks: @Composable () -> Unit = {},
 ) {
     val scroll: ScrollState = rememberScrollState()
     val selected: LessonId? = (state as? SchoolUiState.Content)?.selected
@@ -80,6 +81,7 @@ fun SchoolScreen(
                 onReviewsOpen = onReviewsOpen,
                 onLessonOpen = onLessonOpen,
                 onReportOpen = onReportOpen,
+                holdoutChecks = holdoutChecks,
             )
         }
     }
@@ -92,6 +94,7 @@ private fun SchoolState(
     onReviewsOpen: () -> Unit,
     onLessonOpen: (LessonId) -> Unit,
     onReportOpen: () -> Unit,
+    holdoutChecks: @Composable () -> Unit,
 ) {
     when (state) {
         SchoolUiState.Loading -> Unit
@@ -109,6 +112,7 @@ private fun SchoolState(
             onReviewsOpen = onReviewsOpen,
             onLessonOpen = onLessonOpen,
             onReportOpen = onReportOpen,
+            holdoutChecks = holdoutChecks,
         )
     }
 }
@@ -130,11 +134,13 @@ private fun SchoolContent(
     onReviewsOpen: () -> Unit,
     onLessonOpen: (LessonId) -> Unit,
     onReportOpen: () -> Unit,
+    holdoutChecks: @Composable () -> Unit,
     modifier: Modifier = Modifier,
 ) {
     val shown: SchoolUiState.LessonCard? = content.shown
     Column(verticalArrangement = Arrangement.spacedBy(MyGameSpacing.step6), modifier = modifier) {
         SchoolTitle(level = content.schoolLevel)
+        holdoutChecks()
         if (shown == null) {
             SchoolNextStep(
                 content = content,

@@ -93,7 +93,7 @@ private fun AskingProgress(asking: PlacementUiState.Asking, modifier: Modifier =
 }
 
 @Composable
-private fun WordBlock(item: PlacementItem, index: Int, modifier: Modifier = Modifier) {
+internal fun WordBlock(item: PlacementItem, index: Int, modifier: Modifier = Modifier) {
     MyGameBlock(
         hue = blockHueOf(index),
         modifier = modifier.semantics(mergeDescendants = true) { liveRegion = LiveRegionMode.Polite },
