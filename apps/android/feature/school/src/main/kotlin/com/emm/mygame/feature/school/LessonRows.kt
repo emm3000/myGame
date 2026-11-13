@@ -37,7 +37,7 @@ internal fun LessonRows(
     modifier: Modifier = Modifier,
 ) {
     val cards: List<SchoolUiState.LessonCard> = content.lessons.filter { card: SchoolUiState.LessonCard ->
-        card.lesson != content.shown?.lesson
+        card.lesson != content.blockLesson?.lesson
     }
     if (cards.isEmpty() && content.releasedLessons.isEmpty()) return
     Column(verticalArrangement = Arrangement.spacedBy(MyGameSpacing.step1), modifier = modifier) {

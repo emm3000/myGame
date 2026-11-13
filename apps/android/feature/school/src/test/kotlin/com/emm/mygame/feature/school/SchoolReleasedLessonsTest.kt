@@ -170,6 +170,21 @@ class SchoolReleasedLessonsTest {
     }
 
     @Test
+    fun `keeps the first shelved lesson in the list while a released lesson is the next step`() {
+        show(contentOf(shelvedAndReleased.copy(nextStep = NextStep.ReleasedLesson(secondSet, PlacementBand.Second, 2))))
+
+        composeRule.onNodeWithText("Lección 1").assertExists()
+    }
+
+    @Test
+    fun `keeps the first shelved lesson in the list while a holdout check is the next step`() {
+        val dueCheck: NextStep = NextStep.HoldoutCheck(PlacementBand.Second, HoldoutCheckWeek.TwentyFourth)
+        show(contentOf(shelvedAndReleased.copy(nextStep = dueCheck)))
+
+        composeRule.onNodeWithText("Lección 1").assertExists()
+    }
+
+    @Test
     fun `stops a released lesson under study`() {
         show(contentOf(releasedUnderStudy))
 

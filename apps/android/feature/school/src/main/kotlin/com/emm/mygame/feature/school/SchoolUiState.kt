@@ -41,6 +41,9 @@ sealed interface SchoolUiState {
 
         val isNextStepAhead: Boolean
             get() = selected == null && nextStep.action.isAheadOfTheShelf()
+
+        val blockLesson: LessonCard?
+            get() = shown.takeUnless { isNextStepAhead }
     }
 
     data class NextStepTime(val remaining: Duration, val finishesAt: Instant)
