@@ -13,7 +13,6 @@ import androidx.compose.foundation.verticalScroll
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.heading
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.tooling.preview.PreviewParameter
@@ -40,7 +39,14 @@ import com.emm.mygame.core.network.PlacementBand
 import com.emm.mygame.core.network.SchoolPathCounts
 import com.emm.mygame.core.network.TownLessonRefusal
 import com.emm.mygame.core.network.TownResourceKind
-import com.emm.mygame.core.ui.icuStringResource
+import com.emm.mygame.core.ui.ChromePhase
+import com.emm.mygame.core.ui.CopyLanguage
+import com.emm.mygame.core.ui.PlayerCopy
+import com.emm.mygame.core.ui.ProvideCopyLanguage
+import com.emm.mygame.core.ui.ScaffoldLanguage
+import com.emm.mygame.core.ui.chromeResource
+import com.emm.mygame.core.ui.fixedCopyResource
+import com.emm.mygame.core.ui.rememberPlayerCopy
 import kotlin.time.Duration.Companion.minutes
 import kotlin.time.Duration.Companion.seconds
 
@@ -76,7 +82,7 @@ fun SchoolScreen(
     ) {
         MyGameSkeleton(
             isLoading = state == SchoolUiState.Loading,
-            loadingLabel = stringResource(R.string.school_loading),
+            loadingLabel = chromeResource(R.string.school_loading).spoken,
             blocks = schoolBlocks,
         ) {
             SchoolState(
@@ -107,8 +113,8 @@ private fun SchoolState(
         SchoolUiState.Failed -> {
             SchoolTitle()
             MyGameErrorBanner(
-                message = stringResource(R.string.school_refusal_unexpected),
-                actionLabel = stringResource(R.string.school_try_again),
+                message = fixedCopyResource(R.string.school_refusal_unexpected),
+                actionLabel = chromeResource(R.string.school_try_again),
                 onAction = { onIntent(SchoolIntent.RetryTapped) },
             )
         }
@@ -183,9 +189,10 @@ private fun SchoolContent(
 
 @Composable
 private fun SchoolTitle(modifier: Modifier = Modifier, level: Int? = null) {
+    val copy: PlayerCopy = rememberPlayerCopy()
     Row(horizontalArrangement = Arrangement.spacedBy(MyGameSpacing.step3), modifier = modifier) {
         MyGameText(
-            text = stringResource(R.string.school_title),
+            label = copy.chrome(R.string.school_title),
             style = MyGameTypography.display,
             color = MyGameTheme.colors.ink,
             modifier = Modifier
@@ -194,7 +201,7 @@ private fun SchoolTitle(modifier: Modifier = Modifier, level: Int? = null) {
         )
         if (level != null) {
             MyGameText(
-                text = icuStringResource(R.string.school_level, "level" to level.toString()),
+                label = copy.chrome(R.string.school_level, "level" to level.toString()),
                 style = MyGameTypography.caption.withTabularFigures(),
                 color = MyGameTheme.colors.inkMuted,
                 modifier = Modifier.alignByBaseline(),
@@ -205,13 +212,14 @@ private fun SchoolTitle(modifier: Modifier = Modifier, level: Int? = null) {
 
 @Composable
 private fun LearningSection(learning: SchoolUiState.LearningLine, modifier: Modifier = Modifier) {
+    val copy: PlayerCopy = rememberPlayerCopy()
     MyGameCard(modifier = modifier) {
         Column(
             verticalArrangement = Arrangement.spacedBy(MyGameSpacing.step2),
             modifier = Modifier.padding(vertical = MyGameSpacing.step4),
         ) {
             MyGameText(
-                text = icuStringResource(
+                label = copy.chrome(
                     R.string.school_learning,
                     "inLearning" to learning.inLearning.toString(),
                     "cap" to learning.cap.toString(),
@@ -222,7 +230,7 @@ private fun LearningSection(learning: SchoolUiState.LearningLine, modifier: Modi
             MyGameTrack(filled = learning.inLearning.toFloat() / learning.cap, color = MyGameTheme.colors.action)
             learning.wordsPastCap?.let { count: Int ->
                 MyGameText(
-                    text = icuStringResource(R.string.school_learning_full, "count" to count),
+                    label = copy.chrome(R.string.school_learning_full, "count" to count),
                     style = MyGameTypography.caption,
                     color = MyGameTheme.colors.warningInk,
                 )
@@ -233,12 +241,13 @@ private fun LearningSection(learning: SchoolUiState.LearningLine, modifier: Modi
 
 @Composable
 private fun SkillsSection(content: SchoolUiState.Content, modifier: Modifier = Modifier) {
+    val copy: PlayerCopy = rememberPlayerCopy()
     Column(verticalArrangement = Arrangement.spacedBy(MyGameSpacing.step3), modifier = modifier) {
-        MyGameSectionTitle(text = stringResource(R.string.school_skills))
+        MyGameSectionTitle(label = copy.chrome(R.string.school_skills))
         MyGameCard {
             if (content.skills.isEmpty()) {
                 MyGameText(
-                    text = stringResource(R.string.school_skills_none),
+                    label = copy.chrome(R.string.school_skills_none),
                     style = MyGameTypography.body,
                     color = MyGameTheme.colors.inkMuted,
                     modifier = Modifier.padding(vertical = MyGameSpacing.step4),
@@ -251,26 +260,30 @@ private fun SkillsSection(content: SchoolUiState.Content, modifier: Modifier = M
 
 @Composable
 private fun SkillItem(skill: SchoolUiState.SkillLine, modifier: Modifier = Modifier) {
-    val resource: String = stringResource(resourceNameOf(skill.resource))
+    val copy: PlayerCopy = rememberPlayerCopy()
     Column(
         verticalArrangement = Arrangement.spacedBy(MyGameSpacing.step1),
         modifier = modifier.padding(vertical = MyGameSpacing.step3),
     ) {
         MyGameText(
-            text = icuStringResource(
-                R.string.school_skill_name,
-                "resource" to resource,
-                "level" to skill.level.toString(),
-            ),
+            label = copy.chrome {
+                text(
+                    R.string.school_skill_name,
+                    "resource" to text(resourceNameOf(skill.resource)),
+                    "level" to skill.level.toString(),
+                )
+            },
             style = MyGameTypography.body,
             color = MyGameTheme.colors.ink,
         )
         MyGameText(
-            text = icuStringResource(
-                R.string.school_skill_rate,
-                "percent" to skill.ratePercent.toString(),
-                "resource" to resource,
-            ),
+            label = copy.chrome {
+                text(
+                    R.string.school_skill_rate,
+                    "percent" to skill.ratePercent.toString(),
+                    "resource" to text(resourceNameOf(skill.resource)),
+                )
+            },
             style = MyGameTypography.caption.withTabularFigures(),
             color = MyGameTheme.colors.inkMuted,
         )
@@ -446,5 +459,53 @@ private fun SchoolScreenPreview(@PreviewParameter(SchoolUiStates::class) state: 
             onReportOpen = {},
             onHoldoutCheckOpen = { _, _ -> },
         )
+    }
+}
+
+internal class SchoolLanguages : PreviewParameterProvider<CopyLanguage> {
+
+    override val values: Sequence<CopyLanguage> = sequenceOf(
+        CopyLanguage(ScaffoldLanguage.Spanish, ChromePhase.Scaffold),
+        CopyLanguage(ScaffoldLanguage.Spanish, ChromePhase.Both),
+        CopyLanguage(ScaffoldLanguage.Spanish, ChromePhase.English),
+        CopyLanguage(ScaffoldLanguage.None, ChromePhase.English),
+    )
+}
+
+private val previewDueCheck: HoldoutCheckRowsUiState =
+    HoldoutCheckRowsUiState(listOf(HoldoutCheckRow(PlacementBand.First, HoldoutCheckWeek.Eighth)))
+
+@PreviewMyGame
+@Composable
+private fun SchoolScreenLanguagePreview(@PreviewParameter(SchoolLanguages::class) language: CopyLanguage) {
+    ProvideCopyLanguage(language = language) {
+        MyGamePreviewSurface {
+            SchoolScreen(
+                state = previewReleasedStudied,
+                onIntent = {},
+                onReviewsOpen = {},
+                onLessonOpen = {},
+                onReportOpen = {},
+                onHoldoutCheckOpen = { _, _ -> },
+                holdoutChecks = { HoldoutCheckRows(state = previewDueCheck, onHoldoutCheckOpen = {}) },
+            )
+        }
+    }
+}
+
+@PreviewMyGame
+@Composable
+private fun SchoolScreenStudyingBothPreview() {
+    ProvideCopyLanguage(language = CopyLanguage(ScaffoldLanguage.Spanish, ChromePhase.Both)) {
+        MyGamePreviewSurface {
+            SchoolScreen(
+                state = previewStudying,
+                onIntent = {},
+                onReviewsOpen = {},
+                onLessonOpen = {},
+                onReportOpen = {},
+                onHoldoutCheckOpen = { _, _ -> },
+            )
+        }
     }
 }

@@ -10,12 +10,12 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.semantics.heading
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.semantics.testTag
 import com.emm.mygame.core.designsystem.MyGameHairline
+import com.emm.mygame.core.designsystem.MyGameLabel
 import com.emm.mygame.core.designsystem.MyGameOutlinedButton
 import com.emm.mygame.core.designsystem.MyGameSizes
 import com.emm.mygame.core.designsystem.MyGameSpacing
@@ -26,8 +26,10 @@ import com.emm.mygame.core.network.LessonId
 import com.emm.mygame.core.network.SchoolPathCounts
 import com.emm.mygame.core.ui.SchoolPath
 import com.emm.mygame.core.ui.SchoolPathSteps
-import com.emm.mygame.core.ui.fixedCopyResource
-import com.emm.mygame.core.ui.icuStringResource
+import com.emm.mygame.core.ui.CopyReader
+import com.emm.mygame.core.ui.PlayerCopy
+import com.emm.mygame.core.ui.chromeResource
+import com.emm.mygame.core.ui.rememberPlayerCopy
 
 internal const val LESSON_ROW: String = "lesson_row"
 
@@ -46,7 +48,7 @@ internal fun LessonRows(
     if (cards.isEmpty() && releasedCards.isEmpty()) return
     Column(verticalArrangement = Arrangement.spacedBy(MyGameSpacing.step1), modifier = modifier) {
         MyGameText(
-            text = stringResource(R.string.school_lessons),
+            label = chromeResource(R.string.school_lessons),
             style = MyGameTypography.heading,
             color = MyGameTheme.colors.ink,
             modifier = Modifier.semantics { heading() },
@@ -69,6 +71,7 @@ private fun ReleasedLessonRow(
     onIntent: (SchoolIntent) -> Unit,
     modifier: Modifier = Modifier,
 ) {
+    val copy: PlayerCopy = rememberPlayerCopy()
     Column(
         verticalArrangement = Arrangement.spacedBy(MyGameSpacing.step3),
         modifier = modifier
@@ -79,9 +82,9 @@ private fun ReleasedLessonRow(
             verticalArrangement = Arrangement.spacedBy(MyGameSpacing.step1),
             modifier = Modifier.semantics(mergeDescendants = true) { },
         ) {
-            LessonHeading(title = lessonTitleOf(card.name), state = card.state)
+            LessonHeading(title = copy.lessonTitleOf(card.name), state = card.state)
             MyGameText(
-                text = icuStringResource(R.string.school_lesson_words, "count" to card.wordCount),
+                label = copy.chrome(R.string.school_lesson_words, "count" to card.wordCount),
                 style = MyGameTypography.caption,
                 color = MyGameTheme.colors.inkMuted,
             )
@@ -101,22 +104,22 @@ private fun ReleasedStudyAction(
     onIntent: (SchoolIntent) -> Unit,
     modifier: Modifier = Modifier,
 ) {
-    val reason: String? = block?.let { blocked: SchoolUiState.LessonBlock -> blockLineOf(blocked) }
-    val label: String = icuStringResource(
-        R.string.school_study_with_duration,
-        "action" to fixedCopyResource(R.string.school_released_lesson_study),
-        "duration" to durationLabelOf(card.duration),
-    )
+    val copy: PlayerCopy = rememberPlayerCopy()
+    val reason: MyGameLabel? = block?.let { blocked: SchoolUiState.LessonBlock -> copy.blockLineOf(blocked) }
+    val action: String = copy.fixedCopy(R.string.school_released_lesson_study)
+    val studyLine: CopyReader.() -> String = {
+        text(R.string.school_study_with_duration, "action" to action, "duration" to durationLabelOf(card.duration))
+    }
     Column(verticalArrangement = Arrangement.spacedBy(MyGameSpacing.step2), modifier = modifier) {
         MyGameOutlinedButton(
-            label = label,
+            label = copy.chrome(studyLine),
             isBusy = start == SchoolUiState.LessonRequest.Waiting,
-            busyDescription = stringResource(R.string.school_waiting),
+            busyDescription = copy.chrome(R.string.school_waiting).spoken,
             onClick = { onIntent(SchoolIntent.StudyTapped(card.lesson)) },
-            blockedReason = reason,
-            accessibleName = "${lessonTitleOf(card.name)} · $label",
+            blockedReason = reason?.spoken,
+            accessibleName = copy.lessonLineOf(card.name) { title: String -> "$title · ${studyLine()}" }.spoken,
         )
-        reason?.let { line: String -> BlockLine(line = line) }
+        reason?.let { line: MyGameLabel -> BlockLine(line = line) }
         StartAnswer(lesson = card.lesson, start = start)
     }
 }
@@ -136,26 +139,23 @@ private fun LessonRow(
 @Composable
 private fun LessonPath(path: SchoolPathCounts, modifier: Modifier = Modifier) {
     if (path.held == 0) return
+    val copy: PlayerCopy = rememberPlayerCopy()
     SchoolPath(
         steps = SchoolPathSteps(
-            studied = pathStepOf(R.string.school_path_studied, path.held, path.held),
-            read = pathStepOf(R.string.school_path_read, path.read, path.held),
-            reviewed = pathStepOf(R.string.school_path_reviewed, path.reviewed, path.held),
-            learned = pathStepOf(R.string.school_path_learned, path.learned, path.held),
+            studied = copy.pathStepOf(R.string.school_path_studied, path.held, path.held),
+            read = copy.pathStepOf(R.string.school_path_read, path.read, path.held),
+            reviewed = copy.pathStepOf(R.string.school_path_reviewed, path.reviewed, path.held),
+            learned = copy.pathStepOf(R.string.school_path_learned, path.learned, path.held),
         ),
         modifier = modifier,
     )
 }
 
-@Composable
-private fun pathStepOf(@StringRes label: Int, count: Int, total: Int): SchoolPathSteps.Step = SchoolPathSteps.Step(
-    label = stringResource(label),
-    count = icuStringResource(
-        R.string.school_path_count,
-        "count" to count.toString(),
-        "total" to total.toString(),
-    ),
-)
+private fun PlayerCopy.pathStepOf(@StringRes label: Int, count: Int, total: Int): SchoolPathSteps.Step =
+    SchoolPathSteps.Step(
+        label = chrome(label).spoken,
+        count = chrome(R.string.school_path_count, "count" to count.toString(), "total" to total.toString()).spoken,
+    )
 
 @Composable
 private fun LessonTarget(
@@ -170,6 +170,7 @@ private fun LessonTarget(
             .defaultMinSize(minHeight = MyGameSizes.secondary)
             .clickable(role = Role.Button, onClick = { onIntent(SchoolIntent.LessonSelected(card.lesson)) })
     }
+    val copy: PlayerCopy = rememberPlayerCopy()
     Column(
         verticalArrangement = Arrangement.spacedBy(MyGameSpacing.step1),
         modifier = modifier
@@ -178,19 +179,23 @@ private fun LessonTarget(
             .padding(vertical = MyGameSpacing.step3),
     ) {
         LessonHeading(
-            title = icuStringResource(R.string.school_lesson_title, "number" to card.number.toString()),
+            title = copy.chrome(R.string.school_lesson_title, "number" to card.number.toString()),
             state = card.state,
         )
         MyGameText(text = card.theme, style = MyGameTypography.body, color = MyGameTheme.colors.ink)
-        MyGameText(text = lessonSummaryOf(card), style = MyGameTypography.caption, color = MyGameTheme.colors.inkMuted)
+        MyGameText(
+            label = copy.chrome { lessonSummaryOf(card) },
+            style = MyGameTypography.caption,
+            color = MyGameTheme.colors.inkMuted,
+        )
     }
 }
 
 @Composable
-private fun LessonHeading(title: String, state: SchoolUiState.LessonState, modifier: Modifier = Modifier) {
+private fun LessonHeading(title: MyGameLabel, state: SchoolUiState.LessonState, modifier: Modifier = Modifier) {
     Row(horizontalArrangement = Arrangement.spacedBy(MyGameSpacing.step3), modifier = modifier) {
         MyGameText(
-            text = title,
+            label = title,
             style = MyGameTypography.title,
             color = MyGameTheme.colors.ink,
             modifier = Modifier
@@ -199,7 +204,7 @@ private fun LessonHeading(title: String, state: SchoolUiState.LessonState, modif
         )
         statusOf(state)?.let { status: Int ->
             MyGameText(
-                text = stringResource(status),
+                label = chromeResource(status),
                 style = MyGameTypography.caption,
                 color = MyGameTheme.colors.inkMuted,
                 modifier = Modifier.alignByBaseline(),

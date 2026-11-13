@@ -4,7 +4,6 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.LiveRegionMode
 import androidx.compose.ui.semantics.heading
 import androidx.compose.ui.semantics.liveRegion
@@ -12,6 +11,7 @@ import androidx.compose.ui.semantics.semantics
 import com.emm.mygame.core.designsystem.MyGameBlock
 import com.emm.mygame.core.designsystem.MyGameButton
 import com.emm.mygame.core.designsystem.MyGameInlineAlert
+import com.emm.mygame.core.designsystem.MyGameLabel
 import com.emm.mygame.core.designsystem.MyGameOutlinedButton
 import com.emm.mygame.core.designsystem.MyGameSpacing
 import com.emm.mygame.core.designsystem.MyGameText
@@ -20,7 +20,8 @@ import com.emm.mygame.core.designsystem.MyGameTypography
 import com.emm.mygame.core.designsystem.blockHueOf
 import com.emm.mygame.core.network.LessonId
 import com.emm.mygame.core.network.LessonName
-import com.emm.mygame.core.ui.icuStringResource
+import com.emm.mygame.core.ui.PlayerCopy
+import com.emm.mygame.core.ui.rememberPlayerCopy
 
 @Composable
 internal fun ShownLesson(
@@ -52,25 +53,26 @@ internal fun ShownLesson(
 
 @Composable
 private fun LessonBlock(card: SchoolUiState.LessonCard, modifier: Modifier = Modifier) {
+    val copy: PlayerCopy = rememberPlayerCopy()
     MyGameBlock(
         hue = blockHueOf(card.number - 1),
         modifier = modifier.semantics(mergeDescendants = true) { liveRegion = LiveRegionMode.Polite },
     ) {
         MyGameText(
-            text = icuStringResource(R.string.school_lesson_title, "number" to card.number.toString()),
+            label = copy.chrome(R.string.school_lesson_title, "number" to card.number.toString()),
             style = MyGameTypography.display,
             color = MyGameTheme.colors.onBlock,
             modifier = Modifier.semantics { heading() },
         )
         MyGameText(text = card.theme, style = MyGameTypography.reading, color = MyGameTheme.colors.onBlock)
         MyGameText(
-            text = lessonSummaryOf(card),
+            label = copy.chrome { lessonSummaryOf(card) },
             style = MyGameTypography.caption,
             color = MyGameTheme.colors.onBlockMuted,
         )
         if (card.state == SchoolUiState.LessonState.Studying) {
             MyGameText(
-                text = stringResource(R.string.school_lesson_studying),
+                label = copy.chrome(R.string.school_lesson_studying),
                 style = MyGameTypography.label,
                 color = MyGameTheme.colors.onBlock,
             )
@@ -87,13 +89,16 @@ private fun StudyAction(
     onIntent: (SchoolIntent) -> Unit,
     modifier: Modifier = Modifier,
 ) {
-    val reason: String? = block?.let { blocked: SchoolUiState.LessonBlock -> blockLineOf(blocked) }
-    val label: String = icuStringResource(
-        R.string.school_study_with_duration,
-        "action" to icuStringResource(R.string.school_lesson_study, "number" to card.number.toString()),
-        "duration" to durationLabelOf(card.duration),
-    )
-    val busyDescription: String = stringResource(R.string.school_waiting)
+    val copy: PlayerCopy = rememberPlayerCopy()
+    val reason: MyGameLabel? = block?.let { blocked: SchoolUiState.LessonBlock -> copy.blockLineOf(blocked) }
+    val label: MyGameLabel = copy.chrome {
+        text(
+            R.string.school_study_with_duration,
+            "action" to text(R.string.school_lesson_study, "number" to card.number.toString()),
+            "duration" to durationLabelOf(card.duration),
+        )
+    }
+    val busyDescription: String = copy.chrome(R.string.school_waiting).spoken
     val onClick: () -> Unit = { onIntent(SchoolIntent.StudyTapped(card.lesson)) }
     Column(verticalArrangement = Arrangement.spacedBy(MyGameSpacing.step2), modifier = modifier) {
         if (isLead) {
@@ -102,7 +107,7 @@ private fun StudyAction(
                 isBusy = isWaiting,
                 busyDescription = busyDescription,
                 onClick = onClick,
-                blockedReason = reason,
+                blockedReason = reason?.spoken,
             )
         } else {
             MyGameOutlinedButton(
@@ -110,10 +115,10 @@ private fun StudyAction(
                 isBusy = isWaiting,
                 busyDescription = busyDescription,
                 onClick = onClick,
-                blockedReason = reason,
+                blockedReason = reason?.spoken,
             )
         }
-        reason?.let { line: String -> BlockLine(line = line) }
+        reason?.let { line: MyGameLabel -> BlockLine(line = line) }
     }
 }
 
@@ -125,10 +130,11 @@ private fun ReadWordsPill(
     onLessonOpen: (LessonId) -> Unit,
     modifier: Modifier = Modifier,
 ) {
+    val copy: PlayerCopy = rememberPlayerCopy()
     MyGameButton(
-        label = readWordsLabelOf(running, name, shown),
+        label = copy.readWordsLabelOf(running, name, shown),
         isBusy = false,
-        busyDescription = stringResource(R.string.school_waiting),
+        busyDescription = copy.chrome(R.string.school_waiting).spoken,
         onClick = { onLessonOpen(running) },
         modifier = modifier,
     )
@@ -140,11 +146,12 @@ internal fun StartAnswer(
     start: SchoolUiState.LessonRequest,
     modifier: Modifier = Modifier,
 ) {
+    val copy: PlayerCopy = rememberPlayerCopy()
     val asked: LessonId? = when (start) {
         is SchoolUiState.LessonRequest.Refused -> start.lesson
         is SchoolUiState.LessonRequest.Unreachable -> start.lesson
         SchoolUiState.LessonRequest.Idle, SchoolUiState.LessonRequest.Waiting -> null
     }
     if (asked != lesson) return
-    requestAnswerOf(start)?.let { line: String -> MyGameInlineAlert(message = line, modifier = modifier) }
+    copy.requestAnswerOf(start)?.let { line: String -> MyGameInlineAlert(message = line, modifier = modifier) }
 }

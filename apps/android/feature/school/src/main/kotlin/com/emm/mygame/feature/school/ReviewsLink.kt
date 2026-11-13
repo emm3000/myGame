@@ -2,11 +2,12 @@ package com.emm.mygame.feature.school
 
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.res.stringResource
 import com.emm.mygame.core.designsystem.MyGameTextLink
 import com.emm.mygame.core.network.LessonId
 import com.emm.mygame.core.network.LessonName
 import com.emm.mygame.core.network.NextStepCard
+import com.emm.mygame.core.ui.PlayerCopy
+import com.emm.mygame.core.ui.rememberPlayerCopy
 
 @Composable
 internal fun ReviewsLink(
@@ -17,17 +18,18 @@ internal fun ReviewsLink(
     modifier: Modifier = Modifier,
 ) {
     if (content.nextStep.line !is NextStepCard.Line.ReviewsDue) return
+    val copy: PlayerCopy = rememberPlayerCopy()
     when (val action: NextStepCard.Action = content.nextStep.action) {
         is NextStepCard.Action.ReadWords -> action.lesson?.let { unread: LessonId ->
             val name: LessonName = content.nameOf(unread) ?: return
             MyGameTextLink(
-                label = readWordsLabelOf(unread, name, shown),
+                label = copy.readWordsLabelOf(unread, name, shown),
                 onClick = { onLessonOpen(unread) },
                 modifier = modifier,
             )
         }
         NextStepCard.Action.StartReviews -> MyGameTextLink(
-            label = stringResource(R.string.school_start_reviews),
+            label = copy.chrome(R.string.school_start_reviews),
             onClick = onReviewsOpen,
             modifier = modifier,
         )

@@ -5,17 +5,18 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.semantics.hideFromAccessibility
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.semantics.testTag
+import com.emm.mygame.core.designsystem.MyGameLabel
 import com.emm.mygame.core.designsystem.MyGameText
 import com.emm.mygame.core.designsystem.MyGameTheme
 import com.emm.mygame.core.designsystem.MyGameTypography
-import com.emm.mygame.core.ui.icuStringResource
+import com.emm.mygame.core.ui.PlayerCopy
 
 internal const val LESSON_BLOCK_LINE: String = "lesson_block_line"
 
 @Composable
-internal fun BlockLine(line: String, modifier: Modifier = Modifier) {
+internal fun BlockLine(line: MyGameLabel, modifier: Modifier = Modifier) {
     MyGameText(
-        text = line,
+        label = line,
         style = MyGameTypography.caption,
         color = MyGameTheme.colors.warningInk,
         modifier = modifier.semantics {
@@ -25,12 +26,11 @@ internal fun BlockLine(line: String, modifier: Modifier = Modifier) {
     )
 }
 
-@Composable
-internal fun blockLineOf(block: SchoolUiState.LessonBlock): String = when (block) {
+internal fun PlayerCopy.blockLineOf(block: SchoolUiState.LessonBlock): MyGameLabel = when (block) {
     is SchoolUiState.LessonBlock.SlotBusy -> slotBusyLineOf(block.name)
     is SchoolUiState.LessonBlock.SchoolTooLow ->
-        icuStringResource(R.string.school_lesson_needs_school, "level" to block.requiredLevel.toString())
-    is SchoolUiState.LessonBlock.CapReached -> icuStringResource(
+        chrome(R.string.school_lesson_needs_school, "level" to block.requiredLevel.toString())
+    is SchoolUiState.LessonBlock.CapReached -> chrome(
         R.string.school_lesson_cap_reached,
         "inLearning" to block.inLearning.toString(),
         "cap" to block.cap.toString(),
