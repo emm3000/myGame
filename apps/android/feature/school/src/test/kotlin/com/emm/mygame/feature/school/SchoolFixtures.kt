@@ -9,6 +9,7 @@ import com.emm.mygame.core.network.PlacementBand
 import com.emm.mygame.core.network.SeasonDurationPercent
 import com.emm.mygame.core.network.SeasonInForce
 import com.emm.mygame.core.network.SeasonKind
+import com.emm.mygame.core.network.SeasonProductionPercent
 import com.emm.mygame.core.network.TownBuildingKind
 import com.emm.mygame.core.network.TownLabel
 import com.emm.mygame.core.network.TownReadResult
@@ -72,7 +73,7 @@ internal fun workOf(finishesAt: Instant): TownSnapshot.WorkItem =
 internal fun seasonOf(kind: SeasonKind, study: Int): SeasonInForce = SeasonInForce(
     kind = kind,
     year = 1,
-    productionPercents = TownResourceKind.entries.associateWith { 100 },
+    productionPercent = SeasonProductionPercent(money = 100, food = 100, power = 100, material = 100),
     durationPercent = SeasonDurationPercent(build = 100, study = study, hire = 100, road = 100),
 )
 

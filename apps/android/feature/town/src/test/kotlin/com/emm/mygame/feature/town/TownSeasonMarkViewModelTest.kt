@@ -2,6 +2,7 @@ package com.emm.mygame.feature.town
 
 import com.emm.mygame.core.network.SeasonInForce
 import com.emm.mygame.core.network.SeasonKind
+import com.emm.mygame.core.network.SeasonProductionPercent
 import com.emm.mygame.core.network.TownReadResult
 import com.emm.mygame.core.network.TownResourceKind
 import com.emm.mygame.core.network.TownSnapshot
@@ -25,7 +26,7 @@ class TownSeasonMarkViewModelTest {
     @Test
     fun `marks food in summer`() = runTest {
         val viewModel: TownViewModel =
-            homeViewModel(seasonOf(SeasonKind.Summer, production = mapOf(TownResourceKind.Food to 125)))
+            homeViewModel(seasonOf(SeasonKind.Summer, production = unscaledProduction.copy(food = 125)))
 
         assertEquals(
             listOf(TownUiState.ProductionMark(TownResourceKind.Food, percent = 125)),
@@ -36,7 +37,7 @@ class TownSeasonMarkViewModelTest {
     @Test
     fun `marks power in winter`() = runTest {
         val viewModel: TownViewModel =
-            homeViewModel(seasonOf(SeasonKind.Winter, production = mapOf(TownResourceKind.Power to 75)))
+            homeViewModel(seasonOf(SeasonKind.Winter, production = unscaledProduction.copy(power = 75)))
 
         assertEquals(
             listOf(TownUiState.ProductionMark(TownResourceKind.Power, percent = 75)),
@@ -46,12 +47,7 @@ class TownSeasonMarkViewModelTest {
 
     @Test
     fun `marks every resource off 100 in the stock order`() = runTest {
-        val production: Map<TownResourceKind, Int> = mapOf(
-            TownResourceKind.Material to 90,
-            TownResourceKind.Power to 75,
-            TownResourceKind.Food to 125,
-            TownResourceKind.Money to 110,
-        )
+        val production = SeasonProductionPercent(money = 110, food = 125, power = 75, material = 90)
 
         val viewModel: TownViewModel = homeViewModel(seasonOf(SeasonKind.Fall, production = production))
 

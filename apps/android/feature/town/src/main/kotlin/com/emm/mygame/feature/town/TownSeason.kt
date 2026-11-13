@@ -21,7 +21,7 @@ internal fun TownSnapshot.seasonLineAt(now: Instant): TownUiState.SeasonLine? {
 private fun SeasonInForce.productionMarks(): List<TownUiState.ProductionMark> =
     TownResourceKind.entries
         .map { resource: TownResourceKind ->
-            TownUiState.ProductionMark(resource, percent = productionPercents.getValue(resource))
+            TownUiState.ProductionMark(resource, percent = productionPercent.of(resource))
         }
         .filter { mark: TownUiState.ProductionMark -> mark.percent != UNSCALED_PERCENT }
 

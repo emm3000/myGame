@@ -7,6 +7,7 @@ import com.emm.mygame.core.network.NextStepCard
 import com.emm.mygame.core.network.SeasonDurationPercent
 import com.emm.mygame.core.network.SeasonInForce
 import com.emm.mygame.core.network.SeasonKind
+import com.emm.mygame.core.network.SeasonProductionPercent
 import com.emm.mygame.core.network.TipKind
 import com.emm.mygame.core.network.TownBuildingKind
 import com.emm.mygame.core.network.TownLabel
@@ -69,16 +70,17 @@ internal fun lessonEndingAt(finishesAt: Instant): TownSnapshot.LessonSlot =
 
 internal fun emptyNaming(): TownUiState.Naming = TownUiState.Naming("", TownUiState.NamingStatus.Idle)
 
+internal val unscaledProduction: SeasonProductionPercent =
+    SeasonProductionPercent(money = 100, food = 100, power = 100, material = 100)
+
 internal fun seasonOf(
     kind: SeasonKind,
-    production: Map<TownResourceKind, Int> = emptyMap(),
+    production: SeasonProductionPercent = unscaledProduction,
     build: Int = 100,
 ): SeasonInForce = SeasonInForce(
     kind = kind,
     year = 1,
-    productionPercents = TownResourceKind.entries.associateWith { resource: TownResourceKind ->
-        production[resource] ?: 100
-    },
+    productionPercent = production,
     durationPercent = SeasonDurationPercent(build = build, study = 100, hire = 100, road = 100),
 )
 
