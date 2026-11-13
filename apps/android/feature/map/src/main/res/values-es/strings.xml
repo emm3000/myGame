@@ -57,6 +57,7 @@
     <string name="map_resource_material">material</string>
     <string name="map_resource_money">dinero</string>
     <string name="map_resource_power">energía</string>
+    <string name="map_season_road_mark" formatted="false">{season, select, spring {Primavera} summer {Verano} fall {Otoño} winter {Invierno} other {Invierno}}: el camino tarda el {percent} % del tiempo</string>
     <string name="map_send_team">Enviar un equipo</string>
     <string name="map_send_team_to">Enviar un equipo al sitio {site}</string>
     <string name="map_site">Sitio {site}</string>

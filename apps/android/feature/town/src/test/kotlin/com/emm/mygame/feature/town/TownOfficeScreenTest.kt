@@ -61,6 +61,7 @@ class TownOfficeScreenTest {
     private val office: TownUiState.OfficeLine = TownUiState.OfficeLine(
         hiring = TownUiState.HiringLine.Idle,
         hires = listOf(workers, lockedTrucks),
+        hireMark = null,
         place = TownUiState.HireStatus.Idle,
         stop = TownUiState.HireStopStatus.Idle,
     )

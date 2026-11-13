@@ -172,6 +172,7 @@ sealed interface TownUiState {
     data class OfficeLine(
         val hiring: HiringLine,
         val hires: List<HireCard>,
+        val hireMark: DurationMark?,
         val place: HireStatus,
         val stop: HireStopStatus,
     )

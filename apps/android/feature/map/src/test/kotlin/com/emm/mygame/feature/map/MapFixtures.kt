@@ -4,6 +4,7 @@ import androidx.lifecycle.viewModelScope
 import com.emm.mygame.core.network.NextStep
 import com.emm.mygame.core.network.RegionMap
 import com.emm.mygame.core.network.RegionMapResult
+import com.emm.mygame.core.network.SeasonInForce
 import com.emm.mygame.core.network.Terrain
 import com.emm.mygame.core.network.TownBuildingKind
 import com.emm.mygame.core.network.TownHireKind
@@ -93,12 +94,13 @@ internal fun townOf(
     workers: Int = 3,
     trucks: Int = 1,
     job: TownSnapshot.Job? = null,
+    seasonInForce: SeasonInForce? = null,
     seasonEndsAt: Instant? = null,
     readAt: Instant = readInstant,
 ): TownSnapshot = TownSnapshot(
     name = "Riverton",
     label = TownLabel.Town,
-    seasonInForce = null,
+    seasonInForce = seasonInForce,
     seasonEndsAt = seasonEndsAt,
     stocks = emptyList(),
     people = TownSnapshot.People(supplied = 10, free = 4, atWork = 6),

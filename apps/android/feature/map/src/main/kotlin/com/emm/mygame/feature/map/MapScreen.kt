@@ -28,6 +28,7 @@ import com.emm.mygame.core.designsystem.MyGameTextLink
 import com.emm.mygame.core.designsystem.MyGameTheme
 import com.emm.mygame.core.designsystem.MyGameTypography
 import com.emm.mygame.core.designsystem.PreviewMyGame
+import com.emm.mygame.core.network.SeasonKind
 import com.emm.mygame.core.network.Terrain
 import com.emm.mygame.core.network.TownJobRefusal
 import com.emm.mygame.core.network.TownResourceKind
@@ -187,6 +188,7 @@ private val previewJobForm: MapUiState.JobForm = MapUiState.JobForm(
     workersAtHome = 3,
     trucksAtHome = 1,
     block = null,
+    roadMark = null,
     quote = MapUiState.PayQuote.Quoted(previewPay),
 )
 
@@ -197,8 +199,11 @@ private val previewCleanUpForm: MapUiState.CleanUpForm = MapUiState.CleanUpForm(
     workersAtHome = 3,
     trucksAtHome = 1,
     block = null,
+    roadMark = null,
     quote = MapUiState.CleanUpQuote.Quoted(strength = 12, waste = 12, pay = previewPay, isShort = false),
 )
+
+private val previewFallRoad: MapUiState.DurationMark = MapUiState.DurationMark(SeasonKind.Fall, percent = 75)
 
 private val previewJobOut: MapUiState.JobOut = MapUiState.JobOut(
     kind = MapUiState.JobKind.Job,
@@ -218,6 +223,8 @@ private class MapUiStates : PreviewParameterProvider<MapUiState> {
         previewContent,
         previewContent.copy(form = previewJobForm),
         previewContent.copy(form = previewCleanUpForm),
+        previewContent.copy(form = previewJobForm.copy(roadMark = previewFallRoad)),
+        previewContent.copy(form = previewCleanUpForm.copy(roadMark = previewFallRoad)),
         previewContent.copy(jobOut = previewJobOut),
         previewContent.copy(
             form = previewJobForm.copy(
@@ -256,7 +263,13 @@ private class MapLanguages : PreviewParameterProvider<CopyLanguage> {
 private fun MapScreenLanguagePreview(@PreviewParameter(MapLanguages::class) language: CopyLanguage) {
     ProvideCopyLanguage(language = language) {
         MyGamePreviewSurface {
-            MapScreen(state = previewContent.copy(form = previewJobForm, jobOut = previewJobOut), onIntent = {})
+            MapScreen(
+                state = previewContent.copy(
+                    form = previewJobForm.copy(roadMark = previewFallRoad),
+                    jobOut = previewJobOut,
+                ),
+                onIntent = {},
+            )
         }
     }
 }

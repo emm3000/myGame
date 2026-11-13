@@ -77,11 +77,12 @@ internal fun seasonOf(
     kind: SeasonKind,
     production: SeasonProductionPercent = unscaledProduction,
     build: Int = 100,
+    hire: Int = 100,
 ): SeasonInForce = SeasonInForce(
     kind = kind,
     year = 1,
     productionPercent = production,
-    durationPercent = SeasonDurationPercent(build = build, study = 100, hire = 100, road = 100),
+    durationPercent = SeasonDurationPercent(build = build, study = 100, hire = hire, road = 100),
 )
 
 internal fun townOf(
@@ -128,6 +129,7 @@ internal fun townOf(
 internal val idleOffice: TownUiState.OfficeLine = TownUiState.OfficeLine(
     hiring = TownUiState.HiringLine.Idle,
     hires = emptyList(),
+    hireMark = null,
     place = TownUiState.HireStatus.Idle,
     stop = TownUiState.HireStopStatus.Idle,
 )

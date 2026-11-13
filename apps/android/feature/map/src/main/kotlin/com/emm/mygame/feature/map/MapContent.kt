@@ -1,9 +1,11 @@
 package com.emm.mygame.feature.map
 
 import com.emm.mygame.core.network.RegionMap
+import com.emm.mygame.core.network.SeasonInForce
 import com.emm.mygame.core.network.TownHireKind
 import com.emm.mygame.core.network.TownResourceKind
 import com.emm.mygame.core.network.TownSnapshot
+import com.emm.mygame.core.network.UNSCALED_PERCENT
 import com.emm.mygame.core.projection.countdownTo
 import kotlin.time.Duration
 import kotlin.time.Instant
@@ -124,6 +126,7 @@ private fun TownSnapshot.siteFormOf(
         workersAtHome = hiring.hires.getValue(TownHireKind.Worker),
         trucksAtHome = hiring.hires.getValue(TownHireKind.Truck),
         block = entries.teamBlock(),
+        roadMark = roadMark(),
         quote = (quote as? QuoteAnswer.CleanUp)?.quote,
     )
 }
@@ -140,8 +143,16 @@ private fun TownSnapshot.jobFormOf(
     workersAtHome = hiring.hires.getValue(TownHireKind.Worker),
     trucksAtHome = hiring.hires.getValue(TownHireKind.Truck),
     block = entries.jobBlock(),
+    roadMark = roadMark(),
     quote = quote,
 )
+
+private fun TownSnapshot.roadMark(): MapUiState.DurationMark? {
+    val inForce: SeasonInForce = seasonInForce ?: return null
+    val road: Int = inForce.durationPercent.road
+    if (road == UNSCALED_PERCENT) return null
+    return MapUiState.DurationMark(inForce.kind, percent = road)
+}
 
 private fun JobEntries.jobBlock(): MapUiState.JobBlock? {
     teamBlock()?.let { block: MapUiState.JobBlock -> return block }
