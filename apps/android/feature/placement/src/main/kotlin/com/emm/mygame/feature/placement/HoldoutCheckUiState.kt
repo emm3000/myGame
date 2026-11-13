@@ -39,5 +39,7 @@ sealed interface HoldoutCheckUiState {
             get() = shownIndex >= items.lastIndex
     }
 
-    data object Done : HoldoutCheckUiState
+    data object Answered : HoldoutCheckUiState
+
+    data object Skipped : HoldoutCheckUiState
 }

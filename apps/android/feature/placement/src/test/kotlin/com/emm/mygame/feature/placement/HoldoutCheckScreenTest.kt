@@ -142,15 +142,29 @@ class HoldoutCheckScreenTest {
     }
 
     @Test
-    fun `draws the done line after a skip`() {
-        showing(HoldoutCheckUiState.Done)
+    fun `draws the done line after the answers are sent`() {
+        showing(HoldoutCheckUiState.Answered)
 
         composeRule.onNodeWithText("Gracias. Tus respuestas están guardadas.").assertIsDisplayed()
     }
 
     @Test
+    fun `draws the skipped line after a skip`() {
+        showing(HoldoutCheckUiState.Skipped)
+
+        composeRule.onNodeWithText("Saltaste esta prueba.").assertIsDisplayed()
+    }
+
+    @Test
+    fun `draws the unsaved answers line beside the words of an invalid send`() {
+        showing(askingLastWordChosen.copy(request = HoldoutCheckRequest.Refused(HoldoutCheckRefusal.InvalidRequest)))
+
+        composeRule.onNodeWithText("No hemos podido guardar tus respuestas.").performScrollTo().assertIsDisplayed()
+    }
+
+    @Test
     fun `goes back to the town from the done line`() {
-        showing(HoldoutCheckUiState.Done)
+        showing(HoldoutCheckUiState.Answered)
 
         composeRule.onNodeWithText("Volver a tu pueblo").performScrollTo().performClick()
 

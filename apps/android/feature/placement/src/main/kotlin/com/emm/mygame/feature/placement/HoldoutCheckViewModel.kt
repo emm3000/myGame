@@ -103,7 +103,8 @@ class HoldoutCheckViewModel(
     private fun changedStateOf(action: HoldoutCheckAction, checks: List<HoldoutCheck>): HoldoutCheckUiState =
         when (action) {
             HoldoutCheckAction.Begin -> stateOf(checks)
-            HoldoutCheckAction.Skip, HoldoutCheckAction.Answers -> HoldoutCheckUiState.Done
+            HoldoutCheckAction.Skip -> HoldoutCheckUiState.Skipped
+            HoldoutCheckAction.Answers -> HoldoutCheckUiState.Answered
         }
 
     private fun drawRequest(request: HoldoutCheckRequest) {
@@ -114,7 +115,8 @@ class HoldoutCheckViewModel(
                 HoldoutCheckUiState.Loading,
                 HoldoutCheckUiState.Failed,
                 HoldoutCheckUiState.NotOpen,
-                HoldoutCheckUiState.Done,
+                HoldoutCheckUiState.Answered,
+                HoldoutCheckUiState.Skipped,
                 -> current
             }
         }

@@ -8,10 +8,12 @@
     <string name="placement_holdout_due_line">Band {band}, week {week}: a check of words you studied and words kept back. Your score does not change your lessons.</string>
     <string name="placement_holdout_failed">We couldn\'t read your check.</string>
     <string name="placement_holdout_loading">Reading your check…</string>
+    <string name="placement_holdout_refusal_invalid">We could not save your answers.</string>
     <string name="placement_holdout_refused">This check is not open now.</string>
     <string name="placement_holdout_send">Send your answers</string>
     <string name="placement_holdout_skip">Skip the check</string>
     <string name="placement_holdout_skip_line">Your lessons are the same whether you take it or skip it.</string>
+    <string name="placement_holdout_skipped">You skipped this check.</string>
     <string name="placement_holdout_start">Start the check</string>
     <string name="placement_holdout_title">Word check</string>
     <string name="placement_loading">Reading your placement…</string>
