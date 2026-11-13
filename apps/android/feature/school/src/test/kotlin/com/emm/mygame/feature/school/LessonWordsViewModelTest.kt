@@ -1,6 +1,9 @@
 package com.emm.mygame.feature.school
 
 import app.cash.turbine.test
+import com.emm.mygame.core.network.LessonId
+import com.emm.mygame.core.network.LessonName
+import com.emm.mygame.core.network.PlacementBand
 import com.emm.mygame.core.network.ReportReadResult
 import com.emm.mygame.core.network.TownReadResult
 import com.emm.mygame.core.network.TownSnapshot
@@ -9,6 +12,7 @@ import com.emm.mygame.core.testing.FakeTownRepository
 import com.emm.mygame.core.testing.MainDispatcherRule
 import kotlin.time.Duration.Companion.minutes
 import kotlin.time.Duration.Companion.seconds
+import kotlinx.coroutines.test.TestScope
 import kotlinx.coroutines.test.advanceTimeBy
 import kotlinx.coroutines.test.runCurrent
 import kotlinx.coroutines.test.runTest
@@ -73,7 +77,34 @@ class LessonWordsViewModelTest {
 
         val viewModel: LessonWordsViewModel = lessonWordsReadingFrom(towns, reports, town)
 
-        assertEquals(2, readingOf(viewModel).number)
+        assertEquals(LessonName.Shelved(number = 2), readingOf(viewModel).name)
+    }
+
+    @Test
+    fun `reads the words of a released lesson`() = runTest {
+        val viewModel: LessonWordsViewModel = releasedReading()
+
+        assertEquals(listOf(farmWord), readingOf(viewModel).words)
+    }
+
+    @Test
+    fun `names a released lesson by its band and set`() = runTest {
+        val viewModel: LessonWordsViewModel = releasedReading()
+
+        assertEquals(LessonName.Released(PlacementBand.Second, set = 3), readingOf(viewModel).name)
+    }
+
+    private fun TestScope.releasedReading(): LessonWordsViewModel {
+        val released: LessonId = LessonId("released-2-3")
+        val town: TownSnapshot = townOf(
+            lessons = listOf(twoWords),
+            releasedLessons = listOf(releasedLessonOf(released, position = 3, readings = listOf(farmWord))),
+        )
+        towns.answerRead(TownReadResult.Read(town))
+        reports.answerRead(readReportOf())
+        val viewModel: LessonWordsViewModel = lessonWordsViewModelOf(towns, reports, lesson = released)
+        runCurrent()
+        return viewModel
     }
 
     @Test

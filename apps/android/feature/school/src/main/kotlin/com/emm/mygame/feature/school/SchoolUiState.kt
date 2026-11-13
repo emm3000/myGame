@@ -21,6 +21,7 @@ sealed interface SchoolUiState {
         val slot: SlotLine,
         val skills: List<SkillLine>,
         val lessons: List<LessonCard>,
+        val releasedLessons: List<ReleasedLessonCard>,
         val nextStep: NextStepCard,
         val nextStepTime: NextStepTime?,
         val start: LessonRequest,
@@ -81,6 +82,15 @@ sealed interface SchoolUiState {
         val wordCount: Int,
         val resource: TownResourceKind,
         val ratePercent: Int,
+        val duration: Duration,
+        val path: SchoolPathCounts,
+        val state: LessonState,
+    )
+
+    data class ReleasedLessonCard(
+        val lesson: LessonId,
+        val name: LessonName.Released,
+        val wordCount: Int,
         val duration: Duration,
         val path: SchoolPathCounts,
         val state: LessonState,

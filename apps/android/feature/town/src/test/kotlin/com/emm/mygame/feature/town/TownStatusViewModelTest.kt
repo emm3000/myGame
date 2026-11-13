@@ -84,6 +84,8 @@ class TownStatusViewModelTest {
         requiredSchoolLevel = 1,
         isStudied = false,
         wordCount = 5,
+        readings = emptyList(),
+        standings = emptyList(),
     )
 
     private fun releasedRunningTown(readAt: Instant, finishesAt: Instant): TownSnapshot = townOf(readAt).copy(

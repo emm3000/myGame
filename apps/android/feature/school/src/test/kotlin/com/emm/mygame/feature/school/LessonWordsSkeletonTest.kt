@@ -17,6 +17,7 @@ import androidx.compose.ui.test.onNodeWithText
 import com.emm.mygame.core.designsystem.MyGameTheme
 import com.emm.mygame.core.designsystem.MyGameTransitions
 import com.emm.mygame.core.designsystem.SKELETON_BLOCK
+import com.emm.mygame.core.network.LessonName
 import org.junit.Assert.assertEquals
 import org.junit.Rule
 import org.junit.Test
@@ -32,7 +33,7 @@ class LessonWordsSkeletonTest {
     private var state: LessonWordsUiState by mutableStateOf(LessonWordsUiState.Loading)
 
     private val reading: LessonWordsUiState.Reading = LessonWordsUiState.Reading(
-        number = 1,
+        name = LessonName.Shelved(number = 1),
         theme = "A day in town",
         words = listOf(homeWord),
         index = 0,

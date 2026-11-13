@@ -96,6 +96,7 @@ class SchoolLookTest {
         slot = SchoolUiState.SlotLine.Idle,
         skills = emptyList(),
         lessons = listOf(openFirst, openSecond, openThird),
+        releasedLessons = emptyList(),
         nextStep = caughtUpCard,
         nextStepTime = null,
         start = SchoolUiState.LessonRequest.Idle,

@@ -24,6 +24,7 @@ import com.emm.mygame.core.designsystem.BLOCK_HUE
 import com.emm.mygame.core.designsystem.INK_PILL
 import com.emm.mygame.core.designsystem.MyGameBlockHue
 import com.emm.mygame.core.designsystem.MyGameTheme
+import com.emm.mygame.core.network.LessonName
 import kotlin.time.Duration.Companion.minutes
 import org.junit.Assert.assertEquals
 import org.junit.Rule
@@ -45,7 +46,7 @@ class LessonWordsScreenTest {
     private var schoolOpenings: Int = 0
 
     private val finishedFirstWord: LessonWordsUiState.Reading = LessonWordsUiState.Reading(
-        number = 1,
+        name = LessonName.Shelved(number = 1),
         theme = "A day in town",
         words = listOf(homeWord, waterWord),
         index = 0,

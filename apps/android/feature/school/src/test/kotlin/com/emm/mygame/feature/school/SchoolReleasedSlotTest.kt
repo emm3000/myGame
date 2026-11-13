@@ -40,6 +40,8 @@ class SchoolReleasedSlotTest {
         requiredSchoolLevel = 1,
         isStudied = false,
         wordCount = 5,
+        readings = emptyList(),
+        standings = emptyList(),
     )
 
     private val releasedRunning: TownSnapshot = townOf(
@@ -107,10 +109,10 @@ class SchoolReleasedSlotTest {
     }
 
     @Test
-    fun `offers no words to read while a released lesson runs`() {
+    fun `offers the words of the running released lesson by its band and set`() {
         show(contentAt(readInstant + 30.seconds))
 
-        composeRule.onAllNodesWithText("Leer las palabras", substring = true).assertCountEquals(0)
+        composeRule.onNodeWithText("Palabras que vuelven: banda 2, grupo 3 · Leer las palabras").assertExists()
     }
 
     private fun contentAt(now: Instant): SchoolUiState.Content =

@@ -160,6 +160,8 @@ class TownRegisteredTest {
         requiredSchoolLevel = 1,
         isStudied = isStudied,
         wordCount = 5,
+        readings = emptyList(),
+        standings = emptyList(),
     )
 
     private fun lessonOf(id: LessonId, isStudied: Boolean): TownSnapshot.Lesson = TownSnapshot.Lesson(

@@ -69,7 +69,7 @@ fun TownSnapshot.nextStepCard(): NextStepCard = when (val step: NextStep = nextS
         line = NextStepCard.Line.Studying,
         detail = step.producer?.let { producer: NextStep.Producer -> NextStepCard.Detail.Build(producer) },
         countdown = lessonCountdown(),
-        action = NextStepCard.Action.ReadWords(shelvedRunningLesson()),
+        action = NextStepCard.Action.ReadWords(heldRunningLesson()),
     )
     is NextStep.ReleasedLesson -> NextStepCard(
         line = NextStepCard.Line.ReleasedLesson(step.band, step.position),
@@ -99,8 +99,12 @@ private fun TownSnapshot.lessonToStudyCard(lesson: LessonId): NextStepCard {
 private fun TownSnapshot.wordCountOf(lesson: LessonId): Int =
     lessons.firstOrNull { held: TownSnapshot.Lesson -> held.id == lesson }?.wordCount ?: 0
 
-private fun TownSnapshot.shelvedRunningLesson(): LessonId? =
-    lessonSlot?.lesson?.takeIf { running: LessonId -> lessons.any { held: TownSnapshot.Lesson -> held.id == running } }
+private fun TownSnapshot.heldRunningLesson(): LessonId? =
+    lessonSlot?.lesson?.takeIf { running: LessonId -> isHeld(running) }
+
+private fun TownSnapshot.isHeld(lesson: LessonId): Boolean =
+    lessons.any { held: TownSnapshot.Lesson -> held.id == lesson } ||
+        releasedLessons.any { held: TownSnapshot.ReleasedLesson -> held.id == lesson }
 
 private fun TownSnapshot.lessonCountdown(): NextStepCard.Countdown? {
     val slot: TownSnapshot.LessonSlot = lessonSlot ?: return null

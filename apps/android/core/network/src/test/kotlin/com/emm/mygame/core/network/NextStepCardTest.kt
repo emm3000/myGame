@@ -60,8 +60,15 @@ class NextStepCardTest {
     }
 
     @Test
-    fun `sends the words of a running released lesson to the school`() {
+    fun `opens the words of a running released lesson`() {
         val running: TownSnapshot = townOf(NextStep.LessonRunning(producer = null), running = releasedLesson)
+
+        assertEquals(NextStepCard.Action.ReadWords(releasedLesson), running.nextStepCard().action)
+    }
+
+    @Test
+    fun `opens no words for a running lesson the town does not hold`() {
+        val running: TownSnapshot = townOf(NextStep.LessonRunning(producer = null), running = LessonId("gone"))
 
         assertEquals(NextStepCard.Action.ReadWords(lesson = null), running.nextStepCard().action)
     }
@@ -140,5 +147,7 @@ class NextStepCardTest {
         requiredSchoolLevel = 1,
         isStudied = false,
         wordCount = 4,
+        readings = emptyList(),
+        standings = emptyList(),
     )
 }
