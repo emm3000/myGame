@@ -1,6 +1,7 @@
 package com.emm.mygame.feature.review
 
 import com.emm.mygame.core.network.ChoiceId
+import com.emm.mygame.core.network.FrameSpan
 import com.emm.mygame.core.network.LessonId
 import com.emm.mygame.core.network.ReviewChoice
 import com.emm.mygame.core.network.ReviewHint
@@ -44,12 +45,15 @@ sealed interface ReviewUiState {
 
         val shownAnswer: String?
 
+        val openSpan: Int?
+
         data class Recognition(
             override val wordId: WordId,
             val word: String,
-            val frame: String,
+            val frame: List<FrameSpan>,
             val choices: List<ReviewChoice>,
             val chosen: ChoiceId?,
+            override val openSpan: Int?,
         ) : ReviewCard {
 
             override val shownAnswer: String?
@@ -59,9 +63,10 @@ sealed interface ReviewUiState {
         data class Recall(
             override val wordId: WordId,
             val gloss: String,
-            val gappedFrame: String,
+            val gappedFrame: List<FrameSpan>,
             val typed: String,
             val hint: ReviewHint?,
+            override val openSpan: Int?,
         ) : ReviewCard {
 
             override val shownAnswer: String

@@ -71,6 +71,7 @@ class ReviewRecallKeyboardTest {
             gappedFrame = homeRecall.gappedFrame,
             typed = "",
             hint = null,
+            openSpan = null,
         ),
         step = ReviewUiState.ReviewStep.Answering,
         isDealtFromStack = false,

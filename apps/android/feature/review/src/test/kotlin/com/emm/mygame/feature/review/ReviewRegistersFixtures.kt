@@ -16,6 +16,7 @@ internal val dealtSchool: ReviewUiState.Reviewing = ReviewUiState.Reviewing(
         frame = schoolRecognition.frame,
         choices = schoolRecognition.choices,
         chosen = null,
+        openSpan = null,
     ),
     step = ReviewUiState.ReviewStep.Answering,
     isDealtFromStack = true,

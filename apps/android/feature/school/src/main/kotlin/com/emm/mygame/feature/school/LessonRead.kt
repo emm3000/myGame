@@ -20,7 +20,12 @@ internal data class LessonRead(val town: TownSnapshot, val readFirst: List<Lesso
         ?.let { slot: TownSnapshot.LessonSlot -> countdownTo(finishesAt = slot.finishesAt, now = now) }
         ?.takeIf { remaining: Duration -> remaining > Duration.ZERO }
 
-    fun stateOf(walk: LessonWalk, wordIndex: Int, now: Instant): LessonWordsUiState {
+    fun stateOf(
+        walk: LessonWalk,
+        wordIndex: Int,
+        shownSupport: LessonWordsUiState.ShownSupport?,
+        now: Instant,
+    ): LessonWordsUiState {
         val readings: List<TownSnapshot.WordReading> = readingsOf(walk.lesson)
         if (readings.isEmpty()) return LessonWordsUiState.NothingToRead
         val remaining: Duration? = remainingOf(walk.lesson, now)
@@ -31,6 +36,7 @@ internal data class LessonRead(val town: TownSnapshot, val readFirst: List<Lesso
             index = minOf(wordIndex, readings.lastIndex),
             remaining = remaining,
             wayOn = if (remaining == null && readFirst != null) wayOnOf(readFirst, walk.opened) else null,
+            shownSupport = shownSupport,
         )
     }
 

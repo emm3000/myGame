@@ -55,12 +55,13 @@ class ReviewLanguageTest {
         card = ReviewUiState.ReviewCard.Recognition(
             wordId = WordId("lesson-1-2"),
             word = "school",
-            frame = "The kids walk to school.",
+            frame = plainFrame("The kids walk to school."),
             choices = listOf(
                 ReviewChoice(id = ChoiceId("0a1b2c3d"), gloss = "dinero"),
                 ReviewChoice(id = ChoiceId("4e5f6a7b"), gloss = "escuela"),
             ),
             chosen = null,
+            openSpan = null,
         ),
         step = ReviewUiState.ReviewStep.Answering,
         isDealtFromStack = false,
@@ -70,9 +71,10 @@ class ReviewLanguageTest {
         card = ReviewUiState.ReviewCard.Recall(
             wordId = WordId("lesson-1-1"),
             gloss = "casa",
-            gappedFrame = "She goes ___ at six.",
+            gappedFrame = plainFrame("She goes ___ at six."),
             typed = "",
             hint = null,
+            openSpan = null,
         ),
     )
 

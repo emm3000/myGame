@@ -94,7 +94,17 @@ class TownNextStepRepositoryTest {
         val read: TownSnapshot = (town().read() as TownReadResult.Read).town
 
         assertEquals(
-            listOf(TownSnapshot.WordReading(word = "ticket", gloss = "boleto", frame = "I buy a ticket.")),
+            listOf(
+                TownSnapshot.WordReading(
+                    word = "ticket",
+                    frame = listOf(
+                        FrameSpan(text = "I buy a ", support = null),
+                        FrameSpan(text = "ticket", support = null),
+                        FrameSpan(text = ".", support = null),
+                    ),
+                    support = null,
+                ),
+            ),
             read.releasedLessons.single().readings,
         )
     }

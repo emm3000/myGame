@@ -13,7 +13,7 @@ sealed interface DueReview {
         override val lesson: LessonId,
         val dueAt: Instant,
         val word: String,
-        val frame: String,
+        val frame: List<FrameSpan>,
         val choices: List<ReviewChoice>,
     ) : DueReview
 
@@ -22,6 +22,6 @@ sealed interface DueReview {
         override val lesson: LessonId,
         val dueAt: Instant,
         val gloss: String,
-        val gappedFrame: String,
+        val gappedFrame: List<FrameSpan>,
     ) : DueReview
 }

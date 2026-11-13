@@ -5,6 +5,7 @@ import app.cash.turbine.ReceiveTurbine
 import com.emm.mygame.core.network.ChoiceId
 import com.emm.mygame.core.network.DueReview
 import com.emm.mygame.core.network.DueReviews
+import com.emm.mygame.core.network.FrameSpan
 import com.emm.mygame.core.network.LessonId
 import com.emm.mygame.core.network.NextStep
 import com.emm.mygame.core.network.ReviewChoice
@@ -75,7 +76,7 @@ internal val coffeeRecall: DueReview.Recall = DueReview.Recall(
     lesson = lessonTwo,
     dueAt = firstReadAt,
     gloss = "café",
-    gappedFrame = "He drinks ___ at nine.",
+    gappedFrame = plainFrame("He drinks ___ at nine."),
 )
 
 internal fun lessonOf(id: String, standings: List<WordStanding>): TownSnapshot.Lesson = TownSnapshot.Lesson(
@@ -125,7 +126,7 @@ internal val schoolRecognition: DueReview.Recognition = DueReview.Recognition(
     lesson = LessonId("lesson-1"),
     dueAt = firstReadAt,
     word = "school",
-    frame = "The kids walk to school.",
+    frame = plainFrame("The kids walk to school."),
     choices = listOf(
         ReviewChoice(id = ChoiceId("0a1b2c3d"), gloss = "dinero"),
         ReviewChoice(id = ChoiceId("4e5f6a7b"), gloss = "escuela"),
@@ -137,5 +138,7 @@ internal val homeRecall: DueReview.Recall = DueReview.Recall(
     lesson = LessonId("lesson-1"),
     dueAt = firstReadAt,
     gloss = "casa",
-    gappedFrame = "She goes ___ at six.",
+    gappedFrame = plainFrame("She goes ___ at six."),
 )
+
+internal fun plainFrame(text: String): List<FrameSpan> = listOf(FrameSpan(text = text, support = null))

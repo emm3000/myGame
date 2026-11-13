@@ -58,7 +58,18 @@ class LearningRepositoryTest {
                             lesson = LessonId("lesson-1"),
                             dueAt = Instant.parse("2026-11-10T09:00:00.000Z"),
                             word = "school",
-                            frame = "The kids walk to school.",
+                            frame = listOf(
+                                FrameSpan(text = "The kids ", support = null),
+                                FrameSpan(
+                                    text = "walk",
+                                    support = WordSupport(
+                                        shown = WordSupport.Shown.Beside,
+                                        text = "caminar",
+                                        language = WordSupport.Language.Spanish,
+                                    ),
+                                ),
+                                FrameSpan(text = " to school.", support = null),
+                            ),
                             choices = listOf(
                                 ReviewChoice(id = ChoiceId("0a1b2c3d"), gloss = "escuela"),
                                 ReviewChoice(id = ChoiceId("4e5f6a7b"), gloss = "comida"),
@@ -69,7 +80,7 @@ class LearningRepositoryTest {
                             lesson = LessonId("lesson-1"),
                             dueAt = Instant.parse("2026-11-10T09:01:00.000Z"),
                             gloss = "casa",
-                            gappedFrame = "She goes ___ at six.",
+                            gappedFrame = listOf(FrameSpan(text = "She goes ___ at six.", support = null)),
                         ),
                     ),
                     readFirst = listOf(LessonId("lesson-1")),
@@ -78,6 +89,46 @@ class LearningRepositoryTest {
                 ),
             ),
             learning().reviews(),
+        )
+    }
+
+    @Test
+    fun `reads a support on tap in english`() = runTest {
+        api.enqueue(json(200, TWO_DUE.replace(SPANISH_BESIDE, ENGLISH_ON_TAP)))
+
+        val read: ReviewsReadResult = learning().reviews()
+
+        assertEquals(
+            WordSupport(
+                shown = WordSupport.Shown.OnTap,
+                text = "to go on foot",
+                language = WordSupport.Language.English,
+            ),
+            ((read as ReviewsReadResult.Read).reviews.due.first() as DueReview.Recognition).frame[1].support,
+        )
+    }
+
+    @Test
+    fun `draws a span whose support is shown in a way the client does not know as plain text`() = runTest {
+        api.enqueue(json(200, TWO_DUE.replace(SPANISH_BESIDE, SPANISH_HIDDEN)))
+
+        val read: ReviewsReadResult = learning().reviews()
+
+        assertEquals(
+            FrameSpan(text = "walk", support = null),
+            ((read as ReviewsReadResult.Read).reviews.due.first() as DueReview.Recognition).frame[1],
+        )
+    }
+
+    @Test
+    fun `draws a span whose support is in a language the client does not know as plain text`() = runTest {
+        api.enqueue(json(200, TWO_DUE.replace(SPANISH_BESIDE, FRENCH_BESIDE)))
+
+        val read: ReviewsReadResult = learning().reviews()
+
+        assertEquals(
+            FrameSpan(text = "walk", support = null),
+            ((read as ReviewsReadResult.Read).reviews.due.first() as DueReview.Recognition).frame[1],
         )
     }
 
@@ -278,11 +329,15 @@ class LearningRepositoryTest {
             """{"due":[],"readFirst":[],"nextDueAt":null,"readAt":"2026-11-10T08:59:30.000Z"}"""
         const val NOTHING_DUE: String =
             """{"due":[],"readFirst":[],"nextDueAt":"2026-11-10T09:10:00.000Z","readAt":"2026-11-10T09:04:00.000Z"}"""
+        const val SPANISH_BESIDE: String = """{"shown":"beside","text":"caminar","language":"es"}"""
+        const val ENGLISH_ON_TAP: String = """{"shown":"onTap","text":"to go on foot","language":"en"}"""
+        const val SPANISH_HIDDEN: String = """{"shown":"hidden","text":"caminar","language":"es"}"""
+        const val FRENCH_BESIDE: String = """{"shown":"beside","text":"marcher","language":"fr"}"""
         const val TWO_DUE: String =
             """{"due":[""" +
                 """{"mode":"recognition","wordId":"lesson-1-2","lessonId":"lesson-1",""" +
                 """"dueAt":"2026-11-10T09:00:00.000Z","word":"school","frame":[{"text":"The kids ","support":null},""" +
-                """{"text":"walk","support":{"shown":"beside","text":"caminar","language":"es"}},""" +
+                """{"text":"walk","support":$SPANISH_BESIDE},""" +
                 """{"text":" to school.","support":null}],""" +
                 """"choices":[{"choiceId":"0a1b2c3d","gloss":"escuela"},{"choiceId":"4e5f6a7b","gloss":"comida"}]},""" +
                 """{"mode":"recall","wordId":"lesson-1-1","lessonId":"lesson-1",""" +

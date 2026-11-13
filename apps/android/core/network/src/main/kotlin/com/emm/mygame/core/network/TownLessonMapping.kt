@@ -21,7 +21,7 @@ internal fun TownOverviewLessonsInner.toLesson(): TownSnapshot.Lesson? {
         skill = TownSnapshot.LessonSkill(resource, skill.ratePercent),
         isStudied = isStudied,
         wordCount = words.size,
-        readings = words.mapNotNull { word: TownOverviewLessonsInnerWordsInner -> word.reading?.toWordReading() },
+        readings = words.mapNotNull { word: TownOverviewLessonsInnerWordsInner -> word.toWordReading() },
         standings = words.mapNotNull { word: TownOverviewLessonsInnerWordsInner -> word.standing.toWordStanding() },
     )
 }
@@ -36,7 +36,7 @@ internal fun TownOverviewReleasedLessonsInner.toReleasedLesson(): TownSnapshot.R
         requiredSchoolLevel = requiredSchoolLevel,
         isStudied = isStudied,
         wordCount = words.size,
-        readings = words.mapNotNull { word: TownOverviewLessonsInnerWordsInner -> word.reading?.toWordReading() },
+        readings = words.mapNotNull { word: TownOverviewLessonsInnerWordsInner -> word.toWordReading() },
         standings = words.mapNotNull { word: TownOverviewLessonsInnerWordsInner -> word.standing.toWordStanding() },
     )
 }
@@ -50,8 +50,14 @@ private fun TownOverviewLessonsInnerWordsInner.Standing.toWordStanding(): WordSt
     TownOverviewLessonsInnerWordsInner.Standing.unknown_default_open_api -> null
 }
 
-private fun TownOverviewLessonsInnerWordsInnerReading.toWordReading(): TownSnapshot.WordReading =
-    TownSnapshot.WordReading(word = word, gloss = gloss, frame = frame.joinedText())
+private fun TownOverviewLessonsInnerWordsInner.toWordReading(): TownSnapshot.WordReading? {
+    val shown: TownOverviewLessonsInnerWordsInnerReading = reading ?: return null
+    return TownSnapshot.WordReading(
+        word = shown.word,
+        frame = shown.frame.toFrameSpans(),
+        support = support?.toWordSupport(),
+    )
+}
 
 internal fun TownOverviewSkillsInner.toEarnedSkill(): TownSnapshot.EarnedSkill? {
     val kind: TownResourceKind = resource.toTownResourceKind() ?: return null

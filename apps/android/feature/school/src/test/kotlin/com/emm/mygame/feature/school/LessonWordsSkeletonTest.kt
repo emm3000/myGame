@@ -39,6 +39,7 @@ class LessonWordsSkeletonTest {
         index = 0,
         remaining = null,
         wayOn = LessonWordsUiState.WayOn.Reviews,
+        shownSupport = null,
     )
 
     @Test

@@ -27,6 +27,9 @@ import com.emm.mygame.core.designsystem.MyGameArt
 import com.emm.mygame.core.designsystem.MyGameBlock
 import com.emm.mygame.core.designsystem.MyGameButton
 import com.emm.mygame.core.designsystem.MyGameErrorBanner
+import com.emm.mygame.core.designsystem.MyGameFrame
+import com.emm.mygame.core.designsystem.MyGameFramePiece
+import com.emm.mygame.core.designsystem.MyGameFrameText
 import com.emm.mygame.core.designsystem.MyGameIcon
 import com.emm.mygame.core.designsystem.MyGameIcons
 import com.emm.mygame.core.designsystem.MyGameLabel
@@ -35,6 +38,7 @@ import com.emm.mygame.core.designsystem.MyGameSizes
 import com.emm.mygame.core.designsystem.MyGameSkeleton
 import com.emm.mygame.core.designsystem.MyGameSkeletonBlocks
 import com.emm.mygame.core.designsystem.MyGameSpacing
+import com.emm.mygame.core.designsystem.MyGameSupportLine
 import com.emm.mygame.core.designsystem.MyGameText
 import com.emm.mygame.core.designsystem.MyGameTextLink
 import com.emm.mygame.core.designsystem.MyGameTheme
@@ -46,9 +50,11 @@ import com.emm.mygame.core.designsystem.blockHueOf
 import com.emm.mygame.core.designsystem.dashedFrame
 import com.emm.mygame.core.designsystem.withTabularFigures
 import com.emm.mygame.core.designsystem.wordStyle
+import com.emm.mygame.core.network.FrameSpan
 import com.emm.mygame.core.network.LessonName
 import com.emm.mygame.core.network.PlacementBand
 import com.emm.mygame.core.network.TownSnapshot
+import com.emm.mygame.core.network.WordSupport
 import com.emm.mygame.core.ui.ChromePhase
 import com.emm.mygame.core.ui.CopyLanguage
 import com.emm.mygame.core.ui.ProvideCopyLanguage
@@ -107,7 +113,7 @@ private fun LessonWordsState(
             LessonHeader(reading = state)
             state.remaining?.let { remaining: Duration -> RunningTime(remaining = remaining) }
             WordProgress(reading = state)
-            WordBlock(reading = state)
+            WordBlock(reading = state, onIntent = onIntent)
             WordActions(reading = state, onIntent = onIntent, onWayOn = onWayOn, onSchoolOpen = onSchoolOpen)
         }
     }
@@ -183,7 +189,11 @@ private fun WordProgress(reading: LessonWordsUiState.Reading, modifier: Modifier
 }
 
 @Composable
-private fun WordBlock(reading: LessonWordsUiState.Reading, modifier: Modifier = Modifier) {
+private fun WordBlock(
+    reading: LessonWordsUiState.Reading,
+    onIntent: (LessonWordsIntent) -> Unit,
+    modifier: Modifier = Modifier,
+) {
     val word: TownSnapshot.WordReading = reading.word
     MyGameBlock(
         hue = blockHueOf(reading.index),
@@ -201,15 +211,37 @@ private fun WordBlock(reading: LessonWordsUiState.Reading, modifier: Modifier = 
         wordArtOf(word.word)?.let { art: MyGameArt ->
             MyGameWordArt(art = art, modifier = Modifier.semantics { testTag = WORD_SILHOUETTE })
         }
-        MyGameText(
-            text = word.word,
-            style = wordStyle(),
-            color = MyGameTheme.colors.onBlock,
-            modifier = Modifier.semantics { heading() },
+        WordHeading(
+            word = word,
+            isOpen = reading.shownSupport == LessonWordsUiState.ShownSupport.Word,
+            onIntent = onIntent,
         )
-        MyGameText(text = word.gloss, style = MyGameTypography.reading, color = MyGameTheme.colors.onBlockMuted)
-        MyGameText(text = word.frame, style = MyGameTypography.reading, color = MyGameTheme.colors.onBlock)
+        MyGameFrameText(
+            frame = word.frame.toMyGameFrame(),
+            openPiece = (reading.shownSupport as? LessonWordsUiState.ShownSupport.Frame)?.span,
+            style = MyGameTypography.reading,
+            onPieceTap = { span: Int ->
+                onIntent(LessonWordsIntent.SupportTapped(LessonWordsUiState.ShownSupport.Frame(span)))
+            },
+        )
+        reading.openSupport?.let { support: WordSupport -> MyGameSupportLine(support = support.toMyGameSupport()) }
     }
+}
+
+@Composable
+private fun WordHeading(
+    word: TownSnapshot.WordReading,
+    isOpen: Boolean,
+    onIntent: (LessonWordsIntent) -> Unit,
+    modifier: Modifier = Modifier,
+) {
+    MyGameFrameText(
+        frame = MyGameFrame(listOf(MyGameFramePiece(text = word.word, support = word.support?.toMyGameSupport()))),
+        openPiece = if (isOpen) 0 else null,
+        style = wordStyle(),
+        onPieceTap = { onIntent(LessonWordsIntent.SupportTapped(LessonWordsUiState.ShownSupport.Word)) },
+        modifier = modifier.semantics { heading() },
+    )
 }
 
 @Composable
@@ -286,12 +318,38 @@ private val previewReading: LessonWordsUiState.Reading = LessonWordsUiState.Read
     name = LessonName.Shelved(number = 1),
     theme = "A day in town",
     words = listOf(
-        TownSnapshot.WordReading(word = "home", gloss = "hogar", frame = "This is my home."),
-        TownSnapshot.WordReading(word = "water", gloss = "agua", frame = "I drink water."),
+        TownSnapshot.WordReading(
+            word = "home",
+            frame = listOf(
+                FrameSpan(text = "This ", support = null),
+                FrameSpan(text = "is", support = previewSupport(WordSupport.Shown.OnTap, "es")),
+                FrameSpan(text = " my home.", support = null),
+            ),
+            support = previewSupport(WordSupport.Shown.Beside, "hogar"),
+        ),
+        TownSnapshot.WordReading(
+            word = "water",
+            frame = listOf(
+                FrameSpan(text = "I ", support = null),
+                FrameSpan(text = "drink", support = previewSupport(WordSupport.Shown.Beside, "beber")),
+                FrameSpan(text = " water.", support = null),
+            ),
+            support = previewSupport(WordSupport.Shown.OnTap, "agua"),
+        ),
     ),
     index = 0,
     remaining = 3.minutes,
     wayOn = null,
+    shownSupport = null,
+)
+
+private fun previewSupport(shown: WordSupport.Shown, text: String): WordSupport =
+    WordSupport(shown = shown, text = text, language = WordSupport.Language.Spanish)
+
+private val previewDefinition: WordSupport = WordSupport(
+    shown = WordSupport.Shown.OnTap,
+    text = "clear liquid that people drink",
+    language = WordSupport.Language.English,
 )
 
 private class LessonWordsUiStates : PreviewParameterProvider<LessonWordsUiState> {
@@ -299,6 +357,14 @@ private class LessonWordsUiStates : PreviewParameterProvider<LessonWordsUiState>
     override val values: Sequence<LessonWordsUiState> = sequenceOf(
         previewReading,
         previewReading.copy(index = 1, remaining = null, wayOn = LessonWordsUiState.WayOn.Reviews),
+        previewReading.copy(index = 1, shownSupport = LessonWordsUiState.ShownSupport.Word),
+        previewReading.copy(shownSupport = LessonWordsUiState.ShownSupport.Frame(span = 1)),
+        previewReading.copy(
+            words = previewReading.words.map { word: TownSnapshot.WordReading ->
+                word.copy(support = previewDefinition)
+            },
+            shownSupport = LessonWordsUiState.ShownSupport.Word,
+        ),
         previewReading.copy(name = LessonName.Released(PlacementBand.Second, set = 1), theme = null),
         LessonWordsUiState.NothingToRead,
         LessonWordsUiState.Loading,

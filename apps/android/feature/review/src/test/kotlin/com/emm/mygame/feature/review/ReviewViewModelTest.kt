@@ -149,9 +149,10 @@ class ReviewViewModelTest {
                     card = ReviewUiState.ReviewCard.Recall(
                         wordId = homeRecall.wordId,
                         gloss = "casa",
-                        gappedFrame = "She goes ___ at six.",
+                        gappedFrame = plainFrame("She goes ___ at six."),
                         typed = "",
                         hint = null,
+                        openSpan = null,
                     ),
                     step = ReviewUiState.ReviewStep.Answering,
                     isDealtFromStack = false,
@@ -172,9 +173,10 @@ class ReviewViewModelTest {
                 ReviewUiState.ReviewCard.Recognition(
                     wordId = schoolRecognition.wordId,
                     word = "school",
-                    frame = "The kids walk to school.",
+                    frame = plainFrame("The kids walk to school."),
                     choices = schoolRecognition.choices,
                     chosen = null,
+                    openSpan = null,
                 ),
                 awaitReviewing().card,
             )

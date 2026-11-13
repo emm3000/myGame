@@ -64,7 +64,7 @@ class ReviewRegistersScreenTest {
     fun `speaks each row once`() {
         drawInFlight(skillEarned.copy(isDealtFromStack = true))
 
-        assertEquals(1, liveNodesHolding(schoolRecognition.frame).size)
+        assertEquals(1, liveNodesHolding("The kids walk to school.").size)
         assertEquals(1, liveNodesHolding("+19 / h").size)
     }
 
