@@ -47,6 +47,7 @@ class MapCleanUpScreenTest {
         workersAtHome = 3,
         trucksAtHome = 1,
         block = null,
+        roadMark = null,
         quote = null,
     )
 

@@ -33,6 +33,7 @@ import com.emm.mygame.core.network.SeasonKind
 import com.emm.mygame.core.network.TipKind
 import com.emm.mygame.core.network.TownBuildingKind
 import com.emm.mygame.core.network.TownGoal
+import com.emm.mygame.core.network.TownHireKind
 import com.emm.mygame.core.network.TownLabel
 import com.emm.mygame.core.network.TownLessonRefusal
 import com.emm.mygame.core.network.TownResourceKind
@@ -261,6 +262,7 @@ private val previewHome: TownUiState.Content = TownUiState.Content(
     office = TownUiState.OfficeLine(
         hiring = TownUiState.HiringLine.Idle,
         hires = emptyList(),
+        hireMark = null,
         place = TownUiState.HireStatus.Idle,
         stop = TownUiState.HireStopStatus.Idle,
     ),
@@ -281,6 +283,21 @@ private class TownScreenStates : PreviewParameterProvider<TownUiState> {
                 productionMarks = listOf(TownUiState.ProductionMark(TownResourceKind.Power, percent = 75)),
             ),
             buildMark = null,
+        ),
+        previewHome.copy(
+            season = TownUiState.SeasonLine(
+                kind = SeasonKind.Spring,
+                year = 2,
+                remaining = 4.days,
+                productionMarks = emptyList(),
+            ),
+            buildMark = null,
+            office = previewHome.office.copy(
+                hires = listOf(
+                    TownUiState.HireCard(TownHireKind.Truck, team = 0, requiredOfficeLevel = 3, form = null),
+                ),
+                hireMark = TownUiState.DurationMark(SeasonKind.Spring, percent = 75),
+            ),
         ),
         previewHome.copy(
             nextStep = NextStepCard(

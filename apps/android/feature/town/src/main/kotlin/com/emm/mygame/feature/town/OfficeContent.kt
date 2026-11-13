@@ -29,6 +29,7 @@ internal fun TownSnapshot.officeLineAt(
     hires = TownHireKind.entries.map { kind: TownHireKind ->
         hireCardOf(kind, entries[kind] ?: FIRST_HIRE_ENTRY, drawn, now, gap)
     },
+    hireMark = seasonInForce?.hireMark(),
     place = mutations.hire,
     stop = mutations.hireStop,
 )

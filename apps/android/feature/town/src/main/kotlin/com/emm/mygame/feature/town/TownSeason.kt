@@ -25,7 +25,9 @@ private fun SeasonInForce.productionMarks(): List<TownUiState.ProductionMark> =
         }
         .filter { mark: TownUiState.ProductionMark -> mark.percent != UNSCALED_PERCENT }
 
-internal fun SeasonInForce.buildMark(): TownUiState.DurationMark? =
-    TownUiState.DurationMark(kind, durationPercent.build).takeUnless { mark: TownUiState.DurationMark ->
-        mark.percent == UNSCALED_PERCENT
-    }
+internal fun SeasonInForce.buildMark(): TownUiState.DurationMark? = markAt(durationPercent.build)
+
+internal fun SeasonInForce.hireMark(): TownUiState.DurationMark? = markAt(durationPercent.hire)
+
+private fun SeasonInForce.markAt(percent: Int): TownUiState.DurationMark? =
+    if (percent == UNSCALED_PERCENT) null else TownUiState.DurationMark(kind, percent)

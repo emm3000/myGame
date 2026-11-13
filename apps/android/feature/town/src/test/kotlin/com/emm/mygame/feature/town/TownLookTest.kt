@@ -6,12 +6,10 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.semantics.SemanticsActions
-import androidx.compose.ui.test.SemanticsMatcher
 import androidx.compose.ui.test.assertCountEquals
 import androidx.compose.ui.test.assertIsDisplayed
 import androidx.compose.ui.test.getUnclippedBoundsInRoot
-import androidx.compose.ui.test.hasAnyDescendant
-import androidx.compose.ui.test.hasText
+import androidx.compose.ui.test.junit4.ComposeContentTestRule
 import androidx.compose.ui.test.junit4.createComposeRule
 import androidx.compose.ui.test.onAllNodesWithTag
 import androidx.compose.ui.test.onAllNodesWithText
@@ -35,7 +33,6 @@ import com.emm.mygame.core.network.TownLabel
 import com.emm.mygame.core.network.TownRegistered
 import com.emm.mygame.core.network.TownResourceKind
 import com.emm.mygame.core.network.TownSnapshot
-import com.emm.mygame.core.ui.SEASON_MARK_ICON
 import kotlin.time.Duration
 import kotlin.time.Duration.Companion.hours
 import kotlin.time.Duration.Companion.minutes
@@ -51,7 +48,7 @@ import org.robolectric.RobolectricTestRunner
 class TownLookTest {
 
     @get:Rule
-    val composeRule = createComposeRule()
+    val composeRule: ComposeContentTestRule = createComposeRule()
 
     private val idleMutations: TownMutations = TownMutations.none
 
@@ -412,7 +409,7 @@ class TownLookTest {
             home.value = riverton.copy(buildMark = TownUiState.DurationMark(season, percent = 75))
             composeRule.waitForIdle()
 
-            composeRule.onNode(markOf(icon, text = "las obras tardan el 75 % del tiempo")).assertExists()
+            composeRule.onNode(seasonMarkOf(icon, text = "las obras tardan el 75 % del tiempo")).assertExists()
         }
     }
 
@@ -427,7 +424,7 @@ class TownLookTest {
 
         show(riverton.copy(season = season))
 
-        composeRule.onNode(markOf(MyGameIcons.winter, text = "Invierno: energía al 75 %")).assertExists()
+        composeRule.onNode(seasonMarkOf(MyGameIcons.winter, text = "Invierno: energía al 75 %")).assertExists()
     }
 
     @Test
@@ -479,28 +476,11 @@ class TownLookTest {
         )
     }
 
-    private fun markOf(icon: ImageVector, text: String): SemanticsMatcher =
-        SemanticsMatcher.expectValue(SEASON_MARK_ICON, icon) and hasAnyDescendant(hasText(text, substring = true))
-
     private companion object {
         const val MONEY_SHORT: String = "Necesitas 30 de dinero más."
         const val PEOPLE: String = "Gente: 24 libres, 96 trabajando"
         const val SUMMER_FOOD: String = "Verano: comida al 125 %"
         const val SUMMER_BUILD: String = "Verano: las obras tardan el 75 % del tiempo"
-
-        val seasonWords: Map<SeasonKind, String> = mapOf(
-            SeasonKind.Spring to "Primavera",
-            SeasonKind.Summer to "Verano",
-            SeasonKind.Fall to "Otoño",
-            SeasonKind.Winter to "Invierno",
-        )
-
-        val seasonIcons: Map<SeasonKind, ImageVector> = mapOf(
-            SeasonKind.Spring to MyGameIcons.spring,
-            SeasonKind.Summer to MyGameIcons.summer,
-            SeasonKind.Fall to MyGameIcons.fall,
-            SeasonKind.Winter to MyGameIcons.winter,
-        )
     }
 
     private fun TownSnapshot.readContent(): TownUiState.Content = contentAt(

@@ -1,5 +1,6 @@
 package com.emm.mygame.feature.map
 
+import com.emm.mygame.core.network.SeasonKind
 import com.emm.mygame.core.network.Terrain
 import com.emm.mygame.core.network.TownJobRefusal
 import com.emm.mygame.core.network.TownResourceKind
@@ -56,6 +57,8 @@ sealed interface MapUiState {
         val trucksAtHome: Int
 
         val block: JobBlock?
+
+        val roadMark: DurationMark?
     }
 
     data class JobForm(
@@ -66,6 +69,7 @@ sealed interface MapUiState {
         override val workersAtHome: Int,
         override val trucksAtHome: Int,
         override val block: JobBlock?,
+        override val roadMark: DurationMark?,
         val quote: PayQuote?,
     ) : SiteForm
 
@@ -76,6 +80,7 @@ sealed interface MapUiState {
         override val workersAtHome: Int,
         override val trucksAtHome: Int,
         override val block: JobBlock?,
+        override val roadMark: DurationMark?,
         val quote: CleanUpQuote?,
     ) : SiteForm
 
@@ -157,6 +162,8 @@ sealed interface MapUiState {
         Cleaned,
         NotCleaned,
     }
+
+    data class DurationMark(val season: SeasonKind, val percent: Int)
 
     data class PayLine(val resource: TownResourceKind, val amount: Long)
 }

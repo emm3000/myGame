@@ -190,6 +190,7 @@ class MapViewModelTest {
                 workersAtHome = 3,
                 trucksAtHome = 1,
                 block = MapUiState.JobBlock.InvalidTeam,
+                roadMark = null,
                 quote = null,
             ),
             contentOf(viewModel).form,

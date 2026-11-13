@@ -24,6 +24,7 @@ import com.emm.mygame.core.designsystem.withTabularFigures
 import com.emm.mygame.core.network.TownBuildingKind
 import com.emm.mygame.core.network.TownHireKind
 import com.emm.mygame.core.ui.PlayerCopy
+import com.emm.mygame.core.ui.SeasonMark
 import com.emm.mygame.core.ui.chromeResource
 import com.emm.mygame.core.ui.rememberPlayerCopy
 
@@ -46,6 +47,7 @@ internal fun OfficeSection(
                 modifier = Modifier.padding(vertical = MyGameSpacing.step4),
             ) {
                 HiringHeading()
+                office.hireMark?.let { mark: TownUiState.DurationMark -> HireMarkRow(mark = mark) }
                 when (val hiring: TownUiState.HiringLine = office.hiring) {
                     TownUiState.HiringLine.Idle -> MyGameText(
                         label = chromeResource(R.string.town_office_idle),
@@ -82,6 +84,19 @@ private fun HiringHeading(modifier: Modifier = Modifier) {
             modifier = Modifier.semantics { heading() },
         )
     }
+}
+
+@Composable
+private fun HireMarkRow(mark: TownUiState.DurationMark, modifier: Modifier = Modifier) {
+    SeasonMark(
+        icon = seasonIconOf(mark.season),
+        label = chromeResource(
+            R.string.town_season_hire_mark,
+            "season" to seasonSelectorOf(mark.season),
+            "percent" to mark.percent.toString(),
+        ),
+        modifier = modifier,
+    )
 }
 
 @Composable
