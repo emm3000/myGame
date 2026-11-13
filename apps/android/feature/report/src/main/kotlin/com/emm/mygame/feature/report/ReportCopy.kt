@@ -78,7 +78,7 @@ internal fun CopyReader.amountsLineOf(paid: NewsAmounts): String {
             "resource" to text(resourceNameOf(held.resource)),
         )
     }
-    return text(paid.line, "amounts" to listOf(quantities))
+    return text(paid.line, "amounts" to listPhraseOf(quantities))
 }
 
 internal fun CopyReader.nextReviewLabelOf(nextReview: Instant, receivedAt: Instant, zone: ZoneId): String {

@@ -22,6 +22,7 @@ import com.emm.mygame.core.network.ReportRepository
 import com.emm.mygame.core.network.RestoreResult
 import com.emm.mygame.core.network.SessionEnds
 import com.emm.mygame.core.network.SessionRepository
+import com.emm.mygame.core.network.SignedInPlayer
 import com.emm.mygame.core.network.TownReport
 import com.emm.mygame.core.network.TownRepository
 import com.emm.mygame.core.testing.FakeLearningRepository
@@ -104,6 +105,16 @@ class PlayerLanguageNavigationTest {
         composeRule.onAllNodesWithText("Informe").assertCountEquals(1)
         composeRule.onAllNodesWithText("Report").assertCountEquals(0)
         composeRule.onAllNodesWithText("PUEBLO").assertCountEquals(1)
+    }
+
+    @Test
+    fun `draws a screen the chrome has not reached in the scaffold language on an English phone`() {
+        sessionsFake.answerRestore(RestoreResult.SignedIn(SignedInPlayer("ines@example.com", isEmailVerified = false)))
+
+        showReport(PlayerLanguage(PlayerScaffold.Spanish, PlayerChromePhase.English))
+
+        waitForLine("Confirma tu correo")
+        composeRule.onAllNodesWithText("Confirm your email").assertCountEquals(0)
     }
 
     @Test
