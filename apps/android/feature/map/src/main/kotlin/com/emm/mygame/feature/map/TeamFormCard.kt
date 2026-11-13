@@ -5,23 +5,24 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.padding
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.heading
 import androidx.compose.ui.semantics.hideFromAccessibility
 import androidx.compose.ui.semantics.semantics
 import com.emm.mygame.core.designsystem.MyGameButton
 import com.emm.mygame.core.designsystem.MyGameCard
+import com.emm.mygame.core.designsystem.MyGameLabel
 import com.emm.mygame.core.designsystem.MyGameSpacing
 import com.emm.mygame.core.designsystem.MyGameText
 import com.emm.mygame.core.designsystem.MyGameTheme
 import com.emm.mygame.core.designsystem.MyGameTypography
 import com.emm.mygame.core.network.TownJobRefusal
-import com.emm.mygame.core.ui.icuStringResource
+import com.emm.mygame.core.ui.PlayerCopy
+import com.emm.mygame.core.ui.rememberPlayerCopy
 
 @Composable
 internal fun TeamFormCard(
     form: MapUiState.SiteForm,
-    title: String,
+    title: MyGameLabel,
     send: MapUiState.SendRequest,
     quoteRefusal: TownJobRefusal?,
     onIntent: (MapIntent) -> Unit,
@@ -29,11 +30,12 @@ internal fun TeamFormCard(
     extraFields: @Composable () -> Unit = {},
     quote: @Composable (isSendAnswered: Boolean) -> Unit,
 ) {
-    val reason: String? = form.block?.let { block: MapUiState.JobBlock -> jobBlockLineOf(block) }
+    val copy: PlayerCopy = rememberPlayerCopy()
+    val reason: MyGameLabel? = form.block?.let { block: MapUiState.JobBlock -> copy.jobBlockLabelOf(block) }
     val isSendAnswered: Boolean = send.isAnsweredFor(form.site)
     val isApiAnswered: Boolean = isSendAnswered || quoteRefusal != null
     val quoteReason: String? = quoteRefusal?.takeUnless { isSendAnswered }?.let { refusal: TownJobRefusal ->
-        jobRefusalLineOf(refusal)
+        copy.fixedCopy { jobRefusalLineOf(refusal) }
     }
     MyGameCard(modifier = modifier) {
         Column(
@@ -41,37 +43,37 @@ internal fun TeamFormCard(
             modifier = Modifier.padding(vertical = MyGameSpacing.step4),
         ) {
             MyGameText(
-                text = title,
+                label = title,
                 style = MyGameTypography.heading,
                 color = MyGameTheme.colors.ink,
                 modifier = Modifier.semantics { heading() },
             )
             JobField(
                 value = form.workers,
-                label = stringResource(R.string.map_job_workers),
+                label = copy.chrome(R.string.map_job_workers),
                 field = MapIntent.JobField.Workers,
                 onIntent = onIntent,
-                supportingText = icuStringResource(R.string.map_job_at_home, "count" to form.workersAtHome.toString()),
+                supportingText = copy.chrome(R.string.map_job_at_home, "count" to form.workersAtHome.toString()).spoken,
             )
             JobField(
                 value = form.trucks,
-                label = stringResource(R.string.map_job_trucks),
+                label = copy.chrome(R.string.map_job_trucks),
                 field = MapIntent.JobField.Trucks,
                 onIntent = onIntent,
-                supportingText = icuStringResource(R.string.map_job_at_home, "count" to form.trucksAtHome.toString()),
+                supportingText = copy.chrome(R.string.map_job_at_home, "count" to form.trucksAtHome.toString()).spoken,
             )
             extraFields()
             quote(isSendAnswered)
             MyGameButton(
-                label = stringResource(R.string.map_job_send),
+                label = copy.chrome(R.string.map_job_send),
                 isBusy = send == MapUiState.SendRequest.Waiting,
-                busyDescription = stringResource(R.string.map_waiting),
+                busyDescription = copy.chrome(R.string.map_waiting).spoken,
                 onClick = { onIntent(MapIntent.SendTapped) },
-                blockedReason = reason ?: quoteReason,
+                blockedReason = reason?.spoken ?: quoteReason,
             )
-            reason?.takeUnless { isApiAnswered }?.let { line: String ->
+            reason?.takeUnless { isApiAnswered }?.let { line: MyGameLabel ->
                 MyGameText(
-                    text = line,
+                    label = line,
                     style = MyGameTypography.caption,
                     color = MyGameTheme.colors.warningInk,
                     modifier = Modifier.semantics { hideFromAccessibility() },
