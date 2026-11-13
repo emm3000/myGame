@@ -2,7 +2,9 @@ package com.emm.mygame.feature.town
 
 import androidx.lifecycle.viewModelScope
 import com.emm.mygame.core.network.LessonId
+import com.emm.mygame.core.network.LessonName
 import com.emm.mygame.core.network.NextStep
+import com.emm.mygame.core.network.PlacementBand
 import com.emm.mygame.core.network.TownLabel
 import com.emm.mygame.core.network.TownReadResult
 import com.emm.mygame.core.network.TownResourceKind
@@ -72,6 +74,31 @@ class TownStatusViewModelTest {
         nextStep = NextStep.Reviews(count = 5, readFirst = readFirst),
     )
 
+    private val releasedLesson: LessonId = LessonId("released-2-3")
+
+    private val released: TownSnapshot.ReleasedLesson = TownSnapshot.ReleasedLesson(
+        id = releasedLesson,
+        band = PlacementBand.Second,
+        position = 3,
+        duration = 150.seconds,
+        requiredSchoolLevel = 1,
+        isStudied = false,
+        wordCount = 5,
+    )
+
+    private fun releasedRunningTown(readAt: Instant, finishesAt: Instant): TownSnapshot = townOf(readAt).copy(
+        lessons = lessonsWith(listOf(firstLesson)),
+        releasedLessons = listOf(released),
+        lessonSlot = TownSnapshot.LessonSlot(releasedLesson, readAt, finishesAt),
+        nextStep = NextStep.LessonRunning(producer = null),
+    )
+
+    private fun releasedFinishedTown(readAt: Instant): TownSnapshot = townOf(readAt).copy(
+        lessons = lessonsWith(listOf(firstLesson)),
+        releasedLessons = listOf(released.copy(isStudied = true)),
+        nextStep = NextStep.Reviews(count = 5, readFirst = emptyList()),
+    )
+
     private fun TestScope.statusOf(clock: TestClock): TownStatusViewModel {
         val viewModel = TownStatusViewModel(towns, clock)
         backgroundScope.launch(start = CoroutineStart.UNDISPATCHED) {
@@ -118,8 +145,37 @@ class TownStatusViewModelTest {
         runCurrent()
 
         val running: TownStatusUiState.RunningLesson? = viewModel.state.value.running
-        assertEquals(2, running?.number)
+        assertEquals(LessonName.Shelved(2), running?.name)
         assertEquals(10.minutes, running?.remaining)
+    }
+
+    @Test
+    fun `names the running released lesson by its band and set`() = runTest {
+        val clock = TestClock(testScheduler, deviceStart)
+        val viewModel: TownStatusViewModel = statusOf(clock)
+        reportShown(viewModel)
+
+        heldOf(releasedRunningTown(readAt = clock.now(), finishesAt = clock.now() + 10.minutes))
+        runCurrent()
+
+        assertEquals(LessonName.Released(PlacementBand.Second, set = 3), viewModel.state.value.running?.name)
+    }
+
+    @Test
+    fun `names the finished released lesson by its band and set`() = runTest {
+        val clock = TestClock(testScheduler, deviceStart)
+        val viewModel: TownStatusViewModel = statusOf(clock)
+        reportShown(viewModel)
+        heldOf(releasedRunningTown(readAt = clock.now(), finishesAt = clock.now() + 2.minutes))
+        runCurrent()
+        towns.answerRead(TownReadResult.Read(releasedFinishedTown(clock.now() + 2.minutes)))
+
+        passing(2.minutes + 1.seconds)
+
+        assertEquals(
+            TownStatusUiState.FinishNotice(LessonName.Released(PlacementBand.Second, set = 3), firstUnread = null),
+            viewModel.state.value.notice,
+        )
     }
 
     @Test
@@ -163,7 +219,7 @@ class TownStatusViewModelTest {
         passing(2.minutes + 1.seconds)
 
         assertEquals(2, towns.readCount)
-        assertEquals(TownStatusUiState.FinishNotice(2, secondLesson), viewModel.state.value.notice)
+        assertEquals(TownStatusUiState.FinishNotice(LessonName.Shelved(2), secondLesson), viewModel.state.value.notice)
     }
 
     @Test
@@ -237,7 +293,7 @@ class TownStatusViewModelTest {
 
         passing(2.minutes + 1.seconds)
 
-        assertEquals(2, viewModel.state.value.running?.number)
+        assertEquals(LessonName.Shelved(2), viewModel.state.value.running?.name)
     }
 
     @Test
@@ -356,7 +412,7 @@ class TownStatusViewModelTest {
 
         viewModel.onIntent(TownStatusIntent.ScreenShown(TownStatusScreen.LessonWords(thirdLesson)))
 
-        assertEquals(TownStatusUiState.FinishNotice(2, secondLesson), viewModel.state.value.notice)
+        assertEquals(TownStatusUiState.FinishNotice(LessonName.Shelved(2), secondLesson), viewModel.state.value.notice)
     }
 
     @Test
@@ -402,6 +458,7 @@ class TownStatusViewModelTest {
         buildings = emptyList(),
         work = TownSnapshot.Work(slot = null, waitingList = emptyList(), cap = 2),
         lessons = emptyList(),
+        releasedLessons = emptyList(),
         skills = emptyList(),
         learning = TownSnapshot.Learning(cap = 10, inLearning = 0, retainedWords = null),
         lessonSlot = null,

@@ -90,6 +90,7 @@ class RetainedWordsViewModelTest {
         buildings = listOf(TownSnapshot.Building(TownBuildingKind.School, level = 1, next = null)),
         work = TownSnapshot.Work(slot = null, waitingList = emptyList(), cap = 2),
         lessons = emptyList(),
+        releasedLessons = emptyList(),
         skills = emptyList(),
         learning = TownSnapshot.Learning(cap = 10, inLearning = 0, retainedWords = retained),
         lessonSlot = null,

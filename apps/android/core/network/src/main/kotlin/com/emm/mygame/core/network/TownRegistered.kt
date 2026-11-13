@@ -35,5 +35,11 @@ private fun ringRiseBetween(previous: RetainedWords?, next: RetainedWords?): Tow
 
 private fun TownSnapshot.lessonFinishedIn(next: TownSnapshot): LessonId? {
     val running: LessonId = lessonSlot?.lesson ?: return null
-    return next.lessons.firstOrNull { lesson: TownSnapshot.Lesson -> lesson.id == running && lesson.isStudied }?.id
+    val isShelvedStudied: Boolean = next.lessons.any { lesson: TownSnapshot.Lesson ->
+        lesson.id == running && lesson.isStudied
+    }
+    val isReleasedStudied: Boolean = next.releasedLessons.any { lesson: TownSnapshot.ReleasedLesson ->
+        lesson.id == running && lesson.isStudied
+    }
+    return running.takeIf { isShelvedStudied || isReleasedStudied }
 }

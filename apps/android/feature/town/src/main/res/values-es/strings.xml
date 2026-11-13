@@ -40,6 +40,7 @@
     <string name="town_next_build_power_station">Construye la central eléctrica</string>
     <string name="town_next_go_to_report">Ir al informe</string>
     <string name="town_next_holdout_check">Prueba de palabras de la banda {band}</string>
+    <string name="town_next_holdout_open">Abrir la prueba</string>
     <string name="town_next_lesson_ready_in">Lección {number} lista en</string>
     <string name="town_next_lesson_title">Lección {number}</string>
     <string name="town_next_lesson_words">{count, plural, =1 {1 palabra} other {{count, number,0} palabras}}</string>
@@ -50,6 +51,7 @@
     <string name="town_next_reviews_due">Repasos pendientes: {count}</string>
     <string name="town_next_start_reviews">Empezar los repasos</string>
     <string name="town_next_study">Estudiar la lección {number}</string>
+    <string name="town_next_study_released">Estudiar las palabras que vuelven</string>
     <string name="town_next_studying">En estudio</string>
     <string name="town_next_title">Tu siguiente paso</string>
     <string name="town_not_built">Sin construir</string>
@@ -96,10 +98,15 @@
     <string name="town_refusal_hiring_not_enough_resources">No tienes recursos suficientes para esta contratación. Espera a que crezcan tus reservas.</string>
     <string name="town_refusal_hiring_order_not_found">Esta contratación ya terminó.</string>
     <string name="town_refusal_hiring_slot_busy">Ya tienes una contratación en curso. Espera a que termine.</string>
+    <string name="town_refusal_learning_cap_reached">Palabras en aprendizaje: {cardsInLearning} de {learningCap}. Repásalas antes de empezar otra lección.</string>
+    <string name="town_refusal_lesson_already_studied">Ya estudiaste esa lección: sus palabras están en tu repaso.</string>
+    <string name="town_refusal_lesson_school_too_low">Esa lección necesita una escuela de más nivel. Súbela primero.</string>
+    <string name="town_refusal_lesson_under_study">La escuela ya está estudiando esa lección. Espera a que termine.</string>
     <string name="town_refusal_not_enough_people">Esta obra necesita {requiredPeople, plural, =1 {1 persona libre} other {{requiredPeople, number,0} personas libres}} y tienes {freePeople}. Sube el nivel de tus hogares.</string>
     <string name="town_refusal_not_enough_resources">No tienes recursos suficientes para esta obra. Espera a que crezcan tus reservas.</string>
     <string name="town_refusal_office_too_low">Tu oficina está en nivel {officeLevel} y esta contratación necesita el nivel {requiredOfficeLevel}.</string>
     <string name="town_refusal_player_already_holds_town">Ya tienes un pueblo. Solo puedes tener uno.</string>
+    <string name="town_refusal_study_slot_busy">La escuela ya tiene un estudio en marcha. Espera a que termine.</string>
     <string name="town_refusal_top_level_reached">Este edificio ya está en su nivel más alto, el {level}.</string>
     <string name="town_refusal_town_not_found">Aún no tienes pueblo. Ponle nombre para fundarlo.</string>
     <string name="town_refusal_unexpected">No hemos podido hablar con el servidor. Vuelve a intentarlo en un momento.</string>
@@ -123,6 +130,8 @@
     <string name="town_skyline_built">{built} de {total} construidos</string>
     <string name="town_status_finish_close">Cerrar</string>
     <string name="town_status_finish_line">La lección {number} terminó.</string>
+    <string name="town_status_released_finish_line">Las palabras que vuelven de la banda {band}, grupo {number} terminaron.</string>
+    <string name="town_status_released_ready_in">Palabras que vuelven: banda {band}, grupo {number} listas en</string>
     <string name="town_stock_of">de {capacity}</string>
     <string name="town_stocks">En el almacén</string>
     <string name="town_tip_close">Cerrar el consejo</string>

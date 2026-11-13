@@ -1,6 +1,7 @@
 package com.emm.mygame.feature.school
 
 import com.emm.mygame.core.network.LessonId
+import com.emm.mygame.core.network.LessonName
 import com.emm.mygame.core.network.NextStepCard
 import com.emm.mygame.core.network.SchoolPathCounts
 import com.emm.mygame.core.network.TownLessonRefusal
@@ -36,6 +37,9 @@ sealed interface SchoolUiState {
                     ?: unstudied.firstOrNull { card: LessonCard -> card.state is LessonState.Open }
                     ?: unstudied.firstOrNull()
             }
+
+        val isNextStepAhead: Boolean
+            get() = selected == null && nextStep.action.isAheadOfTheShelf()
     }
 
     data class NextStepTime(val remaining: Duration, val finishesAt: Instant)
@@ -50,17 +54,17 @@ sealed interface SchoolUiState {
 
             val lesson: LessonId
 
-            val number: Int
+            val name: LessonName
         }
 
         data class Busy(
             override val lesson: LessonId,
-            override val number: Int,
+            override val name: LessonName,
             val remaining: Duration,
             val total: Duration,
         ) : Running
 
-        data class Done(override val lesson: LessonId, override val number: Int) : Running
+        data class Done(override val lesson: LessonId, override val name: LessonName) : Running
     }
 
     data class SkillLine(
@@ -93,7 +97,7 @@ sealed interface SchoolUiState {
 
     sealed interface LessonBlock {
 
-        data class SlotBusy(val number: Int) : LessonBlock
+        data class SlotBusy(val name: LessonName) : LessonBlock
 
         data class SchoolTooLow(val requiredLevel: Int) : LessonBlock
 
@@ -110,4 +114,13 @@ sealed interface SchoolUiState {
 
         data class Unreachable(val lesson: LessonId) : LessonRequest
     }
+}
+
+private fun NextStepCard.Action.isAheadOfTheShelf(): Boolean = when (this) {
+    is NextStepCard.Action.OpenHoldoutCheck, is NextStepCard.Action.StudyReleased -> true
+    is NextStepCard.Action.ReadWords,
+    NextStepCard.Action.StartReviews,
+    is NextStepCard.Action.Study,
+    NextStepCard.Action.GoToReport,
+    -> false
 }

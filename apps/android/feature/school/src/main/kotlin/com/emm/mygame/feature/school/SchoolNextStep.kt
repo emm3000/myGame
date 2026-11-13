@@ -11,17 +11,22 @@ import com.emm.mygame.core.designsystem.MyGameCountdownLine
 import com.emm.mygame.core.designsystem.MyGameNextStepBlock
 import com.emm.mygame.core.designsystem.MyGameSpacing
 import com.emm.mygame.core.designsystem.formatQuantity
+import com.emm.mygame.core.network.HoldoutCheckWeek
 import com.emm.mygame.core.network.LessonId
 import com.emm.mygame.core.network.NextStep
 import com.emm.mygame.core.network.NextStepCard
+import com.emm.mygame.core.network.PlacementBand
+import com.emm.mygame.core.ui.fixedCopyResource
 import com.emm.mygame.core.ui.icuStringResource
 
 @Composable
 internal fun SchoolNextStep(
     content: SchoolUiState.Content,
+    onIntent: (SchoolIntent) -> Unit,
     onReviewsOpen: () -> Unit,
     onLessonOpen: (LessonId) -> Unit,
     onReportOpen: () -> Unit,
+    onHoldoutCheckOpen: (PlacementBand, HoldoutCheckWeek) -> Unit,
     modifier: Modifier = Modifier,
 ) {
     val card: NextStepCard = content.nextStep
@@ -35,17 +40,23 @@ internal fun SchoolNextStep(
         }
         MyGameButton(
             label = actionLabelOf(card.action),
-            isBusy = false,
+            isBusy = card.action is NextStepCard.Action.StudyReleased &&
+                content.start == SchoolUiState.LessonRequest.Waiting,
             busyDescription = stringResource(R.string.school_waiting),
             onClick = {
                 when (val action: NextStepCard.Action = card.action) {
                     is NextStepCard.Action.ReadWords -> action.lesson?.let(onLessonOpen)
                     NextStepCard.Action.StartReviews -> onReviewsOpen()
+                    is NextStepCard.Action.OpenHoldoutCheck -> onHoldoutCheckOpen(action.band, action.week)
+                    is NextStepCard.Action.StudyReleased -> onIntent(SchoolIntent.StudyTapped(action.lesson))
                     is NextStepCard.Action.Study -> Unit
                     NextStepCard.Action.GoToReport -> onReportOpen()
                 }
             },
         )
+        (card.action as? NextStepCard.Action.StudyReleased)?.let { released: NextStepCard.Action.StudyReleased ->
+            StartAnswer(lesson = released.lesson, start = content.start)
+        }
     }
 }
 
@@ -68,7 +79,14 @@ private fun NextStepCountdown(
 private fun lineOf(line: NextStepCard.Line): String = when (line) {
     is NextStepCard.Line.ReviewsDue ->
         icuStringResource(R.string.school_next_reviews_due, "count" to formatQuantity(line.count.toLong()))
+    is NextStepCard.Line.HoldoutCheck ->
+        fixedCopyResource(R.string.school_next_holdout_check, "band" to line.band.number.toString())
     NextStepCard.Line.Studying -> stringResource(R.string.school_slot_title)
+    is NextStepCard.Line.ReleasedLesson -> fixedCopyResource(
+        R.string.school_released_lesson,
+        "band" to line.band.number.toString(),
+        "number" to line.number.toString(),
+    )
     is NextStepCard.Line.Lesson -> icuStringResource(R.string.school_lesson_title, "number" to line.number.toString())
     NextStepCard.Line.NoReviewsDue -> stringResource(R.string.school_next_no_reviews_due)
 }
@@ -96,6 +114,8 @@ private fun countdownWordsOf(countdown: NextStepCard.Countdown): String = when (
 private fun actionLabelOf(action: NextStepCard.Action): String = when (action) {
     is NextStepCard.Action.ReadWords -> stringResource(R.string.school_lesson_read_words)
     NextStepCard.Action.StartReviews -> stringResource(R.string.school_start_reviews)
+    is NextStepCard.Action.OpenHoldoutCheck -> fixedCopyResource(R.string.school_holdout_open)
+    is NextStepCard.Action.StudyReleased -> fixedCopyResource(R.string.school_released_lesson_study)
     is NextStepCard.Action.Study ->
         icuStringResource(R.string.school_lesson_study, "number" to action.number.toString())
     NextStepCard.Action.GoToReport -> stringResource(R.string.school_next_go_to_report)

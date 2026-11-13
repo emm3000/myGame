@@ -232,7 +232,7 @@ class SchoolViewModelTest {
         )
 
         assertEquals(
-            SchoolUiState.LessonState.Open(SchoolUiState.LessonBlock.SlotBusy(number = 1)),
+            SchoolUiState.LessonState.Open(SchoolUiState.LessonBlock.SlotBusy(name = firstLessonName)),
             lessonOfCard(viewModel, index = 1).state,
         )
     }
@@ -328,7 +328,7 @@ class SchoolViewModelTest {
         )
 
         assertEquals(
-            SchoolUiState.SlotLine.Busy(firstLesson, number = 1, remaining = 42.seconds, total = 150.seconds),
+            SchoolUiState.SlotLine.Busy(firstLesson, firstLessonName, remaining = 42.seconds, total = 150.seconds),
             contentOf(viewModel).slot,
         )
     }
@@ -368,7 +368,7 @@ class SchoolViewModelTest {
         advanceTimeBy(10.seconds)
         runCurrent()
 
-        assertEquals(SchoolUiState.SlotLine.Done(firstLesson, number = 1), contentOf(viewModel).slot)
+        assertEquals(SchoolUiState.SlotLine.Done(firstLesson, firstLessonName), contentOf(viewModel).slot)
     }
 
     @Test

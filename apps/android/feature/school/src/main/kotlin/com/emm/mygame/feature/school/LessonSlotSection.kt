@@ -24,7 +24,7 @@ import com.emm.mygame.core.designsystem.MyGameTheme
 import com.emm.mygame.core.designsystem.MyGameTrack
 import com.emm.mygame.core.designsystem.MyGameTypography
 import com.emm.mygame.core.designsystem.withTabularFigures
-import com.emm.mygame.core.ui.icuStringResource
+import com.emm.mygame.core.network.LessonName
 
 internal const val LESSON_DONE_ICON: String = "lesson_done_icon"
 
@@ -75,9 +75,9 @@ private fun SlotHeading(modifier: Modifier = Modifier) {
 }
 
 @Composable
-private fun LessonTitle(number: Int, modifier: Modifier = Modifier) {
+private fun LessonTitle(name: LessonName, modifier: Modifier = Modifier) {
     MyGameText(
-        text = icuStringResource(R.string.school_lesson_title, "number" to number.toString()),
+        text = lessonTitleOf(name),
         style = MyGameTypography.title,
         color = MyGameTheme.colors.ink,
         modifier = modifier,
@@ -87,7 +87,7 @@ private fun LessonTitle(number: Int, modifier: Modifier = Modifier) {
 @Composable
 private fun DoneSlot(slot: SchoolUiState.SlotLine.Done, modifier: Modifier = Modifier) {
     Column(verticalArrangement = Arrangement.spacedBy(MyGameSpacing.step2), modifier = modifier) {
-        LessonTitle(number = slot.number)
+        LessonTitle(name = slot.name)
         Row(
             verticalAlignment = Alignment.CenterVertically,
             horizontalArrangement = Arrangement.spacedBy(MyGameSpacing.step2),
@@ -114,7 +114,7 @@ private fun BusySlot(
     modifier: Modifier = Modifier,
 ) {
     Column(verticalArrangement = Arrangement.spacedBy(MyGameSpacing.step3), modifier = modifier) {
-        LessonTitle(number = slot.number)
+        LessonTitle(name = slot.name)
         Row(
             verticalAlignment = Alignment.CenterVertically,
             horizontalArrangement = Arrangement.spacedBy(MyGameSpacing.step2),
@@ -142,7 +142,7 @@ private fun BusySlot(
             isBusy = stop == SchoolUiState.LessonRequest.Waiting,
             busyDescription = stringResource(R.string.school_waiting),
             onClick = { onIntent(SchoolIntent.StopTapped(slot.lesson)) },
-            accessibleName = icuStringResource(R.string.school_slot_stop_of, "number" to slot.number.toString()),
+            accessibleName = slotStopNameOf(slot.name),
         )
     }
 }

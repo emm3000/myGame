@@ -68,7 +68,7 @@ class SchoolHeldTownTest {
         val viewModel: SchoolViewModel = schoolViewModelOf(towns, start = readInstant + 60.seconds)
 
         assertEquals(
-            SchoolUiState.SlotLine.Busy(firstLesson, number = 1, remaining = 90.seconds, total = 150.seconds),
+            SchoolUiState.SlotLine.Busy(firstLesson, firstLessonName, remaining = 90.seconds, total = 150.seconds),
             contentOf(viewModel).slot,
         )
     }

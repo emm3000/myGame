@@ -1,9 +1,11 @@
 package com.emm.mygame.feature.school
 
 import com.emm.mygame.core.network.LessonId
+import com.emm.mygame.core.network.LessonName
 import com.emm.mygame.core.network.NextStepCard
 import com.emm.mygame.core.network.TownBuildingKind
 import com.emm.mygame.core.network.TownSnapshot
+import com.emm.mygame.core.network.nameOf
 import com.emm.mygame.core.network.nextStepCard
 import com.emm.mygame.core.network.numberOf
 import com.emm.mygame.core.network.schoolPathCountsOf
@@ -65,9 +67,9 @@ private fun TownSnapshot.learningLine(): SchoolUiState.LearningLine {
 
 private fun TownSnapshot.LessonSlot.lineIn(town: TownSnapshot, now: Instant): SchoolUiState.SlotLine {
     val remaining: Duration = countdownTo(finishesAt = finishesAt, now = now)
-    val number: Int = town.numberOf(lesson)
-    if (remaining == Duration.ZERO) return SchoolUiState.SlotLine.Done(lesson, number)
-    return SchoolUiState.SlotLine.Busy(lesson, number, remaining, total = finishesAt - startedAt)
+    val name: LessonName = town.nameOf(lesson)
+    if (remaining == Duration.ZERO) return SchoolUiState.SlotLine.Done(lesson, name)
+    return SchoolUiState.SlotLine.Busy(lesson, name, remaining, total = finishesAt - startedAt)
 }
 
 private fun TownSnapshot.EarnedSkill.lineAt(
@@ -101,7 +103,7 @@ private fun TownSnapshot.Lesson.stateIn(town: TownSnapshot): SchoolUiState.Lesso
 private fun TownSnapshot.Lesson.blockIn(town: TownSnapshot): SchoolUiState.LessonBlock? {
     val running: TownSnapshot.LessonSlot? = town.lessonSlot
     return when {
-        running != null -> SchoolUiState.LessonBlock.SlotBusy(town.numberOf(running.lesson))
+        running != null -> SchoolUiState.LessonBlock.SlotBusy(town.nameOf(running.lesson))
         town.schoolLevel() < requiredSchoolLevel -> SchoolUiState.LessonBlock.SchoolTooLow(requiredSchoolLevel)
         town.isPastCap(this) ->
             SchoolUiState.LessonBlock.CapReached(town.learning.inLearning, town.learning.cap, wordCount)

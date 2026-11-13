@@ -85,10 +85,10 @@ class SchoolLookTest {
     private val runningFirst: SchoolUiState.LessonCard = openFirst.copy(state = SchoolUiState.LessonState.Studying)
 
     private val busyOnFirst: SchoolUiState.LessonState.Open =
-        SchoolUiState.LessonState.Open(SchoolUiState.LessonBlock.SlotBusy(number = 1))
+        SchoolUiState.LessonState.Open(SchoolUiState.LessonBlock.SlotBusy(name = firstLessonName))
 
     private val firstRunning: SchoolUiState.SlotLine.Busy =
-        SchoolUiState.SlotLine.Busy(firstLesson, number = 1, remaining = 90.seconds, total = 150.seconds)
+        SchoolUiState.SlotLine.Busy(firstLesson, firstLessonName, remaining = 90.seconds, total = 150.seconds)
 
     private val idleSchool: SchoolUiState.Content = SchoolUiState.Content(
         schoolLevel = 1,
@@ -268,7 +268,14 @@ class SchoolLookTest {
         var state: SchoolUiState by mutableStateOf(idleSchool)
         composeRule.setContent {
             MyGameTheme {
-                SchoolScreen(state = state, onIntent = { }, onReviewsOpen = { }, onLessonOpen = { }, onReportOpen = { })
+                SchoolScreen(
+                    state = state,
+                    onIntent = { },
+                    onReviewsOpen = { },
+                    onLessonOpen = { },
+                    onReportOpen = { },
+                    onHoldoutCheckOpen = { _, _ -> },
+                )
             }
         }
         composeRule.onNodeWithText("Aún no tienes habilidades.").performScrollTo()
@@ -310,7 +317,7 @@ class SchoolLookTest {
 
     @Test
     fun `keeps the pill on a lesson that finished while the town reads again`() {
-        show(secondWhileFirstRuns.copy(slot = SchoolUiState.SlotLine.Done(firstLesson, number = 1)))
+        show(secondWhileFirstRuns.copy(slot = SchoolUiState.SlotLine.Done(firstLesson, firstLessonName)))
 
         composeRule.onNode(hasTestTag(INK_PILL) and hasText("Lección 1 · Leer las palabras")).assertExists()
     }
@@ -340,7 +347,7 @@ class SchoolLookTest {
 
     @Test
     fun `carries its icon on a done line`() {
-        show(idleSchool.copy(slot = SchoolUiState.SlotLine.Done(firstLesson, number = 1)))
+        show(idleSchool.copy(slot = SchoolUiState.SlotLine.Done(firstLesson, firstLessonName)))
 
         composeRule.onNodeWithTag(LESSON_DONE_ICON, useUnmergedTree = true).assertExists()
     }
@@ -366,6 +373,7 @@ class SchoolLookTest {
                     onReviewsOpen = { },
                     onLessonOpen = { },
                     onReportOpen = { reportOpens += 1 },
+                    onHoldoutCheckOpen = { _, _ -> },
                 )
             }
         }
@@ -451,7 +459,14 @@ class SchoolLookTest {
         composeRule.setContent {
             MyGameTheme {
                 inks = MyGameTheme.colors.onBlock to MyGameTheme.colors.onBlockMuted
-                SchoolScreen(state = state, onIntent = { }, onReviewsOpen = { }, onLessonOpen = { }, onReportOpen = { })
+                SchoolScreen(
+                    state = state,
+                    onIntent = { },
+                    onReviewsOpen = { },
+                    onLessonOpen = { },
+                    onReportOpen = { },
+                    onHoldoutCheckOpen = { _, _ -> },
+                )
             }
         }
         composeRule.waitForIdle()
@@ -474,6 +489,7 @@ class SchoolLookTest {
                     onReviewsOpen = { reviewOpens += 1 },
                     onLessonOpen = { lesson: LessonId -> lessonOpens += lesson },
                     onReportOpen = { reportOpens += 1 },
+                    onHoldoutCheckOpen = { _, _ -> },
                 )
             }
         }

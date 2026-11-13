@@ -29,7 +29,11 @@ internal fun ReviewsLink(
             onClick = onReviewsOpen,
             modifier = modifier,
         )
-        is NextStepCard.Action.Study, NextStepCard.Action.GoToReport -> Unit
+        is NextStepCard.Action.OpenHoldoutCheck,
+        is NextStepCard.Action.StudyReleased,
+        is NextStepCard.Action.Study,
+        NextStepCard.Action.GoToReport,
+        -> Unit
     }
 }
 

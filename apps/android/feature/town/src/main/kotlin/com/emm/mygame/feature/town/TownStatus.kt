@@ -14,6 +14,7 @@ import androidx.compose.ui.semantics.liveRegion
 import androidx.compose.ui.semantics.semantics
 import com.emm.mygame.core.designsystem.MyGameCountdownGround
 import com.emm.mygame.core.designsystem.MyGameCountdownLine
+import com.emm.mygame.core.designsystem.MyGameLabel
 import com.emm.mygame.core.designsystem.MyGameOutlinedButton
 import com.emm.mygame.core.designsystem.MyGamePreviewSurface
 import com.emm.mygame.core.designsystem.MyGameSpacing
@@ -22,6 +23,8 @@ import com.emm.mygame.core.designsystem.MyGameTheme
 import com.emm.mygame.core.designsystem.MyGameTypography
 import com.emm.mygame.core.designsystem.PreviewMyGame
 import com.emm.mygame.core.network.LessonId
+import com.emm.mygame.core.network.LessonName
+import com.emm.mygame.core.network.PlacementBand
 import com.emm.mygame.core.ui.ChromePhase
 import com.emm.mygame.core.ui.CopyLanguage
 import com.emm.mygame.core.ui.PlayerCopy
@@ -66,7 +69,7 @@ fun TownStatus(
 private fun RunningLessonLine(running: TownStatusUiState.RunningLesson, modifier: Modifier = Modifier) {
     val copy: PlayerCopy = rememberPlayerCopy()
     MyGameCountdownLine(
-        words = copy.chrome(R.string.town_next_lesson_ready_in, "number" to running.number.toString()),
+        words = copy.readyWordsOf(running.name),
         time = copy.chrome { finishLabelOf(running.remaining, running.finishesAt) },
         ground = MyGameCountdownGround.Paper,
         modifier = modifier,
@@ -83,7 +86,7 @@ private fun FinishNoticeRows(
     val waiting: String = chromeResource(R.string.town_waiting).spoken
     Column(verticalArrangement = Arrangement.spacedBy(MyGameSpacing.step2), modifier = modifier) {
         MyGameText(
-            label = chromeResource(R.string.town_status_finish_line, "number" to notice.number.toString()),
+            label = rememberPlayerCopy().finishLineOf(notice.name),
             style = MyGameTypography.label,
             color = MyGameTheme.colors.ink,
             modifier = Modifier.semantics { liveRegion = LiveRegionMode.Polite },
@@ -109,6 +112,30 @@ private fun FinishNoticeRows(
     }
 }
 
+private fun PlayerCopy.readyWordsOf(name: LessonName): MyGameLabel = when (name) {
+    is LessonName.Shelved -> chrome(R.string.town_next_lesson_ready_in, "number" to name.number.toString())
+    is LessonName.Released -> MyGameLabel(
+        text = fixedCopy(
+            R.string.town_status_released_ready_in,
+            "band" to name.band.number.toString(),
+            "number" to name.set.toString(),
+        ),
+        translation = null,
+    )
+}
+
+private fun PlayerCopy.finishLineOf(name: LessonName): MyGameLabel = when (name) {
+    is LessonName.Shelved -> chrome(R.string.town_status_finish_line, "number" to name.number.toString())
+    is LessonName.Released -> MyGameLabel(
+        text = fixedCopy(
+            R.string.town_status_released_finish_line,
+            "band" to name.band.number.toString(),
+            "number" to name.set.toString(),
+        ),
+        translation = null,
+    )
+}
+
 @PreviewMyGame
 @Composable
 private fun TownStatusBothPreview() {
@@ -117,11 +144,14 @@ private fun TownStatusBothPreview() {
             TownStatus(
                 state = TownStatusUiState(
                     running = TownStatusUiState.RunningLesson(
-                        number = 3,
+                        name = LessonName.Shelved(number = 3),
                         remaining = 4.minutes,
                         finishesAt = Instant.parse("2026-11-12T15:04:00Z"),
                     ),
-                    notice = TownStatusUiState.FinishNotice(number = 2, firstUnread = null),
+                    notice = TownStatusUiState.FinishNotice(
+                        name = LessonName.Released(PlacementBand.Second, set = 2),
+                        firstUnread = null,
+                    ),
                 ),
                 onNoticeClose = {},
                 onLessonOpen = {},

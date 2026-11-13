@@ -40,6 +40,7 @@
     <string name="town_next_build_power_station">Build the power station</string>
     <string name="town_next_go_to_report">Go to the Report</string>
     <string name="town_next_holdout_check">Word check for band {band}</string>
+    <string name="town_next_holdout_open">Open the check</string>
     <string name="town_next_lesson_ready_in">Lesson {number} ready in</string>
     <string name="town_next_lesson_title">Lesson {number}</string>
     <string name="town_next_lesson_words">{count, plural, =1 {1 word} other {{count, number,0} words}}</string>
@@ -50,6 +51,7 @@
     <string name="town_next_reviews_due">Reviews due: {count}</string>
     <string name="town_next_start_reviews">Start the reviews</string>
     <string name="town_next_study">Study lesson {number}</string>
+    <string name="town_next_study_released">Study the returning words</string>
     <string name="town_next_studying">Studying</string>
     <string name="town_next_title">What is next</string>
     <string name="town_not_built">Not built</string>
@@ -96,10 +98,15 @@
     <string name="town_refusal_hiring_not_enough_resources">You do not have what you need to pay for this hire. Wait and try again.</string>
     <string name="town_refusal_hiring_order_not_found">This hiring has already ended.</string>
     <string name="town_refusal_hiring_slot_busy">You are already hiring. Wait for that hiring to end.</string>
+    <string name="town_refusal_learning_cap_reached">Words in learning: {cardsInLearning} of {learningCap}. Review them before you start another lesson.</string>
+    <string name="town_refusal_lesson_already_studied">You already studied that lesson: its words are in your reviews.</string>
+    <string name="town_refusal_lesson_school_too_low">That lesson needs a school of a higher level. Build it to a higher level first.</string>
+    <string name="town_refusal_lesson_under_study">The school is already studying that lesson. Wait for it to finish.</string>
     <string name="town_refusal_not_enough_people">This work needs {requiredPeople, plural, =1 {1 free person} other {{requiredPeople, number,0} free people}} and you have {freePeople}. Build your homes to a higher level.</string>
     <string name="town_refusal_not_enough_resources">You do not have enough for this work. Wait until your town makes more.</string>
     <string name="town_refusal_office_too_low">Your office is at level {officeLevel}. This hire needs level {requiredOfficeLevel}.</string>
     <string name="town_refusal_player_already_holds_town">You already have a town. You can have only one.</string>
+    <string name="town_refusal_study_slot_busy">The school is already studying a lesson. Wait for it to finish.</string>
     <string name="town_refusal_top_level_reached">This building is already at its top level, {level}.</string>
     <string name="town_refusal_town_not_found">You have no town yet. Name it to start it.</string>
     <string name="town_refusal_unexpected">We could not reach the server. Try again in a moment.</string>
@@ -123,6 +130,8 @@
     <string name="town_skyline_built">{built} of {total} built</string>
     <string name="town_status_finish_close">Close</string>
     <string name="town_status_finish_line">Lesson {number} is done.</string>
+    <string name="town_status_released_finish_line">The returning words of band {band}, set {number} are done.</string>
+    <string name="town_status_released_ready_in">Returning words: band {band}, set {number} ready in</string>
     <string name="town_stock_of">of {capacity}</string>
     <string name="town_stocks">In storage</string>
     <string name="town_tip_close">Close the tip</string>

@@ -42,6 +42,7 @@ class SchoolRouteTest {
                         onReviewsOpen = {},
                         onLessonOpen = {},
                         onReportOpen = {},
+                        onHoldoutCheckOpen = { _, _ -> },
                     )
                 }
             }

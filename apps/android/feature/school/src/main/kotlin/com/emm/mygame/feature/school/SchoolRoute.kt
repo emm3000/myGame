@@ -8,7 +8,9 @@ import androidx.compose.ui.Modifier
 import androidx.lifecycle.compose.LifecycleStartEffect
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
+import com.emm.mygame.core.network.HoldoutCheckWeek
 import com.emm.mygame.core.network.LessonId
+import com.emm.mygame.core.network.PlacementBand
 import com.emm.mygame.core.network.TownRepository
 import kotlin.time.Clock
 import kotlinx.coroutines.Dispatchers
@@ -22,6 +24,7 @@ fun SchoolRoute(
     onReviewsOpen: () -> Unit,
     onLessonOpen: (LessonId) -> Unit,
     onReportOpen: () -> Unit,
+    onHoldoutCheckOpen: (PlacementBand, HoldoutCheckWeek) -> Unit,
     modifier: Modifier = Modifier,
     holdoutChecks: @Composable () -> Unit = {},
     viewModel: SchoolViewModel = viewModel { SchoolViewModel(towns, clock) },
@@ -47,6 +50,7 @@ fun SchoolRoute(
         onReviewsOpen = onReviewsOpen,
         onLessonOpen = onLessonOpen,
         onReportOpen = onReportOpen,
+        onHoldoutCheckOpen = onHoldoutCheckOpen,
         modifier = modifier,
         holdoutChecks = holdoutChecks,
     )

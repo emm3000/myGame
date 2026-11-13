@@ -25,13 +25,16 @@ import com.emm.mygame.core.designsystem.MyGameSpacing
 import com.emm.mygame.core.designsystem.MyGameTextButton
 import com.emm.mygame.core.designsystem.MyGameTheme
 import com.emm.mygame.core.designsystem.PreviewMyGame
+import com.emm.mygame.core.network.HoldoutCheckWeek
 import com.emm.mygame.core.network.LessonId
 import com.emm.mygame.core.network.NextStepCard
+import com.emm.mygame.core.network.PlacementBand
 import com.emm.mygame.core.network.SeasonKind
 import com.emm.mygame.core.network.TipKind
 import com.emm.mygame.core.network.TownBuildingKind
 import com.emm.mygame.core.network.TownGoal
 import com.emm.mygame.core.network.TownLabel
+import com.emm.mygame.core.network.TownLessonRefusal
 import com.emm.mygame.core.network.TownResourceKind
 import com.emm.mygame.core.network.TownSnapshot
 import com.emm.mygame.core.ui.ChromePhase
@@ -264,6 +267,27 @@ private class TownScreenStates : PreviewParameterProvider<TownUiState> {
         TownUiState.Failed,
         TownUiState.Naming(name = "Riverton", status = TownUiState.NamingStatus.Idle),
         previewHome,
+        previewHome.copy(
+            nextStep = NextStepCard(
+                line = NextStepCard.Line.HoldoutCheck(PlacementBand.First),
+                detail = null,
+                countdown = null,
+                action = NextStepCard.Action.OpenHoldoutCheck(PlacementBand.First, HoldoutCheckWeek.Eighth),
+            ),
+            nextStepTime = null,
+            goal = null,
+        ),
+        previewHome.copy(
+            nextStep = NextStepCard(
+                line = NextStepCard.Line.ReleasedLesson(PlacementBand.Second, number = 1),
+                detail = null,
+                countdown = null,
+                action = NextStepCard.Action.StudyReleased(LessonId("released-2-1")),
+            ),
+            nextStepTime = null,
+            goal = null,
+            lessonStart = TownUiState.LessonStartStatus.Refused(TownLessonRefusal.StudySlotBusy),
+        ),
     )
 }
 
