@@ -32,6 +32,7 @@ import com.emm.mygame.core.network.LessonId
 import com.emm.mygame.core.network.NextStep
 import com.emm.mygame.core.network.Placement
 import com.emm.mygame.core.network.PlacementReadResult
+import com.emm.mygame.core.network.HoldoutCheckRepository
 import com.emm.mygame.core.network.PlacementRepository
 import com.emm.mygame.core.network.PlayerLanguage
 import com.emm.mygame.core.network.RegionMap
@@ -55,6 +56,7 @@ import com.emm.mygame.core.network.TownRepository
 import com.emm.mygame.core.network.TownResourceKind
 import com.emm.mygame.core.network.TownSnapshot
 import com.emm.mygame.core.testing.FakeLearningRepository
+import com.emm.mygame.core.testing.FakeHoldoutCheckRepository
 import com.emm.mygame.core.testing.FakePlacementRepository
 import com.emm.mygame.core.testing.FakeReportRepository
 import com.emm.mygame.core.testing.FakeSessionRepository
@@ -105,6 +107,7 @@ class AppNavigationTest {
         override val learning: LearningRepository = learningFake
         override val reports: ReportRepository = reportsFake
         override val placements: PlacementRepository = placementsFake
+        override val holdoutChecks: HoldoutCheckRepository = FakeHoldoutCheckRepository()
     }
 
     private val readAt: Instant = Instant.parse("2026-11-05T10:00:00Z")

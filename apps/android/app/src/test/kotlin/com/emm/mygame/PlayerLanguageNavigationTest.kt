@@ -13,6 +13,7 @@ import androidx.navigation3.runtime.rememberNavBackStack
 import androidx.test.ext.junit.rules.ActivityScenarioRule
 import com.emm.mygame.core.designsystem.MyGameTheme
 import com.emm.mygame.core.network.LearningRepository
+import com.emm.mygame.core.network.HoldoutCheckRepository
 import com.emm.mygame.core.network.PlacementRepository
 import com.emm.mygame.core.network.PlayerChromePhase
 import com.emm.mygame.core.network.PlayerLanguage
@@ -26,6 +27,7 @@ import com.emm.mygame.core.network.SignedInPlayer
 import com.emm.mygame.core.network.TownReport
 import com.emm.mygame.core.network.TownRepository
 import com.emm.mygame.core.testing.FakeLearningRepository
+import com.emm.mygame.core.testing.FakeHoldoutCheckRepository
 import com.emm.mygame.core.testing.FakePlacementRepository
 import com.emm.mygame.core.testing.FakeReportRepository
 import com.emm.mygame.core.testing.FakeSessionRepository
@@ -62,6 +64,7 @@ class PlayerLanguageNavigationTest {
         override val learning: LearningRepository = FakeLearningRepository()
         override val reports: ReportRepository = reportsFake
         override val placements: PlacementRepository = FakePlacementRepository()
+        override val holdoutChecks: HoldoutCheckRepository = FakeHoldoutCheckRepository()
     }
 
     private val nothingDue: TownReport =
