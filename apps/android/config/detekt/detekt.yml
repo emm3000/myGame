@@ -150,7 +150,7 @@ Compose:
     active: true
   CompositionLocalAllowlist:
     active: true
-    allowedCompositionLocals: LocalMyGameColors
+    allowedCompositionLocals: LocalMyGameColors,LocalCopyLanguage
   CompositionLocalNaming:
     active: true
   ContentEmitterReturningValues:
