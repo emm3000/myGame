@@ -56,7 +56,7 @@
     <string name="school_refusal_study_slot_busy">The school is already studying a lesson. Wait for it to finish.</string>
     <string name="school_refusal_town_not_found">You have no town yet. Name it to start it.</string>
     <string name="school_refusal_unexpected">We could not reach the server. Try again in a moment.</string>
-    <string name="school_released_lesson">Returning words: band {band}, set {number}</string>
+    <string name="school_released_lesson">Returning words: band {band}, set {number}</string>
     <string name="school_released_lesson_study">Study the returning words</string>
     <string name="school_resource_food">food</string>
     <string name="school_resource_material">material</string>

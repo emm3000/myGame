@@ -44,6 +44,9 @@ sealed interface SchoolUiState {
 
         val blockLesson: LessonCard?
             get() = shown.takeUnless { isNextStepAhead }
+
+        val nextStepReleasedLesson: LessonId?
+            get() = (nextStep.action as? NextStepCard.Action.StudyReleased)?.lesson?.takeIf { blockLesson == null }
     }
 
     data class NextStepTime(val remaining: Duration, val finishesAt: Instant)

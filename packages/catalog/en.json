@@ -268,7 +268,7 @@
   "android.school.school_refusal_study_slot_busy": "The school is already studying a lesson. Wait for it to finish.",
   "android.school.school_refusal_town_not_found": "You have no town yet. Name it to start it.",
   "android.school.school_refusal_unexpected": "We could not reach the server. Try again in a moment.",
-  "android.school.school_released_lesson": "Returning words: band {band}, set {number}",
+  "android.school.school_released_lesson": "Returning words: band {band}, set\u00a0{number}",
   "android.school.school_released_lesson_study": "Study the returning words",
   "android.school.school_resource_food": "food",
   "android.school.school_resource_material": "material",

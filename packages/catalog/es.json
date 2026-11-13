@@ -268,7 +268,7 @@
   "android.school.school_refusal_study_slot_busy": "La escuela ya tiene un estudio en marcha. Espera a que termine.",
   "android.school.school_refusal_town_not_found": "Aún no tienes pueblo. Ponle nombre para fundarlo.",
   "android.school.school_refusal_unexpected": "No hemos podido hablar con el servidor. Vuelve a intentarlo en un momento.",
-  "android.school.school_released_lesson": "Palabras que vuelven: banda {band}, grupo {number}",
+  "android.school.school_released_lesson": "Palabras que vuelven: banda {band}, grupo\u00a0{number}",
   "android.school.school_released_lesson_study": "Estudiar las palabras que vuelven",
   "android.school.school_resource_food": "comida",
   "android.school.school_resource_material": "material",

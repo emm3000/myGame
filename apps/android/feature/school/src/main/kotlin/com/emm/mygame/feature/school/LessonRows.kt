@@ -22,6 +22,7 @@ import com.emm.mygame.core.designsystem.MyGameSpacing
 import com.emm.mygame.core.designsystem.MyGameText
 import com.emm.mygame.core.designsystem.MyGameTheme
 import com.emm.mygame.core.designsystem.MyGameTypography
+import com.emm.mygame.core.network.LessonId
 import com.emm.mygame.core.network.SchoolPathCounts
 import com.emm.mygame.core.ui.SchoolPath
 import com.emm.mygame.core.ui.SchoolPathSteps
@@ -39,7 +40,10 @@ internal fun LessonRows(
     val cards: List<SchoolUiState.LessonCard> = content.lessons.filter { card: SchoolUiState.LessonCard ->
         card.lesson != content.blockLesson?.lesson
     }
-    if (cards.isEmpty() && content.releasedLessons.isEmpty()) return
+    val nextStepLesson: LessonId? = content.nextStepReleasedLesson
+    val releasedCards: List<SchoolUiState.ReleasedLessonCard> =
+        content.releasedLessons.filter { card: SchoolUiState.ReleasedLessonCard -> card.lesson != nextStepLesson }
+    if (cards.isEmpty() && releasedCards.isEmpty()) return
     Column(verticalArrangement = Arrangement.spacedBy(MyGameSpacing.step1), modifier = modifier) {
         MyGameText(
             text = stringResource(R.string.school_lessons),
@@ -51,7 +55,7 @@ internal fun LessonRows(
             if (index > 0) MyGameHairline()
             LessonRow(card = card, onIntent = onIntent)
         }
-        content.releasedLessons.forEachIndexed { index: Int, card: SchoolUiState.ReleasedLessonCard ->
+        releasedCards.forEachIndexed { index: Int, card: SchoolUiState.ReleasedLessonCard ->
             if (index > 0 || cards.isNotEmpty()) MyGameHairline()
             ReleasedLessonRow(card = card, start = content.start, onIntent = onIntent)
         }

@@ -40,6 +40,10 @@ class SchoolReleasedLessonsTest {
 
     private val firstSet: LessonId = LessonId("released-2-1")
 
+    private val secondSetTitle: String = "Palabras que vuelven: banda 2, grupo\u00A02"
+
+    private val firstSetTitle: String = "Palabras que vuelven: banda 2, grupo\u00A01"
+
     private val intents: MutableList<SchoolIntent> = mutableListOf()
 
     private val lessonOpens: MutableList<LessonId> = mutableListOf()
@@ -63,7 +67,7 @@ class SchoolReleasedLessonsTest {
         show(contentOf(shelvedAndReleased))
 
         val shelved: Dp = topOf("Lección 2")
-        val released: Dp = topOf("Palabras que vuelven: banda 2, grupo 2")
+        val released: Dp = topOf(secondSetTitle)
 
         assertTrue(shelved < released)
     }
@@ -72,14 +76,14 @@ class SchoolReleasedLessonsTest {
     fun `draws released lessons in the api's order`() {
         show(contentOf(shelvedAndReleased))
 
-        assertTrue(topOf("Palabras que vuelven: banda 2, grupo 2") < topOf("Palabras que vuelven: banda 2, grupo 1"))
+        assertTrue(topOf(secondSetTitle) < topOf(firstSetTitle))
     }
 
     @Test
     fun `labels a released lesson by band and set, never by number`() {
         show(contentOf(shelvedAndReleased))
 
-        composeRule.onNodeWithText("Palabras que vuelven: banda 2, grupo 1").assertExists()
+        composeRule.onNodeWithText(firstSetTitle).assertExists()
         composeRule.onAllNodesWithText("Lección 0", substring = true).assertCountEquals(0)
         composeRule.onAllNodesWithText("Lección 3", substring = true).assertCountEquals(0)
     }
@@ -89,7 +93,7 @@ class SchoolReleasedLessonsTest {
         show(contentOf(shelvedAndReleased))
 
         composeRule
-            .onNodeWithContentDescription("Palabras que vuelven: banda 2, grupo 2 · Estudiar", substring = true)
+            .onNodeWithContentDescription("$secondSetTitle · Estudiar", substring = true)
             .performScrollTo()
             .performClick()
 
@@ -106,8 +110,8 @@ class SchoolReleasedLessonsTest {
 
         val refusal: Dp = topOf("La escuela ya tiene un estudio en marcha. Espera a que termine.")
 
-        assertTrue(topOf("Palabras que vuelven: banda 2, grupo 2") < refusal)
-        assertTrue(refusal < topOf("Palabras que vuelven: banda 2, grupo 1"))
+        assertTrue(topOf(secondSetTitle) < refusal)
+        assertTrue(refusal < topOf(firstSetTitle))
     }
 
     @Test
@@ -128,7 +132,7 @@ class SchoolReleasedLessonsTest {
     fun `opens the words of a released lesson under study`() {
         show(contentOf(releasedUnderStudy))
 
-        composeRule.onNodeWithText("Palabras que vuelven: banda 2, grupo 2 · Leer las palabras")
+        composeRule.onNodeWithText("$secondSetTitle · Leer las palabras")
             .performScrollTo()
             .performClick()
 
@@ -170,10 +174,37 @@ class SchoolReleasedLessonsTest {
     }
 
     @Test
+    @Config(qualifiers = "+w360dp-h640dp", fontScale = 1.1f)
+    @GraphicsMode(GraphicsMode.Mode.NATIVE)
+    fun `keeps a released lesson's set number beside its set word`() {
+        show(contentOf(shelvedAndReleased))
+
+        val results: MutableList<TextLayoutResult> = mutableListOf()
+        composeRule.onNodeWithText(secondSetTitle, useUnmergedTree = true)
+            .fetchSemanticsNode().config[SemanticsActions.GetTextLayoutResult].action?.invoke(results)
+
+        val layout: TextLayoutResult = results.first()
+        assertEquals(
+            layout.getLineForOffset(secondSetTitle.indexOf("grupo")),
+            layout.getLineForOffset(secondSetTitle.length - 1),
+        )
+    }
+
+    @Test
     fun `keeps the first shelved lesson in the list while a released lesson is the next step`() {
         show(contentOf(shelvedAndReleased.copy(nextStep = NextStep.ReleasedLesson(secondSet, PlacementBand.Second, 2))))
 
         composeRule.onNodeWithText("Lección 1").assertExists()
+    }
+
+    @Test
+    fun `draws the released lesson the next step leads with in the next step alone`() {
+        show(contentOf(shelvedAndReleased.copy(nextStep = NextStep.ReleasedLesson(secondSet, PlacementBand.Second, 2))))
+
+        composeRule
+            .onAllNodesWithText(secondSetTitle, useUnmergedTree = true)
+            .assertCountEquals(1)
+        composeRule.onNodeWithText(firstSetTitle).assertExists()
     }
 
     @Test
