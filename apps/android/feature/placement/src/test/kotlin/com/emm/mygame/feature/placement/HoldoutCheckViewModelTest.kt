@@ -201,7 +201,10 @@ class HoldoutCheckViewModelTest {
         holdoutChecks.answerChange(HoldoutCheckChangeResult.Refused(HoldoutCheckRefusal.NotOpen))
         runCurrent()
 
-        assertEquals(dueIdle.copy(request = HoldoutCheckRequest.Refused), viewModel.state.value)
+        assertEquals(
+            dueIdle.copy(request = HoldoutCheckRequest.Refused(HoldoutCheckRefusal.NotOpen)),
+            viewModel.state.value,
+        )
     }
 
     @Test
@@ -232,6 +235,25 @@ class HoldoutCheckViewModelTest {
         viewModel.onIntent(HoldoutCheckIntent.NextTapped)
 
         assertEquals(house, askingOf(viewModel).shown)
+    }
+
+    @Test
+    fun `keeps the last word shown when the player taps next on it`() = runTest {
+        val viewModel: HoldoutCheckViewModel = askingWithEveryWordChosen()
+
+        viewModel.onIntent(HoldoutCheckIntent.NextTapped)
+
+        assertEquals(walk, askingOf(viewModel).shown)
+    }
+
+    @Test
+    fun `reads nothing again on retry while the check is drawn`() = runTest {
+        val viewModel: HoldoutCheckViewModel = reading(firstBandEighthWeekDue)
+
+        viewModel.onIntent(HoldoutCheckIntent.RetryTapped)
+        runCurrent()
+
+        assertEquals(1, holdoutChecks.readCount)
     }
 
     @Test
@@ -289,7 +311,7 @@ class HoldoutCheckViewModelTest {
     }
 
     @Test
-    fun `sends no answer for a check the api asks with no words`() = runTest {
+    fun `sends an empty answer list for a check the api asks with no words`() = runTest {
         val viewModel: HoldoutCheckViewModel = reading(firstBandEighthWeekAsking.copy(items = emptyList()))
 
         viewModel.onIntent(HoldoutCheckIntent.AnswersSent)
@@ -335,28 +357,36 @@ class HoldoutCheckViewModelTest {
     }
 
     @Test
-    fun `draws the refusal inline on a refused send with the chosen meanings kept`() = runTest {
+    fun `draws the refusal beside the words of a refused send`() = runTest {
         val viewModel: HoldoutCheckViewModel = askingWithEveryWordChosen()
 
         viewModel.onIntent(HoldoutCheckIntent.AnswersSent)
         holdoutChecks.answerChange(HoldoutCheckChangeResult.Refused(HoldoutCheckRefusal.NotOpen))
         runCurrent()
 
-        assertEquals(
-            HoldoutCheckRequest.Refused to walkMeaning,
-            askingOf(viewModel).let { it.request to it.chosenForShown },
-        )
+        assertEquals(HoldoutCheckRequest.Refused(HoldoutCheckRefusal.NotOpen), askingOf(viewModel).request)
     }
 
     @Test
-    fun `draws the refusal inline when the api cannot take the answers`() = runTest {
+    fun `keeps the chosen meanings beside a refused send`() = runTest {
+        val viewModel: HoldoutCheckViewModel = askingWithEveryWordChosen()
+
+        viewModel.onIntent(HoldoutCheckIntent.AnswersSent)
+        holdoutChecks.answerChange(HoldoutCheckChangeResult.Refused(HoldoutCheckRefusal.NotOpen))
+        runCurrent()
+
+        assertEquals(walkMeaning, askingOf(viewModel).chosenForShown)
+    }
+
+    @Test
+    fun `draws the invalid request beside the words when the api cannot take the answers`() = runTest {
         val viewModel: HoldoutCheckViewModel = askingWithEveryWordChosen()
 
         viewModel.onIntent(HoldoutCheckIntent.AnswersSent)
         holdoutChecks.answerChange(HoldoutCheckChangeResult.Refused(HoldoutCheckRefusal.InvalidRequest))
         runCurrent()
 
-        assertEquals(HoldoutCheckRequest.Refused, askingOf(viewModel).request)
+        assertEquals(HoldoutCheckRequest.Refused(HoldoutCheckRefusal.InvalidRequest), askingOf(viewModel).request)
     }
 
     @Test

@@ -5,16 +5,11 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.selection.selectableGroup
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.semantics.ProgressBarRangeInfo
-import androidx.compose.ui.semantics.progressBarRangeInfo
-import androidx.compose.ui.semantics.semantics
 import com.emm.mygame.core.designsystem.MyGameButton
 import com.emm.mygame.core.designsystem.MyGameChoiceRow
-import com.emm.mygame.core.designsystem.MyGameMetaText
 import com.emm.mygame.core.designsystem.MyGameSpacing
 import com.emm.mygame.core.designsystem.MyGameText
 import com.emm.mygame.core.designsystem.MyGameTheme
-import com.emm.mygame.core.designsystem.MyGameTrack
 import com.emm.mygame.core.designsystem.MyGameTypography
 import com.emm.mygame.core.network.PlacementChoice
 import com.emm.mygame.core.network.PlacementItem
@@ -27,10 +22,6 @@ internal fun HoldoutCheckAsking(
     modifier: Modifier = Modifier,
 ) {
     Column(verticalArrangement = Arrangement.spacedBy(MyGameSpacing.step4), modifier = modifier) {
-        MyGameMetaText(
-            text = fixedCopyResource(R.string.placement_band, "band" to asking.band.number.toString()),
-            color = MyGameTheme.colors.inkMuted,
-        )
         val shown: PlacementItem? = asking.shown
         if (shown != null) AskedWord(asking = asking, shown = shown, onIntent = onIntent)
         HoldoutCheckRequestLine(request = asking.request)
@@ -46,7 +37,7 @@ private fun AskedWord(
     modifier: Modifier = Modifier,
 ) {
     Column(verticalArrangement = Arrangement.spacedBy(MyGameSpacing.step4), modifier = modifier) {
-        AskingProgress(asking = asking)
+        AskingProgress(band = asking.band, shownIndex = asking.shownIndex, total = asking.items.size)
         WordBlock(item = shown, index = asking.shownIndex)
         Column(verticalArrangement = Arrangement.spacedBy(MyGameSpacing.step2)) {
             MyGameText(
@@ -68,27 +59,6 @@ private fun AskedWord(
                 }
             }
         }
-    }
-}
-
-@Composable
-private fun AskingProgress(asking: HoldoutCheckUiState.Asking, modifier: Modifier = Modifier) {
-    val filled: Float = (asking.shownIndex + 1).toFloat() / asking.items.size
-    Column(verticalArrangement = Arrangement.spacedBy(MyGameSpacing.step2), modifier = modifier) {
-        MyGameText(
-            text = fixedCopyResource(
-                R.string.placement_progress,
-                "number" to (asking.shownIndex + 1).toString(),
-                "total" to asking.items.size.toString(),
-            ),
-            style = MyGameTypography.caption,
-            color = MyGameTheme.colors.inkMuted,
-        )
-        MyGameTrack(
-            filled = filled,
-            color = MyGameTheme.colors.action,
-            modifier = Modifier.semantics { progressBarRangeInfo = ProgressBarRangeInfo(filled, 0f..1f) },
-        )
     }
 }
 
