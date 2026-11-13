@@ -10,7 +10,6 @@ import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.ProgressBarRangeInfo
 import androidx.compose.ui.semantics.heading
 import androidx.compose.ui.semantics.progressBarRangeInfo
@@ -37,7 +36,15 @@ import com.emm.mygame.core.network.ReviewHintWord
 import com.emm.mygame.core.network.SchoolPathCounts
 import com.emm.mygame.core.network.TownResourceKind
 import com.emm.mygame.core.network.WordId
-import com.emm.mygame.core.ui.icuStringResource
+import com.emm.mygame.core.ui.ChromePhase
+import com.emm.mygame.core.ui.CopyLanguage
+import com.emm.mygame.core.ui.PlayerCopy
+import com.emm.mygame.core.ui.ProvideCopyLanguage
+import com.emm.mygame.core.ui.ScaffoldLanguage
+import com.emm.mygame.core.ui.chromeResource
+import com.emm.mygame.core.ui.fixedCopyResource
+import com.emm.mygame.core.ui.rememberPlayerCopy
+import java.time.ZoneId
 import kotlin.time.Duration.Companion.hours
 import kotlin.time.Instant
 
@@ -60,14 +67,14 @@ fun ReviewScreen(
             .padding(bottom = MyGameSpacing.step8),
     ) {
         MyGameText(
-            text = stringResource(R.string.review_title),
+            label = chromeResource(R.string.review_title),
             style = MyGameTypography.display,
             color = MyGameTheme.colors.ink,
             modifier = Modifier.semantics { heading() },
         )
         MyGameSkeleton(
             isLoading = state == ReviewUiState.Loading,
-            loadingLabel = stringResource(R.string.review_loading),
+            loadingLabel = chromeResource(R.string.review_loading).spoken,
             blocks = reviewBlocks,
         ) {
             ReviewState(state = state, onIntent = onIntent, onLessonOpen = onLessonOpen, onTownOpen = onTownOpen)
@@ -82,21 +89,24 @@ private fun ReviewState(
     onLessonOpen: (LessonId) -> Unit,
     onTownOpen: () -> Unit,
 ) {
+    val copy: PlayerCopy = rememberPlayerCopy()
     when (state) {
         ReviewUiState.Loading -> Unit
         ReviewUiState.Failed -> MyGameErrorBanner(
-            message = stringResource(R.string.review_failed),
-            actionLabel = stringResource(R.string.review_retry),
+            message = copy.chrome(R.string.review_failed).spoken,
+            actionLabel = copy.chrome(R.string.review_retry),
             onAction = { onIntent(ReviewIntent.RetryTapped) },
         )
-        ReviewUiState.NoCards -> ReviewEnd(line = stringResource(R.string.review_no_cards), onTownOpen = onTownOpen)
+        ReviewUiState.NoCards -> ReviewEnd(line = copy.chrome(R.string.review_no_cards), onTownOpen = onTownOpen)
         is ReviewUiState.NothingDue -> ReviewEnd(
-            line = stringResource(R.string.review_nothing_due),
+            line = copy.chrome(R.string.review_nothing_due),
             onTownOpen = onTownOpen,
-            nextReview = icuStringResource(
-                R.string.review_next_due,
-                "due" to finishLabelOf(state.remaining, state.dueAt),
-            ),
+            nextReview = copy.chrome {
+                text(
+                    R.string.review_next_due,
+                    "due" to finishLabelOf(state.remaining, state.dueAt, ZoneId.systemDefault()),
+                )
+            },
             path = state.path,
         )
         is ReviewUiState.LessonReady -> LessonReady(ready = state, onLessonOpen = onLessonOpen)
@@ -117,7 +127,7 @@ private fun Reviewing(
     val card: ReviewUiState.ReviewCard = reviewing.card
     Column(verticalArrangement = Arrangement.spacedBy(MyGameSpacing.step4), modifier = modifier) {
         MyGameText(
-            text = icuStringResource(R.string.review_due_count, "count" to reviewing.dueCount.toString()),
+            label = chromeResource(R.string.review_due_count, "count" to reviewing.dueCount.toString()),
             style = MyGameTypography.caption,
             color = MyGameTheme.colors.inkMuted,
         )
@@ -155,9 +165,9 @@ private fun ReviewAction(
 ) {
     if (reviewing.isRated) {
         MyGameButton(
-            label = stringResource(R.string.review_next_card),
+            label = fixedCopyResource(R.string.review_next_card),
             isBusy = false,
-            busyDescription = stringResource(R.string.building_waiting),
+            busyDescription = chromeResource(R.string.building_waiting).spoken,
             onClick = { onIntent(ReviewIntent.NextTapped) },
             modifier = modifier,
         )
@@ -166,12 +176,12 @@ private fun ReviewAction(
     val isChecking: Boolean = reviewing.step == ReviewUiState.ReviewStep.Checking
     val isRecallEmpty: Boolean = (reviewing.card as? ReviewUiState.ReviewCard.Recall)?.typed?.isEmpty() == true
     MyGameButton(
-        label = stringResource(if (isChecking) R.string.review_checking else R.string.review_check),
+        label = fixedCopyResource(if (isChecking) R.string.review_checking else R.string.review_check),
         isBusy = reviewing.isBusy,
-        busyDescription = stringResource(R.string.building_waiting),
+        busyDescription = chromeResource(R.string.building_waiting).spoken,
         onClick = { onIntent(ReviewIntent.CheckTapped) },
         modifier = modifier,
-        blockedReason = if (isRecallEmpty) stringResource(R.string.review_check_empty) else null,
+        blockedReason = if (isRecallEmpty) fixedCopyResource(R.string.review_check_empty) else null,
     )
 }
 
@@ -259,5 +269,15 @@ private class ReviewUiStates : PreviewParameterProvider<ReviewUiState> {
 private fun ReviewScreenPreview(@PreviewParameter(ReviewUiStates::class) state: ReviewUiState) {
     MyGamePreviewSurface {
         ReviewScreen(state = state, onIntent = {}, onLessonOpen = {}, onTownOpen = {})
+    }
+}
+
+@PreviewMyGame
+@Composable
+private fun ReviewScreenBothPhasePreview(@PreviewParameter(ReviewUiStates::class) state: ReviewUiState) {
+    ProvideCopyLanguage(language = CopyLanguage(ScaffoldLanguage.Spanish, ChromePhase.Both)) {
+        MyGamePreviewSurface {
+            ReviewScreen(state = state, onIntent = {}, onLessonOpen = {}, onTownOpen = {})
+        }
     }
 }

@@ -7,7 +7,6 @@ import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.LiveRegionMode
 import androidx.compose.ui.semantics.heading
 import androidx.compose.ui.semantics.liveRegion
@@ -30,7 +29,8 @@ import com.emm.mygame.core.network.REVIEW_ANSWER_MAX_LENGTH
 import com.emm.mygame.core.network.ReviewChoice
 import com.emm.mygame.core.network.ReviewHint
 import com.emm.mygame.core.network.ReviewHintWord
-import com.emm.mygame.core.ui.icuStringResource
+import com.emm.mygame.core.ui.chromeResource
+import com.emm.mygame.core.ui.fixedCopyResource
 
 @Composable
 internal fun RecognitionCard(
@@ -43,7 +43,7 @@ internal fun RecognitionCard(
     Column(verticalArrangement = Arrangement.spacedBy(MyGameSpacing.step4), modifier = modifier) {
         ReviewBlock(cue = card.word, frame = card.frame, reviewing = reviewing)
         Column(verticalArrangement = Arrangement.spacedBy(MyGameSpacing.step2)) {
-            Prompt(text = stringResource(R.string.review_recognition_prompt))
+            Prompt(text = fixedCopyResource(R.string.review_recognition_prompt))
             Column(
                 verticalArrangement = Arrangement.spacedBy(MyGameSpacing.step2),
                 modifier = Modifier.selectableGroup(),
@@ -70,7 +70,7 @@ internal fun RecallCard(
 ) {
     Column(verticalArrangement = Arrangement.spacedBy(MyGameSpacing.step4), modifier = modifier) {
         ReviewBlock(cue = card.gloss, frame = card.gappedFrame, reviewing = reviewing)
-        Prompt(text = stringResource(R.string.review_recall_prompt))
+        Prompt(text = fixedCopyResource(R.string.review_recall_prompt))
         RecallField(
             typed = card.typed,
             isReadOnly = reviewing.isBusy || reviewing.isRated,
@@ -89,9 +89,9 @@ internal fun HintLine(
     val hint: ReviewHint? = card.hint
     if (hint == null) {
         MyGameOutlinedButton(
-            label = stringResource(R.string.review_hint),
+            label = fixedCopyResource(R.string.review_hint),
             isBusy = isBusy,
-            busyDescription = stringResource(R.string.building_waiting),
+            busyDescription = chromeResource(R.string.building_waiting).spoken,
             onClick = { onIntent(ReviewIntent.HintTapped) },
             modifier = modifier,
         )
@@ -100,7 +100,7 @@ internal fun HintLine(
     Column(verticalArrangement = Arrangement.spacedBy(MyGameSpacing.step1), modifier = modifier) {
         hint.words.forEach { word: ReviewHintWord ->
             MyGameText(
-                text = icuStringResource(
+                text = fixedCopyResource(
                     R.string.review_hint_line,
                     "letters" to word.letterCount,
                     "first" to word.firstLetter,
@@ -151,7 +151,7 @@ internal fun RecallField(
 ) {
     MyGameTextField(
         value = typed,
-        label = stringResource(R.string.review_answer_label),
+        label = fixedCopyResource(R.string.review_answer_label),
         isSecret = false,
         isReadOnly = isReadOnly,
         keyboardOptions = KeyboardOptions(
