@@ -156,7 +156,7 @@ export const authRoutes = (dependencies: AuthDependencies): OpenAPIHono => {
       if (!request.success) {
         return answerRefusal(c, { kind: 'MalformedRequest' })
       }
-      await requestPasswordReset(request.data, dependencies)
+      requestPasswordReset(request.data, dependencies)
       return c.body(null, 202)
     },
   )
