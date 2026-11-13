@@ -39,13 +39,13 @@ private fun scoreOf(score: WirePlacementScore): PlacementScore? {
     return PlacementScore(band = band, score = score.score, isPlacedOut = score.isPlacedOut)
 }
 
-private fun itemOf(item: WirePlacementItem): PlacementItem =
+internal fun itemOf(item: WirePlacementItem): PlacementItem =
     PlacementItem(word = WordId(item.wordId), text = item.word, choices = item.choices.map(::choiceOf))
 
 private fun choiceOf(choice: RecognitionReviewChoicesInner): PlacementChoice =
     PlacementChoice(id = ChoiceId(choice.choiceId), gloss = choice.gloss)
 
-private fun WirePlacementBand.toBand(): PlacementBand? = when (this) {
+internal fun WirePlacementBand.toBand(): PlacementBand? = when (this) {
     WirePlacementBand._1 -> PlacementBand.First
     WirePlacementBand._2 -> PlacementBand.Second
     WirePlacementBand._3 -> PlacementBand.Third
