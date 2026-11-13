@@ -10,6 +10,7 @@ import {
   type RegionMapReader,
   type TownCatalog,
 } from '@mygame/domain'
+import { waitUntil } from '@vercel/functions'
 import { JsonLessonCatalog } from './adapters/json/JsonLessonCatalog'
 import { JsonTownCatalog } from './adapters/json/JsonTownCatalog'
 import { connectPostgres } from './adapters/postgres/connectPostgres'
@@ -28,6 +29,7 @@ import { CryptoIdGenerator } from './adapters/system/CryptoIdGenerator'
 import { CryptoRandomSource } from './adapters/system/CryptoRandomSource'
 import { CryptoSessionTokens } from './adapters/system/CryptoSessionTokens'
 import { SystemClock } from './adapters/system/SystemClock'
+import { VercelAfterResponse } from './adapters/vercel/VercelAfterResponse'
 import { createApp } from './app'
 import type { Accounts } from './auth/Accounts'
 import type { Mailer } from './auth/Mailer'
@@ -107,6 +109,7 @@ export type ComposedServer = MailSettings & {
   readonly inTransaction: Transaction
   readonly isSessionCookieSecure: boolean
   readonly failureSink: FailureSink
+  readonly afterResponse: VercelAfterResponse
   readonly close: () => Promise<void>
 }
 
@@ -142,6 +145,7 @@ export function composeServer(
     cards: new DrizzleCardRepository(database),
     isSessionCookieSecure,
     failureSink: standardErrorSink,
+    afterResponse: new VercelAfterResponse(waitUntil),
     ...mail,
   }
   return {

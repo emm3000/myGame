@@ -6,7 +6,7 @@ import { afterAll, beforeAll, beforeEach, describe, expect, it } from 'vitest'
 import { MemoryMailer } from '../adapters/memory/MemoryMailer'
 import { createApp } from '../app'
 import { accountTokenExpiryFrom } from '../auth/accountTokenExpiryFrom'
-import type { Mail } from '../auth/Mailer'
+import type { Mail, MailDelivery, Mailer } from '../auth/Mailer'
 import { tokenDigest } from '../auth/tokenDigest'
 import { type ComposedServer, composeServer } from '../composeServer'
 import { mailEnvironment } from '../composeServer.testSupport'
@@ -118,6 +118,27 @@ const sessionCookieOf = (response: Response): string => {
 }
 
 const anasSignUp = { email: 'ana@example.com', password: 'hierro-y-lana', scaffold: 'es' }
+
+type HeldMailer = Mailer & {
+  readonly handed: ReadonlyArray<Mail>
+  readonly release: () => void
+}
+
+const heldMailer = (): HeldMailer => {
+  const handed: Array<Mail> = []
+  let release = (): void => {}
+  const held = new Promise<MailDelivery>((resolve) => {
+    release = () => resolve('sent')
+  })
+  return {
+    send: (mail) => {
+      handed.push(mail)
+      return held
+    },
+    handed,
+    release: () => release(),
+  }
+}
 
 const tokenOf = (mail: Mail | undefined): string => {
   const link = mail?.text.split('\n').find((line) => line.startsWith(mailEnvironment.WEB_URL))
@@ -650,6 +671,7 @@ describe('the auth routes', () => {
 
   const resetLinkOfAna = async (): Promise<string> => {
     await forgotPassword(anasSignUp.email)
+    await server.afterResponse.settled()
     return tokenOf(resetMailsTo(anasSignUp.email).at(-1))
   }
 
@@ -659,6 +681,7 @@ describe('the auth routes', () => {
     await verifiedAna()
 
     const response = await forgotPassword(anasSignUp.email)
+    await server.afterResponse.settled()
 
     expect(response.status).toBe(202)
     expect(await response.text()).toBe('')
@@ -687,6 +710,20 @@ describe('the auth routes', () => {
     expect(mailer.sentTo('nadie@example.com')).toEqual([])
   })
 
+  it('answers a reset request before its mail is sent', async () => {
+    await verifiedAna()
+    const mailer = heldMailer()
+
+    const response = await forgotPassword(anasSignUp.email, createApp({ ...server, mailer }))
+
+    expect([response.status, mailer.handed.map((mail) => mail.to)]).toEqual([
+      202,
+      [anasSignUp.email],
+    ])
+    mailer.release()
+    await server.afterResponse.settled()
+  })
+
   it('answers 202 when the reset link cannot be sent', async () => {
     await verifiedAna()
     const failingApp = createApp({ ...server, clock, mailer: MemoryMailer.failing() })
@@ -694,6 +731,22 @@ describe('the auth routes', () => {
     const response = await forgotPassword(anasSignUp.email, failingApp)
 
     expect(response.status).toBe(202)
+  })
+
+  it('reports a reset mail it could not send without its address', async () => {
+    await verifiedAna()
+    const failures: Array<string> = []
+    const failingApp = createApp({
+      ...server,
+      clock,
+      mailer: MemoryMailer.failing(),
+      failureSink: { write: (line) => failures.push(line) },
+    })
+
+    await forgotPassword(anasSignUp.email, failingApp)
+    await server.afterResponse.settled()
+
+    expect(failures).toEqual(['reset mail MailNotSent'])
   })
 
   it('refuses a reset request with a malformed email', async () => {
