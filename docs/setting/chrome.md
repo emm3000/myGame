@@ -74,7 +74,7 @@ ADR 037's rule that a lesson is never a semantic set applies when #741 groups th
 | today | 246 | *Today, 09:10* in Town News | hoy |
 | tomorrow | 726 | *Ready tomorrow at 09:10* | mañana |
 | now | 70 | *Homes: now level 2.* in Town News | ahora |
-| hour | 247 | *Work for 4 hours* on a job | hora |
+| hour | 247 | *Work for 4 hours* on a job; *Summer: 75 % of the hours for building work* (ADR 017) | hora |
 
 ### The school and the Report
 
@@ -141,4 +141,5 @@ ADR 037's rule that a lesson is never a semantic set applies when #741 groups th
 - *queue* and *warehouse*: no NGSL words; *waiting list* and *storage* say them (`docs/research/english-pivot/decisions.md` §9).
 - *hint* (2689): *tip* says it at 1659.
 - *autumn* (2792): *fall* is the season's name in American English (ADR 035).
+- *shorten*, *faster*, *sooner*, *less* and *time*: the season mark says *75 % of the hours for building work* (ADR 017, fourth amendment).
 - *strength*: a team's strength is shown as a number beside the waste's (*Waste: 12*, *Your team: 8*).
