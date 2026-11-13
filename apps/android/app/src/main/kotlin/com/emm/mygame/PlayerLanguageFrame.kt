@@ -5,6 +5,9 @@ import android.content.res.Configuration
 import android.content.res.Resources
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
+import androidx.compose.runtime.MutableState
+import androidx.compose.runtime.SideEffect
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalContext
@@ -35,6 +38,15 @@ internal fun InPlayerLanguage(language: PlayerLanguage?, content: @Composable ()
     ) {
         ProvideCopyLanguage(language = copyLanguage, content = content)
     }
+}
+
+@Composable
+internal fun rememberLastKnown(language: PlayerLanguage?): PlayerLanguage? {
+    val lastKnown: MutableState<PlayerLanguage?> = remember { mutableStateOf(language) }
+    SideEffect {
+        if (language != null) lastKnown.value = language
+    }
+    return language ?: lastKnown.value
 }
 
 internal fun PlayerLanguage.toCopyLanguage(): CopyLanguage = CopyLanguage(

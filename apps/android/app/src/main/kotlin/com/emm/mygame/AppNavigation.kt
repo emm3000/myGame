@@ -333,7 +333,7 @@ private fun SignedInFrame(
     content: @Composable () -> Unit,
 ) {
     val language: PlayerLanguage? by chrome.dependencies.playerLanguage.collectAsStateWithLifecycle()
-    InPlayerLanguage(language = language) {
+    InPlayerLanguage(language = rememberLastKnown(language)) {
         FramedScreen(isTownHome = isTownHome, doesScreenReadTown = doesScreenReadTown, chrome = chrome, modifier) {
             content()
         }
