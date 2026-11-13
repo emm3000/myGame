@@ -5,7 +5,7 @@
   "type": "module",
   "scripts": {
     "dev": "tsx watch src/listen.ts",
-    "build": "esbuild src/index.ts --bundle --platform=node --format=esm --target=node24 --outfile=dist/index.js --external:hono --external:pg --external:drizzle-orm --external:@node-rs/argon2 --external:nodemailer --external:@hono/zod-openapi --external:zod",
+    "build": "esbuild src/index.ts --bundle --platform=node --format=esm --target=node24 --outfile=dist/index.js --external:hono --external:pg --external:drizzle-orm --external:@node-rs/argon2 --external:nodemailer --external:@hono/zod-openapi --external:zod --external:@vercel/functions",
     "typecheck": "tsc --noEmit -p tsconfig.json",
     "test": "vitest run",
     "db:generate": "drizzle-kit generate",
@@ -18,6 +18,7 @@
     "@mygame/contracts": "workspace:*",
     "@mygame/domain": "workspace:*",
     "@node-rs/argon2": "2.2.1",
+    "@vercel/functions": "3.10.5",
     "drizzle-orm": "0.45.2",
     "hono": "4.13.8",
     "nodemailer": "10.0.11",

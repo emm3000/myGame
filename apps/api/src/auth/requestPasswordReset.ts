@@ -2,6 +2,8 @@ import type { ForgotPasswordRequest } from '@mygame/contracts'
 import { type Clock, ok } from '@mygame/domain'
 import type { Transaction } from '../adapters/postgres/postgresTransaction'
 import type { CryptoSessionTokens } from '../adapters/system/CryptoSessionTokens'
+import type { FailureSink } from '../http/FailureSink'
+import type { AfterResponse } from './AfterResponse'
 import { fixedCopyOf } from './fixedCopyOf'
 import { issueAccountToken } from './issueAccountToken'
 import type { Mailer } from './Mailer'
@@ -13,7 +15,11 @@ export type RequestPasswordResetDependencies = {
   readonly sessionTokens: CryptoSessionTokens
   readonly mailer: Mailer
   readonly webUrl: string
+  readonly afterResponse: AfterResponse
+  readonly failureSink: FailureSink
 }
+
+const unsentResetMailLine = 'reset mail MailNotSent'
 
 type ResetLink = {
   readonly recipient: MailRecipient
@@ -22,7 +28,15 @@ type ResetLink = {
 
 export const requestPasswordReset = async (
   request: ForgotPasswordRequest,
-  { inTransaction, clock, sessionTokens, mailer, webUrl }: RequestPasswordResetDependencies,
+  {
+    inTransaction,
+    clock,
+    sessionTokens,
+    mailer,
+    webUrl,
+    afterResponse,
+    failureSink,
+  }: RequestPasswordResetDependencies,
 ): Promise<void> => {
   const issued = await inTransaction<ResetLink | undefined, never>(
     async ({ accounts, accountTokens }) => {
@@ -43,9 +57,17 @@ export const requestPasswordReset = async (
   }
   const { recipient, token } = issued.value
   const copy = fixedCopyOf(recipient.scaffold)
-  await mailer.send({
+  const reportUnsent = (): void => failureSink.write(unsentResetMailLine)
+  const delivery = mailer.send({
     to: recipient.email,
     subject: copy.mailResetSubject(),
     text: copy.mailResetText({ link: `${webUrl}/reset-password?token=${token}` }),
   })
+  afterResponse.defer(
+    delivery.then((sent) => {
+      if (sent === 'failed') {
+        reportUnsent()
+      }
+    }, reportUnsent),
+  )
 }

@@ -4,7 +4,7 @@ import { Client } from 'pg'
 import { afterAll, beforeAll, beforeEach, describe, expect, it } from 'vitest'
 import { deleteEveryMail, deliveredTo } from '../adapters/smtp/mailpit.testSupport'
 import { createApp } from '../app'
-import type { Mail } from '../auth/Mailer'
+import type { Mail, MailDelivery, Mailer } from '../auth/Mailer'
 import { type ComposedServer, composeServer } from '../composeServer'
 import { mailEnvironment } from '../composeServer.testSupport'
 
@@ -51,6 +51,32 @@ const sessionCookieOf = (response: Response): string => {
 const tokenOf = (mail: Mail | undefined): string => {
   const link = mail?.text.split('\n').find((line) => line.startsWith(mailEnvironment.WEB_URL))
   return link === undefined ? '' : (new URL(link).searchParams.get('token') ?? '')
+}
+
+type RecordingMailer = Mailer & {
+  readonly deliveries: ReadonlyArray<MailDelivery>
+}
+
+const recordingMailer = (mailer: Mailer): RecordingMailer => {
+  const deliveries: Array<MailDelivery> = []
+  return {
+    send: async (mail) => {
+      const delivery = await mailer.send(mail)
+      deliveries.push(delivery)
+      return delivery
+    },
+    deliveries,
+  }
+}
+
+const requestContext = Symbol.for('@vercel/request-context')
+
+const hostedBy = (waitUntil: (work: Promise<void>) => void): void => {
+  Reflect.set(globalThis, requestContext, { get: () => ({ waitUntil }) })
+}
+
+const leaveTheHost = (): void => {
+  Reflect.deleteProperty(globalThis, requestContext)
 }
 
 const ana = { email: 'ana@example.com', password: 'hierro-y-lana' }
@@ -114,6 +140,7 @@ const spanishResetMail = (token: string): Mail => ({
 describe('the auth mail in the scaffold language', () => {
   let server: ComposedServer
   let app: ReturnType<typeof createApp>
+  let mailer: RecordingMailer
 
   beforeAll(() => {
     server = composeServer(
@@ -133,8 +160,15 @@ describe('the auth mail in the scaffold language', () => {
   beforeEach(async () => {
     await truncateAccounts()
     await deleteEveryMail()
-    app = createApp({ ...server, clock: fixedClock })
+    mailer = recordingMailer(server.mailer)
+    app = createApp({ ...server, clock: fixedClock, mailer })
   })
+
+  const deliveredMailTo = async (recipient: string): Promise<ReadonlyArray<Mail>> => {
+    await server.afterResponse.settled()
+    expect(mailer.deliveries).not.toContain('failed')
+    return deliveredTo(recipient)
+  }
 
   const signUp = async (scaffold: 'es' | 'none'): Promise<string> =>
     sessionCookieOf(await app.request('/auth/sign-up', post({ ...ana, scaffold })))
@@ -142,7 +176,7 @@ describe('the auth mail in the scaffold language', () => {
   it('sends the verification mail in English to a none player', async () => {
     await signUp('none')
 
-    const delivered = await deliveredTo(ana.email)
+    const delivered = await deliveredMailTo(ana.email)
 
     expect(delivered).toEqual([englishVerificationMail(tokenOf(delivered[0]))])
   })
@@ -150,7 +184,7 @@ describe('the auth mail in the scaffold language', () => {
   it('sends the verification mail in Spanish to an es player', async () => {
     await signUp('es')
 
-    const delivered = await deliveredTo(ana.email)
+    const delivered = await deliveredMailTo(ana.email)
 
     expect(delivered).toEqual([spanishVerificationMail(tokenOf(delivered[0]))])
   })
@@ -170,7 +204,7 @@ describe('the auth mail in the scaffold language', () => {
 
     await app.request('/auth/verify-email/resend', post({}, cookie))
 
-    const resent = (await deliveredTo(ana.email)).filter(
+    const resent = (await deliveredMailTo(ana.email)).filter(
       (mail) => mail.subject === 'Confirm your email',
     )
     expect(resent).toEqual([englishVerificationMail(tokenOf(resent[0]))])
@@ -178,7 +212,7 @@ describe('the auth mail in the scaffold language', () => {
 
   const verifiedPlayer = async (scaffold: 'es' | 'none'): Promise<string> => {
     const cookie = await signUp(scaffold)
-    const [verificationMail] = await deliveredTo(ana.email)
+    const [verificationMail] = await deliveredMailTo(ana.email)
     await app.request('/auth/verify-email', post({ token: tokenOf(verificationMail) }))
     await deleteEveryMail()
     return cookie
@@ -192,7 +226,7 @@ describe('the auth mail in the scaffold language', () => {
 
     await forgotPassword(ana.email)
 
-    const delivered = await deliveredTo(ana.email)
+    const delivered = await deliveredMailTo(ana.email)
     expect(delivered).toEqual([spanishResetMail(tokenOf(delivered[0]))])
   })
 
@@ -201,7 +235,7 @@ describe('the auth mail in the scaffold language', () => {
 
     await forgotPassword(ana.email)
 
-    const delivered = await deliveredTo(ana.email)
+    const delivered = await deliveredMailTo(ana.email)
     expect(delivered).toEqual([englishResetMail(tokenOf(delivered[0]))])
   })
 
@@ -211,7 +245,7 @@ describe('the auth mail in the scaffold language', () => {
 
     await forgotPassword(ana.email)
 
-    const delivered = await deliveredTo(ana.email)
+    const delivered = await deliveredMailTo(ana.email)
     expect(delivered).toEqual([spanishResetMail(tokenOf(delivered[0]))])
   })
 
@@ -229,6 +263,22 @@ describe('the auth mail in the scaffold language', () => {
 
     await forgotPassword('nadie@example.com')
 
-    expect(await deliveredTo('nadie@example.com')).toEqual([])
+    expect(await deliveredMailTo('nadie@example.com')).toEqual([])
+  })
+
+  it('hands the reset mail to the host to finish after the answer', async () => {
+    await verifiedPlayer('none')
+    const extended: Array<Promise<void>> = []
+    hostedBy((work) => extended.push(work))
+
+    try {
+      await forgotPassword(ana.email)
+    } finally {
+      leaveTheHost()
+    }
+    await Promise.all(extended)
+
+    const delivered = await deliveredTo(ana.email)
+    expect([extended.length, delivered]).toEqual([1, [englishResetMail(tokenOf(delivered[0]))]])
   })
 })
