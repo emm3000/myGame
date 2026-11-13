@@ -1,6 +1,7 @@
 package com.emm.mygame.feature.town
 
 import androidx.compose.ui.test.assertCountEquals
+import androidx.compose.ui.test.junit4.ComposeContentTestRule
 import androidx.compose.ui.test.junit4.createComposeRule
 import androidx.compose.ui.test.onAllNodesWithText
 import androidx.compose.ui.test.onNodeWithText
@@ -17,7 +18,7 @@ import org.robolectric.RobolectricTestRunner
 class TownStatusTest {
 
     @get:Rule
-    val composeRule = createComposeRule()
+    val composeRule: ComposeContentTestRule = createComposeRule()
 
     private val released: LessonName = LessonName.Released(PlacementBand.Second, set = 3)
 
