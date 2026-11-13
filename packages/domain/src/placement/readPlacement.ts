@@ -1,4 +1,5 @@
 import type { DomainError } from '../DomainError'
+import type { Scaffold } from '../learning/Scaffold'
 import type { PlayerId } from '../player/PlayerId'
 import { ok, type Result } from '../Result'
 import { isPlacementOffered, type PlacementOfferDependencies } from './admitPlacementOffer'
@@ -7,10 +8,11 @@ import { placementViewOf } from './placementViewOf'
 
 export type ReadPlacementQuery = {
   readonly playerId: PlayerId
+  readonly scaffold: Scaffold
 }
 
 export const readPlacement = async (
-  { playerId }: ReadPlacementQuery,
+  { playerId, scaffold }: ReadPlacementQuery,
   dependencies: PlacementOfferDependencies,
 ): Promise<Result<PlacementView, DomainError>> => {
   const stored = await dependencies.placements.placementOf(playerId)
@@ -22,7 +24,7 @@ export const readPlacement = async (
     return starts
   }
   if (stored.value !== undefined) {
-    return ok(placementViewOf(stored.value, starts.value, dependencies.words))
+    return ok(placementViewOf(stored.value, starts.value, dependencies.words, scaffold))
   }
   const isOffered = isPlacementOffered(starts.value, dependencies)
   return ok(isOffered ? { kind: 'offered' } : { kind: 'closed', scores: [] })

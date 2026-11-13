@@ -62,6 +62,7 @@ const bandLesson: Lesson = {
     id: `word-${id}`,
     acceptedForms: [id],
     gloss: id,
+    definition: `definition of ${id}`,
     frames: [{ frame: id, gappedFrame: id }],
   })),
 }
@@ -76,6 +77,7 @@ const unitLessonOnBandOne: Lesson = {
     id: `unit-${unit.replace(' ', '-')}`,
     acceptedForms: [unit],
     gloss: unit,
+    definition: `definition of ${unit}`,
     frames: [{ frame: unit, gappedFrame: unit }],
   })),
 }

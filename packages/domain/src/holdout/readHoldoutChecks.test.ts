@@ -28,7 +28,7 @@ const bandOneStart = (checks: ReadonlyArray<HoldoutCheck>): BandStart => ({
 
 const checksAt = async (now: Instant, checks: ReadonlyArray<HoldoutCheck> = []) => {
   const read = await readHoldoutChecks(
-    { playerId: ana },
+    { playerId: ana, scaffold: 'es' },
     {
       bandStarts: inMemoryBandStarts([{ playerId: ana, start: bandOneStart(checks) }]),
       words: inMemoryPlacementWords([{ band: 1, words: bandOneWords }]),

@@ -1,8 +1,12 @@
 import { createRoute } from '@hono/zod-openapi'
 import { ScaffoldChangeSchema } from '@mygame/contracts'
-import { jsonBody, jsonResponse, signedInRoute } from '../http/responseDeclarations'
+import {
+  jsonBody,
+  jsonResponse,
+  malformedResponse,
+  signedInRoute,
+} from '../http/responseDeclarations'
 import { PlayerComponent } from './playerComponent'
-import { malformedResponse } from './townDeclarations'
 
 const ScaffoldChangeComponent = ScaffoldChangeSchema.meta({ id: 'ScaffoldChange' })
 

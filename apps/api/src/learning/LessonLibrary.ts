@@ -8,4 +8,5 @@ export type LessonLibrary = LessonCatalog &
   BandCatalog &
   PlacementWordCatalog & {
     lessons(): ReadonlyArray<ShelvedLesson>
+    chromeLessons(): ReadonlyArray<ShelvedLesson>
   }

@@ -1,5 +1,6 @@
 import type { DomainError } from '../DomainError'
 import type { Band } from '../learning/BandStart'
+import type { Scaffold } from '../learning/Scaffold'
 import { placementQuestionsOf } from '../placement/placementQuestionsOf'
 import { type PlacementAnswer, rightWordIdsOf } from '../placement/rightWordIdsOf'
 import type { PlayerId } from '../player/PlayerId'
@@ -16,6 +17,7 @@ export type AnswerHoldoutCheckCommand = {
   readonly band: Band
   readonly week: HoldoutCheckWeek
   readonly answers: ReadonlyArray<PlacementAnswer>
+  readonly scaffold: Scaffold
 }
 
 export type AnswerHoldoutCheckDependencies = {
@@ -25,7 +27,7 @@ export type AnswerHoldoutCheckDependencies = {
 }
 
 export const answerHoldoutCheck = async (
-  { playerId, band, week, answers }: AnswerHoldoutCheckCommand,
+  { playerId, band, week, answers, scaffold }: AnswerHoldoutCheckCommand,
   { bandStarts, words, clock }: AnswerHoldoutCheckDependencies,
 ): Promise<Result<TakenHoldoutCheck, DomainError>> => {
   const now = clock.now()
@@ -38,7 +40,7 @@ export const answerHoldoutCheck = async (
     return err({ kind: 'HoldoutCheckNotBegun', band, week })
   }
   const { sample } = begun
-  const questions = placementQuestionsOf({ band, wordIds: sample.wordIds }, words)
+  const questions = placementQuestionsOf({ band, wordIds: sample.wordIds }, words, scaffold)
   const right = rightWordIdsOf(questions, answers)
   if (right === undefined) {
     return err({ kind: 'InvalidHoldoutCheckAnswers', band, week })

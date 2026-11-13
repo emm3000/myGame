@@ -77,6 +77,7 @@ const lessonOf = (number: number, overrides: Partial<Lesson> = {}): Lesson => ({
     wordId: `lesson-${number}-${index + 1}`,
     standing: 'notStarted',
     reading: null,
+    support: { shown: 'beside', text: 'gloss', language: 'es' },
   })),
   ...overrides,
 })
@@ -129,7 +130,12 @@ const selectRow = async (number: number): Promise<void> => {
 }
 
 const wordsOf = (...standings: ReadonlyArray<WordStanding>): Lesson['words'] =>
-  standings.map((standing, index) => ({ wordId: `word-${index + 1}`, standing, reading: null }))
+  standings.map((standing, index) => ({
+    wordId: `word-${index + 1}`,
+    standing,
+    reading: null,
+    support: { shown: 'beside', text: 'gloss', language: 'es' },
+  }))
 
 const studiedLessonOf = (...standings: ReadonlyArray<WordStanding>): Lesson =>
   lessonOf(1, { isStudied: true, words: wordsOf(...standings) })

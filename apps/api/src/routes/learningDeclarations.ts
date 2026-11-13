@@ -6,14 +6,15 @@ import {
   ReviewRequestSchema,
   ReviewsSchema,
 } from '@mygame/contracts'
-import { type ResponseDeclaration, refusalResponse } from '../http/refusalResponse'
-import { jsonBody, jsonResponse, signedInRoute } from '../http/responseDeclarations'
+import { refusalResponse } from '../http/refusalResponse'
+import {
+  jsonBody,
+  jsonResponse,
+  malformedResponse,
+  signedInRoute,
+} from '../http/responseDeclarations'
 
 const reviewRefusals = 'UnknownWord, WordNotHeld or ReviewNotDue'
-
-const malformedResponse: ResponseDeclaration = {
-  description: 'A malformed path or body. Empty body.',
-}
 
 export const learningDeclarations = {
   reviews: createRoute(
@@ -38,7 +39,7 @@ export const learningDeclarations = {
           'The first letter and the letter count of the word a due recall asks for.',
           ReviewHintSchema.meta({ id: 'ReviewHint' }),
         ),
-        400: malformedResponse,
+        400: malformedResponse('path or body'),
         409: refusalResponse(`${reviewRefusals}, or HintOnRecognition.`),
       },
     }),
@@ -56,7 +57,7 @@ export const learningDeclarations = {
           'The verdict the server graded; an earned skill carries the town’s rates, or null rates without a town.',
           ReviewAnswerSchema,
         ),
-        400: malformedResponse,
+        400: malformedResponse('path or body'),
         409: refusalResponse(`${reviewRefusals}, or UnknownChoice.`),
       },
     }),

@@ -1,6 +1,7 @@
 import { z } from 'zod'
 import { BuildingKindSchema } from './BuildingKind'
 import { BuildingWorkSchema } from './BuildingWork'
+import { ChromePhaseSchema } from './ChromePhase'
 import { EarnedSkillSchema } from './EarnedSkill'
 import { HireKindSchema } from './HireKind'
 import { LessonStateSchema } from './LessonState'
@@ -115,6 +116,7 @@ export const TownOverviewSchema = z
     learning: LearningLoadSchema,
     nextStep: NextStepSchema,
     tip: TipKindSchema.nullable(),
+    chromePhase: ChromePhaseSchema,
     nextDueAt: InstantSchema.nullable(),
     readAt: InstantSchema,
   })

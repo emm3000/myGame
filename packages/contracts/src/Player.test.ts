@@ -6,6 +6,7 @@ const unverifiedPlayer = {
   email: 'aldara@example.com',
   emailVerified: false,
   scaffold: 'es',
+  chromePhase: 'scaffold',
 }
 
 describe('PlayerSchema', () => {
@@ -23,6 +24,12 @@ describe('PlayerSchema', () => {
     const { scaffold: _, ...withoutScaffold } = unverifiedPlayer
 
     expect(PlayerSchema.safeParse(withoutScaffold).success).toBe(false)
+  })
+
+  it('rejects a player without a chrome phase', () => {
+    const { chromePhase: _, ...withoutChromePhase } = unverifiedPlayer
+
+    expect(PlayerSchema.safeParse(withoutChromePhase).success).toBe(false)
   })
 
   it('rejects a scaffold language Townword does not offer', () => {

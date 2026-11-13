@@ -40,7 +40,7 @@ const begin = async ({
 }: BeginShape) => {
   const bandStarts = inMemoryBandStarts([{ playerId: ana, start: bandOneStart(checks) }])
   const begun = await beginHoldoutCheck(
-    { playerId: ana, band: 1, week },
+    { playerId: ana, scaffold: 'es', band: 1, week },
     {
       bandStarts,
       cards: inMemoryCards(cards),

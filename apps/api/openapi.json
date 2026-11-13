@@ -39,14 +39,21 @@
           },
           "scaffold": {
             "$ref": "#/components/schemas/Scaffold"
+          },
+          "chromePhase": {
+            "$ref": "#/components/schemas/ChromePhase"
           }
         },
-        "required": ["id", "email", "emailVerified", "scaffold"],
+        "required": ["id", "email", "emailVerified", "scaffold", "chromePhase"],
         "additionalProperties": false
       },
       "Scaffold": {
         "type": "string",
         "enum": ["es", "none"]
+      },
+      "ChromePhase": {
+        "type": "string",
+        "enum": ["scaffold", "both", "english"]
       },
       "ApiError": {
         "oneOf": [
@@ -2392,9 +2399,19 @@
                         },
                         "required": ["word", "gloss", "frame"],
                         "additionalProperties": false
+                      },
+                      "support": {
+                        "allOf": [
+                          {
+                            "$ref": "#/components/schemas/WordSupport"
+                          },
+                          {
+                            "nullable": true
+                          }
+                        ]
                       }
                     },
-                    "required": ["wordId", "standing", "reading"],
+                    "required": ["wordId", "standing", "reading", "support"],
                     "additionalProperties": false
                   }
                 }
@@ -2499,6 +2516,9 @@
             "nullable": true,
             "enum": ["people", "seasons", "waitingList", "office", "jobs", "fullStore", null]
           },
+          "chromePhase": {
+            "$ref": "#/components/schemas/ChromePhase"
+          },
           "nextDueAt": {
             "type": "string",
             "nullable": true,
@@ -2527,6 +2547,7 @@
           "learning",
           "nextStep",
           "tip",
+          "chromePhase",
           "nextDueAt",
           "readAt"
         ],
@@ -2756,6 +2777,25 @@
           "size",
           "waste"
         ],
+        "additionalProperties": false
+      },
+      "WordSupport": {
+        "type": "object",
+        "properties": {
+          "shown": {
+            "type": "string",
+            "enum": ["beside", "onTap"]
+          },
+          "text": {
+            "type": "string",
+            "minLength": 1
+          },
+          "language": {
+            "type": "string",
+            "enum": ["es", "en"]
+          }
+        },
+        "required": ["shown", "text", "language"],
         "additionalProperties": false
       },
       "NextStep": {

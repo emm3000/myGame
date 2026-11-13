@@ -182,7 +182,8 @@ class CleanUpRepositoryTest {
                 """"terms":{"worker":$TERMS,"truck":$TERMS}},"job":$CLEAN_UP,""" +
                 """"lessons":[],"skills":[],"lessonSlot":null,""" +
                 """"learning":{"cap":10,"inLearning":0,"retainedWords":null},""" +
-                """"nextStep":{"kind":"caughtUp","goal":null},"tip":null,"nextDueAt":null,""" +
+                """"nextStep":{"kind":"caughtUp","goal":null},"tip":null,""" +
+                """"chromePhase":"scaffold","nextDueAt":null,""" +
                 """"readAt":"2026-11-05T10:05:00.000Z"}"""
     }
 }

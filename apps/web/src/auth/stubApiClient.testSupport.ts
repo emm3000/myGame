@@ -6,6 +6,7 @@ export const knownPlayer: Player = {
   email: 'aldonza@example.com',
   emailVerified: true,
   scaffold: 'es',
+  chromePhase: 'scaffold',
 }
 
 const placeAtLevel = (level: number): TownOverview['buildings']['farm'] => ({
@@ -66,6 +67,7 @@ export const knownTown: TownOverview = {
   learning: { cap: 15, inLearning: 0, retainedWords: null },
   nextStep: { kind: 'caughtUp', goal: null },
   tip: null,
+  chromePhase: 'scaffold',
   nextDueAt: null,
   readAt: '2026-11-10T09:00:00.000Z',
 }

@@ -17,6 +17,7 @@ export type LessonWord = {
   readonly id: WordId
   readonly acceptedForms: readonly [string, ...ReadonlyArray<string>]
   readonly gloss: string
+  readonly definition: string
   readonly frames: readonly [WordFrame, ...ReadonlyArray<LaterFrame>]
 }
 

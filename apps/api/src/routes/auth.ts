@@ -2,7 +2,6 @@ import { OpenAPIHono } from '@hono/zod-openapi'
 import {
   ForgotPasswordRequestSchema,
   type NativeSession,
-  type Player,
   ResetPasswordRequestSchema,
   SignInRequestSchema,
   SignUpRequestSchema,
@@ -11,7 +10,6 @@ import {
 import type { Result } from '@mygame/domain'
 import type { Context } from 'hono'
 import type { ContentfulStatusCode } from 'hono/utils/http-status'
-import type { StoredPlayer } from '../auth/Accounts'
 import {
   type RequestPasswordResetDependencies,
   requestPasswordReset,
@@ -31,7 +29,9 @@ import type { Refusal } from '../http/Refusal'
 import { type NamedIssue, requestRefusalOf } from '../http/requestRefusalOf'
 import { type RequirePlayerDependencies, requirePlayer } from '../http/requirePlayer'
 import { clearSessionCookie, writeSessionCookie } from '../http/sessionCookie'
+import type { PlayerChromePhaseDependencies } from '../learning/playerChromePhaseOf'
 import { authDeclarations } from './authDeclarations'
+import { playerBodyOf } from './playerBodyOf'
 
 export type AuthDependencies = SignUpDependencies &
   SignInDependencies &
@@ -39,14 +39,8 @@ export type AuthDependencies = SignUpDependencies &
   ResendVerificationMailDependencies &
   RequestPasswordResetDependencies &
   ResetPasswordDependencies &
-  RequirePlayerDependencies
-
-const playerOf = (stored: StoredPlayer): Player => ({
-  id: stored.id,
-  email: stored.email,
-  emailVerified: stored.emailVerified,
-  scaffold: stored.scaffold,
-})
+  RequirePlayerDependencies &
+  PlayerChromePhaseDependencies
 
 const answerDone = (c: Context, done: Result<void, Refusal>): Response =>
   done.ok ? c.body(null, 204) : answerRefusal(c, done.error)
@@ -60,26 +54,27 @@ const answerSignedIn = async (
   c: Context,
   signedIn: Result<SignedIn, Refusal>,
   status: ContentfulStatusCode,
-  { isSessionCookieSecure }: AuthDependencies,
+  dependencies: AuthDependencies,
 ): Promise<Response> => {
   if (!signedIn.ok) {
     return answerRefusal(c, signedIn.error)
   }
-  writeSessionCookie(c, signedIn.value.session, isSessionCookieSecure)
-  return c.json(playerOf(signedIn.value.player), status)
+  writeSessionCookie(c, signedIn.value.session, dependencies.isSessionCookieSecure)
+  return c.json(await playerBodyOf(signedIn.value.player, dependencies), status)
 }
 
-const answerNativeSession = (
+const answerNativeSession = async (
   c: Context,
   signedIn: Result<SignedIn, Refusal>,
   status: ContentfulStatusCode,
-): Response => {
+  dependencies: AuthDependencies,
+): Promise<Response> => {
   if (!signedIn.ok) {
     return answerRefusal(c, signedIn.error)
   }
   const nativeSession: NativeSession = {
     token: signedIn.value.session.token,
-    player: playerOf(signedIn.value.player),
+    player: await playerBodyOf(signedIn.value.player, dependencies),
   }
   return c.json(nativeSession, status)
 }
@@ -102,7 +97,7 @@ export const authRoutes = (dependencies: AuthDependencies): OpenAPIHono => {
     if (!request.success) {
       return answerRefusal(c, requestRefusalOf(accountIssues, request.error.issues))
     }
-    return answerNativeSession(c, await signUp(request.data, dependencies), 201)
+    return answerNativeSession(c, await signUp(request.data, dependencies), 201, dependencies)
   })
   routes.on(authDeclarations.signIn.method, authDeclarations.signIn.path, async (c) => {
     const request = SignInRequestSchema.safeParse(await bodyOf(c))
@@ -116,7 +111,7 @@ export const authRoutes = (dependencies: AuthDependencies): OpenAPIHono => {
     if (!request.success) {
       return answerRefusal(c, { kind: 'InvalidCredentials' })
     }
-    return answerNativeSession(c, await signIn(request.data, dependencies), 200)
+    return answerNativeSession(c, await signIn(request.data, dependencies), 200, dependencies)
   })
   routes.on(
     authDeclarations.signOut.method,
@@ -137,7 +132,7 @@ export const authRoutes = (dependencies: AuthDependencies): OpenAPIHono => {
       if (player === undefined) {
         return answerRefusal(c, { kind: 'SignedOut' })
       }
-      return c.json(playerOf(player))
+      return c.json(await playerBodyOf(player, dependencies))
     },
   )
   routes.on(authDeclarations.verifyEmail.method, authDeclarations.verifyEmail.path, async (c) => {

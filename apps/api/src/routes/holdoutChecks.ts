@@ -22,6 +22,7 @@ import { honoPathOf } from '../http/honoPath'
 import { type RequirePlayerDependencies, requirePlayer } from '../http/requirePlayer'
 import { holdoutChecksBodyOf } from '../learning/holdoutChecksBodyOf'
 import type { LearningDependencies } from '../learning/LearningDependencies'
+import { scaffoldOf } from '../learning/scaffoldOf'
 import { mutateTown, type TownStores } from '../town/mutateTown'
 import { holdoutCheckDeclarations } from './holdoutCheckDeclarations'
 
@@ -61,7 +62,7 @@ export const holdoutCheckRoutes = (dependencies: HoldoutCheckRouteDependencies):
           return changed
         }
         return readHoldoutChecks(
-          { playerId },
+          { playerId, scaffold: await scaffoldOf(playerId, stores.accounts) },
           { bandStarts: stores.bandStarts, words: lessons, clock: mutationClock },
         )
       },
@@ -73,8 +74,11 @@ export const holdoutCheckRoutes = (dependencies: HoldoutCheckRouteDependencies):
     signedInPlayer,
     async (c) => {
       const playerId = c.var.playerId
-      const views = await inTransaction((stores) =>
-        readHoldoutChecks({ playerId }, { bandStarts: stores.bandStarts, words: lessons, clock }),
+      const views = await inTransaction(async (stores) =>
+        readHoldoutChecks(
+          { playerId, scaffold: await scaffoldOf(playerId, stores.accounts) },
+          { bandStarts: stores.bandStarts, words: lessons, clock },
+        ),
       )
       return answerChecks(c, views)
     },
@@ -89,9 +93,9 @@ export const holdoutCheckRoutes = (dependencies: HoldoutCheckRouteDependencies):
         return answerRefusal(c, { kind: 'MalformedRequest' })
       }
       const playerId = c.var.playerId
-      const views = await checksAfter(playerId, check.data, (stores, { band, week }, at) =>
+      const views = await checksAfter(playerId, check.data, async (stores, { band, week }, at) =>
         beginHoldoutCheck(
-          { playerId, band, week },
+          { playerId, band, week, scaffold: await scaffoldOf(playerId, stores.accounts) },
           { ...stores, lessons, words: lessons, random, clock: at },
         ),
       )
@@ -109,9 +113,15 @@ export const holdoutCheckRoutes = (dependencies: HoldoutCheckRouteDependencies):
         return answerRefusal(c, { kind: 'MalformedRequest' })
       }
       const playerId = c.var.playerId
-      const views = await checksAfter(playerId, check.data, (stores, { band, week }, at) =>
+      const views = await checksAfter(playerId, check.data, async (stores, { band, week }, at) =>
         answerHoldoutCheck(
-          { playerId, band, week, answers: request.data.answers },
+          {
+            playerId,
+            band,
+            week,
+            answers: request.data.answers,
+            scaffold: await scaffoldOf(playerId, stores.accounts),
+          },
           { bandStarts: stores.bandStarts, words: lessons, clock: at },
         ),
       )

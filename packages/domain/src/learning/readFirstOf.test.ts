@@ -22,6 +22,7 @@ const lessonOf = (id: string, wordIds: ReadonlyArray<string>): Lesson => ({
     id: wordId,
     acceptedForms: [wordId],
     gloss: `gloss of ${wordId}`,
+    definition: `definition of gloss of ${wordId}`,
     frames: [{ frame: `A frame of ${wordId}.`, gappedFrame: 'A frame of ____.' }],
   })),
 })

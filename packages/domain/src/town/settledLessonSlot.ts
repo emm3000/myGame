@@ -4,6 +4,7 @@ import { heldOutWordsAt } from '../learning/heldOutWordsAt'
 import { holdsLessonCards } from '../learning/holdsLessonCards'
 import { lessonCardsEnteredAt } from '../learning/lessonCardsEnteredAt'
 import type { Instant } from '../time/Instant'
+import { isLessonFinishedBy } from './isLessonFinishedBy'
 import { idleLessonSlot, type LessonSlot } from './LessonSlot'
 import type { SchoolLessons } from './schoolLessonsOf'
 import type { TownEvent } from './TownEvent'
@@ -21,7 +22,7 @@ export const settledLessonSlot = (
   lessons: SchoolLessons,
   now: Instant,
 ): SettledLessonSlot => {
-  if (slot.kind === 'idle' || slot.finishesAt.epochMilliseconds > now.epochMilliseconds) {
+  if (slot.kind === 'idle' || !isLessonFinishedBy(slot, now)) {
     return { slot, entered: [], events: [] }
   }
   const lesson = lessons.lessonOf(slot.lessonId)

@@ -20,6 +20,7 @@ const lessonOfEightWords: Lesson = {
     id,
     acceptedForms: [id],
     gloss: id,
+    definition: `definition of ${id}`,
     frames: [{ frame: id, gappedFrame: id }],
   })),
 }

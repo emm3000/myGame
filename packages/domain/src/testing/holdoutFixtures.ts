@@ -37,6 +37,7 @@ const lessonOfWords = (id: string, indexes: ReadonlyArray<number>): Lesson => ({
       id: wordId,
       acceptedForms: [headword],
       gloss,
+      definition: `definition of ${gloss}`,
       frames: [{ frame: headword, gappedFrame: '____' }],
     }
   }),

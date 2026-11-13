@@ -1,4 +1,5 @@
 import { z } from 'zod'
+import { ChromePhaseSchema } from './ChromePhase'
 import { ScaffoldSchema } from './Scaffold'
 
 export const PlayerSchema = z.strictObject({
@@ -6,6 +7,7 @@ export const PlayerSchema = z.strictObject({
   email: z.email(),
   emailVerified: z.boolean(),
   scaffold: ScaffoldSchema,
+  chromePhase: ChromePhaseSchema,
 })
 
 export type Player = z.infer<typeof PlayerSchema>

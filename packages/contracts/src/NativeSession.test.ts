@@ -6,6 +6,7 @@ const signedInPlayer = {
   email: 'aldara@example.com',
   emailVerified: true,
   scaffold: 'es',
+  chromePhase: 'scaffold',
 }
 
 const nativeSession = {

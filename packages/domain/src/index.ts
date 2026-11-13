@@ -30,11 +30,14 @@ export {
 export { anchorFrameOf } from './learning/anchorFrameOf'
 export type { Band, BandStart, BandWord, Headword } from './learning/BandStart'
 export { cardsInLearningOf } from './learning/cardsInLearningOf'
+export { type ChromePhase, chromePhaseOf } from './learning/chromePhaseOf'
 export type { DueCard } from './learning/dueCardsAt'
+export { glossOf } from './learning/glossOf'
 export { gradeTypedAnswer, type TypedAnswerGrade } from './learning/gradeTypedAnswer'
 export type { HeldCard } from './learning/HeldCard'
 export { headwordOf } from './learning/headwordOf'
 export { heldOutWordsAt } from './learning/heldOutWordsAt'
+export { isLessonPlacedOut } from './learning/isLessonPlacedOut'
 export { isUnitLemma } from './learning/isUnitLemma'
 export { isWordRetained } from './learning/isWordRetained'
 export type {
@@ -54,9 +57,14 @@ export { readableWordsOf } from './learning/readableWordsOf'
 export { readFirstOf } from './learning/readFirstOf'
 export { type RecognitionChoice, recognitionChoicesOf } from './learning/recognitionChoicesOf'
 export { type RetainedWords, retainedWordsOf } from './learning/retainedWordsOf'
+export { type ReviewPrompt, reviewPromptOf, type ShownWord } from './learning/reviewPromptOf'
+export type { Scaffold } from './learning/Scaffold'
 export { skillLevelOf } from './learning/skillLevelOf'
 export { type Stage, stageOf } from './learning/stageOf'
+export { type SupportLevel, supportLevelOf } from './learning/supportLevelOf'
+export { type SupportText, supportTextOf } from './learning/supportTextOf'
 export { type WordStanding, wordStandingOf } from './learning/wordStandingOf'
+export { wordsEnteringOf } from './learning/wordsEnteringOf'
 export { dueInstantOf } from './memory/dueInstantOf'
 export {
   MemoryCard,
@@ -161,6 +169,7 @@ export {
 export { hireKinds } from './town/hireKinds'
 export { hirePercentAt } from './town/hirePercentAt'
 export { hiringEndsAt } from './town/hiringEndsAt'
+export { isLessonFinishedBy } from './town/isLessonFinishedBy'
 export {
   type CleanUpJob,
   idleJobSlot,

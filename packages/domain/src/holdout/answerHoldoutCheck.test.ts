@@ -44,7 +44,7 @@ const wrongChoiceOf = ({ word, choices }: PlacementItem): string =>
 const askedItemsOf = async (
   dependencies: ReturnType<typeof checkOf>,
 ): Promise<ReadonlyArray<PlacementItem>> => {
-  const read = await readHoldoutChecks({ playerId: ana }, dependencies)
+  const read = await readHoldoutChecks({ playerId: ana, scaffold: 'es' }, dependencies)
   assert(read.ok)
   const [asking] = read.value
   assert(asking?.kind === 'asking')
@@ -67,7 +67,7 @@ describe('answerHoldoutCheck', () => {
       choiceId: item.wordId === heldOutIds[0] ? wrongChoiceOf(item) : rightChoiceOf(item),
     }))
     const answered = await answerHoldoutCheck(
-      { playerId: ana, band: 1, week: 8, answers },
+      { playerId: ana, scaffold: 'es', band: 1, week: 8, answers },
       dependencies,
     )
     assert(answered.ok)
@@ -87,6 +87,7 @@ describe('answerHoldoutCheck', () => {
     const answered = await answerHoldoutCheck(
       {
         playerId: ana,
+        scaffold: 'es',
         band: 1,
         week: 8,
         answers: [{ wordId: first.wordId, choiceId: rightChoiceOf(first) }],
@@ -102,7 +103,7 @@ describe('answerHoldoutCheck', () => {
 
   it('refuses answers to a check due but not begun', async () => {
     const answered = await answerHoldoutCheck(
-      { playerId: ana, band: 1, week: 8, answers: [] },
+      { playerId: ana, scaffold: 'es', band: 1, week: 8, answers: [] },
       checkOf([], weeksAfterStart(9)),
     )
     expect(answered).toEqual({
@@ -113,9 +114,48 @@ describe('answerHoldoutCheck', () => {
 
   it('refuses answers to a begun check that lapsed at 24 weeks', async () => {
     const answered = await answerHoldoutCheck(
-      { playerId: ana, band: 1, week: 8, answers: [] },
+      { playerId: ana, scaffold: 'es', band: 1, week: 8, answers: [] },
       checkOf([begunCheck], weeksAfterStart(24)),
     )
     expect(answered).toEqual({ ok: false, error: { kind: 'HoldoutCheckNotDue', band: 1, week: 8 } })
+  })
+
+  it('grades under none a choice that only the definitions offer', async () => {
+    const [heldOutId, , practisedId] = askedIds
+    const sharedGlossWords = bandOneWords.map((word) =>
+      word.id === heldOutId || word.id === practisedId ? { ...word, gloss: 'casa' } : word,
+    )
+    const takenAt = weeksAfterStart(8, 60_000)
+    const bandStarts = inMemoryBandStarts([{ playerId: ana, start: bandOneStart([begunCheck]) }])
+    const dependencies = {
+      bandStarts,
+      words: inMemoryPlacementWords([{ band: 1, words: sharedGlossWords }]),
+      clock: { now: () => takenAt },
+    }
+    const read = await readHoldoutChecks({ playerId: ana, scaffold: 'none' }, dependencies)
+    assert(read.ok && read.value[0]?.kind === 'asking')
+    const definitionOf = (wordId: string | undefined): string | undefined =>
+      sharedGlossWords.find(({ id }) => id === wordId)?.definition
+    const answers = read.value[0].items.map(({ wordId, choices }) => {
+      const chosen = definitionOf(wordId === heldOutId ? practisedId : wordId)
+      return {
+        wordId,
+        choiceId: choices.find(({ gloss }) => gloss === chosen)?.choiceId ?? 'missing',
+      }
+    })
+
+    const answered = await answerHoldoutCheck(
+      { playerId: ana, scaffold: 'none', band: 1, week: 8, answers },
+      dependencies,
+    )
+
+    assert(answered.ok)
+    expect({
+      heldOut: answered.value.heldOutScore,
+      practised: answered.value.practisedScore,
+    }).toEqual({
+      heldOut: 1,
+      practised: 2,
+    })
   })
 })

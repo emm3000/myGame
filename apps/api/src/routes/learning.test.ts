@@ -2,6 +2,7 @@ import { fileURLToPath } from 'node:url'
 import {
   ApiErrorSchema,
   type DueReview,
+  PlayerSchema,
   ReportSchema,
   type ReviewAnswer,
   ReviewAnswerSchema,
@@ -14,6 +15,7 @@ import {
 import { type CardRepository, type Clock, Instant, type RandomSource } from '@mygame/domain'
 import { Client, type QueryResultRow } from 'pg'
 import { afterAll, assert, beforeAll, beforeEach, describe, expect, it } from 'vitest'
+import { shippedCurriculum } from '../adapters/json/shippedCurriculum.testSupport'
 import type { Transaction } from '../adapters/postgres/postgresTransaction'
 import { createApp } from '../app'
 import { type ComposedServer, composeServer } from '../composeServer'
@@ -362,6 +364,8 @@ describe('the learning routes', () => {
     answers.map(({ verdict }) => (verdict.kind === 'nearMiss' ? undefined : verdict.dueAt))
 
   describe('the school lesson route', () => {
+    const lessonOneGlosses = ['hogar', 'escuela', 'trabajar', 'dinero', 'comida']
+
     it('studies lesson 1 in the school for 300 s at school 1, costing nothing', async () => {
       const player = await signUpWithATown()
       clock.setTo(lessonStartsAt)
@@ -392,7 +396,12 @@ describe('the learning routes', () => {
           requiredSchoolLevel: 1,
           skill: { resource: 'food', ratePercent: 5 },
           isStudied: false,
-          words: wordIds.map((wordId) => ({ wordId, standing: 'notStarted', reading: null })),
+          words: wordIds.map((wordId, index) => ({
+            wordId,
+            standing: 'notStarted',
+            reading: null,
+            support: { shown: 'beside', text: lessonOneGlosses[index], language: 'es' },
+          })),
         },
         skills: [],
         lessonSlot: null,
@@ -408,7 +417,152 @@ describe('the learning routes', () => {
         wordId: 'lesson-1-2',
         standing: 'notStarted',
         reading: { word: 'school', gloss: 'escuela', frame: 'We are at school.' },
+        support: { shown: 'beside', text: 'escuela', language: 'es' },
       })
+    })
+
+    it("reads a running lesson's words under none with their definitions", async () => {
+      const player = await studyLessonOne()
+      await send(player, 'PUT', '/player/scaffold', { scaffold: 'none' })
+
+      const { lessons } = await readTown(player)
+
+      expect(lessons[0]?.words[1]).toEqual({
+        wordId: 'lesson-1-2',
+        standing: 'notStarted',
+        reading: {
+          word: 'school',
+          gloss: 'a place where children go to learn',
+          frame: 'We are at school.',
+        },
+        support: { shown: 'beside', text: 'a place where children go to learn', language: 'en' },
+      })
+    })
+
+    it('shows the gloss of a word on tap once its card holds for 7 days', async () => {
+      const player = await studyToTheFirstRecall()
+      await runSql("UPDATE cards SET stability = 7 WHERE word_id = 'lesson-1-2'")
+
+      const { lessons } = await readTown(player)
+
+      expect(lessons[0]?.words[1]?.support).toEqual({
+        shown: 'onTap',
+        text: 'escuela',
+        language: 'es',
+      })
+    })
+
+    it('shows the definition of a word on tap once its card holds for 30 days', async () => {
+      const player = await studyToTheFirstRecall()
+      await runSql("UPDATE cards SET stability = 30 WHERE word_id = 'lesson-1-2'")
+
+      const { lessons } = await readTown(player)
+
+      expect(lessons[0]?.words[1]?.support).toEqual({
+        shown: 'onTap',
+        text: 'a place where children go to learn',
+        language: 'en',
+      })
+    })
+
+    it('answers the chrome Spanish to a new player under es', async () => {
+      const player = await signUpWithATown()
+
+      expect((await readTown(player)).chromePhase).toBe('scaffold')
+    })
+
+    const { chromeLessonCount } = shippedCurriculum
+
+    const holdEveryChromeLesson = async (player: Player): Promise<ReadonlyArray<string>> => {
+      const chromeLessons = (await readTown(player)).lessons.slice(0, chromeLessonCount)
+      const chromeLessonIds = chromeLessons.map(({ id }) => id)
+      const firstWordIds = chromeLessons.map(({ words }) => words[0]?.wordId)
+      await runSql(
+        `INSERT INTO cards (player_id, word_id, state, step, stability, difficulty, last_review_at, last_rating, entered_at)
+         SELECT players.id, word_id, 'review', NULL, 9.5, 4.2, '${lessonStartsAt}', 'good', '${lessonStartsAt}'
+         FROM players, unnest(ARRAY['${firstWordIds.join("', '")}']) AS word_id`,
+      )
+      return chromeLessonIds
+    }
+
+    it('answers the chrome in both languages once every chrome lesson holds cards', async () => {
+      const player = await signUpWithATown()
+      await holdEveryChromeLesson(player)
+
+      expect((await readTown(player)).chromePhase).toBe('both')
+    })
+
+    it('answers the chrome English once every chrome lesson has earned its skill', async () => {
+      const player = await signUpWithATown()
+      const chromeLessonIds = await holdEveryChromeLesson(player)
+      await runSql(
+        `INSERT INTO earned_skills (player_id, lesson_id, resource, rate_percent, earned_at)
+         SELECT players.id, lesson_id, 'food', 5, '${lessonStartsAt}'
+         FROM players, unnest(ARRAY['${chromeLessonIds.join("', '")}']) AS lesson_id`,
+      )
+
+      expect((await readTown(player)).chromePhase).toBe('english')
+    })
+
+    it('answers the same chrome phase on the session and the town after an unsettled finish', async () => {
+      const player = await signUpWithATown()
+      const laterChromeLessons = server.lessons.chromeLessons().slice(1)
+      await runSql(
+        `INSERT INTO cards (player_id, word_id, state, step, stability, difficulty, last_review_at, last_rating, entered_at)
+         SELECT players.id, word_id, 'review', NULL, 9.5, 4.2, '${lessonStartsAt}', 'good', '${lessonStartsAt}'
+         FROM players, unnest(ARRAY['${laterChromeLessons.map(({ words }) => words[0]?.id).join("', '")}']) AS word_id`,
+      )
+      clock.setTo(lessonStartsAt)
+      expect((await startLesson(player)).status).toBe(200)
+      clock.setTo(firstRecallAt)
+
+      const session = PlayerSchema.parse(await (await send(player, 'GET', '/auth/session')).json())
+      const town = await readTown(player)
+
+      expect([session.chromePhase, town.chromePhase]).toEqual(['both', 'both'])
+    })
+
+    it('answers the chrome English on the town read right after the last chrome skill is earned', async () => {
+      const player = await studyToTheLastSecondRecall()
+      const laterChromeLessons = server.lessons.chromeLessons().slice(1)
+      await runSql(
+        `INSERT INTO cards (player_id, word_id, state, step, stability, difficulty, last_review_at, last_rating, entered_at)
+         SELECT players.id, word_id, 'review', NULL, 9.5, 4.2, '${lessonStartsAt}', 'good', '${lessonStartsAt}'
+         FROM players, unnest(ARRAY['${laterChromeLessons.map(({ words }) => words[0]?.id).join("', '")}']) AS word_id`,
+      )
+      await runSql(
+        `INSERT INTO earned_skills (player_id, lesson_id, resource, rate_percent, earned_at)
+         SELECT players.id, lesson_id, 'food', 5, '${lessonStartsAt}'
+         FROM players, unnest(ARRAY['${laterChromeLessons.map(({ id }) => id).join("', '")}']) AS lesson_id`,
+      )
+      const before = (await readTown(player)).chromePhase
+
+      await answered(player, 'lesson-1-5', 'food')
+
+      expect([before, (await readTown(player)).chromePhase]).toEqual(['both', 'english'])
+    })
+
+    it('reads a word of a lesson past the chrome on tap once its band is placed out', async () => {
+      const player = await signUpWithATown()
+      await runSql(
+        `INSERT INTO placements (player_id, kind, decided_at) SELECT id, 'taken', '${lessonStartsAt}' FROM players`,
+      )
+      await runSql(
+        `INSERT INTO placement_scores (player_id, band, score, taken_at) SELECT id, 1, 29, '${lessonStartsAt}' FROM players`,
+      )
+
+      const pastChrome = (await readTown(player)).lessons[chromeLessonCount]
+
+      expect(pastChrome?.words.find(({ support }) => support !== null)?.support?.shown).toBe(
+        'onTap',
+      )
+    })
+
+    it('answers the chrome English to a player under none', async () => {
+      const player = await signUpWithATown()
+      await send(player, 'PUT', '/player/scaffold', { scaffold: 'none' })
+
+      expect((await readTown(player)).chromePhase).toBe('english')
     })
 
     it("reads a finished lesson's word until its first review", async () => {
@@ -687,6 +841,34 @@ describe('the learning routes', () => {
       expect(wordIds.filter((wordId) => body.includes(`"${lemmaOf(wordId)}"`))).toEqual([])
     })
 
+    it('shows a recall under none with the definition as its cue', async () => {
+      const player = await studyToTheFirstRecall()
+      await send(player, 'PUT', '/player/scaffold', { scaffold: 'none' })
+
+      const { due } = await readReviews(player)
+
+      const recall = due.find(({ wordId }) => wordId === 'lesson-1-2')
+      assert(recall?.mode === 'recall')
+      expect(recall.gloss).toBe('a place where children go to learn')
+    })
+
+    it('offers the definitions of the lesson as the choices of a recognition under none', async () => {
+      const player = await studyLessonOne()
+      clock.setTo(lessonFinishesAt)
+      await send(player, 'PUT', '/player/scaffold', { scaffold: 'none' })
+
+      const recognition = await dueReviewOf(player, 'lesson-1-2')
+
+      assert(recognition.mode === 'recognition')
+      expect(recognition.choices.map(({ gloss }) => gloss).sort()).toEqual([
+        'a place where children go to learn',
+        'the place where you live',
+        'to do a job for money',
+        'what people and animals eat',
+        'what you pay with when you buy things',
+      ])
+    })
+
     it('reads the reviews of a player whose town is gone', async () => {
       const player = await studyLessonOne()
       clock.setTo(lessonFinishesAt)
@@ -806,6 +988,16 @@ describe('the learning routes', () => {
         gloss: 'hogar',
         dueAt: '2026-11-12T09:20:00.000Z',
       })
+    })
+
+    it('answers a wrong answer under none with the definition beside the correct form', async () => {
+      const player = await studyToTheFirstRecall()
+      await send(player, 'PUT', '/player/scaffold', { scaffold: 'none' })
+
+      const { verdict } = await answered(player, 'lesson-1-1', 'house')
+
+      assert(verdict.kind === 'wrong')
+      expect([verdict.word, verdict.gloss]).toEqual(['home', 'the place where you live'])
     })
 
     it('grades an empty answer wrong', async () => {
@@ -1059,6 +1251,7 @@ describe('the learning routes', () => {
           id: `word-${headword}`,
           acceptedForms: [headword] as const,
           gloss: `gloss of ${headword}`,
+          definition: `definition of ${headword}`,
           frames: [{ frame: `They ${headword} it.`, gappedFrame: 'They ____ it.' }],
         })),
       }
@@ -1077,6 +1270,7 @@ describe('the learning routes', () => {
         hasLessons: (band) => lessons.hasLessons(band),
         placementWordsOf: (band) => lessons.placementWordsOf(band),
         lessons: () => [...lessons.lessons(), lesson],
+        chromeLessons: () => lessons.chromeLessons(),
       }
     }
 
@@ -1180,7 +1374,9 @@ describe('the learning routes', () => {
           .find(({ id }) => id === 'lesson-fixture-holdout')
           ?.words.flatMap(({ reading }) => (reading === null ? [] : [reading.word])) ?? []
       const heldOutContentIn = ({ lessons }: TownOverview): ReadonlyArray<string> =>
-        stringsIn(lessons).filter((text) => ['say', 'gloss of say', 'They say it.'].includes(text))
+        stringsIn(lessons).filter((text) =>
+          ['say', 'gloss of say', 'definition of say', 'They say it.'].includes(text),
+        )
       const entering = ['time', 'year', 'think', 'come']
       expect([readWordsOf(running), readWordsOf(finished)]).toEqual([entering, entering])
       expect([heldOutContentIn(running), heldOutContentIn(finished)]).toEqual([[], []])
@@ -1314,6 +1510,7 @@ describe('the learning routes', () => {
             id: 'word-say',
             acceptedForms: ['say'],
             gloss: 'decir',
+            definition: 'to tell something with words',
             frames: [{ frame: 'They say it.', gappedFrame: 'They ____ it.' }],
           },
         ],
@@ -1329,6 +1526,7 @@ describe('the learning routes', () => {
         hasLessons: (band) => lessons.hasLessons(band),
         placementWordsOf: (band) => lessons.placementWordsOf(band),
         lessons: () => shelved,
+        chromeLessons: () => lessons.chromeLessons(),
       }
     }
 

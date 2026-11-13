@@ -62,7 +62,7 @@ const answersWithRight = async (
   dependencies: ReturnType<typeof placementOf>['dependencies'],
   rightCount: number,
 ): Promise<ReadonlyArray<PlacementAnswer>> => {
-  const view = await readPlacement({ playerId: ana }, dependencies)
+  const view = await readPlacement({ playerId: ana, scaffold: 'es' }, dependencies)
   assert(view.ok && view.value.kind === 'asking')
   return view.value.items.map((item, index) => ({
     wordId: item.wordId,
@@ -83,7 +83,10 @@ describe('answerPlacement', () => {
     const { dependencies } = placementOf({})
     const answers = await answersWithRight(dependencies, 29)
 
-    const view = await answerPlacement({ playerId: ana, band: 1, answers }, dependencies)
+    const view = await answerPlacement(
+      { playerId: ana, scaffold: 'es', band: 1, answers },
+      dependencies,
+    )
 
     assert(view.ok && view.value.kind === 'asking')
     expect(view.value.band).toBe(2)
@@ -93,7 +96,10 @@ describe('answerPlacement', () => {
     const { dependencies } = placementOf({})
     const answers = await answersWithRight(dependencies, 28)
 
-    const view = await answerPlacement({ playerId: ana, band: 1, answers }, dependencies)
+    const view = await answerPlacement(
+      { playerId: ana, scaffold: 'es', band: 1, answers },
+      dependencies,
+    )
 
     expect(view).toEqual({
       ok: true,
@@ -105,7 +111,7 @@ describe('answerPlacement', () => {
     const { placements, dependencies } = placementOf({})
     const answers = await answersWithRight(dependencies, 30)
 
-    await answerPlacement({ playerId: ana, band: 1, answers }, dependencies)
+    await answerPlacement({ playerId: ana, scaffold: 'es', band: 1, answers }, dependencies)
 
     expect(await storedScoresOf(placements)).toEqual([{ band: 1, score: 30, takenAt: answeredAt }])
   })
@@ -113,9 +119,11 @@ describe('answerPlacement', () => {
   it('stops at the first band failed', async () => {
     const { dependencies } = placementOf({})
     const answers = await answersWithRight(dependencies, 10)
-    await answerPlacement({ playerId: ana, band: 1, answers }, dependencies)
+    await answerPlacement({ playerId: ana, scaffold: 'es', band: 1, answers }, dependencies)
 
-    expect(await answerPlacement({ playerId: ana, band: 2, answers }, dependencies)).toEqual({
+    expect(
+      await answerPlacement({ playerId: ana, scaffold: 'es', band: 2, answers }, dependencies),
+    ).toEqual({
       ok: false,
       error: { kind: 'PlacementBandNotAsked', band: 2 },
     })
@@ -125,7 +133,9 @@ describe('answerPlacement', () => {
     const { dependencies } = placementOf({})
     const answers = await answersWithRight(dependencies, 30)
 
-    expect(await answerPlacement({ playerId: ana, band: 2, answers }, dependencies)).toEqual({
+    expect(
+      await answerPlacement({ playerId: ana, scaffold: 'es', band: 2, answers }, dependencies),
+    ).toEqual({
       ok: false,
       error: { kind: 'PlacementBandNotAsked', band: 2 },
     })
@@ -134,9 +144,11 @@ describe('answerPlacement', () => {
   it('refuses an answer to a band already answered', async () => {
     const { placements, dependencies } = placementOf({})
     const answers = await answersWithRight(dependencies, 30)
-    await answerPlacement({ playerId: ana, band: 1, answers }, dependencies)
+    await answerPlacement({ playerId: ana, scaffold: 'es', band: 1, answers }, dependencies)
 
-    expect(await answerPlacement({ playerId: ana, band: 1, answers }, dependencies)).toEqual({
+    expect(
+      await answerPlacement({ playerId: ana, scaffold: 'es', band: 1, answers }, dependencies),
+    ).toEqual({
       ok: false,
       error: { kind: 'PlacementBandNotAsked', band: 1 },
     })
@@ -146,7 +158,9 @@ describe('answerPlacement', () => {
   it('refuses an answer from a player who skipped the placement', async () => {
     const { dependencies } = placementOf({ placement: { kind: 'skipped', skippedAt: begunAt } })
 
-    expect(await answerPlacement({ playerId: ana, band: 1, answers: [] }, dependencies)).toEqual({
+    expect(
+      await answerPlacement({ playerId: ana, scaffold: 'es', band: 1, answers: [] }, dependencies),
+    ).toEqual({
       ok: false,
       error: { kind: 'PlacementBandNotAsked', band: 1 },
     })
@@ -156,7 +170,9 @@ describe('answerPlacement', () => {
     const bandOneStart: BandStart = { band: 1, startedAt: begunAt, heldOutWords: [], checks: [] }
     const { dependencies } = placementOf({ starts: [{ playerId: ana, start: bandOneStart }] })
 
-    expect(await answerPlacement({ playerId: ana, band: 1, answers: [] }, dependencies)).toEqual({
+    expect(
+      await answerPlacement({ playerId: ana, scaffold: 'es', band: 1, answers: [] }, dependencies),
+    ).toEqual({
       ok: false,
       error: { kind: 'PlacementBandNotAsked', band: 1 },
     })
@@ -167,7 +183,10 @@ describe('answerPlacement', () => {
     const answers = await answersWithRight(dependencies, 30)
 
     expect(
-      await answerPlacement({ playerId: ana, band: 1, answers: answers.slice(1) }, dependencies),
+      await answerPlacement(
+        { playerId: ana, scaffold: 'es', band: 1, answers: answers.slice(1) },
+        dependencies,
+      ),
     ).toEqual({ ok: false, error: { kind: 'InvalidPlacementAnswers', band: 1 } })
     expect(await storedScoresOf(placements)).toEqual([])
   })
@@ -180,7 +199,7 @@ describe('answerPlacement', () => {
 
     expect(
       await answerPlacement(
-        { playerId: ana, band: 1, answers: [first, ...answers.slice(0, 29)] },
+        { playerId: ana, scaffold: 'es', band: 1, answers: [first, ...answers.slice(0, 29)] },
         dependencies,
       ),
     ).toEqual({ ok: false, error: { kind: 'InvalidPlacementAnswers', band: 1 } })
@@ -194,9 +213,53 @@ describe('answerPlacement', () => {
 
     expect(
       await answerPlacement(
-        { playerId: ana, band: 1, answers: [{ ...first, choiceId: first.wordId }, ...rest] },
+        {
+          playerId: ana,
+          scaffold: 'es',
+          band: 1,
+          answers: [{ ...first, choiceId: first.wordId }, ...rest],
+        },
         dependencies,
       ),
     ).toEqual({ ok: false, error: { kind: 'InvalidPlacementAnswers', band: 1 } })
+  })
+
+  it('grades under none a choice that only the definitions offer', async () => {
+    const [home, house, food] = placementWordsOfBand(1, 3)
+    assert(home !== undefined && house !== undefined && food !== undefined)
+    const words = [{ ...home, gloss: 'casa' }, { ...house, gloss: 'casa' }, food]
+    const placements = inMemoryPlacements([
+      {
+        playerId: ana,
+        placement: {
+          ...begunPlacement,
+          samples: [{ band: 1, wordIds: words.map(({ id }) => id) }],
+        },
+      },
+    ])
+    const dependencies = {
+      placements,
+      bandStarts: inMemoryBandStarts([]),
+      ...placementContentOf([{ band: 1, words }]),
+      clock: frozenClock,
+    }
+    const view = await readPlacement({ playerId: ana, scaffold: 'none' }, dependencies)
+    assert(view.ok && view.value.kind === 'asking')
+    const answers = view.value.items.map(({ wordId, choices }) => {
+      const chosen =
+        wordId === home.id ? house.definition : words.find(({ id }) => id === wordId)?.definition
+      return {
+        wordId,
+        choiceId: choices.find(({ gloss }) => gloss === chosen)?.choiceId ?? 'missing',
+      }
+    })
+
+    const answered = await answerPlacement(
+      { playerId: ana, scaffold: 'none', band: 1, answers },
+      dependencies,
+    )
+
+    assert(answered.ok)
+    expect(await storedScoresOf(placements)).toEqual([{ band: 1, score: 2, takenAt: answeredAt }])
   })
 })

@@ -11,6 +11,7 @@ const lessonTeachingTrue: Lesson = {
       id: 'word-true',
       acceptedForms: ['TRUE', 'true'],
       gloss: 'verdadero',
+      definition: 'definition of verdadero',
       frames: [{ frame: 'That is true.', gappedFrame: 'That is ____.' }],
     },
   ],

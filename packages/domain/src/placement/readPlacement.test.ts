@@ -42,7 +42,7 @@ type ReadShape = {
 
 const read = ({ stored = [], starts = [], shelves = draftedBands }: ReadShape) =>
   readPlacement(
-    { playerId: ana },
+    { playerId: ana, scaffold: 'es' },
     {
       placements: inMemoryPlacements(stored),
       bandStarts: inMemoryBandStarts(starts),

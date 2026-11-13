@@ -7,6 +7,7 @@ import {
   TownAddress,
   TownName,
 } from '@mygame/domain'
+import { eq } from 'drizzle-orm'
 import { drizzle } from 'drizzle-orm/node-postgres'
 import { Pool } from 'pg'
 import { afterAll, assert, beforeAll, describe, expect, it } from 'vitest'
@@ -117,6 +118,19 @@ describe('DrizzleTownRepository as a TownReader', () => {
       lessonOneUnderStudy,
       [{ wordId: 'lesson-1-1', card: enteredCard }],
     ])
+  })
+
+  it("reads the player's scaffold language with the town", async () => {
+    await truncateAll()
+    await registerPlayers([ana])
+    const session = drizzle(pool)
+    const reader = new DrizzleTownRepository(session, 'lockFree')
+    assert((await reader.save(anasTown(ana))).ok)
+    await session.update(players).set({ scaffold: 'none' }).where(eq(players.id, ana))
+
+    const read = await reader.townWithSchoolOf(ana)
+
+    expect(read.ok && read.value?.scaffold).toBe('none')
   })
 
   it("reads the player's held-out words of every band with the town", async () => {

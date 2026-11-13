@@ -17,16 +17,17 @@ import {
   TownOverviewSchema,
 } from '@mygame/contracts'
 import { type ResponseDeclaration, refusalResponse } from '../http/refusalResponse'
-import { jsonBody, jsonResponse, signedInRoute } from '../http/responseDeclarations'
+import {
+  jsonBody,
+  jsonResponse,
+  malformedResponse,
+  signedInRoute,
+} from '../http/responseDeclarations'
 
 const townNotFoundResponse = refusalResponse('TownNotFound: the player holds no town yet.')
 
 const overviewResponse = (description: string): ResponseDeclaration =>
   jsonResponse(description, TownOverviewSchema)
-
-export const malformedResponse = (what: string): ResponseDeclaration => ({
-  description: `A malformed ${what}. Empty body.`,
-})
 
 export const townDeclarations = {
   overview: createRoute(

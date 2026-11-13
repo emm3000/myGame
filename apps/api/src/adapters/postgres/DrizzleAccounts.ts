@@ -1,5 +1,4 @@
-import type { Scaffold } from '@mygame/contracts'
-import type { Instant, PlayerId } from '@mygame/domain'
+import type { Instant, PlayerId, Scaffold } from '@mygame/domain'
 import { and, eq, gt, sql } from 'drizzle-orm'
 import type {
   Accounts,
@@ -85,12 +84,15 @@ export class DrizzleAccounts implements Accounts {
     await this.database.update(players).set({ passwordHash }).where(eq(players.id, playerId))
   }
 
-  async storeScaffold(playerId: PlayerId, scaffold: Scaffold): Promise<StoredPlayer | undefined> {
+  async storeScaffold(playerId: PlayerId, scaffold: Scaffold): Promise<StoredPlayer> {
     const [stored] = await this.database
       .update(players)
       .set({ scaffold })
       .where(eq(players.id, playerId))
       .returning(storedPlayerColumns)
+    if (stored === undefined) {
+      throw new Error(`Player ${playerId} holds no account`)
+    }
     return stored
   }
 

@@ -15,6 +15,7 @@ import { JsonTownCatalog } from './adapters/json/JsonTownCatalog'
 import { connectPostgres } from './adapters/postgres/connectPostgres'
 import { DrizzleAccounts } from './adapters/postgres/DrizzleAccounts'
 import { DrizzleCardRepository } from './adapters/postgres/DrizzleCardRepository'
+import { DrizzleChromeProgress } from './adapters/postgres/DrizzleChromeProgress'
 import { DrizzleCleanUpRepository } from './adapters/postgres/DrizzleCleanUpRepository'
 import { DrizzleRegionMap } from './adapters/postgres/DrizzleRegionMap'
 import { DrizzleReportClosings } from './adapters/postgres/DrizzleReportClosings'
@@ -32,6 +33,7 @@ import type { Accounts } from './auth/Accounts'
 import type { Mailer } from './auth/Mailer'
 import type { FailureSink } from './http/FailureSink'
 import type { CardReader } from './learning/CardReader'
+import type { ChromeProgressReader } from './learning/ChromeProgressReader'
 import type { LessonLibrary } from './learning/LessonLibrary'
 import type { ReportClosings } from './town/ReportClosings'
 import type { TownNewsReader } from './town/TownNewsReader'
@@ -98,6 +100,7 @@ export type ComposedServer = MailSettings & {
   readonly cleanUps: CleanUpReader
   readonly cards: CardReader
   readonly accounts: Accounts
+  readonly chromeProgress: ChromeProgressReader
   readonly reportClosings: ReportClosings
   readonly passwords: Argon2Passwords
   readonly sessionTokens: CryptoSessionTokens
@@ -127,6 +130,7 @@ export function composeServer(
     ids: new CryptoIdGenerator(),
     random: new CryptoRandomSource(),
     accounts: new DrizzleAccounts(database),
+    chromeProgress: new DrizzleChromeProgress(database),
     reportClosings: new DrizzleReportClosings(database),
     passwords: new Argon2Passwords(),
     sessionTokens: new CryptoSessionTokens(),

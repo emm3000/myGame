@@ -3,5 +3,5 @@ import type { Lesson } from './Lesson'
 
 export const holdsLessonCards = (
   lesson: Pick<Lesson, 'words'>,
-  cards: ReadonlyArray<HeldCard>,
+  cards: ReadonlyArray<Pick<HeldCard, 'wordId'>>,
 ): boolean => cards.some(({ wordId }) => lesson.words.some(({ id }) => id === wordId))

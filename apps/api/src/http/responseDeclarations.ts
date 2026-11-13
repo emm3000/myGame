@@ -9,6 +9,10 @@ export const jsonBody = (schema: ZodType): BodyDeclaration => ({
   content: { 'application/json': { schema } },
 })
 
+export const malformedResponse = (what: string): ResponseDeclaration => ({
+  description: `A malformed ${what}. Empty body.`,
+})
+
 export const jsonResponse = (description: string, schema: ZodType): ResponseDeclaration => ({
   description,
   content: { 'application/json': { schema } },

@@ -17,7 +17,14 @@ export const placementWordsOfBand = (
 ): ReadonlyArray<PlacementWord> =>
   Array.from({ length: count }, (_, index) => {
     const name = `${isChrome ? 'chrome' : 'card'}-${band}-${index + 1}`
-    return { id: `word-${name}`, headword: name, word: name, gloss: `gloss-${name}`, isChrome }
+    return {
+      id: `word-${name}`,
+      headword: name,
+      word: name,
+      gloss: `gloss-${name}`,
+      definition: `definition-${name}`,
+      isChrome,
+    }
   })
 
 export const inMemoryPlacementWords = (
