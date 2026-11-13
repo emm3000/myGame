@@ -28,14 +28,14 @@ Totals of rows already folded out of Recent.
 
 | Row | Model:effort | PRs | MERGE | FIX FIRST checklist | FIX FIRST judgment | FIX FIRST spec |
 |---|---|---|---|---|---|---|
-| 1 | sonnet:low | 20 | 15 | 0 | 0 | 5 |
+| 1 | sonnet:low | 22 | 16 | 0 | 0 | 6 |
 | 2 | sonnet:medium | 2 | 0 | 0 | 2 | 0 |
 | 2 | opus:medium | 77 | 61 | 7 | 7 | 2 |
 | 2 | sonnet:high | 3 | 0 | 0 | 2 | 1 |
-| 2 | opus:high | 69 | 52 | 10 | 5 | 2 |
+| 2 | opus:high | 78 | 60 | 11 | 5 | 2 |
 | 3 | opus:medium | 25 | 16 | 4 | 4 | 1 |
-| 4 | opus:high | 71 | 59 | 2 | 4 | 6 |
-| 3 | opus:high | 112 | 77 | 12 | 16 | 6 |
+| 4 | opus:high | 73 | 60 | 3 | 4 | 6 |
+| 3 | opus:high | 119 | 83 | 13 | 16 | 6 |
 | 3 | fable:high | 2 | 2 | 0 | 0 | 0 |
 | 4 | fable:high | 1 | 1 | 0 | 0 | 0 |
 | 1 | opus:high | 15 | 5 | 1 | 8 | 1 |
@@ -49,23 +49,23 @@ Last 20 PRs, oldest first. Model:effort is what actually ran, which may differ f
 
 | PR | Issue | Row | Model:effort | First review | Cause | Peer in k | Peer out k | Review k | Peer USD | Rounds | Model min | Lines +/- | Later bug |
 |---|---|---|---|---|---|---|---|---|---|---|---|---|---|
-| #1029 | #1006 | 3 | fable:high | MERGE | | 17766 | 96 | 102 | | 1 | Fable 5.2 trial, owner approved; three deviations all accepted | +1406/-431 | |
-| #1028 | #1020 | 1 | sonnet:low | MERGE | | 1314 | 5 | 29 | | 1 | | +9/-0 | |
-| #1030 | #1022 | 1 | sonnet:low | MERGE | | 918 | 3 | 25 | | 1 | | +15/-0 | |
-| #1031 | #1023 | 2 | opus:high | MERGE | | 28931 | 90 | 87 | | 1 | two minors folded (search bound, no seconds) | +518/-26 | |
-| #1032 | #1025 | 3 | fable:high | MERGE | | 22925 | 118 | 114 | | 1 | Fable trial 2; two minors folded; own /agents-review ran two opus reviewers | +1007/-19 | |
-| #1034 | #1008 | 1 | opus:high | MERGE | | 8486 | 37 | 67 | | 1 | content raised from sonnet:low; reviewer approved content for the owner; four content minors folded | +102/-2 | |
-| #1036 | #1007 | 4 | fable:high | MERGE | | 23106 | 121 | 103 | | 1 | Fable trial 3; GET-side frame store upheld; three minors folded | +3397/-115 | |
-| #1037 | #1021 | 3 | opus:high | FIX FIRST | checklist | 15288 | 57 | 188 | | 2 | deriveFullAt stop rule every/some untested | +571/-98 | |
-| #1039 | #1033 | 1 | sonnet:low | MERGE | | 1216 | 3 | 21 | | 1 | stale CLAUDE.md line left: peer declined a CLAUDE.md edit on peer request | +4/-1 | |
-| #1040 | #1038 | 1 | sonnet:low | FIX FIRST | spec | 1681 | 9 | 34 | | 2 | left S22 unmarked while its halves were open | +18/-7 | |
-| #1041 | #1024 | 2 | opus:high | MERGE | | 14489 | 51 | 63 | | 1 | one minor folded (window measured from the read) | +285/-13 | |
-| #1044 | #1009 | 2 | opus:high | MERGE | | 13712 | 39 | 37 | | 1 | emulator run found nothing to fix; tests and screenshots only | +91/-0 | |
-| #1043 | #1011 | 1 | opus:high | MERGE | | 5540 | 49 | 67 | | 1 | content raised from sonnet:low; reviewer read all 160 frames; 9 wording fixes folded | +940/-64 | |
-| #1046 | #804 | 4 | opus:high | FIX FIRST | judgment | 38239 | 175 | 297 | | 2 | sample over-asked the random source: 500 in prod, fakes sliced | +5652/-153 | |
-| #1067 | #745 | 3 | opus:high | FIX FIRST | checklist | 58959 | 153 | 108 | | 2 | part a of 3 (catalog en, values split); no English-device screenshots; 7 copy rewordings | +1214/-473 | |
-| #1068 | #745 | 4 | opus:high | MERGE | | | | 90 | | 1 | part b of 3 (players.scaffold migration); minors carried into part c | +3003/-47 | |
-| #1069 | #745 | 3 | opus:high | FIX FIRST | judgment | | | 330 | | 3 | part c of 3; placement/holdout Spanish under none, phase unreachable without a town, then contract suite and lazy phase; tokens on #1067 row cover all three parts | +2092/-212 | |
-| #1073 | #1048 | 1 | sonnet:low | FIX FIRST | spec | 1297 | 8 | 72 | | 2 | ticket-writer copy overpromised (skip changes nothing; short check) | +93/-0 | |
-| #1075 | #1061 #1062 | 1 | opus:high | FIX FIRST | judgment | 15028 | 72 | 85 | | 4 | ADR: support leaks via inflected forms, wrong-sense card words, unit literal glosses; delegation docs aligned | +62/-11 | |
-| #1079 | #1050 | 3 | opus:high | MERGE | | 48549 | 174 | 155 | | 1 | chrome language from server phase; sign-out dead-nav bug caught on emulator; real-time test fixed before merge | +1521/-206 | |
+| #1083 | #1049 | 1 | sonnet:low | FIX FIRST | spec | 1606 | 9 | 65 | | 2 | ticket-writer copy overpromised again (reviews stay as they are) | +65/-0 | |
+| #1087 | #1052 | 2 | opus:high | MERGE | | 37993 | 124 | 120 | | 1 | town in server language; designsystem MyGameLabel overloads approved mid-run | +954/-315 | |
+| #1086 | #1051 | 3 | opus:high | FIX FIRST | checklist | 43334 | 143 | 155 | | 2 | screenshots behind head; two copy keys added mid-run (skip line was false); note deferred to #1082 | +2417/-51 | |
+| #1089 | #1056 | 3 | opus:high | MERGE | | 34039 | 97 | 230 | | 1 | overview holdout + released lessons in next step; one due rule shared; ADR 042 amended | +2682/-289 | |
+| #1091 | #746 | 4 | opus:high | MERGE | | 10285 | 42 | 133 | | 1 | each mail in the stored scaffold; no-player sends nothing | +665/-108 | |
+| #1093 | #1058 | 2 | opus:high | MERGE | | 19442 | 60 | 127 | | 1 | sign-up scaffold choice, phone-language default; group heading a11y fixed before merge | +407/-53 | |
+| #1094 | #1054 | 2 | opus:high | MERGE | | 34384 | 82 | 159 | | 1 | map and placement in server language; placement all fixed copy | +680/-178 | |
+| #1095 | #1060 | 3 | opus:high | MERGE | | 14806 | 46 | 165 | | 1 | season percents on the overview; one domain reader of the settings | +396/-88 | |
+| #1097 | #1059 | 3 | opus:high | MERGE | | 38615 | 89 | 191 | | 1 | settings screen; late answer after sign-out guarded; branch deleted by my close before merge and restored from pull ref | +1300/-31 | |
+| #1096 | #1057 | 2 | opus:high | MERGE | | 43252 | 90 | 146 | | 1 | released lessons on the school path; core:network readings mapped; Lesson 1 drop fixed | +614/-104 | |
+| #1101 | #1055 | 2 | opus:high | MERGE | | 30284 | 75 | 158 | | 1 | review and verification banner in server language | +593/-122 | |
+| #1102 | #1053 #1100 | 2 | opus:high | MERGE | | 34406 | 106 | 236 | | 1 | school in server language; released duplicate and wrap fixed | +841/-238 | |
+| #1104 | #1076 | 3 | opus:high | MERGE | | 29564 | 113 | 388 | | 1 | FrameSpan wire; reviewer re-ran the resolver on 295 frames, no leak; 35 noCardSense tokens | +1360/-176 | |
+| #1106 | #1061 | 2 | opus:high | MERGE | | 45683 | 107 | 145 | | 1 | season mark on town and school; core:network percents mapped | +829/-97 | |
+| #1108 | #1077 | 2 | opus:high | FIX FIRST | checklist | 32371 | 84 | 94 | | 2 | office and map season marks; untyped test rule claimed fixed | +691/-33 | |
+| #1107 | #1062 | 3 | opus:high | MERGE | | 51420 | 161 | 250 | | 1 | support on tap; MyGameFrameText; TalkBack merge and hint revert fixed before merge; device TalkBack walk not run | +1650/-77 | |
+| #1111 | #1092 #1099 | 4 | opus:high | FIX FIRST | checklist | 20347 | 82 | 384 | | 2 | reset deferred via waitUntil; flake root cause was Mailpit rDNS; settle test passed with no-op | +540/-42 | |
+| #1116 | #1080 | 2 | opus:high | MERGE | | 27816 | 96 | 182 | | 1 | sign-out once; links flag in retain {} NavigationLinks | +369/-116 | |
+| #1115 #1117 | #1110 | 1 | sonnet:low | MERGE | | 1184 | 4 | | | 1 | typed 14 compose rules in two PRs around #1080 | +32/-14 | |
+| #1118 | #1082 | 3 | opus:high | MERGE | | 27985 | 51 | 169 | | 1 | hasBandStarted on TownOverview via isWeekReached; school holdout note | +198/-14 | |
