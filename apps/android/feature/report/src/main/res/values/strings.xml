@@ -2,7 +2,6 @@
 <resources>
     <string name="report_amount">{amount} {resource}</string>
     <string name="report_day">{day}, {time}</string>
-    <string name="report_day_of_year">{day} {year}, {time}</string>
     <string name="report_loading">Reading your Report…</string>
     <string name="report_news_all">Read all the news</string>
     <string name="report_news_became_city">Your town is now a city.</string>

@@ -82,17 +82,9 @@ internal fun CopyReader.instantLabelOf(occurredAt: Instant, receivedAt: Instant,
     val occurred: LocalDateTime = localOf(occurredAt, zone)
     val received: LocalDateTime = localOf(receivedAt, zone)
     val time: String = timeOf(occurred)
-    val day: String = dayOf(occurred)
-    return when {
-        occurred.toLocalDate() == received.toLocalDate() -> text(R.string.report_today, "time" to time)
-        occurred.year == received.year -> text(R.string.report_day, "day" to day, "time" to time)
-        else -> text(
-            R.string.report_day_of_year,
-            "day" to day,
-            "year" to occurred.year.toString(),
-            "time" to time,
-        )
-    }
+    if (occurred.toLocalDate() == received.toLocalDate()) return text(R.string.report_today, "time" to time)
+    val day: String = if (occurred.year == received.year) dayOf(occurred) else dayWithYearOf(occurred)
+    return text(R.string.report_day, "day" to day, "time" to time)
 }
 
 private fun localOf(instant: Instant, zone: ZoneId): LocalDateTime =

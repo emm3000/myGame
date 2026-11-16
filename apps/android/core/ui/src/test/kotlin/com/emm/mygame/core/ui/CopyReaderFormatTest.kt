@@ -36,22 +36,22 @@ class CopyReaderFormatTest {
 
     @Test
     fun `writes midnight as 12 AM on the American clock`() {
-        assertEquals("12:00 AM", inEnglish { timeOf(midnight) })
+        assertEquals("12:00\u202FAM", inEnglish { timeOf(midnight) })
     }
 
     @Test
     fun `writes noon as 12 PM on the American clock`() {
-        assertEquals("12:00 PM", inEnglish { timeOf(noon) })
+        assertEquals("12:00\u202FPM", inEnglish { timeOf(noon) })
     }
 
     @Test
     fun `writes an afternoon hour on the twelve-hour American clock`() {
-        assertEquals("3:05 PM", inEnglish { timeOf(afternoon) })
+        assertEquals("3:05\u202FPM", inEnglish { timeOf(afternoon) })
     }
 
     @Test
     fun `writes a morning hour without a leading zero on the American clock`() {
-        assertEquals("9:05 AM", inEnglish { timeOf(morning) })
+        assertEquals("9:05\u202FAM", inEnglish { timeOf(morning) })
     }
 
     @Test
@@ -120,7 +120,7 @@ class CopyReaderFormatTest {
     @Test
     fun `writes each line of the both phase on its own language's clock`() {
         assertEquals(
-            MyGameLabel(text = "3:05 PM", translation = "15:05"),
+            MyGameLabel(text = "3:05\u202FPM", translation = "15:05"),
             both.chrome { timeOf(afternoon) },
         )
     }
@@ -140,11 +140,21 @@ class CopyReaderFormatTest {
 
     @Test
     fun `writes the english phase on the American clock for a Spanish scaffold`() {
-        assertEquals(MyGameLabel(text = "12:00 AM", translation = null), englishPhase.chrome { timeOf(midnight) })
+        assertEquals(MyGameLabel(text = "12:00\u202FAM", translation = null), englishPhase.chrome { timeOf(midnight) })
     }
 
     @Test
     fun `keeps the Spanish clock for a fixed line in the english phase`() {
         assertEquals("00:00", englishPhase.fixedCopy { timeOf(midnight) })
+    }
+
+    @Test
+    fun `writes a day of another year with a comma before the year in English`() {
+        assertEquals("Nov 8, 2026", inEnglish { dayWithYearOf(noon) })
+    }
+
+    @Test
+    fun `writes a day of another year with the year after the month in Spanish`() {
+        assertEquals("8 nov 2026", inSpanish { dayWithYearOf(noon) })
     }
 }

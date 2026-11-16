@@ -30,6 +30,13 @@ class ReportCopyTest {
 
     private fun inSpanish(line: CopyReader.() -> String): String = spanish.fixedCopy(line)
 
+    private val english: PlayerCopy = PlayerCopy(
+        RuntimeEnvironment.getApplication(),
+        CopyLanguage(ScaffoldLanguage.None, ChromePhase.Scaffold),
+    )
+
+    private fun inEnglish(line: CopyReader.() -> String): String = english.fixedCopy(line)
+
     private fun amountsLineOf(news: TownNews): String? =
         newsAmountsOf(news)?.let { paid: NewsAmounts -> inSpanish { amountsLineOf(paid) } }
 
@@ -326,5 +333,19 @@ class ReportCopyTest {
         val readAt: Instant = Instant.parse("2027-11-05T20:00:00Z")
 
         assertEquals("5 nov 2026, 09:56", inSpanish { instantLabelOf(at, readAt, lima) })
+    }
+
+    @Test
+    fun `dates news of another year with a comma before the year in English`() {
+        val readAt: Instant = Instant.parse("2027-01-02T20:00:00Z")
+
+        assertEquals("Nov 5, 2026, 9:56\u202FAM", inEnglish { instantLabelOf(at, readAt, lima) })
+    }
+
+    @Test
+    fun `dates news of another day of the year on the American clock in English`() {
+        val readAt: Instant = Instant.parse("2026-11-07T20:00:00Z")
+
+        assertEquals("Nov 5, 9:56\u202FAM", inEnglish { instantLabelOf(at, readAt, lima) })
     }
 }

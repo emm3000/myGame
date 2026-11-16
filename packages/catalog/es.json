@@ -111,7 +111,6 @@
   "android.placement.placement_unreachable": "No hemos podido hablar con el servidor. Vuelve a intentarlo en un momento.",
   "android.report.report_amount": "{amount} de {resource}",
   "android.report.report_day": "{day}, {time}",
-  "android.report.report_day_of_year": "{day} {year}, {time}",
   "android.report.report_loading": "Estamos leyendo tu informe…",
   "android.report.report_news_all": "Leer todas las noticias",
   "android.report.report_news_became_city": "Tu pueblo ahora es una ciudad.",
