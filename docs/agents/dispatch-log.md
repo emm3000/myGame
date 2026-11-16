@@ -32,10 +32,10 @@ Totals of rows already folded out of Recent.
 | 2 | sonnet:medium | 2 | 0 | 0 | 2 | 0 |
 | 2 | opus:medium | 77 | 61 | 7 | 7 | 2 |
 | 2 | sonnet:high | 3 | 0 | 0 | 2 | 1 |
-| 2 | opus:high | 78 | 60 | 11 | 5 | 2 |
+| 2 | opus:high | 79 | 60 | 12 | 5 | 2 |
 | 3 | opus:medium | 25 | 16 | 4 | 4 | 1 |
-| 4 | opus:high | 73 | 60 | 3 | 4 | 6 |
-| 3 | opus:high | 119 | 83 | 13 | 16 | 6 |
+| 4 | opus:high | 74 | 60 | 3 | 5 | 6 |
+| 3 | opus:high | 121 | 83 | 13 | 17 | 7 |
 | 3 | fable:high | 2 | 2 | 0 | 0 | 0 |
 | 4 | fable:high | 1 | 1 | 0 | 0 | 0 |
 | 1 | opus:high | 15 | 5 | 1 | 8 | 1 |
@@ -49,10 +49,6 @@ Last 20 PRs, oldest first. Model:effort is what actually ran, which may differ f
 
 | PR | Issue | Row | Model:effort | First review | Cause | Peer in k | Peer out k | Review k | Peer USD | Rounds | Model min | Lines +/- | Later bug |
 |---|---|---|---|---|---|---|---|---|---|---|---|---|---|
-| #1083 | #1049 | 1 | sonnet:low | FIX FIRST | spec | 1606 | 9 | 65 | | 2 | ticket-writer copy overpromised again (reviews stay as they are) | +65/-0 | |
-| #1087 | #1052 | 2 | opus:high | MERGE | | 37993 | 124 | 120 | | 1 | town in server language; designsystem MyGameLabel overloads approved mid-run | +954/-315 | |
-| #1086 | #1051 | 3 | opus:high | FIX FIRST | checklist | 43334 | 143 | 155 | | 2 | screenshots behind head; two copy keys added mid-run (skip line was false); note deferred to #1082 | +2417/-51 | |
-| #1089 | #1056 | 3 | opus:high | MERGE | | 34039 | 97 | 230 | | 1 | overview holdout + released lessons in next step; one due rule shared; ADR 042 amended | +2682/-289 | |
 | #1091 | #746 | 4 | opus:high | MERGE | | 10285 | 42 | 133 | | 1 | each mail in the stored scaffold; no-player sends nothing | +665/-108 | |
 | #1093 | #1058 | 2 | opus:high | MERGE | | 19442 | 60 | 127 | | 1 | sign-up scaffold choice, phone-language default; group heading a11y fixed before merge | +407/-53 | |
 | #1094 | #1054 | 2 | opus:high | MERGE | | 34384 | 82 | 159 | | 1 | map and placement in server language; placement all fixed copy | +680/-178 | |
@@ -69,3 +65,7 @@ Last 20 PRs, oldest first. Model:effort is what actually ran, which may differ f
 | #1116 | #1080 | 2 | opus:high | MERGE | | 27816 | 96 | 182 | | 1 | sign-out once; links flag in retain {} NavigationLinks | +369/-116 | |
 | #1115 #1117 | #1110 | 1 | sonnet:low | MERGE | | 1184 | 4 | | | 1 | typed 14 compose rules in two PRs around #1080 | +32/-14 | |
 | #1118 | #1082 | 3 | opus:high | MERGE | | 27985 | 51 | 169 | | 1 | hasBandStarted on TownOverview via isWeekReached; school holdout note | +198/-14 | |
+| #1119 | #1098 #1081 | 4 | opus:high | FIX FIRST | judgment | 44127 | 137 | 216 | | 4 | migration 0044 scaffold_version; Settings kept a second stored copy that drifted on the change answer | +3133/-111 | |
+| #1120 | #1088 | 3 | opus:high | FIX FIRST | spec | 41903 | 101 | 216 | | 2 | one ICU formatter in CopyReader; Closes would have dropped three comment items (moved to #1121) | +347/-149 | |
+| #1122 | #1121 | 3 | opus:high | FIX FIRST | judgment | 26553 | 70 | 219 | | 2 | both-phase MyGameLabel slots; IcuStrings deleted; banner live region lost its text in both phase | +308/-49 | |
+| #1123 | #831 | 2 | opus:high | FIX FIRST | checklist | 48818 | 124 | 219 | | 2 | fixed-minute retries in town, report and school; review stops on background; two new branches had no test | +614/-29 | |
