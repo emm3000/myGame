@@ -167,8 +167,8 @@ already charged was admitted and runs on.
 
 Every figure is reproduced by `docs/adr/045-stable-words-open-the-town.test.ts`,
 run with `pnpm --filter @mygame/api exec vitest run --root ../..
---testTimeout=600000 docs/adr/045-stable-words-open-the-town.test.ts`
-(42 tests). It is a snapshot of trunk at `5214dc7d`: the content and the
+--testTimeout=900000 docs/adr/045-stable-words-open-the-town.test.ts`
+(46 tests). It is a snapshot of trunk at `5214dc7d`: the content and the
 domain's `deriveResourceRates`, `deriveStorageCapacity`, `derivePeople`,
 `deriveLessonDurationSeconds`, `reviewMemoryCard`, `dueInstantOf`,
 `cardsInLearningOf` and `isWordRetained` are trunk's, but admission,
@@ -179,7 +179,7 @@ the domain or the content does not fail it.
 
 The runs go in one-minute steps over 90 days on fields, before the
 season calendar's epoch, so every season percent reads 100. Every
-answer is Good. The learner starts the next lesson in curriculum order
+answer is Good, but in the run with lapses below. The learner starts the next lesson in curriculum order
 whenever the school's slot and cap allow, and earns a lesson's skill at
 the review that retains its last word. Stocks are not floored, so the
 game pays minutes later; no hire, job or clean-up runs. Day 0 is the
@@ -257,6 +257,27 @@ What this shows, and does not:
   every lesson on money and no need at all.
 - **These are floors.** The runs buy the moment stocks allow; a slower
   player still has levels to pay when the words and the skills land.
+
+**A player who lapses.** The same runs, but 3 typed recalls in every
+10 are wrong (Again), the 1st, 2nd and 10th of each ten the player
+answers; a recognition is always right.
+
+- **Balanced, on time**: every building at 2 to 8 on days 6.1, 11.9,
+  18.4, 23.5, 26.4, 66.9 and 88.1, ending at levels 10, 10, 10, 10, 9,
+  9 and 8 on day 90. The 80 retained words are first held on day 48.9,
+  and from day 60 to 90 the count moves between 83 and 95. Played once
+  a day: 80 on day 45.5, then 92 to 100.
+- **Homes-only, on time**: homes 2 to 6 on days 0, 2, 6, 27 and 31.1, and
+  no homes 7 in 90 days. That run never raises the school, so its
+  learning cap of 15 fills with relearning cards, the player holds
+  only 60 cards, and the retained count stays between 36 and 46 from
+  day 60 to 90, under homes 7's 50.
+- **Such a player is never stuck.** A level built stays built whatever
+  the count does; levels 1 and 2 need nothing; levels 3 to 6 need
+  stable words only, so the school can be raised to 6 on them, and
+  each school level lifts the learning cap by 5 (15 at level 1, 60 at
+  10, `school.json`), which lets new lessons in. A lapsed word comes back to the count at its later
+  recalls. What a lapse costs is time, never a level.
 
 ## Considered options
 
@@ -340,9 +361,14 @@ read one boundary, so the recall that frees the cap opens a level. A
 lapse removes a word from the count, never a level. The pull to skip
 reviews that a stable count makes stops at level 6: past it every word
 needs the week-later recall a skipped review never gives. It is not
-gone: once retained, a word again leaves the count only at a review,
-and the decision has no answer for that beyond the next step, which
-always leads with due reviews (ADR 042). *N1*: derived on read from
+gone: once a word is retained and its lesson's skill earned, reviewing
+it has no upside in the town, and a wrong answer or a Hard can only
+take it out of the count, since `retainedAtOf` clears `retainedAt` at
+any rating but Good. A hint turns a right answer into a Hard
+(`ratingOf`), as a near-miss does, so on a word counted toward levels
+7 to 10 a hint costs town progress, and the need pulls a player to
+answer unaided or skip. The decision has no answer for that beyond the
+next step, which always leads with due reviews (ADR 042). *N1*: derived on read from
 the stored cards and checked by the server at the work's start; no
 timer, no new stored state. *Deadline*: none moved; the need tops out
 at the chrome words, which no draw touches, so the holdout can never

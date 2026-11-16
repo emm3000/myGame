@@ -19,6 +19,7 @@ import {
   Instant,
   isWordRetained,
   MemoryCard,
+  type MemoryRating,
   noHires,
   type ResourceKind,
   resourceKinds,
@@ -36,7 +37,7 @@ type SkillRule =
   | 'everyLessonMoney'
   | 'everyLessonMoneyAndCycleWithoutMoney'
 type NeedCount = 'stable' | 'retained' | 'stableThenRetained'
-type ReviewHabit = 'every' | 'skipsOnceStable'
+type ReviewHabit = 'every' | 'skipsOnceStable' | 'missesThreeRecallsInTen'
 type Terms = {
   readonly plan: Plan
   readonly needCount: NeedCount
@@ -65,6 +66,7 @@ type Run = {
   stableByMinute: Array<number>
   retainedByMinute: Array<number>
   stableDayOfLesson: Map<number, number>
+  recallsAnswered: number
 }
 type Result<T> =
   | { readonly ok: true; readonly value: T }
@@ -133,7 +135,15 @@ const countedWordsOf = (run: Run, level: number, needCount: NeedCount): number =
 
 const isAnswered = (studied: StudiedCard, habit: ReviewHabit): boolean => {
   const { stability } = studied.card.stored
-  return habit === 'every' || stability === null || stability < 7
+  return habit !== 'skipsOnceStable' || stability === null || stability < 7
+}
+
+const ratingAnswered = (run: Run, studied: StudiedCard, habit: ReviewHabit): MemoryRating => {
+  if (habit !== 'missesThreeRecallsInTen' || studied.card.stored.state === 'learning') {
+    return 'good'
+  }
+  run.recallsAnswered += 1
+  return run.recallsAnswered % 10 < 3 ? 'again' : 'good'
 }
 
 const projectedLevelsOf = (run: Run): Record<BuildingKind, number> => {
@@ -180,7 +190,8 @@ const answerDueCards = (run: Run, habit: ReviewHabit): void => {
     if (studied.dueAt > run.at || !isAnswered(studied, habit)) {
       return studied
     }
-    const card = unwrapped(reviewMemoryCard(studied.card, 'good', at, defaultMemoryTerms))
+    const rating = ratingAnswered(run, studied, habit)
+    const card = unwrapped(reviewMemoryCard(studied.card, rating, at, defaultMemoryTerms))
     const dueAt = unwrapped(dueInstantOf(card, defaultMemoryTerms)).epochMilliseconds
     if ((card.stored.stability ?? 0) >= 7 && !run.stableDayOfLesson.has(studied.position)) {
       run.stableDayOfLesson.set(studied.position, dayOf(run.at))
@@ -376,6 +387,7 @@ const runOf = (terms: Terms): Run => {
     stableByMinute: [],
     retainedByMinute: [],
     stableDayOfLesson: new Map(),
+    recallsAnswered: 0,
   }
   for (; run.at < START + terms.days * DAY; run.at += MINUTE) {
     settleWork(run)
@@ -568,7 +580,7 @@ describe('the shipped words', () => {
     expect(bandWordsShipped).toBe(55)
   })
 
-  it("needs 80 stable words for level 10, the chrome lessons' words", () => {
+  it("needs 80 retained words for level 10, the chrome lessons' words its floor", () => {
     expect([3, 4, 5, 6, 7, 8, 9, 10].map(tenPerLevelFromThree)).toEqual([
       10, 20, 30, 40, 50, 60, 70, 80,
     ])
@@ -818,5 +830,40 @@ describe('each place needing the words of its own resource', () => {
     expect(poolDaysOf(run, 'material')).toEqual([4, 10.1, 16.1])
     expect(poolDaysOf(run, 'power')).toEqual([6, 10.1, 16.1])
     expect([10, 20, 30].map((words) => firstDayHolding(run, words))).toEqual([2, 4, 4])
+  })
+})
+
+const retainedRangeOf = (run: Run, fromDay: number, toDay: number): ReadonlyArray<number> => {
+  const counts = run.retainedByMinute.slice(fromDay * 1_440, toDay * 1_440)
+  return [Math.min(...counts), Math.max(...counts)]
+}
+
+describe('a player who misses 3 recalls in 10, under the decision', () => {
+  const missing = (overrides: Partial<Terms>): Run =>
+    memoizedRunOf(decided({ reviewHabit: 'missesThreeRecallsInTen', ...overrides }))
+
+  it('holds 80 retained words on day 48.9 on a balanced run, on time, and 83 to 95 from day 60 to 90', () => {
+    const run = missing({})
+    expect(firstDayRetaining(run, 80)).toBe(48.9)
+    expect(retainedRangeOf(run, 60, 90)).toEqual([83, 95])
+  })
+
+  it('pays every building level on a balanced run, on time, at these days', () => {
+    const run = missing({})
+    expect(everyBuildingDaysOf(run)).toEqual([6.1, 11.9, 18.4, 23.5, 26.4, 66.9, 88.1, null])
+    expect(Object.values(run.levels)).toEqual([10, 10, 10, 10, 9, 9, 8])
+  })
+
+  it('holds 80 retained words on day 45.5 on a balanced run, played once a day, and 92 to 100 from day 60 to 90', () => {
+    const run = missing({ learner: 'daily' })
+    expect(firstDayRetaining(run, 80)).toBe(45.5)
+    expect(retainedRangeOf(run, 60, 90)).toEqual([92, 100])
+  })
+
+  it('stops a homes-only run at homes 6, the school never raised and its learning cap of 15 full', () => {
+    const run = missing({ plan: 'homesOnly' })
+    expect(homesDaysOf(run)).toEqual([0, 2, 6, 27, 31.1, null, null, null, null])
+    expect(run.cards).toHaveLength(60)
+    expect(retainedRangeOf(run, 60, 90)).toEqual([36, 46])
   })
 })
