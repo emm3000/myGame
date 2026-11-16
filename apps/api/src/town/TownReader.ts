@@ -7,13 +7,13 @@ import type {
   PlacementScore,
   PlayerId,
   Result,
-  Scaffold,
   TipKind,
   Town,
   TownRepository,
 } from '@mygame/domain'
+import type { StoredScaffold } from '../auth/StoredScaffold'
 
-export type TownWithSchool = {
+export type TownWithSchool = StoredScaffold & {
   readonly town: Town
   readonly lessonSlot: LessonSlot
   readonly cards: ReadonlyArray<HeldCard>
@@ -21,7 +21,6 @@ export type TownWithSchool = {
   readonly placementScores: ReadonlyArray<PlacementScore>
   readonly guidanceDismissedAt: Instant | undefined
   readonly seenTips: ReadonlyArray<TipKind>
-  readonly scaffold: Scaffold
 }
 
 export interface TownReader extends Omit<TownRepository, 'save'> {

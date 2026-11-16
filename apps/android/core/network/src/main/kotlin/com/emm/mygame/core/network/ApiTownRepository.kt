@@ -46,7 +46,7 @@ internal class ApiTownRepository(
             val session: Int = tokenStore.currentSession()
             val read: LanguageRead = languages.sending()
             val response: Response<TownOverview> = api.townGet()
-            holdChromePhase(response, read)
+            holdLanguage(response, read)
             readOrNoTown(response, session)
         } catch (expectedOutage: IOException) {
             TownReadResult.Unreachable
@@ -108,7 +108,7 @@ internal class ApiTownRepository(
             val session: Int = tokenStore.currentSession()
             val read: LanguageRead = languages.sending()
             val response: Response<TownOverview> = call()
-            holdChromePhase(response, read)
+            holdLanguage(response, read)
             resultOf(response, answeredTown(response, session))
         } catch (expectedOutage: IOException) {
             unreachable
@@ -117,9 +117,16 @@ internal class ApiTownRepository(
         }
     }
 
-    private fun holdChromePhase(response: Response<TownOverview>, read: LanguageRead) {
+    private fun holdLanguage(response: Response<TownOverview>, read: LanguageRead) {
         val town: TownOverview = response.body() ?: return
-        languages.answered(read, answeredScaffold = null, answeredPhase = town.chromePhase.toPlayerChromePhase())
+        languages.answered(
+            read,
+            LanguageAnswer(
+                scaffold = town.scaffold.toPlayerScaffold(),
+                scaffoldVersion = ScaffoldVersion(town.scaffoldVersion),
+                chromePhase = town.chromePhase.toPlayerChromePhase(),
+            ),
+        )
     }
 
     private fun readTown(response: Response<TownOverview>, session: Int): TownSnapshot? =

@@ -7,6 +7,7 @@ const unverifiedPlayer = {
   emailVerified: false,
   scaffold: 'es',
   chromePhase: 'scaffold',
+  scaffoldVersion: 0,
 }
 
 describe('PlayerSchema', () => {
@@ -30,6 +31,16 @@ describe('PlayerSchema', () => {
     const { chromePhase: _, ...withoutChromePhase } = unverifiedPlayer
 
     expect(PlayerSchema.safeParse(withoutChromePhase).success).toBe(false)
+  })
+
+  it('rejects a player without a scaffold version', () => {
+    const { scaffoldVersion: _, ...withoutScaffoldVersion } = unverifiedPlayer
+
+    expect(PlayerSchema.safeParse(withoutScaffoldVersion).success).toBe(false)
+  })
+
+  it('rejects a negative scaffold version', () => {
+    expect(PlayerSchema.safeParse({ ...unverifiedPlayer, scaffoldVersion: -1 }).success).toBe(false)
   })
 
   it('rejects a scaffold language Townword does not offer', () => {

@@ -178,7 +178,14 @@ private fun BareApiError.Kind?.toSignUpRefusal(): SignUpRefusal = when (this) {
 }
 
 private fun PlayerLanguages.answered(read: LanguageRead, player: Player) {
-    answered(read, player.scaffold.toPlayerScaffold(), player.chromePhase.toPlayerChromePhase())
+    answered(
+        read,
+        LanguageAnswer(
+            scaffold = player.scaffold.toPlayerScaffold(),
+            scaffoldVersion = ScaffoldVersion(player.scaffoldVersion),
+            chromePhase = player.chromePhase.toPlayerChromePhase(),
+        ),
+    )
 }
 
 private fun Player.toSignedInPlayer(): SignedInPlayer =

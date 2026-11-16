@@ -13,6 +13,8 @@ class PlayerLanguages(tokenStore: TokenStore) {
 
     private var lastForgottenOrder: Long = 0L
 
+    private var newestScaffoldVersion: ScaffoldVersion? = null
+
     private var scaffold: Held<PlayerScaffold>? = null
 
     private var chromePhase: Held<PlayerChromePhase>? = null
@@ -27,11 +29,14 @@ class PlayerLanguages(tokenStore: TokenStore) {
 
     internal fun sending(): LanguageRead = LanguageRead(order = sentReads.incrementAndGet())
 
-    internal fun answered(read: LanguageRead, answeredScaffold: PlayerScaffold?, answeredPhase: PlayerChromePhase?) {
+    internal fun answered(read: LanguageRead, answer: LanguageAnswer) {
         synchronized(holding) {
             if (read.order <= lastForgottenOrder) return
-            scaffold = scaffold.fresherOf(answeredScaffold, read.order)
-            chromePhase = chromePhase.fresherOf(answeredPhase, read.order)
+            if (newestScaffoldVersion.isNewerThan(answer.scaffoldVersion)) return
+            newestScaffoldVersion = answer.scaffoldVersion
+            val freshness: Freshness = Freshness(answer.scaffoldVersion, read.order)
+            scaffold = scaffold.fresherOf(answer.scaffold, freshness)
+            chromePhase = chromePhase.fresherOf(answer.chromePhase, freshness)
             _language.value = languageOf(scaffold?.value, chromePhase?.value)
         }
     }
@@ -39,23 +44,31 @@ class PlayerLanguages(tokenStore: TokenStore) {
     private fun forget() {
         synchronized(holding) {
             lastForgottenOrder = sentReads.get()
+            newestScaffoldVersion = null
             scaffold = null
             chromePhase = null
             _language.value = null
         }
     }
 
-    private data class Held<Value>(val value: Value, val order: Long)
+    private data class Freshness(val scaffoldVersion: ScaffoldVersion, val order: Long) : Comparable<Freshness> {
+        override fun compareTo(other: Freshness): Int =
+            compareValuesBy(this, other, Freshness::scaffoldVersion, Freshness::order)
+    }
 
-    private fun <Value> Held<Value>?.fresherOf(answered: Value?, order: Long): Held<Value>? {
+    private data class Held<Value>(val value: Value, val freshness: Freshness)
+
+    private fun <Value> Held<Value>?.fresherOf(answered: Value?, freshness: Freshness): Held<Value>? {
         if (answered == null) return this
-        if (this != null && this.order > order) return this
-        return Held(answered, order)
+        if (this != null && this.freshness > freshness) return this
+        return Held(answered, freshness)
     }
 }
 
 @JvmInline
 internal value class LanguageRead(val order: Long)
+
+private fun ScaffoldVersion?.isNewerThan(answered: ScaffoldVersion): Boolean = this != null && this > answered
 
 private fun languageOf(scaffold: PlayerScaffold?, chromePhase: PlayerChromePhase?): PlayerLanguage? {
     if (scaffold == null || chromePhase == null) return null

@@ -222,7 +222,7 @@ class ScaffoldChangeRepositoryTest {
             .addHeader("Content-Type", "application/json")
             .body(
                 """{"id":"0b6f2f2e-6a43-4a8e-9c4e-2f1d3c4b5a69","email":"ines@sotoverde.es",""" +
-                    """"emailVerified":true,"scaffold":"$scaffold","chromePhase":"$chromePhase"}""",
+                    """"emailVerified":true,"scaffold":"$scaffold","scaffoldVersion":1,"chromePhase":"$chromePhase"}""",
             )
             .build()
 

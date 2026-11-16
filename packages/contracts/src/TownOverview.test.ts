@@ -133,6 +133,8 @@ const overview = (overrides: Record<string, unknown> = {}): Record<string, unkno
   nextStep: { kind: 'caughtUp', goal: null },
   tip: null,
   chromePhase: 'scaffold',
+  scaffold: 'es',
+  scaffoldVersion: 3,
   nextDueAt: null,
   readAt: '2026-11-10T08:58:00.000Z',
   ...overrides,
@@ -346,6 +348,26 @@ describe('TownOverviewSchema', () => {
     const { hasBandStarted: _, ...withoutBandStart } = overview()
 
     expect(TownOverviewSchema.safeParse(withoutBandStart).success).toBe(false)
+  })
+
+  it('carries the scaffold language and its version', () => {
+    const parsed = TownOverviewSchema.parse(overview({ scaffold: 'none', scaffoldVersion: 4 }))
+
+    expect([parsed.scaffold, parsed.scaffoldVersion]).toEqual(['none', 4])
+  })
+
+  it('rejects an overview without a scaffold version', () => {
+    const { scaffoldVersion: _, ...withoutScaffoldVersion } = overview()
+
+    expect(TownOverviewSchema.safeParse(withoutScaffoldVersion).success).toBe(false)
+  })
+
+  it('rejects a scaffold version that is not a whole number', () => {
+    expect(TownOverviewSchema.safeParse(overview({ scaffoldVersion: 1.5 })).success).toBe(false)
+  })
+
+  it('rejects a scaffold language Townword does not offer', () => {
+    expect(TownOverviewSchema.safeParse(overview({ scaffold: 'fr' })).success).toBe(false)
   })
 
   it('rejects a chrome phase the scaffold does not have', () => {

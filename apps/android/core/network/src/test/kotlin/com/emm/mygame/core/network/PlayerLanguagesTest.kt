@@ -55,7 +55,7 @@ class PlayerLanguagesTest {
 
     @Test
     fun `holds the spanish scaffold and the scaffold phase a sign-in names`() = runTest {
-        api.enqueue(session(code = 200, scaffold = "es", chromePhase = "scaffold"))
+        api.enqueue(session(code = 200, scaffold = "es", chromePhase = "scaffold", scaffoldVersion = 0))
 
         sessions().signIn("ines@sotoverde.es", "contrasena")
 
@@ -64,7 +64,7 @@ class PlayerLanguagesTest {
 
     @Test
     fun `holds the none scaffold and the english phase a sign-up names`() = runTest {
-        api.enqueue(session(code = 201, scaffold = "none", chromePhase = "english"))
+        api.enqueue(session(code = 201, scaffold = "none", chromePhase = "english", scaffoldVersion = 0))
 
         sessions().signUp("elena@encinar.es", "contrasena", PlayerScaffold.None)
 
@@ -74,7 +74,7 @@ class PlayerLanguagesTest {
     @Test
     fun `holds the both phase a restored session names`() = runTest {
         store.write("opaque-session")
-        api.enqueue(json(200, playerJson(scaffold = "es", chromePhase = "both")))
+        api.enqueue(json(200, playerJson(scaffold = "es", chromePhase = "both", scaffoldVersion = 0)))
 
         sessions().restore()
 
@@ -83,7 +83,7 @@ class PlayerLanguagesTest {
 
     @Test
     fun `draws the phase of a town read over the phase of the sign-in before it`() = runTest {
-        api.enqueue(session(code = 200, scaffold = "es", chromePhase = "scaffold"))
+        api.enqueue(session(code = 200, scaffold = "es", chromePhase = "scaffold", scaffoldVersion = 0))
         api.enqueue(json(200, TOWN_READ_IN_THE_BOTH_PHASE))
 
         sessions().signIn("ines@sotoverde.es", "contrasena")
@@ -94,7 +94,7 @@ class PlayerLanguagesTest {
 
     @Test
     fun `draws the phase of a town change`() = runTest {
-        api.enqueue(session(code = 200, scaffold = "es", chromePhase = "both"))
+        api.enqueue(session(code = 200, scaffold = "es", chromePhase = "both", scaffoldVersion = 0))
         api.enqueue(json(200, TOWN_READ_IN_THE_BOTH_PHASE.replace(BOTH_PHASE, ENGLISH_PHASE)))
 
         sessions().signIn("ines@sotoverde.es", "contrasena")
@@ -105,12 +105,15 @@ class PlayerLanguagesTest {
 
     @Test
     fun `keeps the phase of a later read when an earlier one answers last`() = runTest {
-        api.enqueue(session(code = 200, scaffold = "es", chromePhase = "scaffold"))
+        api.enqueue(session(code = 200, scaffold = "es", chromePhase = "scaffold", scaffoldVersion = 0))
         sessions().signIn("ines@sotoverde.es", "contrasena")
         api.takeRequest(REQUEST_WAIT_SECONDS, TimeUnit.SECONDS)
-        val answers = HeldAnswers()
+        val answers: HeldAnswers = HeldAnswers()
         val restoreAnswer: CountDownLatch =
-            answers.holding(SESSION_PATH, json(200, playerJson(scaffold = "es", chromePhase = "scaffold")))
+            answers.holding(
+                SESSION_PATH,
+                json(200, playerJson(scaffold = "es", chromePhase = "scaffold", scaffoldVersion = 0)),
+            )
         answers.answering(TOWN_PATH, json(200, TOWN_READ_IN_THE_BOTH_PHASE))
         api.dispatcher = answers
 
@@ -124,8 +127,84 @@ class PlayerLanguagesTest {
     }
 
     @Test
+    fun `keeps the scaffold of a held change when a restore sent after it answers first`() = runTest {
+        api.enqueue(session(code = 200, scaffold = "es", chromePhase = "scaffold", scaffoldVersion = 0))
+        sessions().signIn("ines@sotoverde.es", "contrasena")
+        api.takeRequest(REQUEST_WAIT_SECONDS, TimeUnit.SECONDS)
+        val answers: HeldAnswers = HeldAnswers()
+        val changeAnswer: CountDownLatch = answers.holding(
+            SCAFFOLD_PATH,
+            json(200, playerJson(scaffold = "none", chromePhase = "english", scaffoldVersion = 1)),
+        )
+        answers.answering(
+            SESSION_PATH,
+            json(200, playerJson(scaffold = "es", chromePhase = "scaffold", scaffoldVersion = 0)),
+        )
+        api.dispatcher = answers
+
+        val change: Deferred<ScaffoldChangeResult> =
+            async(start = CoroutineStart.UNDISPATCHED) { sessions().changeScaffold(PlayerScaffold.None) }
+        api.takeRequest(REQUEST_WAIT_SECONDS, TimeUnit.SECONDS)
+        sessions().restore()
+        changeAnswer.countDown()
+        change.await()
+
+        assertEquals(PlayerLanguage(PlayerScaffold.None, PlayerChromePhase.English), languages.language.value)
+    }
+
+    @Test
+    fun `never lets a town read older than a scaffold change bring the old scaffold back`() = runTest {
+        api.enqueue(session(code = 200, scaffold = "es", chromePhase = "scaffold", scaffoldVersion = 0))
+        api.enqueue(json(200, playerJson(scaffold = "none", chromePhase = "english", scaffoldVersion = 1)))
+        api.enqueue(json(200, townRead(scaffold = "es", scaffoldVersion = 0, chromePhase = "scaffold")))
+
+        sessions().signIn("ines@sotoverde.es", "contrasena")
+        sessions().changeScaffold(PlayerScaffold.None)
+        town().read()
+
+        assertEquals(PlayerScaffold.None, languages.language.value?.scaffold)
+    }
+
+    @Test
+    fun `drops the phase of a town read older than a scaffold change`() = runTest {
+        api.enqueue(session(code = 200, scaffold = "es", chromePhase = "scaffold", scaffoldVersion = 0))
+        api.enqueue(json(200, playerJson(scaffold = "none", chromePhase = "english", scaffoldVersion = 1)))
+        api.enqueue(json(200, townRead(scaffold = "es", scaffoldVersion = 0, chromePhase = "both")))
+
+        sessions().signIn("ines@sotoverde.es", "contrasena")
+        sessions().changeScaffold(PlayerScaffold.None)
+        town().read()
+
+        assertEquals(PlayerChromePhase.English, languages.language.value?.chromePhase)
+    }
+
+    @Test
+    fun `drops the phase of a town read older than a change whose phase the client does not know`() = runTest {
+        api.enqueue(session(code = 200, scaffold = "es", chromePhase = "scaffold", scaffoldVersion = 0))
+        api.enqueue(json(200, playerJson(scaffold = "none", chromePhase = "latin", scaffoldVersion = 1)))
+        api.enqueue(json(200, townRead(scaffold = "es", scaffoldVersion = 0, chromePhase = "both")))
+
+        sessions().signIn("ines@sotoverde.es", "contrasena")
+        sessions().changeScaffold(PlayerScaffold.None)
+        town().read()
+
+        assertEquals(PlayerChromePhase.Scaffold, languages.language.value?.chromePhase)
+    }
+
+    @Test
+    fun `draws the scaffold a town read names after a change made on another client`() = runTest {
+        api.enqueue(session(code = 200, scaffold = "es", chromePhase = "scaffold", scaffoldVersion = 0))
+        api.enqueue(json(200, townRead(scaffold = "none", scaffoldVersion = 1, chromePhase = "english")))
+
+        sessions().signIn("ines@sotoverde.es", "contrasena")
+        town().read()
+
+        assertEquals(PlayerLanguage(PlayerScaffold.None, PlayerChromePhase.English), languages.language.value)
+    }
+
+    @Test
     fun `keeps the phase when a town read names one the client does not know`() = runTest {
-        api.enqueue(session(code = 200, scaffold = "es", chromePhase = "both"))
+        api.enqueue(session(code = 200, scaffold = "es", chromePhase = "both", scaffoldVersion = 0))
         api.enqueue(json(200, TOWN_READ_IN_THE_BOTH_PHASE.replace(BOTH_PHASE, "\"chromePhase\":\"latin\"")))
 
         sessions().signIn("ines@sotoverde.es", "contrasena")
@@ -136,7 +215,7 @@ class PlayerLanguagesTest {
 
     @Test
     fun `forgets the language when the player signs out`() = runTest {
-        api.enqueue(session(code = 200, scaffold = "es", chromePhase = "both"))
+        api.enqueue(session(code = 200, scaffold = "es", chromePhase = "both", scaffoldVersion = 0))
         api.enqueue(MockResponse.Builder().code(204).build())
 
         sessions().signIn("ines@sotoverde.es", "contrasena")
@@ -147,10 +226,10 @@ class PlayerLanguagesTest {
 
     @Test
     fun `never holds the phase of a read sent before the session ended`() = runTest {
-        api.enqueue(session(code = 200, scaffold = "es", chromePhase = "scaffold"))
+        api.enqueue(session(code = 200, scaffold = "es", chromePhase = "scaffold", scaffoldVersion = 0))
         sessions().signIn("ines@sotoverde.es", "contrasena")
         api.takeRequest(REQUEST_WAIT_SECONDS, TimeUnit.SECONDS)
-        val answers = HeldAnswers()
+        val answers: HeldAnswers = HeldAnswers()
         val townAnswer: CountDownLatch = answers.holding(TOWN_PATH, json(200, TOWN_READ_IN_THE_BOTH_PHASE))
         answers.answering(SIGN_OUT_PATH, MockResponse.Builder().code(204).build())
         api.dispatcher = answers
@@ -181,12 +260,18 @@ class PlayerLanguagesTest {
         clock = TestClock(testScheduler, Instant.parse("2026-11-05T10:04:00Z")),
     )
 
-    private fun session(code: Int, scaffold: String, chromePhase: String): MockResponse =
-        json(code, """{"token":"opaque-session","player":${playerJson(scaffold, chromePhase)}}""")
+    private fun session(code: Int, scaffold: String, chromePhase: String, scaffoldVersion: Int): MockResponse =
+        json(code, """{"token":"opaque-session","player":${playerJson(scaffold, chromePhase, scaffoldVersion)}}""")
 
-    private fun playerJson(scaffold: String, chromePhase: String): String =
+    private fun playerJson(scaffold: String, chromePhase: String, scaffoldVersion: Int): String =
         """{"id":"0b6f2f2e-6a43-4a8e-9c4e-2f1d3c4b5a69","email":"ines@sotoverde.es",""" +
-            """"emailVerified":true,"scaffold":"$scaffold","chromePhase":"$chromePhase"}"""
+            """"emailVerified":true,"scaffold":"$scaffold","scaffoldVersion":$scaffoldVersion,""" +
+            """"chromePhase":"$chromePhase"}"""
+
+    private fun townRead(scaffold: String, scaffoldVersion: Int, chromePhase: String): String =
+        TOWN_READ_IN_THE_BOTH_PHASE
+            .replace(SPANISH_AT_THE_FIRST_VERSION, """"scaffold":"$scaffold","scaffoldVersion":$scaffoldVersion""")
+            .replace(BOTH_PHASE, """"chromePhase":"$chromePhase"""")
 
     private fun json(code: Int, body: String): MockResponse =
         MockResponse.Builder()
@@ -220,6 +305,8 @@ class PlayerLanguagesTest {
         const val SESSION_PATH: String = "/api/auth/session"
         const val TOWN_PATH: String = "/api/town"
         const val SIGN_OUT_PATH: String = "/api/auth/sign-out"
+        const val SCAFFOLD_PATH: String = "/api/player/scaffold"
+        const val SPANISH_AT_THE_FIRST_VERSION: String = """"scaffold":"es","scaffoldVersion":0"""
         const val BOTH_PHASE: String = """"chromePhase":"both""""
         const val ENGLISH_PHASE: String = """"chromePhase":"english""""
         const val NOTHING: String = """{"money":0,"food":0,"power":0,"material":0}"""
@@ -260,7 +347,7 @@ class PlayerLanguagesTest {
                 """"finishesAt":"2026-11-05T10:20:00.000Z"},""" +
                 """"learning":{"cap":10,"inLearning":0,"retainedWords":null},""" +
                 """"nextStep":{"kind":"caughtUp","goal":null},"tip":null,""" +
-                """"chromePhase":"both","nextDueAt":null,""" +
+                """"chromePhase":"both",$SPANISH_AT_THE_FIRST_VERSION,"nextDueAt":null,""" +
                 """"readAt":"2026-11-05T10:05:00.000Z"}"""
     }
 }

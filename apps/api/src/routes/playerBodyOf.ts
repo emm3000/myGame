@@ -4,6 +4,7 @@ import {
   type PlayerChromePhaseDependencies,
   playerChromePhaseOf,
 } from '../learning/playerChromePhaseOf'
+import { scaffoldBodyOf } from '../learning/scaffoldBodyOf'
 
 export const playerBodyOf = async (
   stored: StoredPlayer,
@@ -12,6 +13,6 @@ export const playerBodyOf = async (
   id: stored.id,
   email: stored.email,
   emailVerified: stored.emailVerified,
-  scaffold: stored.scaffold,
+  ...scaffoldBodyOf(stored),
   chromePhase: await playerChromePhaseOf(stored, dependencies),
 })

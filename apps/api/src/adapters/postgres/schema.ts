@@ -41,6 +41,7 @@ export const players = pgTable(
     emailVerifiedAt: timestamp('email_verified_at', { withTimezone: true }),
     reportReadAt: timestamp('report_read_at', { withTimezone: true }).notNull(),
     scaffold: scaffold('scaffold').notNull(),
+    scaffoldVersion: integer('scaffold_version').notNull().default(0),
   },
   (table) => [uniqueIndex('players_email_unique').on(sql`lower(${table.email})`)],
 )

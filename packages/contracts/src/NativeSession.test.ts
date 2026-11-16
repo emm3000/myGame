@@ -7,6 +7,7 @@ const signedInPlayer = {
   emailVerified: true,
   scaffold: 'es',
   chromePhase: 'scaffold',
+  scaffoldVersion: 0,
 }
 
 const nativeSession = {

@@ -11,6 +11,7 @@ import type {
 import { tokenDigest } from '../../auth/tokenDigest'
 import type { PostgresSession } from './connectPostgres'
 import { players, sessions } from './schema'
+import { storedScaffoldColumns } from './storedScaffoldColumns'
 import { violatedUniqueConstraint } from './violatedUniqueConstraint'
 
 const dateOf = (instant: Instant): Date => new Date(instant.epochMilliseconds)
@@ -21,7 +22,7 @@ const storedPlayerColumns = {
   id: players.id,
   email: players.email,
   emailVerified,
-  scaffold: players.scaffold,
+  ...storedScaffoldColumns,
 }
 
 export class DrizzleAccounts implements Accounts {
@@ -29,15 +30,21 @@ export class DrizzleAccounts implements Accounts {
 
   async addPlayer(player: NewPlayer): Promise<PlayerAdded> {
     try {
-      await this.database.insert(players).values({
-        ...player,
-        createdAt: dateOf(player.createdAt),
-        reportReadAt: dateOf(player.createdAt),
-      })
-      return 'added'
+      const [added] = await this.database
+        .insert(players)
+        .values({
+          ...player,
+          createdAt: dateOf(player.createdAt),
+          reportReadAt: dateOf(player.createdAt),
+        })
+        .returning(storedPlayerColumns)
+      if (added === undefined) {
+        throw new Error(`Player ${player.id} was not stored`)
+      }
+      return { kind: 'added', player: added }
     } catch (failure) {
       if (violatedUniqueConstraint(failure) === 'players_email_unique') {
-        return 'emailTaken'
+        return { kind: 'emailTaken' }
       }
       throw failure
     }
@@ -46,10 +53,7 @@ export class DrizzleAccounts implements Accounts {
   async credentialsOf(email: string): Promise<PlayerCredentials | undefined> {
     const [found] = await this.database
       .select({
-        id: players.id,
-        email: players.email,
-        emailVerified,
-        scaffold: players.scaffold,
+        ...storedPlayerColumns,
         passwordHash: players.passwordHash,
       })
       .from(players)
@@ -87,7 +91,7 @@ export class DrizzleAccounts implements Accounts {
   async storeScaffold(playerId: PlayerId, scaffold: Scaffold): Promise<StoredPlayer> {
     const [stored] = await this.database
       .update(players)
-      .set({ scaffold })
+      .set({ scaffold, scaffoldVersion: sql`${players.scaffoldVersion} + 1` })
       .where(eq(players.id, playerId))
       .returning(storedPlayerColumns)
     if (stored === undefined) {

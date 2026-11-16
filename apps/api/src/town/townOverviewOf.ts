@@ -42,6 +42,7 @@ import {
 import { isoOf } from '../http/isoOf'
 import type { LessonLibrary } from '../learning/LessonLibrary'
 import { nextDueAtOf } from '../learning/reviewsOf'
+import { scaffoldBodyOf } from '../learning/scaffoldBodyOf'
 import { schoolOverviewOf } from '../learning/schoolOverviewOf'
 import { jobStateOf } from './jobStateOf'
 import type { TownReading } from './TownReading'
@@ -416,6 +417,7 @@ export const townOverviewOf = (
       week,
     })),
     ...guidance.value,
+    ...scaffoldBodyOf(reading),
     readAt: isoOf(at),
   })
 }

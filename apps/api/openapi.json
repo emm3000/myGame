@@ -40,16 +40,24 @@
           "scaffold": {
             "$ref": "#/components/schemas/Scaffold"
           },
+          "scaffoldVersion": {
+            "$ref": "#/components/schemas/ScaffoldVersion"
+          },
           "chromePhase": {
             "$ref": "#/components/schemas/ChromePhase"
           }
         },
-        "required": ["id", "email", "emailVerified", "scaffold", "chromePhase"],
+        "required": ["id", "email", "emailVerified", "scaffold", "scaffoldVersion", "chromePhase"],
         "additionalProperties": false
       },
       "Scaffold": {
         "type": "string",
         "enum": ["es", "none"]
+      },
+      "ScaffoldVersion": {
+        "type": "integer",
+        "minimum": 0,
+        "description": "An opaque ordering of the scaffold changes the server applied: a read carrying a greater version saw a later change."
       },
       "ChromePhase": {
         "type": "string",
@@ -2733,6 +2741,12 @@
           "chromePhase": {
             "$ref": "#/components/schemas/ChromePhase"
           },
+          "scaffold": {
+            "$ref": "#/components/schemas/Scaffold"
+          },
+          "scaffoldVersion": {
+            "$ref": "#/components/schemas/ScaffoldVersion"
+          },
           "nextDueAt": {
             "type": "string",
             "nullable": true,
@@ -2765,6 +2779,8 @@
           "nextStep",
           "tip",
           "chromePhase",
+          "scaffold",
+          "scaffoldVersion",
           "nextDueAt",
           "readAt"
         ],
