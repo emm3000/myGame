@@ -294,6 +294,46 @@ class TownViewModelTest {
     }
 
     @Test
+    fun `reads at the next finish once a retried read succeeds`() = runTest {
+        homeViewModel(townOf(slot = workOf(lasting = 1.minutes)))
+        towns.answerRead(TownReadResult.Unreachable)
+        towns.answerRead(
+            TownReadResult.Read(
+                townOf(
+                    slot = workOf(startsAt = readInstant + 2.minutes, lasting = 5.minutes),
+                    readAt = readInstant + 2.minutes,
+                ),
+            ),
+        )
+        advanceTimeBy(2.minutes)
+        runCurrent()
+
+        advanceTimeBy(5.minutes - 1.seconds)
+        runCurrent()
+        val readsBeforeTheFinish: Int = towns.readCount
+        advanceTimeBy(1.seconds)
+        runCurrent()
+
+        assertEquals(listOf(3, 4), listOf(readsBeforeTheFinish, towns.readCount))
+    }
+
+    @Test
+    fun `waits a minute after a failed read on return before reading again`() = runTest {
+        val viewModel: TownViewModel = homeViewModel(townOf(slot = workOf(lasting = 1.minutes)))
+        viewModel.onIntent(TownIntent.ScreenHidden)
+        advanceTimeBy(2.minutes)
+        repeat(OUTAGE_READS) { towns.answerRead(TownReadResult.Unreachable) }
+
+        viewModel.onIntent(TownIntent.ScreenShown)
+        runCurrent()
+        val readsOnReturn: Int = towns.readCount
+        advanceTimeBy(1.minutes)
+        runCurrent()
+
+        assertEquals(listOf(2, 3), listOf(readsOnReturn, towns.readCount))
+    }
+
+    @Test
     fun `reads the town when the lesson finishes`() = runTest {
         homeViewModel(townOf(lessonSlot = lessonEndingAt(readInstant + 1.minutes)))
 
