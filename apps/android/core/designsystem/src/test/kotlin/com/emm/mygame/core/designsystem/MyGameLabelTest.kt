@@ -3,6 +3,8 @@ package com.emm.mygame.core.designsystem
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.semantics.SemanticsActions
+import androidx.compose.ui.semantics.SemanticsProperties
+import androidx.compose.ui.test.SemanticsMatcher
 import androidx.compose.ui.test.assertCountEquals
 import androidx.compose.ui.test.assertHeightIsAtLeast
 import androidx.compose.ui.test.assertTextEquals
@@ -185,6 +187,20 @@ class MyGameLabelTest {
         assertTrue(unmerged("We could not read it.").bottom <= unmerged("No pudimos leerlo.").top)
         assertEquals(MyGameTypography.body.fontSize, styleOf("We could not read it.").fontSize)
         assertEquals(MyGameTypography.caption.fontSize, styleOf("No pudimos leerlo.").fontSize)
+    }
+
+    @Test
+    fun `announces a translated error message as one polite region in both languages`() {
+        show {
+            MyGameErrorBanner(
+                message = MyGameLabel(text = "We could not read it.", translation = "No pudimos leerlo."),
+                actionLabel = MyGameLabel(text = "Try again", translation = "Volver a intentarlo"),
+                onAction = {},
+            )
+        }
+
+        composeRule.onNode(SemanticsMatcher.keyIsDefined(SemanticsProperties.LiveRegion))
+            .assertTextEquals("We could not read it.", "No pudimos leerlo.")
     }
 
     private fun styleOf(text: String): TextStyle {
