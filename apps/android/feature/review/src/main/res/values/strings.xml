@@ -17,7 +17,7 @@
     <string name="review_hint_line">{letters, plural, =1 {It starts with “{first}” and has {letters, number,0} letter.} other {It starts with “{first}” and has {letters, number,0} letters.}}</string>
     <string name="review_lesson_ready">Lesson {number} is ready</string>
     <string name="review_lesson_title">Lesson {number}</string>
-    <string name="review_level_open">You can now build level {level}.</string>
+    <string name="review_level_open">You have the words for level {level} now.</string>
     <string name="review_loading">Reading your reviews…</string>
     <string name="review_near_miss">Almost. Check the spelling and try again.</string>
     <string name="review_next_card">Next</string>
