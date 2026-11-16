@@ -1,5 +1,8 @@
 package com.emm.mygame.feature.town
 
+import androidx.compose.ui.semantics.SemanticsProperties
+import androidx.compose.ui.test.SemanticsMatcher
+import androidx.compose.ui.test.assert
 import androidx.compose.ui.test.assertCountEquals
 import androidx.compose.ui.test.getUnclippedBoundsInRoot
 import androidx.compose.ui.test.hasText
@@ -392,6 +395,17 @@ class TownLanguageTest {
         assertEnglishOverSpanish("Lesson 2 is done.", "La lección 2 terminó.")
         assertEnglishOverSpanish("Start the reviews", "Empezar los repasos")
         assertEnglishOverSpanish("Close", "Cerrar")
+    }
+
+    @Test
+    fun `announces both lines of the finish notice in the both phase`() {
+        val notice = TownStatusUiState.FinishNotice(LessonName.Shelved(2), firstUnread = null)
+
+        showStatus(bothPhase, TownStatusUiState(running = null, notice = notice))
+
+        composeRule.onNode(SemanticsMatcher.keyIsDefined(SemanticsProperties.LiveRegion))
+            .assert(hasText("Lesson 2 is done."))
+            .assert(hasText("La lección 2 terminó."))
     }
 
     @Test
