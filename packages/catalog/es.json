@@ -367,8 +367,6 @@
   "android.town.town_label_town": "Pueblo",
   "android.town.town_level": "Nivel {level}",
   "android.town.town_level_in_work": "{level} · {inWork}",
-  "android.town.town_list_more": "{listed}, {item}",
-  "android.town.town_list_pair": "{listed} y {last}",
   "android.town.town_loading": "Estamos leyendo tu pueblo…",
   "android.town.town_map_line": "Envía un equipo a un trabajo.",
   "android.town.town_map_link": "Ir al mapa",

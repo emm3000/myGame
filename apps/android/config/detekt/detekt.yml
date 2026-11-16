@@ -83,6 +83,31 @@ style:
     active: false
   ForbiddenComment:
     active: false
+  ForbiddenImport:
+    active: true
+    excludes:
+      - '**/core/ui/src/main/**/CopyReader.kt'
+      - '**/core/network/src/main/**/IsoInstantConverterFactory.kt'
+      - '**/test/**'
+    imports:
+      - value: 'java.time.format.DateTimeFormatter'
+        reason: 'A day or a time a player reads comes from CopyReader.dayOf or CopyReader.timeOf in core:ui.'
+      - value: 'java.time.format.DateTimeFormatterBuilder'
+        reason: 'A day or a time a player reads comes from CopyReader.dayOf or CopyReader.timeOf in core:ui.'
+      - value: 'java.text.SimpleDateFormat'
+        reason: 'A day or a time a player reads comes from CopyReader.dayOf or CopyReader.timeOf in core:ui.'
+      - value: 'java.text.DateFormat'
+        reason: 'A day or a time a player reads comes from CopyReader.dayOf or CopyReader.timeOf in core:ui.'
+      - value: 'android.text.format.DateFormat'
+        reason: 'A day or a time a player reads comes from CopyReader.dayOf or CopyReader.timeOf in core:ui.'
+      - value: 'android.icu.text.SimpleDateFormat'
+        reason: 'A day or a time a player reads comes from CopyReader.dayOf or CopyReader.timeOf in core:ui.'
+      - value: 'android.icu.text.DateFormat'
+        reason: 'A day or a time a player reads comes from CopyReader.dayOf or CopyReader.timeOf in core:ui.'
+      - value: 'android.icu.text.DateTimePatternGenerator'
+        reason: 'A day or a time a player reads comes from CopyReader.dayOf or CopyReader.timeOf in core:ui.'
+      - value: 'android.icu.text.ListFormatter'
+        reason: 'A list a player reads comes from CopyReader.listPhraseOf in core:ui.'
   MagicNumber:
     active: true
     ignoreNumbers:
