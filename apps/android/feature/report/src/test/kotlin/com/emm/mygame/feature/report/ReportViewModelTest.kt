@@ -170,6 +170,31 @@ class ReportViewModelTest {
     }
 
     @Test
+    fun `reads again a minute after a failed first read`() = runTest {
+        reports.answerRead(ReportReadResult.Unreachable)
+        reportViewModelOf(reports)
+        runCurrent()
+
+        advanceTimeBy(1.minutes)
+        runCurrent()
+
+        assertEquals(2, reports.readCount)
+    }
+
+    @Test
+    fun `draws the report once a retried first read answers`() = runTest {
+        reports.answerRead(ReportReadResult.Unreachable)
+        val viewModel: ReportViewModel = reportViewModelOf(reports)
+        runCurrent()
+        reports.answerRead(ReportReadResult.Read(reportOf(dueCount = 1)))
+
+        advanceTimeBy(1.minutes)
+        runCurrent()
+
+        assertEquals(1, contentOf(viewModel).dueCount)
+    }
+
+    @Test
     fun `reads again from the failure on a retry`() = runTest {
         reports.answerRead(ReportReadResult.Unreachable)
         val viewModel: ReportViewModel = reportViewModelOf(reports)
@@ -539,7 +564,7 @@ class ReportViewModelTest {
     }
 
     @Test
-    fun `keeps the failure on return until a retry`() = runTest {
+    fun `keeps the failure drawn while the read on return waits`() = runTest {
         reports.answerRead(ReportReadResult.Unreachable)
         val viewModel: ReportViewModel = reportViewModelOf(reports)
         runCurrent()
@@ -549,6 +574,19 @@ class ReportViewModelTest {
         runCurrent()
 
         assertEquals(ReportUiState.Failed, viewModel.state.value)
+    }
+
+    @Test
+    fun `reads again on return to a failed first read`() = runTest {
+        reports.answerRead(ReportReadResult.Unreachable)
+        val viewModel: ReportViewModel = reportViewModelOf(reports)
+        runCurrent()
+        viewModel.onIntent(ReportIntent.ScreenHidden)
+
+        viewModel.onIntent(ReportIntent.ScreenShown)
+        runCurrent()
+
+        assertEquals(2, reports.readCount)
     }
 
     @Test

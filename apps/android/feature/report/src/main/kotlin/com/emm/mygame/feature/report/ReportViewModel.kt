@@ -65,8 +65,8 @@ class ReportViewModel(
         isShown = true
         when (_state.value) {
             ReportUiState.Loading -> open()
-            ReportUiState.Failed, ReportUiState.SigningOut -> Unit
-            is ReportUiState.Content -> readAgain()
+            ReportUiState.SigningOut -> Unit
+            ReportUiState.Failed, is ReportUiState.Content -> readAgain()
         }
     }
 
@@ -78,20 +78,21 @@ class ReportViewModel(
 
     private fun open() {
         _state.value = ReportUiState.Loading
-        reading = viewModelScope.launch {
-            when (val answer: ReportReadResult = reports.read()) {
-                is ReportReadResult.Read -> draw(answer.report)
-                ReportReadResult.Unreachable -> _state.value = ReportUiState.Failed
-            }
-        }
+        readAgain()
     }
 
     private fun readAgain() {
+        reading?.cancel()
         reading = viewModelScope.launch {
             while (true) {
                 when (val answer: ReportReadResult = reports.read()) {
                     is ReportReadResult.Read -> return@launch draw(answer.report)
-                    ReportReadResult.Unreachable -> delay(failedReadRetry)
+                    ReportReadResult.Unreachable -> {
+                        _state.update { current: ReportUiState ->
+                            if (current == ReportUiState.Loading) ReportUiState.Failed else current
+                        }
+                        delay(failedReadRetry)
+                    }
                 }
             }
         }
