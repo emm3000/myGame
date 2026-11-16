@@ -17,7 +17,7 @@
     <string name="review_hint_line">{letters, plural, =1 {Empieza por «{first}» y tiene {letters, number,0} letra.} other {Empieza por «{first}» y tiene {letters, number,0} letras.}}</string>
     <string name="review_lesson_ready">La lección {number} está lista</string>
     <string name="review_lesson_title">Lección {number}</string>
-    <string name="review_level_open">Ya puedes construir el nivel {level}.</string>
+    <string name="review_level_open">Ya tienes las palabras para el nivel {level}.</string>
     <string name="review_loading">Estamos leyendo tu repaso…</string>
     <string name="review_near_miss">Casi. Revisa cómo se escribe y vuelve a comprobar.</string>
     <string name="review_next_card">Siguiente</string>

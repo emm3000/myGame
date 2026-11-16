@@ -102,7 +102,7 @@
     <string name="town_refusal_lesson_under_study">La escuela ya está estudiando esa lección. Espera a que termine.</string>
     <string name="town_refusal_not_enough_people">Esta obra necesita {requiredPeople, plural, =1 {1 persona libre} other {{requiredPeople, number,0} personas libres}} y tienes {freePeople}. Sube el nivel de tus hogares.</string>
     <string name="town_refusal_not_enough_resources">No tienes recursos suficientes para esta obra. Espera a que crezcan tus reservas.</string>
-    <string name="town_refusal_not_enough_words">Este nivel necesita {needed} palabras {standing, select, stable {repasadas} retained {aprendidas} other {aprendidas}} y tienes {held}. Repasa las palabras que te tocan.</string>
+    <string name="town_refusal_not_enough_words">Este nivel necesita {needed} palabras {standing, select, stable {repasadas} retained {aprendidas} other {aprendidas}} y tienes {held}. Estudia lecciones nuevas y repasa las palabras que te tocan.</string>
     <string name="town_refusal_office_too_low">Tu oficina está en nivel {officeLevel} y esta contratación necesita el nivel {requiredOfficeLevel}.</string>
     <string name="town_refusal_player_already_holds_town">Ya tienes un pueblo. Solo puedes tener uno.</string>
     <string name="town_refusal_study_slot_busy">La escuela ya tiene un estudio en marcha. Espera a que termine.</string>
