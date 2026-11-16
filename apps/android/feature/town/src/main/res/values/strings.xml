@@ -102,6 +102,7 @@
     <string name="town_refusal_lesson_under_study">The school is already studying that lesson. Wait for it to finish.</string>
     <string name="town_refusal_not_enough_people">This work needs {requiredPeople, plural, =1 {1 free person} other {{requiredPeople, number,0} free people}} and you have {freePeople}. Build your homes to a higher level.</string>
     <string name="town_refusal_not_enough_resources">You do not have enough for this work. Wait until your town makes more.</string>
+    <string name="town_refusal_not_enough_words">This level needs {needed} {standing, select, stable {reviewed} retained {learned} other {learned}} words and you have {held}. Review the words that are due.</string>
     <string name="town_refusal_office_too_low">Your office is at level {officeLevel}. This hire needs level {requiredOfficeLevel}.</string>
     <string name="town_refusal_player_already_holds_town">You already have a town. You can have only one.</string>
     <string name="town_refusal_study_slot_busy">The school is already studying a lesson. Wait for it to finish.</string>
@@ -147,6 +148,9 @@
     <string name="town_top_level">Top level</string>
     <string name="town_try_again">Try again</string>
     <string name="town_waiting">Waiting</string>
+    <string name="town_words_learned">Learned words: {count}</string>
+    <string name="town_words_needed">{standing, select, stable {Needs {needed} reviewed words: {held} of {needed}} retained {Needs {needed} learned words: {held} of {needed}} other {Needs {needed} learned words: {held} of {needed}}}</string>
+    <string name="town_words_reviewed">Reviewed words: {count}</string>
     <string name="town_work_done">The work is done. Reading your town again…</string>
     <string name="town_work_idle">No building work now.</string>
     <string name="town_work_ready">Ready</string>
