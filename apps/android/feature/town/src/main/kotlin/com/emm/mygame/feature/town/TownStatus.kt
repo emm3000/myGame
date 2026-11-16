@@ -89,7 +89,7 @@ private fun FinishNoticeRows(
             label = rememberPlayerCopy().finishLineOf(notice.name),
             style = MyGameTypography.label,
             color = MyGameTheme.colors.ink,
-            modifier = Modifier.semantics { liveRegion = LiveRegionMode.Polite },
+            modifier = Modifier.semantics(mergeDescendants = true) { liveRegion = LiveRegionMode.Polite },
         )
         Row(horizontalArrangement = Arrangement.spacedBy(MyGameSpacing.step2)) {
             MyGameOutlinedButton(
