@@ -122,7 +122,8 @@ while IFS="$(printf '\t')" read -r pid name path; do
     *) continue ;;
   esac
   [ ! -d "$path" ] || continue
-  if [[ $name =~ ^(emulator|qemu|crashpad|netsim) ]]; then
+  [[ $name != netsim* ]] || continue
+  if [[ $name =~ ^(emulator|qemu|crashpad) ]]; then
     if [ "$keep_emulator" -eq 1 ]; then
       echo "kept: emulator $pid in $path"
     else
