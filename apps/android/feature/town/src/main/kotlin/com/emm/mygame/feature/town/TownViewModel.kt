@@ -149,7 +149,7 @@ class TownViewModel(
                     project(measured(answer.town))
                 }
                 TownReadResult.NoTown -> askName()
-                TownReadResult.Unreachable -> project(last)
+                TownReadResult.Unreachable -> project(last, firstReadAt = serverNow() + failedReadRetry)
             }
         }
     }
@@ -253,26 +253,26 @@ class TownViewModel(
         guidance.resendUnsent()
     }
 
-    private suspend fun project(first: TownSnapshot) {
+    private suspend fun project(first: TownSnapshot, firstReadAt: Instant? = null) {
         var snapshot: TownSnapshot = first
-        var retryAt: Instant? = null
+        var nextReadAt: Instant? = firstReadAt
         while (true) {
             draw(snapshot)
             val now: Instant = serverNow()
-            val isRetryDue: Boolean = retryAt == null || retryAt <= now
-            if (isRetryDue && snapshot.isDueAt(now)) {
+            val isReadAllowed: Boolean = nextReadAt == null || nextReadAt <= now
+            if (isReadAllowed && snapshot.isDueAt(now)) {
                 when (val answer: TownReadResult = towns.read()) {
                     is TownReadResult.Read -> {
                         snapshot = measured(answer.town)
                         mutations = mutations.keptAfterRead()
-                        retryAt = null
+                        nextReadAt = null
                         draw(snapshot)
                     }
                     TownReadResult.NoTown -> return askName()
-                    TownReadResult.Unreachable -> retryAt = serverNow() + failedReadRetry
+                    TownReadResult.Unreachable -> nextReadAt = serverNow() + failedReadRetry
                 }
             }
-            delay(snapshot.nextWakeAt(serverNow(), retryAt))
+            delay(snapshot.nextWakeFrom(serverNow(), nextReadAt))
         }
     }
 
@@ -284,7 +284,7 @@ class TownViewModel(
     }
 }
 
-private fun TownSnapshot.nextWakeAt(now: Instant, retryAt: Instant?): Duration {
+private fun TownSnapshot.nextWakeFrom(now: Instant, nextReadAt: Instant?): Duration {
     val repaint: Duration = repaintDelay(nearestCountdownAt(now))
-    return if (retryAt == null) repaint else minOf(repaint, retryAt - now)
+    return if (nextReadAt == null) repaint else minOf(repaint, nextReadAt - now)
 }
