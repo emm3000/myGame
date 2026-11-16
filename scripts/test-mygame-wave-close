@@ -33,6 +33,7 @@ live_emulator_pid=900000009
 probe_emulator_pid=900000010
 probe2_emulator_pid=900000011
 serial_only_emulator_pid=900000012
+netsim_pid=900000013
 failures=0
 case_dir=""
 repo=""
@@ -437,6 +438,29 @@ orphans_never_reports_a_live_peer_avd_or_another_repo_avd() {
   [ "$status" -eq 0 ] && [ "$output" = "orphans: none" ] || fail "${FUNCNAME[0]}" "kept run (exit $status): $output"
 }
 
+closing_the_peer_that_started_netsimd_spares_netsimd() {
+  build_a_peer_with_its_own_avd netsim
+  printf '%s\tnetsimd\t%s\tnetsimd --host-dns=8.8.8.8,8.8.4.4\n' "$netsim_pid" "$case_dir/mygame-probe" >>"$case_dir/state/processes"
+  local output problem
+  output=$(with_stubs scripts/mygame-wave-close probe) || fail "${FUNCNAME[0]}" "$output" || return 1
+  [ "$(killed)" = "$claude_pid $node_pid $qemu_pid $probe_emulator_pid " ] || fail "${FUNCNAME[0]}" "killed $(killed)" || return 1
+  [ "$(tail -n 1 <<<"$output")" = "orphans: none" ] || fail "${FUNCNAME[0]}" "$output" || return 1
+  awk -F '\t' -v pid="$live_emulator_pid" '$1 == pid { found = 1 } END { exit !found }' "$case_dir/state/processes" ||
+    fail "${FUNCNAME[0]}" "the live peer emulator was stopped" || return 1
+  problem=$(decoys_survive) || fail "${FUNCNAME[0]}" "$problem"
+}
+
+orphans_never_reports_netsimd_in_a_closed_worktree() {
+  build_a_live_peer netsim-orphans
+  printf '%s\tnetsimd\t%s\tnetsimd --host-dns=8.8.8.8,8.8.4.4\n' "$netsim_pid" "$case_dir/mygame-gone" >>"$case_dir/state/processes"
+  local output status=0
+  output=$(with_stubs scripts/mygame-orphans) || status=$?
+  [ "$status" -eq 0 ] && [ "$output" = "orphans: none" ] || fail "${FUNCNAME[0]}" "plain run (exit $status): $output" || return 1
+  status=0
+  output=$(with_stubs scripts/mygame-orphans --keep-emulator) || status=$?
+  [ "$status" -eq 0 ] && [ "$output" = "orphans: none" ] || fail "${FUNCNAME[0]}" "kept run (exit $status): $output"
+}
+
 scripts_never_name_a_shared_tool_kill() {
   local found status=0
   found=$(rg -n 'p[k]ill|k[i]llall' "$scripts_dir") || status=$?
@@ -467,5 +491,7 @@ run closing_without_android_home_stops_the_emulator_and_keeps_the_avd
 run closing_twice_skips_the_emulator_and_avd_steps_quietly
 run orphans_names_an_avd_without_its_worktree_and_fails
 run orphans_never_reports_a_live_peer_avd_or_another_repo_avd
+run closing_the_peer_that_started_netsimd_spares_netsimd
+run orphans_never_reports_netsimd_in_a_closed_worktree
 run scripts_never_name_a_shared_tool_kill
 [ "$failures" -eq 0 ]
