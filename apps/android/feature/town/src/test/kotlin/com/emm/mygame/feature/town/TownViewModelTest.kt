@@ -278,6 +278,22 @@ class TownViewModelTest {
     }
 
     @Test
+    fun `tries a failed read once a minute while a waiting work counts down its last minute`() = runTest {
+        homeViewModel(
+            townOf(
+                slot = workOf(lasting = 1.minutes),
+                waitingList = listOf(workOf(startsAt = readInstant + 1.minutes, lasting = 2.minutes)),
+            ),
+        )
+        repeat(OUTAGE_READS) { towns.answerRead(TownReadResult.Unreachable) }
+
+        advanceTimeBy(3.minutes)
+        runCurrent()
+
+        assertEquals(4, towns.readCount)
+    }
+
+    @Test
     fun `reads the town when the lesson finishes`() = runTest {
         homeViewModel(townOf(lessonSlot = lessonEndingAt(readInstant + 1.minutes)))
 
@@ -549,3 +565,5 @@ class TownViewModelTest {
     private fun TestScope.viewModelOf(start: Instant = readInstant): TownViewModel =
         townViewModelOf(towns, start)
 }
+
+private const val OUTAGE_READS: Int = 200
