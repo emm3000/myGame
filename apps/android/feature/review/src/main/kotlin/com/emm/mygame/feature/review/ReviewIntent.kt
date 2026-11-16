@@ -4,6 +4,10 @@ import com.emm.mygame.core.network.ChoiceId
 
 sealed interface ReviewIntent {
 
+    data object ScreenShown : ReviewIntent
+
+    data object ScreenHidden : ReviewIntent
+
     data object RetryTapped : ReviewIntent
 
     data class ChoiceChosen(val choice: ChoiceId) : ReviewIntent

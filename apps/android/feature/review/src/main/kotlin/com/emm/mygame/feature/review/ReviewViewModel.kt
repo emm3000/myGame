@@ -43,6 +43,8 @@ class ReviewViewModel(
 
     private var reading: Job? = null
 
+    private var waiting: Job? = null
+
     private var reread: DueReviews? = null
 
     private var gap: Duration = Duration.ZERO
@@ -50,6 +52,8 @@ class ReviewViewModel(
     private var walked: Int = 0
 
     private var arrival: List<LessonId>? = null
+
+    private var isShown: Boolean = true
 
     init {
         viewModelScope.launch { towns.town.collect { held: HeldTown? -> townChanged(held?.town) } }
@@ -59,6 +63,12 @@ class ReviewViewModel(
 
     fun onIntent(intent: ReviewIntent) {
         when (intent) {
+            ReviewIntent.ScreenShown -> show()
+            ReviewIntent.ScreenHidden -> {
+                isShown = false
+                reading?.cancel()
+                waiting?.cancel()
+            }
             ReviewIntent.RetryTapped -> retry()
             is ReviewIntent.ChoiceChosen -> edit { card: ReviewUiState.ReviewCard ->
                 (card as? ReviewUiState.ReviewCard.Recognition)?.copy(chosen = intent.choice) ?: card
@@ -73,6 +83,20 @@ class ReviewViewModel(
         }
     }
 
+    private fun show() {
+        if (isShown) return
+        isShown = true
+        when (val shown: ReviewUiState = _state.value) {
+            ReviewUiState.Loading -> open()
+            is ReviewUiState.NothingDue -> waiting = viewModelScope.launch { waitFor(shown.dueAt + gap) }
+            ReviewUiState.Failed,
+            ReviewUiState.NoCards,
+            is ReviewUiState.LessonReady,
+            is ReviewUiState.Reviewing,
+            -> Unit
+        }
+    }
+
     private fun retry() {
         val isWaiting: Boolean = (_state.value as? ReviewUiState.Reviewing)?.isBusy == true
         if (!isWaiting) open()
@@ -80,6 +104,7 @@ class ReviewViewModel(
 
     private fun open() {
         reading?.cancel()
+        waiting?.cancel()
         _state.value = ReviewUiState.Loading
         reading = viewModelScope.launch {
             when (val answer: ReviewsReadResult = learning.reviews()) {
@@ -119,7 +144,7 @@ class ReviewViewModel(
                 isDealtFromStack = isDealtFromStack,
             )
             nextDueAt == null -> _state.value = ReviewUiState.NoCards
-            else -> reading = viewModelScope.launch { waitFor(nextDueAt) }
+            else -> waiting = viewModelScope.launch { waitFor(nextDueAt) }
         }
     }
 
