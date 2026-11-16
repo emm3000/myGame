@@ -87,7 +87,6 @@ style:
     active: true
     excludes:
       - '**/core/ui/src/main/**/CopyReader.kt'
-      - '**/core/ui/src/main/**/IcuStrings.kt'
       - '**/core/network/src/main/**/IsoInstantConverterFactory.kt'
       - '**/test/**'
     imports:
