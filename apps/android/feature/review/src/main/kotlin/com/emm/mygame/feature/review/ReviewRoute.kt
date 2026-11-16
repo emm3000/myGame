@@ -3,6 +3,7 @@ package com.emm.mygame.feature.review
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
+import androidx.lifecycle.compose.LifecycleStartEffect
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.emm.mygame.core.network.LearningRepository
@@ -21,6 +22,10 @@ fun ReviewRoute(
     viewModel: ReviewViewModel = viewModel { ReviewViewModel(learning, towns, clock) },
 ) {
     val state: ReviewUiState by viewModel.state.collectAsStateWithLifecycle()
+    LifecycleStartEffect(viewModel) {
+        viewModel.onIntent(ReviewIntent.ScreenShown)
+        onStopOrDispose { viewModel.onIntent(ReviewIntent.ScreenHidden) }
+    }
     ReviewScreen(
         state = state,
         onIntent = viewModel::onIntent,
