@@ -56,7 +56,7 @@ fun MyGameErrorBanner(
                 label = message,
                 style = MyGameTypography.body,
                 color = colors.destructiveInk,
-                modifier = Modifier.semantics { liveRegion = LiveRegionMode.Polite },
+                modifier = Modifier.semantics(mergeDescendants = true) { liveRegion = LiveRegionMode.Polite },
             )
             MyGameTextLink(label = actionLabel, onClick = onAction)
         }
