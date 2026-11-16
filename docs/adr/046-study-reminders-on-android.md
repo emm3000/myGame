@@ -80,9 +80,13 @@ The phone stores what it last read, and nothing it derived:
   `TownOverview`. A later `Reviews` or `Report` read at or after that
   instant drops it, because that read settled the lesson and its cards
   are in `due` or `nextDueAt`.
-- **Check due**: whether the last `TownOverview` held a non-empty
-  `dueHoldoutChecks`, or `nextStep` `holdoutCheck`, or the last
-  `HoldoutChecks` answer held a check. A holdout check falls due on read
+- **Check due**: decided by whichever is later, the last `TownOverview`
+  or the last `HoldoutChecks` answer. A `TownOverview` sets it when it
+  holds a non-empty `dueHoldoutChecks` or `nextStep` `holdoutCheck`, and
+  clears it otherwise. A `HoldoutChecks` answer sets it when it holds a
+  check, and clears it otherwise. An older answer never keeps it set, so
+  a check taken on the web is cleared by the phone's next town read. A
+  holdout check falls due on read
   by whole weeks and stays due until it is taken or skipped; a week-8
   check stays due until the week-24 one falls due (ADR 037).
 - **Lesson ready**: whether the last `TownOverview`'s `nextStep` was
@@ -93,9 +97,11 @@ The phone stores what it last read, and nothing it derived:
   on, the phone reads `GET /town` once more, so *lesson ready* never
   stays stale after the reviews or the check are done.
 
-Every `TownOverview` the phone receives feeds these facts, not only
-`GET /town`: every town mutation answers one, `POST /town/lessons`
-included (`apps/api/CLAUDE.md`). So starting a lesson clears *lesson
+Every answer that is a `TownOverview` feeds these facts, not only
+`GET /town`'s: the town mutations that answer one, `POST /town/lessons`
+included, feed them too (`apps/api/CLAUDE.md`). The routes that answer
+204, such as a tip or the guidance dismissal, feed nothing. So starting
+a lesson clears *lesson
 ready* and sets *lesson finishing at* in the same answer, and *lesson
 ready* never outlives the start.
 
