@@ -52,6 +52,31 @@ class SchoolViewModelTest {
     }
 
     @Test
+    fun `reads again a minute after a failed first read`() = runTest {
+        towns.answerRead(TownReadResult.Unreachable)
+        schoolViewModelOf(towns)
+        runCurrent()
+
+        advanceTimeBy(1.minutes)
+        runCurrent()
+
+        assertEquals(2, towns.readCount)
+    }
+
+    @Test
+    fun `draws the school once a retried first read answers`() = runTest {
+        towns.answerRead(TownReadResult.Unreachable)
+        val viewModel: SchoolViewModel = schoolViewModelOf(towns)
+        runCurrent()
+        towns.answerRead(TownReadResult.Read(townOf()))
+
+        advanceTimeBy(1.minutes)
+        runCurrent()
+
+        assertEquals(1, contentOf(viewModel).schoolLevel)
+    }
+
+    @Test
     fun `reads again on a retry`() = runTest {
         towns.answerRead(TownReadResult.Unreachable)
         val viewModel: SchoolViewModel = schoolViewModelOf(towns)
