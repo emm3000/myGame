@@ -8,7 +8,7 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.emm.mygame.core.designsystem.MyGameRing
 import com.emm.mygame.core.network.TownRepository
-import com.emm.mygame.core.ui.icuStringResource
+import com.emm.mygame.core.ui.chromeResource
 
 @Composable
 internal fun RetainedWordsRing(
@@ -28,11 +28,11 @@ internal fun RetainedWordsRing(
             count = ring.count,
             total = ring.total,
             countBefore = ring.countBefore,
-            accessibleName = icuStringResource(
+            accessibleName = chromeResource(
                 R.string.shell_retained_words,
                 "count" to ring.count.toString(),
                 "total" to ring.total,
-            ),
+            ).spoken,
             modifier = modifier,
         )
     }
