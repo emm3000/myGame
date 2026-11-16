@@ -75,6 +75,9 @@
             "$ref": "#/components/schemas/NotEnoughPeopleError"
           },
           {
+            "$ref": "#/components/schemas/NotEnoughWordsError"
+          },
+          {
             "$ref": "#/components/schemas/NotEnoughResourcesError"
           },
           {
@@ -136,6 +139,7 @@
             "NoWasteYet": "#/components/schemas/BareApiError",
             "WaitingListFull": "#/components/schemas/WaitingListFullError",
             "NotEnoughPeople": "#/components/schemas/NotEnoughPeopleError",
+            "NotEnoughWords": "#/components/schemas/NotEnoughWordsError",
             "NotEnoughResources": "#/components/schemas/NotEnoughResourcesError",
             "TopLevelReached": "#/components/schemas/TopLevelReachedError",
             "BuildingWorkNotFound": "#/components/schemas/BuildingWorkNotFoundError",
@@ -231,6 +235,37 @@
               }
             },
             "required": ["requiredPeople", "freePeople"],
+            "additionalProperties": false
+          }
+        },
+        "required": ["kind", "params"],
+        "additionalProperties": false
+      },
+      "NotEnoughWordsError": {
+        "type": "object",
+        "properties": {
+          "kind": {
+            "type": "string",
+            "enum": ["NotEnoughWords"]
+          },
+          "params": {
+            "type": "object",
+            "properties": {
+              "needed": {
+                "type": "integer",
+                "minimum": 0,
+                "exclusiveMinimum": true
+              },
+              "held": {
+                "type": "integer",
+                "minimum": 0
+              },
+              "standing": {
+                "type": "string",
+                "enum": ["stable", "retained"]
+              }
+            },
+            "required": ["needed", "held", "standing"],
             "additionalProperties": false
           }
         },
@@ -4497,7 +4532,7 @@
             }
           },
           "409": {
-            "description": "WaitingListFull, TopLevelReached, NotEnoughPeople or NotEnoughResources.",
+            "description": "WaitingListFull, TopLevelReached, NotEnoughPeople, NotEnoughWords or NotEnoughResources.",
             "content": {
               "application/json": {
                 "schema": {

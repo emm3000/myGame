@@ -145,7 +145,7 @@ export const townRoutes = (dependencies: TownDependencies): OpenAPIHono => {
         async (stores, clock) => {
           const town = await startBuildingWork(
             { playerId, building: request.data.building },
-            { towns: stores.towns, news: stores.townNews, catalog, clock },
+            { towns: stores.towns, news: stores.townNews, cards: stores.cards, catalog, clock },
           )
           return town.ok ? townReadingOf(playerId, town.value.storedAt, stores.towns) : town
         },

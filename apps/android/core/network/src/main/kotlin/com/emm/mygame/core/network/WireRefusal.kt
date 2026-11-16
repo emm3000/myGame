@@ -11,6 +11,7 @@ import com.emm.mygame.core.network.generated.models.LearningCapReachedError
 import com.emm.mygame.core.network.generated.models.NotEnoughHiresAtHomeError
 import com.emm.mygame.core.network.generated.models.NotEnoughPeopleError
 import com.emm.mygame.core.network.generated.models.NotEnoughResourcesError
+import com.emm.mygame.core.network.generated.models.NotEnoughWordsError
 import com.emm.mygame.core.network.generated.models.OfficeTooLowError
 import com.emm.mygame.core.network.generated.models.TopLevelReachedError
 import com.emm.mygame.core.network.generated.models.WaitingListFullError
@@ -48,6 +49,7 @@ private val json: Json = Serializer.kotlinxSerializationJson
 internal val kindsWithParams: Set<String> = setOf(
     WaitingListFullError.Kind.WaitingListFull.value,
     NotEnoughPeopleError.Kind.NotEnoughPeople.value,
+    NotEnoughWordsError.Kind.NotEnoughWords.value,
     NotEnoughResourcesError.Kind.NotEnoughResources.value,
     TopLevelReachedError.Kind.TopLevelReached.value,
     BuildingWorkNotFoundError.Kind.BuildingWorkNotFound.value,

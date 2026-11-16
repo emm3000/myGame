@@ -203,12 +203,9 @@ export { type JobPhase, jobPhaseAt } from './town/jobPhaseAt'
 export { type JobSeason, jobSeasonAt } from './town/jobSeasonAt'
 export { type BusyLessonSlot, idleLessonSlot, type LessonSlot } from './town/LessonSlot'
 export type { LessonSlotRepository } from './town/LessonSlotRepository'
-export {
-  type LevelWordNeed,
-  levelWordNeedOf,
-  type NeededWordKind,
-} from './town/levelWordNeedOf'
+export { type LevelWordNeed, levelWordNeedOf } from './town/levelWordNeedOf'
 export { lowestFreePeopleOf } from './town/lowestFreePeopleOf'
+export type { NeededWordKind } from './town/NeededWordKind'
 export { type GoalShortfall, type NextGoal, nextGoalOf } from './town/nextGoalOf'
 export {
   type NextStep,

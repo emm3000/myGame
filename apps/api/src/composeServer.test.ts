@@ -294,12 +294,13 @@ const startFarmWork = (
   server: ComposedServer,
   afterRead: () => Promise<void>,
 ): Promise<Result<Town, DomainError>> =>
-  server.inTransaction(({ towns, townNews }) =>
+  server.inTransaction(({ towns, townNews, cards }) =>
     startBuildingWork(
       { playerId: ana, building: 'farm' },
       {
         towns: pausingTownRead(towns, afterRead),
         news: townNews,
+        cards,
         catalog: townCatalog,
         clock: frozenClock,
       },

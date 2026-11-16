@@ -106,6 +106,14 @@ describe('JsonTownCatalog', () => {
     ])
   })
 
+  it('hands the domain the word need of ADR 045', () => {
+    expect(shippedCatalog().townSettings().wordNeed).toEqual({
+      fromLevel: 3,
+      perLevel: 10,
+      retainedFromLevel: 7,
+    })
+  })
+
   it('hands the domain goals that each name a level the content holds', () => {
     const catalog = shippedCatalog()
     const { goals } = catalog.townSettings()

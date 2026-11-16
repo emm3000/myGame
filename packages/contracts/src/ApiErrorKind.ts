@@ -23,6 +23,7 @@ export const ApiErrorKindSchema = z.enum([
   'BlankTownName',
   'WaitingListFull',
   'NotEnoughPeople',
+  'NotEnoughWords',
   'NotEnoughResources',
   'TopLevelReached',
   'BuildingWorkNotFound',

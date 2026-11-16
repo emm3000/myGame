@@ -6,6 +6,7 @@ import type { Stocks } from './Stocks'
 import type { Terrain } from './Terrain'
 import type { TipKind } from './TipKind'
 import type { WasteSize } from './WasteSize'
+import type { WordNeed } from './WordNeed'
 
 export type ProductionPercent = Readonly<Record<ResourceKind, number>>
 
@@ -56,6 +57,7 @@ export type TownSettings = {
   readonly sitesPerArea: number
   readonly terrainBonusPerHour: number
   readonly waitingListCap: number
+  readonly wordNeed: WordNeed
   readonly job: JobTerms
   readonly waste: WasteTerms
   readonly seasons: TownSeasons

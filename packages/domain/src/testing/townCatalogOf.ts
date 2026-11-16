@@ -19,6 +19,7 @@ export const plainTownSettings: TownSettings = {
   sitesPerArea: 15,
   terrainBonusPerHour: 5,
   waitingListCap: 2,
+  wordNeed: { fromLevel: 3, perLevel: 10, retainedFromLevel: 7 },
   job: {
     secondsPerArea: 600,
     secondsPerSite: 60,

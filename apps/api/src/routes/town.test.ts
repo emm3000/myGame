@@ -84,6 +84,11 @@ const runSql = async (statement: string): Promise<void> => {
   }
 }
 
+const holdStableWords = (email: string, count: number): Promise<void> =>
+  runSql(
+    `INSERT INTO cards (player_id, word_id, state, stability, difficulty, last_review_at, last_rating, entered_at) SELECT id, 'stable-' || n, 'review', 12, 5, '2026-11-01T08:00:00Z', 'good', '2026-11-01T07:00:00Z' FROM players, generate_series(1, ${count}) n WHERE email = '${email}'`,
+  )
+
 const statementTextOf = (query: unknown): string => {
   if (typeof query === 'string') {
     return query
@@ -535,6 +540,7 @@ describe('the town route', () => {
     it('refuses work past the cap', async () => {
       const ana = await signUpWithTown('ana@example.com')
       await fillStocks()
+      await holdStableWords('ana@example.com', 30)
       for (let started = 0; started < 5; started += 1) {
         expect((await startWork(ana, 'farm')).status).toBe(200)
       }
@@ -570,6 +576,20 @@ describe('the town route', () => {
       expect(await refusalOf(response)).toEqual({
         kind: 'NotEnoughPeople',
         params: { requiredPeople: 1, freePeople: 0 },
+      })
+    })
+
+    it('refuses a fresh town raising a building to 3 with the stable words it lacks', async () => {
+      const ana = await signUpWithTown('ana@example.com')
+      await startWork(ana, 'farm')
+      await startWork(ana, 'farm')
+
+      const response = await startWork(ana, 'farm')
+
+      expect(response.status).toBe(409)
+      expect(await refusalOf(response)).toEqual({
+        kind: 'NotEnoughWords',
+        params: { needed: 10, held: 0, standing: 'stable' },
       })
     })
 
@@ -1456,6 +1476,7 @@ describe('the town route', () => {
     it('pays homes levels 2 to 4 from the starting food and leaves 15', async () => {
       const ana = await signUpWithTown('ana@example.com')
       await setMoneyAndMaterialAside()
+      await holdStableWords('ana@example.com', 20)
 
       const overview = await raiseHomesThreeTimes(ana)
 
@@ -1467,6 +1488,7 @@ describe('the town route', () => {
     it('refuses homes level 5 with no farm, 187 food short', async () => {
       const ana = await signUpWithTown('ana@example.com')
       await setMoneyAndMaterialAside()
+      await holdStableWords('ana@example.com', 30)
       await raiseHomesThreeTimes(ana)
 
       const response = await startWork(ana, 'homes')
@@ -1480,6 +1502,7 @@ describe('the town route', () => {
 
     it('keeps the stored cost of work charged before the food column and refunds it at a stop', async () => {
       const ana = await signUpWithTown('ana@example.com')
+      await holdStableWords('ana@example.com', 10)
       await startWork(ana, 'homes')
       await startWork(ana, 'homes')
       await runSql('UPDATE towns SET food = 300, work_cost_food = 0')
@@ -1504,6 +1527,7 @@ describe('the town route', () => {
       async ({ terrain, area }) => {
         const ana = await signUpWithTown('ana@example.com')
         await runSql(`UPDATE towns SET area = ${area}`)
+        await holdStableWords('ana@example.com', 30)
         await startWork(ana, 'factory')
         await startWork(ana, 'homes')
         await startWork(ana, 'homes')

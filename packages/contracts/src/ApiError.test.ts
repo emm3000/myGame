@@ -109,6 +109,28 @@ describe('ApiErrorSchema', () => {
     expect(ApiErrorSchema.parse(notEnoughPeople)).toEqual(notEnoughPeople)
   })
 
+  it('parses too few words with the need, the count held and the standing it asks', () => {
+    const notEnoughWords = {
+      kind: 'NotEnoughWords',
+      params: { needed: 50, held: 49, standing: 'retained' },
+    }
+
+    expect(ApiErrorSchema.parse(notEnoughWords)).toEqual(notEnoughWords)
+  })
+
+  it('rejects too few words of a school path standing', () => {
+    const refused = ApiErrorSchema.safeParse({
+      kind: 'NotEnoughWords',
+      params: { needed: 10, held: 9, standing: 'hold' },
+    })
+
+    expect(refused.success).toBe(false)
+  })
+
+  it('rejects too few words without its params', () => {
+    expect(ApiErrorSchema.safeParse({ kind: 'NotEnoughWords' }).success).toBe(false)
+  })
+
   it('parses a shortfall with the town resources it misses', () => {
     const notEnoughResources = {
       kind: 'NotEnoughResources',

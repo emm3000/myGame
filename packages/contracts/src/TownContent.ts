@@ -58,6 +58,12 @@ const TipsContentSchema = z
   .array(TipKindSchema)
   .refine((tips) => new Set(tips).size === tips.length)
 
+const WordNeedContentSchema = z.strictObject({
+  fromLevel: WholeCountSchema.positive(),
+  perLevel: WholeCountSchema.positive(),
+  retainedFromLevel: WholeCountSchema.positive(),
+})
+
 export const TownContentSchema = z.strictObject({
   startingStocks: ResourceAmountsSchema,
   taxRatePerHour: QuantitySchema,
@@ -67,6 +73,7 @@ export const TownContentSchema = z.strictObject({
   sitesPerArea: WholeCountSchema.positive(),
   terrainBonusPerHour: QuantitySchema,
   waitingListCap: WholeCountSchema,
+  wordNeed: WordNeedContentSchema,
   job: JobContentSchema,
   waste: WasteContentSchema,
   seasons: TownSeasonsSchema,
