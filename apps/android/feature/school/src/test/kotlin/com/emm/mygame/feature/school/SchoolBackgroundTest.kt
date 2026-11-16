@@ -112,7 +112,7 @@ class SchoolBackgroundTest {
     }
 
     @Test
-    fun `waits for a retry tap on return to a failed read`() = runTest {
+    fun `reads again on return to a failed first read`() = runTest {
         towns.answerRead(TownReadResult.Unreachable)
         val viewModel: SchoolViewModel = schoolViewModelOf(towns)
         runCurrent()
@@ -121,7 +121,7 @@ class SchoolBackgroundTest {
         viewModel.onIntent(SchoolIntent.ScreenShown)
         runCurrent()
 
-        assertEquals(1, towns.readCount)
+        assertEquals(2, towns.readCount)
     }
 
     @Test

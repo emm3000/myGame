@@ -70,6 +70,7 @@ class SchoolViewModel(private val towns: TownRepository, private val clock: Cloc
         when {
             last != null -> projection = viewModelScope.launch { project(last, firstReadAt = serverNow()) }
             _state.value == SchoolUiState.Loading -> open()
+            _state.value == SchoolUiState.Failed -> readFirst()
         }
     }
 
@@ -82,14 +83,24 @@ class SchoolViewModel(private val towns: TownRepository, private val clock: Cloc
         val held: HeldTown? = towns.town.value
         if (held != null) return openHeld(held)
         _state.value = SchoolUiState.Loading
+        readFirst()
+    }
+
+    private fun readFirst() {
+        projection?.cancel()
         projection = viewModelScope.launch {
-            when (val answer: TownReadResult = towns.read()) {
-                is TownReadResult.Read -> {
-                    val town: TownSnapshot = measured(answer.town)
-                    project(town, firstReadAt = town.nextChangeAfter(serverNow()))
+            while (true) {
+                when (val answer: TownReadResult = towns.read()) {
+                    is TownReadResult.Read -> {
+                        val town: TownSnapshot = measured(answer.town)
+                        return@launch project(town, firstReadAt = town.nextChangeAfter(serverNow()))
+                    }
+                    TownReadResult.NoTown -> return@launch _effects.send(SchoolEffect.NoTown)
+                    TownReadResult.Unreachable -> {
+                        _state.value = SchoolUiState.Failed
+                        delay(failedReadRetry)
+                    }
                 }
-                TownReadResult.NoTown -> _effects.send(SchoolEffect.NoTown)
-                TownReadResult.Unreachable -> _state.value = SchoolUiState.Failed
             }
         }
     }
