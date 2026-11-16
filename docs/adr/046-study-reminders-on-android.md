@@ -23,8 +23,9 @@ stored on the device, and rejected server push for W7 and N2.
 
 The wire already carries every instant a reminder needs. `GET /town`
 answers `TownOverview` with `readAt`, `nextStep` (`reviews` with its
-`count` when cards are due at the read, `lessonToStudy` and
-`releasedLesson` when a lesson can start), `nextDueAt` (the earliest due
+`count` when cards are due at the read, `holdoutCheck` when a check is
+due, `lessonToStudy` and `releasedLesson` when a lesson can start),
+`dueHoldoutChecks`, `nextDueAt` (the earliest due
 instant of any held card strictly after the read, null when none) and
 `lessonSlot.finishesAt` (`packages/contracts/src/TownOverview.ts`,
 `NextStep.ts`). `GET /reviews` answers `due`, `nextDueAt` and `readAt`
@@ -79,29 +80,43 @@ The phone stores what it last read, and nothing it derived:
   `TownOverview`. A later `Reviews` or `Report` read at or after that
   instant drops it, because that read settled the lesson and its cards
   are in `due` or `nextDueAt`.
+- **Check due**: whether the last `TownOverview` held a non-empty
+  `dueHoldoutChecks`, or `nextStep` `holdoutCheck`, or the last
+  `HoldoutChecks` answer held a check. A holdout check falls due on read
+  by whole weeks and stays due until it is taken or skipped; a week-8
+  check stays due until the week-24 one falls due (ADR 037).
 - **Lesson ready**: whether the last `TownOverview`'s `nextStep` was
-  `lessonToStudy` or `releasedLesson`. `nextStepOf` answers `reviews`
-  before any lesson, so a town read with cards due says nothing about a
-  lesson. When a `Reviews` or `Report` read shows nothing due while the
-  reminder is on, the phone reads `GET /town` once more, so *lesson
-  ready* never stays stale after the reviews run out.
+  `lessonToStudy` or `releasedLesson`. `nextStepOf` answers `reviews`,
+  then `holdoutCheck`, before any lesson, so a town read with cards or
+  a check due says nothing about a lesson. When a `Reviews`, `Report` or
+  `HoldoutChecks` answer shows nothing left due while the reminder is
+  on, the phone reads `GET /town` once more, so *lesson ready* never
+  stays stale after the reviews or the check are done.
+
+Every `TownOverview` the phone receives feeds these facts, not only
+`GET /town`: every town mutation answers one, `POST /town/lessons`
+included (`apps/api/CLAUDE.md`). So starting a lesson clears *lesson
+ready* and sets *lesson finishing at* in the same answer, and *lesson
+ready* never outlives the start.
 
 The reminder's instant is the first occurrence of the chosen local time
 at or after both now and the earliest of the facts: *cards waiting
-from*, *lesson finishing at*, and now itself while *lesson ready*
-holds. A fact that is not set takes no part. When none is set, the
-phone schedules no reminder. So a player with a lesson to start,
-nothing due and the next card due in 9 days is reminded that evening,
-not 9 days later. Each read that changes these facts replaces the one
-scheduled alarm, and a read that shows nothing to study also removes a
-reminder already posted.
+from*, *lesson finishing at*, and now itself while *check due* or
+*lesson ready* holds. A fact that is not set takes no part. When none
+is set, the phone schedules no reminder. So a player with a lesson to
+start or a check due, nothing due and the next card due in 9 days is
+reminded that evening, not 9 days later. Each answer that changes these
+facts replaces the one scheduled alarm, and an answer that shows
+nothing to study also removes a reminder already posted.
 
-When the alarm fires, the phone posts the notification: the cards line
-when *cards waiting from* or *lesson finishing at* is at or before the
-firing instant, the lesson line otherwise. It then schedules the next
-day's alarm from the same stored facts, since nothing it knows has
-changed. A player who does not open the app is reminded once a day
-while something waits, never more often.
+When the alarm fires, the phone posts the notification with one line,
+in this order, the order `nextStepOf` gives: the cards line when *cards
+waiting from* or *lesson finishing at* is at or before the firing
+instant, else the check line when *check due* holds, else the lesson
+line. It then schedules the next day's alarm from the same stored
+facts, since nothing it knows has changed. A player who does not open
+the app is reminded once a day while something waits, never more
+often.
 
 This is a schedule drawn from server instants and the phone's clock,
 like a countdown (M8). It decides no game value and sends nothing to
@@ -135,8 +150,8 @@ the api. N1 is amended to name it.
   SDK 26 always has channels). `areNotificationsEnabled()` is checked
   before each post, and a disabled app posts nothing.
 - **A tap opens the Report** when cards wait, where the reviews start
-  (ADR 040), and the town home when a lesson is ready, where the next
-  step names it (ADR 042). It removes the notification. The
+  (ADR 040), and the town home when a check or a lesson is ready, where
+  the next step names it (ADR 042). It removes the notification. The
   notification never stacks: each post replaces the last.
 
 ### What it says
@@ -159,7 +174,8 @@ the api. N1 is amended to name it.
   | Case | en | es |
   |---|---|---|
   | Cards waiting | *Your words are ready.* / *Review them in the Report.* | *Tus palabras están listas.* / *Repásalas en el informe.* |
-  | Lesson ready, no card waiting | *A new lesson is ready.* / *Start it at the school.* | *Tienes una lección nueva.* / *Empiézala en la escuela.* |
+  | Check due, no card waiting | *Your word check is ready.* / *Open it from the town.* | *Tu prueba de palabras está lista.* / *Ábrela desde el pueblo.* |
+  | Lesson ready, nothing else | *A new lesson is ready.* / *Start it at the school.* | *Tienes una lección nueva.* / *Empiézala en la escuela.* |
   | Settings switch | *Study reminder* / *Once a day, at the time you pick, when there is something to study.* | *Recordatorio de estudio* / *Una vez al día, a la hora que elijas, cuando tengas algo que estudiar.* |
   | Permission denied | *Notifications for Townword are off in your phone's settings.* | *Las notificaciones de Townword están desactivadas en los ajustes del teléfono.* |
 
@@ -224,6 +240,13 @@ worked example.
   answers `lessonToStudy`. The earliest fact is now, so the reminder
   fires at 7:00 PM today with *A new lesson is ready*. The next card
   being due in 9 days does not delay it.
+- **A check due, a lesson ready.** Week 8 of band 1 has passed, a
+  lesson is ready, and no card is due. The town read answers `nextStep`
+  `holdoutCheck` with a non-empty `dueHoldoutChecks`, so *check due*
+  holds and the reminder fires at 7:00 PM today with *Your word check is
+  ready*. Once the check is taken, the `HoldoutChecks` answer holds no
+  check, the extra town read answers `lessonToStudy`, and the next
+  reminder carries the lesson line.
 
 ## Considered options
 
@@ -286,10 +309,11 @@ worked example.
   tests, so `.claude/rules/android-architecture.md` (*a use case exists
   only where there is client-side logic, which here means the
   projection*) is amended by the ticket that adds it.
-- The reads that feed it are the ones the client already makes: the
-  town, the reviews and the Report. The one new request is the extra
-  `GET /town` after a `Reviews` or `Report` read that shows nothing due,
-  made only while the reminder is on. No contract or api change.
+- The answers that feed it are ones the client already receives: every
+  `TownOverview`, the reviews, the Report and the holdout checks. The
+  one new request is the extra `GET /town` after a `Reviews`, `Report`
+  or `HoldoutChecks` answer that shows nothing left due, made only while
+  the reminder is on. No contract or api change.
 - Copy: the reminder's and the settings' keys go in `packages/catalog`
   under the posting module's `android.<module>` prefix. A new module
   joins `packages/catalog/src/androidKeyOf.ts`, and every key joins
@@ -299,11 +323,13 @@ worked example.
   Opening the app re-reads and clears it. The web is parked, and the
   owner plays on an Android phone (ADR 034's first goal; ADR 041 sends
   the APK only to the owner's phone).
-- Known gap: a due holdout check never triggers a reminder. It falls due
-  by whole weeks on read, and the wire sends no instant for it, so the
-  phone cannot know it is due. `nextStepOf` answers `holdoutCheck` only
-  when no card is due, and the town home shows it once the player is
-  back.
+- Known gap: a holdout check that falls due between two reads is not
+  known to the phone until its next town read, since the wire sends no
+  instant at which a check will fall due. Once any read shows it due,
+  *check due* holds and the reminder fires that day. Until then, a
+  player who has not opened the app since the check fell due is reminded
+  only when words or a lesson also wait, and the read that reminder
+  leads to sets *check due*.
 - Known gap: in Doze or battery saver, the docs promise no bound on how
   late the reminder arrives. Outside them it arrives within an hour. No
   Doze exemption is requested, since Play policy allows one only when
