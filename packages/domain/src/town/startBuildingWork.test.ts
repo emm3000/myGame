@@ -280,6 +280,32 @@ describe('startBuildingWork', () => {
     })
   })
 
+  it('refuses too few people before too few words', async () => {
+    const crowdedHomes = townCatalogOf(
+      plainTownSettings,
+      homesUpToSeven.map((line) =>
+        line.building === 'homes' && line.level === 3 ? { ...line, people: 100 } : line,
+      ),
+    )
+
+    const refused = await startIn({ buildingLevels: { homes: 2 } }, ['homes'], crowdedHomes)
+
+    expect(refused).toMatchObject({ ok: false, error: { kind: 'NotEnoughPeople' } })
+  })
+
+  it('refuses too few words before too few resources', async () => {
+    const refused = await startIn(
+      { buildingLevels: { homes: 2 }, stocks: { money: 0, food: 0, power: 0, material: 0 } },
+      ['homes'],
+      tallHomesCatalog,
+    )
+
+    expect(refused).toEqual({
+      ok: false,
+      error: { kind: 'NotEnoughWords', needed: 10, held: 0, standing: 'stable' },
+    })
+  })
+
   it('charges and stores nothing when refused', async () => {
     const seeded = townOf({ stocks: startingStocks, storedAt, buildingLevels: { homes: 2 } })
     const towns = inMemoryTowns([seeded])
