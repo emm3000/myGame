@@ -297,7 +297,11 @@ private fun EntryProviderScope<NavKey>.settingsEntry(chrome: SignedInChrome) {
             doesScreenReadTown = false,
             chrome = chrome,
         ) {
-            SettingsRoute(sessions = dependencies.sessions, onTownOpen = navigator::openTown)
+            SettingsRoute(
+                sessions = dependencies.sessions,
+                playerLanguage = dependencies.playerLanguage,
+                onTownOpen = navigator::openTown,
+            )
         }
     }
 }

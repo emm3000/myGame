@@ -1,11 +1,14 @@
 package com.emm.mygame.feature.signin
 
+import com.emm.mygame.core.network.PlayerChromePhase
+import com.emm.mygame.core.network.PlayerLanguage
 import com.emm.mygame.core.network.PlayerScaffold
 import com.emm.mygame.core.network.RestoreResult
 import com.emm.mygame.core.network.ScaffoldChangeResult
 import com.emm.mygame.core.network.SignedInPlayer
 import com.emm.mygame.core.testing.FakeSessionRepository
 import com.emm.mygame.core.testing.MainDispatcherRule
+import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.test.runTest
 import org.junit.Assert.assertEquals
 import org.junit.Rule
@@ -18,9 +21,11 @@ class SettingsViewModelTest {
 
     private val sessions: FakeSessionRepository = FakeSessionRepository()
 
+    private val playerLanguage: MutableStateFlow<PlayerLanguage?> = MutableStateFlow(null)
+
     @Test
     fun `draws loading until the session is read`() = runTest {
-        val viewModel: SettingsViewModel = SettingsViewModel(sessions)
+        val viewModel: SettingsViewModel = SettingsViewModel(sessions, playerLanguage)
 
         assertEquals(SettingsUiState.Loading, viewModel.state.value)
     }
@@ -36,7 +41,7 @@ class SettingsViewModelTest {
     fun `draws failed when the session cannot be read`() = runTest {
         sessions.answerRestore(RestoreResult.Unreachable)
 
-        val viewModel: SettingsViewModel = SettingsViewModel(sessions)
+        val viewModel: SettingsViewModel = SettingsViewModel(sessions, playerLanguage)
 
         assertEquals(SettingsUiState.Failed, viewModel.state.value)
     }
@@ -45,7 +50,7 @@ class SettingsViewModelTest {
     fun `draws failed when the session names a scaffold the client does not know`() = runTest {
         sessions.answerRestore(sessionWith(scaffold = null))
 
-        val viewModel: SettingsViewModel = SettingsViewModel(sessions)
+        val viewModel: SettingsViewModel = SettingsViewModel(sessions, playerLanguage)
 
         assertEquals(SettingsUiState.Failed, viewModel.state.value)
     }
@@ -53,7 +58,7 @@ class SettingsViewModelTest {
     @Test
     fun `reads the session again on retry`() = runTest {
         sessions.answerRestore(RestoreResult.Unreachable)
-        val viewModel: SettingsViewModel = SettingsViewModel(sessions)
+        val viewModel: SettingsViewModel = SettingsViewModel(sessions, playerLanguage)
         sessions.answerRestore(sessionWith(scaffold = PlayerScaffold.None))
 
         viewModel.onIntent(SettingsIntent.RetryTapped)
@@ -156,9 +161,39 @@ class SettingsViewModelTest {
         assertEquals(listOf(PlayerScaffold.None, PlayerScaffold.None), sessions.scaffoldChanges)
     }
 
+    @Test
+    fun `draws the scaffold the app holds when the session read answers an older one`() = runTest {
+        playerLanguage.value = PlayerLanguage(PlayerScaffold.Spanish, PlayerChromePhase.Scaffold)
+
+        val viewModel: SettingsViewModel = loaded(PlayerScaffold.None)
+
+        assertEquals(stored(PlayerScaffold.Spanish), viewModel.state.value)
+    }
+
+    @Test
+    fun `draws a held change that answers after the session read sent after it`() = runTest {
+        playerLanguage.value = PlayerLanguage(PlayerScaffold.None, PlayerChromePhase.English)
+        val viewModel: SettingsViewModel = loaded(PlayerScaffold.None)
+
+        playerLanguage.value = PlayerLanguage(PlayerScaffold.Spanish, PlayerChromePhase.Scaffold)
+
+        assertEquals(stored(PlayerScaffold.Spanish), viewModel.state.value)
+    }
+
+    @Test
+    fun `sends the scaffold the session read named once a held change answers with the other`() = runTest {
+        playerLanguage.value = PlayerLanguage(PlayerScaffold.None, PlayerChromePhase.English)
+        val viewModel: SettingsViewModel = loaded(PlayerScaffold.None)
+        playerLanguage.value = PlayerLanguage(PlayerScaffold.Spanish, PlayerChromePhase.Scaffold)
+
+        viewModel.onIntent(SettingsIntent.ScaffoldPicked(PlayerScaffold.None))
+
+        assertEquals(listOf(PlayerScaffold.None), sessions.scaffoldChanges)
+    }
+
     private fun loaded(scaffold: PlayerScaffold): SettingsViewModel {
         sessions.answerRestore(sessionWith(scaffold))
-        return SettingsViewModel(sessions)
+        return SettingsViewModel(sessions, playerLanguage)
     }
 
     private fun stored(scaffold: PlayerScaffold): SettingsUiState =

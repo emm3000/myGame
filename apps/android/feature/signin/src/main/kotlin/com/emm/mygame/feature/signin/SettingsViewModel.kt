@@ -2,6 +2,7 @@ package com.emm.mygame.feature.signin
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.emm.mygame.core.network.PlayerLanguage
 import com.emm.mygame.core.network.PlayerScaffold
 import com.emm.mygame.core.network.RestoreResult
 import com.emm.mygame.core.network.ScaffoldChangeResult
@@ -11,7 +12,10 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
 
-class SettingsViewModel(private val sessions: SessionRepository) : ViewModel() {
+class SettingsViewModel(
+    private val sessions: SessionRepository,
+    private val playerLanguage: StateFlow<PlayerLanguage?>,
+) : ViewModel() {
 
     private val _state: MutableStateFlow<SettingsUiState> = MutableStateFlow(SettingsUiState.Loading)
 
@@ -19,6 +23,7 @@ class SettingsViewModel(private val sessions: SessionRepository) : ViewModel() {
 
     init {
         read()
+        viewModelScope.launch { playerLanguage.collect(::holdStored) }
     }
 
     fun onIntent(intent: SettingsIntent) {
@@ -31,8 +36,14 @@ class SettingsViewModel(private val sessions: SessionRepository) : ViewModel() {
     private fun read() {
         _state.value = SettingsUiState.Loading
         viewModelScope.launch {
-            _state.value = settingsOf(sessions.restore())
+            _state.value = settingsOf(sessions.restore(), playerLanguage.value)
         }
+    }
+
+    private fun holdStored(language: PlayerLanguage?) {
+        val loaded: SettingsUiState.Loaded = _state.value as? SettingsUiState.Loaded ?: return
+        val stored: PlayerScaffold = language?.scaffold ?: return
+        _state.value = loaded.copy(stored = stored)
     }
 
     private fun retry() {
@@ -49,8 +60,8 @@ class SettingsViewModel(private val sessions: SessionRepository) : ViewModel() {
     }
 }
 
-private fun settingsOf(read: RestoreResult): SettingsUiState = when (read) {
-    is RestoreResult.SignedIn -> storedSettingsOf(read.player.scaffold)
+private fun settingsOf(read: RestoreResult, language: PlayerLanguage?): SettingsUiState = when (read) {
+    is RestoreResult.SignedIn -> storedSettingsOf(language?.scaffold ?: read.player.scaffold)
     RestoreResult.SignedOut, RestoreResult.Unreachable -> SettingsUiState.Failed
 }
 
