@@ -182,7 +182,8 @@ hour with or without it. What the 2/3 share buys is the first farm, at
 no cost to a new player.
 
 **Making learning felt in the game is a separate design, after this
-ADR.** (Settled by ADR 045: stable words open building levels from 3,
+ADR.** (Settled by ADR 045: stable words open building levels 3 to 6 and
+retained words levels 7 to 10,
 and every lesson's skill raises money.) No lever weighed here does it. A share *s* of the money makes
 food bind only under 20 × *s* per hour. Farm, factory, then the homes on
 fields, buying the moment stocks allow, with the +5 % held from the

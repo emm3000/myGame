@@ -35,8 +35,12 @@ type SkillRule =
   | 'cycleWithoutMoney'
   | 'everyLessonMoney'
   | 'everyLessonMoneyAndCycleWithoutMoney'
+type NeedCount = 'stable' | 'retained' | 'stableThenRetained'
+type ReviewHabit = 'every' | 'skipsOnceStable'
 type Terms = {
   readonly plan: Plan
+  readonly needCount: NeedCount
+  readonly reviewHabit: ReviewHabit
   readonly learner: Learner
   readonly wordsNeeded: (level: number) => number
   readonly skillRule: SkillRule
@@ -59,6 +63,8 @@ type Run = {
   finishedDay: Map<string, number>
   refusedForWordsDay: Map<string, number>
   stableByMinute: Array<number>
+  retainedByMinute: Array<number>
+  stableDayOfLesson: Map<number, number>
 }
 type Result<T> =
   | { readonly ok: true; readonly value: T }
@@ -111,6 +117,25 @@ const isPlaying = (learner: Learner, at: number): boolean =>
 
 const stableWordsOf = (run: Run): number => run.cards.length - cardsInLearningOf(run.cards)
 
+const retainedWordsOf = (run: Run): number => run.cards.filter(isWordRetained).length
+
+const LAST_STABLE_LEVEL = 6
+
+const countedWordsOf = (run: Run, level: number, needCount: NeedCount): number => {
+  if (
+    needCount === 'stable' ||
+    (needCount === 'stableThenRetained' && level <= LAST_STABLE_LEVEL)
+  ) {
+    return stableWordsOf(run)
+  }
+  return retainedWordsOf(run)
+}
+
+const isAnswered = (studied: StudiedCard, habit: ReviewHabit): boolean => {
+  const { stability } = studied.card.stored
+  return habit === 'every' || stability === null || stability < 7
+}
+
 const projectedLevelsOf = (run: Run): Record<BuildingKind, number> => {
   const projected = { ...run.levels }
   const queued = run.slot === null ? run.waiting : [run.slot.work, ...run.waiting]
@@ -149,14 +174,17 @@ const skillsEarnedBy = (rule: SkillRule, position: number, at: Instant): Array<T
   }
 }
 
-const answerDueCards = (run: Run): void => {
+const answerDueCards = (run: Run, habit: ReviewHabit): void => {
   const at = Instant.fromEpochMilliseconds(run.at)
   run.cards = run.cards.map((studied) => {
-    if (studied.dueAt > run.at) {
+    if (studied.dueAt > run.at || !isAnswered(studied, habit)) {
       return studied
     }
     const card = unwrapped(reviewMemoryCard(studied.card, 'good', at, defaultMemoryTerms))
     const dueAt = unwrapped(dueInstantOf(card, defaultMemoryTerms)).epochMilliseconds
+    if ((card.stored.stability ?? 0) >= 7 && !run.stableDayOfLesson.has(studied.position)) {
+      run.stableDayOfLesson.set(studied.position, dayOf(run.at))
+    }
     return { ...studied, card, dueAt }
   })
 }
@@ -252,8 +280,8 @@ const cheapestNextOf = (run: Run, terms: Terms): Work | null => {
     .map((building) => nextOf(projected, building))
     .filter((work) => work !== null)
     .sort((first, second) => moneyOf(first) - moneyOf(second))
-  const stable = stableWordsOf(run)
-  const isOpen = (work: Work): boolean => terms.wordsNeeded(work.level) <= stable
+  const isOpen = (work: Work): boolean =>
+    terms.wordsNeeded(work.level) <= countedWordsOf(run, work.level, terms.needCount)
   const [cheapest] = candidates
   if (cheapest !== undefined && !isOpen(cheapest)) {
     noteRefusedForWords(run, cheapest)
@@ -287,7 +315,7 @@ const isAdmitted = (run: Run, work: Work, terms: Terms): boolean => {
   if (!isAffordable || target.people - occupiedNow > people.free) {
     return false
   }
-  if (stableWordsOf(run) < terms.wordsNeeded(work.level)) {
+  if (countedWordsOf(run, work.level, terms.needCount) < terms.wordsNeeded(work.level)) {
     noteRefusedForWords(run, work)
     return false
   }
@@ -326,7 +354,7 @@ const accrue = (run: Run, terms: Terms): void => {
 }
 
 const learn = (run: Run, terms: Terms): void => {
-  answerDueCards(run)
+  answerDueCards(run, terms.reviewHabit)
   earnRetainedLessons(run, terms.skillRule)
   startNextLesson(run)
 }
@@ -346,6 +374,8 @@ const runOf = (terms: Terms): Run => {
     finishedDay: new Map(),
     refusedForWordsDay: new Map(),
     stableByMinute: [],
+    retainedByMinute: [],
+    stableDayOfLesson: new Map(),
   }
   for (; run.at < START + terms.days * DAY; run.at += MINUTE) {
     settleWork(run)
@@ -355,6 +385,7 @@ const runOf = (terms: Terms): Run => {
       learn(run, terms)
     }
     run.stableByMinute.push(stableWordsOf(run))
+    run.retainedByMinute.push(retainedWordsOf(run))
     if (isActive || terms.learner === 'none') {
       queueWork(run, terms)
     }
@@ -370,6 +401,8 @@ const termsOf = (overrides: Partial<Terms>): Terms => ({
   plan: 'balanced',
   learner: 'onTime',
   wordsNeeded: noWordsNeeded,
+  needCount: 'stable',
+  reviewHabit: 'every',
   skillRule: 'cycle',
   moneyPerStableWordPerHour: 0,
   days: 90,
@@ -396,7 +429,33 @@ const refusalsOf = (run: Run): ReadonlyArray<string> =>
   [...run.refusedForWordsDay].map(([work, day]) => `${work} at ${rounded(day)}`)
 
 const decided = (overrides: Partial<Terms>): Terms =>
-  termsOf({ wordsNeeded: tenPerLevelFromThree, skillRule: 'everyLessonMoney', ...overrides })
+  termsOf({
+    wordsNeeded: tenPerLevelFromThree,
+    needCount: 'stableThenRetained',
+    skillRule: 'everyLessonMoney',
+    ...overrides,
+  })
+
+const stableOnly = (overrides: Partial<Terms>): Terms =>
+  decided({ needCount: 'stable', ...overrides })
+
+const retainedOnly = (overrides: Partial<Terms>): Terms =>
+  decided({ needCount: 'retained', ...overrides })
+
+const firstDayRetaining = (run: Run, words: number): number | null => {
+  const minute = run.retainedByMinute.findIndex((retained) => retained >= words)
+  return minute < 0 ? null : rounded(minute / 1_440)
+}
+
+const poolDaysOf = (run: Run, resource: ResourceKind): ReadonlyArray<number | null> => {
+  const pool = lessonIds
+    .map((_, position) => position)
+    .filter((position) => cycle[position % cycle.length] === resource)
+  return [10, 20, 30].map((words) => {
+    const position = pool[words / 5 - 1]
+    return position === undefined ? null : rounded(run.stableDayOfLesson.get(position))
+  })
+}
 
 const runs = new Map<string, Run>()
 const memoizedRunOf = (terms: Terms): Run => {
@@ -458,6 +517,16 @@ describe('the stable words a learner holds', () => {
     expect(stableWordsOnDays(run, [2, 2.1, 4.1, 6.1, 8.1, 10.1, 12.1, 14.1, 16.1])).toEqual([
       0, 15, 30, 45, 60, 75, 90, 105, 120,
     ])
+  })
+})
+
+describe('the retained words a learner holds', () => {
+  it('follows the stable count 11 days behind on a homes-only run, on time', () => {
+    const run = memoizedRunOf(termsOf({ plan: 'homesOnly' }))
+    const counts = [13, 13.1, 15.1, 17.1].map(
+      (day) => run.retainedByMinute[Math.round(day * 1_440)],
+    )
+    expect(counts).toEqual([0, 15, 30, 45])
   })
 })
 
@@ -534,9 +603,9 @@ describe('a money skill', () => {
   })
 })
 
-describe('the decision: stable words open levels from 3, every lesson raises money', () => {
+describe('the stable need alone, every lesson on money', () => {
   it('pays the homes on a homes-only run, on time, at these days', () => {
-    const run = memoizedRunOf(decided({ plan: 'homesOnly' }))
+    const run = memoizedRunOf(stableOnly({ plan: 'homesOnly' }))
     expect(homesDaysOf(run)).toEqual([0, 2, 4, 4, 6, 8.1, 10.1, 13.3, 18])
     expect(refusalsOf(run)).toEqual([
       'homes 3 at 0',
@@ -548,44 +617,44 @@ describe('the decision: stable words open levels from 3, every lesson raises mon
   })
 
   it('pays the homes on a homes-only run, played once a day, at these days', () => {
-    const run = memoizedRunOf(decided({ plan: 'homesOnly', learner: 'daily' }))
+    const run = memoizedRunOf(stableOnly({ plan: 'homesOnly', learner: 'daily' }))
     expect(homesDaysOf(run)).toEqual([0.5, 2.5, 5.5, 5.5, 7.5, 10.5, 13.5, 16.6, 20.6])
     expect(refusalsOf(run)).toHaveLength(5)
   })
 
   it('pays the homes on a homes-only run, played every third day, at these days', () => {
-    const run = memoizedRunOf(decided({ plan: 'homesOnly', learner: 'everyThirdDay' }))
+    const run = memoizedRunOf(stableOnly({ plan: 'homesOnly', learner: 'everyThirdDay' }))
     expect(homesDaysOf(run)).toEqual([0.5, 3.5, 6.5, 6.5, 9.5, 12.5, 18.5, 21.6, 24.6])
     expect(refusalsOf(run)).toEqual(['homes 3 at 0.5', 'homes 4 at 3.5'])
   })
 
   it('pays every building level on a balanced run, on time, at these days', () => {
-    const run = memoizedRunOf(decided({}))
+    const run = memoizedRunOf(stableOnly({}))
     expect(everyBuildingDaysOf(run)).toEqual([6.6, 11.9, 18.1, 24.2, 31.8, 43.2, 57.7, 69.9])
     expect(refusalsOf(run)).toEqual(['farm 3 at 0.5', 'farm 4 at 2.7'])
   })
 
   it('pays every building level on a balanced run, played once a day, at these days', () => {
-    const run = memoizedRunOf(decided({ learner: 'daily' }))
+    const run = memoizedRunOf(stableOnly({ learner: 'daily' }))
     expect(everyBuildingDaysOf(run)).toEqual([2.5, 12.5, 19.5, 25.5, 33.5, 44.6, 59.6, 71.7])
     expect(refusalsOf(run)).toEqual(['farm 3 at 1.5', 'farm 4 at 3.5'])
   })
 
   it('never refuses a balanced run played every third day for words', () => {
-    const run = memoizedRunOf(decided({ learner: 'everyThirdDay' }))
+    const run = memoizedRunOf(stableOnly({ learner: 'everyThirdDay' }))
     expect(everyBuildingDaysOf(run)).toEqual([9.5, 15.5, 21.5, 30.5, 36.6, 48.6, 63.6, 75.7])
     expect(refusalsOf(run)).toEqual([])
   })
 
   it('holds a town that never studies at level 2 of every building from day 2.2', () => {
-    const run = memoizedRunOf(decided({ learner: 'none' }))
+    const run = memoizedRunOf(stableOnly({ learner: 'none' }))
     expect(everyBuildingDaysOf(run)).toEqual([2.2, null, null, null, null, null, null, null])
     expect(Object.values(run.levels)).toEqual([2, 2, 2, 2, 2, 2, 2])
   })
 
   it('holds the 80 words level 10 needs on day 12.1 homes-only and day 8 balanced, on time', () => {
-    expect(firstDayHolding(memoizedRunOf(decided({ plan: 'homesOnly' })), 80)).toBe(12.1)
-    expect(firstDayHolding(memoizedRunOf(decided({})), 80)).toBe(8)
+    expect(firstDayHolding(memoizedRunOf(stableOnly({ plan: 'homesOnly' })), 80)).toBe(12.1)
+    expect(firstDayHolding(memoizedRunOf(stableOnly({})), 80)).toBe(8)
   })
 })
 
@@ -638,5 +707,116 @@ describe('the options weighed', () => {
       null,
       null,
     ])
+  })
+})
+
+describe('the shipped lessons a school admits', () => {
+  it('admits every shipped lesson at school level 1, so every need counts all 80 chrome words', () => {
+    const levels = lessonFiles.map(
+      (file: { requiredSchoolLevel: number }) => file.requiredSchoolLevel,
+    )
+    expect(new Set(levels)).toEqual(new Set([1]))
+  })
+})
+
+describe('retained words alone open levels from 3', () => {
+  it('opens homes 3 on day 13 on a homes-only run, on time, the day a skill lands', () => {
+    const run = memoizedRunOf(retainedOnly({ plan: 'homesOnly' }))
+    expect(homesDaysOf(run)).toEqual([0, 13, 15, 15, 17, 19.1, 21.1, 24.2, 29])
+  })
+
+  it('pays every building level on a balanced run, on time, at these days', () => {
+    const run = memoizedRunOf(retainedOnly({}))
+    expect(everyBuildingDaysOf(run)).toEqual([2.2, 13.1, 21.6, 27.1, 34.7, 46.1, 60.6, 72.7])
+    expect(refusalsOf(run)).toEqual(['farm 3 at 0.5', 'farm 4 at 13', 'farm 5 at 14.2'])
+  })
+
+  it('pays every building level on a balanced run, played once a day, at these days', () => {
+    const run = memoizedRunOf(retainedOnly({ learner: 'daily' }))
+    expect(everyBuildingDaysOf(run)).toEqual([2.5, 14.5, 23.5, 28.6, 36.5, 47.6, 62.6, 74.7])
+  })
+})
+
+describe('the decision: stable words open levels 3 to 6, retained words 7 to 10', () => {
+  it('pays the homes on a homes-only run, on time, at these days', () => {
+    const run = memoizedRunOf(decided({ plan: 'homesOnly' }))
+    expect(homesDaysOf(run)).toEqual([0, 2, 4, 4, 6, 19.1, 21.1, 24.2, 29])
+    expect(refusalsOf(run)).toEqual([
+      'homes 3 at 0',
+      'homes 4 at 2',
+      'homes 5 at 4',
+      'homes 6 at 4.4',
+      'homes 7 at 6.8',
+    ])
+  })
+
+  it('pays the homes on a homes-only run, played once a day, at these days', () => {
+    const run = memoizedRunOf(decided({ plan: 'homesOnly', learner: 'daily' }))
+    expect(homesDaysOf(run)).toEqual([0.5, 2.5, 5.5, 5.5, 7.5, 21.5, 24.5, 27.6, 31.6])
+    expect(refusalsOf(run)).toEqual([
+      'homes 3 at 0.5',
+      'homes 4 at 2.5',
+      'homes 5 at 5.5',
+      'homes 6 at 6.5',
+      'homes 7 at 8.5',
+    ])
+  })
+
+  it('pays the homes on a homes-only run, played every third day, at these days', () => {
+    const run = memoizedRunOf(decided({ plan: 'homesOnly', learner: 'everyThirdDay' }))
+    expect(homesDaysOf(run)).toEqual([0.5, 3.5, 6.5, 6.5, 9.5, 24.5, 30.5, 33.6, 36.6])
+    expect(refusalsOf(run)).toEqual(['homes 3 at 0.5', 'homes 4 at 3.5', 'homes 7 at 12.5'])
+  })
+
+  it('pays every building level on a balanced run, on time, on the days of the stable need alone', () => {
+    const run = memoizedRunOf(decided({}))
+    expect(everyBuildingDaysOf(run)).toEqual([6.6, 11.9, 18.1, 24.2, 31.8, 43.2, 57.7, 69.9])
+    expect(refusalsOf(run)).toEqual(['farm 3 at 0.5', 'farm 4 at 2.7', 'farm 7 at 15.5'])
+  })
+
+  it('pays every building level on a balanced run, played once a day, at these days', () => {
+    const run = memoizedRunOf(decided({ learner: 'daily' }))
+    expect(everyBuildingDaysOf(run)).toEqual([2.5, 12.5, 18.5, 25.5, 33.5, 44.6, 59.6, 71.7])
+    expect(refusalsOf(run)).toEqual(['farm 3 at 1.5', 'farm 4 at 3.5', 'farm 7 at 16.5'])
+  })
+
+  it('pays every building level on a balanced run, played every third day, at these days', () => {
+    const run = memoizedRunOf(decided({ learner: 'everyThirdDay' }))
+    expect(everyBuildingDaysOf(run)).toEqual([9.5, 15.5, 21.5, 30.5, 36.6, 48.6, 63.6, 75.7])
+    expect(refusalsOf(run)).toEqual(['farm 7 at 18.5'])
+  })
+
+  it('holds a town that never studies at level 2 of every building', () => {
+    const run = memoizedRunOf(decided({ learner: 'none' }))
+    expect(Object.values(run.levels)).toEqual([2, 2, 2, 2, 2, 2, 2])
+  })
+
+  it('holds the 80 retained words level 10 needs on day 23.1 homes-only and day 19 balanced, on time', () => {
+    expect(firstDayRetaining(memoizedRunOf(decided({ plan: 'homesOnly' })), 80)).toBe(23.1)
+    expect(firstDayRetaining(memoizedRunOf(decided({})), 80)).toBe(19)
+  })
+})
+
+describe('a player who stops reviewing a word once it is stable', () => {
+  it('still builds homes 10 under the stable need alone, on day 18.6 against 18', () => {
+    const run = memoizedRunOf(stableOnly({ plan: 'homesOnly', reviewHabit: 'skipsOnceStable' }))
+    expect(homesDaysOf(run)).toEqual([0, 2, 4, 4, 6, 8.1, 10.1, 13.3, 18.6])
+  })
+
+  it('stops at level 6 under the decision, homes-only or balanced', () => {
+    const homes = memoizedRunOf(decided({ plan: 'homesOnly', reviewHabit: 'skipsOnceStable' }))
+    const balanced = memoizedRunOf(decided({ reviewHabit: 'skipsOnceStable' }))
+    expect(homes.levels.homes).toBe(6)
+    expect(Object.values(balanced.levels)).toEqual([6, 6, 6, 6, 6, 6, 6])
+  })
+})
+
+describe('each place needing the words of its own resource', () => {
+  it('holds 10, 20 and 30 words per pool on these days, homes-only, on time', () => {
+    const run = memoizedRunOf(stableOnly({ plan: 'homesOnly' }))
+    expect(poolDaysOf(run, 'food')).toEqual([4, 10.1, 14.1])
+    expect(poolDaysOf(run, 'material')).toEqual([4, 10.1, 16.1])
+    expect(poolDaysOf(run, 'power')).toEqual([6, 10.1, 16.1])
+    expect([10, 20, 30].map((words) => firstDayHolding(run, words))).toEqual([2, 4, 4])
   })
 })
