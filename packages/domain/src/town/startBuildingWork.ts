@@ -1,7 +1,5 @@
 import type { DomainError } from '../DomainError'
 import type { HeldCard } from '../learning/HeldCard'
-import { retainedWordCountOf } from '../learning/retainedWordCountOf'
-import { stableWordCountOf } from '../learning/stableWordCountOf'
 import type { PlayerId } from '../player/PlayerId'
 import type { CardRepository } from '../ports/CardRepository'
 import type { Clock } from '../ports/Clock'
@@ -15,7 +13,6 @@ import type { BuildingLevels } from './BuildingLevels'
 import { buildPercentAt } from './buildPercentAt'
 import { derivePeople } from './derivePeople'
 import type { Hires } from './Hires'
-import { levelWordNeedOf } from './levelWordNeedOf'
 import { rebaseFullSince } from './rebaseFullSince'
 import { resolvedTownOf } from './resolvedTownOf'
 import { saveChangedTown } from './saveChangedTown'
@@ -23,6 +20,7 @@ import type { Town } from './Town'
 import type { TownCatalog } from './TownCatalog'
 import type { TownNews } from './TownNews'
 import type { TownRepository } from './TownRepository'
+import { wordShortfallOf } from './wordShortfallOf'
 
 export type StartBuildingWorkCommand = {
   readonly playerId: PlayerId
@@ -82,15 +80,8 @@ const meetWordNeed = (
   cards: ReadonlyArray<HeldCard>,
   catalog: TownCatalog,
 ): Result<void, DomainError> => {
-  const need = levelWordNeedOf(next.level, catalog.townSettings().wordNeed)
-  if (need === null) {
-    return ok(undefined)
-  }
-  const held = need.standing === 'stable' ? stableWordCountOf(cards) : retainedWordCountOf(cards)
-  if (held < need.count) {
-    return err({ kind: 'NotEnoughWords', needed: need.count, held, standing: need.standing })
-  }
-  return ok(undefined)
+  const shortfall = wordShortfallOf(next.level, cards, catalog.townSettings().wordNeed)
+  return shortfall === null ? ok(undefined) : err({ kind: 'NotEnoughWords', ...shortfall })
 }
 
 const admitWork = (
