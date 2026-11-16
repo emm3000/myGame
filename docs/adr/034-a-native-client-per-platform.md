@@ -1,5 +1,5 @@
 ---
-status: accepted, the token check shaped by ADR 043
+status: accepted, the token check shaped by ADR 043, the out-for-now line amended by ADR 046
 date: 2026-11-02
 ---
 # A native client per platform
@@ -61,7 +61,9 @@ generated contract covers the first two; the projection is a few lines.
   unit tests, the build); the Apple legs join when their projects
   exist.
 - **Out for now:** push notifications, offline play, Windows and Linux,
-  and a store listing before parity.
+  and a store listing before parity. (Amended by ADR 046: push stays
+  out; one local study reminder on Android, scheduled on the phone from
+  the instants the api sent, is admitted.)
 
 ADR 032 and ADR 033 are superseded by this one; PRD row W6 points
 here.

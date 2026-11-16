@@ -49,7 +49,7 @@ Townword, a persistent browser game for learning American English on OGame's loo
 | W3 | Trade or market | Needs more than one player and the money economy tuned. |
 | W4 | New land. ADR 035 re-cuts this row: a player holds one town, which grows into a city; a second holding, a settler and transport between holdings are cut. | Multiplies every screen; after the first town is complete. |
 | W5 | Real-money purchases | Free game. |
-| W6 | Native mobile clients. ADR 034 admits a native client per platform beside the web: Jetpack Compose on Android first, then SwiftUI on iOS and macOS; Windows, Linux, a store listing before parity, push notifications and offline play stay out. | The web is responsive; a native client is a separate product. |
+| W6 | Native mobile clients. ADR 034 admits a native client per platform beside the web: Jetpack Compose on Android first, then SwiftUI on iOS and macOS; Windows, Linux, a store listing before parity, push notifications and offline play stay out. Amended by ADR 046: one local study reminder on Android, at most once a day at a time the player picks, scheduled on the phone and never pushed, is admitted. | The web is responsive; a native client is a separate product. |
 | W7 | Background job runner or scheduler | ADR 005; a job is admitted only with a measurement. |
 | W8 | OAuth or magic-link sign-in | Email and password need no third party. |
 | W9 | Population growth or famine | ADR 007; people are derived, food is a stock. |
@@ -61,7 +61,7 @@ ADRs amend this table by row id.
 
 | Id | Requirement |
 |---|---|
-| N1 | The server is the only source of truth; the client never computes a value the server did not sign off on, except display interpolation (M8). |
+| N1 | The server is the only source of truth; the client never computes a value the server did not sign off on, except display interpolation (M8) and the Android study reminder's schedule, drawn from the instants the server sent (ADR 046). |
 | N2 | Resource-lean: the api idles at zero CPU with no requests; a town read is one round trip to the store; no process advances state on a timer. |
 | N3 | A town read answers in under 100 ms on the reference host, the production api function on Vercel with its Neon database (ADR 031), excluding network. |
 | N4 | Every mutation on a town is one transaction; two concurrent mutations serialize. |
