@@ -428,6 +428,7 @@ describe('the town route', () => {
             cost: { money: 90, food: 60, power: 0, material: 120 },
             durationSeconds: 192,
             people: 0,
+            wordsNeeded: null,
           },
         },
         {
@@ -437,9 +438,82 @@ describe('the town route', () => {
             cost: { money: 50, food: 0, power: 0, material: 70 },
             durationSeconds: 120,
             people: 1,
+            wordsNeeded: null,
           },
         },
       ])
+    })
+
+    it('a fresh town reads 0 stable and 0 retained words', async () => {
+      const ana = await signUpWithTown('ana@example.com')
+
+      const { stableWordCount, retainedWordCount } = await overviewOf(await readTown(ana))
+
+      expect([stableWordCount, retainedWordCount]).toEqual([0, 0])
+    })
+
+    it('reads the stable words the player holds', async () => {
+      const ana = await signUpWithTown('ana@example.com')
+      await holdStableWords('ana@example.com', 3)
+
+      const { stableWordCount, retainedWordCount } = await overviewOf(await readTown(ana))
+
+      expect([stableWordCount, retainedWordCount]).toEqual([3, 0])
+    })
+
+    it('a building at level 1 needs no words for level 2', async () => {
+      const ana = await signUpWithTown('ana@example.com')
+
+      const { buildings } = await overviewOf(await readTown(ana))
+
+      expect([buildings.homes.level, buildings.homes.nextLevel?.wordsNeeded]).toEqual([1, null])
+    })
+
+    it('a building at level 2 needs 10 stable words', async () => {
+      const ana = await signUpWithTown('ana@example.com')
+      await runSql("UPDATE town_buildings SET level = 2 WHERE building = 'farm'")
+
+      const { buildings } = await overviewOf(await readTown(ana))
+
+      expect(buildings.farm.nextLevel?.wordsNeeded).toEqual({ count: 10, standing: 'stable' })
+    })
+
+    it('a building at level 6 needs 50 retained words', async () => {
+      const ana = await signUpWithTown('ana@example.com')
+      await runSql("UPDATE town_buildings SET level = 6 WHERE building = 'farm'")
+
+      const { buildings } = await overviewOf(await readTown(ana))
+
+      expect(buildings.farm.nextLevel?.wordsNeeded).toEqual({ count: 50, standing: 'retained' })
+    })
+
+    it('a building whose need the town’s words meet needs no words', async () => {
+      const ana = await signUpWithTown('ana@example.com')
+      await runSql("UPDATE town_buildings SET level = 2 WHERE building = 'farm'")
+      await holdStableWords('ana@example.com', 10)
+
+      const { buildings } = await overviewOf(await readTown(ana))
+
+      expect(buildings.farm.nextLevel?.wordsNeeded).toBeNull()
+    })
+
+    it('needs the words of the level after the queued work', async () => {
+      const ana = await signUpWithTown('ana@example.com')
+      await runSql("UPDATE town_buildings SET level = 1 WHERE building = 'farm'")
+      await startWork(ana, 'farm')
+
+      const { buildings } = await overviewOf(await readTown(ana))
+
+      expect(buildings.farm.nextLevel?.wordsNeeded).toEqual({ count: 10, standing: 'stable' })
+    })
+
+    it('a building at its top level has no next level', async () => {
+      const ana = await signUpWithTown('ana@example.com')
+      await runSql("UPDATE town_buildings SET level = 10 WHERE building = 'farm'")
+
+      const { buildings } = await overviewOf(await readTown(ana))
+
+      expect(buildings.farm.nextLevel).toBeNull()
     })
 
     it('accrues the stocks to the read', async () => {

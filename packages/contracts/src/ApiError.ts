@@ -2,6 +2,7 @@ import { z } from 'zod'
 import { ApiErrorKindSchema } from './ApiErrorKind'
 import { BuildingKindSchema } from './BuildingKind'
 import { HireKindSchema } from './HireKind'
+import { NeededWordKindSchema } from './NeededWordKind'
 import { ResourceAmountsSchema } from './ResourceAmounts'
 import { InstantSchema, WholeCountSchema } from './Wire'
 
@@ -47,7 +48,7 @@ const NotEnoughWordsErrorSchema = z
     params: z.strictObject({
       needed: WholeCountSchema.positive(),
       held: WholeCountSchema,
-      standing: z.enum(['stable', 'retained']),
+      standing: NeededWordKindSchema,
     }),
   })
   .meta({ id: 'NotEnoughWordsError' })

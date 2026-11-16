@@ -66,6 +66,7 @@ internal fun StocksSection(content: TownUiState.Content, modifier: Modifier = Mo
             }
             MyGameHairline()
             PeopleRow(people = content.people)
+            WordsRows(words = content.words)
             content.season?.let { season: TownUiState.SeasonLine -> SeasonLines(season = season) }
         }
     }
@@ -150,6 +151,22 @@ private fun PeopleRow(people: TownUiState.PeopleLine, modifier: Modifier = Modif
                 "atWork" to people.atWork.toString(),
             ),
             style = MyGameTypography.body,
+            color = MyGameTheme.colors.ink,
+        )
+    }
+}
+
+@Composable
+private fun WordsRows(words: TownUiState.WordsLine, modifier: Modifier = Modifier) {
+    Column(verticalArrangement = Arrangement.spacedBy(MyGameSpacing.step1), modifier = modifier) {
+        MyGameText(
+            label = chromeResource(R.string.town_words_reviewed, "count" to words.reviewed.toString()),
+            style = MyGameTypography.body.withTabularFigures(),
+            color = MyGameTheme.colors.ink,
+        )
+        MyGameText(
+            label = chromeResource(R.string.town_words_learned, "count" to words.learned.toString()),
+            style = MyGameTypography.body.withTabularFigures(),
             color = MyGameTheme.colors.ink,
         )
     }

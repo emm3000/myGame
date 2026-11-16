@@ -16,6 +16,7 @@ import {
   deriveResourceRates,
   deriveStorageCapacity,
   dueHoldoutChecksOf,
+  type HeldCard,
   type HireKind,
   type Hires,
   hirePercentAt,
@@ -32,12 +33,15 @@ import {
   type Result,
   releasedLessonsOf,
   requiredOfficeLevelOf,
+  retainedWordCountOf,
+  stableWordCountOf,
   type Town,
   type TownCatalog,
   tipOf,
   townLabelOf,
   townSeasonAt,
   type WaitingList,
+  wordShortfallOf,
 } from '@mygame/domain'
 import { isoOf } from '../http/isoOf'
 import type { LessonLibrary } from '../learning/LessonLibrary'
@@ -48,6 +52,8 @@ import { jobStateOf } from './jobStateOf'
 import type { TownReading } from './TownReading'
 
 type BuildingState = TownOverview['buildings'][BuildingKind]
+
+type WordsNeeded = NonNullable<BuildingState['nextLevel']>['wordsNeeded']
 
 type BuildingWork = TownOverview['work']['waitingList'][number]
 
@@ -104,12 +110,22 @@ const peopleForWorkOf = (
   return ok(after.value.occupied - before.value.occupied)
 }
 
+const wordsNeededOf = (
+  next: BuildingLevel,
+  cards: ReadonlyArray<HeldCard>,
+  catalog: TownCatalog,
+): WordsNeeded => {
+  const shortfall = wordShortfallOf(next.level, cards, catalog.townSettings().wordNeed)
+  return shortfall === null ? null : { count: shortfall.needed, standing: shortfall.standing }
+}
+
 const nextLevelOf = (
   building: BuildingKind,
-  projected: BuildingLevels,
+  { town, cards }: TownReading,
   catalog: TownCatalog,
   buildPercent: number,
 ): Result<BuildingState['nextLevel'], DomainError> => {
+  const projected = town.projectedLevels
   const next = catalog.levelOf(building, projected[building] + 1)
   if (next?.building !== building) {
     return ok(null)
@@ -123,14 +139,15 @@ const nextLevelOf = (
     cost: { ...next.cost },
     durationSeconds: deriveBuildDurationSeconds(next.durationSeconds, buildPercent),
     people: people.value,
+    wordsNeeded: wordsNeededOf(next, cards, catalog),
   })
 }
 
 const buildingsOf = (
-  { town, at }: TownReading,
+  reading: TownReading,
   catalog: TownCatalog,
 ): Result<TownOverview['buildings'], DomainError> => {
-  const levels = town.buildingLevels
+  const levels = reading.town.buildingLevels
   const buildings: Record<BuildingKind, BuildingState> = {
     homes: { level: levels.homes, nextLevel: null },
     farm: { level: levels.farm, nextLevel: null },
@@ -140,9 +157,9 @@ const buildingsOf = (
     school: { level: levels.school, nextLevel: null },
     office: { level: levels.office, nextLevel: null },
   }
-  const buildPercent = buildPercentAt(at, catalog.townSettings())
+  const buildPercent = buildPercentAt(reading.at, catalog.townSettings())
   for (const building of buildingKinds) {
-    const nextLevel = nextLevelOf(building, town.projectedLevels, catalog, buildPercent)
+    const nextLevel = nextLevelOf(building, reading, catalog, buildPercent)
     if (!nextLevel.ok) {
       return nextLevel
     }
@@ -416,6 +433,8 @@ export const townOverviewOf = (
       band: PlacementBandSchema.parse(band),
       week,
     })),
+    stableWordCount: stableWordCountOf(reading.cards),
+    retainedWordCount: retainedWordCountOf(reading.cards),
     ...guidance.value,
     ...scaffoldBodyOf(reading),
     readAt: isoOf(at),

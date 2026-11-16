@@ -261,8 +261,7 @@
                 "minimum": 0
               },
               "standing": {
-                "type": "string",
-                "enum": ["stable", "retained"]
+                "$ref": "#/components/schemas/NeededWordKind"
               }
             },
             "required": ["needed", "held", "standing"],
@@ -271,6 +270,10 @@
         },
         "required": ["kind", "params"],
         "additionalProperties": false
+      },
+      "NeededWordKind": {
+        "type": "string",
+        "enum": ["stable", "retained"]
       },
       "NotEnoughResourcesError": {
         "type": "object",
@@ -2099,9 +2102,25 @@
                       "people": {
                         "type": "integer",
                         "minimum": 0
+                      },
+                      "wordsNeeded": {
+                        "type": "object",
+                        "nullable": true,
+                        "properties": {
+                          "count": {
+                            "type": "integer",
+                            "minimum": 0,
+                            "exclusiveMinimum": true
+                          },
+                          "standing": {
+                            "$ref": "#/components/schemas/NeededWordKind"
+                          }
+                        },
+                        "required": ["count", "standing"],
+                        "additionalProperties": false
                       }
                     },
-                    "required": ["level", "cost", "durationSeconds", "people"],
+                    "required": ["level", "cost", "durationSeconds", "people", "wordsNeeded"],
                     "additionalProperties": false
                   }
                 },
@@ -2134,9 +2153,25 @@
                       "people": {
                         "type": "integer",
                         "minimum": 0
+                      },
+                      "wordsNeeded": {
+                        "type": "object",
+                        "nullable": true,
+                        "properties": {
+                          "count": {
+                            "type": "integer",
+                            "minimum": 0,
+                            "exclusiveMinimum": true
+                          },
+                          "standing": {
+                            "$ref": "#/components/schemas/NeededWordKind"
+                          }
+                        },
+                        "required": ["count", "standing"],
+                        "additionalProperties": false
                       }
                     },
-                    "required": ["level", "cost", "durationSeconds", "people"],
+                    "required": ["level", "cost", "durationSeconds", "people", "wordsNeeded"],
                     "additionalProperties": false
                   }
                 },
@@ -2169,9 +2204,25 @@
                       "people": {
                         "type": "integer",
                         "minimum": 0
+                      },
+                      "wordsNeeded": {
+                        "type": "object",
+                        "nullable": true,
+                        "properties": {
+                          "count": {
+                            "type": "integer",
+                            "minimum": 0,
+                            "exclusiveMinimum": true
+                          },
+                          "standing": {
+                            "$ref": "#/components/schemas/NeededWordKind"
+                          }
+                        },
+                        "required": ["count", "standing"],
+                        "additionalProperties": false
                       }
                     },
-                    "required": ["level", "cost", "durationSeconds", "people"],
+                    "required": ["level", "cost", "durationSeconds", "people", "wordsNeeded"],
                     "additionalProperties": false
                   }
                 },
@@ -2204,9 +2255,25 @@
                       "people": {
                         "type": "integer",
                         "minimum": 0
+                      },
+                      "wordsNeeded": {
+                        "type": "object",
+                        "nullable": true,
+                        "properties": {
+                          "count": {
+                            "type": "integer",
+                            "minimum": 0,
+                            "exclusiveMinimum": true
+                          },
+                          "standing": {
+                            "$ref": "#/components/schemas/NeededWordKind"
+                          }
+                        },
+                        "required": ["count", "standing"],
+                        "additionalProperties": false
                       }
                     },
-                    "required": ["level", "cost", "durationSeconds", "people"],
+                    "required": ["level", "cost", "durationSeconds", "people", "wordsNeeded"],
                     "additionalProperties": false
                   }
                 },
@@ -2239,9 +2306,25 @@
                       "people": {
                         "type": "integer",
                         "minimum": 0
+                      },
+                      "wordsNeeded": {
+                        "type": "object",
+                        "nullable": true,
+                        "properties": {
+                          "count": {
+                            "type": "integer",
+                            "minimum": 0,
+                            "exclusiveMinimum": true
+                          },
+                          "standing": {
+                            "$ref": "#/components/schemas/NeededWordKind"
+                          }
+                        },
+                        "required": ["count", "standing"],
+                        "additionalProperties": false
                       }
                     },
-                    "required": ["level", "cost", "durationSeconds", "people"],
+                    "required": ["level", "cost", "durationSeconds", "people", "wordsNeeded"],
                     "additionalProperties": false
                   }
                 },
@@ -2274,9 +2357,25 @@
                       "people": {
                         "type": "integer",
                         "minimum": 0
+                      },
+                      "wordsNeeded": {
+                        "type": "object",
+                        "nullable": true,
+                        "properties": {
+                          "count": {
+                            "type": "integer",
+                            "minimum": 0,
+                            "exclusiveMinimum": true
+                          },
+                          "standing": {
+                            "$ref": "#/components/schemas/NeededWordKind"
+                          }
+                        },
+                        "required": ["count", "standing"],
+                        "additionalProperties": false
                       }
                     },
-                    "required": ["level", "cost", "durationSeconds", "people"],
+                    "required": ["level", "cost", "durationSeconds", "people", "wordsNeeded"],
                     "additionalProperties": false
                   }
                 },
@@ -2309,9 +2408,25 @@
                       "people": {
                         "type": "integer",
                         "minimum": 0
+                      },
+                      "wordsNeeded": {
+                        "type": "object",
+                        "nullable": true,
+                        "properties": {
+                          "count": {
+                            "type": "integer",
+                            "minimum": 0,
+                            "exclusiveMinimum": true
+                          },
+                          "standing": {
+                            "$ref": "#/components/schemas/NeededWordKind"
+                          }
+                        },
+                        "required": ["count", "standing"],
+                        "additionalProperties": false
                       }
                     },
-                    "required": ["level", "cost", "durationSeconds", "people"],
+                    "required": ["level", "cost", "durationSeconds", "people", "wordsNeeded"],
                     "additionalProperties": false
                   }
                 },
@@ -2765,6 +2880,14 @@
             "required": ["cap", "inLearning", "retainedWords"],
             "additionalProperties": false
           },
+          "stableWordCount": {
+            "type": "integer",
+            "minimum": 0
+          },
+          "retainedWordCount": {
+            "type": "integer",
+            "minimum": 0
+          },
           "nextStep": {
             "$ref": "#/components/schemas/NextStep"
           },
@@ -2811,6 +2934,8 @@
           "skills",
           "lessonSlot",
           "learning",
+          "stableWordCount",
+          "retainedWordCount",
           "nextStep",
           "tip",
           "chromePhase",

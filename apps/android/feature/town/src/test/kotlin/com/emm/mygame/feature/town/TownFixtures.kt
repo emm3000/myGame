@@ -47,7 +47,8 @@ internal fun nextLevelOf(
     costs: List<TownSnapshot.Cost> = listOf(TownSnapshot.Cost(TownResourceKind.Money, 60)),
     duration: Duration = 2.minutes,
     people: Int = 3,
-): TownSnapshot.NextLevel = TownSnapshot.NextLevel(level, costs, duration, people)
+    wordsNeeded: TownSnapshot.WordsNeeded? = null,
+): TownSnapshot.NextLevel = TownSnapshot.NextLevel(level, costs, duration, people, wordsNeeded)
 
 internal fun placesOf(vararg changed: TownSnapshot.Building): List<TownSnapshot.Building> =
     TownBuildingKind.entries.map { kind: TownBuildingKind ->
@@ -104,6 +105,8 @@ internal fun townOf(
     hiring: TownSnapshot.Hiring = hiringOf(),
     tip: TipKind? = null,
     releasedLessons: List<TownSnapshot.ReleasedLesson> = emptyList(),
+    stableWordCount: Int = 0,
+    retainedWordCount: Int = 0,
 ): TownSnapshot = TownSnapshot(
     name = name,
     label = label,
@@ -118,6 +121,8 @@ internal fun townOf(
     hasBandStarted = false,
     skills = skills,
     learning = TownSnapshot.Learning(cap = 10, inLearning = 0, retainedWords = null),
+    stableWordCount = stableWordCount,
+    retainedWordCount = retainedWordCount,
     lessonSlot = lessonSlot,
     hiring = hiring,
     job = null,

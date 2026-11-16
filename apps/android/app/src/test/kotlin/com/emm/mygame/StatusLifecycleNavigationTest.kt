@@ -112,6 +112,8 @@ class StatusLifecycleNavigationTest {
         hasBandStarted = false,
         skills = emptyList(),
         learning = TownSnapshot.Learning(cap = 10, inLearning = 0, retainedWords = null),
+        stableWordCount = 0,
+        retainedWordCount = 0,
         lessonSlot = TownSnapshot.LessonSlot(FIRST_LESSON, readAt, readAt + NEAR_FINISH),
         hiring = hiringOf(),
         job = null,

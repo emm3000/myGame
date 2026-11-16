@@ -34,6 +34,7 @@ import com.emm.mygame.core.designsystem.MyGameTypography
 import com.emm.mygame.core.designsystem.PreviewMyGame
 import com.emm.mygame.core.designsystem.formatQuantity
 import com.emm.mygame.core.designsystem.withTabularFigures
+import com.emm.mygame.core.network.NeededWordKind
 import com.emm.mygame.core.network.TownBuildingKind
 import com.emm.mygame.core.network.TownLabel
 import com.emm.mygame.core.network.TownResourceKind
@@ -186,6 +187,7 @@ private fun NextLevel(
             color = MyGameTheme.colors.inkMuted,
         )
         Costs(next = next)
+        next.wordsNeeded?.let { need: TownUiState.WordNeedLine -> WordNeedRow(need = need) }
         MyGameOutlinedButton(
             label = copy.chrome {
                 text(
@@ -211,6 +213,21 @@ private fun NextLevel(
             ReadyLine(ready = ready)
         }
     }
+}
+
+@Composable
+private fun WordNeedRow(need: TownUiState.WordNeedLine, modifier: Modifier = Modifier) {
+    MyGameText(
+        label = chromeResource(
+            R.string.town_words_needed,
+            "standing" to neededWordSelectorOf(need.standing),
+            "needed" to need.needed.toString(),
+            "held" to need.held.toString(),
+        ),
+        style = MyGameTypography.caption.withTabularFigures(),
+        color = MyGameTheme.colors.warningInk,
+        modifier = modifier,
+    )
 }
 
 @Composable
@@ -293,6 +310,7 @@ private val previewNextLevel: TownUiState.NextLevelLine = TownUiState.NextLevelL
     costs = listOf(TownUiState.CostLine(TownResourceKind.Food, amount = 120, isShort = true)),
     duration = 3.minutes,
     people = 2,
+    wordsNeeded = null,
 )
 
 private fun shortOfFoodUntil(ready: TownUiState.ReadyTime): TownUiState.BlockReason =
@@ -316,6 +334,35 @@ private fun NextLevelReadyPreview(@PreviewParameter(ReadyLineStates::class) bloc
             building = TownBuildingKind.Farm,
             next = previewNextLevel,
             block = block,
+            isWaiting = false,
+            onIntent = {},
+        )
+    }
+}
+
+private class WordNeedStates : PreviewParameterProvider<TownUiState.NextLevelLine> {
+
+    override val values: Sequence<TownUiState.NextLevelLine> = sequenceOf(
+        previewNextLevel,
+        previewNextLevel.copy(
+            level = 3,
+            wordsNeeded = TownUiState.WordNeedLine(needed = 10, held = 4, standing = NeededWordKind.Stable),
+        ),
+        previewNextLevel.copy(
+            level = 7,
+            wordsNeeded = TownUiState.WordNeedLine(needed = 50, held = 12, standing = NeededWordKind.Retained),
+        ),
+    )
+}
+
+@PreviewMyGame
+@Composable
+private fun NextLevelWordNeedPreview(@PreviewParameter(WordNeedStates::class) next: TownUiState.NextLevelLine) {
+    MyGamePreviewSurface {
+        NextLevel(
+            building = TownBuildingKind.Farm,
+            next = next,
+            block = null,
             isWaiting = false,
             onIntent = {},
         )

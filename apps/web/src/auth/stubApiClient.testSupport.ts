@@ -17,6 +17,7 @@ const placeAtLevel = (level: number): TownOverview['buildings']['farm'] => ({
     cost: { money: 60, food: 40, power: 0, material: 80 },
     durationSeconds: 300,
     people: 2,
+    wordsNeeded: null,
   },
 })
 
@@ -69,6 +70,8 @@ export const knownTown: TownOverview = {
   skills: [],
   lessonSlot: null,
   learning: { cap: 15, inLearning: 0, retainedWords: null },
+  stableWordCount: 0,
+  retainedWordCount: 0,
   nextStep: { kind: 'caughtUp', goal: null },
   tip: null,
   chromePhase: 'scaffold',

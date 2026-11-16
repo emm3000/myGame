@@ -182,6 +182,7 @@ class TownNextStepRepositoryTest {
                 """"lessons":[],"releasedLessons":[],"dueHoldoutChecks":[],""" +
                 """"hasBandStarted":false,"skills":[],"lessonSlot":null,""" +
                 """"learning":{"cap":10,"inLearning":0,"retainedWords":null},""" +
+                """"stableWordCount":0,"retainedWordCount":0,""" +
                 """"nextStep":{"kind":"caughtUp","goal":null},"tip":null,""" +
                 """"chromePhase":"scaffold","scaffold":"es","scaffoldVersion":0,"nextDueAt":null,""" +
                 """"readAt":"2026-11-13T10:00:00.000Z"}"""

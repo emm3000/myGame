@@ -330,6 +330,7 @@ class TownRepositoryTest {
                     ),
                     duration = 90.seconds,
                     people = 3,
+                    wordsNeeded = null,
                 ),
             ),
             read.buildings.first(),
@@ -799,7 +800,8 @@ class TownRepositoryTest {
                 """"material":{"amount":40,"ratePerHour":7,"capacity":1000,"fullAt":null}},""" +
                 """"people":{"supplied":10,"free":4,"atWork":6},""" +
                 """"buildings":{"homes":{"level":1,"nextLevel":{"level":2,"cost":$HOMES_COST,""" +
-                """"durationSeconds":90,"people":3}},"farm":$FLAT,"factory":$FLAT,"powerStation":$FLAT,""" +
+                """"durationSeconds":90,"people":3,"wordsNeeded":null}},""" +
+                """"farm":$FLAT,"factory":$FLAT,"powerStation":$FLAT,""" +
                 """"storage":$FLAT,"school":$FLAT,"office":{"level":10,"nextLevel":null}},""" +
                 """"work":{"slot":{"building":"farm","level":2,"cost":$NOTHING,""" +
                 """"startsAt":"2026-11-05T10:00:00.000Z","finishesAt":"2026-11-05T10:10:00.000Z"},""" +
@@ -811,6 +813,7 @@ class TownRepositoryTest {
                 """"lessonSlot":{"lessonId":"lesson-1","startedAt":"2026-11-05T10:00:00.000Z",""" +
                 """"finishesAt":"2026-11-05T10:20:00.000Z"},""" +
                 """"learning":{"cap":10,"inLearning":0,"retainedWords":null},""" +
+                """"stableWordCount":0,"retainedWordCount":0,""" +
                 """"nextStep":{"kind":"caughtUp","goal":null},"tip":null,""" +
                 """"chromePhase":"scaffold","scaffold":"es","scaffoldVersion":0,"nextDueAt":null,""" +
                 """"readAt":"2026-11-05T10:05:00.000Z"}"""

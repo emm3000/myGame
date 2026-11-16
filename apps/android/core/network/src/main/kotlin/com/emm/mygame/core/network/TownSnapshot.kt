@@ -17,6 +17,8 @@ data class TownSnapshot(
     val hasBandStarted: Boolean,
     val skills: List<EarnedSkill>,
     val learning: Learning,
+    val stableWordCount: Int,
+    val retainedWordCount: Int,
     val lessonSlot: LessonSlot?,
     val hiring: Hiring,
     val job: Job?,
@@ -38,7 +40,15 @@ data class TownSnapshot(
 
     data class Building(val kind: TownBuildingKind, val level: Int, val next: NextLevel?)
 
-    data class NextLevel(val level: Int, val costs: List<Cost>, val duration: Duration, val people: Int)
+    data class NextLevel(
+        val level: Int,
+        val costs: List<Cost>,
+        val duration: Duration,
+        val people: Int,
+        val wordsNeeded: WordsNeeded?,
+    )
+
+    data class WordsNeeded(val count: Int, val standing: NeededWordKind, val held: Int)
 
     data class Cost(val kind: TownResourceKind, val amount: Long)
 

@@ -117,6 +117,8 @@ class NextStepCardTest {
         hasBandStarted = false,
         skills = emptyList(),
         learning = TownSnapshot.Learning(cap = 10, inLearning = 0, retainedWords = null),
+        stableWordCount = 0,
+        retainedWordCount = 0,
         lessonSlot = running?.let { lesson: LessonId ->
             TownSnapshot.LessonSlot(lesson, startedAt = readAt, finishesAt = readAt + 5.minutes)
         },

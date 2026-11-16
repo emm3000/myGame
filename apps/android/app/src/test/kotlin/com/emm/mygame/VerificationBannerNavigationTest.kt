@@ -108,6 +108,8 @@ class VerificationBannerNavigationTest {
         hasBandStarted = false,
         skills = emptyList(),
         learning = TownSnapshot.Learning(cap = 10, inLearning = 0, retainedWords = null),
+        stableWordCount = 0,
+        retainedWordCount = 0,
         lessonSlot = null,
         hiring = hiringOf(),
         job = null,
