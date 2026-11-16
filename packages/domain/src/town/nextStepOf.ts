@@ -15,8 +15,7 @@ import type { BandCatalog } from '../ports/BandCatalog'
 import { ok, type Result } from '../Result'
 import type { Instant } from '../time/Instant'
 import { admitSchoolLesson } from './admitSchoolLesson'
-import type { BusyLessonSlot, LessonSlot } from './LessonSlot'
-import { type ProducerBuilding, producerOf } from './producerOf'
+import type { LessonSlot } from './LessonSlot'
 import type { Town } from './Town'
 import type { TownCatalog } from './TownCatalog'
 
@@ -27,7 +26,7 @@ export type NextStep =
       readonly readFirst: ReadonlyArray<LessonId>
     }
   | ({ readonly kind: 'holdoutCheck' } & DueHoldoutCheck)
-  | { readonly kind: 'lessonRunning'; readonly producer: ProducerBuilding | null }
+  | { readonly kind: 'lessonRunning' }
   | {
       readonly kind: 'releasedLesson'
       readonly lessonId: LessonId
@@ -52,20 +51,6 @@ export type NextStepTerms = {
   readonly bands: Pick<BandCatalog, 'bandOfLesson'>
   readonly memoryTerms: MemoryTerms
   readonly catalog: TownCatalog
-}
-
-const lessonRunningStep = (
-  { lessonId }: BusyLessonSlot,
-  town: Town,
-  lessons: ReadonlyArray<Lesson>,
-): NextStep => {
-  const lesson = lessons.find(({ id }) => id === lessonId)
-  if (lesson === undefined) {
-    return { kind: 'lessonRunning', producer: null }
-  }
-  const producer = producerOf(lesson.skill.resource)
-  const isStanding = producer === null || town.projectedLevels[producer] > 0
-  return { kind: 'lessonRunning', producer: isStanding ? null : producer }
 }
 
 const isAdmitted = (
@@ -136,7 +121,7 @@ export const nextStepOf = (
   reading: NextStepReading,
   terms: NextStepTerms,
 ): Result<NextStep, DomainError> => {
-  const { town, at, lessonSlot, cards, bandStarts } = reading
+  const { at, lessonSlot, cards, bandStarts } = reading
   const due = dueCardsAt(cards, at, terms.memoryTerms)
   if (!due.ok) {
     return due
@@ -153,7 +138,7 @@ export const nextStepOf = (
     return ok({ kind: 'holdoutCheck', ...dueCheck })
   }
   if (lessonSlot.kind === 'busy') {
-    return ok(lessonRunningStep(lessonSlot, town, terms.lessons))
+    return ok({ kind: 'lessonRunning' })
   }
   return lessonStep(reading, terms)
 }

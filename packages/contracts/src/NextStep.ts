@@ -1,11 +1,8 @@
 import { z } from 'zod'
-import { BuildingKindSchema } from './BuildingKind'
 import { GoalSchema } from './Goal'
 import { HoldoutCheckWeekSchema } from './HoldoutCheckWeek'
 import { PlacementBandSchema } from './PlacementBand'
 import { WholeCountSchema } from './Wire'
-
-const ProducerSchema = BuildingKindSchema.extract(['farm', 'factory', 'powerStation'])
 
 const ReviewsStepSchema = z
   .strictObject({
@@ -26,7 +23,7 @@ const HoldoutCheckStepSchema = z
 const LessonRunningStepSchema = z
   .strictObject({
     kind: z.literal('lessonRunning'),
-    producer: ProducerSchema.nullable(),
+    goal: z.lazy(() => GoalSchema).nullable(),
   })
   .meta({ id: 'LessonRunningStep' })
 

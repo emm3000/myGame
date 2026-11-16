@@ -5,7 +5,6 @@ import {
   type FrameToken,
   headwordOf,
   type LessonId,
-  type LessonSkill,
   type LessonWord,
   type PlacementWord,
   type WordId,
@@ -21,14 +20,6 @@ import {
   lessonContentFilesOf,
 } from './lessonContentFilesOf'
 import { type ResolvedFrames, resolvedFramesOf } from './resolvedFramesOf'
-
-const skillAt = (position: number, { skill }: CurriculumContent): LessonSkill => {
-  const resource = skill.cycle[(position - 1) % skill.cycle.length]
-  if (resource === undefined) {
-    throw new Error(`The skill cycle has no resource for lesson ${position}`)
-  }
-  return { resource, ratePercent: skill.ratePercent }
-}
 
 const lessonWordOf = (lessonId: LessonId, entry: LexiconEntry): LessonWord => {
   if (entry.gloss.es === undefined) {
@@ -48,14 +39,13 @@ const lessonWordOf = (lessonId: LessonId, entry: LexiconEntry): LessonWord => {
 
 const shelvedLessonOf = (
   { content, words }: LessonOfFiles,
-  position: number,
-  curriculum: CurriculumContent,
+  { skill }: CurriculumContent,
 ): ShelvedLesson => ({
   id: content.id,
   theme: content.theme,
   durationSeconds: content.durationSeconds,
   requiredSchoolLevel: content.requiredSchoolLevel,
-  skill: skillAt(position, curriculum),
+  skill: { resource: skill.resource, ratePercent: skill.ratePercent },
   words: words.map((entry) => lessonWordOf(content.id, entry)),
 })
 
@@ -146,9 +136,7 @@ export class JsonLessonCatalog implements LessonLibrary {
 
   static fromDirectory(directory: string): JsonLessonCatalog {
     const files = lessonContentFilesOf(directory)
-    const shelved = files.lessons.map((lesson, index) =>
-      shelvedLessonOf(lesson, index + 1, files.curriculum),
-    )
+    const shelved = files.lessons.map((lesson) => shelvedLessonOf(lesson, files.curriculum))
     const chromeShelf = shelved.slice(0, files.curriculum.chromeLessonCount)
     return new JsonLessonCatalog(
       shelved,

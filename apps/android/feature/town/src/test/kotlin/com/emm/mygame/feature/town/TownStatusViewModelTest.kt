@@ -66,7 +66,7 @@ class TownStatusViewModelTest {
     private fun runningTown(readAt: Instant, finishesAt: Instant): TownSnapshot = townOf(readAt = readAt).copy(
         lessons = lessonsWith(listOf(firstLesson)),
         lessonSlot = TownSnapshot.LessonSlot(secondLesson, readAt, finishesAt),
-        nextStep = NextStep.LessonRunning(producer = null),
+        nextStep = NextStep.LessonRunning(goal = null),
     )
 
     private fun finishedTown(readAt: Instant, readFirst: List<LessonId>): TownSnapshot = townOf(readAt = readAt).copy(
@@ -92,7 +92,7 @@ class TownStatusViewModelTest {
         lessons = lessonsWith(listOf(firstLesson)),
         releasedLessons = listOf(released),
         lessonSlot = TownSnapshot.LessonSlot(releasedLesson, readAt, finishesAt),
-        nextStep = NextStep.LessonRunning(producer = null),
+        nextStep = NextStep.LessonRunning(goal = null),
     )
 
     private fun releasedFinishedTown(readAt: Instant): TownSnapshot = townOf(readAt).copy(

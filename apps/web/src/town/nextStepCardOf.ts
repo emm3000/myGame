@@ -9,9 +9,6 @@ import {
   schoolLessonWords,
   schoolSlotTitle,
   townGoToSchool,
-  townNextBuildFactory,
-  townNextBuildFarm,
-  townNextBuildPowerStation,
   townNextGoToReport,
   townNextHoldoutCheck,
   townNextLessonReadyIn,
@@ -26,8 +23,6 @@ import type { LiveTown } from './liveTown'
 
 type Step<Kind extends NextStep['kind']> = Extract<NextStep, { readonly kind: Kind }>
 
-type Producer = NonNullable<Step<'lessonRunning'>['producer']>
-
 export type NextStepAction =
   | { readonly label: string; readonly to: '/reviews' | '/school' | '/report' }
   | { readonly label: string; readonly to: '/school/$lessonId'; readonly lessonId: string }
@@ -37,12 +32,6 @@ export interface NextStepCardContent {
   readonly detail: string | undefined
   readonly countdown: SlotCountdown | undefined
   readonly action: NextStepAction
-}
-
-const buildLines: Readonly<Record<Producer, () => string>> = {
-  farm: townNextBuildFarm,
-  factory: townNextBuildFactory,
-  powerStation: townNextBuildPowerStation,
 }
 
 export const lessonCountdownOf = ({
@@ -82,13 +71,10 @@ function reviewsCardOf({ count, readFirst }: Step<'reviews'>, town: LiveTown): N
   }
 }
 
-function lessonRunningCardOf(
-  { producer }: Step<'lessonRunning'>,
-  town: LiveTown,
-): NextStepCardContent {
+function lessonRunningCardOf(town: LiveTown): NextStepCardContent {
   return {
     line: schoolSlotTitle(),
-    detail: producer === null ? undefined : buildLines[producer](),
+    detail: undefined,
     countdown: lessonCountdownOf(town),
     action:
       town.lessonSlot === null
@@ -143,7 +129,7 @@ export function nextStepCardOf(town: LiveTown): NextStepCardContent {
     case 'holdoutCheck':
       return holdoutCheckCardOf(nextStep)
     case 'lessonRunning':
-      return lessonRunningCardOf(nextStep, town)
+      return lessonRunningCardOf(town)
     case 'releasedLesson':
       return releasedLessonCardOf(nextStep, town)
     case 'lessonToStudy':

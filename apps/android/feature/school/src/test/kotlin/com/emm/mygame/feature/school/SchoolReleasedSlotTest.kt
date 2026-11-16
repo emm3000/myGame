@@ -47,7 +47,7 @@ class SchoolReleasedSlotTest {
 
     private val releasedRunning: TownSnapshot = townOf(
         lessonSlot = slotOf(lesson = releasedLesson),
-        nextStep = NextStep.LessonRunning(producer = null),
+        nextStep = NextStep.LessonRunning(goal = null),
         releasedLessons = listOf(released),
     )
 

@@ -54,35 +54,35 @@ class NextStepCardTest {
 
     @Test
     fun `never numbers a released lesson`() {
-        val running: TownSnapshot = townOf(NextStep.LessonRunning(producer = null), running = releasedLesson)
+        val running: TownSnapshot = townOf(NextStep.LessonRunning(goal = null), running = releasedLesson)
 
         assertNull(running.nextStepCard().countdown)
     }
 
     @Test
     fun `opens the words of a running released lesson`() {
-        val running: TownSnapshot = townOf(NextStep.LessonRunning(producer = null), running = releasedLesson)
+        val running: TownSnapshot = townOf(NextStep.LessonRunning(goal = null), running = releasedLesson)
 
         assertEquals(NextStepCard.Action.ReadWords(releasedLesson), running.nextStepCard().action)
     }
 
     @Test
     fun `opens no words for a running lesson the town does not hold`() {
-        val running: TownSnapshot = townOf(NextStep.LessonRunning(producer = null), running = LessonId("gone"))
+        val running: TownSnapshot = townOf(NextStep.LessonRunning(goal = null), running = LessonId("gone"))
 
         assertEquals(NextStepCard.Action.ReadWords(lesson = null), running.nextStepCard().action)
     }
 
     @Test
     fun `opens the words of a running shelved lesson`() {
-        val running: TownSnapshot = townOf(NextStep.LessonRunning(producer = null), running = shelvedLesson)
+        val running: TownSnapshot = townOf(NextStep.LessonRunning(goal = null), running = shelvedLesson)
 
         assertEquals(NextStepCard.Action.ReadWords(shelvedLesson), running.nextStepCard().action)
     }
 
     @Test
     fun `numbers a running shelved lesson by its place among the lessons`() {
-        val running: TownSnapshot = townOf(NextStep.LessonRunning(producer = null), running = shelvedLesson)
+        val running: TownSnapshot = townOf(NextStep.LessonRunning(goal = null), running = shelvedLesson)
 
         assertEquals(
             NextStepCard.Countdown.LessonReady(number = 1, at = readAt + 5.minutes),

@@ -323,12 +323,12 @@ const nextStepOfReading = (
     case 'holdoutCheck':
     case 'releasedLesson':
       return ok({ ...step.value, band: PlacementBandSchema.parse(step.value.band) })
-    case 'lessonRunning':
     case 'lessonToStudy':
       return ok(step.value)
+    case 'lessonRunning':
     case 'caughtUp': {
       const goal = goalOf(reading, catalog)
-      return goal.ok ? ok({ kind: 'caughtUp', goal: goal.value }) : goal
+      return goal.ok ? ok({ kind: step.value.kind, goal: goal.value }) : goal
     }
   }
 }

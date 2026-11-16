@@ -252,6 +252,14 @@ describe('the town route', () => {
   const fillStocks = (): Promise<void> =>
     runSql('UPDATE towns SET money = 100000, food = 100000, power = 100000, material = 100000')
 
+  const startLesson = (cookie: string, lessonId: string): Promise<Response> =>
+    Promise.resolve(app.request('/town/lessons', jsonRequest('POST', cookie, { lessonId })))
+
+  const stopLesson = (cookie: string, lessonId: string): Promise<Response> =>
+    Promise.resolve(
+      app.request(`/town/lessons/${lessonId}`, { method: 'DELETE', headers: { cookie } }),
+    )
+
   describe('the founding', () => {
     it('founds a town at the lowest free site', async () => {
       await signUpWithTown('ana@example.com')
@@ -1518,14 +1526,6 @@ describe('the town route', () => {
   })
 
   describe('the next step', () => {
-    const startLesson = (cookie: string, lessonId: string): Promise<Response> =>
-      Promise.resolve(app.request('/town/lessons', jsonRequest('POST', cookie, { lessonId })))
-
-    const stopLesson = (cookie: string, lessonId: string): Promise<Response> =>
-      Promise.resolve(
-        app.request(`/town/lessons/${lessonId}`, { method: 'DELETE', headers: { cookie } }),
-      )
-
     const lessonMinutes = 6
 
     it('sends a founded town to lesson 1', async () => {
@@ -1553,34 +1553,7 @@ describe('the town route', () => {
 
       const read = await emptied.request('/town', { headers: { cookie } })
 
-      expect((await overviewOf(read)).nextStep).toEqual({ kind: 'lessonRunning', producer: null })
-    })
-
-    it('names the farm in the answer to a lesson start', async () => {
-      const cookie = await signUpWithTown('ana@example.com')
-
-      const started = await overviewOf(await startLesson(cookie, 'lesson-1'))
-
-      expect(started.nextStep).toEqual({ kind: 'lessonRunning', producer: 'farm' })
-    })
-
-    it('drops the farm in the answer to its start of work', async () => {
-      const cookie = await signUpWithTown('ana@example.com')
-      await startLesson(cookie, 'lesson-1')
-
-      const building = await overviewOf(await startWork(cookie, 'farm'))
-
-      expect(building.nextStep).toEqual({ kind: 'lessonRunning', producer: null })
-    })
-
-    it('names the farm again in the answer to its stop of work', async () => {
-      const cookie = await signUpWithTown('ana@example.com')
-      await startLesson(cookie, 'lesson-1')
-      await startWork(cookie, 'farm')
-
-      const stopped = await overviewOf(await stopWork(cookie, 'farm', 1))
-
-      expect(stopped.nextStep).toEqual({ kind: 'lessonRunning', producer: 'farm' })
+      expect((await overviewOf(read)).nextStep.kind).toBe('lessonRunning')
     })
 
     it('goes back to the lesson in the answer to a lesson stop', async () => {
@@ -1786,7 +1759,7 @@ describe('the town route', () => {
         app.request('/town/guidance/dismissal', { method: 'POST', headers: { cookie } }),
       )
 
-    it('answers the next goal only when caught up', async () => {
+    it('answers the next goal when caught up and none beside a lesson to study', async () => {
       const cookie = await signUpWithTown('ana@example.com')
 
       const studying = await overviewOf(await readTown(cookie))
@@ -1816,6 +1789,33 @@ describe('the town route', () => {
         kind: 'caughtUp',
         goal: { position: 1, count: 9, building: 'farm', level: 1, state: 'underway' },
       })
+    })
+
+    it('a running lesson carries the next goal', async () => {
+      const cookie = await signUpWithTown('ana@example.com')
+
+      const started = await overviewOf(await startLesson(cookie, 'lesson-1'))
+
+      expect(started.nextStep).toEqual({
+        kind: 'lessonRunning',
+        goal: {
+          position: 1,
+          count: 9,
+          building: 'farm',
+          level: 1,
+          state: 'pending',
+          missing: { resources: { money: 0, food: 0, power: 0, material: 0 }, people: 0 },
+        },
+      })
+    })
+
+    it('a running lesson carries no goal once the guidance is dismissed', async () => {
+      const cookie = await signUpWithTown('ana@example.com')
+      await dismissGuidance(cookie)
+
+      const started = await overviewOf(await startLesson(cookie, 'lesson-1'))
+
+      expect(started.nextStep).toEqual({ kind: 'lessonRunning', goal: null })
     })
 
     it('dismisses the guidance', async () => {

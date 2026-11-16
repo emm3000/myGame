@@ -68,12 +68,12 @@ class SchoolLanguageTest {
 
     private val lessonUnderStudy: TownSnapshot = shelvedAndReleased.copy(
         lessonSlot = slotOf(),
-        nextStep = NextStep.LessonRunning(producer = null),
+        nextStep = NextStep.LessonRunning(goal = null),
     )
 
     private val releasedUnderStudy: TownSnapshot = shelvedAndReleased.copy(
         lessonSlot = slotOf(lesson = secondSet),
-        nextStep = NextStep.LessonRunning(producer = null),
+        nextStep = NextStep.LessonRunning(goal = null),
     )
 
     private val holdoutAhead: TownSnapshot =

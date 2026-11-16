@@ -19,7 +19,7 @@ Townword, a persistent browser game for learning American English on OGame's loo
 
 | Id | Requirement |
 |---|---|
-| S1 | The school and the lessons whose retained words earn the skills that raise production, every lesson's skill raising money (ADR 035, ADR 036, ADR 039, ADR 045). *not yet shipped (ADR 041)*: every lesson on money (ADR 045). |
+| S1 | The school and the lessons whose retained words earn the skills that raise production, every lesson's skill raising money (ADR 035, ADR 036, ADR 039, ADR 045). |
 | S2 | A map showing one area at a time and its sites, the player's own first, browsable from area 1 to one past the last area holding a town (ADR 014, ADR 040). |
 | S3 | Town News: the town's events, each with the instant it happened (building work finished or stopped, a lesson studied or stopped, a skill earned, a hiring delivered or stopped, a job back or called back, a clean-up done or failed, the town becoming a city), the stops recording their refund, each line a chrome template filled from the event's params; every event at `/news`, newest first, and those since the player last closed it on the Report, whose row opens `/news` (ADR 013, ADR 040, ADR 043). |
 | S4 | Every place, resource and season is drawn to `docs/art/art-bible.md`. Amended by ADR 043: in the town a place has one hand-written silhouette and a resource has its icon, never an image. |

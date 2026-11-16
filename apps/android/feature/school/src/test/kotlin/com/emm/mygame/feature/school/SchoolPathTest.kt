@@ -257,7 +257,7 @@ class SchoolPathTest {
             townOf(
                 lessons = listOf(lessonOf(), secondLessonOpen),
                 lessonSlot = slotOf(),
-                nextStep = NextStep.LessonRunning(producer = null),
+                nextStep = NextStep.LessonRunning(goal = null),
             ),
         )
 

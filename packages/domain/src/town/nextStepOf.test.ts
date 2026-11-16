@@ -177,78 +177,7 @@ describe('nextStepOf', () => {
       town: { buildingLevels: { farm: 1 } },
     })
 
-    expect(answered(reading)).toEqual({ kind: 'lessonRunning', producer: null })
-  })
-
-  it('names the farm while a food lesson runs and the farm stands at 0', () => {
-    expect(answered(readingOf({ lessonSlot: runningLessonOne }))).toEqual({
-      kind: 'lessonRunning',
-      producer: 'farm',
-    })
-  })
-
-  it('names the factory while a material lesson runs and the factory stands at 0', () => {
-    const lessons = [lessonNumbered(1, { skill: skillOn('material') })]
-
-    expect(answered(readingOf({ lessonSlot: runningLessonOne }), lessons)).toEqual({
-      kind: 'lessonRunning',
-      producer: 'factory',
-    })
-  })
-
-  it('names the power station while a power lesson runs and the station stands at 0', () => {
-    const lessons = [lessonNumbered(1, { skill: skillOn('power') })]
-
-    expect(answered(readingOf({ lessonSlot: runningLessonOne }), lessons)).toEqual({
-      kind: 'lessonRunning',
-      producer: 'powerStation',
-    })
-  })
-
-  it('names no producer once work is raising it', () => {
-    const reading = readingOf({
-      lessonSlot: runningLessonOne,
-      town: { workSlot: farmUnderWork },
-    })
-
-    expect(answered(reading)).toEqual({ kind: 'lessonRunning', producer: null })
-  })
-
-  it('names no producer once the waiting list is raising it', () => {
-    const reading = readingOf({
-      lessonSlot: runningLessonOne,
-      town: {
-        workSlot: { ...farmUnderWork, building: 'storage', level: 2 },
-        waitingList: [
-          {
-            building: 'farm',
-            level: 1,
-            cost: { money: 0, food: 0, power: 0, material: 0 },
-            durationSeconds: 60,
-          },
-        ],
-      },
-    })
-
-    expect(answered(reading)).toEqual({ kind: 'lessonRunning', producer: null })
-  })
-
-  it('names no producer for a money lesson', () => {
-    const lessons = [lessonNumbered(1, { skill: skillOn('money') })]
-
-    expect(answered(readingOf({ lessonSlot: runningLessonOne }), lessons)).toEqual({
-      kind: 'lessonRunning',
-      producer: null,
-    })
-  })
-
-  it('names no producer for a running lesson the curriculum lacks', () => {
-    const reading = readingOf({ lessonSlot: runningLessonOne })
-
-    expect(answered(reading, [lessonNumbered(2)])).toEqual({
-      kind: 'lessonRunning',
-      producer: null,
-    })
+    expect(answered(reading)).toEqual({ kind: 'lessonRunning' })
   })
 
   it('answers the first unstudied lesson the school and the cap admit', () => {
@@ -401,7 +330,7 @@ describe('nextStepOf', () => {
       town: { buildingLevels: { farm: 1 } },
     })
 
-    expect(answered(reading)).toEqual({ kind: 'lessonRunning', producer: null })
+    expect(answered(reading)).toEqual({ kind: 'lessonRunning' })
   })
 
   it('answers caughtUp when the cap is full', () => {

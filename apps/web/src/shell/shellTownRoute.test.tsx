@@ -60,7 +60,7 @@ const lessonTwoRunning: TownOverview = {
     startedAt: instantAfter(-60),
     finishesAt: instantAfter(240),
   },
-  nextStep: { kind: 'lessonRunning', producer: null },
+  nextStep: { kind: 'lessonRunning', goal: null },
 }
 
 const lessonTwoFinished = (readFirst: ReadonlyArray<string>): TownOverview => ({

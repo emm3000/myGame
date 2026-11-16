@@ -6,7 +6,7 @@ export const CurriculumContentSchema = z.strictObject({
   chromeLessonCount: WholeCountSchema,
   lessonIds: z.array(z.string().min(1)).min(1),
   skill: z.strictObject({
-    cycle: z.array(ResourceKindSchema).min(1),
+    resource: ResourceKindSchema,
     ratePercent: WholeCountSchema.positive(),
   }),
 })

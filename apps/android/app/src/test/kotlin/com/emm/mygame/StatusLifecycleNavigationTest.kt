@@ -115,7 +115,7 @@ class StatusLifecycleNavigationTest {
         lessonSlot = TownSnapshot.LessonSlot(FIRST_LESSON, readAt, readAt + NEAR_FINISH),
         hiring = hiringOf(),
         job = null,
-        nextStep = NextStep.LessonRunning(producer = null),
+        nextStep = NextStep.LessonRunning(goal = null),
         tip = null,
         nextDueAt = null,
         readAt = readAt,
