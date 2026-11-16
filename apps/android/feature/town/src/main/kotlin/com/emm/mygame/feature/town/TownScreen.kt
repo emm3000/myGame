@@ -212,6 +212,7 @@ private val previewHome: TownUiState.Content = TownUiState.Content(
         TownUiState.StockLine(kind = kind, amount = 350, capacity = 1000, ratePerHour = 20, skillLevel = 0, fill = null)
     },
     people = TownUiState.PeopleLine(free = 19, atWork = 1),
+    words = TownUiState.WordsLine(reviewed = 0, learned = 0),
     season = TownUiState.SeasonLine(
         kind = SeasonKind.Summer,
         year = 2,
@@ -235,6 +236,7 @@ private val previewHome: TownUiState.Content = TownUiState.Content(
                 ),
                 duration = 2.minutes,
                 people = 1,
+                wordsNeeded = null,
             ),
             block = null,
         ),

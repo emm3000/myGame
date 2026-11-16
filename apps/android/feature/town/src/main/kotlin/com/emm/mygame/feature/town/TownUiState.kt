@@ -1,5 +1,6 @@
 package com.emm.mygame.feature.town
 
+import com.emm.mygame.core.network.NeededWordKind
 import com.emm.mygame.core.network.NextStepCard
 import com.emm.mygame.core.network.SeasonKind
 import com.emm.mygame.core.network.TipKind
@@ -30,6 +31,7 @@ sealed interface TownUiState {
         val label: TownLabel,
         val stocks: List<StockLine>,
         val people: PeopleLine,
+        val words: WordsLine,
         val season: SeasonLine?,
         val buildMark: DurationMark?,
         val slot: SlotLine,
@@ -75,6 +77,8 @@ sealed interface TownUiState {
 
     data class PeopleLine(val free: Int, val atWork: Int)
 
+    data class WordsLine(val reviewed: Int, val learned: Int)
+
     data class SeasonLine(
         val kind: SeasonKind,
         val year: Int,
@@ -119,7 +123,15 @@ sealed interface TownUiState {
         val block: BlockReason?,
     )
 
-    data class NextLevelLine(val level: Int, val costs: List<CostLine>, val duration: Duration, val people: Int)
+    data class NextLevelLine(
+        val level: Int,
+        val costs: List<CostLine>,
+        val duration: Duration,
+        val people: Int,
+        val wordsNeeded: WordNeedLine?,
+    )
+
+    data class WordNeedLine(val needed: Int, val held: Int, val standing: NeededWordKind)
 
     data class CostLine(val kind: TownResourceKind, val amount: Long, val isShort: Boolean)
 

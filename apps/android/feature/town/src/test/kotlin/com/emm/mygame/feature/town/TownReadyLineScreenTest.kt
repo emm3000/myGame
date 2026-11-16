@@ -39,6 +39,7 @@ class TownReadyLineScreenTest {
             costs = listOf(TownUiState.CostLine(TownResourceKind.Food, 150, isShort = true)),
             duration = 90.seconds,
             people = 3,
+            wordsNeeded = null,
         ),
         block = null,
     )
@@ -57,6 +58,7 @@ class TownReadyLineScreenTest {
             ),
         ),
         people = TownUiState.PeopleLine(free = 24, atWork = 96),
+        words = TownUiState.WordsLine(reviewed = 0, learned = 0),
         season = null,
         buildMark = null,
         slot = TownUiState.SlotLine.Idle,

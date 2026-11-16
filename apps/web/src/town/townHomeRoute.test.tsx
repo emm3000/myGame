@@ -392,6 +392,7 @@ const farmToBuild: TownOverview['buildings']['farm'] = {
     cost: { money: 900, food: 0, power: 0, material: 0 },
     people: 2,
     durationSeconds: 60,
+    wordsNeeded: null,
   },
 }
 

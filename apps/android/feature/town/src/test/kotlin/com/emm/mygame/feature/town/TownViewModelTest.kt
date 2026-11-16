@@ -2,6 +2,7 @@ package com.emm.mygame.feature.town
 
 import com.emm.mygame.core.network.LessonId
 import com.emm.mygame.core.network.NextStep
+import com.emm.mygame.core.network.NeededWordKind
 import com.emm.mygame.core.network.TownBuildingKind
 import com.emm.mygame.core.network.TownFoundResult
 import com.emm.mygame.core.network.TownLabel
@@ -84,6 +85,36 @@ class TownViewModelTest {
             homeViewModel(townOf(people = TownSnapshot.People(supplied = 30, free = 24, atWork = 6)))
 
         assertEquals(TownUiState.PeopleLine(free = 24, atWork = 6), contentOf(viewModel).people)
+    }
+
+    @Test
+    fun `draws the town's reviewed and learned words`() = runTest {
+        val viewModel: TownViewModel = homeViewModel(townOf(stableWordCount = 14, retainedWordCount = 3))
+
+        assertEquals(TownUiState.WordsLine(reviewed = 14, learned = 3), contentOf(viewModel).words)
+    }
+
+    @Test
+    fun `draws a place's word need with the words held toward it`() = runTest {
+        val need: TownSnapshot.WordsNeeded = TownSnapshot.WordsNeeded(10, NeededWordKind.Stable, held = 4)
+        val farm: TownSnapshot.Building =
+            TownSnapshot.Building(TownBuildingKind.Farm, level = 2, next = nextLevelOf(level = 3, wordsNeeded = need))
+        val viewModel: TownViewModel = homeViewModel(townOf(places = placesOf(farm)))
+
+        assertEquals(
+            TownUiState.WordNeedLine(needed = 10, held = 4, standing = NeededWordKind.Stable),
+            placeOf(viewModel, TownBuildingKind.Farm).next?.wordsNeeded,
+        )
+    }
+
+    @Test
+    fun `blocks no level on the words it needs`() = runTest {
+        val need: TownSnapshot.WordsNeeded = TownSnapshot.WordsNeeded(10, NeededWordKind.Stable, held = 0)
+        val farm: TownSnapshot.Building =
+            TownSnapshot.Building(TownBuildingKind.Farm, level = 2, next = nextLevelOf(level = 3, wordsNeeded = need))
+        val viewModel: TownViewModel = homeViewModel(townOf(places = placesOf(farm)))
+
+        assertEquals(null, placeOf(viewModel, TownBuildingKind.Farm).block)
     }
 
     @Test

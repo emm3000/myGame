@@ -225,12 +225,6 @@ private fun NotEnoughWordsErrorParams.toWorkRefusal(): TownWorkRefusal {
     return TownWorkRefusal.NotEnoughWords(needed, held, kind)
 }
 
-private fun NotEnoughWordsErrorParams.Standing.toNeededWordKind(): NeededWordKind? = when (this) {
-    NotEnoughWordsErrorParams.Standing.stable -> NeededWordKind.Stable
-    NotEnoughWordsErrorParams.Standing.retained -> NeededWordKind.Retained
-    NotEnoughWordsErrorParams.Standing.unknown_default_open_api -> null
-}
-
 private val lessonRefusals: Map<BareApiError.Kind, TownLessonRefusal> = mapOf(
     BareApiError.Kind.StudySlotBusy to TownLessonRefusal.StudySlotBusy,
     BareApiError.Kind.LessonSchoolTooLow to TownLessonRefusal.LessonSchoolTooLow,

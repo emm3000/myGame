@@ -55,6 +55,7 @@ class TownWorkViewModelTest {
                     costs = listOf(TownUiState.CostLine(TownResourceKind.Food, 50, isShort = false)),
                     duration = 90.seconds,
                     people = 3,
+                    wordsNeeded = null,
                 ),
                 block = null,
             ),

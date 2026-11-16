@@ -6,8 +6,6 @@ import com.emm.mygame.core.network.generated.models.ResourceAmounts
 import com.emm.mygame.core.network.generated.models.StartBuildingWork
 import com.emm.mygame.core.network.generated.models.TownJob
 import com.emm.mygame.core.network.generated.models.TownOverview
-import com.emm.mygame.core.network.generated.models.TownOverviewBuildingsHomes
-import com.emm.mygame.core.network.generated.models.TownOverviewBuildingsHomesNextLevel
 import com.emm.mygame.core.network.generated.models.TownOverviewHiring
 import com.emm.mygame.core.network.generated.models.TownOverviewHiringOrder
 import com.emm.mygame.core.network.generated.models.TownOverviewHiringTermsWorker
@@ -17,15 +15,12 @@ import com.emm.mygame.core.network.generated.models.TownOverviewSeason
 import com.emm.mygame.core.network.generated.models.TownOverviewSkillsInner
 import com.emm.mygame.core.network.generated.models.TownOverviewStocksMoney
 import com.emm.mygame.core.network.generated.models.TownOverviewWork
-import kotlin.time.Duration.Companion.seconds
 
 internal fun TownOverview.toSnapshot(): TownSnapshot? {
     val townLabel: TownLabel = label.toTownLabel() ?: return null
+    val places: List<TownSnapshot.Building> = toBuildings() ?: return null
     val townWork: TownSnapshot.Work = work.toWork() ?: return null
-    val townLessons: TownLessons = toTownLessons() ?: return null
-    val earnedSkills: List<TownSnapshot.EarnedSkill> = skills.map { skill: TownOverviewSkillsInner ->
-        skill.toEarnedSkill() ?: return null
-    }
+    val school: TownSchool = toTownSchool() ?: return null
     val step: NextStep = nextStep.toNextStep() ?: return null
     val townHiring: TownSnapshot.Hiring = hiring.toHiring() ?: return null
     val townJob: TownSnapshot.Job? = job?.let { out: TownJob -> out.toJob() ?: return null }
@@ -41,21 +36,15 @@ internal fun TownOverview.toSnapshot(): TownSnapshot? {
             stocks.material.toStock(TownResourceKind.Material),
         ),
         people = TownSnapshot.People(supplied = people.supplied, free = people.free, atWork = people.atWork),
-        buildings = listOf(
-            buildings.homes.toBuilding(TownBuildingKind.Homes),
-            buildings.farm.toBuilding(TownBuildingKind.Farm),
-            buildings.factory.toBuilding(TownBuildingKind.Factory),
-            buildings.powerStation.toBuilding(TownBuildingKind.PowerStation),
-            buildings.storage.toBuilding(TownBuildingKind.Storage),
-            buildings.school.toBuilding(TownBuildingKind.School),
-            buildings.office.toBuilding(TownBuildingKind.Office),
-        ),
+        buildings = places,
         work = townWork,
-        lessons = townLessons.shelved,
-        releasedLessons = townLessons.released,
+        lessons = school.shelved,
+        releasedLessons = school.released,
         hasBandStarted = hasBandStarted,
-        skills = earnedSkills,
+        skills = school.skills,
         learning = learning.toLearning(),
+        stableWordCount = stableWordCount,
+        retainedWordCount = retainedWordCount,
         lessonSlot = lessonSlot?.toLessonSlot(),
         hiring = townHiring,
         job = townJob,
@@ -81,16 +70,23 @@ internal fun TownHireKind.toWireHire(): PlaceHiringOrder.Hire = when (this) {
     TownHireKind.Truck -> PlaceHiringOrder.Hire.truck
 }
 
-private class TownLessons(val shelved: List<TownSnapshot.Lesson>, val released: List<TownSnapshot.ReleasedLesson>)
+private class TownSchool(
+    val shelved: List<TownSnapshot.Lesson>,
+    val released: List<TownSnapshot.ReleasedLesson>,
+    val skills: List<TownSnapshot.EarnedSkill>,
+)
 
-private fun TownOverview.toTownLessons(): TownLessons? {
+private fun TownOverview.toTownSchool(): TownSchool? {
     val shelved: List<TownSnapshot.Lesson> = lessons.map { lesson: TownOverviewLessonsInner ->
         lesson.toLesson() ?: return null
     }
     val released: List<TownSnapshot.ReleasedLesson> = releasedLessons.map { lesson: TownOverviewReleasedLessonsInner ->
         lesson.toReleasedLesson() ?: return null
     }
-    return TownLessons(shelved, released)
+    val earned: List<TownSnapshot.EarnedSkill> = skills.map { skill: TownOverviewSkillsInner ->
+        skill.toEarnedSkill() ?: return null
+    }
+    return TownSchool(shelved, released, earned)
 }
 
 private fun TownOverviewWork.toWork(): TownSnapshot.Work? {
@@ -180,16 +176,6 @@ private fun TownOverviewStocksMoney.toStock(kind: TownResourceKind): TownSnapsho
     ratePerHour = ratePerHour,
     capacity = capacity.toLong(),
     fullAt = fullAt?.toKotlinInstant(),
-)
-
-private fun TownOverviewBuildingsHomes.toBuilding(kind: TownBuildingKind): TownSnapshot.Building =
-    TownSnapshot.Building(kind = kind, level = level, next = nextLevel?.toNextLevel())
-
-private fun TownOverviewBuildingsHomesNextLevel.toNextLevel(): TownSnapshot.NextLevel = TownSnapshot.NextLevel(
-    level = level,
-    costs = cost.toCosts(),
-    duration = durationSeconds.seconds,
-    people = people,
 )
 
 internal fun ResourceAmounts.toCosts(): List<TownSnapshot.Cost> = listOf(

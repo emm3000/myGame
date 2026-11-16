@@ -1,0 +1,119 @@
+package com.emm.mygame.feature.town
+
+import androidx.compose.ui.test.assertCountEquals
+import androidx.compose.ui.test.assertIsDisplayed
+import androidx.compose.ui.test.junit4.ComposeContentTestRule
+import androidx.compose.ui.test.junit4.createComposeRule
+import androidx.compose.ui.test.onAllNodesWithText
+import androidx.compose.ui.test.onNodeWithText
+import com.emm.mygame.core.designsystem.MyGameTheme
+import com.emm.mygame.core.network.NeededWordKind
+import com.emm.mygame.core.network.TownBuildingKind
+import com.emm.mygame.core.network.TownLabel
+import com.emm.mygame.core.network.TownResourceKind
+import kotlin.time.Duration.Companion.seconds
+import org.junit.Rule
+import org.junit.Test
+import org.junit.runner.RunWith
+import org.robolectric.RobolectricTestRunner
+
+@RunWith(RobolectricTestRunner::class)
+class TownWordsScreenTest {
+
+    @get:Rule
+    val composeRule: ComposeContentTestRule = createComposeRule()
+
+    private val farmOffer: TownUiState.PlaceCard = TownUiState.PlaceCard(
+        kind = TownBuildingKind.Farm,
+        level = 1,
+        raisedFrom = null,
+        isInWork = false,
+        next = TownUiState.NextLevelLine(
+            level = 2,
+            costs = listOf(TownUiState.CostLine(TownResourceKind.Money, 150, isShort = false)),
+            duration = 90.seconds,
+            people = 3,
+            wordsNeeded = null,
+        ),
+        block = null,
+    )
+
+    private val riverton: TownUiState.Content = TownUiState.Content(
+        name = "Riverton",
+        label = TownLabel.Town,
+        stocks = listOf(
+            TownUiState.StockLine(
+                TownResourceKind.Money,
+                130,
+                capacity = 900,
+                ratePerHour = 30,
+                skillLevel = 0,
+                fill = null,
+            ),
+        ),
+        people = TownUiState.PeopleLine(free = 24, atWork = 96),
+        words = TownUiState.WordsLine(reviewed = 0, learned = 0),
+        season = null,
+        buildMark = null,
+        slot = TownUiState.SlotLine.Idle,
+        waitingList = emptyList(),
+        places = listOf(farmOffer),
+        nextStep = caughtUpCard,
+        nextStepTime = null,
+        goal = null,
+        tip = null,
+        start = TownUiState.StartStatus.Idle,
+        stop = TownUiState.StopStatus.Idle,
+        office = idleOffice,
+    )
+
+    @Test
+    fun `draws a stable need with its count`() {
+        showPlaces(riverton.copy(places = listOf(farmNeeding(TownUiState.WordNeedLine(10, 4, NeededWordKind.Stable)))))
+
+        composeRule.onNodeWithText("Necesita 10 palabras repasadas: 4 de 10").assertIsDisplayed()
+    }
+
+    @Test
+    fun `draws a retained need with its count`() {
+        val need: TownUiState.WordNeedLine = TownUiState.WordNeedLine(50, held = 3, NeededWordKind.Retained)
+
+        showPlaces(riverton.copy(places = listOf(farmNeeding(need))))
+
+        composeRule.onNodeWithText("Necesita 50 palabras aprendidas: 3 de 50").assertIsDisplayed()
+    }
+
+    @Test
+    fun `draws no need below level 3`() {
+        showPlaces(riverton)
+
+        composeRule.onAllNodesWithText("Necesita", substring = true).assertCountEquals(0)
+    }
+
+    @Test
+    fun `draws the town's reviewed and learned words`() {
+        showStocks(riverton.copy(words = TownUiState.WordsLine(reviewed = 14, learned = 3)))
+
+        composeRule.onNodeWithText("Palabras repasadas: 14").assertIsDisplayed()
+        composeRule.onNodeWithText("Palabras aprendidas: 3").assertIsDisplayed()
+    }
+
+    private fun farmNeeding(need: TownUiState.WordNeedLine): TownUiState.PlaceCard =
+        farmOffer.copy(level = 2, next = farmOffer.next?.copy(level = 3, wordsNeeded = need))
+
+    private fun showPlaces(content: TownUiState.Content) {
+        composeRule.setContent {
+            MyGameTheme {
+                PlacesSection(content = content, onIntent = {}, onSchoolOpen = {})
+            }
+        }
+    }
+
+    private fun showStocks(content: TownUiState.Content) {
+        composeRule.setContent {
+            MyGameTheme {
+                StocksSection(content = content)
+            }
+        }
+    }
+}

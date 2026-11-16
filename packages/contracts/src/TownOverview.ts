@@ -6,6 +6,7 @@ import { DueHoldoutCheckStateSchema } from './DueHoldoutCheckState'
 import { EarnedSkillSchema } from './EarnedSkill'
 import { HireKindSchema } from './HireKind'
 import { LessonStateSchema } from './LessonState'
+import { NeededWordKindSchema } from './NeededWordKind'
 import { NextStepSchema } from './NextStep'
 import { ReleasedLessonStateSchema } from './ReleasedLessonState'
 import { ResourceAmountsSchema } from './ResourceAmounts'
@@ -33,11 +34,17 @@ const StockSchema = z.strictObject({
   fullAt: InstantSchema.nullable(),
 })
 
+const WordsNeededSchema = z.strictObject({
+  count: WholeCountSchema.positive(),
+  standing: NeededWordKindSchema,
+})
+
 const NextLevelSchema = z.strictObject({
   level: BuildingLevelSchema,
   cost: ResourceAmountsSchema,
   durationSeconds: DurationSecondsSchema,
   people: WholeCountSchema,
+  wordsNeeded: WordsNeededSchema.nullable(),
 })
 
 const BuildingStateSchema = z.strictObject({
@@ -126,6 +133,8 @@ export const TownOverviewSchema = z
     skills: z.array(EarnedSkillSchema),
     lessonSlot: LessonUnderStudySchema.nullable(),
     learning: LearningLoadSchema,
+    stableWordCount: WholeCountSchema,
+    retainedWordCount: WholeCountSchema,
     nextStep: NextStepSchema,
     tip: TipKindSchema.nullable(),
     chromePhase: ChromePhaseSchema,

@@ -130,6 +130,8 @@ const overview = (overrides: Record<string, unknown> = {}): Record<string, unkno
   skills: [earnedFood],
   lessonSlot: lessonUnderStudy,
   learning: { cap: 15, inLearning: 5, retainedWords: null },
+  stableWordCount: 12,
+  retainedWordCount: 4,
   nextStep: { kind: 'caughtUp', goal: null },
   tip: null,
   chromePhase: 'scaffold',
@@ -139,6 +141,18 @@ const overview = (overrides: Record<string, unknown> = {}): Record<string, unkno
   readAt: '2026-11-10T08:58:00.000Z',
   ...overrides,
 })
+
+const farmLevelThree = {
+  level: 3,
+  cost: { money: 120, food: 0, power: 0, material: 160 },
+  durationSeconds: 300,
+  people: 1,
+}
+
+const overviewWithFarm = (farm: Record<string, unknown>): Record<string, unknown> => {
+  const base = overview()
+  return overview({ buildings: { ...(base.buildings as Record<string, unknown>), farm } })
+}
 
 const summer = {
   kind: 'summer',
@@ -416,6 +430,45 @@ describe('TownOverviewSchema', () => {
     const learning = { cap: 15, inLearning: 5, retainedWords: { count: 0, total: 0 } }
 
     expect(TownOverviewSchema.safeParse(overview({ learning })).success).toBe(false)
+  })
+
+  it('parses a next level with the stable words it needs', () => {
+    const farm = {
+      level: 2,
+      nextLevel: { ...farmLevelThree, wordsNeeded: { count: 10, standing: 'stable' } },
+    }
+
+    expect(TownOverviewSchema.safeParse(overviewWithFarm(farm)).success).toBe(true)
+  })
+
+  it('rejects a next level without its word need', () => {
+    const farm = { level: 2, nextLevel: farmLevelThree }
+
+    expect(TownOverviewSchema.safeParse(overviewWithFarm(farm)).success).toBe(false)
+  })
+
+  it('rejects a word need of a school path standing', () => {
+    const wordsNeeded = { count: 10, standing: 'hold' }
+    const farm = { level: 2, nextLevel: { ...farmLevelThree, wordsNeeded } }
+
+    expect(TownOverviewSchema.safeParse(overviewWithFarm(farm)).success).toBe(false)
+  })
+
+  it('rejects a word need of no words', () => {
+    const wordsNeeded = { count: 0, standing: 'stable' }
+    const farm = { level: 2, nextLevel: { ...farmLevelThree, wordsNeeded } }
+
+    expect(TownOverviewSchema.safeParse(overviewWithFarm(farm)).success).toBe(false)
+  })
+
+  it("rejects an overview without the town's stable word count", () => {
+    const { stableWordCount: _, ...withoutStableWords } = overview()
+
+    expect(TownOverviewSchema.safeParse(withoutStableWords).success).toBe(false)
+  })
+
+  it('rejects a fractional count of retained words in the town', () => {
+    expect(TownOverviewSchema.safeParse(overview({ retainedWordCount: 1.5 })).success).toBe(false)
   })
 
   it('rejects an overview without its lessons', () => {

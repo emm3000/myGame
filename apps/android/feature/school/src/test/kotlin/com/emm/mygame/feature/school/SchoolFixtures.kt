@@ -108,6 +108,8 @@ internal fun townOf(
     hasBandStarted = hasBandStarted,
     skills = skills,
     learning = learning,
+    stableWordCount = 0,
+    retainedWordCount = 0,
     lessonSlot = lessonSlot,
     hiring = hiringOf(),
     job = null,

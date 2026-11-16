@@ -142,6 +142,8 @@ class TownRegisteredTest {
         hasBandStarted = false,
         skills = emptyList(),
         learning = TownSnapshot.Learning(cap = 10, inLearning = 0, retainedWords = retained),
+        stableWordCount = 0,
+        retainedWordCount = 0,
         lessonSlot = slot?.let { lesson: LessonId ->
             TownSnapshot.LessonSlot(lesson, startedAt = firstReadAt, finishesAt = firstReadAt + 5.minutes)
         },
