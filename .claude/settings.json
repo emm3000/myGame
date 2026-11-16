@@ -26,6 +26,8 @@
       "Bash(git worktree list)",
       "Bash(git worktree remove:*)",
       "Bash(git worktree prune)",
+      "Bash(git worktree add --detach:*)",
+      "Bash(taskpolicy -c utility ./gradlew:*)",
       "Bash(git update-ref -d refs/remotes/origin/*)",
       "Bash(docker rm -f mygame-*)",
       "Bash(docker run * --name mygame-*)",
