@@ -116,7 +116,7 @@ while IFS="$(printf '\t')" read -r pid name; do
 done <<<"$(cwd_table | awk -F '\t' -v worktree="$worktree" -v keep="$keep_emulator" -v self="$$" '
   $1 == self { next }
   $3 != worktree && index($3, worktree "/") != 1 { next }
-  $2 ~ /^netsim/ { next }
+  $2 == "netsimd" || $2 == "adb" { next }
   keep && $2 ~ /^(emulator|qemu|crashpad)/ { next }
   { print $1 "\t" $2 }')"
 
