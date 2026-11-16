@@ -68,29 +68,40 @@ It targets and compiles against SDK 37, with a minimum of 26
 
 The phone stores what it last read, and nothing it derived:
 
-- **Cards waiting from**: the `readAt` of the last `TownOverview`,
+- **Cards waiting from**: the read instant of the last `TownOverview`,
   `Reviews` or `Report` read that held a due card. That is `nextStep`
   `reviews` on the town, or a non-empty `due` on the other two.
   Otherwise it is that read's `nextDueAt`, or nothing when that is null.
+  The read instant is the wire's `readAt` on `TownOverview` and
+  `Reviews`. `Report` carries no `readAt`, so for it the read instant is
+  the phone's clock when the answer arrived.
 - **Lesson finishing at**: `lessonSlot.finishesAt` of the last
   `TownOverview`. A later `Reviews` or `Report` read at or after that
   instant drops it, because that read settled the lesson and its cards
   are in `due` or `nextDueAt`.
 - **Lesson ready**: whether the last `TownOverview`'s `nextStep` was
-  `lessonToStudy` or `releasedLesson`.
+  `lessonToStudy` or `releasedLesson`. `nextStepOf` answers `reviews`
+  before any lesson, so a town read with cards due says nothing about a
+  lesson. When a `Reviews` or `Report` read shows nothing due while the
+  reminder is on, the phone reads `GET /town` once more, so *lesson
+  ready* never stays stale after the reviews run out.
 
 The reminder's instant is the first occurrence of the chosen local time
-at or after both now and the earlier of *cards waiting from* and
-*lesson finishing at*. When neither is set, the reminder's instant is
-the next occurrence of the chosen time while *lesson ready* holds, and
-the phone schedules no reminder otherwise. Each read that changes these
-facts replaces the one scheduled alarm, and a read that shows nothing
-to study also removes a reminder already posted.
+at or after both now and the earliest of the facts: *cards waiting
+from*, *lesson finishing at*, and now itself while *lesson ready*
+holds. A fact that is not set takes no part. When none is set, the
+phone schedules no reminder. So a player with a lesson to start,
+nothing due and the next card due in 9 days is reminded that evening,
+not 9 days later. Each read that changes these facts replaces the one
+scheduled alarm, and a read that shows nothing to study also removes a
+reminder already posted.
 
-When the alarm fires, the phone posts the notification. It then
-schedules the next day's alarm from the same stored facts, since
-nothing it knows has changed. A player who does not open the app is
-reminded once a day while words wait, never more often.
+When the alarm fires, the phone posts the notification: the cards line
+when *cards waiting from* or *lesson finishing at* is at or before the
+firing instant, the lesson line otherwise. It then schedules the next
+day's alarm from the same stored facts, since nothing it knows has
+changed. A player who does not open the app is reminded once a day
+while something waits, never more often.
 
 This is a schedule drawn from server instants and the phone's clock,
 like a countdown (M8). It decides no game value and sends nothing to
@@ -101,11 +112,14 @@ the api. N1 is amended to name it.
 - **`AlarmManager.setAndAllowWhileIdle` with `RTC_WAKEUP`: an inexact
   alarm.** Android's guidance for a "user-specified action that should
   happen after a specific time (even if system in idle state)" is this
-  call. On Android 12 and higher the system invokes an inexact alarm
-  "within one hour of the supplied trigger time, unless any
-  battery-saving restrictions are in effect". It fires in Doze, at most
-  once per nine minutes per app, which one alarm a day never reaches.
-  `RTC` is the alarm type the docs give for a time of day.
+  call. On Android 12 and higher, "the system invokes the alarm within
+  one hour of the supplied trigger time, unless any battery-saving
+  restrictions are in effect such as battery saver or Doze". So the
+  hour is a bound only outside Doze and battery saver. In Doze this call
+  still fires, where a plain `set()` waits for the device to leave Doze,
+  but the docs give no bound on how late. It fires at most once per nine
+  minutes per app, which one alarm a day never reaches. `RTC` is the
+  alarm type the docs give for a time of day.
 - **No exact alarm.** The manifest declares neither
   `SCHEDULE_EXACT_ALARM` nor `USE_EXACT_ALARM` (see Considered options).
 - **Rescheduled after a reboot and after a clock change.** All alarms
@@ -127,9 +141,11 @@ the api. N1 is amended to name it.
 
 ### What it says
 
-- **Fixed copy, in the scaffold language**, as mail is (ADR 038, N6).
-  It is read outside the game, by a learner who may be at A1, so it does
-  not fade by the chrome phase. Its keys join
+- **Fixed copy, in the scaffold language**, as mail is (ADR 038). It is
+  read outside the game, by a learner who may be at A1, so it does not
+  fade by the chrome phase. N6 lists what is always in the scaffold
+  language, and the reminder is not on that list, so N6 is amended by
+  row id to add it. Its keys join
   `apps/api/src/contentGate/fixedCopyKeys.ts`. The phone renders it from
   the scaffold the last read named, and under `none` it is English.
 - **It names the action and nothing else.** It shows no count of words,
@@ -142,20 +158,36 @@ the api. N1 is amended to name it.
 
   | Case | en | es |
   |---|---|---|
-  | Cards waiting | *Your words are ready.* / *Review them in the Report.* | *Tus palabras están listas.* / *Repásalas en el Informe.* |
+  | Cards waiting | *Your words are ready.* / *Review them in the Report.* | *Tus palabras están listas.* / *Repásalas en el informe.* |
   | Lesson ready, no card waiting | *A new lesson is ready.* / *Start it at the school.* | *Tienes una lección nueva.* / *Empiézala en la escuela.* |
   | Settings switch | *Study reminder* / *Once a day, at the time you pick, when there is something to study.* | *Recordatorio de estudio* / *Una vez al día, a la hora que elijas, cuando tengas algo que estudiar.* |
   | Permission denied | *Notifications for Townword are off in your phone's settings.* | *Las notificaciones de Townword están desactivadas en los ajustes del teléfono.* |
 
 ### Why a daily time and not the due instant
 
-A review answered on the day the reminder brings it, at any hour, gives
-the FSRS outcome a review at the due instant gives. ADR 036 counts days
-as whole days, floored, and a card in `review` falls due at
+For a card in `review`, a review answered when the reminder brings it
+gives the FSRS outcome a review at the due instant gives. ADR 036 counts
+days as whole days, floored, and a card in `review` falls due at
 `lastReviewAt` plus a whole number of days. So any review in the 24
 hours after the due instant reads the same elapsed days, the same
 retrievability and the same next card. The reminder fires at the first
-chosen time after the due instant, inside those 24 hours.
+chosen time after the due instant, which is inside those 24 hours
+except on the day the clocks go back.
+
+Two cases fall outside that window:
+
+- **A day of 25 hours.** When the clocks go back, the first chosen
+  local time after the due instant can be up to 25 hours later. A
+  review answered in that last hour reads one more elapsed day, with
+  the effect of a day's delay shown below.
+- **Cards in `learning` or `relearning`.** They fall due on steps of 1
+  or 10 minutes, not on whole days. A player still in the app meets
+  them in the same sitting (ADR 036 rule 5). One who leaves finds them
+  waiting at the next reminder, possibly the next day, and that review
+  is no longer a same-day review, so FSRS steps the card differently
+  than at the step's instant. ADR 036 already accepts this path for a
+  player who leaves, and §1.6 holds: the delay costs no word and no
+  reward.
 
 ## Worked examples
 
@@ -185,8 +217,13 @@ worked example.
   lesson's five words.
 - **Reviews done, nothing waiting.** The player answers the last due
   review. The re-read of `GET /reviews` holds an empty `due` and
-  `nextDueAt` two days later, so the alarm moves to 7:00 PM on that day
-  and any posted reminder is removed.
+  `nextDueAt` two days later, so the phone reads `GET /town` once more.
+  Its `nextStep` is `caughtUp`, so the alarm moves to 7:00 PM in two
+  days and any posted reminder is removed.
+- **Reviews done, a lesson to start.** The same, but the extra town read
+  answers `lessonToStudy`. The earliest fact is now, so the reminder
+  fires at 7:00 PM today with *A new lesson is ready*. The next card
+  being due in 9 days does not delay it.
 
 ## Considered options
 
@@ -194,11 +231,11 @@ worked example.
   dispatch's starting recommendation). Rejected. It buys no retention
   over the daily time (above), and it ties the phone to the hours of
   past reviews: a card answered at 11:40 PM falls due at 11:40 PM, so a
-  few cards make several pings a day, some at night. That is Playing by
-  Appointment, which W10 refuses. The learning steps of 1 and 10
-  minutes, and a lesson finishing within minutes, are shorter than an
-  inexact alarm's delivery, which is up to an hour on Android 12 and
-  higher. A player still in the app meets them anyway (ADR 036 rule 5).
+  few cards make several pings a day, some at night. The learning steps
+  of 1 and 10 minutes, and a lesson finishing within minutes, are
+  shorter than an inexact alarm's delivery, which is up to an hour on
+  Android 12 and higher outside Doze and battery saver. A player still
+  in the app meets them anyway (ADR 036 rule 5).
   The lesson's finish still counts: it moves *lesson finishing at*.
 - **A fixed daily reminder whether or not anything is waiting.**
   Rejected. Only a due card is reviewed and there is no extra practice
@@ -215,10 +252,9 @@ worked example.
 - **WorkManager.** Not taken. Its work persists across reboots with no
   receiver, but the system "doesn't let `JobScheduler` run" in Doze, so
   "WorkManager tasks don't run" until a maintenance window, and those
-  windows grow rarer the longer a phone lies idle. The WorkManager guide
-  itself places AlarmManager for "precise alarms or notifications such
-  as calendar events", and it would be a new dependency. The boot
-  receiver is the price of the alarm.
+  windows grow rarer the longer a phone lies idle, where
+  `setAndAllowWhileIdle` fires in Doze. It would also be a new
+  dependency. The boot receiver is the price of the alarm.
 - **Exact alarms.** Rejected. `SCHEDULE_EXACT_ALARM` is denied by default
   on Android 14 for new installs of apps targeting 13 or higher, and
   needs a trip to system settings. `USE_EXACT_ALARM` is for calendar and
@@ -239,8 +275,8 @@ worked example.
 ## Consequences
 
 - ADR 034's *Out for now* line is amended inline: push notifications
-  stay out, and the local study reminder is admitted. PRD W6 and N1 are
-  amended by row id. `CONTEXT.md` gains **Study reminder**.
+  stay out, and the local study reminder is admitted. PRD W6, N1 and N6
+  are amended by row id. `CONTEXT.md` gains **Study reminder**.
 - `apps/android` gains `POST_NOTIFICATIONS` and `RECEIVE_BOOT_COMPLETED`
   in the manifest, one alarm, one boot and clock receiver, one
   notification channel, and a small store on the device for the switch,
@@ -251,8 +287,9 @@ worked example.
   only where there is client-side logic, which here means the
   projection*) is amended by the ticket that adds it.
 - The reads that feed it are the ones the client already makes: the
-  town, the reviews and the Report. No contract or api change, and no
-  new request.
+  town, the reviews and the Report. The one new request is the extra
+  `GET /town` after a `Reviews` or `Report` read that shows nothing due,
+  made only while the reminder is on. No contract or api change.
 - Copy: the reminder's and the settings' keys go in `packages/catalog`
   under the posting module's `android.<module>` prefix. A new module
   joins `packages/catalog/src/androidKeyOf.ts`, and every key joins
@@ -260,12 +297,17 @@ worked example.
 - Known gap: a review answered on the web after the phone's last read
   is unknown to the phone, so a reminder can fire with nothing left due.
   Opening the app re-reads and clears it. The web is parked, and the
-  owner plays on the phone (ADR 036 rule 9).
-- Known gap: a phone in battery saver, or in Doze with a vendor's
-  stricter limits, may deliver the reminder late. The docs promise no
-  bound under battery-saving restrictions. No exemption is requested,
-  since Play policy allows one only when Doze breaks an app's core
-  function.
+  owner plays on an Android phone (ADR 034's first goal; ADR 041 sends
+  the APK only to the owner's phone).
+- Known gap: a due holdout check never triggers a reminder. It falls due
+  by whole weeks on read, and the wire sends no instant for it, so the
+  phone cannot know it is due. `nextStepOf` answers `holdoutCheck` only
+  when no card is due, and the town home shows it once the player is
+  back.
+- Known gap: in Doze or battery saver, the docs promise no bound on how
+  late the reminder arrives. Outside them it arrives within an hour. No
+  Doze exemption is requested, since Play policy allows one only when
+  Doze breaks an app's core function.
 - The verification row is Android's, plus the flow on an emulator: turn
   on, deny and grant the permission, force Doze (`adb shell dumpsys
   deviceidle force-idle`), reboot, and change the time zone, with a
@@ -277,8 +319,8 @@ worked example.
 ## References
 
 - Issue #1141; ADR 003, ADR 005, ADR 027 (*Avisarme*), ADR 034, ADR 036
-  (the due instant, whole days floored, rule 5, rule 9), ADR 038, ADR
-  040, ADR 042; PRD W6, W7, W10, N1, N2, N6.
+  (the due instant, whole days floored, rule 5), ADR 038, ADR 040, ADR
+  041, ADR 042; PRD W6, W7, W10, N1, N2, N6.
 - `docs/research/english-pivot/decisions.md` §1.6;
   `docs/research/engaging-strategy-ui.md` (Playing by Appointment,
   streaks).
