@@ -296,6 +296,7 @@ export { townLabelOf } from './town/townLabelOf'
 export { type TownSeason, townSeasonAt } from './town/townSeasonAt'
 export type { WasteSize } from './town/WasteSize'
 export type { WordNeed } from './town/WordNeed'
+export { type WordShortfall, wordShortfallOf } from './town/wordShortfallOf'
 export {
   type AnsweredReview,
   type AnswerReviewCommand,
