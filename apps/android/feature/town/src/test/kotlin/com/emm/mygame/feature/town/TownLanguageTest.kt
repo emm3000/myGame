@@ -22,10 +22,13 @@ import com.emm.mygame.core.ui.ChromePhase
 import com.emm.mygame.core.ui.CopyLanguage
 import com.emm.mygame.core.ui.ProvideCopyLanguage
 import com.emm.mygame.core.ui.ScaffoldLanguage
+import java.util.TimeZone
 import kotlin.time.Duration
 import kotlin.time.Duration.Companion.days
 import kotlin.time.Duration.Companion.minutes
+import org.junit.After
 import org.junit.Assert.assertTrue
+import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -59,6 +62,19 @@ class TownLanguageTest {
     )
 
     private val home: TownUiState.Content = townOf(places = placesOf(farmShortOfMoneyAndFood)).readContent()
+
+    private val farmShortOfMoneyFoodAndPower: TownSnapshot.Building = farmShortOfMoneyAndFood.copy(
+        next = nextLevelOf(
+            costs = listOf(
+                TownSnapshot.Cost(TownResourceKind.Money, 400),
+                TownSnapshot.Cost(TownResourceKind.Food, 300),
+                TownSnapshot.Cost(TownResourceKind.Power, 900_000),
+            ),
+        ),
+    )
+
+    private val homeShortOfThree: TownUiState.Content =
+        townOf(places = placesOf(farmShortOfMoneyFoodAndPower)).readContent()
 
     private val homeBuildingForThreeDays: TownUiState.Content =
         townOf(slot = workOf(TownBuildingKind.Farm, lasting = 3.days)).readContent()
@@ -100,6 +116,18 @@ class TownLanguageTest {
 
     private val blankNameRefused: TownUiState.Naming =
         TownUiState.Naming(name = "", status = TownUiState.NamingStatus.Refused(TownFoundRefusal.BlankTownName))
+
+    private val phoneZone: TimeZone = TimeZone.getDefault()
+
+    @Before
+    fun drawInUtc() {
+        TimeZone.setDefault(TimeZone.getTimeZone("UTC"))
+    }
+
+    @After
+    fun restorePhoneZone() {
+        TimeZone.setDefault(phoneZone)
+    }
 
     private fun show(language: CopyLanguage, state: TownUiState = home) {
         composeRule.setContent {
@@ -190,6 +218,27 @@ class TownLanguageTest {
         show(englishPhase, homeBuildingForThreeDays)
 
         composeRule.onNode(hasText("Nov 8", substring = true)).assertExists()
+    }
+
+    @Test
+    fun `writes a later finish time on the American clock in the English phase`() {
+        show(englishPhase, homeBuildingForThreeDays)
+
+        composeRule.onNode(hasText("Nov 8 10:00\u202FAM", substring = true)).assertExists()
+    }
+
+    @Test
+    fun `joins three shortfalls with a serial comma in the English phase`() {
+        show(englishPhase, homeShortOfThree)
+
+        composeRule.onNode(hasText("You need 300 money, 200 food, and ", substring = true)).assertExists()
+    }
+
+    @Test
+    fun `joins three shortfalls with no comma before y in the Spanish phase`() {
+        show(spanishPhase, homeShortOfThree)
+
+        composeRule.onNode(hasText("Necesitas 300 de dinero, 200 de comida y ", substring = true)).assertExists()
     }
 
     @Test

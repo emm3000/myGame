@@ -274,7 +274,7 @@ internal fun CopyReader.shortfallLineOf(block: TownUiState.BlockReason.Resources
     val amounts: List<String> = block.shortfalls.map { shortfall: TownUiState.Shortfall ->
         amountLineOf(shortfall.kind, shortfall.amount)
     }
-    return text(R.string.town_shortfall, "missing" to joinedOf(amounts))
+    return text(R.string.town_shortfall, "missing" to listPhraseOf(amounts))
 }
 
 private fun CopyReader.amountLineOf(kind: TownResourceKind, amount: Long): String = text(
@@ -282,14 +282,6 @@ private fun CopyReader.amountLineOf(kind: TownResourceKind, amount: Long): Strin
     "amount" to formatQuantity(amount),
     "resource" to text(resourceNameOf(kind)),
 )
-
-private fun CopyReader.joinedOf(items: List<String>): String {
-    if (items.size < 2) return items.joinToString()
-    val head: String = items.dropLast(1).reduce { listed: String, item: String ->
-        text(R.string.town_list_more, "listed" to listed, "item" to item)
-    }
-    return text(R.string.town_list_pair, "listed" to head, "last" to items.last())
-}
 
 private fun placesTitleOf(label: TownLabel): Int = when (label) {
     TownLabel.Town -> R.string.town_places_title_town

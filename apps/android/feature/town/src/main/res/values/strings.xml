@@ -24,8 +24,6 @@
     <string name="town_label_town">Town</string>
     <string name="town_level">Level {level}</string>
     <string name="town_level_in_work">{level} · {inWork}</string>
-    <string name="town_list_more">{listed}, {item}</string>
-    <string name="town_list_pair">{listed} and {last}</string>
     <string name="town_loading">Reading your town…</string>
     <string name="town_map_line">Send a team on a job.</string>
     <string name="town_map_link">Go to the map</string>

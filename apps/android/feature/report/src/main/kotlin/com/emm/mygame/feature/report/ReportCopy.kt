@@ -8,23 +8,11 @@ import com.emm.mygame.core.network.TownHireKind
 import com.emm.mygame.core.network.TownNews
 import com.emm.mygame.core.network.TownResourceKind
 import com.emm.mygame.core.network.TownSite
-import com.emm.mygame.core.projection.FinishClock
 import com.emm.mygame.core.projection.finishClockOf
 import com.emm.mygame.core.ui.CopyReader
 import java.time.LocalDateTime
 import java.time.ZoneId
-import java.time.format.DateTimeFormatter
-import java.util.Locale
 import kotlin.time.Instant
-
-private val clockFormat: DateTimeFormatter = DateTimeFormatter.ofPattern("HH:mm")
-
-private fun dayFormatIn(locale: Locale): DateTimeFormatter =
-    DateTimeFormatter.ofPattern(if (locale.language == SPANISH_LANGUAGE) "d MMM" else "MMM d", locale)
-
-private const val SPANISH_LANGUAGE: String = "es"
-
-internal class NewsAmounts(@param:StringRes val line: Int, val amounts: List<TownAmount>)
 
 internal fun CopyReader.newsLineOf(news: TownNews): String = when (news) {
     is TownNews.BuildingWorkFinished ->
@@ -67,6 +55,8 @@ internal fun newsAmountsOf(news: TownNews): NewsAmounts? = when (news) {
     -> null
 }
 
+internal class NewsAmounts(@param:StringRes val line: Int, val amounts: List<TownAmount>)
+
 private fun paid(@StringRes line: Int, amounts: List<TownAmount>): NewsAmounts? =
     if (amounts.isEmpty()) null else NewsAmounts(line, amounts)
 
@@ -81,22 +71,18 @@ internal fun CopyReader.amountsLineOf(paid: NewsAmounts): String {
     return text(paid.line, "amounts" to listPhraseOf(quantities))
 }
 
-internal fun CopyReader.nextReviewLabelOf(nextReview: Instant, receivedAt: Instant, zone: ZoneId): String {
-    val finish: FinishClock = finishClockOf(nextReview, nextReview - receivedAt, zone)
-    val time: String = finish.at.format(clockFormat)
-    return when (finish.day) {
-        FinishClock.Day.Today -> time
-        FinishClock.Day.Tomorrow -> text(R.string.report_next_review_tomorrow, "time" to time)
-        FinishClock.Day.Later ->
-            text(R.string.report_next_review_day, "day" to finish.at.format(dayFormatIn(locale)), "time" to time)
-    }
-}
+internal fun CopyReader.nextReviewLabelOf(nextReview: Instant, receivedAt: Instant, zone: ZoneId): String =
+    clockLabelOf(
+        finishClockOf(nextReview, nextReview - receivedAt, zone),
+        tomorrow = R.string.report_next_review_tomorrow,
+        later = R.string.report_next_review_day,
+    )
 
 internal fun CopyReader.instantLabelOf(occurredAt: Instant, receivedAt: Instant, zone: ZoneId): String {
     val occurred: LocalDateTime = localOf(occurredAt, zone)
     val received: LocalDateTime = localOf(receivedAt, zone)
-    val time: String = occurred.format(clockFormat)
-    val day: String = occurred.format(dayFormatIn(locale))
+    val time: String = timeOf(occurred)
+    val day: String = dayOf(occurred)
     return when {
         occurred.toLocalDate() == received.toLocalDate() -> text(R.string.report_today, "time" to time)
         occurred.year == received.year -> text(R.string.report_day, "day" to day, "time" to time)

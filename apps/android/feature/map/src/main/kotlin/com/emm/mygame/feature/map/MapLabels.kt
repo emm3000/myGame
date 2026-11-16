@@ -13,8 +13,6 @@ import com.emm.mygame.core.projection.finishClockOf
 import com.emm.mygame.core.ui.CopyReader
 import com.emm.mygame.core.ui.PlayerCopy
 import java.time.ZoneId
-import java.time.format.DateTimeFormatter
-import java.util.Locale
 import kotlin.math.ceil
 import kotlin.time.Duration
 import kotlin.time.Duration.Companion.hours
@@ -25,13 +23,6 @@ import kotlin.time.Instant
 private const val SECONDS_PER_MINUTE: Long = 60
 
 private const val SECONDS_PER_HOUR: Long = 3600
-
-private const val SPANISH_LANGUAGE: String = "es"
-
-private val clockFormat: DateTimeFormatter = DateTimeFormatter.ofPattern("HH:mm")
-
-private fun dayFormatIn(locale: Locale): DateTimeFormatter =
-    DateTimeFormatter.ofPattern(if (locale.language == SPANISH_LANGUAGE) "d MMM" else "MMM d", locale)
 
 internal fun terrainNameOf(terrain: Terrain): Int = when (terrain) {
     Terrain.Fields -> R.string.map_terrain_fields
@@ -152,18 +143,8 @@ internal fun CopyReader.finishLabelOf(remaining: Duration, finishesAt: Instant):
     val timeLeft: String = timeLeftLabelOf(remaining)
     if (wholeSecondsOf(remaining).seconds <= 1.hours) return timeLeft
     val finish: FinishClock = finishClockOf(finishesAt, remaining, ZoneId.systemDefault())
-    return text(R.string.map_finish_with_clock, "timeLeft" to timeLeft, "clock" to clockLabelOf(finish))
+    return text(R.string.map_finish_with_clock, "timeLeft" to timeLeft, "clock" to finishClockLabelOf(finish))
 }
 
-private fun CopyReader.clockLabelOf(finish: FinishClock): String {
-    val time: String = finish.at.format(clockFormat)
-    return when (finish.day) {
-        FinishClock.Day.Today -> time
-        FinishClock.Day.Tomorrow -> text(R.string.map_finish_tomorrow, "time" to time)
-        FinishClock.Day.Later -> text(
-            R.string.map_finish_day,
-            "day" to finish.at.format(dayFormatIn(locale)),
-            "time" to time,
-        )
-    }
-}
+private fun CopyReader.finishClockLabelOf(finish: FinishClock): String =
+    clockLabelOf(finish, tomorrow = R.string.map_finish_tomorrow, later = R.string.map_finish_day)

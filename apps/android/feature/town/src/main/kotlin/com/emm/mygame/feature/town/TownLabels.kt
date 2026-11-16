@@ -12,8 +12,6 @@ import com.emm.mygame.core.projection.FinishClock
 import com.emm.mygame.core.projection.finishClockOf
 import com.emm.mygame.core.ui.CopyReader
 import java.time.ZoneId
-import java.time.format.DateTimeFormatter
-import java.util.Locale
 import kotlin.math.ceil
 import kotlin.time.Duration
 import kotlin.time.Duration.Companion.hours
@@ -26,13 +24,6 @@ private const val SECONDS_PER_MINUTE: Long = 60
 private const val SECONDS_PER_HOUR: Long = 3600
 
 private const val MINUTES_PER_HOUR: Long = 60
-
-private const val SPANISH_LANGUAGE: String = "es"
-
-private val clockFormat: DateTimeFormatter = DateTimeFormatter.ofPattern("HH:mm")
-
-private fun dayFormatIn(locale: Locale): DateTimeFormatter =
-    DateTimeFormatter.ofPattern(if (locale.language == SPANISH_LANGUAGE) "d MMM" else "MMM d", locale)
 
 internal fun placeNameOf(kind: TownBuildingKind): Int = when (kind) {
     TownBuildingKind.Homes -> R.string.town_place_homes
@@ -151,7 +142,7 @@ internal fun CopyReader.finishLabelOf(remaining: Duration, finishesAt: Instant):
     val timeLeft: String = timeLeftLabelOf(remaining)
     if (wholeSecondsOf(remaining).seconds <= 1.hours) return timeLeft
     val finish: FinishClock = finishClockOf(finishesAt, remaining, ZoneId.systemDefault())
-    return text(R.string.town_finish_with_clock, "timeLeft" to timeLeft, "clock" to clockLabelOf(finish))
+    return text(R.string.town_finish_with_clock, "timeLeft" to timeLeft, "clock" to finishClockLabelOf(finish))
 }
 
 internal fun CopyReader.readyLabelOf(ready: TownUiState.ReadyTime): String {
@@ -161,25 +152,12 @@ internal fun CopyReader.readyLabelOf(ready: TownUiState.ReadyTime): String {
         return text(R.string.town_ready_in, "timeLeft" to timeLeft)
     }
     val finish: FinishClock = finishClockOf(ready.readyAt, ready.remaining, ZoneId.systemDefault())
-    return text(R.string.town_ready_at, "clock" to clockLabelOf(finish))
+    return text(R.string.town_ready_at, "clock" to finishClockLabelOf(finish))
 }
 
 internal fun CopyReader.fillLabelOf(fill: TownUiState.FillTime): String {
     val finish: FinishClock = finishClockOf(fill.fullAt, fill.remaining, ZoneId.systemDefault())
-    return text(R.string.town_full_at, "clock" to clockLabelOf(finish))
-}
-
-private fun CopyReader.clockLabelOf(finish: FinishClock): String {
-    val time: String = finish.at.format(clockFormat)
-    return when (finish.day) {
-        FinishClock.Day.Today -> time
-        FinishClock.Day.Tomorrow -> text(R.string.town_finish_tomorrow, "time" to time)
-        FinishClock.Day.Later -> text(
-            R.string.town_finish_day,
-            "day" to finish.at.format(dayFormatIn(locale)),
-            "time" to time,
-        )
-    }
+    return text(R.string.town_full_at, "clock" to finishClockLabelOf(finish))
 }
 
 internal fun CopyReader.lessonRefusalLineOf(refusal: TownLessonRefusal): String = when (refusal) {
@@ -195,3 +173,6 @@ internal fun CopyReader.lessonRefusalLineOf(refusal: TownLessonRefusal): String 
     TownLessonRefusal.TownNotFound -> text(R.string.town_refusal_town_not_found)
     TownLessonRefusal.LessonStudyNotFound, TownLessonRefusal.Unrecognized -> text(R.string.town_refusal_unexpected)
 }
+
+private fun CopyReader.finishClockLabelOf(finish: FinishClock): String =
+    clockLabelOf(finish, tomorrow = R.string.town_finish_tomorrow, later = R.string.town_finish_day)

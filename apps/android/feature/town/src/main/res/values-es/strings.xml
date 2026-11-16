@@ -24,8 +24,6 @@
     <string name="town_label_town">Pueblo</string>
     <string name="town_level">Nivel {level}</string>
     <string name="town_level_in_work">{level} · {inWork}</string>
-    <string name="town_list_more">{listed}, {item}</string>
-    <string name="town_list_pair">{listed} y {last}</string>
     <string name="town_loading">Estamos leyendo tu pueblo…</string>
     <string name="town_map_line">Envía un equipo a un trabajo.</string>
     <string name="town_map_link">Ir al mapa</string>
