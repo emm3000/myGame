@@ -1,6 +1,5 @@
+import type { NeededWordKind } from './NeededWordKind'
 import type { WordNeed } from './WordNeed'
-
-export type NeededWordKind = 'stable' | 'retained'
 
 export type LevelWordNeed = {
   readonly count: number

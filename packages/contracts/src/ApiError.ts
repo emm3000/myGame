@@ -10,6 +10,7 @@ const BareApiErrorSchema = z
     kind: ApiErrorKindSchema.exclude([
       'WaitingListFull',
       'NotEnoughPeople',
+      'NotEnoughWords',
       'NotEnoughResources',
       'TopLevelReached',
       'BuildingWorkNotFound',
@@ -39,6 +40,17 @@ const NotEnoughPeopleErrorSchema = z
     }),
   })
   .meta({ id: 'NotEnoughPeopleError' })
+
+const NotEnoughWordsErrorSchema = z
+  .strictObject({
+    kind: z.literal('NotEnoughWords'),
+    params: z.strictObject({
+      needed: WholeCountSchema.positive(),
+      held: WholeCountSchema,
+      standing: z.enum(['stable', 'retained']),
+    }),
+  })
+  .meta({ id: 'NotEnoughWordsError' })
 
 const NotEnoughResourcesErrorSchema = z
   .strictObject({
@@ -125,6 +137,7 @@ export const ApiErrorSchema = z
     BareApiErrorSchema,
     WaitingListFullErrorSchema,
     NotEnoughPeopleErrorSchema,
+    NotEnoughWordsErrorSchema,
     NotEnoughResourcesErrorSchema,
     TopLevelReachedErrorSchema,
     BuildingWorkNotFoundErrorSchema,

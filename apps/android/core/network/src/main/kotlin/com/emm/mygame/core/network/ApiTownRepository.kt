@@ -4,6 +4,7 @@ import com.emm.mygame.core.network.generated.apis.DefaultApi
 import com.emm.mygame.core.network.generated.models.ApiError
 import com.emm.mygame.core.network.generated.models.BareApiError
 import com.emm.mygame.core.network.generated.models.FoundTown
+import com.emm.mygame.core.network.generated.models.NotEnoughWordsErrorParams
 import com.emm.mygame.core.network.generated.models.PlaceHiringOrder
 import com.emm.mygame.core.network.generated.models.StartBuildingWork
 import com.emm.mygame.core.network.generated.models.StartLessonRequest
@@ -213,9 +214,21 @@ private fun ApiError.toWorkRefusal(): TownWorkRefusal = when (this) {
     is ApiError.ToplevelreachedWrapper -> TownWorkRefusal.TopLevelReached(value.params.level)
     is ApiError.NotenoughpeopleWrapper ->
         TownWorkRefusal.NotEnoughPeople(required = value.params.requiredPeople, free = value.params.freePeople)
+    is ApiError.NotenoughwordsWrapper -> value.params.toWorkRefusal()
     is ApiError.NotenoughresourcesWrapper -> TownWorkRefusal.NotEnoughResources
     is ApiError.BuildingworknotfoundWrapper -> TownWorkRefusal.BuildingWorkNotFound(value.params.level)
     else -> TownWorkRefusal.Unrecognized
+}
+
+private fun NotEnoughWordsErrorParams.toWorkRefusal(): TownWorkRefusal {
+    val kind: NeededWordKind = standing.toNeededWordKind() ?: return TownWorkRefusal.Unrecognized
+    return TownWorkRefusal.NotEnoughWords(needed, held, kind)
+}
+
+private fun NotEnoughWordsErrorParams.Standing.toNeededWordKind(): NeededWordKind? = when (this) {
+    NotEnoughWordsErrorParams.Standing.stable -> NeededWordKind.Stable
+    NotEnoughWordsErrorParams.Standing.retained -> NeededWordKind.Retained
+    NotEnoughWordsErrorParams.Standing.unknown_default_open_api -> null
 }
 
 private val lessonRefusals: Map<BareApiError.Kind, TownLessonRefusal> = mapOf(

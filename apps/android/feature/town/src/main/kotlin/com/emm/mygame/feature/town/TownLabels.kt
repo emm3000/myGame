@@ -2,6 +2,7 @@ package com.emm.mygame.feature.town
 
 import androidx.compose.ui.graphics.vector.ImageVector
 import com.emm.mygame.core.designsystem.MyGameIcons
+import com.emm.mygame.core.network.NeededWordKind
 import com.emm.mygame.core.network.SeasonKind
 import com.emm.mygame.core.network.TownBuildingKind
 import com.emm.mygame.core.network.TownHiringRefusal
@@ -63,6 +64,11 @@ internal fun seasonSelectorOf(kind: SeasonKind): String = when (kind) {
     SeasonKind.Winter -> "winter"
 }
 
+internal fun neededWordSelectorOf(kind: NeededWordKind): String = when (kind) {
+    NeededWordKind.Stable -> "stable"
+    NeededWordKind.Retained -> "retained"
+}
+
 internal fun seasonNameOf(kind: SeasonKind): Int = when (kind) {
     SeasonKind.Spring -> R.string.town_season_spring
     SeasonKind.Summer -> R.string.town_season_summer
@@ -87,6 +93,12 @@ internal fun CopyReader.workRefusalLineOf(refusal: TownWorkRefusal): String = wh
         R.string.town_refusal_not_enough_people,
         "requiredPeople" to refusal.required,
         "freePeople" to refusal.free.toString(),
+    )
+    is TownWorkRefusal.NotEnoughWords -> text(
+        R.string.town_refusal_not_enough_words,
+        "needed" to refusal.needed.toString(),
+        "held" to refusal.held.toString(),
+        "standing" to neededWordSelectorOf(refusal.standing),
     )
     TownWorkRefusal.NotEnoughResources -> text(R.string.town_refusal_not_enough_resources)
     is TownWorkRefusal.BuildingWorkNotFound ->

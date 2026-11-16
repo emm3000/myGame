@@ -12,6 +12,11 @@
   "sitesPerArea": 15,
   "terrainBonusPerHour": 5,
   "waitingListCap": 4,
+  "wordNeed": {
+    "fromLevel": 3,
+    "perLevel": 10,
+    "retainedFromLevel": 7
+  },
   "job": {
     "secondsPerArea": 600,
     "secondsPerSite": 60,

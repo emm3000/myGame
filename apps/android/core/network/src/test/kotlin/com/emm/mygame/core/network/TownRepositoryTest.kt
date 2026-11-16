@@ -552,6 +552,18 @@ class TownRepositoryTest {
     }
 
     @Test
+    fun `carries the words a level needs, the words held and their standing`() = runTest {
+        api.enqueue(json(409, """{"kind":"NotEnoughWords","params":{"needed":50,"held":49,"standing":"retained"}}"""))
+
+        assertEquals(
+            TownWorkResult.Refused(
+                TownWorkRefusal.NotEnoughWords(needed = 50, held = 49, standing = NeededWordKind.Retained),
+            ),
+            town().startWork(TownBuildingKind.Homes),
+        )
+    }
+
+    @Test
     fun `carries the people a work needs and the people free`() = runTest {
         api.enqueue(json(409, """{"kind":"NotEnoughPeople","params":{"requiredPeople":5,"freePeople":2}}"""))
 

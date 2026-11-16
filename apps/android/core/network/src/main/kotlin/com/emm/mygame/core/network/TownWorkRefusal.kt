@@ -8,6 +8,8 @@ sealed interface TownWorkRefusal {
 
     data class NotEnoughPeople(val required: Int, val free: Int) : TownWorkRefusal
 
+    data class NotEnoughWords(val needed: Int, val held: Int, val standing: NeededWordKind) : TownWorkRefusal
+
     data object NotEnoughResources : TownWorkRefusal
 
     data class BuildingWorkNotFound(val level: Int) : TownWorkRefusal

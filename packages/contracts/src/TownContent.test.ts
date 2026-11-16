@@ -45,6 +45,7 @@ const townContent = (overrides: Record<string, unknown> = {}): unknown => ({
   sitesPerArea: 15,
   terrainBonusPerHour: 5,
   waitingListCap: 4,
+  wordNeed: { fromLevel: 3, perLevel: 10, retainedFromLevel: 7 },
   job,
   waste,
   seasons: {
@@ -184,6 +185,28 @@ describe('TownContentSchema', () => {
     expect(TownContentSchema.safeParse(townContent({ waste: { ...waste, sizes } })).success).toBe(
       false,
     )
+  })
+
+  it('parses the word need curve', () => {
+    const parsed = TownContentSchema.parse(townContent())
+
+    expect(parsed.wordNeed).toEqual({ fromLevel: 3, perLevel: 10, retainedFromLevel: 7 })
+  })
+
+  it('refuses a word need with a field it does not know', () => {
+    const parsed = TownContentSchema.safeParse(
+      townContent({ wordNeed: { fromLevel: 3, perLevel: 10, retainedFromLevel: 7, cap: 80 } }),
+    )
+
+    expect(parsed.success).toBe(false)
+  })
+
+  it('refuses a word need from level 0', () => {
+    const parsed = TownContentSchema.safeParse(
+      townContent({ wordNeed: { fromLevel: 0, perLevel: 10, retainedFromLevel: 7 } }),
+    )
+
+    expect(parsed.success).toBe(false)
   })
 
   it('refuses an area without sites', () => {

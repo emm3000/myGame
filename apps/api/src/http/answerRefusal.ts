@@ -106,6 +106,10 @@ const refusalBodyOf = (refusal: Refusal): RefusalBody => {
       const { kind, requiredPeople, freePeople } = refusal
       return { status: 409, body: { kind, params: { requiredPeople, freePeople } } }
     }
+    case 'NotEnoughWords': {
+      const { kind, needed, held, standing } = refusal
+      return { status: 409, body: { kind, params: { needed, held, standing } } }
+    }
     case 'NotEnoughResources':
       return { status: 409, body: { kind: refusal.kind, params: { missing: refusal.missing } } }
     case 'LearningCapReached': {

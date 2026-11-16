@@ -79,7 +79,7 @@ export const townDeclarations = {
         400: malformedResponse('body'),
         404: townNotFoundResponse,
         409: refusalResponse(
-          'WaitingListFull, TopLevelReached, NotEnoughPeople or NotEnoughResources.',
+          'WaitingListFull, TopLevelReached, NotEnoughPeople, NotEnoughWords or NotEnoughResources.',
         ),
       },
     }),

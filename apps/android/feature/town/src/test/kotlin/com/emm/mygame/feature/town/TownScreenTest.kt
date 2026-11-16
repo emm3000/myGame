@@ -32,6 +32,7 @@ import com.emm.mygame.core.designsystem.MyGameTransitions
 import com.emm.mygame.core.designsystem.OUTLINED_PILL
 import com.emm.mygame.core.designsystem.PLACE_ART
 import com.emm.mygame.core.designsystem.SKELETON_BLOCK
+import com.emm.mygame.core.network.NeededWordKind
 import com.emm.mygame.core.network.TownBuildingKind
 import com.emm.mygame.core.network.TownFoundRefusal
 import com.emm.mygame.core.network.TownLabel
@@ -437,6 +438,42 @@ class TownScreenTest {
 
         composeRule
             .onNodeWithText("Esta obra necesita 5 personas libres y tienes 2. Sube el nivel de tus hogares.")
+            .performScrollTo()
+            .assertIsDisplayed()
+    }
+
+    @Test
+    fun `draws the stable word refusal`() {
+        val refused: TownUiState.StartStatus = TownUiState.StartStatus.Refused(
+            TownBuildingKind.Farm,
+            TownWorkRefusal.NotEnoughWords(needed = 10, held = 9, standing = NeededWordKind.Stable),
+        )
+
+        show(riverton.copy(start = refused))
+
+        composeRule
+            .onNodeWithText(
+                "Este nivel necesita 10 palabras repasadas y tienes 9. " +
+                    "Estudia lecciones nuevas y repasa las palabras que te tocan.",
+            )
+            .performScrollTo()
+            .assertIsDisplayed()
+    }
+
+    @Test
+    fun `draws the retained word refusal`() {
+        val refused: TownUiState.StartStatus = TownUiState.StartStatus.Refused(
+            TownBuildingKind.Farm,
+            TownWorkRefusal.NotEnoughWords(needed = 50, held = 49, standing = NeededWordKind.Retained),
+        )
+
+        show(riverton.copy(start = refused))
+
+        composeRule
+            .onNodeWithText(
+                "Este nivel necesita 50 palabras aprendidas y tienes 49. " +
+                    "Estudia lecciones nuevas y repasa las palabras que te tocan.",
+            )
             .performScrollTo()
             .assertIsDisplayed()
     }

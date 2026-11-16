@@ -1,5 +1,9 @@
 import type { DomainError } from '../DomainError'
+import type { HeldCard } from '../learning/HeldCard'
+import { retainedWordCountOf } from '../learning/retainedWordCountOf'
+import { stableWordCountOf } from '../learning/stableWordCountOf'
 import type { PlayerId } from '../player/PlayerId'
+import type { CardRepository } from '../ports/CardRepository'
 import type { Clock } from '../ports/Clock'
 import { err, ok, type Result } from '../Result'
 import { deriveBuildDurationSeconds } from '../season/deriveBuildDurationSeconds'
@@ -11,6 +15,7 @@ import type { BuildingLevels } from './BuildingLevels'
 import { buildPercentAt } from './buildPercentAt'
 import { derivePeople } from './derivePeople'
 import type { Hires } from './Hires'
+import { levelWordNeedOf } from './levelWordNeedOf'
 import { rebaseFullSince } from './rebaseFullSince'
 import { resolvedTownOf } from './resolvedTownOf'
 import { saveChangedTown } from './saveChangedTown'
@@ -27,6 +32,7 @@ export type StartBuildingWorkCommand = {
 export type StartBuildingWorkDependencies = {
   readonly towns: TownRepository
   readonly news: TownNews
+  readonly cards: CardRepository
   readonly catalog: TownCatalog
   readonly clock: Clock
 }
@@ -71,9 +77,26 @@ const staffWork = (
   return ok(undefined)
 }
 
+const meetWordNeed = (
+  next: BuildingLevel,
+  cards: ReadonlyArray<HeldCard>,
+  catalog: TownCatalog,
+): Result<void, DomainError> => {
+  const need = levelWordNeedOf(next.level, catalog.townSettings().wordNeed)
+  if (need === null) {
+    return ok(undefined)
+  }
+  const held = need.standing === 'stable' ? stableWordCountOf(cards) : retainedWordCountOf(cards)
+  if (held < need.count) {
+    return err({ kind: 'NotEnoughWords', needed: need.count, held, standing: need.standing })
+  }
+  return ok(undefined)
+}
+
 const admitWork = (
   town: Town,
   building: BuildingKind,
+  cards: ReadonlyArray<HeldCard>,
   catalog: TownCatalog,
 ): Result<BuildingLevel, DomainError> => {
   const room = town.roomForWork(catalog.townSettings().waitingListCap)
@@ -87,6 +110,10 @@ const admitWork = (
   const staffed = staffWork(town.projectedLevels, town.staffedHires, next.value, catalog)
   if (!staffed.ok) {
     return staffed
+  }
+  const needMet = meetWordNeed(next.value, cards, catalog)
+  if (!needMet.ok) {
+    return needMet
   }
   return next
 }
@@ -124,14 +151,18 @@ const startWorkAt = (
 
 export const startBuildingWork = async (
   { playerId, building }: StartBuildingWorkCommand,
-  { towns, news, catalog, clock }: StartBuildingWorkDependencies,
+  { towns, news, cards, catalog, clock }: StartBuildingWorkDependencies,
 ): Promise<Result<Town, DomainError>> => {
   const now = clock.now()
   const resolved = await resolvedTownOf(playerId, towns, catalog, now)
   if (!resolved.ok) {
     return resolved
   }
-  const next = admitWork(resolved.value.town, building, catalog)
+  const held = await cards.cardsOf(playerId)
+  if (!held.ok) {
+    return held
+  }
+  const next = admitWork(resolved.value.town, building, held.value, catalog)
   if (!next.ok) {
     return next
   }

@@ -5,6 +5,7 @@ import type { Instant } from './time/Instant'
 import type { BuildingKind } from './town/BuildingKind'
 import type { HireKind } from './town/HireKind'
 import type { Hires } from './town/Hires'
+import type { NeededWordKind } from './town/NeededWordKind'
 import type { ResourceKind } from './town/ResourceKind'
 import type { SiteAddress } from './town/SiteAddress'
 import type { Stocks } from './town/Stocks'
@@ -101,6 +102,12 @@ export type DomainError =
       readonly kind: 'NotEnoughPeople'
       readonly requiredPeople: number
       readonly freePeople: number
+    }
+  | {
+      readonly kind: 'NotEnoughWords'
+      readonly needed: number
+      readonly held: number
+      readonly standing: NeededWordKind
     }
   | { readonly kind: 'NotEnoughResources'; readonly missing: Stocks }
   | {

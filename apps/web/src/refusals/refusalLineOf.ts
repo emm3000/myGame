@@ -24,6 +24,7 @@ import {
   refusalNotEnoughHiresAtHome,
   refusalNotEnoughPeople,
   refusalNotEnoughResources,
+  refusalNotEnoughWords,
   refusalNoWasteYet,
   refusalOfficeTooLow,
   refusalPlayerAlreadyHoldsTown,
@@ -92,6 +93,8 @@ const lineWithParamsOf = (error: RefusalWithParams): string => {
       return refusalWaitingListFull(error.params)
     case 'NotEnoughPeople':
       return refusalNotEnoughPeople(error.params)
+    case 'NotEnoughWords':
+      return refusalNotEnoughWords(error.params)
     case 'NotEnoughResources':
       return refusalNotEnoughResources()
     case 'TopLevelReached':
