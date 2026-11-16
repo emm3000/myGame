@@ -32,9 +32,9 @@ private fun PathRow(first: SchoolPathSteps.Step, second: SchoolPathSteps.Step, m
 @Composable
 private fun PathStep(step: SchoolPathSteps.Step, modifier: Modifier = Modifier) {
     Column(modifier = modifier.semantics(mergeDescendants = true) { }) {
-        MyGameText(text = step.label, style = MyGameTypography.caption, color = MyGameTheme.colors.inkMuted)
+        MyGameText(label = step.label, style = MyGameTypography.caption, color = MyGameTheme.colors.inkMuted)
         MyGameText(
-            text = step.count,
+            label = step.count,
             style = MyGameTypography.body.withTabularFigures(),
             color = MyGameTheme.colors.ink,
         )

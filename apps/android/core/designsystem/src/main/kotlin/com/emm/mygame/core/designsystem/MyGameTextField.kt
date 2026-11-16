@@ -51,7 +51,7 @@ fun MyGameTextField(
         modifier = modifier,
         keyboardActions = keyboardActions,
         contentType = contentType,
-        supportingText = supportingText,
+        supportingText = supportingText?.let { line: String -> MyGameLabel(text = line, translation = null) },
         isEnabled = isEnabled,
     )
 }
@@ -67,7 +67,7 @@ fun MyGameTextField(
     modifier: Modifier = Modifier,
     keyboardActions: KeyboardActions = KeyboardActions.Default,
     contentType: ContentType? = null,
-    supportingText: String? = null,
+    supportingText: MyGameLabel? = null,
     isEnabled: Boolean = true,
 ) {
     val colors: MyGameColors = MyGameTheme.colors
@@ -111,7 +111,7 @@ fun MyGameTextField(
                         field()
                     }
                     if (supportingText != null) {
-                        MyGameText(text = supportingText, style = MyGameTypography.body, color = colors.inkMuted)
+                        MyGameText(label = supportingText, style = MyGameTypography.body, color = colors.inkMuted)
                     }
                 }
             },
@@ -172,6 +172,7 @@ private fun MyGameTextFieldTranslatedPreview() {
             isReadOnly = false,
             keyboardOptions = KeyboardOptions.Default,
             onValueChange = {},
+            supportingText = MyGameLabel(text = "3 at home", translation = "3 en casa"),
         )
     }
 }
