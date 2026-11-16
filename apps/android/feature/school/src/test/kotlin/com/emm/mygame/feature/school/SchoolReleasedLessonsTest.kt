@@ -56,7 +56,7 @@ class SchoolReleasedLessonsTest {
 
     private val releasedUnderStudy: TownSnapshot = shelvedAndReleased.copy(
         lessonSlot = slotOf(lesson = secondSet),
-        nextStep = NextStep.LessonRunning(producer = null),
+        nextStep = NextStep.LessonRunning(goal = null),
     )
 
     private val releasedStudied: TownSnapshot = shelvedAndReleased.copy(

@@ -33,9 +33,6 @@
     <string name="town_naming_mayor">Ahora diriges tu propio pueblo.</string>
     <string name="town_naming_submit">Empezar</string>
     <string name="town_naming_title">Ponle nombre a tu pueblo</string>
-    <string name="town_next_build_factory">Construye la fábrica</string>
-    <string name="town_next_build_farm">Construye la granja</string>
-    <string name="town_next_build_power_station">Construye la central eléctrica</string>
     <string name="town_next_go_to_report">Ir al informe</string>
     <string name="town_next_holdout_check">Prueba de palabras de la banda {band}</string>
     <string name="town_next_holdout_open">Abrir la prueba</string>

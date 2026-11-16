@@ -10,9 +10,6 @@ import {
   schoolLessonWords,
   schoolSlotTitle,
   townGoToSchool,
-  townNextBuildFactory,
-  townNextBuildFarm,
-  townNextBuildPowerStation,
   townNextGoToReport,
   townNextHoldoutCheck,
   townNextLessonReadyIn,
@@ -149,50 +146,16 @@ it('shows no lesson time beside the reviews while no lesson runs', async () => {
 })
 
 it('opens the words of the running lesson', async () => {
-  await showTown(
-    townAt({ kind: 'lessonRunning', producer: null }, { lessonSlot: runningLessonTwo }),
-  )
+  await showTown(townAt({ kind: 'lessonRunning', goal: null }, { lessonSlot: runningLessonTwo }))
 
   expect(within(card()).getByText(schoolSlotTitle())).toBeDefined()
   expect(pill(schoolLessonReadWords()).getAttribute('href')).toBe('/school/lesson-2')
 })
 
 it('opens the school if the read holds no running lesson', async () => {
-  await showTown(townAt({ kind: 'lessonRunning', producer: null }))
+  await showTown(townAt({ kind: 'lessonRunning', goal: null }))
 
   expect(pill(schoolLessonReadWords()).getAttribute('href')).toBe('/school')
-})
-
-it('names the producer to build', async () => {
-  await showTown(
-    townAt({ kind: 'lessonRunning', producer: 'farm' }, { lessonSlot: runningLessonTwo }),
-  )
-
-  expect(within(card()).getByText(townNextBuildFarm())).toBeDefined()
-})
-
-it('names the factory to build', async () => {
-  await showTown(
-    townAt({ kind: 'lessonRunning', producer: 'factory' }, { lessonSlot: runningLessonTwo }),
-  )
-
-  expect(within(card()).getByText(townNextBuildFactory())).toBeDefined()
-})
-
-it('names the power station to build', async () => {
-  await showTown(
-    townAt({ kind: 'lessonRunning', producer: 'powerStation' }, { lessonSlot: runningLessonTwo }),
-  )
-
-  expect(within(card()).getByText(townNextBuildPowerStation())).toBeDefined()
-})
-
-it('names no producer when none is to build', async () => {
-  await showTown(
-    townAt({ kind: 'lessonRunning', producer: null }, { lessonSlot: runningLessonTwo }),
-  )
-
-  expect(within(card()).queryByText(townNextBuildFarm())).toBeNull()
 })
 
 it("opens the school with the next review's time", async () => {
@@ -321,7 +284,7 @@ it.each<[string, NextStep, Partial<TownOverview>, () => string]>([
   ],
   [
     'a running lesson',
-    { kind: 'lessonRunning', producer: 'farm' },
+    { kind: 'lessonRunning', goal: null },
     { lessonSlot: runningLessonTwo },
     schoolLessonReadWords,
   ],

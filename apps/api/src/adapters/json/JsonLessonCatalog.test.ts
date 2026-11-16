@@ -60,10 +60,7 @@ const lessonOneTerms = {
   wordIds: ['lesson-1-1'],
 }
 
-const contentOfLessons = (
-  lessonIds: ReadonlyArray<string>,
-  cycle: ReadonlyArray<string>,
-): string => {
+const contentOfLessons = (lessonIds: ReadonlyArray<string>): string => {
   const directory = contentCopy()
   for (const id of lessonIds) {
     writeJson(directory, `${id}.json`, { id, ...lessonOneTerms })
@@ -71,7 +68,7 @@ const contentOfLessons = (
   writeJson(directory, 'curriculum.json', {
     chromeLessonCount: 1,
     lessonIds,
-    skill: { cycle, ratePercent: 5 },
+    skill: { resource: 'money', ratePercent: 5 },
   })
   return directory
 }
@@ -288,7 +285,7 @@ describe('JsonLessonCatalog', () => {
     ).toEqual(lessonOneTable())
   })
 
-  it('reads the terms of lesson 1 from its content, its skill food at 5 %', () => {
+  it('reads the terms of lesson 1 from its content, its skill money at 5 %', () => {
     const lesson = JsonLessonCatalog.fromDirectory(shippedContent).lessonOf('lesson-1')
 
     expect({ ...lesson, words: undefined }).toEqual({
@@ -296,7 +293,7 @@ describe('JsonLessonCatalog', () => {
       theme: 'A day in town',
       durationSeconds: 300,
       requiredSchoolLevel: 1,
-      skill: { resource: 'food', ratePercent: 5 },
+      skill: { resource: 'money', ratePercent: 5 },
       words: undefined,
     })
   })
@@ -357,7 +354,7 @@ describe('JsonLessonCatalog', () => {
   })
 
   it('loads the lessons the curriculum lists, in its order', () => {
-    const directory = contentOfLessons(['lesson-b', 'lesson-a'], ['food'])
+    const directory = contentOfLessons(['lesson-b', 'lesson-a'])
 
     expect(
       JsonLessonCatalog.fromDirectory(directory)
@@ -366,15 +363,13 @@ describe('JsonLessonCatalog', () => {
     ).toEqual(['lesson-b', 'lesson-a'])
   })
 
-  it('derives the skill of lessons 1, 2 and k + 1 from their places in the cycle', () => {
-    const lessonIds = ['first', 'second', 'third', 'fourth', 'fifth', 'sixth']
-    const directory = contentOfLessons(lessonIds, ['power', 'food', 'money', 'material'])
-    const catalog = JsonLessonCatalog.fromDirectory(directory)
+  it('gives lessons 1, 2 and 27 the money skill at 5 %', () => {
+    const catalog = JsonLessonCatalog.fromDirectory(shippedContent)
 
-    expect(['first', 'second', 'fifth'].map((id) => catalog.lessonOf(id)?.skill)).toEqual([
-      { resource: 'power', ratePercent: 5 },
-      { resource: 'food', ratePercent: 5 },
-      { resource: 'power', ratePercent: 5 },
+    expect(['lesson-1', 'lesson-2', 'lesson-27'].map((id) => catalog.lessonOf(id)?.skill)).toEqual([
+      { resource: 'money', ratePercent: 5 },
+      { resource: 'money', ratePercent: 5 },
+      { resource: 'money', ratePercent: 5 },
     ])
   })
 
@@ -437,7 +432,7 @@ describe('JsonLessonCatalog', () => {
   })
 
   it('fails start-up on a lesson file whose id is not the one the curriculum lists', () => {
-    const directory = contentOfLessons(['lesson-a'], ['food'])
+    const directory = contentOfLessons(['lesson-a'])
     writeJson(directory, 'lesson-a.json', { id: 'lesson-b', ...lessonOneTerms })
 
     expect(() => JsonLessonCatalog.fromDirectory(directory)).toThrow(/lesson-a\.json is malformed/)
@@ -460,7 +455,7 @@ describe('JsonLessonCatalog', () => {
   })
 
   it('fails start-up on a lesson word the lexicon lacks', () => {
-    const directory = contentOfLessons(['lesson-a'], ['food'])
+    const directory = contentOfLessons(['lesson-a'])
     writeJson(directory, 'lesson-a.json', {
       id: 'lesson-a',
       ...lessonOneTerms,

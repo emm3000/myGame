@@ -487,20 +487,22 @@ describe('TownOverviewSchema next step', () => {
     expect(TownOverviewSchema.safeParse(overview({ nextStep })).success).toBe(false)
   })
 
-  it('reads a running lesson with the producer to build', () => {
-    const nextStep = { kind: 'lessonRunning', producer: 'powerStation' }
+  it('reads a running lesson with the next goal', () => {
+    const goal = { position: 1, count: 9, building: 'farm', level: 1, state: 'underway' }
+
+    const read = TownOverviewSchema.parse(overview({ nextStep: { kind: 'lessonRunning', goal } }))
+
+    expect(read.nextStep).toEqual({ kind: 'lessonRunning', goal })
+  })
+
+  it('reads a running lesson with no goal', () => {
+    const nextStep = { kind: 'lessonRunning', goal: null }
 
     expect(TownOverviewSchema.parse(overview({ nextStep })).nextStep).toEqual(nextStep)
   })
 
-  it('reads a running lesson with no producer', () => {
-    const nextStep = { kind: 'lessonRunning', producer: null }
-
-    expect(TownOverviewSchema.parse(overview({ nextStep })).nextStep).toEqual(nextStep)
-  })
-
-  it('refuses a producer that makes no resource', () => {
-    const nextStep = { kind: 'lessonRunning', producer: 'school' }
+  it('refuses a running lesson with a field it does not carry', () => {
+    const nextStep = { kind: 'lessonRunning', goal: null, building: 'farm' }
 
     expect(TownOverviewSchema.safeParse(overview({ nextStep })).success).toBe(false)
   })

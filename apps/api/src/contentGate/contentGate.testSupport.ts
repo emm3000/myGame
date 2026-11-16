@@ -152,7 +152,7 @@ const lessonOneParts = (): ContentParts => ({
   structures: [structureOf('lesson-1', lessonOneFrameWords, lessonOneInflections)],
   ranks: new Map(fixtureRanks),
   forms: fixtureForms(),
-  skill: { cycle: ['food', 'material', 'power', 'money'], ratePercent: 5 },
+  skill: { resource: 'money', ratePercent: 5 },
   englishMessages: {},
 })
 

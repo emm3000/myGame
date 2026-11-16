@@ -4,6 +4,7 @@ import com.emm.mygame.core.network.NextStep
 import com.emm.mygame.core.network.NextStepCard
 import com.emm.mygame.core.network.TipKind
 import com.emm.mygame.core.network.TownBuildingKind
+import com.emm.mygame.core.network.TownGoal
 import com.emm.mygame.core.network.TownHireKind
 import com.emm.mygame.core.network.TownRegistered
 import com.emm.mygame.core.network.TownResourceKind
@@ -46,7 +47,7 @@ internal fun TownSnapshot.contentAt(
             .map { place: TownSnapshot.Building -> place.cardWith(drawn, this, registered, now, gap) },
         nextStep = card,
         nextStepTime = card.countdown?.timeAt(now, gap),
-        goal = (nextStep as? NextStep.CaughtUp)?.goal?.takeUnless { closed.isGoalClosed },
+        goal = nextStep.carriedGoal()?.takeUnless { closed.isGoalClosed },
         tip = tip?.takeUnless { shown: TipKind -> shown in closed.tips },
         start = mutations.start,
         stop = mutations.stop,
@@ -63,6 +64,12 @@ internal fun TownSnapshot.nearestCountdownAt(now: Instant): Duration? =
         .filter { instant: Instant -> instant > now }
         .minOrNull()
         ?.let { instant: Instant -> instant - now }
+
+private fun NextStep.carriedGoal(): TownGoal? = when (this) {
+    is NextStep.LessonRunning -> goal
+    is NextStep.CaughtUp -> goal
+    is NextStep.Reviews, is NextStep.HoldoutCheck, is NextStep.ReleasedLesson, is NextStep.LessonToStudy -> null
+}
 
 private fun NextStepCard.Countdown.timeAt(now: Instant, gap: Duration): TownUiState.NextStepTime =
     TownUiState.NextStepTime(remaining = countdownTo(finishesAt = at, now = now), finishesAt = at - gap)

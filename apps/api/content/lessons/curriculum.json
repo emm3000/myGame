@@ -30,7 +30,7 @@
     "lesson-27"
   ],
   "skill": {
-    "cycle": ["food", "material", "power", "money"],
+    "resource": "money",
     "ratePercent": 5
   }
 }

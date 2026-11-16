@@ -46,6 +46,8 @@ class TownGuidanceScreenTest {
         state = TownGoal.State.Underway,
     )
 
+    private val closedGoal: ClosedGuidance = ClosedGuidance(tips = emptySet(), isGoalClosed = true)
+
     private fun pendingGoal(resources: List<TownSnapshot.Cost>, people: Int): TownGoal =
         factoryGoal.copy(state = TownGoal.State.Pending(resources = resources, people = people))
 
@@ -67,7 +69,6 @@ class TownGuidanceScreenTest {
     fun `shows no goal beside any other next step`() {
         val otherSteps: List<NextStep> = listOf(
             NextStep.Reviews(3, readFirst = emptyList()),
-            NextStep.LessonRunning(NextStep.Producer.Farm),
             NextStep.LessonToStudy(secondLesson),
         )
 
@@ -76,7 +77,22 @@ class TownGuidanceScreenTest {
             listOfNotNull(content.goal).size
         }
 
-        assertEquals(listOf(0, 0, 0), goalLines)
+        assertEquals(listOf(0, 0), goalLines)
+    }
+
+    @Test
+    fun `draws the goal under a running lesson`() {
+        show(townOf(nextStep = NextStep.LessonRunning(factoryGoal)))
+
+        composeRule.onNodeWithText("Meta 2 de 9: Fábrica, nivel 1").assertExists()
+        composeRule.onNodeWithText("En construcción").assertExists()
+    }
+
+    @Test
+    fun `draws no goal under a running lesson once the goal is closed`() {
+        show(townOf(nextStep = NextStep.LessonRunning(factoryGoal)), closedGoal)
+
+        composeRule.onAllNodesWithText("Meta", substring = true).assertCountEquals(0)
     }
 
     @Test
@@ -194,18 +210,21 @@ class TownGuidanceScreenTest {
         return line
     }
 
-    private fun contentOf(town: TownSnapshot): TownUiState.Content = town.copy(lessons = listOf(lessonOf(secondLesson)))
+    private fun contentOf(
+        town: TownSnapshot,
+        closed: ClosedGuidance = ClosedGuidance.none,
+    ): TownUiState.Content = town.copy(lessons = listOf(lessonOf(secondLesson)))
         .contentAt(
             now = readInstant,
             gap = Duration.ZERO,
             mutations = TownMutations.none,
             registered = TownRegistered.nothing,
             hireEntries = emptyMap(),
-            closed = ClosedGuidance.none,
+            closed = closed,
         )
 
-    private fun show(town: TownSnapshot) {
-        composeRule.setContent { MyGameTheme { Screen(contentOf(town)) } }
+    private fun show(town: TownSnapshot, closed: ClosedGuidance = ClosedGuidance.none) {
+        composeRule.setContent { MyGameTheme { Screen(contentOf(town, closed)) } }
     }
 
     @Composable

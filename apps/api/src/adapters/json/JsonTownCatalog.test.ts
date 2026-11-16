@@ -56,7 +56,7 @@ describe('JsonTownCatalog', () => {
     ).toEqual(everyBuilding.map((building) => [building, undefined]))
   })
 
-  it('reads a producer level as its rate and a storage level as its capacity', () => {
+  it('reads a farm level as its rate and a storage level as its capacity', () => {
     const catalog = shippedCatalog()
 
     expect([catalog.levelOf('farm', 1), catalog.levelOf('storage', 2)]).toEqual([

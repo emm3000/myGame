@@ -21,8 +21,6 @@ data class NextStepCard(val line: Line, val detail: Detail?, val countdown: Coun
 
     sealed interface Detail {
 
-        data class Build(val producer: NextStep.Producer) : Detail
-
         data class Words(val count: Int) : Detail
     }
 
@@ -67,7 +65,7 @@ fun TownSnapshot.nextStepCard(): NextStepCard = when (val step: NextStep = nextS
     )
     is NextStep.LessonRunning -> NextStepCard(
         line = NextStepCard.Line.Studying,
-        detail = step.producer?.let { producer: NextStep.Producer -> NextStepCard.Detail.Build(producer) },
+        detail = null,
         countdown = lessonCountdown(),
         action = NextStepCard.Action.ReadWords(heldRunningLesson()),
     )

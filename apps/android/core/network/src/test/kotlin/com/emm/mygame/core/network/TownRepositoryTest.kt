@@ -123,21 +123,29 @@ class TownRepositoryTest {
     }
 
     @Test
-    fun `reads the producer a running lesson names`() = runTest {
-        api.enqueue(json(200, townWithNextStep("""{"kind":"lessonRunning","producer":"powerStation"}""")))
+    fun `reads the goal a running lesson carries`() = runTest {
+        val goal: String = """{"position":1,"count":9,"building":"farm","level":1,"state":"underway"}"""
+        api.enqueue(json(200, townWithNextStep("""{"kind":"lessonRunning","goal":$goal}""")))
 
         val read: TownSnapshot = (town().read() as TownReadResult.Read).town
 
-        assertEquals(NextStep.LessonRunning(NextStep.Producer.PowerStation), read.nextStep)
+        val underway: TownGoal = TownGoal(
+            position = 1,
+            count = 9,
+            building = TownBuildingKind.Farm,
+            level = 1,
+            state = TownGoal.State.Underway,
+        )
+        assertEquals(NextStep.LessonRunning(underway), read.nextStep)
     }
 
     @Test
-    fun `reads a running lesson that names no producer`() = runTest {
-        api.enqueue(json(200, townWithNextStep("""{"kind":"lessonRunning","producer":null}""")))
+    fun `reads a running lesson that carries no goal`() = runTest {
+        api.enqueue(json(200, townWithNextStep("""{"kind":"lessonRunning","goal":null}""")))
 
         val read: TownSnapshot = (town().read() as TownReadResult.Read).town
 
-        assertEquals(NextStep.LessonRunning(producer = null), read.nextStep)
+        assertEquals(NextStep.LessonRunning(goal = null), read.nextStep)
     }
 
     @Test

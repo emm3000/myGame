@@ -87,7 +87,7 @@ class TownNextStepViewModelTest {
     @Test
     fun `draws the town the released lesson start answered`() = runTest {
         val viewModel: TownViewModel = homeViewModel(townOf(nextStep = releasedStep))
-        towns.answerLesson(TownLessonResult.Answered(townOf(nextStep = NextStep.LessonRunning(producer = null))))
+        towns.answerLesson(TownLessonResult.Answered(townOf(nextStep = NextStep.LessonRunning(goal = null))))
 
         viewModel.onIntent(TownIntent.ReleasedLessonTapped(releasedLesson))
 

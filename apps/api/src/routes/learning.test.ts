@@ -394,7 +394,7 @@ describe('the learning routes', () => {
           theme: 'A day in town',
           durationSeconds: 300,
           requiredSchoolLevel: 1,
-          skill: { resource: 'food', ratePercent: 5 },
+          skill: { resource: 'money', ratePercent: 5 },
           isStudied: false,
           words: wordIds.map((wordId, index) => ({
             wordId,
@@ -1199,9 +1199,8 @@ describe('the learning routes', () => {
       expect(learning.retainedWords).toBeNull()
     })
 
-    it("earns the food skill at the second recall with the town's rates before and after", async () => {
+    it("earns the money skill at the second recall with the town's rates before and after", async () => {
       const player = await studyToTheLastSecondRecall()
-      await runSql("UPDATE town_buildings SET level = 2 WHERE building = 'farm'")
       const before = await readTown(player)
 
       const { verdict } = await answered(player, 'lesson-1-5', 'food')
@@ -1214,16 +1213,16 @@ describe('the learning routes', () => {
         dueAt: '2027-01-08T15:00:00.000Z',
         earnedSkill: {
           lessonId: 'lesson-1',
-          resource: 'food',
+          resource: 'money',
           ratePercent: 5,
           earnedAt: secondRecallAt,
           level: 1,
-          ratePerHourBefore: before.stocks.food.ratePerHour,
-          ratePerHourAfter: after.stocks.food.ratePerHour,
+          ratePerHourBefore: before.stocks.money.ratePerHour,
+          ratePerHourAfter: after.stocks.money.ratePerHour,
           words: ['home', 'school', 'work', 'money', 'food'],
         },
       })
-      expect(after.stocks.food.ratePerHour).toBeGreaterThan(before.stocks.food.ratePerHour)
+      expect(after.stocks.money.ratePerHour).toBeGreaterThan(before.stocks.money.ratePerHour)
     })
 
     it('carries the earned skill on the town overview', async () => {
@@ -1232,7 +1231,23 @@ describe('the learning routes', () => {
       await answered(player, 'lesson-1-5', 'food')
 
       expect((await readTown(player)).skills).toEqual([
-        { lessonId: 'lesson-1', resource: 'food', ratePercent: 5, earnedAt: secondRecallAt },
+        { lessonId: 'lesson-1', resource: 'money', ratePercent: 5, earnedAt: secondRecallAt },
+      ])
+    })
+
+    it('keeps the food skill a lesson earned before every skill raised money', async () => {
+      const player = await signUpWithATown()
+      await runSql(
+        "INSERT INTO earned_skills (player_id, lesson_id, resource, rate_percent, earned_at) SELECT id, 'lesson-1', 'food', 5, '2026-11-02T09:00:00.000Z' FROM players",
+      )
+
+      expect((await readTown(player)).skills).toEqual([
+        {
+          lessonId: 'lesson-1',
+          resource: 'food',
+          ratePercent: 5,
+          earnedAt: '2026-11-02T09:00:00.000Z',
+        },
       ])
     })
 
@@ -1244,7 +1259,7 @@ describe('the learning routes', () => {
 
       expect(verdict.kind === 'correct' && verdict.earnedSkill).toEqual({
         lessonId: 'lesson-1',
-        resource: 'food',
+        resource: 'money',
         ratePercent: 5,
         earnedAt: secondRecallAt,
         level: 1,

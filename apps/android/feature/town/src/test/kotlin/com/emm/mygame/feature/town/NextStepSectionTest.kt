@@ -114,7 +114,7 @@ class NextStepSectionTest {
 
     @Test
     fun `opens the words of the running lesson`() {
-        show(townOf(nextStep = NextStep.LessonRunning(producer = null), lessonSlot = runningLesson))
+        show(townOf(nextStep = NextStep.LessonRunning(goal = null), lessonSlot = runningLesson))
 
         pill("Leer las palabras").performClick()
 
@@ -122,34 +122,9 @@ class NextStepSectionTest {
     }
 
     @Test
-    fun `names the producer to build`() {
-        show(townOf(nextStep = NextStep.LessonRunning(NextStep.Producer.Farm), lessonSlot = runningLesson))
+    fun `names the running lesson as studying`() {
+        show(townOf(nextStep = NextStep.LessonRunning(goal = null), lessonSlot = runningLesson))
 
-        composeRule.onNodeWithText("Construye la granja").assertExists()
-    }
-
-    @Test
-    fun `names the factory and the power station by their own lines`() {
-        val shown: List<Pair<NextStep.Producer, String>> = listOf(
-            NextStep.Producer.Factory to "Construye la fábrica",
-            NextStep.Producer.PowerStation to "Construye la central eléctrica",
-        )
-        val home = mutableStateOf<TownUiState>(contentOf(townOf()))
-        composeRule.setContent { MyGameTheme { Screen(home.value) } }
-
-        shown.forEach { (producer: NextStep.Producer, line: String) ->
-            home.value = contentOf(townOf(nextStep = NextStep.LessonRunning(producer), lessonSlot = runningLesson))
-            composeRule.waitForIdle()
-
-            composeRule.onNodeWithText(line).assertExists()
-        }
-    }
-
-    @Test
-    fun `names no producer when the step names none`() {
-        show(townOf(nextStep = NextStep.LessonRunning(producer = null), lessonSlot = runningLesson))
-
-        composeRule.onAllNodesWithText("Construye", substring = true).assertCountEquals(0)
         composeRule.onNodeWithText("En estudio").assertExists()
     }
 
@@ -227,7 +202,7 @@ class NextStepSectionTest {
     fun `draws no lesson number while a released lesson runs`() {
         val runningReleased: TownSnapshot.LessonSlot =
             TownSnapshot.LessonSlot(releasedLesson, readInstant, readInstant + 7.minutes)
-        show(townOf(nextStep = NextStep.LessonRunning(producer = null), lessonSlot = runningReleased))
+        show(townOf(nextStep = NextStep.LessonRunning(goal = null), lessonSlot = runningReleased))
 
         composeRule.onAllNodesWithText("Lección 0", substring = true).assertCountEquals(0)
     }
@@ -236,7 +211,7 @@ class NextStepSectionTest {
     fun `opens the school for the words of a running released lesson`() {
         val runningReleased: TownSnapshot.LessonSlot =
             TownSnapshot.LessonSlot(releasedLesson, readInstant, readInstant + 7.minutes)
-        show(townOf(nextStep = NextStep.LessonRunning(producer = null), lessonSlot = runningReleased))
+        show(townOf(nextStep = NextStep.LessonRunning(goal = null), lessonSlot = runningReleased))
 
         pill("Leer las palabras").performClick()
 
@@ -268,7 +243,7 @@ class NextStepSectionTest {
         val steps: List<TownSnapshot> = listOf(
             townOf(nextStep = NextStep.Reviews(3, listOf(secondLesson))),
             townOf(nextStep = NextStep.Reviews(3, readFirst = emptyList())),
-            townOf(nextStep = NextStep.LessonRunning(NextStep.Producer.Farm), lessonSlot = runningLesson),
+            townOf(nextStep = NextStep.LessonRunning(goal = null), lessonSlot = runningLesson),
             townOf(nextStep = NextStep.LessonToStudy(secondLesson)),
             townOf(nextStep = dueCheck),
             townOf(nextStep = releasedStep),

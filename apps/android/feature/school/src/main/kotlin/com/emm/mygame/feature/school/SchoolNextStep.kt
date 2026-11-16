@@ -13,7 +13,6 @@ import com.emm.mygame.core.designsystem.MyGameSpacing
 import com.emm.mygame.core.designsystem.formatQuantity
 import com.emm.mygame.core.network.HoldoutCheckWeek
 import com.emm.mygame.core.network.LessonId
-import com.emm.mygame.core.network.NextStep
 import com.emm.mygame.core.network.NextStepCard
 import com.emm.mygame.core.network.PlacementBand
 import com.emm.mygame.core.ui.CopyReader
@@ -90,14 +89,7 @@ private fun PlayerCopy.lineOf(line: NextStepCard.Line): MyGameLabel = when (line
 }
 
 private fun PlayerCopy.detailOf(detail: NextStepCard.Detail): MyGameLabel = when (detail) {
-    is NextStepCard.Detail.Build -> chrome(buildLineOf(detail.producer))
     is NextStepCard.Detail.Words -> chrome(R.string.school_lesson_words, "count" to detail.count)
-}
-
-private fun buildLineOf(producer: NextStep.Producer): Int = when (producer) {
-    NextStep.Producer.Farm -> R.string.school_next_build_farm
-    NextStep.Producer.Factory -> R.string.school_next_build_factory
-    NextStep.Producer.PowerStation -> R.string.school_next_build_power_station
 }
 
 private fun CopyReader.countdownWordsOf(countdown: NextStepCard.Countdown): String = when (countdown) {

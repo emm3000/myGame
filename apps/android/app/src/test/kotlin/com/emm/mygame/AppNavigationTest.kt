@@ -244,7 +244,7 @@ class AppNavigationTest {
     }
 
     private fun runningTown(lasting: Duration = 10.minutes): TownSnapshot =
-        townOf(nextStep = NextStep.LessonRunning(producer = null))
+        townOf(nextStep = NextStep.LessonRunning(goal = null))
             .copy(lessonSlot = TownSnapshot.LessonSlot(firstLesson, readAt, readAt + lasting))
 
     private fun finishedTown(readFirst: List<LessonId>): TownSnapshot = townOf(

@@ -246,9 +246,6 @@ export const townNamingGoToTown = (): string => `Go to your town`
 export const townNamingMayor = (): string => `You are the mayor.`
 export const townNamingSubmit = (): string => `Start`
 export const townNamingTitle = (): string => `Name your town`
-export const townNextBuildFactory = (): string => `Build the factory`
-export const townNextBuildFarm = (): string => `Build the farm`
-export const townNextBuildPowerStation = (): string => `Build the power station`
 export const townNextGoToReport = (): string => `Go to the Report`
 export const townNextHoldoutCheck = ({ band }: { readonly band: string | number }): string => `Word check for band ${String(band)}`
 export const townNextLessonReadyIn = ({ number }: { readonly number: string | number }): string => `Lesson ${String(number)} ready in`

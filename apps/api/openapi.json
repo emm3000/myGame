@@ -3092,59 +3092,6 @@
             "type": "string",
             "enum": ["lessonRunning"]
           },
-          "producer": {
-            "type": "string",
-            "nullable": true,
-            "enum": ["farm", "factory", "powerStation", null]
-          }
-        },
-        "required": ["kind", "producer"],
-        "additionalProperties": false
-      },
-      "ReleasedLessonStep": {
-        "type": "object",
-        "properties": {
-          "kind": {
-            "type": "string",
-            "enum": ["releasedLesson"]
-          },
-          "lessonId": {
-            "type": "string",
-            "minLength": 1
-          },
-          "band": {
-            "$ref": "#/components/schemas/PlacementBand"
-          },
-          "position": {
-            "type": "integer",
-            "minimum": 1
-          }
-        },
-        "required": ["kind", "lessonId", "band", "position"],
-        "additionalProperties": false
-      },
-      "LessonToStudyStep": {
-        "type": "object",
-        "properties": {
-          "kind": {
-            "type": "string",
-            "enum": ["lessonToStudy"]
-          },
-          "lessonId": {
-            "type": "string",
-            "minLength": 1
-          }
-        },
-        "required": ["kind", "lessonId"],
-        "additionalProperties": false
-      },
-      "CaughtUpStep": {
-        "type": "object",
-        "properties": {
-          "kind": {
-            "type": "string",
-            "enum": ["caughtUp"]
-          },
           "goal": {
             "allOf": [
               {
@@ -3248,6 +3195,64 @@
           }
         },
         "required": ["position", "count", "building", "level", "state"],
+        "additionalProperties": false
+      },
+      "ReleasedLessonStep": {
+        "type": "object",
+        "properties": {
+          "kind": {
+            "type": "string",
+            "enum": ["releasedLesson"]
+          },
+          "lessonId": {
+            "type": "string",
+            "minLength": 1
+          },
+          "band": {
+            "$ref": "#/components/schemas/PlacementBand"
+          },
+          "position": {
+            "type": "integer",
+            "minimum": 1
+          }
+        },
+        "required": ["kind", "lessonId", "band", "position"],
+        "additionalProperties": false
+      },
+      "LessonToStudyStep": {
+        "type": "object",
+        "properties": {
+          "kind": {
+            "type": "string",
+            "enum": ["lessonToStudy"]
+          },
+          "lessonId": {
+            "type": "string",
+            "minLength": 1
+          }
+        },
+        "required": ["kind", "lessonId"],
+        "additionalProperties": false
+      },
+      "CaughtUpStep": {
+        "type": "object",
+        "properties": {
+          "kind": {
+            "type": "string",
+            "enum": ["caughtUp"]
+          },
+          "goal": {
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/Goal"
+              },
+              {
+                "nullable": true
+              }
+            ]
+          }
+        },
+        "required": ["kind", "goal"],
         "additionalProperties": false
       },
       "TownNewsFeed": {

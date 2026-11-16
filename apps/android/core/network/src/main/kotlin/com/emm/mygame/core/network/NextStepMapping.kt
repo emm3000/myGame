@@ -28,16 +28,9 @@ private fun ReleasedLessonStep.toReleasedLesson(): NextStep? {
 }
 
 private fun LessonRunningStep.toLessonRunning(): NextStep? {
-    val named: LessonRunningStep.Producer = producer ?: return NextStep.LessonRunning(producer = null)
-    val building: NextStep.Producer = named.toProducer() ?: return null
-    return NextStep.LessonRunning(building)
-}
-
-private fun LessonRunningStep.Producer.toProducer(): NextStep.Producer? = when (this) {
-    LessonRunningStep.Producer.farm -> NextStep.Producer.Farm
-    LessonRunningStep.Producer.factory -> NextStep.Producer.Factory
-    LessonRunningStep.Producer.powerStation -> NextStep.Producer.PowerStation
-    LessonRunningStep.Producer.unknown_default_open_api -> null
+    val named: Goal = goal ?: return NextStep.LessonRunning(goal = null)
+    val next: TownGoal = named.toTownGoal() ?: return null
+    return NextStep.LessonRunning(next)
 }
 
 private fun CaughtUpStep.toCaughtUp(): NextStep? {
