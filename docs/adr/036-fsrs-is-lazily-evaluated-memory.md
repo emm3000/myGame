@@ -1,5 +1,5 @@
 ---
-status: proposed, rule 7 amended by ADR 037 and ADR 039, rules 1, 6 and 7 read the town and the school from ADR 040, rules 4 and 8 and the pending review amended for units and frames by ADR 044
+status: proposed, rule 7 amended by ADR 037 and ADR 039, rules 1, 6 and 7 read the town and the school from ADR 040, rules 4 and 8 and the pending review amended for units and frames by ADR 044, rule 7's resource by ADR 045
 date: 2026-11-04
 ---
 # FSRS is lazily evaluated memory
@@ -223,7 +223,9 @@ metric needs (§8.2), not for a claim of more learning.
    lapse,
    ADR 035's reset or a missed review never revokes it (§1.6). Lesson 1
    earns level 1 of the food skill, +5 %, the percent an art's level 1
-   gives today. The earned levels live in the domain beside
+   gives today. (Amended by ADR 045: every lesson, lesson 1 included,
+   earns a level of the money skill; a food level already earned stays
+   food.) The earned levels live in the domain beside
    `FiefArtLevels`, as the player's skill levels, each with its
    `earnedAt`; the fief read loads them with the fief in its one round
    trip (N2), and `deriveResourceRates` multiplies each one's resource
