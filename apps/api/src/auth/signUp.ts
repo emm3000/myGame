@@ -27,22 +27,17 @@ export const signUp = async (
 ): Promise<Result<SignedIn, Refusal>> => {
   const passwordHash = await passwords.hashOf(request.password)
   const signedUp = await inTransaction<SignedUp, Refusal>(async ({ accounts, accountTokens }) => {
-    const player = {
+    const added = await accounts.addPlayer({
       id: ids.newId(),
       email: request.email,
-      emailVerified: false,
-      scaffold: request.scaffold,
-    }
-    const added = await accounts.addPlayer({
-      id: player.id,
-      email: player.email,
       passwordHash,
       createdAt: clock.now(),
-      scaffold: player.scaffold,
+      scaffold: request.scaffold,
     })
-    if (added === 'emailTaken') {
+    if (added.kind === 'emailTaken') {
       return err({ kind: 'EmailTaken' })
     }
+    const { player } = added
     const session = await openSession(player.id, { accounts, clock, sessionTokens })
     const verifyToken = await issueAccountToken('verify', player.id, {
       accountTokens,

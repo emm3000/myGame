@@ -53,6 +53,7 @@ import {
   towns,
   townWaitingWork,
 } from './schema'
+import { storedScaffoldColumns } from './storedScaffoldColumns'
 import { violatedUniqueConstraint } from './violatedUniqueConstraint'
 
 export type TownRead = 'lockedForUpdate' | 'lockFree'
@@ -655,7 +656,7 @@ export class DrizzleTownRepository implements TownReader, TownRepository {
         bandStarts: aggregatedBandStartsOf(towns.playerId),
         placementScores: aggregatedPlacementScoresOf(towns.playerId),
         seenTips: aggregatedSeenTipsOf(towns.playerId),
-        scaffold: players.scaffold,
+        ...storedScaffoldColumns,
       })
       .from(towns)
       .innerJoin(players, eq(players.id, towns.playerId))
@@ -681,6 +682,7 @@ export class DrizzleTownRepository implements TownReader, TownRepository {
       guidanceDismissedAt: instantOf(row.town.guidanceDismissedAt) ?? undefined,
       seenTips: seenTipsFrom(row.seenTips),
       scaffold: row.scaffold,
+      scaffoldVersion: row.scaffoldVersion,
     })
   }
 

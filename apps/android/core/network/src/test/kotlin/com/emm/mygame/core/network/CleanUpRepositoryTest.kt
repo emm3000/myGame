@@ -189,7 +189,7 @@ class CleanUpRepositoryTest {
                 """"hasBandStarted":false,"skills":[],"lessonSlot":null,""" +
                 """"learning":{"cap":10,"inLearning":0,"retainedWords":null},""" +
                 """"nextStep":{"kind":"caughtUp","goal":null},"tip":null,""" +
-                """"chromePhase":"scaffold","nextDueAt":null,""" +
+                """"chromePhase":"scaffold","scaffold":"es","scaffoldVersion":0,"nextDueAt":null,""" +
                 """"readAt":"2026-11-05T10:05:00.000Z"}"""
     }
 }

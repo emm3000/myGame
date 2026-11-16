@@ -24,11 +24,6 @@ export const signIn = async (
     return err({ kind: 'InvalidCredentials' })
   }
   const session = await openSession(credentials.id, { accounts, clock, sessionTokens })
-  const player = {
-    id: credentials.id,
-    email: credentials.email,
-    emailVerified: credentials.emailVerified,
-    scaffold: credentials.scaffold,
-  }
+  const { passwordHash: _, ...player } = credentials
   return ok({ player, session })
 }

@@ -10,6 +10,8 @@ import { NextStepSchema } from './NextStep'
 import { ReleasedLessonStateSchema } from './ReleasedLessonState'
 import { ResourceAmountsSchema } from './ResourceAmounts'
 import { ResourceKindSchema } from './ResourceKind'
+import { ScaffoldSchema } from './Scaffold'
+import { ScaffoldVersionSchema } from './ScaffoldVersion'
 import { SeasonDurationPercentSchema } from './SeasonDurationPercent'
 import { SeasonKindSchema } from './SeasonKind'
 import { SiteAddressSchema } from './SiteAddress'
@@ -127,6 +129,8 @@ export const TownOverviewSchema = z
     nextStep: NextStepSchema,
     tip: TipKindSchema.nullable(),
     chromePhase: ChromePhaseSchema,
+    scaffold: ScaffoldSchema,
+    scaffoldVersion: ScaffoldVersionSchema,
     nextDueAt: InstantSchema.nullable(),
     readAt: InstantSchema,
   })

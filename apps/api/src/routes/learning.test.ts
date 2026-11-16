@@ -562,6 +562,27 @@ describe('the learning routes', () => {
       )
     })
 
+    it('answers on the town the scaffold and its version the session answers', async () => {
+      const player = await signUpWithATown()
+      await send(player, 'PUT', '/player/scaffold', { scaffold: 'none' })
+
+      const session = PlayerSchema.parse(await (await send(player, 'GET', '/auth/session')).json())
+      const town = await readTown(player)
+
+      expect([town.scaffold, town.scaffoldVersion]).toEqual([
+        session.scaffold,
+        session.scaffoldVersion,
+      ])
+    })
+
+    it('answers on the town the scaffold of the last change', async () => {
+      const player = await signUpWithATown()
+
+      await send(player, 'PUT', '/player/scaffold', { scaffold: 'none' })
+
+      expect((await readTown(player)).scaffold).toBe('none')
+    })
+
     it('answers the chrome English to a player under none', async () => {
       const player = await signUpWithATown()
       await send(player, 'PUT', '/player/scaffold', { scaffold: 'none' })

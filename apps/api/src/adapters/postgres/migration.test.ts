@@ -1743,3 +1743,52 @@ describe('the scaffold migration', () => {
     ).rejects.toThrow('invalid input value for enum scaffold')
   })
 })
+
+const scaffoldVersionOwnerId = '00000000-0000-4000-8000-0000000000b0'
+
+const migrationsBeforeTheScaffoldVersion = 44
+
+describe('the scaffold version migration', () => {
+  let client: Client
+
+  beforeEach(async () => {
+    client = await openEmptyDatabase()
+    await migratedThroughNext(client, migrationsBeforeTheScaffoldVersion, async () => {
+      await client.query(
+        `INSERT INTO players (id, email, password_hash, created_at, report_read_at, scaffold)
+         VALUES ($1, 'learner@example.com', 'argon2id-hash', '2026-11-16T08:00:00Z', '2026-11-16T08:00:00Z', 'none')`,
+        [scaffoldVersionOwnerId],
+      )
+    })
+  })
+
+  afterEach(async () => {
+    await closeWithoutChanges(client)
+  })
+
+  it('keeps the scaffold of every player stored before the migration', async () => {
+    const stored = await client.query('SELECT id, scaffold FROM players')
+
+    expect(stored.rows).toEqual([{ id: scaffoldVersionOwnerId, scaffold: 'none' }])
+  })
+
+  it('starts a player stored before the migration at the scaffold version a new player starts at', async () => {
+    await client.query(
+      `INSERT INTO players (id, email, password_hash, created_at, report_read_at, scaffold)
+       VALUES ('00000000-0000-4000-8000-0000000000b1', 'newcomer@example.com', 'argon2id-hash',
+         '2026-11-16T09:00:00Z', '2026-11-16T09:00:00Z', 'es')`,
+    )
+
+    const versions = await client.query('SELECT DISTINCT scaffold_version FROM players')
+
+    expect(versions.rows).toHaveLength(1)
+  })
+
+  it('refuses a player without a scaffold version', async () => {
+    await expect(
+      client.query('UPDATE players SET scaffold_version = NULL WHERE id = $1', [
+        scaffoldVersionOwnerId,
+      ]),
+    ).rejects.toThrow('null value in column "scaffold_version"')
+  })
+})

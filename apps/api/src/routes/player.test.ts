@@ -1,5 +1,5 @@
 import { fileURLToPath } from 'node:url'
-import { type ChromePhase, PlayerSchema } from '@mygame/contracts'
+import { type ChromePhase, type Player, PlayerSchema } from '@mygame/contracts'
 import { Instant } from '@mygame/domain'
 import { Client } from 'pg'
 import { afterAll, beforeAll, beforeEach, describe, expect, it } from 'vitest'
@@ -90,6 +90,53 @@ describe('the player routes', () => {
     const session = await app.request('/auth/session', { headers: { cookie: ana.cookie } })
 
     expect(PlayerSchema.parse(await session.json()).scaffold).toBe('none')
+  })
+
+  const sessionOf = async (cookie: string): Promise<Player> =>
+    PlayerSchema.parse(await (await app.request('/auth/session', { headers: { cookie } })).json())
+
+  it('answers a later scaffold version on a change than on the session read before it', async () => {
+    const ana = await signUpInSpanish()
+    const before = await sessionOf(ana.cookie)
+
+    const changed = PlayerSchema.parse(
+      await (await changeScaffold(ana.cookie, { scaffold: 'none' })).json(),
+    )
+
+    expect(changed.scaffoldVersion).toBeGreaterThan(before.scaffoldVersion)
+  })
+
+  it('answers each change a later scaffold version than the change before it', async () => {
+    const ana = await signUpInSpanish()
+    const first = PlayerSchema.parse(
+      await (await changeScaffold(ana.cookie, { scaffold: 'none' })).json(),
+    )
+
+    const second = PlayerSchema.parse(
+      await (await changeScaffold(ana.cookie, { scaffold: 'es' })).json(),
+    )
+
+    expect(second.scaffoldVersion).toBeGreaterThan(first.scaffoldVersion)
+  })
+
+  it('answers the next session read the scaffold version of the last change', async () => {
+    const ana = await signUpInSpanish()
+    const changed = PlayerSchema.parse(
+      await (await changeScaffold(ana.cookie, { scaffold: 'none' })).json(),
+    )
+
+    const session = await sessionOf(ana.cookie)
+
+    expect([session.scaffold, session.scaffoldVersion]).toEqual(['none', changed.scaffoldVersion])
+  })
+
+  it('keeps the scaffold version when a change is refused', async () => {
+    const ana = await signUpInSpanish()
+    const before = await sessionOf(ana.cookie)
+
+    await changeScaffold(ana.cookie, { scaffold: 'fr' })
+
+    expect((await sessionOf(ana.cookie)).scaffoldVersion).toBe(before.scaffoldVersion)
   })
 
   it('changes the scaffold language without touching a card', async () => {

@@ -6,6 +6,7 @@ export const knownPlayer: Player = {
   email: 'aldonza@example.com',
   emailVerified: true,
   scaffold: 'es',
+  scaffoldVersion: 0,
   chromePhase: 'scaffold',
 }
 
@@ -71,6 +72,8 @@ export const knownTown: TownOverview = {
   nextStep: { kind: 'caughtUp', goal: null },
   tip: null,
   chromePhase: 'scaffold',
+  scaffold: 'es',
+  scaffoldVersion: 0,
   nextDueAt: null,
   readAt: '2026-11-10T09:00:00.000Z',
 }
