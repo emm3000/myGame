@@ -299,7 +299,7 @@ private fun EntryProviderScope<NavKey>.settingsEntry(chrome: SignedInChrome) {
         ) {
             SettingsRoute(
                 sessions = dependencies.sessions,
-                playerLanguage = dependencies.playerLanguage,
+                playerScaffold = dependencies.playerScaffold,
                 onTownOpen = navigator::openTown,
             )
         }

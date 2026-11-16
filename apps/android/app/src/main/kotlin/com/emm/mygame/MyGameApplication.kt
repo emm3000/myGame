@@ -6,6 +6,7 @@ import com.emm.mygame.core.network.KeystoreTokenCipher
 import com.emm.mygame.core.network.LearningRepository
 import com.emm.mygame.core.network.PlacementRepository
 import com.emm.mygame.core.network.PlayerLanguage
+import com.emm.mygame.core.network.PlayerScaffold
 import com.emm.mygame.core.network.PlayerLanguages
 import com.emm.mygame.core.network.ReportRepository
 import com.emm.mygame.core.network.SessionEnds
@@ -33,6 +34,8 @@ class MyGameApplication : Application(), AppDependencies {
     private val languages: PlayerLanguages by lazy { PlayerLanguages(tokenStore) }
 
     override val playerLanguage: StateFlow<PlayerLanguage?> by lazy { languages.language }
+
+    override val playerScaffold: StateFlow<PlayerScaffold?> by lazy { languages.scaffold }
 
     override val sessions: SessionRepository by lazy {
         SessionRepository(

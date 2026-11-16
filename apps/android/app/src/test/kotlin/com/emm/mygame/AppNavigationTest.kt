@@ -105,6 +105,7 @@ class AppNavigationTest {
         override val clock: Clock = movableClock
         override val sessionEnds: SessionEnds = SessionEnds()
         override val playerLanguage: StateFlow<PlayerLanguage?> = MutableStateFlow(null)
+        override val playerScaffold: StateFlow<PlayerScaffold?> = MutableStateFlow(null)
         override val sessions: SessionRepository = sessionsFake
         override val towns: TownRepository = townsFake
         override val learning: LearningRepository = learningFake

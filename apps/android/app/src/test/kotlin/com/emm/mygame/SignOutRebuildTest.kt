@@ -11,6 +11,7 @@ import com.emm.mygame.core.network.HoldoutCheckRepository
 import com.emm.mygame.core.network.LearningRepository
 import com.emm.mygame.core.network.PlacementRepository
 import com.emm.mygame.core.network.PlayerLanguage
+import com.emm.mygame.core.network.PlayerScaffold
 import com.emm.mygame.core.network.ReportReadResult
 import com.emm.mygame.core.network.ReportRepository
 import com.emm.mygame.core.network.RestoreResult
@@ -49,6 +50,7 @@ class SignOutRebuildTest {
         override val clock: Clock = Clock.System
         override val sessionEnds: SessionEnds = SessionEnds()
         override val playerLanguage: StateFlow<PlayerLanguage?> = MutableStateFlow(null)
+        override val playerScaffold: StateFlow<PlayerScaffold?> = MutableStateFlow(null)
         override val sessions: SessionRepository = sessionsFake
         override val towns: TownRepository = FakeTownRepository()
         override val learning: LearningRepository = FakeLearningRepository()

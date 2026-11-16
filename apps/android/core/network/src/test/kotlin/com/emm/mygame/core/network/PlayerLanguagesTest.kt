@@ -192,6 +192,15 @@ class PlayerLanguagesTest {
     }
 
     @Test
+    fun `holds the scaffold of an answer whose chrome phase the client does not know`() = runTest {
+        api.enqueue(session(code = 200, scaffold = "es", chromePhase = "latin", scaffoldVersion = 0))
+
+        sessions().signIn("ines@sotoverde.es", "contrasena")
+
+        assertEquals(PlayerScaffold.Spanish, languages.scaffold.value)
+    }
+
+    @Test
     fun `draws the scaffold a town read names after a change made on another client`() = runTest {
         api.enqueue(session(code = 200, scaffold = "es", chromePhase = "scaffold", scaffoldVersion = 0))
         api.enqueue(json(200, townRead(scaffold = "none", scaffoldVersion = 1, chromePhase = "english")))

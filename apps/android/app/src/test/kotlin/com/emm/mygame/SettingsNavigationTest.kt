@@ -60,11 +60,15 @@ class SettingsNavigationTest {
     private val latestRead: MutableStateFlow<PlayerLanguage?> =
         MutableStateFlow(PlayerLanguage(PlayerScaffold.Spanish, PlayerChromePhase.Scaffold))
 
+    private val heldScaffold: MutableStateFlow<PlayerScaffold?> = MutableStateFlow(PlayerScaffold.Spanish)
+
     private val sessionsHoldingTheAnsweredLanguage: SessionRepository = object : SessionRepository by sessionsFake {
         override suspend fun changeScaffold(scaffold: PlayerScaffold): ScaffoldChangeResult {
             val answer: ScaffoldChangeResult = sessionsFake.changeScaffold(scaffold)
             val answered: PlayerScaffold? = (answer as? ScaffoldChangeResult.Changed)?.player?.scaffold
-            if (answered != null) latestRead.value = PlayerLanguage(answered, PlayerChromePhase.English)
+            if (answered == null) return answer
+            latestRead.value = PlayerLanguage(answered, PlayerChromePhase.English)
+            heldScaffold.value = answered
             return answer
         }
     }
@@ -73,6 +77,7 @@ class SettingsNavigationTest {
         override val clock: Clock = Clock.System
         override val sessionEnds: SessionEnds = SessionEnds()
         override val playerLanguage: StateFlow<PlayerLanguage?> = latestRead
+        override val playerScaffold: StateFlow<PlayerScaffold?> = heldScaffold
         override val sessions: SessionRepository = sessionsHoldingTheAnsweredLanguage
         override val towns: TownRepository = FakeTownRepository()
         override val learning: LearningRepository = FakeLearningRepository()
