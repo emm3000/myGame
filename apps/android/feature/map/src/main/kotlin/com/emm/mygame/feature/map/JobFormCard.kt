@@ -54,7 +54,7 @@ internal fun JobField(
     field: MapIntent.JobField,
     onIntent: (MapIntent) -> Unit,
     modifier: Modifier = Modifier,
-    supportingText: String? = null,
+    supportingText: MyGameLabel? = null,
 ) {
     MyGameTextField(
         value = value,

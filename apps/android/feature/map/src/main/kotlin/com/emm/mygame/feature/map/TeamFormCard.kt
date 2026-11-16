@@ -55,14 +55,14 @@ internal fun TeamFormCard(
                 label = copy.chrome(R.string.map_job_workers),
                 field = MapIntent.JobField.Workers,
                 onIntent = onIntent,
-                supportingText = copy.chrome(R.string.map_job_at_home, "count" to form.workersAtHome.toString()).spoken,
+                supportingText = copy.chrome(R.string.map_job_at_home, "count" to form.workersAtHome.toString()),
             )
             JobField(
                 value = form.trucks,
                 label = copy.chrome(R.string.map_job_trucks),
                 field = MapIntent.JobField.Trucks,
                 onIntent = onIntent,
-                supportingText = copy.chrome(R.string.map_job_at_home, "count" to form.trucksAtHome.toString()).spoken,
+                supportingText = copy.chrome(R.string.map_job_at_home, "count" to form.trucksAtHome.toString()),
             )
             extraFields()
             quote(isSendAnswered)

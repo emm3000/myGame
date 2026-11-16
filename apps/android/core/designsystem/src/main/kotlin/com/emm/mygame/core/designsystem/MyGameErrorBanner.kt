@@ -17,7 +17,7 @@ import androidx.compose.ui.semantics.semantics
 @Composable
 fun MyGameErrorBanner(message: String, actionLabel: String, onAction: () -> Unit, modifier: Modifier = Modifier) {
     MyGameErrorBanner(
-        message = message,
+        message = MyGameLabel(text = message, translation = null),
         actionLabel = MyGameLabel(text = actionLabel, translation = null),
         onAction = onAction,
         modifier = modifier,
@@ -26,6 +26,21 @@ fun MyGameErrorBanner(message: String, actionLabel: String, onAction: () -> Unit
 
 @Composable
 fun MyGameErrorBanner(message: String, actionLabel: MyGameLabel, onAction: () -> Unit, modifier: Modifier = Modifier) {
+    MyGameErrorBanner(
+        message = MyGameLabel(text = message, translation = null),
+        actionLabel = actionLabel,
+        onAction = onAction,
+        modifier = modifier,
+    )
+}
+
+@Composable
+fun MyGameErrorBanner(
+    message: MyGameLabel,
+    actionLabel: MyGameLabel,
+    onAction: () -> Unit,
+    modifier: Modifier = Modifier,
+) {
     val colors: MyGameColors = MyGameTheme.colors
     Row(
         horizontalArrangement = Arrangement.spacedBy(MyGameSpacing.step3),
@@ -38,7 +53,7 @@ fun MyGameErrorBanner(message: String, actionLabel: MyGameLabel, onAction: () ->
         MyGameIcon(icon = MyGameIcons.alert, tint = colors.destructiveInk)
         Column {
             MyGameText(
-                text = message,
+                label = message,
                 style = MyGameTypography.body,
                 color = colors.destructiveInk,
                 modifier = Modifier.semantics { liveRegion = LiveRegionMode.Polite },
@@ -53,5 +68,10 @@ fun MyGameErrorBanner(message: String, actionLabel: MyGameLabel, onAction: () ->
 private fun MyGameErrorBannerPreview() {
     MyGamePreviewSurface {
         MyGameErrorBanner(message = "We could not read your town.", actionLabel = "Try again", onAction = {})
+        MyGameErrorBanner(
+            message = MyGameLabel(text = "We could not read your reviews.", translation = "No pudimos leer tu repaso."),
+            actionLabel = MyGameLabel(text = "Try again", translation = "Intentar de nuevo"),
+            onAction = {},
+        )
     }
 }

@@ -122,10 +122,6 @@ private fun LessonPath(path: ReviewUiState.LessonPath, modifier: Modifier = Modi
 
 @Composable
 private fun pathStepOf(@StringRes label: Int, count: Int, total: Int): SchoolPathSteps.Step = SchoolPathSteps.Step(
-    label = chromeResource(label).spoken,
-    count = chromeResource(
-        R.string.review_path_count,
-        "count" to count.toString(),
-        "total" to total.toString(),
-    ).spoken,
+    label = chromeResource(label),
+    count = chromeResource(R.string.review_path_count, "count" to count.toString(), "total" to total.toString()),
 )

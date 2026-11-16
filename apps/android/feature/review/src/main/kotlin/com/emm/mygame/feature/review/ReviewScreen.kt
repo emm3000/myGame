@@ -95,7 +95,7 @@ private fun ReviewState(
     when (state) {
         ReviewUiState.Loading -> Unit
         ReviewUiState.Failed -> MyGameErrorBanner(
-            message = copy.chrome(R.string.review_failed).spoken,
+            message = copy.chrome(R.string.review_failed),
             actionLabel = copy.chrome(R.string.review_retry),
             onAction = { onIntent(ReviewIntent.RetryTapped) },
         )

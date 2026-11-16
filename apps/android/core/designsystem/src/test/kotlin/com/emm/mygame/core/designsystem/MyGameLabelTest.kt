@@ -2,6 +2,7 @@ package com.emm.mygame.core.designsystem
 
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.runtime.Composable
+import androidx.compose.ui.semantics.SemanticsActions
 import androidx.compose.ui.test.assertCountEquals
 import androidx.compose.ui.test.assertHeightIsAtLeast
 import androidx.compose.ui.test.assertTextEquals
@@ -14,8 +15,11 @@ import androidx.compose.ui.test.onAllNodesWithContentDescription
 import androidx.compose.ui.test.onAllNodesWithText
 import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.onNodeWithText
+import androidx.compose.ui.text.TextLayoutResult
+import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.DpRect
+import org.junit.Assert.assertEquals
 import org.junit.Assert.assertTrue
 import org.junit.Rule
 import org.junit.Test
@@ -159,6 +163,37 @@ class MyGameLabelTest {
         composeRule.onAllNodesWithContentDescription("Your answer").assertCountEquals(1)
     }
 
+    @Test
+    fun `draws a translated supporting line as English over its Spanish translation line`() {
+        show { FieldSupported(supportingText = MyGameLabel(text = "3 at home", translation = "3 en casa")) }
+
+        assertTrue(unmerged("3 at home").bottom <= unmerged("3 en casa").top)
+        assertEquals(MyGameTypography.body.fontSize, styleOf("3 at home").fontSize)
+        assertEquals(MyGameTypography.caption.fontSize, styleOf("3 en casa").fontSize)
+    }
+
+    @Test
+    fun `draws a translated error message as English over its Spanish translation line`() {
+        show {
+            MyGameErrorBanner(
+                message = MyGameLabel(text = "We could not read it.", translation = "No pudimos leerlo."),
+                actionLabel = MyGameLabel(text = "Try again", translation = "Volver a intentarlo"),
+                onAction = {},
+            )
+        }
+
+        assertTrue(unmerged("We could not read it.").bottom <= unmerged("No pudimos leerlo.").top)
+        assertEquals(MyGameTypography.body.fontSize, styleOf("We could not read it.").fontSize)
+        assertEquals(MyGameTypography.caption.fontSize, styleOf("No pudimos leerlo.").fontSize)
+    }
+
+    private fun styleOf(text: String): TextStyle {
+        val layouts: MutableList<TextLayoutResult> = mutableListOf()
+        composeRule.onNodeWithText(text, useUnmergedTree = true).fetchSemanticsNode()
+            .config[SemanticsActions.GetTextLayoutResult].action?.invoke(layouts)
+        return layouts.single().layoutInput.style
+    }
+
     private fun assertEnglishOverSpanish(within: DpRect) {
         val englishLine: DpRect = unmerged("Start reviews")
         val spanishLine: DpRect = unmerged("Empezar a repasar")
@@ -179,6 +214,19 @@ private fun FieldLabelled(label: MyGameLabel) {
         isReadOnly = false,
         keyboardOptions = KeyboardOptions.Default,
         onValueChange = {},
+    )
+}
+
+@Composable
+private fun FieldSupported(supportingText: MyGameLabel) {
+    MyGameTextField(
+        value = "",
+        label = MyGameLabel(text = "Workers", translation = "Trabajadores"),
+        isSecret = false,
+        isReadOnly = false,
+        keyboardOptions = KeyboardOptions.Default,
+        onValueChange = {},
+        supportingText = supportingText,
     )
 }
 

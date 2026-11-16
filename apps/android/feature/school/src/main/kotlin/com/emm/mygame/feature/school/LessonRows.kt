@@ -168,8 +168,8 @@ private fun LessonPath(path: SchoolPathCounts, modifier: Modifier = Modifier) {
 
 private fun PlayerCopy.pathStepOf(@StringRes label: Int, count: Int, total: Int): SchoolPathSteps.Step =
     SchoolPathSteps.Step(
-        label = chrome(label).spoken,
-        count = chrome(R.string.school_path_count, "count" to count.toString(), "total" to total.toString()).spoken,
+        label = chrome(label),
+        count = chrome(R.string.school_path_count, "count" to count.toString(), "total" to total.toString()),
     )
 
 @Composable
