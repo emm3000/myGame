@@ -109,6 +109,7 @@ dependencies {
     testImplementation(project(":core:testing"))
     testImplementation(libs.kotlinx.serialization.json)
     testImplementation(libs.robolectric)
+    testImplementation(libs.androidx.lifecycle.runtime.testing)
     testImplementation(libs.androidx.compose.ui.test.junit4)
     debugImplementation(libs.androidx.compose.ui.test.manifest)
 }
