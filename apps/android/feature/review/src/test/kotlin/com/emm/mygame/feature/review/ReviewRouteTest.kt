@@ -36,6 +36,11 @@ class ReviewRouteTest {
 
     private fun showNothingDueNearItsInstant() {
         learning.answerRead(nothingDueUntil(firstReadAt + NEAR_DUE))
+        showRoute()
+        waitForNothingDue()
+    }
+
+    private fun showRoute() {
         composeRule.setContent {
             CompositionLocalProvider(LocalLifecycleOwner provides appOwner) {
                 MyGameTheme {
@@ -49,6 +54,9 @@ class ReviewRouteTest {
                 }
             }
         }
+    }
+
+    private fun waitForNothingDue() {
         composeRule.waitUntil(WAIT_MILLIS) {
             composeRule.onAllNodes(hasText("Siguiente repaso:", substring = true)).fetchSemanticsNodes().isNotEmpty()
         }
@@ -77,6 +85,19 @@ class ReviewRouteTest {
 
         composeRule.runOnIdle { appOwner.currentState = Lifecycle.State.RESUMED }
         composeRule.waitUntil(WAIT_MILLIS) { learning.readCount > 1 }
+
+        assertEquals(2, learning.readCount)
+    }
+
+    @Test
+    fun `reads the reviews again on return when the first read was cut off`() {
+        showRoute()
+        composeRule.waitUntil(WAIT_MILLIS) { learning.readCount == 1 }
+        composeRule.runOnIdle { appOwner.currentState = Lifecycle.State.CREATED }
+        learning.answerRead(nothingDueUntil(firstReadAt + NEAR_DUE))
+
+        composeRule.runOnIdle { appOwner.currentState = Lifecycle.State.RESUMED }
+        waitForNothingDue()
 
         assertEquals(2, learning.readCount)
     }
