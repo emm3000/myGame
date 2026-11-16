@@ -66,6 +66,7 @@ export { readableWordsOf } from './learning/readableWordsOf'
 export { readFirstOf } from './learning/readFirstOf'
 export { readingFrameOf } from './learning/readingFrameOf'
 export { type RecognitionChoice, recognitionChoicesOf } from './learning/recognitionChoicesOf'
+export { retainedWordCountOf } from './learning/retainedWordCountOf'
 export { type RetainedWords, retainedWordsOf } from './learning/retainedWordsOf'
 export {
   type ReviewPrompt,
@@ -74,6 +75,7 @@ export {
 } from './learning/reviewPromptOf'
 export type { Scaffold } from './learning/Scaffold'
 export { skillLevelOf } from './learning/skillLevelOf'
+export { stableWordCountOf } from './learning/stableWordCountOf'
 export { type Stage, stageOf } from './learning/stageOf'
 export { type SupportLevel, supportLevelOf } from './learning/supportLevelOf'
 export { type SupportText, supportTextOf } from './learning/supportTextOf'
@@ -201,6 +203,11 @@ export { type JobPhase, jobPhaseAt } from './town/jobPhaseAt'
 export { type JobSeason, jobSeasonAt } from './town/jobSeasonAt'
 export { type BusyLessonSlot, idleLessonSlot, type LessonSlot } from './town/LessonSlot'
 export type { LessonSlotRepository } from './town/LessonSlotRepository'
+export {
+  type LevelWordNeed,
+  levelWordNeedOf,
+  type NeededWordKind,
+} from './town/levelWordNeedOf'
 export { lowestFreePeopleOf } from './town/lowestFreePeopleOf'
 export { type GoalShortfall, type NextGoal, nextGoalOf } from './town/nextGoalOf'
 export {
@@ -291,6 +298,7 @@ export { type TipReading, tipOf } from './town/tipOf'
 export { townLabelOf } from './town/townLabelOf'
 export { type TownSeason, townSeasonAt } from './town/townSeasonAt'
 export type { WasteSize } from './town/WasteSize'
+export type { WordNeed } from './town/WordNeed'
 export {
   type AnsweredReview,
   type AnswerReviewCommand,
