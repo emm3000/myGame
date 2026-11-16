@@ -96,7 +96,7 @@ The game is Townword, a present-day town the player grows into a city (ADR 035).
 - **The Report** — the screen of the reviews due, then the Town News since the player last closed it (ADR 027, ADR 040).
 - **Town News** — the town's events, each with its instant, written in the transaction that applies them (ADR 013, ADR 040).
 - **Tip** — one dismissible line shown the first time a concept matters, seen tips stored per player (ADR 027, ADR 040).
-- **Study reminder** — an opt-in notification on the player's phone, at most once a day at a time the player picks, posted when the phone's last reads show words due, a lesson finishing or a lesson ready to start by then, whichever comes first. It carries no count, no streak and no days away, and it is never pushed by the server (ADR 046).
+- **Study reminder** — an opt-in notification on the player's phone, at most once a day at a time the player picks, posted when the phone's last reads show words due, a lesson finishing, a holdout check due or a lesson ready to start by then, whichever comes first. It carries no count, no streak and no days away, and it is never pushed by the server (ADR 046).
 
 ## Society
 
