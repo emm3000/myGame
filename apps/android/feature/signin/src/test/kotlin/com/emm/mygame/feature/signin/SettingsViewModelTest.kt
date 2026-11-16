@@ -1,7 +1,5 @@
 package com.emm.mygame.feature.signin
 
-import com.emm.mygame.core.network.PlayerChromePhase
-import com.emm.mygame.core.network.PlayerLanguage
 import com.emm.mygame.core.network.PlayerScaffold
 import com.emm.mygame.core.network.RestoreResult
 import com.emm.mygame.core.network.ScaffoldChangeResult
@@ -21,11 +19,11 @@ class SettingsViewModelTest {
 
     private val sessions: FakeSessionRepository = FakeSessionRepository()
 
-    private val playerLanguage: MutableStateFlow<PlayerLanguage?> = MutableStateFlow(null)
+    private val playerScaffold: MutableStateFlow<PlayerScaffold?> = MutableStateFlow(null)
 
     @Test
     fun `draws loading until the session is read`() = runTest {
-        val viewModel: SettingsViewModel = SettingsViewModel(sessions, playerLanguage)
+        val viewModel: SettingsViewModel = SettingsViewModel(sessions, playerScaffold)
 
         assertEquals(SettingsUiState.Loading, viewModel.state.value)
     }
@@ -41,7 +39,7 @@ class SettingsViewModelTest {
     fun `draws failed when the session cannot be read`() = runTest {
         sessions.answerRestore(RestoreResult.Unreachable)
 
-        val viewModel: SettingsViewModel = SettingsViewModel(sessions, playerLanguage)
+        val viewModel: SettingsViewModel = SettingsViewModel(sessions, playerScaffold)
 
         assertEquals(SettingsUiState.Failed, viewModel.state.value)
     }
@@ -50,7 +48,7 @@ class SettingsViewModelTest {
     fun `draws failed when the session names a scaffold the client does not know`() = runTest {
         sessions.answerRestore(sessionWith(scaffold = null))
 
-        val viewModel: SettingsViewModel = SettingsViewModel(sessions, playerLanguage)
+        val viewModel: SettingsViewModel = SettingsViewModel(sessions, playerScaffold)
 
         assertEquals(SettingsUiState.Failed, viewModel.state.value)
     }
@@ -58,7 +56,7 @@ class SettingsViewModelTest {
     @Test
     fun `reads the session again on retry`() = runTest {
         sessions.answerRestore(RestoreResult.Unreachable)
-        val viewModel: SettingsViewModel = SettingsViewModel(sessions, playerLanguage)
+        val viewModel: SettingsViewModel = SettingsViewModel(sessions, playerScaffold)
         sessions.answerRestore(sessionWith(scaffold = PlayerScaffold.None))
 
         viewModel.onIntent(SettingsIntent.RetryTapped)
@@ -99,9 +97,10 @@ class SettingsViewModelTest {
     }
 
     @Test
-    fun `stores the scaffold the api answers`() = runTest {
+    fun `draws the scaffold the app holds once the change answers`() = runTest {
         val viewModel: SettingsViewModel = loaded(PlayerScaffold.Spanish)
         viewModel.onIntent(SettingsIntent.ScaffoldPicked(PlayerScaffold.None))
+        playerScaffold.value = PlayerScaffold.None
 
         sessions.answerScaffoldChange(ScaffoldChangeResult.Changed(playerWith(PlayerScaffold.None)))
 
@@ -163,7 +162,7 @@ class SettingsViewModelTest {
 
     @Test
     fun `draws the scaffold the app holds when the session read answers an older one`() = runTest {
-        playerLanguage.value = PlayerLanguage(PlayerScaffold.Spanish, PlayerChromePhase.Scaffold)
+        playerScaffold.value = PlayerScaffold.Spanish
 
         val viewModel: SettingsViewModel = loaded(PlayerScaffold.None)
 
@@ -172,28 +171,86 @@ class SettingsViewModelTest {
 
     @Test
     fun `draws a held change that answers after the session read sent after it`() = runTest {
-        playerLanguage.value = PlayerLanguage(PlayerScaffold.None, PlayerChromePhase.English)
+        playerScaffold.value = PlayerScaffold.None
         val viewModel: SettingsViewModel = loaded(PlayerScaffold.None)
 
-        playerLanguage.value = PlayerLanguage(PlayerScaffold.Spanish, PlayerChromePhase.Scaffold)
+        playerScaffold.value = PlayerScaffold.Spanish
 
         assertEquals(stored(PlayerScaffold.Spanish), viewModel.state.value)
     }
 
     @Test
     fun `sends the scaffold the session read named once a held change answers with the other`() = runTest {
-        playerLanguage.value = PlayerLanguage(PlayerScaffold.None, PlayerChromePhase.English)
+        playerScaffold.value = PlayerScaffold.None
         val viewModel: SettingsViewModel = loaded(PlayerScaffold.None)
-        playerLanguage.value = PlayerLanguage(PlayerScaffold.Spanish, PlayerChromePhase.Scaffold)
+        playerScaffold.value = PlayerScaffold.Spanish
 
         viewModel.onIntent(SettingsIntent.ScaffoldPicked(PlayerScaffold.None))
 
         assertEquals(listOf(PlayerScaffold.None), sessions.scaffoldChanges)
     }
 
+    @Test
+    fun `draws the scaffold the app holds when the change answers an older one`() = runTest {
+        playerScaffold.value = PlayerScaffold.None
+        val viewModel: SettingsViewModel = loaded(PlayerScaffold.None)
+        viewModel.onIntent(SettingsIntent.ScaffoldPicked(PlayerScaffold.Spanish))
+        playerScaffold.value = PlayerScaffold.Spanish
+        playerScaffold.value = PlayerScaffold.None
+
+        sessions.answerScaffoldChange(ScaffoldChangeResult.Changed(playerWith(PlayerScaffold.Spanish)))
+
+        assertEquals(
+            SettingsUiState.Loaded(PlayerScaffold.None, SettingsUiState.Change.Saved),
+            viewModel.state.value,
+        )
+    }
+
+    @Test
+    fun `sends the other scaffold after the change answers an older one than the app holds`() = runTest {
+        playerScaffold.value = PlayerScaffold.None
+        val viewModel: SettingsViewModel = loaded(PlayerScaffold.None)
+        viewModel.onIntent(SettingsIntent.ScaffoldPicked(PlayerScaffold.Spanish))
+        playerScaffold.value = PlayerScaffold.Spanish
+        playerScaffold.value = PlayerScaffold.None
+        sessions.answerScaffoldChange(ScaffoldChangeResult.Changed(playerWith(PlayerScaffold.Spanish)))
+
+        viewModel.onIntent(SettingsIntent.ScaffoldPicked(PlayerScaffold.Spanish))
+
+        assertEquals(listOf(PlayerScaffold.Spanish, PlayerScaffold.Spanish), sessions.scaffoldChanges)
+    }
+
+    @Test
+    fun `draws the scaffold the app holds when the change it already committed cannot be answered`() = runTest {
+        playerScaffold.value = PlayerScaffold.Spanish
+        val viewModel: SettingsViewModel = loaded(PlayerScaffold.Spanish)
+        viewModel.onIntent(SettingsIntent.ScaffoldPicked(PlayerScaffold.None))
+        playerScaffold.value = PlayerScaffold.None
+
+        sessions.answerScaffoldChange(ScaffoldChangeResult.Unreachable)
+
+        assertEquals(
+            SettingsUiState.Loaded(PlayerScaffold.None, SettingsUiState.Change.Unreachable),
+            viewModel.state.value,
+        )
+    }
+
+    @Test
+    fun `sends the other scaffold after a change the app already holds cannot be answered`() = runTest {
+        playerScaffold.value = PlayerScaffold.Spanish
+        val viewModel: SettingsViewModel = loaded(PlayerScaffold.Spanish)
+        viewModel.onIntent(SettingsIntent.ScaffoldPicked(PlayerScaffold.None))
+        playerScaffold.value = PlayerScaffold.None
+        sessions.answerScaffoldChange(ScaffoldChangeResult.Unreachable)
+
+        viewModel.onIntent(SettingsIntent.ScaffoldPicked(PlayerScaffold.Spanish))
+
+        assertEquals(listOf(PlayerScaffold.None, PlayerScaffold.Spanish), sessions.scaffoldChanges)
+    }
+
     private fun loaded(scaffold: PlayerScaffold): SettingsViewModel {
         sessions.answerRestore(sessionWith(scaffold))
-        return SettingsViewModel(sessions, playerLanguage)
+        return SettingsViewModel(sessions, playerScaffold)
     }
 
     private fun stored(scaffold: PlayerScaffold): SettingsUiState =

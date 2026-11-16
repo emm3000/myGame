@@ -15,13 +15,17 @@ class PlayerLanguages(tokenStore: TokenStore) {
 
     private var newestScaffoldVersion: ScaffoldVersion? = null
 
-    private var scaffold: Held<PlayerScaffold>? = null
+    private var heldScaffold: Held<PlayerScaffold>? = null
 
-    private var chromePhase: Held<PlayerChromePhase>? = null
+    private var heldChromePhase: Held<PlayerChromePhase>? = null
 
     private val _language: MutableStateFlow<PlayerLanguage?> = MutableStateFlow(null)
 
     val language: StateFlow<PlayerLanguage?> = _language.asStateFlow()
+
+    private val _scaffold: MutableStateFlow<PlayerScaffold?> = MutableStateFlow(null)
+
+    val scaffold: StateFlow<PlayerScaffold?> = _scaffold.asStateFlow()
 
     init {
         tokenStore.onSessionChange(::forget)
@@ -35,9 +39,10 @@ class PlayerLanguages(tokenStore: TokenStore) {
             if (newestScaffoldVersion.isNewerThan(answer.scaffoldVersion)) return
             newestScaffoldVersion = answer.scaffoldVersion
             val freshness: Freshness = Freshness(answer.scaffoldVersion, read.order)
-            scaffold = scaffold.fresherOf(answer.scaffold, freshness)
-            chromePhase = chromePhase.fresherOf(answer.chromePhase, freshness)
-            _language.value = languageOf(scaffold?.value, chromePhase?.value)
+            heldScaffold = heldScaffold.fresherOf(answer.scaffold, freshness)
+            heldChromePhase = heldChromePhase.fresherOf(answer.chromePhase, freshness)
+            _scaffold.value = heldScaffold?.value
+            _language.value = languageOf(heldScaffold?.value, heldChromePhase?.value)
         }
     }
 
@@ -45,8 +50,9 @@ class PlayerLanguages(tokenStore: TokenStore) {
         synchronized(holding) {
             lastForgottenOrder = sentReads.get()
             newestScaffoldVersion = null
-            scaffold = null
-            chromePhase = null
+            heldScaffold = null
+            heldChromePhase = null
+            _scaffold.value = null
             _language.value = null
         }
     }

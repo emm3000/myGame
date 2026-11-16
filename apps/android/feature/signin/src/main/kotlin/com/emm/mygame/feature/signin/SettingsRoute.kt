@@ -5,17 +5,17 @@ import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
-import com.emm.mygame.core.network.PlayerLanguage
+import com.emm.mygame.core.network.PlayerScaffold
 import com.emm.mygame.core.network.SessionRepository
 import kotlinx.coroutines.flow.StateFlow
 
 @Composable
 fun SettingsRoute(
     sessions: SessionRepository,
-    playerLanguage: StateFlow<PlayerLanguage?>,
+    playerScaffold: StateFlow<PlayerScaffold?>,
     onTownOpen: () -> Unit,
     modifier: Modifier = Modifier,
-    viewModel: SettingsViewModel = viewModel { SettingsViewModel(sessions, playerLanguage) },
+    viewModel: SettingsViewModel = viewModel { SettingsViewModel(sessions, playerScaffold) },
 ) {
     val state: SettingsUiState by viewModel.state.collectAsStateWithLifecycle()
     SettingsScreen(state = state, onIntent = viewModel::onIntent, onTownOpen = onTownOpen, modifier = modifier)

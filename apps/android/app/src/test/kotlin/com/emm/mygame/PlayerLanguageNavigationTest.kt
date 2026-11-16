@@ -59,6 +59,7 @@ class PlayerLanguageNavigationTest {
         override val clock: Clock = Clock.System
         override val sessionEnds: SessionEnds = SessionEnds()
         override val playerLanguage: StateFlow<PlayerLanguage?> = latestRead
+        override val playerScaffold: StateFlow<PlayerScaffold?> = MutableStateFlow(null)
         override val sessions: SessionRepository = sessionsFake
         override val towns: TownRepository = FakeTownRepository()
         override val learning: LearningRepository = FakeLearningRepository()

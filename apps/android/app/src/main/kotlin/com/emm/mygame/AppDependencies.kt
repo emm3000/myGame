@@ -4,6 +4,7 @@ import com.emm.mygame.core.network.HoldoutCheckRepository
 import com.emm.mygame.core.network.LearningRepository
 import com.emm.mygame.core.network.PlacementRepository
 import com.emm.mygame.core.network.PlayerLanguage
+import com.emm.mygame.core.network.PlayerScaffold
 import com.emm.mygame.core.network.ReportRepository
 import com.emm.mygame.core.network.SessionEnds
 import com.emm.mygame.core.network.SessionRepository
@@ -18,6 +19,8 @@ interface AppDependencies {
     val sessionEnds: SessionEnds
 
     val playerLanguage: StateFlow<PlayerLanguage?>
+
+    val playerScaffold: StateFlow<PlayerScaffold?>
 
     val sessions: SessionRepository
 
