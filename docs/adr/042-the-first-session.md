@@ -1,5 +1,5 @@
 ---
-status: proposed, the shell and the art of its screens drawn by ADR 043
+status: proposed, the shell and the art of its screens drawn by ADR 043, the skill's worth and the running lesson's producer amended by ADR 045
 date: 2026-11-05
 ---
 # The first session
@@ -182,7 +182,8 @@ hour with or without it. What the 2/3 share buys is the first farm, at
 no cost to a new player.
 
 **Making learning felt in the game is a separate design, after this
-ADR.** No lever weighed here does it. A share *s* of the money makes
+ADR.** (Settled by ADR 045: stable words open building levels from 3,
+and every lesson's skill raises money.) No lever weighed here does it. A share *s* of the money makes
 food bind only under 20 × *s* per hour. Farm, factory, then the homes on
 fields, buying the moment stocks allow, with the +5 % held from the
 first hour, which no player has:
@@ -310,7 +311,9 @@ state that holds wins:
   lesson's skill resource stands at level 0 and no work is raising it:
   the farm for food, the factory for material, the power station for
   power, none for money. It gives the lesson's minutes a job, and a
-  skill on a rate of 0 raises nothing.
+  skill on a rate of 0 raises nothing. (Amended by ADR 045: every skill
+  is money, so the producer goes, and `lessonRunning` carries the next
+  building goal as `caughtUp` does.)
 - **`lessonToStudy` is the first unstudied lesson in `curriculum.json`
   order** that the school's level and the learning cap admit. It names
   the next review's instant so the player knows they can stop.

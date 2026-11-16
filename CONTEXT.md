@@ -29,7 +29,7 @@ The game is Townword, a present-day town the player grows into a city (ADR 035).
 
 ## Buildings
 
-- **Building** — a structure on a town with a level; each level has a cost, a build duration, people and an effect. Seven kinds: homes, farm, factory, power station, storage, school and office (ADR 040).
+- **Building** — a structure on a town with a level; each level has a cost, a build duration, people and an effect, and from level 3 the **stable words** it needs, 10 for each level past 2, checked at the work's start and never spent. Seven kinds: homes, farm, factory, power station, storage, school and office. The need is not yet shipped (ADR 040, ADR 045).
 - **Homes** — supply people.
 - **Farm / Factory / Power station** — the producers of food, material and power.
 - **School** — the building where lessons are studied, one at a time in its lesson slot. Its built level, never the projected one, shortens a lesson and sets the learning cap (ADR 040).
@@ -49,8 +49,8 @@ The game is Townword, a present-day town the player grows into a city (ADR 035).
 ## Lessons and skills
 
 - **Lesson slot** — the school's single place for the lesson in progress; one lesson at a time, no queue. A slot with a lesson in progress is **busy**.
-- **Skill** — what the player knows at a level, earned by retention and never bought: a level is earned at the review after which every word of its lesson the player holds a card for, and at least one, stands at 7 days of stability or more and was last recalled unaided, rated Good, at least 7 days after the review before it; stored with that instant and never taken back. Every lesson of the curriculum earns one level, +5 %, of the resource its place in the **skill cycle** names, and nothing else earns one: not a review, not placement, not a released lesson. One resource's levels add up into one percent, so food at level 48 runs at 3.4 times its rate without skills, in every town the player holds. Replaces OGame's *technology* (ADR 035, ADR 036, ADR 039).
-- **Skill cycle** — the game's resources in a fixed order, food first, that the curriculum's lessons raise in turn: lesson 1 food, lesson 2 the next, and so on round the cycle, so any run of as many lessons as there are resources raises each once (ADR 039).
+- **Skill** — what the player knows at a level, earned by retention and never bought: a level is earned at the review after which every word of its lesson the player holds a card for, and at least one, stands at 7 days of stability or more and was last recalled unaided, rated Good, at least 7 days after the review before it; stored with that instant and never taken back. Every lesson of the curriculum earns one level, +5 %, of the resource its place in the **skill cycle** names, and nothing else earns one: not a review, not placement, not a released lesson. One resource's levels add up into one percent, so food at level 48 runs at 3.4 times its rate without skills, in every town the player holds. ADR 045 puts every lesson's level on money, not yet shipped; a level already earned keeps its resource. Replaces OGame's *technology* (ADR 035, ADR 036, ADR 039, ADR 045).
+- **Skill cycle** — the game's resources in a fixed order, food first, that the curriculum's lessons raise in turn: lesson 1 food, lesson 2 the next, and so on round the cycle, so any run of as many lessons as there are resources raises each once. ADR 045 retires it once its ticket ships (ADR 039).
 
 ## The account
 
@@ -85,6 +85,7 @@ The game is Townword, a present-day town the player grows into a city (ADR 035).
 - **Chrome** — the copy of the game's screens. Under `es` it is Spanish until every chrome lesson is studied, both languages until their skills are earned, English after: the **chrome phase**, derived on read and never going back. **Fixed copy**, the account screens, refusals, review verdicts and mail, is always in the scaffold language (ADR 038).
 - **Message catalog** — one ICU MessageFormat file per language with one key set, the single source of every string a client or a mail shows, generating the web's copy and Android's `strings.xml` (ADR 038).
 - **Holdout** — the 10 % of a band's card words, outside the chrome lessons, drawn and stored per player when the player starts the band, skipping any word an entered unit card holds (ADR 044), never entered as cards and tested in the band's external check 8 and 24 weeks after its start against practised words of the same lessons, so practised against withheld is a comparison within one player; released after that band's 24-week check (ADR 035, ADR 037).
+- **Stable word** — a card whose stability is 7 days or more, so not in learning: counted on read from the player's cards, a unit as a word; a lapse takes it out, a day away never does. Building levels from 3 need them. Not yet shipped (ADR 045).
 - **In learning** — a card whose stability is under 7 days; not the card's FSRS learning state, which lasts minutes. The **learning cap**, set by the school's level, bounds how many cards are in learning once a lesson's words enter, so a lesson start past it is refused (ADR 040).
 - **Word reading** — a word shown with its gloss and frame, from its lesson's start until its first review, never for a held-out word. It teaches the word, and changes no card (ADR 042).
 - **School path** — a lesson's words on the way to its skill, counted by each word's **standing**: not started, recognize, recall, hold, retained. A standing is derived from the card, so a lapse moves it back, and so does a Hard on a retained word (ADR 042).

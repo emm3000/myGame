@@ -1,5 +1,5 @@
 ---
-status: proposed, rule 6 and the chrome count amended by ADR 040, the lesson counts widened by ADR 044's unit lessons
+status: proposed, rule 6 and the chrome count amended by ADR 040, the lesson counts widened by ADR 044's unit lessons, rules 2, 3 and 6 and check 10 amended by ADR 045
 date: 2026-11-04
 ---
 # The skill curve
@@ -63,9 +63,13 @@ What trunk holds, checked at `1f0b1c41`:
    `cycle[(n − 1) mod k]`**, where the cycle is the game's *k* resources
    in a fixed order, food first. Lesson 1, at position 1, raises food, as
    it does today. Any *k* consecutive lessons raise every resource once.
+   (Amended by ADR 045: every lesson raises money. Over 90 days of play a
+   food, material or power level saves no hour at any level, since money
+   sets when every level is paid, so the cycle goes.)
 3. **The skill is derived, never written in a lesson file.**
    `curriculum.json` holds the curve once:
-   `"skill": { "cycle": [...], "ratePercent": 5 }`. The adapter gives
+   `"skill": { "cycle": [...], "ratePercent": 5 }` (amended by ADR 045:
+   `"skill": { "resource": "money", "ratePercent": 5 }`). The adapter gives
    each lesson its `LessonSkill` from its position, so the domain's
    `Lesson` keeps `skill` unchanged and `lesson-<n>.json` loses it, lesson
    1's included, in the lexicon ticket that moves its words (ADR 037).
@@ -94,7 +98,8 @@ What trunk holds, checked at `1f0b1c41`:
    `curriculum.json` and copies the levels, food to food, into the
    town's `earned_skills`, failing on any other resource. The reset
    maps no resource column, since the town's stocks start from
-   content.)
+   content. Amended by ADR 045: the skill names one resource, money, and
+   no cycle is written.)
 
 ### Which lessons earn
 
@@ -125,7 +130,8 @@ What trunk holds, checked at `1f0b1c41`:
 ADR 037's content gate gains **check 10, the skill**: `curriculum.json`'s
 `skill` names every resource of `ResourceKind` exactly once, food first,
 and `ratePercent` is 5; no lesson file names a skill (the strict schema
-refuses the field). Since the skill of lesson *n* is derived from the
+refuses the field). (Amended by ADR 045: the skill names money, and
+`ratePercent` is 5.) Since the skill of lesson *n* is derived from the
 position, no per-lesson check can drift from rule 2; the adapter's test
 pins the derivation (positions 1, 2 and *k* + 1, and lesson 1 at food 5).
 Check 10 ships with `curriculum.json`, in the lexicon ticket.
