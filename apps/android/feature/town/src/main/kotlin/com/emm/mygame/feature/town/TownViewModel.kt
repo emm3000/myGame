@@ -15,6 +15,7 @@ import com.emm.mygame.core.network.registeredBetween
 import com.emm.mygame.core.projection.repaintDelay
 import kotlin.time.Clock
 import kotlin.time.Duration
+import kotlin.time.Duration.Companion.minutes
 import kotlin.time.Instant
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.cancelChildren
@@ -27,6 +28,8 @@ import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
+
+private val failedReadRetry: Duration = 1.minutes
 
 class TownViewModel(
     private val towns: TownRepository,
@@ -252,20 +255,24 @@ class TownViewModel(
 
     private suspend fun project(first: TownSnapshot) {
         var snapshot: TownSnapshot = first
+        var retryAt: Instant? = null
         while (true) {
             draw(snapshot)
-            if (snapshot.isDueAt(serverNow())) {
+            val now: Instant = serverNow()
+            val isRetryDue: Boolean = retryAt == null || retryAt <= now
+            if (isRetryDue && snapshot.isDueAt(now)) {
                 when (val answer: TownReadResult = towns.read()) {
                     is TownReadResult.Read -> {
                         snapshot = measured(answer.town)
                         mutations = mutations.keptAfterRead()
+                        retryAt = null
                         draw(snapshot)
                     }
                     TownReadResult.NoTown -> return askName()
-                    TownReadResult.Unreachable -> Unit
+                    TownReadResult.Unreachable -> retryAt = serverNow() + failedReadRetry
                 }
             }
-            delay(repaintDelay(snapshot.nearestCountdownAt(serverNow())))
+            delay(snapshot.nextWakeAt(serverNow(), retryAt))
         }
     }
 
@@ -275,4 +282,9 @@ class TownViewModel(
         gap = read.readAt - clock.now()
         return read
     }
+}
+
+private fun TownSnapshot.nextWakeAt(now: Instant, retryAt: Instant?): Duration {
+    val repaint: Duration = repaintDelay(nearestCountdownAt(now))
+    return if (retryAt == null) repaint else minOf(repaint, retryAt - now)
 }
