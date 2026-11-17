@@ -77,7 +77,7 @@ sealed interface TownUiState {
 
     data class PeopleLine(val free: Int, val atWork: Int)
 
-    data class WordsLine(val reviewed: Int, val learned: Int)
+    data class WordsLine(val stable: Int, val retained: Int)
 
     data class SeasonLine(
         val kind: SeasonKind,
