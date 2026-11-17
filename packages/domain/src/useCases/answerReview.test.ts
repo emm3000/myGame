@@ -20,10 +20,11 @@ import { inMemoryReviewLog } from '../testing/inMemoryReviewLog'
 import { inMemoryTownNews } from '../testing/inMemoryTownNews'
 import { type InMemoryTowns, inMemoryTowns } from '../testing/inMemoryTowns'
 import { lessonOne } from '../testing/lessonOne'
-import { townCatalogOf } from '../testing/townCatalogOf'
+import { plainTownLevels, plainTownSettings, townCatalogOf } from '../testing/townCatalogOf'
 import { type TownShape, townOf } from '../testing/townFixtures'
 import { Instant } from '../time/Instant'
 import { accrueTown } from '../town/accrueTown'
+import type { BuildingLevel } from '../town/BuildingLevel'
 import type { WorkSlot } from '../town/BuildingWork'
 import type { EarnedSkillRepository } from '../town/EarnedSkillRepository'
 import type { Job } from '../town/Job'
@@ -91,7 +92,30 @@ const MILLISECONDS_PER_HOUR = 3_600_000
 const hoursAfter = (instant: Instant, hours: number): Instant =>
   Instant.fromEpochMilliseconds(instant.epochMilliseconds + hours * MILLISECONDS_PER_HOUR)
 
-const catalog = townCatalogOf()
+const homesUpToTen: ReadonlyArray<BuildingLevel> = [
+  ...plainTownLevels,
+  ...[3, 4, 5, 6, 7, 8, 9, 10].map(
+    (level): BuildingLevel => ({
+      building: 'homes',
+      level,
+      cost: { money: 0, food: 0, power: 0, material: 0 },
+      durationSeconds: 60 * level,
+      people: 0,
+      peopleSupplied: 20 * level,
+    }),
+  ),
+]
+
+const catalog = townCatalogOf(plainTownSettings, homesUpToTen)
+
+const cardsHeldAs = (standing: string, count: number, card: MemoryCard): ReadonlyArray<OwnedCard> =>
+  Array.from({ length: count }, (_, index) => ownedBy(`${standing}-${index + 1}`, card))
+
+const stableCardsOf = (count: number): ReadonlyArray<OwnedCard> =>
+  cardsHeldAs('stable', count, firstRecallDoneCard)
+
+const retainedCardsOf = (count: number): ReadonlyArray<OwnedCard> =>
+  cardsHeldAs('retained', count, retainedCard)
 
 const lastRecallAt = dueAtOf(firstRecallDoneCard)
 
@@ -768,5 +792,130 @@ describe('answerReview', () => {
     assert(answered.ok)
     expect(answered.value).toMatchObject({ kind: 'rated', rating: 'good' })
     expect(towns.storedTownOf(learner)).toBe(town)
+  })
+
+  it('opens level 3 at the recall that makes the 10th word stable', async () => {
+    const { dependencies } = arrange(
+      [...stableCardsOf(9), ownedBy('school', recallCard)],
+      dueAtOf(recallCard),
+    )
+
+    const answered = await answerReview(
+      { playerId: learner, wordId: 'school', answer: 'school' },
+      dependencies,
+    )
+
+    expect(answered).toMatchObject({
+      ok: true,
+      value: { kind: 'rated', stableWordCount: 10, retainedWordCount: 0, openedLevel: 3 },
+    })
+  })
+
+  it('opens level 3 at a Hard recall after a hint that makes the 10th word stable', async () => {
+    const { pendingReviews, dependencies } = arrange(
+      [...stableCardsOf(9), ownedBy('school', recallCard)],
+      dueAtOf(recallCard),
+    )
+    await pendingReviews.save(learner, 'school', {
+      hintShown: true,
+      nearMissAnswer: null,
+      shownFrame: null,
+    })
+
+    const answered = await answerReview(
+      { playerId: learner, wordId: 'school', answer: 'school' },
+      dependencies,
+    )
+
+    expect(answered).toMatchObject({
+      ok: true,
+      value: { kind: 'rated', rating: 'hard', stableWordCount: 10, openedLevel: 3 },
+    })
+  })
+
+  it('opens no level when the count already met it', async () => {
+    const { dependencies } = arrange(
+      [...stableCardsOf(10), ownedBy('school', recallCard)],
+      dueAtOf(recallCard),
+    )
+
+    const answered = await answerReview(
+      { playerId: learner, wordId: 'school', answer: 'school' },
+      dependencies,
+    )
+
+    expect(answered).toMatchObject({
+      ok: true,
+      value: { kind: 'rated', stableWordCount: 11, openedLevel: null },
+    })
+  })
+
+  it('opens level 7 at the proof of the 50th retained word', async () => {
+    const { dependencies } = arrange(
+      [...retainedCardsOf(49), ownedBy('school', firstRecallDoneCard)],
+      lastRecallAt,
+    )
+
+    const answered = await answerReview(
+      { playerId: learner, wordId: 'school', answer: 'school' },
+      dependencies,
+    )
+
+    expect(answered).toMatchObject({
+      ok: true,
+      value: { kind: 'rated', stableWordCount: 50, retainedWordCount: 50, openedLevel: 7 },
+    })
+  })
+
+  it('opens no level past the top level a building has', async () => {
+    const { dependencies } = arrange(
+      [...retainedCardsOf(89), ownedBy('school', firstRecallDoneCard)],
+      lastRecallAt,
+    )
+
+    const answered = await answerReview(
+      { playerId: learner, wordId: 'school', answer: 'school' },
+      dependencies,
+    )
+
+    expect(answered).toMatchObject({
+      ok: true,
+      value: { kind: 'rated', retainedWordCount: 90, openedLevel: null },
+    })
+  })
+
+  it('a wrong answer opens no level', async () => {
+    const { dependencies } = arrange(
+      [...stableCardsOf(9), ownedBy('school', recallCard)],
+      dueAtOf(recallCard),
+    )
+
+    const answered = await answerReview(
+      { playerId: learner, wordId: 'school', answer: 'house' },
+      dependencies,
+    )
+
+    expect(answered).toMatchObject({
+      ok: true,
+      value: { kind: 'rated', rating: 'again', stableWordCount: 9, openedLevel: null },
+    })
+  })
+
+  it('opens a level with or without a town', async () => {
+    const owned = [...stableCardsOf(9), ownedBy('school', recallCard)]
+    const openedIn = async (heldTowns: ReadonlyArray<Town>) => {
+      const { dependencies } = arrange(owned, dueAtOf(recallCard), heldTowns)
+      const answered = await answerReview(
+        { playerId: learner, wordId: 'school', answer: 'school' },
+        dependencies,
+      )
+      assert(answered.ok && answered.value.kind === 'rated')
+      return answered.value.openedLevel
+    }
+
+    expect([
+      await openedIn([farmingTownStoredAt(dueAtOf(recallCard))]),
+      await openedIn([]),
+    ]).toEqual([3, 3])
   })
 })

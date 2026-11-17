@@ -93,6 +93,7 @@ class ReviewLanguageTest {
                 rates = ReviewUiState.SkillRates(before = 60L, after = 66L),
                 words = listOf("school", "home"),
             ),
+            openedLevel = null,
         ),
     )
 

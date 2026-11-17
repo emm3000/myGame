@@ -330,7 +330,33 @@ class ReviewViewModelTest {
             viewModel.onIntent(ReviewIntent.AnswerChanged("home"))
             viewModel.onIntent(ReviewIntent.CheckTapped)
             assertEquals(
-                ReviewUiState.ReviewStep.Correct(skill = null),
+                ReviewUiState.ReviewStep.Correct(skill = null, openedLevel = null),
+                awaitStep { it is ReviewUiState.ReviewStep.Correct }.step,
+            )
+        }
+    }
+
+    @Test
+    fun `draws the level a correct answer opened`() = runTest {
+        val learning: FakeLearningRepository = FakeLearningRepository()
+        val viewModel: ReviewViewModel = openReview(learning)
+        learning.answerRead(dueNow(homeRecall))
+        val openingHome: ReviewVerdict = ReviewVerdict.Correct(
+            word = "home",
+            gloss = "casa",
+            dueAt = firstReadAt + 10.minutes,
+            earnedSkill = null,
+            openedLevel = 3,
+        )
+        learning.answerReview(ReviewAnswerResult.Answered(openingHome))
+        learning.answerRead(dueNow())
+
+        viewModel.state.test {
+            awaitReviewing()
+            viewModel.onIntent(ReviewIntent.AnswerChanged("home"))
+            viewModel.onIntent(ReviewIntent.CheckTapped)
+            assertEquals(
+                ReviewUiState.ReviewStep.Correct(skill = null, openedLevel = 3),
                 awaitStep { it is ReviewUiState.ReviewStep.Correct }.step,
             )
         }
@@ -357,6 +383,7 @@ class ReviewViewModelTest {
                         rates = ReviewUiState.SkillRates(before = 18, after = 19),
                         words = listOf("home", "school"),
                     ),
+                    openedLevel = null,
                 ),
                 awaitStep { it is ReviewUiState.ReviewStep.Correct }.step,
             )
@@ -384,6 +411,7 @@ class ReviewViewModelTest {
                         rates = null,
                         words = listOf("home", "school"),
                     ),
+                    openedLevel = null,
                 ),
                 awaitStep { it is ReviewUiState.ReviewStep.Correct }.step,
             )
@@ -542,6 +570,7 @@ class ReviewViewModelTest {
             gloss = "casa",
             dueAt = firstReadAt + 10.minutes,
             earnedSkill = earnedSkill,
+            openedLevel = null,
         )
 
     @Test

@@ -32,6 +32,7 @@ internal val skillEarned: ReviewUiState.Reviewing = dealtSchool.copy(
             rates = ReviewUiState.SkillRates(before = 18, after = 19),
             words = listOf("home", "school"),
         ),
+        openedLevel = null,
     ),
 )
 

@@ -22,6 +22,7 @@ class ReviewRegistersTest {
         gloss = "casa",
         dueAt = firstReadAt + 10.minutes,
         earnedSkill = null,
+        openedLevel = null,
     )
 
     private val wrongHome: ReviewVerdict = ReviewVerdict.Wrong(word = "home", gloss = "casa", dueAt = firstReadAt)

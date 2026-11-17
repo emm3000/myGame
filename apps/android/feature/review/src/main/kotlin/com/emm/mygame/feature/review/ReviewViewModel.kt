@@ -211,7 +211,10 @@ class ReviewViewModel(
     private suspend fun rated(card: ReviewUiState.ReviewCard, verdict: ReviewVerdict) {
         val step: ReviewUiState.ReviewStep = when (verdict) {
             ReviewVerdict.NearMiss -> return stepTo(ReviewUiState.ReviewStep.NearMiss)
-            is ReviewVerdict.Correct -> ReviewUiState.ReviewStep.Correct(skill = verdict.earnedSkill?.toSkillLine())
+            is ReviewVerdict.Correct -> ReviewUiState.ReviewStep.Correct(
+                skill = verdict.earnedSkill?.toSkillLine(),
+                openedLevel = verdict.openedLevel,
+            )
             is ReviewVerdict.Wrong -> ReviewUiState.ReviewStep.Wrong(correct = card.correctFormOf(verdict))
         }
         readTown()

@@ -11,6 +11,8 @@ import { reviewFormatOf } from '../learning/ReviewFormat'
 import type { ReviewLogEntry } from '../learning/ReviewLogEntry'
 import { type AnswerGrade, ratingOf } from '../learning/ratingOf'
 import { recognitionChoicesOf } from '../learning/recognitionChoicesOf'
+import { retainedWordCountOf } from '../learning/retainedWordCountOf'
+import { stableWordCountOf } from '../learning/stableWordCountOf'
 import type { MemoryCard } from '../memory/MemoryCard'
 import type { MemoryRating } from '../memory/MemoryRating'
 import type { MemoryTerms } from '../memory/MemoryTerms'
@@ -27,6 +29,7 @@ import { err, ok, type Result } from '../Result'
 import type { Instant } from '../time/Instant'
 import type { EarnedSkillRepository } from '../town/EarnedSkillRepository'
 import { earnTownSkill } from '../town/earnTownSkill'
+import { openedLevelOf } from '../town/openedLevelOf'
 import { saveChangedTown } from '../town/saveChangedTown'
 import { settleTownTo } from '../town/settleTownTo'
 import type { Town } from '../town/Town'
@@ -62,6 +65,9 @@ export type AnsweredReview =
       readonly rating: MemoryRating
       readonly card: MemoryCard
       readonly earnedSkill: TownSkill | undefined
+      readonly stableWordCount: number
+      readonly retainedWordCount: number
+      readonly openedLevel: number | null
     }
 
 type Grade = AnswerGrade | 'nearMiss'
@@ -164,11 +170,18 @@ const earnSkill = async (
   return rebased.ok ? ok(skill) : rebased
 }
 
+const cardsAfterAnswer = (
+  held: ReadonlyArray<HeldCard>,
+  wordId: WordId,
+  card: MemoryCard,
+): ReadonlyArray<HeldCard> =>
+  held.map((heldCard) => (heldCard.wordId === wordId ? { wordId, card } : heldCard))
+
 const skillEarnedBy = async (
   playerId: PlayerId,
   review: DueReview,
-  card: MemoryCard,
-  cards: ReadonlyArray<HeldCard>,
+  before: ReadonlyArray<HeldCard>,
+  after: ReadonlyArray<HeldCard>,
   earnedAt: Instant,
   dependencies: AnswerReviewDependencies,
 ): Promise<Result<TownSkill | undefined, DomainError>> => {
@@ -177,17 +190,32 @@ const skillEarnedBy = async (
   if (!starts.ok) {
     return starts
   }
-  const released = releasedLessonsOf(starts.value, cards, dependencies).flatMap(({ words }) =>
+  const released = releasedLessonsOf(starts.value, before, dependencies).flatMap(({ words }) =>
     words.map(({ id }) => id),
   )
-  const afterReview = cards
-    .filter(({ wordId }) => !released.includes(wordId))
-    .map((held) => (held.wordId === review.word.id ? { wordId: held.wordId, card } : held))
+  const afterReview = after.filter(({ wordId }) => !released.includes(wordId))
   if (released.includes(review.word.id) || !isLessonRetained(lesson, afterReview)) {
     return ok(undefined)
   }
   return earnSkill(playerId, lesson, earnedAt, dependencies)
 }
+
+const ratedReviewOf = (
+  rating: MemoryRating,
+  card: MemoryCard,
+  earnedSkill: TownSkill | undefined,
+  before: ReadonlyArray<HeldCard>,
+  after: ReadonlyArray<HeldCard>,
+  catalog: TownCatalog,
+): AnsweredReview => ({
+  kind: 'rated',
+  rating,
+  card,
+  earnedSkill,
+  stableWordCount: stableWordCountOf(after),
+  retainedWordCount: retainedWordCountOf(after),
+  openedLevel: openedLevelOf(before, after, catalog),
+})
 
 const markNearMiss = async (
   { playerId, wordId, answer }: AnswerReviewCommand,
@@ -254,16 +282,19 @@ export const answerReview = async (
   if (!recorded.ok) {
     return recorded
   }
+  const after = cardsAfterAnswer(held.value, wordId, next.value)
   const earnedSkill = await skillEarnedBy(
     playerId,
     review.value,
-    next.value,
     held.value,
+    after,
     now,
     dependencies,
   )
   if (!earnedSkill.ok) {
     return earnedSkill
   }
-  return ok({ kind: 'rated', rating, card: next.value, earnedSkill: earnedSkill.value })
+  return ok(
+    ratedReviewOf(rating, next.value, earnedSkill.value, held.value, after, dependencies.catalog),
+  )
 }

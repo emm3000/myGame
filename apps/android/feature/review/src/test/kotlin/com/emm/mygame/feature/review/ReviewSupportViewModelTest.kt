@@ -115,8 +115,13 @@ class ReviewSupportViewModelTest {
         }
     }
 
-    private val correctHome: ReviewVerdict =
-        ReviewVerdict.Correct(word = "home", gloss = "casa", dueAt = firstReadAt + 10.minutes, earnedSkill = null)
+    private val correctHome: ReviewVerdict = ReviewVerdict.Correct(
+        word = "home",
+        gloss = "casa",
+        dueAt = firstReadAt + 10.minutes,
+        earnedSkill = null,
+        openedLevel = null,
+    )
 
     @Test
     fun `keeps a support opened while the hint is asked`() = runTest {

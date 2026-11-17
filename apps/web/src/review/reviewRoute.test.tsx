@@ -226,6 +226,9 @@ it('sends the chosen meaning by its choice id', async () => {
     word: 'home',
     gloss: 'hogar',
     dueAt: readInstant,
+    stableWordCount: 0,
+    retainedWordCount: 0,
+    openedLevel: null,
     earnedSkill: null,
   })
   await showReview(withReviews([homeRecognition], null), { answerReview })
@@ -301,6 +304,9 @@ it('shows the correct form beside the answer after a wrong answer', async () => 
     word: 'school',
     gloss: 'escuela',
     dueAt: readInstant,
+    stableWordCount: 0,
+    retainedWordCount: 0,
+    openedLevel: null,
   })
   await showReview(recallDue, { answerReview })
 
@@ -318,6 +324,9 @@ it('shows the gloss chosen beside the right one after a wrong recognition', asyn
     word: 'home',
     gloss: 'hogar',
     dueAt: readInstant,
+    stableWordCount: 0,
+    retainedWordCount: 0,
+    openedLevel: null,
   })
   await showReview(withReviews([homeRecognition], null), { answerReview })
 
@@ -335,6 +344,9 @@ const correctSchool: ReviewAnswer['verdict'] = {
   word: 'school',
   gloss: 'escuela',
   dueAt: readInstant,
+  stableWordCount: 0,
+  retainedWordCount: 0,
+  openedLevel: null,
   earnedSkill: null,
 }
 
@@ -479,6 +491,9 @@ const wrongSchool: ReviewAnswer['verdict'] = {
   word: 'school',
   gloss: 'escuela',
   dueAt: '2026-09-22T12:30:00.000Z',
+  stableWordCount: 0,
+  retainedWordCount: 0,
+  openedLevel: null,
 }
 
 const rightVerdict = (): HTMLElement => screen.getByRole('region', { name: reviewCorrect() })

@@ -78,6 +78,9 @@ const correctSchool: ReviewVerdict = {
   word: 'school',
   gloss: 'escuela',
   dueAt: '2026-11-12T09:00:00.000Z',
+  stableWordCount: 0,
+  retainedWordCount: 0,
+  openedLevel: null,
   earnedSkill: null,
 }
 

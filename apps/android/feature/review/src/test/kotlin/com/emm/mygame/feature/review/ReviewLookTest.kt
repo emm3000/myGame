@@ -82,7 +82,7 @@ class ReviewLookTest {
         answering.copy(card = recall, step = ReviewUiState.ReviewStep.Wrong(correct = "home"))
 
     private val rightRecall: ReviewUiState.Reviewing =
-        answering.copy(card = recall, step = ReviewUiState.ReviewStep.Correct(skill = null))
+        answering.copy(card = recall, step = ReviewUiState.ReviewStep.Correct(skill = null, openedLevel = null))
 
     @Test
     fun `holds at most one ink pill on a review`() {
@@ -277,7 +277,7 @@ class ReviewLookTest {
                 rates = null,
                 words = listOf("home"),
             )
-        draw(rightRecall.copy(step = ReviewUiState.ReviewStep.Correct(skill = skill)))
+        draw(rightRecall.copy(step = ReviewUiState.ReviewStep.Correct(skill = skill, openedLevel = null)))
 
         assertEquals(colors.ink, styleOf("Habilidad ganada: comida, nivel 1.").color)
         assertEquals(colors.ink, styleOf("+5 % de comida / h.").color)

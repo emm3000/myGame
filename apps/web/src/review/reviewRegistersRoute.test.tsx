@@ -51,6 +51,9 @@ const correctHome: ReviewAnswer['verdict'] = {
   word: 'home',
   gloss: 'hogar',
   dueAt: readAt,
+  stableWordCount: 0,
+  retainedWordCount: 0,
+  openedLevel: null,
   earnedSkill: null,
 }
 
@@ -59,6 +62,9 @@ const wrongHome: ReviewAnswer['verdict'] = {
   word: 'home',
   gloss: 'hogar',
   dueAt: readAt,
+  stableWordCount: 0,
+  retainedWordCount: 0,
+  openedLevel: null,
 }
 
 const showReview = async (
