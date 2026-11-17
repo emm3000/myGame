@@ -7,7 +7,7 @@
     <string name="reminder_channel">Recordatorios de estudio</string>
     <string name="reminder_check_text">Ábrela desde el pueblo.</string>
     <string name="reminder_check_title">Tu prueba de palabras está lista.</string>
-    <string name="reminder_lesson_text">Empiézala en la escuela.</string>
+    <string name="reminder_lesson_text">Empiézala desde el pueblo.</string>
     <string name="reminder_lesson_title">Hay una lección lista.</string>
     <string name="shell_retained_words">{count} de {total, plural, =1 {1 palabra aprendida} other {{total, number,0} palabras aprendidas}}</string>
 </resources>
