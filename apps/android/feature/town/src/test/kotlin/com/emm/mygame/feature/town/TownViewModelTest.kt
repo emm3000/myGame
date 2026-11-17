@@ -91,7 +91,7 @@ class TownViewModelTest {
     fun `draws the town's reviewed and learned words`() = runTest {
         val viewModel: TownViewModel = homeViewModel(townOf(stableWordCount = 14, retainedWordCount = 3))
 
-        assertEquals(TownUiState.WordsLine(reviewed = 14, learned = 3), contentOf(viewModel).words)
+        assertEquals(TownUiState.WordsLine(stable = 14, retained = 3), contentOf(viewModel).words)
     }
 
     @Test

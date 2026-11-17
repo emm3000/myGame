@@ -38,7 +38,7 @@ internal fun TownSnapshot.contentAt(
         label = label,
         stocks = lines,
         people = TownUiState.PeopleLine(free = people.free, atWork = people.atWork),
-        words = TownUiState.WordsLine(reviewed = stableWordCount, learned = retainedWordCount),
+        words = TownUiState.WordsLine(stable = stableWordCount, retained = retainedWordCount),
         season = seasonLineAt(now),
         buildMark = seasonInForce?.buildMark(),
         slot = work.slot?.slotLineAt(now, gap) ?: TownUiState.SlotLine.Idle,

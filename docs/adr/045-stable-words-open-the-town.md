@@ -135,9 +135,10 @@ The server answers every number below (N1); no client derives a need.
 - **The town home** shows the stable and the retained words, and each
   place card its next level's need beside its cost and people: *Needs
   30 words*, with the standing the school path already names, and the
-  count toward it. `TownOverview` gains `stableWords` and
-  `retainedWords`, and each building's `nextLevel` its `wordsNeeded`,
-  `{ count, standing }` or null.
+  count toward it. `TownOverview` gains `stableWordCount` and
+  `retainedWordCount`, named apart from `learning.retainedWords`, and
+  each building's `nextLevel` its `wordsNeeded`, `{ count, standing }`,
+  or null when the level needs no words or the town's words meet it.
 - **The review verdict** of an answer that makes a word stable or
   retained says what it opened. `ReviewVerdict` gains `stableWords`,
   `retainedWords` and `openedLevel`, the highest level whose need the
@@ -385,7 +386,7 @@ the only ones it rewards.
   `lessonRunning` loses `producer` and carries the building goal.
 - `packages/contracts`: `TownContentSchema` gains `wordNeed`;
   `CurriculumContentSchema`'s skill becomes `{ resource, ratePercent }`;
-  `TownOverview` gains `stableWords`, `retainedWords` and
+  `TownOverview` gains `stableWordCount`, `retainedWordCount` and
   `nextLevel.wordsNeeded`; `ReviewVerdict` gains `stableWords`,
   `retainedWords` and `openedLevel`; `ApiError` gains `NotEnoughWords`
   with its params; `NextStep`'s `lessonRunning` loses `producer` and

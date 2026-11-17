@@ -310,7 +310,7 @@ class TownOfficeScreenTest {
         label = TownLabel.Town,
         stocks = emptyList(),
         people = TownUiState.PeopleLine(free = 24, atWork = 96),
-        words = TownUiState.WordsLine(reviewed = 0, learned = 0),
+        words = TownUiState.WordsLine(stable = 0, retained = 0),
         season = null,
         buildMark = null,
         slot = TownUiState.SlotLine.Idle,
