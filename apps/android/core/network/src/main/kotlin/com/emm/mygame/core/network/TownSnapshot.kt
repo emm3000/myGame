@@ -14,6 +14,7 @@ data class TownSnapshot(
     val work: Work,
     val lessons: List<Lesson>,
     val releasedLessons: List<ReleasedLesson>,
+    val dueHoldoutChecks: List<DueHoldoutCheck>,
     val hasBandStarted: Boolean,
     val skills: List<EarnedSkill>,
     val learning: Learning,
@@ -84,6 +85,8 @@ data class TownSnapshot(
         val readings: List<WordReading>,
         val standings: List<WordStanding>,
     )
+
+    data class DueHoldoutCheck(val band: PlacementBand, val week: HoldoutCheckWeek)
 
     data class WordReading(val word: String, val frame: List<FrameSpan>, val support: WordSupport?)
 

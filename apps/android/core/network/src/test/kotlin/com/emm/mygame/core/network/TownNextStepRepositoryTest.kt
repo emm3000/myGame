@@ -143,6 +143,7 @@ class TownNextStepRepositoryTest {
             tokenStore = store,
             languages = PlayerLanguages(store),
             sessionEnds = SessionEnds(),
+            studyAnswers = discardedStudyAnswers(store),
             ioDispatcher = UnconfinedTestDispatcher(testScheduler),
             clock = TestClock(testScheduler, Instant.parse("2026-11-13T10:00:00Z")),
         )

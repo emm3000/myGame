@@ -6,6 +6,7 @@ import com.emm.mygame.core.network.generated.models.ResourceAmounts
 import com.emm.mygame.core.network.generated.models.StartBuildingWork
 import com.emm.mygame.core.network.generated.models.TownJob
 import com.emm.mygame.core.network.generated.models.TownOverview
+import com.emm.mygame.core.network.generated.models.TownOverviewDueHoldoutChecksInner
 import com.emm.mygame.core.network.generated.models.TownOverviewHiring
 import com.emm.mygame.core.network.generated.models.TownOverviewHiringOrder
 import com.emm.mygame.core.network.generated.models.TownOverviewHiringTermsWorker
@@ -40,6 +41,7 @@ internal fun TownOverview.toSnapshot(): TownSnapshot? {
         work = townWork,
         lessons = school.shelved,
         releasedLessons = school.released,
+        dueHoldoutChecks = dueHoldoutChecks.mapNotNull(TownOverviewDueHoldoutChecksInner::toDueHoldoutCheck),
         hasBandStarted = hasBandStarted,
         skills = school.skills,
         learning = learning.toLearning(),
@@ -53,6 +55,12 @@ internal fun TownOverview.toSnapshot(): TownSnapshot? {
         nextDueAt = nextDueAt?.toKotlinInstant(),
         readAt = readAt.toKotlinInstant(),
     )
+}
+
+private fun TownOverviewDueHoldoutChecksInner.toDueHoldoutCheck(): TownSnapshot.DueHoldoutCheck? {
+    val checkBand: PlacementBand = band.toBand() ?: return null
+    val checkWeek: HoldoutCheckWeek = week.toWeek() ?: return null
+    return TownSnapshot.DueHoldoutCheck(checkBand, checkWeek)
 }
 
 internal fun TownBuildingKind.toWireBuilding(): StartBuildingWork.Building = when (this) {

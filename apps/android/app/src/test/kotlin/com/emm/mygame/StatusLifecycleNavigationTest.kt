@@ -109,6 +109,7 @@ class StatusLifecycleNavigationTest {
             ),
         ),
         releasedLessons = emptyList(),
+        dueHoldoutChecks = emptyList(),
         hasBandStarted = false,
         skills = emptyList(),
         learning = TownSnapshot.Learning(cap = 10, inLearning = 0, retainedWords = null),

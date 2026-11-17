@@ -658,6 +658,7 @@ class SessionRepositoryTest {
             tokenStore = store,
             languages = PlayerLanguages(store),
             sessionEnds = sessionEnds,
+            studyAnswers = discardedStudyAnswers(store),
             ioDispatcher = UnconfinedTestDispatcher(testScheduler),
             clock = TestClock(testScheduler, Instant.parse("2026-11-05T10:00:00Z")),
         )

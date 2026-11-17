@@ -316,12 +316,16 @@ class LearningRepositoryTest {
         )
     }
 
-    private fun TestScope.learning(): LearningRepository = LearningRepository(
-        baseUrl = api.url("/api/").toString(),
-        tokenStore = signedIn(),
-        sessionEnds = sessionEnds,
-        ioDispatcher = UnconfinedTestDispatcher(testScheduler),
-    )
+    private fun TestScope.learning(): LearningRepository {
+        val store: TokenStore = signedIn()
+        return LearningRepository(
+            baseUrl = api.url("/api/").toString(),
+            tokenStore = store,
+            sessionEnds = sessionEnds,
+            studyAnswers = discardedStudyAnswers(store),
+            ioDispatcher = UnconfinedTestDispatcher(testScheduler),
+        )
+    }
 
     private fun signedIn(): TokenStore =
         TokenStore(File(folder.root, "session"), FakeTokenCipher()).apply { write("opaque-session") }

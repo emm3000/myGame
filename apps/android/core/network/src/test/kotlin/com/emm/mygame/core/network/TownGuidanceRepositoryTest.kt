@@ -186,6 +186,7 @@ class TownGuidanceRepositoryTest {
             tokenStore = store,
             languages = PlayerLanguages(store),
             sessionEnds = SessionEnds(),
+            studyAnswers = discardedStudyAnswers(store),
             ioDispatcher = UnconfinedTestDispatcher(testScheduler),
             clock = TestClock(testScheduler, aMinuteBeforeTheRead),
         )
