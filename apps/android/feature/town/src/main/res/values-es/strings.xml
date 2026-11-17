@@ -146,8 +146,8 @@
     <string name="town_try_again">Volver a intentarlo</string>
     <string name="town_waiting">Esperando</string>
     <string name="town_words_learned">Palabras aprendidas: {count}</string>
-    <string name="town_words_needed">{standing, select, stable {Necesita {needed} palabras repasadas: {held} de {needed}} retained {Necesita {needed} palabras aprendidas: {held} de {needed}} other {Necesita {needed} palabras aprendidas: {held} de {needed}}}</string>
-    <string name="town_words_reviewed">Palabras repasadas: {count}</string>
+    <string name="town_words_needed">{standing, select, stable {Necesita {needed} palabras fuera de aprendizaje: {held} de {needed}} retained {Necesita {needed} palabras aprendidas: {held} de {needed}} other {Necesita {needed} palabras aprendidas: {held} de {needed}}}</string>
+    <string name="town_words_reviewed">Palabras fuera de aprendizaje: {count}</string>
     <string name="town_work_done">La obra está lista. Estamos leyendo tu pueblo otra vez…</string>
     <string name="town_work_idle">Ahora no hay ninguna obra.</string>
     <string name="town_work_ready">Lista</string>
