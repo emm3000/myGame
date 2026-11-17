@@ -69,12 +69,27 @@ private val blocks: List<(MyGameColors) -> Color> = listOf(
 )
 
 private val pairs: List<ColorPair> = listOf(
-    ColorPair(PairKind.Text, { it.ink }, { it.surface }, "running text on the page"),
+    ColorPair(
+        PairKind.Text,
+        { it.ink },
+        { it.surface },
+        "running text on the page, MyGameSwitchRow label, MyGameTimeField time",
+    ),
     ColorPair(PairKind.Text, { it.ink }, { it.surfaceRaised }, "text in a card, MyGameTextField value"),
     ColorPair(PairKind.Text, { it.ink }, { it.surfaceSunken }, "ink words on a sunken surface"),
-    ColorPair(PairKind.Text, { it.inkMuted }, { it.surface }, "captions on the page, MyGameBackLink"),
+    ColorPair(
+        PairKind.Text,
+        { it.inkMuted },
+        { it.surface },
+        "captions on the page, MyGameBackLink, MyGameSwitchRow line",
+    ),
     ColorPair(PairKind.Text, { it.inkMuted }, { it.surfaceRaised }, "captions in a card, MyGameTextField label"),
-    ColorPair(PairKind.Text, { it.inkMuted }, { it.surfaceSunken }, "busy and blocked MyGameButton label"),
+    ColorPair(
+        PairKind.Text,
+        { it.inkMuted },
+        { it.surfaceSunken },
+        "busy and blocked MyGameButton label, disabled MyGameSwitchRow",
+    ),
     ColorPair(PairKind.Text, { it.onAction }, { it.action }, "MyGameButton label"),
     ColorPair(PairKind.Text, { it.action }, { it.surface }, "MyGameTextLink, AuthHeader"),
     ColorPair(PairKind.Text, { it.action }, { it.surfaceRaised }, "chosen review choice"),
@@ -114,6 +129,11 @@ private val pairs: List<ColorPair> = listOf(
     ColorPair(PairKind.Graphic, { it.inkMuted }, { it.surface }, "icon in muted ink"),
     ColorPair(PairKind.Graphic, { it.inkMuted }, { it.surfaceRaised }, "icon in muted ink in a card"),
     ColorPair(PairKind.Graphic, { it.inkMuted }, { it.surfaceSunken }, "MyGameSeasonMark icon"),
+    ColorPair(PairKind.Boundary, { it.action }, { it.surface }, "MyGameSwitchRow track, on"),
+    ColorPair(PairKind.Graphic, { it.onAction }, { it.action }, "MyGameSwitchRow thumb, on"),
+    ColorPair(PairKind.Boundary, { it.lineStrong }, { it.surface }, "MyGameSwitchRow track and thumb, off"),
+    ColorPair(PairKind.Boundary, { it.lineStrong }, { it.surfaceSunken }, "disabled MyGameSwitchRow track and thumb"),
+    ColorPair(PairKind.Graphic, { it.surfaceSunken }, { it.lineStrong }, "disabled MyGameSwitchRow thumb, on"),
     ColorPair(
         PairKind.Graphic,
         { it.surfaceSunken },
