@@ -140,8 +140,8 @@ The server answers every number below (N1); no client derives a need.
   each building's `nextLevel` its `wordsNeeded`, `{ count, standing }`,
   or null when the level needs no words or the town's words meet it.
 - **The review verdict** of an answer that makes a word stable or
-  retained says what it opened. `ReviewVerdict` gains `stableWords`,
-  `retainedWords` and `openedLevel`, the highest level whose need the
+  retained says what it opened. `ReviewVerdict` gains `stableWordCount`,
+  `retainedWordCount` and `openedLevel`, the highest level whose need the
   counts before the answer missed and the counts after meet, or null.
   The day-2 recall that holds the 10th word says level 3 is open: the
   review is where the town grows.
@@ -387,8 +387,8 @@ the only ones it rewards.
 - `packages/contracts`: `TownContentSchema` gains `wordNeed`;
   `CurriculumContentSchema`'s skill becomes `{ resource, ratePercent }`;
   `TownOverview` gains `stableWordCount`, `retainedWordCount` and
-  `nextLevel.wordsNeeded`; `ReviewVerdict` gains `stableWords`,
-  `retainedWords` and `openedLevel`; `ApiError` gains `NotEnoughWords`
+  `nextLevel.wordsNeeded`; `ReviewVerdict` gains `stableWordCount`,
+  `retainedWordCount` and `openedLevel`; `ApiError` gains `NotEnoughWords`
   with its params; `NextStep`'s `lessonRunning` loses `producer` and
   gains `goal`. The OpenAPI client is regenerated, so the Android row of
   `.claude/rules/verification.md` is owed.
