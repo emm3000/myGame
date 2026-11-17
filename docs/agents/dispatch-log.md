@@ -28,17 +28,17 @@ Totals of rows already folded out of Recent.
 
 | Row | Model:effort | PRs | MERGE | FIX FIRST checklist | FIX FIRST judgment | FIX FIRST spec |
 |---|---|---|---|---|---|---|
-| 1 | sonnet:low | 22 | 16 | 0 | 0 | 6 |
+| 1 | sonnet:low | 23 | 16 | 0 | 1 | 6 |
 | 2 | sonnet:medium | 2 | 0 | 0 | 2 | 0 |
 | 2 | opus:medium | 77 | 61 | 7 | 7 | 2 |
 | 2 | sonnet:high | 3 | 0 | 0 | 2 | 1 |
-| 2 | opus:high | 79 | 60 | 12 | 5 | 2 |
+| 2 | opus:high | 80 | 61 | 12 | 5 | 2 |
 | 3 | opus:medium | 25 | 16 | 4 | 4 | 1 |
 | 4 | opus:high | 74 | 60 | 3 | 5 | 6 |
-| 3 | opus:high | 121 | 83 | 13 | 17 | 7 |
+| 3 | opus:high | 126 | 86 | 15 | 17 | 7 |
 | 3 | fable:high | 2 | 2 | 0 | 0 | 0 |
 | 4 | fable:high | 1 | 1 | 0 | 0 | 0 |
-| 1 | opus:high | 15 | 5 | 1 | 8 | 1 |
+| 1 | opus:high | 17 | 5 | 1 | 10 | 1 |
 | 1 | fable:high | 43 | 31 | 1 | 8 | 3 |
 | 5 | fable:high | 18 | 18 | 0 | 0 | 0 |
 | 5 | opus:high | 3 | 3 | 0 | 0 | 0 |
@@ -49,15 +49,6 @@ Last 20 PRs, oldest first. Model:effort is what actually ran, which may differ f
 
 | PR | Issue | Row | Model:effort | First review | Cause | Peer in k | Peer out k | Review k | Peer USD | Rounds | Model min | Lines +/- | Later bug |
 |---|---|---|---|---|---|---|---|---|---|---|---|---|---|
-| #1091 | #746 | 4 | opus:high | MERGE | | 10285 | 42 | 133 | | 1 | each mail in the stored scaffold; no-player sends nothing | +665/-108 | |
-| #1093 | #1058 | 2 | opus:high | MERGE | | 19442 | 60 | 127 | | 1 | sign-up scaffold choice, phone-language default; group heading a11y fixed before merge | +407/-53 | |
-| #1094 | #1054 | 2 | opus:high | MERGE | | 34384 | 82 | 159 | | 1 | map and placement in server language; placement all fixed copy | +680/-178 | |
-| #1095 | #1060 | 3 | opus:high | MERGE | | 14806 | 46 | 165 | | 1 | season percents on the overview; one domain reader of the settings | +396/-88 | |
-| #1097 | #1059 | 3 | opus:high | MERGE | | 38615 | 89 | 191 | | 1 | settings screen; late answer after sign-out guarded; branch deleted by my close before merge and restored from pull ref | +1300/-31 | |
-| #1096 | #1057 | 2 | opus:high | MERGE | | 43252 | 90 | 146 | | 1 | released lessons on the school path; core:network readings mapped; Lesson 1 drop fixed | +614/-104 | |
-| #1101 | #1055 | 2 | opus:high | MERGE | | 30284 | 75 | 158 | | 1 | review and verification banner in server language | +593/-122 | |
-| #1102 | #1053 #1100 | 2 | opus:high | MERGE | | 34406 | 106 | 236 | | 1 | school in server language; released duplicate and wrap fixed | +841/-238 | |
-| #1104 | #1076 | 3 | opus:high | MERGE | | 29564 | 113 | 388 | | 1 | FrameSpan wire; reviewer re-ran the resolver on 295 frames, no leak; 35 noCardSense tokens | +1360/-176 | |
 | #1106 | #1061 | 2 | opus:high | MERGE | | 45683 | 107 | 145 | | 1 | season mark on town and school; core:network percents mapped | +829/-97 | |
 | #1108 | #1077 | 2 | opus:high | FIX FIRST | checklist | 32371 | 84 | 94 | | 2 | office and map season marks; untyped test rule claimed fixed | +691/-33 | |
 | #1107 | #1062 | 3 | opus:high | MERGE | | 51420 | 161 | 250 | | 1 | support on tap; MyGameFrameText; TalkBack merge and hint revert fixed before merge; device TalkBack walk not run | +1650/-77 | |
@@ -69,3 +60,12 @@ Last 20 PRs, oldest first. Model:effort is what actually ran, which may differ f
 | #1120 | #1088 | 3 | opus:high | FIX FIRST | spec | 41903 | 101 | 216 | | 2 | one ICU formatter in CopyReader; Closes would have dropped three comment items (moved to #1121) | +347/-149 | |
 | #1122 | #1121 | 3 | opus:high | FIX FIRST | judgment | 26553 | 70 | 219 | | 2 | both-phase MyGameLabel slots; IcuStrings deleted; banner live region lost its text in both phase | +308/-49 | |
 | #1123 | #831 | 2 | opus:high | FIX FIRST | checklist | 48818 | 124 | 219 | | 2 | fixed-minute retries in town, report and school; review stops on background; two new branches had no test | +614/-29 | |
+| #1124 | #1045 | 3 | opus:high | MERGE | | 4445 | 32 | 142 | | 1 | shared netsimd inherited a peer cwd; close spares netsimd and adb by exact name | +41/-3 | |
+| #1125 | #850 | 1 | opus:high | FIX FIRST | judgment | 30690 | 168 | | 3 | ADR 045; stable-only missed the retained-word option; split stable 3-6, retained 7-10 | +1326/-15 | |
+| #1137 | #1130 | 2 | opus:high | MERGE | | 3704 | 24 | 115 | | 1 | stable and retained word counts, levelWordNeedOf; reviewer ran 2 mutations | +155/-0 | |
+| #1138 | #1129 | 1 | sonnet:low | FIX FIRST | judgment | 2434 | 8 | 107 | | 2 | word need copy; ticket-writer copy overpromised a build and a remedy | +27/-1 | |
+| #1139 | #1131 | 3 | opus:high | MERGE | | 33506 | 64 | 254 | | 1 | every skill to money; running step carries the goal; day 57.9 reproduced by mutation | +269/-494 | |
+| #1140 | #1132 | 3 | opus:high | FIX FIRST | checklist | 32112 | 81 | 151 | | 2 | NotEnoughWords admission; refusal order had no test (reviewer reorder stayed green) | +476/-27 | |
+| #1142 | #1141 | 1 | opus:high | FIX FIRST | judgment | 16000 | 67 | 302 | | 4 | ADR 046 study reminder; lesson-ready and holdout cases left the learner silent | +382/-5 | |
+| #1150 | #1149 | 3 | opus:high | MERGE | | 3353 | 15 | 87 | | 1 | Gradle 9.9.1 (security fixes) and AGP 9.5.1; 2191 tests before and after; wrapper sums match official | +3/-3 | |
+| #1151 | #1133 | 3 | opus:high | FIX FIRST | checklist | 52258 | 135 | 152 | | 3 | Town word counts and card need; met rule without red run, then refusal copy disagreed with card | +943/-110 | |
