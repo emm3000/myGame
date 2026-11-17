@@ -224,7 +224,7 @@ private fun WordNeedRow(need: TownUiState.WordNeedLine, modifier: Modifier = Mod
             "needed" to need.needed.toString(),
             "held" to need.held.toString(),
         ),
-        style = MyGameTypography.caption.withTabularFigures(),
+        style = MyGameTypography.caption,
         color = MyGameTheme.colors.warningInk,
         modifier = modifier,
     )

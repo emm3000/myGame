@@ -161,12 +161,12 @@ private fun WordsRows(words: TownUiState.WordsLine, modifier: Modifier = Modifie
     Column(verticalArrangement = Arrangement.spacedBy(MyGameSpacing.step1), modifier = modifier) {
         MyGameText(
             label = chromeResource(R.string.town_words_reviewed, "count" to words.stable.toString()),
-            style = MyGameTypography.body.withTabularFigures(),
+            style = MyGameTypography.body,
             color = MyGameTheme.colors.ink,
         )
         MyGameText(
             label = chromeResource(R.string.town_words_learned, "count" to words.retained.toString()),
-            style = MyGameTypography.body.withTabularFigures(),
+            style = MyGameTypography.body,
             color = MyGameTheme.colors.ink,
         )
     }
