@@ -226,6 +226,70 @@ class StudyReminderTest {
         assertEquals(Instant.parse("2026-11-14T00:00:00Z"), reminder)
     }
 
+    @Test
+    fun `reminds after the lesson's finish when it comes before the next due card`() {
+        val facts: StudyReminderFacts = townAnswerOf(
+            readAt = morning,
+            nextDueAt = Instant.parse("2026-11-21T14:00:00Z"),
+            lessonFinishesAt = Instant.parse("2026-11-12T14:05:00Z"),
+        )
+
+        val reminder: Instant? = studyReminderAt(facts, sevenPm, utcMinusFive, now = morning)
+
+        assertEquals(Instant.parse("2026-11-13T00:00:00Z"), reminder)
+    }
+
+    @Test
+    fun `posts the cards line for a lesson finished before the next due card`() {
+        val facts: StudyReminderFacts = townAnswerOf(
+            readAt = morning,
+            nextDueAt = Instant.parse("2026-11-21T14:00:00Z"),
+            lessonFinishesAt = Instant.parse("2026-11-12T14:05:00Z"),
+        )
+
+        assertEquals(StudyReminderLine.Cards, studyReminderLineAt(facts, Instant.parse("2026-11-13T00:00:00Z")))
+    }
+
+    @Test
+    fun `reminds two days later when the reviews are done and nothing waits`() {
+        val twoDaysLater: Instant = Instant.parse("2026-11-14T14:00:00Z")
+        val facts: StudyReminderFacts = StudyReminderFacts()
+            .afterReviewsOrReportAnswer(readAt = morning, hasDueCard = false, nextDueAt = twoDaysLater)
+            .afterTownAnswer(
+                readAt = morning,
+                isOnReviewsStep = false,
+                nextDueAt = twoDaysLater,
+                lessonFinishesAt = null,
+                isCheckDue = false,
+                isLessonReady = false,
+            )
+
+        val reminder: Instant? = studyReminderAt(facts, sevenPm, utcMinusFive, now = morning)
+
+        assertEquals(Instant.parse("2026-11-15T00:00:00Z"), reminder)
+    }
+
+    @Test
+    fun `posts the check line then the lesson line once the check is taken`() {
+        val firedAt: Instant = Instant.parse("2026-11-13T00:00:00Z")
+        val checkShown: StudyReminderFacts = townAnswerOf(readAt = morning, isCheckDue = true)
+        val checkTaken: StudyReminderFacts = checkShown
+            .afterHoldoutChecksAnswer(holdsCheck = false)
+            .afterTownAnswer(
+                readAt = firedAt,
+                isOnReviewsStep = false,
+                nextDueAt = null,
+                lessonFinishesAt = null,
+                isCheckDue = false,
+                isLessonReady = true,
+            )
+
+        val lines: List<StudyReminderLine?> = listOf(checkShown, checkTaken)
+            .map { facts: StudyReminderFacts -> studyReminderLineAt(facts, firedAt) }
+
+        assertEquals(listOf(StudyReminderLine.Check, StudyReminderLine.Lesson), lines)
+    }
+
     private fun townAnswerOf(
         readAt: Instant,
         isOnReviewsStep: Boolean = false,

@@ -106,7 +106,8 @@ ready* and sets *lesson finishing at* in the same answer, and *lesson
 ready* never outlives the start.
 
 The reminder's instant is the first occurrence of the chosen local time
-at or after both now and the earliest of the facts: *cards waiting
+after now, so that the alarm rescheduled at its own firing moves to the
+next day, and at or after the earliest of the facts: *cards waiting
 from*, *lesson finishing at*, and now itself while *check due* or
 *lesson ready* holds. A fact that is not set takes no part. When none
 is set, the phone schedules no reminder. So a player with a lesson to
