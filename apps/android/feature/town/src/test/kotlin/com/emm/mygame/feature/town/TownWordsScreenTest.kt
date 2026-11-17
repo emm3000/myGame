@@ -71,7 +71,7 @@ class TownWordsScreenTest {
     fun `draws a stable need with its count`() {
         showPlaces(riverton.copy(places = listOf(farmNeeding(TownUiState.WordNeedLine(10, 4, NeededWordKind.Stable)))))
 
-        composeRule.onNodeWithText("Necesita 10 palabras repasadas: 4 de 10").assertIsDisplayed()
+        composeRule.onNodeWithText("Necesita 10 palabras fuera de aprendizaje: 4 de 10").assertIsDisplayed()
     }
 
     @Test
@@ -94,7 +94,7 @@ class TownWordsScreenTest {
     fun `draws the town's reviewed and learned words`() {
         showStocks(riverton.copy(words = TownUiState.WordsLine(stable = 14, retained = 3)))
 
-        composeRule.onNodeWithText("Palabras repasadas: 14").assertIsDisplayed()
+        composeRule.onNodeWithText("Palabras fuera de aprendizaje: 14").assertIsDisplayed()
         composeRule.onNodeWithText("Palabras aprendidas: 3").assertIsDisplayed()
     }
 
