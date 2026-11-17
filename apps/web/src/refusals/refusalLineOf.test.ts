@@ -28,14 +28,14 @@ it('renders too few free people from the people the work needs and the free ones
   ).toBe('Esta obra necesita 1 persona libre y tienes 0. Sube el nivel de tus hogares.')
 })
 
-it('renders too few stable words as reviewed words', () => {
+it('renders too few stable words as words out of learning', () => {
   expect(
     refusalLineOf('NotEnoughWords', {
       kind: 'NotEnoughWords',
       params: { needed: 10, held: 9, standing: 'stable' },
     }),
   ).toBe(
-    'Este nivel necesita 10 palabras repasadas y tienes 9. Estudia lecciones nuevas y repasa las palabras que te tocan.',
+    'Este nivel necesita 10 palabras fuera de aprendizaje y tienes 9. Estudia lecciones nuevas y repasa las palabras que te tocan.',
   )
 })
 

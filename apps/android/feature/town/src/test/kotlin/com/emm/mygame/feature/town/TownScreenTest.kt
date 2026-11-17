@@ -455,7 +455,7 @@ class TownScreenTest {
 
         composeRule
             .onNodeWithText(
-                "Este nivel necesita 10 palabras repasadas y tienes 9. " +
+                "Este nivel necesita 10 palabras fuera de aprendizaje y tienes 9. " +
                     "Estudia lecciones nuevas y repasa las palabras que te tocan.",
             )
             .performScrollTo()
