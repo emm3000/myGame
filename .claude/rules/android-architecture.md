@@ -40,7 +40,7 @@ core:designsystem -> nothing in the project
 
 - The api's OpenAPI spec generates the Kotlin types and client into `core:network`'s build directory. They are the only wire shapes: no hand-written DTO, no edit to a generated file, no raw HTTP call beside the client.
 - A generated type stops at `core:network`'s interfaces or the ViewModel's mapper; it never reaches a `UiState`, and a `UiState` never reaches the wire.
-- A use case exists only where there is client-side logic, which here means the projection. A read goes from the ViewModel to the `core:network` interface.
+- A use case exists only where there is client-side logic, which here means the projection and, beside it, the study reminder's rule (ADR 046). A read goes from the ViewModel to the `core:network` interface.
 
 ## Session
 
