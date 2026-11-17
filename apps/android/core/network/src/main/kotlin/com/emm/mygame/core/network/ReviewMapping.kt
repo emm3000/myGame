@@ -52,6 +52,7 @@ private fun CorrectVerdict.toCorrect(): ReviewVerdict.Correct = ReviewVerdict.Co
     gloss = gloss,
     dueAt = dueAt.toKotlinInstant(),
     earnedSkill = earnedSkill?.toRaisedSkill(),
+    openedLevel = openedLevel,
 )
 
 private fun CorrectVerdictEarnedSkill.toRaisedSkill(): RaisedSkill? {

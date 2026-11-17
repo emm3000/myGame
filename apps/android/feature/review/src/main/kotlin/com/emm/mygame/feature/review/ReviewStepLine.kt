@@ -126,7 +126,19 @@ private fun CorrectLine(step: ReviewUiState.ReviewStep.Correct, modifier: Modifi
     ) {
         VerdictLine(icon = MyGameIcons.check, tag = RIGHT_ICON, text = fixedCopyResource(R.string.review_correct))
         step.skill?.let { skill: ReviewUiState.SkillLine -> SkillEarned(skill = skill) }
+        step.openedLevel?.let { level: Int -> LevelOpenLine(level = level) }
     }
+}
+
+@Composable
+private fun LevelOpenLine(level: Int, modifier: Modifier = Modifier) {
+    val copy: PlayerCopy = rememberPlayerCopy()
+    MyGameText(
+        label = copy.chrome { text(R.string.review_level_open, "level" to level.toString()) },
+        style = MyGameTypography.body,
+        color = MyGameTheme.colors.ink,
+        modifier = modifier,
+    )
 }
 
 @Composable

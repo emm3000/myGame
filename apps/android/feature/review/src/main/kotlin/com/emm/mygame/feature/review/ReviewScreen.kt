@@ -277,6 +277,7 @@ private class ReviewUiStates : PreviewParameterProvider<ReviewUiState> {
                     rates = ReviewUiState.SkillRates(before = 60L, after = 66L),
                     words = listOf("school", "home"),
                 ),
+                openedLevel = 3,
             ),
         ),
         previewReviewing.copy(

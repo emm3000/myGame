@@ -959,6 +959,9 @@ describe('the learning routes', () => {
         word: 'school',
         gloss: 'escuela',
         dueAt: '2026-11-20T09:10:00.000Z',
+        stableWordCount: 1,
+        retainedWordCount: 0,
+        openedLevel: null,
         earnedSkill: null,
       })
     })
@@ -1015,6 +1018,9 @@ describe('the learning routes', () => {
         word: 'home',
         gloss: 'hogar',
         dueAt: '2026-11-12T09:20:00.000Z',
+        stableWordCount: 0,
+        retainedWordCount: 0,
+        openedLevel: null,
       })
     })
 
@@ -1052,6 +1058,9 @@ describe('the learning routes', () => {
         word: 'food',
         gloss: 'comida',
         dueAt: '2026-11-10T09:01:00.000Z',
+        stableWordCount: 0,
+        retainedWordCount: 0,
+        openedLevel: null,
       })
     })
 
@@ -1135,6 +1144,29 @@ describe('the learning routes', () => {
       })
     })
 
+    it('opens level 3 at the recall that makes the 10th word stable', async () => {
+      const player = await studyToTheFirstRecall()
+      await runSql(
+        `INSERT INTO cards (player_id, word_id, state, stability, difficulty, last_review_at, last_rating, entered_at) SELECT id, 'stable-' || n, 'review', 12, 5, '2026-11-01T08:00:00Z', 'good', '2026-11-01T07:00:00Z' FROM players, generate_series(1, 5) n`,
+      )
+
+      const recalls = await answerEvery(player, lemmaOf)
+
+      expect(
+        recalls.map(({ verdict }) =>
+          verdict.kind === 'nearMiss'
+            ? undefined
+            : [verdict.stableWordCount, verdict.retainedWordCount, verdict.openedLevel],
+        ),
+      ).toEqual([
+        [6, 0, null],
+        [7, 0, null],
+        [8, 0, null],
+        [9, 0, null],
+        [10, 0, 3],
+      ])
+    })
+
     it('answers 400 for an answer above 100 characters', async () => {
       const player = await studyToTheFirstRecall()
 
@@ -1211,6 +1243,9 @@ describe('the learning routes', () => {
         word: 'food',
         gloss: 'comida',
         dueAt: '2027-01-08T15:00:00.000Z',
+        stableWordCount: 5,
+        retainedWordCount: 5,
+        openedLevel: null,
         earnedSkill: {
           lessonId: 'lesson-1',
           resource: 'money',

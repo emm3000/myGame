@@ -12,6 +12,9 @@ const RatedVerdictSchema = z.strictObject({
   word: z.string().min(1),
   gloss: z.string().min(1),
   dueAt: InstantSchema,
+  stableWordCount: WholeCountSchema,
+  retainedWordCount: WholeCountSchema,
+  openedLevel: WholeCountSchema.positive().nullable(),
 })
 
 const RaisedSkillSchema = EarnedSkillSchema.extend({

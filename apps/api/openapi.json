@@ -887,6 +887,20 @@
             "type": "string",
             "format": "date-time"
           },
+          "stableWordCount": {
+            "type": "integer",
+            "minimum": 0
+          },
+          "retainedWordCount": {
+            "type": "integer",
+            "minimum": 0
+          },
+          "openedLevel": {
+            "type": "integer",
+            "nullable": true,
+            "minimum": 0,
+            "exclusiveMinimum": true
+          },
           "kind": {
             "type": "string",
             "enum": ["correct"]
@@ -948,7 +962,16 @@
             "additionalProperties": false
           }
         },
-        "required": ["word", "gloss", "dueAt", "kind", "earnedSkill"],
+        "required": [
+          "word",
+          "gloss",
+          "dueAt",
+          "stableWordCount",
+          "retainedWordCount",
+          "openedLevel",
+          "kind",
+          "earnedSkill"
+        ],
         "additionalProperties": false
       },
       "WrongVerdict": {
@@ -966,12 +989,34 @@
             "type": "string",
             "format": "date-time"
           },
+          "stableWordCount": {
+            "type": "integer",
+            "minimum": 0
+          },
+          "retainedWordCount": {
+            "type": "integer",
+            "minimum": 0
+          },
+          "openedLevel": {
+            "type": "integer",
+            "nullable": true,
+            "minimum": 0,
+            "exclusiveMinimum": true
+          },
           "kind": {
             "type": "string",
             "enum": ["wrong"]
           }
         },
-        "required": ["word", "gloss", "dueAt", "kind"],
+        "required": [
+          "word",
+          "gloss",
+          "dueAt",
+          "stableWordCount",
+          "retainedWordCount",
+          "openedLevel",
+          "kind"
+        ],
         "additionalProperties": false
       },
       "ReviewAnswerRequest": {

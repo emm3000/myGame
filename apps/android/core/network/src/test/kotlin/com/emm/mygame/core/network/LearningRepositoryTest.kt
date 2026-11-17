@@ -224,6 +224,7 @@ class LearningRepositoryTest {
                     ratePerHourAfter = 19.6875,
                     words = listOf("home", "school"),
                 ),
+                openedLevel = null,
             ),
             (result as ReviewAnswerResult.Answered).verdict,
         )
@@ -260,9 +261,19 @@ class LearningRepositoryTest {
                 gloss = "escuela",
                 dueAt = Instant.parse("2026-11-12T09:10:00.000Z"),
                 earnedSkill = null,
+                openedLevel = null,
             ),
             (result as ReviewAnswerResult.Answered).verdict,
         )
+    }
+
+    @Test
+    fun `answers the level a correct verdict opened`() = runTest {
+        api.enqueue(json(200, answerOf(CORRECT_OPENING_LEVEL)))
+
+        val result: ReviewAnswerResult = learning().answer(WordId("lesson-1-2"), "school")
+
+        assertEquals(3, ((result as ReviewAnswerResult.Answered).verdict as ReviewVerdict.Correct).openedLevel)
     }
 
     @Test
@@ -348,16 +359,22 @@ class LearningRepositoryTest {
         const val NEAR_MISS: String = """{"kind":"nearMiss"}"""
         const val CORRECT_WITH_SKILL: String =
             """{"kind":"correct","word":"school","gloss":"escuela","dueAt":"2026-11-12T09:10:00.000Z",""" +
+                """"stableWordCount":10,"retainedWordCount":5,"openedLevel":null,""" +
                 """"earnedSkill":{"lessonId":"lesson-1","resource":"food","ratePercent":5,""" +
                 """"earnedAt":"2026-11-23T09:10:00.000Z","level":2,""" +
                 """"ratePerHourBefore":18.75,"ratePerHourAfter":19.6875,"words":["home","school"]}}"""
         const val CORRECT_WITHOUT_TOWN: String =
             """{"kind":"correct","word":"school","gloss":"escuela","dueAt":"2026-11-12T09:10:00.000Z",""" +
+                """"stableWordCount":10,"retainedWordCount":5,"openedLevel":null,""" +
                 """"earnedSkill":{"lessonId":"lesson-1","resource":"power","ratePercent":5,""" +
                 """"earnedAt":"2026-11-23T09:10:00.000Z","level":1,""" +
                 """"ratePerHourBefore":null,"ratePerHourAfter":null,"words":["home","school"]}}"""
+        const val CORRECT_OPENING_LEVEL: String =
+            """{"kind":"correct","word":"school","gloss":"escuela","dueAt":"2026-11-14T09:10:00.000Z",""" +
+                """"stableWordCount":10,"retainedWordCount":0,"openedLevel":3,"earnedSkill":null}"""
         const val WRONG: String =
-            """{"kind":"wrong","word":"home","gloss":"casa","dueAt":"2026-11-10T09:11:00.000Z"}"""
+            """{"kind":"wrong","word":"home","gloss":"casa","dueAt":"2026-11-10T09:11:00.000Z",""" +
+                """"stableWordCount":9,"retainedWordCount":0,"openedLevel":null}"""
     }
 }
 

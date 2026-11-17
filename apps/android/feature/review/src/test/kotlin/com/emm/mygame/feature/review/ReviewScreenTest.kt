@@ -1,12 +1,14 @@
 package com.emm.mygame.feature.review
 
 import androidx.compose.ui.test.assertIsDisplayed
+import androidx.compose.ui.test.getUnclippedBoundsInRoot
 import androidx.compose.ui.test.hasContentDescription
 import androidx.compose.ui.test.hasSetTextAction
 import androidx.compose.ui.test.hasStateDescription
 import androidx.compose.ui.test.hasText
 import androidx.compose.ui.test.junit4.ComposeContentTestRule
 import androidx.compose.ui.test.junit4.createComposeRule
+import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
 import androidx.compose.ui.test.performScrollTo
@@ -17,6 +19,7 @@ import com.emm.mygame.core.network.ReviewHint
 import com.emm.mygame.core.network.ReviewHintWord
 import com.emm.mygame.core.network.TownResourceKind
 import org.junit.Assert.assertEquals
+import org.junit.Assert.assertTrue
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -117,10 +120,42 @@ class ReviewScreenTest {
                 rates = null,
                 words = listOf("home"),
             )
-        draw(recalling(step = ReviewUiState.ReviewStep.Correct(skill = powerSkill), typed = "home"))
+        draw(recalling(step = ReviewUiState.ReviewStep.Correct(skill = powerSkill, openedLevel = null), typed = "home"))
 
         composeRule.onNodeWithText("Habilidad ganada: energía, nivel 2.").assertIsDisplayed()
         composeRule.onNodeWithText("+5 % de energía / h.").assertIsDisplayed()
+    }
+
+    @Test
+    fun `draws the opened level`() {
+        draw(recalling(step = ReviewUiState.ReviewStep.Correct(skill = null, openedLevel = 3), typed = "home"))
+
+        composeRule.onNodeWithText(LEVEL_THREE_OPEN).assertIsDisplayed()
+    }
+
+    @Test
+    fun `draws the opened level after the skill lines`() {
+        val homeSkill: ReviewUiState.SkillLine = ReviewUiState.SkillLine(
+            resource = TownResourceKind.Money,
+            level = 1,
+            ratePercent = 5,
+            rates = null,
+            words = listOf("home"),
+        )
+        draw(recalling(step = ReviewUiState.ReviewStep.Correct(skill = homeSkill, openedLevel = 3), typed = "home"))
+
+        val wordsBottom: Dp =
+            composeRule.onNodeWithText("Palabras: home", useUnmergedTree = true).getUnclippedBoundsInRoot().bottom
+        val levelTop: Dp =
+            composeRule.onNodeWithText(LEVEL_THREE_OPEN, useUnmergedTree = true).getUnclippedBoundsInRoot().top
+        assertTrue(levelTop >= wordsBottom)
+    }
+
+    @Test
+    fun `draws no level line when none opened`() {
+        draw(recalling(step = ReviewUiState.ReviewStep.Correct(skill = null, openedLevel = null), typed = "home"))
+
+        composeRule.onNodeWithText(LEVEL_THREE_OPEN).assertDoesNotExist()
     }
 
     @Test
@@ -189,5 +224,9 @@ class ReviewScreenTest {
                 ReviewScreen(state = state, onIntent = onIntent, onLessonOpen = { }, onTownOpen = { })
             }
         }
+    }
+
+    private companion object {
+        const val LEVEL_THREE_OPEN: String = "Ya tienes las palabras para el nivel 3."
     }
 }

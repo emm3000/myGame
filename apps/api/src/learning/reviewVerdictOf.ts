@@ -82,6 +82,9 @@ export const reviewVerdictOf = (
     word: word.acceptedForms[0],
     gloss: glossOf(word, scaffold),
     dueAt: isoOf(dueAt.value),
+    stableWordCount: answered.stableWordCount,
+    retainedWordCount: answered.retainedWordCount,
+    openedLevel: answered.openedLevel,
   }
   if (answered.rating === 'again') {
     return ok({ ...shown, kind: 'wrong' })

@@ -88,7 +88,7 @@ sealed interface ReviewUiState {
 
         data object Unreachable : ReviewStep
 
-        data class Correct(val skill: SkillLine?) : ReviewStep
+        data class Correct(val skill: SkillLine?, val openedLevel: Int?) : ReviewStep
 
         data class Wrong(val correct: String) : ReviewStep
     }

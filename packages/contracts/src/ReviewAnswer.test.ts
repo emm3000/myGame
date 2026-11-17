@@ -8,6 +8,9 @@ const correct = {
   word: 'school',
   gloss: 'escuela',
   dueAt: '2026-11-23T09:10:00.000Z',
+  stableWordCount: 10,
+  retainedWordCount: 5,
+  openedLevel: null,
   earnedSkill: null,
 }
 
@@ -78,12 +81,37 @@ describe('ReviewAnswerSchema', () => {
     expect(verdictSchema.safeParse({ ...correct, earnedSkill: withoutLevel }).success).toBe(false)
   })
 
+  it('parses the building level a correct answer opened', () => {
+    const opening = { ...correct, openedLevel: 3 }
+
+    expect(verdictSchema.parse(opening)).toEqual(opening)
+  })
+
+  it('rejects a verdict without the stable words after the answer', () => {
+    const { stableWordCount: _, ...withoutCount } = correct
+
+    expect(verdictSchema.safeParse(withoutCount).success).toBe(false)
+  })
+
+  it('rejects a verdict without the retained words after the answer', () => {
+    const { retainedWordCount: _, ...withoutCount } = correct
+
+    expect(verdictSchema.safeParse(withoutCount).success).toBe(false)
+  })
+
+  it('rejects an opened level of 0', () => {
+    expect(verdictSchema.safeParse({ ...correct, openedLevel: 0 }).success).toBe(false)
+  })
+
   it('parses a wrong answer with the correct form', () => {
     const wrong = {
       kind: 'wrong',
       word: 'home',
       gloss: 'hogar',
       dueAt: '2026-11-12T09:20:00.000Z',
+      stableWordCount: 9,
+      retainedWordCount: 0,
+      openedLevel: null,
     }
 
     expect(verdictSchema.parse(wrong)).toEqual(wrong)

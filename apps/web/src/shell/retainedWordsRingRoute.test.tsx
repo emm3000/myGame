@@ -53,6 +53,9 @@ const correctSchool: ReviewAnswer['verdict'] = {
   word: 'school',
   gloss: 'escuela',
   dueAt: knownTown.readAt,
+  stableWordCount: 0,
+  retainedWordCount: 0,
+  openedLevel: null,
   earnedSkill: null,
 }
 

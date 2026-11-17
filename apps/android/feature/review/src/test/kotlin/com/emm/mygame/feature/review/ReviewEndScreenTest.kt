@@ -185,6 +185,7 @@ class ReviewEndScreenTest {
                 rates = rates,
                 words = listOf("home", "school"),
             ),
+            openedLevel = null,
         ),
         isDealtFromStack = false,
     )
