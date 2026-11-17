@@ -10,9 +10,10 @@ import {
   type WordId,
 } from '@mygame/domain'
 import { frameWordsOf } from '../../contentGate/frameWordsOf'
-import { isUnitLesson } from '../../contentGate/isUnitLesson'
 import type { LessonLibrary, ShelvedLesson } from '../../learning/LessonLibrary'
 import { bandOfRank } from './bandOfRank'
+import { bandWordsOf } from './bandWordsOf'
+import { lessonBandsOf } from './lessonBandsOf'
 import {
   type LessonContentFiles,
   type LessonOfFiles,
@@ -48,52 +49,6 @@ const shelvedLessonOf = (
   skill: { resource: skill.resource, ratePercent: skill.ratePercent },
   words: words.map((entry) => lessonWordOf(content.id, entry)),
 })
-
-const bandOfTaughtLesson = (
-  { content, words }: LessonOfFiles,
-  ranks: ReadonlyMap<string, number>,
-): Band => {
-  const wordRanks = words.flatMap(({ lemma }) => ranks.get(headwordOf(lemma)) ?? [])
-  if (wordRanks.length === 0) {
-    throw new Error(`Lesson ${content.id} teaches no word of the list`)
-  }
-  return bandOfRank(Math.min(...wordRanks))
-}
-
-const lessonBandsOf = ({
-  curriculum,
-  lessons,
-  ranks,
-}: LessonContentFiles): ReadonlyMap<LessonId, Band> =>
-  new Map(
-    lessons
-      .slice(curriculum.chromeLessonCount)
-      .filter((lesson) => !isUnitLesson(lesson))
-      .map((lesson) => [lesson.content.id, bandOfTaughtLesson(lesson, ranks)]),
-  )
-
-const bandWordsOf = ({
-  curriculum,
-  grammar,
-  lessons,
-  ranks,
-}: LessonContentFiles): ReadonlyMap<Band, ReadonlyArray<BandWord>> => {
-  const frameWords = frameWordsOf(grammar)
-  const chromeWords = new Set(
-    lessons
-      .slice(0, curriculum.chromeLessonCount)
-      .flatMap(({ words }) => words.map(({ lemma }) => headwordOf(lemma))),
-  )
-  const bands = new Map<Band, ReadonlyArray<BandWord>>()
-  for (const [headword, rank] of ranks) {
-    if (!frameWords.has(headword)) {
-      const band = bandOfRank(rank)
-      const word = { headword, isChrome: chromeWords.has(headword) }
-      bands.set(band, [...(bands.get(band) ?? []), word])
-    }
-  }
-  return bands
-}
 
 const placementWordsOf = (
   { grammar, lexicon, ranks }: LessonContentFiles,
