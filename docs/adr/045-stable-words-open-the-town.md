@@ -143,8 +143,9 @@ The server answers every number below (N1); no client derives a need.
   retained says what it opened. `ReviewVerdict` gains `stableWordCount`,
   `retainedWordCount` and `openedLevel`, the highest level whose need the
   counts before the answer missed and the counts after meet, or null.
-  The day-2 recall that holds the 10th word says level 3 is open: the
-  review is where the town grows.
+  The day-2 recall that holds the 10th word says only *You have the
+  words for level 3 now.* (*Ya tienes las palabras para el nivel 3.*),
+  not that the level is open: the review is where the town grows.
 - **The refusal** names the need, the count and the standing, so a
   blocked place card stays focusable and says why (PRD S22).
 - **The next step keeps its order** (ADR 042, amended 2026-11-13). Words
