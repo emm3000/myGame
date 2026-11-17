@@ -15,6 +15,14 @@
     <string name="settings_back">Volver a tu pueblo</string>
     <string name="settings_cards_kept">Tus palabras y tu progreso no cambian.</string>
     <string name="settings_failed">No hemos podido cargar tus ajustes.</string>
+    <string name="settings_reminder_denied">Las notificaciones de Townword están desactivadas en los ajustes del teléfono.</string>
+    <string name="settings_reminder_hour_earlier">Una hora antes</string>
+    <string name="settings_reminder_hour_later">Una hora después</string>
+    <string name="settings_reminder_line">Como mucho una vez al día, cerca de la hora que elijas, cuando pueda haber algo que estudiar.</string>
+    <string name="settings_reminder_minutes_earlier">Cinco minutos antes</string>
+    <string name="settings_reminder_minutes_later">Cinco minutos después</string>
+    <string name="settings_reminder_time">Hora del recordatorio</string>
+    <string name="settings_reminder_title">Recordatorio de estudio</string>
     <string name="settings_retry">Volver a intentarlo</string>
     <string name="settings_saved">Guardado.</string>
     <string name="settings_saving">Guardando…</string>

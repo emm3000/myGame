@@ -38,6 +38,7 @@
     <string name="report_place_storage">Storage</string>
     <string name="report_read_words">Read the words</string>
     <string name="report_refusal_unexpected">We could not reach the server. Try again in a moment.</string>
+    <string name="report_reminder_offer">Turn on a study reminder</string>
     <string name="report_resource_food">food</string>
     <string name="report_resource_material">material</string>
     <string name="report_resource_money">money</string>

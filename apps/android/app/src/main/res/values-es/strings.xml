@@ -2,5 +2,12 @@
 <resources>
     <string name="app_name">Townword</string>
     <string name="navigation_town">Pueblo</string>
+    <string name="reminder_cards_text">Abre el informe para estudiarlas.</string>
+    <string name="reminder_cards_title">Tus palabras están listas.</string>
+    <string name="reminder_channel">Recordatorios de estudio</string>
+    <string name="reminder_check_text">Ábrela desde el pueblo.</string>
+    <string name="reminder_check_title">Tu prueba de palabras está lista.</string>
+    <string name="reminder_lesson_text">Empiézala en la escuela.</string>
+    <string name="reminder_lesson_title">Hay una lección lista.</string>
     <string name="shell_retained_words">{count} de {total, plural, =1 {1 palabra aprendida} other {{total, number,0} palabras aprendidas}}</string>
 </resources>

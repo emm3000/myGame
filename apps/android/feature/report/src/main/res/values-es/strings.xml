@@ -38,6 +38,7 @@
     <string name="report_place_storage">Almacén</string>
     <string name="report_read_words">Leer las palabras</string>
     <string name="report_refusal_unexpected">No hemos podido hablar con el servidor. Vuelve a intentarlo en un momento.</string>
+    <string name="report_reminder_offer">Activa un recordatorio de estudio</string>
     <string name="report_resource_food">comida</string>
     <string name="report_resource_material">material</string>
     <string name="report_resource_money">dinero</string>
