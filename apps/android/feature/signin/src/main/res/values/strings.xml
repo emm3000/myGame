@@ -18,7 +18,7 @@
     <string name="settings_reminder_denied">Notifications for Townword are off in your phone\'s settings.</string>
     <string name="settings_reminder_hour_earlier">One hour earlier</string>
     <string name="settings_reminder_hour_later">One hour later</string>
-    <string name="settings_reminder_line">At most once a day, around the time you pick, when something may be waiting to study.</string>
+    <string name="settings_reminder_line">At most once a day, around the time you pick, when there may be something to study.</string>
     <string name="settings_reminder_minutes_earlier">Five minutes earlier</string>
     <string name="settings_reminder_minutes_later">Five minutes later</string>
     <string name="settings_reminder_time">Reminder time</string>

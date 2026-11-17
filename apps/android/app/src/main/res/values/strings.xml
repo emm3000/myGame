@@ -7,7 +7,7 @@
     <string name="reminder_channel">Study reminders</string>
     <string name="reminder_check_text">Open it from the town.</string>
     <string name="reminder_check_title">Your word check is ready.</string>
-    <string name="reminder_lesson_text">Start it at the school.</string>
+    <string name="reminder_lesson_text">Start it from the town.</string>
     <string name="reminder_lesson_title">A lesson is ready.</string>
     <string name="shell_retained_words">{count} of {total, plural, =1 {1 word} other {{total, number,0} words}} learned</string>
 </resources>

@@ -6,7 +6,7 @@
   "android.app.reminder_channel": "Recordatorios de estudio",
   "android.app.reminder_check_text": "Ábrela desde el pueblo.",
   "android.app.reminder_check_title": "Tu prueba de palabras está lista.",
-  "android.app.reminder_lesson_text": "Empiézala en la escuela.",
+  "android.app.reminder_lesson_text": "Empiézala desde el pueblo.",
   "android.app.reminder_lesson_title": "Hay una lección lista.",
   "android.app.shell_retained_words": "{count} de {total, plural, =1 {1 palabra aprendida} other {{total, number,0} palabras aprendidas}}",
   "android.map.map_area": "Zona {area}",
