@@ -1,5 +1,5 @@
 import type { CurriculumContent, GrammarContent } from '@mygame/contracts'
-import type { LaterFrame } from '@mygame/domain'
+import type { LaterFrame, WordNeed } from '@mygame/domain'
 import type { LexiconEntry } from '../adapters/json/lessonContentFilesOf'
 import type { GateContent } from './GateContent'
 
@@ -12,6 +12,9 @@ type ContentParts = {
   readonly forms: ReadonlyMap<string, ReadonlySet<string>>
   readonly skill: CurriculumContent['skill']
   readonly englishMessages: Readonly<Record<string, string>>
+  readonly wordNeed: WordNeed
+  readonly schoolLevels: ReadonlyArray<number>
+  readonly requiredSchoolLevels: Readonly<Record<string, number>>
 }
 
 type EntryExtra = Partial<Omit<LexiconEntry, 'frames'>> & {
@@ -154,6 +157,9 @@ const lessonOneParts = (): ContentParts => ({
   forms: fixtureForms(),
   skill: { resource: 'money', ratePercent: 5 },
   englishMessages: {},
+  wordNeed: { fromLevel: 3, perLevel: 10, retainedFromLevel: 7 },
+  schoolLevels: Array.from({ length: 10 }, (_, index) => index + 1),
+  requiredSchoolLevels: {},
 })
 
 export const contentOf = (overrides: Partial<ContentParts> = {}): GateContent => {
@@ -169,7 +175,7 @@ export const contentOf = (overrides: Partial<ContentParts> = {}): GateContent =>
         id,
         theme: 'A day in town',
         durationSeconds: 300,
-        requiredSchoolLevel: 1,
+        requiredSchoolLevel: parts.requiredSchoolLevels[id] ?? 1,
         wordIds: [...wordIds],
       },
       words: wordIds.flatMap((wordId) => parts.lexicon.find(({ id }) => id === wordId) ?? []),
@@ -179,5 +185,7 @@ export const contentOf = (overrides: Partial<ContentParts> = {}): GateContent =>
     grammar: { structures: [...parts.structures] },
     forms: parts.forms,
     englishMessages: parts.englishMessages,
+    wordNeed: parts.wordNeed,
+    schoolLevels: parts.schoolLevels,
   }
 }
