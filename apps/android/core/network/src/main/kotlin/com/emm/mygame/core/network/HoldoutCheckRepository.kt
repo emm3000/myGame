@@ -21,9 +21,11 @@ fun HoldoutCheckRepository(
     baseUrl: String,
     tokenStore: TokenStore,
     sessionEnds: SessionEnds,
+    studyAnswers: StudyAnswers,
     ioDispatcher: CoroutineDispatcher,
 ): HoldoutCheckRepository =
     ApiHoldoutCheckRepository(
         api = signedInApi(baseUrl = baseUrl, tokenStore = tokenStore, sessionEnds = sessionEnds),
+        studyAnswers = studyAnswers,
         ioDispatcher = ioDispatcher,
     )

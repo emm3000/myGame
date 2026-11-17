@@ -279,6 +279,7 @@ class HoldoutCheckRepositoryTest {
             baseUrl = api.url("/").toString(),
             tokenStore = store,
             sessionEnds = SessionEnds(),
+            studyAnswers = discardedStudyAnswers(store),
             ioDispatcher = UnconfinedTestDispatcher(testScheduler),
         )
     }

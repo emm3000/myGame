@@ -11,12 +11,14 @@ import retrofit2.Response
 
 internal class ApiReportRepository(
     private val api: DefaultApi,
+    private val studyAnswers: StudyAnswers,
     private val ioDispatcher: CoroutineDispatcher,
 ) : ReportRepository {
 
     override suspend fun read(): ReportReadResult = withContext(ioDispatcher) {
         try {
-            readOrUnreachable(api.reportGet())
+            val study: StudyRequest = studyAnswers.sending()
+            readOrUnreachable(api.reportGet(), study)
         } catch (expectedOutage: IOException) {
             ReportReadResult.Unreachable
         } catch (expectedMalformedBody: SerializationException) {
@@ -47,8 +49,9 @@ internal class ApiReportRepository(
         return TownNewsReadResult.Read(feed.toTownNews())
     }
 
-    private fun readOrUnreachable(response: Response<Report>): ReportReadResult {
-        val report: Report = response.body() ?: return ReportReadResult.Unreachable
-        return ReportReadResult.Read(report.toTownReport())
+    private fun readOrUnreachable(response: Response<Report>, study: StudyRequest): ReportReadResult {
+        val report: TownReport = response.body()?.toTownReport() ?: return ReportReadResult.Unreachable
+        studyAnswers.reportAnswered(study, report)
+        return ReportReadResult.Read(report)
     }
 }

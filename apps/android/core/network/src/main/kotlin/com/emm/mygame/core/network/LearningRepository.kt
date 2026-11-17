@@ -15,9 +15,11 @@ fun LearningRepository(
     baseUrl: String,
     tokenStore: TokenStore,
     sessionEnds: SessionEnds,
+    studyAnswers: StudyAnswers,
     ioDispatcher: CoroutineDispatcher,
 ): LearningRepository =
     ApiLearningRepository(
         api = signedInApi(baseUrl = baseUrl, tokenStore = tokenStore, sessionEnds = sessionEnds),
+        studyAnswers = studyAnswers,
         ioDispatcher = ioDispatcher,
     )

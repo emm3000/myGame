@@ -184,6 +184,7 @@ class AppNavigationTest {
         work = TownSnapshot.Work(slot = null, waitingList = emptyList(), cap = 2),
         lessons = lessons,
         releasedLessons = emptyList(),
+        dueHoldoutChecks = emptyList(),
         hasBandStarted = false,
         skills = emptyList(),
         learning = TownSnapshot.Learning(cap = 10, inLearning = inLearning, retainedWords = retainedWords),

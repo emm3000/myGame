@@ -34,6 +34,7 @@ fun TownRepository(
     tokenStore: TokenStore,
     languages: PlayerLanguages,
     sessionEnds: SessionEnds,
+    studyAnswers: StudyAnswers,
     ioDispatcher: CoroutineDispatcher,
     clock: Clock,
 ): TownRepository {
@@ -43,7 +44,7 @@ fun TownRepository(
         ioDispatcher = ioDispatcher,
         clock = clock,
         tokenStore = tokenStore,
-        languages = languages,
+        answers = TownAnswers(languages = languages, studyAnswers = studyAnswers),
         regionReader = ApiRegionReader(api = api, ioDispatcher = ioDispatcher),
         guidance = ApiTownGuidance(api = api, ioDispatcher = ioDispatcher),
     )

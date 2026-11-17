@@ -752,6 +752,7 @@ class TownRepositoryTest {
         tokenStore = store,
         languages = PlayerLanguages(store),
         sessionEnds = sessionEnds,
+        studyAnswers = discardedStudyAnswers(store),
         ioDispatcher = UnconfinedTestDispatcher(testScheduler),
         clock = TestClock(testScheduler, aMinuteBeforeTheRead),
     )

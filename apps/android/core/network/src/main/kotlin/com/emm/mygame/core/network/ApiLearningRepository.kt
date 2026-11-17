@@ -15,12 +15,14 @@ import com.emm.mygame.core.network.generated.models.ReviewHintWord as WireReview
 
 internal class ApiLearningRepository(
     private val api: DefaultApi,
+    private val studyAnswers: StudyAnswers,
     private val ioDispatcher: CoroutineDispatcher,
 ) : LearningRepository {
 
     override suspend fun reviews(): ReviewsReadResult = withContext(ioDispatcher) {
         try {
-            readOrUnreachable(api.reviewsGet())
+            val study: StudyRequest = studyAnswers.sending()
+            readOrUnreachable(api.reviewsGet(), study)
         } catch (expectedOutage: IOException) {
             ReviewsReadResult.Unreachable
         } catch (expectedMalformedBody: SerializationException) {
@@ -53,10 +55,12 @@ internal class ApiLearningRepository(
             }
         }
 
-    private fun readOrUnreachable(response: Response<Reviews>): ReviewsReadResult {
+    private fun readOrUnreachable(response: Response<Reviews>, study: StudyRequest): ReviewsReadResult {
         val reviews: Reviews? = response.body()
         if (!response.isSuccessful || reviews == null) return ReviewsReadResult.Unreachable
-        return ReviewsReadResult.Read(reviews.toDueReviews())
+        val due: DueReviews = reviews.toDueReviews()
+        studyAnswers.reviewsAnswered(study, due)
+        return ReviewsReadResult.Read(due)
     }
 
     private fun hintedOrRefused(response: Response<WireReviewHint>): ReviewHintResult {

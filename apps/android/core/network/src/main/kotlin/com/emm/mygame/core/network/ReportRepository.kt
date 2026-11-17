@@ -15,9 +15,11 @@ fun ReportRepository(
     baseUrl: String,
     tokenStore: TokenStore,
     sessionEnds: SessionEnds,
+    studyAnswers: StudyAnswers,
     ioDispatcher: CoroutineDispatcher,
 ): ReportRepository =
     ApiReportRepository(
         api = signedInApi(baseUrl = baseUrl, tokenStore = tokenStore, sessionEnds = sessionEnds),
+        studyAnswers = studyAnswers,
         ioDispatcher = ioDispatcher,
     )

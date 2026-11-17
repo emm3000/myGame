@@ -11,13 +11,17 @@ import retrofit2.Response
 
 internal class ApiHoldoutCheckRepository(
     private val api: DefaultApi,
+    private val studyAnswers: StudyAnswers,
     private val ioDispatcher: CoroutineDispatcher,
 ) : HoldoutCheckRepository {
 
     override suspend fun read(): HoldoutChecksReadResult = withContext(ioDispatcher) {
         try {
-            api.holdoutChecksGet().checksOrNull()?.let(HoldoutChecksReadResult::Read)
-                ?: HoldoutChecksReadResult.Unreachable
+            val study: StudyRequest = studyAnswers.sending()
+            val checks: List<HoldoutCheck> = api.holdoutChecksGet().checksOrNull()
+                ?: return@withContext HoldoutChecksReadResult.Unreachable
+            studyAnswers.holdoutChecksAnswered(study, checks)
+            HoldoutChecksReadResult.Read(checks)
         } catch (expectedOutage: IOException) {
             HoldoutChecksReadResult.Unreachable
         } catch (expectedMalformedBody: IllegalArgumentException) {
@@ -46,7 +50,8 @@ internal class ApiHoldoutCheckRepository(
     private suspend fun change(send: suspend () -> Response<HoldoutChecks>): HoldoutCheckChangeResult =
         withContext(ioDispatcher) {
             try {
-                changeOf(send())
+                val study: StudyRequest = studyAnswers.sending()
+                changeOf(send(), study)
             } catch (expectedOutage: IOException) {
                 HoldoutCheckChangeResult.Unreachable
             } catch (expectedMalformedBody: IllegalArgumentException) {
@@ -54,10 +59,11 @@ internal class ApiHoldoutCheckRepository(
             }
         }
 
-    private fun changeOf(response: Response<HoldoutChecks>): HoldoutCheckChangeResult {
+    private fun changeOf(response: Response<HoldoutChecks>, study: StudyRequest): HoldoutCheckChangeResult {
         val refusal: HoldoutCheckRefusal? = refusals[response.code()]
         if (refusal != null) return HoldoutCheckChangeResult.Refused(refusal)
         val checks: List<HoldoutCheck> = response.checksOrNull() ?: return HoldoutCheckChangeResult.Unreachable
+        studyAnswers.holdoutChecksAnswered(study, checks)
         return HoldoutCheckChangeResult.Changed(checks)
     }
 

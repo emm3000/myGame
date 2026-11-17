@@ -1,6 +1,7 @@
 package com.emm.mygame
 
 import android.app.Application
+import android.content.Context
 import com.emm.mygame.core.network.HoldoutCheckRepository
 import com.emm.mygame.core.network.KeystoreTokenCipher
 import com.emm.mygame.core.network.LearningRepository
@@ -11,11 +12,15 @@ import com.emm.mygame.core.network.PlayerScaffold
 import com.emm.mygame.core.network.ReportRepository
 import com.emm.mygame.core.network.SessionEnds
 import com.emm.mygame.core.network.SessionRepository
+import com.emm.mygame.core.network.StudyAnswers
+import com.emm.mygame.core.network.StudyReminderSettings
 import com.emm.mygame.core.network.TokenStore
 import com.emm.mygame.core.network.TownRepository
 import java.io.File
 import kotlin.time.Clock
+import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.flow.StateFlow
 
 class MyGameApplication : Application(), AppDependencies {
@@ -32,6 +37,29 @@ class MyGameApplication : Application(), AppDependencies {
     override val sessionEnds: SessionEnds = SessionEnds()
 
     private val languages: PlayerLanguages by lazy { PlayerLanguages(tokenStore) }
+
+    private val studyReminder: StudyReminderStore by lazy {
+        StudyReminderStore(getSharedPreferences(STUDY_REMINDER_FILE_NAME, Context.MODE_PRIVATE))
+    }
+
+    val studyReminderSettings: StudyReminderSettings by lazy { studyReminder }
+
+    private val studyAnswers: StudyAnswers by lazy {
+        StudyAnswers(
+            tokenStore = tokenStore,
+            sink = StudyReminderFeed(
+                store = studyReminder,
+                towns = { towns },
+                scope = CoroutineScope(SupervisorJob() + Dispatchers.Default),
+            ),
+            clock = clock,
+        )
+    }
+
+    override fun onCreate() {
+        super.onCreate()
+        studyAnswers
+    }
 
     override val playerLanguage: StateFlow<PlayerLanguage?> by lazy { languages.language }
 
@@ -53,6 +81,7 @@ class MyGameApplication : Application(), AppDependencies {
             tokenStore = tokenStore,
             languages = languages,
             sessionEnds = sessionEnds,
+            studyAnswers = studyAnswers,
             ioDispatcher = Dispatchers.IO,
             clock = clock,
         )
@@ -63,6 +92,7 @@ class MyGameApplication : Application(), AppDependencies {
             baseUrl = BuildConfig.API_BASE_URL,
             tokenStore = tokenStore,
             sessionEnds = sessionEnds,
+            studyAnswers = studyAnswers,
             ioDispatcher = Dispatchers.IO,
         )
     }
@@ -72,6 +102,7 @@ class MyGameApplication : Application(), AppDependencies {
             baseUrl = BuildConfig.API_BASE_URL,
             tokenStore = tokenStore,
             sessionEnds = sessionEnds,
+            studyAnswers = studyAnswers,
             ioDispatcher = Dispatchers.IO,
         )
     }
@@ -90,6 +121,7 @@ class MyGameApplication : Application(), AppDependencies {
             baseUrl = BuildConfig.API_BASE_URL,
             tokenStore = tokenStore,
             sessionEnds = sessionEnds,
+            studyAnswers = studyAnswers,
             ioDispatcher = Dispatchers.IO,
         )
     }
@@ -97,5 +129,6 @@ class MyGameApplication : Application(), AppDependencies {
     private companion object {
         const val SESSION_FILE_NAME: String = "session"
         const val SESSION_KEY_ALIAS: String = "mygame.session"
+        const val STUDY_REMINDER_FILE_NAME: String = "study_reminder"
     }
 }
