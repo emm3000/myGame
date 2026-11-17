@@ -72,7 +72,7 @@ class StudyReminderFeedTest {
     }
 
     @Test
-    fun `a town answer with stale cards keeps the stored cards`() = runTest {
+    fun `a town answer older than a reviews read keeps that read's cards and its own lesson finish`() = runTest {
         val feed: StudyReminderFeed = feed()
         feed.reviewsAnswered(DueReviews(emptyList(), readFirst = emptyList(), nextDueAt = nextDueAt, readAt = readAt))
         val olderTown: TownSnapshot = townOf(
@@ -82,7 +82,48 @@ class StudyReminderFeedTest {
 
         feed.townAnswered(olderTown, TownAnswerFreshness(areCardsFresh = false, isCheckFresh = true))
 
+        val expected = StudyReminderFacts(
+            cardsWaitingFrom = nextDueAt,
+            lessonFinishingAt = lessonFinishesAt,
+            isLessonReady = true,
+        )
+        assertEquals(expected, store.facts.value)
+    }
+
+    @Test
+    fun `a town answer older than a reviews read at its lesson's finish drops the finish`() = runTest {
+        val feed: StudyReminderFeed = feed()
+        val readAtTheFinish =
+            DueReviews(emptyList(), readFirst = emptyList(), nextDueAt = nextDueAt, readAt = lessonFinishesAt)
+        feed.reviewsAnswered(readAtTheFinish)
+        val olderTown: TownSnapshot = townOf(
+            nextStep = NextStep.LessonToStudy(LessonId("lesson-2")),
+            lessonSlot = runningLesson,
+        ).copy(nextDueAt = null)
+
+        feed.townAnswered(olderTown, TownAnswerFreshness(areCardsFresh = false, isCheckFresh = true))
+
         assertEquals(StudyReminderFacts(cardsWaitingFrom = nextDueAt, isLessonReady = true), store.facts.value)
+    }
+
+    @Test
+    fun `asks nothing after a holdout checks answer holding a check`() = runTest {
+        store.choose(reminderOn)
+
+        feed().holdoutChecksAnswered(listOf(HoldoutCheck.Due(PlacementBand.First, HoldoutCheckWeek.Eighth)))
+        runCurrent()
+
+        assertEquals(0, towns.readCount)
+    }
+
+    @Test
+    fun `asks nothing after a Report with due cards`() = runTest {
+        store.choose(reminderOn)
+
+        feed().reportAnswered(reportOf(dueCount = 2), readAt)
+        runCurrent()
+
+        assertEquals(0, towns.readCount)
     }
 
     @Test
@@ -221,7 +262,7 @@ class StudyReminderFeedTest {
     }
 
     @Test
-    fun `the session change clears what a new process reads`() = runTest {
+    fun `a new store over the same file reads nothing after a session change`() = runTest {
         store.choose(reminderOn)
         feed().holdoutChecksAnswered(listOf(HoldoutCheck.Due(PlacementBand.First, HoldoutCheckWeek.Eighth)))
         feed().sessionChanged()
@@ -238,7 +279,7 @@ class StudyReminderFeedTest {
         RuntimeEnvironment.getApplication().getSharedPreferences("study-reminder-test", Context.MODE_PRIVATE)
 
     private fun TestScope.feed(): StudyReminderFeed =
-        StudyReminderFeed(store = store, towns = { towns }, scope = backgroundScope)
+        StudyReminderFeed(store = lazyOf(store), towns = { towns }, scope = backgroundScope)
 
     private val dueCard: DueReview.Recall = DueReview.Recall(
         wordId = WordId("lesson-1-1"),

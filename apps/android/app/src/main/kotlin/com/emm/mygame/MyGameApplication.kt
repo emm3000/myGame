@@ -13,7 +13,6 @@ import com.emm.mygame.core.network.ReportRepository
 import com.emm.mygame.core.network.SessionEnds
 import com.emm.mygame.core.network.SessionRepository
 import com.emm.mygame.core.network.StudyAnswers
-import com.emm.mygame.core.network.StudyReminderSettings
 import com.emm.mygame.core.network.TokenStore
 import com.emm.mygame.core.network.TownRepository
 import java.io.File
@@ -38,17 +37,13 @@ class MyGameApplication : Application(), AppDependencies {
 
     private val languages: PlayerLanguages by lazy { PlayerLanguages(tokenStore) }
 
-    private val studyReminder: StudyReminderStore by lazy {
-        StudyReminderStore(getSharedPreferences(STUDY_REMINDER_FILE_NAME, Context.MODE_PRIVATE))
-    }
-
-    val studyReminderSettings: StudyReminderSettings by lazy { studyReminder }
-
     private val studyAnswers: StudyAnswers by lazy {
         StudyAnswers(
             tokenStore = tokenStore,
             sink = StudyReminderFeed(
-                store = studyReminder,
+                store = lazy {
+                    StudyReminderStore(getSharedPreferences(STUDY_REMINDER_FILE_NAME, Context.MODE_PRIVATE))
+                },
                 towns = { towns },
                 scope = CoroutineScope(SupervisorJob() + Dispatchers.Default),
             ),
