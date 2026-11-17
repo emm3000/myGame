@@ -244,7 +244,7 @@ class ReportCopyTest {
     fun `groups a large amount with a thin space`() {
         val pay: List<TownAmount> = listOf(TownAmount(TownResourceKind.Money, 12500))
 
-        assertEquals("Pago: 12 500 de dinero", amountsLineOf(TownNews.JobBack(at, site, pay)))
+        assertEquals("Pago: 12\u202F500 de dinero", amountsLineOf(TownNews.JobBack(at, site, pay)))
     }
 
     @Test
