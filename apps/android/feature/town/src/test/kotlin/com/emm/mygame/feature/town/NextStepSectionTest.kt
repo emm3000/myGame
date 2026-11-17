@@ -94,7 +94,7 @@ class NextStepSectionTest {
     fun `counts the reviews due`() {
         show(townOf(nextStep = NextStep.Reviews(1200, readFirst = emptyList())))
 
-        composeRule.onNodeWithText("Repasos pendientes: 1 200").assertExists()
+        composeRule.onNodeWithText("Repasos pendientes: 1\u202F200").assertExists()
     }
 
     @Test

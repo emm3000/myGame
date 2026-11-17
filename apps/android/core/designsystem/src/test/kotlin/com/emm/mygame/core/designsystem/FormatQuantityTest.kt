@@ -6,9 +6,9 @@ import org.junit.Test
 class FormatQuantityTest {
 
     @Test
-    fun `groups the thousands of a quantity with a thin space`() {
-        assertEquals("1 284", formatQuantity(1_284))
-        assertEquals("12 500 000", formatQuantity(12_500_000))
+    fun `groups the thousands of a quantity with a space no line breaks at`() {
+        assertEquals("1\u202F284", formatQuantity(1_284))
+        assertEquals("12\u202F500\u202F000", formatQuantity(12_500_000))
     }
 
     @Test

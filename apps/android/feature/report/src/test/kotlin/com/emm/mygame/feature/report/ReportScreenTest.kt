@@ -153,7 +153,7 @@ class ReportScreenTest {
     fun `groups a large count of reviews due`() {
         show(contentWith(dueCount = 1200))
 
-        composeRule.onNodeWithText("Repasos pendientes: 1 200").assertIsDisplayed()
+        composeRule.onNodeWithText("Repasos pendientes: 1\u202F200").assertIsDisplayed()
     }
 
     @Test
