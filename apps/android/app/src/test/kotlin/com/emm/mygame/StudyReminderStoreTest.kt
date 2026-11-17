@@ -32,7 +32,7 @@ class StudyReminderStoreTest {
     }
 
     @Test
-    fun `the facts survive a new process`() {
+    fun `a new store over the same file reads the stored facts`() {
         store.fold { heldFacts }
 
         val restarted: StudyReminderStore = StudyReminderStore(preferencesFile())
@@ -41,7 +41,7 @@ class StudyReminderStoreTest {
     }
 
     @Test
-    fun `the switch survives a new process`() {
+    fun `a new store over the same file reads the stored switch`() {
         store.choose(StudyReminderChoice(isOn = true, time = LocalTime.of(19, 0)))
 
         val restarted: StudyReminderStore = StudyReminderStore(preferencesFile())
@@ -50,7 +50,7 @@ class StudyReminderStoreTest {
     }
 
     @Test
-    fun `the time survives a new process`() {
+    fun `a new store over the same file reads the stored time`() {
         store.choose(StudyReminderChoice(isOn = false, time = LocalTime.of(21, 15)))
 
         val restarted: StudyReminderStore = StudyReminderStore(preferencesFile())

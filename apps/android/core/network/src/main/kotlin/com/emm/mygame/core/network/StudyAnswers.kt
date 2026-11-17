@@ -11,11 +11,11 @@ class StudyAnswers(tokenStore: TokenStore, private val sink: StudyAnswerSink, pr
 
     private var lastForgottenOrder: Long = 0L
 
-    private var townDecidedBy: Long = 0L
+    private var lastTownSend: Long = 0L
 
-    private var cardsDecidedBy: Long = 0L
+    private var lastCardsSend: Long = 0L
 
-    private var checkDecidedBy: Long = 0L
+    private var lastCheckSend: Long = 0L
 
     init {
         tokenStore.onSessionChange(::forget)
@@ -25,43 +25,43 @@ class StudyAnswers(tokenStore: TokenStore, private val sink: StudyAnswerSink, pr
 
     internal fun townAnswered(request: StudyRequest, town: TownSnapshot) {
         synchronized(holding) {
-            if (request.isForgotten() || request.order < townDecidedBy) return
-            townDecidedBy = request.order
+            if (request.isForgotten() || request.wasSentBefore(lastTownSend)) return
+            lastTownSend = request.order
             val freshness = TownAnswerFreshness(
-                areCardsFresh = request.order > cardsDecidedBy,
-                isCheckFresh = request.order > checkDecidedBy,
+                areCardsFresh = request.wasSentAfter(lastCardsSend),
+                isCheckFresh = request.wasSentAfter(lastCheckSend),
             )
-            cardsDecidedBy = maxOf(cardsDecidedBy, request.order)
-            checkDecidedBy = maxOf(checkDecidedBy, request.order)
+            lastCardsSend = maxOf(lastCardsSend, request.order)
+            lastCheckSend = maxOf(lastCheckSend, request.order)
             sink.townAnswered(town, freshness)
         }
     }
 
     internal fun reviewsAnswered(request: StudyRequest, reviews: DueReviews) {
         synchronized(holding) {
-            if (request.isForgotten() || request.order < cardsDecidedBy) return
-            cardsDecidedBy = request.order
+            if (request.isForgotten() || request.wasSentBefore(lastCardsSend)) return
+            lastCardsSend = request.order
             sink.reviewsAnswered(reviews)
         }
     }
 
     internal fun reportAnswered(request: StudyRequest, report: TownReport) {
         synchronized(holding) {
-            if (request.isForgotten() || request.order < cardsDecidedBy) return
-            cardsDecidedBy = request.order
+            if (request.isForgotten() || request.wasSentBefore(lastCardsSend)) return
+            lastCardsSend = request.order
             sink.reportAnswered(report, arrivedAt = clock.now())
         }
     }
 
     internal fun holdoutChecksAnswered(request: StudyRequest, checks: List<HoldoutCheck>) {
         synchronized(holding) {
-            if (request.isForgotten() || request.order < checkDecidedBy) return
-            checkDecidedBy = request.order
+            if (request.isForgotten() || request.wasSentBefore(lastCheckSend)) return
+            lastCheckSend = request.order
             sink.holdoutChecksAnswered(checks)
         }
     }
 
-    private fun StudyRequest.isForgotten(): Boolean = order <= lastForgottenOrder
+    private fun StudyRequest.isForgotten(): Boolean = !wasSentAfter(lastForgottenOrder)
 
     private fun forget() {
         synchronized(holding) {
@@ -72,4 +72,9 @@ class StudyAnswers(tokenStore: TokenStore, private val sink: StudyAnswerSink, pr
 }
 
 @JvmInline
-internal value class StudyRequest(val order: Long)
+internal value class StudyRequest(val order: Long) {
+
+    fun wasSentBefore(sendOrder: Long): Boolean = order < sendOrder
+
+    fun wasSentAfter(sendOrder: Long): Boolean = order > sendOrder
+}
