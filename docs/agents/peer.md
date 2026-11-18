@@ -18,6 +18,21 @@ The one playbook a dispatched peer session reads, beside its issue and the docs 
 - Outside your worktree and your containers the machine stays as it was: no `brew services`, no LaunchAgent, no global install.
 - A command never waits on stdin: a script goes in a scratchpad file and runs as `python3 <file>`, never as `python3 - <<'EOF'` inside a pipeline. When a command has printed nothing for two minutes, `pgrep` shows what it runs: a Gradle or test run goes on, a process waiting on stdin is killed.
 
+## Inner loop
+
+The commands that run one file or one module, each with one measured run (#1200):
+
+| Command | Wall clock |
+|---|---|
+| `pnpm --filter @mygame/domain test src/town/startBuildingWork.test.ts` | 0.7 s |
+| `pnpm --filter @mygame/domain test src/town` | 1.2 s |
+| `pnpm --filter @mygame/api test src/routes/placement.test.ts` | 2.9 s |
+| `pnpm --filter @mygame/web test src/town/officeRoute.test.tsx` | 3.0 s |
+| `taskpolicy -c utility ./gradlew :feature:town:testDebugUnitTest --tests '<Class>'` | 1.7 s JVM, 7.9 s Robolectric |
+| `taskpolicy -c utility ./gradlew :feature:town:testDebugUnitTest` | 15.9 s |
+
+A path is relative to its package; the Gradle rows run in `apps/android`; an api test needs `DATABASE_URL` on your container. `pnpm gate` and the Android leg run before the push.
+
 ## Red runs
 
 A ticket that adds or changes behavior loads `mattpocock-skills:tdd` and writes the failing test first. Its PR body carries one table, a row per new rule, branch or guard:
@@ -41,6 +56,7 @@ A fix round reshoots only the composables it redraws.
 - Open it in the turn `pnpm gate` goes green: push the branch, `gh pr create` with `Closes #<n>`. `pr-reviewer` reviews it, so skip `/agents-review`; CI and the merge are the orchestrator's.
 - Your ticket branch, your assets branch and a `--force-with-lease` after a rebase are yours to push without asking. `trunk` is never yours.
 - Evidence a criterion turns on goes in the PR body in full; for a measurement, the measured lines.
+- A deleted test is listed in the PR body with the rule it covered and the test that still covers it, or the reason the rule is gone.
 
 ## The reply
 
