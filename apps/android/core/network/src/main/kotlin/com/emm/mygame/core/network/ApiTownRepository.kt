@@ -38,6 +38,8 @@ internal class ApiTownRepository(
 
     private val holding: Any = Any()
 
+    private var lastHeldSend: Long = 0L
+
     init {
         answers.onSessionChange(::forget)
     }
@@ -132,7 +134,8 @@ internal class ApiTownRepository(
 
     private fun hold(request: TownRequest, next: (HeldTown?) -> HeldTown?) {
         synchronized(holding) {
-            if (!answers.isCurrent(request)) return
+            if (!answers.isCurrent(request) || request.study.wasSentBefore(lastHeldSend)) return
+            lastHeldSend = request.study.order
             _town.value = next(_town.value)
         }
     }
