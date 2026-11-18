@@ -21,7 +21,7 @@ private const val MEASURED_TOLERANCE: Float = 1f
 
 private const val SPANISH_DOCK_AT_LARGEST_ON_360: Float = 435f
 
-private const val SPANISH_DOCK_AT_LARGEST_ON_412: Float = 349f
+private const val SPANISH_DOCK_AT_LARGEST_ON_411: Float = 349f
 
 private const val SPANISH_DOCK_AT_DEFAULT_IN_LANDSCAPE: Float = 167f
 
@@ -72,7 +72,7 @@ class MyGameDockMeasureTest {
     }
 
     @Test
-    @Config(qualifiers = "+w360dp-h915dp", fontScale = 2.0f)
+    @Config(qualifiers = "+w360dp-h2000dp", fontScale = 2.0f)
     fun `the unfolded Spanish dock is 435 dp tall at font scale 2 on a 360 dp wide window`() {
         showSpanishDock()
 
@@ -81,12 +81,28 @@ class MyGameDockMeasureTest {
     }
 
     @Test
-    @Config(qualifiers = "+w412dp-h915dp", fontScale = 2.0f)
-    fun `the unfolded Spanish dock is 349 dp tall at font scale 2 on a 412 by 915 window`() {
+    @Config(qualifiers = "+w411dp-h2000dp", fontScale = 2.0f)
+    fun `the unfolded Spanish dock is 349 dp tall at font scale 2 on a 411 dp wide window`() {
         showSpanishDock()
 
         assertFalse("the dock folded", isFolded)
-        assertEquals(SPANISH_DOCK_AT_LARGEST_ON_412, dockHeight(), MEASURED_TOLERANCE)
+        assertEquals(SPANISH_DOCK_AT_LARGEST_ON_411, dockHeight(), MEASURED_TOLERANCE)
+    }
+
+    @Test
+    @Config(qualifiers = "+w411dp-h915dp", fontScale = 2.0f)
+    fun `the Spanish dock folds at font scale 2 on a 411 by 915 window`() {
+        showSpanishDock()
+
+        assertTrue("the dock folded", isFolded)
+    }
+
+    @Test
+    @Config(qualifiers = "+w411dp-h915dp")
+    fun `the Spanish dock stays unfolded at font scale 1 on a 411 by 915 window`() {
+        showSpanishDock()
+
+        assertFalse("the dock folded", isFolded)
     }
 
     @Test
@@ -115,7 +131,7 @@ class MyGameDockMeasureTest {
     }
 
     @Test
-    @Config(qualifiers = "+w360dp-h915dp", fontScale = 2.0f)
+    @Config(qualifiers = "+w360dp-h2000dp", fontScale = 2.0f)
     fun `the Spanish label and door do not share a row at font scale 2 on a 360 dp wide window`() {
         showSpanishDock()
 
@@ -131,8 +147,8 @@ class MyGameDockMeasureTest {
     }
 
     @Test
-    @Config(qualifiers = "+w412dp-h915dp", fontScale = 2.0f)
-    fun `the Spanish label and door do not share a row at font scale 2 on a 412 by 915 window`() {
+    @Config(qualifiers = "+w411dp-h2000dp", fontScale = 2.0f)
+    fun `the Spanish label and door do not share a row at font scale 2 on a 411 dp wide window`() {
         showSpanishDock()
 
         assertFalse("the door sits beside the go button", isDoorBeside())
