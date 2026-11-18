@@ -1,25 +1,27 @@
 package com.emm.mygame
 
-import androidx.compose.ui.test.onFirst
-import androidx.compose.ui.Modifier
-import androidx.compose.foundation.verticalScroll
-import androidx.compose.foundation.rememberScrollState
 import androidx.activity.ComponentActivity
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.mutableStateOf
+import androidx.compose.ui.Modifier
 import androidx.compose.ui.semantics.SemanticsProperties
 import androidx.compose.ui.test.SemanticsMatcher
 import androidx.compose.ui.test.SemanticsNodeInteraction
 import androidx.compose.ui.test.assertCountEquals
 import androidx.compose.ui.test.assertIsDisplayed
 import androidx.compose.ui.test.getUnclippedBoundsInRoot
+import androidx.compose.ui.test.hasAnyAncestor
 import androidx.compose.ui.test.hasContentDescription
+import androidx.compose.ui.test.hasScrollAction
 import androidx.compose.ui.test.hasTestTag
 import androidx.compose.ui.test.hasText
 import androidx.compose.ui.test.junit4.AndroidComposeTestRule
 import androidx.compose.ui.test.junit4.createAndroidComposeRule
 import androidx.compose.ui.test.onAllNodesWithTag
+import androidx.compose.ui.test.onFirst
 import androidx.compose.ui.test.onRoot
 import androidx.compose.ui.test.performClick
 import androidx.compose.ui.unit.Dp
@@ -57,12 +59,12 @@ import com.emm.mygame.core.testing.FakeSessionRepository
 import com.emm.mygame.core.testing.FakeStudyReminderSettings
 import com.emm.mygame.core.testing.FakeTownRepository
 import com.emm.mygame.core.ui.FillTaskDock
+import com.emm.mygame.core.ui.FoldedTaskEnd
 import com.emm.mygame.core.ui.FollowTownDock
 import com.emm.mygame.core.ui.TaskDock
 import com.emm.mygame.core.ui.TaskDockHook
 import com.emm.mygame.feature.town.TownStatusIntent
 import com.emm.mygame.feature.town.TownStatusUiState
-import kotlin.time.Clock
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import org.junit.Assert.assertEquals
@@ -72,6 +74,7 @@ import org.junit.Test
 import org.junit.runner.RunWith
 import org.robolectric.RobolectricTestRunner
 import org.robolectric.annotation.Config
+import kotlin.time.Clock
 
 @RunWith(RobolectricTestRunner::class)
 @Config(qualifiers = "+w411dp-h891dp")
@@ -171,7 +174,8 @@ class TaskDockFrameTest {
             composeRule.onNode(hasContentDescription(CHECK, substring = true) and isPlaced)
         go.assertIsDisplayed()
         assertTrue(go.getUnclippedBoundsInRoot().bottom <= keyboardTop)
-        composeRule.onAllNodes(hasText(VERDICT) and isPlaced).assertCountEquals(0)
+        composeRule.onAllNodes(hasText(VERDICT) and isPlaced and !hasAnyAncestor(hasScrollAction()))
+            .assertCountEquals(0)
     }
 
     @Test
@@ -259,7 +263,6 @@ class TaskDockFrameTest {
         const val CHECK: String = "Check"
         const val PROGRESS: String = "Card 2 of 5"
         const val VERDICT: String = "Correct."
-        const val TRY_AGAIN: String = "Volver a intentarlo"
         const val PORTRAIT_KEYBOARD: Int = 600
         const val LANDSCAPE_KEYBOARD: Int = 250
     }
@@ -276,10 +279,7 @@ private fun FakeTaskRoute(frame: ScreenFrame, isFilled: Boolean, isFollowingTown
     val hook: TaskDockHook = frame.task
     Column(modifier = Modifier.verticalScroll(rememberScrollState())) {
         MyGameText(text = "The card", style = MyGameTypography.body, color = MyGameTheme.colors.ink)
-        if (hook.isFolded) {
-            MyGameText(text = "Card 2 of 5", style = MyGameTypography.body, color = MyGameTheme.colors.ink)
-        }
-        frame.foldedDock()
+        FoldedTaskEnd(hook = hook, foldedDock = frame.foldedDock, scrollKey = null)
     }
     if (isFollowingTown) FollowTownDock(hook = hook)
     if (!isFilled) return

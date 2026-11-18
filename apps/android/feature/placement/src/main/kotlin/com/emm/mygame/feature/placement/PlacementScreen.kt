@@ -73,7 +73,6 @@ fun PlacementScreen(
         FoldedTaskEnd(
             hook = hook,
             foldedDock = foldedDock,
-            loadingLabel = fixedCopyResource(R.string.placement_loading),
             scrollKey = (state as? PlacementUiState.Asking)?.shownIndex,
         )
     }

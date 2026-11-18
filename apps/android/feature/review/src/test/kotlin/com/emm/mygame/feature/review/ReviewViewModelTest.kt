@@ -646,6 +646,27 @@ class ReviewViewModelTest {
     }
 
     @Test
+    fun `a new round of reviews starts its progress from none`() = runTest {
+        val learning: FakeLearningRepository = FakeLearningRepository()
+        val viewModel: ReviewViewModel = openReview(learning)
+        learning.answerRead(dueNow(homeRecall))
+        learning.answerReview(ReviewAnswerResult.Answered(correctHome(earnedSkill = null)))
+        learning.answerRead(dueNow())
+        learning.answerRead(dueNow(schoolRecognition))
+
+        viewModel.state.test {
+            awaitReviewing()
+            viewModel.onIntent(ReviewIntent.AnswerChanged("home"))
+            viewModel.onIntent(ReviewIntent.CheckTapped)
+            awaitStep { it is ReviewUiState.ReviewStep.Correct }
+            viewModel.onIntent(ReviewIntent.NextTapped)
+            assertEquals(ReviewUiState.NoCards, awaitItem())
+            viewModel.onIntent(ReviewIntent.ReviewsStartTapped)
+            assertEquals(0, awaitReviewing().walked)
+        }
+    }
+
+    @Test
     fun `walks nothing on a near miss`() = runTest {
         val learning: FakeLearningRepository = FakeLearningRepository()
         val viewModel: ReviewViewModel = openReview(learning)

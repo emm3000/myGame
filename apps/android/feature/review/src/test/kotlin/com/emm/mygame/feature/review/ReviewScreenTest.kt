@@ -1,10 +1,12 @@
 package com.emm.mygame.feature.review
 
+import androidx.compose.runtime.remember
 import androidx.compose.ui.test.assertCountEquals
 import androidx.compose.ui.test.assertIsDisplayed
 import androidx.compose.ui.test.getUnclippedBoundsInRoot
 import androidx.compose.ui.test.hasAnyAncestor
 import androidx.compose.ui.test.hasContentDescription
+import androidx.compose.ui.test.hasScrollAction
 import androidx.compose.ui.test.hasSetTextAction
 import androidx.compose.ui.test.hasStateDescription
 import androidx.compose.ui.test.hasTestTag
@@ -27,6 +29,7 @@ import com.emm.mygame.core.ui.ChromePhase
 import com.emm.mygame.core.ui.CopyLanguage
 import com.emm.mygame.core.ui.ProvideCopyLanguage
 import com.emm.mygame.core.ui.ScaffoldLanguage
+import com.emm.mygame.core.ui.TaskDockHook
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertTrue
 import org.junit.Rule
@@ -201,13 +204,29 @@ class ReviewScreenTest {
     }
 
     @Test
+    @Config(qualifiers = "+w360dp-h320dp", fontScale = 2.0f)
+    fun `a folded dock moves the verdict to the end of the card, in view`() {
+        draw(recalling(step = ReviewUiState.ReviewStep.Wrong(correct = "home"), typed = "house"))
+
+        composeRule.onNode(hasText("La correcta: home") and isPlaced and hasAnyAncestor(hasScrollAction()))
+            .assertIsDisplayed()
+    }
+
+    @Test
     fun `the recall field's done action sends the step when the dock hides`() {
         val intents: MutableList<ReviewIntent> = mutableListOf()
-        draw(
-            recalling(step = ReviewUiState.ReviewStep.Wrong(correct = "home"), typed = "house"),
-            onIntent = { intent: ReviewIntent -> intents += intent },
-        )
+        composeRule.setContent {
+            MyGameTheme {
+                ReviewScreen(
+                    state = recalling(step = ReviewUiState.ReviewStep.Wrong(correct = "home"), typed = "house"),
+                    onIntent = { intent: ReviewIntent -> intents += intent },
+                    task = remember { TaskDockHook(onAnswered = {}) },
+                    foldedDock = {},
+                )
+            }
+        }
 
+        composeRule.onAllNodes(hasTestTag(INK_PILL)).assertCountEquals(0)
         composeRule.onNode(hasContentDescription("Tu respuesta en inglés")).performImeAction()
 
         assertEquals(listOf<ReviewIntent>(ReviewIntent.NextTapped), intents)

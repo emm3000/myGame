@@ -11,6 +11,7 @@ import androidx.compose.ui.test.getBoundsInRoot
 import androidx.compose.ui.test.hasAnyAncestor
 import androidx.compose.ui.test.hasContentDescription
 import androidx.compose.ui.test.hasScrollAction
+import androidx.compose.ui.test.hasSetTextAction
 import androidx.compose.ui.test.hasStateDescription
 import androidx.compose.ui.test.hasTestTag
 import androidx.compose.ui.test.hasText
@@ -22,6 +23,7 @@ import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.onRoot
 import androidx.compose.ui.test.performClick
 import androidx.compose.ui.test.performScrollTo
+import androidx.compose.ui.test.performTextInput
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.DpRect as Rect
 import androidx.compose.ui.unit.dp
@@ -30,12 +32,13 @@ import androidx.navigation3.runtime.NavKey
 import androidx.navigation3.runtime.rememberNavBackStack
 import androidx.test.ext.junit.rules.ActivityScenarioRule
 import com.emm.mygame.core.designsystem.INK_PILL
-import com.emm.mygame.core.designsystem.OUTLINED_PILL
 import com.emm.mygame.core.designsystem.MyGameTheme
+import com.emm.mygame.core.designsystem.OUTLINED_PILL
+import com.emm.mygame.core.network.DueReview
+import com.emm.mygame.core.network.DueReviews
+import com.emm.mygame.core.network.FrameSpan
 import com.emm.mygame.core.network.HoldoutCheck
 import com.emm.mygame.core.network.HoldoutCheckChangeResult
-import com.emm.mygame.core.network.DueReviews
-import com.emm.mygame.core.network.ReviewsReadResult
 import com.emm.mygame.core.network.HoldoutCheckRepository
 import com.emm.mygame.core.network.HoldoutCheckWeek
 import com.emm.mygame.core.network.HoldoutChecksReadResult
@@ -55,6 +58,9 @@ import com.emm.mygame.core.network.ReportReadResult
 import com.emm.mygame.core.network.ReportRepository
 import com.emm.mygame.core.network.RestoreResult
 import com.emm.mygame.core.network.RetainedWords
+import com.emm.mygame.core.network.ReviewAnswerResult
+import com.emm.mygame.core.network.ReviewVerdict
+import com.emm.mygame.core.network.ReviewsReadResult
 import com.emm.mygame.core.network.SessionEnds
 import com.emm.mygame.core.network.SessionRepository
 import com.emm.mygame.core.network.SignedInPlayer
@@ -70,6 +76,7 @@ import com.emm.mygame.core.network.TownReport
 import com.emm.mygame.core.network.TownRepository
 import com.emm.mygame.core.network.TownResourceKind
 import com.emm.mygame.core.network.TownSnapshot
+import com.emm.mygame.core.network.WordId
 import com.emm.mygame.core.testing.FakeHoldoutCheckRepository
 import com.emm.mygame.core.testing.FakeLearningRepository
 import com.emm.mygame.core.testing.FakePlacementRepository
@@ -80,9 +87,6 @@ import com.emm.mygame.core.testing.FakeStudyReminderSettings
 import com.emm.mygame.core.testing.FakeTownRepository
 import com.emm.mygame.core.testing.hiringOf
 import com.emm.mygame.feature.town.TOWN_DOCK
-import kotlin.time.Clock
-import kotlin.time.Duration.Companion.minutes
-import kotlin.time.Instant
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.emptyFlow
@@ -95,6 +99,9 @@ import org.junit.runner.RunWith
 import org.robolectric.RobolectricTestRunner
 import org.robolectric.annotation.Config
 import org.robolectric.annotation.GraphicsMode
+import kotlin.time.Clock
+import kotlin.time.Duration.Companion.minutes
+import kotlin.time.Instant
 
 @RunWith(RobolectricTestRunner::class)
 class DockFrameNavigationTest {
@@ -311,6 +318,29 @@ class DockFrameNavigationTest {
     private fun assertOneGoButton() {
         dockGo("Ir al informe")
         composeRule.onAllNodes(hasTestTag(INK_PILL)).assertCountEquals(1)
+    }
+
+    @Test
+    fun `a review answer reads the town again`() {
+        val recall: DueReview.Recall = DueReview.Recall(
+            wordId = WordId("lesson-1-1"),
+            lesson = firstLesson,
+            dueAt = readAt,
+            gloss = "casa",
+            gappedFrame = listOf(FrameSpan(text = "She goes ___ at six.", support = null)),
+        )
+        learningFake.answerRead(ReviewsReadResult.Read(noCards.copy(due = listOf(recall))))
+        learningFake.answerReview(
+            ReviewAnswerResult.Answered(ReviewVerdict.Wrong(word = "home", gloss = "casa", dueAt = readAt)),
+        )
+        showing(Destination.Town, Destination.Review)
+        waitFor(hasSetTextAction())
+
+        composeRule.onNode(hasSetTextAction()).performTextInput("house")
+        composeRule.onNode(hasTestTag(INK_PILL).and(hasContentDescription("Comprobar", substring = true)))
+            .performClick()
+
+        composeRule.waitUntil(WAIT_MILLIS) { townsFake.sentAfterNowCount == 1 }
     }
 
     @Test

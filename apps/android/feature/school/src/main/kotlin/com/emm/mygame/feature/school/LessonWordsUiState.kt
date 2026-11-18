@@ -8,13 +8,6 @@ import kotlin.time.Duration
 
 sealed interface LessonWordsUiState {
 
-    val isFollowingTown: Boolean
-        get() = when (this) {
-            Loading -> false
-            Failed, NothingToRead -> true
-            is Reading -> isLastWord && wayOn == null && !isNextStepThisLesson
-        }
-
     data object Loading : LessonWordsUiState
 
     data object Failed : LessonWordsUiState
@@ -37,6 +30,9 @@ sealed interface LessonWordsUiState {
 
         val isLastWord: Boolean
             get() = index == words.lastIndex
+
+        val isFollowingTown: Boolean
+            get() = isLastWord && wayOn == null && !isNextStepThisLesson
 
         val isWaitingForLessonEnd: Boolean
             get() = isLastWord && wayOn == null && isNextStepThisLesson

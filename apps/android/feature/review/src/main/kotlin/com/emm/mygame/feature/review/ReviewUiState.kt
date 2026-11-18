@@ -14,12 +14,6 @@ import kotlin.time.Instant
 
 sealed interface ReviewUiState {
 
-    val isFollowingTown: Boolean
-        get() = when (this) {
-            Loading, is Reviewing -> false
-            Failed, NoCards, is NothingDue, is LessonReady -> true
-        }
-
     data object Loading : ReviewUiState
 
     data object Failed : ReviewUiState

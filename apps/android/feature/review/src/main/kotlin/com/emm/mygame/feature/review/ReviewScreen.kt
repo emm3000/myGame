@@ -85,7 +85,6 @@ fun ReviewScreen(
         FoldedTaskEnd(
             hook = task,
             foldedDock = foldedDock,
-            loadingLabel = chromeResource(R.string.building_waiting).spoken,
             scrollKey = (state as? ReviewUiState.Reviewing)?.let { shown: ReviewUiState.Reviewing ->
                 shown.card.wordId to shown.step
             },
