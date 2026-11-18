@@ -128,6 +128,7 @@
     <string name="town_status_released_ready_in">Returning words: band {band}, set {number} ready in</string>
     <string name="town_stock_of">of {capacity}</string>
     <string name="town_street_built">Your town: {built} of {total} built</string>
+    <string name="town_street_built_city">Your city: {built} of {total} built</string>
     <string name="town_tab_in_work">in work</string>
     <string name="town_tab_name">{place}, {level}</string>
     <string name="town_tab_next_step">what is next</string>

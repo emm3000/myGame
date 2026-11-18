@@ -1,5 +1,6 @@
 package com.emm.mygame.feature.review
 
+import androidx.compose.runtime.Composable
 import androidx.compose.ui.semantics.SemanticsActions
 import androidx.compose.ui.test.SemanticsMatcher
 import androidx.compose.ui.test.assertCountEquals
@@ -19,10 +20,18 @@ import androidx.compose.ui.text.intl.LocaleList
 import com.emm.mygame.core.designsystem.BLOCK_HUE
 import com.emm.mygame.core.designsystem.INK_PILL
 import com.emm.mygame.core.designsystem.MyGameBlockHue
+import com.emm.mygame.core.designsystem.MyGameDock
+import com.emm.mygame.core.designsystem.MyGameDockGo
+import com.emm.mygame.core.designsystem.MyGameDockLine
+import com.emm.mygame.core.designsystem.MyGameLabel
 import com.emm.mygame.core.designsystem.MyGameTheme
 import com.emm.mygame.core.network.SchoolPathCounts
 import com.emm.mygame.core.network.TownResourceKind
 import kotlin.time.Duration.Companion.minutes
+import com.emm.mygame.core.ui.ChromePhase
+import com.emm.mygame.core.ui.CopyLanguage
+import com.emm.mygame.core.ui.ProvideCopyLanguage
+import com.emm.mygame.core.ui.ScaffoldLanguage
 import com.emm.mygame.core.ui.TaskDockHook
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertNotNull
@@ -69,6 +78,31 @@ class ReviewEndScreenTest {
         composeRule.runOnIdle { hook.town?.onReviewsStart?.invoke() }
 
         assertEquals(listOf<ReviewIntent>(ReviewIntent.ReviewsStartTapped), intents)
+    }
+
+    @Test
+    fun `draws the next review once, in the dock's line`() {
+        composeRule.setContent {
+            MyGameTheme {
+                ProvideCopyLanguage(language = CopyLanguage(ScaffoldLanguage.Spanish, ChromePhase.English)) {
+                    ReviewWithDock(
+                        state = nothingDue(path = lessonTwoPath),
+                        hook = hook,
+                        followedDock = { TownDockLine() },
+                    )
+                }
+            }
+        }
+
+        composeRule.onAllNodes(hasText("Next review:", substring = true) and isPlaced, useUnmergedTree = true)
+            .assertCountEquals(1)
+    }
+
+    @Test
+    fun `keeps the nothing-due line on the card at the review's end`() {
+        draw(nothingDue(path = lessonTwoPath))
+
+        composeRule.onNodeWithText("No tienes nada que repasar ahora.").assertIsDisplayed()
     }
 
     @Test
@@ -155,6 +189,23 @@ class ReviewEndScreenTest {
 
         composeRule.onNodeWithText("+5 % de energía / h.").performScrollTo().assertIsDisplayed()
         composeRule.onAllNodesWithText("ahora", substring = true).assertCountEquals(0)
+    }
+
+    @Composable
+    private fun TownDockLine() {
+        MyGameDock(
+            line = MyGameDockLine(
+                title = MyGameLabel(text = "What is next", translation = null),
+                step = MyGameLabel(text = "Next review: 9 min", translation = null),
+            ),
+            go = MyGameDockGo(
+                label = MyGameLabel(text = "Start the reviews", translation = null),
+                isBusy = false,
+                busyDescription = "Waiting",
+                onClick = {},
+            ),
+            onFoldChange = {},
+        )
     }
 
     private fun nothingDue(path: ReviewUiState.LessonPath?): ReviewUiState.NothingDue =

@@ -59,7 +59,7 @@ class ReviewRouteTest {
 
     private fun waitForNothingDue() {
         composeRule.waitUntil(WAIT_MILLIS) {
-            composeRule.onAllNodes(hasText("Siguiente repaso:", substring = true)).fetchSemanticsNodes().isNotEmpty()
+            composeRule.onAllNodes(hasText("No tienes nada que repasar ahora.")).fetchSemanticsNodes().isNotEmpty()
         }
     }
 

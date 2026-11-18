@@ -1,9 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="building_waiting">Esperando al servidor</string>
-    <string name="finish_day">{day} {time}</string>
-    <string name="finish_tomorrow">mañana {time}</string>
-    <string name="finish_with_clock">{countdown} · {clock}</string>
     <string name="review_answer_label">Tu respuesta en inglés</string>
     <string name="review_check">Comprobar</string>
     <string name="review_check_empty">Escribe tu respuesta para comprobarla.</string>
@@ -21,7 +18,6 @@
     <string name="review_loading">Estamos leyendo tu repaso…</string>
     <string name="review_near_miss">Casi. Revisa cómo se escribe y vuelve a comprobar.</string>
     <string name="review_next_card">Siguiente</string>
-    <string name="review_next_due">Siguiente repaso: {due}</string>
     <string name="review_no_cards">Aún no tienes palabras que repasar.</string>
     <string name="review_nothing_due">No tienes nada que repasar ahora.</string>
     <string name="review_path_count">{count} de {total}</string>
@@ -49,8 +45,4 @@
     <string name="review_unreachable">No hemos podido hablar con el servidor. Vuelve a intentarlo en un momento.</string>
     <string name="review_wrong">No es correcto.</string>
     <string name="review_yours">Tu respuesta: {answer}</string>
-    <string name="slot_countdown_finished">Terminada</string>
-    <string name="slot_countdown_hours">{hours} h {minutes} min</string>
-    <string name="slot_countdown_minutes">{minutes} min</string>
-    <string name="slot_countdown_seconds">{seconds} s</string>
 </resources>

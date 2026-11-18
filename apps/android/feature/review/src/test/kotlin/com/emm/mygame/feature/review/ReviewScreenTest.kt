@@ -268,6 +268,25 @@ class ReviewScreenTest {
     }
 
     @Test
+    @Config(qualifiers = "+w360dp-h480dp", fontScale = 2.0f)
+    fun `a returning word opens at the top of the review`() {
+        val missed: ReviewUiState.Reviewing =
+            recalling(step = ReviewUiState.ReviewStep.Wrong(correct = "home"), typed = "house")
+        val shown: MutableState<ReviewUiState> = mutableStateOf(missed)
+        composeRule.setContent {
+            MyGameTheme {
+                ReviewWithDock(state = shown.value)
+            }
+        }
+        composeRule.onNode(hasScrollAction()).performTouchInput { swipeUp() }
+        composeRule.onNode(hasText("Repaso")).assertIsNotDisplayed()
+
+        shown.value = recalling(step = ReviewUiState.ReviewStep.Answering).copy(walked = missed.walked + 1)
+
+        composeRule.onNode(hasText("Repaso")).assertIsDisplayed()
+    }
+
+    @Test
     fun `the recall field's done action sends the step when the dock hides`() {
         val intents: MutableList<ReviewIntent> = mutableListOf()
         composeRule.setContent {

@@ -3,24 +3,19 @@ package com.emm.mygame.feature.review
 import androidx.annotation.StringRes
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.padding
 import androidx.compose.runtime.Composable
-import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.semantics.heading
 import androidx.compose.ui.semantics.semantics
 import com.emm.mygame.core.designsystem.MyGameBlock
 import com.emm.mygame.core.designsystem.MyGameCard
-import com.emm.mygame.core.designsystem.MyGameIcon
-import com.emm.mygame.core.designsystem.MyGameIcons
 import com.emm.mygame.core.designsystem.MyGameLabel
 import com.emm.mygame.core.designsystem.MyGameSpacing
 import com.emm.mygame.core.designsystem.MyGameText
 import com.emm.mygame.core.designsystem.MyGameTheme
 import com.emm.mygame.core.designsystem.MyGameTypography
 import com.emm.mygame.core.designsystem.blockHueOf
-import com.emm.mygame.core.designsystem.withTabularFigures
 import com.emm.mygame.core.network.SchoolPathCounts
 import com.emm.mygame.core.ui.SchoolPath
 import com.emm.mygame.core.ui.SchoolPathSteps
@@ -43,37 +38,23 @@ internal fun LessonReady(ready: ReviewUiState.LessonReady, modifier: Modifier = 
 internal fun ReviewEnd(
     line: MyGameLabel,
     modifier: Modifier = Modifier,
-    nextReview: MyGameLabel? = null,
     path: ReviewUiState.LessonPath? = null,
 ) {
     Column(verticalArrangement = Arrangement.spacedBy(MyGameSpacing.step4), modifier = modifier) {
-        ReviewsAhead(line = line, nextReview = nextReview)
+        ReviewsAhead(line = line)
         path?.let { shown: ReviewUiState.LessonPath -> LessonPath(path = shown) }
     }
 }
 
 @Composable
-private fun ReviewsAhead(line: MyGameLabel, nextReview: MyGameLabel?, modifier: Modifier = Modifier) {
+private fun ReviewsAhead(line: MyGameLabel, modifier: Modifier = Modifier) {
     MyGameCard(modifier = modifier) {
-        Column(
-            verticalArrangement = Arrangement.spacedBy(MyGameSpacing.step3),
+        MyGameText(
+            label = line,
+            style = MyGameTypography.body,
+            color = MyGameTheme.colors.ink,
             modifier = Modifier.padding(vertical = MyGameSpacing.step4),
-        ) {
-            MyGameText(label = line, style = MyGameTypography.body, color = MyGameTheme.colors.ink)
-            nextReview?.let { due: MyGameLabel ->
-                Row(
-                    verticalAlignment = Alignment.CenterVertically,
-                    horizontalArrangement = Arrangement.spacedBy(MyGameSpacing.step2),
-                ) {
-                    MyGameIcon(icon = MyGameIcons.hourglass, tint = MyGameTheme.colors.inkMuted)
-                    MyGameText(
-                        label = due,
-                        style = MyGameTypography.caption.withTabularFigures(),
-                        color = MyGameTheme.colors.ink,
-                    )
-                }
-            }
-        }
+        )
     }
 }
 

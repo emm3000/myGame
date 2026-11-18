@@ -216,19 +216,17 @@ class ReviewLanguageTest {
     }
 
     @Test
-    fun `writes the next review's day the English way in the English phase`() {
+    fun `draws the review's end in English in the English phase`() {
         show(englishPhase, nothingDueInThreeDays)
 
         assertDrawn("No reviews due now.", "Lesson 1")
-        assertPartlyDrawn("Nov 8")
     }
 
     @Test
-    fun `writes the next review's day the Spanish way in the Spanish phase`() {
+    fun `draws the review's end in Spanish in the Spanish phase`() {
         show(spanishPhase, nothingDueInThreeDays)
 
         assertDrawn("No tienes nada que repasar ahora.", "Lección 1")
-        assertPartlyDrawn("8 nov")
     }
 
     @Test
