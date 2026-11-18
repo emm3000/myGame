@@ -316,7 +316,10 @@ ADR 043's tests count one ink pill.
   own swipe is not relied on.
 
 **When the dock is too tall.** The dock may take at most half of the
-window's height. Past that, the dock folds:
+window's height divided by the font scale, a scale under 1.0 counting
+as 1.0: half the window at 1.0, a quarter at 2.0. The page's own text
+grows with the scale too, so it keeps a larger share as the scale
+grows. Past that, the dock folds:
 
 - **Folded.** It keeps the go button alone, with its whole label.
   - **On a non-task screen.** The line and the door move to the top of
@@ -352,12 +355,15 @@ window's height. Past that, the dock folds:
 - Today's `MyGamePillAtLargeFontTest` already holds the ink pill at 1.5
   and 2.0. The dock's tests hold the go button, its count, the door and
   the fold at the same scales.
-- **An estimate, to be measured by the ticket.** The longest Spanish
-  line, *Palabras que vuelven: banda {band}, grupo {number}*, and the
-  longest action, *Estudiar las palabras que vuelven* (33 characters),
-  together put the unfolded dock near 400 dp. That is under half of a
-  915 dp phone, and over half of the 360 × 640 dp window that
-  `SchoolPathTest` uses.
+- **The measure.** The longest Spanish line, *Palabras que vuelven:
+  banda {band}, grupo {number}*, and the longest action, *Estudiar las
+  palabras que vuelven* (33 characters), with the door, put the
+  unfolded dock at 349 dp at font scale 2.0 on a 411 dp wide window and
+  at 435 dp on a 360 dp one (`MyGameDockMeasureTest`). At 2.0 the
+  limit is 228 dp on a 411 × 915 dp phone and 160 dp on the
+  360 × 640 dp window that `SchoolPathTest` uses, so the dock folds on
+  both; at 1.0 the limit on the 411 × 915 phone is 457 dp, and the dock
+  stays unfolded.
 - **The bar.** On that window at 2.0 the dock folds, and the go button's
   whole label is on screen without scrolling. In landscape at font
   scale 1.0 the same holds.

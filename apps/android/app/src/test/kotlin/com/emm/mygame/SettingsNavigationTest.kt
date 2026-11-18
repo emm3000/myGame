@@ -183,7 +183,7 @@ class SettingsNavigationTest {
         show(Destination.Town, Destination.Report, Destination.Settings)
         waitForLine(NONE_OPTION_IN_SPANISH)
 
-        composeRule.onNodeWithText(NONE_OPTION_IN_SPANISH).performClick()
+        composeRule.onNodeWithText(NONE_OPTION_IN_SPANISH).performScrollTo().performClick()
         waitForLine("Guardando…")
 
         composeRule.onAllNodesWithText("Ajustes").assertCountEquals(1)
@@ -195,7 +195,7 @@ class SettingsNavigationTest {
         show(Destination.Town, Destination.Report, Destination.Settings)
         waitForLine(NONE_OPTION_IN_SPANISH)
 
-        composeRule.onNodeWithText(NONE_OPTION_IN_SPANISH).performClick()
+        composeRule.onNodeWithText(NONE_OPTION_IN_SPANISH).performScrollTo().performClick()
         sessionsFake.answerScaffoldChange(ScaffoldChangeResult.Changed(playerWith(PlayerScaffold.None)))
 
         waitForLine("Saved.")
@@ -208,7 +208,7 @@ class SettingsNavigationTest {
     fun `draws the Report in English on the way back from a change to none`() {
         show(Destination.Town, Destination.Report, Destination.Settings)
         waitForLine(NONE_OPTION_IN_SPANISH)
-        composeRule.onNodeWithText(NONE_OPTION_IN_SPANISH).performClick()
+        composeRule.onNodeWithText(NONE_OPTION_IN_SPANISH).performScrollTo().performClick()
         sessionsFake.answerScaffoldChange(ScaffoldChangeResult.Changed(playerWith(PlayerScaffold.None)))
         waitForLine("Saved.")
         reportsFake.answerRead(ReportReadResult.Read(nothingDue))
