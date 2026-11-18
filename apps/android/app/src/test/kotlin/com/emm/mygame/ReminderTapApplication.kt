@@ -7,7 +7,6 @@ import com.emm.mygame.core.network.PlacementRepository
 import com.emm.mygame.core.network.PlayerLanguage
 import com.emm.mygame.core.network.PlayerScaffold
 import com.emm.mygame.core.network.ReminderNotifications
-import com.emm.mygame.core.network.ReportRepository
 import com.emm.mygame.core.network.SessionEnds
 import com.emm.mygame.core.network.SessionRepository
 import com.emm.mygame.core.network.StudyReminderChoice
@@ -45,7 +44,7 @@ class ReminderTapApplication : Application(), AppDependencies {
 
     override val learning: LearningRepository = FakeLearningRepository()
 
-    override val reports: ReportRepository = FakeReportRepository()
+    override val reports: FakeReportRepository = FakeReportRepository()
 
     override val placements: PlacementRepository = FakePlacementRepository()
 
