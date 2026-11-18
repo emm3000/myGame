@@ -17,15 +17,25 @@ import org.junit.Test
 import org.junit.runner.RunWith
 import org.robolectric.RobolectricTestRunner
 
-private val farmAtTwo: TownSnapshot = townOf(places = placesOf(placeAt(TownBuildingKind.Farm, level = 2)))
+private val farmAtTwo: TownSnapshot = townOf(
+    places = placesOf(placeAt(TownBuildingKind.Farm, level = 2)),
+    nextStep = openingOn(TownBuildingKind.Farm),
+)
 
-private val farmAtThree: TownSnapshot =
-    townOf(places = placesOf(placeAt(TownBuildingKind.Farm, level = 3)), readAt = readInstant + 1.minutes)
+private val farmAtThree: TownSnapshot = farmAtTwo.copy(
+    buildings = placesOf(placeAt(TownBuildingKind.Farm, level = 3)),
+    readAt = readInstant + 1.minutes,
+)
 
-private val factoryUnbuilt: TownSnapshot = townOf(places = placesOf(placeAt(TownBuildingKind.Factory, level = 0)))
+private val factoryUnbuilt: TownSnapshot = townOf(
+    places = placesOf(placeAt(TownBuildingKind.Factory, level = 0)),
+    nextStep = openingOn(TownBuildingKind.Factory),
+)
 
-private val factoryBuilt: TownSnapshot =
-    townOf(places = placesOf(placeAt(TownBuildingKind.Factory, level = 1)), readAt = readInstant + 1.minutes)
+private val factoryBuilt: TownSnapshot = factoryUnbuilt.copy(
+    buildings = placesOf(placeAt(TownBuildingKind.Factory, level = 1)),
+    readAt = readInstant + 1.minutes,
+)
 
 @RunWith(RobolectricTestRunner::class)
 class TownRegistersScreenTest {
@@ -77,7 +87,7 @@ class TownRegistersScreenTest {
 
     private fun assertInFlight(row: MyGameRegisteredRow) {
         val registering: List<MyGameRegistering> = registeringNodes()
-        assertEquals(listOf(row, row), registering.map { playing -> playing.row })
+        assertEquals(listOf(row), registering.map { playing -> playing.row })
         assertTrue(registering.all { playing -> playing.fraction < 1f })
     }
 

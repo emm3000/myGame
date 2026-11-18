@@ -391,7 +391,7 @@ class AppNavigationTest {
     fun `shows the ring on a screen under the town home`() {
         signedInAtTown(town = townOf(retainedWords = threeOfFive))
 
-        door("Escuela").performClick()
+        composeRule.onNodeWithText("Ir a la escuela").performScrollTo().performClick()
         waitForLine("Ahora no hay ninguna lección en estudio.")
 
         ring(THREE_OF_FIVE).assertIsDisplayed()
@@ -417,7 +417,7 @@ class AppNavigationTest {
         composeRule.waitForIdle()
         assertEquals(READS_ON_ARRIVAL, townsFake.readCount)
 
-        door("Escuela").performClick()
+        composeRule.onNodeWithText("Ir a la escuela").performScrollTo().performClick()
         waitForLine("Ahora no hay ninguna lección en estudio.")
 
         assertEquals(READS_ON_ARRIVAL + 1, townsFake.readCount)
@@ -487,6 +487,13 @@ class AppNavigationTest {
             RegionMap(region = 1, area = 1, lastArea = 2, terrain = Terrain.Fields, sites = emptyList())
         townsFake.regions.answerMap(RegionMapResult.Read(firstArea))
         signedInAtTown()
+        composeRule
+            .onNode(
+                SemanticsMatcher.expectValue(SemanticsProperties.Role, Role.Tab)
+                    .and(hasContentDescription("Oficina", substring = true)),
+            )
+            .performScrollTo()
+            .performClick()
 
         composeRule.onNodeWithText("Ir al mapa").performScrollTo().performClick()
 
@@ -591,7 +598,7 @@ class AppNavigationTest {
         signedInAtTown(town = runningTown().copy(nextStep = NextStep.Reviews(count = 3, readFirst = emptyList())))
         assertStatusShown()
 
-        door("Escuela").performScrollTo().performClick()
+        composeRule.onNodeWithText("Ir a la escuela").performScrollTo().performClick()
         assertStatusShown()
         dockDoor("Pueblo").performClick()
         waitForLine(TOWN_HEADER)
@@ -866,7 +873,7 @@ class AppNavigationTest {
     }
 
     private companion object {
-        const val TOWN_HEADER: String = "RIVERTON · PUEBLO"
+        const val TOWN_HEADER: String = "Riverton · Pueblo"
         const val RING_WORDS: String = "palabra"
         const val LESSON_ONE_READY: String = "Lección 1 lista en"
         const val LESSON_ONE_DONE: String = "La lección 1 terminó."

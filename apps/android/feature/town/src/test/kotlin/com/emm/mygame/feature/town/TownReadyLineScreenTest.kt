@@ -6,7 +6,6 @@ import androidx.compose.ui.test.junit4.createComposeRule
 import androidx.compose.ui.test.onNodeWithText
 import com.emm.mygame.core.designsystem.MyGameTheme
 import com.emm.mygame.core.network.TownBuildingKind
-import com.emm.mygame.core.network.TownLabel
 import com.emm.mygame.core.network.TownResourceKind
 import java.time.LocalDateTime
 import java.time.ZoneId
@@ -29,46 +28,12 @@ class TownReadyLineScreenTest {
         LocalDateTime.of(2026, 11, 6, 9, 30).atZone(ZoneId.systemDefault()).toInstant().toEpochMilli(),
     )
 
-    private val farmOffer: TownUiState.PlaceCard = TownUiState.PlaceCard(
-        kind = TownBuildingKind.Farm,
-        level = 1,
-        raisedFrom = null,
-        isInWork = false,
-        next = TownUiState.NextLevelLine(
-            level = 2,
-            costs = listOf(TownUiState.CostLine(TownResourceKind.Food, 150, isShort = true)),
-            duration = 90.seconds,
-            people = 3,
-            wordsNeeded = null,
-        ),
-        block = null,
-    )
-
-    private val riverton: TownUiState.Content = TownUiState.Content(
-        name = "Riverton",
-        label = TownLabel.Town,
-        stocks = listOf(
-            TownUiState.StockLine(
-                TownResourceKind.Food,
-                130,
-                capacity = 900,
-                ratePerHour = 30,
-                skillLevel = 0,
-                fill = null,
-            ),
-        ),
-        people = TownUiState.PeopleLine(free = 24, atWork = 96),
-        words = TownUiState.WordsLine(stable = 0, retained = 0),
-        season = null,
-        buildMark = null,
-        slot = TownUiState.SlotLine.Idle,
-        waitingList = emptyList(),
-        places = listOf(farmOffer),
-        goal = null,
-        tip = null,
-        start = TownUiState.StartStatus.Idle,
-        stop = TownUiState.StopStatus.Idle,
-        office = idleOffice,
+    private val farmLevelTwo: TownUiState.NextLevelLine = TownUiState.NextLevelLine(
+        level = 2,
+        costs = listOf(TownUiState.CostLine(TownResourceKind.Food, 150, isShort = true)),
+        duration = 90.seconds,
+        people = 3,
+        wordsNeeded = null,
     )
 
     @Test
@@ -112,10 +77,12 @@ class TownReadyLineScreenTest {
     private fun show(block: TownUiState.BlockReason) {
         composeRule.setContent {
             MyGameTheme {
-                PlacesSection(
-                    content = riverton.copy(places = listOf(farmOffer.copy(block = block))),
+                NextLevel(
+                    building = TownBuildingKind.Farm,
+                    next = farmLevelTwo,
+                    block = block,
+                    isWaiting = false,
                     onIntent = {},
-                    onSchoolOpen = {},
                 )
             }
         }

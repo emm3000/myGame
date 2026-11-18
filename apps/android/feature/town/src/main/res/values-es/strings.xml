@@ -1,7 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="town_amount">{amount} de {resource}</string>
-    <string name="town_at_top_level">Ya está en su nivel más alto.</string>
     <string name="town_build">Construir nivel {level}</string>
     <string name="town_build_with_duration">{action} · {duration}</string>
     <string name="town_door_report">Informe</string>
@@ -25,9 +24,7 @@
     <string name="town_level">Nivel {level}</string>
     <string name="town_level_in_work">{level} · {inWork}</string>
     <string name="town_loading">Estamos leyendo tu pueblo…</string>
-    <string name="town_map_line">Envía un equipo a un trabajo.</string>
     <string name="town_map_link">Ir al mapa</string>
-    <string name="town_map_title">Mapa</string>
     <string name="town_naming_field">Nombre del pueblo</string>
     <string name="town_naming_go_to_town">Ir a tu pueblo</string>
     <string name="town_naming_mayor">Ahora diriges tu propio pueblo.</string>
@@ -72,6 +69,7 @@
     <string name="town_office_stop_of_worker">Parar la contratación de trabajadores</string>
     <string name="town_office_team_truck">Tu equipo: {count, plural, =1 {1 camión} other {{count, number,0} camiones}}</string>
     <string name="town_office_team_worker">Tu equipo: {count, plural, =1 {1 trabajador} other {{count, number,0} trabajadores}}</string>
+    <string name="town_page_position">Edificio {number} de {count}</string>
     <string name="town_people">Gente: {free, plural, =1 {1 libre} other {{free, number,0} libres}}, {atWork} trabajando</string>
     <string name="town_people_at_work">Gente trabajando: +{people}</string>
     <string name="town_people_short">Gente necesaria: {needed}. {free, plural, =1 {Libre: 1} other {Libres: {free, number,0}}}.</string>
@@ -82,8 +80,6 @@
     <string name="town_place_power_station">Central eléctrica</string>
     <string name="town_place_school">Escuela</string>
     <string name="town_place_storage">Almacén</string>
-    <string name="town_places_title_city">Tu ciudad</string>
-    <string name="town_places_title_town">Tu pueblo</string>
     <string name="town_rate">+{rate} / h</string>
     <string name="town_ready_at">Lista {clock}</string>
     <string name="town_ready_in">Lista en {timeLeft}</string>
@@ -126,13 +122,15 @@
     <string name="town_shortfall">Necesitas {missing} más.</string>
     <string name="town_sign_out">Salir</string>
     <string name="town_skill_name">Habilidad de {resource}, nivel {level}</string>
-    <string name="town_skyline_built">{built} de {total} construidos</string>
     <string name="town_status_finish_close">Cerrar</string>
     <string name="town_status_finish_line">La lección {number} terminó.</string>
     <string name="town_status_released_finish_line">Las palabras que vuelven de la banda {band}, grupo {number} terminaron.</string>
     <string name="town_status_released_ready_in">Palabras que vuelven: banda {band}, grupo {number} listas en</string>
     <string name="town_stock_of">de {capacity}</string>
-    <string name="town_stocks">En el almacén</string>
+    <string name="town_street_built">Tu pueblo: {built} de {total} construidos</string>
+    <string name="town_tab_in_work">en construcción</string>
+    <string name="town_tab_name">{place}, {level}</string>
+    <string name="town_tab_next_step">tu siguiente paso</string>
     <string name="town_tip_close">Cerrar el consejo</string>
     <string name="town_tip_full_store">Cuando el dinero, la comida, la energía o el material están llenos, tu pueblo no gana más. Construye el almacén para guardar más.</string>
     <string name="town_tip_jobs">Tus trabajadores y camiones están libres. Envía un equipo a un trabajo en el mapa a cambio de un pago.</string>
@@ -149,12 +147,10 @@
     <string name="town_words_needed">{standing, select, stable {Necesita {needed} palabras fuera de aprendizaje: {held} de {needed}} retained {Necesita {needed} palabras aprendidas: {held} de {needed}} other {Necesita {needed} palabras aprendidas: {held} de {needed}}}</string>
     <string name="town_words_reviewed">Palabras fuera de aprendizaje: {count}</string>
     <string name="town_work_done">La obra está lista. Estamos leyendo tu pueblo otra vez…</string>
-    <string name="town_work_idle">Ahora no hay ninguna obra.</string>
     <string name="town_work_ready">Lista</string>
     <string name="town_work_refund">Si la paras, recuperas todo lo que costó, y lo mismo por cada obra en espera que dependa de ella.</string>
     <string name="town_work_stop">Parar la obra</string>
     <string name="town_work_stop_of">Parar la obra: {place}, nivel {level}</string>
     <string name="town_work_title">Obra</string>
     <string name="town_work_waiting_list">Lista de espera</string>
-    <string name="town_work_waiting_list_summary">{title} · {finish}</string>
 </resources>

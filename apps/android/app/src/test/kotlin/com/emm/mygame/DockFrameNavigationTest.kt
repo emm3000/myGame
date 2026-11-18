@@ -703,8 +703,9 @@ class DockFrameNavigationTest {
         waitFor(hasContentDescription(THREE_OF_FIVE))
 
         val order: List<String> = composeRule.traversalOrder()
+        val header: List<String> = listOf(TOWN_HEADER, THREE_OF_FIVE, "Edificio 1 de 2")
 
-        assertEquals(DOCK_TITLE, order[order.indexOf(THREE_OF_FIVE) + 1])
+        assertEquals(DOCK_TITLE, order.getOrNull(header.maxOf { line: String -> order.indexOf(line) } + 1))
     }
 
     @Test
@@ -787,7 +788,7 @@ class DockFrameNavigationTest {
         const val NO_REVIEWS_DUE: String = "No tienes repasos pendientes ahora."
 
         const val READ_THE_WORDS: String = "Leer las palabras"
-        const val TOWN_HEADER: String = "RIVERTON · PUEBLO"
+        const val TOWN_HEADER: String = "Riverton · Pueblo"
 
         val verifiedSession: RestoreResult = RestoreResult.SignedIn(
             SignedInPlayer("player@example.com", isEmailVerified = true, scaffold = PlayerScaffold.Spanish),

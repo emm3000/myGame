@@ -6,6 +6,9 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.safeDrawingPadding
+import androidx.compose.foundation.pager.HorizontalPager
+import androidx.compose.foundation.pager.PagerState
+import androidx.compose.foundation.pager.rememberPagerState
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.runtime.Composable
@@ -14,14 +17,12 @@ import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.movableContentOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.semantics.heading
-import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.tooling.preview.PreviewParameter
 import androidx.compose.ui.tooling.preview.PreviewParameterProvider
 import com.emm.mygame.core.designsystem.MyGameErrorBanner
-import com.emm.mygame.core.designsystem.MyGameHeader
-import com.emm.mygame.core.designsystem.MyGameMetaText
 import com.emm.mygame.core.designsystem.MyGamePreviewSurface
 import com.emm.mygame.core.designsystem.MyGameSizes
 import com.emm.mygame.core.designsystem.MyGameSkeleton
@@ -44,11 +45,11 @@ import com.emm.mygame.core.ui.ProvideCopyLanguage
 import com.emm.mygame.core.ui.ScaffoldLanguage
 import com.emm.mygame.core.ui.chromeResource
 import com.emm.mygame.core.ui.fixedCopyResource
-import com.emm.mygame.core.ui.frameHeaderTurn
 import com.emm.mygame.core.ui.joinsFrameTraversal
-import com.emm.mygame.core.ui.rememberPlayerCopy
 import kotlin.time.Duration.Companion.days
 import kotlin.time.Duration.Companion.minutes
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.launch
 
 @Composable
 fun TownScreen(
@@ -64,6 +65,14 @@ fun TownScreen(
 ) {
     val placedFoldedDock: @Composable () -> Unit = remember(foldedDock) { movableContentOf(foldedDock) }
     val isHeaderDrawn: MutableState<Boolean> = remember { mutableStateOf(false) }
+    val slots: TownPageSlots = TownPageSlots(
+        ring = ring,
+        status = status,
+        placement = placement,
+        onSchoolOpen = onSchoolOpen,
+        onMapOpen = onMapOpen,
+    )
+    val isHome: Boolean = state is TownUiState.Content
     Column(
         verticalArrangement = Arrangement.spacedBy(MyGameSpacing.step6),
         modifier = modifier
@@ -71,15 +80,15 @@ fun TownScreen(
             .background(MyGameTheme.colors.surface)
             .safeDrawingPadding()
             .joinsFrameTraversal()
-            .verticalScroll(rememberScrollState())
+            .then(if (isHome) Modifier else Modifier.verticalScroll(rememberScrollState()))
             .padding(
                 start = MyGameSpacing.step4,
                 end = MyGameSpacing.step4,
-                top = if (state is TownUiState.Content) MyGameSpacing.step2 else MyGameSpacing.step8,
-                bottom = MyGameSpacing.step8,
+                top = if (isHome) MyGameSpacing.step2 else MyGameSpacing.step8,
+                bottom = if (isHome) MyGameSpacing.step2 else MyGameSpacing.step8,
             ),
     ) {
-        if (!isHeaderDrawn.value || state !is TownUiState.Content) placedFoldedDock()
+        if (!isHeaderDrawn.value || !isHome) placedFoldedDock()
         MyGameSkeleton(
             isLoading = state == TownUiState.Loading,
             loadingLabel = chromeResource(R.string.town_loading).spoken,
@@ -89,21 +98,15 @@ fun TownScreen(
                 TownHome(
                     content = content,
                     onIntent = onIntent,
-                    onSchoolOpen = onSchoolOpen,
-                    header = {
-                        MyGameHeader(modifier = Modifier.frameHeaderTurn(), end = ring) {
-                            TownTitle(name = content.name, label = content.label)
-                        }
-                        status()
+                    slots = slots,
+                    foldedDock = {
                         if (isHeaderDrawn.value) placedFoldedDock()
                         DisposableEffect(Unit) {
                             isHeaderDrawn.value = true
                             onDispose { isHeaderDrawn.value = false }
                         }
-                        placement()
                     },
                 )
-                MapRow(onMapOpen = onMapOpen)
             }
         }
     }
@@ -159,41 +162,38 @@ private fun SignOut(isBusy: Boolean, onIntent: (TownIntent) -> Unit, modifier: M
 private fun TownHome(
     content: TownUiState.Content,
     onIntent: (TownIntent) -> Unit,
-    onSchoolOpen: () -> Unit,
-    header: @Composable () -> Unit,
+    slots: TownPageSlots,
+    foldedDock: @Composable () -> Unit,
     modifier: Modifier = Modifier,
 ) {
-    Column(verticalArrangement = Arrangement.spacedBy(MyGameSpacing.step6), modifier = modifier) {
-        header()
-        GoalSection(goal = content.goal, onIntent = onIntent)
-        TownDoors(onSchoolOpen = onSchoolOpen)
-        TownSkyline(content = content)
-        StocksSection(content = content)
-        TipNote(tip = content.tip, place = TipPlace.Stocks, onIntent = onIntent)
-        BuildingWorkSection(content = content, onIntent = onIntent)
-        TipNote(tip = content.tip, place = TipPlace.Work, onIntent = onIntent)
-        TipNote(tip = content.tip, place = TipPlace.Places, onIntent = onIntent)
-        PlacesSection(content = content, onIntent = onIntent, onSchoolOpen = onSchoolOpen)
-        TipNote(tip = content.tip, place = TipPlace.Office, onIntent = onIntent)
-        OfficeSection(office = content.office, onIntent = onIntent)
+    val pager: PagerState = rememberPagerState(initialPage = content.openingPage()) { content.places.size }
+    val scope: CoroutineScope = rememberCoroutineScope()
+    Column(verticalArrangement = Arrangement.spacedBy(MyGameSpacing.step2), modifier = modifier.fillMaxSize()) {
+        HorizontalPager(
+            state = pager,
+            key = { index: Int -> content.places[index].kind },
+            verticalAlignment = Alignment.Top,
+            modifier = Modifier.weight(1f).joinsFrameTraversal(),
+        ) { index: Int ->
+            TownPage(
+                content = content,
+                place = content.places[index],
+                onIntent = onIntent,
+                slots = slots,
+                foldedDock = if (index == pager.currentPage) foldedDock else ({}),
+                modifier = Modifier.fillMaxSize(),
+            )
+        }
+        TownStreetStrip(
+            content = content,
+            selected = pager.currentPage,
+            onSelect = { index: Int -> scope.launch { pager.animateScrollToPage(index) } },
+        )
     }
 }
 
-@Composable
-private fun TownTitle(name: String, label: TownLabel, modifier: Modifier = Modifier) {
-    MyGameMetaText(
-        label = rememberPlayerCopy().chrome {
-            text(R.string.town_title, "name" to name, "label" to text(labelOf(label)))
-        },
-        color = MyGameTheme.colors.inkMuted,
-        modifier = modifier.semantics { heading() },
-    )
-}
-
-private fun labelOf(label: TownLabel): Int = when (label) {
-    TownLabel.Town -> R.string.town_label_town
-    TownLabel.City -> R.string.town_label_city
-}
+private fun TownUiState.Content.openingPage(): Int =
+    places.indexOfFirst { place: TownUiState.PlaceCard -> place.kind == nextStepPlace }.coerceAtLeast(0)
 
 private val previewHome: TownUiState.Content = TownUiState.Content(
     name = "Riverton",
@@ -212,9 +212,9 @@ private val previewHome: TownUiState.Content = TownUiState.Content(
     buildMark = TownUiState.DurationMark(SeasonKind.Summer, percent = 75),
     slot = TownUiState.SlotLine.Idle,
     waitingList = emptyList(),
-    places = listOf(
+    places = streetOrder.map { kind: TownBuildingKind ->
         TownUiState.PlaceCard(
-            kind = TownBuildingKind.Factory,
+            kind = kind,
             level = 0,
             raisedFrom = null,
             isInWork = false,
@@ -229,8 +229,9 @@ private val previewHome: TownUiState.Content = TownUiState.Content(
                 wordsNeeded = null,
             ),
             block = null,
-        ),
-    ),
+        )
+    },
+    nextStepPlace = TownBuildingKind.Factory,
     goal = TownGoal(
         position = 2,
         count = 9,

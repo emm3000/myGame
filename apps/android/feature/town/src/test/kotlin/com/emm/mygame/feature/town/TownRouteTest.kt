@@ -13,6 +13,7 @@ import androidx.lifecycle.LifecycleOwner
 import androidx.lifecycle.LifecycleRegistry
 import androidx.lifecycle.compose.LocalLifecycleOwner
 import com.emm.mygame.core.designsystem.MyGameTheme
+import com.emm.mygame.core.network.TownBuildingKind
 import com.emm.mygame.core.network.TownHireKind
 import com.emm.mygame.core.network.TownReadResult
 import com.emm.mygame.core.network.TownSnapshot
@@ -80,7 +81,7 @@ class TownRouteTest {
             startedAt = now,
             endsAt = now + 30.minutes,
         )
-        return townOf(hiring = hiringOf(order = order), readAt = now)
+        return townOf(hiring = hiringOf(order = order), nextStep = openingOn(TownBuildingKind.Office), readAt = now)
     }
 
     @Test

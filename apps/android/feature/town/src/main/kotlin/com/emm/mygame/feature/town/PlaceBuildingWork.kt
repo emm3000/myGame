@@ -5,17 +5,14 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.FlowRow
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.padding
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.semantics.heading
 import androidx.compose.ui.semantics.semantics
-import com.emm.mygame.core.designsystem.MyGameCard
 import com.emm.mygame.core.designsystem.MyGameIcon
 import com.emm.mygame.core.designsystem.MyGameIcons
-import com.emm.mygame.core.designsystem.MyGameInlineAlert
 import com.emm.mygame.core.designsystem.MyGameLabel
 import com.emm.mygame.core.designsystem.MyGameOutlinedButton
 import com.emm.mygame.core.designsystem.MyGameSectionTitle
@@ -25,6 +22,7 @@ import com.emm.mygame.core.designsystem.MyGameTheme
 import com.emm.mygame.core.designsystem.MyGameTrack
 import com.emm.mygame.core.designsystem.MyGameTypography
 import com.emm.mygame.core.designsystem.withTabularFigures
+import com.emm.mygame.core.network.TownBuildingKind
 import com.emm.mygame.core.ui.PlayerCopy
 import com.emm.mygame.core.ui.chromeResource
 import com.emm.mygame.core.ui.rememberPlayerCopy
@@ -32,30 +30,26 @@ import com.emm.mygame.core.ui.rememberPlayerCopy
 internal const val WORK_DONE_ICON: String = "work_done_icon"
 
 @Composable
-internal fun BuildingWorkSection(
+internal fun PlaceBuildingWork(
+    place: TownBuildingKind,
     content: TownUiState.Content,
     onIntent: (TownIntent) -> Unit,
     modifier: Modifier = Modifier,
 ) {
+    val slot: TownUiState.SlotLine = content.slot
+    val waiting: List<TownUiState.WaitingLine> =
+        content.waitingList.filter { line: TownUiState.WaitingLine -> line.building == place }
     Column(verticalArrangement = Arrangement.spacedBy(MyGameSpacing.step3), modifier = modifier) {
-        MyGameCard {
-            Column(
-                verticalArrangement = Arrangement.spacedBy(MyGameSpacing.step3),
-                modifier = Modifier.padding(vertical = MyGameSpacing.step4),
-            ) {
-                WorkHeading()
-                when (val slot: TownUiState.SlotLine = content.slot) {
-                    TownUiState.SlotLine.Idle -> MyGameText(
-                        label = chromeResource(R.string.town_work_idle),
-                        style = MyGameTypography.caption,
-                        color = MyGameTheme.colors.inkMuted,
-                    )
-                    is TownUiState.SlotLine.Done -> DoneSlot(slot = slot)
-                    is TownUiState.SlotLine.Busy -> BusySlot(slot = slot, stop = content.stop, onIntent = onIntent)
-                }
-            }
+        when (slot) {
+            TownUiState.SlotLine.Idle -> Unit
+            is TownUiState.SlotLine.Done -> if (slot.building == place) DoneSlot(slot = slot)
+            is TownUiState.SlotLine.Busy ->
+                if (slot.building == place) BusySlot(slot = slot, stop = content.stop, onIntent = onIntent)
         }
-        WaitingList(content = content, onIntent = onIntent)
+        if (waiting.isNotEmpty()) MyGameSectionTitle(label = chromeResource(R.string.town_work_waiting_list))
+        waiting.forEach { line: TownUiState.WaitingLine ->
+            WaitingItem(waiting = line, stop = content.stop, onIntent = onIntent)
+        }
     }
 }
 
@@ -79,6 +73,7 @@ private fun WorkHeading(modifier: Modifier = Modifier) {
 @Composable
 private fun DoneSlot(slot: TownUiState.SlotLine.Done, modifier: Modifier = Modifier) {
     Column(verticalArrangement = Arrangement.spacedBy(MyGameSpacing.step2), modifier = modifier) {
+        WorkHeading()
         WorkTitle(target = TownUiState.WorkTarget(slot.building, slot.level))
         Row(
             verticalAlignment = Alignment.CenterVertically,
@@ -107,6 +102,7 @@ private fun BusySlot(
 ) {
     val target: TownUiState.WorkTarget = TownUiState.WorkTarget(slot.building, slot.level)
     Column(verticalArrangement = Arrangement.spacedBy(MyGameSpacing.step3), modifier = modifier) {
+        WorkHeading()
         WorkTitle(target = target)
         RunningCountdown(label = rememberPlayerCopy().chrome { finishLabelOf(slot.remaining, slot.finishesAt) })
         MyGameTrack(
@@ -114,30 +110,6 @@ private fun BusySlot(
             color = MyGameTheme.colors.action,
         )
         StopControl(target = target, stop = stop, onIntent = onIntent)
-    }
-}
-
-@Composable
-private fun WaitingList(content: TownUiState.Content, onIntent: (TownIntent) -> Unit, modifier: Modifier = Modifier) {
-    val last: TownUiState.WaitingLine = content.waitingList.lastOrNull() ?: return
-    MyGameCard(modifier = modifier) {
-        Column(
-            verticalArrangement = Arrangement.spacedBy(MyGameSpacing.step3),
-            modifier = Modifier.padding(vertical = MyGameSpacing.step4),
-        ) {
-            MyGameSectionTitle(
-                label = rememberPlayerCopy().chrome {
-                    text(
-                        R.string.town_work_waiting_list_summary,
-                        "title" to text(R.string.town_work_waiting_list),
-                        "finish" to finishLabelOf(last.remaining, last.finishesAt),
-                    )
-                },
-            )
-            content.waitingList.forEach { waiting: TownUiState.WaitingLine ->
-                WaitingItem(waiting = waiting, stop = content.stop, onIntent = onIntent)
-            }
-        }
     }
 }
 
@@ -278,5 +250,5 @@ private fun StopAnswer(target: TownUiState.WorkTarget, stop: TownUiState.StopSta
             if (stop.target == target) copy.fixedCopy(R.string.town_refusal_unexpected) else null
         TownUiState.StopStatus.Idle, is TownUiState.StopStatus.Waiting -> null
     }
-    if (message != null) MyGameInlineAlert(message = message, modifier = modifier)
+    if (message != null) RevealedAlert(message = message, modifier = modifier)
 }

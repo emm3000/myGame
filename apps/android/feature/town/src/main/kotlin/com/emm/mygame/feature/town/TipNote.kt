@@ -19,11 +19,11 @@ import com.emm.mygame.core.designsystem.MyGameTheme
 import com.emm.mygame.core.designsystem.MyGameTypography
 import com.emm.mygame.core.designsystem.PreviewMyGame
 import com.emm.mygame.core.network.TipKind
+import com.emm.mygame.core.network.TownBuildingKind
 import com.emm.mygame.core.ui.chromeResource
 
 @Composable
-internal fun TipNote(tip: TipKind?, place: TipPlace, onIntent: (TownIntent) -> Unit, modifier: Modifier = Modifier) {
-    if (tip == null || placeOf(tip) != place) return
+internal fun TipNote(tip: TipKind, onIntent: (TownIntent) -> Unit, modifier: Modifier = Modifier) {
     MyGameCard(modifier = modifier) {
         Column(
             verticalArrangement = Arrangement.spacedBy(MyGameSpacing.step1),
@@ -49,11 +49,17 @@ internal fun TipNote(tip: TipKind?, place: TipPlace, onIntent: (TownIntent) -> U
     }
 }
 
-private fun placeOf(tip: TipKind): TipPlace = when (tip) {
-    TipKind.Seasons, TipKind.FullStore -> TipPlace.Stocks
-    TipKind.WaitingList -> TipPlace.Work
-    TipKind.People -> TipPlace.Places
-    TipKind.Office, TipKind.Jobs -> TipPlace.Office
+internal fun TownUiState.Content.tipPlaceOf(tip: TipKind): TownBuildingKind = when (tip) {
+    TipKind.Seasons, TipKind.FullStore -> TownBuildingKind.Storage
+    TipKind.People -> TownBuildingKind.Homes
+    TipKind.Office, TipKind.Jobs -> TownBuildingKind.Office
+    TipKind.WaitingList -> placeInWork() ?: nextStepPlace
+}
+
+private fun TownUiState.Content.placeInWork(): TownBuildingKind? = when (val inSlot: TownUiState.SlotLine = slot) {
+    is TownUiState.SlotLine.Busy -> inSlot.building
+    is TownUiState.SlotLine.Done -> inSlot.building
+    TownUiState.SlotLine.Idle -> waitingList.firstOrNull()?.building
 }
 
 private fun lineOf(tip: TipKind): Int = when (tip) {
@@ -74,6 +80,6 @@ private class TipKinds : PreviewParameterProvider<TipKind> {
 @Composable
 private fun TipNotePreview(@PreviewParameter(TipKinds::class) tip: TipKind) {
     MyGamePreviewSurface {
-        TipNote(tip = tip, place = placeOf(tip), onIntent = {})
+        TipNote(tip = tip, onIntent = {})
     }
 }

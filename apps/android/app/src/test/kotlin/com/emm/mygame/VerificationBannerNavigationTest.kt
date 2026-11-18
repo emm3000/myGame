@@ -153,7 +153,7 @@ class VerificationBannerNavigationTest {
         signedIn(session = unverifiedSession, town = TownReadResult.Read(heldTown))
         waitForLine(BANNER_LINE)
 
-        door("Escuela").performClick()
+        composeRule.onNodeWithText("Ir a la escuela").performScrollTo().performClick()
         waitForLine(TOWN_DOOR)
 
         assertTrue(boundsOf(TOWN_DOOR).bottom <= boundsOf(BANNER_LINE).top)
@@ -250,7 +250,7 @@ class VerificationBannerNavigationTest {
     private fun boundsOf(line: String): Rect = composeRule.onNodeWithText(line).fetchSemanticsNode().boundsInRoot
 
     private companion object {
-        const val TOWN_HEADER: String = "RIVERTON · PUEBLO"
+        const val TOWN_HEADER: String = "Riverton · Pueblo"
         const val TOWN_DOOR: String = "Pueblo"
         const val BANNER_LINE: String = "Confirma tu correo"
         const val RESEND: String = "Reenviar"

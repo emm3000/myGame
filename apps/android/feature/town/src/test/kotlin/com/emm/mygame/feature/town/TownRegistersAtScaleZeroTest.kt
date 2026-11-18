@@ -20,28 +20,29 @@ class TownRegistersAtScaleZeroTest {
     val composeRule: ComposeContentTestRule = createComposeRule(effectContext = scaledToZero)
 
     @Test
-    fun `lands each row at once at animator scale 0`() {
-        composeRule.mainClock.autoAdvance = false
-        val raisedAndBuilt: TownSnapshot = townOf(
-            places = placesOf(
-                placeAt(TownBuildingKind.Farm, level = 3),
-                placeAt(TownBuildingKind.Factory, level = 1),
-            ),
-            readAt = readInstant + 1.minutes,
-        )
-        val before: TownSnapshot = townOf(
-            places = placesOf(
-                placeAt(TownBuildingKind.Farm, level = 2),
-                placeAt(TownBuildingKind.Factory, level = 0),
-            ),
-        )
-        showBetween(composeRule, before, raisedAndBuilt)
+    fun `lands a raised place's window at once at animator scale 0`() {
+        showRaised(TownBuildingKind.Farm, from = 2, to = 3)
 
-        assertEquals(
-            setOf(MyGameRegisteredRow.Window to 1f, MyGameRegisteredRow.Hue to 1f),
-            registeringNodesOf(composeRule).map { registering -> registering.row to registering.fraction }.toSet(),
-        )
+        assertEquals(listOf(MyGameRegisteredRow.Window to 1f), landedRows())
     }
+
+    @Test
+    fun `lands a first-built place's hue at once at animator scale 0`() {
+        showRaised(TownBuildingKind.Factory, from = 0, to = 1)
+
+        assertEquals(listOf(MyGameRegisteredRow.Hue to 1f), landedRows())
+    }
+
+    private fun showRaised(place: TownBuildingKind, from: Int, to: Int) {
+        composeRule.mainClock.autoAdvance = false
+        val before: TownSnapshot = townOf(places = placesOf(placeAt(place, level = from)), nextStep = openingOn(place))
+        val after: TownSnapshot =
+            before.copy(buildings = placesOf(placeAt(place, level = to)), readAt = readInstant + 1.minutes)
+        showBetween(composeRule, before, after)
+    }
+
+    private fun landedRows(): List<Pair<MyGameRegisteredRow, Float>> =
+        registeringNodesOf(composeRule).map { registering -> registering.row to registering.fraction }
 
     private companion object {
         val scaledToZero: MotionDurationScale = object : MotionDurationScale {

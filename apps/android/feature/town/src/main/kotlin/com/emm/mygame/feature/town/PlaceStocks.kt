@@ -5,17 +5,12 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.FlowRow
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.padding
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.semantics.clearAndSetSemantics
-import androidx.compose.ui.semantics.heading
-import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.tooling.preview.PreviewParameter
 import androidx.compose.ui.tooling.preview.PreviewParameterProvider
-import com.emm.mygame.core.designsystem.MyGameCard
-import com.emm.mygame.core.designsystem.MyGameHairline
 import com.emm.mygame.core.designsystem.MyGameIcon
 import com.emm.mygame.core.designsystem.MyGameIcons
 import com.emm.mygame.core.designsystem.MyGamePreviewSurface
@@ -28,6 +23,7 @@ import com.emm.mygame.core.designsystem.PreviewMyGame
 import com.emm.mygame.core.designsystem.formatQuantity
 import com.emm.mygame.core.designsystem.withTabularFigures
 import com.emm.mygame.core.network.SeasonKind
+import com.emm.mygame.core.network.TownBuildingKind
 import com.emm.mygame.core.network.TownResourceKind
 import com.emm.mygame.core.ui.CopyReader
 import com.emm.mygame.core.ui.PlayerCopy
@@ -39,37 +35,35 @@ import java.time.ZoneId
 import kotlin.time.Duration.Companion.hours
 import kotlin.time.Instant
 
-private const val STOCKS_PER_ROW: Int = 2
-
 @Composable
-internal fun StocksSection(content: TownUiState.Content, modifier: Modifier = Modifier) {
-    MyGameCard(modifier = modifier) {
-        Column(
-            verticalArrangement = Arrangement.spacedBy(MyGameSpacing.step3),
-            modifier = Modifier.padding(vertical = MyGameSpacing.step4),
-        ) {
-            MyGameText(
-                label = chromeResource(R.string.town_stocks),
-                style = MyGameTypography.heading,
-                color = MyGameTheme.colors.ink,
-                modifier = Modifier.semantics { heading() },
-            )
-            content.stocks.chunked(STOCKS_PER_ROW).forEach { row: List<TownUiState.StockLine> ->
-                Row(
-                    horizontalArrangement = Arrangement.spacedBy(MyGameSpacing.step4),
-                    modifier = Modifier.fillMaxWidth(),
-                ) {
-                    row.forEach { stock: TownUiState.StockLine ->
-                        StockItem(stock = stock, modifier = Modifier.weight(1f))
-                    }
+internal fun PlaceStocks(place: TownBuildingKind, content: TownUiState.Content, modifier: Modifier = Modifier) {
+    val shown: List<TownUiState.StockLine> = content.stocks.filter { stock: TownUiState.StockLine ->
+        stock.kind in stocksOf(place)
+    }
+    Column(verticalArrangement = Arrangement.spacedBy(MyGameSpacing.step4), modifier = modifier) {
+        shown.forEach { stock: TownUiState.StockLine ->
+            Column(verticalArrangement = Arrangement.spacedBy(MyGameSpacing.step1)) {
+                StockItem(stock = stock)
+                content.season?.let { season: TownUiState.SeasonLine ->
+                    season.productionMarks
+                        .filter { mark: TownUiState.ProductionMark -> mark.resource == stock.kind }
+                        .forEach { mark: TownUiState.ProductionMark ->
+                            ProductionMarkRow(season = season.kind, mark = mark)
+                        }
                 }
             }
-            MyGameHairline()
-            PeopleRow(people = content.people)
-            WordsRows(words = content.words)
-            content.season?.let { season: TownUiState.SeasonLine -> SeasonLines(season = season) }
         }
+        if (place == TownBuildingKind.Homes) PeopleRow(people = content.people)
+        if (place == TownBuildingKind.School) WordsRows(words = content.words)
     }
+}
+
+private fun stocksOf(place: TownBuildingKind): Set<TownResourceKind> = when (place) {
+    TownBuildingKind.Farm -> setOf(TownResourceKind.Food)
+    TownBuildingKind.Factory -> setOf(TownResourceKind.Material)
+    TownBuildingKind.PowerStation -> setOf(TownResourceKind.Power)
+    TownBuildingKind.Storage -> TownResourceKind.entries.toSet()
+    TownBuildingKind.Homes, TownBuildingKind.School, TownBuildingKind.Office -> emptySet()
 }
 
 @Composable
@@ -173,15 +167,7 @@ private fun WordsRows(words: TownUiState.WordsLine, modifier: Modifier = Modifie
 }
 
 @Composable
-private fun SeasonLines(season: TownUiState.SeasonLine) {
-    SeasonRow(season = season)
-    season.productionMarks.forEach { mark: TownUiState.ProductionMark ->
-        ProductionMarkRow(season = season.kind, mark = mark)
-    }
-}
-
-@Composable
-private fun SeasonRow(season: TownUiState.SeasonLine, modifier: Modifier = Modifier) {
+internal fun SeasonRow(season: TownUiState.SeasonLine, modifier: Modifier = Modifier) {
     val copy: PlayerCopy = rememberPlayerCopy()
     FlowRow(
         horizontalArrangement = Arrangement.spacedBy(MyGameSpacing.step2),

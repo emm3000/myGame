@@ -30,6 +30,7 @@ internal fun TownSnapshot.contentAt(
         .sortedBy { stock: TownSnapshot.Stock -> stock.kind.ordinal }
         .map { stock: TownSnapshot.Stock -> stock.lineAt(readAt, now, gap, skillLevelOf(stock.kind)) }
     val drawn: Map<TownResourceKind, Long> = lines.associate { line: TownUiState.StockLine -> line.kind to line.amount }
+    val goal: TownGoal? = nextStep.carriedGoal()?.takeUnless { closed.isGoalClosed }
     return TownUiState.Content(
         name = name,
         label = label,
@@ -41,9 +42,10 @@ internal fun TownSnapshot.contentAt(
         slot = work.slot?.slotLineAt(now, gap) ?: TownUiState.SlotLine.Idle,
         waitingList = work.waitingList.map { item: TownSnapshot.WorkItem -> item.waitingLineAt(now, gap) },
         places = buildings
-            .sortedBy { place: TownSnapshot.Building -> place.kind != TownBuildingKind.School }
+            .sortedBy { place: TownSnapshot.Building -> streetOrder.indexOf(place.kind) }
             .map { place: TownSnapshot.Building -> place.cardWith(drawn, this, registered, now, gap) },
-        goal = nextStep.carriedGoal()?.takeUnless { closed.isGoalClosed },
+        nextStepPlace = nextStep.placeWith(goal),
+        goal = goal,
         tip = tip?.takeUnless { shown: TipKind -> shown in closed.tips },
         start = mutations.start,
         stop = mutations.stop,
@@ -64,6 +66,13 @@ private fun NextStep.carriedGoal(): TownGoal? = when (this) {
     is NextStep.LessonRunning -> goal
     is NextStep.CaughtUp -> goal
     is NextStep.Reviews, is NextStep.HoldoutCheck, is NextStep.ReleasedLesson, is NextStep.LessonToStudy -> null
+}
+
+private fun NextStep.placeWith(goal: TownGoal?): TownBuildingKind = when (this) {
+    is NextStep.CaughtUp -> goal?.building ?: TownBuildingKind.School
+    is NextStep.LessonRunning, is NextStep.Reviews, is NextStep.HoldoutCheck, is NextStep.ReleasedLesson,
+    is NextStep.LessonToStudy,
+    -> TownBuildingKind.School
 }
 
 private fun TownSnapshot.changesOnTheirOwn(): List<Instant> =

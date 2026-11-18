@@ -5,6 +5,7 @@ import androidx.compose.ui.test.junit4.ComposeContentTestRule
 import androidx.compose.ui.test.junit4.createComposeRule
 import androidx.compose.ui.test.onNodeWithText
 import com.emm.mygame.core.designsystem.MyGameTheme
+import com.emm.mygame.core.network.TownBuildingKind
 import com.emm.mygame.core.network.TownRegistered
 import com.emm.mygame.core.network.TownResourceKind
 import com.emm.mygame.core.network.TownSnapshot
@@ -125,7 +126,7 @@ class TownFillHourTest {
             hireEntries = emptyMap(),
             closed = ClosedGuidance.none,
         )
-        composeRule.setContent { MyGameTheme { StocksSection(content = content) } }
+        composeRule.setContent { MyGameTheme { PlaceStocks(place = TownBuildingKind.Storage, content = content) } }
     }
 
     private fun localInstantOf(local: LocalDateTime): Instant =

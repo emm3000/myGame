@@ -12,6 +12,7 @@ import androidx.compose.ui.test.performClick
 import androidx.compose.ui.test.performScrollTo
 import androidx.compose.ui.test.performTextReplacement
 import com.emm.mygame.core.designsystem.MyGameTheme
+import com.emm.mygame.core.network.TownBuildingKind
 import com.emm.mygame.core.network.TownHireKind
 import com.emm.mygame.core.network.TownHiringRefusal
 import com.emm.mygame.core.network.TownLabel
@@ -312,7 +313,8 @@ class TownOfficeScreenTest {
         buildMark = null,
         slot = TownUiState.SlotLine.Idle,
         waitingList = emptyList(),
-        places = emptyList(),
+        places = listOf(bareOffice),
+        nextStepPlace = TownBuildingKind.Office,
         goal = null,
         tip = null,
         start = TownUiState.StartStatus.Idle,

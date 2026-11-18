@@ -5,11 +5,14 @@ import androidx.compose.ui.test.SemanticsMatcher
 import androidx.compose.ui.test.assert
 import androidx.compose.ui.test.assertCountEquals
 import androidx.compose.ui.test.getUnclippedBoundsInRoot
+import androidx.compose.ui.test.hasContentDescription
 import androidx.compose.ui.test.hasText
 import androidx.compose.ui.test.junit4.ComposeContentTestRule
 import androidx.compose.ui.test.junit4.createComposeRule
 import androidx.compose.ui.test.onAllNodesWithText
 import androidx.compose.ui.test.onFirst
+import androidx.compose.ui.test.performClick
+import androidx.compose.ui.test.performScrollTo
 import androidx.compose.ui.unit.DpRect
 import com.emm.mygame.core.designsystem.MyGameTheme
 import com.emm.mygame.core.network.LessonName
@@ -30,6 +33,7 @@ import kotlin.time.Duration
 import kotlin.time.Duration.Companion.days
 import kotlin.time.Duration.Companion.minutes
 import org.junit.After
+import org.junit.Assert.assertEquals
 import org.junit.Assert.assertTrue
 import org.junit.Before
 import org.junit.Rule
@@ -64,7 +68,7 @@ class TownLanguageTest {
         ),
     )
 
-    private val home: TownUiState.Content = townOf(places = placesOf(farmShortOfMoneyAndFood)).readContent()
+    private val home: TownUiState.Content = townOf(places = placesOf(farmShortOfMoneyAndFood)).readContent().onFarm()
 
     private val farmShortOfMoneyFoodAndPower: TownSnapshot.Building = farmShortOfMoneyAndFood.copy(
         next = nextLevelOf(
@@ -77,10 +81,10 @@ class TownLanguageTest {
     )
 
     private val homeShortOfThree: TownUiState.Content =
-        townOf(places = placesOf(farmShortOfMoneyFoodAndPower)).readContent()
+        townOf(places = placesOf(farmShortOfMoneyFoodAndPower)).readContent().onFarm()
 
     private val homeBuildingForThreeDays: TownUiState.Content =
-        townOf(slot = workOf(TownBuildingKind.Farm, lasting = 3.days)).readContent()
+        townOf(slot = workOf(TownBuildingKind.Farm, lasting = 3.days)).readContent().onFarm()
 
     private val farmAtLevelTwo: TownUiState.WorkTarget = TownUiState.WorkTarget(TownBuildingKind.Farm, level = 2)
 
@@ -176,21 +180,27 @@ class TownLanguageTest {
     fun `draws the town home in Spanish in the Spanish phase`() {
         show(spanishPhase)
 
-        assertDrawn("RIVERTON · PUEBLO", "En el almacén", "Obra", "Ahora no hay ninguna obra.", "Tu pueblo")
-        assertDrawn("Contratación", "Mapa", "Necesitas 300 de dinero y 200 de comida más.")
-        assertNotDrawn("RIVERTON · TOWN", "In storage", "Building work", "Your town", "Hiring", "Map")
+        assertDrawn("Riverton · Pueblo", "Edificio 2 de 7", "Granja", "Gente trabajando: +3")
+        assertDrawn("Necesitas 300 de dinero y 200 de comida más.")
+        assertNotDrawn("Riverton · Town", "Building 2 of 7", "Farm", "People at work: +3")
     }
 
     @Test
     fun `draws English over Spanish in the both phase`() {
         show(bothPhase)
 
-        assertEnglishOverSpanish("RIVERTON · TOWN", "RIVERTON · PUEBLO")
-        assertEnglishOverSpanish("In storage", "En el almacén")
-        assertEnglishOverSpanish("Building work", "Obra")
-        assertEnglishOverSpanish("Your town", "Tu pueblo")
+        assertEnglishOverSpanish("Riverton · Town", "Riverton · Pueblo")
+        assertEnglishOverSpanish("Building 2 of 7", "Edificio 2 de 7")
+        assertEnglishOverSpanish("Farm", "Granja")
+        assertEnglishOverSpanish("People at work: +3", "Gente trabajando: +3")
+    }
+
+    @Test
+    fun `draws the office English over Spanish in the both phase`() {
+        show(bothPhase, home.onOffice())
+
         assertEnglishOverSpanish("Hiring", "Contratación")
-        assertEnglishOverSpanish("Map", "Mapa")
+        assertEnglishOverSpanish("Go to the map", "Ir al mapa")
     }
 
     @Test
@@ -207,9 +217,9 @@ class TownLanguageTest {
     fun `draws the town home in English in the English phase`() {
         show(englishPhase)
 
-        assertDrawn("RIVERTON · TOWN", "In storage", "Building work", "No building work now.", "Your town")
-        assertDrawn("Hiring", "Map", "You need 300 money and 200 food more.")
-        assertNotDrawn("RIVERTON · PUEBLO", "En el almacén", "Obra", "Tu pueblo", "Contratación", "Mapa")
+        assertDrawn("Riverton · Town", "Building 2 of 7", "Farm", "People at work: +3")
+        assertDrawn("You need 300 money and 200 food more.")
+        assertNotDrawn("Riverton · Pueblo", "Edificio 2 de 7", "Granja", "Gente trabajando: +3")
     }
 
     @Test
@@ -244,9 +254,9 @@ class TownLanguageTest {
     fun `draws the town home in English under none`() {
         show(noScaffold)
 
-        assertDrawn("RIVERTON · TOWN", "In storage", "Building work", "Your town", "Hiring", "Map")
+        assertDrawn("Riverton · Town", "Building 2 of 7", "Farm", "People at work: +3")
         assertDrawn("You need 300 money and 200 food more.")
-        assertNotDrawn("RIVERTON · PUEBLO", "En el almacén", "Obra", "Tu pueblo", "Contratación", "Mapa")
+        assertNotDrawn("Riverton · Pueblo", "Edificio 2 de 7", "Granja", "Gente trabajando: +3")
     }
 
     @Test
@@ -332,7 +342,7 @@ class TownLanguageTest {
             ),
         )
 
-        show(englishPhase, refused)
+        show(englishPhase, refused.onOffice())
 
         assertDrawn(HIRING_BUSY_IN_SPANISH)
         assertNotDrawn(HIRING_BUSY_IN_ENGLISH)
@@ -346,7 +356,7 @@ class TownLanguageTest {
             ),
         )
 
-        show(englishPhase, refused)
+        show(englishPhase, refused.onOffice())
 
         assertDrawn(HIRING_BUSY_IN_SPANISH)
         assertNotDrawn(HIRING_BUSY_IN_ENGLISH)
@@ -365,8 +375,12 @@ class TownLanguageTest {
         )
 
         show(englishPhase, unreachable)
+        val onFarm: Int = unreachableLines()
+        composeRule.onNode(
+            isTab and hasContentDescription("Office, ", substring = true),
+        ).performScrollTo().performClick()
 
-        composeRule.onAllNodesWithText(UNREACHABLE_IN_SPANISH, useUnmergedTree = true).assertCountEquals(4)
+        assertEquals(4, onFarm + unreachableLines())
         assertNotDrawn("We could not reach the server. Try again in a moment.")
     }
 
@@ -414,6 +428,13 @@ class TownLanguageTest {
         assertDrawn("Lesson 3 ready in")
         assertNotDrawn("Lección 3 lista en")
     }
+
+    private fun unreachableLines(): Int =
+        composeRule.onAllNodesWithText(UNREACHABLE_IN_SPANISH, useUnmergedTree = true).fetchSemanticsNodes().size
+
+    private fun TownUiState.Content.onFarm(): TownUiState.Content = copy(nextStepPlace = TownBuildingKind.Farm)
+
+    private fun TownUiState.Content.onOffice(): TownUiState.Content = copy(nextStepPlace = TownBuildingKind.Office)
 
     private companion object {
         const val HIRING_BUSY_IN_SPANISH: String = "Ya tienes una contratación en curso. Espera a que termine."
