@@ -89,7 +89,6 @@ Vitest, plain assertions from `vitest`, no mocking library until a ticket proves
 ## Custom slash commands
 
 - `/checks` — `pnpm gate`, failures grouped by package.
-- `/agents-review` — review the pending diff against these rules.
 - `/wave <issues>` — boot one peer session per ticket and dispatch.
 
 ## Budget tier

@@ -53,7 +53,7 @@ A fix round reshoots only the composables it redraws.
 
 ## The PR
 
-- Open it in the turn `pnpm gate` goes green: push the branch, `gh pr create` with `Closes #<n>`. `pr-reviewer` reviews it, so skip `/agents-review`; CI and the merge are the orchestrator's.
+- Open it in the turn `pnpm gate` goes green: push the branch, `gh pr create` with `Closes #<n>`. `pr-reviewer` reviews it; CI and the merge are the orchestrator's.
 - Your ticket branch, your assets branch and a `--force-with-lease` after a rebase are yours to push without asking. `trunk` is never yours.
 - Evidence a criterion turns on goes in the PR body in full; for a measurement, the measured lines.
 - A deleted test is listed in the PR body with the rule it covered and the test that still covers it, or the reason the rule is gone.

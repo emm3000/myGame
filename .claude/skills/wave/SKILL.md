@@ -22,7 +22,7 @@ Run when the owner invokes `/wave` with one or more issue numbers, or when the o
 - One explicit model and one explicit effort per ticket, stated to the owner before booting.
 - Never touch the owner's main checkout. Peers get their own worktree from `scripts/mygame-session`.
 - Assign each peer its own `API_PORT` and `WEB_PORT` in the dispatch, never the defaults.
-- The one playbook a dispatch tells a peer to read is `docs/agents/peer.md`. A dispatch never orders `/agents-review`.
+- The one playbook a dispatch tells a peer to read is `docs/agents/peer.md`.
 
 ## Decision Gates
 
