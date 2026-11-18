@@ -25,7 +25,7 @@ import org.junit.runner.RunWith
 import org.robolectric.RobolectricTestRunner
 import org.robolectric.annotation.GraphicsMode
 
-private const val LARGEST: Float = 2.0f
+private const val LARGEST_FONT_SCALE: Float = 2.0f
 
 private const val REMINDER_OFFER: String = "Activa un recordatorio de estudio"
 
@@ -38,7 +38,7 @@ class ReportRowsAtLargeFontTest {
 
     @Test
     fun `keeps a wrapped row label off the hairlines around it at the largest font`() {
-        showRowsAt(LARGEST)
+        showRowsAt(LARGEST_FONT_SCALE)
 
         val label: SemanticsNodeInteraction = composeRule.onNodeWithText(REMINDER_OFFER, useUnmergedTree = true)
         val text: DpRect = label.getUnclippedBoundsInRoot()
