@@ -77,7 +77,9 @@ fun HoldoutCheckScreen(
         FoldedTaskEnd(
             hook = hook,
             foldedDock = foldedDock,
-            scrollKey = (state as? HoldoutCheckUiState.Asking)?.shownIndex,
+            shownNotice = (state as? HoldoutCheckUiState.Asking)?.request?.takeIf { request: HoldoutCheckRequest ->
+                request is HoldoutCheckRequest.Refused || request == HoldoutCheckRequest.Unreachable
+            },
         )
     }
 }

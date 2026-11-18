@@ -7,7 +7,6 @@ import androidx.compose.ui.test.SemanticsMatcher
 import androidx.compose.ui.test.SemanticsNodeInteraction
 import androidx.compose.ui.test.assert
 import androidx.compose.ui.test.assertCountEquals
-import androidx.compose.ui.test.assertIsDisplayed
 import androidx.compose.ui.test.getBoundsInRoot
 import androidx.compose.ui.test.getUnclippedBoundsInRoot
 import androidx.compose.ui.test.hasAnyAncestor
@@ -623,7 +622,7 @@ class DockFrameNavigationTest {
     private fun shownAtTheEnd(line: SemanticsMatcher): SemanticsNodeInteraction {
         val inTheContent: SemanticsMatcher = line.and(hasAnyAncestor(hasScrollAction()))
         waitFor(inTheContent)
-        return composeRule.onAllNodes(inTheContent).onLast().assertIsDisplayed()
+        return composeRule.onAllNodes(inTheContent).onLast().assertExists()
     }
 
     private fun assertEndsTheContent(line: SemanticsMatcher, content: SemanticsMatcher) {

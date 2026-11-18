@@ -73,7 +73,7 @@ fun PlacementScreen(
         FoldedTaskEnd(
             hook = hook,
             foldedDock = foldedDock,
-            scrollKey = (state as? PlacementUiState.Asking)?.shownIndex,
+            shownNotice = (state as? PlacementUiState.Asking)?.request as? PlacementRequest.Unreachable,
         )
     }
 }
