@@ -108,7 +108,10 @@ class ReportViewModel(
         drawClose(ReportUiState.CloseRequest.Waiting)
         viewModelScope.launch {
             when (reports.close()) {
-                ReportCloseResult.Closed -> drawClosed()
+                ReportCloseResult.Closed -> {
+                    drawClosed()
+                    _effects.send(ReportEffect.NewsClosed)
+                }
                 ReportCloseResult.Unreachable -> drawClose(ReportUiState.CloseRequest.Unreachable)
             }
         }
@@ -152,7 +155,6 @@ class ReportViewModel(
     private fun draw(report: TownReport) {
         _state.value = ReportUiState.Content(
             dueCount = report.dueCount,
-            firstUnread = report.readFirst.firstOrNull(),
             nextReview = report.nextDueAt,
             news = newsOf(report),
             receivedAt = clock.now(),

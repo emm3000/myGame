@@ -812,4 +812,44 @@ class NavigatorTest {
 
         assertEquals(listOf(Destination.Town, Destination.School), backStack)
     }
+
+    @Test
+    fun `opens a dock move above the Report it was made from`() {
+        val backStack: MutableList<NavKey> = mutableListOf(Destination.Town, Destination.Report)
+
+        Navigator(backStack, NavigationLinks()).openFromDock { openReviews() }
+
+        assertEquals(listOf(Destination.Town, Destination.Report, Destination.Review), backStack)
+    }
+
+    @Test
+    fun `opens a dock move through the town from a screen that cannot open it`() {
+        val backStack: MutableList<NavKey> = mutableListOf(Destination.Town, Destination.Map)
+
+        Navigator(backStack, NavigationLinks()).openFromDock { openReviews() }
+
+        assertEquals(listOf(Destination.Town, Destination.Review), backStack)
+    }
+
+    @Test
+    fun `makes no dock move while signing out`() {
+        val backStack: MutableList<NavKey> = mutableListOf(Destination.Town, Destination.Map)
+        val navigator = Navigator(backStack, NavigationLinks())
+        navigator.signingOut()
+
+        navigator.openFromDock { openReviews() }
+
+        assertEquals(listOf(Destination.Town, Destination.Map), backStack)
+    }
+
+    @Test
+    fun `leaves the screen alone on a town door tap while signing out`() {
+        val backStack: MutableList<NavKey> = mutableListOf(Destination.Town, Destination.Map)
+        val navigator = Navigator(backStack, NavigationLinks())
+        navigator.signingOut()
+
+        navigator.openFromDock { openTown() }
+
+        assertEquals(listOf(Destination.Town, Destination.Map), backStack)
+    }
 }

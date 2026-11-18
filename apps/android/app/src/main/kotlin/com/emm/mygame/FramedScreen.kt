@@ -1,0 +1,197 @@
+package com.emm.mygame
+
+import androidx.compose.foundation.background
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.ExperimentalLayoutApi
+import androidx.compose.foundation.layout.WindowInsets
+import androidx.compose.foundation.layout.consumeWindowInsets
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fitInside
+import androidx.compose.foundation.layout.ime
+import androidx.compose.foundation.layout.isImeVisible
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.statusBars
+import androidx.compose.foundation.layout.statusBarsPadding
+import androidx.compose.foundation.layout.union
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.MutableState
+import androidx.compose.runtime.State
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberUpdatedState
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.layout.WindowInsetsRulers
+import androidx.compose.ui.semantics.isTraversalGroup
+import androidx.compose.ui.semantics.semantics
+import androidx.compose.ui.semantics.traversalIndex
+import com.emm.mygame.core.designsystem.MyGameBackLink
+import com.emm.mygame.core.designsystem.MyGameDock
+import com.emm.mygame.core.designsystem.MyGameDockDoor
+import com.emm.mygame.core.designsystem.MyGameDockGo
+import com.emm.mygame.core.designsystem.MyGameHeader
+import com.emm.mygame.core.designsystem.MyGameSpacing
+import com.emm.mygame.core.designsystem.MyGameTheme
+import com.emm.mygame.core.network.LessonId
+import com.emm.mygame.core.ui.TaskDock
+import com.emm.mygame.core.ui.TaskDockHook
+import com.emm.mygame.core.ui.chromeResource
+import com.emm.mygame.feature.town.TownDock
+import com.emm.mygame.feature.town.TownDockActions
+import com.emm.mygame.feature.town.TownDockTop
+import com.emm.mygame.feature.town.TownStatusIntent
+import com.emm.mygame.feature.town.TownStatusUiState
+import com.emm.mygame.feature.town.reportDoor
+
+internal enum class FrameKind { Home, Place, Task }
+
+internal class SignedInChrome(
+    val dependencies: AppDependencies,
+    val navigator: Navigator,
+    val status: State<TownStatusUiState>,
+    val onStatusIntent: (TownStatusIntent) -> Unit,
+    val banner: @Composable () -> Unit,
+)
+
+internal class ScreenFrame(val foldedDock: @Composable () -> Unit, val task: TaskDockHook) {
+
+    val onAnswered: () -> Unit = task.onAnswered
+}
+
+private const val HEADER_TURN: Float = -2f
+
+private const val DOCK_TURN: Float = -1f
+
+private const val TASK_DOCK_TURN: Float = 1f
+
+@Composable
+internal fun FramedScreen(
+    kind: FrameKind,
+    doesScreenReadTown: Boolean,
+    chrome: SignedInChrome,
+    modifier: Modifier = Modifier,
+    studyInPlace: @Composable (Int) -> MyGameDockGo? = { null },
+    content: @Composable (ScreenFrame) -> Unit,
+) {
+    val framedInsets: WindowInsets =
+        if (kind == FrameKind.Home) WindowInsets.ime else WindowInsets.ime.union(WindowInsets.statusBars)
+    val isFolded: MutableState<Boolean> = remember { mutableStateOf(false) }
+    val door: MyGameDockDoor? = doorOf(kind, chrome.navigator)
+    val dock: TownStatusUiState.Dock? = chrome.status.value.dock.takeIf { kind != FrameKind.Task }
+    val onStatusIntent: State<(TownStatusIntent) -> Unit> = rememberUpdatedState(chrome.onStatusIntent)
+    val task: TaskDockHook = remember {
+        TaskDockHook(onAnswered = { onStatusIntent.value(TownStatusIntent.ScreenAnswered) })
+    }
+    val frame = ScreenFrame(
+        task = task,
+        foldedDock = {
+            if (dock != null && isFolded.value) {
+                TownDockTop(dock = dock, door = door)
+            }
+        },
+    )
+    Column(
+        modifier = modifier
+            .fillMaxSize()
+            .background(MyGameTheme.colors.surface)
+            .semantics { isTraversalGroup = true },
+    ) {
+        if (kind != FrameKind.Home) {
+            FrameHeader(kind = kind, doesScreenReadTown = doesScreenReadTown, chrome = chrome)
+            chrome.banner()
+        }
+        Column(
+            modifier = Modifier
+                .weight(1f)
+                .fitInside(WindowInsetsRulers.Ime.current)
+                .consumeWindowInsets(framedInsets),
+        ) {
+            Box(modifier = Modifier.weight(1f)) {
+                content(frame)
+            }
+            task.dock?.takeIf { kind == FrameKind.Task }?.let { shown: TaskDock ->
+                MyGameDock(
+                    line = shown.line,
+                    go = shown.go,
+                    onFoldChange = {},
+                    modifier = Modifier.semantics { traversalIndex = TASK_DOCK_TURN },
+                    notice = shown.notice,
+                )
+            }
+            if (dock != null) {
+                FrameDock(
+                    dock = dock,
+                    chrome = chrome,
+                    door = door,
+                    studyInPlace = studyInPlace,
+                    onFoldChange = { folded: Boolean -> isFolded.value = folded },
+                )
+            }
+        }
+    }
+}
+
+@Composable
+private fun FrameHeader(kind: FrameKind, doesScreenReadTown: Boolean, chrome: SignedInChrome) {
+    MyGameHeader(
+        modifier = Modifier
+            .statusBarsPadding()
+            .padding(horizontal = MyGameSpacing.step4)
+            .semantics {
+                isTraversalGroup = true
+                traversalIndex = HEADER_TURN
+            },
+        end = { RetainedWordsRing(towns = chrome.dependencies.towns, doesScreenReadTown = doesScreenReadTown) },
+    ) {
+        if (kind == FrameKind.Task) {
+            MyGameBackLink(
+                label = chromeResource(R.string.navigation_town),
+                isEnabled = chrome.navigator.areLinksEnabled,
+                onClick = chrome.navigator::openTown,
+            )
+        }
+    }
+}
+
+@OptIn(ExperimentalLayoutApi::class)
+@Composable
+private fun FrameDock(
+    dock: TownStatusUiState.Dock,
+    chrome: SignedInChrome,
+    door: MyGameDockDoor?,
+    studyInPlace: @Composable (Int) -> MyGameDockGo?,
+    onFoldChange: (Boolean) -> Unit,
+    modifier: Modifier = Modifier,
+) {
+    if (WindowInsets.isImeVisible) return
+    TownDock(
+        dock = dock,
+        actions = chrome.dockActions(),
+        onFoldChange = onFoldChange,
+        modifier = modifier.semantics { traversalIndex = DOCK_TURN },
+        door = door,
+        inPlace = dock.studiedInPlace()?.let { number: Int -> studyInPlace(number) },
+    )
+}
+
+@Composable
+private fun doorOf(kind: FrameKind, navigator: Navigator): MyGameDockDoor? = when (kind) {
+    FrameKind.Home -> reportDoor(onClick = navigator::openReport)
+    FrameKind.Place -> MyGameDockDoor(
+        label = chromeResource(R.string.navigation_town),
+        onClick = { navigator.openFromDock { openTown() } },
+    )
+    FrameKind.Task -> null
+}
+
+private fun TownStatusUiState.Dock.studiedInPlace(): Int? =
+    ((this as? TownStatusUiState.Dock.Step)?.go as? TownStatusUiState.Go.ActsInPlace)?.action?.number
+
+private fun SignedInChrome.dockActions(): TownDockActions = TownDockActions(
+    onIntent = onStatusIntent,
+    onLessonOpen = { lesson: LessonId -> navigator.openFromDock { openLesson(lesson, walked = emptyList()) } },
+    onSchoolOpen = { navigator.openFromDock { openSchool() } },
+    onReviewsOpen = { navigator.openFromDock { openReviews() } },
+    onReportOpen = { navigator.openFromDock { openReport() } },
+    onHoldoutCheckOpen = { band, week -> navigator.openFromDock { openHoldoutCheck(band, week) } },
+)

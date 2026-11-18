@@ -20,7 +20,6 @@ import com.emm.mygame.core.network.NextStep
 import com.emm.mygame.core.network.PlacementBand
 import com.emm.mygame.core.network.TownLessonRefusal
 import com.emm.mygame.core.network.TownSnapshot
-import kotlin.time.Duration
 import kotlin.time.Duration.Companion.seconds
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertTrue
@@ -150,18 +149,6 @@ class SchoolReleasedLessonsTest {
     }
 
     @Test
-    fun `opens the running released lesson's words from the next step`() {
-        val everyShelvedStudied: TownSnapshot = releasedUnderStudy.copy(
-            lessons = listOf(lessonOf(isStudied = true), lessonOf(id = secondLesson, isStudied = true)),
-        )
-        show(contentOf(everyShelvedStudied))
-
-        composeRule.onNodeWithText("Leer las palabras").performScrollTo().performClick()
-
-        assertEquals(listOf(secondSet), lessonOpens)
-    }
-
-    @Test
     @Config(qualifiers = "+w360dp-h640dp")
     @GraphicsMode(GraphicsMode.Mode.NATIVE)
     fun `keeps a studied released lesson's status on one line`() {
@@ -200,16 +187,6 @@ class SchoolReleasedLessonsTest {
     }
 
     @Test
-    fun `draws the released lesson the next step leads with in the next step alone`() {
-        show(contentOf(shelvedAndReleased.copy(nextStep = NextStep.ReleasedLesson(secondSet, PlacementBand.Second, 2))))
-
-        composeRule
-            .onAllNodesWithText(secondSetTitle, useUnmergedTree = true)
-            .assertCountEquals(1)
-        composeRule.onNodeWithText(firstSetTitle).assertExists()
-    }
-
-    @Test
     fun `keeps the released lesson's row while a chosen lesson takes the next step's place`() {
         val releasedNext: TownSnapshot =
             shelvedAndReleased.copy(nextStep = NextStep.ReleasedLesson(secondSet, PlacementBand.Second, 2))
@@ -240,7 +217,6 @@ class SchoolReleasedLessonsTest {
 
     private fun contentOf(town: TownSnapshot): SchoolUiState.Content = town.contentAt(
         now = readInstant + 30.seconds,
-        gap = Duration.ZERO,
         mutations = SchoolMutations.none,
         selected = null,
     )
@@ -255,8 +231,6 @@ class SchoolReleasedLessonsTest {
                     onIntent = { intent: SchoolIntent -> intents += intent },
                     onReviewsOpen = {},
                     onLessonOpen = { lesson: LessonId -> lessonOpens += lesson },
-                    onReportOpen = {},
-                    onHoldoutCheckOpen = { _: PlacementBand, _: HoldoutCheckWeek -> },
                 )
             }
         }

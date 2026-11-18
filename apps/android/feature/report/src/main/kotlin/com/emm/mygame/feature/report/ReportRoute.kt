@@ -23,6 +23,7 @@ fun ReportRoute(
     clock: Clock,
     navigation: ReportNavigation,
     modifier: Modifier = Modifier,
+    foldedDock: @Composable () -> Unit = {},
     viewModel: ReportViewModel = viewModel { ReportViewModel(reports, sessions, reminders, clock) },
 ) {
     val state: ReportUiState by viewModel.state.collectAsStateWithLifecycle()
@@ -33,6 +34,7 @@ fun ReportRoute(
                 when (effect) {
                     ReportEffect.SigningOut -> currentNavigation.onSigningOut()
                     ReportEffect.SignedOut -> currentNavigation.onSignedOut()
+                    ReportEffect.NewsClosed -> currentNavigation.onNewsClosed()
                 }
             }
         }
@@ -44,10 +46,9 @@ fun ReportRoute(
     ReportScreen(
         state = state,
         onIntent = viewModel::onIntent,
-        onReviewsOpen = navigation.onReviewsOpen,
-        onLessonOpen = navigation.onLessonOpen,
         onNewsOpen = navigation.onNewsOpen,
         onSettingsOpen = navigation.onSettingsOpen,
         modifier = modifier,
+        foldedDock = foldedDock,
     )
 }

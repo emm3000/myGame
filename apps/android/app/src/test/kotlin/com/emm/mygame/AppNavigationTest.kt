@@ -8,8 +8,9 @@ import androidx.compose.ui.test.SemanticsNodeInteraction
 import androidx.compose.ui.test.assert
 import androidx.compose.ui.test.assertCountEquals
 import androidx.compose.ui.test.assertIsDisplayed
-import androidx.compose.ui.test.assertIsNotEnabled
+import androidx.compose.ui.test.hasAnyAncestor
 import androidx.compose.ui.test.hasAnyDescendant
+import androidx.compose.ui.test.hasClickAction
 import androidx.compose.ui.test.hasContentDescription
 import androidx.compose.ui.test.hasTestTag
 import androidx.compose.ui.test.hasText
@@ -23,6 +24,7 @@ import androidx.compose.ui.test.performClick
 import androidx.compose.ui.test.performScrollTo
 import androidx.navigation3.runtime.rememberNavBackStack
 import androidx.test.ext.junit.rules.ActivityScenarioRule
+import com.emm.mygame.core.designsystem.INK_PILL
 import com.emm.mygame.core.designsystem.MyGameTheme
 import com.emm.mygame.core.designsystem.OUTLINED_PILL
 import com.emm.mygame.core.designsystem.PILL_BADGE
@@ -70,6 +72,7 @@ import com.emm.mygame.core.testing.FakeSessionRepository
 import com.emm.mygame.core.testing.FakeStudyReminderSettings
 import com.emm.mygame.core.testing.FakeTownRepository
 import com.emm.mygame.core.testing.hiringOf
+import com.emm.mygame.feature.town.TOWN_DOCK
 import com.emm.mygame.feature.town.TOWN_STATUS
 import java.util.concurrent.TimeUnit
 import kotlin.time.Clock
@@ -159,6 +162,9 @@ class AppNavigationTest {
     private val walkReport: TownReport =
         TownReport(dueCount = 3, readFirst = listOf(firstLesson, secondLesson), nextDueAt = null, news = emptyList())
 
+    private val reviewsDueTown: TownSnapshot
+        get() = townOf(nextStep = NextStep.Reviews(count = 3, readFirst = emptyList()))
+
     private val nothingDue: TownReport =
         TownReport(dueCount = 0, readFirst = emptyList(), nextDueAt = null, news = emptyList())
 
@@ -234,6 +240,19 @@ class AppNavigationTest {
 
     private fun door(label: String): SemanticsNodeInteraction =
         composeRule.onNode(hasText(label).and(hasTestTag(OUTLINED_PILL)))
+
+    private fun dockDoor(label: String): SemanticsNodeInteraction {
+        val door: SemanticsMatcher = hasText(label).and(hasClickAction())
+        composeRule.waitUntil(WAIT_MILLIS) { composeRule.onAllNodes(door).fetchSemanticsNodes().isNotEmpty() }
+        return composeRule.onNode(door)
+    }
+
+    private fun dockGo(label: String): SemanticsNodeInteraction {
+        val go: SemanticsMatcher = hasTestTag(INK_PILL).and(hasContentDescription(label, substring = true))
+            .and(hasAnyAncestor(hasTestTag(TOWN_DOCK)))
+        composeRule.waitUntil(WAIT_MILLIS) { composeRule.onAllNodes(go).fetchSemanticsNodes().isNotEmpty() }
+        return composeRule.onNode(go)
+    }
 
     private fun assertLinksBackToTheTown() {
         backLink().performClick()
@@ -336,10 +355,10 @@ class AppNavigationTest {
     private fun onTheFirstLessonOfTheWalk(secondReadings: List<TownSnapshot.WordReading>) {
         val lessons: List<TownSnapshot.Lesson> =
             listOf(lessonOf(firstLesson, listOf(waterWord)), lessonOf(secondLesson, secondReadings))
-        signedInAtTown(town = townOf(lessons = lessons))
-        openReport(walkReport)
         repeat(2) { reportsFake.answerRead(ReportReadResult.Read(walkReport)) }
-        composeRule.onNodeWithText("Leer las palabras").performClick()
+        val unreadFirst: NextStep = NextStep.Reviews(count = 3, readFirst = listOf(firstLesson, secondLesson))
+        signedInAtTown(town = townOf(lessons = lessons, nextStep = unreadFirst))
+        dockGo("Leer las palabras").performClick()
         waitForLine("I drink water.")
     }
 
@@ -436,7 +455,7 @@ class AppNavigationTest {
         )
         signedInAtTown(town = townOf(nextStep = NextStep.Reviews(1, listOf(firstLesson))))
 
-        composeRule.onNodeWithText("Leer las palabras").performClick()
+        dockGo("Leer las palabras").performClick()
 
         waitForLine("I drink water.")
     }
@@ -446,7 +465,7 @@ class AppNavigationTest {
         reportsFake.answerRead(ReportReadResult.Read(TownReport(0, emptyList(), nextDueAt = null, news = emptyList())))
         signedInAtTown()
 
-        composeRule.onNodeWithText("Ir al informe").performClick()
+        dockGo("Ir al informe").performClick()
 
         waitForLine("No tienes repasos pendientes ahora.")
     }
@@ -497,19 +516,6 @@ class AppNavigationTest {
     }
 
     @Test
-    fun `opens the unread lesson's words from the Report`() {
-        signedInAtTown()
-        val unread: TownReport =
-            TownReport(dueCount = 3, readFirst = listOf(LessonId("lesson-1")), nextDueAt = null, news = emptyList())
-        openReport(unread)
-        reportsFake.answerRead(ReportReadResult.Read(unread))
-
-        composeRule.onNodeWithText("Leer las palabras").performClick()
-
-        waitForLine("I drink water.")
-    }
-
-    @Test
     fun `opens the next lesson of the walk`() {
         onTheFirstLessonOfTheWalk(secondReadings = listOf(townWord))
 
@@ -543,31 +549,14 @@ class AppNavigationTest {
 
     @Test
     fun `opens the reviews from the Report`() {
-        signedInAtTown()
+        signedInAtTown(town = reviewsDueTown)
         openReport(TownReport(dueCount = 3, readFirst = emptyList(), nextDueAt = null, news = emptyList()))
         learningFake.answerRead(noReviews)
 
-        composeRule.onNodeWithText("Empezar los repasos").performClick()
+        dockGo("Empezar los repasos").performClick()
         waitForLine("Aún no tienes palabras que repasar.")
 
         assertEquals(1, learningFake.readCount)
-    }
-
-    @Test
-    fun `reads the Report again on the way back from the reviews`() {
-        signedInAtTown()
-        openReport(TownReport(dueCount = 3, readFirst = emptyList(), nextDueAt = null, news = emptyList()))
-        learningFake.answerRead(noReviews)
-        composeRule.onNodeWithText("Empezar los repasos").performClick()
-        waitForLine("Aún no tienes palabras que repasar.")
-        val nothingDue: TownReport =
-            TownReport(dueCount = 0, readFirst = emptyList(), nextDueAt = null, news = emptyList())
-        reportsFake.answerRead(ReportReadResult.Read(nothingDue))
-
-        composeRule.runOnUiThread { composeRule.activity.onBackPressedDispatcher.onBackPressed() }
-        waitForLine("No tienes repasos pendientes ahora.")
-
-        assertEquals(2, reportsFake.readCount)
     }
 
     @Test
@@ -585,32 +574,25 @@ class AppNavigationTest {
 
     @Test
     fun `shows a running lesson's time on every signed-in screen`() {
-        signedInAtTown(town = runningTown())
+        signedInAtTown(town = runningTown().copy(nextStep = NextStep.Reviews(count = 3, readFirst = emptyList())))
         assertStatusShown()
 
-        door("Escuela").performClick()
+        door("Escuela").performScrollTo().performClick()
         assertStatusShown()
-        backLink().performClick()
+        dockDoor("Pueblo").performClick()
         waitForLine(TOWN_HEADER)
 
         openReport(TownReport(dueCount = 3, readFirst = emptyList(), nextDueAt = null, news = emptyList()))
         assertStatusShown()
 
         learningFake.answerRead(noReviews)
-        composeRule.onNodeWithText("Empezar los repasos").performScrollTo().performClick()
+        dockGo("Empezar los repasos").performClick()
         waitForLine("Aún no tienes palabras que repasar.")
         assertStatusShown()
     }
 
     @Test
-    fun `shows the due count on the Report door`() {
-        signedInAtTown(town = townOf(nextStep = NextStep.Reviews(3, emptyList())))
-
-        composeRule.onNodeWithContentDescription("Informe Repasos pendientes: 3").assertIsDisplayed()
-    }
-
-    @Test
-    fun `draws the due count on the Report door`() {
+    fun `draws the due count on the go button`() {
         signedInAtTown(town = townOf(nextStep = NextStep.Reviews(3, emptyList())))
 
         composeRule.onNode(SemanticsMatcher.expectValue(PILL_BADGE, "3")).assertIsDisplayed()
@@ -625,7 +607,7 @@ class AppNavigationTest {
     }
 
     @Test
-    fun `draws no count on the Report door with nothing due`() {
+    fun `draws no count on the go button with nothing due`() {
         signedInAtTown()
 
         composeRule.onAllNodes(SemanticsMatcher.keyIsDefined(PILL_BADGE)).assertCountEquals(0)
@@ -755,7 +737,7 @@ class AppNavigationTest {
         onTheReportAsLessonOneFinishes(finishedTown(readFirst = listOf(firstLesson)))
         repeat(2) { townsFake.answerRead(TownReadResult.Read(finishedTown(listOf(firstLesson)))) }
 
-        backLink().performClick()
+        dockDoor("Pueblo").performClick()
         waitForLine(TOWN_HEADER)
 
         composeRule.onNodeWithText(LESSON_ONE_DONE).assertIsDisplayed()
@@ -787,21 +769,11 @@ class AppNavigationTest {
     }
 
     @Test
-    fun `links back to the town from every screen but the town home`() {
-        signedInAtTown()
-        door("Escuela").performClick()
-        waitForLine("Ahora no hay ninguna lección en estudio.")
-        assertLinksBackToTheTown()
-
-        val reportWithReviews: TownReport =
-
-            TownReport(dueCount = 3, readFirst = emptyList(), nextDueAt = null, news = emptyList())
-        openReport(reportWithReviews)
-        assertLinksBackToTheTown()
-
-        openReport(reportWithReviews)
+    fun `links back to the town from the reviews`() {
+        signedInAtTown(town = reviewsDueTown)
+        openReport(TownReport(dueCount = 3, readFirst = emptyList(), nextDueAt = null, news = emptyList()))
         learningFake.answerRead(noReviews)
-        composeRule.onNodeWithText("Empezar los repasos").performScrollTo().performClick()
+        dockGo("Empezar los repasos").performClick()
         waitForLine("Aún no tienes palabras que repasar.")
         assertLinksBackToTheTown()
     }
@@ -811,17 +783,6 @@ class AppNavigationTest {
         onTheFirstLessonOfTheWalk(secondReadings = listOf(townWord))
 
         assertLinksBackToTheTown()
-    }
-
-    @Test
-    fun `disables the back link while signing out`() {
-        signedInAtTown()
-        openReport(TownReport(dueCount = 0, readFirst = emptyList(), nextDueAt = null, news = emptyList()))
-
-        composeRule.onNodeWithText("Salir").performScrollTo().performClick()
-        composeRule.waitForIdle()
-
-        backLink().assertIsNotEnabled()
     }
 
     @Test
@@ -860,6 +821,21 @@ class AppNavigationTest {
 
         waitForLine("Entrar")
         assertEquals(1, sessionsFake.signOutCount)
+    }
+
+    @Test
+    fun `reads the Report again on the way back from the reviews`() {
+        signedInAtTown(town = townOf(nextStep = NextStep.Reviews(count = 3, readFirst = emptyList())))
+        openReport(TownReport(dueCount = 3, readFirst = emptyList(), nextDueAt = null, news = emptyList()))
+        learningFake.answerRead(noReviews)
+        dockGo("Empezar los repasos").performClick()
+        waitForLine("Aún no tienes palabras que repasar.")
+        reportsFake.answerRead(ReportReadResult.Read(nothingDue))
+
+        composeRule.runOnUiThread { composeRule.activity.onBackPressedDispatcher.onBackPressed() }
+        waitForLine("No tienes repasos pendientes ahora.")
+
+        assertEquals(2, reportsFake.readCount)
     }
 
     private companion object {

@@ -20,7 +20,6 @@ import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
 import androidx.compose.ui.test.performScrollTo
 import androidx.compose.ui.text.TextLayoutResult
-import com.emm.mygame.core.designsystem.INK_PILL
 import com.emm.mygame.core.designsystem.MyGameTheme
 import com.emm.mygame.core.designsystem.MyGameTransitions
 import com.emm.mygame.core.designsystem.OUTLINED_PILL
@@ -74,7 +73,6 @@ class SchoolScreenTest {
         releasedLessons = emptyList(),
         studyMark = null,
         nextStep = caughtUpCard,
-        nextStepTime = null,
         start = SchoolUiState.LessonRequest.Idle,
         stop = SchoolUiState.LessonRequest.Idle,
         isHoldoutNoteShown = false,
@@ -98,8 +96,6 @@ class SchoolScreenTest {
                     onIntent = { intent: SchoolIntent -> intents += intent },
                     onReviewsOpen = { },
                     onLessonOpen = { lesson: LessonId -> lessonOpens += lesson },
-                    onReportOpen = { },
-                    onHoldoutCheckOpen = { _, _ -> },
                 )
             }
         }
@@ -132,8 +128,6 @@ class SchoolScreenTest {
                     onIntent = {},
                     onReviewsOpen = {},
                     onLessonOpen = {},
-                    onReportOpen = {},
-                    onHoldoutCheckOpen = { _, _ -> },
                     holdoutChecks = {
                         HoldoutCheckRows(HoldoutCheckRowsUiState(listOf(firstBandDue)), onHoldoutCheckOpen = {})
                     },
@@ -276,13 +270,12 @@ class SchoolScreenTest {
     }
 
     @Test
-    fun `draws the ink pill on the first open lesson alone`() {
+    fun `draws the study pill on the first open lesson alone`() {
         show(idleSchool.copy(lessons = listOf(readyLesson, secondCard)))
 
         composeRule
-            .onNodeWithTag(INK_PILL)
+            .onNodeWithTag(OUTLINED_PILL)
             .assert(hasText("Estudiar la lección 1 · 2:30"))
-        composeRule.onAllNodesWithTag(OUTLINED_PILL).assertCountEquals(0)
     }
 
     @Test

@@ -123,8 +123,10 @@ class SchoolViewModel(private val towns: TownRepository, private val clock: Cloc
         drawMutations(mutations.copy(start = SchoolUiState.LessonRequest.Waiting))
         viewModelScope.launch {
             when (val answer: TownLessonResult = towns.startLesson(lesson)) {
-                is TownLessonResult.Answered ->
+                is TownLessonResult.Answered -> {
                     restartFrom(answer.town, mutations.keptAfterRead().copy(start = SchoolUiState.LessonRequest.Idle))
+                    _effects.send(SchoolEffect.LessonStarted)
+                }
                 is TownLessonResult.Refused ->
                     drawMutations(mutations.copy(start = SchoolUiState.LessonRequest.Refused(lesson, answer.refusal)))
                 TownLessonResult.Unreachable ->
@@ -166,7 +168,7 @@ class SchoolViewModel(private val towns: TownRepository, private val clock: Cloc
 
     private fun draw(town: TownSnapshot) {
         shown = town
-        _state.value = town.contentAt(now = serverNow(), gap = gap, mutations = mutations, selected = selected)
+        _state.value = town.contentAt(now = serverNow(), mutations = mutations, selected = selected)
     }
 
     private suspend fun project(first: TownSnapshot, firstReadAt: Instant?) {

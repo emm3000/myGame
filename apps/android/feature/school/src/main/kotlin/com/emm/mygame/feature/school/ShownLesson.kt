@@ -9,7 +9,6 @@ import androidx.compose.ui.semantics.heading
 import androidx.compose.ui.semantics.liveRegion
 import androidx.compose.ui.semantics.semantics
 import com.emm.mygame.core.designsystem.MyGameBlock
-import com.emm.mygame.core.designsystem.MyGameButton
 import com.emm.mygame.core.designsystem.MyGameInlineAlert
 import com.emm.mygame.core.designsystem.MyGameLabel
 import com.emm.mygame.core.designsystem.MyGameOutlinedButton
@@ -38,7 +37,6 @@ internal fun ShownLesson(
         if (state is SchoolUiState.LessonState.Open) {
             StudyAction(
                 card = card,
-                isLead = running == null,
                 block = state.block,
                 isWaiting = content.start == SchoolUiState.LessonRequest.Waiting,
                 onIntent = onIntent,
@@ -83,7 +81,6 @@ private fun LessonBlock(card: SchoolUiState.LessonCard, modifier: Modifier = Mod
 @Composable
 private fun StudyAction(
     card: SchoolUiState.LessonCard,
-    isLead: Boolean,
     block: SchoolUiState.LessonBlock?,
     isWaiting: Boolean,
     onIntent: (SchoolIntent) -> Unit,
@@ -91,35 +88,24 @@ private fun StudyAction(
 ) {
     val copy: PlayerCopy = rememberPlayerCopy()
     val reason: MyGameLabel? = block?.let { blocked: SchoolUiState.LessonBlock -> copy.blockLineOf(blocked) }
-    val label: MyGameLabel = copy.chrome {
-        text(
-            R.string.school_study_with_duration,
-            "action" to text(R.string.school_lesson_study, "number" to card.number.toString()),
-            "duration" to durationLabelOf(card.duration),
-        )
-    }
-    val busyDescription: String = copy.chrome(R.string.school_waiting).spoken
-    val onClick: () -> Unit = { onIntent(SchoolIntent.StudyTapped(card.lesson)) }
     Column(verticalArrangement = Arrangement.spacedBy(MyGameSpacing.step2), modifier = modifier) {
-        if (isLead) {
-            MyGameButton(
-                label = label,
-                isBusy = isWaiting,
-                busyDescription = busyDescription,
-                onClick = onClick,
-                blockedReason = reason?.spoken,
-            )
-        } else {
-            MyGameOutlinedButton(
-                label = label,
-                isBusy = isWaiting,
-                busyDescription = busyDescription,
-                onClick = onClick,
-                blockedReason = reason?.spoken,
-            )
-        }
+        MyGameOutlinedButton(
+            label = copy.studyLabelOf(card),
+            isBusy = isWaiting,
+            busyDescription = copy.chrome(R.string.school_waiting).spoken,
+            onClick = { onIntent(SchoolIntent.StudyTapped(card.lesson)) },
+            blockedReason = reason?.spoken,
+        )
         reason?.let { line: MyGameLabel -> BlockLine(line = line) }
     }
+}
+
+internal fun PlayerCopy.studyLabelOf(card: SchoolUiState.LessonCard): MyGameLabel = chrome {
+    text(
+        R.string.school_study_with_duration,
+        "action" to text(R.string.school_lesson_study, "number" to card.number.toString()),
+        "duration" to durationLabelOf(card.duration),
+    )
 }
 
 @Composable
@@ -131,7 +117,7 @@ private fun ReadWordsPill(
     modifier: Modifier = Modifier,
 ) {
     val copy: PlayerCopy = rememberPlayerCopy()
-    MyGameButton(
+    MyGameOutlinedButton(
         label = copy.readWordsLabelOf(running, name, shown),
         isBusy = false,
         busyDescription = copy.chrome(R.string.school_waiting).spoken,

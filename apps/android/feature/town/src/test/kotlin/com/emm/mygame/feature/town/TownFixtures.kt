@@ -3,7 +3,6 @@ package com.emm.mygame.feature.town
 import androidx.lifecycle.viewModelScope
 import com.emm.mygame.core.network.LessonId
 import com.emm.mygame.core.network.NextStep
-import com.emm.mygame.core.network.NextStepCard
 import com.emm.mygame.core.network.SeasonDurationPercent
 import com.emm.mygame.core.network.SeasonInForce
 import com.emm.mygame.core.network.SeasonKind
@@ -13,7 +12,6 @@ import com.emm.mygame.core.network.TownBuildingKind
 import com.emm.mygame.core.network.TownLabel
 import com.emm.mygame.core.network.TownResourceKind
 import com.emm.mygame.core.network.TownSnapshot
-import com.emm.mygame.core.network.nextStepCard
 import com.emm.mygame.core.testing.FakeSessionRepository
 import com.emm.mygame.core.testing.FakeTownRepository
 import com.emm.mygame.core.testing.TestClock
@@ -143,8 +141,6 @@ internal val idleOffice: TownUiState.OfficeLine = TownUiState.OfficeLine(
 
 internal fun shortOf(kind: TownResourceKind, amount: Long): TownUiState.BlockReason.Resources =
     TownUiState.BlockReason.Resources(listOf(TownUiState.Shortfall(kind, amount)), ready = null)
-
-internal val caughtUpCard: NextStepCard = townOf().nextStepCard()
 
 internal fun contentOf(viewModel: TownViewModel): TownUiState.Content = viewModel.state.value as TownUiState.Content
 

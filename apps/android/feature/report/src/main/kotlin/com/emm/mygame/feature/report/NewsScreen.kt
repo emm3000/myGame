@@ -29,7 +29,12 @@ import com.emm.mygame.core.ui.chromeResource
 import com.emm.mygame.core.ui.fixedCopyResource
 
 @Composable
-fun NewsScreen(state: NewsUiState, onIntent: (NewsIntent) -> Unit, modifier: Modifier = Modifier) {
+fun NewsScreen(
+    state: NewsUiState,
+    onIntent: (NewsIntent) -> Unit,
+    modifier: Modifier = Modifier,
+    foldedDock: @Composable () -> Unit = {},
+) {
     Column(
         verticalArrangement = Arrangement.spacedBy(MyGameSpacing.step6),
         modifier = modifier
@@ -44,6 +49,7 @@ fun NewsScreen(state: NewsUiState, onIntent: (NewsIntent) -> Unit, modifier: Mod
                 bottom = MyGameSpacing.step8,
             ),
     ) {
+        foldedDock()
         MyGameText(
             label = chromeResource(R.string.report_news_title),
             style = MyGameTypography.display,

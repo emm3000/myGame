@@ -97,10 +97,7 @@ class TownSignOutScreenTest {
                     state = state,
                     onIntent = { intent: TownIntent -> intents += intent },
                     onSchoolOpen = { },
-                    onReportOpen = { },
                     onMapOpen = { },
-                    onReviewsOpen = { },
-                    onLessonOpen = { },
                 )
             }
         }

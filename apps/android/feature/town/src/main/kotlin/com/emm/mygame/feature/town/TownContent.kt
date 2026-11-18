@@ -1,7 +1,6 @@
 package com.emm.mygame.feature.town
 
 import com.emm.mygame.core.network.NextStep
-import com.emm.mygame.core.network.NextStepCard
 import com.emm.mygame.core.network.TipKind
 import com.emm.mygame.core.network.TownBuildingKind
 import com.emm.mygame.core.network.TownGoal
@@ -9,7 +8,6 @@ import com.emm.mygame.core.network.TownHireKind
 import com.emm.mygame.core.network.TownRegistered
 import com.emm.mygame.core.network.TownResourceKind
 import com.emm.mygame.core.network.TownSnapshot
-import com.emm.mygame.core.network.nextStepCard
 import com.emm.mygame.core.projection.ResourceNeed
 import com.emm.mygame.core.projection.ResourceStock
 import com.emm.mygame.core.projection.countdownTo
@@ -32,7 +30,6 @@ internal fun TownSnapshot.contentAt(
         .sortedBy { stock: TownSnapshot.Stock -> stock.kind.ordinal }
         .map { stock: TownSnapshot.Stock -> stock.lineAt(readAt, now, gap, skillLevelOf(stock.kind)) }
     val drawn: Map<TownResourceKind, Long> = lines.associate { line: TownUiState.StockLine -> line.kind to line.amount }
-    val card: NextStepCard = nextStepCard()
     return TownUiState.Content(
         name = name,
         label = label,
@@ -46,13 +43,10 @@ internal fun TownSnapshot.contentAt(
         places = buildings
             .sortedBy { place: TownSnapshot.Building -> place.kind != TownBuildingKind.School }
             .map { place: TownSnapshot.Building -> place.cardWith(drawn, this, registered, now, gap) },
-        nextStep = card,
-        nextStepTime = card.countdown?.timeAt(now, gap),
         goal = nextStep.carriedGoal()?.takeUnless { closed.isGoalClosed },
         tip = tip?.takeUnless { shown: TipKind -> shown in closed.tips },
         start = mutations.start,
         stop = mutations.stop,
-        lessonStart = mutations.lessonStart,
         office = officeLineAt(now = now, gap = gap, drawn = drawn, entries = hireEntries, mutations = mutations),
     )
 }
@@ -71,9 +65,6 @@ private fun NextStep.carriedGoal(): TownGoal? = when (this) {
     is NextStep.CaughtUp -> goal
     is NextStep.Reviews, is NextStep.HoldoutCheck, is NextStep.ReleasedLesson, is NextStep.LessonToStudy -> null
 }
-
-private fun NextStepCard.Countdown.timeAt(now: Instant, gap: Duration): TownUiState.NextStepTime =
-    TownUiState.NextStepTime(remaining = countdownTo(finishesAt = at, now = now), finishesAt = at - gap)
 
 private fun TownSnapshot.changesOnTheirOwn(): List<Instant> =
     listOfNotNull(work.slot?.finishesAt, lessonSlot?.finishesAt, hiring.order?.endsAt, seasonEndsAt, nextDueAt)

@@ -1,7 +1,6 @@
 package com.emm.mygame.feature.report
 
 import androidx.lifecycle.viewModelScope
-import com.emm.mygame.core.network.LessonId
 import com.emm.mygame.core.network.ReportReadResult
 import com.emm.mygame.core.network.StudyReminderChoice
 import com.emm.mygame.core.network.TownBuildingKind
@@ -26,16 +25,11 @@ internal val finishedFarm: TownNews =
 
 internal val stoppedLesson: TownNews = TownNews.LessonStopped(readInstant)
 
-internal val unreadLesson: LessonId = LessonId("lesson-2")
-
-internal val laterUnreadLesson: LessonId = LessonId("lesson-3")
-
 internal fun reportOf(
     dueCount: Int = 0,
     news: List<TownNews> = emptyList(),
-    readFirst: List<LessonId> = emptyList(),
     nextDueAt: Instant? = null,
-): TownReport = TownReport(dueCount = dueCount, readFirst = readFirst, nextDueAt = nextDueAt, news = news)
+): TownReport = TownReport(dueCount = dueCount, readFirst = emptyList(), nextDueAt = nextDueAt, news = news)
 
 internal fun contentOf(viewModel: ReportViewModel): ReportUiState.Content =
     viewModel.state.value as ReportUiState.Content

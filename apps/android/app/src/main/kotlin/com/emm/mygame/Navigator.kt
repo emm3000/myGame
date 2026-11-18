@@ -12,6 +12,9 @@ internal class Navigator(private val backStack: MutableList<NavKey>, private val
     val areLinksEnabled: Boolean
         get() = links.areEnabled
 
+    val shown: NavKey?
+        get() = backStack.lastOrNull()
+
     fun signingOut() {
         links.areEnabled = false
     }

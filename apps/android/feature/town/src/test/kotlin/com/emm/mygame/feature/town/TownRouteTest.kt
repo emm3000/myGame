@@ -13,9 +13,6 @@ import androidx.lifecycle.LifecycleOwner
 import androidx.lifecycle.LifecycleRegistry
 import androidx.lifecycle.compose.LocalLifecycleOwner
 import com.emm.mygame.core.designsystem.MyGameTheme
-import com.emm.mygame.core.network.HoldoutCheckWeek
-import com.emm.mygame.core.network.NextStep
-import com.emm.mygame.core.network.PlacementBand
 import com.emm.mygame.core.network.TownHireKind
 import com.emm.mygame.core.network.TownReadResult
 import com.emm.mygame.core.network.TownSnapshot
@@ -45,8 +42,6 @@ class TownRouteTest {
 
     private var signedOuts: Int = 0
 
-    private val holdoutCheckOpens: MutableList<Pair<PlacementBand, HoldoutCheckWeek>> = mutableListOf()
-
     private val screenOwner: ScreenOwner = ScreenOwner()
 
     private fun showHome() {
@@ -59,13 +54,7 @@ class TownRouteTest {
                         clock = Clock.System,
                         navigation = TownNavigation(
                             onSchoolOpen = {},
-                            onReportOpen = {},
                             onMapOpen = {},
-                            onReviewsOpen = {},
-                            onLessonOpen = {},
-                            onHoldoutCheckOpen = { band: PlacementBand, week: HoldoutCheckWeek ->
-                                holdoutCheckOpens += band to week
-                            },
                             onSigningOut = {},
                             onSignedOut = {},
                         ),
@@ -108,19 +97,6 @@ class TownRouteTest {
         assertEquals(2, towns.readCount)
     }
 
-    @Test
-    fun `opens the due check the next step names`() {
-        val dueCheck: NextStep = NextStep.HoldoutCheck(PlacementBand.Second, HoldoutCheckWeek.TwentyFourth)
-        towns.answerRead(TownReadResult.Read(townOf(nextStep = dueCheck, readAt = Clock.System.now())))
-        showHome()
-        waitForLine("Abrir la prueba")
-
-        composeRule.onNode(hasText("Abrir la prueba")).performScrollTo().performClick()
-        composeRule.waitForIdle()
-
-        assertEquals(listOf(PlacementBand.Second to HoldoutCheckWeek.TwentyFourth), holdoutCheckOpens)
-    }
-
     private fun tapSignOutFromTheNamingForm(): StateRestorationTester {
         towns.answerRead(TownReadResult.NoTown)
         val frozenClock: Clock = object : Clock {
@@ -136,11 +112,7 @@ class TownRouteTest {
                     clock = frozenClock,
                     navigation = TownNavigation(
                         onSchoolOpen = {},
-                        onReportOpen = {},
                         onMapOpen = {},
-                        onReviewsOpen = {},
-                        onLessonOpen = {},
-                        onHoldoutCheckOpen = { _, _ -> },
                         onSigningOut = { signingOuts += 1 },
                         onSignedOut = { signedOuts += 1 },
                     ),

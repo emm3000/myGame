@@ -42,8 +42,7 @@ class SchoolRouteTest {
                         onNoTown = { noTownCount += 1 },
                         onReviewsOpen = {},
                         onLessonOpen = {},
-                        onReportOpen = {},
-                        onHoldoutCheckOpen = { _, _ -> },
+                        onLessonStart = {},
                     )
                 }
             }

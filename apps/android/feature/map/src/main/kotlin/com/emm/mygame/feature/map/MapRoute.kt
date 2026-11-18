@@ -19,6 +19,7 @@ fun MapRoute(
     clock: Clock,
     onNoTown: () -> Unit,
     modifier: Modifier = Modifier,
+    foldedDock: @Composable () -> Unit = {},
     viewModel: MapViewModel = viewModel { MapViewModel(towns, clock) },
 ) {
     val state: MapUiState by viewModel.state.collectAsStateWithLifecycle()
@@ -36,5 +37,5 @@ fun MapRoute(
         viewModel.onIntent(MapIntent.ScreenShown)
         onStopOrDispose { viewModel.onIntent(MapIntent.ScreenHidden) }
     }
-    MapScreen(state = state, onIntent = viewModel::onIntent, modifier = modifier)
+    MapScreen(state = state, onIntent = viewModel::onIntent, modifier = modifier, foldedDock = foldedDock)
 }

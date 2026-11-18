@@ -1,7 +1,6 @@
 package com.emm.mygame.feature.town
 
 import com.emm.mygame.core.network.NeededWordKind
-import com.emm.mygame.core.network.NextStepCard
 import com.emm.mygame.core.network.SeasonKind
 import com.emm.mygame.core.network.TipKind
 import com.emm.mygame.core.network.TownBuildingKind
@@ -37,14 +36,11 @@ sealed interface TownUiState {
         val slot: SlotLine,
         val waitingList: List<WaitingLine>,
         val places: List<PlaceCard>,
-        val nextStep: NextStepCard,
-        val nextStepTime: NextStepTime?,
         val goal: TownGoal?,
         val tip: TipKind?,
         val start: StartStatus,
         val stop: StopStatus,
         val office: OfficeLine,
-        val lessonStart: LessonStartStatus = LessonStartStatus.Idle,
     ) : TownUiState
 
     sealed interface NamingStatus {
@@ -72,8 +68,6 @@ sealed interface TownUiState {
     }
 
     data class FillTime(val remaining: Duration, val fullAt: Instant)
-
-    data class NextStepTime(val remaining: Duration, val finishesAt: Instant)
 
     data class PeopleLine(val free: Int, val atWork: Int)
 

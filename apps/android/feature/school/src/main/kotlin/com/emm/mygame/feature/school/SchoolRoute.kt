@@ -8,9 +8,7 @@ import androidx.compose.ui.Modifier
 import androidx.lifecycle.compose.LifecycleStartEffect
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
-import com.emm.mygame.core.network.HoldoutCheckWeek
 import com.emm.mygame.core.network.LessonId
-import com.emm.mygame.core.network.PlacementBand
 import com.emm.mygame.core.network.TownRepository
 import kotlin.time.Clock
 import kotlinx.coroutines.Dispatchers
@@ -23,19 +21,21 @@ fun SchoolRoute(
     onNoTown: () -> Unit,
     onReviewsOpen: () -> Unit,
     onLessonOpen: (LessonId) -> Unit,
-    onReportOpen: () -> Unit,
-    onHoldoutCheckOpen: (PlacementBand, HoldoutCheckWeek) -> Unit,
+    onLessonStart: () -> Unit,
     modifier: Modifier = Modifier,
     holdoutChecks: @Composable () -> Unit = {},
+    foldedDock: @Composable () -> Unit = {},
     viewModel: SchoolViewModel = viewModel { SchoolViewModel(towns, clock) },
 ) {
     val state: SchoolUiState by viewModel.state.collectAsStateWithLifecycle()
     val currentOnNoTown: () -> Unit by rememberUpdatedState(onNoTown)
+    val currentOnLessonStart: () -> Unit by rememberUpdatedState(onLessonStart)
     LaunchedEffect(viewModel) {
         withContext(Dispatchers.Main.immediate) {
             viewModel.effects.collect { effect: SchoolEffect ->
                 when (effect) {
                     SchoolEffect.NoTown -> currentOnNoTown()
+                    SchoolEffect.LessonStarted -> currentOnLessonStart()
                 }
             }
         }
@@ -49,9 +49,8 @@ fun SchoolRoute(
         onIntent = viewModel::onIntent,
         onReviewsOpen = onReviewsOpen,
         onLessonOpen = onLessonOpen,
-        onReportOpen = onReportOpen,
-        onHoldoutCheckOpen = onHoldoutCheckOpen,
         modifier = modifier,
         holdoutChecks = holdoutChecks,
+        foldedDock = foldedDock,
     )
 }

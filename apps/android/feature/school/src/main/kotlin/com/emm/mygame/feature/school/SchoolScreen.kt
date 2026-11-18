@@ -57,10 +57,9 @@ fun SchoolScreen(
     onIntent: (SchoolIntent) -> Unit,
     onReviewsOpen: () -> Unit,
     onLessonOpen: (LessonId) -> Unit,
-    onReportOpen: () -> Unit,
-    onHoldoutCheckOpen: (PlacementBand, HoldoutCheckWeek) -> Unit,
     modifier: Modifier = Modifier,
     holdoutChecks: @Composable () -> Unit = {},
+    foldedDock: @Composable () -> Unit = {},
 ) {
     val scroll: ScrollState = rememberScrollState()
     val selected: LessonId? = (state as? SchoolUiState.Content)?.selected
@@ -81,6 +80,7 @@ fun SchoolScreen(
                 bottom = MyGameSpacing.step8,
             ),
     ) {
+        foldedDock()
         MyGameSkeleton(
             isLoading = state == SchoolUiState.Loading,
             loadingLabel = chromeResource(R.string.school_loading).spoken,
@@ -91,8 +91,6 @@ fun SchoolScreen(
                 onIntent = onIntent,
                 onReviewsOpen = onReviewsOpen,
                 onLessonOpen = onLessonOpen,
-                onReportOpen = onReportOpen,
-                onHoldoutCheckOpen = onHoldoutCheckOpen,
                 holdoutChecks = holdoutChecks,
             )
         }
@@ -105,8 +103,6 @@ private fun SchoolState(
     onIntent: (SchoolIntent) -> Unit,
     onReviewsOpen: () -> Unit,
     onLessonOpen: (LessonId) -> Unit,
-    onReportOpen: () -> Unit,
-    onHoldoutCheckOpen: (PlacementBand, HoldoutCheckWeek) -> Unit,
     holdoutChecks: @Composable () -> Unit,
 ) {
     when (state) {
@@ -124,8 +120,6 @@ private fun SchoolState(
             onIntent = onIntent,
             onReviewsOpen = onReviewsOpen,
             onLessonOpen = onLessonOpen,
-            onReportOpen = onReportOpen,
-            onHoldoutCheckOpen = onHoldoutCheckOpen,
             holdoutChecks = holdoutChecks,
         )
     }
@@ -147,8 +141,6 @@ private fun SchoolContent(
     onIntent: (SchoolIntent) -> Unit,
     onReviewsOpen: () -> Unit,
     onLessonOpen: (LessonId) -> Unit,
-    onReportOpen: () -> Unit,
-    onHoldoutCheckOpen: (PlacementBand, HoldoutCheckWeek) -> Unit,
     holdoutChecks: @Composable () -> Unit,
     modifier: Modifier = Modifier,
 ) {
@@ -156,22 +148,8 @@ private fun SchoolContent(
     Column(verticalArrangement = Arrangement.spacedBy(MyGameSpacing.step6), modifier = modifier) {
         SchoolTitle(level = content.schoolLevel)
         holdoutChecks()
-        if (shown == null) {
-            SchoolNextStep(
-                content = content,
-                onIntent = onIntent,
-                onReviewsOpen = onReviewsOpen,
-                onLessonOpen = onLessonOpen,
-                onReportOpen = onReportOpen,
-                onHoldoutCheckOpen = onHoldoutCheckOpen,
-            )
-        } else {
-            ShownLesson(
-                card = shown,
-                content = content,
-                onIntent = onIntent,
-                onLessonOpen = onLessonOpen,
-            )
+        shown?.let { card: SchoolUiState.LessonCard ->
+            ShownLesson(card = card, content = content, onIntent = onIntent, onLessonOpen = onLessonOpen)
         }
         LearningSection(learning = content.learning)
         shown?.let { card: SchoolUiState.LessonCard ->
@@ -365,7 +343,6 @@ private val previewContent: SchoolUiState.Content = SchoolUiState.Content(
         countdown = null,
         action = NextStepCard.Action.Study(number = 1),
     ),
-    nextStepTime = null,
     start = SchoolUiState.LessonRequest.Idle,
     stop = SchoolUiState.LessonRequest.Idle,
     isHoldoutNoteShown = true,
@@ -471,8 +448,6 @@ private fun SchoolScreenPreview(@PreviewParameter(SchoolUiStates::class) state: 
             onIntent = {},
             onReviewsOpen = {},
             onLessonOpen = {},
-            onReportOpen = {},
-            onHoldoutCheckOpen = { _, _ -> },
         )
     }
 }
@@ -500,8 +475,6 @@ private fun SchoolScreenLanguagePreview(@PreviewParameter(SchoolLanguages::class
                 onIntent = {},
                 onReviewsOpen = {},
                 onLessonOpen = {},
-                onReportOpen = {},
-                onHoldoutCheckOpen = { _, _ -> },
                 holdoutChecks = { HoldoutCheckRows(state = previewDueCheck, onHoldoutCheckOpen = {}) },
             )
         }
@@ -518,8 +491,6 @@ private fun SchoolScreenStudyingBothPreview() {
                 onIntent = {},
                 onReviewsOpen = {},
                 onLessonOpen = {},
-                onReportOpen = {},
-                onHoldoutCheckOpen = { _, _ -> },
             )
         }
     }

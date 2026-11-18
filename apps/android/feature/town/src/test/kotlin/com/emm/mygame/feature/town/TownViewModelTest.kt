@@ -1,7 +1,6 @@
 package com.emm.mygame.feature.town
 
 import com.emm.mygame.core.network.LessonId
-import com.emm.mygame.core.network.NextStep
 import com.emm.mygame.core.network.NeededWordKind
 import com.emm.mygame.core.network.TownBuildingKind
 import com.emm.mygame.core.network.TownFoundResult
@@ -434,29 +433,6 @@ class TownViewModelTest {
         runCurrent()
 
         assertEquals(1, towns.readCount)
-    }
-
-    @Test
-    fun `counts the next review down between reads`() = runTest {
-        val viewModel: TownViewModel = homeViewModel(
-            townOf(nextStep = NextStep.CaughtUp(goal = null), nextDueAt = readInstant + 5.minutes),
-        )
-
-        advanceTimeBy(1.minutes)
-        runCurrent()
-
-        assertEquals(4.minutes, contentOf(viewModel).nextStepTime?.remaining)
-    }
-
-    @Test
-    fun `gives the next review's finish on the device's clock`() = runTest {
-        val aheadOfTheServer: Instant = readInstant + 2.hours
-        val viewModel: TownViewModel = homeViewModel(
-            townOf(nextStep = NextStep.CaughtUp(goal = null), nextDueAt = readInstant + 5.minutes),
-            start = aheadOfTheServer,
-        )
-
-        assertEquals(aheadOfTheServer + 5.minutes, contentOf(viewModel).nextStepTime?.finishesAt)
     }
 
     @Test

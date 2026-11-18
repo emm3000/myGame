@@ -31,18 +31,15 @@ import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.sp
 import com.emm.mygame.core.designsystem.BLOCK_HUE
 import com.emm.mygame.core.designsystem.HAIRLINE
-import com.emm.mygame.core.designsystem.INK_PILL
 import com.emm.mygame.core.designsystem.MyGameBlockHue
 import com.emm.mygame.core.designsystem.MyGameIcons
 import com.emm.mygame.core.designsystem.MyGameTheme
 import com.emm.mygame.core.designsystem.OUTLINED_PILL
 import com.emm.mygame.core.network.LessonId
-import com.emm.mygame.core.network.NextStepCard
 import com.emm.mygame.core.network.SchoolPathCounts
 import com.emm.mygame.core.network.SeasonKind
 import com.emm.mygame.core.network.TownResourceKind
 import com.emm.mygame.core.ui.SEASON_MARK_ICON
-import kotlin.time.Duration.Companion.minutes
 import kotlin.time.Duration.Companion.seconds
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertTrue
@@ -60,10 +57,6 @@ class SchoolLookTest {
     private val intents: MutableList<SchoolIntent> = mutableListOf()
 
     private val lessonOpens: MutableList<LessonId> = mutableListOf()
-
-    private var reviewOpens: Int = 0
-
-    private var reportOpens: Int = 0
 
     private val thirdLesson: LessonId = LessonId("lesson-3")
 
@@ -106,19 +99,10 @@ class SchoolLookTest {
         releasedLessons = emptyList(),
         studyMark = null,
         nextStep = caughtUpCard,
-        nextStepTime = null,
         start = SchoolUiState.LessonRequest.Idle,
         stop = SchoolUiState.LessonRequest.Idle,
         isHoldoutNoteShown = false,
     )
-
-    private val everyLessonStudied: SchoolUiState.Content =
-        idleSchool.copy(lessons = listOf(studiedFirst, studiedSecond))
-
-    private fun blockOfHue(hue: MyGameBlockHue): SemanticsMatcher = SemanticsMatcher.expectValue(BLOCK_HUE, hue)
-
-    private fun reviewsCard(action: NextStepCard.Action): NextStepCard =
-        caughtUpCard.copy(line = NextStepCard.Line.ReviewsDue(3), action = action)
 
     private val secondWhileFirstRuns: SchoolUiState.Content = idleSchool.copy(
         slot = firstRunning,
@@ -175,36 +159,15 @@ class SchoolLookTest {
     }
 
     @Test
-    fun `holds one ink pill on the school`() {
-        show(idleSchool)
-
-        composeRule.onAllNodesWithTag(INK_PILL).assertCountEquals(1)
-    }
-
-    @Test
-    fun `holds one ink pill while a lesson runs`() {
-        show(secondWhileFirstRuns)
-
-        composeRule.onAllNodesWithTag(INK_PILL).assertCountEquals(1)
-    }
-
-    @Test
-    fun `holds one ink pill with every lesson studied`() {
-        show(idleSchool.copy(lessons = listOf(studiedFirst, studiedSecond)))
-
-        composeRule.onAllNodesWithTag(INK_PILL).assertCountEquals(1)
-    }
-
-    @Test
     fun `puts the next lesson in a block with its pill under it`() {
         show(idleSchool)
 
         composeRule.onNode(hasText("Lección 1") and theBlock).assertExists()
         val blockBottom: Dp = composeRule.onNode(theBlock)
             .getUnclippedBoundsInRoot().bottom
-        val pillTop: Dp = composeRule.onNodeWithTag(INK_PILL).getUnclippedBoundsInRoot().top
+        val pillTop: Dp = composeRule.onNodeWithTag(OUTLINED_PILL).getUnclippedBoundsInRoot().top
         assertTrue(blockBottom <= pillTop)
-        composeRule.onAllNodes(hasTestTag(INK_PILL) and inTheBlock).assertCountEquals(0)
+        composeRule.onAllNodes(hasTestTag(OUTLINED_PILL) and inTheBlock).assertCountEquals(0)
     }
 
     @Test
@@ -245,7 +208,7 @@ class SchoolLookTest {
     fun `draws the learning load under the pill and the rows under the load`() {
         show(idleSchool)
 
-        val pillBottom: Dp = composeRule.onNodeWithTag(INK_PILL).getUnclippedBoundsInRoot().bottom
+        val pillBottom: Dp = composeRule.onNodeWithTag(OUTLINED_PILL).getUnclippedBoundsInRoot().bottom
         val loadTop: Dp = composeRule.onNodeWithText("Palabras en aprendizaje: 0 de 10")
             .getUnclippedBoundsInRoot().top
         val rowsTop: Dp = composeRule.onNodeWithText("Lecciones").getUnclippedBoundsInRoot().top
@@ -299,7 +262,7 @@ class SchoolLookTest {
     fun `gives a selected row the pill`() {
         show(idleSchool.copy(selected = thirdLesson))
 
-        composeRule.onNode(hasTestTag(INK_PILL) and hasText("Estudiar la lección 3 · 2:30")).assertExists()
+        composeRule.onNode(hasTestTag(OUTLINED_PILL) and hasText("Estudiar la lección 3 · 2:30")).assertExists()
     }
 
     @Test
@@ -328,8 +291,6 @@ class SchoolLookTest {
                     onIntent = { },
                     onReviewsOpen = { },
                     onLessonOpen = { },
-                    onReportOpen = { },
-                    onHoldoutCheckOpen = { _, _ -> },
                 )
             }
         }
@@ -351,14 +312,14 @@ class SchoolLookTest {
     fun `names the running lesson on the pill while the block shows another`() {
         show(secondWhileFirstRuns)
 
-        composeRule.onNode(hasTestTag(INK_PILL) and hasText("Lección 1 · Leer las palabras")).assertExists()
+        composeRule.onNode(hasTestTag(OUTLINED_PILL) and hasText("Lección 1 · Leer las palabras")).assertExists()
     }
 
     @Test
     fun `opens the running lesson from the pill under another lesson's block`() {
         show(secondWhileFirstRuns)
 
-        composeRule.onNodeWithTag(INK_PILL).performClick()
+        composeRule.onNode(hasTestTag(OUTLINED_PILL) and hasText("Lección 1 · Leer las palabras")).performClick()
 
         assertEquals(listOf(firstLesson), lessonOpens)
     }
@@ -367,14 +328,14 @@ class SchoolLookTest {
     fun `leaves the running lesson unnamed on the pill under its own block`() {
         show(secondWhileFirstRuns.copy(selected = firstLesson))
 
-        composeRule.onNode(hasTestTag(INK_PILL) and hasText("Leer las palabras")).assertExists()
+        composeRule.onNode(hasTestTag(OUTLINED_PILL) and hasText("Leer las palabras")).assertExists()
     }
 
     @Test
     fun `keeps the pill on a lesson that finished while the town reads again`() {
         show(secondWhileFirstRuns.copy(slot = SchoolUiState.SlotLine.Done(firstLesson, firstLessonName)))
 
-        composeRule.onNode(hasTestTag(INK_PILL) and hasText("Lección 1 · Leer las palabras")).assertExists()
+        composeRule.onNode(hasTestTag(OUTLINED_PILL) and hasText("Lección 1 · Leer las palabras")).assertExists()
     }
 
     @Test
@@ -427,79 +388,11 @@ class SchoolLookTest {
                     onIntent = { },
                     onReviewsOpen = { },
                     onLessonOpen = { },
-                    onReportOpen = { reportOpens += 1 },
-                    onHoldoutCheckOpen = { _, _ -> },
                 )
             }
         }
 
         assertEquals(warningInk, textStyleOf("Necesita la escuela en nivel 2").color)
-    }
-
-    @Test
-    fun `opens the reviews from the pill with every lesson studied`() {
-        show(everyLessonStudied.copy(nextStep = reviewsCard(action = NextStepCard.Action.StartReviews)))
-
-        composeRule.onNode(hasTestTag(INK_PILL) and hasText("Empezar los repasos")).performClick()
-
-        assertEquals(1, reviewOpens)
-    }
-
-    @Test
-    fun `opens the unread lesson from the pill with every lesson studied`() {
-        show(everyLessonStudied.copy(nextStep = reviewsCard(NextStepCard.Action.ReadWords(firstLesson))))
-
-        composeRule.onNode(hasTestTag(INK_PILL) and hasText("Leer las palabras")).performClick()
-
-        assertEquals(listOf(firstLesson), lessonOpens)
-    }
-
-    @Test
-    fun `opens the Report from the pill when caught up with every lesson studied`() {
-        show(everyLessonStudied)
-
-        composeRule.onNode(hasTestTag(INK_PILL) and hasText("Ir al informe")).performClick()
-
-        assertEquals(1, reportOpens)
-    }
-
-    @Test
-    fun `draws the next step's peach block with every lesson studied`() {
-        show(everyLessonStudied)
-
-        composeRule.onNode(hasText("TU SIGUIENTE PASO") and blockOfHue(MyGameBlockHue.Peach)).assertExists()
-        composeRule.onNode(hasText("No tienes repasos pendientes ahora.") and blockOfHue(MyGameBlockHue.Peach))
-            .assertExists()
-    }
-
-    @Test
-    fun `sets the pill under the next step's block on paper`() {
-        show(everyLessonStudied)
-
-        val blockBottom: Dp = composeRule.onNode(blockOfHue(MyGameBlockHue.Peach)).getUnclippedBoundsInRoot().bottom
-
-        composeRule.onNode(hasText("Ir al informe") and blockOfHue(MyGameBlockHue.Peach)).assertDoesNotExist()
-        assertTrue(blockBottom <= composeRule.onNodeWithTag(INK_PILL).getUnclippedBoundsInRoot().top)
-    }
-
-    @Test
-    fun `tells when the next review is due with every lesson studied`() {
-        show(
-            everyLessonStudied.copy(
-                nextStep = caughtUpCard.copy(countdown = NextStepCard.Countdown.NextReview(readInstant)),
-                nextStepTime = SchoolUiState.NextStepTime(9.minutes, readInstant),
-            ),
-        )
-
-        composeRule.onNodeWithText("Siguiente repaso:").assertExists()
-        composeRule.onNodeWithText("9 min").assertExists()
-    }
-
-    @Test
-    fun `draws no next step while a lesson is shown`() {
-        show(idleSchool)
-
-        composeRule.onAllNodesWithText("TU SIGUIENTE PASO").assertCountEquals(0)
     }
 
     @Test
@@ -519,8 +412,6 @@ class SchoolLookTest {
                     onIntent = { },
                     onReviewsOpen = { },
                     onLessonOpen = { },
-                    onReportOpen = { },
-                    onHoldoutCheckOpen = { _, _ -> },
                 )
             }
         }
@@ -547,10 +438,8 @@ class SchoolLookTest {
                 SchoolScreen(
                     state = state(),
                     onIntent = { intent: SchoolIntent -> intents += intent },
-                    onReviewsOpen = { reviewOpens += 1 },
+                    onReviewsOpen = { },
                     onLessonOpen = { lesson: LessonId -> lessonOpens += lesson },
-                    onReportOpen = { reportOpens += 1 },
-                    onHoldoutCheckOpen = { _, _ -> },
                 )
             }
         }

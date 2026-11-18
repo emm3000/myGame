@@ -26,6 +26,7 @@ fun SettingsRoute(
     onTownOpen: () -> Unit,
     onNotificationSettingsOpen: () -> Unit,
     modifier: Modifier = Modifier,
+    foldedDock: @Composable () -> Unit = {},
     viewModel: SettingsViewModel = viewModel {
         SettingsViewModel(sessions, playerScaffold, reminders, notifications)
     },
@@ -54,5 +55,6 @@ fun SettingsRoute(
         onTownOpen = onTownOpen,
         onNotificationSettingsOpen = onNotificationSettingsOpen,
         modifier = modifier,
+        foldedDock = foldedDock,
     )
 }

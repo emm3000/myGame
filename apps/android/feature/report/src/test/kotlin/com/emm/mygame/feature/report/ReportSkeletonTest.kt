@@ -36,7 +36,6 @@ class ReportSkeletonTest {
 
     private val nothingDue: ReportUiState = ReportUiState.Content(
         dueCount = 0,
-        firstUnread = null,
         nextReview = null,
         news = ReportUiState.ReportNews.None,
         receivedAt = readInstant,
@@ -150,8 +149,6 @@ class ReportSkeletonTest {
                 ReportScreen(
                     state = state,
                     onIntent = { intent: ReportIntent -> intents += intent },
-                    onReviewsOpen = { },
-                    onLessonOpen = { },
                     onNewsOpen = { },
                     onSettingsOpen = { },
                 )

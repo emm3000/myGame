@@ -25,17 +25,12 @@ import com.emm.mygame.core.designsystem.MyGameSpacing
 import com.emm.mygame.core.designsystem.MyGameTextButton
 import com.emm.mygame.core.designsystem.MyGameTheme
 import com.emm.mygame.core.designsystem.PreviewMyGame
-import com.emm.mygame.core.network.HoldoutCheckWeek
-import com.emm.mygame.core.network.LessonId
-import com.emm.mygame.core.network.NextStepCard
-import com.emm.mygame.core.network.PlacementBand
 import com.emm.mygame.core.network.SeasonKind
 import com.emm.mygame.core.network.TipKind
 import com.emm.mygame.core.network.TownBuildingKind
 import com.emm.mygame.core.network.TownGoal
 import com.emm.mygame.core.network.TownHireKind
 import com.emm.mygame.core.network.TownLabel
-import com.emm.mygame.core.network.TownLessonRefusal
 import com.emm.mygame.core.network.TownResourceKind
 import com.emm.mygame.core.network.TownSnapshot
 import com.emm.mygame.core.ui.ChromePhase
@@ -46,22 +41,18 @@ import com.emm.mygame.core.ui.chromeResource
 import com.emm.mygame.core.ui.fixedCopyResource
 import com.emm.mygame.core.ui.rememberPlayerCopy
 import kotlin.time.Duration.Companion.days
-import kotlin.time.Duration.Companion.hours
 import kotlin.time.Duration.Companion.minutes
-import kotlin.time.Instant
 
 @Composable
 fun TownScreen(
     state: TownUiState,
     onIntent: (TownIntent) -> Unit,
     onSchoolOpen: () -> Unit,
-    onReportOpen: () -> Unit,
     onMapOpen: () -> Unit,
-    onReviewsOpen: () -> Unit,
-    onLessonOpen: (LessonId) -> Unit,
     modifier: Modifier = Modifier,
     ring: @Composable () -> Unit = {},
     status: @Composable () -> Unit = {},
+    foldedDock: @Composable () -> Unit = {},
     placement: @Composable () -> Unit = {},
 ) {
     Column(
@@ -88,14 +79,12 @@ fun TownScreen(
                     content = content,
                     onIntent = onIntent,
                     onSchoolOpen = onSchoolOpen,
-                    onReportOpen = onReportOpen,
-                    onReviewsOpen = onReviewsOpen,
-                    onLessonOpen = onLessonOpen,
                     header = {
                         MyGameHeader(end = ring) {
                             TownTitle(name = content.name, label = content.label)
                         }
                         status()
+                        foldedDock()
                         placement()
                     },
                 )
@@ -156,23 +145,13 @@ private fun TownHome(
     content: TownUiState.Content,
     onIntent: (TownIntent) -> Unit,
     onSchoolOpen: () -> Unit,
-    onReportOpen: () -> Unit,
-    onReviewsOpen: () -> Unit,
-    onLessonOpen: (LessonId) -> Unit,
     header: @Composable () -> Unit,
     modifier: Modifier = Modifier,
 ) {
     Column(verticalArrangement = Arrangement.spacedBy(MyGameSpacing.step6), modifier = modifier) {
         header()
-        NextStepSection(
-            content = content,
-            onIntent = onIntent,
-            onSchoolOpen = onSchoolOpen,
-            onReportOpen = onReportOpen,
-            onReviewsOpen = onReviewsOpen,
-            onLessonOpen = onLessonOpen,
-        )
-        TownDoors(dueCount = content.dueCount(), onSchoolOpen = onSchoolOpen, onReportOpen = onReportOpen)
+        GoalSection(goal = content.goal, onIntent = onIntent)
+        TownDoors(onSchoolOpen = onSchoolOpen)
         TownSkyline(content = content)
         StocksSection(content = content)
         TipNote(tip = content.tip, place = TipPlace.Stocks, onIntent = onIntent)
@@ -200,10 +179,6 @@ private fun labelOf(label: TownLabel): Int = when (label) {
     TownLabel.Town -> R.string.town_label_town
     TownLabel.City -> R.string.town_label_city
 }
-
-private fun TownUiState.Content.dueCount(): Int = (nextStep.line as? NextStepCard.Line.ReviewsDue)?.count ?: 0
-
-private val previewNextReviewAt: Instant = Instant.parse("2026-11-14T23:15:00Z")
 
 private val previewHome: TownUiState.Content = TownUiState.Content(
     name = "Riverton",
@@ -241,13 +216,6 @@ private val previewHome: TownUiState.Content = TownUiState.Content(
             block = null,
         ),
     ),
-    nextStep = NextStepCard(
-        line = NextStepCard.Line.NoReviewsDue,
-        detail = null,
-        countdown = NextStepCard.Countdown.NextReview(at = previewNextReviewAt),
-        action = NextStepCard.Action.GoToReport,
-    ),
-    nextStepTime = TownUiState.NextStepTime(remaining = 71.hours, finishesAt = previewNextReviewAt),
     goal = TownGoal(
         position = 2,
         count = 9,
@@ -301,27 +269,6 @@ private class TownScreenStates : PreviewParameterProvider<TownUiState> {
                 hireMark = TownUiState.DurationMark(SeasonKind.Spring, percent = 75),
             ),
         ),
-        previewHome.copy(
-            nextStep = NextStepCard(
-                line = NextStepCard.Line.HoldoutCheck(PlacementBand.First),
-                detail = null,
-                countdown = null,
-                action = NextStepCard.Action.OpenHoldoutCheck(PlacementBand.First, HoldoutCheckWeek.Eighth),
-            ),
-            nextStepTime = null,
-            goal = null,
-        ),
-        previewHome.copy(
-            nextStep = NextStepCard(
-                line = NextStepCard.Line.ReleasedLesson(PlacementBand.Second, number = 1),
-                detail = null,
-                countdown = null,
-                action = NextStepCard.Action.StudyReleased(LessonId("released-2-1")),
-            ),
-            nextStepTime = null,
-            goal = null,
-            lessonStart = TownUiState.LessonStartStatus.Refused(TownLessonRefusal.StudySlotBusy),
-        ),
     )
 }
 
@@ -344,10 +291,7 @@ private fun TownScreenLanguagePreview(@PreviewParameter(TownLanguages::class) la
                 state = previewHome,
                 onIntent = {},
                 onSchoolOpen = {},
-                onReportOpen = {},
                 onMapOpen = {},
-                onReviewsOpen = {},
-                onLessonOpen = {},
             )
         }
     }
@@ -362,10 +306,7 @@ private fun TownScreenNamingBothPreview() {
                 state = TownUiState.Naming(name = "Riverton", status = TownUiState.NamingStatus.Idle),
                 onIntent = {},
                 onSchoolOpen = {},
-                onReportOpen = {},
                 onMapOpen = {},
-                onReviewsOpen = {},
-                onLessonOpen = {},
             )
         }
     }
@@ -379,10 +320,7 @@ private fun TownScreenPreview(@PreviewParameter(TownScreenStates::class) state: 
             state = state,
             onIntent = {},
             onSchoolOpen = {},
-            onReportOpen = {},
             onMapOpen = {},
-            onReviewsOpen = {},
-            onLessonOpen = {},
         )
     }
 }

@@ -34,7 +34,6 @@ class ReportLanguageTest {
 
     private val dueWithNews: ReportUiState.Content = ReportUiState.Content(
         dueCount = 3,
-        firstUnread = null,
         nextReview = null,
         news = ReportUiState.ReportNews.Unread(listOf(finishedFarm), ReportUiState.CloseRequest.Unreachable),
         receivedAt = readInstant,
@@ -53,8 +52,6 @@ class ReportLanguageTest {
                     ReportScreen(
                         state = state,
                         onIntent = {},
-                        onReviewsOpen = {},
-                        onLessonOpen = {},
                         onNewsOpen = {},
                         onSettingsOpen = {},
                     )
@@ -81,19 +78,18 @@ class ReportLanguageTest {
     fun `draws the Report in Spanish in the Spanish phase`() {
         show(CopyLanguage(ScaffoldLanguage.Spanish, ChromePhase.Scaffold))
 
-        assertDrawn("Informe", "Repasos pendientes: 3", "Empezar los repasos", "NOTICIAS DEL PUEBLO")
+        assertDrawn("Informe", "Repasos pendientes: 3", "NOTICIAS DEL PUEBLO")
         assertDrawn("Granja: ahora en nivel 2.", "Cerrar las noticias", "Leer todas las noticias", "Salir")
-        assertNotDrawn("Report", "Reviews due: 3", "Start the reviews", "TOWN NEWS", "Sign out")
+        assertNotDrawn("Report", "Reviews due: 3", "TOWN NEWS", "Sign out")
     }
 
     @Test
     fun `draws English over Spanish in the both phase`() {
         show(CopyLanguage(ScaffoldLanguage.Spanish, ChromePhase.Both))
 
-        assertDrawn("Report", "Informe", "Start the reviews", "Empezar los repasos", "Farm: now level 2.")
+        assertDrawn("Report", "Informe", "Farm: now level 2.")
         assertDrawn("Granja: ahora en nivel 2.", "TOWN NEWS", "NOTICIAS DEL PUEBLO", "Read all the news")
         assertTrue(lineOf("Report").bottom <= lineOf("Informe").top)
-        assertTrue(lineOf("Start the reviews").bottom <= lineOf("Empezar los repasos").top)
         assertTrue(lineOf("Close the news").bottom <= lineOf("Cerrar las noticias").top)
     }
 
@@ -125,9 +121,9 @@ class ReportLanguageTest {
     fun `draws the Report in English in the English phase`() {
         show(CopyLanguage(ScaffoldLanguage.Spanish, ChromePhase.English))
 
-        assertDrawn("Report", "Reviews due: 3", "Start the reviews", "TOWN NEWS", "Farm: now level 2.")
+        assertDrawn("Report", "Reviews due: 3", "TOWN NEWS", "Farm: now level 2.")
         assertDrawn("Close the news", "Read all the news")
-        assertNotDrawn("Informe", "Repasos pendientes: 3", "Empezar los repasos", "NOTICIAS DEL PUEBLO")
+        assertNotDrawn("Informe", "Repasos pendientes: 3", "NOTICIAS DEL PUEBLO")
     }
 
     @Test
@@ -142,9 +138,9 @@ class ReportLanguageTest {
     fun `draws every line in English under none`() {
         show(CopyLanguage(ScaffoldLanguage.None, ChromePhase.English))
 
-        assertDrawn("Report", "Reviews due: 3", "Start the reviews", "TOWN NEWS", "Farm: now level 2.")
+        assertDrawn("Report", "Reviews due: 3", "TOWN NEWS", "Farm: now level 2.")
         assertDrawn("Sign out", "We could not reach the server. Try again in a moment.")
-        assertNotDrawn("Informe", "Empezar los repasos", "NOTICIAS DEL PUEBLO", "Salir")
+        assertNotDrawn("Informe", "NOTICIAS DEL PUEBLO", "Salir")
         assertNotDrawn("No hemos podido hablar con el servidor. Vuelve a intentarlo en un momento.")
     }
 }

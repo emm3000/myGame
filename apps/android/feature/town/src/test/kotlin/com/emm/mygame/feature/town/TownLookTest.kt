@@ -87,8 +87,6 @@ class TownLookTest {
         slot = TownUiState.SlotLine.Idle,
         waitingList = emptyList(),
         places = listOf(farmOffer),
-        nextStep = caughtUpCard,
-        nextStepTime = null,
         goal = null,
         tip = null,
         start = TownUiState.StartStatus.Idle,
@@ -120,10 +118,7 @@ class TownLookTest {
                     state = home.value,
                     onIntent = { },
                     onSchoolOpen = { },
-                    onReportOpen = { },
                     onMapOpen = {},
-                    onReviewsOpen = { },
-                    onLessonOpen = { },
                 )
             }
         }
@@ -170,7 +165,7 @@ class TownLookTest {
 
         val skyline: DpRect = composeRule.onNodeWithContentDescription("1 de 7 construidos").getUnclippedBoundsInRoot()
 
-        assertTrue(composeRule.onAllNodesWithTag(OUTLINED_PILL)[1].getUnclippedBoundsInRoot().bottom <= skyline.top)
+        assertTrue(composeRule.onAllNodesWithTag(OUTLINED_PILL)[0].getUnclippedBoundsInRoot().bottom <= skyline.top)
         assertTrue(skyline.bottom <= topOf("En el almacén"))
     }
 
@@ -239,10 +234,7 @@ class TownLookTest {
                     state = riverton.copy(places = listOf(short)),
                     onIntent = { },
                     onSchoolOpen = { },
-                    onReportOpen = { },
                     onMapOpen = {},
-                    onReviewsOpen = { },
-                    onLessonOpen = { },
                 )
             }
         }
@@ -471,10 +463,7 @@ class TownLookTest {
             state = state,
             onIntent = { },
             onSchoolOpen = { },
-            onReportOpen = { },
             onMapOpen = {},
-            onReviewsOpen = { },
-            onLessonOpen = { },
         )
     }
 

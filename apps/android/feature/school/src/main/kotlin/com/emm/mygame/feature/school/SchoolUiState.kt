@@ -8,7 +8,6 @@ import com.emm.mygame.core.network.SeasonKind
 import com.emm.mygame.core.network.TownLessonRefusal
 import com.emm.mygame.core.network.TownResourceKind
 import kotlin.time.Duration
-import kotlin.time.Instant
 
 sealed interface SchoolUiState {
 
@@ -25,7 +24,6 @@ sealed interface SchoolUiState {
         val releasedLessons: List<ReleasedLessonCard>,
         val studyMark: DurationMark?,
         val nextStep: NextStepCard,
-        val nextStepTime: NextStepTime?,
         val start: LessonRequest,
         val stop: LessonRequest,
         val isHoldoutNoteShown: Boolean,
@@ -51,8 +49,6 @@ sealed interface SchoolUiState {
         val nextStepReleasedLesson: LessonId?
             get() = (nextStep.action as? NextStepCard.Action.StudyReleased)?.lesson?.takeIf { blockLesson == null }
     }
-
-    data class NextStepTime(val remaining: Duration, val finishesAt: Instant)
 
     data class DurationMark(val season: SeasonKind, val percent: Int)
 
