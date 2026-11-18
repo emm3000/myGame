@@ -217,7 +217,7 @@ class ReviewViewModel(
             )
             is ReviewVerdict.Wrong -> ReviewUiState.ReviewStep.Wrong(correct = card.correctFormOf(verdict))
         }
-        readTown()
+        viewModelScope.launch { towns.readSentAfterNow() }
         reread = (learning.reviews() as? ReviewsReadResult.Read)?.reviews?.let(::measured)
         stepTo(step)
     }

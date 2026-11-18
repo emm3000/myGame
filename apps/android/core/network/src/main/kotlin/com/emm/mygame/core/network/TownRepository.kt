@@ -4,6 +4,8 @@ import com.emm.mygame.core.network.generated.apis.DefaultApi
 import kotlin.time.Clock
 import kotlin.time.Instant
 import kotlinx.coroutines.CoroutineDispatcher
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.flow.StateFlow
 
 interface TownRepository :
@@ -13,6 +15,8 @@ interface TownRepository :
     val town: StateFlow<HeldTown?>
 
     suspend fun read(): TownReadResult
+
+    suspend fun readSentAfterNow(): TownReadResult
 
     suspend fun found(name: String): TownFoundResult
 
@@ -39,12 +43,13 @@ fun TownRepository(
     clock: Clock,
 ): TownRepository {
     val api: DefaultApi = signedInApi(baseUrl = baseUrl, tokenStore = tokenStore, sessionEnds = sessionEnds)
+    val answers = TownAnswers(tokenStore = tokenStore, languages = languages, studyAnswers = studyAnswers)
     return ApiTownRepository(
         api = api,
         ioDispatcher = ioDispatcher,
         clock = clock,
-        tokenStore = tokenStore,
-        answers = TownAnswers(languages = languages, studyAnswers = studyAnswers),
+        answers = answers,
+        reads = TownReadFlight(flights = CoroutineScope(SupervisorJob() + ioDispatcher), answers = answers),
         regionReader = ApiRegionReader(api = api, ioDispatcher = ioDispatcher),
         guidance = ApiTownGuidance(api = api, ioDispatcher = ioDispatcher),
     )

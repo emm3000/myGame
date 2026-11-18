@@ -24,8 +24,8 @@ internal class ApiTownRepository(
     private val api: DefaultApi,
     private val ioDispatcher: CoroutineDispatcher,
     private val clock: Clock,
-    private val tokenStore: TokenStore,
     private val answers: TownAnswers,
+    private val reads: TownReadFlight,
     regionReader: RegionReader,
     guidance: TownGuidanceRepository,
 ) : TownRepository,
@@ -39,22 +39,12 @@ internal class ApiTownRepository(
     private val holding: Any = Any()
 
     init {
-        tokenStore.onSessionChange(::forget)
+        answers.onSessionChange(::forget)
     }
 
-    override suspend fun read(): TownReadResult = withContext(ioDispatcher) {
-        try {
-            val session: Int = tokenStore.currentSession()
-            val request: TownRequest = answers.sending()
-            val response: Response<TownOverview> = api.townGet()
-            answers.languageAnswered(request, response)
-            readOrNoTown(response, session, request)
-        } catch (expectedOutage: IOException) {
-            TownReadResult.Unreachable
-        } catch (expectedMalformedBody: SerializationException) {
-            TownReadResult.Unreachable
-        }
-    }
+    override suspend fun read(): TownReadResult = reads.read(::sentRead)
+
+    override suspend fun readSentAfterNow(): TownReadResult = reads.readSentNow(::sentRead)
 
     override suspend fun found(name: String): TownFoundResult =
         answering(TownFoundResult.Unreachable, ::foundResultOf) { api.townPost(FoundTown(name = name)) }
@@ -106,11 +96,10 @@ internal class ApiTownRepository(
         call: suspend () -> Response<TownOverview>,
     ): Answer = withContext(ioDispatcher) {
         try {
-            val session: Int = tokenStore.currentSession()
             val request: TownRequest = answers.sending()
             val response: Response<TownOverview> = call()
             answers.languageAnswered(request, response)
-            resultOf(response, answeredTown(response, session, request))
+            resultOf(response, answeredTown(response, request))
         } catch (expectedOutage: IOException) {
             unreachable
         } catch (expectedMalformedBody: SerializationException) {
@@ -118,21 +107,32 @@ internal class ApiTownRepository(
         }
     }
 
-    private fun readTown(response: Response<TownOverview>, session: Int, request: TownRequest): TownSnapshot? =
+    private suspend fun sentRead(request: TownRequest): TownReadResult =
+        try {
+            val response: Response<TownOverview> = api.townGet()
+            answers.languageAnswered(request, response)
+            readOrNoTown(response, request)
+        } catch (expectedOutage: IOException) {
+            TownReadResult.Unreachable
+        } catch (expectedMalformedBody: SerializationException) {
+            TownReadResult.Unreachable
+        }
+
+    private fun readTown(response: Response<TownOverview>, request: TownRequest): TownSnapshot? =
         response.body()?.toSnapshot()?.also { town: TownSnapshot ->
-            hold(session) { HeldTown(town, gap = town.readAt - clock.now()) }
+            hold(request) { HeldTown(town, gap = town.readAt - clock.now()) }
             answers.townAnswered(request, town)
         }
 
-    private fun answeredTown(response: Response<TownOverview>, session: Int, request: TownRequest): TownSnapshot? =
+    private fun answeredTown(response: Response<TownOverview>, request: TownRequest): TownSnapshot? =
         response.body()?.toSnapshot()?.also { town: TownSnapshot ->
-            hold(session) { last: HeldTown? -> HeldTown(town, gap = last?.gap ?: (town.readAt - clock.now())) }
+            hold(request) { last: HeldTown? -> HeldTown(town, gap = last?.gap ?: (town.readAt - clock.now())) }
             answers.townAnswered(request, town)
         }
 
-    private fun hold(session: Int, next: (HeldTown?) -> HeldTown?) {
+    private fun hold(request: TownRequest, next: (HeldTown?) -> HeldTown?) {
         synchronized(holding) {
-            if (tokenStore.currentSession() != session) return
+            if (!answers.isCurrent(request)) return
             _town.value = next(_town.value)
         }
     }
@@ -143,14 +143,14 @@ internal class ApiTownRepository(
         }
     }
 
-    private fun readOrNoTown(response: Response<TownOverview>, session: Int, request: TownRequest): TownReadResult {
-        val snapshot: TownSnapshot? = readTown(response, session, request)
+    private fun readOrNoTown(response: Response<TownOverview>, request: TownRequest): TownReadResult {
+        val snapshot: TownSnapshot? = readTown(response, request)
         if (response.isSuccessful) {
             return if (snapshot == null) TownReadResult.Unreachable else TownReadResult.Read(snapshot)
         }
         val isNoTown: Boolean = response.wireRefusal()?.bareKind() == BareApiError.Kind.TownNotFound
         if (!isNoTown) return TownReadResult.Unreachable
-        hold(session) { null }
+        hold(request) { null }
         return TownReadResult.NoTown
     }
 }

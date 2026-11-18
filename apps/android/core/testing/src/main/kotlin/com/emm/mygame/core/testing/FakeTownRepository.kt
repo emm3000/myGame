@@ -68,6 +68,9 @@ class FakeTownRepository private constructor(
     var readCount: Int = 0
         private set
 
+    var sentAfterNowCount: Int = 0
+        private set
+
     var dismissalCount: Int = 0
         private set
 
@@ -133,6 +136,11 @@ class FakeTownRepository private constructor(
             TownReadResult.Unreachable -> Unit
         }
         return answer
+    }
+
+    override suspend fun readSentAfterNow(): TownReadResult {
+        sentAfterNowCount += 1
+        return read()
     }
 
     override suspend fun found(name: String): TownFoundResult {
