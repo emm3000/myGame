@@ -41,6 +41,8 @@ private val ringRoom: Dp = 12.dp
 
 private const val START_REVIEWS: String = "Start the reviews"
 
+private const val NO_REVIEWS_DUE: String = "No reviews due now."
+
 @RunWith(RobolectricTestRunner::class)
 @GraphicsMode(GraphicsMode.Mode.NATIVE)
 class MyGameGoButtonTest {
@@ -57,6 +59,17 @@ class MyGameGoButtonTest {
                 content()
             }
         }
+    }
+
+    @Composable
+    private fun BlockedGoButton(onClick: () -> Unit) {
+        MyGameButton(
+            label = START_REVIEWS,
+            isBusy = false,
+            busyDescription = "Waiting",
+            onClick = onClick,
+            blockedReason = NO_REVIEWS_DUE,
+        )
     }
 
     @OptIn(ExperimentalComposeUiApi::class)
@@ -87,28 +100,39 @@ class MyGameGoButtonTest {
 
     @Test
     fun `a blocked go button stays focusable and reads its reason`() {
-        var taps: Int = 0
-        show {
-            MyGameButton(
-                label = "Start the reviews",
-                isBusy = false,
-                busyDescription = "Waiting",
-                onClick = { taps += 1 },
-                blockedReason = "No reviews due now.",
-            )
-        }
+        show { BlockedGoButton(onClick = {}) }
         useKeyboard()
 
         composeRule
             .onNodeWithTag(INK_PILL)
             .assertIsEnabled()
-            .assert(hasClickAction())
-            .assert(SemanticsMatcher.expectValue(SemanticsProperties.StateDescription, "No reviews due now."))
+            .assert(SemanticsMatcher.expectValue(SemanticsProperties.StateDescription, NO_REVIEWS_DUE))
             .requestFocus()
             .assertIsFocused()
-            .performClick()
+    }
+
+    @Test
+    fun `a blocked go button still hands its tap to the caller`() {
+        var taps: Int = 0
+        show { BlockedGoButton(onClick = { taps += 1 }) }
+
+        composeRule.onNodeWithTag(INK_PILL).assert(hasClickAction()).performClick()
 
         assertEquals(1, taps)
+    }
+
+    @Test
+    fun `the go button's count is go on an on-go disc`() {
+        show {
+            MyGameButton(label = START_REVIEWS, isBusy = false, busyDescription = "Waiting", onClick = {}, badge = "4")
+        }
+
+        val badge: IntArray = pixelsOf(
+            composeRule.onNode(SemanticsMatcher.keyIsDefined(PILL_BADGE), useUnmergedTree = true).captureToImage(),
+        )
+
+        assertEquals(hexOf(lightColors.onGo.toArgb()), hexOf(mostDrawnOf(badge)))
+        assertTrue("the figure is drawn in go", badge.contains(lightColors.go.toArgb()))
     }
 
     @Test

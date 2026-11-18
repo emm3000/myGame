@@ -48,6 +48,8 @@ private val stepStyle: TextStyle = MyGameTypography.heading
 
 private const val HALF: Int = 2
 
+private const val DIAMETER_PER_RADIUS: Int = 2
+
 private const val QUARTER_TURN: Float = 90f
 
 private const val HALF_TURN: Float = 180f
@@ -196,17 +198,22 @@ private fun nameOf(go: MyGameLabel, step: MyGameLabel): String = "${go.spoken}, 
 private fun Modifier.topHairline(color: Color): Modifier = drawBehind {
     val stroke: Float = MyGameStrokeWidths.hairline.toPx()
     val inset: Float = stroke / HALF
-    val corner: Float = MyGameRadii.lg.toPx() * HALF
+    val cornerDiameter: Float = MyGameRadii.lg.toPx() * DIAMETER_PER_RADIUS
     val path: Path = Path().apply {
-        moveTo(inset, corner / HALF)
+        moveTo(inset, MyGameRadii.lg.toPx())
         arcTo(
-            rect = Rect(left = inset, top = inset, right = corner, bottom = corner),
+            rect = Rect(left = inset, top = inset, right = cornerDiameter, bottom = cornerDiameter),
             startAngleDegrees = HALF_TURN,
             sweepAngleDegrees = QUARTER_TURN,
             forceMoveTo = false,
         )
         arcTo(
-            rect = Rect(left = size.width - corner, top = inset, right = size.width - inset, bottom = corner),
+            rect = Rect(
+                left = size.width - cornerDiameter,
+                top = inset,
+                right = size.width - inset,
+                bottom = cornerDiameter,
+            ),
             startAngleDegrees = THREE_QUARTER_TURN,
             sweepAngleDegrees = QUARTER_TURN,
             forceMoveTo = false,
