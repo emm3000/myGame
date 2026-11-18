@@ -39,6 +39,7 @@ case "$1 $2" in
     case "$4 $5" in
       "--json state") echo "$state" ;;
       "--json additions,deletions") awk -F '\t' -v pr="$3" '$1 == pr { print "+" $3 "/-" $4 }' "$FAKE_STATE/prs" ;;
+      "--json mergedAt") awk -F '\t' -v pr="$3" '$1 == pr { print $5 }' "$FAKE_STATE/prs" ;;
       *) echo "unexpected gh $*" >&2; exit 1 ;;
     esac ;;
   *) echo "unexpected gh $*" >&2; exit 1 ;;
@@ -77,7 +78,13 @@ build_a_log_with_recent_rows() {
       recent_row "$pr" opus:high MERGE '' 1
     done
   } >"$log"
-  printf '500\tMERGED\t40\t7\n600\tOPEN\t12\t3\n700\tCLOSED\t1\t1\n' >"$case_dir/state/prs"
+  {
+    printf '90\tMERGED\t5\t5\t2026-10-31T09:00:00Z\n'
+    printf '100\tMERGED\t1\t1\t2026-11-01T09:00:00Z\n'
+    printf '500\tMERGED\t40\t7\t2026-11-02T09:00:00Z\n'
+    printf '600\tOPEN\t12\t3\t2026-11-03T09:00:00Z\n'
+    printf '700\tCLOSED\t1\t1\t\n'
+  } >"$case_dir/state/prs"
   : >"$case_dir/state/merged"
   : >"$case_dir/state/closed"
 }
@@ -171,6 +178,16 @@ refuses_a_pr_the_log_already_holds() {
   [ "$(rg -c '^\| #500 \|' "$log")" = 1 ] || fail "${FUNCNAME[0]}" "#500 logged $(rg -c '^\| #500 \|' "$log") times"
 }
 
+refuses_a_pr_merged_before_the_oldest_recent_row_as_already_folded() {
+  build_a_log_with_recent_rows folded 3
+  local before status=0 output
+  before=$(<"$log")
+  output=$(with_stubs scripts/mygame-merge --dry-run 90 probe opus:high merge 1) || status=$?
+  [ "$status" -eq 65 ] || fail "${FUNCNAME[0]}" "exit $status: $output" || return 1
+  [ "$output" = "#90 merged before #100, the oldest row in Recent: its row is already folded into the Summary" ] || fail "${FUNCNAME[0]}" "$output" || return 1
+  [ "$(<"$log")" = "$before" ] || fail "${FUNCNAME[0]}" "the log changed"
+}
+
 merging_merges_then_logs_then_closes_the_peer() {
   build_a_log_with_recent_rows merge 3
   local output
@@ -250,6 +267,7 @@ run a_merge_verdict_leaves_the_cause_empty
 run refuses_every_bad_argument_and_leaves_the_log_alone
 run a_dry_run_refuses_a_pr_that_is_not_merged
 run refuses_a_pr_the_log_already_holds
+run refuses_a_pr_merged_before_the_oldest_recent_row_as_already_folded
 run merging_merges_then_logs_then_closes_the_peer
 run keep_emulator_reaches_the_close
 run no_close_merges_and_logs_but_leaves_the_peer_running

@@ -299,8 +299,9 @@ code.
 
 - ADR 029's out-of-scope item points here for painted art in the first
   viewport.
-- `apps/web/CLAUDE.md` describes the band, the resolvers, the roundels,
-  the thumbnail and the plate well as shipped, and names this ADR.
+- The band, the resolvers, the roundels and the plate well are gone
+  (the amendments below), and the camp thumbnail went with the medieval
+  game (ADR 040).
 - `docs/art/art-bible.md`'s UI icons line states what the plot tile
   draws: the tier's 96 px thumbnail above the tent with a pennant.
   `docs/art/catalog.md`'s consumers paragraph says the same of

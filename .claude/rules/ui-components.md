@@ -30,6 +30,11 @@ Every interactive element meets its platform's minimum: 48×48 dp on Android, 44
 - The system font scale and reduced-motion setting are respected.
 - TalkBack traversal order is a review minor and never blocks (owner, #1203). The rest of this floor still blocks.
 
+## Web measures
+
+- A figure in a `caption` line takes `tabular-nums` on its own element, never on the line: `tnum` widens the punctuation of prose.
+- A `NoticeBanner` line fits one line beside its button at 320 px; a new line is measured there before it lands (#887).
+
 ## Icons
 
 Icons are vector assets or drawn paths from the design system, never emoji.

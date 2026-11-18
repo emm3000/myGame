@@ -207,10 +207,8 @@ what shipped, checked against the code on trunk, and changes no code.
 - ADR 027 is amended in two lines: its Context sentence *the visual
   look is a later slice* and its Consequences item that lists the
   visual look as out of scope each point here.
-- `apps/web/CLAUDE.md` describes the tokens and the component rules as
-  shipped: the heights, the stroke widths, the per-theme shadow, the
-  transitions, `spacing[5]`, the radii, the type scale, the frame rule,
-  the badges and the one transition. `docs/art/art-bible.md`'s UI
+- The tokens are `apps/web/src/design/tokens.ts` and the component
+  rules `.claude/rules/ui-components.md`. `docs/art/art-bible.md`'s UI
   icons line states the 1.5 px stroke.
 - `CONTEXT.md` is unchanged: a token, a frame, a badge and a track are
   screen vocabulary, not domain terms.
