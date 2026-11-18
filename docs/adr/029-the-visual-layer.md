@@ -209,7 +209,10 @@ what shipped, checked against the code on trunk, and changes no code.
   visual look as out of scope each point here.
 - The tokens are `apps/web/src/design/tokens.ts` and the component
   rules `.claude/rules/ui-components.md`. `docs/art/art-bible.md`'s UI
-  icons line states the 1.5 px stroke.
+  icons line states the icon stroke.
+- Amended 2026-11-18: the icon stroke is 2 px, `strokeWidths.icon` in
+  `tokens.ts`, as ADR 043 keeps it and the art bible's UI icons line
+  states. The Decision's 1.5 px is the history of #534 and #535.
 - `CONTEXT.md` is unchanged: a token, a frame, a badge and a track are
   screen vocabulary, not domain terms.
 - PRD: no row changes; the slice binds N8 and keeps every Won't-have.

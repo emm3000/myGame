@@ -81,6 +81,7 @@ build_a_log_with_recent_rows() {
   {
     printf '90\tMERGED\t5\t5\t2026-10-31T09:00:00Z\n'
     printf '100\tMERGED\t1\t1\t2026-11-01T09:00:00Z\n'
+    printf '400\tMERGED\t8\t2\t2026-11-01T09:00:00Z\n'
     printf '500\tMERGED\t40\t7\t2026-11-02T09:00:00Z\n'
     printf '600\tOPEN\t12\t3\t2026-11-03T09:00:00Z\n'
     printf '700\tCLOSED\t1\t1\t\n'
@@ -188,6 +189,13 @@ refuses_a_pr_merged_before_the_oldest_recent_row_as_already_folded() {
   [ "$(<"$log")" = "$before" ] || fail "${FUNCNAME[0]}" "the log changed"
 }
 
+logs_a_pr_merged_at_the_same_instant_as_the_oldest_recent_row() {
+  build_a_log_with_recent_rows tie 3
+  local output
+  output=$(with_stubs scripts/mygame-merge --dry-run 400 probe opus:high merge 1) || fail "${FUNCNAME[0]}" "$output" || return 1
+  [ "$(tail -n 1 "$log")" = "| #400 | opus:high | MERGE |  | 1 | +8/-2 |" ] || fail "${FUNCNAME[0]}" "last row $(tail -n 1 "$log")"
+}
+
 a_log_with_an_empty_recent_table_takes_its_first_row() {
   build_a_log_with_recent_rows empty 1
   rg -v '^\| #100 \|' "$log" >"$log.next"
@@ -279,6 +287,7 @@ run refuses_every_bad_argument_and_leaves_the_log_alone
 run a_dry_run_refuses_a_pr_that_is_not_merged
 run refuses_a_pr_the_log_already_holds
 run refuses_a_pr_merged_before_the_oldest_recent_row_as_already_folded
+run logs_a_pr_merged_at_the_same_instant_as_the_oldest_recent_row
 run a_log_with_an_empty_recent_table_takes_its_first_row
 run merging_merges_then_logs_then_closes_the_peer
 run keep_emulator_reaches_the_close
