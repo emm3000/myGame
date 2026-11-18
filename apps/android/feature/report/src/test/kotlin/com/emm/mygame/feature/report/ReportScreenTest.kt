@@ -10,6 +10,7 @@ import androidx.compose.ui.test.assert
 import androidx.compose.ui.test.assertCountEquals
 import androidx.compose.ui.test.assertIsDisplayed
 import androidx.compose.ui.test.getUnclippedBoundsInRoot
+import androidx.compose.ui.test.hasClickAction
 import androidx.compose.ui.test.hasAnyAncestor
 import androidx.compose.ui.test.hasTestTag
 import androidx.compose.ui.test.hasText
@@ -23,6 +24,10 @@ import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
 import androidx.compose.ui.test.performScrollTo
 import androidx.compose.ui.unit.Dp
+import androidx.compose.ui.unit.DpRect
+import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.height
+import androidx.compose.ui.unit.width
 import com.emm.mygame.core.designsystem.BLOCK_HUE
 import com.emm.mygame.core.designsystem.HAIRLINE
 import com.emm.mygame.core.designsystem.INK_PILL
@@ -451,36 +456,17 @@ class ReportScreenTest {
         val news = ReportUiState.ReportNews.Unread(listOf(finishedFarm, finishedFarm), ReportUiState.CloseRequest.Idle)
         show(contentWith(news = news))
 
-        composeRule.onAllNodesWithTag(HAIRLINE).assertCountEquals(2)
+        composeRule.onAllNodesWithTag(HAIRLINE).assertCountEquals(2 + ROWS_WITH_THE_REMINDER_ON)
     }
 
     @Test
     fun `sets the empty news on a hairline row`() {
         show(contentWith(news = ReportUiState.ReportNews.None))
 
-        composeRule.onAllNodesWithTag(HAIRLINE).assertCountEquals(1)
+        composeRule.onAllNodesWithTag(HAIRLINE).assertCountEquals(1 + ROWS_WITH_THE_REMINDER_ON)
     }
 
     private fun unclippedTopOf(line: String): Dp = composeRule.onNodeWithText(line).getUnclippedBoundsInRoot().top
-
-    @Test
-    fun `the Report offers the reminder only while it is off`() {
-        val reminderOff: ReportUiState.Content = contentWith(isReminderOn = false)
-        val shown: MutableState<ReportUiState> = mutableStateOf(reminderOff)
-        showFollowing(shown)
-        composeRule.onNodeWithText(REMINDER_OFFER).performScrollTo().assertIsDisplayed()
-
-        shown.value = reminderOff.copy(isReminderOn = true)
-
-        composeRule.onAllNodesWithText(REMINDER_OFFER).assertCountEquals(0)
-    }
-
-    @Test
-    fun `draws no reminder offer while reviews are due`() {
-        show(contentWith(dueCount = 2, isReminderOn = false))
-
-        composeRule.onAllNodesWithText(REMINDER_OFFER).assertCountEquals(0)
-    }
 
     @Test
     fun `the reminder offer opens the settings`() {
@@ -491,7 +477,55 @@ class ReportScreenTest {
         assertEquals(1, settingsOpens)
     }
 
+    @Test
+    fun `ends in Town News, the reminder offer and Settings, in that order`() {
+        show(contentWith(isReminderOn = false))
+
+        val tops: List<Dp> = listOf("No hay noticias.", NEWS_ALL, REMINDER_OFFER, SETTINGS, "Salir")
+            .map { line: String -> unclippedTopOf(line) }
+
+        assertEquals(tops.sorted(), tops)
+    }
+
+    @Test
+    fun `offers the reminder only with nothing due and the reminder off`() {
+        val nothingDueReminderOff: ReportUiState.Content = contentWith(isReminderOn = false)
+        val shown: MutableState<ReportUiState> = mutableStateOf(nothingDueReminderOff)
+        showFollowing(shown)
+        assertTrue(unclippedTopOf("NOTICIAS DEL PUEBLO") < unclippedTopOf(REMINDER_OFFER))
+
+        shown.value = nothingDueReminderOff.copy(isReminderOn = true)
+        composeRule.onAllNodesWithText(REMINDER_OFFER).assertCountEquals(0)
+
+        shown.value = nothingDueReminderOff.copy(dueCount = 2)
+        composeRule.onAllNodesWithText(REMINDER_OFFER).assertCountEquals(0)
+    }
+
+    @Test
+    fun `the Town News row opens the news`() {
+        show(ReportUiState.Failed)
+
+        composeRule.onNodeWithText(NEWS_ALL).performScrollTo().performClick()
+
+        assertEquals(1, newsOpens)
+    }
+
+    @Test
+    fun `each row is one target at least 48 dp tall`() {
+        show(contentWith(isReminderOn = false))
+
+        val lineWidth: Dp = composeRule.onAllNodesWithTag(HAIRLINE)[0].getUnclippedBoundsInRoot().width
+        listOf(NEWS_ALL, REMINDER_OFFER, SETTINGS).forEach { label: String ->
+            val target: DpRect = composeRule.onNode(hasText(label) and hasClickAction()).getUnclippedBoundsInRoot()
+            assertTrue(target.height >= 48.dp)
+            assertEquals(lineWidth, target.width)
+        }
+    }
+
     private companion object {
         const val REMINDER_OFFER: String = "Activa un recordatorio de estudio"
+        const val NEWS_ALL: String = "Leer todas las noticias"
+        const val SETTINGS: String = "Ajustes"
+        const val ROWS_WITH_THE_REMINDER_ON: Int = 2
     }
 }

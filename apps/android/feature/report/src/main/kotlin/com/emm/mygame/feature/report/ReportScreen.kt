@@ -33,7 +33,6 @@ import com.emm.mygame.core.designsystem.MyGameSkeletonBlocks
 import com.emm.mygame.core.designsystem.MyGameSpacing
 import com.emm.mygame.core.designsystem.MyGameText
 import com.emm.mygame.core.designsystem.MyGameTextButton
-import com.emm.mygame.core.designsystem.MyGameTextLink
 import com.emm.mygame.core.designsystem.MyGameTheme
 import com.emm.mygame.core.designsystem.MyGameTypography
 import com.emm.mygame.core.designsystem.PreviewMyGame
@@ -89,22 +88,14 @@ fun ReportScreen(
             ReportState(
                 state = state,
                 onIntent = onIntent,
-                navigation = ReportScreenLinks(onReviewsOpen, onLessonOpen, onNewsOpen, onSettingsOpen),
+                navigation = ReportScreenLinks(onReviewsOpen, onLessonOpen),
             )
         }
-        AccountLinks(state = state, onIntent = onIntent, onSettingsOpen = onSettingsOpen)
-    }
-}
-
-@Composable
-private fun AccountLinks(
-    state: ReportUiState,
-    onIntent: (ReportIntent) -> Unit,
-    onSettingsOpen: () -> Unit,
-    modifier: Modifier = Modifier,
-) {
-    Column(modifier = modifier) {
-        MyGameTextLink(label = fixedCopyResource(R.string.report_settings), onClick = onSettingsOpen)
+        ReportRows(
+            isReminderOffered = isReminderOffered(state),
+            onNewsOpen = onNewsOpen,
+            onSettingsOpen = onSettingsOpen,
+        )
         MyGameTextButton(
             label = fixedCopyResource(R.string.report_sign_out),
             isBusy = state == ReportUiState.SigningOut,
@@ -114,11 +105,12 @@ private fun AccountLinks(
     }
 }
 
+private fun isReminderOffered(state: ReportUiState): Boolean =
+    state is ReportUiState.Content && state.dueCount == 0 && !state.isReminderOn
+
 private class ReportScreenLinks(
     val onReviewsOpen: () -> Unit,
     val onLessonOpen: (LessonId) -> Unit,
-    val onNewsOpen: () -> Unit,
-    val onSettingsOpen: () -> Unit,
 )
 
 @Composable
@@ -132,7 +124,7 @@ private fun ReportState(state: ReportUiState, onIntent: (ReportIntent) -> Unit, 
         )
         is ReportUiState.Content -> {
             ReviewsDueSection(content = state, navigation = navigation)
-            NewsSection(content = state, onIntent = onIntent, onNewsOpen = navigation.onNewsOpen)
+            NewsSection(content = state, onIntent = onIntent)
         }
     }
 }
@@ -150,7 +142,7 @@ private fun ReviewsDueSection(
     val dueCount: Int = content.dueCount
     val firstUnread: LessonId? = content.firstUnread
     if (dueCount == 0) {
-        NothingDue(content = content, onSettingsOpen = navigation.onSettingsOpen, modifier = modifier)
+        NothingDue(content = content, modifier = modifier)
         return
     }
     Column(verticalArrangement = Arrangement.spacedBy(MyGameSpacing.step3), modifier = modifier) {
@@ -174,7 +166,7 @@ private fun ReviewsDueSection(
 }
 
 @Composable
-private fun NothingDue(content: ReportUiState.Content, onSettingsOpen: () -> Unit, modifier: Modifier = Modifier) {
+private fun NothingDue(content: ReportUiState.Content, modifier: Modifier = Modifier) {
     val copy: PlayerCopy = rememberPlayerCopy()
     val receivedAt: Instant = content.receivedAt
     MyGameCard(modifier = modifier) {
@@ -194,9 +186,6 @@ private fun NothingDue(content: ReportUiState.Content, onSettingsOpen: () -> Uni
                     ground = MyGameCountdownGround.Paper,
                 )
             }
-            if (!content.isReminderOn) {
-                MyGameTextLink(label = fixedCopyResource(R.string.report_reminder_offer), onClick = onSettingsOpen)
-            }
         }
     }
 }
@@ -205,7 +194,6 @@ private fun NothingDue(content: ReportUiState.Content, onSettingsOpen: () -> Uni
 private fun NewsSection(
     content: ReportUiState.Content,
     onIntent: (ReportIntent) -> Unit,
-    onNewsOpen: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
     Column(verticalArrangement = Arrangement.spacedBy(MyGameSpacing.step3), modifier = modifier) {
@@ -223,7 +211,6 @@ private fun NewsSection(
             is ReportUiState.ReportNews.Unread ->
                 UnreadNews(unread = news, receivedAt = content.receivedAt, onIntent = onIntent)
         }
-        MyGameTextLink(label = chromeResource(R.string.report_news_all), onClick = onNewsOpen)
     }
 }
 
