@@ -2,21 +2,24 @@
 set -euo pipefail
 
 usage() {
-  echo "usage: scripts/mygame-merge [--dry-run] [--keep-emulator] <pr> <session> <model:effort> <merge|checklist|judgment|spec> <rounds>" >&2
+  echo "usage: scripts/mygame-merge [--dry-run] [--no-close | --keep-emulator] <pr> <session> <model:effort> <merge|checklist|judgment|spec> <rounds>" >&2
   exit 64
 }
 
 dry_run=0
+no_close=0
 keep_emulator=0
 while [ $# -gt 0 ]; do
   case $1 in
     --dry-run) dry_run=1; shift ;;
+    --no-close) no_close=1; shift ;;
     --keep-emulator) keep_emulator=1; shift ;;
     -*) usage ;;
     *) break ;;
   esac
 done
 [ $# -eq 5 ] || usage
+[ "$no_close" -eq 0 ] || [ "$keep_emulator" -eq 0 ] || usage
 pr=$1 session=$2 model=$3 review=$4 rounds=$5
 
 case $pr in '' | 0* | *[!0-9]*) usage ;; esac
@@ -81,7 +84,7 @@ open(path, "w").write("\n".join(lines) + "\n")
 ' "$log"
 echo "logged: | #$pr | $model | $verdict | $cause | $rounds | $lines |"
 
-if [ "$dry_run" -eq 0 ]; then
+if [ "$dry_run" -eq 0 ] && [ "$no_close" -eq 0 ]; then
   if [ "$keep_emulator" -eq 1 ]; then
     "$repo/scripts/mygame-wave-close" "$session" --keep-emulator
   else
