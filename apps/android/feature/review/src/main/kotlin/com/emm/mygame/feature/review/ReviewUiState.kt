@@ -9,7 +9,6 @@ import com.emm.mygame.core.network.ReviewRefusal
 import com.emm.mygame.core.network.SchoolPathCounts
 import com.emm.mygame.core.network.TownResourceKind
 import com.emm.mygame.core.network.WordId
-import kotlin.time.Duration
 import kotlin.time.Instant
 
 sealed interface ReviewUiState {
@@ -20,7 +19,7 @@ sealed interface ReviewUiState {
 
     data object NoCards : ReviewUiState
 
-    data class NothingDue(val remaining: Duration, val dueAt: Instant, val path: LessonPath?) : ReviewUiState
+    data class NothingDue(val dueAt: Instant, val path: LessonPath?) : ReviewUiState
 
     data class LessonReady(val lesson: LessonId, val number: Int?) : ReviewUiState
 

@@ -160,13 +160,8 @@ class ReviewViewModel(
     }
 
     private suspend fun waitFor(nextDueAt: Instant) {
-        var remaining: Duration = countdownTo(finishesAt = nextDueAt, now = clock.now() + gap)
-        while (remaining > Duration.ZERO) {
-            _state.value = endAt(remaining, nextDueAt)
-            delay(repaintDelay(remaining))
-            remaining = countdownTo(finishesAt = nextDueAt, now = clock.now() + gap)
-        }
-        _state.value = endAt(Duration.ZERO, nextDueAt)
+        _state.value = endAt(nextDueAt)
+        delay(countdownTo(finishesAt = nextDueAt, now = clock.now() + gap))
         var answer: ReviewsReadResult = learning.reviews()
         while (answer !is ReviewsReadResult.Read) {
             delay(repaintDelay(null))
@@ -175,8 +170,7 @@ class ReviewViewModel(
         present(measured(answer.reviews), isDealtFromStack = false)
     }
 
-    private fun endAt(remaining: Duration, nextDueAt: Instant): ReviewUiState.NothingDue = ReviewUiState.NothingDue(
-        remaining = remaining,
+    private fun endAt(nextDueAt: Instant): ReviewUiState.NothingDue = ReviewUiState.NothingDue(
         dueAt = nextDueAt - gap,
         path = towns.town.value?.town?.pathAtTheEnd(),
     )

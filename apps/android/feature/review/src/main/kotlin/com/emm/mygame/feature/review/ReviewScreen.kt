@@ -47,7 +47,6 @@ import com.emm.mygame.core.ui.ScaffoldLanguage
 import com.emm.mygame.core.ui.TaskDockHook
 import com.emm.mygame.core.ui.chromeResource
 import com.emm.mygame.core.ui.rememberPlayerCopy
-import kotlin.time.Duration.Companion.hours
 import kotlin.time.Instant
 
 @Composable
@@ -261,7 +260,6 @@ private class ReviewUiStates : PreviewParameterProvider<ReviewUiState> {
         ),
         previewReviewing.copy(step = ReviewUiState.ReviewStep.Unreachable),
         ReviewUiState.NothingDue(
-            remaining = 3.hours,
             dueAt = Instant.parse("2026-11-05T13:00:00Z"),
             path = ReviewUiState.LessonPath(
                 number = 1,
