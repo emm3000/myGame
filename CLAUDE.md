@@ -44,7 +44,7 @@ These bind on every change, including a new file created before any TypeScript h
 - **Time is injected.** A use case takes a `Clock` port; nothing in `packages/domain` or a use case calls `Date.now()` or `new Date()`.
 - **Lazy evaluation.** Resource amounts are computed from `(storedAmount, storedAt, rate, capacity, now)`. No cron, no `setInterval`, no worker advancing state.
 - **Rebuild, never adapt.** When existing code, config or structure does not fit the target architecture, replace it with a clean implementation. No shims, wrappers or compatibility patches over legacy.
-- **`pnpm gate` green** before every commit. Its definition is the `gate` script in the root `package.json`, never a prose copy.
+- **`pnpm gate` green** before every push. Its definition is the `gate` script in the root `package.json`, never a prose copy.
 - **English for every identifier, file name, commit and doc. Player-facing text is American English; scaffold copy lives only in the scaffold language's catalog and glosses**, and Spanish scaffold copy addresses the reader as tú, never vos.
 - **Never add `Co-Authored-By`** from Claude, Anthropic or any AI assistant to a commit message; a hook blocks it. Conventional commits, linear history. Never push `trunk` without being asked, with one exception: the orchestrator pushes the one docs-only commit that closes a sprint (the dispatch log, `docs/agents/multi-session.md`) on its own. Never one log commit per wave.
 
@@ -76,6 +76,7 @@ TypeScript strict, pnpm workspaces, Node 24 (`.node-version`), Vitest, Biome. We
 
 - `pnpm gate` — the gate CI runs: `pnpm -r typecheck && pnpm -r test && pnpm biome check .`.
 - `pnpm -r typecheck`, `pnpm -r test` — every package; `pnpm --filter <pkg> test` for one.
+- While iterating, run only the tests the change touches; the full gate and the emulator flows only before the PR. The one-file and one-module commands: `docs/agents/peer.md`, Inner loop.
 - `pnpm lint`, `pnpm format` — Biome check and write.
 - `pnpm install --frozen-lockfile` — what CI runs; a lockfile drift fails there, not locally.
 - `taskpolicy -c utility ./gradlew detekt checkModuleBoundaries checkComposeFreeViewModels testDebugUnitTest assembleDebug`, run in `apps/android` — the Android leg of the gate, CI's `android` job (`apps/android/CLAUDE.md`). The `taskpolicy` prefix keeps other work at priority, and a Gradle daemon keeps the priority it started with, so every run carries it; CI runs plain `./gradlew`, since Linux has no `taskpolicy`.

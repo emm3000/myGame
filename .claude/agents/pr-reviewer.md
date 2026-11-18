@@ -24,6 +24,7 @@ You review exactly one pull request of this repository. The PR number is in the 
 - Standards axis: no comments beyond the exceptions in `typescript-style.md` (a comment finding is DELETE, or KEEP naming the constraint it carries); explicit return types on exported functions; the dependency direction and both leak checks in `architecture.md` empty; `packages/domain` pure; failure modes as `DomainError` members, never thrown; `Clock` injected, no `Date.now()` outside its adapter; lazy evaluation, no timer; a port wired exactly once in the composition root; every wire shape in `packages/contracts`; no shims over legacy; naming per `naming.md`; English identifiers; player-facing text in American English, Spanish only in the `es` scaffold catalog and glosses, tú never vos; `CONTEXT.md` terms.
 - Spec axis: every `Done when` item, the PRD row it derives from, the screenshots, behavior preservation where bodies moved.
 - Tests: Vitest, sentence names, a behavior test for every new rule, fixture locals named by role, no mocked owned modules, no sleeps, no markup snapshots.
+- Blocking: a test removed in the diff that the PR body does not list with its rule and the test still covering it.
 - Correctness bugs and silent regressions, in particular any arithmetic on resources or durations.
 - TalkBack traversal order is a minor finding and never blocks (`.claude/rules/ui-components.md`); every other breach of its accessibility floor still blocks.
 - Commit hygiene: conventional commits, no `wip` commits, no AI attribution trailers.
