@@ -5,7 +5,9 @@ import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
-import com.emm.mygame.core.designsystem.MyGameTheme
+import androidx.compose.runtime.getValue
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import com.emm.mygame.core.network.ThemePick
 import com.emm.mygame.core.projection.StudyReminderLine
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.Flow
@@ -22,7 +24,8 @@ class MainActivity : ComponentActivity() {
         val dependencies: AppDependencies = application as AppDependencies
         val taps: Flow<StudyReminderLine> = reminderTaps.receiveAsFlow()
         setContent {
-            MyGameTheme {
+            val pick: ThemePick by dependencies.themes.pick.collectAsStateWithLifecycle()
+            PickedTheme(pick = pick) {
                 AppNavigation(dependencies = dependencies, reminderTaps = taps)
             }
         }

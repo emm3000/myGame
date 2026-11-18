@@ -12,6 +12,7 @@ import com.emm.mygame.core.network.PlayerScaffold
 import com.emm.mygame.core.network.ReminderNotifications
 import com.emm.mygame.core.network.SessionRepository
 import com.emm.mygame.core.network.StudyReminderSettings
+import com.emm.mygame.core.network.ThemeSettings
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.withContext
@@ -22,13 +23,13 @@ fun SettingsRoute(
     playerScaffold: StateFlow<PlayerScaffold?>,
     reminders: StudyReminderSettings,
     notifications: ReminderNotifications,
+    themes: ThemeSettings,
     rememberNotificationAsk: @Composable (onAnswer: (Boolean) -> Unit) -> () -> Unit,
-    onTownOpen: () -> Unit,
-    onNotificationSettingsOpen: () -> Unit,
+    navigation: SettingsNavigation,
     modifier: Modifier = Modifier,
     foldedDock: @Composable () -> Unit = {},
     viewModel: SettingsViewModel = viewModel {
-        SettingsViewModel(sessions, playerScaffold, reminders, notifications)
+        SettingsViewModel(sessions, playerScaffold, reminders, notifications, themes)
     },
 ) {
     val state: SettingsUiState by viewModel.state.collectAsStateWithLifecycle()
@@ -52,8 +53,8 @@ fun SettingsRoute(
     SettingsScreen(
         state = state,
         onIntent = viewModel::onIntent,
-        onTownOpen = onTownOpen,
-        onNotificationSettingsOpen = onNotificationSettingsOpen,
+        onTownOpen = navigation.onTownOpen,
+        onNotificationSettingsOpen = navigation.onNotificationSettingsOpen,
         modifier = modifier,
         foldedDock = foldedDock,
     )

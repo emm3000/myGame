@@ -27,6 +27,8 @@ import com.emm.mygame.core.network.SessionEnds
 import com.emm.mygame.core.network.SessionRepository
 import com.emm.mygame.core.network.StudyReminderChoice
 import com.emm.mygame.core.network.StudyReminderSettings
+import com.emm.mygame.core.network.ThemePick
+import com.emm.mygame.core.network.ThemeSettings
 import com.emm.mygame.core.network.TownBuildingKind
 import com.emm.mygame.core.network.TownLabel
 import com.emm.mygame.core.network.TownReadResult
@@ -41,6 +43,7 @@ import com.emm.mygame.core.testing.FakeReminderNotifications
 import com.emm.mygame.core.testing.FakeReportRepository
 import com.emm.mygame.core.testing.FakeSessionRepository
 import com.emm.mygame.core.testing.FakeStudyReminderSettings
+import com.emm.mygame.core.testing.FakeThemeSettings
 import com.emm.mygame.core.testing.FakeTownRepository
 import com.emm.mygame.core.testing.hiringOf
 import com.emm.mygame.feature.town.TOWN_STATUS
@@ -91,6 +94,7 @@ class StatusLifecycleNavigationTest {
             FakeStudyReminderSettings(StudyReminderChoice.firstChoice)
         override val reminderNotifications: ReminderNotifications =
             FakeReminderNotifications(areAllowed = true, canAsk = true)
+        override val themes: ThemeSettings = FakeThemeSettings(ThemePick.System)
     }
 
     private val nothingDue: TownReport =

@@ -4,6 +4,7 @@ import android.app.AlarmManager
 import android.app.Application
 import android.content.Context
 import com.emm.mygame.core.network.StudyReminderChoice
+import com.emm.mygame.core.network.ThemePick
 import com.emm.mygame.core.projection.StudyReminderFacts
 import java.time.LocalTime
 import java.util.TimeZone
@@ -52,6 +53,22 @@ class MyGameApplicationTest {
         nextProcessOf(application).onCreate()
 
         assertEquals(listOf(wakeUpAt("2100-01-01T19:00:00Z")), alarms.scheduledAlarms.map(::seenAlarmOf))
+    }
+
+    @Test
+    fun `a new process reads the stored theme`() {
+        application.themes.choose(ThemePick.Dark)
+
+        assertEquals(ThemePick.Dark, nextProcessOf(application).themes.pick.value)
+    }
+
+    @Test
+    fun `the theme outlives the study reminder's clear, which every sign-out runs`() {
+        application.themes.choose(ThemePick.Light)
+
+        application.studyReminderStore.clear()
+
+        assertEquals(ThemePick.Light, nextProcessOf(application).themes.pick.value)
     }
 
     private fun nextProcessOf(running: MyGameApplication): MyGameApplication {

@@ -52,6 +52,7 @@ import com.emm.mygame.feature.school.SchoolUiState
 import com.emm.mygame.feature.school.SchoolViewModel
 import com.emm.mygame.feature.school.schoolStudyGo
 import com.emm.mygame.feature.signin.ForgotPasswordRoute
+import com.emm.mygame.feature.signin.SettingsNavigation
 import com.emm.mygame.feature.signin.SettingsRoute
 import com.emm.mygame.feature.signin.SignInRoute
 import com.emm.mygame.feature.signin.SignUpRoute
@@ -319,9 +320,12 @@ private fun EntryProviderScope<NavKey>.settingsEntry(chrome: SignedInChrome) {
                 playerScaffold = dependencies.playerScaffold,
                 reminders = dependencies.studyReminders,
                 notifications = dependencies.reminderNotifications,
+                themes = dependencies.themes,
                 rememberNotificationAsk = { onAnswer: (Boolean) -> Unit -> rememberNotificationAsk(onAnswer) },
-                onTownOpen = navigator::openTown,
-                onNotificationSettingsOpen = { context.openNotificationSettings() },
+                navigation = SettingsNavigation(
+                    onTownOpen = navigator::openTown,
+                    onNotificationSettingsOpen = { context.openNotificationSettings() },
+                ),
                 foldedDock = frame.foldedDock,
             )
         }

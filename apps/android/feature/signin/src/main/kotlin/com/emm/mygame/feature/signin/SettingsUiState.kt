@@ -1,6 +1,7 @@
 package com.emm.mygame.feature.signin
 
 import com.emm.mygame.core.network.PlayerScaffold
+import com.emm.mygame.core.network.ThemePick
 import java.time.LocalTime
 
 sealed interface SettingsUiState {
@@ -9,7 +10,12 @@ sealed interface SettingsUiState {
 
     data object Failed : SettingsUiState
 
-    data class Loaded(val stored: PlayerScaffold, val change: Change, val reminder: Reminder) : SettingsUiState {
+    data class Loaded(
+        val stored: PlayerScaffold,
+        val change: Change,
+        val reminder: Reminder,
+        val theme: ThemePick,
+    ) : SettingsUiState {
 
         val shown: PlayerScaffold
             get() = if (change is Change.Saving) change.scaffold else stored
