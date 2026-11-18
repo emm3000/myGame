@@ -26,6 +26,9 @@ import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Shape
 import androidx.compose.ui.graphics.drawscope.Stroke
+import androidx.compose.ui.layout.Measurable
+import androidx.compose.ui.layout.Placeable
+import androidx.compose.ui.layout.layout
 import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.semantics.SemanticsPropertyKey
 import androidx.compose.ui.semantics.SemanticsPropertyReceiver
@@ -36,10 +39,13 @@ import androidx.compose.ui.semantics.stateDescription
 import androidx.compose.ui.semantics.testTag
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.PreviewParameterProvider
+import androidx.compose.ui.unit.Constraints
 
 val PILL_BADGE: SemanticsPropertyKey<String> = SemanticsPropertyKey("PILL_BADGE")
 
 private var SemanticsPropertyReceiver.pillBadge: String by PILL_BADGE
+
+private const val HALF: Int = 2
 
 @Composable
 internal fun MyGamePill(
@@ -105,8 +111,17 @@ private fun PillBadge(figure: String, look: MyGamePillLook, modifier: Modifier =
             .clearAndSetSemantics { pillBadge = figure }
             .clip(CircleShape)
             .background(look.badgeGround)
+            .square()
             .padding(horizontal = MyGameSpacing.step2),
     )
+}
+
+private fun Modifier.square(): Modifier = layout { measurable: Measurable, constraints: Constraints ->
+    val content: Placeable = measurable.measure(constraints)
+    val side: Int = maxOf(content.width, content.height)
+    layout(side, side) {
+        content.place(x = (side - content.width) / HALF, y = (side - content.height) / HALF)
+    }
 }
 
 private fun Modifier.outerFocusRing(look: MyGamePillLook, isFocused: Boolean, color: Color): Modifier {

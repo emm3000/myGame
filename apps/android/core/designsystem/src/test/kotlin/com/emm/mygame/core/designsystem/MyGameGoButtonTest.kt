@@ -21,6 +21,10 @@ import androidx.compose.ui.test.assert
 import androidx.compose.ui.test.assertIsEnabled
 import androidx.compose.ui.test.assertIsFocused
 import androidx.compose.ui.test.captureToImage
+import androidx.compose.ui.test.getBoundsInRoot
+import androidx.compose.ui.unit.DpRect
+import androidx.compose.ui.unit.height
+import androidx.compose.ui.unit.width
 import androidx.compose.ui.test.hasClickAction
 import androidx.compose.ui.test.performClick
 import androidx.compose.ui.test.requestFocus
@@ -42,6 +46,8 @@ private val ringRoom: Dp = 12.dp
 private const val START_REVIEWS: String = "Start the reviews"
 
 private const val NO_REVIEWS_DUE: String = "No reviews due now."
+
+private const val DISC_TOLERANCE: Float = 0.5f
 
 @RunWith(RobolectricTestRunner::class)
 @GraphicsMode(GraphicsMode.Mode.NATIVE)
@@ -133,6 +139,19 @@ class MyGameGoButtonTest {
 
         assertEquals(hexOf(lightColors.onGo.toArgb()), hexOf(mostDrawnOf(badge)))
         assertTrue("the figure is drawn in go", badge.contains(lightColors.go.toArgb()))
+    }
+
+    @Test
+    fun `a two-digit count sits on a round disc`() {
+        show {
+            MyGameButton(label = START_REVIEWS, isBusy = false, busyDescription = "Waiting", onClick = {}, badge = "12")
+        }
+
+        val disc: DpRect = composeRule
+            .onNode(SemanticsMatcher.keyIsDefined(PILL_BADGE), useUnmergedTree = true)
+            .getBoundsInRoot()
+
+        assertEquals(disc.width.value, disc.height.value, DISC_TOLERANCE)
     }
 
     @Test
