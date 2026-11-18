@@ -22,8 +22,6 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.flow.StateFlow
-import kotlinx.coroutines.flow.filterNotNull
-import kotlinx.coroutines.launch
 
 class MyGameApplication : Application(), AppDependencies {
 
@@ -38,7 +36,9 @@ class MyGameApplication : Application(), AppDependencies {
 
     override val sessionEnds: SessionEnds = SessionEnds()
 
-    private val languages: PlayerLanguages by lazy { PlayerLanguages(tokenStore) }
+    private val languages: PlayerLanguages by lazy {
+        PlayerLanguages(tokenStore, onNamed = { language: PlayerLanguage -> studyReminderStore.nameLanguage(language) })
+    }
 
     private val applicationScope: CoroutineScope = CoroutineScope(SupervisorJob() + Dispatchers.Default)
 
@@ -66,11 +66,7 @@ class MyGameApplication : Application(), AppDependencies {
     override fun onCreate() {
         super.onCreate()
         studyAnswers
-        applicationScope.launch {
-            languages.language.filterNotNull().collect { language: PlayerLanguage ->
-                studyReminderStore.nameLanguage(language)
-            }
-        }
+        studyReminderStore.announce()
     }
 
     override val playerLanguage: StateFlow<PlayerLanguage?> by lazy { languages.language }

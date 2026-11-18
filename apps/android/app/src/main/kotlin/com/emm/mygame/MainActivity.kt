@@ -19,11 +19,11 @@ class MainActivity : ComponentActivity() {
         enableEdgeToEdge()
         super.onCreate(savedInstanceState)
         if (savedInstanceState == null) sendReminderTap(intent)
-        val application: MyGameApplication = application as MyGameApplication
+        val dependencies: AppDependencies = application as AppDependencies
         val taps: Flow<StudyReminderLine> = reminderTaps.receiveAsFlow()
         setContent {
             MyGameTheme {
-                AppNavigation(dependencies = application, reminderTaps = taps)
+                AppNavigation(dependencies = dependencies, reminderTaps = taps)
             }
         }
     }

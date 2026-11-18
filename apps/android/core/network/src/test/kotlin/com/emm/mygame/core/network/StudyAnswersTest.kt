@@ -343,7 +343,7 @@ class StudyAnswersTest {
     private fun TestScope.town(): TownRepository = TownRepository(
         baseUrl = api.url("/api/").toString(),
         tokenStore = store,
-        languages = PlayerLanguages(store),
+        languages = PlayerLanguages(store, onNamed = {}),
         sessionEnds = SessionEnds(),
         studyAnswers = studyAnswers(),
         ioDispatcher = UnconfinedTestDispatcher(testScheduler),

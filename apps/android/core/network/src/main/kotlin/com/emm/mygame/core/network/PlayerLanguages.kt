@@ -5,7 +5,7 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 
-class PlayerLanguages(tokenStore: TokenStore) {
+class PlayerLanguages(tokenStore: TokenStore, private val onNamed: (PlayerLanguage) -> Unit) {
 
     private val holding: Any = Any()
 
@@ -43,6 +43,7 @@ class PlayerLanguages(tokenStore: TokenStore) {
             heldChromePhase = heldChromePhase.fresherOf(answer.chromePhase, freshness)
             _scaffold.value = heldScaffold?.value
             _language.value = languageOf(heldScaffold?.value, heldChromePhase?.value)
+            _language.value?.let(onNamed)
         }
     }
 

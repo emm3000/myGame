@@ -70,6 +70,12 @@ class StudyReminderStore(
         }
     }
 
+    fun announce() {
+        synchronized(holding) {
+            onChange(_choice.value, _facts.value)
+        }
+    }
+
     fun clear() {
         synchronized(holding) {
             preferences.edit().clear().apply()

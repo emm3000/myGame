@@ -82,7 +82,7 @@ class TownWordsRepositoryTest {
         return TownRepository(
             baseUrl = api.url("/api/").toString(),
             tokenStore = store,
-            languages = PlayerLanguages(store),
+            languages = PlayerLanguages(store, onNamed = {}),
             sessionEnds = SessionEnds(),
             studyAnswers = discardedStudyAnswers(store),
             ioDispatcher = UnconfinedTestDispatcher(testScheduler),
