@@ -24,7 +24,7 @@ export DATABASE_URL=postgres://postgres:mygame@localhost:5433/mygame_schema
 
 - Without `-v` the image creates an anonymous volume that cannot be told apart from another project's; the named one lets `scripts/mygame-wave-close` remove it and `scripts/mygame-orphans` report it.
 - The three `-c` flags drop durability, which holds only test data: never on Neon or any database whose data matters.
-- `DATABASE_URL` must be set in the shell that runs `pnpm gate`. The test run migrates a fresh database itself; `dev` needs `db:migrate` first.
+- `DATABASE_URL` must be set in the shell that runs `pnpm gate`. The test run leaves that database alone: `vitest.globalSetup.ts` rebuilds `<database>_template` from the migrations and clones `<database>_worker_<n>` from it, one per Vitest worker, which `vitest.workerDatabase.ts` picks by `VITEST_POOL_ID`; `dev` needs `db:migrate` first.
 
 ## Local mail
 
@@ -44,7 +44,6 @@ export WEB_URL=http://localhost:3233
 
 ## Gotchas
 
-- Stop the dev api before `pnpm gate`: both use the session's one database, so a request racing the migration test's `DROP SCHEMA public CASCADE` fails it with `deadlock detected`, and the rows dev writes make other tests read the wrong data (#583).
 - Every town mutation runs through `mutateTown` (`src/town/mutateTown.ts`), which locks the player's row, then the town's. A new lock taken in another order can deadlock.
 - Inside `inTransaction`, every store comes from `TransactionStores`: a write through an outside store that touches a row referencing `towns` blocks on the town's `FOR UPDATE` lock, since the foreign key takes `FOR KEY SHARE`.
 - Drizzle's `insert` lists every column of the current `schema.ts`, so it fails on a database at an older migration: a migration test seeds the previous version's rows with `client.query` and plain SQL.

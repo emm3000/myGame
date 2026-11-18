@@ -1,9 +1,12 @@
+import { availableParallelism } from 'node:os'
 import { defineConfig } from 'vitest/config'
 
 export default defineConfig({
   test: {
     include: ['src/**/*.test.ts'],
     globalSetup: ['./vitest.globalSetup.ts'],
-    fileParallelism: false,
+    setupFiles: ['./vitest.workerDatabase.ts'],
+    fileParallelism: true,
+    maxWorkers: Math.max(availableParallelism() - 1, 1),
   },
 })
