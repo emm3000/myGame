@@ -11,17 +11,18 @@ metadata:
 
 ## Activation Contract
 
-Run when the owner invokes `/wave` with one or more issue numbers, or when the orchestrator starts the next wave itself after the previous wave is fully merged. Each number becomes one peer session and one dispatch. Stop and report if any number is not an open `ready-for-agent` issue.
+Run when the owner invokes `/wave` with one or more issue numbers, or when the orchestrator dispatches more tickets itself. Each number becomes one peer session and one dispatch. Stop and report if any number is not an open `ready-for-agent` issue.
 
 ## Hard Rules
 
-- Read `docs/agents/multi-session.md` first. Its dispatch checklist, model table and isolation rules bind every dispatch.
-- Under `max-200`, one ticket per peer. Under `max-100`, at most 3 peers at a time, and one peer may carry up to 3 row 1 tickets, one PR each, in sequence; every other ticket gets its own peer. Never dispatch a ticket while a PR from the same wave is unmerged.
+- Read `docs/agents/multi-session.md` first. Its Dispatch, Isolation and Review cycle sections bind every dispatch.
+- Tickets dispatched together touch disjoint Gradle modules, or disjoint packages for TypeScript. A seam two of them share lands first as its own PR.
+- Under `max-200`, one ticket per peer. Under `max-100`, at most 3 peers at a time, and one peer may carry up to 3 row 1 tickets, one PR each, in sequence; every other ticket gets its own peer.
 - Read the active budget tier from the `Budget tier:` line of `CLAUDE.md` and take every model and effort from that tier's column.
 - One explicit model and one explicit effort per ticket, stated to the owner before booting.
 - Never touch the owner's main checkout. Peers get their own worktree from `scripts/mygame-session`.
-- No wave carries two tickets touching the same package, and a schema or migration change is always a wave of one.
 - Assign each peer its own `API_PORT` and `WEB_PORT` in the dispatch, never the defaults.
+- The one playbook a dispatch tells a peer to read is `docs/agents/peer.md`. A dispatch never orders `/agents-review`.
 
 ## Decision Gates
 
@@ -66,7 +67,7 @@ Every row is a bet until `docs/agents/dispatch-log.md` says otherwise. A row tha
 2. Classify each ticket with the table. The table binds: deviate only with a one-line reason stated in the plan, never silently. Tell the owner the plan in one line per ticket: `@<name> #<n> <model>:<effort>`, before booting anything.
 3. Run `scripts/mygame-wave <name>:<model>:<effort> ...` once with every ticket. It opens the panes in the terminal the orchestrator runs in (`TERM_PROGRAM`: herdr or Warp). When the owner names a terminal in the session ("trabajemos con warp", "con herdr"), pass `--terminal warp` or `--terminal herdr` as the first argument for the rest of the session. On `manual` (unknown terminal) the script prints one `scripts/mygame-session` line per peer: pass them to the owner to run, then poll.
 4. Poll `ListAgents` until every pane name is listed, at most 60 seconds.
-5. Send each peer one dispatch built from the playbook checklist: issue, docs to read, branch `<type>/<n>-<slug>`, its worktree `../mygame-<name>`, its ports, the acceptance-criteria line, the gate (`pnpm gate`), TDD or screenshots per the table, `Closes #<n>`, no merge, reply with the PR URL. A row 5 dispatch replaces branch, gate and PR with: publish the artifact, comment its URL on the issue, close the issue, reply with the URL. Ask for `notify_when_idle`.
+5. Send each peer one dispatch built from the playbook's Dispatch section: issue, `docs/agents/peer.md` and the ticket's own docs to read, branch `<type>/<n>-<slug>`, its worktree `../mygame-<name>`, its ports, the files and blockers, whether it owes the red-run table or screenshots, reply with the PR URL and the gate's exit code. A row 5 dispatch replaces branch, gate and PR with: publish the artifact, comment its URL on the issue, close the issue, reply with the URL. Ask for `notify_when_idle`.
 6. Report to the owner in one or two lines: peers booted, tickets dispatched.
 
 ## Output Contract
@@ -75,7 +76,8 @@ Return the list `@<name> #<n> <model>:<effort>` and nothing else until a peer re
 
 ## References
 
-- `docs/agents/multi-session.md` — dispatch checklist, isolation, review cycle.
+- `docs/agents/multi-session.md` — the orchestrator's playbook: dispatch, isolation, review cycle.
+- `docs/agents/peer.md` — the one playbook a peer reads.
 - `docs/agents/dispatch-log.md` — the outcomes per table row.
 - `scripts/mygame-wave` — opens one pane per peer in herdr or Warp, or prints the launch lines.
 - `scripts/mygame-session` — worktree plus `claude` launcher.
