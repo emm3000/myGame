@@ -5,6 +5,7 @@ import com.emm.mygame.core.testing.TestClock
 import java.io.File
 import java.util.concurrent.CountDownLatch
 import java.util.concurrent.TimeUnit
+import java.util.concurrent.atomic.AtomicBoolean
 import kotlin.time.Instant
 import kotlinx.coroutines.CoroutineStart
 import kotlinx.coroutines.Deferred
@@ -137,6 +138,36 @@ class TownReadFlightTest {
         assertEquals(NEXT_TOWN_NAME, towns.town.value?.town?.name)
     }
 
+    @Test
+    fun `an older read that answers late never replaces the town of a newer read`() = runTest {
+        val lateFirstRead: LateFirstRead = LateFirstRead()
+        api.dispatcher = lateFirstRead
+        val towns: TownRepository = town()
+
+        val older: Deferred<TownReadResult> = async(start = CoroutineStart.UNDISPATCHED) { towns.read() }
+        api.takeRequestWithin()
+        towns.readSentAfterNow()
+        lateFirstRead.answer.countDown()
+        older.await()
+
+        assertEquals(NEXT_TOWN_NAME, towns.town.value?.town?.name)
+    }
+
+    @Test
+    fun `an older read that answers late never replaces the town a lesson start answered`() = runTest {
+        val lateFirstRead: LateFirstRead = LateFirstRead()
+        api.dispatcher = lateFirstRead
+        val towns: TownRepository = town()
+
+        val older: Deferred<TownReadResult> = async(start = CoroutineStart.UNDISPATCHED) { towns.read() }
+        api.takeRequestWithin()
+        towns.startLesson(LessonId("lesson-2"))
+        lateFirstRead.answer.countDown()
+        older.await()
+
+        assertEquals(NEXT_TOWN_NAME, towns.town.value?.town?.name)
+    }
+
     private fun TestScope.town(): TownRepository = TownRepository(
         baseUrl = api.url("/api/").toString(),
         tokenStore = store,
@@ -161,6 +192,19 @@ class TownReadFlightTest {
         override fun dispatch(request: RecordedRequest): MockResponse {
             if (request.url.encodedPath == SIGN_OUT_PATH) return MockResponse.Builder().code(204).build()
             if (request.headers["Authorization"] != beforeBearer) return json(200, NEXT_TOWN)
+            answer.await(ANSWER_WAIT_SECONDS, TimeUnit.SECONDS)
+            return json(200, TOWN)
+        }
+    }
+
+    private class LateFirstRead : Dispatcher() {
+        val answer: CountDownLatch = CountDownLatch(1)
+
+        private val isFirstRead: AtomicBoolean = AtomicBoolean(true)
+
+        override fun dispatch(request: RecordedRequest): MockResponse {
+            val isLateRead: Boolean = request.method == "GET" && isFirstRead.getAndSet(false)
+            if (!isLateRead) return json(200, NEXT_TOWN)
             answer.await(ANSWER_WAIT_SECONDS, TimeUnit.SECONDS)
             return json(200, TOWN)
         }
