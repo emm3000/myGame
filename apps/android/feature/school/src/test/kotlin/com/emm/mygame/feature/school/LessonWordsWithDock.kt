@@ -13,6 +13,8 @@ import com.emm.mygame.core.ui.TaskDockHook
 
 internal const val TASK_DOCK: String = "task_dock"
 
+internal const val TASK_DOCK_COUNTDOWN: String = "task_dock_countdown"
+
 @Composable
 internal fun LessonWordsWithDock(
     state: LessonWordsUiState,
@@ -38,6 +40,7 @@ internal fun LessonWordsWithDock(
                 go = shown.go,
                 onFoldChange = hook::fold,
                 modifier = Modifier.testTag(TASK_DOCK),
+                countdown = { Box(modifier = Modifier.testTag(TASK_DOCK_COUNTDOWN)) { shown.countdown() } },
                 notice = shown.notice,
             )
         }

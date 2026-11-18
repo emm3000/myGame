@@ -37,6 +37,7 @@ fun FoldedTaskEnd(
         modifier = modifier.bringIntoViewRequester(requester),
     ) {
         MyGameDockLineText(line = dock.line, loadingLabel = dock.go.busyDescription)
+        dock.countdown()
         dock.notice()
     }
 }
