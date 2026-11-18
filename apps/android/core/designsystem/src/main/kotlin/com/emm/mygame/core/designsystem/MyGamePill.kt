@@ -52,6 +52,8 @@ private var SemanticsPropertyReceiver.pillBadge: String by PILL_BADGE
 
 private const val HALF: Int = 2
 
+private const val LABEL_WEIGHT: Float = 1f
+
 @Composable
 internal fun MyGamePill(
     look: MyGamePillLook,
@@ -100,7 +102,9 @@ internal fun MyGamePill(
             label = label,
             style = look.style.copy(textAlign = TextAlign.Center),
             color = ink,
-            modifier = if (accessibleName == null) Modifier else Modifier.clearAndSetSemantics { },
+            modifier = Modifier
+                .weight(LABEL_WEIGHT, fill = false)
+                .then(if (accessibleName == null) Modifier else Modifier.clearAndSetSemantics { }),
         )
         badge?.let { figure: String -> PillBadge(figure = figure, look = look) }
     }

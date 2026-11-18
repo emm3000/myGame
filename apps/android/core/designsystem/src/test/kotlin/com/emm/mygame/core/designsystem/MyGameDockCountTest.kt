@@ -14,9 +14,12 @@ import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.onRoot
 import androidx.compose.ui.unit.DpRect
 import androidx.compose.ui.unit.IntSize
+import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.height
 import androidx.compose.ui.unit.width
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertFalse
+import org.junit.Assert.assertTrue
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -29,6 +32,8 @@ private const val GO_SHARE: Float = 3f
 private const val SHARES: Float = 4f
 
 private const val UNFOLDING_HEIGHT: Int = 100_000
+
+private const val DISC_TOLERANCE: Float = 1f
 
 private class UnfoldingWindow(private val window: WindowInfo) : WindowInfo by window {
     override val containerSize: IntSize
@@ -112,24 +117,29 @@ class MyGameDockCountTest(private val case: Case) {
         return sheet - MyGameSpacing.step3.value - goShare()
     }
 
-    private fun placedWidthAndRight(matcher: SemanticsMatcher): Pair<Float, Float> {
+    private fun placedBounds(matcher: SemanticsMatcher): DpRect {
         val placed: SemanticsNode = composeRule
             .onAllNodes(matcher, useUnmergedTree = true)
             .fetchSemanticsNodes()
             .single { node: SemanticsNode -> node.layoutInfo.isPlaced }
         val density: Float = placed.layoutInfo.density.density
-        return placed.boundsInRoot.width / density to placed.boundsInRoot.right / density
+        return DpRect(
+            left = (placed.boundsInRoot.left / density).dp,
+            top = (placed.boundsInRoot.top / density).dp,
+            right = (placed.boundsInRoot.right / density).dp,
+            bottom = (placed.boundsInRoot.bottom / density).dp,
+        )
     }
 
     private fun goWidthOnOneLine(): Float {
-        val discRight: Float = placedWidthAndRight(SemanticsMatcher.keyIsDefined(PILL_BADGE)).second
+        val discRight: Float = placedBounds(SemanticsMatcher.keyIsDefined(PILL_BADGE)).right.value
         val go: DpRect = goButton()
         val centeredContent: Float = (discRight - (go.left.value + go.right.value) / 2) * 2
         return centeredContent + MyGameSpacing.step6.value * 2
     }
 
     private fun doorWidthOnOneLine(): Float =
-        placedWidthAndRight(hasText(case.language.door)).first + MyGameSpacing.step3.value * 2
+        placedBounds(hasText(case.language.door)).width.value + MyGameSpacing.step3.value * 2
 
     private fun rowFits(): Boolean = goWidthOnOneLine() <= goShare() && doorWidthOnOneLine() <= doorShare()
 
@@ -146,6 +156,16 @@ class MyGameDockCountTest(private val case: Case) {
 
         assertFalse("the dock folded", isFolded)
         assertEquals(case.door, doorPlace())
+    }
+
+    @Test
+    fun `the count's disc stays a whole circle inside the go button`() {
+        showDock()
+
+        val disc: DpRect = placedBounds(SemanticsMatcher.keyIsDefined(PILL_BADGE))
+        val go: DpRect = goButton()
+        assertEquals("the disc is round", disc.width.value, disc.height.value, DISC_TOLERANCE)
+        assertTrue("the disc ends inside the go button", disc.right.value <= go.right.value - MyGameSpacing.step6.value)
     }
 
     companion object {
