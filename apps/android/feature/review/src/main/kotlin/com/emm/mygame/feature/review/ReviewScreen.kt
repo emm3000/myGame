@@ -1,14 +1,15 @@
 package com.emm.mygame.feature.review
 
+import androidx.compose.foundation.ScrollState
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.safeDrawingPadding
-import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.semantics.ProgressBarRangeInfo
 import androidx.compose.ui.semantics.heading
@@ -39,10 +40,10 @@ import com.emm.mygame.core.network.WordId
 import com.emm.mygame.core.network.WordSupport
 import com.emm.mygame.core.ui.ChromePhase
 import com.emm.mygame.core.ui.CopyLanguage
+import com.emm.mygame.core.ui.FoldedTaskEnd
 import com.emm.mygame.core.ui.PlayerCopy
 import com.emm.mygame.core.ui.ProvideCopyLanguage
 import com.emm.mygame.core.ui.ScaffoldLanguage
-import com.emm.mygame.core.ui.FoldedTaskEnd
 import com.emm.mygame.core.ui.TaskDockHook
 import com.emm.mygame.core.ui.chromeResource
 import com.emm.mygame.core.ui.rememberPlayerCopy
@@ -59,13 +60,17 @@ fun ReviewScreen(
     modifier: Modifier = Modifier,
 ) {
     ReviewDock(state = state, onIntent = onIntent, task = task)
+    val shownCard: Any? = (state as? ReviewUiState.Reviewing)?.let { shown: ReviewUiState.Reviewing ->
+        shown.card.wordId to shown.walked
+    }
+    val scroll: ScrollState = rememberSaveable(shownCard, saver = ScrollState.Saver) { ScrollState(initial = 0) }
     Column(
         verticalArrangement = Arrangement.spacedBy(MyGameSpacing.step6),
         modifier = modifier
             .fillMaxSize()
             .background(MyGameTheme.colors.surface)
             .safeDrawingPadding()
-            .verticalScroll(rememberScrollState())
+            .verticalScroll(scroll)
             .padding(start = MyGameSpacing.step4, end = MyGameSpacing.step4, top = MyGameSpacing.step8)
             .padding(bottom = MyGameSpacing.step8),
     ) {
