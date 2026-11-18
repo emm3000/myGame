@@ -7,7 +7,7 @@ The rules: `.claude/rules/architecture.md`, `typescript-style.md`, `testing.md`,
 ## Commands
 
 - `WEB_PORT=<port> API_PORT=<port> pnpm --filter @mygame/web dev` — dev server on `WEB_PORT`. The port has no default and `strictPort` is on: an unset or busy port fails instead of drifting. `/api/*` is proxied to the api on `API_PORT` with the `/api` prefix stripped, so the session cookie is same-origin.
-- `pnpm --filter @mygame/web test` — Vitest in jsdom, `src/**/*.test.{ts,tsx}`.
+- `pnpm --filter @mygame/web test` — Vitest in happy-dom, `src/**/*.test.{ts,tsx}`, one DOM per test file.
 - `pnpm --filter @mygame/web typecheck` — `tsc --noEmit`.
 - `pnpm --filter @mygame/web drawables` — writes the Android VectorDrawable of every SVG under `public/art/places/` and `public/art/waste/` into `apps/android/core/designsystem/src/main/res/drawable/`. Run it after drawing or editing one; `src/art/townDrawables.test.ts` fails on a drift, a missing drawable or an orphan one.
 - `pnpm --filter @mygame/web tokens` — writes `core:designsystem`'s Kotlin token files from `src/design/tokens.ts`. Run it after editing `tokens.ts`; `src/design/android/designSystemDriftsOf.test.ts` fails on a drifted value or a missing file.
@@ -25,7 +25,8 @@ The rules: `.claude/rules/architecture.md`, `typescript-style.md`, `testing.md`,
 - `src/design/tailwindTheme.ts` has a default export, the one exception to named exports only: Tailwind's `@plugin` reads `module.default ?? module` (ADR 009).
 - Inside a `Block`, text takes `on-block` and `on-block-muted`, never `ink`, which flips in dark; `CountdownLine` takes `ground="block"` and a focus target `blockFocusTargetClass`, since `focus` in dark falls to 1.26:1 on mint.
 - A pill (`Button`, `ButtonLink`) is `inline-flex`: it fills its column only as a direct child of a `flex-col`. A `flex` row or `items-start` around it shrinks it to its text.
-- `vitest.setup.ts` dispatches `load` on each stylesheet link as it is inserted: React 19 holds a commit until every head stylesheet fires `load`, which jsdom never does, and without it the root document renders empty in every route test.
+- `vitest.setup.ts` dispatches `load` on each stylesheet link as it is inserted: React 19 holds a commit until every head stylesheet fires `load`, which happy-dom never does in time: `handleDisabledFileLoadingAsSuccess` in `vitest.config.ts` only turns its `error` on the font link, a failed run, into a `load` fired during the insert, and skips `as="style"` preloads. Without the shim the root document renders empty in every route test.
+- `isolate` stays on: with one DOM shared across files, a component test's `render` into a `div` first sets React's listening marker on `document`, so a later `renderAppAt` registers no event listeners on `document` and every click in that route test is lost.
 - A route test renders the real route tree with `renderAppAt(path, client)` (`src/auth/renderAppAt.testSupport.tsx`) over a stub `ApiClient`. `{ isStrict: true }` renders under `StrictMode`, the only way a test sees an effect run twice: use it for a post-once test.
 - A double-click test fires both clicks in one `act` with a held promise: two separate clicks let React disable the button in between and never reach the in-flight guard.
 - `formatQuantity` groups thousands with a narrow no-break space (U+202F). Testing Library's default normalizer turns it into a plain space, so a `getByText` expectation writes `1 200` and a `textContent` expectation `1 200`.

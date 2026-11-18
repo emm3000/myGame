@@ -6,7 +6,10 @@ process.env.TZ = 'Europe/Madrid'
 export default defineConfig({
   plugins: [react()],
   test: {
-    environment: 'jsdom',
+    environment: 'happy-dom',
+    environmentOptions: {
+      happyDOM: { settings: { handleDisabledFileLoadingAsSuccess: true } },
+    },
     include: ['src/**/*.test.{ts,tsx}'],
     setupFiles: ['./vitest.setup.ts'],
   },
