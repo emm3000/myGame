@@ -27,6 +27,7 @@ import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.robolectric.RobolectricTestRunner
+import org.robolectric.annotation.Config
 import org.robolectric.annotation.GraphicsMode
 
 private const val LARGE: Float = 1.5f
@@ -63,6 +64,24 @@ class MyGamePillAtLargeFontTest {
 
     private fun inkPill(label: String): @Composable () -> Unit = {
         MyGameButton(label = label, isBusy = false, busyDescription = "Waiting", onClick = {})
+    }
+
+    private fun goButtonWithCount(label: String): @Composable () -> Unit = {
+        MyGameButton(label = label, isBusy = false, busyDescription = "Waiting", onClick = {}, badge = "4")
+    }
+
+    private fun dockWithDoor(): @Composable () -> Unit = {
+        MyGameDock(
+            line = MyGameDockLine(title = MyGameLabel(text = "What is next", translation = null), step = null),
+            go = MyGameDockGo(
+                label = MyGameLabel(text = SHORT_LABEL, translation = null),
+                isBusy = false,
+                busyDescription = "Waiting",
+                onClick = {},
+            ),
+            onFoldChange = {},
+            door = MyGameDockDoor(label = MyGameLabel(text = "Town", translation = null), onClick = {}),
+        )
     }
 
     private fun outlinedPill(label: String): @Composable () -> Unit = {
@@ -159,5 +178,42 @@ class MyGamePillAtLargeFontTest {
         showAt(LARGE, outlinedPill(SHORT_LABEL))
 
         assertEquals(MyGameSizes.secondary.value, heightOf(OUTLINED_PILL).value, DP_TOLERANCE)
+    }
+
+    @Test
+    fun `keeps padding above and below a wrapped go button label with its count at a large font`() {
+        showAt(LARGE, goButtonWithCount(LONG_LABEL))
+
+        assertWrapsInsidePadding(INK_PILL)
+    }
+
+    @Test
+    fun `keeps padding above and below a wrapped go button label with its count at the largest font`() {
+        showAt(LARGEST, goButtonWithCount(LONG_LABEL))
+
+        assertWrapsInsidePadding(INK_PILL)
+    }
+
+    @Test
+    fun `keeps the go button with its count at action height for one line at the largest font`() {
+        showAt(LARGEST, goButtonWithCount(SHORT_LABEL))
+
+        assertEquals(MyGameSizes.action.value, heightOf(INK_PILL).value, DP_TOLERANCE)
+    }
+
+    @Test
+    @Config(qualifiers = "+w360dp-h2000dp")
+    fun `keeps the dock's door at action height for one line at a large font`() {
+        showAt(LARGE, dockWithDoor())
+
+        assertEquals(MyGameSizes.action.value, heightOf(OUTLINED_PILL).value, DP_TOLERANCE)
+    }
+
+    @Test
+    @Config(qualifiers = "+w360dp-h2000dp")
+    fun `keeps the dock's door at action height for one line at the largest font`() {
+        showAt(LARGEST, dockWithDoor())
+
+        assertEquals(MyGameSizes.action.value, heightOf(OUTLINED_PILL).value, DP_TOLERANCE)
     }
 }

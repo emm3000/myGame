@@ -1,5 +1,6 @@
 package com.emm.mygame.core.designsystem
 
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.semantics.SemanticsProperties
 import androidx.compose.ui.test.SemanticsMatcher
@@ -97,5 +98,23 @@ class MyGameControlsTest {
             .performClick()
 
         assertEquals(0, taps)
+    }
+
+    @Test
+    fun `gives the go button the md corners`() {
+        show { MyGameButton(label = "Study", isBusy = false, busyDescription = "Waiting", onClick = {}) }
+
+        composeRule
+            .onNodeWithTag(INK_PILL)
+            .assert(SemanticsMatcher.expectValue(SemanticsProperties.Shape, RoundedCornerShape(MyGameRadii.md)))
+    }
+
+    @Test
+    fun `gives an outlined button the md corners`() {
+        show { MyGameOutlinedButton(label = "School", isBusy = false, busyDescription = "Waiting", onClick = {}) }
+
+        composeRule
+            .onNodeWithTag(OUTLINED_PILL)
+            .assert(SemanticsMatcher.expectValue(SemanticsProperties.Shape, RoundedCornerShape(MyGameRadii.md)))
     }
 }

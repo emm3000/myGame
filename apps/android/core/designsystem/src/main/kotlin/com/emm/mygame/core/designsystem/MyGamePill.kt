@@ -1,20 +1,31 @@
 package com.emm.mygame.core.designsystem
 
+import androidx.compose.foundation.LocalIndication
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.interaction.MutableInteractionSource
+import androidx.compose.foundation.interaction.collectIsFocusedAsState
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.defaultMinSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.draw.drawBehind
+import androidx.compose.ui.geometry.CornerRadius
+import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Shape
+import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.semantics.SemanticsPropertyKey
 import androidx.compose.ui.semantics.SemanticsPropertyReceiver
@@ -43,16 +54,19 @@ internal fun MyGamePill(
     badge: String? = null,
 ) {
     val colors: MyGameColors = MyGameTheme.colors
-    val shape: Shape = RoundedCornerShape(MyGameRadii.pill)
+    val shape: Shape = RoundedCornerShape(MyGameRadii.md)
     val isBlocked: Boolean = blockedReason != null && !isBusy
     val isQuiet: Boolean = isBusy || isBlocked
     val ink: Color = if (isQuiet) colors.inkMuted else look.ink
+    val interactions: MutableInteractionSource = remember { MutableInteractionSource() }
+    val isFocused: Boolean by interactions.collectIsFocusedAsState()
     Row(
         horizontalArrangement = Arrangement.spacedBy(MyGameSpacing.step2, Alignment.CenterHorizontally),
         verticalAlignment = Alignment.CenterVertically,
         modifier = modifier
             .fillMaxWidth()
             .defaultMinSize(minHeight = look.height)
+            .outerFocusRing(look = look, isFocused = isFocused, color = colors.focus)
             .clip(shape)
             .background(if (isQuiet) colors.surfaceSunken else look.ground)
             .edge(isBlocked = isBlocked, isBusy = isBusy, look = look, colors = colors, shape = shape)
@@ -61,7 +75,13 @@ internal fun MyGamePill(
                 accessibleName = accessibleName,
                 state = if (isBusy) busyDescription else blockedReason,
             )
-            .clickable(enabled = !isBusy, role = Role.Button, onClick = onClick)
+            .clickable(
+                interactionSource = interactions,
+                indication = LocalIndication.current,
+                enabled = !isBusy,
+                role = Role.Button,
+                onClick = onClick,
+            )
             .padding(horizontal = look.sidePadding, vertical = MyGameSpacing.step2),
     ) {
         if (isBusy) MyGameIcon(icon = MyGameIcons.hourglass, tint = ink)
@@ -71,22 +91,39 @@ internal fun MyGamePill(
             color = ink,
             modifier = if (accessibleName == null) Modifier else Modifier.clearAndSetSemantics { },
         )
-        badge?.let { figure: String -> PillBadge(figure = figure, shape = shape) }
+        badge?.let { figure: String -> PillBadge(figure = figure, look = look) }
     }
 }
 
 @Composable
-private fun PillBadge(figure: String, shape: Shape, modifier: Modifier = Modifier) {
-    val colors: MyGameColors = MyGameTheme.colors
+private fun PillBadge(figure: String, look: MyGamePillLook, modifier: Modifier = Modifier) {
     MyGameText(
         text = figure,
         style = MyGameTypography.label.withTabularFigures(),
-        color = colors.onAction,
+        color = look.badgeInk,
         modifier = modifier
             .clearAndSetSemantics { pillBadge = figure }
-            .clip(shape)
-            .background(colors.action)
+            .clip(CircleShape)
+            .background(look.badgeGround)
             .padding(horizontal = MyGameSpacing.step2),
+    )
+}
+
+private fun Modifier.outerFocusRing(look: MyGamePillLook, isFocused: Boolean, color: Color): Modifier {
+    if (!look.hasOuterFocusRing || !isFocused) return this
+    return outerFocusRing(color)
+}
+
+private fun Modifier.outerFocusRing(color: Color): Modifier = drawBehind {
+    val ring: Float = MyGameStrokeWidths.focus.toPx()
+    val reach: Float = MyGameSpacing.step1.toPx() + ring / 2
+    val radius: Float = MyGameRadii.md.toPx() + reach
+    drawRoundRect(
+        color = color,
+        topLeft = Offset(-reach, -reach),
+        size = Size(size.width + reach * 2, size.height + reach * 2),
+        cornerRadius = CornerRadius(radius, radius),
+        style = Stroke(width = ring),
     )
 }
 
