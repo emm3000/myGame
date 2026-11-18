@@ -228,7 +228,7 @@ class ReviewScreenTest {
     }
 
     @Test
-    @Config(qualifiers = "+w360dp-h440dp", fontScale = 2.0f)
+    @Config(qualifiers = "+w360dp-h880dp", fontScale = 2.0f)
     fun `a verdict that folds the dock brings itself into view`() {
         val hook: TaskDockHook = TaskDockHook(onAnswered = {})
         val shown: MutableState<ReviewUiState> =
