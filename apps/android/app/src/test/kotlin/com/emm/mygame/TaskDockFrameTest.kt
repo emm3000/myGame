@@ -220,13 +220,16 @@ class TaskDockFrameTest {
     }
 
     @Test
-    @Config(qualifiers = "+w360dp-h480dp", fontScale = 2.0f)
+    @Config(qualifiers = "+w360dp-h320dp", fontScale = 2.0f)
     fun `a task's folded town step reads after its content and before its go button`() {
         showingFakeTask(isFilled = false, isFollowingTown = true, status = refusedTown)
+        val foldedLine: SemanticsMatcher =
+            hasContentDescription(TOWN_LINE_TITLE) and isPlaced and hasAnyAncestor(hasScrollAction())
+        composeRule.onNode(foldedLine).assertExists()
 
-        val read: List<Int> = readInOrder(hasText(CARD), hasContentDescription(TOWN_LINE_TITLE), placedGo)
+        val read: List<Int> = readInOrder(hasText(CARD), foldedLine, placedGo)
 
-        assertEquals(listOf(idOf(hasText(CARD)), idOf(hasContentDescription(TOWN_LINE_TITLE)), idOf(placedGo)), read)
+        assertEquals(listOf(idOf(hasText(CARD)), idOf(foldedLine), idOf(placedGo)), read)
     }
 
     @Test

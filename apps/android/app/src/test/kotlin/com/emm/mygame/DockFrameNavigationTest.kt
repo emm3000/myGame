@@ -7,7 +7,9 @@ import androidx.compose.ui.test.SemanticsMatcher
 import androidx.compose.ui.test.SemanticsNodeInteraction
 import androidx.compose.ui.test.assert
 import androidx.compose.ui.test.assertCountEquals
+import androidx.compose.ui.test.assertIsDisplayed
 import androidx.compose.ui.test.getBoundsInRoot
+import androidx.compose.ui.test.getUnclippedBoundsInRoot
 import androidx.compose.ui.test.hasAnyAncestor
 import androidx.compose.ui.test.hasContentDescription
 import androidx.compose.ui.test.hasScrollAction
@@ -19,6 +21,7 @@ import androidx.compose.ui.test.isHeading
 import androidx.compose.ui.test.junit4.AndroidComposeTestRule
 import androidx.compose.ui.test.junit4.createAndroidComposeRule
 import androidx.compose.ui.test.onAllNodesWithText
+import androidx.compose.ui.test.onLast
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.onRoot
 import androidx.compose.ui.test.performClick
@@ -617,8 +620,17 @@ class DockFrameNavigationTest {
         composeRule.waitUntil(WAIT_MILLIS) { townsFake.sentAfterNowCount == 1 }
     }
 
-    private fun waitForTheContent(matcher: SemanticsMatcher) {
-        waitFor(matcher.and(hasAnyAncestor(hasScrollAction())))
+    private fun shownAtTheEnd(line: SemanticsMatcher): SemanticsNodeInteraction {
+        val inTheContent: SemanticsMatcher = line.and(hasAnyAncestor(hasScrollAction()))
+        waitFor(inTheContent)
+        return composeRule.onAllNodes(inTheContent).onLast().assertIsDisplayed()
+    }
+
+    private fun assertEndsTheContent(line: SemanticsMatcher, content: SemanticsMatcher) {
+        val shown: SemanticsNodeInteraction = shownAtTheEnd(line)
+        val contentBottom: Dp = composeRule.onNode(content.and(hasAnyAncestor(hasScrollAction())))
+            .getUnclippedBoundsInRoot().bottom
+        assertTrue(shown.getUnclippedBoundsInRoot().top >= contentBottom)
     }
 
     @Test
@@ -628,7 +640,7 @@ class DockFrameNavigationTest {
 
         showing(Destination.Town, Destination.Placement)
 
-        waitForTheContent(hasText(PLACEMENT_OFFER_LINE))
+        assertEndsTheContent(hasText(PLACEMENT_OFFER_LINE), hasText(SKIP_PLACEMENT))
     }
 
     @Test
@@ -639,7 +651,7 @@ class DockFrameNavigationTest {
 
         showing(Destination.Town, Destination.HoldoutCheck(PlacementBand.First, HoldoutCheckWeek.Eighth))
 
-        waitForTheContent(hasText(FIRST_BAND))
+        assertEndsTheContent(hasText(FIRST_BAND), hasText(SKIP_PLACEMENT))
     }
 
     @Test
@@ -647,7 +659,7 @@ class DockFrameNavigationTest {
     fun `a folded town step draws at the end of the placement's content once it ends`() {
         skippingThePlacement()
 
-        waitForTheContent(hasText(DOCK_TITLE))
+        shownAtTheEnd(hasText(DOCK_TITLE))
     }
 
     @Test
