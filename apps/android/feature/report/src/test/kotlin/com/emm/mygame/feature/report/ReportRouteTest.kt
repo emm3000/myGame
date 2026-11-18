@@ -15,8 +15,10 @@ import androidx.lifecycle.LifecycleRegistry
 import androidx.lifecycle.compose.LocalLifecycleOwner
 import com.emm.mygame.core.designsystem.MyGameTheme
 import com.emm.mygame.core.network.ReportReadResult
+import com.emm.mygame.core.network.StudyReminderChoice
 import com.emm.mygame.core.testing.FakeReportRepository
 import com.emm.mygame.core.testing.FakeSessionRepository
+import com.emm.mygame.core.testing.FakeStudyReminderSettings
 import kotlin.time.Clock
 import kotlin.time.Instant
 import org.junit.Assert.assertEquals
@@ -35,6 +37,8 @@ class ReportRouteTest {
 
     private val sessions: FakeSessionRepository = FakeSessionRepository()
 
+    private val reminders: FakeStudyReminderSettings = FakeStudyReminderSettings(StudyReminderChoice.firstChoice)
+
     private val screenOwner: ScreenOwner = ScreenOwner()
 
     private val frozenClock: Clock = object : Clock {
@@ -49,6 +53,7 @@ class ReportRouteTest {
                 ReportRoute(
                     reports = reports,
                     sessions = sessions,
+                    reminders = reminders,
                     clock = frozenClock,
                     navigation = ReportNavigation(
                         onReviewsOpen = {},
@@ -65,14 +70,14 @@ class ReportRouteTest {
     }
 
     private fun showRoute() {
-        composeRule.setContent(routeShowing(ReportViewModel(reports, sessions, Clock.System)))
+        composeRule.setContent(routeShowing(ReportViewModel(reports, sessions, reminders, Clock.System)))
         composeRule.runOnIdle { screenOwner.move(Lifecycle.State.RESUMED) }
         composeRule.waitForIdle()
     }
 
     private fun showRebuildableRoute(): StateRestorationTester {
         val restoration: StateRestorationTester = StateRestorationTester(composeRule)
-        restoration.setContent(routeShowing(ReportViewModel(reports, sessions, frozenClock)))
+        restoration.setContent(routeShowing(ReportViewModel(reports, sessions, reminders, frozenClock)))
         composeRule.runOnIdle { screenOwner.move(Lifecycle.State.RESUMED) }
         return restoration
     }

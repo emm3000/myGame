@@ -38,6 +38,7 @@ class ReportLanguageTest {
         nextReview = null,
         news = ReportUiState.ReportNews.Unread(listOf(finishedFarm), ReportUiState.CloseRequest.Unreachable),
         receivedAt = readInstant,
+        isReminderOn = true,
     )
 
     private val nothingDueUntilTomorrow: ReportUiState.Content = dueWithNews.copy(

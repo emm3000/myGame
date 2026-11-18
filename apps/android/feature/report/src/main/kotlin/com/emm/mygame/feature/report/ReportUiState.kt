@@ -18,6 +18,7 @@ sealed interface ReportUiState {
         val nextReview: Instant?,
         val news: ReportNews,
         val receivedAt: Instant,
+        val isReminderOn: Boolean,
     ) : ReportUiState
 
     sealed interface ReportNews {

@@ -3,11 +3,13 @@ package com.emm.mygame.feature.report
 import androidx.lifecycle.viewModelScope
 import com.emm.mygame.core.network.LessonId
 import com.emm.mygame.core.network.ReportReadResult
+import com.emm.mygame.core.network.StudyReminderChoice
 import com.emm.mygame.core.network.TownBuildingKind
 import com.emm.mygame.core.network.TownNews
 import com.emm.mygame.core.network.TownReport
 import com.emm.mygame.core.testing.FakeReportRepository
 import com.emm.mygame.core.testing.FakeSessionRepository
+import com.emm.mygame.core.testing.FakeStudyReminderSettings
 import com.emm.mygame.core.testing.TestClock
 import kotlin.time.Instant
 import kotlinx.coroutines.CoroutineStart
@@ -45,8 +47,9 @@ internal fun TestScope.reportViewModelOf(
     reports: FakeReportRepository,
     sessions: FakeSessionRepository = FakeSessionRepository(),
     start: Instant = readInstant,
+    reminders: FakeStudyReminderSettings = FakeStudyReminderSettings(StudyReminderChoice.firstChoice),
 ): ReportViewModel {
-    val viewModel: ReportViewModel = ReportViewModel(reports, sessions, TestClock(testScheduler, start))
+    val viewModel: ReportViewModel = ReportViewModel(reports, sessions, reminders, TestClock(testScheduler, start))
     backgroundScope.launch(start = CoroutineStart.UNDISPATCHED) {
         try {
             awaitCancellation()

@@ -1,5 +1,6 @@
 package com.emm.mygame
 
+import android.content.Context
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -23,6 +24,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.retain.retain
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.layout.WindowInsetsRulers
+import androidx.compose.ui.platform.LocalContext
 import androidx.lifecycle.compose.LifecycleStartEffect
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
@@ -267,6 +269,7 @@ private fun EntryProviderScope<NavKey>.reportEntry(chrome: SignedInChrome) {
             ReportRoute(
                 reports = dependencies.reports,
                 sessions = dependencies.sessions,
+                reminders = dependencies.studyReminders,
                 clock = dependencies.clock,
                 navigation = ReportNavigation(
                     onReviewsOpen = navigator::openReviews,
@@ -303,9 +306,13 @@ private fun EntryProviderScope<NavKey>.settingsEntry(chrome: SignedInChrome) {
             doesScreenReadTown = false,
             chrome = chrome,
         ) {
+            val context: Context = LocalContext.current
             SettingsRoute(
                 sessions = dependencies.sessions,
                 playerScaffold = dependencies.playerScaffold,
+                reminders = dependencies.studyReminders,
+                notifications = remember(context) { PhoneReminderNotifications(context.applicationContext) },
+                rememberNotificationAsk = { onAnswer: (Boolean) -> Unit -> rememberNotificationAsk(onAnswer) },
                 onTownOpen = navigator::openTown,
             )
         }

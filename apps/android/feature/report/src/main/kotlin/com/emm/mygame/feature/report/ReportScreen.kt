@@ -89,7 +89,7 @@ fun ReportScreen(
             ReportState(
                 state = state,
                 onIntent = onIntent,
-                navigation = ReportScreenLinks(onReviewsOpen, onLessonOpen, onNewsOpen),
+                navigation = ReportScreenLinks(onReviewsOpen, onLessonOpen, onNewsOpen, onSettingsOpen),
             )
         }
         AccountLinks(state = state, onIntent = onIntent, onSettingsOpen = onSettingsOpen)
@@ -118,6 +118,7 @@ private class ReportScreenLinks(
     val onReviewsOpen: () -> Unit,
     val onLessonOpen: (LessonId) -> Unit,
     val onNewsOpen: () -> Unit,
+    val onSettingsOpen: () -> Unit,
 )
 
 @Composable
@@ -130,11 +131,7 @@ private fun ReportState(state: ReportUiState, onIntent: (ReportIntent) -> Unit, 
             onAction = { onIntent(ReportIntent.RetryTapped) },
         )
         is ReportUiState.Content -> {
-            ReviewsDueSection(
-                content = state,
-                onReviewsOpen = navigation.onReviewsOpen,
-                onLessonOpen = navigation.onLessonOpen,
-            )
+            ReviewsDueSection(content = state, navigation = navigation)
             NewsSection(content = state, onIntent = onIntent, onNewsOpen = navigation.onNewsOpen)
         }
     }
@@ -147,14 +144,13 @@ private val reportBlocks: MyGameSkeletonBlocks = MyGameSkeletonBlocks(
 @Composable
 private fun ReviewsDueSection(
     content: ReportUiState.Content,
-    onReviewsOpen: () -> Unit,
-    onLessonOpen: (LessonId) -> Unit,
+    navigation: ReportScreenLinks,
     modifier: Modifier = Modifier,
 ) {
     val dueCount: Int = content.dueCount
     val firstUnread: LessonId? = content.firstUnread
     if (dueCount == 0) {
-        NothingDue(nextReview = content.nextReview, receivedAt = content.receivedAt, modifier = modifier)
+        NothingDue(content = content, onSettingsOpen = navigation.onSettingsOpen, modifier = modifier)
         return
     }
     Column(verticalArrangement = Arrangement.spacedBy(MyGameSpacing.step3), modifier = modifier) {
@@ -172,14 +168,15 @@ private fun ReviewsDueSection(
             ),
             isBusy = false,
             busyDescription = chromeResource(R.string.report_waiting).spoken,
-            onClick = { if (firstUnread == null) onReviewsOpen() else onLessonOpen(firstUnread) },
+            onClick = { if (firstUnread == null) navigation.onReviewsOpen() else navigation.onLessonOpen(firstUnread) },
         )
     }
 }
 
 @Composable
-private fun NothingDue(nextReview: Instant?, receivedAt: Instant, modifier: Modifier = Modifier) {
+private fun NothingDue(content: ReportUiState.Content, onSettingsOpen: () -> Unit, modifier: Modifier = Modifier) {
     val copy: PlayerCopy = rememberPlayerCopy()
+    val receivedAt: Instant = content.receivedAt
     MyGameCard(modifier = modifier) {
         Column(
             verticalArrangement = Arrangement.spacedBy(MyGameSpacing.step3),
@@ -190,12 +187,15 @@ private fun NothingDue(nextReview: Instant?, receivedAt: Instant, modifier: Modi
                 style = MyGameTypography.body,
                 color = MyGameTheme.colors.ink,
             )
-            nextReview?.let { dueAt: Instant ->
+            content.nextReview?.let { dueAt: Instant ->
                 MyGameCountdownLine(
                     words = chromeResource(R.string.report_next_review),
                     time = copy.chrome { nextReviewLabelOf(dueAt, receivedAt, ZoneId.systemDefault()) },
                     ground = MyGameCountdownGround.Paper,
                 )
+            }
+            if (!content.isReminderOn) {
+                MyGameTextLink(label = fixedCopyResource(R.string.report_reminder_offer), onClick = onSettingsOpen)
             }
         }
     }
@@ -259,6 +259,7 @@ private val previewContent: ReportUiState.Content = ReportUiState.Content(
     nextReview = null,
     news = previewUnread,
     receivedAt = previewReceivedAt,
+    isReminderOn = false,
 )
 
 private class ReportUiStates : PreviewParameterProvider<ReportUiState> {

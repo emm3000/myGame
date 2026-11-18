@@ -47,7 +47,7 @@ class SettingsScreenTest {
 
     @Test
     fun `draws the stored scaffold as chosen`() {
-        draw(SettingsUiState.Loaded(PlayerScaffold.None, SettingsUiState.Change.Untouched))
+        draw(SettingsUiState.Loaded(PlayerScaffold.None, SettingsUiState.Change.Untouched, firstReminder))
 
         choice(NONE_CHOICE).assertIsSelected()
         choice(SPANISH_CHOICE).assertIsNotSelected()
@@ -55,14 +55,14 @@ class SettingsScreenTest {
 
     @Test
     fun `promises the words and progress stay`() {
-        draw(SettingsUiState.Loaded(PlayerScaffold.Spanish, SettingsUiState.Change.Untouched))
+        draw(SettingsUiState.Loaded(PlayerScaffold.Spanish, SettingsUiState.Change.Untouched, firstReminder))
 
         composeRule.onNodeWithText("Tus palabras y tu progreso no cambian.").assertIsDisplayed()
     }
 
     @Test
     fun `sends the scaffold the player taps`() {
-        draw(SettingsUiState.Loaded(PlayerScaffold.Spanish, SettingsUiState.Change.Untouched))
+        draw(SettingsUiState.Loaded(PlayerScaffold.Spanish, SettingsUiState.Change.Untouched, firstReminder))
 
         choice(NONE_CHOICE).performClick()
 
@@ -71,7 +71,13 @@ class SettingsScreenTest {
 
     @Test
     fun `holds every choice while the change is saving`() {
-        draw(SettingsUiState.Loaded(PlayerScaffold.Spanish, SettingsUiState.Change.Saving(PlayerScaffold.None)))
+        draw(
+            SettingsUiState.Loaded(
+                PlayerScaffold.Spanish,
+                SettingsUiState.Change.Saving(PlayerScaffold.None),
+                firstReminder,
+            ),
+        )
 
         choice(NONE_CHOICE).assertIsSelected().assertIsNotEnabled()
         choice(SPANISH_CHOICE).assertIsNotEnabled()
@@ -80,14 +86,14 @@ class SettingsScreenTest {
 
     @Test
     fun `draws the saved line once the api answers`() {
-        draw(SettingsUiState.Loaded(PlayerScaffold.None, SettingsUiState.Change.Saved))
+        draw(SettingsUiState.Loaded(PlayerScaffold.None, SettingsUiState.Change.Saved, firstReminder))
 
         composeRule.onNodeWithText("Guardado.").assertIsDisplayed()
     }
 
     @Test
     fun `draws the outage line beside the stored scaffold on a refusal`() {
-        draw(SettingsUiState.Loaded(PlayerScaffold.Spanish, SettingsUiState.Change.Refused))
+        draw(SettingsUiState.Loaded(PlayerScaffold.Spanish, SettingsUiState.Change.Refused, firstReminder))
 
         composeRule.onNodeWithText(OUTAGE_LINE).assertIsDisplayed()
         choice(SPANISH_CHOICE).assertIsSelected()
@@ -95,14 +101,14 @@ class SettingsScreenTest {
 
     @Test
     fun `draws the outage line when the api cannot be reached`() {
-        draw(SettingsUiState.Loaded(PlayerScaffold.Spanish, SettingsUiState.Change.Unreachable))
+        draw(SettingsUiState.Loaded(PlayerScaffold.Spanish, SettingsUiState.Change.Unreachable, firstReminder))
 
         composeRule.onNodeWithText(OUTAGE_LINE).assertIsDisplayed()
     }
 
     @Test
     fun `draws no outcome line before a change`() {
-        draw(SettingsUiState.Loaded(PlayerScaffold.Spanish, SettingsUiState.Change.Untouched))
+        draw(SettingsUiState.Loaded(PlayerScaffold.Spanish, SettingsUiState.Change.Untouched, firstReminder))
 
         listOf("Guardando…", "Guardado.", OUTAGE_LINE).forEach { line: String ->
             composeRule.onAllNodesWithText(line).assertCountEquals(0)

@@ -10,6 +10,7 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.emm.mygame.core.network.ReportRepository
 import com.emm.mygame.core.network.SessionRepository
+import com.emm.mygame.core.network.StudyReminderSettings
 import kotlin.time.Clock
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
@@ -18,10 +19,11 @@ import kotlinx.coroutines.withContext
 fun ReportRoute(
     reports: ReportRepository,
     sessions: SessionRepository,
+    reminders: StudyReminderSettings,
     clock: Clock,
     navigation: ReportNavigation,
     modifier: Modifier = Modifier,
-    viewModel: ReportViewModel = viewModel { ReportViewModel(reports, sessions, clock) },
+    viewModel: ReportViewModel = viewModel { ReportViewModel(reports, sessions, reminders, clock) },
 ) {
     val state: ReportUiState by viewModel.state.collectAsStateWithLifecycle()
     val currentNavigation: ReportNavigation by rememberUpdatedState(navigation)

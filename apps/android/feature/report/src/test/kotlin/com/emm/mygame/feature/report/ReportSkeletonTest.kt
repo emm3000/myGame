@@ -40,6 +40,7 @@ class ReportSkeletonTest {
         nextReview = null,
         news = ReportUiState.ReportNews.None,
         receivedAt = readInstant,
+        isReminderOn = true,
     )
 
     @Test

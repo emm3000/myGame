@@ -1,6 +1,7 @@
 package com.emm.mygame.feature.signin
 
 import com.emm.mygame.core.network.PlayerScaffold
+import java.time.LocalTime
 
 sealed interface SettingsUiState {
 
@@ -8,7 +9,7 @@ sealed interface SettingsUiState {
 
     data object Failed : SettingsUiState
 
-    data class Loaded(val stored: PlayerScaffold, val change: Change) : SettingsUiState {
+    data class Loaded(val stored: PlayerScaffold, val change: Change, val reminder: Reminder) : SettingsUiState {
 
         val shown: PlayerScaffold
             get() = if (change is Change.Saving) change.scaffold else stored
@@ -28,5 +29,16 @@ sealed interface SettingsUiState {
         data object Refused : Change
 
         data object Unreachable : Change
+    }
+
+    data class Reminder(val isOn: Boolean, val time: LocalTime, val ask: NotificationAsk)
+
+    sealed interface NotificationAsk {
+
+        data object Untouched : NotificationAsk
+
+        data object Asking : NotificationAsk
+
+        data object Denied : NotificationAsk
     }
 }
