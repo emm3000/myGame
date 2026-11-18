@@ -1,7 +1,6 @@
 package com.emm.mygame.feature.signin
 
 import com.emm.mygame.core.network.PlayerScaffold
-import com.emm.mygame.core.network.ThemePick
 
 sealed interface SettingsIntent {
 
@@ -16,6 +15,4 @@ sealed interface SettingsIntent {
     data class ReminderStepped(val step: ReminderStep) : SettingsIntent
 
     data object ScreenResumed : SettingsIntent
-
-    data class ThemePicked(val pick: ThemePick) : SettingsIntent
 }

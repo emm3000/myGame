@@ -12,11 +12,11 @@ import androidx.compose.ui.test.hasText
 import androidx.compose.ui.test.isSelectable
 import androidx.compose.ui.test.junit4.ComposeContentTestRule
 import androidx.compose.ui.test.junit4.createComposeRule
+import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
 import androidx.compose.ui.test.performScrollTo
 import androidx.compose.ui.unit.dp
 import com.emm.mygame.core.designsystem.MyGameTheme
-import com.emm.mygame.core.network.PlayerScaffold
 import com.emm.mygame.core.network.ThemePick
 import org.junit.Assert.assertEquals
 import org.junit.Rule
@@ -29,35 +29,24 @@ private const val LIGHT_CHOICE: String = "Claro"
 private const val DARK_CHOICE: String = "Oscuro"
 
 @RunWith(RobolectricTestRunner::class)
-class SettingsThemeScreenTest {
+class ThemeChoiceScreenTest {
 
     @get:Rule
     val composeRule: ComposeContentTestRule = createComposeRule()
 
-    private val sentIntents: MutableList<SettingsIntent> = mutableListOf()
+    private val sentIntents: MutableList<ThemeChoiceIntent> = mutableListOf()
 
     private val radioButton: SemanticsMatcher = SemanticsMatcher.expectValue(SemanticsProperties.Role, Role.RadioButton)
 
     private fun draw(theme: ThemePick) {
         composeRule.setContent {
             MyGameTheme {
-                SettingsScreen(
-                    state = SettingsUiState.Loaded(
-                        PlayerScaffold.Spanish,
-                        SettingsUiState.Change.Untouched,
-                        firstReminder,
-                        theme,
-                    ),
-                    onIntent = { sentIntents += it },
-                    onTownOpen = {},
-                    onNotificationSettingsOpen = {},
-                )
+                ThemeChoiceScreen(state = ThemeChoiceUiState(theme), onIntent = { sentIntents += it })
             }
         }
     }
 
-    private fun choice(label: String): SemanticsNodeInteraction =
-        composeRule.onNode(isSelectable() and hasText(label)).performScrollTo()
+    private fun choice(label: String): SemanticsNodeInteraction = composeRule.onNode(isSelectable() and hasText(label))
 
     @Test
     fun `draws the stored theme as chosen`() {
@@ -74,7 +63,7 @@ class SettingsThemeScreenTest {
 
         choice(LIGHT_CHOICE).performClick()
 
-        assertEquals(listOf<SettingsIntent>(SettingsIntent.ThemePicked(ThemePick.Light)), sentIntents)
+        assertEquals(listOf<ThemeChoiceIntent>(ThemeChoiceIntent.Picked(ThemePick.Light)), sentIntents)
     }
 
     @Test
@@ -82,7 +71,7 @@ class SettingsThemeScreenTest {
         draw(ThemePick.System)
 
         listOf(SYSTEM_CHOICE, LIGHT_CHOICE, DARK_CHOICE).forEach { label: String ->
-            composeRule.onNode(radioButton and hasText(label)).performScrollTo().assertHeightIsAtLeast(48.dp)
+            composeRule.onNode(radioButton and hasText(label)).assertHeightIsAtLeast(48.dp)
         }
     }
 
@@ -90,6 +79,25 @@ class SettingsThemeScreenTest {
     fun `names the theme group for TalkBack`() {
         draw(ThemePick.System)
 
-        composeRule.onNode(hasContentDescription("Tema")).performScrollTo().assertExists()
+        composeRule.onNode(hasContentDescription("Tema")).assertExists()
+    }
+
+    @Test
+    fun `draws the theme choice while the settings load`() {
+        composeRule.setContent {
+            MyGameTheme {
+                SettingsScreen(
+                    state = SettingsUiState.Loading,
+                    onIntent = {},
+                    onTownOpen = {},
+                    onNotificationSettingsOpen = {},
+                    themeChoice = {
+                        ThemeChoiceScreen(state = ThemeChoiceUiState(ThemePick.System), onIntent = {})
+                    },
+                )
+            }
+        }
+
+        composeRule.onNodeWithText(DARK_CHOICE).performScrollTo().assertExists()
     }
 }

@@ -17,7 +17,6 @@ import androidx.compose.ui.test.performClick
 import androidx.compose.ui.test.performScrollTo
 import com.emm.mygame.core.designsystem.MyGameTheme
 import com.emm.mygame.core.network.PlayerScaffold
-import com.emm.mygame.core.network.ThemePick
 import java.time.LocalTime
 import org.junit.Assert.assertEquals
 import org.junit.Rule
@@ -49,12 +48,7 @@ class SettingsReminderScreenTest {
         composeRule.setContent {
             MyGameTheme {
                 SettingsScreen(
-                    state = SettingsUiState.Loaded(
-                        PlayerScaffold.Spanish,
-                        SettingsUiState.Change.Untouched,
-                        reminder,
-                        ThemePick.System,
-                    ),
+                    state = SettingsUiState.Loaded(PlayerScaffold.Spanish, SettingsUiState.Change.Untouched, reminder),
                     onIntent = { sentIntents += it },
                     onTownOpen = {},
                     onNotificationSettingsOpen = { notificationSettingsOpens += 1 },

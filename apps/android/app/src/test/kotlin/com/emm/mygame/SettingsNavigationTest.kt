@@ -110,7 +110,11 @@ class SettingsNavigationTest {
     private var shownBackStack: List<NavKey> = emptyList()
 
     private fun show(vararg destinations: Destination) {
-        repeat(SESSION_READS) { sessionsFake.answerRestore(spanishSession) }
+        showReading(spanishSession, *destinations)
+    }
+
+    private fun showReading(session: RestoreResult, vararg destinations: Destination) {
+        repeat(SESSION_READS) { sessionsFake.answerRestore(session) }
         reportsFake.answerRead(ReportReadResult.Read(nothingDue))
         composeRule.setContent {
             MyGameTheme {
@@ -143,6 +147,18 @@ class SettingsNavigationTest {
     @Test
     fun `stores the theme tapped in the settings`() {
         show(Destination.Town, Destination.Report, Destination.Settings)
+        waitForLine("Oscuro")
+
+        composeRule.onNodeWithText("Oscuro").performScrollTo().performClick()
+        composeRule.waitForIdle()
+
+        assertEquals(ThemePick.Dark, themesFake.pick.value)
+    }
+
+    @Test
+    fun `stores the theme tapped while the settings cannot be read`() {
+        showReading(RestoreResult.Unreachable, Destination.Town, Destination.Report, Destination.Settings)
+        waitForLine("No hemos podido cargar tus ajustes.")
         waitForLine("Oscuro")
 
         composeRule.onNodeWithText("Oscuro").performScrollTo().performClick()

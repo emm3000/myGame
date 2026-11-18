@@ -8,18 +8,24 @@ import androidx.activity.enableEdgeToEdge
 import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.ui.graphics.toArgb
 import com.emm.mygame.core.designsystem.MyGameTheme
 import com.emm.mygame.core.network.ThemePick
 
 @Composable
 fun PickedTheme(pick: ThemePick, content: @Composable () -> Unit) {
     val isDark: Boolean = isDarkUnder(pick)
-    val activity: ComponentActivity? = LocalActivity.current as? ComponentActivity
-    LaunchedEffect(activity, isDark) {
-        val bars: SystemBarStyle = barsFor(isDark)
-        activity?.enableEdgeToEdge(statusBarStyle = bars, navigationBarStyle = bars)
+    MyGameTheme(darkTheme = isDark) {
+        val activity: ComponentActivity? = LocalActivity.current as? ComponentActivity
+        val scrim: Int = MyGameTheme.colors.surface.toArgb()
+        LaunchedEffect(activity, isDark, scrim) {
+            activity?.enableEdgeToEdge(
+                statusBarStyle = SystemBarStyle.auto(Color.TRANSPARENT, Color.TRANSPARENT) { isDark },
+                navigationBarStyle = SystemBarStyle.auto(scrim, scrim) { isDark },
+            )
+        }
+        content()
     }
-    MyGameTheme(darkTheme = isDark, content = content)
 }
 
 @Composable
@@ -28,6 +34,3 @@ private fun isDarkUnder(pick: ThemePick): Boolean = when (pick) {
     ThemePick.Light -> false
     ThemePick.Dark -> true
 }
-
-private fun barsFor(isDark: Boolean): SystemBarStyle =
-    if (isDark) SystemBarStyle.dark(Color.TRANSPARENT) else SystemBarStyle.light(Color.TRANSPARENT, Color.TRANSPARENT)

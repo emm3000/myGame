@@ -119,6 +119,13 @@ class PickedThemeTest {
     }
 
     @Test
+    fun `a forced pick keeps the system's contrast scrim on three-button navigation`() {
+        show(ThemePick.Dark)
+
+        assertEquals(true, composeRule.activity.window.isNavigationBarContrastEnforced)
+    }
+
+    @Test
     fun `system bar icons follow a new pick`() {
         show(ThemePick.Light)
 

@@ -15,7 +15,6 @@ import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
 import com.emm.mygame.core.designsystem.MyGameTheme
 import com.emm.mygame.core.network.PlayerScaffold
-import com.emm.mygame.core.network.ThemePick
 import org.junit.Assert.assertEquals
 import org.junit.Rule
 import org.junit.Test
@@ -53,14 +52,7 @@ class SettingsScreenTest {
 
     @Test
     fun `draws the stored scaffold as chosen`() {
-        draw(
-            SettingsUiState.Loaded(
-                PlayerScaffold.None,
-                SettingsUiState.Change.Untouched,
-                firstReminder,
-                ThemePick.System,
-            ),
-        )
+        draw(SettingsUiState.Loaded(PlayerScaffold.None, SettingsUiState.Change.Untouched, firstReminder))
 
         choice(NONE_CHOICE).assertIsSelected()
         choice(SPANISH_CHOICE).assertIsNotSelected()
@@ -68,28 +60,14 @@ class SettingsScreenTest {
 
     @Test
     fun `promises the words and progress stay`() {
-        draw(
-            SettingsUiState.Loaded(
-                PlayerScaffold.Spanish,
-                SettingsUiState.Change.Untouched,
-                firstReminder,
-                ThemePick.System,
-            ),
-        )
+        draw(SettingsUiState.Loaded(PlayerScaffold.Spanish, SettingsUiState.Change.Untouched, firstReminder))
 
         composeRule.onNodeWithText("Tus palabras y tu progreso no cambian.").assertIsDisplayed()
     }
 
     @Test
     fun `sends the scaffold the player taps`() {
-        draw(
-            SettingsUiState.Loaded(
-                PlayerScaffold.Spanish,
-                SettingsUiState.Change.Untouched,
-                firstReminder,
-                ThemePick.System,
-            ),
-        )
+        draw(SettingsUiState.Loaded(PlayerScaffold.Spanish, SettingsUiState.Change.Untouched, firstReminder))
 
         choice(NONE_CHOICE).performClick()
 
@@ -103,7 +81,6 @@ class SettingsScreenTest {
                 PlayerScaffold.Spanish,
                 SettingsUiState.Change.Saving(PlayerScaffold.None),
                 firstReminder,
-                ThemePick.System,
             ),
         )
 
@@ -114,21 +91,14 @@ class SettingsScreenTest {
 
     @Test
     fun `draws the saved line once the api answers`() {
-        draw(SettingsUiState.Loaded(PlayerScaffold.None, SettingsUiState.Change.Saved, firstReminder, ThemePick.System))
+        draw(SettingsUiState.Loaded(PlayerScaffold.None, SettingsUiState.Change.Saved, firstReminder))
 
         composeRule.onNodeWithText("Guardado.").assertIsDisplayed()
     }
 
     @Test
     fun `draws the outage line beside the stored scaffold on a refusal`() {
-        draw(
-            SettingsUiState.Loaded(
-                PlayerScaffold.Spanish,
-                SettingsUiState.Change.Refused,
-                firstReminder,
-                ThemePick.System,
-            ),
-        )
+        draw(SettingsUiState.Loaded(PlayerScaffold.Spanish, SettingsUiState.Change.Refused, firstReminder))
 
         composeRule.onNodeWithText(OUTAGE_LINE).assertIsDisplayed()
         choice(SPANISH_CHOICE).assertIsSelected()
@@ -136,28 +106,14 @@ class SettingsScreenTest {
 
     @Test
     fun `draws the outage line when the api cannot be reached`() {
-        draw(
-            SettingsUiState.Loaded(
-                PlayerScaffold.Spanish,
-                SettingsUiState.Change.Unreachable,
-                firstReminder,
-                ThemePick.System,
-            ),
-        )
+        draw(SettingsUiState.Loaded(PlayerScaffold.Spanish, SettingsUiState.Change.Unreachable, firstReminder))
 
         composeRule.onNodeWithText(OUTAGE_LINE).assertIsDisplayed()
     }
 
     @Test
     fun `draws no outcome line before a change`() {
-        draw(
-            SettingsUiState.Loaded(
-                PlayerScaffold.Spanish,
-                SettingsUiState.Change.Untouched,
-                firstReminder,
-                ThemePick.System,
-            ),
-        )
+        draw(SettingsUiState.Loaded(PlayerScaffold.Spanish, SettingsUiState.Change.Untouched, firstReminder))
 
         listOf("Guardando…", "Guardado.", OUTAGE_LINE).forEach { line: String ->
             composeRule.onAllNodesWithText(line).assertCountEquals(0)
