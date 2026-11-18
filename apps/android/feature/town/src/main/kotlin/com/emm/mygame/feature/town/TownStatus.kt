@@ -45,7 +45,7 @@ fun TownStatus(
     onReviewsOpen: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
-    if (state == TownStatusUiState.none) return
+    if (state.running == null && state.notice == null) return
     Column(
         verticalArrangement = Arrangement.spacedBy(MyGameSpacing.step2),
         modifier = modifier

@@ -21,6 +21,7 @@ import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.yield
 
 class FakeTownRepository private constructor(
     private val heldTown: MutableStateFlow<HeldTown?>,
@@ -124,6 +125,7 @@ class FakeTownRepository private constructor(
 
     override suspend fun read(): TownReadResult {
         readCount += 1
+        yield()
         val answer: TownReadResult = readAnswers.receive()
         when (answer) {
             is TownReadResult.Read -> heldTown.holdAnswered(answer.town)

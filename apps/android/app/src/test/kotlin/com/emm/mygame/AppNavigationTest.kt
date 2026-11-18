@@ -283,7 +283,7 @@ class AppNavigationTest {
 
     private fun onTheReportAsLessonOneFinishes(finished: TownSnapshot) {
         reportsFake.answerRead(ReportReadResult.Read(nothingDue))
-        townsFake.answerRead(TownReadResult.Read(runningTown()))
+        repeat(READS_ON_ARRIVAL) { townsFake.answerRead(TownReadResult.Read(runningTown())) }
         composeRule.setContent {
             MyGameTheme {
                 AppNavigation(
@@ -300,7 +300,7 @@ class AppNavigationTest {
     }
 
     private fun onLessonOneNearItsFinish(vararg destinations: Destination) {
-        townsFake.answerRead(TownReadResult.Read(runningTown(lasting = NEAR_FINISH)))
+        repeat(READS_ON_ARRIVAL) { townsFake.answerRead(TownReadResult.Read(runningTown(lasting = NEAR_FINISH))) }
         composeRule.setContent {
             MyGameTheme {
                 AppNavigation(
@@ -316,7 +316,7 @@ class AppNavigationTest {
     private fun passingTheFinish() {
         movableClock.passed += NEAR_FINISH + 1.seconds
         ShadowLooper.idleMainLooper(2, TimeUnit.SECONDS)
-        composeRule.waitUntil(WAIT_MILLIS) { townsFake.readCount >= 2 }
+        composeRule.waitUntil(WAIT_MILLIS) { townsFake.readCount > READS_ON_ARRIVAL }
         ShadowLooper.idleMainLooper(2, TimeUnit.SECONDS)
         composeRule.waitForIdle()
     }
@@ -382,21 +382,21 @@ class AppNavigationTest {
     }
 
     @Test
-    fun `keeps one town read for the frame and the screen under it`() {
+    fun `adds no ring read to a screen that reads the town`() {
         signedInAtTown(town = townOf(retainedWords = threeOfFive))
         composeRule.waitForIdle()
-        assertEquals(1, townsFake.readCount)
+        assertEquals(READS_ON_ARRIVAL, townsFake.readCount)
 
         door("Escuela").performClick()
         waitForLine("Ahora no hay ninguna lección en estudio.")
 
-        assertEquals(2, townsFake.readCount)
+        assertEquals(READS_ON_ARRIVAL + 1, townsFake.readCount)
     }
 
     @Test
     fun `reads the town for the ring over a screen that reads none`() {
         reportsFake.answerRead(ReportReadResult.Read(TownReport(3, emptyList(), nextDueAt = null, news = emptyList())))
-        townsFake.answerRead(TownReadResult.Read(townOf(retainedWords = threeOfFive)))
+        repeat(READS_ON_ARRIVAL) { townsFake.answerRead(TownReadResult.Read(townOf(retainedWords = threeOfFive))) }
 
         composeRule.setContent {
             MyGameTheme {
@@ -409,13 +409,13 @@ class AppNavigationTest {
         }
         waitForRing(THREE_OF_FIVE)
 
-        assertEquals(1, townsFake.readCount)
+        assertEquals(READS_ON_ARRIVAL, townsFake.readCount)
     }
 
     @Test
     fun `draws a count fallen back on the way home from the Report`() {
         repeat(SESSION_READS) { sessionsFake.answerRestore(verifiedSession) }
-        townsFake.answerRead(TownReadResult.Read(townOf(retainedWords = threeOfFive)))
+        repeat(READS_ON_ARRIVAL) { townsFake.answerRead(TownReadResult.Read(townOf(retainedWords = threeOfFive))) }
         composeRule.setContent {
             MyGameTheme {
                 AppNavigation(dependencies = dependencies, reminderTaps = emptyFlow())
@@ -638,7 +638,7 @@ class AppNavigationTest {
 
         passingTheFinish()
 
-        assertEquals(2, townsFake.readCount)
+        assertEquals(READS_ON_ARRIVAL + 1, townsFake.readCount)
     }
 
     @Test
@@ -648,7 +648,7 @@ class AppNavigationTest {
 
         passingTheFinish()
 
-        assertEquals(2, townsFake.readCount)
+        assertEquals(READS_ON_ARRIVAL + 1, townsFake.readCount)
     }
 
     @Test
@@ -657,7 +657,7 @@ class AppNavigationTest {
 
         passingTheFinish()
 
-        assertEquals(2, townsFake.readCount)
+        assertEquals(READS_ON_ARRIVAL + 1, townsFake.readCount)
     }
 
     @Test
@@ -666,7 +666,7 @@ class AppNavigationTest {
 
         passingTheFinish()
 
-        assertEquals(2, townsFake.readCount)
+        assertEquals(READS_ON_ARRIVAL + 1, townsFake.readCount)
     }
 
     @Test
@@ -676,7 +676,7 @@ class AppNavigationTest {
 
         passingTheFinish()
 
-        assertEquals(2, townsFake.readCount)
+        assertEquals(READS_ON_ARRIVAL + 1, townsFake.readCount)
     }
 
     @Test
@@ -869,6 +869,7 @@ class AppNavigationTest {
         const val LESSON_ONE_DONE: String = "La lección 1 terminó."
         const val THREE_OF_FIVE: String = "3 de 5 palabras aprendidas"
         const val READS_AVAILABLE: Int = 5
+        const val READS_ON_ARRIVAL: Int = 2
         const val SESSION_READS: Int = 2
         val NEAR_FINISH: Duration = 30.seconds
         const val WAIT_MILLIS: Long = 5_000
