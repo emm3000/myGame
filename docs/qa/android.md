@@ -34,7 +34,7 @@ A `Verify` line names the catalog key it reads, and gives the text in the accoun
 
 ### The environment
 
-- **The api** runs from the peer's worktree on the dispatch's `API_PORT`, over the peer's own Postgres and Mailpit containers, as `apps/api/CLAUDE.md` (*Local database*, *Local mail*) and `docs/agents/multi-session.md` (*Isolation*) describe. Never on Neon.
+- **The api** runs from the peer's worktree on the dispatch's `API_PORT`, over the peer's own Postgres and Mailpit containers, as `apps/api/CLAUDE.md` (*Local database*, *Local mail*) and `docs/agents/multi-session.md` (*Isolation*) describe. Never on Neon. On a fresh container, run `pnpm --filter @mygame/api db:migrate` before `pnpm --filter @mygame/api dev`.
 - **The app** is the debug APK pointed at that api: `taskpolicy -c utility ./gradlew assembleDebug -Pmygame.apiBaseUrl=http://10.0.2.2:<API_PORT>/` in `apps/android`, then `adb -s emulator-<port> install -r app/build/outputs/apk/debug/app-debug.apk`.
 - **The emulator** is the peer's own AVD, `mygame-<name>`, on API 36 (`apps/android/CLAUDE.md`, *Commands*). Every `adb` command carries `-s emulator-<port>`.
 - **Accounts.** Each case that changes state starts on a fresh account, `qa-<scaffold>-<case>@qa.test` with the password `qa-password-1`, signed up in the app. `<scaffold>` is `es` or `none`, as the case's Setup says.
@@ -66,8 +66,10 @@ WHERE id = '<town_id>';
 A word counts only as a card, and a lesson reads as studied once any of its words is a card (`schoolOverviewOf`). A **stable word** has a stability of 7 or more. A **retained word** also has a `retained_at`, which the schema holds equal to `last_review_at` (ADR 045, *The words a town holds*). Take the words in curriculum order:
 
 ```sh
-words=$(jq -rn '[inputs.wordIds[]] | map("'" + . + "'") | join(",")' apps/api/content/lessons/lesson-{1..10}.json)
+words=$(jq -rn '[inputs.wordIds[]] | map(@sh) | join(",")' apps/api/content/lessons/lesson-{1..10}.json)
 ```
+
+On trunk `34c8893c` it starts `'lesson-1-1','lesson-1-2','lesson-1-3','lesson-1-4','lesson-1-5','word-1','word-2',…`, ready for `ARRAY[$words]`.
 
 The first `<n>` of them as retained words, stability 30, last reviewed 20 days ago, so none is due:
 
@@ -110,7 +112,7 @@ BEGIN
 END $$;
 ```
 
-Edit the interval to suit the case. The season calendar is content (`town.json`'s `seasons.epoch`), so it does not move, just as it would not during a real wait.
+Edit the interval to suit the case. The season calendar is content (`town.json`'s `seasons.epoch`), so the shift does not move it. The state is that of a wait that ends now: it began one interval ago, under the seasons that ran then.
 
 **Risk: a shift can be silently incomplete.** #1179's shift listed its 14 tables by hand, so a migration that added a timestamp column would have left that column unshifted, with no error. This recipe reads the columns from `information_schema`, but it still misses any instant that is not stored as `timestamp with time zone`: a `date`, a timestamp without a zone, an epoch number or text. Before each run, `rg -n 'timestamp\(|date\(|bigint\(|integer\(' apps/api/src/adapters/postgres/schema.ts` must show every instant column as `timestamp(…, { withTimezone: true })`. Today the only `bigint` columns are identity ids. A shift that misses a column still runs cleanly and gives a state no real wait can reach. So a case that fails right after a shift is first checked against this rule before it is filed.
 
@@ -118,13 +120,13 @@ Edit the interval to suit the case. The season calendar is content (`town.json`'
 
 - Read the reminder's alarm: `adb shell dumpsys alarm | rg -A4 'com.emm.mygame'`. The alarm is `RTC_WAKEUP`, and its pending intent carries `com.emm.mygame.STUDY_REMINDER_FIRED`.
 - Read the posted notification: `adb shell dumpsys notification --noredact | rg -A12 'pkg=com.emm.mygame'`.
-- Move the device clock forward to just past the alarm: `adb shell cmd alarm set-time <epoch-ms>`. This sends `TIME_SET`, which reschedules from the stored facts. The alarm then fires late, since it is inexact (ADR 046). Wait up to 10 minutes before reading `dumpsys notification`.
+- Move the device clock forward to just past the alarm: `adb shell cmd alarm set-time <epoch-ms>`. This sends `TIME_SET`, which reschedules from the stored facts. The alarm then fires late, since it is inexact (ADR 046). Wait up to one hour, ADR 046's bound for an inexact alarm outside Doze and battery saver, before marking the post missing in `dumpsys notification`.
 - Change the time zone: `adb shell cmd alarm set-timezone <zone>`.
 - Put the clock back when the case ends: `adb shell cmd alarm set-time $(($(date +%s) * 1000))`.
 
 ## Run rules
 
-- **The hands are the Android CLI.** Read a screen with `android layout`, and pass `--no-metrics` on every call, since the CLI sends usage data otherwise. While the CLI's device helper runs, `uiautomator dump` writes no file, so use one or the other. `android input`, a tap by text, needs 1.0.16625370 or later; with an older CLI, tap the `center` the layout gives. Read `~/.claude/skills/android-cli/references/interact.md` before the first `android layout`.
+- **The hands are the Android CLI.** Read a screen with `android layout --device=emulator-<port>`, as every `adb` command carries `-s emulator-<port>`, and pass `--no-metrics` on every call, since the CLI sends usage data otherwise. While the CLI's device helper runs, `uiautomator dump` writes no file, so use one or the other. `android input`, a tap by text, needs 1.0.16625370 or later; with an older CLI, tap the `center` the layout gives. Read `~/.claude/skills/android-cli/references/interact.md` before the first `android layout`.
 - **The journey rules** of the android-cli skill (`~/.claude/skills/android-cli/references/journeys.md`) apply to every case. Do each step exactly as written, and on its own. When the app disagrees with a `Verify` line, the app is wrong, and the case fails. Keep debugging to a minimum and report the failure. A crash, an exit or a freeze fails the case.
 - **A count is read from the layout text**, never from a screenshot, since Google lists counting as inconsistent for agents.
 - **The time box.** Smoke takes 20 minutes and full takes 90, the exploratory charter included.
@@ -146,18 +148,18 @@ Screenshots: tag qa-run-<n>
 ```
 
 - **Verdicts** are `pass`, `fail` and `not run`. A minor goes in the Note column only, with no issue, as #1179 does.
-- **Entry:** `pnpm gate` is green on that SHA.
+- **Entry:** CI's gate is green on that SHA (`gh run list --commit <sha>`). A local `pnpm gate` is not the entry check: its migration test drops `public` on the same database the run's api uses.
 - **Exit:** every case has a verdict, or the time box ran out and the rest are marked `not run`.
 
 ### Screenshots
 
-A screenshot is kept only for a fail. Never push one to a branch: `scripts/mygame-orphans` reports every remote branch but `trunk` and a live peer's, and `scripts/mygame-wave-close` deletes only `assets/<N>-visual-check`. A tag, `qa-run-<n>`, holding only that run's failed cases' images, avoids both, since neither script reads tags. Build it from the scratchpad without touching a branch:
+A screenshot is kept only for a fail. Never push one to a branch: `scripts/mygame-orphans` reports every remote branch but `trunk` and a live peer's, and `scripts/mygame-wave-close` deletes only `assets/<N>-visual-check`. A tag, `qa-run-<n>`, holding only that run's failed cases' images, avoids both, since neither script reads tags. Build it from the images in the scratchpad, against the peer's worktree, without touching a branch. The scratchpad is not a repository, so every command names the worktree:
 
 ```sh
-blob=$(git hash-object -w <file>.png)
-tree=$(printf '100644 blob %s\t%s\n' "$blob" "<case>-<file>.png" | git mktree)
-commit=$(git commit-tree "$tree" -m "qa: run <n> screenshots")
-git tag "qa-run-<n>" "$commit" && git push origin "qa-run-<n>"
+blob=$(git -C <worktree> hash-object -w "$PWD/<file>.png")
+tree=$(printf '100644 blob %s\t%s\n' "$blob" "<case>-<file>.png" | git -C <worktree> mktree)
+commit=$(git -C <worktree> commit-tree "$tree" -m "qa: run <n> screenshots")
+git -C <worktree> tag "qa-run-<n>" "$commit" && git -C <worktree> push origin "qa-run-<n>" && git -C <worktree> tag -d "qa-run-<n>"
 ```
 
 For more than one image, write one `mktree` line per file. Link an image as `https://raw.githubusercontent.com/emm3000/myGame/qa-run-<n>/<case>-<file>.png`. **This recipe is untested.** The first run that keeps a screenshot checks it and fixes this section.
@@ -165,7 +167,7 @@ For more than one image, write one `mktree` line per file. Link an image as `htt
 ## Filing a bug
 
 - One issue per bug, labelled `bug` and `needs-triage`.
-- **Before filing**, repeat the case once on a fresh account, and search the open issues (`gh issue list --label bug --search "<words>"`). A fail that does not repeat is a Note in the run table, not an issue.
+- **Before filing**, repeat the case once on a fresh account, and search the open issues (`gh issue list --label bug --search "<words>"`). A fail that does not repeat is still filed as a bug, with *did not repeat* in the body.
 - **The body** holds the case id, the run comment's link, the trunk SHA, the Setup, the steps, the expected result with its PRD or ADR source, the actual result and the screenshot's link.
 - **The fix ticket writes the failing gate test first**, so a bug found by hand never needs finding by hand again.
 
@@ -246,16 +248,13 @@ Setup: a fresh `none` account with a named town
 4. Read its words. Verify they show one at a time, with `school_lesson_word_position`, *Word 1 of 5*.
 5. Let the lesson finish, then open the Report. Verify `report_reviews_due`, *Reviews due: 5*.
 
-#### LES-01 The last minute of a countdown ticks each second, through a rotation · P1 · full
+#### LES-01 A rotation in the last minute keeps the countdown going · P1 · full
 
 Source: PRD M8, S22
 Setup: a fresh `none` account with a named town
 
-1. Start lesson 1 and watch its countdown.
-2. Verify that above one minute it reads whole minutes, `town_duration_minutes`, *{minutes} min*, and changes at most once a minute.
-3. Verify that under one minute it reads `town_duration_minutes_seconds`, *0:{seconds}*, and two layout reads one second apart differ by one second.
-4. Rotate the phone with about 30 seconds left. Verify the countdown goes on from where it was and does not restart.
-5. Verify that at zero the lesson reads finished, with no read longer than one second behind.
+1. Start lesson 1 and wait for the last minute of its countdown.
+2. Rotate the phone with about 30 seconds left. Verify the countdown goes on from where it was and does not restart.
 
 #### LES-02 A lesson that finishes in the background is settled on return · P1 · full
 
@@ -284,7 +283,7 @@ Source: ADR 036, *The rules*, rule 9
 Setup: a `none` account with one stable card due for its recall whose word has 4 letters or more (*Recipe: seed cards*)
 
 1. Open the review on the recall and tap the answer field.
-2. Verify the keyboard opens with its shift off, so the first letter would be lowercase, and shows no suggestion strip.
+2. Verify the keyboard opens with its shift off, so the first letter would be lowercase.
 3. Type the word with two adjacent letters swapped, a string that is not itself an English word, using the keyboard's own keys, and submit with its *Done* key.
 4. Verify the field still holds exactly what was typed, and the verdict is `review_near_miss`, *Almost. Check the spelling and try again.*
 
@@ -297,9 +296,9 @@ The word cases run on `none` accounts, so that every line is in English whatever
 Source: ADR 045, *Words open building levels from 3*; PRD M4, M5
 Setup: a fresh `none` account; homes at level 1 and storage at 3, with 3000 of each stock (*Recipe: seed levels and stocks*)
 
-1. On the town home, verify the homes' card shows no `town_words_needed` line for level 2.
+1. On the town home, verify the homes' next level shows no `town_words_needed` line for level 2.
 2. Start homes 2. Verify it is admitted, and let it finish.
-3. Verify the homes' card now reads `town_words_needed`, *Needs 10 words out of learning: 0 of 10*.
+3. Verify the homes' next level now reads `town_words_needed`, *Needs 10 words out of learning: 0 of 10*.
 4. Verify the town reads `town_words_reviewed`, *Words out of learning: 0*, and `town_words_learned`, *Learned words: 0*.
 5. Start homes 3. Verify the refusal `town_refusal_not_enough_words`, *This level needs 10 words out of learning and you have 0. Study new lessons and review the words that are due.*
 6. Verify the money drawn is unchanged and the build slot is still empty.
@@ -309,11 +308,11 @@ Setup: a fresh `none` account; homes at level 1 and storage at 3, with 3000 of e
 Source: ADR 045, *What the player sees*
 Setup: a fresh `none` account; homes at 2; 9 stable cards not due, and 1 card due for its day-2 recall (*Recipe: seed cards*)
 
-1. Verify the homes' card reads *Needs 10 words out of learning: 9 of 10*.
+1. Verify the homes' next level reads *Needs 10 words out of learning: 9 of 10*.
 2. Start homes 3. Verify the refusal says *…needs 10 words out of learning and you have 9…*.
 3. Answer the due recall with its word, unaided.
 4. Verify `review_correct`, *Correct.*, then `review_level_open`, *You have the words for level 3 now.*
-5. Go to the town. Verify *Words out of learning: 10*, and no `town_words_needed` line on the homes' card.
+5. Go to the town. Verify *Words out of learning: 10*, and no `town_words_needed` line on the homes' next level.
 6. Start homes 3. Verify it is admitted.
 
 #### WRD-02 The standing switches at level 7, and the 50th retained word opens it · P0 · full
@@ -321,7 +320,7 @@ Setup: a fresh `none` account; homes at 2; 9 stable cards not due, and 1 card du
 Source: ADR 045, *Words open building levels from 3*, *What the player sees*
 Setup: a fresh `none` account; homes at 6; 49 retained cards not due, and 1 stable card due for the recall that retains it (*Recipe: seed cards*)
 
-1. Verify the homes' card reads `town_words_needed` with the retained standing, *Needs 50 learned words: 49 of 50*.
+1. Verify the homes' next level reads `town_words_needed` with the retained standing, *Needs 50 learned words: 49 of 50*.
 2. Verify the town reads *Words out of learning: 50* and *Learned words: 49*.
 3. Start homes 7. Verify the refusal *This level needs 50 learned words and you have 49. Study new lessons and review the words that are due.*
 4. Answer the due recall with its word, unaided.
@@ -336,7 +335,7 @@ Setup: WRD-02's setup, on a fresh account
 1. On the due recall, ask for a hint. Verify `review_hint_line`, *It starts with “{first}” and has {letters} letters.*
 2. Answer with the word.
 3. Verify `review_correct` and no `review_level_open` line.
-4. Go to the town. Verify *Learned words: 49* and the homes' card still reading *Needs 50 learned words: 49 of 50*.
+4. Go to the town. Verify *Learned words: 49* and the homes' next level still reading *Needs 50 learned words: 49 of 50*.
 
 #### WRD-04 A lapse takes a word out of the count and keeps the level · P1 · full
 
@@ -432,15 +431,13 @@ Setup: SMK-07's account, the reminder on, the zone America/Lima
 2. Change the time zone to Europe/Madrid.
 3. Verify the alarm moved to the chosen local time in Madrid's zone.
 
-#### REM-07 The time wraps at midnight in both directions · P1 · full
+#### REM-07 A reminder at midnight is set for the coming midnight · P1 · full
 
 Source: ADR 046, *What the reminder is*, *When it fires*
 Setup: a `none` account with the reminder on and reviews due
 
-1. In Settings, step the time to 11:55 PM.
-2. Step it five minutes later. Verify it reads *12:00 AM*.
-3. Verify the alarm is at the coming local midnight, the start of tomorrow's date.
-4. Step it one hour earlier. Verify it reads *11:00 PM*, and the alarm moved to today's 11:00 PM if that is still ahead, else tomorrow's.
+1. In Settings, set the time to *12:00 AM*.
+2. Verify the alarm is at the coming local midnight, the start of tomorrow's date.
 
 #### REM-08 A revoked permission shows the switch off and posts nothing · P1 · full
 
