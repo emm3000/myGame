@@ -181,14 +181,25 @@ this order:
      `NextStepCountdown`, *Lesson 3 ready in* or *Next review:*.
    - The scaffold line under the line when the chrome phase gives one
      (`MyGameLabel`).
-2. **The go button.** One `go` button at `minHeights.action`, 60, full
-   width. A count rides inside it, as on board B: the figure in `go` on
-   an `on-go` disc, the first pair above reversed. A refused send, such
-   as today's `LessonStartAnswer`, reads in the dock right above the
-   button that sent it.
-3. **One door, at most.** One outlined door at `minHeights.secondary`,
-   52. On the town home the door is *Report*. On every other screen it
-   is *Town*, which replaces the header's back link as the way home.
+2. **The go button.** One `go` button at `minHeights.action`, 60. A
+   count rides inside it, as on board B: the figure in `go` on an
+   `on-go` disc, the first pair above reversed. A refused send, such as
+   today's `LessonStartAnswer`, reads in the dock right above the button
+   that sent it.
+3. **One door, at most.** One outlined door.
+   - **Where it goes.** On the town home the door is *Report*. On School,
+     Report, News, Map and Settings it is *Town*, which replaces the
+     header's back link as the way home.
+   - **Task screens.** A task screen's dock has no door, as on
+     `B-Review`. Its header keeps the back link (*Back to your town*),
+     because a task's dock is the tallest and the first to fold.
+   - **How it sits beside the button.** As on `B-Home` and `B-Report`,
+     the go button and the door share one row, three parts to one, both
+     at `minHeights.action`, 60, so the row lines up.
+   - **When the labels don't fit.** When the two labels do not fit that
+     row at their own width, as at a large font scale or in a long
+     Spanish label, the go button takes the full width and the door
+     drops under it, still 60 (`B-Spec`'s note).
 
 **One read feeds the dock.** The dock draws `TownStatusViewModel`'s town
 read, on every screen, and nothing else. `TownStatusUiState` gains the
@@ -215,16 +226,25 @@ anything the server did not answer (N1):
 |---|---|---|---|
 | Town home | the next step | the next step's action, as `NextStepSection` maps it today | *Report* |
 | School, Report, News, Map, Settings | the next step | the same, unless it points at this screen (below) | *Town* |
-| Review, word reading, placement, holdout check | the task's progress | the task's way on: *Check*, *Next*, *Next word* | *Town* |
+| Review, word reading, placement, holdout check | the task's progress | the task's way on: *Check*, *Next*, *Next word* | none; the header keeps the back link |
 
 **A step that points at the screen it is on acts in place, or waits.**
-Three cases exist on trunk, and the rule holds for any later one:
+Five cases exist on trunk, and the rule holds for any later one. The two
+ends of a task come first, because a new player meets them in the first
+minutes: the end of the first lesson's reading, then the end of the
+first reviews.
 
 | Screen | Step's action | The go button |
 |---|---|---|
+| Word reading, the last word, with a way on (`LessonWordsUiState.WayOn`) | any | the way on, as today: *Next lesson* or *Start the reviews* |
+| Word reading, the last word, with no way on (today's `ReviewsFollow`) | `ReadWords` of this lesson (`lessonRunning`) | blocked, its reason *When the lesson ends, the reviews start.* (`school_lesson_word_then`), the dock's line counting down to the lesson's end; a tap sends nothing; *Go to the school* stays a text link in the content |
+| Review, after the last card (`ReviewEnd`) | `StartReviews` (more cards came due) | *Start the reviews* acts in place: it reads the reviews again and shows the first card |
+| Review, after the last card | `ReadWords(lesson)` | *Read the words*, opening that lesson's words, as `ReviewEnd.kt:48` does today |
 | Report | `GoToReport` (`caughtUp`) | blocked, its reason the step's countdown (*Next review: …*) or *No reviews due now.*; a tap sends nothing |
 | School | `Study(number)` | *Study lesson N · 5:00*, the school's own study for that lesson (`SchoolIntent.StudyTapped`) |
 | School | `ReadWords(null)` (a running lesson the read does not hold) | blocked, its reason the step's line, *Studying*; a tap sends nothing |
+
+After the last card any other step is drawn as on the town home.
 
 A blocked go button stays in place, stays focusable and is announced
 with its reason (S22), and it is never `disabled`.
@@ -233,9 +253,20 @@ On a task screen the button never leaves the dock. While the task has
 nothing to send yet, as in a recognition before a choice, the button
 stays in place, marked blocked with its reason. On the review the
 verdict draws in the dock above the button, in `ink` with its icon
-(ADR 043). After the last card the button becomes the next step. So the
-way to learning is never more than one tap away, which is the
-onboarding-first rule.
+(ADR 043). After the last card the button becomes the next step, by the
+table above. So the way to learning is never more than one tap away,
+which is the onboarding-first rule.
+
+**The verdict says when a level opens, as on `B-Review`.** On a right
+answer whose verdict carries `ReviewStep.Correct.openedLevel`, the
+dock's verdict adds the line trunk already draws, *You have the words
+for level 3 now.* (`review_level_open`, `LevelOpenLine`). That keeps
+board B's first pro: the verdict points back at the town.
+
+The board also draws the school's silhouette with its next window dashed.
+That art is not adopted. `openedLevel` names a level and no building,
+so drawing one place would be the client choosing it. A later wire
+field that names the building can bring it.
 
 **What the button becomes, call site by call site.** `MyGameButton`
 draws `go`, so each of trunk's 24 feature call sites either moves into
@@ -249,11 +280,11 @@ flow of a screen with no dock:
 | `ShownLesson.kt:134` (`ReadWordsPill`) | outlined; the dock's `ReadWords` step opens the same words |
 | `ReviewScreen.kt:169` (*Next*), `ReviewScreen.kt:180` (*Check*) | the dock's go button, the task's way on |
 | `ReviewEnd.kt:48` (*Read the words*) | the dock's go button, which after the last card is the next step |
-| `ReviewEnd.kt:68` (*Back to your town*) | gone: the dock's *Town* door |
+| `ReviewEnd.kt:68` (*Back to your town*) | gone: the header's back link, since a task dock has no door |
 | `LessonWordsScreen.kt:287` (`InkPill`) | the dock's go button, the task's way on |
 | `PlacementAsking.kt:89`, `PlacementAsking.kt:99`, `HoldoutCheckAsking.kt:75`, `HoldoutCheckAsking.kt:85` | the dock's go button, the task's way on |
 | `HoldoutCheckDue.kt:38` (*Start the check*) | the dock's go button, the task's way in |
-| `PlacementResult.kt:40`, `HoldoutCheckScreen.kt:112` (*to town*) | gone: the dock's go button is the next step and its door is *Town* |
+| `PlacementResult.kt:40`, `HoldoutCheckScreen.kt:112` (*to town*) | gone: the dock's go button is the next step, and the header keeps the back link |
 | `PlacementOffered.kt:37` (the placement offer) | outlined, on the school's page (*The pager*) |
 | `TeamFormCard.kt:70` (the map's *Send*) | outlined; the map's dock carries the next step |
 | `NamingSection.kt:87`, `NamingSection.kt:95` | green in the flow; naming the town has no dock |
@@ -287,9 +318,16 @@ ADR 043's tests count one ink pill.
 **When the dock is too tall.** The dock may take at most half of the
 window's height. Past that, the dock folds:
 
-- **Folded.** It keeps the go button alone, with its whole label, and
-  the line and the door move to the top of the scrolling area, under the
-  header. TalkBack still reaches the line first, then the button.
+- **Folded.** It keeps the go button alone, with its whole label.
+  - **On a non-task screen.** The line and the door move to the top of
+    the scrolling area, under the header. TalkBack's order does not
+    change: the line first, then the button.
+  - **On a task screen.** The line, the verdict and a refusal line move
+    to the end of the scrolling content, right above the folded dock.
+    The content scrolls to them when they appear. Their polite live
+    regions speak them, as `ReviewStepLine` does today. TalkBack's order
+    does not change either: the card, then that content, then the
+    button.
 - **When it folds.** At font scale 2.0 on a phone, in landscape (a
   window about 360 dp tall), and in split screen.
 - **With the keyboard open.**
@@ -298,13 +336,19 @@ window's height. Past that, the dock folds:
   - On any other screen, the dock hides while the keyboard is open, as on
     the map's team form, and comes back when it closes. The screen's own
     form actions sit in its content.
+  - **When even the folded dock does not fit above the keyboard,** as in
+    landscape, *never cut* wins. The dock hides with the keyboard on a
+    task screen too, and the field's keyboard action sends the same step
+    as the button. The recall field already sets an `ImeAction`
+    (`ReviewCardContent.kt`).
 - **Never.** The go button's label is never cut, and the dock itself
   never scrolls.
 
 **At font scale 2.0.**
 
-- The go button keeps the full width. Its label wraps over as many lines
-  as it needs, and the door drops under it, as board B notes.
+- The go button and the door no longer share a row. The go button takes
+  the full width, its label wraps over as many lines as it needs, and
+  the door drops under it, as board B notes.
 - Today's `MyGamePillAtLargeFontTest` already holds the ink pill at 1.5
   and 2.0. The dock's tests hold the go button, its count, the door and
   the fold at the same scales.
@@ -330,10 +374,14 @@ string, so no screen uses it.
 come in the hue order of ADR 043: homes, farm, school, office, factory,
 power station, storage. Every page draws the same parts:
 
-- **The header.** The town's name and label in `title`, *Place 3 of 7*
-  (a new catalog key), and under them, on every page, the season line
-  with its countdown (`TownUiState.SeasonLine`) and the running lesson's
-  time.
+- **The header.** It holds:
+  - the town's name and label in `title`;
+  - *Place 3 of 7*, a new catalog key;
+  - the ring (`RetainedWordsRing`) on the right, on every page, as
+    ADR 043's header holds it (lines 334–336) and as trunk's town home
+    passes it today;
+  - under them, on every page, the season line with its countdown
+    (`TownUiState.SeasonLine`) and the running lesson's time.
 - **The art.** The place's silhouette, large, from the 77 drawables at
   its level, standing on an `ink` line.
 - **The name and level.** The place's name in `display` and *Level N* in
@@ -434,8 +482,8 @@ The order of the tickets, each one its own slice:
      the TalkBack semantics above in tests.
 3. **The frame.** `FramedScreen` draws the dock from
    `TownStatusViewModel`'s read, and `TownStatusUiState` gains the
-   dock's state with its loading and refused states. The back link
-   leaves the header for the dock's *Town* door. The school and the
+   dock's state with its loading and refused states. Outside a task
+   screen the back link leaves the header for the dock's *Town* door. The school and the
    Report move their primary into the dock, with the rule for a step
    that points at its own screen. The map's *Send* and the school's
    lesson actions turn outlined. The fold is drawn, and the dock hides
@@ -444,7 +492,9 @@ The order of the tickets, each one its own slice:
    carries* and of *Where the pager opens* gets a test that says where it
    went. `TownScreen`'s tests are rewritten, not adapted.
 5. **The task screens.** On the review, the word reading, placement and
-   the holdout check, the way on and the verdict move into the dock.
+   the holdout check, the way on and the verdict move into the dock,
+   with the level line and the rows for the end of a reading and of a
+   review. Each task screen keeps its back link and has no door.
    #1112's TalkBack walk runs after this ticket, so it walks the new
    screens.
 6. **The Report's rows**, with the offer of ADR 046.
@@ -509,8 +559,20 @@ screenshots in light, dark and at font scale 2.0, with one in Spanish
 
 **What stands, verified.**
 
-- **Art.** The 77 place drawables, the word and waste drawables, and
-  the art bible and catalog do not change.
+- **Art.** The 77 place drawables, the word and waste drawables,
+  `docs/art/art-bible.md` and `docs/art/catalog.md` do not change.
+- **Copy.** The message catalog does change. `packages/catalog` gains
+  `en.json` and `es.json` keys for:
+  - *Place {number} of {count}*, the page's position;
+  - *your next step*, added to the next step's tab name;
+  - the strip's name with the built count, taking over
+    `town_skyline_built`'s job when the skyline leaves;
+  - the place in work, added to its tab name.
+
+  The ticket that draws each key adds it, with its Spanish under tú, and
+  the strings the dock reuses (`town_next_*`, `school_lesson_word_then`,
+  `review_level_open`, `town_try_again`, `town_top_level`) stay as they
+  are.
 - **Type, spacing and the other tokens.** Schibsted Grotesk and every
   type style, spacing, durations and every other token stay as they are.
 - **Rules.** `ui-components.md` already holds every rule the dock obeys:
@@ -546,7 +608,7 @@ screenshots in light, dark and at font scale 2.0, with one in Spanish
 | ADR 043, *The other families*, lines 189–192 | Android's buttons at `md`, the dock at `lg`; no token changes |
 | ADR 043, *Blocks*, lines 319–324 | on Android the town home's next-step block and its stack leave for the dock; a block holds no button, and the school's, the word's and the review's blocks stand |
 | ADR 043, *Places*, lines 370–374 | on Android the street strip replaces the skyline and carries its built count in the strip's name; a place's silhouette sits on its page, not on a row |
-| ADR 043, *The screens*, lines 328–357 | on Android: the dock's door in place of the two doors and the back link; the town home is the pager; the school, the review and the Report move their primary into the dock |
+| ADR 043, *The screens*, lines 328–357 | on Android: the dock's door in place of the two doors, and in place of the back link outside a task screen; the town home is the pager; the school, the review and the Report move their primary into the dock |
 | ADR 043, *Web and Android*, lines 470–478 | the Color row reads 22 tokens; the Navigation row reads the dock |
 
 The lines are ADR 043's as they stand at `a1aae9a4`, and its new
@@ -556,9 +618,28 @@ amendment section points back here.
 
 - The canvas (https://claude.ai/artifact/USvWmDMuKo1wfFdfumuWez, #1160),
   boards `B-Spec`, `B-Home`, `B-Review`, `B-Report` and `B-Home-Dark`.
-  Where the canvas and this ADR differ, this ADR holds: the neutrals, the
-  word's size, `go-soft`, the radii, the gutter, where the reminder offer
-  shows and the sample Spanish line.
+  Where the canvas and this ADR differ, this ADR holds. Each difference,
+  with its reason:
+  - **The neutrals:** trunk's, since the board's are samples.
+  - **The word's size:** 44, ADR 043's measured size.
+  - **`go-soft`:** dropped, since no screen draws it.
+  - **The radii:** 16 and 28, existing tokens, against the board's 20
+    and 32.
+  - **The gutter:** 20.
+  - **The review's choices:** they stay 52 tall at `md`, ADR 043's
+    `minHeights.secondary` and radius, against `B-Review`'s 56 at 20. A
+    56 would be a new height token in the shared source for 4 dp.
+  - **The verdict's art:** `openedLevel` names no building.
+  - **The reminder offer:** it shows only when nothing is due, per
+    ADR 046.
+  - **The sample Spanish line:** not a catalog string.
+
+  Adopted from the board, against the first draft of this ADR:
+  - **Task screens:** no door in a task screen's dock, and the back link
+    kept in its header (`B-Review`).
+  - **The button row:** the go button and the door share a row, three to
+    one, both 60 tall (`B-Home`, `B-Report`).
+  - **The verdict:** it says when a level opens (`B-Review`).
 - ADR 042 (the next step first), ADR 043 (the look), ADR 045 (the words
   a level needs) and ADR 046 (the study reminder).
 - `.claude/rules/ui-components.md`, `.claude/rules/android-architecture.md`,

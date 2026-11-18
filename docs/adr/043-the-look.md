@@ -677,7 +677,7 @@ its own ticket.
 | 184 | `badge` goes to `action`, `on-action` | the badge takes its button's pair: `go` on `on-go` on the go button, `on-action` on `action` elsewhere |
 | 189–192 | pills | the go button and the outlined door at `md`, the dock's top corners at `lg`; no radius token changes |
 | 319–324 | the next step's block, with two rotated blocks behind it | the town home's next step lives in the dock, with no block and no stack; the school's, the word's and the review's blocks stand and hold no button |
-| 328–357 | two doors under the next step; a back link in every other header; the town home as one column | the dock's one door, *Report* on the town home and *Town* elsewhere; the town home a pager of the seven places, with a street strip |
+| 328–357 | two doors under the next step; a back link in every other header; the town home as one column | the dock's one door, *Report* on the town home and *Town* on the other non-task screens; a task screen keeps the back link in its header and has no door; the town home a pager of the seven places, with a street strip |
 | 370–374 | the skyline, the seven on one line; a silhouette beside each place row | the street strip, seven tabs, its name carrying the built count; a place's silhouette large on its own page |
 | 470–478 | Color: 20 tokens; Navigation: the bar leaves | Color: 22 tokens; Navigation: the dock |
 
