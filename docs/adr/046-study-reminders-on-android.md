@@ -185,6 +185,7 @@ the api. N1 is amended to name it.
   | Lesson ready, nothing else | *A new lesson is ready.* / *Start it at the school.* | *Tienes una lección nueva.* / *Empiézala en la escuela.* |
   | Settings switch | *Study reminder* / *Once a day, at the time you pick, when there is something to study.* | *Recordatorio de estudio* / *Una vez al día, a la hora que elijas, cuando tengas algo que estudiar.* |
   | Permission denied | *Notifications for Townword are off in your phone's settings.* | *Las notificaciones de Townword están desactivadas en los ajustes del teléfono.* |
+  | Link under the denied line | *Open notification settings* | *Abrir los ajustes de notificaciones* |
 
 ### Why a daily time and not the due instant
 

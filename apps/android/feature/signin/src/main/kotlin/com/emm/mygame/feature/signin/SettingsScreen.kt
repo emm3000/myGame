@@ -37,6 +37,7 @@ fun SettingsScreen(
     state: SettingsUiState,
     onIntent: (SettingsIntent) -> Unit,
     onTownOpen: () -> Unit,
+    onNotificationSettingsOpen: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
     val title: String = stringResource(R.string.settings_title)
@@ -65,14 +66,18 @@ fun SettingsScreen(
             loadingLabel = title,
             blocks = settingsBlocks,
         ) {
-            SettingsState(state = state, onIntent = onIntent)
+            SettingsState(state = state, onIntent = onIntent, onNotificationSettingsOpen = onNotificationSettingsOpen)
         }
         MyGameTextLink(label = stringResource(R.string.settings_back), onClick = onTownOpen)
     }
 }
 
 @Composable
-private fun SettingsState(state: SettingsUiState, onIntent: (SettingsIntent) -> Unit) {
+private fun SettingsState(
+    state: SettingsUiState,
+    onIntent: (SettingsIntent) -> Unit,
+    onNotificationSettingsOpen: () -> Unit,
+) {
     when (state) {
         SettingsUiState.Loading -> Unit
         SettingsUiState.Failed -> MyGameErrorBanner(
@@ -80,7 +85,11 @@ private fun SettingsState(state: SettingsUiState, onIntent: (SettingsIntent) -> 
             actionLabel = stringResource(R.string.settings_retry),
             onAction = { onIntent(SettingsIntent.RetryTapped) },
         )
-        is SettingsUiState.Loaded -> ScaffoldSetting(loaded = state, onIntent = onIntent)
+        is SettingsUiState.Loaded -> ScaffoldSetting(
+            loaded = state,
+            onIntent = onIntent,
+            onNotificationSettingsOpen = onNotificationSettingsOpen,
+        )
     }
 }
 
@@ -88,6 +97,7 @@ private fun SettingsState(state: SettingsUiState, onIntent: (SettingsIntent) -> 
 private fun ScaffoldSetting(
     loaded: SettingsUiState.Loaded,
     onIntent: (SettingsIntent) -> Unit,
+    onNotificationSettingsOpen: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
     Column(verticalArrangement = Arrangement.spacedBy(MyGameSpacing.step4), modifier = modifier) {
@@ -102,7 +112,11 @@ private fun ScaffoldSetting(
             color = MyGameTheme.colors.inkMuted,
         )
         ChangeLine(change = loaded.change)
-        ReminderSetting(reminder = loaded.reminder, onIntent = onIntent)
+        ReminderSetting(
+            reminder = loaded.reminder,
+            onIntent = onIntent,
+            onNotificationSettingsOpen = onNotificationSettingsOpen,
+        )
     }
 }
 
@@ -171,6 +185,6 @@ private class SettingsUiStates : PreviewParameterProvider<SettingsUiState> {
 @Composable
 private fun SettingsScreenPreview(@PreviewParameter(SettingsUiStates::class) state: SettingsUiState) {
     MyGamePreviewSurface {
-        SettingsScreen(state = state, onIntent = {}, onTownOpen = {})
+        SettingsScreen(state = state, onIntent = {}, onTownOpen = {}, onNotificationSettingsOpen = {})
     }
 }

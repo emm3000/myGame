@@ -5,14 +5,18 @@ import android.app.AlarmManager
 import android.app.Application
 import android.app.NotificationManager
 import android.content.Context
+import android.provider.Settings
 import androidx.activity.ComponentActivity
 import androidx.compose.ui.test.SemanticsNodeInteraction
+import androidx.compose.ui.test.assertIsDisplayed
 import androidx.compose.ui.test.hasText
 import androidx.compose.ui.test.isToggleable
 import androidx.compose.ui.test.junit4.AndroidComposeTestRule
 import androidx.compose.ui.test.junit4.createAndroidComposeRule
+import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
 import androidx.compose.ui.test.performScrollTo
+import androidx.lifecycle.Lifecycle
 import androidx.navigation3.runtime.rememberNavBackStack
 import androidx.test.ext.junit.rules.ActivityScenarioRule
 import com.emm.mygame.core.designsystem.MyGameTheme
@@ -22,6 +26,7 @@ import com.emm.mygame.core.network.PlacementRepository
 import com.emm.mygame.core.network.PlayerChromePhase
 import com.emm.mygame.core.network.PlayerLanguage
 import com.emm.mygame.core.network.PlayerScaffold
+import com.emm.mygame.core.network.ReminderNotifications
 import com.emm.mygame.core.network.ReportRepository
 import com.emm.mygame.core.network.RestoreResult
 import com.emm.mygame.core.network.SessionEnds
@@ -98,6 +103,7 @@ class SettingsReminderNavigationTest {
         override val placements: PlacementRepository = FakePlacementRepository()
         override val holdoutChecks: HoldoutCheckRepository = FakeHoldoutCheckRepository()
         override val studyReminders: StudyReminderSettings = store
+        override val reminderNotifications: ReminderNotifications = PhoneReminderNotifications(application)
     }
 
     private fun showSettings() {
@@ -162,9 +168,36 @@ class SettingsReminderNavigationTest {
         assertEquals(Manifest.permission.POST_NOTIFICATIONS, asked)
     }
 
+    @Test
+    fun `coming back after notifications were turned off draws the denied line`() {
+        store.choose(onAtSevenPm)
+        showSettings()
+        notifications.setNotificationsEnabled(false)
+
+        composeRule.activityRule.scenario.moveToState(Lifecycle.State.STARTED)
+        composeRule.activityRule.scenario.moveToState(Lifecycle.State.RESUMED)
+        composeRule.waitForIdle()
+
+        composeRule.onNodeWithText(DENIED_LINE).performScrollTo().assertIsDisplayed()
+    }
+
+    @Test
+    fun `the denied line opens the phone's notification settings`() {
+        notifications.setNotificationsEnabled(false)
+        store.choose(onAtSevenPm)
+        showSettings()
+
+        composeRule.onNodeWithText(OPEN_SETTINGS).performScrollTo().performClick()
+
+        val opened: String? = shadowOf(composeRule.activity).nextStartedActivity?.action
+        assertEquals(Settings.ACTION_APP_NOTIFICATION_SETTINGS, opened)
+    }
+
     private companion object {
         const val WAIT_MILLIS: Long = 5_000
         const val SESSION_READS: Int = 3
         const val SWITCH_TITLE: String = "Recordatorio de estudio"
+        const val OPEN_SETTINGS: String = "Abrir los ajustes de notificaciones"
+        const val DENIED_LINE: String = "Las notificaciones de Townword están desactivadas en los ajustes del teléfono."
     }
 }

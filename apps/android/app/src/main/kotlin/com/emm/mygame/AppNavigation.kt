@@ -311,9 +311,10 @@ private fun EntryProviderScope<NavKey>.settingsEntry(chrome: SignedInChrome) {
                 sessions = dependencies.sessions,
                 playerScaffold = dependencies.playerScaffold,
                 reminders = dependencies.studyReminders,
-                notifications = remember(context) { PhoneReminderNotifications(context.applicationContext) },
+                notifications = dependencies.reminderNotifications,
                 rememberNotificationAsk = { onAnswer: (Boolean) -> Unit -> rememberNotificationAsk(onAnswer) },
                 onTownOpen = navigator::openTown,
+                onNotificationSettingsOpen = { context.openNotificationSettings() },
             )
         }
     }

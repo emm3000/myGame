@@ -38,7 +38,12 @@ class SettingsScreenTest {
     private fun draw(state: SettingsUiState) {
         composeRule.setContent {
             MyGameTheme {
-                SettingsScreen(state = state, onIntent = { sentIntents += it }, onTownOpen = { townOpens += 1 })
+                SettingsScreen(
+                    state = state,
+                    onIntent = { sentIntents += it },
+                    onTownOpen = { townOpens += 1 },
+                    onNotificationSettingsOpen = {},
+                )
             }
         }
     }

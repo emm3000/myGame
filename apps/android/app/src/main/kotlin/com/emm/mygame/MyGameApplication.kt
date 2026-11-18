@@ -9,6 +9,7 @@ import com.emm.mygame.core.network.PlacementRepository
 import com.emm.mygame.core.network.PlayerLanguage
 import com.emm.mygame.core.network.PlayerLanguages
 import com.emm.mygame.core.network.PlayerScaffold
+import com.emm.mygame.core.network.ReminderNotifications
 import com.emm.mygame.core.network.ReportRepository
 import com.emm.mygame.core.network.SessionEnds
 import com.emm.mygame.core.network.SessionRepository
@@ -58,6 +59,8 @@ class MyGameApplication : Application(), AppDependencies {
 
     override val studyReminders: StudyReminderSettings
         get() = studyReminderStore
+
+    override val reminderNotifications: ReminderNotifications by lazy { PhoneReminderNotifications(this) }
 
     private val studyAnswers: StudyAnswers by lazy {
         StudyAnswers(

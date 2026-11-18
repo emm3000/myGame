@@ -13,4 +13,6 @@ sealed interface SettingsIntent {
     data class NotificationsAnswered(val isGranted: Boolean) : SettingsIntent
 
     data class ReminderStepped(val step: ReminderStep) : SettingsIntent
+
+    data object ScreenResumed : SettingsIntent
 }

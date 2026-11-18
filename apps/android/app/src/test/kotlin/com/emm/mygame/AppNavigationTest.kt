@@ -39,6 +39,7 @@ import com.emm.mygame.core.network.PlayerLanguage
 import com.emm.mygame.core.network.PlayerScaffold
 import com.emm.mygame.core.network.RegionMap
 import com.emm.mygame.core.network.RegionMapResult
+import com.emm.mygame.core.network.ReminderNotifications
 import com.emm.mygame.core.network.ReportReadResult
 import com.emm.mygame.core.network.ReportRepository
 import com.emm.mygame.core.network.RestoreResult
@@ -63,6 +64,7 @@ import com.emm.mygame.core.network.WordSupport
 import com.emm.mygame.core.testing.FakeHoldoutCheckRepository
 import com.emm.mygame.core.testing.FakeLearningRepository
 import com.emm.mygame.core.testing.FakePlacementRepository
+import com.emm.mygame.core.testing.FakeReminderNotifications
 import com.emm.mygame.core.testing.FakeReportRepository
 import com.emm.mygame.core.testing.FakeSessionRepository
 import com.emm.mygame.core.testing.FakeStudyReminderSettings
@@ -118,6 +120,8 @@ class AppNavigationTest {
         override val holdoutChecks: HoldoutCheckRepository = FakeHoldoutCheckRepository()
         override val studyReminders: StudyReminderSettings =
             FakeStudyReminderSettings(StudyReminderChoice.firstChoice)
+        override val reminderNotifications: ReminderNotifications =
+            FakeReminderNotifications(areAllowed = true, canAsk = true)
     }
 
     private val readAt: Instant = Instant.parse("2026-11-05T10:00:00Z")

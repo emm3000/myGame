@@ -318,6 +318,7 @@
   "android.signin.settings_reminder_line": "Como mucho una vez al día, cerca de la hora que elijas, cuando pueda haber algo que estudiar.",
   "android.signin.settings_reminder_minutes_earlier": "Cinco minutos antes",
   "android.signin.settings_reminder_minutes_later": "Cinco minutos después",
+  "android.signin.settings_reminder_open_settings": "Abrir los ajustes de notificaciones",
   "android.signin.settings_reminder_time": "Hora del recordatorio",
   "android.signin.settings_reminder_title": "Recordatorio de estudio",
   "android.signin.settings_retry": "Volver a intentarlo",

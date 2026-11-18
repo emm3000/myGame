@@ -5,9 +5,11 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.rememberUpdatedState
 import androidx.compose.ui.Modifier
+import androidx.lifecycle.compose.LifecycleResumeEffect
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.emm.mygame.core.network.PlayerScaffold
+import com.emm.mygame.core.network.ReminderNotifications
 import com.emm.mygame.core.network.SessionRepository
 import com.emm.mygame.core.network.StudyReminderSettings
 import kotlinx.coroutines.Dispatchers
@@ -22,6 +24,7 @@ fun SettingsRoute(
     notifications: ReminderNotifications,
     rememberNotificationAsk: @Composable (onAnswer: (Boolean) -> Unit) -> () -> Unit,
     onTownOpen: () -> Unit,
+    onNotificationSettingsOpen: () -> Unit,
     modifier: Modifier = Modifier,
     viewModel: SettingsViewModel = viewModel {
         SettingsViewModel(sessions, playerScaffold, reminders, notifications)
@@ -41,5 +44,15 @@ fun SettingsRoute(
             }
         }
     }
-    SettingsScreen(state = state, onIntent = viewModel::onIntent, onTownOpen = onTownOpen, modifier = modifier)
+    LifecycleResumeEffect(viewModel) {
+        viewModel.onIntent(SettingsIntent.ScreenResumed)
+        onPauseOrDispose {}
+    }
+    SettingsScreen(
+        state = state,
+        onIntent = viewModel::onIntent,
+        onTownOpen = onTownOpen,
+        onNotificationSettingsOpen = onNotificationSettingsOpen,
+        modifier = modifier,
+    )
 }
