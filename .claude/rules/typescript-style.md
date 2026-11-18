@@ -46,7 +46,7 @@ None. No JSDoc, no `//`, no `/* */`, no commented-out code, no section banners. 
 | Use case | verb phrase | `startBuildingWork`, `settleSchoolLesson` |
 | Port | noun + role | `TownRepository`, `Clock`, `IdGenerator` |
 | Adapter | technology + port | `DrizzleTownRepository`, `SystemClock` |
-| Domain error member | past or present participle of the failure | `InsufficientResources`, `QueueFull` |
+| Domain error member | past or present participle of the failure | `SiteTaken`, `TopLevelReached` |
 | Contract schema | wire noun + `Schema` | `TownOverviewSchema`, `StartBuildingWorkSchema` |
 | Contract type | the schema's noun | `TownOverview`, `StartBuildingWork` |
 | Hono route module | resource | `town.ts`, `report.ts` |

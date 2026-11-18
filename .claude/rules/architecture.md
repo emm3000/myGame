@@ -52,9 +52,9 @@ Failure modes are a sealed discriminated union:
 
 ```ts
 export type DomainError =
-  | { kind: 'InsufficientResources'; missing: ResourceAmounts }
-  | { kind: 'QueueFull'; cap: number }
-  | { kind: 'UnknownBuilding'; building: string }
+  | { readonly kind: 'NotEnoughResources'; readonly missing: Stocks }
+  | { readonly kind: 'WaitingListFull'; readonly cap: number }
+  | { readonly kind: 'TownNotFound'; readonly playerId: PlayerId }
 ```
 
 A use case returns `Result<T, DomainError>`; it never throws. An adapter maps `kind` to an HTTP status in one place (`apps/api`, `answerRefusal`) and answers the `kind` with its typed `params`, the refusal's fields, never a player-facing line (ADR 038); each client reads the same `ApiError` from `packages/contracts` and renders the line from `packages/catalog`: the web and the api from `refusal.<Kind>`, Android from its module's `android.<module>.*refusal*` keys until Android shares the catalog key set. A new failure mode is a new member of the union, never a new `class extends Error`.
