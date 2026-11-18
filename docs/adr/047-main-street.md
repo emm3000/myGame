@@ -244,7 +244,7 @@ first reviews.
 | School | `Study(number)` | *Study lesson N · 5:00*, the school's own study for that lesson (`SchoolIntent.StudyTapped`) |
 | School | `ReadWords(null)` (a running lesson the read does not hold) | blocked, its reason the step's line, *Studying*; a tap sends nothing |
 
-After the last card any other step is drawn as on the town home.
+After the last word or card, any other step is drawn as on the town home.
 
 A blocked go button stays in place, stays focusable and is announced
 with its reason (S22), and it is never `disabled`.
