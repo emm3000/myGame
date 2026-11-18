@@ -7,6 +7,3 @@ internal val firstReminder: SettingsUiState.Reminder = SettingsUiState.Reminder(
     time = StudyReminderChoice.firstChoice.time,
     ask = SettingsUiState.NotificationAsk.Untouched,
 )
-
-internal class FakeReminderNotifications(override var areAllowed: Boolean, override val canAsk: Boolean) :
-    ReminderNotifications

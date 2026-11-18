@@ -69,6 +69,7 @@ export const fixedCopyKeys: ReadonlySet<string> = new Set([
   'android.signin.settings_reminder_line',
   'android.signin.settings_reminder_minutes_earlier',
   'android.signin.settings_reminder_minutes_later',
+  'android.signin.settings_reminder_open_settings',
   'android.signin.settings_reminder_time',
   'android.signin.settings_reminder_title',
   'android.signin.settings_retry',

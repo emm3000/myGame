@@ -1,4 +1,4 @@
-package com.emm.mygame.feature.signin
+package com.emm.mygame.core.network
 
 interface ReminderNotifications {
 

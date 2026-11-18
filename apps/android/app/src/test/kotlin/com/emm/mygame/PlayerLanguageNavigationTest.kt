@@ -18,6 +18,7 @@ import com.emm.mygame.core.network.PlacementRepository
 import com.emm.mygame.core.network.PlayerChromePhase
 import com.emm.mygame.core.network.PlayerLanguage
 import com.emm.mygame.core.network.PlayerScaffold
+import com.emm.mygame.core.network.ReminderNotifications
 import com.emm.mygame.core.network.ReportReadResult
 import com.emm.mygame.core.network.ReportRepository
 import com.emm.mygame.core.network.RestoreResult
@@ -31,6 +32,7 @@ import com.emm.mygame.core.network.TownRepository
 import com.emm.mygame.core.testing.FakeHoldoutCheckRepository
 import com.emm.mygame.core.testing.FakeLearningRepository
 import com.emm.mygame.core.testing.FakePlacementRepository
+import com.emm.mygame.core.testing.FakeReminderNotifications
 import com.emm.mygame.core.testing.FakeReportRepository
 import com.emm.mygame.core.testing.FakeSessionRepository
 import com.emm.mygame.core.testing.FakeStudyReminderSettings
@@ -72,6 +74,8 @@ class PlayerLanguageNavigationTest {
         override val holdoutChecks: HoldoutCheckRepository = FakeHoldoutCheckRepository()
         override val studyReminders: StudyReminderSettings =
             FakeStudyReminderSettings(StudyReminderChoice.firstChoice)
+        override val reminderNotifications: ReminderNotifications =
+            FakeReminderNotifications(areAllowed = true, canAsk = true)
     }
 
     private val nothingDue: TownReport =

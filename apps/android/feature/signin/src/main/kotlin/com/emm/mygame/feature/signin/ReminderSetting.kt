@@ -11,6 +11,7 @@ import com.emm.mygame.core.designsystem.MyGameLabel
 import com.emm.mygame.core.designsystem.MyGameSpacing
 import com.emm.mygame.core.designsystem.MyGameSwitchRow
 import com.emm.mygame.core.designsystem.MyGameText
+import com.emm.mygame.core.designsystem.MyGameTextLink
 import com.emm.mygame.core.designsystem.MyGameTheme
 import com.emm.mygame.core.designsystem.MyGameTimeField
 import com.emm.mygame.core.designsystem.MyGameTimeStep
@@ -25,6 +26,7 @@ private val anyDay: LocalDate = LocalDate.ofEpochDay(0)
 internal fun ReminderSetting(
     reminder: SettingsUiState.Reminder,
     onIntent: (SettingsIntent) -> Unit,
+    onNotificationSettingsOpen: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
     Column(verticalArrangement = Arrangement.spacedBy(MyGameSpacing.step4), modifier = modifier) {
@@ -37,6 +39,10 @@ internal fun ReminderSetting(
         )
         if (reminder.ask == SettingsUiState.NotificationAsk.Denied) {
             MyGameInlineAlert(message = stringResource(R.string.settings_reminder_denied))
+            MyGameTextLink(
+                label = stringResource(R.string.settings_reminder_open_settings),
+                onClick = onNotificationSettingsOpen,
+            )
         }
         if (reminder.isOn) ReminderTime(time = reminder.time, onIntent = onIntent)
     }

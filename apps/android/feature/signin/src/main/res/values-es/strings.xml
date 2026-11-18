@@ -21,6 +21,7 @@
     <string name="settings_reminder_line">Como mucho una vez al día, cerca de la hora que elijas, cuando pueda haber algo que estudiar.</string>
     <string name="settings_reminder_minutes_earlier">Cinco minutos antes</string>
     <string name="settings_reminder_minutes_later">Cinco minutos después</string>
+    <string name="settings_reminder_open_settings">Abrir los ajustes de notificaciones</string>
     <string name="settings_reminder_time">Hora del recordatorio</string>
     <string name="settings_reminder_title">Recordatorio de estudio</string>
     <string name="settings_retry">Volver a intentarlo</string>

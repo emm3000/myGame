@@ -3,7 +3,7 @@ package com.emm.mygame
 import android.app.NotificationManager
 import android.content.Context
 import android.os.Build
-import com.emm.mygame.feature.signin.ReminderNotifications
+import com.emm.mygame.core.network.ReminderNotifications
 
 internal class PhoneReminderNotifications(context: Context) : ReminderNotifications {
 

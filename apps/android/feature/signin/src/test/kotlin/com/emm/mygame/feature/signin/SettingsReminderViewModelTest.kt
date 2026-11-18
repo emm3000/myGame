@@ -5,6 +5,7 @@ import com.emm.mygame.core.network.PlayerScaffold
 import com.emm.mygame.core.network.RestoreResult
 import com.emm.mygame.core.network.SignedInPlayer
 import com.emm.mygame.core.network.StudyReminderChoice
+import com.emm.mygame.core.testing.FakeReminderNotifications
 import com.emm.mygame.core.testing.FakeSessionRepository
 import com.emm.mygame.core.testing.FakeStudyReminderSettings
 import com.emm.mygame.core.testing.MainDispatcherRule
@@ -103,10 +104,70 @@ class SettingsReminderViewModelTest {
         val viewModel: SettingsViewModel = loaded(reminders)
         viewModel.onIntent(SettingsIntent.ReminderSwitched(isOn = true))
         viewModel.onIntent(SettingsIntent.NotificationsAnswered(isGranted = false))
+        askableNotifications.areAllowed = true
 
         reminders.choose(onAt(19, 0))
 
         assertEquals(firstReminder.copy(isOn = true), reminderOf(viewModel))
+    }
+
+    @Test
+    fun `a reminder left on while notifications are off draws the switch off with the denied line`() = runTest {
+        val viewModel: SettingsViewModel = loaded(FakeStudyReminderSettings(onAt(19, 0)))
+
+        assertEquals(firstReminder.copy(ask = SettingsUiState.NotificationAsk.Denied), reminderOf(viewModel))
+    }
+
+    @Test
+    fun `holds a reminder left on while the permission is asked`() = runTest {
+        val viewModel: SettingsViewModel = loaded(FakeStudyReminderSettings(onAt(19, 0)))
+
+        viewModel.onIntent(SettingsIntent.ReminderSwitched(isOn = true))
+
+        assertEquals(firstReminder.copy(ask = SettingsUiState.NotificationAsk.Asking), reminderOf(viewModel))
+    }
+
+    @Test
+    fun `coming back after notifications were turned off draws the denied line`() = runTest {
+        val allowedNow: FakeReminderNotifications = FakeReminderNotifications(areAllowed = true, canAsk = true)
+        val viewModel: SettingsViewModel = loaded(FakeStudyReminderSettings(onAt(19, 0)), allowedNow)
+        allowedNow.areAllowed = false
+
+        viewModel.onIntent(SettingsIntent.ScreenResumed)
+
+        assertEquals(firstReminder.copy(ask = SettingsUiState.NotificationAsk.Denied), reminderOf(viewModel))
+    }
+
+    @Test
+    fun `coming back after notifications were allowed again clears the denied line`() = runTest {
+        val viewModel: SettingsViewModel = loaded(FakeStudyReminderSettings(offAtSevenPm))
+        viewModel.onIntent(SettingsIntent.ReminderSwitched(isOn = true))
+        viewModel.onIntent(SettingsIntent.NotificationsAnswered(isGranted = false))
+        askableNotifications.areAllowed = true
+
+        viewModel.onIntent(SettingsIntent.ScreenResumed)
+
+        assertEquals(firstReminder, reminderOf(viewModel))
+    }
+
+    @Test
+    fun `coming back after notifications were allowed again draws a reminder left on as on`() = runTest {
+        val viewModel: SettingsViewModel = loaded(FakeStudyReminderSettings(onAt(19, 0)))
+        askableNotifications.areAllowed = true
+
+        viewModel.onIntent(SettingsIntent.ScreenResumed)
+
+        assertEquals(firstReminder.copy(isOn = true), reminderOf(viewModel))
+    }
+
+    @Test
+    fun `coming back while the permission is asked keeps the switch held`() = runTest {
+        val viewModel: SettingsViewModel = loaded(FakeStudyReminderSettings(offAtSevenPm))
+        viewModel.onIntent(SettingsIntent.ReminderSwitched(isOn = true))
+
+        viewModel.onIntent(SettingsIntent.ScreenResumed)
+
+        assertEquals(firstReminder.copy(ask = SettingsUiState.NotificationAsk.Asking), reminderOf(viewModel))
     }
 
     @Test

@@ -28,6 +28,7 @@ import org.robolectric.annotation.Config
 private const val SWITCH_TITLE: String = "Recordatorio de estudio"
 private const val SWITCH_LINE: String =
     "Como mucho una vez al día, cerca de la hora que elijas, cuando pueda haber algo que estudiar."
+private const val OPEN_SETTINGS: String = "Abrir los ajustes de notificaciones"
 private const val DENIED_LINE: String =
     "Las notificaciones de Townword están desactivadas en los ajustes del teléfono."
 
@@ -39,6 +40,8 @@ class SettingsReminderScreenTest {
 
     private val sentIntents: MutableList<SettingsIntent> = mutableListOf()
 
+    private var notificationSettingsOpens: Int = 0
+
     private val onAtSevenPm: SettingsUiState.Reminder = firstReminder.copy(isOn = true)
 
     private fun draw(reminder: SettingsUiState.Reminder) {
@@ -48,6 +51,7 @@ class SettingsReminderScreenTest {
                     state = SettingsUiState.Loaded(PlayerScaffold.Spanish, SettingsUiState.Change.Untouched, reminder),
                     onIntent = { sentIntents += it },
                     onTownOpen = {},
+                    onNotificationSettingsOpen = { notificationSettingsOpens += 1 },
                 )
             }
         }
@@ -95,6 +99,22 @@ class SettingsReminderScreenTest {
 
         reminderSwitch().performScrollTo().assertIsOff()
         composeRule.onNodeWithText(DENIED_LINE).assertIsDisplayed()
+    }
+
+    @Test
+    fun `the denied line opens the phone's notification settings`() {
+        draw(firstReminder.copy(ask = SettingsUiState.NotificationAsk.Denied))
+
+        composeRule.onNodeWithText(OPEN_SETTINGS).performScrollTo().performClick()
+
+        assertEquals(1, notificationSettingsOpens)
+    }
+
+    @Test
+    fun `draws no settings link before any denial`() {
+        draw(firstReminder)
+
+        composeRule.onAllNodesWithText(OPEN_SETTINGS).assertCountEquals(0)
     }
 
     @Test

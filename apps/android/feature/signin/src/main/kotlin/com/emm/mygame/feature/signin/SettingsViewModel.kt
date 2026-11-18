@@ -3,6 +3,7 @@ package com.emm.mygame.feature.signin
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.emm.mygame.core.network.PlayerScaffold
+import com.emm.mygame.core.network.ReminderNotifications
 import com.emm.mygame.core.network.RestoreResult
 import com.emm.mygame.core.network.ScaffoldChangeResult
 import com.emm.mygame.core.network.SessionRepository
@@ -34,7 +35,7 @@ class SettingsViewModel(
     init {
         read()
         viewModelScope.launch { playerScaffold.collect(::holdStored) }
-        viewModelScope.launch { reminders.choice.collect { drawReminder(shownAsk()) } }
+        viewModelScope.launch { reminders.choice.collect { drawReminder(SettingsUiState.NotificationAsk.Untouched) } }
     }
 
     fun onIntent(intent: SettingsIntent) {
@@ -44,6 +45,7 @@ class SettingsViewModel(
             is SettingsIntent.ReminderSwitched -> switchReminder(intent.isOn)
             is SettingsIntent.NotificationsAnswered -> answerAsk(intent.isGranted)
             is SettingsIntent.ReminderStepped -> stepReminder(intent.step)
+            SettingsIntent.ScreenResumed -> drawReminder(shownAsk())
         }
     }
 
@@ -58,9 +60,22 @@ class SettingsViewModel(
 
     private fun reminderAsked(ask: SettingsUiState.NotificationAsk): SettingsUiState.Reminder {
         val choice: StudyReminderChoice = reminders.choice.value
+        val isAllowed: Boolean = notifications.areAllowed
+        val isShownOn: Boolean = choice.isOn && isAllowed
         val kept: SettingsUiState.NotificationAsk =
-            if (choice.isOn) SettingsUiState.NotificationAsk.Untouched else ask
-        return SettingsUiState.Reminder(isOn = choice.isOn, time = choice.time, ask = kept)
+            if (isShownOn) SettingsUiState.NotificationAsk.Untouched else askWhileOff(ask, choice.isOn, isAllowed)
+        return SettingsUiState.Reminder(isOn = isShownOn, time = choice.time, ask = kept)
+    }
+
+    private fun askWhileOff(
+        ask: SettingsUiState.NotificationAsk,
+        isChosenOn: Boolean,
+        isAllowed: Boolean,
+    ): SettingsUiState.NotificationAsk = when {
+        ask == SettingsUiState.NotificationAsk.Asking -> ask
+        isChosenOn -> SettingsUiState.NotificationAsk.Denied
+        isAllowed -> SettingsUiState.NotificationAsk.Untouched
+        else -> ask
     }
 
     private fun shownAsk(): SettingsUiState.NotificationAsk =
