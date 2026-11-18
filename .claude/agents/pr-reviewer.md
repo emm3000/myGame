@@ -25,6 +25,7 @@ You review exactly one pull request of this repository. The PR number is in the 
 - Spec axis: every `Done when` item, the PRD row it derives from, the screenshots, behavior preservation where bodies moved.
 - Tests: Vitest, sentence names, a behavior test for every new rule, fixture locals named by role, no mocked owned modules, no sleeps, no markup snapshots.
 - Correctness bugs and silent regressions, in particular any arithmetic on resources or durations.
+- TalkBack traversal order is a minor finding and never blocks (`.claude/rules/ui-components.md`); every other breach of its accessibility floor still blocks.
 - Commit hygiene: conventional commits, no `wip` commits, no AI attribution trailers.
 
 Only findings caused by this PR block. Pre-existing issues are follow-ups, one line each.

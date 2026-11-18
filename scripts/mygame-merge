@@ -1,0 +1,90 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+usage() {
+  echo "usage: scripts/mygame-merge [--dry-run] [--keep-emulator] <pr> <session> <model:effort> <merge|checklist|judgment|spec> <rounds>" >&2
+  exit 64
+}
+
+dry_run=0
+keep_emulator=0
+while [ $# -gt 0 ]; do
+  case $1 in
+    --dry-run) dry_run=1; shift ;;
+    --keep-emulator) keep_emulator=1; shift ;;
+    -*) usage ;;
+    *) break ;;
+  esac
+done
+[ $# -eq 5 ] || usage
+pr=$1 session=$2 model=$3 review=$4 rounds=$5
+
+case $pr in '' | 0* | *[!0-9]*) usage ;; esac
+[[ $session =~ ^[[:lower:][:digit:]][[:lower:][:digit:]-]*$ ]] || usage
+[ "$session" != orch ] || { echo "orch is the orchestrator, never a peer" >&2; exit 64; }
+[[ $model =~ ^(haiku|sonnet|opus|fable):(low|medium|high|xhigh|max)$ ]] || usage
+case $rounds in '' | 0* | *[!0-9]*) usage ;; esac
+case $review in
+  merge) verdict=MERGE cause='' ;;
+  checklist | judgment | spec)
+    verdict='FIX FIRST' cause=$review
+    [ "$rounds" -ge 2 ] || { echo "a FIX FIRST takes at least 2 rounds" >&2; exit 64; } ;;
+  *) usage ;;
+esac
+
+repo=$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd -P)
+log="$repo/docs/agents/dispatch-log.md"
+[ -f "$log" ] || { echo "no dispatch log at $log" >&2; exit 66; }
+if rg -q "^\| #$pr \|" "$log"; then
+  echo "#$pr already has a row in $log" >&2
+  exit 65
+fi
+
+if [ "$dry_run" -eq 0 ]; then
+  gh pr merge "$pr" --rebase
+fi
+state=$(gh pr view "$pr" --json state --jq .state)
+[ "$state" = MERGED ] || { echo "#$pr is $state, not MERGED" >&2; exit 1; }
+lines=$(gh pr view "$pr" --json additions,deletions --jq '"+\(.additions)/-\(.deletions)"')
+
+ROW="| #$pr | $model | $verdict | $cause | $rounds | $lines |" python3 -I -c '
+import os, sys
+
+path = sys.argv[1]
+lines = open(path).read().rstrip("\n").split("\n")
+recent = lines.index("## Recent")
+summary = lines.index("## Summary")
+lines.append(os.environ["ROW"])
+
+def cells(line):
+    return [cell.strip() for cell in line.strip().strip("|").split("|")]
+
+columns = {"checklist": 3, "judgment": 4, "spec": 5}
+while sum(1 for line in lines[recent:] if line.startswith("| #")) > 20:
+    oldest = next(i for i in range(recent, len(lines)) if lines[i].startswith("| #"))
+    _, model, verdict, cause, _, _ = cells(lines.pop(oldest))
+    end = next(i for i in range(summary, recent) if lines[i].startswith("|---")) + 1
+    while lines[end].startswith("| "):
+        end += 1
+    match = next((i for i in range(summary, end) if lines[i].startswith("| ") and cells(lines[i])[0] == model), None)
+    if match is None:
+        match = end
+        lines.insert(match, "| " + model + " | 0 | 0 | 0 | 0 | 0 |")
+        recent += 1
+    counts = cells(lines[match])
+    counts[1] = str(int(counts[1]) + 1)
+    column = 2 if verdict == "MERGE" else columns[cause]
+    counts[column] = str(int(counts[column]) + 1)
+    lines[match] = "| " + " | ".join(counts) + " |"
+
+open(path, "w").write("\n".join(lines) + "\n")
+' "$log"
+echo "logged: | #$pr | $model | $verdict | $cause | $rounds | $lines |"
+
+if [ "$dry_run" -eq 0 ]; then
+  if [ "$keep_emulator" -eq 1 ]; then
+    "$repo/scripts/mygame-wave-close" "$session" --keep-emulator
+  else
+    "$repo/scripts/mygame-wave-close" "$session"
+  fi
+fi

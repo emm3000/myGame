@@ -18,7 +18,7 @@ You write GitHub issues for this repository. The prompt names the parent issue o
 
 ## Each issue
 
-English, neutral register, sized for one PR, at most 30 lines, self-sufficient for a fresh session.
+English, neutral register, sized for one PR, at most 30 lines, self-sufficient for a fresh session. At most 5 `Done when` criteria, `pnpm gate` included, and at most 2 screens touched: a slice that needs more is two tickets, and `/wave` refuses one over either cap.
 
 1. Title `<Area>: <slice>` matching the existing tickets.
 2. At most 3 lines of context, then pointers to the PRD row, the ADR, the lore page and the implementation files.

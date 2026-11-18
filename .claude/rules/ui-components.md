@@ -30,6 +30,7 @@ Every interactive element meets its platform's minimum: 48×48 dp on Android, 44
 - Every interactive element has an accessible name (a label, a `contentDescription`, an `aria-label`). A decorative graphic is hidden from assistive technology.
 - Meaning never rides on color or a sign alone: a gain or a shortage carries words a screen reader reads.
 - The system font scale and reduced-motion setting are respected.
+- TalkBack traversal order is a review minor and never blocks (owner, #1203). The rest of this floor still blocks.
 
 ## Icons
 
