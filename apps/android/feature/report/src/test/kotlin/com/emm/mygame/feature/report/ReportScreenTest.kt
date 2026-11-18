@@ -390,6 +390,15 @@ class ReportScreenTest {
     }
 
     @Test
+    fun `leaves the rows out while signing out`() {
+        show(ReportUiState.SigningOut)
+
+        listOf(NEWS_ALL, SETTINGS).forEach { label: String ->
+            composeRule.onNodeWithText(label).assertDoesNotExist()
+        }
+    }
+
+    @Test
     fun `draws a text button while signing out, never an ink pill`() {
         show(ReportUiState.SigningOut)
 
