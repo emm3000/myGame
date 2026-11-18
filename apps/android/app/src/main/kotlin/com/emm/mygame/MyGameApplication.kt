@@ -13,6 +13,7 @@ import com.emm.mygame.core.network.ReportRepository
 import com.emm.mygame.core.network.SessionEnds
 import com.emm.mygame.core.network.SessionRepository
 import com.emm.mygame.core.network.StudyAnswers
+import com.emm.mygame.core.network.StudyReminderSettings
 import com.emm.mygame.core.network.TokenStore
 import com.emm.mygame.core.network.TownRepository
 import java.io.File
@@ -54,6 +55,9 @@ class MyGameApplication : Application(), AppDependencies {
     }
 
     internal val studyReminderStore: StudyReminderStore by reminderStore
+
+    override val studyReminders: StudyReminderSettings
+        get() = studyReminderStore
 
     private val studyAnswers: StudyAnswers by lazy {
         StudyAnswers(

@@ -30,6 +30,7 @@ import com.emm.mygame.core.designsystem.MyGameTheme
 import com.emm.mygame.core.designsystem.MyGameTypography
 import com.emm.mygame.core.designsystem.PreviewMyGame
 import com.emm.mygame.core.network.PlayerScaffold
+import java.time.LocalTime
 
 @Composable
 fun SettingsScreen(
@@ -101,6 +102,7 @@ private fun ScaffoldSetting(
             color = MyGameTheme.colors.inkMuted,
         )
         ChangeLine(change = loaded.change)
+        ReminderSetting(reminder = loaded.reminder, onIntent = onIntent)
     }
 }
 
@@ -129,14 +131,37 @@ private val settingsBlocks: MyGameSkeletonBlocks = MyGameSkeletonBlocks(
     listOf(MyGameSizes.secondary, MyGameSizes.control, MyGameSizes.control),
 )
 
+private val previewReminder: SettingsUiState.Reminder = SettingsUiState.Reminder(
+    isOn = true,
+    time = LocalTime.of(19, 0),
+    ask = SettingsUiState.NotificationAsk.Untouched,
+)
+
+private val previewReminderOff: SettingsUiState.Reminder = previewReminder.copy(isOn = false)
+
 private class SettingsUiStates : PreviewParameterProvider<SettingsUiState> {
 
     override val values: Sequence<SettingsUiState> = sequenceOf(
-        SettingsUiState.Loaded(PlayerScaffold.Spanish, SettingsUiState.Change.Untouched),
-        SettingsUiState.Loaded(PlayerScaffold.Spanish, SettingsUiState.Change.Saving(PlayerScaffold.None)),
-        SettingsUiState.Loaded(PlayerScaffold.None, SettingsUiState.Change.Saved),
-        SettingsUiState.Loaded(PlayerScaffold.Spanish, SettingsUiState.Change.Refused),
-        SettingsUiState.Loaded(PlayerScaffold.Spanish, SettingsUiState.Change.Unreachable),
+        SettingsUiState.Loaded(PlayerScaffold.Spanish, SettingsUiState.Change.Untouched, previewReminder),
+        SettingsUiState.Loaded(
+            PlayerScaffold.Spanish,
+            SettingsUiState.Change.Saving(PlayerScaffold.None),
+            previewReminder,
+        ),
+        SettingsUiState.Loaded(PlayerScaffold.None, SettingsUiState.Change.Saved, previewReminder),
+        SettingsUiState.Loaded(PlayerScaffold.Spanish, SettingsUiState.Change.Refused, previewReminder),
+        SettingsUiState.Loaded(PlayerScaffold.Spanish, SettingsUiState.Change.Unreachable, previewReminder),
+        SettingsUiState.Loaded(PlayerScaffold.Spanish, SettingsUiState.Change.Untouched, previewReminderOff),
+        SettingsUiState.Loaded(
+            PlayerScaffold.Spanish,
+            SettingsUiState.Change.Untouched,
+            previewReminderOff.copy(ask = SettingsUiState.NotificationAsk.Asking),
+        ),
+        SettingsUiState.Loaded(
+            PlayerScaffold.Spanish,
+            SettingsUiState.Change.Untouched,
+            previewReminderOff.copy(ask = SettingsUiState.NotificationAsk.Denied),
+        ),
         SettingsUiState.Failed,
         SettingsUiState.Loading,
     )

@@ -6,6 +6,8 @@ import com.emm.mygame.core.network.ReportCloseResult
 import com.emm.mygame.core.network.ReportReadResult
 import com.emm.mygame.core.network.ReportRepository
 import com.emm.mygame.core.network.SessionRepository
+import com.emm.mygame.core.network.StudyReminderChoice
+import com.emm.mygame.core.network.StudyReminderSettings
 import com.emm.mygame.core.network.TownReport
 import kotlin.time.Clock
 import kotlin.time.Duration
@@ -28,6 +30,7 @@ private val failedReadRetry: Duration = 1.minutes
 class ReportViewModel(
     private val reports: ReportRepository,
     private val sessions: SessionRepository,
+    private val reminders: StudyReminderSettings,
     private val clock: Clock,
 ) : ViewModel() {
 
@@ -47,6 +50,7 @@ class ReportViewModel(
 
     init {
         open()
+        viewModelScope.launch { reminders.choice.collect { choice: StudyReminderChoice -> drawReminder(choice.isOn) } }
     }
 
     fun onIntent(intent: ReportIntent) {
@@ -136,6 +140,12 @@ class ReportViewModel(
         }
     }
 
+    private fun drawReminder(isOn: Boolean) {
+        _state.update { current: ReportUiState ->
+            if (current is ReportUiState.Content) current.copy(isReminderOn = isOn) else current
+        }
+    }
+
     private fun unreadNews(): ReportUiState.ReportNews.Unread? =
         (_state.value as? ReportUiState.Content)?.news as? ReportUiState.ReportNews.Unread
 
@@ -146,6 +156,7 @@ class ReportViewModel(
             nextReview = report.nextDueAt,
             news = newsOf(report),
             receivedAt = clock.now(),
+            isReminderOn = reminders.choice.value.isOn,
         )
         awaitNextReview(report)
     }

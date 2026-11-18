@@ -86,12 +86,14 @@ class ReportScreenTest {
         firstUnread: LessonId? = null,
         nextReview: Instant? = null,
         receivedAt: Instant = readInstant,
+        isReminderOn: Boolean = true,
     ): ReportUiState.Content = ReportUiState.Content(
         dueCount = dueCount,
         firstUnread = firstUnread,
         nextReview = nextReview,
         news = news,
         receivedAt = receivedAt,
+        isReminderOn = isReminderOn,
     )
 
     @Test
@@ -453,4 +455,38 @@ class ReportScreenTest {
     }
 
     private fun unclippedTopOf(line: String): Dp = composeRule.onNodeWithText(line).getUnclippedBoundsInRoot().top
+
+    @Test
+    fun `the Report offers the reminder only while it is off`() {
+        show(contentWith(isReminderOn = false))
+
+        composeRule.onNodeWithText(REMINDER_OFFER).performScrollTo().assertIsDisplayed()
+    }
+
+    @Test
+    fun `draws no reminder offer while the reminder is on`() {
+        show(contentWith(isReminderOn = true))
+
+        composeRule.onAllNodesWithText(REMINDER_OFFER).assertCountEquals(0)
+    }
+
+    @Test
+    fun `draws no reminder offer while reviews are due`() {
+        show(contentWith(dueCount = 2, isReminderOn = false))
+
+        composeRule.onAllNodesWithText(REMINDER_OFFER).assertCountEquals(0)
+    }
+
+    @Test
+    fun `the reminder offer opens the settings`() {
+        show(contentWith(isReminderOn = false))
+
+        composeRule.onNodeWithText(REMINDER_OFFER).performScrollTo().performClick()
+
+        assertEquals(1, settingsOpens)
+    }
+
+    private companion object {
+        const val REMINDER_OFFER: String = "Activa un recordatorio de estudio"
+    }
 }

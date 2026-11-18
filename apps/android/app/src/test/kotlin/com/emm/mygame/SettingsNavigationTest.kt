@@ -27,6 +27,8 @@ import com.emm.mygame.core.network.ScaffoldChangeResult
 import com.emm.mygame.core.network.SessionEnds
 import com.emm.mygame.core.network.SessionRepository
 import com.emm.mygame.core.network.SignedInPlayer
+import com.emm.mygame.core.network.StudyReminderChoice
+import com.emm.mygame.core.network.StudyReminderSettings
 import com.emm.mygame.core.network.TownReport
 import com.emm.mygame.core.network.TownRepository
 import com.emm.mygame.core.testing.FakeHoldoutCheckRepository
@@ -34,6 +36,7 @@ import com.emm.mygame.core.testing.FakeLearningRepository
 import com.emm.mygame.core.testing.FakePlacementRepository
 import com.emm.mygame.core.testing.FakeReportRepository
 import com.emm.mygame.core.testing.FakeSessionRepository
+import com.emm.mygame.core.testing.FakeStudyReminderSettings
 import com.emm.mygame.core.testing.FakeTownRepository
 import kotlin.time.Clock
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -85,6 +88,8 @@ class SettingsNavigationTest {
         override val reports: ReportRepository = reportsFake
         override val placements: PlacementRepository = FakePlacementRepository()
         override val holdoutChecks: HoldoutCheckRepository = FakeHoldoutCheckRepository()
+        override val studyReminders: StudyReminderSettings =
+            FakeStudyReminderSettings(StudyReminderChoice.firstChoice)
     }
 
     private val nothingDue: TownReport =

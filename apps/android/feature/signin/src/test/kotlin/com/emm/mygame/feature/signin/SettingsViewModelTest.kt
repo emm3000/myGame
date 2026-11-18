@@ -4,7 +4,9 @@ import com.emm.mygame.core.network.PlayerScaffold
 import com.emm.mygame.core.network.RestoreResult
 import com.emm.mygame.core.network.ScaffoldChangeResult
 import com.emm.mygame.core.network.SignedInPlayer
+import com.emm.mygame.core.network.StudyReminderChoice
 import com.emm.mygame.core.testing.FakeSessionRepository
+import com.emm.mygame.core.testing.FakeStudyReminderSettings
 import com.emm.mygame.core.testing.MainDispatcherRule
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.test.runTest
@@ -21,9 +23,13 @@ class SettingsViewModelTest {
 
     private val playerScaffold: MutableStateFlow<PlayerScaffold?> = MutableStateFlow(null)
 
+    private val reminders: FakeStudyReminderSettings = FakeStudyReminderSettings(StudyReminderChoice.firstChoice)
+
+    private val notifications: FakeReminderNotifications = FakeReminderNotifications(areAllowed = false, canAsk = true)
+
     @Test
     fun `draws loading until the session is read`() = runTest {
-        val viewModel: SettingsViewModel = SettingsViewModel(sessions, playerScaffold)
+        val viewModel: SettingsViewModel = SettingsViewModel(sessions, playerScaffold, reminders, notifications)
 
         assertEquals(SettingsUiState.Loading, viewModel.state.value)
     }
@@ -39,7 +45,7 @@ class SettingsViewModelTest {
     fun `draws failed when the session cannot be read`() = runTest {
         sessions.answerRestore(RestoreResult.Unreachable)
 
-        val viewModel: SettingsViewModel = SettingsViewModel(sessions, playerScaffold)
+        val viewModel: SettingsViewModel = SettingsViewModel(sessions, playerScaffold, reminders, notifications)
 
         assertEquals(SettingsUiState.Failed, viewModel.state.value)
     }
@@ -48,7 +54,7 @@ class SettingsViewModelTest {
     fun `draws failed when the session names a scaffold the client does not know`() = runTest {
         sessions.answerRestore(sessionWith(scaffold = null))
 
-        val viewModel: SettingsViewModel = SettingsViewModel(sessions, playerScaffold)
+        val viewModel: SettingsViewModel = SettingsViewModel(sessions, playerScaffold, reminders, notifications)
 
         assertEquals(SettingsUiState.Failed, viewModel.state.value)
     }
@@ -56,7 +62,7 @@ class SettingsViewModelTest {
     @Test
     fun `reads the session again on retry`() = runTest {
         sessions.answerRestore(RestoreResult.Unreachable)
-        val viewModel: SettingsViewModel = SettingsViewModel(sessions, playerScaffold)
+        val viewModel: SettingsViewModel = SettingsViewModel(sessions, playerScaffold, reminders, notifications)
         sessions.answerRestore(sessionWith(scaffold = PlayerScaffold.None))
 
         viewModel.onIntent(SettingsIntent.RetryTapped)
@@ -71,7 +77,11 @@ class SettingsViewModelTest {
         viewModel.onIntent(SettingsIntent.ScaffoldPicked(PlayerScaffold.None))
 
         assertEquals(
-            SettingsUiState.Loaded(PlayerScaffold.Spanish, SettingsUiState.Change.Saving(PlayerScaffold.None)),
+            SettingsUiState.Loaded(
+                PlayerScaffold.Spanish,
+                SettingsUiState.Change.Saving(PlayerScaffold.None),
+                firstReminder,
+            ),
             viewModel.state.value,
         )
     }
@@ -105,7 +115,7 @@ class SettingsViewModelTest {
         sessions.answerScaffoldChange(ScaffoldChangeResult.Changed(playerWith(PlayerScaffold.None)))
 
         assertEquals(
-            SettingsUiState.Loaded(PlayerScaffold.None, SettingsUiState.Change.Saved),
+            SettingsUiState.Loaded(PlayerScaffold.None, SettingsUiState.Change.Saved, firstReminder),
             viewModel.state.value,
         )
     }
@@ -118,7 +128,7 @@ class SettingsViewModelTest {
         sessions.answerScaffoldChange(ScaffoldChangeResult.Refused)
 
         assertEquals(
-            SettingsUiState.Loaded(PlayerScaffold.Spanish, SettingsUiState.Change.Refused),
+            SettingsUiState.Loaded(PlayerScaffold.Spanish, SettingsUiState.Change.Refused, firstReminder),
             viewModel.state.value,
         )
     }
@@ -131,7 +141,7 @@ class SettingsViewModelTest {
         sessions.answerScaffoldChange(ScaffoldChangeResult.Unreachable)
 
         assertEquals(
-            SettingsUiState.Loaded(PlayerScaffold.Spanish, SettingsUiState.Change.Unreachable),
+            SettingsUiState.Loaded(PlayerScaffold.Spanish, SettingsUiState.Change.Unreachable, firstReminder),
             viewModel.state.value,
         )
     }
@@ -144,7 +154,7 @@ class SettingsViewModelTest {
         sessions.answerScaffoldChange(ScaffoldChangeResult.Changed(playerWith(scaffold = null)))
 
         assertEquals(
-            SettingsUiState.Loaded(PlayerScaffold.Spanish, SettingsUiState.Change.Unreachable),
+            SettingsUiState.Loaded(PlayerScaffold.Spanish, SettingsUiState.Change.Unreachable, firstReminder),
             viewModel.state.value,
         )
     }
@@ -201,7 +211,7 @@ class SettingsViewModelTest {
         sessions.answerScaffoldChange(ScaffoldChangeResult.Changed(playerWith(PlayerScaffold.Spanish)))
 
         assertEquals(
-            SettingsUiState.Loaded(PlayerScaffold.None, SettingsUiState.Change.Saved),
+            SettingsUiState.Loaded(PlayerScaffold.None, SettingsUiState.Change.Saved, firstReminder),
             viewModel.state.value,
         )
     }
@@ -230,7 +240,7 @@ class SettingsViewModelTest {
         sessions.answerScaffoldChange(ScaffoldChangeResult.Unreachable)
 
         assertEquals(
-            SettingsUiState.Loaded(PlayerScaffold.None, SettingsUiState.Change.Unreachable),
+            SettingsUiState.Loaded(PlayerScaffold.None, SettingsUiState.Change.Unreachable, firstReminder),
             viewModel.state.value,
         )
     }
@@ -250,11 +260,11 @@ class SettingsViewModelTest {
 
     private fun loaded(scaffold: PlayerScaffold): SettingsViewModel {
         sessions.answerRestore(sessionWith(scaffold))
-        return SettingsViewModel(sessions, playerScaffold)
+        return SettingsViewModel(sessions, playerScaffold, reminders, notifications)
     }
 
     private fun stored(scaffold: PlayerScaffold): SettingsUiState =
-        SettingsUiState.Loaded(scaffold, SettingsUiState.Change.Untouched)
+        SettingsUiState.Loaded(scaffold, SettingsUiState.Change.Untouched, firstReminder)
 
     private fun sessionWith(scaffold: PlayerScaffold?): RestoreResult = RestoreResult.SignedIn(playerWith(scaffold))
 

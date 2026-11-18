@@ -9,12 +9,15 @@ import com.emm.mygame.core.network.PlayerScaffold
 import com.emm.mygame.core.network.ReportRepository
 import com.emm.mygame.core.network.SessionEnds
 import com.emm.mygame.core.network.SessionRepository
+import com.emm.mygame.core.network.StudyReminderChoice
+import com.emm.mygame.core.network.StudyReminderSettings
 import com.emm.mygame.core.network.TownRepository
 import com.emm.mygame.core.testing.FakeHoldoutCheckRepository
 import com.emm.mygame.core.testing.FakeLearningRepository
 import com.emm.mygame.core.testing.FakePlacementRepository
 import com.emm.mygame.core.testing.FakeReportRepository
 import com.emm.mygame.core.testing.FakeSessionRepository
+import com.emm.mygame.core.testing.FakeStudyReminderSettings
 import com.emm.mygame.core.testing.FakeTownRepository
 import kotlin.time.Clock
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -43,4 +46,8 @@ class ReminderTapApplication : Application(), AppDependencies {
     override val placements: PlacementRepository = FakePlacementRepository()
 
     override val holdoutChecks: HoldoutCheckRepository = FakeHoldoutCheckRepository()
+
+    override val studyReminders: StudyReminderSettings =
+
+        FakeStudyReminderSettings(StudyReminderChoice.firstChoice)
 }

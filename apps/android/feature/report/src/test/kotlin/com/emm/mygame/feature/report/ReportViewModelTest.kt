@@ -3,9 +3,11 @@ package com.emm.mygame.feature.report
 import app.cash.turbine.test
 import com.emm.mygame.core.network.ReportCloseResult
 import com.emm.mygame.core.network.ReportReadResult
+import com.emm.mygame.core.network.StudyReminderChoice
 import com.emm.mygame.core.network.TownReport
 import com.emm.mygame.core.testing.FakeReportRepository
 import com.emm.mygame.core.testing.FakeSessionRepository
+import com.emm.mygame.core.testing.FakeStudyReminderSettings
 import com.emm.mygame.core.testing.MainDispatcherRule
 import kotlin.time.Duration.Companion.hours
 import kotlin.time.Duration.Companion.minutes
@@ -670,5 +672,37 @@ class ReportViewModelTest {
 
     private companion object {
         const val READS_AVAILABLE: Int = 5
+    }
+
+    @Test
+    fun `draws the reminder as off while it is off`() = runTest {
+        val viewModel: ReportViewModel = reportReading(reportOf())
+
+        assertEquals(false, contentOf(viewModel).isReminderOn)
+    }
+
+    @Test
+    fun `follows the reminder switch while shown`() = runTest {
+        val reminders: FakeStudyReminderSettings = FakeStudyReminderSettings(StudyReminderChoice.firstChoice)
+        reports.answerRead(ReportReadResult.Read(reportOf()))
+        val viewModel: ReportViewModel = reportViewModelOf(reports, reminders = reminders)
+        runCurrent()
+
+        reminders.choose(StudyReminderChoice.firstChoice.copy(isOn = true))
+        runCurrent()
+
+        assertEquals(true, contentOf(viewModel).isReminderOn)
+    }
+
+    @Test
+    fun `draws the reminder as on when the Report arrives after it was turned on`() = runTest {
+        val reminders: FakeStudyReminderSettings =
+            FakeStudyReminderSettings(StudyReminderChoice.firstChoice.copy(isOn = true))
+        reports.answerRead(ReportReadResult.Read(reportOf()))
+
+        val viewModel: ReportViewModel = reportViewModelOf(reports, reminders = reminders)
+        runCurrent()
+
+        assertEquals(true, contentOf(viewModel).isReminderOn)
     }
 }
