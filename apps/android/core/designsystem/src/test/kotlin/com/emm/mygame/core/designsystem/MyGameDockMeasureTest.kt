@@ -98,6 +98,14 @@ class MyGameDockMeasureTest {
     }
 
     @Test
+    @Config(qualifiers = "+w411dp-h430dp", fontScale = 0.85f)
+    fun `the Spanish dock folds past half the window at a font scale under 1`() {
+        showSpanishDock()
+
+        assertTrue("the dock folded", isFolded)
+    }
+
+    @Test
     @Config(qualifiers = "+w411dp-h915dp")
     fun `the Spanish dock stays unfolded at font scale 1 on a 411 by 915 window`() {
         showSpanishDock()
