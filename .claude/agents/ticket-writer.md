@@ -29,14 +29,15 @@ English, neutral register, sized for one PR, at most 30 lines, self-sufficient f
 
 1. Title `<Area>: <slice>` matching the existing tickets.
 2. At most 3 lines of context, then pointers to the PRD row, the ADR, the lore page and the implementation files.
-3. `Done when`: a checklist of falsifiable conditions. Prefer a command with its expected output (`rg -n "Date.now" packages/domain/src` returns nothing). Always the last item: `pnpm gate` green. Name the package `CLAUDE.md` gotchas the slice crosses. State that the criteria win over the file list.
+3. `Done when`: a checklist of falsifiable conditions. Prefer a command with its expected output (`rg -n "Date.now" packages/domain/src` returns nothing). Always the last item: `pnpm gate` green. Name the package `CLAUDE.md` gotchas the slice crosses. State that the criteria win over the file list. A check on an invisible character matches the text the file holds: for a JSON escape the escape itself (`rg -nF ' '`), never the pasted character.
+   - A ticket that changes a design-system default (`core:designsystem`, `apps/web/src/design`) names the tests in other modules it can break.
 4. For behavior: the rule each new test must name. For UI: the states the screen has, and that the PR owes the screenshots `docs/agents/peer.md` (Screenshots) defines.
 5. Known gaps between the PRD, the lore and the code, factual, no redesign.
 6. Label `ready-for-agent`; `needs-info` instead when the PRD row or the lore is too thin to write a falsifiable criterion, with the missing fact named.
 
 ## Wave plan
 
-Post one comment on the parent issue grouping the tickets into waves by dependency: `packages/domain` and `packages/contracts` changes first, then independent slices. Two or three tickets per wave. The tickets of one wave touch disjoint Gradle modules, or disjoint packages for TypeScript; a seam two of them share is its own ticket in an earlier wave (`docs/agents/multi-session.md`, Slicing). Record each blocking edge with GitHub's issue dependencies as `docs/agents/issue-tracker.md` describes.
+Post one comment on the parent issue grouping the tickets into waves by dependency: `packages/domain` and `packages/contracts` changes first, then independent slices. Two or three tickets per wave. The tickets of one wave touch disjoint Gradle modules, or disjoint packages for TypeScript; a seam two of them share is its own ticket in an earlier wave (`docs/agents/multi-session.md`, Slicing). A ticket that changes a design-system default goes in its own wave, or blocks the tickets that own the tests it names. Record each blocking edge with GitHub's issue dependencies as `docs/agents/issue-tracker.md` describes.
 
 ## Output
 

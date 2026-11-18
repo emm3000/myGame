@@ -153,7 +153,7 @@ Screenshots: tag qa-run-<n>
 
 ### Screenshots
 
-A screenshot is kept only for a fail. Never push one to a branch: `scripts/mygame-orphans` reports every remote branch but `trunk` and a live peer's, and `scripts/mygame-wave-close` deletes only `assets/<N>-visual-check`. A tag, `qa-run-<n>`, holding only that run's failed cases' images, avoids both, since neither script reads tags. Build it from the images in the scratchpad, against the peer's worktree, without touching a branch. The scratchpad is not a repository, so every command names the worktree:
+A screenshot is kept only for a fail. Never push one to a branch: `scripts/mygame-orphans` reports every remote branch but `trunk`, a live peer's and the `assets/*` screenshot branches, which are a PR's evidence. A tag, `qa-run-<n>`, holding only that run's failed cases' images, avoids that, since neither script reads tags. Build it from the images in the scratchpad, against the peer's worktree, without touching a branch. The scratchpad is not a repository, so every command names the worktree:
 
 ```sh
 blob=$(git -C <worktree> hash-object -w "$PWD/<file>.png")
