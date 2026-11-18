@@ -19,25 +19,13 @@ Totals of the rows folded out of Recent. Until #1207 they were also split by the
 | sonnet:medium | 2 | 0 | 0 | 2 | 0 |
 | sonnet:high | 3 | 0 | 0 | 2 | 1 |
 | opus:medium | 102 | 77 | 11 | 11 | 3 |
-| opus:high | 324 | 227 | 37 | 41 | 18 |
+| opus:high | 336 | 231 | 39 | 45 | 20 |
 | fable:high | 64 | 52 | 1 | 8 | 3 |
 
 ## Recent
 
 | PR | Model:effort | First review | Cause | Rounds | Lines +/- |
 |---|---|---|---|---|---|
-| #1159 | opus:high | FIX FIRST | checklist | 2 | +1069/-58 |
-| #1163 | opus:high | FIX FIRST | judgment | 3 | +1375/-62 |
-| #1162 | opus:high | FIX FIRST | judgment | 4 | +668/-0 |
-| #1174 | opus:high | MERGE |  | 1 | +140/-7 |
-| #1175 | opus:high | MERGE |  | 1 | +102/-41 |
-| #1180 | opus:high | MERGE |  | 1 | +255/-30 |
-| #1178 | opus:high | FIX FIRST | judgment | 3 | +602/-98 |
-| #1176 | opus:high | FIX FIRST | spec | 2 | +1316/-24 |
-| #1182 | opus:high | FIX FIRST | checklist | 2 | +387/-89 |
-| #1184 | opus:high | FIX FIRST | judgment | 3 | +825/-1 |
-| #1187 | opus:high | MERGE |  | 3 | +559/-31 |
-| #1185 | opus:high | FIX FIRST | spec | 6 | +2349/-1951 |
 | #1189 | opus:high | MERGE |  | 1 | +49/-2 |
 | #1190 | opus:high | MERGE |  | 1 | +765/-230 |
 | #1193 | opus:medium | FIX FIRST | judgment | 2 | +509/-0 |
@@ -46,3 +34,15 @@ Totals of the rows folded out of Recent. Until #1207 they were also split by the
 | #1199 | opus:high | FIX FIRST | checklist | 2 | +762/-13 |
 | #1202 | fable:high | MERGE |  | 1 | +93/-55 |
 | #1204 | opus:high | FIX FIRST | spec | 2 | +1282/-1207 |
+| #1206 | opus:high | MERGE |  | 1 | +35/-47 |
+| #1208 | opus:high | FIX FIRST | checklist | 2 | +437/-109 |
+| #1218 | opus:high | MERGE |  | 1 | +21/-0 |
+| #1220 | fable:high | MERGE |  | 1 | +29/-84 |
+| #1219 | fable:high | FIX FIRST | judgment | 2 | +22/-4 |
+| #1221 | fable:high | MERGE |  | 1 | +56/-101 |
+| #1223 | fable:high | FIX FIRST | judgment | 2 | +16/-107 |
+| #1225 | opus:high | MERGE |  | 1 | +37/-4 |
+| #1224 | fable:high | FIX FIRST | spec | 2 | +66/-6 |
+| #1226 | fable:high | MERGE |  | 1 | +7/-8 |
+| #1228 | fable:high | MERGE |  | 1 | +41/-68 |
+| #1229 | fable:high | FIX FIRST | checklist | 2 | +113/-44 |
