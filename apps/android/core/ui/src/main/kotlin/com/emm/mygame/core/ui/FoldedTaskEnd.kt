@@ -15,7 +15,6 @@ import com.emm.mygame.core.designsystem.MyGameSpacing
 fun FoldedTaskEnd(
     hook: TaskDockHook,
     foldedDock: @Composable () -> Unit,
-    loadingLabel: String,
     scrollKey: Any?,
     modifier: Modifier = Modifier,
 ) {
@@ -30,7 +29,7 @@ fun FoldedTaskEnd(
         verticalArrangement = Arrangement.spacedBy(MyGameSpacing.step3),
         modifier = modifier.bringIntoViewRequester(requester),
     ) {
-        MyGameDockLineText(line = dock.line, loadingLabel = loadingLabel)
+        MyGameDockLineText(line = dock.line, loadingLabel = dock.go.busyDescription)
         dock.notice()
     }
 }

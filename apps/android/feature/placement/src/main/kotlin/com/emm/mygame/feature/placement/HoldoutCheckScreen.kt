@@ -77,7 +77,6 @@ fun HoldoutCheckScreen(
         FoldedTaskEnd(
             hook = hook,
             foldedDock = foldedDock,
-            loadingLabel = fixedCopyResource(R.string.placement_holdout_loading),
             scrollKey = (state as? HoldoutCheckUiState.Asking)?.shownIndex,
         )
     }

@@ -97,7 +97,6 @@ fun LessonWordsScreen(
         FoldedTaskEnd(
             hook = task,
             foldedDock = foldedDock,
-            loadingLabel = chromeResource(R.string.school_waiting).spoken,
             scrollKey = (state as? LessonWordsUiState.Reading)?.let { shown: LessonWordsUiState.Reading ->
                 shown.index to shown.isWaitingForLessonEnd
             },

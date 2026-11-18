@@ -87,7 +87,10 @@ class ReviewViewModel(
             ReviewIntent.HintTapped -> hint()
             ReviewIntent.CheckTapped -> check()
             ReviewIntent.NextTapped -> next()
-            ReviewIntent.ReviewsStartTapped -> open()
+            ReviewIntent.ReviewsStartTapped -> {
+                walked = 0
+                open()
+            }
         }
     }
 

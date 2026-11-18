@@ -22,11 +22,23 @@ internal fun LessonWordsDock(
     onWayOn: (LessonWordsUiState.WayOn) -> Unit,
     task: TaskDockHook,
 ) {
-    when {
-        state == LessonWordsUiState.Loading -> Unit
-        state.isFollowingTown -> FollowTownDock(hook = task)
-        state is LessonWordsUiState.Reading -> FillTaskDock(hook = task, dock = readingDock(state, onIntent, onWayOn))
+    when (state) {
+        LessonWordsUiState.Loading -> Unit
+        LessonWordsUiState.Failed, LessonWordsUiState.NothingToRead -> FollowTownDock(hook = task)
+        is LessonWordsUiState.Reading ->
+            ReadingDock(reading = state, onIntent = onIntent, onWayOn = onWayOn, task = task)
     }
+}
+
+@Composable
+private fun ReadingDock(
+    reading: LessonWordsUiState.Reading,
+    onIntent: (LessonWordsIntent) -> Unit,
+    onWayOn: (LessonWordsUiState.WayOn) -> Unit,
+    task: TaskDockHook,
+) {
+    if (reading.isFollowingTown) return FollowTownDock(hook = task)
+    FillTaskDock(hook = task, dock = readingDock(reading, onIntent, onWayOn))
 }
 
 @Composable
