@@ -77,7 +77,16 @@ class TownSignOutViewModelTest {
 
         viewModel.onIntent(TownIntent.SignOutTapped)
 
-        assertEquals(TownUiState.SigningOut, viewModel.state.value)
+        assertEquals(TownUiState.SigningOut(isLeavingNaming = true), viewModel.state.value)
+    }
+
+    @Test
+    fun `signs out of a town it could not read without leaving the naming`() = runTest {
+        val viewModel: TownViewModel = townAnswering(TownReadResult.Unreachable)
+
+        viewModel.onIntent(TownIntent.SignOutTapped)
+
+        assertEquals(TownUiState.SigningOut(isLeavingNaming = false), viewModel.state.value)
     }
 
     @Test
@@ -121,6 +130,6 @@ class TownSignOutViewModelTest {
         towns.answerFound(TownFoundResult.Founded(townOf()))
         runCurrent()
 
-        assertEquals(TownUiState.SigningOut, viewModel.state.value)
+        assertEquals(TownUiState.SigningOut(isLeavingNaming = true), viewModel.state.value)
     }
 }

@@ -9,7 +9,10 @@ import androidx.compose.foundation.layout.safeDrawingPadding
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.DisposableEffect
+import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.movableContentOf
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.semantics.heading
@@ -41,6 +44,8 @@ import com.emm.mygame.core.ui.ProvideCopyLanguage
 import com.emm.mygame.core.ui.ScaffoldLanguage
 import com.emm.mygame.core.ui.chromeResource
 import com.emm.mygame.core.ui.fixedCopyResource
+import com.emm.mygame.core.ui.frameHeaderTurn
+import com.emm.mygame.core.ui.joinsFrameTraversal
 import com.emm.mygame.core.ui.rememberPlayerCopy
 import kotlin.time.Duration.Companion.days
 import kotlin.time.Duration.Companion.minutes
@@ -58,12 +63,14 @@ fun TownScreen(
     placement: @Composable () -> Unit = {},
 ) {
     val placedFoldedDock: @Composable () -> Unit = remember(foldedDock) { movableContentOf(foldedDock) }
+    val isHeaderDrawn: MutableState<Boolean> = remember { mutableStateOf(false) }
     Column(
         verticalArrangement = Arrangement.spacedBy(MyGameSpacing.step6),
         modifier = modifier
             .fillMaxSize()
             .background(MyGameTheme.colors.surface)
             .safeDrawingPadding()
+            .joinsFrameTraversal()
             .verticalScroll(rememberScrollState())
             .padding(
                 start = MyGameSpacing.step4,
@@ -72,7 +79,7 @@ fun TownScreen(
                 bottom = MyGameSpacing.step8,
             ),
     ) {
-        if (state !is TownUiState.Content) placedFoldedDock()
+        if (!isHeaderDrawn.value) placedFoldedDock()
         MyGameSkeleton(
             isLoading = state == TownUiState.Loading,
             loadingLabel = chromeResource(R.string.town_loading).spoken,
@@ -84,11 +91,15 @@ fun TownScreen(
                     onIntent = onIntent,
                     onSchoolOpen = onSchoolOpen,
                     header = {
-                        MyGameHeader(end = ring) {
+                        MyGameHeader(modifier = Modifier.frameHeaderTurn(), end = ring) {
                             TownTitle(name = content.name, label = content.label)
                         }
                         status()
-                        placedFoldedDock()
+                        if (isHeaderDrawn.value) placedFoldedDock()
+                        DisposableEffect(Unit) {
+                            isHeaderDrawn.value = true
+                            onDispose { isHeaderDrawn.value = false }
+                        }
                         placement()
                     },
                 )
@@ -114,7 +125,7 @@ private fun TownState(
             )
             SignOut(isBusy = false, onIntent = onIntent)
         }
-        TownUiState.SigningOut -> SignOut(isBusy = true, onIntent = onIntent)
+        is TownUiState.SigningOut -> SignOut(isBusy = true, onIntent = onIntent)
         is TownUiState.Naming -> {
             NamingSection(naming = state, onIntent = onIntent)
             SignOut(isBusy = false, onIntent = onIntent)

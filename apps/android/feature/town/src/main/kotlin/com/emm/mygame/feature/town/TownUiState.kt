@@ -17,11 +17,18 @@ import kotlin.time.Instant
 
 sealed interface TownUiState {
 
+    val isDockWithheld: Boolean
+        get() = when (this) {
+            is Naming -> true
+            is SigningOut -> isLeavingNaming
+            Loading, Failed, is Content -> false
+        }
+
     data object Loading : TownUiState
 
     data object Failed : TownUiState
 
-    data object SigningOut : TownUiState
+    data class SigningOut(val isLeavingNaming: Boolean) : TownUiState
 
     data class Naming(val name: String, val status: NamingStatus) : TownUiState
 

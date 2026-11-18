@@ -76,7 +76,7 @@ class TownViewModel(
     }
 
     fun onIntent(intent: TownIntent) {
-        if (_state.value == TownUiState.SigningOut) return
+        if (_state.value is TownUiState.SigningOut) return
         when (intent) {
             TownIntent.ScreenShown -> show()
             TownIntent.ScreenHidden -> {
@@ -203,7 +203,7 @@ class TownViewModel(
 
     private fun signOut() {
         viewModelScope.coroutineContext.cancelChildren()
-        _state.value = TownUiState.SigningOut
+        _state.value = TownUiState.SigningOut(isLeavingNaming = _state.value is TownUiState.Naming)
         viewModelScope.launch {
             _effects.send(TownEffect.SigningOut)
             sessions.signOut()

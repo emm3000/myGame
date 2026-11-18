@@ -6,7 +6,6 @@ import com.emm.mygame.core.ui.TaskDockHook
 internal class ScreenFrame(
     val foldedDock: @Composable () -> Unit,
     val task: TaskDockHook,
-    val onDockWithheld: (Boolean) -> Unit,
 ) {
 
     val onAnswered: () -> Unit = task.onAnswered

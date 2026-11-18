@@ -1,29 +1,30 @@
 package com.emm.mygame
 
 import androidx.activity.ComponentActivity
-import androidx.compose.ui.test.onRoot
-import androidx.compose.ui.semantics.SemanticsProperties
 import androidx.compose.ui.semantics.SemanticsNode
+import androidx.compose.ui.semantics.SemanticsProperties
 import androidx.compose.ui.test.SemanticsMatcher
 import androidx.compose.ui.test.SemanticsNodeInteraction
 import androidx.compose.ui.test.assert
 import androidx.compose.ui.test.assertCountEquals
 import androidx.compose.ui.test.getBoundsInRoot
 import androidx.compose.ui.test.hasAnyAncestor
-import androidx.compose.ui.test.hasScrollAction
-import androidx.compose.ui.test.isHeading
-import androidx.compose.ui.unit.Dp
-import androidx.compose.ui.unit.DpRect as Rect
-import androidx.compose.ui.unit.dp
 import androidx.compose.ui.test.hasContentDescription
+import androidx.compose.ui.test.hasScrollAction
 import androidx.compose.ui.test.hasStateDescription
 import androidx.compose.ui.test.hasTestTag
 import androidx.compose.ui.test.hasText
+import androidx.compose.ui.test.isHeading
 import androidx.compose.ui.test.junit4.AndroidComposeTestRule
 import androidx.compose.ui.test.junit4.createAndroidComposeRule
 import androidx.compose.ui.test.onAllNodesWithText
+import androidx.compose.ui.test.onNodeWithText
+import androidx.compose.ui.test.onRoot
 import androidx.compose.ui.test.performClick
 import androidx.compose.ui.test.performScrollTo
+import androidx.compose.ui.unit.Dp
+import androidx.compose.ui.unit.DpRect as Rect
+import androidx.compose.ui.unit.dp
 import androidx.navigation3.runtime.NavKey
 import androidx.navigation3.runtime.rememberNavBackStack
 import androidx.test.ext.junit.rules.ActivityScenarioRule
@@ -51,8 +52,8 @@ import com.emm.mygame.core.network.StudyReminderSettings
 import com.emm.mygame.core.network.TownBuildingKind
 import com.emm.mygame.core.network.TownLabel
 import com.emm.mygame.core.network.TownLessonResult
-import com.emm.mygame.core.network.TownReadResult
 import com.emm.mygame.core.network.TownNews
+import com.emm.mygame.core.network.TownReadResult
 import com.emm.mygame.core.network.TownReport
 import com.emm.mygame.core.network.TownRepository
 import com.emm.mygame.core.network.TownResourceKind
@@ -75,6 +76,7 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.emptyFlow
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertTrue
+import org.junit.Assert.fail
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -176,6 +178,14 @@ class DockFrameNavigationTest {
 
     private fun waitFor(matcher: SemanticsMatcher) {
         composeRule.waitUntil(WAIT_MILLIS) { composeRule.onAllNodes(matcher).fetchSemanticsNodes().isNotEmpty() }
+    }
+
+    private fun firstFrameShowing(matcher: SemanticsMatcher) {
+        repeat(FRAME_LIMIT) {
+            composeRule.mainClock.advanceTimeByFrame()
+            if (composeRule.onAllNodes(matcher).fetchSemanticsNodes().isNotEmpty()) return
+        }
+        fail("no frame drew $matcher")
     }
 
     private fun inTheDock(label: String): SemanticsMatcher = hasText(label).and(hasAnyAncestor(hasTestTag(TOWN_DOCK)))
@@ -344,16 +354,25 @@ class DockFrameNavigationTest {
     @Test
     @Config(qualifiers = "+w360dp-h640dp", fontScale = 2.0f)
     @GraphicsMode(GraphicsMode.Mode.NATIVE)
-    fun `a folded dock reads its line before its go button for TalkBack`() {
-        showing(Destination.Town, Destination.School, town = townOf(nextStep = releasedLesson))
+    fun `a folded dock reads the header, its line, its go button, then the screen`() {
+        showing(
+            Destination.Town,
+            Destination.School,
+            town = townOf(nextStep = releasedLesson).copy(learning = learningWithRing),
+        )
         waitFor(hasText(RELEASED_LINE).and(hasAnyAncestor(hasScrollAction())))
+        waitFor(hasContentDescription(THREE_OF_FIVE))
 
+        val header: Int = composeRule.onNode(hasContentDescription(THREE_OF_FIVE)).fetchSemanticsNode().id
         val line: Int = composeRule.onNode(hasText(RELEASED_LINE)).fetchSemanticsNode().id
         val go: Int = dockGo(STUDY_RELEASED).fetchSemanticsNode().id
+        val screen: Int = composeRule.onNode(hasText("Escuela").and(isHeading())).fetchSemanticsNode().id
+
+        val expected: List<Int> = listOf(header, line, go, screen)
 
         val order: List<Int> = composeRule.traversalIds()
 
-        assertTrue(order.indexOf(line) in 0 until order.indexOf(go))
+        assertEquals(expected, order.filter { id: Int -> id in expected })
     }
 
     @Test
@@ -361,6 +380,31 @@ class DockFrameNavigationTest {
         showing(Destination.Town, townReads = 0)
         townsFake.answerRead(TownReadResult.NoTown)
         waitFor(hasText(NAMING_TITLE))
+
+        composeRule.onAllNodes(hasTestTag(TOWN_DOCK)).assertCountEquals(0)
+    }
+
+    @Test
+    fun `the naming screen draws no dock on its first frame`() {
+        showing(Destination.Town, townReads = 0)
+        waitFor(hasTestTag(TOWN_DOCK))
+        composeRule.mainClock.autoAdvance = false
+
+        townsFake.answerRead(TownReadResult.NoTown)
+        firstFrameShowing(hasText(NAMING_TITLE))
+
+        composeRule.onAllNodes(hasTestTag(TOWN_DOCK)).assertCountEquals(0)
+    }
+
+    @Test
+    fun `the naming screen draws no dock while it signs out`() {
+        showing(Destination.Town, townReads = 0)
+        townsFake.answerRead(TownReadResult.NoTown)
+        waitFor(hasText(NAMING_TITLE))
+
+        composeRule.onNodeWithText(SIGN_OUT).performScrollTo().performClick()
+        composeRule.waitUntil(WAIT_MILLIS) { sessionsFake.signOutCount == 1 }
+        composeRule.waitForIdle()
 
         composeRule.onAllNodes(hasTestTag(TOWN_DOCK)).assertCountEquals(0)
     }
@@ -432,6 +476,17 @@ class DockFrameNavigationTest {
     }
 
     @Test
+    fun `the town home's dock comes right after the home's header for TalkBack`() {
+        showing(Destination.Town, town = townOf().copy(learning = learningWithRing))
+        dockGo("Ir al informe")
+        waitFor(hasContentDescription(THREE_OF_FIVE))
+
+        val order: List<String> = composeRule.traversalOrder()
+
+        assertEquals(DOCK_TITLE, order[order.indexOf(THREE_OF_FIVE) + 1])
+    }
+
+    @Test
     fun `the dock hides while the keyboard is open`() {
         showing(Destination.Town, Destination.School)
         dockGo("Ir al informe")
@@ -492,6 +547,8 @@ class DockFrameNavigationTest {
 
     private companion object {
         const val THREE_OF_FIVE: String = "3 de 5 palabras aprendidas"
+        const val FRAME_LIMIT: Int = 60
+        const val SIGN_OUT: String = "Salir"
         const val DOCK_TITLE: String = "TU SIGUIENTE PASO"
         const val CLOSE_NEWS: String = "Cerrar las noticias"
         const val WAITING: String = "Esperando"

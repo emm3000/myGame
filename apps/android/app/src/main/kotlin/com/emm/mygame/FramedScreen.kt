@@ -39,21 +39,18 @@ import com.emm.mygame.core.designsystem.MyGameTheme
 import com.emm.mygame.core.network.HoldoutCheckWeek
 import com.emm.mygame.core.network.LessonId
 import com.emm.mygame.core.network.PlacementBand
+import com.emm.mygame.core.ui.FRAME_DOCK_TURN
+import com.emm.mygame.core.ui.FRAME_FOLDED_TOP_TURN
 import com.emm.mygame.core.ui.TaskDock
 import com.emm.mygame.core.ui.TaskDockHook
 import com.emm.mygame.core.ui.chromeResource
+import com.emm.mygame.core.ui.frameHeaderTurn
 import com.emm.mygame.feature.town.TownDock
 import com.emm.mygame.feature.town.TownDockActions
 import com.emm.mygame.feature.town.TownDockTop
 import com.emm.mygame.feature.town.TownStatusIntent
 import com.emm.mygame.feature.town.TownStatusUiState
 import com.emm.mygame.feature.town.reportDoor
-
-private const val HEADER_TURN: Float = -2f
-
-private const val DOCK_TURN: Float = -1f
-
-private const val FOLDED_DOCK_TURN: Float = 1f
 
 private const val TASK_DOCK_TURN: Float = 1f
 
@@ -64,27 +61,33 @@ internal fun FramedScreen(
     doesScreenReadTown: Boolean,
     chrome: SignedInChrome,
     modifier: Modifier = Modifier,
+    isDockWithheld: Boolean = false,
     studyInPlace: @Composable (Int) -> MyGameDockGo? = { null },
     content: @Composable (ScreenFrame) -> Unit,
 ) {
     val framedInsets: WindowInsets =
         if (kind == FrameKind.Home) WindowInsets.ime else WindowInsets.ime.union(WindowInsets.statusBars)
     val isFolded: MutableState<Boolean> = remember { mutableStateOf(false) }
-    val isDockWithheld: MutableState<Boolean> = remember { mutableStateOf(false) }
     val isKeyboardOpen: Boolean = WindowInsets.isImeVisible
     val door: MyGameDockDoor? = doorOf(kind, chrome.navigator)
     val dock: TownStatusUiState.Dock? =
-        chrome.status.value.dock.takeUnless { isDockWithheld.value || kind == FrameKind.Task }
+        chrome.status.value.dock.takeUnless { isDockWithheld || kind == FrameKind.Task }
     val onStatusIntent: State<(TownStatusIntent) -> Unit> = rememberUpdatedState(chrome.onStatusIntent)
     val task: TaskDockHook = remember {
         TaskDockHook(onAnswered = { onStatusIntent.value(TownStatusIntent.ScreenAnswered) })
     }
     val frame = ScreenFrame(
         task = task,
-        onDockWithheld = { isWithheld: Boolean -> isDockWithheld.value = isWithheld },
         foldedDock = {
             if (dock != null && isFolded.value) {
-                TownDockTop(dock = dock, door = door)
+                Box(
+                    modifier = Modifier.semantics {
+                        isTraversalGroup = true
+                        traversalIndex = FRAME_FOLDED_TOP_TURN
+                    },
+                ) {
+                    TownDockTop(dock = dock, door = door)
+                }
             }
         },
     )
@@ -114,7 +117,6 @@ internal fun FramedScreen(
                 chrome = chrome,
                 door = door,
                 studyInPlace = studyInPlace,
-                isFolded = isFolded.value,
                 onFoldChange = { folded: Boolean -> isFolded.value = folded },
             )
         }
@@ -140,10 +142,7 @@ private fun FrameHeader(kind: FrameKind, doesScreenReadTown: Boolean, chrome: Si
         modifier = Modifier
             .statusBarsPadding()
             .padding(horizontal = MyGameSpacing.step4)
-            .semantics {
-                isTraversalGroup = true
-                traversalIndex = HEADER_TURN
-            },
+            .frameHeaderTurn(),
         end = { RetainedWordsRing(towns = chrome.dependencies.towns, doesScreenReadTown = doesScreenReadTown) },
     ) {
         if (kind == FrameKind.Task) {
@@ -162,17 +161,15 @@ private fun FrameDock(
     chrome: SignedInChrome,
     door: MyGameDockDoor?,
     studyInPlace: @Composable (Int) -> MyGameDockGo?,
-    isFolded: Boolean,
     onFoldChange: (Boolean) -> Unit,
 ) {
-    val turn: Float = if (isFolded) FOLDED_DOCK_TURN else DOCK_TURN
     TownDock(
         dock = dock,
         actions = chrome.dockActions(),
         onFoldChange = onFoldChange,
         modifier = Modifier
             .windowInsetsPadding(WindowInsets.safeDrawing.only(WindowInsetsSides.Horizontal))
-            .semantics { traversalIndex = turn },
+            .semantics { traversalIndex = FRAME_DOCK_TURN },
         door = door,
         inPlace = dock.studiedInPlace()?.let { number: Int -> studyInPlace(number) },
     )
