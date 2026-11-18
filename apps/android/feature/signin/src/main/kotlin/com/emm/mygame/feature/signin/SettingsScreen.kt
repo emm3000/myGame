@@ -66,6 +66,7 @@ fun SettingsScreen(
             color = MyGameTheme.colors.ink,
             modifier = Modifier.semantics { heading() },
         )
+        themeChoice()
         MyGameSkeleton(
             isLoading = state == SettingsUiState.Loading,
             loadingLabel = title,
@@ -73,7 +74,6 @@ fun SettingsScreen(
         ) {
             SettingsState(state = state, onIntent = onIntent, onNotificationSettingsOpen = onNotificationSettingsOpen)
         }
-        themeChoice()
         MyGameTextLink(label = stringResource(R.string.settings_back), onClick = onTownOpen)
     }
 }
