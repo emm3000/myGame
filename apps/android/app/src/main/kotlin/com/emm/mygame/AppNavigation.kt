@@ -452,11 +452,11 @@ private class SignedInChrome(
 private fun NavKey?.statusScreen(): TownStatusScreen = when (val destination: Destination? = this as? Destination) {
     null, is Destination.SignIn, Destination.SignUp, Destination.ForgotPassword -> TownStatusScreen.Outside
     Destination.Town -> TownStatusScreen.ReadsTown
-    Destination.School -> TownStatusScreen.ReadsTown
+    Destination.School -> TownStatusScreen.School
     Destination.Map -> TownStatusScreen.ReadsTown
     is Destination.LessonWords -> TownStatusScreen.LessonWords(destination.lesson)
     Destination.Review -> TownStatusScreen.Reviews
-    Destination.Report -> TownStatusScreen.ReadsNoTown
+    Destination.Report -> TownStatusScreen.Report
     Destination.News -> TownStatusScreen.ReadsNoTown
     Destination.Settings -> TownStatusScreen.ReadsNoTown
     Destination.Placement -> TownStatusScreen.ReadsNoTown

@@ -136,7 +136,7 @@ class StatusLifecycleNavigationTest {
 
     private fun onTheReportAsTheLessonNearsItsFinish() {
         reportsFake.answerRead(ReportReadResult.Read(nothingDue))
-        townsFake.answerRead(TownReadResult.Read(lessonNearItsFinish))
+        repeat(READS_ON_ARRIVAL) { townsFake.answerRead(TownReadResult.Read(lessonNearItsFinish)) }
         composeRule.setContent {
             CompositionLocalProvider(LocalLifecycleOwner provides appOwner) {
                 MyGameTheme {
@@ -168,7 +168,7 @@ class StatusLifecycleNavigationTest {
 
         passingTheFinishInTheBackground()
 
-        assertEquals(1, townsFake.readCount)
+        assertEquals(READS_ON_ARRIVAL, townsFake.readCount)
     }
 
     @Test
@@ -176,12 +176,12 @@ class StatusLifecycleNavigationTest {
         onTheReportAsTheLessonNearsItsFinish()
         passingTheFinishInTheBackground()
         composeRule.runOnIdle { appOwner.currentState = Lifecycle.State.RESUMED }
-        composeRule.waitUntil(WAIT_MILLIS) { townsFake.readCount >= READS_BY_THE_RING }
+        composeRule.waitUntil(WAIT_MILLIS) { townsFake.readCount >= READS_ON_RETURN }
 
         ShadowLooper.idleMainLooper(1, TimeUnit.MINUTES)
-        composeRule.waitUntil(WAIT_MILLIS) { townsFake.readCount > READS_BY_THE_RING }
+        composeRule.waitUntil(WAIT_MILLIS) { townsFake.readCount > READS_ON_RETURN }
 
-        assertEquals(READS_BY_THE_RING + 1, townsFake.readCount)
+        assertEquals(READS_ON_RETURN + 1, townsFake.readCount)
     }
 
     private class MovableClock(private val start: Instant) : Clock {
@@ -196,7 +196,8 @@ class StatusLifecycleNavigationTest {
         val NEAR_FINISH: Duration = 30.seconds
         const val LESSON_READY: String = "Lección 1 lista en"
         const val BACKGROUND_MINUTES: Long = 2
-        const val READS_BY_THE_RING: Int = 2
+        const val READS_ON_ARRIVAL: Int = 2
+        const val READS_ON_RETURN: Int = 3
         const val WAIT_MILLIS: Long = 5_000
     }
 }

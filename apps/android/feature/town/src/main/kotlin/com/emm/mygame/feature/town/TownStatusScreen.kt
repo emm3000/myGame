@@ -8,7 +8,11 @@ sealed interface TownStatusScreen {
 
     data object ReadsTown : TownStatusScreen
 
+    data object School : TownStatusScreen
+
     data object ReadsNoTown : TownStatusScreen
+
+    data object Report : TownStatusScreen
 
     data object Reviews : TownStatusScreen
 
