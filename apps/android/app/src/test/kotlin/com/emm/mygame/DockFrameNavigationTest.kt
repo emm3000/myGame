@@ -3,6 +3,7 @@ package com.emm.mygame
 import androidx.activity.ComponentActivity
 import androidx.compose.ui.test.onRoot
 import androidx.compose.ui.semantics.SemanticsProperties
+import androidx.compose.ui.semantics.SemanticsNode
 import androidx.compose.ui.test.SemanticsMatcher
 import androidx.compose.ui.test.SemanticsNodeInteraction
 import androidx.compose.ui.test.assert
@@ -289,6 +290,22 @@ class DockFrameNavigationTest {
     }
 
     @Test
+    @Config(qualifiers = "+w411dp-h914dp-420dpi")
+    @GraphicsMode(GraphicsMode.Mode.NATIVE)
+    fun `a loading dock that draws its line stays above the navigation bar`() {
+        showing(Destination.Town, townReads = 0)
+        composeRule.systemBars(height = NAVIGATION_BAR)
+        waitFor(hasTestTag(INK_PILL).and(hasStateDescription(WAITING)).and(hasAnyAncestor(hasTestTag(TOWN_DOCK))))
+
+        composeRule.mainClock.advanceTimeBy(SKELETON_REVEAL_MILLIS)
+        composeRule.waitForIdle()
+
+        val dock: SemanticsNode = composeRule.onNode(hasTestTag(TOWN_DOCK)).fetchSemanticsNode()
+        val window: Int = composeRule.onRoot().fetchSemanticsNode().size.height
+        assertTrue(dock.boundsInRoot.bottom <= window - NAVIGATION_BAR)
+    }
+
+    @Test
     fun `a loading dock waits and its door still opens the town`() {
         showing(Destination.Town, Destination.Report, townReads = 0)
         waitFor(hasTestTag(INK_PILL).and(hasStateDescription(WAITING)).and(hasAnyAncestor(hasTestTag(TOWN_DOCK))))
@@ -418,6 +435,8 @@ class DockFrameNavigationTest {
         const val DOCK_TITLE: String = "TU SIGUIENTE PASO"
         const val CLOSE_NEWS: String = "Cerrar las noticias"
         const val WAITING: String = "Esperando"
+        const val NAVIGATION_BAR: Int = 63
+        const val SKELETON_REVEAL_MILLIS: Long = 1_000
         const val TRY_AGAIN: String = "Volver a intentarlo"
         const val STUDY_RELEASED: String = "Estudiar las palabras que vuelven"
         const val RELEASED_LINE: String = "Palabras que vuelven: banda 2, grupo 1"

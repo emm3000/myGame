@@ -36,6 +36,16 @@ internal fun ActivityComposeRule.keyboard(isOpen: Boolean) {
     waitForIdle()
 }
 
+internal fun ActivityComposeRule.systemBars(height: Int) {
+    val compose: View = checkNotNull(composeViewIn(activity.window.decorView))
+    val insets: WindowInsetsCompat = WindowInsetsCompat.Builder()
+        .setInsets(WindowInsetsCompat.Type.navigationBars(), Insets.of(0, 0, 0, height))
+        .setInsets(WindowInsetsCompat.Type.statusBars(), Insets.of(0, height, 0, 0))
+        .build()
+    runOnUiThread { ViewCompat.dispatchApplyWindowInsets(compose, insets) }
+    waitForIdle()
+}
+
 internal fun ActivityComposeRule.traversalOrder(): List<String> {
     val manager: AccessibilityManager = activity.getSystemService(AccessibilityManager::class.java)
     shadowOf(manager).setEnabled(true)
