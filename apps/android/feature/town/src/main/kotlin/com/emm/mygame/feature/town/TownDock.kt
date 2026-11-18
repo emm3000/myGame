@@ -171,10 +171,9 @@ private fun PlayerCopy.stepGoOf(
         )
         is TownStatusUiState.Go.ActsInPlace -> inPlace ?: MyGameDockGo(
             label = actionLabelOf(go.action),
-            isBusy = false,
+            isBusy = true,
             busyDescription = waiting,
             onClick = {},
-            blockedReason = chrome(R.string.town_loading).spoken,
         )
         is TownStatusUiState.Go.Blocked -> MyGameDockGo(
             label = actionLabelOf(go.action),
