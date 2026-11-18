@@ -65,6 +65,8 @@ Every dispatch to a peer session must include:
 - Every peer works in its own git worktree (`../mygame-<name>`, branched off `origin/trunk`), never in the owner's main checkout, which holds owner-only uncommitted files. All sessions open in the same folder by default, so a checkout there changes the branch under every other session.
 - Each worktree has its own `node_modules`; pnpm's content-addressable store makes the second install cheap. Never symlink one worktree's `node_modules` into another.
 - Before changing the state of any checkout, find out who is using it; an unexpected branch may be a live peer, not a leftover.
+- A peer's shell never waits on input. A script goes into a file in the scratchpad and runs as `python3 <file>`. It never goes into a pipeline as `python3 - | tee <file> <<'EOF'`, because the shell gives the heredoc to the last command of the pipeline, so `python3` waits on its own stdin until the Bash tool's timeout, which is 600 s at most. When a command has printed nothing for two minutes, `pgrep` shows what it is running: a Gradle or test run keeps going, and a process waiting on stdin is killed.
+- _Why: on 2026-11-17, during #1157, a peer's shell waited ten minutes on `python3 -` that way._
 - Review and verification prompts are read-only on every existing checkout. If a build must run on a branch, or a red/green check needs a source edit, use a throwaway worktree under the session scratchpad and remove it afterward.
 - `git checkout trunk` fails inside a worktree while the primary worktree is already on `trunk`; use `git fetch` + `git switch -c <branch> origin/trunk` instead.
 - Cleanup is part of closing the cycle, not a later chore (see Between tickets).
