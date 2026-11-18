@@ -10,8 +10,8 @@ function contentsOf(fileName: string): string {
 }
 
 describe('MyGameColors', () => {
-  it('declares one field per palette token, 20 in all', () => {
-    expect(contentsOf('MyGameColors.kt').match(/^ {4}val \w+: Color,$/gm)).toHaveLength(20)
+  it('declares one field per palette token, 22 in all', () => {
+    expect(contentsOf('MyGameColors.kt').match(/^ {4}val \w+: Color,$/gm)).toHaveLength(22)
   })
 
   it('writes a token in camelCase with its light and its dark value', () => {

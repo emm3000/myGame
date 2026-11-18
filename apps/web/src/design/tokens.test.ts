@@ -1,7 +1,7 @@
 import { expect, it } from 'vitest'
 import { type ColorToken, palette, type Theme } from './tokens'
 
-type PairKind = 'text' | 'boundary'
+type PairKind = 'text' | 'boundary' | 'graphic'
 
 type WcagClause = 'WCAG 1.4.3' | 'WCAG 1.4.11'
 
@@ -20,7 +20,7 @@ interface Exemption {
   readonly reason: string
 }
 
-const minimumOf: Readonly<Record<PairKind, number>> = { text: 4.5, boundary: 3 }
+const minimumOf: Readonly<Record<PairKind, number>> = { text: 4.5, boundary: 3, graphic: 3 }
 
 const themes: ReadonlyArray<Theme> = ['light', 'dark']
 
@@ -88,6 +88,30 @@ const pairs: ReadonlyArray<Pair> = [
     background: 'line-strong',
     usedAs: "the ring's fill on its track",
   },
+  {
+    kind: 'text',
+    foreground: 'on-go',
+    background: 'go',
+    usedAs: "the go button's label and its count",
+  },
+  {
+    kind: 'boundary',
+    foreground: 'go',
+    background: 'surface-raised',
+    usedAs: 'the go button on the dock',
+  },
+  {
+    kind: 'boundary',
+    foreground: 'go',
+    background: 'surface-sunken',
+    usedAs: 'the go button on a sunken ground',
+  },
+  {
+    kind: 'graphic',
+    foreground: 'go',
+    background: 'surface',
+    usedAs: "the next step's dot on the strip",
+  },
 ]
 
 const exemptions: ReadonlyArray<Exemption> = [
@@ -152,6 +176,26 @@ function pairsUnderTheirFloor(theme: Theme): ReadonlyArray<string> {
     .map((pair) => `${theme} ${pair.foreground} on ${pair.background} (${pair.usedAs})`)
 }
 
+function measuredRatiosOf(
+  kind: PairKind,
+  foreground: ColorToken,
+  backgrounds: ReadonlyArray<ColorToken>,
+): ReadonlyArray<string> {
+  return pairs
+    .filter(
+      (pair) =>
+        pair.kind === kind &&
+        pair.foreground === foreground &&
+        backgrounds.includes(pair.background),
+    )
+    .flatMap((pair) =>
+      themes.map(
+        (theme) =>
+          `${theme} ${pair.foreground} on ${pair.background} ${ratioOf(pair.foreground, pair.background, theme).toFixed(2)}`,
+      ),
+    )
+}
+
 function exemptPairsOf(exemption: Exemption): ReadonlyArray<readonly [ColorToken, ColorToken]> {
   return exemption.foregrounds.flatMap((foreground) =>
     exemption.backgrounds.map((background) => [foreground, background] as const),
@@ -185,7 +229,7 @@ it('measures black on white at 21:1', () => {
   expect(contrast('#000000', '#ffffff')).toBeCloseTo(21, 5)
 })
 
-it('declares the 29 pairs of ADR 043', () => {
+it('declares the 29 pairs of ADR 043 and the four of ADR 047', () => {
   expect(pairs.map((pair) => namesOf([pair.foreground, pair.background]))).toEqual([
     'ink on surface',
     'ink on surface-raised',
@@ -216,11 +260,38 @@ it('declares the 29 pairs of ADR 043', () => {
     'focus on surface-raised',
     'focus on surface-sunken',
     'ink on line-strong',
+    'on-go on go',
+    'go on surface-raised',
+    'go on surface-sunken',
+    'go on surface',
   ])
 })
 
 it('holds every pair at its floor in both themes', () => {
   expect(themes.flatMap(pairsUnderTheirFloor)).toEqual([])
+})
+
+it('on-go on go reads as text in both themes', () => {
+  expect(measuredRatiosOf('text', 'on-go', ['go'])).toEqual([
+    'light on-go on go 6.55',
+    'dark on-go on go 9.19',
+  ])
+})
+
+it('go reads as a boundary on surface-raised and on surface-sunken', () => {
+  expect(measuredRatiosOf('boundary', 'go', ['surface-raised', 'surface-sunken'])).toEqual([
+    'light go on surface-raised 6.28',
+    'dark go on surface-raised 9.24',
+    'light go on surface-sunken 5.30',
+    'dark go on surface-sunken 7.85',
+  ])
+})
+
+it('go reads as a graphic on surface', () => {
+  expect(measuredRatiosOf('graphic', 'go', ['surface'])).toEqual([
+    'light go on surface 5.90',
+    'dark go on surface 10.13',
+  ])
 })
 
 it('keeps each block and on-block one value in both themes', () => {

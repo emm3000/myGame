@@ -10,6 +10,8 @@ export type ColorToken =
   | 'ink-muted'
   | 'action'
   | 'on-action'
+  | 'go'
+  | 'on-go'
   | 'focus'
   | 'warning-ink'
   | 'warning-soft'
@@ -36,6 +38,8 @@ export const palette: Readonly<Record<ColorToken, Readonly<Record<Theme, string>
   'ink-muted': { light: '#5f5d65', dark: '#aeacb4' },
   action: { light: '#15141a', dark: '#f4f3f1' },
   'on-action': { light: '#f4f3f1', dark: '#15141a' },
+  go: { light: '#0b6b47', dark: '#5fd6a0' },
+  'on-go': { light: '#ffffff', dark: '#06231a' },
   focus: { light: '#15141a', dark: '#f4f3f1' },
   'warning-ink': { light: '#7f5210', dark: '#e8bf74' },
   'warning-soft': { light: '#f3e6c8', dark: '#3a2e16' },

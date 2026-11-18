@@ -28,6 +28,35 @@ class MyGameColorsContrastTest {
     }
 
     @Test
+    fun `on-go on go reads as text in both themes`() {
+        assertEquals(
+            listOf("light $GO_LABEL 6.55", "dark $GO_LABEL 9.19"),
+            measuredRatiosOf(PairKind.Text, GO_LABEL),
+        )
+    }
+
+    @Test
+    fun `go reads as a boundary on surface-raised and on surface-sunken`() {
+        assertEquals(
+            listOf(
+                "light $GO_ON_DOCK 6.28",
+                "dark $GO_ON_DOCK 9.24",
+                "light $GO_ON_SUNKEN 5.30",
+                "dark $GO_ON_SUNKEN 7.85",
+            ),
+            measuredRatiosOf(PairKind.Boundary, GO_ON_DOCK, GO_ON_SUNKEN),
+        )
+    }
+
+    @Test
+    fun `go reads as a graphic on surface`() {
+        assertEquals(
+            listOf("light $NEXT_STEP_DOT 5.90", "dark $NEXT_STEP_DOT 10.13"),
+            measuredRatiosOf(PairKind.Graphic, NEXT_STEP_DOT),
+        )
+    }
+
+    @Test
     fun `exempts only a pair that falls under its minimum in some theme`() {
         val needlessExemptions: List<String> = pairs
             .filter { pair: ColorPair -> pair.exemption != null }
@@ -60,6 +89,14 @@ private val themes: Map<String, MyGameColors> = mapOf("light" to lightColors, "d
 private const val CONTROL_BOUNDARY: String = "MyGameTextField and quiet MyGameButton border"
 
 private const val FOCUS_RING: String = "focus ring, 3 dp at a 2 dp offset"
+
+private const val GO_LABEL: String = "the go button's label and its count"
+
+private const val GO_ON_DOCK: String = "the go button on the dock"
+
+private const val GO_ON_SUNKEN: String = "the go button on a sunken ground"
+
+private const val NEXT_STEP_DOT: String = "the next step's dot on the strip"
 
 private val blocks: List<(MyGameColors) -> Color> = listOf(
     { it.blockPeach },
@@ -129,6 +166,10 @@ private val pairs: List<ColorPair> = listOf(
     ColorPair(PairKind.Graphic, { it.inkMuted }, { it.surface }, "icon in muted ink"),
     ColorPair(PairKind.Graphic, { it.inkMuted }, { it.surfaceRaised }, "icon in muted ink in a card"),
     ColorPair(PairKind.Graphic, { it.inkMuted }, { it.surfaceSunken }, "MyGameSeasonMark icon"),
+    ColorPair(PairKind.Text, { it.onGo }, { it.go }, GO_LABEL),
+    ColorPair(PairKind.Boundary, { it.go }, { it.surfaceRaised }, GO_ON_DOCK),
+    ColorPair(PairKind.Boundary, { it.go }, { it.surfaceSunken }, GO_ON_SUNKEN),
+    ColorPair(PairKind.Graphic, { it.go }, { it.surface }, NEXT_STEP_DOT),
     ColorPair(PairKind.Boundary, { it.action }, { it.surface }, "MyGameSwitchRow track, on"),
     ColorPair(PairKind.Graphic, { it.onAction }, { it.action }, "MyGameSwitchRow thumb, on"),
     ColorPair(PairKind.Boundary, { it.lineStrong }, { it.surface }, "MyGameSwitchRow track and thumb, off"),
@@ -154,6 +195,17 @@ private fun checkedPairsUnderMinimum(kind: PairKind): List<String> =
             .filter { pair: ColorPair -> pair.kind == kind && pair.exemption == null }
             .filterNot { pair: ColorPair -> pair.meetsMinimumIn(colors) }
             .map { pair: ColorPair -> "$theme ${pair.usedBy}: ${"%.2f".format(pair.ratioIn(colors))}" }
+    }
+
+private fun measuredRatiosOf(kind: PairKind, vararg uses: String): List<String> =
+    uses.flatMap { use: String ->
+        pairs
+            .filter { pair: ColorPair -> pair.kind == kind && pair.usedBy == use }
+            .flatMap { pair: ColorPair ->
+                themes.map { (theme: String, colors: MyGameColors) ->
+                    "$theme $use ${"%.2f".format(pair.ratioIn(colors))}"
+                }
+            }
     }
 
 private fun contrast(first: Color, second: Color): Double {
