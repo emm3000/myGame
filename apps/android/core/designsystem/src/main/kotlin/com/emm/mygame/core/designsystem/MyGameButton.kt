@@ -40,20 +40,8 @@ fun MyGameButton(
     accessibleName: String? = null,
     badge: String? = null,
 ) {
-    val colors: MyGameColors = MyGameTheme.colors
     MyGamePill(
-        look = MyGamePillLook(
-            tag = INK_PILL,
-            height = MyGameSizes.action,
-            sidePadding = MyGameSpacing.step6,
-            style = MyGameTypography.button,
-            ground = colors.go,
-            ink = colors.onGo,
-            edge = colors.go,
-            badgeGround = colors.onGo,
-            badgeInk = colors.go,
-            hasOuterFocusRing = true,
-        ),
+        look = goPillLook(MyGameTheme.colors),
         label = label,
         isBusy = isBusy,
         busyDescription = busyDescription,
@@ -64,6 +52,19 @@ fun MyGameButton(
         badge = badge,
     )
 }
+
+internal fun goPillLook(colors: MyGameColors): MyGamePillLook = MyGamePillLook(
+    tag = INK_PILL,
+    height = MyGameSizes.action,
+    sidePadding = MyGameSpacing.step6,
+    style = MyGameTypography.button,
+    ground = colors.go,
+    ink = colors.onGo,
+    edge = colors.go,
+    badgeGround = colors.onGo,
+    badgeInk = colors.go,
+    hasOuterFocusRing = true,
+)
 
 @PreviewMyGame
 @Composable
