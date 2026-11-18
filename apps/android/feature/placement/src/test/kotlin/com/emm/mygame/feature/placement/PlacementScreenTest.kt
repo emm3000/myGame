@@ -54,7 +54,7 @@ class PlacementScreenTest {
     private fun showing(state: PlacementUiState) {
         composeRule.setContent {
             TaskFrameStandIn(hook = hook) {
-                PlacementScreen(state = state, onIntent = { intents += it }, hook = hook)
+                PlacementScreen(state = state, onIntent = { intents += it }, hook = hook, foldedDock = {})
             }
         }
     }
@@ -199,7 +199,7 @@ class PlacementScreenTest {
         val shown: MutableState<PlacementUiState> = mutableStateOf(states.first())
         composeRule.setContent {
             TaskFrameStandIn(hook = hook) {
-                PlacementScreen(state = shown.value, onIntent = {}, hook = hook)
+                PlacementScreen(state = shown.value, onIntent = {}, hook = hook, foldedDock = {})
             }
         }
 

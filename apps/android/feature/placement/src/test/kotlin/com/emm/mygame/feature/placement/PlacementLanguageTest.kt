@@ -51,7 +51,7 @@ class PlacementLanguageTest {
             ProvideCopyLanguage(language = language) {
                 val hook: TaskDockHook = remember { TaskDockHook(onAnswered = {}) }
                 TaskFrameStandIn(hook = hook) {
-                    PlacementScreen(state = state, onIntent = {}, hook = hook)
+                    PlacementScreen(state = state, onIntent = {}, hook = hook, foldedDock = {})
                 }
             }
         }

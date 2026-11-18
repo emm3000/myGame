@@ -42,6 +42,7 @@ import com.emm.mygame.core.ui.CopyLanguage
 import com.emm.mygame.core.ui.PlayerCopy
 import com.emm.mygame.core.ui.ProvideCopyLanguage
 import com.emm.mygame.core.ui.ScaffoldLanguage
+import com.emm.mygame.core.ui.FoldedTaskEnd
 import com.emm.mygame.core.ui.TaskDockHook
 import com.emm.mygame.core.ui.chromeResource
 import com.emm.mygame.core.ui.rememberPlayerCopy
@@ -79,8 +80,16 @@ fun ReviewScreen(
             loadingLabel = chromeResource(R.string.review_loading).spoken,
             blocks = reviewBlocks,
         ) {
-            ReviewState(state = state, onIntent = onIntent, isDockFolded = task.isFolded, foldedDock = foldedDock)
+            ReviewState(state = state, onIntent = onIntent)
         }
+        FoldedTaskEnd(
+            hook = task,
+            foldedDock = foldedDock,
+            loadingLabel = chromeResource(R.string.building_waiting).spoken,
+            scrollKey = (state as? ReviewUiState.Reviewing)?.let { shown: ReviewUiState.Reviewing ->
+                shown.card.wordId to shown.step
+            },
+        )
     }
 }
 
@@ -88,8 +97,6 @@ fun ReviewScreen(
 private fun ReviewState(
     state: ReviewUiState,
     onIntent: (ReviewIntent) -> Unit,
-    isDockFolded: Boolean,
-    foldedDock: @Composable () -> Unit,
 ) {
     val copy: PlayerCopy = rememberPlayerCopy()
     when (state) {
@@ -111,9 +118,8 @@ private fun ReviewState(
             path = state.path,
         )
         is ReviewUiState.LessonReady -> LessonReady(ready = state)
-        is ReviewUiState.Reviewing -> Reviewing(reviewing = state, onIntent = onIntent, isDockFolded = isDockFolded)
+        is ReviewUiState.Reviewing -> Reviewing(reviewing = state, onIntent = onIntent)
     }
-    if (state.isFollowingTown) foldedDock()
 }
 
 private val reviewBlocks: MyGameSkeletonBlocks = MyGameSkeletonBlocks(
@@ -124,7 +130,6 @@ private val reviewBlocks: MyGameSkeletonBlocks = MyGameSkeletonBlocks(
 private fun Reviewing(
     reviewing: ReviewUiState.Reviewing,
     onIntent: (ReviewIntent) -> Unit,
-    isDockFolded: Boolean,
     modifier: Modifier = Modifier,
 ) {
     val card: ReviewUiState.ReviewCard = reviewing.card
@@ -139,7 +144,6 @@ private fun Reviewing(
         if (card is ReviewUiState.ReviewCard.Recall && !reviewing.isRated) {
             HintLine(card = card, isBusy = reviewing.isBusy, onIntent = onIntent)
         }
-        if (isDockFolded) FoldedReviewLine(reviewing = reviewing, onIntent = onIntent)
     }
 }
 

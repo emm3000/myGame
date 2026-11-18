@@ -38,6 +38,7 @@ import com.emm.mygame.core.ui.ChromePhase
 import com.emm.mygame.core.ui.CopyLanguage
 import com.emm.mygame.core.ui.ProvideCopyLanguage
 import com.emm.mygame.core.ui.ScaffoldLanguage
+import com.emm.mygame.core.ui.FoldedTaskEnd
 import com.emm.mygame.core.ui.TaskDockHook
 import com.emm.mygame.core.ui.fixedCopyResource
 
@@ -46,6 +47,7 @@ fun HoldoutCheckScreen(
     state: HoldoutCheckUiState,
     onIntent: (HoldoutCheckIntent) -> Unit,
     hook: TaskDockHook,
+    foldedDock: @Composable () -> Unit,
     modifier: Modifier = Modifier,
 ) {
     HoldoutCheckDock(state = state, onIntent = onIntent, hook = hook)
@@ -72,6 +74,12 @@ fun HoldoutCheckScreen(
         ) {
             HoldoutCheckState(state = state, onIntent = onIntent)
         }
+        FoldedTaskEnd(
+            hook = hook,
+            foldedDock = foldedDock,
+            loadingLabel = fixedCopyResource(R.string.placement_holdout_loading),
+            scrollKey = (state as? HoldoutCheckUiState.Asking)?.shownIndex,
+        )
     }
 }
 
@@ -149,7 +157,7 @@ private class HoldoutCheckScreenStates : PreviewParameterProvider<HoldoutCheckUi
 @Composable
 private fun HoldoutCheckScreenPreview(@PreviewParameter(HoldoutCheckScreenStates::class) state: HoldoutCheckUiState) {
     MyGamePreviewSurface {
-        HoldoutCheckScreen(state = state, onIntent = {}, hook = TaskDockHook(onAnswered = {}))
+        HoldoutCheckScreen(state = state, onIntent = {}, hook = TaskDockHook(onAnswered = {}), foldedDock = {})
     }
 }
 
@@ -160,7 +168,7 @@ private fun HoldoutCheckScreenBothPreview(
 ) {
     ProvideCopyLanguage(language = CopyLanguage(ScaffoldLanguage.Spanish, ChromePhase.Both)) {
         MyGamePreviewSurface {
-            HoldoutCheckScreen(state = state, onIntent = {}, hook = TaskDockHook(onAnswered = {}))
+            HoldoutCheckScreen(state = state, onIntent = {}, hook = TaskDockHook(onAnswered = {}), foldedDock = {})
         }
     }
 }

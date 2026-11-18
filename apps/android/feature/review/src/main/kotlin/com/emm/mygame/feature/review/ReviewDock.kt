@@ -1,21 +1,13 @@
 package com.emm.mygame.feature.review
 
 import androidx.annotation.StringRes
-import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.relocation.BringIntoViewRequester
-import androidx.compose.foundation.relocation.bringIntoViewRequester
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.State
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberUpdatedState
-import androidx.compose.ui.Modifier
 import com.emm.mygame.core.designsystem.MyGameDockGo
 import com.emm.mygame.core.designsystem.MyGameDockLine
-import com.emm.mygame.core.designsystem.MyGameDockLineText
 import com.emm.mygame.core.designsystem.MyGameLabel
-import com.emm.mygame.core.designsystem.MyGameSpacing
 import com.emm.mygame.core.ui.FillTaskDock
 import com.emm.mygame.core.ui.FollowTownDock
 import com.emm.mygame.core.ui.TaskDock
@@ -35,23 +27,6 @@ internal fun ReviewDock(state: ReviewUiState, onIntent: (ReviewIntent) -> Unit, 
         is ReviewUiState.NothingDue,
         is ReviewUiState.LessonReady,
         -> FollowTownDock(hook = task, onReviewsStart = startReviews)
-    }
-}
-
-@Composable
-internal fun FoldedReviewLine(
-    reviewing: ReviewUiState.Reviewing,
-    onIntent: (ReviewIntent) -> Unit,
-    modifier: Modifier = Modifier,
-) {
-    val requester: BringIntoViewRequester = remember { BringIntoViewRequester() }
-    LaunchedEffect(reviewing.card.wordId, reviewing.step) { requester.bringIntoView() }
-    Column(
-        verticalArrangement = Arrangement.spacedBy(MyGameSpacing.step3),
-        modifier = modifier.bringIntoViewRequester(requester),
-    ) {
-        MyGameDockLineText(line = reviewLineOf(reviewing), loadingLabel = waitingLabel())
-        ReviewStepLine(reviewing = reviewing, onIntent = onIntent)
     }
 }
 

@@ -34,6 +34,7 @@ import com.emm.mygame.core.ui.ChromePhase
 import com.emm.mygame.core.ui.CopyLanguage
 import com.emm.mygame.core.ui.ProvideCopyLanguage
 import com.emm.mygame.core.ui.ScaffoldLanguage
+import com.emm.mygame.core.ui.FoldedTaskEnd
 import com.emm.mygame.core.ui.TaskDockHook
 import com.emm.mygame.core.ui.fixedCopyResource
 
@@ -42,6 +43,7 @@ fun PlacementScreen(
     state: PlacementUiState,
     onIntent: (PlacementIntent) -> Unit,
     hook: TaskDockHook,
+    foldedDock: @Composable () -> Unit,
     modifier: Modifier = Modifier,
 ) {
     PlacementDock(state = state, onIntent = onIntent, hook = hook)
@@ -68,6 +70,12 @@ fun PlacementScreen(
         ) {
             PlacementState(state = state, onIntent = onIntent)
         }
+        FoldedTaskEnd(
+            hook = hook,
+            foldedDock = foldedDock,
+            loadingLabel = fixedCopyResource(R.string.placement_loading),
+            scrollKey = (state as? PlacementUiState.Asking)?.shownIndex,
+        )
     }
 }
 
@@ -126,7 +134,7 @@ private class PlacementScreenStates : PreviewParameterProvider<PlacementUiState>
 @Composable
 private fun PlacementScreenPreview(@PreviewParameter(PlacementScreenStates::class) state: PlacementUiState) {
     MyGamePreviewSurface {
-        PlacementScreen(state = state, onIntent = {}, hook = TaskDockHook(onAnswered = {}))
+        PlacementScreen(state = state, onIntent = {}, hook = TaskDockHook(onAnswered = {}), foldedDock = {})
     }
 }
 
@@ -135,7 +143,7 @@ private fun PlacementScreenPreview(@PreviewParameter(PlacementScreenStates::clas
 private fun PlacementScreenBothPreview(@PreviewParameter(PlacementScreenStates::class) state: PlacementUiState) {
     ProvideCopyLanguage(language = CopyLanguage(ScaffoldLanguage.Spanish, ChromePhase.Both)) {
         MyGamePreviewSurface {
-            PlacementScreen(state = state, onIntent = {}, hook = TaskDockHook(onAnswered = {}))
+            PlacementScreen(state = state, onIntent = {}, hook = TaskDockHook(onAnswered = {}), foldedDock = {})
         }
     }
 }

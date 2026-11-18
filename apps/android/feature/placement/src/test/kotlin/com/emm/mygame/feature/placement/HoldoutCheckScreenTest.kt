@@ -65,7 +65,7 @@ class HoldoutCheckScreenTest {
     private fun showing(state: HoldoutCheckUiState) {
         composeRule.setContent {
             TaskFrameStandIn(hook = hook) {
-                HoldoutCheckScreen(state = state, onIntent = { intents += it }, hook = hook)
+                HoldoutCheckScreen(state = state, onIntent = { intents += it }, hook = hook, foldedDock = {})
             }
         }
     }
@@ -75,7 +75,7 @@ class HoldoutCheckScreenTest {
         composeRule.setContent {
             ProvideCopyLanguage(CopyLanguage(ScaffoldLanguage.None, ChromePhase.Scaffold)) {
                 TaskFrameStandIn(hook = hook) {
-                    HoldoutCheckScreen(state = dueEighthWeek, onIntent = {}, hook = hook)
+                    HoldoutCheckScreen(state = dueEighthWeek, onIntent = {}, hook = hook, foldedDock = {})
                 }
             }
         }
@@ -140,7 +140,7 @@ class HoldoutCheckScreenTest {
         val shown: MutableState<HoldoutCheckUiState> = mutableStateOf(states.first())
         composeRule.setContent {
             TaskFrameStandIn(hook = hook) {
-                HoldoutCheckScreen(state = shown.value, onIntent = {}, hook = hook)
+                HoldoutCheckScreen(state = shown.value, onIntent = {}, hook = hook, foldedDock = {})
             }
         }
 

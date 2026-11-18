@@ -57,6 +57,7 @@ import com.emm.mygame.core.ui.ChromePhase
 import com.emm.mygame.core.ui.CopyLanguage
 import com.emm.mygame.core.ui.ProvideCopyLanguage
 import com.emm.mygame.core.ui.ScaffoldLanguage
+import com.emm.mygame.core.ui.FoldedTaskEnd
 import com.emm.mygame.core.ui.TaskDockHook
 import com.emm.mygame.core.ui.chromeResource
 import com.emm.mygame.core.ui.fixedCopyResource
@@ -93,10 +94,14 @@ fun LessonWordsScreen(
         ) {
             LessonWordsState(state = state, onIntent = onIntent, onWayOn = onWayOn, onSchoolOpen = onSchoolOpen)
         }
-        if (task.isFolded && state is LessonWordsUiState.Reading && !state.isFollowingTown) {
-            FoldedReadingLine(reading = state)
-        }
-        if (state.isFollowingTown) foldedDock()
+        FoldedTaskEnd(
+            hook = task,
+            foldedDock = foldedDock,
+            loadingLabel = chromeResource(R.string.school_waiting).spoken,
+            scrollKey = (state as? LessonWordsUiState.Reading)?.let { shown: LessonWordsUiState.Reading ->
+                shown.index to shown.isWaitingForLessonEnd
+            },
+        )
     }
 }
 
