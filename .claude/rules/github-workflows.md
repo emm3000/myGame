@@ -17,7 +17,7 @@ The YAML under `.github/workflows/` holds every trigger, step and flag; this rul
 
 - `gate` runs exactly `pnpm gate`, the script in the root `package.json`, never the gate's steps by hand. The one step outside the gate is the api build-and-probe, which needs a built bundle. A new service joins the `gate` job, never a second workflow.
 - `android` is the Android leg of the gate (ADR 034): the command in `verification.md`'s `apps/android` row. It runs only when `changes` prints `true`.
-- `vercel` runs on `pull_request` only and catches what the gate cannot see: Vercel's Hono detection, which needs the plain `Hono` value import in `apps/api/src/index.ts`, its type check of a TypeScript entry, and Nitro's Vercel output (ADR 031). It pulls and builds, never deploys, never `--prod`, and holds no `environment`.
+- `vercel` runs on `pull_request` only and catches what the gate cannot see: Vercel's Hono detection, which needs the plain `Hono` value import in `apps/api/src/index.ts`, its type check of a TypeScript entry, and Nitro's Vercel output (ADR 031). It pulls and builds, never deploys, never `--prod`, and holds no `environment`. A fork gets no secrets, so its `vercel` job fails.
 
 ## `deploy.yml`
 
