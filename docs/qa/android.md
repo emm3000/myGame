@@ -28,7 +28,7 @@ A case is written as steps and `Verify` lines, in the player's terms, never as t
 - its **Source**, a PRD row or an ADR section;
 - its **Setup**, which names a recipe below or says *none*.
 
-A `Verify` line names the catalog key it reads, and gives the text in the account's scaffold language. A line in braces, such as `{count}`, is an ICU argument the server's answer fills.
+A `Verify` line names the catalog key it reads, with its full namespace (`android.town.town_words_needed`), and gives the text in the account's scaffold language. A line in braces, such as `{count}`, is an ICU argument the server's answer fills.
 
 ## Setup
 
@@ -51,11 +51,11 @@ WHERE lower(p.email) = lower('qa-none-wrd02@qa.test');
 
 ### Recipe: seed levels and stocks
 
-Storage level 3 holds 3400 of each stock (`content/town/storage.json`), so the stocks never bind a word case.
+Storage level 3 holds 3400 of each stock (`content/town/storage.json`), so the stocks never bind a word case. Replace `<homes_level>` with the level the case's Setup names: SMK-05 needs 1, WRD-01 needs 2, WRD-02 needs 6 and WRD-04 needs 7.
 
 ```sql
 INSERT INTO town_buildings (town_id, building, level)
-VALUES ('<town_id>', 'homes', 6), ('<town_id>', 'storage', 3)
+VALUES ('<town_id>', 'homes', <homes_level>), ('<town_id>', 'storage', 3)
 ON CONFLICT (town_id, building) DO UPDATE SET level = excluded.level;
 UPDATE towns SET money = 3000, food = 3000, power = 3000, material = 3000, stored_at = now()
 WHERE id = '<town_id>';
@@ -120,7 +120,7 @@ Edit the interval to suit the case. The season calendar is content (`town.json`'
 
 - Read the reminder's alarm: `adb shell dumpsys alarm | rg -A4 'com.emm.mygame'`. The alarm is `RTC_WAKEUP`, and its pending intent carries `com.emm.mygame.STUDY_REMINDER_FIRED`.
 - Read the posted notification: `adb shell dumpsys notification --noredact | rg -A12 'pkg=com.emm.mygame'`.
-- Move the device clock forward to just past the alarm: `adb shell cmd alarm set-time <epoch-ms>`. This sends `TIME_SET`, which reschedules from the stored facts. The alarm then fires late, since it is inexact (ADR 046). Wait up to one hour, ADR 046's bound for an inexact alarm outside Doze and battery saver, before marking the post missing in `dumpsys notification`.
+- Fire the alarm: set the clock to one or two minutes **before** it, `adb shell cmd alarm set-time <alarm epoch-ms minus 90000>`, then wait. Never set it past the alarm: that sends `TIME_SET`, and the app reschedules to the first chosen time after now, which is tomorrow, so no post can come that day (ADR 046, *When it fires*). Setting it before the alarm leaves the alarm where it was. The alarm is inexact (ADR 046): it fires within one hour of its time, the bound outside Doze and battery saver, and run 1 saw it fire at +1 minute. Wait up to that hour before marking the post missing in `dumpsys notification`.
 - Change the time zone: `adb shell cmd alarm set-timezone <zone>`.
 - Put the clock back when the case ends: `adb shell cmd alarm set-time $(($(date +%s) * 1000))`.
 
@@ -129,7 +129,7 @@ Edit the interval to suit the case. The season calendar is content (`town.json`'
 - **The hands are the Android CLI.** Read a screen with `android layout --device=emulator-<port>`, as every `adb` command carries `-s emulator-<port>`, and pass `--no-metrics` on every call, since the CLI sends usage data otherwise. While the CLI's device helper runs, `uiautomator dump` writes no file, so use one or the other. `android input`, a tap by text, needs 1.0.16625370 or later; with an older CLI, tap the `center` the layout gives. Read `~/.claude/skills/android-cli/references/interact.md` before the first `android layout`.
 - **The journey rules** of the android-cli skill (`~/.claude/skills/android-cli/references/journeys.md`) apply to every case. Do each step exactly as written, and on its own. When the app disagrees with a `Verify` line, the app is wrong, and the case fails. Keep debugging to a minimum and report the failure. A crash, an exit or a freeze fails the case.
 - **A count is read from the layout text**, never from a screenshot, since Google lists counting as inconsistent for agents.
-- **The time box.** Smoke takes 20 minutes and full takes 90, the exploratory charter included.
+- **The time box.** Smoke takes 40 minutes and full takes 90, the exploratory charter included. Smoke's own server waits (the farm, lesson 1 twice and homes 2) take about 16 minutes before any tapping, and run 1 took 32 minutes for the 7 cases; so the box holds them, rather than seeding them.
 - **Every run ends with one 15-minute exploratory charter** on what changed since the last run, which `git log --oneline <last run's SHA>..HEAD -- apps/android apps/api packages` lists. Repeated cases stop finding bugs. Record the charter in one line, and file what it finds as for any fail.
 
 ## Recording a run
@@ -162,7 +162,7 @@ commit=$(git -C <worktree> commit-tree "$tree" -m "qa: run <n> screenshots")
 git -C <worktree> tag "qa-run-<n>" "$commit" && git -C <worktree> push origin "qa-run-<n>" && git -C <worktree> tag -d "qa-run-<n>"
 ```
 
-For more than one image, write one `mktree` line per file. Link an image as `https://raw.githubusercontent.com/emm3000/myGame/qa-run-<n>/<case>-<file>.png`. **This recipe is untested.** The first run that keeps a screenshot checks it and fixes this section.
+For more than one image, write one `mktree` line per file. Link an image as `https://raw.githubusercontent.com/emm3000/myGame/qa-run-<n>/<case>-<file>.png`.
 
 ## Filing a bug
 
@@ -378,7 +378,7 @@ Source: ADR 046, *When it fires*, *How Android schedules it*, *What it says*
 Setup: an `es` account with the reminder on and reviews due (SMK-03 and SMK-06's steps, in Spanish)
 
 1. Read the alarm. Verify one `RTC_WAKEUP` alarm for `com.emm.mygame` at the chosen time today, or tomorrow if that has passed.
-2. Send the app to the background and move the device clock to just past the alarm.
+2. Send the app to the background, set the device clock 90 seconds before the alarm and wait for it to fire (*Recipe: the device clock and the alarm*).
 3. Verify one notification is posted: `reminder_cards_title`, *Tus palabras están listas.*, over `reminder_cards_text`, *Abre el informe para estudiarlas.*, on the channel `reminder_channel`, *Recordatorios de estudio*.
 4. Verify the next alarm is at the chosen time on the following day.
 5. Tap the notification. Verify the Report opens with `report_reviews_due`, *Repasos pendientes: {count}*, and the notification is gone.
@@ -390,7 +390,7 @@ Source: ADR 046, *When it fires*, *Worked examples* (*Reviews done, a lesson to 
 Setup: a `none` account with the reminder on, lesson 1 studied, every review answered, and lesson 2 ready to start
 
 1. Verify the alarm is at the chosen time today, not at the next review's day.
-2. Move the device clock to just past it.
+2. Set the device clock 90 seconds before it and wait for it to fire.
 3. Verify the post `reminder_lesson_title`, *A lesson is ready.*, over `reminder_lesson_text`, *Start it from the town.*
 4. Tap it. Verify the town shows alone, and back leaves the app.
 
@@ -400,7 +400,7 @@ Source: ADR 046, *When it fires*; ADR 037, *The holdout*
 Setup: a `none` account with the reminder on and no review due; a `band_starts` row for band 1 (insert one if the player has none), its `started_at` 8 weeks and 1 day back; then the town read once
 
 1. Verify the town's next step names `town_next_holdout_check`, *Word check for band 1*.
-2. Move the device clock to just past the alarm.
+2. Set the device clock 90 seconds before the alarm and wait for it to fire.
 3. Verify the post `reminder_check_title`, *Your word check is ready.*, over `reminder_check_text`, *Open it from the town.*
 4. Tap it. Verify the town shows.
 
@@ -410,7 +410,7 @@ Source: ADR 046, *When it fires*, *Worked examples* (*Reviews done, nothing wait
 Setup: a `none` account with the reminder on and every review answered; the learning cap full, so no lesson can start; the next review 2 days away
 
 1. Verify the town's next step names no lesson and no check, and the alarm is at the chosen time on the day the next review falls due, not today.
-2. Move the device clock to just past today's chosen time.
+2. Set the device clock 90 seconds before today's chosen time and wait past it.
 3. Verify no notification is posted.
 
 #### REM-05 The alarm survives a reboot · P0 · full
@@ -446,7 +446,7 @@ Setup: SMK-07's account, the reminder on, reviews due
 
 1. Revoke the permission: `adb shell pm revoke com.emm.mygame android.permission.POST_NOTIFICATIONS`.
 2. Open the app, then Settings. Verify the switch is off, with `settings_reminder_denied` and its link.
-3. Move the device clock to just past the alarm.
+3. Set the device clock 90 seconds before the alarm and wait for it to fire.
 4. Verify no notification is posted.
 
 #### REM-09 Signing out cancels the alarm and removes the reminder · P1 · full
