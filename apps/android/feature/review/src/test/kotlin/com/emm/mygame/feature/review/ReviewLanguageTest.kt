@@ -29,7 +29,6 @@ import org.junit.Test
 import org.junit.runner.RunWith
 import org.robolectric.RobolectricTestRunner
 import org.robolectric.annotation.Config
-import kotlin.time.Duration.Companion.days
 import kotlin.time.Instant
 
 @RunWith(RobolectricTestRunner::class)
@@ -99,7 +98,6 @@ class ReviewLanguageTest {
         recognizing.copy(step = ReviewUiState.ReviewStep.Refused(ReviewRefusal.ReviewNotDue))
 
     private val nothingDueInThreeDays: ReviewUiState.NothingDue = ReviewUiState.NothingDue(
-        remaining = 3.days,
         dueAt = Instant.parse("2026-11-08T12:00:00Z"),
         path = ReviewUiState.LessonPath(
             number = 1,

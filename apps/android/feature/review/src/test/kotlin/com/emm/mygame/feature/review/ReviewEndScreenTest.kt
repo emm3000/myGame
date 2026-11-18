@@ -209,7 +209,7 @@ class ReviewEndScreenTest {
     }
 
     private fun nothingDue(path: ReviewUiState.LessonPath?): ReviewUiState.NothingDue =
-        ReviewUiState.NothingDue(remaining = 9.minutes, dueAt = firstReadAt + 9.minutes, path = path)
+        ReviewUiState.NothingDue(dueAt = firstReadAt + 9.minutes, path = path)
 
     private fun correctWith(rates: ReviewUiState.SkillRates?): ReviewUiState.Reviewing = ReviewUiState.Reviewing(
         walked = 0,

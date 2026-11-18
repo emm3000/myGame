@@ -10,7 +10,9 @@ import com.emm.mygame.core.testing.FakeLearningRepository
 import com.emm.mygame.core.testing.FakeTownRepository
 import com.emm.mygame.core.testing.MainDispatcherRule
 import kotlin.time.Duration.Companion.minutes
+import kotlin.time.Duration.Companion.seconds
 import kotlinx.coroutines.test.TestScope
+import kotlinx.coroutines.test.advanceTimeBy
 import kotlinx.coroutines.test.runCurrent
 import kotlinx.coroutines.test.runTest
 import org.junit.Assert.assertEquals
@@ -103,6 +105,23 @@ class ReviewEndViewModelTest {
 
         viewModel.state.test {
             assertEquals(coffeeRecall.wordId, awaitReviewing().card.wordId)
+        }
+    }
+
+    @Test
+    fun `the review end draws nothing due once while it waits for the next review`() = runTest {
+        val learning: FakeLearningRepository = FakeLearningRepository()
+        val viewModel: ReviewViewModel = openReview(learning)
+        learning.answerRead(nothingDueUntil(firstReadAt + 9.minutes))
+
+        viewModel.state.test {
+            assertEquals(firstReadAt + 9.minutes, (awaitItem() as ReviewUiState.NothingDue).dueAt)
+            advanceTimeBy(9.minutes - 1.seconds)
+            expectNoEvents()
+            learning.answerRead(dueNow(schoolRecognition))
+            advanceTimeBy(1.seconds)
+            runCurrent()
+            assertEquals(schoolRecognition.wordId, awaitReviewing().card.wordId)
         }
     }
 

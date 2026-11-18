@@ -114,7 +114,7 @@ class ReviewViewModelTest {
 
         viewModel.state.test {
             assertEquals(
-                ReviewUiState.NothingDue(remaining = 9.minutes, dueAt = skewedDevice + 9.minutes, path = null),
+                ReviewUiState.NothingDue(dueAt = skewedDevice + 9.minutes, path = null),
                 expectMostRecentItem(),
             )
         }
