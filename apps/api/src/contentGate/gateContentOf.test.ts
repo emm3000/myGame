@@ -3,7 +3,8 @@ import { cpSync, mkdtempSync, readFileSync, rmSync, writeFileSync } from 'node:f
 import { tmpdir } from 'node:os'
 import { join } from 'node:path'
 import { fileURLToPath } from 'node:url'
-import { describe, expect, it } from 'vitest'
+import { BuildingContentSchema } from '@mygame/contracts'
+import { assert, describe, expect, it } from 'vitest'
 import { gateContentOf } from './gateContentOf'
 
 const shippedContent = fileURLToPath(new URL('../../content/', import.meta.url))
@@ -17,10 +18,16 @@ const contentWithElevenHomesLevels = (): string => {
   const directory = mkdtempSync(join(tmpdir(), 'mygame-gate-content-'))
   cpSync(shippedContent, directory, { recursive: true })
   const homesFile = join(directory, 'town', 'homes.json')
-  const homes = JSON.parse(readFileSync(homesFile, 'utf8'))
+  const homes = BuildingContentSchema.parse(JSON.parse(readFileSync(homesFile, 'utf8')))
   const topLevel = homes.levels.at(-1)
-  homes.levels.push({ ...topLevel, level: topLevel.level + 1 })
-  writeFileSync(homesFile, JSON.stringify(homes))
+  assert(topLevel !== undefined)
+  writeFileSync(
+    homesFile,
+    JSON.stringify({
+      ...homes,
+      levels: [...homes.levels, { ...topLevel, level: topLevel.level + 1 }],
+    }),
+  )
   return directory
 }
 
