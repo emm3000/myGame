@@ -1,5 +1,7 @@
 package com.emm.mygame.core.designsystem
 
+import androidx.compose.foundation.layout.padding
+import androidx.compose.ui.Modifier
 import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.semantics.SemanticsNode
 import androidx.compose.ui.semantics.SemanticsProperties
@@ -13,7 +15,9 @@ import androidx.compose.ui.test.junit4.ComposeContentTestRule
 import androidx.compose.ui.test.junit4.createComposeRule
 import androidx.compose.ui.test.onNodeWithContentDescription
 import androidx.compose.ui.test.performClick
+import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.DpSize
+import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.toSize
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertTrue
@@ -46,6 +50,10 @@ private val mainStreet: MyGameStreet = MyGameStreet(
     ),
 )
 
+private val phoneWidth: Dp = 360.dp
+
+private const val PX_TOLERANCE: Float = 0.5f
+
 private val isTab: SemanticsMatcher = SemanticsMatcher.expectValue(SemanticsProperties.Role, Role.Tab)
 
 @RunWith(RobolectricTestRunner::class)
@@ -56,7 +64,7 @@ class MyGameStreetStripTest {
     @get:Rule
     val composeRule: ComposeContentTestRule = createComposeRule()
 
-    private fun show(selected: Int = SCHOOL_INDEX, onSelect: (Int) -> Unit = {}) {
+    private fun show(selected: Int = SCHOOL_INDEX, modifier: Modifier = Modifier, onSelect: (Int) -> Unit = {}) {
         composeRule.setContent {
             MyGameTheme {
                 MyGameStreetStrip(
@@ -66,6 +74,7 @@ class MyGameStreetStripTest {
                     nextStepWords = "your next step",
                     inWorkWords = "in work",
                     onSelect = onSelect,
+                    modifier = modifier,
                 )
             }
         }
@@ -141,5 +150,25 @@ class MyGameStreetStripTest {
         show()
 
         composeRule.onNodeWithContentDescription("5 of 7 built").assertExists()
+    }
+
+    @Test
+    fun `each tab stays a control wide inside the page gutter on a 360 dp phone`() {
+        show(modifier = Modifier.padding(horizontal = MyGameSpacing.step5))
+
+        composeRule.onAllNodes(isTab).fetchSemanticsNodes().forEach { node: SemanticsNode ->
+            val width: Dp = with(composeRule.density) { node.size.width.toDp() }
+            assertTrue("$width is wide enough", width >= MyGameSizes.control)
+        }
+    }
+
+    @Test
+    fun `the selected tab stays in view when the tabs run past the gutter`() {
+        show(selected = mainStreet.tabs.lastIndex, modifier = Modifier.padding(horizontal = MyGameSpacing.step5))
+
+        val storage: SemanticsNode = composeRule.onNodeWithContentDescription("Storage, level 10").fetchSemanticsNode()
+        val storageEnd: Float = storage.positionInRoot.x + storage.size.width
+        val stripEnd: Float = with(composeRule.density) { (phoneWidth - MyGameSpacing.step5).toPx() }
+        assertTrue("the tab ends at $storageEnd, inside $stripEnd", storageEnd <= stripEnd + PX_TOLERANCE)
     }
 }

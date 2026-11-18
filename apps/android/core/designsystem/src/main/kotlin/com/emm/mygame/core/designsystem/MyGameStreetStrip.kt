@@ -7,27 +7,34 @@ import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.interaction.collectIsFocusedAsState
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.RowScope
 import androidx.compose.foundation.layout.defaultMinSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.ScrollState
+import androidx.compose.foundation.horizontalScroll
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.selection.selectable
 import androidx.compose.foundation.selection.selectableGroup
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.tooling.preview.PreviewParameter
 import androidx.compose.ui.tooling.preview.PreviewParameterProvider
+import androidx.compose.ui.unit.Dp
 
 @Composable
 fun MyGameStreetStrip(
@@ -39,23 +46,30 @@ fun MyGameStreetStrip(
     onSelect: (Int) -> Unit,
     modifier: Modifier = Modifier,
 ) {
-    Column(modifier = modifier.fillMaxWidth().semantics { contentDescription = name }) {
-        Row(modifier = Modifier.fillMaxWidth().selectableGroup()) {
-            street.tabs.forEachIndexed { index: Int, tab: MyGameStreetTab ->
-                StreetTab(
-                    tab = tab,
-                    name = nameOf(tab = tab, nextStepWords = nextStepWords, inWorkWords = inWorkWords),
-                    isSelected = index == selected,
-                    onClick = { onSelect(index) },
-                )
+    BoxWithConstraints(modifier = modifier.fillMaxWidth().semantics { contentDescription = name }) {
+        val tabWidth: Dp = maxOf(MyGameSizes.control, maxWidth / street.tabs.size.coerceAtLeast(1))
+        val scroll: ScrollState = rememberScrollState()
+        val centered: Int = with(LocalDensity.current) { (tabWidth * selected + (tabWidth - maxWidth) / 2).roundToPx() }
+        LaunchedEffect(centered) { scroll.animateScrollTo(centered.coerceIn(0, scroll.maxValue)) }
+        Column(modifier = Modifier.horizontalScroll(scroll)) {
+            Row(modifier = Modifier.selectableGroup()) {
+                street.tabs.forEachIndexed { index: Int, tab: MyGameStreetTab ->
+                    StreetTab(
+                        tab = tab,
+                        name = nameOf(tab = tab, nextStepWords = nextStepWords, inWorkWords = inWorkWords),
+                        isSelected = index == selected,
+                        onClick = { onSelect(index) },
+                        modifier = Modifier.width(tabWidth),
+                    )
+                }
             }
+            MyGameHairline(modifier = Modifier.width(tabWidth * street.tabs.size))
         }
-        MyGameHairline()
     }
 }
 
 @Composable
-private fun RowScope.StreetTab(
+private fun StreetTab(
     tab: MyGameStreetTab,
     name: String,
     isSelected: Boolean,
@@ -70,8 +84,7 @@ private fun RowScope.StreetTab(
         horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = Arrangement.spacedBy(MyGameSpacing.step1, Alignment.Bottom),
         modifier = modifier
-            .weight(1f)
-            .defaultMinSize(minWidth = MyGameSizes.control, minHeight = MyGameSizes.control)
+            .defaultMinSize(minHeight = MyGameSizes.control)
             .then(if (isFocused) Modifier.border(MyGameStrokeWidths.focus, colors.focus, shape) else Modifier)
             .selectable(
                 selected = isSelected,

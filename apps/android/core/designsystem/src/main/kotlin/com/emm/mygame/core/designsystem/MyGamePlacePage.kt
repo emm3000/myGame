@@ -34,14 +34,14 @@ fun MyGamePlacePage(
     level: MyGameLabel,
     modifier: Modifier = Modifier,
     words: MyGamePlaceWords? = null,
-    header: @Composable () -> Unit = {},
+    header: @Composable ColumnScope.() -> Unit = {},
     work: @Composable ColumnScope.() -> Unit = {},
 ) {
     BoxWithConstraints(modifier = modifier) {
         val viewportHeight: Int = constraints.maxHeight
         Layout(
             contents = listOf(
-                { Box { header() } },
+                { Column(content = header) },
                 { PageArt(art = art) },
                 { PageText(name = name, level = level, words = words, work = work) },
             ),

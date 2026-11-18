@@ -7,6 +7,7 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.geometry.Rect
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.semantics.SemanticsNode
 import androidx.compose.ui.semantics.SemanticsProperties
@@ -183,11 +184,32 @@ class MyGamePlacePageTest {
         assertEquals(wordsForLevelThree.needed, segments().size)
     }
 
+    @Test
+    fun `the header slot stacks its items`() {
+        show {
+            MyGamePlacePage(
+                art = farmAtLevelTwo,
+                name = plain("Farm"),
+                level = plain("Level 2"),
+                modifier = Modifier.fillMaxSize(),
+                header = {
+                    MyGameText(text = "Maple Hollow", style = MyGameTypography.title, color = Color.Black)
+                    MyGameText(text = "Place 2 of 7", style = MyGameTypography.meta, color = Color.Black)
+                },
+            )
+        }
+
+        val townBottom: Float = boundsOf(hasText("Maple Hollow")).bottom
+        assertTrue("the second item starts under the first", boundsOf(hasText("Place 2 of 7")).top >= townBottom)
+    }
+
     private fun segments(): List<SemanticsNode> =
         composeRule.onAllNodesWithTag(TRACK_FILL, useUnmergedTree = true).fetchSemanticsNodes()
 
     private fun filledSegments(): Int = segments().count { fill: SemanticsNode -> fill.size.width > 0 }
 
-    private fun topOf(matcher: SemanticsMatcher): Float =
-        composeRule.onNode(matcher, useUnmergedTree = true).fetchSemanticsNode().boundsInRoot.top
+    private fun topOf(matcher: SemanticsMatcher): Float = boundsOf(matcher).top
+
+    private fun boundsOf(matcher: SemanticsMatcher): Rect =
+        composeRule.onNode(matcher, useUnmergedTree = true).fetchSemanticsNode().boundsInRoot
 }
