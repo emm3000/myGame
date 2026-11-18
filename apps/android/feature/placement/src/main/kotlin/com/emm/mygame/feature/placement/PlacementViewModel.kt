@@ -9,9 +9,12 @@ import com.emm.mygame.core.network.PlacementChangeResult
 import com.emm.mygame.core.network.PlacementItem
 import com.emm.mygame.core.network.PlacementReadResult
 import com.emm.mygame.core.network.PlacementRepository
+import kotlinx.coroutines.channels.Channel
+import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 
@@ -20,6 +23,10 @@ class PlacementViewModel(private val placements: PlacementRepository) : ViewMode
     private val _state: MutableStateFlow<PlacementUiState> = MutableStateFlow(PlacementUiState.Loading)
 
     val state: StateFlow<PlacementUiState> = _state.asStateFlow()
+
+    private val _effects: Channel<PlacementEffect> = Channel(Channel.BUFFERED)
+
+    val effects: Flow<PlacementEffect> = _effects.receiveAsFlow()
 
     init {
         read()
@@ -43,6 +50,14 @@ class PlacementViewModel(private val placements: PlacementRepository) : ViewMode
                 is PlacementReadResult.Read -> draw(answer.placement)
                 PlacementReadResult.Unreachable -> _state.value = PlacementUiState.Failed
             }
+        }
+    }
+
+    private suspend fun readAfterRefusal() {
+        _state.value = PlacementUiState.Loading
+        when (val answer: PlacementReadResult = placements.read()) {
+            is PlacementReadResult.Read -> drawChanged(answer.placement)
+            PlacementReadResult.Unreachable -> _state.value = PlacementUiState.Failed
         }
     }
 
@@ -83,12 +98,17 @@ class PlacementViewModel(private val placements: PlacementRepository) : ViewMode
         return if (asking.request is PlacementRequest.Waiting) null else asking
     }
 
-    private fun answered(answer: PlacementChangeResult) {
+    private suspend fun answered(answer: PlacementChangeResult) {
         when (answer) {
-            is PlacementChangeResult.Changed -> draw(answer.placement)
-            PlacementChangeResult.Refused -> read()
+            is PlacementChangeResult.Changed -> drawChanged(answer.placement)
+            PlacementChangeResult.Refused -> readAfterRefusal()
             PlacementChangeResult.Unreachable -> drawUnreachable()
         }
+    }
+
+    private suspend fun drawChanged(placement: Placement) {
+        draw(placement)
+        if (placement is Placement.Closed) _effects.send(PlacementEffect.Ended)
     }
 
     private fun drawUnreachable() {

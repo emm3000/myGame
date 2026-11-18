@@ -11,9 +11,12 @@ import com.emm.mygame.core.network.HoldoutChecksReadResult
 import com.emm.mygame.core.network.PlacementAnswer
 import com.emm.mygame.core.network.PlacementBand
 import com.emm.mygame.core.network.PlacementItem
+import kotlinx.coroutines.channels.Channel
+import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 
@@ -26,6 +29,10 @@ class HoldoutCheckViewModel(
     private val _state: MutableStateFlow<HoldoutCheckUiState> = MutableStateFlow(HoldoutCheckUiState.Loading)
 
     val state: StateFlow<HoldoutCheckUiState> = _state.asStateFlow()
+
+    private val _effects: Channel<HoldoutCheckEffect> = Channel(Channel.BUFFERED)
+
+    val effects: Flow<HoldoutCheckEffect> = _effects.receiveAsFlow()
 
     init {
         read()
@@ -92,12 +99,17 @@ class HoldoutCheckViewModel(
         return if (asking.request is HoldoutCheckRequest.Waiting) null else asking
     }
 
-    private fun answered(action: HoldoutCheckAction, answer: HoldoutCheckChangeResult) {
+    private suspend fun answered(action: HoldoutCheckAction, answer: HoldoutCheckChangeResult) {
         when (answer) {
-            is HoldoutCheckChangeResult.Changed -> _state.value = changedStateOf(action, answer.checks)
+            is HoldoutCheckChangeResult.Changed -> drawChanged(changedStateOf(action, answer.checks))
             is HoldoutCheckChangeResult.Refused -> drawRequest(HoldoutCheckRequest.Refused(action, answer.refusal))
             HoldoutCheckChangeResult.Unreachable -> drawRequest(HoldoutCheckRequest.Unreachable)
         }
+    }
+
+    private suspend fun drawChanged(changed: HoldoutCheckUiState) {
+        _state.value = changed
+        if (changed.isEnd) _effects.send(HoldoutCheckEffect.Ended)
     }
 
     private fun changedStateOf(action: HoldoutCheckAction, checks: List<HoldoutCheck>): HoldoutCheckUiState =

@@ -1,6 +1,12 @@
 package com.emm.mygame.feature.placement
 
+import androidx.compose.runtime.MutableState
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.ui.test.assertCountEquals
+import androidx.compose.ui.test.hasStateDescription
+import androidx.compose.ui.test.hasTestTag
+import androidx.compose.ui.test.hasText
+import androidx.compose.ui.test.onAllNodesWithTag
 import androidx.compose.ui.test.assertIsDisplayed
 import androidx.compose.ui.test.junit4.ComposeContentTestRule
 import androidx.compose.ui.test.junit4.createComposeRule
@@ -8,18 +14,25 @@ import androidx.compose.ui.test.onAllNodesWithText
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
 import androidx.compose.ui.test.performScrollTo
-import com.emm.mygame.core.designsystem.MyGameTheme
+import com.emm.mygame.core.designsystem.INK_PILL
+import com.emm.mygame.core.designsystem.OUTLINED_PILL
 import com.emm.mygame.core.network.ChoiceId
 import com.emm.mygame.core.network.PlacementBand
 import com.emm.mygame.core.network.PlacementScore
 import com.emm.mygame.core.network.WordId
+import com.emm.mygame.core.ui.TaskDockHook
 import org.junit.Assert.assertEquals
+import org.junit.Assert.assertNotNull
+import org.junit.Assert.assertNull
+import org.junit.Assert.assertTrue
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.robolectric.RobolectricTestRunner
+import org.robolectric.annotation.Config
 
 @RunWith(RobolectricTestRunner::class)
+@Config(qualifiers = "+w411dp-h891dp")
 class PlacementScreenTest {
 
     @get:Rule
@@ -27,7 +40,7 @@ class PlacementScreenTest {
 
     private val intents: MutableList<PlacementIntent> = mutableListOf()
 
-    private var townOpens: Int = 0
+    private val hook: TaskDockHook = TaskDockHook(onAnswered = {})
 
     private val askingFirstBand: PlacementUiState.Asking = PlacementUiState.Asking(
         band = PlacementBand.First,
@@ -40,19 +53,10 @@ class PlacementScreenTest {
 
     private fun showing(state: PlacementUiState) {
         composeRule.setContent {
-            MyGameTheme {
-                PlacementScreen(state = state, onIntent = { intents += it }, onTownOpen = { townOpens += 1 })
+            TaskFrameStandIn(hook = hook) {
+                PlacementScreen(state = state, onIntent = { intents += it }, hook = hook)
             }
         }
-    }
-
-    @Test
-    fun `starts the placement from the offer`() {
-        showing(PlacementUiState.Offered(PlacementRequest.Idle))
-
-        composeRule.onNodeWithText("Empezar la prueba").performScrollTo().performClick()
-
-        assertEquals(listOf(PlacementIntent.StartTapped), intents)
     }
 
     @Test
@@ -82,7 +86,7 @@ class PlacementScreenTest {
     fun `draws the shown word's place in the band`() {
         showing(askingFirstBand)
 
-        composeRule.onNodeWithText("Palabra 1 de 2").assertIsDisplayed()
+        composeRule.onNode(hasText("Palabra 1 de 2").and(inTaskDock.not())).assertIsDisplayed()
     }
 
     @Test
@@ -99,7 +103,7 @@ class PlacementScreenTest {
         val everyWordChosen: Map<WordId, ChoiceId> = mapOf(house.word to houseMeaning, walk.word to walkMeaning)
         showing(askingFirstBand.copy(shownIndex = 1, chosen = everyWordChosen))
 
-        composeRule.onNodeWithText("Enviar la banda 1").performScrollTo().performClick()
+        composeRule.onNode(dockGo("Enviar la banda 1")).performClick()
 
         assertEquals(listOf(PlacementIntent.BandSent), intents)
     }
@@ -133,15 +137,84 @@ class PlacementScreenTest {
     }
 
     @Test
-    fun `returns to the town from the result`() {
-        showing(PlacementUiState.Closed(emptyList()))
+    fun `the placement's start is the dock's go button`() {
+        showing(PlacementUiState.Offered(PlacementRequest.Idle))
 
-        composeRule.onNodeWithText("Volver a tu pueblo").performScrollTo().performClick()
+        composeRule.onNode(dockGo(START)).performClick()
 
-        assertEquals(1, townOpens)
+        assertEquals(listOf(PlacementIntent.StartTapped), intents)
+    }
+
+    @Test
+    fun `the placement's skip stays outlined in the content`() {
+        showing(PlacementUiState.Offered(PlacementRequest.Idle))
+
+        composeRule.onNode(hasTestTag(OUTLINED_PILL).and(hasText(SKIP)).and(inTaskDock.not()))
+            .assertExists()
+    }
+
+    @Test
+    fun `an unchosen meaning keeps the go button blocked with its reason`() {
+        showing(askingFirstBand)
+
+        composeRule.onNode(dockGo("Siguiente").and(hasStateDescription(CHOOSE))).assertExists()
+    }
+
+    @Test
+    fun `a chosen meaning makes the go button the next word`() {
+        showing(askingFirstBand.copy(chosen = mapOf(house.word to houseMeaning)))
+
+        composeRule.onNode(dockGo("Siguiente")).performClick()
+
+        assertEquals(listOf(PlacementIntent.NextTapped), intents)
+    }
+
+    @Test
+    fun `the dock's line is the shown word's place in the band`() {
+        showing(askingFirstBand)
+
+        composeRule.onNode(hasText("Palabra 1 de 2").and(inTaskDock)).assertExists()
+    }
+
+    @Test
+    fun `after the placement the go button is the town's next step`() {
+        showing(PlacementUiState.Closed(placedAtSecondBand.scores))
+
+        composeRule.waitForIdle()
+        assertNotNull(hook.town)
+        assertNull(hook.dock)
+        composeRule.onAllNodesWithTag(INK_PILL).assertCountEquals(0)
+    }
+
+    @Test
+    fun `each placement state draws at most one go button`() {
+        val states: List<PlacementUiState> = listOf(
+            PlacementUiState.Loading,
+            PlacementUiState.Failed,
+            PlacementUiState.Offered(PlacementRequest.Idle),
+            askingFirstBand,
+            askingFirstBand.copy(shownIndex = 1),
+            PlacementUiState.Closed(placedAtSecondBand.scores),
+        )
+        val shown: MutableState<PlacementUiState> = mutableStateOf(states.first())
+        composeRule.setContent {
+            TaskFrameStandIn(hook = hook) {
+                PlacementScreen(state = shown.value, onIntent = {}, hook = hook)
+            }
+        }
+
+        states.forEach { state: PlacementUiState ->
+            shown.value = state
+            composeRule.waitForIdle()
+
+            assertTrue(composeRule.onAllNodesWithTag(INK_PILL).fetchSemanticsNodes().size <= 1)
+        }
     }
 
     private companion object {
+        const val START: String = "Empezar la prueba"
+        const val SKIP: String = "Saltar la prueba"
+        const val CHOOSE: String = "Elige un significado para seguir."
         const val UNREACHABLE: String =
             "No hemos podido hablar con el servidor. Vuelve a intentarlo en un momento."
         const val NOTHING_TO_TAKE: String =

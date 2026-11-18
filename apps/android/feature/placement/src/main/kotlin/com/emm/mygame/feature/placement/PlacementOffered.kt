@@ -4,7 +4,6 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
-import com.emm.mygame.core.designsystem.MyGameButton
 import com.emm.mygame.core.designsystem.MyGameInlineAlert
 import com.emm.mygame.core.designsystem.MyGameOutlinedButton
 import com.emm.mygame.core.designsystem.MyGameSpacing
@@ -34,12 +33,6 @@ internal fun PlacementOffered(
         if (offered.request == PlacementRequest.Unreachable) {
             MyGameInlineAlert(message = fixedCopyResource(R.string.placement_unreachable))
         }
-        MyGameButton(
-            label = fixedCopyResource(R.string.placement_start),
-            isBusy = waiting == PlacementAction.Begin,
-            busyDescription = fixedCopyResource(R.string.placement_sending),
-            onClick = { onIntent(PlacementIntent.StartTapped) },
-        )
         MyGameOutlinedButton(
             label = fixedCopyResource(R.string.placement_skip),
             isBusy = waiting == PlacementAction.Skip,

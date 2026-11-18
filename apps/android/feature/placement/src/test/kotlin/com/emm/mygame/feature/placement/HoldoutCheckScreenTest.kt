@@ -1,13 +1,21 @@
 package com.emm.mygame.feature.placement
 
+import androidx.compose.runtime.MutableState
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.ui.test.assertCountEquals
 import androidx.compose.ui.test.assertIsDisplayed
+import androidx.compose.ui.test.hasStateDescription
+import androidx.compose.ui.test.hasTestTag
+import androidx.compose.ui.test.hasText
+import androidx.compose.ui.test.onAllNodesWithTag
 import androidx.compose.ui.test.assertIsNotEnabled
 import androidx.compose.ui.test.junit4.ComposeContentTestRule
 import androidx.compose.ui.test.junit4.createComposeRule
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
 import androidx.compose.ui.test.performScrollTo
-import com.emm.mygame.core.designsystem.MyGameTheme
+import com.emm.mygame.core.designsystem.INK_PILL
+import com.emm.mygame.core.designsystem.OUTLINED_PILL
 import com.emm.mygame.core.network.HoldoutCheckRefusal
 import com.emm.mygame.core.network.HoldoutCheckWeek
 import com.emm.mygame.core.network.PlacementBand
@@ -15,13 +23,19 @@ import com.emm.mygame.core.ui.ChromePhase
 import com.emm.mygame.core.ui.CopyLanguage
 import com.emm.mygame.core.ui.ProvideCopyLanguage
 import com.emm.mygame.core.ui.ScaffoldLanguage
+import com.emm.mygame.core.ui.TaskDockHook
 import org.junit.Assert.assertEquals
+import org.junit.Assert.assertNotNull
+import org.junit.Assert.assertNull
+import org.junit.Assert.assertTrue
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.robolectric.RobolectricTestRunner
+import org.robolectric.annotation.Config
 
 @RunWith(RobolectricTestRunner::class)
+@Config(qualifiers = "+w411dp-h891dp")
 class HoldoutCheckScreenTest {
 
     @get:Rule
@@ -29,7 +43,7 @@ class HoldoutCheckScreenTest {
 
     private val intents: MutableList<HoldoutCheckIntent> = mutableListOf()
 
-    private var townOpens: Int = 0
+    private val hook: TaskDockHook = TaskDockHook(onAnswered = {})
 
     private val dueEighthWeek: HoldoutCheckUiState.Due =
         HoldoutCheckUiState.Due(PlacementBand.First, HoldoutCheckWeek.Eighth, HoldoutCheckRequest.Idle)
@@ -50,8 +64,8 @@ class HoldoutCheckScreenTest {
 
     private fun showing(state: HoldoutCheckUiState) {
         composeRule.setContent {
-            MyGameTheme {
-                HoldoutCheckScreen(state = state, onIntent = { intents += it }, onTownOpen = { townOpens += 1 })
+            TaskFrameStandIn(hook = hook) {
+                HoldoutCheckScreen(state = state, onIntent = { intents += it }, hook = hook)
             }
         }
     }
@@ -60,13 +74,13 @@ class HoldoutCheckScreenTest {
     fun `draws the check in English under the none scaffold`() {
         composeRule.setContent {
             ProvideCopyLanguage(CopyLanguage(ScaffoldLanguage.None, ChromePhase.Scaffold)) {
-                MyGameTheme {
-                    HoldoutCheckScreen(state = dueEighthWeek, onIntent = {}, onTownOpen = {})
+                TaskFrameStandIn(hook = hook) {
+                    HoldoutCheckScreen(state = dueEighthWeek, onIntent = {}, hook = hook)
                 }
             }
         }
 
-        composeRule.onNodeWithText("Start the check").performScrollTo().assertIsDisplayed()
+        composeRule.onNode(dockGo("Start the check")).assertIsDisplayed()
     }
 
     @Test
@@ -77,12 +91,65 @@ class HoldoutCheckScreenTest {
     }
 
     @Test
-    fun `starts the check from the due line`() {
+    fun `the check's start is the dock's go button`() {
         showing(dueEighthWeek)
 
-        composeRule.onNodeWithText("Empezar la prueba").performScrollTo().performClick()
+        composeRule.onNode(dockGo("Empezar la prueba")).performClick()
 
         assertEquals(listOf(HoldoutCheckIntent.StartTapped), intents)
+    }
+
+    @Test
+    fun `the check's skip stays outlined in the content`() {
+        showing(dueEighthWeek)
+
+        composeRule.onNode(
+            hasTestTag(OUTLINED_PILL).and(hasText("Saltar la prueba")).and(inTaskDock.not()),
+        ).assertExists()
+    }
+
+    @Test
+    fun `an unchosen meaning keeps the check's go button blocked with its reason`() {
+        showing(askingLastWordChosen.copy(chosen = emptyMap()))
+
+        composeRule.onNode(dockGo("Enviar tus respuestas").and(hasStateDescription(CHOOSE))).assertExists()
+    }
+
+    @Test
+    fun `after the check the go button is the town's next step`() {
+        showing(HoldoutCheckUiState.Answered)
+
+        composeRule.waitForIdle()
+        assertNotNull(hook.town)
+        assertNull(hook.dock)
+        composeRule.onAllNodesWithTag(INK_PILL).assertCountEquals(0)
+    }
+
+    @Test
+    fun `each check state draws at most one go button`() {
+        val states: List<HoldoutCheckUiState> = listOf(
+            HoldoutCheckUiState.Loading,
+            HoldoutCheckUiState.Failed,
+            dueEighthWeek,
+            askingLastWordChosen,
+            askingLastWordChosen.copy(shownIndex = 0, chosen = emptyMap()),
+            HoldoutCheckUiState.Answered,
+            HoldoutCheckUiState.Skipped,
+            HoldoutCheckUiState.NotOpen,
+        )
+        val shown: MutableState<HoldoutCheckUiState> = mutableStateOf(states.first())
+        composeRule.setContent {
+            TaskFrameStandIn(hook = hook) {
+                HoldoutCheckScreen(state = shown.value, onIntent = {}, hook = hook)
+            }
+        }
+
+        states.forEach { state: HoldoutCheckUiState ->
+            shown.value = state
+            composeRule.waitForIdle()
+
+            assertTrue(composeRule.onAllNodesWithTag(INK_PILL).fetchSemanticsNodes().size <= 1)
+        }
     }
 
     @Test
@@ -106,14 +173,14 @@ class HoldoutCheckScreenTest {
     }
 
     @Test
-    fun `draws the refusal beside the words of a refused send`() {
+    fun `draws the refusal of a refused send right above the dock's go button`() {
         showing(
             askingLastWordChosen.copy(
                 request = HoldoutCheckRequest.Refused(HoldoutCheckAction.Answers, HoldoutCheckRefusal.NotOpen),
             ),
         )
 
-        composeRule.onNodeWithText("Esta prueba no está abierta ahora.").performScrollTo().assertIsDisplayed()
+        composeRule.onNode(hasText("Esta prueba no está abierta ahora.").and(inTaskDock)).assertIsDisplayed()
     }
 
     @Test
@@ -144,7 +211,7 @@ class HoldoutCheckScreenTest {
     fun `sends every answer from the last word`() {
         showing(askingLastWordChosen)
 
-        composeRule.onNodeWithText("Enviar tus respuestas").performScrollTo().performClick()
+        composeRule.onNode(dockGo("Enviar tus respuestas")).performClick()
 
         assertEquals(listOf(HoldoutCheckIntent.AnswersSent), intents)
     }
@@ -164,14 +231,14 @@ class HoldoutCheckScreenTest {
     }
 
     @Test
-    fun `draws the unsaved answers line beside the words of an invalid send`() {
+    fun `draws the unsaved answers line of an invalid send in the dock`() {
         showing(
             askingLastWordChosen.copy(
                 request = HoldoutCheckRequest.Refused(HoldoutCheckAction.Answers, HoldoutCheckRefusal.InvalidRequest),
             ),
         )
 
-        composeRule.onNodeWithText("No hemos podido guardar tus respuestas.").performScrollTo().assertIsDisplayed()
+        composeRule.onNode(hasText("No hemos podido guardar tus respuestas.").and(inTaskDock)).assertIsDisplayed()
     }
 
     @Test
@@ -197,15 +264,6 @@ class HoldoutCheckScreenTest {
     }
 
     @Test
-    fun `goes back to the town from the done line`() {
-        showing(HoldoutCheckUiState.Answered)
-
-        composeRule.onNodeWithText("Volver a tu pueblo").performScrollTo().performClick()
-
-        assertEquals(1, townOpens)
-    }
-
-    @Test
     fun `draws the failed read`() {
         showing(HoldoutCheckUiState.Failed)
 
@@ -222,12 +280,11 @@ class HoldoutCheckScreenTest {
     }
 
     @Test
-    fun `draws the check not open with the way back`() {
+    fun `draws the check not open with the town's next step`() {
         showing(HoldoutCheckUiState.NotOpen)
 
-        composeRule.onNodeWithText("Volver a tu pueblo").performScrollTo().performClick()
-
-        assertEquals(1, townOpens)
+        composeRule.onNodeWithText("Esta prueba no está abierta ahora.").assertIsDisplayed()
+        assertNotNull(hook.town)
     }
 
     @Test
@@ -241,6 +298,10 @@ class HoldoutCheckScreenTest {
     fun `draws the start busy while the begin waits`() {
         showing(dueEighthWeek.copy(request = HoldoutCheckRequest.Waiting(HoldoutCheckAction.Begin)))
 
-        composeRule.onNodeWithText("Empezar la prueba").performScrollTo().assertIsNotEnabled()
+        composeRule.onNode(hasTestTag(INK_PILL).and(inTaskDock)).assertIsNotEnabled()
+    }
+
+    private companion object {
+        const val CHOOSE: String = "Elige un significado para seguir."
     }
 }

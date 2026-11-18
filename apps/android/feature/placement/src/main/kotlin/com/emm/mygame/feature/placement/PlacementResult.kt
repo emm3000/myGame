@@ -6,7 +6,6 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.semantics.heading
 import androidx.compose.ui.semantics.semantics
-import com.emm.mygame.core.designsystem.MyGameButton
 import com.emm.mygame.core.designsystem.MyGameHairline
 import com.emm.mygame.core.designsystem.MyGameSpacing
 import com.emm.mygame.core.designsystem.MyGameText
@@ -18,7 +17,6 @@ import com.emm.mygame.core.ui.fixedCopyResource
 @Composable
 internal fun PlacementResult(
     closed: PlacementUiState.Closed,
-    onTownOpen: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
     Column(verticalArrangement = Arrangement.spacedBy(MyGameSpacing.step4), modifier = modifier) {
@@ -37,12 +35,6 @@ internal fun PlacementResult(
             )
             closed.scores.forEach { score: PlacementScore -> BandScore(score = score) }
         }
-        MyGameButton(
-            label = fixedCopyResource(R.string.placement_to_town),
-            isBusy = false,
-            busyDescription = fixedCopyResource(R.string.placement_sending),
-            onClick = onTownOpen,
-        )
     }
 }
 

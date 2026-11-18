@@ -349,32 +349,30 @@ private fun EntryProviderScope<NavKey>.mapEntry(chrome: SignedInChrome) {
 
 private fun EntryProviderScope<NavKey>.placementEntry(chrome: SignedInChrome) {
     val dependencies: AppDependencies = chrome.dependencies
-    val navigator: Navigator = chrome.navigator
     entry<Destination.Placement> {
         SignedInFrame(
             kind = FrameKind.Task,
             doesScreenReadTown = false,
             chrome = chrome,
-        ) {
-            PlacementRoute(placements = dependencies.placements, onTownOpen = navigator::openTown)
+        ) { frame: ScreenFrame ->
+            PlacementRoute(placements = dependencies.placements, hook = frame.task)
         }
     }
 }
 
 private fun EntryProviderScope<NavKey>.holdoutCheckEntry(chrome: SignedInChrome) {
     val dependencies: AppDependencies = chrome.dependencies
-    val navigator: Navigator = chrome.navigator
     entry<Destination.HoldoutCheck> { check: Destination.HoldoutCheck ->
         SignedInFrame(
             kind = FrameKind.Task,
             doesScreenReadTown = false,
             chrome = chrome,
-        ) {
+        ) { frame: ScreenFrame ->
             HoldoutCheckRoute(
                 holdoutChecks = dependencies.holdoutChecks,
                 band = check.band,
                 week = check.week,
-                onTownOpen = navigator::openTown,
+                hook = frame.task,
             )
         }
     }

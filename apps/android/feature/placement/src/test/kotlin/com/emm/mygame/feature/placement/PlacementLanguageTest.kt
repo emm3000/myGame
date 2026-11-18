@@ -1,9 +1,9 @@
 package com.emm.mygame.feature.placement
 
+import androidx.compose.runtime.remember
 import androidx.compose.ui.test.assertCountEquals
 import androidx.compose.ui.test.junit4.ComposeContentTestRule
 import androidx.compose.ui.test.junit4.createComposeRule
-import androidx.compose.ui.test.onAllNodesWithText
 import androidx.compose.ui.test.onFirst
 import com.emm.mygame.core.designsystem.MyGameTheme
 import com.emm.mygame.core.network.PlacementBand
@@ -11,6 +11,7 @@ import com.emm.mygame.core.ui.ChromePhase
 import com.emm.mygame.core.ui.CopyLanguage
 import com.emm.mygame.core.ui.ProvideCopyLanguage
 import com.emm.mygame.core.ui.ScaffoldLanguage
+import com.emm.mygame.core.ui.TaskDockHook
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -48,8 +49,9 @@ class PlacementLanguageTest {
     private fun show(language: CopyLanguage, state: PlacementUiState) {
         composeRule.setContent {
             ProvideCopyLanguage(language = language) {
-                MyGameTheme {
-                    PlacementScreen(state = state, onIntent = {}, onTownOpen = {})
+                val hook: TaskDockHook = remember { TaskDockHook(onAnswered = {}) }
+                TaskFrameStandIn(hook = hook) {
+                    PlacementScreen(state = state, onIntent = {}, hook = hook)
                 }
             }
         }
@@ -67,13 +69,13 @@ class PlacementLanguageTest {
 
     private fun assertDrawn(vararg lines: String) {
         lines.forEach { line: String ->
-            composeRule.onAllNodesWithText(line, useUnmergedTree = true).onFirst().assertExists()
+            composeRule.onAllNodes(hasCopy(line), useUnmergedTree = true).onFirst().assertExists()
         }
     }
 
     private fun assertNotDrawn(vararg lines: String) {
         lines.forEach { line: String ->
-            composeRule.onAllNodesWithText(line, useUnmergedTree = true).assertCountEquals(0)
+            composeRule.onAllNodes(hasCopy(line), useUnmergedTree = true).assertCountEquals(0)
         }
     }
 
@@ -135,8 +137,7 @@ class PlacementLanguageTest {
         show(englishPhase, placedOutResult)
 
         assertDrawn("Tu resultado", "Banda 1: 30 aciertos", "Superada: sus lecciones cuentan como sabidas.")
-        assertDrawn("Volver a tu pueblo")
-        assertNotDrawn("Your result", "Band 1: 30 right", "Back to your town")
+        assertNotDrawn("Your result", "Band 1: 30 right")
     }
 
     @Test
@@ -144,8 +145,8 @@ class PlacementLanguageTest {
     fun `draws the result in English under none`() {
         show(noScaffold, placedOutResult)
 
-        assertDrawn("Your result", "Band 1: 30 right", "Placed out: its lessons count as known.", "Back to your town")
-        assertNotDrawn("Tu resultado", "Banda 1: 30 aciertos", "Volver a tu pueblo")
+        assertDrawn("Your result", "Band 1: 30 right", "Placed out: its lessons count as known.")
+        assertNotDrawn("Tu resultado", "Banda 1: 30 aciertos")
     }
 
     @Test

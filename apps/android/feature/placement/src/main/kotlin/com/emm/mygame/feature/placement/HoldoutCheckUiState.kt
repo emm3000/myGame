@@ -42,4 +42,10 @@ sealed interface HoldoutCheckUiState {
     data object Answered : HoldoutCheckUiState
 
     data object Skipped : HoldoutCheckUiState
+
+    val isEnd: Boolean
+        get() = when (this) {
+            NotOpen, Answered, Skipped -> true
+            Loading, Failed, is Due, is Asking -> false
+        }
 }

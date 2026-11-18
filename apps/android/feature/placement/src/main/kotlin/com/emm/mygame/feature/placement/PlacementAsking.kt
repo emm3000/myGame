@@ -10,9 +10,7 @@ import androidx.compose.ui.semantics.heading
 import androidx.compose.ui.semantics.liveRegion
 import androidx.compose.ui.semantics.semantics
 import com.emm.mygame.core.designsystem.MyGameBlock
-import com.emm.mygame.core.designsystem.MyGameButton
 import com.emm.mygame.core.designsystem.MyGameChoiceRow
-import com.emm.mygame.core.designsystem.MyGameInlineAlert
 import com.emm.mygame.core.designsystem.MyGameSpacing
 import com.emm.mygame.core.designsystem.MyGameText
 import com.emm.mygame.core.designsystem.MyGameTheme
@@ -55,10 +53,6 @@ internal fun PlacementAsking(
                 }
             }
         }
-        if (asking.request == PlacementRequest.Unreachable) {
-            MyGameInlineAlert(message = fixedCopyResource(R.string.placement_unreachable))
-        }
-        AskingAction(asking = asking, onIntent = onIntent)
     }
 }
 
@@ -75,33 +69,4 @@ internal fun WordBlock(item: PlacementItem, index: Int, modifier: Modifier = Mod
             modifier = Modifier.semantics { heading() },
         )
     }
-}
-
-@Composable
-private fun AskingAction(
-    asking: PlacementUiState.Asking,
-    onIntent: (PlacementIntent) -> Unit,
-    modifier: Modifier = Modifier,
-) {
-    val blockedReason: String? =
-        if (asking.chosenForShown == null) fixedCopyResource(R.string.placement_choose) else null
-    if (!asking.isLastShown) {
-        MyGameButton(
-            label = fixedCopyResource(R.string.placement_next),
-            isBusy = false,
-            busyDescription = fixedCopyResource(R.string.placement_sending),
-            onClick = { onIntent(PlacementIntent.NextTapped) },
-            modifier = modifier,
-            blockedReason = blockedReason,
-        )
-        return
-    }
-    MyGameButton(
-        label = fixedCopyResource(R.string.placement_send_band, "band" to asking.band.number.toString()),
-        isBusy = asking.request is PlacementRequest.Waiting,
-        busyDescription = fixedCopyResource(R.string.placement_sending),
-        onClick = { onIntent(PlacementIntent.BandSent) },
-        modifier = modifier,
-        blockedReason = blockedReason,
-    )
 }
