@@ -672,10 +672,13 @@ its own ticket.
 | Lines | Was | Reads now, on Android |
 |---|---|---|
 | 51–53 | no accent color | one accent pair, `go` and `on-go`, for the way on and nothing else |
-| 65–75 | one ink pill per screen, under the block | one `go` button per screen; on a signed-in screen it sits in the dock at the foot, and the blocks above it hold none |
+| 65–75 | one ink pill per screen, under the block | one `go` button per screen; on every signed-in screen but naming the town it sits in the dock at the foot, and the blocks above it hold none |
 | 96–101 | 20 color tokens, 29 pairs | 22 color tokens, 33 pairs: `on-go` on `go`, and `go` on each of the three surfaces |
+| 184 | `badge` goes to `action`, `on-action` | the badge takes its button's pair: `go` on `on-go` on the go button, `on-action` on `action` elsewhere |
 | 189–192 | pills | the go button and the outlined door at `md`, the dock's top corners at `lg`; no radius token changes |
+| 319–324 | the next step's block, with two rotated blocks behind it | the town home's next step lives in the dock, with no block and no stack; the school's, the word's and the review's blocks stand and hold no button |
 | 328–357 | two doors under the next step; a back link in every other header; the town home as one column | the dock's one door, *Report* on the town home and *Town* elsewhere; the town home a pager of the seven places, with a street strip |
+| 370–374 | the skyline, the seven on one line; a silhouette beside each place row | the street strip, seven tabs, its name carrying the built count; a place's silhouette large on its own page |
 | 470–478 | Color: 20 tokens; Navigation: the bar leaves | Color: 22 tokens; Navigation: the dock |
 
 The neutrals, the type, the art and every other line stand. `tokens.ts`
