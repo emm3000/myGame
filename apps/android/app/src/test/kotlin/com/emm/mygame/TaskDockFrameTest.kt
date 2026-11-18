@@ -44,6 +44,7 @@ import com.emm.mygame.core.testing.FakeSessionRepository
 import com.emm.mygame.core.testing.FakeStudyReminderSettings
 import com.emm.mygame.core.testing.FakeTownRepository
 import com.emm.mygame.core.ui.FillTaskDock
+import com.emm.mygame.core.ui.FollowTownDock
 import com.emm.mygame.core.ui.TaskDock
 import com.emm.mygame.core.ui.TaskDockHook
 import com.emm.mygame.feature.town.TownStatusIntent
@@ -86,7 +87,11 @@ class TaskDockFrameTest {
 
     private val sent: MutableList<TownStatusIntent> = mutableListOf()
 
-    private fun showingFakeTask(isFilled: Boolean = true) {
+    private fun showingFakeTask(
+        isFilled: Boolean = true,
+        isFollowingTown: Boolean = false,
+        status: TownStatusUiState = TownStatusUiState.none,
+    ) {
         composeRule.setContent {
             MyGameTheme {
                 val backStack: NavBackStack<NavKey> = rememberNavBackStack(Destination.Town, Destination.Review)
@@ -96,12 +101,12 @@ class TaskDockFrameTest {
                     chrome = SignedInChrome(
                         dependencies = dependencies,
                         navigator = Navigator(backStack, NavigationLinks()),
-                        status = mutableStateOf(TownStatusUiState.none),
+                        status = mutableStateOf(status),
                         onStatusIntent = sent::add,
                         banner = {},
                     ),
                 ) { frame: ScreenFrame ->
-                    FakeTaskRoute(hook = frame.task, isFilled = isFilled)
+                    FakeTaskRoute(hook = frame.task, isFilled = isFilled, isFollowingTown = isFollowingTown)
                 }
             }
         }
@@ -151,8 +156,40 @@ class TaskDockFrameTest {
         composeRule.onAllNodes(hasContentDescription(CHECK, substring = true)).assertCountEquals(0)
     }
 
+    @Test
+    fun `a task route that follows the town draws the town's step with no door`() {
+        showingFakeTask(isFilled = false, isFollowingTown = true, status = refusedTown)
+
+        composeRule.onNode(hasTestTag(INK_PILL)).performClick()
+
+        composeRule.waitForIdle()
+        composeRule.onAllNodesWithTag(OUTLINED_PILL).assertCountEquals(0)
+        assertEquals(listOf<TownStatusIntent>(TownStatusIntent.TryAgainTapped), sent)
+    }
+
+    @Test
+    fun `a task's town step comes after its content for TalkBack`() {
+        showingFakeTask(isFilled = false, isFollowingTown = true, status = refusedTown)
+
+        val order: List<String> = composeRule.traversalOrder()
+
+        println("ORDER=$order")
+        val line: Int = order.indexOfFirst { label: String -> label.equals(TOWN_LINE_TITLE, ignoreCase = true) }
+        assertTrue(order.indexOf(CARD) in 0 until line)
+    }
+
+    @Test
+    fun `a task route that does not follow the town hides the town's step`() {
+        showingFakeTask(isFilled = false, status = refusedTown)
+
+        composeRule.onAllNodes(hasTestTag(INK_PILL)).assertCountEquals(0)
+    }
+
     private companion object {
+        val refusedTown: TownStatusUiState = TownStatusUiState.none.copy(dock = TownStatusUiState.Dock.Refused)
+
         const val CARD: String = "The card"
+        const val TOWN_LINE_TITLE: String = "Tu siguiente paso"
         const val TASK_TITLE: String = "REVIEW"
         const val CHECK: String = "Check"
         const val PROGRESS: String = "Card 2 of 5"
@@ -161,8 +198,9 @@ class TaskDockFrameTest {
 }
 
 @Composable
-private fun FakeTaskRoute(hook: TaskDockHook, isFilled: Boolean) {
+private fun FakeTaskRoute(hook: TaskDockHook, isFilled: Boolean, isFollowingTown: Boolean) {
     MyGameText(text = "The card", style = MyGameTypography.body, color = MyGameTheme.colors.ink)
+    if (isFollowingTown) FollowTownDock(hook = hook)
     if (!isFilled) return
     FillTaskDock(
         hook = hook,
