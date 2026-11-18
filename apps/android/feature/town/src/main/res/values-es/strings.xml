@@ -128,6 +128,7 @@
     <string name="town_status_released_ready_in">Palabras que vuelven: banda {band}, grupo {number} listas en</string>
     <string name="town_stock_of">de {capacity}</string>
     <string name="town_street_built">Tu pueblo: {built} de {total} construidos</string>
+    <string name="town_street_built_city">Tu ciudad: {built} de {total} construidos</string>
     <string name="town_tab_in_work">en construcción</string>
     <string name="town_tab_name">{place}, {level}</string>
     <string name="town_tab_next_step">tu siguiente paso</string>

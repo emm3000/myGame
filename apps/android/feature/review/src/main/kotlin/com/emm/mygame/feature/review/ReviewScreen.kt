@@ -47,7 +47,6 @@ import com.emm.mygame.core.ui.ScaffoldLanguage
 import com.emm.mygame.core.ui.TaskDockHook
 import com.emm.mygame.core.ui.chromeResource
 import com.emm.mygame.core.ui.rememberPlayerCopy
-import java.time.ZoneId
 import kotlin.time.Duration.Companion.hours
 import kotlin.time.Instant
 
@@ -111,16 +110,7 @@ private fun ReviewState(
             onAction = { onIntent(ReviewIntent.RetryTapped) },
         )
         ReviewUiState.NoCards -> ReviewEnd(line = copy.chrome(R.string.review_no_cards))
-        is ReviewUiState.NothingDue -> ReviewEnd(
-            line = copy.chrome(R.string.review_nothing_due),
-            nextReview = copy.chrome {
-                text(
-                    R.string.review_next_due,
-                    "due" to finishLabelOf(state.remaining, state.dueAt, ZoneId.systemDefault()),
-                )
-            },
-            path = state.path,
-        )
+        is ReviewUiState.NothingDue -> ReviewEnd(line = copy.chrome(R.string.review_nothing_due), path = state.path)
         is ReviewUiState.LessonReady -> LessonReady(ready = state)
         is ReviewUiState.Reviewing -> Reviewing(reviewing = state, onIntent = onIntent)
     }

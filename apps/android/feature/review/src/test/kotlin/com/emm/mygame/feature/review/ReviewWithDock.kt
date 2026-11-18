@@ -18,6 +18,7 @@ internal fun ReviewWithDock(
     state: ReviewUiState,
     onIntent: (ReviewIntent) -> Unit = {},
     hook: TaskDockHook = remember { TaskDockHook(onAnswered = {}) },
+    followedDock: @Composable () -> Unit = {},
 ) {
     Column(modifier = Modifier.fillMaxSize()) {
         Box(modifier = Modifier.weight(1f)) {
@@ -32,5 +33,6 @@ internal fun ReviewWithDock(
                 notice = shown.notice,
             )
         }
+        if (hook.town != null) followedDock()
     }
 }

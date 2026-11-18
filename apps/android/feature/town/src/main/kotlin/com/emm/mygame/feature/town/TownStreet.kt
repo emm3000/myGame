@@ -6,6 +6,7 @@ import com.emm.mygame.core.designsystem.MyGameStreet
 import com.emm.mygame.core.designsystem.MyGameStreetStrip
 import com.emm.mygame.core.designsystem.MyGameStreetTab
 import com.emm.mygame.core.network.TownBuildingKind
+import com.emm.mygame.core.network.TownLabel
 import com.emm.mygame.core.ui.CopyReader
 import com.emm.mygame.core.ui.PlayerCopy
 import com.emm.mygame.core.ui.rememberPlayerCopy
@@ -41,7 +42,7 @@ internal fun TownStreetStrip(
         ),
         selected = selected,
         name = copy.chrome(
-            R.string.town_street_built,
+            streetNameOf(content.label),
             "built" to content.places.count { place: TownUiState.PlaceCard -> place.level > 0 }.toString(),
             "total" to content.places.size.toString(),
         ).spoken,
@@ -50,6 +51,11 @@ internal fun TownStreetStrip(
         onSelect = onSelect,
         modifier = modifier,
     )
+}
+
+private fun streetNameOf(label: TownLabel): Int = when (label) {
+    TownLabel.Town -> R.string.town_street_built
+    TownLabel.City -> R.string.town_street_built_city
 }
 
 private fun CopyReader.tabNameOf(place: TownUiState.PlaceCard): String = text(

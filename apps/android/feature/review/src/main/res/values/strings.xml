@@ -1,9 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="building_waiting">Waiting</string>
-    <string name="finish_day">{day} {time}</string>
-    <string name="finish_tomorrow">tomorrow {time}</string>
-    <string name="finish_with_clock">{countdown} · {clock}</string>
     <string name="review_answer_label">Your answer in English</string>
     <string name="review_check">Check</string>
     <string name="review_check_empty">Enter your answer to check it.</string>
@@ -21,7 +18,6 @@
     <string name="review_loading">Reading your reviews…</string>
     <string name="review_near_miss">Almost. Check the spelling and try again.</string>
     <string name="review_next_card">Next</string>
-    <string name="review_next_due">Next review: {due}</string>
     <string name="review_no_cards">You have no words to review.</string>
     <string name="review_nothing_due">No reviews due now.</string>
     <string name="review_path_count">{count} of {total}</string>
@@ -49,8 +45,4 @@
     <string name="review_unreachable">We could not reach the server. Try again in a moment.</string>
     <string name="review_wrong">That is not correct.</string>
     <string name="review_yours">Your answer: {answer}</string>
-    <string name="slot_countdown_finished">Done</string>
-    <string name="slot_countdown_hours">{hours} h {minutes} min</string>
-    <string name="slot_countdown_minutes">{minutes} min</string>
-    <string name="slot_countdown_seconds">{seconds} s</string>
 </resources>
