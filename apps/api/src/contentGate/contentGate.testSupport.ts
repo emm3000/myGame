@@ -14,6 +14,7 @@ type ContentParts = {
   readonly englishMessages: Readonly<Record<string, string>>
   readonly wordNeed: WordNeed
   readonly schoolLevels: ReadonlyArray<number>
+  readonly topBuildingLevel: number
   readonly requiredSchoolLevels: Readonly<Record<string, number>>
 }
 
@@ -159,6 +160,7 @@ const lessonOneParts = (): ContentParts => ({
   englishMessages: {},
   wordNeed: { fromLevel: 3, perLevel: 10, retainedFromLevel: 7 },
   schoolLevels: Array.from({ length: 10 }, (_, index) => index + 1),
+  topBuildingLevel: 10,
   requiredSchoolLevels: {},
 })
 
@@ -187,5 +189,6 @@ export const contentOf = (overrides: Partial<ContentParts> = {}): GateContent =>
     englishMessages: parts.englishMessages,
     wordNeed: parts.wordNeed,
     schoolLevels: parts.schoolLevels,
+    topBuildingLevel: parts.topBuildingLevel,
   }
 }

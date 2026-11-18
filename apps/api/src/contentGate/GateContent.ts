@@ -5,4 +5,5 @@ export type GateContent = LessonContentFiles & {
   readonly englishMessages: Readonly<Record<string, string>>
   readonly wordNeed: WordNeed
   readonly schoolLevels: ReadonlyArray<number>
+  readonly topBuildingLevel: number
 }

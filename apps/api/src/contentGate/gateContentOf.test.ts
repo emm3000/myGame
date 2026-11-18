@@ -1,5 +1,6 @@
 import { createHash } from 'node:crypto'
-import { readFileSync } from 'node:fs'
+import { cpSync, mkdtempSync, readFileSync, rmSync, writeFileSync } from 'node:fs'
+import { tmpdir } from 'node:os'
 import { join } from 'node:path'
 import { fileURLToPath } from 'node:url'
 import { describe, expect, it } from 'vitest'
@@ -12,7 +13,28 @@ const shippedFile = (file: string): Buffer => readFileSync(join(shippedContent, 
 const sha256Of = (file: string): string =>
   createHash('sha256').update(shippedFile(file)).digest('hex')
 
+const contentWithElevenHomesLevels = (): string => {
+  const directory = mkdtempSync(join(tmpdir(), 'mygame-gate-content-'))
+  cpSync(shippedContent, directory, { recursive: true })
+  const homesFile = join(directory, 'town', 'homes.json')
+  const homes = JSON.parse(readFileSync(homesFile, 'utf8'))
+  const topLevel = homes.levels.at(-1)
+  homes.levels.push({ ...topLevel, level: topLevel.level + 1 })
+  writeFileSync(homesFile, JSON.stringify(homes))
+  return directory
+}
+
 describe('gateContentOf', () => {
+  it("reads the top level as the highest of every building's, not the school's alone", () => {
+    const directory = contentWithElevenHomesLevels()
+    try {
+      const content = gateContentOf(directory)
+      expect([content.schoolLevels.length, content.topBuildingLevel]).toEqual([10, 11])
+    } finally {
+      rmSync(directory, { recursive: true, force: true })
+    }
+  })
+
   it('ships the NGSL 1.2 teaching list unchanged from its source', () => {
     expect(sha256Of('ngsl-1.2-lemmatized-for-teaching.csv')).toBe(
       'b54e297244988237457e04f823aa8dca68e3d646938dc76d383e099f04cb7666',
