@@ -26,12 +26,8 @@ fun TownRoute(
     status: @Composable () -> Unit = {},
     foldedDock: @Composable () -> Unit = {},
     placement: @Composable () -> Unit = {},
-    onNamingChange: (Boolean) -> Unit = {},
 ) {
     val state: TownUiState by viewModel.state.collectAsStateWithLifecycle()
-    val isNaming: Boolean = state is TownUiState.Naming
-    val currentOnNamingChange: (Boolean) -> Unit by rememberUpdatedState(onNamingChange)
-    LaunchedEffect(isNaming) { currentOnNamingChange(isNaming) }
     val currentNavigation: TownNavigation by rememberUpdatedState(navigation)
     LaunchedEffect(viewModel) {
         withContext(Dispatchers.Main.immediate) {

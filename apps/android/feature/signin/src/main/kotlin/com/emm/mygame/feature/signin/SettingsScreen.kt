@@ -30,6 +30,7 @@ import com.emm.mygame.core.designsystem.MyGameTheme
 import com.emm.mygame.core.designsystem.MyGameTypography
 import com.emm.mygame.core.designsystem.PreviewMyGame
 import com.emm.mygame.core.network.PlayerScaffold
+import com.emm.mygame.core.ui.joinsFrameTraversal
 import java.time.LocalTime
 
 @Composable
@@ -48,6 +49,7 @@ fun SettingsScreen(
             .fillMaxSize()
             .background(MyGameTheme.colors.surface)
             .safeDrawingPadding()
+            .joinsFrameTraversal()
             .verticalScroll(rememberScrollState())
             .padding(
                 start = MyGameSpacing.step4,

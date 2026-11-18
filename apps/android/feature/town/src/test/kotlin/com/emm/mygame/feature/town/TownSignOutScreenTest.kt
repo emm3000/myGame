@@ -56,7 +56,7 @@ class TownSignOutScreenTest {
 
     @Test
     fun `announces the sign-out as waiting while the session ends`() {
-        show(TownUiState.SigningOut)
+        show(TownUiState.SigningOut(isLeavingNaming = false))
 
         composeRule
             .onNodeWithText("Salir")
@@ -65,7 +65,7 @@ class TownSignOutScreenTest {
 
     @Test
     fun `sends nothing from the sign-out while the session ends`() {
-        show(TownUiState.SigningOut)
+        show(TownUiState.SigningOut(isLeavingNaming = false))
 
         composeRule.onNodeWithText("Salir").performClick()
 

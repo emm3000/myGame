@@ -62,6 +62,8 @@ import com.emm.mygame.feature.town.TownStatusIntent
 import com.emm.mygame.feature.town.TownStatusScreen
 import com.emm.mygame.feature.town.TownStatusUiState
 import com.emm.mygame.feature.town.TownStatusViewModel
+import com.emm.mygame.feature.town.TownUiState
+import com.emm.mygame.feature.town.TownViewModel
 import kotlinx.coroutines.flow.Flow
 
 @Composable
@@ -191,15 +193,21 @@ private fun EntryProviderScope<NavKey>.townEntry(chrome: SignedInChrome) {
     val dependencies: AppDependencies = chrome.dependencies
     val navigator: Navigator = chrome.navigator
     entry<Destination.Town> {
+        val town: TownViewModel = viewModel {
+            TownViewModel(dependencies.towns, dependencies.sessions, dependencies.clock)
+        }
+        val townState: State<TownUiState> = town.state.collectAsStateWithLifecycle()
         SignedInFrame(
             kind = FrameKind.Home,
             doesScreenReadTown = true,
             chrome = chrome,
+            isDockWithheld = townState.value.isDockWithheld,
         ) { frame: ScreenFrame ->
             TownRoute(
                 towns = dependencies.towns,
                 sessions = dependencies.sessions,
                 clock = dependencies.clock,
+                viewModel = town,
                 navigation = TownNavigation(
                     onSchoolOpen = navigator::openSchool,
                     onMapOpen = navigator::openMap,
@@ -209,7 +217,6 @@ private fun EntryProviderScope<NavKey>.townEntry(chrome: SignedInChrome) {
                 ring = { RetainedWordsRing(towns = dependencies.towns, doesScreenReadTown = true) },
                 status = chrome.banner,
                 foldedDock = frame.foldedDock,
-                onNamingChange = frame.onDockWithheld,
                 placement = {
                     PlacementOfferRoute(
                         placements = dependencies.placements,
@@ -400,6 +407,7 @@ private fun SignedInFrame(
     doesScreenReadTown: Boolean,
     chrome: SignedInChrome,
     modifier: Modifier = Modifier,
+    isDockWithheld: Boolean = false,
     studyInPlace: @Composable (Int) -> MyGameDockGo? = { null },
     content: @Composable (ScreenFrame) -> Unit,
 ) {
@@ -410,6 +418,7 @@ private fun SignedInFrame(
             doesScreenReadTown = doesScreenReadTown,
             chrome = chrome,
             modifier = modifier,
+            isDockWithheld = isDockWithheld,
             studyInPlace = studyInPlace,
             content = content,
         )

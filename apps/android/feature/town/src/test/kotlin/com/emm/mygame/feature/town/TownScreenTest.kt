@@ -799,7 +799,7 @@ class TownScreenTest {
 
     @Test
     fun `sets signing out under the larger top padding`() {
-        show(TownUiState.SigningOut)
+        show(TownUiState.SigningOut(isLeavingNaming = false))
 
         assertEquals(MyGameSpacing.step8.value, topOf("Salir").value, PIXEL_TOLERANCE)
     }

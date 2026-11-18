@@ -27,6 +27,7 @@ import com.emm.mygame.core.designsystem.PreviewMyGame
 import com.emm.mygame.core.network.TownNews
 import com.emm.mygame.core.ui.chromeResource
 import com.emm.mygame.core.ui.fixedCopyResource
+import com.emm.mygame.core.ui.joinsFrameTraversal
 
 @Composable
 fun NewsScreen(
@@ -41,6 +42,7 @@ fun NewsScreen(
             .fillMaxSize()
             .background(MyGameTheme.colors.surface)
             .safeDrawingPadding()
+            .joinsFrameTraversal()
             .verticalScroll(rememberScrollState())
             .padding(
                 start = MyGameSpacing.step4,

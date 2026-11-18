@@ -148,7 +148,7 @@ class TownDockTest {
     }
 
     @Test
-    fun `draws a study step the school cannot place as blocked by its line`() {
+    fun `draws a study step the school's read does not hold as waiting for the town to be read`() {
         show(
             stepOf(
                 line = NextStepCard.Line.Lesson(number = 2),
@@ -156,7 +156,7 @@ class TownDockTest {
             ),
         )
 
-        go("Estudiar la lección 2").assert(stateDescriptionStarting("Lección 2"))
+        go("Estudiar la lección 2").assert(stateDescriptionStarting(READING_TOWN))
     }
 
     private fun stateDescriptionStarting(words: String): SemanticsMatcher =
@@ -165,6 +165,7 @@ class TownDockTest {
         }
 
     private companion object {
+        const val READING_TOWN: String = "Estamos leyendo tu pueblo…"
         const val STUDY_SLOT_BUSY: String = "La escuela ya tiene un estudio en marcha. Espera a que termine."
     }
 }

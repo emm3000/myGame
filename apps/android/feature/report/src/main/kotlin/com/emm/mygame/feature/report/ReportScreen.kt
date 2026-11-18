@@ -44,6 +44,7 @@ import com.emm.mygame.core.ui.ProvideCopyLanguage
 import com.emm.mygame.core.ui.ScaffoldLanguage
 import com.emm.mygame.core.ui.chromeResource
 import com.emm.mygame.core.ui.fixedCopyResource
+import com.emm.mygame.core.ui.joinsFrameTraversal
 import com.emm.mygame.core.ui.rememberPlayerCopy
 import java.time.ZoneId
 import kotlin.time.Instant
@@ -63,6 +64,7 @@ fun ReportScreen(
             .fillMaxSize()
             .background(MyGameTheme.colors.surface)
             .safeDrawingPadding()
+            .joinsFrameTraversal()
             .verticalScroll(rememberScrollState())
             .padding(
                 start = MyGameSpacing.step4,
