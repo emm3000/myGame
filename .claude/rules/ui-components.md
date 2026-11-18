@@ -2,8 +2,6 @@
 paths:
   - "apps/web/**"
   - "apps/android/**"
-  - "apps/ios/**"
-  - "apps/desktop/**"
 ---
 # UI components
 
