@@ -35,6 +35,7 @@ import com.emm.mygame.core.testing.FakeTownRepository
 import kotlin.time.Clock
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.emptyFlow
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -78,6 +79,7 @@ class PlayerLanguageNavigationTest {
             MyGameTheme {
                 AppNavigation(
                     dependencies = dependencies,
+                    reminderTaps = emptyFlow(),
                     backStack = rememberNavBackStack(Destination.Town, Destination.Report),
                 )
             }
@@ -89,7 +91,7 @@ class PlayerLanguageNavigationTest {
         sessionsFake.answerRestore(RestoreResult.SignedOut)
         composeRule.setContent {
             MyGameTheme {
-                AppNavigation(dependencies = dependencies)
+                AppNavigation(dependencies = dependencies, reminderTaps = emptyFlow())
             }
         }
     }

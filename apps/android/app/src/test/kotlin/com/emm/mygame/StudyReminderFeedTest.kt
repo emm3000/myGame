@@ -37,7 +37,7 @@ class StudyReminderFeedTest {
 
     private val preferences: SharedPreferences = preferencesFile()
 
-    private val store: StudyReminderStore = StudyReminderStore(preferences)
+    private val store: StudyReminderStore = StudyReminderStore(preferences, onChange = { _, _ -> })
 
     private val readAt: Instant = Instant.parse("2026-11-17T09:00:00Z")
 
@@ -275,11 +275,13 @@ class StudyReminderFeedTest {
     fun `a new store over the same file reads nothing after a session change`() = runTest {
         store.choose(reminderOn)
         store.fold { facts: StudyReminderFacts -> facts.afterHoldoutChecksAnswer(holdsCheck = true) }
-        val unopenedStore: Lazy<StudyReminderStore> = lazy { StudyReminderStore(preferencesFile()) }
+        val unopenedStore: Lazy<StudyReminderStore> = lazy {
+            StudyReminderStore(preferencesFile(), onChange = { _, _ -> })
+        }
 
         StudyReminderFeed(store = unopenedStore, towns = { towns }, scope = backgroundScope).sessionChanged()
 
-        val restarted: StudyReminderStore = StudyReminderStore(preferencesFile())
+        val restarted: StudyReminderStore = StudyReminderStore(preferencesFile(), onChange = { _, _ -> })
 
         assertEquals(
             StudyReminderChoice.firstChoice to StudyReminderFacts(),

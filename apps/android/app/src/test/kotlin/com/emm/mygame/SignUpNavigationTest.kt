@@ -35,6 +35,7 @@ import com.emm.mygame.core.testing.FakeTownRepository
 import kotlin.time.Clock
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.emptyFlow
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -75,7 +76,7 @@ class SignUpNavigationTest {
         repeat(READS_AVAILABLE) { townsFake.answerRead(TownReadResult.NoTown) }
         composeRule.setContent {
             MyGameTheme {
-                AppNavigation(dependencies = dependencies)
+                AppNavigation(dependencies = dependencies, reminderTaps = emptyFlow())
             }
         }
         waitForLine("Crea tu cuenta")

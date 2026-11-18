@@ -16,11 +16,14 @@ import com.emm.mygame.core.network.StudyAnswers
 import com.emm.mygame.core.network.TokenStore
 import com.emm.mygame.core.network.TownRepository
 import java.io.File
+import java.time.ZoneId
 import kotlin.time.Clock
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.filterNotNull
+import kotlinx.coroutines.launch
 
 class MyGameApplication : Application(), AppDependencies {
 
@@ -37,16 +40,25 @@ class MyGameApplication : Application(), AppDependencies {
 
     private val languages: PlayerLanguages by lazy { PlayerLanguages(tokenStore) }
 
+    private val applicationScope: CoroutineScope = CoroutineScope(SupervisorJob() + Dispatchers.Default)
+
+    internal val studyReminderAlarm: StudyReminderAlarm by lazy {
+        StudyReminderAlarm(context = this, clock = clock, zone = ZoneId::systemDefault)
+    }
+
+    private val reminderStore: Lazy<StudyReminderStore> = lazy {
+        StudyReminderStore(
+            preferences = getSharedPreferences(STUDY_REMINDER_FILE_NAME, Context.MODE_PRIVATE),
+            onChange = studyReminderAlarm::schedule,
+        )
+    }
+
+    internal val studyReminderStore: StudyReminderStore by reminderStore
+
     private val studyAnswers: StudyAnswers by lazy {
         StudyAnswers(
             tokenStore = tokenStore,
-            sink = StudyReminderFeed(
-                store = lazy {
-                    StudyReminderStore(getSharedPreferences(STUDY_REMINDER_FILE_NAME, Context.MODE_PRIVATE))
-                },
-                towns = { towns },
-                scope = CoroutineScope(SupervisorJob() + Dispatchers.Default),
-            ),
+            sink = StudyReminderFeed(store = reminderStore, towns = { towns }, scope = applicationScope),
             clock = clock,
         )
     }
@@ -54,6 +66,11 @@ class MyGameApplication : Application(), AppDependencies {
     override fun onCreate() {
         super.onCreate()
         studyAnswers
+        applicationScope.launch {
+            languages.language.filterNotNull().collect { language: PlayerLanguage ->
+                studyReminderStore.nameLanguage(language)
+            }
+        }
     }
 
     override val playerLanguage: StateFlow<PlayerLanguage?> by lazy { languages.language }

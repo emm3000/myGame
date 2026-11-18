@@ -7,6 +7,7 @@ import androidx.navigation3.runtime.NavBackStack
 import androidx.navigation3.runtime.NavKey
 import androidx.navigation3.runtime.rememberNavBackStack
 import com.emm.mygame.core.designsystem.MyGameTheme
+import kotlinx.coroutines.flow.emptyFlow
 
 class RebuildHostActivity : ComponentActivity() {
 
@@ -16,7 +17,7 @@ class RebuildHostActivity : ComponentActivity() {
         setContent {
             val backStack: NavBackStack<NavKey> = rememberNavBackStack(*content.destinations.toTypedArray())
             MyGameTheme {
-                AppNavigation(dependencies = content.dependencies, backStack = backStack)
+                AppNavigation(dependencies = content.dependencies, reminderTaps = emptyFlow(), backStack = backStack)
             }
         }
     }
