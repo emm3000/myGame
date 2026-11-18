@@ -79,7 +79,7 @@ done < <(git -C "$repo" for-each-ref --format='%(refname)' refs/heads)
 git -C "$repo" fetch -q --prune origin 2>/dev/null || echo "orphans: git fetch failed, remote refs may be stale" >&2
 while read -r ref; do
   case $ref in
-    '' | refs/remotes/origin/trunk | refs/remotes/origin/HEAD) continue ;;
+    '' | refs/remotes/origin/trunk | refs/remotes/origin/HEAD | refs/remotes/origin/assets/*) continue ;;
     refs/remotes/origin/*) ! contains "$kept_refs" "${ref#refs/remotes/origin/}" || continue ;;
   esac
   report "remote ref $ref"

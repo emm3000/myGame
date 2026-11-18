@@ -159,6 +159,7 @@ if [ -n "$branch" ] && [ "$branch" != trunk ]; then
       git -C "$repo" branch -q -D "$name"
       echo "deleted branch $name"
     fi
+    [[ $name != assets/* ]] || continue
     if awk -v name="$name" '$0 == name { found = 1 } END { exit !found }' <<<"$remote_heads"; then
       pushed+=("$name")
     fi

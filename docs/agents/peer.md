@@ -48,7 +48,7 @@ The mutation is what turns the test red: the rule not written yet, the guard del
 A ticket that draws a screen shoots once, at the head the PR opens with:
 
 - each changed composable at the default scale, and again at 360×640, font scale 2.0, in es;
-- published on the branch `assets/<N>-visual-check`, that head's short SHA in every file name, linked in the PR body with `raw.githubusercontent.com` URLs. Add the image files by name: `git checkout --orphan` leaves the previous branch's files on disk, and `git add -A` would publish them.
+- published on the branch `assets/<N>-visual-check`, that head's short SHA in every file name, linked in the PR body with `raw.githubusercontent.com` URLs. Add the image files by name: `git checkout --orphan` leaves the previous branch's files on disk, and `git add -A` would publish them. The assets branch outlives the merge: `scripts/mygame-wave-close` deletes only its local copy, so the links stay the PR's evidence.
 
 A fix round reshoots only the composables it redraws.
 
