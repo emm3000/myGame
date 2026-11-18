@@ -11,7 +11,7 @@ Run from `apps/android`. Every Gradle command runs as `taskpolicy -c utility ./g
 - `taskpolicy -c utility ./gradlew checkModuleBoundaries` — the Modules table of `android-architecture.md`, held as `allowedCoreEdges` and `allowedFeatureEdges` in `build-logic/convention/.../ModuleChecksConventionPlugin.kt`. A new `core:` module is a new entry there and in the rule; a new `feature:` module needs only `settings.gradle.kts`.
 - `taskpolicy -c utility ./gradlew checkComposeFreeViewModels` — fails on any `*ViewModel.kt` or `*UiState.kt` line that names `androidx.compose`.
 - `taskpolicy -c utility ./gradlew testDebugUnitTest` — every module's unit tests; on the JVM module `:core:projection` it is an alias of `test`.
-- The peer's own emulator, the AVD `mygame-<name>` (`docs/agents/multi-session.md`, Isolation: emulators):
+- The peer's own emulator, the AVD `mygame-<name>` (`docs/agents/peer.md`, Isolation):
   - create: `$ANDROID_HOME/cmdline-tools/latest/bin/avdmanager create avd -n mygame-<name> -k "system-images;android-36;google_apis_playstore;arm64-v8a" -d medium_phone`;
   - set `hw.gpu.enabled=yes`, `hw.gpu.mode=host` and `hw.ramSize=4G` in `${ANDROID_AVD_HOME:-$HOME/.android/avd}/mygame-<name>.avd/config.ini`, since `avdmanager` leaves the GPU off and software rendering takes about 5 cores;
   - start: `$ANDROID_HOME/emulator/emulator -avd mygame-<name> -port <port> -no-window -no-audio -gpu host` on an even port in 5560–5588 that `adb devices` does not list, and pass `-s emulator-<port>` to every `adb` command below. Ports 5590 and up belong to pichanga;
@@ -37,6 +37,7 @@ Run from `apps/android`. Every Gradle command runs as `taskpolicy -c utility ./g
 - detekt 1.23.8 runs without type resolution, so rules that need it (`UnsafeCallOnNullableType`) report nothing and review catches `!!`; its Gradle 10 deprecation warnings fail nothing.
 - The Compose rules stay on `io.nlopez.compose.rules:detekt` 0.4.28: from 0.5 they target detekt 2.0 and load under 1.23 without running a rule. Probe a new version with a public `@Composable` that has no `modifier`.
 - The configuration cache is on: a custom task reads only declared inputs, gathered in `gradle.projectsEvaluated` by `mygame.module.checks`, which lives in `build-logic/convention` because detekt never reads `.kts`.
+- The study reminder's tap is a `PendingIntent.getActivity` straight to `MainActivity` (`StudyReminderAlarm.tapping`): Android 12 forbids a receiver trampoline, and no test pins the target, since `MainActivityReminderTapTest` starts `MainActivity` itself.
 - A route collects its effects inside `withContext(Dispatchers.Main.immediate)`: on the composition's dispatcher an effect taken just before a recreation is lost.
 - `MyGameDock` measures an unplaced copy of itself: its `countdown` and `notice` slots compose twice, so they hold no effect, and a `useUnmergedTree` test keeps the node where `layoutInfo.isPlaced`.
 - A framed screen's scrolling column takes `joinsFrameTraversal` before `verticalScroll`, or TalkBack reads the folded dock top after the go button (`DockFrameNavigationTest`).

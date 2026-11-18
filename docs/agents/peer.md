@@ -13,6 +13,7 @@ The one playbook a dispatched peer session reads, beside its issue and the docs 
 - Work only in your worktree, `../mygame-<name>`, on a branch made there with `git fetch` and `git switch -c <branch> origin/trunk`. The main checkout is the owner's: no git command runs in it or with `-C` against it.
 - The api, the web, Postgres and mail run only on the ports and container names your dispatch gives (`apps/api/CLAUDE.md`, Local database and Local mail). Before `docker run`, `lsof -nP -iTCP:<port> -sTCP:LISTEN` prints nothing.
 - Never Neon: every database command runs against your own container.
+- Never symlink another worktree's `node_modules` into yours: its workspace links resolve to that peer's sources, and an install there rewrites yours. Your worktree runs its own `pnpm install --frozen-lockfile`.
 - Android: your own AVD `mygame-<name>`, created and started as `apps/android/CLAUDE.md` (Commands) says, or the kept one your dispatch names. Every other AVD belongs to another peer or repo.
 - Stop only what you started, by PID or `adb -s emulator-<port> emu kill`. `pkill` and `killall` on a shared name (`emulator`, `qemu-system`, `adb`, `java`, `gradle`) reach other peers and repos. `netsimd` serves every emulator on the machine, so it is never yours to stop.
 - Outside your worktree and your containers the machine stays as it was: no `brew services`, no LaunchAgent, no global install.
@@ -35,12 +36,12 @@ A path is relative to its package; the Gradle rows run in `apps/android`; an api
 
 ## Red runs
 
-A ticket that adds or changes behavior loads `mattpocock-skills:tdd` and writes the failing test first. Its PR body carries one table, a row per new rule, branch or guard:
+A ticket that adds or changes behavior loads `mattpocock-skills:tdd` and writes the failing test first. Its PR body carries one table, a row per new or changed rule, branch or guard:
 
 | Rule, branch or guard | Test | Mutation | Failing assertion line |
 |---|---|---|---|
 
-The mutation is what turns the test red: the rule not written yet, or the guard deleted. The last column is the line that red run printed, pasted. Pure layout, copy, restyle and docs tickets owe no table.
+The mutation is what turns the test red: the rule not written yet, the guard deleted, or the change reverted. The last column is the line that red run printed, pasted. Pure layout, copy, restyle and docs tickets owe no table.
 
 ## Screenshots
 
