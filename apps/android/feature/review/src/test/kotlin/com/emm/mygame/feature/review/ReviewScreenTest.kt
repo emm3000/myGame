@@ -8,16 +8,20 @@ import androidx.compose.ui.test.hasStateDescription
 import androidx.compose.ui.test.hasText
 import androidx.compose.ui.test.junit4.ComposeContentTestRule
 import androidx.compose.ui.test.junit4.createComposeRule
-import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
 import androidx.compose.ui.test.performScrollTo
 import androidx.compose.ui.test.performTextInput
+import androidx.compose.ui.unit.Dp
 import com.emm.mygame.core.designsystem.MyGameTheme
 import com.emm.mygame.core.network.ChoiceId
 import com.emm.mygame.core.network.ReviewHint
 import com.emm.mygame.core.network.ReviewHintWord
 import com.emm.mygame.core.network.TownResourceKind
+import com.emm.mygame.core.ui.ChromePhase
+import com.emm.mygame.core.ui.CopyLanguage
+import com.emm.mygame.core.ui.ProvideCopyLanguage
+import com.emm.mygame.core.ui.ScaffoldLanguage
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertTrue
 import org.junit.Rule
@@ -134,6 +138,13 @@ class ReviewScreenTest {
     }
 
     @Test
+    fun `draws the opened level in English`() {
+        drawInEnglish(recalling(step = ReviewUiState.ReviewStep.Correct(skill = null, openedLevel = 3), typed = "home"))
+
+        composeRule.onNodeWithText("You have the words for level 3 now.").assertIsDisplayed()
+    }
+
+    @Test
     fun `draws the opened level after the skill lines`() {
         val homeSkill: ReviewUiState.SkillLine = ReviewUiState.SkillLine(
             resource = TownResourceKind.Money,
@@ -222,6 +233,16 @@ class ReviewScreenTest {
         composeRule.setContent {
             MyGameTheme {
                 ReviewScreen(state = state, onIntent = onIntent, onLessonOpen = { }, onTownOpen = { })
+            }
+        }
+    }
+
+    private fun drawInEnglish(state: ReviewUiState) {
+        composeRule.setContent {
+            ProvideCopyLanguage(language = CopyLanguage(ScaffoldLanguage.None, ChromePhase.English)) {
+                MyGameTheme {
+                    ReviewScreen(state = state, onIntent = {}, onLessonOpen = { }, onTownOpen = { })
+                }
             }
         }
     }
