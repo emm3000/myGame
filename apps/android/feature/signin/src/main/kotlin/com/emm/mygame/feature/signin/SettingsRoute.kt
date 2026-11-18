@@ -29,7 +29,7 @@ fun SettingsRoute(
     modifier: Modifier = Modifier,
     foldedDock: @Composable () -> Unit = {},
     viewModel: SettingsViewModel = viewModel {
-        SettingsViewModel(sessions, playerScaffold, reminders, notifications, themes)
+        SettingsViewModel(sessions, playerScaffold, reminders, notifications)
     },
 ) {
     val state: SettingsUiState by viewModel.state.collectAsStateWithLifecycle()
@@ -57,5 +57,6 @@ fun SettingsRoute(
         onNotificationSettingsOpen = navigation.onNotificationSettingsOpen,
         modifier = modifier,
         foldedDock = foldedDock,
+        themeChoice = { ThemeChoiceRoute(themes) },
     )
 }

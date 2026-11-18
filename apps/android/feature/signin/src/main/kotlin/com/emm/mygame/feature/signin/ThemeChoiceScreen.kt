@@ -18,7 +18,11 @@ import com.emm.mygame.core.designsystem.MyGameTypography
 import com.emm.mygame.core.network.ThemePick
 
 @Composable
-internal fun ThemeChoice(picked: ThemePick, onPick: (ThemePick) -> Unit, modifier: Modifier = Modifier) {
+internal fun ThemeChoiceScreen(
+    state: ThemeChoiceUiState,
+    onIntent: (ThemeChoiceIntent) -> Unit,
+    modifier: Modifier = Modifier,
+) {
     val question: String = stringResource(R.string.settings_theme_title)
     Column(verticalArrangement = Arrangement.spacedBy(MyGameSpacing.step2), modifier = modifier) {
         MyGameText(
@@ -36,9 +40,9 @@ internal fun ThemeChoice(picked: ThemePick, onPick: (ThemePick) -> Unit, modifie
             ThemePick.entries.forEach { pick: ThemePick ->
                 MyGameChoiceRow(
                     label = stringResource(optionOf(pick)),
-                    isChosen = pick == picked,
+                    isChosen = pick == state.picked,
                     isEnabled = true,
-                    onClick = { onPick(pick) },
+                    onClick = { onIntent(ThemeChoiceIntent.Picked(pick)) },
                 )
             }
         }

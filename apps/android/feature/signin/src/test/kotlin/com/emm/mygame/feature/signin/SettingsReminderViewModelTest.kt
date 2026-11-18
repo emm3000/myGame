@@ -5,11 +5,9 @@ import com.emm.mygame.core.network.PlayerScaffold
 import com.emm.mygame.core.network.RestoreResult
 import com.emm.mygame.core.network.SignedInPlayer
 import com.emm.mygame.core.network.StudyReminderChoice
-import com.emm.mygame.core.network.ThemePick
 import com.emm.mygame.core.testing.FakeReminderNotifications
 import com.emm.mygame.core.testing.FakeSessionRepository
 import com.emm.mygame.core.testing.FakeStudyReminderSettings
-import com.emm.mygame.core.testing.FakeThemeSettings
 import com.emm.mygame.core.testing.MainDispatcherRule
 import java.time.LocalTime
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -32,8 +30,6 @@ class SettingsReminderViewModelTest {
 
     private val offAtSevenPm: StudyReminderChoice = StudyReminderChoice.firstChoice
 
-    private val themes: FakeThemeSettings = FakeThemeSettings(ThemePick.System)
-
     private fun onAt(hour: Int, minute: Int): StudyReminderChoice =
         StudyReminderChoice(isOn = true, time = LocalTime.of(hour, minute))
 
@@ -42,7 +38,7 @@ class SettingsReminderViewModelTest {
         notifications: FakeReminderNotifications = askableNotifications,
     ): SettingsViewModel {
         sessions.answerRestore(RestoreResult.SignedIn(SignedInPlayer("ines@example.com", true, PlayerScaffold.Spanish)))
-        return SettingsViewModel(sessions, heldScaffold, reminders, notifications, themes)
+        return SettingsViewModel(sessions, heldScaffold, reminders, notifications)
     }
 
     private fun reminderOf(viewModel: SettingsViewModel): SettingsUiState.Reminder =

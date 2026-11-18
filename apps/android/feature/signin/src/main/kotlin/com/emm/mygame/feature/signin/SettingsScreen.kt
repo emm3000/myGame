@@ -30,7 +30,6 @@ import com.emm.mygame.core.designsystem.MyGameTheme
 import com.emm.mygame.core.designsystem.MyGameTypography
 import com.emm.mygame.core.designsystem.PreviewMyGame
 import com.emm.mygame.core.network.PlayerScaffold
-import com.emm.mygame.core.network.ThemePick
 import com.emm.mygame.core.ui.joinsFrameTraversal
 import java.time.LocalTime
 
@@ -42,6 +41,7 @@ fun SettingsScreen(
     onNotificationSettingsOpen: () -> Unit,
     modifier: Modifier = Modifier,
     foldedDock: @Composable () -> Unit = {},
+    themeChoice: @Composable () -> Unit = {},
 ) {
     val title: String = stringResource(R.string.settings_title)
     Column(
@@ -73,6 +73,7 @@ fun SettingsScreen(
         ) {
             SettingsState(state = state, onIntent = onIntent, onNotificationSettingsOpen = onNotificationSettingsOpen)
         }
+        themeChoice()
         MyGameTextLink(label = stringResource(R.string.settings_back), onClick = onTownOpen)
     }
 }
@@ -90,7 +91,7 @@ private fun SettingsState(
             actionLabel = stringResource(R.string.settings_retry),
             onAction = { onIntent(SettingsIntent.RetryTapped) },
         )
-        is SettingsUiState.Loaded -> LoadedSettings(
+        is SettingsUiState.Loaded -> ScaffoldSetting(
             loaded = state,
             onIntent = onIntent,
             onNotificationSettingsOpen = onNotificationSettingsOpen,
@@ -99,7 +100,7 @@ private fun SettingsState(
 }
 
 @Composable
-private fun LoadedSettings(
+private fun ScaffoldSetting(
     loaded: SettingsUiState.Loaded,
     onIntent: (SettingsIntent) -> Unit,
     onNotificationSettingsOpen: () -> Unit,
@@ -121,10 +122,6 @@ private fun LoadedSettings(
             reminder = loaded.reminder,
             onIntent = onIntent,
             onNotificationSettingsOpen = onNotificationSettingsOpen,
-        )
-        ThemeChoice(
-            picked = loaded.theme,
-            onPick = { pick: ThemePick -> onIntent(SettingsIntent.ThemePicked(pick)) },
         )
     }
 }
@@ -165,54 +162,25 @@ private val previewReminderOff: SettingsUiState.Reminder = previewReminder.copy(
 private class SettingsUiStates : PreviewParameterProvider<SettingsUiState> {
 
     override val values: Sequence<SettingsUiState> = sequenceOf(
-        SettingsUiState.Loaded(
-            PlayerScaffold.Spanish,
-            SettingsUiState.Change.Untouched,
-            previewReminder,
-            ThemePick.System,
-        ),
+        SettingsUiState.Loaded(PlayerScaffold.Spanish, SettingsUiState.Change.Untouched, previewReminder),
         SettingsUiState.Loaded(
             PlayerScaffold.Spanish,
             SettingsUiState.Change.Saving(PlayerScaffold.None),
             previewReminder,
-            ThemePick.System,
         ),
-        SettingsUiState.Loaded(PlayerScaffold.None, SettingsUiState.Change.Saved, previewReminder, ThemePick.System),
-        SettingsUiState.Loaded(
-            PlayerScaffold.Spanish,
-            SettingsUiState.Change.Refused,
-            previewReminder,
-            ThemePick.System,
-        ),
-        SettingsUiState.Loaded(
-            PlayerScaffold.Spanish,
-            SettingsUiState.Change.Unreachable,
-            previewReminder,
-            ThemePick.System,
-        ),
-        SettingsUiState.Loaded(
-            PlayerScaffold.Spanish,
-            SettingsUiState.Change.Untouched,
-            previewReminderOff,
-            ThemePick.System,
-        ),
+        SettingsUiState.Loaded(PlayerScaffold.None, SettingsUiState.Change.Saved, previewReminder),
+        SettingsUiState.Loaded(PlayerScaffold.Spanish, SettingsUiState.Change.Refused, previewReminder),
+        SettingsUiState.Loaded(PlayerScaffold.Spanish, SettingsUiState.Change.Unreachable, previewReminder),
+        SettingsUiState.Loaded(PlayerScaffold.Spanish, SettingsUiState.Change.Untouched, previewReminderOff),
         SettingsUiState.Loaded(
             PlayerScaffold.Spanish,
             SettingsUiState.Change.Untouched,
             previewReminderOff.copy(ask = SettingsUiState.NotificationAsk.Asking),
-            ThemePick.System,
         ),
         SettingsUiState.Loaded(
             PlayerScaffold.Spanish,
             SettingsUiState.Change.Untouched,
             previewReminderOff.copy(ask = SettingsUiState.NotificationAsk.Denied),
-            ThemePick.System,
-        ),
-        SettingsUiState.Loaded(
-            PlayerScaffold.Spanish,
-            SettingsUiState.Change.Untouched,
-            previewReminderOff,
-            ThemePick.Dark,
         ),
         SettingsUiState.Failed,
         SettingsUiState.Loading,
