@@ -17,7 +17,7 @@ export const bandStartDrawn = (
   return {
     band,
     startedAt,
-    heldOutWords: random.sampleOf(unpractised, heldOutCountOf(words)),
+    heldOutWords: random.sampleOf(unpractised, Math.min(heldOutCountOf(words), unpractised.length)),
     checks: [],
   }
 }
