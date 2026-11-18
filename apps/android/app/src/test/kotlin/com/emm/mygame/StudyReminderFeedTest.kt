@@ -72,6 +72,16 @@ class StudyReminderFeedTest {
     }
 
     @Test
+    fun `a town answer newer than a reviews read decides the cards`() = runTest {
+        val feed: StudyReminderFeed = feed()
+        feed.reviewsAnswered(DueReviews(emptyList(), readFirst = emptyList(), nextDueAt = nextDueAt, readAt = readAt))
+
+        feed.townAnswered(townOf(nextStep = NextStep.Reviews(count = 3, readFirst = emptyList())), fresh)
+
+        assertEquals(StudyReminderFacts(cardsWaitingFrom = readAt), store.facts.value)
+    }
+
+    @Test
     fun `a town answer older than a reviews read keeps that read's cards and its own lesson finish`() = runTest {
         val feed: StudyReminderFeed = feed()
         feed.reviewsAnswered(DueReviews(emptyList(), readFirst = emptyList(), nextDueAt = nextDueAt, readAt = readAt))
@@ -264,8 +274,10 @@ class StudyReminderFeedTest {
     @Test
     fun `a new store over the same file reads nothing after a session change`() = runTest {
         store.choose(reminderOn)
-        feed().holdoutChecksAnswered(listOf(HoldoutCheck.Due(PlacementBand.First, HoldoutCheckWeek.Eighth)))
-        feed().sessionChanged()
+        store.fold { facts: StudyReminderFacts -> facts.afterHoldoutChecksAnswer(holdsCheck = true) }
+        val unopenedStore: Lazy<StudyReminderStore> = lazy { StudyReminderStore(preferencesFile()) }
+
+        StudyReminderFeed(store = unopenedStore, towns = { towns }, scope = backgroundScope).sessionChanged()
 
         val restarted: StudyReminderStore = StudyReminderStore(preferencesFile())
 
