@@ -3,7 +3,6 @@ package com.emm.mygame.core.network
 import com.emm.mygame.core.testing.FakeTokenCipher
 import com.emm.mygame.core.testing.TestClock
 import java.io.File
-import java.util.concurrent.ConcurrentHashMap
 import java.util.concurrent.CountDownLatch
 import java.util.concurrent.TimeUnit
 import kotlin.time.Instant
@@ -13,10 +12,8 @@ import kotlinx.coroutines.async
 import kotlinx.coroutines.test.TestScope
 import kotlinx.coroutines.test.UnconfinedTestDispatcher
 import kotlinx.coroutines.test.runTest
-import mockwebserver3.Dispatcher
 import mockwebserver3.MockResponse
 import mockwebserver3.MockWebServer
-import mockwebserver3.RecordedRequest
 import org.junit.After
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertNull
@@ -307,26 +304,6 @@ class PlayerLanguagesTest {
             .addHeader("Content-Type", "application/json")
             .body(body)
             .build()
-
-    private class HeldAnswers : Dispatcher() {
-        private val answers: MutableMap<String, Pair<MockResponse, CountDownLatch>> = ConcurrentHashMap()
-
-        fun holding(path: String, response: MockResponse): CountDownLatch {
-            val release = CountDownLatch(1)
-            answers[path] = response to release
-            return release
-        }
-
-        fun answering(path: String, response: MockResponse) {
-            answers[path] = response to CountDownLatch(0)
-        }
-
-        override fun dispatch(request: RecordedRequest): MockResponse {
-            val (response: MockResponse, release: CountDownLatch) = answers.getValue(request.url.encodedPath)
-            release.await(REQUEST_WAIT_SECONDS, TimeUnit.SECONDS)
-            return response
-        }
-    }
 
     private companion object {
         const val REQUEST_WAIT_SECONDS: Long = 5L

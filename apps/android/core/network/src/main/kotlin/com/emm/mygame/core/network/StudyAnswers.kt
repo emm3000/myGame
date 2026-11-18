@@ -23,6 +23,8 @@ class StudyAnswers(tokenStore: TokenStore, private val sink: StudyAnswerSink, pr
 
     internal fun sending(): StudyRequest = StudyRequest(order = sentRequests.incrementAndGet())
 
+    internal fun isNewest(request: StudyRequest): Boolean = request.order == sentRequests.get()
+
     internal fun townAnswered(request: StudyRequest, town: TownSnapshot) {
         synchronized(holding) {
             if (request.isForgotten() || request.wasSentBefore(lastTownSend)) return

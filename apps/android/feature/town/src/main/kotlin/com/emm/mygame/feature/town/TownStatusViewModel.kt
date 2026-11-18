@@ -62,7 +62,7 @@ class TownStatusViewModel(private val towns: TownRepository, private val clock: 
                 draw()
             }
             TownStatusIntent.ScreenAnswered -> readAnew()
-            TownStatusIntent.TryAgainTapped -> readTown()
+            TownStatusIntent.TryAgainTapped -> readTown(towns::read)
             is TownStatusIntent.ReleasedLessonTapped -> startReleased(intent.lesson)
         }
     }
@@ -72,7 +72,7 @@ class TownStatusViewModel(private val towns: TownRepository, private val clock: 
         isShown = true
         if (shown == TownStatusScreen.Outside) forget()
         restart()
-        if (shown != TownStatusScreen.Outside && held == null && townRead.isAskedOnShow()) readTown()
+        if (shown != TownStatusScreen.Outside && held == null && townRead.isAskedOnShow()) readTown(towns::read)
     }
 
     private fun forget() {
@@ -91,15 +91,15 @@ class TownStatusViewModel(private val towns: TownRepository, private val clock: 
 
     private fun readAnew() {
         reading?.cancel()
-        readTown()
+        readTown(towns::readSentAfterNow)
     }
 
-    private fun readTown() {
+    private fun readTown(read: suspend () -> TownReadResult) {
         if (reading?.isActive == true) return
         if (held == null && townRead != TownRead.NoTown) townRead = TownRead.Reading
         draw()
         reading = viewModelScope.launch {
-            townRead = when (towns.read()) {
+            townRead = when (read()) {
                 is TownReadResult.Read -> townRead
                 TownReadResult.NoTown -> TownRead.NoTown
                 TownReadResult.Unreachable -> if (townRead == TownRead.Reading) TownRead.Refused else townRead

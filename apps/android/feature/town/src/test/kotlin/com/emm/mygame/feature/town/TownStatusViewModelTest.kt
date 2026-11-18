@@ -622,6 +622,17 @@ class TownStatusViewModelTest {
         assertEquals(1, towns.readCount)
     }
 
+    @Test
+    fun `a screen's answer reads a town sent after it`() = runTest {
+        val viewModel: TownStatusViewModel = statusOf(TestClock(testScheduler, deviceStart))
+        shownOn(viewModel, TownStatusScreen.Report)
+
+        viewModel.onIntent(TownStatusIntent.ScreenAnswered)
+        runCurrent()
+
+        assertEquals(1, towns.sentAfterNowCount)
+    }
+
     private fun releasedStepTown(readAt: Instant): TownSnapshot = townOf(readAt).copy(
         lessons = lessonsWith(listOf(firstLesson, secondLesson, thirdLesson)),
         releasedLessons = listOf(released),

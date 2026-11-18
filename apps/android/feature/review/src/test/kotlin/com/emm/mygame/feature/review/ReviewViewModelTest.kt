@@ -13,6 +13,7 @@ import com.emm.mygame.core.network.ReviewsReadResult
 import com.emm.mygame.core.network.TownResourceKind
 import com.emm.mygame.core.network.WordId
 import com.emm.mygame.core.testing.FakeLearningRepository
+import com.emm.mygame.core.testing.FakeTownRepository
 import com.emm.mygame.core.testing.MainDispatcherRule
 import kotlin.time.Duration.Companion.minutes
 import kotlin.time.Duration.Companion.seconds
@@ -388,6 +389,25 @@ class ReviewViewModelTest {
                 awaitStep { it is ReviewUiState.ReviewStep.Correct }.step,
             )
         }
+    }
+
+    @Test
+    fun `a rated answer reads a town sent after it`() = runTest {
+        val learning: FakeLearningRepository = FakeLearningRepository()
+        val towns: FakeTownRepository = FakeTownRepository()
+        val viewModel: ReviewViewModel = openReview(learning, towns = towns)
+        learning.answerRead(dueNow(homeRecall))
+        learning.answerReview(ReviewAnswerResult.Answered(correctHome(earnedSkill = null)))
+        learning.answerRead(dueNow())
+
+        viewModel.state.test {
+            awaitReviewing()
+            viewModel.onIntent(ReviewIntent.AnswerChanged("home"))
+            viewModel.onIntent(ReviewIntent.CheckTapped)
+            awaitStep { it is ReviewUiState.ReviewStep.Correct }
+        }
+
+        assertEquals(1, towns.sentAfterNowCount)
     }
 
     @Test

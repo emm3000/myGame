@@ -5,9 +5,7 @@ import com.emm.mygame.core.testing.FakeTokenCipher
 import com.emm.mygame.core.testing.StudyAnswer
 import com.emm.mygame.core.testing.TestClock
 import java.io.File
-import java.util.concurrent.ConcurrentHashMap
 import java.util.concurrent.CountDownLatch
-import java.util.concurrent.TimeUnit
 import kotlin.time.Duration.Companion.seconds
 import kotlin.time.Instant
 import kotlinx.coroutines.CoroutineStart
@@ -17,10 +15,8 @@ import kotlinx.coroutines.delay
 import kotlinx.coroutines.test.TestScope
 import kotlinx.coroutines.test.UnconfinedTestDispatcher
 import kotlinx.coroutines.test.runTest
-import mockwebserver3.Dispatcher
 import mockwebserver3.MockResponse
 import mockwebserver3.MockWebServer
-import mockwebserver3.RecordedRequest
 import org.junit.After
 import org.junit.Assert.assertEquals
 import org.junit.Before
@@ -304,6 +300,25 @@ class StudyAnswersTest {
     }
 
     @Test
+    fun `a town read after a reviews answer gets an answer sent after it, never the read already out`() = runTest {
+        val held: HeldAnswers = HeldAnswers()
+        val townAnswer: CountDownLatch = held.holding(TOWN_PATH, json(200, TOWN))
+        held.answering(REVIEWS_PATH, json(200, NOTHING_DUE))
+        api.dispatcher = held
+        val towns: TownRepository = town()
+
+        val readOut: Deferred<TownReadResult> = async(start = CoroutineStart.UNDISPATCHED) { towns.read() }
+        api.takeRequestWithin()
+        learning().reviews()
+        val readAfter: Deferred<TownReadResult> = async(start = CoroutineStart.UNDISPATCHED) { towns.read() }
+        townAnswer.countDown()
+        readOut.await()
+        val town: TownSnapshot = (readAfter.await() as TownReadResult.Read).town
+
+        assertEquals(freshTown(town), sink.answers.last())
+    }
+
+    @Test
     fun `drops a town answer older than the last town answer`() = runTest {
         val held: HeldAnswers = HeldAnswers()
         val readAnswer: CountDownLatch = held.holding(TOWN_PATH, json(200, TOWN))
@@ -379,29 +394,8 @@ class StudyAnswersTest {
 
     private fun checks(vararg states: String): String = """{"checks":[${states.joinToString(",")}]}"""
 
-    private class HeldAnswers : Dispatcher() {
-        private val answers: MutableMap<String, Pair<MockResponse, CountDownLatch>> = ConcurrentHashMap()
-
-        fun holding(path: String, response: MockResponse): CountDownLatch {
-            val release = CountDownLatch(1)
-            answers[path] = response to release
-            return release
-        }
-
-        fun answering(path: String, response: MockResponse) {
-            answers[path] = response to CountDownLatch(0)
-        }
-
-        override fun dispatch(request: RecordedRequest): MockResponse {
-            val (response: MockResponse, release: CountDownLatch) = answers.getValue(request.url.encodedPath)
-            release.await(REQUEST_WAIT_SECONDS, TimeUnit.SECONDS)
-            return response
-        }
-    }
-
     private companion object {
         const val TOWN_ROUTES: Int = 11
-        const val REQUEST_WAIT_SECONDS: Long = 5L
         const val TOWN_PATH: String = "/api/town"
         const val REVIEWS_PATH: String = "/api/reviews"
         const val REPORT_PATH: String = "/api/report"
