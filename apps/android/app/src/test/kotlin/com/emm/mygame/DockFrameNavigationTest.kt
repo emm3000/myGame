@@ -1,19 +1,7 @@
 package com.emm.mygame
 
-import android.accessibilityservice.AccessibilityServiceInfo
-import android.view.View
-import android.view.ViewGroup
-import android.view.accessibility.AccessibilityManager
-import android.view.accessibility.AccessibilityNodeInfo
-import android.view.accessibility.AccessibilityNodeProvider
 import androidx.activity.ComponentActivity
-import androidx.core.graphics.Insets
-import androidx.core.view.ViewCompat
-import androidx.core.view.WindowInsetsCompat
 import androidx.compose.ui.test.onRoot
-import org.robolectric.Shadows.shadowOf
-import androidx.compose.ui.platform.ViewRootForTest
-import androidx.compose.ui.semantics.SemanticsNode
 import androidx.compose.ui.semantics.SemanticsProperties
 import androidx.compose.ui.test.SemanticsMatcher
 import androidx.compose.ui.test.SemanticsNodeInteraction
@@ -361,7 +349,7 @@ class DockFrameNavigationTest {
         dockGo("Ir al informe")
         waitFor(hasContentDescription(THREE_OF_FIVE))
 
-        val order: List<String> = traversalOrder()
+        val order: List<String> = composeRule.traversalOrder()
 
         assertEquals(DOCK_TITLE, order[order.indexOf(THREE_OF_FIVE) + 1])
     }
@@ -371,10 +359,10 @@ class DockFrameNavigationTest {
         showing(Destination.Town, Destination.School)
         dockGo("Ir al informe")
 
-        keyboard(isOpen = true)
+        composeRule.keyboard(isOpen = true)
 
         composeRule.onAllNodes(hasTestTag(TOWN_DOCK)).assertCountEquals(0)
-        keyboard(isOpen = false)
+        composeRule.keyboard(isOpen = false)
         dockGo("Ir al informe")
     }
 
@@ -394,57 +382,29 @@ class DockFrameNavigationTest {
         composeRule.onAllNodes(inTheDock(RELEASED_LINE)).assertCountEquals(0)
     }
 
-    private fun keyboard(isOpen: Boolean) {
-        val compose: View = checkNotNull(composeViewIn(composeRule.activity.window.decorView))
-        val insets: WindowInsetsCompat = WindowInsetsCompat.Builder()
-            .setInsets(WindowInsetsCompat.Type.ime(), Insets.of(0, 0, 0, if (isOpen) KEYBOARD_HEIGHT else 0))
-            .setVisible(WindowInsetsCompat.Type.ime(), isOpen)
-            .build()
-        composeRule.runOnUiThread { ViewCompat.dispatchApplyWindowInsets(compose, insets) }
-        composeRule.waitForIdle()
+    @Test
+    @Config(qualifiers = "+w360dp-h640dp", fontScale = 2.0f)
+    @GraphicsMode(GraphicsMode.Mode.NATIVE)
+    fun `a folded dock puts its door at the top of the scrolling area`() {
+        showing(Destination.Town, Destination.School, town = townOf(nextStep = releasedLesson))
+        dockGo(STUDY_RELEASED)
+
+        waitFor(hasText("Pueblo").and(hasAnyAncestor(hasScrollAction())))
+
+        composeRule.onAllNodes(inTheDock("Pueblo")).assertCountEquals(0)
     }
 
-    private fun traversalOrder(): List<String> {
-        val activity: ComponentActivity = composeRule.activity
-        val manager: AccessibilityManager = activity.getSystemService(AccessibilityManager::class.java)
-        shadowOf(manager).setEnabled(true)
-        shadowOf(manager).setTouchExplorationEnabled(true)
-        shadowOf(manager).setEnabledAccessibilityServiceList(listOf(AccessibilityServiceInfo()))
-        composeRule.waitForIdle()
-        val compose: View = checkNotNull(composeViewIn(activity.window.decorView))
-        val provider: AccessibilityNodeProvider = compose.accessibilityNodeProvider
-        val nodes: Map<Int, AccessibilityNodeInfo> = semanticsIds().mapNotNull { id: Int ->
-            provider.createAccessibilityNodeInfo(id)?.let { node: AccessibilityNodeInfo ->
-                provider.addExtraDataToAccessibilityNodeInfo(id, node, TRAVERSAL_BEFORE, null)
-                id to node
-            }
-        }.toMap()
-        val next: Map<Int, Int> = nodes.mapNotNull { (id: Int, node: AccessibilityNodeInfo) ->
-            node.extras.getInt(TRAVERSAL_BEFORE, NO_NODE).takeIf { before: Int -> before != NO_NODE }?.let { id to it }
-        }.toMap()
-        val first: Int = next.keys.first { id: Int -> id !in next.values }
-        return generateSequence(first) { id: Int -> next[id] }
-            .mapNotNull { id: Int -> nodes[id]?.let { node: AccessibilityNodeInfo -> labelOf(node) } }
-            .toList()
-    }
+    @Test
+    @Config(qualifiers = "+w360dp-h640dp", fontScale = 2.0f)
+    @GraphicsMode(GraphicsMode.Mode.NATIVE)
+    fun `a folded dock keeps its go button's whole label on screen`() {
+        showing(Destination.Town, Destination.School, town = townOf(nextStep = releasedLesson))
+        waitFor(hasText(RELEASED_LINE).and(hasAnyAncestor(hasScrollAction())))
 
-    private fun labelOf(node: AccessibilityNodeInfo): String? =
-        node.text?.toString() ?: node.contentDescription?.toString()
+        val go: Rect = dockGo(STUDY_RELEASED).getBoundsInRoot()
+        val window: Rect = composeRule.onRoot().getBoundsInRoot()
 
-    private fun semanticsIds(): List<Int> {
-        val ids: MutableList<Int> = mutableListOf()
-        fun walk(node: SemanticsNode) {
-            ids += node.id
-            node.children.forEach(::walk)
-        }
-        walk(composeRule.onRoot(useUnmergedTree = true).fetchSemanticsNode())
-        return ids
-    }
-
-    private fun composeViewIn(view: View): View? {
-        if (view is ViewRootForTest) return view
-        if (view !is ViewGroup) return null
-        return (0 until view.childCount).firstNotNullOfOrNull { index: Int -> composeViewIn(view.getChildAt(index)) }
+        assertTrue(go.top >= window.top && go.bottom <= window.bottom)
     }
 
     private val releasedLesson: NextStep.ReleasedLesson =
@@ -461,9 +421,6 @@ class DockFrameNavigationTest {
         const val TRY_AGAIN: String = "Volver a intentarlo"
         const val STUDY_RELEASED: String = "Estudiar las palabras que vuelven"
         const val RELEASED_LINE: String = "Palabras que vuelven: banda 2, grupo 1"
-        const val TRAVERSAL_BEFORE: String = "android.view.accessibility.extra.EXTRA_DATA_TEST_TRAVERSALBEFORE_VAL"
-        const val NO_NODE: Int = -1
-        const val KEYBOARD_HEIGHT: Int = 800
         const val NO_REVIEWS_DUE: String = "No tienes repasos pendientes ahora."
 
         const val TOWN_HEADER: String = "RIVERTON · PUEBLO"

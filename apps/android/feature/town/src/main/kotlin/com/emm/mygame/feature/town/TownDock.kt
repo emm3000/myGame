@@ -123,10 +123,11 @@ private fun PlayerCopy.dockLineOf(dock: TownStatusUiState.Dock): MyGameDockLine 
     },
 )
 
-private fun PlayerCopy.stepLineOf(step: TownStatusUiState.Dock.Step): MyGameLabel = when (val detail = step.detail) {
-    is TownStatusUiState.StepDetail.Goal -> chrome { goalLineOf(detail.goal) }
-    is TownStatusUiState.StepDetail.Words, null -> lineOf(step.line)
-}
+private fun PlayerCopy.stepLineOf(step: TownStatusUiState.Dock.Step): MyGameLabel =
+    when (val detail: TownStatusUiState.StepDetail? = step.detail) {
+        is TownStatusUiState.StepDetail.Goal -> chrome { goalLineOf(detail.goal) }
+        is TownStatusUiState.StepDetail.Words, null -> lineOf(step.line)
+    }
 
 private fun PlayerCopy.dockGoOf(
     dock: TownStatusUiState.Dock,
@@ -147,7 +148,7 @@ private fun PlayerCopy.dockGoOf(
             busyDescription = waiting,
             onClick = { actions.onIntent(TownStatusIntent.TryAgainTapped) },
         )
-        is TownStatusUiState.Dock.Step -> stepGoOf(dock, actions, inPlace)
+        is TownStatusUiState.Dock.Step -> stepGoOf(dock, actions, inPlace, waiting)
     }
 }
 
@@ -155,8 +156,8 @@ private fun PlayerCopy.stepGoOf(
     step: TownStatusUiState.Dock.Step,
     actions: TownDockActions,
     inPlace: MyGameDockGo?,
+    waiting: String,
 ): MyGameDockGo {
-    val waiting: String = chrome(R.string.town_waiting).spoken
     val badge: String? = (step.line as? NextStepCard.Line.ReviewsDue)?.count?.let { count: Int ->
         formatQuantity(count.toLong())
     }
