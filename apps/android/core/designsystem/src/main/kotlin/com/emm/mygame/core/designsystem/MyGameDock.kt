@@ -5,19 +5,13 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.ColumnScope
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.SideEffect
 import androidx.compose.runtime.State
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberUpdatedState
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.drawBehind
 import androidx.compose.ui.geometry.Rect
@@ -29,13 +23,9 @@ import androidx.compose.ui.layout.SubcomposeLayout
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.LocalWindowInfo
 import androidx.compose.ui.platform.WindowInfo
-import androidx.compose.ui.semantics.LiveRegionMode
 import androidx.compose.ui.semantics.clearAndSetSemantics
-import androidx.compose.ui.semantics.heading
 import androidx.compose.ui.semantics.isTraversalGroup
-import androidx.compose.ui.semantics.liveRegion
 import androidx.compose.ui.semantics.semantics
-import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.unit.Constraints
 import androidx.compose.ui.unit.Density
 import androidx.compose.ui.unit.Dp
@@ -43,8 +33,6 @@ import androidx.compose.ui.unit.IntSize
 import androidx.compose.ui.unit.dp
 
 private enum class DockSlot { Probe, Shown }
-
-private val stepStyle: TextStyle = MyGameTypography.heading
 
 private const val HALF: Int = 2
 
@@ -74,7 +62,14 @@ fun MyGameDock(
         val loose: Constraints = constraints.copy(minHeight = 0, maxHeight = Constraints.Infinity)
         val unfoldedHeight: Int = subcompose(DockSlot.Probe) {
             DockSheet(modifier = Modifier.clearAndSetSemantics { }) {
-                Unfolded(line = line, go = go, door = door, countdown = countdown, notice = notice)
+                Unfolded(
+                    line = line,
+                    go = go,
+                    door = door,
+                    countdown = countdown,
+                    notice = notice,
+                    isMeasureCopy = true,
+                )
             }
         }.single().measure(loose).height
         val isFolded: Boolean = unfoldedHeight > halfWindow
@@ -84,7 +79,14 @@ fun MyGameDock(
                 if (isFolded) {
                     DockGo(go = go, step = line.step)
                 } else {
-                    Unfolded(line = line, go = go, door = door, countdown = countdown, notice = notice)
+                    Unfolded(
+                        line = line,
+                        go = go,
+                        door = door,
+                        countdown = countdown,
+                        notice = notice,
+                        isMeasureCopy = false,
+                    )
                 }
             }
         }.single().measure(loose)
@@ -113,11 +115,10 @@ private fun Unfolded(
     door: MyGameDockDoor?,
     countdown: @Composable () -> Unit,
     notice: @Composable () -> Unit,
+    isMeasureCopy: Boolean,
 ) {
-    val colors: MyGameColors = MyGameTheme.colors
     Column(verticalArrangement = Arrangement.spacedBy(MyGameSpacing.step3)) {
-        MyGameMetaText(label = line.title, color = colors.inkMuted, modifier = Modifier.semantics { heading() })
-        DockStep(step = line.step, loadingLabel = go.busyDescription)
+        DockLineContent(line = line, loadingLabel = go.busyDescription, isMeasureCopy = isMeasureCopy)
         countdown()
         notice()
         MyGameDockActions(
@@ -125,45 +126,6 @@ private fun Unfolded(
             door = door?.let { shown: MyGameDockDoor -> { DockDoor(door = shown) } },
         )
     }
-}
-
-@Composable
-private fun DockStep(step: MyGameLabel?, loadingLabel: String, modifier: Modifier = Modifier) {
-    val isLive: Boolean = rememberHasStepChanged(step)
-    if (step == null) {
-        val height: Dp = lineHeightOf(stepStyle)
-        MyGameSkeleton(
-            isLoading = true,
-            loadingLabel = loadingLabel,
-            blocks = MyGameSkeletonBlocks(heights = listOf(height)),
-            modifier = modifier.heightIn(min = height),
-        ) { }
-        return
-    }
-    MyGameText(
-        label = step,
-        style = stepStyle,
-        color = MyGameTheme.colors.ink,
-        modifier = modifier.semantics { if (isLive) liveRegion = LiveRegionMode.Polite },
-    )
-}
-
-@Composable
-private fun rememberHasStepChanged(step: MyGameLabel?): Boolean {
-    var firstStep: MyGameLabel? by remember { mutableStateOf(null) }
-    var hasChanged: Boolean by remember { mutableStateOf(false) }
-    val seen: MyGameLabel? = firstStep
-    val isLive: Boolean = hasChanged || (seen != null && step != null && step != seen)
-    SideEffect {
-        if (firstStep == null) firstStep = step
-        if (isLive) hasChanged = true
-    }
-    return isLive
-}
-
-@Composable
-private fun lineHeightOf(style: TextStyle): Dp = with(LocalDensity.current) {
-    (style.fontSize * style.lineHeight.value).toDp()
 }
 
 @Composable

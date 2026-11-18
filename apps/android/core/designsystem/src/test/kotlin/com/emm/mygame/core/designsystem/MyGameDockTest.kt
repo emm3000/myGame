@@ -240,6 +240,32 @@ class MyGameDockTest {
 
     @Test
     @Config(qualifiers = "+w360dp-h640dp")
+    fun `loading animates one skeleton, never one in the measured copy`() {
+        show { MyGameDock(line = dueReviews.copy(step = null), go = startTheReviews(), onFoldChange = {}, door = town) }
+        composeRule.mainClock.advanceTimeBy(SKELETON_SHOWN_MILLIS)
+
+        val skeletons: Int = composeRule
+            .onAllNodesWithTag(SKELETON_BLOCK, useUnmergedTree = true)
+            .fetchSemanticsNodes()
+            .size
+
+        assertEquals(1, skeletons)
+    }
+
+    @Test
+    fun `the line drawn apart from the dock speaks when the step changes`() {
+        var line: MyGameDockLine by mutableStateOf(dueReviews)
+        show { MyGameDockLineText(line = line, loadingLabel = "Waiting") }
+
+        line = dueReviews.copy(step = plain("Reviews due: 3"))
+
+        composeRule
+            .onNodeWithText("Reviews due: 3")
+            .assert(SemanticsMatcher.expectValue(SemanticsProperties.LiveRegion, LiveRegionMode.Polite))
+    }
+
+    @Test
+    @Config(qualifiers = "+w360dp-h640dp")
     fun `the door still opens while the dock loads`() {
         var doorTaps: Int = 0
         show {
