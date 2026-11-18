@@ -1,0 +1,238 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+scripts_dir=$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd -P)
+
+temp_base=${TMPDIR:-/tmp}
+sandbox=$(mktemp -d "${temp_base%/}/merge-test.XXXXXX") || { echo "refusing the sandbox: mktemp -d failed" >&2; exit 70; }
+[ -n "$sandbox" ] && [ -d "$sandbox" ] || { echo "refusing the sandbox: mktemp -d printed no directory" >&2; exit 70; }
+sandbox=$(cd "$sandbox" && pwd -P)
+case $sandbox in
+  "$(cd "$temp_base" && pwd -P)"/?*) ;;
+  *) echo "refusing the sandbox: $sandbox is not under $temp_base" >&2; exit 70 ;;
+esac
+trap 'rm -rf "$sandbox"' EXIT
+
+failures=0
+case_dir=""
+repo=""
+log=""
+
+mkdir -p "$sandbox/bin"
+{
+  echo '#!/usr/bin/env bash'
+  awk 1
+} >"$sandbox/bin/gh" <<'STUB'
+state_of() {
+  awk -F '\t' -v pr="$1" '$1 == pr { print $2 }' "$FAKE_STATE/prs"
+}
+case "$1 $2" in
+  "pr merge")
+    [ "$4" = --rebase ] || { echo "unexpected gh $*" >&2; exit 1; }
+    [ "$(state_of "$3")" = OPEN ] || { echo "GraphQL: Pull request #$3 is not mergeable" >&2; exit 1; }
+    echo "$3" >>"$FAKE_STATE/merged"
+    awk -F '\t' -v OFS='\t' -v pr="$3" '$1 == pr { $2 = "MERGED" } { print }' "$FAKE_STATE/prs" >"$FAKE_STATE/prs.next"
+    mv "$FAKE_STATE/prs.next" "$FAKE_STATE/prs" ;;
+  "pr view")
+    state=$(state_of "$3")
+    [ -n "$state" ] || { echo "GraphQL: Could not resolve to a PullRequest with the number of $3." >&2; exit 1; }
+    case "$4 $5" in
+      "--json state") echo "$state" ;;
+      "--json additions,deletions") awk -F '\t' -v pr="$3" '$1 == pr { print "+" $3 "/-" $4 }' "$FAKE_STATE/prs" ;;
+      *) echo "unexpected gh $*" >&2; exit 1 ;;
+    esac ;;
+  *) echo "unexpected gh $*" >&2; exit 1 ;;
+esac
+STUB
+chmod +x "$sandbox/bin/gh"
+
+recent_row() {
+  printf '| #%s | %s | %s | %s | %s | +1/-1 |\n' "$@"
+}
+
+build_a_log_with_recent_rows() {
+  case_dir="$sandbox/$1"
+  repo="$case_dir/myGame"
+  log="$repo/docs/agents/dispatch-log.md"
+  local count=$2 pr
+  mkdir -p "$repo/scripts" "$repo/docs/agents" "$case_dir/state"
+  cp "$scripts_dir/mygame-merge" "$repo/scripts/"
+  {
+    echo '#!/usr/bin/env bash'
+    echo 'echo "$*" >>"$FAKE_STATE/closed"'
+    echo 'echo "orphans: none"'
+  } >"$repo/scripts/mygame-wave-close"
+  chmod +x "$repo/scripts/mygame-wave-close"
+  {
+    printf '# Dispatch log\n\n## Summary\n\n'
+    printf '| Model:effort | PRs | MERGE | FIX FIRST checklist | FIX FIRST judgment | FIX FIRST spec |\n'
+    printf '|---|---|---|---|---|---|\n'
+    printf '| sonnet:low | 5 | 4 | 0 | 0 | 1 |\n'
+    printf '| opus:high | 10 | 7 | 1 | 1 | 1 |\n'
+    printf '\n## Recent\n\n'
+    printf '| PR | Model:effort | First review | Cause | Rounds | Lines +/- |\n'
+    printf '|---|---|---|---|---|---|\n'
+    recent_row 100 opus:high 'FIX FIRST' judgment 3
+    for ((pr = 101; pr < 100 + count; pr++)); do
+      recent_row "$pr" opus:high MERGE '' 1
+    done
+  } >"$log"
+  printf '500\tMERGED\t40\t7\n600\tOPEN\t12\t3\n700\tCLOSED\t1\t1\n' >"$case_dir/state/prs"
+  : >"$case_dir/state/merged"
+  : >"$case_dir/state/closed"
+}
+
+with_stubs() {
+  (
+    export FAKE_STATE="$case_dir/state" PATH="$sandbox/bin:$PATH"
+    [ "$(type -P gh)" = "$sandbox/bin/gh" ] || { echo "refusing to run: stub gh is not first on PATH" >&2; exit 70; }
+    cd "$repo" && "$@" 2>&1
+  )
+}
+
+recent_rows() {
+  awk '/^## Recent/ { on = 1 } on && /^\| #/ { n++ } END { print n + 0 }' "$log"
+}
+
+summary_of() {
+  awk -F ' \\| ' -v model="$1" '/^## Recent/ { exit } $1 == "| " model { print }' "$log"
+}
+
+fail() {
+  printf 'FAIL %s:\n%s\n' "$1" "$2" >&2
+  return 1
+}
+
+a_dry_run_on_a_merged_pr_appends_one_six_column_row() {
+  build_a_log_with_recent_rows dry 3
+  local output
+  output=$(with_stubs scripts/mygame-merge --dry-run 500 probe opus:high checklist 2) || fail "${FUNCNAME[0]}" "$output" || return 1
+  [ "$(tail -n 1 "$log")" = "| #500 | opus:high | FIX FIRST | checklist | 2 | +40/-7 |" ] || fail "${FUNCNAME[0]}" "last row $(tail -n 1 "$log")" || return 1
+  [ "$(tail -n 1 "$log" | awk -F '|' '{ print NF - 2 }')" = 6 ] || fail "${FUNCNAME[0]}" "column count" || return 1
+  [ "$(recent_rows)" = 4 ] || fail "${FUNCNAME[0]}" "recent rows $(recent_rows)" || return 1
+  [ ! -s "$case_dir/state/merged" ] || fail "${FUNCNAME[0]}" "a dry run merged $(<"$case_dir/state/merged")" || return 1
+  [ ! -s "$case_dir/state/closed" ] || fail "${FUNCNAME[0]}" "a dry run closed $(<"$case_dir/state/closed")"
+}
+
+a_merge_verdict_leaves_the_cause_empty() {
+  build_a_log_with_recent_rows verdict 3
+  local output
+  output=$(with_stubs scripts/mygame-merge --dry-run 500 probe fable:high merge 1) || fail "${FUNCNAME[0]}" "$output" || return 1
+  [ "$(tail -n 1 "$log")" = "| #500 | fable:high | MERGE |  | 1 | +40/-7 |" ] || fail "${FUNCNAME[0]}" "last row $(tail -n 1 "$log")"
+}
+
+refuses_every_bad_argument_and_leaves_the_log_alone() {
+  build_a_log_with_recent_rows bad 3
+  local before arguments status output
+  before=$(<"$log")
+  local cases=(
+    ""
+    "500 probe opus:high merge"
+    "500 probe opus:high merge 1 extra"
+    "--force 500 probe opus:high merge 1"
+    "abc probe opus:high merge 1"
+    "0500 probe opus:high merge 1"
+    "500 Probe opus:high merge 1"
+    "500 orch opus:high merge 1"
+    "500 probe opus merge 1"
+    "500 probe gpt:high merge 1"
+    "500 probe opus:huge merge 1"
+    "500 probe opus:high FIX 1"
+    "500 probe opus:high checklist 1"
+    "500 probe opus:high merge 0"
+    "500 probe opus:high merge two"
+  )
+  for arguments in "${cases[@]}"; do
+    status=0
+    read -r -a words <<<"$arguments"
+    output=$(with_stubs scripts/mygame-merge --dry-run ${words[@]+"${words[@]}"}) || status=$?
+    [ "$status" -ne 0 ] || fail "${FUNCNAME[0]}" "exit 0 on '$arguments': $output" || return 1
+    [ "$(<"$log")" = "$before" ] || fail "${FUNCNAME[0]}" "'$arguments' changed the log" || return 1
+  done
+  [ ! -s "$case_dir/state/merged" ] || fail "${FUNCNAME[0]}" "merged $(<"$case_dir/state/merged")"
+}
+
+a_dry_run_refuses_a_pr_that_is_not_merged() {
+  build_a_log_with_recent_rows open 3
+  local before status=0 output
+  before=$(<"$log")
+  output=$(with_stubs scripts/mygame-merge --dry-run 600 probe opus:high merge 1) || status=$?
+  [ "$status" -ne 0 ] && [ "$output" = "#600 is OPEN, not MERGED" ] || fail "${FUNCNAME[0]}" "exit $status: $output" || return 1
+  [ "$(<"$log")" = "$before" ] || fail "${FUNCNAME[0]}" "the log changed"
+}
+
+refuses_a_pr_the_log_already_holds() {
+  build_a_log_with_recent_rows twice 3
+  with_stubs scripts/mygame-merge --dry-run 500 probe opus:high merge 1 >/dev/null || fail "${FUNCNAME[0]}" "first run failed" || return 1
+  local status=0 output
+  output=$(with_stubs scripts/mygame-merge --dry-run 500 probe opus:high merge 1) || status=$?
+  [ "$status" -ne 0 ] || fail "${FUNCNAME[0]}" "second run exit 0: $output" || return 1
+  [ "$(rg -c '^\| #500 \|' "$log")" = 1 ] || fail "${FUNCNAME[0]}" "#500 logged $(rg -c '^\| #500 \|' "$log") times"
+}
+
+merging_merges_then_logs_then_closes_the_peer() {
+  build_a_log_with_recent_rows merge 3
+  local output
+  output=$(with_stubs scripts/mygame-merge 600 probe opus:high merge 1) || fail "${FUNCNAME[0]}" "$output" || return 1
+  [ "$(<"$case_dir/state/merged")" = 600 ] || fail "${FUNCNAME[0]}" "merged $(<"$case_dir/state/merged")" || return 1
+  [ "$(tail -n 1 "$log")" = "| #600 | opus:high | MERGE |  | 1 | +12/-3 |" ] || fail "${FUNCNAME[0]}" "last row $(tail -n 1 "$log")" || return 1
+  [ "$(<"$case_dir/state/closed")" = probe ] || fail "${FUNCNAME[0]}" "closed $(<"$case_dir/state/closed")" || return 1
+  [ "$(tail -n 1 <<<"$output")" = "orphans: none" ] || fail "${FUNCNAME[0]}" "$output"
+}
+
+keep_emulator_reaches_the_close() {
+  build_a_log_with_recent_rows keep 3
+  local output
+  output=$(with_stubs scripts/mygame-merge --keep-emulator 600 probe opus:high merge 1) || fail "${FUNCNAME[0]}" "$output" || return 1
+  [ "$(<"$case_dir/state/closed")" = "probe --keep-emulator" ] || fail "${FUNCNAME[0]}" "closed $(<"$case_dir/state/closed")"
+}
+
+a_failed_merge_logs_nothing_and_closes_nothing() {
+  build_a_log_with_recent_rows refused 3
+  local before status=0 output
+  before=$(<"$log")
+  output=$(with_stubs scripts/mygame-merge 700 probe opus:high merge 1) || status=$?
+  [ "$status" -ne 0 ] || fail "${FUNCNAME[0]}" "exit 0: $output" || return 1
+  [ "$(<"$log")" = "$before" ] || fail "${FUNCNAME[0]}" "the log changed" || return 1
+  [ ! -s "$case_dir/state/closed" ] || fail "${FUNCNAME[0]}" "closed $(<"$case_dir/state/closed")"
+}
+
+the_twenty_first_row_folds_the_oldest_into_its_model_summary() {
+  build_a_log_with_recent_rows fold 20
+  local output
+  output=$(with_stubs scripts/mygame-merge --dry-run 500 probe opus:high merge 1) || fail "${FUNCNAME[0]}" "$output" || return 1
+  [ "$(recent_rows)" = 20 ] || fail "${FUNCNAME[0]}" "recent rows $(recent_rows)" || return 1
+  ! rg -q '^\| #100 \|' "$log" || fail "${FUNCNAME[0]}" "#100 is still in Recent" || return 1
+  [ "$(summary_of opus:high)" = "| opus:high | 11 | 7 | 1 | 2 | 1 |" ] || fail "${FUNCNAME[0]}" "opus:high $(summary_of opus:high)" || return 1
+  [ "$(summary_of sonnet:low)" = "| sonnet:low | 5 | 4 | 0 | 0 | 1 |" ] || fail "${FUNCNAME[0]}" "sonnet:low $(summary_of sonnet:low)"
+}
+
+a_folded_model_without_a_summary_row_gets_one() {
+  build_a_log_with_recent_rows newmodel 20
+  sd -F '| #100 | opus:high | FIX FIRST | judgment | 3 |' '| #100 | haiku:low | FIX FIRST | spec | 2 |' "$log"
+  local output
+  output=$(with_stubs scripts/mygame-merge --dry-run 500 probe opus:high merge 1) || fail "${FUNCNAME[0]}" "$output" || return 1
+  [ "$(summary_of haiku:low)" = "| haiku:low | 1 | 0 | 0 | 0 | 1 |" ] || fail "${FUNCNAME[0]}" "haiku:low $(summary_of haiku:low)" || return 1
+  [ "$(awk '/^## Recent/ { exit } /^\| haiku:low/ { getline; print }' "$log")" = "" ] || fail "${FUNCNAME[0]}" "the new row is not the last of the Summary" || return 1
+  [ "$(recent_rows)" = 20 ] || fail "${FUNCNAME[0]}" "recent rows $(recent_rows)"
+}
+
+run() {
+  if "$1"; then
+    echo "ok   $1"
+  else
+    failures=$((failures + 1))
+  fi
+}
+
+run a_dry_run_on_a_merged_pr_appends_one_six_column_row
+run a_merge_verdict_leaves_the_cause_empty
+run refuses_every_bad_argument_and_leaves_the_log_alone
+run a_dry_run_refuses_a_pr_that_is_not_merged
+run refuses_a_pr_the_log_already_holds
+run merging_merges_then_logs_then_closes_the_peer
+run keep_emulator_reaches_the_close
+run a_failed_merge_logs_nothing_and_closes_nothing
+run the_twenty_first_row_folds_the_oldest_into_its_model_summary
+run a_folded_model_without_a_summary_row_gets_one
+[ "$failures" -eq 0 ]

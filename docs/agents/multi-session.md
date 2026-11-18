@@ -9,11 +9,11 @@ One GitHub issue labelled `ready-for-agent`. The label vocabulary is `docs/agent
 ## The loop
 
 ```
-1. Orchestrator SCOPES the issue (inline, cheap) and picks the dispatch-log row
+1. Orchestrator SCOPES the issue (inline, cheap) and picks the model table row
 2. scripts/mygame-wave boots one peer per ticket → WRITER   ── own worktree, branch, commits, PR that closes the issue
 3. CI runs `pnpm gate` on the PR
 4. Orchestrator delegates → pr-reviewer                     ── MERGE or FIX FIRST, on every PR
-5. Orchestrator rebase-merges, appends the dispatch-log row, closes the cycle
+5. scripts/mygame-merge rebase-merges, writes the dispatch-log row, closes the cycle
 ```
 
 ## Roles
@@ -27,9 +27,9 @@ One GitHub issue labelled `ready-for-agent`. The label vocabulary is `docs/agent
 
 ## Model and effort
 
-- Every dispatch states model and **one** explicit effort (low / medium / high, never a range), with a one-line reason. The row and the column come from the table in `.claude/skills/wave/SKILL.md`, the column named by the `Budget tier:` line of `CLAUDE.md`: pick the cheapest model and lowest effort that gets it right; reserve Opus for work where a mistake is silent or expensive (schema and migrations, auth, the composition root, the contracts boundary); low is enough where a wrong answer fails the compiler or a test loudly.
-- The orchestrator session itself runs opus:medium in every tier: it scopes, dispatches, reads verdicts and merges, which is coordination, not deep reasoning. The owner raises it to high for a conflicting rebase or an ambiguous FIX FIRST, and lowers it back after.
-- Fable is not used (owner, 2026-11-02). Design (row 5), the lore, a new ADR, an adversarial audit, an ambiguous triage and diagnosing a peer that failed the same ticket twice run opus:high. Reviews, implementation and doc checks go to Opus or Sonnet.
+- Every dispatch states model and **one** explicit effort (low / medium / high, never a range), with a one-line reason. The row comes from the table in `.claude/skills/wave/SKILL.md`: pick the cheapest model and lowest effort that gets it right; reserve Opus for work where a mistake is silent or expensive (schema and migrations, auth, the composition root, the contracts boundary); low is enough where a wrong answer fails the compiler or a test loudly.
+- The orchestrator session itself runs opus:medium: it scopes, dispatches, reads verdicts and merges, which is coordination, not deep reasoning. The owner raises it to high for a conflicting rebase or an ambiguous FIX FIRST, and lowers it back after.
+- Fable runs ADRs, audits and research (owner, 2026-11-18, audit #1200). Design, the lore, an ambiguous triage and diagnosing a peer that failed the same ticket twice run opus:high. Reviews, implementation and doc checks go to Opus or Sonnet.
 - `model` is explicit on every Agent call: the parameter overrides an agent's frontmatter `model:`, and omitting it silently runs the definition or session default.
 - A session cannot see its own reasoning effort; `ListAgents` does not show it, and asking a session returns a guess. The owner verifies with `/model` in each terminal.
 
@@ -74,8 +74,8 @@ Every dispatch to a peer carries:
 
 ## Review cycle
 
-- A session gets nothing new until its previous PR is reviewed, fixed and merged. Never queue two tickets in one dispatch, except under `max-100`, where one peer may carry up to 3 row 1 tickets, one PR each, in sequence (`.claude/skills/wave/SKILL.md`).
-- Every PR gets one review: a fresh `pr-reviewer` subagent the orchestrator launches, one per PR, on the model the roles table of `.claude/skills/wave/SKILL.md` names, passed on the call; no tier lowers a review. What it checks, the red-run table first, is `.claude/agents/pr-reviewer.md`. It returns `blocking|minor` findings, one verdict (MERGE or FIX FIRST) and one cause word (`checklist`, `judgment`, `spec`) for the dispatch log.
+- A session gets nothing new until its previous PR is reviewed, fixed and merged. Never queue two tickets in one dispatch, except that one peer may carry up to 3 row 1 tickets, one PR each, in sequence (`.claude/skills/wave/SKILL.md`).
+- Every PR gets one review: a fresh `pr-reviewer` subagent the orchestrator launches, one per PR, on the model the roles table of `.claude/skills/wave/SKILL.md` names, passed on the call; nothing lowers a review. What it checks, the red-run table first, is `.claude/agents/pr-reviewer.md`. It returns `blocking|minor` findings, one verdict (MERGE or FIX FIRST) and one cause word (`checklist`, `judgment`, `spec`) for the dispatch log.
 - The review prompt carries the PR number, the issue, the criteria to scrutinize and, for an `apps/api` mutation, a `DATABASE_URL`; never the peer's report or the orchestrator's reading of it. The reviewer's `Not run:` line is the orchestrator's to settle before it merges.
 - FIX FIRST: relay the blocking items to the peer verbatim, and nothing else. Its fix report quotes command output per item; a bare claim goes back. MERGE: merge, with no polish round.
 - Minors go into the sprint's one open batch issue, `Review follow-ups: S<n>`, one comment per PR. At sprint end it is dispatched as one ticket or closed; none stays open into the next sprint.
@@ -88,7 +88,7 @@ Every dispatch to a peer carries:
 
 ## Between tickets
 
-- A cycle closes in this order: the PR is merged; the peer leaves its worktree clean and reports; the orchestrator runs `scripts/mygame-wave-close <session>` from its own checkout; any throwaway review worktree under a scratchpad is removed. The session is free when `scripts/mygame-orphans` exits 0 and prints nothing beyond `kept:` lines and `orphans: none`. What the two scripts stop, remove and report is their source; `scripts/test-mygame-wave-close` checks both, outside `pnpm gate`.
-- Also at cycle close, the orchestrator appends one row to the Recent table of `docs/agents/dispatch-log.md` and folds anything beyond the last 20 rows into its Summary: PR, issue, table row, model:effort, first-review verdict and, on FIX FIRST, whether the cause was a checklist item, a judgment error or a thin spec, and the peer's and the reviewers' tokens, measured as the log's header says. The rows accumulate uncommitted in the working tree across the sprint, with `git pull --rebase --autostash` between merges, and ship as one `docs(agents): log S<n>` commit when the sprint closes, never one per ticket. Before any push, the orchestrator squashes any run of unpushed log commits into one with `git reset --soft`. It pushes that sprint commit to `trunk` itself when every unpushed commit is a cycle-close docs commit; any other push to `trunk` still needs the owner's OK. The table in `.claude/skills/wave/SKILL.md` is tuned from that log, not from opinion.
+- A cycle closes in this order: the peer leaves its worktree clean and reports; the orchestrator runs `scripts/mygame-merge <pr> <session> <model:effort> <merge|checklist|judgment|spec> <rounds>` from its own checkout, which rebase-merges the PR, writes its dispatch-log row and runs `scripts/mygame-wave-close <session>`, forwarding `--keep-emulator`; any throwaway review worktree under a scratchpad is removed. The session is free when `scripts/mygame-orphans` exits 0 and prints nothing beyond `kept:` lines and `orphans: none`. What the scripts stop, remove, write and report is their source; `scripts/test-mygame-wave-close` and `scripts/test-mygame-merge` check them, outside `pnpm gate`.
+- The row `scripts/mygame-merge` writes to the Recent table of `docs/agents/dispatch-log.md` holds the PR, the model:effort that ran, the first-review verdict, its cause on FIX FIRST (the `pr-reviewer` cause word), the rounds until MERGE and the lines GitHub counts; past 20 rows it folds the oldest into the Summary. A PR merged by hand gets its row from `scripts/mygame-merge --dry-run` with the same arguments, which neither merges nor closes. Nobody types a row. The rows accumulate uncommitted in the working tree across the sprint, with `git pull --rebase --autostash` between merges, and ship as one `docs(agents): log S<n>` commit when the sprint closes, never one per ticket. Before any push, the orchestrator squashes any run of unpushed log commits into one with `git reset --soft`. It pushes that sprint commit to `trunk` itself when every unpushed commit is a cycle-close docs commit; any other push to `trunk` still needs the owner's OK. The table in `.claude/skills/wave/SKILL.md` is tuned from that log, not from opinion.
 - Also at cycle close, the orchestrator asks whether the merged work made an architecture or domain decision, changed a domain term, or named something a player sees. If it did, it files a small docs ticket that loads `mattpocock-skills:domain-modeling` and adds or updates the ADR in `docs/adr/`, `CONTEXT.md`, `docs/setting/`, or all of them. An ADR that the shipped behavior contradicts is fixed the same way.
 - `scripts/mygame-wave-close` kills the peer's `claude` process and deletes its branches, local and remote, so it runs only after the peer's last PR is merged: closing first closes the open PR, and a closed PR cannot take a rebased head. If the pane outlives it, `kill -HUP` its parent `zsh`. After a machine restart a peer comes back as `claude --resume <id>` with its cwd at the main checkout: the close misses that process, so kill its PID first, and `scripts/mygame-orphans` flags its live worktree until then. Tell the resumed peer to work only in its worktree. A closed session never gets a second ticket.

@@ -2,7 +2,7 @@
 name: wave
 description: "Trigger: /wave, levantar wave, abrir peers, dispatch wave, lanzar sesiones. Boot one terminal pane per ticket (herdr or Warp) and dispatch each ticket to its peer session."
 argument-hint: <issue numbers>
-allowed-tools: Bash(gh:*) Bash(scripts/mygame-wave:*) Bash(scripts/mygame-wave-close:*) Bash(scripts/mygame-orphans:*) Bash(git worktree:*) ListAgents SendMessage Read
+allowed-tools: Bash(gh:*) Bash(scripts/mygame-wave:*) Bash(scripts/mygame-merge:*) Bash(scripts/mygame-wave-close:*) Bash(scripts/mygame-orphans:*) Bash(git worktree:*) ListAgents SendMessage Read
 license: Apache-2.0
 metadata:
   author: "emm3000"
@@ -17,8 +17,8 @@ Run when the owner invokes `/wave` with one or more issue numbers, or when the o
 
 - Read `docs/agents/multi-session.md` first. Its Dispatch, Isolation and Review cycle sections bind every dispatch.
 - Tickets dispatched together touch disjoint Gradle modules, or disjoint packages for TypeScript. A seam two of them share lands first as its own PR.
-- Under `max-200`, one ticket per peer. Under `max-100`, at most 3 peers at a time, and one peer may carry up to 3 row 1 tickets, one PR each, in sequence; every other ticket gets its own peer.
-- Read the active budget tier from the `Budget tier:` line of `CLAUDE.md` and take every model and effort from that tier's column.
+- At most 3 peers at a time. One peer may carry up to 3 row 1 tickets, one PR each, in sequence; every other ticket gets its own peer.
+- Take every model and effort from the tables below.
 - One explicit model and one explicit effort per ticket, stated to the owner before booting.
 - Never touch the owner's main checkout. Peers get their own worktree from `scripts/mygame-session`.
 - Assign each peer its own `API_PORT` and `WEB_PORT` in the dispatch, never the defaults.
@@ -26,48 +26,45 @@ Run when the owner invokes `/wave` with one or more issue numbers, or when the o
 
 ## Decision Gates
 
-Rows are ordered by blast radius: how much a mistake breaks and whether a gate catches it. A ticket that matches several rows takes the highest-numbered row that matches. The table lives only here; `docs/agents/dispatch-log.md` records the outcomes per row.
+Two rows. The table lives only here; `docs/agents/dispatch-log.md` records every PR's outcome by the model that ran it.
 
-| Row | Work | max-200 | max-100 | Extra instruction |
-|---|---|---|---|---|
-| 1 | `.md` edits, copy, renames, applying a diff already designed; every criterion is a command with empty output | sonnet:low | sonnet:low | none: the compiler and the criteria fail loudly |
-| 2 | Code where the compiler or a test catches the error: one component, one use case, one route handler, one adapter behind an existing contract test | opus:high | opus:high | load `mattpocock-skills:tdd` for behavior; Playwright screenshots for a screen |
-| 3 | Code on the trap list, where nothing catches the error: the composition root, a `packages/contracts` schema change, package config (`tsconfig`, `package.json`, `biome.json`), Gradle config (`build.gradle.kts`, `settings.gradle.kts`, `libs.versions.toml`, `detekt.yml`, a convention plugin), `.github/`, a design-system default that changes N screens | opus:high | opus:high | screenshots of every affected screen; the leak check in `.claude/rules/architecture.md` |
-| 4 | Schema or migration, auth, the persistence adapters, cross-package architecture, a new package | opus:high | opus:high | the contract test suite against every adapter; a migration test from the previous version |
-| 5 | Design: a Design System or Design artifact (tokens, icons, component rules, a screen mockup) | opus:high | opus:high | no branch, no PR: the peer publishes the artifact, posts its URL as a comment on the issue and closes it; the dispatch names the art bible, the lore pages and the existing artifact URLs |
+| Row | Work | Model:effort |
+|---|---|---|
+| 1 | `.md` edits, copy, renames, applying a diff already designed; every criterion is a command with empty output | sonnet:low |
+| 2 | Everything else: code, schema and migrations, auth, the composition root, package and Gradle config, `.github/`, `scripts/`, design | opus:high |
+
+What a row 2 dispatch adds, by the kind of work:
+
+- Behavior: load `mattpocock-skills:tdd` and owe the red-run table (`docs/agents/peer.md`).
+- A screen: the screenshots `docs/agents/peer.md` describes.
+- The trap list, where nothing catches the error (the composition root, a `packages/contracts` schema change, package or Gradle config, `.github/`, a design-system default that changes N screens): screenshots of every affected screen and the leak check in `.claude/rules/architecture.md`.
+- Schema or migration, auth, the persistence adapters, a new package: the contract test suite against every adapter and a migration test from the previous version.
+- `scripts/` or `.github/`: a safety checklist naming what the code may destroy and what it must never touch (other projects, live peers, the main checkout, `trunk`), which steps see each secret, that no step running repo code holds one, and the proof run that shows both.
+- Design, a Design System or Design artifact (tokens, icons, component rules, a screen mockup): no branch, no PR. The peer publishes the artifact, posts its URL as a comment on the issue and closes it; the dispatch names the art bible, the lore pages and the existing artifact URLs.
+- A dispatch that names a reference file to model the work on inherits that file's debt, so it names the file's known gaps in the same breath.
 
 Roles outside the rows:
 
-| Role | max-200 | max-100 |
-|---|---|---|
-| `pr-reviewer`, screen, logic, schema, auth or composition-root PR | opus:high | opus:high |
-| `pr-reviewer`, restyle, docs or rename PR | sonnet:medium | sonnet:medium |
-| Post-review fixes | sonnet:low | sonnet:low |
-| `ticket-writer`, planner | opus:high | opus:medium |
-| Orchestrator | opus:medium | opus:medium |
-| Lore, a new ADR, an adversarial audit, an ambiguous triage | opus:high | opus:high |
+| Role | Model:effort |
+|---|---|
+| `pr-reviewer`, screen, logic, schema, auth or composition-root PR | opus:high |
+| `pr-reviewer`, restyle, docs or rename PR | sonnet:medium |
+| `ticket-writer`, planner | opus:medium |
+| Orchestrator | opus:medium |
+| A new ADR, an adversarial audit, research | fable:high |
+| Lore, an ambiguous triage | opus:high |
 
-Reviewers never drop a step in any tier: they are the gate that holds the quality the lowered rows give up. Design is row 5, a `/wave` peer like any other ticket.
+An ADR or lore dispatch tells the peer to check every statement and worked example against trunk and the domain function that computes it, never against a comment or a PR body.
 
-Every row is a bet until `docs/agents/dispatch-log.md` says otherwise. A row that draws two FIX FIRST verdicts for one criterion goes back up one step in the active tier's column, noted in the table.
-
-- Inherited from JustChill's log, kept as a starting bet: a package-wide sweep that needs judgment per line (which comment survives, which duplicate is real) takes row 3, not row 2.
-- Inherited: a dispatch that names a reference file to model the work on inherits that file's debt, so name its known gaps in the same breath.
-- Raised 2026-09-28 after two first-review FIX FIRST judgment verdicts on row 3 (PR #100, #166): opus:medium shipped an SMTP transport with nodemailer's default timeouts (2 min connect, 10 min idle socket) inside a request that sends mail; no compiler or test catches a missing timeout. Row 3 now runs opus:high.
-- Checked 2026-09-29 after two first-review FIX FIRST judgment verdicts on lore run as row 1 on fable:high (PR #251, #268), which cannot be raised: a proposal said a season shortens a levy already running, against the snapshot at the order, and a worked example put the uplands on a province `terrainOf` gives the ridges. A lore dispatch now tells the peer to check every worked example and every stated rule against the domain function that computes it and against the umbrella's decisions before opening the PR.
-- Checked 2026-10-09 after two first-review FIX FIRST judgment verdicts on ADR tickets run as row 1 on fable:high (PR #532, #539), which cannot be raised: each copied a claim from a design comment or a PR body that a later fold had already made false (a refund line "reading 0 units" that the code no longer drew; a transition "once a minute at most" against `repaintDelayMsOf`). An ADR dispatch now tells the peer to verify every statement against trunk, never against a comment, before writing it.
-- Checked 2026-11-03 after two first-review FIX FIRST judgment verdicts on row 3 tooling and CI tickets at opus:high (PR #617, #643), which cannot be raised: one orphan check pushed the orchestrator to kill a kept emulator and delete another project's database volume; one CI job handed `VERCEL_TOKEN` to every step, including the install and build code the pull request controls. A `scripts/` or `.github/` dispatch now carries a safety checklist: what the code may destroy and what it must never touch (other projects, live peers, the main checkout, `trunk`); which steps see each secret, and that no step running repo code holds one; and the proof run that shows both.
-- Raised 2026-09-22 after two first-review FIX FIRST judgment verdicts on row 2 (PR #32, #34): sonnet:medium shipped a value object without its invariant factory, float accrual that lost a unit, and a generic port method that forced casts on every implementer. The compiler catches none of that. Row 2 now runs opus:medium.
-- Raised 2026-11-02 under max-100 after two first-review FIX FIRST judgment verdicts on row 2 at sonnet:high (PR #584, #589): one kept art the redesign drops, the other re-read the api every second while the device clock ran ahead of the server. No compiler or test caught either. Row 2 under max-100 now runs opus:medium.
-- Raised 2026-11-02 after two first-review FIX FIRST judgment verdicts on row 2 at opus:medium (PR #601, #619): one let a second request clear the first one's waiting state, the other checked a levy's peasants against the projected free count while the api and the web use the lowest free count. Each ported a rule from the api or the web and got it subtly wrong, and no test caught either. Row 2 now runs opus:high in both columns, since max-200 never runs below max-100.
+Reviewers never drop a step: they are the gate that holds the quality row 1 gives up. A row that draws two first-review FIX FIRST verdicts for one criterion goes up one step, noted in this section.
 
 ## Execution Steps
 
-1. For each issue run `gh issue view <n> --json title,labels,body`. Confirm the label and derive a short lowercase pane name from the title (one word, no digits).
+1. For each issue run `gh issue view <n> --json title,labels,body`. Count its `Done when` criteria and the screens it touches: over 5 criteria or 2 screens, refuse it and send it back to `ticket-writer` for a split, never dispatch it. Confirm the label and derive a short lowercase pane name from the title (one word, no digits).
 2. Classify each ticket with the table. The table binds: deviate only with a one-line reason stated in the plan, never silently. Tell the owner the plan in one line per ticket: `@<name> #<n> <model>:<effort>`, before booting anything.
 3. Run `scripts/mygame-wave <name>:<model>:<effort> ...` once with every ticket. It opens the panes in the terminal the orchestrator runs in (`TERM_PROGRAM`: herdr or Warp). When the owner names a terminal in the session ("trabajemos con warp", "con herdr"), pass `--terminal warp` or `--terminal herdr` as the first argument for the rest of the session. On `manual` (unknown terminal) the script prints one `scripts/mygame-session` line per peer: pass them to the owner to run, then poll.
 4. Poll `ListAgents` until every pane name is listed, at most 60 seconds.
-5. Send each peer one dispatch built from the playbook's Dispatch section: issue, `docs/agents/peer.md` and the ticket's own docs to read, branch `<type>/<n>-<slug>`, its worktree `../mygame-<name>`, its ports, the files and blockers, whether it owes the red-run table or screenshots, reply with the PR URL and the gate's exit code. A row 5 dispatch replaces branch, gate and PR with: publish the artifact, comment its URL on the issue, close the issue, reply with the URL. Ask for `notify_when_idle`.
+5. Send each peer one dispatch built from the playbook's Dispatch section: issue, `docs/agents/peer.md` and the ticket's own docs to read, branch `<type>/<n>-<slug>`, its worktree `../mygame-<name>`, its ports, the files and blockers, whether it owes the red-run table or screenshots, reply with the PR URL and the gate's exit code. A design dispatch replaces branch, gate and PR with: publish the artifact, comment its URL on the issue, close the issue, reply with the URL. Ask for `notify_when_idle`.
 6. Report to the owner in one or two lines: peers booted, tickets dispatched.
 
 ## Output Contract
@@ -78,8 +75,9 @@ Return the list `@<name> #<n> <model>:<effort>` and nothing else until a peer re
 
 - `docs/agents/multi-session.md` — the orchestrator's playbook: dispatch, isolation, review cycle.
 - `docs/agents/peer.md` — the one playbook a peer reads.
-- `docs/agents/dispatch-log.md` — the outcomes per table row.
+- `docs/agents/dispatch-log.md` — every PR's outcome by the model that ran it.
 - `scripts/mygame-wave` — opens one pane per peer in herdr or Warp, or prints the launch lines.
 - `scripts/mygame-session` — worktree plus `claude` launcher.
+- `scripts/mygame-merge` — rebase-merges one PR, writes its dispatch-log row, then runs `scripts/mygame-wave-close`; `--dry-run` only writes the row of a PR already merged.
 - `scripts/mygame-wave-close` — closes one peer's cycle: its processes, containers, worktree and branches, then the orphan check.
 - `scripts/mygame-orphans` — lists what closed cycles left behind; exits 0 with `orphans: none` when clean; `--keep-emulator` turns an emulator under a removed worktree, and a `mygame-<name>` AVD without its worktree, from an `orphan:` into a `kept:` line.
