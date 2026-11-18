@@ -29,7 +29,7 @@ English, neutral register, sized for one PR, at most 30 lines, self-sufficient f
 
 1. Title `<Area>: <slice>` matching the existing tickets.
 2. At most 3 lines of context, then pointers to the PRD row, the ADR, the lore page and the implementation files.
-3. `Done when`: a checklist of falsifiable conditions. Prefer a command with its expected output (`rg -n "Date.now" packages/domain/src` returns nothing). Always the last item: `pnpm gate` green. Name the package `CLAUDE.md` gotchas the slice crosses. State that the criteria win over the file list. A check on an invisible character matches the text the file holds: for a JSON escape the escape itself (`rg -nF ' '`), never the pasted character.
+3. `Done when`: a checklist of falsifiable conditions. Prefer a command with its expected output (`rg -n "Date.now" packages/domain/src` returns nothing). Always the last item: `pnpm gate` green. Name the package `CLAUDE.md` gotchas the slice crosses. State that the criteria win over the file list. A check on an invisible character matches the text the file holds: for a JSON escape the escape itself (`rg -nF '\u00a0'`), never the pasted character.
    - A ticket that changes a design-system default (`core:designsystem`, `apps/web/src/design`) names the tests in other modules it can break.
 4. For behavior: the rule each new test must name. For UI: the states the screen has, and that the PR owes the screenshots `docs/agents/peer.md` (Screenshots) defines.
 5. Known gaps between the PRD, the lore and the code, factual, no redesign.
