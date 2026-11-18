@@ -147,8 +147,8 @@ class MyGameDockMeasureTest {
     }
 
     @Test
-    @Config(qualifiers = "+w412dp-h915dp")
-    fun `the Spanish label and door do not share a row at font scale 1 on a 412 by 915 window`() {
+    @Config(qualifiers = "+w411dp-h915dp")
+    fun `the Spanish label and door do not share a row at font scale 1 on a 411 by 915 window`() {
         showSpanishDock()
 
         assertFalse("the door sits beside the go button", isDoorBeside())
