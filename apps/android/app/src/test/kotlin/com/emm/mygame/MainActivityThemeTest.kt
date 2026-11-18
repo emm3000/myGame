@@ -1,5 +1,6 @@
 package com.emm.mygame
 
+import android.app.UiModeManager
 import androidx.compose.ui.test.junit4.ComposeTestRule
 import androidx.compose.ui.test.junit4.createEmptyComposeRule
 import androidx.core.view.WindowCompat
@@ -14,6 +15,7 @@ import org.junit.runner.RunWith
 import org.robolectric.Robolectric
 import org.robolectric.RobolectricTestRunner
 import org.robolectric.RuntimeEnvironment
+import org.robolectric.Shadows.shadowOf
 import org.robolectric.annotation.Config
 
 @RunWith(RobolectricTestRunner::class)
@@ -50,6 +52,53 @@ class MainActivityThemeTest {
 
         assertEquals(listOf(false, false), darkIconsOf(activity))
     }
+
+    @Test
+    fun `a stored dark pick sets the application night mode at start`() {
+        application.themes.choose(ThemePick.Dark)
+
+        Robolectric.buildActivity(MainActivity::class.java).setup()
+        composeRule.waitForIdle()
+
+        assertEquals(UiModeManager.MODE_NIGHT_YES, applicationNightMode())
+    }
+
+    @Test
+    fun `a new light pick sets the application night mode`() {
+        Robolectric.buildActivity(MainActivity::class.java).setup()
+        composeRule.waitForIdle()
+
+        application.themes.choose(ThemePick.Light)
+        composeRule.waitForIdle()
+
+        assertEquals(UiModeManager.MODE_NIGHT_NO, applicationNightMode())
+    }
+
+    @Test
+    fun `the system pick lets the application night mode follow the phone`() {
+        application.themes.choose(ThemePick.Dark)
+        Robolectric.buildActivity(MainActivity::class.java).setup()
+        composeRule.waitForIdle()
+
+        application.themes.choose(ThemePick.System)
+        composeRule.waitForIdle()
+
+        assertEquals(UiModeManager.MODE_NIGHT_AUTO, applicationNightMode())
+    }
+
+    @Test
+    @Config(sdk = [30])
+    fun `below API 31 a stored dark pick leaves the application night mode to the phone`() {
+        application.themes.choose(ThemePick.Dark)
+
+        Robolectric.buildActivity(MainActivity::class.java).setup()
+        composeRule.waitForIdle()
+
+        assertEquals(UiModeManager.MODE_NIGHT_AUTO, applicationNightMode())
+    }
+
+    private fun applicationNightMode(): Int =
+        shadowOf(application.getSystemService(UiModeManager::class.java)).applicationNightMode
 
     private fun darkIconsOf(activity: MainActivity): List<Boolean> {
         val bars: WindowInsetsControllerCompat =
