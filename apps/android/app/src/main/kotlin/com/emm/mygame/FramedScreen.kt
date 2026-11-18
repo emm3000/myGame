@@ -89,26 +89,24 @@ internal fun FramedScreen(
             FrameHeader(kind = kind, doesScreenReadTown = doesScreenReadTown, chrome = chrome)
             chrome.banner()
         }
-        Column(
+        Box(
             modifier = Modifier
                 .weight(1f)
                 .fitInside(WindowInsetsRulers.Ime.current)
                 .consumeWindowInsets(framedInsets),
         ) {
-            Box(modifier = Modifier.weight(1f)) {
-                content(frame)
-            }
-            if (isKeyboardOpen) return@Column
-            task.dock?.takeIf { kind == FrameKind.Task }?.let { shown: TaskDock -> TaskFrameDock(shown) }
-            if (dock != null) {
-                FrameDock(
-                    dock = dock,
-                    chrome = chrome,
-                    door = door,
-                    studyInPlace = studyInPlace,
-                    onFoldChange = { folded: Boolean -> isFolded.value = folded },
-                )
-            }
+            content(frame)
+        }
+        if (isKeyboardOpen) return@Column
+        task.dock?.takeIf { kind == FrameKind.Task }?.let { shown: TaskDock -> TaskFrameDock(shown) }
+        if (dock != null) {
+            FrameDock(
+                dock = dock,
+                chrome = chrome,
+                door = door,
+                studyInPlace = studyInPlace,
+                onFoldChange = { folded: Boolean -> isFolded.value = folded },
+            )
         }
     }
 }
