@@ -52,6 +52,7 @@ import kotlin.time.Clock
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import org.junit.Assert.assertEquals
+import org.junit.Assert.assertTrue
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -85,7 +86,7 @@ class TaskDockFrameTest {
 
     private val sent: MutableList<TownStatusIntent> = mutableListOf()
 
-    private fun showingFakeTask() {
+    private fun showingFakeTask(isFilled: Boolean = true) {
         composeRule.setContent {
             MyGameTheme {
                 val backStack: NavBackStack<NavKey> = rememberNavBackStack(Destination.Town, Destination.Review)
@@ -100,7 +101,7 @@ class TaskDockFrameTest {
                         banner = {},
                     ),
                 ) { frame: ScreenFrame ->
-                    FakeTaskRoute(hook = frame.task)
+                    FakeTaskRoute(hook = frame.task, isFilled = isFilled)
                 }
             }
         }
@@ -125,7 +126,34 @@ class TaskDockFrameTest {
         assertEquals(listOf<TownStatusIntent>(TownStatusIntent.ScreenAnswered), sent)
     }
 
+    @Test
+    fun `a task route's dock comes after its content for TalkBack`() {
+        showingFakeTask()
+
+        val order: List<String> = composeRule.traversalOrder()
+
+        assertTrue(order.indexOf(CARD) in 0 until order.indexOf(TASK_TITLE))
+    }
+
+    @Test
+    fun `a task screen draws no dock until its route fills it`() {
+        showingFakeTask(isFilled = false)
+
+        composeRule.onAllNodes(hasTestTag(INK_PILL)).assertCountEquals(0)
+    }
+
+    @Test
+    fun `a task route's dock hides while the keyboard is open`() {
+        showingFakeTask()
+
+        composeRule.keyboard(isOpen = true)
+
+        composeRule.onAllNodes(hasContentDescription(CHECK, substring = true)).assertCountEquals(0)
+    }
+
     private companion object {
+        const val CARD: String = "The card"
+        const val TASK_TITLE: String = "REVIEW"
         const val CHECK: String = "Check"
         const val PROGRESS: String = "Card 2 of 5"
         const val VERDICT: String = "Correct."
@@ -133,8 +161,9 @@ class TaskDockFrameTest {
 }
 
 @Composable
-private fun FakeTaskRoute(hook: TaskDockHook) {
+private fun FakeTaskRoute(hook: TaskDockHook, isFilled: Boolean) {
     MyGameText(text = "The card", style = MyGameTypography.body, color = MyGameTheme.colors.ink)
+    if (!isFilled) return
     FillTaskDock(
         hook = hook,
         dock = TaskDock(

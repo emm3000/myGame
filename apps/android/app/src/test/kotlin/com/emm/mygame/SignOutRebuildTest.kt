@@ -1,6 +1,8 @@
 package com.emm.mygame
 
+import androidx.compose.ui.test.hasClickAction
 import androidx.compose.ui.test.hasText
+import androidx.compose.ui.test.isHeading
 import androidx.compose.ui.test.junit4.ComposeTestRule
 import androidx.compose.ui.test.junit4.createEmptyComposeRule
 import androidx.compose.ui.test.onNodeWithText
@@ -107,6 +109,17 @@ class SignOutRebuildTest {
         composeRule.onNodeWithText("Entra").performScrollTo().performClick()
 
         waitForLine("¿Aún no tienes cuenta?")
+    }
+
+    @Test
+    fun `keeps the dock's door shut when the activity is recreated mid-sign-out`() {
+        signingOutOnARecreatedReport()
+        waitForLine("Pueblo")
+
+        composeRule.onNode(hasText("Pueblo").and(hasClickAction())).performClick()
+        composeRule.waitForIdle()
+
+        composeRule.onNode(hasText("Informe").and(isHeading())).assertExists()
     }
 
     private companion object {

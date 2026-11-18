@@ -14,6 +14,7 @@ import androidx.compose.ui.test.hasClickAction
 import androidx.compose.ui.test.hasContentDescription
 import androidx.compose.ui.test.hasTestTag
 import androidx.compose.ui.test.hasText
+import androidx.compose.ui.test.isHeading
 import androidx.compose.ui.test.junit4.AndroidComposeTestRule
 import androidx.compose.ui.test.junit4.createAndroidComposeRule
 import androidx.compose.ui.test.onAllNodesWithContentDescription
@@ -836,6 +837,19 @@ class AppNavigationTest {
         waitForLine("No tienes repasos pendientes ahora.")
 
         assertEquals(2, reportsFake.readCount)
+    }
+
+    @Test
+    fun `keeps the Report shown when the dock's door is tapped while signing out`() {
+        signedInAtTown()
+        openReport(nothingDue)
+        composeRule.onNodeWithText("Salir").performScrollTo().performClick()
+        composeRule.waitForIdle()
+
+        dockDoor("Pueblo").performClick()
+        composeRule.waitForIdle()
+
+        composeRule.onNode(hasText("Informe").and(isHeading())).assertExists()
     }
 
     private companion object {
