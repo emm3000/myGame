@@ -167,7 +167,7 @@ class ReportViewModel(
         waiting?.cancel()
         val dueAt: Instant = report.nextDueAt ?: return
         val wait: Duration = dueAt - clock.now()
-        if (report.dueCount > 0 || wait <= Duration.ZERO || !isShown) return
+        if (report.dueCount > 0 || wait <= Duration.ZERO) return
         waiting = viewModelScope.launch {
             delay(wait)
             readAgain()
