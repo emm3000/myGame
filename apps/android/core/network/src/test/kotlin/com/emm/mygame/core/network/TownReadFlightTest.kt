@@ -4,6 +4,7 @@ import com.emm.mygame.core.testing.FakeTokenCipher
 import com.emm.mygame.core.testing.TestClock
 import java.io.File
 import java.util.concurrent.CountDownLatch
+import java.util.concurrent.TimeUnit
 import kotlin.time.Instant
 import kotlinx.coroutines.CoroutineStart
 import kotlinx.coroutines.Deferred
@@ -11,8 +12,10 @@ import kotlinx.coroutines.async
 import kotlinx.coroutines.test.TestScope
 import kotlinx.coroutines.test.UnconfinedTestDispatcher
 import kotlinx.coroutines.test.runTest
+import mockwebserver3.Dispatcher
 import mockwebserver3.MockResponse
 import mockwebserver3.MockWebServer
+import mockwebserver3.RecordedRequest
 import org.junit.After
 import org.junit.Assert.assertEquals
 import org.junit.Before
@@ -101,37 +104,37 @@ class TownReadFlightTest {
     }
 
     @Test
-    fun `a read after a session change never joins the read of the session before`() = runTest {
-        val townAnswer: CountDownLatch = held.holding(TOWN_PATH, json(200, TOWN))
+    fun `a read after a session change never hands it the town of the session before`() = runTest {
+        val sessionBefore: SessionTowns = SessionTowns(beforeBearer = "Bearer opaque-session")
+        api.dispatcher = sessionBefore
         val towns: TownRepository = town()
 
         val before: Deferred<TownReadResult> = async(start = CoroutineStart.UNDISPATCHED) { towns.read() }
         api.takeRequestWithin()
         store.write("another-session")
-        val after: Deferred<TownReadResult> = async(start = CoroutineStart.UNDISPATCHED) { towns.read() }
-        townAnswer.countDown()
+        val after: TownReadResult = towns.read()
+        sessionBefore.answer.countDown()
         before.await()
-        after.await()
 
-        assertEquals("Bearer another-session", api.takeRequestWithin().headers["Authorization"])
+        assertEquals(NEXT_TOWN_NAME, (after as TownReadResult.Read).town.name)
+        assertEquals(NEXT_TOWN_NAME, towns.town.value?.town?.name)
     }
 
     @Test
-    fun `a read after a sign-out never joins the read of the session before`() = runTest {
-        val townAnswer: CountDownLatch = held.holding(TOWN_PATH, json(200, TOWN))
-        held.answering(SIGN_OUT_PATH, MockResponse.Builder().code(204).build())
+    fun `a read after a sign-out never hands it the town of the session before`() = runTest {
+        val sessionBefore: SessionTowns = SessionTowns(beforeBearer = "Bearer opaque-session")
+        api.dispatcher = sessionBefore
         val towns: TownRepository = town()
 
         val before: Deferred<TownReadResult> = async(start = CoroutineStart.UNDISPATCHED) { towns.read() }
         api.takeRequestWithin()
         sessions().signOut()
-        api.takeRequestWithin()
-        val after: Deferred<TownReadResult> = async(start = CoroutineStart.UNDISPATCHED) { towns.read() }
-        townAnswer.countDown()
+        val after: TownReadResult = towns.read()
+        sessionBefore.answer.countDown()
         before.await()
-        after.await()
 
-        assertEquals(null, api.takeRequestWithin().headers["Authorization"])
+        assertEquals(NEXT_TOWN_NAME, (after as TownReadResult.Read).town.name)
+        assertEquals(NEXT_TOWN_NAME, towns.town.value?.town?.name)
     }
 
     private fun TestScope.town(): TownRepository = TownRepository(
@@ -152,11 +155,22 @@ class TownReadFlightTest {
         ioDispatcher = UnconfinedTestDispatcher(testScheduler),
     )
 
-    private fun json(code: Int, body: String): MockResponse =
-        MockResponse.Builder().code(code).addHeader("Content-Type", "application/json").body(body).build()
+    private class SessionTowns(private val beforeBearer: String) : Dispatcher() {
+        val answer: CountDownLatch = CountDownLatch(1)
+
+        override fun dispatch(request: RecordedRequest): MockResponse {
+            if (request.url.encodedPath == SIGN_OUT_PATH) return MockResponse.Builder().code(204).build()
+            if (request.headers["Authorization"] != beforeBearer) return json(200, NEXT_TOWN)
+            answer.await(ANSWER_WAIT_SECONDS, TimeUnit.SECONDS)
+            return json(200, TOWN)
+        }
+    }
 
     private companion object {
         const val TOWN_PATH: String = "/api/town"
+        const val NEXT_TOWN_NAME: String = "Maple Falls"
+        val NEXT_TOWN: String = TOWN.replace("Riverton", NEXT_TOWN_NAME)
+        const val ANSWER_WAIT_SECONDS: Long = 5L
         const val SIGN_OUT_PATH: String = "/api/auth/sign-out"
         const val STOCK: String = """{"amount":120,"ratePerHour":30.5,"capacity":1000,"fullAt":null}"""
         const val FLAT: String = """{"level":1,"nextLevel":null}"""
@@ -183,3 +197,6 @@ class TownReadFlightTest {
                 """"readAt":"2026-11-13T10:00:00.000Z"}"""
     }
 }
+
+private fun json(code: Int, body: String): MockResponse =
+    MockResponse.Builder().code(code).addHeader("Content-Type", "application/json").body(body).build()
