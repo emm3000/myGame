@@ -79,7 +79,7 @@ fun TownScreen(
                 bottom = MyGameSpacing.step8,
             ),
     ) {
-        if (!isHeaderDrawn.value) placedFoldedDock()
+        if (!isHeaderDrawn.value || state !is TownUiState.Content) placedFoldedDock()
         MyGameSkeleton(
             isLoading = state == TownUiState.Loading,
             loadingLabel = chromeResource(R.string.town_loading).spoken,
