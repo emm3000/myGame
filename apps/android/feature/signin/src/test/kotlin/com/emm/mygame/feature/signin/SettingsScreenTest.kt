@@ -1,6 +1,9 @@
 package com.emm.mygame.feature.signin
 
+import androidx.compose.runtime.MutableState
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.ui.test.SemanticsNodeInteraction
+import androidx.compose.ui.test.getUnclippedBoundsInRoot
 import androidx.compose.ui.test.assertCountEquals
 import androidx.compose.ui.test.assertIsDisplayed
 import androidx.compose.ui.test.assertIsNotEnabled
@@ -13,7 +16,10 @@ import androidx.compose.ui.test.junit4.createComposeRule
 import androidx.compose.ui.test.onAllNodesWithText
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
+import androidx.compose.ui.unit.Dp
+import com.emm.mygame.core.designsystem.MyGameText
 import com.emm.mygame.core.designsystem.MyGameTheme
+import com.emm.mygame.core.designsystem.MyGameTypography
 import com.emm.mygame.core.network.PlayerScaffold
 import org.junit.Assert.assertEquals
 import org.junit.Rule
@@ -145,4 +151,31 @@ class SettingsScreenTest {
 
         composeRule.onNodeWithText("Ajustes").assertIsDisplayed()
     }
+
+    @Test
+    fun `keeps the theme choice in its place when the settings land`() {
+        val shown: MutableState<SettingsUiState> = mutableStateOf(SettingsUiState.Loading)
+        composeRule.setContent {
+            MyGameTheme {
+                SettingsScreen(
+                    state = shown.value,
+                    onIntent = {},
+                    onTownOpen = {},
+                    onNotificationSettingsOpen = {},
+                    themeChoice = {
+                        MyGameText(text = THEME_CHOICE, style = MyGameTypography.body, color = MyGameTheme.colors.ink)
+                    },
+                )
+            }
+        }
+        val whileLoading: Dp = themeChoiceTop()
+
+        shown.value = SettingsUiState.Loaded(PlayerScaffold.Spanish, SettingsUiState.Change.Untouched, firstReminder)
+
+        assertEquals(whileLoading, themeChoiceTop())
+    }
+
+    private fun themeChoiceTop(): Dp = composeRule.onNodeWithText(THEME_CHOICE).getUnclippedBoundsInRoot().top
 }
+
+private const val THEME_CHOICE: String = "The theme choice"
