@@ -491,7 +491,10 @@ class AppNavigationTest {
 
         composeRule.onNodeWithText("Hacer la prueba de nivel").performScrollTo().performClick()
 
-        waitForLine("Empezar la prueba")
+        composeRule.waitUntil(WAIT_MILLIS) {
+            composeRule.onAllNodes(hasContentDescription("Empezar la prueba", substring = true))
+                .fetchSemanticsNodes().isNotEmpty()
+        }
     }
 
     @Test

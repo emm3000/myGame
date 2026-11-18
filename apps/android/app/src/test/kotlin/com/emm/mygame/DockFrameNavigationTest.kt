@@ -29,12 +29,20 @@ import androidx.navigation3.runtime.NavKey
 import androidx.navigation3.runtime.rememberNavBackStack
 import androidx.test.ext.junit.rules.ActivityScenarioRule
 import com.emm.mygame.core.designsystem.INK_PILL
+import com.emm.mygame.core.designsystem.OUTLINED_PILL
 import com.emm.mygame.core.designsystem.MyGameTheme
+import com.emm.mygame.core.network.HoldoutCheck
+import com.emm.mygame.core.network.HoldoutCheckChangeResult
 import com.emm.mygame.core.network.HoldoutCheckRepository
+import com.emm.mygame.core.network.HoldoutCheckWeek
+import com.emm.mygame.core.network.HoldoutChecksReadResult
 import com.emm.mygame.core.network.LearningRepository
 import com.emm.mygame.core.network.LessonId
 import com.emm.mygame.core.network.NextStep
+import com.emm.mygame.core.network.Placement
 import com.emm.mygame.core.network.PlacementBand
+import com.emm.mygame.core.network.PlacementChangeResult
+import com.emm.mygame.core.network.PlacementReadResult
 import com.emm.mygame.core.network.PlacementRepository
 import com.emm.mygame.core.network.PlayerLanguage
 import com.emm.mygame.core.network.PlayerScaffold
@@ -98,6 +106,10 @@ class DockFrameNavigationTest {
 
     private val reportsFake: FakeReportRepository = FakeReportRepository()
 
+    private val placementsFake: FakePlacementRepository = FakePlacementRepository()
+
+    private val holdoutChecksFake: FakeHoldoutCheckRepository = FakeHoldoutCheckRepository()
+
     private val dependencies: AppDependencies = object : AppDependencies {
         override val clock: Clock = Clock.System
         override val sessionEnds: SessionEnds = SessionEnds()
@@ -107,8 +119,8 @@ class DockFrameNavigationTest {
         override val towns: TownRepository = townsFake
         override val learning: LearningRepository = FakeLearningRepository()
         override val reports: ReportRepository = reportsFake
-        override val placements: PlacementRepository = FakePlacementRepository()
-        override val holdoutChecks: HoldoutCheckRepository = FakeHoldoutCheckRepository()
+        override val placements: PlacementRepository = placementsFake
+        override val holdoutChecks: HoldoutCheckRepository = holdoutChecksFake
         override val studyReminders: StudyReminderSettings =
             FakeStudyReminderSettings(StudyReminderChoice.firstChoice)
         override val reminderNotifications: ReminderNotifications =
@@ -509,6 +521,45 @@ class DockFrameNavigationTest {
         composeRule.waitUntil(WAIT_MILLIS) { townsFake.sentAfterNowCount == 1 }
     }
 
+    private fun skippingThePlacement() {
+        placementsFake.answerRead(PlacementReadResult.Read(Placement.Offered))
+        placementsFake.answerChange(PlacementChangeResult.Changed(Placement.Closed(emptyList())))
+        showing(Destination.Town, Destination.Placement)
+        waitFor(hasText(SKIP_PLACEMENT))
+        composeRule.onAllNodes(hasTestTag(TOWN_DOCK)).assertCountEquals(0)
+
+        composeRule.onNode(hasText(SKIP_PLACEMENT)).performScrollTo().performClick()
+    }
+
+    @Test
+    fun `the end of the placement reads the town again`() {
+        skippingThePlacement()
+
+        composeRule.waitUntil(WAIT_MILLIS) { townsFake.sentAfterNowCount == 1 }
+    }
+
+    @Test
+    fun `after the placement the dock is the town's with no door`() {
+        skippingThePlacement()
+
+        waitFor(hasTestTag(INK_PILL).and(hasAnyAncestor(hasTestTag(TOWN_DOCK))))
+        composeRule.onAllNodes(hasTestTag(OUTLINED_PILL).and(hasAnyAncestor(hasTestTag(TOWN_DOCK))))
+            .assertCountEquals(0)
+    }
+
+    @Test
+    fun `the end of a holdout check reads the town again`() {
+        val due: HoldoutCheck = HoldoutCheck.Due(PlacementBand.First, HoldoutCheckWeek.Eighth)
+        holdoutChecksFake.answerRead(HoldoutChecksReadResult.Read(listOf(due)))
+        holdoutChecksFake.answerChange(HoldoutCheckChangeResult.Changed(emptyList()))
+        showing(Destination.Town, Destination.HoldoutCheck(PlacementBand.First, HoldoutCheckWeek.Eighth))
+        waitFor(hasText(SKIP_PLACEMENT))
+
+        composeRule.onNode(hasText(SKIP_PLACEMENT)).performScrollTo().performClick()
+
+        composeRule.waitUntil(WAIT_MILLIS) { townsFake.sentAfterNowCount == 1 }
+    }
+
     @Test
     fun `starting a lesson reads the town again`() {
         val studying: TownSnapshot = townOf(nextStep = NextStep.LessonRunning(goal = null))
@@ -611,6 +662,7 @@ class DockFrameNavigationTest {
         TownSnapshot.Learning(cap = 10, inLearning = 0, retainedWords = RetainedWords(count = 3, total = 5))
 
     private companion object {
+        const val SKIP_PLACEMENT: String = "Saltar la prueba"
         const val THREE_OF_FIVE: String = "3 de 5 palabras aprendidas"
         const val FRAME_LIMIT: Int = 60
         const val STUDY_SECOND: String = "Estudiar la lección 2 · 5:00"

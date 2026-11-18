@@ -1,5 +1,6 @@
 package com.emm.mygame.feature.placement
 
+import androidx.annotation.StringRes
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -16,7 +17,6 @@ import androidx.compose.ui.semantics.liveRegion
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.tooling.preview.PreviewParameter
 import androidx.compose.ui.tooling.preview.PreviewParameterProvider
-import com.emm.mygame.core.designsystem.MyGameButton
 import com.emm.mygame.core.designsystem.MyGameErrorBanner
 import com.emm.mygame.core.designsystem.MyGamePreviewSurface
 import com.emm.mygame.core.designsystem.MyGameSizes
@@ -38,15 +38,17 @@ import com.emm.mygame.core.ui.ChromePhase
 import com.emm.mygame.core.ui.CopyLanguage
 import com.emm.mygame.core.ui.ProvideCopyLanguage
 import com.emm.mygame.core.ui.ScaffoldLanguage
+import com.emm.mygame.core.ui.TaskDockHook
 import com.emm.mygame.core.ui.fixedCopyResource
 
 @Composable
 fun HoldoutCheckScreen(
     state: HoldoutCheckUiState,
     onIntent: (HoldoutCheckIntent) -> Unit,
-    onTownOpen: () -> Unit,
+    hook: TaskDockHook,
     modifier: Modifier = Modifier,
 ) {
+    HoldoutCheckDock(state = state, onIntent = onIntent, hook = hook)
     Column(
         verticalArrangement = Arrangement.spacedBy(MyGameSpacing.step6),
         modifier = modifier
@@ -68,17 +70,13 @@ fun HoldoutCheckScreen(
             loadingLabel = fixedCopyResource(R.string.placement_holdout_loading),
             blocks = holdoutCheckBlocks,
         ) {
-            HoldoutCheckState(state = state, onIntent = onIntent, onTownOpen = onTownOpen)
+            HoldoutCheckState(state = state, onIntent = onIntent)
         }
     }
 }
 
 @Composable
-private fun HoldoutCheckState(
-    state: HoldoutCheckUiState,
-    onIntent: (HoldoutCheckIntent) -> Unit,
-    onTownOpen: () -> Unit,
-) {
+private fun HoldoutCheckState(state: HoldoutCheckUiState, onIntent: (HoldoutCheckIntent) -> Unit) {
     when (state) {
         HoldoutCheckUiState.Loading -> Unit
         HoldoutCheckUiState.Failed -> MyGameErrorBanner(
@@ -86,36 +84,22 @@ private fun HoldoutCheckState(
             actionLabel = fixedCopyResource(R.string.placement_retry),
             onAction = { onIntent(HoldoutCheckIntent.RetryTapped) },
         )
-        HoldoutCheckUiState.NotOpen -> HoldoutCheckEnd(
-            line = R.string.placement_holdout_refused,
-            onTownOpen = onTownOpen,
-        )
+        HoldoutCheckUiState.NotOpen -> HoldoutCheckEnd(line = R.string.placement_holdout_refused)
         is HoldoutCheckUiState.Due -> HoldoutCheckDue(due = state, onIntent = onIntent)
         is HoldoutCheckUiState.Asking -> HoldoutCheckAsking(asking = state, onIntent = onIntent)
-        HoldoutCheckUiState.Answered -> HoldoutCheckEnd(line = R.string.placement_holdout_done, onTownOpen = onTownOpen)
-        HoldoutCheckUiState.Skipped -> HoldoutCheckEnd(
-            line = R.string.placement_holdout_skipped,
-            onTownOpen = onTownOpen,
-        )
+        HoldoutCheckUiState.Answered -> HoldoutCheckEnd(line = R.string.placement_holdout_done)
+        HoldoutCheckUiState.Skipped -> HoldoutCheckEnd(line = R.string.placement_holdout_skipped)
     }
 }
 
 @Composable
-private fun HoldoutCheckEnd(line: Int, onTownOpen: () -> Unit, modifier: Modifier = Modifier) {
-    Column(verticalArrangement = Arrangement.spacedBy(MyGameSpacing.step4), modifier = modifier) {
-        MyGameText(
-            text = fixedCopyResource(line),
-            style = MyGameTypography.body,
-            color = MyGameTheme.colors.ink,
-            modifier = Modifier.semantics { liveRegion = LiveRegionMode.Polite },
-        )
-        MyGameButton(
-            label = fixedCopyResource(R.string.placement_to_town),
-            isBusy = false,
-            busyDescription = fixedCopyResource(R.string.placement_sending),
-            onClick = onTownOpen,
-        )
-    }
+private fun HoldoutCheckEnd(@StringRes line: Int, modifier: Modifier = Modifier) {
+    MyGameText(
+        text = fixedCopyResource(line),
+        style = MyGameTypography.body,
+        color = MyGameTheme.colors.ink,
+        modifier = modifier.semantics { liveRegion = LiveRegionMode.Polite },
+    )
 }
 
 private val holdoutCheckBlocks: MyGameSkeletonBlocks = MyGameSkeletonBlocks(
@@ -165,7 +149,7 @@ private class HoldoutCheckScreenStates : PreviewParameterProvider<HoldoutCheckUi
 @Composable
 private fun HoldoutCheckScreenPreview(@PreviewParameter(HoldoutCheckScreenStates::class) state: HoldoutCheckUiState) {
     MyGamePreviewSurface {
-        HoldoutCheckScreen(state = state, onIntent = {}, onTownOpen = {})
+        HoldoutCheckScreen(state = state, onIntent = {}, hook = TaskDockHook(onAnswered = {}))
     }
 }
 
@@ -176,7 +160,7 @@ private fun HoldoutCheckScreenBothPreview(
 ) {
     ProvideCopyLanguage(language = CopyLanguage(ScaffoldLanguage.Spanish, ChromePhase.Both)) {
         MyGamePreviewSurface {
-            HoldoutCheckScreen(state = state, onIntent = {}, onTownOpen = {})
+            HoldoutCheckScreen(state = state, onIntent = {}, hook = TaskDockHook(onAnswered = {}))
         }
     }
 }

@@ -5,7 +5,6 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.selection.selectableGroup
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
-import com.emm.mygame.core.designsystem.MyGameButton
 import com.emm.mygame.core.designsystem.MyGameChoiceRow
 import com.emm.mygame.core.designsystem.MyGameSpacing
 import com.emm.mygame.core.designsystem.MyGameText
@@ -24,8 +23,6 @@ internal fun HoldoutCheckAsking(
     Column(verticalArrangement = Arrangement.spacedBy(MyGameSpacing.step4), modifier = modifier) {
         val shown: PlacementItem? = asking.shown
         if (shown != null) AskedWord(asking = asking, shown = shown, onIntent = onIntent)
-        HoldoutCheckRequestLine(request = asking.request)
-        AskingAction(asking = asking, onIntent = onIntent)
     }
 }
 
@@ -60,34 +57,4 @@ private fun AskedWord(
             }
         }
     }
-}
-
-@Composable
-private fun AskingAction(
-    asking: HoldoutCheckUiState.Asking,
-    onIntent: (HoldoutCheckIntent) -> Unit,
-    modifier: Modifier = Modifier,
-) {
-    val isUnchosen: Boolean = asking.shown != null && asking.chosenForShown == null
-    val blockedReason: String? = if (isUnchosen) fixedCopyResource(R.string.placement_choose) else null
-    val sending: String = fixedCopyResource(R.string.placement_sending)
-    if (!asking.isLastShown) {
-        MyGameButton(
-            label = fixedCopyResource(R.string.placement_next),
-            isBusy = false,
-            busyDescription = sending,
-            onClick = { onIntent(HoldoutCheckIntent.NextTapped) },
-            modifier = modifier,
-            blockedReason = blockedReason,
-        )
-        return
-    }
-    MyGameButton(
-        label = fixedCopyResource(R.string.placement_holdout_send),
-        isBusy = asking.request is HoldoutCheckRequest.Waiting,
-        busyDescription = sending,
-        onClick = { onIntent(HoldoutCheckIntent.AnswersSent) },
-        modifier = modifier,
-        blockedReason = blockedReason,
-    )
 }

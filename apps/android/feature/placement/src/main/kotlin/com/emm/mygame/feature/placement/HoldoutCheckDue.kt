@@ -4,7 +4,6 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
-import com.emm.mygame.core.designsystem.MyGameButton
 import com.emm.mygame.core.designsystem.MyGameOutlinedButton
 import com.emm.mygame.core.designsystem.MyGameSpacing
 import com.emm.mygame.core.designsystem.MyGameText
@@ -35,12 +34,6 @@ internal fun HoldoutCheckDue(
             color = MyGameTheme.colors.inkMuted,
         )
         HoldoutCheckRequestLine(request = due.request)
-        MyGameButton(
-            label = fixedCopyResource(R.string.placement_holdout_start),
-            isBusy = waiting == HoldoutCheckAction.Begin,
-            busyDescription = fixedCopyResource(R.string.placement_sending),
-            onClick = { onIntent(HoldoutCheckIntent.StartTapped) },
-        )
         MyGameOutlinedButton(
             label = fixedCopyResource(R.string.placement_holdout_skip),
             isBusy = waiting == HoldoutCheckAction.Skip,

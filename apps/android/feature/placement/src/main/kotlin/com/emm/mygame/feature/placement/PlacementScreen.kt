@@ -34,15 +34,17 @@ import com.emm.mygame.core.ui.ChromePhase
 import com.emm.mygame.core.ui.CopyLanguage
 import com.emm.mygame.core.ui.ProvideCopyLanguage
 import com.emm.mygame.core.ui.ScaffoldLanguage
+import com.emm.mygame.core.ui.TaskDockHook
 import com.emm.mygame.core.ui.fixedCopyResource
 
 @Composable
 fun PlacementScreen(
     state: PlacementUiState,
     onIntent: (PlacementIntent) -> Unit,
-    onTownOpen: () -> Unit,
+    hook: TaskDockHook,
     modifier: Modifier = Modifier,
 ) {
+    PlacementDock(state = state, onIntent = onIntent, hook = hook)
     Column(
         verticalArrangement = Arrangement.spacedBy(MyGameSpacing.step6),
         modifier = modifier
@@ -64,13 +66,13 @@ fun PlacementScreen(
             loadingLabel = fixedCopyResource(R.string.placement_loading),
             blocks = placementBlocks,
         ) {
-            PlacementState(state = state, onIntent = onIntent, onTownOpen = onTownOpen)
+            PlacementState(state = state, onIntent = onIntent)
         }
     }
 }
 
 @Composable
-private fun PlacementState(state: PlacementUiState, onIntent: (PlacementIntent) -> Unit, onTownOpen: () -> Unit) {
+private fun PlacementState(state: PlacementUiState, onIntent: (PlacementIntent) -> Unit) {
     when (state) {
         PlacementUiState.Loading -> Unit
         PlacementUiState.Failed -> MyGameErrorBanner(
@@ -80,7 +82,7 @@ private fun PlacementState(state: PlacementUiState, onIntent: (PlacementIntent) 
         )
         is PlacementUiState.Offered -> PlacementOffered(offered = state, onIntent = onIntent)
         is PlacementUiState.Asking -> PlacementAsking(asking = state, onIntent = onIntent)
-        is PlacementUiState.Closed -> PlacementResult(closed = state, onTownOpen = onTownOpen)
+        is PlacementUiState.Closed -> PlacementResult(closed = state)
     }
 }
 
@@ -124,7 +126,7 @@ private class PlacementScreenStates : PreviewParameterProvider<PlacementUiState>
 @Composable
 private fun PlacementScreenPreview(@PreviewParameter(PlacementScreenStates::class) state: PlacementUiState) {
     MyGamePreviewSurface {
-        PlacementScreen(state = state, onIntent = {}, onTownOpen = {})
+        PlacementScreen(state = state, onIntent = {}, hook = TaskDockHook(onAnswered = {}))
     }
 }
 
@@ -133,7 +135,7 @@ private fun PlacementScreenPreview(@PreviewParameter(PlacementScreenStates::clas
 private fun PlacementScreenBothPreview(@PreviewParameter(PlacementScreenStates::class) state: PlacementUiState) {
     ProvideCopyLanguage(language = CopyLanguage(ScaffoldLanguage.Spanish, ChromePhase.Both)) {
         MyGamePreviewSurface {
-            PlacementScreen(state = state, onIntent = {}, onTownOpen = {})
+            PlacementScreen(state = state, onIntent = {}, hook = TaskDockHook(onAnswered = {}))
         }
     }
 }

@@ -1,5 +1,6 @@
 package com.emm.mygame.feature.placement
 
+import app.cash.turbine.test
 import com.emm.mygame.core.network.HoldoutCheck
 import com.emm.mygame.core.network.HoldoutCheckChangeResult
 import com.emm.mygame.core.network.HoldoutCheckRefusal
@@ -191,6 +192,43 @@ class HoldoutCheckViewModelTest {
         runCurrent()
 
         assertEquals(HoldoutCheckUiState.Skipped, viewModel.state.value)
+    }
+
+    @Test
+    fun `a skipped check asks the town to read again`() = runTest {
+        val viewModel: HoldoutCheckViewModel = reading(firstBandEighthWeekDue)
+
+        viewModel.effects.test {
+            viewModel.onIntent(HoldoutCheckIntent.SkipTapped)
+            holdoutChecks.answerChange(HoldoutCheckChangeResult.Changed(listOf(secondBandTwentyFourthWeekDue)))
+
+            assertEquals(HoldoutCheckEffect.Ended, awaitItem())
+        }
+    }
+
+    @Test
+    fun `an answered check asks the town to read again`() = runTest {
+        val viewModel: HoldoutCheckViewModel = askingWithEveryWordChosen()
+
+        viewModel.effects.test {
+            viewModel.onIntent(HoldoutCheckIntent.AnswersSent)
+            holdoutChecks.answerChange(HoldoutCheckChangeResult.Changed(emptyList()))
+
+            assertEquals(HoldoutCheckEffect.Ended, awaitItem())
+        }
+    }
+
+    @Test
+    fun `a begun check is no end`() = runTest {
+        val viewModel: HoldoutCheckViewModel = reading(firstBandEighthWeekDue)
+
+        viewModel.effects.test {
+            viewModel.onIntent(HoldoutCheckIntent.StartTapped)
+            holdoutChecks.answerChange(HoldoutCheckChangeResult.Changed(listOf(firstBandEighthWeekAsking)))
+            runCurrent()
+
+            expectNoEvents()
+        }
     }
 
     @Test

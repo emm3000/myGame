@@ -1,5 +1,6 @@
 package com.emm.mygame.feature.placement
 
+import app.cash.turbine.test
 import com.emm.mygame.core.network.Placement
 import com.emm.mygame.core.network.PlacementAnswer
 import com.emm.mygame.core.network.PlacementBand
@@ -141,6 +142,44 @@ class PlacementViewModelTest {
         runCurrent()
 
         assertEquals(PlacementUiState.Closed(emptyList()), viewModel.state.value)
+    }
+
+    @Test
+    fun `the end of the placement asks the town to read again`() = runTest {
+        val viewModel: PlacementViewModel = placementReading(Placement.Offered)
+
+        viewModel.effects.test {
+            viewModel.onIntent(PlacementIntent.SkipTapped)
+            placements.answerChange(PlacementChangeResult.Changed(skipped))
+
+            assertEquals(PlacementEffect.Ended, awaitItem())
+        }
+    }
+
+    @Test
+    fun `a refused change whose re-read closes the placement asks the town to read again`() = runTest {
+        val viewModel: PlacementViewModel = placementReading(Placement.Offered)
+
+        viewModel.effects.test {
+            viewModel.onIntent(PlacementIntent.StartTapped)
+            placements.answerChange(PlacementChangeResult.Refused)
+            placements.answerRead(PlacementReadResult.Read(placedAtSecondBand))
+
+            assertEquals(PlacementEffect.Ended, awaitItem())
+        }
+    }
+
+    @Test
+    fun `a band the api asks next is no end`() = runTest {
+        val viewModel: PlacementViewModel = askingWithEveryWordChosen()
+
+        viewModel.effects.test {
+            viewModel.onIntent(PlacementIntent.BandSent)
+            placements.answerChange(PlacementChangeResult.Changed(secondBandAsked))
+            runCurrent()
+
+            expectNoEvents()
+        }
     }
 
     @Test
