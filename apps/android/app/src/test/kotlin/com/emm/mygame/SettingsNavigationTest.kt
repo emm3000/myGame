@@ -38,6 +38,7 @@ import com.emm.mygame.core.testing.FakeTownRepository
 import kotlin.time.Clock
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.emptyFlow
 import org.junit.Assert.assertEquals
 import org.junit.Rule
 import org.junit.Test
@@ -100,7 +101,7 @@ class SettingsNavigationTest {
             MyGameTheme {
                 val backStack: NavBackStack<NavKey> = rememberNavBackStack(*destinations)
                 shownBackStack = backStack
-                AppNavigation(dependencies = dependencies, backStack = backStack)
+                AppNavigation(dependencies = dependencies, reminderTaps = emptyFlow(), backStack = backStack)
             }
         }
     }

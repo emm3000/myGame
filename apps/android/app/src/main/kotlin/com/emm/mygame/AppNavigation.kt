@@ -40,6 +40,7 @@ import com.emm.mygame.core.designsystem.MyGameSpacing
 import com.emm.mygame.core.designsystem.MyGameTheme
 import com.emm.mygame.core.network.LessonId
 import com.emm.mygame.core.network.PlayerLanguage
+import com.emm.mygame.core.projection.StudyReminderLine
 import com.emm.mygame.core.ui.chromeResource
 import com.emm.mygame.feature.map.MapRoute
 import com.emm.mygame.feature.placement.HoldoutCheckRoute
@@ -67,10 +68,12 @@ import com.emm.mygame.feature.town.TownStatusIntent
 import com.emm.mygame.feature.town.TownStatusScreen
 import com.emm.mygame.feature.town.TownStatusUiState
 import com.emm.mygame.feature.town.TownStatusViewModel
+import kotlinx.coroutines.flow.Flow
 
 @Composable
 internal fun AppNavigation(
     dependencies: AppDependencies,
+    reminderTaps: Flow<StudyReminderLine>,
     modifier: Modifier = Modifier,
     backStack: NavBackStack<NavKey> = rememberNavBackStack(Destination.SignIn(isSessionEnded = false)),
     status: TownStatusViewModel = viewModel { TownStatusViewModel(dependencies.towns, dependencies.clock) },
@@ -79,6 +82,9 @@ internal fun AppNavigation(
     val navigator: Navigator = remember(backStack, links) { Navigator(backStack, links) }
     LaunchedEffect(navigator) {
         navigator.followSessionEnds(dependencies.sessionEnds.ended)
+    }
+    LaunchedEffect(navigator) {
+        reminderTaps.collect(navigator::openReminder)
     }
     val shown: NavKey? = backStack.lastOrNull()
     LifecycleStartEffect(status, shown) {

@@ -4,6 +4,7 @@ import androidx.navigation3.runtime.NavKey
 import com.emm.mygame.core.network.HoldoutCheckWeek
 import com.emm.mygame.core.network.LessonId
 import com.emm.mygame.core.network.PlacementBand
+import com.emm.mygame.core.projection.StudyReminderLine
 import kotlinx.coroutines.flow.Flow
 
 internal class Navigator(private val backStack: MutableList<NavKey>, private val links: NavigationLinks) {
@@ -36,11 +37,14 @@ internal class Navigator(private val backStack: MutableList<NavKey>, private val
     }
 
     fun signedIn() {
-        backStack.showAlone(listOf(Destination.Town))
+        val shownAboveTown: Destination? = links.reminderLineOnSignIn?.shownAboveTown()
+        links.reminderLineOnSignIn = null
+        backStack.showAlone(listOfNotNull(Destination.Town, shownAboveTown))
     }
 
     fun signedOut(isSessionEnded: Boolean) {
         links.areEnabled = true
+        links.reminderLineOnSignIn = null
         backStack.showAlone(listOf(Destination.SignIn(isSessionEnded = isSessionEnded)))
     }
 
@@ -71,7 +75,7 @@ internal class Navigator(private val backStack: MutableList<NavKey>, private val
     }
 
     fun openReport() {
-        openFromTown(Destination.Report)
+        backStack.openAboveTown(Destination.Report, links)
     }
 
     fun openNews() {
@@ -85,11 +89,11 @@ internal class Navigator(private val backStack: MutableList<NavKey>, private val
     }
 
     fun openMap() {
-        openFromTown(Destination.Map)
+        backStack.openAboveTown(Destination.Map, links)
     }
 
     fun openPlacement() {
-        openFromTown(Destination.Placement)
+        backStack.openAboveTown(Destination.Placement, links)
     }
 
     fun openHoldoutCheck(band: PlacementBand, week: HoldoutCheckWeek) {
@@ -109,17 +113,32 @@ internal class Navigator(private val backStack: MutableList<NavKey>, private val
         }
     }
 
+    fun openReminder(line: StudyReminderLine) {
+        if (Destination.Town !in backStack) {
+            links.reminderLineOnSignIn = line
+            return
+        }
+        if (!areLinksEnabled) return
+        backStack.backToTown()
+        line.shownAboveTown()?.let(backStack::add)
+    }
+
     fun openTown() {
         if (backStack.lastOrNull().isAboveTown()) backStack.backToTown()
     }
+}
 
-    private fun openFromTown(shownNext: Destination) {
-        if (!areLinksEnabled) return
-        val shown: NavKey? = backStack.lastOrNull()
-        if (shown != Destination.Town && !shown.isAboveTown()) return
-        backStack.backToTown()
-        backStack.add(shownNext)
-    }
+private fun MutableList<NavKey>.openAboveTown(shownNext: Destination, links: NavigationLinks) {
+    if (!links.areEnabled) return
+    val shown: NavKey? = lastOrNull()
+    if (shown != Destination.Town && !shown.isAboveTown()) return
+    backToTown()
+    add(shownNext)
+}
+
+private fun StudyReminderLine.shownAboveTown(): Destination? = when (this) {
+    StudyReminderLine.Cards -> Destination.Report
+    StudyReminderLine.Check, StudyReminderLine.Lesson -> null
 }
 
 private fun MutableList<NavKey>.backToTown() {

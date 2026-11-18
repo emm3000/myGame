@@ -27,6 +27,7 @@ import kotlin.time.Clock
 import kotlin.time.Instant
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.emptyFlow
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -66,6 +67,7 @@ class NoTownNavigationTest {
             MyGameTheme {
                 AppNavigation(
                     dependencies = dependencies,
+                    reminderTaps = emptyFlow(),
                     backStack = rememberNavBackStack(Destination.Town, Destination.School),
                 )
             }

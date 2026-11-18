@@ -48,6 +48,7 @@ import kotlin.time.Clock
 import kotlin.time.Instant
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.emptyFlow
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertTrue
 import org.junit.Rule
@@ -213,7 +214,7 @@ class VerificationBannerNavigationTest {
         repeat(READS_AVAILABLE) { townsFake.answerRead(town) }
         composeRule.setContent {
             MyGameTheme {
-                AppNavigation(dependencies = dependencies)
+                AppNavigation(dependencies = dependencies, reminderTaps = emptyFlow())
             }
         }
     }

@@ -74,6 +74,7 @@ import kotlin.time.Duration.Companion.seconds
 import kotlin.time.Instant
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.emptyFlow
 import kotlinx.coroutines.runBlocking
 import org.junit.Assert.assertEquals
 import org.junit.Rule
@@ -209,7 +210,7 @@ class AppNavigationTest {
         repeat(READS_AVAILABLE) { townsFake.answerRead(answer) }
         composeRule.setContent {
             MyGameTheme {
-                AppNavigation(dependencies = dependencies)
+                AppNavigation(dependencies = dependencies, reminderTaps = emptyFlow())
             }
         }
     }
@@ -235,7 +236,11 @@ class AppNavigationTest {
         repeat(READS_AVAILABLE) { townsFake.answerRead(TownReadResult.Read(town)) }
         composeRule.setContent {
             MyGameTheme {
-                AppNavigation(dependencies = dependencies, backStack = rememberNavBackStack(*destinations))
+                AppNavigation(
+                    dependencies = dependencies,
+                    reminderTaps = emptyFlow(),
+                    backStack = rememberNavBackStack(*destinations),
+                )
             }
         }
     }
@@ -274,6 +279,7 @@ class AppNavigationTest {
             MyGameTheme {
                 AppNavigation(
                     dependencies = dependencies,
+                    reminderTaps = emptyFlow(),
                     backStack = rememberNavBackStack(Destination.Town, Destination.Report),
                 )
             }
@@ -288,7 +294,11 @@ class AppNavigationTest {
         townsFake.answerRead(TownReadResult.Read(runningTown(lasting = NEAR_FINISH)))
         composeRule.setContent {
             MyGameTheme {
-                AppNavigation(dependencies = dependencies, backStack = rememberNavBackStack(*destinations))
+                AppNavigation(
+                    dependencies = dependencies,
+                    reminderTaps = emptyFlow(),
+                    backStack = rememberNavBackStack(*destinations),
+                )
             }
         }
         assertStatusShown()
@@ -383,6 +393,7 @@ class AppNavigationTest {
             MyGameTheme {
                 AppNavigation(
                     dependencies = dependencies,
+                    reminderTaps = emptyFlow(),
                     backStack = rememberNavBackStack(Destination.Town, Destination.Report),
                 )
             }
@@ -398,7 +409,7 @@ class AppNavigationTest {
         townsFake.answerRead(TownReadResult.Read(townOf(retainedWords = threeOfFive)))
         composeRule.setContent {
             MyGameTheme {
-                AppNavigation(dependencies = dependencies)
+                AppNavigation(dependencies = dependencies, reminderTaps = emptyFlow())
             }
         }
         waitForRing(THREE_OF_FIVE)
@@ -749,6 +760,7 @@ class AppNavigationTest {
             MyGameTheme {
                 AppNavigation(
                     dependencies = dependencies,
+                    reminderTaps = emptyFlow(),
                     backStack = rememberNavBackStack(Destination.Town, Destination.Report),
                 )
             }
