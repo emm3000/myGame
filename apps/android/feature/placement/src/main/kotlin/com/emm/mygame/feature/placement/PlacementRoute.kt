@@ -16,6 +16,7 @@ import kotlinx.coroutines.withContext
 fun PlacementRoute(
     placements: PlacementRepository,
     hook: TaskDockHook,
+    foldedDock: @Composable () -> Unit,
     modifier: Modifier = Modifier,
     viewModel: PlacementViewModel = viewModel { PlacementViewModel(placements) },
 ) {
@@ -30,5 +31,11 @@ fun PlacementRoute(
             }
         }
     }
-    PlacementScreen(state = state, onIntent = viewModel::onIntent, hook = hook, modifier = modifier)
+    PlacementScreen(
+        state = state,
+        onIntent = viewModel::onIntent,
+        hook = hook,
+        foldedDock = foldedDock,
+        modifier = modifier,
+    )
 }

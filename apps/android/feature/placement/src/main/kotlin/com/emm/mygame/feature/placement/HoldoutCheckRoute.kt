@@ -20,6 +20,7 @@ fun HoldoutCheckRoute(
     band: PlacementBand,
     week: HoldoutCheckWeek,
     hook: TaskDockHook,
+    foldedDock: @Composable () -> Unit,
     modifier: Modifier = Modifier,
     viewModel: HoldoutCheckViewModel = viewModel { HoldoutCheckViewModel(holdoutChecks, band, week) },
 ) {
@@ -34,5 +35,11 @@ fun HoldoutCheckRoute(
             }
         }
     }
-    HoldoutCheckScreen(state = state, onIntent = viewModel::onIntent, hook = hook, modifier = modifier)
+    HoldoutCheckScreen(
+        state = state,
+        onIntent = viewModel::onIntent,
+        hook = hook,
+        foldedDock = foldedDock,
+        modifier = modifier,
+    )
 }

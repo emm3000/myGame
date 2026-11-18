@@ -355,7 +355,11 @@ private fun EntryProviderScope<NavKey>.placementEntry(chrome: SignedInChrome) {
             doesScreenReadTown = false,
             chrome = chrome,
         ) { frame: ScreenFrame ->
-            PlacementRoute(placements = dependencies.placements, hook = frame.task)
+            PlacementRoute(
+                placements = dependencies.placements,
+                hook = frame.task,
+                foldedDock = frame.foldedDock,
+            )
         }
     }
 }
@@ -373,6 +377,7 @@ private fun EntryProviderScope<NavKey>.holdoutCheckEntry(chrome: SignedInChrome)
                 band = check.band,
                 week = check.week,
                 hook = frame.task,
+                foldedDock = frame.foldedDock,
             )
         }
     }

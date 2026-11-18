@@ -587,6 +587,39 @@ class DockFrameNavigationTest {
         composeRule.waitUntil(WAIT_MILLIS) { townsFake.sentAfterNowCount == 1 }
     }
 
+    private fun waitForTheContent(matcher: SemanticsMatcher) {
+        waitFor(matcher.and(hasAnyAncestor(hasScrollAction())))
+    }
+
+    @Test
+    @Config(qualifiers = "+w360dp-h320dp", fontScale = 2.0f)
+    fun `a folded placement draws its dock's line at the end of its content`() {
+        placementsFake.answerRead(PlacementReadResult.Read(Placement.Offered))
+
+        showing(Destination.Town, Destination.Placement)
+
+        waitForTheContent(hasText(PLACEMENT_OFFER_LINE))
+    }
+
+    @Test
+    @Config(qualifiers = "+w360dp-h320dp", fontScale = 2.0f)
+    fun `a folded holdout check draws its dock's line at the end of its content`() {
+        val due: HoldoutCheck = HoldoutCheck.Due(PlacementBand.First, HoldoutCheckWeek.Eighth)
+        holdoutChecksFake.answerRead(HoldoutChecksReadResult.Read(listOf(due)))
+
+        showing(Destination.Town, Destination.HoldoutCheck(PlacementBand.First, HoldoutCheckWeek.Eighth))
+
+        waitForTheContent(hasText(FIRST_BAND))
+    }
+
+    @Test
+    @Config(qualifiers = "+w360dp-h320dp", fontScale = 2.0f)
+    fun `a folded town step draws at the end of the placement's content once it ends`() {
+        skippingThePlacement()
+
+        waitForTheContent(hasText(DOCK_TITLE))
+    }
+
     @Test
     fun `starting a lesson reads the town again`() {
         val studying: TownSnapshot = townOf(nextStep = NextStep.LessonRunning(goal = null))
@@ -690,6 +723,9 @@ class DockFrameNavigationTest {
 
     private companion object {
         const val SKIP_PLACEMENT: String = "Saltar la prueba"
+        const val PLACEMENT_OFFER_LINE: String =
+            "¿Ya sabes algo de inglés? Una prueba corta te deja empezar más adelante."
+        const val FIRST_BAND: String = "Banda 1"
         const val THREE_OF_FIVE: String = "3 de 5 palabras aprendidas"
         const val FRAME_LIMIT: Int = 60
         const val STUDY_SECOND: String = "Estudiar la lección 2 · 5:00"

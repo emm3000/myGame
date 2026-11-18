@@ -1,20 +1,12 @@
 package com.emm.mygame.feature.school
 
-import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.relocation.BringIntoViewRequester
-import androidx.compose.foundation.relocation.bringIntoViewRequester
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import com.emm.mygame.core.designsystem.MyGameCountdownGround
 import com.emm.mygame.core.designsystem.MyGameCountdownLine
 import com.emm.mygame.core.designsystem.MyGameDockGo
 import com.emm.mygame.core.designsystem.MyGameDockLine
-import com.emm.mygame.core.designsystem.MyGameDockLineText
 import com.emm.mygame.core.designsystem.MyGameLabel
-import com.emm.mygame.core.designsystem.MyGameSpacing
 import com.emm.mygame.core.ui.FillTaskDock
 import com.emm.mygame.core.ui.FollowTownDock
 import com.emm.mygame.core.ui.TaskDock
@@ -34,19 +26,6 @@ internal fun LessonWordsDock(
         state == LessonWordsUiState.Loading -> Unit
         state.isFollowingTown -> FollowTownDock(hook = task)
         state is LessonWordsUiState.Reading -> FillTaskDock(hook = task, dock = readingDock(state, onIntent, onWayOn))
-    }
-}
-
-@Composable
-internal fun FoldedReadingLine(reading: LessonWordsUiState.Reading, modifier: Modifier = Modifier) {
-    val requester: BringIntoViewRequester = remember { BringIntoViewRequester() }
-    LaunchedEffect(reading.index, reading.isWaitingForLessonEnd) { requester.bringIntoView() }
-    Column(
-        verticalArrangement = Arrangement.spacedBy(MyGameSpacing.step3),
-        modifier = modifier.bringIntoViewRequester(requester),
-    ) {
-        MyGameDockLineText(line = readingLineOf(reading), loadingLabel = waitingLabel())
-        WaitingTime(reading = reading)
     }
 }
 
