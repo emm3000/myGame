@@ -39,7 +39,8 @@ const wordsBeyondDrawsOf = (
 ): number => {
   const bandWords = bandWordsOf(content)
   return [...bandCardCountsOf(content, admitted)].reduce(
-    (count, [band, cards]) => count + Math.max(0, cards - heldOutCountOfBand(bandWords, band)),
+    (count, [band, cardCount]) =>
+      count + Math.max(0, cardCount - heldOutCountOfBand(bandWords, band)),
     0,
   )
 }
