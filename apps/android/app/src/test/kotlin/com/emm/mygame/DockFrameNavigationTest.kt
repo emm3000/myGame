@@ -51,6 +51,7 @@ import com.emm.mygame.core.network.StudyReminderChoice
 import com.emm.mygame.core.network.StudyReminderSettings
 import com.emm.mygame.core.network.TownBuildingKind
 import com.emm.mygame.core.network.TownLabel
+import com.emm.mygame.core.network.TownLessonRefusal
 import com.emm.mygame.core.network.TownLessonResult
 import com.emm.mygame.core.network.TownNews
 import com.emm.mygame.core.network.TownReadResult
@@ -258,7 +259,7 @@ class DockFrameNavigationTest {
     fun `the school studies the lesson the status shows when its own read is older`() {
         val older: TownSnapshot = townOf()
         val newer: TownSnapshot = townOf(nextStep = NextStep.LessonToStudy(secondLesson))
-            .copy(lessons = listOf(lessonOf(firstLesson), lessonOf(secondLesson)))
+            .copy(lessons = listOf(lessonOf(firstLesson).copy(isStudied = true), lessonOf(secondLesson)))
         showing(Destination.Town, Destination.School, townReads = 0)
         townsFake.answerRead(TownReadResult.Read(older))
         townsFake.answerRead(TownReadResult.Read(newer))
@@ -266,6 +267,21 @@ class DockFrameNavigationTest {
         dockGo(STUDY_SECOND).performClick()
 
         composeRule.waitUntil(WAIT_MILLIS) { townsFake.lessonStarts == listOf(secondLesson) }
+    }
+
+    @Test
+    fun `a refused start of the lesson the status shows draws its line on the school`() {
+        val older: TownSnapshot = townOf()
+        val newer: TownSnapshot = townOf(nextStep = NextStep.LessonToStudy(secondLesson))
+            .copy(lessons = listOf(lessonOf(firstLesson).copy(isStudied = true), lessonOf(secondLesson)))
+        townsFake.answerLesson(TownLessonResult.Refused(TownLessonRefusal.StudySlotBusy))
+        showing(Destination.Town, Destination.School, townReads = 0)
+        townsFake.answerRead(TownReadResult.Read(older))
+        townsFake.answerRead(TownReadResult.Read(newer))
+
+        dockGo(STUDY_SECOND).performClick()
+
+        waitFor(hasText(STUDY_SLOT_BUSY))
     }
 
     private fun assertOneGoButton() {
@@ -598,6 +614,7 @@ class DockFrameNavigationTest {
         const val THREE_OF_FIVE: String = "3 de 5 palabras aprendidas"
         const val FRAME_LIMIT: Int = 60
         const val STUDY_SECOND: String = "Estudiar la lección 2 · 5:00"
+        const val STUDY_SLOT_BUSY: String = "La escuela ya tiene un estudio en marcha. Espera a que termine."
         const val SIGN_OUT: String = "Salir"
         const val DOCK_TITLE: String = "TU SIGUIENTE PASO"
         const val CLOSE_NEWS: String = "Cerrar las noticias"

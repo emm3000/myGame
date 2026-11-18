@@ -72,4 +72,14 @@ class SchoolHeldTownTest {
             contentOf(viewModel).slot,
         )
     }
+
+    @Test
+    fun `draws the town a later answer holds`() = runTest {
+        val viewModel: SchoolViewModel = schoolReadingFrom(towns, townOf(lessons = listOf(lessonOf())))
+
+        towns.hold(HeldTown(townOf(lessons = listOf(lessonOf(), lessonOf(id = secondLesson))), gap = Duration.ZERO))
+        runCurrent()
+
+        assertEquals(listOf(1, 2), contentOf(viewModel).lessons.map(SchoolUiState.LessonCard::number))
+    }
 }

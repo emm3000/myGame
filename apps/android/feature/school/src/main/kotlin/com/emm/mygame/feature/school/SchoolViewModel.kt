@@ -50,6 +50,7 @@ class SchoolViewModel(private val towns: TownRepository, private val clock: Cloc
 
     init {
         open()
+        viewModelScope.launch { towns.town.collect { held: HeldTown? -> held?.let(::adopt) } }
     }
 
     fun onIntent(intent: SchoolIntent) {
@@ -103,6 +104,13 @@ class SchoolViewModel(private val towns: TownRepository, private val clock: Cloc
                 }
             }
         }
+    }
+
+    private fun adopt(held: HeldTown) {
+        val last: TownSnapshot = shown ?: return
+        if (held.town == last) return
+        gap = held.gap
+        restartFrom(held.town, mutations.keptAfterRead())
     }
 
     private fun openHeld(held: HeldTown) {
