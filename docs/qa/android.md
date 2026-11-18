@@ -51,7 +51,7 @@ WHERE lower(p.email) = lower('qa-none-wrd02@qa.test');
 
 ### Recipe: seed levels and stocks
 
-Storage level 3 holds 3400 of each stock (`content/town/storage.json`), so the stocks never bind a word case. Replace `<homes_level>` with the level the case's Setup names: SMK-05 needs 1, WRD-01 needs 2, WRD-02 needs 6 and WRD-04 needs 7.
+Storage level 3 holds 3400 of each stock (`content/town/storage.json`), so the stocks never bind a word case. Replace `<homes_level>` with the level the case's Setup names: SMK-05 needs 1, WRD-01 needs 2, WRD-02 and WRD-03 need 6 and WRD-04 needs 7.
 
 ```sql
 INSERT INTO town_buildings (town_id, building, level)
@@ -90,7 +90,7 @@ Change the selected values for the other kinds, and the `position` range for the
 | Stable, not retained, due for the recall that retains it | 8 | now − 9 days | NULL | yes |
 | Retained, due | 8 | now − 9 days | `last_review_at` | yes |
 
-The day-2 figures come from ADR 045's *Context*. A recall made 7 or more whole days after the last review retains the word (`retainedAtOf`). After seeding, open the Report. A card the table marks due must be counted in `report_reviews_due`, *Reviews due: {count}*. If it is not, move its `last_review_at` back by one more day and look again. The recall's answer is the word itself. Find it with `rg -n '"<word_id>"' apps/api/content/lessons/words.json`.
+The day-2 figures come from ADR 045's *Context*. A recall made 7 or more whole days after the last review retains the word (`retainedAtOf`). After seeding, open the Report. A card the table marks due must be counted in `android.report.report_reviews_due`, *Reviews due: {count}*. If it is not, move its `last_review_at` back by one more day and look again. The recall's answer is the word itself. Find it with `rg -n '"<word_id>"' apps/api/content/lessons/words.json`.
 
 ### Recipe: shift the server's time
 
@@ -129,7 +129,7 @@ Edit the interval to suit the case. The season calendar is content (`town.json`'
 - **The hands are the Android CLI.** Read a screen with `android layout --device=emulator-<port>`, as every `adb` command carries `-s emulator-<port>`, and pass `--no-metrics` on every call, since the CLI sends usage data otherwise. While the CLI's device helper runs, `uiautomator dump` writes no file, so use one or the other. `android input`, a tap by text, needs 1.0.16625370 or later; with an older CLI, tap the `center` the layout gives. Read `~/.claude/skills/android-cli/references/interact.md` before the first `android layout`.
 - **The journey rules** of the android-cli skill (`~/.claude/skills/android-cli/references/journeys.md`) apply to every case. Do each step exactly as written, and on its own. When the app disagrees with a `Verify` line, the app is wrong, and the case fails. Keep debugging to a minimum and report the failure. A crash, an exit or a freeze fails the case.
 - **A count is read from the layout text**, never from a screenshot, since Google lists counting as inconsistent for agents.
-- **The time box.** Smoke takes 40 minutes and full takes 90, the exploratory charter included. Smoke's own server waits (the farm, lesson 1 twice and homes 2) take about 16 minutes before any tapping, and run 1 took 32 minutes for the 7 cases; so the box holds them, rather than seeding them.
+- **The time box.** Smoke takes 50 minutes and full takes 90, the exploratory charter included. Smoke's own server waits (the farm, lesson 1 twice and homes 2) take about 16 minutes before any tapping, and run 1 took 32 minutes for the 7 cases, and the 15-minute charter comes on top (32 + 15 = 47); so the box holds them, rather than seeding them.
 - **Every run ends with one 15-minute exploratory charter** on what changed since the last run, which `git log --oneline <last run's SHA>..HEAD -- apps/android apps/api packages` lists. Repeated cases stop finding bugs. Record the charter in one line, and file what it finds as for any fail.
 
 ## Recording a run
@@ -181,7 +181,7 @@ Source: PRD M1, M2; ADR 038, *The setting*
 Setup: none; the app signed out, the phone in English
 
 1. Create an account, choosing Spanish as the help language.
-2. Verify the naming screen reads `town_naming_title`, *Ponle nombre a tu pueblo*.
+2. Verify the naming screen reads `android.town.town_naming_title`, *Ponle nombre a tu pueblo*.
 3. Name the town `Qaville` and start it.
 4. Verify the town home opens on `Qaville`, with money, food, power and material at or just above 400, 300, 200 and 500 (`town.json`'s `startingStocks`).
 5. Verify `players.scaffold` is `es` for that email.
@@ -192,7 +192,7 @@ Source: PRD M1; ADR 046, *What the reminder is*
 Setup: SMK-01's account, the reminder on (REM-01)
 
 1. Open the Report and sign out from its foot.
-2. Verify the sign-in screen shows, with no `sign_in_session_ended` line.
+2. Verify the sign-in screen shows, with no `android.signin.sign_in_session_ended` line.
 3. Verify `dumpsys alarm` holds no alarm for `com.emm.mygame`.
 4. Sign in with the same email and password.
 5. Verify the town home opens on the same town, with its levels kept.
@@ -204,10 +204,10 @@ Source: ADR 038, *The setting*; PRD N6
 Setup: a `none` account with lesson 1 studied
 
 1. Open Settings from the Report and choose Spanish as the help language.
-2. Verify `settings_saved`, *Guardado.*, and `settings_cards_kept`, *Tus palabras y tu progreso no cambian.*, both in Spanish.
+2. Verify `android.signin.settings_saved`, *Guardado.*, and `android.signin.settings_cards_kept`, *Tus palabras y tu progreso no cambian.*, both in Spanish.
 3. Go back to the town. Verify its frame is drawn in Spanish.
 4. Verify `players.scaffold_version` went up by 1 and the player's card count did not change.
-5. Choose None again. Verify `settings_saved`, *Saved.*, and the frame back in English.
+5. Choose None again. Verify `android.signin.settings_saved`, *Saved.*, and the frame back in English.
 
 #### SES-03 Process death returns to the same screen, signed in · P1 · full
 
@@ -233,7 +233,7 @@ Setup: a fresh `none` account with a named town, and a bearer for it
 4. Open the app.
 5. Verify the farm reads level 1, and the food rate is higher than it was before the work.
 6. Verify each of the four stocks drawn matches `GET /town`'s `amount` for that resource, read with the bearer in the same minute, to within one minute's `ratePerHour`.
-7. Open the Report. Verify its news holds `report_news_building_work_finished`, *Farm: now level 1.* (the place's name as the catalog writes it).
+7. Open the Report. Verify its news holds `android.report.report_news_building_work_finished`, *Farm: now level 1.* (the place's name as the catalog writes it).
 
 ### Lessons
 
@@ -242,11 +242,11 @@ Setup: a fresh `none` account with a named town, and a bearer for it
 Source: PRD S1; ADR 045, *Every lesson's skill raises money*; ADR 042, *A lesson's minutes teach its words*
 Setup: a fresh `none` account with a named town
 
-1. Open the school. Verify lesson 1 names `school_lesson_reward`, *money skill: +5 %*.
+1. Open the school. Verify lesson 1 names `android.school.school_lesson_reward`, *money skill: +5 %*.
 2. Study lesson 1.
-3. Verify a countdown of at most 5 minutes runs: `town_next_lesson_ready_in`, *Lesson 1 ready in*, or the school's own.
-4. Read its words. Verify they show one at a time, with `school_lesson_word_position`, *Word 1 of 5*.
-5. Let the lesson finish, then open the Report. Verify `report_reviews_due`, *Reviews due: 5*.
+3. Verify a countdown of at most 5 minutes runs: `android.town.town_next_lesson_ready_in`, *Lesson 1 ready in*, or the school's own.
+4. Read its words. Verify they show one at a time, with `android.school.school_lesson_word_position`, *Word 1 of 5*.
+5. Let the lesson finish, then open the Report. Verify `android.report.report_reviews_due`, *Reviews due: 5*.
 
 #### LES-01 A rotation in the last minute keeps the countdown going · P1 · full
 
@@ -264,7 +264,7 @@ Setup: a fresh `none` account with a named town
 1. Start lesson 1, then send the app to the background.
 2. Wait until the lesson's finish has passed.
 3. Bring the app back.
-4. Verify the lesson reads finished without a tap, and the Report reads `report_reviews_due`, *Reviews due: 5*.
+4. Verify the lesson reads finished without a tap, and the Report reads `android.report.report_reviews_due`, *Reviews due: 5*.
 
 ### Reviews
 
@@ -274,8 +274,8 @@ Source: ADR 036, *The rules*, rules 2 and 5; PRD S22
 Setup: SMK-03's account, with its 5 reviews due
 
 1. Start the reviews and answer each recognition with its right meaning.
-2. Verify each verdict reads `review_correct`, *Correct.*
-3. Go back to the Report. Verify `report_no_reviews_due`, *No reviews due now.*, with a next review within 10 minutes (the learning step).
+2. Verify each verdict reads `android.review.review_correct`, *Correct.*
+3. Go back to the Report. Verify `android.report.report_no_reviews_due`, *No reviews due now.*, with a next review within 10 minutes (the learning step).
 
 #### REV-01 The recall's field takes the real keyboard as typed · P1 · full
 
@@ -285,7 +285,7 @@ Setup: a `none` account with one stable card due for its recall whose word has 4
 1. Open the review on the recall and tap the answer field.
 2. Verify the keyboard opens with its shift off, so the first letter would be lowercase.
 3. Type the word with two adjacent letters swapped, a string that is not itself an English word, using the keyboard's own keys, and submit with its *Done* key.
-4. Verify the field still holds exactly what was typed, and the verdict is `review_near_miss`, *Almost. Check the spelling and try again.*
+4. Verify the field still holds exactly what was typed, and the verdict is `android.review.review_near_miss`, *Almost. Check the spelling and try again.*
 
 ### Words open the town
 
@@ -296,35 +296,35 @@ The word cases run on `none` accounts, so that every line is in English whatever
 Source: ADR 045, *Words open building levels from 3*; PRD M4, M5
 Setup: a fresh `none` account; homes at level 1 and storage at 3, with 3000 of each stock (*Recipe: seed levels and stocks*)
 
-1. On the town home, verify the homes' next level shows no `town_words_needed` line for level 2.
+1. On the town home, verify the homes' next level shows no `android.town.town_words_needed` line for level 2.
 2. Start homes 2. Verify it is admitted, and let it finish.
-3. Verify the homes' next level now reads `town_words_needed`, *Needs 10 words out of learning: 0 of 10*.
-4. Verify the town reads `town_words_reviewed`, *Words out of learning: 0*, and `town_words_learned`, *Learned words: 0*.
-5. Start homes 3. Verify the refusal `town_refusal_not_enough_words`, *This level needs 10 words out of learning and you have 0. Study new lessons and review the words that are due.*
+3. Verify the homes' next level now reads `android.town.town_words_needed`, *Needs 10 words out of learning: 0 of 10*.
+4. Verify the town reads `android.town.town_words_reviewed`, *Words out of learning: 0*, and `android.town.town_words_learned`, *Learned words: 0*.
+5. Start homes 3. Verify the refusal `android.town.town_refusal_not_enough_words`, *This level needs 10 words out of learning and you have 0. Study new lessons and review the words that are due.*
 6. Verify the money drawn is unchanged and the build slot is still empty.
 
 #### WRD-01 The recall that holds the 10th stable word opens level 3 · P0 · full
 
 Source: ADR 045, *What the player sees*
-Setup: a fresh `none` account; homes at 2; 9 stable cards not due, and 1 card due for its day-2 recall (*Recipe: seed cards*)
+Setup: a fresh `none` account; homes at 2; 9 stable cards not due, and 1 card due for its day-2 recall (*Recipe: seed levels and stocks*, *Recipe: seed cards*)
 
 1. Verify the homes' next level reads *Needs 10 words out of learning: 9 of 10*.
 2. Start homes 3. Verify the refusal says *…needs 10 words out of learning and you have 9…*.
 3. Answer the due recall with its word, unaided.
-4. Verify `review_correct`, *Correct.*, then `review_level_open`, *You have the words for level 3 now.*
-5. Go to the town. Verify *Words out of learning: 10*, and no `town_words_needed` line on the homes' next level.
+4. Verify `android.review.review_correct`, *Correct.*, then `android.review.review_level_open`, *You have the words for level 3 now.*
+5. Go to the town. Verify *Words out of learning: 10*, and no `android.town.town_words_needed` line on the homes' next level.
 6. Start homes 3. Verify it is admitted.
 
 #### WRD-02 The standing switches at level 7, and the 50th retained word opens it · P0 · full
 
 Source: ADR 045, *Words open building levels from 3*, *What the player sees*
-Setup: a fresh `none` account; homes at 6; 49 retained cards not due, and 1 stable card due for the recall that retains it (*Recipe: seed cards*)
+Setup: a fresh `none` account; homes at 6; 49 retained cards not due, and 1 stable card due for the recall that retains it (*Recipe: seed levels and stocks*, *Recipe: seed cards*)
 
-1. Verify the homes' next level reads `town_words_needed` with the retained standing, *Needs 50 learned words: 49 of 50*.
+1. Verify the homes' next level reads `android.town.town_words_needed` with the retained standing, *Needs 50 learned words: 49 of 50*.
 2. Verify the town reads *Words out of learning: 50* and *Learned words: 49*.
 3. Start homes 7. Verify the refusal *This level needs 50 learned words and you have 49. Study new lessons and review the words that are due.*
 4. Answer the due recall with its word, unaided.
-5. Verify `review_correct`, then `review_level_open`, *You have the words for level 7 now.*
+5. Verify `android.review.review_correct`, then `android.review.review_level_open`, *You have the words for level 7 now.*
 6. Go to the town. Verify *Learned words: 50*. Start homes 7. Verify it is admitted.
 
 #### WRD-03 A hint keeps the 50th word from being retained · P1 · full
@@ -332,19 +332,19 @@ Setup: a fresh `none` account; homes at 6; 49 retained cards not due, and 1 stab
 Source: ADR 045, *Considered options* (*The decision, together*); ADR 036, *The rules*, rule 5
 Setup: WRD-02's setup, on a fresh account
 
-1. On the due recall, ask for a hint. Verify `review_hint_line`, *It starts with “{first}” and has {letters} letters.*
+1. On the due recall, ask for a hint. Verify `android.review.review_hint_line`, *It starts with “{first}” and has {letters} letters.*
 2. Answer with the word.
-3. Verify `review_correct` and no `review_level_open` line.
+3. Verify `android.review.review_correct` and no `android.review.review_level_open` line.
 4. Go to the town. Verify *Learned words: 49* and the homes' next level still reading *Needs 50 learned words: 49 of 50*.
 
 #### WRD-04 A lapse takes a word out of the count and keeps the level · P1 · full
 
 Source: ADR 045, *The words a town holds*, *Words open building levels from 3*
-Setup: a fresh `none` account; homes at 7; 49 retained cards not due, and 1 retained card due (*Recipe: seed cards*)
+Setup: a fresh `none` account; homes at 7; 49 retained cards not due, and 1 retained card due (*Recipe: seed levels and stocks*, *Recipe: seed cards*)
 
 1. Verify *Learned words: 50*.
 2. Answer the due recall with a wrong word.
-3. Verify `review_wrong`, *That is not correct.*, the typed answer, the right answer and `review_returns`, *This word will come back in a few minutes.*
+3. Verify `android.review.review_wrong`, *That is not correct.*, the typed answer, the right answer and `android.review.review_returns`, *This word will come back in a few minutes.*
 4. Go to the town. Verify *Learned words: 49*, the homes still at level 7, and the card reading *Needs 60 learned words: 49 of 60*.
 
 ### The study reminder
@@ -354,8 +354,8 @@ Setup: a fresh `none` account; homes at 7; 49 retained cards not due, and 1 reta
 Source: ADR 046, *What the reminder is*
 Setup: SMK-01's `es` account, notifications never asked
 
-1. Open the Report while nothing is due. Verify the row `report_reminder_offer`, *Activa un recordatorio de estudio*.
-2. Open Settings. Verify the study reminder, `settings_reminder_title`, *Recordatorio de estudio*, is off, and no permission dialog showed before this step.
+1. Open the Report while nothing is due. Verify the row `android.report.report_reminder_offer`, *Activa un recordatorio de estudio*.
+2. Open Settings. Verify the study reminder, `android.signin.settings_reminder_title`, *Recordatorio de estudio*, is off, and no permission dialog showed before this step.
 3. Turn the reminder on. Verify the system dialog asks for permission to send notifications.
 4. Allow it. Verify the switch is on and the time reads *19:00*. On a `none` account it reads *7:00 PM*.
 5. Go back to the Report. Verify the offer row is gone.
@@ -367,7 +367,7 @@ Setup: a fresh `es` account, notifications never asked
 
 1. Open Settings from the Report and turn the reminder on.
 2. Deny the permission.
-3. Verify the switch is off, with `settings_reminder_denied`, *Las notificaciones de Townword están desactivadas en los ajustes del teléfono.*, and the link `settings_reminder_open_settings`, *Abrir los ajustes de notificaciones*.
+3. Verify the switch is off, with `android.signin.settings_reminder_denied`, *Las notificaciones de Townword están desactivadas en los ajustes del teléfono.*, and the link `android.signin.settings_reminder_open_settings`, *Abrir los ajustes de notificaciones*.
 4. Follow the link. Verify the phone's notification settings for Townword open.
 5. Allow notifications there and come back. Verify the denied line is gone.
 6. Turn the reminder on. Verify it turns on with no dialog.
@@ -379,9 +379,9 @@ Setup: an `es` account with the reminder on and reviews due (SMK-03 and SMK-06's
 
 1. Read the alarm. Verify one `RTC_WAKEUP` alarm for `com.emm.mygame` at the chosen time today, or tomorrow if that has passed.
 2. Send the app to the background, set the device clock 90 seconds before the alarm and wait for it to fire (*Recipe: the device clock and the alarm*).
-3. Verify one notification is posted: `reminder_cards_title`, *Tus palabras están listas.*, over `reminder_cards_text`, *Abre el informe para estudiarlas.*, on the channel `reminder_channel`, *Recordatorios de estudio*.
+3. Verify one notification is posted: `android.app.reminder_cards_title`, *Tus palabras están listas.*, over `android.app.reminder_cards_text`, *Abre el informe para estudiarlas.*, on the channel `android.app.reminder_channel`, *Recordatorios de estudio*.
 4. Verify the next alarm is at the chosen time on the following day.
-5. Tap the notification. Verify the Report opens with `report_reviews_due`, *Repasos pendientes: {count}*, and the notification is gone.
+5. Tap the notification. Verify the Report opens with `android.report.report_reviews_due`, *Repasos pendientes: {count}*, and the notification is gone.
 6. Go back. Verify the town shows.
 
 #### REM-02 A lesson ready, with nothing due, fires that day with the lesson line · P1 · full
@@ -391,7 +391,7 @@ Setup: a `none` account with the reminder on, lesson 1 studied, every review ans
 
 1. Verify the alarm is at the chosen time today, not at the next review's day.
 2. Set the device clock 90 seconds before it and wait for it to fire.
-3. Verify the post `reminder_lesson_title`, *A lesson is ready.*, over `reminder_lesson_text`, *Start it from the town.*
+3. Verify the post `android.app.reminder_lesson_title`, *A lesson is ready.*, over `android.app.reminder_lesson_text`, *Start it from the town.*
 4. Tap it. Verify the town shows alone, and back leaves the app.
 
 #### REM-03 A word check due fires with the check line · P1 · full
@@ -399,9 +399,9 @@ Setup: a `none` account with the reminder on, lesson 1 studied, every review ans
 Source: ADR 046, *When it fires*; ADR 037, *The holdout*
 Setup: a `none` account with the reminder on and no review due; a `band_starts` row for band 1 (insert one if the player has none), its `started_at` 8 weeks and 1 day back; then the town read once
 
-1. Verify the town's next step names `town_next_holdout_check`, *Word check for band 1*.
+1. Verify the town's next step names `android.town.town_next_holdout_check`, *Word check for band 1*.
 2. Set the device clock 90 seconds before the alarm and wait for it to fire.
-3. Verify the post `reminder_check_title`, *Your word check is ready.*, over `reminder_check_text`, *Open it from the town.*
+3. Verify the post `android.app.reminder_check_title`, *Your word check is ready.*, over `android.app.reminder_check_text`, *Open it from the town.*
 4. Tap it. Verify the town shows.
 
 #### REM-04 Nothing to study by the chosen time posts nothing that day · P1 · full
@@ -445,7 +445,7 @@ Source: ADR 046, *How Android schedules it*, *What the reminder is*
 Setup: SMK-07's account, the reminder on, reviews due
 
 1. Revoke the permission: `adb shell pm revoke com.emm.mygame android.permission.POST_NOTIFICATIONS`.
-2. Open the app, then Settings. Verify the switch is off, with `settings_reminder_denied` and its link.
+2. Open the app, then Settings. Verify the switch is off, with `android.signin.settings_reminder_denied` and its link.
 3. Set the device clock 90 seconds before the alarm and wait for it to fire.
 4. Verify no notification is posted.
 
