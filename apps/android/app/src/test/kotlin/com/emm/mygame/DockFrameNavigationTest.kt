@@ -12,7 +12,9 @@ import androidx.compose.ui.test.getBoundsInRoot
 import androidx.compose.ui.test.hasAnyAncestor
 import androidx.compose.ui.test.hasScrollAction
 import androidx.compose.ui.test.isHeading
+import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.DpRect as Rect
+import androidx.compose.ui.unit.dp
 import androidx.compose.ui.test.hasContentDescription
 import androidx.compose.ui.test.hasStateDescription
 import androidx.compose.ui.test.hasTestTag
@@ -317,6 +319,64 @@ class DockFrameNavigationTest {
     }
 
     @Test
+    @Config(qualifiers = "+w360dp-h640dp", fontScale = 2.0f)
+    @GraphicsMode(GraphicsMode.Mode.NATIVE)
+    fun `a folded refused dock puts its door at the top of the town home that could not be read`() {
+        repeat(TOWN_STATUS_AND_RING_READS) { townsFake.answerRead(TownReadResult.Unreachable) }
+        showing(Destination.Town, townReads = 0)
+        dockGo(TRY_AGAIN)
+
+        waitFor(hasText("Informe").and(hasAnyAncestor(hasScrollAction())))
+    }
+
+    @Test
+    @Config(qualifiers = "+w891dp-h411dp-land")
+    fun `the dock keeps its buttons clear of a side navigation bar and a cutout`() {
+        showing(Destination.Town, Destination.School, town = townOf(nextStep = releasedLesson))
+        composeRule.sideBars(navigationBar = SIDE_BAR, cutout = CUTOUT)
+        val go: Rect = dockGo(STUDY_RELEASED).getBoundsInRoot()
+        val door: Rect = dockNode("Pueblo").getBoundsInRoot()
+        val window: Dp = composeRule.onRoot().getBoundsInRoot().right
+
+        assertTrue(go.left >= SIDE_BAR.dp && door.right <= window - CUTOUT.dp)
+    }
+
+    @Test
+    @Config(qualifiers = "+w360dp-h640dp", fontScale = 2.0f)
+    @GraphicsMode(GraphicsMode.Mode.NATIVE)
+    fun `a folded dock reads its line before its go button for TalkBack`() {
+        showing(Destination.Town, Destination.School, town = townOf(nextStep = releasedLesson))
+        waitFor(hasText(RELEASED_LINE).and(hasAnyAncestor(hasScrollAction())))
+
+        val line: Int = composeRule.onNode(hasText(RELEASED_LINE)).fetchSemanticsNode().id
+        val go: Int = dockGo(STUDY_RELEASED).fetchSemanticsNode().id
+
+        val order: List<Int> = composeRule.traversalIds()
+
+        assertTrue(order.indexOf(line) in 0 until order.indexOf(go))
+    }
+
+    @Test
+    fun `the naming screen draws no dock while the status read waits`() {
+        showing(Destination.Town, townReads = 0)
+        townsFake.answerRead(TownReadResult.NoTown)
+        waitFor(hasText(NAMING_TITLE))
+
+        composeRule.onAllNodes(hasTestTag(TOWN_DOCK)).assertCountEquals(0)
+    }
+
+    @Test
+    fun `the naming screen draws no dock once the status read is refused`() {
+        showing(Destination.Town, townReads = 0)
+        townsFake.answerRead(TownReadResult.NoTown)
+        repeat(STATUS_AND_RING_READS) { townsFake.answerRead(TownReadResult.Unreachable) }
+        waitFor(hasText(NAMING_TITLE))
+        composeRule.waitForIdle()
+
+        composeRule.onAllNodes(hasTestTag(TOWN_DOCK)).assertCountEquals(0)
+    }
+
+    @Test
     fun `a refused dock offers the retry and its door still opens the town`() {
         repeat(STATUS_AND_RING_READS) { townsFake.answerRead(TownReadResult.Unreachable) }
         showing(Destination.Town, Destination.Report, townReads = 0)
@@ -450,6 +510,10 @@ class DockFrameNavigationTest {
         const val READS_AVAILABLE: Int = 5
         const val SESSION_READS: Int = 2
         const val STATUS_AND_RING_READS: Int = 2
+        const val SIDE_BAR: Int = 48
+        const val CUTOUT: Int = 30
+        const val TOWN_STATUS_AND_RING_READS: Int = 3
+        const val NAMING_TITLE: String = "Ponle nombre a tu pueblo"
         const val WAIT_MILLIS: Long = 5_000
     }
 }

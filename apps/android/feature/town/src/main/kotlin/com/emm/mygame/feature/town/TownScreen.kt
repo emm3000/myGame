@@ -9,6 +9,8 @@ import androidx.compose.foundation.layout.safeDrawingPadding
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.movableContentOf
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.semantics.heading
 import androidx.compose.ui.semantics.semantics
@@ -55,6 +57,7 @@ fun TownScreen(
     foldedDock: @Composable () -> Unit = {},
     placement: @Composable () -> Unit = {},
 ) {
+    val placedFoldedDock: @Composable () -> Unit = remember(foldedDock) { movableContentOf(foldedDock) }
     Column(
         verticalArrangement = Arrangement.spacedBy(MyGameSpacing.step6),
         modifier = modifier
@@ -69,6 +72,7 @@ fun TownScreen(
                 bottom = MyGameSpacing.step8,
             ),
     ) {
+        if (state !is TownUiState.Content) placedFoldedDock()
         MyGameSkeleton(
             isLoading = state == TownUiState.Loading,
             loadingLabel = chromeResource(R.string.town_loading).spoken,
@@ -84,7 +88,7 @@ fun TownScreen(
                             TownTitle(name = content.name, label = content.label)
                         }
                         status()
-                        foldedDock()
+                        placedFoldedDock()
                         placement()
                     },
                 )

@@ -5,15 +5,19 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.ExperimentalLayoutApi
 import androidx.compose.foundation.layout.WindowInsets
+import androidx.compose.foundation.layout.WindowInsetsSides
 import androidx.compose.foundation.layout.consumeWindowInsets
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fitInside
 import androidx.compose.foundation.layout.ime
 import androidx.compose.foundation.layout.isImeVisible
+import androidx.compose.foundation.layout.only
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.safeDrawing
 import androidx.compose.foundation.layout.statusBars
 import androidx.compose.foundation.layout.statusBarsPadding
 import androidx.compose.foundation.layout.union
+import androidx.compose.foundation.layout.windowInsetsPadding
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.State
@@ -49,6 +53,8 @@ private const val HEADER_TURN: Float = -2f
 
 private const val DOCK_TURN: Float = -1f
 
+private const val FOLDED_DOCK_TURN: Float = 1f
+
 private const val TASK_DOCK_TURN: Float = 1f
 
 @OptIn(ExperimentalLayoutApi::class)
@@ -64,15 +70,18 @@ internal fun FramedScreen(
     val framedInsets: WindowInsets =
         if (kind == FrameKind.Home) WindowInsets.ime else WindowInsets.ime.union(WindowInsets.statusBars)
     val isFolded: MutableState<Boolean> = remember { mutableStateOf(false) }
+    val isDockWithheld: MutableState<Boolean> = remember { mutableStateOf(false) }
     val isKeyboardOpen: Boolean = WindowInsets.isImeVisible
     val door: MyGameDockDoor? = doorOf(kind, chrome.navigator)
-    val dock: TownStatusUiState.Dock? = chrome.status.value.dock.takeIf { kind != FrameKind.Task }
+    val dock: TownStatusUiState.Dock? =
+        chrome.status.value.dock.takeUnless { isDockWithheld.value || kind == FrameKind.Task }
     val onStatusIntent: State<(TownStatusIntent) -> Unit> = rememberUpdatedState(chrome.onStatusIntent)
     val task: TaskDockHook = remember {
         TaskDockHook(onAnswered = { onStatusIntent.value(TownStatusIntent.ScreenAnswered) })
     }
     val frame = ScreenFrame(
         task = task,
+        onDockWithheld = { isWithheld: Boolean -> isDockWithheld.value = isWithheld },
         foldedDock = {
             if (dock != null && isFolded.value) {
                 TownDockTop(dock = dock, door = door)
@@ -99,12 +108,13 @@ internal fun FramedScreen(
         }
         if (isKeyboardOpen) return@Column
         task.dock?.takeIf { kind == FrameKind.Task }?.let { shown: TaskDock -> TaskFrameDock(shown) }
-        if (dock != null) {
+        dock?.let { shown: TownStatusUiState.Dock ->
             FrameDock(
-                dock = dock,
+                dock = shown,
                 chrome = chrome,
                 door = door,
                 studyInPlace = studyInPlace,
+                isFolded = isFolded.value,
                 onFoldChange = { folded: Boolean -> isFolded.value = folded },
             )
         }
@@ -117,7 +127,9 @@ private fun TaskFrameDock(shown: TaskDock) {
         line = shown.line,
         go = shown.go,
         onFoldChange = {},
-        modifier = Modifier.semantics { traversalIndex = TASK_DOCK_TURN },
+        modifier = Modifier
+            .windowInsetsPadding(WindowInsets.safeDrawing.only(WindowInsetsSides.Horizontal))
+            .semantics { traversalIndex = TASK_DOCK_TURN },
         notice = shown.notice,
     )
 }
@@ -150,13 +162,17 @@ private fun FrameDock(
     chrome: SignedInChrome,
     door: MyGameDockDoor?,
     studyInPlace: @Composable (Int) -> MyGameDockGo?,
+    isFolded: Boolean,
     onFoldChange: (Boolean) -> Unit,
 ) {
+    val turn: Float = if (isFolded) FOLDED_DOCK_TURN else DOCK_TURN
     TownDock(
         dock = dock,
         actions = chrome.dockActions(),
         onFoldChange = onFoldChange,
-        modifier = Modifier.semantics { traversalIndex = DOCK_TURN },
+        modifier = Modifier
+            .windowInsetsPadding(WindowInsets.safeDrawing.only(WindowInsetsSides.Horizontal))
+            .semantics { traversalIndex = turn },
         door = door,
         inPlace = dock.studiedInPlace()?.let { number: Int -> studyInPlace(number) },
     )
