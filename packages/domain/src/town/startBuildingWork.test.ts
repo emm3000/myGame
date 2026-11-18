@@ -193,6 +193,27 @@ describe('startBuildingWork', () => {
     })
   })
 
+  it('admits work that leaves exactly zero free people', async () => {
+    const fullFactory = townCatalogOf(
+      plainTownSettings,
+      pricedLevels.map((line) =>
+        line.building === 'factory' && line.level === 1 ? { ...line, people: 26 } : line,
+      ),
+    )
+
+    const started = await startIn({}, ['factory'], fullFactory)
+
+    assert(started.ok)
+    expect(started.value.workSlot).toEqual({
+      kind: 'busy',
+      building: 'factory',
+      level: 1,
+      cost: { money: 50, food: 20, power: 0, material: 100 },
+      startedAt: now,
+      finishesAt: secondsAfter(now, 60),
+    })
+  })
+
   it('counts the people the hires occupy against new work', async () => {
     const refused = await startIn({ hires: { worker: 26, truck: 0 } }, ['farm'])
 
