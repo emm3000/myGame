@@ -35,6 +35,7 @@ import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.tooling.preview.PreviewParameter
 import androidx.compose.ui.tooling.preview.PreviewParameterProvider
 import androidx.compose.ui.unit.Dp
+import androidx.compose.ui.unit.dp
 
 @Composable
 fun MyGameStreetStrip(
@@ -48,9 +49,12 @@ fun MyGameStreetStrip(
 ) {
     BoxWithConstraints(modifier = modifier.fillMaxWidth().semantics { contentDescription = name }) {
         val tabWidth: Dp = maxOf(MyGameSizes.control, maxWidth / street.tabs.size.coerceAtLeast(1))
-        val scroll: ScrollState = rememberScrollState()
-        val centered: Int = with(LocalDensity.current) { (tabWidth * selected + (tabWidth - maxWidth) / 2).roundToPx() }
-        LaunchedEffect(centered) { scroll.animateScrollTo(centered.coerceIn(0, scroll.maxValue)) }
+        val shown: Int = with(LocalDensity.current) {
+            val centered: Int = (tabWidth * selected + (tabWidth - maxWidth) / 2).roundToPx()
+            centered.coerceIn(0, (tabWidth * street.tabs.size - maxWidth).roundToPx().coerceAtLeast(0))
+        }
+        val scroll: ScrollState = rememberScrollState(initial = shown)
+        LaunchedEffect(shown) { scroll.animateScrollTo(shown) }
         Column(modifier = Modifier.horizontalScroll(scroll)) {
             Row(modifier = Modifier.selectableGroup()) {
                 street.tabs.forEachIndexed { index: Int, tab: MyGameStreetTab ->
@@ -174,6 +178,24 @@ private fun MyGameStreetStripPreview(@PreviewParameter(StreetStripSelections::cl
             nextStepWords = "your next step",
             inWorkWords = "in work",
             onSelect = {},
+        )
+    }
+}
+
+private val previewPhoneInsideGutter: Dp = 320.dp
+
+@PreviewMyGame
+@Composable
+private fun MyGameStreetStripInGutterPreview() {
+    MyGamePreviewSurface {
+        MyGameStreetStrip(
+            street = previewStreet,
+            selected = previewStreet.tabs.lastIndex,
+            name = "6 of 7 built",
+            nextStepWords = "your next step",
+            inWorkWords = "in work",
+            onSelect = {},
+            modifier = Modifier.width(previewPhoneInsideGutter),
         )
     }
 }

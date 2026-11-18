@@ -166,9 +166,21 @@ class MyGameStreetStripTest {
     fun `the selected tab stays in view when the tabs run past the gutter`() {
         show(selected = mainStreet.tabs.lastIndex, modifier = Modifier.padding(horizontal = MyGameSpacing.step5))
 
-        val storage: SemanticsNode = composeRule.onNodeWithContentDescription("Storage, level 10").fetchSemanticsNode()
-        val storageEnd: Float = storage.positionInRoot.x + storage.size.width
-        val stripEnd: Float = with(composeRule.density) { (phoneWidth - MyGameSpacing.step5).toPx() }
-        assertTrue("the tab ends at $storageEnd, inside $stripEnd", storageEnd <= stripEnd + PX_TOLERANCE)
+        assertTrue("the tab ends at ${storageEnd()}, inside ${stripEnd()}", storageEnd() <= stripEnd() + PX_TOLERANCE)
     }
+
+    @Test
+    fun `a strip opened on a far place shows it on its first frame without sliding`() {
+        composeRule.mainClock.autoAdvance = false
+        show(selected = mainStreet.tabs.lastIndex, modifier = Modifier.padding(horizontal = MyGameSpacing.step5))
+
+        assertTrue("the tab ends at ${storageEnd()}, inside ${stripEnd()}", storageEnd() <= stripEnd() + PX_TOLERANCE)
+    }
+
+    private fun storageEnd(): Float {
+        val storage: SemanticsNode = composeRule.onNodeWithContentDescription("Storage, level 10").fetchSemanticsNode()
+        return storage.positionInRoot.x + storage.size.width
+    }
+
+    private fun stripEnd(): Float = with(composeRule.density) { (phoneWidth - MyGameSpacing.step5).toPx() }
 }
