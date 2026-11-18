@@ -610,6 +610,7 @@ screenshots in light, dark and at font scale 2.0, with one in Spanish
 | ADR 043, *Places*, lines 370–374 | on Android the street strip replaces the skyline and carries its built count in the strip's name; a place's silhouette sits on its page, not on a row |
 | ADR 043, *The screens*, lines 328–357 | on Android: the dock's door in place of the two doors, and in place of the back link outside a task screen; the town home is the pager; the school, the review and the Report move their primary into the dock |
 | ADR 043, *Web and Android*, lines 470–478 | the Color row reads 22 tokens; the Navigation row reads the dock |
+| `.claude/rules/ui-components.md`, *One design system*, "Used by one screen, it stays in that feature" | an exception: `MyGameStreetStrip` and `MyGamePlacePage` live in `core:designsystem` although only the town home draws them (#1168); every copy and mark reaches them as a parameter, and they read no game model |
 
 The lines are ADR 043's as they stand at `a1aae9a4`, and its new
 amendment section points back here.
