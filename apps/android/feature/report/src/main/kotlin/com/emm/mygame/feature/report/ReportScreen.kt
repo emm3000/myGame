@@ -91,11 +91,13 @@ fun ReportScreen(
                 navigation = ReportScreenLinks(onReviewsOpen, onLessonOpen),
             )
         }
-        ReportRows(
-            isReminderOffered = isReminderOffered(state),
-            onNewsOpen = onNewsOpen,
-            onSettingsOpen = onSettingsOpen,
-        )
+        if (state != ReportUiState.SigningOut) {
+            ReportRows(
+                isReminderOffered = isReminderOffered(state),
+                onNewsOpen = onNewsOpen,
+                onSettingsOpen = onSettingsOpen,
+            )
+        }
         MyGameTextButton(
             label = fixedCopyResource(R.string.report_sign_out),
             isBusy = state == ReportUiState.SigningOut,

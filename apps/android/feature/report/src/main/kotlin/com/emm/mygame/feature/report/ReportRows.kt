@@ -3,10 +3,12 @@ package com.emm.mygame.feature.report
 import androidx.annotation.StringRes
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.padding
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import com.emm.mygame.core.designsystem.MyGameHairline
 import com.emm.mygame.core.designsystem.MyGameLabel
+import com.emm.mygame.core.designsystem.MyGameSpacing
 import com.emm.mygame.core.designsystem.MyGameTextLink
 import com.emm.mygame.core.ui.chromeResource
 import com.emm.mygame.core.ui.fixedCopyResource
@@ -31,7 +33,11 @@ internal fun ReportRows(
 private fun ReportRow(label: MyGameLabel, onClick: () -> Unit, modifier: Modifier = Modifier) {
     Column(modifier = modifier.fillMaxWidth()) {
         MyGameHairline()
-        MyGameTextLink(label = label, onClick = onClick, modifier = Modifier.fillMaxWidth())
+        MyGameTextLink(
+            label = label,
+            onClick = onClick,
+            modifier = Modifier.fillMaxWidth().padding(vertical = MyGameSpacing.step2),
+        )
     }
 }
 
