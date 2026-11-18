@@ -19,7 +19,6 @@ import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardType
 import com.emm.mygame.core.designsystem.MyGameIcon
 import com.emm.mygame.core.designsystem.MyGameIcons
-import com.emm.mygame.core.designsystem.MyGameInlineAlert
 import com.emm.mygame.core.designsystem.MyGameLabel
 import com.emm.mygame.core.designsystem.MyGameOutlinedButton
 import com.emm.mygame.core.designsystem.MyGameSizes
@@ -167,7 +166,7 @@ private fun HireAnswer(kind: TownHireKind, place: TownUiState.HireStatus, modifi
             if (place.hire == kind) copy.fixedCopy(R.string.town_refusal_unexpected) else null
         TownUiState.HireStatus.Idle, is TownUiState.HireStatus.Waiting -> null
     }
-    if (message != null) MyGameInlineAlert(message = message, modifier = modifier)
+    if (message != null) RevealedAlert(message = message, modifier = modifier)
 }
 
 private fun TownUiState.HireStatus.isAnsweredFor(kind: TownHireKind): Boolean = when (this) {

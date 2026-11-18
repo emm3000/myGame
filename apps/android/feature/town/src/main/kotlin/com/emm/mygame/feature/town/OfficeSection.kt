@@ -13,7 +13,6 @@ import com.emm.mygame.core.designsystem.MyGameCard
 import com.emm.mygame.core.designsystem.MyGameHairline
 import com.emm.mygame.core.designsystem.MyGameIcon
 import com.emm.mygame.core.designsystem.MyGameIcons
-import com.emm.mygame.core.designsystem.MyGameInlineAlert
 import com.emm.mygame.core.designsystem.MyGameOutlinedButton
 import com.emm.mygame.core.designsystem.MyGameSpacing
 import com.emm.mygame.core.designsystem.MyGameText
@@ -181,5 +180,5 @@ private fun StopHiringAnswer(stop: TownUiState.HireStopStatus, modifier: Modifie
         TownUiState.HireStopStatus.Unreachable -> copy.fixedCopy(R.string.town_refusal_unexpected)
         TownUiState.HireStopStatus.Idle, TownUiState.HireStopStatus.Waiting -> null
     }
-    if (message != null) MyGameInlineAlert(message = message, modifier = modifier)
+    if (message != null) RevealedAlert(message = message, modifier = modifier)
 }

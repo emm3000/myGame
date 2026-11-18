@@ -1,9 +1,16 @@
 package com.emm.mygame.feature.town
 
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.size
+import androidx.compose.runtime.MutableState
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.ui.Modifier
 import androidx.compose.ui.semantics.SemanticsProperties
 import androidx.compose.ui.test.SemanticsMatcher
 import androidx.compose.ui.test.assertIsDisplayed
 import androidx.compose.ui.test.assertIsNotEnabled
+import androidx.compose.ui.test.getUnclippedBoundsInRoot
+import androidx.compose.ui.test.hasContentDescription
 import androidx.compose.ui.test.junit4.ComposeContentTestRule
 import androidx.compose.ui.test.junit4.createComposeRule
 import androidx.compose.ui.test.onNodeWithContentDescription
@@ -11,6 +18,10 @@ import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
 import androidx.compose.ui.test.performScrollTo
 import androidx.compose.ui.test.performTextReplacement
+import androidx.compose.ui.unit.Dp
+import androidx.compose.ui.unit.DpRect
+import androidx.compose.ui.unit.DpSize
+import androidx.compose.ui.unit.dp
 import com.emm.mygame.core.designsystem.MyGameTheme
 import com.emm.mygame.core.network.TownBuildingKind
 import com.emm.mygame.core.network.TownHireKind
@@ -19,6 +30,7 @@ import com.emm.mygame.core.network.TownLabel
 import com.emm.mygame.core.network.TownResourceKind
 import kotlin.time.Duration.Companion.minutes
 import org.junit.Assert.assertEquals
+import org.junit.Assert.assertTrue
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -277,6 +289,31 @@ class TownOfficeScreenTest {
         composeRule.onNodeWithText("Esta contratación ya terminó.").performScrollTo().assertIsDisplayed()
     }
 
+    @Test
+    fun `brings a hire refusal at the end of the page fully into view above the street`() {
+        val shown: MutableState<TownUiState.OfficeLine> = mutableStateOf(office)
+        showOnAPhone(shown)
+
+        shown.value = office.copy(
+            place = TownUiState.HireStatus.Refused(TownHireKind.Worker, TownHiringRefusal.NotEnoughResources),
+        )
+        composeRule.waitForIdle()
+
+        assertAboveTheStreet(HIRE_SHORT)
+    }
+
+    @Test
+    fun `brings a refused hiring stop at the end of the page fully into view above the street`() {
+        val busy: TownUiState.OfficeLine = office.copy(hiring = busyHiring)
+        val shown: MutableState<TownUiState.OfficeLine> = mutableStateOf(busy)
+        showOnAPhone(shown)
+
+        shown.value = busy.copy(stop = TownUiState.HireStopStatus.Refused(TownHiringRefusal.HiringOrderNotFound))
+        composeRule.waitForIdle()
+
+        assertAboveTheStreet(HIRING_OVER)
+    }
+
     private fun shortOfMoneyUntil(ready: TownUiState.ReadyTime): TownUiState.HireBlock =
         TownUiState.HireBlock.Resources(listOf(TownUiState.Shortfall(TownResourceKind.Money, 20)), ready = ready)
 
@@ -288,6 +325,29 @@ class TownOfficeScreenTest {
             .onNode(SemanticsMatcher.expectValue(SemanticsProperties.StateDescription, reason))
             .performScrollTo()
             .assertIsDisplayed()
+    }
+
+    private fun showOnAPhone(shown: MutableState<TownUiState.OfficeLine>) {
+        composeRule.setContent {
+            MyGameTheme {
+                Box(modifier = Modifier.size(DpSize(360.dp, 640.dp))) {
+                    TownScreen(
+                        state = homeWith(shown.value),
+                        onIntent = { intent: TownIntent -> intents += intent },
+                        onSchoolOpen = {},
+                        onMapOpen = {},
+                    )
+                }
+            }
+        }
+    }
+
+    private fun assertAboveTheStreet(line: String) {
+        val alert: DpRect = composeRule.onNodeWithText(line).getUnclippedBoundsInRoot()
+        val streetTop: Dp =
+            composeRule.onNode(hasContentDescription(STREET, substring = true)).getUnclippedBoundsInRoot().top
+        assertTrue("refusal ends at ${alert.bottom}, street starts at $streetTop", alert.bottom <= streetTop)
+        assertTrue("refusal starts at ${alert.top}", alert.top >= 0.dp)
     }
 
     private fun show(shown: TownUiState.OfficeLine) {
@@ -321,4 +381,11 @@ class TownOfficeScreenTest {
         stop = TownUiState.StopStatus.Idle,
         office = shown,
     )
+
+    private companion object {
+        const val STREET: String = "Tu pueblo:"
+        const val HIRE_SHORT: String =
+            "No tienes recursos suficientes para esta contratación. Espera a que crezcan tus reservas."
+        const val HIRING_OVER: String = "Esta contratación ya terminó."
+    }
 }
