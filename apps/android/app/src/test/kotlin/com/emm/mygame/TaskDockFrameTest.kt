@@ -27,6 +27,7 @@ import androidx.compose.ui.test.onFirst
 import androidx.compose.ui.test.onRoot
 import androidx.compose.ui.test.performClick
 import androidx.compose.ui.unit.Dp
+import androidx.compose.ui.unit.DpRect
 import androidx.compose.ui.unit.dp
 import androidx.navigation3.runtime.NavBackStack
 import androidx.navigation3.runtime.NavKey
@@ -265,11 +266,34 @@ class TaskDockFrameTest {
     }
 
     @Test
+    fun `a task's dock draws its countdown between its line and its notice`() {
+        showingFakeTask()
+
+        val countdown: DpRect = placedBounds(hasText(COUNTDOWN) and !hasAnyAncestor(hasScrollAction()))
+        val line: DpRect = placedBounds(hasText(PROGRESS) and !hasAnyAncestor(hasScrollAction()))
+        val notice: DpRect = placedBounds(hasText(VERDICT) and !hasAnyAncestor(hasScrollAction()))
+        assertTrue(countdown.top >= line.bottom && countdown.bottom <= notice.top)
+    }
+
+    @Test
+    @Config(qualifiers = "+w360dp-h480dp", fontScale = 2.0f)
+    fun `a task's folded dock hands its countdown to the content with its line`() {
+        showingFakeTask()
+
+        val countdown: DpRect = placedBounds(hasText(COUNTDOWN) and hasAnyAncestor(hasScrollAction()))
+        val line: DpRect = placedBounds(hasText(PROGRESS) and hasAnyAncestor(hasScrollAction()))
+        assertTrue(countdown.top >= line.bottom)
+    }
+
+    @Test
     fun `a task route that does not follow the town hides the town's step`() {
         showingFakeTask(isFilled = false, status = refusedTown)
 
         composeRule.onAllNodes(hasTestTag(INK_PILL)).assertCountEquals(0)
     }
+
+    private fun placedBounds(matcher: SemanticsMatcher): DpRect =
+        composeRule.onAllNodes(matcher and isPlaced).onFirst().getUnclippedBoundsInRoot()
 
     private fun idOf(matcher: SemanticsMatcher): Int =
         composeRule.onAllNodes(matcher and isPlaced, useUnmergedTree = true).onFirst().fetchSemanticsNode().id
@@ -288,6 +312,7 @@ class TaskDockFrameTest {
         const val CHECK: String = "Check"
         const val PROGRESS: String = "Card 2 of 5"
         const val VERDICT: String = "Correct."
+        const val COUNTDOWN: String = "4 min"
         const val PORTRAIT_KEYBOARD: Int = 600
         const val LANDSCAPE_KEYBOARD: Int = 250
         const val TALL_CARD: Int = 300
@@ -324,6 +349,7 @@ private fun FakeTaskRoute(frame: ScreenFrame, isFilled: Boolean, isFollowingTown
                 onClick = hook.onAnswered,
             ),
             notice = { MyGameText(text = "Correct.", style = MyGameTypography.body, color = MyGameTheme.colors.ink) },
+            countdown = { MyGameText(text = "4 min", style = MyGameTypography.body, color = MyGameTheme.colors.ink) },
         ),
     )
 }

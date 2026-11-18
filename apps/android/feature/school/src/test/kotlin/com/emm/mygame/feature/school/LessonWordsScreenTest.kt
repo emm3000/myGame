@@ -7,6 +7,7 @@ import androidx.compose.ui.semantics.SemanticsProperties
 import androidx.compose.ui.test.SemanticsMatcher
 import androidx.compose.ui.test.hasAnyAncestor
 import androidx.compose.ui.test.hasContentDescription
+import androidx.compose.ui.test.hasScrollAction
 import androidx.compose.ui.test.hasStateDescription
 import androidx.compose.ui.test.hasTestTag
 import androidx.compose.ui.test.hasText
@@ -256,6 +257,24 @@ class LessonWordsScreenTest {
 
         assertEquals(emptyList<LessonWordsIntent>(), intents)
         assertEquals(emptyList<LessonWordsUiState.WayOn>(), wayOns)
+    }
+
+    @Test
+    @Config(qualifiers = "+w411dp-h891dp")
+    fun `draws the lesson's time left in the dock's countdown while it waits for the lesson's end`() {
+        draw(waitingLastWord)
+
+        composeRule.onNode(hasText("3 min") and hasAnyAncestor(hasTestTag(TASK_DOCK_COUNTDOWN))).assertExists()
+    }
+
+    @Test
+    @Config(qualifiers = "+w360dp-h640dp", fontScale = 2.0f)
+    fun `draws the lesson's time left at the task's end with the line when the dock folds`() {
+        draw(waitingLastWord)
+
+        val atEnd: SemanticsMatcher = hasAnyAncestor(hasScrollAction()) and !hasAnyAncestor(hasTestTag(TASK_DOCK))
+        composeRule.onNode(hasText("3 min") and atEnd).assertExists()
+        composeRule.onNode(hasText("2 de 2", substring = true) and atEnd).assertExists()
     }
 
     @Test

@@ -49,7 +49,7 @@ private fun readingDock(
 ): TaskDock = TaskDock(
     line = readingLineOf(reading),
     go = readingGoOf(reading, onIntent, onWayOn),
-    notice = { WaitingTime(reading = reading) },
+    countdown = { WaitingTime(reading = reading) },
 )
 
 @Composable

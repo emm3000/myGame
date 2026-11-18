@@ -146,6 +146,7 @@ private fun TaskFrameDock(shown: TaskDock, onFoldChange: (Boolean) -> Unit) {
         modifier = Modifier
             .windowInsetsPadding(WindowInsets.safeDrawing.only(WindowInsetsSides.Horizontal))
             .semantics { traversalIndex = TASK_DOCK_TURN },
+        countdown = shown.countdown,
         notice = shown.notice,
     )
 }

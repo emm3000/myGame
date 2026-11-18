@@ -6,4 +6,9 @@ import com.emm.mygame.core.designsystem.MyGameDockGo
 import com.emm.mygame.core.designsystem.MyGameDockLine
 
 @Stable
-class TaskDock(val line: MyGameDockLine, val go: MyGameDockGo, val notice: @Composable () -> Unit = {})
+class TaskDock(
+    val line: MyGameDockLine,
+    val go: MyGameDockGo,
+    val countdown: @Composable () -> Unit = {},
+    val notice: @Composable () -> Unit = {},
+)
