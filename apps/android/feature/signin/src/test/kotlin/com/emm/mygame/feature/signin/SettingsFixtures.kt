@@ -1,9 +1,12 @@
 package com.emm.mygame.feature.signin
 
-import java.time.LocalTime
+import com.emm.mygame.core.network.StudyReminderChoice
 
-internal val firstReminder: SettingsUiState.Reminder =
-    SettingsUiState.Reminder(isOn = false, time = LocalTime.of(19, 0), ask = SettingsUiState.NotificationAsk.Untouched)
+internal val firstReminder: SettingsUiState.Reminder = SettingsUiState.Reminder(
+    isOn = StudyReminderChoice.firstChoice.isOn,
+    time = StudyReminderChoice.firstChoice.time,
+    ask = SettingsUiState.NotificationAsk.Untouched,
+)
 
 internal class FakeReminderNotifications(override var areAllowed: Boolean, override val canAsk: Boolean) :
     ReminderNotifications

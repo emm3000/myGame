@@ -31,12 +31,10 @@ class SettingsViewModel(
 
     val effects: Flow<SettingsEffect> = _effects.receiveAsFlow()
 
-    private var ask: SettingsUiState.NotificationAsk = SettingsUiState.NotificationAsk.Untouched
-
     init {
         read()
         viewModelScope.launch { playerScaffold.collect(::holdStored) }
-        viewModelScope.launch { reminders.choice.collect { drawReminder() } }
+        viewModelScope.launch { reminders.choice.collect { drawReminder(shownAsk()) } }
     }
 
     fun onIntent(intent: SettingsIntent) {
@@ -52,33 +50,41 @@ class SettingsViewModel(
     private fun read() {
         _state.value = SettingsUiState.Loading
         viewModelScope.launch {
-            _state.value = settingsOf(sessions.restore(), playerScaffold.value, reminder())
+            val session: RestoreResult = sessions.restore()
+            val reminder: SettingsUiState.Reminder = reminderAsked(SettingsUiState.NotificationAsk.Untouched)
+            _state.value = settingsOf(session, playerScaffold.value, reminder)
         }
     }
 
-    private fun reminder(): SettingsUiState.Reminder {
+    private fun reminderAsked(ask: SettingsUiState.NotificationAsk): SettingsUiState.Reminder {
         val choice: StudyReminderChoice = reminders.choice.value
-        return SettingsUiState.Reminder(isOn = choice.isOn, time = choice.time, ask = ask)
+        val kept: SettingsUiState.NotificationAsk =
+            if (choice.isOn) SettingsUiState.NotificationAsk.Untouched else ask
+        return SettingsUiState.Reminder(isOn = choice.isOn, time = choice.time, ask = kept)
     }
 
-    private fun drawReminder() {
+    private fun shownAsk(): SettingsUiState.NotificationAsk =
+        (_state.value as? SettingsUiState.Loaded)?.reminder?.ask ?: SettingsUiState.NotificationAsk.Untouched
+
+    private fun drawReminder(ask: SettingsUiState.NotificationAsk) {
         val loaded: SettingsUiState.Loaded = _state.value as? SettingsUiState.Loaded ?: return
-        _state.value = loaded.copy(reminder = reminder())
+        _state.value = loaded.copy(reminder = reminderAsked(ask))
     }
 
     private fun switchReminder(isOn: Boolean) {
-        if (ask == SettingsUiState.NotificationAsk.Asking) return
+        val loaded: SettingsUiState.Loaded = _state.value as? SettingsUiState.Loaded ?: return
+        if (loaded.reminder.ask == SettingsUiState.NotificationAsk.Asking) return
         if (!isOn) return chooseReminder(isOn = false)
         if (notifications.areAllowed) return chooseReminder(isOn = true)
-        if (!notifications.canAsk) return holdAsk(SettingsUiState.NotificationAsk.Denied)
-        holdAsk(SettingsUiState.NotificationAsk.Asking)
+        if (!notifications.canAsk) return drawReminder(SettingsUiState.NotificationAsk.Denied)
+        drawReminder(SettingsUiState.NotificationAsk.Asking)
         _effects.trySend(SettingsEffect.AskNotifications)
     }
 
     private fun answerAsk(isGranted: Boolean) {
-        if (ask != SettingsUiState.NotificationAsk.Asking) return
         if (isGranted && notifications.areAllowed) return chooseReminder(isOn = true)
-        holdAsk(SettingsUiState.NotificationAsk.Denied)
+        if (shownAsk() != SettingsUiState.NotificationAsk.Asking) return
+        drawReminder(SettingsUiState.NotificationAsk.Denied)
     }
 
     private fun stepReminder(step: ReminderStep) {
@@ -88,14 +94,8 @@ class SettingsViewModel(
     }
 
     private fun chooseReminder(isOn: Boolean) {
-        ask = SettingsUiState.NotificationAsk.Untouched
         reminders.choose(reminders.choice.value.copy(isOn = isOn))
-        drawReminder()
-    }
-
-    private fun holdAsk(next: SettingsUiState.NotificationAsk) {
-        ask = next
-        drawReminder()
+        drawReminder(SettingsUiState.NotificationAsk.Untouched)
     }
 
     private fun holdStored(held: PlayerScaffold?) {

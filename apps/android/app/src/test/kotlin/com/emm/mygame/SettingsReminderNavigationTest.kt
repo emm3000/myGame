@@ -125,8 +125,7 @@ class SettingsReminderNavigationTest {
     private fun reminderSwitch(): SemanticsNodeInteraction =
         composeRule.onNode(isToggleable() and hasText(SWITCH_TITLE, substring = true))
 
-    @Test
-    fun `turning off cancels the reminder`() {
+    private fun turnOffAPostedReminder() {
         store.fold { lessonReady }
         store.choose(onAtSevenPm)
         alarm.fire(onAtSevenPm, lessonReady, spanishScaffold)
@@ -134,8 +133,20 @@ class SettingsReminderNavigationTest {
 
         reminderSwitch().performScrollTo().performClick()
         composeRule.waitForIdle()
+    }
 
-        assertEquals(Pair(0, 0), Pair(alarms.scheduledAlarms.size, notifications.allNotifications.size))
+    @Test
+    fun `turning off cancels the reminder`() {
+        turnOffAPostedReminder()
+
+        assertEquals(0, alarms.scheduledAlarms.size)
+    }
+
+    @Test
+    fun `turning off removes a posted reminder`() {
+        turnOffAPostedReminder()
+
+        assertEquals(0, notifications.allNotifications.size)
     }
 
     @Test

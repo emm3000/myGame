@@ -30,8 +30,8 @@ import com.emm.mygame.core.network.TownBuildingKind
 import com.emm.mygame.core.network.TownLabel
 import com.emm.mygame.core.network.TownReadResult
 import com.emm.mygame.core.network.TownReport
-import com.emm.mygame.core.network.TownRepository
 import com.emm.mygame.core.network.TownResourceKind
+import com.emm.mygame.core.network.TownRepository
 import com.emm.mygame.core.network.TownSnapshot
 import com.emm.mygame.core.testing.FakeHoldoutCheckRepository
 import com.emm.mygame.core.testing.FakeLearningRepository

@@ -670,10 +670,6 @@ class ReportViewModelTest {
         assertEquals(1, reports.readCount)
     }
 
-    private companion object {
-        const val READS_AVAILABLE: Int = 5
-    }
-
     @Test
     fun `draws the reminder as off while it is off`() = runTest {
         val viewModel: ReportViewModel = reportReading(reportOf())
@@ -704,5 +700,9 @@ class ReportViewModelTest {
         runCurrent()
 
         assertEquals(true, contentOf(viewModel).isReminderOn)
+    }
+
+    private companion object {
+        const val READS_AVAILABLE: Int = 5
     }
 }
