@@ -88,7 +88,7 @@ private val themes: Map<String, MyGameColors> = mapOf("light" to lightColors, "d
 
 private const val CONTROL_BOUNDARY: String = "MyGameTextField and quiet MyGameButton border"
 
-private const val FOCUS_RING: String = "focus ring, 3 dp at a 2 dp offset"
+private const val FOCUS_RING: String = "focus ring, 3 dp outside its control"
 
 private const val GO_LABEL: String = "the go button's label and its count"
 
@@ -127,7 +127,7 @@ private val pairs: List<ColorPair> = listOf(
         { it.surfaceSunken },
         "busy and blocked MyGameButton label, disabled MyGameSwitchRow",
     ),
-    ColorPair(PairKind.Text, { it.onAction }, { it.action }, "MyGameButton label"),
+    ColorPair(PairKind.Text, { it.onAction }, { it.action }, "an outlined button's count"),
     ColorPair(PairKind.Text, { it.action }, { it.surface }, "MyGameTextLink, AuthHeader"),
     ColorPair(PairKind.Text, { it.action }, { it.surfaceRaised }, "chosen review choice"),
     ColorPair(PairKind.Text, { it.action }, { it.destructiveSoft }, "MyGameErrorBanner action"),

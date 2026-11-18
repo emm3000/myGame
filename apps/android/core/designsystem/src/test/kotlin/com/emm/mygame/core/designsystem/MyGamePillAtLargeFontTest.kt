@@ -195,6 +195,13 @@ class MyGamePillAtLargeFontTest {
     }
 
     @Test
+    fun `keeps the go button with its count at action height for one line at a large font`() {
+        showAt(LARGE, goButtonWithCount(SHORT_LABEL))
+
+        assertEquals(MyGameSizes.action.value, heightOf(INK_PILL).value, DP_TOLERANCE)
+    }
+
+    @Test
     fun `keeps the go button with its count at action height for one line at the largest font`() {
         showAt(LARGEST, goButtonWithCount(SHORT_LABEL))
 

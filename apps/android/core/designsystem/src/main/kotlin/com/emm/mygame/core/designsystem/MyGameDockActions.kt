@@ -36,12 +36,19 @@ private fun MeasureScope.alone(go: Measurable, constraints: Constraints): Measur
     return layout(constraints.maxWidth, placed.height) { placed.place(0, 0) }
 }
 
+private class DockShares(val gap: Int, val go: Int, val door: Int)
+
+private fun MeasureScope.sharesOf(constraints: Constraints): DockShares {
+    val gap: Int = MyGameSpacing.step3.roundToPx()
+    val shared: Int = constraints.maxWidth - gap
+    val go: Int = shared * GO_SHARE / (GO_SHARE + DOOR_SHARE)
+    return DockShares(gap = gap, go = go, door = shared - go)
+}
+
 private fun MeasureScope.fitsBeside(go: Measurable, door: Measurable, constraints: Constraints): Boolean {
-    val shared: Int = constraints.maxWidth - MyGameSpacing.step3.roundToPx()
-    val goWidth: Int = shared * GO_SHARE / (GO_SHARE + DOOR_SHARE)
-    val doorWidth: Int = shared - goWidth
-    return go.maxIntrinsicWidth(Constraints.Infinity) <= goWidth &&
-        door.maxIntrinsicWidth(Constraints.Infinity) <= doorWidth
+    val shares: DockShares = sharesOf(constraints)
+    return go.maxIntrinsicWidth(Constraints.Infinity) <= shares.go &&
+        door.maxIntrinsicWidth(Constraints.Infinity) <= shares.door
 }
 
 private fun MeasureScope.under(go: Measurable, door: Measurable, constraints: Constraints): MeasureResult {
@@ -56,15 +63,12 @@ private fun MeasureScope.under(go: Measurable, door: Measurable, constraints: Co
 }
 
 private fun MeasureScope.beside(go: Measurable, door: Measurable, constraints: Constraints): MeasureResult {
-    val gap: Int = MyGameSpacing.step3.roundToPx()
-    val shared: Int = constraints.maxWidth - gap
-    val goWidth: Int = shared * GO_SHARE / (GO_SHARE + DOOR_SHARE)
-    val doorWidth: Int = shared - goWidth
-    val height: Int = maxOf(go.minIntrinsicHeight(goWidth), door.minIntrinsicHeight(doorWidth))
-    val goPlaced: Placeable = go.measure(Constraints.fixed(goWidth, height))
-    val doorPlaced: Placeable = door.measure(Constraints.fixed(doorWidth, height))
+    val shares: DockShares = sharesOf(constraints)
+    val height: Int = maxOf(go.minIntrinsicHeight(shares.go), door.minIntrinsicHeight(shares.door))
+    val goPlaced: Placeable = go.measure(Constraints.fixed(shares.go, height))
+    val doorPlaced: Placeable = door.measure(Constraints.fixed(shares.door, height))
     return layout(constraints.maxWidth, height) {
         goPlaced.place(0, 0)
-        doorPlaced.place(goWidth + gap, 0)
+        doorPlaced.place(shares.go + shares.gap, 0)
     }
 }

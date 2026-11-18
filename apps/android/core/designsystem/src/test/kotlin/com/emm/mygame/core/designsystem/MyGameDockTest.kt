@@ -10,8 +10,11 @@ import androidx.compose.ui.semantics.traversalIndex
 import androidx.compose.ui.test.assertIsNotEnabled
 import androidx.compose.ui.test.hasContentDescription
 import androidx.compose.ui.test.performClick
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.height
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.test.assertIsDisplayed
 import androidx.compose.ui.test.onNodeWithText
@@ -73,6 +76,8 @@ private val townInBoth: MyGameDockDoor =
 private val pueblo: MyGameDockDoor = MyGameDockDoor(label = plain("Pueblo"), onClick = {})
 
 private val tallNotice: Dp = 300.dp
+
+private val smallWindowHeight: Dp = 640.dp
 
 private val isSilent: SemanticsMatcher = SemanticsMatcher.keyNotDefined(SemanticsProperties.LiveRegion)
 
@@ -160,21 +165,22 @@ class MyGameDockTest {
     fun `the folded go button keeps its whole label at font scale 2 on a 360 by 640 window`() {
         var isFolded: Boolean = false
         show {
-            MyGameDock(
-                line = returningWords,
-                go = studyTheReturningWords(),
-                onFoldChange = { folded: Boolean -> isFolded = folded },
-                door = pueblo,
-            )
+            Box(contentAlignment = Alignment.BottomCenter, modifier = Modifier.fillMaxSize()) {
+                MyGameDock(
+                    line = returningWords,
+                    go = studyTheReturningWords(),
+                    onFoldChange = { folded: Boolean -> isFolded = folded },
+                    door = pueblo,
+                )
+            }
         }
 
         val go: SemanticsNode = placedGoButton()
         val label: Rect = go.children.single().boundsInRoot
         assertTrue("the dock folded", isFolded)
         assertEquals("the go button grows to hold its label", go.boundsInRoot.bottom, label.bottom + step2Px(), 1f)
-        val window: Dp = 640.dp
         val bottom: Dp = composeRule.onNodeWithTag(INK_PILL).getBoundsInRoot().bottom
-        assertTrue("the go button is inside the window", bottom <= window)
+        assertTrue("the go button is inside the window", bottom <= smallWindowHeight)
     }
 
     @Test
@@ -210,8 +216,31 @@ class MyGameDockTest {
     }
 
     @Test
+    fun `the line stays silent when it first draws after loading`() {
+        var line: MyGameDockLine by mutableStateOf(dueReviews.copy(step = null))
+        show { MyGameDock(line = line, go = startTheReviews(), onFoldChange = {}) }
+
+        line = dueReviews
+
+        composeRule.onNodeWithText("Reviews due: 4").assert(isSilent)
+    }
+
+    @Test
     @Config(qualifiers = "+w360dp-h640dp")
     fun `loading draws a skeleton line and a busy go button`() {
+        show { MyGameDock(line = dueReviews.copy(step = null), go = startTheReviews(), onFoldChange = {}, door = town) }
+        composeRule.mainClock.advanceTimeBy(SKELETON_SHOWN_MILLIS)
+
+        assertTrue("the line is a skeleton", placedNodesWithTag(SKELETON_BLOCK).isNotEmpty())
+        composeRule
+            .onNodeWithTag(INK_PILL)
+            .assert(SemanticsMatcher.expectValue(SemanticsProperties.StateDescription, "Waiting"))
+            .assertIsNotEnabled()
+    }
+
+    @Test
+    @Config(qualifiers = "+w360dp-h640dp")
+    fun `the door still opens while the dock loads`() {
         var doorTaps: Int = 0
         show {
             MyGameDock(
@@ -221,19 +250,14 @@ class MyGameDockTest {
                 door = MyGameDockDoor(label = plain("Town"), onClick = { doorTaps += 1 }),
             )
         }
-        composeRule.mainClock.advanceTimeBy(SKELETON_SHOWN_MILLIS)
 
-        assertTrue("the line is a skeleton", placedNodesWithTag(SKELETON_BLOCK).isNotEmpty())
-        composeRule
-            .onNodeWithTag(INK_PILL)
-            .assert(SemanticsMatcher.expectValue(SemanticsProperties.StateDescription, "Waiting"))
-            .assertIsNotEnabled()
         composeRule.onNodeWithTag(OUTLINED_PILL).performClick()
+
         assertEquals(1, doorTaps)
     }
 
     @Test
-    fun `the dock is a traversal group with the title as a heading`() {
+    fun `the dock is a traversal group whose index the caller sets`() {
         show {
             MyGameDock(
                 line = dueReviews,
@@ -243,8 +267,15 @@ class MyGameDockTest {
             )
         }
 
-        composeRule.onNode(SemanticsMatcher.expectValue(SemanticsProperties.IsTraversalGroup, true))
+        composeRule
+            .onNode(SemanticsMatcher.expectValue(SemanticsProperties.IsTraversalGroup, true))
             .assert(SemanticsMatcher.expectValue(SemanticsProperties.TraversalIndex, -1f))
+    }
+
+    @Test
+    fun `the dock's title is a heading`() {
+        show { MyGameDock(line = dueReviews, go = startTheReviews(), onFoldChange = {}) }
+
         composeRule
             .onNode(hasContentDescription("What is next"))
             .assert(SemanticsMatcher.keyIsDefined(SemanticsProperties.Heading))
