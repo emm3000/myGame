@@ -489,6 +489,25 @@ class ReviewViewModelTest {
     }
 
     @Test
+    fun `a second next before the card is rated moves no further`() = runTest {
+        val learning: FakeLearningRepository = FakeLearningRepository()
+        val viewModel: ReviewViewModel = openReview(learning)
+        learning.answerRead(dueNow(homeRecall, schoolRecognition))
+        learning.answerReview(ReviewAnswerResult.Answered(correctHome(earnedSkill = null)))
+        learning.answerRead(dueNow(schoolRecognition))
+        runCurrent()
+        viewModel.onIntent(ReviewIntent.AnswerChanged("home"))
+        viewModel.onIntent(ReviewIntent.CheckTapped)
+        runCurrent()
+
+        viewModel.onIntent(ReviewIntent.NextTapped)
+        viewModel.onIntent(ReviewIntent.NextTapped)
+        runCurrent()
+
+        assertEquals(1, (viewModel.state.value as? ReviewUiState.Reviewing)?.walked)
+    }
+
+    @Test
     fun `reads the reviews again on next when the re-read after the answer failed`() = runTest {
         val learning: FakeLearningRepository = FakeLearningRepository()
         val viewModel: ReviewViewModel = openReview(learning)

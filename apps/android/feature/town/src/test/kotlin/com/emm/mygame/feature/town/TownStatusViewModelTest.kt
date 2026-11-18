@@ -553,6 +553,19 @@ class TownStatusViewModelTest {
     }
 
     @Test
+    fun `a second try again while the town is being read reads it once`() = runTest {
+        val viewModel: TownStatusViewModel = statusOf(TestClock(testScheduler, deviceStart))
+        towns.answerRead(TownReadResult.Unreachable)
+        shownOn(viewModel, TownStatusScreen.ReadsTown)
+
+        viewModel.onIntent(TownStatusIntent.TryAgainTapped)
+        viewModel.onIntent(TownStatusIntent.TryAgainTapped)
+        runCurrent()
+
+        assertEquals(2, towns.readCount)
+    }
+
+    @Test
     fun `a no-town answer gives no dock`() = runTest {
         val viewModel: TownStatusViewModel = statusOf(TestClock(testScheduler, deviceStart))
         towns.answerRead(TownReadResult.NoTown)
