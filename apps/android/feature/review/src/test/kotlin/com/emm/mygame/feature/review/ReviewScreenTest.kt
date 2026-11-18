@@ -5,6 +5,7 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.test.assertCountEquals
 import androidx.compose.ui.test.assertIsDisplayed
+import androidx.compose.ui.test.assertIsNotDisplayed
 import androidx.compose.ui.test.getUnclippedBoundsInRoot
 import androidx.compose.ui.test.hasAnyAncestor
 import androidx.compose.ui.test.hasContentDescription
@@ -20,6 +21,8 @@ import androidx.compose.ui.test.performClick
 import androidx.compose.ui.test.performImeAction
 import androidx.compose.ui.test.performScrollTo
 import androidx.compose.ui.test.performTextInput
+import androidx.compose.ui.test.performTouchInput
+import androidx.compose.ui.test.swipeUp
 import androidx.compose.ui.unit.Dp
 import com.emm.mygame.core.designsystem.INK_PILL
 import com.emm.mygame.core.designsystem.MyGameTheme
@@ -33,6 +36,7 @@ import com.emm.mygame.core.ui.ProvideCopyLanguage
 import com.emm.mygame.core.ui.ScaffoldLanguage
 import com.emm.mygame.core.ui.TaskDockHook
 import org.junit.Assert.assertEquals
+import org.junit.Assert.assertFalse
 import org.junit.Assert.assertTrue
 import org.junit.Rule
 import org.junit.Test
@@ -221,6 +225,46 @@ class ReviewScreenTest {
 
         composeRule.onNode(hasText("La correcta: home") and isPlaced and hasAnyAncestor(hasScrollAction()))
             .assertIsDisplayed()
+    }
+
+    @Test
+    @Config(qualifiers = "+w360dp-h440dp", fontScale = 2.0f)
+    fun `a verdict that folds the dock brings itself into view`() {
+        val hook: TaskDockHook = TaskDockHook(onAnswered = {})
+        val shown: MutableState<ReviewUiState> =
+            mutableStateOf(recalling(step = ReviewUiState.ReviewStep.Checking, typed = "house"))
+        composeRule.setContent {
+            MyGameTheme {
+                ReviewWithDock(state = shown.value, hook = hook)
+            }
+        }
+        composeRule.waitForIdle()
+        assertFalse(hook.isFolded)
+
+        shown.value = recalling(step = ReviewUiState.ReviewStep.Wrong(correct = "home"), typed = "house")
+
+        composeRule.waitForIdle()
+        assertTrue(hook.isFolded)
+        composeRule.onNode(hasText("La correcta: home") and isPlaced and hasAnyAncestor(hasScrollAction()))
+            .assertIsDisplayed()
+    }
+
+    @Test
+    @Config(qualifiers = "+w360dp-h480dp", fontScale = 2.0f)
+    fun `a new card opens at the top of the review`() {
+        val shown: MutableState<ReviewUiState> =
+            mutableStateOf(recalling(step = ReviewUiState.ReviewStep.Wrong(correct = "home"), typed = "house"))
+        composeRule.setContent {
+            MyGameTheme {
+                ReviewWithDock(state = shown.value)
+            }
+        }
+        composeRule.onNode(hasScrollAction()).performTouchInput { swipeUp() }
+        composeRule.onNode(hasText("Repaso")).assertIsNotDisplayed()
+
+        shown.value = recognizing(chosen = null)
+
+        composeRule.onNode(hasText("Repaso")).assertIsDisplayed()
     }
 
     @Test

@@ -26,7 +26,7 @@ fun FoldedTaskEnd(
     }
     val dock: TaskDock = hook.dock?.takeIf { hook.isFolded } ?: return
     val requester: BringIntoViewRequester = remember { BringIntoViewRequester() }
-    val lastNotice: MutableState<Any?> = remember { mutableStateOf(shownNotice) }
+    val lastNotice: MutableState<Any?> = remember { mutableStateOf(null) }
     LaunchedEffect(shownNotice) {
         val isNewNotice: Boolean = shownNotice != null && shownNotice != lastNotice.value
         lastNotice.value = shownNotice
