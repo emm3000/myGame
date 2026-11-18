@@ -48,6 +48,5 @@ class ReminderTapApplication : Application(), AppDependencies {
     override val holdoutChecks: HoldoutCheckRepository = FakeHoldoutCheckRepository()
 
     override val studyReminders: StudyReminderSettings =
-
         FakeStudyReminderSettings(StudyReminderChoice.firstChoice)
 }

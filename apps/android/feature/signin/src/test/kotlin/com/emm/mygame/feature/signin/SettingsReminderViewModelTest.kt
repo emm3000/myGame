@@ -74,7 +74,39 @@ class SettingsReminderViewModelTest {
         viewModel.onIntent(SettingsIntent.ReminderSwitched(isOn = true))
 
         assertEquals(firstReminder.copy(ask = SettingsUiState.NotificationAsk.Asking), reminderOf(viewModel))
+    }
+
+    @Test
+    fun `chooses nothing while the permission is asked`() = runTest {
+        val reminders: FakeStudyReminderSettings = FakeStudyReminderSettings(offAtSevenPm)
+        val viewModel: SettingsViewModel = loaded(reminders)
+
+        viewModel.onIntent(SettingsIntent.ReminderSwitched(isOn = true))
+
         assertEquals(emptyList<StudyReminderChoice>(), reminders.chosen)
+    }
+
+    @Test
+    fun `a grant that reaches a rebuilt screen still turns the switch on`() = runTest {
+        val reminders: FakeStudyReminderSettings = FakeStudyReminderSettings(offAtSevenPm)
+        val rebuilt: SettingsViewModel = loaded(reminders)
+        askableNotifications.areAllowed = true
+
+        rebuilt.onIntent(SettingsIntent.NotificationsAnswered(isGranted = true))
+
+        assertEquals(listOf(onAt(19, 0)), reminders.chosen)
+    }
+
+    @Test
+    fun `a choice turned on elsewhere clears the denied line`() = runTest {
+        val reminders: FakeStudyReminderSettings = FakeStudyReminderSettings(offAtSevenPm)
+        val viewModel: SettingsViewModel = loaded(reminders)
+        viewModel.onIntent(SettingsIntent.ReminderSwitched(isOn = true))
+        viewModel.onIntent(SettingsIntent.NotificationsAnswered(isGranted = false))
+
+        reminders.choose(onAt(19, 0))
+
+        assertEquals(firstReminder.copy(isOn = true), reminderOf(viewModel))
     }
 
     @Test
@@ -102,31 +134,55 @@ class SettingsReminderViewModelTest {
     }
 
     @Test
-    fun `notifications off for the app leave the switch off with the denied line without asking`() = runTest {
-        val reminders: FakeStudyReminderSettings = FakeStudyReminderSettings(offAtSevenPm)
+    fun `never asks while the phone cannot ask`() = runTest {
         val viewModel: SettingsViewModel =
-            loaded(reminders, FakeReminderNotifications(areAllowed = false, canAsk = false))
+            loaded(
+                FakeStudyReminderSettings(offAtSevenPm),
+                FakeReminderNotifications(areAllowed = false, canAsk = false),
+            )
 
         viewModel.effects.test {
             viewModel.onIntent(SettingsIntent.ReminderSwitched(isOn = true))
 
             expectNoEvents()
         }
+    }
+
+    @Test
+    fun `notifications off for the app leave the switch off with the denied line`() = runTest {
+        val reminders: FakeStudyReminderSettings = FakeStudyReminderSettings(offAtSevenPm)
+        val viewModel: SettingsViewModel =
+            loaded(reminders, FakeReminderNotifications(areAllowed = false, canAsk = false))
+
+        viewModel.onIntent(SettingsIntent.ReminderSwitched(isOn = true))
+
         assertEquals(firstReminder.copy(ask = SettingsUiState.NotificationAsk.Denied), reminderOf(viewModel))
         assertEquals(emptyList<StudyReminderChoice>(), reminders.chosen)
     }
 
     @Test
-    fun `turns on without asking while notifications are allowed`() = runTest {
-        val reminders: FakeStudyReminderSettings = FakeStudyReminderSettings(offAtSevenPm)
+    fun `never asks while notifications are allowed`() = runTest {
         val viewModel: SettingsViewModel =
-            loaded(reminders, FakeReminderNotifications(areAllowed = true, canAsk = true))
+            loaded(
+                FakeStudyReminderSettings(offAtSevenPm),
+                FakeReminderNotifications(areAllowed = true, canAsk = true),
+            )
 
         viewModel.effects.test {
             viewModel.onIntent(SettingsIntent.ReminderSwitched(isOn = true))
 
             expectNoEvents()
         }
+    }
+
+    @Test
+    fun `turns on at once while notifications are allowed`() = runTest {
+        val reminders: FakeStudyReminderSettings = FakeStudyReminderSettings(offAtSevenPm)
+        val viewModel: SettingsViewModel =
+            loaded(reminders, FakeReminderNotifications(areAllowed = true, canAsk = true))
+
+        viewModel.onIntent(SettingsIntent.ReminderSwitched(isOn = true))
+
         assertEquals(listOf(onAt(19, 0)), reminders.chosen)
     }
 

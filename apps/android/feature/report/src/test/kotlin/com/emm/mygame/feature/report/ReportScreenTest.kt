@@ -1,5 +1,8 @@
 package com.emm.mygame.feature.report
 
+import androidx.compose.runtime.MutableState
+import androidx.compose.runtime.State
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.ui.semantics.LiveRegionMode
 import androidx.compose.ui.semantics.SemanticsProperties
 import androidx.compose.ui.test.SemanticsMatcher
@@ -62,10 +65,14 @@ class ReportScreenTest {
         ReportUiState.ReportNews.Unread(listOf(finishedFarm), ReportUiState.CloseRequest.Idle)
 
     private fun show(state: ReportUiState) {
+        showFollowing(mutableStateOf(state))
+    }
+
+    private fun showFollowing(shown: State<ReportUiState>) {
         composeRule.setContent {
             MyGameTheme {
                 ReportScreen(
-                    state = state,
+                    state = shown.value,
                     onIntent = { intents += it },
                     onReviewsOpen = { reviewOpens += 1 },
                     onLessonOpen = { lesson: LessonId -> lessonOpens += lesson },
@@ -458,14 +465,12 @@ class ReportScreenTest {
 
     @Test
     fun `the Report offers the reminder only while it is off`() {
-        show(contentWith(isReminderOn = false))
-
+        val reminderOff: ReportUiState.Content = contentWith(isReminderOn = false)
+        val shown: MutableState<ReportUiState> = mutableStateOf(reminderOff)
+        showFollowing(shown)
         composeRule.onNodeWithText(REMINDER_OFFER).performScrollTo().assertIsDisplayed()
-    }
 
-    @Test
-    fun `draws no reminder offer while the reminder is on`() {
-        show(contentWith(isReminderOn = true))
+        shown.value = reminderOff.copy(isReminderOn = true)
 
         composeRule.onAllNodesWithText(REMINDER_OFFER).assertCountEquals(0)
     }
