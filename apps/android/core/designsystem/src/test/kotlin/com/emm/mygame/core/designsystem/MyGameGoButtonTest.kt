@@ -155,6 +155,25 @@ class MyGameGoButtonTest {
     }
 
     @Test
+    fun `a three-digit count sits on a round disc`() {
+        show {
+            MyGameButton(
+                label = START_REVIEWS,
+                isBusy = false,
+                busyDescription = "Waiting",
+                onClick = {},
+                badge = "123",
+            )
+        }
+
+        val disc: DpRect = composeRule
+            .onNode(SemanticsMatcher.keyIsDefined(PILL_BADGE), useUnmergedTree = true)
+            .getBoundsInRoot()
+
+        assertEquals(disc.width.value, disc.height.value, DISC_TOLERANCE)
+    }
+
+    @Test
     fun `the count's disc is hidden from TalkBack`() {
         show {
             MyGameButton(
