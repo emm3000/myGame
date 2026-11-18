@@ -8,6 +8,7 @@ import androidx.compose.ui.test.assertCountEquals
 import androidx.compose.ui.test.assertHeightIsAtLeast
 import androidx.compose.ui.test.getUnclippedBoundsInRoot
 import androidx.compose.ui.test.hasAnyAncestor
+import androidx.compose.ui.test.hasSetTextAction
 import androidx.compose.ui.test.hasTestTag
 import androidx.compose.ui.test.hasText
 import androidx.compose.ui.test.junit4.ComposeContentTestRule
@@ -223,7 +224,7 @@ class ReviewLookTest {
     fun `draws a right answer as a check and words in ink`() {
         draw(rightRecall)
 
-        composeRule.onNodeWithTag(RIGHT_ICON, useUnmergedTree = true).assertExists()
+        composeRule.onNode(hasTestTag(RIGHT_ICON) and isPlaced, useUnmergedTree = true).assertExists()
         assertEquals(colors.ink, styleOf("Correcto.").color)
     }
 
@@ -231,7 +232,7 @@ class ReviewLookTest {
     fun `draws a wrong answer as a cross and the right answer in ink`() {
         draw(wrongRecall)
 
-        composeRule.onNodeWithTag(WRONG_ICON, useUnmergedTree = true).assertExists()
+        composeRule.onNode(hasTestTag(WRONG_ICON) and isPlaced, useUnmergedTree = true).assertExists()
         assertEquals(colors.ink, styleOf("No es correcto.").color)
         assertEquals(colors.ink, styleOf("La correcta: home").color)
     }
@@ -298,22 +299,22 @@ class ReviewLookTest {
     }
 
     @Test
-    fun `offers the hint under the check`() {
+    fun `offers the hint under the answer field`() {
         draw(answering.copy(card = recall))
 
-        val pillBottom: Dp = composeRule.onNodeWithTag(INK_PILL).getUnclippedBoundsInRoot().bottom
+        val fieldBottom: Dp = composeRule.onNode(hasSetTextAction()).getUnclippedBoundsInRoot().bottom
         val hintTop: Dp = composeRule.onNodeWithTag(OUTLINED_PILL).getUnclippedBoundsInRoot().top
-        assertTrue(pillBottom <= hintTop)
+        assertTrue(fieldBottom <= hintTop)
     }
 
     @Test
-    fun `sets a given hint under the check`() {
+    fun `sets a given hint under the answer field`() {
         draw(answering.copy(card = recall.copy(hint = homeHint)))
 
-        val pillBottom: Dp = composeRule.onNodeWithTag(INK_PILL).getUnclippedBoundsInRoot().bottom
+        val fieldBottom: Dp = composeRule.onNode(hasSetTextAction()).getUnclippedBoundsInRoot().bottom
         val hintTop: Dp = composeRule.onNodeWithText("Empieza por «h» y tiene 4 letras.")
             .getUnclippedBoundsInRoot().top
-        assertTrue(pillBottom <= hintTop)
+        assertTrue(fieldBottom <= hintTop)
     }
 
     @Test
@@ -333,7 +334,7 @@ class ReviewLookTest {
 
     private fun layoutOf(text: String): TextLayoutResult {
         val results: MutableList<TextLayoutResult> = mutableListOf()
-        composeRule.onNodeWithText(text, useUnmergedTree = true).fetchSemanticsNode()
+        composeRule.onNode(hasText(text) and isPlaced, useUnmergedTree = true).fetchSemanticsNode()
             .config[SemanticsActions.GetTextLayoutResult].action?.invoke(results)
         return results.first()
     }
@@ -350,7 +351,7 @@ class ReviewLookTest {
         composeRule.setContent {
             MyGameTheme {
                 colors = MyGameTheme.colors
-                ReviewScreen(state = state, onIntent = { }, onLessonOpen = { }, onTownOpen = { })
+                ReviewWithDock(state = state, onIntent = { })
             }
         }
     }

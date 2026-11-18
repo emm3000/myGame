@@ -172,19 +172,6 @@ class ReviewEndViewModelTest {
         assertNull(pathAtTheEnd(towns))
     }
 
-    @Test
-    fun `reads the town again after a rated answer`() = runTest {
-        val learning: FakeLearningRepository = FakeLearningRepository()
-        val towns: FakeTownRepository = FakeTownRepository()
-        towns.answerRead(twoLessons)
-        learning.answerRead(dueNow(homeRecall))
-        learning.answerRead(dueNow())
-
-        nextAfterOneAnswer(learning, towns)
-
-        assertEquals(2, towns.readCount)
-    }
-
     private suspend fun TestScope.nextAfterOneAnswer(
         learning: FakeLearningRepository,
         towns: FakeTownRepository,

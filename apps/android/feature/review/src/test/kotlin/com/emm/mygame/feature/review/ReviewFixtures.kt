@@ -1,5 +1,7 @@
 package com.emm.mygame.feature.review
 
+import androidx.compose.ui.semantics.SemanticsProperties
+import androidx.compose.ui.test.SemanticsMatcher
 import androidx.lifecycle.viewModelScope
 import app.cash.turbine.ReceiveTurbine
 import com.emm.mygame.core.network.ChoiceId
@@ -27,6 +29,13 @@ import kotlinx.coroutines.awaitCancellation
 import kotlinx.coroutines.cancel
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.test.TestScope
+
+internal val isPlaced: SemanticsMatcher = SemanticsMatcher("is placed") { node -> node.layoutInfo.isPlaced }
+
+internal fun isGoNamed(label: String): SemanticsMatcher = SemanticsMatcher("go button named $label") { node ->
+    node.config.getOrElseNullable(SemanticsProperties.ContentDescription) { null }.orEmpty()
+        .any { description: String -> description.startsWith("$label, ") }
+}
 
 internal fun TestScope.openReview(
     learning: FakeLearningRepository,

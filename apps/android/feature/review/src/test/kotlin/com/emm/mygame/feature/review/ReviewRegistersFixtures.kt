@@ -39,12 +39,12 @@ internal val skillEarned: ReviewUiState.Reviewing = dealtSchool.copy(
 internal fun drawReview(composeRule: ComposeContentTestRule, state: ReviewUiState) {
     composeRule.setContent {
         MyGameTheme {
-            ReviewScreen(state = state, onIntent = { }, onLessonOpen = { }, onTownOpen = { })
+            ReviewWithDock(state = state, onIntent = { })
         }
     }
 }
 
 internal fun registeringNodesOf(composeRule: ComposeContentTestRule): List<MyGameRegistering> =
-    composeRule.onAllNodes(SemanticsMatcher.keyIsDefined(REGISTERING), useUnmergedTree = true)
+    composeRule.onAllNodes(SemanticsMatcher.keyIsDefined(REGISTERING) and isPlaced, useUnmergedTree = true)
         .fetchSemanticsNodes()
         .map { node -> node.config[REGISTERING] }

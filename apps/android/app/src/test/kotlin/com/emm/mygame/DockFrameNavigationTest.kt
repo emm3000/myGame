@@ -25,6 +25,7 @@ import androidx.compose.ui.test.performScrollTo
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.DpRect as Rect
 import androidx.compose.ui.unit.dp
+import androidx.navigation3.runtime.NavBackStack
 import androidx.navigation3.runtime.NavKey
 import androidx.navigation3.runtime.rememberNavBackStack
 import androidx.test.ext.junit.rules.ActivityScenarioRule
@@ -33,6 +34,8 @@ import com.emm.mygame.core.designsystem.OUTLINED_PILL
 import com.emm.mygame.core.designsystem.MyGameTheme
 import com.emm.mygame.core.network.HoldoutCheck
 import com.emm.mygame.core.network.HoldoutCheckChangeResult
+import com.emm.mygame.core.network.DueReviews
+import com.emm.mygame.core.network.ReviewsReadResult
 import com.emm.mygame.core.network.HoldoutCheckRepository
 import com.emm.mygame.core.network.HoldoutCheckWeek
 import com.emm.mygame.core.network.HoldoutChecksReadResult
@@ -110,6 +113,10 @@ class DockFrameNavigationTest {
 
     private val holdoutChecksFake: FakeHoldoutCheckRepository = FakeHoldoutCheckRepository()
 
+    private val learningFake: FakeLearningRepository = FakeLearningRepository()
+
+    private var shownStack: NavBackStack<NavKey>? = null
+
     private val dependencies: AppDependencies = object : AppDependencies {
         override val clock: Clock = Clock.System
         override val sessionEnds: SessionEnds = SessionEnds()
@@ -117,7 +124,7 @@ class DockFrameNavigationTest {
         override val playerScaffold: StateFlow<PlayerScaffold?> = MutableStateFlow(null)
         override val sessions: SessionRepository = sessionsFake
         override val towns: TownRepository = townsFake
-        override val learning: LearningRepository = FakeLearningRepository()
+        override val learning: LearningRepository = learningFake
         override val reports: ReportRepository = reportsFake
         override val placements: PlacementRepository = placementsFake
         override val holdoutChecks: HoldoutCheckRepository = holdoutChecksFake
@@ -132,6 +139,9 @@ class DockFrameNavigationTest {
     private val firstLesson: LessonId = LessonId("lesson-1")
 
     private val secondLesson: LessonId = LessonId("lesson-2")
+
+    private val noCards: DueReviews =
+        DueReviews(due = emptyList(), readFirst = emptyList(), nextDueAt = null, readAt = readAt)
 
     private val nothingDue: TownReport =
         TownReport(dueCount = 0, readFirst = emptyList(), nextDueAt = null, news = emptyList())
@@ -185,7 +195,9 @@ class DockFrameNavigationTest {
                 AppNavigation(
                     dependencies = dependencies,
                     reminderTaps = emptyFlow(),
-                    backStack = rememberNavBackStack(*destinations),
+                    backStack = rememberNavBackStack(*destinations).also { shown: NavBackStack<NavKey> ->
+                        shownStack = shown
+                    },
                 )
             }
         }
@@ -299,6 +311,21 @@ class DockFrameNavigationTest {
     private fun assertOneGoButton() {
         dockGo("Ir al informe")
         composeRule.onAllNodes(hasTestTag(INK_PILL)).assertCountEquals(1)
+    }
+
+    @Test
+    fun `after the last card read the words opens that lesson`() {
+        learningFake.answerRead(ReviewsReadResult.Read(noCards))
+        showing(
+            Destination.Town,
+            Destination.Review,
+            town = townOf(NextStep.Reviews(count = 0, readFirst = listOf(firstLesson))),
+        )
+
+        dockGo(READ_THE_WORDS).performClick()
+
+        composeRule.waitUntil(WAIT_MILLIS) { shownStack?.lastOrNull() is Destination.LessonWords }
+        assertEquals(Destination.LessonWords(firstLesson, walked = emptyList()), shownStack?.lastOrNull())
     }
 
     @Test
@@ -678,6 +705,7 @@ class DockFrameNavigationTest {
         const val RELEASED_LINE: String = "Palabras que vuelven: banda 2, grupo 1"
         const val NO_REVIEWS_DUE: String = "No tienes repasos pendientes ahora."
 
+        const val READ_THE_WORDS: String = "Leer las palabras"
         const val TOWN_HEADER: String = "RIVERTON · PUEBLO"
 
         val verifiedSession: RestoreResult = RestoreResult.SignedIn(

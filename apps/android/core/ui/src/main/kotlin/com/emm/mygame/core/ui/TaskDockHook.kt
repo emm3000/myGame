@@ -14,11 +14,18 @@ class TaskDockHook(val onAnswered: () -> Unit) {
     var town: TownFollow? by mutableStateOf(null)
         private set
 
+    var isFolded: Boolean by mutableStateOf(false)
+        private set
+
     fun fill(shown: TaskDock?) {
         dock = shown
     }
 
     fun follow(shown: TownFollow?) {
         town = shown
+    }
+
+    fun fold(folded: Boolean) {
+        isFolded = folded
     }
 }

@@ -88,7 +88,7 @@ class ReviewSkeletonTest {
         composeRule.mainClock.autoAdvance = false
         composeRule.setContent {
             MyGameTheme {
-                ReviewScreen(state = state, onIntent = { }, onLessonOpen = { }, onTownOpen = { })
+                ReviewWithDock(state = state, onIntent = { })
             }
         }
     }

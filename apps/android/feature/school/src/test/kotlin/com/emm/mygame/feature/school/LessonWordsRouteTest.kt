@@ -15,6 +15,7 @@ import com.emm.mygame.core.designsystem.MyGameTheme
 import com.emm.mygame.core.network.LessonId
 import com.emm.mygame.core.network.TownReadResult
 import com.emm.mygame.core.network.TownSnapshot
+import com.emm.mygame.core.ui.TaskDockHook
 import com.emm.mygame.core.testing.FakeReportRepository
 import com.emm.mygame.core.testing.FakeTownRepository
 import kotlin.time.Clock
@@ -61,6 +62,8 @@ class LessonWordsRouteTest {
                             onReviewsOpen = {},
                             onSchoolOpen = {},
                         ),
+                        task = TaskDockHook(onAnswered = {}),
+                        foldedDock = {},
                     )
                 }
             }
@@ -82,12 +85,12 @@ class LessonWordsRouteTest {
     fun `reads again once on return from the background`() {
         answerReads(twoWords)
         showRoute()
-        waitForLine("Palabra 1 de 2")
+        waitForLine("This is my home.")
         composeRule.runOnIdle { screenOwner.move(Lifecycle.State.CREATED) }
         answerReads(oneWordLeft)
 
         composeRule.runOnIdle { screenOwner.move(Lifecycle.State.RESUMED) }
-        waitForLine("Palabra 1 de 1")
+        waitForLine("I drink water.")
 
         assertEquals(listOf(2, 2), listOf(towns.readCount, reports.readCount))
     }
@@ -96,7 +99,7 @@ class LessonWordsRouteTest {
     fun `reads nothing more while the app stays in the foreground`() {
         answerReads(twoWords)
         showRoute()
-        waitForLine("Palabra 1 de 2")
+        waitForLine("This is my home.")
 
         composeRule.waitForIdle()
 

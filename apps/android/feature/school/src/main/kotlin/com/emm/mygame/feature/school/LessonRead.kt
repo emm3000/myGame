@@ -1,8 +1,10 @@
 package com.emm.mygame.feature.school
 
 import com.emm.mygame.core.network.LessonId
+import com.emm.mygame.core.network.NextStepCard
 import com.emm.mygame.core.network.TownSnapshot
 import com.emm.mygame.core.network.nameOf
+import com.emm.mygame.core.network.nextStepCard
 import com.emm.mygame.core.projection.countdownTo
 import kotlin.time.Duration
 import kotlin.time.Instant
@@ -37,6 +39,7 @@ internal data class LessonRead(val town: TownSnapshot, val readFirst: List<Lesso
             remaining = remaining,
             wayOn = if (remaining == null && readFirst != null) wayOnOf(readFirst, walk.opened) else null,
             shownSupport = shownSupport,
+            isNextStepThisLesson = town.nextStepCard().action == NextStepCard.Action.ReadWords(walk.lesson),
         )
     }
 

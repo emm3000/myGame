@@ -40,6 +40,7 @@ class LessonWordsSkeletonTest {
         remaining = null,
         wayOn = LessonWordsUiState.WayOn.Reviews,
         shownSupport = null,
+        isNextStepThisLesson = false,
     )
 
     @Test
@@ -99,7 +100,7 @@ class LessonWordsSkeletonTest {
         composeRule.mainClock.autoAdvance = false
         composeRule.setContent {
             MyGameTheme {
-                LessonWordsScreen(state = state, onIntent = { }, onWayOn = { }, onSchoolOpen = { })
+                LessonWordsWithDock(state = state)
             }
         }
     }

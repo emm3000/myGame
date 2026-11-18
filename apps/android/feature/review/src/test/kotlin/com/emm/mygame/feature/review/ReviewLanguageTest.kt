@@ -7,8 +7,6 @@ import androidx.compose.ui.test.hasStateDescription
 import androidx.compose.ui.test.hasText
 import androidx.compose.ui.test.junit4.ComposeContentTestRule
 import androidx.compose.ui.test.junit4.createComposeRule
-import androidx.compose.ui.test.onAllNodesWithText
-import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.unit.DpRect
 import com.emm.mygame.core.designsystem.MyGameTheme
 import com.emm.mygame.core.designsystem.MyGameTransitions
@@ -113,26 +111,31 @@ class ReviewLanguageTest {
         composeRule.setContent {
             ProvideCopyLanguage(language = language) {
                 MyGameTheme {
-                    ReviewScreen(state = state, onIntent = {}, onLessonOpen = {}, onTownOpen = {})
+                    ReviewWithDock(state = state, onIntent = {})
                 }
             }
         }
     }
 
     private fun assertDrawn(vararg lines: String) {
-        lines.forEach { line: String -> composeRule.onAllNodesWithText(line).assertCountEquals(1) }
+        lines.forEach { line: String ->
+            composeRule.onAllNodes((hasText(line) or isGoNamed(line)) and isPlaced).assertCountEquals(1)
+        }
     }
 
     private fun assertNotDrawn(vararg lines: String) {
-        lines.forEach { line: String -> composeRule.onAllNodesWithText(line).assertCountEquals(0) }
+        lines.forEach { line: String ->
+            composeRule.onAllNodes((hasText(line) or isGoNamed(line)) and isPlaced).assertCountEquals(0)
+        }
     }
 
     private fun assertPartlyDrawn(part: String) {
-        composeRule.onAllNodes(hasText(part, substring = true), useUnmergedTree = true).assertCountEquals(1)
+        composeRule.onAllNodes(hasText(part, substring = true) and isPlaced, useUnmergedTree = true)
+            .assertCountEquals(1)
     }
 
     private fun lineOf(text: String): DpRect =
-        composeRule.onNodeWithText(text, useUnmergedTree = true).getUnclippedBoundsInRoot()
+        composeRule.onNode(hasText(text) and isPlaced, useUnmergedTree = true).getUnclippedBoundsInRoot()
 
     @Test
     fun `draws the review in Spanish in the Spanish phase`() {
@@ -216,7 +219,7 @@ class ReviewLanguageTest {
     fun `writes the next review's day the English way in the English phase`() {
         show(englishPhase, nothingDueInThreeDays)
 
-        assertDrawn("No reviews due now.", "Lesson 1", "Back to your town")
+        assertDrawn("No reviews due now.", "Lesson 1")
         assertPartlyDrawn("Nov 8")
     }
 
@@ -224,7 +227,7 @@ class ReviewLanguageTest {
     fun `writes the next review's day the Spanish way in the Spanish phase`() {
         show(spanishPhase, nothingDueInThreeDays)
 
-        assertDrawn("No tienes nada que repasar ahora.", "Lección 1", "Volver a tu pueblo")
+        assertDrawn("No tienes nada que repasar ahora.", "Lección 1")
         assertPartlyDrawn("8 nov")
     }
 
@@ -266,15 +269,15 @@ class ReviewLanguageTest {
     fun `draws no cards in English in the English phase`() {
         show(englishPhase, ReviewUiState.NoCards)
 
-        assertDrawn("You have no words to review.", "Back to your town")
+        assertDrawn("You have no words to review.")
     }
 
     @Test
     fun `draws a ready lesson in English in the English phase`() {
         show(englishPhase, ReviewUiState.LessonReady(lesson = LessonId("lesson-2"), number = 2))
 
-        assertDrawn("Lesson 2 is ready", "Read the words")
-        assertNotDrawn("La lección 2 está lista", "Leer las palabras")
+        assertDrawn("Lesson 2 is ready")
+        assertNotDrawn("La lección 2 está lista")
     }
 
     @Test
@@ -296,15 +299,16 @@ class ReviewLanguageTest {
     fun `draws the check in flight in Spanish beside its wait in English in the English phase`() {
         show(englishPhase, recognizing.copy(step = ReviewUiState.ReviewStep.Checking))
 
-        composeRule.onNode(hasText("Comprobando…") and hasStateDescription("Waiting")).assertExists()
+        composeRule.onNode(isGoNamed("Comprobando…") and hasStateDescription("Waiting") and isPlaced).assertExists()
     }
 
     @Test
     fun `draws the empty recall's block reason in Spanish for an es player in the English phase`() {
         show(englishPhase, recalling)
 
-        composeRule.onNode(hasText("Comprobar") and hasStateDescription("Escribe tu respuesta para comprobarla."))
-            .assertExists()
+        composeRule.onNode(
+            isGoNamed("Comprobar") and hasStateDescription("Escribe tu respuesta para comprobarla.") and isPlaced,
+        ).assertExists()
     }
 
     @Test

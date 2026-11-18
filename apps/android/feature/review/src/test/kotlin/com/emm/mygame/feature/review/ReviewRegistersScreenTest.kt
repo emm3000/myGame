@@ -82,12 +82,14 @@ class ReviewRegistersScreenTest {
     }
 
     private fun blockHues(): List<MyGameBlockHue> =
-        composeRule.onAllNodes(SemanticsMatcher.keyIsDefined(BLOCK_HUE), useUnmergedTree = true)
+        composeRule.onAllNodes(SemanticsMatcher.keyIsDefined(BLOCK_HUE) and isPlaced, useUnmergedTree = true)
             .fetchSemanticsNodes()
             .map { node -> node.config[BLOCK_HUE] }
 
     private fun liveNodesHolding(text: String): List<Any> =
         composeRule.onAllNodes(
-            SemanticsMatcher.keyIsDefined(SemanticsProperties.LiveRegion) and hasText(text, substring = true),
+            SemanticsMatcher.keyIsDefined(SemanticsProperties.LiveRegion) and
+                hasText(text, substring = true) and
+                isPlaced,
         ).fetchSemanticsNodes()
 }

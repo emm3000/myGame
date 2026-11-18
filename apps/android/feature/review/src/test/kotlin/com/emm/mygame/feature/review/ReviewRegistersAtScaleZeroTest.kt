@@ -20,6 +20,8 @@ class ReviewRegistersAtScaleZeroTest {
     fun `lands each row at once at animator scale 0`() {
         composeRule.mainClock.autoAdvance = false
         drawReview(composeRule, skillEarned.copy(isDealtFromStack = true))
+        composeRule.mainClock.advanceTimeByFrame()
+        composeRule.mainClock.advanceTimeByFrame()
 
         assertEquals(
             setOf(MyGameRegisteredRow.Deal to 1f, MyGameRegisteredRow.Rate to 1f),

@@ -187,12 +187,7 @@ class ReviewSupportScreenTest {
         composeRule.setContent {
             ProvideCopyLanguage(language = language) {
                 MyGameTheme {
-                    ReviewScreen(
-                        state = state,
-                        onIntent = { intent: ReviewIntent -> intents += intent },
-                        onLessonOpen = { },
-                        onTownOpen = { },
-                    )
+                    ReviewWithDock(state = state, onIntent = { intent: ReviewIntent -> intents += intent })
                 }
             }
         }

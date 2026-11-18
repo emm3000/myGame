@@ -25,14 +25,12 @@ import androidx.compose.ui.tooling.preview.PreviewParameter
 import androidx.compose.ui.tooling.preview.PreviewParameterProvider
 import com.emm.mygame.core.designsystem.MyGameArt
 import com.emm.mygame.core.designsystem.MyGameBlock
-import com.emm.mygame.core.designsystem.MyGameButton
 import com.emm.mygame.core.designsystem.MyGameErrorBanner
 import com.emm.mygame.core.designsystem.MyGameFrame
 import com.emm.mygame.core.designsystem.MyGameFramePiece
 import com.emm.mygame.core.designsystem.MyGameFrameText
 import com.emm.mygame.core.designsystem.MyGameIcon
 import com.emm.mygame.core.designsystem.MyGameIcons
-import com.emm.mygame.core.designsystem.MyGameLabel
 import com.emm.mygame.core.designsystem.MyGamePreviewSurface
 import com.emm.mygame.core.designsystem.MyGameSizes
 import com.emm.mygame.core.designsystem.MyGameSkeleton
@@ -59,6 +57,7 @@ import com.emm.mygame.core.ui.ChromePhase
 import com.emm.mygame.core.ui.CopyLanguage
 import com.emm.mygame.core.ui.ProvideCopyLanguage
 import com.emm.mygame.core.ui.ScaffoldLanguage
+import com.emm.mygame.core.ui.TaskDockHook
 import com.emm.mygame.core.ui.chromeResource
 import com.emm.mygame.core.ui.fixedCopyResource
 import com.emm.mygame.core.ui.rememberPlayerCopy
@@ -73,8 +72,11 @@ fun LessonWordsScreen(
     onIntent: (LessonWordsIntent) -> Unit,
     onWayOn: (LessonWordsUiState.WayOn) -> Unit,
     onSchoolOpen: () -> Unit,
+    task: TaskDockHook,
+    foldedDock: @Composable () -> Unit,
     modifier: Modifier = Modifier,
 ) {
+    LessonWordsDock(state = state, onIntent = onIntent, onWayOn = onWayOn, task = task)
     Column(
         verticalArrangement = Arrangement.spacedBy(MyGameSpacing.step4),
         modifier = modifier
@@ -91,6 +93,10 @@ fun LessonWordsScreen(
         ) {
             LessonWordsState(state = state, onIntent = onIntent, onWayOn = onWayOn, onSchoolOpen = onSchoolOpen)
         }
+        if (task.isFolded && state is LessonWordsUiState.Reading && !state.isFollowingTown) {
+            FoldedReadingLine(reading = state)
+        }
+        if (state.isFollowingTown) foldedDock()
     }
 }
 
@@ -111,10 +117,12 @@ private fun LessonWordsState(
         LessonWordsUiState.NothingToRead -> NothingToRead(onSchoolOpen = onSchoolOpen)
         is LessonWordsUiState.Reading -> {
             LessonHeader(reading = state)
-            state.remaining?.let { remaining: Duration -> RunningTime(remaining = remaining) }
+            state.remaining
+                ?.takeUnless { state.isWaitingForLessonEnd }
+                ?.let { remaining: Duration -> RunningTime(remaining = remaining) }
             WordProgress(reading = state)
             WordBlock(reading = state, onIntent = onIntent)
-            WordActions(reading = state, onIntent = onIntent, onWayOn = onWayOn, onSchoolOpen = onSchoolOpen)
+            WordActions(reading = state, onWayOn = onWayOn, onSchoolOpen = onSchoolOpen)
         }
     }
 }
@@ -199,15 +207,6 @@ private fun WordBlock(
         hue = blockHueOf(reading.index),
         modifier = modifier.semantics(mergeDescendants = true) { liveRegion = LiveRegionMode.Polite },
     ) {
-        MyGameText(
-            label = chromeResource(
-                R.string.school_lesson_word_position,
-                "number" to (reading.index + 1).toString(),
-                "count" to reading.words.size.toString(),
-            ),
-            style = MyGameTypography.caption,
-            color = MyGameTheme.colors.onBlockMuted,
-        )
         wordArtOf(word.word)?.let { art: MyGameArt ->
             MyGameWordArt(art = art, modifier = Modifier.semantics { testTag = WORD_SILHOUETTE })
         }
@@ -247,59 +246,18 @@ private fun WordHeading(
 @Composable
 private fun WordActions(
     reading: LessonWordsUiState.Reading,
-    onIntent: (LessonWordsIntent) -> Unit,
     onWayOn: (LessonWordsUiState.WayOn) -> Unit,
     onSchoolOpen: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
     val wayOn: LessonWordsUiState.WayOn? = reading.wayOn
-    val onNextWord: () -> Unit = { onIntent(LessonWordsIntent.NextWordTapped) }
-    Column(verticalArrangement = Arrangement.spacedBy(MyGameSpacing.step2), modifier = modifier) {
-        when {
-            wayOn != null -> {
-                WayOnButton(wayOn = wayOn, onWayOn = onWayOn)
-                if (!reading.isLastWord) NextWordLink(onNextWord = onNextWord)
-            }
-            !reading.isLastWord -> InkPill(
-                label = chromeResource(R.string.school_lesson_word_next),
-                onClick = onNextWord,
-            )
-            else -> ReviewsFollow(onSchoolOpen = onSchoolOpen)
+    when {
+        !reading.isLastWord -> wayOn?.let { shown: LessonWordsUiState.WayOn ->
+            MyGameTextLink(label = wayOnLabelOf(shown), onClick = { onWayOn(shown) }, modifier = modifier)
         }
+        wayOn != null -> Unit
+        else -> ReviewsFollow(onSchoolOpen = onSchoolOpen, modifier = modifier)
     }
-}
-
-@Composable
-private fun WayOnButton(
-    wayOn: LessonWordsUiState.WayOn,
-    onWayOn: (LessonWordsUiState.WayOn) -> Unit,
-    modifier: Modifier = Modifier,
-) {
-    val label: MyGameLabel = when (wayOn) {
-        is LessonWordsUiState.WayOn.Lesson -> chromeResource(R.string.school_lesson_next)
-        LessonWordsUiState.WayOn.Reviews -> chromeResource(R.string.school_start_reviews)
-    }
-    InkPill(label = label, onClick = { onWayOn(wayOn) }, modifier = modifier)
-}
-
-@Composable
-private fun InkPill(label: MyGameLabel, onClick: () -> Unit, modifier: Modifier = Modifier) {
-    MyGameButton(
-        label = label,
-        isBusy = false,
-        busyDescription = chromeResource(R.string.school_waiting).spoken,
-        onClick = onClick,
-        modifier = modifier,
-    )
-}
-
-@Composable
-private fun NextWordLink(onNextWord: () -> Unit, modifier: Modifier = Modifier) {
-    MyGameTextLink(
-        label = chromeResource(R.string.school_lesson_word_next),
-        onClick = onNextWord,
-        modifier = modifier,
-    )
 }
 
 @Composable
@@ -341,6 +299,7 @@ private val previewReading: LessonWordsUiState.Reading = LessonWordsUiState.Read
     remaining = 3.minutes,
     wayOn = null,
     shownSupport = null,
+    isNextStepThisLesson = false,
 )
 
 private fun previewSupport(shown: WordSupport.Shown, text: String): WordSupport =
@@ -376,7 +335,14 @@ private class LessonWordsUiStates : PreviewParameterProvider<LessonWordsUiState>
 @Composable
 private fun LessonWordsScreenPreview(@PreviewParameter(LessonWordsUiStates::class) state: LessonWordsUiState) {
     MyGamePreviewSurface {
-        LessonWordsScreen(state = state, onIntent = {}, onWayOn = {}, onSchoolOpen = {})
+        LessonWordsScreen(
+            state = state,
+            onIntent = {},
+            onWayOn = {},
+            onSchoolOpen = {},
+            task = TaskDockHook(onAnswered = {}),
+            foldedDock = {},
+        )
     }
 }
 
@@ -387,7 +353,14 @@ private fun LessonWordsScreenLanguagePreview(
 ) {
     ProvideCopyLanguage(language = language) {
         MyGamePreviewSurface {
-            LessonWordsScreen(state = previewReading, onIntent = {}, onWayOn = {}, onSchoolOpen = {})
+            LessonWordsScreen(
+                state = previewReading,
+                onIntent = {},
+                onWayOn = {},
+                onSchoolOpen = {},
+                task = TaskDockHook(onAnswered = {}),
+                foldedDock = {},
+            )
         }
     }
 }
@@ -402,6 +375,8 @@ private fun LessonWordsScreenReleasedBothPreview() {
                 onIntent = {},
                 onWayOn = {},
                 onSchoolOpen = {},
+                task = TaskDockHook(onAnswered = {}),
+                foldedDock = {},
             )
         }
     }

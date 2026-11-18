@@ -26,9 +26,12 @@ import kotlin.math.floor
 import kotlin.time.Instant
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
+import kotlinx.coroutines.channels.Channel
+import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.launch
 
 class ReviewViewModel(
@@ -40,6 +43,10 @@ class ReviewViewModel(
     private val _state: MutableStateFlow<ReviewUiState> = MutableStateFlow(ReviewUiState.Loading)
 
     val state: StateFlow<ReviewUiState> = _state.asStateFlow()
+
+    private val _effects: Channel<ReviewEffect> = Channel(Channel.BUFFERED)
+
+    val effects: Flow<ReviewEffect> = _effects.receiveAsFlow()
 
     private var reading: Job? = null
 
@@ -80,6 +87,7 @@ class ReviewViewModel(
             ReviewIntent.HintTapped -> hint()
             ReviewIntent.CheckTapped -> check()
             ReviewIntent.NextTapped -> next()
+            ReviewIntent.ReviewsStartTapped -> open()
         }
     }
 
@@ -217,7 +225,7 @@ class ReviewViewModel(
             )
             is ReviewVerdict.Wrong -> ReviewUiState.ReviewStep.Wrong(correct = card.correctFormOf(verdict))
         }
-        viewModelScope.launch { towns.readSentAfterNow() }
+        _effects.send(ReviewEffect.Answered)
         reread = (learning.reviews() as? ReviewsReadResult.Read)?.reviews?.let(::measured)
         stepTo(step)
     }
