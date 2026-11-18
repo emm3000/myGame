@@ -1,5 +1,7 @@
 package com.emm.mygame.feature.review
 
+import androidx.compose.runtime.MutableState
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.test.assertCountEquals
 import androidx.compose.ui.test.assertIsDisplayed
@@ -206,7 +208,16 @@ class ReviewScreenTest {
     @Test
     @Config(qualifiers = "+w360dp-h320dp", fontScale = 2.0f)
     fun `a folded dock moves the verdict to the end of the card, in view`() {
-        draw(recalling(step = ReviewUiState.ReviewStep.Wrong(correct = "home"), typed = "house"))
+        val shown: MutableState<ReviewUiState> =
+            mutableStateOf(recalling(step = ReviewUiState.ReviewStep.Checking, typed = "house"))
+        composeRule.setContent {
+            MyGameTheme {
+                ReviewWithDock(state = shown.value)
+            }
+        }
+        composeRule.waitForIdle()
+
+        shown.value = recalling(step = ReviewUiState.ReviewStep.Wrong(correct = "home"), typed = "house")
 
         composeRule.onNode(hasText("La correcta: home") and isPlaced and hasAnyAncestor(hasScrollAction()))
             .assertIsDisplayed()

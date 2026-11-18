@@ -2,6 +2,8 @@ package com.emm.mygame
 
 import androidx.activity.ComponentActivity
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.runtime.Composable
@@ -107,6 +109,7 @@ class TaskDockFrameTest {
         isFilled: Boolean = true,
         isFollowingTown: Boolean = false,
         status: TownStatusUiState = TownStatusUiState.none,
+        cardHeight: Dp = 0.dp,
     ) {
         composeRule.setContent {
             MyGameTheme {
@@ -122,7 +125,12 @@ class TaskDockFrameTest {
                         banner = {},
                     ),
                 ) { frame: ScreenFrame ->
-                    FakeTaskRoute(frame = frame, isFilled = isFilled, isFollowingTown = isFollowingTown)
+                    FakeTaskRoute(
+                        frame = frame,
+                        isFilled = isFilled,
+                        isFollowingTown = isFollowingTown,
+                        cardHeight = cardHeight,
+                    )
                 }
             }
         }
@@ -186,6 +194,16 @@ class TaskDockFrameTest {
         composeRule.keyboard(isOpen = true, height = LANDSCAPE_KEYBOARD)
 
         composeRule.onAllNodes(hasContentDescription(CHECK, substring = true) and isPlaced).assertCountEquals(0)
+    }
+
+    @Test
+    @Config(qualifiers = "+w891dp-h411dp", fontScale = 2.0f)
+    fun `a task's folded end leaves the card in view while the keyboard is open`() {
+        showingFakeTask(cardHeight = TALL_CARD.dp)
+
+        composeRule.keyboard(isOpen = true, height = LANDSCAPE_KEYBOARD)
+
+        composeRule.onNode(hasText(CARD)).assertIsDisplayed()
     }
 
     @Test
@@ -268,6 +286,7 @@ class TaskDockFrameTest {
         const val VERDICT: String = "Correct."
         const val PORTRAIT_KEYBOARD: Int = 600
         const val LANDSCAPE_KEYBOARD: Int = 250
+        const val TALL_CARD: Int = 300
     }
 }
 
@@ -278,11 +297,12 @@ private val placedGo: SemanticsMatcher = SemanticsMatcher("the placed go button"
 private val isPlaced: SemanticsMatcher = SemanticsMatcher("is placed") { node -> node.layoutInfo.isPlaced }
 
 @Composable
-private fun FakeTaskRoute(frame: ScreenFrame, isFilled: Boolean, isFollowingTown: Boolean) {
+private fun FakeTaskRoute(frame: ScreenFrame, isFilled: Boolean, isFollowingTown: Boolean, cardHeight: Dp) {
     val hook: TaskDockHook = frame.task
     Column(modifier = Modifier.verticalScroll(rememberScrollState())) {
         MyGameText(text = "The card", style = MyGameTypography.body, color = MyGameTheme.colors.ink)
-        FoldedTaskEnd(hook = hook, foldedDock = frame.foldedDock, scrollKey = null)
+        Spacer(modifier = Modifier.height(cardHeight))
+        FoldedTaskEnd(hook = hook, foldedDock = frame.foldedDock, shownNotice = null)
     }
     if (isFollowingTown) FollowTownDock(hook = hook)
     if (!isFilled) return

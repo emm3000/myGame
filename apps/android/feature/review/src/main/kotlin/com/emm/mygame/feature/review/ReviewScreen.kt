@@ -85,9 +85,9 @@ fun ReviewScreen(
         FoldedTaskEnd(
             hook = task,
             foldedDock = foldedDock,
-            scrollKey = (state as? ReviewUiState.Reviewing)?.let { shown: ReviewUiState.Reviewing ->
-                shown.card.wordId to shown.step
-            },
+            shownNotice = (state as? ReviewUiState.Reviewing)?.takeIf { shown: ReviewUiState.Reviewing ->
+                shown.step.hasNotice()
+            }?.let { shown: ReviewUiState.Reviewing -> shown.card.wordId to shown.step },
         )
     }
 }
@@ -119,6 +119,16 @@ private fun ReviewState(
         is ReviewUiState.LessonReady -> LessonReady(ready = state)
         is ReviewUiState.Reviewing -> Reviewing(reviewing = state, onIntent = onIntent)
     }
+}
+
+private fun ReviewUiState.ReviewStep.hasNotice(): Boolean = when (this) {
+    ReviewUiState.ReviewStep.Answering, ReviewUiState.ReviewStep.Checking, ReviewUiState.ReviewStep.Hinting -> false
+    ReviewUiState.ReviewStep.NearMiss,
+    is ReviewUiState.ReviewStep.Refused,
+    ReviewUiState.ReviewStep.Unreachable,
+    is ReviewUiState.ReviewStep.Correct,
+    is ReviewUiState.ReviewStep.Wrong,
+    -> true
 }
 
 private val reviewBlocks: MyGameSkeletonBlocks = MyGameSkeletonBlocks(
