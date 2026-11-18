@@ -34,6 +34,8 @@ import com.emm.mygame.core.network.SessionRepository
 import com.emm.mygame.core.network.SignedInPlayer
 import com.emm.mygame.core.network.StudyReminderChoice
 import com.emm.mygame.core.network.StudyReminderSettings
+import com.emm.mygame.core.network.ThemePick
+import com.emm.mygame.core.network.ThemeSettings
 import com.emm.mygame.core.network.TownRepository
 import com.emm.mygame.core.projection.StudyReminderFacts
 import com.emm.mygame.core.testing.FakeHoldoutCheckRepository
@@ -41,6 +43,7 @@ import com.emm.mygame.core.testing.FakeLearningRepository
 import com.emm.mygame.core.testing.FakePlacementRepository
 import com.emm.mygame.core.testing.FakeReportRepository
 import com.emm.mygame.core.testing.FakeSessionRepository
+import com.emm.mygame.core.testing.FakeThemeSettings
 import com.emm.mygame.core.testing.FakeTownRepository
 import java.time.LocalTime
 import java.time.ZoneOffset
@@ -104,6 +107,7 @@ class SettingsReminderNavigationTest {
         override val holdoutChecks: HoldoutCheckRepository = FakeHoldoutCheckRepository()
         override val studyReminders: StudyReminderSettings = store
         override val reminderNotifications: ReminderNotifications = PhoneReminderNotifications(application)
+        override val themes: ThemeSettings = FakeThemeSettings(ThemePick.System)
     }
 
     private fun showSettings() {

@@ -15,6 +15,7 @@ import com.emm.mygame.core.network.SessionEnds
 import com.emm.mygame.core.network.SessionRepository
 import com.emm.mygame.core.network.StudyAnswers
 import com.emm.mygame.core.network.StudyReminderSettings
+import com.emm.mygame.core.network.ThemeSettings
 import com.emm.mygame.core.network.TokenStore
 import com.emm.mygame.core.network.TownRepository
 import java.io.File
@@ -61,6 +62,10 @@ class MyGameApplication : Application(), AppDependencies {
         get() = studyReminderStore
 
     override val reminderNotifications: ReminderNotifications by lazy { PhoneReminderNotifications(this) }
+
+    override val themes: ThemeSettings by lazy {
+        ThemeStore(preferences = getSharedPreferences(THEME_FILE_NAME, Context.MODE_PRIVATE))
+    }
 
     private val studyAnswers: StudyAnswers by lazy {
         StudyAnswers(
@@ -145,5 +150,6 @@ class MyGameApplication : Application(), AppDependencies {
         const val SESSION_FILE_NAME: String = "session"
         const val SESSION_KEY_ALIAS: String = "mygame.session"
         const val STUDY_REMINDER_FILE_NAME: String = "study_reminder"
+        const val THEME_FILE_NAME: String = "theme"
     }
 }

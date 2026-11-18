@@ -9,6 +9,8 @@ import com.emm.mygame.core.network.ScaffoldChangeResult
 import com.emm.mygame.core.network.SessionRepository
 import com.emm.mygame.core.network.StudyReminderChoice
 import com.emm.mygame.core.network.StudyReminderSettings
+import com.emm.mygame.core.network.ThemePick
+import com.emm.mygame.core.network.ThemeSettings
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -22,6 +24,7 @@ class SettingsViewModel(
     private val playerScaffold: StateFlow<PlayerScaffold?>,
     private val reminders: StudyReminderSettings,
     private val notifications: ReminderNotifications,
+    private val themes: ThemeSettings,
 ) : ViewModel() {
 
     private val _state: MutableStateFlow<SettingsUiState> = MutableStateFlow(SettingsUiState.Loading)
@@ -36,6 +39,7 @@ class SettingsViewModel(
         read()
         viewModelScope.launch { playerScaffold.collect(::holdStored) }
         viewModelScope.launch { reminders.choice.collect { drawReminder(SettingsUiState.NotificationAsk.Untouched) } }
+        viewModelScope.launch { themes.pick.collect(::drawTheme) }
     }
 
     fun onIntent(intent: SettingsIntent) {
@@ -46,6 +50,7 @@ class SettingsViewModel(
             is SettingsIntent.NotificationsAnswered -> answerAsk(intent.isGranted)
             is SettingsIntent.ReminderStepped -> stepReminder(intent.step)
             SettingsIntent.ScreenResumed -> drawReminder(shownAsk())
+            is SettingsIntent.ThemePicked -> themes.choose(intent.pick)
         }
     }
 
@@ -54,7 +59,7 @@ class SettingsViewModel(
         viewModelScope.launch {
             val session: RestoreResult = sessions.restore()
             val reminder: SettingsUiState.Reminder = reminderAsked(SettingsUiState.NotificationAsk.Untouched)
-            _state.value = settingsOf(session, playerScaffold.value, reminder)
+            _state.value = settingsOf(session, playerScaffold.value, reminder, themes.pick.value)
         }
     }
 
@@ -113,6 +118,11 @@ class SettingsViewModel(
         drawReminder(SettingsUiState.NotificationAsk.Untouched)
     }
 
+    private fun drawTheme(pick: ThemePick) {
+        val loaded: SettingsUiState.Loaded = _state.value as? SettingsUiState.Loaded ?: return
+        _state.value = loaded.copy(theme = pick)
+    }
+
     private fun holdStored(held: PlayerScaffold?) {
         val loaded: SettingsUiState.Loaded = _state.value as? SettingsUiState.Loaded ?: return
         val stored: PlayerScaffold = held ?: return
@@ -143,14 +153,24 @@ private fun settingsOf(
     read: RestoreResult,
     held: PlayerScaffold?,
     reminder: SettingsUiState.Reminder,
+    theme: ThemePick,
 ): SettingsUiState = when (read) {
-    is RestoreResult.SignedIn -> storedSettingsOf(held ?: read.player.scaffold, reminder)
+    is RestoreResult.SignedIn -> storedSettingsOf(held ?: read.player.scaffold, reminder, theme)
     RestoreResult.SignedOut, RestoreResult.Unreachable -> SettingsUiState.Failed
 }
 
-private fun storedSettingsOf(stored: PlayerScaffold?, reminder: SettingsUiState.Reminder): SettingsUiState {
+private fun storedSettingsOf(
+    stored: PlayerScaffold?,
+    reminder: SettingsUiState.Reminder,
+    theme: ThemePick,
+): SettingsUiState {
     if (stored == null) return SettingsUiState.Failed
-    return SettingsUiState.Loaded(stored = stored, change = SettingsUiState.Change.Untouched, reminder = reminder)
+    return SettingsUiState.Loaded(
+        stored = stored,
+        change = SettingsUiState.Change.Untouched,
+        reminder = reminder,
+        theme = theme,
+    )
 }
 
 private fun changeOf(answer: ScaffoldChangeResult): SettingsUiState.Change = when (answer) {

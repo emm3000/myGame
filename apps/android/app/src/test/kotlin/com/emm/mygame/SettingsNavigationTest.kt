@@ -30,6 +30,8 @@ import com.emm.mygame.core.network.SessionRepository
 import com.emm.mygame.core.network.SignedInPlayer
 import com.emm.mygame.core.network.StudyReminderChoice
 import com.emm.mygame.core.network.StudyReminderSettings
+import com.emm.mygame.core.network.ThemePick
+import com.emm.mygame.core.network.ThemeSettings
 import com.emm.mygame.core.network.TownReport
 import com.emm.mygame.core.network.TownRepository
 import com.emm.mygame.core.testing.FakeHoldoutCheckRepository
@@ -39,6 +41,7 @@ import com.emm.mygame.core.testing.FakeReminderNotifications
 import com.emm.mygame.core.testing.FakeReportRepository
 import com.emm.mygame.core.testing.FakeSessionRepository
 import com.emm.mygame.core.testing.FakeStudyReminderSettings
+import com.emm.mygame.core.testing.FakeThemeSettings
 import com.emm.mygame.core.testing.FakeTownRepository
 import kotlin.time.Clock
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -79,6 +82,8 @@ class SettingsNavigationTest {
         }
     }
 
+    private val themesFake: FakeThemeSettings = FakeThemeSettings(ThemePick.System)
+
     private val dependencies: AppDependencies = object : AppDependencies {
         override val clock: Clock = Clock.System
         override val sessionEnds: SessionEnds = SessionEnds()
@@ -94,6 +99,7 @@ class SettingsNavigationTest {
             FakeStudyReminderSettings(StudyReminderChoice.firstChoice)
         override val reminderNotifications: ReminderNotifications =
             FakeReminderNotifications(areAllowed = true, canAsk = true)
+        override val themes: ThemeSettings = themesFake
     }
 
     private val nothingDue: TownReport =
@@ -132,6 +138,17 @@ class SettingsNavigationTest {
 
         waitForLine("Idioma de ayuda")
         assertEquals(listOf(Destination.Town, Destination.Report, Destination.Settings), shownBackStack)
+    }
+
+    @Test
+    fun `stores the theme tapped in the settings`() {
+        show(Destination.Town, Destination.Report, Destination.Settings)
+        waitForLine("Oscuro")
+
+        composeRule.onNodeWithText("Oscuro").performScrollTo().performClick()
+        composeRule.waitForIdle()
+
+        assertEquals(ThemePick.Dark, themesFake.pick.value)
     }
 
     @Test
