@@ -43,6 +43,7 @@ import com.emm.mygame.core.ui.FRAME_DOCK_TURN
 import com.emm.mygame.core.ui.FRAME_FOLDED_TOP_TURN
 import com.emm.mygame.core.ui.TaskDock
 import com.emm.mygame.core.ui.TaskDockHook
+import com.emm.mygame.core.ui.TownFollow
 import com.emm.mygame.core.ui.chromeResource
 import com.emm.mygame.core.ui.frameHeaderTurn
 import com.emm.mygame.feature.town.TownDock
@@ -70,26 +71,16 @@ internal fun FramedScreen(
     val isFolded: MutableState<Boolean> = remember { mutableStateOf(false) }
     val isKeyboardOpen: Boolean = WindowInsets.isImeVisible
     val door: MyGameDockDoor? = doorOf(kind, chrome.navigator)
-    val dock: TownStatusUiState.Dock? =
-        chrome.status.value.dock.takeUnless { isDockWithheld || kind == FrameKind.Task }
     val onStatusIntent: State<(TownStatusIntent) -> Unit> = rememberUpdatedState(chrome.onStatusIntent)
     val task: TaskDockHook = remember {
         TaskDockHook(onAnswered = { onStatusIntent.value(TownStatusIntent.ScreenAnswered) })
     }
+    val follow: TownFollow? = task.town.takeIf { kind == FrameKind.Task }
+    val dock: TownStatusUiState.Dock? =
+        chrome.status.value.dock.takeIf { isTownDockShown(kind, isDockWithheld, follow) }
     val frame = ScreenFrame(
         task = task,
-        foldedDock = {
-            if (dock != null && isFolded.value) {
-                Box(
-                    modifier = Modifier.semantics {
-                        isTraversalGroup = true
-                        traversalIndex = FRAME_FOLDED_TOP_TURN
-                    },
-                ) {
-                    TownDockTop(dock = dock, door = door)
-                }
-            }
-        },
+        foldedDock = { FoldedDockTop(dock = dock, door = door, isFolded = isFolded.value) },
     )
     Column(
         modifier = modifier
@@ -110,7 +101,7 @@ internal fun FramedScreen(
             content(frame)
         }
         if (isKeyboardOpen) return@Column
-        task.dock?.takeIf { kind == FrameKind.Task }?.let { shown: TaskDock -> TaskFrameDock(shown) }
+        task.shownOn(kind)?.let { shown: TaskDock -> TaskFrameDock(shown) }
         dock?.let { shown: TownStatusUiState.Dock ->
             FrameDock(
                 dock = shown,
@@ -118,10 +109,29 @@ internal fun FramedScreen(
                 door = door,
                 studyInPlace = studyInPlace,
                 onFoldChange = { folded: Boolean -> isFolded.value = folded },
+                follow = follow,
             )
         }
     }
 }
+
+@Composable
+private fun FoldedDockTop(dock: TownStatusUiState.Dock?, door: MyGameDockDoor?, isFolded: Boolean) {
+    if (dock == null || !isFolded) return
+    Box(
+        modifier = Modifier.semantics {
+            isTraversalGroup = true
+            traversalIndex = FRAME_FOLDED_TOP_TURN
+        },
+    ) {
+        TownDockTop(dock = dock, door = door)
+    }
+}
+
+private fun isTownDockShown(kind: FrameKind, isDockWithheld: Boolean, follow: TownFollow?): Boolean =
+    !isDockWithheld && (kind != FrameKind.Task || follow != null)
+
+private fun TaskDockHook.shownOn(kind: FrameKind): TaskDock? = dock.takeIf { kind == FrameKind.Task && town == null }
 
 @Composable
 private fun TaskFrameDock(shown: TaskDock) {
@@ -162,14 +172,15 @@ private fun FrameDock(
     door: MyGameDockDoor?,
     studyInPlace: @Composable (Int) -> MyGameDockGo?,
     onFoldChange: (Boolean) -> Unit,
+    follow: TownFollow?,
 ) {
     TownDock(
         dock = dock,
-        actions = chrome.dockActions(),
+        actions = chrome.dockActions(onReviewsStart = follow?.onReviewsStart),
         onFoldChange = onFoldChange,
         modifier = Modifier
             .windowInsetsPadding(WindowInsets.safeDrawing.only(WindowInsetsSides.Horizontal))
-            .semantics { traversalIndex = FRAME_DOCK_TURN },
+            .semantics { traversalIndex = if (follow == null) FRAME_DOCK_TURN else TASK_DOCK_TURN },
         door = door,
         inPlace = dock.studiedInPlace()?.let { number: Int -> studyInPlace(number) },
     )
@@ -188,11 +199,11 @@ private fun doorOf(kind: FrameKind, navigator: Navigator): MyGameDockDoor? = whe
 private fun TownStatusUiState.Dock.studiedInPlace(): Int? =
     ((this as? TownStatusUiState.Dock.Step)?.go as? TownStatusUiState.Go.ActsInPlace)?.action?.number
 
-private fun SignedInChrome.dockActions(): TownDockActions = TownDockActions(
+private fun SignedInChrome.dockActions(onReviewsStart: (() -> Unit)?): TownDockActions = TownDockActions(
     onIntent = onStatusIntent,
     onLessonOpen = { lesson: LessonId -> navigator.openFromDock { openLesson(lesson, walked = emptyList()) } },
     onSchoolOpen = { navigator.openFromDock { openSchool() } },
-    onReviewsOpen = { navigator.openFromDock { openReviews() } },
+    onReviewsOpen = onReviewsStart ?: { navigator.openFromDock { openReviews() } },
     onReportOpen = { navigator.openFromDock { openReport() } },
     onHoldoutCheckOpen = { band: PlacementBand, week: HoldoutCheckWeek ->
         navigator.openFromDock { openHoldoutCheck(band, week) }

@@ -11,7 +11,14 @@ class TaskDockHook(val onAnswered: () -> Unit) {
     var dock: TaskDock? by mutableStateOf(null)
         private set
 
+    var town: TownFollow? by mutableStateOf(null)
+        private set
+
     fun fill(shown: TaskDock?) {
         dock = shown
+    }
+
+    fun follow(shown: TownFollow?) {
+        town = shown
     }
 }
