@@ -11,8 +11,7 @@ class StudyReminderReceiver : BroadcastReceiver() {
         val store: StudyReminderStore = application.studyReminderStore
         val alarm: StudyReminderAlarm = application.studyReminderAlarm
         when (intent.action) {
-            STUDY_REMINDER_FIRED ->
-                alarm.fire(store.choice.value, store.facts.value, application.playerLanguage.value ?: store.language)
+            STUDY_REMINDER_FIRED -> alarm.fire(store.choice.value, store.facts.value, store.language)
             Intent.ACTION_BOOT_COMPLETED,
             Intent.ACTION_TIME_CHANGED,
             Intent.ACTION_TIMEZONE_CHANGED,

@@ -39,7 +39,7 @@ class ScaffoldChangeRepositoryTest {
         TokenStore(File(folder.root, "session"), FakeTokenCipher()).apply { write("opaque-session") }
     }
 
-    private val languages: PlayerLanguages by lazy { PlayerLanguages(store) }
+    private val languages: PlayerLanguages by lazy { PlayerLanguages(store, onNamed = {}) }
 
     @Before
     fun startApi() {

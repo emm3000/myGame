@@ -750,7 +750,7 @@ class TownRepositoryTest {
     private fun TestScope.town(store: TokenStore = signedIn()): TownRepository = TownRepository(
         baseUrl = api.url("/api/").toString(),
         tokenStore = store,
-        languages = PlayerLanguages(store),
+        languages = PlayerLanguages(store, onNamed = {}),
         sessionEnds = sessionEnds,
         studyAnswers = discardedStudyAnswers(store),
         ioDispatcher = UnconfinedTestDispatcher(testScheduler),
@@ -760,7 +760,7 @@ class TownRepositoryTest {
     private fun TestScope.sessions(store: TokenStore): SessionRepository = SessionRepository(
         baseUrl = api.url("/api/").toString(),
         tokenStore = store,
-        languages = PlayerLanguages(store),
+        languages = PlayerLanguages(store, onNamed = {}),
         sessionEnds = sessionEnds,
         ioDispatcher = UnconfinedTestDispatcher(testScheduler),
     )

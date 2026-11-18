@@ -647,7 +647,7 @@ class SessionRepositoryTest {
         SessionRepository(
             baseUrl = api.url("/api/").toString(),
             tokenStore = store,
-            languages = PlayerLanguages(store),
+            languages = PlayerLanguages(store, onNamed = {}),
             sessionEnds = sessionEnds,
             ioDispatcher = UnconfinedTestDispatcher(testScheduler),
         )
@@ -656,7 +656,7 @@ class SessionRepositoryTest {
         TownRepository(
             baseUrl = api.url("/api/").toString(),
             tokenStore = store,
-            languages = PlayerLanguages(store),
+            languages = PlayerLanguages(store, onNamed = {}),
             sessionEnds = sessionEnds,
             studyAnswers = discardedStudyAnswers(store),
             ioDispatcher = UnconfinedTestDispatcher(testScheduler),

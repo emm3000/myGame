@@ -36,7 +36,11 @@ class PlayerLanguagesTest {
 
     private val store: TokenStore by lazy { TokenStore(File(folder.root, "session"), FakeTokenCipher()) }
 
-    private val languages: PlayerLanguages by lazy { PlayerLanguages(store) }
+    private val named: MutableList<PlayerLanguage> = mutableListOf()
+
+    private val languages: PlayerLanguages by lazy {
+        PlayerLanguages(store, onNamed = { language: PlayerLanguage -> named.add(language) })
+    }
 
     @Before
     fun startApi() {
@@ -231,6 +235,20 @@ class PlayerLanguagesTest {
         sessions().signOut()
 
         assertNull(languages.language.value)
+    }
+
+    @Test
+    fun `names the same language again when the next session answers it`() = runTest {
+        api.enqueue(session(code = 200, scaffold = "es", chromePhase = "scaffold", scaffoldVersion = 0))
+        api.enqueue(MockResponse.Builder().code(204).build())
+        api.enqueue(session(code = 200, scaffold = "es", chromePhase = "scaffold", scaffoldVersion = 0))
+        val spanishScaffold: PlayerLanguage = PlayerLanguage(PlayerScaffold.Spanish, PlayerChromePhase.Scaffold)
+
+        sessions().signIn("ines@sotoverde.es", "contrasena")
+        sessions().signOut()
+        sessions().signIn("ines@sotoverde.es", "contrasena")
+
+        assertEquals(listOf(spanishScaffold, spanishScaffold), named)
     }
 
     @Test
