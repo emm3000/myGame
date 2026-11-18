@@ -188,6 +188,17 @@ refuses_a_pr_merged_before_the_oldest_recent_row_as_already_folded() {
   [ "$(<"$log")" = "$before" ] || fail "${FUNCNAME[0]}" "the log changed"
 }
 
+a_log_with_an_empty_recent_table_takes_its_first_row() {
+  build_a_log_with_recent_rows empty 1
+  rg -v '^\| #100 \|' "$log" >"$log.next"
+  mv "$log.next" "$log"
+  [ "$(recent_rows)" = 0 ] || fail "${FUNCNAME[0]}" "recent rows before $(recent_rows)" || return 1
+  local output
+  output=$(with_stubs scripts/mygame-merge --dry-run 500 probe opus:high merge 1) || fail "${FUNCNAME[0]}" "$output" || return 1
+  [ "$(tail -n 1 "$log")" = "| #500 | opus:high | MERGE |  | 1 | +40/-7 |" ] || fail "${FUNCNAME[0]}" "last row $(tail -n 1 "$log")" || return 1
+  [ "$(recent_rows)" = 1 ] || fail "${FUNCNAME[0]}" "recent rows $(recent_rows)"
+}
+
 merging_merges_then_logs_then_closes_the_peer() {
   build_a_log_with_recent_rows merge 3
   local output
@@ -268,6 +279,7 @@ run refuses_every_bad_argument_and_leaves_the_log_alone
 run a_dry_run_refuses_a_pr_that_is_not_merged
 run refuses_a_pr_the_log_already_holds
 run refuses_a_pr_merged_before_the_oldest_recent_row_as_already_folded
+run a_log_with_an_empty_recent_table_takes_its_first_row
 run merging_merges_then_logs_then_closes_the_peer
 run keep_emulator_reaches_the_close
 run no_close_merges_and_logs_but_leaves_the_peer_running
