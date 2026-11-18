@@ -46,6 +46,7 @@ class MyGameDockCountTest(private val case: Case) {
 
     enum class Window(val qualifiers: String, val isLifted: Boolean) {
         Portrait360(qualifiers = "+w360dp-h800dp-port", isLifted = false),
+        Portrait360Lifted(qualifiers = "+w360dp-h800dp-port", isLifted = true),
         Landscape(qualifiers = "+w640dp-h360dp-land", isLifted = false),
         LandscapeLifted(qualifiers = "+w640dp-h360dp-land", isLifted = true),
     }
@@ -198,7 +199,7 @@ class MyGameDockCountTest(private val case: Case) {
                 ),
             ),
             casesOn(
-                window = Window.Portrait360,
+                window = Window.Portrait360Lifted,
                 fontScale = 2.0f,
                 doors = mapOf(
                     Language.English to listOf(DoorPlace.Under, DoorPlace.Under, DoorPlace.Under),

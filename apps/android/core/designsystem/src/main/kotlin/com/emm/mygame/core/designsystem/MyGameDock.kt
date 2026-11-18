@@ -36,6 +36,8 @@ private enum class DockSlot { Probe, Shown }
 
 private const val HALF: Int = 2
 
+private const val DEFAULT_FONT_SCALE: Float = 1f
+
 private const val DIAMETER_PER_RADIUS: Int = 2
 
 private const val QUARTER_TURN: Float = 90f
@@ -54,7 +56,8 @@ fun MyGameDock(
     countdown: @Composable () -> Unit = {},
     notice: @Composable () -> Unit = {},
 ) {
-    val halfWindow: Int = LocalWindowInfo.current.containerSize.height / HALF
+    val tallestUnfolded: Float = LocalWindowInfo.current.containerSize.height / HALF /
+        LocalDensity.current.fontScale.coerceAtLeast(DEFAULT_FONT_SCALE)
     val foldChange: State<(Boolean) -> Unit> = rememberUpdatedState(onFoldChange)
     SubcomposeLayout(
         modifier = modifier.fillMaxWidth().semantics { isTraversalGroup = true },
@@ -72,7 +75,7 @@ fun MyGameDock(
                 )
             }
         }.single().measure(loose).height
-        val isFolded: Boolean = unfoldedHeight > halfWindow
+        val isFolded: Boolean = unfoldedHeight > tallestUnfolded
         val shown: Placeable = subcompose(DockSlot.Shown) {
             LaunchedEffect(isFolded) { foldChange.value(isFolded) }
             DockSheet {
