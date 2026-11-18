@@ -145,8 +145,7 @@ private fun DockGo(go: MyGameDockGo, step: MyGameLabel?, modifier: Modifier = Mo
 @Composable
 private fun DockDoor(door: MyGameDockDoor, modifier: Modifier = Modifier) {
     MyGamePill(
-        look = outlinedPillLook(colors = MyGameTheme.colors, height = MyGameSizes.action)
-            .copy(sidePadding = MyGameSpacing.step3),
+        look = dockDoorLook(MyGameTheme.colors),
         label = door.label,
         isBusy = false,
         busyDescription = door.label.spoken,
@@ -154,6 +153,9 @@ private fun DockDoor(door: MyGameDockDoor, modifier: Modifier = Modifier) {
         modifier = modifier,
     )
 }
+
+internal fun dockDoorLook(colors: MyGameColors): MyGamePillLook =
+    outlinedPillLook(colors = colors, height = MyGameSizes.action).copy(sidePadding = MyGameSpacing.step3)
 
 private fun nameOf(go: MyGameLabel, step: MyGameLabel): String = "${go.spoken}, ${step.spoken}"
 

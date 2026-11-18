@@ -10,6 +10,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.semantics.SemanticsActions
+import androidx.compose.ui.test.SemanticsMatcher
 import androidx.compose.ui.test.SemanticsNodeInteraction
 import androidx.compose.ui.test.getBoundsInRoot
 import androidx.compose.ui.test.junit4.ComposeContentTestRule
@@ -38,6 +39,8 @@ private const val DP_TOLERANCE: Float = 0.5f
 
 private val narrowWidth: Dp = 200.dp
 
+private val townDoorWidth: Dp = 158.dp
+
 private const val SHORT_LABEL: String = "Study"
 
 private const val LONG_LABEL: String = "Study the words of the bakery"
@@ -49,14 +52,14 @@ class MyGamePillAtLargeFontTest {
     @get:Rule
     val composeRule: ComposeContentTestRule = createComposeRule()
 
-    private fun showAt(fontScale: Float, pill: @Composable () -> Unit) {
+    private fun showAt(fontScale: Float, pill: @Composable () -> Unit, width: Dp = narrowWidth) {
         composeRule.setContent {
             val context: Context = LocalContext.current
             val configuration: Configuration = Configuration(context.resources.configuration)
             configuration.fontScale = fontScale
             CompositionLocalProvider(LocalDensity provides Density(context.createConfigurationContext(configuration))) {
                 MyGameTheme {
-                    Box(modifier = Modifier.width(narrowWidth)) { pill() }
+                    Box(modifier = Modifier.width(width)) { pill() }
                 }
             }
         }
@@ -83,6 +86,13 @@ class MyGamePillAtLargeFontTest {
             door = MyGameDockDoor(label = MyGameLabel(text = "Town", translation = null), onClick = {}),
         )
     }
+
+    private fun outlinedPillWithCount(label: String, count: String): @Composable () -> Unit = {
+        MyGameOutlinedButton(label = label, isBusy = false, busyDescription = "Waiting", onClick = {}, badge = count)
+    }
+
+    private fun lineCountOf(label: String): Int =
+        layoutOf(composeRule.onNodeWithText(label, useUnmergedTree = true)).lineCount
 
     private fun outlinedPill(label: String): @Composable () -> Unit = {
         MyGameOutlinedButton(label = label, isBusy = false, busyDescription = "Waiting", onClick = {})
@@ -222,5 +232,31 @@ class MyGamePillAtLargeFontTest {
         showAt(LARGEST, dockWithDoor())
 
         assertEquals(MyGameSizes.action.value, heightOf(OUTLINED_PILL).value, DP_TOLERANCE)
+    }
+
+    @Test
+    fun `keeps a one-word label whole beside a count at the largest font`() {
+        showAt(LARGEST, outlinedPillWithCount(label = "Informe", count = "4"), width = townDoorWidth)
+
+        assertEquals(1, lineCountOf("Informe"))
+    }
+
+    @Test
+    fun `keeps a one-word label whole beside a three-digit count at the largest font`() {
+        showAt(LARGEST, outlinedPillWithCount(label = "Report", count = "123"), width = townDoorWidth)
+
+        assertEquals(1, lineCountOf("Report"))
+    }
+
+    @Test
+    fun `keeps a three-digit count's disc round inside a narrow button at the largest font`() {
+        showAt(LARGEST, outlinedPillWithCount(label = "Report", count = "123"), width = townDoorWidth)
+
+        val pill: DpRect = composeRule.onNodeWithTag(OUTLINED_PILL).getBoundsInRoot()
+        val disc: DpRect = composeRule
+            .onNode(SemanticsMatcher.keyIsDefined(PILL_BADGE), useUnmergedTree = true)
+            .getBoundsInRoot()
+        assertEquals("the disc is round", (disc.right - disc.left).value, (disc.bottom - disc.top).value, DP_TOLERANCE)
+        assertTrue("the disc ends inside the button", disc.right <= pill.right && disc.bottom <= pill.bottom)
     }
 }

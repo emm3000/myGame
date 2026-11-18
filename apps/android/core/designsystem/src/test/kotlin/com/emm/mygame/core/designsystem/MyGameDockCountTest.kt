@@ -44,9 +44,10 @@ private class UnfoldingWindow(private val window: WindowInfo) : WindowInfo by wi
 @GraphicsMode(GraphicsMode.Mode.NATIVE)
 class MyGameDockCountTest(private val case: Case) {
 
-    enum class Window(val qualifiers: String) {
-        Portrait360(qualifiers = "+w360dp-h800dp-port"),
-        Landscape(qualifiers = "+w640dp-h360dp-land"),
+    enum class Window(val qualifiers: String, val isLifted: Boolean) {
+        Portrait360(qualifiers = "+w360dp-h800dp-port", isLifted = false),
+        Landscape(qualifiers = "+w640dp-h360dp-land", isLifted = false),
+        LandscapeLifted(qualifiers = "+w640dp-h360dp-land", isLifted = true),
     }
 
     enum class Language(val step: String, val go: String, val door: String) {
@@ -75,7 +76,9 @@ class MyGameDockCountTest(private val case: Case) {
         RuntimeEnvironment.setQualifiers(case.window.qualifiers)
         RuntimeEnvironment.setFontScale(case.fontScale)
         composeRule.setContent {
-            CompositionLocalProvider(LocalWindowInfo provides UnfoldingWindow(LocalWindowInfo.current)) {
+            val real: WindowInfo = LocalWindowInfo.current
+            val shown: WindowInfo = if (case.window.isLifted) UnfoldingWindow(real) else real
+            CompositionLocalProvider(LocalWindowInfo provides shown) {
                 MyGameTheme {
                     MyGameDock(
                         line = MyGameDockLine(
@@ -135,11 +138,11 @@ class MyGameDockCountTest(private val case: Case) {
         val discRight: Float = placedBounds(SemanticsMatcher.keyIsDefined(PILL_BADGE)).right.value
         val go: DpRect = goButton()
         val centeredContent: Float = (discRight - (go.left.value + go.right.value) / 2) * 2
-        return centeredContent + MyGameSpacing.step6.value * 2
+        return centeredContent + goPillLook(lightColors).sidePadding.value * 2
     }
 
     private fun doorWidthOnOneLine(): Float =
-        placedBounds(hasText(case.language.door)).width.value + MyGameSpacing.step3.value * 2
+        placedBounds(hasText(case.language.door)).width.value + dockDoorLook(lightColors).sidePadding.value * 2
 
     private fun rowFits(): Boolean = goWidthOnOneLine() <= goShare() && doorWidthOnOneLine() <= doorShare()
 
@@ -165,7 +168,10 @@ class MyGameDockCountTest(private val case: Case) {
         val disc: DpRect = placedBounds(SemanticsMatcher.keyIsDefined(PILL_BADGE))
         val go: DpRect = goButton()
         assertEquals("the disc is round", disc.width.value, disc.height.value, DISC_TOLERANCE)
-        assertTrue("the disc ends inside the go button", disc.right.value <= go.right.value - MyGameSpacing.step6.value)
+        assertTrue(
+            "the disc ends inside the go button",
+            disc.right.value <= go.right.value - goPillLook(lightColors).sidePadding.value,
+        )
     }
 
     companion object {
@@ -208,7 +214,7 @@ class MyGameDockCountTest(private val case: Case) {
                 ),
             ),
             casesOn(
-                window = Window.Landscape,
+                window = Window.LandscapeLifted,
                 fontScale = 2.0f,
                 doors = mapOf(
                     Language.English to listOf(DoorPlace.Beside, DoorPlace.Beside, DoorPlace.Beside),
