@@ -5,12 +5,10 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.ui.test.assertCountEquals
 import androidx.compose.ui.test.junit4.ComposeContentTestRule
 import androidx.compose.ui.test.junit4.createComposeRule
-import androidx.compose.ui.test.onAllNodesWithTag
 import androidx.compose.ui.test.onAllNodesWithText
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
 import androidx.compose.ui.test.performScrollTo
-import com.emm.mygame.core.designsystem.INK_PILL
 import com.emm.mygame.core.designsystem.MyGameTheme
 import com.emm.mygame.core.network.LessonId
 import com.emm.mygame.core.network.NextStep
@@ -52,17 +50,10 @@ class TownGuidanceScreenTest {
         factoryGoal.copy(state = TownGoal.State.Pending(resources = resources, people = people))
 
     @Test
-    fun `shows the next goal`() {
-        show(townOf(nextStep = NextStep.CaughtUp(factoryGoal)))
-
-        composeRule.onNodeWithText("Meta 2 de 9: Fábrica, nivel 1").assertExists()
-    }
-
-    @Test
     fun `shows no goal when none is left`() {
         show(townOf(nextStep = NextStep.CaughtUp(goal = null)))
 
-        composeRule.onAllNodesWithText("Meta", substring = true).assertCountEquals(0)
+        composeRule.onAllNodesWithText("En construcción").assertCountEquals(0)
     }
 
     @Test
@@ -84,7 +75,6 @@ class TownGuidanceScreenTest {
     fun `draws the goal under a running lesson`() {
         show(townOf(nextStep = NextStep.LessonRunning(factoryGoal)))
 
-        composeRule.onNodeWithText("Meta 2 de 9: Fábrica, nivel 1").assertExists()
         composeRule.onNodeWithText("En construcción").assertExists()
     }
 
@@ -92,7 +82,7 @@ class TownGuidanceScreenTest {
     fun `draws no goal under a running lesson once the goal is closed`() {
         show(townOf(nextStep = NextStep.LessonRunning(factoryGoal)), closedGoal)
 
-        composeRule.onAllNodesWithText("Meta", substring = true).assertCountEquals(0)
+        composeRule.onAllNodesWithText("En construcción").assertCountEquals(0)
     }
 
     @Test
@@ -125,14 +115,6 @@ class TownGuidanceScreenTest {
         show(townOf(nextStep = NextStep.CaughtUp(pendingGoal(resources = emptyList(), people = 0))))
 
         composeRule.onNodeWithText("Tienes lo que hace falta.").assertExists()
-    }
-
-    @Test
-    fun `keeps the Report as the one strong button beside the goal`() {
-        show(townOf(nextStep = NextStep.CaughtUp(factoryGoal)))
-
-        composeRule.onAllNodesWithTag(INK_PILL).assertCountEquals(1)
-        composeRule.onNodeWithText("Ir al informe").assertExists()
     }
 
     @Test
@@ -233,10 +215,7 @@ class TownGuidanceScreenTest {
             state = state,
             onIntent = { intent: TownIntent -> intents += intent },
             onSchoolOpen = {},
-            onReportOpen = {},
             onMapOpen = {},
-            onReviewsOpen = {},
-            onLessonOpen = {},
         )
     }
 

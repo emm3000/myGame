@@ -140,10 +140,7 @@ class TownLanguageTest {
                         state = state,
                         onIntent = {},
                         onSchoolOpen = {},
-                        onReportOpen = {},
                         onMapOpen = {},
-                        onReviewsOpen = {},
-                        onLessonOpen = {},
                     )
                 }
             }
@@ -180,8 +177,8 @@ class TownLanguageTest {
         show(spanishPhase)
 
         assertDrawn("RIVERTON · PUEBLO", "En el almacén", "Obra", "Ahora no hay ninguna obra.", "Tu pueblo")
-        assertDrawn("Contratación", "Mapa", "Informe", "Necesitas 300 de dinero y 200 de comida más.")
-        assertNotDrawn("RIVERTON · TOWN", "In storage", "Building work", "Your town", "Hiring", "Map", "Report")
+        assertDrawn("Contratación", "Mapa", "Necesitas 300 de dinero y 200 de comida más.")
+        assertNotDrawn("RIVERTON · TOWN", "In storage", "Building work", "Your town", "Hiring", "Map")
     }
 
     @Test
@@ -194,7 +191,6 @@ class TownLanguageTest {
         assertEnglishOverSpanish("Your town", "Tu pueblo")
         assertEnglishOverSpanish("Hiring", "Contratación")
         assertEnglishOverSpanish("Map", "Mapa")
-        assertEnglishOverSpanish("Report", "Informe")
     }
 
     @Test
@@ -212,8 +208,8 @@ class TownLanguageTest {
         show(englishPhase)
 
         assertDrawn("RIVERTON · TOWN", "In storage", "Building work", "No building work now.", "Your town")
-        assertDrawn("Hiring", "Map", "Report", "You need 300 money and 200 food more.")
-        assertNotDrawn("RIVERTON · PUEBLO", "En el almacén", "Obra", "Tu pueblo", "Contratación", "Mapa", "Informe")
+        assertDrawn("Hiring", "Map", "You need 300 money and 200 food more.")
+        assertNotDrawn("RIVERTON · PUEBLO", "En el almacén", "Obra", "Tu pueblo", "Contratación", "Mapa")
     }
 
     @Test
@@ -248,7 +244,7 @@ class TownLanguageTest {
     fun `draws the town home in English under none`() {
         show(noScaffold)
 
-        assertDrawn("RIVERTON · TOWN", "In storage", "Building work", "Your town", "Hiring", "Map", "Report")
+        assertDrawn("RIVERTON · TOWN", "In storage", "Building work", "Your town", "Hiring", "Map")
         assertDrawn("You need 300 money and 200 food more.")
         assertNotDrawn("RIVERTON · PUEBLO", "En el almacén", "Obra", "Tu pueblo", "Contratación", "Mapa")
     }

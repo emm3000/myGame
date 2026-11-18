@@ -24,6 +24,7 @@ fun TownRoute(
     viewModel: TownViewModel = viewModel { TownViewModel(towns, sessions, clock) },
     ring: @Composable () -> Unit = {},
     status: @Composable () -> Unit = {},
+    foldedDock: @Composable () -> Unit = {},
     placement: @Composable () -> Unit = {},
 ) {
     val state: TownUiState by viewModel.state.collectAsStateWithLifecycle()
@@ -34,7 +35,6 @@ fun TownRoute(
                 when (effect) {
                     TownEffect.SigningOut -> currentNavigation.onSigningOut()
                     TownEffect.SignedOut -> currentNavigation.onSignedOut()
-                    is TownEffect.HoldoutCheckOpened -> currentNavigation.onHoldoutCheckOpen(effect.band, effect.week)
                 }
             }
         }
@@ -47,13 +47,11 @@ fun TownRoute(
         state = state,
         onIntent = viewModel::onIntent,
         onSchoolOpen = navigation.onSchoolOpen,
-        onReportOpen = navigation.onReportOpen,
         onMapOpen = navigation.onMapOpen,
-        onReviewsOpen = navigation.onReviewsOpen,
-        onLessonOpen = navigation.onLessonOpen,
         modifier = modifier,
         ring = ring,
         status = status,
+        foldedDock = foldedDock,
         placement = placement,
     )
 }

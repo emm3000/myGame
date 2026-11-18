@@ -17,7 +17,6 @@ import kotlin.time.Instant
 
 internal fun TownSnapshot.contentAt(
     now: Instant,
-    gap: Duration,
     mutations: SchoolMutations,
     selected: LessonId?,
 ): SchoolUiState.Content {
@@ -31,7 +30,6 @@ internal fun TownSnapshot.contentAt(
         releasedLessons = releasedLessons.map { lesson: TownSnapshot.ReleasedLesson -> lesson.cardIn(this) },
         studyMark = seasonInForce?.studyMark(),
         nextStep = card,
-        nextStepTime = card.countdown?.timeAt(now, gap),
         start = mutations.start,
         stop = mutations.stop,
         isHoldoutNoteShown = hasBandStarted,
@@ -54,9 +52,6 @@ internal fun TownSnapshot.nearestCountdownAt(now: Instant): Duration? =
         .filter { instant: Instant -> instant > now }
         .minOrNull()
         ?.let { instant: Instant -> instant - now }
-
-private fun NextStepCard.Countdown.timeAt(now: Instant, gap: Duration): SchoolUiState.NextStepTime =
-    SchoolUiState.NextStepTime(remaining = countdownTo(finishesAt = at, now = now), finishesAt = at - gap)
 
 private fun TownSnapshot.schoolLevel(): Int =
     buildings.first { building: TownSnapshot.Building -> building.kind == TownBuildingKind.School }.level

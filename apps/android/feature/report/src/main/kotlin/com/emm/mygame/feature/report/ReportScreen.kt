@@ -18,7 +18,6 @@ import androidx.compose.ui.tooling.preview.PreviewParameter
 import androidx.compose.ui.tooling.preview.PreviewParameterProvider
 import com.emm.mygame.core.designsystem.MyGameBlock
 import com.emm.mygame.core.designsystem.MyGameBlockHue
-import com.emm.mygame.core.designsystem.MyGameButton
 import com.emm.mygame.core.designsystem.MyGameCard
 import com.emm.mygame.core.designsystem.MyGameCountdownGround
 import com.emm.mygame.core.designsystem.MyGameCountdownLine
@@ -37,7 +36,6 @@ import com.emm.mygame.core.designsystem.MyGameTheme
 import com.emm.mygame.core.designsystem.MyGameTypography
 import com.emm.mygame.core.designsystem.PreviewMyGame
 import com.emm.mygame.core.designsystem.formatQuantity
-import com.emm.mygame.core.network.LessonId
 import com.emm.mygame.core.network.TownNews
 import com.emm.mygame.core.ui.ChromePhase
 import com.emm.mygame.core.ui.CopyLanguage
@@ -54,11 +52,10 @@ import kotlin.time.Instant
 fun ReportScreen(
     state: ReportUiState,
     onIntent: (ReportIntent) -> Unit,
-    onReviewsOpen: () -> Unit,
-    onLessonOpen: (LessonId) -> Unit,
     onNewsOpen: () -> Unit,
     onSettingsOpen: () -> Unit,
     modifier: Modifier = Modifier,
+    foldedDock: @Composable () -> Unit = {},
 ) {
     Column(
         verticalArrangement = Arrangement.spacedBy(MyGameSpacing.step6),
@@ -74,6 +71,7 @@ fun ReportScreen(
                 bottom = MyGameSpacing.step8,
             ),
     ) {
+        foldedDock()
         MyGameText(
             label = chromeResource(R.string.report_title),
             style = MyGameTypography.display,
@@ -85,11 +83,7 @@ fun ReportScreen(
             loadingLabel = chromeResource(R.string.report_loading).spoken,
             blocks = reportBlocks,
         ) {
-            ReportState(
-                state = state,
-                onIntent = onIntent,
-                navigation = ReportScreenLinks(onReviewsOpen, onLessonOpen),
-            )
+            ReportState(state = state, onIntent = onIntent)
         }
         if (state != ReportUiState.SigningOut) {
             ReportRows(
@@ -110,13 +104,8 @@ fun ReportScreen(
 private fun isReminderOffered(state: ReportUiState): Boolean =
     state is ReportUiState.Content && state.dueCount == 0 && !state.isReminderOn
 
-private class ReportScreenLinks(
-    val onReviewsOpen: () -> Unit,
-    val onLessonOpen: (LessonId) -> Unit,
-)
-
 @Composable
-private fun ReportState(state: ReportUiState, onIntent: (ReportIntent) -> Unit, navigation: ReportScreenLinks) {
+private fun ReportState(state: ReportUiState, onIntent: (ReportIntent) -> Unit) {
     when (state) {
         ReportUiState.Loading, ReportUiState.SigningOut -> Unit
         ReportUiState.Failed -> MyGameErrorBanner(
@@ -125,7 +114,7 @@ private fun ReportState(state: ReportUiState, onIntent: (ReportIntent) -> Unit, 
             onAction = { onIntent(ReportIntent.RetryTapped) },
         )
         is ReportUiState.Content -> {
-            ReviewsDueSection(content = state, navigation = navigation)
+            ReviewsDueSection(content = state)
             NewsSection(content = state, onIntent = onIntent)
         }
     }
@@ -138,31 +127,19 @@ private val reportBlocks: MyGameSkeletonBlocks = MyGameSkeletonBlocks(
 @Composable
 private fun ReviewsDueSection(
     content: ReportUiState.Content,
-    navigation: ReportScreenLinks,
     modifier: Modifier = Modifier,
 ) {
     val dueCount: Int = content.dueCount
-    val firstUnread: LessonId? = content.firstUnread
     if (dueCount == 0) {
         NothingDue(content = content, modifier = modifier)
         return
     }
-    Column(verticalArrangement = Arrangement.spacedBy(MyGameSpacing.step3), modifier = modifier) {
-        MyGameBlock(hue = MyGameBlockHue.Periwinkle) {
-            MyGameText(
-                label = chromeResource(R.string.report_reviews_due, "count" to formatQuantity(dueCount.toLong())),
-                style = MyGameTypography.display,
-                color = MyGameTheme.colors.onBlock,
-                modifier = Modifier.semantics { heading() },
-            )
-        }
-        MyGameButton(
-            label = chromeResource(
-                if (firstUnread == null) R.string.report_start_reviews else R.string.report_read_words,
-            ),
-            isBusy = false,
-            busyDescription = chromeResource(R.string.report_waiting).spoken,
-            onClick = { if (firstUnread == null) navigation.onReviewsOpen() else navigation.onLessonOpen(firstUnread) },
+    MyGameBlock(hue = MyGameBlockHue.Periwinkle, modifier = modifier) {
+        MyGameText(
+            label = chromeResource(R.string.report_reviews_due, "count" to formatQuantity(dueCount.toLong())),
+            style = MyGameTypography.display,
+            color = MyGameTheme.colors.onBlock,
+            modifier = Modifier.semantics { heading() },
         )
     }
 }
@@ -244,7 +221,6 @@ private val previewUnread: ReportUiState.ReportNews.Unread = ReportUiState.Repor
 
 private val previewContent: ReportUiState.Content = ReportUiState.Content(
     dueCount = 3,
-    firstUnread = null,
     nextReview = null,
     news = previewUnread,
     receivedAt = previewReceivedAt,
@@ -255,7 +231,7 @@ private class ReportUiStates : PreviewParameterProvider<ReportUiState> {
 
     override val values: Sequence<ReportUiState> = sequenceOf(
         previewContent,
-        previewContent.copy(firstUnread = LessonId("lesson-2"), news = ReportUiState.ReportNews.Closed),
+        previewContent.copy(news = ReportUiState.ReportNews.Closed),
         previewContent.copy(
             dueCount = 0,
             nextReview = Instant.parse("2026-11-05T13:30:00Z"),
@@ -275,8 +251,6 @@ private fun ReportScreenPreview(@PreviewParameter(ReportUiStates::class) state: 
         ReportScreen(
             state = state,
             onIntent = {},
-            onReviewsOpen = {},
-            onLessonOpen = {},
             onNewsOpen = {},
             onSettingsOpen = {},
         )
@@ -301,8 +275,6 @@ private fun ReportScreenLanguagePreview(@PreviewParameter(ReportLanguages::class
             ReportScreen(
                 state = previewContent,
                 onIntent = {},
-                onReviewsOpen = {},
-                onLessonOpen = {},
                 onNewsOpen = {},
                 onSettingsOpen = {},
             )

@@ -2,7 +2,6 @@ package com.emm.mygame.feature.school
 
 import androidx.compose.ui.test.assertCountEquals
 import androidx.compose.ui.test.getUnclippedBoundsInRoot
-import androidx.compose.ui.test.hasText
 import androidx.compose.ui.test.junit4.ComposeContentTestRule
 import androidx.compose.ui.test.junit4.createComposeRule
 import androidx.compose.ui.test.onAllNodesWithContentDescription
@@ -13,7 +12,6 @@ import com.emm.mygame.core.designsystem.MyGameTheme
 import com.emm.mygame.core.network.HoldoutCheckWeek
 import com.emm.mygame.core.network.LessonId
 import com.emm.mygame.core.network.NextStep
-import com.emm.mygame.core.network.NextStepCard
 import com.emm.mygame.core.network.PlacementBand
 import com.emm.mygame.core.network.TownLessonRefusal
 import com.emm.mygame.core.network.TownSnapshot
@@ -21,12 +19,7 @@ import com.emm.mygame.core.ui.ChromePhase
 import com.emm.mygame.core.ui.CopyLanguage
 import com.emm.mygame.core.ui.ProvideCopyLanguage
 import com.emm.mygame.core.ui.ScaffoldLanguage
-import java.time.LocalDateTime
-import java.time.ZoneId
-import kotlin.time.Duration
-import kotlin.time.Duration.Companion.days
 import kotlin.time.Duration.Companion.seconds
-import kotlin.time.Instant
 import org.junit.Assert.assertTrue
 import org.junit.Rule
 import org.junit.Test
@@ -76,29 +69,8 @@ class SchoolLanguageTest {
         nextStep = NextStep.LessonRunning(goal = null),
     )
 
-    private val holdoutAhead: TownSnapshot =
-        shelvedAndReleased.copy(nextStep = NextStep.HoldoutCheck(PlacementBand.First, HoldoutCheckWeek.Eighth))
-
-    private val releasedAhead: TownSnapshot =
-        shelvedAndReleased.copy(nextStep = NextStep.ReleasedLesson(secondSet, PlacementBand.Second, 2))
-
     private val dueCheck: HoldoutCheckRowsUiState =
         HoldoutCheckRowsUiState(listOf(HoldoutCheckRow(PlacementBand.First, HoldoutCheckWeek.Eighth)))
-
-    private val localNoonOnNovemberEighth: Instant = Instant.fromEpochMilliseconds(
-        LocalDateTime.of(2026, 11, 8, 12, 0).atZone(ZoneId.systemDefault()).toInstant().toEpochMilli(),
-    )
-
-    private val lessonReadyInThreeDays: SchoolUiState.Content = contentOf(shelvedAndReleased).copy(
-        lessons = emptyList(),
-        nextStep = NextStepCard(
-            line = NextStepCard.Line.Studying,
-            detail = null,
-            countdown = NextStepCard.Countdown.LessonReady(number = 2, at = localNoonOnNovemberEighth),
-            action = NextStepCard.Action.GoToReport,
-        ),
-        nextStepTime = SchoolUiState.NextStepTime(remaining = 3.days, finishesAt = localNoonOnNovemberEighth),
-    )
 
     private val refusedStart: SchoolUiState.Content = contentOf(shelvedAndReleased).copy(
         start = SchoolUiState.LessonRequest.Refused(firstLesson, TownLessonRefusal.StudySlotBusy),
@@ -106,7 +78,6 @@ class SchoolLanguageTest {
 
     private fun contentOf(town: TownSnapshot): SchoolUiState.Content = town.contentAt(
         now = readInstant + 30.seconds,
-        gap = Duration.ZERO,
         mutations = SchoolMutations.none,
         selected = null,
     )
@@ -120,8 +91,6 @@ class SchoolLanguageTest {
                         onIntent = {},
                         onReviewsOpen = {},
                         onLessonOpen = {},
-                        onReportOpen = {},
-                        onHoldoutCheckOpen = { _: PlacementBand, _: HoldoutCheckWeek -> },
                         holdoutChecks = { HoldoutCheckRows(state = dueCheck, onHoldoutCheckOpen = {}) },
                     )
                 }
@@ -226,30 +195,12 @@ class SchoolLanguageTest {
     }
 
     @Test
-    fun `draws the released next step's fixed copy in Spanish under an English title in the English phase`() {
-        show(englishPhase, contentOf(releasedAhead))
-
-        assertDescribed("What is next")
-        assertDrawn(spanishReleasedTitle, "Estudiar las palabras que vuelven")
-        assertNotDrawn("TU SIGUIENTE PASO", englishReleasedTitle, "Study the returning words")
-    }
-
-    @Test
     fun `draws the released lesson under study in Spanish for an es player in the English phase`() {
         show(englishPhase, contentOf(releasedUnderStudy))
 
         assertDrawn("La escuela está estudiando las palabras que vuelven de la banda 2, grupo 2.")
         assertDescribed("Parar el estudio de las palabras que vuelven de la banda 2, grupo 2")
         assertNotDrawn("The school is studying the returning words of band 2, set 2.")
-    }
-
-    @Test
-    fun `draws the holdout next step in Spanish for an es player in the English phase`() {
-        show(englishPhase, contentOf(holdoutAhead))
-
-        assertDrawn("Prueba de palabras de la banda 1")
-        assertNotDrawn("Word check for band 1")
-        composeRule.onAllNodesWithText("Abrir la prueba", useUnmergedTree = true).assertCountEquals(2)
     }
 
     @Test
@@ -279,19 +230,5 @@ class SchoolLanguageTest {
 
         assertDrawn("School", "Try again", "No hemos podido hablar con el servidor. Vuelve a intentarlo en un momento.")
         assertNotDrawn("Volver a intentarlo", "We could not reach the server. Try again in a moment.")
-    }
-
-    @Test
-    fun `writes a later finish day the English way in the English phase`() {
-        show(englishPhase, lessonReadyInThreeDays)
-
-        composeRule.onNode(hasText("Nov 8", substring = true), useUnmergedTree = true).assertExists()
-    }
-
-    @Test
-    fun `writes a later finish day the Spanish way in the Spanish phase`() {
-        show(spanishPhase, lessonReadyInThreeDays)
-
-        composeRule.onNode(hasText("8 nov", substring = true), useUnmergedTree = true).assertExists()
     }
 }

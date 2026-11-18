@@ -61,8 +61,6 @@ class TownScreenTest {
 
     private var schoolOpens: Int = 0
 
-    private var reportOpens: Int = 0
-
     private var mapOpens: Int = 0
 
     private val farmOffer: TownUiState.PlaceCard = TownUiState.PlaceCard(
@@ -100,8 +98,6 @@ class TownScreenTest {
         slot = TownUiState.SlotLine.Idle,
         waitingList = emptyList(),
         places = listOf(farmOffer),
-        nextStep = caughtUpCard,
-        nextStepTime = null,
         goal = null,
         tip = null,
         start = TownUiState.StartStatus.Idle,
@@ -703,13 +699,12 @@ class TownScreenTest {
         riverton.copy(places = listOf(farmOffer.copy(block = reason)))
 
     @Test
-    fun `opens the school and the Report from the two doors`() {
+    fun `opens the school from its door`() {
         show(riverton.copy(places = emptyList()))
 
         composeRule.onNodeWithText("Escuela").performClick()
-        composeRule.onNodeWithText("Informe").performClick()
 
-        assertEquals(1 to 1, schoolOpens to reportOpens)
+        assertEquals(1, schoolOpens)
     }
 
     @Test
@@ -823,10 +818,7 @@ class TownScreenTest {
                     state = state,
                     onIntent = { intent: TownIntent -> intents += intent },
                     onSchoolOpen = { schoolOpens += 1 },
-                    onReportOpen = { reportOpens += 1 },
                     onMapOpen = { mapOpens += 1 },
-                    onReviewsOpen = { },
-                    onLessonOpen = { },
                 )
             }
         }

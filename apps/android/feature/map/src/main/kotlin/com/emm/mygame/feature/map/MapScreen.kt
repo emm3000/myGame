@@ -45,7 +45,12 @@ import kotlin.time.Duration.Companion.minutes
 import kotlin.time.Instant
 
 @Composable
-fun MapScreen(state: MapUiState, onIntent: (MapIntent) -> Unit, modifier: Modifier = Modifier) {
+fun MapScreen(
+    state: MapUiState,
+    onIntent: (MapIntent) -> Unit,
+    modifier: Modifier = Modifier,
+    foldedDock: @Composable () -> Unit = {},
+) {
     Column(
         verticalArrangement = Arrangement.spacedBy(MyGameSpacing.step6),
         modifier = modifier
@@ -60,6 +65,7 @@ fun MapScreen(state: MapUiState, onIntent: (MapIntent) -> Unit, modifier: Modifi
                 bottom = MyGameSpacing.step8,
             ),
     ) {
+        foldedDock()
         MyGameText(
             label = chromeResource(R.string.map_title),
             style = MyGameTypography.display,

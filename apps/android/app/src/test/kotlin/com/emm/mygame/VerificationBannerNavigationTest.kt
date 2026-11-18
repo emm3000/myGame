@@ -145,14 +145,14 @@ class VerificationBannerNavigationTest {
     }
 
     @Test
-    fun `draws the banner at the foot of the school, under the frame's header`() {
+    fun `draws the banner at the foot of the school, under the dock`() {
         signedIn(session = unverifiedSession, town = TownReadResult.Read(heldTown))
         waitForLine(BANNER_LINE)
 
         door("Escuela").performClick()
-        waitForLine(BACK_LINK)
+        waitForLine(TOWN_DOOR)
 
-        assertTrue(boundsOf(BACK_LINK).bottom <= boundsOf(BANNER_LINE).top)
+        assertTrue(boundsOf(TOWN_DOOR).bottom <= boundsOf(BANNER_LINE).top)
         assertTrue(isResendAtTheFoot())
     }
 
@@ -247,7 +247,7 @@ class VerificationBannerNavigationTest {
 
     private companion object {
         const val TOWN_HEADER: String = "RIVERTON · PUEBLO"
-        const val BACK_LINK: String = "PUEBLO"
+        const val TOWN_DOOR: String = "Pueblo"
         const val BANNER_LINE: String = "Confirma tu correo"
         const val RESEND: String = "Reenviar"
         const val SESSION_READS: Int = 2

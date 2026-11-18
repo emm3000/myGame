@@ -47,7 +47,7 @@ class MainActivityReminderTapTest {
     fun `a tap of the words reminder opens the Report above the town`() {
         Robolectric.buildActivity(MainActivity::class.java, tapOf(StudyReminderLine.Cards)).setup()
 
-        waitForLine(BACK_TO_TOWN)
+        waitForLine(TOWN_DOOR)
     }
 
     @Test
@@ -57,7 +57,7 @@ class MainActivityReminderTapTest {
 
         activity.newIntent(tapOf(StudyReminderLine.Cards))
 
-        waitForLine(BACK_TO_TOWN)
+        waitForLine(TOWN_DOOR)
     }
 
     @Test
@@ -73,8 +73,8 @@ class MainActivityReminderTapTest {
     fun `a recreated activity opens no reminder line again`() {
         val activity: ActivityController<MainActivity> =
             Robolectric.buildActivity(MainActivity::class.java, tapOf(StudyReminderLine.Cards)).setup()
-        waitForLine(BACK_TO_TOWN)
-        composeRule.onNodeWithText(BACK_TO_TOWN).performClick()
+        waitForLine(TOWN_DOOR)
+        composeRule.onNodeWithText(TOWN_DOOR).performClick()
         waitFor(townLoading)
 
         composeRule.runOnIdle { activity.recreate() }
@@ -97,16 +97,16 @@ class MainActivityReminderTapTest {
 
     private fun assertOnTheTownAlone() {
         composeRule.waitUntil(WAIT_MILLIS) {
-            listOf(townLoading, hasText(BACK_TO_TOWN)).any { matcher: SemanticsMatcher ->
+            listOf(townLoading, hasText(TOWN_DOOR)).any { matcher: SemanticsMatcher ->
                 composeRule.onAllNodes(matcher).fetchSemanticsNodes().isNotEmpty()
             }
         }
-        composeRule.onAllNodes(hasText(BACK_TO_TOWN)).assertCountEquals(0)
+        composeRule.onAllNodes(hasText(TOWN_DOOR)).assertCountEquals(0)
     }
 
     private companion object {
         const val WAIT_MILLIS: Long = 5_000
-        const val BACK_TO_TOWN: String = "PUEBLO"
+        const val TOWN_DOOR: String = "Pueblo"
         const val TOWN_LOADING: String = "Estamos leyendo tu pueblo…"
     }
 }

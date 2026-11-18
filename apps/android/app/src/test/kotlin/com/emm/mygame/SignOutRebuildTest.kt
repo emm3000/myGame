@@ -1,6 +1,5 @@
 package com.emm.mygame
 
-import androidx.compose.ui.test.assertIsNotEnabled
 import androidx.compose.ui.test.hasText
 import androidx.compose.ui.test.junit4.ComposeTestRule
 import androidx.compose.ui.test.junit4.createEmptyComposeRule
@@ -94,13 +93,6 @@ class SignOutRebuildTest {
         composeRule.waitUntil(WAIT_MILLIS) {
             composeRule.onAllNodes(hasText(line)).fetchSemanticsNodes().isNotEmpty()
         }
-    }
-
-    @Test
-    fun `keeps the back link disabled when the activity is recreated mid-sign-out`() {
-        signingOutOnARecreatedReport()
-
-        composeRule.onNodeWithText("PUEBLO").assertIsNotEnabled()
     }
 
     @Test

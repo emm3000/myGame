@@ -56,12 +56,11 @@ class ReportRouteTest {
                     reminders = reminders,
                     clock = frozenClock,
                     navigation = ReportNavigation(
-                        onReviewsOpen = {},
-                        onLessonOpen = {},
                         onNewsOpen = {},
                         onSettingsOpen = {},
                         onSigningOut = { signingOuts += 1 },
                         onSignedOut = {},
+                        onNewsClosed = {},
                     ),
                     viewModel = viewModel,
                 )

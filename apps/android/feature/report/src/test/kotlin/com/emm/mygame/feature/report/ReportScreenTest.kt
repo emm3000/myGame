@@ -19,7 +19,6 @@ import androidx.compose.ui.test.junit4.ComposeContentTestRule
 import androidx.compose.ui.test.junit4.createComposeRule
 import androidx.compose.ui.test.onAllNodesWithTag
 import androidx.compose.ui.test.onAllNodesWithText
-import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
 import androidx.compose.ui.test.performScrollTo
@@ -34,7 +33,6 @@ import com.emm.mygame.core.designsystem.INK_PILL
 import com.emm.mygame.core.designsystem.MyGameBlockHue
 import com.emm.mygame.core.designsystem.MyGameTheme
 import com.emm.mygame.core.designsystem.OUTLINED_PILL
-import com.emm.mygame.core.network.LessonId
 import com.emm.mygame.core.network.TownAmount
 import com.emm.mygame.core.network.TownNews
 import com.emm.mygame.core.network.TownResourceKind
@@ -58,10 +56,6 @@ class ReportScreenTest {
 
     private val intents: MutableList<ReportIntent> = mutableListOf()
 
-    private var reviewOpens: Int = 0
-
-    private val lessonOpens: MutableList<LessonId> = mutableListOf()
-
     private var newsOpens: Int = 0
 
     private var settingsOpens: Int = 0
@@ -79,8 +73,6 @@ class ReportScreenTest {
                 ReportScreen(
                     state = shown.value,
                     onIntent = { intents += it },
-                    onReviewsOpen = { reviewOpens += 1 },
-                    onLessonOpen = { lesson: LessonId -> lessonOpens += lesson },
                     onNewsOpen = { newsOpens += 1 },
                     onSettingsOpen = { settingsOpens += 1 },
                 )
@@ -95,13 +87,11 @@ class ReportScreenTest {
     private fun contentWith(
         dueCount: Int = 0,
         news: ReportUiState.ReportNews = ReportUiState.ReportNews.None,
-        firstUnread: LessonId? = null,
         nextReview: Instant? = null,
         receivedAt: Instant = readInstant,
         isReminderOn: Boolean = true,
     ): ReportUiState.Content = ReportUiState.Content(
         dueCount = dueCount,
-        firstUnread = firstUnread,
         nextReview = nextReview,
         news = news,
         receivedAt = receivedAt,
@@ -168,39 +158,6 @@ class ReportScreenTest {
         show(contentWith(dueCount = 1200))
 
         composeRule.onNodeWithText("Repasos pendientes: 1\u202F200").assertIsDisplayed()
-    }
-
-    @Test
-    fun `opens the reviews from the Report`() {
-        show(contentWith(dueCount = 3))
-
-        composeRule.onNodeWithText("Empezar los repasos").performClick()
-
-        assertEquals(1, reviewOpens)
-    }
-
-    @Test
-    fun `opens the unread lesson from the Report`() {
-        show(contentWith(dueCount = 3, firstUnread = unreadLesson))
-
-        composeRule.onNodeWithText("Leer las palabras").performClick()
-
-        assertEquals(listOf(unreadLesson), lessonOpens)
-    }
-
-    @Test
-    fun `keeps the reviews behind the unread words`() {
-        show(contentWith(dueCount = 3, firstUnread = unreadLesson))
-
-        composeRule.onAllNodesWithText("Empezar los repasos").assertCountEquals(0)
-    }
-
-    @Test
-    fun `draws no way into the reviews when none is due`() {
-        show(contentWith(dueCount = 0))
-
-        composeRule.onNodeWithText("No tienes repasos pendientes ahora.").assertIsDisplayed()
-        composeRule.onAllNodesWithText("Empezar los repasos").assertCountEquals(0)
     }
 
     @Test
@@ -422,20 +379,8 @@ class ReportScreenTest {
 
         val inTheBlock: SemanticsMatcher = hasAnyAncestor(SemanticsMatcher.keyIsDefined(BLOCK_HUE))
         composeRule.onNode(SemanticsMatcher.keyIsDefined(BLOCK_HUE)).assertExists()
-        composeRule.onAllNodesWithTag(INK_PILL).assertCountEquals(1)
         composeRule.onAllNodes(hasTestTag(INK_PILL) and inTheBlock).assertCountEquals(0)
         composeRule.onAllNodes(hasTestTag(OUTLINED_PILL) and inTheBlock).assertCountEquals(0)
-    }
-
-    @Test
-    fun `sets the pill under the block`() {
-        show(contentWith(dueCount = 3))
-
-        val blockBottom: Dp = composeRule.onNode(SemanticsMatcher.keyIsDefined(BLOCK_HUE))
-            .getUnclippedBoundsInRoot().bottom
-        val pillTop: Dp = composeRule.onNodeWithTag(INK_PILL).getUnclippedBoundsInRoot().top
-
-        assertTrue(blockBottom <= pillTop)
     }
 
     @Test
@@ -444,13 +389,6 @@ class ReportScreenTest {
 
         composeRule.onAllNodesWithTag(INK_PILL).assertCountEquals(0)
         composeRule.onAllNodes(SemanticsMatcher.keyIsDefined(BLOCK_HUE)).assertCountEquals(0)
-    }
-
-    @Test
-    fun `holds one ink pill on a Report with reviews due and unread words`() {
-        show(contentWith(dueCount = 3, news = unreadFarm, firstUnread = LessonId("lesson-1")))
-
-        composeRule.onAllNodesWithTag(INK_PILL).assertCountEquals(1)
     }
 
     @Test

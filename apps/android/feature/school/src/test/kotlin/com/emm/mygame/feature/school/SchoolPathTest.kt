@@ -19,14 +19,13 @@ import androidx.compose.ui.test.performScrollTo
 import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.text.TextLayoutResult
 import androidx.compose.ui.unit.Dp
-import com.emm.mygame.core.designsystem.INK_PILL
 import com.emm.mygame.core.designsystem.MyGameTheme
+import com.emm.mygame.core.designsystem.OUTLINED_PILL
 import com.emm.mygame.core.network.LessonId
 import com.emm.mygame.core.network.NextStep
 import com.emm.mygame.core.network.TownResourceKind
 import com.emm.mygame.core.network.TownSnapshot
 import com.emm.mygame.core.network.WordStanding
-import kotlin.time.Duration
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertFalse
 import org.junit.Assert.assertTrue
@@ -92,7 +91,7 @@ class SchoolPathTest {
     private fun topOf(text: String): Dp = composeRule.onNodeWithText(text).getUnclippedBoundsInRoot().top
 
     private fun show(town: TownSnapshot) {
-        val state: SchoolUiState = town.contentAt(readInstant, Duration.ZERO, SchoolMutations.none, selected = null)
+        val state: SchoolUiState = town.contentAt(readInstant, SchoolMutations.none, selected = null)
         composeRule.setContent {
             MyGameTheme {
                 SchoolScreen(
@@ -100,8 +99,6 @@ class SchoolPathTest {
                     onIntent = { },
                     onReviewsOpen = { reviewOpens += 1 },
                     onLessonOpen = { lesson: LessonId -> lessonOpens += lesson },
-                    onReportOpen = { },
-                    onHoldoutCheckOpen = { _, _ -> },
                 )
             }
         }
@@ -184,7 +181,7 @@ class SchoolPathTest {
         show(townOf(lessons = listOf(lessonOf(isStudied = true), secondLessonOpen)))
 
         val blockTop: Dp = topOf("Lección 2")
-        val pillTop: Dp = composeRule.onNodeWithTag(INK_PILL).getUnclippedBoundsInRoot().top
+        val pillTop: Dp = composeRule.onNodeWithTag(OUTLINED_PILL).getUnclippedBoundsInRoot().top
         assertTrue(blockTop < pillTop)
         assertTrue(pillTop < topOf("Palabras en aprendizaje: 0 de 10"))
         assertTrue(topOf("Palabras en aprendizaje: 0 de 10") < topOf("Lección 1"))
@@ -274,20 +271,6 @@ class SchoolPathTest {
                 nextStep = reviewsDue,
             ),
         )
-
-        composeRule.onAllNodesWithText("Empezar los repasos").assertCountEquals(1)
-    }
-
-    @Test
-    fun `shows one way to the words with every lesson studied and reviews due`() {
-        show(townOf(lessons = listOf(lessonOf(isStudied = true)), nextStep = unreadFirstLesson))
-
-        composeRule.onAllNodesWithText("Leer las palabras", substring = true).assertCountEquals(1)
-    }
-
-    @Test
-    fun `shows one way to the reviews with every lesson studied and reviews due`() {
-        show(townOf(lessons = listOf(lessonOf(isStudied = true)), nextStep = reviewsDue))
 
         composeRule.onAllNodesWithText("Empezar los repasos").assertCountEquals(1)
     }

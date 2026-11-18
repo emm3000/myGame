@@ -8,13 +8,11 @@ import androidx.compose.ui.test.onFirst
 import androidx.compose.ui.test.onNodeWithContentDescription
 import androidx.compose.ui.test.onNodeWithText
 import com.emm.mygame.core.designsystem.MyGameTheme
-import com.emm.mygame.core.network.HoldoutCheckWeek
 import com.emm.mygame.core.network.LessonId
 import com.emm.mygame.core.network.LessonName
 import com.emm.mygame.core.network.NextStep
 import com.emm.mygame.core.network.PlacementBand
 import com.emm.mygame.core.network.TownSnapshot
-import kotlin.time.Duration
 import kotlin.time.Duration.Companion.seconds
 import kotlin.time.Instant
 import org.junit.Assert.assertEquals
@@ -117,7 +115,7 @@ class SchoolReleasedSlotTest {
     }
 
     private fun contentAt(now: Instant): SchoolUiState.Content =
-        releasedRunning.contentAt(now = now, gap = Duration.ZERO, mutations = SchoolMutations.none, selected = null)
+        releasedRunning.contentAt(now = now, mutations = SchoolMutations.none, selected = null)
 
     private fun show(state: SchoolUiState) {
         composeRule.setContent {
@@ -127,8 +125,6 @@ class SchoolReleasedSlotTest {
                     onIntent = {},
                     onReviewsOpen = {},
                     onLessonOpen = {},
-                    onReportOpen = {},
-                    onHoldoutCheckOpen = { _: PlacementBand, _: HoldoutCheckWeek -> },
                 )
             }
         }

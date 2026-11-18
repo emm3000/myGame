@@ -296,10 +296,7 @@ class TownOfficeScreenTest {
                     state = homeWith(shown),
                     onIntent = { intent: TownIntent -> intents += intent },
                     onSchoolOpen = { },
-                    onReportOpen = { },
                     onMapOpen = {},
-                    onReviewsOpen = { },
-                    onLessonOpen = { },
                 )
             }
         }
@@ -316,8 +313,6 @@ class TownOfficeScreenTest {
         slot = TownUiState.SlotLine.Idle,
         waitingList = emptyList(),
         places = emptyList(),
-        nextStep = caughtUpCard,
-        nextStepTime = null,
         goal = null,
         tip = null,
         start = TownUiState.StartStatus.Idle,

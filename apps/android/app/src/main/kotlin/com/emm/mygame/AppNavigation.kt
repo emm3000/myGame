@@ -2,28 +2,20 @@ package com.emm.mygame
 
 import android.content.Context
 import androidx.compose.foundation.background
-import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.WindowInsetsSides
-import androidx.compose.foundation.layout.consumeWindowInsets
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.fitInside
-import androidx.compose.foundation.layout.ime
 import androidx.compose.foundation.layout.navigationBars
 import androidx.compose.foundation.layout.only
-import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.statusBars
-import androidx.compose.foundation.layout.statusBarsPadding
-import androidx.compose.foundation.layout.union
 import androidx.compose.foundation.layout.windowInsetsPadding
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.State
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.retain.retain
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.layout.WindowInsetsRulers
 import androidx.compose.ui.platform.LocalContext
 import androidx.lifecycle.compose.LifecycleStartEffect
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
@@ -36,14 +28,11 @@ import androidx.navigation3.runtime.entryProvider
 import androidx.navigation3.runtime.rememberNavBackStack
 import androidx.navigation3.runtime.rememberSaveableStateHolderNavEntryDecorator
 import androidx.navigation3.ui.NavDisplay
-import com.emm.mygame.core.designsystem.MyGameBackLink
-import com.emm.mygame.core.designsystem.MyGameHeader
-import com.emm.mygame.core.designsystem.MyGameSpacing
+import com.emm.mygame.core.designsystem.MyGameDockGo
 import com.emm.mygame.core.designsystem.MyGameTheme
 import com.emm.mygame.core.network.LessonId
 import com.emm.mygame.core.network.PlayerLanguage
 import com.emm.mygame.core.projection.StudyReminderLine
-import com.emm.mygame.core.ui.chromeResource
 import com.emm.mygame.feature.map.MapRoute
 import com.emm.mygame.feature.placement.HoldoutCheckRoute
 import com.emm.mygame.feature.placement.PlacementOfferRoute
@@ -58,6 +47,9 @@ import com.emm.mygame.feature.school.LessonWalk
 import com.emm.mygame.feature.school.LessonWordsNavigation
 import com.emm.mygame.feature.school.LessonWordsRoute
 import com.emm.mygame.feature.school.SchoolRoute
+import com.emm.mygame.feature.school.SchoolUiState
+import com.emm.mygame.feature.school.SchoolViewModel
+import com.emm.mygame.feature.school.schoolStudyGo
 import com.emm.mygame.feature.signin.ForgotPasswordRoute
 import com.emm.mygame.feature.signin.SettingsRoute
 import com.emm.mygame.feature.signin.SignInRoute
@@ -93,10 +85,10 @@ internal fun AppNavigation(
         status.onIntent(TownStatusIntent.ScreenShown(shown.statusScreen()))
         onStopOrDispose { status.onIntent(TownStatusIntent.ScreenHidden) }
     }
-    val statusState: TownStatusUiState by status.state.collectAsStateWithLifecycle()
+    val statusState: State<TownStatusUiState> = status.state.collectAsStateWithLifecycle()
     val townStatus: @Composable () -> Unit = {
         TownStatus(
-            state = statusState,
+            state = statusState.value,
             onNoticeClose = { status.onIntent(TownStatusIntent.NoticeClosed) },
             onLessonOpen = { lesson: LessonId -> navigator.openLesson(lesson, walked = emptyList()) },
             onReviewsOpen = navigator::openReviews,
@@ -112,7 +104,9 @@ internal fun AppNavigation(
             dependencies = dependencies,
             navigator = navigator,
             backStack = backStack,
-            townStatus = townStatus,
+            chrome = { navigator: Navigator ->
+                SignedInChrome(dependencies, navigator, statusState, status::onIntent, townStatus)
+            },
             modifier = Modifier.weight(1f),
         )
         val isSessionOpen: Boolean = shown.statusScreen() != TownStatusScreen.Outside
@@ -128,7 +122,7 @@ private fun AppScreens(
     dependencies: AppDependencies,
     navigator: Navigator,
     backStack: NavBackStack<NavKey>,
-    townStatus: @Composable () -> Unit,
+    chrome: (Navigator) -> SignedInChrome,
     modifier: Modifier = Modifier,
 ) {
     NavDisplay(
@@ -158,7 +152,7 @@ private fun AppScreens(
             entry<Destination.ForgotPassword> {
                 ForgotPasswordRoute(sessions = dependencies.sessions, onSignInOpen = navigator::openSignIn)
             }
-            signedInEntries(SignedInChrome(dependencies, navigator, townStatus))
+            signedInEntries(chrome(navigator))
         },
         modifier = modifier,
     )
@@ -178,7 +172,7 @@ private fun EntryProviderScope<NavKey>.signedInEntries(chrome: SignedInChrome) {
     lessonWordsEntry(chrome)
     entry<Destination.Review> {
         SignedInFrame(
-            isTownHome = false,
+            kind = FrameKind.Task,
             doesScreenReadTown = true,
             chrome = chrome,
         ) {
@@ -198,26 +192,23 @@ private fun EntryProviderScope<NavKey>.townEntry(chrome: SignedInChrome) {
     val navigator: Navigator = chrome.navigator
     entry<Destination.Town> {
         SignedInFrame(
-            isTownHome = true,
+            kind = FrameKind.Home,
             doesScreenReadTown = true,
             chrome = chrome,
-        ) {
+        ) { frame: ScreenFrame ->
             TownRoute(
                 towns = dependencies.towns,
                 sessions = dependencies.sessions,
                 clock = dependencies.clock,
                 navigation = TownNavigation(
                     onSchoolOpen = navigator::openSchool,
-                    onReportOpen = navigator::openReport,
                     onMapOpen = navigator::openMap,
-                    onReviewsOpen = navigator::openReviews,
-                    onLessonOpen = { lesson: LessonId -> navigator.openLesson(lesson, walked = emptyList()) },
-                    onHoldoutCheckOpen = navigator::openHoldoutCheck,
                     onSigningOut = navigator::signingOut,
                     onSignedOut = { navigator.signedOut(isSessionEnded = false) },
                 ),
                 ring = { RetainedWordsRing(towns = dependencies.towns, doesScreenReadTown = true) },
-                status = chrome.status,
+                status = chrome.banner,
+                foldedDock = frame.foldedDock,
                 placement = {
                     PlacementOfferRoute(
                         placements = dependencies.placements,
@@ -233,19 +224,23 @@ private fun EntryProviderScope<NavKey>.schoolEntry(chrome: SignedInChrome) {
     val dependencies: AppDependencies = chrome.dependencies
     val navigator: Navigator = chrome.navigator
     entry<Destination.School> {
+        val school: SchoolViewModel = viewModel { SchoolViewModel(dependencies.towns, dependencies.clock) }
+        val schoolState: State<SchoolUiState> = school.state.collectAsStateWithLifecycle()
         SignedInFrame(
-            isTownHome = false,
+            kind = FrameKind.Place,
             doesScreenReadTown = true,
             chrome = chrome,
-        ) {
+            studyInPlace = { number: Int -> schoolStudyGo(schoolState.value, number, school::onIntent) },
+        ) { frame: ScreenFrame ->
             SchoolRoute(
                 towns = dependencies.towns,
                 clock = dependencies.clock,
                 onNoTown = navigator::openTown,
                 onReviewsOpen = navigator::openReviews,
                 onLessonOpen = { lesson: LessonId -> navigator.openLesson(lesson, walked = emptyList()) },
-                onReportOpen = navigator::openReport,
-                onHoldoutCheckOpen = navigator::openHoldoutCheck,
+                onLessonStart = frame.onAnswered,
+                viewModel = school,
+                foldedDock = frame.foldedDock,
                 holdoutChecks = {
                     HoldoutCheckRowsRoute(
                         holdoutChecks = dependencies.holdoutChecks,
@@ -262,23 +257,23 @@ private fun EntryProviderScope<NavKey>.reportEntry(chrome: SignedInChrome) {
     val navigator: Navigator = chrome.navigator
     entry<Destination.Report> {
         SignedInFrame(
-            isTownHome = false,
+            kind = FrameKind.Place,
             doesScreenReadTown = false,
             chrome = chrome,
-        ) {
+        ) { frame: ScreenFrame ->
             ReportRoute(
                 reports = dependencies.reports,
                 sessions = dependencies.sessions,
                 reminders = dependencies.studyReminders,
                 clock = dependencies.clock,
                 navigation = ReportNavigation(
-                    onReviewsOpen = navigator::openReviews,
-                    onLessonOpen = { lesson: LessonId -> navigator.openLesson(lesson, walked = emptyList()) },
                     onNewsOpen = navigator::openNews,
                     onSettingsOpen = navigator::openSettings,
                     onSigningOut = navigator::signingOut,
                     onSignedOut = { navigator.signedOut(isSessionEnded = false) },
+                    onNewsClosed = frame.onAnswered,
                 ),
+                foldedDock = frame.foldedDock,
             )
         }
     }
@@ -288,11 +283,11 @@ private fun EntryProviderScope<NavKey>.newsEntry(chrome: SignedInChrome) {
     val dependencies: AppDependencies = chrome.dependencies
     entry<Destination.News> {
         SignedInFrame(
-            isTownHome = false,
+            kind = FrameKind.Place,
             doesScreenReadTown = false,
             chrome = chrome,
-        ) {
-            NewsRoute(reports = dependencies.reports, clock = dependencies.clock)
+        ) { frame: ScreenFrame ->
+            NewsRoute(reports = dependencies.reports, clock = dependencies.clock, foldedDock = frame.foldedDock)
         }
     }
 }
@@ -302,10 +297,10 @@ private fun EntryProviderScope<NavKey>.settingsEntry(chrome: SignedInChrome) {
     val navigator: Navigator = chrome.navigator
     entry<Destination.Settings> {
         SignedInFrame(
-            isTownHome = false,
+            kind = FrameKind.Place,
             doesScreenReadTown = false,
             chrome = chrome,
-        ) {
+        ) { frame: ScreenFrame ->
             val context: Context = LocalContext.current
             SettingsRoute(
                 sessions = dependencies.sessions,
@@ -315,6 +310,7 @@ private fun EntryProviderScope<NavKey>.settingsEntry(chrome: SignedInChrome) {
                 rememberNotificationAsk = { onAnswer: (Boolean) -> Unit -> rememberNotificationAsk(onAnswer) },
                 onTownOpen = navigator::openTown,
                 onNotificationSettingsOpen = { context.openNotificationSettings() },
+                foldedDock = frame.foldedDock,
             )
         }
     }
@@ -325,11 +321,16 @@ private fun EntryProviderScope<NavKey>.mapEntry(chrome: SignedInChrome) {
     val navigator: Navigator = chrome.navigator
     entry<Destination.Map> {
         SignedInFrame(
-            isTownHome = false,
+            kind = FrameKind.Place,
             doesScreenReadTown = true,
             chrome = chrome,
-        ) {
-            MapRoute(towns = dependencies.towns, clock = dependencies.clock, onNoTown = navigator::openTown)
+        ) { frame: ScreenFrame ->
+            MapRoute(
+                towns = dependencies.towns,
+                clock = dependencies.clock,
+                onNoTown = navigator::openTown,
+                foldedDock = frame.foldedDock,
+            )
         }
     }
 }
@@ -339,7 +340,7 @@ private fun EntryProviderScope<NavKey>.placementEntry(chrome: SignedInChrome) {
     val navigator: Navigator = chrome.navigator
     entry<Destination.Placement> {
         SignedInFrame(
-            isTownHome = false,
+            kind = FrameKind.Task,
             doesScreenReadTown = false,
             chrome = chrome,
         ) {
@@ -353,7 +354,7 @@ private fun EntryProviderScope<NavKey>.holdoutCheckEntry(chrome: SignedInChrome)
     val navigator: Navigator = chrome.navigator
     entry<Destination.HoldoutCheck> { check: Destination.HoldoutCheck ->
         SignedInFrame(
-            isTownHome = false,
+            kind = FrameKind.Task,
             doesScreenReadTown = false,
             chrome = chrome,
         ) {
@@ -372,7 +373,7 @@ private fun EntryProviderScope<NavKey>.lessonWordsEntry(chrome: SignedInChrome) 
     val navigator: Navigator = chrome.navigator
     entry<Destination.LessonWords> { shown: Destination.LessonWords ->
         SignedInFrame(
-            isTownHome = false,
+            kind = FrameKind.Task,
             doesScreenReadTown = true,
             chrome = chrome,
         ) {
@@ -394,60 +395,25 @@ private fun EntryProviderScope<NavKey>.lessonWordsEntry(chrome: SignedInChrome) 
 
 @Composable
 private fun SignedInFrame(
-    isTownHome: Boolean,
+    kind: FrameKind,
     doesScreenReadTown: Boolean,
     chrome: SignedInChrome,
     modifier: Modifier = Modifier,
-    content: @Composable () -> Unit,
+    studyInPlace: @Composable (Int) -> MyGameDockGo? = { null },
+    content: @Composable (ScreenFrame) -> Unit,
 ) {
     val language: PlayerLanguage? by chrome.dependencies.playerLanguage.collectAsStateWithLifecycle()
     InPlayerLanguage(language = rememberLastKnown(language)) {
-        FramedScreen(isTownHome = isTownHome, doesScreenReadTown = doesScreenReadTown, chrome = chrome, modifier) {
-            content()
-        }
+        FramedScreen(
+            kind = kind,
+            doesScreenReadTown = doesScreenReadTown,
+            chrome = chrome,
+            modifier = modifier,
+            studyInPlace = studyInPlace,
+            content = content,
+        )
     }
 }
-
-@Composable
-private fun FramedScreen(
-    isTownHome: Boolean,
-    doesScreenReadTown: Boolean,
-    chrome: SignedInChrome,
-    modifier: Modifier = Modifier,
-    content: @Composable () -> Unit,
-) {
-    val framedInsets: WindowInsets =
-        if (isTownHome) WindowInsets.ime else WindowInsets.ime.union(WindowInsets.statusBars)
-    Column(modifier = modifier.fillMaxSize().background(MyGameTheme.colors.surface)) {
-        if (!isTownHome) {
-            MyGameHeader(
-                modifier = Modifier.statusBarsPadding().padding(horizontal = MyGameSpacing.step4),
-                end = { RetainedWordsRing(towns = chrome.dependencies.towns, doesScreenReadTown = doesScreenReadTown) },
-            ) {
-                MyGameBackLink(
-                    label = chromeResource(R.string.navigation_town),
-                    isEnabled = chrome.navigator.areLinksEnabled,
-                    onClick = chrome.navigator::openTown,
-                )
-            }
-            chrome.status()
-        }
-        Box(
-            modifier = Modifier
-                .weight(1f)
-                .fitInside(WindowInsetsRulers.Ime.current)
-                .consumeWindowInsets(framedInsets),
-        ) {
-            content()
-        }
-    }
-}
-
-private class SignedInChrome(
-    val dependencies: AppDependencies,
-    val navigator: Navigator,
-    val status: @Composable () -> Unit,
-)
 
 private fun NavKey?.statusScreen(): TownStatusScreen = when (val destination: Destination? = this as? Destination) {
     null, is Destination.SignIn, Destination.SignUp, Destination.ForgotPassword -> TownStatusScreen.Outside

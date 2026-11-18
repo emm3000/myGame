@@ -62,10 +62,7 @@ class TownNamingArtTest {
                     state = TownUiState.Naming("", TownUiState.NamingStatus.Idle),
                     onIntent = {},
                     onSchoolOpen = {},
-                    onReportOpen = {},
                     onMapOpen = {},
-                    onReviewsOpen = {},
-                    onLessonOpen = {},
                 )
             }
         }

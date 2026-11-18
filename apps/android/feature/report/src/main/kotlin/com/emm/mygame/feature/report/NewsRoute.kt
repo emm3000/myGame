@@ -13,8 +13,9 @@ fun NewsRoute(
     reports: ReportRepository,
     clock: Clock,
     modifier: Modifier = Modifier,
+    foldedDock: @Composable () -> Unit = {},
     viewModel: NewsViewModel = viewModel { NewsViewModel(reports, clock) },
 ) {
     val state: NewsUiState by viewModel.state.collectAsStateWithLifecycle()
-    NewsScreen(state = state, onIntent = viewModel::onIntent, modifier = modifier)
+    NewsScreen(state = state, onIntent = viewModel::onIntent, modifier = modifier, foldedDock = foldedDock)
 }

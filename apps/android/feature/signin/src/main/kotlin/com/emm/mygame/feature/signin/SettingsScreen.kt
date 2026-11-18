@@ -39,6 +39,7 @@ fun SettingsScreen(
     onTownOpen: () -> Unit,
     onNotificationSettingsOpen: () -> Unit,
     modifier: Modifier = Modifier,
+    foldedDock: @Composable () -> Unit = {},
 ) {
     val title: String = stringResource(R.string.settings_title)
     Column(
@@ -55,6 +56,7 @@ fun SettingsScreen(
                 bottom = MyGameSpacing.step8,
             ),
     ) {
+        foldedDock()
         MyGameText(
             text = title,
             style = MyGameTypography.display,

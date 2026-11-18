@@ -5,4 +5,6 @@ sealed interface ReportEffect {
     data object SigningOut : ReportEffect
 
     data object SignedOut : ReportEffect
+
+    data object NewsClosed : ReportEffect
 }
