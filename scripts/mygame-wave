@@ -18,8 +18,8 @@ repo="${0:A:h:h}"
 
 names=()
 for spec in "$@"; do
-  IFS=':' read -r name model effort extra <<< "$spec"
-  if [[ -z "${name:-}" || -z "${model:-}" || -z "${effort:-}" || -n "${extra:-}" ]]; then
+  IFS=':' read -r name model effort <<< "$spec"
+  if [[ "$spec" == *:*:*:* || -z "${name:-}" || -z "${model:-}" || -z "${effort:-}" ]]; then
     echo "bad spec: $spec (expected name:model:effort)" >&2
     exit 64
   fi
