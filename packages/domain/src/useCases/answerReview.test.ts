@@ -901,6 +901,23 @@ describe('answerReview', () => {
     })
   })
 
+  it('opens no level when the 10th stable word lapses', async () => {
+    const { dependencies } = arrange(
+      [...stableCardsOf(9), ownedBy('school', firstRecallDoneCard)],
+      lastRecallAt,
+    )
+
+    const answered = await answerReview(
+      { playerId: learner, wordId: 'school', answer: 'house' },
+      dependencies,
+    )
+
+    expect(answered).toMatchObject({
+      ok: true,
+      value: { kind: 'rated', rating: 'again', stableWordCount: 9, openedLevel: null },
+    })
+  })
+
   it('opens a level with or without a town', async () => {
     const owned = [...stableCardsOf(9), ownedBy('school', recallCard)]
     const openedIn = async (heldTowns: ReadonlyArray<Town>) => {
