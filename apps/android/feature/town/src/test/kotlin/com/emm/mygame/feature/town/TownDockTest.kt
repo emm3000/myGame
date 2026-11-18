@@ -147,6 +147,18 @@ class TownDockTest {
         go("Ir al informe").assert(stateDescriptionStarting("Siguiente repaso:"))
     }
 
+    @Test
+    fun `draws a study step the school cannot place as blocked by its line`() {
+        show(
+            stepOf(
+                line = NextStepCard.Line.Lesson(number = 2),
+                go = TownStatusUiState.Go.ActsInPlace(NextStepCard.Action.Study(number = 2)),
+            ),
+        )
+
+        go("Estudiar la lección 2").assert(stateDescriptionStarting("Lección 2"))
+    }
+
     private fun stateDescriptionStarting(words: String): SemanticsMatcher =
         SemanticsMatcher("state description starts with $words") { node ->
             node.config.getOrElseNullable(SemanticsProperties.StateDescription) { null }?.startsWith(words) == true

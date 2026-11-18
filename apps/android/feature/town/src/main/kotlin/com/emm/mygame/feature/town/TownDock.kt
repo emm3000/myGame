@@ -171,9 +171,10 @@ private fun PlayerCopy.stepGoOf(
         )
         is TownStatusUiState.Go.ActsInPlace -> inPlace ?: MyGameDockGo(
             label = actionLabelOf(go.action),
-            isBusy = true,
+            isBusy = false,
             busyDescription = waiting,
             onClick = {},
+            blockedReason = lineOf(step.line).spoken,
         )
         is TownStatusUiState.Go.Blocked -> MyGameDockGo(
             label = actionLabelOf(go.action),

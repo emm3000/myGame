@@ -46,7 +46,31 @@ internal fun ActivityComposeRule.systemBars(height: Int) {
     waitForIdle()
 }
 
+internal fun ActivityComposeRule.sideBars(navigationBar: Int, cutout: Int) {
+    val compose: View = checkNotNull(composeViewIn(activity.window.decorView))
+    val insets: WindowInsetsCompat = WindowInsetsCompat.Builder()
+        .setInsets(WindowInsetsCompat.Type.navigationBars(), Insets.of(navigationBar, 0, 0, 0))
+        .setInsets(WindowInsetsCompat.Type.displayCutout(), Insets.of(0, 0, cutout, 0))
+        .build()
+    runOnUiThread { ViewCompat.dispatchApplyWindowInsets(compose, insets) }
+    waitForIdle()
+}
+
 internal fun ActivityComposeRule.traversalOrder(): List<String> {
+    val nodes: Map<Int, AccessibilityNodeInfo> = accessibilityNodes()
+    return traversalIds().mapNotNull { id: Int -> nodes[id]?.let(::labelOf) }
+}
+
+internal fun ActivityComposeRule.traversalIds(): List<Int> {
+    val nodes: Map<Int, AccessibilityNodeInfo> = accessibilityNodes()
+    val next: Map<Int, Int> = nodes.mapNotNull { (id: Int, node: AccessibilityNodeInfo) ->
+        node.extras.getInt(TRAVERSAL_BEFORE, NO_NODE).takeIf { before: Int -> before != NO_NODE }?.let { id to it }
+    }.toMap()
+    val first: Int = next.keys.first { id: Int -> id !in next.values }
+    return generateSequence(first) { id: Int -> next[id] }.toList()
+}
+
+private fun ActivityComposeRule.accessibilityNodes(): Map<Int, AccessibilityNodeInfo> {
     val manager: AccessibilityManager = activity.getSystemService(AccessibilityManager::class.java)
     shadowOf(manager).setEnabled(true)
     shadowOf(manager).setTouchExplorationEnabled(true)
@@ -60,13 +84,7 @@ internal fun ActivityComposeRule.traversalOrder(): List<String> {
             id to node
         }
     }.toMap()
-    val next: Map<Int, Int> = nodes.mapNotNull { (id: Int, node: AccessibilityNodeInfo) ->
-        node.extras.getInt(TRAVERSAL_BEFORE, NO_NODE).takeIf { before: Int -> before != NO_NODE }?.let { id to it }
-    }.toMap()
-    val first: Int = next.keys.first { id: Int -> id !in next.values }
-    return generateSequence(first) { id: Int -> next[id] }
-        .mapNotNull { id: Int -> nodes[id]?.let(::labelOf) }
-        .toList()
+    return nodes
 }
 
 private fun labelOf(node: AccessibilityNodeInfo): String? =

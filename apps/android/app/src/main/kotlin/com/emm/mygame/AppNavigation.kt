@@ -209,6 +209,7 @@ private fun EntryProviderScope<NavKey>.townEntry(chrome: SignedInChrome) {
                 ring = { RetainedWordsRing(towns = dependencies.towns, doesScreenReadTown = true) },
                 status = chrome.banner,
                 foldedDock = frame.foldedDock,
+                onNamingChange = frame.onDockWithheld,
                 placement = {
                     PlacementOfferRoute(
                         placements = dependencies.placements,
