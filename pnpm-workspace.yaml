@@ -5,6 +5,8 @@ packages:
 allowBuilds:
   esbuild: true
 
+saveExact: true
+
 catalog:
   "@formatjs/icu-messageformat-parser": 3.5.22
   "@types/node": 24.13.6
