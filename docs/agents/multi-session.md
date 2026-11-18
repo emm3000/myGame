@@ -46,7 +46,7 @@ Every dispatch to a peer carries:
 - The issue number, the branch name, the peer's **own** worktree path, and the ports, container names and emulator port it may use (Isolation below).
 - Read first: `docs/agents/peer.md`, then the ADRs, rules, package `CLAUDE.md` and lore pages the ticket turns on. Never this file.
 - The file list (`fd -e ts`) and their tests, plus the pre-scoped blockers. For a move or refactor, a dependency-closure directive: transitive imports mapped from the consuming layer, non-platform dependencies co-moved.
-- Whether the ticket owes the red-run table (it adds or changes behavior) and screenshots (it draws a screen); `peer.md` says how. A dispatch never orders `/agents-review`: it repeats `pr-reviewer`'s two axes and ends the peer's turn.
+- Whether the ticket owes the red-run table (it adds or changes behavior) and screenshots (it draws a screen); `peer.md` says how.
 - The reply it expects: the PR URL and the gate's exit code.
 
 ## Launching peers
