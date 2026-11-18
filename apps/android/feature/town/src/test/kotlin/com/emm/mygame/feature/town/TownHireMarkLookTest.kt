@@ -19,6 +19,7 @@ import androidx.compose.ui.unit.Dp
 import com.emm.mygame.core.designsystem.MyGameTheme
 import com.emm.mygame.core.designsystem.MyGameTypography
 import com.emm.mygame.core.network.SeasonKind
+import com.emm.mygame.core.network.TownBuildingKind
 import com.emm.mygame.core.network.TownHireKind
 import com.emm.mygame.core.network.TownLabel
 import org.junit.Assert.assertEquals
@@ -149,7 +150,8 @@ class TownHireMarkLookTest {
         buildMark = null,
         slot = TownUiState.SlotLine.Idle,
         waitingList = emptyList(),
-        places = emptyList(),
+        places = listOf(bareOffice),
+        nextStepPlace = TownBuildingKind.Office,
         goal = null,
         tip = null,
         start = TownUiState.StartStatus.Idle,

@@ -4,173 +4,39 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.FlowRow
 import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.semantics.LiveRegionMode
 import androidx.compose.ui.semantics.clearAndSetSemantics
 import androidx.compose.ui.semantics.contentDescription
-import androidx.compose.ui.semantics.heading
 import androidx.compose.ui.semantics.hideFromAccessibility
-import androidx.compose.ui.semantics.liveRegion
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.tooling.preview.PreviewParameter
 import androidx.compose.ui.tooling.preview.PreviewParameterProvider
-import com.emm.mygame.core.designsystem.MyGameHairline
 import com.emm.mygame.core.designsystem.MyGameIcon
-import com.emm.mygame.core.designsystem.MyGameInlineAlert
 import com.emm.mygame.core.designsystem.MyGameLabel
 import com.emm.mygame.core.designsystem.MyGameOutlinedButton
-import com.emm.mygame.core.designsystem.MyGamePlaceArt
 import com.emm.mygame.core.designsystem.MyGamePreviewSurface
 import com.emm.mygame.core.designsystem.MyGameSizes
 import com.emm.mygame.core.designsystem.MyGameSpacing
 import com.emm.mygame.core.designsystem.MyGameText
-import com.emm.mygame.core.designsystem.MyGameTextLink
 import com.emm.mygame.core.designsystem.MyGameTheme
 import com.emm.mygame.core.designsystem.MyGameTypography
 import com.emm.mygame.core.designsystem.PreviewMyGame
 import com.emm.mygame.core.designsystem.formatQuantity
 import com.emm.mygame.core.designsystem.withTabularFigures
-import com.emm.mygame.core.network.NeededWordKind
 import com.emm.mygame.core.network.TownBuildingKind
-import com.emm.mygame.core.network.TownLabel
 import com.emm.mygame.core.network.TownResourceKind
 import com.emm.mygame.core.ui.CopyReader
 import com.emm.mygame.core.ui.PlayerCopy
-import com.emm.mygame.core.ui.SeasonMark
-import com.emm.mygame.core.ui.chromeResource
 import com.emm.mygame.core.ui.rememberPlayerCopy
 import kotlin.time.Duration.Companion.hours
 import kotlin.time.Duration.Companion.minutes
 import kotlin.time.Instant
 
 @Composable
-internal fun PlacesSection(
-    content: TownUiState.Content,
-    onIntent: (TownIntent) -> Unit,
-    onSchoolOpen: () -> Unit,
-    modifier: Modifier = Modifier,
-) {
-    Column(verticalArrangement = Arrangement.spacedBy(MyGameSpacing.step1), modifier = modifier) {
-        MyGameText(
-            label = chromeResource(placesTitleOf(content.label)),
-            style = MyGameTypography.heading,
-            color = MyGameTheme.colors.ink,
-            modifier = Modifier.semantics { heading() },
-        )
-        content.buildMark?.let { mark: TownUiState.DurationMark -> BuildMarkRow(mark = mark) }
-        content.places.forEachIndexed { index: Int, place: TownUiState.PlaceCard ->
-            if (index > 0) MyGameHairline()
-            PlaceItem(place = place, start = content.start, onIntent = onIntent, onSchoolOpen = onSchoolOpen)
-        }
-    }
-}
-
-@Composable
-private fun BuildMarkRow(mark: TownUiState.DurationMark, modifier: Modifier = Modifier) {
-    SeasonMark(
-        icon = seasonIconOf(mark.season),
-        label = chromeResource(
-            R.string.town_season_build_mark,
-            "season" to seasonSelectorOf(mark.season),
-            "percent" to mark.percent.toString(),
-        ),
-        modifier = modifier,
-    )
-}
-
-@Composable
-private fun PlaceItem(
-    place: TownUiState.PlaceCard,
-    start: TownUiState.StartStatus,
-    onIntent: (TownIntent) -> Unit,
-    onSchoolOpen: () -> Unit,
-    modifier: Modifier = Modifier,
-) {
-    Column(
-        verticalArrangement = Arrangement.spacedBy(MyGameSpacing.step2),
-        modifier = modifier.padding(vertical = MyGameSpacing.step4),
-    ) {
-        Row(horizontalArrangement = Arrangement.spacedBy(MyGameSpacing.step3)) {
-            MyGamePlaceArt(
-                art = placeArtOf(place.kind, place.level),
-                risenFrom = place.raisedFrom?.let { levelBefore: Int -> placeArtOf(place.kind, levelBefore) },
-                modifier = Modifier.align(Alignment.CenterVertically),
-            )
-            Column(
-                verticalArrangement = Arrangement.spacedBy(MyGameSpacing.step2),
-                modifier = Modifier.weight(1f),
-            ) {
-                PlaceName(place = place)
-                when (val next: TownUiState.NextLevelLine? = place.next) {
-                    null -> AtTopLevel()
-                    else -> NextLevel(
-                        building = place.kind,
-                        next = next,
-                        block = place.block,
-                        isWaiting = start is TownUiState.StartStatus.Waiting,
-                        onIntent = onIntent,
-                    )
-                }
-            }
-        }
-        StartAnswer(building = place.kind, start = start)
-        if (place.kind == TownBuildingKind.School) {
-            MyGameTextLink(label = chromeResource(R.string.town_go_to_school), onClick = onSchoolOpen)
-        }
-    }
-}
-
-@Composable
-private fun PlaceName(place: TownUiState.PlaceCard, modifier: Modifier = Modifier) {
-    val spoken: Modifier = if (place.raisedFrom == null) {
-        Modifier
-    } else {
-        Modifier.semantics(mergeDescendants = true) { liveRegion = LiveRegionMode.Polite }
-    }
-    Column(modifier = modifier.then(spoken)) {
-        MyGameText(
-            label = chromeResource(placeNameOf(place.kind)),
-            style = MyGameTypography.title,
-            color = MyGameTheme.colors.ink,
-            modifier = Modifier.semantics { heading() },
-        )
-        MyGameText(
-            label = rememberPlayerCopy().chrome { levelLabelOf(place) },
-            style = MyGameTypography.caption.withTabularFigures(),
-            color = MyGameTheme.colors.inkMuted,
-        )
-    }
-}
-
-private fun CopyReader.levelLabelOf(place: TownUiState.PlaceCard): String {
-    val inWork: String = text(R.string.town_in_work)
-    if (place.level == 0) return if (place.isInWork) inWork else text(R.string.town_not_built)
-    val level: String = text(R.string.town_level, "level" to place.level.toString())
-    return if (place.isInWork) text(R.string.town_level_in_work, "level" to level, "inWork" to inWork) else level
-}
-
-@Composable
-private fun AtTopLevel(modifier: Modifier = Modifier) {
-    Column(verticalArrangement = Arrangement.spacedBy(MyGameSpacing.step2), modifier = modifier) {
-        MyGameText(
-            label = chromeResource(R.string.town_at_top_level),
-            style = MyGameTypography.caption,
-            color = MyGameTheme.colors.inkMuted,
-        )
-        MyGameText(
-            label = chromeResource(R.string.town_top_level),
-            style = MyGameTypography.label,
-            color = MyGameTheme.colors.ink,
-        )
-    }
-}
-
-@Composable
-private fun NextLevel(
+internal fun NextLevel(
     building: TownBuildingKind,
     next: TownUiState.NextLevelLine,
     block: TownUiState.BlockReason?,
@@ -187,7 +53,6 @@ private fun NextLevel(
             color = MyGameTheme.colors.inkMuted,
         )
         Costs(next = next)
-        next.wordsNeeded?.let { need: TownUiState.WordNeedLine -> WordNeedRow(need = need) }
         MyGameOutlinedButton(
             label = copy.chrome {
                 text(
@@ -213,21 +78,6 @@ private fun NextLevel(
             ReadyLine(ready = ready)
         }
     }
-}
-
-@Composable
-private fun WordNeedRow(need: TownUiState.WordNeedLine, modifier: Modifier = Modifier) {
-    MyGameText(
-        label = chromeResource(
-            R.string.town_words_needed,
-            "standing" to neededWordSelectorOf(need.standing),
-            "needed" to need.needed.toString(),
-            "held" to need.held.toString(),
-        ),
-        style = MyGameTypography.caption,
-        color = MyGameTheme.colors.warningInk,
-        modifier = modifier,
-    )
 }
 
 @Composable
@@ -265,7 +115,7 @@ internal fun CostItem(cost: TownUiState.CostLine, modifier: Modifier = Modifier)
 }
 
 @Composable
-private fun StartAnswer(building: TownBuildingKind, start: TownUiState.StartStatus, modifier: Modifier = Modifier) {
+internal fun StartAnswer(building: TownBuildingKind, start: TownUiState.StartStatus, modifier: Modifier = Modifier) {
     val copy: PlayerCopy = rememberPlayerCopy()
     val message: String? = when (start) {
         is TownUiState.StartStatus.Refused ->
@@ -274,7 +124,7 @@ private fun StartAnswer(building: TownBuildingKind, start: TownUiState.StartStat
             if (start.building == building) copy.fixedCopy(R.string.town_refusal_unexpected) else null
         TownUiState.StartStatus.Idle, is TownUiState.StartStatus.Waiting -> null
     }
-    if (message != null) MyGameInlineAlert(message = message, modifier = modifier)
+    if (message != null) RevealedAlert(message = message, modifier = modifier)
 }
 
 private fun PlayerCopy.blockLineOf(block: TownUiState.BlockReason): MyGameLabel = when (block) {
@@ -299,11 +149,6 @@ private fun CopyReader.amountLineOf(kind: TownResourceKind, amount: Long): Strin
     "amount" to formatQuantity(amount),
     "resource" to text(resourceNameOf(kind)),
 )
-
-private fun placesTitleOf(label: TownLabel): Int = when (label) {
-    TownLabel.Town -> R.string.town_places_title_town
-    TownLabel.City -> R.string.town_places_title_city
-}
 
 private val previewNextLevel: TownUiState.NextLevelLine = TownUiState.NextLevelLine(
     level = 2,
@@ -334,35 +179,6 @@ private fun NextLevelReadyPreview(@PreviewParameter(ReadyLineStates::class) bloc
             building = TownBuildingKind.Farm,
             next = previewNextLevel,
             block = block,
-            isWaiting = false,
-            onIntent = {},
-        )
-    }
-}
-
-private class WordNeedStates : PreviewParameterProvider<TownUiState.NextLevelLine> {
-
-    override val values: Sequence<TownUiState.NextLevelLine> = sequenceOf(
-        previewNextLevel,
-        previewNextLevel.copy(
-            level = 3,
-            wordsNeeded = TownUiState.WordNeedLine(needed = 10, held = 4, standing = NeededWordKind.Stable),
-        ),
-        previewNextLevel.copy(
-            level = 7,
-            wordsNeeded = TownUiState.WordNeedLine(needed = 50, held = 12, standing = NeededWordKind.Retained),
-        ),
-    )
-}
-
-@PreviewMyGame
-@Composable
-private fun NextLevelWordNeedPreview(@PreviewParameter(WordNeedStates::class) next: TownUiState.NextLevelLine) {
-    MyGamePreviewSurface {
-        NextLevel(
-            building = TownBuildingKind.Farm,
-            next = next,
-            block = null,
             isWaiting = false,
             onIntent = {},
         )

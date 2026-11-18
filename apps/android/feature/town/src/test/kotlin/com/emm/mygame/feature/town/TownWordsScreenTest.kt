@@ -58,6 +58,7 @@ class TownWordsScreenTest {
         slot = TownUiState.SlotLine.Idle,
         waitingList = emptyList(),
         places = listOf(farmOffer),
+        nextStepPlace = TownBuildingKind.Farm,
         goal = null,
         tip = null,
         start = TownUiState.StartStatus.Idle,
@@ -102,7 +103,7 @@ class TownWordsScreenTest {
     private fun showPlaces(content: TownUiState.Content) {
         composeRule.setContent {
             MyGameTheme {
-                PlacesSection(content = content, onIntent = {}, onSchoolOpen = {})
+                TownScreen(state = content, onIntent = {}, onSchoolOpen = {}, onMapOpen = {})
             }
         }
     }
@@ -110,7 +111,7 @@ class TownWordsScreenTest {
     private fun showStocks(content: TownUiState.Content) {
         composeRule.setContent {
             MyGameTheme {
-                StocksSection(content = content)
+                PlaceStocks(place = TownBuildingKind.School, content = content)
             }
         }
     }

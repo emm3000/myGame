@@ -35,6 +35,5 @@
     <string name="placement_skip">Skip the placement</string>
     <string name="placement_start">Start the placement</string>
     <string name="placement_title">Placement</string>
-    <string name="placement_to_town">Back to your town</string>
     <string name="placement_unreachable">We couldn\'t reach the server. Try again in a moment.</string>
 </resources>

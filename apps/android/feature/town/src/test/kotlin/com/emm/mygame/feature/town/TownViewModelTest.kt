@@ -117,18 +117,18 @@ class TownViewModelTest {
     }
 
     @Test
-    fun `draws the seven places with the school first`() = runTest {
-        val viewModel: TownViewModel = homeViewModel(townOf())
+    fun `draws the seven places in the street's order`() = runTest {
+        val viewModel: TownViewModel = homeViewModel(townOf(places = placesOf().reversed()))
 
         assertEquals(
             listOf(
-                TownBuildingKind.School,
                 TownBuildingKind.Homes,
                 TownBuildingKind.Farm,
+                TownBuildingKind.School,
+                TownBuildingKind.Office,
                 TownBuildingKind.Factory,
                 TownBuildingKind.PowerStation,
                 TownBuildingKind.Storage,
-                TownBuildingKind.Office,
             ),
             contentOf(viewModel).places.map { place: TownUiState.PlaceCard -> place.kind },
         )

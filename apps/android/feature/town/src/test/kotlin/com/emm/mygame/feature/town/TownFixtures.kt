@@ -1,5 +1,8 @@
 package com.emm.mygame.feature.town
 
+import androidx.compose.ui.semantics.Role
+import androidx.compose.ui.semantics.SemanticsProperties
+import androidx.compose.ui.test.SemanticsMatcher
 import androidx.lifecycle.viewModelScope
 import com.emm.mygame.core.network.LessonId
 import com.emm.mygame.core.network.NextStep
@@ -9,6 +12,7 @@ import com.emm.mygame.core.network.SeasonKind
 import com.emm.mygame.core.network.SeasonProductionPercent
 import com.emm.mygame.core.network.TipKind
 import com.emm.mygame.core.network.TownBuildingKind
+import com.emm.mygame.core.network.TownGoal
 import com.emm.mygame.core.network.TownLabel
 import com.emm.mygame.core.network.TownResourceKind
 import com.emm.mygame.core.network.TownSnapshot
@@ -24,6 +28,11 @@ import kotlinx.coroutines.awaitCancellation
 import kotlinx.coroutines.cancel
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.test.TestScope
+
+internal val isTab: SemanticsMatcher = SemanticsMatcher.expectValue(SemanticsProperties.Role, Role.Tab)
+
+internal fun List<TownUiState.PlaceCard>.leveled(kind: TownBuildingKind, level: Int): List<TownUiState.PlaceCard> =
+    map { place: TownUiState.PlaceCard -> if (place.kind == kind) place.copy(level = level) else place }
 
 internal val readInstant: Instant = Instant.parse("2026-11-05T10:00:00Z")
 
@@ -66,6 +75,10 @@ internal fun workOf(
 
 internal fun lessonEndingAt(finishesAt: Instant): TownSnapshot.LessonSlot =
     TownSnapshot.LessonSlot(LessonId("lesson-1"), readInstant, finishesAt)
+
+internal fun openingOn(place: TownBuildingKind): NextStep = NextStep.CaughtUp(
+    goal = TownGoal(position = 1, count = 9, building = place, level = 1, state = TownGoal.State.Underway),
+)
 
 internal fun emptyNaming(): TownUiState.Naming = TownUiState.Naming("", TownUiState.NamingStatus.Idle)
 
@@ -137,6 +150,15 @@ internal val idleOffice: TownUiState.OfficeLine = TownUiState.OfficeLine(
     hireMark = null,
     place = TownUiState.HireStatus.Idle,
     stop = TownUiState.HireStopStatus.Idle,
+)
+
+internal val bareOffice: TownUiState.PlaceCard = TownUiState.PlaceCard(
+    kind = TownBuildingKind.Office,
+    level = 1,
+    raisedFrom = null,
+    isInWork = false,
+    next = null,
+    block = null,
 )
 
 internal fun shortOf(kind: TownResourceKind, amount: Long): TownUiState.BlockReason.Resources =

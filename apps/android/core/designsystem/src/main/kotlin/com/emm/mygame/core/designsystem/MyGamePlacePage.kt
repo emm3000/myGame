@@ -19,7 +19,10 @@ import androidx.compose.ui.layout.Measurable
 import androidx.compose.ui.layout.MeasureResult
 import androidx.compose.ui.layout.MeasureScope
 import androidx.compose.ui.layout.Placeable
+import androidx.compose.ui.semantics.LiveRegionMode
 import androidx.compose.ui.semantics.heading
+import androidx.compose.ui.semantics.isTraversalGroup
+import androidx.compose.ui.semantics.liveRegion
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.tooling.preview.PreviewParameter
 import androidx.compose.ui.tooling.preview.PreviewParameterProvider
@@ -33,6 +36,8 @@ fun MyGamePlacePage(
     name: MyGameLabel,
     level: MyGameLabel,
     modifier: Modifier = Modifier,
+    risenFrom: MyGameArt? = null,
+    isRiseSpoken: Boolean = false,
     words: MyGamePlaceWords? = null,
     header: @Composable ColumnScope.() -> Unit = {},
     work: @Composable ColumnScope.() -> Unit = {},
@@ -42,10 +47,10 @@ fun MyGamePlacePage(
         Layout(
             contents = listOf(
                 { Column(content = header) },
-                { PageArt(art = art) },
-                { PageText(name = name, level = level, words = words, work = work) },
+                { PageArt(art = art, risenFrom = risenFrom) },
+                { PageText(name = name, level = level, isRiseSpoken = isRiseSpoken, words = words, work = work) },
             ),
-            modifier = Modifier.verticalScroll(rememberScrollState()),
+            modifier = Modifier.semantics { isTraversalGroup = false }.verticalScroll(rememberScrollState()),
         ) { parts: List<List<Measurable>>, inner: Constraints ->
             placePage(parts = parts, constraints = inner, viewportHeight = viewportHeight)
         }
@@ -53,9 +58,9 @@ fun MyGamePlacePage(
 }
 
 @Composable
-private fun PageArt(art: MyGameArt, modifier: Modifier = Modifier) {
+private fun PageArt(art: MyGameArt, risenFrom: MyGameArt?, modifier: Modifier = Modifier) {
     Column(horizontalAlignment = Alignment.CenterHorizontally, modifier = modifier.fillMaxWidth()) {
-        MyGamePlaceArt(art = art, risenFrom = null, modifier = Modifier.weight(1f))
+        MyGamePlaceArt(art = art, risenFrom = risenFrom, modifier = Modifier.weight(1f))
         Box(
             modifier = Modifier
                 .fillMaxWidth()
@@ -69,12 +74,18 @@ private fun PageArt(art: MyGameArt, modifier: Modifier = Modifier) {
 private fun PageText(
     name: MyGameLabel,
     level: MyGameLabel,
+    isRiseSpoken: Boolean,
     words: MyGamePlaceWords?,
     work: @Composable ColumnScope.() -> Unit,
     modifier: Modifier = Modifier,
 ) {
+    val spoken: Modifier = if (isRiseSpoken) {
+        Modifier.semantics(mergeDescendants = true) { liveRegion = LiveRegionMode.Polite }
+    } else {
+        Modifier
+    }
     Column(verticalArrangement = Arrangement.spacedBy(MyGameSpacing.step3), modifier = modifier.fillMaxWidth()) {
-        Column(verticalArrangement = Arrangement.spacedBy(MyGameSpacing.step1)) {
+        Column(verticalArrangement = Arrangement.spacedBy(MyGameSpacing.step1), modifier = spoken) {
             MyGameText(
                 label = name,
                 style = MyGameTypography.display,

@@ -43,6 +43,7 @@ sealed interface TownUiState {
         val slot: SlotLine,
         val waitingList: List<WaitingLine>,
         val places: List<PlaceCard>,
+        val nextStepPlace: TownBuildingKind,
         val goal: TownGoal?,
         val tip: TipKind?,
         val start: StartStatus,

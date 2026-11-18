@@ -2,7 +2,9 @@ package com.emm.mygame.feature.town
 
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.mutableStateOf
+import androidx.compose.ui.test.SemanticsNodeInteraction
 import androidx.compose.ui.test.assertCountEquals
+import androidx.compose.ui.test.hasContentDescription
 import androidx.compose.ui.test.junit4.ComposeContentTestRule
 import androidx.compose.ui.test.junit4.createComposeRule
 import androidx.compose.ui.test.onAllNodesWithText
@@ -74,6 +76,7 @@ class TownGuidanceScreenTest {
     @Test
     fun `draws the goal under a running lesson`() {
         show(townOf(nextStep = NextStep.LessonRunning(factoryGoal)))
+        tab("Fábrica").performScrollTo().performClick()
 
         composeRule.onNodeWithText("En construcción").assertExists()
     }
@@ -81,6 +84,7 @@ class TownGuidanceScreenTest {
     @Test
     fun `draws no goal under a running lesson once the goal is closed`() {
         show(townOf(nextStep = NextStep.LessonRunning(factoryGoal)), closedGoal)
+        tab("Fábrica").performScrollTo().performClick()
 
         composeRule.onAllNodesWithText("En construcción").assertCountEquals(0)
     }
@@ -121,7 +125,7 @@ class TownGuidanceScreenTest {
     fun `closes the goal`() {
         show(townOf(nextStep = NextStep.CaughtUp(factoryGoal)))
 
-        composeRule.onNodeWithText("Cerrar la meta").performClick()
+        composeRule.onNodeWithText("Cerrar la meta").performScrollTo().performClick()
 
         assertEquals(listOf<TownIntent>(TownIntent.GoalClosed), intents)
     }
@@ -136,6 +140,7 @@ class TownGuidanceScreenTest {
     @Test
     fun `shows the tip under its heading`() {
         show(townOf(tip = TipKind.Office))
+        tab("Oficina").performScrollTo().performClick()
 
         composeRule.onNodeWithText("CONSEJO").performScrollTo().assertExists()
         composeRule.onNodeWithText(
@@ -157,7 +162,7 @@ class TownGuidanceScreenTest {
 
         val lines: Set<String> = TipKind.entries.map { tip: TipKind ->
             home.value = contentOf(townOf(tip = tip))
-            composeRule.waitForIdle()
+            tab(tipPageOf(tip)).performScrollTo().performClick()
             composeRule.onAllNodesWithText("CONSEJO").assertCountEquals(1)
             tipLineOf(tip)
         }.toSet()
@@ -168,11 +173,23 @@ class TownGuidanceScreenTest {
     @Test
     fun `closes the tip it shows`() {
         show(townOf(tip = TipKind.Jobs))
+        tab("Oficina").performScrollTo().performClick()
 
         composeRule.onNodeWithText("Cerrar el consejo").performScrollTo().performClick()
 
         assertEquals(listOf<TownIntent>(TownIntent.TipClosed(TipKind.Jobs)), intents)
     }
+
+    private fun tipPageOf(tip: TipKind): String = when (tip) {
+        TipKind.People -> "Hogares"
+        TipKind.Seasons, TipKind.FullStore -> "Almacén"
+        TipKind.Office, TipKind.Jobs -> "Oficina"
+        TipKind.WaitingList -> "Escuela"
+    }
+
+    private fun tab(place: String): SemanticsNodeInteraction = composeRule.onNode(
+        isTab and hasContentDescription(place, substring = true),
+    )
 
     private fun tipLineOf(tip: TipKind): String {
         val line: String = when (tip) {

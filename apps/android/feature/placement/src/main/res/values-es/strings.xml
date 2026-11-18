@@ -35,6 +35,5 @@
     <string name="placement_skip">Saltar la prueba</string>
     <string name="placement_start">Empezar la prueba</string>
     <string name="placement_title">Prueba de nivel</string>
-    <string name="placement_to_town">Volver a tu pueblo</string>
     <string name="placement_unreachable">No hemos podido hablar con el servidor. Vuelve a intentarlo en un momento.</string>
 </resources>
