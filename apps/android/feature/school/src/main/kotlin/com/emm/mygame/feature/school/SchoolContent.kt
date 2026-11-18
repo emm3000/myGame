@@ -86,7 +86,7 @@ private fun TownSnapshot.EarnedSkill.lineAt(
     ratePercent = ratePercent,
 )
 
-private fun TownSnapshot.Lesson.cardIn(town: TownSnapshot): SchoolUiState.LessonCard = SchoolUiState.LessonCard(
+internal fun TownSnapshot.Lesson.cardIn(town: TownSnapshot): SchoolUiState.LessonCard = SchoolUiState.LessonCard(
     lesson = id,
     number = town.numberOf(id),
     theme = theme,

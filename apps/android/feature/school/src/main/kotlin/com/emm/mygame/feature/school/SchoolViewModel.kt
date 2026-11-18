@@ -44,8 +44,6 @@ class SchoolViewModel(private val towns: TownRepository, private val clock: Cloc
 
     private var selected: LessonId? = null
 
-    private var unheldStep: SchoolUiState.UnheldStep? = null
-
     private var gap: Duration = Duration.ZERO
 
     private var isShown: Boolean = true
@@ -62,7 +60,6 @@ class SchoolViewModel(private val towns: TownRepository, private val clock: Cloc
             is SchoolIntent.LessonSelected -> select(intent.lesson)
             is SchoolIntent.StudyTapped -> start(intent.lesson)
             is SchoolIntent.StopTapped -> stop(intent.lesson)
-            is SchoolIntent.DockStepUnheld -> readUnheld(intent.number)
         }
     }
 
@@ -112,29 +109,6 @@ class SchoolViewModel(private val towns: TownRepository, private val clock: Cloc
         gap = held.gap
         draw(held.town)
         projection = viewModelScope.launch { project(held.town, firstReadAt = serverNow()) }
-    }
-
-    private fun readUnheld(number: Int) {
-        val content: SchoolUiState.Content = _state.value as? SchoolUiState.Content ?: return
-        if (unheldStep?.number == number) return
-        if (content.lessons.any { card: SchoolUiState.LessonCard -> card.number == number }) return
-        drawUnheld(SchoolUiState.UnheldStep.Reading(number))
-        viewModelScope.launch {
-            val answer: TownReadResult = towns.read()
-            unheldStep = SchoolUiState.UnheldStep.Unheld(number)
-            when (answer) {
-                is TownReadResult.Read -> restartFrom(measured(answer.town), mutations.keptAfterRead())
-                TownReadResult.NoTown -> _effects.send(SchoolEffect.NoTown)
-                TownReadResult.Unreachable -> drawUnheld(SchoolUiState.UnheldStep.Unheld(number))
-            }
-        }
-    }
-
-    private fun drawUnheld(step: SchoolUiState.UnheldStep) {
-        unheldStep = step
-        _state.update { current: SchoolUiState ->
-            if (current is SchoolUiState.Content) current.copy(unheldStep = step) else current
-        }
     }
 
     private fun select(lesson: LessonId) {
@@ -195,7 +169,6 @@ class SchoolViewModel(private val towns: TownRepository, private val clock: Cloc
     private fun draw(town: TownSnapshot) {
         shown = town
         _state.value = town.contentAt(now = serverNow(), mutations = mutations, selected = selected)
-            .copy(unheldStep = unheldStep)
     }
 
     private suspend fun project(first: TownSnapshot, firstReadAt: Instant?) {

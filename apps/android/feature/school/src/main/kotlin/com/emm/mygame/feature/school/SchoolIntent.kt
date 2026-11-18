@@ -15,6 +15,4 @@ sealed interface SchoolIntent {
     data class StudyTapped(val lesson: LessonId) : SchoolIntent
 
     data class StopTapped(val lesson: LessonId) : SchoolIntent
-
-    data class DockStepUnheld(val number: Int) : SchoolIntent
 }

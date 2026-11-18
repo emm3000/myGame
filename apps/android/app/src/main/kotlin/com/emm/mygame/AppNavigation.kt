@@ -30,6 +30,7 @@ import androidx.navigation3.runtime.rememberSaveableStateHolderNavEntryDecorator
 import androidx.navigation3.ui.NavDisplay
 import com.emm.mygame.core.designsystem.MyGameDockGo
 import com.emm.mygame.core.designsystem.MyGameTheme
+import com.emm.mygame.core.network.HeldTown
 import com.emm.mygame.core.network.LessonId
 import com.emm.mygame.core.network.PlayerLanguage
 import com.emm.mygame.core.projection.StudyReminderLine
@@ -234,11 +235,14 @@ private fun EntryProviderScope<NavKey>.schoolEntry(chrome: SignedInChrome) {
     entry<Destination.School> {
         val school: SchoolViewModel = viewModel { SchoolViewModel(dependencies.towns, dependencies.clock) }
         val schoolState: State<SchoolUiState> = school.state.collectAsStateWithLifecycle()
+        val heldTown: State<HeldTown?> = dependencies.towns.town.collectAsStateWithLifecycle()
         SignedInFrame(
             kind = FrameKind.Place,
             doesScreenReadTown = true,
             chrome = chrome,
-            studyInPlace = { number: Int -> schoolStudyGo(schoolState.value, number, school::onIntent) },
+            studyInPlace = { number: Int ->
+                schoolStudyGo(schoolState.value, heldTown.value?.town, number, school::onIntent)
+            },
         ) { frame: ScreenFrame ->
             SchoolRoute(
                 towns = dependencies.towns,

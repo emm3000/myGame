@@ -255,17 +255,17 @@ class DockFrameNavigationTest {
     }
 
     @Test
-    fun `a study step the school's read does not hold reads the town once, then studies`() {
-        val unheldStep: TownSnapshot = townOf(nextStep = NextStep.LessonToStudy(secondLesson))
-        val heldStep: TownSnapshot = unheldStep.copy(lessons = listOf(lessonOf(firstLesson), lessonOf(secondLesson)))
-        showing(Destination.Town, Destination.School, town = unheldStep, townReads = SCHOOL_AND_STATUS_READS)
-        waitFor(goInTheDock("Estudiar la lección").and(hasStateDescription(READING_TOWN)))
+    fun `the school studies the lesson the status shows when its own read is older`() {
+        val older: TownSnapshot = townOf()
+        val newer: TownSnapshot = townOf(nextStep = NextStep.LessonToStudy(secondLesson))
+            .copy(lessons = listOf(lessonOf(firstLesson), lessonOf(secondLesson)))
+        showing(Destination.Town, Destination.School, townReads = 0)
+        townsFake.answerRead(TownReadResult.Read(older))
+        townsFake.answerRead(TownReadResult.Read(newer))
 
-        townsFake.answerRead(TownReadResult.Read(heldStep))
-        dockGo(STUDY_SECOND).assert(SemanticsMatcher.keyNotDefined(SemanticsProperties.StateDescription))
-        composeRule.waitForIdle()
+        dockGo(STUDY_SECOND).performClick()
 
-        assertEquals(SCHOOL_AND_STATUS_READS + 1, townsFake.readCount)
+        composeRule.waitUntil(WAIT_MILLIS) { townsFake.lessonStarts == listOf(secondLesson) }
     }
 
     private fun assertOneGoButton() {
@@ -597,8 +597,6 @@ class DockFrameNavigationTest {
     private companion object {
         const val THREE_OF_FIVE: String = "3 de 5 palabras aprendidas"
         const val FRAME_LIMIT: Int = 60
-        const val SCHOOL_AND_STATUS_READS: Int = 2
-        const val READING_TOWN: String = "Estamos leyendo tu pueblo…"
         const val STUDY_SECOND: String = "Estudiar la lección 2 · 5:00"
         const val SIGN_OUT: String = "Salir"
         const val DOCK_TITLE: String = "TU SIGUIENTE PASO"

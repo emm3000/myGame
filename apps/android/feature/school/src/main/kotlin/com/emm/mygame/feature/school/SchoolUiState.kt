@@ -28,7 +28,6 @@ sealed interface SchoolUiState {
         val stop: LessonRequest,
         val isHoldoutNoteShown: Boolean,
         val selected: LessonId? = null,
-        val unheldStep: UnheldStep? = null,
     ) : SchoolUiState {
 
         val shown: LessonCard?
@@ -103,15 +102,6 @@ sealed interface SchoolUiState {
         val path: SchoolPathCounts,
         val state: LessonState,
     )
-
-    sealed interface UnheldStep {
-
-        val number: Int
-
-        data class Reading(override val number: Int) : UnheldStep
-
-        data class Unheld(override val number: Int) : UnheldStep
-    }
 
     sealed interface LessonState {
 
