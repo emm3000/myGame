@@ -2,12 +2,8 @@ import { levelWordNeedOf } from '@mygame/domain'
 import { countedWordsOf } from './countedWordsOf'
 import type { GateContent } from './GateContent'
 
-const shortfallOf = (
-  content: GateContent,
-  schoolLevel: number,
-  topSchoolLevel: number,
-): ReadonlyArray<string> => {
-  const level = Math.min(schoolLevel + 1, topSchoolLevel)
+const shortfallOf = (content: GateContent, schoolLevel: number): ReadonlyArray<string> => {
+  const level = Math.min(schoolLevel + 1, content.topBuildingLevel)
   const need = levelWordNeedOf(level, content.wordNeed)
   const counted = countedWordsOf(content, schoolLevel)
   if (need === null || counted >= need.count) {
@@ -18,9 +14,5 @@ const shortfallOf = (
   ]
 }
 
-export const checkWordNeed = (content: GateContent): ReadonlyArray<string> => {
-  const topSchoolLevel = Math.max(...content.schoolLevels)
-  return content.schoolLevels.flatMap((schoolLevel) =>
-    shortfallOf(content, schoolLevel, topSchoolLevel),
-  )
-}
+export const checkWordNeed = (content: GateContent): ReadonlyArray<string> =>
+  content.schoolLevels.flatMap((schoolLevel) => shortfallOf(content, schoolLevel))

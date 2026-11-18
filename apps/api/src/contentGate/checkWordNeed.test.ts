@@ -61,6 +61,18 @@ describe('content gate check 11, the word need', () => {
     ])
   })
 
+  it("fails when a building's top level, above the school's, needs more words", () => {
+    const content = contentOf({
+      lexicon: chromeWords,
+      lessons: chromeShelf,
+      chromeLessonCount: 16,
+      topBuildingLevel: 11,
+    })
+    expect(checkWordNeed(content)).toEqual([
+      'school level 10 counts 80 words, short of the 90 level 11 needs',
+    ])
+  })
+
   it('counts a lesson only for the school levels that admit it', () => {
     const content = contentOf({
       lexicon: bandLexicon,
