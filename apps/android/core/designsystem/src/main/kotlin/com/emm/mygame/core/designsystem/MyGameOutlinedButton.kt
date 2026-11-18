@@ -4,6 +4,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.tooling.preview.PreviewParameter
+import androidx.compose.ui.unit.Dp
 
 const val OUTLINED_PILL: String = "outlined_pill"
 
@@ -41,17 +42,8 @@ fun MyGameOutlinedButton(
     accessibleName: String? = null,
     badge: String? = null,
 ) {
-    val colors: MyGameColors = MyGameTheme.colors
     MyGamePill(
-        look = MyGamePillLook(
-            tag = OUTLINED_PILL,
-            height = MyGameSizes.secondary,
-            sidePadding = MyGameSpacing.step5,
-            style = MyGameTypography.label,
-            ground = Color.Transparent,
-            ink = colors.ink,
-            edge = colors.lineStrong,
-        ),
+        look = outlinedPillLook(colors = MyGameTheme.colors, height = MyGameSizes.secondary),
         label = label,
         isBusy = isBusy,
         busyDescription = busyDescription,
@@ -62,6 +54,19 @@ fun MyGameOutlinedButton(
         badge = badge,
     )
 }
+
+internal fun outlinedPillLook(colors: MyGameColors, height: Dp): MyGamePillLook = MyGamePillLook(
+    tag = OUTLINED_PILL,
+    height = height,
+    sidePadding = MyGameSpacing.step5,
+    style = MyGameTypography.label,
+    ground = Color.Transparent,
+    ink = colors.ink,
+    edge = colors.lineStrong,
+    badgeGround = colors.action,
+    badgeInk = colors.onAction,
+    hasOuterFocusRing = false,
+)
 
 @PreviewMyGame
 @Composable

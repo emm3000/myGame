@@ -12,4 +12,7 @@ internal data class MyGamePillLook(
     val ground: Color,
     val ink: Color,
     val edge: Color,
+    val badgeGround: Color,
+    val badgeInk: Color,
+    val hasOuterFocusRing: Boolean,
 )

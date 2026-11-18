@@ -15,6 +15,7 @@ fun MyGameButton(
     modifier: Modifier = Modifier,
     blockedReason: String? = null,
     accessibleName: String? = null,
+    badge: String? = null,
 ) {
     MyGameButton(
         label = MyGameLabel(text = label, translation = null),
@@ -24,6 +25,7 @@ fun MyGameButton(
         modifier = modifier,
         blockedReason = blockedReason,
         accessibleName = accessibleName,
+        badge = badge,
     )
 }
 
@@ -36,6 +38,7 @@ fun MyGameButton(
     modifier: Modifier = Modifier,
     blockedReason: String? = null,
     accessibleName: String? = null,
+    badge: String? = null,
 ) {
     val colors: MyGameColors = MyGameTheme.colors
     MyGamePill(
@@ -44,9 +47,12 @@ fun MyGameButton(
             height = MyGameSizes.action,
             sidePadding = MyGameSpacing.step6,
             style = MyGameTypography.button,
-            ground = colors.action,
-            ink = colors.onAction,
-            edge = colors.action,
+            ground = colors.go,
+            ink = colors.onGo,
+            edge = colors.go,
+            badgeGround = colors.onGo,
+            badgeInk = colors.go,
+            hasOuterFocusRing = true,
         ),
         label = label,
         isBusy = isBusy,
@@ -55,6 +61,7 @@ fun MyGameButton(
         modifier = modifier,
         blockedReason = blockedReason,
         accessibleName = accessibleName,
+        badge = badge,
     )
 }
 
@@ -68,6 +75,20 @@ private fun MyGameButtonPreview(@PreviewParameter(MyGamePillStates::class) state
             busyDescription = state.busyDescription,
             onClick = {},
             blockedReason = state.blockedReason,
+        )
+    }
+}
+
+@PreviewMyGame
+@Composable
+private fun MyGameButtonBadgePreview() {
+    MyGamePreviewSurface {
+        MyGameButton(
+            label = "Start the reviews",
+            isBusy = false,
+            busyDescription = "Opening",
+            onClick = {},
+            badge = "4",
         )
     }
 }
