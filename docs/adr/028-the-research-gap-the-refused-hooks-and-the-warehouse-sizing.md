@@ -262,8 +262,10 @@ it, and changes no content.
   live region of #524, and the Considered option on daily quests and
   streaks points to W10. Its Known gap on the strip at 768 px was
   closed by #526 in PR #531.
-- `apps/web/CLAUDE.md` names the `aria-live="polite"` region under the
-  notices and the panel's `aria-controls` under the map.
+- The `aria-live="polite"` region is `LiveRegion`
+  (`apps/web/src/design-system/LiveRegion.tsx`) and the panel's
+  `aria-controls` comes from `MapScreen`'s `controls`
+  (`apps/web/src/map/MapScreen.tsx`).
 - `CONTEXT.md` is unchanged: the live region, the hidden word, the
   refund line and the panel are screen vocabulary, not domain terms.
 - The api is unchanged: no wire shape, no use case, no content. The

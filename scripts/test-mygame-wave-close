@@ -470,6 +470,16 @@ orphans_never_reports_netsimd_or_adb_in_a_closed_worktree() {
   [ "$status" -eq 0 ] && [ "$output" = "orphans: none" ] || fail "${FUNCNAME[0]}" "kept run (exit $status): $output"
 }
 
+refuses_an_uppercase_session_name_under_a_utf8_locale() {
+  build_a_merged_ticket_beside_a_live_peer uppercase
+  local status=0 output
+  output=$(with_stubs env LC_ALL=en_US.UTF-8 scripts/mygame-wave-close Probe) || status=$?
+  [ "$status" -eq 64 ] || fail "${FUNCNAME[0]}" "exit $status on Probe: $output" || return 1
+  [ "$output" = "usage: scripts/mygame-wave-close <session> [--keep-emulator]" ] || fail "${FUNCNAME[0]}" "$output" || return 1
+  [ "$(killed)" = "" ] || fail "${FUNCNAME[0]}" "killed $(killed)" || return 1
+  [ -d "$case_dir/mygame-probe" ] || fail "${FUNCNAME[0]}" "the probe worktree is gone"
+}
+
 scripts_never_name_a_shared_tool_kill() {
   local found status=0
   found=$(rg -n 'p[k]ill|k[i]llall' "$scripts_dir") || status=$?
@@ -502,5 +512,6 @@ run orphans_names_an_avd_without_its_worktree_and_fails
 run orphans_never_reports_a_live_peer_avd_or_another_repo_avd
 run closing_the_peer_that_started_netsimd_spares_netsimd_and_adb
 run orphans_never_reports_netsimd_or_adb_in_a_closed_worktree
+run refuses_an_uppercase_session_name_under_a_utf8_locale
 run scripts_never_name_a_shared_tool_kill
 [ "$failures" -eq 0 ]

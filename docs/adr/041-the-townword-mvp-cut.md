@@ -21,9 +21,12 @@ what serves learning English best.
 
 What trunk and the issues hold, checked at `0dc33268`:
 
-- **The wave rules.** `.claude/skills/wave/SKILL.md`: at most 3 peers
-  under `max-100`, no wave carries two tickets touching the same
-  package, and a schema or migration change is always a wave of one.
+- **The wave rules**, as `.claude/skills/wave/SKILL.md` held them at
+  that commit: at most 3 peers under `max-100`, no wave carries two
+  tickets touching the same package, and a schema or migration change
+  is always a wave of one. Since then, tickets dispatched together touch
+  disjoint Gradle modules or TypeScript packages, and a seam two of
+  them share lands first (`docs/agents/multi-session.md`, Slicing).
 - **Every town screen writes the catalog.** The web screen tickets
   (#762 onward) name `apps/web` and its catalog keys; the Android ones
   name `apps/android` only in their dispatch line, yet each requires
@@ -31,8 +34,8 @@ What trunk and the issues hold, checked at `0dc33268`:
   `packages/catalog`. So a web screen and an Android screen never share
   a wave. The api tickets touch no `apps/android` file: `core:network`
   generates its client at build time from `apps/api/openapi.json`
-  (`apps/android/CLAUDE.md`), so they owe the Android gate as
-  verification, not as an edit.
+  (`apps/android/core/network/build.gradle.kts`), so they owe the
+  Android gate as verification, not as an edit.
 - **The order as filed.** A greedy schedule of the filed edges under
   those rules, run for this ADR over every ticket named above, gives
   39 waves in all: the naming screen (#762) at wave 9, the school

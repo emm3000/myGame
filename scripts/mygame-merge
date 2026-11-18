@@ -48,6 +48,15 @@ if [ "$dry_run" -eq 0 ]; then
 fi
 state=$(gh pr view "$pr" --json state --jq .state)
 [ "$state" = MERGED ] || { echo "#$pr is $state, not MERGED" >&2; exit 1; }
+oldest=$(awk '/^## Recent/ { on = 1 } on && /^\| #/ { print substr($2, 2); exit }' "$log")
+if [ -n "$oldest" ]; then
+  merged_at=$(gh pr view "$pr" --json mergedAt --jq .mergedAt)
+  oldest_merged_at=$(gh pr view "$oldest" --json mergedAt --jq .mergedAt)
+  if [[ $merged_at < $oldest_merged_at ]]; then
+    echo "#$pr merged before #$oldest, the oldest row in Recent: its row is already folded into the Summary" >&2
+    exit 65
+  fi
+fi
 lines=$(gh pr view "$pr" --json additions,deletions --jq '"+\(.additions)/-\(.deletions)"')
 
 ROW="| #$pr | $model | $verdict | $cause | $rounds | $lines |" python3 -I -c '

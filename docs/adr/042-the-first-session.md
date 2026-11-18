@@ -500,8 +500,9 @@ missing. `derivePeople` supplies 30, 40, 50 and 60 at levels 2 to 5.
   owed.
 - `apps/api`: `TownReading` gains the player's held-out words, which
   `schoolOverviewOf` needs and today does not load.
-  `packages/contracts/CLAUDE.md` and `apps/api/CLAUDE.md` lose "never the
-  lemma" for the narrower rule.
+  "Never the lemma" gives way to the narrower rule, held by the test
+  *rejects a lemma outside a lesson word's reading*
+  (`packages/contracts/src/TownOverview.test.ts`).
 - `apps/api/content/town/homes.json` gains the food column; no
   migration. The web's `placeCardOf` and Android's cost lines show a food
   cost once it is above 0, with no new code.

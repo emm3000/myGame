@@ -447,8 +447,8 @@ slice (Decision 1), recorded by ADR 029.
 - `CONTEXT.md` gains **Digest**, **Acknowledgement**, **Goal**,
   **Guidance** and **Hint**.
 - ADR 005 is amended: the stored tuple carries `fullSince`, kept across
-  every re-base; the rule is in `.claude/rules/architecture.md` and
-  `packages/domain/CLAUDE.md` since #467.
+  every re-base; the rule is in `.claude/rules/architecture.md` since
+  #467.
 - The api still idles with no timer (N2): the digest, the goal, the
   hints and the badges are answered on read, the fill instant is stored
   by the mutation that reaches it, and the notification is the

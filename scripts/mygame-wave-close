@@ -14,7 +14,7 @@ case $# in
   *) usage ;;
 esac
 case $session in
-  '' | -* | *[!a-z0-9-]*) usage ;;
+  '' | -* | *[!abcdefghijklmnopqrstuvwxyz0123456789-]*) usage ;;
   orch) echo "orch is the orchestrator, never a peer" >&2; exit 64 ;;
 esac
 

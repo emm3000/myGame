@@ -32,14 +32,14 @@ instant of any held card strictly after the read, null when none) and
 (`Reviews.ts`), and `GET /report` answers `dueCount`, `due` and
 `nextDueAt` (`Report.ts`). Both run in `mutateTown`, which settles a
 finished lesson first, so a lesson finished by their read is in their
-`due` or `nextDueAt` (`apps/api/CLAUDE.md`). Every lesson lasts 300
+`due` or `nextDueAt` (`apps/api/src/town/mutateTown.ts`). Every lesson lasts 300
 content seconds before the school and the season shorten it
 (`apps/api/content/lessons/`), so a lesson finishes within minutes of
 its start.
 
 `apps/android` declares only `INTERNET` today. It has no WorkManager,
 AlarmManager, notification or DataStore code. Its settings screen, in
-`feature:signin`, holds the scaffold choice (`apps/android/CLAUDE.md`).
+`feature:signin`, holds the scaffold choice (`SettingsScreen.kt`).
 It targets and compiles against SDK 37, with a minimum of 26
 (`build-logic/convention/.../ProjectDefaults.kt`).
 
@@ -99,7 +99,7 @@ The phone stores what it last read, and nothing it derived:
 
 Every answer that is a `TownOverview` feeds these facts, not only
 `GET /town`'s: the town mutations that answer one, `POST /town/lessons`
-included, feed them too (`apps/api/CLAUDE.md`). The routes that answer
+included, feed them too (`apps/api/src/routes/town.ts`). The routes that answer
 204, such as a tip or the guidance dismissal, feed nothing. So starting
 a lesson clears *lesson
 ready* and sets *lesson finishing at* in the same answer, and *lesson

@@ -72,6 +72,8 @@ Each package carries a `CLAUDE.md` with its build and test facts and its gotchas
 
 TypeScript strict, pnpm workspaces, Node 24 (`.node-version`), Vitest, Biome. Web: TanStack Start. Api: Hono on Node. Persistence: Postgres with Drizzle (ADR 006). Production: two Vercel projects, `mygame-web` and `mygame-api`, the web rewriting `/api/*` to the api, on Postgres at Neon, deployed from `trunk` by `deploy.yml` (ADR 031).
 
+pnpm refuses a package younger than its minimum release age: pin the newest version old enough, never add a `minimumReleaseAgeExclude` entry.
+
 ## Commands
 
 - `pnpm gate` — the gate CI runs: `pnpm -r typecheck && pnpm -r test && pnpm biome check .`.
@@ -91,9 +93,9 @@ Vitest, plain assertions from `vitest`, no mocking library until a ticket proves
 - `/checks` — `pnpm gate`, failures grouped by package.
 - `/wave <issues>` — boot one peer session per ticket and dispatch.
 
-## Budget tier
+## Models and effort
 
-Budget tier: max-100. Every model and effort comes from the tables in `.claude/skills/wave/SKILL.md`, docs and copy on sonnet:low and the rest on opus:high; Fable runs ADRs, audits and research; only the owner changes them, with the agents' frontmatter, in one `chore(agents):` commit.
+Every model and effort comes from `.claude/skills/wave/SKILL.md`: its two rows for a ticket, its roles table for every other job. Only the owner changes them, with the agents' frontmatter, in one `chore(agents):` commit.
 
 ## Final rule
 

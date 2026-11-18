@@ -33,9 +33,9 @@ new town at `0e86a04a`:
   `prefers-color-scheme` in `tailwindTheme.ts`, `isSystemInDarkTheme()`
   in `MyGameTheme`.
 - **The token check ADR 034 promised does not exist.** #572 closed as a
-  design pass. `apps/android/CLAUDE.md` and `ui-components.md` both say
-  the web's `tokens.ts` is the source until the check lands *with the
-  redesign*. This is the redesign.
+  design pass. `ui-components.md` said the web's `tokens.ts` was the
+  source until the check landed *with the redesign*. This is the
+  redesign.
 - **The art has one source and one generated copy.** The 35 place and 3
   waste SVGs are hand-written; `pnpm --filter @mygame/web drawables`
   writes the Android VectorDrawables and the web suite fails on a drift.
@@ -582,8 +582,7 @@ ticket:
    `core:designsystem`, its drift test in the web suite, the bundled TTF
    and OFL, every read of a dropped color moved, in about 17 Kotlin
    files. The rendered words of *The type* checked on a device, to its bar.
-   `ui-components.md` and `apps/android/CLAUDE.md` lose *until the check
-   lands*.
+   `ui-components.md` loses *until the check lands*.
 3. **The silhouettes.** Seven `places/<word>.svg` from the artifact's
    shapes, `artProblemsOf`, `artFramingOf`, the drawables' level loop; the
    35 place and 3 waste files and their drawables deleted; `placeArtOf`,

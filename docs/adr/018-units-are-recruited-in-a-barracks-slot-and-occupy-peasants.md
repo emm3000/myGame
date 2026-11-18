@@ -295,8 +295,8 @@ mockup of #213 draws it.
   the order's end changes no rate, but each walk step floors every resource
   on its own, so an order closing between two finishes can cost up to one
   unit per resource, as any finish step and any season boundary does (ADR
-  016, `packages/domain/CLAUDE.md`). The price of one timeline; the
-  alternative is recorded above.
+  016; today `packages/domain/src/town/storeAfterSegment.ts`). The price
+  of one timeline; the alternative is recorded above.
 - The overview's `units`, `recruitOrder.delivered` and `peasants` are read
   at `readAt`, the resolve's instant; the delivered units are in the count
   and the order's occupancy is in `occupied`, so a player who sums the
