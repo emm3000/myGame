@@ -37,25 +37,25 @@ The map is region : area : site (ADR 040), one area at a time, browsed with *Pre
 
 | Name | Rank | What the player sees | Source |
 |---|---|---|---|
-| region | 677 | *Region 1*: the one region every town is founded in, at its lowest free site, as `lowestFreeCell` places a fief in kingdom 1 today. | ADR 040, `packages/domain/src/grid/lowestFreeCell.ts` |
+| region | 677 | *Region 1*: the one region every town is founded in, at its lowest free site, as `lowestFreeCell` places it. | ADR 040, `packages/domain/src/grid/lowestFreeCell.ts` |
 | area | 204 | *Area 3* with its terrain, its sites listed under it. | ADR 040 |
-| site | 494 | *Site 12*: free, a town with its name, or a waste site with its size and waste. How many sites an area holds is the town's content; a province holds 15 plots today (`apps/api/content/fief.json`, `plotsPerProvince`). | ADR 040 |
+| site | 494 | *Site 12*: free, a town with its name, or a waste site with its size and waste. How many sites an area holds is the town's content: 15 today (`apps/api/content/town/town.json`, `sitesPerArea`). | ADR 040 |
 
 ### The three terrains
 
-An area's terrain is set by its number (ADR 040). The rotation below keeps the order of `terrainOf`, which rotates the medieval terrains by province today (`packages/domain/src/fief/terrainOf.ts`), each mapped to its successor as ADR 035's table pairs them; the town's rotation lands with its slice, so the order is a proposal until then.
+An area's terrain is set by its number (ADR 040). The rotation below is the one `terrainOf` returns (`packages/domain/src/town/terrainOf.ts`).
 
 | Terrain | Rank | Areas | What the player sees | Source |
 |---|---|---|---|---|
-| *Fields* | field 540 | 1, 4, 7 … | Flat green ground with crop rows; a town here gains food. | ADR 040; areas: proposal |
-| *River* | 1176 | 2, 5, 8 … | A river across the ground; a town here gains power. | ADR 040; areas: proposal |
-| *Hills* | hill 1670 | 3, 6, 9 … | Low rolling hills; a town here gains material. | ADR 040; areas: proposal |
+| *Fields* | field 540 | 1, 4, 7 … | Flat green ground with crop rows; a town here gains food. | ADR 040; areas: `terrainOf` |
+| *River* | 1176 | 2, 5, 8 … | A river across the ground; a town here gains power. | ADR 040; areas: `terrainOf` |
+| *Hills* | hill 1670 | 3, 6, 9 … | Low rolling hills; a town here gains material. | ADR 040; areas: `terrainOf` |
 
-The gain is the bonus to the town's own site (ADR 040). A job's pay is fixed at dispatch from the site's terrain, the hours, the team and its carry, and never holds money (ADR 040); which resources each terrain pays, and how much per hour, is the town's content. A pay may hold more than one resource, as *Pay: 40 food, 20 material* in `chrome.md` shows, and each medieval terrain yields two today (`apps/api/content/fief.json`, `yieldPerHour`).
+The gain is the bonus to the town's own site (ADR 040). A job's pay is fixed at dispatch from the site's terrain, the hours, the team and its carry, and never holds money (ADR 040); which resources each terrain pays, and how much per hour, is the town's content. A pay may hold more than one resource, as *Pay: 40 food, 20 material* in `chrome.md` shows, and each terrain pays two today (`apps/api/content/town/town.json`, `job.payPerHour`).
 
 ### The waste sites
 
-Waste sites sit on a content fraction of the free sites, placed by a hash of the address, in three sizes, as the camps are today (ADR 040, ADR 020, `packages/domain/src/camp/campOf.ts`). A site shows *Waste site*, *Size 2* and *Waste: 12*, the waste regrowing from 0 after a clean-up up to its size's top. A team whose strength covers the waste cleans it and comes back with money and material; a smaller team comes back with nothing; nobody is lost.
+Waste sites sit on a content fraction of the free sites, placed by a hash of the address, in three sizes (ADR 040, ADR 020, `packages/domain/src/town/wasteSizeOf.ts`). A site shows *Waste site*, *Size 2* and *Waste: 12*, the waste regrowing from 0 after a clean-up up to its size's top. A team whose strength covers the waste cleans it and comes back with money and material; a smaller team comes back with nothing; nobody is lost.
 
 | Size | Rank | What the player sees | Source |
 |---|---|---|---|
@@ -63,7 +63,7 @@ Waste sites sit on a content fraction of the free sites, placed by a hash of the
 | *Size 2* | size 705 | More waste, slower to grow back. | ADR 040, ADR 020's tiers |
 | *Size 3* | size 705 | The most waste, the slowest to grow back; it needs a large team. | ADR 040, ADR 020's tiers |
 
-Each size's top waste and regrowth time is the town's content; the medieval tiers hold 6, 15 and 40 strength, regrowing over 6, 12 and 24 hours (`apps/api/content/fief.json`, `camps.tiers`).
+Each size's top waste and regrowth time is the town's content: 6, 15 and 40 waste today, regrowing over 6, 12 and 24 hours (`apps/api/content/town/town.json`, `waste.sizes`).
 
 ## The teams
 
