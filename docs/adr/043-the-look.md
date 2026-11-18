@@ -662,3 +662,22 @@ new ground measures these pairs again.
 row moves to `ink` on `line-strong`, so the table above and
 `tokens.test.ts` hold 29 pairs. Android draws the same pair from
 `core:designsystem`'s `lineStrong` (#872).
+
+## Amendment (2026-11-17)
+
+**Android takes Main Street** (ADR 047, #1161). These lines of this ADR
+are amended for Android. The web keeps them until it adopts ADR 047 in
+its own ticket.
+
+| Lines | Was | Reads now, on Android |
+|---|---|---|
+| 51–53 | no accent color | one accent pair, `go` and `on-go`, for the way on and nothing else |
+| 65–75 | one ink pill per screen, under the block | one `go` button per screen; on a signed-in screen it sits in the dock at the foot, and the blocks above it hold none |
+| 96–101 | 20 color tokens, 29 pairs | 22 color tokens, 33 pairs: `on-go` on `go`, and `go` on each of the three surfaces |
+| 189–192 | pills | the go button and the outlined door at `md`, the dock's top corners at `lg`; no radius token changes |
+| 328–357 | two doors under the next step; a back link in every other header; the town home as one column | the dock's one door, *Report* on the town home and *Town* elsewhere; the town home a pager of the seven places, with a street strip |
+| 470–478 | Color: 20 tokens; Navigation: the bar leaves | Color: 22 tokens; Navigation: the dock |
+
+The neutrals, the type, the art and every other line stand. `tokens.ts`
+stays the one source: it gains `go` and `on-go`, and the web draws
+neither until its ticket.
