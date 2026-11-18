@@ -6,7 +6,7 @@ The native Android client (ADR 034): Kotlin and Jetpack Compose, a renderer of w
 
 Run from `apps/android`. Every Gradle command runs as `taskpolicy -c utility ./gradlew …`: a Gradle daemon keeps the priority it started with, so one run without the prefix leaves a full-priority daemon behind. CI's `ci.yml` runs plain `./gradlew`, since Linux has no `taskpolicy`.
 
-- `taskpolicy -c utility ./gradlew detekt checkModuleBoundaries checkComposeFreeViewModels testDebugUnitTest assembleDebug` — the Android leg of the gate, exactly what CI's `android` job runs. Green before every commit that touches `apps/android`, on top of `pnpm gate`.
+- `taskpolicy -c utility ./gradlew detekt checkModuleBoundaries checkComposeFreeViewModels testDebugUnitTest assembleDebug` — the Android leg of the gate, exactly what CI's `android` job runs. Green before every push that touches `apps/android`, on top of `pnpm gate`.
 - `taskpolicy -c utility ./gradlew detekt` — ktlint formatting and the Compose rules over every module and `build-logic/convention/src/main/kotlin`. Thresholds live only in `config/detekt/detekt.yml`.
 - `taskpolicy -c utility ./gradlew checkModuleBoundaries` — the Modules table of `android-architecture.md`, held as `allowedCoreEdges` and `allowedFeatureEdges` in `build-logic/convention/.../ModuleChecksConventionPlugin.kt`. A new `core:` module is a new entry there and in the rule; a new `feature:` module needs only `settings.gradle.kts`.
 - `taskpolicy -c utility ./gradlew checkComposeFreeViewModels` — fails on any `*ViewModel.kt` or `*UiState.kt` line that names `androidx.compose`.
