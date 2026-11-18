@@ -26,10 +26,10 @@ private const val KEYBOARD_HEIGHT: Int = 800
 internal typealias ActivityComposeRule =
     AndroidComposeTestRule<ActivityScenarioRule<ComponentActivity>, ComponentActivity>
 
-internal fun ActivityComposeRule.keyboard(isOpen: Boolean) {
+internal fun ActivityComposeRule.keyboard(isOpen: Boolean, height: Int = KEYBOARD_HEIGHT) {
     val compose: View = checkNotNull(composeViewIn(activity.window.decorView))
     val insets: WindowInsetsCompat = WindowInsetsCompat.Builder()
-        .setInsets(WindowInsetsCompat.Type.ime(), Insets.of(0, 0, 0, if (isOpen) KEYBOARD_HEIGHT else 0))
+        .setInsets(WindowInsetsCompat.Type.ime(), Insets.of(0, 0, 0, if (isOpen) height else 0))
         .setVisible(WindowInsetsCompat.Type.ime(), isOpen)
         .build()
     runOnUiThread { ViewCompat.dispatchApplyWindowInsets(compose, insets) }

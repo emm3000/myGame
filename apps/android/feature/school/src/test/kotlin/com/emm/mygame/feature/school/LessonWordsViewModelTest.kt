@@ -3,6 +3,7 @@ package com.emm.mygame.feature.school
 import app.cash.turbine.test
 import com.emm.mygame.core.network.LessonId
 import com.emm.mygame.core.network.LessonName
+import com.emm.mygame.core.network.NextStep
 import com.emm.mygame.core.network.PlacementBand
 import com.emm.mygame.core.network.ReportReadResult
 import com.emm.mygame.core.network.TownReadResult
@@ -17,7 +18,9 @@ import kotlinx.coroutines.test.advanceTimeBy
 import kotlinx.coroutines.test.runCurrent
 import kotlinx.coroutines.test.runTest
 import org.junit.Assert.assertEquals
+import org.junit.Assert.assertFalse
 import org.junit.Assert.assertNull
+import org.junit.Assert.assertTrue
 import org.junit.Rule
 import org.junit.Test
 
@@ -112,6 +115,26 @@ class LessonWordsViewModelTest {
         val viewModel: LessonWordsViewModel = lessonWordsReadingFrom(towns, reports, runningTown)
 
         assertEquals(150.seconds, readingOf(viewModel).remaining)
+    }
+
+    @Test
+    fun `marks the reading as the town's step while the step reads this lesson`() = runTest {
+        val town: TownSnapshot = townOf(
+            lessons = listOf(twoWords),
+            lessonSlot = slotOf(),
+            nextStep = NextStep.LessonRunning(goal = null),
+        )
+
+        val viewModel: LessonWordsViewModel = lessonWordsReadingFrom(towns, reports, town)
+
+        assertTrue(readingOf(viewModel).isNextStepThisLesson)
+    }
+
+    @Test
+    fun `leaves the reading off the town's step while the step is elsewhere`() = runTest {
+        val viewModel: LessonWordsViewModel = lessonWordsReadingFrom(towns, reports, runningTown)
+
+        assertFalse(readingOf(viewModel).isNextStepThisLesson)
     }
 
     @Test

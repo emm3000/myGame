@@ -21,4 +21,6 @@ sealed interface ReviewIntent {
     data object CheckTapped : ReviewIntent
 
     data object NextTapped : ReviewIntent
+
+    data object ReviewsStartTapped : ReviewIntent
 }

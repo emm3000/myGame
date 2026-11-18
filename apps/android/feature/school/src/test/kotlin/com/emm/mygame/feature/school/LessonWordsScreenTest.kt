@@ -5,7 +5,12 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.ui.semantics.ProgressBarRangeInfo
 import androidx.compose.ui.semantics.SemanticsProperties
 import androidx.compose.ui.test.SemanticsMatcher
+import androidx.compose.ui.test.hasAnyAncestor
+import androidx.compose.ui.test.hasContentDescription
+import androidx.compose.ui.test.hasStateDescription
+import androidx.compose.ui.test.hasTestTag
 import androidx.compose.ui.test.hasText
+import androidx.compose.ui.test.SemanticsNodeInteraction
 import androidx.compose.ui.test.SemanticsNodeInteractionCollection
 import androidx.compose.ui.test.assertCountEquals
 import androidx.compose.ui.test.junit4.ComposeContentTestRule
@@ -24,8 +29,10 @@ import com.emm.mygame.core.designsystem.INK_PILL
 import com.emm.mygame.core.designsystem.MyGameBlockHue
 import com.emm.mygame.core.designsystem.MyGameTheme
 import com.emm.mygame.core.network.LessonName
+import com.emm.mygame.core.ui.TaskDockHook
 import kotlin.time.Duration.Companion.minutes
 import org.junit.Assert.assertEquals
+import org.junit.Assert.assertNotNull
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -44,6 +51,8 @@ class LessonWordsScreenTest {
 
     private var schoolOpenings: Int = 0
 
+    private val hook: TaskDockHook = TaskDockHook(onAnswered = {})
+
     private val finishedFirstWord: LessonWordsUiState.Reading = LessonWordsUiState.Reading(
         name = LessonName.Shelved(number = 1),
         theme = "A day in town",
@@ -52,6 +61,7 @@ class LessonWordsScreenTest {
         remaining = null,
         wayOn = LessonWordsUiState.WayOn.Reviews,
         shownSupport = null,
+        isNextStepThisLesson = false,
     )
 
     private val finishedLastWord: LessonWordsUiState.Reading = finishedFirstWord.copy(index = 1)
@@ -61,14 +71,17 @@ class LessonWordsScreenTest {
 
     private val runningLastWord: LessonWordsUiState.Reading = runningFirstWord.copy(index = 1)
 
+    private val waitingLastWord: LessonWordsUiState.Reading = runningLastWord.copy(isNextStepThisLesson = true)
+
     private fun draw(state: LessonWordsUiState) {
         composeRule.setContent {
             MyGameTheme {
-                LessonWordsScreen(
+                LessonWordsWithDock(
                     state = state,
                     onIntent = { intent: LessonWordsIntent -> intents += intent },
                     onWayOn = { wayOn: LessonWordsUiState.WayOn -> wayOns += wayOn },
                     onSchoolOpen = { schoolOpenings += 1 },
+                    hook = hook,
                 )
             }
         }
@@ -133,7 +146,7 @@ class LessonWordsScreenTest {
         val state: MutableState<LessonWordsUiState> = mutableStateOf(finishedFirstWord)
         composeRule.setContent {
             MyGameTheme {
-                LessonWordsScreen(state = state.value, onIntent = {}, onWayOn = {}, onSchoolOpen = {})
+                LessonWordsWithDock(state = state.value)
             }
         }
 
@@ -152,7 +165,7 @@ class LessonWordsScreenTest {
         val state: MutableState<LessonWordsUiState> = mutableStateOf(finishedFirstWord)
         composeRule.setContent {
             MyGameTheme {
-                LessonWordsScreen(state = state.value, onIntent = {}, onWayOn = {}, onSchoolOpen = {})
+                LessonWordsWithDock(state = state.value)
             }
         }
         composeRule.onNode(SemanticsMatcher.expectValue(BLOCK_HUE, MyGameBlockHue.Peach)).assertExists()
@@ -178,37 +191,37 @@ class LessonWordsScreenTest {
     }
 
     @Test
-    fun `asks for the next word from the ink pill while the lesson runs`() {
+    fun `asks for the next word from the dock while the lesson runs`() {
         draw(runningFirstWord)
 
-        composeRule.onNodeWithText("Siguiente palabra").performScrollTo().performClick()
+        dockGo("Siguiente palabra").performClick()
 
         assertEquals(listOf<LessonWordsIntent>(LessonWordsIntent.NextWordTapped), intents)
     }
 
     @Test
-    fun `makes the way on the ink pill once the lesson has finished`() {
+    fun `keeps the way on as a text link before the last word`() {
         draw(finishedFirstWord)
 
-        composeRule.onNodeWithTag(INK_PILL).performScrollTo().performClick()
+        composeRule.onNodeWithText("Empezar los repasos").performScrollTo().performClick()
 
         assertEquals(listOf<LessonWordsUiState.WayOn>(LessonWordsUiState.WayOn.Reviews), wayOns)
     }
 
     @Test
-    fun `keeps the next word as a text link beside the way on`() {
+    fun `asks for the next word from the dock beside the way on`() {
         draw(finishedFirstWord)
 
-        composeRule.onNodeWithText("Siguiente palabra").performScrollTo().performClick()
+        dockGo("Siguiente palabra").performClick()
 
         assertEquals(listOf<LessonWordsIntent>(LessonWordsIntent.NextWordTapped), intents)
     }
 
     @Test
-    fun `names the next lesson on the way on of a walk`() {
+    fun `names the next lesson on the dock's go of a walk's last word`() {
         draw(finishedLastWord.copy(wayOn = LessonWordsUiState.WayOn.Lesson(secondLesson)))
 
-        composeRule.onNodeWithText("Siguiente lección").performScrollTo().performClick()
+        dockGo("Siguiente lección").performClick()
 
         assertEquals(listOf<LessonWordsUiState.WayOn>(LessonWordsUiState.WayOn.Lesson(secondLesson)), wayOns)
     }
@@ -227,6 +240,29 @@ class LessonWordsScreenTest {
         composeRule.onNodeWithText("Ir a la escuela").performScrollTo().performClick()
 
         assertEquals(1, schoolOpenings)
+    }
+
+    @Test
+    @Config(qualifiers = "+w411dp-h891dp")
+    fun `the last word with no way on waits for the lesson's end and sends nothing`() {
+        draw(waitingLastWord)
+
+        composeRule.onNode(
+            hasContentDescription("Empezar los repasos", substring = true) and
+                hasStateDescription("Cuando termine la lección, empiezan los repasos.") and
+                hasAnyAncestor(hasTestTag(TASK_DOCK)),
+        ).performClick()
+        composeRule.onNode(hasText("3 min") and hasAnyAncestor(hasTestTag(TASK_DOCK))).assertExists()
+
+        assertEquals(emptyList<LessonWordsIntent>(), intents)
+        assertEquals(emptyList<LessonWordsUiState.WayOn>(), wayOns)
+    }
+
+    @Test
+    fun `follows the town's step on the last word while the step is elsewhere`() {
+        draw(runningLastWord)
+
+        composeRule.runOnIdle { assertNotNull(hook.town) }
     }
 
     @Test
@@ -253,6 +289,12 @@ class LessonWordsScreenTest {
 
         assertEquals(listOf<LessonWordsIntent>(LessonWordsIntent.RetryTapped), intents)
     }
+
+    private fun dockGo(label: String): SemanticsNodeInteraction = composeRule.onNode(
+        hasTestTag(INK_PILL) and
+            hasContentDescription(label, substring = true) and
+            hasAnyAncestor(hasTestTag(TASK_DOCK)),
+    )
 
     private fun inkPills(): SemanticsNodeInteractionCollection = composeRule.onAllNodesWithTag(INK_PILL)
 

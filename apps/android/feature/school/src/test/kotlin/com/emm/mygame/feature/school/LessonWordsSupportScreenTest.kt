@@ -133,17 +133,13 @@ class LessonWordsSupportScreenTest {
         remaining = null,
         wayOn = LessonWordsUiState.WayOn.Reviews,
         shownSupport = shownSupport,
+        isNextStepThisLesson = false,
     )
 
     private fun draw(state: LessonWordsUiState) {
         composeRule.setContent {
             MyGameTheme {
-                LessonWordsScreen(
-                    state = state,
-                    onIntent = { intent: LessonWordsIntent -> intents += intent },
-                    onWayOn = { },
-                    onSchoolOpen = { },
-                )
+                LessonWordsWithDock(state = state, onIntent = { intent: LessonWordsIntent -> intents += intent })
             }
         }
     }

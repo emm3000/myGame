@@ -5,14 +5,12 @@ import androidx.compose.ui.test.SemanticsMatcher
 import androidx.compose.ui.test.assertCountEquals
 import androidx.compose.ui.test.assertIsDisplayed
 import androidx.compose.ui.test.hasAnyAncestor
-import androidx.compose.ui.test.hasTestTag
 import androidx.compose.ui.test.hasText
 import androidx.compose.ui.test.junit4.ComposeContentTestRule
 import androidx.compose.ui.test.junit4.createComposeRule
 import androidx.compose.ui.test.onAllNodesWithTag
 import androidx.compose.ui.test.onAllNodesWithText
 import androidx.compose.ui.test.onNodeWithText
-import androidx.compose.ui.test.performClick
 import androidx.compose.ui.test.performScrollTo
 import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.text.SpanStyle
@@ -22,11 +20,12 @@ import com.emm.mygame.core.designsystem.BLOCK_HUE
 import com.emm.mygame.core.designsystem.INK_PILL
 import com.emm.mygame.core.designsystem.MyGameBlockHue
 import com.emm.mygame.core.designsystem.MyGameTheme
-import com.emm.mygame.core.network.LessonId
 import com.emm.mygame.core.network.SchoolPathCounts
 import com.emm.mygame.core.network.TownResourceKind
 import kotlin.time.Duration.Companion.minutes
+import com.emm.mygame.core.ui.TaskDockHook
 import org.junit.Assert.assertEquals
+import org.junit.Assert.assertNotNull
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -38,9 +37,9 @@ class ReviewEndScreenTest {
     @get:Rule
     val composeRule: ComposeContentTestRule = createComposeRule()
 
-    private val openedLessons: MutableList<LessonId> = mutableListOf()
+    private val intents: MutableList<ReviewIntent> = mutableListOf()
 
-    private var townOpens: Int = 0
+    private val hook: TaskDockHook = TaskDockHook(onAnswered = {})
 
     private val lessonTwoPath: ReviewUiState.LessonPath = ReviewUiState.LessonPath(
         number = 2,
@@ -50,21 +49,26 @@ class ReviewEndScreenTest {
     private val theBlock: SemanticsMatcher = SemanticsMatcher.keyIsDefined(BLOCK_HUE)
 
     @Test
-    fun `offers a way back at the review's end`() {
+    fun `follows the town's step at the review's end`() {
         draw(nothingDue(path = lessonTwoPath))
 
-        composeRule.onNodeWithText("Volver a tu pueblo").performScrollTo().performClick()
-
-        assertEquals(1, townOpens)
+        composeRule.runOnIdle { assertNotNull(hook.town) }
     }
 
     @Test
-    fun `offers a way back to a player with no cards`() {
+    fun `follows the town's step for a player with no cards`() {
         draw(ReviewUiState.NoCards)
 
-        composeRule.onNodeWithText("Volver a tu pueblo").performClick()
+        composeRule.runOnIdle { assertNotNull(hook.town) }
+    }
 
-        assertEquals(1, townOpens)
+    @Test
+    fun `starts the reviews of the town's step in place`() {
+        draw(ReviewUiState.NoCards)
+
+        composeRule.runOnIdle { hook.town?.onReviewsStart?.invoke() }
+
+        assertEquals(listOf<ReviewIntent>(ReviewIntent.ReviewsStartTapped), intents)
     }
 
     @Test
@@ -91,10 +95,10 @@ class ReviewEndScreenTest {
     }
 
     @Test
-    fun `holds one ink pill at the review's end`() {
+    fun `draws no go button of its own at the review's end`() {
         draw(nothingDue(path = lessonTwoPath))
 
-        composeRule.onAllNodesWithTag(INK_PILL).assertCountEquals(1)
+        composeRule.onAllNodesWithTag(INK_PILL).assertCountEquals(0)
     }
 
     @Test
@@ -112,28 +116,18 @@ class ReviewEndScreenTest {
     }
 
     @Test
-    fun `opens the words of the lesson that finished during the reviews`() {
+    fun `follows the town's step once a lesson finishes during the reviews`() {
         draw(ReviewUiState.LessonReady(lesson = lessonTwo, number = 2))
 
-        composeRule.onNodeWithText("Leer las palabras").performClick()
-
-        assertEquals(listOf(lessonTwo), openedLessons)
+        composeRule.onAllNodesWithTag(INK_PILL).assertCountEquals(0)
+        composeRule.runOnIdle { assertNotNull(hook.town) }
     }
 
     @Test
-    fun `keeps the ink pill under the block of the finished lesson`() {
-        draw(ReviewUiState.LessonReady(lesson = lessonTwo, number = 2))
-
-        composeRule.onAllNodesWithTag(INK_PILL).assertCountEquals(1)
-        composeRule.onAllNodes(hasTestTag(INK_PILL) and hasAnyAncestor(theBlock)).assertCountEquals(0)
-    }
-
-    @Test
-    fun `stops with only the pill while the town is unread`() {
+    fun `names no lesson while the town is unread`() {
         draw(ReviewUiState.LessonReady(lesson = lessonTwo, number = null))
 
         composeRule.onAllNodesWithText("La lección", substring = true).assertCountEquals(0)
-        composeRule.onNodeWithText("Leer las palabras").assertIsDisplayed()
     }
 
     @Test
@@ -192,7 +186,7 @@ class ReviewEndScreenTest {
 
     private fun layoutOf(text: String): TextLayoutResult {
         val layouts: MutableList<TextLayoutResult> = mutableListOf()
-        composeRule.onNode(hasText(text), useUnmergedTree = true)
+        composeRule.onNode(hasText(text) and isPlaced, useUnmergedTree = true)
             .fetchSemanticsNode()
             .config[SemanticsActions.GetTextLayoutResult]
             .action
@@ -203,12 +197,7 @@ class ReviewEndScreenTest {
     private fun draw(state: ReviewUiState) {
         composeRule.setContent {
             MyGameTheme {
-                ReviewScreen(
-                    state = state,
-                    onIntent = { },
-                    onLessonOpen = { lesson: LessonId -> openedLessons += lesson },
-                    onTownOpen = { townOpens += 1 },
-                )
+                ReviewWithDock(state = state, onIntent = { intent: ReviewIntent -> intents += intent }, hook = hook)
             }
         }
     }

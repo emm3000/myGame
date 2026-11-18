@@ -248,6 +248,12 @@ class AppNavigationTest {
         return composeRule.onNode(door)
     }
 
+    private fun taskGo(label: String): SemanticsNodeInteraction {
+        val go: SemanticsMatcher = hasTestTag(INK_PILL).and(hasContentDescription(label, substring = true))
+        composeRule.waitUntil(WAIT_MILLIS) { composeRule.onAllNodes(go).fetchSemanticsNodes().isNotEmpty() }
+        return composeRule.onNode(go)
+    }
+
     private fun dockGo(label: String): SemanticsNodeInteraction {
         val go: SemanticsMatcher = hasTestTag(INK_PILL).and(hasContentDescription(label, substring = true))
             .and(hasAnyAncestor(hasTestTag(TOWN_DOCK)))
@@ -523,7 +529,7 @@ class AppNavigationTest {
     fun `opens the next lesson of the walk`() {
         onTheFirstLessonOfTheWalk(secondReadings = listOf(townWord))
 
-        composeRule.onNodeWithText("Siguiente lección").performScrollTo().performClick()
+        taskGo("Siguiente lección").performClick()
 
         waitForLine("We live in a town.")
     }
@@ -531,11 +537,11 @@ class AppNavigationTest {
     @Test
     fun `opens the reviews at the end of the walk`() {
         onTheFirstLessonOfTheWalk(secondReadings = listOf(townWord))
-        composeRule.onNodeWithText("Siguiente lección").performScrollTo().performClick()
+        taskGo("Siguiente lección").performClick()
         waitForLine("We live in a town.")
         learningFake.answerRead(noReviews)
 
-        composeRule.onNodeWithText("Empezar los repasos").performScrollTo().performClick()
+        taskGo("Empezar los repasos").performClick()
 
         waitForLine("Aún no tienes palabras que repasar.")
     }
@@ -543,7 +549,7 @@ class AppNavigationTest {
     @Test
     fun `goes back to the school from a lesson with nothing to read`() {
         onTheFirstLessonOfTheWalk(secondReadings = emptyList())
-        composeRule.onNodeWithText("Siguiente lección").performScrollTo().performClick()
+        taskGo("Siguiente lección").performClick()
         waitForLine("Ahora no hay palabras para leer.")
 
         composeRule.onNodeWithText("Ir a la escuela").performScrollTo().performClick()

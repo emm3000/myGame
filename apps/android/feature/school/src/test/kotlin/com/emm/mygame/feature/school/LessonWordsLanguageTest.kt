@@ -1,5 +1,8 @@
 package com.emm.mygame.feature.school
 
+import androidx.compose.ui.test.hasText
+import androidx.compose.ui.test.hasContentDescription
+import androidx.compose.ui.test.SemanticsMatcher
 import androidx.compose.ui.test.assertCountEquals
 import androidx.compose.ui.test.getUnclippedBoundsInRoot
 import androidx.compose.ui.test.junit4.ComposeContentTestRule
@@ -45,6 +48,7 @@ class LessonWordsLanguageTest {
         remaining = 3.minutes,
         wayOn = null,
         shownSupport = null,
+        isNextStepThisLesson = false,
     )
 
     private val lastWordOfAReleasedLesson: LessonWordsUiState.Reading = firstWordWhileStudying.copy(
@@ -58,7 +62,7 @@ class LessonWordsLanguageTest {
         composeRule.setContent {
             ProvideCopyLanguage(language = language) {
                 MyGameTheme {
-                    LessonWordsScreen(state = state, onIntent = {}, onWayOn = {}, onSchoolOpen = {})
+                    LessonWordsWithDock(state = state)
                 }
             }
         }
@@ -66,15 +70,17 @@ class LessonWordsLanguageTest {
 
     private fun assertDrawn(vararg lines: String) {
         lines.forEach { line: String ->
-            composeRule.onAllNodesWithText(line, useUnmergedTree = true).onFirst().assertExists()
+            composeRule.onAllNodes(isDrawn(line), useUnmergedTree = true).onFirst().assertExists()
         }
     }
 
     private fun assertNotDrawn(vararg lines: String) {
         lines.forEach { line: String ->
-            composeRule.onAllNodesWithText(line, useUnmergedTree = true).assertCountEquals(0)
+            composeRule.onAllNodes(isDrawn(line), useUnmergedTree = true).assertCountEquals(0)
         }
     }
+
+    private fun isDrawn(line: String): SemanticsMatcher = hasText(line) or hasContentDescription(line, substring = true)
 
     private fun lineOf(text: String): DpRect =
         composeRule.onAllNodesWithText(text, useUnmergedTree = true).onFirst().getUnclippedBoundsInRoot()
@@ -114,7 +120,7 @@ class LessonWordsLanguageTest {
     fun `draws the lesson's words in English under none`() {
         show(noScaffold, lastWordOfAReleasedLesson)
 
-        assertDrawn("Returning words: band 2, set\u00A01", "Word 2 of 2", "When the lesson ends, the reviews start.")
+        assertDrawn("Returning words: band 2, set\u00A01", "When the lesson ends, the reviews start.")
         assertDrawn("Go to the school")
         assertNotDrawn("Palabras que vuelven: banda 2, grupo\u00A01", "Palabra 2 de 2", "Ir a la escuela")
     }
@@ -123,7 +129,7 @@ class LessonWordsLanguageTest {
     fun `draws the fixed copy in Spanish for an es player in the English phase`() {
         show(englishPhase, lastWordOfAReleasedLesson)
 
-        assertDrawn("Palabras que vuelven: banda 2, grupo\u00A01", "Word 2 of 2", "Go to the school")
+        assertDrawn("Palabras que vuelven: banda 2, grupo\u00A01", "Go to the school")
         assertNotDrawn("Returning words: band 2, set\u00A01")
     }
 

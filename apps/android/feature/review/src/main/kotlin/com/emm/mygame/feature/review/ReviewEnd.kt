@@ -11,7 +11,6 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.semantics.heading
 import androidx.compose.ui.semantics.semantics
 import com.emm.mygame.core.designsystem.MyGameBlock
-import com.emm.mygame.core.designsystem.MyGameButton
 import com.emm.mygame.core.designsystem.MyGameCard
 import com.emm.mygame.core.designsystem.MyGameIcon
 import com.emm.mygame.core.designsystem.MyGameIcons
@@ -22,34 +21,20 @@ import com.emm.mygame.core.designsystem.MyGameTheme
 import com.emm.mygame.core.designsystem.MyGameTypography
 import com.emm.mygame.core.designsystem.blockHueOf
 import com.emm.mygame.core.designsystem.withTabularFigures
-import com.emm.mygame.core.network.LessonId
 import com.emm.mygame.core.network.SchoolPathCounts
 import com.emm.mygame.core.ui.SchoolPath
 import com.emm.mygame.core.ui.SchoolPathSteps
 import com.emm.mygame.core.ui.chromeResource
 
 @Composable
-internal fun LessonReady(
-    ready: ReviewUiState.LessonReady,
-    onLessonOpen: (LessonId) -> Unit,
-    modifier: Modifier = Modifier,
-) {
-    Column(verticalArrangement = Arrangement.spacedBy(MyGameSpacing.step3), modifier = modifier) {
-        ready.number?.let { number: Int ->
-            MyGameBlock(hue = blockHueOf(number - 1)) {
-                MyGameText(
-                    label = chromeResource(R.string.review_lesson_ready, "number" to number.toString()),
-                    style = MyGameTypography.display,
-                    color = MyGameTheme.colors.onBlock,
-                    modifier = Modifier.semantics { heading() },
-                )
-            }
-        }
-        MyGameButton(
-            label = chromeResource(R.string.review_read_words),
-            isBusy = false,
-            busyDescription = chromeResource(R.string.building_waiting).spoken,
-            onClick = { onLessonOpen(ready.lesson) },
+internal fun LessonReady(ready: ReviewUiState.LessonReady, modifier: Modifier = Modifier) {
+    val number: Int = ready.number ?: return
+    MyGameBlock(hue = blockHueOf(number - 1), modifier = modifier) {
+        MyGameText(
+            label = chromeResource(R.string.review_lesson_ready, "number" to number.toString()),
+            style = MyGameTypography.display,
+            color = MyGameTheme.colors.onBlock,
+            modifier = Modifier.semantics { heading() },
         )
     }
 }
@@ -57,7 +42,6 @@ internal fun LessonReady(
 @Composable
 internal fun ReviewEnd(
     line: MyGameLabel,
-    onTownOpen: () -> Unit,
     modifier: Modifier = Modifier,
     nextReview: MyGameLabel? = null,
     path: ReviewUiState.LessonPath? = null,
@@ -65,12 +49,6 @@ internal fun ReviewEnd(
     Column(verticalArrangement = Arrangement.spacedBy(MyGameSpacing.step4), modifier = modifier) {
         ReviewsAhead(line = line, nextReview = nextReview)
         path?.let { shown: ReviewUiState.LessonPath -> LessonPath(path = shown) }
-        MyGameButton(
-            label = chromeResource(R.string.review_back_to_town),
-            isBusy = false,
-            busyDescription = chromeResource(R.string.building_waiting).spoken,
-            onClick = onTownOpen,
-        )
     }
 }
 

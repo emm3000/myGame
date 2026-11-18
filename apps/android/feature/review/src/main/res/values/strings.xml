@@ -5,9 +5,9 @@
     <string name="finish_tomorrow">tomorrow {time}</string>
     <string name="finish_with_clock">{countdown} · {clock}</string>
     <string name="review_answer_label">Your answer in English</string>
-    <string name="review_back_to_town">Back to your town</string>
     <string name="review_check">Check</string>
     <string name="review_check_empty">Enter your answer to check it.</string>
+    <string name="review_check_no_choice">Choose a meaning to check your answer.</string>
     <string name="review_checking">Checking…</string>
     <string name="review_correct">Correct.</string>
     <string name="review_correct_form">The right answer: {answer}</string>
@@ -29,7 +29,6 @@
     <string name="review_path_read">Read</string>
     <string name="review_path_reviewed">Reviewed</string>
     <string name="review_path_studied">Studied</string>
-    <string name="review_read_words">Read the words</string>
     <string name="review_recall_prompt">How do you say it in English?</string>
     <string name="review_recognition_prompt">What does it mean?</string>
     <string name="review_refusal_hint_on_recognition">You choose this word from a list, so it has no hint. The hint comes when you have to write it.</string>

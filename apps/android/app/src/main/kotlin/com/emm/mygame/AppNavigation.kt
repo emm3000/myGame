@@ -178,13 +178,13 @@ private fun EntryProviderScope<NavKey>.signedInEntries(chrome: SignedInChrome) {
             kind = FrameKind.Task,
             doesScreenReadTown = true,
             chrome = chrome,
-        ) {
+        ) { frame: ScreenFrame ->
             ReviewRoute(
                 learning = dependencies.learning,
                 towns = dependencies.towns,
                 clock = dependencies.clock,
-                onLessonOpen = { lesson: LessonId -> navigator.openLesson(lesson, walked = emptyList()) },
-                onTownOpen = navigator::openTown,
+                task = frame.task,
+                foldedDock = frame.foldedDock,
             )
         }
     }
@@ -386,7 +386,7 @@ private fun EntryProviderScope<NavKey>.lessonWordsEntry(chrome: SignedInChrome) 
             kind = FrameKind.Task,
             doesScreenReadTown = true,
             chrome = chrome,
-        ) {
+        ) { frame: ScreenFrame ->
             LessonWordsRoute(
                 walk = LessonWalk(shown.lesson, shown.walked),
                 towns = dependencies.towns,
@@ -398,6 +398,8 @@ private fun EntryProviderScope<NavKey>.lessonWordsEntry(chrome: SignedInChrome) 
                     onReviewsOpen = navigator::openReviews,
                     onSchoolOpen = navigator::openSchool,
                 ),
+                task = frame.task,
+                foldedDock = frame.foldedDock,
             )
         }
     }

@@ -16,7 +16,6 @@ import androidx.compose.ui.semantics.progressBarRangeInfo
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.tooling.preview.PreviewParameter
 import androidx.compose.ui.tooling.preview.PreviewParameterProvider
-import com.emm.mygame.core.designsystem.MyGameButton
 import com.emm.mygame.core.designsystem.MyGameErrorBanner
 import com.emm.mygame.core.designsystem.MyGamePreviewSurface
 import com.emm.mygame.core.designsystem.MyGameSizes
@@ -43,8 +42,8 @@ import com.emm.mygame.core.ui.CopyLanguage
 import com.emm.mygame.core.ui.PlayerCopy
 import com.emm.mygame.core.ui.ProvideCopyLanguage
 import com.emm.mygame.core.ui.ScaffoldLanguage
+import com.emm.mygame.core.ui.TaskDockHook
 import com.emm.mygame.core.ui.chromeResource
-import com.emm.mygame.core.ui.fixedCopyResource
 import com.emm.mygame.core.ui.rememberPlayerCopy
 import java.time.ZoneId
 import kotlin.time.Duration.Companion.hours
@@ -54,10 +53,11 @@ import kotlin.time.Instant
 fun ReviewScreen(
     state: ReviewUiState,
     onIntent: (ReviewIntent) -> Unit,
-    onLessonOpen: (LessonId) -> Unit,
-    onTownOpen: () -> Unit,
+    task: TaskDockHook,
+    foldedDock: @Composable () -> Unit,
     modifier: Modifier = Modifier,
 ) {
+    ReviewDock(state = state, onIntent = onIntent, task = task)
     Column(
         verticalArrangement = Arrangement.spacedBy(MyGameSpacing.step6),
         modifier = modifier
@@ -79,7 +79,7 @@ fun ReviewScreen(
             loadingLabel = chromeResource(R.string.review_loading).spoken,
             blocks = reviewBlocks,
         ) {
-            ReviewState(state = state, onIntent = onIntent, onLessonOpen = onLessonOpen, onTownOpen = onTownOpen)
+            ReviewState(state = state, onIntent = onIntent, isDockFolded = task.isFolded, foldedDock = foldedDock)
         }
     }
 }
@@ -88,8 +88,8 @@ fun ReviewScreen(
 private fun ReviewState(
     state: ReviewUiState,
     onIntent: (ReviewIntent) -> Unit,
-    onLessonOpen: (LessonId) -> Unit,
-    onTownOpen: () -> Unit,
+    isDockFolded: Boolean,
+    foldedDock: @Composable () -> Unit,
 ) {
     val copy: PlayerCopy = rememberPlayerCopy()
     when (state) {
@@ -99,10 +99,9 @@ private fun ReviewState(
             actionLabel = copy.chrome(R.string.review_retry),
             onAction = { onIntent(ReviewIntent.RetryTapped) },
         )
-        ReviewUiState.NoCards -> ReviewEnd(line = copy.chrome(R.string.review_no_cards), onTownOpen = onTownOpen)
+        ReviewUiState.NoCards -> ReviewEnd(line = copy.chrome(R.string.review_no_cards))
         is ReviewUiState.NothingDue -> ReviewEnd(
             line = copy.chrome(R.string.review_nothing_due),
-            onTownOpen = onTownOpen,
             nextReview = copy.chrome {
                 text(
                     R.string.review_next_due,
@@ -111,9 +110,10 @@ private fun ReviewState(
             },
             path = state.path,
         )
-        is ReviewUiState.LessonReady -> LessonReady(ready = state, onLessonOpen = onLessonOpen)
-        is ReviewUiState.Reviewing -> Reviewing(reviewing = state, onIntent = onIntent)
+        is ReviewUiState.LessonReady -> LessonReady(ready = state)
+        is ReviewUiState.Reviewing -> Reviewing(reviewing = state, onIntent = onIntent, isDockFolded = isDockFolded)
     }
+    if (state.isFollowingTown) foldedDock()
 }
 
 private val reviewBlocks: MyGameSkeletonBlocks = MyGameSkeletonBlocks(
@@ -124,15 +124,11 @@ private val reviewBlocks: MyGameSkeletonBlocks = MyGameSkeletonBlocks(
 private fun Reviewing(
     reviewing: ReviewUiState.Reviewing,
     onIntent: (ReviewIntent) -> Unit,
+    isDockFolded: Boolean,
     modifier: Modifier = Modifier,
 ) {
     val card: ReviewUiState.ReviewCard = reviewing.card
     Column(verticalArrangement = Arrangement.spacedBy(MyGameSpacing.step4), modifier = modifier) {
-        MyGameText(
-            label = chromeResource(R.string.review_due_count, "count" to reviewing.dueCount.toString()),
-            style = MyGameTypography.caption,
-            color = MyGameTheme.colors.inkMuted,
-        )
         ReviewProgress(reviewing = reviewing)
         when (card) {
             is ReviewUiState.ReviewCard.Recognition ->
@@ -140,11 +136,10 @@ private fun Reviewing(
             is ReviewUiState.ReviewCard.Recall ->
                 RecallCard(card = card, reviewing = reviewing, onIntent = onIntent)
         }
-        ReviewStepLine(reviewing = reviewing, onIntent = onIntent)
-        ReviewAction(reviewing = reviewing, onIntent = onIntent)
         if (card is ReviewUiState.ReviewCard.Recall && !reviewing.isRated) {
             HintLine(card = card, isBusy = reviewing.isBusy, onIntent = onIntent)
         }
+        if (isDockFolded) FoldedReviewLine(reviewing = reviewing, onIntent = onIntent)
     }
 }
 
@@ -156,34 +151,6 @@ private fun ReviewProgress(reviewing: ReviewUiState.Reviewing, modifier: Modifie
         filled = filled,
         color = MyGameTheme.colors.action,
         modifier = modifier.semantics { progressBarRangeInfo = ProgressBarRangeInfo(filled, 0f..1f) },
-    )
-}
-
-@Composable
-private fun ReviewAction(
-    reviewing: ReviewUiState.Reviewing,
-    onIntent: (ReviewIntent) -> Unit,
-    modifier: Modifier = Modifier,
-) {
-    if (reviewing.isRated) {
-        MyGameButton(
-            label = fixedCopyResource(R.string.review_next_card),
-            isBusy = false,
-            busyDescription = chromeResource(R.string.building_waiting).spoken,
-            onClick = { onIntent(ReviewIntent.NextTapped) },
-            modifier = modifier,
-        )
-        return
-    }
-    val isChecking: Boolean = reviewing.step == ReviewUiState.ReviewStep.Checking
-    val isRecallEmpty: Boolean = (reviewing.card as? ReviewUiState.ReviewCard.Recall)?.typed?.isEmpty() == true
-    MyGameButton(
-        label = fixedCopyResource(if (isChecking) R.string.review_checking else R.string.review_check),
-        isBusy = reviewing.isBusy,
-        busyDescription = chromeResource(R.string.building_waiting).spoken,
-        onClick = { onIntent(ReviewIntent.CheckTapped) },
-        modifier = modifier,
-        blockedReason = if (isRecallEmpty) fixedCopyResource(R.string.review_check_empty) else null,
     )
 }
 
@@ -304,7 +271,7 @@ private class ReviewUiStates : PreviewParameterProvider<ReviewUiState> {
 @Composable
 private fun ReviewScreenPreview(@PreviewParameter(ReviewUiStates::class) state: ReviewUiState) {
     MyGamePreviewSurface {
-        ReviewScreen(state = state, onIntent = {}, onLessonOpen = {}, onTownOpen = {})
+        ReviewScreen(state = state, onIntent = {}, task = TaskDockHook(onAnswered = {}), foldedDock = {})
     }
 }
 
@@ -313,7 +280,7 @@ private fun ReviewScreenPreview(@PreviewParameter(ReviewUiStates::class) state: 
 private fun ReviewScreenBothPhasePreview(@PreviewParameter(ReviewUiStates::class) state: ReviewUiState) {
     ProvideCopyLanguage(language = CopyLanguage(ScaffoldLanguage.Spanish, ChromePhase.Both)) {
         MyGamePreviewSurface {
-            ReviewScreen(state = state, onIntent = {}, onLessonOpen = {}, onTownOpen = {})
+            ReviewScreen(state = state, onIntent = {}, task = TaskDockHook(onAnswered = {}), foldedDock = {})
         }
     }
 }

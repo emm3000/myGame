@@ -21,6 +21,7 @@ export const fixedCopyKeys: ReadonlySet<string> = new Set([
   'android.review.review_answer_label',
   'android.review.review_check',
   'android.review.review_check_empty',
+  'android.review.review_check_no_choice',
   'android.review.review_checking',
   'android.review.review_correct',
   'android.review.review_correct_form',

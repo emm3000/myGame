@@ -10,6 +10,7 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.emm.mygame.core.network.ReportRepository
 import com.emm.mygame.core.network.TownRepository
+import com.emm.mygame.core.ui.TaskDockHook
 import kotlin.time.Clock
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
@@ -21,6 +22,8 @@ fun LessonWordsRoute(
     reports: ReportRepository,
     clock: Clock,
     navigation: LessonWordsNavigation,
+    task: TaskDockHook,
+    foldedDock: @Composable () -> Unit,
     modifier: Modifier = Modifier,
     viewModel: LessonWordsViewModel = viewModel { LessonWordsViewModel(walk, towns, reports, clock) },
 ) {
@@ -49,6 +52,8 @@ fun LessonWordsRoute(
             }
         },
         onSchoolOpen = navigation.onSchoolOpen,
+        task = task,
+        foldedDock = foldedDock,
         modifier = modifier,
     )
 }

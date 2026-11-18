@@ -15,6 +15,7 @@ import kotlin.time.Clock
 import kotlin.time.Duration
 import kotlin.time.Duration.Companion.seconds
 import kotlin.time.Instant
+import com.emm.mygame.core.ui.TaskDockHook
 import org.junit.Assert.assertEquals
 import org.junit.Rule
 import org.junit.Test
@@ -48,8 +49,8 @@ class ReviewRouteTest {
                         learning = learning,
                         towns = FakeTownRepository(),
                         clock = movableClock,
-                        onLessonOpen = {},
-                        onTownOpen = {},
+                        task = TaskDockHook(onAnswered = {}),
+                        foldedDock = {},
                     )
                 }
             }

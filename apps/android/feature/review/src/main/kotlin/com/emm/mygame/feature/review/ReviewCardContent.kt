@@ -90,6 +90,7 @@ internal fun RecallCard(
         RecallField(
             typed = card.typed,
             isReadOnly = reviewing.isBusy || reviewing.isRated,
+            goIntent = reviewing.goIntent(),
             onIntent = onIntent,
         )
     }
@@ -171,6 +172,7 @@ private fun ReviewBlock(
 internal fun RecallField(
     typed: String,
     isReadOnly: Boolean,
+    goIntent: ReviewIntent,
     onIntent: (ReviewIntent) -> Unit,
     modifier: Modifier = Modifier,
 ) {
@@ -188,7 +190,7 @@ internal fun RecallField(
         onValueChange = { answer: String ->
             onIntent(ReviewIntent.AnswerChanged(answer.take(REVIEW_ANSWER_MAX_LENGTH)))
         },
-        keyboardActions = KeyboardActions(onDone = { onIntent(ReviewIntent.CheckTapped) }),
+        keyboardActions = KeyboardActions(onDone = { onIntent(goIntent) }),
         modifier = modifier,
     )
 }

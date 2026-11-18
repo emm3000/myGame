@@ -80,7 +80,7 @@ internal fun FramedScreen(
         chrome.status.value.dock.takeIf { isTownDockShown(kind, isDockWithheld, follow) }
     val frame = ScreenFrame(
         task = task,
-        foldedDock = { FoldedDockTop(dock = dock, door = door, isFolded = isFolded.value) },
+        foldedDock = { FoldedDockTop(dock = dock, door = door, isFolded = isFolded.value, turn = foldedTurnOf(kind)) },
     )
     Column(
         modifier = modifier
@@ -100,28 +100,32 @@ internal fun FramedScreen(
         ) {
             content(frame)
         }
-        if (isKeyboardOpen) return@Column
-        task.shownOn(kind)?.let { shown: TaskDock -> TaskFrameDock(shown) }
-        dock?.let { shown: TownStatusUiState.Dock ->
-            FrameDock(
-                dock = shown,
-                chrome = chrome,
-                door = door,
-                studyInPlace = studyInPlace,
-                onFoldChange = { folded: Boolean -> isFolded.value = folded },
-                follow = follow,
-            )
+        if (isKeyboardOpen && kind != FrameKind.Task) return@Column
+        AboveKeyboard(isKeyboardOpen = isKeyboardOpen) {
+            task.shownOn(kind)?.let { shown: TaskDock -> TaskFrameDock(shown = shown, onFoldChange = task::fold) }
+            dock?.let { shown: TownStatusUiState.Dock ->
+                FrameDock(
+                    dock = shown,
+                    chrome = chrome,
+                    door = door,
+                    studyInPlace = studyInPlace,
+                    onFoldChange = { folded: Boolean -> isFolded.value = folded },
+                    follow = follow,
+                )
+            }
         }
     }
 }
 
+private fun foldedTurnOf(kind: FrameKind): Float = if (kind == FrameKind.Task) TASK_DOCK_TURN else FRAME_FOLDED_TOP_TURN
+
 @Composable
-private fun FoldedDockTop(dock: TownStatusUiState.Dock?, door: MyGameDockDoor?, isFolded: Boolean) {
+private fun FoldedDockTop(dock: TownStatusUiState.Dock?, door: MyGameDockDoor?, isFolded: Boolean, turn: Float) {
     if (dock == null || !isFolded) return
     Box(
         modifier = Modifier.semantics {
             isTraversalGroup = true
-            traversalIndex = FRAME_FOLDED_TOP_TURN
+            traversalIndex = turn
         },
     ) {
         TownDockTop(dock = dock, door = door)
@@ -134,11 +138,11 @@ private fun isTownDockShown(kind: FrameKind, isDockWithheld: Boolean, follow: To
 private fun TaskDockHook.shownOn(kind: FrameKind): TaskDock? = dock.takeIf { kind == FrameKind.Task && town == null }
 
 @Composable
-private fun TaskFrameDock(shown: TaskDock) {
+private fun TaskFrameDock(shown: TaskDock, onFoldChange: (Boolean) -> Unit) {
     MyGameDock(
         line = shown.line,
         go = shown.go,
-        onFoldChange = {},
+        onFoldChange = onFoldChange,
         modifier = Modifier
             .windowInsetsPadding(WindowInsets.safeDrawing.only(WindowInsetsSides.Horizontal))
             .semantics { traversalIndex = TASK_DOCK_TURN },

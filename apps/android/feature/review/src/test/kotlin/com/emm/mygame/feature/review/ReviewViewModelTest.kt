@@ -13,7 +13,6 @@ import com.emm.mygame.core.network.ReviewsReadResult
 import com.emm.mygame.core.network.TownResourceKind
 import com.emm.mygame.core.network.WordId
 import com.emm.mygame.core.testing.FakeLearningRepository
-import com.emm.mygame.core.testing.FakeTownRepository
 import com.emm.mygame.core.testing.MainDispatcherRule
 import kotlin.time.Duration.Companion.minutes
 import kotlin.time.Duration.Companion.seconds
@@ -392,22 +391,35 @@ class ReviewViewModelTest {
     }
 
     @Test
-    fun `a rated answer reads a town sent after it`() = runTest {
+    fun `a rated answer asks the town status to read again`() = runTest {
         val learning: FakeLearningRepository = FakeLearningRepository()
-        val towns: FakeTownRepository = FakeTownRepository()
-        val viewModel: ReviewViewModel = openReview(learning, towns = towns)
+        val viewModel: ReviewViewModel = openReview(learning)
         learning.answerRead(dueNow(homeRecall))
         learning.answerReview(ReviewAnswerResult.Answered(correctHome(earnedSkill = null)))
         learning.answerRead(dueNow())
 
-        viewModel.state.test {
-            awaitReviewing()
+        viewModel.effects.test {
             viewModel.onIntent(ReviewIntent.AnswerChanged("home"))
             viewModel.onIntent(ReviewIntent.CheckTapped)
-            awaitStep { it is ReviewUiState.ReviewStep.Correct }
-        }
 
-        assertEquals(1, towns.sentAfterNowCount)
+            assertEquals(ReviewEffect.Answered, awaitItem())
+        }
+    }
+
+    @Test
+    fun `after the last card start the reviews reads them again in place`() = runTest {
+        val learning: FakeLearningRepository = FakeLearningRepository()
+        val viewModel: ReviewViewModel = openReview(learning)
+        learning.answerRead(dueNow())
+        learning.answerRead(dueNow(homeRecall))
+
+        viewModel.state.test {
+            var end: ReviewUiState = awaitItem()
+            while (end != ReviewUiState.NoCards) end = awaitItem()
+            viewModel.onIntent(ReviewIntent.ReviewsStartTapped)
+
+            assertEquals(homeRecall.wordId, awaitReviewing().card.wordId)
+        }
     }
 
     @Test

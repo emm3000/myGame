@@ -1,16 +1,29 @@
 package com.emm.mygame
 
+import androidx.compose.ui.test.onFirst
+import androidx.compose.ui.Modifier
+import androidx.compose.foundation.verticalScroll
+import androidx.compose.foundation.rememberScrollState
 import androidx.activity.ComponentActivity
+import androidx.compose.foundation.layout.Column
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.mutableStateOf
+import androidx.compose.ui.semantics.SemanticsProperties
+import androidx.compose.ui.test.SemanticsMatcher
+import androidx.compose.ui.test.SemanticsNodeInteraction
 import androidx.compose.ui.test.assertCountEquals
+import androidx.compose.ui.test.assertIsDisplayed
+import androidx.compose.ui.test.getUnclippedBoundsInRoot
 import androidx.compose.ui.test.hasContentDescription
 import androidx.compose.ui.test.hasTestTag
 import androidx.compose.ui.test.hasText
 import androidx.compose.ui.test.junit4.AndroidComposeTestRule
 import androidx.compose.ui.test.junit4.createAndroidComposeRule
 import androidx.compose.ui.test.onAllNodesWithTag
+import androidx.compose.ui.test.onRoot
 import androidx.compose.ui.test.performClick
+import androidx.compose.ui.unit.Dp
+import androidx.compose.ui.unit.dp
 import androidx.navigation3.runtime.NavBackStack
 import androidx.navigation3.runtime.NavKey
 import androidx.navigation3.runtime.rememberNavBackStack
@@ -106,7 +119,7 @@ class TaskDockFrameTest {
                         banner = {},
                     ),
                 ) { frame: ScreenFrame ->
-                    FakeTaskRoute(hook = frame.task, isFilled = isFilled, isFollowingTown = isFollowingTown)
+                    FakeTaskRoute(frame = frame, isFilled = isFilled, isFollowingTown = isFollowingTown)
                 }
             }
         }
@@ -148,12 +161,37 @@ class TaskDockFrameTest {
     }
 
     @Test
-    fun `a task route's dock hides while the keyboard is open`() {
+    fun `the folded dock rides above the keyboard`() {
         showingFakeTask()
 
+        composeRule.keyboard(isOpen = true, height = PORTRAIT_KEYBOARD)
+
+        val keyboardTop: Dp = composeRule.onRoot().getUnclippedBoundsInRoot().bottom - PORTRAIT_KEYBOARD.dp
+        val go: SemanticsNodeInteraction =
+            composeRule.onNode(hasContentDescription(CHECK, substring = true) and isPlaced)
+        go.assertIsDisplayed()
+        assertTrue(go.getUnclippedBoundsInRoot().bottom <= keyboardTop)
+        composeRule.onAllNodes(hasText(VERDICT) and isPlaced).assertCountEquals(0)
+    }
+
+    @Test
+    @Config(qualifiers = "+w891dp-h411dp")
+    fun `a task's dock hides when even its folded dock does not fit above the keyboard`() {
+        showingFakeTask()
+
+        composeRule.keyboard(isOpen = true, height = LANDSCAPE_KEYBOARD)
+
+        composeRule.onAllNodes(hasContentDescription(CHECK, substring = true) and isPlaced).assertCountEquals(0)
+    }
+
+    @Test
+    fun `a task's dock comes back once the keyboard closes`() {
+        showingFakeTask()
         composeRule.keyboard(isOpen = true)
 
-        composeRule.onAllNodes(hasContentDescription(CHECK, substring = true)).assertCountEquals(0)
+        composeRule.keyboard(isOpen = false)
+
+        composeRule.onNode(hasContentDescription(CHECK, substring = true) and isPlaced).assertIsDisplayed()
     }
 
     @Test
@@ -173,9 +211,28 @@ class TaskDockFrameTest {
 
         val order: List<String> = composeRule.traversalOrder()
 
-        println("ORDER=$order")
         val line: Int = order.indexOfFirst { label: String -> label.equals(TOWN_LINE_TITLE, ignoreCase = true) }
         assertTrue(order.indexOf(CARD) in 0 until line)
+    }
+
+    @Test
+    @Config(qualifiers = "+w360dp-h480dp", fontScale = 2.0f)
+    fun `a task's folded town step reads after its content and before its go button`() {
+        showingFakeTask(isFilled = false, isFollowingTown = true, status = refusedTown)
+
+        val read: List<Int> = readInOrder(hasText(CARD), hasContentDescription(TOWN_LINE_TITLE), placedGo)
+
+        assertEquals(listOf(idOf(hasText(CARD)), idOf(hasContentDescription(TOWN_LINE_TITLE)), idOf(placedGo)), read)
+    }
+
+    @Test
+    @Config(qualifiers = "+w360dp-h480dp", fontScale = 2.0f)
+    fun `a task's folded dock hands its line to the content, read after the card and before the go button`() {
+        showingFakeTask()
+
+        val read: List<Int> = readInOrder(hasText(CARD), hasText(PROGRESS), placedGo)
+
+        assertEquals(listOf(idOf(hasText(CARD)), idOf(hasText(PROGRESS)), idOf(placedGo)), read)
     }
 
     @Test
@@ -183,6 +240,14 @@ class TaskDockFrameTest {
         showingFakeTask(isFilled = false, status = refusedTown)
 
         composeRule.onAllNodes(hasTestTag(INK_PILL)).assertCountEquals(0)
+    }
+
+    private fun idOf(matcher: SemanticsMatcher): Int =
+        composeRule.onAllNodes(matcher and isPlaced, useUnmergedTree = true).onFirst().fetchSemanticsNode().id
+
+    private fun readInOrder(vararg matchers: SemanticsMatcher): List<Int> {
+        val ids: Set<Int> = matchers.map(::idOf).toSet()
+        return composeRule.traversalIds().filter { id: Int -> id in ids }
     }
 
     private companion object {
@@ -194,12 +259,28 @@ class TaskDockFrameTest {
         const val CHECK: String = "Check"
         const val PROGRESS: String = "Card 2 of 5"
         const val VERDICT: String = "Correct."
+        const val TRY_AGAIN: String = "Volver a intentarlo"
+        const val PORTRAIT_KEYBOARD: Int = 600
+        const val LANDSCAPE_KEYBOARD: Int = 250
     }
 }
 
+private val placedGo: SemanticsMatcher = SemanticsMatcher("the placed go button") { node ->
+    node.layoutInfo.isPlaced && node.config.getOrElseNullable(SemanticsProperties.TestTag) { null } == INK_PILL
+}
+
+private val isPlaced: SemanticsMatcher = SemanticsMatcher("is placed") { node -> node.layoutInfo.isPlaced }
+
 @Composable
-private fun FakeTaskRoute(hook: TaskDockHook, isFilled: Boolean, isFollowingTown: Boolean) {
-    MyGameText(text = "The card", style = MyGameTypography.body, color = MyGameTheme.colors.ink)
+private fun FakeTaskRoute(frame: ScreenFrame, isFilled: Boolean, isFollowingTown: Boolean) {
+    val hook: TaskDockHook = frame.task
+    Column(modifier = Modifier.verticalScroll(rememberScrollState())) {
+        MyGameText(text = "The card", style = MyGameTypography.body, color = MyGameTheme.colors.ink)
+        if (hook.isFolded) {
+            MyGameText(text = "Card 2 of 5", style = MyGameTypography.body, color = MyGameTheme.colors.ink)
+        }
+        frame.foldedDock()
+    }
     if (isFollowingTown) FollowTownDock(hook = hook)
     if (!isFilled) return
     FillTaskDock(
