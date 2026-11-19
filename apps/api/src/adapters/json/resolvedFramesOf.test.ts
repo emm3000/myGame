@@ -47,6 +47,18 @@ const catalogWithEntry = (
   return JsonLessonCatalog.fromDirectory(directory)
 }
 
+const catalogWithText = (change: Readonly<Record<string, unknown>>): JsonLessonCatalog => {
+  const directory = mkdtempSync(join(tmpdir(), 'mygame-texts-'))
+  copies.push(directory)
+  cpSync(shippedContent, directory, { recursive: true })
+  const textsFile = join(directory, 'lessons', 'texts.json')
+  const texts: ReadonlyArray<Readonly<Record<string, unknown>>> = JSON.parse(
+    readFileSync(textsFile, 'utf8'),
+  )
+  writeFileSync(textsFile, JSON.stringify(texts.map((text) => ({ ...text, ...change }))))
+  return JsonLessonCatalog.fromDirectory(directory)
+}
+
 const enteredAt = Instant.fromEpochMilliseconds(Date.parse('2026-11-10T09:00:00Z'))
 
 const cardInReview = (): MemoryCard => {
@@ -270,6 +282,19 @@ describe('the texts the content resolves', () => {
       'new',
       'words',
       'list',
+    ])
+  })
+
+  it('resolves a form its text names as a homograph to that card word', () => {
+    const sentence = 'I left the house.'
+    const catalog = catalogWithText({ sentences: [sentence], homographs: { left: 'leave' } })
+
+    expect(catalog.textTokensOf('text-1', sentence)).toEqual([
+      { text: 'I ', wordId: null },
+      { text: 'left', wordId: 'word-134' },
+      { text: ' the ', wordId: null },
+      { text: 'house', wordId: 'word-143' },
+      { text: '.', wordId: null },
     ])
   })
 })
