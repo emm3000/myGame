@@ -187,7 +187,6 @@ private fun LessonTarget(
         caption = copy.chrome { lessonSummaryOf(card) },
         onClick = { onIntent(SchoolIntent.LessonSelected(card.lesson)) },
         modifier = modifier,
-        footer = { LessonPath(path = card.path, modifier = Modifier.padding(bottom = MyGameSpacing.step3)) },
     )
 }
 
