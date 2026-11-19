@@ -4,6 +4,7 @@ import androidx.compose.ui.semantics.SemanticsProperties
 import androidx.compose.ui.test.SemanticsMatcher
 import androidx.lifecycle.viewModelScope
 import app.cash.turbine.ReceiveTurbine
+import com.emm.mygame.core.network.CaughtUpReason
 import com.emm.mygame.core.network.ChoiceId
 import com.emm.mygame.core.network.DueReview
 import com.emm.mygame.core.network.DueReviews
@@ -127,7 +128,7 @@ internal fun townOf(
         lessonSlot = null,
         hiring = hiringOf(),
         job = null,
-        nextStep = NextStep.CaughtUp(goal = null),
+        nextStep = NextStep.CaughtUp(CaughtUpReason.LessonsDone, goal = null),
         tip = null,
         nextDueAt = null,
         readAt = firstReadAt,

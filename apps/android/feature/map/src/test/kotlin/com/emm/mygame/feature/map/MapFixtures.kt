@@ -1,6 +1,7 @@
 package com.emm.mygame.feature.map
 
 import androidx.lifecycle.viewModelScope
+import com.emm.mygame.core.network.CaughtUpReason
 import com.emm.mygame.core.network.NextStep
 import com.emm.mygame.core.network.RegionMap
 import com.emm.mygame.core.network.RegionMapResult
@@ -119,7 +120,7 @@ internal fun townOf(
     lessonSlot = null,
     hiring = hiringOf(workers = workers, trucks = trucks),
     job = job,
-    nextStep = NextStep.CaughtUp(goal = null),
+    nextStep = NextStep.CaughtUp(CaughtUpReason.LessonsDone, goal = null),
     tip = null,
     nextDueAt = null,
     readAt = readAt,

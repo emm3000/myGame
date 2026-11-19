@@ -40,7 +40,7 @@ class TownGuidanceRepositoryTest {
 
         val read: TownSnapshot = (town().read() as TownReadResult.Read).town
 
-        assertEquals(NextStep.CaughtUp(goal = null), read.nextStep)
+        assertEquals(NextStep.CaughtUp(CaughtUpReason.LessonsDone, goal = null), read.nextStep)
     }
 
     @Test
@@ -62,7 +62,7 @@ class TownGuidanceRepositoryTest {
                 people = 3,
             ),
         )
-        assertEquals(NextStep.CaughtUp(expected), read.nextStep)
+        assertEquals(NextStep.CaughtUp(CaughtUpReason.LessonsDone, expected), read.nextStep)
     }
 
     @Test
@@ -78,7 +78,7 @@ class TownGuidanceRepositoryTest {
             level = 1,
             state = TownGoal.State.Underway,
         )
-        assertEquals(NextStep.CaughtUp(expected), read.nextStep)
+        assertEquals(NextStep.CaughtUp(CaughtUpReason.LessonsDone, expected), read.nextStep)
     }
 
     @Test

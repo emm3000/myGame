@@ -41,6 +41,7 @@ import com.emm.mygame.core.designsystem.MyGameTransitions
 import com.emm.mygame.core.designsystem.OUTLINED_PILL
 import com.emm.mygame.core.designsystem.PLACE_ART
 import com.emm.mygame.core.designsystem.SKELETON_BLOCK
+import com.emm.mygame.core.network.CaughtUpReason
 import com.emm.mygame.core.network.LessonId
 import com.emm.mygame.core.network.NeededWordKind
 import com.emm.mygame.core.network.NextStep
@@ -148,14 +149,14 @@ class TownScreenTest {
 
     @Test
     fun `the town home opens on the goal's building`() {
-        show(homeOn(NextStep.CaughtUp(goal = factoryGoal)))
+        show(homeOn(NextStep.CaughtUp(CaughtUpReason.LessonsDone, goal = factoryGoal)))
 
         tab("Fábrica").assertIsSelected()
     }
 
     @Test
     fun `the town home opens on the school when caught up with no goal`() {
-        show(homeOn(NextStep.CaughtUp(goal = null)))
+        show(homeOn(NextStep.CaughtUp(CaughtUpReason.LessonsDone, goal = null)))
 
         tab("Escuela").assertIsSelected()
     }

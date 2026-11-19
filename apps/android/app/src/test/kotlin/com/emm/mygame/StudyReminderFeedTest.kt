@@ -2,6 +2,7 @@ package com.emm.mygame
 
 import android.content.Context
 import android.content.SharedPreferences
+import com.emm.mygame.core.network.CaughtUpReason
 import com.emm.mygame.core.network.DueReview
 import com.emm.mygame.core.network.DueReviews
 import com.emm.mygame.core.network.HoldoutCheck
@@ -254,7 +255,7 @@ class StudyReminderFeedTest {
     fun `a town answer never asks a read`() = runTest {
         store.choose(reminderOn)
 
-        feed().townAnswered(townOf(nextStep = NextStep.CaughtUp(goal = null)), fresh)
+        feed().townAnswered(townOf(nextStep = NextStep.CaughtUp(CaughtUpReason.LessonsDone, goal = null)), fresh)
         runCurrent()
 
         assertEquals(0, towns.readCount)

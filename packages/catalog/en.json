@@ -375,6 +375,7 @@
   "android.town.town_next_go_to_report": "Go to the Report",
   "android.town.town_next_holdout_check": "Word check for band {band}",
   "android.town.town_next_holdout_open": "Open the check",
+  "android.town.town_next_learning_cap": "Words in learning: {inLearning} of {cap}",
   "android.town.town_next_lesson_ready_in": "Lesson {number} ready in",
   "android.town.town_next_lesson_title": "Lesson {number}",
   "android.town.town_next_lesson_words": "{count, plural, =1 {1 word} other {{count, number,0} words}}",

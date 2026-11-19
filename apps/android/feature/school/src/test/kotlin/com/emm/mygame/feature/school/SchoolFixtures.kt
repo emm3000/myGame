@@ -1,6 +1,7 @@
 package com.emm.mygame.feature.school
 
 import androidx.lifecycle.viewModelScope
+import com.emm.mygame.core.network.CaughtUpReason
 import com.emm.mygame.core.network.LessonId
 import com.emm.mygame.core.network.LessonName
 import com.emm.mygame.core.network.NextStep
@@ -86,7 +87,7 @@ internal fun townOf(
     schoolLevel: Int = 1,
     seasonInForce: SeasonInForce? = null,
     seasonEndsAt: Instant? = null,
-    nextStep: NextStep = NextStep.CaughtUp(goal = null),
+    nextStep: NextStep = NextStep.CaughtUp(CaughtUpReason.LessonsDone, goal = null),
     nextDueAt: Instant? = null,
     readAt: Instant = readInstant,
     releasedLessons: List<TownSnapshot.ReleasedLesson> = emptyList(),

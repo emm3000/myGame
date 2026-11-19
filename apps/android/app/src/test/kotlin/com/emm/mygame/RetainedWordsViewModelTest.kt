@@ -1,5 +1,6 @@
 package com.emm.mygame
 
+import com.emm.mygame.core.network.CaughtUpReason
 import com.emm.mygame.core.network.NextStep
 import com.emm.mygame.core.network.RetainedWords
 import com.emm.mygame.core.network.TownBuildingKind
@@ -100,7 +101,7 @@ class RetainedWordsViewModelTest {
         lessonSlot = null,
         hiring = hiringOf(),
         job = null,
-        nextStep = NextStep.CaughtUp(goal = null),
+        nextStep = NextStep.CaughtUp(CaughtUpReason.LessonsDone, goal = null),
         tip = null,
         nextDueAt = null,
         readAt = readAt,

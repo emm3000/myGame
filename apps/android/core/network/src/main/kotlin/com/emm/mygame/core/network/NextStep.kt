@@ -12,5 +12,5 @@ sealed interface NextStep {
 
     data class LessonToStudy(val lesson: LessonId) : NextStep
 
-    data class CaughtUp(val goal: TownGoal?) : NextStep
+    data class CaughtUp(val reason: CaughtUpReason, val goal: TownGoal?) : NextStep
 }

@@ -34,7 +34,15 @@ private fun LessonRunningStep.toLessonRunning(): NextStep? {
 }
 
 private fun CaughtUpStep.toCaughtUp(): NextStep? {
-    val named: Goal = goal ?: return NextStep.CaughtUp(goal = null)
+    val why: CaughtUpReason = reason.toCaughtUpReason() ?: return null
+    val named: Goal = goal ?: return NextStep.CaughtUp(why, goal = null)
     val next: TownGoal = named.toTownGoal() ?: return null
-    return NextStep.CaughtUp(next)
+    return NextStep.CaughtUp(why, next)
+}
+
+private fun CaughtUpStep.Reason.toCaughtUpReason(): CaughtUpReason? = when (this) {
+    CaughtUpStep.Reason.learningCap -> CaughtUpReason.LearningCap
+    CaughtUpStep.Reason.schoolTooLow -> CaughtUpReason.SchoolTooLow
+    CaughtUpStep.Reason.lessonsDone -> CaughtUpReason.LessonsDone
+    CaughtUpStep.Reason.unknown_default_open_api -> null
 }

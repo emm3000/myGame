@@ -29,6 +29,7 @@ import com.emm.mygame.core.designsystem.INK_PILL
 import com.emm.mygame.core.designsystem.MyGameTheme
 import com.emm.mygame.core.designsystem.OUTLINED_PILL
 import com.emm.mygame.core.designsystem.PILL_BADGE
+import com.emm.mygame.core.network.CaughtUpReason
 import com.emm.mygame.core.network.DueReviews
 import com.emm.mygame.core.network.FrameSpan
 import com.emm.mygame.core.network.HoldoutCheckRepository
@@ -190,7 +191,7 @@ class AppNavigationTest {
         inLearning: Int = 0,
         retainedWords: RetainedWords? = null,
         lessons: List<TownSnapshot.Lesson> = listOf(lessonOf(firstLesson, listOf(waterWord))),
-        nextStep: NextStep = NextStep.CaughtUp(goal = null),
+        nextStep: NextStep = NextStep.CaughtUp(CaughtUpReason.LessonsDone, goal = null),
     ): TownSnapshot = TownSnapshot(
         name = "Riverton",
         label = TownLabel.Town,

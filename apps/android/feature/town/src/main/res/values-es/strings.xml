@@ -33,6 +33,7 @@
     <string name="town_next_go_to_report">Ir al informe</string>
     <string name="town_next_holdout_check">Prueba de palabras de la banda {band}</string>
     <string name="town_next_holdout_open">Abrir la prueba</string>
+    <string name="town_next_learning_cap">Palabras en aprendizaje: {inLearning} de {cap}</string>
     <string name="town_next_lesson_ready_in">Lección {number} lista en</string>
     <string name="town_next_lesson_title">Lección {number}</string>
     <string name="town_next_lesson_words">{count, plural, =1 {1 palabra} other {{count, number,0} palabras}}</string>

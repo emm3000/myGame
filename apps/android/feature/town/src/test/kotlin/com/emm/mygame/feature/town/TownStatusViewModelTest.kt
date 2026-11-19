@@ -1,6 +1,7 @@
 package com.emm.mygame.feature.town
 
 import androidx.lifecycle.viewModelScope
+import com.emm.mygame.core.network.CaughtUpReason
 import com.emm.mygame.core.network.HeldTown
 import com.emm.mygame.core.network.LessonId
 import com.emm.mygame.core.network.LessonName
@@ -712,7 +713,8 @@ class TownStatusViewModelTest {
     fun `a caught-up step with a goal gives the goal's line`() = runTest {
         val clock = TestClock(testScheduler, deviceStart)
         val viewModel: TownStatusViewModel = statusOf(clock)
-        towns.hold(HeldTown(townOf(clock.now()).copy(nextStep = NextStep.CaughtUp(schoolGoal)), gap = Duration.ZERO))
+        val caughtUp: NextStep = NextStep.CaughtUp(CaughtUpReason.LessonsDone, schoolGoal)
+        towns.hold(HeldTown(townOf(clock.now()).copy(nextStep = caughtUp), gap = Duration.ZERO))
 
         shownOn(viewModel, TownStatusScreen.ReadsTown)
 
@@ -784,7 +786,7 @@ class TownStatusViewModelTest {
         lessonSlot = null,
         hiring = hiringOf(),
         job = null,
-        nextStep = NextStep.CaughtUp(goal = null),
+        nextStep = NextStep.CaughtUp(CaughtUpReason.LessonsDone, goal = null),
         tip = null,
         nextDueAt = null,
         readAt = readAt,

@@ -150,7 +150,7 @@ class TownRegisteredTest {
         },
         hiring = hiringOf(),
         job = null,
-        nextStep = NextStep.CaughtUp(goal = null),
+        nextStep = NextStep.CaughtUp(CaughtUpReason.LessonsDone, goal = null),
         tip = null,
         nextDueAt = null,
         readAt = firstReadAt,

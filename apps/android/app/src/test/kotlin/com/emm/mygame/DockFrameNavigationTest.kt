@@ -36,6 +36,7 @@ import androidx.test.ext.junit.rules.ActivityScenarioRule
 import com.emm.mygame.core.designsystem.INK_PILL
 import com.emm.mygame.core.designsystem.MyGameTheme
 import com.emm.mygame.core.designsystem.OUTLINED_PILL
+import com.emm.mygame.core.network.CaughtUpReason
 import com.emm.mygame.core.network.DueReview
 import com.emm.mygame.core.network.DueReviews
 import com.emm.mygame.core.network.FrameSpan
@@ -171,7 +172,9 @@ class DockFrameNavigationTest {
         standings = emptyList(),
     )
 
-    private fun townOf(nextStep: NextStep = NextStep.CaughtUp(goal = null)): TownSnapshot = TownSnapshot(
+    private fun townOf(
+        nextStep: NextStep = NextStep.CaughtUp(CaughtUpReason.LessonsDone, goal = null),
+    ): TownSnapshot = TownSnapshot(
         name = "Riverton",
         label = TownLabel.Town,
         seasonInForce = null,

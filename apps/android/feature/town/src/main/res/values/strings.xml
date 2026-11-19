@@ -33,6 +33,7 @@
     <string name="town_next_go_to_report">Go to the Report</string>
     <string name="town_next_holdout_check">Word check for band {band}</string>
     <string name="town_next_holdout_open">Open the check</string>
+    <string name="town_next_learning_cap">Words in learning: {inLearning} of {cap}</string>
     <string name="town_next_lesson_ready_in">Lesson {number} ready in</string>
     <string name="town_next_lesson_title">Lesson {number}</string>
     <string name="town_next_lesson_words">{count, plural, =1 {1 word} other {{count, number,0} words}}</string>

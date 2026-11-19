@@ -1,5 +1,6 @@
 package com.emm.mygame.feature.town
 
+import com.emm.mygame.core.network.CaughtUpReason
 import com.emm.mygame.core.network.NextStep
 import com.emm.mygame.core.network.TipKind
 import com.emm.mygame.core.network.TownBuildingKind
@@ -31,7 +32,7 @@ class TownGuidanceViewModelTest {
         state = TownGoal.State.Underway,
     )
 
-    private val townWithGoal: TownSnapshot = townOf(nextStep = NextStep.CaughtUp(farmGoal))
+    private val townWithGoal: TownSnapshot = townOf(nextStep = NextStep.CaughtUp(CaughtUpReason.LessonsDone, farmGoal))
 
     private val townWithTip: TownSnapshot = townOf(tip = TipKind.WaitingList)
 
@@ -58,7 +59,8 @@ class TownGuidanceViewModelTest {
 
     @Test
     fun `shows no goal when none is left`() = runTest {
-        val viewModel: TownViewModel = townShowing(townOf(nextStep = NextStep.CaughtUp(goal = null)))
+        val caughtUp: NextStep = NextStep.CaughtUp(CaughtUpReason.LessonsDone, goal = null)
+        val viewModel: TownViewModel = townShowing(townOf(nextStep = caughtUp))
 
         assertEquals(null, contentOf(viewModel).goal)
     }
