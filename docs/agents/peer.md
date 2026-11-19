@@ -45,7 +45,7 @@ The `PreToolUse` hook in `.claude/settings.json`, `scripts/mygame-red-run-check`
 
 ## Screenshots
 
-A ticket that draws a screen shoots once, at the head the PR opens with:
+A ticket that draws a screen shoots once, at the head the PR opens with, on its emulator against the real api, the flow exercised (`.claude/rules/verification.md`, the `apps/android` row): `android screen capture --device=emulator-<port> --no-metrics -o <file>.png`. A Robolectric capture stands in only for a state the emulator cannot reach against the real api, and the PR body names that state and why it cannot be reached. Its shots are:
 
 - each changed composable at the default scale, and again at 360×640, font scale 2.0, in es;
 - published on the branch `assets/<N>-visual-check`, that head's short SHA in every file name, linked in the PR body with `raw.githubusercontent.com` URLs. Add the image files by name: `git checkout --orphan` leaves the previous branch's files on disk, and `git add -A` would publish them. The assets branch outlives the merge: `scripts/mygame-wave-close` deletes only its local copy, so the links stay the PR's evidence.
