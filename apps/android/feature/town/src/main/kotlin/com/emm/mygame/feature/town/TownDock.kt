@@ -24,6 +24,7 @@ import com.emm.mygame.core.designsystem.MyGameTypography
 import com.emm.mygame.core.designsystem.PreviewMyGame
 import com.emm.mygame.core.designsystem.formatQuantity
 import com.emm.mygame.core.network.NextStepCard
+import com.emm.mygame.core.network.TownGoal
 import com.emm.mygame.core.ui.CopyReader
 import com.emm.mygame.core.ui.PlayerCopy
 import com.emm.mygame.core.ui.chromeResource
@@ -83,8 +84,16 @@ private fun DockCountdown(dock: TownStatusUiState.Dock, modifier: Modifier = Mod
     val copy: PlayerCopy = rememberPlayerCopy()
     val words: TownStatusUiState.StepDetail.Words? = step.detail as? TownStatusUiState.StepDetail.Words
     val countdown: TownStatusUiState.StepCountdown? = step.countdown
-    if (words == null && countdown == null) return
+    val goal: TownGoal? = step.goalUnderLine()
+    if (words == null && countdown == null && goal == null) return
     Column(verticalArrangement = Arrangement.spacedBy(MyGameSpacing.step2), modifier = modifier) {
+        goal?.let { shown: TownGoal ->
+            MyGameText(
+                label = copy.chrome { goalLineOf(shown) },
+                style = MyGameTypography.body,
+                color = MyGameTheme.colors.inkMuted,
+            )
+        }
         words?.let { detail: TownStatusUiState.StepDetail.Words ->
             MyGameText(
                 label = copy.chrome(R.string.town_next_lesson_words, "count" to detail.count),
@@ -123,11 +132,16 @@ private fun PlayerCopy.dockLineOf(dock: TownStatusUiState.Dock): MyGameDockLine 
     },
 )
 
-private fun PlayerCopy.stepLineOf(step: TownStatusUiState.Dock.Step): MyGameLabel =
-    when (val detail: TownStatusUiState.StepDetail? = step.detail) {
-        is TownStatusUiState.StepDetail.Goal -> chrome { goalLineOf(detail.goal) }
-        is TownStatusUiState.StepDetail.Words, null -> lineOf(step.line)
-    }
+private fun PlayerCopy.stepLineOf(step: TownStatusUiState.Dock.Step): MyGameLabel {
+    val detail: TownStatusUiState.StepDetail? = step.detail
+    if (detail !is TownStatusUiState.StepDetail.Goal || step.isFullCap()) return lineOf(step.line)
+    return chrome { goalLineOf(detail.goal) }
+}
+
+private fun TownStatusUiState.Dock.Step.isFullCap(): Boolean = line is NextStepCard.Line.LearningCap
+
+private fun TownStatusUiState.Dock.Step.goalUnderLine(): TownGoal? =
+    (detail as? TownStatusUiState.StepDetail.Goal)?.goal?.takeIf { isFullCap() }
 
 private fun PlayerCopy.dockGoOf(
     dock: TownStatusUiState.Dock,

@@ -77,6 +77,13 @@ class TownNextStepRepositoryTest {
     }
 
     @Test
+    fun `answers unreachable for a caught up step on a reason the client does not know`() = runTest {
+        api.enqueue(json(200, townWithNextStep("""{"kind":"caughtUp","reason":"slotBusy","goal":null}""")))
+
+        assertEquals(TownReadResult.Unreachable, town().read())
+    }
+
+    @Test
     fun `answers unreachable for a check step on a week the client does not know`() = runTest {
         api.enqueue(json(200, townWithNextStep("""{"kind":"holdoutCheck","band":1,"week":52}""")))
 
