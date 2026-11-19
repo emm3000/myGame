@@ -8,6 +8,12 @@ import androidx.compose.ui.test.junit4.createComposeRule
 import androidx.compose.ui.test.onAllNodesWithText
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
+import androidx.compose.ui.test.onRoot
+import androidx.compose.ui.test.SemanticsNodeInteraction
+import androidx.compose.ui.test.getBoundsInRoot
+import androidx.compose.ui.test.getUnclippedBoundsInRoot
+import androidx.compose.ui.unit.Dp
+import androidx.compose.ui.unit.DpRect
 import androidx.compose.ui.text.TextLayoutResult
 import androidx.compose.ui.text.TextStyle
 import com.emm.mygame.core.designsystem.MyGameTheme
@@ -18,10 +24,14 @@ import com.emm.mygame.core.network.NextStepCard
 import com.emm.mygame.core.network.PlacementBand
 import kotlin.time.Duration.Companion.minutes
 import org.junit.Assert.assertEquals
+import org.junit.Assert.assertFalse
+import org.junit.Assert.assertTrue
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.robolectric.RobolectricTestRunner
+import org.robolectric.annotation.Config
+import org.robolectric.annotation.GraphicsMode
 
 @RunWith(RobolectricTestRunner::class)
 class TownStatusTest {
@@ -43,6 +53,21 @@ class TownStatusTest {
 
         composeRule.onNodeWithText("Palabras que vuelven: banda 2, grupo 3 listas en").assertExists()
         composeRule.onAllNodesWithText("Lección 0", substring = true).assertCountEquals(0)
+    }
+
+    @Test
+    @Config(qualifiers = "+w360dp-h640dp", fontScale = 2.0f)
+    @GraphicsMode(GraphicsMode.Mode.NATIVE)
+    fun `draws a running lesson's whole time at 360 by 640 and font scale 2`() {
+        val running = TownStatusUiState.RunningLesson(
+            name = released,
+            remaining = 125.minutes,
+            finishesAt = readInstant,
+        )
+
+        show(TownStatusUiState(running = running, notice = null))
+
+        assertDrawnWhole(composeRule.onNodeWithText("2 h 5 min", substring = true))
     }
 
     @Test
@@ -175,6 +200,26 @@ class TownStatusTest {
                 )
             }
         }
+    }
+
+    private fun assertDrawnWhole(time: SemanticsNodeInteraction) {
+        val window: Dp = composeRule.onRoot().getUnclippedBoundsInRoot().right
+        val drawn: DpRect = time.getBoundsInRoot()
+        val whole: DpRect = time.getUnclippedBoundsInRoot()
+        assertEquals("the time's drawn bounds", whole, drawn)
+        assertTrue("the time ends at ${whole.right}, inside $window", whole.right <= window)
+        val layout: TextLayoutResult = layoutOf(time)
+        (0 until layout.lineCount).forEach { line: Int ->
+            assertFalse("line $line is cut short", layout.isLineEllipsized(line))
+            assertTrue("line $line ends inside the time", layout.getLineRight(line) <= layout.size.width)
+            assertTrue("line $line sits inside the time", layout.getLineBottom(line) <= layout.size.height)
+        }
+    }
+
+    private fun layoutOf(node: SemanticsNodeInteraction): TextLayoutResult {
+        val results: MutableList<TextLayoutResult> = mutableListOf()
+        node.fetchSemanticsNode().config[SemanticsActions.GetTextLayoutResult].action?.invoke(results)
+        return results.first()
     }
 
     private fun textStyleOf(text: String): TextStyle {

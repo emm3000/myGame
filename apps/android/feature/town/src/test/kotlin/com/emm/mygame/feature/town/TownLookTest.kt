@@ -258,23 +258,24 @@ class TownLookTest {
     }
 
     @Test
-    fun `sets a running work's countdown in heading with tabular figures`() {
+    fun `sets a running work's countdown in title with tabular figures`() {
         show(riverton.copy(slot = busySlot))
 
         val countdown: TextStyle = textStyleOf("12 min")
-        assertEquals(MyGameTypography.heading.fontSize, countdown.fontSize)
-        assertEquals(MyGameTypography.heading.fontWeight, countdown.fontWeight)
+        assertEquals(MyGameTypography.title.fontSize, countdown.fontSize)
+        assertEquals(MyGameTypography.title.fontWeight, countdown.fontWeight)
         assertEquals("tnum", countdown.fontFeatureSettings)
     }
 
     @Test
-    fun `sets a waiting work's countdown in heading with tabular figures`() {
+    fun `sets a waiting work's countdown in title with tabular figures`() {
         val school: TownUiState.PlaceCard = farmOffer.copy(kind = TownBuildingKind.School, isInWork = true)
         show(riverton.copy(slot = busySlot, waitingList = listOf(waitingSchool), places = listOf(farmOffer, school)))
         tab("Escuela").performScrollTo().performClick()
 
         val countdown: TextStyle = textStyleOf("20 min")
-        assertEquals(MyGameTypography.heading.fontSize, countdown.fontSize)
+        assertEquals(MyGameTypography.title.fontSize, countdown.fontSize)
+        assertEquals(MyGameTypography.title.fontWeight, countdown.fontWeight)
         assertEquals("tnum", countdown.fontFeatureSettings)
     }
 

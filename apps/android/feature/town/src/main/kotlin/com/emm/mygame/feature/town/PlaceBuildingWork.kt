@@ -185,7 +185,7 @@ internal fun RunningCountdown(label: MyGameLabel, modifier: Modifier = Modifier)
         MyGameIcon(icon = MyGameIcons.hourglass, tint = MyGameTheme.colors.inkMuted)
         MyGameText(
             label = label,
-            style = MyGameTypography.heading.withTabularFigures(),
+            style = MyGameTypography.title.withTabularFigures(),
             color = MyGameTheme.colors.ink,
         )
     }

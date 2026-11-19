@@ -40,7 +40,7 @@ fun MyGameCountdownLine(
     ) {
         MyGameIcon(icon = MyGameIcons.hourglass, tint = lineColor)
         MyGameText(label = words, style = MyGameTypography.caption.withTabularFigures(), color = lineColor)
-        MyGameText(label = time, style = MyGameTypography.heading.withTabularFigures(), color = timeColor)
+        MyGameText(label = time, style = MyGameTypography.title.withTabularFigures(), color = timeColor)
     }
 }
 
