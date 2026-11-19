@@ -49,6 +49,9 @@ sealed interface SchoolUiState {
 
         val nextStepReleasedLesson: LessonId?
             get() = (nextStep.action as? NextStepCard.Action.StudyReleased)?.lesson?.takeIf { blockLesson == null }
+
+        fun isStepLesson(card: LessonCard): Boolean =
+            (nextStep.action as? NextStepCard.Action.Study)?.number == card.number
     }
 
     data class DurationMark(val season: SeasonKind, val percent: Int)

@@ -11,6 +11,7 @@ import androidx.compose.ui.semantics.semantics
 import com.emm.mygame.core.designsystem.MyGameBlock
 import com.emm.mygame.core.designsystem.MyGameInlineAlert
 import com.emm.mygame.core.designsystem.MyGameLabel
+import com.emm.mygame.core.designsystem.MyGameMetaText
 import com.emm.mygame.core.designsystem.MyGameNavRow
 import com.emm.mygame.core.designsystem.MyGameOutlinedButton
 import com.emm.mygame.core.designsystem.MyGameSpacing
@@ -33,9 +34,10 @@ internal fun ShownLesson(
 ) {
     val running: SchoolUiState.SlotLine.Running? = content.slot as? SchoolUiState.SlotLine.Running
     val state: SchoolUiState.LessonState = card.state
+    val isStep: Boolean = content.isStepLesson(card)
     Column(verticalArrangement = Arrangement.spacedBy(MyGameSpacing.step5), modifier = modifier) {
-        LessonBlock(card = card)
-        if (state is SchoolUiState.LessonState.Open) {
+        LessonBlock(card = card, isStep = isStep)
+        if (state is SchoolUiState.LessonState.Open && !isStep) {
             StudyAction(
                 card = card,
                 block = state.block,
@@ -51,12 +53,15 @@ internal fun ShownLesson(
 }
 
 @Composable
-private fun LessonBlock(card: SchoolUiState.LessonCard, modifier: Modifier = Modifier) {
+private fun LessonBlock(card: SchoolUiState.LessonCard, isStep: Boolean, modifier: Modifier = Modifier) {
     val copy: PlayerCopy = rememberPlayerCopy()
     MyGameBlock(
         hue = blockHueOf(card.number - 1),
         modifier = modifier.semantics(mergeDescendants = true) { liveRegion = LiveRegionMode.Polite },
     ) {
+        if (isStep) {
+            MyGameMetaText(label = copy.chrome(R.string.school_next_title), color = MyGameTheme.colors.onBlockMuted)
+        }
         MyGameText(
             label = copy.chrome(R.string.school_lesson_title, "number" to card.number.toString()),
             style = MyGameTypography.display,

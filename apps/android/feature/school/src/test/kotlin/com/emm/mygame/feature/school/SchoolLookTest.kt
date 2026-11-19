@@ -385,7 +385,6 @@ class SchoolLookTest {
                 SchoolScreen(
                     state = state,
                     onIntent = { },
-                    onReviewsOpen = { },
                     onLessonOpen = { },
                 )
             }
@@ -482,7 +481,6 @@ class SchoolLookTest {
                 SchoolScreen(
                     state = idleSchool.copy(lessons = listOf(openFirst.copy(state = locked))),
                     onIntent = { },
-                    onReviewsOpen = { },
                     onLessonOpen = { },
                 )
             }
@@ -506,7 +504,6 @@ class SchoolLookTest {
                 SchoolScreen(
                     state = state,
                     onIntent = { },
-                    onReviewsOpen = { },
                     onLessonOpen = { },
                 )
             }
@@ -536,7 +533,6 @@ class SchoolLookTest {
                 SchoolScreen(
                     state = state(),
                     onIntent = { intent: SchoolIntent -> intents += intent },
-                    onReviewsOpen = { },
                     onLessonOpen = { lesson: LessonId -> lessonOpens += lesson },
                 )
             }

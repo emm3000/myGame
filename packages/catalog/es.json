@@ -243,6 +243,7 @@
   "android.school.school_lessons": "Lecciones",
   "android.school.school_level": "Nivel {level}",
   "android.school.school_loading": "Estamos leyendo tu pueblo…",
+  "android.school.school_next_title": "Tu siguiente paso",
   "android.school.school_path_count": "{count} de {total}",
   "android.school.school_path_learned": "Aprendidas",
   "android.school.school_path_read": "Puedes leer",

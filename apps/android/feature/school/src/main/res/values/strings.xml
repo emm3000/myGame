@@ -34,6 +34,7 @@
     <string name="school_lessons">Lessons</string>
     <string name="school_level">Level {level}</string>
     <string name="school_loading">Reading your town…</string>
+    <string name="school_next_title">What is next</string>
     <string name="school_path_count">{count} of {total}</string>
     <string name="school_path_learned">Learned</string>
     <string name="school_path_read">Can read</string>
