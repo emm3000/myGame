@@ -1,0 +1,9 @@
+<resources>
+    <string name="core_ui_test_duration_hours">{hours} h</string>
+    <string name="core_ui_test_duration_hours_minutes">{hours} h {minutes} min</string>
+    <string name="core_ui_test_duration_minutes">{minutes} min</string>
+    <string name="core_ui_test_duration_minutes_seconds">{minutes}:{seconds}</string>
+    <string name="core_ui_test_finish_day">{day} {time}</string>
+    <string name="core_ui_test_finish_tomorrow">tomorrow {time}</string>
+    <string name="core_ui_test_finish_with_clock">{timeLeft} · {clock}</string>
+</resources>

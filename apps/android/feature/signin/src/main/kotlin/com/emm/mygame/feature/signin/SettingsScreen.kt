@@ -7,15 +7,8 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.safeDrawingPadding
 import androidx.compose.foundation.rememberScrollState
-import androidx.compose.foundation.relocation.BringIntoViewRequester
-import androidx.compose.foundation.relocation.bringIntoViewRequester
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.MutableState
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.LiveRegionMode
@@ -37,6 +30,7 @@ import com.emm.mygame.core.designsystem.MyGameTypography
 import com.emm.mygame.core.designsystem.PreviewMyGame
 import com.emm.mygame.core.network.PlayerScaffold
 import com.emm.mygame.core.ui.joinsFrameTraversal
+import com.emm.mygame.core.ui.rememberRevealOnce
 import java.time.LocalTime
 
 @Composable
@@ -132,14 +126,7 @@ private fun ScaffoldSetting(
 
 @Composable
 private fun ChangeLine(change: SettingsUiState.Change, modifier: Modifier = Modifier) {
-    val requester: BringIntoViewRequester = remember { BringIntoViewRequester() }
-    val isRevealed: MutableState<Boolean> = rememberSaveable(change) { mutableStateOf(false) }
-    LaunchedEffect(change) {
-        if (isRevealed.value) return@LaunchedEffect
-        requester.bringIntoView()
-        isRevealed.value = true
-    }
-    val revealed: Modifier = modifier.bringIntoViewRequester(requester)
+    val revealed: Modifier = modifier.then(rememberRevealOnce(change))
     when (change) {
         SettingsUiState.Change.Untouched -> Unit
         is SettingsUiState.Change.Saving -> ChangeNote(text = stringResource(R.string.settings_saving), revealed)

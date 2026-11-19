@@ -30,6 +30,7 @@ import com.emm.mygame.core.ui.PlayerCopy
 import com.emm.mygame.core.ui.SeasonMark
 import com.emm.mygame.core.ui.chromeResource
 import com.emm.mygame.core.ui.rememberPlayerCopy
+import com.emm.mygame.core.ui.timeLeftLabelOf
 import java.time.LocalDateTime
 import java.time.ZoneId
 import kotlin.time.Duration.Companion.hours
@@ -227,7 +228,7 @@ private fun CopyReader.seasonLabelOf(season: TownUiState.SeasonLine): String =
 
 private fun CopyReader.seasonTimeLeftOf(season: TownUiState.SeasonLine): String {
     val days: Long = season.remaining.inWholeDays
-    if (days < 1) return timeLeftLabelOf(season.remaining)
+    if (days < 1) return timeLeftLabelOf(season.remaining, townDurationCopy)
     return text(R.string.town_season_days, "days" to days.toInt())
 }
 

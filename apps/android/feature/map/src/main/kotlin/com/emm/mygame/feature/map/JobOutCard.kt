@@ -20,6 +20,7 @@ import com.emm.mygame.core.designsystem.MyGameTheme
 import com.emm.mygame.core.designsystem.MyGameTypography
 import com.emm.mygame.core.ui.PlayerCopy
 import com.emm.mygame.core.ui.chromeResource
+import com.emm.mygame.core.ui.finishLabelOf
 import com.emm.mygame.core.ui.rememberPlayerCopy
 
 @Composable
@@ -100,7 +101,7 @@ private fun JobCountdown(jobOut: MapUiState.JobOut, modifier: Modifier = Modifie
             color = MyGameTheme.colors.ink,
         )
         MyGameText(
-            label = copy.chrome { finishLabelOf(jobOut.remaining, jobOut.finishesAt) },
+            label = copy.chrome { finishLabelOf(jobOut.remaining, jobOut.finishesAt, mapDurationCopy) },
             style = MyGameTypography.heading,
             color = MyGameTheme.colors.ink,
         )

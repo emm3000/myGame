@@ -23,6 +23,7 @@ import com.emm.mygame.core.designsystem.withTabularFigures
 import com.emm.mygame.core.network.TownBuildingKind
 import com.emm.mygame.core.ui.PlayerCopy
 import com.emm.mygame.core.ui.chromeResource
+import com.emm.mygame.core.ui.finishLabelOf
 import com.emm.mygame.core.ui.rememberPlayerCopy
 
 internal const val WORK_DONE_ICON: String = "work_done_icon"
@@ -97,7 +98,9 @@ private fun BusySlot(
     Column(verticalArrangement = Arrangement.spacedBy(MyGameSpacing.step3), modifier = modifier) {
         WorkHeading()
         WorkTitle(target = target)
-        RunningCountdown(label = rememberPlayerCopy().chrome { finishLabelOf(slot.remaining, slot.finishesAt) })
+        RunningCountdown(
+            label = rememberPlayerCopy().chrome { finishLabelOf(slot.remaining, slot.finishesAt, townDurationCopy) },
+        )
         MyGameTrack(
             filled = 1f - (slot.remaining / slot.total).toFloat(),
             color = MyGameTheme.colors.action,
@@ -133,7 +136,9 @@ private fun WaitingItem(
             }
             if (waiting.remaining.isPositive()) {
                 RunningCountdown(
-                    label = rememberPlayerCopy().chrome { finishLabelOf(waiting.remaining, waiting.finishesAt) },
+                    label = rememberPlayerCopy().chrome {
+                        finishLabelOf(waiting.remaining, waiting.finishesAt, townDurationCopy)
+                    },
                 )
             } else {
                 FinishedCountdown()

@@ -22,6 +22,7 @@ import com.emm.mygame.core.designsystem.blockHueOf
 import com.emm.mygame.core.network.LessonId
 import com.emm.mygame.core.network.LessonName
 import com.emm.mygame.core.ui.PlayerCopy
+import com.emm.mygame.core.ui.durationLabelOf
 import com.emm.mygame.core.ui.rememberPlayerCopy
 
 @Composable
@@ -110,7 +111,7 @@ internal fun PlayerCopy.studyLabelOf(card: SchoolUiState.LessonCard): MyGameLabe
     text(
         R.string.school_study_with_duration,
         "action" to text(R.string.school_lesson_study, "number" to card.number.toString()),
-        "duration" to durationLabelOf(card.duration),
+        "duration" to durationLabelOf(card.duration, schoolDurationCopy),
     )
 }
 

@@ -5,21 +5,10 @@ import com.emm.mygame.core.network.LessonId
 import com.emm.mygame.core.network.LessonName
 import com.emm.mygame.core.network.TownLessonRefusal
 import com.emm.mygame.core.network.TownResourceKind
-import com.emm.mygame.core.projection.FinishClock
-import com.emm.mygame.core.projection.finishClockOf
 import com.emm.mygame.core.ui.CopyReader
+import com.emm.mygame.core.ui.DurationCopy
 import com.emm.mygame.core.ui.PlayerCopy
-import java.time.ZoneId
-import kotlin.math.ceil
-import kotlin.time.Duration
-import kotlin.time.Duration.Companion.hours
-import kotlin.time.Duration.Companion.seconds
-import kotlin.time.DurationUnit
-import kotlin.time.Instant
-
-private const val SECONDS_PER_MINUTE: Long = 60
-
-private const val SECONDS_PER_HOUR: Long = 3600
+import com.emm.mygame.core.ui.finishLabelOf
 
 internal fun fixedLabelOf(text: String): MyGameLabel = MyGameLabel(text = text, translation = null)
 
@@ -55,7 +44,7 @@ private fun CopyReader.capRefusalLineOf(
         R.string.school_refusal_learning_cap_next_word_due,
         "cardsInLearning" to refusal.inLearning.toString(),
         "learningCap" to refusal.cap.toString(),
-        "timeLeft" to finishLabelOf(opening.remaining, opening.dueAt),
+        "timeLeft" to finishLabelOf(opening.remaining, opening.dueAt, schoolDurationCopy),
     )
 }
 
@@ -83,43 +72,6 @@ internal fun PlayerCopy.readWordsLabelOf(lesson: LessonId, name: LessonName, sho
     return lessonLineOf(name) { title: String -> "$title · ${text(R.string.school_lesson_read_words)}" }
 }
 
-internal fun CopyReader.durationLabelOf(duration: Duration): String {
-    val whole: Long = wholeSecondsOf(duration)
-    val hours: Long = whole / SECONDS_PER_HOUR
-    val minutes: Long = whole % SECONDS_PER_HOUR / SECONDS_PER_MINUTE
-    return when {
-        hours == 0L -> text(
-            R.string.school_duration_minutes_seconds,
-            "minutes" to minutes.toString(),
-            "seconds" to (whole % SECONDS_PER_MINUTE).toString().padStart(2, '0'),
-        )
-        minutes == 0L -> text(R.string.school_duration_hours, "hours" to hours.toString())
-        else -> text(
-            R.string.school_duration_hours_minutes,
-            "hours" to hours.toString(),
-            "minutes" to minutes.toString(),
-        )
-    }
-}
-
-internal fun CopyReader.timeLeftLabelOf(remaining: Duration): String {
-    val whole: Long = wholeSecondsOf(remaining)
-    if (whole < SECONDS_PER_MINUTE || whole >= SECONDS_PER_HOUR) return durationLabelOf(whole.seconds)
-    return text(R.string.school_duration_minutes, "minutes" to (whole / SECONDS_PER_MINUTE).toString())
-}
-
-private fun wholeSecondsOf(duration: Duration): Long = ceil(duration.toDouble(DurationUnit.SECONDS)).toLong()
-
-internal fun CopyReader.finishLabelOf(remaining: Duration, finishesAt: Instant): String {
-    val timeLeft: String = timeLeftLabelOf(remaining)
-    if (wholeSecondsOf(remaining).seconds <= 1.hours) return timeLeft
-    val finish: FinishClock = finishClockOf(finishesAt, remaining, ZoneId.systemDefault())
-    return text(R.string.school_finish_with_clock, "timeLeft" to timeLeft, "clock" to finishClockLabelOf(finish))
-}
-
-private fun CopyReader.finishClockLabelOf(finish: FinishClock): String =
-    clockLabelOf(finish, tomorrow = R.string.school_finish_tomorrow, later = R.string.school_finish_day)
-
 internal fun PlayerCopy.pastCapLabelOf(words: Int, opening: SchoolUiState.CapOpening): MyGameLabel =
     when (opening) {
         SchoolUiState.CapOpening.ReviewsDue -> chrome(R.string.school_learning_full, "count" to words)
@@ -127,7 +79,17 @@ internal fun PlayerCopy.pastCapLabelOf(words: Int, opening: SchoolUiState.CapOpe
             text(
                 R.string.school_learning_full_next_word_due,
                 "count" to words,
-                "timeLeft" to finishLabelOf(opening.remaining, opening.dueAt),
+                "timeLeft" to finishLabelOf(opening.remaining, opening.dueAt, schoolDurationCopy),
             )
         }
     }
+
+internal val schoolDurationCopy: DurationCopy = DurationCopy(
+    minutesSeconds = R.string.school_duration_minutes_seconds,
+    hours = R.string.school_duration_hours,
+    hoursMinutes = R.string.school_duration_hours_minutes,
+    minutes = R.string.school_duration_minutes,
+    finishWithClock = R.string.school_finish_with_clock,
+    finishTomorrow = R.string.school_finish_tomorrow,
+    finishDay = R.string.school_finish_day,
+)

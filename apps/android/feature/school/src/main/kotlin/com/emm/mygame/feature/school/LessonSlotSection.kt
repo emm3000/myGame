@@ -27,6 +27,7 @@ import com.emm.mygame.core.network.LessonName
 import com.emm.mygame.core.ui.PlayerCopy
 import com.emm.mygame.core.ui.chromeResource
 import com.emm.mygame.core.ui.rememberPlayerCopy
+import com.emm.mygame.core.ui.timeLeftLabelOf
 
 internal const val LESSON_DONE_ICON: String = "lesson_done_icon"
 
@@ -121,7 +122,7 @@ private fun BusySlot(
         ) {
             MyGameIcon(icon = MyGameIcons.hourglass, tint = MyGameTheme.colors.inkMuted)
             MyGameText(
-                label = copy.chrome { timeLeftLabelOf(slot.remaining) },
+                label = copy.chrome { timeLeftLabelOf(slot.remaining, schoolDurationCopy) },
                 style = MyGameTypography.heading.withTabularFigures(),
                 color = MyGameTheme.colors.ink,
             )

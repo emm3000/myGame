@@ -53,13 +53,14 @@ import com.emm.mygame.core.network.TownSnapshot
 import com.emm.mygame.core.network.WordSupport
 import com.emm.mygame.core.ui.ChromePhase
 import com.emm.mygame.core.ui.CopyLanguage
+import com.emm.mygame.core.ui.FoldedTaskEnd
 import com.emm.mygame.core.ui.ProvideCopyLanguage
 import com.emm.mygame.core.ui.ScaffoldLanguage
-import com.emm.mygame.core.ui.FoldedTaskEnd
 import com.emm.mygame.core.ui.TaskDockHook
 import com.emm.mygame.core.ui.chromeResource
 import com.emm.mygame.core.ui.fixedCopyResource
 import com.emm.mygame.core.ui.rememberPlayerCopy
+import com.emm.mygame.core.ui.timeLeftLabelOf
 import kotlin.time.Duration
 import kotlin.time.Duration.Companion.minutes
 
@@ -175,7 +176,7 @@ private fun RunningTime(remaining: Duration, modifier: Modifier = Modifier) {
             color = MyGameTheme.colors.inkMuted,
         )
         MyGameText(
-            label = rememberPlayerCopy().chrome { timeLeftLabelOf(remaining) },
+            label = rememberPlayerCopy().chrome { timeLeftLabelOf(remaining, schoolDurationCopy) },
             style = MyGameTypography.heading.withTabularFigures(),
             color = MyGameTheme.colors.ink,
         )
