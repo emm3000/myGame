@@ -14,6 +14,7 @@ import androidx.compose.ui.test.hasText
 import androidx.compose.ui.test.SemanticsNodeInteraction
 import androidx.compose.ui.test.SemanticsNodeInteractionCollection
 import androidx.compose.ui.test.assertCountEquals
+import androidx.compose.ui.test.getUnclippedBoundsInRoot
 import androidx.compose.ui.test.junit4.ComposeContentTestRule
 import androidx.compose.ui.test.junit4.createComposeRule
 import androidx.compose.ui.test.onAllNodesWithTag
@@ -22,18 +23,21 @@ import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
 import androidx.compose.ui.test.performScrollTo
+import androidx.compose.ui.unit.DpRect
 import androidx.compose.ui.unit.TextUnit
 import androidx.compose.ui.unit.sp
 import com.emm.mygame.core.designsystem.BLOCK_HUE
 import com.emm.mygame.core.designsystem.FRAME_STYLE
 import com.emm.mygame.core.designsystem.INK_PILL
 import com.emm.mygame.core.designsystem.MyGameBlockHue
+import com.emm.mygame.core.designsystem.MyGameSpacing
 import com.emm.mygame.core.designsystem.MyGameTheme
 import com.emm.mygame.core.network.LessonName
 import com.emm.mygame.core.ui.TaskDockHook
 import kotlin.time.Duration.Companion.minutes
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertNotNull
+import org.junit.Assert.assertTrue
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -113,10 +117,26 @@ class LessonWordsScreenTest {
     }
 
     @Test
-    fun `says which word of the run is on screen`() {
-        draw(finishedLastWord)
+    @Config(qualifiers = "+w411dp-h891dp")
+    fun `draws the word's position in the body, right above its track`() {
+        draw(finishedFirstWord.copy(words = listOf(homeWord, waterWord, farmWord), index = 1))
 
-        composeRule.onNodeWithText("Palabra 2 de 2").assertExists()
+        val position: DpRect = composeRule
+            .onNode(hasText("Palabra 2 de 3") and hasAnyAncestor(hasScrollAction()), useUnmergedTree = true)
+            .getUnclippedBoundsInRoot()
+        val track: DpRect = composeRule
+            .onNode(SemanticsMatcher.keyIsDefined(SemanticsProperties.ProgressBarRangeInfo))
+            .getUnclippedBoundsInRoot()
+        assertTrue(position.bottom <= track.top)
+        assertTrue(track.top - position.bottom <= MyGameSpacing.step2)
+    }
+
+    @Test
+    @Config(qualifiers = "+w411dp-h891dp")
+    fun `draws the lesson's time left in the body while it waits for the lesson's end`() {
+        draw(waitingLastWord)
+
+        composeRule.onNode(hasText("3 min") and hasAnyAncestor(hasScrollAction())).assertExists()
     }
 
     @Test
@@ -273,8 +293,8 @@ class LessonWordsScreenTest {
         draw(waitingLastWord)
 
         val atEnd: SemanticsMatcher = hasAnyAncestor(hasScrollAction()) and !hasAnyAncestor(hasTestTag(TASK_DOCK))
-        composeRule.onNode(hasText("3 min") and atEnd).assertExists()
-        composeRule.onNode(hasText("2 de 2", substring = true) and atEnd).assertExists()
+        composeRule.onAllNodes(hasText("3 min") and atEnd).assertCountEquals(2)
+        composeRule.onAllNodes(hasText("2 de 2", substring = true) and atEnd).assertCountEquals(2)
     }
 
     @Test

@@ -154,11 +154,18 @@ private fun Reviewing(
 private fun ReviewProgress(reviewing: ReviewUiState.Reviewing, modifier: Modifier = Modifier) {
     val done: Int = reviewing.walked + if (reviewing.isRated) 1 else 0
     val filled: Float = done.toFloat() / (reviewing.walked + reviewing.dueCount)
-    MyGameTrack(
-        filled = filled,
-        color = MyGameTheme.colors.action,
-        modifier = modifier.semantics { progressBarRangeInfo = ProgressBarRangeInfo(filled, 0f..1f) },
-    )
+    Column(verticalArrangement = Arrangement.spacedBy(MyGameSpacing.step2), modifier = modifier) {
+        MyGameText(
+            label = chromeResource(R.string.review_due_count, "count" to reviewing.dueCount.toString()),
+            style = MyGameTypography.caption,
+            color = MyGameTheme.colors.inkMuted,
+        )
+        MyGameTrack(
+            filled = filled,
+            color = MyGameTheme.colors.action,
+            modifier = Modifier.semantics { progressBarRangeInfo = ProgressBarRangeInfo(filled, 0f..1f) },
+        )
+    }
 }
 
 private val previewRecognition: ReviewUiState.ReviewCard.Recognition = ReviewUiState.ReviewCard.Recognition(

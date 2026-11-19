@@ -7,6 +7,7 @@ import androidx.compose.ui.test.hasStateDescription
 import androidx.compose.ui.test.hasText
 import androidx.compose.ui.test.junit4.ComposeContentTestRule
 import androidx.compose.ui.test.junit4.createComposeRule
+import androidx.compose.ui.test.onFirst
 import androidx.compose.ui.unit.DpRect
 import com.emm.mygame.core.designsystem.MyGameTheme
 import com.emm.mygame.core.designsystem.MyGameTransitions
@@ -121,6 +122,12 @@ class ReviewLanguageTest {
         }
     }
 
+    private fun assertDrawnInBodyAndDockLine(vararg lines: String) {
+        lines.forEach { line: String ->
+            composeRule.onAllNodes(hasText(line) and isPlaced).assertCountEquals(2)
+        }
+    }
+
     private fun assertNotDrawn(vararg lines: String) {
         lines.forEach { line: String ->
             composeRule.onAllNodes((hasText(line) or isGoNamed(line)) and isPlaced).assertCountEquals(0)
@@ -133,13 +140,15 @@ class ReviewLanguageTest {
     }
 
     private fun lineOf(text: String): DpRect =
-        composeRule.onNode(hasText(text) and isPlaced, useUnmergedTree = true).getUnclippedBoundsInRoot()
+        composeRule.onAllNodes(hasText(text) and isPlaced, useUnmergedTree = true).onFirst()
+            .getUnclippedBoundsInRoot()
 
     @Test
     fun `draws the review in Spanish in the Spanish phase`() {
         show(spanishPhase, recognizing)
 
-        assertDrawn("Repaso", "Por repasar: 3", "¿Qué significa?", "Comprobar")
+        assertDrawn("Repaso", "¿Qué significa?", "Comprobar")
+        assertDrawnInBodyAndDockLine("Por repasar: 3")
         assertNotDrawn("Reviews", "Reviews due: 3", "What does it mean?", "Check")
     }
 
@@ -147,7 +156,8 @@ class ReviewLanguageTest {
     fun `draws English over Spanish in the both phase`() {
         show(bothPhase, recognizing)
 
-        assertDrawn("Reviews", "Repaso", "Reviews due: 3", "Por repasar: 3")
+        assertDrawn("Reviews", "Repaso")
+        assertDrawnInBodyAndDockLine("Reviews due: 3", "Por repasar: 3")
         assertTrue(lineOf("Reviews").bottom <= lineOf("Repaso").top)
         assertTrue(lineOf("Reviews due: 3").bottom <= lineOf("Por repasar: 3").top)
     }
@@ -164,7 +174,8 @@ class ReviewLanguageTest {
     fun `draws the review in English in the English phase`() {
         show(englishPhase, recognizing)
 
-        assertDrawn("Reviews", "Reviews due: 3")
+        assertDrawn("Reviews")
+        assertDrawnInBodyAndDockLine("Reviews due: 3")
         assertNotDrawn("Repaso", "Por repasar: 3")
     }
 
@@ -231,7 +242,8 @@ class ReviewLanguageTest {
     fun `draws the review in English under none`() {
         show(noScaffold, recognizing)
 
-        assertDrawn("Reviews", "Reviews due: 3", "What does it mean?", "Check")
+        assertDrawn("Reviews", "What does it mean?", "Check")
+        assertDrawnInBodyAndDockLine("Reviews due: 3")
         assertNotDrawn("Repaso", "Por repasar: 3", "¿Qué significa?", "Comprobar")
     }
 

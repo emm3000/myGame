@@ -84,6 +84,13 @@ class HoldoutCheckScreenTest {
     }
 
     @Test
+    fun `draws the band and the shown word's place once in the body, above the track`() {
+        showing(askingFirstWord)
+
+        assertAskingProgressDrawnOnce(composeRule, band = "Banda 1", position = "Palabra 1 de 2")
+    }
+
+    @Test
     fun `draws the due line with the band and the week the api named`() {
         showing(dueEighthWeek.copy(band = PlacementBand.Second, week = HoldoutCheckWeek.TwentyFourth))
 
