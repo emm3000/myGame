@@ -13,6 +13,7 @@ import com.emm.mygame.core.network.LessonName
 import com.emm.mygame.core.network.NextStep
 import com.emm.mygame.core.network.PlacementBand
 import com.emm.mygame.core.network.TownSnapshot
+import kotlin.time.Duration
 import kotlin.time.Duration.Companion.seconds
 import kotlin.time.Instant
 import org.junit.Assert.assertEquals
@@ -115,7 +116,7 @@ class SchoolReleasedSlotTest {
     }
 
     private fun contentAt(now: Instant): SchoolUiState.Content =
-        releasedRunning.contentAt(now = now, mutations = SchoolMutations.none, selected = null)
+        releasedRunning.contentAt(now = now, gap = Duration.ZERO, mutations = SchoolMutations.none, selected = null)
 
     private fun show(state: SchoolUiState) {
         composeRule.setContent {

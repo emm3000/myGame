@@ -20,6 +20,7 @@ import com.emm.mygame.core.network.NextStep
 import com.emm.mygame.core.network.PlacementBand
 import com.emm.mygame.core.network.TownLessonRefusal
 import com.emm.mygame.core.network.TownSnapshot
+import kotlin.time.Duration
 import kotlin.time.Duration.Companion.seconds
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertTrue
@@ -217,6 +218,7 @@ class SchoolReleasedLessonsTest {
 
     private fun contentOf(town: TownSnapshot): SchoolUiState.Content = town.contentAt(
         now = readInstant + 30.seconds,
+        gap = Duration.ZERO,
         mutations = SchoolMutations.none,
         selected = null,
     )

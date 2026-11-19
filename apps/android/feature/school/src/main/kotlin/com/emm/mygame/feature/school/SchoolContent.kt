@@ -18,13 +18,14 @@ import kotlin.time.Instant
 
 internal fun TownSnapshot.contentAt(
     now: Instant,
+    gap: Duration,
     mutations: SchoolMutations,
     selected: LessonId?,
 ): SchoolUiState.Content {
     val card: NextStepCard = nextStepCard()
     return SchoolUiState.Content(
         schoolLevel = schoolLevel(),
-        learning = learningLineAt(now),
+        learning = learningLineAt(now, gap),
         slot = lessonSlot?.lineIn(this, now) ?: SchoolUiState.SlotLine.Idle,
         skills = skills.mapIndexed { index: Int, skill: TownSnapshot.EarnedSkill -> skill.lineAt(index, skills) },
         lessons = lessons.map { lesson: TownSnapshot.Lesson -> lesson.cardIn(this) },
@@ -59,7 +60,7 @@ private fun TownSnapshot.schoolLevel(): Int =
 
 private fun TownSnapshot.isPastCap(wordCount: Int): Boolean = learning.inLearning + wordCount > learning.cap
 
-private fun TownSnapshot.learningLineAt(now: Instant): SchoolUiState.LearningLine {
+private fun TownSnapshot.learningLineAt(now: Instant, gap: Duration): SchoolUiState.LearningLine {
     val next: TownSnapshot.Lesson? = lessons.firstOrNull { lesson: TownSnapshot.Lesson ->
         !lesson.isStudied && lessonSlot?.lesson != lesson.id
     }
@@ -67,13 +68,13 @@ private fun TownSnapshot.learningLineAt(now: Instant): SchoolUiState.LearningLin
         inLearning = learning.inLearning,
         cap = learning.cap,
         pastCapWords = next?.wordCount?.takeIf(::isPastCap),
-        opening = capOpeningAt(now),
+        opening = capOpeningAt(now, gap),
     )
 }
 
-private fun TownSnapshot.capOpeningAt(now: Instant): SchoolUiState.CapOpening {
+private fun TownSnapshot.capOpeningAt(now: Instant, gap: Duration): SchoolUiState.CapOpening {
     val dueAt: Instant = capWaitsUntil(now) ?: return SchoolUiState.CapOpening.ReviewsDue
-    return SchoolUiState.CapOpening.NextWordDue(remaining = dueAt - now, dueAt = dueAt)
+    return SchoolUiState.CapOpening.NextWordDue(remaining = dueAt - now, dueAt = dueAt - gap)
 }
 
 private fun TownSnapshot.LessonSlot.lineIn(town: TownSnapshot, now: Instant): SchoolUiState.SlotLine {

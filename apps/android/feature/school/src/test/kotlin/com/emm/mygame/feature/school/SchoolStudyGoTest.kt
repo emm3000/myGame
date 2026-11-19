@@ -5,6 +5,7 @@ import androidx.compose.ui.test.junit4.createComposeRule
 import com.emm.mygame.core.designsystem.MyGameDockGo
 import com.emm.mygame.core.designsystem.MyGameTheme
 import com.emm.mygame.core.network.TownSnapshot
+import kotlin.time.Duration
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertTrue
 import org.junit.Rule
@@ -47,6 +48,7 @@ class SchoolStudyGoTest {
     fun `studies the lesson the held town names, whatever the school has read`() {
         val older: SchoolUiState = townOf(lessons = listOf(lessonOf())).contentAt(
             now = readInstant,
+            gap = Duration.ZERO,
             mutations = SchoolMutations.none,
             selected = null,
         )
