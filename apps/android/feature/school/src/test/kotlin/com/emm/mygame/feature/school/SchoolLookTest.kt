@@ -27,6 +27,7 @@ import androidx.compose.ui.test.performClick
 import androidx.compose.ui.test.performScrollTo
 import androidx.compose.ui.text.TextLayoutResult
 import androidx.compose.ui.text.TextStyle
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.sp
 import com.emm.mygame.core.designsystem.BLOCK_HUE
@@ -235,6 +236,18 @@ class SchoolLookTest {
 
         composeRule.onNode(hasText("Lección 1") and theBlock).assertExists()
         composeRule.onNode(hasText("En estudio") and theBlock).assertExists()
+    }
+
+    @Test
+    fun `sets the running lesson's mark in its block in caption on the block's muted ink`() {
+        val (_, muted: Color) = showReadingBlockInks(
+            idleSchool.copy(slot = firstRunning, lessons = listOf(runningFirst, studiedSecond)),
+        )
+
+        val mark: TextStyle = textStyleOf(hasText("En estudio") and inTheBlock)
+        assertEquals(15.sp, mark.fontSize)
+        assertEquals(FontWeight.Normal, mark.fontWeight)
+        assertEquals(muted, mark.color)
     }
 
     @Test
@@ -502,9 +515,11 @@ class SchoolLookTest {
         return inks
     }
 
-    private fun textStyleOf(text: String): TextStyle {
+    private fun textStyleOf(text: String): TextStyle = textStyleOf(hasText(text))
+
+    private fun textStyleOf(matcher: SemanticsMatcher): TextStyle {
         val results: MutableList<TextLayoutResult> = mutableListOf()
-        composeRule.onNodeWithText(text, useUnmergedTree = true).fetchSemanticsNode()
+        composeRule.onNode(matcher, useUnmergedTree = true).fetchSemanticsNode()
             .config[SemanticsActions.GetTextLayoutResult].action?.invoke(results)
         return results.first().layoutInput.style
     }

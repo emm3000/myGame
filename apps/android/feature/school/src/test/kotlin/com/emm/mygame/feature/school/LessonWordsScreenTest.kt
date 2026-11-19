@@ -2,7 +2,9 @@ package com.emm.mygame.feature.school
 
 import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.mutableStateOf
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.semantics.ProgressBarRangeInfo
+import androidx.compose.ui.semantics.SemanticsActions
 import androidx.compose.ui.semantics.SemanticsProperties
 import androidx.compose.ui.test.SemanticsMatcher
 import androidx.compose.ui.test.hasAnyAncestor
@@ -23,6 +25,9 @@ import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
 import androidx.compose.ui.test.performScrollTo
+import androidx.compose.ui.text.TextLayoutResult
+import androidx.compose.ui.text.TextStyle
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.DpRect
 import androidx.compose.ui.unit.TextUnit
 import androidx.compose.ui.unit.sp
@@ -212,6 +217,22 @@ class LessonWordsScreenTest {
     }
 
     @Test
+    fun `sets the slot's title beside the hourglass in caption on the muted ink`() {
+        var muted: Color = Color.Unspecified
+        composeRule.setContent {
+            MyGameTheme {
+                muted = MyGameTheme.colors.inkMuted
+                LessonWordsWithDock(state = runningFirstWord)
+            }
+        }
+
+        val title: TextStyle = textStyleOf("En estudio")
+        assertEquals(15.sp, title.fontSize)
+        assertEquals(FontWeight.Normal, title.fontWeight)
+        assertEquals(muted, title.color)
+    }
+
+    @Test
     fun `asks for the next word from the dock while the lesson runs`() {
         draw(runningFirstWord)
 
@@ -342,6 +363,13 @@ class LessonWordsScreenTest {
             hasContentDescription(label, substring = true) and
             hasAnyAncestor(hasTestTag(TASK_DOCK)),
     )
+
+    private fun textStyleOf(text: String): TextStyle {
+        val results: MutableList<TextLayoutResult> = mutableListOf()
+        composeRule.onNodeWithText(text, useUnmergedTree = true).fetchSemanticsNode()
+            .config[SemanticsActions.GetTextLayoutResult].action?.invoke(results)
+        return results.first().layoutInput.style
+    }
 
     private fun inkPills(): SemanticsNodeInteractionCollection = composeRule.onAllNodesWithTag(INK_PILL)
 

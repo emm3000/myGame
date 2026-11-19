@@ -171,7 +171,7 @@ private fun RunningTime(remaining: Duration, modifier: Modifier = Modifier) {
         MyGameIcon(icon = MyGameIcons.hourglass, tint = MyGameTheme.colors.inkMuted)
         MyGameText(
             label = chromeResource(R.string.school_slot_title),
-            style = MyGameTypography.label,
+            style = MyGameTypography.caption,
             color = MyGameTheme.colors.inkMuted,
         )
         MyGameText(

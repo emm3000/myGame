@@ -4,6 +4,7 @@ import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.semantics.SemanticsActions
 import androidx.compose.ui.semantics.SemanticsProperties
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.test.SemanticsMatcher
 import androidx.compose.ui.test.assertCountEquals
 import androidx.compose.ui.test.assertHeightIsAtLeast
@@ -112,6 +113,21 @@ class MyGameLabelTest {
         show { MyGameSectionTitle(text = "Start reviews") }
 
         composeRule.onAllNodesWithText("Start reviews", useUnmergedTree = true).assertCountEquals(1)
+        composeRule.onNode(isHeading() and hasText("Start reviews")).assertExists()
+    }
+
+    @Test
+    fun `draws a section title in heading on the ink`() {
+        var ink: Color = Color.Unspecified
+        show {
+            ink = MyGameTheme.colors.ink
+            MyGameSectionTitle(text = "Start reviews")
+        }
+
+        val drawn: TextStyle = styleOf("Start reviews")
+        assertEquals(MyGameTypography.heading.fontSize, drawn.fontSize)
+        assertEquals(MyGameTypography.heading.fontWeight, drawn.fontWeight)
+        assertEquals(ink, drawn.color)
         composeRule.onNode(isHeading() and hasText("Start reviews")).assertExists()
     }
 
