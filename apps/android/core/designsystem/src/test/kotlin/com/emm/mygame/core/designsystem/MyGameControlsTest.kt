@@ -142,6 +142,13 @@ class MyGameControlsTest {
     }
 
     @Test
+    fun `draws a disabled back link's label in muted ink`() {
+        show { MyGameBackLink(label = "Town", isEnabled = false, onClick = {}) }
+
+        assertEquals(lightColors.inkMuted, styleOf("Town").color)
+    }
+
+    @Test
     fun `draws the back link's text in its own case`() {
         show { MyGameBackLink(label = "Town", isEnabled = true, onClick = {}) }
 

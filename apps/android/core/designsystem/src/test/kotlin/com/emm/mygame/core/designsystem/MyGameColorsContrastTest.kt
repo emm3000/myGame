@@ -118,7 +118,7 @@ private val pairs: List<ColorPair> = listOf(
         PairKind.Text,
         { it.inkMuted },
         { it.surface },
-        "captions on the page, a busy MyGameTextLink, MyGameSwitchRow line",
+        "captions on the page, a busy MyGameTextLink, a disabled MyGameBackLink, MyGameSwitchRow line",
     ),
     ColorPair(PairKind.Text, { it.inkMuted }, { it.surfaceRaised }, "captions in a card, MyGameTextField label"),
     ColorPair(
