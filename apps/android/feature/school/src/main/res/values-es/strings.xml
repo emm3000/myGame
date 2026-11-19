@@ -14,7 +14,7 @@
     <string name="school_learning">Palabras en aprendizaje: {inLearning} de {cap}</string>
     <string name="school_learning_full">{count, plural, =1 {La siguiente lección trae 1 palabra.} other {La siguiente lección trae {count, number,0} palabras.}} Empieza los repasos.</string>
     <string name="school_learning_full_next_word_due">{count, plural, =1 {La siguiente lección trae 1 palabra.} other {La siguiente lección trae {count, number,0} palabras.}} La siguiente palabra en aprendizaje se repasa en {timeLeft}.</string>
-    <string name="school_lesson_cap_reached">Palabras en aprendizaje: {inLearning} de {cap}. Esta lección trae {count}.</string>
+    <string name="school_lesson_cap_reached">{count, plural, =1 {Esta lección trae 1 palabra.} other {Esta lección trae {count, number,0} palabras.}}</string>
     <string name="school_lesson_needs_school">Necesita la escuela en nivel {level}</string>
     <string name="school_lesson_next">Siguiente lección</string>
     <string name="school_lesson_nothing_to_read">Ahora no hay palabras para leer.</string>

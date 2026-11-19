@@ -153,7 +153,7 @@ class TownStatusViewModel(private val towns: TownRepository, private val clock: 
         _state.value = when {
             screen == TownStatusScreen.Outside -> TownStatusUiState.none
             town == null -> TownStatusUiState(running = null, notice = null, dock = townRead.dock())
-            else -> town.statusAt(serverNow(), gap, finished)
+            else -> town.statusAt(serverNow(), gap, finished, screen)
                 .copy(dock = town.dockOn(screen, serverNow(), gap, lessonStart))
         }
     }
@@ -186,6 +186,17 @@ private fun TownStatusScreen.isDoorTo(firstUnread: LessonId?): Boolean = when (t
     -> false
 }
 
+private fun TownStatusScreen.statesRunningLesson(): Boolean = when (this) {
+    TownStatusScreen.School -> true
+    TownStatusScreen.Outside,
+    TownStatusScreen.ReadsTown,
+    TownStatusScreen.ReadsNoTown,
+    TownStatusScreen.Report,
+    TownStatusScreen.Reviews,
+    is TownStatusScreen.LessonWords,
+    -> false
+}
+
 private fun TownSnapshot.changesAt(): List<Instant> = listOfNotNull(lessonSlot?.finishesAt, nextDueAt)
 
 private fun TownSnapshot.nextChangeAt(): Instant? = changesAt().minOrNull()
@@ -198,9 +209,14 @@ private fun TownSnapshot.isLessonDueAt(now: Instant): Boolean {
     return finishesAt > readAt && finishesAt <= now
 }
 
-private fun TownSnapshot.statusAt(now: Instant, gap: Duration, finished: LessonId?): TownStatusUiState =
+private fun TownSnapshot.statusAt(
+    now: Instant,
+    gap: Duration,
+    finished: LessonId?,
+    screen: TownStatusScreen,
+): TownStatusUiState =
     TownStatusUiState(
-        running = lessonSlot?.let { slot: TownSnapshot.LessonSlot ->
+        running = lessonSlot?.takeUnless { screen.statesRunningLesson() }?.let { slot: TownSnapshot.LessonSlot ->
             TownStatusUiState.RunningLesson(
                 name = nameOf(slot.lesson),
                 remaining = countdownTo(finishesAt = slot.finishesAt, now = now),

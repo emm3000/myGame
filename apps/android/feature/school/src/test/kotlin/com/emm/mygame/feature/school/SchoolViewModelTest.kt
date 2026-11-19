@@ -246,7 +246,7 @@ class SchoolViewModelTest {
         )
 
         assertEquals(
-            SchoolUiState.LessonState.Open(SchoolUiState.LessonBlock.CapReached(8, cap = 10, wordCount = 5)),
+            SchoolUiState.LessonState.Open(SchoolUiState.LessonBlock.CapReached(wordCount = 5)),
             lessonOfCard(viewModel).state,
         )
     }
