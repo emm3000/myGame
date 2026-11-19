@@ -310,6 +310,11 @@ class AppNavigationTest {
     }
 
     private fun onLessonOneNearItsFinish(vararg destinations: Destination) {
+        showLessonOneNearItsFinish(*destinations)
+        assertStatusShown()
+    }
+
+    private fun showLessonOneNearItsFinish(vararg destinations: Destination) {
         repeat(READS_ON_ARRIVAL) { townsFake.answerRead(TownReadResult.Read(runningTown(lasting = NEAR_FINISH))) }
         composeRule.setContent {
             MyGameTheme {
@@ -320,7 +325,11 @@ class AppNavigationTest {
                 )
             }
         }
-        assertStatusShown()
+    }
+
+    private fun assertStudyingShownWithoutStatus() {
+        waitForLine(STUDYING_REFUND)
+        composeRule.onAllNodes(statusLine()).assertCountEquals(0)
     }
 
     private fun passingTheFinish() {
@@ -574,12 +583,12 @@ class AppNavigationTest {
     }
 
     @Test
-    fun `shows a running lesson's time on every signed-in screen`() {
+    fun `shows a running lesson's time in the status strip on every signed-in screen but the school`() {
         signedInAtTown(town = runningTown().copy(nextStep = NextStep.Reviews(count = 3, readFirst = emptyList())))
         assertStatusShown()
 
         composeRule.onNodeWithText("Ir a la escuela").performScrollTo().performClick()
-        assertStatusShown()
+        assertStudyingShownWithoutStatus()
         link("Pueblo").performClick()
         wayToTheReport().performScrollTo()
 
@@ -645,7 +654,8 @@ class AppNavigationTest {
 
     @Test
     fun `leaves the read at the lesson's finish to the school`() {
-        onLessonOneNearItsFinish(Destination.Town, Destination.School)
+        showLessonOneNearItsFinish(Destination.Town, Destination.School)
+        waitForLine(STUDYING_REFUND)
 
         passingTheFinish()
 
@@ -858,6 +868,7 @@ class AppNavigationTest {
     private companion object {
         const val TOWN_HEADER: String = "Riverton · Pueblo"
         const val LESSON_ONE_READY: String = "Lección 1 lista en"
+        const val STUDYING_REFUND: String = "Si lo paras, la lección queda por estudiar y puedes volver a empezarla."
         const val LESSON_ONE_DONE: String = "La lección 1 terminó."
         const val THREE_OF_FIVE: String = "3 de 5 palabras aprendidas"
         const val READS_AVAILABLE: Int = 5

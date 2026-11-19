@@ -126,7 +126,7 @@ sealed interface SchoolUiState {
 
         data class SchoolTooLow(val requiredLevel: Int) : LessonBlock
 
-        data class CapReached(val inLearning: Int, val cap: Int, val wordCount: Int) : LessonBlock
+        data class CapReached(val wordCount: Int) : LessonBlock
     }
 
     sealed interface LessonRequest {

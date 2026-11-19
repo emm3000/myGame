@@ -381,10 +381,31 @@ class SchoolScreenTest {
     }
 
     @Test
-    fun `names the count in learning on a lesson past the cap`() {
-        show(blocked(SchoolUiState.LessonBlock.CapReached(inLearning = 8, cap = 10, wordCount = 5)))
+    fun `names the words a lesson past the cap needs`() {
+        show(blocked(SchoolUiState.LessonBlock.CapReached(wordCount = 5)))
 
-        announcing("Palabras en aprendizaje: 8 de 10. Esta lección trae 5.")
+        announcing("Esta lección trae 5 palabras.")
+    }
+
+    @Test
+    fun `names one word a lesson past the cap needs in the singular`() {
+        show(blocked(SchoolUiState.LessonBlock.CapReached(wordCount = 1)))
+
+        announcing("Esta lección trae 1 palabra.")
+    }
+
+    @Test
+    fun `states the cap's figure once, in the learning card, with the cap full`() {
+        val capBlock = SchoolUiState.LessonState.Open(SchoolUiState.LessonBlock.CapReached(wordCount = 5))
+        show(
+            idleSchool.copy(
+                learning = idleSchool.learning.copy(inLearning = 8),
+                lessons = listOf(readyLesson.copy(state = capBlock), secondCard.copy(state = capBlock)),
+            ),
+        )
+
+        composeRule.onAllNodesWithText("8 de 10", substring = true, useUnmergedTree = true).assertCountEquals(1)
+        showing("Palabras en aprendizaje: 8 de 10")
     }
 
     @Test
