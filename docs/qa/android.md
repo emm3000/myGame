@@ -41,6 +41,22 @@ A `Verify` line names the catalog key it reads, with its full namespace (`androi
 - **A bearer for the api**, when a Verify line reads the api: `curl -s -X POST http://localhost:<API_PORT>/auth/sign-in/native -H 'content-type: application/json' -d '{"email":"…","password":"qa-password-1"}' | jq -r .token`. That opens a second session and leaves the phone's alone.
 - **The database**: `docker exec -i mygame-<name>-pg psql -U postgres -d mygame_<name>`. Every SQL below runs there.
 
+### Recipe: an account and a town by the api
+
+The shortcut in **Shortcuts that keep the box**. `SignUpRequestSchema` requires `scaffold`, `es` or `none`, beside the email and the password. `POST /town` is signed in: native sign-up sets no cookie and answers the session token, which the second call sends as an `Authorization` bearer. The first call prints `201`, the second `200`:
+
+```sh
+answer=$(mktemp)
+curl -s -o "$answer" -w '%{http_code}\n' -X POST http://localhost:<API_PORT>/auth/sign-up/native \
+  -H 'content-type: application/json' \
+  -d '{"email":"qa-<scaffold>-<case>@qa.test","password":"qa-password-1","scaffold":"<scaffold>"}'
+curl -s -o /dev/null -w '%{http_code}\n' -X POST http://localhost:<API_PORT>/town \
+  -H "authorization: Bearer $(jq -r .token "$answer")" \
+  -H 'content-type: application/json' -d '{"name":"<town name>"}'
+```
+
+A sign-up body without `scaffold` answers `400` with an empty body, and a taken email `409`. The token in `$answer` is a session of its own, so it also serves as the case's bearer for the api.
+
 ### Recipe: find the player and the town
 
 ```sql
@@ -129,8 +145,9 @@ Edit the interval to suit the case. The season calendar is content (`town.json`'
 - **The hands are the Android CLI.** Read a screen with `android layout --device=emulator-<port>`, as every `adb` command carries `-s emulator-<port>`, and pass `--no-metrics` on every call, since the CLI sends usage data otherwise. While the CLI's device helper runs, `uiautomator dump` writes no file, so use one or the other. `android input`, a tap by text, needs 1.0.16625370 or later; with an older CLI, tap the `center` the layout gives. Read `~/.claude/skills/android-cli/references/interact.md` before the first `android layout`.
 - **The journey rules** of the android-cli skill (`~/.claude/skills/android-cli/references/journeys.md`) apply to every case. Do each step exactly as written, and on its own. When the app disagrees with a `Verify` line, the app is wrong, and the case fails. Keep debugging to a minimum and report the failure. A crash, an exit or a freeze fails the case.
 - **A count is read from the layout text**, never from a screenshot, since Google lists counting as inconsistent for agents.
+- **A screenshot waits for the frame to settle.** After a rotation or a font-scale change, wait about 1 s, or read `android layout` first and shoot only once it shows the new orientation or scale: #1248's shot was likely a frame of the rotation, since trunk did not reproduce it. A fail that rests on one screenshot is backed by a second shot, or by a screenrecord (`adb -s emulator-<port> shell screenrecord --time-limit 10 /sdcard/<case>.mp4`, then `adb -s emulator-<port> pull /sdcard/<case>.mp4`), before it is filed.
 - **The time box.** Smoke takes 50 minutes and full takes 90, the exploratory charter included. Smoke's own server waits (the farm, lesson 1 twice and homes 2) take about 16 minutes before any tapping, and run 1 took 32 minutes for the 7 cases, and the 15-minute charter comes on top (32 + 15 = 47); so the box holds them, rather than seeding them.
-- **Shortcuts that keep the box.** A Setup-only account (one the case does not sign up itself) may be made with `POST /auth/sign-up/native` and `POST /town`; SMK-01, whose steps sign up, signs up in the app. SES-01 may use REM-09's sign-out, and LES-01 may run on SMK-03's lesson, the box staying 90 minutes.
+- **Shortcuts that keep the box.** A Setup-only account (one the case does not sign up itself) may be made with `POST /auth/sign-up/native` and `POST /town`, as **Recipe: an account and a town by the api** runs them; SMK-01, whose steps sign up, signs up in the app. SES-01 may use REM-09's sign-out, and LES-01 may run on SMK-03's lesson, the box staying 90 minutes.
 - **Every run ends with one 15-minute exploratory charter** on what changed since the last run, which `git log --oneline <last run's SHA>..HEAD -- apps/android apps/api packages` lists. Repeated cases stop finding bugs. Record the charter in one line, and file what it finds as for any fail.
 
 ## Recording a run
