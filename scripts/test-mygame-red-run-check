@@ -104,10 +104,31 @@ body_with_rows() {
 
 passes_a_command_that_is_not_gh_pr_create_without_running_the_audit() {
   local command
-  for command in "git status" "gh pr view 3 --json body"; do
+  for command in \
+    "git status" \
+    "gh pr view 3 --json body" \
+    "echo gh pr create" \
+    "rg -n 'gh pr create' docs" \
+    "git commit -m \"feat(agents): block gh pr create without a row\"" \
+    "gh issue create --title t --body \"a hook that blocks gh pr create\""; do
     hook "$command"
     expect_pass "${FUNCNAME[0]}" || return 1
     [ ! -s "$audit_log" ] || fail "${FUNCNAME[0]}" "'$command' ran the audit" || return 1
+  done
+}
+
+checks_gh_pr_create_run_as_a_command() {
+  local command
+  for command in \
+    "cd . ; gh pr create --fill" \
+    "cd . && gh pr create --fill" \
+    "true | gh pr create --fill" \
+    "(gh pr create --fill)" \
+    "cd .
+gh pr create --fill" \
+    "GH_PROMPT_DISABLED=1 gh pr create --fill"; do
+    hook "$command"
+    expect_blocked_for "${FUNCNAME[0]}" src/a.ts:2 src/b.kt:3 || fail "${FUNCNAME[0]}" "'$command' was not checked" || return 1
   done
 }
 
@@ -206,6 +227,11 @@ covers_a_backticked_path_line() {
   expect_pass "${FUNCNAME[0]}"
 }
 
+covers_a_row_without_a_closing_pipe() {
+  hook "gh pr create --title t --body '$(body_with_rows "| \`src/a.ts:2\` the if | \`a test\` | drop it | FAIL a |" "| src/b.kt:3 the if")'"
+  expect_pass "${FUNCNAME[0]}"
+}
+
 keeps_an_escaped_pipe_inside_the_first_cell() {
   hook "gh pr create --title t --body '$(body_with_rows "| \`src/a.ts:2\` the if | \`a test\` | drop it | FAIL a |" "| \`a\|b\` guard src/b.kt:3 | \`b test\` | drop it | FAIL b |")'"
   expect_pass "${FUNCNAME[0]}"
@@ -265,6 +291,7 @@ run() {
 
 build_the_fixture_repos
 run passes_a_command_that_is_not_gh_pr_create_without_running_the_audit
+run checks_gh_pr_create_run_as_a_command
 run checks_gh_pr_create_spelled_with_extra_whitespace
 run blocks_a_body_missing_one_row_and_names_exactly_that_path_line
 run passes_a_long_body_flag_covering_every_line
@@ -282,6 +309,7 @@ run blocks_an_exemption_row_with_an_empty_reason
 run covers_only_from_the_first_cell
 run covers_only_the_exact_path_line
 run covers_a_backticked_path_line
+run covers_a_row_without_a_closing_pipe
 run keeps_an_escaped_pipe_inside_the_first_cell
 run passes_without_a_body_when_the_audit_lists_nothing
 run runs_the_audit_in_the_hook_cwd
