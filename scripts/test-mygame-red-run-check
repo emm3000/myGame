@@ -276,7 +276,7 @@ expect_failed_closed() {
 
 passes_a_command_that_is_not_gh_pr_create_without_a_cwd() {
   status=0
-  out=$(jq -n '{tool_input: {command: "git status"}}' | (cd "$sandbox" && scripts/mygame-red-run-check) 2>"$sandbox/stderr") || status=$?
+  out=$(jq -n '{tool_input: {command: "gh pr view 3 --json body"}}' | (cd "$sandbox" && scripts/mygame-red-run-check) 2>"$sandbox/stderr") || status=$?
   err=$(<"$sandbox/stderr")
   expect_pass "${FUNCNAME[0]}"
 }
@@ -294,7 +294,7 @@ fails_closed_on_a_missing_cwd() {
 
 fails_closed_on_input_that_is_not_json() {
   status=0
-  out=$(printf 'not json\n' | (cd "$sandbox" && scripts/mygame-red-run-check) 2>"$sandbox/stderr") || status=$?
+  out=$(printf 'not json: gh pr create\n' | (cd "$sandbox" && scripts/mygame-red-run-check) 2>"$sandbox/stderr") || status=$?
   err=$(<"$sandbox/stderr")
   expect_failed_closed "${FUNCNAME[0]}" JSONDecodeError 1
 }
@@ -317,15 +317,23 @@ fails_closed_on_an_audit_script_that_is_not_executable() {
   return "$result"
 }
 
-fails_closed_without_python3() {
+hook_without_python3() {
   local bin="$sandbox/bin-without-python"
   mkdir -p "$bin"
   ln -sf "$(command -v bash)" "$bin/bash"
-  ln -sf "$(command -v dirname)" "$bin/dirname"
   status=0
-  out=$(jq -n --arg cwd "$repo" '{tool_input: {command: "git status"}, cwd: $cwd}' |
+  out=$(jq -n --arg command "$1" --arg cwd "$repo" '{tool_input: {command: $command}, cwd: $cwd}' |
     (cd "$sandbox" && PATH="$bin" scripts/mygame-red-run-check) 2>"$sandbox/stderr") || status=$?
   err=$(<"$sandbox/stderr")
+}
+
+passes_a_command_with_no_gh_pr_without_python3() {
+  hook_without_python3 "git status"
+  expect_pass "${FUNCNAME[0]}"
+}
+
+fails_closed_on_gh_pr_create_without_python3() {
+  hook_without_python3 "gh pr create --fill"
   expect_failed_closed "${FUNCNAME[0]}" python3 127
 }
 
@@ -393,7 +401,8 @@ run fails_closed_on_a_missing_cwd
 run fails_closed_on_input_that_is_not_json
 run fails_closed_on_a_missing_audit_script
 run fails_closed_on_an_audit_script_that_is_not_executable
-run fails_closed_without_python3
+run passes_a_command_with_no_gh_pr_without_python3
+run fails_closed_on_gh_pr_create_without_python3
 run settings_keep_the_trailer_hook_blocking_a_co_authored_commit
 run settings_run_the_check_through_the_project_dir
 [ "$failures" -eq 0 ]
