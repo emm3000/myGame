@@ -9,7 +9,7 @@ import json, os, re, shlex, subprocess, sys
 hook = json.load(sys.stdin)
 command = hook["tool_input"]["command"]
 cwd = hook["cwd"]
-if not re.search(r"gh\s+pr\s+create", command):
+if not re.search(r"(?:^|[;&|(\n])\s*(?:\w+=\S*\s+)*gh\s+pr\s+create", command):
     sys.exit(0)
 
 audit = subprocess.run([sys.argv[1]], cwd=cwd, capture_output=True, text=True)
