@@ -4,6 +4,7 @@ import androidx.navigation3.runtime.NavKey
 import com.emm.mygame.core.network.HoldoutCheckWeek
 import com.emm.mygame.core.network.LessonId
 import com.emm.mygame.core.network.PlacementBand
+import com.emm.mygame.core.network.TextId
 import kotlinx.serialization.Serializable
 
 @Serializable
@@ -47,4 +48,7 @@ sealed interface Destination : NavKey {
 
     @Serializable
     data class LessonWords(val lesson: LessonId, val walked: List<LessonId>) : Destination
+
+    @Serializable
+    data class SchoolText(val text: TextId) : Destination
 }

@@ -69,6 +69,7 @@
     <string name="school_slot_title">En estudio</string>
     <string name="school_start_reviews">Empezar los repasos</string>
     <string name="school_study_with_duration">{action} · {duration}</string>
+    <string name="school_texts">Para leer</string>
     <string name="school_title">Escuela</string>
     <string name="school_try_again">Volver a intentarlo</string>
     <string name="school_waiting">Esperando</string>

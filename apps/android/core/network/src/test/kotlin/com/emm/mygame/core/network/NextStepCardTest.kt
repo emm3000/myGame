@@ -145,6 +145,7 @@ class NextStepCardTest {
         work = TownSnapshot.Work(slot = null, waitingList = emptyList(), cap = 2),
         lessons = listOf(shelvedLessonOf()),
         releasedLessons = listOf(releasedLessonOf()),
+        texts = emptyList(),
         dueHoldoutChecks = emptyList(),
         hasBandStarted = false,
         skills = emptyList(),

@@ -131,6 +131,7 @@ internal fun townOf(
     work = TownSnapshot.Work(slot = slot, waitingList = waitingList, cap = cap),
     lessons = emptyList(),
     releasedLessons = releasedLessons,
+    texts = emptyList(),
     dueHoldoutChecks = emptyList(),
     hasBandStarted = false,
     skills = skills,

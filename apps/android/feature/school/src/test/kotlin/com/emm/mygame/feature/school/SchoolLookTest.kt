@@ -104,6 +104,7 @@ class SchoolLookTest {
         skills = emptyList(),
         lessons = listOf(openFirst, openSecond, openThird),
         releasedLessons = emptyList(),
+        texts = emptyList(),
         studyMark = null,
         nextStep = caughtUpCard,
         start = SchoolUiState.LessonRequest.Idle,

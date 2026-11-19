@@ -39,6 +39,7 @@ import com.emm.mygame.core.network.NextStepCard
 import com.emm.mygame.core.network.PlacementBand
 import com.emm.mygame.core.network.SchoolPathCounts
 import com.emm.mygame.core.network.SeasonKind
+import com.emm.mygame.core.network.TextId
 import com.emm.mygame.core.network.TownLessonRefusal
 import com.emm.mygame.core.network.TownResourceKind
 import com.emm.mygame.core.ui.ChromePhase
@@ -61,6 +62,7 @@ fun SchoolScreen(
     onIntent: (SchoolIntent) -> Unit,
     onLessonOpen: (LessonId) -> Unit,
     modifier: Modifier = Modifier,
+    onTextOpen: (TextId) -> Unit = {},
     holdoutChecks: @Composable () -> Unit = {},
     foldedDock: @Composable () -> Unit = {},
 ) {
@@ -94,6 +96,7 @@ fun SchoolScreen(
                 state = state,
                 onIntent = onIntent,
                 onLessonOpen = onLessonOpen,
+                onTextOpen = onTextOpen,
                 holdoutChecks = holdoutChecks,
             )
         }
@@ -105,6 +108,7 @@ private fun SchoolState(
     state: SchoolUiState,
     onIntent: (SchoolIntent) -> Unit,
     onLessonOpen: (LessonId) -> Unit,
+    onTextOpen: (TextId) -> Unit,
     holdoutChecks: @Composable () -> Unit,
 ) {
     when (state) {
@@ -121,6 +125,7 @@ private fun SchoolState(
             content = state,
             onIntent = onIntent,
             onLessonOpen = onLessonOpen,
+            onTextOpen = onTextOpen,
             holdoutChecks = holdoutChecks,
         )
     }
@@ -141,6 +146,7 @@ private fun SchoolContent(
     content: SchoolUiState.Content,
     onIntent: (SchoolIntent) -> Unit,
     onLessonOpen: (LessonId) -> Unit,
+    onTextOpen: (TextId) -> Unit,
     holdoutChecks: @Composable () -> Unit,
     modifier: Modifier = Modifier,
 ) {
@@ -153,6 +159,7 @@ private fun SchoolContent(
         }
         LearningSection(learning = content.learning)
         LessonRows(content = content, onIntent = onIntent)
+        TextRows(content = content, onTextOpen = onTextOpen)
         if (content.isHoldoutNoteShown) HoldoutNote()
         LessonSlotSection(
             slot = content.slot,
@@ -338,6 +345,7 @@ private val previewContent: SchoolUiState.Content = SchoolUiState.Content(
     ),
     lessons = listOf(previewOpenLesson, previewBlockedLesson),
     releasedLessons = listOf(previewReleasedOpen, previewReleasedNext),
+    texts = listOf(SchoolUiState.TextCard(text = TextId("text-1"), title = "A New Course")),
     studyMark = SchoolUiState.DurationMark(SeasonKind.Winter, percent = 75),
     nextStep = NextStepCard(
         line = NextStepCard.Line.Lesson(number = 1),

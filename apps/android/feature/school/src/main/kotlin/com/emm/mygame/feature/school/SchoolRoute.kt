@@ -9,6 +9,7 @@ import androidx.lifecycle.compose.LifecycleStartEffect
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.emm.mygame.core.network.LessonId
+import com.emm.mygame.core.network.TextId
 import com.emm.mygame.core.network.TownRepository
 import kotlin.time.Clock
 import kotlinx.coroutines.Dispatchers
@@ -21,6 +22,7 @@ fun SchoolRoute(
     onNoTown: () -> Unit,
     onLessonOpen: (LessonId) -> Unit,
     onLessonStart: () -> Unit,
+    onTextOpen: (TextId) -> Unit,
     modifier: Modifier = Modifier,
     holdoutChecks: @Composable () -> Unit = {},
     foldedDock: @Composable () -> Unit = {},
@@ -48,6 +50,7 @@ fun SchoolRoute(
         onIntent = viewModel::onIntent,
         onLessonOpen = onLessonOpen,
         modifier = modifier,
+        onTextOpen = onTextOpen,
         holdoutChecks = holdoutChecks,
         foldedDock = foldedDock,
     )

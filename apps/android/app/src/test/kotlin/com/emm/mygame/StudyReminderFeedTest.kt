@@ -322,6 +322,7 @@ class StudyReminderFeedTest {
         work = TownSnapshot.Work(slot = null, waitingList = emptyList(), cap = 2),
         lessons = emptyList(),
         releasedLessons = emptyList(),
+        texts = emptyList(),
         dueHoldoutChecks = dueHoldoutChecks,
         hasBandStarted = false,
         skills = emptyList(),

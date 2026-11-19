@@ -5,6 +5,7 @@ import com.emm.mygame.core.network.LessonName
 import com.emm.mygame.core.network.NextStepCard
 import com.emm.mygame.core.network.SchoolPathCounts
 import com.emm.mygame.core.network.SeasonKind
+import com.emm.mygame.core.network.TextId
 import com.emm.mygame.core.network.TownLessonRefusal
 import com.emm.mygame.core.network.TownResourceKind
 import kotlin.time.Duration
@@ -23,6 +24,7 @@ sealed interface SchoolUiState {
         val skills: List<SkillLine>,
         val lessons: List<LessonCard>,
         val releasedLessons: List<ReleasedLessonCard>,
+        val texts: List<TextCard>,
         val studyMark: DurationMark?,
         val nextStep: NextStepCard,
         val start: LessonRequest,
@@ -53,6 +55,8 @@ sealed interface SchoolUiState {
         fun isStepLesson(card: LessonCard): Boolean =
             (nextStep.action as? NextStepCard.Action.Study)?.number == card.number
     }
+
+    data class TextCard(val text: TextId, val title: String)
 
     data class DurationMark(val season: SeasonKind, val percent: Int)
 
