@@ -23,6 +23,7 @@ import androidx.compose.ui.test.performScrollTo
 import androidx.navigation3.runtime.rememberNavBackStack
 import androidx.test.ext.junit.rules.ActivityScenarioRule
 import com.emm.mygame.core.designsystem.INK_PILL
+import com.emm.mygame.core.designsystem.NAV_ROW_CHEVRON
 import com.emm.mygame.core.designsystem.MyGameTheme
 import com.emm.mygame.core.designsystem.PILL_BADGE
 import com.emm.mygame.core.network.CaughtUpReason
@@ -691,7 +692,7 @@ class AppNavigationTest {
         learningFake.answerRead(noReviews)
         townsFake.answerRead(TownReadResult.Read(finishedTown(readFirst = emptyList())))
 
-        composeRule.onNodeWithText("Empezar los repasos").performClick()
+        dockGo("Empezar los repasos").performClick()
         waitForLine("Aún no tienes palabras que repasar.")
 
         composeRule.onAllNodesWithText(LESSON_ONE_DONE).assertCountEquals(0)
@@ -703,7 +704,7 @@ class AppNavigationTest {
         repeat(2) { townsFake.answerRead(TownReadResult.Read(finishedTown(listOf(firstLesson)))) }
         reportsFake.answerRead(ReportReadResult.Read(walkReport))
 
-        composeRule.onNodeWithText("Leer las palabras").performClick()
+        dockGo("Leer las palabras").performClick()
         waitForLine("I drink water.")
 
         composeRule.onAllNodesWithText(LESSON_ONE_DONE).assertCountEquals(0)
@@ -726,24 +727,19 @@ class AppNavigationTest {
     }
 
     @Test
-    fun `opens the unread lesson from the finish notice`() {
+    fun `draws no way on in the finish notice beside the dock's go to the same words`() {
         onTheReportAsLessonOneFinishes(finishedTown(readFirst = listOf(firstLesson, secondLesson)))
-        repeat(2) { townsFake.answerRead(TownReadResult.Read(finishedTown(listOf(firstLesson, secondLesson)))) }
-        reportsFake.answerRead(ReportReadResult.Read(walkReport))
+        dockGo("Leer las palabras")
 
-        composeRule.onNodeWithText("Leer las palabras").performClick()
-
-        waitForLine("I drink water.")
+        composeRule.onAllNodes(noticeWayOn("Leer las palabras"), useUnmergedTree = true).assertCountEquals(0)
     }
 
     @Test
-    fun `opens the reviews from the finish notice when no word is unread`() {
+    fun `draws no way on in the finish notice beside the dock's go to the reviews`() {
         onTheReportAsLessonOneFinishes(finishedTown(readFirst = emptyList()))
-        learningFake.answerRead(noReviews)
+        dockGo("Empezar los repasos")
 
-        composeRule.onNodeWithText("Empezar los repasos").performClick()
-
-        waitForLine("Aún no tienes palabras que repasar.")
+        composeRule.onAllNodes(noticeWayOn("Empezar los repasos"), useUnmergedTree = true).assertCountEquals(0)
     }
 
     @Test
@@ -894,6 +890,11 @@ private class MovableClock : Clock {
 
     override fun now(): Instant = Clock.System.now() + passed
 }
+
+private fun noticeWayOn(label: String): SemanticsMatcher = hasClickAction()
+    .and(hasAnyDescendant(hasText(label)))
+    .and(hasAnyDescendant(hasTestTag(NAV_ROW_CHEVRON)))
+    .and(hasAnyAncestor(hasTestTag(TOWN_STATUS)))
 
 private val ringWording: Regex = Regex("\\d+ de \\d+ palabras? aprendidas?")
 
