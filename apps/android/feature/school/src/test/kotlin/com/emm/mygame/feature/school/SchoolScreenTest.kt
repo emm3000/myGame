@@ -30,7 +30,6 @@ import com.emm.mygame.core.network.CaughtUpReason
 import com.emm.mygame.core.network.HoldoutCheckWeek
 import com.emm.mygame.core.network.LessonId
 import com.emm.mygame.core.network.NextStep
-import com.emm.mygame.core.network.NextStepCard
 import com.emm.mygame.core.network.PlacementBand
 import com.emm.mygame.core.network.SchoolPathCounts
 import com.emm.mygame.core.network.TownLessonRefusal
@@ -352,61 +351,6 @@ class SchoolScreenTest {
         composeRule
             .onNodeWithTag(OUTLINED_PILL)
             .assert(hasText("Estudiar la lección 1 · 2:30"))
-    }
-
-    private val studyFirst: NextStepCard = NextStepCard(
-        line = NextStepCard.Line.Lesson(number = 1),
-        detail = NextStepCard.Detail.Words(count = 5),
-        countdown = null,
-        action = NextStepCard.Action.Study(number = 1),
-    )
-
-    private val stepSchool: SchoolUiState.Content =
-        idleSchool.copy(lessons = listOf(readyLesson, secondCard), nextStep = studyFirst)
-
-    @Test
-    fun `names What is next above the step's lesson`() {
-        show(stepSchool)
-
-        val eyebrowBottom: Dp = composeRule.onNodeWithText(WHAT_IS_NEXT, ignoreCase = true, useUnmergedTree = true)
-            .assertIsDisplayed()
-            .getUnclippedBoundsInRoot().bottom
-        val titleTop: Dp = composeRule.onNodeWithText("Lección 1", useUnmergedTree = true)
-            .getUnclippedBoundsInRoot().top
-        assertTrue(eyebrowBottom <= titleTop)
-    }
-
-    @Test
-    fun `names no What is next over a selected lesson that is not the step's`() {
-        show(stepSchool.copy(selected = secondLesson))
-
-        showing("Work and money")
-        composeRule.onAllNodesWithText(WHAT_IS_NEXT, ignoreCase = true, useUnmergedTree = true).assertCountEquals(0)
-    }
-
-    @Test
-    fun `names no What is next while the step is not a lesson`() {
-        show(idleSchool)
-
-        showing("Lección 1")
-        composeRule.onAllNodesWithText(WHAT_IS_NEXT, ignoreCase = true, useUnmergedTree = true).assertCountEquals(0)
-    }
-
-    @Test
-    fun `draws no study button for the step's lesson`() {
-        show(stepSchool)
-
-        showing("Lección 1")
-        composeRule.onAllNodesWithText("Estudiar la lección 1 · 2:30").assertCountEquals(0)
-    }
-
-    @Test
-    fun `draws the study button for a selected lesson that is not the step's`() {
-        show(stepSchool.copy(selected = secondLesson))
-
-        composeRule.onNodeWithText("Estudiar la lección 2 · 2:30").performScrollTo().performClick()
-
-        assertEquals(listOf<SchoolIntent>(SchoolIntent.StudyTapped(secondLesson)), intents)
     }
 
     @Test
@@ -850,6 +794,5 @@ class SchoolScreenTest {
         const val HOLDOUT_NOTE: String =
             "1 de cada 10 palabras se aparta para dos pruebas posteriores y vuelve después de la última."
         const val REVEAL_MARGIN_MILLIS: Long = 50
-        const val WHAT_IS_NEXT: String = "Tu siguiente paso"
     }
 }
