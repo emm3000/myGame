@@ -72,6 +72,7 @@ internal fun FramedScreen(
         if (kind == FrameKind.Home) WindowInsets.ime else WindowInsets.ime.union(WindowInsets.statusBars)
     val isFolded: MutableState<Boolean> = remember { mutableStateOf(false) }
     val isKeyboardOpen: Boolean = WindowInsets.isImeVisible
+    val isDockUnderKeyboard: Boolean = isKeyboardOpen && kind != FrameKind.Task
     val onStatusIntent: State<(TownStatusIntent) -> Unit> = rememberUpdatedState(chrome.onStatusIntent)
     val task: TaskDockHook = remember {
         TaskDockHook(onAnswered = { onStatusIntent.value(TownStatusIntent.ScreenAnswered) })
@@ -82,8 +83,12 @@ internal fun FramedScreen(
     val frame = ScreenFrame(
         task = task,
         foldedDock = { FoldedDockTop(dock = dock, isFolded = isFolded.value, turn = foldedTurnOf(kind)) },
-        reportRow = { HomeReportRow(kind = kind, dock = dock, navigator = chrome.navigator) },
-        status = { chrome.banner(dock) },
+        reportRow = {
+            dock?.let { shown: TownStatusUiState.Dock ->
+                TownReportRow(dock = shown, onClick = chrome.navigator::openReport)
+            }
+        },
+        status = { chrome.banner(dock.takeUnless { isDockUnderKeyboard }) },
     )
     Column(
         modifier = modifier
@@ -103,7 +108,7 @@ internal fun FramedScreen(
         ) {
             content(frame)
         }
-        if (isKeyboardOpen && kind != FrameKind.Task) return@Column
+        if (isDockUnderKeyboard) return@Column
         AboveKeyboard(isKeyboardOpen = isKeyboardOpen) {
             task.shownOn(kind)?.let { shown: TaskDock -> TaskFrameDock(shown = shown, onFoldChange = task::fold) }
             dock?.let { shown: TownStatusUiState.Dock ->
@@ -134,12 +139,6 @@ private fun FoldedDockTop(dock: TownStatusUiState.Dock?, isFolded: Boolean, turn
     ) {
         notice?.let { shown: TownNotice -> TownDockNotice(notice = shown) }
     }
-}
-
-@Composable
-private fun HomeReportRow(kind: FrameKind, dock: TownStatusUiState.Dock?, navigator: Navigator) {
-    if (kind != FrameKind.Home || dock == null) return
-    TownReportRow(dock = dock, onClick = navigator::openReport)
 }
 
 private fun isTownDockShown(kind: FrameKind, isDockWithheld: Boolean, follow: TownFollow?): Boolean =
