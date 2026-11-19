@@ -280,7 +280,7 @@ class ReviewLanguageTest {
     fun `draws the lesson path in English in the English phase`() {
         show(englishPhase, nothingDueInThreeDays)
 
-        assertDrawn("Studied", "Read", "Reviewed", "Learned", "3 of 5")
+        assertDrawn("Studied", "Can read", "Reviewed", "Learned", "3 of 5")
         assertNotDrawn("Estudiadas", "Repasadas", "3 de 5")
     }
 

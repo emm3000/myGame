@@ -109,7 +109,15 @@ class ReviewEndScreenTest {
     fun `shows the school path at the review's end`() {
         draw(nothingDue(path = lessonTwoPath))
 
-        listOf("Lección 2", "Estudiadas", "4 de 4", "Leídas", "3 de 4", "Repasadas", "1 de 4").forEach { line: String ->
+        listOf(
+            "Lección 2",
+            "Estudiadas",
+            "4 de 4",
+            "Puedes leer",
+            "3 de 4",
+            "Repasadas",
+            "1 de 4",
+        ).forEach { line: String ->
             composeRule.onNodeWithText(line).performScrollTo().assertIsDisplayed()
         }
     }

@@ -34,7 +34,7 @@ class SchoolPathLabelTest {
                 SchoolPath(
                     steps = SchoolPathSteps(
                         studied = stepOf(english = "Studied", spanish = "Estudiadas", count = 5),
-                        read = stepOf(english = "Read", spanish = "Leídas", count = 4),
+                        read = stepOf(english = "Can read", spanish = "Puedes leer", count = 4),
                         reviewed = stepOf(english = "Reviewed", spanish = "Repasadas", count = 3),
                         learned = stepOf(english = "Learned", spanish = "Aprendidas", count = 2),
                     ),
