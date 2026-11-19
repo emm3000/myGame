@@ -118,10 +118,12 @@ class ReviewEndViewModelTest {
             assertEquals(firstReadAt + 9.minutes, (awaitItem() as ReviewUiState.NothingDue).dueAt)
             advanceTimeBy(9.minutes - 1.seconds)
             expectNoEvents()
+            assertEquals(1, learning.readCount)
             learning.answerRead(dueNow(schoolRecognition))
             advanceTimeBy(1.seconds)
             runCurrent()
             assertEquals(schoolRecognition.wordId, awaitReviewing().card.wordId)
+            assertEquals(2, learning.readCount)
         }
     }
 

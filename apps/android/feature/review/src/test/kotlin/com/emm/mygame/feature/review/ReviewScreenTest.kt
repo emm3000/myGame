@@ -215,7 +215,7 @@ class ReviewScreenTest {
     }
 
     @Test
-    @Config(qualifiers = "+w360dp-h320dp", fontScale = 2.0f)
+    @Config(qualifiers = "+w360dp-h320dp")
     @GraphicsMode(GraphicsMode.Mode.NATIVE)
     fun `a folded dock moves the verdict to the end of the card, in view`() {
         val shown: MutableState<ReviewUiState> =
@@ -256,7 +256,7 @@ class ReviewScreenTest {
     }
 
     @Test
-    @Config(qualifiers = "+w360dp-h480dp", fontScale = 2.0f)
+    @Config(qualifiers = "+w360dp-h480dp")
     @GraphicsMode(GraphicsMode.Mode.NATIVE)
     fun `a new card opens at the top of the review`() {
         val shown: MutableState<ReviewUiState> =
@@ -275,7 +275,7 @@ class ReviewScreenTest {
     }
 
     @Test
-    @Config(qualifiers = "+w360dp-h480dp", fontScale = 2.0f)
+    @Config(qualifiers = "+w360dp-h480dp")
     @GraphicsMode(GraphicsMode.Mode.NATIVE)
     fun `a returning word opens at the top of the review`() {
         val missed: ReviewUiState.Reviewing =
