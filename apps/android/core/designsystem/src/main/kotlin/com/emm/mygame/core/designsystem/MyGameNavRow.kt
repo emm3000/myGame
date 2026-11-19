@@ -23,6 +23,7 @@ fun MyGameNavRow(
     status: MyGameLabel? = null,
     body: MyGameLabel? = null,
     caption: MyGameLabel? = null,
+    footer: (@Composable () -> Unit)? = null,
 ) {
     val colors: MyGameColors = MyGameTheme.colors
     Column(modifier = modifier.fillMaxWidth()) {
@@ -49,6 +50,7 @@ fun MyGameNavRow(
             }
             MyGameIcon(icon = MyGameIcons.forward, tint = colors.ink, modifier = Modifier.testTag(NAV_ROW_CHEVRON))
         }
+        footer?.invoke()
         MyGameHairline()
     }
 }

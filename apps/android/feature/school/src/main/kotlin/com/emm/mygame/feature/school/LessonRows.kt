@@ -141,11 +141,14 @@ private fun LessonRow(
     onIntent: (SchoolIntent) -> Unit,
     modifier: Modifier = Modifier,
 ) {
-    val isStudied: Boolean = card.state == SchoolUiState.LessonState.Studied
     Column(modifier = modifier.fillMaxWidth().semantics { testTag = LESSON_ROW }) {
-        if (isStudied) StudiedLesson(card = card) else LessonTarget(card = card, onIntent = onIntent)
-        LessonPath(path = card.path, modifier = Modifier.padding(bottom = MyGameSpacing.step3))
-        if (isStudied) MyGameHairline()
+        if (card.state == SchoolUiState.LessonState.Studied) {
+            StudiedLesson(card = card)
+            LessonPath(path = card.path, modifier = Modifier.padding(bottom = MyGameSpacing.step3))
+            MyGameHairline()
+        } else {
+            LessonTarget(card = card, onIntent = onIntent)
+        }
     }
 }
 
@@ -184,6 +187,7 @@ private fun LessonTarget(
         caption = copy.chrome { lessonSummaryOf(card) },
         onClick = { onIntent(SchoolIntent.LessonSelected(card.lesson)) },
         modifier = modifier,
+        footer = { LessonPath(path = card.path, modifier = Modifier.padding(bottom = MyGameSpacing.step3)) },
     )
 }
 
