@@ -327,12 +327,14 @@ screenshot of every affected screen.
 2. **Every door is a nav row.** **Trap list: no default changes, 6
    screens touched**: the town's school and office pages, the Report, the
    school, the lesson's words, the placement offer.
-   - The call sites this ADR maps to a door draw `MyGameNavRow`:
-     `TownPage.kt:123` and `:129`, `ReportRows.kt:36`,
-     `PlacementOffer.kt:67`, `HoldoutCheckRows.kt:72`,
-     `LessonWordsScreen.kt:152`, `:260` and `:275`, `ShownLesson.kt:120`.
-   - No `MyGameTextLink` or `MyGameOutlinedButton` call site opens a
-     signed-in screen.
+   - These nine call sites draw `MyGameNavRow`: `TownPage.kt:123` and
+     `:129`, `ReportRows.kt:36`, `PlacementOffer.kt:67`,
+     `HoldoutCheckRows.kt:72`, `LessonWordsScreen.kt:152`, `:260` and
+     `:275`, `ShownLesson.kt:120`.
+   - The only `MyGameTextLink` or `MyGameOutlinedButton` call sites left
+     that open a signed-in screen are the five slices 6 and 8 own:
+     `TownDock.kt:66`, `TownStatus.kt:95`, `SettingsScreen.kt:84`,
+     `ReviewsLink.kt:25` and `:31`.
    - Each row opens the screen its text link or button opened.
 3. **Static containers drop the outline.** **Trap list: yes**:
    `MyGameCard`'s default changes its 10 call sites in 5 feature modules
@@ -372,8 +374,8 @@ screenshot of every affected screen.
    - The folded dock's door at the top of the scroll is a `MyGameNavRow`.
    - `SettingsScreen` draws no way to the town outside the dock, and
      `settings_back` leaves the catalog.
-   - The finish notice draws no open button when the dock's go opens the
-     same screen.
+   - The finish notice's way on (`TownStatus.kt:95`) is a `MyGameNavRow`,
+     and is not drawn when the dock's go opens the same screen.
 7. **The ring's label.** **Trap list: yes**: the header is drawn on every
    signed-in screen.
    - The header shows `shell_retained_words` as text beside the ring.
@@ -409,7 +411,9 @@ screenshot of every affected screen.
       work mark are unchanged.
 
 Slices 1 and 2 go first, since 6 and 8 draw `MyGameNavRow`. Slices 3, 4,
-5, 9 and 10 depend on nothing. Slice 8 follows 6.
+5, 9 and 10 depend on nothing. Slice 8 follows 6. Once slices 2, 6 and 8
+are merged, no `MyGameTextLink` or `MyGameOutlinedButton` call site opens
+a signed-in screen.
 
 ## Considered options
 
