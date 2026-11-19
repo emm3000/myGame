@@ -1,0 +1,87 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+usage() {
+  echo "usage: scripts/mygame-branch-audit [<base>]" >&2
+  exit 64
+}
+
+[ $# -le 1 ] || usage
+base=${1-origin/trunk}
+case $base in '' | -*) usage ;; esac
+
+cd "$(git rev-parse --show-toplevel)"
+git -c core.quotePath=false diff --unified=0 --no-color --no-ext-diff --no-textconv --find-renames \
+  --src-prefix=a/ --dst-prefix=b/ "$base...HEAD" -- '*.kt' '*.ts' '*.tsx' |
+  python3 -I -c '
+import re, sys
+
+test_source = re.compile(
+    r"\.test\.tsx?$|\.testSupport\.ts$|(^|/)src/(test|androidTest)/"
+    r"|^apps/android/core/testing/|^packages/domain/src/testing/"
+)
+
+assigned = r"(?<![<>!=+\-*/%&|^?])=(?![=>])"
+kotlin_type = r"(?:[^=()]|\([^()]*\))+?"
+kotlin_parameter = (
+    r"(?:(?:@\w+(?:\([^()]*\))?|private|internal|protected|public|override|open|vararg|crossinline|noinline)\s+)*"
+    r"(?:va[lr]\s+)?\w+\s*:\s*" + kotlin_type + assigned
+)
+typescript_type = r"(?:[^=()]|=>|\([^()]*\))+?"
+typescript_parameter = (
+    r"(?:(?:public|private|protected|readonly)\s+)*\w+\s*(?::\s*" + typescript_type + r")?" + assigned
+)
+
+shared = [
+    re.compile(r"\bif\b"),
+    re.compile(r"\bwhen\b"),
+    re.compile(r"\bmaxOf\b"),
+    re.compile(r"\bminOf\b"),
+    re.compile(r"\bcoerce[A-Z]\w*"),
+    re.compile(r"\?\?"),
+    re.compile(r"(?:^|\s)\?(?:\s|$)"),
+]
+kotlin = shared + [
+    re.compile(r"\?:"),
+    re.compile(r"[(,]\s*" + kotlin_parameter),
+    re.compile(r"^\s*" + kotlin_parameter + r".*,\s*$"),
+]
+typescript = shared + [
+    re.compile(r"[({,]\s*" + typescript_parameter),
+    re.compile(r"^\s*" + typescript_parameter + r".*,\s*$"),
+]
+
+def tokens_for(path):
+    if test_source.search(path):
+        return None
+    return kotlin if path.endswith(".kt") else typescript
+
+hits = []
+path = ""
+tokens = None
+line = 0
+in_header = False
+for raw in sys.stdin:
+    text = raw.rstrip("\n")
+    if text.startswith("diff --git "):
+        in_header = True
+        continue
+    if in_header and not text.startswith("@@ "):
+        if text.startswith("+++ "):
+            path = text[len("+++ b/"):]
+            tokens = tokens_for(path)
+        continue
+    if text.startswith("@@ "):
+        in_header = False
+        line = int(re.match(r"@@ -\S+ \+(\d+)", text).group(1))
+        continue
+    if text.startswith("+"):
+        if tokens is not None and any(token.search(text[1:]) for token in tokens):
+            hits.append((path, line))
+        line += 1
+    elif text.startswith(" "):
+        line += 1
+
+for path, line in sorted(hits):
+    print(f"{path}:{line}")
+'
