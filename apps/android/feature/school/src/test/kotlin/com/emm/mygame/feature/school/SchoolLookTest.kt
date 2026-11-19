@@ -37,6 +37,8 @@ import com.emm.mygame.core.designsystem.MyGameTheme
 import com.emm.mygame.core.designsystem.NAV_ROW_CHEVRON
 import com.emm.mygame.core.designsystem.OUTLINED_PILL
 import com.emm.mygame.core.network.LessonId
+import com.emm.mygame.core.network.LessonName
+import com.emm.mygame.core.network.PlacementBand
 import com.emm.mygame.core.network.SchoolPathCounts
 import com.emm.mygame.core.network.SeasonKind
 import com.emm.mygame.core.network.TownResourceKind
@@ -126,6 +128,15 @@ class SchoolLookTest {
             openFirst.copy(lesson = shownFourth, number = 4, theme = "At home"),
         ),
         selected = shownFourth,
+    )
+
+    private fun studiedReleased(set: Int): SchoolUiState.ReleasedLessonCard = SchoolUiState.ReleasedLessonCard(
+        lesson = LessonId("released-$set"),
+        name = LessonName.Released(band = PlacementBand.First, set = set),
+        wordCount = 5,
+        duration = 150.seconds,
+        path = SchoolPathCounts(held = 0, read = 0, reviewed = 0, learned = 0),
+        state = SchoolUiState.LessonState.Studied,
     )
 
     private fun chevronOf(title: String): SemanticsMatcher =
@@ -248,12 +259,37 @@ class SchoolLookTest {
     }
 
     @Test
+    fun `sets released lessons after a lesson row with one hairline between each`() {
+        show(
+            idleSchool.copy(
+                lessons = listOf(openFirst, openSecond),
+                releasedLessons = listOf(studiedReleased(set = 1), studiedReleased(set = 2)),
+            ),
+        )
+
+        composeRule.onAllNodesWithTag(HAIRLINE, useUnmergedTree = true).assertCountEquals(2)
+    }
+
+    @Test
     fun `draws every unstudied lesson's row as a door`() {
         show(everyUnstudiedRow)
 
         listOf("Lección 1", "Lección 2", "Lección 3").forEach { title: String ->
             composeRule.onNode(chevronOf(title), useUnmergedTree = true).assertExists()
         }
+    }
+
+    @Test
+    fun `marks the running lesson's row as under study`() {
+        show(everyUnstudiedRow)
+
+        composeRule
+            .onNode(
+                hasText("En estudio") and
+                    hasAnyAncestor(hasTestTag(LESSON_ROW) and hasAnyDescendant(hasText("Lección 1"))),
+                useUnmergedTree = true,
+            )
+            .assertExists()
     }
 
     @Test

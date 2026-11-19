@@ -126,6 +126,46 @@ class MyGameNavRowTest {
         assertTrue("its point is past the middle: $inkedColumns", inkedColumns.average() > image.width / 2.0)
     }
 
+    private fun showLessonRow() {
+        show {
+            MyGameNavRow(
+                title = MyGameLabel(text = "Lesson 2", translation = null),
+                status = MyGameLabel(text = "Studying", translation = null),
+                body = MyGameLabel(text = "Work and money", translation = null),
+                caption = MyGameLabel(text = "5 words", translation = null),
+                onClick = {},
+            )
+        }
+    }
+
+    private fun boundsOf(text: String): DpRect =
+        composeRule.onNodeWithText(text, useUnmergedTree = true).getBoundsInRoot()
+
+    @Test
+    fun `a nav row draws its status beside its title`() {
+        showLessonRow()
+
+        val title: DpRect = boundsOf("Lesson 2")
+        val status: DpRect = boundsOf("Studying")
+
+        assertTrue("the status follows the title", title.right <= status.left)
+        assertTrue("the status shares the title's line", status.top < title.bottom && title.top < status.bottom)
+    }
+
+    @Test
+    fun `a nav row draws its body under its title`() {
+        showLessonRow()
+
+        assertTrue("the body is under the title", boundsOf("Lesson 2").bottom <= boundsOf("Work and money").top)
+    }
+
+    @Test
+    fun `a nav row draws its caption under its body`() {
+        showLessonRow()
+
+        assertTrue("the caption is under the body", boundsOf("Work and money").bottom <= boundsOf("5 words").top)
+    }
+
     @Test
     fun `the forward icon mirrors the back icon on the 24 grid`() {
         val drawn: VectorPath = MyGameIcons.forward.root.single() as VectorPath
