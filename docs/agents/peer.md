@@ -36,12 +36,14 @@ A path is relative to its package; the Gradle rows run in `apps/android`; an api
 
 ## Red runs
 
-A ticket that adds or changes behavior loads `mattpocock-skills:tdd` and writes the failing test first. Its PR body carries one table, a row per new or changed rule, branch or guard:
+A ticket that adds or changes behavior loads `mattpocock-skills:tdd` and writes the failing test first. Its PR body carries one table, a row per new or changed rule, branch or guard. The first cell of a row opens with the `path:line` that `scripts/mygame-branch-audit` prints for that branch, when it prints one, followed by the rule:
 
-| Rule, branch or guard | Test | Mutation | Failing assertion line |
+| `path:line` and rule, branch or guard | Test | Mutation | Failing assertion line |
 |---|---|---|---|
 
 The mutation is what turns the test red: the rule not written yet, the guard deleted, or the change reverted. The last column is the line that red run printed, pasted. Pure layout, copy, restyle and docs tickets owe no table.
+
+A listed line that changes nothing a caller observes takes an exemption row: its first cell holds the `path:line` and its Test cell reads `no behavior: <reason>`, with a reason that is not empty.
 
 ## Screenshots
 
