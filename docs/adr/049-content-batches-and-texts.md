@@ -1,5 +1,5 @@
 ---
-status: proposed
+status: accepted
 date: 2026-11-18
 ---
 # Content batches and texts
@@ -13,12 +13,20 @@ phrases, phrasal verbs and usage included (ADR 044). Audio and
 production stay out; the owner decides them separately. No issue holds
 this decision; the pull request is its record.
 
-What trunk holds, checked at `8d895101`:
+ADR 048 lowered the learning cap's line from 7 days to 4, after this
+audit was drafted. The *lessons run out on day 16* bullet and the
+*What a batch buys* table below assume the 7-day cap, and ADR 048's
+cap frees slots sooner, so both read as upper bounds on the days. The
+first batch (lessons 28 to 47) merged on 2026-11-18 (#1285); the counts
+below are those of lessons 1 to 27, the content the audit read.
+
+What trunk held, checked at `8d895101`:
 
 - **135 lexicon entries in 27 lessons.** The 16 chrome lessons teach 80
   words. Lessons 17 to 26 teach 50 band 1 words, ranks 30 to 123.
   Lesson 27 is a unit lesson of 5 units, in no band. ADR 045 and the
-  audit count band 1 at 55 in 11 lessons; the content holds 50 in 10.
+  audit counted band 1 at 55 in 11 lessons; the content holds 50 in 10,
+  and ADR 045 now says so.
 - **What is left.** Band 1 holds 941 card words, 875 of them outside
   the chrome lessons (`JsonLessonCatalog.test.ts`), so 825 are untaught:
   165 lessons. Bands 2 and 3 hold 989 and 806 outside the chrome: 197
@@ -30,7 +38,7 @@ What trunk holds, checked at `8d895101`:
 - **Placement ships, and leads nowhere.** The api and Android serve it.
   A player placed out of band 1 meets the 16 chrome lessons, lesson 27,
   and then `caughtUp` with the reason `lessonsDone`.
-- **The lessons run out on day 16.** A school at level 1 holds 15 words
+- **The lessons run out on day 16** under the 7-day cap, before ADR 048. A school at level 1 holds 15 words
   in learning, three lessons. A word leaves learning at its first
   recall, 2 days and 10 minutes after its lesson. So a learner on time
   starts three lessons every 2 days, and the ninth and last trio on day
@@ -130,6 +138,8 @@ list's first hundred units, which no batch before the fifth can reach.
   lexicon holds taught words only, so an unknown token would have no
   gloss to show, and this text is where known words are used, not where
   new ones arrive.
+- **Lessons 17 to 26 get no text of their own**, because texts start
+  at lesson 31. A text for them is the fourth open question.
 - **It runs 80 to 150 tokens in band 1.** No study gives the length; the
   floor is what 20 words need. Bands 2 and 3 each set their own with
   their first batch.
@@ -189,6 +199,19 @@ Each is derived from the player's own memory; none is a setting.
   started, the words the player holds of the band's card words outside
   the chrome lessons: at most 50 of 875 today, at most 130 after the
   first batch.
+
+## Open questions
+
+Four calls are the owner's:
+
+1. **The PHaVE and PHRASE licence**, due before batch 5, the first
+   that can pass a list's first hundred units.
+2. **The `.claude/skills/wave/SKILL.md` row a batch takes**: its model
+   and effort.
+3. **Whether a read moves the town**, which reopens ADR 035's rule
+   (*What a read advances*).
+4. **A text for lessons 17 to 26**, which the one-in-four rule from
+   lesson 31 leaves without one.
 
 ## Worked examples
 
@@ -329,19 +352,14 @@ at the first row's pace is 825 words in 110 days.
 
 Edits this pull request does not make:
 
-- `CONTEXT.md`: add **Batch** and **Text**. **Multi-word unit** and
-  **Unit lesson** say *not yet shipped*, and **Frame** says the lexicon
-  holds no later frame; lesson 27 and 160 later frames ship. **Content
-  gate** and **Next step** gain the text.
-- `docs/PRODUCT_REQUIREMENTS.md`: a new S row for texts and the band
-  line, *not yet shipped (ADR 041)*.
-- ADR 037: check 4 at zero for a text, the 5 % kept for a later kind;
-  the *Texts* paragraph; check 7's table.
+- `CONTEXT.md`: add **Batch** and **Text**. **Content gate** and
+  **Next step** gain the text.
+- ADR 037: the *Texts* paragraph; check 7's table.
+- ADR 036: a note for ADR 048, that a card in learning is one under 4
+  days while rule 7's skill floor keeps 7.
 - ADR 044: one later frame per entry, a batch after its own.
-- ADR 045: its context counts band 1 at 55 in 11 lessons, and check
-  11's example reads `max(0, 55 − 87)`; the content holds 50 in 10.
-  35 of the 46 tests of `045-stable-words-open-the-town.test.ts` fail
-  on trunk, since they read the skill cycle that ADR removed.
+- `045-stable-words-open-the-town.test.ts`: 35 of its 46 tests fail on
+  trunk, since they read the skill cycle that ADR removed.
 - ADR 039: its estimate of 57 frame words and 877 band 1 words;
   `grammar.json` holds 59, so 875.
 - ADR 042: the next step's table gains the text line.

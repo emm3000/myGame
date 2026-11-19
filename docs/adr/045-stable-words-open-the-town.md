@@ -39,10 +39,14 @@ What trunk holds, checked at `5214dc7d`:
   `retained`. Stability moves only at a review, and a card is reviewed
   only when due (ADR 036), so absence never lowers it and an early
   review cannot raise it.
-- **The shipped words.** `curriculum.json` lists 27 lessons of 5 card
-  words, 135 in all: the 16 chrome lessons hold 80 words, which the
-  holdout never draws (ADR 037), and band 1's first 11 lessons hold 55.
-  Band 1's draw holds out 87 words, a tenth of its 875 non-chrome words
+- **The shipped words.** Lessons 1 to 27 hold 135 card words and
+  units: the 16 chrome lessons hold 80 words, which the holdout never
+  draws (ADR 037), lessons 17 to 26 hold 50 band 1 words in 10 lessons,
+  and lesson 27 is a unit lesson of 5 units. Lessons 28 to 47 merged on
+  2026-11-18 (#1285, ADR 049) and add 100 entries, 80 of them band 1
+  words: `curriculum.json` lists 47 lessons and band 1 holds 130 words
+  on trunk. The counts below are those of lessons 1 to 27, the content
+  this decision was written against. Band 1's draw holds out 87 words, a tenth of its 875 non-chrome words
   (`bandStartDrawn`, `JsonLessonCatalog.wordsOfBand`), so no count of
   band 1 words is certain to reach a card today. Every shipped lesson
   asks for school level 1.
@@ -107,8 +111,8 @@ path (ADR 042); a day away never does.
   school level the need of level 10. A lesson's words are the chrome
   lessons' card words, plus, per band, the band's shipped card words
   beyond the count its draw holds out. Today every lesson asks for
-  school level 1, so every need counts 80 + max(0, 55 − 87) = 80,
-  level 10's need. No holdout draw, no placement and no unshipped lesson
+  school level 1, so every need counts 80 + max(0, 50 − 87) = 80,
+  level 10's need (80 + (130 − 87) = 123 with lessons 28 to 47). No holdout draw, no placement and no unshipped lesson
   can leave a town short of a level: any 80 retained cards open level
   10, and the chrome words, which every player studies, are the
   guaranteed floor. A later band that ships past its draw lets a later
