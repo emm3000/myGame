@@ -22,6 +22,7 @@ import androidx.compose.ui.test.performClick
 import androidx.compose.ui.test.performScrollTo
 import androidx.compose.ui.text.TextLayoutResult
 import androidx.compose.ui.unit.Dp
+import androidx.compose.ui.unit.DpRect
 import com.emm.mygame.core.designsystem.MyGameTheme
 import com.emm.mygame.core.designsystem.MyGameTransitions
 import com.emm.mygame.core.designsystem.OUTLINED_PILL
@@ -278,6 +279,17 @@ class SchoolScreenTest {
             .getUnclippedBoundsInRoot().bottom
         assertTrue(learningBottom <= lineTop)
         composeRule.onAllNodesWithText("Empieza los repasos.", substring = true).assertCountEquals(0)
+    }
+
+    @Test
+    fun `draws the cap's line inside the learning card`() {
+        show(idleSchool.copy(learning = fullCap(words = 5, SchoolUiState.CapOpening.ReviewsDue)))
+
+        val line: DpRect = composeRule.onNodeWithText("La siguiente lección trae 5 palabras. Empieza los repasos.")
+            .performScrollTo()
+            .getUnclippedBoundsInRoot()
+        val card: DpRect = composeRule.onNodeWithTag(LEARNING_CARD).getUnclippedBoundsInRoot()
+        assertTrue("line $line, card $card", card.top <= line.top && line.bottom <= card.bottom)
     }
 
     @Test
