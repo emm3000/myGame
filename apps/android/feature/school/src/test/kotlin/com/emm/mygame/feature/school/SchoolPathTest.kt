@@ -8,7 +8,9 @@ import androidx.compose.ui.test.SemanticsMatcher
 import androidx.compose.ui.test.assertCountEquals
 import androidx.compose.ui.test.getUnclippedBoundsInRoot
 import androidx.compose.ui.test.hasAnyAncestor
+import androidx.compose.ui.test.hasAnyDescendant
 import androidx.compose.ui.test.hasTestTag
+import androidx.compose.ui.test.hasText
 import androidx.compose.ui.test.junit4.ComposeContentTestRule
 import androidx.compose.ui.test.junit4.createComposeRule
 import androidx.compose.ui.test.onAllNodesWithText
@@ -18,6 +20,7 @@ import androidx.compose.ui.test.performScrollTo
 import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.text.TextLayoutResult
 import androidx.compose.ui.unit.Dp
+import com.emm.mygame.core.designsystem.HAIRLINE
 import com.emm.mygame.core.designsystem.MyGameTheme
 import com.emm.mygame.core.designsystem.OUTLINED_PILL
 import com.emm.mygame.core.network.NextStep
@@ -166,6 +169,25 @@ class SchoolPathTest {
 
         assertTrue(text, text.contains("Aprendidas"))
         assertFalse(text, dateWords.containsMatchIn(text))
+    }
+
+    @Test
+    fun `draws an unstudied lesson's path above its row's hairline`() {
+        val holdingWords: TownSnapshot.Lesson = lessonOf(
+            id = secondLesson,
+            theme = "Work and money",
+            standings = List(size = 2) { WordStanding.Recognize } + List(size = 3) { WordStanding.NotStarted },
+        )
+        show(townOf(lessons = listOf(lessonOf(), holdingWords)))
+
+        val theRow: SemanticsMatcher = hasTestTag(LESSON_ROW) and hasAnyDescendant(hasText("Work and money"))
+        val pathBottom: Dp = composeRule
+            .onNode(hasText("Aprendidas") and hasAnyAncestor(theRow), useUnmergedTree = true)
+            .getUnclippedBoundsInRoot().bottom
+        val hairlineTop: Dp = composeRule
+            .onNode(hasTestTag(HAIRLINE) and hasAnyAncestor(theRow), useUnmergedTree = true)
+            .getUnclippedBoundsInRoot().top
+        assertTrue("path ends at $pathBottom, hairline starts at $hairlineTop", pathBottom <= hairlineTop)
     }
 
     @Test
