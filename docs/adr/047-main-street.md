@@ -1,5 +1,5 @@
 ---
-status: accepted
+status: accepted, the dock's door and line, the doors drawn as outlined buttons or text links, the street strip and the text link's color together amended by ADR 050
 date: 2026-11-17
 ---
 # Main Street, the Android look

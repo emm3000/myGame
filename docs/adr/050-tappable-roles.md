@@ -1,5 +1,5 @@
 ---
-status: proposed
+status: accepted
 date: 2026-11-18
 ---
 # Tappable roles and the type hierarchy on Android
@@ -42,8 +42,10 @@ of a control. Each finding below is checked against trunk at `52a80c8d`.
   *Lessons* draws `heading`, and the settings' *Theme* and *Help language*
   draw `label` in `ink`.
 - **Two dock buttons can open one screen.** `doorOf(FrameKind.Home)` is
-  always the *Report* door (`FramedScreen.kt:196`), and the go button's
-  `GoToReport` action opens the Report too (`TownDock.kt:210`).
+  always the *Report* door
+  (`apps/android/app/src/main/kotlin/com/emm/mygame/FramedScreen.kt:196`),
+  and the go button's `GoToReport` action opens the Report too
+  (`TownDock.kt:210`).
 - **The ring has no label.** `MyGameRing` is a 32dp drawing with
   `Role.Image` and a spoken name. A player who sees it has no word for it.
 - **The school states one fact three times.** With the learning cap full,
@@ -94,9 +96,19 @@ The rules that make the cues exclusive:
   the hourglass when busy (`MyGamePill.kt`). Both are still closed frames.
 - **Every tappable element keeps a 48 by 48 target** and a visible focus
   ring, as `.claude/rules/ui-components.md` already binds.
+- **A control owes 3:1 only for a boundary it draws.**
+  `ui-components.md` asks 3:1 for the boundary of a control, as WCAG
+  1.4.11 asks it of the visual information needed to identify one. The
+  dock's door, a nav row and a link draw no boundary: each is identified
+  by its label and its chevron or underline, which take the text floor of
+  4.5:1 on their ground, and their target is the touch area, not a drawn
+  edge. A control that does draw an outline, a local action, owes 3:1 for
+  it.
 
 One component is new: **`MyGameNavRow`**, the door's row. It draws a
-`title` label at the start, optional `body` and `caption` lines under it,
+`title` label at the start, an optional status in `caption` and
+`ink-muted` beside it (a running lesson's *Studying*), optional `body`
+and `caption` lines under it,
 a trailing `MyGameIcons.forward` chevron in `ink`, a hairline under the
 row, a minimum height of `secondary`, and `Role.Button`. One icon is new:
 **`MyGameIcons.forward`**, the mirror of `back` (path `m9 6 6 6-6 6` on
@@ -185,8 +197,9 @@ the near-miss line (`review/ReviewStepLine.kt:103`). The first becomes a
 `MyGameCard`; the second keeps its `surface-sunken` fill.
 
 The 5 call sites of `MyGameButton`, the 5 of `MyGameChoiceRow`, the 9 of
-`MyGameTextField` and the back link's one (`FramedScreen.kt:164`) keep
-their role.
+`MyGameTextField` and the back link's one
+(`apps/android/app/src/main/kotlin/com/emm/mygame/FramedScreen.kt:164`)
+keep their role.
 
 ### One action, one control
 
@@ -297,6 +310,7 @@ Neither is done. This ADR changes no file under `apps/web`.
 | `ShownLesson.kt:134`, `ReadWordsPill`, outlined (line 120 on trunk) | a `MyGameNavRow` |
 | *The pager*: the office's page, with *Go to the map* as a text link | a `MyGameNavRow`; the school page's *Go to the school*, a text link on trunk (`TownPage.kt:123`), follows it |
 | The Report ends in three hairline rows (trunk draws each as a text link, `ReportRows.kt:36`) | three `MyGameNavRow` |
+| *The dock*, the table of a step that points at its own screen (047:240): on the reading screen's last word with no way on, *Go to the school* stays a text link in the content | a `MyGameNavRow` (slice 2) |
 | The street strip: seven silhouettes, each a tab | the same tabs inside one outlined segmented control |
 | `MyGameTextLink` reads `action` | it reads `ink`; `action` stays the fill of a mark |
 | A task screen's header keeps the back link | the same link, in `label` and `ink` |
@@ -337,7 +351,7 @@ screenshot of every affected screen.
      `ReviewsLink.kt:25` and `:31`.
    - Each row opens the screen its text link or button opened.
 3. **Static containers drop the outline.** **Trap list: yes**:
-   `MyGameCard`'s default changes its 10 call sites in 5 feature modules
+   `MyGameCard`'s default changes its 7 call sites in 5 feature modules
    (map, school, review, town, report).
    - `MyGameCard` draws no border.
    - `LessonWordsScreen.kt:143` and `ReviewStepLine.kt:103` draw no
@@ -347,6 +361,9 @@ screenshot of every affected screen.
      strip and a focus ring.
 4. **The local-action outline.** **Trap list: yes**: `outlinedPillLook`
    changes 18 call sites and the time field's four buttons.
+   `MyGameDock.kt:161` builds the dock's door from `outlinedPillLook`
+   too, so the door takes the new outline until slice 6 draws it without
+   one; its screenshots include the dock.
    - An enabled `MyGameOutlinedButton` draws its edge in `ink` at
      `strokeWidths.control`.
    - Its focus ring is drawn outside its edge, as the go button's is.
