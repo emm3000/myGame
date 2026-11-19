@@ -151,17 +151,6 @@ class AppNavigationTest {
 
     private val townWord: TownSnapshot.WordReading = wordReadingOf("town", "pueblo", "We live in a town.")
 
-    private fun wordReadingOf(word: String, gloss: String, frame: String): TownSnapshot.WordReading =
-        TownSnapshot.WordReading(
-            word = word,
-            frame = listOf(FrameSpan(text = frame, support = null)),
-            support = WordSupport(
-                shown = WordSupport.Shown.Beside,
-                text = gloss,
-                language = WordSupport.Language.Spanish,
-            ),
-        )
-
     private val walkReport: TownReport =
         TownReport(dueCount = 3, readFirst = listOf(firstLesson, secondLesson), nextDueAt = null, news = emptyList())
 
@@ -170,19 +159,6 @@ class AppNavigationTest {
 
     private val nothingDue: TownReport =
         TownReport(dueCount = 0, readFirst = emptyList(), nextDueAt = null, news = emptyList())
-
-    private fun lessonOf(id: LessonId, readings: List<TownSnapshot.WordReading>): TownSnapshot.Lesson =
-        TownSnapshot.Lesson(
-            id = id,
-            theme = "A day in town",
-            duration = 150.seconds,
-            requiredSchoolLevel = 1,
-            skill = TownSnapshot.LessonSkill(TownResourceKind.Food, ratePercent = 5),
-            isStudied = false,
-            wordCount = 5,
-            readings = readings,
-            standings = emptyList(),
-        )
 
     private fun townOf(
         inLearning: Int = 0,
@@ -315,7 +291,7 @@ class AppNavigationTest {
     private fun statusLine(): SemanticsMatcher =
         hasTestTag(TOWN_STATUS).and(hasAnyDescendant(hasText(LESSON_ONE_READY)))
 
-    private fun onTheReportAsLessonOneFinishes(finished: TownSnapshot) {
+    private fun asLessonOneFinishes(finished: TownSnapshot, vararg stack: Destination = onTheReport) {
         reportsFake.answerRead(ReportReadResult.Read(nothingDue))
         repeat(READS_ON_ARRIVAL) { townsFake.answerRead(TownReadResult.Read(runningTown())) }
         composeRule.setContent {
@@ -323,7 +299,7 @@ class AppNavigationTest {
                 AppNavigation(
                     dependencies = dependencies,
                     reminderTaps = emptyFlow(),
-                    backStack = rememberNavBackStack(Destination.Town, Destination.Report),
+                    backStack = rememberNavBackStack(*stack),
                 )
             }
         }
@@ -688,7 +664,7 @@ class AppNavigationTest {
 
     @Test
     fun `closes the finish notice on the reviews`() {
-        onTheReportAsLessonOneFinishes(finishedTown(readFirst = emptyList()))
+        asLessonOneFinishes(finishedTown(readFirst = emptyList()))
         learningFake.answerRead(noReviews)
         townsFake.answerRead(TownReadResult.Read(finishedTown(readFirst = emptyList())))
 
@@ -700,7 +676,7 @@ class AppNavigationTest {
 
     @Test
     fun `closes the finish notice on the unread words`() {
-        onTheReportAsLessonOneFinishes(finishedTown(readFirst = listOf(firstLesson)))
+        asLessonOneFinishes(finishedTown(readFirst = listOf(firstLesson)))
         repeat(2) { townsFake.answerRead(TownReadResult.Read(finishedTown(listOf(firstLesson)))) }
         reportsFake.answerRead(ReportReadResult.Read(walkReport))
 
@@ -728,7 +704,15 @@ class AppNavigationTest {
 
     @Test
     fun `draws no way on in the finish notice beside the dock's go to the same words`() {
-        onTheReportAsLessonOneFinishes(finishedTown(readFirst = listOf(firstLesson, secondLesson)))
+        asLessonOneFinishes(finishedTown(readFirst = listOf(firstLesson, secondLesson)))
+        dockGo("Leer las palabras")
+
+        composeRule.onAllNodes(noticeWayOn("Leer las palabras"), useUnmergedTree = true).assertCountEquals(0)
+    }
+
+    @Test
+    fun `draws no way on in the finish notice on the town home beside the dock's go to the same words`() {
+        asLessonOneFinishes(finishedTown(readFirst = listOf(firstLesson)), Destination.Town)
         dockGo("Leer las palabras")
 
         composeRule.onAllNodes(noticeWayOn("Leer las palabras"), useUnmergedTree = true).assertCountEquals(0)
@@ -736,7 +720,7 @@ class AppNavigationTest {
 
     @Test
     fun `draws no way on in the finish notice beside the dock's go to the reviews`() {
-        onTheReportAsLessonOneFinishes(finishedTown(readFirst = emptyList()))
+        asLessonOneFinishes(finishedTown(readFirst = emptyList()))
         dockGo("Empezar los repasos")
 
         composeRule.onAllNodes(noticeWayOn("Empezar los repasos"), useUnmergedTree = true).assertCountEquals(0)
@@ -744,7 +728,7 @@ class AppNavigationTest {
 
     @Test
     fun `closes the finish notice`() {
-        onTheReportAsLessonOneFinishes(finishedTown(readFirst = listOf(firstLesson)))
+        asLessonOneFinishes(finishedTown(readFirst = listOf(firstLesson)))
 
         composeRule.onNodeWithText("Cerrar").performClick()
         composeRule.waitForIdle()
@@ -754,7 +738,7 @@ class AppNavigationTest {
 
     @Test
     fun `keeps the finish notice on the way home from the Report`() {
-        onTheReportAsLessonOneFinishes(finishedTown(readFirst = listOf(firstLesson)))
+        asLessonOneFinishes(finishedTown(readFirst = listOf(firstLesson)))
         repeat(2) { townsFake.answerRead(TownReadResult.Read(finishedTown(listOf(firstLesson)))) }
 
         link("Pueblo").performClick()
@@ -891,6 +875,8 @@ private class MovableClock : Clock {
     override fun now(): Instant = Clock.System.now() + passed
 }
 
+private val onTheReport: Array<Destination> = arrayOf(Destination.Town, Destination.Report)
+
 private fun noticeWayOn(label: String): SemanticsMatcher = hasClickAction()
     .and(hasAnyDescendant(hasText(label)))
     .and(hasAnyDescendant(hasTestTag(NAV_ROW_CHEVRON)))
@@ -903,3 +889,27 @@ private val ringLine: SemanticsMatcher = SemanticsMatcher("the ring's line") { n
         .orEmpty()
         .any { line -> ringWording.matches(line.text) }
 }
+
+private fun wordReadingOf(word: String, gloss: String, frame: String): TownSnapshot.WordReading =
+    TownSnapshot.WordReading(
+        word = word,
+        frame = listOf(FrameSpan(text = frame, support = null)),
+        support = WordSupport(
+            shown = WordSupport.Shown.Beside,
+            text = gloss,
+            language = WordSupport.Language.Spanish,
+        ),
+    )
+
+private fun lessonOf(id: LessonId, readings: List<TownSnapshot.WordReading>): TownSnapshot.Lesson =
+    TownSnapshot.Lesson(
+        id = id,
+        theme = "A day in town",
+        duration = 150.seconds,
+        requiredSchoolLevel = 1,
+        skill = TownSnapshot.LessonSkill(TownResourceKind.Food, ratePercent = 5),
+        isStudied = false,
+        wordCount = 5,
+        readings = readings,
+        standings = emptyList(),
+    )
