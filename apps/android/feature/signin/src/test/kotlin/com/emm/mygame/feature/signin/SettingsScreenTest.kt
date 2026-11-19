@@ -7,7 +7,7 @@ import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.semantics.SemanticsActions
+import androidx.compose.ui.test.SemanticsMatcher
 import androidx.compose.ui.test.SemanticsNodeInteraction
 import androidx.compose.ui.test.getUnclippedBoundsInRoot
 import androidx.compose.ui.test.assertCountEquals
@@ -15,6 +15,7 @@ import androidx.compose.ui.test.assertIsDisplayed
 import androidx.compose.ui.test.assertIsNotEnabled
 import androidx.compose.ui.test.assertIsNotSelected
 import androidx.compose.ui.test.assertIsSelected
+import androidx.compose.ui.test.hasClickAction
 import androidx.compose.ui.test.hasScrollAction
 import androidx.compose.ui.test.hasText
 import androidx.compose.ui.test.isHeading
@@ -26,7 +27,6 @@ import androidx.compose.ui.test.onAllNodesWithText
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
 import androidx.compose.ui.test.performScrollTo
-import androidx.compose.ui.text.TextLayoutResult
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.DpRect
@@ -46,6 +46,7 @@ import org.robolectric.RobolectricTestRunner
 private const val SPANISH_CHOICE: String = "Español: una traducción junto a cada palabra nueva"
 private const val NONE_CHOICE: String = "Ninguno: todo en inglés, con definiciones en inglés"
 private const val HELP_LANGUAGE_QUESTION: String = "Idioma de ayuda"
+private const val REMINDER_TITLE: String = "Recordatorio de estudio"
 private const val OUTAGE_LINE: String = "No hemos podido hablar con el servidor. Vuelve a intentarlo en un momento."
 
 @RunWith(RobolectricTestRunner::class)
@@ -68,6 +69,9 @@ class SettingsScreenTest {
         }
     }
 
+    private val ownControl: SemanticsMatcher =
+        hasText(SPANISH_CHOICE) or hasText(NONE_CHOICE) or hasText(REMINDER_TITLE)
+
     private fun choice(label: String): SemanticsNodeInteraction = composeRule.onNode(isSelectable() and hasText(label))
 
     @Test
@@ -88,7 +92,7 @@ class SettingsScreenTest {
             }
         }
 
-        val drawn: TextStyle = textStyleOf(HELP_LANGUAGE_QUESTION)
+        val drawn: TextStyle = textStyleOf(composeRule, HELP_LANGUAGE_QUESTION)
         assertEquals(MyGameTypography.heading.fontSize, drawn.fontSize)
         assertEquals(MyGameTypography.heading.fontWeight, drawn.fontWeight)
         assertEquals(ink, drawn.color)
@@ -219,6 +223,8 @@ class SettingsScreenTest {
         draw(SettingsUiState.Loaded(PlayerScaffold.Spanish, SettingsUiState.Change.Untouched, firstReminder))
 
         composeRule.onAllNodesWithText("Volver a tu pueblo").assertCountEquals(0)
+        composeRule.onAllNodes(hasClickAction() and !ownControl).assertCountEquals(0)
+        composeRule.onAllNodes(hasClickAction() and ownControl).assertCountEquals(3)
     }
 
     @Test
@@ -271,13 +277,6 @@ class SettingsScreenTest {
             "node ends at ${shownNode.bottom}, viewport at ${viewport.bottom}",
             shownNode.bottom <= viewport.bottom,
         )
-    }
-
-    private fun textStyleOf(text: String): TextStyle {
-        val results: MutableList<TextLayoutResult> = mutableListOf()
-        composeRule.onNode(hasText(text) and isHeading(), useUnmergedTree = true).fetchSemanticsNode()
-            .config[SemanticsActions.GetTextLayoutResult].action?.invoke(results)
-        return results.first().layoutInput.style
     }
 
     private fun themeChoiceTop(): Dp = composeRule.onNodeWithText(THEME_CHOICE).getUnclippedBoundsInRoot().top
