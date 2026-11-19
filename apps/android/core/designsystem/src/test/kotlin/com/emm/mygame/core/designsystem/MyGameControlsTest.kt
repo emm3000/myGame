@@ -142,6 +142,16 @@ class MyGameControlsTest {
     }
 
     @Test
+    fun `announces no state on a text link at rest`() {
+        show {
+            MyGameTextLink(label = "Sign out", isBusy = false, busyDescription = "Signing out", onClick = {})
+        }
+
+        composeRule.onNodeWithText("Sign out")
+            .assert(SemanticsMatcher.keyNotDefined(SemanticsProperties.StateDescription))
+    }
+
+    @Test
     fun `draws the back link's label in ink`() {
         show { MyGameBackLink(label = "Town", isEnabled = true, onClick = {}) }
 

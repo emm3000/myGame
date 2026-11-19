@@ -19,13 +19,8 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.draw.drawBehind
-import androidx.compose.ui.geometry.CornerRadius
-import androidx.compose.ui.geometry.Offset
-import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Shape
-import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.layout.IntrinsicMeasurable
 import androidx.compose.ui.layout.IntrinsicMeasureScope
 import androidx.compose.ui.layout.Layout
@@ -242,20 +237,7 @@ private class SquareNode : Modifier.Node(), LayoutModifierNode {
 
 private fun Modifier.outerFocusRing(look: MyGamePillLook, isFocused: Boolean, color: Color): Modifier {
     if (!look.hasOuterFocusRing || !isFocused) return this
-    return outerFocusRing(color)
-}
-
-private fun Modifier.outerFocusRing(color: Color): Modifier = drawBehind {
-    val ring: Float = MyGameStrokeWidths.focus.toPx()
-    val reach: Float = MyGameSpacing.step1.toPx() + ring / 2
-    val radius: Float = MyGameRadii.md.toPx() + reach
-    drawRoundRect(
-        color = color,
-        topLeft = Offset(-reach, -reach),
-        size = Size(size.width + reach * 2, size.height + reach * 2),
-        cornerRadius = CornerRadius(radius, radius),
-        style = Stroke(width = ring),
-    )
+    return outerFocusRing(color = color, corner = MyGameRadii.md)
 }
 
 private fun Modifier.pillSemantics(tag: String, accessibleName: String?, state: String?): Modifier =

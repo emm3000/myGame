@@ -1,6 +1,15 @@
 package com.emm.mygame.core.designsystem
 
 import androidx.compose.foundation.clickable
+import androidx.compose.ui.unit.sp
+import androidx.compose.ui.unit.Dp
+import androidx.compose.ui.platform.LocalDensity
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.getValue
+import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.interaction.collectIsFocusedAsState
+import androidx.compose.foundation.interaction.MutableInteractionSource
+import androidx.compose.foundation.LocalIndication
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -10,6 +19,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.semantics.Role
 
@@ -25,6 +35,9 @@ fun MyGameNavRow(
     caption: MyGameLabel? = null,
 ) {
     val colors: MyGameColors = MyGameTheme.colors
+    val interactions: MutableInteractionSource = remember { MutableInteractionSource() }
+    val isFocused: Boolean by interactions.collectIsFocusedAsState()
+    val chevronSize: Dp = with(LocalDensity.current) { MyGameSizes.icon.value.sp.toDp() }
     Column(modifier = modifier.fillMaxWidth()) {
         Row(
             horizontalArrangement = Arrangement.spacedBy(MyGameSpacing.step3),
@@ -32,7 +45,13 @@ fun MyGameNavRow(
             modifier = Modifier
                 .fillMaxWidth()
                 .defaultMinSize(minHeight = MyGameSizes.secondary)
-                .clickable(role = Role.Button, onClick = onClick)
+                .focusRingWhen(isFocused = isFocused, color = colors.focus)
+                .clickable(
+                    interactionSource = interactions,
+                    indication = LocalIndication.current,
+                    role = Role.Button,
+                    onClick = onClick,
+                )
                 .padding(vertical = MyGameSpacing.step3),
         ) {
             Column(
@@ -47,11 +66,18 @@ fun MyGameNavRow(
                     MyGameText(label = line, style = MyGameTypography.caption, color = colors.inkMuted)
                 }
             }
-            MyGameIcon(icon = MyGameIcons.forward, tint = colors.ink, modifier = Modifier.testTag(NAV_ROW_CHEVRON))
+            MyGameIcon(
+                icon = MyGameIcons.forward,
+                tint = colors.ink,
+                modifier = Modifier.testTag(NAV_ROW_CHEVRON).size(chevronSize),
+            )
         }
         MyGameHairline()
     }
 }
+
+private fun Modifier.focusRingWhen(isFocused: Boolean, color: Color): Modifier =
+    if (isFocused) outerFocusRing(color = color, corner = MyGameRadii.sm) else this
 
 @Composable
 private fun NavRowTitle(title: MyGameLabel, status: MyGameLabel?, modifier: Modifier = Modifier) {
