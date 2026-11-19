@@ -3,8 +3,10 @@ package com.emm.mygame.feature.placement
 import androidx.compose.ui.test.assertCountEquals
 import androidx.compose.ui.test.junit4.ComposeContentTestRule
 import androidx.compose.ui.test.junit4.createComposeRule
+import androidx.compose.ui.test.onAllNodesWithTag
 import androidx.compose.ui.test.onAllNodesWithText
 import androidx.compose.ui.test.performClick
+import com.emm.mygame.core.designsystem.HAIRLINE
 import com.emm.mygame.core.designsystem.MyGameTheme
 import org.junit.Assert.assertEquals
 import org.junit.Rule
@@ -51,5 +53,12 @@ class PlacementOfferRowTest {
         composeRule.onNode(navRowOf("Seguir con la prueba de nivel"), useUnmergedTree = true).performClick()
 
         assertEquals(1, placementOpens)
+    }
+
+    @Test
+    fun `draws no hairline above its nav row, only the row's own`() {
+        showing(PlacementOfferUiState.Offered)
+
+        composeRule.onAllNodesWithTag(HAIRLINE, useUnmergedTree = true).assertCountEquals(1)
     }
 }
