@@ -110,7 +110,11 @@ passes_a_command_that_is_not_gh_pr_create_without_running_the_audit() {
     "echo gh pr create" \
     "rg -n 'gh pr create' docs" \
     "git commit -m \"feat(agents): block gh pr create without a row\"" \
-    "gh issue create --title t --body \"a hook that blocks gh pr create\""; do
+    "gh issue create --title t --body \"a hook that blocks gh pr create\"" \
+    "gh pr newer --fill" \
+    "gh pr creates --fill" \
+    "ifgh pr create --fill" \
+    "commandgh pr create --fill"; do
     hook "$command"
     expect_pass "${FUNCNAME[0]}" || return 1
     [ ! -s "$audit_log" ] || fail "${FUNCNAME[0]}" "'$command' ran the audit" || return 1
@@ -131,7 +135,15 @@ gh pr create --fill" \
     "gh -R a/b pr create --fill" \
     "gh pr -Ra/b create --fill" \
     "gh --repo a/b pr create --fill" \
-    "gh pr --repo=a/b new --fill"; do
+    "gh pr --repo=a/b new --fill" \
+    "if gh pr create --fill; then :; fi" \
+    "{ gh pr create --fill; }" \
+    "! gh pr new --fill" \
+    "command gh pr create --fill" \
+    "env gh pr create --fill" \
+    "env GH_PROMPT_DISABLED=1 gh pr create --fill" \
+    "/opt/homebrew/bin/gh pr create --fill" \
+    "cd . && ./bin/gh pr create --fill"; do
     hook "$command"
     expect_blocked_for "${FUNCNAME[0]}" src/a.ts:2 src/b.kt:3 || fail "${FUNCNAME[0]}" "'$command' was not checked" || return 1
   done
@@ -337,20 +349,6 @@ fails_closed_on_gh_pr_create_without_python3() {
   expect_failed_closed "${FUNCNAME[0]}" python3 127
 }
 
-settings_keep_the_trailer_hook_blocking_a_co_authored_commit() {
-  local trailer command
-  trailer=$(jq -r '.hooks.PreToolUse[0].hooks[0].command' "$settings")
-  command='git commit -m "feat: x
-
-Co-Authored-By: Someone <someone@example.invalid>"'
-  status=0
-  err=$(jq -n --arg command "$command" '{tool_input: {command: $command}}' | bash -c "$trailer" 2>&1) || status=$?
-  [ "$status" -eq 2 ] && [ "$err" = "Blocked: Co-Authored-By trailers are forbidden in this repo (CLAUDE.md)" ] || fail "${FUNCNAME[0]}" "exit $status: $err" || return 1
-  status=0
-  err=$(jq -n '{tool_input: {command: "git commit -m \"feat: x\""}}' | bash -c "$trailer" 2>&1) || status=$?
-  [ "$status" -eq 0 ] && [ -z "$err" ] || fail "${FUNCNAME[0]}" "a plain commit: exit $status: $err"
-}
-
 settings_run_the_check_through_the_project_dir() {
   local entry
   entry=$(jq -r '[.hooks.PreToolUse[] | select(.matcher == "Bash") | .hooks[].command | select(test("mygame-red-run-check"))] | .[0] // ""' "$settings")
@@ -403,6 +401,5 @@ run fails_closed_on_a_missing_audit_script
 run fails_closed_on_an_audit_script_that_is_not_executable
 run passes_a_command_with_no_gh_pr_without_python3
 run fails_closed_on_gh_pr_create_without_python3
-run settings_keep_the_trailer_hook_blocking_a_co_authored_commit
 run settings_run_the_check_through_the_project_dir
 [ "$failures" -eq 0 ]

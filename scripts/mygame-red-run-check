@@ -11,7 +11,10 @@ import json, os, re, shlex, subprocess, sys
 hook = json.load(sys.stdin)
 command = hook["tool_input"]["command"]
 repo_flag = r"(?:\s+(?:-R\s*|--repo(?:\s+|=))\S+)*"
-if not re.search(r"(?:^|[;&|(\n])\s*(?:\w+=\S*\s+)*gh" + repo_flag + r"\s+pr" + repo_flag + r"\s+(?:create|new)", command):
+assignments = r"(?:\w+=\S*\s+)*"
+prefixes = r"(?:(?:if|!|\{|command|env)\s+" + assignments + r")*"
+gh = r"(?:\S*/)?gh"
+if not re.search(r"(?:^|[;&|(\n])\s*" + assignments + prefixes + gh + repo_flag + r"\s+pr" + repo_flag + r"\s+(?:create|new)\b", command):
     sys.exit(0)
 cwd = hook["cwd"]
 
