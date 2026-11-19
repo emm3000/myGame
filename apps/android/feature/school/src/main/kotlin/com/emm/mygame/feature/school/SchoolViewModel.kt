@@ -176,7 +176,7 @@ class SchoolViewModel(private val towns: TownRepository, private val clock: Cloc
 
     private fun draw(town: TownSnapshot) {
         shown = town
-        _state.value = town.contentAt(now = serverNow(), mutations = mutations, selected = selected)
+        _state.value = town.contentAt(now = serverNow(), gap = gap, mutations = mutations, selected = selected)
     }
 
     private suspend fun project(first: TownSnapshot, firstReadAt: Instant?) {

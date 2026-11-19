@@ -19,6 +19,7 @@ import com.emm.mygame.core.ui.ChromePhase
 import com.emm.mygame.core.ui.CopyLanguage
 import com.emm.mygame.core.ui.ProvideCopyLanguage
 import com.emm.mygame.core.ui.ScaffoldLanguage
+import kotlin.time.Duration
 import kotlin.time.Duration.Companion.seconds
 import org.junit.Assert.assertTrue
 import org.junit.Rule
@@ -78,6 +79,7 @@ class SchoolLanguageTest {
 
     private fun contentOf(town: TownSnapshot): SchoolUiState.Content = town.contentAt(
         now = readInstant + 30.seconds,
+        gap = Duration.ZERO,
         mutations = SchoolMutations.none,
         selected = null,
     )

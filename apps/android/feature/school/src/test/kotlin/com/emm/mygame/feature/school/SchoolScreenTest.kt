@@ -307,7 +307,7 @@ class SchoolScreenTest {
         SchoolUiState.LearningLine(inLearning = 8, cap = 10, pastCapWords = words, opening = opening)
 
     private fun showTown(town: TownSnapshot, start: SchoolUiState.LessonRequest = SchoolUiState.LessonRequest.Idle) {
-        show(town.contentAt(readInstant, SchoolMutations.none.copy(start = start), selected = null))
+        show(town.contentAt(readInstant, Duration.ZERO, SchoolMutations.none.copy(start = start), selected = null))
     }
 
     @Test

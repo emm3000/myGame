@@ -26,6 +26,7 @@ import com.emm.mygame.core.network.NextStep
 import com.emm.mygame.core.network.TownResourceKind
 import com.emm.mygame.core.network.TownSnapshot
 import com.emm.mygame.core.network.WordStanding
+import kotlin.time.Duration
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertFalse
 import org.junit.Assert.assertTrue
@@ -91,7 +92,7 @@ class SchoolPathTest {
     private fun topOf(text: String): Dp = composeRule.onNodeWithText(text).getUnclippedBoundsInRoot().top
 
     private fun show(town: TownSnapshot) {
-        val state: SchoolUiState = town.contentAt(readInstant, SchoolMutations.none, selected = null)
+        val state: SchoolUiState = town.contentAt(readInstant, Duration.ZERO, SchoolMutations.none, selected = null)
         composeRule.setContent {
             MyGameTheme {
                 SchoolScreen(

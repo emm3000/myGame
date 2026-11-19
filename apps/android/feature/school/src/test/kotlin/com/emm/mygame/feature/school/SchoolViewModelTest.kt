@@ -349,6 +349,22 @@ class SchoolViewModelTest {
     }
 
     @Test
+    fun `names when the next word in learning is due on the device clock`() = runTest {
+        val serverAhead: TownSnapshot = townOf(
+            learning = fullLearning.copy(nextInLearningDueAt = readInstant + 5.minutes + 3.hours),
+            nextStep = fullCapCaughtUp,
+            readAt = readInstant + 5.minutes,
+        )
+
+        val viewModel: SchoolViewModel = schoolReading(serverAhead)
+
+        assertEquals(
+            SchoolUiState.CapOpening.NextWordDue(3.hours, dueAt = readInstant + 3.hours),
+            contentOf(viewModel).learning.opening,
+        )
+    }
+
+    @Test
     fun `sends a full cap to the reviews once the next word in learning is overdue`() = runTest {
         val viewModel: SchoolViewModel = schoolReading(
             townOf(
