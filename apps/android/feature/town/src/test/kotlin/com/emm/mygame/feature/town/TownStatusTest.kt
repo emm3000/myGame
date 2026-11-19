@@ -61,6 +61,7 @@ class TownStatusTest {
                 ink = MyGameTheme.colors.ink
                 TownStatus(
                     state = TownStatusUiState(running = null, notice = TownStatusUiState.FinishNotice(released, null)),
+                    dock = null,
                     onNoticeClose = {},
                     onLessonOpen = {},
                     onReviewsOpen = {},
@@ -185,7 +186,9 @@ class TownStatusTest {
 
     private fun show(state: TownStatusUiState) {
         composeRule.setContent {
-            MyGameTheme { TownStatus(state = state, onNoticeClose = {}, onLessonOpen = {}, onReviewsOpen = {}) }
+            MyGameTheme {
+                TownStatus(state = state, dock = null, onNoticeClose = {}, onLessonOpen = {}, onReviewsOpen = {})
+            }
         }
     }
 

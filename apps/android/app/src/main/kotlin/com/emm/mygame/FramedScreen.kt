@@ -82,6 +82,7 @@ internal fun FramedScreen(
         task = task,
         foldedDock = { FoldedDockTop(dock = dock, isFolded = isFolded.value, turn = foldedTurnOf(kind)) },
         reportRow = { HomeReportRow(kind = kind, dock = dock, navigator = chrome.navigator) },
+        status = { chrome.banner(dock) },
     )
     Column(
         modifier = modifier
@@ -91,7 +92,7 @@ internal fun FramedScreen(
     ) {
         if (kind != FrameKind.Home) {
             FrameHeader(doesScreenReadTown = doesScreenReadTown, chrome = chrome)
-            chrome.banner()
+            frame.status()
         }
         Box(
             modifier = Modifier

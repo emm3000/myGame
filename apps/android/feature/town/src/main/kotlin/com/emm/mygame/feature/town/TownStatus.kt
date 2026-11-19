@@ -41,11 +41,11 @@ const val TOWN_STATUS: String = "town_status"
 @Composable
 fun TownStatus(
     state: TownStatusUiState,
+    dock: TownStatusUiState.Dock?,
     onNoticeClose: () -> Unit,
     onLessonOpen: (LessonId) -> Unit,
     onReviewsOpen: () -> Unit,
     modifier: Modifier = Modifier,
-    dock: TownStatusUiState.Dock? = null,
 ) {
     if (state.running == null && state.notice == null) return
     Column(
@@ -163,6 +163,7 @@ private fun TownStatusBothPreview() {
                         firstUnread = null,
                     ),
                 ),
+                dock = null,
                 onNoticeClose = {},
                 onLessonOpen = {},
                 onReviewsOpen = {},
