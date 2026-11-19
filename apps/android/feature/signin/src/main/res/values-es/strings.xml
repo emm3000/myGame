@@ -12,7 +12,6 @@
     <string name="scaffold_es">Español: una traducción junto a cada palabra nueva</string>
     <string name="scaffold_label">Idioma de ayuda</string>
     <string name="scaffold_none">Ninguno: todo en inglés, con definiciones en inglés</string>
-    <string name="settings_back">Volver a tu pueblo</string>
     <string name="settings_cards_kept">Tus palabras y tu progreso no cambian.</string>
     <string name="settings_failed">No hemos podido cargar tus ajustes.</string>
     <string name="settings_reminder_denied">Las notificaciones de Townword están desactivadas en los ajustes del teléfono.</string>

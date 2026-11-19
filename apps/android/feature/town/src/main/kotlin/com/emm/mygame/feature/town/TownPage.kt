@@ -35,7 +35,7 @@ internal fun TownPage(
     place: TownUiState.PlaceCard,
     onIntent: (TownIntent) -> Unit,
     slots: TownPageSlots,
-    foldedDock: @Composable () -> Unit,
+    top: TownPageTop,
     modifier: Modifier = Modifier,
 ) {
     val copy: PlayerCopy = rememberPlayerCopy()
@@ -46,7 +46,7 @@ internal fun TownPage(
         name = copy.chrome(placeNameOf(place.kind)),
         level = copy.chrome { levelLineOf(place) },
         words = place.next?.wordsNeeded?.let { need: TownUiState.WordNeedLine -> copy.wordsOf(need) },
-        header = { PageHeader(content = content, place = place, slots = slots, foldedDock = foldedDock) },
+        header = { PageHeader(content = content, place = place, slots = slots, top = top) },
         work = { PageWork(content = content, place = place, onIntent = onIntent, slots = slots) },
         modifier = modifier,
     )
@@ -57,7 +57,7 @@ private fun PageHeader(
     content: TownUiState.Content,
     place: TownUiState.PlaceCard,
     slots: TownPageSlots,
-    foldedDock: @Composable () -> Unit,
+    top: TownPageTop,
 ) {
     Column(verticalArrangement = Arrangement.spacedBy(MyGameSpacing.step3)) {
         MyGameHeader(modifier = Modifier.frameHeaderTurn(), end = slots.ring) {
@@ -75,11 +75,12 @@ private fun PageHeader(
             }
         }
         slots.status()
-        foldedDock()
+        top.foldedDock()
         content.season?.let { season: TownUiState.SeasonLine -> SeasonRow(season = season) }
         content.caughtUpGoal?.takeIf { goal: TownGoal -> goal.building != place.kind }?.let { goal: TownGoal ->
             GoalLine(goal = goal)
         }
+        top.reportRow()
         if (place.isInWork) content.buildMark?.let { mark: TownUiState.DurationMark -> BuildMarkRow(mark = mark) }
     }
 }

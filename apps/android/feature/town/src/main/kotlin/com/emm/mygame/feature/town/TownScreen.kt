@@ -61,9 +61,11 @@ fun TownScreen(
     ring: @Composable () -> Unit = {},
     status: @Composable () -> Unit = {},
     foldedDock: @Composable () -> Unit = {},
+    reportRow: @Composable () -> Unit = {},
     placement: @Composable () -> Unit = {},
 ) {
     val placedFoldedDock: @Composable () -> Unit = remember(foldedDock) { movableContentOf(foldedDock) }
+    val placedReportRow: @Composable () -> Unit = remember(reportRow) { movableContentOf(reportRow) }
     val isHeaderDrawn: MutableState<Boolean> = remember { mutableStateOf(false) }
     val slots: TownPageSlots = TownPageSlots(
         ring = ring,
@@ -88,7 +90,10 @@ fun TownScreen(
                 bottom = if (isHome) MyGameSpacing.step2 else MyGameSpacing.step8,
             ),
     ) {
-        if (!isHeaderDrawn.value || !isHome) placedFoldedDock()
+        if (!isHeaderDrawn.value || !isHome) {
+            placedFoldedDock()
+            placedReportRow()
+        }
         MyGameSkeleton(
             isLoading = state == TownUiState.Loading,
             loadingLabel = chromeResource(R.string.town_loading).spoken,
@@ -99,13 +104,16 @@ fun TownScreen(
                     content = content,
                     onIntent = onIntent,
                     slots = slots,
-                    foldedDock = {
-                        if (isHeaderDrawn.value) placedFoldedDock()
-                        DisposableEffect(Unit) {
-                            isHeaderDrawn.value = true
-                            onDispose { isHeaderDrawn.value = false }
-                        }
-                    },
+                    top = TownPageTop(
+                        foldedDock = {
+                            if (isHeaderDrawn.value) placedFoldedDock()
+                            DisposableEffect(Unit) {
+                                isHeaderDrawn.value = true
+                                onDispose { isHeaderDrawn.value = false }
+                            }
+                        },
+                        reportRow = { if (isHeaderDrawn.value) placedReportRow() },
+                    ),
                 )
             }
         }
@@ -163,7 +171,7 @@ private fun TownHome(
     content: TownUiState.Content,
     onIntent: (TownIntent) -> Unit,
     slots: TownPageSlots,
-    foldedDock: @Composable () -> Unit,
+    top: TownPageTop,
     modifier: Modifier = Modifier,
 ) {
     val pager: PagerState = rememberPagerState(initialPage = content.openingPage()) { content.places.size }
@@ -180,7 +188,7 @@ private fun TownHome(
                 place = content.places[index],
                 onIntent = onIntent,
                 slots = slots,
-                foldedDock = if (index == pager.currentPage) foldedDock else ({}),
+                top = if (index == pager.currentPage) top else TownPageTop.none,
                 modifier = Modifier.fillMaxSize(),
             )
         }

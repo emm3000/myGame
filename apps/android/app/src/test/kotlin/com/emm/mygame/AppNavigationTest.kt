@@ -27,7 +27,6 @@ import androidx.navigation3.runtime.rememberNavBackStack
 import androidx.test.ext.junit.rules.ActivityScenarioRule
 import com.emm.mygame.core.designsystem.INK_PILL
 import com.emm.mygame.core.designsystem.MyGameTheme
-import com.emm.mygame.core.designsystem.OUTLINED_PILL
 import com.emm.mygame.core.designsystem.PILL_BADGE
 import com.emm.mygame.core.network.CaughtUpReason
 import com.emm.mygame.core.network.DueReviews
@@ -249,14 +248,15 @@ class AppNavigationTest {
 
     private fun backLink(): SemanticsNodeInteraction = composeRule.onNodeWithText("PUEBLO")
 
-    private fun door(label: String): SemanticsNodeInteraction =
-        composeRule.onNode(hasText(label).and(hasTestTag(OUTLINED_PILL)))
-
-    private fun dockDoor(label: String): SemanticsNodeInteraction {
-        val door: SemanticsMatcher = hasText(label).and(hasClickAction())
-        composeRule.waitUntil(WAIT_MILLIS) { composeRule.onAllNodes(door).fetchSemanticsNodes().isNotEmpty() }
-        return composeRule.onNode(door)
+    private fun waitedFor(matcher: SemanticsMatcher): SemanticsNodeInteraction {
+        composeRule.waitUntil(WAIT_MILLIS) { composeRule.onAllNodes(matcher).fetchSemanticsNodes().isNotEmpty() }
+        return composeRule.onNode(matcher)
     }
+
+    private fun link(label: String): SemanticsNodeInteraction = waitedFor(hasText(label).and(hasClickAction()))
+
+    private fun wayToTheReport(): SemanticsNodeInteraction =
+        waitedFor(hasClickAction().and(hasText("Informe").or(hasContentDescription("Ir al informe", substring = true))))
 
     private fun taskGo(label: String): SemanticsNodeInteraction {
         val go: SemanticsMatcher = hasTestTag(INK_PILL).and(hasContentDescription(label, substring = true))
@@ -292,7 +292,7 @@ class AppNavigationTest {
 
     private fun openReport(report: TownReport) {
         reportsFake.answerRead(ReportReadResult.Read(report))
-        door("Informe").performClick()
+        wayToTheReport().performClick()
         waitForLine("NOTICIAS DEL PUEBLO")
     }
 
@@ -521,7 +521,7 @@ class AppNavigationTest {
     }
 
     @Test
-    fun `opens the Report from its door`() {
+    fun `opens the Report from its row on the town home`() {
         signedInAtTown()
 
         openReport(TownReport(dueCount = 3, readFirst = emptyList(), nextDueAt = null, news = emptyList()))
@@ -606,7 +606,7 @@ class AppNavigationTest {
 
         composeRule.onNodeWithText("Ir a la escuela").performScrollTo().performClick()
         assertStatusShown()
-        dockDoor("Pueblo").performClick()
+        link("PUEBLO").performClick()
         waitForLine(TOWN_HEADER)
 
         openReport(TownReport(dueCount = 3, readFirst = emptyList(), nextDueAt = null, news = emptyList()))
@@ -629,7 +629,7 @@ class AppNavigationTest {
     fun `shows no count with nothing due`() {
         signedInAtTown()
 
-        door("Informe").assertIsDisplayed()
+        wayToTheReport().assertIsDisplayed()
         composeRule.onAllNodes(hasContentDescription("Repasos pendientes", substring = true)).assertCountEquals(0)
     }
 
@@ -764,7 +764,7 @@ class AppNavigationTest {
         onTheReportAsLessonOneFinishes(finishedTown(readFirst = listOf(firstLesson)))
         repeat(2) { townsFake.answerRead(TownReadResult.Read(finishedTown(listOf(firstLesson)))) }
 
-        dockDoor("Pueblo").performClick()
+        link("PUEBLO").performClick()
         waitForLine(TOWN_HEADER)
 
         composeRule.onNodeWithText(LESSON_ONE_DONE).assertIsDisplayed()
@@ -866,13 +866,13 @@ class AppNavigationTest {
     }
 
     @Test
-    fun `keeps the Report shown when the dock's door is tapped while signing out`() {
+    fun `keeps the Report shown when the header's town link is tapped while signing out`() {
         signedInAtTown()
         openReport(nothingDue)
         composeRule.onNodeWithText("Salir").performScrollTo().performClick()
         composeRule.waitForIdle()
 
-        dockDoor("Pueblo").performClick()
+        link("PUEBLO").performClick()
         composeRule.waitForIdle()
 
         composeRule.onNode(hasText("Informe").and(isHeading())).assertExists()

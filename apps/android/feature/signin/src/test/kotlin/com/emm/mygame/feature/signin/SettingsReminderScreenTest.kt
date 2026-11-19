@@ -50,7 +50,6 @@ class SettingsReminderScreenTest {
                 SettingsScreen(
                     state = SettingsUiState.Loaded(PlayerScaffold.Spanish, SettingsUiState.Change.Untouched, reminder),
                     onIntent = { sentIntents += it },
-                    onTownOpen = {},
                     onNotificationSettingsOpen = { notificationSettingsOpens += 1 },
                 )
             }

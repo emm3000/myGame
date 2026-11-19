@@ -9,13 +9,11 @@ import androidx.compose.ui.platform.testTag
 import com.emm.mygame.core.designsystem.MyGameCountdownGround
 import com.emm.mygame.core.designsystem.MyGameCountdownLine
 import com.emm.mygame.core.designsystem.MyGameDock
-import com.emm.mygame.core.designsystem.MyGameDockDoor
 import com.emm.mygame.core.designsystem.MyGameDockGo
 import com.emm.mygame.core.designsystem.MyGameDockLine
 import com.emm.mygame.core.designsystem.MyGameDockLineText
 import com.emm.mygame.core.designsystem.MyGameInlineAlert
 import com.emm.mygame.core.designsystem.MyGameLabel
-import com.emm.mygame.core.designsystem.MyGameOutlinedButton
 import com.emm.mygame.core.designsystem.MyGamePreviewSurface
 import com.emm.mygame.core.designsystem.MyGameSpacing
 import com.emm.mygame.core.designsystem.MyGameText
@@ -27,7 +25,6 @@ import com.emm.mygame.core.network.NextStepCard
 import com.emm.mygame.core.network.TownGoal
 import com.emm.mygame.core.ui.CopyReader
 import com.emm.mygame.core.ui.PlayerCopy
-import com.emm.mygame.core.ui.chromeResource
 import com.emm.mygame.core.ui.rememberPlayerCopy
 import kotlin.time.Duration.Companion.minutes
 import kotlin.time.Instant
@@ -40,7 +37,6 @@ fun TownDock(
     actions: TownDockActions,
     onFoldChange: (Boolean) -> Unit,
     modifier: Modifier = Modifier,
-    door: MyGameDockDoor? = null,
     inPlace: MyGameDockGo? = null,
 ) {
     val copy: PlayerCopy = rememberPlayerCopy()
@@ -49,34 +45,20 @@ fun TownDock(
         go = copy.dockGoOf(dock, actions, inPlace),
         onFoldChange = onFoldChange,
         modifier = modifier.testTag(TOWN_DOCK),
-        door = door,
         countdown = { DockCountdown(dock = dock) },
         notice = { DockNotice(dock = dock) },
     )
 }
 
 @Composable
-fun TownDockTop(dock: TownStatusUiState.Dock, modifier: Modifier = Modifier, door: MyGameDockDoor? = null) {
+fun TownDockTop(dock: TownStatusUiState.Dock, modifier: Modifier = Modifier) {
     val copy: PlayerCopy = rememberPlayerCopy()
     Column(verticalArrangement = Arrangement.spacedBy(MyGameSpacing.step3), modifier = modifier.fillMaxWidth()) {
         MyGameDockLineText(line = copy.dockLineOf(dock), loadingLabel = copy.chrome(R.string.town_waiting).spoken)
         DockCountdown(dock = dock)
         DockNotice(dock = dock)
-        door?.let { shown: MyGameDockDoor ->
-            MyGameOutlinedButton(
-                label = shown.label,
-                isBusy = false,
-                busyDescription = shown.label.spoken,
-                onClick = shown.onClick,
-                modifier = Modifier.fillMaxWidth(),
-            )
-        }
     }
 }
-
-@Composable
-fun reportDoor(onClick: () -> Unit): MyGameDockDoor =
-    MyGameDockDoor(label = chromeResource(R.string.town_door_report), onClick = onClick)
 
 @Composable
 private fun DockCountdown(dock: TownStatusUiState.Dock, modifier: Modifier = Modifier) {
@@ -293,7 +275,6 @@ private fun TownDockPreview() {
             dock = previewStep,
             actions = previewActions,
             onFoldChange = {},
-            door = MyGameDockDoor(label = MyGameLabel(text = "Report", translation = null), onClick = {}),
         )
     }
 }
@@ -310,9 +291,6 @@ private fun TownDockLoadingPreview() {
 @Composable
 private fun TownDockTopPreview() {
     MyGamePreviewSurface {
-        TownDockTop(
-            dock = previewStep,
-            door = MyGameDockDoor(label = MyGameLabel(text = "Town", translation = null), onClick = {}),
-        )
+        TownDockTop(dock = previewStep)
     }
 }

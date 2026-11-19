@@ -5,6 +5,8 @@ import androidx.compose.ui.geometry.Rect
 import androidx.compose.ui.test.SemanticsNodeInteraction
 import androidx.compose.ui.test.assertCountEquals
 import androidx.compose.ui.test.assertIsDisplayed
+import androidx.compose.ui.test.hasClickAction
+import androidx.compose.ui.test.hasContentDescription
 import androidx.compose.ui.test.hasTestTag
 import androidx.compose.ui.test.hasText
 import androidx.compose.ui.test.junit4.AndroidComposeTestRule
@@ -17,7 +19,6 @@ import androidx.compose.ui.test.performScrollTo
 import androidx.lifecycle.Lifecycle
 import androidx.test.ext.junit.rules.ActivityScenarioRule
 import com.emm.mygame.core.designsystem.MyGameTheme
-import com.emm.mygame.core.designsystem.OUTLINED_PILL
 import com.emm.mygame.core.network.CaughtUpReason
 import com.emm.mygame.core.network.HoldoutCheckRepository
 import com.emm.mygame.core.network.LearningRepository
@@ -53,6 +54,7 @@ import com.emm.mygame.core.testing.FakeStudyReminderSettings
 import com.emm.mygame.core.testing.FakeThemeSettings
 import com.emm.mygame.core.testing.FakeTownRepository
 import com.emm.mygame.core.testing.hiringOf
+import com.emm.mygame.feature.town.TOWN_DOCK
 import kotlin.time.Clock
 import kotlin.time.Instant
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -155,9 +157,13 @@ class VerificationBannerNavigationTest {
         waitForLine(BANNER_LINE)
 
         composeRule.onNodeWithText("Ir a la escuela").performScrollTo().performClick()
-        waitForLine(TOWN_DOOR)
+        composeRule.waitUntil(WAIT_MILLIS) {
+            composeRule.onAllNodes(hasTestTag(TOWN_DOCK)).fetchSemanticsNodes().isNotEmpty()
+        }
 
-        assertTrue(boundsOf(TOWN_DOOR).bottom <= boundsOf(BANNER_LINE).top)
+        val dock: Rect = composeRule.onNode(hasTestTag(TOWN_DOCK)).fetchSemanticsNode().boundsInRoot
+
+        assertTrue(dock.bottom <= boundsOf(BANNER_LINE).top)
         assertTrue(isResendAtTheFoot())
     }
 
@@ -212,7 +218,7 @@ class VerificationBannerNavigationTest {
         signedIn(session = unverifiedSession, town = TownReadResult.Read(heldTown))
         waitForLine(BANNER_LINE)
         reportsFake.answerRead(ReportReadResult.Read(nothingDue))
-        door("Informe").performClick()
+        wayToTheReport().performClick()
         waitForLine("NOTICIAS DEL PUEBLO")
         sessionsFake.answerSignOut()
         sessionsFake.answerRestore(RestoreResult.SignedOut)
@@ -239,8 +245,8 @@ class VerificationBannerNavigationTest {
         }
     }
 
-    private fun door(label: String): SemanticsNodeInteraction =
-        composeRule.onNode(hasText(label).and(hasTestTag(OUTLINED_PILL)))
+    private fun wayToTheReport(): SemanticsNodeInteraction =
+        composeRule.onNode(hasClickAction().and(hasContentDescription("Ir al informe", substring = true)))
 
     private fun isResendAtTheFoot(): Boolean {
         val resend: Rect = boundsOf(RESEND)
@@ -252,7 +258,6 @@ class VerificationBannerNavigationTest {
 
     private companion object {
         const val TOWN_HEADER: String = "Riverton · Pueblo"
-        const val TOWN_DOOR: String = "Pueblo"
         const val BANNER_LINE: String = "Confirma tu correo"
         const val RESEND: String = "Reenviar"
         const val SESSION_READS: Int = 2

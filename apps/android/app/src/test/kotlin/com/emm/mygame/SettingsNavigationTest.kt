@@ -168,17 +168,6 @@ class SettingsNavigationTest {
     }
 
     @Test
-    fun `returns to the town from the settings' own link`() {
-        show(Destination.Town, Destination.Report, Destination.Settings)
-        waitForLine("Volver a tu pueblo")
-
-        composeRule.onNodeWithText("Volver a tu pueblo").performScrollTo().performClick()
-        composeRule.waitForIdle()
-
-        assertEquals(listOf<NavKey>(Destination.Town), shownBackStack)
-    }
-
-    @Test
     fun `keeps the old language while the change waits`() {
         show(Destination.Town, Destination.Report, Destination.Settings)
         waitForLine(NONE_OPTION_IN_SPANISH)
@@ -201,7 +190,7 @@ class SettingsNavigationTest {
         waitForLine("Saved.")
         composeRule.onAllNodesWithText("Settings").assertCountEquals(1)
         composeRule.onAllNodesWithText("Ajustes").assertCountEquals(0)
-        composeRule.onAllNodesWithText("Town").assertCountEquals(1)
+        composeRule.onAllNodesWithText("TOWN").assertCountEquals(1)
     }
 
     @Test

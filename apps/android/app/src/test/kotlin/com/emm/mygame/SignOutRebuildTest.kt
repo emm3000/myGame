@@ -116,11 +116,11 @@ class SignOutRebuildTest {
     }
 
     @Test
-    fun `keeps the dock's door shut when the activity is recreated mid-sign-out`() {
+    fun `keeps the header's town link shut when the activity is recreated mid-sign-out`() {
         signingOutOnARecreatedReport()
-        waitForLine("Pueblo")
+        waitForLine("PUEBLO")
 
-        composeRule.onNode(hasText("Pueblo").and(hasClickAction())).performClick()
+        composeRule.onNode(hasText("PUEBLO").and(hasClickAction())).performClick()
         composeRule.waitForIdle()
 
         composeRule.onNode(hasText("Informe").and(isHeading())).assertExists()

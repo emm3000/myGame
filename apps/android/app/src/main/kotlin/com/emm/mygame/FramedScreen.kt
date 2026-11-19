@@ -31,7 +31,6 @@ import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.semantics.traversalIndex
 import com.emm.mygame.core.designsystem.MyGameBackLink
 import com.emm.mygame.core.designsystem.MyGameDock
-import com.emm.mygame.core.designsystem.MyGameDockDoor
 import com.emm.mygame.core.designsystem.MyGameDockGo
 import com.emm.mygame.core.designsystem.MyGameHeader
 import com.emm.mygame.core.designsystem.MyGameSpacing
@@ -49,9 +48,9 @@ import com.emm.mygame.core.ui.frameHeaderTurn
 import com.emm.mygame.feature.town.TownDock
 import com.emm.mygame.feature.town.TownDockActions
 import com.emm.mygame.feature.town.TownDockTop
+import com.emm.mygame.feature.town.TownReportRow
 import com.emm.mygame.feature.town.TownStatusIntent
 import com.emm.mygame.feature.town.TownStatusUiState
-import com.emm.mygame.feature.town.reportDoor
 
 private const val TASK_DOCK_TURN: Float = 1f
 
@@ -70,7 +69,6 @@ internal fun FramedScreen(
         if (kind == FrameKind.Home) WindowInsets.ime else WindowInsets.ime.union(WindowInsets.statusBars)
     val isFolded: MutableState<Boolean> = remember { mutableStateOf(false) }
     val isKeyboardOpen: Boolean = WindowInsets.isImeVisible
-    val door: MyGameDockDoor? = doorOf(kind, chrome.navigator)
     val onStatusIntent: State<(TownStatusIntent) -> Unit> = rememberUpdatedState(chrome.onStatusIntent)
     val task: TaskDockHook = remember {
         TaskDockHook(onAnswered = { onStatusIntent.value(TownStatusIntent.ScreenAnswered) })
@@ -80,7 +78,8 @@ internal fun FramedScreen(
         chrome.status.value.dock.takeIf { isTownDockShown(kind, isDockWithheld, follow) }
     val frame = ScreenFrame(
         task = task,
-        foldedDock = { FoldedDockTop(dock = dock, door = door, isFolded = isFolded.value, turn = foldedTurnOf(kind)) },
+        foldedDock = { FoldedDockTop(dock = dock, isFolded = isFolded.value, turn = foldedTurnOf(kind)) },
+        reportRow = { HomeReportRow(kind = kind, dock = dock, navigator = chrome.navigator) },
     )
     Column(
         modifier = modifier
@@ -89,7 +88,7 @@ internal fun FramedScreen(
             .semantics { isTraversalGroup = true },
     ) {
         if (kind != FrameKind.Home) {
-            FrameHeader(kind = kind, doesScreenReadTown = doesScreenReadTown, chrome = chrome)
+            FrameHeader(doesScreenReadTown = doesScreenReadTown, chrome = chrome)
             chrome.banner()
         }
         Box(
@@ -107,7 +106,6 @@ internal fun FramedScreen(
                 FrameDock(
                     dock = shown,
                     chrome = chrome,
-                    door = door,
                     studyInPlace = studyInPlace,
                     onFoldChange = { folded: Boolean -> isFolded.value = folded },
                     follow = follow,
@@ -120,7 +118,7 @@ internal fun FramedScreen(
 private fun foldedTurnOf(kind: FrameKind): Float = if (kind == FrameKind.Task) TASK_DOCK_TURN else FRAME_FOLDED_TOP_TURN
 
 @Composable
-private fun FoldedDockTop(dock: TownStatusUiState.Dock?, door: MyGameDockDoor?, isFolded: Boolean, turn: Float) {
+private fun FoldedDockTop(dock: TownStatusUiState.Dock?, isFolded: Boolean, turn: Float) {
     if (dock == null || !isFolded) return
     Box(
         modifier = Modifier.semantics {
@@ -128,8 +126,14 @@ private fun FoldedDockTop(dock: TownStatusUiState.Dock?, door: MyGameDockDoor?, 
             traversalIndex = turn
         },
     ) {
-        TownDockTop(dock = dock, door = door)
+        TownDockTop(dock = dock)
     }
+}
+
+@Composable
+private fun HomeReportRow(kind: FrameKind, dock: TownStatusUiState.Dock?, navigator: Navigator) {
+    if (kind != FrameKind.Home || dock == null) return
+    TownReportRow(dock = dock, onClick = navigator::openReport)
 }
 
 private fun isTownDockShown(kind: FrameKind, isDockWithheld: Boolean, follow: TownFollow?): Boolean =
@@ -152,7 +156,7 @@ private fun TaskFrameDock(shown: TaskDock, onFoldChange: (Boolean) -> Unit) {
 }
 
 @Composable
-private fun FrameHeader(kind: FrameKind, doesScreenReadTown: Boolean, chrome: SignedInChrome) {
+private fun FrameHeader(doesScreenReadTown: Boolean, chrome: SignedInChrome) {
     MyGameHeader(
         modifier = Modifier
             .statusBarsPadding()
@@ -160,13 +164,11 @@ private fun FrameHeader(kind: FrameKind, doesScreenReadTown: Boolean, chrome: Si
             .frameHeaderTurn(),
         end = { RetainedWordsRing(towns = chrome.dependencies.towns, doesScreenReadTown = doesScreenReadTown) },
     ) {
-        if (kind == FrameKind.Task) {
-            MyGameBackLink(
-                label = chromeResource(R.string.navigation_town),
-                isEnabled = chrome.navigator.areLinksEnabled,
-                onClick = chrome.navigator::openTown,
-            )
-        }
+        MyGameBackLink(
+            label = chromeResource(R.string.navigation_town),
+            isEnabled = chrome.navigator.areLinksEnabled,
+            onClick = chrome.navigator::openTown,
+        )
     }
 }
 
@@ -174,7 +176,6 @@ private fun FrameHeader(kind: FrameKind, doesScreenReadTown: Boolean, chrome: Si
 private fun FrameDock(
     dock: TownStatusUiState.Dock,
     chrome: SignedInChrome,
-    door: MyGameDockDoor?,
     studyInPlace: @Composable (Int) -> MyGameDockGo?,
     onFoldChange: (Boolean) -> Unit,
     follow: TownFollow?,
@@ -186,19 +187,8 @@ private fun FrameDock(
         modifier = Modifier
             .windowInsetsPadding(WindowInsets.safeDrawing.only(WindowInsetsSides.Horizontal))
             .semantics { traversalIndex = if (follow == null) FRAME_DOCK_TURN else TASK_DOCK_TURN },
-        door = door,
         inPlace = dock.studiedInPlace()?.let { number: Int -> studyInPlace(number) },
     )
-}
-
-@Composable
-private fun doorOf(kind: FrameKind, navigator: Navigator): MyGameDockDoor? = when (kind) {
-    FrameKind.Home -> reportDoor(onClick = navigator::openReport)
-    FrameKind.Place -> MyGameDockDoor(
-        label = chromeResource(R.string.navigation_town),
-        onClick = { navigator.openFromDock { openTown() } },
-    )
-    FrameKind.Task -> null
 }
 
 private fun TownStatusUiState.Dock.studiedInPlace(): Int? =

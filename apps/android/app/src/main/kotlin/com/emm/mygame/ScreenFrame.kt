@@ -5,6 +5,7 @@ import com.emm.mygame.core.ui.TaskDockHook
 
 internal class ScreenFrame(
     val foldedDock: @Composable () -> Unit,
+    val reportRow: @Composable () -> Unit,
     val task: TaskDockHook,
 ) {
 

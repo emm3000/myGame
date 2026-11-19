@@ -1,3 +1,3 @@
 package com.emm.mygame.feature.signin
 
-data class SettingsNavigation(val onTownOpen: () -> Unit, val onNotificationSettingsOpen: () -> Unit)
+data class SettingsNavigation(val onNotificationSettingsOpen: () -> Unit)

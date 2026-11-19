@@ -28,7 +28,6 @@ import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.robolectric.RobolectricTestRunner
-import org.robolectric.annotation.Config
 import org.robolectric.annotation.GraphicsMode
 
 private const val LARGE: Float = 1.5f
@@ -39,7 +38,7 @@ private const val DP_TOLERANCE: Float = 0.5f
 
 private val narrowWidth: Dp = 200.dp
 
-private val townDoorWidth: Dp = 158.dp
+private val narrowPillWidth: Dp = 158.dp
 
 private const val SHORT_LABEL: String = "Study"
 
@@ -71,20 +70,6 @@ class MyGamePillAtLargeFontTest {
 
     private fun goButtonWithCount(label: String): @Composable () -> Unit = {
         MyGameButton(label = label, isBusy = false, busyDescription = "Waiting", onClick = {}, badge = "4")
-    }
-
-    private fun dockWithDoor(): @Composable () -> Unit = {
-        MyGameDock(
-            line = MyGameDockLine(title = MyGameLabel(text = "What is next", translation = null), step = null),
-            go = MyGameDockGo(
-                label = MyGameLabel(text = SHORT_LABEL, translation = null),
-                isBusy = false,
-                busyDescription = "Waiting",
-                onClick = {},
-            ),
-            onFoldChange = {},
-            door = MyGameDockDoor(label = MyGameLabel(text = "Town", translation = null), onClick = {}),
-        )
     }
 
     private fun outlinedPillWithCount(label: String, count: String): @Composable () -> Unit = {
@@ -219,38 +204,22 @@ class MyGamePillAtLargeFontTest {
     }
 
     @Test
-    @Config(qualifiers = "+w360dp-h2000dp")
-    fun `keeps the dock's door at action height for one line at a large font`() {
-        showAt(LARGE, dockWithDoor())
-
-        assertEquals(MyGameSizes.action.value, heightOf(OUTLINED_PILL).value, DP_TOLERANCE)
-    }
-
-    @Test
-    @Config(qualifiers = "+w360dp-h2000dp")
-    fun `keeps the dock's door at action height for one line at the largest font`() {
-        showAt(LARGEST, dockWithDoor())
-
-        assertEquals(MyGameSizes.action.value, heightOf(OUTLINED_PILL).value, DP_TOLERANCE)
-    }
-
-    @Test
     fun `keeps a one-word label whole beside a count at the largest font`() {
-        showAt(LARGEST, outlinedPillWithCount(label = "Informe", count = "4"), width = townDoorWidth)
+        showAt(LARGEST, outlinedPillWithCount(label = "Informe", count = "4"), width = narrowPillWidth)
 
         assertEquals(1, lineCountOf("Informe"))
     }
 
     @Test
     fun `keeps a one-word label whole beside a three-digit count at the largest font`() {
-        showAt(LARGEST, outlinedPillWithCount(label = "Report", count = "123"), width = townDoorWidth)
+        showAt(LARGEST, outlinedPillWithCount(label = "Report", count = "123"), width = narrowPillWidth)
 
         assertEquals(1, lineCountOf("Report"))
     }
 
     @Test
     fun `keeps a three-digit count's disc round inside a narrow button at the largest font`() {
-        showAt(LARGEST, outlinedPillWithCount(label = "Report", count = "123"), width = townDoorWidth)
+        showAt(LARGEST, outlinedPillWithCount(label = "Report", count = "123"), width = narrowPillWidth)
 
         val pill: DpRect = composeRule.onNodeWithTag(OUTLINED_PILL).getBoundsInRoot()
         val disc: DpRect = composeRule
