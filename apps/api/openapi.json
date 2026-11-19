@@ -3446,6 +3446,10 @@
             "type": "string",
             "enum": ["caughtUp"]
           },
+          "reason": {
+            "type": "string",
+            "enum": ["learningCap", "schoolTooLow", "lessonsDone"]
+          },
           "goal": {
             "allOf": [
               {
@@ -3457,7 +3461,7 @@
             ]
           }
         },
-        "required": ["kind", "goal"],
+        "required": ["kind", "reason", "goal"],
         "additionalProperties": false
       },
       "TownNewsFeed": {

@@ -412,7 +412,11 @@ it('draws no notice when a review comes due after a finish on the words', async 
       return finished
     }
     return elapsedMs < 360_000
-      ? { ...finished, nextStep: { kind: 'caughtUp', goal: null }, readAt: instantAfter(300) }
+      ? {
+          ...finished,
+          nextStep: { kind: 'caughtUp', reason: 'lessonsDone', goal: null },
+          readAt: instantAfter(300),
+        }
       : { ...finished, readAt: instantAfter(360) }
   }
   const router = renderAppAt(
@@ -434,7 +438,10 @@ it('draws no notice when a review comes due after a finish on the words', async 
 it('draws no notice for a finish with no review due', async () => {
   renderAppAt(
     '/report',
-    finishingClient({ ...lessonTwoFinished([]), nextStep: { kind: 'caughtUp', goal: null } }),
+    finishingClient({
+      ...lessonTwoFinished([]),
+      nextStep: { kind: 'caughtUp', reason: 'lessonsDone', goal: null },
+    }),
   )
   await passSeconds(0)
 
@@ -446,7 +453,10 @@ it('draws no notice for a finish with no review due', async () => {
 it('still announces a finish with no review due', async () => {
   renderAppAt(
     '/report',
-    finishingClient({ ...lessonTwoFinished([]), nextStep: { kind: 'caughtUp', goal: null } }),
+    finishingClient({
+      ...lessonTwoFinished([]),
+      nextStep: { kind: 'caughtUp', reason: 'lessonsDone', goal: null },
+    }),
   )
   await passSeconds(0)
 
@@ -468,7 +478,7 @@ it('drops the notice for good once no review is due', async () => {
   const finished = lessonTwoFinished([])
   const caughtUp: TownOverview = {
     ...finished,
-    nextStep: { kind: 'caughtUp', goal: null },
+    nextStep: { kind: 'caughtUp', reason: 'lessonsDone', goal: null },
     readAt: instantAfter(300),
   }
   const townAt = (elapsedMs: number): TownOverview => {

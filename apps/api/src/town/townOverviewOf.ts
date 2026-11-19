@@ -345,7 +345,7 @@ const nextStepOfReading = (
     case 'lessonRunning':
     case 'caughtUp': {
       const goal = goalOf(reading, catalog)
-      return goal.ok ? ok({ kind: step.value.kind, goal: goal.value }) : goal
+      return goal.ok ? ok({ ...step.value, goal: goal.value }) : goal
     }
   }
 }

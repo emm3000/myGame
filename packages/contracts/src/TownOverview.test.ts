@@ -132,7 +132,7 @@ const overview = (overrides: Record<string, unknown> = {}): Record<string, unkno
   learning: { cap: 15, inLearning: 5, retainedWords: null },
   stableWordCount: 12,
   retainedWordCount: 4,
-  nextStep: { kind: 'caughtUp', goal: null },
+  nextStep: { kind: 'caughtUp', reason: 'lessonsDone', goal: null },
   tip: null,
   chromePhase: 'scaffold',
   scaffold: 'es',
@@ -591,7 +591,7 @@ describe('TownOverviewSchema next step', () => {
   })
 
   it('reads caught up with no goal', () => {
-    const nextStep = { kind: 'caughtUp', goal: null }
+    const nextStep = { kind: 'caughtUp', reason: 'lessonsDone', goal: null }
 
     expect(TownOverviewSchema.parse(overview({ nextStep })).nextStep).toEqual(nextStep)
   })
@@ -606,21 +606,46 @@ describe('TownOverviewSchema next step', () => {
       missing: { resources: { money: 0, food: 0, power: 0, material: 30 }, people: 1 },
     }
 
-    const read = TownOverviewSchema.parse(overview({ nextStep: { kind: 'caughtUp', goal } }))
+    const read = TownOverviewSchema.parse(
+      overview({ nextStep: { kind: 'caughtUp', reason: 'learningCap', goal } }),
+    )
 
-    expect(read.nextStep).toEqual({ kind: 'caughtUp', goal })
+    expect(read.nextStep).toEqual({ kind: 'caughtUp', reason: 'learningCap', goal })
   })
 
   it('reads caught up with a goal underway', () => {
     const goal = { position: 1, count: 9, building: 'farm', level: 1, state: 'underway' }
 
-    const read = TownOverviewSchema.parse(overview({ nextStep: { kind: 'caughtUp', goal } }))
+    const read = TownOverviewSchema.parse(
+      overview({ nextStep: { kind: 'caughtUp', reason: 'learningCap', goal } }),
+    )
 
-    expect(read.nextStep).toEqual({ kind: 'caughtUp', goal })
+    expect(read.nextStep).toEqual({ kind: 'caughtUp', reason: 'learningCap', goal })
+  })
+
+  it.each(['learningCap', 'schoolTooLow', 'lessonsDone'])(
+    'reads caught up for the reason %s',
+    (reason) => {
+      const nextStep = { kind: 'caughtUp', reason, goal: null }
+
+      expect(TownOverviewSchema.parse(overview({ nextStep })).nextStep).toEqual(nextStep)
+    },
+  )
+
+  it('refuses caught up without its reason', () => {
+    const nextStep = { kind: 'caughtUp', goal: null }
+
+    expect(TownOverviewSchema.safeParse(overview({ nextStep })).success).toBe(false)
+  })
+
+  it('refuses caught up for a reason it does not know', () => {
+    const nextStep = { kind: 'caughtUp', reason: 'slotBusy', goal: null }
+
+    expect(TownOverviewSchema.safeParse(overview({ nextStep })).success).toBe(false)
   })
 
   it('refuses caught up without its goal', () => {
-    const nextStep = { kind: 'caughtUp' }
+    const nextStep = { kind: 'caughtUp', reason: 'lessonsDone' }
 
     expect(TownOverviewSchema.safeParse(overview({ nextStep })).success).toBe(false)
   })
@@ -635,7 +660,9 @@ describe('TownOverviewSchema next step', () => {
       missing: { resources: { money: 0, food: 0, power: 0, material: 0 }, people: 0 },
     }
 
-    const parsed = TownOverviewSchema.safeParse(overview({ nextStep: { kind: 'caughtUp', goal } }))
+    const parsed = TownOverviewSchema.safeParse(
+      overview({ nextStep: { kind: 'caughtUp', reason: 'learningCap', goal } }),
+    )
 
     expect(parsed.success).toBe(false)
   })
@@ -643,7 +670,9 @@ describe('TownOverviewSchema next step', () => {
   it('refuses a goal at position 0', () => {
     const goal = { position: 0, count: 9, building: 'farm', level: 1, state: 'underway' }
 
-    const parsed = TownOverviewSchema.safeParse(overview({ nextStep: { kind: 'caughtUp', goal } }))
+    const parsed = TownOverviewSchema.safeParse(
+      overview({ nextStep: { kind: 'caughtUp', reason: 'learningCap', goal } }),
+    )
 
     expect(parsed.success).toBe(false)
   })

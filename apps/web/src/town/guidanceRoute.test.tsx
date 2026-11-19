@@ -58,7 +58,11 @@ const underwayFarm: TownGoal = {
   state: 'underway',
 }
 
-const caughtUp = (goal: TownGoal | null): NextStep => ({ kind: 'caughtUp', goal })
+const caughtUp = (goal: TownGoal | null): NextStep => ({
+  kind: 'caughtUp',
+  reason: 'lessonsDone',
+  goal,
+})
 
 const townAt = (nextStep: NextStep, overrides: Partial<TownOverview> = {}): TownOverview => ({
   ...knownTown,

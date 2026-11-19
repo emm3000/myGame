@@ -149,7 +149,8 @@ class TownNextStepRepositoryTest {
         )
     }
 
-    private fun townWithNextStep(step: String): String = TOWN.replace("""{"kind":"caughtUp","goal":null}""", step)
+    private fun townWithNextStep(step: String): String =
+        TOWN.replace("""{"kind":"caughtUp","reason":"lessonsDone","goal":null}""", step)
 
     private fun json(code: Int, body: String): MockResponse =
         MockResponse.Builder().code(code).addHeader("Content-Type", "application/json").body(body).build()
@@ -184,7 +185,7 @@ class TownNextStepRepositoryTest {
                 """"hasBandStarted":false,"skills":[],"lessonSlot":null,""" +
                 """"learning":{"cap":10,"inLearning":0,"retainedWords":null},""" +
                 """"stableWordCount":0,"retainedWordCount":0,""" +
-                """"nextStep":{"kind":"caughtUp","goal":null},"tip":null,""" +
+                """"nextStep":{"kind":"caughtUp","reason":"lessonsDone","goal":null},"tip":null,""" +
                 """"chromePhase":"scaffold","scaffold":"es","scaffoldVersion":0,"nextDueAt":null,""" +
                 """"readAt":"2026-11-13T10:00:00.000Z"}"""
     }

@@ -333,33 +333,54 @@ describe('nextStepOf', () => {
     expect(answered(reading)).toEqual({ kind: 'lessonRunning' })
   })
 
-  it('answers caughtUp when the cap is full', () => {
+  it('answers caughtUp with learningCap when the cap is full', () => {
     const reading = readingOf({ cards: curriculum.slice(0, 3).flatMap(waitingCardsOf) })
 
-    expect(answered(reading)).toEqual({ kind: 'caughtUp' })
+    expect(answered(reading)).toEqual({ kind: 'caughtUp', reason: 'learningCap' })
   })
 
-  it('answers caughtUp at a full cap while a school raise is under way', () => {
+  it('answers caughtUp with learningCap at a full cap while a school raise is under way', () => {
     const reading = readingOf({
       cards: curriculum.slice(0, 3).flatMap(waitingCardsOf),
       town: { workSlot: { ...farmUnderWork, building: 'school', level: 2 } },
     })
 
-    expect(answered(reading)).toEqual({ kind: 'caughtUp' })
+    expect(answered(reading)).toEqual({ kind: 'caughtUp', reason: 'learningCap' })
   })
 
-  it("answers caughtUp when the school's level is too low", () => {
+  it("answers caughtUp with schoolTooLow when the school's level is too low", () => {
     const lessons = [lessonNumbered(1, { requiredSchoolLevel: 2 })]
 
-    expect(answered(readingOf(), lessons)).toEqual({ kind: 'caughtUp' })
+    expect(answered(readingOf(), lessons)).toEqual({ kind: 'caughtUp', reason: 'schoolTooLow' })
   })
 
-  it('answers caughtUp when the lessons are done', () => {
+  it('answers caughtUp with lessonsDone when every lesson is studied', () => {
     const studied = lessonNumbered(1)
 
     expect(answered(readingOf({ cards: waitingCardsOf(studied) }), [studied])).toEqual({
       kind: 'caughtUp',
+      reason: 'lessonsDone',
     })
+  })
+
+  it('takes the reason from the first unstudied shelved lesson', () => {
+    const lessons = [
+      ...curriculum.slice(0, 3),
+      lessonNumbered(4, { requiredSchoolLevel: 2 }),
+      lessonNumbered(5),
+    ]
+    const reading = readingOf({ cards: curriculum.slice(0, 3).flatMap(waitingCardsOf) })
+
+    expect(answered(reading, lessons)).toEqual({ kind: 'caughtUp', reason: 'schoolTooLow' })
+  })
+
+  it('takes the reason from a refused released lesson before the shelf', () => {
+    const reading = readingOf({
+      cards: curriculum.slice(0, 3).flatMap(waitingCardsOf),
+      released: [releasedLessonOf(1, { requiredSchoolLevel: 2 })],
+    })
+
+    expect(answered(reading)).toEqual({ kind: 'caughtUp', reason: 'schoolTooLow' })
   })
 
   it('refuses a school level the catalog lacks', () => {
