@@ -1,5 +1,5 @@
 ---
-status: accepted
+status: accepted, the dock's door, its countdown and its line together amended by ADR 051
 date: 2026-11-18
 ---
 # Tappable roles and the type hierarchy on Android

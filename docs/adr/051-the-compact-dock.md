@@ -1,5 +1,5 @@
 ---
-status: proposed
+status: accepted
 date: 2026-11-19
 ---
 # The compact dock on Android
@@ -248,6 +248,8 @@ first view on a long screen (the school's scroll holds nine sections,
 | The folded door is a `MyGameNavRow` at the top of the scroll | no door folds; the town's door is always a nav row |
 | `MyGameHeader` holds the back link and the ring | unchanged, and now true of a place screen |
 
+The status lines of ADR 047 and ADR 050 name these amendments.
+
 ADR 047's go, its count, its fold limit, the keyboard rule, the pager
 and the street strip stand. ADR 050's five roles, its type hierarchy and
 its color rules stand.
@@ -301,17 +303,15 @@ Each is one ticket. *Trap list* is the wave skill's
      read draws its line as the notice above *Try again*.
    - No dock and no folded top draws `town_next_title`.
 5. **The school states each fact once.** **Trap list: no** (one screen).
-   It follows slice 4. These are the criteria #1305 left held.
+   It follows slice 4. These are the criteria #1305 left held; the
+   figure *N of M* once and the running lesson's time once are #1305's
+   own criteria 2 and 3.
    - When the lead block shows the step's lesson, it draws
      `town_next_title`, *What is next*, above the lesson's title; for a
      selected lesson that is not the step's, it does not.
    - `StudyAction` is not drawn for the step's lesson, and is drawn for
      a selected lesson that is not the step's.
    - `ReviewsLink` does not exist.
-   - With the cap full, the figure *N of M* and the time the next word
-     is due each appear once on the screen.
-   - While the *Studying* section shows a lesson, no other line on the
-     school states that lesson's time.
 6. **The finish notice's way on.** **Trap list: yes**: the status strip
    is drawn on every signed-in screen. It follows #1295.
    - The finish notice's way on (`TownStatus.kt:95`) is a `MyGameNavRow`.
