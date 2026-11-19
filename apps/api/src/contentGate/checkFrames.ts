@@ -1,8 +1,10 @@
 import { lemmaWordsOf } from '@mygame/domain'
+import { cardWordPositionsOf } from './cardWordPositionsOf'
 import { framePlacementsOf, type LessonFrame } from './framePlacementsOf'
 import { frameWordAdmissionsOf } from './frameWordAdmissionsOf'
 import type { GateContent } from './GateContent'
-import { type Reading, readingOf } from './readingOf'
+import { readingFailuresOf } from './readingFailuresOf'
+import { readingOf } from './readingOf'
 import { type ReadingTerms, readingTermsOf } from './readingTermsOf'
 import { tokensOf } from './tokensOf'
 
@@ -14,40 +16,11 @@ type FrameTerms = {
   readonly taughtAt: ReadonlyMap<string, number>
 }
 
-const termsOf = (content: GateContent): FrameTerms => {
-  const { curriculum, lessons } = content
-  const positionOf = (lessonId: string): number => curriculum.lessonIds.indexOf(lessonId) + 1
-  return {
-    reading: readingTermsOf(content),
-    admittedAt: frameWordAdmissionsOf(content),
-    taughtAt: new Map(
-      lessons.flatMap(({ content, words }) =>
-        words.map(({ lemma }) => [lemma.toLowerCase(), positionOf(content.id)] as const),
-      ),
-    ),
-  }
-}
-
-const readingFailures = (
-  token: string,
-  reading: Reading,
-  { label }: LessonFrame,
-): ReadonlyArray<string> => {
-  switch (reading.kind) {
-    case 'word':
-      return []
-    case 'unknownForm':
-      return [`${label}: frame holds ${token}, which no NGSL form or off-list word spells`]
-    case 'unnamedHomograph':
-      return [`${label}: frame holds the homograph ${token} and names no word for it`]
-    case 'impossibleHomograph':
-      return [`${label}: names ${reading.named} for ${token}, which ${token} cannot mean`]
-    default: {
-      const unreachable: never = reading
-      return unreachable
-    }
-  }
-}
+const termsOf = (content: GateContent): FrameTerms => ({
+  reading: readingTermsOf(content),
+  admittedAt: frameWordAdmissionsOf(content),
+  taughtAt: cardWordPositionsOf(content),
+})
 
 const otherWordFailures = (
   token: string,
@@ -113,7 +86,7 @@ const frameFailures = (frame: LessonFrame, terms: FrameTerms): ReadonlyArray<str
   const held = new Set(starts.flatMap((start) => words.map((_, offset) => start + offset)))
   const failures = readings.flatMap(({ token, reading }, index) => {
     if (reading.kind !== 'word') {
-      return readingFailures(token, reading, frame)
+      return readingFailuresOf(token, reading, { label: frame.label, kind: 'frame' })
     }
     return held.has(index) ? [] : otherWordFailures(token, reading.word, frame, terms)
   })

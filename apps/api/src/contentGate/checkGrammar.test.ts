@@ -10,6 +10,7 @@ import {
   lessonOneInflections,
   lessonOneLexicon,
   structureOf,
+  textOf,
 } from './contentGate.testSupport'
 import { gateContentOf } from './gateContentOf'
 
@@ -236,5 +237,38 @@ describe('content gate check 6, grammar', () => {
     expect(checkGrammar(ourHomeFrom('lesson-2'))).toEqual([
       'lesson-1-1, later frame for lesson-2: frame holds our, an inflection admitted after lesson-2',
     ])
+  })
+
+  it('fails a text using a frame word admitted after its lesson', () => {
+    const structures = [
+      structureOf(
+        'lesson-1',
+        lessonOneFrameWords.filter((word) => word !== 'the'),
+        lessonOneInflections,
+      ),
+      structureOf('lesson-3', ['the']),
+    ]
+    const content = {
+      ...ourHomeFrom('lesson-3'),
+      texts: [textOf('lesson-2', ['We have the food.'])],
+    }
+
+    expect(checkGrammar({ ...content, grammar: contentOf({ structures }).grammar })).toEqual([
+      'text-1: text holds the, a frame word admitted after lesson-2',
+    ])
+  })
+
+  it('fails a text using an inflection admitted after its lesson', () => {
+    const text = textOf('lesson-2', ['This is our home.'])
+
+    expect(checkGrammar({ ...ourHomeFrom('lesson-3'), texts: [text] })).toEqual([
+      'text-1: text holds our, an inflection admitted after lesson-2',
+    ])
+  })
+
+  it('passes a text using an inflection its lesson admits', () => {
+    const text = textOf('lesson-3', ['This is our home.'])
+
+    expect(checkGrammar({ ...ourHomeFrom('lesson-3'), texts: [text] })).toEqual([])
   })
 })

@@ -1,8 +1,8 @@
 import { z } from 'zod'
+import { HomographsSchema } from './Homographs'
+import { NoCardSenseSchema } from './NoCardSense'
 
 const MAXIMUM_FRAMES = 3
-
-const NoCardSenseSchema = z.array(z.string().regex(/^[a-z]+$/)).min(1)
 
 const AnchorFrameSchema = z.strictObject({
   frame: z.string().min(1),
@@ -31,7 +31,7 @@ const LexiconEntrySchema = z.strictObject({
   gloss: z.strictObject({ es: z.string().min(1).optional() }),
   definition: z.string().min(1).optional(),
   acceptedForms: z.array(z.string().min(1)).optional(),
-  homographs: z.record(z.string().min(1), z.string().min(1)).optional(),
+  homographs: HomographsSchema.optional(),
   isOffList: z.literal(true).optional(),
   source: z.enum(['phave', 'phrase']).optional(),
 })

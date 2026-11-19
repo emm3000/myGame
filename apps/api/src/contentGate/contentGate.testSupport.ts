@@ -1,7 +1,9 @@
-import type { CurriculumContent, GrammarContent } from '@mygame/contracts'
+import type { CurriculumContent, GrammarContent, TextsContent } from '@mygame/contracts'
 import type { LaterFrame, WordNeed } from '@mygame/domain'
 import type { LexiconEntry } from '../adapters/json/lessonContentFilesOf'
 import type { GateContent } from './GateContent'
+
+type RunningText = TextsContent[number]
 
 type ContentParts = {
   readonly lexicon: ReadonlyArray<LexiconEntry>
@@ -16,6 +18,7 @@ type ContentParts = {
   readonly schoolLevels: ReadonlyArray<number>
   readonly topBuildingLevel: number
   readonly requiredSchoolLevels: Readonly<Record<string, number>>
+  readonly texts: ReadonlyArray<RunningText>
 }
 
 type EntryExtra = Partial<Omit<LexiconEntry, 'frames'>> & {
@@ -57,6 +60,18 @@ export const lessonOneLexicon: ReadonlyArray<LexiconEntry> = [
   }),
   entryOf('lesson-1-5', 'food', 'We have food for you.', { definition: 'we have this at home' }),
 ]
+
+export const textOf = (
+  fromLessonId: string,
+  sentences: ReadonlyArray<string>,
+  extra: Partial<Omit<RunningText, 'fromLessonId' | 'sentences'>> = {},
+): RunningText => ({
+  id: 'text-1',
+  fromLessonId,
+  title: 'Food for you',
+  sentences: [...sentences],
+  ...extra,
+})
 
 type GrammarStructure = GrammarContent['structures'][number]
 
@@ -162,6 +177,7 @@ const lessonOneParts = (): ContentParts => ({
   schoolLevels: Array.from({ length: 10 }, (_, index) => index + 1),
   topBuildingLevel: 10,
   requiredSchoolLevels: {},
+  texts: [],
 })
 
 export const contentOf = (overrides: Partial<ContentParts> = {}): GateContent => {
@@ -190,5 +206,6 @@ export const contentOf = (overrides: Partial<ContentParts> = {}): GateContent =>
     wordNeed: parts.wordNeed,
     schoolLevels: parts.schoolLevels,
     topBuildingLevel: parts.topBuildingLevel,
+    texts: [...parts.texts],
   }
 }
