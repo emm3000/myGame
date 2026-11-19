@@ -142,6 +142,7 @@ gh pr create --fill" \
     "command gh pr create --fill" \
     "env gh pr create --fill" \
     "env GH_PROMPT_DISABLED=1 gh pr create --fill" \
+    "command env gh pr create --fill" \
     "/opt/homebrew/bin/gh pr create --fill" \
     "cd . && ./bin/gh pr create --fill"; do
     hook "$command"
