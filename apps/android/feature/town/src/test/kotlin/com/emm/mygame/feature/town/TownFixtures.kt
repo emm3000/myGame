@@ -134,7 +134,7 @@ internal fun townOf(
     dueHoldoutChecks = emptyList(),
     hasBandStarted = false,
     skills = skills,
-    learning = TownSnapshot.Learning(cap = 10, inLearning = 0, retainedWords = null),
+    learning = TownSnapshot.Learning(cap = 10, inLearning = 0, retainedWords = null, nextInLearningDueAt = null),
     stableWordCount = stableWordCount,
     retainedWordCount = retainedWordCount,
     lessonSlot = lessonSlot,

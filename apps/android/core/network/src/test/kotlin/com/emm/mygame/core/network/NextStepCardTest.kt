@@ -93,7 +93,12 @@ class NextStepCardTest {
     @Test
     fun `a full learning cap names the cap and the next review`() {
         val fullCap: TownSnapshot = townOf(NextStep.CaughtUp(CaughtUpReason.LearningCap, goal = null)).copy(
-            learning = TownSnapshot.Learning(cap = 15, inLearning = 15, retainedWords = null),
+            learning = TownSnapshot.Learning(
+                cap = 15,
+                inLearning = 15,
+                retainedWords = null,
+                nextInLearningDueAt = null,
+            ),
             nextDueAt = readAt + 40.minutes,
         )
 
@@ -143,7 +148,7 @@ class NextStepCardTest {
         dueHoldoutChecks = emptyList(),
         hasBandStarted = false,
         skills = emptyList(),
-        learning = TownSnapshot.Learning(cap = 10, inLearning = 0, retainedWords = null),
+        learning = TownSnapshot.Learning(cap = 10, inLearning = 0, retainedWords = null, nextInLearningDueAt = null),
         stableWordCount = 0,
         retainedWordCount = 0,
         lessonSlot = running?.let { lesson: LessonId ->

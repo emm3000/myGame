@@ -209,7 +209,12 @@ class AppNavigationTest {
         dueHoldoutChecks = emptyList(),
         hasBandStarted = false,
         skills = emptyList(),
-        learning = TownSnapshot.Learning(cap = 10, inLearning = inLearning, retainedWords = retainedWords),
+        learning = TownSnapshot.Learning(
+            cap = 10,
+            inLearning = inLearning,
+            retainedWords = retainedWords,
+            nextInLearningDueAt = null,
+        ),
         stableWordCount = 0,
         retainedWordCount = 0,
         lessonSlot = null,

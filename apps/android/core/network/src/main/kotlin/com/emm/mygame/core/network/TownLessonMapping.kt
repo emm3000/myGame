@@ -71,6 +71,7 @@ internal fun TownOverviewLearning.toLearning(): TownSnapshot.Learning =
         retainedWords = retainedWords?.let { words: TownOverviewLearningRetainedWords ->
             RetainedWords(count = words.count, total = words.total)
         },
+        nextInLearningDueAt = nextInLearningDueAt?.toKotlinInstant(),
     )
 
 internal fun TownOverviewLessonSlot.toLessonSlot(): TownSnapshot.LessonSlot = TownSnapshot.LessonSlot(

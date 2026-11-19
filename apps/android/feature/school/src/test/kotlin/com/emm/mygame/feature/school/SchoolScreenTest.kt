@@ -26,12 +26,15 @@ import com.emm.mygame.core.designsystem.MyGameTheme
 import com.emm.mygame.core.designsystem.MyGameTransitions
 import com.emm.mygame.core.designsystem.OUTLINED_PILL
 import com.emm.mygame.core.designsystem.SKELETON_BLOCK
+import com.emm.mygame.core.network.CaughtUpReason
 import com.emm.mygame.core.network.HoldoutCheckWeek
 import com.emm.mygame.core.network.LessonId
+import com.emm.mygame.core.network.NextStep
 import com.emm.mygame.core.network.PlacementBand
 import com.emm.mygame.core.network.SchoolPathCounts
 import com.emm.mygame.core.network.TownLessonRefusal
 import com.emm.mygame.core.network.TownResourceKind
+import com.emm.mygame.core.network.TownSnapshot
 import kotlin.time.Duration
 import kotlin.time.Duration.Companion.hours
 import kotlin.time.Duration.Companion.minutes
@@ -68,7 +71,12 @@ class SchoolScreenTest {
 
     private val idleSchool: SchoolUiState.Content = SchoolUiState.Content(
         schoolLevel = 1,
-        learning = SchoolUiState.LearningLine(inLearning = 0, cap = 10, pastCap = null),
+        learning = SchoolUiState.LearningLine(
+            inLearning = 0,
+            cap = 10,
+            pastCapWords = null,
+            opening = SchoolUiState.CapOpening.ReviewsDue,
+        ),
         slot = SchoolUiState.SlotLine.Idle,
         skills = emptyList(),
         lessons = listOf(readyLesson),
@@ -116,6 +124,11 @@ class SchoolScreenTest {
 
     private fun blocked(block: SchoolUiState.LessonBlock): SchoolUiState.Content =
         idleSchool.copy(lessons = listOf(readyLesson.copy(state = SchoolUiState.LessonState.Open(block))))
+
+    private val fullLearning: TownSnapshot.Learning =
+        TownSnapshot.Learning(cap = 10, inLearning = 8, retainedWords = null, nextInLearningDueAt = null)
+
+    private val capRefusal: TownLessonRefusal = TownLessonRefusal.LearningCapReached(cap = 10, inLearning = 8)
 
     private fun refusedStart(refusal: TownLessonRefusal): SchoolUiState.Content =
         idleSchool.copy(start = SchoolUiState.LessonRequest.Refused(firstLesson, refusal))
@@ -216,60 +229,86 @@ class SchoolScreenTest {
 
     @Test
     fun `draws the words in learning and the cap`() {
-        show(idleSchool.copy(learning = SchoolUiState.LearningLine(8, 10, pastCap = null)))
+        show(idleSchool.copy(learning = idleSchool.learning.copy(inLearning = 8)))
 
         showing("Palabras en aprendizaje: 8 de 10")
     }
 
     @Test
     fun `names one word past the cap in the singular`() {
-        show(idleSchool.copy(learning = fullCap(SchoolUiState.PastCap(1, SchoolUiState.CapReviews.Due))))
+        show(idleSchool.copy(learning = fullCap(words = 1, SchoolUiState.CapOpening.ReviewsDue)))
 
         showing("La siguiente lección trae 1 palabra. Empieza los repasos.")
     }
 
     @Test
     fun `names several words past the cap in the plural`() {
-        show(idleSchool.copy(learning = fullCap(SchoolUiState.PastCap(5, SchoolUiState.CapReviews.Due))))
+        show(idleSchool.copy(learning = fullCap(words = 5, SchoolUiState.CapOpening.ReviewsDue)))
 
         showing("La siguiente lección trae 5 palabras. Empieza los repasos.")
     }
 
     @Test
     fun `a full cap with reviews due sends to the reviews`() {
-        show(idleSchool.copy(learning = fullCap(SchoolUiState.PastCap(5, SchoolUiState.CapReviews.Due))))
+        showTown(
+            townOf(
+                learning = fullLearning.copy(nextInLearningDueAt = readInstant + 3.hours),
+                nextStep = NextStep.Reviews(count = 3, readFirst = emptyList()),
+            ),
+        )
 
         showing("La siguiente lección trae 5 palabras. Empieza los repasos.")
     }
 
     @Test
-    fun `a full cap with no review due names the next review`() {
-        val nextReview: SchoolUiState.CapReviews.Next =
-            SchoolUiState.CapReviews.Next(remaining = 3.hours, dueAt = readInstant + 3.hours)
-        show(idleSchool.copy(learning = fullCap(SchoolUiState.PastCap(5, nextReview))))
+    fun `a full cap with no review due names when the next word in learning is due`() {
+        showTown(
+            townOf(
+                learning = fullLearning.copy(nextInLearningDueAt = readInstant + 3.hours),
+                nextStep = NextStep.CaughtUp(CaughtUpReason.LearningCap, goal = null),
+                nextDueAt = readInstant + 1.hours,
+            ),
+        )
 
-        val line: String = "La siguiente lección trae 5 palabras. Siguiente repaso en 3 h · "
-        val learningBottom: Dp = composeRule.onNodeWithText("Palabras en aprendizaje: 8 de 10")
-            .getUnclippedBoundsInRoot().bottom
+        val line: String =
+            "La siguiente lección trae 5 palabras. La siguiente palabra en aprendizaje se repasa en 3 h · "
         val lineTop: Dp = composeRule.onNodeWithText(line, substring = true)
             .performScrollTo()
             .assertIsDisplayed()
             .getUnclippedBoundsInRoot().top
+        val learningBottom: Dp = composeRule.onNodeWithText("Palabras en aprendizaje: 8 de 10")
+            .getUnclippedBoundsInRoot().bottom
         assertTrue(learningBottom <= lineTop)
         composeRule.onAllNodesWithText("Empieza los repasos.", substring = true).assertCountEquals(0)
     }
 
     @Test
-    fun `names a next review within the hour by its minutes alone`() {
-        val nextReview: SchoolUiState.CapReviews.Next =
-            SchoolUiState.CapReviews.Next(remaining = 40.minutes, dueAt = readInstant + 40.minutes)
-        show(idleSchool.copy(learning = fullCap(SchoolUiState.PastCap(5, nextReview))))
+    fun `a full cap whose next word in learning is overdue sends to the reviews`() {
+        showTown(
+            townOf(
+                learning = fullLearning.copy(nextInLearningDueAt = readInstant - 3.hours),
+                nextStep = NextStep.CaughtUp(CaughtUpReason.LearningCap, goal = null),
+            ),
+        )
 
-        showing("La siguiente lección trae 5 palabras. Siguiente repaso en 40 min.")
+        showing("La siguiente lección trae 5 palabras. Empieza los repasos.")
     }
 
-    private fun fullCap(pastCap: SchoolUiState.PastCap): SchoolUiState.LearningLine =
-        SchoolUiState.LearningLine(inLearning = 8, cap = 10, pastCap = pastCap)
+    @Test
+    fun `names a next word in learning due within the hour by its minutes alone`() {
+        val nextWord: SchoolUiState.CapOpening.NextWordDue =
+            SchoolUiState.CapOpening.NextWordDue(remaining = 40.minutes, dueAt = readInstant + 40.minutes)
+        show(idleSchool.copy(learning = fullCap(words = 5, nextWord)))
+
+        showing("La siguiente lección trae 5 palabras. La siguiente palabra en aprendizaje se repasa en 40 min.")
+    }
+
+    private fun fullCap(words: Int, opening: SchoolUiState.CapOpening): SchoolUiState.LearningLine =
+        SchoolUiState.LearningLine(inLearning = 8, cap = 10, pastCapWords = words, opening = opening)
+
+    private fun showTown(town: TownSnapshot, start: SchoolUiState.LessonRequest = SchoolUiState.LessonRequest.Idle) {
+        show(town.contentAt(readInstant, SchoolMutations.none.copy(start = start), selected = null))
+    }
 
     @Test
     fun `draws no line past the cap while the next lesson fits`() {
@@ -383,6 +422,37 @@ class SchoolScreenTest {
         show(refusedStart(TownLessonRefusal.LearningCapReached(cap = 10, inLearning = 8)))
 
         showing("Palabras en aprendizaje: 8 de 10. Repásalas antes de empezar otra lección.")
+    }
+
+    @Test
+    fun `refuses past the cap with a review due by sending to the reviews`() {
+        showTown(
+            townOf(
+                learning = fullLearning.copy(nextInLearningDueAt = readInstant + 3.hours),
+                nextStep = NextStep.Reviews(count = 3, readFirst = emptyList()),
+            ),
+            start = SchoolUiState.LessonRequest.Refused(firstLesson, capRefusal),
+        )
+
+        showing("Palabras en aprendizaje: 8 de 10. Repásalas antes de empezar otra lección.")
+    }
+
+    @Test
+    fun `refuses past the cap with no review due by naming when the next word in learning is due`() {
+        showTown(
+            townOf(
+                learning = fullLearning.copy(nextInLearningDueAt = readInstant + 3.hours),
+                nextStep = NextStep.CaughtUp(CaughtUpReason.LearningCap, goal = null),
+                nextDueAt = readInstant + 1.hours,
+            ),
+            start = SchoolUiState.LessonRequest.Refused(firstLesson, capRefusal),
+        )
+
+        val refusal: String = "Palabras en aprendizaje: 8 de 10. La siguiente se repasa en 3 h · "
+        composeRule.onNodeWithText(refusal, substring = true)
+            .performScrollTo()
+            .assertIsDisplayed()
+        composeRule.onAllNodesWithText("Repásalas", substring = true).assertCountEquals(0)
     }
 
     @Test

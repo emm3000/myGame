@@ -95,7 +95,12 @@ class RetainedWordsViewModelTest {
         dueHoldoutChecks = emptyList(),
         hasBandStarted = false,
         skills = emptyList(),
-        learning = TownSnapshot.Learning(cap = 10, inLearning = 0, retainedWords = retained),
+        learning = TownSnapshot.Learning(
+            cap = 10,
+            inLearning = 0,
+            retainedWords = retained,
+            nextInLearningDueAt = null,
+        ),
         stableWordCount = 0,
         retainedWordCount = 0,
         lessonSlot = null,

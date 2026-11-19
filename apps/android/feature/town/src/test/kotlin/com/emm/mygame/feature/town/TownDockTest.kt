@@ -15,17 +15,22 @@ import androidx.compose.ui.test.junit4.createComposeRule
 import androidx.compose.ui.test.performClick
 import androidx.compose.ui.unit.DpRect
 import com.emm.mygame.core.designsystem.MyGameTheme
+import com.emm.mygame.core.network.CaughtUpReason
 import com.emm.mygame.core.network.HoldoutCheckWeek
 import com.emm.mygame.core.network.LessonId
+import com.emm.mygame.core.network.NextStep
 import com.emm.mygame.core.network.NextStepCard
 import com.emm.mygame.core.network.PlacementBand
 import com.emm.mygame.core.network.TownBuildingKind
 import com.emm.mygame.core.network.TownGoal
 import com.emm.mygame.core.network.TownLessonRefusal
+import com.emm.mygame.core.network.TownSnapshot
 import com.emm.mygame.core.ui.ChromePhase
 import com.emm.mygame.core.ui.CopyLanguage
 import com.emm.mygame.core.ui.ProvideCopyLanguage
 import com.emm.mygame.core.ui.ScaffoldLanguage
+import kotlin.time.Duration
+import kotlin.time.Duration.Companion.hours
 import kotlin.time.Duration.Companion.minutes
 import kotlin.time.Instant
 import org.junit.Assert.assertEquals
@@ -72,6 +77,7 @@ class TownDockTest {
         countdown = countdown,
         go = go,
         lessonStart = lessonStart,
+        capWait = null,
     )
 
     private fun show(dock: TownStatusUiState.Dock) {
@@ -211,6 +217,40 @@ class TownDockTest {
         )
 
         composeRule.onNode(hasText(STUDY_SLOT_BUSY), useUnmergedTree = true).assertExists()
+    }
+
+    private val capRefusal: TownUiState.LessonStartStatus =
+        TownUiState.LessonStartStatus.Refused(TownLessonRefusal.LearningCapReached(cap = 15, inLearning = 15))
+
+    private fun refusedOnAFullCap(nextStep: NextStep): TownStatusUiState.Dock.Step =
+        townOf(nextStep = nextStep, nextDueAt = readInstant + 1.hours).copy(
+            learning = TownSnapshot.Learning(
+                cap = 15,
+                inLearning = 15,
+                retainedWords = null,
+                nextInLearningDueAt = readInstant + 3.hours,
+            ),
+        ).dockOn(TownStatusScreen.ReadsTown, now = readInstant, gap = Duration.ZERO, lessonStart = capRefusal)
+
+    @Test
+    fun `refuses past the cap with no review due by naming when the next word in learning is due`() {
+        show(refusedOnAFullCap(NextStep.CaughtUp(CaughtUpReason.LearningCap, goal = null)))
+
+        composeRule.onNode(
+            hasText("Palabras en aprendizaje: 15 de 15. La siguiente se repasa en 3 h · ", substring = true),
+            useUnmergedTree = true,
+        ).assertExists()
+        composeRule.onAllNodes(hasText("Repásalas", substring = true), useUnmergedTree = true).assertCountEquals(0)
+    }
+
+    @Test
+    fun `refuses past the cap with a review due by sending to the reviews`() {
+        show(refusedOnAFullCap(NextStep.Reviews(count = 3, readFirst = emptyList())))
+
+        composeRule.onNode(
+            hasText("Palabras en aprendizaje: 15 de 15. Repásalas antes de empezar otra lección."),
+            useUnmergedTree = true,
+        ).assertExists()
     }
 
     @Test

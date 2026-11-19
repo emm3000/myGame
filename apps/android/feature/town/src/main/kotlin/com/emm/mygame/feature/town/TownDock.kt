@@ -116,7 +116,7 @@ private fun DockNotice(dock: TownStatusUiState.Dock, modifier: Modifier = Modifi
     val step: TownStatusUiState.Dock.Step = dock as? TownStatusUiState.Dock.Step ?: return
     val copy: PlayerCopy = rememberPlayerCopy()
     val message: String = when (val start: TownUiState.LessonStartStatus = step.lessonStart) {
-        is TownUiState.LessonStartStatus.Refused -> copy.fixedCopy { lessonRefusalLineOf(start.refusal) }
+        is TownUiState.LessonStartStatus.Refused -> copy.fixedCopy { lessonRefusalLineOf(start.refusal, step.capWait) }
         TownUiState.LessonStartStatus.Unreachable -> copy.fixedCopy(R.string.town_refusal_unexpected)
         TownUiState.LessonStartStatus.Idle, TownUiState.LessonStartStatus.Waiting -> return
     }
@@ -282,6 +282,7 @@ private val previewStep: TownStatusUiState.Dock.Step = TownStatusUiState.Dock.St
     ),
     go = TownStatusUiState.Go.Acts(NextStepCard.Action.StartReviews, isBusy = false),
     lessonStart = TownUiState.LessonStartStatus.Idle,
+    capWait = null,
 )
 
 @PreviewMyGame

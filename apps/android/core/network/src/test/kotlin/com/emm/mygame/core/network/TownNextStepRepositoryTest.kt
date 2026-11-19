@@ -162,6 +162,27 @@ class TownNextStepRepositoryTest {
         assertEquals(TownReadResult.Unreachable, town().read())
     }
 
+    @Test
+    fun `reads when the next word in learning is due`() = runTest {
+        val noneInLearning: String = """"inLearning":0,"retainedWords":null,"nextInLearningDueAt":null"""
+        val eightInLearning: String =
+            """"inLearning":8,"retainedWords":null,"nextInLearningDueAt":"2026-11-14T09:30:00.000Z""""
+        api.enqueue(json(200, TOWN.replace(noneInLearning, eightInLearning)))
+
+        val read: TownSnapshot = (town().read() as TownReadResult.Read).town
+
+        assertEquals(Instant.parse("2026-11-14T09:30:00Z"), read.learning.nextInLearningDueAt)
+    }
+
+    @Test
+    fun `reads no instant when no word is in learning`() = runTest {
+        api.enqueue(json(200, TOWN))
+
+        val read: TownSnapshot = (town().read() as TownReadResult.Read).town
+
+        assertEquals(null, read.learning.nextInLearningDueAt)
+    }
+
     private fun TestScope.town(): TownRepository {
         val store: TokenStore =
             TokenStore(File(folder.root, "session"), FakeTokenCipher()).apply { write("opaque-session") }

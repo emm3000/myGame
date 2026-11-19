@@ -32,7 +32,7 @@ class SchoolViewModelTest {
     private val studied: TownSnapshot.Lesson = lessonOf(isStudied = true)
 
     private val fullLearning: TownSnapshot.Learning =
-        TownSnapshot.Learning(cap = 10, inLearning = 8, retainedWords = null)
+        TownSnapshot.Learning(cap = 10, inLearning = 8, retainedWords = null, nextInLearningDueAt = null)
 
     private val fullCapCaughtUp: NextStep.CaughtUp = NextStep.CaughtUp(CaughtUpReason.LearningCap, goal = null)
 
@@ -235,7 +235,14 @@ class SchoolViewModelTest {
     @Test
     fun `marks a lesson past the cap with the count in learning`() = runTest {
         val viewModel: SchoolViewModel = schoolReading(
-            townOf(learning = TownSnapshot.Learning(cap = 10, inLearning = 8, retainedWords = null)),
+            townOf(
+                learning = TownSnapshot.Learning(
+                    cap = 10,
+                    inLearning = 8,
+                    retainedWords = null,
+                    nextInLearningDueAt = null,
+                ),
+            ),
         )
 
         assertEquals(
@@ -247,7 +254,14 @@ class SchoolViewModelTest {
     @Test
     fun `leaves open a lesson that fills the cap exactly`() = runTest {
         val viewModel: SchoolViewModel = schoolReading(
-            townOf(learning = TownSnapshot.Learning(cap = 10, inLearning = 5, retainedWords = null)),
+            townOf(
+                learning = TownSnapshot.Learning(
+                    cap = 10,
+                    inLearning = 5,
+                    retainedWords = null,
+                    nextInLearningDueAt = null,
+                ),
+            ),
         )
 
         assertEquals(SchoolUiState.LessonState.Open(block = null), lessonOfCard(viewModel).state)
@@ -258,7 +272,12 @@ class SchoolViewModelTest {
         val viewModel: SchoolViewModel = schoolReading(
             townOf(
                 lessons = listOf(lessonOf(requiredSchoolLevel = 2)),
-                learning = TownSnapshot.Learning(cap = 10, inLearning = 8, retainedWords = null),
+                learning = TownSnapshot.Learning(
+                    cap = 10,
+                    inLearning = 8,
+                    retainedWords = null,
+                    nextInLearningDueAt = null,
+                ),
             ),
         )
 
@@ -288,54 +307,87 @@ class SchoolViewModelTest {
         val viewModel: SchoolViewModel = schoolReading(
             townOf(
                 lessons = listOf(studied, lessonOf(id = secondLesson, wordCount = 3)),
-                learning = TownSnapshot.Learning(cap = 10, inLearning = 8, retainedWords = null),
+                learning = TownSnapshot.Learning(
+                    cap = 10,
+                    inLearning = 8,
+                    retainedWords = null,
+                    nextInLearningDueAt = null,
+                ),
             ),
         )
 
-        assertEquals(3, contentOf(viewModel).learning.pastCap?.words)
+        assertEquals(3, contentOf(viewModel).learning.pastCapWords)
     }
 
     @Test
     fun `sends a full cap to the reviews while one is due`() = runTest {
         val viewModel: SchoolViewModel = schoolReading(
             townOf(
-                learning = fullLearning,
+                learning = fullLearning.copy(nextInLearningDueAt = readInstant + 3.hours),
                 nextStep = NextStep.Reviews(count = 3, readFirst = emptyList()),
+                nextDueAt = readInstant,
+            ),
+        )
+
+        assertEquals(SchoolUiState.CapOpening.ReviewsDue, contentOf(viewModel).learning.opening)
+    }
+
+    @Test
+    fun `a full cap with no review due names when the next word in learning is due`() = runTest {
+        val viewModel: SchoolViewModel = schoolReading(
+            townOf(
+                learning = fullLearning.copy(nextInLearningDueAt = readInstant + 3.hours),
+                nextStep = fullCapCaughtUp,
                 nextDueAt = readInstant + 1.hours,
             ),
         )
 
-        assertEquals(SchoolUiState.PastCap(5, SchoolUiState.CapReviews.Due), contentOf(viewModel).learning.pastCap)
-    }
-
-    @Test
-    fun `names the next review on a full cap with none due`() = runTest {
-        val viewModel: SchoolViewModel = schoolReading(
-            townOf(learning = fullLearning, nextStep = fullCapCaughtUp, nextDueAt = readInstant + 3.hours),
-        )
-
         assertEquals(
-            SchoolUiState.PastCap(5, SchoolUiState.CapReviews.Next(3.hours, dueAt = readInstant + 3.hours)),
-            contentOf(viewModel).learning.pastCap,
+            SchoolUiState.CapOpening.NextWordDue(3.hours, dueAt = readInstant + 3.hours),
+            contentOf(viewModel).learning.opening,
         )
     }
 
     @Test
-    fun `sends a full cap to the reviews once the next review has come`() = runTest {
+    fun `sends a full cap to the reviews once the next word in learning is overdue`() = runTest {
         val viewModel: SchoolViewModel = schoolReading(
-            townOf(learning = fullLearning, nextStep = fullCapCaughtUp, nextDueAt = readInstant),
+            townOf(
+                learning = fullLearning.copy(nextInLearningDueAt = readInstant - 3.hours),
+                nextStep = fullCapCaughtUp,
+                nextDueAt = readInstant - 3.hours,
+            ),
         )
 
-        assertEquals(SchoolUiState.PastCap(5, SchoolUiState.CapReviews.Due), contentOf(viewModel).learning.pastCap)
+        assertEquals(SchoolUiState.CapOpening.ReviewsDue, contentOf(viewModel).learning.opening)
+    }
+
+    @Test
+    fun `sends a full cap to the reviews once the next word in learning comes due`() = runTest {
+        val viewModel: SchoolViewModel = schoolReading(
+            townOf(
+                learning = fullLearning.copy(nextInLearningDueAt = readInstant),
+                nextStep = fullCapCaughtUp,
+                nextDueAt = readInstant,
+            ),
+        )
+
+        assertEquals(SchoolUiState.CapOpening.ReviewsDue, contentOf(viewModel).learning.opening)
     }
 
     @Test
     fun `counts no words past the cap while the next lesson fits`() = runTest {
         val viewModel: SchoolViewModel = schoolReading(
-            townOf(learning = TownSnapshot.Learning(cap = 10, inLearning = 5, retainedWords = null)),
+            townOf(
+                learning = TownSnapshot.Learning(
+                    cap = 10,
+                    inLearning = 5,
+                    retainedWords = null,
+                    nextInLearningDueAt = null,
+                ),
+            ),
         )
 
-        assertEquals(SchoolUiState.LearningLine(5, cap = 10, pastCap = null), contentOf(viewModel).learning)
+        assertEquals(null, contentOf(viewModel).learning.pastCapWords)
     }
 
     @Test
@@ -343,12 +395,17 @@ class SchoolViewModelTest {
         val viewModel: SchoolViewModel = schoolReading(
             townOf(
                 lessons = listOf(lessonOf(wordCount = 5), lessonOf(id = secondLesson, wordCount = 1)),
-                learning = TownSnapshot.Learning(cap = 10, inLearning = 8, retainedWords = null),
+                learning = TownSnapshot.Learning(
+                    cap = 10,
+                    inLearning = 8,
+                    retainedWords = null,
+                    nextInLearningDueAt = null,
+                ),
                 lessonSlot = slotOf(),
             ),
         )
 
-        assertEquals(null, contentOf(viewModel).learning.pastCap)
+        assertEquals(null, contentOf(viewModel).learning.pastCapWords)
     }
 
     @Test

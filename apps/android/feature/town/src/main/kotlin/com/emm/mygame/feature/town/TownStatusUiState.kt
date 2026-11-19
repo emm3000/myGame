@@ -25,6 +25,7 @@ data class TownStatusUiState(val running: RunningLesson?, val notice: FinishNoti
             val countdown: StepCountdown?,
             val go: Go,
             val lessonStart: TownUiState.LessonStartStatus,
+            val capWait: CapWait?,
         ) : Dock
     }
 
@@ -34,6 +35,8 @@ data class TownStatusUiState(val running: RunningLesson?, val notice: FinishNoti
 
         data class Goal(val goal: TownGoal) : StepDetail
     }
+
+    data class CapWait(val remaining: Duration, val dueAt: Instant)
 
     data class StepCountdown(val countdown: NextStepCard.Countdown, val remaining: Duration, val finishesAt: Instant)
 

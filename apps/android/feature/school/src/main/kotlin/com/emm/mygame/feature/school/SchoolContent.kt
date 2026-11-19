@@ -2,12 +2,12 @@ package com.emm.mygame.feature.school
 
 import com.emm.mygame.core.network.LessonId
 import com.emm.mygame.core.network.LessonName
-import com.emm.mygame.core.network.NextStep
 import com.emm.mygame.core.network.NextStepCard
 import com.emm.mygame.core.network.SeasonInForce
 import com.emm.mygame.core.network.UNSCALED_PERCENT
 import com.emm.mygame.core.network.TownBuildingKind
 import com.emm.mygame.core.network.TownSnapshot
+import com.emm.mygame.core.network.capWaitsUntil
 import com.emm.mygame.core.network.nameOf
 import com.emm.mygame.core.network.nextStepCard
 import com.emm.mygame.core.network.numberOf
@@ -66,16 +66,14 @@ private fun TownSnapshot.learningLineAt(now: Instant): SchoolUiState.LearningLin
     return SchoolUiState.LearningLine(
         inLearning = learning.inLearning,
         cap = learning.cap,
-        pastCap = next?.wordCount?.takeIf(::isPastCap)?.let { words: Int ->
-            SchoolUiState.PastCap(words, capReviewsAt(now))
-        },
+        pastCapWords = next?.wordCount?.takeIf(::isPastCap),
+        opening = capOpeningAt(now),
     )
 }
 
-private fun TownSnapshot.capReviewsAt(now: Instant): SchoolUiState.CapReviews {
-    val dueAt: Instant? = nextDueAt
-    if (nextStep is NextStep.Reviews || dueAt == null || dueAt <= now) return SchoolUiState.CapReviews.Due
-    return SchoolUiState.CapReviews.Next(remaining = dueAt - now, dueAt = dueAt)
+private fun TownSnapshot.capOpeningAt(now: Instant): SchoolUiState.CapOpening {
+    val dueAt: Instant = capWaitsUntil(now) ?: return SchoolUiState.CapOpening.ReviewsDue
+    return SchoolUiState.CapOpening.NextWordDue(remaining = dueAt - now, dueAt = dueAt)
 }
 
 private fun TownSnapshot.LessonSlot.lineIn(town: TownSnapshot, now: Instant): SchoolUiState.SlotLine {

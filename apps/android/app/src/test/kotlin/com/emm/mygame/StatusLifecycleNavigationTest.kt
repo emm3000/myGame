@@ -126,7 +126,7 @@ class StatusLifecycleNavigationTest {
         dueHoldoutChecks = emptyList(),
         hasBandStarted = false,
         skills = emptyList(),
-        learning = TownSnapshot.Learning(cap = 10, inLearning = 0, retainedWords = null),
+        learning = TownSnapshot.Learning(cap = 10, inLearning = 0, retainedWords = null, nextInLearningDueAt = null),
         stableWordCount = 0,
         retainedWordCount = 0,
         lessonSlot = TownSnapshot.LessonSlot(FIRST_LESSON, readAt, readAt + NEAR_FINISH),

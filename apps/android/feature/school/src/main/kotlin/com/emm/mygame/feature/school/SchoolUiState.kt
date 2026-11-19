@@ -53,15 +53,13 @@ sealed interface SchoolUiState {
 
     data class DurationMark(val season: SeasonKind, val percent: Int)
 
-    data class LearningLine(val inLearning: Int, val cap: Int, val pastCap: PastCap?)
+    data class LearningLine(val inLearning: Int, val cap: Int, val pastCapWords: Int?, val opening: CapOpening)
 
-    data class PastCap(val words: Int, val reviews: CapReviews)
+    sealed interface CapOpening {
 
-    sealed interface CapReviews {
+        data object ReviewsDue : CapOpening
 
-        data object Due : CapReviews
-
-        data class Next(val remaining: Duration, val dueAt: Instant) : CapReviews
+        data class NextWordDue(val remaining: Duration, val dueAt: Instant) : CapOpening
     }
 
     sealed interface SlotLine {
