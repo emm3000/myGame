@@ -28,7 +28,7 @@ internal fun ComposeContentTestRule.spokenOrder(view: View): List<String> {
         }
     }.toMap()
     val next: Map<Int, Int> = nodes.mapNotNull { (id: Int, node: AccessibilityNodeInfo) ->
-        node.extras.getInt(TRAVERSAL_BEFORE, NO_NODE).takeIf { before: Int -> before != NO_NODE }?.let { id to it }
+        node.extras.getInt(TRAVERSAL_BEFORE, NO_NODE).takeIf { before: Int -> before != NO_NODE }?.let { before: Int -> id to before }
     }.toMap()
     val first: Int = next.keys.first { id: Int -> id !in next.values }
     return generateSequence(first) { id: Int -> next[id] }
