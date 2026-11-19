@@ -9,8 +9,6 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.testTag
-import androidx.compose.ui.semantics.heading
-import androidx.compose.ui.semantics.semantics
 import com.emm.mygame.core.designsystem.MyGameIcon
 import com.emm.mygame.core.designsystem.MyGameIcons
 import com.emm.mygame.core.designsystem.MyGameLabel
@@ -61,12 +59,7 @@ private fun WorkHeading(modifier: Modifier = Modifier) {
         modifier = modifier,
     ) {
         MyGameIcon(icon = MyGameIcons.slot, tint = MyGameTheme.colors.inkMuted)
-        MyGameText(
-            label = chromeResource(R.string.town_work_title),
-            style = MyGameTypography.heading,
-            color = MyGameTheme.colors.ink,
-            modifier = Modifier.semantics { heading() },
-        )
+        MyGameSectionTitle(label = chromeResource(R.string.town_work_title))
     }
 }
 
