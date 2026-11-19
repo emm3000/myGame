@@ -127,6 +127,15 @@ class TownPageLinesScreenTest {
     }
 
     @Test
+    fun `draws no goal line in the header once the goal is closed`() {
+        val closedGoal: ClosedGuidance = ClosedGuidance(tips = emptySet(), isGoalClosed = true)
+        show(homeOn(NextStep.CaughtUp(CaughtUpReason.LessonsDone, factoryGoal), closedGoal))
+        tab("Granja").performScrollTo().performClick()
+
+        composeRule.onAllNodesWithText(factoryGoalLine).assertCountEquals(0)
+    }
+
+    @Test
     fun `reads the goal line after the page's position and before the place's name`() {
         show(homeOn(NextStep.CaughtUp(CaughtUpReason.LessonsDone, factoryGoal)))
         tab("Granja").performScrollTo().performClick()
@@ -206,7 +215,7 @@ class TownPageLinesScreenTest {
         isTab and hasContentDescription(place, substring = true),
     )
 
-    private fun homeOn(step: NextStep): TownUiState.Content = townOf(
+    private fun homeOn(step: NextStep, closed: ClosedGuidance = ClosedGuidance.none): TownUiState.Content = townOf(
         nextStep = step,
         seasonInForce = seasonOf(SeasonKind.Summer),
         seasonEndsAt = readInstant + 3.days,
@@ -216,7 +225,7 @@ class TownPageLinesScreenTest {
         mutations = TownMutations.none,
         registered = TownRegistered.nothing,
         hireEntries = emptyMap(),
-        closed = ClosedGuidance.none,
+        closed = closed,
     )
 
     private fun edgesOf(image: ImageBitmap): List<Int> {
