@@ -34,6 +34,7 @@ import com.emm.mygame.core.designsystem.HAIRLINE
 import com.emm.mygame.core.designsystem.MyGameBlockHue
 import com.emm.mygame.core.designsystem.MyGameIcons
 import com.emm.mygame.core.designsystem.MyGameTheme
+import com.emm.mygame.core.designsystem.NAV_ROW_CHEVRON
 import com.emm.mygame.core.designsystem.OUTLINED_PILL
 import com.emm.mygame.core.network.LessonId
 import com.emm.mygame.core.network.SchoolPathCounts
@@ -113,6 +114,22 @@ class SchoolLookTest {
         slot = firstRunning,
         lessons = listOf(runningFirst, openSecond.copy(state = busyOnFirst)),
     )
+
+    private val shownFourth: LessonId = LessonId("lesson-4")
+
+    private val everyUnstudiedRow: SchoolUiState.Content = idleSchool.copy(
+        slot = firstRunning,
+        lessons = listOf(
+            runningFirst,
+            openSecond.copy(state = busyOnFirst),
+            openThird,
+            openFirst.copy(lesson = shownFourth, number = 4, theme = "At home"),
+        ),
+        selected = shownFourth,
+    )
+
+    private fun chevronOf(title: String): SemanticsMatcher =
+        hasTestTag(NAV_ROW_CHEVRON) and hasAnyAncestor(hasTestTag(LESSON_ROW) and hasAnyDescendant(hasText(title)))
 
     private val theBlock: SemanticsMatcher = SemanticsMatcher.keyIsDefined(BLOCK_HUE)
 
@@ -222,12 +239,37 @@ class SchoolLookTest {
     }
 
     @Test
-    fun `sets the other lessons on rows split by hairlines`() {
+    fun `ends each of the other lessons' rows on a hairline`() {
         show(idleSchool)
 
         composeRule.onNodeWithText("Lección 2").performScrollTo().assertIsDisplayed()
         composeRule.onNodeWithText("Lección 3").performScrollTo().assertIsDisplayed()
-        composeRule.onAllNodesWithTag(HAIRLINE, useUnmergedTree = true).assertCountEquals(1)
+        composeRule.onAllNodesWithTag(HAIRLINE, useUnmergedTree = true).assertCountEquals(2)
+    }
+
+    @Test
+    fun `draws every unstudied lesson's row as a door`() {
+        show(everyUnstudiedRow)
+
+        listOf("Lección 1", "Lección 2", "Lección 3").forEach { title: String ->
+            composeRule.onNode(chevronOf(title), useUnmergedTree = true).assertExists()
+        }
+    }
+
+    @Test
+    fun `selects a blocked lesson from its row`() {
+        show(everyUnstudiedRow)
+
+        composeRule.onNode(hasText("Lección 2") and hasClickAction()).performScrollTo().performClick()
+
+        assertEquals(listOf<SchoolIntent>(SchoolIntent.LessonSelected(secondLesson)), intents)
+    }
+
+    @Test
+    fun `draws no chevron on a studied row`() {
+        show(idleSchool.copy(lessons = listOf(studiedFirst, openSecond, openThird)))
+
+        composeRule.onNode(chevronOf("Lección 1"), useUnmergedTree = true).assertDoesNotExist()
     }
 
     @Test

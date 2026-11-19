@@ -1,23 +1,20 @@
 package com.emm.mygame.feature.school
 
 import androidx.annotation.StringRes
-import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.defaultMinSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.semantics.heading
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.semantics.testTag
 import com.emm.mygame.core.designsystem.MyGameHairline
 import com.emm.mygame.core.designsystem.MyGameLabel
+import com.emm.mygame.core.designsystem.MyGameNavRow
 import com.emm.mygame.core.designsystem.MyGameOutlinedButton
-import com.emm.mygame.core.designsystem.MyGameSizes
 import com.emm.mygame.core.designsystem.MyGameSpacing
 import com.emm.mygame.core.designsystem.MyGameText
 import com.emm.mygame.core.designsystem.MyGameTheme
@@ -55,12 +52,9 @@ internal fun LessonRows(
             modifier = Modifier.semantics { heading() },
         )
         content.studyMark?.let { mark: SchoolUiState.DurationMark -> StudyMarkRow(mark = mark) }
-        cards.forEachIndexed { index: Int, card: SchoolUiState.LessonCard ->
-            if (index > 0) MyGameHairline()
-            LessonRow(card = card, onIntent = onIntent)
-        }
+        cards.forEach { card: SchoolUiState.LessonCard -> LessonRow(card = card, onIntent = onIntent) }
         releasedCards.forEachIndexed { index: Int, card: SchoolUiState.ReleasedLessonCard ->
-            if (index > 0 || cards.isNotEmpty()) MyGameHairline()
+            if (index > 0) MyGameHairline()
             ReleasedLessonRow(
                 card = card,
                 start = content.start,
@@ -152,9 +146,11 @@ private fun LessonRow(
     onIntent: (SchoolIntent) -> Unit,
     modifier: Modifier = Modifier,
 ) {
+    val isStudied: Boolean = card.state == SchoolUiState.LessonState.Studied
     Column(modifier = modifier.fillMaxWidth().semantics { testTag = LESSON_ROW }) {
-        LessonTarget(card = card, onIntent = onIntent)
+        if (isStudied) StudiedLesson(card = card) else LessonTarget(card = card, onIntent = onIntent)
         LessonPath(path = card.path, modifier = Modifier.padding(bottom = MyGameSpacing.step3))
+        if (isStudied) MyGameHairline()
     }
 }
 
@@ -185,19 +181,25 @@ private fun LessonTarget(
     onIntent: (SchoolIntent) -> Unit,
     modifier: Modifier = Modifier,
 ) {
-    val target: Modifier = if (card.state == SchoolUiState.LessonState.Studied) {
-        Modifier.semantics(mergeDescendants = true) { }
-    } else {
-        Modifier
-            .defaultMinSize(minHeight = MyGameSizes.secondary)
-            .clickable(role = Role.Button, onClick = { onIntent(SchoolIntent.LessonSelected(card.lesson)) })
-    }
+    val copy: PlayerCopy = rememberPlayerCopy()
+    MyGameNavRow(
+        title = copy.chrome(R.string.school_lesson_title, "number" to card.number.toString()),
+        status = statusOf(card.state)?.let { status: Int -> copy.chrome(status) },
+        body = MyGameLabel(text = card.theme, translation = null),
+        caption = copy.chrome { lessonSummaryOf(card) },
+        onClick = { onIntent(SchoolIntent.LessonSelected(card.lesson)) },
+        modifier = modifier,
+    )
+}
+
+@Composable
+private fun StudiedLesson(card: SchoolUiState.LessonCard, modifier: Modifier = Modifier) {
     val copy: PlayerCopy = rememberPlayerCopy()
     Column(
         verticalArrangement = Arrangement.spacedBy(MyGameSpacing.step1),
         modifier = modifier
             .fillMaxWidth()
-            .then(target)
+            .semantics(mergeDescendants = true) { }
             .padding(vertical = MyGameSpacing.step3),
     ) {
         LessonHeading(
