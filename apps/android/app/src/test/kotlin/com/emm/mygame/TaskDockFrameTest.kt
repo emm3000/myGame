@@ -336,6 +336,20 @@ class TaskDockFrameTest {
         composeRule.onAllNodes(wayOnToTheWords, useUnmergedTree = true).assertCountEquals(0)
     }
 
+    @Test
+    fun `a task screen that follows the town draws no way on while the keyboard is open`() {
+        showingFakeTask(
+            isFilled = false,
+            isFollowingTown = true,
+            status = finishedWithWordsToRead,
+            banner = finishNotice,
+        )
+
+        composeRule.keyboard(isOpen = true)
+
+        composeRule.onAllNodes(wayOnToTheWords, useUnmergedTree = true).assertCountEquals(0)
+    }
+
     private val finishNotice: @Composable (TownStatusUiState.Dock?) -> Unit = { dock: TownStatusUiState.Dock? ->
         TownStatus(
             state = finishedWithWordsToRead,
