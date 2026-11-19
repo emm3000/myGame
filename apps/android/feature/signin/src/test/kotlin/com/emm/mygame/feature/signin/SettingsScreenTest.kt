@@ -1,7 +1,11 @@
 package com.emm.mygame.feature.signin
 
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.size
+import androidx.compose.runtime.Composable
 import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.mutableStateOf
+import androidx.compose.ui.Modifier
 import androidx.compose.ui.test.SemanticsNodeInteraction
 import androidx.compose.ui.test.getUnclippedBoundsInRoot
 import androidx.compose.ui.test.assertCountEquals
@@ -9,19 +13,26 @@ import androidx.compose.ui.test.assertIsDisplayed
 import androidx.compose.ui.test.assertIsNotEnabled
 import androidx.compose.ui.test.assertIsNotSelected
 import androidx.compose.ui.test.assertIsSelected
+import androidx.compose.ui.test.hasScrollAction
 import androidx.compose.ui.test.hasText
 import androidx.compose.ui.test.isSelectable
+import androidx.compose.ui.test.junit4.StateRestorationTester
 import androidx.compose.ui.test.junit4.ComposeContentTestRule
 import androidx.compose.ui.test.junit4.createComposeRule
 import androidx.compose.ui.test.onAllNodesWithText
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
+import androidx.compose.ui.test.performScrollTo
 import androidx.compose.ui.unit.Dp
+import androidx.compose.ui.unit.DpRect
+import androidx.compose.ui.unit.DpSize
+import androidx.compose.ui.unit.dp
 import com.emm.mygame.core.designsystem.MyGameText
 import com.emm.mygame.core.designsystem.MyGameTheme
 import com.emm.mygame.core.designsystem.MyGameTypography
 import com.emm.mygame.core.network.PlayerScaffold
 import org.junit.Assert.assertEquals
+import org.junit.Assert.assertTrue
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -103,6 +114,42 @@ class SettingsScreenTest {
     }
 
     @Test
+    fun `brings the saved line fully into view when the change lands below the fold`() {
+        val shown: MutableState<SettingsUiState> = mutableStateOf(untouched)
+        drawInShortWindow(shown)
+
+        shown.value = untouched.copy(change = SettingsUiState.Change.Saved)
+        composeRule.waitForIdle()
+
+        assertFullyInView("Guardado.")
+    }
+
+    @Test
+    fun `brings the outage alert fully into view when the change lands below the fold`() {
+        val shown: MutableState<SettingsUiState> = mutableStateOf(untouched)
+        drawInShortWindow(shown)
+
+        shown.value = untouched.copy(change = SettingsUiState.Change.Unreachable)
+        composeRule.waitForIdle()
+
+        assertFullyInView(OUTAGE_LINE)
+    }
+
+    @Test
+    fun `does not scroll to the saved line again when the screen is recreated with the same change`() {
+        val restoration: StateRestorationTester = StateRestorationTester(composeRule)
+        val shown: MutableState<SettingsUiState> = mutableStateOf(untouched)
+        restoration.setContent { ShortWindowScreen(shown.value) }
+        shown.value = untouched.copy(change = SettingsUiState.Change.Saved)
+        composeRule.waitForIdle()
+        composeRule.onNodeWithText("Ajustes").performScrollTo()
+
+        restoration.emulateSavedInstanceStateRestore()
+
+        assertFullyInView("Ajustes")
+    }
+
+    @Test
     fun `draws the outage line beside the stored scaffold on a refusal`() {
         draw(SettingsUiState.Loaded(PlayerScaffold.Spanish, SettingsUiState.Change.Refused, firstReminder))
 
@@ -175,7 +222,35 @@ class SettingsScreenTest {
         assertEquals(whileLoading, themeChoiceTop())
     }
 
+    private fun drawInShortWindow(shown: MutableState<SettingsUiState>) {
+        composeRule.setContent { ShortWindowScreen(shown.value) }
+    }
+
+    @Composable
+    private fun ShortWindowScreen(state: SettingsUiState) {
+        MyGameTheme {
+            Box(modifier = Modifier.size(shortWindow)) {
+                SettingsScreen(state = state, onIntent = {}, onTownOpen = {}, onNotificationSettingsOpen = {})
+            }
+        }
+    }
+
+    private fun assertFullyInView(text: String) {
+        val viewport: DpRect = composeRule.onNode(hasScrollAction()).getUnclippedBoundsInRoot()
+        val shownNode: DpRect = composeRule.onNodeWithText(text).getUnclippedBoundsInRoot()
+        assertTrue("node starts at ${shownNode.top}, viewport at ${viewport.top}", shownNode.top >= viewport.top)
+        assertTrue(
+            "node ends at ${shownNode.bottom}, viewport at ${viewport.bottom}",
+            shownNode.bottom <= viewport.bottom,
+        )
+    }
+
     private fun themeChoiceTop(): Dp = composeRule.onNodeWithText(THEME_CHOICE).getUnclippedBoundsInRoot().top
 }
 
 private const val THEME_CHOICE: String = "The theme choice"
+
+private val shortWindow: DpSize = DpSize(360.dp, 240.dp)
+
+private val untouched: SettingsUiState.Loaded =
+    SettingsUiState.Loaded(PlayerScaffold.Spanish, SettingsUiState.Change.Untouched, firstReminder)
