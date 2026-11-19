@@ -302,6 +302,9 @@ Each is one ticket. *Trap list* is the wave skill's
    - No dock and no folded top draws `town_next_title`.
 5. **The school states each fact once.** **Trap list: no** (one screen).
    It follows slice 4. These are the criteria #1305 left held.
+   - When the lead block shows the step's lesson, it draws
+     `town_next_title`, *What is next*, above the lesson's title; for a
+     selected lesson that is not the step's, it does not.
    - `StudyAction` is not drawn for the step's lesson, and is drawn for
      a selected lesson that is not the step's.
    - `ReviewsLink` does not exist.
@@ -330,8 +333,10 @@ so that no sentence leaves the screen before its new place draws it.
   screenshots show it.
 - **Slice 8, the school, is reshaped.** The part outside the dock is
   #1305, unchanged. The held part is slice 5 here; it follows slice 4
-  here in place of ADR 050's slice 6, and its criterion about the dock's
-  line is covered by slice 4 here on every screen.
+  here in place of ADR 050's slice 6. Its first criterion had two
+  halves: the lead block draws *What is next*, which is the first
+  criterion of slice 5 here, and the dock draws no line, which slice 4
+  here makes true on every screen.
 - **Slice 9's held line is released.** #1302 held the move of
   `MyGameCountdownLine`'s time to `title` because the dock drew the
   countdown. It depends on nothing here.
