@@ -12,7 +12,7 @@ import { readFirstOf } from '../learning/readFirstOf'
 import { wordsEnteringOf } from '../learning/wordsEnteringOf'
 import type { MemoryTerms } from '../memory/MemoryTerms'
 import type { BandCatalog } from '../ports/BandCatalog'
-import { ok, type Result } from '../Result'
+import { err, ok, type Result } from '../Result'
 import type { Instant } from '../time/Instant'
 import { admitSchoolLesson } from './admitSchoolLesson'
 import type { LessonSlot } from './LessonSlot'
@@ -34,7 +34,9 @@ export type NextStep =
       readonly position: number
     }
   | { readonly kind: 'lessonToStudy'; readonly lessonId: LessonId }
-  | { readonly kind: 'caughtUp' }
+  | { readonly kind: 'caughtUp'; readonly reason: CaughtUpReason }
+
+export type CaughtUpReason = 'learningCap' | 'schoolTooLow' | 'lessonsDone'
 
 export type NextStepReading = {
   readonly town: Town
@@ -53,12 +55,29 @@ export type NextStepTerms = {
   readonly catalog: TownCatalog
 }
 
-const isAdmitted = (
+type Weighing<Admissible extends SchoolLesson> =
+  | { readonly kind: 'admitted'; readonly lesson: Admissible }
+  | { readonly kind: 'refused'; readonly reason: CaughtUpReason }
+
+const reasonOf = (refusal: DomainError): Result<CaughtUpReason | undefined, DomainError> => {
+  switch (refusal.kind) {
+    case 'LearningCapReached':
+      return ok('learningCap')
+    case 'LessonSchoolTooLow':
+      return ok('schoolTooLow')
+    case 'LessonAlreadyStudied':
+      return ok(undefined)
+    default:
+      return err(refusal)
+  }
+}
+
+const refusalReasonOf = (
   lesson: SchoolLesson,
   heldOut: ReadonlyArray<Headword>,
   { town, lessonSlot, cards }: NextStepReading,
   catalog: TownCatalog,
-): Result<boolean, DomainError> => {
+): Result<CaughtUpReason | undefined, DomainError> | undefined => {
   const admitted = admitSchoolLesson(
     lesson,
     wordsEnteringOf(lesson, heldOut).length,
@@ -66,43 +85,42 @@ const isAdmitted = (
     town.buildingLevels.school,
     catalog,
   )
-  if (admitted.ok) {
-    return ok(true)
-  }
-  return admitted.error.kind === 'UnknownTownBuildingLevel' ? admitted : ok(false)
+  return admitted.ok ? undefined : reasonOf(admitted.error)
 }
 
-const firstAdmittedOf = <Admissible extends SchoolLesson>(
+const weighed = <Admissible extends SchoolLesson>(
   lessons: ReadonlyArray<Admissible>,
   reading: NextStepReading,
   catalog: TownCatalog,
-): Result<Admissible | undefined, DomainError> => {
+): Result<Weighing<Admissible>, DomainError> => {
   const heldOut = heldOutWordsAt(reading.bandStarts, reading.at)
+  let firstReason: CaughtUpReason | undefined
   for (const lesson of lessons) {
-    const admitted = isAdmitted(lesson, heldOut, reading, catalog)
-    if (!admitted.ok) {
-      return admitted
+    const reason = refusalReasonOf(lesson, heldOut, reading, catalog)
+    if (reason === undefined) {
+      return ok({ kind: 'admitted', lesson })
     }
-    if (admitted.value) {
-      return ok(lesson)
+    if (!reason.ok) {
+      return reason
     }
+    firstReason ??= reason.value
   }
-  return ok(undefined)
+  return ok({ kind: 'refused', reason: firstReason ?? 'lessonsDone' })
 }
 
 const lessonStep = (
   reading: NextStepReading,
   { lessons, bands, catalog }: NextStepTerms,
 ): Result<NextStep, DomainError> => {
-  const released = firstAdmittedOf(reading.released, reading, catalog)
+  const released = weighed(reading.released, reading, catalog)
   if (!released.ok) {
     return released
   }
-  if (released.value !== undefined) {
-    const { id, band, position } = released.value
+  if (released.value.kind === 'admitted') {
+    const { id, band, position } = released.value.lesson
     return ok({ kind: 'releasedLesson', lessonId: id, band, position })
   }
-  const shelved = firstAdmittedOf(
+  const shelved = weighed(
     lessons.filter((lesson) => !isLessonPlacedOut(lesson, reading.placedOutBands, bands)),
     reading,
     catalog,
@@ -110,11 +128,14 @@ const lessonStep = (
   if (!shelved.ok) {
     return shelved
   }
-  return ok(
-    shelved.value === undefined
-      ? { kind: 'caughtUp' }
-      : { kind: 'lessonToStudy', lessonId: shelved.value.id },
-  )
+  if (shelved.value.kind === 'admitted') {
+    return ok({ kind: 'lessonToStudy', lessonId: shelved.value.lesson.id })
+  }
+  const releasedReason = released.value.reason
+  return ok({
+    kind: 'caughtUp',
+    reason: releasedReason === 'lessonsDone' ? shelved.value.reason : releasedReason,
+  })
 }
 
 export const nextStepOf = (

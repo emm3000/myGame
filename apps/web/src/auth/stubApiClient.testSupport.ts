@@ -72,7 +72,7 @@ export const knownTown: TownOverview = {
   learning: { cap: 15, inLearning: 0, retainedWords: null },
   stableWordCount: 0,
   retainedWordCount: 0,
-  nextStep: { kind: 'caughtUp', goal: null },
+  nextStep: { kind: 'caughtUp', reason: 'lessonsDone', goal: null },
   tip: null,
   chromePhase: 'scaffold',
   scaffold: 'es',

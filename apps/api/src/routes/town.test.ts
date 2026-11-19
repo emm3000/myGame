@@ -1866,6 +1866,7 @@ describe('the town route', () => {
       expect(studying.nextStep).toEqual({ kind: 'lessonToStudy', lessonId: 'lesson-1' })
       expect(caughtUp.nextStep).toEqual({
         kind: 'caughtUp',
+        reason: 'lessonsDone',
         goal: {
           position: 1,
           count: 9,
@@ -1885,7 +1886,30 @@ describe('the town route', () => {
 
       expect(caughtUp.nextStep).toEqual({
         kind: 'caughtUp',
+        reason: 'lessonsDone',
         goal: { position: 1, count: 9, building: 'farm', level: 1, state: 'underway' },
+      })
+    })
+
+    it('answers caughtUp with learningCap when the cap is full', async () => {
+      const cookie = await signUpWithTown('ana@example.com')
+      await runSql(`INSERT INTO cards (player_id, word_id, state, stability, difficulty, last_review_at, last_rating, entered_at)
+        SELECT id, 'filler-' || n, 'review', 3, 5, '2026-11-05T08:00:00Z', 'good', '2026-11-01T08:00:00Z'
+        FROM players, generate_series(1, 15) AS n`)
+
+      const town = await overviewOf(await readTown(cookie))
+
+      expect(town.nextStep).toEqual({
+        kind: 'caughtUp',
+        reason: 'learningCap',
+        goal: {
+          position: 1,
+          count: 9,
+          building: 'farm',
+          level: 1,
+          state: 'pending',
+          missing: { resources: { money: 0, food: 0, power: 0, material: 0 }, people: 0 },
+        },
       })
     })
 
@@ -1923,7 +1947,7 @@ describe('the town route', () => {
       const caughtUp = await overviewOf(await readCaughtUp(cookie))
 
       expect(dismissal.status).toBe(204)
-      expect(caughtUp.nextStep).toEqual({ kind: 'caughtUp', goal: null })
+      expect(caughtUp.nextStep).toEqual({ kind: 'caughtUp', reason: 'lessonsDone', goal: null })
     })
 
     it('refuses to dismiss the guidance of a player with no town as TownNotFound', async () => {

@@ -303,7 +303,7 @@ state that holds wins:
 | 1 | `reviews` | a card is due | the first lesson of `readFirst`, else `/reviews` | how many; a running lesson's time |
 | 2 | `lessonRunning` | the lesson slot is busy | the lesson's words | the producer to build, if any |
 | 3 | `lessonToStudy` | the next lesson can start | the school | when the next review is due |
-| 4 | `caughtUp` | none of the above | the Report | the next building goal, if any; when the next review is due |
+| 4 | `caughtUp` | none of the above | the Report | why no lesson can start, its `reason`; the next building goal, if any; when the next review is due |
 
 - **`reviews` wins over a running lesson**: the words are due now, and
   the lesson runs on its own.
@@ -326,7 +326,10 @@ state that holds wins:
   order** that the school's level and the learning cap admit. It names
   the next review's instant so the player knows they can stop.
 - **`caughtUp` means the player cannot start a lesson**: the cap is
-  full, the school's level is too low or the lessons are done. At school
+  full, the school's level is too low or the lessons are done, and its
+  `reason` says which: `learningCap`, `schoolTooLow` or `lessonsDone`,
+  from the refusal of the first lesson weighed that is neither studied
+  nor placed out, released lessons first (#1253). At school
   level 1 the cap of 15 holds three lessons, until recalls lift words
   past stability 7.
 - **The next step wins over the goals.** The owner settled this on
@@ -572,7 +575,7 @@ state that holds now reads:
 | 3 | `lessonRunning` | the lesson slot is busy | the lesson's words | the producer to build, if any |
 | 4 | `releasedLesson` | a released lesson can start | the lesson's start (on the web, the school) | the band and the set; when the next review is due |
 | 5 | `lessonToStudy` | the next lesson can start | the school | when the next review is due |
-| 6 | `caughtUp` | none of the above | the Report | the next building goal, if any; when the next review is due |
+| 6 | `caughtUp` | none of the above | the Report | why no lesson can start, its `reason`; the next building goal, if any; when the next review is due |
 
 - **A due check comes after the reviews and before any lesson**: the
   reviews are due now and cost minutes, while a check is bound to its

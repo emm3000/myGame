@@ -46,6 +46,7 @@ const LessonToStudyStepSchema = z
 const CaughtUpStepSchema = z
   .strictObject({
     kind: z.literal('caughtUp'),
+    reason: z.enum(['learningCap', 'schoolTooLow', 'lessonsDone']),
     goal: z.lazy(() => GoalSchema).nullable(),
   })
   .meta({ id: 'CaughtUpStep' })
