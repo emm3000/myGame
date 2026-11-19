@@ -99,6 +99,22 @@ describe('content gate check 4, coverage of a running text', () => {
     ])
   })
 
+  it('fails a text holding a frame word whose structure names a lesson the curriculum does not list', () => {
+    const structures = [
+      structureOf(
+        'lesson-1',
+        lessonOneFrameWords.filter((word) => word !== 'much'),
+        lessonOneInflections,
+      ),
+      structureOf('lesson-9', ['much']),
+    ]
+    const content = withTexts(textOf('lesson-2', ['We do not have much money.']))
+
+    expect(checkTexts({ ...content, grammar: contentOf({ structures }).grammar })).toEqual([
+      'text-1: text holds much, a frame word admitted after lesson-2',
+    ])
+  })
+
   it('fails a text holding a form the NGSL teaching list does not know', () => {
     const text = textOf('lesson-2', ['We leave home, sir.'])
 
