@@ -472,7 +472,7 @@ private fun NavKey?.statusScreen(): TownStatusScreen = when (val destination: De
     Destination.School -> TownStatusScreen.School
     Destination.Map -> TownStatusScreen.ReadsTown
     is Destination.LessonWords -> TownStatusScreen.LessonWords(destination.lesson)
-    is Destination.SchoolText -> TownStatusScreen.ReadsTown
+    is Destination.SchoolText -> TownStatusScreen.ReadsNoTown
     Destination.Review -> TownStatusScreen.Reviews
     Destination.Report -> TownStatusScreen.Report
     Destination.News -> TownStatusScreen.ReadsNoTown
