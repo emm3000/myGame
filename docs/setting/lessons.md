@@ -394,3 +394,255 @@ A **unit lesson** teaches 5 multi-word units under one theme, never a semantic s
 - **Readiness.** *go* is taught by lesson 2, *come* by lesson 4, *back* by lesson 11, *find* by lesson 22 and *mean* by lesson 23; *on*, *out* and *I* are frame words admitted at lesson 1, *such* and *as* at lesson 16.
 - **Senses.** *go on* is taught as 'happen', *come back* as 'return to a place' and *find out* as 'learn a fact', each its list's most frequent sense. *I mean* is taught as the marker that corrects or restates what was just said, glossed *quiero decir*, which covers both.
 - **Part of speech.** The lexicon's part of speech is one of noun, verb, adjective or adverb; *such as* and *I mean* are filed as adverbs, the nearest of the four, since neither is a noun, a verb or an adjective.
+
+## Lessons 28 to 47
+
+The first content batch (ADR 049, #1272), drafted by Claude Opus 5.5. It has 16 band 1 lessons and 4 unit lessons. Lessons 28 to 31, 33 to 36, 38 to 41 and 43 to 46 each hold the lowest-ranked untaught card word of band 1, plus four more from the 30 lowest-ranked untaught ones, under one theme. The first of them holds *through* (108). Lessons 32, 37, 42 and 47 are unit lessons, one after every 4 band lessons. Each teaches the most frequent ready units of the PHaVE List (Garnier and Schmitt 2015) and the PHRASE List (Martinez and Schmitt 2012): three phrasal verbs that share no verb, and two phrases. Every lesson asks for school level 1 and takes 300 s, since ADR 049 sizes nothing past lesson 27. Its skill follows from its position in `curriculum.json`.
+
+The batch also gives each of the 55 entries of lessons 17 to 27 one later frame, written for one of the batch's band lessons (ADR 044).
+
+- **Readiness.** *point out* is ready from lesson 32, because *point* is taught by lesson 31. *of course* is ready from lesson 32 (*course*, lesson 31), *a little* from lesson 37 (*little*, lesson 31), *a few* from lesson 42 (*few*, lesson 39) and *a number of* from lesson 42 (*number*, lesson 30). *set up* is ready from lesson 47 (*set*, lesson 43), *turn out* from lesson 47 (*turn*, lesson 44) and *in fact* from lesson 47 (*fact*, lesson 45). Every other word of a unit is a frame word or a card word taught by lesson 27 or earlier.
+- **Senses.** Each phrasal verb is taught in its PHaVE sense of the highest share: *come up* as *come up with*, 'produce an idea'; *go back*, 'return'; *point out*, 'direct attention to'; *come out*, 'leave a place or appear from it'; *go out*, 'leave home for a social event'; *get out*, 'leave a vehicle or a room'; *come in*, 'enter'; *take on*, 'undertake a task'; *give up*, 'stop doing or having'; *set up*, 'establish'; *turn out*, 'prove to be'; *make up*, 'form the whole of'.
+- **Part of speech.** The lexicon's part of speech is one of noun, verb, adjective or adverb. So the prepositions *through*, *between* and *around*, and the conjunction *while*, are filed as adverbs. The determiners *both*, *another*, *each*, *few* and *every* are filed as adjectives, and the modals *might* and *must* as verbs. The phrases are filed as adverbs, as in lesson 27.
+- **Shared glosses.** *each* and *every* are both glossed *cada*, and *little* and *small* are both glossed *pequeño*. Each pair is taught in two different lessons, so no recognition offers both glosses side by side.
+
+### Lesson 28
+
+**Theme:** *Getting around town*, es *Moverse por el pueblo*. **Skill:** money, 5 %.
+
+| Lemma | Part of speech | NGSL 1.2 rank | Frame | Gapped form | es gloss | Definition |
+|---|---|---|---|---|---|---|
+| through | adverb | 108 | The truck goes through the city. | The truck goes ____ the city. | a través de | from one side of something to the other side |
+| down | adverb | 109 | Go down the hill to the river. | Go ____ the hill to the river. | abajo | to a lower place |
+| between | adverb | 116 | The school is between the farm and the river. | The school is ____ the farm and the river. | entre | with one thing on one side and another thing on the other side |
+| leave | verb | 126 | When do you leave the office? | When do you ____ the office? | salir de | to go away from a place |
+| off | adverb | 150 | The power is off at the factory. | The power is ____ at the factory. | apagado | not on, so it does not work |
+
+### Lesson 29
+
+**Theme:** *Meeting new people*, es *Conocer gente nueva*. **Skill:** money, 5 %.
+
+| Lemma | Part of speech | NGSL 1.2 rank | Frame | Gapped form | es gloss | Definition |
+|---|---|---|---|---|---|---|
+| great | adjective | 124 | You did a great job today. | You did a ____ job today. | estupendo | very good |
+| meet | verb | 135 | I want you to meet the mayor. | I want you to ____ the mayor. | conocer | to see and talk with someone for the first time |
+| talk | verb | 137 | Can we talk after the lesson? | Can we ____ after the lesson? | hablar | to speak with someone |
+| ask | verb | 134 | Ask the mayor about the job. | ____ the mayor about the job. | preguntar | to say something because you want to know the answer |
+| help | verb | 133 | Can you help me with this? | Can you ____ me with this? | ayudar | to make it easier for someone to do something |
+
+### Lesson 30
+
+**Theme:** *A house of our own*, es *Una casa propia*. **Skill:** money, 5 %.
+
+| Lemma | Part of speech | NGSL 1.2 rank | Frame | Gapped form | es gloss | Definition |
+|---|---|---|---|---|---|---|
+| number | noun | 127 | What is the number on the truck? | What is the ____ on the truck? | número | a sign such as 1, 2 or 3 that says how many |
+| own | adjective | 129 | I want my own home. | I want my ____ home. | propio | that is yours and not other people's |
+| house | noun | 165 | Their house is by the river. | Their ____ is by the river. | casa | a building where a family lives |
+| live | verb | 153 | Where do you live? | Where do you ____? | vivir | to have your home in a place |
+| old | adjective | 144 | This school is very old. | This school is very ____. | viejo | not new; made a long time ago |
+
+### Lesson 31
+
+**Theme:** *A new course*, es *Un curso nuevo*. **Skill:** money, 5 %.
+
+| Lemma | Part of speech | NGSL 1.2 rank | Frame | Gapped form | es gloss | Definition |
+|---|---|---|---|---|---|---|
+| both | adjective | 128 | Both of my children go to school. | ____ of my children go to school. | ambos | the 2 of them, one and the other |
+| point | verb | 131 | Point to the river on the map. | ____ to the river on the map. | señalar | to show where something is with your hand |
+| put | verb | 139 | Put your name on the list. | ____ your name on the list. | poner | to move something to a place |
+| course | noun | 164 | The course starts in the fall. | The ____ starts in the fall. | curso | a set of classes about one subject |
+| little | adjective | 132 | They live in a little house by the river. | They live in a ____ house by the river. | pequeño | small; not big |
+
+### Lesson 32
+
+**Theme:** *Ideas for the town*, es *Ideas para el pueblo*. **Skill:** money, 5 %. A unit lesson.
+
+| Unit | Source | Part of speech | Frame | Gapped form | es gloss | Definition |
+|---|---|---|---|---|---|---|
+| come up | phave | verb | Can you come up with a name for the team? | Can you ____ ____ with a name for the team? | idear | to think of something new, such as a plan |
+| go back | phave | verb | I want to go back to my old job. | I want to ____ ____ to my old job. | regresar | to return to a place where you were before |
+| point out | phave | verb | Can you point out the problem? | Can you ____ ____ the problem? | hacer notar | to tell someone about something they did not see |
+| of course | phrase | adverb | Of course you can come with us. | ____ ____ you can come with us. | por supuesto | a way to say yes, or to say that something is clear |
+| so that | phrase | adverb | Tell the mayor so that she can help. | Tell the mayor ____ ____ she can help. | para que | in order to make something possible |
+
+### Lesson 33
+
+**Theme:** *Part of the family*, es *Parte de la familia*. **Skill:** money, 5 %.
+
+| Lemma | Part of speech | NGSL 1.2 rank | Frame | Gapped form | es gloss | Definition |
+|---|---|---|---|---|---|---|
+| part | noun | 130 | This is the best part of the job. | This is the best ____ of the job. | parte | some of something, but not all of it |
+| family | noun | 172 | My family lives in the city. | My ____ lives in the city. | familia | parents and their children |
+| woman | noun | 169 | That woman is the new mayor. | That ____ is the new mayor. | mujer | a person who is not a man or a child |
+| another | adjective | 140 | We need another worker at the farm. | We need ____ worker at the farm. | otro | one more; a different one |
+| world | noun | 156 | This is the best city in the world. | This is the best city in the ____. | mundo | all the countries and all the people |
+
+### Lesson 34
+
+**Theme:** *A question for you*, es *Una pregunta para ti*. **Skill:** money, 5 %.
+
+| Lemma | Part of speech | NGSL 1.2 rank | Frame | Gapped form | es gloss | Definition |
+|---|---|---|---|---|---|---|
+| something | noun | 138 | I want to tell you something. | I want to tell you ____. | algo | a thing, when you do not say which one |
+| week | noun | 157 | I start a new job next week. | I start a new job next ____. | semana | a time of 7 days |
+| late | adjective | 147 | It is late, so I will go home. | It is ____, so I will go home. | tarde | near the end of the day or the night |
+| why | adverb | 154 | Why do you want this job? | ____ do you want this job? | por qué | for what reason |
+| question | noun | 181 | Can I ask you a question? | Can I ask you a ____? | pregunta | what you say when you want to know something |
+
+### Lesson 35
+
+**Theme:** *A different country*, es *Un país diferente*. **Skill:** money, 5 %.
+
+| Lemma | Part of speech | NGSL 1.2 rank | Frame | Gapped form | es gloss | Definition |
+|---|---|---|---|---|---|---|
+| become | verb | 141 | He will become the next mayor. | He will ____ the next mayor. | llegar a ser | to start to be |
+| country | noun | 143 | What country are you from? | What ____ are you from? | país | a land with its own people and government |
+| different | adjective | 149 | This city is very different from my town. | This city is very ____ from my town. | diferente | not the same |
+| never | adverb | 162 | I have never been to the city. | I have ____ been to the city. | nunca | not at any time |
+| always | adverb | 183 | She is always at the office. | She is ____ at the office. | siempre | at all times; every time |
+
+### Lesson 36
+
+**Theme:** *Free time*, es *Tiempo libre*. **Skill:** money, 5 %.
+
+| Lemma | Part of speech | NGSL 1.2 rank | Frame | Gapped form | es gloss | Definition |
+|---|---|---|---|---|---|---|
+| interest | noun | 142 | She has no interest in the job. | She has no ____ in the job. | interés | the feeling of wanting to know more about something |
+| play | verb | 158 | The children play by the river. | The children ____ by the river. | jugar | to do something because you like it, not for work |
+| book | noun | 171 | I want to read this book. | I want to read this ____. | libro | a set of pages with words that you read |
+| hear | verb | 178 | Can you hear me? | Can you ____ me? | oír | to know that there is a sound |
+| big | adjective | 184 | We need a big truck for this job. | We need a ____ truck for this job. | grande | large; not small |
+
+### Lesson 37
+
+**Theme:** *A night out*, es *Una salida de noche*. **Skill:** money, 5 %. A unit lesson.
+
+| Unit | Source | Part of speech | Frame | Gapped form | es gloss | Definition |
+|---|---|---|---|---|---|---|
+| come out | phave | verb | When will she come out of the office? | When will she ____ ____ of the office? | salir | to leave a place and be seen |
+| go out | phave | verb | Do you want to go out after the lesson? | Do you want to ____ ____ after the lesson? | salir a divertirse | to leave home to meet people or have a good time |
+| get out | phave | verb | Get out of the truck here. | ____ ____ of the truck here. | bajarse | to leave a car or a room |
+| a little | phrase | adverb | Can you wait a little longer? | Can you wait ____ ____ longer? | un poco | not much, but some |
+| as well as | phrase | adverb | She works at the farm as well as the factory. | She works at the farm ____ ____ ____ the factory. | además de | and also |
+
+### Lesson 38
+
+**Theme:** *Small groups*, es *Grupos pequeños*. **Skill:** money, 5 %.
+
+| Lemma | Part of speech | NGSL 1.2 rank | Frame | Gapped form | es gloss | Definition |
+|---|---|---|---|---|---|---|
+| each | adjective | 145 | Each worker has a job. | ____ worker has a job. | cada | every one, seen one by one |
+| early | adverb | 197 | I want to go home early today. | I want to go home ____ today. | temprano | before the normal time |
+| small | adjective | 186 | We have a small team. | We have a ____ team. | pequeño | not large; little |
+| group | noun | 167 | A group of workers is at the station. | A ____ of workers is at the station. | grupo | some people or things together |
+| keep | verb | 177 | You can keep the map. | You can ____ the map. | quedarse con | to have something and not give it back |
+
+### Lesson 39
+
+**Theme:** *A friend in town*, es *Un amigo en el pueblo*. **Skill:** money, 5 %.
+
+| Lemma | Part of speech | NGSL 1.2 rank | Frame | Gapped form | es gloss | Definition |
+|---|---|---|---|---|---|---|
+| high | adjective | 148 | The hill is very high. | The hill is very ____. | alto | far up from the ground |
+| friend | noun | 208 | She is my best friend. | She is my best ____. | amigo o amiga | a person you know well and like |
+| few | adjective | 195 | Few people live here. | ____ people live here. | pocos | not many |
+| every | adjective | 180 | I go to school every day. | I go to school ____ day. | cada | each one of all |
+| let | verb | 174 | Let me help you. | ____ me help you. | dejar | to say that someone can do something |
+
+### Lesson 40
+
+**Theme:** *Moving house*, es *La mudanza*. **Skill:** money, 5 %.
+
+| Lemma | Part of speech | NGSL 1.2 rank | Frame | Gapped form | es gloss | Definition |
+|---|---|---|---|---|---|---|
+| while | adverb | 155 | I read while I wait. | I read ____ I wait. | mientras | at the same time as |
+| move | verb | 200 | We want to move to the city. | We want to ____ to the city. | mudarse | to go to live in a new place |
+| bring | verb | 196 | Can you bring food to the farm? | Can you ____ food to the farm? | traer | to come to a place with something |
+| around | adverb | 170 | We have farms all around the town. | We have farms all ____ the town. | alrededor de | on every side of something |
+| month | noun | 209 | I will be in the city for a month. | I will be in the city for a ____. | mes | one of the 12 parts of a year |
+
+### Lesson 41
+
+**Theme:** *An important business*, es *Un negocio importante*. **Skill:** money, 5 %.
+
+| Lemma | Part of speech | NGSL 1.2 rank | Frame | Gapped form | es gloss | Definition |
+|---|---|---|---|---|---|---|
+| might | verb | 159 | The mayor might come today. | The mayor ____ come today. | puede que | a word that says something is possible but not sure |
+| must | verb | 160 | You must stop here. | You ____ stop here. | deber | to have to do something |
+| important | adjective | 190 | This is an important job. | This is an ____ job. | importante | that matters a lot |
+| open | adjective | 214 | The office is open today. | The office is ____ today. | abierto | ready for people to come in |
+| business | noun | 211 | She has her own business in town. | She has her own ____ in town. | negocio | a company that makes or sells things |
+
+### Lesson 42
+
+**Theme:** *Taking on a new job*, es *Asumir un trabajo nuevo*. **Skill:** money, 5 %. A unit lesson.
+
+| Unit | Source | Part of speech | Frame | Gapped form | es gloss | Definition |
+|---|---|---|---|---|---|---|
+| come in | phave | verb | You can come in now. | You can ____ ____ now. | entrar | to go into a room or a building |
+| take on | phave | verb | I want to take on a bigger job. | I want to ____ ____ a bigger job. | asumir | to agree to do a job or to deal with a problem |
+| give up | phave | verb | She does not want to give up her job. | She does not want to ____ ____ her job. | abandonar | to stop doing or having something |
+| a few | phrase | adverb | I have a few friends in town. | I have ____ ____ friends in town. | unos cuantos | a small number of; some |
+| a number of | phrase | adverb | A number of workers came to the office. | ____ ____ ____ workers came to the office. | varios | some; more than 2 |
+
+### Lesson 43
+
+**Theme:** *A new goal*, es *Una meta nueva*. **Skill:** money, 5 %.
+
+| Lemma | Part of speech | NGSL 1.2 rank | Frame | Gapped form | es gloss | Definition |
+|---|---|---|---|---|---|---|
+| include | verb | 163 | The pay does not include food. | The pay does not ____ food. | incluir | to have something as one part of the whole |
+| begin | verb | 189 | When does the course begin? | When does the course ____? | comenzar | to start |
+| follow | verb | 188 | Follow me to the office. | ____ me to the office. | seguir | to go after someone |
+| hand | noun | 198 | I have a map in my hand. | I have a map in my ____. | mano | the part of the body at the end of your arm |
+| set | verb | 185 | We set a new goal for the year. | We ____ a new goal for the year. | fijar | to decide what something will be |
+
+### Lesson 44
+
+**Theme:** *The town plan*, es *El plan del pueblo*. **Skill:** money, 5 %.
+
+| Lemma | Part of speech | NGSL 1.2 rank | Frame | Gapped form | es gloss | Definition |
+|---|---|---|---|---|---|---|
+| case | noun | 168 | In that case, we will wait. | In that ____, we will wait. | caso | a time when something happens |
+| run | verb | 192 | The children run to school. | The children ____ to school. | correr | to move fast on your feet |
+| government | noun | 216 | The government will build a new station. | The ____ will build a new station. | gobierno | the people who control a country |
+| plan | noun | 232 | What is the plan for today? | What is the ____ for today? | plan | an idea of what you will do |
+| turn | verb | 194 | Turn here for the farm. | ____ here for the farm. | girar | to change the way you are going |
+
+### Lesson 45
+
+**Theme:** *Facts and news*, es *Hechos y noticias*. **Skill:** money, 5 %.
+
+| Lemma | Part of speech | NGSL 1.2 rank | Frame | Gapped form | es gloss | Definition |
+|---|---|---|---|---|---|---|
+| seem | verb | 173 | It does not seem right. | It does not ____ right. | parecer | to look like something is true |
+| fact | noun | 202 | The fact is, we need more workers. | The ____ is, we need more workers. | hecho | something that is true |
+| information | noun | 213 | We need more information about the job. | We need more ____ about the job. | información | facts about something |
+| happen | verb | 236 | What will happen to the farm? | What will ____ to the farm? | ocurrir | to take place |
+| believe | verb | 225 | I believe you. | I ____ you. | creer | to think that something is true |
+
+### Lesson 46
+
+**Theme:** *At the market*, es *En el mercado*. **Skill:** money, 5 %.
+
+| Lemma | Part of speech | NGSL 1.2 rank | Frame | Gapped form | es gloss | Definition |
+|---|---|---|---|---|---|---|
+| kind | noun | 176 | What kind of food do you like? | What ____ of food do you like? | tipo | a group of things that are the same in some way |
+| market | noun | 219 | We go to the market every week. | We go to the ____ every week. | mercado | a place where people buy and sell things |
+| buy | verb | 242 | I want to buy a house. | I want to ____ a house. | comprar | to get something by paying money for it |
+| love | verb | 229 | I love this town. | I ____ this town. | encantar | to like something very much |
+| away | adverb | 234 | She is away this week. | She is ____ this week. | fuera | not here; in another place |
+
+### Lesson 47
+
+**Theme:** *A new team*, es *Un equipo nuevo*. **Skill:** money, 5 %. A unit lesson.
+
+| Unit | Source | Part of speech | Frame | Gapped form | es gloss | Definition |
+|---|---|---|---|---|---|---|
+| set up | phave | verb | We want to set up a business in town. | We want to ____ ____ a business in town. | crear | to start something new, such as a company |
+| turn out | phave | verb | It might turn out to be a problem. | It might ____ ____ to be a problem. | resultar | to be shown in the end to be something |
+| make up | phave | verb | Workers from the city make up most of the team. | Workers from the city ____ ____ most of the team. | formar | to be all the parts of a whole |
+| in fact | phrase | adverb | It is not a small town; in fact, it is a city. | It is not a small town; ____ ____, it is a city. | de hecho | a way to say that something is true, often more than you think |
+| at all | phrase | adverb | I do not like it at all. | I do not like it ____ ____. | para nada | in any way |
+
