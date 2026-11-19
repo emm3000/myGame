@@ -2098,8 +2098,8 @@
         "gappedFrame": "I have no ____ today."
       },
       {
-        "frame": "It is time to go home.",
-        "gappedFrame": "It is ____ to go home.",
+        "frame": "I need more time to study.",
+        "gappedFrame": "I need more ____ to study.",
         "fromLessonId": "lesson-29"
       }
     ],
@@ -2200,7 +2200,8 @@
       {
         "frame": "Is this your first time in the city?",
         "gappedFrame": "Is this your ____ time in the city?",
-        "fromLessonId": "lesson-31"
+        "fromLessonId": "lesson-31",
+        "noCardSense": ["time"]
       }
     ],
     "gloss": {
@@ -2220,7 +2221,8 @@
       {
         "frame": "There is one more thing I need to tell you.",
         "gappedFrame": "There is one more ____ I need to tell you.",
-        "fromLessonId": "lesson-33"
+        "fromLessonId": "lesson-33",
+        "noCardSense": ["there"]
       }
     ],
     "gloss": {
@@ -2240,7 +2242,8 @@
       {
         "frame": "I will meet you there.",
         "gappedFrame": "I will meet you ____.",
-        "fromLessonId": "lesson-30"
+        "fromLessonId": "lesson-30",
+        "noCardSense": ["meet"]
       }
     ],
     "gloss": {
@@ -2420,7 +2423,8 @@
       {
         "frame": "Can you show me how this works?",
         "gappedFrame": "Can you ____ me how this works?",
-        "fromLessonId": "lesson-36"
+        "fromLessonId": "lesson-36",
+        "noCardSense": ["works"]
       }
     ],
     "gloss": {
@@ -2520,7 +2524,8 @@
       {
         "frame": "I only have a little time.",
         "gappedFrame": "I ____ have a little time.",
-        "fromLessonId": "lesson-40"
+        "fromLessonId": "lesson-40",
+        "noCardSense": ["little"]
       }
     ],
     "gloss": {
@@ -2658,8 +2663,8 @@
         "gappedFrame": "____ me about your job."
       },
       {
-        "frame": "Can you tell me the way to the station?",
-        "gappedFrame": "Can you ____ me the way to the station?",
+        "frame": "Can you tell me more about the course?",
+        "gappedFrame": "Can you ____ me more about the course?",
         "fromLessonId": "lesson-44"
       }
     ],
@@ -2805,7 +2810,8 @@
       {
         "frame": "How long is the course?",
         "gappedFrame": "How ____ is the course?",
-        "fromLessonId": "lesson-33"
+        "fromLessonId": "lesson-33",
+        "noCardSense": ["how"]
       }
     ],
     "gloss": {
@@ -3436,9 +3442,9 @@
       }
     ],
     "gloss": {
-      "es": "pequeño"
+      "es": "pequeñito"
     },
-    "definition": "small; not big"
+    "definition": "small, often in a way you like"
   },
   {
     "id": "word-151",
@@ -3454,7 +3460,7 @@
     "gloss": {
       "es": "idear"
     },
-    "definition": "to think of something new, such as a plan"
+    "definition": "used before with: to think of something new, such as a plan"
   },
   {
     "id": "word-152",
@@ -3909,8 +3915,8 @@
     "partOfSpeech": "adjective",
     "frames": [
       {
-        "frame": "Each worker has a job.",
-        "gappedFrame": "____ worker has a job."
+        "frame": "Each of the workers has a job.",
+        "gappedFrame": "____ of the workers has a job."
       }
     ],
     "gloss": {
