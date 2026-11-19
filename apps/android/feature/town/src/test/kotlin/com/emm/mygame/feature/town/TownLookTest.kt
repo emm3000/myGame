@@ -194,6 +194,23 @@ class TownLookTest {
     }
 
     @Test
+    fun `sets a stock's name in title ink`() {
+        var ink: Color = Color.Unspecified
+        composeRule.setContent {
+            MyGameTheme {
+                ink = MyGameTheme.colors.ink
+                Home(onStorage)
+            }
+        }
+        tab("Almacén").performScrollTo().performClick()
+
+        val name: TextStyle = textStyleOf("Comida")
+        assertEquals(MyGameTypography.title.fontSize, name.fontSize)
+        assertEquals(MyGameTypography.title.fontWeight, name.fontWeight)
+        assertEquals(ink, name.color)
+    }
+
+    @Test
     fun `marks a place in work from the slot and from the waiting list`() {
         val town: TownSnapshot = townOf(
             slot = workOf(building = TownBuildingKind.Farm),

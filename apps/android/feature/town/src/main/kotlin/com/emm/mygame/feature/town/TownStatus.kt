@@ -87,7 +87,7 @@ private fun FinishNoticeRows(
     Column(verticalArrangement = Arrangement.spacedBy(MyGameSpacing.step2), modifier = modifier) {
         MyGameText(
             label = rememberPlayerCopy().finishLineOf(notice.name),
-            style = MyGameTypography.label,
+            style = MyGameTypography.body,
             color = MyGameTheme.colors.ink,
             modifier = Modifier.semantics(mergeDescendants = true) { liveRegion = LiveRegionMode.Polite },
         )

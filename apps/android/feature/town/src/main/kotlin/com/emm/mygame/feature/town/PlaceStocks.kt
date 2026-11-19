@@ -78,7 +78,7 @@ private fun StockItem(stock: TownUiState.StockLine, modifier: Modifier = Modifie
             MyGameIcon(icon = resourceIconOf(stock.kind), tint = MyGameTheme.colors.ink)
             MyGameText(
                 label = copy.chrome { capitalized(text(resourceNameOf(stock.kind))) },
-                style = MyGameTypography.label,
+                style = MyGameTypography.title,
                 color = MyGameTheme.colors.ink,
             )
         }
