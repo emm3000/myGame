@@ -2,7 +2,6 @@ package com.emm.mygame.feature.placement
 
 import androidx.compose.runtime.Composable
 import com.emm.mygame.core.designsystem.MyGameDockGo
-import com.emm.mygame.core.designsystem.MyGameDockLine
 import com.emm.mygame.core.designsystem.MyGameLabel
 import com.emm.mygame.core.ui.FillTaskDock
 import com.emm.mygame.core.ui.FollowTownDock
@@ -27,10 +26,7 @@ internal fun HoldoutCheckDock(state: HoldoutCheckUiState, onIntent: (HoldoutChec
 private fun dueDock(due: HoldoutCheckUiState.Due, onIntent: (HoldoutCheckIntent) -> Unit): TaskDock {
     val waiting: HoldoutCheckAction? = (due.request as? HoldoutCheckRequest.Waiting)?.action
     return TaskDock(
-        line = MyGameDockLine(
-            title = fixedLabel(R.string.placement_holdout_title),
-            step = fixedLabel(R.string.placement_band, "band" to due.band.number.toString()),
-        ),
+        step = fixedLabel(R.string.placement_band, "band" to due.band.number.toString()),
         go = MyGameDockGo(
             label = fixedLabel(R.string.placement_holdout_start),
             isBusy = waiting == HoldoutCheckAction.Begin,
@@ -43,10 +39,7 @@ private fun dueDock(due: HoldoutCheckUiState.Due, onIntent: (HoldoutCheckIntent)
 @Composable
 private fun askingDock(asking: HoldoutCheckUiState.Asking, onIntent: (HoldoutCheckIntent) -> Unit): TaskDock =
     TaskDock(
-        line = MyGameDockLine(
-            title = fixedLabel(R.string.placement_band, "band" to asking.band.number.toString()),
-            step = askingStep(asking),
-        ),
+        step = askingStep(asking),
         go = askingGo(asking, onIntent),
         notice = { HoldoutCheckRequestLine(request = asking.request) },
     )

@@ -1,5 +1,6 @@
 package com.emm.mygame.feature.town
 
+import androidx.compose.foundation.layout.Column
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.semantics.SemanticsProperties
 import androidx.compose.ui.test.SemanticsMatcher
@@ -12,9 +13,11 @@ import androidx.compose.ui.test.hasContentDescription
 import androidx.compose.ui.test.hasText
 import androidx.compose.ui.test.junit4.ComposeContentTestRule
 import androidx.compose.ui.test.junit4.createComposeRule
+import androidx.compose.ui.test.onAllNodesWithTag
 import androidx.compose.ui.test.performClick
 import androidx.compose.ui.unit.DpRect
 import com.emm.mygame.core.designsystem.MyGameTheme
+import com.emm.mygame.core.designsystem.SKELETON_BLOCK
 import com.emm.mygame.core.network.CaughtUpReason
 import com.emm.mygame.core.network.HoldoutCheckWeek
 import com.emm.mygame.core.network.LessonId
@@ -123,17 +126,10 @@ class TownDockTest {
 
     private val isPlaced: SemanticsMatcher = SemanticsMatcher("is placed") { node -> node.layoutInfo.isPlaced }
 
-    private fun placedBoundsOf(text: String): DpRect =
-        composeRule.onNode(hasText(text) and isPlaced, useUnmergedTree = true).getUnclippedBoundsInRoot()
-
-    private fun assertGoalUnderTheFullCap() {
-        assertTrue("$FARM_GOAL under $FULL_CAP", placedBoundsOf(FULL_CAP).bottom <= placedBoundsOf(FARM_GOAL).top)
-    }
-
-    private fun assertNamesTheFullCap() {
-        composeRule.onNode(hasText(FULL_CAP) and isPlaced, useUnmergedTree = true).assertExists()
-        composeRule.onAllNodes(hasText(NO_REVIEWS_DUE, substring = true), useUnmergedTree = true).assertCountEquals(0)
-    }
+    private fun placedCount(text: String): Int = composeRule
+        .onAllNodes(hasText(text, substring = true) and isPlaced, useUnmergedTree = true)
+        .fetchSemanticsNodes()
+        .size
 
     private val releasedStep: TownStatusUiState.Dock.Step = stepOf(
         line = NextStepCard.Line.ReleasedLesson(PlacementBand.Second, number = 1),
@@ -142,32 +138,69 @@ class TownDockTest {
 
     @Test
     @Config(qualifiers = PHONE)
-    fun `names the full learning cap on the What is next card`() {
+    fun `names the full learning cap in the go button's spoken name`() {
         showInEnglish { TownDock(dock = fullCapStep, actions = recordingActions, onFoldChange = {}) }
 
-        assertNamesTheFullCap()
-    }
-
-    @Test
-    fun `names the full learning cap on the folded dock`() {
-        showInEnglish { TownDockTop(dock = fullCapStep) }
-
-        assertNamesTheFullCap()
+        go("Go to the Report").assert(hasContentDescription(FULL_CAP, substring = true))
     }
 
     @Test
     @Config(qualifiers = PHONE)
-    fun `draws the goal under the full learning cap on the What is next card`() {
+    fun `draws no line, no goal and no countdown beside the go button`() {
         showInEnglish { TownDock(dock = fullCapWithGoal, actions = recordingActions, onFoldChange = {}) }
 
-        assertGoalUnderTheFullCap()
+        assertEquals(0, placedCount(FULL_CAP))
+        assertEquals(0, placedCount(FARM_GOAL))
+        assertEquals(0, placedCount(NEXT_REVIEW))
     }
 
     @Test
-    fun `draws the goal under the full learning cap on the folded dock`() {
-        showInEnglish { TownDockTop(dock = fullCapWithGoal) }
+    @Config(qualifiers = PHONE)
+    fun `a loading dock draws a busy go button and no skeleton`() {
+        show(TownStatusUiState.Dock.Loading)
 
-        assertGoalUnderTheFullCap()
+        composeRule
+            .onNode(hasClickAction())
+            .assert(SemanticsMatcher.expectValue(SemanticsProperties.StateDescription, WAITING))
+        val skeletons: Int = composeRule
+            .onAllNodesWithTag(SKELETON_BLOCK, useUnmergedTree = true)
+            .fetchSemanticsNodes()
+            .size
+        assertEquals(0, skeletons)
+    }
+
+    @Test
+    @Config(qualifiers = PHONE)
+    fun `a refused status read draws its line as the notice above Try again`() {
+        show(TownStatusUiState.Dock.Refused)
+
+        val notice: DpRect = composeRule
+            .onNode(hasText(TOWN_UNREACHABLE) and isPlaced, useUnmergedTree = true)
+            .getUnclippedBoundsInRoot()
+        val tryAgain: DpRect = composeRule.onNode(hasText(TRY_AGAIN) and hasClickAction()).getUnclippedBoundsInRoot()
+        assertTrue("the notice sits above $TRY_AGAIN", notice.bottom <= tryAgain.top)
+    }
+
+    @Test
+    @Config(qualifiers = PHONE)
+    fun `no dock and no folded notice draws What is next`() {
+        val docks: List<TownStatusUiState.Dock> = listOf(
+            TownStatusUiState.Dock.Loading,
+            TownStatusUiState.Dock.Refused,
+            fullCapWithGoal,
+            releasedStep.copy(lessonStart = TownUiState.LessonStartStatus.Unreachable),
+        )
+        showInEnglish {
+            Column {
+                docks.forEach { dock: TownStatusUiState.Dock ->
+                    TownDock(dock = dock, actions = recordingActions, onFoldChange = {})
+                    TownDockNotice(dock = dock)
+                }
+            }
+        }
+
+        assertEquals(0, placedCount(WHAT_IS_NEXT))
+        assertEquals(0, placedCount(WHAT_IS_NEXT_IN_SPANISH))
     }
 
     @Test
@@ -216,7 +249,7 @@ class TownDockTest {
             releasedStep.copy(lessonStart = TownUiState.LessonStartStatus.Refused(TownLessonRefusal.StudySlotBusy)),
         )
 
-        composeRule.onNode(hasText(STUDY_SLOT_BUSY), useUnmergedTree = true).assertExists()
+        composeRule.onNode(hasText(STUDY_SLOT_BUSY) and isPlaced, useUnmergedTree = true).assertExists()
     }
 
     private val capRefusal: TownUiState.LessonStartStatus =
@@ -237,7 +270,8 @@ class TownDockTest {
         show(refusedOnAFullCap(NextStep.CaughtUp(CaughtUpReason.LearningCap, goal = null)))
 
         composeRule.onNode(
-            hasText("Palabras en aprendizaje: 15 de 15. La siguiente se repasa en 3 h · ", substring = true),
+            hasText("Palabras en aprendizaje: 15 de 15. La siguiente se repasa en 3 h · ", substring = true) and
+                isPlaced,
             useUnmergedTree = true,
         ).assertExists()
         composeRule.onAllNodes(hasText("Repásalas", substring = true), useUnmergedTree = true).assertCountEquals(0)
@@ -248,7 +282,7 @@ class TownDockTest {
         show(refusedOnAFullCap(NextStep.Reviews(count = 3, readFirst = emptyList())))
 
         composeRule.onNode(
-            hasText("Palabras en aprendizaje: 15 de 15. Repásalas antes de empezar otra lección."),
+            hasText("Palabras en aprendizaje: 15 de 15. Repásalas antes de empezar otra lección.") and isPlaced,
             useUnmergedTree = true,
         ).assertExists()
     }
@@ -293,9 +327,14 @@ class TownDockTest {
     private companion object {
         const val WAITING: String = "Esperando"
         const val FULL_CAP: String = "Words in learning: 15 of 15"
-        const val NO_REVIEWS_DUE: String = "No reviews due now."
         const val FARM_GOAL: String = "Goal 1 of 9: Farm, level 1"
         const val PHONE: String = "+w411dp-h891dp"
+        const val NEXT_REVIEW: String = "Next review"
+        const val TOWN_UNREACHABLE: String =
+            "No hemos podido hablar con el servidor. Vuelve a intentarlo en un momento."
+        const val TRY_AGAIN: String = "Volver a intentarlo"
+        const val WHAT_IS_NEXT: String = "What is next"
+        const val WHAT_IS_NEXT_IN_SPANISH: String = "Tu siguiente paso"
         const val STUDY_SLOT_BUSY: String = "La escuela ya tiene un estudio en marcha. Espera a que termine."
     }
 }

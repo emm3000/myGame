@@ -38,6 +38,7 @@ import com.emm.mygame.core.designsystem.MyGameTheme
 import com.emm.mygame.core.network.HoldoutCheckWeek
 import com.emm.mygame.core.network.LessonId
 import com.emm.mygame.core.network.PlacementBand
+import com.emm.mygame.core.ui.NoticeInView
 import com.emm.mygame.core.ui.FRAME_DOCK_TURN
 import com.emm.mygame.core.ui.FRAME_FOLDED_TOP_TURN
 import com.emm.mygame.core.ui.TaskDock
@@ -47,10 +48,11 @@ import com.emm.mygame.core.ui.chromeResource
 import com.emm.mygame.core.ui.frameHeaderTurn
 import com.emm.mygame.feature.town.TownDock
 import com.emm.mygame.feature.town.TownDockActions
-import com.emm.mygame.feature.town.TownDockTop
+import com.emm.mygame.feature.town.TownDockNotice
 import com.emm.mygame.feature.town.TownReportRow
 import com.emm.mygame.feature.town.TownStatusIntent
 import com.emm.mygame.feature.town.TownStatusUiState
+import com.emm.mygame.feature.town.shownNotice
 
 private const val TASK_DOCK_TURN: Float = 1f
 
@@ -120,13 +122,14 @@ private fun foldedTurnOf(kind: FrameKind): Float = if (kind == FrameKind.Task) T
 @Composable
 private fun FoldedDockTop(dock: TownStatusUiState.Dock?, isFolded: Boolean, turn: Float) {
     if (dock == null || !isFolded) return
-    Box(
+    NoticeInView(
+        shownNotice = dock.shownNotice(),
         modifier = Modifier.semantics {
             isTraversalGroup = true
             traversalIndex = turn
         },
     ) {
-        TownDockTop(dock = dock)
+        TownDockNotice(dock = dock)
     }
 }
 
@@ -144,13 +147,12 @@ private fun TaskDockHook.shownOn(kind: FrameKind): TaskDock? = dock.takeIf { kin
 @Composable
 private fun TaskFrameDock(shown: TaskDock, onFoldChange: (Boolean) -> Unit) {
     MyGameDock(
-        line = shown.line,
         go = shown.go,
+        step = shown.step,
         onFoldChange = onFoldChange,
         modifier = Modifier
             .windowInsetsPadding(WindowInsets.safeDrawing.only(WindowInsetsSides.Horizontal))
             .semantics { traversalIndex = TASK_DOCK_TURN },
-        countdown = shown.countdown,
         notice = shown.notice,
     )
 }

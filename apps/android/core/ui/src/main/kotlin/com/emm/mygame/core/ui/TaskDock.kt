@@ -3,12 +3,11 @@ package com.emm.mygame.core.ui
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.Stable
 import com.emm.mygame.core.designsystem.MyGameDockGo
-import com.emm.mygame.core.designsystem.MyGameDockLine
+import com.emm.mygame.core.designsystem.MyGameLabel
 
 @Stable
 class TaskDock(
-    val line: MyGameDockLine,
+    val step: MyGameLabel,
     val go: MyGameDockGo,
-    val countdown: @Composable () -> Unit = {},
     val notice: @Composable () -> Unit = {},
 )

@@ -1,28 +1,16 @@
 package com.emm.mygame.feature.town
 
-import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.testTag
-import com.emm.mygame.core.designsystem.MyGameCountdownGround
-import com.emm.mygame.core.designsystem.MyGameCountdownLine
 import com.emm.mygame.core.designsystem.MyGameDock
 import com.emm.mygame.core.designsystem.MyGameDockGo
-import com.emm.mygame.core.designsystem.MyGameDockLine
-import com.emm.mygame.core.designsystem.MyGameDockLineText
 import com.emm.mygame.core.designsystem.MyGameInlineAlert
 import com.emm.mygame.core.designsystem.MyGameLabel
 import com.emm.mygame.core.designsystem.MyGamePreviewSurface
-import com.emm.mygame.core.designsystem.MyGameSpacing
-import com.emm.mygame.core.designsystem.MyGameText
-import com.emm.mygame.core.designsystem.MyGameTheme
-import com.emm.mygame.core.designsystem.MyGameTypography
 import com.emm.mygame.core.designsystem.PreviewMyGame
 import com.emm.mygame.core.designsystem.formatQuantity
 import com.emm.mygame.core.network.NextStepCard
-import com.emm.mygame.core.network.TownGoal
 import com.emm.mygame.core.ui.CopyReader
 import com.emm.mygame.core.ui.PlayerCopy
 import com.emm.mygame.core.ui.rememberPlayerCopy
@@ -41,78 +29,42 @@ fun TownDock(
 ) {
     val copy: PlayerCopy = rememberPlayerCopy()
     MyGameDock(
-        line = copy.dockLineOf(dock),
         go = copy.dockGoOf(dock, actions, inPlace),
+        step = copy.dockStepOf(dock),
         onFoldChange = onFoldChange,
         modifier = modifier.testTag(TOWN_DOCK),
-        countdown = { DockCountdown(dock = dock) },
-        notice = { DockNotice(dock = dock) },
+        notice = { TownDockNotice(dock = dock) },
     )
 }
 
 @Composable
-fun TownDockTop(dock: TownStatusUiState.Dock, modifier: Modifier = Modifier) {
+fun TownDockNotice(dock: TownStatusUiState.Dock, modifier: Modifier = Modifier) {
     val copy: PlayerCopy = rememberPlayerCopy()
-    Column(verticalArrangement = Arrangement.spacedBy(MyGameSpacing.step3), modifier = modifier.fillMaxWidth()) {
-        MyGameDockLineText(line = copy.dockLineOf(dock), loadingLabel = copy.chrome(R.string.town_waiting).spoken)
-        DockCountdown(dock = dock)
-        DockNotice(dock = dock)
-    }
-}
-
-@Composable
-private fun DockCountdown(dock: TownStatusUiState.Dock, modifier: Modifier = Modifier) {
-    val step: TownStatusUiState.Dock.Step = dock as? TownStatusUiState.Dock.Step ?: return
-    val copy: PlayerCopy = rememberPlayerCopy()
-    val words: TownStatusUiState.StepDetail.Words? = step.detail as? TownStatusUiState.StepDetail.Words
-    val countdown: TownStatusUiState.StepCountdown? = step.countdown
-    val goal: TownGoal? = step.goalUnderLine()
-    if (words == null && countdown == null && goal == null) return
-    Column(verticalArrangement = Arrangement.spacedBy(MyGameSpacing.step2), modifier = modifier) {
-        goal?.let { shown: TownGoal ->
-            MyGameText(
-                label = copy.chrome { goalLineOf(shown) },
-                style = MyGameTypography.body,
-                color = MyGameTheme.colors.inkMuted,
-            )
+    val message: String = when (dock) {
+        TownStatusUiState.Dock.Loading -> return
+        TownStatusUiState.Dock.Refused -> copy.fixedCopy(R.string.town_refusal_unexpected)
+        is TownStatusUiState.Dock.Step -> when (val start: TownUiState.LessonStartStatus = dock.lessonStart) {
+            is TownUiState.LessonStartStatus.Refused ->
+                copy.fixedCopy { lessonRefusalLineOf(start.refusal, dock.capWait) }
+            TownUiState.LessonStartStatus.Unreachable -> copy.fixedCopy(R.string.town_refusal_unexpected)
+            TownUiState.LessonStartStatus.Idle, TownUiState.LessonStartStatus.Waiting -> return
         }
-        words?.let { detail: TownStatusUiState.StepDetail.Words ->
-            MyGameText(
-                label = copy.chrome(R.string.town_next_lesson_words, "count" to detail.count),
-                style = MyGameTypography.body,
-                color = MyGameTheme.colors.inkMuted,
-            )
-        }
-        countdown?.let { shown: TownStatusUiState.StepCountdown ->
-            MyGameCountdownLine(
-                words = copy.chrome { countdownWordsOf(shown.countdown) },
-                time = copy.chrome { finishLabelOf(shown.remaining, shown.finishesAt) },
-                ground = MyGameCountdownGround.Paper,
-            )
-        }
-    }
-}
-
-@Composable
-private fun DockNotice(dock: TownStatusUiState.Dock, modifier: Modifier = Modifier) {
-    val step: TownStatusUiState.Dock.Step = dock as? TownStatusUiState.Dock.Step ?: return
-    val copy: PlayerCopy = rememberPlayerCopy()
-    val message: String = when (val start: TownUiState.LessonStartStatus = step.lessonStart) {
-        is TownUiState.LessonStartStatus.Refused -> copy.fixedCopy { lessonRefusalLineOf(start.refusal, step.capWait) }
-        TownUiState.LessonStartStatus.Unreachable -> copy.fixedCopy(R.string.town_refusal_unexpected)
-        TownUiState.LessonStartStatus.Idle, TownUiState.LessonStartStatus.Waiting -> return
     }
     MyGameInlineAlert(message = message, modifier = modifier)
 }
 
-private fun PlayerCopy.dockLineOf(dock: TownStatusUiState.Dock): MyGameDockLine = MyGameDockLine(
-    title = chrome(R.string.town_next_title),
-    step = when (dock) {
-        TownStatusUiState.Dock.Loading -> null
-        TownStatusUiState.Dock.Refused -> fixedLabel(fixedCopy(R.string.town_refusal_unexpected))
-        is TownStatusUiState.Dock.Step -> stepLineOf(dock)
-    },
-)
+fun TownStatusUiState.Dock.shownNotice(): Any? = when (this) {
+    TownStatusUiState.Dock.Loading -> null
+    TownStatusUiState.Dock.Refused -> this
+    is TownStatusUiState.Dock.Step -> lessonStart.takeIf { start: TownUiState.LessonStartStatus ->
+        start is TownUiState.LessonStartStatus.Refused || start == TownUiState.LessonStartStatus.Unreachable
+    }
+}
+
+private fun PlayerCopy.dockStepOf(dock: TownStatusUiState.Dock): MyGameLabel? = when (dock) {
+    TownStatusUiState.Dock.Loading, TownStatusUiState.Dock.Refused -> null
+    is TownStatusUiState.Dock.Step -> stepLineOf(dock)
+}
 
 private fun PlayerCopy.stepLineOf(step: TownStatusUiState.Dock.Step): MyGameLabel {
     val detail: TownStatusUiState.StepDetail? = step.detail
@@ -121,9 +73,6 @@ private fun PlayerCopy.stepLineOf(step: TownStatusUiState.Dock.Step): MyGameLabe
 }
 
 private fun TownStatusUiState.Dock.Step.isFullCap(): Boolean = line is NextStepCard.Line.LearningCap
-
-private fun TownStatusUiState.Dock.Step.goalUnderLine(): TownGoal? =
-    (detail as? TownStatusUiState.StepDetail.Goal)?.goal?.takeIf { isFullCap() }
 
 private fun PlayerCopy.dockGoOf(
     dock: TownStatusUiState.Dock,
@@ -289,8 +238,8 @@ private fun TownDockLoadingPreview() {
 
 @PreviewMyGame
 @Composable
-private fun TownDockTopPreview() {
+private fun TownDockRefusedPreview() {
     MyGamePreviewSurface {
-        TownDockTop(dock = previewStep)
+        TownDock(dock = TownStatusUiState.Dock.Refused, actions = previewActions, onFoldChange = {})
     }
 }

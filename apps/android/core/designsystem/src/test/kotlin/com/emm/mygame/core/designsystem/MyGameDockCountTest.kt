@@ -64,10 +64,6 @@ class MyGameDockCountTest(private val case: Case) {
             CompositionLocalProvider(LocalWindowInfo provides shown) {
                 MyGameTheme {
                     MyGameDock(
-                        line = MyGameDockLine(
-                            title = MyGameLabel(text = "What is next", translation = null),
-                            step = MyGameLabel(text = case.language.step, translation = null),
-                        ),
                         go = MyGameDockGo(
                             label = MyGameLabel(text = case.language.go, translation = null),
                             isBusy = false,
@@ -75,6 +71,7 @@ class MyGameDockCountTest(private val case: Case) {
                             onClick = {},
                             badge = case.count,
                         ),
+                        step = MyGameLabel(text = case.language.step, translation = null),
                         onFoldChange = {},
                     )
                 }

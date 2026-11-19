@@ -470,7 +470,7 @@ class TownStatusViewModelTest {
         assertEquals(
             TownStatusUiState.Dock.Step(
                 line = NextStepCard.Line.Lesson(number = 1),
-                detail = TownStatusUiState.StepDetail.Words(count = 5),
+                detail = null,
                 countdown = null,
                 go = TownStatusUiState.Go.Acts(NextStepCard.Action.Study(number = 1), isBusy = false),
                 lessonStart = TownUiState.LessonStartStatus.Idle,

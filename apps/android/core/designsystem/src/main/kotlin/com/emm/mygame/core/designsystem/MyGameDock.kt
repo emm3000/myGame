@@ -10,8 +10,13 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.SideEffect
 import androidx.compose.runtime.State
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberUpdatedState
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.drawBehind
 import androidx.compose.ui.geometry.Rect
@@ -24,7 +29,9 @@ import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.LocalWindowInfo
 import androidx.compose.ui.platform.WindowInfo
 import androidx.compose.ui.semantics.clearAndSetSemantics
+import androidx.compose.ui.semantics.LiveRegionMode
 import androidx.compose.ui.semantics.isTraversalGroup
+import androidx.compose.ui.semantics.liveRegion
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.unit.Constraints
 import androidx.compose.ui.unit.Density
@@ -48,11 +55,10 @@ private const val THREE_QUARTER_TURN: Float = 270f
 
 @Composable
 fun MyGameDock(
-    line: MyGameDockLine,
     go: MyGameDockGo,
+    step: MyGameLabel?,
     onFoldChange: (Boolean) -> Unit,
     modifier: Modifier = Modifier,
-    countdown: @Composable () -> Unit = {},
     notice: @Composable () -> Unit = {},
 ) {
     val tallestUnfolded: Float = LocalWindowInfo.current.containerSize.height / HALF /
@@ -63,34 +69,42 @@ fun MyGameDock(
     ) { constraints: Constraints ->
         val loose: Constraints = constraints.copy(minHeight = 0, maxHeight = Constraints.Infinity)
         val unfoldedHeight: Int = subcompose(DockSlot.Probe) {
-            DockSheet(modifier = Modifier.clearAndSetSemantics { }) {
-                Unfolded(
-                    line = line,
-                    go = go,
-                    countdown = countdown,
-                    notice = notice,
-                    isMeasureCopy = true,
-                )
-            }
+            DockContent(
+                go = go,
+                step = step,
+                isNoticeShown = true,
+                isLive = false,
+                notice = notice,
+                modifier = Modifier.clearAndSetSemantics { },
+            )
         }.single().measure(loose).height
         val isFolded: Boolean = unfoldedHeight > tallestUnfolded
         val shown: Placeable = subcompose(DockSlot.Shown) {
             LaunchedEffect(isFolded) { foldChange.value(isFolded) }
-            DockSheet {
-                if (isFolded) {
-                    DockGo(go = go, step = line.step)
-                } else {
-                    Unfolded(
-                        line = line,
-                        go = go,
-                        countdown = countdown,
-                        notice = notice,
-                        isMeasureCopy = false,
-                    )
-                }
-            }
+            DockContent(
+                go = go,
+                step = step,
+                isNoticeShown = !isFolded,
+                isLive = rememberHasStepChanged(step),
+                notice = notice,
+            )
         }.single().measure(loose)
         layout(shown.width, shown.height) { shown.place(0, 0) }
+    }
+}
+
+@Composable
+private fun DockContent(
+    go: MyGameDockGo,
+    step: MyGameLabel?,
+    isNoticeShown: Boolean,
+    isLive: Boolean,
+    notice: @Composable () -> Unit,
+    modifier: Modifier = Modifier,
+) {
+    DockSheet(modifier = modifier) {
+        if (isNoticeShown) notice()
+        DockGo(go = go, step = step, isLive = isLive)
     }
 }
 
@@ -103,35 +117,19 @@ private fun DockSheet(modifier: Modifier = Modifier, content: @Composable Column
             .fillMaxWidth()
             .background(colors.surfaceRaised, RoundedCornerShape(topStart = MyGameRadii.lg, topEnd = MyGameRadii.lg))
             .topHairline(colors.line)
-            .padding(MyGameSpacing.step5),
+            .padding(horizontal = MyGameSpacing.step5, vertical = MyGameSpacing.step3),
         content = content,
     )
 }
 
 @Composable
-private fun Unfolded(
-    line: MyGameDockLine,
-    go: MyGameDockGo,
-    countdown: @Composable () -> Unit,
-    notice: @Composable () -> Unit,
-    isMeasureCopy: Boolean,
-) {
-    Column(verticalArrangement = Arrangement.spacedBy(MyGameSpacing.step3)) {
-        DockLineContent(line = line, loadingLabel = go.busyDescription, isMeasureCopy = isMeasureCopy)
-        countdown()
-        notice()
-        DockGo(go = go, step = line.step)
-    }
-}
-
-@Composable
-private fun DockGo(go: MyGameDockGo, step: MyGameLabel?, modifier: Modifier = Modifier) {
+private fun DockGo(go: MyGameDockGo, step: MyGameLabel?, isLive: Boolean) {
     MyGameButton(
         label = go.label,
-        isBusy = go.isBusy || step == null,
+        isBusy = go.isBusy,
         busyDescription = go.busyDescription,
         onClick = go.onClick,
-        modifier = modifier,
+        modifier = Modifier.semantics { if (isLive) liveRegion = LiveRegionMode.Polite },
         blockedReason = go.blockedReason,
         badge = go.badge,
         accessibleName = step?.let { shown: MyGameLabel -> nameOf(go = go.label, step = shown) },
@@ -139,6 +137,19 @@ private fun DockGo(go: MyGameDockGo, step: MyGameLabel?, modifier: Modifier = Mo
 }
 
 private fun nameOf(go: MyGameLabel, step: MyGameLabel): String = "${go.spoken}, ${step.spoken}"
+
+@Composable
+private fun rememberHasStepChanged(step: MyGameLabel?): Boolean {
+    var firstStep: MyGameLabel? by remember { mutableStateOf(null) }
+    var hasChanged: Boolean by remember { mutableStateOf(false) }
+    val seen: MyGameLabel? = firstStep
+    val isLive: Boolean = hasChanged || (seen != null && step != null && step != seen)
+    SideEffect {
+        if (firstStep == null) firstStep = step
+        if (isLive) hasChanged = true
+    }
+    return isLive
+}
 
 private fun Modifier.topHairline(color: Color): Modifier = drawBehind {
     val stroke: Float = MyGameStrokeWidths.hairline.toPx()
@@ -167,10 +178,7 @@ private fun Modifier.topHairline(color: Color): Modifier = drawBehind {
     drawPath(path = path, color = color, style = Stroke(width = stroke))
 }
 
-private val previewLine: MyGameDockLine = MyGameDockLine(
-    title = MyGameLabel(text = "What is next", translation = "Tu siguiente paso"),
-    step = MyGameLabel(text = "Reviews due: 4", translation = "Repasos pendientes: 4"),
-)
+private val previewStep: MyGameLabel = MyGameLabel(text = "Reviews due: 4", translation = "Repasos pendientes: 4")
 
 private val previewGo: MyGameDockGo = MyGameDockGo(
     label = MyGameLabel(text = "Start the reviews", translation = null),
@@ -186,13 +194,19 @@ private val previewLandscapeHeight: Dp = 360.dp
 @Composable
 private fun MyGameDockPreview() {
     MyGamePreviewSurface {
+        MyGameDock(go = previewGo, step = previewStep, onFoldChange = {})
+    }
+}
+
+@PreviewMyGame
+@Composable
+private fun MyGameDockNoticePreview() {
+    MyGamePreviewSurface {
         MyGameDock(
-            line = previewLine,
             go = previewGo,
+            step = previewStep,
             onFoldChange = {},
-            countdown = {
-                MyGameCountdownLine(words = "Next review:", time = "12:40", ground = MyGameCountdownGround.Paper)
-            },
+            notice = { MyGameInlineAlert(message = "We could not reach your town. Try again.") },
         )
     }
 }
@@ -209,9 +223,10 @@ private fun MyGameDockFoldedPreview() {
     CompositionLocalProvider(LocalWindowInfo provides landscape) {
         MyGamePreviewSurface {
             MyGameDock(
-                line = previewLine,
                 go = previewGo.copy(label = MyGameLabel(text = "Study the returning words", translation = null)),
+                step = previewStep,
                 onFoldChange = {},
+                notice = { MyGameInlineAlert(message = "We could not reach your town. Try again.") },
             )
         }
     }
@@ -221,7 +236,7 @@ private fun MyGameDockFoldedPreview() {
 @Composable
 private fun MyGameDockLoadingPreview() {
     MyGamePreviewSurface {
-        MyGameDock(line = previewLine.copy(step = null), go = previewGo, onFoldChange = {})
+        MyGameDock(go = previewGo.copy(isBusy = true), step = null, onFoldChange = {})
     }
 }
 
@@ -230,8 +245,8 @@ private fun MyGameDockLoadingPreview() {
 private fun MyGameDockBlockedPreview() {
     MyGamePreviewSurface {
         MyGameDock(
-            line = previewLine.copy(step = MyGameLabel(text = "No reviews due now.", translation = null)),
             go = previewGo.copy(blockedReason = "No reviews due now.", badge = null),
+            step = MyGameLabel(text = "No reviews due now.", translation = null),
             onFoldChange = {},
         )
     }

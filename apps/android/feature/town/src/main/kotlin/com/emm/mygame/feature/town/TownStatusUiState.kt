@@ -31,8 +31,6 @@ data class TownStatusUiState(val running: RunningLesson?, val notice: FinishNoti
 
     sealed interface StepDetail {
 
-        data class Words(val count: Int) : StepDetail
-
         data class Goal(val goal: TownGoal) : StepDetail
     }
 

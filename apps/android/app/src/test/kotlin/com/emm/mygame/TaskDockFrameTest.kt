@@ -35,7 +35,6 @@ import androidx.navigation3.runtime.rememberNavBackStack
 import androidx.test.ext.junit.rules.ActivityScenarioRule
 import com.emm.mygame.core.designsystem.INK_PILL
 import com.emm.mygame.core.designsystem.MyGameDockGo
-import com.emm.mygame.core.designsystem.MyGameDockLine
 import com.emm.mygame.core.designsystem.MyGameLabel
 import com.emm.mygame.core.designsystem.MyGameText
 import com.emm.mygame.core.designsystem.MyGameTheme
@@ -164,9 +163,9 @@ class TaskDockFrameTest {
     fun `a task route's dock comes after its content for TalkBack`() {
         showingFakeTask()
 
-        val order: List<String> = composeRule.traversalOrder()
+        val read: List<Int> = readInOrder(hasText(CARD), placedGo)
 
-        assertTrue(order.indexOf(CARD) in 0 until order.indexOf(TASK_TITLE))
+        assertEquals(listOf(idOf(hasText(CARD)), idOf(placedGo)), read)
     }
 
     @Test
@@ -177,7 +176,7 @@ class TaskDockFrameTest {
     }
 
     @Test
-    fun `the folded dock rides above the keyboard`() {
+    fun `the dock rides above the keyboard`() {
         showingFakeTask()
 
         composeRule.keyboard(isOpen = true, height = PORTRAIT_KEYBOARD)
@@ -187,8 +186,6 @@ class TaskDockFrameTest {
             composeRule.onNode(hasContentDescription(CHECK, substring = true) and isPlaced)
         go.assertIsDisplayed()
         assertTrue(go.getUnclippedBoundsInRoot().bottom <= keyboardTop)
-        composeRule.onAllNodes(hasText(VERDICT) and isPlaced and !hasAnyAncestor(hasScrollAction()))
-            .assertCountEquals(0)
     }
 
     @Test
@@ -233,56 +230,45 @@ class TaskDockFrameTest {
     }
 
     @Test
-    fun `a task's town step comes after its content for TalkBack`() {
+    fun `a task's town notice comes after its content for TalkBack`() {
         showingFakeTask(isFilled = false, isFollowingTown = true, status = refusedTown)
 
-        val order: List<String> = composeRule.traversalOrder()
+        val read: List<Int> = readInOrder(hasText(CARD), hasText(TOWN_UNREACHABLE))
 
-        val line: Int = order.indexOfFirst { label: String -> label.equals(TOWN_LINE_TITLE, ignoreCase = true) }
-        assertTrue(order.indexOf(CARD) in 0 until line)
+        assertEquals(listOf(idOf(hasText(CARD)), idOf(hasText(TOWN_UNREACHABLE))), read)
     }
 
     @Test
     @Config(qualifiers = "+w360dp-h320dp", fontScale = 2.0f)
-    fun `a task's folded town step reads after its content and before its go button`() {
+    fun `a task's folded town notice reads after its content and before its go button`() {
         showingFakeTask(isFilled = false, isFollowingTown = true, status = refusedTown)
-        val foldedLine: SemanticsMatcher =
-            hasContentDescription(TOWN_LINE_TITLE) and isPlaced and hasAnyAncestor(hasScrollAction())
-        composeRule.onNode(foldedLine).assertExists()
+        val foldedNotice: SemanticsMatcher =
+            hasText(TOWN_UNREACHABLE) and isPlaced and hasAnyAncestor(hasScrollAction())
+        composeRule.onNode(foldedNotice, useUnmergedTree = true).assertExists()
 
-        val read: List<Int> = readInOrder(hasText(CARD), foldedLine, placedGo)
+        val read: List<Int> = readInOrder(hasText(CARD), foldedNotice, placedGo)
 
-        assertEquals(listOf(idOf(hasText(CARD)), idOf(foldedLine), idOf(placedGo)), read)
+        assertEquals(listOf(idOf(hasText(CARD)), idOf(foldedNotice), idOf(placedGo)), read)
     }
 
     @Test
     @Config(qualifiers = "+w360dp-h480dp", fontScale = 2.0f)
-    fun `a task's folded dock hands its line to the content, read after the card and before the go button`() {
+    fun `a task's folded dock hands its notice to the content, read after the card and before the go button`() {
         showingFakeTask()
 
-        val read: List<Int> = readInOrder(hasText(CARD), hasText(PROGRESS), placedGo)
+        val read: List<Int> = readInOrder(hasText(CARD), hasText(VERDICT), placedGo)
 
-        assertEquals(listOf(idOf(hasText(CARD)), idOf(hasText(PROGRESS)), idOf(placedGo)), read)
+        assertEquals(listOf(idOf(hasText(CARD)), idOf(hasText(VERDICT)), idOf(placedGo)), read)
     }
 
     @Test
-    fun `a task's dock draws its countdown between its line and its notice`() {
+    fun `a task's dock draws no line, and its notice above its go button`() {
         showingFakeTask()
 
-        val countdown: DpRect = placedBounds(hasText(COUNTDOWN) and !hasAnyAncestor(hasScrollAction()))
-        val line: DpRect = placedBounds(hasText(PROGRESS) and !hasAnyAncestor(hasScrollAction()))
+        composeRule.onAllNodes(hasText(PROGRESS) and isPlaced, useUnmergedTree = true).assertCountEquals(0)
         val notice: DpRect = placedBounds(hasText(VERDICT) and !hasAnyAncestor(hasScrollAction()))
-        assertTrue(countdown.top >= line.bottom && countdown.bottom <= notice.top)
-    }
-
-    @Test
-    @Config(qualifiers = "+w360dp-h480dp", fontScale = 2.0f)
-    fun `a task's folded dock hands its countdown to the content with its line`() {
-        showingFakeTask()
-
-        val countdown: DpRect = placedBounds(hasText(COUNTDOWN) and hasAnyAncestor(hasScrollAction()))
-        val line: DpRect = placedBounds(hasText(PROGRESS) and hasAnyAncestor(hasScrollAction()))
-        assertTrue(countdown.top >= line.bottom)
+        val go: DpRect = placedBounds(placedGo)
+        assertTrue(notice.bottom <= go.top)
     }
 
     @Test
@@ -296,7 +282,7 @@ class TaskDockFrameTest {
         composeRule.onAllNodes(matcher and isPlaced).onFirst().getUnclippedBoundsInRoot()
 
     private fun idOf(matcher: SemanticsMatcher): Int =
-        composeRule.onAllNodes(matcher and isPlaced, useUnmergedTree = true).onFirst().fetchSemanticsNode().id
+        composeRule.onAllNodes(matcher and isPlaced).onFirst().fetchSemanticsNode().id
 
     private fun readInOrder(vararg matchers: SemanticsMatcher): List<Int> {
         val ids: Set<Int> = matchers.map(::idOf).toSet()
@@ -307,12 +293,11 @@ class TaskDockFrameTest {
         val refusedTown: TownStatusUiState = TownStatusUiState.none.copy(dock = TownStatusUiState.Dock.Refused)
 
         const val CARD: String = "The card"
-        const val TOWN_LINE_TITLE: String = "Tu siguiente paso"
-        const val TASK_TITLE: String = "REVIEW"
+        const val TOWN_UNREACHABLE: String =
+            "No hemos podido hablar con el servidor. Vuelve a intentarlo en un momento."
         const val CHECK: String = "Check"
         const val PROGRESS: String = "Card 2 of 5"
         const val VERDICT: String = "Correct."
-        const val COUNTDOWN: String = "4 min"
         const val PORTRAIT_KEYBOARD: Int = 600
         const val LANDSCAPE_KEYBOARD: Int = 250
         const val TALL_CARD: Int = 300
@@ -338,10 +323,7 @@ private fun FakeTaskRoute(frame: ScreenFrame, isFilled: Boolean, isFollowingTown
     FillTaskDock(
         hook = hook,
         dock = TaskDock(
-            line = MyGameDockLine(
-                title = MyGameLabel(text = "Review", translation = null),
-                step = MyGameLabel(text = "Card 2 of 5", translation = null),
-            ),
+            step = MyGameLabel(text = "Card 2 of 5", translation = null),
             go = MyGameDockGo(
                 label = MyGameLabel(text = "Check", translation = null),
                 isBusy = false,
@@ -349,7 +331,6 @@ private fun FakeTaskRoute(frame: ScreenFrame, isFilled: Boolean, isFollowingTown
                 onClick = hook.onAnswered,
             ),
             notice = { MyGameText(text = "Correct.", style = MyGameTypography.body, color = MyGameTheme.colors.ink) },
-            countdown = { MyGameText(text = "4 min", style = MyGameTypography.body, color = MyGameTheme.colors.ink) },
         ),
     )
 }

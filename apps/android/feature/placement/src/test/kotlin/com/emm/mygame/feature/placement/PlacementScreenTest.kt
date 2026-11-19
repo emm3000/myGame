@@ -3,6 +3,7 @@ package com.emm.mygame.feature.placement
 import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.ui.test.assertCountEquals
+import androidx.compose.ui.test.hasContentDescription
 import androidx.compose.ui.test.hasStateDescription
 import androidx.compose.ui.test.hasTestTag
 import androidx.compose.ui.test.hasText
@@ -177,10 +178,10 @@ class PlacementScreenTest {
     }
 
     @Test
-    fun `the dock's line is the shown word's place in the band`() {
+    fun `the go button's spoken name holds the shown word's place in the band`() {
         showing(askingFirstBand)
 
-        composeRule.onNode(hasText("Palabra 1 de 2").and(inTaskDock)).assertExists()
+        composeRule.onNode(hasContentDescription("Palabra 1 de 2", substring = true).and(inTaskDock)).assertExists()
     }
 
     @Test

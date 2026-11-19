@@ -379,7 +379,6 @@
   "android.town.town_next_learning_cap": "Words in learning: {inLearning} of {cap}",
   "android.town.town_next_lesson_ready_in": "Lesson {number} ready in",
   "android.town.town_next_lesson_title": "Lesson {number}",
-  "android.town.town_next_lesson_words": "{count, plural, =1 {1 word} other {{count, number,0} words}}",
   "android.town.town_next_no_reviews_due": "No reviews due now.",
   "android.town.town_next_read_words": "Read the words",
   "android.town.town_next_released_lesson": "Returning words: band {band}, set {number}",

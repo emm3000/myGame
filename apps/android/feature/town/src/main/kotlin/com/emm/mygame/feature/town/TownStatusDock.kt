@@ -19,7 +19,7 @@ internal fun TownSnapshot.dockOn(
     val card: NextStepCard = nextStepCard()
     return TownStatusUiState.Dock.Step(
         line = card.line,
-        detail = card.detail?.let(::detailOf) ?: caughtUpGoal()?.let(TownStatusUiState.StepDetail::Goal),
+        detail = caughtUpGoal()?.let(TownStatusUiState.StepDetail::Goal),
         countdown = card.countdown?.let { countdown: NextStepCard.Countdown -> countdown.timeAt(now, gap) },
         go = card.goOn(screen, lessonStart),
         lessonStart = lessonStart,
@@ -56,10 +56,6 @@ private fun NextStepCard.reportWait(): TownStatusUiState.GoBlock =
     } else {
         TownStatusUiState.GoBlock.NoReviewsDue
     }
-
-private fun detailOf(detail: NextStepCard.Detail): TownStatusUiState.StepDetail = when (detail) {
-    is NextStepCard.Detail.Words -> TownStatusUiState.StepDetail.Words(detail.count)
-}
 
 private fun NextStepCard.Countdown.timeAt(now: Instant, gap: Duration): TownStatusUiState.StepCountdown =
     TownStatusUiState.StepCountdown(
