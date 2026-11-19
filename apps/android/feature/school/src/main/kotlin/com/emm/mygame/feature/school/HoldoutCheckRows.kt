@@ -10,11 +10,11 @@ import androidx.compose.ui.tooling.preview.PreviewParameterProvider
 import androidx.lifecycle.compose.LifecycleStartEffect
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
-import com.emm.mygame.core.designsystem.MyGameHairline
+import com.emm.mygame.core.designsystem.MyGameLabel
+import com.emm.mygame.core.designsystem.MyGameNavRow
 import com.emm.mygame.core.designsystem.MyGamePreviewSurface
 import com.emm.mygame.core.designsystem.MyGameSpacing
 import com.emm.mygame.core.designsystem.MyGameText
-import com.emm.mygame.core.designsystem.MyGameTextLink
 import com.emm.mygame.core.designsystem.MyGameTheme
 import com.emm.mygame.core.designsystem.MyGameTypography
 import com.emm.mygame.core.designsystem.PreviewMyGame
@@ -59,7 +59,6 @@ private fun HoldoutCheckRowLine(
     modifier: Modifier = Modifier,
 ) {
     Column(verticalArrangement = Arrangement.spacedBy(MyGameSpacing.step2), modifier = modifier) {
-        MyGameHairline()
         MyGameText(
             text = fixedCopyResource(
                 R.string.school_holdout_row,
@@ -69,8 +68,8 @@ private fun HoldoutCheckRowLine(
             style = MyGameTypography.body,
             color = MyGameTheme.colors.ink,
         )
-        MyGameTextLink(
-            label = fixedCopyResource(R.string.school_holdout_open),
+        MyGameNavRow(
+            title = MyGameLabel(text = fixedCopyResource(R.string.school_holdout_open), translation = null),
             onClick = { onHoldoutCheckOpen(row) },
         )
     }

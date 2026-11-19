@@ -392,33 +392,33 @@ class SchoolLookTest {
     }
 
     @Test
-    fun `names the running lesson on the pill while the block shows another`() {
+    fun `names the running lesson on the nav row while the block shows another`() {
         show(secondWhileFirstRuns)
 
-        composeRule.onNode(hasTestTag(OUTLINED_PILL) and hasText("Lección 1 · Leer las palabras")).assertExists()
+        composeRule.onNode(navRowOf("Lección 1 · Leer las palabras"), useUnmergedTree = true).assertExists()
     }
 
     @Test
-    fun `opens the running lesson from the pill under another lesson's block`() {
+    fun `opens the running lesson from the nav row under another lesson's block`() {
         show(secondWhileFirstRuns)
 
-        composeRule.onNode(hasTestTag(OUTLINED_PILL) and hasText("Lección 1 · Leer las palabras")).performClick()
+        composeRule.onNode(navRowOf("Lección 1 · Leer las palabras"), useUnmergedTree = true).performClick()
 
         assertEquals(listOf(firstLesson), lessonOpens)
     }
 
     @Test
-    fun `leaves the running lesson unnamed on the pill under its own block`() {
+    fun `leaves the running lesson unnamed on the nav row under its own block`() {
         show(secondWhileFirstRuns.copy(selected = firstLesson))
 
-        composeRule.onNode(hasTestTag(OUTLINED_PILL) and hasText("Leer las palabras")).assertExists()
+        composeRule.onNode(navRowOf("Leer las palabras"), useUnmergedTree = true).assertExists()
     }
 
     @Test
-    fun `keeps the pill on a lesson that finished while the town reads again`() {
+    fun `keeps the nav row on a lesson that finished while the town reads again`() {
         show(secondWhileFirstRuns.copy(slot = SchoolUiState.SlotLine.Done(firstLesson, firstLessonName)))
 
-        composeRule.onNode(hasTestTag(OUTLINED_PILL) and hasText("Lección 1 · Leer las palabras")).assertExists()
+        composeRule.onNode(navRowOf("Lección 1 · Leer las palabras"), useUnmergedTree = true).assertExists()
     }
 
     @Test

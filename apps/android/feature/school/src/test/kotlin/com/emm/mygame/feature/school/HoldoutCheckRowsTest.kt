@@ -44,10 +44,10 @@ class HoldoutCheckRowsTest {
     }
 
     @Test
-    fun `opens the check of its row`() {
+    fun `opens the check from its nav row`() {
         showing(HoldoutCheckRowsUiState(listOf(secondBandEighthWeek)))
 
-        composeRule.onNodeWithText("Abrir la prueba").performClick()
+        composeRule.onNode(navRowOf("Abrir la prueba"), useUnmergedTree = true).performClick()
 
         assertEquals(listOf(secondBandEighthWeek), opened)
     }
@@ -60,7 +60,7 @@ class HoldoutCheckRowsTest {
             ),
         )
 
-        composeRule.onAllNodesWithText("Abrir la prueba").assertCountEquals(2)
+        composeRule.onAllNodes(navRowOf("Abrir la prueba"), useUnmergedTree = true).assertCountEquals(2)
     }
 
     @Test

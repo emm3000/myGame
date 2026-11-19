@@ -221,12 +221,21 @@ class LessonWordsScreenTest {
     }
 
     @Test
-    fun `keeps the way on as a text link before the last word`() {
+    fun `opens the reviews from the way on's nav row before the last word`() {
         draw(finishedFirstWord)
 
-        composeRule.onNodeWithText("Empezar los repasos").performScrollTo().performClick()
+        composeRule.onNode(navRowOf("Empezar los repasos"), useUnmergedTree = true).performScrollTo().performClick()
 
         assertEquals(listOf<LessonWordsUiState.WayOn>(LessonWordsUiState.WayOn.Reviews), wayOns)
+    }
+
+    @Test
+    fun `opens the next lesson from the way on's nav row before the last word`() {
+        draw(finishedFirstWord.copy(wayOn = LessonWordsUiState.WayOn.Lesson(secondLesson)))
+
+        composeRule.onNode(navRowOf("Siguiente lección"), useUnmergedTree = true).performScrollTo().performClick()
+
+        assertEquals(listOf<LessonWordsUiState.WayOn>(LessonWordsUiState.WayOn.Lesson(secondLesson)), wayOns)
     }
 
     @Test
@@ -255,10 +264,10 @@ class LessonWordsScreenTest {
     }
 
     @Test
-    fun `offers a way back to the school on the last word of a running lesson`() {
+    fun `opens the school from a nav row on the last word of a running lesson`() {
         draw(runningLastWord)
 
-        composeRule.onNodeWithText("Ir a la escuela").performScrollTo().performClick()
+        composeRule.onNode(navRowOf("Ir a la escuela"), useUnmergedTree = true).performScrollTo().performClick()
 
         assertEquals(1, schoolOpenings)
     }
@@ -305,10 +314,10 @@ class LessonWordsScreenTest {
     }
 
     @Test
-    fun `offers a way back to the school when nothing can be read`() {
+    fun `opens the school from a nav row when nothing can be read`() {
         draw(LessonWordsUiState.NothingToRead)
 
-        composeRule.onNodeWithText("Ir a la escuela").performScrollTo().performClick()
+        composeRule.onNode(navRowOf("Ir a la escuela"), useUnmergedTree = true).performScrollTo().performClick()
 
         assertEquals(1, schoolOpenings)
     }
