@@ -272,6 +272,13 @@ deriving it:
 - The path shows standings and counts, never days away and never a run
   of days (PRD W10).
 
+Each step is labeled by the standing it counts past: *Studied* past
+`notStarted`, *Can read* (es *Puedes leer*) past `recognize`, *Reviewed*
+past `recall`, *Learned* past `hold`. The second step names a word whose
+meaning the player chose, never a word read in its lesson, since reading
+writes nothing: a step labeled *Read* showed *Leídas 0 de 5* to a player
+who had read every word (#1256).
+
 ### Word tags stay out, for now
 
 English word tags on the town (*home* beside *Hogares*) do not ship

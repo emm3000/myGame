@@ -35,7 +35,7 @@
     <string name="school_loading">Reading your town…</string>
     <string name="school_path_count">{count} of {total}</string>
     <string name="school_path_learned">Learned</string>
-    <string name="school_path_read">Read</string>
+    <string name="school_path_read">Can read</string>
     <string name="school_path_reviewed">Reviewed</string>
     <string name="school_path_studied">Studied</string>
     <string name="school_refusal_learning_cap_reached">Words in learning: {cardsInLearning} of {learningCap}. Review them before you start another lesson.</string>

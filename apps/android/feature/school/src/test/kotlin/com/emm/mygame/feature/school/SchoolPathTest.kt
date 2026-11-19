@@ -67,13 +67,13 @@ class SchoolPathTest {
 
     private fun pathOf(studied: Int, read: Int, reviewed: Int, learned: Int, total: Int): List<String> = listOf(
         "Estudiadas $studied de $total",
-        "Leídas $read de $total",
+        "Puedes leer $read de $total",
         "Repasadas $reviewed de $total",
         "Aprendidas $learned de $total",
     )
 
     private fun shownPath(): List<String> =
-        listOf("Estudiadas", "Leídas", "Repasadas", "Aprendidas").map { label: String ->
+        listOf("Estudiadas", "Puedes leer", "Repasadas", "Aprendidas").map { label: String ->
             val step: SemanticsNode = composeRule.onNodeWithText(label).fetchSemanticsNode()
             textsOf(step).joinToString(separator = " ")
         }

@@ -22,7 +22,7 @@
     <string name="review_nothing_due">No reviews due now.</string>
     <string name="review_path_count">{count} of {total}</string>
     <string name="review_path_learned">Learned</string>
-    <string name="review_path_read">Read</string>
+    <string name="review_path_read">Can read</string>
     <string name="review_path_reviewed">Reviewed</string>
     <string name="review_path_studied">Studied</string>
     <string name="review_recall_prompt">How do you say it in English?</string>

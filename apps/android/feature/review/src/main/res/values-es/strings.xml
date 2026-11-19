@@ -22,7 +22,7 @@
     <string name="review_nothing_due">No tienes nada que repasar ahora.</string>
     <string name="review_path_count">{count} de {total}</string>
     <string name="review_path_learned">Aprendidas</string>
-    <string name="review_path_read">Leídas</string>
+    <string name="review_path_read">Puedes leer</string>
     <string name="review_path_reviewed">Repasadas</string>
     <string name="review_path_studied">Estudiadas</string>
     <string name="review_recall_prompt">¿Cómo se dice en inglés?</string>

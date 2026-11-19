@@ -204,7 +204,7 @@ export const schoolLessonWords = ({ count }: { readonly count: number }): string
 export const schoolLessons = (): string => `Lecciones`
 export const schoolPathCount = ({ count, total }: { readonly count: string | number; readonly total: string | number }): string => `${String(count)} de ${String(total)}`
 export const schoolPathLearned = (): string => `Aprendidas`
-export const schoolPathRead = (): string => `Leídas`
+export const schoolPathRead = (): string => `Puedes leer`
 export const schoolPathReviewed = (): string => `Repasadas`
 export const schoolPathStudied = (): string => `Estudiadas`
 export const schoolSkillName = ({ level, resource }: { readonly level: string | number; readonly resource: string | number }): string => `Habilidad de ${String(resource)}, nivel ${String(level)}`
