@@ -1,7 +1,6 @@
 package com.emm.mygame.core.designsystem
 
 import androidx.compose.foundation.background
-import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
@@ -17,7 +16,6 @@ fun MyGameCard(modifier: Modifier = Modifier, content: @Composable () -> Unit) {
         modifier = modifier
             .fillMaxWidth()
             .background(colors.surfaceRaised, shape)
-            .border(MyGameStrokeWidths.hairline, colors.line, shape)
             .padding(horizontal = MyGameSpacing.step4, vertical = MyGameSpacing.step1),
     ) {
         content()
