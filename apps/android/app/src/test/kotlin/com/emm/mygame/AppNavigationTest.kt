@@ -52,6 +52,7 @@ import com.emm.mygame.core.network.SignedInPlayer
 import com.emm.mygame.core.network.StudyReminderChoice
 import com.emm.mygame.core.network.StudyReminderSettings
 import com.emm.mygame.core.network.Terrain
+import com.emm.mygame.core.network.TextId
 import com.emm.mygame.core.network.ThemePick
 import com.emm.mygame.core.network.ThemeSettings
 import com.emm.mygame.core.network.TownBuildingKind
@@ -638,6 +639,15 @@ class AppNavigationTest {
     fun `reads the town at the lesson's finish on the reviews`() {
         learningFake.answerRead(noReviews)
         onLessonOneNearItsFinish(Destination.Town, Destination.Review)
+
+        passingTheFinish()
+
+        assertEquals(READS_ON_ARRIVAL + 1, townsFake.readCount)
+    }
+
+    @Test
+    fun `reads the town at the lesson's finish on a text`() {
+        onLessonOneNearItsFinish(Destination.Town, Destination.School, Destination.SchoolText(TextId("text-1")))
 
         passingTheFinish()
 
