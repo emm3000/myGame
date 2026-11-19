@@ -10,12 +10,12 @@ import com.emm.mygame.core.designsystem.MyGameBlock
 import com.emm.mygame.core.designsystem.MyGameBlockHue
 import com.emm.mygame.core.designsystem.MyGameHairline
 import com.emm.mygame.core.designsystem.MyGameHeader
+import com.emm.mygame.core.designsystem.MyGameNavRow
 import com.emm.mygame.core.designsystem.MyGamePlacePage
 import com.emm.mygame.core.designsystem.MyGamePlaceWords
 import com.emm.mygame.core.designsystem.MyGameSpacing
 import com.emm.mygame.core.designsystem.MyGameText
 import com.emm.mygame.core.designsystem.MyGameTextButton
-import com.emm.mygame.core.designsystem.MyGameTextLink
 import com.emm.mygame.core.designsystem.MyGameTheme
 import com.emm.mygame.core.designsystem.MyGameTypography
 import com.emm.mygame.core.network.TipKind
@@ -124,13 +124,13 @@ private fun PlaceOwnParts(
 ) {
     when (place) {
         TownBuildingKind.School -> {
-            MyGameTextLink(label = chromeResource(R.string.town_go_to_school), onClick = slots.onSchoolOpen)
+            MyGameNavRow(title = chromeResource(R.string.town_go_to_school), onClick = slots.onSchoolOpen)
             slots.placement()
         }
         TownBuildingKind.Office -> {
             OfficeSection(office = content.office, onIntent = onIntent)
             MyGameHairline()
-            MyGameTextLink(label = chromeResource(R.string.town_map_link), onClick = slots.onMapOpen)
+            MyGameNavRow(title = chromeResource(R.string.town_map_link), onClick = slots.onMapOpen)
         }
         TownBuildingKind.Homes, TownBuildingKind.Farm, TownBuildingKind.Factory, TownBuildingKind.PowerStation,
         TownBuildingKind.Storage,

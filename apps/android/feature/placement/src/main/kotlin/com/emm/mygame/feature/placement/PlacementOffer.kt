@@ -12,11 +12,11 @@ import androidx.compose.ui.tooling.preview.PreviewParameterProvider
 import androidx.lifecycle.compose.LifecycleStartEffect
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
-import com.emm.mygame.core.designsystem.MyGameHairline
+import com.emm.mygame.core.designsystem.MyGameLabel
+import com.emm.mygame.core.designsystem.MyGameNavRow
 import com.emm.mygame.core.designsystem.MyGamePreviewSurface
 import com.emm.mygame.core.designsystem.MyGameSpacing
 import com.emm.mygame.core.designsystem.MyGameText
-import com.emm.mygame.core.designsystem.MyGameTextLink
 import com.emm.mygame.core.designsystem.MyGameTheme
 import com.emm.mygame.core.designsystem.MyGameTypography
 import com.emm.mygame.core.designsystem.PreviewMyGame
@@ -50,7 +50,6 @@ fun PlacementOfferRow(state: PlacementOfferUiState, onPlacementOpen: () -> Unit,
         PlacementOfferUiState.Asking -> R.string.placement_offer_resume_link
     }
     Column(verticalArrangement = Arrangement.spacedBy(MyGameSpacing.step2), modifier = modifier) {
-        MyGameHairline()
         Column {
             MyGameText(
                 text = fixedCopyResource(R.string.placement_title),
@@ -64,7 +63,7 @@ fun PlacementOfferRow(state: PlacementOfferUiState, onPlacementOpen: () -> Unit,
                 color = MyGameTheme.colors.inkMuted,
             )
         }
-        MyGameTextLink(label = fixedCopyResource(link), onClick = onPlacementOpen)
+        MyGameNavRow(title = MyGameLabel(text = fixedCopyResource(link), translation = null), onClick = onPlacementOpen)
     }
 }
 

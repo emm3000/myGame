@@ -178,10 +178,10 @@ class ReportScreenTest {
     }
 
     @Test
-    fun `opens the news from its row on the Report`() {
+    fun `opens the news from its nav row on the Report`() {
         show(contentWith(news = unreadFarm))
 
-        composeRule.onNodeWithText("Leer todas las noticias").performScrollTo().performClick()
+        composeRule.onNode(navRowOf(NEWS_ALL), useUnmergedTree = true).performScrollTo().performClick()
 
         assertEquals(1, newsOpens)
     }
@@ -310,10 +310,10 @@ class ReportScreenTest {
     }
 
     @Test
-    fun `opens the settings from beside sign-out`() {
+    fun `opens the settings from its nav row beside sign-out`() {
         show(contentWith(news = unreadFarm))
 
-        composeRule.onNodeWithText("Ajustes").performScrollTo().performClick()
+        composeRule.onNode(navRowOf(SETTINGS), useUnmergedTree = true).performScrollTo().performClick()
 
         assertEquals(1, settingsOpens)
     }
@@ -403,23 +403,23 @@ class ReportScreenTest {
         val news = ReportUiState.ReportNews.Unread(listOf(finishedFarm, finishedFarm), ReportUiState.CloseRequest.Idle)
         show(contentWith(news = news))
 
-        composeRule.onAllNodesWithTag(HAIRLINE).assertCountEquals(2 + ROWS_WITH_THE_REMINDER_ON)
+        composeRule.onAllNodesWithTag(HAIRLINE).assertCountEquals(2 + ROW_HAIRLINES_WITH_THE_REMINDER_ON)
     }
 
     @Test
     fun `sets the empty news on a hairline row`() {
         show(contentWith(news = ReportUiState.ReportNews.None))
 
-        composeRule.onAllNodesWithTag(HAIRLINE).assertCountEquals(1 + ROWS_WITH_THE_REMINDER_ON)
+        composeRule.onAllNodesWithTag(HAIRLINE).assertCountEquals(1 + ROW_HAIRLINES_WITH_THE_REMINDER_ON)
     }
 
     private fun unclippedTopOf(line: String): Dp = composeRule.onNodeWithText(line).getUnclippedBoundsInRoot().top
 
     @Test
-    fun `the reminder offer opens the settings`() {
+    fun `the reminder offer's nav row opens the settings`() {
         show(contentWith(isReminderOn = false))
 
-        composeRule.onNodeWithText(REMINDER_OFFER).performScrollTo().performClick()
+        composeRule.onNode(navRowOf(REMINDER_OFFER), useUnmergedTree = true).performScrollTo().performClick()
 
         assertEquals(1, settingsOpens)
     }
@@ -473,6 +473,6 @@ class ReportScreenTest {
         const val REMINDER_OFFER: String = "Activa un recordatorio de estudio"
         const val NEWS_ALL: String = "Leer todas las noticias"
         const val SETTINGS: String = "Ajustes"
-        const val ROWS_WITH_THE_REMINDER_ON: Int = 2
+        const val ROW_HAIRLINES_WITH_THE_REMINDER_ON: Int = 3
     }
 }
