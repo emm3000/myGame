@@ -31,9 +31,11 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.drawBehind
+import androidx.compose.ui.geometry.CornerRadius
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.semantics.contentDescription
@@ -43,7 +45,9 @@ import androidx.compose.ui.tooling.preview.PreviewParameterProvider
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 
-private val stripInset: Dp = MyGameSpacing.step2
+private val stripSideInset: Dp = MyGameSpacing.step2
+
+private val stripBottomInset: Dp = MyGameSpacing.step1
 
 @Composable
 fun MyGameStreetStrip(
@@ -60,22 +64,22 @@ fun MyGameStreetStrip(
         modifier = modifier
             .fillMaxWidth()
             .semantics { contentDescription = name }
-            .border(MyGameStrokeWidths.hairline, MyGameTheme.colors.lineStrong, frame)
-            .clip(frame),
+            .frameBehind(MyGameTheme.colors.lineStrong)
+            .clip(frame)
+            .padding(horizontal = stripSideInset),
     ) {
-        val tabsWidth: Dp = maxWidth - stripInset * 2
-        val tabWidth: Dp = maxOf(MyGameSizes.control, tabsWidth / street.tabs.size.coerceAtLeast(1))
+        val tabWidth: Dp = maxOf(MyGameSizes.control, maxWidth / street.tabs.size.coerceAtLeast(1))
         val shown: Int = with(LocalDensity.current) {
-            val centered: Int = (stripInset + tabWidth * selected + (tabWidth - maxWidth) / 2).roundToPx()
-            centered.coerceIn(0, (tabWidth * street.tabs.size - tabsWidth).roundToPx().coerceAtLeast(0))
+            val centered: Int = (tabWidth * selected + (tabWidth - maxWidth) / 2).roundToPx()
+            centered.coerceIn(0, (tabWidth * street.tabs.size - maxWidth).roundToPx().coerceAtLeast(0))
         }
         val scroll: ScrollState = rememberScrollState(initial = shown)
         LaunchedEffect(shown) { scroll.animateScrollTo(shown) }
         Row(
             modifier = Modifier
                 .horizontalScroll(scroll)
-                .padding(stripInset)
                 .tabDividers(count = street.tabs.size, tabWidth = tabWidth, color = MyGameTheme.colors.lineStrong)
+                .padding(bottom = stripBottomInset)
                 .selectableGroup(),
         ) {
             street.tabs.forEachIndexed { index: Int, tab: MyGameStreetTab ->
@@ -122,6 +126,17 @@ private fun StreetTab(
         MyGamePlaceArt(art = tab.art, risenFrom = null, modifier = Modifier.height(MyGameSizes.control))
         SelectedMark(isSelected = isSelected)
     }
+}
+
+private fun Modifier.frameBehind(color: Color): Modifier = drawBehind {
+    val stroke: Float = MyGameStrokeWidths.hairline.toPx()
+    drawRoundRect(
+        color = color,
+        topLeft = Offset(x = stroke / 2, y = stroke / 2),
+        size = Size(width = size.width - stroke, height = size.height - stroke),
+        cornerRadius = CornerRadius(MyGameRadii.md.toPx() - stroke / 2),
+        style = Stroke(width = stroke),
+    )
 }
 
 private fun Modifier.tabDividers(count: Int, tabWidth: Dp, color: Color): Modifier = drawBehind {

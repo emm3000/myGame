@@ -268,7 +268,7 @@ class MyGameStreetStripTest {
         val ring: String = hexOf(lightColors.focus.toArgb())
 
         assertEquals("the ring's start edge", ring, hexOf(strip[homes.left.toInt(), homes.center.y.toInt()].toArgb()))
-        assertEquals("the ring's top edge", ring, hexOf(strip[homes.center.x.toInt(), homes.top.toInt()].toArgb()))
+        assertEquals("the ring's top edge", ring, hexOf(strip[homes.center.x.toInt(), 0].toArgb()))
     }
 
     @Test
