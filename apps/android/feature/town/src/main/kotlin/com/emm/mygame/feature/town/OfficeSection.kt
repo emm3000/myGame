@@ -25,6 +25,7 @@ import com.emm.mygame.core.network.TownHireKind
 import com.emm.mygame.core.ui.PlayerCopy
 import com.emm.mygame.core.ui.SeasonMark
 import com.emm.mygame.core.ui.chromeResource
+import com.emm.mygame.core.ui.finishLabelOf
 import com.emm.mygame.core.ui.rememberPlayerCopy
 
 @Composable
@@ -151,7 +152,7 @@ private fun BusyHiring(
     val copy: PlayerCopy = rememberPlayerCopy()
     Column(verticalArrangement = Arrangement.spacedBy(MyGameSpacing.step3), modifier = modifier) {
         HiringTitle(hire = hiring.target.hire, count = hiring.count, delivered = hiring.delivered)
-        RunningCountdown(label = copy.chrome { finishLabelOf(hiring.remaining, hiring.finishesAt) })
+        RunningCountdown(label = copy.chrome { finishLabelOf(hiring.remaining, hiring.finishesAt, townDurationCopy) })
         MyGameTrack(
             filled = 1f - (hiring.remaining / hiring.total).toFloat(),
             color = MyGameTheme.colors.action,

@@ -13,6 +13,7 @@ import com.emm.mygame.core.designsystem.formatQuantity
 import com.emm.mygame.core.network.NextStepCard
 import com.emm.mygame.core.ui.CopyReader
 import com.emm.mygame.core.ui.PlayerCopy
+import com.emm.mygame.core.ui.finishLabelOf
 import com.emm.mygame.core.ui.rememberPlayerCopy
 import kotlin.time.Duration.Companion.minutes
 import kotlin.time.Instant
@@ -127,7 +128,8 @@ private fun PlayerCopy.blockOf(reason: TownStatusUiState.GoBlock, countdown: Tow
     when (reason) {
         TownStatusUiState.GoBlock.NextReview -> countdown?.let { shown: TownStatusUiState.StepCountdown ->
             chrome {
-                "${countdownWordsOf(shown.countdown)} ${finishLabelOf(shown.remaining, shown.finishesAt)}"
+                val finish: String = finishLabelOf(shown.remaining, shown.finishesAt, townDurationCopy)
+                "${countdownWordsOf(shown.countdown)} $finish"
             }.spoken
         } ?: chrome(R.string.town_next_no_reviews_due).spoken
         TownStatusUiState.GoBlock.NoReviewsDue -> chrome(R.string.town_next_no_reviews_due).spoken

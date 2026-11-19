@@ -30,6 +30,7 @@ import com.emm.mygame.core.network.TownBuildingKind
 import com.emm.mygame.core.network.TownResourceKind
 import com.emm.mygame.core.ui.CopyReader
 import com.emm.mygame.core.ui.PlayerCopy
+import com.emm.mygame.core.ui.durationLabelOf
 import com.emm.mygame.core.ui.rememberPlayerCopy
 import kotlin.time.Duration.Companion.hours
 import kotlin.time.Duration.Companion.minutes
@@ -58,7 +59,7 @@ internal fun NextLevel(
                 text(
                     R.string.town_build_with_duration,
                     "action" to text(R.string.town_build, "level" to next.level.toString()),
-                    "duration" to durationLabelOf(next.duration),
+                    "duration" to durationLabelOf(next.duration, townDurationCopy),
                 )
             },
             isBusy = isWaiting,

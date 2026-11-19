@@ -33,6 +33,7 @@ import com.emm.mygame.core.network.TownHireKind
 import com.emm.mygame.core.ui.CopyReader
 import com.emm.mygame.core.ui.PlayerCopy
 import com.emm.mygame.core.ui.chromeResource
+import com.emm.mygame.core.ui.durationLabelOf
 import com.emm.mygame.core.ui.rememberPlayerCopy
 
 @Composable
@@ -178,7 +179,7 @@ private fun TownUiState.HireStatus.isAnsweredFor(kind: TownHireKind): Boolean = 
 private fun CopyReader.hireLabelOf(kind: TownHireKind, offer: TownUiState.HireOffer): String = text(
     R.string.town_build_with_duration,
     "action" to text(hireOf(kind), "count" to offer.count),
-    "duration" to durationLabelOf(offer.duration),
+    "duration" to durationLabelOf(offer.duration, townDurationCopy),
 )
 
 private fun PlayerCopy.hireBlockLineOf(block: TownUiState.HireBlock): MyGameLabel = when (block) {

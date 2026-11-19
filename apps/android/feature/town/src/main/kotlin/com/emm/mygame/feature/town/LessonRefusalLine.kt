@@ -2,6 +2,7 @@ package com.emm.mygame.feature.town
 
 import com.emm.mygame.core.network.TownLessonRefusal
 import com.emm.mygame.core.ui.CopyReader
+import com.emm.mygame.core.ui.finishLabelOf
 
 internal fun CopyReader.lessonRefusalLineOf(refusal: TownLessonRefusal, capWait: TownStatusUiState.CapWait?): String =
     when (refusal) {
@@ -29,6 +30,6 @@ private fun CopyReader.capRefusalLineOf(
         R.string.town_refusal_learning_cap_next_word_due,
         "cardsInLearning" to refusal.inLearning.toString(),
         "learningCap" to refusal.cap.toString(),
-        "timeLeft" to finishLabelOf(capWait.remaining, capWait.dueAt),
+        "timeLeft" to finishLabelOf(capWait.remaining, capWait.dueAt, townDurationCopy),
     )
 }

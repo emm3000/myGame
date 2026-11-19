@@ -8,21 +8,9 @@ import com.emm.mygame.core.network.TownJobRefusal
 import com.emm.mygame.core.network.TownResourceKind
 import com.emm.mygame.core.network.TownSnapshot
 import com.emm.mygame.core.network.WasteSize
-import com.emm.mygame.core.projection.FinishClock
-import com.emm.mygame.core.projection.finishClockOf
 import com.emm.mygame.core.ui.CopyReader
+import com.emm.mygame.core.ui.DurationCopy
 import com.emm.mygame.core.ui.PlayerCopy
-import java.time.ZoneId
-import kotlin.math.ceil
-import kotlin.time.Duration
-import kotlin.time.Duration.Companion.hours
-import kotlin.time.Duration.Companion.seconds
-import kotlin.time.DurationUnit
-import kotlin.time.Instant
-
-private const val SECONDS_PER_MINUTE: Long = 60
-
-private const val SECONDS_PER_HOUR: Long = 3600
 
 internal fun terrainNameOf(terrain: Terrain): Int = when (terrain) {
     Terrain.Fields -> R.string.map_terrain_fields
@@ -112,39 +100,12 @@ private fun CopyReader.notEnoughHiresLineOf(hire: TownHireKind, count: Int, atHo
     "atHome" to atHome.toString(),
 )
 
-private fun wholeSecondsOf(duration: Duration): Long = ceil(duration.toDouble(DurationUnit.SECONDS)).toLong()
-
-private fun CopyReader.durationLabelOf(duration: Duration): String {
-    val whole: Long = wholeSecondsOf(duration)
-    val hours: Long = whole / SECONDS_PER_HOUR
-    val minutes: Long = whole % SECONDS_PER_HOUR / SECONDS_PER_MINUTE
-    return when {
-        hours == 0L -> text(
-            R.string.map_duration_minutes_seconds,
-            "minutes" to minutes.toString(),
-            "seconds" to (whole % SECONDS_PER_MINUTE).toString().padStart(2, '0'),
-        )
-        minutes == 0L -> text(R.string.map_duration_hours, "hours" to hours.toString())
-        else -> text(
-            R.string.map_duration_hours_minutes,
-            "hours" to hours.toString(),
-            "minutes" to minutes.toString(),
-        )
-    }
-}
-
-private fun CopyReader.timeLeftLabelOf(remaining: Duration): String {
-    val whole: Long = wholeSecondsOf(remaining)
-    if (whole < SECONDS_PER_MINUTE || whole >= SECONDS_PER_HOUR) return durationLabelOf(whole.seconds)
-    return text(R.string.map_duration_minutes, "minutes" to (whole / SECONDS_PER_MINUTE).toString())
-}
-
-internal fun CopyReader.finishLabelOf(remaining: Duration, finishesAt: Instant): String {
-    val timeLeft: String = timeLeftLabelOf(remaining)
-    if (wholeSecondsOf(remaining).seconds <= 1.hours) return timeLeft
-    val finish: FinishClock = finishClockOf(finishesAt, remaining, ZoneId.systemDefault())
-    return text(R.string.map_finish_with_clock, "timeLeft" to timeLeft, "clock" to finishClockLabelOf(finish))
-}
-
-private fun CopyReader.finishClockLabelOf(finish: FinishClock): String =
-    clockLabelOf(finish, tomorrow = R.string.map_finish_tomorrow, later = R.string.map_finish_day)
+internal val mapDurationCopy: DurationCopy = DurationCopy(
+    minutesSeconds = R.string.map_duration_minutes_seconds,
+    hours = R.string.map_duration_hours,
+    hoursMinutes = R.string.map_duration_hours_minutes,
+    minutes = R.string.map_duration_minutes,
+    finishWithClock = R.string.map_finish_with_clock,
+    finishTomorrow = R.string.map_finish_tomorrow,
+    finishDay = R.string.map_finish_day,
+)

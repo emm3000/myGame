@@ -32,6 +32,7 @@ import com.emm.mygame.core.ui.PlayerCopy
 import com.emm.mygame.core.ui.ProvideCopyLanguage
 import com.emm.mygame.core.ui.ScaffoldLanguage
 import com.emm.mygame.core.ui.chromeResource
+import com.emm.mygame.core.ui.finishLabelOf
 import com.emm.mygame.core.ui.rememberPlayerCopy
 import kotlin.time.Duration.Companion.minutes
 import kotlin.time.Instant
@@ -73,7 +74,7 @@ private fun RunningLessonLine(running: TownStatusUiState.RunningLesson, modifier
     val copy: PlayerCopy = rememberPlayerCopy()
     MyGameCountdownLine(
         words = copy.readyWordsOf(running.name),
-        time = copy.chrome { finishLabelOf(running.remaining, running.finishesAt) },
+        time = copy.chrome { finishLabelOf(running.remaining, running.finishesAt, townDurationCopy) },
         ground = MyGameCountdownGround.Paper,
         modifier = modifier,
     )

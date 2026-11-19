@@ -21,12 +21,13 @@ import com.emm.mygame.core.designsystem.MyGameTheme
 import com.emm.mygame.core.designsystem.MyGameTypography
 import com.emm.mygame.core.network.LessonId
 import com.emm.mygame.core.network.SchoolPathCounts
+import com.emm.mygame.core.ui.CopyReader
+import com.emm.mygame.core.ui.PlayerCopy
 import com.emm.mygame.core.ui.SchoolPath
 import com.emm.mygame.core.ui.SchoolPathSteps
 import com.emm.mygame.core.ui.SeasonMark
-import com.emm.mygame.core.ui.CopyReader
-import com.emm.mygame.core.ui.PlayerCopy
 import com.emm.mygame.core.ui.chromeResource
+import com.emm.mygame.core.ui.durationLabelOf
 import com.emm.mygame.core.ui.rememberPlayerCopy
 
 internal const val LESSON_ROW: String = "lesson_row"
@@ -119,7 +120,11 @@ private fun ReleasedStudyAction(
     val reason: MyGameLabel? = block?.let { blocked: SchoolUiState.LessonBlock -> copy.blockLineOf(blocked) }
     val action: String = copy.fixedCopy(R.string.school_released_lesson_study)
     val studyLine: CopyReader.() -> String = {
-        text(R.string.school_study_with_duration, "action" to action, "duration" to durationLabelOf(card.duration))
+        text(
+            R.string.school_study_with_duration,
+            "action" to action,
+            "duration" to durationLabelOf(card.duration, schoolDurationCopy),
+        )
     }
     Column(verticalArrangement = Arrangement.spacedBy(MyGameSpacing.step2), modifier = modifier) {
         MyGameOutlinedButton(
