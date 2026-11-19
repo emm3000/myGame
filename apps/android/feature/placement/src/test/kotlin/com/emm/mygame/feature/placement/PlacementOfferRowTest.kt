@@ -4,7 +4,6 @@ import androidx.compose.ui.test.assertCountEquals
 import androidx.compose.ui.test.junit4.ComposeContentTestRule
 import androidx.compose.ui.test.junit4.createComposeRule
 import androidx.compose.ui.test.onAllNodesWithText
-import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
 import com.emm.mygame.core.designsystem.MyGameTheme
 import org.junit.Assert.assertEquals
@@ -37,19 +36,19 @@ class PlacementOfferRowTest {
     }
 
     @Test
-    fun `opens the offered placement`() {
+    fun `opens the offered placement from its nav row`() {
         showing(PlacementOfferUiState.Offered)
 
-        composeRule.onNodeWithText("Hacer la prueba de nivel").performClick()
+        composeRule.onNode(navRowOf("Hacer la prueba de nivel"), useUnmergedTree = true).performClick()
 
         assertEquals(1, placementOpens)
     }
 
     @Test
-    fun `offers to go on with a band being asked`() {
+    fun `offers to go on with a band being asked from its nav row`() {
         showing(PlacementOfferUiState.Asking)
 
-        composeRule.onNodeWithText("Seguir con la prueba de nivel").performClick()
+        composeRule.onNode(navRowOf("Seguir con la prueba de nivel"), useUnmergedTree = true).performClick()
 
         assertEquals(1, placementOpens)
     }

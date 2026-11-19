@@ -554,10 +554,10 @@ class TownScreenTest {
     }
 
     @Test
-    fun `opens the school from the school's page`() {
+    fun `opens the school from the school page's nav row`() {
         show(riverton)
 
-        composeRule.onNodeWithText("Ir a la escuela").performScrollTo().performClick()
+        composeRule.onNode(navRowOf("Ir a la escuela"), useUnmergedTree = true).performScrollTo().performClick()
 
         assertEquals(1, schoolOpens)
     }
@@ -580,11 +580,11 @@ class TownScreenTest {
     }
 
     @Test
-    fun `opens the map from the office's page`() {
+    fun `opens the map from the office page's nav row`() {
         show(riverton)
         tab("Oficina").performScrollTo().performClick()
 
-        composeRule.onNodeWithText("Ir al mapa").performScrollTo().performClick()
+        composeRule.onNode(navRowOf("Ir al mapa"), useUnmergedTree = true).performScrollTo().performClick()
 
         assertEquals(1, mapOpens)
     }
