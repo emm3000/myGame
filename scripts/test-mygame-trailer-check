@@ -1,0 +1,159 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+scripts_dir=$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd -P)
+
+temp_base=${TMPDIR:-/tmp}
+sandbox=$(mktemp -d "${temp_base%/}/trailer-check-test.XXXXXX") || { echo "refusing the sandbox: mktemp -d failed" >&2; exit 70; }
+[ -n "$sandbox" ] && [ -d "$sandbox" ] || { echo "refusing the sandbox: mktemp -d printed no directory" >&2; exit 70; }
+sandbox=$(cd "$sandbox" && pwd -P)
+case $sandbox in
+  "$(cd "$temp_base" && pwd -P)"/?*) ;;
+  *) echo "refusing the sandbox: $sandbox is not under $temp_base" >&2; exit 70 ;;
+esac
+trap 'rm -rf "$sandbox"' EXIT
+
+failures=0
+status=0
+out=""
+err=""
+blocked='Blocked: Co-Authored-By trailers are forbidden in this repo (CLAUDE.md)'
+
+mkdir -p "$sandbox/scripts"
+cp "$scripts_dir/mygame-trailer-check" "$sandbox/scripts/"
+
+hook_input() {
+  jq -n --arg command "$1" '{hook_event_name: "PreToolUse", tool_name: "Bash", tool_input: {command: $command}}'
+}
+
+run_the_check() {
+  local input=$1
+  shift
+  status=0
+  out=$(printf '%s' "$input" | (cd "$sandbox" && "$@") 2>"$sandbox/stderr") || status=$?
+  err=$(<"$sandbox/stderr")
+}
+
+hook() {
+  run_the_check "$(hook_input "$1")" scripts/mygame-trailer-check
+}
+
+hook_without_jq() {
+  local bin="$sandbox/bin-without-jq"
+  mkdir -p "$bin"
+  ln -sf "$(command -v bash)" "$bin/bash"
+  run_the_check "$(hook_input "$1")" env PATH="$bin" scripts/mygame-trailer-check
+}
+
+fail() {
+  printf 'FAIL %s: %s\n' "$1" "$2" >&2
+  return 1
+}
+
+expect_pass() {
+  [ "$status" -eq 0 ] && [ -z "$out" ] && [ -z "$err" ] || fail "$1" "exit $status, stdout '$out', stderr '$err'"
+}
+
+expect_blocked() {
+  [ "$status" -eq 2 ] && [ -z "$out" ] && [ "$err" = "$blocked" ] || fail "$1" "exit $status, stdout '$out', stderr '$err'"
+}
+
+expect_failed_closed() {
+  local test=$1 cause=$2 code=$3
+  [ "$status" -eq 2 ] && [ -z "$out" ] || fail "$test" "exit $status, stdout '$out', stderr '$err'" || return 1
+  [ "$(printf '%s\n' "$err" | tail -n 1)" = "Blocked: scripts/mygame-trailer-check failed with exit $code" ] || fail "$test" "stderr '$err'" || return 1
+  printf '%s\n' "$err" | rg -qF -- "$cause" || fail "$test" "the cause '$cause' is not on stderr: '$err'"
+}
+
+co_authored_commit='git commit -m "feat: x
+
+Co-Authored-By: Someone <someone@example.invalid>"'
+
+passes_git_status_without_jq() {
+  hook_without_jq "git status"
+  expect_pass "${FUNCNAME[0]}"
+}
+
+blocks_a_commit_carrying_the_trailer() {
+  hook "$co_authored_commit"
+  expect_blocked "${FUNCNAME[0]}"
+}
+
+blocks_a_trailer_in_any_case() {
+  hook "git commit -m 'feat: x
+
+co-authored-by: Someone <someone@example.invalid>'"
+  expect_blocked "${FUNCNAME[0]}"
+}
+
+blocks_a_commit_spelled_with_extra_spaces() {
+  hook "git  commit -m 'feat: x
+
+Co-Authored-By: Someone <someone@example.invalid>'"
+  expect_blocked "${FUNCNAME[0]}"
+}
+
+fails_closed_on_a_commit_carrying_the_trailer_without_jq() {
+  hook_without_jq "$co_authored_commit"
+  expect_failed_closed "${FUNCNAME[0]}" jq 127
+}
+
+fails_closed_on_input_that_is_not_json() {
+  run_the_check "not json: git commit Co-Authored-By" scripts/mygame-trailer-check
+  expect_failed_closed "${FUNCNAME[0]}" jq 5
+}
+
+passes_a_commit_without_the_trailer() {
+  hook 'git commit -m "feat: x"'
+  expect_pass "${FUNCNAME[0]}"
+}
+
+passes_a_commit_without_the_trailer_without_jq() {
+  hook_without_jq 'git commit -m "feat: x"'
+  expect_pass "${FUNCNAME[0]}"
+}
+
+passes_a_trailer_outside_a_git_commit() {
+  hook 'gh issue create --title t --body "a hook that blocks Co-Authored-By"'
+  expect_pass "${FUNCNAME[0]}"
+}
+
+passes_a_trailer_outside_a_git_commit_without_jq() {
+  hook_without_jq 'gh issue create --title t --body "a hook that blocks Co-Authored-By"'
+  expect_pass "${FUNCNAME[0]}"
+}
+
+passes_a_git_command_that_is_not_a_commit_searching_for_the_trailer() {
+  hook "git log --grep commit --grep Co-Authored-By"
+  expect_pass "${FUNCNAME[0]}"
+}
+
+settings_run_the_trailer_check_through_the_project_dir() {
+  local settings="$scripts_dir/../.claude/settings.json" entry
+  entry=$(jq -r '[.hooks.PreToolUse[] | select(.matcher == "Bash") | .hooks[].command | select(test("mygame-trailer-check"))] | .[0] // ""' "$settings")
+  [ "$entry" = "\"\$CLAUDE_PROJECT_DIR\"/scripts/mygame-trailer-check" ] || fail "${FUNCNAME[0]}" "entry '$entry'" || return 1
+  run_the_check "$(hook_input "$co_authored_commit")" env CLAUDE_PROJECT_DIR="$sandbox" bash -c "cd / && $entry"
+  expect_blocked "${FUNCNAME[0]}"
+}
+
+run() {
+  if "$1"; then
+    echo "ok   $1"
+  else
+    failures=$((failures + 1))
+  fi
+}
+
+run passes_git_status_without_jq
+run blocks_a_commit_carrying_the_trailer
+run blocks_a_trailer_in_any_case
+run blocks_a_commit_spelled_with_extra_spaces
+run fails_closed_on_a_commit_carrying_the_trailer_without_jq
+run fails_closed_on_input_that_is_not_json
+run passes_a_commit_without_the_trailer
+run passes_a_commit_without_the_trailer_without_jq
+run passes_a_trailer_outside_a_git_commit
+run passes_a_trailer_outside_a_git_commit_without_jq
+run passes_a_git_command_that_is_not_a_commit_searching_for_the_trailer
+run settings_run_the_trailer_check_through_the_project_dir
+[ "$failures" -eq 0 ]
