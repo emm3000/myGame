@@ -13,6 +13,7 @@ import androidx.compose.foundation.verticalScroll
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.semantics.heading
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.tooling.preview.PreviewParameter
@@ -51,6 +52,8 @@ import com.emm.mygame.core.ui.joinsFrameTraversal
 import com.emm.mygame.core.ui.rememberPlayerCopy
 import kotlin.time.Duration.Companion.minutes
 import kotlin.time.Duration.Companion.seconds
+
+internal const val LEARNING_CARD: String = "learning_card"
 
 @Composable
 fun SchoolScreen(
@@ -197,7 +200,7 @@ private fun SchoolTitle(modifier: Modifier = Modifier, level: Int? = null) {
 @Composable
 private fun LearningSection(learning: SchoolUiState.LearningLine, modifier: Modifier = Modifier) {
     val copy: PlayerCopy = rememberPlayerCopy()
-    MyGameCard(modifier = modifier) {
+    MyGameCard(modifier = modifier.testTag(LEARNING_CARD)) {
         Column(
             verticalArrangement = Arrangement.spacedBy(MyGameSpacing.step2),
             modifier = Modifier.padding(vertical = MyGameSpacing.step4),
