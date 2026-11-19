@@ -17,6 +17,7 @@ import androidx.compose.ui.test.onAllNodesWithTag
 import androidx.compose.ui.test.performClick
 import androidx.compose.ui.unit.DpRect
 import com.emm.mygame.core.designsystem.MyGameTheme
+import com.emm.mygame.core.designsystem.MyGameTransitions
 import com.emm.mygame.core.designsystem.SKELETON_BLOCK
 import com.emm.mygame.core.network.CaughtUpReason
 import com.emm.mygame.core.network.HoldoutCheckWeek
@@ -158,6 +159,7 @@ class TownDockTest {
     @Config(qualifiers = PHONE)
     fun `a loading dock draws a busy go button and no skeleton`() {
         show(TownStatusUiState.Dock.Loading)
+        composeRule.mainClock.advanceTimeBy(MyGameTransitions.REVEAL_MILLIS + REVEAL_MARGIN_MILLIS)
 
         composeRule
             .onNode(hasClickAction())
@@ -329,6 +331,7 @@ class TownDockTest {
         const val FULL_CAP: String = "Words in learning: 15 of 15"
         const val FARM_GOAL: String = "Goal 1 of 9: Farm, level 1"
         const val PHONE: String = "+w411dp-h891dp"
+        const val REVEAL_MARGIN_MILLIS: Long = 100L
         const val NEXT_REVIEW: String = "Next review"
         const val TOWN_UNREACHABLE: String =
             "No hemos podido hablar con el servidor. Vuelve a intentarlo en un momento."

@@ -71,6 +71,8 @@ private val speaksPolitely: SemanticsMatcher =
 
 private const val DP_TOLERANCE: Float = 0.5f
 
+private const val REVEAL_MARGIN_MILLIS: Long = 100L
+
 @RunWith(RobolectricTestRunner::class)
 @GraphicsMode(GraphicsMode.Mode.NATIVE)
 class MyGameDockTest {
@@ -203,6 +205,7 @@ class MyGameDockTest {
     @Test
     fun `a busy go button with no step draws no skeleton`() {
         show { MyGameDock(go = startTheReviews().copy(isBusy = true), step = null, onFoldChange = {}) }
+        composeRule.mainClock.advanceTimeBy(MyGameTransitions.REVEAL_MILLIS + REVEAL_MARGIN_MILLIS)
 
         composeRule
             .onNodeWithTag(INK_PILL)
