@@ -69,6 +69,7 @@
     <string name="school_slot_title">Studying</string>
     <string name="school_start_reviews">Start the reviews</string>
     <string name="school_study_with_duration">{action} · {duration}</string>
+    <string name="school_texts">Read</string>
     <string name="school_title">School</string>
     <string name="school_try_again">Try again</string>
     <string name="school_waiting">Waiting</string>

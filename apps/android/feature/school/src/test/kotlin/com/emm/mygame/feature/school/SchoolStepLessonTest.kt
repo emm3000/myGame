@@ -64,6 +64,7 @@ class SchoolStepLessonTest {
         skills = emptyList(),
         lessons = listOf(stepCard, otherCard),
         releasedLessons = emptyList(),
+        texts = emptyList(),
         studyMark = null,
         nextStep = studyFirst,
         start = SchoolUiState.LessonRequest.Idle,

@@ -311,7 +311,7 @@ class NavigatorTest {
     fun `opens the news above the Report`() {
         val backStack: MutableList<NavKey> = mutableListOf(Destination.Town, Destination.Report)
 
-        Navigator(backStack, NavigationLinks()).openNews()
+        Navigator(backStack, NavigationLinks()).openAbove(Destination.Report, Destination.News)
 
         assertEquals(listOf(Destination.Town, Destination.Report, Destination.News), backStack)
     }
@@ -338,7 +338,7 @@ class NavigatorTest {
     fun `opens the news from the Report only`() {
         val backStack: MutableList<NavKey> = mutableListOf(Destination.Town)
 
-        Navigator(backStack, NavigationLinks()).openNews()
+        Navigator(backStack, NavigationLinks()).openAbove(Destination.Report, Destination.News)
 
         assertEquals(listOf<NavKey>(Destination.Town), backStack)
     }
@@ -349,7 +349,7 @@ class NavigatorTest {
         val navigator: Navigator = Navigator(backStack, NavigationLinks())
         navigator.signingOut()
 
-        navigator.openNews()
+        navigator.openAbove(Destination.Report, Destination.News)
 
         assertEquals(listOf(Destination.Town, Destination.Report), backStack)
     }
@@ -358,7 +358,7 @@ class NavigatorTest {
     fun `opens the settings above the Report`() {
         val backStack: MutableList<NavKey> = mutableListOf(Destination.Town, Destination.Report)
 
-        Navigator(backStack, NavigationLinks()).openSettings()
+        Navigator(backStack, NavigationLinks()).openAbove(Destination.Report, Destination.Settings)
 
         assertEquals(listOf(Destination.Town, Destination.Report, Destination.Settings), backStack)
     }
@@ -385,7 +385,7 @@ class NavigatorTest {
     fun `opens the settings from the Report only`() {
         val backStack: MutableList<NavKey> = mutableListOf(Destination.Town)
 
-        Navigator(backStack, NavigationLinks()).openSettings()
+        Navigator(backStack, NavigationLinks()).openAbove(Destination.Report, Destination.Settings)
 
         assertEquals(listOf<NavKey>(Destination.Town), backStack)
     }
@@ -396,7 +396,7 @@ class NavigatorTest {
         val navigator: Navigator = Navigator(backStack, NavigationLinks())
         navigator.signingOut()
 
-        navigator.openSettings()
+        navigator.openAbove(Destination.Report, Destination.Settings)
 
         assertEquals(listOf(Destination.Town, Destination.Report), backStack)
     }

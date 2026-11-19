@@ -123,6 +123,7 @@ class StatusLifecycleNavigationTest {
             ),
         ),
         releasedLessons = emptyList(),
+        texts = emptyList(),
         dueHoldoutChecks = emptyList(),
         hasBandStarted = false,
         skills = emptyList(),

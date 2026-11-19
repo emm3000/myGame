@@ -30,6 +30,7 @@ internal fun TownSnapshot.contentAt(
         skills = skills.mapIndexed { index: Int, skill: TownSnapshot.EarnedSkill -> skill.lineAt(index, skills) },
         lessons = lessons.map { lesson: TownSnapshot.Lesson -> lesson.cardIn(this) },
         releasedLessons = releasedLessons.map { lesson: TownSnapshot.ReleasedLesson -> lesson.cardIn(this) },
+        texts = texts.map(::textCardOf),
         studyMark = seasonInForce?.studyMark(),
         nextStep = card,
         start = mutations.start,
@@ -38,6 +39,9 @@ internal fun TownSnapshot.contentAt(
         selected = selected,
     )
 }
+
+private fun textCardOf(text: TownSnapshot.OpenText): SchoolUiState.TextCard =
+    SchoolUiState.TextCard(text = text.id, title = text.title)
 
 private fun SeasonInForce.studyMark(): SchoolUiState.DurationMark? =
     SchoolUiState.DurationMark(kind, durationPercent.study).takeUnless { mark: SchoolUiState.DurationMark ->

@@ -15,6 +15,7 @@ import com.emm.mygame.core.network.generated.models.TownOverviewReleasedLessonsI
 import com.emm.mygame.core.network.generated.models.TownOverviewSeason
 import com.emm.mygame.core.network.generated.models.TownOverviewSkillsInner
 import com.emm.mygame.core.network.generated.models.TownOverviewStocksMoney
+import com.emm.mygame.core.network.generated.models.TownOverviewTextsInner
 import com.emm.mygame.core.network.generated.models.TownOverviewWork
 
 internal fun TownOverview.toSnapshot(): TownSnapshot? {
@@ -41,6 +42,7 @@ internal fun TownOverview.toSnapshot(): TownSnapshot? {
         work = townWork,
         lessons = school.shelved,
         releasedLessons = school.released,
+        texts = texts.map(TownOverviewTextsInner::toOpenText),
         dueHoldoutChecks = dueHoldoutChecks.mapNotNull(TownOverviewDueHoldoutChecksInner::toDueHoldoutCheck),
         hasBandStarted = hasBandStarted,
         skills = school.skills,
