@@ -219,6 +219,7 @@ private fun EntryProviderScope<NavKey>.townEntry(chrome: SignedInChrome) {
                 ring = { RetainedWordsRing(towns = dependencies.towns, doesScreenReadTown = true) },
                 status = chrome.banner,
                 foldedDock = frame.foldedDock,
+                reportRow = frame.reportRow,
                 placement = {
                     PlacementOfferRoute(
                         placements = dependencies.placements,
@@ -307,7 +308,6 @@ private fun EntryProviderScope<NavKey>.newsEntry(chrome: SignedInChrome) {
 
 private fun EntryProviderScope<NavKey>.settingsEntry(chrome: SignedInChrome) {
     val dependencies: AppDependencies = chrome.dependencies
-    val navigator: Navigator = chrome.navigator
     entry<Destination.Settings> {
         SignedInFrame(
             kind = FrameKind.Place,
@@ -323,7 +323,6 @@ private fun EntryProviderScope<NavKey>.settingsEntry(chrome: SignedInChrome) {
                 themes = dependencies.themes,
                 rememberNotificationAsk = { onAnswer: (Boolean) -> Unit -> rememberNotificationAsk(onAnswer) },
                 navigation = SettingsNavigation(
-                    onTownOpen = navigator::openTown,
                     onNotificationSettingsOpen = { context.openNotificationSettings() },
                 ),
                 foldedDock = frame.foldedDock,

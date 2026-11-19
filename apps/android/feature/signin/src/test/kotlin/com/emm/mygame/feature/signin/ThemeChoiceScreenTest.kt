@@ -89,7 +89,6 @@ class ThemeChoiceScreenTest {
                 SettingsScreen(
                     state = SettingsUiState.Loading,
                     onIntent = {},
-                    onTownOpen = {},
                     onNotificationSettingsOpen = {},
                     themeChoice = {
                         ThemeChoiceScreen(state = ThemeChoiceUiState(ThemePick.System), onIntent = {})

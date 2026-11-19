@@ -25,6 +25,7 @@ fun TownRoute(
     ring: @Composable () -> Unit = {},
     status: @Composable () -> Unit = {},
     foldedDock: @Composable () -> Unit = {},
+    reportRow: @Composable () -> Unit = {},
     placement: @Composable () -> Unit = {},
 ) {
     val state: TownUiState by viewModel.state.collectAsStateWithLifecycle()
@@ -52,6 +53,7 @@ fun TownRoute(
         ring = ring,
         status = status,
         foldedDock = foldedDock,
+        reportRow = reportRow,
         placement = placement,
     )
 }

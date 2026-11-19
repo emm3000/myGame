@@ -123,7 +123,7 @@ class PlayerLanguageNavigationTest {
 
         composeRule.onAllNodesWithText("Informe").assertCountEquals(1)
         composeRule.onAllNodesWithText("Report").assertCountEquals(0)
-        composeRule.onAllNodesWithText("Pueblo").assertCountEquals(1)
+        composeRule.onAllNodesWithText("PUEBLO").assertCountEquals(1)
     }
 
     @Test
@@ -152,7 +152,7 @@ class PlayerLanguageNavigationTest {
         latestRead.value = PlayerLanguage(PlayerScaffold.Spanish, PlayerChromePhase.English)
         composeRule.waitUntil(WAIT_MILLIS) { countOf("Informe") == 0 }
         composeRule.onAllNodesWithText("Report").assertCountEquals(1)
-        composeRule.onAllNodesWithText("Town").assertCountEquals(1)
+        composeRule.onAllNodesWithText("TOWN").assertCountEquals(1)
     }
 
     @Test

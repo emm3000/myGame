@@ -53,7 +53,6 @@ fun SettingsRoute(
     SettingsScreen(
         state = state,
         onIntent = viewModel::onIntent,
-        onTownOpen = navigation.onTownOpen,
         onNotificationSettingsOpen = navigation.onNotificationSettingsOpen,
         modifier = modifier,
         foldedDock = foldedDock,

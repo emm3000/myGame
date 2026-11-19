@@ -32,7 +32,6 @@ import com.emm.mygame.core.designsystem.MyGameSkeleton
 import com.emm.mygame.core.designsystem.MyGameSkeletonBlocks
 import com.emm.mygame.core.designsystem.MyGameSpacing
 import com.emm.mygame.core.designsystem.MyGameText
-import com.emm.mygame.core.designsystem.MyGameTextLink
 import com.emm.mygame.core.designsystem.MyGameTheme
 import com.emm.mygame.core.designsystem.MyGameTypography
 import com.emm.mygame.core.designsystem.PreviewMyGame
@@ -44,7 +43,6 @@ import java.time.LocalTime
 fun SettingsScreen(
     state: SettingsUiState,
     onIntent: (SettingsIntent) -> Unit,
-    onTownOpen: () -> Unit,
     onNotificationSettingsOpen: () -> Unit,
     modifier: Modifier = Modifier,
     foldedDock: @Composable () -> Unit = {},
@@ -81,7 +79,6 @@ fun SettingsScreen(
         ) {
             SettingsState(state = state, onIntent = onIntent, onNotificationSettingsOpen = onNotificationSettingsOpen)
         }
-        MyGameTextLink(label = stringResource(R.string.settings_back), onClick = onTownOpen)
     }
 }
 
@@ -206,6 +203,6 @@ private class SettingsUiStates : PreviewParameterProvider<SettingsUiState> {
 @Composable
 private fun SettingsScreenPreview(@PreviewParameter(SettingsUiStates::class) state: SettingsUiState) {
     MyGamePreviewSurface {
-        SettingsScreen(state = state, onIntent = {}, onTownOpen = {}, onNotificationSettingsOpen = {})
+        SettingsScreen(state = state, onIntent = {}, onNotificationSettingsOpen = {})
     }
 }

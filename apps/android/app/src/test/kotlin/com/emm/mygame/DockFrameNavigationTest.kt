@@ -10,6 +10,7 @@ import androidx.compose.ui.test.assertCountEquals
 import androidx.compose.ui.test.getBoundsInRoot
 import androidx.compose.ui.test.getUnclippedBoundsInRoot
 import androidx.compose.ui.test.hasAnyAncestor
+import androidx.compose.ui.test.hasClickAction
 import androidx.compose.ui.test.hasContentDescription
 import androidx.compose.ui.test.hasScrollAction
 import androidx.compose.ui.test.hasSetTextAction
@@ -35,7 +36,6 @@ import androidx.navigation3.runtime.rememberNavBackStack
 import androidx.test.ext.junit.rules.ActivityScenarioRule
 import com.emm.mygame.core.designsystem.INK_PILL
 import com.emm.mygame.core.designsystem.MyGameTheme
-import com.emm.mygame.core.designsystem.OUTLINED_PILL
 import com.emm.mygame.core.network.CaughtUpReason
 import com.emm.mygame.core.network.DueReview
 import com.emm.mygame.core.network.DueReviews
@@ -242,30 +242,76 @@ class DockFrameNavigationTest {
         return composeRule.onNode(goInTheDock(label))
     }
 
-    private fun dockNode(label: String): SemanticsNodeInteraction {
-        waitFor(inTheDock(label))
-        return composeRule.onNode(inTheDock(label))
+    private val townLink: SemanticsMatcher =
+        hasText(TOWN_LINK).and(hasClickAction()).and(!hasAnyAncestor(hasTestTag(TOWN_DOCK)))
+
+    private val reportRow: SemanticsMatcher =
+        hasText(REPORT_ROW).and(hasClickAction()).and(!hasAnyAncestor(hasTestTag(TOWN_DOCK)))
+
+    private fun headerLink(): SemanticsNodeInteraction {
+        waitFor(townLink)
+        return composeRule.onNode(townLink)
+    }
+
+    private fun assertHeaderLinkOpensTown(vararg place: NavKey) {
+        reportsFake.answerRead(ReportReadResult.Read(nothingDue))
+        showing(Destination.Town, *place)
+        headerLink()
+        composeRule.onAllNodes(hasText("Pueblo", ignoreCase = true).and(hasAnyAncestor(hasTestTag(TOWN_DOCK))))
+            .assertCountEquals(0)
+
+        headerLink().performClick()
+
+        waitFor(hasText(TOWN_HEADER))
+        assertEquals(listOf<NavKey>(Destination.Town), shownStack?.toList())
     }
 
     @Test
-    fun `the town home's door is the Report`() {
-        showing(Destination.Town)
+    fun `the town home's Report row opens the Report`() {
+        showing(Destination.Town, town = townOf(nextStep = releasedLesson))
         reportsFake.answerRead(ReportReadResult.Read(nothingDue))
+        waitFor(reportRow)
+        composeRule.onAllNodes(inTheDock(REPORT_ROW)).assertCountEquals(0)
 
-        dockNode("Informe").performClick()
+        composeRule.onNode(reportRow).performClick()
 
         waitFor(hasText("NOTICIAS DEL PUEBLO"))
     }
 
     @Test
-    fun `the school's door is the town and the header has no back link`() {
-        showing(Destination.Town, Destination.School)
-        waitFor(hasText("Escuela", substring = true))
+    fun `the school's header draws the link that opens the town`() {
+        assertHeaderLinkOpensTown(Destination.School)
+    }
 
-        composeRule.onAllNodesWithText("PUEBLO").assertCountEquals(0)
-        dockNode("Pueblo").performClick()
+    @Test
+    fun `the Report's header draws the link that opens the town`() {
+        assertHeaderLinkOpensTown(Destination.Report)
+    }
 
-        waitFor(hasText(TOWN_HEADER))
+    @Test
+    fun `the news' header draws the link that opens the town`() {
+        assertHeaderLinkOpensTown(Destination.Report, Destination.News)
+    }
+
+    @Test
+    fun `the settings' header draws the link that opens the town`() {
+        assertHeaderLinkOpensTown(Destination.Report, Destination.Settings)
+    }
+
+    @Test
+    fun `the map's header draws the link that opens the town`() {
+        assertHeaderLinkOpensTown(Destination.Map)
+    }
+
+    @Test
+    fun `the system back button still pops one entry from a place screen`() {
+        showing(Destination.Town, Destination.Report, Destination.News)
+        headerLink()
+
+        composeRule.runOnUiThread { composeRule.activity.onBackPressedDispatcher.onBackPressed() }
+        composeRule.waitForIdle()
+
+        assertEquals(listOf<NavKey>(Destination.Town, Destination.Report), shownStack?.toList())
     }
 
     @Test
@@ -428,37 +474,34 @@ class DockFrameNavigationTest {
     }
 
     @Test
-    fun `a loading dock waits and its door still opens the town`() {
+    fun `a loading dock waits and the header's link still opens the town`() {
         showing(Destination.Town, Destination.Report, townReads = 0)
         waitFor(hasTestTag(INK_PILL).and(hasStateDescription(WAITING)).and(hasAnyAncestor(hasTestTag(TOWN_DOCK))))
 
-        dockNode("Pueblo").performClick()
+        headerLink().performClick()
         repeat(READS_AVAILABLE) { townsFake.answerRead(TownReadResult.Read(townOf())) }
 
         waitFor(hasText(TOWN_HEADER))
     }
 
     @Test
-    @Config(qualifiers = "+w360dp-h640dp", fontScale = 2.0f)
-    @GraphicsMode(GraphicsMode.Mode.NATIVE)
-    fun `a folded refused dock puts its door at the top of the town home that could not be read`() {
+    fun `a refused dock leaves the Report row at the top of the town home that could not be read`() {
         repeat(TOWN_STATUS_AND_RING_READS) { townsFake.answerRead(TownReadResult.Unreachable) }
         showing(Destination.Town, townReads = 0)
         dockGo(TRY_AGAIN)
 
-        waitFor(hasText("Informe").and(hasAnyAncestor(hasScrollAction())))
+        waitFor(reportRow.and(hasAnyAncestor(hasScrollAction())))
     }
 
     @Test
     @Config(qualifiers = "+w891dp-h411dp-land")
-    fun `the dock keeps its buttons clear of a side navigation bar and a cutout`() {
+    fun `the dock keeps its go button clear of a side navigation bar and a cutout`() {
         showing(Destination.Town, Destination.School, town = townOf(nextStep = releasedLesson))
         composeRule.sideBars(navigationBar = SIDE_BAR, cutout = CUTOUT)
         val go: Rect = dockGo(STUDY_RELEASED).getBoundsInRoot()
-        val door: Rect = dockNode("Pueblo").getBoundsInRoot()
         val window: Dp = composeRule.onRoot().getBoundsInRoot().right
 
-        assertTrue(go.left >= SIDE_BAR.dp && door.right <= window - CUTOUT.dp)
+        assertTrue(go.left >= SIDE_BAR.dp && go.right <= window - CUTOUT.dp)
     }
 
     @Test
@@ -564,12 +607,12 @@ class DockFrameNavigationTest {
     }
 
     @Test
-    fun `a refused dock offers the retry and its door still opens the town`() {
+    fun `a refused dock offers the retry and the header's link still opens the town`() {
         repeat(STATUS_AND_RING_READS) { townsFake.answerRead(TownReadResult.Unreachable) }
         showing(Destination.Town, Destination.Report, townReads = 0)
         dockGo(TRY_AGAIN)
 
-        dockNode("Pueblo").performClick()
+        headerLink().performClick()
         repeat(READS_AVAILABLE) { townsFake.answerRead(TownReadResult.Read(townOf())) }
 
         waitFor(hasText(TOWN_HEADER))
@@ -602,15 +645,6 @@ class DockFrameNavigationTest {
         skippingThePlacement()
 
         composeRule.waitUntil(WAIT_MILLIS) { townsFake.sentAfterNowCount == 1 }
-    }
-
-    @Test
-    fun `after the placement the dock is the town's with no door`() {
-        skippingThePlacement()
-
-        waitFor(hasTestTag(INK_PILL).and(hasAnyAncestor(hasTestTag(TOWN_DOCK))))
-        composeRule.onAllNodes(hasTestTag(OUTLINED_PILL).and(hasAnyAncestor(hasTestTag(TOWN_DOCK))))
-            .assertCountEquals(0)
     }
 
     @Test
@@ -742,13 +776,13 @@ class DockFrameNavigationTest {
     @Test
     @Config(qualifiers = "+w360dp-h640dp", fontScale = 2.0f)
     @GraphicsMode(GraphicsMode.Mode.NATIVE)
-    fun `a folded dock puts its door at the top of the scrolling area`() {
+    fun `a folded dock moves no way to the town into the scrolling area`() {
         showing(Destination.Town, Destination.School, town = townOf(nextStep = releasedLesson))
         dockGo(STUDY_RELEASED)
+        waitFor(hasText(RELEASED_LINE).and(hasAnyAncestor(hasScrollAction())))
 
-        waitFor(hasText("Pueblo").and(hasAnyAncestor(hasScrollAction())))
-
-        composeRule.onAllNodes(inTheDock("Pueblo")).assertCountEquals(0)
+        composeRule.onAllNodes(hasText("Pueblo", ignoreCase = true).and(hasAnyAncestor(hasScrollAction())))
+            .assertCountEquals(0)
     }
 
     @Test
@@ -797,6 +831,8 @@ class DockFrameNavigationTest {
 
         const val READ_THE_WORDS: String = "Leer las palabras"
         const val TOWN_HEADER: String = "Riverton · Pueblo"
+        const val TOWN_LINK: String = "PUEBLO"
+        const val REPORT_ROW: String = "Informe"
 
         val verifiedSession: RestoreResult = RestoreResult.SignedIn(
             SignedInPlayer("player@example.com", isEmailVerified = true, scaffold = PlayerScaffold.Spanish),

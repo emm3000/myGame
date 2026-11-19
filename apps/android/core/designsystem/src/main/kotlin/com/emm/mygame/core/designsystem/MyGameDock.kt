@@ -52,7 +52,6 @@ fun MyGameDock(
     go: MyGameDockGo,
     onFoldChange: (Boolean) -> Unit,
     modifier: Modifier = Modifier,
-    door: MyGameDockDoor? = null,
     countdown: @Composable () -> Unit = {},
     notice: @Composable () -> Unit = {},
 ) {
@@ -68,7 +67,6 @@ fun MyGameDock(
                 Unfolded(
                     line = line,
                     go = go,
-                    door = door,
                     countdown = countdown,
                     notice = notice,
                     isMeasureCopy = true,
@@ -85,7 +83,6 @@ fun MyGameDock(
                     Unfolded(
                         line = line,
                         go = go,
-                        door = door,
                         countdown = countdown,
                         notice = notice,
                         isMeasureCopy = false,
@@ -115,7 +112,6 @@ private fun DockSheet(modifier: Modifier = Modifier, content: @Composable Column
 private fun Unfolded(
     line: MyGameDockLine,
     go: MyGameDockGo,
-    door: MyGameDockDoor?,
     countdown: @Composable () -> Unit,
     notice: @Composable () -> Unit,
     isMeasureCopy: Boolean,
@@ -124,10 +120,7 @@ private fun Unfolded(
         DockLineContent(line = line, loadingLabel = go.busyDescription, isMeasureCopy = isMeasureCopy)
         countdown()
         notice()
-        MyGameDockActions(
-            go = { DockGo(go = go, step = line.step) },
-            door = door?.let { shown: MyGameDockDoor -> { DockDoor(door = shown) } },
-        )
+        DockGo(go = go, step = line.step)
     }
 }
 
@@ -144,21 +137,6 @@ private fun DockGo(go: MyGameDockGo, step: MyGameLabel?, modifier: Modifier = Mo
         accessibleName = step?.let { shown: MyGameLabel -> nameOf(go = go.label, step = shown) },
     )
 }
-
-@Composable
-private fun DockDoor(door: MyGameDockDoor, modifier: Modifier = Modifier) {
-    MyGamePill(
-        look = dockDoorLook(MyGameTheme.colors),
-        label = door.label,
-        isBusy = false,
-        busyDescription = door.label.spoken,
-        onClick = door.onClick,
-        modifier = modifier,
-    )
-}
-
-internal fun dockDoorLook(colors: MyGameColors): MyGamePillLook =
-    outlinedPillLook(colors = colors, height = MyGameSizes.action).copy(sidePadding = MyGameSpacing.step3)
 
 private fun nameOf(go: MyGameLabel, step: MyGameLabel): String = "${go.spoken}, ${step.spoken}"
 
@@ -202,9 +180,6 @@ private val previewGo: MyGameDockGo = MyGameDockGo(
     badge = "4",
 )
 
-private val previewDoor: MyGameDockDoor =
-    MyGameDockDoor(label = MyGameLabel(text = "Town", translation = null), onClick = {})
-
 private val previewLandscapeHeight: Dp = 360.dp
 
 @PreviewMyGame
@@ -215,7 +190,6 @@ private fun MyGameDockPreview() {
             line = previewLine,
             go = previewGo,
             onFoldChange = {},
-            door = previewDoor,
             countdown = {
                 MyGameCountdownLine(words = "Next review:", time = "12:40", ground = MyGameCountdownGround.Paper)
             },
@@ -238,7 +212,6 @@ private fun MyGameDockFoldedPreview() {
                 line = previewLine,
                 go = previewGo.copy(label = MyGameLabel(text = "Study the returning words", translation = null)),
                 onFoldChange = {},
-                door = previewDoor,
             )
         }
     }
@@ -248,7 +221,7 @@ private fun MyGameDockFoldedPreview() {
 @Composable
 private fun MyGameDockLoadingPreview() {
     MyGamePreviewSurface {
-        MyGameDock(line = previewLine.copy(step = null), go = previewGo, onFoldChange = {}, door = previewDoor)
+        MyGameDock(line = previewLine.copy(step = null), go = previewGo, onFoldChange = {})
     }
 }
 
@@ -260,7 +233,6 @@ private fun MyGameDockBlockedPreview() {
             line = previewLine.copy(step = MyGameLabel(text = "No reviews due now.", translation = null)),
             go = previewGo.copy(blockedReason = "No reviews due now.", badge = null),
             onFoldChange = {},
-            door = previewDoor,
         )
     }
 }

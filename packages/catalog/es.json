@@ -292,7 +292,6 @@
   "android.signin.scaffold_es": "Español: una traducción junto a cada palabra nueva",
   "android.signin.scaffold_label": "Idioma de ayuda",
   "android.signin.scaffold_none": "Ninguno: todo en inglés, con definiciones en inglés",
-  "android.signin.settings_back": "Volver a tu pueblo",
   "android.signin.settings_cards_kept": "Tus palabras y tu progreso no cambian.",
   "android.signin.settings_failed": "No hemos podido cargar tus ajustes.",
   "android.signin.settings_reminder_denied": "Las notificaciones de Townword están desactivadas en los ajustes del teléfono.",

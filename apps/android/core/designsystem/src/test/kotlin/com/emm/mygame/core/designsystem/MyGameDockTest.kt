@@ -9,7 +9,6 @@ import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.semantics.traversalIndex
 import androidx.compose.ui.test.assertIsNotEnabled
 import androidx.compose.ui.test.hasContentDescription
-import androidx.compose.ui.test.performClick
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
@@ -18,6 +17,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.test.assertIsDisplayed
 import androidx.compose.ui.test.onNodeWithText
+import androidx.compose.ui.test.onRoot
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.geometry.Rect
@@ -49,8 +49,6 @@ private fun plain(text: String): MyGameLabel = MyGameLabel(text = text, translat
 private fun startTheReviews(onClick: () -> Unit = {}): MyGameDockGo =
     MyGameDockGo(label = plain("Start the reviews"), isBusy = false, busyDescription = "Waiting", onClick = onClick)
 
-private val town: MyGameDockDoor = MyGameDockDoor(label = plain("Town"), onClick = {})
-
 private fun studyTheReturningWords(): MyGameDockGo = MyGameDockGo(
     label = plain(STUDY_RETURNING),
     isBusy = false,
@@ -70,11 +68,6 @@ private val returningWordsInBoth: MyGameDockLine = MyGameDockLine(
     step = plain("Palabras que vuelven: banda 2, grupo 3"),
 )
 
-private val townInBoth: MyGameDockDoor =
-    MyGameDockDoor(label = MyGameLabel(text = "Town", translation = "Pueblo"), onClick = {})
-
-private val pueblo: MyGameDockDoor = MyGameDockDoor(label = plain("Pueblo"), onClick = {})
-
 private val tallNotice: Dp = 300.dp
 
 private val smallWindowHeight: Dp = 640.dp
@@ -84,8 +77,6 @@ private val isSilent: SemanticsMatcher = SemanticsMatcher.keyNotDefined(Semantic
 private const val SKELETON_SHOWN_MILLIS: Long = 500L
 
 private const val DP_TOLERANCE: Float = 0.5f
-
-private const val RATIO_TOLERANCE: Float = 0.05f
 
 @RunWith(RobolectricTestRunner::class)
 @GraphicsMode(GraphicsMode.Mode.NATIVE)
@@ -118,26 +109,14 @@ class MyGameDockTest {
 
     @Test
     @Config(qualifiers = "+w360dp-h640dp")
-    fun `the go button and the door share one row at three to one`() {
-        show { MyGameDock(line = dueReviews, go = startTheReviews(), onFoldChange = {}, door = town) }
+    fun `the go button takes the sheet's whole width and no door beside it`() {
+        show { MyGameDock(line = dueReviews, go = startTheReviews(), onFoldChange = {}) }
 
         val go: DpRect = composeRule.onNodeWithTag(INK_PILL).getBoundsInRoot()
-        val door: DpRect = composeRule.onNodeWithTag(OUTLINED_PILL).getBoundsInRoot()
+        val sheet: DpRect = composeRule.onRoot().getBoundsInRoot()
 
-        assertEquals("the door sits beside the go button", go.top.value, door.top.value, DP_TOLERANCE)
-        assertEquals(3f, go.width / door.width, RATIO_TOLERANCE)
-    }
-
-    @Test
-    @Config(qualifiers = "+w360dp-h640dp")
-    fun `the door drops under the go button when both labels do not fit`() {
-        show { MyGameDock(line = dueReviews, go = studyTheReturningWords(), onFoldChange = {}, door = town) }
-
-        val go: DpRect = composeRule.onNodeWithTag(INK_PILL).getBoundsInRoot()
-        val door: DpRect = composeRule.onNodeWithTag(OUTLINED_PILL).getBoundsInRoot()
-
-        assertTrue("the door is under the go button: $go $door", door.top >= go.bottom)
-        assertEquals("the go button takes the full width", go.width.value, door.width.value, DP_TOLERANCE)
+        assertEquals(sheet.width.value - MyGameSpacing.step5.value * 2, go.width.value, DP_TOLERANCE)
+        composeRule.onNodeWithTag(OUTLINED_PILL).assertDoesNotExist()
     }
 
     @Test
@@ -149,14 +128,12 @@ class MyGameDockTest {
                 line = dueReviews,
                 go = startTheReviews(),
                 onFoldChange = { isFolded: Boolean -> folds = folds + isFolded },
-                door = town,
                 notice = { Spacer(modifier = Modifier.height(tallNotice)) },
             )
         }
 
         composeRule.onNodeWithTag(INK_PILL).assertIsDisplayed()
         composeRule.onNodeWithText("Reviews due: 4").assertDoesNotExist()
-        composeRule.onNodeWithTag(OUTLINED_PILL).assertDoesNotExist()
         assertEquals(listOf(true), folds)
     }
 
@@ -170,7 +147,6 @@ class MyGameDockTest {
                     line = returningWords,
                     go = studyTheReturningWords(),
                     onFoldChange = { folded: Boolean -> isFolded = folded },
-                    door = pueblo,
                 )
             }
         }
@@ -192,7 +168,6 @@ class MyGameDockTest {
                 line = returningWordsInBoth,
                 go = studyTheReturningWords(),
                 onFoldChange = { folded: Boolean -> isFolded = folded },
-                door = townInBoth,
             )
         }
 
@@ -228,7 +203,7 @@ class MyGameDockTest {
     @Test
     @Config(qualifiers = "+w360dp-h640dp")
     fun `loading draws a skeleton line and a busy go button`() {
-        show { MyGameDock(line = dueReviews.copy(step = null), go = startTheReviews(), onFoldChange = {}, door = town) }
+        show { MyGameDock(line = dueReviews.copy(step = null), go = startTheReviews(), onFoldChange = {}) }
         composeRule.mainClock.advanceTimeBy(SKELETON_SHOWN_MILLIS)
 
         assertTrue("the line is a skeleton", placedNodesWithTag(SKELETON_BLOCK).isNotEmpty())
@@ -241,7 +216,7 @@ class MyGameDockTest {
     @Test
     @Config(qualifiers = "+w360dp-h640dp")
     fun `loading animates one skeleton, never one in the measured copy`() {
-        show { MyGameDock(line = dueReviews.copy(step = null), go = startTheReviews(), onFoldChange = {}, door = town) }
+        show { MyGameDock(line = dueReviews.copy(step = null), go = startTheReviews(), onFoldChange = {}) }
         composeRule.mainClock.advanceTimeBy(SKELETON_SHOWN_MILLIS)
 
         val skeletons: Int = composeRule
@@ -262,24 +237,6 @@ class MyGameDockTest {
         composeRule
             .onNodeWithText("Reviews due: 3")
             .assert(SemanticsMatcher.expectValue(SemanticsProperties.LiveRegion, LiveRegionMode.Polite))
-    }
-
-    @Test
-    @Config(qualifiers = "+w360dp-h640dp")
-    fun `the door still opens while the dock loads`() {
-        var doorTaps: Int = 0
-        show {
-            MyGameDock(
-                line = dueReviews.copy(step = null),
-                go = startTheReviews(),
-                onFoldChange = {},
-                door = MyGameDockDoor(label = plain("Town"), onClick = { doorTaps += 1 }),
-            )
-        }
-
-        composeRule.onNodeWithTag(OUTLINED_PILL).performClick()
-
-        assertEquals(1, doorTaps)
     }
 
     @Test

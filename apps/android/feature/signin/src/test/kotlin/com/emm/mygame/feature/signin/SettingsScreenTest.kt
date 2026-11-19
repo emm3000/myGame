@@ -50,15 +50,12 @@ class SettingsScreenTest {
 
     private val sentIntents: MutableList<SettingsIntent> = mutableListOf()
 
-    private var townOpens: Int = 0
-
     private fun draw(state: SettingsUiState) {
         composeRule.setContent {
             MyGameTheme {
                 SettingsScreen(
                     state = state,
                     onIntent = { sentIntents += it },
-                    onTownOpen = { townOpens += 1 },
                     onNotificationSettingsOpen = {},
                 )
             }
@@ -195,12 +192,10 @@ class SettingsScreenTest {
     }
 
     @Test
-    fun `goes back to the town from its link`() {
-        draw(SettingsUiState.Failed)
+    fun `draws no link back to the town`() {
+        draw(SettingsUiState.Loaded(PlayerScaffold.Spanish, SettingsUiState.Change.Untouched, firstReminder))
 
-        composeRule.onNodeWithText("Volver a tu pueblo").performClick()
-
-        assertEquals(1, townOpens)
+        composeRule.onAllNodesWithText("Volver a tu pueblo").assertCountEquals(0)
     }
 
     @Test
@@ -218,7 +213,6 @@ class SettingsScreenTest {
                 SettingsScreen(
                     state = shown.value,
                     onIntent = {},
-                    onTownOpen = {},
                     onNotificationSettingsOpen = {},
                     themeChoice = {
                         MyGameText(text = THEME_CHOICE, style = MyGameTypography.body, color = MyGameTheme.colors.ink)
@@ -241,7 +235,7 @@ class SettingsScreenTest {
     private fun ShortWindowScreen(state: SettingsUiState) {
         MyGameTheme {
             Box(modifier = Modifier.size(shortWindow)) {
-                SettingsScreen(state = state, onIntent = {}, onTownOpen = {}, onNotificationSettingsOpen = {})
+                SettingsScreen(state = state, onIntent = {}, onNotificationSettingsOpen = {})
             }
         }
     }
