@@ -8,6 +8,7 @@ import androidx.compose.ui.test.junit4.createComposeRule
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.onRoot
 import androidx.compose.ui.text.TextLayoutResult
+import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.DpRect
 import androidx.compose.ui.unit.dp
 import org.junit.Assert.assertEquals
@@ -46,6 +47,15 @@ class MyGameHeaderTest {
         val ring: DpRect = boundsOf(RING_NAME)
         assertEquals(0.dp, ring.left)
         assertTrue(ring.top >= boundsOf(BACK).bottom)
+    }
+
+    @Test
+    @Config(qualifiers = "w360dp-h640dp", fontScale = 2.0f)
+    fun `sets a dropped ring one step2 under the back link's row`() {
+        drawHeader(end = { Ring() })
+
+        val gap: Dp = boundsOf(RING_NAME).top - boundsOf(BACK).bottom
+        assertEquals(MyGameSpacing.step2.value, gap.value, HALF_PIXEL)
     }
 
     @Test
@@ -117,6 +127,7 @@ class MyGameHeaderTest {
 
     private companion object {
         const val BACK: String = "Pueblo"
+        const val HALF_PIXEL: Float = 0.5f
         const val RING_NAME: String = "12 de 80 palabras aprendidas"
         const val LONG_NAME: String = "Saint Bartholomew of the Seven Rivers and the Long Valley · Town"
     }

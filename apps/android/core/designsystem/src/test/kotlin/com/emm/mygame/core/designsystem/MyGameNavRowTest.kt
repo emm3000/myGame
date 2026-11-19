@@ -1,6 +1,20 @@
 package com.emm.mygame.core.designsystem
 
 import androidx.compose.foundation.background
+import androidx.compose.ui.unit.Dp
+import androidx.compose.ui.unit.Density
+import androidx.compose.ui.test.requestFocus
+import androidx.compose.ui.test.onRoot
+import androidx.compose.ui.semantics.SemanticsNode
+import androidx.compose.ui.platform.LocalInputModeManager
+import androidx.compose.ui.platform.LocalDensity
+import androidx.compose.ui.input.InputModeManager
+import androidx.compose.ui.input.InputMode
+import androidx.compose.ui.graphics.toPixelMap
+import androidx.compose.ui.ExperimentalComposeUiApi
+import androidx.compose.runtime.CompositionLocalProvider
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Box
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
@@ -42,6 +56,10 @@ class MyGameNavRowTest {
 
     private var taps: Int = 0
 
+    private var inputModes: InputModeManager? = null
+
+    private val ringRoom: Dp = MyGameSpacing.step4
+
     private fun show(content: @Composable () -> Unit) {
         composeRule.setContent {
             MyGameTheme {
@@ -74,6 +92,68 @@ class MyGameNavRowTest {
         row().assert(SemanticsMatcher.expectValue(SemanticsProperties.Role, Role.Button)).performClick()
 
         assertEquals(1, taps)
+    }
+
+    @OptIn(ExperimentalComposeUiApi::class)
+    @Test
+    fun `draws a ring in the focus color around a focused nav row`() {
+        show {
+            inputModes = LocalInputModeManager.current
+            Box(modifier = Modifier.padding(ringRoom)) {
+                MyGameNavRow(title = school, onClick = {})
+            }
+        }
+        composeRule.runOnIdle { inputModes?.requestInputMode(InputMode.Keyboard) }
+        row().requestFocus()
+
+        val image: ImageBitmap = composeRule.onRoot().captureToImage()
+        val ring: Int = with(composeRule.density) {
+            (ringRoom - MyGameSpacing.step1 - MyGameStrokeWidths.focus / 2).roundToPx()
+        }
+        val focus: String = Integer.toHexString(lightColors.focus.toArgb())
+
+        assertEquals("the start edge", focus, Integer.toHexString(image.toPixelMap()[ring, image.height / 2].toArgb()))
+        assertEquals("the top edge", focus, Integer.toHexString(image.toPixelMap()[image.width / 2, ring].toArgb()))
+    }
+
+    @Test
+    fun `draws no ring around a nav row at rest`() {
+        show {
+            Box(modifier = Modifier.padding(ringRoom)) {
+                MyGameNavRow(title = school, onClick = {})
+            }
+        }
+
+        val image: ImageBitmap = composeRule.onRoot().captureToImage()
+        val ring: Int = with(composeRule.density) {
+            (ringRoom - MyGameSpacing.step1 - MyGameStrokeWidths.focus / 2).roundToPx()
+        }
+        val ground: String = Integer.toHexString(lightColors.surface.toArgb())
+
+        assertEquals("the start edge", ground, Integer.toHexString(image.toPixelMap()[ring, image.height / 2].toArgb()))
+    }
+
+    @Test
+    fun `a nav row's chevron grows with the font scale`() {
+        show {
+            Column {
+                CompositionLocalProvider(LocalDensity provides Density(LocalDensity.current.density, fontScale = 1f)) {
+                    MyGameNavRow(title = school, onClick = {})
+                }
+                CompositionLocalProvider(LocalDensity provides Density(LocalDensity.current.density, fontScale = 2f)) {
+                    MyGameNavRow(title = school, onClick = {})
+                }
+            }
+        }
+
+        val chevrons: List<SemanticsNode> =
+            composeRule.onAllNodes(hasTestTag(NAV_ROW_CHEVRON), useUnmergedTree = true).fetchSemanticsNodes()
+                .sortedBy { node: SemanticsNode -> node.positionInRoot.y }
+
+        assertTrue(
+            "${chevrons[1].size} is larger than ${chevrons[0].size}",
+            chevrons[1].size.width > chevrons[0].size.width,
+        )
     }
 
     @Test
