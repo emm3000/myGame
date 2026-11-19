@@ -49,6 +49,8 @@ class TownStatusViewModel(private val towns: TownRepository, private val clock: 
 
     private var starting: Job? = null
 
+    private var schoolLesson: LessonId? = null
+
     init {
         viewModelScope.launch { towns.town.collect { next: HeldTown? -> hold(next?.town) } }
     }
@@ -64,10 +66,15 @@ class TownStatusViewModel(private val towns: TownRepository, private val clock: 
             TownStatusIntent.ScreenAnswered -> readAnew()
             TownStatusIntent.TryAgainTapped -> readTown(towns::read)
             is TownStatusIntent.ReleasedLessonTapped -> startReleased(intent.lesson)
+            is TownStatusIntent.SchoolLessonDrawn -> {
+                schoolLesson = intent.lesson
+                draw()
+            }
         }
     }
 
     private fun show(shown: TownStatusScreen) {
+        if (shown != screen) schoolLesson = null
         screen = shown
         isShown = true
         if (shown == TownStatusScreen.Outside) forget()
@@ -153,7 +160,7 @@ class TownStatusViewModel(private val towns: TownRepository, private val clock: 
         _state.value = when {
             screen == TownStatusScreen.Outside -> TownStatusUiState.none
             town == null -> TownStatusUiState(running = null, notice = null, dock = townRead.dock())
-            else -> town.statusAt(serverNow(), gap, finished, screen)
+            else -> town.statusAt(serverNow(), gap, finished, statedLesson = lessonOnTheSchool())
                 .copy(dock = town.dockOn(screen, serverNow(), gap, lessonStart))
         }
     }
@@ -168,6 +175,8 @@ class TownStatusViewModel(private val towns: TownRepository, private val clock: 
     }
 
     private fun serverNow(): Instant = clock.now() + gap
+
+    private fun lessonOnTheSchool(): LessonId? = schoolLesson.takeIf { screen == TownStatusScreen.School }
 }
 
 private fun TownStatusScreen.readsTown(): Boolean = when (this) {
@@ -183,17 +192,6 @@ private fun TownStatusScreen.isDoorTo(firstUnread: LessonId?): Boolean = when (t
     TownStatusScreen.School,
     TownStatusScreen.ReadsNoTown,
     TownStatusScreen.Report,
-    -> false
-}
-
-private fun TownStatusScreen.statesRunningLesson(): Boolean = when (this) {
-    TownStatusScreen.School -> true
-    TownStatusScreen.Outside,
-    TownStatusScreen.ReadsTown,
-    TownStatusScreen.ReadsNoTown,
-    TownStatusScreen.Report,
-    TownStatusScreen.Reviews,
-    is TownStatusScreen.LessonWords,
     -> false
 }
 
@@ -213,16 +211,17 @@ private fun TownSnapshot.statusAt(
     now: Instant,
     gap: Duration,
     finished: LessonId?,
-    screen: TownStatusScreen,
+    statedLesson: LessonId?,
 ): TownStatusUiState =
     TownStatusUiState(
-        running = lessonSlot?.takeUnless { screen.statesRunningLesson() }?.let { slot: TownSnapshot.LessonSlot ->
-            TownStatusUiState.RunningLesson(
-                name = nameOf(slot.lesson),
-                remaining = countdownTo(finishesAt = slot.finishesAt, now = now),
-                finishesAt = slot.finishesAt - gap,
-            )
-        },
+        running = lessonSlot?.takeUnless { slot: TownSnapshot.LessonSlot -> slot.lesson == statedLesson }
+            ?.let { slot: TownSnapshot.LessonSlot ->
+                TownStatusUiState.RunningLesson(
+                    name = nameOf(slot.lesson),
+                    remaining = countdownTo(finishesAt = slot.finishesAt, now = now),
+                    finishesAt = slot.finishesAt - gap,
+                )
+            },
         notice = finished?.let { lesson: LessonId ->
             TownStatusUiState.FinishNotice(nameOf(lesson), (nextStep as? NextStep.Reviews)?.readFirst?.firstOrNull())
         },

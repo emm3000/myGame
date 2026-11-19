@@ -62,11 +62,67 @@ class TownStatusOnTheSchoolTest {
         return viewModel.state.value.running?.finishesAt
     }
 
+    private fun TestScope.schoolDraws(viewModel: TownStatusViewModel, lesson: LessonId?) {
+        viewModel.onIntent(TownStatusIntent.SchoolLessonDrawn(lesson))
+        runCurrent()
+    }
+
     @Test
     fun `draws no running lesson on the school, whose Studying section states it`() = runTest {
         val viewModel: TownStatusViewModel = statusShownOn(TownStatusScreen.School)
 
+        schoolDraws(viewModel, runningLesson)
+
         assertNull(viewModel.state.value.running)
+    }
+
+    @Test
+    fun `keeps the running lesson's line on the school while the school has drawn no town`() = runTest {
+        val viewModel: TownStatusViewModel = statusShownOn(TownStatusScreen.School)
+
+        schoolDraws(viewModel, lesson = null)
+
+        assertEquals(finish, viewModel.state.value.running?.finishesAt)
+    }
+
+    @Test
+    fun `keeps the running lesson's line on the school while the school draws another lesson`() = runTest {
+        val viewModel: TownStatusViewModel = statusShownOn(TownStatusScreen.School)
+
+        schoolDraws(viewModel, LessonId("lesson-1"))
+
+        assertEquals(finish, viewModel.state.value.running?.finishesAt)
+    }
+
+    @Test
+    fun `keeps the running lesson's line off the school when the school reports drawing it`() = runTest {
+        val viewModel: TownStatusViewModel = statusShownOn(TownStatusScreen.ReadsTown)
+
+        schoolDraws(viewModel, runningLesson)
+
+        assertEquals(finish, viewModel.state.value.running?.finishesAt)
+    }
+
+    @Test
+    fun `draws the running lesson on returning to the school until the school draws it again`() = runTest {
+        val viewModel: TownStatusViewModel = statusShownOn(TownStatusScreen.School)
+        schoolDraws(viewModel, runningLesson)
+        finishDrawnOn(viewModel, TownStatusScreen.ReadsTown)
+
+        val drawn: Instant? = finishDrawnOn(viewModel, TownStatusScreen.School)
+
+        assertEquals(finish, drawn)
+    }
+
+    @Test
+    fun `keeps the running lesson hidden when the school is shown again without leaving it`() = runTest {
+        val viewModel: TownStatusViewModel = statusShownOn(TownStatusScreen.School)
+        schoolDraws(viewModel, runningLesson)
+        viewModel.onIntent(TownStatusIntent.ScreenHidden)
+
+        val drawn: Instant? = finishDrawnOn(viewModel, TownStatusScreen.School)
+
+        assertNull(drawn)
     }
 
     @Test
@@ -88,6 +144,7 @@ class TownStatusOnTheSchoolTest {
     @Test
     fun `draws the running lesson again on leaving the school`() = runTest {
         val viewModel: TownStatusViewModel = statusShownOn(TownStatusScreen.School)
+        schoolDraws(viewModel, runningLesson)
 
         val drawn: Instant? = finishDrawnOn(viewModel, TownStatusScreen.LessonWords(runningLesson))
 

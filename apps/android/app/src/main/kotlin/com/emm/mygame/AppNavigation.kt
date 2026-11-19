@@ -239,6 +239,8 @@ private fun EntryProviderScope<NavKey>.schoolEntry(chrome: SignedInChrome) {
         val school: SchoolViewModel = viewModel { SchoolViewModel(dependencies.towns, dependencies.clock) }
         val schoolState: State<SchoolUiState> = school.state.collectAsStateWithLifecycle()
         val heldTown: State<HeldTown?> = dependencies.towns.town.collectAsStateWithLifecycle()
+        val drawnLesson: LessonId? = schoolState.value.drawnLesson()
+        LaunchedEffect(drawnLesson) { chrome.onStatusIntent(TownStatusIntent.SchoolLessonDrawn(drawnLesson)) }
         SignedInFrame(
             kind = FrameKind.Place,
             doesScreenReadTown = true,
@@ -265,6 +267,9 @@ private fun EntryProviderScope<NavKey>.schoolEntry(chrome: SignedInChrome) {
         }
     }
 }
+
+private fun SchoolUiState.drawnLesson(): LessonId? =
+    ((this as? SchoolUiState.Content)?.slot as? SchoolUiState.SlotLine.Running)?.lesson
 
 private fun EntryProviderScope<NavKey>.reportEntry(chrome: SignedInChrome) {
     val dependencies: AppDependencies = chrome.dependencies
