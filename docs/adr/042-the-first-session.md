@@ -1,5 +1,5 @@
 ---
-status: proposed, the shell and the art of its screens drawn by ADR 043, the skill's worth and the running lesson's producer amended by ADR 045
+status: proposed, the shell and the art of its screens drawn by ADR 043, the skill's worth and the running lesson's producer amended by ADR 045, the learning cap's line in `caughtUp` by ADR 048
 date: 2026-11-05
 ---
 # The first session
@@ -28,7 +28,8 @@ What trunk holds, checked at `ceb2bd4c`:
 - **The stored card separates what the path needs.** An unreviewed card
   has `lastReviewAt` and `stability` null (`MemoryCard.entered`).
   `isWordRetained` needs a `retainedAt` and a stability of 7 or more.
-  `cardsInLearningOf` counts cards with no stability or one under 7.
+  `cardsInLearningOf` counts cards with no stability or one under 4
+  (amended by ADR 048).
 - **Food buys nothing.** All 70 levels of the seven buildings in
   `apps/api/content/town/` cost `food: 0`. A town starts with 300 food
   (`town.json`) and homes and the school at level 1. Food accrues at the
@@ -331,7 +332,7 @@ state that holds wins:
   from the refusal of the first lesson weighed that is neither studied
   nor placed out, released lessons first (#1253). At school
   level 1 the cap of 15 holds three lessons, until recalls lift words
-  past stability 7.
+  past stability 4. (Amended by ADR 048: the line was 7.)
 - **The next step wins over the goals.** The owner settled this on
   2026-11-05, so a town home never shows two *next* cards. Learning goals
   leave the content's list, since `lessonToStudy` already says *Study

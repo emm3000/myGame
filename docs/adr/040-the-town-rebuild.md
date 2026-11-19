@@ -1,5 +1,5 @@
 ---
-status: proposed, order amended by ADR 041, food, the lesson slot, the review door and the goals by ADR 042, the design, the navigation and the images by ADR 043
+status: proposed, order amended by ADR 041, food, the lesson slot, the review door and the goals by ADR 042, the design, the navigation and the images by ADR 043, the learning cap's line by ADR 048
 date: 2026-11-04
 ---
 # The town rebuild
@@ -238,6 +238,10 @@ What trunk holds, checked at `1f0b1c41`:
   The cap is derived from stored stabilities, so no read and no clock
   moves it. It bounds the review load a week later (`decisions.md`
   §1.5, §13). The cap at school level 1 holds at least two lessons.
+  (Amended by ADR 048: a card is in learning while its stability is
+  under 4 days. The cap bounds review load and the other readers ask
+  what a word has proved, so the kinship with the gloss's fade and a
+  skill's floor no longer sets the line; both keep 7 days.)
 - **Skills keep ADR 036's rule 7**: the player's, earned at a review,
   never taken back, multiplying one of the four rates, re-basing the
   town at the earn. Which resource each lesson raises and by how much is

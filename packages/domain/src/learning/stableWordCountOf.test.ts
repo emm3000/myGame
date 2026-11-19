@@ -29,15 +29,21 @@ describe('stableWordCountOf', () => {
     expect(stableWordCountOf([reviewedCardOf('work', 7)])).toBe(1)
   })
 
-  it('counts no card in learning as stable', () => {
+  it('counts the cards at stability 7 or more as stable', () => {
     const cards = [
       { wordId: 'home', card: MemoryCard.entered(enteredAt) },
-      reviewedCardOf('school', 6.99),
+      reviewedCardOf('school', 3.99),
+      reviewedCardOf('food', 6.99),
       reviewedCardOf('work', 7),
       reviewedCardOf('money', 30),
     ]
 
     expect(stableWordCountOf(cards)).toBe(2)
-    expect(stableWordCountOf(cards) + cardsInLearningOf(cards)).toBe(cards.length)
+  })
+
+  it('counts a card at 6.0539 as neither in learning nor stable', () => {
+    const cards = [reviewedCardOf('school', 6.0539)]
+
+    expect([cardsInLearningOf(cards), stableWordCountOf(cards)]).toEqual([0, 0])
   })
 })
