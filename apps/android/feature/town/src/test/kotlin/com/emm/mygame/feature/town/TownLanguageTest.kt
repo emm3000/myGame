@@ -155,7 +155,7 @@ class TownLanguageTest {
         composeRule.setContent {
             ProvideCopyLanguage(language = language) {
                 MyGameTheme {
-                    TownStatus(state = state, onNoticeClose = {}, onLessonOpen = {}, onReviewsOpen = {})
+                    TownStatus(state = state, dock = null, onNoticeClose = {}, onLessonOpen = {}, onReviewsOpen = {})
                 }
             }
         }
