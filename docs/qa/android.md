@@ -37,7 +37,7 @@ A `Verify` line names the catalog key it reads, with its full namespace (`androi
 - **The api** runs from the peer's worktree on the dispatch's `API_PORT`, over the peer's own Postgres and Mailpit containers, as `apps/api/CLAUDE.md` (*Local database*, *Local mail*) and `docs/agents/multi-session.md` (*Isolation*) describe. Never on Neon. On a fresh container, run `pnpm --filter @mygame/api db:migrate` before `pnpm --filter @mygame/api dev`.
 - **The app** is the debug APK pointed at that api: `taskpolicy -c utility ./gradlew assembleDebug -Pmygame.apiBaseUrl=http://10.0.2.2:<API_PORT>/` in `apps/android`, then `adb -s emulator-<port> install -r app/build/outputs/apk/debug/app-debug.apk`.
 - **The emulator** is the peer's own AVD, `mygame-<name>`, on API 36 (`apps/android/CLAUDE.md`, *Commands*). Every `adb` command carries `-s emulator-<port>`.
-- **Accounts.** Each case that changes state starts on a fresh account, `qa-<scaffold>-<case>@qa.test` with the password `qa-password-1`, signed up in the app. `<scaffold>` is `es` or `none`, as the case's Setup says.
+- **Accounts.** Each case that changes state starts on a fresh account, `qa-<scaffold>-<case>@qa.test` with the password `qa-password-1`, signed up in the app, or by the shortcut in **Shortcuts that keep the box** when the case only needs the account in its Setup. `<scaffold>` is `es` or `none`, as the case's Setup says.
 - **A bearer for the api**, when a Verify line reads the api: `curl -s -X POST http://localhost:<API_PORT>/auth/sign-in/native -H 'content-type: application/json' -d '{"email":"…","password":"qa-password-1"}' | jq -r .token`. That opens a second session and leaves the phone's alone.
 - **The database**: `docker exec -i mygame-<name>-pg psql -U postgres -d mygame_<name>`. Every SQL below runs there.
 
@@ -130,7 +130,7 @@ Edit the interval to suit the case. The season calendar is content (`town.json`'
 - **The journey rules** of the android-cli skill (`~/.claude/skills/android-cli/references/journeys.md`) apply to every case. Do each step exactly as written, and on its own. When the app disagrees with a `Verify` line, the app is wrong, and the case fails. Keep debugging to a minimum and report the failure. A crash, an exit or a freeze fails the case.
 - **A count is read from the layout text**, never from a screenshot, since Google lists counting as inconsistent for agents.
 - **The time box.** Smoke takes 50 minutes and full takes 90, the exploratory charter included. Smoke's own server waits (the farm, lesson 1 twice and homes 2) take about 16 minutes before any tapping, and run 1 took 32 minutes for the 7 cases, and the 15-minute charter comes on top (32 + 15 = 47); so the box holds them, rather than seeding them.
-- **Shortcuts that keep the box.** A Setup-only account (one the case does not sign up itself) may be made with `POST /auth/sign-up/native` and `POST /town`; a case whose steps sign up (SMK-01, REM-01) signs up in the app. SES-01 may use REM-09's sign-out, and LES-01 may run on SMK-03's lesson, the box staying 90 minutes.
+- **Shortcuts that keep the box.** A Setup-only account (one the case does not sign up itself) may be made with `POST /auth/sign-up/native` and `POST /town`; SMK-01, whose steps sign up, signs up in the app. SES-01 may use REM-09's sign-out, and LES-01 may run on SMK-03's lesson, the box staying 90 minutes.
 - **Every run ends with one 15-minute exploratory charter** on what changed since the last run, which `git log --oneline <last run's SHA>..HEAD -- apps/android apps/api packages` lists. Repeated cases stop finding bugs. Record the charter in one line, and file what it finds as for any fail.
 
 ## Recording a run
@@ -154,7 +154,7 @@ Screenshots: tag qa-run-<n>
 
 ### Screenshots
 
-A screenshot is kept only for a fail. Never push one to a branch: `scripts/mygame-orphans` reports every remote branch but `trunk`, a live peer's and the `assets/*` screenshot branches, which are a PR's evidence. A tag, `qa-run-<n>`, holding only that run's failed cases' images, avoids that, since neither script reads tags. Build it from the images in the scratchpad, against the peer's worktree, without touching a branch. The scratchpad is not a repository, so every command names the worktree:
+A screenshot is kept only for a fail. Never push one to a branch: `scripts/mygame-orphans` reports every remote branch but `trunk`, a live peer's and the `assets/*` screenshot branches, which are a PR's evidence. A tag, `qa-run-<n>`, holding only that run's failed cases' images, avoids that, since `scripts/mygame-orphans` and `scripts/mygame-wave-close` read only branches, never tags. Build it from the images in the scratchpad, against the peer's worktree, without touching a branch. The scratchpad is not a repository, so every command names the worktree:
 
 ```sh
 blob=$(git -C <worktree> hash-object -w "$PWD/<file>.png")
