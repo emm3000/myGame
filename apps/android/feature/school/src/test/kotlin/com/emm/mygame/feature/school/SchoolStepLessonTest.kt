@@ -30,7 +30,7 @@ class SchoolStepLessonTest {
 
     private val intents: MutableList<SchoolIntent> = mutableListOf()
 
-    private val firstCard: SchoolUiState.LessonCard = SchoolUiState.LessonCard(
+    private val stepCard: SchoolUiState.LessonCard = SchoolUiState.LessonCard(
         lesson = firstLesson,
         number = 1,
         theme = "A day in town",
@@ -42,8 +42,8 @@ class SchoolStepLessonTest {
         state = SchoolUiState.LessonState.Open(block = null),
     )
 
-    private val secondCard: SchoolUiState.LessonCard =
-        firstCard.copy(lesson = secondLesson, number = 2, theme = "Work and money")
+    private val otherCard: SchoolUiState.LessonCard =
+        stepCard.copy(lesson = secondLesson, number = 2, theme = "Work and money")
 
     private val studyFirst: NextStepCard = NextStepCard(
         line = NextStepCard.Line.Lesson(number = 1),
@@ -62,7 +62,7 @@ class SchoolStepLessonTest {
         ),
         slot = SchoolUiState.SlotLine.Idle,
         skills = emptyList(),
-        lessons = listOf(firstCard, secondCard),
+        lessons = listOf(stepCard, otherCard),
         releasedLessons = emptyList(),
         studyMark = null,
         nextStep = studyFirst,

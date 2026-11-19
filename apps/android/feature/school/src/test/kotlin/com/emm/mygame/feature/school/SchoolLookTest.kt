@@ -5,7 +5,6 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
-import androidx.compose.ui.semantics.SemanticsActions
 import androidx.compose.ui.test.SemanticsMatcher
 import androidx.compose.ui.test.assertCountEquals
 import androidx.compose.ui.test.assertIsDisplayed
@@ -25,7 +24,6 @@ import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
 import androidx.compose.ui.test.performScrollTo
-import androidx.compose.ui.text.TextLayoutResult
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.Dp
@@ -208,10 +206,10 @@ class SchoolLookTest {
     fun `sets the lesson in display and its theme in reading on the block's ink`() {
         val (ink: Color, muted: Color) = showReadingBlockInks(idleSchool.copy(lessons = listOf(openFirst)))
 
-        assertEquals(40.sp, textStyleOf("Lección 1").fontSize)
-        assertEquals(ink, textStyleOf("Lección 1").color)
-        assertEquals(20.sp, textStyleOf("A day in town").fontSize)
-        assertEquals(muted, textStyleOf("5 palabras · Habilidad: comida +5\u00A0%").color)
+        assertEquals(40.sp, textStyleOf(composeRule, "Lección 1").fontSize)
+        assertEquals(ink, textStyleOf(composeRule, "Lección 1").color)
+        assertEquals(20.sp, textStyleOf(composeRule, "A day in town").fontSize)
+        assertEquals(muted, textStyleOf(composeRule, "5 palabras · Habilidad: comida +5\u00A0%").color)
     }
 
     @Test
@@ -244,7 +242,7 @@ class SchoolLookTest {
             idleSchool.copy(slot = firstRunning, lessons = listOf(runningFirst, studiedSecond)),
         )
 
-        val mark: TextStyle = textStyleOf(hasText("En estudio") and inTheBlock)
+        val mark: TextStyle = textStyleOf(composeRule, hasText("En estudio") and inTheBlock)
         assertEquals(15.sp, mark.fontSize)
         assertEquals(FontWeight.Normal, mark.fontWeight)
         assertEquals(muted, mark.color)
@@ -446,14 +444,14 @@ class SchoolLookTest {
     fun `sets a running lesson's countdown in heading`() {
         show(secondWhileFirstRuns)
 
-        assertEquals(20.sp, textStyleOf("1 min").fontSize)
+        assertEquals(20.sp, textStyleOf(composeRule, "1 min").fontSize)
     }
 
     @Test
     fun `sets a running lesson's countdown in tabular figures`() {
         show(secondWhileFirstRuns)
 
-        assertEquals("tnum", textStyleOf("1 min").fontFeatureSettings)
+        assertEquals("tnum", textStyleOf(composeRule, "1 min").fontFeatureSettings)
     }
 
     @Test
@@ -486,14 +484,14 @@ class SchoolLookTest {
             }
         }
 
-        assertEquals(warningInk, textStyleOf("Necesita la escuela en nivel 2").color)
+        assertEquals(warningInk, textStyleOf(composeRule, "Necesita la escuela en nivel 2").color)
     }
 
     @Test
     fun `sets the school's name in display`() {
         show(idleSchool)
 
-        assertEquals(40.sp, textStyleOf("Escuela").fontSize)
+        assertEquals(40.sp, textStyleOf(composeRule, "Escuela").fontSize)
     }
 
     private fun showReadingBlockInks(state: SchoolUiState): Pair<Color, Color> {
@@ -510,15 +508,6 @@ class SchoolLookTest {
         }
         composeRule.waitForIdle()
         return inks
-    }
-
-    private fun textStyleOf(text: String): TextStyle = textStyleOf(hasText(text))
-
-    private fun textStyleOf(matcher: SemanticsMatcher): TextStyle {
-        val results: MutableList<TextLayoutResult> = mutableListOf()
-        composeRule.onNode(matcher, useUnmergedTree = true).fetchSemanticsNode()
-            .config[SemanticsActions.GetTextLayoutResult].action?.invoke(results)
-        return results.first().layoutInput.style
     }
 
     private fun topOf(text: String): Dp = composeRule.onNodeWithText(text).getUnclippedBoundsInRoot().top
