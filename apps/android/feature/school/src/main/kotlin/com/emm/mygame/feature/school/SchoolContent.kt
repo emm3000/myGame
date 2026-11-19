@@ -132,7 +132,7 @@ private fun TownSnapshot.blockOf(requiredSchoolLevel: Int, wordCount: Int): Scho
     return when {
         running != null -> SchoolUiState.LessonBlock.SlotBusy(nameOf(running.lesson))
         schoolLevel() < requiredSchoolLevel -> SchoolUiState.LessonBlock.SchoolTooLow(requiredSchoolLevel)
-        isPastCap(wordCount) -> SchoolUiState.LessonBlock.CapReached(wordCount)
+        isPastCap(wordCount) -> SchoolUiState.LessonBlock.CapReached
         else -> null
     }
 }

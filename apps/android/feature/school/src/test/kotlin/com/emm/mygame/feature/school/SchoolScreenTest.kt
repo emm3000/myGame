@@ -391,22 +391,15 @@ class SchoolScreenTest {
     }
 
     @Test
-    fun `names the words a lesson past the cap needs`() {
-        show(blocked(SchoolUiState.LessonBlock.CapReached(wordCount = 5)))
+    fun `names full learning as the block of a lesson past the cap`() {
+        show(blocked(SchoolUiState.LessonBlock.CapReached))
 
-        announcing("Esta lección trae 5 palabras.")
-    }
-
-    @Test
-    fun `names one word a lesson past the cap needs in the singular`() {
-        show(blocked(SchoolUiState.LessonBlock.CapReached(wordCount = 1)))
-
-        announcing("Esta lección trae 1 palabra.")
+        announcing("El aprendizaje está lleno.")
     }
 
     @Test
     fun `states the cap's figure once, in the learning card, with the cap full`() {
-        val capBlock = SchoolUiState.LessonState.Open(SchoolUiState.LessonBlock.CapReached(wordCount = 5))
+        val capBlock = SchoolUiState.LessonState.Open(SchoolUiState.LessonBlock.CapReached)
         show(
             idleSchool.copy(
                 learning = idleSchool.learning.copy(inLearning = 8),

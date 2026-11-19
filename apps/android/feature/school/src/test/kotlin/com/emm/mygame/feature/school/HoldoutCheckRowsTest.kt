@@ -104,8 +104,9 @@ class HoldoutCheckRowsTest {
         )
     }
 
-    private fun spokenNameOf(node: SemanticsNode): String =
-        node.config.getOrNull(SemanticsProperties.Text).orEmpty().joinToString(separator = " ", transform = AnnotatedString::text)
+    private fun spokenNameOf(node: SemanticsNode): String = node.config.getOrNull(SemanticsProperties.Text)
+        .orEmpty()
+        .joinToString(separator = " ") { line: AnnotatedString -> line.text }
 
     @Test
     fun `draws nothing without a due check`() {
