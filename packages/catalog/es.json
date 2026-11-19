@@ -375,6 +375,7 @@
   "android.town.town_next_go_to_report": "Ir al informe",
   "android.town.town_next_holdout_check": "Prueba de palabras de la banda {band}",
   "android.town.town_next_holdout_open": "Abrir la prueba",
+  "android.town.town_next_learning_cap": "Palabras en aprendizaje: {inLearning} de {cap}",
   "android.town.town_next_lesson_ready_in": "Lección {number} lista en",
   "android.town.town_next_lesson_title": "Lección {number}",
   "android.town.town_next_lesson_words": "{count, plural, =1 {1 palabra} other {{count, number,0} palabras}}",

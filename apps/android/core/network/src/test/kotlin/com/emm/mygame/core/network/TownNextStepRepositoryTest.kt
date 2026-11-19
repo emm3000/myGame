@@ -57,6 +57,26 @@ class TownNextStepRepositoryTest {
     }
 
     @Test
+    fun `reads why no lesson can start on a caught up step`() = runTest {
+        val wireReasons: Map<String, CaughtUpReason> = mapOf(
+            "learningCap" to CaughtUpReason.LearningCap,
+            "schoolTooLow" to CaughtUpReason.SchoolTooLow,
+            "lessonsDone" to CaughtUpReason.LessonsDone,
+        )
+        val repository: TownRepository = town()
+
+        val reasons: List<NextStep> = wireReasons.keys.map { reason: String ->
+            api.enqueue(json(200, townWithNextStep("""{"kind":"caughtUp","reason":"$reason","goal":null}""")))
+            (repository.read() as TownReadResult.Read).town.nextStep
+        }
+
+        val expected: List<NextStep> = wireReasons.values.map { reason: CaughtUpReason ->
+            NextStep.CaughtUp(reason, goal = null)
+        }
+        assertEquals(expected, reasons)
+    }
+
+    @Test
     fun `answers unreachable for a check step on a week the client does not know`() = runTest {
         api.enqueue(json(200, townWithNextStep("""{"kind":"holdoutCheck","band":1,"week":52}""")))
 

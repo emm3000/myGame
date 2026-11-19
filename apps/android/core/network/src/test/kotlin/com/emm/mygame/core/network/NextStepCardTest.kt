@@ -91,16 +91,42 @@ class NextStepCardTest {
     }
 
     @Test
+    fun `a full learning cap names the cap and the next review`() {
+        val fullCap: TownSnapshot = townOf(NextStep.CaughtUp(CaughtUpReason.LearningCap, goal = null)).copy(
+            learning = TownSnapshot.Learning(cap = 15, inLearning = 15, retainedWords = null),
+            nextDueAt = readAt + 40.minutes,
+        )
+
+        val card: NextStepCard = fullCap.nextStepCard()
+
+        val capLine: NextStepCard.Line = NextStepCard.Line.LearningCap(inLearning = 15, cap = 15)
+        assertEquals(capLine to NextStepCard.Countdown.NextReview(readAt + 40.minutes), card.line to card.countdown)
+    }
+
+    @Test
+    fun `a school too low or no lessons left keeps no reviews due`() {
+        val reasons: List<CaughtUpReason> = listOf(CaughtUpReason.SchoolTooLow, CaughtUpReason.LessonsDone)
+
+        val lines: List<NextStepCard.Line> = reasons.map { reason: CaughtUpReason ->
+            townOf(NextStep.CaughtUp(reason, goal = null)).nextStepCard().line
+        }
+
+        assertEquals(listOf(NextStepCard.Line.NoReviewsDue, NextStepCard.Line.NoReviewsDue), lines)
+    }
+
+    @Test
     fun `names a released lesson by its band and set`() {
         assertEquals(
             LessonName.Released(PlacementBand.Second, set = 3),
-            townOf(NextStep.CaughtUp(goal = null)).nameOf(releasedLesson),
+            townOf(NextStep.CaughtUp(CaughtUpReason.LessonsDone, goal = null)).nameOf(releasedLesson),
         )
     }
 
     @Test
     fun `names a shelved lesson by its place among the lessons`() {
-        assertEquals(LessonName.Shelved(number = 1), townOf(NextStep.CaughtUp(goal = null)).nameOf(shelvedLesson))
+        val caughtUp: NextStep = NextStep.CaughtUp(CaughtUpReason.LessonsDone, goal = null)
+
+        assertEquals(LessonName.Shelved(number = 1), townOf(caughtUp).nameOf(shelvedLesson))
     }
 
     private fun townOf(step: NextStep, running: LessonId? = null): TownSnapshot = TownSnapshot(

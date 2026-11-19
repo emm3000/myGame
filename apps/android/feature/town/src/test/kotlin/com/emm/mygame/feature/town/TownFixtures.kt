@@ -4,6 +4,7 @@ import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.semantics.SemanticsProperties
 import androidx.compose.ui.test.SemanticsMatcher
 import androidx.lifecycle.viewModelScope
+import com.emm.mygame.core.network.CaughtUpReason
 import com.emm.mygame.core.network.LessonId
 import com.emm.mygame.core.network.NextStep
 import com.emm.mygame.core.network.SeasonDurationPercent
@@ -77,6 +78,7 @@ internal fun lessonEndingAt(finishesAt: Instant): TownSnapshot.LessonSlot =
     TownSnapshot.LessonSlot(LessonId("lesson-1"), readInstant, finishesAt)
 
 internal fun openingOn(place: TownBuildingKind): NextStep = NextStep.CaughtUp(
+    reason = CaughtUpReason.LessonsDone,
     goal = TownGoal(position = 1, count = 9, building = place, level = 1, state = TownGoal.State.Underway),
 )
 
@@ -109,7 +111,7 @@ internal fun townOf(
     seasonInForce: SeasonInForce? = null,
     seasonEndsAt: Instant? = null,
     lessonSlot: TownSnapshot.LessonSlot? = null,
-    nextStep: NextStep = NextStep.CaughtUp(goal = null),
+    nextStep: NextStep = NextStep.CaughtUp(CaughtUpReason.LessonsDone, goal = null),
     nextDueAt: Instant? = null,
     readAt: Instant = readInstant,
     skills: List<TownSnapshot.EarnedSkill> = emptyList(),

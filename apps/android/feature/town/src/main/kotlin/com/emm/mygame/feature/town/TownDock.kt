@@ -223,6 +223,11 @@ private fun PlayerCopy.lineOf(line: NextStepCard.Line): MyGameLabel = when (line
     )
     is NextStepCard.Line.Lesson -> chrome(R.string.town_next_lesson_title, "number" to line.number.toString())
     NextStepCard.Line.NoReviewsDue -> chrome(R.string.town_next_no_reviews_due)
+    is NextStepCard.Line.LearningCap -> chrome(
+        R.string.town_next_learning_cap,
+        "inLearning" to line.inLearning.toString(),
+        "cap" to line.cap.toString(),
+    )
 }
 
 private fun fixedLabel(text: String): MyGameLabel = MyGameLabel(text = text, translation = null)

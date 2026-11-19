@@ -12,6 +12,7 @@ import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
 import androidx.compose.ui.test.performScrollTo
 import com.emm.mygame.core.designsystem.MyGameTheme
+import com.emm.mygame.core.network.CaughtUpReason
 import com.emm.mygame.core.network.LessonId
 import com.emm.mygame.core.network.NextStep
 import com.emm.mygame.core.network.TipKind
@@ -48,12 +49,14 @@ class TownGuidanceScreenTest {
 
     private val closedGoal: ClosedGuidance = ClosedGuidance(tips = emptySet(), isGoalClosed = true)
 
+    private fun lessonsDoneWith(goal: TownGoal): NextStep = NextStep.CaughtUp(CaughtUpReason.LessonsDone, goal)
+
     private fun pendingGoal(resources: List<TownSnapshot.Cost>, people: Int): TownGoal =
         factoryGoal.copy(state = TownGoal.State.Pending(resources = resources, people = people))
 
     @Test
     fun `shows no goal when none is left`() {
-        show(townOf(nextStep = NextStep.CaughtUp(goal = null)))
+        show(townOf(nextStep = NextStep.CaughtUp(CaughtUpReason.LessonsDone, goal = null)))
 
         composeRule.onAllNodesWithText("En construcción").assertCountEquals(0)
     }
@@ -91,7 +94,7 @@ class TownGuidanceScreenTest {
 
     @Test
     fun `shows a goal underway as in work`() {
-        show(townOf(nextStep = NextStep.CaughtUp(factoryGoal)))
+        show(townOf(nextStep = NextStep.CaughtUp(CaughtUpReason.LessonsDone, factoryGoal)))
 
         composeRule.onNodeWithText("En construcción").assertExists()
     }
@@ -102,28 +105,28 @@ class TownGuidanceScreenTest {
             TownSnapshot.Cost(TownResourceKind.Money, 40),
             TownSnapshot.Cost(TownResourceKind.Material, 15),
         )
-        show(townOf(nextStep = NextStep.CaughtUp(pendingGoal(missing, people = 0))))
+        show(townOf(nextStep = lessonsDoneWith(pendingGoal(missing, people = 0))))
 
         composeRule.onNodeWithText("Necesitas 40 de dinero y 15 de material más.").assertExists()
     }
 
     @Test
     fun `shows the free people a pending goal misses`() {
-        show(townOf(nextStep = NextStep.CaughtUp(pendingGoal(resources = emptyList(), people = 3))))
+        show(townOf(nextStep = lessonsDoneWith(pendingGoal(resources = emptyList(), people = 3))))
 
         composeRule.onNodeWithText("Gente libre necesaria: 3.").assertExists()
     }
 
     @Test
     fun `shows a pending goal with nothing missing as ready`() {
-        show(townOf(nextStep = NextStep.CaughtUp(pendingGoal(resources = emptyList(), people = 0))))
+        show(townOf(nextStep = lessonsDoneWith(pendingGoal(resources = emptyList(), people = 0))))
 
         composeRule.onNodeWithText("Tienes lo que hace falta.").assertExists()
     }
 
     @Test
     fun `closes the goal`() {
-        show(townOf(nextStep = NextStep.CaughtUp(factoryGoal)))
+        show(townOf(nextStep = NextStep.CaughtUp(CaughtUpReason.LessonsDone, factoryGoal)))
 
         composeRule.onNodeWithText("Cerrar la meta").performScrollTo().performClick()
 
@@ -132,7 +135,7 @@ class TownGuidanceScreenTest {
 
     @Test
     fun `offers no goal close with no goal`() {
-        show(townOf(nextStep = NextStep.CaughtUp(goal = null)))
+        show(townOf(nextStep = NextStep.CaughtUp(CaughtUpReason.LessonsDone, goal = null)))
 
         composeRule.onAllNodesWithText("Cerrar la meta").assertCountEquals(0)
     }

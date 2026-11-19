@@ -18,6 +18,7 @@ import androidx.lifecycle.Lifecycle
 import androidx.test.ext.junit.rules.ActivityScenarioRule
 import com.emm.mygame.core.designsystem.MyGameTheme
 import com.emm.mygame.core.designsystem.OUTLINED_PILL
+import com.emm.mygame.core.network.CaughtUpReason
 import com.emm.mygame.core.network.HoldoutCheckRepository
 import com.emm.mygame.core.network.LearningRepository
 import com.emm.mygame.core.network.NextStep
@@ -128,7 +129,7 @@ class VerificationBannerNavigationTest {
         lessonSlot = null,
         hiring = hiringOf(),
         job = null,
-        nextStep = NextStep.CaughtUp(goal = null),
+        nextStep = NextStep.CaughtUp(CaughtUpReason.LessonsDone, goal = null),
         tip = null,
         nextDueAt = null,
         readAt = Instant.parse("2026-11-05T10:00:00Z"),

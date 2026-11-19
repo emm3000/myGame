@@ -1,14 +1,17 @@
 package com.emm.mygame.feature.town
 
+import androidx.compose.runtime.Composable
 import androidx.compose.ui.semantics.SemanticsProperties
 import androidx.compose.ui.test.SemanticsMatcher
 import androidx.compose.ui.test.SemanticsNodeInteraction
 import androidx.compose.ui.test.assert
+import androidx.compose.ui.test.assertCountEquals
 import androidx.compose.ui.test.hasClickAction
 import androidx.compose.ui.test.hasContentDescription
 import androidx.compose.ui.test.hasText
 import androidx.compose.ui.test.junit4.ComposeContentTestRule
 import androidx.compose.ui.test.junit4.createComposeRule
+import androidx.compose.ui.test.onFirst
 import androidx.compose.ui.test.performClick
 import com.emm.mygame.core.designsystem.MyGameTheme
 import com.emm.mygame.core.network.HoldoutCheckWeek
@@ -16,6 +19,10 @@ import com.emm.mygame.core.network.LessonId
 import com.emm.mygame.core.network.NextStepCard
 import com.emm.mygame.core.network.PlacementBand
 import com.emm.mygame.core.network.TownLessonRefusal
+import com.emm.mygame.core.ui.ChromePhase
+import com.emm.mygame.core.ui.CopyLanguage
+import com.emm.mygame.core.ui.ProvideCopyLanguage
+import com.emm.mygame.core.ui.ScaffoldLanguage
 import kotlin.time.Duration.Companion.minutes
 import kotlin.time.Instant
 import org.junit.Assert.assertEquals
@@ -73,10 +80,47 @@ class TownDockTest {
     private fun go(label: String): SemanticsNodeInteraction =
         composeRule.onNode(hasContentDescription(label, substring = true).and(hasClickAction()))
 
+    private val fullCapStep: TownStatusUiState.Dock.Step = stepOf(
+        line = NextStepCard.Line.LearningCap(inLearning = 15, cap = 15),
+        go = TownStatusUiState.Go.Acts(NextStepCard.Action.GoToReport, isBusy = false),
+        countdown = TownStatusUiState.StepCountdown(
+            countdown = NextStepCard.Countdown.NextReview(reviewAt),
+            remaining = 12.minutes,
+            finishesAt = reviewAt,
+        ),
+    )
+
+    private fun showInEnglish(content: @Composable () -> Unit) {
+        composeRule.setContent {
+            ProvideCopyLanguage(language = CopyLanguage(ScaffoldLanguage.Spanish, ChromePhase.English)) {
+                MyGameTheme { content() }
+            }
+        }
+    }
+
+    private fun assertNamesTheFullCap() {
+        composeRule.onAllNodes(hasText(FULL_CAP), useUnmergedTree = true).onFirst().assertExists()
+        composeRule.onAllNodes(hasText(NO_REVIEWS_DUE, substring = true), useUnmergedTree = true).assertCountEquals(0)
+    }
+
     private val releasedStep: TownStatusUiState.Dock.Step = stepOf(
         line = NextStepCard.Line.ReleasedLesson(PlacementBand.Second, number = 1),
         go = TownStatusUiState.Go.Acts(NextStepCard.Action.StudyReleased(releasedLesson), isBusy = false),
     )
+
+    @Test
+    fun `names the full learning cap on the What is next card`() {
+        showInEnglish { TownDock(dock = fullCapStep, actions = recordingActions, onFoldChange = {}) }
+
+        assertNamesTheFullCap()
+    }
+
+    @Test
+    fun `names the full learning cap on the folded dock`() {
+        showInEnglish { TownDockTop(dock = fullCapStep) }
+
+        assertNamesTheFullCap()
+    }
 
     @Test
     fun `opens the due check by its band and week`() {
@@ -166,6 +210,8 @@ class TownDockTest {
 
     private companion object {
         const val WAITING: String = "Esperando"
+        const val FULL_CAP: String = "Words in learning: 15 of 15"
+        const val NO_REVIEWS_DUE: String = "No reviews due now."
         const val STUDY_SLOT_BUSY: String = "La escuela ya tiene un estudio en marcha. Espera a que termine."
     }
 }

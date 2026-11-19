@@ -17,6 +17,8 @@ data class NextStepCard(val line: Line, val detail: Detail?, val countdown: Coun
         data class Lesson(val number: Int) : Line
 
         data object NoReviewsDue : Line
+
+        data class LearningCap(val inLearning: Int, val cap: Int) : Line
     }
 
     sealed interface Detail {
@@ -77,11 +79,16 @@ fun TownSnapshot.nextStepCard(): NextStepCard = when (val step: NextStep = nextS
     )
     is NextStep.LessonToStudy -> lessonToStudyCard(step.lesson)
     is NextStep.CaughtUp -> NextStepCard(
-        line = NextStepCard.Line.NoReviewsDue,
+        line = caughtUpLineOf(step.reason),
         detail = null,
         countdown = nextReviewCountdown(),
         action = NextStepCard.Action.GoToReport,
     )
+}
+
+private fun TownSnapshot.caughtUpLineOf(reason: CaughtUpReason): NextStepCard.Line = when (reason) {
+    CaughtUpReason.LearningCap -> NextStepCard.Line.LearningCap(inLearning = learning.inLearning, cap = learning.cap)
+    CaughtUpReason.SchoolTooLow, CaughtUpReason.LessonsDone -> NextStepCard.Line.NoReviewsDue
 }
 
 private fun TownSnapshot.lessonToStudyCard(lesson: LessonId): NextStepCard {
