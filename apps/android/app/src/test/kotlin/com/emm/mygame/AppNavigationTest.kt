@@ -570,13 +570,13 @@ class AppNavigationTest {
     }
 
     @Test
-    fun `opens the reviews from the school past the learning cap`() {
+    fun `opens the reviews from the school's dock past the learning cap`() {
         signedInAtTown(town = townOf(inLearning = 8, nextStep = NextStep.Reviews(count = 3, readFirst = emptyList())))
         composeRule.onNodeWithText("Ir a la escuela").performScrollTo().performClick()
         waitForLine("La siguiente lección trae 5 palabras. Empieza los repasos.")
         learningFake.answerRead(noReviews)
 
-        composeRule.onNodeWithText("Empezar los repasos").performScrollTo().performClick()
+        dockGo("Empezar los repasos").performClick()
         waitForLine("Aún no tienes palabras que repasar.")
 
         assertEquals(1, learningFake.readCount)

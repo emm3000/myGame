@@ -231,7 +231,6 @@ class SchoolReleasedLessonsTest {
                 SchoolScreen(
                     state = state,
                     onIntent = { intent: SchoolIntent -> intents += intent },
-                    onReviewsOpen = {},
                     onLessonOpen = { lesson: LessonId -> lessonOpens += lesson },
                 )
             }

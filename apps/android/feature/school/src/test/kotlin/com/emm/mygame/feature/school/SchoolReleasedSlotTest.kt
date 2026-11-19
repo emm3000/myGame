@@ -124,7 +124,6 @@ class SchoolReleasedSlotTest {
                 SchoolScreen(
                     state = state,
                     onIntent = {},
-                    onReviewsOpen = {},
                     onLessonOpen = {},
                 )
             }

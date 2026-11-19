@@ -251,7 +251,6 @@ private fun EntryProviderScope<NavKey>.schoolEntry(chrome: SignedInChrome) {
                 towns = dependencies.towns,
                 clock = dependencies.clock,
                 onNoTown = navigator::openTown,
-                onReviewsOpen = navigator::openReviews,
                 onLessonOpen = { lesson: LessonId -> navigator.openLesson(lesson, walked = emptyList()) },
                 onLessonStart = frame.onAnswered,
                 viewModel = school,

@@ -108,6 +108,7 @@ import org.robolectric.RobolectricTestRunner
 import org.robolectric.annotation.Config
 import org.robolectric.annotation.GraphicsMode
 import kotlin.time.Clock
+import kotlin.time.Duration.Companion.hours
 import kotlin.time.Duration.Companion.minutes
 import kotlin.time.Instant
 
@@ -370,6 +371,30 @@ class DockFrameNavigationTest {
         dockGo(STUDY_SECOND).performClick()
 
         waitFor(hasText(STUDY_SLOT_BUSY))
+    }
+
+    private val fullCapTown: TownSnapshot =
+        townOf(nextStep = NextStep.CaughtUp(CaughtUpReason.LearningCap, goal = null)).copy(
+            learning = TownSnapshot.Learning(
+                cap = 10,
+                inLearning = 8,
+                retainedWords = null,
+                nextInLearningDueAt = readAt + 3.hours,
+            ),
+        )
+
+    private val drawnText: SemanticsMatcher = SemanticsMatcher.keyIsDefined(SemanticsProperties.Text)
+
+    @Test
+    fun `the school's dock draws neither the cap's line nor the time the next word is due`() {
+        showing(Destination.Town, Destination.School, town = fullCapTown)
+        waitFor(hasText(NEXT_WORD_DUE, substring = true).and(!hasAnyAncestor(hasTestTag(TOWN_DOCK))))
+        dockGo(REPORT_GO)
+
+        composeRule.onAllNodes(hasText(CAP_FIGURE, substring = true).and(hasAnyAncestor(hasTestTag(TOWN_DOCK))))
+            .assertCountEquals(0)
+        composeRule.onAllNodes(drawnText.and(hasAnyAncestor(hasTestTag(TOWN_DOCK))).and(!hasTestTag(INK_PILL)))
+            .assertCountEquals(0)
     }
 
     private fun assertOneGoButton() {
@@ -809,6 +834,8 @@ class DockFrameNavigationTest {
         const val NO_REVIEWS_DUE: String = "No tienes repasos pendientes ahora."
 
         const val READ_THE_WORDS: String = "Leer las palabras"
+        const val NEXT_WORD_DUE: String = "La siguiente palabra en aprendizaje se repasa en"
+        const val CAP_FIGURE: String = "8 de 10"
         const val TOWN_HEADER: String = "Riverton · Pueblo"
         const val TOWN_LINK: String = "Pueblo"
         const val REPORT_ROW: String = "Informe"

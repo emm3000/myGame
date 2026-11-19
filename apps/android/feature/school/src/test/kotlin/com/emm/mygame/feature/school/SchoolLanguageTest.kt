@@ -94,7 +94,6 @@ class SchoolLanguageTest {
                     SchoolScreen(
                         state = state,
                         onIntent = {},
-                        onReviewsOpen = {},
                         onLessonOpen = {},
                         holdoutChecks = { HoldoutCheckRows(state = dueCheck, onHoldoutCheckOpen = {}) },
                     )

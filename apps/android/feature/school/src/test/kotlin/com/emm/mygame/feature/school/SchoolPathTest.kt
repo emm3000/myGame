@@ -43,10 +43,6 @@ class SchoolPathTest {
     @get:Rule
     val composeRule: ComposeContentTestRule = createComposeRule()
 
-    private val lessonOpens: MutableList<LessonId> = mutableListOf()
-
-    private var reviewOpens: Int = 0
-
     private val dateWords: Regex = Regex(
         """(?<!\p{L})(hoy|ayer|mañana|d[ií]as?|semanas?|mes(es)?|racha|today|tomorrow|yesterday|days?|weeks?|""" +
             """months?|streak)(?!\p{L})|\d{1,2}[:/]\d{1,2}""",
@@ -63,8 +59,6 @@ class SchoolPathTest {
 
     private val unreadFirstLesson: NextStep.Reviews =
         NextStep.Reviews(count = 3, readFirst = listOf(firstLesson, secondLesson))
-
-    private val unreadSecondLesson: NextStep.Reviews = NextStep.Reviews(count = 3, readFirst = listOf(secondLesson))
 
     private fun pathOf(studied: Int, read: Int, reviewed: Int, learned: Int, total: Int): List<String> = listOf(
         "Estudiadas $studied de $total",
@@ -98,8 +92,7 @@ class SchoolPathTest {
                 SchoolScreen(
                     state = state,
                     onIntent = { },
-                    onReviewsOpen = { reviewOpens += 1 },
-                    onLessonOpen = { lesson: LessonId -> lessonOpens += lesson },
+                    onLessonOpen = {},
                 )
             }
         }
@@ -214,30 +207,19 @@ class SchoolPathTest {
     }
 
     @Test
-    fun `opens the unread lesson from the school's link`() {
+    fun `draws no way to an unread lesson's words while reviews are due`() {
         show(townOf(lessons = listOf(lessonOf(isStudied = true), secondLessonOpen), nextStep = unreadFirstLesson))
 
-        composeRule.onNodeWithText("Lección 1 · Leer las palabras").performScrollTo().performClick()
-
-        assertEquals(listOf(firstLesson), lessonOpens)
+        composeRule.onNodeWithText("Work and money").performScrollTo()
+        composeRule.onAllNodesWithText("Leer las palabras", substring = true).assertCountEquals(0)
     }
 
     @Test
-    fun `leaves the shown lesson unnamed on the school's link`() {
-        show(townOf(lessons = listOf(lessonOf(isStudied = true), secondLessonOpen), nextStep = unreadSecondLesson))
-
-        composeRule.onNodeWithText("Leer las palabras").performScrollTo().performClick()
-
-        assertEquals(listOf(secondLesson), lessonOpens)
-    }
-
-    @Test
-    fun `opens the reviews from the school's link with nothing unread`() {
+    fun `draws no way to the reviews while reviews are due`() {
         show(townOf(lessons = listOf(lessonOf(isStudied = true), secondLessonOpen), nextStep = reviewsDue))
 
-        composeRule.onNodeWithText("Empezar los repasos").performScrollTo().performClick()
-
-        assertEquals(1, reviewOpens)
+        composeRule.onNodeWithText("Work and money").performScrollTo()
+        composeRule.onAllNodesWithText("Empezar los repasos").assertCountEquals(0)
     }
 
     @Test
@@ -265,24 +247,5 @@ class SchoolPathTest {
         )
 
         composeRule.onAllNodesWithText("Leer las palabras", substring = true).assertCountEquals(1)
-    }
-
-    @Test
-    fun `shows one link to the reviews past the learning cap`() {
-        val pastTheCap: TownSnapshot.Learning = TownSnapshot.Learning(
-            cap = 10,
-            inLearning = 8,
-            retainedWords = null,
-            nextInLearningDueAt = null,
-        )
-        show(
-            townOf(
-                lessons = listOf(lessonOf(isStudied = true), secondLessonOpen),
-                learning = pastTheCap,
-                nextStep = reviewsDue,
-            ),
-        )
-
-        composeRule.onAllNodesWithText("Empezar los repasos").assertCountEquals(1)
     }
 }

@@ -56,7 +56,6 @@ import kotlin.time.Duration.Companion.seconds
 fun SchoolScreen(
     state: SchoolUiState,
     onIntent: (SchoolIntent) -> Unit,
-    onReviewsOpen: () -> Unit,
     onLessonOpen: (LessonId) -> Unit,
     modifier: Modifier = Modifier,
     holdoutChecks: @Composable () -> Unit = {},
@@ -91,7 +90,6 @@ fun SchoolScreen(
             SchoolState(
                 state = state,
                 onIntent = onIntent,
-                onReviewsOpen = onReviewsOpen,
                 onLessonOpen = onLessonOpen,
                 holdoutChecks = holdoutChecks,
             )
@@ -103,7 +101,6 @@ fun SchoolScreen(
 private fun SchoolState(
     state: SchoolUiState,
     onIntent: (SchoolIntent) -> Unit,
-    onReviewsOpen: () -> Unit,
     onLessonOpen: (LessonId) -> Unit,
     holdoutChecks: @Composable () -> Unit,
 ) {
@@ -120,7 +117,6 @@ private fun SchoolState(
         is SchoolUiState.Content -> SchoolContent(
             content = state,
             onIntent = onIntent,
-            onReviewsOpen = onReviewsOpen,
             onLessonOpen = onLessonOpen,
             holdoutChecks = holdoutChecks,
         )
@@ -141,7 +137,6 @@ private val schoolBlocks: MyGameSkeletonBlocks = MyGameSkeletonBlocks(
 private fun SchoolContent(
     content: SchoolUiState.Content,
     onIntent: (SchoolIntent) -> Unit,
-    onReviewsOpen: () -> Unit,
     onLessonOpen: (LessonId) -> Unit,
     holdoutChecks: @Composable () -> Unit,
     modifier: Modifier = Modifier,
@@ -154,14 +149,6 @@ private fun SchoolContent(
             ShownLesson(card = card, content = content, onIntent = onIntent, onLessonOpen = onLessonOpen)
         }
         LearningSection(learning = content.learning)
-        shown?.let { card: SchoolUiState.LessonCard ->
-            ReviewsLink(
-                content = content,
-                shown = card.lesson,
-                onReviewsOpen = onReviewsOpen,
-                onLessonOpen = onLessonOpen,
-            )
-        }
         LessonRows(content = content, onIntent = onIntent)
         if (content.isHoldoutNoteShown) HoldoutNote()
         LessonSlotSection(
@@ -458,7 +445,6 @@ private fun SchoolScreenPreview(@PreviewParameter(SchoolUiStates::class) state: 
         SchoolScreen(
             state = state,
             onIntent = {},
-            onReviewsOpen = {},
             onLessonOpen = {},
         )
     }
@@ -485,7 +471,6 @@ private fun SchoolScreenLanguagePreview(@PreviewParameter(SchoolLanguages::class
             SchoolScreen(
                 state = previewReleasedStudied,
                 onIntent = {},
-                onReviewsOpen = {},
                 onLessonOpen = {},
                 holdoutChecks = { HoldoutCheckRows(state = previewDueCheck, onHoldoutCheckOpen = {}) },
             )
@@ -501,7 +486,6 @@ private fun SchoolScreenStudyingBothPreview() {
             SchoolScreen(
                 state = previewStudying,
                 onIntent = {},
-                onReviewsOpen = {},
                 onLessonOpen = {},
             )
         }

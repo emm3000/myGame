@@ -19,7 +19,6 @@ fun SchoolRoute(
     towns: TownRepository,
     clock: Clock,
     onNoTown: () -> Unit,
-    onReviewsOpen: () -> Unit,
     onLessonOpen: (LessonId) -> Unit,
     onLessonStart: () -> Unit,
     modifier: Modifier = Modifier,
@@ -47,7 +46,6 @@ fun SchoolRoute(
     SchoolScreen(
         state = state,
         onIntent = viewModel::onIntent,
-        onReviewsOpen = onReviewsOpen,
         onLessonOpen = onLessonOpen,
         modifier = modifier,
         holdoutChecks = holdoutChecks,

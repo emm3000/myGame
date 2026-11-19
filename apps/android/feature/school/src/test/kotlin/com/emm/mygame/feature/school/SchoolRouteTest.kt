@@ -40,7 +40,6 @@ class SchoolRouteTest {
                         towns = towns,
                         clock = Clock.System,
                         onNoTown = { noTownCount += 1 },
-                        onReviewsOpen = {},
                         onLessonOpen = {},
                         onLessonStart = {},
                     )
