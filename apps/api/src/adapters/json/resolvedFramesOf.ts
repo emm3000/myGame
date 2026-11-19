@@ -1,10 +1,14 @@
-import { type FrameToken, headwordOf, lemmaWordsOf, type WordId } from '@mygame/domain'
+import type { TextsContent } from '@mygame/contracts'
+import { type FrameToken, headwordOf, lemmaWordsOf, type TextId, type WordId } from '@mygame/domain'
 import { readingOf } from '../../contentGate/readingOf'
 import { type ReadingTerms, readingTermsOf } from '../../contentGate/readingTermsOf'
 import type { LessonContentFiles, LexiconEntry } from './lessonContentFilesOf'
 
+type PassageTokens = ReadonlyMap<string, ReadonlyArray<FrameToken>>
+
 export type ResolvedFrames = {
-  readonly tokens: ReadonlyMap<WordId, ReadonlyMap<string, ReadonlyArray<FrameToken>>>
+  readonly tokens: ReadonlyMap<WordId, PassageTokens>
+  readonly textTokens: ReadonlyMap<TextId, PassageTokens>
   readonly answerForms: ReadonlyMap<WordId, ReadonlySet<string>>
 }
 
@@ -13,9 +17,10 @@ type FrameTerms = {
   readonly cardWords: ReadonlyMap<string, ReadonlyArray<WordId>>
 }
 
-type FrameText = {
-  readonly entry: LexiconEntry
+type Passage = {
   readonly text: string
+  readonly homographs: LexiconEntry['homographs']
+  readonly ownWords: ReadonlyArray<string>
   readonly noCardSense: ReadonlySet<string>
 }
 
@@ -32,26 +37,26 @@ const cardWordsOf = ({
 
 const cardWordOf = (
   token: string,
-  { entry, noCardSense }: FrameText,
+  { homographs, ownWords, noCardSense }: Passage,
   terms: FrameTerms,
 ): WordId | null => {
   if (noCardSense.has(token)) {
     return null
   }
-  const reading = readingOf(token, entry, terms.reading)
-  if (reading.kind !== 'word' || lemmaWordsOf(entry.lemma).includes(reading.word)) {
+  const reading = readingOf(token, { homographs }, terms.reading)
+  if (reading.kind !== 'word' || ownWords.includes(reading.word)) {
     return null
   }
   const [wordId, ...others] = terms.cardWords.get(reading.word) ?? []
   return wordId !== undefined && others.length === 0 ? wordId : null
 }
 
-const tokensOfText = (frame: FrameText, terms: FrameTerms): ReadonlyArray<FrameToken> => {
-  const { text } = frame
+const tokensOfPassage = (passage: Passage, terms: FrameTerms): ReadonlyArray<FrameToken> => {
+  const { text } = passage
   const tokens: Array<FrameToken> = []
   let at = 0
   for (const { 0: form, index } of text.matchAll(/[a-z]+/gi)) {
-    const wordId = cardWordOf(form.toLowerCase(), frame, terms)
+    const wordId = cardWordOf(form.toLowerCase(), passage, terms)
     if (wordId === null) {
       continue
     }
@@ -65,17 +70,30 @@ const tokensOfText = (frame: FrameText, terms: FrameTerms): ReadonlyArray<FrameT
   return at < text.length ? [...tokens, { text: text.slice(at), wordId: null }] : tokens
 }
 
-const framesOfEntry = (
-  entry: LexiconEntry,
-  terms: FrameTerms,
-): ReadonlyMap<string, ReadonlyArray<FrameToken>> =>
+const framesOfEntry = (entry: LexiconEntry, terms: FrameTerms): PassageTokens =>
   new Map(
     entry.frames.flatMap(({ frame, gappedFrame, noCardSense = [] }) =>
-      [frame, gappedFrame].map(
-        (text) =>
-          [text, tokensOfText({ entry, text, noCardSense: new Set(noCardSense) }, terms)] as const,
-      ),
+      [frame, gappedFrame].map((text) => {
+        const passage = {
+          text,
+          homographs: entry.homographs,
+          ownWords: lemmaWordsOf(entry.lemma),
+          noCardSense: new Set(noCardSense),
+        }
+        return [text, tokensOfPassage(passage, terms)] as const
+      }),
     ),
+  )
+
+const passagesOfText = (
+  { sentences, homographs, noCardSense = [] }: TextsContent[number],
+  terms: FrameTerms,
+): PassageTokens =>
+  new Map(
+    sentences.map((text) => {
+      const passage = { text, homographs, ownWords: [], noCardSense: new Set(noCardSense) }
+      return [text, tokensOfPassage(passage, terms)] as const
+    }),
   )
 
 const formsByHeadwordOf = (
@@ -106,6 +124,7 @@ export const resolvedFramesOf = (files: LessonContentFiles): ResolvedFrames => {
   const entries = files.lessons.flatMap(({ words }) => words)
   return {
     tokens: new Map(entries.map((entry) => [entry.id, framesOfEntry(entry, terms)])),
+    textTokens: new Map(files.texts.map((text) => [text.id, passagesOfText(text, terms)])),
     answerForms: new Map(
       entries.map((entry) => [entry.id, answerFormsOfEntry(entry, formsByHeadword)]),
     ),

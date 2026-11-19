@@ -17,6 +17,7 @@ import {
   type MemoryTerms,
   nextInLearningDueAtOf,
   ok,
+  openTextsOf,
   placedOutBandsOf,
   type ReleasedLesson,
   type Result,
@@ -29,7 +30,9 @@ import {
   studyPercentAt,
   supportLevelOf,
   supportTextOf,
+  type TextReading,
   type TownCatalog,
+  textReadingOf,
   wordStandingOf,
   wordsEnteringOf,
 } from '@mygame/domain'
@@ -41,6 +44,7 @@ type SchoolOverview = Pick<
   TownOverview,
   | 'lessons'
   | 'releasedLessons'
+  | 'texts'
   | 'hasBandStarted'
   | 'skills'
   | 'lessonSlot'
@@ -49,6 +53,8 @@ type SchoolOverview = Pick<
 >
 
 type LessonState = TownOverview['lessons'][number]
+
+type OpenTextState = TownOverview['texts'][number]
 
 type ReleasedLessonState = TownOverview['releasedLessons'][number]
 
@@ -161,6 +167,24 @@ const releasedLessonStateOf = (
   ...lessonWordsOf(lesson, learner, lessons),
 })
 
+const openTextStateOf = ({ id, title, sentences }: TextReading): OpenTextState => ({
+  id,
+  title,
+  sentences: sentences.map((spans) => [...spans]),
+})
+
+const openTextStatesOf = (learner: LearnerState, lessons: LessonLibrary): Array<OpenTextState> => {
+  const { cards, placedOutBands, scaffold } = learner
+  const opened = openTextsOf(lessons.texts(), {
+    curriculum: lessons.lessons(),
+    cards,
+    placedOutBands,
+    bands: lessons,
+  })
+  const reader = { cards, placedOutBands, scaffold, lessons }
+  return opened.map((text) => openTextStateOf(textReadingOf(text, reader, lessons)))
+}
+
 const lessonSlotOf = (slot: LessonSlot): TownOverview['lessonSlot'] =>
   slot.kind === 'idle'
     ? null
@@ -202,6 +226,7 @@ export const schoolOverviewOf = (
     releasedLessons: released.map((lesson) =>
       releasedLessonStateOf(lesson, learner, lessons, durationOf(lesson)),
     ),
+    texts: openTextStatesOf(learner, lessons),
     hasBandStarted: hasBandStartedAt(bandStarts, at),
     skills: town.skills.map(({ lessonId, resource, ratePercent, earnedAt }) => ({
       lessonId,

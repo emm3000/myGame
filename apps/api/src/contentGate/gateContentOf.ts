@@ -1,7 +1,6 @@
 import { readFileSync } from 'node:fs'
 import { join } from 'node:path'
 import { fileURLToPath } from 'node:url'
-import { TextsContentSchema } from '@mygame/contracts'
 import { type BuildingKind, buildingKinds, type TownCatalog } from '@mygame/domain'
 import { z } from 'zod'
 import { JsonTownCatalog } from '../adapters/json/JsonTownCatalog'
@@ -33,8 +32,5 @@ export const gateContentOf = (directory: string): GateContent => {
     wordNeed: town.townSettings().wordNeed,
     schoolLevels: levelsOf(town, 'school'),
     topBuildingLevel: topBuildingLevelOf(town),
-    texts: TextsContentSchema.parse(
-      JSON.parse(readFileSync(join(directory, 'lessons', 'texts.json'), 'utf8')),
-    ),
   }
 }

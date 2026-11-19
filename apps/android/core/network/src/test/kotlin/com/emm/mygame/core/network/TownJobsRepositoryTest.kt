@@ -307,7 +307,7 @@ class TownJobsRepositoryTest {
                 """"work":{"slot":null,"waitingList":[],"cap":2},""" +
                 """"hiring":{"order":null,"hires":{"worker":2,"truck":1},""" +
                 """"terms":{"worker":$TERMS,"truck":$TERMS}},"job":null,""" +
-                """"lessons":[],"releasedLessons":[],"dueHoldoutChecks":[],""" +
+                """"lessons":[],"releasedLessons":[],"texts":[],"dueHoldoutChecks":[],""" +
                 """"hasBandStarted":false,"skills":[],"lessonSlot":null,""" +
                 """"learning":{"cap":10,"inLearning":0,"retainedWords":null,"nextInLearningDueAt":null},""" +
                 """"stableWordCount":0,"retainedWordCount":0,""" +

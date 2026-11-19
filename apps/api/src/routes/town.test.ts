@@ -122,6 +122,8 @@ const withNoLessons = (lessons: LessonLibrary): LessonLibrary => ({
   chromeLessons: () => [],
   frameTokensOf: (wordId, frame) => lessons.frameTokensOf(wordId, frame),
   answerFormsOf: (wordId) => lessons.answerFormsOf(wordId),
+  texts: () => lessons.texts(),
+  textTokensOf: (textId, passage) => lessons.textTokensOf(textId, passage),
 })
 
 const signal = (): { readonly promise: Promise<void>; readonly resolve: () => void } => {
@@ -1836,6 +1838,85 @@ describe('the town route', () => {
           words: [shelved?.words.find(({ wordId }) => wordId === heldOut().id)],
         },
       ])
+    })
+  })
+
+  describe('the texts', () => {
+    const wordIdsUpTo = (lessonId: string): ReadonlyArray<string> => {
+      const curriculum = server.lessons.lessons()
+      const last = curriculum.findIndex(({ id }) => id === lessonId)
+      return curriculum.slice(0, last + 1).flatMap(({ words }) => words.map(({ id }) => id))
+    }
+
+    const holdCards = (wordIds: ReadonlyArray<string>, stability: number): Promise<void> =>
+      runSql(
+        `INSERT INTO cards (player_id, word_id, state, stability, difficulty, last_review_at, last_rating, entered_at) SELECT id, word_id, 'review', ${stability}, 5, '2026-11-01T08:00:00Z', 'good', '2026-11-01T07:00:00Z' FROM players, unnest(ARRAY[${wordIds.map((id) => `'${id}'`).join(', ')}]) word_id`,
+      )
+
+    const setStability = (wordId: string, stability: number): Promise<void> =>
+      runSql(`UPDATE cards SET stability = ${stability} WHERE word_id = '${wordId}'`)
+
+    const supportOf = (overview: TownOverview, word: string): unknown => {
+      const [text] = overview.texts
+      assert(text !== undefined)
+      return text.sentences.flat().find((span) => span.text === word)?.support
+    }
+
+    it('serves a text with each card word’s support', async () => {
+      const cookie = await signUpWithTown('ana@example.com')
+      await holdCards(wordIdsUpTo('lesson-31'), 3)
+      await setStability('word-38', 7)
+      await setStability('word-22', 30)
+
+      const overview = await overviewOf(await readTown(cookie))
+
+      expect(overview.texts.map(({ id, title }) => ({ id, title }))).toEqual([
+        { id: 'text-1', title: 'A New Course' },
+      ])
+      expect([
+        supportOf(overview, 'course'),
+        supportOf(overview, 'river'),
+        supportOf(overview, 'news'),
+      ]).toEqual([
+        { shown: 'beside', text: 'curso', language: 'es' },
+        { shown: 'onTap', text: 'río', language: 'es' },
+        {
+          shown: 'onTap',
+          text: 'new information about something that has just happened',
+          language: 'en',
+        },
+      ])
+    })
+
+    it('glosses a held-out word beside it', async () => {
+      const cookie = await signUpWithTown('ana@example.com')
+      await holdCards(
+        wordIdsUpTo('lesson-31').filter((id) => id !== 'word-149'),
+        60,
+      )
+      await runSql(
+        `INSERT INTO band_starts (player_id, band, started_at) SELECT id, 1, '2026-11-01T08:00:00Z' FROM players`,
+      )
+      await runSql(
+        `INSERT INTO held_out_words (player_id, band, headword) SELECT id, 1, 'course' FROM players`,
+      )
+
+      const overview = await overviewOf(await readTown(cookie))
+
+      expect(supportOf(overview, 'course')).toEqual({
+        shown: 'beside',
+        text: 'curso',
+        language: 'es',
+      })
+    })
+
+    it('serves no text before the stage reaches lesson 31', async () => {
+      const cookie = await signUpWithTown('ana@example.com')
+      await holdCards(wordIdsUpTo('lesson-30'), 3)
+
+      const overview = await overviewOf(await readTown(cookie))
+
+      expect(overview.texts).toEqual([])
     })
   })
 

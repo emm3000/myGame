@@ -244,3 +244,32 @@ describe('the frames the content resolves', () => {
     })
   })
 })
+
+describe('the texts the content resolves', () => {
+  it('resolves every shipped text’s sentences into tokens that join into them', () => {
+    const unjoined = shipped
+      .texts()
+      .flatMap(({ id, sentences }) => sentences.map((text) => ({ id, text })))
+      .filter(
+        ({ id, text }) =>
+          shipped
+            .textTokensOf(id, text)
+            ?.map((token) => token.text)
+            .join('') !== text,
+      )
+
+    expect(unjoined).toEqual([])
+  })
+
+  it('never resolves a token its text names in no card sense to a card word', () => {
+    const tokens = shipped.textTokensOf('text-1', 'Before I leave, I put my new words on a list.')
+
+    expect(tokens?.filter(({ wordId }) => wordId !== null).map(({ text }) => text)).toEqual([
+      'leave',
+      'put',
+      'new',
+      'words',
+      'list',
+    ])
+  })
+})

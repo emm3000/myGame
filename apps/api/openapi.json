@@ -2826,6 +2826,35 @@
               "additionalProperties": false
             }
           },
+          "texts": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "id": {
+                  "type": "string",
+                  "minLength": 1
+                },
+                "title": {
+                  "type": "string",
+                  "minLength": 1
+                },
+                "sentences": {
+                  "type": "array",
+                  "items": {
+                    "type": "array",
+                    "items": {
+                      "$ref": "#/components/schemas/FrameSpan"
+                    },
+                    "minItems": 1
+                  },
+                  "minItems": 1
+                }
+              },
+              "required": ["id", "title", "sentences"],
+              "additionalProperties": false
+            }
+          },
           "dueHoldoutChecks": {
             "type": "array",
             "items": {
@@ -2979,6 +3008,7 @@
           "job",
           "lessons",
           "releasedLessons",
+          "texts",
           "dueHoldoutChecks",
           "hasBandStarted",
           "skills",

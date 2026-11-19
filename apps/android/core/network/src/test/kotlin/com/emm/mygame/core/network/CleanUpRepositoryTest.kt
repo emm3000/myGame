@@ -186,7 +186,7 @@ class CleanUpRepositoryTest {
                 """"work":{"slot":null,"waitingList":[],"cap":2},""" +
                 """"hiring":{"order":null,"hires":{"worker":0,"truck":0},""" +
                 """"terms":{"worker":$TERMS,"truck":$TERMS}},"job":$CLEAN_UP,""" +
-                """"lessons":[],"releasedLessons":[],"dueHoldoutChecks":[],""" +
+                """"lessons":[],"releasedLessons":[],"texts":[],"dueHoldoutChecks":[],""" +
                 """"hasBandStarted":false,"skills":[],"lessonSlot":null,""" +
                 """"learning":{"cap":10,"inLearning":0,"retainedWords":null,"nextInLearningDueAt":null},""" +
                 """"stableWordCount":0,"retainedWordCount":0,""" +
