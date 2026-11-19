@@ -2,12 +2,13 @@ package com.emm.mygame.feature.review
 
 import androidx.compose.ui.test.assertCountEquals
 import androidx.compose.ui.test.getUnclippedBoundsInRoot
+import androidx.compose.ui.test.hasAnyAncestor
 import androidx.compose.ui.test.hasContentDescription
+import androidx.compose.ui.test.hasScrollAction
 import androidx.compose.ui.test.hasStateDescription
 import androidx.compose.ui.test.hasText
 import androidx.compose.ui.test.junit4.ComposeContentTestRule
 import androidx.compose.ui.test.junit4.createComposeRule
-import androidx.compose.ui.test.onFirst
 import androidx.compose.ui.unit.DpRect
 import com.emm.mygame.core.designsystem.MyGameTheme
 import com.emm.mygame.core.designsystem.MyGameTransitions
@@ -140,7 +141,7 @@ class ReviewLanguageTest {
     }
 
     private fun lineOf(text: String): DpRect =
-        composeRule.onAllNodes(hasText(text) and isPlaced, useUnmergedTree = true).onFirst()
+        composeRule.onNode(hasText(text) and isPlaced and hasAnyAncestor(hasScrollAction()), useUnmergedTree = true)
             .getUnclippedBoundsInRoot()
 
     @Test
