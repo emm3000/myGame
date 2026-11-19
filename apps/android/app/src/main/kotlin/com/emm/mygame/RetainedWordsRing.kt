@@ -28,11 +28,11 @@ internal fun RetainedWordsRing(
             count = ring.count,
             total = ring.total,
             countBefore = ring.countBefore,
-            accessibleName = chromeResource(
+            label = chromeResource(
                 R.string.shell_retained_words,
                 "count" to ring.count.toString(),
                 "total" to ring.total,
-            ).spoken,
+            ),
             modifier = modifier,
         )
     }

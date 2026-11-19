@@ -1,8 +1,11 @@
 package com.emm.mygame.core.designsystem
 
 import androidx.compose.foundation.Canvas
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.size
 import androidx.compose.runtime.Composable
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.Size
@@ -10,11 +13,8 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.graphics.lerp
 import androidx.compose.ui.semantics.LiveRegionMode
-import androidx.compose.ui.semantics.Role
-import androidx.compose.ui.semantics.clearAndSetSemantics
-import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.liveRegion
-import androidx.compose.ui.semantics.role
+import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.tooling.preview.PreviewParameter
 import androidx.compose.ui.tooling.preview.PreviewParameterProvider
 
@@ -44,22 +44,30 @@ internal fun ringMarksOf(count: Int, total: Int, countBefore: Int): List<RingMar
 }
 
 @Composable
-fun MyGameRing(count: Int, total: Int, countBefore: Int, accessibleName: String, modifier: Modifier = Modifier) {
+fun MyGameRing(count: Int, total: Int, countBefore: Int, label: MyGameLabel, modifier: Modifier = Modifier) {
     val isRising: Boolean = countBefore < count
     val fraction: Float =
         if (isRising) rememberRegisteredFraction(MyGameRegisteredRow.Ring, countBefore to count) else 1f
-    val retained: Color = MyGameTheme.colors.ink
-    val track: Color = MyGameTheme.colors.lineStrong
-    Canvas(
-        modifier = modifier.size(MyGameSpacing.step8).clearAndSetSemantics {
-            contentDescription = accessibleName
-            role = Role.Image
+    Row(
+        verticalAlignment = Alignment.CenterVertically,
+        horizontalArrangement = Arrangement.spacedBy(MyGameSpacing.step2),
+        modifier = modifier.semantics(mergeDescendants = true) {
             if (isRising) {
                 liveRegion = LiveRegionMode.Polite
                 registering = MyGameRegistering(MyGameRegisteredRow.Ring, fraction)
             }
         },
     ) {
+        RingDrawing(count = count, total = total, countBefore = countBefore, fraction = fraction)
+        MyGameText(label = label, style = MyGameTypography.caption, color = MyGameTheme.colors.inkMuted)
+    }
+}
+
+@Composable
+private fun RingDrawing(count: Int, total: Int, countBefore: Int, fraction: Float) {
+    val retained: Color = MyGameTheme.colors.ink
+    val track: Color = MyGameTheme.colors.lineStrong
+    Canvas(modifier = Modifier.size(MyGameSpacing.step8)) {
         val strokeWidth: Float = MyGameStrokeWidths.ring.toPx()
         ringMarksOf(count = count, total = total, countBefore = countBefore).forEach { mark: RingMark ->
             drawArc(
@@ -99,7 +107,7 @@ private fun MyGameRingPreview(@PreviewParameter(RingStates::class) state: RingSt
             count = state.count,
             total = state.total,
             countBefore = state.countBefore,
-            accessibleName = "${state.count} of ${state.total} words kept",
+            label = MyGameLabel(text = "${state.count} of ${state.total} words learned", translation = null),
         )
     }
 }

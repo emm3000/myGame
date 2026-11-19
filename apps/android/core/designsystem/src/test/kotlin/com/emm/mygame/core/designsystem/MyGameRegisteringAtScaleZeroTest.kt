@@ -38,7 +38,12 @@ class MyGameRegisteringAtScaleZeroTest {
                     art = MyGameArt(R.drawable.designsystem_place_homes_1, MyGameArtTint.None),
                     risenFrom = MyGameArt(R.drawable.designsystem_place_homes_0, MyGameArtTint.SurfaceSunken),
                 )
-                MyGameRing(count = 2, total = 5, countBefore = 1, accessibleName = "2 of 5 words learned")
+                MyGameRing(
+                    count = 2,
+                    total = 5,
+                    countBefore = 1,
+                    label = MyGameLabel(text = "2 of 5 words learned", translation = null),
+                )
                 MyGameBlockStack(nearHue = MyGameBlockHue.Mint, farHue = null, dealtKey = 1) { DealtCard() }
             }
         }

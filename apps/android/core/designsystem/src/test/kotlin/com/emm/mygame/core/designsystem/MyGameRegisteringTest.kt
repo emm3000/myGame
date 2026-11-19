@@ -11,7 +11,7 @@ import androidx.compose.ui.test.SemanticsMatcher
 import androidx.compose.ui.test.getUnclippedBoundsInRoot
 import androidx.compose.ui.test.junit4.ComposeContentTestRule
 import androidx.compose.ui.test.junit4.createComposeRule
-import androidx.compose.ui.test.onNodeWithContentDescription
+import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
@@ -60,28 +60,28 @@ class MyGameRegisteringTest {
 
     @Test
     fun `moves the ring when a word is retained`() {
-        drawInFlight { MyGameRing(count = 2, total = 5, countBefore = 1, accessibleName = RING_NAME) }
+        drawInFlight { MyGameRing(count = 2, total = 5, countBefore = 1, label = RING_LABEL) }
 
         assertInFlight(MyGameRegisteredRow.Ring)
     }
 
     @Test
     fun `plays nothing for a ring that did not rise`() {
-        drawInFlight { MyGameRing(count = 2, total = 5, countBefore = 2, accessibleName = RING_NAME) }
+        drawInFlight { MyGameRing(count = 2, total = 5, countBefore = 2, label = RING_LABEL) }
 
         assertPlaysNothing()
     }
 
     @Test
     fun `speaks the ring once it rises`() {
-        drawInFlight { MyGameRing(count = 2, total = 5, countBefore = 1, accessibleName = RING_NAME) }
+        drawInFlight { MyGameRing(count = 2, total = 5, countBefore = 1, label = RING_LABEL) }
 
         assertTrue(isLive(RING_NAME))
     }
 
     @Test
     fun `keeps a ring that did not rise silent`() {
-        drawInFlight { MyGameRing(count = 2, total = 5, countBefore = 2, accessibleName = RING_NAME) }
+        drawInFlight { MyGameRing(count = 2, total = 5, countBefore = 2, label = RING_LABEL) }
 
         assertFalse(isLive(RING_NAME))
     }
@@ -141,7 +141,7 @@ class MyGameRegisteringTest {
             .config[REGISTERING]
 
     private fun isLive(name: String): Boolean = SemanticsProperties.LiveRegion in
-        composeRule.onNodeWithContentDescription(name).fetchSemanticsNode().config
+        composeRule.onNodeWithText(name).fetchSemanticsNode().config
 
     private fun fillWidth(): Dp = composeRule.onNodeWithTag(TRACK_FILL, useUnmergedTree = true)
         .getUnclippedBoundsInRoot()
@@ -151,6 +151,7 @@ class MyGameRegisteringTest {
 
     private companion object {
         const val RING_NAME: String = "2 of 5 words learned"
+        val RING_LABEL: MyGameLabel = MyGameLabel(text = RING_NAME, translation = null)
         val TRACK_WIDTH: Dp = 200.dp
     }
 }

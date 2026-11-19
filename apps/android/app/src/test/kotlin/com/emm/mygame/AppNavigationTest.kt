@@ -5,7 +5,6 @@ import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.semantics.SemanticsProperties
 import androidx.compose.ui.test.SemanticsMatcher
 import androidx.compose.ui.test.SemanticsNodeInteraction
-import androidx.compose.ui.test.assert
 import androidx.compose.ui.test.assertCountEquals
 import androidx.compose.ui.test.assertIsDisplayed
 import androidx.compose.ui.test.hasAnyAncestor
@@ -17,9 +16,7 @@ import androidx.compose.ui.test.hasText
 import androidx.compose.ui.test.isHeading
 import androidx.compose.ui.test.junit4.AndroidComposeTestRule
 import androidx.compose.ui.test.junit4.createAndroidComposeRule
-import androidx.compose.ui.test.onAllNodesWithContentDescription
 import androidx.compose.ui.test.onAllNodesWithText
-import androidx.compose.ui.test.onNodeWithContentDescription
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
 import androidx.compose.ui.test.performScrollTo
@@ -361,11 +358,11 @@ class AppNavigationTest {
         composeRule.onAllNodes(hasTestTag(TOWN_STATUS)).assertCountEquals(0)
     }
 
-    private fun ring(name: String): SemanticsNodeInteraction = composeRule.onNodeWithContentDescription(name)
+    private fun ring(name: String): SemanticsNodeInteraction = composeRule.onNodeWithText(name)
 
     private fun waitForRing(name: String) {
         composeRule.waitUntil(WAIT_MILLIS) {
-            composeRule.onAllNodes(hasContentDescription(name)).fetchSemanticsNodes().isNotEmpty()
+            composeRule.onAllNodes(hasText(name)).fetchSemanticsNodes().isNotEmpty()
         }
     }
 
@@ -383,7 +380,7 @@ class AppNavigationTest {
     fun `hides the ring while the count is null`() {
         signedInAtTown(town = townOf(retainedWords = null))
 
-        composeRule.onAllNodesWithContentDescription(RING_WORDS, substring = true).assertCountEquals(0)
+        composeRule.onAllNodes(ringLine).assertCountEquals(0)
     }
 
     @Test
@@ -404,10 +401,10 @@ class AppNavigationTest {
     }
 
     @Test
-    fun `reads the count to TalkBack`() {
+    fun `reads the count to TalkBack once`() {
         signedInAtTown(town = townOf(retainedWords = threeOfFive))
 
-        ring(THREE_OF_FIVE).assert(SemanticsMatcher.expectValue(SemanticsProperties.Role, Role.Image))
+        composeRule.onAllNodesWithText(THREE_OF_FIVE).assertCountEquals(1)
     }
 
     @Test
@@ -880,7 +877,6 @@ class AppNavigationTest {
 
     private companion object {
         const val TOWN_HEADER: String = "Riverton · Pueblo"
-        const val RING_WORDS: String = "palabra"
         const val LESSON_ONE_READY: String = "Lección 1 lista en"
         const val LESSON_ONE_DONE: String = "La lección 1 terminó."
         const val THREE_OF_FIVE: String = "3 de 5 palabras aprendidas"
@@ -897,4 +893,12 @@ private class MovableClock : Clock {
     var passed: Duration = Duration.ZERO
 
     override fun now(): Instant = Clock.System.now() + passed
+}
+
+private val ringWording: Regex = Regex("\\d+ de \\d+ palabras? aprendidas?")
+
+private val ringLine: SemanticsMatcher = SemanticsMatcher("the ring's line") { node ->
+    node.config.getOrElseNullable(SemanticsProperties.Text) { null }
+        .orEmpty()
+        .any { line -> ringWording.matches(line.text) }
 }

@@ -552,10 +552,10 @@ class DockFrameNavigationTest {
         )
         dockGo(STUDY_RELEASED).performClick()
         waitFor(foldedRefusal)
-        waitFor(hasContentDescription(THREE_OF_FIVE))
+        waitFor(hasText(THREE_OF_FIVE))
         waitFor(hasText(title, ignoreCase = true).and(isHeading()))
 
-        val header: Int = composeRule.onNode(hasContentDescription(THREE_OF_FIVE)).fetchSemanticsNode().id
+        val header: Int = composeRule.onNode(hasText(THREE_OF_FIVE)).fetchSemanticsNode().id
         val refusal: Int = composeRule.onNode(foldedRefusal).fetchSemanticsNode().id
         val go: Int = dockGo(STUDY_RELEASED).fetchSemanticsNode().id
         val screen: Int = composeRule.onNode(hasText(title, ignoreCase = true).and(isHeading())).fetchSemanticsNode().id
@@ -698,9 +698,9 @@ class DockFrameNavigationTest {
     fun `the dock comes right after the header for TalkBack`() {
         showing(Destination.Town, Destination.School, town = townOf().copy(learning = learningWithRing))
         dockGo("Ir al informe")
-        waitFor(hasContentDescription(THREE_OF_FIVE))
+        waitFor(hasText(THREE_OF_FIVE))
 
-        val header: Int = composeRule.onNode(hasContentDescription(THREE_OF_FIVE)).fetchSemanticsNode().id
+        val header: Int = composeRule.onNode(hasText(THREE_OF_FIVE)).fetchSemanticsNode().id
         val go: Int = dockGo(REPORT_GO).fetchSemanticsNode().id
 
         val order: List<Int> = composeRule.traversalIds()
@@ -712,11 +712,11 @@ class DockFrameNavigationTest {
     fun `the town home's dock comes right after the home's header for TalkBack`() {
         showing(Destination.Town, town = townOf().copy(learning = learningWithRing))
         dockGo("Ir al informe")
-        waitFor(hasContentDescription(THREE_OF_FIVE))
+        waitFor(hasText(THREE_OF_FIVE))
 
         val header: List<Int> = listOf(TOWN_HEADER, "Edificio 1 de 2").map { line: String ->
             composeRule.onNode(hasText(line)).fetchSemanticsNode().id
-        } + composeRule.onNode(hasContentDescription(THREE_OF_FIVE)).fetchSemanticsNode().id
+        } + composeRule.onNode(hasText(THREE_OF_FIVE)).fetchSemanticsNode().id
         val go: Int = dockGo(REPORT_GO).fetchSemanticsNode().id
 
         val order: List<Int> = composeRule.traversalIds()
