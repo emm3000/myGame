@@ -46,6 +46,7 @@ internal fun TownSnapshot.contentAt(
             .map { place: TownSnapshot.Building -> place.cardWith(drawn, this, registered, now, gap) },
         nextStepPlace = nextStep.placeWith(goal),
         goal = goal,
+        caughtUpGoal = goal.takeIf { nextStep is NextStep.CaughtUp },
         tip = tip?.takeUnless { shown: TipKind -> shown in closed.tips },
         start = mutations.start,
         stop = mutations.stop,

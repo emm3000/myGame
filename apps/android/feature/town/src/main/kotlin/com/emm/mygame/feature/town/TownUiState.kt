@@ -45,6 +45,7 @@ sealed interface TownUiState {
         val places: List<PlaceCard>,
         val nextStepPlace: TownBuildingKind,
         val goal: TownGoal?,
+        val caughtUpGoal: TownGoal?,
         val tip: TipKind?,
         val start: StartStatus,
         val stop: StopStatus,

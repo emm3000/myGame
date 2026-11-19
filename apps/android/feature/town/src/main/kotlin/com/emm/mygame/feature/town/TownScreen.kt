@@ -195,6 +195,17 @@ private fun TownHome(
 private fun TownUiState.Content.openingPage(): Int =
     places.indexOfFirst { place: TownUiState.PlaceCard -> place.kind == nextStepPlace }.coerceAtLeast(0)
 
+private val previewGoal: TownGoal = TownGoal(
+    position = 2,
+    count = 9,
+    building = TownBuildingKind.Factory,
+    level = 1,
+    state = TownGoal.State.Pending(
+        resources = listOf(TownSnapshot.Cost(TownResourceKind.Money, 50)),
+        people = 0,
+    ),
+)
+
 private val previewHome: TownUiState.Content = TownUiState.Content(
     name = "Riverton",
     label = TownLabel.Town,
@@ -232,16 +243,8 @@ private val previewHome: TownUiState.Content = TownUiState.Content(
         )
     },
     nextStepPlace = TownBuildingKind.Factory,
-    goal = TownGoal(
-        position = 2,
-        count = 9,
-        building = TownBuildingKind.Factory,
-        level = 1,
-        state = TownGoal.State.Pending(
-            resources = listOf(TownSnapshot.Cost(TownResourceKind.Money, 50)),
-            people = 0,
-        ),
-    ),
+    goal = previewGoal,
+    caughtUpGoal = previewGoal,
     tip = TipKind.Seasons,
     start = TownUiState.StartStatus.Idle,
     stop = TownUiState.StopStatus.Idle,

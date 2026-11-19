@@ -77,6 +77,9 @@ private fun PageHeader(
         slots.status()
         foldedDock()
         content.season?.let { season: TownUiState.SeasonLine -> SeasonRow(season = season) }
+        content.caughtUpGoal?.takeIf { goal: TownGoal -> goal.building != place.kind }?.let { goal: TownGoal ->
+            GoalLine(goal = goal)
+        }
         if (place.isInWork) content.buildMark?.let { mark: TownUiState.DurationMark -> BuildMarkRow(mark = mark) }
     }
 }
@@ -132,6 +135,16 @@ private fun PlaceOwnParts(
         TownBuildingKind.Storage,
         -> Unit
     }
+}
+
+@Composable
+private fun GoalLine(goal: TownGoal, modifier: Modifier = Modifier) {
+    MyGameText(
+        label = rememberPlayerCopy().chrome { goalLineOf(goal) },
+        style = MyGameTypography.body,
+        color = MyGameTheme.colors.inkMuted,
+        modifier = modifier,
+    )
 }
 
 @Composable

@@ -90,6 +90,7 @@ class TownLookTest {
         places = listOf(farmOffer),
         nextStepPlace = TownBuildingKind.Farm,
         goal = null,
+        caughtUpGoal = null,
         tip = null,
         start = TownUiState.StartStatus.Idle,
         stop = TownUiState.StopStatus.Idle,
