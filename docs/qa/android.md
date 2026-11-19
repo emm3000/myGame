@@ -122,7 +122,7 @@ Edit the interval to suit the case. The season calendar is content (`town.json`'
 - Read the posted notification: `adb shell dumpsys notification --noredact | rg -A12 'pkg=com.emm.mygame'`.
 - Fire the alarm: set the clock to one or two minutes **before** it, `adb shell cmd alarm set-time <alarm epoch-ms minus 90000>`, then wait. Never set it past the alarm: that sends `TIME_SET`, and the app reschedules to the first chosen time after now, which is tomorrow, so no post can come that day (ADR 046, *When it fires*). Setting it before the alarm leaves the alarm where it was. The alarm is inexact (ADR 046): it fires within one hour of its time, the bound outside Doze and battery saver, and run 1 saw it fire at +1 minute. Wait up to that hour before marking the post missing in `dumpsys notification`.
 - Change the time zone: `adb shell cmd alarm set-timezone <zone>`.
-- Put the clock back when the case ends: `adb shell cmd alarm set-time $(($(date +%s) * 1000))`.
+- Put the clock back when a case that moved it ends: `adb shell cmd alarm set-time $(($(date +%s) * 1000))`. A reboot returns the emulator to host time, so a clock left moved into a reboot makes the next case measure a different instant.
 
 ## Run rules
 
@@ -130,6 +130,7 @@ Edit the interval to suit the case. The season calendar is content (`town.json`'
 - **The journey rules** of the android-cli skill (`~/.claude/skills/android-cli/references/journeys.md`) apply to every case. Do each step exactly as written, and on its own. When the app disagrees with a `Verify` line, the app is wrong, and the case fails. Keep debugging to a minimum and report the failure. A crash, an exit or a freeze fails the case.
 - **A count is read from the layout text**, never from a screenshot, since Google lists counting as inconsistent for agents.
 - **The time box.** Smoke takes 50 minutes and full takes 90, the exploratory charter included. Smoke's own server waits (the farm, lesson 1 twice and homes 2) take about 16 minutes before any tapping, and run 1 took 32 minutes for the 7 cases, and the 15-minute charter comes on top (32 + 15 = 47); so the box holds them, rather than seeding them.
+- **Shortcuts that keep the box.** A Setup-only account (one the case does not sign up itself) may be made with `POST /auth/sign-up/native` and `POST /town`; a case whose steps sign up (SMK-01, REM-01) signs up in the app. SES-01 may use REM-09's sign-out, and LES-01 may run on SMK-03's lesson, the box staying 90 minutes.
 - **Every run ends with one 15-minute exploratory charter** on what changed since the last run, which `git log --oneline <last run's SHA>..HEAD -- apps/android apps/api packages` lists. Repeated cases stop finding bugs. Record the charter in one line, and file what it finds as for any fail.
 
 ## Recording a run
@@ -183,7 +184,7 @@ Setup: none; the app signed out, the phone in English
 1. Create an account, choosing Spanish as the help language.
 2. Verify the naming screen reads `android.town.town_naming_title`, *Ponle nombre a tu pueblo*.
 3. Name the town `Qaville` and start it.
-4. Verify the town home opens on `Qaville`, with money, food, power and material at or just above 400, 300, 200 and 500 (`town.json`'s `startingStocks`).
+4. Verify the town home opens on `Qaville`, with money, food, power and material at or just above 400, 300, 200 and 500 (`town.json`'s `startingStocks`), read on the Storage place (`android.town.town_place_storage`), the only place that draws all four.
 5. Verify `players.scaffold` is `es` for that email.
 
 #### SES-01 Sign out, then sign in to the same town · P1 · full
@@ -383,6 +384,7 @@ Setup: an `es` account with the reminder on and reviews due (SMK-03 and SMK-06's
 4. Verify the next alarm is at the chosen time on the following day.
 5. Tap the notification. Verify the Report opens with `android.report.report_reviews_due`, *Repasos pendientes: {count}*, and the notification is gone.
 6. Go back. Verify the town shows.
+7. Put the clock back (*Recipe: the device clock and the alarm*).
 
 #### REM-02 A lesson ready, with nothing due, fires that day with the lesson line · P1 · full
 
@@ -393,6 +395,7 @@ Setup: a `none` account with the reminder on, lesson 1 studied, every review ans
 2. Set the device clock 90 seconds before it and wait for it to fire.
 3. Verify the post `android.app.reminder_lesson_title`, *A lesson is ready.*, over `android.app.reminder_lesson_text`, *Start it from the town.*
 4. Tap it. Verify the town shows alone, and back leaves the app.
+5. Put the clock back (*Recipe: the device clock and the alarm*).
 
 #### REM-03 A word check due fires with the check line · P1 · full
 
@@ -403,6 +406,7 @@ Setup: a `none` account with the reminder on and no review due; a `band_starts` 
 2. Set the device clock 90 seconds before the alarm and wait for it to fire.
 3. Verify the post `android.app.reminder_check_title`, *Your word check is ready.*, over `android.app.reminder_check_text`, *Open it from the town.*
 4. Tap it. Verify the town shows.
+5. Put the clock back (*Recipe: the device clock and the alarm*).
 
 #### REM-04 Nothing to study by the chosen time posts nothing that day · P1 · full
 
@@ -412,11 +416,12 @@ Setup: a `none` account with the reminder on and every review answered; the lear
 1. Verify the town's next step names no lesson and no check, and the alarm is at the chosen time on the day the next review falls due, not today.
 2. Set the device clock 90 seconds before today's chosen time and wait past it.
 3. Verify no notification is posted.
+4. Put the clock back (*Recipe: the device clock and the alarm*).
 
 #### REM-05 The alarm survives a reboot · P0 · full
 
 Source: ADR 046, *How Android schedules it*
-Setup: SMK-07's account, the reminder on, an alarm set
+Setup: SMK-07's account, the reminder on, an alarm set; the device clock on host time (put the clock back after SMK-07, since a reboot returns it to host time and the alarm would be measured at a different instant)
 
 1. Note the alarm's instant.
 2. Reboot the emulator (`adb reboot`), and wait for `sys.boot_completed` to read 1. Do not open the app.
@@ -448,6 +453,7 @@ Setup: SMK-07's account, the reminder on, reviews due
 2. Open the app, then Settings. Verify the switch is off, with `android.signin.settings_reminder_denied` and its link.
 3. Set the device clock 90 seconds before the alarm and wait for it to fire.
 4. Verify no notification is posted.
+5. Put the clock back (*Recipe: the device clock and the alarm*).
 
 #### REM-09 Signing out cancels the alarm and removes the reminder · P1 · full
 
@@ -465,7 +471,7 @@ Setup: SMK-07's account, the reminder posted and still in the shade
 Source: ADR 047, *The dock* (*With the keyboard open*); PRD S13
 Setup: a `none` account with a town
 
-1. Open the map and choose a free site.
+1. Open the Office place and follow *Go to the map* (`android.town.town_map_link`) at its foot. Choose a free site.
 2. Tap the workers field. Verify the keyboard opens and the dock is not on screen.
 3. Close the keyboard. Verify the dock is back.
 
