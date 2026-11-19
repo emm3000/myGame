@@ -28,7 +28,7 @@ import com.emm.mygame.core.designsystem.MyGameSizes
 import com.emm.mygame.core.designsystem.MyGameSkeleton
 import com.emm.mygame.core.designsystem.MyGameSkeletonBlocks
 import com.emm.mygame.core.designsystem.MyGameSpacing
-import com.emm.mygame.core.designsystem.MyGameTextButton
+import com.emm.mygame.core.designsystem.MyGameTextLink
 import com.emm.mygame.core.designsystem.MyGameTheme
 import com.emm.mygame.core.designsystem.PreviewMyGame
 import com.emm.mygame.core.network.SeasonKind
@@ -157,7 +157,7 @@ private val townBlocks: MyGameSkeletonBlocks = MyGameSkeletonBlocks(
 
 @Composable
 private fun SignOut(isBusy: Boolean, onIntent: (TownIntent) -> Unit, modifier: Modifier = Modifier) {
-    MyGameTextButton(
+    MyGameTextLink(
         label = fixedCopyResource(R.string.town_sign_out),
         isBusy = isBusy,
         busyDescription = chromeResource(R.string.town_waiting).spoken,

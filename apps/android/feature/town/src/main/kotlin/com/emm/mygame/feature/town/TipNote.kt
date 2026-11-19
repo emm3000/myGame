@@ -14,7 +14,7 @@ import com.emm.mygame.core.designsystem.MyGameMetaText
 import com.emm.mygame.core.designsystem.MyGamePreviewSurface
 import com.emm.mygame.core.designsystem.MyGameSpacing
 import com.emm.mygame.core.designsystem.MyGameText
-import com.emm.mygame.core.designsystem.MyGameTextButton
+import com.emm.mygame.core.designsystem.MyGameTextLink
 import com.emm.mygame.core.designsystem.MyGameTheme
 import com.emm.mygame.core.designsystem.MyGameTypography
 import com.emm.mygame.core.designsystem.PreviewMyGame
@@ -39,10 +39,8 @@ internal fun TipNote(tip: TipKind, onIntent: (TownIntent) -> Unit, modifier: Mod
                 style = MyGameTypography.body,
                 color = MyGameTheme.colors.ink,
             )
-            MyGameTextButton(
+            MyGameTextLink(
                 label = chromeResource(R.string.town_tip_close),
-                isBusy = false,
-                busyDescription = chromeResource(R.string.town_waiting).spoken,
                 onClick = { onIntent(TownIntent.TipClosed(tip)) },
             )
         }

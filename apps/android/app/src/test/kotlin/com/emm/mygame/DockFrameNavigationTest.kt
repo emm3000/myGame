@@ -810,7 +810,7 @@ class DockFrameNavigationTest {
 
         const val READ_THE_WORDS: String = "Leer las palabras"
         const val TOWN_HEADER: String = "Riverton · Pueblo"
-        const val TOWN_LINK: String = "PUEBLO"
+        const val TOWN_LINK: String = "Pueblo"
         const val REPORT_ROW: String = "Informe"
 
         val verifiedSession: RestoreResult = RestoreResult.SignedIn(
