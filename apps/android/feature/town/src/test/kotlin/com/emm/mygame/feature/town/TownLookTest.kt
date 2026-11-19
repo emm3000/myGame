@@ -11,6 +11,8 @@ import androidx.compose.ui.test.assertCountEquals
 import androidx.compose.ui.test.assertIsDisplayed
 import androidx.compose.ui.test.getUnclippedBoundsInRoot
 import androidx.compose.ui.test.hasContentDescription
+import androidx.compose.ui.test.hasText
+import androidx.compose.ui.test.isHeading
 import androidx.compose.ui.test.junit4.ComposeContentTestRule
 import androidx.compose.ui.test.junit4.createComposeRule
 import androidx.compose.ui.test.onAllNodesWithTag
@@ -277,6 +279,27 @@ class TownLookTest {
     }
 
     @Test
+    fun `draws the running work's heading as one section title`() {
+        show(riverton.copy(slot = busySlot))
+
+        assertWorkHeadingIsOneSectionTitle()
+    }
+
+    @Test
+    fun `draws the done work's heading as one section title`() {
+        show(riverton.copy(slot = TownUiState.SlotLine.Done(TownBuildingKind.Farm, 2)))
+
+        assertWorkHeadingIsOneSectionTitle()
+    }
+
+    private fun assertWorkHeadingIsOneSectionTitle() {
+        composeRule.onAllNodes(hasText(WORK_TITLE) and isHeading()).assertCountEquals(1)
+        val title: TextStyle = textStyleOf(WORK_TITLE)
+        assertEquals(MyGameTypography.heading.fontSize, title.fontSize)
+        assertEquals(MyGameTypography.heading.fontWeight, title.fontWeight)
+    }
+
+    @Test
     fun `carries its icon on a done line`() {
         show(riverton.copy(slot = TownUiState.SlotLine.Done(TownBuildingKind.Farm, 2)))
 
@@ -457,6 +480,7 @@ class TownLookTest {
     }
 
     private companion object {
+        const val WORK_TITLE: String = "Obra"
         const val MONEY_SHORT: String = "Necesitas 30 de dinero más."
         const val SUMMER_FOOD: String = "Verano: comida al 125 %"
         const val SUMMER_POWER: String = "Verano: energía al 75 %"
