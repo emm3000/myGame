@@ -12,7 +12,6 @@ import androidx.compose.ui.tooling.preview.PreviewParameterProvider
 import androidx.lifecycle.compose.LifecycleStartEffect
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
-import com.emm.mygame.core.designsystem.MyGameLabel
 import com.emm.mygame.core.designsystem.MyGameNavRow
 import com.emm.mygame.core.designsystem.MyGamePreviewSurface
 import com.emm.mygame.core.designsystem.MyGameSpacing
@@ -63,7 +62,7 @@ fun PlacementOfferRow(state: PlacementOfferUiState, onPlacementOpen: () -> Unit,
                 color = MyGameTheme.colors.inkMuted,
             )
         }
-        MyGameNavRow(title = MyGameLabel(text = fixedCopyResource(link), translation = null), onClick = onPlacementOpen)
+        MyGameNavRow(title = fixedLabel(link), onClick = onPlacementOpen)
     }
 }
 
