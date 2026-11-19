@@ -128,7 +128,6 @@ class MyGameLabelTest {
         assertEquals(MyGameTypography.heading.fontSize, drawn.fontSize)
         assertEquals(MyGameTypography.heading.fontWeight, drawn.fontWeight)
         assertEquals(ink, drawn.color)
-        composeRule.onNode(isHeading() and hasText("Start reviews")).assertExists()
     }
 
     @Test

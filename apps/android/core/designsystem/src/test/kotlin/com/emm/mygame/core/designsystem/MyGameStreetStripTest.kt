@@ -6,6 +6,11 @@ import androidx.compose.ui.graphics.ImageBitmap
 import androidx.compose.ui.graphics.toArgb
 import androidx.compose.ui.graphics.toPixelMap
 import androidx.compose.ui.graphics.PixelMap
+import androidx.compose.ui.input.InputMode
+import androidx.compose.ui.input.InputModeManager
+import androidx.compose.ui.platform.LocalInputModeManager
+import androidx.compose.ui.ExperimentalComposeUiApi
+import androidx.compose.ui.geometry.Rect
 import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.semantics.SemanticsNode
 import androidx.compose.ui.semantics.SemanticsProperties
@@ -20,6 +25,7 @@ import androidx.compose.ui.test.junit4.ComposeContentTestRule
 import androidx.compose.ui.test.junit4.createComposeRule
 import androidx.compose.ui.test.onNodeWithContentDescription
 import androidx.compose.ui.test.performClick
+import androidx.compose.ui.test.requestFocus
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.DpSize
 import androidx.compose.ui.unit.dp
@@ -70,11 +76,19 @@ class MyGameStreetStripTest {
     @get:Rule
     val composeRule: ComposeContentTestRule = createComposeRule()
 
-    private fun show(selected: Int = SCHOOL_INDEX, modifier: Modifier = Modifier, onSelect: (Int) -> Unit = {}) {
+    private var inputModes: InputModeManager? = null
+
+    private fun show(
+        selected: Int = SCHOOL_INDEX,
+        street: MyGameStreet = mainStreet,
+        modifier: Modifier = Modifier,
+        onSelect: (Int) -> Unit = {},
+    ) {
         composeRule.setContent {
+            inputModes = LocalInputModeManager.current
             MyGameTheme {
                 MyGameStreetStrip(
-                    street = mainStreet,
+                    street = street,
                     selected = selected,
                     name = "5 of 7 built",
                     nextStepWords = "your next step",
@@ -228,6 +242,118 @@ class MyGameStreetStripTest {
             assertEquals("${tab.name} is a tab", Role.Tab, node.config.getOrNull(SemanticsProperties.Role))
             assertTrue("${tab.name} is $size", size.width >= 48.dp && size.height >= 48.dp)
         }
+    }
+
+    @Test
+    fun `a selected first tab shows its whole ink bar`() {
+        show(selected = 0, modifier = Modifier.padding(horizontal = MyGameSpacing.step5))
+
+        assertInkBarDrawn(tabName = "Homes, level 2")
+    }
+
+    @Test
+    fun `a selected last tab shows its whole ink bar`() {
+        show(selected = mainStreet.tabs.lastIndex, modifier = Modifier.padding(horizontal = MyGameSpacing.step5))
+
+        assertInkBarDrawn(tabName = "Storage, level 10")
+    }
+
+    @Test
+    fun `a focused first tab's ring shows at the frame's edge`() {
+        show(selected = SCHOOL_INDEX)
+        focus("Homes, level 2")
+
+        val strip: PixelMap = stripPixels()
+        val homes: Rect = boundsInStrip("Homes, level 2")
+        val ring: String = hexOf(lightColors.focus.toArgb())
+
+        assertEquals("the ring's start edge", ring, hexOf(strip[homes.left.toInt(), homes.center.y.toInt()].toArgb()))
+        assertEquals("the ring's top edge", ring, hexOf(strip[homes.center.x.toInt(), homes.top.toInt()].toArgb()))
+    }
+
+    @Test
+    fun `a focused tab's ring draws over its divider`() {
+        show(selected = 0)
+        focus("School, level 3, your next step")
+
+        val strip: PixelMap = stripPixels()
+        val school: Rect = boundsInStrip("School, level 3, your next step")
+
+        assertEquals(
+            hexOf(lightColors.focus.toArgb()),
+            hexOf(strip[school.left.toInt(), school.center.y.toInt()].toArgb()),
+        )
+    }
+
+    @Test
+    fun `no divider stands before the first tab`() {
+        show()
+
+        val strip: PixelMap = stripPixels()
+        val homes: Rect = boundsInStrip("Homes, level 2")
+
+        assertNotEquals(
+            hexOf(lightColors.lineStrong.toArgb()),
+            hexOf(strip[homes.left.toInt(), homes.center.y.toInt()].toArgb()),
+        )
+    }
+
+    @Test
+    fun `tabs that fit share the strip clear of its corners`() {
+        show(selected = 0, street = MyGameStreet(tabs = mainStreet.tabs.take(3)))
+
+        val strip: PixelMap = stripPixels()
+        val lastTab: Rect = boundsInStrip("School, level 3, your next step")
+        val corner: Float = with(composeRule.density) { MyGameSpacing.step2.toPx() }
+
+        assertEquals(strip.width - corner, lastTab.right, PX_TOLERANCE * 2)
+    }
+
+    @Test
+    fun `a selected middle tab sits at the strip's center`() {
+        show(selected = SCHOOL_INDEX + 1, modifier = Modifier.padding(horizontal = MyGameSpacing.step5))
+
+        val strip: PixelMap = stripPixels()
+        val office: Rect = boundsInStrip("Office, level 1")
+
+        assertEquals(strip.width / 2f, office.center.x, PX_TOLERANCE * 2)
+    }
+
+    private fun assertInkBarDrawn(tabName: String) {
+        val strip: PixelMap = stripPixels()
+        val tab: Rect = boundsInStrip(tabName)
+        val bar: Rect = with(composeRule.density) {
+            Rect(
+                left = tab.center.x - MyGameSizes.control.toPx() / 2,
+                top = tab.bottom - MyGameStrokeWidths.ring.toPx(),
+                right = tab.center.x + MyGameSizes.control.toPx() / 2,
+                bottom = tab.bottom,
+            )
+        }
+        val ink: String = hexOf(lightColors.ink.toArgb())
+        (bar.left.toInt() + 1 until bar.right.toInt() - 1).forEach { x: Int ->
+            (bar.top.toInt() + 1 until bar.bottom.toInt()).forEach { y: Int ->
+                assertEquals("the ink bar at $x, $y", ink, hexOf(strip[x, y].toArgb()))
+            }
+        }
+    }
+
+    @OptIn(ExperimentalComposeUiApi::class)
+    private fun focus(tabName: String) {
+        composeRule.runOnIdle { inputModes?.requestInputMode(InputMode.Keyboard) }
+        composeRule.onNodeWithContentDescription(tabName).requestFocus()
+        composeRule.waitForIdle()
+    }
+
+    private fun boundsInStrip(tabName: String): Rect {
+        val strip: SemanticsNode = composeRule.onNodeWithContentDescription("5 of 7 built").fetchSemanticsNode()
+        val tab: SemanticsNode = composeRule.onNodeWithContentDescription(tabName).fetchSemanticsNode()
+        return Rect(
+            left = tab.positionInRoot.x - strip.positionInRoot.x,
+            top = tab.positionInRoot.y - strip.positionInRoot.y,
+            right = tab.positionInRoot.x - strip.positionInRoot.x + tab.size.width,
+            bottom = tab.positionInRoot.y - strip.positionInRoot.y + tab.size.height,
+        )
     }
 
     private fun stripPixels(): PixelMap {
