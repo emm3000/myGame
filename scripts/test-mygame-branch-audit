@@ -105,6 +105,13 @@ fun multiLine(
     first: Int,
     onDone: () -> Unit = {},
 ) = onDone()
+
+class Box(private val size: Int = 1)
+class Tagged(@Suppress("unused") val size: Int = 1)
+
+class Card(
+    val name: String = "",
+)
 KOTLIN
   write "$typescript" <<'TYPESCRIPT'
 export function kept(flag: boolean): number {
@@ -144,6 +151,14 @@ export function multiLine(
 }
 
 export const clamp = (value: number): number => (value >= 0 ? value : 0);
+
+export function withCallback(done: () => void = noop): void {
+  done();
+}
+
+export class Counter {
+  constructor(private readonly start: number = 0) {}
+}
 TYPESCRIPT
   write "$tsx" <<'TSX'
 export function Badge({ big }: { big: boolean }): JSX.Element {
@@ -280,6 +295,26 @@ lists_an_added_typescript_default_value_in_a_destructured_parameter() {
   expect_listed "${FUNCNAME[0]}" "$tsx:9"
 }
 
+lists_an_added_kotlin_default_after_a_modifier() {
+  expect_listed "${FUNCNAME[0]}" "$kotlin:41"
+}
+
+lists_an_added_kotlin_default_after_an_annotation() {
+  expect_listed "${FUNCNAME[0]}" "$kotlin:42"
+}
+
+lists_an_added_kotlin_val_parameter_default_on_its_own_line() {
+  expect_listed "${FUNCNAME[0]}" "$kotlin:45"
+}
+
+lists_an_added_typescript_default_after_a_function_type() {
+  expect_listed "${FUNCNAME[0]}" "$typescript:39"
+}
+
+lists_an_added_typescript_constructor_parameter_default_after_modifiers() {
+  expect_listed "${FUNCNAME[0]}" "$typescript:44"
+}
+
 lists_an_added_typescript_default_parameter_value_on_its_own_line() {
   expect_listed "${FUNCNAME[0]}" "$typescript:32"
 }
@@ -360,9 +395,9 @@ prints_a_line_with_two_tokens_once() {
 
 expected_list() {
   local entry
-  for entry in 13 14 18 19 20 21 22 26 30 38; do echo "$kotlin:$entry"; done
+  for entry in 13 14 18 19 20 21 22 26 30 38 41 42 45; do echo "$kotlin:$entry"; done
   for entry in 2 9 13; do echo "$tsx:$entry"; done
-  for entry in 11 14 15 21 25 32 37; do echo "$typescript:$entry"; done
+  for entry in 11 14 15 21 25 32 37 39 44; do echo "$typescript:$entry"; done
 }
 
 prints_exactly_the_sorted_path_line_list_and_nothing_else() {
@@ -438,6 +473,11 @@ run lists_an_added_kotlin_default_parameter_value_on_its_own_line
 run lists_an_added_typescript_default_parameter_value_untyped_or_typed_inside_parentheses
 run lists_an_added_typescript_default_value_in_a_destructured_parameter
 run lists_an_added_typescript_default_parameter_value_on_its_own_line
+run lists_an_added_kotlin_default_after_a_modifier
+run lists_an_added_kotlin_default_after_an_annotation
+run lists_an_added_kotlin_val_parameter_default_on_its_own_line
+run lists_an_added_typescript_default_after_a_function_type
+run lists_an_added_typescript_constructor_parameter_default_after_modifiers
 run skips_a_word_that_only_holds_a_token
 run skips_a_safe_call
 run skips_an_optional_property
