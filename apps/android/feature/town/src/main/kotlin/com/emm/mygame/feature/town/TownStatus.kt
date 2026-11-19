@@ -3,7 +3,6 @@ package com.emm.mygame.feature.town
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.runtime.Composable
@@ -15,6 +14,7 @@ import androidx.compose.ui.semantics.semantics
 import com.emm.mygame.core.designsystem.MyGameCountdownGround
 import com.emm.mygame.core.designsystem.MyGameCountdownLine
 import com.emm.mygame.core.designsystem.MyGameLabel
+import com.emm.mygame.core.designsystem.MyGameNavRow
 import com.emm.mygame.core.designsystem.MyGameOutlinedButton
 import com.emm.mygame.core.designsystem.MyGamePreviewSurface
 import com.emm.mygame.core.designsystem.MyGameSpacing
@@ -24,6 +24,7 @@ import com.emm.mygame.core.designsystem.MyGameTypography
 import com.emm.mygame.core.designsystem.PreviewMyGame
 import com.emm.mygame.core.network.LessonId
 import com.emm.mygame.core.network.LessonName
+import com.emm.mygame.core.network.NextStepCard
 import com.emm.mygame.core.network.PlacementBand
 import com.emm.mygame.core.ui.ChromePhase
 import com.emm.mygame.core.ui.CopyLanguage
@@ -44,6 +45,7 @@ fun TownStatus(
     onLessonOpen: (LessonId) -> Unit,
     onReviewsOpen: () -> Unit,
     modifier: Modifier = Modifier,
+    dock: TownStatusUiState.Dock? = null,
 ) {
     if (state.running == null && state.notice == null) return
     Column(
@@ -60,6 +62,7 @@ fun TownStatus(
                 notice = notice,
                 onClose = onNoticeClose,
                 onOpen = { notice.firstUnread?.let(onLessonOpen) ?: onReviewsOpen() },
+                isWayOnDrawn = !notice.isOpenedBy(dock),
             )
         }
     }
@@ -81,6 +84,7 @@ private fun FinishNoticeRows(
     notice: TownStatusUiState.FinishNotice,
     onClose: () -> Unit,
     onOpen: () -> Unit,
+    isWayOnDrawn: Boolean,
     modifier: Modifier = Modifier,
 ) {
     val waiting: String = chromeResource(R.string.town_waiting).spoken
@@ -91,26 +95,32 @@ private fun FinishNoticeRows(
             color = MyGameTheme.colors.ink,
             modifier = Modifier.semantics(mergeDescendants = true) { liveRegion = LiveRegionMode.Polite },
         )
-        Row(horizontalArrangement = Arrangement.spacedBy(MyGameSpacing.step2)) {
-            MyGameOutlinedButton(
-                label = chromeResource(
+        if (isWayOnDrawn) {
+            MyGameNavRow(
+                title = chromeResource(
                     if (notice.firstUnread == null) R.string.town_next_start_reviews else R.string.town_next_read_words,
                 ),
-                isBusy = false,
-                busyDescription = waiting,
                 onClick = onOpen,
-                modifier = Modifier.weight(1f),
-            )
-            MyGameOutlinedButton(
-                label = chromeResource(R.string.town_status_finish_close),
-                isBusy = false,
-                busyDescription = waiting,
-                onClick = onClose,
-                modifier = Modifier.weight(1f),
             )
         }
+        MyGameOutlinedButton(
+            label = chromeResource(R.string.town_status_finish_close),
+            isBusy = false,
+            busyDescription = waiting,
+            onClick = onClose,
+            modifier = Modifier.fillMaxWidth(),
+        )
     }
 }
+
+private fun TownStatusUiState.FinishNotice.isOpenedBy(dock: TownStatusUiState.Dock?): Boolean {
+    val go: TownStatusUiState.Go.Acts = (dock as? TownStatusUiState.Dock.Step)?.go as? TownStatusUiState.Go.Acts
+        ?: return false
+    return go.action == wayOnAction()
+}
+
+private fun TownStatusUiState.FinishNotice.wayOnAction(): NextStepCard.Action =
+    firstUnread?.let { lesson: LessonId -> NextStepCard.Action.ReadWords(lesson) } ?: NextStepCard.Action.StartReviews
 
 private fun PlayerCopy.readyWordsOf(name: LessonName): MyGameLabel = when (name) {
     is LessonName.Shelved -> chrome(R.string.town_next_lesson_ready_in, "number" to name.number.toString())
