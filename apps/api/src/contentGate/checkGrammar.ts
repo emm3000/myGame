@@ -1,12 +1,22 @@
 import type { LexiconEntry } from '../adapters/json/lessonContentFilesOf'
 import { cardWordEndingOf } from './cardWordEndingOf'
-import { framePlacementsOf, type LessonFrame } from './framePlacementsOf'
+import { framePlacementsOf } from './framePlacementsOf'
 import { frameWordAdmissionsOf } from './frameWordAdmissionsOf'
 import type { GateContent } from './GateContent'
 import { inventoryFailuresOf } from './inventoryFailuresOf'
 import { readingOf } from './readingOf'
 import { type ReadingTerms, readingTermsOf } from './readingTermsOf'
+import { textPlacementsOf } from './textPlacementsOf'
 import { tokensOf } from './tokensOf'
+
+type Passage = {
+  readonly kind: 'frame' | 'text'
+  readonly label: string
+  readonly lessonId: string
+  readonly position: number
+  readonly homographs: LexiconEntry['homographs']
+  readonly tokens: ReadonlyArray<string>
+}
 
 type GrammarTerms = {
   readonly reading: ReadingTerms
@@ -30,74 +40,99 @@ const termsOf = (content: GateContent): GrammarTerms => {
   }
 }
 
-const isAdmittedBy = (admittedAt: number | undefined, { position }: LessonFrame): boolean =>
+const isAdmittedBy = (admittedAt: number | undefined, { position }: Passage): boolean =>
   admittedAt !== undefined && admittedAt <= position
 
 const inflectionFailures = (
   token: string,
   inflection: string,
-  frame: LessonFrame,
+  passage: Passage,
   terms: GrammarTerms,
 ): ReadonlyArray<string> => {
   const admittedAt = terms.inflectionsAdmittedAt.get(inflection)
-  if (isAdmittedBy(admittedAt, frame)) {
+  if (isAdmittedBy(admittedAt, passage)) {
     return []
   }
   const label = inflection === token ? 'an inflection' : `an ${inflection} inflection`
-  const holding = `${frame.label}: frame holds ${token}, ${label}`
+  const holding = `${passage.label}: ${passage.kind} holds ${token}, ${label}`
   return admittedAt === undefined
     ? [`${holding} no structure admits`]
-    : [`${holding} admitted after ${frame.lessonId}`]
+    : [`${holding} admitted after ${passage.lessonId}`]
 }
 
 const frameWordFormFailures = (
   token: string,
   word: string,
-  frame: LessonFrame,
+  passage: Passage,
   terms: GrammarTerms,
 ): ReadonlyArray<string> => {
   if (token !== word) {
-    return inflectionFailures(token, token, frame, terms)
+    return inflectionFailures(token, token, passage, terms)
   }
-  return isAdmittedBy(terms.frameWordsAdmittedAt.get(word), frame)
+  return isAdmittedBy(terms.frameWordsAdmittedAt.get(word), passage)
     ? []
-    : [`${frame.label}: frame holds ${token}, a frame word admitted after ${frame.lessonId}`]
+    : [
+        `${passage.label}: ${passage.kind} holds ${token}, a frame word admitted after ${passage.lessonId}`,
+      ]
 }
 
 const cardWordFailures = (
   token: string,
   entry: LexiconEntry,
-  frame: LessonFrame,
+  passage: Passage,
   terms: GrammarTerms,
 ): ReadonlyArray<string> => {
   const ending = cardWordEndingOf(token, entry)
-  return ending === undefined ? [] : inflectionFailures(token, ending, frame, terms)
+  return ending === undefined ? [] : inflectionFailures(token, ending, passage, terms)
 }
 
 const tokenFailures = (
   token: string,
-  frame: LessonFrame,
+  passage: Passage,
   terms: GrammarTerms,
 ): ReadonlyArray<string> => {
-  const reading = readingOf(token, frame.entry, terms.reading)
+  const reading = readingOf(token, passage, terms.reading)
   if (reading.kind !== 'word') {
     return []
   }
   if (terms.frameWordsAdmittedAt.has(reading.word)) {
-    return frameWordFormFailures(token, reading.word, frame, terms)
+    return frameWordFormFailures(token, reading.word, passage, terms)
   }
   const cardWord = terms.cardWords.get(reading.word)
-  return cardWord === undefined ? [] : cardWordFailures(token, cardWord, frame, terms)
+  return cardWord === undefined ? [] : cardWordFailures(token, cardWord, passage, terms)
 }
 
-const frameFailures = (content: GateContent): ReadonlyArray<string> => {
+const passagesOf = (content: GateContent): ReadonlyArray<Passage> => [
+  ...framePlacementsOf(content).frames.map(
+    ({ label, lessonId, position, entry, frame }): Passage => ({
+      kind: 'frame',
+      label,
+      lessonId,
+      position,
+      homographs: entry.homographs,
+      tokens: tokensOf(frame),
+    }),
+  ),
+  ...textPlacementsOf(content).texts.map(
+    ({ label, lessonId, position, text, tokens }): Passage => ({
+      kind: 'text',
+      label,
+      lessonId,
+      position,
+      homographs: text.homographs,
+      tokens,
+    }),
+  ),
+]
+
+const passageFailures = (content: GateContent): ReadonlyArray<string> => {
   const terms = termsOf(content)
-  return framePlacementsOf(content).frames.flatMap((frame) =>
-    tokensOf(frame.frame).flatMap((token) => tokenFailures(token, frame, terms)),
+  return passagesOf(content).flatMap((passage) =>
+    passage.tokens.flatMap((token) => tokenFailures(token, passage, terms)),
   )
 }
 
 export const checkGrammar = (content: GateContent): ReadonlyArray<string> => [
   ...inventoryFailuresOf(content),
-  ...frameFailures(content),
+  ...passageFailures(content),
 ]
