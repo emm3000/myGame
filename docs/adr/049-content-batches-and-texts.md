@@ -358,8 +358,9 @@ Edits this pull request does not make:
 - ADR 036: a note for ADR 048, that a card in learning is one under 4
   days while rule 7's skill floor keeps 7.
 - ADR 044: one later frame per entry, a batch after its own.
-- `045-stable-words-open-the-town.test.ts`: 35 of its 46 tests fail on
-  trunk, since they read the skill cycle that ADR removed.
+- `045-stable-words-open-the-town.test.ts`: 35 of its 46 tests failed on
+  trunk, since they read the skill cycle that ADR removed. #1283 removed
+  the file; git keeps it at `cf336126`.
 - ADR 039: its estimate of 57 frame words and 877 band 1 words;
   `grammar.json` holds 59, so 875.
 - ADR 042: the next step's table gains the text line.

@@ -328,10 +328,10 @@ What this shows, and does not:
   `cap` keep their shape.
 - Clients read no stability, so the count moves with the api alone. The
   cap line and the refusal change copy, Android first.
-- `docs/adr/045-stable-words-open-the-town.test.ts` computes its stable
-  words as the cards not in learning. It is a snapshot the gate never
-  runs; rerun after the change it would count from 4 days, so its
-  `stableWordsOf` moves to `stableWordCountOf` in the domain ticket.
+- `docs/adr/045-stable-words-open-the-town.test.ts` computed its stable
+  words as the cards not in learning. It was a snapshot the gate never
+  ran, removed in #1283 and kept in git at `cf336126`; ADR 045's
+  *Worked examples* says how to run it.
 - No migration, no content change.
 - **The edits its acceptance forced**, made with ticket 1:
   `CONTEXT.md` (**In learning** reads *under 4 days*, **Stable word**

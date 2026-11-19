@@ -175,17 +175,20 @@ already charged was admitted and runs on.
 
 ## Worked examples
 
-Every figure is reproduced by `docs/adr/045-stable-words-open-the-town.test.ts`,
-run with `pnpm --filter @mygame/api exec vitest run --root ../..
---testTimeout=900000 docs/adr/045-stable-words-open-the-town.test.ts`
-(46 tests). It is a snapshot of trunk at `5214dc7d`: the content and the
+Every figure was reproduced by `docs/adr/045-stable-words-open-the-town.test.ts`,
+removed in #1283 and kept in git at `cf336126`, the parent of `8bebeef6`,
+where its 46 tests pass. From a detached checkout of `cf336126` it runs with
+`pnpm --filter @mygame/api exec vitest run --root ../..
+--testTimeout=900000 docs/adr/045-stable-words-open-the-town.test.ts`.
+It was a snapshot of trunk at `5214dc7d`: the content and the
 domain's `deriveResourceRates`, `deriveStorageCapacity`, `derivePeople`,
 `deriveLessonDurationSeconds`, `reviewMemoryCard`, `dueInstantOf`,
-`cardsInLearningOf` and `isWordRetained` are trunk's, but admission,
-charging, the queue, accrual and skill-earning are copies written in the
-test, and no holdout is applied. It sits outside every package's
-`include`, so `pnpm gate` lints it and never runs it; a later change to
-the domain or the content does not fail it.
+`cardsInLearningOf` and `isWordRetained` were trunk's, but admission,
+charging, the queue, accrual and skill-earning were copies written in the
+test, and no holdout was applied. It sat outside every package's
+`include`, so `pnpm gate` linted it and never ran it; a later change to
+the domain or the content did not fail it, and it stopped passing when
+`8bebeef6` removed the skill cycle from the content.
 
 The runs go in one-minute steps over 90 days on fields, before the
 season calendar's epoch, so every season percent reads 100. Every
