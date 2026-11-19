@@ -138,7 +138,7 @@ private fun ChangeLine(change: SettingsUiState.Change, modifier: Modifier = Modi
     val requester: BringIntoViewRequester = remember { BringIntoViewRequester() }
     val isRevealed: MutableState<Boolean> = rememberSaveable(change) { mutableStateOf(false) }
     LaunchedEffect(change) {
-        if (change == SettingsUiState.Change.Untouched || isRevealed.value) return@LaunchedEffect
+        if (isRevealed.value) return@LaunchedEffect
         requester.bringIntoView()
         isRevealed.value = true
     }

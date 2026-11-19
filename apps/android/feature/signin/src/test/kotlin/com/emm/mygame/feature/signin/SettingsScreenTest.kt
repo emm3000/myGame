@@ -125,6 +125,17 @@ class SettingsScreenTest {
     }
 
     @Test
+    fun `brings the saving line fully into view when the change lands below the fold`() {
+        val shown: MutableState<SettingsUiState> = mutableStateOf(untouched)
+        drawInShortWindow(shown)
+
+        shown.value = untouched.copy(change = SettingsUiState.Change.Saving(PlayerScaffold.None))
+        composeRule.waitForIdle()
+
+        assertFullyInView("Guardando…")
+    }
+
+    @Test
     fun `brings the outage alert fully into view when the change lands below the fold`() {
         val shown: MutableState<SettingsUiState> = mutableStateOf(untouched)
         drawInShortWindow(shown)
