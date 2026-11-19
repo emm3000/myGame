@@ -102,3 +102,15 @@ internal fun CopyReader.finishLabelOf(remaining: Duration, finishesAt: Instant):
 
 private fun CopyReader.finishClockLabelOf(finish: FinishClock): String =
     clockLabelOf(finish, tomorrow = R.string.school_finish_tomorrow, later = R.string.school_finish_day)
+
+internal fun PlayerCopy.pastCapLabelOf(pastCap: SchoolUiState.PastCap): MyGameLabel =
+    when (val reviews: SchoolUiState.CapReviews = pastCap.reviews) {
+        SchoolUiState.CapReviews.Due -> chrome(R.string.school_learning_full, "count" to pastCap.words)
+        is SchoolUiState.CapReviews.Next -> chrome {
+            text(
+                R.string.school_learning_full_next_review,
+                "count" to pastCap.words,
+                "timeLeft" to finishLabelOf(reviews.remaining, reviews.dueAt),
+            )
+        }
+    }

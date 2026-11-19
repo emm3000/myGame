@@ -222,6 +222,7 @@
   "android.school.school_holdout_row": "Tienes pendiente una prueba de palabras de la banda {band}, semana {week}.",
   "android.school.school_learning": "Palabras en aprendizaje: {inLearning} de {cap}",
   "android.school.school_learning_full": "{count, plural, =1 {La siguiente lección trae 1 palabra.} other {La siguiente lección trae {count, number,0} palabras.}} Empieza los repasos.",
+  "android.school.school_learning_full_next_review": "{count, plural, =1 {La siguiente lección trae 1 palabra.} other {La siguiente lección trae {count, number,0} palabras.}} Siguiente repaso en {timeLeft}.",
   "android.school.school_lesson_cap_reached": "Palabras en aprendizaje: {inLearning} de {cap}. Esta lección trae {count}.",
   "android.school.school_lesson_needs_school": "Necesita la escuela en nivel {level}",
   "android.school.school_lesson_next": "Siguiente lección",

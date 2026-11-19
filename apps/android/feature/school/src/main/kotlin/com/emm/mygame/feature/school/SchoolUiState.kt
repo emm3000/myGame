@@ -8,6 +8,7 @@ import com.emm.mygame.core.network.SeasonKind
 import com.emm.mygame.core.network.TownLessonRefusal
 import com.emm.mygame.core.network.TownResourceKind
 import kotlin.time.Duration
+import kotlin.time.Instant
 
 sealed interface SchoolUiState {
 
@@ -52,7 +53,16 @@ sealed interface SchoolUiState {
 
     data class DurationMark(val season: SeasonKind, val percent: Int)
 
-    data class LearningLine(val inLearning: Int, val cap: Int, val wordsPastCap: Int?)
+    data class LearningLine(val inLearning: Int, val cap: Int, val pastCap: PastCap?)
+
+    data class PastCap(val words: Int, val reviews: CapReviews)
+
+    sealed interface CapReviews {
+
+        data object Due : CapReviews
+
+        data class Next(val remaining: Duration, val dueAt: Instant) : CapReviews
+    }
 
     sealed interface SlotLine {
 

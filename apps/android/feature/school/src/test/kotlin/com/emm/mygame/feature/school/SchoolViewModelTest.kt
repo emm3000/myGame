@@ -1,6 +1,8 @@
 package com.emm.mygame.feature.school
 
 import app.cash.turbine.test
+import com.emm.mygame.core.network.CaughtUpReason
+import com.emm.mygame.core.network.NextStep
 import com.emm.mygame.core.network.SchoolPathCounts
 import com.emm.mygame.core.network.TownLessonRefusal
 import com.emm.mygame.core.network.TownLessonResult
@@ -9,6 +11,7 @@ import com.emm.mygame.core.network.TownResourceKind
 import com.emm.mygame.core.network.TownSnapshot
 import com.emm.mygame.core.testing.FakeTownRepository
 import com.emm.mygame.core.testing.MainDispatcherRule
+import kotlin.time.Duration.Companion.hours
 import kotlin.time.Duration.Companion.minutes
 import kotlin.time.Duration.Companion.seconds
 import kotlinx.coroutines.test.TestScope
@@ -27,6 +30,11 @@ class SchoolViewModelTest {
     private val towns: FakeTownRepository = FakeTownRepository()
 
     private val studied: TownSnapshot.Lesson = lessonOf(isStudied = true)
+
+    private val fullLearning: TownSnapshot.Learning =
+        TownSnapshot.Learning(cap = 10, inLearning = 8, retainedWords = null)
+
+    private val fullCapCaughtUp: NextStep.CaughtUp = NextStep.CaughtUp(CaughtUpReason.LearningCap, goal = null)
 
     private fun TestScope.schoolReading(town: TownSnapshot): SchoolViewModel = schoolReadingFrom(towns, town)
 
@@ -284,7 +292,41 @@ class SchoolViewModelTest {
             ),
         )
 
-        assertEquals(SchoolUiState.LearningLine(8, cap = 10, wordsPastCap = 3), contentOf(viewModel).learning)
+        assertEquals(3, contentOf(viewModel).learning.pastCap?.words)
+    }
+
+    @Test
+    fun `sends a full cap to the reviews while one is due`() = runTest {
+        val viewModel: SchoolViewModel = schoolReading(
+            townOf(
+                learning = fullLearning,
+                nextStep = NextStep.Reviews(count = 3, readFirst = emptyList()),
+                nextDueAt = readInstant + 1.hours,
+            ),
+        )
+
+        assertEquals(SchoolUiState.PastCap(5, SchoolUiState.CapReviews.Due), contentOf(viewModel).learning.pastCap)
+    }
+
+    @Test
+    fun `names the next review on a full cap with none due`() = runTest {
+        val viewModel: SchoolViewModel = schoolReading(
+            townOf(learning = fullLearning, nextStep = fullCapCaughtUp, nextDueAt = readInstant + 3.hours),
+        )
+
+        assertEquals(
+            SchoolUiState.PastCap(5, SchoolUiState.CapReviews.Next(3.hours, dueAt = readInstant + 3.hours)),
+            contentOf(viewModel).learning.pastCap,
+        )
+    }
+
+    @Test
+    fun `sends a full cap to the reviews once the next review has come`() = runTest {
+        val viewModel: SchoolViewModel = schoolReading(
+            townOf(learning = fullLearning, nextStep = fullCapCaughtUp, nextDueAt = readInstant),
+        )
+
+        assertEquals(SchoolUiState.PastCap(5, SchoolUiState.CapReviews.Due), contentOf(viewModel).learning.pastCap)
     }
 
     @Test
@@ -293,7 +335,7 @@ class SchoolViewModelTest {
             townOf(learning = TownSnapshot.Learning(cap = 10, inLearning = 5, retainedWords = null)),
         )
 
-        assertEquals(SchoolUiState.LearningLine(5, cap = 10, wordsPastCap = null), contentOf(viewModel).learning)
+        assertEquals(SchoolUiState.LearningLine(5, cap = 10, pastCap = null), contentOf(viewModel).learning)
     }
 
     @Test
@@ -306,7 +348,7 @@ class SchoolViewModelTest {
             ),
         )
 
-        assertEquals(null, contentOf(viewModel).learning.wordsPastCap)
+        assertEquals(null, contentOf(viewModel).learning.pastCap)
     }
 
     @Test

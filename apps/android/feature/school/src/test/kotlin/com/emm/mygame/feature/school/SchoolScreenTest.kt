@@ -9,6 +9,7 @@ import androidx.compose.ui.test.SemanticsMatcher
 import androidx.compose.ui.test.assert
 import androidx.compose.ui.test.assertCountEquals
 import androidx.compose.ui.test.assertIsDisplayed
+import androidx.compose.ui.test.getUnclippedBoundsInRoot
 import androidx.compose.ui.test.hasText
 import androidx.compose.ui.test.junit4.ComposeContentTestRule
 import androidx.compose.ui.test.junit4.createComposeRule
@@ -20,6 +21,7 @@ import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
 import androidx.compose.ui.test.performScrollTo
 import androidx.compose.ui.text.TextLayoutResult
+import androidx.compose.ui.unit.Dp
 import com.emm.mygame.core.designsystem.MyGameTheme
 import com.emm.mygame.core.designsystem.MyGameTransitions
 import com.emm.mygame.core.designsystem.OUTLINED_PILL
@@ -66,7 +68,7 @@ class SchoolScreenTest {
 
     private val idleSchool: SchoolUiState.Content = SchoolUiState.Content(
         schoolLevel = 1,
-        learning = SchoolUiState.LearningLine(inLearning = 0, cap = 10, wordsPastCap = null),
+        learning = SchoolUiState.LearningLine(inLearning = 0, cap = 10, pastCap = null),
         slot = SchoolUiState.SlotLine.Idle,
         skills = emptyList(),
         lessons = listOf(readyLesson),
@@ -214,24 +216,60 @@ class SchoolScreenTest {
 
     @Test
     fun `draws the words in learning and the cap`() {
-        show(idleSchool.copy(learning = SchoolUiState.LearningLine(8, 10, wordsPastCap = null)))
+        show(idleSchool.copy(learning = SchoolUiState.LearningLine(8, 10, pastCap = null)))
 
         showing("Palabras en aprendizaje: 8 de 10")
     }
 
     @Test
     fun `names one word past the cap in the singular`() {
-        show(idleSchool.copy(learning = SchoolUiState.LearningLine(8, 10, wordsPastCap = 1)))
+        show(idleSchool.copy(learning = fullCap(SchoolUiState.PastCap(1, SchoolUiState.CapReviews.Due))))
 
         showing("La siguiente lección trae 1 palabra. Empieza los repasos.")
     }
 
     @Test
     fun `names several words past the cap in the plural`() {
-        show(idleSchool.copy(learning = SchoolUiState.LearningLine(8, 10, wordsPastCap = 5)))
+        show(idleSchool.copy(learning = fullCap(SchoolUiState.PastCap(5, SchoolUiState.CapReviews.Due))))
 
         showing("La siguiente lección trae 5 palabras. Empieza los repasos.")
     }
+
+    @Test
+    fun `a full cap with reviews due sends to the reviews`() {
+        show(idleSchool.copy(learning = fullCap(SchoolUiState.PastCap(5, SchoolUiState.CapReviews.Due))))
+
+        showing("La siguiente lección trae 5 palabras. Empieza los repasos.")
+    }
+
+    @Test
+    fun `a full cap with no review due names the next review`() {
+        val nextReview: SchoolUiState.CapReviews.Next =
+            SchoolUiState.CapReviews.Next(remaining = 3.hours, dueAt = readInstant + 3.hours)
+        show(idleSchool.copy(learning = fullCap(SchoolUiState.PastCap(5, nextReview))))
+
+        val line: String = "La siguiente lección trae 5 palabras. Siguiente repaso en 3 h · "
+        val learningBottom: Dp = composeRule.onNodeWithText("Palabras en aprendizaje: 8 de 10")
+            .getUnclippedBoundsInRoot().bottom
+        val lineTop: Dp = composeRule.onNodeWithText(line, substring = true)
+            .performScrollTo()
+            .assertIsDisplayed()
+            .getUnclippedBoundsInRoot().top
+        assertTrue(learningBottom <= lineTop)
+        composeRule.onAllNodesWithText("Empieza los repasos.", substring = true).assertCountEquals(0)
+    }
+
+    @Test
+    fun `names a next review within the hour by its minutes alone`() {
+        val nextReview: SchoolUiState.CapReviews.Next =
+            SchoolUiState.CapReviews.Next(remaining = 40.minutes, dueAt = readInstant + 40.minutes)
+        show(idleSchool.copy(learning = fullCap(SchoolUiState.PastCap(5, nextReview))))
+
+        showing("La siguiente lección trae 5 palabras. Siguiente repaso en 40 min.")
+    }
+
+    private fun fullCap(pastCap: SchoolUiState.PastCap): SchoolUiState.LearningLine =
+        SchoolUiState.LearningLine(inLearning = 8, cap = 10, pastCap = pastCap)
 
     @Test
     fun `draws no line past the cap while the next lesson fits`() {

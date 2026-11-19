@@ -2,6 +2,7 @@ package com.emm.mygame.feature.school
 
 import com.emm.mygame.core.network.LessonId
 import com.emm.mygame.core.network.LessonName
+import com.emm.mygame.core.network.NextStep
 import com.emm.mygame.core.network.NextStepCard
 import com.emm.mygame.core.network.SeasonInForce
 import com.emm.mygame.core.network.UNSCALED_PERCENT
@@ -23,7 +24,7 @@ internal fun TownSnapshot.contentAt(
     val card: NextStepCard = nextStepCard()
     return SchoolUiState.Content(
         schoolLevel = schoolLevel(),
-        learning = learningLine(),
+        learning = learningLineAt(now),
         slot = lessonSlot?.lineIn(this, now) ?: SchoolUiState.SlotLine.Idle,
         skills = skills.mapIndexed { index: Int, skill: TownSnapshot.EarnedSkill -> skill.lineAt(index, skills) },
         lessons = lessons.map { lesson: TownSnapshot.Lesson -> lesson.cardIn(this) },
@@ -58,15 +59,23 @@ private fun TownSnapshot.schoolLevel(): Int =
 
 private fun TownSnapshot.isPastCap(wordCount: Int): Boolean = learning.inLearning + wordCount > learning.cap
 
-private fun TownSnapshot.learningLine(): SchoolUiState.LearningLine {
+private fun TownSnapshot.learningLineAt(now: Instant): SchoolUiState.LearningLine {
     val next: TownSnapshot.Lesson? = lessons.firstOrNull { lesson: TownSnapshot.Lesson ->
         !lesson.isStudied && lessonSlot?.lesson != lesson.id
     }
     return SchoolUiState.LearningLine(
         inLearning = learning.inLearning,
         cap = learning.cap,
-        wordsPastCap = next?.wordCount?.takeIf(::isPastCap),
+        pastCap = next?.wordCount?.takeIf(::isPastCap)?.let { words: Int ->
+            SchoolUiState.PastCap(words, capReviewsAt(now))
+        },
     )
+}
+
+private fun TownSnapshot.capReviewsAt(now: Instant): SchoolUiState.CapReviews {
+    val dueAt: Instant? = nextDueAt
+    if (nextStep is NextStep.Reviews || dueAt == null || dueAt <= now) return SchoolUiState.CapReviews.Due
+    return SchoolUiState.CapReviews.Next(remaining = dueAt - now, dueAt = dueAt)
 }
 
 private fun TownSnapshot.LessonSlot.lineIn(town: TownSnapshot, now: Instant): SchoolUiState.SlotLine {

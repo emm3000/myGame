@@ -220,9 +220,9 @@ private fun LearningSection(learning: SchoolUiState.LearningLine, modifier: Modi
                 color = MyGameTheme.colors.ink,
             )
             MyGameTrack(filled = learning.inLearning.toFloat() / learning.cap, color = MyGameTheme.colors.action)
-            learning.wordsPastCap?.let { count: Int ->
+            learning.pastCap?.let { pastCap: SchoolUiState.PastCap ->
                 MyGameText(
-                    label = copy.chrome(R.string.school_learning_full, "count" to count),
+                    label = copy.pastCapLabelOf(pastCap),
                     style = MyGameTypography.caption,
                     color = MyGameTheme.colors.warningInk,
                 )
@@ -326,7 +326,7 @@ private val previewReleasedNext: SchoolUiState.ReleasedLessonCard = previewRelea
 
 private val previewContent: SchoolUiState.Content = SchoolUiState.Content(
     schoolLevel = 1,
-    learning = SchoolUiState.LearningLine(inLearning = 3, cap = 10, wordsPastCap = null),
+    learning = SchoolUiState.LearningLine(inLearning = 3, cap = 10, pastCap = null),
     slot = SchoolUiState.SlotLine.Idle,
     skills = listOf(
         SchoolUiState.SkillLine(
