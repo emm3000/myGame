@@ -2,6 +2,10 @@ package com.emm.mygame.core.designsystem
 
 import androidx.compose.foundation.layout.padding
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.ImageBitmap
+import androidx.compose.ui.graphics.toArgb
+import androidx.compose.ui.graphics.toPixelMap
+import androidx.compose.ui.graphics.PixelMap
 import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.semantics.SemanticsNode
 import androidx.compose.ui.semantics.SemanticsProperties
@@ -10,6 +14,7 @@ import androidx.compose.ui.test.SemanticsMatcher
 import androidx.compose.ui.test.assertCountEquals
 import androidx.compose.ui.test.assertIsNotSelected
 import androidx.compose.ui.test.assertIsSelected
+import androidx.compose.ui.test.captureToImage
 import androidx.compose.ui.test.hasContentDescription
 import androidx.compose.ui.test.junit4.ComposeContentTestRule
 import androidx.compose.ui.test.junit4.createComposeRule
@@ -20,6 +25,7 @@ import androidx.compose.ui.unit.DpSize
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.toSize
 import org.junit.Assert.assertEquals
+import org.junit.Assert.assertNotEquals
 import org.junit.Assert.assertTrue
 import org.junit.Rule
 import org.junit.Test
@@ -176,6 +182,60 @@ class MyGameStreetStripTest {
 
         assertTrue("the tab ends at ${storageEnd()}, inside ${stripEnd()}", storageEnd() <= stripEnd() + PX_TOLERANCE)
     }
+
+    @Test
+    fun `the strip draws one line-strong frame of radius md`() {
+        show()
+
+        val strip: PixelMap = stripPixels()
+        val middle: Int = strip.height / 2
+        val radius: Int = with(composeRule.density) { MyGameRadii.md.roundToPx() }
+        val frame: String = hexOf(lightColors.lineStrong.toArgb())
+
+        assertEquals("the start edge", frame, hexOf(strip[0, middle].toArgb()))
+        assertEquals("the end edge", frame, hexOf(strip[strip.width - 1, middle].toArgb()))
+        assertEquals("the top edge", frame, hexOf(strip[strip.width / 2, 0].toArgb()))
+        assertEquals("the bottom edge", frame, hexOf(strip[strip.width / 2, strip.height - 1].toArgb()))
+        assertEquals("the start edge runs straight from the radius", frame, hexOf(strip[0, radius].toArgb()))
+        assertNotEquals("the corner still curves at half the radius", frame, hexOf(strip[0, radius / 2].toArgb()))
+    }
+
+    @Test
+    fun `a line-strong hairline divides each tab from the one before`() {
+        show()
+
+        val strip: PixelMap = stripPixels()
+        val middle: Int = strip.height / 2
+        val frame: String = hexOf(lightColors.lineStrong.toArgb())
+        val starts: List<Int> = composeRule.onAllNodes(isTab).fetchSemanticsNodes()
+            .map { node: SemanticsNode -> node.positionInRoot.x.toInt() }
+            .sorted()
+
+        starts.drop(1).forEach { start: Int ->
+            assertEquals("the divider at $start", frame, hexOf(strip[start, middle].toArgb()))
+        }
+        assertNotEquals("no divider inside a tab", frame, hexOf(strip[starts[1] + 1, middle].toArgb()))
+    }
+
+    @Test
+    fun `each tab inside the frame keeps the tab role and a 48 by 48 target`() {
+        show(modifier = Modifier.padding(horizontal = MyGameSpacing.step5))
+
+        mainStreet.tabs.forEach { tab: MyGameStreetTab ->
+            val node: SemanticsNode =
+                composeRule.onNodeWithContentDescription(tab.name, substring = true).fetchSemanticsNode()
+            val size: DpSize = with(composeRule.density) { node.size.toSize().toDpSize() }
+            assertEquals("${tab.name} is a tab", Role.Tab, node.config.getOrNull(SemanticsProperties.Role))
+            assertTrue("${tab.name} is $size", size.width >= 48.dp && size.height >= 48.dp)
+        }
+    }
+
+    private fun stripPixels(): PixelMap {
+        val image: ImageBitmap = composeRule.onNodeWithContentDescription("5 of 7 built").captureToImage()
+        return image.toPixelMap()
+    }
+
+    private fun hexOf(pixel: Int): String = Integer.toHexString(pixel)
 
     private fun storageEnd(): Float {
         val storage: SemanticsNode = composeRule.onNodeWithContentDescription("Storage, level 10").fetchSemanticsNode()
