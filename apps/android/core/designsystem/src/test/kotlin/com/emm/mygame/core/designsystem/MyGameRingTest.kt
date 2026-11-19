@@ -1,18 +1,21 @@
 package com.emm.mygame.core.designsystem
 
-import androidx.compose.ui.test.assertHeightIsEqualTo
+import androidx.compose.ui.semantics.SemanticsProperties
+import androidx.compose.ui.test.SemanticsMatcher
+import androidx.compose.ui.test.assert
+import androidx.compose.ui.test.assertCountEquals
+import androidx.compose.ui.test.assertIsDisplayed
 import androidx.compose.ui.test.assertLeftPositionInRootIsEqualTo
-import androidx.compose.ui.test.assertWidthIsEqualTo
 import androidx.compose.ui.test.junit4.ComposeContentTestRule
 import androidx.compose.ui.test.junit4.createComposeRule
-import androidx.compose.ui.test.onNodeWithContentDescription
+import androidx.compose.ui.test.onAllNodesWithText
+import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.unit.dp
 import org.junit.Assert.assertEquals
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.robolectric.RobolectricTestRunner
-import org.robolectric.annotation.Config
 
 @RunWith(RobolectricTestRunner::class)
 class MyGameRingTest {
@@ -53,32 +56,48 @@ class MyGameRingTest {
     }
 
     @Test
-    fun `measures thirty-two dp across`() {
-        composeRule.setContent {
-            MyGameTheme {
-                MyGameRing(count = 3, total = 5, countBefore = 3, accessibleName = RING_NAME)
-            }
-        }
+    fun `draws its label after the thirty-two dp ring`() {
+        drawRing()
 
-        composeRule.onNodeWithContentDescription(RING_NAME).assertWidthIsEqualTo(32.dp).assertHeightIsEqualTo(32.dp)
+        composeRule.onNodeWithText(RING_NAME, useUnmergedTree = true)
+            .assertIsDisplayed()
+            .assertLeftPositionInRootIsEqualTo(40.dp)
     }
 
     @Test
-    @Config(qualifiers = "w360dp-h800dp")
-    fun `keeps the ring on the right of a long name at 360 dp`() {
+    fun `reads the ring and its label as one node`() {
+        drawRing()
+
+        composeRule.onNodeWithText(RING_NAME).assertLeftPositionInRootIsEqualTo(0.dp)
+    }
+
+    @Test
+    fun `reads the label once`() {
+        drawRing()
+
+        composeRule.onAllNodesWithText(RING_NAME).assertCountEquals(1)
+        composeRule.onNodeWithText(RING_NAME)
+            .assert(SemanticsMatcher.keyNotDefined(SemanticsProperties.ContentDescription))
+    }
+
+    @Test
+    fun `draws the ring as decoration with no role of its own`() {
+        drawRing()
+
+        composeRule.onAllNodes(SemanticsMatcher.keyIsDefined(SemanticsProperties.Role), useUnmergedTree = true)
+            .assertCountEquals(0)
+    }
+
+    private fun drawRing() {
         composeRule.setContent {
             MyGameTheme {
-                MyGameHeader(end = { MyGameRing(count = 3, total = 5, countBefore = 3, accessibleName = RING_NAME) }) {
-                    MyGameMetaText(text = LONG_NAME, color = MyGameTheme.colors.inkMuted)
-                }
+                MyGameRing(count = 3, total = 5, countBefore = 3, label = RING_LABEL)
             }
         }
-
-        composeRule.onNodeWithContentDescription(RING_NAME).assertLeftPositionInRootIsEqualTo(328.dp)
     }
 
     private companion object {
         const val RING_NAME: String = "3 of 5 words learned"
-        const val LONG_NAME: String = "Saint Bartholomew of the Seven Rivers and the Long Valley · Town"
+        val RING_LABEL: MyGameLabel = MyGameLabel(text = RING_NAME, translation = null)
     }
 }
