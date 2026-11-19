@@ -1,6 +1,8 @@
 package com.emm.mygame.feature.signin
 
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.semantics.Role
+import androidx.compose.ui.semantics.SemanticsActions
 import androidx.compose.ui.semantics.SemanticsProperties
 import androidx.compose.ui.test.SemanticsMatcher
 import androidx.compose.ui.test.SemanticsNodeInteraction
@@ -9,14 +11,18 @@ import androidx.compose.ui.test.assertIsNotSelected
 import androidx.compose.ui.test.assertIsSelected
 import androidx.compose.ui.test.hasContentDescription
 import androidx.compose.ui.test.hasText
+import androidx.compose.ui.test.isHeading
 import androidx.compose.ui.test.isSelectable
 import androidx.compose.ui.test.junit4.ComposeContentTestRule
 import androidx.compose.ui.test.junit4.createComposeRule
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
 import androidx.compose.ui.test.performScrollTo
+import androidx.compose.ui.text.TextLayoutResult
+import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.unit.dp
 import com.emm.mygame.core.designsystem.MyGameTheme
+import com.emm.mygame.core.designsystem.MyGameTypography
 import com.emm.mygame.core.network.ThemePick
 import org.junit.Assert.assertEquals
 import org.junit.Rule
@@ -27,6 +33,7 @@ import org.robolectric.RobolectricTestRunner
 private const val SYSTEM_CHOICE: String = "Sistema"
 private const val LIGHT_CHOICE: String = "Claro"
 private const val DARK_CHOICE: String = "Oscuro"
+private const val THEME_QUESTION: String = "Tema"
 
 @RunWith(RobolectricTestRunner::class)
 class ThemeChoiceScreenTest {
@@ -79,7 +86,24 @@ class ThemeChoiceScreenTest {
     fun `names the theme group for TalkBack`() {
         draw(ThemePick.System)
 
-        composeRule.onNode(hasContentDescription("Tema")).assertExists()
+        composeRule.onNode(hasContentDescription(THEME_QUESTION)).assertExists()
+    }
+
+    @Test
+    fun `draws the theme question as a section title in heading on the ink`() {
+        var ink: Color = Color.Unspecified
+        composeRule.setContent {
+            MyGameTheme {
+                ink = MyGameTheme.colors.ink
+                ThemeChoiceScreen(state = ThemeChoiceUiState(ThemePick.System), onIntent = {})
+            }
+        }
+
+        val drawn: TextStyle = textStyleOf(THEME_QUESTION)
+        assertEquals(MyGameTypography.heading.fontSize, drawn.fontSize)
+        assertEquals(MyGameTypography.heading.fontWeight, drawn.fontWeight)
+        assertEquals(ink, drawn.color)
+        composeRule.onNode(isHeading() and hasText(THEME_QUESTION)).assertExists()
     }
 
     @Test
@@ -98,5 +122,12 @@ class ThemeChoiceScreenTest {
         }
 
         composeRule.onNodeWithText(DARK_CHOICE).performScrollTo().assertExists()
+    }
+
+    private fun textStyleOf(text: String): TextStyle {
+        val results: MutableList<TextLayoutResult> = mutableListOf()
+        composeRule.onNode(hasText(text) and isHeading(), useUnmergedTree = true).fetchSemanticsNode()
+            .config[SemanticsActions.GetTextLayoutResult].action?.invoke(results)
+        return results.first().layoutInput.style
     }
 }
