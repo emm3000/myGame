@@ -14,6 +14,8 @@ import {
   isLessonPlacedOut,
   type LessonSlot,
   type LessonWord,
+  type MemoryTerms,
+  nextInLearningDueAtOf,
   ok,
   placedOutBandsOf,
   type ReleasedLesson,
@@ -173,10 +175,15 @@ export const schoolOverviewOf = (
   catalog: TownCatalog,
   lessons: LessonLibrary,
   released: ReadonlyArray<ReleasedLesson>,
+  memoryTerms: MemoryTerms,
 ): Result<SchoolOverview, DomainError> => {
   const school = schoolLevelOf(town.buildingLevels.school, catalog)
   if (!school.ok) {
     return school
+  }
+  const nextInLearningDueAt = nextInLearningDueAtOf(cards, memoryTerms)
+  if (!nextInLearningDueAt.ok) {
+    return nextInLearningDueAt
   }
   const studyPercent = studyPercentAt(at, catalog.townSettings())
   const learner = {
@@ -207,6 +214,8 @@ export const schoolOverviewOf = (
       cap: school.value.learningCap,
       inLearning: cardsInLearningOf(cards),
       retainedWords: retainedWordsOf(lessons.lessons(), town.skills, cards),
+      nextInLearningDueAt:
+        nextInLearningDueAt.value === null ? null : isoOf(nextInLearningDueAt.value),
     },
     chromePhase: chromePhaseOf(scaffold, lessons.chromeLessons(), cards, town.skills),
   })

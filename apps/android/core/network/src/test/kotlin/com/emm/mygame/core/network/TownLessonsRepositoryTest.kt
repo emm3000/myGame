@@ -293,7 +293,7 @@ class TownLessonsRepositoryTest {
                 """"hasBandStarted":false,"skills":[$SKILL],""" +
                 """"lessonSlot":{"lessonId":"lesson-1","startedAt":"2026-11-05T10:00:00.000Z",""" +
                 """"finishesAt":"2026-11-05T10:20:00.000Z"},""" +
-                """"learning":{"cap":10,"inLearning":8,"retainedWords":null},""" +
+                """"learning":{"cap":10,"inLearning":8,"retainedWords":null,"nextInLearningDueAt":null},""" +
                 """"stableWordCount":0,"retainedWordCount":0,""" +
                 """"nextStep":{"kind":"caughtUp","reason":"lessonsDone","goal":null},"tip":null,""" +
                 """"chromePhase":"scaffold","scaffold":"es","scaffoldVersion":0,"nextDueAt":null,""" +

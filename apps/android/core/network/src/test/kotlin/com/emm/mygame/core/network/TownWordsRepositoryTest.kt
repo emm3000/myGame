@@ -127,7 +127,7 @@ class TownWordsRepositoryTest {
                 """"hiring":$HIRING,"job":null,""" +
                 """"lessons":[],"releasedLessons":[],"dueHoldoutChecks":[],""" +
                 """"hasBandStarted":false,"skills":[],"lessonSlot":null,""" +
-                """"learning":{"cap":10,"inLearning":0,"retainedWords":null},""" +
+                """"learning":{"cap":10,"inLearning":0,"retainedWords":null,"nextInLearningDueAt":null},""" +
                 """"stableWordCount":0,"retainedWordCount":0,""" +
                 """"nextStep":{"kind":"caughtUp","reason":"lessonsDone","goal":null},"tip":null,""" +
                 """"chromePhase":"scaffold","scaffold":"es","scaffoldVersion":0,"nextDueAt":null,""" +

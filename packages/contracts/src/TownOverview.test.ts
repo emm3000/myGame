@@ -129,7 +129,7 @@ const overview = (overrides: Record<string, unknown> = {}): Record<string, unkno
   hasBandStarted: false,
   skills: [earnedFood],
   lessonSlot: lessonUnderStudy,
-  learning: { cap: 15, inLearning: 5, retainedWords: null },
+  learning: { cap: 15, inLearning: 5, retainedWords: null, nextInLearningDueAt: null },
   stableWordCount: 12,
   retainedWordCount: 4,
   nextStep: { kind: 'caughtUp', reason: 'lessonsDone', goal: null },
@@ -409,13 +409,18 @@ describe('TownOverviewSchema', () => {
   })
 
   it('rejects a fractional count of words in learning', () => {
-    const learning = { cap: 15, inLearning: 2.5, retainedWords: null }
+    const learning = { cap: 15, inLearning: 2.5, retainedWords: null, nextInLearningDueAt: null }
 
     expect(TownOverviewSchema.safeParse(overview({ learning })).success).toBe(false)
   })
 
   it('accepts a count of retained words', () => {
-    const learning = { cap: 15, inLearning: 5, retainedWords: { count: 3, total: 5 } }
+    const learning = {
+      cap: 15,
+      inLearning: 5,
+      retainedWords: { count: 3, total: 5 },
+      nextInLearningDueAt: null,
+    }
 
     expect(TownOverviewSchema.safeParse(overview({ learning })).success).toBe(true)
   })
@@ -427,7 +432,29 @@ describe('TownOverviewSchema', () => {
   })
 
   it('rejects retained words with a total of none', () => {
-    const learning = { cap: 15, inLearning: 5, retainedWords: { count: 0, total: 0 } }
+    const learning = {
+      cap: 15,
+      inLearning: 5,
+      retainedWords: { count: 0, total: 0 },
+      nextInLearningDueAt: null,
+    }
+
+    expect(TownOverviewSchema.safeParse(overview({ learning })).success).toBe(false)
+  })
+
+  it('accepts the instant the next word in learning is due', () => {
+    const learning = {
+      cap: 15,
+      inLearning: 15,
+      retainedWords: null,
+      nextInLearningDueAt: '2026-11-20T09:15:00.000Z',
+    }
+
+    expect(TownOverviewSchema.safeParse(overview({ learning })).success).toBe(true)
+  })
+
+  it('rejects a learning load without when the next word in learning is due', () => {
+    const learning = { cap: 15, inLearning: 15, retainedWords: null }
 
     expect(TownOverviewSchema.safeParse(overview({ learning })).success).toBe(false)
   })

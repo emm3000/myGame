@@ -407,7 +407,7 @@ export const townOverviewOf = (
     lessons,
     bands: lessons,
   })
-  const school = schoolOverviewOf(reading, catalog, lessons, released)
+  const school = schoolOverviewOf(reading, catalog, lessons, released, memoryTerms)
   if (!school.ok) {
     return school
   }
