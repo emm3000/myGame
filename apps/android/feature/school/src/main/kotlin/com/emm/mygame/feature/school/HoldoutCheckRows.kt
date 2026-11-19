@@ -14,9 +14,6 @@ import com.emm.mygame.core.designsystem.MyGameLabel
 import com.emm.mygame.core.designsystem.MyGameNavRow
 import com.emm.mygame.core.designsystem.MyGamePreviewSurface
 import com.emm.mygame.core.designsystem.MyGameSpacing
-import com.emm.mygame.core.designsystem.MyGameText
-import com.emm.mygame.core.designsystem.MyGameTheme
-import com.emm.mygame.core.designsystem.MyGameTypography
 import com.emm.mygame.core.designsystem.PreviewMyGame
 import com.emm.mygame.core.network.HoldoutCheckRepository
 import com.emm.mygame.core.network.HoldoutCheckWeek
@@ -58,21 +55,17 @@ private fun HoldoutCheckRowLine(
     onHoldoutCheckOpen: (HoldoutCheckRow) -> Unit,
     modifier: Modifier = Modifier,
 ) {
-    Column(verticalArrangement = Arrangement.spacedBy(MyGameSpacing.step2), modifier = modifier) {
-        MyGameText(
-            text = fixedCopyResource(
-                R.string.school_holdout_row,
-                "band" to row.band.number.toString(),
-                "week" to row.week.number.toString(),
-            ),
-            style = MyGameTypography.body,
-            color = MyGameTheme.colors.ink,
-        )
-        MyGameNavRow(
-            title = MyGameLabel(text = fixedCopyResource(R.string.school_holdout_open), translation = null),
-            onClick = { onHoldoutCheckOpen(row) },
-        )
-    }
+    val due: String = fixedCopyResource(
+        R.string.school_holdout_row,
+        "band" to row.band.number.toString(),
+        "week" to row.week.number.toString(),
+    )
+    MyGameNavRow(
+        title = MyGameLabel(text = fixedCopyResource(R.string.school_holdout_open), translation = null),
+        body = MyGameLabel(text = due, translation = null),
+        onClick = { onHoldoutCheckOpen(row) },
+        modifier = modifier,
+    )
 }
 
 private class HoldoutCheckRowsStates : PreviewParameterProvider<HoldoutCheckRowsUiState> {
