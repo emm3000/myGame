@@ -118,6 +118,7 @@ class TaskDockFrameTest {
     private val sent: MutableList<TownStatusIntent> = mutableListOf()
 
     private fun showingFakeTask(
+        kind: FrameKind = FrameKind.Task,
         isFilled: Boolean = true,
         isFollowingTown: Boolean = false,
         status: TownStatusUiState = TownStatusUiState.none,
@@ -128,7 +129,7 @@ class TaskDockFrameTest {
             MyGameTheme {
                 val backStack: NavBackStack<NavKey> = rememberNavBackStack(Destination.Town, Destination.Review)
                 FramedScreen(
-                    kind = FrameKind.Task,
+                    kind = kind,
                     doesScreenReadTown = false,
                     chrome = SignedInChrome(
                         dependencies = dependencies,
@@ -138,6 +139,7 @@ class TaskDockFrameTest {
                         banner = banner,
                     ),
                 ) { frame: ScreenFrame ->
+                    if (kind == FrameKind.Home) frame.status()
                     FakeTaskRoute(
                         frame = frame,
                         isFilled = isFilled,
@@ -292,6 +294,34 @@ class TaskDockFrameTest {
         showingFakeTask(status = finishedWithWordsToRead, banner = finishNotice)
 
         composeRule.onNode(wayOnToTheWords, useUnmergedTree = true).assertExists()
+    }
+
+    @Test
+    fun `a place frame draws the finish notice's way on while the keyboard hides the dock`() {
+        showingFakeTask(
+            kind = FrameKind.Place,
+            isFilled = false,
+            status = finishedWithWordsToRead,
+            banner = finishNotice,
+        )
+
+        composeRule.keyboard(isOpen = true)
+
+        composeRule.onAllNodes(wayOnToTheWords, useUnmergedTree = true).assertCountEquals(1)
+    }
+
+    @Test
+    fun `the town home's frame draws the finish notice's way on while the keyboard hides the dock`() {
+        showingFakeTask(
+            kind = FrameKind.Home,
+            isFilled = false,
+            status = finishedWithWordsToRead,
+            banner = finishNotice,
+        )
+
+        composeRule.keyboard(isOpen = true)
+
+        composeRule.onAllNodes(wayOnToTheWords, useUnmergedTree = true).assertCountEquals(1)
     }
 
     @Test
