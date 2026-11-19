@@ -11,6 +11,7 @@ import androidx.compose.ui.test.junit4.createComposeRule
 import androidx.compose.ui.test.onAllNodesWithText
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
+import androidx.compose.ui.test.performScrollTo
 import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.text.intl.LocaleList
 import com.emm.mygame.core.designsystem.MyGameTheme
@@ -92,7 +93,7 @@ class LessonWordsSupportScreenTest {
     fun `asks for the support of a frame word on a tap`() {
         draw(readingOf(drinkWaterWord(aguaOnTap)))
 
-        composeRule.onNodeWithText("drink").performClick()
+        composeRule.onNodeWithText("drink").performScrollTo().performClick()
 
         assertEquals(
             listOf<LessonWordsIntent>(LessonWordsIntent.SupportTapped(LessonWordsUiState.ShownSupport.Frame(1))),

@@ -121,9 +121,7 @@ private fun LessonWordsState(
         LessonWordsUiState.NothingToRead -> NothingToRead(onSchoolOpen = onSchoolOpen)
         is LessonWordsUiState.Reading -> {
             LessonHeader(reading = state)
-            state.remaining
-                ?.takeUnless { state.isWaitingForLessonEnd }
-                ?.let { remaining: Duration -> RunningTime(remaining = remaining) }
+            state.remaining?.let { remaining: Duration -> RunningTime(remaining = remaining) }
             WordProgress(reading = state)
             WordBlock(reading = state, onIntent = onIntent)
             WordActions(reading = state, onWayOn = onWayOn, onSchoolOpen = onSchoolOpen)
@@ -193,11 +191,22 @@ private fun RunningTime(remaining: Duration, modifier: Modifier = Modifier) {
 @Composable
 private fun WordProgress(reading: LessonWordsUiState.Reading, modifier: Modifier = Modifier) {
     val filled: Float = (reading.index + 1).toFloat() / reading.words.size
-    MyGameTrack(
-        filled = filled,
-        color = MyGameTheme.colors.ink,
-        modifier = modifier.semantics { progressBarRangeInfo = ProgressBarRangeInfo(filled, 0f..1f) },
-    )
+    Column(verticalArrangement = Arrangement.spacedBy(MyGameSpacing.step2), modifier = modifier) {
+        MyGameText(
+            label = chromeResource(
+                R.string.school_lesson_word_position,
+                "number" to (reading.index + 1).toString(),
+                "count" to reading.words.size.toString(),
+            ),
+            style = MyGameTypography.caption,
+            color = MyGameTheme.colors.inkMuted,
+        )
+        MyGameTrack(
+            filled = filled,
+            color = MyGameTheme.colors.ink,
+            modifier = Modifier.semantics { progressBarRangeInfo = ProgressBarRangeInfo(filled, 0f..1f) },
+        )
+    }
 }
 
 @Composable

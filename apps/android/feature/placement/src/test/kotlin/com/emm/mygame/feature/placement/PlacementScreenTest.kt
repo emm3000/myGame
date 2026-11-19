@@ -83,6 +83,13 @@ class PlacementScreenTest {
     }
 
     @Test
+    fun `draws the band and the shown word's place once in the body, above the track`() {
+        showing(askingFirstBand)
+
+        assertAskingProgressDrawnOnce(composeRule, band = "Banda 1", position = "Palabra 1 de 2")
+    }
+
+    @Test
     fun `draws the shown word's place in the band`() {
         showing(askingFirstBand)
 
