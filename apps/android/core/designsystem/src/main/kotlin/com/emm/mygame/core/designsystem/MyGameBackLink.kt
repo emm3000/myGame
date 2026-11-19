@@ -5,6 +5,7 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.testTag
 
 const val BACK_LINK_CHEVRON: String = "back_link_chevron"
@@ -22,13 +23,14 @@ fun MyGameBackLink(label: String, isEnabled: Boolean, onClick: () -> Unit, modif
 @Composable
 fun MyGameBackLink(label: MyGameLabel, isEnabled: Boolean, onClick: () -> Unit, modifier: Modifier = Modifier) {
     val colors: MyGameColors = MyGameTheme.colors
+    val color: Color = if (isEnabled) colors.ink else colors.inkMuted
     MyGameTextTarget(isEnabled = isEnabled, onClick = onClick, modifier = modifier) {
         Row(
             horizontalArrangement = Arrangement.spacedBy(MyGameSpacing.step1),
             verticalAlignment = Alignment.CenterVertically,
         ) {
-            MyGameIcon(icon = MyGameIcons.back, tint = colors.ink, modifier = Modifier.testTag(BACK_LINK_CHEVRON))
-            MyGameText(label = label, style = MyGameTypography.label, color = colors.ink)
+            MyGameIcon(icon = MyGameIcons.back, tint = color, modifier = Modifier.testTag(BACK_LINK_CHEVRON))
+            MyGameText(label = label, style = MyGameTypography.label, color = color)
         }
     }
 }
