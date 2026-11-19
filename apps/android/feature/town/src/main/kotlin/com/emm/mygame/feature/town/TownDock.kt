@@ -33,32 +33,13 @@ fun TownDock(
         step = copy.dockStepOf(dock),
         onFoldChange = onFoldChange,
         modifier = modifier.testTag(TOWN_DOCK),
-        notice = { TownDockNotice(dock = dock) },
+        notice = { dock.shownNotice()?.let { shown: TownNotice -> TownDockNotice(notice = shown) } },
     )
 }
 
 @Composable
-fun TownDockNotice(dock: TownStatusUiState.Dock, modifier: Modifier = Modifier) {
-    val copy: PlayerCopy = rememberPlayerCopy()
-    val message: String = when (dock) {
-        TownStatusUiState.Dock.Loading -> return
-        TownStatusUiState.Dock.Refused -> copy.fixedCopy(R.string.town_refusal_unexpected)
-        is TownStatusUiState.Dock.Step -> when (val start: TownUiState.LessonStartStatus = dock.lessonStart) {
-            is TownUiState.LessonStartStatus.Refused ->
-                copy.fixedCopy { lessonRefusalLineOf(start.refusal, dock.capWait) }
-            TownUiState.LessonStartStatus.Unreachable -> copy.fixedCopy(R.string.town_refusal_unexpected)
-            TownUiState.LessonStartStatus.Idle, TownUiState.LessonStartStatus.Waiting -> return
-        }
-    }
-    MyGameInlineAlert(message = message, modifier = modifier)
-}
-
-fun TownStatusUiState.Dock.shownNotice(): Any? = when (this) {
-    TownStatusUiState.Dock.Loading -> null
-    TownStatusUiState.Dock.Refused -> this
-    is TownStatusUiState.Dock.Step -> lessonStart.takeIf { start: TownUiState.LessonStartStatus ->
-        start is TownUiState.LessonStartStatus.Refused || start == TownUiState.LessonStartStatus.Unreachable
-    }
+fun TownDockNotice(notice: TownNotice, modifier: Modifier = Modifier) {
+    MyGameInlineAlert(message = notice.message, modifier = modifier)
 }
 
 private fun PlayerCopy.dockStepOf(dock: TownStatusUiState.Dock): MyGameLabel? = when (dock) {

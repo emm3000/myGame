@@ -49,6 +49,7 @@ import com.emm.mygame.core.ui.frameHeaderTurn
 import com.emm.mygame.feature.town.TownDock
 import com.emm.mygame.feature.town.TownDockActions
 import com.emm.mygame.feature.town.TownDockNotice
+import com.emm.mygame.feature.town.TownNotice
 import com.emm.mygame.feature.town.TownReportRow
 import com.emm.mygame.feature.town.TownStatusIntent
 import com.emm.mygame.feature.town.TownStatusUiState
@@ -123,14 +124,15 @@ private fun foldedTurnOf(kind: FrameKind): Float = if (kind == FrameKind.Task) T
 @Composable
 private fun FoldedDockTop(dock: TownStatusUiState.Dock?, isFolded: Boolean, turn: Float) {
     if (dock == null || !isFolded) return
+    val notice: TownNotice? = dock.shownNotice()
     NoticeInView(
-        shownNotice = dock.shownNotice(),
+        shownNotice = notice?.key,
         modifier = Modifier.semantics {
             isTraversalGroup = true
             traversalIndex = turn
         },
     ) {
-        TownDockNotice(dock = dock)
+        notice?.let { shown: TownNotice -> TownDockNotice(notice = shown) }
     }
 }
 
