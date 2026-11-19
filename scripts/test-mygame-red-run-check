@@ -68,8 +68,8 @@ full_body() {
     '' \
     '| Rule, branch or guard | Test | Mutation | Failing assertion line |' \
     '|---|---|---|---|' \
-    '| `src/a.ts:2` the if | `a test` | drop it | FAIL a |' \
-    '| src/b.kt:3 the if | `b test` | drop it | FAIL b |'
+    "| \`src/a.ts:2\` the if | \`a test\` | drop it | FAIL a |" \
+    "| src/b.kt:3 the if | \`b test\` | drop it | FAIL b |"
 }
 
 hook() {
@@ -117,7 +117,7 @@ checks_gh_pr_create_spelled_with_extra_whitespace() {
 }
 
 blocks_a_body_missing_one_row_and_names_exactly_that_path_line() {
-  hook "gh pr create --title t --body '$(body_with_rows '| `src/a.ts:2` the if | `a test` | drop it | FAIL a |')'"
+  hook "gh pr create --title t --body '$(body_with_rows "| \`src/a.ts:2\` the if | \`a test\` | drop it | FAIL a |")'"
   expect_blocked_for "${FUNCNAME[0]}" src/b.kt:3
 }
 
@@ -182,32 +182,32 @@ blocks_a_command_that_does_not_parse_naming_every_line() {
 }
 
 passes_an_exemption_row_with_a_reason() {
-  hook "gh pr create --title t --body '$(body_with_rows '| `src/a.ts:2` the if | `a test` | drop it | FAIL a |' '| src/b.kt:3 a log guard | no behavior: only the log line changes | none | none |')'"
+  hook "gh pr create --title t --body '$(body_with_rows "| \`src/a.ts:2\` the if | \`a test\` | drop it | FAIL a |" '| src/b.kt:3 a log guard | no behavior: only the log line changes | none | none |')'"
   expect_pass "${FUNCNAME[0]}"
 }
 
 blocks_an_exemption_row_with_an_empty_reason() {
-  hook "gh pr create --title t --body '$(body_with_rows '| `src/a.ts:2` the if | `a test` | drop it | FAIL a |' '| src/b.kt:3 a log guard | no behavior:   | none | none |')'"
+  hook "gh pr create --title t --body '$(body_with_rows "| \`src/a.ts:2\` the if | \`a test\` | drop it | FAIL a |" '| src/b.kt:3 a log guard | no behavior:   | none | none |')'"
   expect_blocked_for "${FUNCNAME[0]}" src/b.kt:3
 }
 
 covers_only_from_the_first_cell() {
-  hook "gh pr create --title t --body '$(body_with_rows '| `src/a.ts:2` the if | `a test` | drop it | FAIL a |' '| the if | `b test` | src/b.kt:3 | FAIL b |')'"
+  hook "gh pr create --title t --body '$(body_with_rows "| \`src/a.ts:2\` the if | \`a test\` | drop it | FAIL a |" "| the if | \`b test\` | src/b.kt:3 | FAIL b |")'"
   expect_blocked_for "${FUNCNAME[0]}" src/b.kt:3
 }
 
 covers_only_the_exact_path_line() {
-  hook "gh pr create --title t --body '$(body_with_rows '| src/a.ts:20 the if | `a test` | drop it | FAIL a |' '| lib/src/b.kt:3 the if | `b test` | drop it | FAIL b |')'"
+  hook "gh pr create --title t --body '$(body_with_rows "| src/a.ts:20 the if | \`a test\` | drop it | FAIL a |" "| lib/src/b.kt:3 the if | \`b test\` | drop it | FAIL b |")'"
   expect_blocked_for "${FUNCNAME[0]}" src/a.ts:2 src/b.kt:3
 }
 
 covers_a_backticked_path_line() {
-  hook "gh pr create --title t --body '$(body_with_rows '| `src/a.ts:2` the if | `a test` | drop it | FAIL a |' '| `src/b.kt:3` the if | `b test` | drop it | FAIL b |')'"
+  hook "gh pr create --title t --body '$(body_with_rows "| \`src/a.ts:2\` the if | \`a test\` | drop it | FAIL a |" "| \`src/b.kt:3\` the if | \`b test\` | drop it | FAIL b |")'"
   expect_pass "${FUNCNAME[0]}"
 }
 
 keeps_an_escaped_pipe_inside_the_first_cell() {
-  hook "gh pr create --title t --body '$(body_with_rows '| `src/a.ts:2` the if | `a test` | drop it | FAIL a |' '| `a\|b` guard src/b.kt:3 | `b test` | drop it | FAIL b |')'"
+  hook "gh pr create --title t --body '$(body_with_rows "| \`src/a.ts:2\` the if | \`a test\` | drop it | FAIL a |" "| \`a\|b\` guard src/b.kt:3 | \`b test\` | drop it | FAIL b |")'"
   expect_pass "${FUNCNAME[0]}"
 }
 
@@ -248,7 +248,7 @@ Co-Authored-By: Someone <someone@example.invalid>"'
 settings_run_the_check_through_the_project_dir() {
   local entry
   entry=$(jq -r '[.hooks.PreToolUse[] | select(.matcher == "Bash") | .hooks[].command | select(test("mygame-red-run-check"))] | .[0] // ""' "$settings")
-  [ "$entry" = '"$CLAUDE_PROJECT_DIR"/scripts/mygame-red-run-check' ] || fail "${FUNCNAME[0]}" "entry '$entry'" || return 1
+  [ "$entry" = "\"\$CLAUDE_PROJECT_DIR\"/scripts/mygame-red-run-check" ] || fail "${FUNCNAME[0]}" "entry '$entry'" || return 1
   status=0
   err=$(jq -n --arg cwd "$repo" '{tool_input: {command: "gh pr create --fill"}, cwd: $cwd}' |
     (cd "$outside" && CLAUDE_PROJECT_DIR="$sandbox" bash -c "$entry") 2>&1) || status=$?
