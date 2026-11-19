@@ -533,10 +533,10 @@ class SchoolScreenTest {
     }
 
     @Test
-    fun `opens the words of the running lesson`() {
+    fun `opens the words of the running lesson from a nav row`() {
         show(idleSchool.copy(slot = busySlot(150.seconds)))
 
-        composeRule.onNodeWithText("Leer las palabras").performScrollTo().performClick()
+        composeRule.onNode(navRowOf("Leer las palabras"), useUnmergedTree = true).performScrollTo().performClick()
 
         assertEquals(listOf(firstLesson), lessonOpens)
     }

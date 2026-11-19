@@ -11,6 +11,7 @@ import androidx.compose.ui.semantics.semantics
 import com.emm.mygame.core.designsystem.MyGameBlock
 import com.emm.mygame.core.designsystem.MyGameInlineAlert
 import com.emm.mygame.core.designsystem.MyGameLabel
+import com.emm.mygame.core.designsystem.MyGameNavRow
 import com.emm.mygame.core.designsystem.MyGameOutlinedButton
 import com.emm.mygame.core.designsystem.MyGameSpacing
 import com.emm.mygame.core.designsystem.MyGameText
@@ -43,7 +44,7 @@ internal fun ShownLesson(
             )
         }
         running?.let { slot: SchoolUiState.SlotLine.Running ->
-            ReadWordsPill(running = slot.lesson, name = slot.name, shown = card.lesson, onLessonOpen = onLessonOpen)
+            ReadWordsRow(running = slot.lesson, name = slot.name, shown = card.lesson, onLessonOpen = onLessonOpen)
         }
         StartAnswer(lesson = card.lesson, start = content.start, opening = content.learning.opening)
     }
@@ -109,7 +110,7 @@ internal fun PlayerCopy.studyLabelOf(card: SchoolUiState.LessonCard): MyGameLabe
 }
 
 @Composable
-private fun ReadWordsPill(
+private fun ReadWordsRow(
     running: LessonId,
     name: LessonName,
     shown: LessonId,
@@ -117,10 +118,8 @@ private fun ReadWordsPill(
     modifier: Modifier = Modifier,
 ) {
     val copy: PlayerCopy = rememberPlayerCopy()
-    MyGameOutlinedButton(
-        label = copy.readWordsLabelOf(running, name, shown),
-        isBusy = false,
-        busyDescription = copy.chrome(R.string.school_waiting).spoken,
+    MyGameNavRow(
+        title = copy.readWordsLabelOf(running, name, shown),
         onClick = { onLessonOpen(running) },
         modifier = modifier,
     )

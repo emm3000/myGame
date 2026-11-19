@@ -31,6 +31,7 @@ import com.emm.mygame.core.designsystem.MyGameFramePiece
 import com.emm.mygame.core.designsystem.MyGameFrameText
 import com.emm.mygame.core.designsystem.MyGameIcon
 import com.emm.mygame.core.designsystem.MyGameIcons
+import com.emm.mygame.core.designsystem.MyGameNavRow
 import com.emm.mygame.core.designsystem.MyGamePreviewSurface
 import com.emm.mygame.core.designsystem.MyGameSizes
 import com.emm.mygame.core.designsystem.MyGameSkeleton
@@ -38,7 +39,6 @@ import com.emm.mygame.core.designsystem.MyGameSkeletonBlocks
 import com.emm.mygame.core.designsystem.MyGameSpacing
 import com.emm.mygame.core.designsystem.MyGameSupportLine
 import com.emm.mygame.core.designsystem.MyGameText
-import com.emm.mygame.core.designsystem.MyGameTextLink
 import com.emm.mygame.core.designsystem.MyGameTheme
 import com.emm.mygame.core.designsystem.MyGameTrack
 import com.emm.mygame.core.designsystem.MyGameTypography
@@ -147,7 +147,7 @@ private fun NothingToRead(onSchoolOpen: () -> Unit, modifier: Modifier = Modifie
                 style = MyGameTypography.body,
                 color = MyGameTheme.colors.ink,
             )
-            MyGameTextLink(label = chromeResource(R.string.school_go_to_school), onClick = onSchoolOpen)
+            MyGameNavRow(title = chromeResource(R.string.school_go_to_school), onClick = onSchoolOpen)
         }
     }
 }
@@ -266,7 +266,7 @@ private fun WordActions(
     val wayOn: LessonWordsUiState.WayOn? = reading.wayOn
     when {
         !reading.isLastWord -> wayOn?.let { shown: LessonWordsUiState.WayOn ->
-            MyGameTextLink(label = wayOnLabelOf(shown), onClick = { onWayOn(shown) }, modifier = modifier)
+            MyGameNavRow(title = wayOnLabelOf(shown), onClick = { onWayOn(shown) }, modifier = modifier)
         }
         wayOn != null -> Unit
         else -> ReviewsFollow(onSchoolOpen = onSchoolOpen, modifier = modifier)
@@ -281,7 +281,7 @@ private fun ReviewsFollow(onSchoolOpen: () -> Unit, modifier: Modifier = Modifie
             style = MyGameTypography.body,
             color = MyGameTheme.colors.ink,
         )
-        MyGameTextLink(label = chromeResource(R.string.school_go_to_school), onClick = onSchoolOpen)
+        MyGameNavRow(title = chromeResource(R.string.school_go_to_school), onClick = onSchoolOpen)
     }
 }
 
