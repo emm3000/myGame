@@ -1,6 +1,14 @@
 package com.emm.mygame.feature.report
 
 import androidx.compose.runtime.MutableState
+import org.robolectric.annotation.GraphicsMode
+import org.robolectric.annotation.Config
+import org.junit.Assert.assertFalse
+import androidx.compose.ui.text.TextLayoutResult
+import androidx.compose.ui.test.onRoot
+import androidx.compose.ui.test.getBoundsInRoot
+import androidx.compose.ui.test.SemanticsNodeInteraction
+import androidx.compose.ui.semantics.SemanticsActions
 import androidx.compose.runtime.State
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.ui.semantics.LiveRegionMode
@@ -105,6 +113,26 @@ class ReportScreenTest {
         composeRule.onNodeWithText("No tienes repasos pendientes ahora.").assertIsDisplayed()
         composeRule.onNodeWithText("Siguiente repaso:").assertIsDisplayed()
         composeRule.onNodeWithText("12:00").assertIsDisplayed()
+    }
+
+    @Test
+    @Config(qualifiers = "+w360dp-h640dp", fontScale = 2.0f)
+    @GraphicsMode(GraphicsMode.Mode.NATIVE)
+    fun `draws the next review's whole instant at 360 by 640 and font scale 2`() {
+        show(contentWith(nextReview = localNoon, receivedAt = localNoon - 50.hours))
+
+        val time: SemanticsNodeInteraction = composeRule.onNodeWithText("12:00", substring = true).performScrollTo()
+        val window: Dp = composeRule.onRoot().getUnclippedBoundsInRoot().right
+        val drawn: DpRect = time.getBoundsInRoot()
+        val whole: DpRect = time.getUnclippedBoundsInRoot()
+        assertEquals("the instant's drawn bounds", whole, drawn)
+        assertTrue("the instant ends at ${whole.right}, inside $window", whole.right <= window)
+        val layout: TextLayoutResult = layoutOf(time)
+        (0 until layout.lineCount).forEach { line: Int ->
+            assertFalse("line $line is cut short", layout.isLineEllipsized(line))
+            assertTrue("line $line ends inside the instant", layout.getLineRight(line) <= layout.size.width)
+            assertTrue("line $line sits inside the instant", layout.getLineBottom(line) <= layout.size.height)
+        }
     }
 
     @Test
@@ -286,6 +314,12 @@ class ReportScreenTest {
         show(contentWith(news = ReportUiState.ReportNews.Closed))
 
         composeRule.onAllNodesWithText("Cerrar las noticias").assertCountEquals(0)
+    }
+
+    private fun layoutOf(node: SemanticsNodeInteraction): TextLayoutResult {
+        val results: MutableList<TextLayoutResult> = mutableListOf()
+        node.fetchSemanticsNode().config[SemanticsActions.GetTextLayoutResult].action?.invoke(results)
+        return results.first()
     }
 
     private fun topOf(line: String): Float =
