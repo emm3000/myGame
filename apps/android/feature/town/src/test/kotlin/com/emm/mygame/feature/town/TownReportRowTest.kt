@@ -52,6 +52,10 @@ class TownReportRowTest {
 
     private val reportStep: TownStatusUiState.Dock = stepGoing(NextStepCard.Action.GoToReport)
 
+    private val blockedReportStep: TownStatusUiState.Dock = stepGoing(NextStepCard.Action.GoToReport).copy(
+        go = TownStatusUiState.Go.Blocked(NextStepCard.Action.GoToReport, TownStatusUiState.GoBlock.NoReviewsDue),
+    )
+
     private val chevronOfTheRow: SemanticsMatcher = hasTestTag(NAV_ROW_CHEVRON)
         .and(hasAnyAncestor(hasClickAction().and(hasAnyDescendant(hasText(REPORT)))))
 
@@ -95,6 +99,13 @@ class TownReportRowTest {
     @Test
     fun `draws no Report row when the go is the way to the Report`() {
         show(state = homeInSummer, dock = reportStep)
+
+        composeRule.onAllNodes(hasText(REPORT)).assertCountEquals(0)
+    }
+
+    @Test
+    fun `draws no Report row when the blocked go is the way to the Report`() {
+        show(state = homeInSummer, dock = blockedReportStep)
 
         composeRule.onAllNodes(hasText(REPORT)).assertCountEquals(0)
     }

@@ -27,6 +27,7 @@ import com.emm.mygame.core.designsystem.MyGameTheme
 import com.emm.mygame.core.network.CaughtUpReason
 import com.emm.mygame.core.network.NeededWordKind
 import com.emm.mygame.core.network.NextStep
+import com.emm.mygame.core.network.SeasonInForce
 import com.emm.mygame.core.network.SeasonKind
 import com.emm.mygame.core.network.TownBuildingKind
 import com.emm.mygame.core.network.TownGoal
@@ -116,6 +117,19 @@ class TownPageLinesScreenTest {
         tab("Fábrica").assertIsSelected()
         composeRule.onAllNodesWithText(factoryGoalLine).assertCountEquals(0)
         composeRule.onAllNodesWithText("Cerrar la meta").assertCountEquals(1)
+        composeRule.onAllNodesWithText("En construcción").assertCountEquals(1)
+    }
+
+    @Test
+    fun `reads the goal line right after the page's position when no season is in force`() {
+        show(homeOn(NextStep.CaughtUp(CaughtUpReason.LessonsDone, factoryGoal), season = null))
+        tab("Granja").performScrollTo().performClick()
+
+        val spoken: List<String> = composeRule.spokenOrder(checkNotNull(shownView))
+        val position: Int = spoken.indexOfFirst { label: String -> label.startsWith("Edificio ") }
+
+        assertTrue("the page's position is read", position >= 0)
+        assertEquals(factoryGoalLine, spoken.getOrNull(position + 1))
     }
 
     @Test
@@ -215,10 +229,14 @@ class TownPageLinesScreenTest {
         isTab and hasContentDescription(place, substring = true),
     )
 
-    private fun homeOn(step: NextStep, closed: ClosedGuidance = ClosedGuidance.none): TownUiState.Content = townOf(
+    private fun homeOn(
+        step: NextStep,
+        closed: ClosedGuidance = ClosedGuidance.none,
+        season: SeasonInForce? = seasonOf(SeasonKind.Summer),
+    ): TownUiState.Content = townOf(
         nextStep = step,
-        seasonInForce = seasonOf(SeasonKind.Summer),
-        seasonEndsAt = readInstant + 3.days,
+        seasonInForce = season,
+        seasonEndsAt = if (season == null) null else readInstant + 3.days,
     ).contentAt(
         now = readInstant,
         gap = Duration.ZERO,
