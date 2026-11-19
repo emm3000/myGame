@@ -2,7 +2,6 @@ package com.emm.mygame.feature.review
 
 import androidx.annotation.StringRes
 import androidx.compose.foundation.background
-import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -32,7 +31,6 @@ import com.emm.mygame.core.designsystem.MyGameInlineAlert
 import com.emm.mygame.core.designsystem.MyGameRadii
 import com.emm.mygame.core.designsystem.MyGameRegisteredRow
 import com.emm.mygame.core.designsystem.MyGameSpacing
-import com.emm.mygame.core.designsystem.MyGameStrokeWidths
 import com.emm.mygame.core.designsystem.MyGameText
 import com.emm.mygame.core.designsystem.MyGameTheme
 import com.emm.mygame.core.designsystem.MyGameTypography
@@ -100,7 +98,6 @@ private fun NearMissLine(modifier: Modifier = Modifier) {
         modifier = modifier
             .fillMaxWidth()
             .background(colors.surfaceSunken, shape)
-            .border(MyGameStrokeWidths.hairline, colors.ink, shape)
             .padding(horizontal = MyGameSpacing.step3, vertical = MyGameSpacing.step2)
             .semantics { liveRegion = LiveRegionMode.Polite },
     )

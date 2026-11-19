@@ -2,11 +2,9 @@ package com.emm.mygame.feature.school
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.safeDrawingPadding
 import androidx.compose.foundation.rememberScrollState
@@ -25,6 +23,7 @@ import androidx.compose.ui.tooling.preview.PreviewParameter
 import androidx.compose.ui.tooling.preview.PreviewParameterProvider
 import com.emm.mygame.core.designsystem.MyGameArt
 import com.emm.mygame.core.designsystem.MyGameBlock
+import com.emm.mygame.core.designsystem.MyGameCard
 import com.emm.mygame.core.designsystem.MyGameErrorBanner
 import com.emm.mygame.core.designsystem.MyGameFrame
 import com.emm.mygame.core.designsystem.MyGameFramePiece
@@ -45,7 +44,6 @@ import com.emm.mygame.core.designsystem.MyGameTypography
 import com.emm.mygame.core.designsystem.MyGameWordArt
 import com.emm.mygame.core.designsystem.PreviewMyGame
 import com.emm.mygame.core.designsystem.blockHueOf
-import com.emm.mygame.core.designsystem.dashedFrame
 import com.emm.mygame.core.designsystem.withTabularFigures
 import com.emm.mygame.core.designsystem.wordStyle
 import com.emm.mygame.core.network.FrameSpan
@@ -133,13 +131,11 @@ private val lessonWordsBlocks: MyGameSkeletonBlocks = MyGameSkeletonBlocks(
 
 @Composable
 private fun NothingToRead(onSchoolOpen: () -> Unit, modifier: Modifier = Modifier) {
-    Box(
-        modifier = modifier
-            .fillMaxWidth()
-            .dashedFrame(MyGameTheme.colors.line)
-            .padding(MyGameSpacing.step5),
-    ) {
-        Column(verticalArrangement = Arrangement.spacedBy(MyGameSpacing.step3)) {
+    MyGameCard(modifier = modifier) {
+        Column(
+            verticalArrangement = Arrangement.spacedBy(MyGameSpacing.step3),
+            modifier = Modifier.padding(vertical = MyGameSpacing.step4),
+        ) {
             MyGameText(
                 label = chromeResource(R.string.school_lesson_nothing_to_read),
                 style = MyGameTypography.body,
