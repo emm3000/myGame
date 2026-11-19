@@ -196,7 +196,7 @@ class TownDockTest {
             Column {
                 docks.forEach { dock: TownStatusUiState.Dock ->
                     TownDock(dock = dock, actions = recordingActions, onFoldChange = {})
-                    TownDockNotice(dock = dock)
+                    dock.shownNotice()?.let { shown: TownNotice -> TownDockNotice(notice = shown) }
                 }
             }
         }
