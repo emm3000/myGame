@@ -61,6 +61,21 @@ class MyGameHeaderTest {
 
     @Test
     @Config(qualifiers = "w360dp-h640dp", fontScale = 2.0f)
+    fun `keeps the start row at the control height above a dropped ring`() {
+        composeRule.setContent {
+            MyGameTheme {
+                MyGameHeader(end = { Ring() }) {
+                    MyGameText(text = BACK, style = MyGameTypography.caption, color = MyGameTheme.colors.inkMuted)
+                }
+            }
+        }
+
+        assertTrue(boundsOf(BACK).bottom < 48.dp)
+        assertEquals(56.dp, boundsOf(RING_NAME).top)
+    }
+
+    @Test
+    @Config(qualifiers = "w360dp-h640dp", fontScale = 2.0f)
     fun `leaves no room under a start side wider than the row when the ring is hidden`() {
         composeRule.setContent {
             MyGameTheme {

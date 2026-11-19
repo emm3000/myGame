@@ -39,7 +39,7 @@ private fun MeasureScope.oneRow(starts: List<Measurable>, ends: List<Measurable>
     val endPlaceables: List<Placeable> =
         ends.map { measurable: Measurable -> measurable.measure(Constraints(maxWidth = width)) }
     val endShare: Int = endPlaceables.maxOfOrNull { placeable: Placeable -> placeable.width + gap } ?: 0
-    val startConstraints = Constraints(maxWidth = (width - endShare).coerceAtLeast(0))
+    val startConstraints = Constraints(maxWidth = width - endShare)
     val startPlaceables: List<Placeable> = starts.map { measurable: Measurable -> measurable.measure(startConstraints) }
     val height: Int = maxOf(MyGameSizes.control.roundToPx(), (startPlaceables + endPlaceables).maxHeight())
     return layout(width, height) {
