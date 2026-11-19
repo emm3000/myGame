@@ -1,12 +1,18 @@
 package com.emm.mygame.feature.school
 
+import androidx.compose.ui.semantics.SemanticsNode
+import androidx.compose.ui.semantics.SemanticsProperties
+import androidx.compose.ui.semantics.getOrNull
 import androidx.compose.ui.test.assertCountEquals
 import androidx.compose.ui.test.assertIsDisplayed
+import androidx.compose.ui.test.hasClickAction
+import androidx.compose.ui.test.hasText
 import androidx.compose.ui.test.junit4.ComposeContentTestRule
 import androidx.compose.ui.test.junit4.createComposeRule
 import androidx.compose.ui.test.onAllNodesWithText
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
+import androidx.compose.ui.text.AnnotatedString
 import com.emm.mygame.core.designsystem.MyGameTheme
 import com.emm.mygame.core.network.HoldoutCheckWeek
 import com.emm.mygame.core.network.PlacementBand
@@ -75,6 +81,31 @@ class HoldoutCheckRowsTest {
             .onNodeWithText("Tienes pendiente una prueba de palabras de la banda 2, semana 24.")
             .assertIsDisplayed()
     }
+
+    @Test
+    fun `names each of two due checks by its band and week`() {
+        showing(
+            HoldoutCheckRowsUiState(
+                listOf(secondBandEighthWeek, HoldoutCheckRow(PlacementBand.First, HoldoutCheckWeek.TwentyFourth)),
+            ),
+        )
+
+        val names: List<String> = composeRule
+            .onAllNodes(hasClickAction() and hasText("Abrir la prueba", substring = true))
+            .fetchSemanticsNodes()
+            .map(::spokenNameOf)
+
+        assertEquals(
+            listOf(
+                "Abrir la prueba Tienes pendiente una prueba de palabras de la banda 2, semana 8.",
+                "Abrir la prueba Tienes pendiente una prueba de palabras de la banda 1, semana 24.",
+            ),
+            names,
+        )
+    }
+
+    private fun spokenNameOf(node: SemanticsNode): String =
+        node.config.getOrNull(SemanticsProperties.Text).orEmpty().joinToString(separator = " ", transform = AnnotatedString::text)
 
     @Test
     fun `draws nothing without a due check`() {
