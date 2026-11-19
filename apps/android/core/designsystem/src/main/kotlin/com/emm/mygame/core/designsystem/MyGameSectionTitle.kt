@@ -14,8 +14,8 @@ fun MyGameSectionTitle(text: String, modifier: Modifier = Modifier) {
 fun MyGameSectionTitle(label: MyGameLabel, modifier: Modifier = Modifier) {
     MyGameText(
         label = label,
-        style = MyGameTypography.label,
-        color = MyGameTheme.colors.inkMuted,
+        style = MyGameTypography.heading,
+        color = MyGameTheme.colors.ink,
         modifier = modifier.semantics(mergeDescendants = label.translation != null) { heading() },
     )
 }

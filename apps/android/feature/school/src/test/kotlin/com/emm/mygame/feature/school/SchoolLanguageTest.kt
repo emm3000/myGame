@@ -1,6 +1,9 @@
 package com.emm.mygame.feature.school
 
 import androidx.compose.ui.test.assertCountEquals
+import androidx.compose.ui.test.assertTextEquals
+import androidx.compose.ui.test.hasText
+import androidx.compose.ui.test.isHeading
 import androidx.compose.ui.test.getUnclippedBoundsInRoot
 import androidx.compose.ui.test.junit4.ComposeContentTestRule
 import androidx.compose.ui.test.junit4.createComposeRule
@@ -152,6 +155,20 @@ class SchoolLanguageTest {
         assertEnglishOverSpanish("No lesson now.", "Ahora no hay ninguna lección en estudio.")
         assertEnglishOverSpanish("Your skills", "Tus habilidades")
         assertEnglishOverSpanish("You have no skills.", "Aún no tienes habilidades.")
+    }
+
+    @Test
+    fun `reads the lessons' section title as one heading, English then Spanish, in the both phase`() {
+        show(bothPhase)
+
+        composeRule.onNode(isHeading() and hasText("Lessons")).assertTextEquals("Lessons", "Lecciones")
+    }
+
+    @Test
+    fun `reads the studying section title as one heading, English then Spanish, in the both phase`() {
+        show(bothPhase)
+
+        composeRule.onNode(isHeading() and hasText("Studying")).assertTextEquals("Studying", "En estudio")
     }
 
     @Test

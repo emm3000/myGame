@@ -9,7 +9,6 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.semantics.ProgressBarRangeInfo
-import androidx.compose.ui.semantics.heading
 import androidx.compose.ui.semantics.progressBarRangeInfo
 import androidx.compose.ui.semantics.semantics
 import com.emm.mygame.core.designsystem.MyGameCard
@@ -17,6 +16,7 @@ import com.emm.mygame.core.designsystem.MyGameIcon
 import com.emm.mygame.core.designsystem.MyGameIcons
 import com.emm.mygame.core.designsystem.MyGameInlineAlert
 import com.emm.mygame.core.designsystem.MyGameOutlinedButton
+import com.emm.mygame.core.designsystem.MyGameSectionTitle
 import com.emm.mygame.core.designsystem.MyGameSpacing
 import com.emm.mygame.core.designsystem.MyGameText
 import com.emm.mygame.core.designsystem.MyGameTheme
@@ -69,12 +69,7 @@ private fun SlotHeading(modifier: Modifier = Modifier) {
         modifier = modifier,
     ) {
         MyGameIcon(icon = MyGameIcons.slot, tint = MyGameTheme.colors.inkMuted)
-        MyGameText(
-            label = chromeResource(R.string.school_slot_title),
-            style = MyGameTypography.heading,
-            color = MyGameTheme.colors.ink,
-            modifier = Modifier.semantics { heading() },
-        )
+        MyGameSectionTitle(label = chromeResource(R.string.school_slot_title))
     }
 }
 

@@ -8,13 +8,13 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.semantics.heading
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.semantics.testTag
 import com.emm.mygame.core.designsystem.MyGameHairline
 import com.emm.mygame.core.designsystem.MyGameLabel
 import com.emm.mygame.core.designsystem.MyGameNavRow
 import com.emm.mygame.core.designsystem.MyGameOutlinedButton
+import com.emm.mygame.core.designsystem.MyGameSectionTitle
 import com.emm.mygame.core.designsystem.MyGameSpacing
 import com.emm.mygame.core.designsystem.MyGameText
 import com.emm.mygame.core.designsystem.MyGameTheme
@@ -45,12 +45,7 @@ internal fun LessonRows(
         content.releasedLessons.filter { card: SchoolUiState.ReleasedLessonCard -> card.lesson != nextStepLesson }
     if (cards.isEmpty() && releasedCards.isEmpty()) return
     Column(verticalArrangement = Arrangement.spacedBy(MyGameSpacing.step1), modifier = modifier) {
-        MyGameText(
-            label = chromeResource(R.string.school_lessons),
-            style = MyGameTypography.heading,
-            color = MyGameTheme.colors.ink,
-            modifier = Modifier.semantics { heading() },
-        )
+        MyGameSectionTitle(label = chromeResource(R.string.school_lessons))
         content.studyMark?.let { mark: SchoolUiState.DurationMark -> StudyMarkRow(mark = mark) }
         cards.forEach { card: SchoolUiState.LessonCard -> LessonRow(card = card, onIntent = onIntent) }
         releasedCards.forEachIndexed { index: Int, card: SchoolUiState.ReleasedLessonCard ->

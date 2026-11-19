@@ -72,8 +72,8 @@ private fun LessonBlock(card: SchoolUiState.LessonCard, modifier: Modifier = Mod
         if (card.state == SchoolUiState.LessonState.Studying) {
             MyGameText(
                 label = copy.chrome(R.string.school_lesson_studying),
-                style = MyGameTypography.label,
-                color = MyGameTheme.colors.onBlock,
+                style = MyGameTypography.caption,
+                color = MyGameTheme.colors.onBlockMuted,
             )
         }
     }
