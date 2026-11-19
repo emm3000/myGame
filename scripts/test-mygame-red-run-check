@@ -126,7 +126,12 @@ checks_gh_pr_create_run_as_a_command() {
     "(gh pr create --fill)" \
     "cd .
 gh pr create --fill" \
-    "GH_PROMPT_DISABLED=1 gh pr create --fill"; do
+    "GH_PROMPT_DISABLED=1 gh pr create --fill" \
+    "gh pr new --fill" \
+    "gh -R a/b pr create --fill" \
+    "gh pr -Ra/b create --fill" \
+    "gh --repo a/b pr create --fill" \
+    "gh pr --repo=a/b new --fill"; do
     hook "$command"
     expect_blocked_for "${FUNCNAME[0]}" src/a.ts:2 src/b.kt:3 || fail "${FUNCNAME[0]}" "'$command' was not checked" || return 1
   done
@@ -212,6 +217,11 @@ blocks_an_exemption_row_with_an_empty_reason() {
   expect_blocked_for "${FUNCNAME[0]}" src/b.kt:3
 }
 
+blocks_a_backticked_exemption_with_no_reason() {
+  hook "gh pr create --title t --body '$(body_with_rows "| \`src/a.ts:2\` the if | \`a test\` | drop it | FAIL a |" "| src/b.kt:3 a log guard | \`no behavior:\` | none | none |")'"
+  expect_blocked_for "${FUNCNAME[0]}" src/b.kt:3
+}
+
 covers_only_from_the_first_cell() {
   hook "gh pr create --title t --body '$(body_with_rows "| \`src/a.ts:2\` the if | \`a test\` | drop it | FAIL a |" "| the if | \`b test\` | src/b.kt:3 | FAIL b |")'"
   expect_blocked_for "${FUNCNAME[0]}" src/b.kt:3
@@ -255,6 +265,68 @@ blocks_when_the_audit_fails() {
   [ "$status" -eq 2 ] && [ -z "$out" ] || fail "${FUNCNAME[0]}" "exit $status, stdout '$out'" || return 1
   [ "$(printf '%s\n' "$err" | head -n 1)" = "Blocked: scripts/mygame-branch-audit failed in $outside" ] || fail "${FUNCNAME[0]}" "stderr '$err'" || return 1
   printf '%s\n' "$err" | rg -q '^fatal: not a git repository' || fail "${FUNCNAME[0]}" "the audit error is not passed on: '$err'"
+}
+
+expect_failed_closed() {
+  local test=$1 cause=$2 code=$3
+  [ "$status" -eq 2 ] && [ -z "$out" ] || fail "$test" "exit $status, stdout '$out', stderr '$err'" || return 1
+  [ "$(printf '%s\n' "$err" | tail -n 1)" = "Blocked: scripts/mygame-red-run-check failed with exit $code" ] || fail "$test" "stderr '$err'" || return 1
+  printf '%s\n' "$err" | rg -qF -- "$cause" || fail "$test" "the cause '$cause' is not on stderr: '$err'"
+}
+
+passes_a_command_that_is_not_gh_pr_create_without_a_cwd() {
+  status=0
+  out=$(jq -n '{tool_input: {command: "git status"}}' | (cd "$sandbox" && scripts/mygame-red-run-check) 2>"$sandbox/stderr") || status=$?
+  err=$(<"$sandbox/stderr")
+  expect_pass "${FUNCNAME[0]}"
+}
+
+fails_closed_on_a_body_file_that_is_not_utf_8() {
+  printf '\xff\xfe not utf-8\n' | write "$repo/notes/latin.md"
+  hook "gh pr create --title t --body-file notes/latin.md"
+  expect_failed_closed "${FUNCNAME[0]}" UnicodeDecodeError 1
+}
+
+fails_closed_on_a_missing_cwd() {
+  hook "gh pr create --fill" "$sandbox/gone"
+  expect_failed_closed "${FUNCNAME[0]}" FileNotFoundError 1
+}
+
+fails_closed_on_input_that_is_not_json() {
+  status=0
+  out=$(printf 'not json\n' | (cd "$sandbox" && scripts/mygame-red-run-check) 2>"$sandbox/stderr") || status=$?
+  err=$(<"$sandbox/stderr")
+  expect_failed_closed "${FUNCNAME[0]}" JSONDecodeError 1
+}
+
+fails_closed_on_a_missing_audit_script() {
+  local result=0
+  mv "$sandbox/scripts/mygame-branch-audit" "$sandbox/audit-aside"
+  hook "gh pr create --title t --body '$(full_body)'"
+  mv "$sandbox/audit-aside" "$sandbox/scripts/mygame-branch-audit"
+  expect_failed_closed "${FUNCNAME[0]}" FileNotFoundError 1 || result=1
+  return "$result"
+}
+
+fails_closed_on_an_audit_script_that_is_not_executable() {
+  local result=0
+  chmod -x "$sandbox/scripts/mygame-branch-audit"
+  hook "gh pr create --title t --body '$(full_body)'"
+  chmod +x "$sandbox/scripts/mygame-branch-audit"
+  expect_failed_closed "${FUNCNAME[0]}" PermissionError 1 || result=1
+  return "$result"
+}
+
+fails_closed_without_python3() {
+  local bin="$sandbox/bin-without-python"
+  mkdir -p "$bin"
+  ln -sf "$(command -v bash)" "$bin/bash"
+  ln -sf "$(command -v dirname)" "$bin/dirname"
+  status=0
+  out=$(jq -n --arg cwd "$repo" '{tool_input: {command: "git status"}, cwd: $cwd}' |
+    (cd "$sandbox" && PATH="$bin" scripts/mygame-red-run-check) 2>"$sandbox/stderr") || status=$?
+  err=$(<"$sandbox/stderr")
+  expect_failed_closed "${FUNCNAME[0]}" python3 127
 }
 
 settings_keep_the_trailer_hook_blocking_a_co_authored_commit() {
@@ -306,6 +378,7 @@ run blocks_a_body_with_no_table_naming_every_line
 run blocks_a_command_that_does_not_parse_naming_every_line
 run passes_an_exemption_row_with_a_reason
 run blocks_an_exemption_row_with_an_empty_reason
+run blocks_a_backticked_exemption_with_no_reason
 run covers_only_from_the_first_cell
 run covers_only_the_exact_path_line
 run covers_a_backticked_path_line
@@ -314,6 +387,13 @@ run keeps_an_escaped_pipe_inside_the_first_cell
 run passes_without_a_body_when_the_audit_lists_nothing
 run runs_the_audit_in_the_hook_cwd
 run blocks_when_the_audit_fails
+run passes_a_command_that_is_not_gh_pr_create_without_a_cwd
+run fails_closed_on_a_body_file_that_is_not_utf_8
+run fails_closed_on_a_missing_cwd
+run fails_closed_on_input_that_is_not_json
+run fails_closed_on_a_missing_audit_script
+run fails_closed_on_an_audit_script_that_is_not_executable
+run fails_closed_without_python3
 run settings_keep_the_trailer_hook_blocking_a_co_authored_commit
 run settings_run_the_check_through_the_project_dir
 [ "$failures" -eq 0 ]

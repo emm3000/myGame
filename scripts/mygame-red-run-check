@@ -1,18 +1,19 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
-scripts_dir=$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd -P)
-
+status=0
 python3 -I -c '
 import json, os, re, shlex, subprocess, sys
 
 hook = json.load(sys.stdin)
 command = hook["tool_input"]["command"]
-cwd = hook["cwd"]
-if not re.search(r"(?:^|[;&|(\n])\s*(?:\w+=\S*\s+)*gh\s+pr\s+create", command):
+repo_flag = r"(?:\s+(?:-R\s*|--repo(?:\s+|=))\S+)*"
+if not re.search(r"(?:^|[;&|(\n])\s*(?:\w+=\S*\s+)*gh" + repo_flag + r"\s+pr" + repo_flag + r"\s+(?:create|new)", command):
     sys.exit(0)
+cwd = hook["cwd"]
 
-audit = subprocess.run([sys.argv[1]], cwd=cwd, capture_output=True, text=True)
+audit_script = os.path.join(os.path.dirname(os.path.abspath(sys.argv[1])), "mygame-branch-audit")
+audit = subprocess.run([audit_script], cwd=cwd, capture_output=True, text=True)
 if audit.returncode != 0:
     print(f"Blocked: scripts/mygame-branch-audit failed in {cwd}", file=sys.stderr)
     print(audit.stderr, end="", file=sys.stderr)
@@ -42,7 +43,7 @@ for row in body_of(command).splitlines():
     if not row.startswith("|"):
         continue
     first, test = (re.split(r"(?<!\\)\|", row) + ["", "", ""])[1:3]
-    if test.strip() == "no behavior:":
+    if test.replace("`", "").strip() == "no behavior:":
         continue
     covered.update(first.replace("`", " ").split())
 
@@ -51,4 +52,9 @@ if missing:
     print("Blocked: no red-run row for", file=sys.stderr)
     print("\n".join(missing), file=sys.stderr)
     sys.exit(2)
-' "$scripts_dir/mygame-branch-audit"
+' "${BASH_SOURCE[0]}" || status=$?
+case $status in
+  0 | 2) exit "$status" ;;
+esac
+echo "Blocked: scripts/mygame-red-run-check failed with exit $status" >&2
+exit 2
