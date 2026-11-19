@@ -241,7 +241,12 @@ class SchoolPathTest {
 
     @Test
     fun `shows no link to the reviews when none is due`() {
-        val pastTheCap: TownSnapshot.Learning = TownSnapshot.Learning(cap = 10, inLearning = 8, retainedWords = null)
+        val pastTheCap: TownSnapshot.Learning = TownSnapshot.Learning(
+            cap = 10,
+            inLearning = 8,
+            retainedWords = null,
+            nextInLearningDueAt = null,
+        )
         show(townOf(lessons = listOf(lessonOf(isStudied = true), secondLessonOpen), learning = pastTheCap))
 
         composeRule.onAllNodesWithText("Empezar los repasos").assertCountEquals(0)
@@ -263,7 +268,12 @@ class SchoolPathTest {
 
     @Test
     fun `shows one link to the reviews past the learning cap`() {
-        val pastTheCap: TownSnapshot.Learning = TownSnapshot.Learning(cap = 10, inLearning = 8, retainedWords = null)
+        val pastTheCap: TownSnapshot.Learning = TownSnapshot.Learning(
+            cap = 10,
+            inLearning = 8,
+            retainedWords = null,
+            nextInLearningDueAt = null,
+        )
         show(
             townOf(
                 lessons = listOf(lessonOf(isStudied = true), secondLessonOpen),

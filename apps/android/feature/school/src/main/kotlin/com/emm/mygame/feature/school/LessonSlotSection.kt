@@ -34,6 +34,7 @@ internal const val LESSON_DONE_ICON: String = "lesson_done_icon"
 internal fun LessonSlotSection(
     slot: SchoolUiState.SlotLine,
     stop: SchoolUiState.LessonRequest,
+    opening: SchoolUiState.CapOpening,
     onIntent: (SchoolIntent) -> Unit,
     modifier: Modifier = Modifier,
 ) {
@@ -56,7 +57,7 @@ internal fun LessonSlotSection(
                 }
             }
         }
-        copy.requestAnswerOf(stop)?.let { line: String -> MyGameInlineAlert(message = line) }
+        copy.requestAnswerOf(stop, opening)?.let { line: String -> MyGameInlineAlert(message = line) }
     }
 }
 

@@ -92,7 +92,12 @@ class SchoolLookTest {
 
     private val idleSchool: SchoolUiState.Content = SchoolUiState.Content(
         schoolLevel = 1,
-        learning = SchoolUiState.LearningLine(inLearning = 0, cap = 10, pastCap = null),
+        learning = SchoolUiState.LearningLine(
+            inLearning = 0,
+            cap = 10,
+            pastCapWords = null,
+            opening = SchoolUiState.CapOpening.ReviewsDue,
+        ),
         slot = SchoolUiState.SlotLine.Idle,
         skills = emptyList(),
         lessons = listOf(openFirst, openSecond, openThird),

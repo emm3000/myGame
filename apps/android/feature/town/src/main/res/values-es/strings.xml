@@ -90,6 +90,7 @@
     <string name="town_refusal_hiring_not_enough_resources">No tienes recursos suficientes para esta contratación. Espera a que crezcan tus reservas.</string>
     <string name="town_refusal_hiring_order_not_found">Esta contratación ya terminó.</string>
     <string name="town_refusal_hiring_slot_busy">Ya tienes una contratación en curso. Espera a que termine.</string>
+    <string name="town_refusal_learning_cap_next_word_due">Palabras en aprendizaje: {cardsInLearning} de {learningCap}. La siguiente se repasa en {timeLeft}.</string>
     <string name="town_refusal_learning_cap_reached">Palabras en aprendizaje: {cardsInLearning} de {learningCap}. Repásalas antes de empezar otra lección.</string>
     <string name="town_refusal_lesson_already_studied">Ya estudiaste esa lección: sus palabras están en tu repaso.</string>
     <string name="town_refusal_lesson_school_too_low">Esa lección necesita una escuela de más nivel. Súbela primero.</string>

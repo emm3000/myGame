@@ -191,7 +191,7 @@ class DockFrameNavigationTest {
         dueHoldoutChecks = emptyList(),
         hasBandStarted = false,
         skills = emptyList(),
-        learning = TownSnapshot.Learning(cap = 10, inLearning = 0, retainedWords = null),
+        learning = TownSnapshot.Learning(cap = 10, inLearning = 0, retainedWords = null, nextInLearningDueAt = null),
         stableWordCount = 0,
         retainedWordCount = 0,
         lessonSlot = null,
@@ -768,7 +768,12 @@ class DockFrameNavigationTest {
         NextStep.ReleasedLesson(LessonId("released-2-1"), PlacementBand.Second, position = 1)
 
     private val learningWithRing: TownSnapshot.Learning =
-        TownSnapshot.Learning(cap = 10, inLearning = 0, retainedWords = RetainedWords(count = 3, total = 5))
+        TownSnapshot.Learning(
+            cap = 10,
+            inLearning = 0,
+            retainedWords = RetainedWords(count = 3, total = 5),
+            nextInLearningDueAt = null,
+        )
 
     private companion object {
         const val SKIP_PLACEMENT: String = "Saltar la prueba"

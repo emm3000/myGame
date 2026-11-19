@@ -164,7 +164,12 @@ private fun SchoolContent(
         }
         LessonRows(content = content, onIntent = onIntent)
         if (content.isHoldoutNoteShown) HoldoutNote()
-        LessonSlotSection(slot = content.slot, stop = content.stop, onIntent = onIntent)
+        LessonSlotSection(
+            slot = content.slot,
+            stop = content.stop,
+            opening = content.learning.opening,
+            onIntent = onIntent,
+        )
         SkillsSection(content = content)
     }
 }
@@ -220,9 +225,9 @@ private fun LearningSection(learning: SchoolUiState.LearningLine, modifier: Modi
                 color = MyGameTheme.colors.ink,
             )
             MyGameTrack(filled = learning.inLearning.toFloat() / learning.cap, color = MyGameTheme.colors.action)
-            learning.pastCap?.let { pastCap: SchoolUiState.PastCap ->
+            learning.pastCapWords?.let { words: Int ->
                 MyGameText(
-                    label = copy.pastCapLabelOf(pastCap),
+                    label = copy.pastCapLabelOf(words, learning.opening),
                     style = MyGameTypography.caption,
                     color = MyGameTheme.colors.warningInk,
                 )
@@ -326,7 +331,12 @@ private val previewReleasedNext: SchoolUiState.ReleasedLessonCard = previewRelea
 
 private val previewContent: SchoolUiState.Content = SchoolUiState.Content(
     schoolLevel = 1,
-    learning = SchoolUiState.LearningLine(inLearning = 3, cap = 10, pastCap = null),
+    learning = SchoolUiState.LearningLine(
+        inLearning = 3,
+        cap = 10,
+        pastCapWords = null,
+        opening = SchoolUiState.CapOpening.ReviewsDue,
+    ),
     slot = SchoolUiState.SlotLine.Idle,
     skills = listOf(
         SchoolUiState.SkillLine(

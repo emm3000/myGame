@@ -90,6 +90,7 @@
     <string name="town_refusal_hiring_not_enough_resources">You do not have what you need to pay for this hire. Wait and try again.</string>
     <string name="town_refusal_hiring_order_not_found">This hiring has already ended.</string>
     <string name="town_refusal_hiring_slot_busy">You are already hiring. Wait for that hiring to end.</string>
+    <string name="town_refusal_learning_cap_next_word_due">Words in learning: {cardsInLearning} of {learningCap}. The next one is due for review in {timeLeft}.</string>
     <string name="town_refusal_learning_cap_reached">Words in learning: {cardsInLearning} of {learningCap}. Review them before you start another lesson.</string>
     <string name="town_refusal_lesson_already_studied">You already studied that lesson: its words are in your reviews.</string>
     <string name="town_refusal_lesson_school_too_low">That lesson needs a school of a higher level. Build it to a higher level first.</string>

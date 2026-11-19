@@ -4,6 +4,7 @@ import com.emm.mygame.core.network.NextStep
 import com.emm.mygame.core.network.NextStepCard
 import com.emm.mygame.core.network.TownGoal
 import com.emm.mygame.core.network.TownSnapshot
+import com.emm.mygame.core.network.capWaitsUntil
 import com.emm.mygame.core.network.nextStepCard
 import com.emm.mygame.core.projection.countdownTo
 import kotlin.time.Duration
@@ -22,6 +23,9 @@ internal fun TownSnapshot.dockOn(
         countdown = card.countdown?.let { countdown: NextStepCard.Countdown -> countdown.timeAt(now, gap) },
         go = card.goOn(screen, lessonStart),
         lessonStart = lessonStart,
+        capWait = capWaitsUntil(now)?.let { dueAt: Instant ->
+            TownStatusUiState.CapWait(remaining = dueAt - now, dueAt = dueAt - gap)
+        },
     )
 }
 

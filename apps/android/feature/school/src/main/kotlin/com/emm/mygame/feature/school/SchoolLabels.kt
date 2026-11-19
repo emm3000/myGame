@@ -30,23 +30,40 @@ internal fun resourceNameOf(kind: TownResourceKind): Int = when (kind) {
     TownResourceKind.Material -> R.string.school_resource_material
 }
 
-private fun CopyReader.refusalLineOf(refusal: TownLessonRefusal): String = when (refusal) {
-    is TownLessonRefusal.LearningCapReached -> text(
+private fun CopyReader.refusalLineOf(refusal: TownLessonRefusal, opening: SchoolUiState.CapOpening): String =
+    when (refusal) {
+        is TownLessonRefusal.LearningCapReached -> capRefusalLineOf(refusal, opening)
+        TownLessonRefusal.StudySlotBusy -> text(R.string.school_refusal_study_slot_busy)
+        TownLessonRefusal.LessonSchoolTooLow -> text(R.string.school_refusal_lesson_school_too_low)
+        TownLessonRefusal.LessonAlreadyStudied -> text(R.string.school_refusal_lesson_already_studied)
+        TownLessonRefusal.LessonUnderStudy -> text(R.string.school_refusal_lesson_under_study)
+        TownLessonRefusal.LessonStudyNotFound -> text(R.string.school_refusal_lesson_study_not_found)
+        TownLessonRefusal.TownNotFound -> text(R.string.school_refusal_town_not_found)
+        TownLessonRefusal.Unrecognized -> text(R.string.school_refusal_unexpected)
+    }
+
+private fun CopyReader.capRefusalLineOf(
+    refusal: TownLessonRefusal.LearningCapReached,
+    opening: SchoolUiState.CapOpening,
+): String = when (opening) {
+    SchoolUiState.CapOpening.ReviewsDue -> text(
         R.string.school_refusal_learning_cap_reached,
         "cardsInLearning" to refusal.inLearning.toString(),
         "learningCap" to refusal.cap.toString(),
     )
-    TownLessonRefusal.StudySlotBusy -> text(R.string.school_refusal_study_slot_busy)
-    TownLessonRefusal.LessonSchoolTooLow -> text(R.string.school_refusal_lesson_school_too_low)
-    TownLessonRefusal.LessonAlreadyStudied -> text(R.string.school_refusal_lesson_already_studied)
-    TownLessonRefusal.LessonUnderStudy -> text(R.string.school_refusal_lesson_under_study)
-    TownLessonRefusal.LessonStudyNotFound -> text(R.string.school_refusal_lesson_study_not_found)
-    TownLessonRefusal.TownNotFound -> text(R.string.school_refusal_town_not_found)
-    TownLessonRefusal.Unrecognized -> text(R.string.school_refusal_unexpected)
+    is SchoolUiState.CapOpening.NextWordDue -> text(
+        R.string.school_refusal_learning_cap_next_word_due,
+        "cardsInLearning" to refusal.inLearning.toString(),
+        "learningCap" to refusal.cap.toString(),
+        "timeLeft" to finishLabelOf(opening.remaining, opening.dueAt),
+    )
 }
 
-internal fun PlayerCopy.requestAnswerOf(request: SchoolUiState.LessonRequest): String? = when (request) {
-    is SchoolUiState.LessonRequest.Refused -> fixedCopy { refusalLineOf(request.refusal) }
+internal fun PlayerCopy.requestAnswerOf(
+    request: SchoolUiState.LessonRequest,
+    opening: SchoolUiState.CapOpening,
+): String? = when (request) {
+    is SchoolUiState.LessonRequest.Refused -> fixedCopy { refusalLineOf(request.refusal, opening) }
     is SchoolUiState.LessonRequest.Unreachable -> fixedCopy(R.string.school_refusal_unexpected)
     SchoolUiState.LessonRequest.Idle, SchoolUiState.LessonRequest.Waiting -> null
 }
@@ -103,14 +120,14 @@ internal fun CopyReader.finishLabelOf(remaining: Duration, finishesAt: Instant):
 private fun CopyReader.finishClockLabelOf(finish: FinishClock): String =
     clockLabelOf(finish, tomorrow = R.string.school_finish_tomorrow, later = R.string.school_finish_day)
 
-internal fun PlayerCopy.pastCapLabelOf(pastCap: SchoolUiState.PastCap): MyGameLabel =
-    when (val reviews: SchoolUiState.CapReviews = pastCap.reviews) {
-        SchoolUiState.CapReviews.Due -> chrome(R.string.school_learning_full, "count" to pastCap.words)
-        is SchoolUiState.CapReviews.Next -> chrome {
+internal fun PlayerCopy.pastCapLabelOf(words: Int, opening: SchoolUiState.CapOpening): MyGameLabel =
+    when (opening) {
+        SchoolUiState.CapOpening.ReviewsDue -> chrome(R.string.school_learning_full, "count" to words)
+        is SchoolUiState.CapOpening.NextWordDue -> chrome {
             text(
-                R.string.school_learning_full_next_review,
-                "count" to pastCap.words,
-                "timeLeft" to finishLabelOf(reviews.remaining, reviews.dueAt),
+                R.string.school_learning_full_next_word_due,
+                "count" to words,
+                "timeLeft" to finishLabelOf(opening.remaining, opening.dueAt),
             )
         }
     }

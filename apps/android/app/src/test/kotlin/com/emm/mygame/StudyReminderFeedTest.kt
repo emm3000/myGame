@@ -325,7 +325,7 @@ class StudyReminderFeedTest {
         dueHoldoutChecks = dueHoldoutChecks,
         hasBandStarted = false,
         skills = emptyList(),
-        learning = TownSnapshot.Learning(cap = 10, inLearning = 0, retainedWords = null),
+        learning = TownSnapshot.Learning(cap = 10, inLearning = 0, retainedWords = null, nextInLearningDueAt = null),
         stableWordCount = 0,
         retainedWordCount = 0,
         lessonSlot = lessonSlot,

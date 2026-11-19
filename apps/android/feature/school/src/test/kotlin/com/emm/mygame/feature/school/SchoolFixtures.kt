@@ -81,7 +81,12 @@ internal fun seasonOf(kind: SeasonKind, study: Int): SeasonInForce = SeasonInFor
 internal fun townOf(
     lessons: List<TownSnapshot.Lesson> = listOf(lessonOf()),
     skills: List<TownSnapshot.EarnedSkill> = emptyList(),
-    learning: TownSnapshot.Learning = TownSnapshot.Learning(cap = 10, inLearning = 0, retainedWords = null),
+    learning: TownSnapshot.Learning = TownSnapshot.Learning(
+        cap = 10,
+        inLearning = 0,
+        retainedWords = null,
+        nextInLearningDueAt = null,
+    ),
     lessonSlot: TownSnapshot.LessonSlot? = null,
     workSlot: TownSnapshot.WorkItem? = null,
     schoolLevel: Int = 1,

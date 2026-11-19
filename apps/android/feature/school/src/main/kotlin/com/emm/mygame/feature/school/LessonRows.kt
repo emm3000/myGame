@@ -61,7 +61,12 @@ internal fun LessonRows(
         }
         releasedCards.forEachIndexed { index: Int, card: SchoolUiState.ReleasedLessonCard ->
             if (index > 0 || cards.isNotEmpty()) MyGameHairline()
-            ReleasedLessonRow(card = card, start = content.start, onIntent = onIntent)
+            ReleasedLessonRow(
+                card = card,
+                start = content.start,
+                opening = content.learning.opening,
+                onIntent = onIntent,
+            )
         }
     }
 }
@@ -83,6 +88,7 @@ private fun StudyMarkRow(mark: SchoolUiState.DurationMark, modifier: Modifier = 
 private fun ReleasedLessonRow(
     card: SchoolUiState.ReleasedLessonCard,
     start: SchoolUiState.LessonRequest,
+    opening: SchoolUiState.CapOpening,
     onIntent: (SchoolIntent) -> Unit,
     modifier: Modifier = Modifier,
 ) {
@@ -106,7 +112,7 @@ private fun ReleasedLessonRow(
         }
         LessonPath(path = card.path)
         (card.state as? SchoolUiState.LessonState.Open)?.let { open: SchoolUiState.LessonState.Open ->
-            ReleasedStudyAction(card = card, block = open.block, start = start, onIntent = onIntent)
+            ReleasedStudyAction(card = card, block = open.block, start = start, opening = opening, onIntent = onIntent)
         }
     }
 }
@@ -116,6 +122,7 @@ private fun ReleasedStudyAction(
     card: SchoolUiState.ReleasedLessonCard,
     block: SchoolUiState.LessonBlock?,
     start: SchoolUiState.LessonRequest,
+    opening: SchoolUiState.CapOpening,
     onIntent: (SchoolIntent) -> Unit,
     modifier: Modifier = Modifier,
 ) {
@@ -135,7 +142,7 @@ private fun ReleasedStudyAction(
             accessibleName = copy.lessonLineOf(card.name) { title: String -> "$title · ${studyLine()}" }.spoken,
         )
         reason?.let { line: MyGameLabel -> BlockLine(line = line) }
-        StartAnswer(lesson = card.lesson, start = start)
+        StartAnswer(lesson = card.lesson, start = start, opening = opening)
     }
 }
 

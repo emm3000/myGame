@@ -45,7 +45,7 @@ internal fun ShownLesson(
         running?.let { slot: SchoolUiState.SlotLine.Running ->
             ReadWordsPill(running = slot.lesson, name = slot.name, shown = card.lesson, onLessonOpen = onLessonOpen)
         }
-        StartAnswer(lesson = card.lesson, start = content.start)
+        StartAnswer(lesson = card.lesson, start = content.start, opening = content.learning.opening)
     }
 }
 
@@ -130,6 +130,7 @@ private fun ReadWordsPill(
 internal fun StartAnswer(
     lesson: LessonId,
     start: SchoolUiState.LessonRequest,
+    opening: SchoolUiState.CapOpening,
     modifier: Modifier = Modifier,
 ) {
     val copy: PlayerCopy = rememberPlayerCopy()
@@ -139,5 +140,5 @@ internal fun StartAnswer(
         SchoolUiState.LessonRequest.Idle, SchoolUiState.LessonRequest.Waiting -> null
     }
     if (asked != lesson) return
-    copy.requestAnswerOf(start)?.let { line: String -> MyGameInlineAlert(message = line, modifier = modifier) }
+    copy.requestAnswerOf(start, opening)?.let { line: String -> MyGameInlineAlert(message = line, modifier = modifier) }
 }

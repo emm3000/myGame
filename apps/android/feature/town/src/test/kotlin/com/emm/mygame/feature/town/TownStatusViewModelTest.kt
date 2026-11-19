@@ -474,6 +474,7 @@ class TownStatusViewModelTest {
                 countdown = null,
                 go = TownStatusUiState.Go.Acts(NextStepCard.Action.Study(number = 1), isBusy = false),
                 lessonStart = TownUiState.LessonStartStatus.Idle,
+                capWait = null,
             ),
             viewModel.state.value.dock,
         )
@@ -780,7 +781,7 @@ class TownStatusViewModelTest {
         dueHoldoutChecks = emptyList(),
         hasBandStarted = false,
         skills = emptyList(),
-        learning = TownSnapshot.Learning(cap = 10, inLearning = 0, retainedWords = null),
+        learning = TownSnapshot.Learning(cap = 10, inLearning = 0, retainedWords = null, nextInLearningDueAt = null),
         stableWordCount = 0,
         retainedWordCount = 0,
         lessonSlot = null,
