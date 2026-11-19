@@ -133,7 +133,7 @@ class SchoolReleasedLessonsTest {
         show(content.copy(start = pastTheCap, learning = content.learning.copy(opening = nextWordDue)))
 
         val opening: Dp = composeRule
-            .onNodeWithText("Palabras en aprendizaje: 10 de 10. La siguiente se repasa en 3 h", substring = true)
+            .onNodeWithText("Palabras en aprendizaje: 10 de 10. La siguiente se repasa en 3\u00A0h", substring = true)
             .performScrollTo()
             .getUnclippedBoundsInRoot().top
 

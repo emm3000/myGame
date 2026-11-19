@@ -93,7 +93,7 @@ class LessonWordsLanguageTest {
     fun `draws the lesson's words in Spanish in the Spanish phase`() {
         show(spanishPhase)
 
-        assertDrawn("Lección 1", "En estudio", "3 min", "Palabra 1 de 2", "Siguiente palabra")
+        assertDrawn("Lección 1", "En estudio", "3\u00A0min", "Palabra 1 de 2", "Siguiente palabra")
         assertNotDrawn("Lesson 1", "Studying", "Word 1 of 2", "Next word")
     }
 
@@ -111,7 +111,7 @@ class LessonWordsLanguageTest {
     fun `draws the lesson's words in English in the English phase`() {
         show(englishPhase)
 
-        assertDrawn("Lesson 1", "Studying", "3 min", "Word 1 of 2", "Next word", "home hogar")
+        assertDrawn("Lesson 1", "Studying", "3\u00A0min", "Word 1 of 2", "Next word", "home hogar")
         assertNotDrawn("Lección 1", "En estudio", "Palabra 1 de 2", "Siguiente palabra")
     }
 
