@@ -24,6 +24,7 @@ import {
   type ResourceKind,
   resourceKinds,
   reviewMemoryCard,
+  stableWordCountOf,
   type TownSkill,
 } from '../../packages/domain/src/index'
 
