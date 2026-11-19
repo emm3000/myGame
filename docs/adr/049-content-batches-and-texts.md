@@ -38,8 +38,9 @@ What trunk held, checked at `8d895101`:
 - **Placement ships, and leads nowhere.** The api and Android serve it.
   A player placed out of band 1 meets the 16 chrome lessons, lesson 27,
   and then `caughtUp` with the reason `lessonsDone`.
-- **The lessons run out on day 16** under the 7-day cap, before ADR 048. A school at level 1 holds 15 words
-  in learning, three lessons. A word leaves learning at its first
+- **The lessons run out on day 16** under the 7-day
+  cap, before ADR 048. A school at level 1 holds 15 words in learning,
+  three lessons. A word leaves learning at its first
   recall, 2 days and 10 minutes after its lesson. So a learner on time
   starts three lessons every 2 days, and the ninth and last trio on day
   16. From then on the school offers recalls only, about 13 and 59 days
