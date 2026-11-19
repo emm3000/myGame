@@ -4,7 +4,6 @@ import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.semantics.ProgressBarRangeInfo
-import androidx.compose.ui.semantics.SemanticsActions
 import androidx.compose.ui.semantics.SemanticsProperties
 import androidx.compose.ui.test.SemanticsMatcher
 import androidx.compose.ui.test.hasAnyAncestor
@@ -25,7 +24,6 @@ import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
 import androidx.compose.ui.test.performScrollTo
-import androidx.compose.ui.text.TextLayoutResult
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.DpRect
@@ -226,7 +224,7 @@ class LessonWordsScreenTest {
             }
         }
 
-        val title: TextStyle = textStyleOf("En estudio")
+        val title: TextStyle = textStyleOf(composeRule, "En estudio")
         assertEquals(15.sp, title.fontSize)
         assertEquals(FontWeight.Normal, title.fontWeight)
         assertEquals(muted, title.color)
@@ -363,13 +361,6 @@ class LessonWordsScreenTest {
             hasContentDescription(label, substring = true) and
             hasAnyAncestor(hasTestTag(TASK_DOCK)),
     )
-
-    private fun textStyleOf(text: String): TextStyle {
-        val results: MutableList<TextLayoutResult> = mutableListOf()
-        composeRule.onNodeWithText(text, useUnmergedTree = true).fetchSemanticsNode()
-            .config[SemanticsActions.GetTextLayoutResult].action?.invoke(results)
-        return results.first().layoutInput.style
-    }
 
     private fun inkPills(): SemanticsNodeInteractionCollection = composeRule.onAllNodesWithTag(INK_PILL)
 
