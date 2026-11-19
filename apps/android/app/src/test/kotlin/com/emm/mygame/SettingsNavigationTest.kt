@@ -190,7 +190,7 @@ class SettingsNavigationTest {
         waitForLine("Saved.")
         composeRule.onAllNodesWithText("Settings").assertCountEquals(1)
         composeRule.onAllNodesWithText("Ajustes").assertCountEquals(0)
-        composeRule.onAllNodesWithText("TOWN").assertCountEquals(1)
+        composeRule.onAllNodesWithText("Town").assertCountEquals(1)
     }
 
     @Test

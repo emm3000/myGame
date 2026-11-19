@@ -31,7 +31,7 @@ import com.emm.mygame.core.designsystem.MyGameSkeleton
 import com.emm.mygame.core.designsystem.MyGameSkeletonBlocks
 import com.emm.mygame.core.designsystem.MyGameSpacing
 import com.emm.mygame.core.designsystem.MyGameText
-import com.emm.mygame.core.designsystem.MyGameTextButton
+import com.emm.mygame.core.designsystem.MyGameTextLink
 import com.emm.mygame.core.designsystem.MyGameTheme
 import com.emm.mygame.core.designsystem.MyGameTypography
 import com.emm.mygame.core.designsystem.PreviewMyGame
@@ -94,7 +94,7 @@ fun ReportScreen(
                 onSettingsOpen = onSettingsOpen,
             )
         }
-        MyGameTextButton(
+        MyGameTextLink(
             label = fixedCopyResource(R.string.report_sign_out),
             isBusy = state == ReportUiState.SigningOut,
             busyDescription = chromeResource(R.string.report_waiting).spoken,

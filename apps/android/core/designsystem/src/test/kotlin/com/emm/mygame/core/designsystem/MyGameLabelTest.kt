@@ -61,14 +61,6 @@ class MyGameLabelTest {
     }
 
     @Test
-    fun `draws a translated text button as English over Spanish inside its control height`() {
-        show { MyGameTextButton(label = startReviews, isBusy = false, busyDescription = "Waiting", onClick = {}) }
-
-        assertEnglishOverSpanish(within = composeRule.onNodeWithText("Start reviews").getUnclippedBoundsInRoot())
-        composeRule.onNodeWithText("Start reviews").assertHeightIsAtLeast(MyGameSizes.control)
-    }
-
-    @Test
     fun `draws a translated text link as English over Spanish inside its control height`() {
         show { MyGameTextLink(label = startReviews, onClick = {}) }
 
@@ -80,10 +72,10 @@ class MyGameLabelTest {
     fun `draws a translated back link as English over Spanish inside its control height`() {
         show { MyGameBackLink(label = MyGameLabel("Town", "Pueblo"), isEnabled = true, onClick = {}) }
 
-        val englishLine: DpRect = unmerged("TOWN")
-        val spanishLine: DpRect = unmerged("PUEBLO")
+        val englishLine: DpRect = unmerged("Town")
+        val spanishLine: DpRect = unmerged("Pueblo")
         assertTrue(englishLine.bottom <= spanishLine.top)
-        composeRule.onNodeWithText("TOWN").assertHeightIsAtLeast(MyGameSizes.control)
+        composeRule.onNodeWithText("Town").assertHeightIsAtLeast(MyGameSizes.control)
     }
 
     @Test

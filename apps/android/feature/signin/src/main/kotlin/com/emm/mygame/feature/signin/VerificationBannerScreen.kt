@@ -24,7 +24,7 @@ import com.emm.mygame.core.designsystem.MyGameInlineAlert
 import com.emm.mygame.core.designsystem.MyGamePreviewSurface
 import com.emm.mygame.core.designsystem.MyGameSpacing
 import com.emm.mygame.core.designsystem.MyGameText
-import com.emm.mygame.core.designsystem.MyGameTextButton
+import com.emm.mygame.core.designsystem.MyGameTextLink
 import com.emm.mygame.core.designsystem.MyGameTheme
 import com.emm.mygame.core.designsystem.MyGameTypography
 import com.emm.mygame.core.designsystem.PreviewMyGame
@@ -73,7 +73,7 @@ private fun Banner(
                 )
                 ResendOutcome(resend = resend)
             }
-            MyGameTextButton(
+            MyGameTextLink(
                 label = fixedCopyResource(R.string.verification_banner_resend),
                 isBusy = resend == VerificationBannerUiState.Resend.Sending,
                 busyDescription = fixedCopyResource(R.string.verification_banner_sending),

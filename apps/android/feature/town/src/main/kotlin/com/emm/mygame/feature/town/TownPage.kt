@@ -15,7 +15,7 @@ import com.emm.mygame.core.designsystem.MyGamePlacePage
 import com.emm.mygame.core.designsystem.MyGamePlaceWords
 import com.emm.mygame.core.designsystem.MyGameSpacing
 import com.emm.mygame.core.designsystem.MyGameText
-import com.emm.mygame.core.designsystem.MyGameTextButton
+import com.emm.mygame.core.designsystem.MyGameTextLink
 import com.emm.mygame.core.designsystem.MyGameTheme
 import com.emm.mygame.core.designsystem.MyGameTypography
 import com.emm.mygame.core.network.TipKind
@@ -155,10 +155,8 @@ private fun GoalOnPage(goal: TownGoal, onIntent: (TownIntent) -> Unit) {
         MyGameBlock(hue = MyGameBlockHue.Lavender) {
             GoalState(goal = goal)
         }
-        MyGameTextButton(
+        MyGameTextLink(
             label = copy.chrome(R.string.town_goal_close),
-            isBusy = false,
-            busyDescription = copy.chrome(R.string.town_waiting).spoken,
             onClick = { onIntent(TownIntent.GoalClosed) },
         )
     }

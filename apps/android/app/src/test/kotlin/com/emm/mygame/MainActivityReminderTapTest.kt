@@ -106,7 +106,7 @@ class MainActivityReminderTapTest {
 
     private companion object {
         const val WAIT_MILLIS: Long = 5_000
-        const val TOWN_LINK: String = "PUEBLO"
+        const val TOWN_LINK: String = "Pueblo"
         const val TOWN_LOADING: String = "Estamos leyendo tu pueblo…"
     }
 }

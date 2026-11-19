@@ -246,7 +246,7 @@ class AppNavigationTest {
         }
     }
 
-    private fun backLink(): SemanticsNodeInteraction = composeRule.onNodeWithText("PUEBLO")
+    private fun backLink(): SemanticsNodeInteraction = composeRule.onNodeWithText("Pueblo")
 
     private fun waitedFor(matcher: SemanticsMatcher): SemanticsNodeInteraction {
         composeRule.waitUntil(WAIT_MILLIS) { composeRule.onAllNodes(matcher).fetchSemanticsNodes().isNotEmpty() }
@@ -274,7 +274,7 @@ class AppNavigationTest {
     private fun assertLinksBackToTheTown() {
         backLink().performClick()
         waitForLine(TOWN_HEADER)
-        composeRule.onAllNodesWithText("PUEBLO").assertCountEquals(0)
+        composeRule.onAllNodesWithText("Pueblo").assertCountEquals(0)
     }
 
     private fun showingStack(vararg destinations: Destination, town: TownSnapshot = townOf()) {
@@ -606,7 +606,7 @@ class AppNavigationTest {
 
         composeRule.onNodeWithText("Ir a la escuela").performScrollTo().performClick()
         assertStatusShown()
-        link("PUEBLO").performClick()
+        link("Pueblo").performClick()
         wayToTheReport().performScrollTo()
 
         openReport(TownReport(dueCount = 3, readFirst = emptyList(), nextDueAt = null, news = emptyList()))
@@ -764,7 +764,7 @@ class AppNavigationTest {
         onTheReportAsLessonOneFinishes(finishedTown(readFirst = listOf(firstLesson)))
         repeat(2) { townsFake.answerRead(TownReadResult.Read(finishedTown(listOf(firstLesson)))) }
 
-        link("PUEBLO").performClick()
+        link("Pueblo").performClick()
         waitForLine(TOWN_HEADER)
 
         composeRule.onNodeWithText(LESSON_ONE_DONE).assertIsDisplayed()
@@ -792,7 +792,7 @@ class AppNavigationTest {
     fun `draws no back link on the town home`() {
         signedInAtTown()
 
-        composeRule.onAllNodesWithText("PUEBLO").assertCountEquals(0)
+        composeRule.onAllNodesWithText("Pueblo").assertCountEquals(0)
     }
 
     @Test
@@ -872,7 +872,7 @@ class AppNavigationTest {
         composeRule.onNodeWithText("Salir").performScrollTo().performClick()
         composeRule.waitForIdle()
 
-        link("PUEBLO").performClick()
+        link("Pueblo").performClick()
         composeRule.waitForIdle()
 
         composeRule.onNode(hasText("Informe").and(isHeading())).assertExists()
