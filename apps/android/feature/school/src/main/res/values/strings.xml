@@ -14,7 +14,7 @@
     <string name="school_learning">Words in learning: {inLearning} of {cap}</string>
     <string name="school_learning_full">{count, plural, =1 {The next lesson needs 1 word.} other {The next lesson needs {count, number,0} words.}} Start the reviews.</string>
     <string name="school_learning_full_next_word_due">{count, plural, =1 {The next lesson needs 1 word.} other {The next lesson needs {count, number,0} words.}} The next word in learning is due in {timeLeft}.</string>
-    <string name="school_lesson_cap_reached">{count, plural, =1 {This lesson needs 1 word.} other {This lesson needs {count, number,0} words.}}</string>
+    <string name="school_lesson_cap_reached">Learning is full.</string>
     <string name="school_lesson_needs_school">Needs school level {level}</string>
     <string name="school_lesson_next">Next lesson</string>
     <string name="school_lesson_nothing_to_read">No words to read now.</string>

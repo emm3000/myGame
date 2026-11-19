@@ -1,6 +1,10 @@
 package com.emm.mygame.feature.school
 
 import androidx.compose.ui.semantics.SemanticsActions
+import androidx.compose.ui.semantics.SemanticsNode
+import androidx.compose.ui.semantics.SemanticsProperties
+import androidx.compose.ui.semantics.getOrNull
+import androidx.compose.ui.test.SemanticsMatcher
 import androidx.compose.ui.test.assertCountEquals
 import androidx.compose.ui.test.getUnclippedBoundsInRoot
 import androidx.compose.ui.test.junit4.ComposeContentTestRule
@@ -11,6 +15,7 @@ import androidx.compose.ui.test.onNodeWithContentDescription
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
 import androidx.compose.ui.test.performScrollTo
+import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.text.TextLayoutResult
 import androidx.compose.ui.unit.Dp
 import com.emm.mygame.core.designsystem.MyGameTheme
@@ -137,6 +142,21 @@ class SchoolReleasedLessonsTest {
     }
 
     @Test
+    fun `states the next lesson's word count once with the cap full and a released lesson blocked`() {
+        val fullCap: TownSnapshot.Learning =
+            TownSnapshot.Learning(cap = 10, inLearning = 8, retainedWords = null, nextInLearningDueAt = null)
+        show(contentOf(shelvedAndReleased.copy(learning = fullCap)))
+
+        val statements: List<String> = composeRule
+            .onAllNodes(SemanticsMatcher("any node") { true }, useUnmergedTree = true)
+            .fetchSemanticsNodes()
+            .flatMap(::linesOf)
+            .filter { line: String -> line.contains("trae 5 palabras") }
+
+        assertEquals(listOf("La siguiente lección trae 5 palabras. Empieza los repasos."), statements)
+    }
+
+    @Test
     fun `marks a released lesson under study as studying`() {
         val card: SchoolUiState.ReleasedLessonCard = contentOf(releasedUnderStudy).releasedLessons.first()
 
@@ -243,6 +263,11 @@ class SchoolReleasedLessonsTest {
         mutations = SchoolMutations.none,
         selected = null,
     )
+
+    private fun linesOf(node: SemanticsNode): List<String> =
+        node.config.getOrNull(SemanticsProperties.Text).orEmpty().map { line: AnnotatedString -> line.text } +
+            node.config.getOrNull(SemanticsProperties.ContentDescription).orEmpty() +
+            listOfNotNull(node.config.getOrNull(SemanticsProperties.StateDescription))
 
     private fun topOf(text: String): Dp = composeRule.onNodeWithText(text).getUnclippedBoundsInRoot().top
 

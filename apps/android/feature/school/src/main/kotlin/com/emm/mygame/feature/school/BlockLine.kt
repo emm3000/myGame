@@ -30,5 +30,5 @@ internal fun PlayerCopy.blockLineOf(block: SchoolUiState.LessonBlock): MyGameLab
     is SchoolUiState.LessonBlock.SlotBusy -> slotBusyLineOf(block.name)
     is SchoolUiState.LessonBlock.SchoolTooLow ->
         chrome(R.string.school_lesson_needs_school, "level" to block.requiredLevel.toString())
-    is SchoolUiState.LessonBlock.CapReached -> chrome(R.string.school_lesson_cap_reached, "count" to block.wordCount)
+    SchoolUiState.LessonBlock.CapReached -> chrome(R.string.school_lesson_cap_reached)
 }
