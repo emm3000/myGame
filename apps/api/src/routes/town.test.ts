@@ -1935,6 +1935,39 @@ describe('the town route', () => {
       })
     })
 
+    it('answers when the next word in learning is due', async () => {
+      const cookie = await signUpWithTown('ana@example.com')
+      await runSql(`INSERT INTO cards (player_id, word_id, state, stability, difficulty, last_review_at, last_rating, entered_at)
+        SELECT id, 'filler-' || n, 'review', 3, 5, TIMESTAMPTZ '2026-11-04T08:00:00Z' + n * INTERVAL '1 hour', 'good', '2026-11-01T08:00:00Z'
+        FROM players, generate_series(1, 15) AS n`)
+      await runSql(`INSERT INTO cards (player_id, word_id, state, stability, difficulty, last_review_at, last_rating, entered_at)
+        SELECT id, 'stable', 'review', 10, 5, '2026-10-27T08:00:00Z', 'good', '2026-10-01T08:00:00Z'
+        FROM players`)
+
+      const town = await overviewOf(await readTown(cookie))
+
+      expect({
+        reason: town.nextStep.kind === 'caughtUp' ? town.nextStep.reason : null,
+        nextDueAt: town.nextDueAt,
+        nextInLearningDueAt: town.learning.nextInLearningDueAt,
+      }).toEqual({
+        reason: 'learningCap',
+        nextDueAt: '2026-11-06T08:00:00.000Z',
+        nextInLearningDueAt: '2026-11-07T09:00:00.000Z',
+      })
+    })
+
+    it('answers null when no card is in learning', async () => {
+      const cookie = await signUpWithTown('ana@example.com')
+      await runSql(`INSERT INTO cards (player_id, word_id, state, stability, difficulty, last_review_at, last_rating, entered_at)
+        SELECT id, 'stable', 'review', 10, 5, '2026-10-27T08:00:00Z', 'good', '2026-10-01T08:00:00Z'
+        FROM players`)
+
+      const town = await overviewOf(await readTown(cookie))
+
+      expect(town.learning.nextInLearningDueAt).toBeNull()
+    })
+
     it('a running lesson carries the next goal', async () => {
       const cookie = await signUpWithTown('ana@example.com')
 

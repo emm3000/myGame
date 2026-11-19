@@ -351,7 +351,7 @@ class PlayerLanguagesTest {
                 """"hasBandStarted":false,"skills":[],""" +
                 """"lessonSlot":{"lessonId":"lesson-1","startedAt":"2026-11-05T10:00:00.000Z",""" +
                 """"finishesAt":"2026-11-05T10:20:00.000Z"},""" +
-                """"learning":{"cap":10,"inLearning":0,"retainedWords":null},""" +
+                """"learning":{"cap":10,"inLearning":0,"retainedWords":null,"nextInLearningDueAt":null},""" +
                 """"stableWordCount":0,"retainedWordCount":0,""" +
                 """"nextStep":{"kind":"caughtUp","reason":"lessonsDone","goal":null},"tip":null,""" +
                 """"chromePhase":"both",$SPANISH_AT_THE_FIRST_VERSION,"nextDueAt":null,""" +

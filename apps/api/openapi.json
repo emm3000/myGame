@@ -2920,9 +2920,14 @@
                 },
                 "required": ["count", "total"],
                 "additionalProperties": false
+              },
+              "nextInLearningDueAt": {
+                "type": "string",
+                "nullable": true,
+                "format": "date-time"
               }
             },
-            "required": ["cap", "inLearning", "retainedWords"],
+            "required": ["cap", "inLearning", "retainedWords", "nextInLearningDueAt"],
             "additionalProperties": false
           },
           "stableWordCount": {

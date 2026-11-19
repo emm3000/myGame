@@ -669,6 +669,7 @@ describe('the learning routes', () => {
         cap: 15,
         inLearning: 3,
         retainedWords: null,
+        nextInLearningDueAt: '2026-11-10T07:00:00.000Z',
       })
     })
 
@@ -696,6 +697,7 @@ describe('the learning routes', () => {
         cap: 15,
         inLearning: 1,
         retainedWords: null,
+        nextInLearningDueAt: '2026-11-12T07:00:00.000Z',
       })
     })
 

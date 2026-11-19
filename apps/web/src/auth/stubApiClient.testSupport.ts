@@ -69,7 +69,7 @@ export const knownTown: TownOverview = {
   hasBandStarted: false,
   skills: [],
   lessonSlot: null,
-  learning: { cap: 15, inLearning: 0, retainedWords: null },
+  learning: { cap: 15, inLearning: 0, retainedWords: null, nextInLearningDueAt: null },
   stableWordCount: 0,
   retainedWordCount: 0,
   nextStep: { kind: 'caughtUp', reason: 'lessonsDone', goal: null },

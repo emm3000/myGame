@@ -420,7 +420,11 @@ it('marks a lesson whose school level is too low with the level', async () => {
 })
 
 it('marks a lesson past the cap before the tap with the words in learning', async () => {
-  await showSchool(schoolOf({ learning: { cap: 15, inLearning: 12, retainedWords: null } }))
+  await showSchool(
+    schoolOf({
+      learning: { cap: 15, inLearning: 12, retainedWords: null, nextInLearningDueAt: null },
+    }),
+  )
 
   expect(screen.getByText(schoolLearning({ inLearning: 12, cap: 15 }))).toBeDefined()
   expect(accessibleDescriptionOf(studyButtonOf(1))).toBe(
@@ -685,7 +689,7 @@ it.each<[string, Partial<TownOverview>, () => string]>([
   ],
   [
     'the next lesson locked by the cap',
-    { learning: { cap: 15, inLearning: 12, retainedWords: null } },
+    { learning: { cap: 15, inLearning: 12, retainedWords: null, nextInLearningDueAt: null } },
     () => studyLabelOf(1),
   ],
   ['every lesson studied, nothing due', everyLessonStudied, townNextGoToReport],
@@ -798,7 +802,9 @@ const pressStudyOf = async (town: TownOverview, number: number): Promise<Readonl
 
 it('sends a lesson marked past the cap, since the api decides', async () => {
   const started = await pressStudyOf(
-    schoolOf({ learning: { cap: 15, inLearning: 12, retainedWords: null } }),
+    schoolOf({
+      learning: { cap: 15, inLearning: 12, retainedWords: null, nextInLearningDueAt: null },
+    }),
     1,
   )
 
