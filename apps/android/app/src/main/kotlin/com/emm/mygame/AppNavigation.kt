@@ -90,9 +90,10 @@ internal fun AppNavigation(
         onStopOrDispose { status.onIntent(TownStatusIntent.ScreenHidden) }
     }
     val statusState: State<TownStatusUiState> = status.state.collectAsStateWithLifecycle()
-    val townStatus: @Composable () -> Unit = {
+    val townStatus: @Composable (TownStatusUiState.Dock?) -> Unit = { dock: TownStatusUiState.Dock? ->
         TownStatus(
             state = statusState.value,
+            dock = dock,
             onNoticeClose = { status.onIntent(TownStatusIntent.NoticeClosed) },
             onLessonOpen = { lesson: LessonId -> navigator.openLesson(lesson, walked = emptyList()) },
             onReviewsOpen = navigator::openReviews,
@@ -217,7 +218,7 @@ private fun EntryProviderScope<NavKey>.townEntry(chrome: SignedInChrome) {
                     onSignedOut = { navigator.signedOut(isSessionEnded = false) },
                 ),
                 ring = { RetainedWordsRing(towns = dependencies.towns, doesScreenReadTown = true) },
-                status = chrome.banner,
+                status = frame.status,
                 foldedDock = frame.foldedDock,
                 reportRow = frame.reportRow,
                 placement = {
