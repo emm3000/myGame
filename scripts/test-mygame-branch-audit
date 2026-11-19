@@ -1,0 +1,465 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+scripts_dir=$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd -P)
+
+while IFS= read -r variable; do
+  unset "$variable"
+done < <(compgen -e | awk '/^GIT_/')
+export GIT_CONFIG_NOSYSTEM=1 GIT_CONFIG_GLOBAL=/dev/null
+export GIT_AUTHOR_NAME=test GIT_AUTHOR_EMAIL=test@example.invalid
+export GIT_COMMITTER_NAME=test GIT_COMMITTER_EMAIL=test@example.invalid
+
+temp_base=${TMPDIR:-/tmp}
+sandbox=$(mktemp -d "${temp_base%/}/branch-audit-test.XXXXXX") || { echo "refusing the sandbox: mktemp -d failed" >&2; exit 70; }
+[ -n "$sandbox" ] && [ -d "$sandbox" ] || { echo "refusing the sandbox: mktemp -d printed no directory" >&2; exit 70; }
+sandbox=$(cd "$sandbox" && pwd -P)
+case $sandbox in
+  "$(cd "$temp_base" && pwd -P)"/?*) ;;
+  *) echo "refusing the sandbox: $sandbox is not under $temp_base" >&2; exit 70 ;;
+esac
+trap 'rm -rf "$sandbox"' EXIT
+export GIT_CEILING_DIRECTORIES="$sandbox"
+
+failures=0
+repo="$sandbox/myGame"
+kotlin=apps/android/feature/town/src/main/kotlin/Town.kt
+typescript=apps/web/src/town/branches.ts
+tsx=apps/web/src/town/Badge.tsx
+
+write() {
+  mkdir -p "$repo/$(dirname "$1")"
+  awk 1 >"$repo/$1"
+}
+
+in_repo() {
+  (cd "$repo" && "$@")
+}
+
+build_the_fixture_repo() {
+  mkdir -p "$repo"
+  in_repo git init -q -b trunk
+  write "$kotlin" <<'KOTLIN'
+package town
+
+fun kept(flag: Boolean): Int {
+    if (flag) return 1
+    return 0
+}
+
+fun removed(flag: Boolean): Boolean {
+    if (flag) return true
+    return false
+}
+KOTLIN
+  write "$typescript" <<'TYPESCRIPT'
+export function kept(flag: boolean): number {
+  if (flag) {
+    return 1;
+  }
+  return 0;
+}
+TYPESCRIPT
+  in_repo git add -A
+  in_repo git commit -q -m base
+  in_repo git update-ref refs/remotes/origin/trunk HEAD
+  in_repo git switch -q -c feature
+
+  write "$kotlin" <<'KOTLIN'
+package town
+
+fun kept(flag: Boolean): Int {
+    if (flag) return 1
+    return 2
+}
+
+fun removed(flag: Boolean): Boolean {
+    return flag
+}
+
+fun branches(level: Int, name: String?): Int {
+    if (level > 3) return 3
+    val size = when (level) {
+        0 -> 1
+        else -> 2
+    }
+    val label = name ?: "none"
+    val top = maxOf(level, size)
+    val low = minOf(level, size)
+    val clamped = level.coerceIn(0, 9)
+    val floor = level.coerceAtLeast(1)
+    whenever(label)
+    val length = name?.length
+    val diff = top - low
+    if (level > 0) return maxOf(clamped, floor)
+    return floor
+}
+
+fun inlineDefault(step: Int = 1): Int = step
+
+fun sum(left: Int, right: Int): Int = left + right
+
+fun named(): Int = inlineDefault(step = 2)
+
+fun multiLine(
+    first: Int,
+    onDone: () -> Unit = {},
+) = onDone()
+KOTLIN
+  write "$typescript" <<'TYPESCRIPT'
+export function kept(flag: boolean): number {
+  if (flag) {
+    return 2;
+  }
+  return 0;
+}
+
+type Label = { name?: string };
+
+export function branches(level: number, label: Label): string {
+  if (level > 3) {
+    return "high";
+  }
+  const size = level > 1 ? "big" : "small";
+  const name = label.name ?? "none";
+  const first = label.name?.at(0);
+  const same = check(level === 2, { at: level >= 1 });
+  return `${size}${name}${first}${same}`;
+}
+
+export function untyped(step = 1): number {
+  return step;
+}
+
+export function typed(step: number = 1, done: () => void = () => {}): number {
+  done();
+  return step;
+}
+
+export function multiLine(
+  first: number,
+  second: number = 2,
+): number {
+  return first + second;
+}
+
+export const clamp = (value: number): number => (value >= 0 ? value : 0);
+TYPESCRIPT
+  write "$tsx" <<'TSX'
+export function Badge({ big }: { big: boolean }): JSX.Element {
+  return big ? (
+    <strong>big</strong>
+  ) : (
+    <span>small</span>
+  );
+}
+
+export function Tag({ size = 2 }: { size?: number }): JSX.Element {
+  return <span>{size}</span>;
+}
+
+export const tone = (big: boolean): string => (big ? "loud" : "soft");
+TSX
+  local excluded
+  for excluded in \
+    apps/web/src/town/branches.test.ts \
+    apps/web/src/town/Badge.test.tsx \
+    apps/web/src/town/fixtures.testSupport.ts \
+    apps/android/feature/town/src/test/kotlin/TownTest.kt \
+    apps/android/feature/town/src/androidTest/kotlin/TownUiTest.kt \
+    apps/android/core/testing/src/main/kotlin/FakeClock.kt \
+    packages/domain/src/testing/fakeClock.ts \
+    apps/web/src/legacy.js \
+    docs/notes.md; do
+    write "$excluded" <<'EXCLUDED'
+if (ready) { start() }
+EXCLUDED
+  done
+  in_repo git add -A
+  in_repo git commit -q -m feature
+
+  in_repo git switch -q -c later trunk
+  write "$kotlin" <<'KOTLIN'
+package town
+
+fun kept(flag: Boolean): Int {
+    return 0
+}
+
+fun removed(flag: Boolean): Boolean {
+    if (flag) return true
+    return false
+}
+KOTLIN
+  write apps/web/src/late.ts <<'LATE'
+if (late) { start() }
+LATE
+  in_repo git add -A
+  in_repo git commit -q -m later
+  in_repo git switch -q feature
+}
+
+audit() {
+  in_repo "$scripts_dir/mygame-branch-audit" "$@"
+}
+
+fail() {
+  printf 'FAIL %s: %s\n' "$1" "$2" >&2
+  return 1
+}
+
+expect_listed() {
+  local test=$1 output entry
+  shift
+  output=$(audit) || fail "$test" "exit $?" || return 1
+  for entry in "$@"; do
+    printf '%s\n' "$output" | rg -qxF -- "$entry" || fail "$test" "$entry is not listed" || return 1
+  done
+}
+
+expect_not_listed() {
+  local test=$1 output entry
+  shift
+  output=$(audit) || fail "$test" "exit $?" || return 1
+  for entry in "$@"; do
+    ! printf '%s\n' "$output" | rg -qxF -- "$entry" || fail "$test" "$entry is listed" || return 1
+  done
+}
+
+expect_nothing_listed_under() {
+  local test=$1 prefix=$2 output
+  output=$(audit) || fail "$test" "exit $?" || return 1
+  ! printf '%s\n' "$output" | rg -qF -- "$prefix" || fail "$test" "$(printf '%s\n' "$output" | rg -F -- "$prefix" | head -n 1) is listed"
+}
+
+lists_an_added_if() {
+  expect_listed "${FUNCNAME[0]}" "$kotlin:13" "$typescript:11"
+}
+
+lists_an_added_when() {
+  expect_listed "${FUNCNAME[0]}" "$kotlin:14"
+}
+
+lists_an_added_elvis_in_kotlin() {
+  expect_listed "${FUNCNAME[0]}" "$kotlin:18"
+}
+
+lists_an_added_max_of() {
+  expect_listed "${FUNCNAME[0]}" "$kotlin:19"
+}
+
+lists_an_added_min_of() {
+  expect_listed "${FUNCNAME[0]}" "$kotlin:20"
+}
+
+lists_every_added_coerce_call() {
+  expect_listed "${FUNCNAME[0]}" "$kotlin:21" "$kotlin:22"
+}
+
+lists_an_added_ternary_on_one_line_or_opening_a_jsx_branch() {
+  expect_listed "${FUNCNAME[0]}" "$typescript:14" "$typescript:37" "$tsx:2" "$tsx:13"
+}
+
+lists_an_added_nullish_coalescing() {
+  expect_listed "${FUNCNAME[0]}" "$typescript:15"
+}
+
+lists_an_added_kotlin_default_parameter_value_inside_parentheses() {
+  expect_listed "${FUNCNAME[0]}" "$kotlin:30"
+}
+
+lists_an_added_kotlin_default_parameter_value_on_its_own_line() {
+  expect_listed "${FUNCNAME[0]}" "$kotlin:38"
+}
+
+lists_an_added_typescript_default_parameter_value_untyped_or_typed_inside_parentheses() {
+  expect_listed "${FUNCNAME[0]}" "$typescript:21" "$typescript:25"
+}
+
+lists_an_added_typescript_default_value_in_a_destructured_parameter() {
+  expect_listed "${FUNCNAME[0]}" "$tsx:9"
+}
+
+lists_an_added_typescript_default_parameter_value_on_its_own_line() {
+  expect_listed "${FUNCNAME[0]}" "$typescript:32"
+}
+
+skips_a_word_that_only_holds_a_token() {
+  expect_not_listed "${FUNCNAME[0]}" "$kotlin:23" "$kotlin:25"
+}
+
+skips_a_safe_call() {
+  expect_not_listed "${FUNCNAME[0]}" "$kotlin:24" "$typescript:16"
+}
+
+skips_an_optional_property() {
+  expect_not_listed "${FUNCNAME[0]}" "$typescript:8"
+}
+
+skips_a_removed_line_holding_if() {
+  expect_not_listed "${FUNCNAME[0]}" "$kotlin:9" "$kotlin:10"
+}
+
+skips_a_token_on_an_unchanged_line() {
+  expect_not_listed "${FUNCNAME[0]}" "$kotlin:4" "$typescript:2"
+}
+
+skips_a_kotlin_expression_body_after_the_parameter_list() {
+  expect_not_listed "${FUNCNAME[0]}" "$kotlin:32"
+}
+
+skips_a_kotlin_named_argument() {
+  expect_not_listed "${FUNCNAME[0]}" "$kotlin:34"
+}
+
+skips_an_equality_or_a_comparison_inside_parentheses() {
+  expect_not_listed "${FUNCNAME[0]}" "$typescript:17"
+}
+
+excludes_a_token_added_in_a_test_ts_file() {
+  expect_nothing_listed_under "${FUNCNAME[0]}" apps/web/src/town/branches.test.ts
+}
+
+excludes_a_token_added_in_a_test_tsx_file() {
+  expect_nothing_listed_under "${FUNCNAME[0]}" apps/web/src/town/Badge.test.tsx
+}
+
+excludes_a_token_added_in_a_test_support_file() {
+  expect_nothing_listed_under "${FUNCNAME[0]}" apps/web/src/town/fixtures.testSupport.ts
+}
+
+excludes_a_token_added_under_src_test() {
+  expect_nothing_listed_under "${FUNCNAME[0]}" apps/android/feature/town/src/test/
+}
+
+excludes_a_token_added_under_src_android_test() {
+  expect_nothing_listed_under "${FUNCNAME[0]}" apps/android/feature/town/src/androidTest/
+}
+
+excludes_a_token_added_under_the_android_core_testing_module() {
+  expect_nothing_listed_under "${FUNCNAME[0]}" apps/android/core/testing/
+}
+
+excludes_a_token_added_under_the_domain_testing_folder() {
+  expect_nothing_listed_under "${FUNCNAME[0]}" packages/domain/src/testing/
+}
+
+skips_a_file_that_is_neither_kotlin_nor_typescript() {
+  expect_nothing_listed_under "${FUNCNAME[0]}" apps/web/src/legacy.js || return 1
+  expect_nothing_listed_under "${FUNCNAME[0]}" docs/notes.md
+}
+
+prints_a_line_with_two_tokens_once() {
+  local output count
+  output=$(audit) || fail "${FUNCNAME[0]}" "exit $?" || return 1
+  for entry in "$kotlin:26" "$typescript:25"; do
+    count=$(printf '%s\n' "$output" | rg -cxF -- "$entry" || true)
+    [ "$count" = 1 ] || fail "${FUNCNAME[0]}" "$entry printed ${count:-0} times" || return 1
+  done
+}
+
+expected_list() {
+  local entry
+  for entry in 13 14 18 19 20 21 22 26 30 38; do echo "$kotlin:$entry"; done
+  for entry in 2 9 13; do echo "$tsx:$entry"; done
+  for entry in 11 14 15 21 25 32 37; do echo "$typescript:$entry"; done
+}
+
+prints_exactly_the_sorted_path_line_list_and_nothing_else() {
+  local output
+  output=$(audit 2>/dev/null) || fail "${FUNCNAME[0]}" "exit $?" || return 1
+  [ "$output" = "$(expected_list)" ] || fail "${FUNCNAME[0]}" "got $(printf '%s' "$output" | tr '\n' ' ')"
+}
+
+writes_nothing_to_stderr() {
+  local errors
+  errors=$(audit 2>&1 >/dev/null) || fail "${FUNCNAME[0]}" "exit $?" || return 1
+  [ -z "$errors" ] || fail "${FUNCNAME[0]}" "stderr: $errors"
+}
+
+runs_from_a_subdirectory_with_paths_from_the_repo_root() {
+  local output
+  output=$(cd "$repo/apps/web" && "$scripts_dir/mygame-branch-audit") || fail "${FUNCNAME[0]}" "exit $?" || return 1
+  [ "$output" = "$(expected_list)" ] || fail "${FUNCNAME[0]}" "got $(printf '%s' "$output" | tr '\n' ' ')"
+}
+
+defaults_the_base_to_origin_trunk() {
+  local output status=0
+  in_repo git update-ref refs/remotes/origin/trunk feature
+  output=$(audit) || status=$?
+  in_repo git update-ref refs/remotes/origin/trunk trunk
+  [ "$status" -eq 0 ] && [ -z "$output" ] || fail "${FUNCNAME[0]}" "exit $status with origin/trunk at HEAD: $output"
+}
+
+exits_zero_when_it_prints_nothing() {
+  local output status=0
+  output=$(audit HEAD) || status=$?
+  [ "$status" -eq 0 ] && [ -z "$output" ] || fail "${FUNCNAME[0]}" "exit $status: $output"
+}
+
+diffs_from_the_merge_base_so_later_base_commits_never_print() {
+  local output
+  output=$(audit later) || fail "${FUNCNAME[0]}" "exit $?" || return 1
+  [ "$output" = "$(expected_list)" ] || fail "${FUNCNAME[0]}" "got $(printf '%s' "$output" | tr '\n' ' ')"
+}
+
+refuses_bad_arguments_with_64_and_prints_nothing() {
+  local arguments status output
+  for arguments in "trunk later" "--help" "-x"; do
+    status=0
+    read -r -a words <<<"$arguments"
+    output=$(audit "${words[@]}" 2>/dev/null) || status=$?
+    [ "$status" -eq 64 ] && [ -z "$output" ] || fail "${FUNCNAME[0]}" "exit $status on '$arguments': $output" || return 1
+  done
+  status=0
+  output=$(audit '' 2>/dev/null) || status=$?
+  [ "$status" -eq 64 ] && [ -z "$output" ] || fail "${FUNCNAME[0]}" "exit $status on an empty base: $output"
+}
+
+run() {
+  if "$1"; then
+    echo "ok   $1"
+  else
+    failures=$((failures + 1))
+  fi
+}
+
+build_the_fixture_repo
+run lists_an_added_if
+run lists_an_added_when
+run lists_an_added_elvis_in_kotlin
+run lists_an_added_max_of
+run lists_an_added_min_of
+run lists_every_added_coerce_call
+run lists_an_added_ternary_on_one_line_or_opening_a_jsx_branch
+run lists_an_added_nullish_coalescing
+run lists_an_added_kotlin_default_parameter_value_inside_parentheses
+run lists_an_added_kotlin_default_parameter_value_on_its_own_line
+run lists_an_added_typescript_default_parameter_value_untyped_or_typed_inside_parentheses
+run lists_an_added_typescript_default_value_in_a_destructured_parameter
+run lists_an_added_typescript_default_parameter_value_on_its_own_line
+run skips_a_word_that_only_holds_a_token
+run skips_a_safe_call
+run skips_an_optional_property
+run skips_a_removed_line_holding_if
+run skips_a_token_on_an_unchanged_line
+run skips_a_kotlin_expression_body_after_the_parameter_list
+run skips_a_kotlin_named_argument
+run skips_an_equality_or_a_comparison_inside_parentheses
+run excludes_a_token_added_in_a_test_ts_file
+run excludes_a_token_added_in_a_test_tsx_file
+run excludes_a_token_added_in_a_test_support_file
+run excludes_a_token_added_under_src_test
+run excludes_a_token_added_under_src_android_test
+run excludes_a_token_added_under_the_android_core_testing_module
+run excludes_a_token_added_under_the_domain_testing_folder
+run skips_a_file_that_is_neither_kotlin_nor_typescript
+run prints_a_line_with_two_tokens_once
+run prints_exactly_the_sorted_path_line_list_and_nothing_else
+run writes_nothing_to_stderr
+run runs_from_a_subdirectory_with_paths_from_the_repo_root
+run defaults_the_base_to_origin_trunk
+run exits_zero_when_it_prints_nothing
+run diffs_from_the_merge_base_so_later_base_commits_never_print
+run refuses_bad_arguments_with_64_and_prints_nothing
+[ "$failures" -eq 0 ]
