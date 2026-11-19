@@ -425,7 +425,7 @@ class StudyAnswersTest {
                 """"storage":$FLAT,"school":$FLAT,"office":$FLAT},""" +
                 """"work":{"slot":null,"waitingList":[],"cap":2},""" +
                 """"hiring":$HIRING,"job":null,""" +
-                """"lessons":[],"releasedLessons":[],"dueHoldoutChecks":[],""" +
+                """"lessons":[],"releasedLessons":[],"texts":[],"dueHoldoutChecks":[],""" +
                 """"hasBandStarted":false,"skills":[],"lessonSlot":null,""" +
                 """"learning":{"cap":10,"inLearning":0,"retainedWords":null,"nextInLearningDueAt":null},""" +
                 """"stableWordCount":0,"retainedWordCount":0,""" +

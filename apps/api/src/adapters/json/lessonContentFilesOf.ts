@@ -9,6 +9,8 @@ import {
   LessonContentSchema,
   type LexiconContent,
   LexiconContentSchema,
+  type TextsContent,
+  TextsContentSchema,
 } from '@mygame/contracts'
 import { headwordOf } from '@mygame/domain'
 import { z } from 'zod'
@@ -27,6 +29,7 @@ export type LessonContentFiles = {
   readonly lexicon: LexiconContent
   readonly ranks: ReadonlyMap<string, number>
   readonly forms: ReadonlyMap<string, ReadonlySet<string>>
+  readonly texts: TextsContent
 }
 
 const headwordHeader = 'Lemma,SFI Rank,SFI,Adjusted Frequency per Million (U)'
@@ -122,5 +125,6 @@ export const lessonContentFilesOf = (directory: string): LessonContentFiles => {
     lexicon,
     ranks: ranksOfFile(directory),
     forms: formsOfTeachingList(directory),
+    texts: parsedFile(lessonsFile(directory, 'texts.json'), TextsContentSchema),
   }
 }

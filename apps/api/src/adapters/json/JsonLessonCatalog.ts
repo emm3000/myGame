@@ -7,6 +7,8 @@ import {
   type LessonId,
   type LessonWord,
   type PlacementWord,
+  type Text,
+  type TextId,
   type WordId,
 } from '@mygame/domain'
 import { frameWordsOf } from '../../contentGate/frameWordsOf'
@@ -87,6 +89,7 @@ export class JsonLessonCatalog implements LessonLibrary {
     private readonly placementWords: ReadonlyMap<Band, ReadonlyArray<PlacementWord>>,
     private readonly chromeShelf: ReadonlyArray<ShelvedLesson>,
     private readonly resolvedFrames: ResolvedFrames,
+    private readonly shelvedTexts: ReadonlyArray<Text>,
   ) {}
 
   static fromDirectory(directory: string): JsonLessonCatalog {
@@ -101,6 +104,12 @@ export class JsonLessonCatalog implements LessonLibrary {
       placementWordsOf(files, chromeShelf),
       chromeShelf,
       resolvedFramesOf(files),
+      files.texts.map(({ id, fromLessonId, title, sentences }) => ({
+        id,
+        fromLessonId,
+        title,
+        sentences,
+      })),
     )
   }
 
@@ -146,5 +155,13 @@ export class JsonLessonCatalog implements LessonLibrary {
 
   answerFormsOf(wordId: WordId): ReadonlySet<string> {
     return this.resolvedFrames.answerForms.get(wordId) ?? new Set()
+  }
+
+  texts(): ReadonlyArray<Text> {
+    return this.shelvedTexts
+  }
+
+  textTokensOf(textId: TextId, passage: string): ReadonlyArray<FrameToken> | undefined {
+    return this.resolvedFrames.textTokens.get(textId)?.get(passage)
   }
 }

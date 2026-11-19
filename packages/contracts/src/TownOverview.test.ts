@@ -125,6 +125,7 @@ const overview = (overrides: Record<string, unknown> = {}): Record<string, unkno
   job: null,
   lessons: [lessonOne],
   releasedLessons: [],
+  texts: [],
   dueHoldoutChecks: [],
   hasBandStarted: false,
   skills: [earnedFood],
@@ -545,6 +546,30 @@ describe('TownOverviewSchema holdout', () => {
     const releasedLessons = [{ ...releasedLesson, theme: lessonOne.theme }]
 
     expect(TownOverviewSchema.safeParse(overview({ releasedLessons })).success).toBe(false)
+  })
+
+  it('reads an open text with its title and its sentences as spans', () => {
+    const texts = [
+      {
+        id: 'text-1',
+        title: 'A New Course',
+        sentences: [
+          [
+            { text: 'We are at ', support: null },
+            { text: 'school', support: besideSchool },
+            { text: '.', support: null },
+          ],
+        ],
+      },
+    ]
+
+    expect(TownOverviewSchema.parse(overview({ texts })).texts).toEqual(texts)
+  })
+
+  it('rejects an overview without its texts', () => {
+    const { texts: _, ...withoutTexts } = overview()
+
+    expect(TownOverviewSchema.safeParse(withoutTexts).success).toBe(false)
   })
 
   it('rejects an overview without its due checks', () => {

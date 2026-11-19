@@ -1367,6 +1367,8 @@ describe('the learning routes', () => {
         chromeLessons: () => lessons.chromeLessons(),
         frameTokensOf: (wordId, frame) => lessons.frameTokensOf(wordId, frame),
         answerFormsOf: (wordId) => lessons.answerFormsOf(wordId),
+        texts: () => lessons.texts(),
+        textTokensOf: (textId, passage) => lessons.textTokensOf(textId, passage),
       }
     }
 
@@ -1633,6 +1635,8 @@ describe('the learning routes', () => {
         chromeLessons: () => lessons.chromeLessons(),
         frameTokensOf: (wordId, frame) => lessons.frameTokensOf(wordId, frame),
         answerFormsOf: (wordId) => lessons.answerFormsOf(wordId),
+        texts: () => lessons.texts(),
+        textTokensOf: (textId, passage) => lessons.textTokensOf(textId, passage),
       }
     }
 

@@ -8,6 +8,7 @@ import { HireKindSchema } from './HireKind'
 import { LessonStateSchema } from './LessonState'
 import { NeededWordKindSchema } from './NeededWordKind'
 import { NextStepSchema } from './NextStep'
+import { OpenTextSchema } from './OpenText'
 import { ReleasedLessonStateSchema } from './ReleasedLessonState'
 import { ResourceAmountsSchema } from './ResourceAmounts'
 import { ResourceKindSchema } from './ResourceKind'
@@ -129,6 +130,7 @@ export const TownOverviewSchema = z
     job: z.lazy(() => TownJobSchema).nullable(),
     lessons: z.array(LessonStateSchema),
     releasedLessons: z.array(ReleasedLessonStateSchema),
+    texts: z.array(OpenTextSchema),
     dueHoldoutChecks: z.array(DueHoldoutCheckStateSchema),
     hasBandStarted: z.boolean(),
     skills: z.array(EarnedSkillSchema),

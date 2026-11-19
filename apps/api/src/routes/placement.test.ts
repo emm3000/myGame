@@ -52,6 +52,8 @@ const draftedBandOneOf = (lessons: LessonLibrary): LessonLibrary => ({
   chromeLessons: () => lessons.chromeLessons(),
   frameTokensOf: (wordId, frame) => lessons.frameTokensOf(wordId, frame),
   answerFormsOf: (wordId) => lessons.answerFormsOf(wordId),
+  texts: () => lessons.texts(),
+  textTokensOf: (textId, passage) => lessons.textTokensOf(textId, passage),
 })
 
 type AskingPlacement = Extract<Placement, { readonly kind: 'asking' }>

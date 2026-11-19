@@ -4,6 +4,7 @@ import type {
   Lesson,
   LessonCatalog,
   PlacementWordCatalog,
+  TextCatalog,
 } from '@mygame/domain'
 
 export type ShelvedLesson = Lesson & {
@@ -13,7 +14,8 @@ export type ShelvedLesson = Lesson & {
 export type LessonLibrary = LessonCatalog &
   BandCatalog &
   PlacementWordCatalog &
-  FrameCatalog & {
+  FrameCatalog &
+  TextCatalog & {
     lessons(): ReadonlyArray<ShelvedLesson>
     chromeLessons(): ReadonlyArray<ShelvedLesson>
   }
