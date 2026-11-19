@@ -24,12 +24,13 @@ const heldAt = (wordId: string, stability: number): HeldCard => {
 }
 
 describe('cardsInLearningOf', () => {
-  it('counts a card as in learning while its stability is under 7 days', () => {
+  it('counts a card as in learning while its stability is under 4 days', () => {
     const cards = [
       { wordId: 'home', card: MemoryCard.entered(enteredAt) },
-      heldAt('school', 6.99),
-      heldAt('work', 7),
-      heldAt('money', 30),
+      heldAt('school', 3.99),
+      heldAt('work', 4),
+      heldAt('money', 6.0539),
+      heldAt('food', 7),
     ]
 
     expect(cardsInLearningOf(cards)).toBe(2)

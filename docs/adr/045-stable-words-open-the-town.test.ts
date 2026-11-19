@@ -117,7 +117,7 @@ const isInSession = (learner: Learner, at: number): boolean => {
 const isPlaying = (learner: Learner, at: number): boolean =>
   learner === 'onTime' || (learner !== 'none' && isInSession(learner, at))
 
-const stableWordsOf = (run: Run): number => run.cards.length - cardsInLearningOf(run.cards)
+const stableWordsOf = (run: Run): number => stableWordCountOf(run.cards)
 
 const retainedWordsOf = (run: Run): number => run.cards.filter(isWordRetained).length
 

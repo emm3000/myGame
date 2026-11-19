@@ -1,5 +1,5 @@
 ---
-status: proposed
+status: accepted
 date: 2026-11-18
 ---
 # The learning cap counts words under 4 days
@@ -333,41 +333,26 @@ What this shows, and does not:
   runs; rerun after the change it would count from 4 days, so its
   `stableWordsOf` moves to `stableWordCountOf` in the domain ticket.
 - No migration, no content change.
-
-## Follow-ups
-
-Edits this ADR would force on its acceptance, none made here:
-
-- `CONTEXT.md`: **In learning** reads *under 4 days* and cites this
-  ADR; **Stable word** drops *so not in learning*; **School path** or
-  **Stability** says a card from 4 to under 7 days is neither.
-- ADR 040, *The learning cap*: the 7 days and the kinship it gives as
-  their reason, marked amended.
-- ADR 042, the `caughtUp` bullet: *until recalls lift words past
-  stability 7* becomes 4. Its worked example, *in learning until the
-  11-12 recall*, stays true.
-- ADR 045: *The words a town holds* (a stable word as *a card not in
-  learning*, the count as `cards.length − cardsInLearningOf(cards)`),
-  *A player who lapses* (the cap that fills, the way out through the
-  school) and *The decision, together* (*read one boundary*), each
-  marked amended.
-- `docs/PRODUCT_REQUIREMENTS.md`: no row names the line; no edit.
-
-Tickets, in order, each one pull request:
-
-1. **Domain: in learning is under 4 days.** The constant, the two
-   counts, their tests with a card at 6.0539 that is neither in
-   learning nor stable, the snapshot's `stableWordsOf`, and the doc
-   edits above.
-2. **Api and contracts: when the next word in learning is due.**
-   `LearningLoad`'s new instant, derived on read with `dueInstantOf`,
-   and the regenerated client.
-3. **Android: the cap says when it can open.** The school's cap line
-   and the cap refusal show that instant, and *Review them* only while
-   a review is due; `en.json` and `es.json` through check 9.
-4. **Web: the same line**, as its own ticket.
-
-No ticket is written until the owner signs off on this ADR.
+- **The edits its acceptance forced**, made with ticket 1:
+  `CONTEXT.md` (**In learning** reads *under 4 days*, **Stable word**
+  drops *so not in learning*, **Stability** says a card from 4 to
+  under 7 days is neither); ADR 040, *The learning cap*; ADR 042, the
+  `caughtUp` bullet, whose worked example, *in learning until the
+  11-12 recall*, stays true; ADR 045, *The words a town holds*, *A
+  player who lapses* and *The decision, together*. Each is marked
+  amended. No row of `docs/PRODUCT_REQUIREMENTS.md` names the line.
+- **Four tickets, in order, each one pull request**:
+  1. **Domain: in learning is under 4 days.** The constant, the two
+     counts, their tests with a card at 6.0539 that is neither in
+     learning nor stable, the snapshot's `stableWordsOf`, and the doc
+     edits above.
+  2. **Api and contracts: when the next word in learning is due.**
+     `LearningLoad`'s new instant, derived on read with
+     `dueInstantOf`, and the regenerated client.
+  3. **Android: the cap says when it can open.** The school's cap line
+     and the cap refusal show that instant, and *Review them* only
+     while a review is due; `en.json` and `es.json` through check 9.
+  4. **Web: the same line**, as its own ticket.
 
 ## References
 

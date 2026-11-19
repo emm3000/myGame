@@ -1,5 +1,5 @@
 ---
-status: accepted
+status: accepted, the words a town holds, a player who lapses and the decision together amended by ADR 048
 date: 2026-11-16
 ---
 # Stable words open the town
@@ -58,6 +58,10 @@ What trunk holds, checked at `5214dc7d`:
 - A **stable word** is a card of the player whose stability is 7 days
   or more: a card not in learning, at `hold` or `retained` on the school
   path. The count is `cards.length − cardsInLearningOf(cards)`.
+  (Amended by ADR 048: in learning is under 4 days, so a stable word
+  is counted on its own, the cards at `SKILL_STABILITY_DAYS` or more
+  (`stableWordCountOf`), and a card from 4 to under 7 days is
+  neither in learning nor stable.)
 - A **retained word** is a stable word whose recall 7 days after the
   review before it proved it: `isWordRetained`, the school path's
   `retained`, the proof rule 7 earns a skill with.
@@ -279,7 +283,11 @@ answers; a recognition is always right.
   stable words only, so the school can be raised to 6 on them, and
   each school level lifts the learning cap by 5 (15 at level 1, 60 at
   10, `school.json`), which lets new lessons in. A lapsed word comes back to the count at its later
-  recalls. What a lapse costs is time, never a level.
+  recalls. What a lapse costs is time, never a level. (Amended by
+  ADR 048: a lapsed word frees its slot of the cap at 4 days, so the
+  cap fills with relearning cards only while lapses keep coming; the
+  way out through the school needs 10 stable words at school level 3,
+  which a learner who lapses most of a first session does not hold.)
 
 ## Considered options
 
@@ -359,7 +367,10 @@ proofs open level 7 from day 13, and every lesson retained from day 13
 adds 1 money per hour. *Retention*: the need counts stability and the
 proof, which only a due review moves, so it cannot be crammed and
 absence never costs (ADR 035); the learning cap and the stable count
-read one boundary, so the recall that frees the cap opens a level. A
+read one boundary, so the recall that frees the cap opens a level
+(amended by ADR 048: the cap reads 4 days and the stable count 7, so
+this holds for a word that is never wrong; a lapsed word frees the cap
+before it counts toward a level). A
 lapse removes a word from the count, never a level. The pull to skip
 reviews that a stable count makes stops at level 6: past it every word
 needs the week-later recall a skipped review never gives. It is not
