@@ -113,6 +113,13 @@ class MyGameControlsTest {
     }
 
     @Test
+    fun `draws a busy text link's label in muted ink`() {
+        show { MyGameTextLink(label = "Sign out", isBusy = true, busyDescription = "Signing out", onClick = {}) }
+
+        assertEquals(lightColors.inkMuted, styleOf("Sign out").color)
+    }
+
+    @Test
     fun `refuses a tap on a busy text link`() {
         show {
             MyGameTextLink(label = "Sign out", isBusy = true, busyDescription = "Signing out", onClick = { taps += 1 })
