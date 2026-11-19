@@ -80,6 +80,15 @@
             "command": "jq -e '.tool_input.command | (test(\"git +commit\") and test(\"co-authored-by\"; \"i\")) | not' > /dev/null || { echo 'Blocked: Co-Authored-By trailers are forbidden in this repo (CLAUDE.md)' >&2; exit 2; }"
           }
         ]
+      },
+      {
+        "matcher": "Bash",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "\"$CLAUDE_PROJECT_DIR\"/scripts/mygame-red-run-check"
+          }
+        ]
       }
     ]
   },
