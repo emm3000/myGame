@@ -28,6 +28,10 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
+import androidx.compose.ui.draw.drawWithContent
+import androidx.compose.ui.geometry.Size
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.semantics.contentDescription
@@ -47,7 +51,14 @@ fun MyGameStreetStrip(
     onSelect: (Int) -> Unit,
     modifier: Modifier = Modifier,
 ) {
-    BoxWithConstraints(modifier = modifier.fillMaxWidth().semantics { contentDescription = name }) {
+    val frame: RoundedCornerShape = RoundedCornerShape(MyGameRadii.md)
+    BoxWithConstraints(
+        modifier = modifier
+            .fillMaxWidth()
+            .semantics { contentDescription = name }
+            .border(MyGameStrokeWidths.hairline, MyGameTheme.colors.lineStrong, frame)
+            .clip(frame),
+    ) {
         val tabWidth: Dp = maxOf(MyGameSizes.control, maxWidth / street.tabs.size.coerceAtLeast(1))
         val shown: Int = with(LocalDensity.current) {
             val centered: Int = (tabWidth * selected + (tabWidth - maxWidth) / 2).roundToPx()
@@ -55,19 +66,17 @@ fun MyGameStreetStrip(
         }
         val scroll: ScrollState = rememberScrollState(initial = shown)
         LaunchedEffect(shown) { scroll.animateScrollTo(shown) }
-        Column(modifier = Modifier.horizontalScroll(scroll)) {
-            Row(modifier = Modifier.selectableGroup()) {
-                street.tabs.forEachIndexed { index: Int, tab: MyGameStreetTab ->
-                    StreetTab(
-                        tab = tab,
-                        name = nameOf(tab = tab, nextStepWords = nextStepWords, inWorkWords = inWorkWords),
-                        isSelected = index == selected,
-                        onClick = { onSelect(index) },
-                        modifier = Modifier.width(tabWidth),
-                    )
-                }
+        Row(modifier = Modifier.horizontalScroll(scroll).selectableGroup()) {
+            street.tabs.forEachIndexed { index: Int, tab: MyGameStreetTab ->
+                StreetTab(
+                    tab = tab,
+                    name = nameOf(tab = tab, nextStepWords = nextStepWords, inWorkWords = inWorkWords),
+                    isSelected = index == selected,
+                    hasDivider = index > 0,
+                    onClick = { onSelect(index) },
+                    modifier = Modifier.width(tabWidth),
+                )
             }
-            MyGameHairline(modifier = Modifier.width(tabWidth * street.tabs.size))
         }
     }
 }
@@ -77,6 +86,7 @@ private fun StreetTab(
     tab: MyGameStreetTab,
     name: String,
     isSelected: Boolean,
+    hasDivider: Boolean,
     onClick: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
@@ -89,6 +99,7 @@ private fun StreetTab(
         verticalArrangement = Arrangement.spacedBy(MyGameSpacing.step1, Alignment.Bottom),
         modifier = modifier
             .defaultMinSize(minHeight = MyGameSizes.control)
+            .then(if (hasDivider) Modifier.startDivider(colors.lineStrong) else Modifier)
             .then(if (isFocused) Modifier.border(MyGameStrokeWidths.focus, colors.focus, shape) else Modifier)
             .selectable(
                 selected = isSelected,
@@ -103,6 +114,11 @@ private fun StreetTab(
         MyGamePlaceArt(art = tab.art, risenFrom = null, modifier = Modifier.height(MyGameSizes.control))
         SelectedMark(isSelected = isSelected)
     }
+}
+
+private fun Modifier.startDivider(color: Color): Modifier = drawWithContent {
+    drawContent()
+    drawRect(color = color, size = Size(width = MyGameStrokeWidths.hairline.toPx(), height = size.height))
 }
 
 @Composable
