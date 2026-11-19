@@ -8,13 +8,10 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.contentDescription
-import androidx.compose.ui.semantics.heading
 import androidx.compose.ui.semantics.semantics
 import com.emm.mygame.core.designsystem.MyGameChoiceRow
+import com.emm.mygame.core.designsystem.MyGameSectionTitle
 import com.emm.mygame.core.designsystem.MyGameSpacing
-import com.emm.mygame.core.designsystem.MyGameText
-import com.emm.mygame.core.designsystem.MyGameTheme
-import com.emm.mygame.core.designsystem.MyGameTypography
 import com.emm.mygame.core.network.ThemePick
 
 @Composable
@@ -25,12 +22,7 @@ internal fun ThemeChoiceScreen(
 ) {
     val question: String = stringResource(R.string.settings_theme_title)
     Column(verticalArrangement = Arrangement.spacedBy(MyGameSpacing.step2), modifier = modifier) {
-        MyGameText(
-            text = question,
-            style = MyGameTypography.label,
-            color = MyGameTheme.colors.ink,
-            modifier = Modifier.semantics { heading() },
-        )
+        MyGameSectionTitle(text = question)
         Column(
             verticalArrangement = Arrangement.spacedBy(MyGameSpacing.step2),
             modifier = Modifier
