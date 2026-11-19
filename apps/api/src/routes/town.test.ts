@@ -1891,6 +1891,28 @@ describe('the town route', () => {
       })
     })
 
+    it("a new town's third goal is school level 2", async () => {
+      const cookie = await signUpWithTown('ana@example.com')
+      await startWork(cookie, 'farm')
+      await startWork(cookie, 'factory')
+      clock.advanceMinutes(4)
+
+      const caughtUp = await overviewOf(await readCaughtUp(cookie))
+
+      expect(caughtUp.nextStep).toEqual({
+        kind: 'caughtUp',
+        reason: 'lessonsDone',
+        goal: {
+          position: 3,
+          count: 9,
+          building: 'school',
+          level: 2,
+          state: 'pending',
+          missing: { resources: { money: 0, food: 0, power: 0, material: 0 }, people: 0 },
+        },
+      })
+    })
+
     it('answers caughtUp with learningCap when the cap is full', async () => {
       const cookie = await signUpWithTown('ana@example.com')
       await runSql(`INSERT INTO cards (player_id, word_id, state, stability, difficulty, last_review_at, last_rating, entered_at)
