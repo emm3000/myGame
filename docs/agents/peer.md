@@ -36,14 +36,12 @@ A path is relative to its package; the Gradle rows run in `apps/android`; an api
 
 ## Red runs
 
-A ticket that adds or changes behavior loads `mattpocock-skills:tdd` and writes the failing test first. Its PR body carries one table, a row per new or changed rule, branch or guard. The first cell of a row opens with the `path:line` that `scripts/mygame-branch-audit` prints for that branch, when it prints one, followed by the rule:
-
-| `path:line` and rule, branch or guard | Test | Mutation | Failing assertion line |
+| `path:line` and the rule, branch or guard | Test | Mutation that turns the test red | Failing assertion line the red run printed |
 |---|---|---|---|
 
-The mutation is what turns the test red: the rule not written yet, the guard deleted, or the change reverted. The last column is the line that red run printed, pasted. Pure layout, copy, restyle and docs tickets owe no table.
+Exemption, for a listed line that changes nothing a caller observes: `| <path:line> <rule> | no behavior: <reason> | none | none |`, the reason not empty.
 
-A listed line that changes nothing a caller observes takes an exemption row: its first cell holds the `path:line` and its Test cell reads `no behavior: <reason>`, with a reason that is not empty.
+The `PreToolUse` hook in `.claude/settings.json`, `scripts/mygame-red-run-check`, blocks a `gh pr create` run as a command while a `path:line` that `scripts/mygame-branch-audit` prints has no row whose first cell holds it; `gh pr edit --body` skips the hook, so `pr-reviewer` still checks the table.
 
 ## Screenshots
 
