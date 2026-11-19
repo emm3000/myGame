@@ -223,7 +223,7 @@
   "android.school.school_learning": "Palabras en aprendizaje: {inLearning} de {cap}",
   "android.school.school_learning_full": "{count, plural, =1 {La siguiente lección trae 1 palabra.} other {La siguiente lección trae {count, number,0} palabras.}} Empieza los repasos.",
   "android.school.school_learning_full_next_word_due": "{count, plural, =1 {La siguiente lección trae 1 palabra.} other {La siguiente lección trae {count, number,0} palabras.}} La siguiente palabra en aprendizaje se repasa en {timeLeft}.",
-  "android.school.school_lesson_cap_reached": "El aprendizaje está lleno.",
+  "android.school.school_lesson_cap_reached": "Esta lección necesita más espacio libre en tu aprendizaje.",
   "android.school.school_lesson_needs_school": "Necesita la escuela en nivel {level}",
   "android.school.school_lesson_next": "Siguiente lección",
   "android.school.school_lesson_nothing_to_read": "Ahora no hay palabras para leer.",

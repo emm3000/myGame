@@ -391,10 +391,10 @@ class SchoolScreenTest {
     }
 
     @Test
-    fun `names full learning as the block of a lesson past the cap`() {
+    fun `says what a lesson past the cap needs in learning`() {
         show(blocked(SchoolUiState.LessonBlock.CapReached))
 
-        announcing("El aprendizaje está lleno.")
+        announcing("Esta lección necesita más espacio libre en tu aprendizaje.")
     }
 
     @Test
