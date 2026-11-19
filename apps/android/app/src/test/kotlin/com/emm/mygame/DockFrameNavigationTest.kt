@@ -441,6 +441,20 @@ class DockFrameNavigationTest {
     }
 
     @Test
+    fun `the school's go to read the words opens that lesson's words`() {
+        showing(
+            Destination.Town,
+            Destination.School,
+            town = townOf(NextStep.Reviews(count = 3, readFirst = listOf(firstLesson))),
+        )
+
+        dockGo(READ_THE_WORDS).performClick()
+
+        composeRule.waitUntil(WAIT_MILLIS) { shownStack?.lastOrNull() is Destination.LessonWords }
+        assertEquals(Destination.LessonWords(firstLesson, walked = emptyList()), shownStack?.lastOrNull())
+    }
+
+    @Test
     fun `the town home draws one go button`() {
         showing(Destination.Town)
 
