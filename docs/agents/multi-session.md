@@ -70,7 +70,8 @@ Every dispatch to a peer carries:
 
 - A peer that needs an emulator runs its own AVD, `mygame-<name>`, on an even port in 5560–5588; the recipe is `apps/android/CLAUDE.md`, Commands. `Medium_Phone*`, `hello-*` and `picantea-*` AVDs belong to other repos, and ports 5590 and up to pichanga.
 - An emulator a later ticket still needs: close the earlier ticket with `scripts/mygame-wave-close <name> --keep-emulator` and name the kept `mygame-<name>` in the next dispatch. Once no ticket needs it, run `scripts/mygame-wave-close <name>` again without the flag, which stops the emulator and deletes the AVD.
-- Never stop `netsimd`, the one process every running emulator shares. _Why: `scripts/mygame-wave-close` used to kill it by the closed worktree's directory, which took down the other peers' emulators (#1045)._
+- Never stop `netsimd`, the one process every running emulator shares. The first emulator to start spawns it as a child in the emulator's process group, and it exits by itself once the last emulator leaves. _Why: `scripts/mygame-wave-close` used to kill it by the closed worktree's directory, which took down the other peers' emulators (#1045)._
+- Every emulator starts detached, as `apps/android/CLAUDE.md` (Commands) says. _Why: a Claude session that receives SIGTERM kills the process group of each of its `run_in_background` tasks. An emulator started as one put `netsimd` in that group, so closing its session killed `netsimd`, and every other emulator aborted with exit 134 on "Netsim Wifi ... is gone due to CANCELLED" (#1252)._
 
 ## Review cycle
 
