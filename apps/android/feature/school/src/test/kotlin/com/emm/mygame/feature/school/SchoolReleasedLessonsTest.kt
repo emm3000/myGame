@@ -21,6 +21,7 @@ import com.emm.mygame.core.network.PlacementBand
 import com.emm.mygame.core.network.TownLessonRefusal
 import com.emm.mygame.core.network.TownSnapshot
 import kotlin.time.Duration
+import kotlin.time.Duration.Companion.hours
 import kotlin.time.Duration.Companion.seconds
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertTrue
@@ -113,6 +114,26 @@ class SchoolReleasedLessonsTest {
 
         assertTrue(topOf(secondSetTitle) < refusal)
         assertTrue(refusal < topOf(firstSetTitle))
+    }
+
+    @Test
+    fun `draws when the cap opens under a released lesson refused past the cap`() {
+        val pastTheCap: SchoolUiState.LessonRequest = SchoolUiState.LessonRequest.Refused(
+            secondSet,
+            TownLessonRefusal.LearningCapReached(cap = 10, inLearning = 10),
+        )
+        val nextWordDue: SchoolUiState.CapOpening =
+            SchoolUiState.CapOpening.NextWordDue(remaining = 3.hours, dueAt = readInstant + 3.hours)
+        val content: SchoolUiState.Content = contentOf(shelvedAndReleased)
+        show(content.copy(start = pastTheCap, learning = content.learning.copy(opening = nextWordDue)))
+
+        val opening: Dp = composeRule
+            .onNodeWithText("Palabras en aprendizaje: 10 de 10. La siguiente se repasa en 3 h", substring = true)
+            .performScrollTo()
+            .getUnclippedBoundsInRoot().top
+
+        assertTrue(topOf(secondSetTitle) < opening)
+        assertTrue(opening < topOf(firstSetTitle))
     }
 
     @Test
