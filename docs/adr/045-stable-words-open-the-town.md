@@ -46,9 +46,10 @@ What trunk holds, checked at `5214dc7d`:
   2026-11-18 (#1285, ADR 049) and add 100 entries, 80 of them band 1
   words: `curriculum.json` lists 47 lessons and band 1 holds 130 words
   on trunk. The counts below are those of lessons 1 to 27, the content
-  this decision was written against. Band 1's draw holds out 87 words, a tenth of its 875 non-chrome words
-  (`bandStartDrawn`, `JsonLessonCatalog.wordsOfBand`), so no count of
-  band 1 words is certain to reach a card today. Every shipped lesson
+  this decision was written against. Band 1's draw holds out 87 words,
+  a tenth of its 875 non-chrome words (`bandStartDrawn`,
+  `JsonLessonCatalog.wordsOfBand`), so no count of band 1 words is
+  certain to reach a card today. Every shipped lesson
   asks for school level 1.
 - **What the skills save.** The runs below, on trunk's content, find that
   the food, material and power skills save 0 hours at every level of a
@@ -112,11 +113,12 @@ path (ADR 042); a day away never does.
   lessons' card words, plus, per band, the band's shipped card words
   beyond the count its draw holds out. Today every lesson asks for
   school level 1, so every need counts 80 + max(0, 50 − 87) = 80,
-  level 10's need (80 + (130 − 87) = 123 with lessons 28 to 47). No holdout draw, no placement and no unshipped lesson
-  can leave a town short of a level: any 80 retained cards open level
-  10, and the chrome words, which every player studies, are the
-  guaranteed floor. A later band that ships past its draw lets a later
-  ADR raise the curve.
+  level 10's need (80 + (130 − 87) = 123 with lessons 28 to 47). No
+  holdout draw, no placement and no unshipped lesson can leave a town
+  short of a level: any 80 retained cards open level 10, and the
+  chrome words, which every player studies, are the guaranteed floor.
+  A later band that ships past its draw lets a later ADR raise the
+  curve.
 
 ### Every lesson's skill raises money
 
@@ -192,8 +194,9 @@ the domain or the content did not fail it, and it stopped passing when
 
 The runs go in one-minute steps over 90 days on fields, before the
 season calendar's epoch, so every season percent reads 100. Every
-answer is Good, but in the run with lapses below. The learner starts the next lesson in curriculum order
-whenever the school's slot and cap allow, and earns a lesson's skill at
+answer is Good, but in the run with lapses below. The learner starts
+the next lesson in curriculum order whenever the school's slot and cap
+allow, and earns a lesson's skill at
 the review that retains its last word. Stocks are not floored, so the
 game pays minutes later; no hire, job or clean-up runs. Day 0 is the
 founding.

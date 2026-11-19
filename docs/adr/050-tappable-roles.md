@@ -351,8 +351,8 @@ screenshot of every affected screen.
      `ReviewsLink.kt:25` and `:31`.
    - Each row opens the screen its text link or button opened.
 3. **Static containers drop the outline.** **Trap list: yes**:
-   `MyGameCard`'s default changes its 7 call sites in 5 feature modules
-   (map, school, review, town, report).
+   `MyGameCard`'s default changes its 11 call sites in 10 files across
+   5 feature modules (map, school, review, town, report).
    - `MyGameCard` draws no border.
    - `LessonWordsScreen.kt:143` and `ReviewStepLine.kt:103` draw no
      frame.
