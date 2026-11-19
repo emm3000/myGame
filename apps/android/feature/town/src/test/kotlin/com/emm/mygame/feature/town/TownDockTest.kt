@@ -254,6 +254,18 @@ class TownDockTest {
         composeRule.onNode(hasText(STUDY_SLOT_BUSY) and isPlaced, useUnmergedTree = true).assertExists()
     }
 
+    @Test
+    @Config(qualifiers = PHONE)
+    fun `draws an unreachable lesson start as the unexpected refusal above the go button`() {
+        show(releasedStep.copy(lessonStart = TownUiState.LessonStartStatus.Unreachable))
+
+        val notice: DpRect = composeRule
+            .onNode(hasText(TOWN_UNREACHABLE) and isPlaced, useUnmergedTree = true)
+            .getUnclippedBoundsInRoot()
+        val study: DpRect = go("Estudiar las palabras que vuelven").getUnclippedBoundsInRoot()
+        assertTrue("the notice sits above the go button", notice.bottom <= study.top)
+    }
+
     private val capRefusal: TownUiState.LessonStartStatus =
         TownUiState.LessonStartStatus.Refused(TownLessonRefusal.LearningCapReached(cap = 15, inLearning = 15))
 
