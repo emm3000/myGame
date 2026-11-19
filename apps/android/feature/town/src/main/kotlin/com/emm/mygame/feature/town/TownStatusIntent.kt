@@ -15,4 +15,6 @@ sealed interface TownStatusIntent {
     data object TryAgainTapped : TownStatusIntent
 
     data class ReleasedLessonTapped(val lesson: LessonId) : TownStatusIntent
+
+    data class SchoolLessonDrawn(val lesson: LessonId?) : TownStatusIntent
 }
