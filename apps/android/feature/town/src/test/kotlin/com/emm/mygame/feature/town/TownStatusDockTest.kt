@@ -21,7 +21,7 @@ class TownStatusDockTest {
     )
 
     @Test
-    fun `a full learning cap gives the cap's line over the goal`() {
+    fun `a full learning cap keeps the goal beside the cap's line`() {
         val fullCap: TownSnapshot = townOf(nextStep = NextStep.CaughtUp(CaughtUpReason.LearningCap, schoolGoal)).copy(
             learning = TownSnapshot.Learning(cap = 15, inLearning = 15, retainedWords = null),
         )
@@ -33,6 +33,9 @@ class TownStatusDockTest {
             lessonStart = TownUiState.LessonStartStatus.Idle,
         )
 
-        assertEquals(NextStepCard.Line.LearningCap(inLearning = 15, cap = 15) to null, step.line to step.detail)
+        assertEquals(
+            NextStepCard.Line.LearningCap(inLearning = 15, cap = 15) to TownStatusUiState.StepDetail.Goal(schoolGoal),
+            step.line to step.detail,
+        )
     }
 }

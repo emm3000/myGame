@@ -1,6 +1,5 @@
 package com.emm.mygame.feature.town
 
-import com.emm.mygame.core.network.CaughtUpReason
 import com.emm.mygame.core.network.NextStep
 import com.emm.mygame.core.network.NextStepCard
 import com.emm.mygame.core.network.TownGoal
@@ -26,10 +25,7 @@ internal fun TownSnapshot.dockOn(
     )
 }
 
-private fun TownSnapshot.caughtUpGoal(): TownGoal? {
-    val caughtUp: NextStep.CaughtUp = nextStep as? NextStep.CaughtUp ?: return null
-    return if (caughtUp.reason == CaughtUpReason.LearningCap) null else caughtUp.goal
-}
+private fun TownSnapshot.caughtUpGoal(): TownGoal? = (nextStep as? NextStep.CaughtUp)?.goal
 
 private fun NextStepCard.goOn(
     screen: TownStatusScreen,

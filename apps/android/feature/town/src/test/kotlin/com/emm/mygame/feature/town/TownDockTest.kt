@@ -6,18 +6,21 @@ import androidx.compose.ui.test.SemanticsMatcher
 import androidx.compose.ui.test.SemanticsNodeInteraction
 import androidx.compose.ui.test.assert
 import androidx.compose.ui.test.assertCountEquals
+import androidx.compose.ui.test.getUnclippedBoundsInRoot
 import androidx.compose.ui.test.hasClickAction
 import androidx.compose.ui.test.hasContentDescription
 import androidx.compose.ui.test.hasText
 import androidx.compose.ui.test.junit4.ComposeContentTestRule
 import androidx.compose.ui.test.junit4.createComposeRule
-import androidx.compose.ui.test.onFirst
 import androidx.compose.ui.test.performClick
+import androidx.compose.ui.unit.DpRect
 import com.emm.mygame.core.designsystem.MyGameTheme
 import com.emm.mygame.core.network.HoldoutCheckWeek
 import com.emm.mygame.core.network.LessonId
 import com.emm.mygame.core.network.NextStepCard
 import com.emm.mygame.core.network.PlacementBand
+import com.emm.mygame.core.network.TownBuildingKind
+import com.emm.mygame.core.network.TownGoal
 import com.emm.mygame.core.network.TownLessonRefusal
 import com.emm.mygame.core.ui.ChromePhase
 import com.emm.mygame.core.ui.CopyLanguage
@@ -26,10 +29,12 @@ import com.emm.mygame.core.ui.ScaffoldLanguage
 import kotlin.time.Duration.Companion.minutes
 import kotlin.time.Instant
 import org.junit.Assert.assertEquals
+import org.junit.Assert.assertTrue
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.robolectric.RobolectricTestRunner
+import org.robolectric.annotation.Config
 
 @RunWith(RobolectricTestRunner::class)
 class TownDockTest {
@@ -98,8 +103,29 @@ class TownDockTest {
         }
     }
 
+    private val fullCapWithGoal: TownStatusUiState.Dock.Step = fullCapStep.copy(
+        detail = TownStatusUiState.StepDetail.Goal(
+            TownGoal(
+                position = 1,
+                count = 9,
+                building = TownBuildingKind.Farm,
+                level = 1,
+                state = TownGoal.State.Underway,
+            ),
+        ),
+    )
+
+    private val isPlaced: SemanticsMatcher = SemanticsMatcher("is placed") { node -> node.layoutInfo.isPlaced }
+
+    private fun placedBoundsOf(text: String): DpRect =
+        composeRule.onNode(hasText(text) and isPlaced, useUnmergedTree = true).getUnclippedBoundsInRoot()
+
+    private fun assertGoalUnderTheFullCap() {
+        assertTrue("$FARM_GOAL under $FULL_CAP", placedBoundsOf(FULL_CAP).bottom <= placedBoundsOf(FARM_GOAL).top)
+    }
+
     private fun assertNamesTheFullCap() {
-        composeRule.onAllNodes(hasText(FULL_CAP), useUnmergedTree = true).onFirst().assertExists()
+        composeRule.onNode(hasText(FULL_CAP) and isPlaced, useUnmergedTree = true).assertExists()
         composeRule.onAllNodes(hasText(NO_REVIEWS_DUE, substring = true), useUnmergedTree = true).assertCountEquals(0)
     }
 
@@ -109,6 +135,7 @@ class TownDockTest {
     )
 
     @Test
+    @Config(qualifiers = PHONE)
     fun `names the full learning cap on the What is next card`() {
         showInEnglish { TownDock(dock = fullCapStep, actions = recordingActions, onFoldChange = {}) }
 
@@ -120,6 +147,21 @@ class TownDockTest {
         showInEnglish { TownDockTop(dock = fullCapStep) }
 
         assertNamesTheFullCap()
+    }
+
+    @Test
+    @Config(qualifiers = PHONE)
+    fun `draws the goal under the full learning cap on the What is next card`() {
+        showInEnglish { TownDock(dock = fullCapWithGoal, actions = recordingActions, onFoldChange = {}) }
+
+        assertGoalUnderTheFullCap()
+    }
+
+    @Test
+    fun `draws the goal under the full learning cap on the folded dock`() {
+        showInEnglish { TownDockTop(dock = fullCapWithGoal) }
+
+        assertGoalUnderTheFullCap()
     }
 
     @Test
@@ -212,6 +254,8 @@ class TownDockTest {
         const val WAITING: String = "Esperando"
         const val FULL_CAP: String = "Words in learning: 15 of 15"
         const val NO_REVIEWS_DUE: String = "No reviews due now."
+        const val FARM_GOAL: String = "Goal 1 of 9: Farm, level 1"
+        const val PHONE: String = "+w411dp-h891dp"
         const val STUDY_SLOT_BUSY: String = "La escuela ya tiene un estudio en marcha. Espera a que termine."
     }
 }
