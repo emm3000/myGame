@@ -1,5 +1,5 @@
 ---
-status: proposed, the skill amended by ADR 039, chrome examples changed by ADR 040, the item data, the order, the frame rule, the stage and the holdout widened for units and later frames, and the next lesson after placement clarified, by ADR 044, check 7 delegated by its amendment of 2026-11-12
+status: proposed, the skill amended by ADR 039, chrome examples changed by ADR 040, the item data, the order, the frame rule, the stage and the holdout widened for units and later frames, and the next lesson after placement clarified, by ADR 044, check 7 delegated by its amendment of 2026-11-12, check 4 amended for a text by ADR 049
 date: 2026-11-04
 ---
 # The NGSL curriculum and the content gate
@@ -196,7 +196,9 @@ word it means in the content, or the gate fails it.
    lesson, or a card word of an earlier lesson. A single sentence of 6
    to 10 tokens holding one unknown token is already at 83 to 90 %
    coverage, below any threshold of §4, so a frame admits none.
-4. **Coverage of a running text.** A variant holds at most
+4. **Coverage of a running text.** *Amended by ADR 049: a text holds
+   zero unknown tokens; the 5 % below is kept for a later kind of
+   text.* A variant holds at most
    max(1, ⌊5 % of its tokens⌋) tokens unknown at its lesson, each one a
    lexicon word with every gloss the shipped scaffolds need: 1 in a text
    of up to 39 tokens, 2 in 40. That is §4's 95 % floor for assisted
