@@ -2,7 +2,6 @@ package com.emm.mygame.feature.signin
 
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.semantics.Role
-import androidx.compose.ui.semantics.SemanticsActions
 import androidx.compose.ui.semantics.SemanticsProperties
 import androidx.compose.ui.test.SemanticsMatcher
 import androidx.compose.ui.test.SemanticsNodeInteraction
@@ -18,7 +17,6 @@ import androidx.compose.ui.test.junit4.createComposeRule
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
 import androidx.compose.ui.test.performScrollTo
-import androidx.compose.ui.text.TextLayoutResult
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.unit.dp
 import com.emm.mygame.core.designsystem.MyGameTheme
@@ -99,7 +97,7 @@ class ThemeChoiceScreenTest {
             }
         }
 
-        val drawn: TextStyle = textStyleOf(THEME_QUESTION)
+        val drawn: TextStyle = textStyleOf(composeRule, THEME_QUESTION)
         assertEquals(MyGameTypography.heading.fontSize, drawn.fontSize)
         assertEquals(MyGameTypography.heading.fontWeight, drawn.fontWeight)
         assertEquals(ink, drawn.color)
@@ -122,12 +120,5 @@ class ThemeChoiceScreenTest {
         }
 
         composeRule.onNodeWithText(DARK_CHOICE).performScrollTo().assertExists()
-    }
-
-    private fun textStyleOf(text: String): TextStyle {
-        val results: MutableList<TextLayoutResult> = mutableListOf()
-        composeRule.onNode(hasText(text) and isHeading(), useUnmergedTree = true).fetchSemanticsNode()
-            .config[SemanticsActions.GetTextLayoutResult].action?.invoke(results)
-        return results.first().layoutInput.style
     }
 }
