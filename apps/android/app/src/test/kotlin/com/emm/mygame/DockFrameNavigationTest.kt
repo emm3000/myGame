@@ -571,6 +571,15 @@ class DockFrameNavigationTest {
     }
 
     @Test
+    fun `the naming screen draws no Report row`() {
+        showing(Destination.Town, townReads = 0)
+        townsFake.answerRead(TownReadResult.NoTown)
+        waitFor(hasText(NAMING_TITLE))
+
+        composeRule.onAllNodes(reportRow).assertCountEquals(0)
+    }
+
+    @Test
     fun `the naming screen draws no dock on its first frame`() {
         showing(Destination.Town, townReads = 0)
         waitFor(hasTestTag(TOWN_DOCK))
