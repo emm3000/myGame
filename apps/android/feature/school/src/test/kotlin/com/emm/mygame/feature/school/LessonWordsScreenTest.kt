@@ -139,7 +139,7 @@ class LessonWordsScreenTest {
     fun `draws the lesson's time left in the body while it waits for the lesson's end`() {
         draw(waitingLastWord)
 
-        composeRule.onNode(hasText("3 min") and hasAnyAncestor(hasScrollAction())).assertExists()
+        composeRule.onNode(hasText("3\u00A0min") and hasAnyAncestor(hasScrollAction())).assertExists()
     }
 
     @Test
@@ -211,7 +211,7 @@ class LessonWordsScreenTest {
     fun `shows the time left while the lesson runs`() {
         draw(runningFirstWord)
 
-        composeRule.onNodeWithText("3 min").assertExists()
+        composeRule.onNodeWithText("3\u00A0min").assertExists()
     }
 
     @Test
@@ -311,7 +311,7 @@ class LessonWordsScreenTest {
     fun `draws no time left in the dock while it waits for the lesson's end`() {
         draw(waitingLastWord)
 
-        composeRule.onAllNodes(hasText("3 min") and hasAnyAncestor(hasTestTag(TASK_DOCK))).assertCountEquals(0)
+        composeRule.onAllNodes(hasText("3\u00A0min") and hasAnyAncestor(hasTestTag(TASK_DOCK))).assertCountEquals(0)
     }
 
     @Test
@@ -320,7 +320,7 @@ class LessonWordsScreenTest {
         draw(waitingLastWord)
 
         val inBody: SemanticsMatcher = hasAnyAncestor(hasScrollAction()) and !hasAnyAncestor(hasTestTag(TASK_DOCK))
-        composeRule.onAllNodes(hasText("3 min") and inBody).assertCountEquals(1)
+        composeRule.onAllNodes(hasText("3\u00A0min") and inBody).assertCountEquals(1)
         composeRule.onAllNodes(hasText("2 de 2", substring = true) and inBody).assertCountEquals(1)
     }
 

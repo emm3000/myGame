@@ -225,7 +225,7 @@ class SchoolLanguageTest {
     fun `draws the lesson under study in English in the English phase`() {
         show(englishPhase, contentOf(lessonUnderStudy))
 
-        assertDrawn("Read the words", "Stop it and you can study it again.", "2 min")
+        assertDrawn("Read the words", "Stop it and you can study it again.", "2\u00A0min")
         assertDescribed("Stop studying lesson 1")
         assertNotDrawn("Leer las palabras", "En estudio")
     }

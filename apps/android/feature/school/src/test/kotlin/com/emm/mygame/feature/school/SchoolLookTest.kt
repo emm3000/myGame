@@ -444,14 +444,14 @@ class SchoolLookTest {
     fun `sets a running lesson's countdown in heading`() {
         show(secondWhileFirstRuns)
 
-        assertEquals(20.sp, textStyleOf(composeRule, "1 min").fontSize)
+        assertEquals(20.sp, textStyleOf(composeRule, "1\u00A0min").fontSize)
     }
 
     @Test
     fun `sets a running lesson's countdown in tabular figures`() {
         show(secondWhileFirstRuns)
 
-        assertEquals("tnum", textStyleOf(composeRule, "1 min").fontFeatureSettings)
+        assertEquals("tnum", textStyleOf(composeRule, "1\u00A0min").fontFeatureSettings)
     }
 
     @Test

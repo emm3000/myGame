@@ -270,7 +270,7 @@ class SchoolScreenTest {
         )
 
         val line: String =
-            "La siguiente lección trae 5 palabras. La siguiente palabra en aprendizaje se repasa en 3 h · "
+            "La siguiente lección trae 5 palabras. La siguiente palabra en aprendizaje se repasa en 3\u00A0h · "
         val lineTop: Dp = composeRule.onNodeWithText(line, substring = true)
             .performScrollTo()
             .assertIsDisplayed()
@@ -310,7 +310,7 @@ class SchoolScreenTest {
             SchoolUiState.CapOpening.NextWordDue(remaining = 40.minutes, dueAt = readInstant + 40.minutes)
         show(idleSchool.copy(learning = fullCap(words = 5, nextWord)))
 
-        showing("La siguiente lección trae 5 palabras. La siguiente palabra en aprendizaje se repasa en 40 min.")
+        showing("La siguiente lección trae 5 palabras. La siguiente palabra en aprendizaje se repasa en 40\u00A0min.")
     }
 
     private fun fullCap(words: Int, opening: SchoolUiState.CapOpening): SchoolUiState.LearningLine =
@@ -472,7 +472,7 @@ class SchoolScreenTest {
             start = SchoolUiState.LessonRequest.Refused(firstLesson, capRefusal),
         )
 
-        val refusal: String = "Palabras en aprendizaje: 8 de 10. La siguiente se repasa en 3 h · "
+        val refusal: String = "Palabras en aprendizaje: 8 de 10. La siguiente se repasa en 3\u00A0h · "
         composeRule.onNodeWithText(refusal, substring = true)
             .performScrollTo()
             .assertIsDisplayed()
@@ -576,7 +576,7 @@ class SchoolScreenTest {
     fun `draws a running lesson's countdown in minutes`() {
         show(idleSchool.copy(slot = busySlot(150.seconds)))
 
-        showing("2 min")
+        showing("2\u00A0min")
     }
 
     @Test
@@ -641,14 +641,14 @@ class SchoolScreenTest {
     fun `draws a countdown of whole hours`() {
         show(idleSchool.copy(slot = busySlot(2.hours)))
 
-        showing("2 h")
+        showing("2\u00A0h")
     }
 
     @Test
     fun `draws a countdown of hours and minutes`() {
         show(idleSchool.copy(slot = busySlot(1.hours + 20.minutes)))
 
-        showing("1 h 20 min")
+        showing("1\u00A0h 20\u00A0min")
     }
 
     @Test
