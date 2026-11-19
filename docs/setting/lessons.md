@@ -404,7 +404,7 @@ The batch also gives each of the 55 entries of lessons 17 to 27 one later frame,
 - **Readiness.** *point out* is ready from lesson 32, because *point* is taught by lesson 31. *of course* is ready from lesson 32 (*course*, lesson 31), *a little* from lesson 37 (*little*, lesson 31), *a few* from lesson 42 (*few*, lesson 39) and *a number of* from lesson 42 (*number*, lesson 30). *set up* is ready from lesson 47 (*set*, lesson 43), *turn out* from lesson 47 (*turn*, lesson 44) and *in fact* from lesson 47 (*fact*, lesson 45). Every other word of a unit is a frame word or a card word taught by lesson 27 or earlier.
 - **Senses.** Each phrasal verb is taught in its PHaVE sense of the highest share: *come up* as *come up with*, 'produce an idea'; *go back*, 'return'; *point out*, 'direct attention to'; *come out*, 'leave a place or appear from it'; *go out*, 'leave home for a social event'; *get out*, 'leave a vehicle or a room'; *come in*, 'enter'; *take on*, 'undertake a task'; *give up*, 'stop doing or having'; *set up*, 'establish'; *turn out*, 'prove to be'; *make up*, 'form the whole of'.
 - **Part of speech.** The lexicon's part of speech is one of noun, verb, adjective or adverb. So the prepositions *through*, *between* and *around*, and the conjunction *while*, are filed as adverbs. The determiners *both*, *another*, *each*, *few* and *every* are filed as adjectives, and the modals *might* and *must* as verbs. The phrases are filed as adverbs, as in lesson 27.
-- **Shared glosses.** *each* and *every* are both glossed *cada*, and *little* and *small* are both glossed *pequeño*. Each pair is taught in two different lessons, so no recognition offers both glosses side by side.
+- **Shared glosses.** *each* and *every* are both glossed *cada*. They are taught in different lessons, and *each*'s frame, *Each of the workers has a job.*, leaves a gap that *every* cannot fill. *little* is glossed *pequeñito* and *small* *pequeño*, so those two cards share no gloss.
 
 ### Lesson 28
 
@@ -452,7 +452,7 @@ The batch also gives each of the 55 entries of lessons 17 to 27 one later frame,
 | point | verb | 131 | Point to the river on the map. | ____ to the river on the map. | señalar | to show where something is with your hand |
 | put | verb | 139 | Put your name on the list. | ____ your name on the list. | poner | to move something to a place |
 | course | noun | 164 | The course starts in the fall. | The ____ starts in the fall. | curso | a set of classes about one subject |
-| little | adjective | 132 | They live in a little house by the river. | They live in a ____ house by the river. | pequeño | small; not big |
+| little | adjective | 132 | They live in a little house by the river. | They live in a ____ house by the river. | pequeñito | small, often in a way you like |
 
 ### Lesson 32
 
@@ -460,7 +460,7 @@ The batch also gives each of the 55 entries of lessons 17 to 27 one later frame,
 
 | Unit | Source | Part of speech | Frame | Gapped form | es gloss | Definition |
 |---|---|---|---|---|---|---|
-| come up | phave | verb | Can you come up with a name for the team? | Can you ____ ____ with a name for the team? | idear | to think of something new, such as a plan |
+| come up | phave | verb | Can you come up with a name for the team? | Can you ____ ____ with a name for the team? | idear | used before with: to think of something new, such as a plan |
 | go back | phave | verb | I want to go back to my old job. | I want to ____ ____ to my old job. | regresar | to return to a place where you were before |
 | point out | phave | verb | Can you point out the problem? | Can you ____ ____ the problem? | hacer notar | to tell someone about something they did not see |
 | of course | phrase | adverb | Of course you can come with us. | ____ ____ you can come with us. | por supuesto | a way to say yes, or to say that something is clear |
@@ -532,7 +532,7 @@ The batch also gives each of the 55 entries of lessons 17 to 27 one later frame,
 
 | Lemma | Part of speech | NGSL 1.2 rank | Frame | Gapped form | es gloss | Definition |
 |---|---|---|---|---|---|---|
-| each | adjective | 145 | Each worker has a job. | ____ worker has a job. | cada | every one, seen one by one |
+| each | adjective | 145 | Each of the workers has a job. | ____ of the workers has a job. | cada | every one, seen one by one |
 | early | adverb | 197 | I want to go home early today. | I want to go home ____ today. | temprano | before the normal time |
 | small | adjective | 186 | We have a small team. | We have a ____ team. | pequeño | not large; little |
 | group | noun | 167 | A group of workers is at the station. | A ____ of workers is at the station. | grupo | some people or things together |
