@@ -607,7 +607,7 @@ class AppNavigationTest {
         composeRule.onNodeWithText("Ir a la escuela").performScrollTo().performClick()
         assertStatusShown()
         link("PUEBLO").performClick()
-        waitForLine(TOWN_HEADER)
+        wayToTheReport().performScrollTo()
 
         openReport(TownReport(dueCount = 3, readFirst = emptyList(), nextDueAt = null, news = emptyList()))
         assertStatusShown()

@@ -36,7 +36,6 @@
     <string name="town_next_learning_cap">Palabras en aprendizaje: {inLearning} de {cap}</string>
     <string name="town_next_lesson_ready_in">Lección {number} lista en</string>
     <string name="town_next_lesson_title">Lección {number}</string>
-    <string name="town_next_lesson_words">{count, plural, =1 {1 palabra} other {{count, number,0} palabras}}</string>
     <string name="town_next_no_reviews_due">No tienes repasos pendientes ahora.</string>
     <string name="town_next_read_words">Leer las palabras</string>
     <string name="town_next_released_lesson">Palabras que vuelven: banda {band}, grupo {number}</string>

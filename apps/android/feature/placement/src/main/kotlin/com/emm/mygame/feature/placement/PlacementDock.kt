@@ -2,7 +2,6 @@ package com.emm.mygame.feature.placement
 
 import androidx.compose.runtime.Composable
 import com.emm.mygame.core.designsystem.MyGameDockGo
-import com.emm.mygame.core.designsystem.MyGameDockLine
 import com.emm.mygame.core.designsystem.MyGameInlineAlert
 import com.emm.mygame.core.ui.FillTaskDock
 import com.emm.mygame.core.ui.FollowTownDock
@@ -24,10 +23,7 @@ internal fun PlacementDock(state: PlacementUiState, onIntent: (PlacementIntent) 
 private fun offeredDock(offered: PlacementUiState.Offered, onIntent: (PlacementIntent) -> Unit): TaskDock {
     val waiting: PlacementAction? = (offered.request as? PlacementRequest.Waiting)?.action
     return TaskDock(
-        line = MyGameDockLine(
-            title = fixedLabel(R.string.placement_title),
-            step = fixedLabel(R.string.placement_offer_line),
-        ),
+        step = fixedLabel(R.string.placement_offer_line),
         go = MyGameDockGo(
             label = fixedLabel(R.string.placement_start),
             isBusy = waiting == PlacementAction.Begin,
@@ -39,10 +35,7 @@ private fun offeredDock(offered: PlacementUiState.Offered, onIntent: (PlacementI
 
 @Composable
 private fun askingDock(asking: PlacementUiState.Asking, onIntent: (PlacementIntent) -> Unit): TaskDock = TaskDock(
-    line = MyGameDockLine(
-        title = fixedLabel(R.string.placement_band, "band" to asking.band.number.toString()),
-        step = progressLabel(shownIndex = asking.shownIndex, total = asking.items.size),
-    ),
+    step = progressLabel(shownIndex = asking.shownIndex, total = asking.items.size),
     go = askingGo(asking, onIntent),
     notice = {
         if (asking.request == PlacementRequest.Unreachable) {

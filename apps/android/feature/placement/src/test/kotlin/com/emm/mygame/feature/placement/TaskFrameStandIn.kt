@@ -52,8 +52,8 @@ internal fun TaskFrameStandIn(hook: TaskDockHook, content: @Composable () -> Uni
             Box(modifier = Modifier.weight(1f)) { content() }
             hook.dock?.let { shown: TaskDock ->
                 MyGameDock(
-                    line = shown.line,
                     go = shown.go,
+                    step = shown.step,
                     onFoldChange = {},
                     modifier = Modifier.testTag(TASK_DOCK),
                     notice = shown.notice,

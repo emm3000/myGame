@@ -122,9 +122,9 @@ class ReviewLanguageTest {
         }
     }
 
-    private fun assertDrawnInBodyAndDockLine(vararg lines: String) {
+    private fun assertDrawnOnce(vararg lines: String) {
         lines.forEach { line: String ->
-            composeRule.onAllNodes(hasText(line) and isPlaced).assertCountEquals(2)
+            composeRule.onAllNodes(hasText(line) and isPlaced).assertCountEquals(1)
         }
     }
 
@@ -148,7 +148,7 @@ class ReviewLanguageTest {
         show(spanishPhase, recognizing)
 
         assertDrawn("Repaso", "¿Qué significa?", "Comprobar")
-        assertDrawnInBodyAndDockLine("Por repasar: 3")
+        assertDrawnOnce("Por repasar: 3")
         assertNotDrawn("Reviews", "Reviews due: 3", "What does it mean?", "Check")
     }
 
@@ -157,7 +157,7 @@ class ReviewLanguageTest {
         show(bothPhase, recognizing)
 
         assertDrawn("Reviews", "Repaso")
-        assertDrawnInBodyAndDockLine("Reviews due: 3", "Por repasar: 3")
+        assertDrawnOnce("Reviews due: 3", "Por repasar: 3")
         assertTrue(lineOf("Reviews").bottom <= lineOf("Repaso").top)
         assertTrue(lineOf("Reviews due: 3").bottom <= lineOf("Por repasar: 3").top)
     }
@@ -175,7 +175,7 @@ class ReviewLanguageTest {
         show(englishPhase, recognizing)
 
         assertDrawn("Reviews")
-        assertDrawnInBodyAndDockLine("Reviews due: 3")
+        assertDrawnOnce("Reviews due: 3")
         assertNotDrawn("Repaso", "Por repasar: 3")
     }
 
@@ -243,7 +243,7 @@ class ReviewLanguageTest {
         show(noScaffold, recognizing)
 
         assertDrawn("Reviews", "What does it mean?", "Check")
-        assertDrawnInBodyAndDockLine("Reviews due: 3")
+        assertDrawnOnce("Reviews due: 3")
         assertNotDrawn("Repaso", "Por repasar: 3", "¿Qué significa?", "Comprobar")
     }
 

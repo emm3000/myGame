@@ -45,7 +45,7 @@ class TownFoldedDockTest {
         composeRule.mainClock.advanceTimeByFrame()
 
         composeRule.onAllNodesWithTag(SKELETON_BLOCK, useUnmergedTree = true).assertCountEquals(SKELETON_BLOCKS)
-        composeRule.onNodeWithText(FOLDED_LINE).assertExists()
+        composeRule.onNodeWithText(FOLDED_NOTICE).assertExists()
     }
 
     @Test
@@ -59,7 +59,7 @@ class TownFoldedDockTest {
         composeRule.mainClock.advanceTimeByFrame()
 
         composeRule.onNodeWithText(SIGN_OUT).assertExists()
-        composeRule.onNodeWithText(FOLDED_LINE).assertExists()
+        composeRule.onNodeWithText(FOLDED_NOTICE).assertExists()
     }
 
     @Test
@@ -73,7 +73,7 @@ class TownFoldedDockTest {
         composeRule.mainClock.advanceTimeByFrame()
 
         composeRule.onNodeWithText(SIGN_OUT).assertExists()
-        composeRule.onNodeWithText(FOLDED_LINE).assertExists()
+        composeRule.onNodeWithText(FOLDED_NOTICE).assertExists()
     }
 
     private fun showFolded(shown: MutableState<TownUiState>) {
@@ -84,7 +84,7 @@ class TownFoldedDockTest {
                     onIntent = {},
                     onSchoolOpen = {},
                     onMapOpen = {},
-                    foldedDock = { BasicText(FOLDED_LINE) },
+                    foldedDock = { BasicText(FOLDED_NOTICE) },
                 )
             }
         }
@@ -92,7 +92,7 @@ class TownFoldedDockTest {
     }
 
     private companion object {
-        const val FOLDED_LINE: String = "Folded line"
+        const val FOLDED_NOTICE: String = "Folded notice"
         const val SIGN_OUT: String = "Salir"
         const val REVEAL_MARGIN_MILLIS: Long = 50
         const val SKELETON_BLOCKS: Int = 5

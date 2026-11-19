@@ -6,7 +6,6 @@ import androidx.compose.runtime.State
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberUpdatedState
 import com.emm.mygame.core.designsystem.MyGameDockGo
-import com.emm.mygame.core.designsystem.MyGameDockLine
 import com.emm.mygame.core.designsystem.MyGameLabel
 import com.emm.mygame.core.ui.FillTaskDock
 import com.emm.mygame.core.ui.FollowTownDock
@@ -35,15 +34,9 @@ internal fun ReviewUiState.Reviewing.goIntent(): ReviewIntent =
 
 @Composable
 private fun reviewingDock(reviewing: ReviewUiState.Reviewing, onIntent: (ReviewIntent) -> Unit): TaskDock = TaskDock(
-    line = reviewLineOf(reviewing),
+    step = chromeResource(R.string.review_due_count, "count" to reviewing.dueCount.toString()),
     go = reviewGoOf(reviewing, onIntent),
     notice = { ReviewStepLine(reviewing = reviewing, onIntent = onIntent) },
-)
-
-@Composable
-private fun reviewLineOf(reviewing: ReviewUiState.Reviewing): MyGameDockLine = MyGameDockLine(
-    title = chromeResource(R.string.review_title),
-    step = chromeResource(R.string.review_due_count, "count" to reviewing.dueCount.toString()),
 )
 
 @Composable

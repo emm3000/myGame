@@ -1,36 +1,35 @@
 package com.emm.mygame.core.designsystem
 
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.setValue
-import androidx.compose.ui.semantics.LiveRegionMode
-import androidx.compose.ui.semantics.semantics
-import androidx.compose.ui.semantics.traversalIndex
-import androidx.compose.ui.test.assertIsNotEnabled
-import androidx.compose.ui.test.hasContentDescription
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.height
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.test.assertIsDisplayed
-import androidx.compose.ui.test.onNodeWithText
-import androidx.compose.ui.test.onRoot
-import androidx.compose.ui.unit.Dp
-import androidx.compose.ui.unit.dp
 import androidx.compose.ui.geometry.Rect
+import androidx.compose.ui.semantics.LiveRegionMode
 import androidx.compose.ui.semantics.SemanticsNode
 import androidx.compose.ui.semantics.SemanticsProperties
+import androidx.compose.ui.semantics.semantics
+import androidx.compose.ui.semantics.traversalIndex
 import androidx.compose.ui.test.SemanticsMatcher
 import androidx.compose.ui.test.assert
+import androidx.compose.ui.test.assertIsDisplayed
 import androidx.compose.ui.test.getBoundsInRoot
 import androidx.compose.ui.test.junit4.ComposeContentTestRule
 import androidx.compose.ui.test.junit4.createComposeRule
 import androidx.compose.ui.test.onAllNodesWithTag
+import androidx.compose.ui.test.onAllNodesWithText
 import androidx.compose.ui.test.onNodeWithTag
+import androidx.compose.ui.test.onNodeWithText
+import androidx.compose.ui.test.onRoot
+import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.DpRect
+import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.width
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertTrue
@@ -41,10 +40,9 @@ import org.robolectric.RobolectricTestRunner
 import org.robolectric.annotation.Config
 import org.robolectric.annotation.GraphicsMode
 
-private val dueReviews: MyGameDockLine =
-    MyGameDockLine(title = MyGameLabel(text = "What is next", translation = null), step = plain("Reviews due: 4"))
-
 private fun plain(text: String): MyGameLabel = MyGameLabel(text = text, translation = null)
+
+private val dueReviews: MyGameLabel = plain("Reviews due: 4")
 
 private fun startTheReviews(onClick: () -> Unit = {}): MyGameDockGo =
     MyGameDockGo(label = plain("Start the reviews"), isBusy = false, busyDescription = "Waiting", onClick = onClick)
@@ -58,15 +56,9 @@ private fun studyTheReturningWords(): MyGameDockGo = MyGameDockGo(
 
 private const val STUDY_RETURNING: String = "Estudiar las palabras que vuelven"
 
-private val returningWords: MyGameDockLine = MyGameDockLine(
-    title = plain("Tu siguiente paso"),
-    step = plain("Palabras que vuelven: banda 2, grupo 3"),
-)
+private const val REFUSAL: String = "We could not reach your town. Try again."
 
-private val returningWordsInBoth: MyGameDockLine = MyGameDockLine(
-    title = MyGameLabel(text = "What is next", translation = "Tu siguiente paso"),
-    step = plain("Palabras que vuelven: banda 2, grupo 3"),
-)
+private val returningWords: MyGameLabel = plain("Palabras que vuelven: banda 2, grupo 3")
 
 private val tallNotice: Dp = 300.dp
 
@@ -74,7 +66,8 @@ private val smallWindowHeight: Dp = 640.dp
 
 private val isSilent: SemanticsMatcher = SemanticsMatcher.keyNotDefined(SemanticsProperties.LiveRegion)
 
-private const val SKELETON_SHOWN_MILLIS: Long = 500L
+private val speaksPolitely: SemanticsMatcher =
+    SemanticsMatcher.expectValue(SemanticsProperties.LiveRegion, LiveRegionMode.Polite)
 
 private const val DP_TOLERANCE: Float = 0.5f
 
@@ -94,8 +87,8 @@ class MyGameDockTest {
     }
 
     @Test
-    fun `the go button's name is its label and the line`() {
-        show { MyGameDock(line = dueReviews, go = startTheReviews(), onFoldChange = {}) }
+    fun `the go button's name is its label and the step`() {
+        show { MyGameDock(go = startTheReviews(), step = dueReviews, onFoldChange = {}) }
 
         composeRule
             .onNodeWithTag(INK_PILL)
@@ -108,9 +101,16 @@ class MyGameDockTest {
     }
 
     @Test
+    fun `the dock draws no line beside the go button`() {
+        show { MyGameDock(go = startTheReviews(), step = dueReviews, onFoldChange = {}) }
+
+        composeRule.onNodeWithText("Reviews due: 4", useUnmergedTree = true).assertDoesNotExist()
+    }
+
+    @Test
     @Config(qualifiers = "+w360dp-h640dp")
     fun `the go button takes the sheet's whole width and no door beside it`() {
-        show { MyGameDock(line = dueReviews, go = startTheReviews(), onFoldChange = {}) }
+        show { MyGameDock(go = startTheReviews(), step = dueReviews, onFoldChange = {}) }
 
         val go: DpRect = composeRule.onNodeWithTag(INK_PILL).getBoundsInRoot()
         val sheet: DpRect = composeRule.onRoot().getBoundsInRoot()
@@ -120,131 +120,106 @@ class MyGameDockTest {
     }
 
     @Test
-    @Config(qualifiers = "+w360dp-h640dp")
-    fun `the dock folds to the go button past half the window`() {
+    @Config(qualifiers = "+w411dp-h915dp")
+    fun `a refusal is drawn above the go button at font scale 1 on a 411 by 915 window`() {
         var folds: List<Boolean> = emptyList()
         show {
             MyGameDock(
-                line = dueReviews,
                 go = startTheReviews(),
+                step = dueReviews,
                 onFoldChange = { isFolded: Boolean -> folds = folds + isFolded },
-                notice = { Spacer(modifier = Modifier.height(tallNotice)) },
+                notice = { MyGameInlineAlert(message = REFUSAL) },
+            )
+        }
+
+        val refusal: Rect = placedText(REFUSAL).single().boundsInRoot
+        val go: Rect = placedGoButton().boundsInRoot
+        assertTrue("the refusal sits above the go button", refusal.bottom <= go.top)
+        assertEquals(listOf(false), folds)
+    }
+
+    @Test
+    @Config(qualifiers = "+w360dp-h640dp")
+    fun `the notice folds out of the dock past half the window`() {
+        var folds: List<Boolean> = emptyList()
+        show {
+            MyGameDock(
+                go = startTheReviews(),
+                step = dueReviews,
+                onFoldChange = { isFolded: Boolean -> folds = folds + isFolded },
+                notice = {
+                    Box {
+                        Spacer(modifier = Modifier.height(tallNotice))
+                        MyGameInlineAlert(message = REFUSAL)
+                    }
+                },
             )
         }
 
         composeRule.onNodeWithTag(INK_PILL).assertIsDisplayed()
-        composeRule.onNodeWithText("Reviews due: 4").assertDoesNotExist()
+        assertEquals("a refusal drawn in the folded dock", emptyList<SemanticsNode>(), placedText(REFUSAL))
         assertEquals(listOf(true), folds)
     }
 
     @Test
     @Config(qualifiers = "+w360dp-h640dp", fontScale = 2.0f)
-    fun `the folded go button keeps its whole label at font scale 2 on a 360 by 640 window`() {
-        var isFolded: Boolean = false
+    fun `the go button keeps its whole label at font scale 2 on a 360 by 640 window`() {
         show {
             Box(contentAlignment = Alignment.BottomCenter, modifier = Modifier.fillMaxSize()) {
-                MyGameDock(
-                    line = returningWords,
-                    go = studyTheReturningWords(),
-                    onFoldChange = { folded: Boolean -> isFolded = folded },
-                )
+                MyGameDock(go = studyTheReturningWords(), step = returningWords, onFoldChange = {})
             }
         }
 
         val go: SemanticsNode = placedGoButton()
         val label: Rect = go.children.single().boundsInRoot
-        assertTrue("the dock folded", isFolded)
         assertEquals("the go button grows to hold its label", go.boundsInRoot.bottom, label.bottom + step2Px(), 1f)
         val bottom: Dp = composeRule.onNodeWithTag(INK_PILL).getBoundsInRoot().bottom
         assertTrue("the go button is inside the window", bottom <= smallWindowHeight)
     }
 
     @Test
-    @Config(qualifiers = "+w640dp-h360dp-land")
-    fun `the dock folds in landscape at font scale 1`() {
-        var isFolded: Boolean = false
-        show {
-            MyGameDock(
-                line = returningWordsInBoth,
-                go = studyTheReturningWords(),
-                onFoldChange = { folded: Boolean -> isFolded = folded },
-            )
-        }
+    fun `the go button speaks when the step changes and not on the first draw`() {
+        var step: MyGameLabel by mutableStateOf(dueReviews)
+        show { MyGameDock(go = startTheReviews(), step = step, onFoldChange = {}) }
 
-        composeRule.onNodeWithTag(INK_PILL).assertIsDisplayed()
-        assertTrue("the dock folded", isFolded)
+        composeRule.onNodeWithTag(INK_PILL).assert(isSilent)
+        step = plain("Reviews due: 4")
+        composeRule.onNodeWithTag(INK_PILL).assert(isSilent)
+        step = plain("Reviews due: 3")
+
+        composeRule.onNodeWithTag(INK_PILL).assert(speaksPolitely)
     }
 
     @Test
-    fun `the line speaks when the step changes and not on the first draw`() {
-        var line: MyGameDockLine by mutableStateOf(dueReviews)
-        show { MyGameDock(line = line, go = startTheReviews(), onFoldChange = {}) }
+    fun `the go button stays silent when its step first arrives after loading`() {
+        var step: MyGameLabel? by mutableStateOf(null)
+        show { MyGameDock(go = startTheReviews(), step = step, onFoldChange = {}) }
 
-        composeRule.onNodeWithText("Reviews due: 4").assert(isSilent)
-        line = dueReviews.copy(step = plain("Reviews due: 4"))
-        composeRule.onNodeWithText("Reviews due: 4").assert(isSilent)
-        line = dueReviews.copy(step = plain("Reviews due: 3"))
+        step = dueReviews
 
-        composeRule
-            .onNodeWithText("Reviews due: 3")
-            .assert(SemanticsMatcher.expectValue(SemanticsProperties.LiveRegion, LiveRegionMode.Polite))
+        composeRule.onNodeWithTag(INK_PILL).assert(isSilent)
     }
 
     @Test
-    fun `the line stays silent when it first draws after loading`() {
-        var line: MyGameDockLine by mutableStateOf(dueReviews.copy(step = null))
-        show { MyGameDock(line = line, go = startTheReviews(), onFoldChange = {}) }
+    fun `a busy go button with no step draws no skeleton`() {
+        show { MyGameDock(go = startTheReviews().copy(isBusy = true), step = null, onFoldChange = {}) }
 
-        line = dueReviews
-
-        composeRule.onNodeWithText("Reviews due: 4").assert(isSilent)
-    }
-
-    @Test
-    @Config(qualifiers = "+w360dp-h640dp")
-    fun `loading draws a skeleton line and a busy go button`() {
-        show { MyGameDock(line = dueReviews.copy(step = null), go = startTheReviews(), onFoldChange = {}) }
-        composeRule.mainClock.advanceTimeBy(SKELETON_SHOWN_MILLIS)
-
-        assertTrue("the line is a skeleton", placedNodesWithTag(SKELETON_BLOCK).isNotEmpty())
         composeRule
             .onNodeWithTag(INK_PILL)
             .assert(SemanticsMatcher.expectValue(SemanticsProperties.StateDescription, "Waiting"))
-            .assertIsNotEnabled()
-    }
-
-    @Test
-    @Config(qualifiers = "+w360dp-h640dp")
-    fun `loading animates one skeleton, never one in the measured copy`() {
-        show { MyGameDock(line = dueReviews.copy(step = null), go = startTheReviews(), onFoldChange = {}) }
-        composeRule.mainClock.advanceTimeBy(SKELETON_SHOWN_MILLIS)
-
         val skeletons: Int = composeRule
             .onAllNodesWithTag(SKELETON_BLOCK, useUnmergedTree = true)
             .fetchSemanticsNodes()
             .size
-
-        assertEquals(1, skeletons)
-    }
-
-    @Test
-    fun `the line drawn apart from the dock speaks when the step changes`() {
-        var line: MyGameDockLine by mutableStateOf(dueReviews)
-        show { MyGameDockLineText(line = line, loadingLabel = "Waiting") }
-
-        line = dueReviews.copy(step = plain("Reviews due: 3"))
-
-        composeRule
-            .onNodeWithText("Reviews due: 3")
-            .assert(SemanticsMatcher.expectValue(SemanticsProperties.LiveRegion, LiveRegionMode.Polite))
+        assertEquals(0, skeletons)
     }
 
     @Test
     fun `the dock is a traversal group whose index the caller sets`() {
         show {
             MyGameDock(
-                line = dueReviews,
                 go = startTheReviews(),
+                step = dueReviews,
                 onFoldChange = {},
                 modifier = Modifier.semantics { traversalIndex = -1f },
             )
@@ -255,21 +230,15 @@ class MyGameDockTest {
             .assert(SemanticsMatcher.expectValue(SemanticsProperties.TraversalIndex, -1f))
     }
 
-    @Test
-    fun `the dock's title is a heading`() {
-        show { MyGameDock(line = dueReviews, go = startTheReviews(), onFoldChange = {}) }
+    private fun placedGoButton(): SemanticsNode = composeRule
+        .onAllNodesWithTag(INK_PILL, useUnmergedTree = true)
+        .fetchSemanticsNodes()
+        .single { node: SemanticsNode -> node.layoutInfo.isPlaced }
 
-        composeRule
-            .onNode(hasContentDescription("What is next"))
-            .assert(SemanticsMatcher.keyIsDefined(SemanticsProperties.Heading))
-    }
-
-    private fun placedNodesWithTag(tag: String): List<SemanticsNode> = composeRule
-        .onAllNodesWithTag(tag, useUnmergedTree = true)
+    private fun placedText(text: String): List<SemanticsNode> = composeRule
+        .onAllNodesWithText(text, useUnmergedTree = true)
         .fetchSemanticsNodes()
         .filter { node: SemanticsNode -> node.layoutInfo.isPlaced }
-
-    private fun placedGoButton(): SemanticsNode = placedNodesWithTag(INK_PILL).single()
 
     private fun step2Px(): Float = with(composeRule.density) { MyGameSpacing.step2.toPx() }
 }

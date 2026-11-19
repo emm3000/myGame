@@ -7,8 +7,8 @@ import androidx.compose.ui.test.SemanticsMatcher
 import androidx.compose.ui.test.SemanticsNodeInteraction
 import androidx.compose.ui.test.assert
 import androidx.compose.ui.test.assertCountEquals
+import androidx.compose.ui.test.assertIsDisplayed
 import androidx.compose.ui.test.getBoundsInRoot
-import androidx.compose.ui.test.getUnclippedBoundsInRoot
 import androidx.compose.ui.test.hasAnyAncestor
 import androidx.compose.ui.test.hasClickAction
 import androidx.compose.ui.test.hasContentDescription
@@ -21,12 +21,14 @@ import androidx.compose.ui.test.isHeading
 import androidx.compose.ui.test.junit4.AndroidComposeTestRule
 import androidx.compose.ui.test.junit4.createAndroidComposeRule
 import androidx.compose.ui.test.onAllNodesWithText
-import androidx.compose.ui.test.onLast
+import androidx.compose.ui.test.onFirst
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.onRoot
 import androidx.compose.ui.test.performClick
 import androidx.compose.ui.test.performScrollTo
 import androidx.compose.ui.test.performTextInput
+import androidx.compose.ui.test.performTouchInput
+import androidx.compose.ui.test.swipeUp
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.DpRect as Rect
 import androidx.compose.ui.unit.dp
@@ -234,7 +236,7 @@ class DockFrameNavigationTest {
     private fun inTheDock(label: String): SemanticsMatcher = hasText(label).and(hasAnyAncestor(hasTestTag(TOWN_DOCK)))
 
     private fun goInTheDock(label: String): SemanticsMatcher =
-        hasTestTag(INK_PILL).and(hasContentDescription(label, substring = true))
+        hasTestTag(INK_PILL).and(hasContentDescription(label, substring = true).or(hasText(label)))
             .and(hasAnyAncestor(hasTestTag(TOWN_DOCK)))
 
     private fun dockGo(label: String): SemanticsNodeInteraction {
@@ -460,12 +462,10 @@ class DockFrameNavigationTest {
     @Test
     @Config(qualifiers = "+w411dp-h914dp-420dpi")
     @GraphicsMode(GraphicsMode.Mode.NATIVE)
-    fun `a loading dock that draws its line stays above the navigation bar`() {
+    fun `a loading dock stays above the navigation bar`() {
         showing(Destination.Town, townReads = 0)
         composeRule.systemBars(height = NAVIGATION_BAR)
         waitFor(hasTestTag(INK_PILL).and(hasStateDescription(WAITING)).and(hasAnyAncestor(hasTestTag(TOWN_DOCK))))
-
-        composeRule.mainClock.advanceTimeBy(SKELETON_REVEAL_MILLIS)
         composeRule.waitForIdle()
 
         val dock: SemanticsNode = composeRule.onNode(hasTestTag(TOWN_DOCK)).fetchSemanticsNode()
@@ -507,14 +507,14 @@ class DockFrameNavigationTest {
     @Test
     @Config(qualifiers = "+w360dp-h640dp", fontScale = 2.0f)
     @GraphicsMode(GraphicsMode.Mode.NATIVE)
-    fun `a folded dock on the school reads the header, its line, its go button, then the school`() {
+    fun `a refusal folded on the school reads after the header and before the go button and the school`() {
         assertFoldedOrder(Destination.School, title = "Escuela")
     }
 
     @Test
     @Config(qualifiers = "+w360dp-h640dp", fontScale = 2.0f)
     @GraphicsMode(GraphicsMode.Mode.NATIVE)
-    fun `a folded dock on the Report reads the header, its line, its go button, then the Report`() {
+    fun `a refusal folded on the Report reads after the header and before the go button and the Report`() {
         reportsFake.answerRead(ReportReadResult.Read(nothingDue))
         assertFoldedOrder(Destination.Report, title = "Informe")
     }
@@ -522,39 +522,44 @@ class DockFrameNavigationTest {
     @Test
     @Config(qualifiers = "+w360dp-h640dp", fontScale = 2.0f)
     @GraphicsMode(GraphicsMode.Mode.NATIVE)
-    fun `a folded dock on the news reads the header, its line, its go button, then the news`() {
+    fun `a refusal folded on the news reads after the header and before the go button and the news`() {
         assertFoldedOrder(Destination.Report, Destination.News, title = "Noticias del pueblo")
     }
 
     @Test
     @Config(qualifiers = "+w360dp-h640dp", fontScale = 2.0f)
     @GraphicsMode(GraphicsMode.Mode.NATIVE)
-    fun `a folded dock on the map reads the header, its line, its go button, then the map`() {
+    fun `a refusal folded on the map reads after the header and before the go button and the map`() {
         assertFoldedOrder(Destination.Map, title = "Mapa")
     }
 
     @Test
     @Config(qualifiers = "+w360dp-h640dp", fontScale = 2.0f)
     @GraphicsMode(GraphicsMode.Mode.NATIVE)
-    fun `a folded dock on the settings reads the header, its line, its go button, then the settings`() {
+    fun `a refusal folded on the settings reads after the header and before the go button and the settings`() {
         assertFoldedOrder(Destination.Report, Destination.Settings, title = "Ajustes")
     }
 
+    private val foldedRefusal: SemanticsMatcher =
+        hasText(STUDY_SLOT_BUSY).and(hasAnyAncestor(hasScrollAction())).and(!hasAnyAncestor(hasTestTag(TOWN_DOCK)))
+
     private fun assertFoldedOrder(vararg place: NavKey, title: String) {
+        townsFake.answerLesson(TownLessonResult.Refused(TownLessonRefusal.StudySlotBusy))
         showing(
             Destination.Town,
             *place,
             town = townOf(nextStep = releasedLesson).copy(learning = learningWithRing),
         )
-        waitFor(hasText(RELEASED_LINE).and(hasAnyAncestor(hasScrollAction())))
+        dockGo(STUDY_RELEASED).performClick()
+        waitFor(foldedRefusal)
         waitFor(hasContentDescription(THREE_OF_FIVE))
         waitFor(hasText(title, ignoreCase = true).and(isHeading()))
 
         val header: Int = composeRule.onNode(hasContentDescription(THREE_OF_FIVE)).fetchSemanticsNode().id
-        val line: Int = composeRule.onNode(hasText(RELEASED_LINE)).fetchSemanticsNode().id
+        val refusal: Int = composeRule.onNode(foldedRefusal).fetchSemanticsNode().id
         val go: Int = dockGo(STUDY_RELEASED).fetchSemanticsNode().id
         val screen: Int = composeRule.onNode(hasText(title, ignoreCase = true).and(isHeading())).fetchSemanticsNode().id
-        val expected: List<Int> = listOf(header, line, go, screen)
+        val expected: List<Int> = listOf(header, refusal, go, screen)
 
         val order: List<Int> = composeRule.traversalIds()
 
@@ -669,48 +674,6 @@ class DockFrameNavigationTest {
         composeRule.waitUntil(WAIT_MILLIS) { townsFake.sentAfterNowCount == 1 }
     }
 
-    private fun shownAtTheEnd(line: SemanticsMatcher): SemanticsNodeInteraction {
-        val inTheContent: SemanticsMatcher = line.and(hasAnyAncestor(hasScrollAction()))
-        waitFor(inTheContent)
-        return composeRule.onAllNodes(inTheContent).onLast().assertExists()
-    }
-
-    private fun assertEndsTheContent(line: SemanticsMatcher, content: SemanticsMatcher) {
-        val shown: SemanticsNodeInteraction = shownAtTheEnd(line)
-        val contentBottom: Dp = composeRule.onNode(content.and(hasAnyAncestor(hasScrollAction())))
-            .getUnclippedBoundsInRoot().bottom
-        assertTrue(shown.getUnclippedBoundsInRoot().top >= contentBottom)
-    }
-
-    @Test
-    @Config(qualifiers = "+w360dp-h320dp", fontScale = 2.0f)
-    fun `a folded placement draws its dock's line at the end of its content`() {
-        placementsFake.answerRead(PlacementReadResult.Read(Placement.Offered))
-
-        showing(Destination.Town, Destination.Placement)
-
-        assertEndsTheContent(hasText(PLACEMENT_OFFER_LINE), hasText(SKIP_PLACEMENT))
-    }
-
-    @Test
-    @Config(qualifiers = "+w360dp-h320dp", fontScale = 2.0f)
-    fun `a folded holdout check draws its dock's line at the end of its content`() {
-        val due: HoldoutCheck = HoldoutCheck.Due(PlacementBand.First, HoldoutCheckWeek.Eighth)
-        holdoutChecksFake.answerRead(HoldoutChecksReadResult.Read(listOf(due)))
-
-        showing(Destination.Town, Destination.HoldoutCheck(PlacementBand.First, HoldoutCheckWeek.Eighth))
-
-        assertEndsTheContent(hasText(FIRST_BAND), hasText(SKIP_PLACEMENT))
-    }
-
-    @Test
-    @Config(qualifiers = "+w360dp-h320dp", fontScale = 2.0f)
-    fun `a folded town step draws at the end of the placement's content once it ends`() {
-        skippingThePlacement()
-
-        shownAtTheEnd(hasText(DOCK_TITLE))
-    }
-
     @Test
     fun `starting a lesson reads the town again`() {
         val studying: TownSnapshot = townOf(nextStep = NextStep.LessonRunning(goal = null))
@@ -737,9 +700,12 @@ class DockFrameNavigationTest {
         dockGo("Ir al informe")
         waitFor(hasContentDescription(THREE_OF_FIVE))
 
-        val order: List<String> = composeRule.traversalOrder()
+        val header: Int = composeRule.onNode(hasContentDescription(THREE_OF_FIVE)).fetchSemanticsNode().id
+        val go: Int = dockGo(REPORT_GO).fetchSemanticsNode().id
 
-        assertEquals(DOCK_TITLE, order[order.indexOf(THREE_OF_FIVE) + 1])
+        val order: List<Int> = composeRule.traversalIds()
+
+        assertEquals(order.indexOf(header) + 1, order.indexOf(go))
     }
 
     @Test
@@ -748,10 +714,14 @@ class DockFrameNavigationTest {
         dockGo("Ir al informe")
         waitFor(hasContentDescription(THREE_OF_FIVE))
 
-        val order: List<String> = composeRule.traversalOrder()
-        val header: List<String> = listOf(TOWN_HEADER, THREE_OF_FIVE, "Edificio 1 de 2")
+        val header: List<Int> = listOf(TOWN_HEADER, "Edificio 1 de 2").map { line: String ->
+            composeRule.onNode(hasText(line)).fetchSemanticsNode().id
+        } + composeRule.onNode(hasContentDescription(THREE_OF_FIVE)).fetchSemanticsNode().id
+        val go: Int = dockGo(REPORT_GO).fetchSemanticsNode().id
 
-        assertEquals(DOCK_TITLE, order.getOrNull(header.maxOf { line: String -> order.indexOf(line) } + 1))
+        val order: List<Int> = composeRule.traversalIds()
+
+        assertEquals(header.maxOf { id: Int -> order.indexOf(id) } + 1, order.indexOf(go))
     }
 
     @Test
@@ -767,39 +737,44 @@ class DockFrameNavigationTest {
     }
 
     @Test
+    @Config(qualifiers = "+w411dp-h915dp")
+    @GraphicsMode(GraphicsMode.Mode.NATIVE)
+    fun `a refusal is drawn above the go button at font scale 1 on a 411 by 915 window`() {
+        townsFake.answerLesson(TownLessonResult.Refused(TownLessonRefusal.StudySlotBusy))
+        showing(Destination.Town, Destination.School, town = townOf(nextStep = releasedLesson))
+
+        dockGo(STUDY_RELEASED).performClick()
+        waitFor(inTheDock(STUDY_SLOT_BUSY))
+
+        val refusal: Rect = composeRule.onNode(inTheDock(STUDY_SLOT_BUSY)).getBoundsInRoot()
+        val go: Rect = dockGo(STUDY_RELEASED).getBoundsInRoot()
+        assertTrue(refusal.bottom <= go.top)
+        composeRule.onAllNodes(foldedRefusal).assertCountEquals(0)
+    }
+
+    @Test
     @Config(qualifiers = "+w360dp-h640dp", fontScale = 2.0f)
     @GraphicsMode(GraphicsMode.Mode.NATIVE)
-    fun `a folded dock puts its line at the top of the scrolling area`() {
+    fun `a refusal folds to the top of the scrolling area, in view, at font scale 2 on a 360 by 640 window`() {
+        townsFake.answerLesson(TownLessonResult.Refused(TownLessonRefusal.StudySlotBusy))
         showing(Destination.Town, Destination.School, town = townOf(nextStep = releasedLesson))
-        dockGo(STUDY_RELEASED)
-        val atTheTop: SemanticsMatcher = hasText(RELEASED_LINE).and(hasAnyAncestor(hasScrollAction()))
-        waitFor(atTheTop)
+        waitFor(hasText("Escuela").and(isHeading()))
+        composeRule.onAllNodes(hasScrollAction()).onFirst().performTouchInput { swipeUp() }
 
-        val line: Rect = composeRule.onNode(atTheTop).getBoundsInRoot()
+        dockGo(STUDY_RELEASED).performClick()
+        waitFor(foldedRefusal)
+
+        val refusal: Rect = composeRule.onNode(foldedRefusal).assertIsDisplayed().getBoundsInRoot()
         val title: Rect = composeRule.onNode(hasText("Escuela").and(isHeading())).getBoundsInRoot()
-
-        assertTrue(line.bottom <= title.top)
-        composeRule.onAllNodes(inTheDock(RELEASED_LINE)).assertCountEquals(0)
+        assertTrue(refusal.bottom <= title.top)
+        composeRule.onAllNodes(inTheDock(STUDY_SLOT_BUSY)).assertCountEquals(0)
     }
 
     @Test
     @Config(qualifiers = "+w360dp-h640dp", fontScale = 2.0f)
     @GraphicsMode(GraphicsMode.Mode.NATIVE)
-    fun `a folded dock moves no way to the town into the scrolling area`() {
+    fun `the go button keeps its whole label on screen at font scale 2 on a 360 by 640 window`() {
         showing(Destination.Town, Destination.School, town = townOf(nextStep = releasedLesson))
-        dockGo(STUDY_RELEASED)
-        waitFor(hasText(RELEASED_LINE).and(hasAnyAncestor(hasScrollAction())))
-
-        composeRule.onAllNodes(hasText("Pueblo", ignoreCase = true).and(hasAnyAncestor(hasScrollAction())))
-            .assertCountEquals(0)
-    }
-
-    @Test
-    @Config(qualifiers = "+w360dp-h640dp", fontScale = 2.0f)
-    @GraphicsMode(GraphicsMode.Mode.NATIVE)
-    fun `a folded dock keeps its go button's whole label on screen`() {
-        showing(Destination.Town, Destination.School, town = townOf(nextStep = releasedLesson))
-        waitFor(hasText(RELEASED_LINE).and(hasAnyAncestor(hasScrollAction())))
 
         val go: Rect = dockGo(STUDY_RELEASED).getBoundsInRoot()
         val window: Rect = composeRule.onRoot().getBoundsInRoot()
@@ -820,22 +795,17 @@ class DockFrameNavigationTest {
 
     private companion object {
         const val SKIP_PLACEMENT: String = "Saltar la prueba"
-        const val PLACEMENT_OFFER_LINE: String =
-            "¿Ya sabes algo de inglés? Una prueba corta te deja empezar más adelante."
-        const val FIRST_BAND: String = "Banda 1"
         const val THREE_OF_FIVE: String = "3 de 5 palabras aprendidas"
         const val FRAME_LIMIT: Int = 60
         const val STUDY_SECOND: String = "Estudiar la lección 2 · 5:00"
         const val STUDY_SLOT_BUSY: String = "La escuela ya tiene un estudio en marcha. Espera a que termine."
         const val SIGN_OUT: String = "Salir"
-        const val DOCK_TITLE: String = "TU SIGUIENTE PASO"
+        const val REPORT_GO: String = "Ir al informe"
         const val CLOSE_NEWS: String = "Cerrar las noticias"
         const val WAITING: String = "Esperando"
         const val NAVIGATION_BAR: Int = 63
-        const val SKELETON_REVEAL_MILLIS: Long = 1_000
         const val TRY_AGAIN: String = "Volver a intentarlo"
         const val STUDY_RELEASED: String = "Estudiar las palabras que vuelven"
-        const val RELEASED_LINE: String = "Palabras que vuelven: banda 2, grupo 1"
         const val NO_REVIEWS_DUE: String = "No tienes repasos pendientes ahora."
 
         const val READ_THE_WORDS: String = "Leer las palabras"

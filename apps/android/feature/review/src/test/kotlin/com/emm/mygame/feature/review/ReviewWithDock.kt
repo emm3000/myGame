@@ -26,8 +26,8 @@ internal fun ReviewWithDock(
         }
         hook.dock?.let { shown: TaskDock ->
             MyGameDock(
-                line = shown.line,
                 go = shown.go,
+                step = shown.step,
                 onFoldChange = hook::fold,
                 modifier = Modifier.testTag(TASK_DOCK),
                 notice = shown.notice,

@@ -282,7 +282,6 @@ class LessonWordsScreenTest {
                 hasStateDescription("Cuando termine la lección, empiezan los repasos.") and
                 hasAnyAncestor(hasTestTag(TASK_DOCK)),
         ).performClick()
-        composeRule.onNode(hasText("3 min") and hasAnyAncestor(hasTestTag(TASK_DOCK))).assertExists()
 
         assertEquals(emptyList<LessonWordsIntent>(), intents)
         assertEquals(emptyList<LessonWordsUiState.WayOn>(), wayOns)
@@ -290,20 +289,20 @@ class LessonWordsScreenTest {
 
     @Test
     @Config(qualifiers = "+w411dp-h891dp")
-    fun `draws the lesson's time left in the dock's countdown while it waits for the lesson's end`() {
+    fun `draws no time left in the dock while it waits for the lesson's end`() {
         draw(waitingLastWord)
 
-        composeRule.onNode(hasText("3 min") and hasAnyAncestor(hasTestTag(TASK_DOCK_COUNTDOWN))).assertExists()
+        composeRule.onAllNodes(hasText("3 min") and hasAnyAncestor(hasTestTag(TASK_DOCK))).assertCountEquals(0)
     }
 
     @Test
     @Config(qualifiers = "+w360dp-h640dp", fontScale = 2.0f)
-    fun `draws the lesson's time left at the task's end with the line when the dock folds`() {
+    fun `draws the time left and the position once at font scale 2 on a 360 by 640 window`() {
         draw(waitingLastWord)
 
-        val atEnd: SemanticsMatcher = hasAnyAncestor(hasScrollAction()) and !hasAnyAncestor(hasTestTag(TASK_DOCK))
-        composeRule.onAllNodes(hasText("3 min") and atEnd).assertCountEquals(2)
-        composeRule.onAllNodes(hasText("2 de 2", substring = true) and atEnd).assertCountEquals(2)
+        val inBody: SemanticsMatcher = hasAnyAncestor(hasScrollAction()) and !hasAnyAncestor(hasTestTag(TASK_DOCK))
+        composeRule.onAllNodes(hasText("3 min") and inBody).assertCountEquals(1)
+        composeRule.onAllNodes(hasText("2 de 2", substring = true) and inBody).assertCountEquals(1)
     }
 
     @Test

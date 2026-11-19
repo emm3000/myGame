@@ -97,9 +97,7 @@ fun LessonWordsScreen(
         FoldedTaskEnd(
             hook = task,
             foldedDock = foldedDock,
-            shownNotice = (state as? LessonWordsUiState.Reading)?.takeIf { shown: LessonWordsUiState.Reading ->
-                shown.isWaitingForLessonEnd
-            }?.index,
+            shownNotice = null,
         )
     }
 }
