@@ -1,6 +1,7 @@
 package com.emm.mygame
 
 import androidx.navigation3.runtime.NavKey
+import com.emm.mygame.core.network.EmailVerificationToken
 import com.emm.mygame.core.network.HoldoutCheckWeek
 import com.emm.mygame.core.network.LessonId
 import com.emm.mygame.core.network.PasswordResetToken
@@ -21,7 +22,13 @@ sealed interface Destination : NavKey {
     data object ForgotPassword : Destination
 
     @Serializable
-    data class ResetPassword(val token: PasswordResetToken?) : Destination
+    sealed interface MailedLink : Destination
+
+    @Serializable
+    data class ResetPassword(val token: PasswordResetToken?) : MailedLink
+
+    @Serializable
+    data class VerifyEmail(val token: EmailVerificationToken?) : MailedLink
 
     @Serializable
     data object Town : Destination

@@ -169,7 +169,7 @@ class VerificationBannerNavigationTest {
         repeat(READS_AVAILABLE) { towns.answerRead(town) }
         composeRule.setContent {
             MyGameTheme {
-                AppNavigation(dependencies = dependencies, reminderTaps = emptyFlow(), resetLinks = emptyFlow())
+                AppNavigation(dependencies = dependencies, reminderTaps = emptyFlow(), mailedLinks = emptyFlow())
             }
         }
     }

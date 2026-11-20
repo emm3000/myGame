@@ -21,7 +21,7 @@ class MainActivity : ComponentActivity() {
 
     private val reminderTaps: Channel<StudyReminderLine> = Channel(Channel.BUFFERED)
 
-    private val resetLinks: Channel<Destination.ResetPassword> = Channel(Channel.BUFFERED)
+    private val mailedLinks: Channel<Destination.MailedLink> = Channel(Channel.BUFFERED)
 
     override fun onCreate(savedInstanceState: Bundle?) {
         enableEdgeToEdge()
@@ -29,12 +29,12 @@ class MainActivity : ComponentActivity() {
         if (savedInstanceState == null) take(intent)
         val dependencies: AppDependencies = application as AppDependencies
         val taps: Flow<StudyReminderLine> = reminderTaps.receiveAsFlow()
-        val links: Flow<Destination.ResetPassword> = resetLinks.receiveAsFlow()
+        val links: Flow<Destination.MailedLink> = mailedLinks.receiveAsFlow()
         lifecycleScope.launch { dependencies.themes.pick.collect(::followNightMode) }
         setContent {
             val pick: ThemePick by dependencies.themes.pick.collectAsStateWithLifecycle()
             PickedTheme(pick = pick) {
-                AppNavigation(dependencies = dependencies, reminderTaps = taps, resetLinks = links)
+                AppNavigation(dependencies = dependencies, reminderTaps = taps, mailedLinks = links)
             }
         }
     }
@@ -52,7 +52,7 @@ class MainActivity : ComponentActivity() {
     private fun take(intent: Intent) {
         if (intent.flags and Intent.FLAG_ACTIVITY_LAUNCHED_FROM_HISTORY != 0) return
         sendReminderTap(intent)
-        resetPasswordDestinationOf(intent)?.let(resetLinks::trySend)
+        mailedLinkOf(intent)?.let(mailedLinks::trySend)
     }
 
     private fun sendReminderTap(intent: Intent) {

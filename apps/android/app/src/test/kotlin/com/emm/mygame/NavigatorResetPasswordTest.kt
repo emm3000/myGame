@@ -19,7 +19,7 @@ class NavigatorResetPasswordTest {
     fun `opens a mailed link alone in place of sign-in`() {
         val backStack: MutableList<NavKey> = mutableListOf(signIn)
 
-        Navigator(backStack, NavigationLinks()).openResetPassword(mailedLink)
+        Navigator(backStack, NavigationLinks()).openMailedLink(mailedLink)
 
         assertEquals(listOf(mailedLink), backStack)
     }
@@ -28,7 +28,7 @@ class NavigatorResetPasswordTest {
     fun `opens a mailed link alone in place of the town`() {
         val backStack: MutableList<NavKey> = mutableListOf(Destination.Town, Destination.Report)
 
-        Navigator(backStack, NavigationLinks()).openResetPassword(mailedLink)
+        Navigator(backStack, NavigationLinks()).openMailedLink(mailedLink)
 
         assertEquals(listOf(mailedLink), backStack)
     }
@@ -37,7 +37,7 @@ class NavigatorResetPasswordTest {
     fun `opens a newer mailed link in place of the one shown`() {
         val backStack: MutableList<NavKey> = mutableListOf(mailedLink)
 
-        Navigator(backStack, NavigationLinks()).openResetPassword(newerLink)
+        Navigator(backStack, NavigationLinks()).openMailedLink(newerLink)
 
         assertEquals(listOf(newerLink), backStack)
     }

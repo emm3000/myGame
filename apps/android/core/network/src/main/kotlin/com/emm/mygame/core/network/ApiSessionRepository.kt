@@ -9,6 +9,7 @@ import com.emm.mygame.core.network.generated.models.ResetPasswordRequest
 import com.emm.mygame.core.network.generated.models.ScaffoldChange
 import com.emm.mygame.core.network.generated.models.SignInRequest
 import com.emm.mygame.core.network.generated.models.SignUpRequest
+import com.emm.mygame.core.network.generated.models.VerifyEmailRequest
 import java.io.IOException
 import java.net.HttpURLConnection
 import java.security.GeneralSecurityException
@@ -49,6 +50,11 @@ internal class ApiSessionRepository(
         openingSession(unreachable = PasswordResetResult.Unreachable) {
             val request: ResetPasswordRequest = ResetPasswordRequest(token = token.value, password = password)
             changedOrRefused(openingApi.authResetPasswordPost(request))
+        }
+
+    override suspend fun verifyEmail(token: EmailVerificationToken): EmailVerificationResult =
+        openingSession(unreachable = EmailVerificationResult.Unreachable) {
+            verifiedOrRefused(openingApi.authVerifyEmailPost(VerifyEmailRequest(token = token.value)))
         }
 
     override suspend fun restore(): RestoreResult = withContext(ioDispatcher) {
@@ -150,6 +156,13 @@ internal class ApiSessionRepository(
         }
         if (response.code() != HttpURLConnection.HTTP_BAD_REQUEST) return PasswordResetResult.Unreachable
         return response.wireRefusal()?.bareKind().toPasswordResetRefusal()
+    }
+
+    private fun verifiedOrRefused(response: Response<Unit>): EmailVerificationResult {
+        if (response.code() == HttpURLConnection.HTTP_NO_CONTENT) return EmailVerificationResult.Verified
+        if (response.code() != HttpURLConnection.HTTP_BAD_REQUEST) return EmailVerificationResult.Unreachable
+        val isTokenRefused: Boolean = response.wireRefusal()?.bareKind() == BareApiError.Kind.TokenInvalid
+        return if (isTokenRefused) EmailVerificationResult.LinkRefused else EmailVerificationResult.Unreachable
     }
 
     private fun sentOrNotSent(response: Response<Unit>): VerificationResendResult = when (response.code()) {

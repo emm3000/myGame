@@ -74,4 +74,12 @@
     <string name="verification_banner_sent">Enviado. Revisa tu correo.</string>
     <string name="verification_banner_unreachable">No hemos podido hablar con el servidor. Vuelve a intentarlo en un momento.</string>
     <string name="verification_refusal_mail_not_sent">No hemos podido enviarlo.</string>
+    <string name="verify_email_link_refused">Ese enlace no vale: ha caducado, ya se ha usado o nunca se envió. Pide otro.</string>
+    <string name="verify_email_retry">Volver a intentarlo</string>
+    <string name="verify_email_title">Confirma tu correo</string>
+    <string name="verify_email_to_sign_in">Entra en tu pueblo</string>
+    <string name="verify_email_to_town">Ir a tu pueblo</string>
+    <string name="verify_email_unexpected">No hemos podido hablar con el servidor. Vuelve a intentarlo en un momento.</string>
+    <string name="verify_email_verified">Tu correo queda confirmado.</string>
+    <string name="verify_email_verifying">Estamos confirmando tu correo…</string>
 </resources>
