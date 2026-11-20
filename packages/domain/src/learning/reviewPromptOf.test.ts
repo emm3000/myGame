@@ -9,6 +9,7 @@ import { unitLessonOne } from '../testing/unitLessonOne'
 import { Instant } from '../time/Instant'
 import type { FrameReader } from './FrameReader'
 import type { HeldCard } from './HeldCard'
+import { heldCardsOf } from './HeldCards'
 import type { Lesson, LessonWord } from './Lesson'
 import { reviewPromptOf } from './reviewPromptOf'
 import type { Scaffold } from './Scaffold'
@@ -85,7 +86,7 @@ const readerOf = (
   scaffold: Scaffold,
   cards: ReadonlyArray<HeldCard> = lessonCards,
 ): FrameReader => ({
-  cards,
+  cards: heldCardsOf(cards),
   placedOutBands: [],
   scaffold,
   lessons: {

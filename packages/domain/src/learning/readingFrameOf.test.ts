@@ -8,7 +8,7 @@ import type { FrameReader } from './FrameReader'
 import { readingFrameOf } from './readingFrameOf'
 
 const readerOf = (frames: FrameReader['lessons']['frameTokensOf']): FrameReader => ({
-  cards: [],
+  cards: new Map(),
   placedOutBands: [],
   scaffold: 'es',
   lessons: {

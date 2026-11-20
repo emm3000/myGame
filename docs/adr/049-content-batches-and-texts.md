@@ -388,3 +388,34 @@ Edits this pull request does not make:
 - `docs/research/english-pivot/decisions.md` §1.1, §1.2, §1.4, §3.6;
   `research.md` §5; `docs/setting/chrome.md`, `docs/setting/town.md`.
 - #974, #1034, #1043, #1105; PRD S3, S23, S24, N5, W10.
+
+## Amendment (2026-11-20): texts on their own read
+
+Settled for #1367 under PRD N3 (a town read under 100 ms). Checked at
+`8aca9b37`: every town read carried every text the stage had reached,
+each sentence as spans with each card word's support. With 130 reached
+texts, about ADR 049's pace through band 1, one `GET /town` answered
+946 080 bytes; nearly all of it was spans no screen on that read draws.
+
+- **A town read carries the open texts by id and title only**, newest
+  first, as before. The bound is one entry of an id and a title per
+  reached text: the same 130 texts answer 43 620 bytes for the whole
+  read, and no span.
+- **A text's sentences come on their own read**, `GET /town/texts/{textId}`,
+  one text, its sentences as spans with each card word's support at
+  that read, as the *Texts* section above has them. A text the stage
+  has not reached, or one the content lacks, answers an empty 404; a
+  player with no town answers `TownNotFound`.
+- **Which screen reads which route.** The school's text list (Android
+  `feature:school`, the *Read* rows) reads `GET /town`. The text's own
+  screen reads `GET /town/texts/{textId}`. The town home's newest text
+  line reads the next step's `text` on `GET /town`, unchanged. The web
+  reads no text yet; its texts stay their own tickets.
+- **Support is looked up by word id in a map built once per read**
+  (`heldCardsOf`), never by a scan of the cards per token.
+
+Considered and rejected: **the newest text only** on the town read. The
+school lists every text the stage has reached, newest first, and every
+reached text stays readable (*Texts*); the newest alone would empty the
+list of the older ones, or send the list on its own read and the newest
+text twice.

@@ -5,7 +5,9 @@ import {
   FoundTownSchema,
   JobQuoteSchema,
   MarkTipSeenSchema,
+  OpenTextSchema,
   PlaceHiringOrderSchema,
+  ReadTextRequestSchema,
   SendCleanUpSchema,
   SendJobSchema,
   StartBuildingWorkSchema,
@@ -52,6 +54,22 @@ export const townDeclarations = {
           TownNewsFeedSchema,
         ),
         404: townNotFoundResponse,
+      },
+    }),
+  ),
+  text: createRoute(
+    signedInRoute({
+      method: 'get',
+      path: '/texts/{textId}',
+      request: { params: ReadTextRequestSchema },
+      responses: {
+        200: jsonResponse(
+          'One text the stage has reached, its sentences as spans, each card word with its support at the read.',
+          OpenTextSchema,
+        ),
+        404: refusalResponse(
+          'TownNotFound; a text the stage has not reached, or the content lacks, answers an empty body.',
+        ),
       },
     }),
   ),

@@ -4,6 +4,7 @@ import { defaultMemoryTerms } from '../memory/MemoryTerms'
 import { reviewMemoryCard } from '../memory/reviewMemoryCard'
 import { Instant } from '../time/Instant'
 import type { HeldCard } from './HeldCard'
+import { heldCardsOf } from './HeldCards'
 import type { Lesson } from './Lesson'
 import { readableWordsOf } from './readableWordsOf'
 
@@ -44,24 +45,28 @@ const idsOf = (words: ReturnType<typeof readableWordsOf>): ReadonlyArray<string>
 
 describe('readableWordsOf', () => {
   it('reads every word of a running lesson', () => {
-    expect(idsOf(readableWordsOf(lesson, [], [], true))).toEqual(['home', 'school'])
+    expect(idsOf(readableWordsOf(lesson, [], new Map(), true))).toEqual(['home', 'school'])
   })
 
   it('reads nothing of a lesson with no card and no running slot', () => {
-    expect(readableWordsOf(lesson, [], [], false)).toEqual([])
+    expect(readableWordsOf(lesson, [], new Map(), false)).toEqual([])
   })
 
   it('reads a word whose card has no review', () => {
-    expect(idsOf(readableWordsOf(lesson, [], [unreviewed('school')], false))).toEqual(['school'])
+    expect(idsOf(readableWordsOf(lesson, [], heldCardsOf([unreviewed('school')]), false))).toEqual([
+      'school',
+    ])
   })
 
   it('stops reading a word at its first review, even on a running lesson', () => {
-    expect(idsOf(readableWordsOf(lesson, [], [reviewed('home')], true))).toEqual(['school'])
+    expect(idsOf(readableWordsOf(lesson, [], heldCardsOf([reviewed('home')]), true))).toEqual([
+      'school',
+    ])
   })
 
   it('never reads a held-out word', () => {
     const cards = [unreviewed('home'), unreviewed('school')]
 
-    expect(idsOf(readableWordsOf(lesson, ['home'], cards, false))).toEqual(['school'])
+    expect(idsOf(readableWordsOf(lesson, ['home'], heldCardsOf(cards), false))).toEqual(['school'])
   })
 })

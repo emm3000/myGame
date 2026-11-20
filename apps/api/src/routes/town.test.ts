@@ -4,6 +4,8 @@ import {
   CleanUpQuoteSchema,
   HoldoutChecksSchema,
   JobQuoteSchema,
+  type OpenText,
+  OpenTextSchema,
   PlayerSchema,
   RegionMapSchema,
   ReviewsSchema,
@@ -110,7 +112,7 @@ const jsonRequest = (method: string, cookie: string, body: unknown): RequestInit
   body: JSON.stringify(body),
 })
 
-const withNoLessons = (lessons: LessonLibrary): LessonLibrary => ({
+const delegatingTo = (lessons: LessonLibrary): LessonLibrary => ({
   lessonOf: (lessonId) => lessons.lessonOf(lessonId),
   lessonOfWord: (wordId) => lessons.lessonOfWord(wordId),
   isHeadword: (word) => lessons.isHeadword(word),
@@ -118,13 +120,30 @@ const withNoLessons = (lessons: LessonLibrary): LessonLibrary => ({
   wordsOfBand: (band) => lessons.wordsOfBand(band),
   hasLessons: (band) => lessons.hasLessons(band),
   placementWordsOf: (band) => lessons.placementWordsOf(band),
-  lessons: () => [],
-  chromeLessons: () => [],
+  lessons: () => lessons.lessons(),
+  chromeLessons: () => lessons.chromeLessons(),
   frameTokensOf: (wordId, frame) => lessons.frameTokensOf(wordId, frame),
   answerFormsOf: (wordId) => lessons.answerFormsOf(wordId),
   texts: () => lessons.texts(),
   textTokensOf: (textId, passage) => lessons.textTokensOf(textId, passage),
 })
+
+const withNoLessons = (lessons: LessonLibrary): LessonLibrary => ({
+  ...delegatingTo(lessons),
+  lessons: () => [],
+  chromeLessons: () => [],
+})
+
+const withCopiesOfFirstText = (lessons: LessonLibrary, count: number): LessonLibrary => {
+  const [first] = lessons.texts()
+  assert(first !== undefined)
+  return {
+    ...delegatingTo(lessons),
+    texts: () =>
+      Array.from({ length: count }, (_, index) => ({ ...first, id: `text-${index + 1}` })),
+    textTokensOf: (_, passage) => lessons.textTokensOf(first.id, passage),
+  }
+}
 
 const signal = (): { readonly promise: Promise<void>; readonly resolve: () => void } => {
   let resolve = (): void => {}
@@ -1879,11 +1898,39 @@ describe('the town route', () => {
     const setStability = (wordId: string, stability: number): Promise<void> =>
       runSql(`UPDATE cards SET stability = ${stability} WHERE word_id = '${wordId}'`)
 
-    const supportOf = (overview: TownOverview, word: string): unknown => {
-      const [text] = overview.texts
-      assert(text !== undefined)
-      return text.sentences.flat().find((span) => span.text === word)?.support
-    }
+    const readText = (cookie: string, textId: string): Promise<Response> =>
+      Promise.resolve(app.request(`/town/texts/${textId}`, { headers: { cookie } }))
+
+    const textOf = async (response: Response): Promise<OpenText> =>
+      OpenTextSchema.parse(await response.json())
+
+    const supportOf = (text: OpenText, word: string): unknown =>
+      text.sentences.flat().find((span) => span.text === word)?.support
+
+    it('lists each open text by its id and its title', async () => {
+      const cookie = await signUpWithTown('ana@example.com')
+      await holdCards('ana@example.com', wordIdsUpTo('lesson-31'), 3)
+
+      const overview = await overviewOf(await readTown(cookie))
+
+      expect(overview.texts).toEqual([{ id: 'text-1', title: 'A New Course' }])
+    })
+
+    it('carries no sentence of 130 open texts on a town read', async () => {
+      const cookie = await signUpWithTown('ana@example.com')
+      await holdCards('ana@example.com', wordIdsUpTo('lesson-31'), 3)
+      const reading = createApp({
+        ...server,
+        clock,
+        lessons: withCopiesOfFirstText(server.lessons, 130),
+      })
+
+      const response = await reading.request('/town', { headers: { cookie } })
+      const body = await response.text()
+
+      expect(TownOverviewSchema.parse(JSON.parse(body)).texts).toHaveLength(130)
+      expect(body).not.toContain('sentences')
+    })
 
     it('serves a text with each card word’s support', async () => {
       const cookie = await signUpWithTown('ana@example.com')
@@ -1891,15 +1938,13 @@ describe('the town route', () => {
       await setStability('word-38', 7)
       await setStability('word-22', 30)
 
-      const overview = await overviewOf(await readTown(cookie))
+      const text = await textOf(await readText(cookie, 'text-1'))
 
-      expect(overview.texts.map(({ id, title }) => ({ id, title }))).toEqual([
-        { id: 'text-1', title: 'A New Course' },
-      ])
+      expect({ id: text.id, title: text.title }).toEqual({ id: 'text-1', title: 'A New Course' })
       expect([
-        supportOf(overview, 'course'),
-        supportOf(overview, 'river'),
-        supportOf(overview, 'news'),
+        supportOf(text, 'course'),
+        supportOf(text, 'river'),
+        supportOf(text, 'news'),
       ]).toEqual([
         { shown: 'beside', text: 'curso', language: 'es' },
         { shown: 'onTap', text: 'río', language: 'es' },
@@ -1925,9 +1970,9 @@ describe('the town route', () => {
         `INSERT INTO held_out_words (player_id, band, headword) SELECT id, 1, 'course' FROM players`,
       )
 
-      const overview = await overviewOf(await readTown(cookie))
+      const text = await textOf(await readText(cookie, 'text-1'))
 
-      expect(supportOf(overview, 'course')).toEqual({
+      expect(supportOf(text, 'course')).toEqual({
         shown: 'beside',
         text: 'curso',
         language: 'es',
@@ -1960,6 +2005,35 @@ describe('the town route', () => {
       const overview = await overviewOf(await readTown(cookie))
 
       expect(overview.texts).toEqual([])
+    })
+
+    it('answers an empty 404 to a text the stage has not reached', async () => {
+      const cookie = await signUpWithTown('ana@example.com')
+      await holdCards('ana@example.com', wordIdsUpTo('lesson-30'), 3)
+
+      const response = await readText(cookie, 'text-1')
+
+      expect([response.status, await response.text()]).toEqual([404, ''])
+    })
+
+    it('answers an empty 404 to a text the content lacks', async () => {
+      const cookie = await signUpWithTown('ana@example.com')
+      await holdCards('ana@example.com', wordIdsUpTo('lesson-31'), 3)
+
+      const response = await readText(cookie, 'text-0')
+
+      expect([response.status, await response.text()]).toEqual([404, ''])
+    })
+
+    it('refuses a text to a player with no town', async () => {
+      const cookie = await signUp('ana@example.com')
+
+      const response = await readText(cookie, 'text-1')
+
+      expect([response.status, await refusalOf(response)]).toMatchObject([
+        404,
+        { kind: 'TownNotFound' },
+      ])
     })
   })
 
