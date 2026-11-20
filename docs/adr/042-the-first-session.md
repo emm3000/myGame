@@ -502,8 +502,9 @@ missing. `derivePeople` supplies 30, 40, 50 and 60 at levels 2 to 5.
 
 ## Consequences
 
-- `packages/domain`: the standing function, the next step function, and
-  the mapping from a skill's resource to its producer.
+- `packages/domain`: the standing function and the next step function.
+  (Amended by ADR 045: every skill is money, so no mapping from a skill
+  to a producing building is built.)
 - `packages/contracts`: `LessonStateSchema`'s words as above;
   `TownOverview` gains `nextStep` and `nextDueAt`; `ReportSchema` gains
   `nextDueAt` and `readFirst`. The union carries `.meta({ id })`. The OpenAPI client is
