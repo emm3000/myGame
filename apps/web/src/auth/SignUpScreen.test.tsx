@@ -21,8 +21,8 @@ const browseIn = (language: string): void => {
 }
 
 afterEach(() => {
-  localStorage.clear()
   vi.restoreAllMocks()
+  localStorage.clear()
 })
 
 const scaffoldLines: Record<Scaffold, string> = {
@@ -190,4 +190,18 @@ it('locks the scaffold choice while the sign-up is in flight', async () => {
       screen.getByRole('group', { name: authSignUpScaffoldLabel() }).hasAttribute('disabled'),
     ).toBe(true),
   )
+})
+
+const blockStorage = (): void => {
+  vi.spyOn(window, 'localStorage', 'get').mockImplementation(() => {
+    throw new DOMException('The operation is insecure.', 'SecurityError')
+  })
+}
+
+it('preselects from the browser language when storage is blocked', async () => {
+  browseIn('es-ES')
+  blockStorage()
+  renderAppAt('/sign-up', stubApiClient({}))
+
+  expect((await scaffoldRadioOf('es')).checked).toBe(true)
 })
