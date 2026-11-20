@@ -1,5 +1,6 @@
 package com.emm.mygame.core.designsystem
 
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.padding
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.ImageBitmap
@@ -25,6 +26,7 @@ import androidx.compose.ui.test.junit4.ComposeContentTestRule
 import androidx.compose.ui.test.junit4.createComposeRule
 import androidx.compose.ui.test.onNodeWithContentDescription
 import androidx.compose.ui.test.performClick
+import androidx.compose.ui.test.performTouchInput
 import androidx.compose.ui.test.requestFocus
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.DpSize
@@ -65,6 +67,8 @@ private val mainStreet: MyGameStreet = MyGameStreet(
 private val phoneWidth: Dp = 360.dp
 
 private const val PX_TOLERANCE: Float = 0.5f
+
+private const val PRESS_SETTLE_MILLIS: Long = 500L
 
 private val isTab: SemanticsMatcher = SemanticsMatcher.expectValue(SemanticsProperties.Role, Role.Tab)
 
@@ -282,6 +286,27 @@ class MyGameStreetStripTest {
         assertEquals(
             hexOf(lightColors.focus.toArgb()),
             hexOf(strip[school.left.toInt(), school.center.y.toInt()].toArgb()),
+        )
+    }
+
+    @Test
+    fun `a focused pressed tab keeps its press inside its rounded shape`() {
+        show(selected = 0, modifier = Modifier.background(lightColors.surface))
+        focus("Office, level 1")
+        composeRule.mainClock.autoAdvance = false
+        composeRule.onNodeWithContentDescription("Office, level 1").performTouchInput { down(center) }
+        composeRule.mainClock.advanceTimeBy(PRESS_SETTLE_MILLIS)
+
+        val strip: PixelMap = stripPixels()
+        val office: Rect = boundsInStrip("Office, level 1")
+        val insideRing: Int = with(composeRule.density) { MyGameStrokeWidths.focus.roundToPx() } + 2
+        val ground: String = hexOf(lightColors.surface.toArgb())
+
+        assertEquals("the corner", ground, hexOf(strip[office.left.toInt() + 1, office.bottom.toInt() - 1].toArgb()))
+        assertNotEquals(
+            "the press inside the ring",
+            ground,
+            hexOf(strip[office.center.x.toInt(), office.bottom.toInt() - insideRing].toArgb()),
         )
     }
 

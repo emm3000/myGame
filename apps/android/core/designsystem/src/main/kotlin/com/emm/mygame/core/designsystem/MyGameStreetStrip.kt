@@ -18,6 +18,7 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.ScrollState
 import androidx.compose.foundation.horizontalScroll
+import androidx.compose.foundation.indication
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.selection.selectable
 import androidx.compose.foundation.selection.selectableGroup
@@ -107,24 +108,35 @@ private fun StreetTab(
     val isFocused: Boolean by interactions.collectIsFocusedAsState()
     val colors: MyGameColors = MyGameTheme.colors
     val shape: RoundedCornerShape = RoundedCornerShape(MyGameRadii.sm)
-    Column(
-        horizontalAlignment = Alignment.CenterHorizontally,
-        verticalArrangement = Arrangement.spacedBy(MyGameSpacing.step1, Alignment.Bottom),
+    Box(
         modifier = modifier
-            .defaultMinSize(minHeight = MyGameSizes.control)
             .then(if (isFocused) Modifier.border(MyGameStrokeWidths.focus, colors.focus, shape) else Modifier)
             .selectable(
                 selected = isSelected,
                 interactionSource = interactions,
-                indication = LocalIndication.current,
+                indication = null,
                 role = Role.Tab,
                 onClick = onClick,
             )
             .semantics { contentDescription = name },
     ) {
-        TabMarks(tab = tab)
-        MyGamePlaceArt(art = tab.art, risenFrom = null, modifier = Modifier.height(MyGameSizes.control))
-        SelectedMark(isSelected = isSelected)
+        Column(
+            horizontalAlignment = Alignment.CenterHorizontally,
+            verticalArrangement = Arrangement.spacedBy(MyGameSpacing.step1, Alignment.Bottom),
+            modifier = Modifier
+                .fillMaxWidth()
+                .defaultMinSize(minHeight = MyGameSizes.control),
+        ) {
+            TabMarks(tab = tab)
+            MyGamePlaceArt(art = tab.art, risenFrom = null, modifier = Modifier.height(MyGameSizes.control))
+            SelectedMark(isSelected = isSelected)
+        }
+        Box(
+            modifier = Modifier
+                .matchParentSize()
+                .clip(shape)
+                .indication(interactionSource = interactions, indication = LocalIndication.current),
+        )
     }
 }
 

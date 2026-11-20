@@ -54,7 +54,7 @@ fun MyGameNavRow(
                     role = Role.Button,
                     onClick = onClick,
                 )
-                .padding(vertical = MyGameSpacing.step3),
+                .padding(horizontal = MyGameSpacing.step1, vertical = MyGameSpacing.step3),
         ) {
             Column(
                 verticalArrangement = Arrangement.spacedBy(MyGameSpacing.step1),

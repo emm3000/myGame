@@ -7,6 +7,7 @@ import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.text.TextLayoutResult
 import androidx.compose.ui.text.TextStyle
 import org.junit.Assert.assertEquals
+import org.junit.Assert.assertNull
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -30,6 +31,17 @@ class MyGameCountdownLineTest {
         assertEquals(MyGameTypography.title.fontSize, time.fontSize)
         assertEquals(MyGameTypography.title.fontWeight, time.fontWeight)
         assertEquals("tnum", time.fontFeatureSettings)
+    }
+
+    @Test
+    fun `draws its words with no font features`() {
+        composeRule.setContent {
+            MyGameTheme {
+                MyGameCountdownLine(words = "Next review:", time = "12:40", ground = MyGameCountdownGround.Paper)
+            }
+        }
+
+        assertNull(styleOf("Next review:").fontFeatureSettings)
     }
 
     private fun styleOf(text: String): TextStyle {
