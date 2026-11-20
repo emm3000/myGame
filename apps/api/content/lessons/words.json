@@ -2078,8 +2078,8 @@
         "gappedFrame": "The pay is ____."
       },
       {
-        "frame": "It is good to see you again.",
-        "gappedFrame": "It is ____ to see you again.",
+        "frame": "The food in this town is good.",
+        "gappedFrame": "The food in this town is ____.",
         "fromLessonId": "lesson-28"
       }
     ],
@@ -2723,8 +2723,8 @@
         "gappedFrame": "We have the ____ job."
       },
       {
-        "frame": "We live on the same hill.",
-        "gappedFrame": "We live on the ____ hill.",
+        "frame": "We live in the same town.",
+        "gappedFrame": "We live in the ____ town.",
         "fromLessonId": "lesson-46"
       }
     ],
@@ -2849,8 +2849,8 @@
         "gappedFrame": "Come to the office, ____ go home."
       },
       {
-        "frame": "We had food and then went home.",
-        "gappedFrame": "We had food and ____ went home.",
+        "frame": "We had a lesson and then went home.",
+        "gappedFrame": "We had a lesson and ____ went home.",
         "fromLessonId": "lesson-28"
       }
     ],
@@ -3469,8 +3469,8 @@
     "source": "phave",
     "frames": [
       {
-        "frame": "I want to go back to my old job.",
-        "gappedFrame": "I want to ____ ____ to my old job."
+        "frame": "I want to go back to the city.",
+        "gappedFrame": "I want to ____ ____ to the city."
       }
     ],
     "gloss": {
