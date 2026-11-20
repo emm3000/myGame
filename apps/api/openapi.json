@@ -3341,9 +3341,19 @@
                 "nullable": true
               }
             ]
+          },
+          "text": {
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/NextStepText"
+              },
+              {
+                "nullable": true
+              }
+            ]
           }
         },
-        "required": ["kind", "goal"],
+        "required": ["kind", "goal", "text"],
         "additionalProperties": false
       },
       "Goal": {
@@ -3437,6 +3447,21 @@
         "required": ["position", "count", "building", "level", "state"],
         "additionalProperties": false
       },
+      "NextStepText": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "minLength": 1
+          },
+          "title": {
+            "type": "string",
+            "minLength": 1
+          }
+        },
+        "required": ["id", "title"],
+        "additionalProperties": false
+      },
       "ReleasedLessonStep": {
         "type": "object",
         "properties": {
@@ -3494,9 +3519,19 @@
                 "nullable": true
               }
             ]
+          },
+          "text": {
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/NextStepText"
+              },
+              {
+                "nullable": true
+              }
+            ]
           }
         },
-        "required": ["kind", "reason", "goal"],
+        "required": ["kind", "reason", "goal", "text"],
         "additionalProperties": false
       },
       "TownNewsFeed": {

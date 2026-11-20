@@ -302,9 +302,9 @@ state that holds wins:
 | Priority | `kind` | When | The button goes to | It also says |
 |---|---|---|---|---|
 | 1 | `reviews` | a card is due | the first lesson of `readFirst`, else `/reviews` | how many; a running lesson's time |
-| 2 | `lessonRunning` | the lesson slot is busy | the lesson's words | the producer to build, if any |
+| 2 | `lessonRunning` | the lesson slot is busy | the lesson's words | the producer to build, if any; the newest open text, if any (ADR 049) |
 | 3 | `lessonToStudy` | the next lesson can start | the school | when the next review is due |
-| 4 | `caughtUp` | none of the above | the Report | why no lesson can start, its `reason`; the next building goal, if any; when the next review is due |
+| 4 | `caughtUp` | none of the above | the Report | why no lesson can start, its `reason`; the next building goal, if any; the newest open text, if any (ADR 049); when the next review is due |
 
 - **`reviews` wins over a running lesson**: the words are due now, and
   the lesson runs on its own.

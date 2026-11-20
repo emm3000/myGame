@@ -8,7 +8,9 @@ import type { HeldCard } from '../learning/HeldCard'
 import { heldOutWordsAt } from '../learning/heldOutWordsAt'
 import { isLessonPlacedOut } from '../learning/isLessonPlacedOut'
 import type { Lesson, LessonId, SchoolLesson } from '../learning/Lesson'
+import { openTextsOf } from '../learning/openTextsOf'
 import { readFirstOf } from '../learning/readFirstOf'
+import type { Text } from '../learning/Text'
 import { wordsEnteringOf } from '../learning/wordsEnteringOf'
 import type { MemoryTerms } from '../memory/MemoryTerms'
 import type { BandCatalog } from '../ports/BandCatalog'
@@ -26,7 +28,7 @@ export type NextStep =
       readonly readFirst: ReadonlyArray<LessonId>
     }
   | ({ readonly kind: 'holdoutCheck' } & DueHoldoutCheck)
-  | { readonly kind: 'lessonRunning' }
+  | { readonly kind: 'lessonRunning'; readonly text: NextStepText | null }
   | {
       readonly kind: 'releasedLesson'
       readonly lessonId: LessonId
@@ -34,7 +36,13 @@ export type NextStep =
       readonly position: number
     }
   | { readonly kind: 'lessonToStudy'; readonly lessonId: LessonId }
-  | { readonly kind: 'caughtUp'; readonly reason: CaughtUpReason }
+  | {
+      readonly kind: 'caughtUp'
+      readonly reason: CaughtUpReason
+      readonly text: NextStepText | null
+    }
+
+export type NextStepText = Pick<Text, 'id' | 'title'>
 
 export type CaughtUpReason = 'learningCap' | 'schoolTooLow' | 'lessonsDone'
 
@@ -50,6 +58,7 @@ export type NextStepReading = {
 
 export type NextStepTerms = {
   readonly lessons: ReadonlyArray<Lesson>
+  readonly texts: ReadonlyArray<Text>
   readonly bands: Pick<BandCatalog, 'bandOfLesson'>
   readonly memoryTerms: MemoryTerms
   readonly catalog: TownCatalog
@@ -108,10 +117,19 @@ const weighed = <Admissible extends SchoolLesson>(
   return ok({ kind: 'refused', reason: firstReason ?? 'lessonsDone' })
 }
 
+const newestTextOf = (
+  { cards, placedOutBands }: NextStepReading,
+  { lessons, texts, bands }: NextStepTerms,
+): NextStepText | null => {
+  const [newest] = openTextsOf(texts, { curriculum: lessons, cards, placedOutBands, bands })
+  return newest === undefined ? null : { id: newest.id, title: newest.title }
+}
+
 const lessonStep = (
   reading: NextStepReading,
-  { lessons, bands, catalog }: NextStepTerms,
+  terms: NextStepTerms,
 ): Result<NextStep, DomainError> => {
+  const { lessons, bands, catalog } = terms
   const released = weighed(reading.released, reading, catalog)
   if (!released.ok) {
     return released
@@ -135,6 +153,7 @@ const lessonStep = (
   return ok({
     kind: 'caughtUp',
     reason: releasedReason === 'lessonsDone' ? shelved.value.reason : releasedReason,
+    text: newestTextOf(reading, terms),
   })
 }
 
@@ -159,7 +178,7 @@ export const nextStepOf = (
     return ok({ kind: 'holdoutCheck', ...dueCheck })
   }
   if (lessonSlot.kind === 'busy') {
-    return ok({ kind: 'lessonRunning' })
+    return ok({ kind: 'lessonRunning', text: newestTextOf(reading, terms) })
   }
   return lessonStep(reading, terms)
 }

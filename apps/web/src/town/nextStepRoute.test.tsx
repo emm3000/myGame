@@ -146,14 +146,16 @@ it('shows no lesson time beside the reviews while no lesson runs', async () => {
 })
 
 it('opens the words of the running lesson', async () => {
-  await showTown(townAt({ kind: 'lessonRunning', goal: null }, { lessonSlot: runningLessonTwo }))
+  await showTown(
+    townAt({ kind: 'lessonRunning', goal: null, text: null }, { lessonSlot: runningLessonTwo }),
+  )
 
   expect(within(card()).getByText(schoolSlotTitle())).toBeDefined()
   expect(pill(schoolLessonReadWords()).getAttribute('href')).toBe('/school/lesson-2')
 })
 
 it('opens the school if the read holds no running lesson', async () => {
-  await showTown(townAt({ kind: 'lessonRunning', goal: null }))
+  await showTown(townAt({ kind: 'lessonRunning', goal: null, text: null }))
 
   expect(pill(schoolLessonReadWords()).getAttribute('href')).toBe('/school')
 })
@@ -222,7 +224,7 @@ it('opens the school from a released lesson', async () => {
 it('opens the Report when caught up', async () => {
   await showTown(
     townAt(
-      { kind: 'caughtUp', reason: 'lessonsDone', goal: null },
+      { kind: 'caughtUp', reason: 'lessonsDone', goal: null, text: null },
       { nextDueAt: secondsAfterRead(540) },
     ),
   )
@@ -234,7 +236,7 @@ it('opens the Report when caught up', async () => {
 
 it('counts the next review down between reads', async () => {
   const dueLater = townAt(
-    { kind: 'caughtUp', reason: 'lessonsDone', goal: null },
+    { kind: 'caughtUp', reason: 'lessonsDone', goal: null, text: null },
     { nextDueAt: secondsAfterRead(540) },
   )
   await showTown(dueLater, {
@@ -252,7 +254,7 @@ it('counts the next review down between reads', async () => {
 it('counts the last minute of the next review by the second', async () => {
   await showTown(
     townAt(
-      { kind: 'caughtUp', reason: 'lessonsDone', goal: null },
+      { kind: 'caughtUp', reason: 'lessonsDone', goal: null, text: null },
       { nextDueAt: secondsAfterRead(45) },
     ),
   )
@@ -264,7 +266,7 @@ it('counts the last minute of the next review by the second', async () => {
 
 it('re-reads at nextDueAt', async () => {
   const dueSoon = townAt(
-    { kind: 'caughtUp', reason: 'lessonsDone', goal: null },
+    { kind: 'caughtUp', reason: 'lessonsDone', goal: null, text: null },
     { nextDueAt: secondsAfterRead(30) },
   )
   const town = vi.fn<ApiClient['town']>().mockResolvedValue({ ok: true, value: dueSoon })
@@ -300,7 +302,7 @@ it.each<[string, NextStep, Partial<TownOverview>, () => string]>([
   ],
   [
     'a running lesson',
-    { kind: 'lessonRunning', goal: null },
+    { kind: 'lessonRunning', goal: null, text: null },
     { lessonSlot: runningLessonTwo },
     schoolLessonReadWords,
   ],
@@ -310,10 +312,15 @@ it.each<[string, NextStep, Partial<TownOverview>, () => string]>([
     {},
     () => schoolLessonStudy({ number: 1 }),
   ],
-  ['caught up', { kind: 'caughtUp', reason: 'lessonsDone', goal: null }, {}, townNextGoToReport],
+  [
+    'caught up',
+    { kind: 'caughtUp', reason: 'lessonsDone', goal: null, text: null },
+    {},
+    townNextGoToReport,
+  ],
   [
     'building work under way',
-    { kind: 'caughtUp', reason: 'lessonsDone', goal: null },
+    { kind: 'caughtUp', reason: 'lessonsDone', goal: null, text: null },
     { work: workUnderWay },
     townNextGoToReport,
   ],
@@ -333,13 +340,13 @@ it('holds no pill inside a block', async () => {
 })
 
 it("keeps the next step's block peach", async () => {
-  await showTown(townAt({ kind: 'caughtUp', reason: 'lessonsDone', goal: null }))
+  await showTown(townAt({ kind: 'caughtUp', reason: 'lessonsDone', goal: null, text: null }))
 
   expect(card().dataset.hue).toBe('peach')
 })
 
 it('puts the next step before the skyline', async () => {
-  await showTown(townAt({ kind: 'caughtUp', reason: 'lessonsDone', goal: null }))
+  await showTown(townAt({ kind: 'caughtUp', reason: 'lessonsDone', goal: null, text: null }))
 
   const skyline = screen.getByRole('img', { name: townSkylineBuilt({ built: 2, total: 7 }) })
 
@@ -347,7 +354,7 @@ it('puts the next step before the skyline', async () => {
 })
 
 it('draws the school first', async () => {
-  await showTown(townAt({ kind: 'caughtUp', reason: 'lessonsDone', goal: null }))
+  await showTown(townAt({ kind: 'caughtUp', reason: 'lessonsDone', goal: null, text: null }))
 
   const [firstPlace] = screen.getAllByRole('heading', { level: 4 })
 
@@ -355,7 +362,7 @@ it('draws the school first', async () => {
 })
 
 it('draws the card before the places', async () => {
-  await showTown(townAt({ kind: 'caughtUp', reason: 'lessonsDone', goal: null }))
+  await showTown(townAt({ kind: 'caughtUp', reason: 'lessonsDone', goal: null, text: null }))
 
   const [firstHeading] = screen.getAllByRole('heading', { level: 3 })
 
@@ -364,7 +371,7 @@ it('draws the card before the places', async () => {
 
 it('shows the same card on a return visit, with no greeting', async () => {
   const town = townAt(
-    { kind: 'caughtUp', reason: 'lessonsDone', goal: null },
+    { kind: 'caughtUp', reason: 'lessonsDone', goal: null, text: null },
     { nextDueAt: secondsAfterRead(540) },
   )
   await showTown(town)

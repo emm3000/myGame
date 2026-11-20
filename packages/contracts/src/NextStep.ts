@@ -20,10 +20,18 @@ const HoldoutCheckStepSchema = z
   })
   .meta({ id: 'HoldoutCheckStep' })
 
+const NextStepTextSchema = z
+  .strictObject({
+    id: z.string().min(1),
+    title: z.string().min(1),
+  })
+  .meta({ id: 'NextStepText' })
+
 const LessonRunningStepSchema = z
   .strictObject({
     kind: z.literal('lessonRunning'),
     goal: z.lazy(() => GoalSchema).nullable(),
+    text: z.lazy(() => NextStepTextSchema).nullable(),
   })
   .meta({ id: 'LessonRunningStep' })
 
@@ -48,6 +56,7 @@ const CaughtUpStepSchema = z
     kind: z.literal('caughtUp'),
     reason: z.enum(['learningCap', 'schoolTooLow', 'lessonsDone']),
     goal: z.lazy(() => GoalSchema).nullable(),
+    text: z.lazy(() => NextStepTextSchema).nullable(),
   })
   .meta({ id: 'CaughtUpStep' })
 
