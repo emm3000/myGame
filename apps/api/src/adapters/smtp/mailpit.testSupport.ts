@@ -38,13 +38,18 @@ const mailpitRequest = async (path: string, method: 'GET' | 'DELETE'): Promise<R
 const mailpit = async <T>(path: string): Promise<T> =>
   (await (await mailpitRequest(path, 'GET')).json()) as T
 
-export const deleteEveryMail = async (): Promise<void> => {
-  await mailpitRequest('/api/v1/messages', 'DELETE')
+const searchOfMailTo = (recipient: string): string =>
+  `/api/v1/search?query=${encodeURIComponent(`to:"${recipient}"`)}`
+
+export const deleteMailTo = async (recipients: ReadonlyArray<string>): Promise<void> => {
+  for (const recipient of recipients) {
+    await mailpitRequest(searchOfMailTo(recipient), 'DELETE')
+  }
 }
 
 export const deliveredTo = async (recipient: string): Promise<ReadonlyArray<Mail>> => {
   const { messages } = await mailpit<{ messages: ReadonlyArray<MailpitSummary> }>(
-    '/api/v1/messages',
+    searchOfMailTo(recipient),
   )
   const summaries = messages.filter((summary) =>
     summary.To.some((address) => address.Address === recipient),

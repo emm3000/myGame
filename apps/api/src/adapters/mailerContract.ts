@@ -13,6 +13,13 @@ const verificationMail: Mail = {
   text: 'Sigue este enlace para confirmar tu correo: http://localhost:3259/verify-email?token=abc',
 }
 
+const anotherRecipient = 'sancho@example.com'
+
+export const mailerContractRecipients: ReadonlyArray<string> = [
+  verificationMail.to,
+  anotherRecipient,
+]
+
 export const mailerContract = (adapter: string, arrange: () => Promise<MailerFixture>): void => {
   describe(`${adapter} as a mailer`, () => {
     it('delivers a mail to its recipient', async () => {
@@ -39,7 +46,7 @@ export const mailerContract = (adapter: string, arrange: () => Promise<MailerFix
 
       const delivery = await mailer.send(verificationMail)
 
-      expect([delivery, await deliveredTo('sancho@example.com')]).toEqual(['sent', []])
+      expect([delivery, await deliveredTo(anotherRecipient)]).toEqual(['sent', []])
     })
 
     it('answers failed when the server cannot be reached', async () => {
