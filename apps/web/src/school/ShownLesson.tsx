@@ -6,9 +6,9 @@ import { CardAction } from '../design-system/CardAction'
 import { FormAlert } from '../design-system/FormAlert'
 import { blockFocusTargetClass } from '../design-system/focusTargetClass'
 import { formatDuration } from '../design-system/formatDuration'
-import { refusalLineOf } from '../refusals/refusalLineOf'
 import type { LiveTown } from '../town/liveTown'
 import { type LessonCardContent, readWordsLabelOf } from './lessonCardOf'
+import { lessonRefusalLineOf } from './lessonRefusalLineOf'
 import type { SchoolLessons } from './useSchoolLessons'
 
 export interface ShownLessonProps {
@@ -62,9 +62,7 @@ export function ShownLesson({ card, town, lessons, titleRef }: ShownLessonProps)
           {readWordsLabelOf(lessonSlot.lessonId, card.lessonId, town.overview)}
         </ButtonLink>
       )}
-      {refused !== undefined && (
-        <FormAlert message={refusalLineOf(refused.refusal, refused.error)} />
-      )}
+      {refused !== undefined && <FormAlert message={lessonRefusalLineOf(refused, town)} />}
     </div>
   )
 }

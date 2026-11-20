@@ -100,6 +100,7 @@ export const refusalJobHoursOutOfRange = ({ maxHours }: { readonly maxHours: str
 export const refusalJobNotFound = (): string => `This job has already ended.`
 export const refusalJobSiteOutOfBounds = (): string => `That site is not on the map.`
 export const refusalJobToOwnSite = (): string => `That site is your town. Choose another site.`
+export const refusalLearningCapNextWordDue = ({ cardsInLearning, learningCap, timeLeft }: { readonly cardsInLearning: string | number; readonly learningCap: string | number; readonly timeLeft: string | number }): string => `Words in learning: ${String(cardsInLearning)} of ${String(learningCap)}. The next one is due for review in ${String(timeLeft)}.`
 export const refusalLearningCapReached = ({ cardsInLearning, learningCap }: { readonly cardsInLearning: string | number; readonly learningCap: string | number }): string => `Words in learning: ${String(cardsInLearning)} of ${String(learningCap)}. Review them before you start another lesson.`
 export const refusalLessonAlreadyStudied = (): string => `You already studied that lesson: its words are in your reviews.`
 export const refusalLessonSchoolTooLow = (): string => `That lesson needs a school of a higher level. Build it to a higher level first.`
@@ -186,6 +187,7 @@ export const reviewWrong = (): string => `That is not correct.`
 export const reviewYourAnswer = (): string => `Your answer:`
 export const schoolLearning = ({ cap, inLearning }: { readonly cap: string | number; readonly inLearning: string | number }): string => `Words in learning: ${String(inLearning)} of ${String(cap)}`
 export const schoolLearningFull = ({ count }: { readonly count: number }): string => `${count === 1 ? `The next lesson needs 1 word.` : `The next lesson needs ${String(count)} words.`} Start the reviews.`
+export const schoolLearningFullNextWordDue = ({ count, timeLeft }: { readonly count: number; readonly timeLeft: string | number }): string => `${count === 1 ? `The next lesson needs 1 word.` : `The next lesson needs ${String(count)} words.`} The next word in learning is due in ${String(timeLeft)}.`
 export const schoolLessonCapReached = ({ cap, count, inLearning }: { readonly cap: string | number; readonly count: string | number; readonly inLearning: string | number }): string => `Words in learning: ${String(inLearning)} of ${String(cap)}. This lesson needs ${String(count)}.`
 export const schoolLessonNeedsSchool = ({ level }: { readonly level: string | number }): string => `Needs school level ${String(level)}`
 export const schoolLessonNext = (): string => `Next lesson`
