@@ -16,6 +16,7 @@ import androidx.compose.ui.test.assertIsNotEnabled
 import androidx.compose.ui.test.assertIsNotSelected
 import androidx.compose.ui.test.assertIsSelected
 import androidx.compose.ui.test.hasClickAction
+import androidx.compose.ui.test.hasContentDescription
 import androidx.compose.ui.test.hasScrollAction
 import androidx.compose.ui.test.hasText
 import androidx.compose.ui.test.isHeading
@@ -48,6 +49,10 @@ private const val NONE_CHOICE: String = "Ninguno: todo en inglés, con definicio
 private const val HELP_LANGUAGE_QUESTION: String = "Idioma de ayuda"
 private const val REMINDER_TITLE: String = "Recordatorio de estudio"
 private const val OUTAGE_LINE: String = "No hemos podido hablar con el servidor. Vuelve a intentarlo en un momento."
+private const val RETRY: String = "Volver a intentarlo"
+private const val OPEN_NOTIFICATION_SETTINGS: String = "Abrir los ajustes de notificaciones"
+private val timeSteps: List<String> =
+    listOf("Una hora antes", "Una hora después", "Cinco minutos antes", "Cinco minutos después")
 
 @RunWith(RobolectricTestRunner::class)
 class SettingsScreenTest {
@@ -70,7 +75,15 @@ class SettingsScreenTest {
     }
 
     private val ownControl: SemanticsMatcher =
-        hasText(SPANISH_CHOICE) or hasText(NONE_CHOICE) or hasText(REMINDER_TITLE)
+        (
+            listOf(SPANISH_CHOICE, NONE_CHOICE, REMINDER_TITLE, OPEN_NOTIFICATION_SETTINGS, RETRY).map(::hasText) +
+                timeSteps.map(::hasContentDescription)
+            ).reduce(SemanticsMatcher::or)
+
+    private fun assertOnlyOwnControls(count: Int) {
+        composeRule.onAllNodes(hasClickAction() and !ownControl).assertCountEquals(0)
+        composeRule.onAllNodes(hasClickAction() and ownControl).assertCountEquals(count)
+    }
 
     private fun choice(label: String): SemanticsNodeInteraction = composeRule.onNode(isSelectable() and hasText(label))
 
@@ -213,7 +226,7 @@ class SettingsScreenTest {
         draw(SettingsUiState.Failed)
 
         composeRule.onNodeWithText("No hemos podido cargar tus ajustes.").assertIsDisplayed()
-        composeRule.onNodeWithText("Volver a intentarlo").performClick()
+        composeRule.onNodeWithText(RETRY).performClick()
 
         assertEquals(listOf<SettingsIntent>(SettingsIntent.RetryTapped), sentIntents)
     }
@@ -223,8 +236,28 @@ class SettingsScreenTest {
         draw(SettingsUiState.Loaded(PlayerScaffold.Spanish, SettingsUiState.Change.Untouched, firstReminder))
 
         composeRule.onAllNodesWithText("Volver a tu pueblo").assertCountEquals(0)
-        composeRule.onAllNodes(hasClickAction() and !ownControl).assertCountEquals(0)
-        composeRule.onAllNodes(hasClickAction() and ownControl).assertCountEquals(3)
+        assertOnlyOwnControls(count = 3)
+    }
+
+    @Test
+    fun `draws only the scaffold choices, the switch and the time steps with the reminder on`() {
+        draw(untouched.copy(reminder = firstReminder.copy(isOn = true)))
+
+        assertOnlyOwnControls(count = 7)
+    }
+
+    @Test
+    fun `draws only the scaffold choices, the switch and the settings link with notifications denied`() {
+        draw(untouched.copy(reminder = firstReminder.copy(ask = SettingsUiState.NotificationAsk.Denied)))
+
+        assertOnlyOwnControls(count = 4)
+    }
+
+    @Test
+    fun `draws only the retry when the settings cannot be read`() {
+        draw(SettingsUiState.Failed)
+
+        assertOnlyOwnControls(count = 1)
     }
 
     @Test
