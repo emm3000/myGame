@@ -8,19 +8,19 @@ import androidx.compose.ui.Modifier
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.emm.mygame.core.network.TextId
-import com.emm.mygame.core.network.TownRepository
+import com.emm.mygame.core.network.TownTextRepository
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 
 @Composable
 fun SchoolTextRoute(
     text: TextId,
-    towns: TownRepository,
+    texts: TownTextRepository,
     onNoTown: () -> Unit,
     onSchoolOpen: () -> Unit,
     modifier: Modifier = Modifier,
     foldedDock: @Composable () -> Unit = {},
-    viewModel: SchoolTextViewModel = viewModel { SchoolTextViewModel(text, towns) },
+    viewModel: SchoolTextViewModel = viewModel { SchoolTextViewModel(text, texts) },
 ) {
     val state: SchoolTextUiState by viewModel.state.collectAsStateWithLifecycle()
     val currentOnNoTown: () -> Unit by rememberUpdatedState(onNoTown)

@@ -5,8 +5,8 @@ import androidx.compose.ui.test.isHeading
 import androidx.compose.ui.test.junit4.ComposeContentTestRule
 import androidx.compose.ui.test.junit4.createComposeRule
 import com.emm.mygame.core.designsystem.MyGameTheme
-import com.emm.mygame.core.network.TownReadResult
-import com.emm.mygame.core.testing.FakeTownRepository
+import com.emm.mygame.core.network.TownTextResult
+import com.emm.mygame.core.testing.FakeTownTextRepository
 import org.junit.Assert.assertEquals
 import org.junit.Rule
 import org.junit.Test
@@ -19,13 +19,13 @@ class SchoolTextRouteTest {
     @get:Rule
     val composeRule: ComposeContentTestRule = createComposeRule()
 
-    private val towns: FakeTownRepository = FakeTownRepository()
+    private val texts: FakeTownTextRepository = FakeTownTextRepository()
 
     private var noTownCount: Int = 0
 
     @Test
     fun `draws the text the route was opened on`() {
-        towns.answerRead(TownReadResult.Read(townOf(texts = listOf(courseText))))
+        texts.answerText(TownTextResult.Read(courseText))
 
         showRoute()
 
@@ -34,7 +34,7 @@ class SchoolTextRouteTest {
 
     @Test
     fun `leaves for the town when the player holds none`() {
-        towns.answerRead(TownReadResult.NoTown)
+        texts.answerText(TownTextResult.NoTown)
 
         showRoute()
         composeRule.waitForIdle()
@@ -50,7 +50,7 @@ class SchoolTextRouteTest {
             MyGameTheme {
                 SchoolTextRoute(
                     text = courseTextId,
-                    towns = towns,
+                    texts = texts,
                     onNoTown = { noTownCount += 1 },
                     onSchoolOpen = {},
                 )

@@ -12,6 +12,7 @@ import com.emm.mygame.core.network.StudyReminderChoice
 import com.emm.mygame.core.network.StudyReminderSettings
 import com.emm.mygame.core.network.ThemePick
 import com.emm.mygame.core.network.TownRepository
+import com.emm.mygame.core.network.TownTextRepository
 import com.emm.mygame.core.testing.FakeHoldoutCheckRepository
 import com.emm.mygame.core.testing.FakeLearningRepository
 import com.emm.mygame.core.testing.FakePlacementRepository
@@ -21,6 +22,7 @@ import com.emm.mygame.core.testing.FakeSessionRepository
 import com.emm.mygame.core.testing.FakeStudyReminderSettings
 import com.emm.mygame.core.testing.FakeThemeSettings
 import com.emm.mygame.core.testing.FakeTownRepository
+import com.emm.mygame.core.testing.FakeTownTextRepository
 import kotlin.time.Clock
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -38,6 +40,8 @@ class ReminderTapApplication : Application(), AppDependencies {
     override val sessions: FakeSessionRepository = FakeSessionRepository()
 
     override val towns: TownRepository = FakeTownRepository()
+
+    override val texts: TownTextRepository = FakeTownTextRepository()
 
     override val learning: LearningRepository = FakeLearningRepository()
 

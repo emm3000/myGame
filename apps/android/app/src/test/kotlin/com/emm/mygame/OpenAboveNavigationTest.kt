@@ -14,7 +14,6 @@ import androidx.navigation3.runtime.NavKey
 import androidx.navigation3.runtime.rememberNavBackStack
 import androidx.test.ext.junit.rules.ActivityScenarioRule
 import com.emm.mygame.core.designsystem.MyGameTheme
-import com.emm.mygame.core.network.FrameSpan
 import com.emm.mygame.core.network.ReportReadResult
 import com.emm.mygame.core.network.TextId
 import com.emm.mygame.core.network.TownNewsReadResult
@@ -56,11 +55,7 @@ class OpenAboveNavigationTest {
         reports = reports,
     )
 
-    private val newestText: TownSnapshot.OpenText = TownSnapshot.OpenText(
-        id = TextId("text-31"),
-        title = "The New Shop",
-        sentences = listOf(listOf(FrameSpan("We open a shop on the river.", null))),
-    )
+    private val newestText: TownSnapshot.TextTitle = TownSnapshot.TextTitle(TextId("text-31"), "The New Shop")
 
     private val townWithANewestText: TownSnapshot = townOf(readAt, texts = listOf(newestText))
 

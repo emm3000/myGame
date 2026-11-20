@@ -1,6 +1,5 @@
 package com.emm.mygame.core.network
 
-import com.emm.mygame.core.network.generated.models.FrameSpan as WireFrameSpan
 import com.emm.mygame.core.network.generated.models.TownOverviewLearning
 import com.emm.mygame.core.network.generated.models.TownOverviewLearningRetainedWords
 import com.emm.mygame.core.network.generated.models.TownOverviewLessonSlot
@@ -61,11 +60,8 @@ private fun TownOverviewLessonsInnerWordsInner.toWordReading(): TownSnapshot.Wor
     )
 }
 
-internal fun TownOverviewTextsInner.toOpenText(): TownSnapshot.OpenText = TownSnapshot.OpenText(
-    id = TextId(id),
-    title = title,
-    sentences = sentences.map { sentence: List<WireFrameSpan> -> sentence.toFrameSpans() },
-)
+internal fun TownOverviewTextsInner.toTextTitle(): TownSnapshot.TextTitle =
+    TownSnapshot.TextTitle(id = TextId(id), title = title)
 
 internal fun TownOverviewSkillsInner.toEarnedSkill(): TownSnapshot.EarnedSkill? {
     val kind: TownResourceKind = resource.toTownResourceKind() ?: return null

@@ -21,7 +21,7 @@ fun townOf(
     nextStep: NextStep = lessonsDone,
     hasOffice: Boolean = true,
     lessons: List<TownSnapshot.Lesson> = emptyList(),
-    texts: List<TownSnapshot.OpenText> = emptyList(),
+    texts: List<TownSnapshot.TextTitle> = emptyList(),
     inLearning: Int = 0,
     retainedWords: RetainedWords? = null,
     lessonSlot: TownSnapshot.LessonSlot? = null,

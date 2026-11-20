@@ -43,7 +43,7 @@ internal fun TownOverview.toSnapshot(): TownSnapshot? {
         work = townWork,
         lessons = school.shelved,
         releasedLessons = school.released,
-        texts = texts.map(TownOverviewTextsInner::toOpenText),
+        texts = texts.map(TownOverviewTextsInner::toTextTitle),
         dueHoldoutChecks = dueHoldoutChecks.mapNotNull(TownOverviewDueHoldoutChecksInner::toDueHoldoutCheck),
         hasBandStarted = hasBandStarted,
         bandLines = bandLines.mapNotNull(TownOverviewBandLinesInner::toBandLine),

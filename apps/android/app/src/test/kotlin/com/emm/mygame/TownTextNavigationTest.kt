@@ -14,10 +14,13 @@ import com.emm.mygame.core.network.CaughtUpReason
 import com.emm.mygame.core.network.FrameSpan
 import com.emm.mygame.core.network.NextStep
 import com.emm.mygame.core.network.NextStepText
+import com.emm.mygame.core.network.OpenText
 import com.emm.mygame.core.network.TextId
 import com.emm.mygame.core.network.TownReadResult
 import com.emm.mygame.core.network.TownSnapshot
+import com.emm.mygame.core.network.TownTextResult
 import com.emm.mygame.core.testing.FakeTownRepository
+import com.emm.mygame.core.testing.FakeTownTextRepository
 import com.emm.mygame.core.testing.townOf
 import kotlin.time.Clock
 import kotlin.time.Instant
@@ -42,9 +45,11 @@ class TownTextNavigationTest {
 
     private val towns: FakeTownRepository = FakeTownRepository()
 
-    private val dependencies: AppDependencies = dependenciesOf(clock = fixedClock, towns = towns)
+    private val texts: FakeTownTextRepository = FakeTownTextRepository()
 
-    private val newestText: TownSnapshot.OpenText = TownSnapshot.OpenText(
+    private val dependencies: AppDependencies = dependenciesOf(clock = fixedClock, towns = towns, texts = texts)
+
+    private val newestText: OpenText = OpenText(
         id = TextId("text-31"),
         title = "The New Shop",
         sentences = listOf(listOf(FrameSpan("We open a shop on the river.", null))),
@@ -57,12 +62,13 @@ class TownTextNavigationTest {
             goal = null,
             text = NextStepText(newestText.id, newestText.title),
         ),
-        texts = listOf(newestText),
+        texts = listOf(TownSnapshot.TextTitle(newestText.id, newestText.title)),
     )
 
     @Test
     fun `opens the newest text from its line on the town home`() {
         repeat(READS_AVAILABLE) { towns.answerRead(TownReadResult.Read(caughtUpWithANewestText)) }
+        texts.answerText(TownTextResult.Read(newestText))
         composeRule.setContent {
             MyGameTheme {
                 AppNavigation(

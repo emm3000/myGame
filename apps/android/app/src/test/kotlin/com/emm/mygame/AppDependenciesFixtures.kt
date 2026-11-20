@@ -14,6 +14,7 @@ import com.emm.mygame.core.network.StudyReminderSettings
 import com.emm.mygame.core.network.ThemePick
 import com.emm.mygame.core.network.ThemeSettings
 import com.emm.mygame.core.network.TownRepository
+import com.emm.mygame.core.network.TownTextRepository
 import com.emm.mygame.core.testing.FakeHoldoutCheckRepository
 import com.emm.mygame.core.testing.FakeLearningRepository
 import com.emm.mygame.core.testing.FakePlacementRepository
@@ -23,6 +24,7 @@ import com.emm.mygame.core.testing.FakeSessionRepository
 import com.emm.mygame.core.testing.FakeStudyReminderSettings
 import com.emm.mygame.core.testing.FakeThemeSettings
 import com.emm.mygame.core.testing.FakeTownRepository
+import com.emm.mygame.core.testing.FakeTownTextRepository
 import kotlin.time.Clock
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -33,6 +35,7 @@ fun dependenciesOf(
     playerScaffold: StateFlow<PlayerScaffold?> = MutableStateFlow(null),
     sessions: SessionRepository = FakeSessionRepository(),
     towns: TownRepository = FakeTownRepository(),
+    texts: TownTextRepository = FakeTownTextRepository(),
     learning: LearningRepository = FakeLearningRepository(),
     reports: ReportRepository = FakeReportRepository(),
     placements: PlacementRepository = FakePlacementRepository(),
@@ -47,6 +50,7 @@ fun dependenciesOf(
     override val playerScaffold: StateFlow<PlayerScaffold?> = playerScaffold
     override val sessions: SessionRepository = sessions
     override val towns: TownRepository = towns
+    override val texts: TownTextRepository = texts
     override val learning: LearningRepository = learning
     override val reports: ReportRepository = reports
     override val placements: PlacementRepository = placements
