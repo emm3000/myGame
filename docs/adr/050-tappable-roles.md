@@ -1,5 +1,5 @@
 ---
-status: accepted, the dock's door, its countdown and its line together amended by ADR 051
+status: accepted, the dock's door, its countdown, its line and its folded door together amended by ADR 051
 date: 2026-11-18
 ---
 # Tappable roles and the type hierarchy on Android
@@ -130,7 +130,7 @@ Every public composable in `apps/android/core/designsystem`:
 | `MyGameTimeField` | local action: four step buttons | its buttons follow `MyGameOutlinedButton` |
 | `MyGameStreetStrip` | local action (pick): seven tabs | becomes one segmented control: one hairline `line-strong` frame of radius `md` around the strip, hairline dividers between tabs; the selected tab keeps its ink bar and the marks keep their meaning |
 | `MyGameNavRow` (new) | door | new |
-| `MyGameBackLink` | door, the way home | label in `label` and `ink`, chevron in `ink`; out of `MyGameMetaText` |
+| `MyGameBackLink` | door, the way home | label in `label` and `ink`, chevron in `ink`, both in `inkMuted` while disabled; out of `MyGameMetaText` |
 | `MyGameTextLink` | link | the one link component: `label` underlined in `ink`, with the busy state `MyGameTextButton` has |
 | `MyGameTextButton` | link | deleted; its 5 call sites move to `MyGameTextLink` |
 | `MyGameFrameText` | static text; a word with a gloss is a link (underlined, `WordOnTap`) | nothing |
