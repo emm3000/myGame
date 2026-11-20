@@ -10,7 +10,7 @@ import {
   refusalMalformedEmail,
   refusalWeakPassword,
 } from '@mygame/catalog'
-import { type SignUpRequest, SignUpRequestSchema } from '@mygame/contracts'
+import { type Scaffold, type SignUpRequest, SignUpRequestSchema } from '@mygame/contracts'
 import { type ReactElement, useState } from 'react'
 import type { ApiRefusal } from '../api/apiClient'
 import { Button } from '../design-system/Button'
@@ -19,6 +19,7 @@ import { TextField } from '../design-system/TextField'
 import { TextLink } from '../design-system/TextLink'
 import { refusalLineOf } from '../refusals/refusalLineOf'
 import { AuthPanel } from './AuthPanel'
+import { ScaffoldChoice } from './ScaffoldChoice'
 
 type SignUpField = Exclude<keyof SignUpRequest, 'scaffold'>
 
@@ -27,6 +28,8 @@ type FieldErrors = Partial<Record<SignUpField, string>>
 export interface SignUpScreenProps {
   readonly refusal: ApiRefusal | undefined
   readonly isSubmitting: boolean
+  readonly preselectedScaffold: Scaffold
+  readonly onScaffoldPick: (scaffold: Scaffold) => void
   readonly onSubmit: (request: SignUpRequest) => void
 }
 
@@ -54,7 +57,11 @@ const fieldErrorsOf = (request: SignUpRequest): FieldErrors => {
 }
 
 export function SignUpScreen(props: SignUpScreenProps): ReactElement {
-  const [request, setRequest] = useState<SignUpRequest>({ email: '', password: '', scaffold: 'es' })
+  const [request, setRequest] = useState<SignUpRequest>({
+    email: '',
+    password: '',
+    scaffold: props.preselectedScaffold,
+  })
   const [clientErrors, setClientErrors] = useState<FieldErrors>({})
   const refusedField = props.refusal === undefined ? undefined : refusalFields[props.refusal]
   const errors: FieldErrors =
@@ -67,6 +74,11 @@ export function SignUpScreen(props: SignUpScreenProps): ReactElement {
     (field: SignUpField) =>
     (value: string): void =>
       setRequest((current) => ({ ...current, [field]: value }))
+
+  const pick = (scaffold: Scaffold): void => {
+    setRequest((current) => ({ ...current, scaffold }))
+    props.onScaffoldPick(scaffold)
+  }
 
   const submit = (): void => {
     const found = fieldErrorsOf(request)
@@ -88,6 +100,7 @@ export function SignUpScreen(props: SignUpScreenProps): ReactElement {
         </>
       }
     >
+      <ScaffoldChoice picked={request.scaffold} isDisabled={props.isSubmitting} onPick={pick} />
       <TextField
         label={authEmail()}
         name="email"
