@@ -1,10 +1,12 @@
 package com.emm.mygame.feature.town
 
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.Immutable
 import com.emm.mygame.core.ui.PlayerCopy
 import com.emm.mygame.core.ui.rememberPlayerCopy
 
-class TownNotice(val message: String, val key: Any)
+@Immutable
+data class TownNotice(val message: String, val key: Any)
 
 @Composable
 fun TownStatusUiState.Dock.shownNotice(): TownNotice? {

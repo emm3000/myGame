@@ -44,10 +44,17 @@ class TownReadyLineScreenTest {
     }
 
     @Test
-    fun `names a ready time under a minute as one minute`() {
-        show(shortOfFoodUntil(TownUiState.ReadyTime(remaining = 42.seconds, readyAt = localReady)))
+    fun `names the minutes and seconds left under a minute`() {
+        show(shortOfFoodUntil(TownUiState.ReadyTime(remaining = 30.seconds, readyAt = localReady)))
 
-        composeRule.onNodeWithText("Lista en 1 min").assertIsDisplayed()
+        composeRule.onNodeWithText("Lista en 0:30").assertIsDisplayed()
+    }
+
+    @Test
+    fun `names the whole minutes left under an hour without the seconds`() {
+        show(shortOfFoodUntil(TownUiState.ReadyTime(remaining = 30.minutes + 30.seconds, readyAt = localReady)))
+
+        composeRule.onNodeWithText("Lista en 30 min").assertIsDisplayed()
     }
 
     @Test

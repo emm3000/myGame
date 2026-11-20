@@ -222,12 +222,7 @@ class TownStatusTest {
         return results.first()
     }
 
-    private fun textStyleOf(text: String): TextStyle {
-        val results: MutableList<TextLayoutResult> = mutableListOf()
-        composeRule.onNodeWithText(text).fetchSemanticsNode()
-            .config[SemanticsActions.GetTextLayoutResult].action?.invoke(results)
-        return results.first().layoutInput.style
-    }
+    private fun textStyleOf(text: String): TextStyle = layoutOf(composeRule.onNodeWithText(text)).layoutInput.style
 
     private fun show(state: TownStatusUiState) {
         composeRule.setContent {
