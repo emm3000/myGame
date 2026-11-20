@@ -1,5 +1,6 @@
 package com.emm.mygame.feature.signin
 
+import androidx.lifecycle.SavedStateHandle
 import app.cash.turbine.test
 import com.emm.mygame.core.network.EmailVerificationResult
 import com.emm.mygame.core.network.EmailVerificationToken
@@ -22,14 +23,14 @@ class VerifyEmailViewModelTest {
         val sessions: FakeSessionRepository = FakeSessionRepository()
         sessions.answerEmailVerification(EmailVerificationResult.Verified)
 
-        VerifyEmailViewModel(sessions, mailedToken)
+        verifyEmailViewModel(sessions, mailedToken)
 
         assertEquals(listOf(mailedToken), sessions.emailVerifications)
     }
 
     @Test
     fun `shows the verifying line while the api has not answered`() = runTest {
-        val viewModel: VerifyEmailViewModel = VerifyEmailViewModel(FakeSessionRepository(), mailedToken)
+        val viewModel: VerifyEmailViewModel = verifyEmailViewModel(FakeSessionRepository(), mailedToken)
 
         assertEquals(VerifyEmailUiState.Verifying, viewModel.state.value)
     }
@@ -39,7 +40,7 @@ class VerifyEmailViewModelTest {
         val sessions: FakeSessionRepository = FakeSessionRepository()
         sessions.answerEmailVerification(EmailVerificationResult.Verified)
 
-        val viewModel: VerifyEmailViewModel = VerifyEmailViewModel(sessions, mailedToken)
+        val viewModel: VerifyEmailViewModel = verifyEmailViewModel(sessions, mailedToken)
 
         assertEquals(VerifyEmailUiState.Verified, viewModel.state.value)
     }
@@ -49,14 +50,14 @@ class VerifyEmailViewModelTest {
         val sessions: FakeSessionRepository = FakeSessionRepository()
         sessions.answerEmailVerification(EmailVerificationResult.LinkRefused)
 
-        val viewModel: VerifyEmailViewModel = VerifyEmailViewModel(sessions, mailedToken)
+        val viewModel: VerifyEmailViewModel = verifyEmailViewModel(sessions, mailedToken)
 
         assertEquals(VerifyEmailUiState.LinkRefused, viewModel.state.value)
     }
 
     @Test
     fun `shows the refused link for a link without a token`() = runTest {
-        val viewModel: VerifyEmailViewModel = VerifyEmailViewModel(FakeSessionRepository(), token = null)
+        val viewModel: VerifyEmailViewModel = verifyEmailViewModel(FakeSessionRepository(), token = null)
 
         assertEquals(VerifyEmailUiState.LinkRefused, viewModel.state.value)
     }
@@ -65,7 +66,7 @@ class VerifyEmailViewModelTest {
     fun `sends nothing for a link without a token`() = runTest {
         val sessions: FakeSessionRepository = FakeSessionRepository()
 
-        VerifyEmailViewModel(sessions, token = null)
+        verifyEmailViewModel(sessions, token = null)
 
         assertEquals(emptyList<EmailVerificationToken>(), sessions.emailVerifications)
     }
@@ -75,7 +76,7 @@ class VerifyEmailViewModelTest {
         val sessions: FakeSessionRepository = FakeSessionRepository()
         sessions.answerEmailVerification(EmailVerificationResult.Unreachable)
 
-        val viewModel: VerifyEmailViewModel = VerifyEmailViewModel(sessions, mailedToken)
+        val viewModel: VerifyEmailViewModel = verifyEmailViewModel(sessions, mailedToken)
 
         assertEquals(VerifyEmailUiState.Unexpected, viewModel.state.value)
     }
@@ -84,7 +85,7 @@ class VerifyEmailViewModelTest {
     fun `sends the mailed token again on a retry after the unexpected line`() = runTest {
         val sessions: FakeSessionRepository = FakeSessionRepository()
         sessions.answerEmailVerification(EmailVerificationResult.Unreachable)
-        val viewModel: VerifyEmailViewModel = VerifyEmailViewModel(sessions, mailedToken)
+        val viewModel: VerifyEmailViewModel = verifyEmailViewModel(sessions, mailedToken)
 
         viewModel.onIntent(VerifyEmailIntent.RetryTapped)
 
@@ -95,7 +96,7 @@ class VerifyEmailViewModelTest {
     fun `shows the verifying line and then the verified state on a retry the api confirms`() = runTest {
         val sessions: FakeSessionRepository = FakeSessionRepository()
         sessions.answerEmailVerification(EmailVerificationResult.Unreachable)
-        val viewModel: VerifyEmailViewModel = VerifyEmailViewModel(sessions, mailedToken)
+        val viewModel: VerifyEmailViewModel = verifyEmailViewModel(sessions, mailedToken)
 
         viewModel.state.test {
             assertEquals(VerifyEmailUiState.Unexpected, awaitItem())
@@ -110,10 +111,56 @@ class VerifyEmailViewModelTest {
     @Test
     fun `sends nothing on a retry while the token is still being sent`() = runTest {
         val sessions: FakeSessionRepository = FakeSessionRepository()
-        val viewModel: VerifyEmailViewModel = VerifyEmailViewModel(sessions, mailedToken)
+        val viewModel: VerifyEmailViewModel = verifyEmailViewModel(sessions, mailedToken)
 
         viewModel.onIntent(VerifyEmailIntent.RetryTapped)
 
         assertEquals(listOf(mailedToken), sessions.emailVerifications)
     }
+
+    @Test
+    fun `shows the verified state when restored after a verified answer`() = runTest {
+        val sessions: FakeSessionRepository = FakeSessionRepository()
+        val verifiedState: SavedStateHandle = savedStateAfter(EmailVerificationResult.Verified, sessions)
+        sessions.answerEmailVerification(EmailVerificationResult.LinkRefused)
+
+        val restored: VerifyEmailViewModel = verifyEmailViewModel(sessions, mailedToken, verifiedState)
+
+        assertEquals(VerifyEmailUiState.Verified, restored.state.value)
+    }
+
+    @Test
+    fun `sends no second token when restored after a verified answer`() = runTest {
+        val sessions: FakeSessionRepository = FakeSessionRepository()
+        val verifiedState: SavedStateHandle = savedStateAfter(EmailVerificationResult.Verified, sessions)
+        sessions.answerEmailVerification(EmailVerificationResult.LinkRefused)
+
+        verifyEmailViewModel(sessions, mailedToken, verifiedState)
+
+        assertEquals(listOf(mailedToken), sessions.emailVerifications)
+    }
+
+    @Test
+    fun `sends the mailed token again when restored after an unexpected answer`() = runTest {
+        val sessions: FakeSessionRepository = FakeSessionRepository()
+        val unexpectedState: SavedStateHandle = savedStateAfter(EmailVerificationResult.Unreachable, sessions)
+        sessions.answerEmailVerification(EmailVerificationResult.Verified)
+
+        verifyEmailViewModel(sessions, mailedToken, unexpectedState)
+
+        assertEquals(listOf(mailedToken, mailedToken), sessions.emailVerifications)
+    }
+
+    private fun savedStateAfter(answer: EmailVerificationResult, sessions: FakeSessionRepository): SavedStateHandle {
+        sessions.answerEmailVerification(answer)
+        val savedState: SavedStateHandle = SavedStateHandle()
+        verifyEmailViewModel(sessions, mailedToken, savedState)
+        return SavedStateHandle(savedState.keys().associateWith { key -> savedState.get<Any>(key) })
+    }
+
+    private fun verifyEmailViewModel(
+        sessions: FakeSessionRepository,
+        token: EmailVerificationToken?,
+        savedState: SavedStateHandle = SavedStateHandle(),
+    ): VerifyEmailViewModel = VerifyEmailViewModel(sessions = sessions, savedState = savedState, token = token)
 }
