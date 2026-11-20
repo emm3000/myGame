@@ -57,6 +57,21 @@ class MyGameColorsContrastTest {
     }
 
     @Test
+    fun `the outlined button's ink edge reads as a boundary on every ground a button is drawn on`() {
+        assertEquals(
+            listOf(
+                "light $OUTLINED_ON_PAGE 16.51",
+                "dark $OUTLINED_ON_PAGE 16.51",
+                "light $OUTLINED_IN_CARD 17.56",
+                "dark $OUTLINED_IN_CARD 15.07",
+                "light $OUTLINED_ON_SUNKEN 14.83",
+                "dark $OUTLINED_ON_SUNKEN 12.80",
+            ),
+            measuredRatiosOf(PairKind.Boundary, OUTLINED_ON_PAGE, OUTLINED_IN_CARD, OUTLINED_ON_SUNKEN),
+        )
+    }
+
+    @Test
     fun `exempts only a pair that falls under its minimum in some theme`() {
         val needlessExemptions: List<String> = pairs
             .filter { pair: ColorPair -> pair.exemption != null }
@@ -86,7 +101,7 @@ private data class ColorPair(
 
 private val themes: Map<String, MyGameColors> = mapOf("light" to lightColors, "dark" to darkColors)
 
-private const val CONTROL_BOUNDARY: String = "MyGameTextField and quiet MyGameButton border"
+private const val CONTROL_BOUNDARY: String = "MyGameTextField and MyGameSwitchRow outline"
 
 private const val FOCUS_RING: String = "focus ring, 3 dp outside its control"
 
@@ -97,6 +112,12 @@ private const val GO_ON_DOCK: String = "the go button on the dock"
 private const val GO_ON_SUNKEN: String = "the go button on a sunken ground"
 
 private const val NEXT_STEP_DOT: String = "the next step's dot on the strip"
+
+private const val OUTLINED_ON_PAGE: String = "MyGameOutlinedButton edge on the page"
+
+private const val OUTLINED_IN_CARD: String = "MyGameOutlinedButton edge in a card"
+
+private const val OUTLINED_ON_SUNKEN: String = "MyGameOutlinedButton edge on the finish notice"
 
 private val blocks: List<(MyGameColors) -> Color> = listOf(
     { it.blockPeach },
@@ -151,6 +172,9 @@ private val pairs: List<ColorPair> = listOf(
     ColorPair(PairKind.Boundary, { it.action }, { it.surfaceRaised }, "chosen choice ring"),
     ColorPair(PairKind.Boundary, { it.action }, { it.surfaceSunken }, "progress fill on its track"),
     ColorPair(PairKind.Boundary, { it.ink }, { it.surfaceSunken }, "ink frame on a sunken surface"),
+    ColorPair(PairKind.Boundary, { it.ink }, { it.surface }, OUTLINED_ON_PAGE),
+    ColorPair(PairKind.Boundary, { it.ink }, { it.surfaceRaised }, OUTLINED_IN_CARD),
+    ColorPair(PairKind.Boundary, { it.ink }, { it.surfaceSunken }, OUTLINED_ON_SUNKEN),
     ColorPair(PairKind.Boundary, { it.focus }, { it.surface }, FOCUS_RING),
     ColorPair(PairKind.Boundary, { it.focus }, { it.surfaceRaised }, FOCUS_RING),
     ColorPair(PairKind.Boundary, { it.focus }, { it.surfaceSunken }, FOCUS_RING),

@@ -274,7 +274,7 @@ private fun Modifier.edge(
 ): Modifier = when {
     isBlocked -> dashedFrame(colors.lineStrong)
     isBusy -> border(MyGameStrokeWidths.hairline, colors.lineStrong, shape)
-    else -> border(MyGameStrokeWidths.hairline, look.edge, shape)
+    else -> border(look.edgeWidth, look.edge, shape)
 }
 
 internal data class MyGamePillState(

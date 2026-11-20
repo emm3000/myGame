@@ -51,14 +51,16 @@ fun MyGameSwitchRow(
 ) {
     val colors: MyGameColors = MyGameTheme.colors
     val ink: Color = if (isEnabled) colors.ink else colors.inkMuted
+    val outline: Shape = RoundedCornerShape(MyGameRadii.md)
     Row(
         verticalAlignment = Alignment.CenterVertically,
         horizontalArrangement = Arrangement.spacedBy(MyGameSpacing.step3),
         modifier = modifier
             .fillMaxWidth()
             .defaultMinSize(minHeight = MyGameSizes.control)
-            .clip(RoundedCornerShape(MyGameRadii.md))
+            .clip(outline)
             .background(if (isEnabled) colors.surface else colors.surfaceSunken)
+            .border(MyGameStrokeWidths.hairline, colors.lineStrong, outline)
             .toggleable(value = isChecked, enabled = isEnabled, role = Role.Switch, onValueChange = onCheckedChange)
             .padding(horizontal = MyGameSpacing.step3, vertical = MyGameSpacing.step2),
     ) {

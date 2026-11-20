@@ -5,6 +5,7 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.safeDrawingPadding
 import androidx.compose.foundation.rememberScrollState
@@ -18,6 +19,8 @@ import androidx.compose.ui.tooling.preview.PreviewParameterProvider
 import com.emm.mygame.core.designsystem.MyGameErrorBanner
 import com.emm.mygame.core.designsystem.MyGameHairline
 import com.emm.mygame.core.designsystem.MyGameInlineAlert
+import com.emm.mygame.core.designsystem.MyGameLabel
+import com.emm.mygame.core.designsystem.MyGameOutlinedButton
 import com.emm.mygame.core.designsystem.MyGamePreviewSurface
 import com.emm.mygame.core.designsystem.MyGameSizes
 import com.emm.mygame.core.designsystem.MyGameSkeleton
@@ -151,20 +154,33 @@ private fun AreaHeader(areaLine: MapUiState.AreaLine, modifier: Modifier = Modif
 
 @Composable
 private fun AreaLinks(content: MapUiState.Content, onIntent: (MapIntent) -> Unit, modifier: Modifier = Modifier) {
-    Row(horizontalArrangement = Arrangement.spacedBy(MyGameSpacing.step6), modifier = modifier) {
+    Row(horizontalArrangement = Arrangement.spacedBy(MyGameSpacing.step3), modifier = modifier.fillMaxWidth()) {
         content.previousArea?.let { area: Int ->
-            MyGameTextLink(
+            AreaLink(
                 label = chromeResource(R.string.map_previous),
                 onClick = { onIntent(MapIntent.AreaTapped(area)) },
+                modifier = Modifier.weight(1f),
             )
         }
         content.nextArea?.let { area: Int ->
-            MyGameTextLink(
+            AreaLink(
                 label = chromeResource(R.string.map_next),
                 onClick = { onIntent(MapIntent.AreaTapped(area)) },
+                modifier = Modifier.weight(1f),
             )
         }
     }
+}
+
+@Composable
+private fun AreaLink(label: MyGameLabel, onClick: () -> Unit, modifier: Modifier = Modifier) {
+    MyGameOutlinedButton(
+        label = label,
+        isBusy = false,
+        busyDescription = label.spoken,
+        onClick = onClick,
+        modifier = modifier,
+    )
 }
 
 private val previewPay: List<MapUiState.PayLine> = listOf(
