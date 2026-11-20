@@ -236,6 +236,7 @@ export {
   type ReadRegionMapDependencies,
   readRegionMap,
 } from './town/readRegionMap'
+export { type ReadyStock, type ResourceNeed, readyMinuteOf } from './town/readyMinuteOf'
 export { rebaseFullSince } from './town/rebaseFullSince'
 export { requiredOfficeLevelOf } from './town/requiredOfficeLevelOf'
 export { type ResolveTownDependencies, resolveTown } from './town/resolveTown'

@@ -24,6 +24,7 @@ import {
   townNotBuilt,
   townPlacesTitleCity,
   townPlacesTitleTown,
+  townReadyAt,
   townSeasonDays,
   townSeasonEndsIn,
   townSeasonLine,
@@ -406,9 +407,29 @@ it('says a shortfall in words', async () => {
   expect(
     farm.getByRole('button', {
       name: new RegExp(townBuild({ level: 1 })),
-      description: townShortfall({
+      description: (description) =>
+        description.startsWith(
+          townShortfall({
+            missing: townAmount({ amount: '400', resource: namesTownResourcesMoney() }),
+          }),
+        ),
+    }),
+  ).toBeDefined()
+})
+
+it('names the minute the resources arrive under a card short only of them', async () => {
+  await showTown(
+    serving({ ...knownTown, buildings: { ...knownTown.buildings, farm: farmToBuild } }),
+  )
+
+  const farm = within(screen.getByRole('listitem', { name: namesPlacesFarm() }))
+
+  expect(
+    farm.getByRole('button', {
+      name: new RegExp(townBuild({ level: 1 })),
+      description: `${townShortfall({
         missing: townAmount({ amount: '400', resource: namesTownResourcesMoney() }),
-      }),
+      })} ${townReadyAt({ time: '16:40' })}`,
     }),
   ).toBeDefined()
 })

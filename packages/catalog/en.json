@@ -801,6 +801,8 @@
   "town.placesTitle.city": "Your city",
   "town.placesTitle.town": "Your town",
   "town.rate": "+{rate} / h",
+  "town.readyAt": "Ready {time}",
+  "town.readyIn": "Ready in {time}",
   "town.season.days": "{days, plural, =1 {# day} other {# days}}",
   "town.season.endsIn": "{season} ends in {timeLeft}",
   "town.season.line": "{season}, year {year}",

@@ -10,10 +10,10 @@ import kotlinx.serialization.json.jsonArray
 import kotlinx.serialization.json.jsonObject
 import kotlinx.serialization.json.jsonPrimitive
 
-fun readSharedCases(property: String, fields: Set<String>): List<JsonObject> {
+fun readSharedCases(property: String, fields: Set<String>, section: String = "cases"): List<JsonObject> {
     val path: String = requireNotNull(System.getProperty(property)) { "$property is not set" }
     val root: JsonObject = Json.parseToJsonElement(File(path).readText()).jsonObject
-    val cases: JsonArray = root.getValue("cases").jsonArray
+    val cases: JsonArray = root.getValue(section).jsonArray
     require(cases.isNotEmpty()) { "the shared file $path holds no case" }
     return cases.map { case: JsonElement ->
         val fieldsOfCase: JsonObject = case.jsonObject

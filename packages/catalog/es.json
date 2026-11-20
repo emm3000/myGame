@@ -801,6 +801,8 @@
   "town.placesTitle.city": "Tu ciudad",
   "town.placesTitle.town": "Tu pueblo",
   "town.rate": "+{rate} / h",
+  "town.readyAt": "Lista {time}",
+  "town.readyIn": "Lista en {time}",
   "town.season.days": "{days, plural, =1 {# día} other {# días}}",
   "town.season.endsIn": "{season} termina en {timeLeft}",
   "town.season.line": "{season}, año {year}",

@@ -278,6 +278,8 @@ export const townPeopleShort = ({ free, needed }: { readonly free: string | numb
 export const townPlacesTitleCity = (): string => `Your city`
 export const townPlacesTitleTown = (): string => `Your town`
 export const townRate = ({ rate }: { readonly rate: string | number }): string => `+${String(rate)} / h`
+export const townReadyAt = ({ time }: { readonly time: string | number }): string => `Ready ${String(time)}`
+export const townReadyIn = ({ time }: { readonly time: string | number }): string => `Ready in ${String(time)}`
 export const townSeasonDays = ({ days }: { readonly days: number }): string => `${days === 1 ? `${String(days)} day` : `${String(days)} days`}`
 export const townSeasonEndsIn = ({ season, timeLeft }: { readonly season: string | number; readonly timeLeft: string | number }): string => `${String(season)} ends in ${String(timeLeft)}`
 export const townSeasonLine = ({ season, year }: { readonly season: string | number; readonly year: string | number }): string => `${String(season)}, year ${String(year)}`
