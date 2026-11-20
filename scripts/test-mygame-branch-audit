@@ -293,7 +293,7 @@ LATE
 }
 
 audit() {
-  in_repo "$scripts_dir/mygame-branch-audit" "$@"
+  in_repo /usr/bin/timeout -k 1 20 "$scripts_dir/mygame-branch-audit" "$@"
 }
 
 fail() {
@@ -591,7 +591,7 @@ writes_nothing_to_stderr() {
 
 runs_from_a_subdirectory_with_paths_from_the_repo_root() {
   local output
-  output=$(cd "$repo/apps/web" && "$scripts_dir/mygame-branch-audit") || fail "${FUNCNAME[0]}" "exit $?" || return 1
+  output=$(cd "$repo/apps/web" && /usr/bin/timeout -k 1 20 "$scripts_dir/mygame-branch-audit") || fail "${FUNCNAME[0]}" "exit $?" || return 1
   [ "$output" = "$(expected_list)" ] || fail "${FUNCNAME[0]}" "got $(printf '%s' "$output" | tr '\n' ' ')"
 }
 

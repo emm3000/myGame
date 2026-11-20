@@ -30,7 +30,7 @@ run_the_check() {
   local input=$1
   shift
   status=0
-  out=$(printf '%s' "$input" | (cd "$sandbox" && "$@") 2>"$sandbox/stderr") || status=$?
+  out=$(printf '%s' "$input" | (cd "$sandbox" && /usr/bin/timeout -k 1 20 "$@") 2>"$sandbox/stderr") || status=$?
   err=$(<"$sandbox/stderr")
 }
 
