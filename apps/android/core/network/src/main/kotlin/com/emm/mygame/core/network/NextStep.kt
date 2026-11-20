@@ -14,5 +14,3 @@ sealed interface NextStep {
 
     data class CaughtUp(val reason: CaughtUpReason, val goal: TownGoal?, val text: NextStepText? = null) : NextStep
 }
-
-data class NextStepText(val id: TextId, val title: String)
