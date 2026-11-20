@@ -111,7 +111,7 @@ private fun TextReading(
             color = MyGameTheme.colors.ink,
             modifier = Modifier.semantics { heading() },
         )
-        MyGameBlock(hue = MyGameBlockHue.entries.first()) {
+        MyGameBlock(hue = MyGameBlockHue.Peach) {
             reading.text.sentences.indices.forEach { sentence: Int ->
                 Sentence(sentence = sentence, reading = reading, onIntent = onIntent)
             }
