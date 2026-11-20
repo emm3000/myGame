@@ -170,6 +170,30 @@ class SchoolReleasedLessonsTest {
     }
 
     @Test
+    fun `states the next lesson's word count once when another lesson holds as many words`() {
+        val fullCap: TownSnapshot.Learning =
+            TownSnapshot.Learning(cap = 10, inLearning = 8, retainedWords = null, nextInLearningDueAt = null)
+        val twoLessonsHoldFive: TownSnapshot = shelvedAndReleased.copy(
+            learning = fullCap,
+            lessons = listOf(lessonOf(), lessonOf(id = secondLesson, theme = "Work and money", wordCount = 5)),
+            releasedLessons = listOf(
+                releasedLessonOf(secondSet, position = 2, wordCount = 5),
+                releasedLessonOf(firstSet, position = 1, wordCount = 4),
+            ),
+        )
+        show(contentOf(twoLessonsHoldFive))
+
+        val statements: List<String> = composeRule
+            .onAllNodes(SemanticsMatcher("any node") { true }, useUnmergedTree = true)
+            .fetchSemanticsNodes()
+            .filterNot(::isInSizeLabel)
+            .flatMap(::linesOf)
+            .filter { line: String -> fiveWords.containsMatchIn(line) }
+
+        assertEquals(listOf("La siguiente lección trae 5 palabras. Empieza los repasos."), statements)
+    }
+
+    @Test
     fun `marks a released lesson under study as studying`() {
         val card: SchoolUiState.ReleasedLessonCard = contentOf(releasedUnderStudy).releasedLessons.first()
 
@@ -281,6 +305,11 @@ class SchoolReleasedLessonsTest {
         node.config.getOrNull(SemanticsProperties.Text).orEmpty().map { line: AnnotatedString -> line.text } +
             node.config.getOrNull(SemanticsProperties.ContentDescription).orEmpty() +
             listOfNotNull(node.config.getOrNull(SemanticsProperties.StateDescription))
+
+    private fun isInSizeLabel(node: SemanticsNode): Boolean =
+        generateSequence(node, SemanticsNode::parent).any { ancestor: SemanticsNode ->
+            ancestor.config.getOrNull(SemanticsProperties.TestTag) == LESSON_SIZE_LABEL
+        }
 
     private fun topOf(text: String): Dp = composeRule.onNodeWithText(text).getUnclippedBoundsInRoot().top
 
