@@ -167,9 +167,8 @@ private fun WorkTitle(target: TownUiState.WorkTarget, modifier: Modifier = Modif
 
 @Composable
 private fun WorkLevel(level: Int, modifier: Modifier = Modifier) {
-    MyGameText(
+    FiguredCaption(
         label = chromeResource(R.string.town_level, "level" to level.toString()),
-        style = MyGameTypography.caption.withTabularFigures(),
         color = MyGameTheme.colors.inkMuted,
         modifier = modifier,
     )

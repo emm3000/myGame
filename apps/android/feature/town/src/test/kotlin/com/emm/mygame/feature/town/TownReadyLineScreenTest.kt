@@ -7,6 +7,8 @@ import androidx.compose.ui.test.hasText
 import androidx.compose.ui.test.junit4.ComposeContentTestRule
 import androidx.compose.ui.test.junit4.createComposeRule
 import androidx.compose.ui.test.onNodeWithText
+import androidx.compose.ui.text.AnnotatedString
+import androidx.compose.ui.text.SpanStyle
 import androidx.compose.ui.text.TextLayoutResult
 import com.emm.mygame.core.designsystem.MyGameTheme
 import com.emm.mygame.core.network.TownBuildingKind
@@ -18,7 +20,6 @@ import kotlin.time.Duration.Companion.minutes
 import kotlin.time.Duration.Companion.seconds
 import kotlin.time.Instant
 import org.junit.Assert.assertEquals
-import org.junit.Assert.assertNull
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -81,16 +82,23 @@ class TownReadyLineScreenTest {
     fun `sets tabular figures on the time left and never on its words`() {
         show(shortOfFoodUntil(TownUiState.ReadyTime(remaining = 35.seconds, readyAt = localReady)))
 
-        assertNull(fontFeaturesOf("Lista en", substring = true))
-        assertEquals("tnum", fontFeaturesOf("0:35", substring = false))
+        assertEquals(emptyList<String>(), tabularRunsOf("Lista en"))
+        assertEquals(listOf("0:35"), tabularRunsOf("0:35"))
     }
 
     @Test
     fun `sets tabular figures on the ready clock and never on its words`() {
         show(shortOfFoodUntil(TownUiState.ReadyTime(remaining = 1.hours, readyAt = localReady)))
 
-        assertNull(fontFeaturesOf("Lista", substring = true))
-        assertEquals("tnum", fontFeaturesOf("09:30", substring = false))
+        assertEquals(emptyList<String>(), tabularRunsOf("Lista"))
+        assertEquals(listOf("09:30"), tabularRunsOf("09:30"))
+    }
+
+    @Test
+    fun `sets tabular figures on tomorrow's ready clock and never on its word`() {
+        show(shortOfFoodUntil(TownUiState.ReadyTime(remaining = 12.hours, readyAt = localReady)))
+
+        assertEquals(listOf("09:30"), tabularRunsOf("mañana"))
     }
 
     @Test
@@ -102,11 +110,16 @@ class TownReadyLineScreenTest {
 
     private fun readyLine(words: String, time: String): SemanticsMatcher = hasText(words) and hasText(time)
 
-    private fun fontFeaturesOf(text: String, substring: Boolean): String? {
+    private fun tabularRunsOf(shownText: String): List<String> {
         val layouts: MutableList<TextLayoutResult> = mutableListOf()
-        composeRule.onNodeWithText(text, substring = substring, useUnmergedTree = true).fetchSemanticsNode()
+        composeRule.onNodeWithText(shownText, substring = true, useUnmergedTree = true).fetchSemanticsNode()
             .config[SemanticsActions.GetTextLayoutResult].action?.invoke(layouts)
-        return layouts.single().layoutInput.style.fontFeatureSettings
+        val layout: TextLayoutResult = layouts.single()
+        val text: AnnotatedString = layout.layoutInput.text
+        if (layout.layoutInput.style.fontFeatureSettings == TABULAR) return listOf(text.text)
+        return text.spanStyles
+            .filter { span: AnnotatedString.Range<SpanStyle> -> span.item.fontFeatureSettings == TABULAR }
+            .map { span: AnnotatedString.Range<SpanStyle> -> text.text.substring(span.start, span.end) }
     }
 
     private fun shortOfFoodUntil(ready: TownUiState.ReadyTime?): TownUiState.BlockReason =
@@ -124,5 +137,9 @@ class TownReadyLineScreenTest {
                 )
             }
         }
+    }
+
+    private companion object {
+        const val TABULAR: String = "tnum"
     }
 }

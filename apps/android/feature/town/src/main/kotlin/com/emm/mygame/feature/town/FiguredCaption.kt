@@ -1,6 +1,5 @@
 package com.emm.mygame.feature.town
 
-import androidx.compose.foundation.layout.Column
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -15,11 +14,13 @@ import com.emm.mygame.core.designsystem.withTabularFigures
 
 @Composable
 internal fun FiguredCaption(label: MyGameLabel, color: Color, modifier: Modifier = Modifier) {
-    Column(modifier = modifier) {
-        listOfNotNull(label.text, label.translation).forEach { line: String ->
-            MyGameText(text = tabularFiguresOf(line), style = MyGameTypography.caption, color = color)
-        }
-    }
+    MyGameText(
+        label = label,
+        style = MyGameTypography.caption,
+        color = color,
+        styledLineOf = ::tabularFiguresOf,
+        modifier = modifier,
+    )
 }
 
 private val figure: Regex = Regex("\\d+(?:[:\u202F]\\d+)*")

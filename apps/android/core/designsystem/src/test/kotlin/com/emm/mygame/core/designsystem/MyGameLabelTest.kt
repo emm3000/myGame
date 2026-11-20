@@ -1,7 +1,11 @@
 package com.emm.mygame.core.designsystem
 
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.runtime.Composable
+import androidx.compose.ui.Modifier
 import androidx.compose.ui.semantics.SemanticsActions
 import androidx.compose.ui.semantics.SemanticsProperties
 import androidx.compose.ui.graphics.Color
@@ -18,10 +22,15 @@ import androidx.compose.ui.test.onAllNodesWithContentDescription
 import androidx.compose.ui.test.onAllNodesWithText
 import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.onNodeWithText
+import androidx.compose.ui.text.AnnotatedString
+import androidx.compose.ui.text.SpanStyle
 import androidx.compose.ui.text.TextLayoutResult
 import androidx.compose.ui.text.TextStyle
+import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.DpRect
+import androidx.compose.ui.unit.dp
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertTrue
 import org.junit.Rule
@@ -210,12 +219,41 @@ class MyGameLabelTest {
             .assertTextEquals("We could not read it.", "No pudimos leerlo.")
     }
 
-    private fun styleOf(text: String): TextStyle {
+    @Test
+    fun `centers both lines of a translated styled label as the plain label does`() {
+        show { CenteredStyledReport() }
+
+        assertEquals(reportWidth.value / 2, centerOf(unmerged("Report")), tolerance.value)
+        assertEquals(reportWidth.value / 2, centerOf(unmerged("Informe")), tolerance.value)
+    }
+
+    @Test
+    fun `draws a translated styled label's translation in caption as the plain label does`() {
+        show { CenteredStyledReport() }
+
+        assertEquals(MyGameTypography.display.fontSize, styleOf("Report").fontSize)
+        assertEquals(MyGameTypography.caption.fontSize, styleOf("Informe").fontSize)
+    }
+
+    @Test
+    fun `keeps the styled spans on both lines of a translated label`() {
+        show { CenteredStyledReport() }
+
+        assertEquals(listOf(bold), spansOf("Report"))
+        assertEquals(listOf(bold), spansOf("Informe"))
+    }
+
+    private fun spansOf(text: String): List<SpanStyle> =
+        layoutOf(text).layoutInput.text.spanStyles.map { span: AnnotatedString.Range<SpanStyle> -> span.item }
+
+    private fun layoutOf(text: String): TextLayoutResult {
         val layouts: MutableList<TextLayoutResult> = mutableListOf()
         composeRule.onNodeWithText(text, useUnmergedTree = true).fetchSemanticsNode()
             .config[SemanticsActions.GetTextLayoutResult].action?.invoke(layouts)
-        return layouts.single().layoutInput.style
+        return layouts.single()
     }
+
+    private fun styleOf(text: String): TextStyle = layoutOf(text).layoutInput.style
 
     private fun assertEnglishOverSpanish(within: DpRect) {
         val englishLine: DpRect = unmerged("Start reviews")
@@ -226,6 +264,26 @@ class MyGameLabelTest {
 
     private fun unmerged(text: String): DpRect =
         composeRule.onNodeWithText(text, useUnmergedTree = true).getUnclippedBoundsInRoot()
+}
+
+private val reportWidth: Dp = 320.dp
+
+private val bold: SpanStyle = SpanStyle(fontWeight = FontWeight.Bold)
+
+private fun boldLineOf(line: String): AnnotatedString =
+    AnnotatedString(line, spanStyles = listOf(AnnotatedString.Range(bold, start = 0, end = line.length)))
+
+@Composable
+private fun CenteredStyledReport() {
+    Box(modifier = Modifier.width(reportWidth)) {
+        MyGameText(
+            label = MyGameLabel(text = "Report", translation = "Informe"),
+            style = MyGameTypography.display.copy(textAlign = TextAlign.Center),
+            color = MyGameTheme.colors.ink,
+            styledLineOf = ::boldLineOf,
+            modifier = Modifier.fillMaxWidth(),
+        )
+    }
 }
 
 @Composable
@@ -258,3 +316,5 @@ private fun DpRect.contains(inner: DpRect): Boolean =
         inner.top >= top - tolerance && inner.bottom <= bottom + tolerance
 
 private val tolerance: Dp = Dp(0.5f)
+
+private fun centerOf(line: DpRect): Float = (line.left.value + line.right.value) / 2

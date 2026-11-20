@@ -10,7 +10,6 @@ import com.emm.mygame.core.designsystem.MyGameSpacing
 import com.emm.mygame.core.designsystem.MyGameText
 import com.emm.mygame.core.designsystem.MyGameTheme
 import com.emm.mygame.core.designsystem.MyGameTypography
-import com.emm.mygame.core.designsystem.withTabularFigures
 import com.emm.mygame.core.ui.PlayerCopy
 import com.emm.mygame.core.ui.rememberPlayerCopy
 
@@ -23,10 +22,6 @@ internal fun ReadyLine(ready: TownUiState.ReadyTime, modifier: Modifier = Modifi
         modifier = modifier.semantics(mergeDescendants = true) {},
     ) {
         MyGameText(label = copy.chrome { readyWordsOf(ready) }, style = MyGameTypography.caption, color = color)
-        MyGameText(
-            label = copy.chrome { readyTimeLabelOf(ready) },
-            style = MyGameTypography.caption.withTabularFigures(),
-            color = color,
-        )
+        FiguredCaption(label = copy.chrome { readyTimeLabelOf(ready) }, color = color)
     }
 }

@@ -5,7 +5,11 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.text.AnnotatedString
+import androidx.compose.ui.text.SpanStyle
 import androidx.compose.ui.text.TextStyle
+import androidx.compose.ui.text.buildAnnotatedString
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 
 data class MyGameLabel(val text: String, val translation: String?) {
@@ -25,6 +29,25 @@ fun MyGameText(label: MyGameLabel, style: TextStyle, color: Color, modifier: Mod
     Column(horizontalAlignment = alignmentOf(style.textAlign), modifier = modifier) {
         MyGameText(text = label.text, style = style, color = color)
         MyGameText(text = translation, style = translationStyleOf(style), color = color)
+    }
+}
+
+@Composable
+fun MyGameText(
+    label: MyGameLabel,
+    style: TextStyle,
+    color: Color,
+    styledLineOf: (String) -> AnnotatedString,
+    modifier: Modifier = Modifier,
+) {
+    val translation: String? = label.translation
+    if (translation == null) {
+        MyGameText(text = styledLineOf(label.text), style = style, color = color, modifier = modifier)
+        return
+    }
+    Column(horizontalAlignment = alignmentOf(style.textAlign), modifier = modifier) {
+        MyGameText(text = styledLineOf(label.text), style = style, color = color)
+        MyGameText(text = styledLineOf(translation), style = translationStyleOf(style), color = color)
     }
 }
 
@@ -60,5 +83,27 @@ private fun MyGameLabelPreview() {
         )
         MyGameTextLink(label = MyGameLabel(text = "All the news", translation = "Todas las noticias"), onClick = {})
         MyGameBackLink(label = MyGameLabel(text = "Town", translation = "Pueblo"), isEnabled = true, onClick = {})
+    }
+}
+
+@PreviewMyGame
+@Composable
+private fun MyGameLabelStyledLinesPreview() {
+    MyGamePreviewSurface {
+        MyGameText(
+            label = MyGameLabel(text = "Ready tomorrow 09:30", translation = "Lista mañana 09:30"),
+            style = MyGameTypography.caption,
+            color = MyGameTheme.colors.inkMuted,
+            styledLineOf = ::boldFiguresOf,
+        )
+    }
+}
+
+private val previewFigure: Regex = Regex("\\d+")
+
+private fun boldFiguresOf(line: String): AnnotatedString = buildAnnotatedString {
+    append(line)
+    previewFigure.findAll(line).forEach { match: MatchResult ->
+        addStyle(SpanStyle(fontWeight = FontWeight.Bold), start = match.range.first, end = match.range.last + 1)
     }
 }
