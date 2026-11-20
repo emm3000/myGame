@@ -529,8 +529,8 @@ missing. `derivePeople` supplies 30, 40, 50 and 60 at levels 2 to 5.
 - #745 owns the word tags, the `none` reading and the English of every
   new line. Each line passes check 9 in its ticket.
 - A building goal is rare early on. `lessonToStudy` outranks `caughtUp`,
-  so until the cap fills `lessonRunning`'s producer is the card's only
-  pointer to a building.
+  so until the cap fills the building goal `lessonRunning` carries
+  (ADR 045) is the card's only pointer to a building.
 - The goals tickets change before dispatch, and #790 waits on the ticket
   that adds `nextStep`, which does not exist yet:
   - **#789:** the goal list holds buildings alone; the rule *reaches a
