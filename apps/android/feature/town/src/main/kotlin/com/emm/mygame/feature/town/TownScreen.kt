@@ -31,7 +31,9 @@ import com.emm.mygame.core.designsystem.MyGameSpacing
 import com.emm.mygame.core.designsystem.MyGameTextLink
 import com.emm.mygame.core.designsystem.MyGameTheme
 import com.emm.mygame.core.designsystem.PreviewMyGame
+import com.emm.mygame.core.network.NextStepText
 import com.emm.mygame.core.network.SeasonKind
+import com.emm.mygame.core.network.TextId
 import com.emm.mygame.core.network.TipKind
 import com.emm.mygame.core.network.TownBuildingKind
 import com.emm.mygame.core.network.TownGoal
@@ -58,6 +60,7 @@ fun TownScreen(
     onSchoolOpen: () -> Unit,
     onMapOpen: () -> Unit,
     modifier: Modifier = Modifier,
+    onTextOpen: (TextId) -> Unit = {},
     ring: @Composable () -> Unit = {},
     status: @Composable () -> Unit = {},
     foldedDock: @Composable () -> Unit = {},
@@ -73,6 +76,7 @@ fun TownScreen(
         placement = placement,
         onSchoolOpen = onSchoolOpen,
         onMapOpen = onMapOpen,
+        onTextOpen = onTextOpen,
     )
     val isHome: Boolean = state is TownUiState.Content
     Column(
@@ -271,6 +275,7 @@ private val previewHome: TownUiState.Content = TownUiState.Content(
     nextStepPlace = TownBuildingKind.Factory,
     goal = previewGoal,
     caughtUpGoal = previewGoal,
+    newestText = NextStepText(TextId("text-31"), "The New Shop"),
     tip = TipKind.Seasons,
     start = TownUiState.StartStatus.Idle,
     stop = TownUiState.StopStatus.Idle,

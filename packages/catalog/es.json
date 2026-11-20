@@ -390,6 +390,7 @@
   "android.town.town_next_study": "Estudiar la lección {number}",
   "android.town.town_next_study_released": "Estudiar las palabras que vuelven",
   "android.town.town_next_studying": "En estudio",
+  "android.town.town_next_text": "Lee: {title}",
   "android.town.town_next_title": "Tu siguiente paso",
   "android.town.town_not_built": "Sin construir",
   "android.town.town_office_busy": "Espera a que termine esta contratación.",

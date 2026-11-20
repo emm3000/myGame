@@ -27,8 +27,10 @@ import com.emm.mygame.core.designsystem.MyGameTheme
 import com.emm.mygame.core.network.CaughtUpReason
 import com.emm.mygame.core.network.NeededWordKind
 import com.emm.mygame.core.network.NextStep
+import com.emm.mygame.core.network.NextStepText
 import com.emm.mygame.core.network.SeasonInForce
 import com.emm.mygame.core.network.SeasonKind
+import com.emm.mygame.core.network.TextId
 import com.emm.mygame.core.network.TownBuildingKind
 import com.emm.mygame.core.network.TownGoal
 import com.emm.mygame.core.network.TownRegistered
@@ -72,6 +74,10 @@ class TownPageLinesScreenTest {
     private val pagesBesideTheFactory: List<String> =
         listOf("Hogares", "Granja", "Escuela", "Oficina", "Central eléctrica", "Almacén")
 
+    private val newShop: NextStepText = NextStepText(TextId("text-31"), "The New Shop")
+
+    private val newShopLine: String = "Lee: The New Shop"
+
     private var ground: Color = Color.Unspecified
 
     private var shownView: View? = null
@@ -88,6 +94,39 @@ class TownPageLinesScreenTest {
         }
 
         assertEquals(pagesBesideTheFactory, drawn)
+    }
+
+    @Test
+    fun `a caught-up next step names the newest text`() {
+        show(homeOn(NextStep.CaughtUp(CaughtUpReason.LessonsDone, goal = null, newShop)))
+
+        composeRule.onNodeWithText(newShopLine).assertIsDisplayed()
+    }
+
+    @Test
+    fun `a running lesson names it beside the goal`() {
+        show(homeOn(NextStep.LessonRunning(factoryGoal, newShop)))
+        tab("Fábrica").performScrollTo().performClick()
+
+        composeRule.onNodeWithText("En construcción").performScrollTo().assertIsDisplayed()
+        composeRule.onNodeWithText(newShopLine).assertIsDisplayed()
+    }
+
+    @Test
+    fun `names no text before the stage opens one`() {
+        show(homeOn(NextStep.CaughtUp(CaughtUpReason.LessonsDone, factoryGoal, text = null)))
+
+        composeRule.onAllNodesWithText("Lee:", substring = true).assertCountEquals(0)
+    }
+
+    @Test
+    fun `opens the newest text's screen on a tap of its line`() {
+        val opened: MutableList<TextId> = mutableListOf()
+        show(homeOn(NextStep.LessonRunning(goal = null, newShop)), onTextOpen = { text: TextId -> opened += text })
+
+        composeRule.onNodeWithText(newShopLine).performClick()
+
+        assertEquals(listOf(TextId("text-31")), opened)
     }
 
     @Test
@@ -253,12 +292,12 @@ class TownPageLinesScreenTest {
         return top + bottom
     }
 
-    private fun show(state: TownUiState) {
+    private fun show(state: TownUiState, onTextOpen: (TextId) -> Unit = {}) {
         composeRule.setContent {
             MyGameTheme {
                 ground = MyGameTheme.colors.surface
                 shownView = LocalView.current
-                TownScreen(state = state, onIntent = {}, onSchoolOpen = {}, onMapOpen = {})
+                TownScreen(state = state, onIntent = {}, onSchoolOpen = {}, onMapOpen = {}, onTextOpen = onTextOpen)
             }
         }
     }

@@ -61,6 +61,7 @@ class TownWordsScreenTest {
         nextStepPlace = TownBuildingKind.Farm,
         goal = null,
         caughtUpGoal = null,
+        newestText = null,
         tip = null,
         start = TownUiState.StartStatus.Idle,
         stop = TownUiState.StopStatus.Idle,

@@ -1,6 +1,7 @@
 package com.emm.mygame.feature.town
 
 import com.emm.mygame.core.network.NextStep
+import com.emm.mygame.core.network.NextStepText
 import com.emm.mygame.core.network.TipKind
 import com.emm.mygame.core.network.TownBuildingKind
 import com.emm.mygame.core.network.TownGoal
@@ -47,6 +48,7 @@ internal fun TownSnapshot.contentAt(
         nextStepPlace = nextStep.placeWith(goal),
         goal = goal,
         caughtUpGoal = goal.takeIf { nextStep is NextStep.CaughtUp },
+        newestText = nextStep.carriedText(),
         tip = tip?.takeUnless { shown: TipKind -> shown in closed.tips },
         start = mutations.start,
         stop = mutations.stop,
@@ -66,6 +68,12 @@ internal fun TownSnapshot.nearestCountdownAt(now: Instant): Duration? =
 private fun NextStep.carriedGoal(): TownGoal? = when (this) {
     is NextStep.LessonRunning -> goal
     is NextStep.CaughtUp -> goal
+    is NextStep.Reviews, is NextStep.HoldoutCheck, is NextStep.ReleasedLesson, is NextStep.LessonToStudy -> null
+}
+
+private fun NextStep.carriedText(): NextStepText? = when (this) {
+    is NextStep.LessonRunning -> text
+    is NextStep.CaughtUp -> text
     is NextStep.Reviews, is NextStep.HoldoutCheck, is NextStep.ReleasedLesson, is NextStep.LessonToStudy -> null
 }
 
