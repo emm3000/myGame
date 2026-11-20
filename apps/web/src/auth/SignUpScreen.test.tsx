@@ -1,20 +1,46 @@
 import {
   authEmail,
   authPassword,
+  authSignUpScaffoldEs,
+  authSignUpScaffoldLabel,
+  authSignUpScaffoldNone,
   authSignUpSubmit,
   refusalEmailTaken,
   refusalMalformedEmail,
   refusalWeakPassword,
   townNamingTitle,
 } from '@mygame/catalog'
-import type { SignUpRequest } from '@mygame/contracts'
-import { fireEvent, screen } from '@testing-library/react'
-import { expect, it, vi } from 'vitest'
+import type { Scaffold, SignUpRequest } from '@mygame/contracts'
+import { cleanup, fireEvent, screen } from '@testing-library/react'
+import { afterEach, expect, it, vi } from 'vitest'
 import { renderAppAt } from './renderAppAt.testSupport'
 import { knownPlayer, stubApiClient } from './stubApiClient.testSupport'
 
+const browseIn = (language: string): void => {
+  vi.spyOn(navigator, 'language', 'get').mockReturnValue(language)
+}
+
+afterEach(() => {
+  localStorage.clear()
+  vi.restoreAllMocks()
+})
+
+const scaffoldLines: Record<Scaffold, string> = {
+  es: authSignUpScaffoldEs(),
+  none: authSignUpScaffoldNone(),
+}
+
+const scaffoldRadioOf = async (scaffold: Scaffold): Promise<HTMLInputElement> => {
+  const radio = await screen.findByRole('radio', { name: scaffoldLines[scaffold] })
+  if (!(radio instanceof HTMLInputElement)) {
+    throw new Error('the scaffold choice is not a radio input')
+  }
+  return radio
+}
+
 const fillSignUp = async (request: SignUpRequest): Promise<void> => {
-  fireEvent.change(await screen.findByLabelText(authEmail()), {
+  fireEvent.click(await scaffoldRadioOf(request.scaffold))
+  fireEvent.change(screen.getByLabelText(authEmail()), {
     target: { value: request.email },
   })
   fireEvent.change(screen.getByLabelText(authPassword()), {
@@ -108,4 +134,60 @@ it('opens Name your town after sign-up', async () => {
   await fillSignUp(newcomer)
 
   expect(await screen.findByRole('heading', { level: 2, name: townNamingTitle() })).toBeDefined()
+})
+
+it('preselects es in a Spanish browser', async () => {
+  browseIn('es-MX')
+  renderAppAt('/sign-up', stubApiClient({}))
+
+  expect((await scaffoldRadioOf('es')).checked).toBe(true)
+})
+
+it('preselects none otherwise', async () => {
+  browseIn('en-US')
+  renderAppAt('/sign-up', stubApiClient({}))
+
+  expect((await scaffoldRadioOf('none')).checked).toBe(true)
+  expect((await scaffoldRadioOf('es')).checked).toBe(false)
+})
+
+it('sends the picked scaffold', async () => {
+  browseIn('es-ES')
+  const sentRequests: SignUpRequest[] = []
+  renderAppAt(
+    '/sign-up',
+    stubApiClient({
+      signUp: async (request) => {
+        sentRequests.push(request)
+        return { ok: true, value: knownPlayer }
+      },
+    }),
+  )
+
+  await fillSignUp({ ...newcomer, scaffold: 'none' })
+
+  await vi.waitFor(() => expect(sentRequests).toEqual([{ ...newcomer, scaffold: 'none' }]))
+})
+
+it('keeps the signed-out switch in browser storage', async () => {
+  browseIn('es-ES')
+  renderAppAt('/sign-up', stubApiClient({}))
+  fireEvent.click(await scaffoldRadioOf('none'))
+  cleanup()
+
+  renderAppAt('/sign-up', stubApiClient({}))
+
+  expect((await scaffoldRadioOf('none')).checked).toBe(true)
+})
+
+it('locks the scaffold choice while the sign-up is in flight', async () => {
+  renderAppAt('/sign-up', stubApiClient({ signUp: () => new Promise(() => undefined) }))
+
+  await fillSignUp(newcomer)
+
+  await vi.waitFor(() =>
+    expect(
+      screen.getByRole('group', { name: authSignUpScaffoldLabel() }).hasAttribute('disabled'),
+    ).toBe(true),
+  )
 })
