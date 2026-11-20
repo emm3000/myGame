@@ -1,5 +1,5 @@
 import { afterEach, expect, it, vi } from 'vitest'
-import { knownTown } from '../auth/stubApiClient.testSupport'
+import { knownPlayer, knownTown } from '../auth/stubApiClient.testSupport'
 import { createApiClient } from './apiClient'
 
 afterEach(() => {
@@ -400,4 +400,17 @@ it('answers a text read without a town by its refusal', async () => {
     ok: false,
     refusal: 'TownNotFound',
   })
+})
+
+it('puts a scaffold change and reads the player it stored', async () => {
+  const stored = { ...knownPlayer, scaffold: 'none', scaffoldVersion: 1 }
+  const fetch = answeringFetch(200, stored)
+
+  const outcome = await createApiClient('/api').changeScaffold('none')
+
+  expect(outcome).toEqual({ ok: true, value: stored })
+  const [url, init] = fetch.mock.calls[0] ?? []
+  expect(url).toBe('/api/player/scaffold')
+  expect(init?.method).toBe('PUT')
+  expect(JSON.parse(String(init?.body))).toEqual({ scaffold: 'none' })
 })
