@@ -446,13 +446,14 @@ class DockFrameNavigationTest {
         showing(
             Destination.Town,
             Destination.School,
-            town = townOf(NextStep.Reviews(count = 3, readFirst = listOf(firstLesson))),
+            town = townOf(NextStep.Reviews(count = 3, readFirst = listOf(secondLesson)))
+                .copy(lessons = listOf(lessonOf(firstLesson), lessonOf(secondLesson))),
         )
 
         dockGo(READ_THE_WORDS).performClick()
 
         composeRule.waitUntil(WAIT_MILLIS) { shownStack?.lastOrNull() is Destination.LessonWords }
-        assertEquals(Destination.LessonWords(firstLesson, walked = emptyList()), shownStack?.lastOrNull())
+        assertEquals(Destination.LessonWords(secondLesson, walked = emptyList()), shownStack?.lastOrNull())
     }
 
     @Test
