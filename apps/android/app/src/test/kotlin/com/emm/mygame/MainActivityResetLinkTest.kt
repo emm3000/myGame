@@ -40,13 +40,14 @@ class MainActivityResetLinkTest {
 
     private val townLoading: SemanticsMatcher = hasContentDescription(TOWN_LOADING)
 
+    private val verifiedSession: RestoreResult =
+        RestoreResult.SignedIn(
+            SignedInPlayer("ines@example.com", isEmailVerified = true, scaffold = PlayerScaffold.Spanish),
+        )
+
     @Before
     fun restoreASession() {
-        application.sessions.answerRestore(
-            RestoreResult.SignedIn(
-                SignedInPlayer("ines@example.com", isEmailVerified = true, scaffold = PlayerScaffold.Spanish),
-            ),
-        )
+        application.sessions.answerRestore(verifiedSession)
     }
 
     @Test
@@ -86,11 +87,7 @@ class MainActivityResetLinkTest {
         val activity: ActivityController<MainActivity> =
             Robolectric.buildActivity(MainActivity::class.java, mailedLink()).setup()
         waitFor(newPasswordTitle)
-        application.sessions.answerRestore(
-            RestoreResult.SignedIn(
-                SignedInPlayer("ines@example.com", isEmailVerified = true, scaffold = PlayerScaffold.Spanish),
-            ),
-        )
+        application.sessions.answerRestore(verifiedSession)
 
         composeRule.runOnIdle { activity.get().onBackPressedDispatcher.onBackPressed() }
 
@@ -108,11 +105,7 @@ class MainActivityResetLinkTest {
         waitFor(hasClickAction() and hasText(NEW_LINK))
         composeRule.onNode(hasClickAction() and hasText(NEW_LINK)).performClick()
         waitFor(isHeading() and hasText(FORGOT_PASSWORD_TITLE))
-        application.sessions.answerRestore(
-            RestoreResult.SignedIn(
-                SignedInPlayer("ines@example.com", isEmailVerified = true, scaffold = PlayerScaffold.Spanish),
-            ),
-        )
+        application.sessions.answerRestore(verifiedSession)
 
         composeRule.runOnIdle { activity.get().onBackPressedDispatcher.onBackPressed() }
 
