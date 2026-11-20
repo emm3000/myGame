@@ -527,7 +527,17 @@ describe('the learning routes', () => {
     })
 
     it('answers the chrome English on the town read right after the last chrome skill is earned', async () => {
-      const player = await studyToTheLastSecondRecall()
+      const player = await signUpWithATown()
+      await runSql(
+        `INSERT INTO cards (player_id, word_id, state, step, stability, difficulty, last_review_at, last_rating, entered_at, retained_at)
+         SELECT players.id, word_id, 'review', NULL, 46, 2.1, '${secondRecallAt}', 'good', '${lessonFinishesAt}', '${secondRecallAt}'
+         FROM players, unnest(ARRAY['${wordIds.slice(0, 4).join("', '")}']) AS word_id`,
+      )
+      await runSql(
+        `INSERT INTO cards (player_id, word_id, state, step, stability, difficulty, last_review_at, last_rating, entered_at)
+         SELECT id, 'lesson-1-5', 'review', NULL, 11, 2.1, '${lateFirstRecallAt}', 'good', '${lessonFinishesAt}' FROM players`,
+      )
+      clock.setTo(secondRecallAt)
       const laterChromeLessons = server.lessons.chromeLessons().slice(1)
       await runSql(
         `INSERT INTO cards (player_id, word_id, state, step, stability, difficulty, last_review_at, last_rating, entered_at)
