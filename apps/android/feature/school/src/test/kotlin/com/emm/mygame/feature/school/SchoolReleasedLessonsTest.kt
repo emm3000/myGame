@@ -51,6 +51,10 @@ class SchoolReleasedLessonsTest {
 
     private val firstSetTitle: String = "Palabras que vuelven: banda 2, grupo\u00A01"
 
+    private val fiveWords: Regex = Regex("""\b5\s+palabras?\b""")
+
+    private val lessonSizeLabel: Regex = Regex("""^5 palabras( · .*)?$""")
+
     private val intents: MutableList<SchoolIntent> = mutableListOf()
 
     private val lessonOpens: MutableList<LessonId> = mutableListOf()
@@ -151,7 +155,7 @@ class SchoolReleasedLessonsTest {
             .onAllNodes(SemanticsMatcher("any node") { true }, useUnmergedTree = true)
             .fetchSemanticsNodes()
             .flatMap(::linesOf)
-            .filter { line: String -> line.contains("trae 5 palabras") }
+            .filter { line: String -> fiveWords.containsMatchIn(line) && !lessonSizeLabel.matches(line) }
 
         assertEquals(listOf("La siguiente lección trae 5 palabras. Empieza los repasos."), statements)
     }
