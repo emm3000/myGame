@@ -152,7 +152,7 @@ class SchoolReleasedLessonsTest {
     }
 
     @Test
-    fun `states the next lesson's word count once with the cap full and a released lesson blocked`() {
+    fun `states the next lesson's word count once with the cap short of it and a released lesson blocked`() {
         val onlyTheNextLessonHoldsFive: TownSnapshot = shelvedAndReleased.copy(
             learning = capShortOfFiveWords,
             lessons = listOf(lessonOf(), lessonOf(id = secondLesson, theme = "Work and money", wordCount = 4)),
