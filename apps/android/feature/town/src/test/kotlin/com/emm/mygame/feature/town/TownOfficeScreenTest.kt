@@ -11,6 +11,7 @@ import androidx.compose.ui.test.assertIsDisplayed
 import androidx.compose.ui.test.assertIsNotEnabled
 import androidx.compose.ui.test.getUnclippedBoundsInRoot
 import androidx.compose.ui.test.hasContentDescription
+import androidx.compose.ui.test.hasText
 import androidx.compose.ui.test.junit4.ComposeContentTestRule
 import androidx.compose.ui.test.junit4.createComposeRule
 import androidx.compose.ui.test.onNodeWithContentDescription
@@ -150,7 +151,7 @@ class TownOfficeScreenTest {
     fun `names the minute the resources for the hires arrive`() {
         show(blocked(shortOfMoneyUntil(TownUiState.ReadyTime(remaining = 24.minutes, readyAt = readInstant))))
 
-        composeRule.onNodeWithText("Lista en 24 min").performScrollTo().assertIsDisplayed()
+        composeRule.onNode(hasText("Lista en") and hasText("24 min")).performScrollTo().assertIsDisplayed()
     }
 
     @Test
@@ -161,7 +162,7 @@ class TownOfficeScreenTest {
 
         show(blocked(shortOfMoneyUntil(ready)).copy(place = refused))
 
-        composeRule.onNodeWithText("Lista en 24 min").assertDoesNotExist()
+        composeRule.onNode(hasText("Lista en") and hasText("24 min")).assertDoesNotExist()
     }
 
     @Test

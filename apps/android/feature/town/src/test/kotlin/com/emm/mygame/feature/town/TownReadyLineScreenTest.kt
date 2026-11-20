@@ -1,9 +1,13 @@
 package com.emm.mygame.feature.town
 
+import androidx.compose.ui.semantics.SemanticsActions
+import androidx.compose.ui.test.SemanticsMatcher
 import androidx.compose.ui.test.assertIsDisplayed
+import androidx.compose.ui.test.hasText
 import androidx.compose.ui.test.junit4.ComposeContentTestRule
 import androidx.compose.ui.test.junit4.createComposeRule
 import androidx.compose.ui.test.onNodeWithText
+import androidx.compose.ui.text.TextLayoutResult
 import com.emm.mygame.core.designsystem.MyGameTheme
 import com.emm.mygame.core.network.TownBuildingKind
 import com.emm.mygame.core.network.TownResourceKind
@@ -13,6 +17,8 @@ import kotlin.time.Duration.Companion.hours
 import kotlin.time.Duration.Companion.minutes
 import kotlin.time.Duration.Companion.seconds
 import kotlin.time.Instant
+import org.junit.Assert.assertEquals
+import org.junit.Assert.assertNull
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -40,35 +46,51 @@ class TownReadyLineScreenTest {
     fun `names the minute the resources arrive under an hour`() {
         show(shortOfFoodUntil(TownUiState.ReadyTime(remaining = 24.minutes, readyAt = localReady)))
 
-        composeRule.onNodeWithText("Lista en 24 min").assertIsDisplayed()
+        composeRule.onNode(readyLine(words = "Lista en", time = "24 min")).assertIsDisplayed()
     }
 
     @Test
     fun `names the minutes and seconds left under a minute`() {
         show(shortOfFoodUntil(TownUiState.ReadyTime(remaining = 30.seconds, readyAt = localReady)))
 
-        composeRule.onNodeWithText("Lista en 0:30").assertIsDisplayed()
+        composeRule.onNode(readyLine(words = "Lista en", time = "0:30")).assertIsDisplayed()
     }
 
     @Test
     fun `names the whole minutes left under an hour without the seconds`() {
         show(shortOfFoodUntil(TownUiState.ReadyTime(remaining = 30.minutes + 30.seconds, readyAt = localReady)))
 
-        composeRule.onNodeWithText("Lista en 30 min").assertIsDisplayed()
+        composeRule.onNode(readyLine(words = "Lista en", time = "30 min")).assertIsDisplayed()
     }
 
     @Test
     fun `names the clock the resources arrive at from an hour on`() {
         show(shortOfFoodUntil(TownUiState.ReadyTime(remaining = 1.hours, readyAt = localReady)))
 
-        composeRule.onNodeWithText("Lista 09:30").assertIsDisplayed()
+        composeRule.onNode(readyLine(words = "Lista", time = "09:30")).assertIsDisplayed()
     }
 
     @Test
     fun `names tomorrow when the resources arrive past midnight`() {
         show(shortOfFoodUntil(TownUiState.ReadyTime(remaining = 12.hours, readyAt = localReady)))
 
-        composeRule.onNodeWithText("Lista mañana 09:30").assertIsDisplayed()
+        composeRule.onNode(readyLine(words = "Lista", time = "mañana 09:30")).assertIsDisplayed()
+    }
+
+    @Test
+    fun `sets tabular figures on the time left and never on its words`() {
+        show(shortOfFoodUntil(TownUiState.ReadyTime(remaining = 35.seconds, readyAt = localReady)))
+
+        assertNull(fontFeaturesOf("Lista en", substring = true))
+        assertEquals("tnum", fontFeaturesOf("0:35", substring = false))
+    }
+
+    @Test
+    fun `sets tabular figures on the ready clock and never on its words`() {
+        show(shortOfFoodUntil(TownUiState.ReadyTime(remaining = 1.hours, readyAt = localReady)))
+
+        assertNull(fontFeaturesOf("Lista", substring = true))
+        assertEquals("tnum", fontFeaturesOf("09:30", substring = false))
     }
 
     @Test
@@ -76,6 +98,15 @@ class TownReadyLineScreenTest {
         show(shortOfFoodUntil(ready = null))
 
         composeRule.onNodeWithText("Lista", substring = true).assertDoesNotExist()
+    }
+
+    private fun readyLine(words: String, time: String): SemanticsMatcher = hasText(words) and hasText(time)
+
+    private fun fontFeaturesOf(text: String, substring: Boolean): String? {
+        val layouts: MutableList<TextLayoutResult> = mutableListOf()
+        composeRule.onNodeWithText(text, substring = substring, useUnmergedTree = true).fetchSemanticsNode()
+            .config[SemanticsActions.GetTextLayoutResult].action?.invoke(layouts)
+        return layouts.single().layoutInput.style.fontFeatureSettings
     }
 
     private fun shortOfFoodUntil(ready: TownUiState.ReadyTime?): TownUiState.BlockReason =
