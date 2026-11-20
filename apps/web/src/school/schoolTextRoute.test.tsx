@@ -89,6 +89,19 @@ it("shows a stable word's gloss on tap", async () => {
   expect(word.getAttribute('aria-expanded')).toBe('true')
 })
 
+it('closes the support on a second tap of its word', async () => {
+  await showText('text-1', townWith([firstText]))
+  const word = screen.getByRole('button', { name: 'course' })
+
+  fireEvent.click(word)
+  await passSeconds(0)
+  fireEvent.click(word)
+  await passSeconds(0)
+
+  expect(screen.queryByText('curso')).toBeNull()
+  expect(word.getAttribute('aria-expanded')).toBe('false')
+})
+
 it('sends no request on a tap', async () => {
   const calls: Array<string> = []
   const client = stubApiClient({

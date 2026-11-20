@@ -45,7 +45,7 @@ function SpanPiece({
       type="button"
       aria-expanded={isOpen}
       onClick={onTap}
-      className={`inline-flex min-h-control cursor-pointer items-center rounded-sm border-0 bg-transparent p-0 align-baseline font-sans text-reading text-on-block underline underline-offset-2 ${blockFocusTargetClass}`}
+      className={`inline-flex min-h-control min-w-12 cursor-pointer items-center justify-center rounded-sm border-0 bg-transparent p-0 align-baseline font-sans text-reading text-on-block underline underline-offset-2 ${blockFocusTargetClass}`}
     >
       {span.text}
     </button>
@@ -91,6 +91,10 @@ export function SchoolTextScreen({ text }: SchoolTextScreenProps): ReactElement 
   const titleId = useId()
   const [tapped, setTapped] = useState<SpanAt | null>(null)
   const openSupport = supportAt(text, tapped)
+  const toggle = (at: SpanAt): void =>
+    setTapped((current) =>
+      current?.sentence === at.sentence && current.span === at.span ? null : at,
+    )
   return (
     <div className="mx-auto flex w-full max-w-form flex-col gap-4">
       <h1 id={titleId} lang="en" className="m-0 font-sans text-title text-ink">
@@ -100,7 +104,7 @@ export function SchoolTextScreen({ text }: SchoolTextScreenProps): ReactElement 
         {text.sentences.map((spans, sentence) => (
           // biome-ignore lint/suspicious/noArrayIndexKey: a text's sentences are content that never reorders
           <div key={sentence} className="flex flex-col gap-1">
-            <Sentence spans={spans} sentence={sentence} tapped={tapped} onTap={setTapped} />
+            <Sentence spans={spans} sentence={sentence} tapped={tapped} onTap={toggle} />
             {openSupport !== null && tapped?.sentence === sentence && (
               <p aria-live="polite" className="m-0">
                 <SupportText support={openSupport} />
