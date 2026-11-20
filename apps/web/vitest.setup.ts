@@ -15,12 +15,4 @@ new MutationObserver((mutations) => {
   }
 }).observe(document, { childList: true, subtree: true })
 
-class LayoutlessResizeObserver implements ResizeObserver {
-  observe(): void {}
-  unobserve(): void {}
-  disconnect(): void {}
-}
-
-globalThis.ResizeObserver = LayoutlessResizeObserver
-
 afterEach(cleanup)
