@@ -244,6 +244,7 @@ export const schoolSlotRefund = (): string => `Si lo paras, la lección queda po
 export const schoolSlotStop = (): string => `Parar el estudio`
 export const schoolSlotStopOf = ({ number }: { readonly number: string | number }): string => `Parar el estudio de la lección ${String(number)}`
 export const schoolSlotTitle = (): string => `En estudio`
+export const schoolTexts = (): string => `Para leer`
 export const shellLessonFinishClose = (): string => `Cerrar`
 export const shellLessonFinishLine = ({ number }: { readonly number: string | number }): string => `La lección ${String(number)} terminó.`
 export const shellLessonFinishReleased = ({ band, number }: { readonly band: string | number; readonly number: string | number }): string => `Las palabras que vuelven de la banda ${String(band)}, grupo ${String(number)} terminaron.`

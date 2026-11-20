@@ -26,6 +26,7 @@ import {
   schoolSkillsNone,
   schoolSlotDone,
   schoolSlotStopOf,
+  schoolTexts,
   townGoToSchool,
   townLevel,
   townLoading,
@@ -895,4 +896,37 @@ it('sends a lesson while another one runs in the slot, since the api decides', a
   )
 
   expect(started).toEqual(['lesson-2'])
+})
+
+const openTextOf = (number: number): TownOverview['texts'][number] => ({
+  id: `text-${number}`,
+  title: `Text ${number}`,
+  sentences: [[{ text: `Sentence of text ${number}.`, support: null }]],
+})
+
+const textList = (): HTMLElement | null => screen.queryByRole('region', { name: schoolTexts() })
+
+it('lists the open texts newest first', async () => {
+  await showSchool(schoolOf({ texts: [openTextOf(3), openTextOf(2), openTextOf(1)] }))
+
+  const titles = within(screen.getByRole('region', { name: schoolTexts() }))
+    .getAllByRole('link')
+    .map(({ textContent }) => textContent)
+
+  expect(titles).toEqual(['Text 3', 'Text 2', 'Text 1'])
+})
+
+it('shows no text list while no text is open', async () => {
+  await showSchool(schoolOf({ texts: [] }))
+
+  expect(textList()).toBeNull()
+})
+
+it('opens a text from its row', async () => {
+  await showSchool(schoolOf({ texts: [openTextOf(1)] }))
+
+  fireEvent.click(screen.getByRole('link', { name: 'Text 1' }))
+  await passSeconds(0)
+
+  expect(screen.getByRole('heading', { level: 1, name: 'Text 1' })).toBeDefined()
 })

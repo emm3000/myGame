@@ -37,6 +37,7 @@ import {
 import { SchoolNextStep } from './SchoolNextStep'
 import { ShownLesson } from './ShownLesson'
 import { SkillList } from './SkillList'
+import { TextRows } from './TextRows'
 import type { SchoolLessons } from './useSchoolLessons'
 
 export interface SchoolScreenProps {
@@ -172,6 +173,7 @@ export function SchoolScreen({ town, lessons }: SchoolScreenProps): ReactElement
             cards={cards.filter(({ lessonId }) => lessonId !== shown?.lessonId)}
             onSelect={setSelectedId}
           />
+          <TextRows texts={overview.texts} />
           <BuildSlot state={slotStateOf(town, lessons, slotTitle.focus)} titleRef={slotTitle.ref} />
           {stopRefused !== undefined && (
             <FormAlert message={refusalLineOf(stopRefused.refusal, stopRefused.error)} />
