@@ -181,10 +181,12 @@ it('sends the band answers once on a double click', async () => {
 it('shows each band score and whether it is placed out as the wire says', async () => {
   await showPlacement({ placement: readingInTurn(closedWithScores) })
 
-  expect(screen.getByText(placementResultBand({ band: 1, score: 21 }))).toBeDefined()
-  expect(screen.getByText(placementResultBand({ band: 2, score: 30 }))).toBeDefined()
-  expect(screen.getByText(placementPlacedOut())).toBeDefined()
-  expect(screen.getByText(placementNotPlacedOut())).toBeDefined()
+  const bandLines = screen.getAllByRole('listitem').map(({ textContent }) => textContent)
+
+  expect(bandLines).toEqual([
+    `${placementResultBand({ band: 1, score: 21 })}${placementPlacedOut()}`,
+    `${placementResultBand({ band: 2, score: 30 })}${placementNotPlacedOut()}`,
+  ])
 })
 
 it('re-reads the placement after a refused call and draws its answer', async () => {
