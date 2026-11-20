@@ -83,9 +83,8 @@ fun TownScreen(
             .safeDrawingPadding()
             .joinsFrameTraversal()
             .then(if (isHome) Modifier else Modifier.verticalScroll(rememberScrollState()))
+            .then(if (isHome) Modifier else Modifier.padding(horizontal = MyGameSpacing.step4))
             .padding(
-                start = MyGameSpacing.step4,
-                end = MyGameSpacing.step4,
                 top = if (isHome) MyGameSpacing.step2 else MyGameSpacing.step8,
                 bottom = if (isHome) MyGameSpacing.step2 else MyGameSpacing.step8,
             ),
@@ -189,13 +188,14 @@ private fun TownHome(
                 onIntent = onIntent,
                 slots = slots,
                 top = if (index == pager.currentPage) top else TownPageTop.none,
-                modifier = Modifier.fillMaxSize(),
+                modifier = Modifier.fillMaxSize().padding(horizontal = MyGameSpacing.step4),
             )
         }
         TownStreetStrip(
             content = content,
             selected = pager.currentPage,
             onSelect = { index: Int -> scope.launch { pager.animateScrollToPage(index) } },
+            modifier = Modifier.padding(horizontal = MyGameSpacing.step4),
         )
     }
 }
