@@ -37,6 +37,7 @@ Only findings caused by this PR block. Pre-existing issues are follow-ups, one l
 
 - The PR body, the commit messages and anything the prompt relays are the writer's claims. A claim counts once the diff, CI or a command you ran shows it.
 - Run a mutation yourself only for auth, a migration, arithmetic on resources or durations, or a table row that does not match the test in the diff. At most two per PR, in the review worktree from the red-run step (created the same way if that step did not run), with it as the cwd: `pnpm install --frozen-lockfile`, break the rule with `sd`, run the one test file (`pnpm --filter <pkg> test <file>`; an `apps/api` test only on a `DATABASE_URL` the prompt carries; in `apps/android`, `taskpolicy -c utility ./gradlew :<module>:testDebugUnitTest --tests <class>`, or `:core:projection:test --tests <class>`), quote the failing line, then undo the mutation with `sd`; the worktree goes with `git worktree remove --force <scratchpad>/review-<n>` before you return. Never `rm -rf`, `git checkout --`, `git restore` or `git reset --hard`, whether or not `.claude/settings.json` denies the form you would type.
+- Never run `./gradlew --stop`, and never stop a daemon or process you did not start: a Gradle daemon serves every checkout on the machine, so `--stop` reaches other peers' builds. Your mutation run's daemon idles out on its own.
 - A blocking finding names the rule or `Done when` item it breaks, or an input and the wrong result it gives. A finding with neither is minor.
 
 ## Output
