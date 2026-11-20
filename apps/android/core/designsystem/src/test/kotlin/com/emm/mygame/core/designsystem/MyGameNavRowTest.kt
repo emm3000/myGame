@@ -34,16 +34,20 @@ import androidx.compose.ui.test.junit4.createComposeRule
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.onRoot
 import androidx.compose.ui.test.performClick
+import androidx.compose.ui.test.performTouchInput
 import androidx.compose.ui.test.requestFocus
 import androidx.compose.ui.unit.Density
 import androidx.compose.ui.unit.DpRect
 import org.junit.Assert.assertEquals
+import org.junit.Assert.assertNotEquals
 import org.junit.Assert.assertTrue
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.robolectric.RobolectricTestRunner
 import org.robolectric.annotation.GraphicsMode
+
+private const val PRESS_SETTLE_MILLIS: Long = 500L
 
 private val school: MyGameLabel = MyGameLabel(text = "Go to the school", translation = null)
 
@@ -115,6 +119,28 @@ class MyGameNavRowTest {
         assertEquals("the start side", focus, hexAt(image, ring, aboveText))
         assertEquals("the end side", focus, hexAt(image, image.width - 1 - ring, aboveText))
         assertEquals("the top side", focus, hexAt(image, image.width / 2, ring))
+    }
+
+    @OptIn(ExperimentalComposeUiApi::class)
+    @Test
+    fun `a focused pressed nav row keeps its press inside the ring's rounded corners`() {
+        show {
+            inputModes = LocalInputModeManager.current
+            MyGameNavRow(title = school, onClick = {})
+        }
+        composeRule.runOnIdle { inputModes?.requestInputMode(InputMode.Keyboard) }
+        row().requestFocus()
+        composeRule.waitForIdle()
+        composeRule.mainClock.autoAdvance = false
+        row().performTouchInput { down(center) }
+        composeRule.mainClock.advanceTimeBy(PRESS_SETTLE_MILLIS)
+
+        val image: ImageBitmap = row().captureToImage()
+        val insideRing: Int = with(composeRule.density) { MyGameStrokeWidths.focus.roundToPx() } + 2
+        val ground: String = Integer.toHexString(lightColors.surface.toArgb())
+
+        assertEquals("the corner", ground, hexAt(image, 1, image.height - 2))
+        assertNotEquals("the press inside the ring", ground, hexAt(image, image.width / 2, image.height - insideRing))
     }
 
     @Test
