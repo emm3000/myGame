@@ -1,5 +1,10 @@
 import { fileURLToPath } from 'node:url'
-import { type HoldoutChecks, HoldoutChecksSchema } from '@mygame/contracts'
+import {
+  type HoldoutChecks,
+  HoldoutChecksSchema,
+  ReviewsSchema,
+  TownOverviewSchema,
+} from '@mygame/contracts'
 import { type BandStartRepository, type Clock, Instant, type RandomSource } from '@mygame/domain'
 import { Client, type QueryResultRow } from 'pg'
 import { afterAll, assert, beforeAll, beforeEach, describe, expect, it } from 'vitest'
@@ -403,5 +408,36 @@ describe('the holdout check routes', () => {
     expect(cards.map(({ word_id }) => word_id)).toEqual(
       [wordIdOf('problem'), wordIdOf('see')].sort(),
     )
+  })
+
+  const answerEveryDueReview = async (player: Player): Promise<void> => {
+    const { due } = ReviewsSchema.parse(await (await send(player, 'GET', '/reviews')).json())
+    for (const review of due) {
+      const given = review.mode === 'recognition' ? (review.choices[0]?.choiceId ?? '') : 'x'
+      const answered = await send(player, 'POST', `/reviews/${review.wordId}/answer`, {
+        answer: given,
+      })
+      expect(answered.status).toBe(200)
+    }
+  }
+
+  it('answers a running released lesson as the next step', async () => {
+    await studiedBandOne()
+    const player = await signedInAt(24)
+    expect(await checksOf(await send(player, 'POST', '/holdout-checks/1/24/skip'))).toEqual([])
+    expect((await send(player, 'POST', '/town/lessons', { lessonId: 'released-1-1' })).status).toBe(
+      200,
+    )
+    await answerEveryDueReview(player)
+
+    const town = TownOverviewSchema.parse(await (await send(player, 'GET', '/town')).json())
+
+    expect(town.nextStep.kind).toBe('lessonRunning')
+    expect(town.lessonSlot?.lessonId).toBe('released-1-1')
+    expect(
+      town.releasedLessons
+        .filter(({ id }) => id === 'released-1-1')
+        .map(({ band, position }) => ({ band, position })),
+    ).toEqual([{ band: 1, position: 1 }])
   })
 })
