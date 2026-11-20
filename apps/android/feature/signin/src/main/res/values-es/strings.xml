@@ -8,6 +8,17 @@
     <string name="forgot_password_title">Recupera tu contraseña</string>
     <string name="forgot_password_to_sign_in">Entra en tu pueblo</string>
     <string name="forgot_password_unexpected">No hemos podido hablar con el servidor. Vuelve a intentarlo en un momento.</string>
+    <string name="reset_password_changed">Tu contraseña ha cambiado y hemos cerrado todas tus sesiones.</string>
+    <string name="reset_password_link_refused">Ese enlace no vale: ha caducado, ya se ha usado o nunca se envió. Pide otro.</string>
+    <string name="reset_password_new_link">Pedir otro enlace</string>
+    <string name="reset_password_password">Contraseña nueva</string>
+    <string name="reset_password_password_hint">Al menos 8 caracteres.</string>
+    <string name="reset_password_sending">Enviando</string>
+    <string name="reset_password_submit">Cambiar la contraseña</string>
+    <string name="reset_password_title">Elige una contraseña nueva</string>
+    <string name="reset_password_to_sign_in">Entra en tu pueblo</string>
+    <string name="reset_password_unexpected">No hemos podido hablar con el servidor. Vuelve a intentarlo en un momento.</string>
+    <string name="reset_password_weak_password">Tu contraseña necesita al menos 8 caracteres.</string>
     <string name="scaffold_change_line">Puedes cambiarlo cuando quieras en Ajustes.</string>
     <string name="scaffold_es">Español: una traducción junto a cada palabra nueva</string>
     <string name="scaffold_label">Idioma de ayuda</string>

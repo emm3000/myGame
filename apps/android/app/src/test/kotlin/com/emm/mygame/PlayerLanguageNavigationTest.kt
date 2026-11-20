@@ -60,6 +60,7 @@ class PlayerLanguageNavigationTest {
                 AppNavigation(
                     dependencies = dependencies,
                     reminderTaps = emptyFlow(),
+                    resetLinks = emptyFlow(),
                     backStack = rememberNavBackStack(Destination.Town, Destination.Report),
                 )
             }
@@ -71,7 +72,7 @@ class PlayerLanguageNavigationTest {
         sessions.answerRestore(RestoreResult.SignedOut)
         composeRule.setContent {
             MyGameTheme {
-                AppNavigation(dependencies = dependencies, reminderTaps = emptyFlow())
+                AppNavigation(dependencies = dependencies, reminderTaps = emptyFlow(), resetLinks = emptyFlow())
             }
         }
     }

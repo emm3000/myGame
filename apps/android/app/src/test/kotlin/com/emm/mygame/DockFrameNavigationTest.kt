@@ -162,6 +162,7 @@ class DockFrameNavigationTest {
                 AppNavigation(
                     dependencies = dependencies,
                     reminderTaps = emptyFlow(),
+                    resetLinks = emptyFlow(),
                     backStack = rememberNavBackStack(*destinations).also { shown: NavBackStack<NavKey> ->
                         shownStack = shown
                     },

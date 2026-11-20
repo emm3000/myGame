@@ -3,6 +3,7 @@ package com.emm.mygame
 import androidx.navigation3.runtime.NavKey
 import com.emm.mygame.core.network.HoldoutCheckWeek
 import com.emm.mygame.core.network.LessonId
+import com.emm.mygame.core.network.PasswordResetToken
 import com.emm.mygame.core.network.PlacementBand
 import com.emm.mygame.core.network.TextId
 import kotlinx.serialization.Serializable
@@ -18,6 +19,9 @@ sealed interface Destination : NavKey {
 
     @Serializable
     data object ForgotPassword : Destination
+
+    @Serializable
+    data class ResetPassword(val token: PasswordResetToken?) : Destination
 
     @Serializable
     data object Town : Destination

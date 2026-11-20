@@ -5,6 +5,7 @@ import com.emm.mygame.core.network.generated.models.BareApiError
 import com.emm.mygame.core.network.generated.models.ForgotPasswordRequest
 import com.emm.mygame.core.network.generated.models.NativeSession
 import com.emm.mygame.core.network.generated.models.Player
+import com.emm.mygame.core.network.generated.models.ResetPasswordRequest
 import com.emm.mygame.core.network.generated.models.ScaffoldChange
 import com.emm.mygame.core.network.generated.models.SignInRequest
 import com.emm.mygame.core.network.generated.models.SignUpRequest
@@ -42,6 +43,12 @@ internal class ApiSessionRepository(
     override suspend fun requestPasswordReset(email: String): PasswordResetRequestResult =
         openingSession(unreachable = PasswordResetRequestResult.Unreachable) {
             requestedOrRefused(openingApi.authForgotPasswordPost(ForgotPasswordRequest(email = email)))
+        }
+
+    override suspend fun resetPassword(token: PasswordResetToken, password: String): PasswordResetResult =
+        openingSession(unreachable = PasswordResetResult.Unreachable) {
+            val request: ResetPasswordRequest = ResetPasswordRequest(token = token.value, password = password)
+            changedOrRefused(openingApi.authResetPasswordPost(request))
         }
 
     override suspend fun restore(): RestoreResult = withContext(ioDispatcher) {
@@ -136,6 +143,15 @@ internal class ApiSessionRepository(
         else -> PasswordResetRequestResult.Unreachable
     }
 
+    private fun changedOrRefused(response: Response<Unit>): PasswordResetResult {
+        if (response.code() == HttpURLConnection.HTTP_NO_CONTENT) {
+            tokenStore.clear()
+            return PasswordResetResult.Changed
+        }
+        if (response.code() != HttpURLConnection.HTTP_BAD_REQUEST) return PasswordResetResult.Unreachable
+        return response.wireRefusal()?.bareKind().toPasswordResetRefusal()
+    }
+
     private fun sentOrNotSent(response: Response<Unit>): VerificationResendResult = when (response.code()) {
         HttpURLConnection.HTTP_NO_CONTENT -> VerificationResendResult.Sent
         HttpURLConnection.HTTP_UNAVAILABLE -> VerificationResendResult.MailNotSent
@@ -175,6 +191,12 @@ private fun BareApiError.Kind?.toSignUpRefusal(): SignUpRefusal = when (this) {
     BareApiError.Kind.EmailTaken -> SignUpRefusal.EmailTaken
     BareApiError.Kind.MalformedEmail -> SignUpRefusal.MalformedEmail
     else -> SignUpRefusal.Unrecognized
+}
+
+private fun BareApiError.Kind?.toPasswordResetRefusal(): PasswordResetResult = when (this) {
+    BareApiError.Kind.TokenInvalid -> PasswordResetResult.LinkRefused
+    BareApiError.Kind.WeakPassword -> PasswordResetResult.WeakPassword
+    else -> PasswordResetResult.Unreachable
 }
 
 private fun PlayerLanguages.answered(read: LanguageRead, player: Player) {

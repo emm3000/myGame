@@ -94,6 +94,7 @@ class SettingsReminderNavigationTest {
                 AppNavigation(
                     dependencies = dependencies,
                     reminderTaps = emptyFlow(),
+                    resetLinks = emptyFlow(),
                     backStack = rememberNavBackStack(Destination.Town, Destination.Report, Destination.Settings),
                 )
             }

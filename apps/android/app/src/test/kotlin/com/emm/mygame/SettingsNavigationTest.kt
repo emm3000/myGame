@@ -92,7 +92,12 @@ class SettingsNavigationTest {
             MyGameTheme {
                 val backStack: NavBackStack<NavKey> = rememberNavBackStack(*destinations)
                 shownBackStack = backStack
-                AppNavigation(dependencies = dependencies, reminderTaps = emptyFlow(), backStack = backStack)
+                AppNavigation(
+                    dependencies = dependencies,
+                    reminderTaps = emptyFlow(),
+                    resetLinks = emptyFlow(),
+                    backStack = backStack,
+                )
             }
         }
     }

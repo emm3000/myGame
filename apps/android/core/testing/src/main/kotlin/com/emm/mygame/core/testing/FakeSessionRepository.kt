@@ -1,6 +1,8 @@
 package com.emm.mygame.core.testing
 
 import com.emm.mygame.core.network.PasswordResetRequestResult
+import com.emm.mygame.core.network.PasswordResetResult
+import com.emm.mygame.core.network.PasswordResetToken
 import com.emm.mygame.core.network.PlayerScaffold
 import com.emm.mygame.core.network.RestoreResult
 import com.emm.mygame.core.network.ScaffoldChangeResult
@@ -20,6 +22,8 @@ class FakeSessionRepository : SessionRepository {
 
     private val passwordResetAnswers: Channel<PasswordResetRequestResult> = Channel(Channel.UNLIMITED)
 
+    private val resetAnswers: Channel<PasswordResetResult> = Channel(Channel.UNLIMITED)
+
     private val resendAnswers: Channel<VerificationResendResult> = Channel(Channel.UNLIMITED)
 
     private val signOutAnswers: Channel<Unit> = Channel(Channel.UNLIMITED)
@@ -33,6 +37,8 @@ class FakeSessionRepository : SessionRepository {
     private val signUps: MutableList<SignUpAttempt> = mutableListOf()
 
     private val resetEmails: MutableList<String> = mutableListOf()
+
+    private val resets: MutableList<PasswordReset> = mutableListOf()
 
     var resendCount: Int = 0
         private set
@@ -48,6 +54,9 @@ class FakeSessionRepository : SessionRepository {
 
     val passwordResetEmails: List<String>
         get() = resetEmails.toList()
+
+    val passwordResets: List<PasswordReset>
+        get() = resets.toList()
 
     val scaffoldChanges: List<PlayerScaffold>
         get() = pickedScaffolds.toList()
@@ -66,6 +75,10 @@ class FakeSessionRepository : SessionRepository {
 
     fun answerPasswordReset(result: PasswordResetRequestResult) {
         passwordResetAnswers.trySend(result)
+    }
+
+    fun answerPasswordChange(result: PasswordResetResult) {
+        resetAnswers.trySend(result)
     }
 
     fun answerResend(result: VerificationResendResult) {
@@ -97,6 +110,11 @@ class FakeSessionRepository : SessionRepository {
         return passwordResetAnswers.receive()
     }
 
+    override suspend fun resetPassword(token: PasswordResetToken, password: String): PasswordResetResult {
+        resets += PasswordReset(token = token, password = password)
+        return resetAnswers.receive()
+    }
+
     override suspend fun resendVerification(): VerificationResendResult {
         resendCount += 1
         return resendAnswers.receive()
@@ -113,6 +131,8 @@ class FakeSessionRepository : SessionRepository {
     }
 
     data class SignInAttempt(val email: String, val password: String)
+
+    data class PasswordReset(val token: PasswordResetToken, val password: String)
 
     data class SignUpAttempt(val email: String, val password: String, val scaffold: PlayerScaffold)
 }

@@ -8,6 +8,17 @@
     <string name="forgot_password_title">Reset your password</string>
     <string name="forgot_password_to_sign_in">Sign in to your town</string>
     <string name="forgot_password_unexpected">We could not reach the server. Try again in a moment.</string>
+    <string name="reset_password_changed">Your password has changed and we have closed all your sessions.</string>
+    <string name="reset_password_link_refused">That link does not work: it has expired, it was already used or it was never sent. Ask for another one.</string>
+    <string name="reset_password_new_link">Ask for another link</string>
+    <string name="reset_password_password">New password</string>
+    <string name="reset_password_password_hint">At least 8 characters.</string>
+    <string name="reset_password_sending">Sending</string>
+    <string name="reset_password_submit">Change password</string>
+    <string name="reset_password_title">Choose a new password</string>
+    <string name="reset_password_to_sign_in">Sign in to your town</string>
+    <string name="reset_password_unexpected">We could not reach the server. Try again in a moment.</string>
+    <string name="reset_password_weak_password">Your password needs at least 8 characters.</string>
     <string name="scaffold_change_line">You can change it at any time in Settings.</string>
     <string name="scaffold_es">Spanish: a translation beside each new word</string>
     <string name="scaffold_label">Help language</string>

@@ -155,7 +155,7 @@ class AppNavigationTest {
         repeat(READS_AVAILABLE) { towns.answerRead(answer) }
         composeRule.setContent {
             MyGameTheme {
-                AppNavigation(dependencies = dependencies, reminderTaps = emptyFlow())
+                AppNavigation(dependencies = dependencies, reminderTaps = emptyFlow(), resetLinks = emptyFlow())
             }
         }
     }
@@ -204,6 +204,7 @@ class AppNavigationTest {
                 AppNavigation(
                     dependencies = dependencies,
                     reminderTaps = emptyFlow(),
+                    resetLinks = emptyFlow(),
                     backStack = rememberNavBackStack(*destinations),
                 )
             }
@@ -245,6 +246,7 @@ class AppNavigationTest {
                 AppNavigation(
                     dependencies = dependencies,
                     reminderTaps = emptyFlow(),
+                    resetLinks = emptyFlow(),
                     backStack = rememberNavBackStack(*stack),
                 )
             }
@@ -267,6 +269,7 @@ class AppNavigationTest {
                 AppNavigation(
                     dependencies = dependencies,
                     reminderTaps = emptyFlow(),
+                    resetLinks = emptyFlow(),
                     backStack = rememberNavBackStack(*destinations),
                 )
             }
@@ -368,6 +371,7 @@ class AppNavigationTest {
                 AppNavigation(
                     dependencies = dependencies,
                     reminderTaps = emptyFlow(),
+                    resetLinks = emptyFlow(),
                     backStack = rememberNavBackStack(Destination.Town, Destination.Report),
                 )
             }
@@ -383,7 +387,7 @@ class AppNavigationTest {
         repeat(READS_ON_ARRIVAL) { towns.answerRead(TownReadResult.Read(playedTown(retainedWords = threeOfFive))) }
         composeRule.setContent {
             MyGameTheme {
-                AppNavigation(dependencies = dependencies, reminderTaps = emptyFlow())
+                AppNavigation(dependencies = dependencies, reminderTaps = emptyFlow(), resetLinks = emptyFlow())
             }
         }
         waitForRing(THREE_OF_FIVE)
@@ -723,6 +727,7 @@ class AppNavigationTest {
                 AppNavigation(
                     dependencies = dependencies,
                     reminderTaps = emptyFlow(),
+                    resetLinks = emptyFlow(),
                     backStack = rememberNavBackStack(Destination.Town, Destination.Report),
                 )
             }

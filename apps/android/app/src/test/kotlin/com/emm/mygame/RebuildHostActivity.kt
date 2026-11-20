@@ -17,7 +17,12 @@ class RebuildHostActivity : ComponentActivity() {
         setContent {
             val backStack: NavBackStack<NavKey> = rememberNavBackStack(*content.destinations.toTypedArray())
             MyGameTheme {
-                AppNavigation(dependencies = content.dependencies, reminderTaps = emptyFlow(), backStack = backStack)
+                AppNavigation(
+                    dependencies = content.dependencies,
+                    reminderTaps = emptyFlow(),
+                    resetLinks = emptyFlow(),
+                    backStack = backStack,
+                )
             }
         }
     }

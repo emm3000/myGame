@@ -12,6 +12,8 @@ interface SessionRepository {
 
     suspend fun requestPasswordReset(email: String): PasswordResetRequestResult
 
+    suspend fun resetPassword(token: PasswordResetToken, password: String): PasswordResetResult
+
     suspend fun restore(): RestoreResult
 
     suspend fun resendVerification(): VerificationResendResult
