@@ -107,10 +107,11 @@ class MyGameNavRowTest {
 
         val image: ImageBitmap = row().captureToImage()
         val ring: Int = with(composeRule.density) { (MyGameStrokeWidths.focus / 2).roundToPx() }
+        val aboveText: Int = with(composeRule.density) { (MyGameSpacing.step3 / 2).roundToPx() }
         val focus: String = Integer.toHexString(lightColors.focus.toArgb())
 
-        assertEquals("the start side", focus, hexAt(image, ring, image.height / 2))
-        assertEquals("the end side", focus, hexAt(image, image.width - 1 - ring, image.height / 2))
+        assertEquals("the start side", focus, hexAt(image, ring, aboveText))
+        assertEquals("the end side", focus, hexAt(image, image.width - 1 - ring, aboveText))
         assertEquals("the top side", focus, hexAt(image, image.width / 2, ring))
     }
 
