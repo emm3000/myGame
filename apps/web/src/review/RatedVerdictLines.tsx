@@ -1,6 +1,7 @@
 import {
   reviewComesBack,
   reviewCorrect,
+  reviewLevelOpen,
   reviewNext,
   reviewRightAnswer,
   reviewSkillEarned,
@@ -93,6 +94,7 @@ export function RatedVerdictLines({
   const { verdict } = answered
   const isCorrect = verdict.kind === 'correct'
   const skill = verdict.kind === 'correct' ? verdict.earnedSkill : null
+  const openedLevel = verdict.kind === 'correct' ? verdict.openedLevel : null
   return (
     <div className="flex flex-col gap-3">
       <section
@@ -109,6 +111,11 @@ export function RatedVerdictLines({
         </div>
         {!isCorrect && <WrongLines answered={answered} answerLang={answerLang} />}
         {skill !== null && <SkillLines skill={skill} />}
+        {openedLevel !== null && (
+          <p className="m-0 font-sans text-body text-ink">
+            {reviewLevelOpen({ level: openedLevel })}
+          </p>
+        )}
       </section>
       <Button type="button" tone="primary" onClick={onNext}>
         {reviewNext()}
