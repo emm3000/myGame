@@ -44,59 +44,44 @@ import com.emm.mygame.core.network.DueReviews
 import com.emm.mygame.core.network.FrameSpan
 import com.emm.mygame.core.network.HoldoutCheck
 import com.emm.mygame.core.network.HoldoutCheckChangeResult
-import com.emm.mygame.core.network.HoldoutCheckRepository
 import com.emm.mygame.core.network.HoldoutCheckWeek
 import com.emm.mygame.core.network.HoldoutChecksReadResult
-import com.emm.mygame.core.network.LearningRepository
 import com.emm.mygame.core.network.LessonId
 import com.emm.mygame.core.network.NextStep
 import com.emm.mygame.core.network.Placement
 import com.emm.mygame.core.network.PlacementBand
 import com.emm.mygame.core.network.PlacementChangeResult
 import com.emm.mygame.core.network.PlacementReadResult
-import com.emm.mygame.core.network.PlacementRepository
-import com.emm.mygame.core.network.PlayerLanguage
 import com.emm.mygame.core.network.PlayerScaffold
-import com.emm.mygame.core.network.ReminderNotifications
 import com.emm.mygame.core.network.ReportCloseResult
 import com.emm.mygame.core.network.ReportReadResult
-import com.emm.mygame.core.network.ReportRepository
 import com.emm.mygame.core.network.RestoreResult
 import com.emm.mygame.core.network.RetainedWords
 import com.emm.mygame.core.network.ReviewAnswerResult
 import com.emm.mygame.core.network.ReviewVerdict
 import com.emm.mygame.core.network.ReviewsReadResult
-import com.emm.mygame.core.network.SessionEnds
-import com.emm.mygame.core.network.SessionRepository
 import com.emm.mygame.core.network.SignedInPlayer
-import com.emm.mygame.core.network.StudyReminderChoice
-import com.emm.mygame.core.network.StudyReminderSettings
-import com.emm.mygame.core.network.ThemePick
-import com.emm.mygame.core.network.ThemeSettings
-import com.emm.mygame.core.network.TownBuildingKind
-import com.emm.mygame.core.network.TownLabel
 import com.emm.mygame.core.network.TownLessonRefusal
 import com.emm.mygame.core.network.TownLessonResult
 import com.emm.mygame.core.network.TownNews
 import com.emm.mygame.core.network.TownReadResult
 import com.emm.mygame.core.network.TownReport
-import com.emm.mygame.core.network.TownRepository
 import com.emm.mygame.core.network.TownResourceKind
 import com.emm.mygame.core.network.TownSnapshot
 import com.emm.mygame.core.network.WordId
 import com.emm.mygame.core.testing.FakeHoldoutCheckRepository
 import com.emm.mygame.core.testing.FakeLearningRepository
 import com.emm.mygame.core.testing.FakePlacementRepository
-import com.emm.mygame.core.testing.FakeReminderNotifications
 import com.emm.mygame.core.testing.FakeReportRepository
 import com.emm.mygame.core.testing.FakeSessionRepository
-import com.emm.mygame.core.testing.FakeStudyReminderSettings
-import com.emm.mygame.core.testing.FakeThemeSettings
 import com.emm.mygame.core.testing.FakeTownRepository
-import com.emm.mygame.core.testing.hiringOf
+import com.emm.mygame.core.testing.lessonsDone
+import com.emm.mygame.core.testing.townOf
 import com.emm.mygame.feature.town.TOWN_DOCK
-import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.StateFlow
+import kotlin.time.Clock
+import kotlin.time.Duration.Companion.hours
+import kotlin.time.Duration.Companion.minutes
+import kotlin.time.Instant
 import kotlinx.coroutines.flow.emptyFlow
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertTrue
@@ -107,10 +92,6 @@ import org.junit.runner.RunWith
 import org.robolectric.RobolectricTestRunner
 import org.robolectric.annotation.Config
 import org.robolectric.annotation.GraphicsMode
-import kotlin.time.Clock
-import kotlin.time.Duration.Companion.hours
-import kotlin.time.Duration.Companion.minutes
-import kotlin.time.Instant
 
 @RunWith(RobolectricTestRunner::class)
 class DockFrameNavigationTest {
@@ -119,37 +100,28 @@ class DockFrameNavigationTest {
     val composeRule: AndroidComposeTestRule<ActivityScenarioRule<ComponentActivity>, ComponentActivity> =
         createAndroidComposeRule<ComponentActivity>()
 
-    private val sessionsFake: FakeSessionRepository = FakeSessionRepository()
+    private val sessions: FakeSessionRepository = FakeSessionRepository()
 
-    private val townsFake: FakeTownRepository = FakeTownRepository()
+    private val towns: FakeTownRepository = FakeTownRepository()
 
-    private val reportsFake: FakeReportRepository = FakeReportRepository()
+    private val reports: FakeReportRepository = FakeReportRepository()
 
-    private val placementsFake: FakePlacementRepository = FakePlacementRepository()
+    private val placements: FakePlacementRepository = FakePlacementRepository()
 
-    private val holdoutChecksFake: FakeHoldoutCheckRepository = FakeHoldoutCheckRepository()
+    private val holdoutChecks: FakeHoldoutCheckRepository = FakeHoldoutCheckRepository()
 
-    private val learningFake: FakeLearningRepository = FakeLearningRepository()
+    private val learning: FakeLearningRepository = FakeLearningRepository()
 
     private var shownStack: NavBackStack<NavKey>? = null
 
-    private val dependencies: AppDependencies = object : AppDependencies {
-        override val clock: Clock = Clock.System
-        override val sessionEnds: SessionEnds = SessionEnds()
-        override val playerLanguage: StateFlow<PlayerLanguage?> = MutableStateFlow(null)
-        override val playerScaffold: StateFlow<PlayerScaffold?> = MutableStateFlow(null)
-        override val sessions: SessionRepository = sessionsFake
-        override val towns: TownRepository = townsFake
-        override val learning: LearningRepository = learningFake
-        override val reports: ReportRepository = reportsFake
-        override val placements: PlacementRepository = placementsFake
-        override val holdoutChecks: HoldoutCheckRepository = holdoutChecksFake
-        override val studyReminders: StudyReminderSettings =
-            FakeStudyReminderSettings(StudyReminderChoice.firstChoice)
-        override val reminderNotifications: ReminderNotifications =
-            FakeReminderNotifications(areAllowed = true, canAsk = true)
-        override val themes: ThemeSettings = FakeThemeSettings(ThemePick.System)
-    }
+    private val dependencies: AppDependencies = dependenciesOf(
+        sessions = sessions,
+        towns = towns,
+        learning = learning,
+        reports = reports,
+        placements = placements,
+        holdoutChecks = holdoutChecks,
+    )
 
     private val readAt: Instant = Clock.System.now()
 
@@ -175,41 +147,16 @@ class DockFrameNavigationTest {
         standings = emptyList(),
     )
 
-    private fun townOf(
-        nextStep: NextStep = NextStep.CaughtUp(CaughtUpReason.LessonsDone, goal = null),
-    ): TownSnapshot = TownSnapshot(
-        name = "Riverton",
-        label = TownLabel.Town,
-        seasonInForce = null,
-        seasonEndsAt = null,
-        stocks = emptyList(),
-        people = TownSnapshot.People(supplied = 10, free = 4, atWork = 6),
-        buildings = listOf(
-            TownSnapshot.Building(TownBuildingKind.School, level = 1, next = null),
-            TownSnapshot.Building(TownBuildingKind.Office, level = 0, next = null),
-        ),
-        work = TownSnapshot.Work(slot = null, waitingList = emptyList(), cap = 2),
-        lessons = listOf(lessonOf(firstLesson)),
-        releasedLessons = emptyList(),
-        texts = emptyList(),
-        dueHoldoutChecks = emptyList(),
-        hasBandStarted = false,
-        skills = emptyList(),
-        learning = TownSnapshot.Learning(cap = 10, inLearning = 0, retainedWords = null, nextInLearningDueAt = null),
-        stableWordCount = 0,
-        retainedWordCount = 0,
-        lessonSlot = null,
-        hiring = hiringOf(),
-        job = null,
-        nextStep = nextStep,
-        tip = null,
-        nextDueAt = null,
-        readAt = readAt,
-    )
+    private fun playedTown(nextStep: NextStep = lessonsDone): TownSnapshot =
+        townOf(readAt, nextStep = nextStep, lessons = listOf(lessonOf(firstLesson)))
 
-    private fun showing(vararg destinations: NavKey, town: TownSnapshot = townOf(), townReads: Int = READS_AVAILABLE) {
-        repeat(SESSION_READS) { sessionsFake.answerRestore(verifiedSession) }
-        repeat(townReads) { townsFake.answerRead(TownReadResult.Read(town)) }
+    private fun showing(
+        vararg destinations: NavKey,
+        town: TownSnapshot = playedTown(),
+        townReads: Int = READS_AVAILABLE,
+    ) {
+        repeat(SESSION_READS) { sessions.answerRestore(verifiedSession) }
+        repeat(townReads) { towns.answerRead(TownReadResult.Read(town)) }
         composeRule.setContent {
             MyGameTheme {
                 AppNavigation(
@@ -258,7 +205,7 @@ class DockFrameNavigationTest {
     }
 
     private fun assertHeaderLinkOpensTown(vararg place: NavKey) {
-        reportsFake.answerRead(ReportReadResult.Read(nothingDue))
+        reports.answerRead(ReportReadResult.Read(nothingDue))
         showing(Destination.Town, *place)
         headerLink()
         composeRule.onAllNodes(hasText("Pueblo", ignoreCase = true).and(hasAnyAncestor(hasTestTag(TOWN_DOCK))))
@@ -272,8 +219,8 @@ class DockFrameNavigationTest {
 
     @Test
     fun `the town home's Report row opens the Report`() {
-        showing(Destination.Town, town = townOf(nextStep = releasedLesson))
-        reportsFake.answerRead(ReportReadResult.Read(nothingDue))
+        showing(Destination.Town, town = playedTown(nextStep = releasedLesson))
+        reports.answerRead(ReportReadResult.Read(nothingDue))
         waitFor(reportRow)
         composeRule.onAllNodes(inTheDock(REPORT_ROW)).assertCountEquals(0)
 
@@ -320,54 +267,54 @@ class DockFrameNavigationTest {
 
     @Test
     fun `the Report's own step waits and sends nothing`() {
-        reportsFake.answerRead(ReportReadResult.Read(nothingDue))
+        reports.answerRead(ReportReadResult.Read(nothingDue))
         showing(Destination.Town, Destination.Report)
         val go: SemanticsNodeInteraction = dockGo("Ir al informe")
         composeRule.waitForIdle()
-        val townReads: Int = townsFake.readCount
+        val townReads: Int = towns.readCount
 
         go.assert(SemanticsMatcher.expectValue(SemanticsProperties.StateDescription, NO_REVIEWS_DUE)).performClick()
 
         composeRule.waitForIdle()
         composeRule.onNode(hasText("NOTICIAS DEL PUEBLO")).assertExists()
-        assertEquals(townReads, townsFake.readCount)
-        assertEquals(1, reportsFake.readCount)
+        assertEquals(townReads, towns.readCount)
+        assertEquals(1, reports.readCount)
     }
 
     @Test
     fun `the school's study step studies that lesson in place`() {
-        townsFake.answerLesson(TownLessonResult.Unreachable)
-        showing(Destination.Town, Destination.School, town = townOf(nextStep = NextStep.LessonToStudy(firstLesson)))
+        towns.answerLesson(TownLessonResult.Unreachable)
+        showing(Destination.Town, Destination.School, town = playedTown(nextStep = NextStep.LessonToStudy(firstLesson)))
 
         dockGo("Estudiar la lección 1 · 5:00").performClick()
 
-        composeRule.waitUntil(WAIT_MILLIS) { townsFake.lessonStarts == listOf(firstLesson) }
+        composeRule.waitUntil(WAIT_MILLIS) { towns.lessonStarts == listOf(firstLesson) }
         composeRule.onAllNodesWithText(TOWN_HEADER).assertCountEquals(0)
     }
 
     @Test
     fun `the school studies the lesson the status shows when its own read is older`() {
-        val older: TownSnapshot = townOf()
-        val newer: TownSnapshot = townOf(nextStep = NextStep.LessonToStudy(secondLesson))
+        val older: TownSnapshot = playedTown()
+        val newer: TownSnapshot = playedTown(nextStep = NextStep.LessonToStudy(secondLesson))
             .copy(lessons = listOf(lessonOf(firstLesson).copy(isStudied = true), lessonOf(secondLesson)))
         showing(Destination.Town, Destination.School, townReads = 0)
-        townsFake.answerRead(TownReadResult.Read(older))
-        townsFake.answerRead(TownReadResult.Read(newer))
+        towns.answerRead(TownReadResult.Read(older))
+        towns.answerRead(TownReadResult.Read(newer))
 
         dockGo(STUDY_SECOND).performClick()
 
-        composeRule.waitUntil(WAIT_MILLIS) { townsFake.lessonStarts == listOf(secondLesson) }
+        composeRule.waitUntil(WAIT_MILLIS) { towns.lessonStarts == listOf(secondLesson) }
     }
 
     @Test
     fun `a refused start of the lesson the status shows draws its line on the school`() {
-        val older: TownSnapshot = townOf()
-        val newer: TownSnapshot = townOf(nextStep = NextStep.LessonToStudy(secondLesson))
+        val older: TownSnapshot = playedTown()
+        val newer: TownSnapshot = playedTown(nextStep = NextStep.LessonToStudy(secondLesson))
             .copy(lessons = listOf(lessonOf(firstLesson).copy(isStudied = true), lessonOf(secondLesson)))
-        townsFake.answerLesson(TownLessonResult.Refused(TownLessonRefusal.StudySlotBusy))
+        towns.answerLesson(TownLessonResult.Refused(TownLessonRefusal.StudySlotBusy))
         showing(Destination.Town, Destination.School, townReads = 0)
-        townsFake.answerRead(TownReadResult.Read(older))
-        townsFake.answerRead(TownReadResult.Read(newer))
+        towns.answerRead(TownReadResult.Read(older))
+        towns.answerRead(TownReadResult.Read(newer))
 
         dockGo(STUDY_SECOND).performClick()
 
@@ -375,7 +322,7 @@ class DockFrameNavigationTest {
     }
 
     private val fullCapTown: TownSnapshot =
-        townOf(nextStep = NextStep.CaughtUp(CaughtUpReason.LearningCap, goal = null)).copy(
+        playedTown(nextStep = NextStep.CaughtUp(CaughtUpReason.LearningCap, goal = null, text = null)).copy(
             learning = TownSnapshot.Learning(
                 cap = 10,
                 inLearning = 8,
@@ -412,8 +359,8 @@ class DockFrameNavigationTest {
             gloss = "casa",
             gappedFrame = listOf(FrameSpan(text = "She goes ___ at six.", support = null)),
         )
-        learningFake.answerRead(ReviewsReadResult.Read(noCards.copy(due = listOf(recall))))
-        learningFake.answerReview(
+        learning.answerRead(ReviewsReadResult.Read(noCards.copy(due = listOf(recall))))
+        learning.answerReview(
             ReviewAnswerResult.Answered(ReviewVerdict.Wrong(word = "home", gloss = "casa", dueAt = readAt)),
         )
         showing(Destination.Town, Destination.Review)
@@ -423,16 +370,16 @@ class DockFrameNavigationTest {
         composeRule.onNode(hasTestTag(INK_PILL).and(hasContentDescription("Comprobar", substring = true)))
             .performClick()
 
-        composeRule.waitUntil(WAIT_MILLIS) { townsFake.sentAfterNowCount == 1 }
+        composeRule.waitUntil(WAIT_MILLIS) { towns.sentAfterNowCount == 1 }
     }
 
     @Test
     fun `after the last card read the words opens that lesson`() {
-        learningFake.answerRead(ReviewsReadResult.Read(noCards))
+        learning.answerRead(ReviewsReadResult.Read(noCards))
         showing(
             Destination.Town,
             Destination.Review,
-            town = townOf(NextStep.Reviews(count = 0, readFirst = listOf(firstLesson))),
+            town = playedTown(NextStep.Reviews(count = 0, readFirst = listOf(firstLesson))),
         )
 
         dockGo(READ_THE_WORDS).performClick()
@@ -446,7 +393,7 @@ class DockFrameNavigationTest {
         showing(
             Destination.Town,
             Destination.School,
-            town = townOf(NextStep.Reviews(count = 3, readFirst = listOf(secondLesson)))
+            town = playedTown(NextStep.Reviews(count = 3, readFirst = listOf(secondLesson)))
                 .copy(lessons = listOf(lessonOf(firstLesson), lessonOf(secondLesson))),
         )
 
@@ -472,8 +419,8 @@ class DockFrameNavigationTest {
 
     @Test
     fun `the Report draws one go button`() {
-        reportsFake.answerRead(ReportReadResult.Read(nothingDue.copy(dueCount = 3)))
-        val reviewsDue: TownSnapshot = townOf(NextStep.Reviews(count = 3, readFirst = emptyList()))
+        reports.answerRead(ReportReadResult.Read(nothingDue.copy(dueCount = 3)))
+        val reviewsDue: TownSnapshot = playedTown(NextStep.Reviews(count = 3, readFirst = emptyList()))
         showing(Destination.Town, Destination.Report, town = reviewsDue)
         dockGo("Empezar los repasos")
         composeRule.onAllNodes(hasTestTag(INK_PILL)).assertCountEquals(1)
@@ -520,14 +467,14 @@ class DockFrameNavigationTest {
         waitFor(hasTestTag(INK_PILL).and(hasStateDescription(WAITING)).and(hasAnyAncestor(hasTestTag(TOWN_DOCK))))
 
         headerLink().performClick()
-        repeat(READS_AVAILABLE) { townsFake.answerRead(TownReadResult.Read(townOf())) }
+        repeat(READS_AVAILABLE) { towns.answerRead(TownReadResult.Read(playedTown())) }
 
         waitFor(hasText(TOWN_HEADER))
     }
 
     @Test
     fun `a refused dock leaves the Report row at the top of the town home that could not be read`() {
-        repeat(TOWN_STATUS_AND_RING_READS) { townsFake.answerRead(TownReadResult.Unreachable) }
+        repeat(TOWN_STATUS_AND_RING_READS) { towns.answerRead(TownReadResult.Unreachable) }
         showing(Destination.Town, townReads = 0)
         dockGo(TRY_AGAIN)
 
@@ -537,7 +484,7 @@ class DockFrameNavigationTest {
     @Test
     @Config(qualifiers = "+w891dp-h411dp-land")
     fun `the dock keeps its go button clear of a side navigation bar and a cutout`() {
-        showing(Destination.Town, Destination.School, town = townOf(nextStep = releasedLesson))
+        showing(Destination.Town, Destination.School, town = playedTown(nextStep = releasedLesson))
         composeRule.sideBars(navigationBar = SIDE_BAR, cutout = CUTOUT)
         val go: Rect = dockGo(STUDY_RELEASED).getBoundsInRoot()
         val window: Dp = composeRule.onRoot().getBoundsInRoot().right
@@ -556,7 +503,7 @@ class DockFrameNavigationTest {
     @Config(qualifiers = "+w360dp-h640dp", fontScale = 2.0f)
     @GraphicsMode(GraphicsMode.Mode.NATIVE)
     fun `a refusal folded on the Report reads after the header and before the go button and the Report`() {
-        reportsFake.answerRead(ReportReadResult.Read(nothingDue))
+        reports.answerRead(ReportReadResult.Read(nothingDue))
         assertFoldedOrder(Destination.Report, title = "Informe")
     }
 
@@ -585,11 +532,11 @@ class DockFrameNavigationTest {
         hasText(STUDY_SLOT_BUSY).and(hasAnyAncestor(hasScrollAction())).and(!hasAnyAncestor(hasTestTag(TOWN_DOCK)))
 
     private fun assertFoldedOrder(vararg place: NavKey, title: String) {
-        townsFake.answerLesson(TownLessonResult.Refused(TownLessonRefusal.StudySlotBusy))
+        towns.answerLesson(TownLessonResult.Refused(TownLessonRefusal.StudySlotBusy))
         showing(
             Destination.Town,
             *place,
-            town = townOf(nextStep = releasedLesson).copy(learning = learningWithRing),
+            town = playedTown(nextStep = releasedLesson).copy(learning = learningWithRing),
         )
         dockGo(STUDY_RELEASED).performClick()
         waitFor(foldedRefusal)
@@ -610,7 +557,7 @@ class DockFrameNavigationTest {
     @Test
     fun `the naming screen draws no dock while the status read waits`() {
         showing(Destination.Town, townReads = 0)
-        townsFake.answerRead(TownReadResult.NoTown)
+        towns.answerRead(TownReadResult.NoTown)
         waitFor(hasText(NAMING_TITLE))
 
         composeRule.onAllNodes(hasTestTag(TOWN_DOCK)).assertCountEquals(0)
@@ -619,7 +566,7 @@ class DockFrameNavigationTest {
     @Test
     fun `the naming screen draws no Report row`() {
         showing(Destination.Town, townReads = 0)
-        townsFake.answerRead(TownReadResult.NoTown)
+        towns.answerRead(TownReadResult.NoTown)
         waitFor(hasText(NAMING_TITLE))
 
         composeRule.onAllNodes(reportRow).assertCountEquals(0)
@@ -631,7 +578,7 @@ class DockFrameNavigationTest {
         waitFor(hasTestTag(TOWN_DOCK))
         composeRule.mainClock.autoAdvance = false
 
-        townsFake.answerRead(TownReadResult.NoTown)
+        towns.answerRead(TownReadResult.NoTown)
         firstFrameShowing(hasText(NAMING_TITLE))
 
         composeRule.onAllNodes(hasTestTag(TOWN_DOCK)).assertCountEquals(0)
@@ -640,11 +587,11 @@ class DockFrameNavigationTest {
     @Test
     fun `the naming screen draws no dock while it signs out`() {
         showing(Destination.Town, townReads = 0)
-        townsFake.answerRead(TownReadResult.NoTown)
+        towns.answerRead(TownReadResult.NoTown)
         waitFor(hasText(NAMING_TITLE))
 
         composeRule.onNodeWithText(SIGN_OUT).performScrollTo().performClick()
-        composeRule.waitUntil(WAIT_MILLIS) { sessionsFake.signOutCount == 1 }
+        composeRule.waitUntil(WAIT_MILLIS) { sessions.signOutCount == 1 }
         composeRule.waitForIdle()
 
         composeRule.onAllNodes(hasTestTag(TOWN_DOCK)).assertCountEquals(0)
@@ -653,8 +600,8 @@ class DockFrameNavigationTest {
     @Test
     fun `the naming screen draws no dock once the status read is refused`() {
         showing(Destination.Town, townReads = 0)
-        townsFake.answerRead(TownReadResult.NoTown)
-        repeat(STATUS_AND_RING_READS) { townsFake.answerRead(TownReadResult.Unreachable) }
+        towns.answerRead(TownReadResult.NoTown)
+        repeat(STATUS_AND_RING_READS) { towns.answerRead(TownReadResult.Unreachable) }
         waitFor(hasText(NAMING_TITLE))
         composeRule.waitForIdle()
 
@@ -663,31 +610,31 @@ class DockFrameNavigationTest {
 
     @Test
     fun `a refused dock offers the retry and the header's link still opens the town`() {
-        repeat(STATUS_AND_RING_READS) { townsFake.answerRead(TownReadResult.Unreachable) }
+        repeat(STATUS_AND_RING_READS) { towns.answerRead(TownReadResult.Unreachable) }
         showing(Destination.Town, Destination.Report, townReads = 0)
         dockGo(TRY_AGAIN)
 
         headerLink().performClick()
-        repeat(READS_AVAILABLE) { townsFake.answerRead(TownReadResult.Read(townOf())) }
+        repeat(READS_AVAILABLE) { towns.answerRead(TownReadResult.Read(playedTown())) }
 
         waitFor(hasText(TOWN_HEADER))
     }
 
     @Test
     fun `closing the news reads the town again`() {
-        reportsFake.answerRead(ReportReadResult.Read(nothingDue.copy(news = listOf(TownNews.LessonStopped(readAt)))))
-        reportsFake.answerClose(ReportCloseResult.Closed)
+        reports.answerRead(ReportReadResult.Read(nothingDue.copy(news = listOf(TownNews.LessonStopped(readAt)))))
+        reports.answerClose(ReportCloseResult.Closed)
         showing(Destination.Town, Destination.Report)
         waitFor(hasText(CLOSE_NEWS))
 
         composeRule.onNode(hasText(CLOSE_NEWS)).performScrollTo().performClick()
 
-        composeRule.waitUntil(WAIT_MILLIS) { townsFake.sentAfterNowCount == 1 }
+        composeRule.waitUntil(WAIT_MILLIS) { towns.sentAfterNowCount == 1 }
     }
 
     private fun skippingThePlacement() {
-        placementsFake.answerRead(PlacementReadResult.Read(Placement.Offered))
-        placementsFake.answerChange(PlacementChangeResult.Changed(Placement.Closed(emptyList())))
+        placements.answerRead(PlacementReadResult.Read(Placement.Offered))
+        placements.answerChange(PlacementChangeResult.Changed(Placement.Closed(emptyList())))
         showing(Destination.Town, Destination.Placement)
         waitFor(hasText(SKIP_PLACEMENT))
         composeRule.onAllNodes(hasTestTag(TOWN_DOCK)).assertCountEquals(0)
@@ -699,36 +646,40 @@ class DockFrameNavigationTest {
     fun `the end of the placement reads the town again`() {
         skippingThePlacement()
 
-        composeRule.waitUntil(WAIT_MILLIS) { townsFake.sentAfterNowCount == 1 }
+        composeRule.waitUntil(WAIT_MILLIS) { towns.sentAfterNowCount == 1 }
     }
 
     @Test
     fun `the end of a holdout check reads the town again`() {
         val due: HoldoutCheck = HoldoutCheck.Due(PlacementBand.First, HoldoutCheckWeek.Eighth)
-        holdoutChecksFake.answerRead(HoldoutChecksReadResult.Read(listOf(due)))
-        holdoutChecksFake.answerChange(HoldoutCheckChangeResult.Changed(emptyList()))
+        holdoutChecks.answerRead(HoldoutChecksReadResult.Read(listOf(due)))
+        holdoutChecks.answerChange(HoldoutCheckChangeResult.Changed(emptyList()))
         showing(Destination.Town, Destination.HoldoutCheck(PlacementBand.First, HoldoutCheckWeek.Eighth))
         waitFor(hasText(SKIP_PLACEMENT))
 
         composeRule.onNode(hasText(SKIP_PLACEMENT)).performScrollTo().performClick()
 
-        composeRule.waitUntil(WAIT_MILLIS) { townsFake.sentAfterNowCount == 1 }
+        composeRule.waitUntil(WAIT_MILLIS) { towns.sentAfterNowCount == 1 }
     }
 
     @Test
     fun `starting a lesson reads the town again`() {
-        val studying: TownSnapshot = townOf(nextStep = NextStep.LessonRunning(goal = null))
-        townsFake.answerLesson(TownLessonResult.Answered(studying))
-        showing(Destination.Town, Destination.School, town = townOf(nextStep = NextStep.LessonToStudy(firstLesson)))
+        val studying: TownSnapshot = playedTown(nextStep = NextStep.LessonRunning(goal = null, text = null))
+        towns.answerLesson(TownLessonResult.Answered(studying))
+        showing(Destination.Town, Destination.School, town = playedTown(nextStep = NextStep.LessonToStudy(firstLesson)))
 
         dockGo("Estudiar la lección 1 · 5:00").performClick()
 
-        composeRule.waitUntil(WAIT_MILLIS) { townsFake.sentAfterNowCount == 1 }
+        composeRule.waitUntil(WAIT_MILLIS) { towns.sentAfterNowCount == 1 }
     }
 
     @Test
     fun `the school's read-words step waits while the lesson is studied`() {
-        showing(Destination.Town, Destination.School, town = townOf(nextStep = NextStep.LessonRunning(goal = null)))
+        showing(
+            Destination.Town,
+            Destination.School,
+            town = playedTown(nextStep = NextStep.LessonRunning(goal = null, text = null)),
+        )
 
         val studying: SemanticsMatcher =
             SemanticsMatcher.expectValue(SemanticsProperties.StateDescription, "En estudio")
@@ -737,7 +688,7 @@ class DockFrameNavigationTest {
 
     @Test
     fun `the dock comes right after the header for TalkBack`() {
-        showing(Destination.Town, Destination.School, town = townOf().copy(learning = learningWithRing))
+        showing(Destination.Town, Destination.School, town = playedTown().copy(learning = learningWithRing))
         dockGo("Ir al informe")
         waitFor(hasText(THREE_OF_FIVE))
 
@@ -751,7 +702,7 @@ class DockFrameNavigationTest {
 
     @Test
     fun `the town home's dock comes right after the home's header for TalkBack`() {
-        showing(Destination.Town, town = townOf().copy(learning = learningWithRing))
+        showing(Destination.Town, town = playedTown().copy(learning = learningWithRing))
         dockGo("Ir al informe")
         waitFor(hasText(THREE_OF_FIVE))
 
@@ -781,8 +732,8 @@ class DockFrameNavigationTest {
     @Config(qualifiers = "+w411dp-h915dp")
     @GraphicsMode(GraphicsMode.Mode.NATIVE)
     fun `a refusal is drawn above the go button at font scale 1 on a 411 by 915 window`() {
-        townsFake.answerLesson(TownLessonResult.Refused(TownLessonRefusal.StudySlotBusy))
-        showing(Destination.Town, Destination.School, town = townOf(nextStep = releasedLesson))
+        towns.answerLesson(TownLessonResult.Refused(TownLessonRefusal.StudySlotBusy))
+        showing(Destination.Town, Destination.School, town = playedTown(nextStep = releasedLesson))
 
         dockGo(STUDY_RELEASED).performClick()
         waitFor(inTheDock(STUDY_SLOT_BUSY))
@@ -797,8 +748,8 @@ class DockFrameNavigationTest {
     @Config(qualifiers = "+w360dp-h640dp", fontScale = 2.0f)
     @GraphicsMode(GraphicsMode.Mode.NATIVE)
     fun `a refusal folds to the top of the scrolling area, in view, at font scale 2 on a 360 by 640 window`() {
-        townsFake.answerLesson(TownLessonResult.Refused(TownLessonRefusal.StudySlotBusy))
-        showing(Destination.Town, Destination.School, town = townOf(nextStep = releasedLesson))
+        towns.answerLesson(TownLessonResult.Refused(TownLessonRefusal.StudySlotBusy))
+        showing(Destination.Town, Destination.School, town = playedTown(nextStep = releasedLesson))
         waitFor(hasText("Escuela").and(isHeading()))
         composeRule.onAllNodes(hasScrollAction()).onFirst().performTouchInput { swipeUp() }
 
@@ -815,7 +766,7 @@ class DockFrameNavigationTest {
     @Config(qualifiers = "+w360dp-h640dp", fontScale = 2.0f)
     @GraphicsMode(GraphicsMode.Mode.NATIVE)
     fun `the go button keeps its whole label on screen at font scale 2 on a 360 by 640 window`() {
-        showing(Destination.Town, Destination.School, town = townOf(nextStep = releasedLesson))
+        showing(Destination.Town, Destination.School, town = playedTown(nextStep = releasedLesson))
 
         val go: Rect = dockGo(STUDY_RELEASED).getBoundsInRoot()
         val window: Rect = composeRule.onRoot().getBoundsInRoot()

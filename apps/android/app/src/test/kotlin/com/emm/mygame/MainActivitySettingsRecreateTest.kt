@@ -41,7 +41,7 @@ class MainActivitySettingsRecreateTest {
     fun restoreASession() {
         val player: SignedInPlayer =
             SignedInPlayer("ines@example.com", isEmailVerified = true, scaffold = PlayerScaffold.Spanish)
-        repeat(SESSION_READS) { application.sessionsFake.answerRestore(RestoreResult.SignedIn(player)) }
+        repeat(SESSION_READS) { application.sessions.answerRestore(RestoreResult.SignedIn(player)) }
         repeat(REPORT_READS) { application.reports.answerRead(ReportReadResult.Read(nothingDue)) }
     }
 

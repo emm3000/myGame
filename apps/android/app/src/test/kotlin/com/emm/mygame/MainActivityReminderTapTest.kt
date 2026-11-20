@@ -36,7 +36,7 @@ class MainActivityReminderTapTest {
 
     @Before
     fun restoreASession() {
-        application.sessionsFake.answerRestore(
+        application.sessions.answerRestore(
             RestoreResult.SignedIn(
                 SignedInPlayer("ines@example.com", isEmailVerified = true, scaffold = PlayerScaffold.Spanish),
             ),

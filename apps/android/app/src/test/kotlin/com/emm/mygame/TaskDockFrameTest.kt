@@ -43,32 +43,9 @@ import com.emm.mygame.core.designsystem.MyGameTheme
 import com.emm.mygame.core.designsystem.MyGameTypography
 import com.emm.mygame.core.designsystem.NAV_ROW_CHEVRON
 import com.emm.mygame.core.designsystem.OUTLINED_PILL
-import com.emm.mygame.core.network.HoldoutCheckRepository
-import com.emm.mygame.core.network.LearningRepository
 import com.emm.mygame.core.network.LessonId
 import com.emm.mygame.core.network.LessonName
 import com.emm.mygame.core.network.NextStepCard
-import com.emm.mygame.core.network.PlacementRepository
-import com.emm.mygame.core.network.PlayerLanguage
-import com.emm.mygame.core.network.PlayerScaffold
-import com.emm.mygame.core.network.ReminderNotifications
-import com.emm.mygame.core.network.ReportRepository
-import com.emm.mygame.core.network.SessionEnds
-import com.emm.mygame.core.network.SessionRepository
-import com.emm.mygame.core.network.StudyReminderChoice
-import com.emm.mygame.core.network.StudyReminderSettings
-import com.emm.mygame.core.network.ThemePick
-import com.emm.mygame.core.network.ThemeSettings
-import com.emm.mygame.core.network.TownRepository
-import com.emm.mygame.core.testing.FakeHoldoutCheckRepository
-import com.emm.mygame.core.testing.FakeLearningRepository
-import com.emm.mygame.core.testing.FakePlacementRepository
-import com.emm.mygame.core.testing.FakeReminderNotifications
-import com.emm.mygame.core.testing.FakeReportRepository
-import com.emm.mygame.core.testing.FakeSessionRepository
-import com.emm.mygame.core.testing.FakeStudyReminderSettings
-import com.emm.mygame.core.testing.FakeThemeSettings
-import com.emm.mygame.core.testing.FakeTownRepository
 import com.emm.mygame.core.ui.FillTaskDock
 import com.emm.mygame.core.ui.FoldedTaskEnd
 import com.emm.mygame.core.ui.FollowTownDock
@@ -78,8 +55,6 @@ import com.emm.mygame.feature.town.TownStatus
 import com.emm.mygame.feature.town.TownStatusIntent
 import com.emm.mygame.feature.town.TownStatusUiState
 import com.emm.mygame.feature.town.TownUiState
-import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.StateFlow
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertTrue
 import org.junit.Rule
@@ -87,7 +62,6 @@ import org.junit.Test
 import org.junit.runner.RunWith
 import org.robolectric.RobolectricTestRunner
 import org.robolectric.annotation.Config
-import kotlin.time.Clock
 
 @RunWith(RobolectricTestRunner::class)
 @Config(qualifiers = "+w411dp-h891dp")
@@ -97,23 +71,7 @@ class TaskDockFrameTest {
     val composeRule: AndroidComposeTestRule<ActivityScenarioRule<ComponentActivity>, ComponentActivity> =
         createAndroidComposeRule<ComponentActivity>()
 
-    private val dependencies: AppDependencies = object : AppDependencies {
-        override val clock: Clock = Clock.System
-        override val sessionEnds: SessionEnds = SessionEnds()
-        override val playerLanguage: StateFlow<PlayerLanguage?> = MutableStateFlow(null)
-        override val playerScaffold: StateFlow<PlayerScaffold?> = MutableStateFlow(null)
-        override val sessions: SessionRepository = FakeSessionRepository()
-        override val towns: TownRepository = FakeTownRepository()
-        override val learning: LearningRepository = FakeLearningRepository()
-        override val reports: ReportRepository = FakeReportRepository()
-        override val placements: PlacementRepository = FakePlacementRepository()
-        override val holdoutChecks: HoldoutCheckRepository = FakeHoldoutCheckRepository()
-        override val studyReminders: StudyReminderSettings =
-            FakeStudyReminderSettings(StudyReminderChoice.firstChoice)
-        override val reminderNotifications: ReminderNotifications =
-            FakeReminderNotifications(areAllowed = true, canAsk = true)
-        override val themes: ThemeSettings = FakeThemeSettings(ThemePick.System)
-    }
+    private val dependencies: AppDependencies = dependenciesOf()
 
     private val sent: MutableList<TownStatusIntent> = mutableListOf()
 

@@ -1,15 +1,11 @@
 package com.emm.mygame
 
-import com.emm.mygame.core.network.CaughtUpReason
-import com.emm.mygame.core.network.NextStep
 import com.emm.mygame.core.network.RetainedWords
-import com.emm.mygame.core.network.TownBuildingKind
-import com.emm.mygame.core.network.TownLabel
 import com.emm.mygame.core.network.TownReadResult
 import com.emm.mygame.core.network.TownSnapshot
 import com.emm.mygame.core.testing.FakeTownRepository
 import com.emm.mygame.core.testing.MainDispatcherRule
-import com.emm.mygame.core.testing.hiringOf
+import com.emm.mygame.core.testing.townOf
 import kotlin.time.Duration.Companion.minutes
 import kotlin.time.Instant
 import kotlinx.coroutines.launch
@@ -81,35 +77,6 @@ class RetainedWordsViewModelTest {
         return viewModel
     }
 
-    private fun townWith(retained: RetainedWords, readAt: Instant = firstReadAt): TownSnapshot = TownSnapshot(
-        name = "Riverton",
-        label = TownLabel.Town,
-        seasonInForce = null,
-        seasonEndsAt = null,
-        stocks = emptyList(),
-        people = TownSnapshot.People(supplied = 10, free = 4, atWork = 6),
-        buildings = listOf(TownSnapshot.Building(TownBuildingKind.School, level = 1, next = null)),
-        work = TownSnapshot.Work(slot = null, waitingList = emptyList(), cap = 2),
-        lessons = emptyList(),
-        releasedLessons = emptyList(),
-        texts = emptyList(),
-        dueHoldoutChecks = emptyList(),
-        hasBandStarted = false,
-        skills = emptyList(),
-        learning = TownSnapshot.Learning(
-            cap = 10,
-            inLearning = 0,
-            retainedWords = retained,
-            nextInLearningDueAt = null,
-        ),
-        stableWordCount = 0,
-        retainedWordCount = 0,
-        lessonSlot = null,
-        hiring = hiringOf(),
-        job = null,
-        nextStep = NextStep.CaughtUp(CaughtUpReason.LessonsDone, goal = null),
-        tip = null,
-        nextDueAt = null,
-        readAt = readAt,
-    )
+    private fun townWith(retained: RetainedWords, readAt: Instant = firstReadAt): TownSnapshot =
+        townOf(readAt, hasOffice = false, retainedWords = retained)
 }

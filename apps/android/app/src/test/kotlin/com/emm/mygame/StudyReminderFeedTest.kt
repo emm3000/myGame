@@ -2,7 +2,6 @@ package com.emm.mygame
 
 import android.content.Context
 import android.content.SharedPreferences
-import com.emm.mygame.core.network.CaughtUpReason
 import com.emm.mygame.core.network.DueReview
 import com.emm.mygame.core.network.DueReviews
 import com.emm.mygame.core.network.HoldoutCheck
@@ -12,14 +11,13 @@ import com.emm.mygame.core.network.NextStep
 import com.emm.mygame.core.network.PlacementBand
 import com.emm.mygame.core.network.StudyReminderChoice
 import com.emm.mygame.core.network.TownAnswerFreshness
-import com.emm.mygame.core.network.TownBuildingKind
-import com.emm.mygame.core.network.TownLabel
 import com.emm.mygame.core.network.TownReport
 import com.emm.mygame.core.network.TownSnapshot
 import com.emm.mygame.core.network.WordId
 import com.emm.mygame.core.projection.StudyReminderFacts
 import com.emm.mygame.core.testing.FakeTownRepository
-import com.emm.mygame.core.testing.hiringOf
+import com.emm.mygame.core.testing.lessonsDone
+import com.emm.mygame.core.testing.townOf
 import java.time.LocalTime
 import kotlin.time.Instant
 import kotlinx.coroutines.test.TestScope
@@ -55,7 +53,7 @@ class StudyReminderFeedTest {
 
     @Test
     fun `a town answer feeds the stored facts`() = runTest {
-        val town: TownSnapshot = townOf(
+        val town: TownSnapshot = answeredTown(
             nextStep = NextStep.LessonToStudy(LessonId("lesson-2")),
             dueHoldoutChecks = listOf(TownSnapshot.DueHoldoutCheck(PlacementBand.First, HoldoutCheckWeek.Eighth)),
             lessonSlot = runningLesson,
@@ -77,7 +75,7 @@ class StudyReminderFeedTest {
         val feed: StudyReminderFeed = feed()
         feed.reviewsAnswered(DueReviews(emptyList(), readFirst = emptyList(), nextDueAt = nextDueAt, readAt = readAt))
 
-        feed.townAnswered(townOf(nextStep = NextStep.Reviews(count = 3, readFirst = emptyList())), fresh)
+        feed.townAnswered(answeredTown(nextStep = NextStep.Reviews(count = 3, readFirst = emptyList())), fresh)
 
         assertEquals(StudyReminderFacts(cardsWaitingFrom = readAt), store.facts.value)
     }
@@ -86,7 +84,7 @@ class StudyReminderFeedTest {
     fun `a town answer older than a reviews read keeps that read's cards and its own lesson finish`() = runTest {
         val feed: StudyReminderFeed = feed()
         feed.reviewsAnswered(DueReviews(emptyList(), readFirst = emptyList(), nextDueAt = nextDueAt, readAt = readAt))
-        val olderTown: TownSnapshot = townOf(
+        val olderTown: TownSnapshot = answeredTown(
             nextStep = NextStep.LessonToStudy(LessonId("lesson-2")),
             lessonSlot = runningLesson,
         ).copy(nextDueAt = null)
@@ -107,7 +105,7 @@ class StudyReminderFeedTest {
         val readAtTheFinish =
             DueReviews(emptyList(), readFirst = emptyList(), nextDueAt = nextDueAt, readAt = lessonFinishesAt)
         feed.reviewsAnswered(readAtTheFinish)
-        val olderTown: TownSnapshot = townOf(
+        val olderTown: TownSnapshot = answeredTown(
             nextStep = NextStep.LessonToStudy(LessonId("lesson-2")),
             lessonSlot = runningLesson,
         ).copy(nextDueAt = null)
@@ -141,7 +139,7 @@ class StudyReminderFeedTest {
     fun `a town answer with a stale check keeps the stored check due`() = runTest {
         val feed: StudyReminderFeed = feed()
         feed.holdoutChecksAnswered(emptyList())
-        val olderTown: TownSnapshot = townOf(
+        val olderTown: TownSnapshot = answeredTown(
             nextStep = NextStep.HoldoutCheck(PlacementBand.First, HoldoutCheckWeek.Eighth),
             dueHoldoutChecks = listOf(TownSnapshot.DueHoldoutCheck(PlacementBand.First, HoldoutCheckWeek.Eighth)),
         )
@@ -153,7 +151,7 @@ class StudyReminderFeedTest {
 
     @Test
     fun `a town on the reviews step waits from its read`() = runTest {
-        feed().townAnswered(townOf(nextStep = NextStep.Reviews(count = 3, readFirst = emptyList())), fresh)
+        feed().townAnswered(answeredTown(nextStep = NextStep.Reviews(count = 3, readFirst = emptyList())), fresh)
 
         assertEquals(StudyReminderFacts(cardsWaitingFrom = readAt), store.facts.value)
     }
@@ -162,7 +160,7 @@ class StudyReminderFeedTest {
     fun `a town on the holdout check step holds check due`() = runTest {
         val checkStep = NextStep.HoldoutCheck(PlacementBand.First, HoldoutCheckWeek.Eighth)
 
-        feed().townAnswered(townOf(nextStep = checkStep), fresh)
+        feed().townAnswered(answeredTown(nextStep = checkStep), fresh)
 
         assertEquals(StudyReminderFacts(cardsWaitingFrom = nextDueAt, isCheckDue = true), store.facts.value)
     }
@@ -171,7 +169,7 @@ class StudyReminderFeedTest {
     fun `a released lesson step holds lesson ready`() = runTest {
         val releasedStep = NextStep.ReleasedLesson(LessonId("released-1-1"), PlacementBand.First, position = 1)
 
-        feed().townAnswered(townOf(nextStep = releasedStep), fresh)
+        feed().townAnswered(answeredTown(nextStep = releasedStep), fresh)
 
         assertEquals(StudyReminderFacts(cardsWaitingFrom = nextDueAt, isLessonReady = true), store.facts.value)
     }
@@ -255,7 +253,7 @@ class StudyReminderFeedTest {
     fun `a town answer never asks a read`() = runTest {
         store.choose(reminderOn)
 
-        feed().townAnswered(townOf(nextStep = NextStep.CaughtUp(CaughtUpReason.LessonsDone, goal = null)), fresh)
+        feed().townAnswered(answeredTown(nextStep = lessonsDone), fresh)
         runCurrent()
 
         assertEquals(0, towns.readCount)
@@ -307,34 +305,16 @@ class StudyReminderFeedTest {
     private fun reportOf(dueCount: Int): TownReport =
         TownReport(dueCount = dueCount, readFirst = emptyList(), nextDueAt = nextDueAt, news = emptyList())
 
-    private fun townOf(
+    private fun answeredTown(
         nextStep: NextStep,
         dueHoldoutChecks: List<TownSnapshot.DueHoldoutCheck> = emptyList(),
         lessonSlot: TownSnapshot.LessonSlot? = null,
-    ): TownSnapshot = TownSnapshot(
-        name = "Riverton",
-        label = TownLabel.Town,
-        seasonInForce = null,
-        seasonEndsAt = null,
-        stocks = emptyList(),
-        people = TownSnapshot.People(supplied = 10, free = 4, atWork = 6),
-        buildings = listOf(TownSnapshot.Building(TownBuildingKind.School, level = 1, next = null)),
-        work = TownSnapshot.Work(slot = null, waitingList = emptyList(), cap = 2),
-        lessons = emptyList(),
-        releasedLessons = emptyList(),
-        texts = emptyList(),
-        dueHoldoutChecks = dueHoldoutChecks,
-        hasBandStarted = false,
-        skills = emptyList(),
-        learning = TownSnapshot.Learning(cap = 10, inLearning = 0, retainedWords = null, nextInLearningDueAt = null),
-        stableWordCount = 0,
-        retainedWordCount = 0,
-        lessonSlot = lessonSlot,
-        hiring = hiringOf(),
-        job = null,
+    ): TownSnapshot = townOf(
+        readAt,
         nextStep = nextStep,
-        tip = null,
+        hasOffice = false,
+        lessonSlot = lessonSlot,
+        dueHoldoutChecks = dueHoldoutChecks,
         nextDueAt = nextDueAt,
-        readAt = readAt,
     )
 }

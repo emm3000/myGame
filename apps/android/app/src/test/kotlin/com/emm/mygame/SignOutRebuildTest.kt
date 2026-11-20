@@ -8,35 +8,11 @@ import androidx.compose.ui.test.junit4.createEmptyComposeRule
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
 import androidx.compose.ui.test.performScrollTo
-import com.emm.mygame.core.network.HoldoutCheckRepository
-import com.emm.mygame.core.network.LearningRepository
-import com.emm.mygame.core.network.PlacementRepository
-import com.emm.mygame.core.network.PlayerLanguage
-import com.emm.mygame.core.network.PlayerScaffold
-import com.emm.mygame.core.network.ReminderNotifications
 import com.emm.mygame.core.network.ReportReadResult
-import com.emm.mygame.core.network.ReportRepository
 import com.emm.mygame.core.network.RestoreResult
-import com.emm.mygame.core.network.SessionEnds
-import com.emm.mygame.core.network.SessionRepository
-import com.emm.mygame.core.network.StudyReminderChoice
-import com.emm.mygame.core.network.StudyReminderSettings
-import com.emm.mygame.core.network.ThemePick
-import com.emm.mygame.core.network.ThemeSettings
 import com.emm.mygame.core.network.TownReport
-import com.emm.mygame.core.network.TownRepository
-import com.emm.mygame.core.testing.FakeHoldoutCheckRepository
-import com.emm.mygame.core.testing.FakeLearningRepository
-import com.emm.mygame.core.testing.FakePlacementRepository
-import com.emm.mygame.core.testing.FakeReminderNotifications
 import com.emm.mygame.core.testing.FakeReportRepository
 import com.emm.mygame.core.testing.FakeSessionRepository
-import com.emm.mygame.core.testing.FakeStudyReminderSettings
-import com.emm.mygame.core.testing.FakeThemeSettings
-import com.emm.mygame.core.testing.FakeTownRepository
-import kotlin.time.Clock
-import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.StateFlow
 import org.junit.After
 import org.junit.Rule
 import org.junit.Test
@@ -51,27 +27,11 @@ class SignOutRebuildTest {
     @get:Rule
     val composeRule: ComposeTestRule = createEmptyComposeRule()
 
-    private val sessionsFake: FakeSessionRepository = FakeSessionRepository()
+    private val sessions: FakeSessionRepository = FakeSessionRepository()
 
-    private val reportsFake: FakeReportRepository = FakeReportRepository()
+    private val reports: FakeReportRepository = FakeReportRepository()
 
-    private val dependencies: AppDependencies = object : AppDependencies {
-        override val clock: Clock = Clock.System
-        override val sessionEnds: SessionEnds = SessionEnds()
-        override val playerLanguage: StateFlow<PlayerLanguage?> = MutableStateFlow(null)
-        override val playerScaffold: StateFlow<PlayerScaffold?> = MutableStateFlow(null)
-        override val sessions: SessionRepository = sessionsFake
-        override val towns: TownRepository = FakeTownRepository()
-        override val learning: LearningRepository = FakeLearningRepository()
-        override val reports: ReportRepository = reportsFake
-        override val placements: PlacementRepository = FakePlacementRepository()
-        override val holdoutChecks: HoldoutCheckRepository = FakeHoldoutCheckRepository()
-        override val studyReminders: StudyReminderSettings =
-            FakeStudyReminderSettings(StudyReminderChoice.firstChoice)
-        override val reminderNotifications: ReminderNotifications =
-            FakeReminderNotifications(areAllowed = true, canAsk = true)
-        override val themes: ThemeSettings = FakeThemeSettings(ThemePick.System)
-    }
+    private val dependencies: AppDependencies = dependenciesOf(sessions = sessions, reports = reports)
 
     @After
     fun forgetTheHostContent() {
@@ -79,7 +39,7 @@ class SignOutRebuildTest {
     }
 
     private fun signingOutOnARecreatedReport() {
-        reportsFake.answerRead(
+        reports.answerRead(
             ReportReadResult.Read(
                 TownReport(dueCount = 0, readFirst = emptyList(), nextDueAt = null, news = emptyList()),
             ),
@@ -105,8 +65,8 @@ class SignOutRebuildTest {
     fun `opens the links for the next session once a sign-out survives a recreation`() {
         signingOutOnARecreatedReport()
 
-        repeat(SIGNED_OUT_READS) { sessionsFake.answerRestore(RestoreResult.SignedOut) }
-        sessionsFake.answerSignOut()
+        repeat(SIGNED_OUT_READS) { sessions.answerRestore(RestoreResult.SignedOut) }
+        sessions.answerSignOut()
         waitForLine("Entra en tu pueblo")
         composeRule.onNodeWithText("Crea tu cuenta").performScrollTo().performClick()
         waitForLine("¿Ya tienes cuenta?")

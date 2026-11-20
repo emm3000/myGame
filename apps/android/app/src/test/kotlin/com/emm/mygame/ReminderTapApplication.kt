@@ -8,7 +8,6 @@ import com.emm.mygame.core.network.PlayerLanguage
 import com.emm.mygame.core.network.PlayerScaffold
 import com.emm.mygame.core.network.ReminderNotifications
 import com.emm.mygame.core.network.SessionEnds
-import com.emm.mygame.core.network.SessionRepository
 import com.emm.mygame.core.network.StudyReminderChoice
 import com.emm.mygame.core.network.StudyReminderSettings
 import com.emm.mygame.core.network.ThemePick
@@ -28,8 +27,6 @@ import kotlinx.coroutines.flow.StateFlow
 
 class ReminderTapApplication : Application(), AppDependencies {
 
-    val sessionsFake: FakeSessionRepository = FakeSessionRepository()
-
     override val clock: Clock = Clock.System
 
     override val sessionEnds: SessionEnds = SessionEnds()
@@ -38,7 +35,7 @@ class ReminderTapApplication : Application(), AppDependencies {
 
     override val playerScaffold: StateFlow<PlayerScaffold?> = MutableStateFlow(null)
 
-    override val sessions: SessionRepository = sessionsFake
+    override val sessions: FakeSessionRepository = FakeSessionRepository()
 
     override val towns: TownRepository = FakeTownRepository()
 
