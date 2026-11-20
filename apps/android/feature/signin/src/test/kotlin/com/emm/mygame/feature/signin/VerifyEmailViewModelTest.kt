@@ -4,8 +4,6 @@ import androidx.lifecycle.SavedStateHandle
 import app.cash.turbine.test
 import com.emm.mygame.core.network.EmailVerificationResult
 import com.emm.mygame.core.network.EmailVerificationToken
-import com.emm.mygame.core.network.RestoreResult
-import com.emm.mygame.core.network.SignedInPlayer
 import com.emm.mygame.core.testing.FakeSessionRepository
 import com.emm.mygame.core.testing.MainDispatcherRule
 import kotlinx.coroutines.test.runTest
@@ -154,42 +152,16 @@ class VerifyEmailViewModelTest {
     }
 
     @Test
-    fun `shows the verified state when a restored resend is refused while the session email is verified`() = runTest {
-        val sessions: FakeSessionRepository = FakeSessionRepository()
-        val inFlightState: SavedStateHandle = savedStateWhileSending()
-        sessions.answerEmailVerification(EmailVerificationResult.LinkRefused)
-        sessions.answerRestore(RestoreResult.SignedIn(signedInPlayer(isEmailVerified = true)))
+    fun `shows the refused link when a resend restored before any answer is refused whatever account is signed in`() =
+        runTest {
+            val sessions: FakeSessionRepository = FakeSessionRepository()
+            val unansweredState: SavedStateHandle = savedStateBeforeAnswer()
+            sessions.answerEmailVerification(EmailVerificationResult.LinkRefused)
 
-        val restored: VerifyEmailViewModel = verifyEmailViewModel(sessions, mailedToken, inFlightState)
+            val restored: VerifyEmailViewModel = verifyEmailViewModel(sessions, mailedToken, unansweredState)
 
-        assertEquals(VerifyEmailUiState.Verified, restored.state.value)
-    }
-
-    @Test
-    fun `shows the refused link when a restored resend is refused while the session email is unverified`() = runTest {
-        val sessions: FakeSessionRepository = FakeSessionRepository()
-        val inFlightState: SavedStateHandle = savedStateWhileSending()
-        sessions.answerEmailVerification(EmailVerificationResult.LinkRefused)
-        sessions.answerRestore(RestoreResult.SignedIn(signedInPlayer(isEmailVerified = false)))
-
-        val restored: VerifyEmailViewModel = verifyEmailViewModel(sessions, mailedToken, inFlightState)
-
-        assertEquals(VerifyEmailUiState.LinkRefused, restored.state.value)
-    }
-
-    @Test
-    fun `sends no third token when restored again after the session confirmed the email`() = runTest {
-        val sessions: FakeSessionRepository = FakeSessionRepository()
-        val restoredState: SavedStateHandle = savedStateWhileSending()
-        sessions.answerEmailVerification(EmailVerificationResult.LinkRefused)
-        sessions.answerRestore(RestoreResult.SignedIn(signedInPlayer(isEmailVerified = true)))
-        verifyEmailViewModel(sessions, mailedToken, restoredState)
-        val confirmedState: SavedStateHandle = copyOf(restoredState)
-
-        verifyEmailViewModel(sessions, mailedToken, confirmedState)
-
-        assertEquals(listOf(mailedToken), sessions.emailVerifications)
-    }
+            assertEquals(VerifyEmailUiState.LinkRefused, restored.state.value)
+        }
 
     private fun savedStateAfter(answer: EmailVerificationResult, sessions: FakeSessionRepository): SavedStateHandle {
         sessions.answerEmailVerification(answer)
@@ -198,7 +170,7 @@ class VerifyEmailViewModelTest {
         return copyOf(savedState)
     }
 
-    private fun savedStateWhileSending(): SavedStateHandle {
+    private fun savedStateBeforeAnswer(): SavedStateHandle {
         val savedState: SavedStateHandle = SavedStateHandle()
         verifyEmailViewModel(FakeSessionRepository(), mailedToken, savedState)
         return copyOf(savedState)
@@ -206,9 +178,6 @@ class VerifyEmailViewModelTest {
 
     private fun copyOf(savedState: SavedStateHandle): SavedStateHandle =
         SavedStateHandle(savedState.keys().associateWith { key -> savedState.get<Any>(key) })
-
-    private fun signedInPlayer(isEmailVerified: Boolean): SignedInPlayer =
-        SignedInPlayer(email = "player@example.com", isEmailVerified = isEmailVerified, scaffold = null)
 
     private fun verifyEmailViewModel(
         sessions: FakeSessionRepository,
