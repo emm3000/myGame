@@ -2,6 +2,7 @@ import { describe, expect, it } from 'vitest'
 import { MemoryCard } from '../memory/MemoryCard'
 import { inMemoryBands } from '../testing/inMemoryBands'
 import { lessonOne } from '../testing/lessonOne'
+import { unitLessonOne } from '../testing/unitLessonOne'
 import { Instant } from '../time/Instant'
 import type { Band } from './BandStart'
 import type { HeldCard } from './HeldCard'
@@ -21,7 +22,7 @@ const chromeLesson = lessonNumbered(1)
 const firstBandOneLesson = lessonNumbered(2)
 const secondBandOneLesson = lessonNumbered(3)
 
-const curriculum = [chromeLesson, firstBandOneLesson, secondBandOneLesson]
+const curriculum = [chromeLesson, firstBandOneLesson, unitLessonOne, secondBandOneLesson]
 
 const bands = inMemoryBands([{ band: 1, lessonIds: ['lesson-2', 'lesson-3'], words: [] }])
 
@@ -55,6 +56,12 @@ describe('openTextsOf', () => {
   })
 
   it('keeps every earlier text open', () => {
+    const studied = cardsOf(chromeLesson, firstBandOneLesson, secondBandOneLesson)
+
+    expect(openTextIdsAfter(studied)).toEqual([secondText.id, firstText.id])
+  })
+
+  it('opens a later lesson’s text past an unstudied unit lesson', () => {
     const studied = cardsOf(chromeLesson, firstBandOneLesson, secondBandOneLesson)
 
     expect(openTextIdsAfter(studied)).toEqual([secondText.id, firstText.id])
