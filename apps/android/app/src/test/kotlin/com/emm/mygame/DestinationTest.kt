@@ -1,6 +1,9 @@
 package com.emm.mygame
 
+import com.emm.mygame.core.network.HoldoutCheckWeek
 import com.emm.mygame.core.network.LessonId
+import com.emm.mygame.core.network.PlacementBand
+import com.emm.mygame.core.network.TextId
 import kotlinx.serialization.json.Json
 import org.junit.Assert.assertEquals
 import org.junit.Test
@@ -18,6 +21,9 @@ class DestinationTest {
             Destination.Map,
             Destination.Review,
             Destination.LessonWords(LessonId("lesson-2"), walked = listOf(LessonId("lesson-1"))),
+            Destination.SchoolText(TextId("text-31")),
+            Destination.Placement,
+            Destination.HoldoutCheck(PlacementBand.Second, HoldoutCheckWeek.Eighth),
         )
 
         val restored: List<Destination> = signedIn.map { destination: Destination ->
