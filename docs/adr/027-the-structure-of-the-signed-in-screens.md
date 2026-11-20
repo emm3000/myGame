@@ -605,4 +605,4 @@ The cutover deleted the fief code Decision 7 names. Each name below maps to its 
 - `materializeStocks` has no single successor: the season walk is `storesAfterSeasonSegment` in `packages/domain/src/town/storesAfterSeasonSegment.ts`, which `deriveFullAt` and `accrueTown` share.
 - `Fief.accruedTo` has no successor: `accrueTown(town, catalog, at)` in `packages/domain/src/town/accrueTown.ts` is the accrual step, and `Town` stores `storedAt`.
 - `rebaseFullSince` keeps its name in `packages/domain/src/town/rebaseFullSince.ts`; `Town.fullSince` is stored in the `full_since_<resource>` columns of the `towns` table.
-- `FiefStatus` has no successor on trunk: `apps/web/src/town/TownStocks.tsx` and Android's `StocksSection.kt` draw the stocks, and neither reads `fullAt` yet (the web halves are #1026 and #1027).
+- `FiefStatus` has no successor on trunk: `apps/web/src/town/TownStocks.tsx` and Android's `PlaceStocks.kt` draw the stocks, and both read `fullAt` for a store's fill hour within 8 h of `readAt`: the web's `fillHourWindowMilliseconds` in `TownStocks.tsx` (#1027), Android's `fillHourWindow` in `feature:town`'s `TownContent.kt` (#1024).
