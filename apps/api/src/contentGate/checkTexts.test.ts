@@ -145,14 +145,14 @@ describe('content gate check 4, coverage of a running text', () => {
     ])
   })
 
-  it('passes a unit an earlier unit lesson taught, inflected as came back is', () => {
+  it('passes a card word a text holds inflected', () => {
     const text = textOf('lesson-3', ['We worked out the money.'])
 
     expect(checkTexts(withUnitLesson(text))).toEqual([])
   })
 
-  it('passes a unit an earlier unit lesson taught, split around its object as in work it out', () => {
-    const text = textOf('lesson-3', ['We work it out.'])
+  it('passes a unit no lesson taught by its lesson, a gap the review of check 7 holds', () => {
+    const text = textOf('lesson-1', ['We work it out.'])
 
     expect(checkTexts(withUnitLesson(text))).toEqual([])
   })
