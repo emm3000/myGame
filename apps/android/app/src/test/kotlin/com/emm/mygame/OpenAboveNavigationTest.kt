@@ -62,7 +62,7 @@ class OpenAboveNavigationTest {
         sentences = listOf(listOf(FrameSpan("We open a shop on the river.", null))),
     )
 
-    private val townWithTheShop: TownSnapshot = townOf(readAt, texts = listOf(newestText))
+    private val townWithANewestText: TownSnapshot = townOf(readAt, texts = listOf(newestText))
 
     private val nothingDue: TownReport =
         TownReport(dueCount = 0, readFirst = emptyList(), nextDueAt = null, news = emptyList())
@@ -90,7 +90,7 @@ class OpenAboveNavigationTest {
     }
 
     private fun showing(vararg destinations: Destination) {
-        repeat(READS_AVAILABLE) { towns.answerRead(TownReadResult.Read(townWithTheShop)) }
+        repeat(READS_AVAILABLE) { towns.answerRead(TownReadResult.Read(townWithANewestText)) }
         composeRule.setContent {
             MyGameTheme {
                 AppNavigation(
