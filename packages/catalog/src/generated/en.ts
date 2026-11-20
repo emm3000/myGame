@@ -6,6 +6,9 @@ export const authSignInSwitchLink = (): string => `Create your account`
 export const authSignInSwitchPrompt = (): string => `No account yet?`
 export const authSignInTitle = (): string => `Sign in to your town`
 export const authSignUpPasswordHint = (): string => `At least 8 characters.`
+export const authSignUpScaffoldEs = (): string => `Spanish: a translation beside each new word`
+export const authSignUpScaffoldLabel = (): string => `Help language`
+export const authSignUpScaffoldNone = (): string => `None: everything in English, with English definitions`
 export const authSignUpSubmit = (): string => `Create account`
 export const authSignUpSwitchLink = (): string => `Sign in`
 export const authSignUpSwitchPrompt = (): string => `Already have an account?`
