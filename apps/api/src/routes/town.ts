@@ -5,7 +5,9 @@ import {
   FoundTownSchema,
   type JobQuote,
   MarkTipSeenSchema,
+  type OpenText,
   PlaceHiringOrderSchema,
+  ReadTextRequestSchema,
   SendCleanUpSchema,
   SendJobSchema,
   StartBuildingWorkSchema,
@@ -43,6 +45,7 @@ import { honoPathOf } from '../http/honoPath'
 import { type NamedIssue, requestRefusalOf } from '../http/requestRefusalOf'
 import { type RequirePlayerDependencies, requirePlayer } from '../http/requirePlayer'
 import type { LessonLibrary } from '../learning/LessonLibrary'
+import { openTextOf } from '../learning/openTextOf'
 import { type CurrentTownDependencies, currentTownOf } from '../town/currentTownOf'
 import { foundTownOnFreeSite } from '../town/foundTownOnFreeSite'
 import { mutateTown } from '../town/mutateTown'
@@ -101,6 +104,27 @@ export const townRoutes = (dependencies: TownDependencies): OpenAPIHono => {
         return answerRefusal(c, news.error)
       }
       const body: TownNewsFeed = news.value
+      return c.json(body)
+    },
+  )
+  routes.on(
+    townDeclarations.text.method,
+    honoPathOf(townDeclarations.text),
+    signedInPlayer,
+    async (c) => {
+      const request = ReadTextRequestSchema.safeParse(c.req.param())
+      if (!request.success) {
+        return answerRefusal(c, { kind: 'MalformedRequest' })
+      }
+      const reading = await currentTownOf(c.var.playerId, dependencies)
+      if (!reading.ok) {
+        return answerRefusal(c, reading.error)
+      }
+      const text = openTextOf(request.data.textId, reading.value, lessons)
+      if (text === undefined) {
+        return c.body(null, 404)
+      }
+      const body: OpenText = text
       return c.json(body)
     },
   )

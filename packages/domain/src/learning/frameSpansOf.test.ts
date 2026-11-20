@@ -11,6 +11,7 @@ import type { FrameReader } from './FrameReader'
 import type { FrameToken } from './FrameToken'
 import { frameSpansOf, withholdingNothing } from './frameSpansOf'
 import type { HeldCard } from './HeldCard'
+import { heldCardsOf } from './HeldCards'
 import type { Scaffold } from './Scaffold'
 
 const instantAt = (iso: string): Instant => Instant.fromEpochMilliseconds(Date.parse(iso))
@@ -48,7 +49,7 @@ type Learner = {
 }
 
 const readerOf = ({ cards, placedOutBands = [], scaffold = 'es' }: Learner): FrameReader => ({
-  cards,
+  cards: heldCardsOf(cards),
   placedOutBands,
   scaffold,
   lessons: {

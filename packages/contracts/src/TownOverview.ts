@@ -8,7 +8,7 @@ import { HireKindSchema } from './HireKind'
 import { LessonStateSchema } from './LessonState'
 import { NeededWordKindSchema } from './NeededWordKind'
 import { NextStepSchema } from './NextStep'
-import { OpenTextSchema } from './OpenText'
+
 import { PlacementBandSchema } from './PlacementBand'
 import { ReleasedLessonStateSchema } from './ReleasedLessonState'
 import { ResourceAmountsSchema } from './ResourceAmounts'
@@ -19,6 +19,7 @@ import { SeasonDurationPercentSchema } from './SeasonDurationPercent'
 import { SeasonKindSchema } from './SeasonKind'
 import { SiteAddressSchema } from './SiteAddress'
 import { TerrainSchema } from './Terrain'
+import { TextTitleSchema } from './TextTitle'
 import { TipKindSchema } from './TipKind'
 import { TownJobSchema } from './TownJob'
 import {
@@ -137,7 +138,7 @@ export const TownOverviewSchema = z
     job: z.lazy(() => TownJobSchema).nullable(),
     lessons: z.array(LessonStateSchema),
     releasedLessons: z.array(ReleasedLessonStateSchema),
-    texts: z.array(OpenTextSchema),
+    texts: z.array(TextTitleSchema),
     dueHoldoutChecks: z.array(DueHoldoutCheckStateSchema),
     hasBandStarted: z.boolean(),
     bandLines: z.array(BandLineSchema),

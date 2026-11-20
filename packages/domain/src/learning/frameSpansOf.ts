@@ -22,7 +22,7 @@ const supportOf = (
   if (lesson === undefined || word === undefined) {
     return null
   }
-  const held = cards.find((card) => card.wordId === wordId)
+  const held = cards.get(wordId)
   const level = supportLevelOf(held, isLessonPlacedOut(lesson, placedOutBands, lessons), scaffold)
   return { shown: level.shown, ...supportTextOf(word, level) }
 }

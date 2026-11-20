@@ -2838,20 +2838,9 @@
                 "title": {
                   "type": "string",
                   "minLength": 1
-                },
-                "sentences": {
-                  "type": "array",
-                  "items": {
-                    "type": "array",
-                    "items": {
-                      "$ref": "#/components/schemas/FrameSpan"
-                    },
-                    "minItems": 1
-                  },
-                  "minItems": 1
                 }
               },
-              "required": ["id", "title", "sentences"],
+              "required": ["id", "title"],
               "additionalProperties": false
             }
           },
@@ -3569,6 +3558,32 @@
           }
         },
         "required": ["items"],
+        "additionalProperties": false
+      },
+      "OpenText": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "minLength": 1
+          },
+          "title": {
+            "type": "string",
+            "minLength": 1
+          },
+          "sentences": {
+            "type": "array",
+            "items": {
+              "type": "array",
+              "items": {
+                "$ref": "#/components/schemas/FrameSpan"
+              },
+              "minItems": 1
+            },
+            "minItems": 1
+          }
+        },
+        "required": ["id", "title", "sentences"],
         "additionalProperties": false
       },
       "FoundTown": {
@@ -4743,6 +4758,51 @@
           },
           "404": {
             "description": "TownNotFound: the player holds no town yet.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/town/texts/{textId}": {
+      "get": {
+        "security": [
+          {
+            "sessionBearer": []
+          }
+        ],
+        "parameters": [
+          {
+            "schema": {
+              "type": "string",
+              "minLength": 1
+            },
+            "required": true,
+            "name": "textId",
+            "in": "path"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "One text the stage has reached, its sentences as spans, each card word with its support at the read.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/OpenText"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "No live session: neither a session cookie nor, without one, an Authorization bearer token names one. Empty body."
+          },
+          "404": {
+            "description": "TownNotFound; a text the stage has not reached, or the content lacks, answers an empty body.",
             "content": {
               "application/json": {
                 "schema": {

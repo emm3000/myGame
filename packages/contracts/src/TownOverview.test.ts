@@ -567,22 +567,25 @@ describe('TownOverviewSchema holdout', () => {
     expect(TownOverviewSchema.safeParse(overview({ releasedLessons })).success).toBe(false)
   })
 
-  it('reads an open text with its title and its sentences as spans', () => {
+  it('reads each open text by its id and its title', () => {
+    const texts = [
+      { id: 'text-2', title: 'The Long Report' },
+      { id: 'text-1', title: 'A New Course' },
+    ]
+
+    expect(TownOverviewSchema.parse(overview({ texts })).texts).toEqual(texts)
+  })
+
+  it('rejects an open text that carries its sentences', () => {
     const texts = [
       {
         id: 'text-1',
         title: 'A New Course',
-        sentences: [
-          [
-            { text: 'We are at ', support: null },
-            { text: 'school', support: besideSchool },
-            { text: '.', support: null },
-          ],
-        ],
+        sentences: [[{ text: 'We are at school.', support: null }]],
       },
     ]
 
-    expect(TownOverviewSchema.parse(overview({ texts })).texts).toEqual(texts)
+    expect(TownOverviewSchema.safeParse(overview({ texts })).success).toBe(false)
   })
 
   it('rejects an overview without its texts', () => {

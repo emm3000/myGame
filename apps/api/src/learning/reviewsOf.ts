@@ -5,6 +5,7 @@ import {
   dueInstantOf,
   type FrameReader,
   type HeldCard,
+  heldCardsOf,
   type Instant,
   type MemoryTerms,
   ok,
@@ -80,10 +81,9 @@ export const reviewsOf = async (
   if (!nextDueAt.ok) {
     return nextDueAt
   }
+  const reader = { cards: heldCardsOf(cards), placedOutBands, scaffold, lessons }
   return ok({
-    due: shown.value.map((review) =>
-      dueReviewOf(review, { cards, placedOutBands, scaffold, lessons }),
-    ),
+    due: shown.value.map((review) => dueReviewOf(review, reader)),
     readFirst: [
       ...readFirstOf(
         lessons.lessons(),

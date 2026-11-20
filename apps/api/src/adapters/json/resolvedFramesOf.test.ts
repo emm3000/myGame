@@ -78,7 +78,7 @@ const cardInReview = (): MemoryCard => {
 }
 
 const readerOf = (scaffold: Scaffold, lessons: JsonLessonCatalog = shipped): FrameReader => ({
-  cards: [],
+  cards: new Map(),
   placedOutBands: [],
   scaffold,
   lessons,

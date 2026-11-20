@@ -10,7 +10,9 @@ import {
   glossOf,
   type Headword,
   type HeldCard,
+  type HeldCards,
   hasBandStartedAt,
+  heldCardsOf,
   heldOutWordsAt,
   isLessonPlacedOut,
   type LessonSlot,
@@ -31,9 +33,7 @@ import {
   studyPercentAt,
   supportLevelOf,
   supportTextOf,
-  type TextReading,
   type TownCatalog,
-  textReadingOf,
   wordStandingOf,
   wordsEnteringOf,
 } from '@mygame/domain'
@@ -62,6 +62,7 @@ type ReleasedLessonState = TownOverview['releasedLessons'][number]
 
 type LearnerState = {
   readonly cards: ReadonlyArray<HeldCard>
+  readonly heldCards: HeldCards
   readonly heldOutWords: ReadonlyArray<Headword>
   readonly lessonSlot: LessonSlot
   readonly placedOutBands: ReadonlyArray<Band>
@@ -115,15 +116,12 @@ const lessonWordsOf = (
   learner: LearnerState,
   lessons: LessonLibrary,
 ): Pick<LessonState, 'isStudied' | 'words'> => {
-  const { cards, heldOutWords, lessonSlot, placedOutBands, scaffold } = learner
+  const { heldCards, heldOutWords, lessonSlot, placedOutBands, scaffold } = learner
   const isRunning = lessonSlot.kind === 'busy' && lessonSlot.lessonId === lesson.id
-  const readable = readableWordsOf(lesson, heldOutWords, cards, isRunning)
+  const readable = readableWordsOf(lesson, heldOutWords, heldCards, isRunning)
   const entering = wordsEnteringOf(lesson, heldOutWords)
   const isPlacedOut = isLessonPlacedOut(lesson, placedOutBands, lessons)
-  const words = lesson.words.map((word) => ({
-    word,
-    held: cards.find(({ wordId }) => wordId === word.id),
-  }))
+  const words = lesson.words.map((word) => ({ word, held: heldCards.get(word.id) }))
   return {
     isStudied: words.some(({ held }) => held !== undefined),
     words: words.map(({ word, held }) =>
@@ -135,7 +133,7 @@ const lessonWordsOf = (
           isEntering: entering.includes(word),
           isPlacedOut,
         },
-        { cards, placedOutBands, scaffold, lessons },
+        { cards: heldCards, placedOutBands, scaffold, lessons },
       ),
     ),
   }
@@ -169,23 +167,16 @@ const releasedLessonStateOf = (
   ...lessonWordsOf(lesson, learner, lessons),
 })
 
-const openTextStateOf = ({ id, title, sentences }: TextReading): OpenTextState => ({
-  id,
-  title,
-  sentences: sentences.map((spans) => [...spans]),
-})
-
-const openTextStatesOf = (learner: LearnerState, lessons: LessonLibrary): Array<OpenTextState> => {
-  const { cards, placedOutBands, scaffold } = learner
-  const opened = openTextsOf(lessons.texts(), {
+const openTextStatesOf = (
+  { cards, placedOutBands }: LearnerState,
+  lessons: LessonLibrary,
+): Array<OpenTextState> =>
+  openTextsOf(lessons.texts(), {
     curriculum: lessons.lessons(),
     cards,
     placedOutBands,
     bands: lessons,
-  })
-  const reader = { cards, placedOutBands, scaffold, lessons }
-  return opened.map((text) => openTextStateOf(textReadingOf(text, reader, lessons)))
-}
+  }).map(({ id, title }) => ({ id, title }))
 
 const lessonSlotOf = (slot: LessonSlot): TownOverview['lessonSlot'] =>
   slot.kind === 'idle'
@@ -214,6 +205,7 @@ export const schoolOverviewOf = (
   const studyPercent = studyPercentAt(at, catalog.townSettings())
   const learner = {
     cards,
+    heldCards: heldCardsOf(cards),
     heldOutWords: heldOutWordsAt(bandStarts, at),
     lessonSlot,
     placedOutBands: placedOutBandsOf(placementScores),
