@@ -4,6 +4,7 @@ import { Fragment, type ReactElement } from 'react'
 import type { ApiClient } from '../../api/apiClient'
 import { SignOutColumn } from '../../auth/SignOutColumn'
 import { LoadingSkeleton, type LoadingSkeletonProps } from '../../design-system/LoadingSkeleton'
+import { usePlacementOffer } from '../../placement/usePlacementOffer'
 import type { LiveTown } from '../../town/liveTown'
 import { NameTownScreen } from '../../town/NameTownScreen'
 import type { Registered } from '../../town/registeredBetween'
@@ -52,8 +53,16 @@ function TownHomePage({
   const work = useTownWork(apiClient, adopt, town.overview.readAt)
   const hiring = useTownHiring(apiClient, adopt, town.overview.readAt)
   const guidance = useTownGuidance(apiClient, town.overview, readSequence)
+  const placementOffer = usePlacementOffer(apiClient)
   return (
-    <TownHome town={town} registered={registered} work={work} hiring={hiring} guidance={guidance} />
+    <TownHome
+      town={town}
+      registered={registered}
+      work={work}
+      hiring={hiring}
+      guidance={guidance}
+      placementOffer={placementOffer}
+    />
   )
 }
 

@@ -27,6 +27,8 @@ import { TextLink } from '../design-system/TextLink'
 import { WaitingUpgrades } from '../design-system/WaitingUpgrades'
 import { type FocusTarget, useFocusTarget } from '../focus/useFocusTarget'
 import { MapRow } from '../map/MapRow'
+import { PlacementOffer } from '../placement/PlacementOffer'
+import type { PlacementOfferState } from '../placement/usePlacementOffer'
 import { refusalLineOf } from '../refusals/refusalLineOf'
 import { formatFinish } from '../time/formatFinish'
 import { dueCountOf } from './dueCountOf'
@@ -50,6 +52,7 @@ export interface TownHomeProps {
   readonly work: TownWork
   readonly hiring: TownHiring
   readonly guidance: TownGuidance
+  readonly placementOffer: PlacementOfferState
 }
 
 const placesInOrder: ReadonlyArray<BuildingKind> = [
@@ -182,6 +185,7 @@ export function TownHome({
   work,
   hiring,
   guidance,
+  placementOffer,
 }: TownHomeProps): ReactElement {
   const { overview } = town
   const placesTitleId = useId()
@@ -203,6 +207,7 @@ export function TownHome({
       <div className="flex min-w-0 flex-col gap-6">
         <NextStepCard town={town} goal={guidance.goal} onGoalClose={guidance.closeGoal} />
         <TownDoors dueCount={dueCountOf(town)} />
+        <PlacementOffer offer={placementOffer} />
       </div>
       <div className="flex min-w-0 flex-col gap-6 lg:row-span-2">
         <TownSkyline buildings={overview.buildings} raised={registered.places} />
