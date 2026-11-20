@@ -82,8 +82,8 @@
     <string name="town_place_school">Escuela</string>
     <string name="town_place_storage">Almacén</string>
     <string name="town_rate">+{rate} / h</string>
-    <string name="town_ready_at">Lista {clock}</string>
-    <string name="town_ready_in">Lista en {timeLeft}</string>
+    <string name="town_ready_at">Lista</string>
+    <string name="town_ready_in">Lista en</string>
     <string name="town_refusal_blank_town_name">Escribe un nombre para tu pueblo.</string>
     <string name="town_refusal_building_work_not_found">La obra del nivel {level} ya no está en la lista. Quizá ya terminó.</string>
     <string name="town_refusal_hiring_not_enough_people">Esta contratación necesita {requiredPeople, plural, =1 {1 persona libre} other {{requiredPeople, number,0} personas libres}} y tienes {freePeople}. Sube el nivel de tus hogares.</string>

@@ -82,8 +82,8 @@
     <string name="town_place_school">School</string>
     <string name="town_place_storage">Storage</string>
     <string name="town_rate">+{rate} / h</string>
-    <string name="town_ready_at">Ready {clock}</string>
-    <string name="town_ready_in">Ready in {timeLeft}</string>
+    <string name="town_ready_at">Ready</string>
+    <string name="town_ready_in">Ready in</string>
     <string name="town_refusal_blank_town_name">Write a name for your town.</string>
     <string name="town_refusal_building_work_not_found">The work for level {level} is no longer on the list. It may have finished.</string>
     <string name="town_refusal_hiring_not_enough_people">This hire needs {requiredPeople, number,0} of your free people and you have {freePeople}. Build the next level of your homes.</string>
