@@ -137,6 +137,7 @@ class TownHireMarkLookTest {
             onIntent = { },
             onSchoolOpen = { },
             onMapOpen = { },
+            onTextOpen = {},
         )
     }
 

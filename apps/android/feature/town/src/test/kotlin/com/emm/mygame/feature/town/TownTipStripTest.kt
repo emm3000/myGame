@@ -46,7 +46,15 @@ class TownTipStripTest {
     @Config(qualifiers = "+w360dp-h640dp", fontScale = 2.0f)
     fun `keeps the tip card's bottom edge above the street strip at font scale 2 on a 360 by 640 window`() {
         composeRule.setContent {
-            MyGameTheme { TownScreen(state = homeWithTheTip, onIntent = {}, onSchoolOpen = {}, onMapOpen = {}) }
+            MyGameTheme {
+                TownScreen(
+                    state = homeWithTheTip,
+                    onIntent = {},
+                    onSchoolOpen = {},
+                    onMapOpen = {},
+                    onTextOpen = {},
+                )
+            }
         }
         homesTab().performScrollTo().performClick()
 

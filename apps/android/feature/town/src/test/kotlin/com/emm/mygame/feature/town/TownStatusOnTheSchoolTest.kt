@@ -37,7 +37,7 @@ class TownStatusOnTheSchoolTest {
 
     private val studyingTown: TownSnapshot = townOf(
         lessonSlot = TownSnapshot.LessonSlot(runningLesson, readInstant, finish),
-        nextStep = NextStep.LessonRunning(goal = null),
+        nextStep = NextStep.LessonRunning(goal = null, text = null),
         readAt = readInstant,
     )
 

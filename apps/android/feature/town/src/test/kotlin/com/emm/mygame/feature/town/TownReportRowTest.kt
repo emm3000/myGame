@@ -118,6 +118,7 @@ class TownReportRowTest {
                     onIntent = {},
                     onSchoolOpen = {},
                     onMapOpen = {},
+                    onTextOpen = {},
                     reportRow = { TownReportRow(dock = dock, onClick = { reportOpens += 1 }) },
                 )
             }

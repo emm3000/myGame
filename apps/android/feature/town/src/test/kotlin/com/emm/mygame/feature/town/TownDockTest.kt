@@ -281,7 +281,7 @@ class TownDockTest {
 
     @Test
     fun `refuses past the cap with no review due by naming when the next word in learning is due`() {
-        show(refusedOnAFullCap(NextStep.CaughtUp(CaughtUpReason.LearningCap, goal = null)))
+        show(refusedOnAFullCap(NextStep.CaughtUp(CaughtUpReason.LearningCap, goal = null, text = null)))
 
         composeRule.onNode(
             hasText("Palabras en aprendizaje: 15 de 15. La siguiente se repasa en 3 h · ", substring = true) and

@@ -145,6 +145,7 @@ class TownLanguageTest {
                         onIntent = {},
                         onSchoolOpen = {},
                         onMapOpen = {},
+                        onTextOpen = {},
                     )
                 }
             }

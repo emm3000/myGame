@@ -25,7 +25,8 @@ class TownStatusDockTest {
 
     @Test
     fun `a full learning cap keeps the goal beside the cap's line`() {
-        val fullCap: TownSnapshot = townOf(nextStep = NextStep.CaughtUp(CaughtUpReason.LearningCap, schoolGoal)).copy(
+        val learningCap: NextStep = NextStep.CaughtUp(CaughtUpReason.LearningCap, schoolGoal, text = null)
+        val fullCap: TownSnapshot = townOf(nextStep = learningCap).copy(
             learning = TownSnapshot.Learning(
                 cap = 15,
                 inLearning = 15,
@@ -67,7 +68,7 @@ class TownStatusDockTest {
     @Test
     fun `a full cap with no review due waits for the next word in learning on the device clock`() {
         val town: TownSnapshot = fullCapWith(
-            NextStep.CaughtUp(CaughtUpReason.LearningCap, goal = null),
+            NextStep.CaughtUp(CaughtUpReason.LearningCap, goal = null, text = null),
             nextInLearningDueAt = readInstant + 3.hours,
         )
 
@@ -90,7 +91,7 @@ class TownStatusDockTest {
     @Test
     fun `a full cap whose next word in learning is overdue waits for no word in learning`() {
         val town: TownSnapshot = fullCapWith(
-            NextStep.CaughtUp(CaughtUpReason.LearningCap, goal = null),
+            NextStep.CaughtUp(CaughtUpReason.LearningCap, goal = null, text = null),
             nextInLearningDueAt = readInstant - 3.hours,
         )
 

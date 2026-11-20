@@ -59,8 +59,8 @@ fun TownScreen(
     onIntent: (TownIntent) -> Unit,
     onSchoolOpen: () -> Unit,
     onMapOpen: () -> Unit,
+    onTextOpen: (TextId) -> Unit,
     modifier: Modifier = Modifier,
-    onTextOpen: (TextId) -> Unit = {},
     ring: @Composable () -> Unit = {},
     status: @Composable () -> Unit = {},
     foldedDock: @Composable () -> Unit = {},
@@ -342,6 +342,7 @@ private fun TownScreenLanguagePreview(@PreviewParameter(TownLanguages::class) la
                 onIntent = {},
                 onSchoolOpen = {},
                 onMapOpen = {},
+                onTextOpen = {},
             )
         }
     }
@@ -357,6 +358,7 @@ private fun TownScreenNamingBothPreview() {
                 onIntent = {},
                 onSchoolOpen = {},
                 onMapOpen = {},
+                onTextOpen = {},
             )
         }
     }
@@ -371,6 +373,7 @@ private fun TownScreenPreview(@PreviewParameter(TownScreenStates::class) state: 
             onIntent = {},
             onSchoolOpen = {},
             onMapOpen = {},
+            onTextOpen = {},
         )
     }
 }

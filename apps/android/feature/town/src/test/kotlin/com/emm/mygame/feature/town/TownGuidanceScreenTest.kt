@@ -49,14 +49,15 @@ class TownGuidanceScreenTest {
 
     private val closedGoal: ClosedGuidance = ClosedGuidance(tips = emptySet(), isGoalClosed = true)
 
-    private fun lessonsDoneWith(goal: TownGoal): NextStep = NextStep.CaughtUp(CaughtUpReason.LessonsDone, goal)
+    private fun lessonsDoneWith(goal: TownGoal): NextStep =
+        NextStep.CaughtUp(CaughtUpReason.LessonsDone, goal, text = null)
 
     private fun pendingGoal(resources: List<TownSnapshot.Cost>, people: Int): TownGoal =
         factoryGoal.copy(state = TownGoal.State.Pending(resources = resources, people = people))
 
     @Test
     fun `shows no goal when none is left`() {
-        show(townOf(nextStep = NextStep.CaughtUp(CaughtUpReason.LessonsDone, goal = null)))
+        show(townOf(nextStep = NextStep.CaughtUp(CaughtUpReason.LessonsDone, goal = null, text = null)))
 
         composeRule.onAllNodesWithText("En construcción").assertCountEquals(0)
     }
@@ -78,7 +79,7 @@ class TownGuidanceScreenTest {
 
     @Test
     fun `draws the goal under a running lesson`() {
-        show(townOf(nextStep = NextStep.LessonRunning(factoryGoal)))
+        show(townOf(nextStep = NextStep.LessonRunning(factoryGoal, text = null)))
         tab("Fábrica").performScrollTo().performClick()
 
         composeRule.onNodeWithText("En construcción").assertExists()
@@ -86,7 +87,7 @@ class TownGuidanceScreenTest {
 
     @Test
     fun `draws no goal under a running lesson once the goal is closed`() {
-        show(townOf(nextStep = NextStep.LessonRunning(factoryGoal)), closedGoal)
+        show(townOf(nextStep = NextStep.LessonRunning(factoryGoal, text = null)), closedGoal)
         tab("Fábrica").performScrollTo().performClick()
 
         composeRule.onAllNodesWithText("En construcción").assertCountEquals(0)
@@ -94,7 +95,7 @@ class TownGuidanceScreenTest {
 
     @Test
     fun `shows a goal underway as in work`() {
-        show(townOf(nextStep = NextStep.CaughtUp(CaughtUpReason.LessonsDone, factoryGoal)))
+        show(townOf(nextStep = NextStep.CaughtUp(CaughtUpReason.LessonsDone, factoryGoal, text = null)))
 
         composeRule.onNodeWithText("En construcción").assertExists()
     }
@@ -126,7 +127,7 @@ class TownGuidanceScreenTest {
 
     @Test
     fun `closes the goal`() {
-        show(townOf(nextStep = NextStep.CaughtUp(CaughtUpReason.LessonsDone, factoryGoal)))
+        show(townOf(nextStep = NextStep.CaughtUp(CaughtUpReason.LessonsDone, factoryGoal, text = null)))
 
         composeRule.onNodeWithText("Cerrar la meta").performScrollTo().performClick()
 
@@ -135,7 +136,7 @@ class TownGuidanceScreenTest {
 
     @Test
     fun `offers no goal close with no goal`() {
-        show(townOf(nextStep = NextStep.CaughtUp(CaughtUpReason.LessonsDone, goal = null)))
+        show(townOf(nextStep = NextStep.CaughtUp(CaughtUpReason.LessonsDone, goal = null, text = null)))
 
         composeRule.onAllNodesWithText("Cerrar la meta").assertCountEquals(0)
     }
@@ -236,6 +237,7 @@ class TownGuidanceScreenTest {
             onIntent = { intent: TownIntent -> intents += intent },
             onSchoolOpen = {},
             onMapOpen = {},
+            onTextOpen = {},
         )
     }
 

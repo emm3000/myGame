@@ -105,7 +105,7 @@ class TownWordsScreenTest {
     private fun showPlaces(content: TownUiState.Content) {
         composeRule.setContent {
             MyGameTheme {
-                TownScreen(state = content, onIntent = {}, onSchoolOpen = {}, onMapOpen = {})
+                TownScreen(state = content, onIntent = {}, onSchoolOpen = {}, onMapOpen = {}, onTextOpen = {})
             }
         }
     }

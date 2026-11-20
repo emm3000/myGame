@@ -89,7 +89,7 @@ class TownPageFocusRingTest {
             inputModes = LocalInputModeManager.current
             MyGameTheme {
                 focus = MyGameTheme.colors.focus
-                TownScreen(state = riverton, onIntent = {}, onSchoolOpen = {}, onMapOpen = {})
+                TownScreen(state = riverton, onIntent = {}, onSchoolOpen = {}, onMapOpen = {}, onTextOpen = {})
             }
         }
         composeRule.runOnIdle { inputModes?.requestInputMode(InputMode.Keyboard) }

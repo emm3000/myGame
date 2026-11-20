@@ -74,9 +74,9 @@ class TownPageLinesScreenTest {
     private val pagesBesideTheFactory: List<String> =
         listOf("Hogares", "Granja", "Escuela", "Oficina", "Central eléctrica", "Almacén")
 
-    private val newShop: NextStepText = NextStepText(TextId("text-31"), "The New Shop")
+    private val newestText: NextStepText = NextStepText(TextId("text-31"), "The New Shop")
 
-    private val newShopLine: String = "Lee: The New Shop"
+    private val newestTextLine: String = "Lee: The New Shop"
 
     private var ground: Color = Color.Unspecified
 
@@ -84,7 +84,7 @@ class TownPageLinesScreenTest {
 
     @Test
     fun `draws the caught-up goal under the season line on every page but the goal building's`() {
-        show(homeOn(NextStep.CaughtUp(CaughtUpReason.LessonsDone, factoryGoal)))
+        show(homeOn(NextStep.CaughtUp(CaughtUpReason.LessonsDone, factoryGoal, text = null)))
 
         val drawn: List<String> = pagesBesideTheFactory.filter { place: String ->
             tab(place).performScrollTo().performClick()
@@ -98,18 +98,18 @@ class TownPageLinesScreenTest {
 
     @Test
     fun `a caught-up next step names the newest text`() {
-        show(homeOn(NextStep.CaughtUp(CaughtUpReason.LessonsDone, goal = null, newShop)))
+        show(homeOn(NextStep.CaughtUp(CaughtUpReason.LessonsDone, goal = null, newestText)))
 
-        composeRule.onNodeWithText(newShopLine).assertIsDisplayed()
+        composeRule.onNodeWithText(newestTextLine).assertIsDisplayed()
     }
 
     @Test
     fun `a running lesson names it beside the goal`() {
-        show(homeOn(NextStep.LessonRunning(factoryGoal, newShop)))
+        show(homeOn(NextStep.LessonRunning(factoryGoal, newestText)))
         tab("Fábrica").performScrollTo().performClick()
 
         composeRule.onNodeWithText("En construcción").performScrollTo().assertIsDisplayed()
-        composeRule.onNodeWithText(newShopLine).assertIsDisplayed()
+        composeRule.onNodeWithText(newestTextLine).assertIsDisplayed()
     }
 
     @Test
@@ -122,16 +122,16 @@ class TownPageLinesScreenTest {
     @Test
     fun `opens the newest text's screen on a tap of its line`() {
         val opened: MutableList<TextId> = mutableListOf()
-        show(homeOn(NextStep.LessonRunning(goal = null, newShop)), onTextOpen = { text: TextId -> opened += text })
+        show(homeOn(NextStep.LessonRunning(goal = null, newestText)), onTextOpen = { text: TextId -> opened += text })
 
-        composeRule.onNodeWithText(newShopLine).performClick()
+        composeRule.onNodeWithText(newestTextLine).performClick()
 
         assertEquals(listOf(TextId("text-31")), opened)
     }
 
     @Test
     fun `draws the header's goal line as static text`() {
-        show(homeOn(NextStep.CaughtUp(CaughtUpReason.LessonsDone, factoryGoal)))
+        show(homeOn(NextStep.CaughtUp(CaughtUpReason.LessonsDone, factoryGoal, text = null)))
         tab("Granja").performScrollTo().performClick()
 
         composeRule.onNodeWithText(factoryGoalLine).assert(SemanticsMatcher.keyNotDefined(SemanticsActions.OnClick))
@@ -140,7 +140,7 @@ class TownPageLinesScreenTest {
     @Test
     @GraphicsMode(GraphicsMode.Mode.NATIVE)
     fun `draws the header's goal line with no outline`() {
-        show(homeOn(NextStep.CaughtUp(CaughtUpReason.LessonsDone, factoryGoal)))
+        show(homeOn(NextStep.CaughtUp(CaughtUpReason.LessonsDone, factoryGoal, text = null)))
         tab("Granja").performScrollTo().performClick()
 
         val image: ImageBitmap = composeRule.onNodeWithText(factoryGoalLine).captureToImage()
@@ -151,7 +151,7 @@ class TownPageLinesScreenTest {
 
     @Test
     fun `draws the goal once on the goal building's page, in its goal block`() {
-        show(homeOn(NextStep.CaughtUp(CaughtUpReason.LessonsDone, factoryGoal)))
+        show(homeOn(NextStep.CaughtUp(CaughtUpReason.LessonsDone, factoryGoal, text = null)))
 
         tab("Fábrica").assertIsSelected()
         composeRule.onAllNodesWithText(factoryGoalLine).assertCountEquals(0)
@@ -161,7 +161,7 @@ class TownPageLinesScreenTest {
 
     @Test
     fun `reads the goal line right after the page's position when no season is in force`() {
-        show(homeOn(NextStep.CaughtUp(CaughtUpReason.LessonsDone, factoryGoal), season = null))
+        show(homeOn(NextStep.CaughtUp(CaughtUpReason.LessonsDone, factoryGoal, text = null), season = null))
         tab("Granja").performScrollTo().performClick()
 
         val spoken: List<String> = composeRule.spokenOrder(checkNotNull(shownView))
@@ -173,7 +173,7 @@ class TownPageLinesScreenTest {
 
     @Test
     fun `draws no goal line in the header while a lesson runs toward the goal`() {
-        show(homeOn(NextStep.LessonRunning(factoryGoal)))
+        show(homeOn(NextStep.LessonRunning(factoryGoal, text = null)))
         tab("Granja").performScrollTo().performClick()
 
         composeRule.onAllNodesWithText(factoryGoalLine).assertCountEquals(0)
@@ -182,7 +182,7 @@ class TownPageLinesScreenTest {
     @Test
     fun `draws no goal line in the header once the goal is closed`() {
         val closedGoal: ClosedGuidance = ClosedGuidance(tips = emptySet(), isGoalClosed = true)
-        show(homeOn(NextStep.CaughtUp(CaughtUpReason.LessonsDone, factoryGoal), closedGoal))
+        show(homeOn(NextStep.CaughtUp(CaughtUpReason.LessonsDone, factoryGoal, text = null), closedGoal))
         tab("Granja").performScrollTo().performClick()
 
         composeRule.onAllNodesWithText(factoryGoalLine).assertCountEquals(0)
@@ -190,7 +190,7 @@ class TownPageLinesScreenTest {
 
     @Test
     fun `reads the goal line after the page's position and before the place's name`() {
-        show(homeOn(NextStep.CaughtUp(CaughtUpReason.LessonsDone, factoryGoal)))
+        show(homeOn(NextStep.CaughtUp(CaughtUpReason.LessonsDone, factoryGoal, text = null)))
         tab("Granja").performScrollTo().performClick()
 
         val spoken: List<String> = composeRule.spokenOrder(checkNotNull(shownView))
