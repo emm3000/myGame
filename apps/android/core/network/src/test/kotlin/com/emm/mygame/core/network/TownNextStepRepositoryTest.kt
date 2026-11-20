@@ -72,7 +72,7 @@ class TownNextStepRepositoryTest {
         }
 
         val expected: List<NextStep> = wireReasons.values.map { reason: CaughtUpReason ->
-            NextStep.CaughtUp(reason, goal = null)
+            NextStep.CaughtUp(reason, goal = null, text = null)
         }
         assertEquals(expected, reasons)
     }
@@ -86,7 +86,11 @@ class TownNextStepRepositoryTest {
         val read: TownSnapshot = (town().read() as TownReadResult.Read).town
 
         assertEquals(
-            NextStep.CaughtUp(CaughtUpReason.LessonsDone, goal = null, NextStepText(TextId("text-31"), "The New Shop")),
+            NextStep.CaughtUp(
+                CaughtUpReason.LessonsDone,
+                goal = null,
+                text = NextStepText(TextId("text-31"), "The New Shop"),
+            ),
             read.nextStep,
         )
     }
@@ -99,7 +103,7 @@ class TownNextStepRepositoryTest {
         val read: TownSnapshot = (town().read() as TownReadResult.Read).town
 
         assertEquals(
-            NextStep.LessonRunning(goal = null, NextStepText(TextId("text-31"), "The New Shop")),
+            NextStep.LessonRunning(goal = null, text = NextStepText(TextId("text-31"), "The New Shop")),
             read.nextStep,
         )
     }

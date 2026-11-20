@@ -1,0 +1,11 @@
+package com.emm.mygame.core.network
+
+data class SeasonProductionPercent(val money: Int, val food: Int, val power: Int, val material: Int) {
+
+    fun of(resource: TownResourceKind): Int = when (resource) {
+        TownResourceKind.Money -> money
+        TownResourceKind.Food -> food
+        TownResourceKind.Power -> power
+        TownResourceKind.Material -> material
+    }
+}

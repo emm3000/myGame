@@ -30,17 +30,17 @@ private fun ReleasedLessonStep.toReleasedLesson(): NextStep? {
 
 private fun LessonRunningStep.toLessonRunning(): NextStep? {
     val newest: NextStepText? = text?.toNextStepText()
-    val named: Goal = goal ?: return NextStep.LessonRunning(goal = null, newest)
+    val named: Goal = goal ?: return NextStep.LessonRunning(goal = null, text = newest)
     val next: TownGoal = named.toTownGoal() ?: return null
-    return NextStep.LessonRunning(next, newest)
+    return NextStep.LessonRunning(next, text = newest)
 }
 
 private fun CaughtUpStep.toCaughtUp(): NextStep? {
     val why: CaughtUpReason = reason.toCaughtUpReason() ?: return null
     val newest: NextStepText? = text?.toNextStepText()
-    val named: Goal = goal ?: return NextStep.CaughtUp(why, goal = null, newest)
+    val named: Goal = goal ?: return NextStep.CaughtUp(why, goal = null, text = newest)
     val next: TownGoal = named.toTownGoal() ?: return null
-    return NextStep.CaughtUp(why, next, newest)
+    return NextStep.CaughtUp(why, next, text = newest)
 }
 
 private fun WireNextStepText.toNextStepText(): NextStepText = NextStepText(TextId(id), title)
