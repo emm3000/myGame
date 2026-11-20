@@ -35,6 +35,7 @@ fun MyGameNavRow(
     status: MyGameLabel? = null,
     body: MyGameLabel? = null,
     caption: MyGameLabel? = null,
+    captionTag: String? = null,
 ) {
     val colors: MyGameColors = MyGameTheme.colors
     val interactions: MutableInteractionSource = remember { MutableInteractionSource() }
@@ -65,7 +66,12 @@ fun MyGameNavRow(
                     MyGameText(label = line, style = MyGameTypography.body, color = colors.ink)
                 }
                 caption?.let { line: MyGameLabel ->
-                    MyGameText(label = line, style = MyGameTypography.caption, color = colors.inkMuted)
+                    MyGameText(
+                        label = line,
+                        style = MyGameTypography.caption,
+                        color = colors.inkMuted,
+                        modifier = if (captionTag == null) Modifier else Modifier.testTag(captionTag),
+                    )
                 }
             }
             MyGameIcon(

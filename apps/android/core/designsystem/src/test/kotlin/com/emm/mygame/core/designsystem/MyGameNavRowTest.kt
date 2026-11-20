@@ -279,6 +279,38 @@ class MyGameNavRowTest {
     }
 
     @Test
+    fun `a nav row hangs the caller's tag on its caption alone`() {
+        show {
+            MyGameNavRow(
+                title = MyGameLabel(text = "Lesson 2", translation = null),
+                body = MyGameLabel(text = "Work and money", translation = null),
+                caption = MyGameLabel(text = "5 words", translation = null),
+                captionTag = "lesson_size",
+                onClick = {},
+            )
+        }
+
+        val tagged: List<SemanticsNode> =
+            composeRule.onAllNodes(hasTestTag("lesson_size"), useUnmergedTree = true).fetchSemanticsNodes()
+
+        assertEquals(1, tagged.size)
+        assertEquals("5 words", tagged.single().config[SemanticsProperties.Text].single().text)
+    }
+
+    @Test
+    fun `a nav row given no caption tag tags nothing but its chevron and its hairline`() {
+        showLessonRow()
+
+        val tags: List<String> = composeRule.onAllNodes(hasAnyTestTag(), useUnmergedTree = true)
+            .fetchSemanticsNodes()
+            .map { node: SemanticsNode -> node.config[SemanticsProperties.TestTag] }
+
+        assertEquals(listOf(NAV_ROW_CHEVRON, HAIRLINE), tags)
+    }
+
+    private fun hasAnyTestTag(): SemanticsMatcher = SemanticsMatcher.keyIsDefined(SemanticsProperties.TestTag)
+
+    @Test
     fun `the forward icon mirrors the back icon on the 24 grid`() {
         val drawn: VectorPath = MyGameIcons.forward.root.single() as VectorPath
 
