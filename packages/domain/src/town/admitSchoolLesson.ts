@@ -9,6 +9,19 @@ import type { LessonSlot } from './LessonSlot'
 import { schoolLevelOf } from './schoolLevelOf'
 import type { TownCatalog } from './TownCatalog'
 
+export type SchoolLessonRefusal = Extract<
+  DomainError,
+  {
+    readonly kind:
+      | 'LessonAlreadyStudied'
+      | 'LessonUnderStudy'
+      | 'StudySlotBusy'
+      | 'LessonSchoolTooLow'
+      | 'UnknownTownBuildingLevel'
+      | 'LearningCapReached'
+  }
+>
+
 export type SchoolState = {
   readonly held: ReadonlyArray<HeldCard>
   readonly slot: LessonSlot
@@ -18,7 +31,7 @@ const admitToLearningCap = (
   lessonWordCount: number,
   cards: ReadonlyArray<HeldCard>,
   school: SchoolLevel,
-): Result<SchoolLevel, DomainError> => {
+): Result<SchoolLevel, SchoolLessonRefusal> => {
   const cardsInLearning = cardsInLearningOf(cards)
   if (cardsInLearning + lessonWordCount > school.learningCap) {
     return err({
@@ -37,7 +50,7 @@ export const admitSchoolLesson = (
   { held: cards, slot }: SchoolState,
   schoolLevel: number,
   catalog: TownCatalog,
-): Result<SchoolLevel, DomainError> => {
+): Result<SchoolLevel, SchoolLessonRefusal> => {
   if (holdsLessonCards(lesson, cards)) {
     return err({ kind: 'LessonAlreadyStudied', lessonId: lesson.id })
   }

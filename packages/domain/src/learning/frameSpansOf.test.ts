@@ -9,7 +9,7 @@ import { Instant } from '../time/Instant'
 import type { Band } from './BandStart'
 import type { FrameReader } from './FrameReader'
 import type { FrameToken } from './FrameToken'
-import { frameSpansOf } from './frameSpansOf'
+import { frameSpansOf, withholdingNothing } from './frameSpansOf'
 import type { HeldCard } from './HeldCard'
 import type { Scaffold } from './Scaffold'
 
@@ -57,8 +57,6 @@ const readerOf = ({ cards, placedOutBands = [], scaffold = 'es' }: Learner): Fra
     ...inMemoryFrames([], new Map()),
   },
 })
-
-const withholdingNothing = (): boolean => false
 
 const townSupportOf = (learner: Learner): unknown =>
   frameSpansOf(homeFrame, homeTokens, readerOf(learner), withholdingNothing)[3]?.support

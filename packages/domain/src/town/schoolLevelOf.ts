@@ -6,7 +6,7 @@ import type { TownCatalog } from './TownCatalog'
 export const schoolLevelOf = (
   level: number,
   catalog: TownCatalog,
-): Result<SchoolLevel, DomainError> => {
+): Result<SchoolLevel, Extract<DomainError, { readonly kind: 'UnknownTownBuildingLevel' }>> => {
   const found = catalog.levelOf('school', level)
   if (found?.building !== 'school') {
     return err({ kind: 'UnknownTownBuildingLevel', building: 'school', level })

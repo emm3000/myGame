@@ -16,7 +16,7 @@ import type { MemoryTerms } from '../memory/MemoryTerms'
 import type { BandCatalog } from '../ports/BandCatalog'
 import { err, ok, type Result } from '../Result'
 import type { Instant } from '../time/Instant'
-import { admitSchoolLesson } from './admitSchoolLesson'
+import { admitSchoolLesson, type SchoolLessonRefusal } from './admitSchoolLesson'
 import type { LessonSlot } from './LessonSlot'
 import type { Town } from './Town'
 import type { TownCatalog } from './TownCatalog'
@@ -64,29 +64,39 @@ export type NextStepTerms = {
   readonly catalog: TownCatalog
 }
 
+type RefusalReason = Exclude<CaughtUpReason, 'lessonsDone'>
+
+type Refusal = { readonly kind: 'refused'; readonly reason: RefusalReason }
+
+type Admission = { readonly kind: 'admitted' } | { readonly kind: 'studied' } | Refusal
+
+type Unadmitted = Refusal | { readonly kind: 'noneRefused' }
+
 type Weighing<Admissible extends SchoolLesson> =
   | { readonly kind: 'admitted'; readonly lesson: Admissible }
-  | { readonly kind: 'refused'; readonly reason: CaughtUpReason }
+  | Unadmitted
 
-const reasonOf = (refusal: DomainError): Result<CaughtUpReason | undefined, DomainError> => {
+const reasonOf = (refusal: SchoolLessonRefusal): Result<Admission, DomainError> => {
   switch (refusal.kind) {
     case 'LearningCapReached':
-      return ok('learningCap')
+      return ok({ kind: 'refused', reason: 'learningCap' })
     case 'LessonSchoolTooLow':
-      return ok('schoolTooLow')
+      return ok({ kind: 'refused', reason: 'schoolTooLow' })
     case 'LessonAlreadyStudied':
-      return ok(undefined)
-    default:
+      return ok({ kind: 'studied' })
+    case 'UnknownTownBuildingLevel':
+    case 'LessonUnderStudy':
+    case 'StudySlotBusy':
       return err(refusal)
   }
 }
 
-const refusalReasonOf = (
+const admissionOf = (
   lesson: SchoolLesson,
   heldOut: ReadonlyArray<Headword>,
   { town, lessonSlot, cards }: NextStepReading,
   catalog: TownCatalog,
-): Result<CaughtUpReason | undefined, DomainError> | undefined => {
+): Result<Admission, DomainError> => {
   const admitted = admitSchoolLesson(
     lesson,
     wordsEnteringOf(lesson, heldOut).length,
@@ -94,7 +104,7 @@ const refusalReasonOf = (
     town.buildingLevels.school,
     catalog,
   )
-  return admitted.ok ? undefined : reasonOf(admitted.error)
+  return admitted.ok ? ok({ kind: 'admitted' }) : reasonOf(admitted.error)
 }
 
 const weighed = <Admissible extends SchoolLesson>(
@@ -103,18 +113,30 @@ const weighed = <Admissible extends SchoolLesson>(
   catalog: TownCatalog,
 ): Result<Weighing<Admissible>, DomainError> => {
   const heldOut = heldOutWordsAt(reading.bandStarts, reading.at)
-  let firstReason: CaughtUpReason | undefined
+  let unadmitted: Unadmitted = { kind: 'noneRefused' }
   for (const lesson of lessons) {
-    const reason = refusalReasonOf(lesson, heldOut, reading, catalog)
-    if (reason === undefined) {
+    const admission = admissionOf(lesson, heldOut, reading, catalog)
+    if (!admission.ok) {
+      return admission
+    }
+    if (admission.value.kind === 'admitted') {
       return ok({ kind: 'admitted', lesson })
     }
-    if (!reason.ok) {
-      return reason
+    if (admission.value.kind === 'refused' && unadmitted.kind === 'noneRefused') {
+      unadmitted = admission.value
     }
-    firstReason ??= reason.value
   }
-  return ok({ kind: 'refused', reason: firstReason ?? 'lessonsDone' })
+  return ok(unadmitted)
+}
+
+const caughtUpReasonOf = (released: Unadmitted, shelved: Unadmitted): CaughtUpReason => {
+  if (released.kind === 'refused') {
+    return released.reason
+  }
+  if (shelved.kind === 'refused') {
+    return shelved.reason
+  }
+  return 'lessonsDone'
 }
 
 const newestTextOf = (
@@ -149,10 +171,9 @@ const lessonStep = (
   if (shelved.value.kind === 'admitted') {
     return ok({ kind: 'lessonToStudy', lessonId: shelved.value.lesson.id })
   }
-  const releasedReason = released.value.reason
   return ok({
     kind: 'caughtUp',
-    reason: releasedReason === 'lessonsDone' ? shelved.value.reason : releasedReason,
+    reason: caughtUpReasonOf(released.value, shelved.value),
     text: newestTextOf(reading, terms),
   })
 }

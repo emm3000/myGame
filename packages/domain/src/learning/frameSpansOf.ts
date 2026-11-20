@@ -8,6 +8,8 @@ import type { WordSupport } from './WordSupport'
 
 export type Withholding = (support: SupportText) => boolean
 
+export const withholdingNothing: Withholding = () => false
+
 const supportOf = (
   { wordId }: FrameToken,
   { cards, placedOutBands, scaffold, lessons }: FrameReader,
