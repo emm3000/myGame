@@ -5,14 +5,12 @@ import android.content.res.Configuration
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalDensity
-import androidx.compose.ui.semantics.SemanticsActions
 import androidx.compose.ui.test.SemanticsNodeInteraction
 import androidx.compose.ui.test.getUnclippedBoundsInRoot
 import androidx.compose.ui.test.junit4.ComposeContentTestRule
 import androidx.compose.ui.test.junit4.createComposeRule
 import androidx.compose.ui.test.onAllNodesWithTag
 import androidx.compose.ui.test.onNodeWithText
-import androidx.compose.ui.text.TextLayoutResult
 import androidx.compose.ui.unit.Density
 import androidx.compose.ui.unit.DpRect
 import com.emm.mygame.core.designsystem.HAIRLINE
@@ -61,11 +59,5 @@ class ReportRowsAtLargeFontTest {
                 }
             }
         }
-    }
-
-    private fun layoutOf(label: SemanticsNodeInteraction): TextLayoutResult {
-        val layouts: MutableList<TextLayoutResult> = mutableListOf()
-        label.fetchSemanticsNode().config[SemanticsActions.GetTextLayoutResult].action?.invoke(layouts)
-        return layouts.single()
     }
 }
