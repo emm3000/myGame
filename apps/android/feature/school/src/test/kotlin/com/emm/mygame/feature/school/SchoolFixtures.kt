@@ -92,7 +92,7 @@ internal fun townOf(
     schoolLevel: Int = 1,
     seasonInForce: SeasonInForce? = null,
     seasonEndsAt: Instant? = null,
-    nextStep: NextStep = NextStep.CaughtUp(CaughtUpReason.LessonsDone, goal = null),
+    nextStep: NextStep = NextStep.CaughtUp(CaughtUpReason.LessonsDone, goal = null, text = null),
     nextDueAt: Instant? = null,
     readAt: Instant = readInstant,
     releasedLessons: List<TownSnapshot.ReleasedLesson> = emptyList(),

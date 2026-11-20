@@ -46,7 +46,7 @@ class SchoolReleasedSlotTest {
 
     private val releasedRunning: TownSnapshot = townOf(
         lessonSlot = slotOf(lesson = releasedLesson),
-        nextStep = NextStep.LessonRunning(goal = null),
+        nextStep = NextStep.LessonRunning(goal = null, text = null),
         releasedLessons = listOf(released),
     )
 
@@ -125,6 +125,7 @@ class SchoolReleasedSlotTest {
                     state = state,
                     onIntent = {},
                     onLessonOpen = {},
+                    onTextOpen = {},
                 )
             }
         }

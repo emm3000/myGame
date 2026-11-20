@@ -385,6 +385,7 @@ class SchoolLookTest {
                     state = state,
                     onIntent = { },
                     onLessonOpen = { },
+                    onTextOpen = {},
                 )
             }
         }
@@ -481,6 +482,7 @@ class SchoolLookTest {
                     state = idleSchool.copy(lessons = listOf(openFirst.copy(state = locked))),
                     onIntent = { },
                     onLessonOpen = { },
+                    onTextOpen = {},
                 )
             }
         }
@@ -504,6 +506,7 @@ class SchoolLookTest {
                     state = state,
                     onIntent = { },
                     onLessonOpen = { },
+                    onTextOpen = {},
                 )
             }
         }
@@ -524,6 +527,7 @@ class SchoolLookTest {
                     state = state(),
                     onIntent = { intent: SchoolIntent -> intents += intent },
                     onLessonOpen = { lesson: LessonId -> lessonOpens += lesson },
+                    onTextOpen = {},
                 )
             }
         }
