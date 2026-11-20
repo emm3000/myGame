@@ -65,12 +65,12 @@ class SchoolLanguageTest {
 
     private val lessonUnderStudy: TownSnapshot = shelvedAndReleased.copy(
         lessonSlot = slotOf(),
-        nextStep = NextStep.LessonRunning(goal = null),
+        nextStep = NextStep.LessonRunning(goal = null, text = null),
     )
 
     private val releasedUnderStudy: TownSnapshot = shelvedAndReleased.copy(
         lessonSlot = slotOf(lesson = secondSet),
-        nextStep = NextStep.LessonRunning(goal = null),
+        nextStep = NextStep.LessonRunning(goal = null, text = null),
     )
 
     private val dueCheck: HoldoutCheckRowsUiState =
@@ -95,6 +95,7 @@ class SchoolLanguageTest {
                         state = state,
                         onIntent = {},
                         onLessonOpen = {},
+                        onTextOpen = {},
                         holdoutChecks = { HoldoutCheckRows(state = dueCheck, onHoldoutCheckOpen = {}) },
                     )
                 }

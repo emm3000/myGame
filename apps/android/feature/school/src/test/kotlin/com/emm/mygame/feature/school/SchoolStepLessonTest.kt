@@ -79,6 +79,7 @@ class SchoolStepLessonTest {
                     state = state,
                     onIntent = { intent: SchoolIntent -> intents += intent },
                     onLessonOpen = {},
+                    onTextOpen = {},
                 )
             }
         }

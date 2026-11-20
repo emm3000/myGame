@@ -107,6 +107,7 @@ class SchoolScreenTest {
                     state = state,
                     onIntent = { intent: SchoolIntent -> intents += intent },
                     onLessonOpen = { lesson: LessonId -> lessonOpens += lesson },
+                    onTextOpen = {},
                 )
             }
         }
@@ -143,6 +144,7 @@ class SchoolScreenTest {
                     state = idleSchool,
                     onIntent = {},
                     onLessonOpen = {},
+                    onTextOpen = {},
                     holdoutChecks = {
                         HoldoutCheckRows(HoldoutCheckRowsUiState(listOf(firstBandDue)), onHoldoutCheckOpen = {})
                     },
@@ -265,7 +267,7 @@ class SchoolScreenTest {
         showTown(
             townOf(
                 learning = fullLearning.copy(nextInLearningDueAt = readInstant + 3.hours),
-                nextStep = NextStep.CaughtUp(CaughtUpReason.LearningCap, goal = null),
+                nextStep = NextStep.CaughtUp(CaughtUpReason.LearningCap, goal = null, text = null),
                 nextDueAt = readInstant + 1.hours,
             ),
         )
@@ -298,7 +300,7 @@ class SchoolScreenTest {
         showTown(
             townOf(
                 learning = fullLearning.copy(nextInLearningDueAt = readInstant - 3.hours),
-                nextStep = NextStep.CaughtUp(CaughtUpReason.LearningCap, goal = null),
+                nextStep = NextStep.CaughtUp(CaughtUpReason.LearningCap, goal = null, text = null),
             ),
         )
 
@@ -467,7 +469,7 @@ class SchoolScreenTest {
         showTown(
             townOf(
                 learning = fullLearning.copy(nextInLearningDueAt = readInstant + 3.hours),
-                nextStep = NextStep.CaughtUp(CaughtUpReason.LearningCap, goal = null),
+                nextStep = NextStep.CaughtUp(CaughtUpReason.LearningCap, goal = null, text = null),
                 nextDueAt = readInstant + 1.hours,
             ),
             start = SchoolUiState.LessonRequest.Refused(firstLesson, capRefusal),

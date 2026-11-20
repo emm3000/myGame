@@ -34,7 +34,8 @@ class SchoolViewModelTest {
     private val fullLearning: TownSnapshot.Learning =
         TownSnapshot.Learning(cap = 10, inLearning = 8, retainedWords = null, nextInLearningDueAt = null)
 
-    private val fullCapCaughtUp: NextStep.CaughtUp = NextStep.CaughtUp(CaughtUpReason.LearningCap, goal = null)
+    private val fullCapCaughtUp: NextStep.CaughtUp =
+        NextStep.CaughtUp(CaughtUpReason.LearningCap, goal = null, text = null)
 
     private fun TestScope.schoolReading(town: TownSnapshot): SchoolViewModel = schoolReadingFrom(towns, town)
 

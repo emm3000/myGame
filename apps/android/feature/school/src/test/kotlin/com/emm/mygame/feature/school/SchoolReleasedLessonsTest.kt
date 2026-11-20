@@ -64,7 +64,7 @@ class SchoolReleasedLessonsTest {
 
     private val releasedUnderStudy: TownSnapshot = shelvedAndReleased.copy(
         lessonSlot = slotOf(lesson = secondSet),
-        nextStep = NextStep.LessonRunning(goal = null),
+        nextStep = NextStep.LessonRunning(goal = null, text = null),
     )
 
     private val releasedStudied: TownSnapshot = shelvedAndReleased.copy(
@@ -291,6 +291,7 @@ class SchoolReleasedLessonsTest {
                     state = state,
                     onIntent = { intent: SchoolIntent -> intents += intent },
                     onLessonOpen = { lesson: LessonId -> lessonOpens += lesson },
+                    onTextOpen = {},
                 )
             }
         }

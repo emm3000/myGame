@@ -61,8 +61,8 @@ fun SchoolScreen(
     state: SchoolUiState,
     onIntent: (SchoolIntent) -> Unit,
     onLessonOpen: (LessonId) -> Unit,
+    onTextOpen: (TextId) -> Unit,
     modifier: Modifier = Modifier,
-    onTextOpen: (TextId) -> Unit = {},
     holdoutChecks: @Composable () -> Unit = {},
     foldedDock: @Composable () -> Unit = {},
 ) {
@@ -457,6 +457,7 @@ private fun SchoolScreenPreview(@PreviewParameter(SchoolUiStates::class) state: 
             state = state,
             onIntent = {},
             onLessonOpen = {},
+            onTextOpen = {},
         )
     }
 }
@@ -483,6 +484,7 @@ private fun SchoolScreenLanguagePreview(@PreviewParameter(SchoolLanguages::class
                 state = previewReleasedStudied,
                 onIntent = {},
                 onLessonOpen = {},
+                onTextOpen = {},
                 holdoutChecks = { HoldoutCheckRows(state = previewDueCheck, onHoldoutCheckOpen = {}) },
             )
         }
@@ -498,6 +500,7 @@ private fun SchoolScreenStudyingBothPreview() {
                 state = previewStudying,
                 onIntent = {},
                 onLessonOpen = {},
+                onTextOpen = {},
             )
         }
     }

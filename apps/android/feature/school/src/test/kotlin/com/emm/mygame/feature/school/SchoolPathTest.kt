@@ -91,6 +91,7 @@ class SchoolPathTest {
                     state = state,
                     onIntent = { },
                     onLessonOpen = {},
+                    onTextOpen = {},
                 )
             }
         }
@@ -253,7 +254,7 @@ class SchoolPathTest {
             townOf(
                 lessons = listOf(lessonOf(), secondLessonOpen),
                 lessonSlot = slotOf(),
-                nextStep = NextStep.LessonRunning(goal = null),
+                nextStep = NextStep.LessonRunning(goal = null, text = null),
             ),
         )
 

@@ -122,7 +122,7 @@ class LessonWordsViewModelTest {
         val town: TownSnapshot = townOf(
             lessons = listOf(twoWords),
             lessonSlot = slotOf(),
-            nextStep = NextStep.LessonRunning(goal = null),
+            nextStep = NextStep.LessonRunning(goal = null, text = null),
         )
 
         val viewModel: LessonWordsViewModel = lessonWordsReadingFrom(towns, reports, town)
