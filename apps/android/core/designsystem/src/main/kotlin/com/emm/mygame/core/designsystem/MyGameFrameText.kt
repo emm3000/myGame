@@ -1,7 +1,6 @@
 package com.emm.mygame.core.designsystem
 
 import androidx.compose.foundation.LocalIndication
-import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.interaction.collectIsFocusedAsState
@@ -11,12 +10,17 @@ import androidx.compose.foundation.layout.defaultMinSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.drawWithContent
+import androidx.compose.ui.geometry.CornerRadius
+import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.geometry.Size
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.semantics.SemanticsPropertyKey
 import androidx.compose.ui.semantics.SemanticsPropertyReceiver
@@ -111,12 +115,12 @@ private fun BesideSupport(support: MyGameWordSupport) {
 private fun WordOnTap(text: String, isOpen: Boolean, ink: TextStyle, onTap: () -> Unit) {
     val interactions: MutableInteractionSource = remember { MutableInteractionSource() }
     val isFocused: Boolean by interactions.collectIsFocusedAsState()
-    val shape: RoundedCornerShape = RoundedCornerShape(MyGameRadii.sm)
+    val ringColor: Color = MyGameTheme.colors.onBlock
     Box(
         contentAlignment = Alignment.Center,
         modifier = Modifier
             .defaultMinSize(minHeight = MyGameSizes.control)
-            .then(if (isFocused) focusRing(shape) else Modifier)
+            .then(if (isFocused) Modifier.focusRingOutside(ringColor) else Modifier)
             .clickable(
                 interactionSource = interactions,
                 indication = LocalIndication.current,
@@ -133,9 +137,17 @@ private fun WordOnTap(text: String, isOpen: Boolean, ink: TextStyle, onTap: () -
     }
 }
 
-@Composable
-private fun focusRing(shape: RoundedCornerShape): Modifier =
-    Modifier.border(width = MyGameStrokeWidths.focus, color = MyGameTheme.colors.onBlock, shape = shape)
+private fun Modifier.focusRingOutside(color: Color): Modifier = drawWithContent {
+    drawContent()
+    val stroke: Float = MyGameStrokeWidths.focus.toPx()
+    drawRoundRect(
+        color = color,
+        topLeft = Offset(x = -stroke, y = stroke / 2),
+        size = Size(width = size.width + 2 * stroke, height = size.height - stroke),
+        cornerRadius = CornerRadius(MyGameRadii.sm.toPx()),
+        style = Stroke(width = stroke),
+    )
+}
 
 private fun spokenFrameOf(frame: MyGameFrame): AnnotatedString = buildAnnotatedString {
     frame.pieces.forEach { piece: MyGameFramePiece ->
