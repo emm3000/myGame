@@ -83,7 +83,7 @@ repo_flag = r"(?:\s+(?:-R\s*|--repo(?:\s+|=))\S+)*"
 assignments = r"(?:\w+=\S*\s+)*"
 prefixes = r"(?:(?:if|!|\{|command|env)\s+" + assignments + r")*"
 gh = r"(?:\S*/)?gh"
-if not re.search(r"(?:^|[;&|(\n])\s*" + assignments + prefixes + gh + repo_flag + r"\s+pr" + repo_flag + r"\s+(?:create|new)\b", unquoted(command)):
+if not re.search(r"(?:^|[;&|(\n])[ \t]*" + assignments + prefixes + gh + repo_flag + r"\s+pr" + repo_flag + r"\s+(?:create|new)\b", unquoted(command)):
     sys.exit(0)
 cwd = hook["cwd"]
 
