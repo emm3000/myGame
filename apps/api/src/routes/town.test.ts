@@ -1910,6 +1910,25 @@ describe('the town route', () => {
       })
     })
 
+    it('names the newest text when the cap is full', async () => {
+      const cookie = await signUpWithTown('ana@example.com')
+      await runSql(
+        `INSERT INTO cards (player_id, word_id, state, stability, difficulty, last_review_at, last_rating, entered_at) SELECT id, word_id, 'review', 3, 5, '2026-11-05T08:00:00Z', 'good', '2026-11-01T08:00:00Z' FROM players, unnest(ARRAY[${wordIdsUpTo(
+          'lesson-31',
+        )
+          .map((id) => `'${id}'`)
+          .join(', ')}]) word_id`,
+      )
+
+      const town = await overviewOf(await readTown(cookie))
+
+      expect(town.nextStep).toMatchObject({
+        kind: 'caughtUp',
+        reason: 'learningCap',
+        text: { id: 'text-1', title: 'A New Course' },
+      })
+    })
+
     it('serves no text before the stage reaches lesson 31', async () => {
       const cookie = await signUpWithTown('ana@example.com')
       await holdCards(wordIdsUpTo('lesson-30'), 3)
@@ -1956,6 +1975,7 @@ describe('the town route', () => {
           state: 'pending',
           missing: { resources: { money: 0, food: 0, power: 0, material: 0 }, people: 0 },
         },
+        text: null,
       })
     })
 
@@ -1969,6 +1989,7 @@ describe('the town route', () => {
         kind: 'caughtUp',
         reason: 'lessonsDone',
         goal: { position: 1, count: 9, building: 'farm', level: 1, state: 'underway' },
+        text: null,
       })
     })
 
@@ -1991,6 +2012,7 @@ describe('the town route', () => {
           state: 'pending',
           missing: { resources: { money: 0, food: 0, power: 0, material: 0 }, people: 0 },
         },
+        text: null,
       })
     })
 
@@ -2013,6 +2035,7 @@ describe('the town route', () => {
           state: 'pending',
           missing: { resources: { money: 0, food: 0, power: 0, material: 0 }, people: 0 },
         },
+        text: null,
       })
     })
 
@@ -2064,6 +2087,7 @@ describe('the town route', () => {
           state: 'pending',
           missing: { resources: { money: 0, food: 0, power: 0, material: 0 }, people: 0 },
         },
+        text: null,
       })
     })
 
@@ -2073,7 +2097,7 @@ describe('the town route', () => {
 
       const started = await overviewOf(await startLesson(cookie, 'lesson-1'))
 
-      expect(started.nextStep).toEqual({ kind: 'lessonRunning', goal: null })
+      expect(started.nextStep).toEqual({ kind: 'lessonRunning', goal: null, text: null })
     })
 
     it('dismisses the guidance', async () => {
@@ -2083,7 +2107,12 @@ describe('the town route', () => {
       const caughtUp = await overviewOf(await readCaughtUp(cookie))
 
       expect(dismissal.status).toBe(204)
-      expect(caughtUp.nextStep).toEqual({ kind: 'caughtUp', reason: 'lessonsDone', goal: null })
+      expect(caughtUp.nextStep).toEqual({
+        kind: 'caughtUp',
+        reason: 'lessonsDone',
+        goal: null,
+        text: null,
+      })
     })
 
     it('refuses to dismiss the guidance of a player with no town as TownNotFound', async () => {

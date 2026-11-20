@@ -4,6 +4,7 @@ import type { ReleasedLesson } from '../holdout/ReleasedLesson'
 import type { BandStart } from '../learning/BandStart'
 import type { HeldCard } from '../learning/HeldCard'
 import type { Lesson } from '../learning/Lesson'
+import type { Text } from '../learning/Text'
 import { MemoryCard } from '../memory/MemoryCard'
 import { defaultMemoryTerms } from '../memory/MemoryTerms'
 import { reviewMemoryCard } from '../memory/reviewMemoryCard'
@@ -19,7 +20,6 @@ import type { WorkSlot } from './BuildingWork'
 import type { LessonSlot } from './LessonSlot'
 import { type NextStepReading, nextStepOf } from './nextStepOf'
 import type { ResourceKind } from './ResourceKind'
-import type { TownCatalog } from './TownCatalog'
 
 const readAt = Instant.fromEpochMilliseconds(
   plainTownSettings.seasons.epoch.epochMilliseconds + 3_600_000,
@@ -100,20 +100,34 @@ const readingOf = (
   town: townOf({ storedAt: readAt, ...overrides.town }),
 })
 
+const textFrom = (fromLessonId: string): Text => ({
+  id: `text-of-${fromLessonId}`,
+  fromLessonId,
+  title: `The Story of ${fromLessonId}`,
+  sentences: ['I live in a little old house.'],
+})
+
+const curriculumTexts = [textFrom('lesson-1'), textFrom('lesson-3'), textFrom('lesson-4')]
+
 const stepOf = (
   reading: NextStepReading,
   lessons: ReadonlyArray<Lesson> = curriculum,
-  townCatalog: TownCatalog = catalog,
+  texts: ReadonlyArray<Text> = [],
 ): ReturnType<typeof nextStepOf> =>
   nextStepOf(reading, {
     lessons,
+    texts,
     bands: bandsOfCurriculum,
     memoryTerms: defaultMemoryTerms,
-    catalog: townCatalog,
+    catalog,
   })
 
-const answered = (reading: NextStepReading, lessons?: ReadonlyArray<Lesson>): unknown => {
-  const step = stepOf(reading, lessons)
+const answered = (
+  reading: NextStepReading,
+  lessons?: ReadonlyArray<Lesson>,
+  texts?: ReadonlyArray<Text>,
+): unknown => {
+  const step = stepOf(reading, lessons, texts)
   assert(step.ok)
   return step.value
 }
@@ -151,6 +165,7 @@ describe('nextStepOf', () => {
   it('refuses a card on a step the memory terms lack', () => {
     const step = nextStepOf(readingOf({ cards: waitingCardsOf(lessonNumbered(1)) }), {
       lessons: curriculum,
+      texts: [],
       bands: bandsOfCurriculum,
       memoryTerms: { ...defaultMemoryTerms, learningStepsSeconds: [] },
       catalog,
@@ -177,7 +192,7 @@ describe('nextStepOf', () => {
       town: { buildingLevels: { farm: 1 } },
     })
 
-    expect(answered(reading)).toEqual({ kind: 'lessonRunning' })
+    expect(answered(reading)).toEqual({ kind: 'lessonRunning', text: null })
   })
 
   it('answers the first unstudied lesson the school and the cap admit', () => {
@@ -330,13 +345,13 @@ describe('nextStepOf', () => {
       town: { buildingLevels: { farm: 1 } },
     })
 
-    expect(answered(reading)).toEqual({ kind: 'lessonRunning' })
+    expect(answered(reading)).toEqual({ kind: 'lessonRunning', text: null })
   })
 
   it('answers caughtUp with learningCap when the cap is full', () => {
     const reading = readingOf({ cards: curriculum.slice(0, 3).flatMap(waitingCardsOf) })
 
-    expect(answered(reading)).toEqual({ kind: 'caughtUp', reason: 'learningCap' })
+    expect(answered(reading)).toEqual({ kind: 'caughtUp', reason: 'learningCap', text: null })
   })
 
   it('answers caughtUp with learningCap at a full cap while a school raise is under way', () => {
@@ -345,13 +360,17 @@ describe('nextStepOf', () => {
       town: { workSlot: { ...farmUnderWork, building: 'school', level: 2 } },
     })
 
-    expect(answered(reading)).toEqual({ kind: 'caughtUp', reason: 'learningCap' })
+    expect(answered(reading)).toEqual({ kind: 'caughtUp', reason: 'learningCap', text: null })
   })
 
   it("answers caughtUp with schoolTooLow when the school's level is too low", () => {
     const lessons = [lessonNumbered(1, { requiredSchoolLevel: 2 })]
 
-    expect(answered(readingOf(), lessons)).toEqual({ kind: 'caughtUp', reason: 'schoolTooLow' })
+    expect(answered(readingOf(), lessons)).toEqual({
+      kind: 'caughtUp',
+      reason: 'schoolTooLow',
+      text: null,
+    })
   })
 
   it('answers caughtUp with lessonsDone when every lesson is studied', () => {
@@ -360,6 +379,7 @@ describe('nextStepOf', () => {
     expect(answered(readingOf({ cards: waitingCardsOf(studied) }), [studied])).toEqual({
       kind: 'caughtUp',
       reason: 'lessonsDone',
+      text: null,
     })
   })
 
@@ -371,7 +391,11 @@ describe('nextStepOf', () => {
     ]
     const reading = readingOf({ cards: curriculum.slice(0, 3).flatMap(waitingCardsOf) })
 
-    expect(answered(reading, lessons)).toEqual({ kind: 'caughtUp', reason: 'schoolTooLow' })
+    expect(answered(reading, lessons)).toEqual({
+      kind: 'caughtUp',
+      reason: 'schoolTooLow',
+      text: null,
+    })
   })
 
   it('takes the reason from a refused released lesson before the shelf', () => {
@@ -380,7 +404,39 @@ describe('nextStepOf', () => {
       released: [releasedLessonOf(1, { requiredSchoolLevel: 2 })],
     })
 
-    expect(answered(reading)).toEqual({ kind: 'caughtUp', reason: 'schoolTooLow' })
+    expect(answered(reading)).toEqual({ kind: 'caughtUp', reason: 'schoolTooLow', text: null })
+  })
+
+  it('carries the newest open text on caught up', () => {
+    const reading = readingOf({ cards: curriculum.slice(0, 3).flatMap(waitingCardsOf) })
+
+    expect(answered(reading, curriculum, curriculumTexts)).toEqual({
+      kind: 'caughtUp',
+      reason: 'learningCap',
+      text: { id: 'text-of-lesson-3', title: 'The Story of lesson-3' },
+    })
+  })
+
+  it('carries it on a running lesson', () => {
+    const reading = readingOf({
+      cards: waitingCardsOf(lessonNumbered(1)),
+      lessonSlot: { ...runningLessonOne, lessonId: 'lesson-2' },
+    })
+
+    expect(answered(reading, curriculum, curriculumTexts)).toEqual({
+      kind: 'lessonRunning',
+      text: { id: 'text-of-lesson-1', title: 'The Story of lesson-1' },
+    })
+  })
+
+  it('carries no text before one opens', () => {
+    const lessons = [lessonNumbered(1, { requiredSchoolLevel: 2 })]
+
+    expect(answered(readingOf(), lessons, curriculumTexts)).toEqual({
+      kind: 'caughtUp',
+      reason: 'schoolTooLow',
+      text: null,
+    })
   })
 
   it('refuses a school level the catalog lacks', () => {

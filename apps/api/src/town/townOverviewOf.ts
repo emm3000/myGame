@@ -329,7 +329,7 @@ const nextStepOfReading = (
 ): Result<TownOverview['nextStep'], DomainError> => {
   const step = nextStepOf(
     { ...reading, released, placedOutBands: placedOutBandsOf(reading.placementScores) },
-    { lessons: lessons.lessons(), bands: lessons, memoryTerms, catalog },
+    { lessons: lessons.lessons(), texts: lessons.texts(), bands: lessons, memoryTerms, catalog },
   )
   if (!step.ok) {
     return step

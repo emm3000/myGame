@@ -62,6 +62,7 @@ const caughtUp = (goal: TownGoal | null): NextStep => ({
   kind: 'caughtUp',
   reason: 'lessonsDone',
   goal,
+  text: null,
 })
 
 const townAt = (nextStep: NextStep, overrides: Partial<TownOverview> = {}): TownOverview => ({

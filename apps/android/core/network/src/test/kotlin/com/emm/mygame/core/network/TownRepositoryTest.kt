@@ -125,7 +125,7 @@ class TownRepositoryTest {
     @Test
     fun `reads the goal a running lesson carries`() = runTest {
         val goal: String = """{"position":1,"count":9,"building":"farm","level":1,"state":"underway"}"""
-        api.enqueue(json(200, townWithNextStep("""{"kind":"lessonRunning","goal":$goal}""")))
+        api.enqueue(json(200, townWithNextStep("""{"kind":"lessonRunning","goal":$goal,"text":null}""")))
 
         val read: TownSnapshot = (town().read() as TownReadResult.Read).town
 
@@ -141,7 +141,7 @@ class TownRepositoryTest {
 
     @Test
     fun `reads a running lesson that carries no goal`() = runTest {
-        api.enqueue(json(200, townWithNextStep("""{"kind":"lessonRunning","goal":null}""")))
+        api.enqueue(json(200, townWithNextStep("""{"kind":"lessonRunning","goal":null,"text":null}""")))
 
         val read: TownSnapshot = (town().read() as TownReadResult.Read).town
 
@@ -769,7 +769,7 @@ class TownRepositoryTest {
         TokenStore(File(folder.root, "session"), FakeTokenCipher()).apply { write("opaque-session") }
 
     private fun townWithNextStep(step: String): String =
-        TOWN.replace("""{"kind":"caughtUp","reason":"lessonsDone","goal":null}""", step)
+        TOWN.replace("""{"kind":"caughtUp","reason":"lessonsDone","goal":null,"text":null}""", step)
 
     private fun json(code: Int, body: String): MockResponse =
         MockResponse.Builder().code(code).addHeader("Content-Type", "application/json").body(body).build()
@@ -816,7 +816,7 @@ class TownRepositoryTest {
                 """"finishesAt":"2026-11-05T10:20:00.000Z"},""" +
                 """"learning":{"cap":10,"inLearning":0,"retainedWords":null,"nextInLearningDueAt":null},""" +
                 """"stableWordCount":0,"retainedWordCount":0,""" +
-                """"nextStep":{"kind":"caughtUp","reason":"lessonsDone","goal":null},"tip":null,""" +
+                """"nextStep":{"kind":"caughtUp","reason":"lessonsDone","goal":null,"text":null},"tip":null,""" +
                 """"chromePhase":"scaffold","scaffold":"es","scaffoldVersion":0,"nextDueAt":null,""" +
                 """"readAt":"2026-11-05T10:05:00.000Z"}"""
 

@@ -133,7 +133,7 @@ const overview = (overrides: Record<string, unknown> = {}): Record<string, unkno
   learning: { cap: 15, inLearning: 5, retainedWords: null, nextInLearningDueAt: null },
   stableWordCount: 12,
   retainedWordCount: 4,
-  nextStep: { kind: 'caughtUp', reason: 'lessonsDone', goal: null },
+  nextStep: { kind: 'caughtUp', reason: 'lessonsDone', goal: null, text: null },
   tip: null,
   chromePhase: 'scaffold',
   scaffold: 'es',
@@ -595,19 +595,21 @@ describe('TownOverviewSchema next step', () => {
   it('reads a running lesson with the next goal', () => {
     const goal = { position: 1, count: 9, building: 'farm', level: 1, state: 'underway' }
 
-    const read = TownOverviewSchema.parse(overview({ nextStep: { kind: 'lessonRunning', goal } }))
+    const read = TownOverviewSchema.parse(
+      overview({ nextStep: { kind: 'lessonRunning', goal, text: null } }),
+    )
 
-    expect(read.nextStep).toEqual({ kind: 'lessonRunning', goal })
+    expect(read.nextStep).toEqual({ kind: 'lessonRunning', goal, text: null })
   })
 
   it('reads a running lesson with no goal', () => {
-    const nextStep = { kind: 'lessonRunning', goal: null }
+    const nextStep = { kind: 'lessonRunning', goal: null, text: null }
 
     expect(TownOverviewSchema.parse(overview({ nextStep })).nextStep).toEqual(nextStep)
   })
 
   it('refuses a running lesson with a field it does not carry', () => {
-    const nextStep = { kind: 'lessonRunning', goal: null, building: 'farm' }
+    const nextStep = { kind: 'lessonRunning', goal: null, text: null, building: 'farm' }
 
     expect(TownOverviewSchema.safeParse(overview({ nextStep })).success).toBe(false)
   })
@@ -643,7 +645,7 @@ describe('TownOverviewSchema next step', () => {
   })
 
   it('reads caught up with no goal', () => {
-    const nextStep = { kind: 'caughtUp', reason: 'lessonsDone', goal: null }
+    const nextStep = { kind: 'caughtUp', reason: 'lessonsDone', goal: null, text: null }
 
     expect(TownOverviewSchema.parse(overview({ nextStep })).nextStep).toEqual(nextStep)
   })
@@ -659,45 +661,72 @@ describe('TownOverviewSchema next step', () => {
     }
 
     const read = TownOverviewSchema.parse(
-      overview({ nextStep: { kind: 'caughtUp', reason: 'learningCap', goal } }),
+      overview({ nextStep: { kind: 'caughtUp', reason: 'learningCap', goal, text: null } }),
     )
 
-    expect(read.nextStep).toEqual({ kind: 'caughtUp', reason: 'learningCap', goal })
+    expect(read.nextStep).toEqual({ kind: 'caughtUp', reason: 'learningCap', goal, text: null })
   })
 
   it('reads caught up with a goal underway', () => {
     const goal = { position: 1, count: 9, building: 'farm', level: 1, state: 'underway' }
 
     const read = TownOverviewSchema.parse(
-      overview({ nextStep: { kind: 'caughtUp', reason: 'learningCap', goal } }),
+      overview({ nextStep: { kind: 'caughtUp', reason: 'learningCap', goal, text: null } }),
     )
 
-    expect(read.nextStep).toEqual({ kind: 'caughtUp', reason: 'learningCap', goal })
+    expect(read.nextStep).toEqual({ kind: 'caughtUp', reason: 'learningCap', goal, text: null })
   })
 
   it.each(['learningCap', 'schoolTooLow', 'lessonsDone'])(
     'reads caught up for the reason %s',
     (reason) => {
-      const nextStep = { kind: 'caughtUp', reason, goal: null }
+      const nextStep = { kind: 'caughtUp', reason, goal: null, text: null }
 
       expect(TownOverviewSchema.parse(overview({ nextStep })).nextStep).toEqual(nextStep)
     },
   )
 
   it('refuses caught up without its reason', () => {
-    const nextStep = { kind: 'caughtUp', goal: null }
+    const nextStep = { kind: 'caughtUp', goal: null, text: null }
 
     expect(TownOverviewSchema.safeParse(overview({ nextStep })).success).toBe(false)
   })
 
   it('refuses caught up for a reason it does not know', () => {
-    const nextStep = { kind: 'caughtUp', reason: 'slotBusy', goal: null }
+    const nextStep = { kind: 'caughtUp', reason: 'slotBusy', goal: null, text: null }
+
+    expect(TownOverviewSchema.safeParse(overview({ nextStep })).success).toBe(false)
+  })
+
+  it('reads caught up with the newest text by its id and title', () => {
+    const nextStep = {
+      kind: 'caughtUp',
+      reason: 'learningCap',
+      goal: null,
+      text: { id: 'text-1', title: 'A New Course' },
+    }
+
+    expect(TownOverviewSchema.parse(overview({ nextStep })).nextStep).toEqual(nextStep)
+  })
+
+  it('reads a running lesson with the newest text', () => {
+    const nextStep = {
+      kind: 'lessonRunning',
+      goal: null,
+      text: { id: 'text-1', title: 'A New Course' },
+    }
+
+    expect(TownOverviewSchema.parse(overview({ nextStep })).nextStep).toEqual(nextStep)
+  })
+
+  it('refuses caught up without its text', () => {
+    const nextStep = { kind: 'caughtUp', reason: 'lessonsDone', goal: null }
 
     expect(TownOverviewSchema.safeParse(overview({ nextStep })).success).toBe(false)
   })
 
   it('refuses caught up without its goal', () => {
-    const nextStep = { kind: 'caughtUp', reason: 'lessonsDone' }
+    const nextStep = { kind: 'caughtUp', reason: 'lessonsDone', text: null }
 
     expect(TownOverviewSchema.safeParse(overview({ nextStep })).success).toBe(false)
   })
@@ -713,7 +742,7 @@ describe('TownOverviewSchema next step', () => {
     }
 
     const parsed = TownOverviewSchema.safeParse(
-      overview({ nextStep: { kind: 'caughtUp', reason: 'learningCap', goal } }),
+      overview({ nextStep: { kind: 'caughtUp', reason: 'learningCap', goal, text: null } }),
     )
 
     expect(parsed.success).toBe(false)
@@ -723,7 +752,7 @@ describe('TownOverviewSchema next step', () => {
     const goal = { position: 0, count: 9, building: 'farm', level: 1, state: 'underway' }
 
     const parsed = TownOverviewSchema.safeParse(
-      overview({ nextStep: { kind: 'caughtUp', reason: 'learningCap', goal } }),
+      overview({ nextStep: { kind: 'caughtUp', reason: 'learningCap', goal, text: null } }),
     )
 
     expect(parsed.success).toBe(false)
