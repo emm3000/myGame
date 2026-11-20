@@ -1,9 +1,12 @@
 package com.emm.mygame.core.designsystem
 
+import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.width
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.Rect
+import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.semantics.LiveRegionMode
 import androidx.compose.ui.semantics.SemanticsNode
 import androidx.compose.ui.semantics.Role
@@ -14,14 +17,16 @@ import androidx.compose.ui.test.SemanticsMatcher
 import androidx.compose.ui.test.assert
 import androidx.compose.ui.test.assertCountEquals
 import androidx.compose.ui.test.assertHeightIsAtLeast
-import androidx.compose.ui.test.assertWidthIsAtLeast
+import androidx.compose.ui.test.click
 import androidx.compose.ui.test.hasClickAction
 import androidx.compose.ui.test.hasText
 import androidx.compose.ui.test.junit4.ComposeContentTestRule
 import androidx.compose.ui.test.junit4.createComposeRule
 import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.onNodeWithText
+import androidx.compose.ui.test.onRoot
 import androidx.compose.ui.test.performClick
+import androidx.compose.ui.test.performTouchInput
 import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.text.SpanStyle
 import androidx.compose.ui.text.intl.LocaleList
@@ -33,6 +38,7 @@ import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.robolectric.RobolectricTestRunner
+import org.robolectric.annotation.GraphicsMode
 
 @RunWith(RobolectricTestRunner::class)
 class MyGameFrameTextTest {
@@ -60,6 +66,27 @@ class MyGameFrameTextTest {
             )
         }
     }
+
+    private fun showBeside(pieces: List<MyGameFramePiece>, plain: String) {
+        show {
+            Column {
+                MyGameFrameText(
+                    frame = MyGameFrame(pieces),
+                    openPiece = null,
+                    style = MyGameTypography.reading,
+                    onPieceTap = { index: Int -> taps.add(index) },
+                )
+                MyGameText(
+                    text = plain,
+                    style = MyGameTypography.reading,
+                    color = MyGameTheme.colors.onBlock,
+                    modifier = Modifier.testTag(PLAIN),
+                )
+            }
+        }
+    }
+
+    private fun plainWidth(): Float = composeRule.onNodeWithTag(PLAIN).fetchSemanticsNode().boundsInRoot.width
 
     @Test
     fun `reads the whole frame as one sentence`() {
@@ -137,12 +164,42 @@ class MyGameFrameTextTest {
     }
 
     @Test
-    fun `gives a word on tap a control-sized target`() {
-        showFrame(walkFrame(onTap))
+    fun `gives a word on tap a control-tall target`() {
+        showFrame(dayFrame)
 
-        composeRule.onNodeWithText("walk")
-            .assertHeightIsAtLeast(MyGameSizes.control)
-            .assertWidthIsAtLeast(MyGameSizes.control)
+        composeRule.onNodeWithText("day").assertHeightIsAtLeast(MyGameSizes.control)
+    }
+
+    @Test
+    @GraphicsMode(GraphicsMode.Mode.NATIVE)
+    fun `gives a short word on tap a control-wide target`() {
+        showFrame(dayFrame)
+        val edge: Float = with(composeRule.density) { MyGameSizes.control.toPx() / 2 - 1 }
+
+        composeRule.onNodeWithText("day").performTouchInput { click(Offset(centerX - edge, centerY)) }
+        composeRule.onNodeWithText("day").performTouchInput { click(Offset(centerX + edge, centerY)) }
+
+        assertEquals(listOf(1, 1), taps)
+    }
+
+    @Test
+    @GraphicsMode(GraphicsMode.Mode.NATIVE)
+    fun `measures a word on tap as wide as its text`() {
+        showBeside(dayFrame, plain = "day")
+
+        val word: Rect = composeRule.onNode(hasText("day") and hasClickAction()).fetchSemanticsNode().boundsInRoot
+        assertEquals(plainWidth(), word.width, 0.5f)
+    }
+
+    @Test
+    @GraphicsMode(GraphicsMode.Mode.NATIVE)
+    fun `sets a short word on tap one plain space after its neighbor`() {
+        showBeside(dayFrame, plain = "The ")
+
+        val word: Rect = composeRule.onNode(hasText("day") and hasClickAction().not(), useUnmergedTree = true)
+            .fetchSemanticsNode().boundsInRoot
+        val frame: Rect = composeRule.onNodeWithText("The day is ____.").fetchSemanticsNode().boundsInRoot
+        assertEquals(plainWidth(), word.left - frame.left, 1f)
     }
 
     @Test
@@ -191,6 +248,20 @@ class MyGameFrameTextTest {
     }
 
     @Test
+    @GraphicsMode(GraphicsMode.Mode.NATIVE)
+    fun `sends a tap between two words on tap to the nearer word`() {
+        showFrame(twoWordsFrame)
+        val go: Rect = composeRule.onNodeWithText("go").fetchSemanticsNode().boundsInRoot
+        val up: Rect = composeRule.onNodeWithText("up").fetchSemanticsNode().boundsInRoot
+        val quarterGap: Float = (up.left - go.right) / 4
+
+        composeRule.onRoot().performTouchInput { click(Offset(go.right + quarterGap, go.center.y)) }
+        composeRule.onRoot().performTouchInput { click(Offset(up.left - quarterGap, up.center.y)) }
+
+        assertEquals(listOf(0, 2), taps)
+    }
+
+    @Test
     fun `reads the support line in the support's language`() {
         show { MyGameSupportLine(support = onTap) }
 
@@ -217,6 +288,7 @@ class MyGameFrameTextTest {
 
     private companion object {
         val PHONE_WIDTH: Dp = 360.dp
+        const val PLAIN: String = "plain"
         val beside: MyGameWordSupport = MyGameWordSupport(isOnTap = false, text = "caminar", languageTag = "es")
         val onTap: MyGameWordSupport = MyGameWordSupport(isOnTap = true, text = "to go on foot", languageTag = "en")
 
@@ -224,6 +296,18 @@ class MyGameFrameTextTest {
             MyGameFramePiece(text = "The kids ", support = null),
             MyGameFramePiece(text = "walk", support = support),
             MyGameFramePiece(text = " to school.", support = null),
+        )
+
+        val dayFrame: List<MyGameFramePiece> = listOf(
+            MyGameFramePiece(text = "The ", support = null),
+            MyGameFramePiece(text = "day", support = onTap),
+            MyGameFramePiece(text = " is ____.", support = null),
+        )
+
+        val twoWordsFrame: List<MyGameFramePiece> = listOf(
+            MyGameFramePiece(text = "go", support = onTap),
+            MyGameFramePiece(text = " ", support = null),
+            MyGameFramePiece(text = "up", support = onTap),
         )
 
         val longFrame: List<MyGameFramePiece> = listOf(

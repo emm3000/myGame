@@ -115,7 +115,7 @@ private fun WordOnTap(text: String, isOpen: Boolean, ink: TextStyle, onTap: () -
     Box(
         contentAlignment = Alignment.Center,
         modifier = Modifier
-            .defaultMinSize(minWidth = MyGameSizes.control, minHeight = MyGameSizes.control)
+            .defaultMinSize(minHeight = MyGameSizes.control)
             .then(if (isFocused) focusRing(shape) else Modifier)
             .clickable(
                 interactionSource = interactions,
