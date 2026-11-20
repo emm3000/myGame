@@ -15,14 +15,9 @@ Run when the owner invokes `/wave` with one or more issue numbers, or when the o
 
 ## Hard Rules
 
-- Read `docs/agents/multi-session.md` first. Its Dispatch, Isolation and Review cycle sections bind every dispatch.
-- Tickets dispatched together touch disjoint Gradle modules, or disjoint packages for TypeScript. A seam two of them share lands first as its own PR.
+- Read `docs/agents/multi-session.md` first. Its Slicing, Dispatch, Isolation and Review cycle sections bind every dispatch.
 - At most 3 peers at a time. One peer may carry up to 3 row 1 tickets, one PR each, in sequence; every other ticket gets its own peer.
-- Take every model and effort from the tables below.
-- One explicit model and one explicit effort per ticket, stated to the owner before booting.
-- Never touch the owner's main checkout. Peers get their own worktree from `scripts/mygame-session`.
-- Assign each peer its own `API_PORT` and `WEB_PORT` in the dispatch, never the defaults.
-- The one playbook a dispatch tells a peer to read is `docs/agents/peer.md`.
+- Take every model and effort from the tables below: one explicit model and one explicit effort per ticket, stated to the owner before booting.
 
 ## Decision Gates
 
@@ -39,7 +34,7 @@ What a row 2 dispatch adds, by the kind of work:
 - A screen: the screenshots `docs/agents/peer.md` describes.
 - The trap list, where nothing catches the error (the composition root, a `packages/contracts` schema change, package or Gradle config, `.github/`, a design-system default that changes N screens): screenshots of every affected screen and the leak check in `.claude/rules/architecture.md`.
 - Schema or migration, auth, the persistence adapters, a new package: the contract test suite against every adapter and a migration test from the previous version.
-- `scripts/` or `.github/`: a safety checklist naming what the code may destroy and what it must never touch (other projects, live peers, the main checkout, `trunk`), which steps see each secret, that no step running repo code holds one, and the proof run that shows both.
+- `scripts/` or `.github/`: a safety checklist naming what the code may destroy and what it must never touch (other projects, live peers, the main checkout, `trunk`), which steps see each secret, that no step running repo code holds one, and the proof run that shows both. Every run of a script or its test is a bounded run (`docs/agents/peer.md`).
 - Design, a Design System or Design artifact (tokens, icons, component rules, a screen mockup): no branch, no PR. The peer publishes the artifact, posts its URL as a comment on the issue and closes it; the dispatch names the art bible, the lore pages and the existing artifact URLs.
 - A dispatch that names a reference file to model the work on inherits that file's debt, so it names the file's known gaps in the same breath.
 
@@ -64,7 +59,7 @@ Reviewers never drop a step: they are the gate that holds the quality row 1 give
 2. Classify each ticket with the table. The table binds: deviate only with a one-line reason stated in the plan, never silently. Tell the owner the plan in one line per ticket: `@<name> #<n> <model>:<effort>`, before booting anything.
 3. Run `scripts/mygame-wave <name>:<model>:<effort> ...` once with every ticket. It opens the panes in the terminal the orchestrator runs in (`TERM_PROGRAM`: herdr or Warp). When the owner names a terminal in the session ("trabajemos con warp", "con herdr"), pass `--terminal warp` or `--terminal herdr` as the first argument for the rest of the session. On `manual` (unknown terminal) the script prints one `scripts/mygame-session` line per peer: pass them to the owner to run, then poll.
 4. Poll `ListAgents` until every pane name is listed, at most 10 seconds.
-5. Send each peer one dispatch built from the playbook's Dispatch section: issue, `docs/agents/peer.md` and the ticket's own docs to read, branch `<type>/<n>-<slug>`, its worktree `../mygame-<name>`, its ports, the files and blockers, whether it owes the red-run table or screenshots, reply with the PR URL and the gate's exit code. A design dispatch replaces branch, gate and PR with: publish the artifact, comment its URL on the issue, close the issue, reply with the URL. Ask for `notify_when_idle`.
+5. Send each peer one dispatch carrying every item of the playbook's Dispatch section, on branch `<type>/<n>-<slug>`. A design dispatch replaces branch, gate and PR with: publish the artifact, comment its URL on the issue, close the issue, reply with the URL. Ask for `notify_when_idle`.
 6. Report to the owner in one or two lines: peers booted, tickets dispatched.
 
 ## Output Contract
@@ -78,6 +73,4 @@ Return the list `@<name> #<n> <model>:<effort>` and nothing else until a peer re
 - `docs/agents/dispatch-log.md` — every PR's outcome by the model that ran it.
 - `scripts/mygame-wave` — opens one pane per peer in herdr or Warp, or prints the launch lines.
 - `scripts/mygame-session` — worktree plus `claude` launcher.
-- `scripts/mygame-merge` — rebase-merges one PR, writes its dispatch-log row, then runs `scripts/mygame-wave-close`; `--no-close` skips that close for every PR but a peer's last, and `--dry-run` only writes the row of a PR already merged.
-- `scripts/mygame-wave-close` — closes one peer's cycle: its processes, containers, worktree and branches, then the orphan check.
-- `scripts/mygame-orphans` — lists what closed cycles left behind; exits 0 with `orphans: none` when clean; `--keep-emulator` turns an emulator under a removed worktree, and a `mygame-<name>` AVD without its worktree, from an `orphan:` into a `kept:` line.
+- `scripts/mygame-merge`, `scripts/mygame-wave-close`, `scripts/mygame-orphans` — merge one PR and log it, close one peer's cycle, list what closed cycles left behind; their use is the playbook's Between tickets.
