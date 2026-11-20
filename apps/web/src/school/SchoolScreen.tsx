@@ -2,6 +2,7 @@ import {
   namesPlacesSchool,
   schoolLearning,
   schoolLearningFull,
+  schoolLearningFullNextWordDue,
   schoolLessonTitle,
   schoolSkills,
   schoolSkillsNone,
@@ -24,6 +25,7 @@ import { formatFinish } from '../time/formatFinish'
 import type { LiveTown } from '../town/liveTown'
 import { NextStepLink } from '../town/NextStepLink'
 import { reviewsActionOf } from '../town/nextStepCardOf'
+import { capWaitLabelOf } from './capWaitLabelOf'
 import { LessonRows } from './LessonRows'
 import {
   isPastLearningCap,
@@ -74,6 +76,13 @@ function slotStateOf(
   }
 }
 
+const learningFullLineOf = (count: number, town: LiveTown): string => {
+  const timeLeft = capWaitLabelOf(town)
+  return timeLeft === null
+    ? schoolLearningFull({ count })
+    : schoolLearningFullNextWordDue({ count, timeLeft })
+}
+
 function LearningLoad({ town }: { readonly town: LiveTown }): ReactElement {
   const { learning } = town.overview
   const next = town.overview.lessons.find(
@@ -87,7 +96,7 @@ function LearningLoad({ town }: { readonly town: LiveTown }): ReactElement {
       <Track value={learning.inLearning} total={learning.cap} fillClass="fill-action" />
       {next !== undefined && isPastLearningCap(next, town.overview) && (
         <p className="m-0 font-sans text-caption text-warning-ink">
-          {schoolLearningFull({ count: next.words.length })}
+          {learningFullLineOf(next.words.length, town)}
         </p>
       )}
     </section>

@@ -100,6 +100,7 @@ export const refusalJobHoursOutOfRange = ({ maxHours }: { readonly maxHours: str
 export const refusalJobNotFound = (): string => `Este trabajo ya terminó.`
 export const refusalJobSiteOutOfBounds = (): string => `Ese sitio no está en el mapa.`
 export const refusalJobToOwnSite = (): string => `Ese sitio es tu pueblo. Elige otro sitio.`
+export const refusalLearningCapNextWordDue = ({ cardsInLearning, learningCap, timeLeft }: { readonly cardsInLearning: string | number; readonly learningCap: string | number; readonly timeLeft: string | number }): string => `Palabras en aprendizaje: ${String(cardsInLearning)} de ${String(learningCap)}. La siguiente se repasa en ${String(timeLeft)}.`
 export const refusalLearningCapReached = ({ cardsInLearning, learningCap }: { readonly cardsInLearning: string | number; readonly learningCap: string | number }): string => `Palabras en aprendizaje: ${String(cardsInLearning)} de ${String(learningCap)}. Repásalas antes de empezar otra lección.`
 export const refusalLessonAlreadyStudied = (): string => `Ya estudiaste esa lección: sus palabras están en tu repaso.`
 export const refusalLessonSchoolTooLow = (): string => `Esa lección necesita una escuela de más nivel. Súbela primero.`
@@ -186,6 +187,7 @@ export const reviewWrong = (): string => `No es correcto.`
 export const reviewYourAnswer = (): string => `Tu respuesta:`
 export const schoolLearning = ({ cap, inLearning }: { readonly cap: string | number; readonly inLearning: string | number }): string => `Palabras en aprendizaje: ${String(inLearning)} de ${String(cap)}`
 export const schoolLearningFull = ({ count }: { readonly count: number }): string => `${count === 1 ? `La siguiente lección trae 1 palabra.` : `La siguiente lección trae ${String(count)} palabras.`} Empieza los repasos.`
+export const schoolLearningFullNextWordDue = ({ count, timeLeft }: { readonly count: number; readonly timeLeft: string | number }): string => `${count === 1 ? `La siguiente lección trae 1 palabra.` : `La siguiente lección trae ${String(count)} palabras.`} La siguiente palabra en aprendizaje se repasa en ${String(timeLeft)}.`
 export const schoolLessonCapReached = ({ cap, count, inLearning }: { readonly cap: string | number; readonly count: string | number; readonly inLearning: string | number }): string => `Palabras en aprendizaje: ${String(inLearning)} de ${String(cap)}. Esta lección trae ${String(count)}.`
 export const schoolLessonNeedsSchool = ({ level }: { readonly level: string | number }): string => `Necesita la escuela en nivel ${String(level)}`
 export const schoolLessonNext = (): string => `Siguiente lección`

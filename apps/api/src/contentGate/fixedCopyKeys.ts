@@ -251,6 +251,7 @@ export const fixedCopyKeys: ReadonlySet<string> = new Set([
   'refusal.JobNotFound',
   'refusal.JobSiteOutOfBounds',
   'refusal.JobToOwnSite',
+  'refusal.LearningCapNextWordDue',
   'refusal.LearningCapReached',
   'refusal.LessonAlreadyStudied',
   'refusal.LessonSchoolTooLow',

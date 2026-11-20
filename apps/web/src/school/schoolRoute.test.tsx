@@ -1,9 +1,12 @@
 import {
   namesPlacesSchool,
+  refusalLearningCapNextWordDue,
   refusalLearningCapReached,
   reportNoReviewsDue,
   reportStartReviews,
   schoolLearning,
+  schoolLearningFull,
+  schoolLearningFullNextWordDue,
   schoolLessonCapReached,
   schoolLessonNeedsSchool,
   schoolLessonReadWords,
@@ -440,6 +443,69 @@ it('refuses a lesson past the cap and names the cap', async () => {
       error: { kind: 'LearningCapReached', params: { learningCap: 15, cardsInLearning: 12 } },
     }),
   })
+
+  fireEvent.click(studyButtonOf(1))
+  await passSeconds(0)
+
+  expect(within(screen.getByRole('main')).getByRole('alert').textContent).toBe(
+    refusalLearningCapReached({ learningCap: 15, cardsInLearning: 12 }),
+  )
+})
+
+const nextWordDueIn = '2 h 15 min · 12:15'
+
+const reviewsDue: TownOverview['nextStep'] = { kind: 'reviews', count: 2, readFirst: [] }
+
+const fullCapWaiting: TownOverview['learning'] = {
+  cap: 15,
+  inLearning: 12,
+  retainedWords: null,
+  nextInLearningDueAt: instantAfter(2 * 3600 + 15 * 60),
+}
+
+const capRefused: Partial<ApiClient> = {
+  startLesson: async () => ({
+    ok: false,
+    refusal: 'LearningCapReached',
+    error: { kind: 'LearningCapReached', params: { learningCap: 15, cardsInLearning: 12 } },
+  }),
+}
+
+it('a full cap with no review due names when the next word in learning is due', async () => {
+  await showSchool(schoolOf({ learning: fullCapWaiting }))
+
+  expect(
+    screen.getByText(schoolLearningFullNextWordDue({ count: 5, timeLeft: nextWordDueIn })),
+  ).toBeDefined()
+  expect(screen.queryByText(schoolLearningFull({ count: 5 }))).toBeNull()
+})
+
+it('a full cap with a review due still sends to the reviews', async () => {
+  await showSchool(schoolOf({ learning: fullCapWaiting, nextStep: reviewsDue }))
+
+  expect(screen.getByText(schoolLearningFull({ count: 5 }))).toBeDefined()
+})
+
+it('refuses a lesson past the cap with no review due and names when the next word is due', async () => {
+  await showSchool(schoolOf({ learning: { ...fullCapWaiting, inLearning: 0 } }), capRefused)
+
+  fireEvent.click(studyButtonOf(1))
+  await passSeconds(0)
+
+  expect(within(screen.getByRole('main')).getByRole('alert').textContent).toBe(
+    refusalLearningCapNextWordDue({
+      learningCap: 15,
+      cardsInLearning: 12,
+      timeLeft: nextWordDueIn,
+    }),
+  )
+})
+
+it('refuses a lesson past the cap with a review due and sends to the reviews', async () => {
+  await showSchool(
+    schoolOf({ learning: { ...fullCapWaiting, inLearning: 0 }, nextStep: reviewsDue }),
+    capRefused,
+  )
 
   fireEvent.click(studyButtonOf(1))
   await passSeconds(0)
