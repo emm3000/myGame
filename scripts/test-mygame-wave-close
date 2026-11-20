@@ -131,6 +131,14 @@ case "$1 $2" in
 esac
 STUB
 write_stub gh <<'STUB'
+if [ "$#" -eq 10 ] && [ "$1 $2 $3" = "pr list --head" ] && [ "$5 $6 $7 $8 $9 ${10}" = "--state merged --json number --jq length" ]; then
+  if awk -v name="$4" '$0 == name { found = 1 } END { exit !found }' "$FAKE_STATE/unreachable"; then
+    echo "error connecting to api.github.com" >&2
+    exit 1
+  fi
+  awk -v name="$4" '$0 == name { found = 1 } END { print found ? 1 : 0 }' "$FAKE_STATE/merged"
+  exit 0
+fi
 echo "unexpected gh $*" >&2
 exit 1
 STUB
@@ -157,6 +165,8 @@ build_a_live_peer() {
   : >"$case_dir/state/killed"
   : >"$case_dir/state/deleted"
   : >"$case_dir/state/devices"
+  : >"$case_dir/state/merged"
+  : >"$case_dir/state/unreachable"
   for avd in Medium_Phone_5560 hello-1 picantea-reembolso mygame-live; do
     add_an_avd "$avd"
   done
@@ -189,6 +199,71 @@ build_a_merged_ticket_beside_a_live_peer() {
   } >>"$case_dir/state/processes"
   printf '%s\n' mygame-probe-pg mygame-probe-mail >>"$case_dir/state/containers"
   printf 'mygame-probe-pgdata\t\tmygame-probe-pg\n' >>"$case_dir/state/volumes"
+}
+
+build_a_peer_with_two_earlier_merged_tickets_and_an_open_one() {
+  build_a_live_peer "$1"
+  local probe="$case_dir/mygame-probe" name
+  git -C "$repo" worktree add -q -b fix/5-first "$probe" trunk
+  git -C "$probe" switch -q -c fix/6-second trunk
+  git -C "$probe" switch -q -c fix/8-open trunk
+  git -C "$probe" checkout -q --ignore-other-worktrees chore/9-live
+  git -C "$probe" switch -q -c chore/7-probe trunk
+  for name in 5 6 7 8; do
+    git -C "$repo" branch "assets/$name-visual-check"
+  done
+  git -C "$repo" push -q origin fix/5-first fix/6-second fix/8-open chore/7-probe \
+    assets/5-visual-check assets/6-visual-check assets/7-visual-check assets/8-visual-check
+  printf '%s\n' fix/5-first fix/6-second chore/7-probe chore/9-live >"$case_dir/state/merged"
+}
+
+closing_deletes_the_branches_of_the_peer_earlier_merged_tickets() {
+  build_a_peer_with_two_earlier_merged_tickets_and_an_open_one earlier-merged
+  local output
+  output=$(with_stubs scripts/mygame-wave-close probe) || fail "${FUNCNAME[0]}" "$output" || return 1
+  local name
+  for name in fix/5-first fix/6-second chore/7-probe assets/5-visual-check assets/6-visual-check assets/7-visual-check; do
+    ! git -C "$repo" show-ref --verify --quiet "refs/heads/$name" || fail "${FUNCNAME[0]}" "local $name kept: $output" || return 1
+  done
+  for name in fix/5-first fix/6-second chore/7-probe; do
+    ! git --git-dir="$case_dir/origin.git" show-ref --verify --quiet "refs/heads/$name" ||
+      fail "${FUNCNAME[0]}" "origin kept $name: $output" || return 1
+  done
+  for name in 5 6 7; do
+    git --git-dir="$case_dir/origin.git" show-ref --verify --quiet "refs/heads/assets/$name-visual-check" ||
+      fail "${FUNCNAME[0]}" "origin lost assets/$name-visual-check: $output" || return 1
+  done
+}
+
+closing_keeps_a_branch_of_the_peer_whose_pr_is_open() {
+  build_a_peer_with_two_earlier_merged_tickets_and_an_open_one earlier-open
+  local output
+  output=$(with_stubs scripts/mygame-wave-close probe) || fail "${FUNCNAME[0]}" "$output" || return 1
+  git -C "$repo" show-ref --verify --quiet refs/heads/fix/8-open || fail "${FUNCNAME[0]}" "local fix/8-open deleted: $output" || return 1
+  git -C "$repo" show-ref --verify --quiet refs/heads/assets/8-visual-check ||
+    fail "${FUNCNAME[0]}" "local assets/8-visual-check deleted: $output" || return 1
+  git --git-dir="$case_dir/origin.git" show-ref --verify --quiet refs/heads/fix/8-open || fail "${FUNCNAME[0]}" "origin fix/8-open deleted: $output"
+}
+
+closing_keeps_a_merged_branch_another_peer_holds() {
+  build_a_peer_with_two_earlier_merged_tickets_and_an_open_one earlier-other-peer
+  local output
+  output=$(with_stubs scripts/mygame-wave-close probe) || fail "${FUNCNAME[0]}" "$output" || return 1
+  git -C "$repo" show-ref --verify --quiet refs/heads/chore/9-live || fail "${FUNCNAME[0]}" "local chore/9-live deleted: $output" || return 1
+  git --git-dir="$case_dir/origin.git" show-ref --verify --quiet refs/heads/chore/9-live ||
+    fail "${FUNCNAME[0]}" "origin chore/9-live deleted: $output" || return 1
+  [ -d "$case_dir/mygame-live" ] || fail "${FUNCNAME[0]}" "the live worktree is gone: $output" || return 1
+  [ "$(rg -F 'on origin' <<<"$output")" = "deleted chore/7-probe fix/6-second fix/5-first on origin" ] || fail "${FUNCNAME[0]}" "$output"
+}
+
+closing_keeps_a_branch_whose_merged_state_gh_cannot_answer() {
+  build_a_peer_with_two_earlier_merged_tickets_and_an_open_one earlier-unreachable
+  echo fix/5-first >"$case_dir/state/unreachable"
+  local output
+  output=$(with_stubs scripts/mygame-wave-close probe) || fail "${FUNCNAME[0]}" "$output" || return 1
+  git -C "$repo" show-ref --verify --quiet refs/heads/fix/5-first || fail "${FUNCNAME[0]}" "local fix/5-first deleted: $output" || return 1
+  ! git -C "$repo" show-ref --verify --quiet refs/heads/fix/6-second || fail "${FUNCNAME[0]}" "local fix/6-second kept: $output" || return 1
+  [ "$(rg -F 'gh pr list failed' <<<"$output")" = "gh pr list failed: branch fix/5-first kept" ] || fail "${FUNCNAME[0]}" "$output"
 }
 
 build_a_peer_with_its_own_avd() {
@@ -530,6 +605,10 @@ run orphans_names_a_stray_branch_and_fails
 run orphans_keeps_a_spared_emulator_only_under_keep_emulator
 run orphans_reports_only_mygame_dangling_volumes
 run closing_a_session_on_trunk_keeps_trunk
+run closing_deletes_the_branches_of_the_peer_earlier_merged_tickets
+run closing_keeps_a_branch_of_the_peer_whose_pr_is_open
+run closing_keeps_a_merged_branch_another_peer_holds
+run closing_keeps_a_branch_whose_merged_state_gh_cannot_answer
 run orphans_treats_a_same_name_claude_outside_the_worktree_as_not_live
 run closing_stops_the_peer_emulator_by_its_avd_and_deletes_the_avd
 run closing_probe_spares_the_mygame_probe2_emulator_and_avd

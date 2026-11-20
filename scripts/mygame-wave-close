@@ -138,20 +138,44 @@ porcelain=$(git -C "$repo" worktree list --porcelain)
 branch=$(awk -v worktree="worktree $worktree" '
   /^worktree / { current = ($0 == worktree) }
   current && /^branch refs\/heads\// { print substr($0, 19) }' <<<"$porcelain")
+held=$(awk '/^branch refs\/heads\// { print substr($0, 19) }' <<<"$porcelain")
+visited=""
 if [ -d "$worktree" ] && awk -v worktree="worktree $worktree" '$0 == worktree { found = 1 } END { exit !found }' <<<"$porcelain"; then
+  visited=$(git -C "$worktree" log -g --format=%gs HEAD 2>/dev/null |
+    awk '$1 == "checkout:" && $2 == "moving" && $3 == "from" && $5 == "to" { print $4; print $6 }' || true)
   git -C "$repo" worktree remove --force "$worktree"
   echo "removed worktree $worktree"
 fi
 git -C "$repo" worktree prune
 
-if [ -n "$branch" ] && [ "$branch" != trunk ]; then
-  branches=$branch
-  ticket=${branch#*/}
-  ticket=${ticket%%-*}
-  case $ticket in
-    '' | *[!0-9]*) ;;
-    *) branches="$branches assets/$ticket-visual-check" ;;
-  esac
+merged_earlier() {
+  local name count
+  while read -r name; do
+    [ -n "$name" ] && [ "$name" != trunk ] && [ "$name" != "$branch" ] || continue
+    awk -v name="$name" '$0 == name { found = 1 } END { exit found }' <<<"$held" || continue
+    git -C "$repo" show-ref --verify --quiet "refs/heads/$name" || continue
+    count=$(gh pr list --head "$name" --state merged --json number --jq length) ||
+      { echo "gh pr list failed: branch $name kept" >&2; continue; }
+    case $count in '' | 0 | *[!0-9]*) continue ;; esac
+    echo "$name"
+  done <<<"$(awk '!seen[$0]++' <<<"$visited")"
+}
+
+peer_branches=$(
+  if [ -n "$branch" ] && [ "$branch" != trunk ]; then echo "$branch"; fi
+  merged_earlier
+)
+if [ -n "$peer_branches" ]; then
+  branches=""
+  for name in $peer_branches; do
+    branches="$branches $name"
+    ticket=${name#*/}
+    ticket=${ticket%%-*}
+    case $ticket in
+      '' | *[!0-9]*) ;;
+      *) branches="$branches assets/$ticket-visual-check" ;;
+    esac
+  done
   remote_heads=$(git -C "$repo" ls-remote --heads origin 2>/dev/null | awk '{ print substr($2, 12) }' || true)
   pushed=()
   for name in $branches; do
