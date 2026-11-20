@@ -3,6 +3,8 @@ package com.emm.mygame.feature.map
 import androidx.compose.ui.semantics.SemanticsProperties
 import androidx.compose.ui.test.SemanticsMatcher
 import androidx.compose.ui.test.assertIsDisplayed
+import androidx.compose.ui.test.hasTestTag
+import androidx.compose.ui.test.hasText
 import androidx.compose.ui.test.junit4.ComposeContentTestRule
 import androidx.compose.ui.test.junit4.createComposeRule
 import androidx.compose.ui.test.onNodeWithContentDescription
@@ -13,6 +15,7 @@ import com.emm.mygame.core.network.TownJobRefusal
 import androidx.compose.ui.test.performClick
 import androidx.compose.ui.test.performScrollTo
 import com.emm.mygame.core.designsystem.MyGameTheme
+import com.emm.mygame.core.designsystem.OUTLINED_PILL
 import com.emm.mygame.core.network.Terrain
 import com.emm.mygame.core.network.TownResourceKind
 import com.emm.mygame.core.network.TownSite
@@ -270,5 +273,13 @@ class MapScreenTest {
             .performClick()
 
         assertEquals(listOf<MapIntent>(MapIntent.SendTapped), intents)
+    }
+
+    @Test
+    fun `draws both area links as outlined buttons`() {
+        show(contentOf().copy(previousArea = 1, nextArea = 3))
+
+        composeRule.onNode(hasTestTag(OUTLINED_PILL) and hasText("Zona anterior")).assertIsDisplayed()
+        composeRule.onNode(hasTestTag(OUTLINED_PILL) and hasText("Zona siguiente")).assertIsDisplayed()
     }
 }

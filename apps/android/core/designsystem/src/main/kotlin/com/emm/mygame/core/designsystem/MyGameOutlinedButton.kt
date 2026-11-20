@@ -62,10 +62,11 @@ internal fun outlinedPillLook(colors: MyGameColors, height: Dp): MyGamePillLook 
     style = MyGameTypography.label,
     ground = Color.Transparent,
     ink = colors.ink,
-    edge = colors.lineStrong,
+    edge = colors.ink,
+    edgeWidth = MyGameStrokeWidths.control,
     badgeGround = colors.action,
     badgeInk = colors.onAction,
-    hasOuterFocusRing = false,
+    hasOuterFocusRing = true,
 )
 
 @PreviewMyGame

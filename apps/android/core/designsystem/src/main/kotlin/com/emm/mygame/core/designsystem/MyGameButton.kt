@@ -61,6 +61,7 @@ internal fun goPillLook(colors: MyGameColors): MyGamePillLook = MyGamePillLook(
     ground = colors.go,
     ink = colors.onGo,
     edge = colors.go,
+    edgeWidth = MyGameStrokeWidths.hairline,
     badgeGround = colors.onGo,
     badgeInk = colors.go,
     hasOuterFocusRing = true,
