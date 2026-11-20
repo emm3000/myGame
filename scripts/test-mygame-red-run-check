@@ -190,6 +190,63 @@ checks_gh_pr_create_after_a_closed_or_escaped_quote() {
   done
 }
 
+checks_gh_pr_create_after_a_heredoc_or_a_comment_holding_an_apostrophe() {
+  local command tab=$'\t'
+  printf 'Closes #1\n' | write "$repo/notes/plain.md"
+  for command in \
+    "git commit -m \"\$(cat <<'EOF'
+fix: don't drop it
+EOF
+)\" && gh pr create --body-file notes/plain.md" \
+    "cat << \"EOF\"
+don't
+EOF
+gh pr create --fill" \
+    "cat <<EOF
+don't
+EOF
+true
+gh pr create --fill" \
+    "cat <<-EOF
+${tab}don't
+${tab}EOF
+gh pr create --fill" \
+    "cat <<<'x'
+gh pr create --fill" \
+    "# don't forget
+gh pr create --fill" \
+    "echo a#b; gh pr create --fill" \
+    "echo \$'it\\'s'; gh pr create --fill"; do
+    hook "$command"
+    expect_blocked_for "${FUNCNAME[0]}" src/a.ts:2 src/b.kt:3 || fail "${FUNCNAME[0]}" "'$command' was not checked" || return 1
+  done
+}
+
+passes_a_command_quoting_gh_pr_create_inside_a_heredoc_or_a_comment() {
+  local command tab=$'\t'
+  for command in \
+    "cat <<'EOF'
+a; gh pr create --fill
+EOF" \
+    "cat << 'EOF'
+a; gh pr create --fill
+EOF" \
+    "echo it\\'s 'a; gh pr create --fill'" \
+    "echo done # ; gh pr create --fill" \
+    "# a; gh pr create --fill" \
+    "true
+# a; gh pr create --fill" \
+    "true;# a; gh pr create --fill" \
+    "true${tab}# a; gh pr create --fill" \
+    "true&# a; gh pr create --fill" \
+    "true|# a; gh pr create --fill" \
+    "(# a; gh pr create --fill
+)"; do
+    hook "$command"
+    expect_pass "${FUNCNAME[0]}" || fail "${FUNCNAME[0]}" "'$command' was checked" || return 1
+  done
+}
+
 blocks_a_body_file_with_no_row_naming_every_line() {
   printf 'Closes #1\n\nNo table here.\n' | write "$repo/notes/plain.md"
   hook "gh pr create --title t --body-file notes/plain.md"
@@ -421,6 +478,8 @@ run passes_a_commit_quoting_gh_pr_new_without_reading_its_message_file
 run passes_a_command_quoting_gh_pr_create_after_a_separator
 run checks_gh_pr_create_inside_a_command_substitution_in_double_quotes
 run checks_gh_pr_create_after_a_closed_or_escaped_quote
+run checks_gh_pr_create_after_a_heredoc_or_a_comment_holding_an_apostrophe
+run passes_a_command_quoting_gh_pr_create_inside_a_heredoc_or_a_comment
 run blocks_a_body_file_with_no_row_naming_every_line
 run checks_gh_pr_create_spelled_with_extra_whitespace
 run blocks_a_body_missing_one_row_and_names_exactly_that_path_line
