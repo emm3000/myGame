@@ -184,6 +184,18 @@ const exchanges: ReadonlyArray<Exchange> = [
   { operation: 'GET /town/news', caller: 'signedOut', status: 401 },
   { operation: 'GET /town/news', caller: 'ana', status: 404 },
   {
+    operation: 'GET /town/texts/{textId}',
+    caller: 'signedOut',
+    params: { textId: 'text-1' },
+    status: 401,
+  },
+  {
+    operation: 'GET /town/texts/{textId}',
+    caller: 'ana',
+    params: { textId: 'text-1' },
+    status: 404,
+  },
+  {
     operation: 'POST /town/work',
     caller: 'signedOut',
     body: { building: 'farm' },
@@ -507,6 +519,19 @@ const exchanges: ReadonlyArray<Exchange> = [
     seed: 'UPDATE towns SET money = 0',
     body: { building: 'farm' },
     status: 409,
+  },
+  {
+    operation: 'GET /town/texts/{textId}',
+    caller: 'ana',
+    params: { textId: 'text-1' },
+    status: 404,
+  },
+  {
+    operation: 'GET /town/texts/{textId}',
+    caller: 'ana',
+    seed: "INSERT INTO cards (player_id, word_id, state, stability, difficulty, last_review_at, last_rating, entered_at) SELECT id, word_id, 'review', 3, 5, '2026-09-21T08:00:00Z', 'good', '2026-09-21T07:00:00Z' FROM players, unnest(ARRAY(SELECT 'lesson-' || n || '-1' FROM generate_series(1, 16) n) || ARRAY(SELECT 'word-' || n FROM generate_series(1, 2000) n)) word_id WHERE email = 'ana@example.com' ON CONFLICT DO NOTHING",
+    params: { textId: 'text-1' },
+    status: 200,
   },
   {
     operation: 'POST /auth/sign-up/native',
