@@ -35,6 +35,19 @@ cwd_table() {
     /^n/ { print pid "\t" name "\t" substr($0, 2) }' || true
 }
 
+spawned=$(awk -F '\t' -v worktree="$worktree" '
+  FNR == NR { if ($3 == worktree || index($3, worktree "/") == 1) rooted[$1] = 1; next }
+  { parent[$1] = $2 }
+  END {
+    for (pid in parent) {
+      ancestor = parent[pid]
+      for (depth = 0; depth < 64 && ancestor > 1; depth++) {
+        if (ancestor in rooted) { print pid; break }
+        ancestor = parent[ancestor]
+      }
+    }
+  }' <(cwd_table) <(ps -axo pid=,ppid= | awk '{ print $1 "\t" $2 }'))
+
 claude_pids=$(ps -axo pid=,command= | awk -v name="$session" '
   {
     command = $2
@@ -113,12 +126,13 @@ while IFS="$(printf '\t')" read -r pid name; do
   [ -n "$pid" ] || continue
   stop "$pid"
   echo "killed $name (pid $pid)"
-done <<<"$(cwd_table | awk -F '\t' -v worktree="$worktree" -v keep="$keep_emulator" -v self="$$" '
+done <<<"$(awk -F '\t' -v worktree="$worktree" -v keep="$keep_emulator" -v self="$$" '
+  FNR == NR { spawned[$1] = 1; next }
   $1 == self { next }
-  $3 != worktree && index($3, worktree "/") != 1 { next }
+  $3 != worktree && index($3, worktree "/") != 1 && !($1 in spawned) { next }
   $2 == "netsimd" || $2 == "adb" { next }
   keep && $2 ~ /^(emulator|qemu|crashpad)/ { next }
-  { print $1 "\t" $2 }')"
+  { print $1 "\t" $2 }' <(printf '%s\n' "$spawned") <(cwd_table))"
 
 if command -v docker >/dev/null; then
   while read -r container; do

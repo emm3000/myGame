@@ -134,5 +134,26 @@ while IFS="$(printf '\t')" read -r pid name path; do
   fi
 done <<<"$cwds"
 
+while IFS="$(printf '\t')" read -r pid name megabytes cpu; do
+  [ -n "$pid" ] || continue
+  path=$(awk -F '\t' -v pid="$pid" '$1 == pid { print $3; exit }' <<<"$cwds")
+  report "heavy process $pid ($name, $megabytes MB, cpu $cpu) in $path"
+done <<<"$(ps -axo pid=,ppid=,rss=,time=,ucomm= | awk '
+  function is_script_host(name) { return name ~ /^(sh|bash|zsh|node|[Pp]ython[0-9.]*)$/ }
+  function cpu_seconds(time,    parts, count, i, total) {
+    count = split(time, parts, ":")
+    for (i = 1; i <= count; i++) total = total * 60 + parts[i]
+    return total
+  }
+  { parent[$1] = $2; rss[$1] = $3; cpu[$1] = $4; name[$1] = $5 }
+  END {
+    for (pid in parent) {
+      if (!is_script_host(name[pid]) || (rss[pid] < 1048576 && cpu_seconds(cpu[pid]) < 300)) continue
+      ancestor = parent[pid]
+      for (depth = 0; depth < 64 && ancestor != 1 && is_script_host(name[ancestor]); depth++) ancestor = parent[ancestor]
+      if (ancestor == 1) print pid "\t" name[pid] "\t" int(rss[pid] / 1024) "\t" cpu[pid]
+    }
+  }' | sort -n)"
+
 [ "$found" -eq 1 ] || echo "orphans: none"
 exit "$found"

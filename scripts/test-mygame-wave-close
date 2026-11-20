@@ -36,6 +36,17 @@ serial_only_emulator_pid=900000012
 netsim_pid=900000013
 adb_pid=900000014
 netsim_lookalike_pid=900000015
+shell_pid=900000016
+subshell_pid=900000017
+python_pid=900000018
+spinning_python_pid=900000019
+owned_python_pid=900000020
+app_node_pid=900000021
+heavy_emulator_pid=900000022
+tree_netsim_pid=900000023
+app_pid=900000024
+cycle_shell_pid=900000025
+cycle_python_pid=900000026
 failures=0
 case_dir=""
 repo=""
@@ -49,7 +60,10 @@ write_stub() {
   chmod +x "$sandbox/bin/$1"
 }
 write_stub ps <<'STUB'
-awk -F '\t' '{ print $1 " " $4 }' "$FAKE_STATE/processes"
+case "$*" in
+  *ppid=*) awk -F '\t' '{ print $1, ($5 == "" ? 2 : $5), ($6 == "" ? 0 : $6), ($7 == "" ? "0:00.00" : $7), $2 }' "$FAKE_STATE/processes" ;;
+  *) awk -F '\t' '{ print $1 " " $4 }' "$FAKE_STATE/processes" ;;
+esac
 STUB
 write_stub lsof <<'STUB'
 awk -F '\t' '{ print "p" $1; print "c" $2; print "fcwd"; print "n" $3 }' "$FAKE_STATE/processes"
@@ -186,6 +200,17 @@ add_an_emulator() {
   printf 'emulator-%s\t%s\t%s\n' "$3" "$2" "$1" >>"$case_dir/state/devices"
 }
 
+add_a_process() {
+  printf '%s\t%s\t%s\t%s\t%s\t%s\t%s\n' "$1" "$2" "$3" "$2" "$4" "$5" "$6" >>"$case_dir/state/processes"
+}
+
+add_a_script_tree_that_left_the_worktree() {
+  mkdir -p "$case_dir/tmp"
+  add_a_process "$shell_pid" bash "$1" 1 2048 0:00.01
+  add_a_process "$subshell_pid" bash "$case_dir/tmp" "$shell_pid" 2048 0:00.01
+  add_a_process "$python_pid" Python "$case_dir/tmp" "$subshell_pid" 70988595 2:11.00
+}
+
 build_a_merged_ticket_beside_a_live_peer() {
   build_a_live_peer "$1"
   git -C "$repo" worktree add -q -b chore/7-probe "$case_dir/mygame-probe" trunk
@@ -301,6 +326,12 @@ build_a_peer_with_its_own_avd() {
   add_an_emulator "$probe2_emulator_pid" mygame-probe2 5566 "$case_dir/mygame-probe2"
 }
 
+bound() {
+  local seconds=$1
+  shift
+  /usr/bin/timeout -k 1 "$seconds" "$@"
+}
+
 with_stubs() {
   (
     export FAKE_STATE="$case_dir/state" PATH="$sandbox/bin:$PATH" SANDBOX="$sandbox"
@@ -308,7 +339,7 @@ with_stubs() {
     for tool in adb docker gh kill lsof ps; do
       [ "$(type -P "$tool")" = "$sandbox/bin/$tool" ] || { echo "refusing to run: stub $tool is not first on PATH" >&2; exit 70; }
     done
-    cd "$repo" && "$@" 2>&1
+    cd "$repo" && bound 20 "$@" 2>&1
   )
 }
 
@@ -446,6 +477,73 @@ orphans_reports_only_mygame_dangling_volumes() {
   output=$(with_stubs scripts/mygame-orphans) || status=$?
   [ "$status" -ne 0 ] && [ "$output" = "orphan: dangling volume mygame_cache"$'\n'"orphan: dangling volume mygame-gone-pgdata" ] ||
     fail "${FUNCNAME[0]}" "exit $status: $output"
+}
+
+orphans_reports_a_heavy_script_tree_that_no_session_owns() {
+  build_a_live_peer heavy
+  add_a_script_tree_that_left_the_worktree "$case_dir/tmp"
+  add_a_process "$spinning_python_pid" python3.13 "$case_dir/tmp" "$shell_pid" 10240 45:14.23
+  local output status=0 expected
+  output=$(with_stubs scripts/mygame-orphans) || status=$?
+  expected=$(printf '%s\n' \
+    "orphan: heavy process $python_pid (Python, 69324 MB, cpu 2:11.00) in $case_dir/tmp" \
+    "orphan: heavy process $spinning_python_pid (python3.13, 10 MB, cpu 45:14.23) in $case_dir/tmp")
+  [ "$status" -ne 0 ] && [ "$output" = "$expected" ] || fail "${FUNCNAME[0]}" "exit $status: $output"
+}
+
+orphans_never_reports_a_heavy_process_a_session_or_an_app_owns_or_a_light_one() {
+  build_a_live_peer heavy-owned
+  add_a_script_tree_that_left_the_worktree "$case_dir/tmp"
+  awk -F '\t' -v OFS='\t' -v pid="$python_pid" '$1 == pid { $6 = 1048575; $7 = "4:59.99" } { print }' \
+    "$case_dir/state/processes" >"$case_dir/state/processes.next"
+  mv "$case_dir/state/processes.next" "$case_dir/state/processes"
+  add_a_process "$owned_python_pid" Python "$case_dir/tmp" "$live_pid" 70988595 45:14.23
+  add_a_process "$app_pid" ghostty "$case_dir" 1 2048 0:00.01
+  add_a_process "$app_node_pid" node "$case_dir/tmp" "$app_pid" 70988595 45:14.23
+  add_a_process "$heavy_emulator_pid" qemu-system-aarch64 "$case_dir" 1 70988595 45:14.23
+  local output status=0
+  output=$(with_stubs scripts/mygame-orphans) || status=$?
+  [ "$status" -eq 0 ] && [ "$output" = "orphans: none" ] || fail "${FUNCNAME[0]}" "exit $status: $output"
+}
+
+closing_kills_what_the_worktree_processes_spawned_elsewhere() {
+  build_a_merged_ticket_beside_a_live_peer tree
+  add_a_script_tree_that_left_the_worktree "$case_dir/mygame-probe"
+  add_a_process "$tree_netsim_pid" netsimd "$case_dir/tmp" "$subshell_pid" 2048 0:00.01
+  add_a_process "$owned_python_pid" Python "$case_dir/tmp" "$live_pid" 2048 0:00.01
+  local output
+  output=$(with_stubs scripts/mygame-wave-close probe) || fail "${FUNCNAME[0]}" "$output" || return 1
+  [ "$(killed)" = "$claude_pid $node_pid $qemu_pid $shell_pid $subshell_pid $python_pid " ] || fail "${FUNCNAME[0]}" "killed $(killed)" || return 1
+  [ "$(tail -n 1 <<<"$output")" = "orphans: none" ] || fail "${FUNCNAME[0]}" "$output"
+}
+
+closing_ends_on_a_process_table_whose_parents_form_a_cycle() {
+  build_a_merged_ticket_beside_a_live_peer cycle
+  mkdir -p "$case_dir/tmp"
+  add_a_process "$cycle_shell_pid" bash "$case_dir/tmp" "$cycle_python_pid" 2048 0:00.01
+  add_a_process "$cycle_python_pid" Python "$case_dir/tmp" "$cycle_shell_pid" 70988595 45:14.23
+  local output
+  output=$(with_stubs scripts/mygame-wave-close probe) || fail "${FUNCNAME[0]}" "exit $?: $output" || return 1
+  [ "$(killed)" = "$claude_pid $node_pid $qemu_pid " ] || fail "${FUNCNAME[0]}" "killed $(killed)" || return 1
+  [ "$(tail -n 1 <<<"$output")" = "orphans: none" ] || fail "${FUNCNAME[0]}" "$output"
+}
+
+the_bound_kills_a_looping_grandchild_with_its_group() {
+  local marker="bound-probe-${sandbox##*/}" status=0 listing survivors="" attempt pid
+  bound 2 bash -c "bash -c 'while :; do sleep 1; done' $marker; :" || status=$?
+  for attempt in $(seq 20); do
+    listing=$(/bin/ps -axo pid=,command=)
+    survivors=$(awk -v marker="$marker" 'index($0, marker) { print $1 }' <<<"$listing")
+    [ -n "$survivors" ] || break
+    [ "$attempt" -eq 20 ] || sleep 0.1
+  done
+  if [ -n "$survivors" ]; then
+    while read -r pid; do
+      kill -KILL "$pid" 2>/dev/null || true
+    done <<<"$survivors"
+    fail "${FUNCNAME[0]}" "pid $(tr '\n' ' ' <<<"$survivors")outlived the bound" || return 1
+  fi
+  [ "$status" -eq 124 ] || fail "${FUNCNAME[0]}" "exit $status"
 }
 
 closing_a_session_on_trunk_keeps_trunk() {
@@ -649,5 +747,10 @@ run orphans_never_reports_a_live_peer_avd_or_another_repo_avd
 run closing_the_peer_that_started_netsimd_spares_netsimd_and_adb
 run orphans_never_reports_netsimd_or_adb_in_a_closed_worktree
 run refuses_an_uppercase_session_name_under_a_utf8_locale
+run orphans_reports_a_heavy_script_tree_that_no_session_owns
+run orphans_never_reports_a_heavy_process_a_session_or_an_app_owns_or_a_light_one
+run closing_kills_what_the_worktree_processes_spawned_elsewhere
+run closing_ends_on_a_process_table_whose_parents_form_a_cycle
+run the_bound_kills_a_looping_grandchild_with_its_group
 run scripts_never_name_a_shared_tool_kill
 [ "$failures" -eq 0 ]
