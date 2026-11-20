@@ -34,12 +34,12 @@ class TownTextsRepositoryTest {
     }
 
     @Test
-    fun `reads an open text with the support of its spans`() = runTest {
-        api.enqueue(json(200, townWithTexts(OPEN_TEXT)))
+    fun `reads the title of each open text on the town read`() = runTest {
+        api.enqueue(json(200, townWithTexts(TEXT_TITLE)))
 
         val read: TownSnapshot = (town().read() as TownReadResult.Read).town
 
-        assertEquals(listOf(courseText), read.texts)
+        assertEquals(listOf(TownSnapshot.TextTitle(TextId("text-1"), "A New Course")), read.texts)
     }
 
     @Test
@@ -48,10 +48,47 @@ class TownTextsRepositoryTest {
 
         val read: TownSnapshot = (town().read() as TownReadResult.Read).town
 
-        assertEquals(emptyList<TownSnapshot.OpenText>(), read.texts)
+        assertEquals(emptyList<TownSnapshot.TextTitle>(), read.texts)
     }
 
-    private val courseText: TownSnapshot.OpenText = TownSnapshot.OpenText(
+    @Test
+    fun `reads one open text with the support of its spans`() = runTest {
+        api.enqueue(json(200, OPEN_TEXT))
+
+        assertEquals(TownTextResult.Read(courseText), texts().readText(TextId("text-1")))
+    }
+
+    @Test
+    fun `asks for the text by its id`() = runTest {
+        api.enqueue(json(200, OPEN_TEXT))
+
+        texts().readText(TextId("text-1"))
+
+        assertEquals("/api/town/texts/text-1", api.takeRequestWithin().url.encodedPath)
+    }
+
+    @Test
+    fun `answers not open when the api finds no such text for the stage`() = runTest {
+        api.enqueue(MockResponse.Builder().code(404).build())
+
+        assertEquals(TownTextResult.NotOpen, texts().readText(TextId("text-9")))
+    }
+
+    @Test
+    fun `answers no town when the player holds none`() = runTest {
+        api.enqueue(json(404, """{"kind":"TownNotFound"}"""))
+
+        assertEquals(TownTextResult.NoTown, texts().readText(TextId("text-1")))
+    }
+
+    @Test
+    fun `answers unreachable when the text read fails`() = runTest {
+        api.enqueue(MockResponse.Builder().code(500).build())
+
+        assertEquals(TownTextResult.Unreachable, texts().readText(TextId("text-1")))
+    }
+
+    private val courseText: OpenText = OpenText(
         id = TextId("text-1"),
         title = "A New Course",
         sentences = listOf(
@@ -64,6 +101,13 @@ class TownTextsRepositoryTest {
                 FrameSpan(text = ".", support = null),
             ),
         ),
+    )
+
+    private fun TestScope.texts(): TownTextRepository = TownTextRepository(
+        baseUrl = api.url("/api/").toString(),
+        tokenStore = TokenStore(File(folder.root, "session"), FakeTokenCipher()).apply { write("opaque-session") },
+        sessionEnds = SessionEnds(),
+        ioDispatcher = UnconfinedTestDispatcher(testScheduler),
     )
 
     private fun TestScope.town(): TownRepository {
@@ -86,6 +130,7 @@ class TownTextsRepositoryTest {
         MockResponse.Builder().code(code).addHeader("Content-Type", "application/json").body(body).build()
 
     private companion object {
+        const val TEXT_TITLE: String = """{"id":"text-1","title":"A New Course"}"""
         const val OPEN_TEXT: String =
             """{"id":"text-1","title":"A New Course","sentences":[[""" +
                 """{"text":"I live by the ","support":null},""" +

@@ -12,7 +12,6 @@ import androidx.compose.ui.test.performClick
 import androidx.compose.ui.test.performScrollTo
 import androidx.compose.ui.text.AnnotatedString
 import com.emm.mygame.core.designsystem.MyGameTheme
-import com.emm.mygame.core.network.FrameSpan
 import com.emm.mygame.core.network.LessonId
 import com.emm.mygame.core.network.TextId
 import com.emm.mygame.core.network.TownSnapshot
@@ -31,9 +30,9 @@ class SchoolTextsTest {
 
     private val textOpens: MutableList<TextId> = mutableListOf()
 
-    private val newerText: TownSnapshot.OpenText = openTextOf(id = "text-2", title = "The Farm Road")
+    private val newerText: TownSnapshot.TextTitle = textTitleOf(id = "text-2", title = "The Farm Road")
 
-    private val olderText: TownSnapshot.OpenText = openTextOf(id = "text-1", title = "A New Course")
+    private val olderText: TownSnapshot.TextTitle = textTitleOf(id = "text-1", title = "A New Course")
 
     @Test
     fun `lists the open texts newest first`() {
@@ -78,9 +77,6 @@ class SchoolTextsTest {
         .flatMap { node: SemanticsNode -> node.config[SemanticsProperties.Text] }
         .map { title: AnnotatedString -> title.text }
 
-    private fun openTextOf(id: String, title: String): TownSnapshot.OpenText = TownSnapshot.OpenText(
-        id = TextId(id),
-        title = title,
-        sentences = listOf(listOf(FrameSpan(text = "I live by the river.", support = null))),
-    )
+    private fun textTitleOf(id: String, title: String): TownSnapshot.TextTitle =
+        TownSnapshot.TextTitle(id = TextId(id), title = title)
 }

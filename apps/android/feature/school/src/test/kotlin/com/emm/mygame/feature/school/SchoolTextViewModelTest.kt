@@ -1,9 +1,8 @@
 package com.emm.mygame.feature.school
 
 import app.cash.turbine.test
-import com.emm.mygame.core.network.TownReadResult
-import com.emm.mygame.core.network.TownSnapshot
-import com.emm.mygame.core.testing.FakeTownRepository
+import com.emm.mygame.core.network.TownTextResult
+import com.emm.mygame.core.testing.FakeTownTextRepository
 import com.emm.mygame.core.testing.MainDispatcherRule
 import kotlinx.coroutines.test.runCurrent
 import kotlinx.coroutines.test.runTest
@@ -17,38 +16,45 @@ class SchoolTextViewModelTest {
     @get:Rule
     val mainDispatcherRule: MainDispatcherRule = MainDispatcherRule()
 
-    private val towns: FakeTownRepository = FakeTownRepository()
-
-    private val openCourse: TownSnapshot = townOf(texts = listOf(courseText))
+    private val texts: FakeTownTextRepository = FakeTownTextRepository()
 
     @Test
     fun `draws the text the school opened`() = runTest {
-        val viewModel: SchoolTextViewModel = schoolTextReadingFrom(towns, openCourse)
+        val viewModel: SchoolTextViewModel = schoolTextReadingFrom(texts, courseText)
 
         assertEquals(SchoolTextUiState.Reading(courseText, tapped = null), viewModel.state.value)
     }
 
     @Test
     fun `draws the text as not open while the stage has not reached it`() = runTest {
-        val viewModel: SchoolTextViewModel = schoolTextReadingFrom(towns, townOf(texts = emptyList()))
+        texts.answerText(TownTextResult.NotOpen)
+
+        val viewModel: SchoolTextViewModel = schoolTextViewModelOf(texts)
 
         assertEquals(SchoolTextUiState.NotOpen, viewModel.state.value)
     }
 
     @Test
     fun `draws the error when the api cannot be reached`() = runTest {
-        towns.answerRead(TownReadResult.Unreachable)
+        texts.answerText(TownTextResult.Unreachable)
 
-        val viewModel: SchoolTextViewModel = schoolTextViewModelOf(towns)
+        val viewModel: SchoolTextViewModel = schoolTextViewModelOf(texts)
 
         assertEquals(SchoolTextUiState.Failed, viewModel.state.value)
     }
 
     @Test
-    fun `reads the town again on retry`() = runTest {
-        towns.answerRead(TownReadResult.Unreachable)
-        val viewModel: SchoolTextViewModel = schoolTextViewModelOf(towns)
-        towns.answerRead(TownReadResult.Read(openCourse))
+    fun `asks for the text the route names`() = runTest {
+        schoolTextReadingFrom(texts, courseText)
+
+        assertEquals(listOf(courseTextId), texts.reads)
+    }
+
+    @Test
+    fun `reads the text again on retry`() = runTest {
+        texts.answerText(TownTextResult.Unreachable)
+        val viewModel: SchoolTextViewModel = schoolTextViewModelOf(texts)
+        texts.answerText(TownTextResult.Read(courseText))
 
         viewModel.onIntent(SchoolTextIntent.RetryTapped)
         runCurrent()
@@ -58,18 +64,18 @@ class SchoolTextViewModelTest {
 
     @Test
     fun `reads nothing on retry while the text is drawn`() = runTest {
-        val viewModel: SchoolTextViewModel = schoolTextReadingFrom(towns, openCourse)
+        val viewModel: SchoolTextViewModel = schoolTextReadingFrom(texts, courseText)
 
         viewModel.onIntent(SchoolTextIntent.RetryTapped)
         runCurrent()
 
-        assertEquals(1, towns.readCount)
+        assertEquals(1, texts.reads.size)
     }
 
     @Test
     fun `leaves for the town when the player holds none`() = runTest {
-        towns.answerRead(TownReadResult.NoTown)
-        val viewModel: SchoolTextViewModel = SchoolTextViewModel(courseTextId, towns)
+        texts.answerText(TownTextResult.NoTown)
+        val viewModel: SchoolTextViewModel = SchoolTextViewModel(courseTextId, texts)
 
         viewModel.effects.test {
             assertEquals(SchoolTextEffect.NoTown, awaitItem())
@@ -78,7 +84,7 @@ class SchoolTextViewModelTest {
 
     @Test
     fun `opens the support of the tapped word`() = runTest {
-        val viewModel: SchoolTextViewModel = schoolTextReadingFrom(towns, openCourse)
+        val viewModel: SchoolTextViewModel = schoolTextReadingFrom(texts, courseText)
 
         viewModel.onIntent(SchoolTextIntent.WordTapped(houseTap))
 
@@ -87,7 +93,7 @@ class SchoolTextViewModelTest {
 
     @Test
     fun `closes the support on a second tap of its word`() = runTest {
-        val viewModel: SchoolTextViewModel = schoolTextReadingFrom(towns, openCourse)
+        val viewModel: SchoolTextViewModel = schoolTextReadingFrom(texts, courseText)
 
         repeat(2) { viewModel.onIntent(SchoolTextIntent.WordTapped(houseTap)) }
 
@@ -96,7 +102,7 @@ class SchoolTextViewModelTest {
 
     @Test
     fun `opens no support for a word glossed beside it`() = runTest {
-        val viewModel: SchoolTextViewModel = schoolTextReadingFrom(towns, openCourse)
+        val viewModel: SchoolTextViewModel = schoolTextReadingFrom(texts, courseText)
 
         viewModel.onIntent(SchoolTextIntent.WordTapped(SchoolTextUiState.SpanAt(sentence = 0, span = 1)))
 
@@ -105,18 +111,18 @@ class SchoolTextViewModelTest {
 
     @Test
     fun `sends no request when a word is tapped`() = runTest {
-        val viewModel: SchoolTextViewModel = schoolTextReadingFrom(towns, openCourse)
+        val viewModel: SchoolTextViewModel = schoolTextReadingFrom(texts, courseText)
 
         viewModel.onIntent(SchoolTextIntent.WordTapped(houseTap))
         runCurrent()
 
-        assertEquals(1 to emptyList<Any>(), towns.readCount to towns.lessonStarts + towns.starts)
+        assertEquals(1, texts.reads.size)
     }
 
     @Test
     fun `ignores a tap before the text is drawn`() = runTest {
-        towns.answerRead(TownReadResult.Unreachable)
-        val viewModel: SchoolTextViewModel = schoolTextViewModelOf(towns)
+        texts.answerText(TownTextResult.Unreachable)
+        val viewModel: SchoolTextViewModel = schoolTextViewModelOf(texts)
 
         viewModel.onIntent(SchoolTextIntent.WordTapped(houseTap))
 

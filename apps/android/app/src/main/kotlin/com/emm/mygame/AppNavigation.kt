@@ -461,7 +461,7 @@ private fun EntryProviderScope<NavKey>.schoolTextEntry(chrome: SignedInChrome) {
         ) { frame: ScreenFrame ->
             SchoolTextRoute(
                 text = shown.text,
-                towns = dependencies.towns,
+                texts = dependencies.texts,
                 onNoTown = navigator::openTown,
                 onSchoolOpen = navigator::openSchool,
                 foldedDock = frame.foldedDock,

@@ -3,9 +3,8 @@ package com.emm.mygame.feature.school
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.emm.mygame.core.network.TextId
-import com.emm.mygame.core.network.TownReadResult
-import com.emm.mygame.core.network.TownRepository
-import com.emm.mygame.core.network.TownSnapshot
+import com.emm.mygame.core.network.TownTextRepository
+import com.emm.mygame.core.network.TownTextResult
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -14,7 +13,7 @@ import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.launch
 
-class SchoolTextViewModel(private val text: TextId, private val towns: TownRepository) : ViewModel() {
+class SchoolTextViewModel(private val text: TextId, private val texts: TownTextRepository) : ViewModel() {
 
     private val _state: MutableStateFlow<SchoolTextUiState> = MutableStateFlow(SchoolTextUiState.Loading)
 
@@ -38,10 +37,11 @@ class SchoolTextViewModel(private val text: TextId, private val towns: TownRepos
     private fun open() {
         _state.value = SchoolTextUiState.Loading
         viewModelScope.launch {
-            when (val answer: TownReadResult = towns.read()) {
-                is TownReadResult.Read -> _state.value = answer.town.readingOf(text)
-                TownReadResult.NoTown -> _effects.send(SchoolTextEffect.NoTown)
-                TownReadResult.Unreachable -> _state.value = SchoolTextUiState.Failed
+            when (val answer: TownTextResult = texts.readText(text)) {
+                is TownTextResult.Read -> _state.value = SchoolTextUiState.Reading(answer.text, tapped = null)
+                TownTextResult.NotOpen -> _state.value = SchoolTextUiState.NotOpen
+                TownTextResult.NoTown -> _effects.send(SchoolTextEffect.NoTown)
+                TownTextResult.Unreachable -> _state.value = SchoolTextUiState.Failed
             }
         }
     }
@@ -50,10 +50,4 @@ class SchoolTextViewModel(private val text: TextId, private val towns: TownRepos
         val reading: SchoolTextUiState.Reading = _state.value as? SchoolTextUiState.Reading ?: return
         _state.value = reading.copy(tapped = if (reading.tapped == at) null else at)
     }
-}
-
-private fun TownSnapshot.readingOf(text: TextId): SchoolTextUiState {
-    val open: TownSnapshot.OpenText = texts.firstOrNull { candidate: TownSnapshot.OpenText -> candidate.id == text }
-        ?: return SchoolTextUiState.NotOpen
-    return SchoolTextUiState.Reading(open, tapped = null)
 }

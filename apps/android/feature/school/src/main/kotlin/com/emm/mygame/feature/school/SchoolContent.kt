@@ -41,7 +41,7 @@ internal fun TownSnapshot.contentAt(
     )
 }
 
-private fun textCardOf(text: TownSnapshot.OpenText): SchoolUiState.TextCard =
+private fun textCardOf(text: TownSnapshot.TextTitle): SchoolUiState.TextCard =
     SchoolUiState.TextCard(text = text.id, title = text.title)
 
 private fun SeasonInForce.studyMark(): SchoolUiState.DurationMark? =

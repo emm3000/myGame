@@ -281,10 +281,10 @@ class AppNavigationTest {
         composeRule.onAllNodes(statusLine()).assertCountEquals(0)
     }
 
-    private fun passingTheFinish() {
+    private fun passingTheFinish(readsOnArrival: Int = READS_ON_ARRIVAL) {
         movableClock.passed += NEAR_FINISH + 1.seconds
         ShadowLooper.idleMainLooper(2, TimeUnit.SECONDS)
-        composeRule.waitUntil(WAIT_MILLIS) { towns.readCount > READS_ON_ARRIVAL }
+        composeRule.waitUntil(WAIT_MILLIS) { towns.readCount > readsOnArrival }
         ShadowLooper.idleMainLooper(2, TimeUnit.SECONDS)
         composeRule.waitForIdle()
     }
@@ -599,9 +599,9 @@ class AppNavigationTest {
     fun `reads the town at the lesson's finish on a text`() {
         onLessonOneNearItsFinish(Destination.Town, Destination.School, Destination.SchoolText(TextId("text-1")))
 
-        passingTheFinish()
+        passingTheFinish(readsOnArrival = READS_ON_ARRIVAL_ON_A_TEXT)
 
-        assertEquals(READS_ON_ARRIVAL + 1, towns.readCount)
+        assertEquals(READS_ON_ARRIVAL_ON_A_TEXT + 1, towns.readCount)
     }
 
     @Test
@@ -835,6 +835,7 @@ class AppNavigationTest {
         const val THREE_OF_FIVE: String = "3 de 5 palabras aprendidas"
         const val READS_AVAILABLE: Int = 5
         const val READS_ON_ARRIVAL: Int = 2
+        const val READS_ON_ARRIVAL_ON_A_TEXT: Int = 1
         const val SESSION_READS: Int = 2
         val NEAR_FINISH: Duration = 30.seconds
         const val WAIT_MILLIS: Long = 5_000

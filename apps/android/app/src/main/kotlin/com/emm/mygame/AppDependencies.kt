@@ -12,6 +12,7 @@ import com.emm.mygame.core.network.SessionRepository
 import com.emm.mygame.core.network.StudyReminderSettings
 import com.emm.mygame.core.network.ThemeSettings
 import com.emm.mygame.core.network.TownRepository
+import com.emm.mygame.core.network.TownTextRepository
 import kotlin.time.Clock
 import kotlinx.coroutines.flow.StateFlow
 
@@ -28,6 +29,8 @@ interface AppDependencies {
     val sessions: SessionRepository
 
     val towns: TownRepository
+
+    val texts: TownTextRepository
 
     val learning: LearningRepository
 

@@ -1,6 +1,6 @@
 package com.emm.mygame.feature.school
 
-import com.emm.mygame.core.network.TownSnapshot
+import com.emm.mygame.core.network.OpenText
 import com.emm.mygame.core.network.WordSupport
 
 sealed interface SchoolTextUiState {
@@ -11,7 +11,7 @@ sealed interface SchoolTextUiState {
 
     data object NotOpen : SchoolTextUiState
 
-    data class Reading(val text: TownSnapshot.OpenText, val tapped: SpanAt?) : SchoolTextUiState {
+    data class Reading(val text: OpenText, val tapped: SpanAt?) : SchoolTextUiState {
 
         val openSupport: WordSupport?
             get() = tapped?.let(::supportAt)?.takeIf(::isOnTap)

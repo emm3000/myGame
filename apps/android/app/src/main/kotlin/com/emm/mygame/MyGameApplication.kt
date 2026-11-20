@@ -18,6 +18,7 @@ import com.emm.mygame.core.network.StudyReminderSettings
 import com.emm.mygame.core.network.ThemeSettings
 import com.emm.mygame.core.network.TokenStore
 import com.emm.mygame.core.network.TownRepository
+import com.emm.mygame.core.network.TownTextRepository
 import java.io.File
 import java.time.ZoneId
 import kotlin.time.Clock
@@ -104,6 +105,15 @@ class MyGameApplication : Application(), AppDependencies {
             studyAnswers = studyAnswers,
             ioDispatcher = Dispatchers.IO,
             clock = clock,
+        )
+    }
+
+    override val texts: TownTextRepository by lazy {
+        TownTextRepository(
+            baseUrl = BuildConfig.API_BASE_URL,
+            tokenStore = tokenStore,
+            sessionEnds = sessionEnds,
+            ioDispatcher = Dispatchers.IO,
         )
     }
 

@@ -30,8 +30,8 @@ import com.emm.mygame.core.designsystem.MyGameTheme
 import com.emm.mygame.core.designsystem.MyGameTypography
 import com.emm.mygame.core.designsystem.PreviewMyGame
 import com.emm.mygame.core.network.FrameSpan
+import com.emm.mygame.core.network.OpenText
 import com.emm.mygame.core.network.TextId
-import com.emm.mygame.core.network.TownSnapshot
 import com.emm.mygame.core.network.WordSupport
 import com.emm.mygame.core.ui.chromeResource
 import com.emm.mygame.core.ui.fixedCopyResource
@@ -148,7 +148,7 @@ private fun SchoolLink(onSchoolOpen: () -> Unit, modifier: Modifier = Modifier) 
 private fun previewSupport(shown: WordSupport.Shown, text: String, language: WordSupport.Language): WordSupport =
     WordSupport(shown = shown, text = text, language = language)
 
-private val previewText: TownSnapshot.OpenText = TownSnapshot.OpenText(
+private val previewText: OpenText = OpenText(
     id = TextId("text-1"),
     title = "A New Course",
     sentences = listOf(

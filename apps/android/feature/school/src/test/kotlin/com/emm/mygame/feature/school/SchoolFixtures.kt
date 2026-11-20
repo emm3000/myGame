@@ -98,7 +98,7 @@ internal fun townOf(
     releasedLessons: List<TownSnapshot.ReleasedLesson> = emptyList(),
     hasBandStarted: Boolean = false,
     bandLines: List<TownSnapshot.BandLine> = emptyList(),
-    texts: List<TownSnapshot.OpenText> = emptyList(),
+    texts: List<TownSnapshot.TextTitle> = emptyList(),
 ): TownSnapshot = TownSnapshot(
     name = "Riverton",
     label = TownLabel.Town,
