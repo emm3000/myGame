@@ -326,6 +326,9 @@ export const townTipTitle = (): string => `Tip`
 export const townTipWaitingList = (): string => `When building work is on, other building work can wait on the waiting list. It starts when that work is ready.`
 export const townTopLevel = (): string => `Top level`
 export const townTryAgain = (): string => `Try again`
+export const townWordsLearned = ({ count }: { readonly count: string | number }): string => `Learned words: ${String(count)}`
+export const townWordsNeeded = ({ held, needed, standing }: { readonly held: string | number; readonly needed: string | number; readonly standing: 'stable' | 'retained' }): string => `${standing === 'stable' ? `Needs ${String(needed)} words out of learning: ${String(held)} of ${String(needed)}` : standing === 'retained' ? `Needs ${String(needed)} learned words: ${String(held)} of ${String(needed)}` : `Needs ${String(needed)} learned words: ${String(held)} of ${String(needed)}`}`
+export const townWordsReviewed = ({ count }: { readonly count: string | number }): string => `Words out of learning: ${String(count)}`
 export const townWorkDone = (): string => `The work is done. Reading your town again…`
 export const townWorkIdle = (): string => `No building work now.`
 export const townWorkReady = (): string => `Ready`

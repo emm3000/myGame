@@ -23,10 +23,8 @@ export function PlaceRow({
   isWaiting,
   onBuild,
 }: PlaceRowProps): ReactElement {
-  const { name, levelLabel, effect, costs, actionLabel, durationSeconds, state } = placeCardOf(
-    place,
-    town,
-  )
+  const { name, levelLabel, effect, costs, wordsLine, actionLabel, durationSeconds, state } =
+    placeCardOf(place, town)
   return (
     <div className="flex items-start gap-3">
       <PlaceArt
@@ -40,6 +38,9 @@ export function PlaceRow({
         </div>
         <p className="m-0 font-sans text-caption text-ink-muted">{effect}</p>
         {state.kind !== 'atMaxLevel' && <CostList costs={costs} />}
+        {wordsLine !== null && (
+          <p className="m-0 font-sans text-caption text-ink-muted">{wordsLine}</p>
+        )}
         <CardAction
           type="button"
           label={`${actionLabel} · ${formatDuration(durationSeconds)}`}

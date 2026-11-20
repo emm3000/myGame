@@ -7,6 +7,8 @@ import {
   townSeasonLine,
   townStockOf,
   townStocks,
+  townWordsLearned,
+  townWordsReviewed,
 } from '@mygame/catalog'
 import { type ResourceKind, ResourceKindSchema, type TownOverview } from '@mygame/contracts'
 import { skillLevelOf } from '@mygame/domain'
@@ -155,6 +157,12 @@ export function TownStocks({ town, titleRef }: TownStocksProps): ReactElement {
           <Icon sizeClass="size-icon" />
         </span>
         {townPeople({ free: overview.people.free, atWork: overview.people.atWork })}
+      </p>
+      <p className="m-0 font-sans text-body text-ink">
+        {townWordsReviewed({ count: overview.stableWordCount })}
+      </p>
+      <p className="m-0 font-sans text-body text-ink">
+        {townWordsLearned({ count: overview.retainedWordCount })}
       </p>
       <TownSeason town={town} />
     </section>
