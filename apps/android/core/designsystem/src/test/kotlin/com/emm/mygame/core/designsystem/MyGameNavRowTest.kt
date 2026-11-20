@@ -27,6 +27,7 @@ import androidx.compose.ui.test.assertHeightIsAtLeast
 import androidx.compose.ui.test.assertWidthIsEqualTo
 import androidx.compose.ui.test.captureToImage
 import androidx.compose.ui.test.getBoundsInRoot
+import androidx.compose.ui.test.hasAnyAncestor
 import androidx.compose.ui.test.hasClickAction
 import androidx.compose.ui.test.hasTestTag
 import androidx.compose.ui.test.junit4.ComposeContentTestRule
@@ -36,6 +37,7 @@ import androidx.compose.ui.test.onRoot
 import androidx.compose.ui.test.performClick
 import androidx.compose.ui.test.performTouchInput
 import androidx.compose.ui.test.requestFocus
+import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.unit.Density
 import androidx.compose.ui.unit.DpRect
 import org.junit.Assert.assertEquals
@@ -321,6 +323,28 @@ class MyGameNavRowTest {
 
         assertEquals(1, tagged.size)
         assertEquals("5 words", tagged.single().config[SemanticsProperties.Text].single().text)
+    }
+
+    @Test
+    fun `a nav row's caption tag holds a translated caption's lines alone`() {
+        show {
+            MyGameNavRow(
+                title = MyGameLabel(text = "Lesson 2", translation = "Lección 2"),
+                status = MyGameLabel(text = "Studying", translation = "Estudiando"),
+                body = MyGameLabel(text = "Work and money", translation = "Trabajo y dinero"),
+                caption = MyGameLabel(text = "5 words", translation = "5 palabras"),
+                captionTag = "lesson_size",
+                onClick = {},
+            )
+        }
+
+        val underTag: SemanticsMatcher = hasTestTag("lesson_size") or hasAnyAncestor(hasTestTag("lesson_size"))
+        val lines: List<String> = composeRule.onAllNodes(underTag, useUnmergedTree = true)
+            .fetchSemanticsNodes()
+            .flatMap { node: SemanticsNode -> node.config.getOrElse(SemanticsProperties.Text) { emptyList() } }
+            .map { line: AnnotatedString -> line.text }
+
+        assertEquals(listOf("5 words", "5 palabras"), lines)
     }
 
     @Test
