@@ -658,7 +658,7 @@ One text closes every four band lessons, from lesson 31 on (ADR 049, #1273, #127
 
 ### text-2, lesson 36
 
-**Title:** *Free Time*. **Band lessons:** 33 to 36. **Tokens:** 132.
+**Title:** *Free Time*. **Band lessons:** 33 to 36. **Tokens:** 132. **In no card sense:** *there*.
 
 > My family came to this town from another country. Life here is very different from life in our old city. In my free time, I read a book by the river. For me, the river is the best part of the town. My children play in the big field by the school, and they always come home late. One day a week, a woman at the station asks me questions about my country. She has a great interest in the world. She asks why we came here and what we did in our old country. I also like to hear about her family. She wants to become a worker at the new factory. There is always something new to do here, and I have never had so much free time.
 
@@ -670,6 +670,6 @@ One text closes every four band lessons, from lesson 31 on (ADR 049, #1273, #127
 
 ### text-4, lesson 46
 
-**Title:** *At the Market*. **Band lessons:** 43 to 46. **Tokens:** 147.
+**Title:** *At the Market*. **Band lessons:** 43 to 46. **Tokens:** 147. **In no card sense:** *get*.
 
 > This spring, the town began a new market by the river. The government set a goal for it: good food from the farms for every home. I love the market, and I go there every week. You can buy many kinds of food there. To get there, follow the river down the hill and turn at the old factory. The children run to the river while we buy food. I always have a list in my hand. The market seems small, but the fact is, it has a lot of food. The office by the market has information about each farm. The pay for each worker includes some food. The mayor is away this week, but the workers know the plan. What will happen in the winter? Some people believe the market will close. In that case, we will buy food at the farms.
