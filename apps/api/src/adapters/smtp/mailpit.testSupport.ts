@@ -9,6 +9,11 @@ type MailpitSummary = {
   readonly To: ReadonlyArray<MailpitAddress>
 }
 
+type MailpitSearch = {
+  readonly messages_count: number
+  readonly messages: ReadonlyArray<MailpitSummary>
+}
+
 type MailpitMessage = {
   readonly To: ReadonlyArray<MailpitAddress>
   readonly Subject: string
@@ -38,13 +43,14 @@ const mailpitRequest = async (path: string, init: RequestInit): Promise<Response
 const mailpit = async <T>(path: string): Promise<T> =>
   (await (await mailpitRequest(path, { method: 'GET' })).json()) as T
 
-const searchOfMailTo = (recipient: string): string =>
-  `/api/v1/search?query=${encodeURIComponent(`to:"${recipient}"`)}`
+const searchOfMailTo = (recipient: string, limit: number): Promise<MailpitSearch> =>
+  mailpit<MailpitSearch>(
+    `/api/v1/search?query=${encodeURIComponent(`to:"${recipient}"`)}&limit=${limit}`,
+  )
 
 const summariesTo = async (recipient: string): Promise<ReadonlyArray<MailpitSummary>> => {
-  const { messages } = await mailpit<{ messages: ReadonlyArray<MailpitSummary> }>(
-    searchOfMailTo(recipient),
-  )
+  const { messages_count: matchCount } = await searchOfMailTo(recipient, 1)
+  const { messages } = await searchOfMailTo(recipient, matchCount)
   return messages.filter((summary) => summary.To.some((address) => address.Address === recipient))
 }
 
