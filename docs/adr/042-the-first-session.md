@@ -302,7 +302,7 @@ state that holds wins:
 | Priority | `kind` | When | The button goes to | It also says |
 |---|---|---|---|---|
 | 1 | `reviews` | a card is due | the first lesson of `readFirst`, else `/reviews` | how many; a running lesson's time |
-| 2 | `lessonRunning` | the lesson slot is busy | the lesson's words | the producer to build, if any; the newest open text, if any (ADR 049) |
+| 2 | `lessonRunning` | the lesson slot is busy | the lesson's words | the next building goal, if any; the newest open text, if any (ADR 049) |
 | 3 | `lessonToStudy` | the next lesson can start | the school | when the next review is due |
 | 4 | `caughtUp` | none of the above | the Report | why no lesson can start, its `reason`; the next building goal, if any; the newest open text, if any (ADR 049); when the next review is due |
 
@@ -573,7 +573,7 @@ state that holds now reads:
 |---|---|---|---|---|
 | 1 | `reviews` | a card is due | the first lesson of `readFirst`, else `/reviews` | how many; a running lesson's time |
 | 2 | `holdoutCheck` | a band's 8- or 24-week check is due | the check (on the web, the school) | the band |
-| 3 | `lessonRunning` | the lesson slot is busy | the lesson's words | the producer to build, if any |
+| 3 | `lessonRunning` | the lesson slot is busy | the lesson's words | the next building goal, if any |
 | 4 | `releasedLesson` | a released lesson can start | the lesson's start (on the web, the school) | the band and the set; when the next review is due |
 | 5 | `lessonToStudy` | the next lesson can start | the school | when the next review is due |
 | 6 | `caughtUp` | none of the above | the Report | why no lesson can start, its `reason`; the next building goal, if any; when the next review is due |
