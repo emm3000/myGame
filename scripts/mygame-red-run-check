@@ -8,13 +8,50 @@ status=0
 printf '%s' "$input" | python3 -I -c '
 import json, os, re, shlex, subprocess, sys
 
+def unquoted(command):
+    kept = []
+    open_quotes = []
+    at = 0
+    while at < len(command):
+        quote = open_quotes[-1] if open_quotes else ""
+        char = command[at]
+        if quote == "\x27":
+            if char == "\x27":
+                open_quotes.pop()
+            kept.append(char if char == "\x27" else " ")
+        elif quote == "\"" and command.startswith("\x24(", at):
+            open_quotes.append("(")
+            kept.append("\x24(")
+            at += 2
+            continue
+        elif quote == "\"":
+            if char == "\\":
+                kept.append("  ")
+                at += 2
+                continue
+            if char == "\"":
+                open_quotes.pop()
+            kept.append(char if char == "\"" else " ")
+        else:
+            if char == "\\":
+                kept.append(command[at:at + 2])
+                at += 2
+                continue
+            if char in "\x27\"(":
+                open_quotes.append(char)
+            elif char == ")" and quote == "(":
+                open_quotes.pop()
+            kept.append(char)
+        at += 1
+    return "".join(kept)
+
 hook = json.load(sys.stdin)
 command = hook["tool_input"]["command"]
 repo_flag = r"(?:\s+(?:-R\s*|--repo(?:\s+|=))\S+)*"
 assignments = r"(?:\w+=\S*\s+)*"
 prefixes = r"(?:(?:if|!|\{|command|env)\s+" + assignments + r")*"
 gh = r"(?:\S*/)?gh"
-if not re.search(r"(?:^|[;&|(\n])\s*" + assignments + prefixes + gh + repo_flag + r"\s+pr" + repo_flag + r"\s+(?:create|new)\b", command):
+if not re.search(r"(?:^|[;&|(\n])\s*" + assignments + prefixes + gh + repo_flag + r"\s+pr" + repo_flag + r"\s+(?:create|new)\b", unquoted(command)):
     sys.exit(0)
 cwd = hook["cwd"]
 
