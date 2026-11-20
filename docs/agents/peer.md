@@ -36,19 +36,7 @@ A path is relative to its package; the Gradle rows run in `apps/android`; an api
 
 ## Red runs
 
-| `path:line` and the rule, branch or guard | Test | Mutation that turns the test red | Failing assertion line the red run printed |
-|---|---|---|---|
-
-Exemption, for a listed line that changes nothing a caller observes: `| <path:line> <rule> | no behavior: <reason> | none | none |`, the reason not empty.
-
-Before `gh pr create`, run `scripts/mygame-branch-audit` in your worktree: every `path:line` it prints owes a row whose first cell holds it. `pr-reviewer` runs the same audit and blocks on a printed line with no row.
-
-## Bounded runs
-
-A mutation, fuzz or timing run, and any command that can loop, starts as `/usr/bin/timeout -k 1 <seconds> <command>`: at the bound it kills the command's whole process group. It is the only bound. `--foreground` and `subprocess.run(timeout=)` kill the direct child alone, and the Bash tool's timeout only moves the command to the background. _Why: four mutation runs outlived `subprocess.run(timeout=90)`, grew to 108 GB and panicked the owner's Mac (#1403)._
-
-- Exit 124 or 137 is a hang. Before the next command, `ps -Ao pid,ppid,rss,etime,comm -r | head -15` shows nothing you started; kill by PID what it does show. A Gradle daemon forks its `java` test workers outside the group, and `comm` cannot tell yours from another peer's: kill a `java` only when `lsof -a -d cwd -p <pid>` prints a path inside your worktree, and report any other. A mutation that hung runs once: its red-run row quotes the `exit 124` line.
-- A script under `scripts/` is mutated only through its `scripts/test-mygame-*`, itself under the bound: the test bounds every call it makes, so a hang prints `FAIL` with `exit 124`.
+A ticket that adds or changes behavior writes each new rule's test first (`mattpocock-skills:tdd`). The PR body quotes, per rule, the test's name and the failing assertion line its red step printed. Mutations are `pr-reviewer`'s: it runs the few a risky change needs.
 
 ## Screenshots
 

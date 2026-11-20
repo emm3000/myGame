@@ -24,7 +24,6 @@ One GitHub issue labelled `ready-for-agent`. The label vocabulary is `docs/agent
   - Do inline only routing state (`git status`, `git worktree list`, `gh issue/pr list`, `ListAgents`) and at most 1-2 files to decide. A package boundary touched, run the leak check in `.claude/rules/architecture.md`.
   - Report minimal: act on review/agent findings, tell the owner 1-2 lines and only decisions that are genuinely theirs. Merging a clean PR is normal practice, not a question.
   - A peer that goes idle without a PR or a report gets a status check at once: `gh pr list --head <branch>`, `git -C ../mygame-<name> status --short`, then a `SendMessage` asking where it stands. The owner is never the watchdog.
-  - A report or a review that says a run hung, looped or was killed by a timeout names a live process until `ps -Ao pid,ppid,rss,etime,comm -r | head -15` shows it dead. Run it before anything else, and kill by PID what the report started. _Why: the orchestrator read "loops forever, killed at 90 s" twice, ran no `ps`, and the Mac panicked 33 minutes later (#1403)._
 
 ## Model and effort
 
@@ -46,7 +45,7 @@ Every dispatch to a peer carries:
 - The issue number, the branch name, the peer's **own** worktree path, and the ports, container names and emulator port it may use (Isolation below).
 - Read first: `docs/agents/peer.md`, then the ADRs, rules, package `CLAUDE.md` and lore pages the ticket turns on. Never this file.
 - The file list (`fd -e ts`) and their tests, plus the pre-scoped blockers. For a move or refactor, a dependency-closure directive: transitive imports mapped from the consuming layer, non-platform dependencies co-moved.
-- Whether the ticket owes the red-run table (it adds or changes behavior) and screenshots (it draws a screen); `peer.md` says how.
+- Whether the ticket owes red runs (it adds or changes behavior) and screenshots (it draws a screen); `peer.md` says how.
 - The reply it expects: the PR URL and the gate's exit code.
 
 Peers boot through `/wave <issue numbers>`, whose steps are `.claude/skills/wave/SKILL.md`.
@@ -56,7 +55,7 @@ Peers boot through `/wave <issue numbers>`, whose steps are `.claude/skills/wave
 - Every peer works in its own git worktree (`../mygame-<name>`, off `origin/trunk`), never in the owner's main checkout, which holds owner-only uncommitted files. A checkout there changes the branch under every other session.
 - Before changing the state of any checkout, find out who is using it; an unexpected branch may be a live peer, not a leftover.
 - Review and verification prompts are read-only on every existing checkout. A build on a branch, or a red/green check that needs a source edit, runs in a throwaway worktree under the session scratchpad, removed afterward.
-- The peer's side of every Isolation section is `docs/agents/peer.md`, Isolation. Its process and stdin rules and its Bounded runs section bind the orchestrator and every subagent it launches too.
+- The peer's side of every Isolation section is `docs/agents/peer.md`, Isolation. Its process and stdin rules bind the orchestrator and every subagent it launches too.
 
 ## Isolation: ports and databases
 
@@ -72,7 +71,7 @@ Peers boot through `/wave <issue numbers>`, whose steps are `.claude/skills/wave
 ## Review cycle
 
 - A session gets nothing new until its previous PR is reviewed, fixed and merged. Never queue two tickets in one dispatch, except that one peer may carry up to 3 row 1 tickets, one PR each, in sequence (`.claude/skills/wave/SKILL.md`).
-- Every PR gets one review: a fresh `pr-reviewer` subagent the orchestrator launches, one per PR, on the model the roles table of `.claude/skills/wave/SKILL.md` names, passed on the call; nothing lowers a review. What it checks, the red-run table first, is `.claude/agents/pr-reviewer.md`. It returns `blocking|minor` findings, one verdict (MERGE or FIX FIRST) and one cause word (`checklist`, `judgment`, `spec`) for the dispatch log.
+- Every PR gets one review: a fresh `pr-reviewer` subagent the orchestrator launches, one per PR, on the model the roles table of `.claude/skills/wave/SKILL.md` names, passed on the call; nothing lowers a review. What it checks is `.claude/agents/pr-reviewer.md`. It returns `blocking|minor` findings, one verdict (MERGE or FIX FIRST) and one cause word (`checklist`, `judgment`, `spec`) for the dispatch log.
 - The review prompt carries the PR number, the issue, the criteria to scrutinize and, for an `apps/api` mutation, a `DATABASE_URL`; never the peer's report or the orchestrator's reading of it. The reviewer's `Not run:` line is the orchestrator's to settle before it merges.
 - FIX FIRST: relay the blocking items to the peer verbatim, and nothing else. Its fix report quotes command output per item; a bare claim goes back. MERGE: merge, with no polish round.
 - Minors go into the sprint's one open batch issue, `Review follow-ups: S<n>`, one comment per PR. At sprint end it is dispatched as one ticket or closed; none stays open into the next sprint.
