@@ -13,9 +13,9 @@ import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
-import androidx.compose.runtime.MutableState
+import androidx.compose.runtime.MutableIntState
 import androidx.compose.runtime.movableContentOf
-import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
@@ -66,7 +66,7 @@ fun TownScreen(
 ) {
     val placedFoldedDock: @Composable () -> Unit = remember(foldedDock) { movableContentOf(foldedDock) }
     val placedReportRow: @Composable () -> Unit = remember(reportRow) { movableContentOf(reportRow) }
-    val isHeaderDrawn: MutableState<Boolean> = remember { mutableStateOf(false) }
+    val drawnHeaders: MutableIntState = remember { mutableIntStateOf(0) }
     val slots: TownPageSlots = TownPageSlots(
         ring = ring,
         status = status,
@@ -89,9 +89,12 @@ fun TownScreen(
                 bottom = if (isHome) MyGameSpacing.step2 else MyGameSpacing.step8,
             ),
     ) {
-        if (!isHeaderDrawn.value || !isHome) {
-            placedFoldedDock()
-            placedReportRow()
+        when {
+            !isHome -> {
+                placedFoldedDock()
+                placedReportRow()
+            }
+            drawnHeaders.intValue == 0 -> HomeTopBeforeHeader(placedFoldedDock, placedReportRow)
         }
         MyGameSkeleton(
             isLoading = state == TownUiState.Loading,
@@ -105,17 +108,32 @@ fun TownScreen(
                     slots = slots,
                     top = TownPageTop(
                         foldedDock = {
-                            if (isHeaderDrawn.value) placedFoldedDock()
+                            if (drawnHeaders.intValue > 0) placedFoldedDock()
                             DisposableEffect(Unit) {
-                                isHeaderDrawn.value = true
-                                onDispose { isHeaderDrawn.value = false }
+                                drawnHeaders.intValue += 1
+                                onDispose { drawnHeaders.intValue -= 1 }
                             }
                         },
-                        reportRow = { if (isHeaderDrawn.value) placedReportRow() },
+                        reportRow = { if (drawnHeaders.intValue > 0) placedReportRow() },
                     ),
                 )
             }
         }
+    }
+}
+
+@Composable
+private fun HomeTopBeforeHeader(
+    foldedDock: @Composable () -> Unit,
+    reportRow: @Composable () -> Unit,
+    modifier: Modifier = Modifier,
+) {
+    Column(
+        verticalArrangement = Arrangement.spacedBy(MyGameSpacing.step6),
+        modifier = modifier.padding(horizontal = MyGameSpacing.step4),
+    ) {
+        foldedDock()
+        reportRow()
     }
 }
 
