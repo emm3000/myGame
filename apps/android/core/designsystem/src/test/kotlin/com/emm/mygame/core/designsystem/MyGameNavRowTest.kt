@@ -1,28 +1,24 @@
 package com.emm.mygame.core.designsystem
 
 import androidx.compose.foundation.background
-import androidx.compose.ui.unit.Dp
-import androidx.compose.ui.unit.Density
-import androidx.compose.ui.test.requestFocus
-import androidx.compose.ui.test.onRoot
-import androidx.compose.ui.semantics.SemanticsNode
-import androidx.compose.ui.platform.LocalInputModeManager
-import androidx.compose.ui.platform.LocalDensity
-import androidx.compose.ui.input.InputModeManager
-import androidx.compose.ui.input.InputMode
-import androidx.compose.ui.graphics.toPixelMap
-import androidx.compose.ui.ExperimentalComposeUiApi
-import androidx.compose.runtime.CompositionLocalProvider
-import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.CompositionLocalProvider
+import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clipToBounds
 import androidx.compose.ui.graphics.ImageBitmap
 import androidx.compose.ui.graphics.toArgb
+import androidx.compose.ui.graphics.toPixelMap
 import androidx.compose.ui.graphics.vector.PathParser
 import androidx.compose.ui.graphics.vector.VectorPath
+import androidx.compose.ui.input.InputMode
+import androidx.compose.ui.input.InputModeManager
+import androidx.compose.ui.platform.LocalDensity
+import androidx.compose.ui.platform.LocalInputModeManager
 import androidx.compose.ui.semantics.Role
+import androidx.compose.ui.semantics.SemanticsNode
 import androidx.compose.ui.semantics.SemanticsProperties
 import androidx.compose.ui.test.SemanticsMatcher
 import androidx.compose.ui.test.SemanticsNodeInteraction
@@ -36,6 +32,8 @@ import androidx.compose.ui.test.junit4.ComposeContentTestRule
 import androidx.compose.ui.test.junit4.createComposeRule
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
+import androidx.compose.ui.test.requestFocus
+import androidx.compose.ui.unit.Density
 import androidx.compose.ui.unit.DpRect
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertTrue
@@ -58,8 +56,6 @@ class MyGameNavRowTest {
 
     private var inputModes: InputModeManager? = null
 
-    private val ringRoom: Dp = MyGameSpacing.step4
-
     private fun show(content: @Composable () -> Unit) {
         composeRule.setContent {
             MyGameTheme {
@@ -79,6 +75,9 @@ class MyGameNavRowTest {
     private fun chevron(): SemanticsNodeInteraction =
         composeRule.onNode(hasTestTag(NAV_ROW_CHEVRON), useUnmergedTree = true)
 
+    private fun hexAt(image: ImageBitmap, x: Int, y: Int): String =
+        Integer.toHexString(image.toPixelMap()[x, y].toArgb())
+
     private fun pixelsOf(image: ImageBitmap): IntArray {
         val pixels: IntArray = IntArray(image.width * image.height)
         image.readPixels(pixels)
@@ -96,41 +95,38 @@ class MyGameNavRowTest {
 
     @OptIn(ExperimentalComposeUiApi::class)
     @Test
-    fun `draws a ring in the focus color around a focused nav row`() {
+    fun `draws a ring in the focus color inside a focused nav row that a clipping parent keeps`() {
         show {
             inputModes = LocalInputModeManager.current
-            Box(modifier = Modifier.padding(ringRoom)) {
+            Box(modifier = Modifier.clipToBounds()) {
                 MyGameNavRow(title = school, onClick = {})
             }
         }
         composeRule.runOnIdle { inputModes?.requestInputMode(InputMode.Keyboard) }
         row().requestFocus()
 
-        val image: ImageBitmap = composeRule.onRoot().captureToImage()
-        val ring: Int = with(composeRule.density) {
-            (ringRoom - MyGameSpacing.step1 - MyGameStrokeWidths.focus / 2).roundToPx()
-        }
+        val image: ImageBitmap = row().captureToImage()
+        val ring: Int = with(composeRule.density) { (MyGameStrokeWidths.focus / 2).roundToPx() }
         val focus: String = Integer.toHexString(lightColors.focus.toArgb())
 
-        assertEquals("the start edge", focus, Integer.toHexString(image.toPixelMap()[ring, image.height / 2].toArgb()))
-        assertEquals("the top edge", focus, Integer.toHexString(image.toPixelMap()[image.width / 2, ring].toArgb()))
+        assertEquals("the start side", focus, hexAt(image, ring, image.height / 2))
+        assertEquals("the end side", focus, hexAt(image, image.width - 1 - ring, image.height / 2))
+        assertEquals("the top side", focus, hexAt(image, image.width / 2, ring))
     }
 
     @Test
-    fun `draws no ring around a nav row at rest`() {
+    fun `draws no ring inside a nav row at rest`() {
         show {
-            Box(modifier = Modifier.padding(ringRoom)) {
+            Box(modifier = Modifier.clipToBounds()) {
                 MyGameNavRow(title = school, onClick = {})
             }
         }
 
-        val image: ImageBitmap = composeRule.onRoot().captureToImage()
-        val ring: Int = with(composeRule.density) {
-            (ringRoom - MyGameSpacing.step1 - MyGameStrokeWidths.focus / 2).roundToPx()
-        }
+        val image: ImageBitmap = row().captureToImage()
+        val ring: Int = with(composeRule.density) { (MyGameStrokeWidths.focus / 2).roundToPx() }
         val ground: String = Integer.toHexString(lightColors.surface.toArgb())
 
-        assertEquals("the start edge", ground, Integer.toHexString(image.toPixelMap()[ring, image.height / 2].toArgb()))
+        assertEquals("the top side", ground, hexAt(image, image.width / 2, ring))
     }
 
     @Test
