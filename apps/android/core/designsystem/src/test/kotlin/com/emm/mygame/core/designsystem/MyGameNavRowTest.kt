@@ -24,6 +24,7 @@ import androidx.compose.ui.test.SemanticsMatcher
 import androidx.compose.ui.test.SemanticsNodeInteraction
 import androidx.compose.ui.test.assert
 import androidx.compose.ui.test.assertHeightIsAtLeast
+import androidx.compose.ui.test.assertWidthIsEqualTo
 import androidx.compose.ui.test.captureToImage
 import androidx.compose.ui.test.getBoundsInRoot
 import androidx.compose.ui.test.hasClickAction
@@ -31,6 +32,7 @@ import androidx.compose.ui.test.hasTestTag
 import androidx.compose.ui.test.junit4.ComposeContentTestRule
 import androidx.compose.ui.test.junit4.createComposeRule
 import androidx.compose.ui.test.onNodeWithText
+import androidx.compose.ui.test.onRoot
 import androidx.compose.ui.test.performClick
 import androidx.compose.ui.test.requestFocus
 import androidx.compose.ui.unit.Density
@@ -154,6 +156,39 @@ class MyGameNavRowTest {
     }
 
     @Test
+    fun `a nav row's chevron is an icon wide at font scale 1`() {
+        show {
+            CompositionLocalProvider(LocalDensity provides Density(LocalDensity.current.density, fontScale = 1f)) {
+                MyGameNavRow(title = school, onClick = {})
+            }
+        }
+
+        chevron().assertWidthIsEqualTo(MyGameSizes.icon)
+    }
+
+    @OptIn(ExperimentalComposeUiApi::class)
+    @Test
+    fun `a focused nav row sets its title a step inside the ring and keeps its outer width`() {
+        show {
+            inputModes = LocalInputModeManager.current
+            MyGameNavRow(title = school, onClick = {})
+        }
+        composeRule.runOnIdle { inputModes?.requestInputMode(InputMode.Keyboard) }
+        row().requestFocus()
+
+        val rowBounds: DpRect = row().getBoundsInRoot()
+        val titleBounds: DpRect = boundsOf("Go to the school")
+
+        assertTrue(
+            "the title starts at ${titleBounds.left}, the ring at ${rowBounds.left}",
+            titleBounds.left - rowBounds.left >= MyGameSpacing.step1,
+        )
+        val rootBounds: DpRect = composeRule.onRoot().getBoundsInRoot()
+        assertEquals("the ring starts at the row's start", rootBounds.left, rowBounds.left)
+        assertEquals("the ring ends at the row's end", rootBounds.right, rowBounds.right)
+    }
+
+    @Test
     fun `a nav row of one line keeps the secondary height`() {
         showSchoolRow()
 
@@ -175,7 +210,7 @@ class MyGameNavRowTest {
     }
 
     @Test
-    fun `a nav row ends on its chevron`() {
+    fun `a nav row ends on its chevron a step inside its bounds`() {
         showSchoolRow()
 
         val rowBounds: DpRect = row().getBoundsInRoot()
@@ -183,7 +218,7 @@ class MyGameNavRowTest {
         val titleBounds: DpRect =
             composeRule.onNodeWithText("Go to the school", useUnmergedTree = true).getBoundsInRoot()
 
-        assertEquals(rowBounds.right, chevronBounds.right)
+        assertEquals(rowBounds.right - MyGameSpacing.step1, chevronBounds.right)
         assertTrue("the chevron follows the title", titleBounds.right <= chevronBounds.left)
     }
 
