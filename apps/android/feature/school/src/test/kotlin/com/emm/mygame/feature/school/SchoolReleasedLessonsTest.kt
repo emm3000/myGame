@@ -53,8 +53,6 @@ class SchoolReleasedLessonsTest {
 
     private val fiveWords: Regex = Regex("""\b5\s+palabras?\b""")
 
-    private val lessonSizeLabel: Regex = Regex("""^5 palabras( · .*)?$""")
-
     private val intents: MutableList<SchoolIntent> = mutableListOf()
 
     private val lessonOpens: MutableList<LessonId> = mutableListOf()
@@ -149,15 +147,26 @@ class SchoolReleasedLessonsTest {
     fun `states the next lesson's word count once with the cap full and a released lesson blocked`() {
         val fullCap: TownSnapshot.Learning =
             TownSnapshot.Learning(cap = 10, inLearning = 8, retainedWords = null, nextInLearningDueAt = null)
-        show(contentOf(shelvedAndReleased.copy(learning = fullCap)))
+        val onlyTheNextLessonHoldsFive: TownSnapshot = shelvedAndReleased.copy(
+            learning = fullCap,
+            lessons = listOf(lessonOf(), lessonOf(id = secondLesson, theme = "Work and money", wordCount = 4)),
+            releasedLessons = listOf(
+                releasedLessonOf(secondSet, position = 2, wordCount = 4),
+                releasedLessonOf(firstSet, position = 1, wordCount = 4),
+            ),
+        )
+        show(contentOf(onlyTheNextLessonHoldsFive))
 
         val statements: List<String> = composeRule
             .onAllNodes(SemanticsMatcher("any node") { true }, useUnmergedTree = true)
             .fetchSemanticsNodes()
             .flatMap(::linesOf)
-            .filter { line: String -> fiveWords.containsMatchIn(line) && !lessonSizeLabel.matches(line) }
+            .filter { line: String -> fiveWords.containsMatchIn(line) }
 
-        assertEquals(listOf("La siguiente lección trae 5 palabras. Empieza los repasos."), statements)
+        assertEquals(
+            listOf("5 palabras · Habilidad: comida +5 %", "La siguiente lección trae 5 palabras. Empieza los repasos."),
+            statements,
+        )
     }
 
     @Test
