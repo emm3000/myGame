@@ -8,6 +8,7 @@ import androidx.compose.ui.semantics.LiveRegionMode
 import androidx.compose.ui.semantics.heading
 import androidx.compose.ui.semantics.liveRegion
 import androidx.compose.ui.semantics.semantics
+import androidx.compose.ui.semantics.testTag
 import com.emm.mygame.core.designsystem.MyGameBlock
 import com.emm.mygame.core.designsystem.MyGameInlineAlert
 import com.emm.mygame.core.designsystem.MyGameLabel
@@ -74,6 +75,7 @@ private fun LessonBlock(card: SchoolUiState.LessonCard, isStep: Boolean, modifie
             label = copy.chrome { lessonSummaryOf(card) },
             style = MyGameTypography.caption,
             color = MyGameTheme.colors.onBlockMuted,
+            modifier = Modifier.semantics { testTag = LESSON_SIZE_LABEL },
         )
         if (card.state == SchoolUiState.LessonState.Studying) {
             MyGameText(

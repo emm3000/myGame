@@ -32,6 +32,8 @@ import com.emm.mygame.core.ui.rememberPlayerCopy
 
 internal const val LESSON_ROW: String = "lesson_row"
 
+internal const val LESSON_SIZE_LABEL: String = "lesson_size_label"
+
 @Composable
 internal fun LessonRows(
     content: SchoolUiState.Content,
@@ -98,6 +100,7 @@ private fun ReleasedLessonRow(
                 label = copy.chrome(R.string.school_lesson_words, "count" to card.wordCount),
                 style = MyGameTypography.caption,
                 color = MyGameTheme.colors.inkMuted,
+                modifier = Modifier.semantics { testTag = LESSON_SIZE_LABEL },
             )
         }
         LessonPath(path = card.path)
@@ -190,6 +193,7 @@ private fun LessonTarget(
         status = statusOf(card.state)?.let { status: Int -> copy.chrome(status) },
         body = MyGameLabel(text = card.theme, translation = null),
         caption = copy.chrome { lessonSummaryOf(card) },
+        captionTag = LESSON_SIZE_LABEL,
         onClick = { onIntent(SchoolIntent.LessonSelected(card.lesson)) },
         modifier = modifier,
     )
@@ -214,6 +218,7 @@ private fun StudiedLesson(card: SchoolUiState.LessonCard, modifier: Modifier = M
             label = copy.chrome { lessonSummaryOf(card) },
             style = MyGameTypography.caption,
             color = MyGameTheme.colors.inkMuted,
+            modifier = Modifier.semantics { testTag = LESSON_SIZE_LABEL },
         )
     }
 }
