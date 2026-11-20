@@ -19,13 +19,8 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.draw.drawBehind
-import androidx.compose.ui.geometry.CornerRadius
-import androidx.compose.ui.geometry.Offset
-import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Shape
-import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.layout.IntrinsicMeasurable
 import androidx.compose.ui.layout.IntrinsicMeasureScope
 import androidx.compose.ui.layout.Layout
@@ -47,12 +42,15 @@ import androidx.compose.ui.semantics.testTag
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.PreviewParameterProvider
 import androidx.compose.ui.unit.Constraints
+import androidx.compose.ui.unit.Dp
 
 val PILL_BADGE: SemanticsPropertyKey<String> = SemanticsPropertyKey("PILL_BADGE")
 
 private var SemanticsPropertyReceiver.pillBadge: String by PILL_BADGE
 
 private const val HALF: Int = 2
+
+private val pillRingReach: Dp = MyGameSpacing.step1 + MyGameStrokeWidths.focus / 2
 
 @Composable
 internal fun MyGamePill(
@@ -79,7 +77,7 @@ internal fun MyGamePill(
         modifier = modifier
             .fillMaxWidth()
             .defaultMinSize(minHeight = look.height)
-            .outerFocusRing(look = look, isFocused = isFocused, color = colors.focus)
+            .pillFocusRing(look = look, isFocused = isFocused, color = colors.focus)
             .clip(shape)
             .background(if (isQuiet) colors.surfaceSunken else look.ground)
             .edge(isBlocked = isBlocked, isBusy = isBusy, look = look, colors = colors, shape = shape)
@@ -240,23 +238,14 @@ private class SquareNode : Modifier.Node(), LayoutModifierNode {
         maxOf(contentHeight, measurable.maxIntrinsicWidth(Constraints.Infinity).coerceAtMost(width))
 }
 
-private fun Modifier.outerFocusRing(look: MyGamePillLook, isFocused: Boolean, color: Color): Modifier {
-    if (!look.hasOuterFocusRing || !isFocused) return this
-    return outerFocusRing(color)
-}
-
-private fun Modifier.outerFocusRing(color: Color): Modifier = drawBehind {
-    val ring: Float = MyGameStrokeWidths.focus.toPx()
-    val reach: Float = MyGameSpacing.step1.toPx() + ring / 2
-    val radius: Float = MyGameRadii.md.toPx() + reach
-    drawRoundRect(
+private fun Modifier.pillFocusRing(look: MyGamePillLook, isFocused: Boolean, color: Color): Modifier =
+    focusRingAround(
+        isFocused = isFocused && look.hasOuterFocusRing,
         color = color,
-        topLeft = Offset(-reach, -reach),
-        size = Size(size.width + reach * 2, size.height + reach * 2),
-        cornerRadius = CornerRadius(radius, radius),
-        style = Stroke(width = ring),
+        horizontalReach = pillRingReach,
+        verticalReach = pillRingReach,
+        radius = MyGameRadii.md + pillRingReach,
     )
-}
 
 private fun Modifier.pillSemantics(tag: String, accessibleName: String?, state: String?): Modifier =
     semantics(mergeDescendants = true) {
