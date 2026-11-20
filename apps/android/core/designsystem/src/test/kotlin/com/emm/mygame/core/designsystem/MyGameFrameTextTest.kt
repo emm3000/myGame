@@ -196,6 +196,18 @@ class MyGameFrameTextTest {
 
     @Test
     @GraphicsMode(GraphicsMode.Mode.NATIVE)
+    fun `gives a two-letter word on tap a control-wide target`() {
+        showFrame(goFrame)
+        val edge: Float = with(composeRule.density) { MyGameSizes.control.toPx() / 2 - 1 }
+
+        composeRule.onNodeWithText("go").performTouchInput { click(Offset(centerX - edge, centerY)) }
+        composeRule.onNodeWithText("go").performTouchInput { click(Offset(centerX + edge, centerY)) }
+
+        assertEquals(listOf(1, 1), taps)
+    }
+
+    @Test
+    @GraphicsMode(GraphicsMode.Mode.NATIVE)
     fun `measures a word on tap as wide as its text`() {
         showBeside(dayFrame, plain = "day")
 
@@ -341,6 +353,12 @@ class MyGameFrameTextTest {
             MyGameFramePiece(text = "The ", support = null),
             MyGameFramePiece(text = "day", support = onTap),
             MyGameFramePiece(text = " is ____.", support = null),
+        )
+
+        val goFrame: List<MyGameFramePiece> = listOf(
+            MyGameFramePiece(text = "We ", support = null),
+            MyGameFramePiece(text = "go", support = onTap),
+            MyGameFramePiece(text = " home.", support = null),
         )
 
         val twoWordsFrame: List<MyGameFramePiece> = listOf(
