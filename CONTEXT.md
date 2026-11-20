@@ -54,7 +54,7 @@ The game is Townword, a present-day town the player grows into a city (ADR 035).
 ## The account
 
 - **Verified email** — a player's email once proven to receive mail, by following the verify link sent to it. It gates only a password reset, never sign-in or play; until then the signed-in shell shows a banner that resends the link (ADR 015).
-- **Account token** — a single-use link token of kind `verify` or `reset`, mailed to a player and stored as a digest, never in clear. A verify token lives 24 hours, a reset token 1 hour; issuing one retires the player's earlier token of that kind, and one unknown, expired, used or of the other kind is refused as `TokenInvalid` (ADR 015).
+- **Account token** — a link token of kind `verify` or `reset`, mailed to a player and stored as a digest, never in clear. A verify token lives 24 hours and verifies again inside them, keeping the first verified instant; a reset token lives 1 hour and works once. Issuing one retires the player's earlier token of that kind, and one unknown, expired, of the other kind or a used reset token is refused as `TokenInvalid` (ADR 015).
 
 ## Time
 

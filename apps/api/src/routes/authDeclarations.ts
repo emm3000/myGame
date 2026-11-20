@@ -95,7 +95,10 @@ export const authDeclarations = {
     path: '/verify-email',
     request: { body: jsonBody(VerifyEmailRequestSchema.meta({ id: 'VerifyEmailRequest' })) },
     responses: {
-      204: { description: 'The email is verified.' },
+      204: {
+        description:
+          'The email is verified; a link redeemed earlier answers the same inside its 24 hours.',
+      },
       400: refusalResponse('TokenInvalid; a malformed body answers an empty body.'),
     },
   }),

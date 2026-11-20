@@ -34,17 +34,50 @@ export const accountTokensContract = (
   arrange: () => Promise<AccountTokensFixture>,
 ): void => {
   describe(`${adapter} as account tokens`, () => {
-    it('redeems a token once', async () => {
+    it('redeems a reset token once', async () => {
+      const { accountTokens, registerPlayers } = await arrange()
+      await registerPlayers([ana])
+      await accountTokens.issue(resetLink, dawn)
+
+      const redeemed = [
+        await accountTokens.redeem(resetLink.token, 'reset', dawn),
+        await accountTokens.redeem(resetLink.token, 'reset', dawn),
+      ]
+
+      expect(redeemed).toEqual([ana, undefined])
+    })
+
+    it('answers its player again to a verify token redeemed earlier in its day', async () => {
       const { accountTokens, registerPlayers } = await arrange()
       await registerPlayers([ana])
       await accountTokens.issue(verifyLink, dawn)
 
       const redeemed = [
         await accountTokens.redeem(verifyLink.token, 'verify', dawn),
-        await accountTokens.redeem(verifyLink.token, 'verify', dawn),
+        await accountTokens.redeem(verifyLink.token, 'verify', hoursAfterDawn(23)),
       ]
 
-      expect(redeemed).toEqual([ana, undefined])
+      expect(redeemed).toEqual([ana, ana])
+    })
+
+    it('refuses a redeemed verify token past its day', async () => {
+      const { accountTokens, registerPlayers } = await arrange()
+      await registerPlayers([ana])
+      await accountTokens.issue(verifyLink, dawn)
+      await accountTokens.redeem(verifyLink.token, 'verify', dawn)
+
+      expect(await accountTokens.redeem(verifyLink.token, 'verify', verifyLink.expiresAt)).toBe(
+        undefined,
+      )
+    })
+
+    it('refuses a redeemed verify token asked for as a reset', async () => {
+      const { accountTokens, registerPlayers } = await arrange()
+      await registerPlayers([ana])
+      await accountTokens.issue(verifyLink, dawn)
+      await accountTokens.redeem(verifyLink.token, 'verify', dawn)
+
+      expect(await accountTokens.redeem(verifyLink.token, 'reset', dawn)).toBe(undefined)
     })
 
     it('refuses an expired token', async () => {

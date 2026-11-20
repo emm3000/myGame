@@ -42,28 +42,32 @@ decisions after PRs #166 to #175 shipped.
   it requires `DATABASE_URL`, and refuses to compose without them. `WEB_URL`
   is the web origin every mailed link starts from: `/verify-email?token=…`
   and `/reset-password?token=…`, English paths beside `/sign-in`.
-- An **account token is a single-use link token** of kind `verify`, alive
-  24 hours, or `reset`, alive 1 hour. It is 256 random bits, like a session
+- An **account token is a link token** of kind `verify`, alive 24 hours
+  and redeemable again inside them, or `reset`, alive 1 hour and single-use
+  (fourth amendment). It is 256 random bits, like a session
   token, and `account_tokens` stores **only its SHA-256 digest**, as
   `sessions` does, so a leak of the table is disclosure, not a usable link.
   The row holds the player, the kind, `expires_at` and a nullable `used_at`;
-  `players.email_verified_at` is null until the verify link is followed.
+  `players.email_verified_at` is null until the verify link is first
+  followed, and keeps that first instant when the link is followed again.
 - **Issuing a token replaces and prunes in one transaction**: it deletes the
   player's live token of that kind and every used or expired token of the
   player, then inserts. A resend invalidates the previous link, one live link
   per kind exists at a time, and pruning happens on the next issue for the
-  same player, never on a timer (W7, ADR 005). An expired or used row is
-  refused on read until then.
+  same player, never on a timer (W7, ADR 005). Until then an expired row of
+  either kind and a used `reset` row are refused on read, and a used `verify`
+  row inside its 24 hours answers its player again.
 - **`issue` and every redeem lock the player's row first**, with `FOR NO KEY
   UPDATE`, the row lock ADR 006 takes on a fief, and touch the tokens
   second. Two racing issues serialize on the
   lock and leave one live token; a redeem racing an issue takes the two locks
   in the same order and cannot deadlock. The lock is `NO KEY UPDATE`, not
   `UPDATE`, so it does not block the `FOR KEY SHARE` a session insert takes
-  at sign-in. A redeem finds the player through the live row (digest, kind,
-  `used_at` null, `expires_at` in the future), locks the player, then marks
-  the row used in one `UPDATE … RETURNING`, so two redeems of one link answer
-  one player.
+  at sign-in, and a second redeem of a `verify` link takes it as the first
+  did. A redeem finds the player through the redeemable row (digest, kind,
+  `expires_at` in the future, and for `reset` `used_at` null), locks the
+  player, then marks the row used in one `UPDATE … RETURNING` that keeps an
+  earlier `used_at`, so two redeems of one reset link answer one player.
 - **Sign-up issues the verify token inside its transaction and sends the
   mail after commit**, in the same request, and ignores a failed send: the
   account exists either way, and the banner resends.
@@ -79,8 +83,8 @@ decisions after PRs #166 to #175 shipped.
   sets no cookie.
 - The wire (ADR 010) carries **`emailVerified` on `Player`**, and two new
   kinds: **`TokenInvalid`** (400), one answer for a token unknown, expired,
-  used or of the other kind, and **`MailNotSent`** (503), the resend only.
-  The server decides every one of them (N1).
+  of the other kind or a used reset token, and **`MailNotSent`** (503), the
+  resend only. The server decides every one of them (N1).
 - **Mail copy lives in `apps/api/src/mail/mailCopy.ts`**, mirrored from the
   account section of `docs/lore/names.md` as `apps/web/src/copy.ts` is. The
   mails are plain text, addressed as tú, with the link on a line of its own.
@@ -212,3 +216,7 @@ ADR 035 makes the mail copy per language: the verify and reset mails follow the 
 ## Third amendment (2026-11-13)
 
 ADR 038 settles the mail's language, as the second amendment deferred: the api renders the verify and reset mails, subject and text alike, from `packages/catalog` in the stored player's scaffold language at send time, Spanish for `es` and English for `none` (#746). The copy already lives under the catalog's `mail.*` keys, moved there from `apps/api/src/mail/mailCopy.ts` by ADR 038's step 2. A reset request for an unknown or unverified address still sends nothing and answers 202 as for any other, so no mail goes to an address without a player. The links, their lifetimes, the tokens, their digests and the player lock are unchanged. Nothing else here changes.
+
+## Fourth amendment (2026-11-20)
+
+#1494 makes the verify redemption idempotent; the reset link stays single-use. Until then `POST /auth/verify-email` refused a verify token it had already redeemed, so a client whose first send lost its answer, to a process kill or a read timeout, showed a refused link for a verified email (#1480, #1488, #1492). Now a `verify` token answers its player on every redeem inside its 24 hours, the route answers 204 each time, `used_at` keeps the first redemption's instant and `players.email_verified_at` keeps the first verification's. A `reset` token still answers one player once, so a reset link used twice still answers `TokenInvalid`. Every redeem, a repeated one included, locks the player's row before it writes the token, in the order the Decision names. Issuing still prunes the player's used rows, so a verify link stops working, as an unknown one, once any new token is issued for that player, a reset request among them; the resend issues nothing once the email is verified. The tokens, their digests, their lifetimes and the wire kinds are unchanged. PRD row S7 still reads "single-use mailed links", and its wording is the owner's to change. Nothing else here changes.

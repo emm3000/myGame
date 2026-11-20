@@ -1,5 +1,5 @@
 import type { Instant, PlayerId, Scaffold } from '@mygame/domain'
-import { and, eq, gt, sql } from 'drizzle-orm'
+import { and, eq, gt, isNull, sql } from 'drizzle-orm'
 import type {
   Accounts,
   NewPlayer,
@@ -81,7 +81,7 @@ export class DrizzleAccounts implements Accounts {
     await this.database
       .update(players)
       .set({ emailVerifiedAt: dateOf(now) })
-      .where(eq(players.id, playerId))
+      .where(and(eq(players.id, playerId), isNull(players.emailVerifiedAt)))
   }
 
   async storePasswordHash(playerId: PlayerId, passwordHash: string): Promise<void> {
