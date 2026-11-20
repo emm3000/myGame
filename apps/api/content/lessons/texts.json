@@ -35,7 +35,8 @@
       "I also like to hear about her family.",
       "She wants to become a worker at the new factory.",
       "There is always something new to do here, and I have never had so much free time."
-    ]
+    ],
+    "noCardSense": ["there"]
   },
   {
     "id": "text-3",
@@ -73,6 +74,7 @@
       "What will happen in the winter?",
       "Some people believe the market will close.",
       "In that case, we will buy food at the farms."
-    ]
+    ],
+    "noCardSense": ["get"]
   }
 ]
