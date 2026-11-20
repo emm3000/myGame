@@ -261,7 +261,7 @@ class TownViewModel(
                     TownReadResult.Unreachable -> nextReadAt = serverNow() + failedReadRetry
                 }
             }
-            delay(snapshot.nextWakeFrom(serverNow(), nextReadAt))
+            delay(snapshot.nextWakeFrom(serverNow(), nextReadAt, _state.value.nearestReadyLeft()))
         }
     }
 
@@ -273,7 +273,7 @@ class TownViewModel(
     }
 }
 
-private fun TownSnapshot.nextWakeFrom(now: Instant, nextReadAt: Instant?): Duration {
-    val repaint: Duration = repaintDelay(nearestCountdownAt(now))
+private fun TownSnapshot.nextWakeFrom(now: Instant, nextReadAt: Instant?, readyLeft: Duration?): Duration {
+    val repaint: Duration = repaintDelay(listOfNotNull(nearestCountdownAt(now), readyLeft).minOrNull())
     return if (nextReadAt == null) repaint else minOf(repaint, nextReadAt - now)
 }

@@ -8,6 +8,7 @@ import com.emm.mygame.core.network.TownSnapshot
 import com.emm.mygame.core.testing.FakeTownRepository
 import com.emm.mygame.core.testing.MainDispatcherRule
 import kotlin.time.Duration.Companion.minutes
+import kotlin.time.Duration.Companion.seconds
 import kotlin.time.Instant
 import kotlinx.coroutines.test.TestScope
 import kotlinx.coroutines.test.advanceTimeBy
@@ -76,6 +77,37 @@ class TownReadyMinuteViewModelTest {
     }
 
     @Test
+    fun `counts a place's last minute before its ready minute down every second`() = runTest {
+        val viewModel: TownViewModel = homeViewModel(townOf(stocks = risingMoney, places = placesOf(costlyFarm)))
+
+        advanceTimeBy(19.minutes + 1.seconds)
+        runCurrent()
+        val first: TownUiState.ReadyTime? = placeReadyOf(viewModel)
+        advanceTimeBy(1.seconds)
+        runCurrent()
+
+        assertEquals(59.seconds, first?.remaining)
+        assertEquals(58.seconds, placeReadyOf(viewModel)?.remaining)
+    }
+
+    @Test
+    fun `counts a hire's last minute before its ready minute down every second`() = runTest {
+        val viewModel: TownViewModel = homeViewModel(
+            townOf(stocks = stocksOf(stockOf(TownResourceKind.Money, amount = 100, ratePerHour = 60.0))),
+        )
+        viewModel.onIntent(TownIntent.HireEntryChanged(TownHireKind.Worker, "3"))
+
+        advanceTimeBy(19.minutes + 1.seconds)
+        runCurrent()
+        val first: TownUiState.ReadyTime? = hireReadyOf(viewModel)
+        advanceTimeBy(1.seconds)
+        runCurrent()
+
+        assertEquals(59.seconds, first?.remaining)
+        assertEquals(58.seconds, hireReadyOf(viewModel)?.remaining)
+    }
+
+    @Test
     fun `dates the ready minute on the device clock`() = runTest {
         val viewModel: TownViewModel = homeViewModel(
             townOf(stocks = risingMoney, places = placesOf(costlyFarm)),
@@ -104,6 +136,12 @@ class TownReadyMinuteViewModelTest {
             formOf(viewModel).block,
         )
     }
+
+    private fun placeReadyOf(viewModel: TownViewModel): TownUiState.ReadyTime? =
+        (placeOf(viewModel, TownBuildingKind.Farm).block as? TownUiState.BlockReason.Resources)?.ready
+
+    private fun hireReadyOf(viewModel: TownViewModel): TownUiState.ReadyTime? =
+        (formOf(viewModel).block as? TownUiState.HireBlock.Resources)?.ready
 
     private fun formOf(viewModel: TownViewModel): TownUiState.HireForm = requireNotNull(
         contentOf(viewModel).office.hires.first { card: TownUiState.HireCard -> card.kind == TownHireKind.Worker }.form,
