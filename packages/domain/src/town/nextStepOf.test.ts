@@ -407,6 +407,17 @@ describe('nextStepOf', () => {
     expect(answered(reading)).toEqual({ kind: 'caughtUp', reason: 'schoolTooLow', text: null })
   })
 
+  it('answers schoolTooLow for a lesson past a full cap with the school too low', () => {
+    const lessons = [lessonNumbered(4, { requiredSchoolLevel: 2 })]
+    const reading = readingOf({ cards: curriculum.slice(0, 3).flatMap(waitingCardsOf) })
+
+    expect(answered(reading, lessons)).toEqual({
+      kind: 'caughtUp',
+      reason: 'schoolTooLow',
+      text: null,
+    })
+  })
+
   it('carries the newest open text on caught up', () => {
     const reading = readingOf({ cards: curriculum.slice(0, 3).flatMap(waitingCardsOf) })
 

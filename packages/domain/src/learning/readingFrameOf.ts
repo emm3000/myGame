@@ -1,10 +1,8 @@
 import { anchorFrameOf } from './anchorFrameOf'
 import type { FrameReader } from './FrameReader'
 import type { FrameSpans } from './FrameSpan'
-import { frameSpansOf } from './frameSpansOf'
+import { frameSpansOf, withholdingNothing } from './frameSpansOf'
 import type { LessonWord } from './Lesson'
-
-const withholdingNothing = (): boolean => false
 
 export const readingFrameOf = (word: LessonWord, reader: FrameReader): FrameSpans => {
   const { frame } = anchorFrameOf(word)
