@@ -7,9 +7,10 @@ import { Button } from '../design-system/Button'
 interface SignOutColumnProps {
   readonly apiClient: ApiClient
   readonly children: ReactNode
+  readonly beside?: ReactNode
 }
 
-export function SignOutColumn({ apiClient, children }: SignOutColumnProps): ReactElement {
+export function SignOutColumn({ apiClient, children, beside }: SignOutColumnProps): ReactElement {
   const navigate = useNavigate()
   const signOut = async (): Promise<void> => {
     await apiClient.signOut()
@@ -18,10 +19,11 @@ export function SignOutColumn({ apiClient, children }: SignOutColumnProps): Reac
   return (
     <div className="mx-auto flex w-full max-w-form flex-col gap-6">
       {children}
-      <div className="-ml-1 flex">
+      <div className="-ml-1 flex flex-wrap gap-3">
         <Button type="button" tone="text" onClick={signOut}>
           {shellSignOut()}
         </Button>
+        {beside}
       </div>
     </div>
   )

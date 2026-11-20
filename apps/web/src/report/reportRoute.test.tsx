@@ -12,6 +12,7 @@ import {
   reviewNextReview,
   reviewTitle,
   schoolLessonReadWords,
+  settingsTitle,
   shellNavigationTown,
   shellSignOut,
   townTryAgain,
@@ -470,6 +471,16 @@ it('keeps sign-out on a refused read', async () => {
   await showReport(async () => ({ ok: false, refusal: 'Unexpected', error: undefined }))
 
   expect(signOutButton()).toBeDefined()
+})
+
+it('opens the settings from beside sign-out', async () => {
+  const router = await showReport(reportOf({}))
+
+  const signOutRow = signOutButton().parentElement ?? document.body
+  fireEvent.click(within(signOutRow).getByRole('link', { name: settingsTitle() }))
+  await passSeconds(0)
+
+  expect(router.state.location.pathname).toBe('/settings')
 })
 
 const heldClose = (): {

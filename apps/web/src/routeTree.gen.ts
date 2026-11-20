@@ -21,6 +21,7 @@ import { Route as SignedInNewsRouteImport } from './routes/_signedIn/news'
 import { Route as SignedInPlacementRouteImport } from './routes/_signedIn/placement'
 import { Route as SignedInReportRouteImport } from './routes/_signedIn/report'
 import { Route as SignedInReviewsRouteImport } from './routes/_signedIn/reviews'
+import { Route as SignedInSettingsRouteImport } from './routes/_signedIn/settings'
 import { Route as SignedInMapIndexRouteImport } from './routes/_signedIn/map.index'
 import { Route as SignedInMapAreaRouteImport } from './routes/_signedIn/map.$area'
 import { Route as SignedInSchoolIndexRouteImport } from './routes/_signedIn/school.index'
@@ -85,6 +86,11 @@ const SignedInReviewsRoute = SignedInReviewsRouteImport.update({
   path: '/reviews',
   getParentRoute: () => SignedInRoute,
 } as any)
+const SignedInSettingsRoute = SignedInSettingsRouteImport.update({
+  id: '/settings',
+  path: '/settings',
+  getParentRoute: () => SignedInRoute,
+} as any)
 const SignedInMapIndexRoute = SignedInMapIndexRouteImport.update({
   id: '/map/',
   path: '/map/',
@@ -123,6 +129,7 @@ export interface FileRoutesByFullPath {
   '/placement': typeof SignedInPlacementRoute
   '/report': typeof SignedInReportRoute
   '/reviews': typeof SignedInReviewsRoute
+  '/settings': typeof SignedInSettingsRoute
   '/map/$area': typeof SignedInMapAreaRoute
   '/school/$lessonId': typeof SignedInSchoolLessonIdRoute
   '/map/': typeof SignedInMapIndexRoute
@@ -140,6 +147,7 @@ export interface FileRoutesByTo {
   '/placement': typeof SignedInPlacementRoute
   '/report': typeof SignedInReportRoute
   '/reviews': typeof SignedInReviewsRoute
+  '/settings': typeof SignedInSettingsRoute
   '/map/$area': typeof SignedInMapAreaRoute
   '/school/$lessonId': typeof SignedInSchoolLessonIdRoute
   '/map': typeof SignedInMapIndexRoute
@@ -159,6 +167,7 @@ export interface FileRoutesById {
   '/_signedIn/placement': typeof SignedInPlacementRoute
   '/_signedIn/report': typeof SignedInReportRoute
   '/_signedIn/reviews': typeof SignedInReviewsRoute
+  '/_signedIn/settings': typeof SignedInSettingsRoute
   '/_signedIn/': typeof SignedInIndexRoute
   '/_signedIn/map/$area': typeof SignedInMapAreaRoute
   '/_signedIn/school/$lessonId': typeof SignedInSchoolLessonIdRoute
@@ -179,6 +188,7 @@ export interface FileRouteTypes {
     | '/placement'
     | '/report'
     | '/reviews'
+    | '/settings'
     | '/map/$area'
     | '/school/$lessonId'
     | '/map/'
@@ -196,6 +206,7 @@ export interface FileRouteTypes {
     | '/placement'
     | '/report'
     | '/reviews'
+    | '/settings'
     | '/map/$area'
     | '/school/$lessonId'
     | '/map'
@@ -214,6 +225,7 @@ export interface FileRouteTypes {
     | '/_signedIn/placement'
     | '/_signedIn/report'
     | '/_signedIn/reviews'
+    | '/_signedIn/settings'
     | '/_signedIn/'
     | '/_signedIn/map/$area'
     | '/_signedIn/school/$lessonId'
@@ -315,6 +327,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof SignedInReviewsRouteImport
       parentRoute: typeof SignedInRoute
     }
+    '/_signedIn/settings': {
+      id: '/_signedIn/settings'
+      path: '/settings'
+      fullPath: '/settings'
+      preLoaderRoute: typeof SignedInSettingsRouteImport
+      parentRoute: typeof SignedInRoute
+    }
     '/_signedIn/map/': {
       id: '/_signedIn/map/'
       path: '/map'
@@ -372,6 +391,7 @@ interface SignedInRouteChildren {
   SignedInPlacementRoute: typeof SignedInPlacementRoute
   SignedInReportRoute: typeof SignedInReportRoute
   SignedInReviewsRoute: typeof SignedInReviewsRoute
+  SignedInSettingsRoute: typeof SignedInSettingsRoute
   SignedInIndexRoute: typeof SignedInIndexRoute
   SignedInMapAreaRoute: typeof SignedInMapAreaRoute
   SignedInSchoolLessonIdRoute: typeof SignedInSchoolLessonIdRoute
@@ -385,6 +405,7 @@ const SignedInRouteChildren: SignedInRouteChildren = {
   SignedInPlacementRoute: SignedInPlacementRoute,
   SignedInReportRoute: SignedInReportRoute,
   SignedInReviewsRoute: SignedInReviewsRoute,
+  SignedInSettingsRoute: SignedInSettingsRoute,
   SignedInIndexRoute: SignedInIndexRoute,
   SignedInMapAreaRoute: SignedInMapAreaRoute,
   SignedInSchoolLessonIdRoute: SignedInSchoolLessonIdRoute,
