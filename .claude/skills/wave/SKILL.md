@@ -30,11 +30,11 @@ Two rows. The table lives only here; `docs/agents/dispatch-log.md` records every
 
 What a row 2 dispatch adds, by the kind of work:
 
-- Behavior: load `mattpocock-skills:tdd` and owe the red-run table (`docs/agents/peer.md`).
+- Behavior: load `mattpocock-skills:tdd` and quote each new rule's red run in the PR body (`docs/agents/peer.md`).
 - A screen: the screenshots `docs/agents/peer.md` describes.
 - The trap list, where nothing catches the error (the composition root, a `packages/contracts` schema change, package or Gradle config, `.github/`, a design-system default that changes N screens): screenshots of every affected screen and the leak check in `.claude/rules/architecture.md`.
 - Schema or migration, auth, the persistence adapters, a new package: the contract test suite against every adapter and a migration test from the previous version.
-- `scripts/` or `.github/`: a safety checklist naming what the code may destroy and what it must never touch (other projects, live peers, the main checkout, `trunk`), which steps see each secret, that no step running repo code holds one, and the proof run that shows both. Every run of a script or its test is a bounded run (`docs/agents/peer.md`).
+- `scripts/` or `.github/`: a safety checklist naming what the code may destroy and what it must never touch (other projects, live peers, the main checkout, `trunk`), which steps see each secret, that no step running repo code holds one, and the proof run that shows both.
 - Design, a Design System or Design artifact (tokens, icons, component rules, a screen mockup): no branch, no PR. The peer publishes the artifact, posts its URL as a comment on the issue and closes it; the dispatch names the art bible, the lore pages and the existing artifact URLs.
 - A dispatch that names a reference file to model the work on inherits that file's debt, so it names the file's known gaps in the same breath.
 

@@ -14,7 +14,7 @@ Pick the evidence from the whole work unit: staged, unstaged and new files, or t
 | `apps/api/src/adapters/postgres/schema.ts`, `apps/api/migrations/` | `pnpm --filter @mygame/api db:generate` writes no new file; `pnpm --filter @mygame/api test`, whose migration test applies every migration on an empty database. Never against Neon |
 | `apps/web` screens | `pnpm --filter @mygame/web test`; a screenshot of each changed screen in the PR, seeded after the gate (`apps/web/CLAUDE.md`) |
 | `apps/android` | In `apps/android`: `taskpolicy -c utility ./gradlew detekt checkModuleBoundaries checkComposeFreeViewModels testDebugUnitTest assembleDebug`; for a screen, the flow exercised on an emulator with a screenshot in the PR; a Robolectric capture only for a state the emulator cannot reach against the real api, the PR body naming that state and why it cannot be reached (`docs/agents/peer.md`, Screenshots) |
-| `scripts/**` | `bash -n` or `zsh -n` and `shellcheck` on each changed bash script; its `scripts/test-mygame-*` exits 0, run as a bounded run (`docs/agents/peer.md`) |
+| `scripts/**` | `bash -n` or `zsh -n` and `shellcheck` on each changed bash script; its `scripts/test-mygame-*` exits 0 under `/usr/bin/timeout -k 1 <seconds>` |
 | `.github/**` | `actionlint` on the changed workflow; a `workflow_run` or `schedule` workflow cannot run from its PR, so say so |
 | `.claude/**`, `CLAUDE.md` | Frontmatter parses; every path, command and rule a file names exists |
 | Docs only | Every fact checked against the code it describes; no runtime check solely for prose |
