@@ -5,7 +5,6 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.emm.mygame.core.network.EmailVerificationResult
 import com.emm.mygame.core.network.EmailVerificationToken
-import com.emm.mygame.core.network.RestoreResult
 import com.emm.mygame.core.network.SessionRepository
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -19,8 +18,6 @@ class VerifyEmailViewModel(
 ) : ViewModel() {
 
     private val isEmailVerified: Boolean = savedState.get<Boolean>(EMAIL_VERIFIED) == true
-
-    private val isRestoredAfterSend: Boolean = savedState.get<Boolean>(SEND_STARTED) == true
 
     private val _state: MutableStateFlow<VerifyEmailUiState> =
         MutableStateFlow(if (isEmailVerified) VerifyEmailUiState.Verified else VerifyEmailUiState.LinkRefused)
@@ -45,26 +42,15 @@ class VerifyEmailViewModel(
     private fun verify() {
         val mailed: EmailVerificationToken = token ?: return
         _state.value = VerifyEmailUiState.Verifying
-        savedState[SEND_STARTED] = true
         viewModelScope.launch {
             val answer: EmailVerificationResult = sessions.verifyEmail(mailed)
-            val settled: EmailVerificationResult = if (isRestoredAfterSend) settledAfterRestoredSend(answer) else answer
-            savedState[EMAIL_VERIFIED] = settled == EmailVerificationResult.Verified
-            _state.value = stateOf(settled)
+            savedState[EMAIL_VERIFIED] = answer == EmailVerificationResult.Verified
+            _state.value = stateOf(answer)
         }
-    }
-
-    private suspend fun settledAfterRestoredSend(answer: EmailVerificationResult): EmailVerificationResult {
-        if (answer != EmailVerificationResult.LinkRefused) return answer
-        val session: RestoreResult = sessions.restore()
-        val isSessionEmailVerified: Boolean = session is RestoreResult.SignedIn && session.player.isEmailVerified
-        return if (isSessionEmailVerified) EmailVerificationResult.Verified else answer
     }
 }
 
 private const val EMAIL_VERIFIED: String = "emailVerified"
-
-private const val SEND_STARTED: String = "sendStarted"
 
 private fun stateOf(answer: EmailVerificationResult): VerifyEmailUiState = when (answer) {
     EmailVerificationResult.Verified -> VerifyEmailUiState.Verified
