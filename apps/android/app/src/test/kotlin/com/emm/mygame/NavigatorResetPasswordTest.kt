@@ -16,44 +16,44 @@ class NavigatorResetPasswordTest {
         Destination.ResetPassword(PasswordResetToken("Wq3vX0pLm9sTz7aYc2bN"))
 
     @Test
-    fun `opens a mailed link above sign-in`() {
+    fun `opens a mailed link alone in place of sign-in`() {
         val backStack: MutableList<NavKey> = mutableListOf(signIn)
 
         Navigator(backStack, NavigationLinks()).openResetPassword(mailedLink)
 
-        assertEquals(listOf(signIn, mailedLink), backStack)
+        assertEquals(listOf(mailedLink), backStack)
     }
 
     @Test
-    fun `opens a mailed link above sign-in in place of the town`() {
+    fun `opens a mailed link alone in place of the town`() {
         val backStack: MutableList<NavKey> = mutableListOf(Destination.Town, Destination.Report)
 
         Navigator(backStack, NavigationLinks()).openResetPassword(mailedLink)
 
-        assertEquals(listOf(signIn, mailedLink), backStack)
+        assertEquals(listOf(mailedLink), backStack)
     }
 
     @Test
     fun `opens a newer mailed link in place of the one shown`() {
-        val backStack: MutableList<NavKey> = mutableListOf(signIn, mailedLink)
+        val backStack: MutableList<NavKey> = mutableListOf(mailedLink)
 
         Navigator(backStack, NavigationLinks()).openResetPassword(newerLink)
 
-        assertEquals(listOf(signIn, newerLink), backStack)
+        assertEquals(listOf(newerLink), backStack)
     }
 
     @Test
-    fun `keeps a mailed link shown when the session under it restores`() {
-        val backStack: MutableList<NavKey> = mutableListOf(signIn, mailedLink)
+    fun `keeps a mailed link shown when a sign-in it replaced restores its session`() {
+        val backStack: MutableList<NavKey> = mutableListOf(mailedLink)
 
         Navigator(backStack, NavigationLinks()).signedIn()
 
-        assertEquals(listOf(signIn, mailedLink), backStack)
+        assertEquals(listOf(mailedLink), backStack)
     }
 
     @Test
-    fun `opens the forgot-password screen in place of a refused link`() {
-        val backStack: MutableList<NavKey> = mutableListOf(signIn, mailedLink)
+    fun `opens the forgot-password screen above a new sign-in in place of a refused link`() {
+        val backStack: MutableList<NavKey> = mutableListOf(mailedLink)
 
         Navigator(backStack, NavigationLinks()).openForgotPassword()
 
@@ -61,8 +61,8 @@ class NavigatorResetPasswordTest {
     }
 
     @Test
-    fun `returns to sign-in when the changed password links to it`() {
-        val backStack: MutableList<NavKey> = mutableListOf(signIn, mailedLink)
+    fun `opens a new sign-in in place of a mailed link`() {
+        val backStack: MutableList<NavKey> = mutableListOf(mailedLink)
 
         Navigator(backStack, NavigationLinks()).openSignIn()
 

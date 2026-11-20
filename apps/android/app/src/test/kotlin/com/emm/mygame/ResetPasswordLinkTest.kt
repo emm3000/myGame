@@ -45,6 +45,20 @@ class ResetPasswordLinkTest {
     }
 
     @Test
+    fun `opens no screen for a reset path on another host`() {
+        val foreignHost: Intent = view("https://evil.example/reset-password?token=planted")
+
+        assertNull(resetPasswordDestinationOf(foreignHost))
+    }
+
+    @Test
+    fun `opens no screen for a reset path under another scheme`() {
+        val foreignScheme: Intent = view("content://mygame.emm3000.com/reset-password?token=planted")
+
+        assertNull(resetPasswordDestinationOf(foreignScheme))
+    }
+
+    @Test
     fun `opens no screen for a launch from the home screen`() {
         val launch: Intent = Intent(Intent.ACTION_MAIN).addCategory(Intent.CATEGORY_LAUNCHER)
 
