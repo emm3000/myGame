@@ -25,6 +25,7 @@
                 <data android:scheme="https" />
                 <data android:host="mygame.emm3000.com" />
                 <data android:path="/reset-password" />
+                <data android:path="/verify-email" />
             </intent-filter>
         </activity>
         <receiver

@@ -92,7 +92,7 @@ class StatusLifecycleNavigationTest {
                     AppNavigation(
                         dependencies = dependencies,
                         reminderTaps = emptyFlow(),
-                        resetLinks = emptyFlow(),
+                        mailedLinks = emptyFlow(),
                         backStack = rememberNavBackStack(Destination.Town, Destination.Report),
                     )
                 }

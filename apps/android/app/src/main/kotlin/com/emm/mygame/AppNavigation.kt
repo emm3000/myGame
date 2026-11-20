@@ -61,6 +61,7 @@ import com.emm.mygame.feature.signin.SettingsRoute
 import com.emm.mygame.feature.signin.SignInRoute
 import com.emm.mygame.feature.signin.SignUpRoute
 import com.emm.mygame.feature.signin.VerificationBannerRoute
+import com.emm.mygame.feature.signin.VerifyEmailRoute
 import com.emm.mygame.feature.town.TownNavigation
 import com.emm.mygame.feature.town.TownRoute
 import com.emm.mygame.feature.town.TownStatus
@@ -76,7 +77,7 @@ import kotlinx.coroutines.flow.Flow
 internal fun AppNavigation(
     dependencies: AppDependencies,
     reminderTaps: Flow<StudyReminderLine>,
-    resetLinks: Flow<Destination.ResetPassword>,
+    mailedLinks: Flow<Destination.MailedLink>,
     modifier: Modifier = Modifier,
     backStack: NavBackStack<NavKey> = rememberNavBackStack(Destination.SignIn(isSessionEnded = false)),
     status: TownStatusViewModel = viewModel { TownStatusViewModel(dependencies.towns, dependencies.clock) },
@@ -90,7 +91,7 @@ internal fun AppNavigation(
         reminderTaps.collect(navigator::openReminder)
     }
     LaunchedEffect(navigator) {
-        resetLinks.collect(navigator::openResetPassword)
+        mailedLinks.collect(navigator::openMailedLink)
     }
     val shown: NavKey? = backStack.lastOrNull()
     LifecycleStartEffect(status, shown) {
@@ -172,6 +173,15 @@ private fun AppScreens(
                     token = link.token,
                     onSignInOpen = navigator::openSignIn,
                     onForgotPasswordOpen = navigator::openForgotPassword,
+                )
+            }
+            entry<Destination.VerifyEmail> { link: Destination.VerifyEmail ->
+                BackHandler(onBack = navigator::openSignIn)
+                VerifyEmailRoute(
+                    sessions = dependencies.sessions,
+                    token = link.token,
+                    onTownOpen = navigator::openTown,
+                    onSignInOpen = navigator::openSignIn,
                 )
             }
             signedInEntries(chrome(navigator))
@@ -489,7 +499,7 @@ private fun NavKey?.statusScreen(): TownStatusScreen = when (val destination: De
     is Destination.SignIn,
     Destination.SignUp,
     Destination.ForgotPassword,
-    is Destination.ResetPassword,
+    is Destination.MailedLink,
     -> TownStatusScreen.Outside
     Destination.Town -> TownStatusScreen.ReadsTown
     Destination.School -> TownStatusScreen.School

@@ -68,7 +68,7 @@ class TownTextNavigationTest {
                 AppNavigation(
                     dependencies = dependencies,
                     reminderTaps = emptyFlow(),
-                    resetLinks = emptyFlow(),
+                    mailedLinks = emptyFlow(),
                     backStack = rememberNavBackStack(Destination.Town),
                 )
             }

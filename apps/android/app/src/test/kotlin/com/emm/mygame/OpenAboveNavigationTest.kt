@@ -96,7 +96,7 @@ class OpenAboveNavigationTest {
                 AppNavigation(
                     dependencies = dependencies,
                     reminderTaps = emptyFlow(),
-                    resetLinks = emptyFlow(),
+                    mailedLinks = emptyFlow(),
                     backStack = rememberNavBackStack(*destinations).also { shown: NavBackStack<NavKey> ->
                         shownStack = shown
                     },

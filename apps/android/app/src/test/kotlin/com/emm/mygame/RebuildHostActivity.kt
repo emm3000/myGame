@@ -20,7 +20,7 @@ class RebuildHostActivity : ComponentActivity() {
                 AppNavigation(
                     dependencies = content.dependencies,
                     reminderTaps = emptyFlow(),
-                    resetLinks = emptyFlow(),
+                    mailedLinks = emptyFlow(),
                     backStack = backStack,
                 )
             }

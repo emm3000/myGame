@@ -95,7 +95,7 @@ class SettingsNavigationTest {
                 AppNavigation(
                     dependencies = dependencies,
                     reminderTaps = emptyFlow(),
-                    resetLinks = emptyFlow(),
+                    mailedLinks = emptyFlow(),
                     backStack = backStack,
                 )
             }

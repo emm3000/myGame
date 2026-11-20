@@ -155,7 +155,7 @@ class AppNavigationTest {
         repeat(READS_AVAILABLE) { towns.answerRead(answer) }
         composeRule.setContent {
             MyGameTheme {
-                AppNavigation(dependencies = dependencies, reminderTaps = emptyFlow(), resetLinks = emptyFlow())
+                AppNavigation(dependencies = dependencies, reminderTaps = emptyFlow(), mailedLinks = emptyFlow())
             }
         }
     }
@@ -204,7 +204,7 @@ class AppNavigationTest {
                 AppNavigation(
                     dependencies = dependencies,
                     reminderTaps = emptyFlow(),
-                    resetLinks = emptyFlow(),
+                    mailedLinks = emptyFlow(),
                     backStack = rememberNavBackStack(*destinations),
                 )
             }
@@ -246,7 +246,7 @@ class AppNavigationTest {
                 AppNavigation(
                     dependencies = dependencies,
                     reminderTaps = emptyFlow(),
-                    resetLinks = emptyFlow(),
+                    mailedLinks = emptyFlow(),
                     backStack = rememberNavBackStack(*stack),
                 )
             }
@@ -269,7 +269,7 @@ class AppNavigationTest {
                 AppNavigation(
                     dependencies = dependencies,
                     reminderTaps = emptyFlow(),
-                    resetLinks = emptyFlow(),
+                    mailedLinks = emptyFlow(),
                     backStack = rememberNavBackStack(*destinations),
                 )
             }
@@ -371,7 +371,7 @@ class AppNavigationTest {
                 AppNavigation(
                     dependencies = dependencies,
                     reminderTaps = emptyFlow(),
-                    resetLinks = emptyFlow(),
+                    mailedLinks = emptyFlow(),
                     backStack = rememberNavBackStack(Destination.Town, Destination.Report),
                 )
             }
@@ -387,7 +387,7 @@ class AppNavigationTest {
         repeat(READS_ON_ARRIVAL) { towns.answerRead(TownReadResult.Read(playedTown(retainedWords = threeOfFive))) }
         composeRule.setContent {
             MyGameTheme {
-                AppNavigation(dependencies = dependencies, reminderTaps = emptyFlow(), resetLinks = emptyFlow())
+                AppNavigation(dependencies = dependencies, reminderTaps = emptyFlow(), mailedLinks = emptyFlow())
             }
         }
         waitForRing(THREE_OF_FIVE)
@@ -727,7 +727,7 @@ class AppNavigationTest {
                 AppNavigation(
                     dependencies = dependencies,
                     reminderTaps = emptyFlow(),
-                    resetLinks = emptyFlow(),
+                    mailedLinks = emptyFlow(),
                     backStack = rememberNavBackStack(Destination.Town, Destination.Report),
                 )
             }

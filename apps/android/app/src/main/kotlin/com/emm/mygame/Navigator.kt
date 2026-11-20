@@ -37,20 +37,20 @@ internal class Navigator(private val backStack: MutableList<NavKey>, private val
         }
     }
 
-    fun openResetPassword(link: Destination.ResetPassword) {
+    fun openMailedLink(link: Destination.MailedLink) {
         backStack.showAlone(listOf(link))
     }
 
     fun openSignIn() {
         when (backStack.lastOrNull()) {
             Destination.SignUp, Destination.ForgotPassword -> back()
-            is Destination.ResetPassword -> backStack.showAlone(listOf(Destination.SignIn(isSessionEnded = false)))
+            is Destination.MailedLink -> backStack.showAlone(listOf(Destination.SignIn(isSessionEnded = false)))
             else -> Unit
         }
     }
 
     fun signedIn() {
-        if (backStack.lastOrNull() is Destination.ResetPassword) return
+        if (backStack.lastOrNull() is Destination.MailedLink) return
         val shownAboveTown: Destination? = links.reminderLineOnSignIn?.shownAboveTown()
         links.reminderLineOnSignIn = null
         backStack.showAlone(listOfNotNull(Destination.Town, shownAboveTown))
@@ -133,7 +133,11 @@ internal class Navigator(private val backStack: MutableList<NavKey>, private val
     }
 
     fun openTown() {
-        if (backStack.lastOrNull().isAboveTown()) backStack.backToTown()
+        val shown: NavKey? = backStack.lastOrNull()
+        when {
+            shown is Destination.MailedLink -> backStack.showAlone(listOf(Destination.SignIn(isSessionEnded = false)))
+            shown.isAboveTown() -> backStack.backToTown()
+        }
     }
 }
 

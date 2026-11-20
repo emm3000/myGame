@@ -74,4 +74,12 @@
     <string name="verification_banner_sent">Sent. Check your email.</string>
     <string name="verification_banner_unreachable">We could not reach the server. Try again in a moment.</string>
     <string name="verification_refusal_mail_not_sent">We could not send it.</string>
+    <string name="verify_email_link_refused">That link does not work: it has expired, it was already used or it was never sent. Ask for another one.</string>
+    <string name="verify_email_retry">Try again</string>
+    <string name="verify_email_title">Confirm your email</string>
+    <string name="verify_email_to_sign_in">Sign in to your town</string>
+    <string name="verify_email_to_town">Go to your town</string>
+    <string name="verify_email_unexpected">We could not reach the server. Try again in a moment.</string>
+    <string name="verify_email_verified">Your email is confirmed.</string>
+    <string name="verify_email_verifying">Confirming your email…</string>
 </resources>

@@ -1,5 +1,7 @@
 package com.emm.mygame.core.testing
 
+import com.emm.mygame.core.network.EmailVerificationResult
+import com.emm.mygame.core.network.EmailVerificationToken
 import com.emm.mygame.core.network.PasswordResetRequestResult
 import com.emm.mygame.core.network.PasswordResetResult
 import com.emm.mygame.core.network.PasswordResetToken
@@ -26,6 +28,8 @@ class FakeSessionRepository : SessionRepository {
 
     private val resendAnswers: Channel<VerificationResendResult> = Channel(Channel.UNLIMITED)
 
+    private val verifyAnswers: Channel<EmailVerificationResult> = Channel(Channel.UNLIMITED)
+
     private val signOutAnswers: Channel<Unit> = Channel(Channel.UNLIMITED)
 
     private val scaffoldChangeAnswers: Channel<ScaffoldChangeResult> = Channel(Channel.UNLIMITED)
@@ -39,6 +43,8 @@ class FakeSessionRepository : SessionRepository {
     private val resetEmails: MutableList<String> = mutableListOf()
 
     private val resets: MutableList<PasswordReset> = mutableListOf()
+
+    private val verifiedTokens: MutableList<EmailVerificationToken> = mutableListOf()
 
     var resendCount: Int = 0
         private set
@@ -57,6 +63,9 @@ class FakeSessionRepository : SessionRepository {
 
     val passwordResets: List<PasswordReset>
         get() = resets.toList()
+
+    val emailVerifications: List<EmailVerificationToken>
+        get() = verifiedTokens.toList()
 
     val scaffoldChanges: List<PlayerScaffold>
         get() = pickedScaffolds.toList()
@@ -79,6 +88,10 @@ class FakeSessionRepository : SessionRepository {
 
     fun answerPasswordChange(result: PasswordResetResult) {
         resetAnswers.trySend(result)
+    }
+
+    fun answerEmailVerification(result: EmailVerificationResult) {
+        verifyAnswers.trySend(result)
     }
 
     fun answerResend(result: VerificationResendResult) {
@@ -113,6 +126,11 @@ class FakeSessionRepository : SessionRepository {
     override suspend fun resetPassword(token: PasswordResetToken, password: String): PasswordResetResult {
         resets += PasswordReset(token = token, password = password)
         return resetAnswers.receive()
+    }
+
+    override suspend fun verifyEmail(token: EmailVerificationToken): EmailVerificationResult {
+        verifiedTokens += token
+        return verifyAnswers.receive()
     }
 
     override suspend fun resendVerification(): VerificationResendResult {
