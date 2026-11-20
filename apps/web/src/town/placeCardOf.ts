@@ -15,6 +15,7 @@ import type { CardCost } from '../design-system/CostList'
 import { cardCostsOf } from './cardCostsOf'
 import type { LiveTown } from './liveTown'
 import { placeNameOf } from './placeNameOf'
+import { readyLineOf } from './readyLineOf'
 import { shortfallLineOf } from './shortfallLineOf'
 
 export interface PlaceCardContent {
@@ -47,7 +48,9 @@ function stateOf(nextLevel: NextLevel, town: LiveTown): CardActionState {
     }
   }
   const shortfall = shortfallLineOf(nextLevel.cost, town.stocks)
-  return shortfall === undefined ? { kind: 'affordable' } : { kind: 'blocked', reason: shortfall }
+  return shortfall === undefined
+    ? { kind: 'affordable' }
+    : { kind: 'blocked', reason: shortfall, ready: readyLineOf(nextLevel.cost, town) }
 }
 
 const isInWork = (place: BuildingKind, { slot, waitingList }: LiveTown): boolean =>

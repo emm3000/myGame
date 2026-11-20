@@ -13,6 +13,7 @@ import { formatDuration } from '../design-system/formatDuration'
 import { cardCostsOf } from './cardCostsOf'
 import { hireWordsOf } from './hireWordsOf'
 import type { LiveTown } from './liveTown'
+import { readyLineOf } from './readyLineOf'
 import { shortfallLineOf } from './shortfallLineOf'
 
 interface HireCardHeader {
@@ -69,8 +70,11 @@ function stateOf(terms: HireTerms, count: number | undefined, town: LiveTown): O
   if (free !== undefined && needed > free) {
     return { kind: 'blocked', reason: townPeopleShort({ needed, free }) }
   }
-  const shortfall = shortfallLineOf(costTimes(terms.cost, count), town.stocks)
-  return shortfall === undefined ? { kind: 'affordable' } : { kind: 'blocked', reason: shortfall }
+  const cost = costTimes(terms.cost, count)
+  const shortfall = shortfallLineOf(cost, town.stocks)
+  return shortfall === undefined
+    ? { kind: 'affordable' }
+    : { kind: 'blocked', reason: shortfall, ready: readyLineOf(cost, town) }
 }
 
 function costsOf(

@@ -281,6 +281,8 @@ export const townPeopleShort = ({ free, needed }: { readonly free: number; reado
 export const townPlacesTitleCity = (): string => `Tu ciudad`
 export const townPlacesTitleTown = (): string => `Tu pueblo`
 export const townRate = ({ rate }: { readonly rate: string | number }): string => `+${String(rate)} / h`
+export const townReadyAt = ({ time }: { readonly time: string | number }): string => `Lista ${String(time)}`
+export const townReadyIn = ({ time }: { readonly time: string | number }): string => `Lista en ${String(time)}`
 export const townSeasonDays = ({ days }: { readonly days: number }): string => `${days === 1 ? `${String(days)} día` : `${String(days)} días`}`
 export const townSeasonEndsIn = ({ season, timeLeft }: { readonly season: string | number; readonly timeLeft: string | number }): string => `${String(season)} termina en ${String(timeLeft)}`
 export const townSeasonLine = ({ season, year }: { readonly season: string | number; readonly year: string | number }): string => `${String(season)}, año ${String(year)}`

@@ -99,5 +99,129 @@
       "nowEpochMilliseconds": 7200000,
       "expectedAmount": 337
     }
+  ],
+  "readyMinuteCases": [
+    {
+      "name": "names the latest minute among the short resources",
+      "needs": [
+        {
+          "storedAmount": 0,
+          "ratePerHour": 60,
+          "capacity": 900,
+          "cost": 10
+        },
+        {
+          "storedAmount": 0,
+          "ratePerHour": 30,
+          "capacity": 900,
+          "cost": 12
+        }
+      ],
+      "readAtEpochMilliseconds": 1794477600000,
+      "expectedReadyEpochMilliseconds": 1794479040000
+    },
+    {
+      "name": "names one minute later when the floored amount falls short of the cost",
+      "needs": [
+        {
+          "storedAmount": 0,
+          "ratePerHour": 5.454545454545454,
+          "capacity": 900,
+          "cost": 1
+        }
+      ],
+      "readAtEpochMilliseconds": 1794477600000,
+      "expectedReadyEpochMilliseconds": 1794478320000
+    },
+    {
+      "name": "names the first minute the floored amount reaches the cost",
+      "needs": [
+        {
+          "storedAmount": 0,
+          "ratePerHour": 21.428571428571427,
+          "capacity": 900,
+          "cost": 5
+        }
+      ],
+      "readAtEpochMilliseconds": 1794477600000,
+      "expectedReadyEpochMilliseconds": 1794478440000
+    },
+    {
+      "name": "leaves out a resource the read already holds",
+      "needs": [
+        {
+          "storedAmount": 50,
+          "ratePerHour": 0,
+          "capacity": 900,
+          "cost": 10
+        },
+        {
+          "storedAmount": 0,
+          "ratePerHour": 60,
+          "capacity": 900,
+          "cost": 5
+        }
+      ],
+      "readAtEpochMilliseconds": 1794477600000,
+      "expectedReadyEpochMilliseconds": 1794477900000
+    },
+    {
+      "name": "rounds a read with seconds up to the next minute",
+      "needs": [
+        {
+          "storedAmount": 0,
+          "ratePerHour": 60,
+          "capacity": 900,
+          "cost": 10
+        }
+      ],
+      "readAtEpochMilliseconds": 1794477630000,
+      "expectedReadyEpochMilliseconds": 1794478260000
+    },
+    {
+      "name": "names no minute when no resource is short",
+      "needs": [
+        {
+          "storedAmount": 50,
+          "ratePerHour": 60,
+          "capacity": 900,
+          "cost": 10
+        }
+      ],
+      "readAtEpochMilliseconds": 1794477600000,
+      "expectedReadyEpochMilliseconds": null
+    },
+    {
+      "name": "names no minute for a rate of 0",
+      "needs": [
+        {
+          "storedAmount": 0,
+          "ratePerHour": 0,
+          "capacity": 900,
+          "cost": 10
+        },
+        {
+          "storedAmount": 0,
+          "ratePerHour": 60,
+          "capacity": 900,
+          "cost": 5
+        }
+      ],
+      "readAtEpochMilliseconds": 1794477600000,
+      "expectedReadyEpochMilliseconds": null
+    },
+    {
+      "name": "names no minute for a cost above the capacity",
+      "needs": [
+        {
+          "storedAmount": 0,
+          "ratePerHour": 60,
+          "capacity": 100,
+          "cost": 150
+        }
+      ],
+      "readAtEpochMilliseconds": 1794477600000,
+      "expectedReadyEpochMilliseconds": null
+    }
   ]
 }
