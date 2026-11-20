@@ -15,6 +15,8 @@ import {
   townAmount,
   townBuild,
   townCostName,
+  townFull,
+  townFullAt,
   townGoToSchool,
   townInWork,
   townLabelCity,
@@ -241,6 +243,44 @@ it('shows each stock with its rate and its storage', async () => {
   expect(stockCell('Dinero')).toBeDefined()
   expect(stockCell('Energía')).toBeDefined()
   expect(stockCell('Material')).toBeDefined()
+})
+
+const foodFullAt = (
+  fullAt: string | null,
+  amount = knownTown.stocks.food.amount,
+): TownOverview => ({
+  ...knownTown,
+  stocks: { ...knownTown.stocks, food: { ...knownTown.stocks.food, amount, fullAt } },
+})
+
+it('reads the fill hour within 8 h', async () => {
+  await showTown(serving(foodFullAt('2026-11-10T14:30:00.000Z')))
+
+  const food = within(stockCell('Comida'))
+  expect(food.getByText(townFullAt({ clock: '15:30' }))).toBeDefined()
+  expect(food.queryByText('+120 / h')).toBeNull()
+})
+
+it('reads the rate past 8 h', async () => {
+  await showTown(serving(foodFullAt('2026-11-10T17:00:01.000Z')))
+
+  const food = within(stockCell('Comida'))
+  expect(food.getByText('+120 / h')).toBeDefined()
+  expect(food.queryByText(townFullAt({ clock: '18:00' }))).toBeNull()
+})
+
+it('reads the rate while the store has no fill instant', async () => {
+  await showTown(serving(foodFullAt(null)))
+
+  expect(within(stockCell('Comida')).getByText('+120 / h')).toBeDefined()
+})
+
+it('reads full for a full store', async () => {
+  await showTown(serving(foodFullAt(knownTown.readAt, knownTown.stocks.food.capacity)))
+
+  const food = within(stockCell('Comida'))
+  expect(food.getByText(townFull({ capacity: '5 000' }))).toBeDefined()
+  expect(food.queryByText(townFullAt({ clock: '10:00' }))).toBeNull()
 })
 
 const earnedSkill = (

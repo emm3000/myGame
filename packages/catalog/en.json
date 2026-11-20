@@ -754,6 +754,7 @@
   "town.build": "Build level {level}",
   "town.costName": "{resource}",
   "town.full": "Full: {capacity}",
+  "town.fullAt": "Full {clock}",
   "town.goToSchool": "Go to the school",
   "town.goal.close": "Close the goal",
   "town.goal.line": "Goal {position} of {count}: {place}, level {level}",
