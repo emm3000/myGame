@@ -246,6 +246,10 @@ export const schoolSlotStop = (): string => `Parar el estudio`
 export const schoolSlotStopOf = ({ number }: { readonly number: string | number }): string => `Parar el estudio de la lección ${String(number)}`
 export const schoolSlotTitle = (): string => `En estudio`
 export const schoolTexts = (): string => `Para leer`
+export const settingsCardsKept = (): string => `Tus palabras y tu progreso no cambian.`
+export const settingsSaved = (): string => `Guardado.`
+export const settingsSaving = (): string => `Guardando…`
+export const settingsTitle = (): string => `Ajustes`
 export const shellLessonFinishClose = (): string => `Cerrar`
 export const shellLessonFinishLine = ({ number }: { readonly number: string | number }): string => `La lección ${String(number)} terminó.`
 export const shellLessonFinishReleased = ({ band, number }: { readonly band: string | number; readonly number: string | number }): string => `Las palabras que vuelven de la banda ${String(band)}, grupo ${String(number)} terminaron.`
