@@ -7,6 +7,6 @@ export default defineConfig({
     globalSetup: ['./vitest.globalSetup.ts'],
     setupFiles: ['./vitest.workerDatabase.ts'],
     fileParallelism: true,
-    maxWorkers: Math.max(availableParallelism() - 1, 1),
+    maxWorkers: Math.max(Math.min(availableParallelism() - 1, 4), 1),
   },
 })
