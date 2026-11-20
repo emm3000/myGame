@@ -86,12 +86,15 @@ const issueTogether = async (
   })
   await firstHasIssued.promise
   const secondIssue = new DrizzleAccountTokens(database).issue(second, now)
-  await untilWaitingOrDone(
-    secondIssue,
-    [playerLockQuery],
-    'The second issue neither waited on the player lock nor finished',
-  )
-  firstMayCommit.resolve()
+  try {
+    await untilWaitingOrDone(
+      secondIssue,
+      [playerLockQuery],
+      'The second issue neither waited on the player lock nor finished',
+    )
+  } finally {
+    firstMayCommit.resolve()
+  }
   await Promise.all([firstIssue, secondIssue])
 }
 
@@ -114,12 +117,15 @@ const verifyWhileIssuing = async (
   })
   await hasRedeemed.promise
   const issue = new DrizzleAccountTokens(database).issue(issued, now)
-  await untilWaitingOrDone(
-    issue,
-    [playerLockQuery, tokenDeleteQuery],
-    'The issue neither waited on a lock nor finished',
-  )
-  mayVerify.resolve()
+  try {
+    await untilWaitingOrDone(
+      issue,
+      [playerLockQuery, tokenDeleteQuery],
+      'The issue neither waited on a lock nor finished',
+    )
+  } finally {
+    mayVerify.resolve()
+  }
   const [verifiedPlayer] = await Promise.all([verify, issue])
   return verifiedPlayer
 }
