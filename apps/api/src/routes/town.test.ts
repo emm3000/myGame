@@ -1770,6 +1770,25 @@ describe('the town route', () => {
       expect(overview.hasBandStarted).toBe(true)
     })
 
+    it('answers 0 of 875 for band 1 when it starts', async () => {
+      const cookie = await signUpWithTown('ana@example.com')
+      await runSql(
+        `INSERT INTO band_starts (player_id, band, started_at) SELECT id, 1, '${weeksBefore(0)}' FROM players`,
+      )
+
+      const overview = await overviewOf(await readTown(cookie))
+
+      expect(overview.bandLines).toEqual([{ band: 1, count: 0, total: 875 }])
+    })
+
+    it('answers no band line for a player who started no band', async () => {
+      const cookie = await signUpWithTown('ana@example.com')
+
+      const overview = await overviewOf(await readTown(cookie))
+
+      expect(overview.bandLines).toEqual([])
+    })
+
     it('names a due check as the next step 8 weeks after the band’s start', async () => {
       const cookie = await signUpWithTown('ana@example.com')
       await bandOneStarted(8, 'none')

@@ -1,6 +1,7 @@
 import { PlacementBandSchema, type TownOverview } from '@mygame/contracts'
 import {
   type Band,
+  bandLinesOf,
   cardsInLearningOf,
   chromePhaseOf,
   type DomainError,
@@ -46,6 +47,7 @@ type SchoolOverview = Pick<
   | 'releasedLessons'
   | 'texts'
   | 'hasBandStarted'
+  | 'bandLines'
   | 'skills'
   | 'lessonSlot'
   | 'learning'
@@ -228,6 +230,9 @@ export const schoolOverviewOf = (
     ),
     texts: openTextStatesOf(learner, lessons),
     hasBandStarted: hasBandStartedAt(bandStarts, at),
+    bandLines: bandLinesOf(bandStarts, cards, { lessons, bands: lessons }).map(
+      ({ band, count, total }) => ({ band: PlacementBandSchema.parse(band), count, total }),
+    ),
     skills: town.skills.map(({ lessonId, resource, ratePercent, earnedAt }) => ({
       lessonId,
       resource,

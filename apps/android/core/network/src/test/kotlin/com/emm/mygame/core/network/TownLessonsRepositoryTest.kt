@@ -298,7 +298,7 @@ class TownLessonsRepositoryTest {
                 """"work":{"slot":null,"waitingList":[],"cap":2},""" +
                 """"hiring":$HIRING,"job":null,""" +
                 """"lessons":[$LESSON],"releasedLessons":[],"texts":[],"dueHoldoutChecks":[],""" +
-                """"hasBandStarted":false,"skills":[$SKILL],""" +
+                """"hasBandStarted":false,"bandLines":[],"skills":[$SKILL],""" +
                 """"lessonSlot":{"lessonId":"lesson-1","startedAt":"2026-11-05T10:00:00.000Z",""" +
                 """"finishesAt":"2026-11-05T10:20:00.000Z"},""" +
                 """"learning":{"cap":10,"inLearning":8,"retainedWords":null,""" +

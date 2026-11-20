@@ -34,6 +34,7 @@ export {
 } from './holdout/skipHoldoutCheck'
 export { anchorFrameOf } from './learning/anchorFrameOf'
 export type { Band, BandStart, BandWord, Headword } from './learning/BandStart'
+export { bandLinesOf } from './learning/bandLinesOf'
 export { cardsInLearningOf } from './learning/cardsInLearningOf'
 export { type ChromePhase, chromePhaseOf } from './learning/chromePhaseOf'
 export type { DueCard } from './learning/dueCardsAt'
