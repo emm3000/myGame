@@ -346,6 +346,24 @@ describe('the learning routes', () => {
     return player
   }
 
+  const seedLessonOneStudied = (): Promise<void> =>
+    runSql(
+      `INSERT INTO town_events (town_id, kind, lesson_id, occurred_at)
+       SELECT id, 'lesson_studied', 'lesson-1', '${lessonFinishesAt}' FROM towns`,
+    )
+
+  const seedTheFirstRecall = async (): Promise<Player> => {
+    const player = await signUpWithATown()
+    await seedLessonOneStudied()
+    await runSql(
+      `INSERT INTO cards (player_id, word_id, state, step, stability, difficulty, last_review_at, last_rating, entered_at)
+       SELECT players.id, word_id, 'review', NULL, 2.3065, 2.111214235785395, '${secondLearningStepAt}', 'good', '${lessonFinishesAt}'
+       FROM players, unnest(ARRAY['${wordIds.join("', '")}']) AS word_id`,
+    )
+    clock.setTo(firstRecallAt)
+    return player
+  }
+
   const studyToTheLastSecondRecall = async (): Promise<Player> => {
     const player = await studyToTheFirstRecall()
     clock.setTo(lateFirstRecallAt)
@@ -444,7 +462,7 @@ describe('the learning routes', () => {
     })
 
     it('shows the gloss of a word on tap once its card holds for 7 days', async () => {
-      const player = await studyToTheFirstRecall()
+      const player = await seedTheFirstRecall()
       await runSql("UPDATE cards SET stability = 7 WHERE word_id = 'lesson-1-2'")
 
       const { lessons } = await readTown(player)
@@ -457,7 +475,7 @@ describe('the learning routes', () => {
     })
 
     it('shows the definition of a word on tap once its card holds for 30 days', async () => {
-      const player = await studyToTheFirstRecall()
+      const player = await seedTheFirstRecall()
       await runSql("UPDATE cards SET stability = 30 WHERE word_id = 'lesson-1-2'")
 
       const { lessons } = await readTown(player)
@@ -528,14 +546,15 @@ describe('the learning routes', () => {
 
     it('answers the chrome English on the town read right after the last chrome skill is earned', async () => {
       const player = await signUpWithATown()
+      await seedLessonOneStudied()
       await runSql(
         `INSERT INTO cards (player_id, word_id, state, step, stability, difficulty, last_review_at, last_rating, entered_at, retained_at)
-         SELECT players.id, word_id, 'review', NULL, 46, 2.1, '${secondRecallAt}', 'good', '${lessonFinishesAt}', '${secondRecallAt}'
+         SELECT players.id, word_id, 'review', NULL, 46.316858440073425, 2.0974554287524403, '${secondRecallAt}', 'good', '${lessonFinishesAt}', '${secondRecallAt}'
          FROM players, unnest(ARRAY['${wordIds.slice(0, 4).join("', '")}']) AS word_id`,
       )
       await runSql(
         `INSERT INTO cards (player_id, word_id, state, step, stability, difficulty, last_review_at, last_rating, entered_at)
-         SELECT id, 'lesson-1-5', 'review', NULL, 11, 2.1, '${lateFirstRecallAt}', 'good', '${lessonFinishesAt}' FROM players`,
+         SELECT id, 'lesson-1-5', 'review', NULL, 10.971048263078135, 2.1043313908464483, '${lateFirstRecallAt}', 'good', '${lessonFinishesAt}' FROM players`,
       )
       clock.setTo(secondRecallAt)
       const laterChromeLessons = server.lessons.chromeLessons().slice(1)
@@ -878,7 +897,7 @@ describe('the learning routes', () => {
     })
 
     it('shows a recall with its gloss and its gapped frame and never its word', async () => {
-      const player = await studyToTheFirstRecall()
+      const player = await seedTheFirstRecall()
 
       const body = await (await send(player, 'GET', '/reviews')).text()
 
@@ -896,7 +915,7 @@ describe('the learning routes', () => {
     })
 
     it('shows a recall under none with the definition as its cue', async () => {
-      const player = await studyToTheFirstRecall()
+      const player = await seedTheFirstRecall()
       await send(player, 'PUT', '/player/scaffold', { scaffold: 'none' })
 
       const { due } = await readReviews(player)
@@ -964,7 +983,7 @@ describe('the learning routes', () => {
 
   describe('the hint route', () => {
     it('answers the first letter and the letter count of each word of a due recall', async () => {
-      const player = await studyToTheFirstRecall()
+      const player = await seedTheFirstRecall()
 
       const response = await hint(player, 'lesson-1-2')
 
@@ -975,7 +994,7 @@ describe('the learning routes', () => {
     })
 
     it('rates the answer after a hint Hard, due 8 days later', async () => {
-      const player = await studyToTheFirstRecall()
+      const player = await seedTheFirstRecall()
       await hint(player, 'lesson-1-2')
 
       const { verdict } = await answered(player, 'lesson-1-2', 'school')
@@ -1003,7 +1022,7 @@ describe('the learning routes', () => {
     })
 
     it('refuses a hint on a card not yet due', async () => {
-      const player = await studyToTheFirstRecall()
+      const player = await seedTheFirstRecall()
       clock.setTo('2026-11-12T09:09:59Z')
 
       expect(await refusalOf(await hint(player, 'lesson-1-2'))).toEqual({
@@ -1015,7 +1034,7 @@ describe('the learning routes', () => {
 
   describe('the answer route', () => {
     it('grades a typed answer one letter off as a near-miss and rates nothing', async () => {
-      const player = await studyToTheFirstRecall()
+      const player = await seedTheFirstRecall()
 
       const nearMiss = await answered(player, 'lesson-1-2', 'scool')
 
@@ -1026,7 +1045,7 @@ describe('the learning routes', () => {
     })
 
     it('rates the right answer after a near-miss Hard', async () => {
-      const player = await studyToTheFirstRecall()
+      const player = await seedTheFirstRecall()
       await answered(player, 'lesson-1-2', 'scool')
 
       const { verdict } = await answered(player, 'lesson-1-2', 'School ')
@@ -1035,7 +1054,7 @@ describe('the learning routes', () => {
     })
 
     it('answers a wrong answer with the correct form, due again at the relearning step', async () => {
-      const player = await studyToTheFirstRecall()
+      const player = await seedTheFirstRecall()
 
       const { verdict } = await answered(player, 'lesson-1-1', 'house')
 
@@ -1051,7 +1070,7 @@ describe('the learning routes', () => {
     })
 
     it('answers a wrong answer under none with the definition beside the correct form', async () => {
-      const player = await studyToTheFirstRecall()
+      const player = await seedTheFirstRecall()
       await send(player, 'PUT', '/player/scaffold', { scaffold: 'none' })
 
       const { verdict } = await answered(player, 'lesson-1-1', 'house')
@@ -1061,7 +1080,7 @@ describe('the learning routes', () => {
     })
 
     it('grades an empty answer wrong', async () => {
-      const player = await studyToTheFirstRecall()
+      const player = await seedTheFirstRecall()
 
       const { verdict } = await answered(player, 'lesson-1-1', '')
 
@@ -1171,7 +1190,7 @@ describe('the learning routes', () => {
     })
 
     it('opens level 3 at the recall that makes the 10th word stable', async () => {
-      const player = await studyToTheFirstRecall()
+      const player = await seedTheFirstRecall()
       await runSql(
         `INSERT INTO cards (player_id, word_id, state, stability, difficulty, last_review_at, last_rating, entered_at) SELECT id, 'stable-' || n, 'review', 12, 5, '2026-11-01T08:00:00Z', 'good', '2026-11-01T07:00:00Z' FROM players, generate_series(1, 5) n`,
       )
@@ -1194,7 +1213,7 @@ describe('the learning routes', () => {
     })
 
     it('answers 400 for an answer above 100 characters', async () => {
-      const player = await studyToTheFirstRecall()
+      const player = await seedTheFirstRecall()
 
       const response = await answer(player, 'lesson-1-1', 'h'.repeat(101))
 
@@ -1670,7 +1689,7 @@ describe('the learning routes', () => {
     })
 
     it('shows the anchor in recall while the stage reaches no later frame', async () => {
-      const player = await studyToTheFirstRecall()
+      const player = await seedTheFirstRecall()
 
       expect(await recallOfSchool(player)).toMatchObject({
         gappedFrame: [{ text: 'We are at ____.', support: null }],
@@ -1678,7 +1697,7 @@ describe('the learning routes', () => {
     })
 
     it('shows a later frame in recall once the stage reaches its lesson', async () => {
-      const player = await studyToTheFirstRecall()
+      const player = await seedTheFirstRecall()
       await placeOutOfBandOne()
 
       expect(await recallOfSchool(player)).toMatchObject({
@@ -1687,7 +1706,7 @@ describe('the learning routes', () => {
     })
 
     it('shows the Report the recall frame the reviews route shows', async () => {
-      const player = await studyToTheFirstRecall()
+      const player = await seedTheFirstRecall()
       await placeOutOfBandOne()
 
       const report = ReportSchema.parse(await (await send(player, 'GET', '/report')).json())
@@ -1698,7 +1717,7 @@ describe('the learning routes', () => {
     })
 
     it('shows the recall frame first shown again though the stage has grown since', async () => {
-      const player = await studyToTheFirstRecall()
+      const player = await seedTheFirstRecall()
       await recallOfSchool(player)
       await placeOutOfBandOne()
 
@@ -1708,7 +1727,7 @@ describe('the learning routes', () => {
     })
 
     it('shows the recall frame the Report first showed though the stage has grown since', async () => {
-      const player = await studyToTheFirstRecall()
+      const player = await seedTheFirstRecall()
       await send(player, 'GET', '/report')
       await placeOutOfBandOne()
 
@@ -1718,7 +1737,7 @@ describe('the learning routes', () => {
     })
 
     it('logs the frame the recall showed though the stage admits another at the answer', async () => {
-      const player = await studyToTheFirstRecall()
+      const player = await seedTheFirstRecall()
       await recallOfSchool(player)
       await placeOutOfBandOne()
 
@@ -1728,7 +1747,7 @@ describe('the learning routes', () => {
     })
 
     it('logs the later frame a recall showed', async () => {
-      const player = await studyToTheFirstRecall()
+      const player = await seedTheFirstRecall()
       await placeOutOfBandOne()
       await recallOfSchool(player)
 
@@ -1738,7 +1757,7 @@ describe('the learning routes', () => {
     })
 
     it('logs the frame shown through a hint and a near-miss', async () => {
-      const player = await studyToTheFirstRecall()
+      const player = await seedTheFirstRecall()
       await recallOfSchool(player)
       await placeOutOfBandOne()
       await hint(player, 'lesson-1-2')
@@ -1756,7 +1775,7 @@ describe('the learning routes', () => {
     })
 
     it('chooses the recall frame anew once the review is rated', async () => {
-      const player = await studyToTheFirstRecall()
+      const player = await seedTheFirstRecall()
       await recallOfSchool(player)
       await placeOutOfBandOne()
       await answered(player, 'lesson-1-2', 'school')
@@ -1768,7 +1787,7 @@ describe('the learning routes', () => {
     })
 
     it('logs no frame for an answer no read showed', async () => {
-      const player = await studyToTheFirstRecall()
+      const player = await seedTheFirstRecall()
 
       await answered(player, 'lesson-1-2', 'school')
 
