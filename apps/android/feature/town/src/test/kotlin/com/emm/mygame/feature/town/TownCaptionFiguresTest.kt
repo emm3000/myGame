@@ -1,12 +1,7 @@
 package com.emm.mygame.feature.town
 
-import androidx.compose.ui.semantics.SemanticsActions
 import androidx.compose.ui.test.junit4.ComposeContentTestRule
 import androidx.compose.ui.test.junit4.createComposeRule
-import androidx.compose.ui.test.onNodeWithText
-import androidx.compose.ui.text.AnnotatedString
-import androidx.compose.ui.text.SpanStyle
-import androidx.compose.ui.text.TextLayoutResult
 import com.emm.mygame.core.designsystem.MyGameTheme
 import com.emm.mygame.core.network.SeasonKind
 import com.emm.mygame.core.network.TownBuildingKind
@@ -40,28 +35,28 @@ class TownCaptionFiguresTest {
     fun `sets tabular figures on the hired counts and never on their words`() {
         showOffice(TownUiState.HiringLine.Done(TownHireKind.Worker, count = 3, delivered = 1))
 
-        assertEquals(listOf("1", "3"), tabularRunsOf("de 3 contratados"))
+        assertEquals(listOf("1", "3"), composeRule.tabularRunsOf("de 3 contratados"))
     }
 
     @Test
     fun `sets tabular figures on a stock's capacity and never on its words`() {
         showStock(stockOf(TownResourceKind.Money, amount = 120, ratePerHour = 30.0, capacity = 12000, fullAt = null))
 
-        assertEquals(listOf("12 000"), tabularRunsOf("de 12"))
+        assertEquals(listOf("12 000"), composeRule.tabularRunsOf("de 12"))
     }
 
     @Test
     fun `sets tabular figures on a full stock's capacity and never on its words`() {
         showStock(stockOf(TownResourceKind.Money, amount = 900, ratePerHour = 30.0, capacity = 900, fullAt = null))
 
-        assertEquals(listOf("900"), tabularRunsOf("Lleno: "))
+        assertEquals(listOf("900"), composeRule.tabularRunsOf("Lleno: "))
     }
 
     @Test
     fun `sets tabular figures on a stock's rate and never on its words`() {
         showStock(stockOf(TownResourceKind.Money, amount = 120, ratePerHour = 30.0, capacity = 900, fullAt = null))
 
-        assertEquals(listOf("30"), tabularRunsOf(" / h"))
+        assertEquals(listOf("30"), composeRule.tabularRunsOf(" / h"))
     }
 
     @Test
@@ -76,7 +71,7 @@ class TownCaptionFiguresTest {
 
         showStock(fillingMoney)
 
-        assertEquals(listOf("19:00"), tabularRunsOf("Lleno 19"))
+        assertEquals(listOf("19:00"), composeRule.tabularRunsOf("Lleno 19"))
     }
 
     @Test
@@ -85,30 +80,14 @@ class TownCaptionFiguresTest {
             TownUiState.SeasonLine(SeasonKind.Winter, year = 2, remaining = 3.days, productionMarks = emptyList()),
         )
 
-        assertEquals(listOf("3"), tabularRunsOf("termina en"))
+        assertEquals(listOf("3"), composeRule.tabularRunsOf("termina en"))
     }
 
     @Test
     fun `sets tabular figures on the work's level and never on its word`() {
         showWork(TownUiState.SlotLine.Done(TownBuildingKind.Farm, level = 2))
 
-        assertEquals(listOf("2"), tabularRunsOf("Nivel"))
-    }
-
-    private fun tabularRunsOf(shownText: String): List<String> {
-        val layouts: MutableList<TextLayoutResult> = mutableListOf()
-        composeRule.onNodeWithText(shownText, substring = true, useUnmergedTree = true).fetchSemanticsNode()
-            .config[SemanticsActions.GetTextLayoutResult].action?.invoke(layouts)
-        val layout: TextLayoutResult = layouts.single()
-        val text: AnnotatedString = layout.layoutInput.text
-        if (layout.layoutInput.style.fontFeatureSettings == TABULAR) return listOf(text.text)
-        return text.spanStyles
-            .filter { span: AnnotatedString.Range<SpanStyle> ->
-                span.item.fontFeatureSettings == TABULAR
-            }
-            .map { span: AnnotatedString.Range<SpanStyle> ->
-                text.text.substring(span.start, span.end)
-            }
+        assertEquals(listOf("2"), composeRule.tabularRunsOf("Nivel"))
     }
 
     private fun showOffice(hiring: TownUiState.HiringLine) {
@@ -150,9 +129,5 @@ class TownCaptionFiguresTest {
 
     private fun showSeason(season: TownUiState.SeasonLine) {
         composeRule.setContent { MyGameTheme { SeasonRow(season = season) } }
-    }
-
-    private companion object {
-        const val TABULAR: String = "tnum"
     }
 }
