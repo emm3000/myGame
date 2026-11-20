@@ -13,14 +13,11 @@ import com.emm.mygame.core.projection.finishClockOf
 import com.emm.mygame.core.ui.CopyReader
 import com.emm.mygame.core.ui.DurationCopy
 import com.emm.mygame.core.ui.finishClockLabelOf
+import com.emm.mygame.core.ui.timeLeftLabelOf
 import com.emm.mygame.core.ui.wholeSecondsOf
 import java.time.ZoneId
-import kotlin.math.ceil
 import kotlin.time.Duration.Companion.hours
-
-private const val SECONDS_PER_MINUTE: Long = 60
-
-private const val MINUTES_PER_HOUR: Long = 60
+import kotlin.time.Duration.Companion.seconds
 
 internal fun placeNameOf(kind: TownBuildingKind): Int = when (kind) {
     TownBuildingKind.Homes -> R.string.town_place_homes
@@ -119,10 +116,8 @@ internal fun CopyReader.hiringRefusalLineOf(refusal: TownHiringRefusal): String 
 }
 
 internal fun CopyReader.readyLabelOf(ready: TownUiState.ReadyTime): String {
-    val minutesLeft: Long = ceil(wholeSecondsOf(ready.remaining).toDouble() / SECONDS_PER_MINUTE).toLong()
-    if (minutesLeft < MINUTES_PER_HOUR) {
-        val timeLeft: String = text(R.string.town_duration_minutes, "minutes" to minutesLeft.toString())
-        return text(R.string.town_ready_in, "timeLeft" to timeLeft)
+    if (wholeSecondsOf(ready.remaining).seconds < 1.hours) {
+        return text(R.string.town_ready_in, "timeLeft" to timeLeftLabelOf(ready.remaining, townDurationCopy))
     }
     val finish: FinishClock = finishClockOf(ready.readyAt, ready.remaining, ZoneId.systemDefault())
     return text(R.string.town_ready_at, "clock" to finishClockLabelOf(finish, townDurationCopy))
