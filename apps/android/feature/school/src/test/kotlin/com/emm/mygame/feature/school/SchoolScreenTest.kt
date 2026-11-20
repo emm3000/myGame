@@ -401,7 +401,7 @@ class SchoolScreenTest {
     }
 
     @Test
-    fun `states the cap's figure once, in the learning card, with the cap full`() {
+    fun `states the cap's figure once, in the learning card, with 8 of 10 words`() {
         val capBlock = SchoolUiState.LessonState.Open(SchoolUiState.LessonBlock.CapReached)
         show(
             idleSchool.copy(
