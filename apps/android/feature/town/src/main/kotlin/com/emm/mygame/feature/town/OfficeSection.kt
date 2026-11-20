@@ -19,7 +19,6 @@ import com.emm.mygame.core.designsystem.MyGameText
 import com.emm.mygame.core.designsystem.MyGameTheme
 import com.emm.mygame.core.designsystem.MyGameTrack
 import com.emm.mygame.core.designsystem.MyGameTypography
-import com.emm.mygame.core.designsystem.withTabularFigures
 import com.emm.mygame.core.network.TownBuildingKind
 import com.emm.mygame.core.network.TownHireKind
 import com.emm.mygame.core.ui.PlayerCopy
@@ -112,13 +111,12 @@ private fun HiringTitle(hire: TownHireKind, count: Int, delivered: Int, modifier
             color = MyGameTheme.colors.ink,
             modifier = Modifier.weight(1f),
         )
-        MyGameText(
+        FiguredCaption(
             label = chromeResource(
                 R.string.town_office_delivered,
                 "delivered" to delivered.toString(),
                 "count" to count.toString(),
             ),
-            style = MyGameTypography.caption.withTabularFigures(),
             color = MyGameTheme.colors.inkMuted,
         )
     }

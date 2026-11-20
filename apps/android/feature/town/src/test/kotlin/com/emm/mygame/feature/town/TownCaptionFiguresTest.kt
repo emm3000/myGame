@@ -1,0 +1,137 @@
+package com.emm.mygame.feature.town
+
+import androidx.compose.ui.semantics.SemanticsActions
+import androidx.compose.ui.test.junit4.ComposeContentTestRule
+import androidx.compose.ui.test.junit4.createComposeRule
+import androidx.compose.ui.test.onNodeWithText
+import androidx.compose.ui.text.AnnotatedString
+import androidx.compose.ui.text.SpanStyle
+import androidx.compose.ui.text.TextLayoutResult
+import com.emm.mygame.core.designsystem.MyGameTheme
+import com.emm.mygame.core.network.SeasonKind
+import com.emm.mygame.core.network.TownBuildingKind
+import com.emm.mygame.core.network.TownHireKind
+import com.emm.mygame.core.network.TownRegistered
+import com.emm.mygame.core.network.TownResourceKind
+import com.emm.mygame.core.network.TownSnapshot
+import java.time.LocalDateTime
+import java.time.ZoneId
+import kotlin.time.Duration
+import kotlin.time.Duration.Companion.days
+import kotlin.time.Duration.Companion.hours
+import kotlin.time.Instant
+import org.junit.Assert.assertEquals
+import org.junit.Rule
+import org.junit.Test
+import org.junit.runner.RunWith
+import org.robolectric.RobolectricTestRunner
+
+@RunWith(RobolectricTestRunner::class)
+class TownCaptionFiguresTest {
+
+    @get:Rule
+    val composeRule: ComposeContentTestRule = createComposeRule()
+
+    private val localRead: Instant = Instant.fromEpochMilliseconds(
+        LocalDateTime.of(2026, 11, 12, 11, 0).atZone(ZoneId.systemDefault()).toInstant().toEpochMilli(),
+    )
+
+    @Test
+    fun `sets tabular figures on the hired counts and never on their words`() {
+        showOffice(TownUiState.HiringLine.Done(TownHireKind.Worker, count = 3, delivered = 1))
+
+        assertEquals(listOf("1", "3"), tabularRunsOf("de 3 contratados"))
+    }
+
+    @Test
+    fun `sets tabular figures on a stock's capacity and never on its words`() {
+        showStock(stockOf(TownResourceKind.Money, amount = 120, ratePerHour = 30.0, capacity = 12000, fullAt = null))
+
+        assertEquals(listOf("12 000"), tabularRunsOf("de 12"))
+    }
+
+    @Test
+    fun `sets tabular figures on a full stock's capacity and never on its words`() {
+        showStock(stockOf(TownResourceKind.Money, amount = 900, ratePerHour = 30.0, capacity = 900, fullAt = null))
+
+        assertEquals(listOf("900"), tabularRunsOf("Lleno: "))
+    }
+
+    @Test
+    fun `sets tabular figures on a stock's rate and never on its words`() {
+        showStock(stockOf(TownResourceKind.Money, amount = 120, ratePerHour = 30.0, capacity = 900, fullAt = null))
+
+        assertEquals(listOf("30"), tabularRunsOf(" / h"))
+    }
+
+    @Test
+    fun `sets tabular figures on a stock's fill hour and never on its words`() {
+        val fillingMoney: TownSnapshot.Stock = stockOf(
+            TownResourceKind.Money,
+            amount = 120,
+            ratePerHour = 30.0,
+            capacity = 900,
+            fullAt = localRead + 8.hours,
+        )
+
+        showStock(fillingMoney)
+
+        assertEquals(listOf("19:00"), tabularRunsOf("Lleno 19"))
+    }
+
+    @Test
+    fun `sets tabular figures on the season's time left and never on its words`() {
+        showSeason(
+            TownUiState.SeasonLine(SeasonKind.Winter, year = 2, remaining = 3.days, productionMarks = emptyList()),
+        )
+
+        assertEquals(listOf("3"), tabularRunsOf("termina en"))
+    }
+
+    private fun tabularRunsOf(shownText: String): List<String> {
+        val layouts: MutableList<TextLayoutResult> = mutableListOf()
+        composeRule.onNodeWithText(shownText, substring = true, useUnmergedTree = true).fetchSemanticsNode()
+            .config[SemanticsActions.GetTextLayoutResult].action?.invoke(layouts)
+        val layout: TextLayoutResult = layouts.single()
+        val text: AnnotatedString = layout.layoutInput.text
+        if (layout.layoutInput.style.fontFeatureSettings == TABULAR) return listOf(text.text)
+        return text.spanStyles
+            .filter { span: AnnotatedString.Range<SpanStyle> ->
+                span.item.fontFeatureSettings == TABULAR
+            }
+            .map { span: AnnotatedString.Range<SpanStyle> ->
+                text.text.substring(span.start, span.end)
+            }
+    }
+
+    private fun showOffice(hiring: TownUiState.HiringLine) {
+        val office = TownUiState.OfficeLine(
+            hiring = hiring,
+            hires = emptyList(),
+            hireMark = null,
+            place = TownUiState.HireStatus.Idle,
+            stop = TownUiState.HireStopStatus.Idle,
+        )
+        composeRule.setContent { MyGameTheme { OfficeSection(office = office, onIntent = {}) } }
+    }
+
+    private fun showStock(money: TownSnapshot.Stock) {
+        val content: TownUiState.Content = townOf(stocks = listOf(money), readAt = localRead).contentAt(
+            now = localRead,
+            gap = Duration.ZERO,
+            mutations = TownMutations.none,
+            registered = TownRegistered.nothing,
+            hireEntries = emptyMap(),
+            closed = ClosedGuidance.none,
+        )
+        composeRule.setContent { MyGameTheme { PlaceStocks(place = TownBuildingKind.Storage, content = content) } }
+    }
+
+    private fun showSeason(season: TownUiState.SeasonLine) {
+        composeRule.setContent { MyGameTheme { SeasonRow(season = season) } }
+    }
+
+    private companion object {
+        const val TABULAR: String = "tnum"
+    }
+}

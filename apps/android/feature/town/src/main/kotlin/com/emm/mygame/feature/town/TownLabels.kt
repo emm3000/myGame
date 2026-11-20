@@ -118,7 +118,7 @@ internal fun CopyReader.hiringRefusalLineOf(refusal: TownHiringRefusal): String 
 internal fun CopyReader.readyWordsOf(ready: TownUiState.ReadyTime): String =
     if (ready.isWithinTheHour) text(R.string.town_ready_in) else text(R.string.town_ready_at)
 
-internal fun CopyReader.readyTimeOf(ready: TownUiState.ReadyTime): String {
+internal fun CopyReader.readyTimeLabelOf(ready: TownUiState.ReadyTime): String {
     if (ready.isWithinTheHour) return timeLeftLabelOf(ready.remaining, townDurationCopy)
     val finish: FinishClock = finishClockOf(ready.readyAt, ready.remaining, ZoneId.systemDefault())
     return finishClockLabelOf(finish, townDurationCopy)
