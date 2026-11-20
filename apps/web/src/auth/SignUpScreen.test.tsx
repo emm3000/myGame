@@ -1,13 +1,13 @@
 import {
   authEmail,
   authPassword,
-  authSignUpScaffoldEs,
-  authSignUpScaffoldLabel,
-  authSignUpScaffoldNone,
   authSignUpSubmit,
   refusalEmailTaken,
   refusalMalformedEmail,
   refusalWeakPassword,
+  scaffoldEs,
+  scaffoldLabel,
+  scaffoldNone,
   townNamingTitle,
 } from '@mygame/catalog'
 import type { Scaffold, SignUpRequest } from '@mygame/contracts'
@@ -26,8 +26,8 @@ afterEach(() => {
 })
 
 const scaffoldLines: Record<Scaffold, string> = {
-  es: authSignUpScaffoldEs(),
-  none: authSignUpScaffoldNone(),
+  es: scaffoldEs(),
+  none: scaffoldNone(),
 }
 
 const scaffoldRadioOf = async (scaffold: Scaffold): Promise<HTMLInputElement> => {
@@ -186,9 +186,9 @@ it('locks the scaffold choice while the sign-up is in flight', async () => {
   await fillSignUp(newcomer)
 
   await vi.waitFor(() =>
-    expect(
-      screen.getByRole('group', { name: authSignUpScaffoldLabel() }).hasAttribute('disabled'),
-    ).toBe(true),
+    expect(screen.getByRole('group', { name: scaffoldLabel() }).hasAttribute('disabled')).toBe(
+      true,
+    ),
   )
 })
 

@@ -1,9 +1,9 @@
 import {
-  authSignUpScaffoldEs,
-  authSignUpScaffoldLabel,
-  authSignUpScaffoldNone,
   refusalTokenInvalid,
   refusalUnexpected,
+  scaffoldEs,
+  scaffoldLabel,
+  scaffoldNone,
   settingsCardsKept,
   settingsSaved,
   settingsSaving,
@@ -17,8 +17,8 @@ import { renderAppAt } from '../auth/renderAppAt.testSupport'
 import { knownPlayer, stubApiClient } from '../auth/stubApiClient.testSupport'
 
 const scaffoldLines: Readonly<Record<Scaffold, string>> = {
-  es: authSignUpScaffoldEs(),
-  none: authSignUpScaffoldNone(),
+  es: scaffoldEs(),
+  none: scaffoldNone(),
 }
 
 const scaffoldRadioOf = async (scaffold: Scaffold): Promise<HTMLInputElement> => {
@@ -29,8 +29,7 @@ const scaffoldRadioOf = async (scaffold: Scaffold): Promise<HTMLInputElement> =>
   return radio
 }
 
-const scaffoldGroup = (): HTMLElement =>
-  screen.getByRole('group', { name: authSignUpScaffoldLabel() })
+const scaffoldGroup = (): HTMLElement => screen.getByRole('group', { name: scaffoldLabel() })
 
 const signedInAs = (scaffold: Scaffold, overrides: Partial<ApiClient> = {}): ApiClient =>
   stubApiClient({ currentPlayer: async () => ({ ...knownPlayer, scaffold }), ...overrides })

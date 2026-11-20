@@ -9,17 +9,25 @@ import {
   authTagline,
   refusalMalformedEmail,
   refusalWeakPassword,
+  scaffoldEs,
+  scaffoldLabel,
+  scaffoldNone,
 } from '@mygame/catalog'
 import { type Scaffold, type SignUpRequest, SignUpRequestSchema } from '@mygame/contracts'
 import { type ReactElement, useState } from 'react'
 import type { ApiRefusal } from '../api/apiClient'
 import { Button } from '../design-system/Button'
 import { FormAlert } from '../design-system/FormAlert'
+import { ScaffoldChoice } from '../design-system/ScaffoldChoice'
 import { TextField } from '../design-system/TextField'
 import { TextLink } from '../design-system/TextLink'
 import { refusalLineOf } from '../refusals/refusalLineOf'
 import { AuthPanel } from './AuthPanel'
-import { ScaffoldChoice } from './ScaffoldChoice'
+
+const scaffoldLines: Readonly<Record<Scaffold, string>> = {
+  es: scaffoldEs(),
+  none: scaffoldNone(),
+}
 
 type SignUpField = Exclude<keyof SignUpRequest, 'scaffold'>
 
@@ -100,7 +108,13 @@ export function SignUpScreen(props: SignUpScreenProps): ReactElement {
         </>
       }
     >
-      <ScaffoldChoice picked={request.scaffold} isDisabled={props.isSubmitting} onPick={pick} />
+      <ScaffoldChoice
+        legend={scaffoldLabel()}
+        lines={scaffoldLines}
+        picked={request.scaffold}
+        isDisabled={props.isSubmitting}
+        onPick={pick}
+      />
       <TextField
         label={authEmail()}
         name="email"
