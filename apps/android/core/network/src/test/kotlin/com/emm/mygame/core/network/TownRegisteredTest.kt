@@ -142,6 +142,7 @@ class TownRegisteredTest {
         texts = emptyList(),
         dueHoldoutChecks = emptyList(),
         hasBandStarted = false,
+        bandLines = emptyList(),
         skills = emptyList(),
         learning = TownSnapshot.Learning(
             cap = 10,

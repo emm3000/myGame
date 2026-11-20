@@ -3,6 +3,7 @@ package com.emm.mygame.feature.school
 import app.cash.turbine.test
 import com.emm.mygame.core.network.CaughtUpReason
 import com.emm.mygame.core.network.NextStep
+import com.emm.mygame.core.network.PlacementBand
 import com.emm.mygame.core.network.SchoolPathCounts
 import com.emm.mygame.core.network.TownLessonRefusal
 import com.emm.mygame.core.network.TownLessonResult
@@ -132,6 +133,14 @@ class SchoolViewModelTest {
         val viewModel: SchoolViewModel = schoolReading(townOf(hasBandStarted = false))
 
         assertEquals(false, contentOf(viewModel).isHoldoutNoteShown)
+    }
+
+    @Test
+    fun `carries the held words of each started band`() = runTest {
+        val firstBand: TownSnapshot.BandLine = TownSnapshot.BandLine(PlacementBand.First, count = 12, total = 875)
+        val viewModel: SchoolViewModel = schoolReading(townOf(bandLines = listOf(firstBand)))
+
+        assertEquals(listOf(firstBand), contentOf(viewModel).bandLines)
     }
 
     @Test

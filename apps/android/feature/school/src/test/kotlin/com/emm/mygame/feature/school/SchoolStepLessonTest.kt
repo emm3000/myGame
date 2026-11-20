@@ -70,6 +70,7 @@ class SchoolStepLessonTest {
         start = SchoolUiState.LessonRequest.Idle,
         stop = SchoolUiState.LessonRequest.Idle,
         isHoldoutNoteShown = false,
+        bandLines = emptyList(),
     )
 
     private fun show(state: SchoolUiState) {

@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
+    <string name="school_band_line">Band {band}: {count} of {total} words studied</string>
     <string name="school_duration_hours">{hours} h</string>
     <string name="school_duration_hours_minutes">{hours} h {minutes} min</string>
     <string name="school_duration_minutes">{minutes} min</string>

@@ -41,6 +41,7 @@ export const fixedCopyKeys: ReadonlySet<string> = new Set([
   'android.review.review_unreachable',
   'android.review.review_wrong',
   'android.review.review_yours',
+  'android.school.school_band_line',
   'android.school.school_holdout_note',
   'android.school.school_holdout_open',
   'android.school.school_holdout_row',

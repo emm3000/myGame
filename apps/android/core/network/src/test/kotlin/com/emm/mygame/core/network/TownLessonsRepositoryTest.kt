@@ -90,6 +90,29 @@ class TownLessonsRepositoryTest {
     }
 
     @Test
+    fun `reads the held words of a started band`() = runTest {
+        api.enqueue(
+            json(
+                200,
+                TOWN.replace(""""bandLines":[]""", """"bandLines":[{"band":1,"count":12,"total":875}]"""),
+            ),
+        )
+
+        val read: TownSnapshot = (town().read() as TownReadResult.Read).town
+
+        assertEquals(listOf(TownSnapshot.BandLine(PlacementBand.First, count = 12, total = 875)), read.bandLines)
+    }
+
+    @Test
+    fun `reads no band line before a band starts`() = runTest {
+        api.enqueue(json(200, TOWN))
+
+        val read: TownSnapshot = (town().read() as TownReadResult.Read).town
+
+        assertEquals(emptyList<TownSnapshot.BandLine>(), read.bandLines)
+    }
+
+    @Test
     fun `reads each earned skill with its resource and percent`() = runTest {
         api.enqueue(json(200, TOWN))
 
