@@ -118,6 +118,20 @@ class MainActivityVerifyLinkTest {
     }
 
     @Test
+    fun `a confirmed email heads a signed-out player to the sign-in form`() {
+        application.sessions.answerRestore(RestoreResult.SignedOut)
+        Robolectric.buildActivity(MainActivity::class.java, mailedLink()).setup()
+        application.sessions.answerEmailVerification(EmailVerificationResult.Verified)
+        waitFor(hasText(VERIFIED))
+        application.sessions.answerRestore(RestoreResult.SignedOut)
+
+        composeRule.onNode(hasClickAction() and hasText(TO_TOWN)).performClick()
+
+        composeRule.waitForIdle()
+        composeRule.onNode(hasClickAction() and hasText(SIGN_IN)).assertExists()
+    }
+
+    @Test
     fun `the town draws no banner once a mailed link confirmed the email`() {
         val activity: ActivityController<MainActivity> = openTownWithBanner()
         activity.newIntent(mailedLink())

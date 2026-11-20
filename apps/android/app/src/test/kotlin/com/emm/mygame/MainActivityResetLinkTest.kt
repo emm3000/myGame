@@ -98,6 +98,29 @@ class MainActivityResetLinkTest {
     }
 
     @Test
+    fun `back from a new link asked on a refused mailed link returns a signed-in player to the town`() {
+        val activity: ActivityController<MainActivity> =
+            Robolectric.buildActivity(MainActivity::class.java, mailedLink()).setup()
+        waitFor(newPasswordTitle)
+        application.sessions.answerPasswordChange(PasswordResetResult.LinkRefused)
+        composeRule.onNode(hasSetTextAction() and hasContentDescription(NEW_PASSWORD)).performTextInput("hierro-y-lana")
+        composeRule.onNode(hasClickAction() and hasText(CHANGE_PASSWORD)).performClick()
+        waitFor(hasClickAction() and hasText(NEW_LINK))
+        composeRule.onNode(hasClickAction() and hasText(NEW_LINK)).performClick()
+        waitFor(isHeading() and hasText(FORGOT_PASSWORD_TITLE))
+        application.sessions.answerRestore(
+            RestoreResult.SignedIn(
+                SignedInPlayer("ines@example.com", isEmailVerified = true, scaffold = PlayerScaffold.Spanish),
+            ),
+        )
+
+        composeRule.runOnIdle { activity.get().onBackPressedDispatcher.onBackPressed() }
+
+        composeRule.waitForIdle()
+        composeRule.onNode(townLoading).assertExists()
+    }
+
+    @Test
     fun `a launch from Recents opens no new password screen`() {
         val replayed: Intent = mailedLink().addFlags(Intent.FLAG_ACTIVITY_LAUNCHED_FROM_HISTORY)
 
@@ -126,5 +149,7 @@ class MainActivityResetLinkTest {
         const val PASSWORD_CHANGED: String = "Tu contraseña ha cambiado y hemos cerrado todas tus sesiones."
         const val TO_SIGN_IN: String = "Entra en tu pueblo"
         const val SIGN_IN: String = "Entrar"
+        const val NEW_LINK: String = "Pedir otro enlace"
+        const val FORGOT_PASSWORD_TITLE: String = "Recupera tu contraseña"
     }
 }
