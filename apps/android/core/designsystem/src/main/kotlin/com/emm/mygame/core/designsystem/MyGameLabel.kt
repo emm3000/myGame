@@ -26,9 +26,8 @@ fun MyGameText(label: MyGameLabel, style: TextStyle, color: Color, modifier: Mod
         MyGameText(text = label.text, style = style, color = color, modifier = modifier)
         return
     }
-    Column(horizontalAlignment = alignmentOf(style.textAlign), modifier = modifier) {
-        MyGameText(text = label.text, style = style, color = color)
-        MyGameText(text = translation, style = translationStyleOf(style), color = color)
+    MyGameTranslatedLines(style = style, modifier = modifier) { lineStyle: TextStyle, isTranslation: Boolean ->
+        MyGameText(text = if (isTranslation) translation else label.text, style = lineStyle, color = color)
     }
 }
 
@@ -45,9 +44,25 @@ fun MyGameText(
         MyGameText(text = styledLineOf(label.text), style = style, color = color, modifier = modifier)
         return
     }
+    MyGameTranslatedLines(style = style, modifier = modifier) { lineStyle: TextStyle, isTranslation: Boolean ->
+        MyGameText(
+            text = styledLineOf(if (isTranslation) translation else label.text),
+            style = lineStyle,
+            color = color,
+        )
+    }
+}
+
+@Composable
+private fun MyGameTranslatedLines(
+    style: TextStyle,
+    modifier: Modifier = Modifier,
+    drawLine: @Composable (lineStyle: TextStyle, isTranslation: Boolean) -> Unit,
+) {
     Column(horizontalAlignment = alignmentOf(style.textAlign), modifier = modifier) {
-        MyGameText(text = styledLineOf(label.text), style = style, color = color)
-        MyGameText(text = styledLineOf(translation), style = translationStyleOf(style), color = color)
+        listOf(false, true).forEach { isTranslation: Boolean ->
+            drawLine(if (isTranslation) translationStyleOf(style) else style, isTranslation)
+        }
     }
 }
 
