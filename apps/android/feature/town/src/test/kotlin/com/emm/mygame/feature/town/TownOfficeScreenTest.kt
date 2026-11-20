@@ -336,6 +336,7 @@ class TownOfficeScreenTest {
                         onIntent = { intent: TownIntent -> intents += intent },
                         onSchoolOpen = {},
                         onMapOpen = {},
+                        onTextOpen = {},
                     )
                 }
             }
@@ -358,6 +359,7 @@ class TownOfficeScreenTest {
                     onIntent = { intent: TownIntent -> intents += intent },
                     onSchoolOpen = { },
                     onMapOpen = {},
+                    onTextOpen = {},
                 )
             }
         }

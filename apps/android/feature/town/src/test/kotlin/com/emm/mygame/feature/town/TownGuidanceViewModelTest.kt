@@ -32,7 +32,9 @@ class TownGuidanceViewModelTest {
         state = TownGoal.State.Underway,
     )
 
-    private val townWithGoal: TownSnapshot = townOf(nextStep = NextStep.CaughtUp(CaughtUpReason.LessonsDone, farmGoal))
+    private val townWithGoal: TownSnapshot = townOf(
+        nextStep = NextStep.CaughtUp(CaughtUpReason.LessonsDone, farmGoal, text = null),
+    )
 
     private val townWithTip: TownSnapshot = townOf(tip = TipKind.WaitingList)
 
@@ -59,7 +61,7 @@ class TownGuidanceViewModelTest {
 
     @Test
     fun `shows no goal when none is left`() = runTest {
-        val caughtUp: NextStep = NextStep.CaughtUp(CaughtUpReason.LessonsDone, goal = null)
+        val caughtUp: NextStep = NextStep.CaughtUp(CaughtUpReason.LessonsDone, goal = null, text = null)
         val viewModel: TownViewModel = townShowing(townOf(nextStep = caughtUp))
 
         assertEquals(null, contentOf(viewModel).goal)

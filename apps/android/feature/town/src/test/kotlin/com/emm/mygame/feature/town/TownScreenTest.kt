@@ -151,21 +151,21 @@ class TownScreenTest {
 
     @Test
     fun `the town home opens on the goal's building`() {
-        show(homeOn(NextStep.CaughtUp(CaughtUpReason.LessonsDone, goal = factoryGoal)))
+        show(homeOn(NextStep.CaughtUp(CaughtUpReason.LessonsDone, goal = factoryGoal, text = null)))
 
         tab("Fábrica").assertIsSelected()
     }
 
     @Test
     fun `the town home opens on the school when caught up with no goal`() {
-        show(homeOn(NextStep.CaughtUp(CaughtUpReason.LessonsDone, goal = null)))
+        show(homeOn(NextStep.CaughtUp(CaughtUpReason.LessonsDone, goal = null, text = null)))
 
         tab("Escuela").assertIsSelected()
     }
 
     @Test
     fun `the town home opens on the school while a lesson runs toward a goal`() {
-        show(homeOn(NextStep.LessonRunning(goal = factoryGoal)))
+        show(homeOn(NextStep.LessonRunning(goal = factoryGoal, text = null)))
 
         tab("Escuela").assertIsSelected()
     }
@@ -829,6 +829,7 @@ class TownScreenTest {
                 onIntent = { intent: TownIntent -> intents += intent },
                 onSchoolOpen = { schoolOpens += 1 },
                 onMapOpen = { mapOpens += 1 },
+                onTextOpen = {},
                 ring = ring,
                 status = status,
                 placement = placement,

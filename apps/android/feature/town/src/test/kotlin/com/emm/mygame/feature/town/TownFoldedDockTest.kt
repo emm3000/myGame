@@ -101,6 +101,7 @@ class TownFoldedDockTest {
                     onIntent = {},
                     onSchoolOpen = {},
                     onMapOpen = {},
+                    onTextOpen = {},
                     foldedDock = { BasicText(FOLDED_NOTICE) },
                 )
             }

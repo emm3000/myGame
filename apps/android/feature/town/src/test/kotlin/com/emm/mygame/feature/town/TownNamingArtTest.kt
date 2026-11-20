@@ -63,6 +63,7 @@ class TownNamingArtTest {
                     onIntent = {},
                     onSchoolOpen = {},
                     onMapOpen = {},
+                    onTextOpen = {},
                 )
             }
         }

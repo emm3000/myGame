@@ -107,6 +107,7 @@ class TownStreetScreenTest {
                         onIntent = {},
                         onSchoolOpen = {},
                         onMapOpen = {},
+                        onTextOpen = {},
                         ring = {},
                         status = {},
                         placement = {},

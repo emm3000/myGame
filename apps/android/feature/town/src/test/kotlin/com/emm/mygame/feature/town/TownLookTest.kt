@@ -136,6 +136,7 @@ class TownLookTest {
                     onIntent = { },
                     onSchoolOpen = { },
                     onMapOpen = {},
+                    onTextOpen = {},
                 )
             }
         }
@@ -243,6 +244,7 @@ class TownLookTest {
                     onIntent = { },
                     onSchoolOpen = { },
                     onMapOpen = {},
+                    onTextOpen = {},
                 )
             }
         }
@@ -478,6 +480,7 @@ class TownLookTest {
             onIntent = { },
             onSchoolOpen = { },
             onMapOpen = {},
+            onTextOpen = {},
         )
     }
 

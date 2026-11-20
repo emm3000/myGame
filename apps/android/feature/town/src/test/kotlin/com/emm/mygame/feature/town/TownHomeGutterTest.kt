@@ -58,6 +58,7 @@ class TownHomeGutterTest {
                     onIntent = {},
                     onSchoolOpen = {},
                     onMapOpen = {},
+                    onTextOpen = {},
                     foldedDock = { BasicText(FOLDED_NOTICE, modifier = Modifier.fillMaxWidth()) },
                     reportRow = { BasicText(REPORT_ROW, modifier = Modifier.fillMaxWidth()) },
                 )

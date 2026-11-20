@@ -80,6 +80,7 @@ internal fun lessonEndingAt(finishesAt: Instant): TownSnapshot.LessonSlot =
 internal fun openingOn(place: TownBuildingKind): NextStep = NextStep.CaughtUp(
     reason = CaughtUpReason.LessonsDone,
     goal = TownGoal(position = 1, count = 9, building = place, level = 1, state = TownGoal.State.Underway),
+    text = null,
 )
 
 internal fun emptyNaming(): TownUiState.Naming = TownUiState.Naming("", TownUiState.NamingStatus.Idle)
@@ -111,7 +112,7 @@ internal fun townOf(
     seasonInForce: SeasonInForce? = null,
     seasonEndsAt: Instant? = null,
     lessonSlot: TownSnapshot.LessonSlot? = null,
-    nextStep: NextStep = NextStep.CaughtUp(CaughtUpReason.LessonsDone, goal = null),
+    nextStep: NextStep = NextStep.CaughtUp(CaughtUpReason.LessonsDone, goal = null, text = null),
     nextDueAt: Instant? = null,
     readAt: Instant = readInstant,
     skills: List<TownSnapshot.EarnedSkill> = emptyList(),

@@ -77,7 +77,7 @@ class TownStatusViewModelTest {
     private fun runningTown(readAt: Instant, finishesAt: Instant): TownSnapshot = townOf(readAt = readAt).copy(
         lessons = lessonsWith(listOf(firstLesson)),
         lessonSlot = TownSnapshot.LessonSlot(secondLesson, readAt, finishesAt),
-        nextStep = NextStep.LessonRunning(goal = null),
+        nextStep = NextStep.LessonRunning(goal = null, text = null),
     )
 
     private fun finishedTown(readAt: Instant, readFirst: List<LessonId>): TownSnapshot = townOf(readAt = readAt).copy(
@@ -103,7 +103,7 @@ class TownStatusViewModelTest {
         lessons = lessonsWith(listOf(firstLesson)),
         releasedLessons = listOf(released),
         lessonSlot = TownSnapshot.LessonSlot(releasedLesson, readAt, finishesAt),
-        nextStep = NextStep.LessonRunning(goal = null),
+        nextStep = NextStep.LessonRunning(goal = null, text = null),
     )
 
     private fun releasedFinishedTown(readAt: Instant): TownSnapshot = townOf(readAt).copy(
@@ -493,7 +493,7 @@ class TownStatusViewModelTest {
     private fun strayRunningTown(readAt: Instant): TownSnapshot = townOf(readAt).copy(
         lessons = lessonsWith(listOf(firstLesson)),
         lessonSlot = TownSnapshot.LessonSlot(strayLesson, readAt, readAt + 10.minutes),
-        nextStep = NextStep.LessonRunning(goal = null),
+        nextStep = NextStep.LessonRunning(goal = null, text = null),
     )
 
     private fun TestScope.goShownOn(screen: TownStatusScreen, town: TownSnapshot): TownStatusUiState.Go? {
@@ -714,7 +714,7 @@ class TownStatusViewModelTest {
     fun `a caught-up step with a goal gives the goal's line`() = runTest {
         val clock = TestClock(testScheduler, deviceStart)
         val viewModel: TownStatusViewModel = statusOf(clock)
-        val caughtUp: NextStep = NextStep.CaughtUp(CaughtUpReason.LessonsDone, schoolGoal)
+        val caughtUp: NextStep = NextStep.CaughtUp(CaughtUpReason.LessonsDone, schoolGoal, text = null)
         towns.hold(HeldTown(townOf(clock.now()).copy(nextStep = caughtUp), gap = Duration.ZERO))
 
         shownOn(viewModel, TownStatusScreen.ReadsTown)
@@ -788,7 +788,7 @@ class TownStatusViewModelTest {
         lessonSlot = null,
         hiring = hiringOf(),
         job = null,
-        nextStep = NextStep.CaughtUp(CaughtUpReason.LessonsDone, goal = null),
+        nextStep = NextStep.CaughtUp(CaughtUpReason.LessonsDone, goal = null, text = null),
         tip = null,
         nextDueAt = null,
         readAt = readAt,
