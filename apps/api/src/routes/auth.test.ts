@@ -92,6 +92,20 @@ const storedTowns = async (): Promise<number> => {
   }
 }
 
+const emailVerifiedAtOf = async (email: string): Promise<number | undefined> => {
+  const client = new Client({ connectionString: databaseUrl() })
+  await client.connect()
+  try {
+    const found = await client.query<{ verifiedAt: Date | null }>(
+      'SELECT email_verified_at AS "verifiedAt" FROM players WHERE lower(email) = lower($1)',
+      [email],
+    )
+    return found.rows[0]?.verifiedAt?.getTime()
+  } finally {
+    await client.end()
+  }
+}
+
 const storedResetTokens = async (): Promise<number> => {
   const client = new Client({ connectionString: databaseUrl() })
   await client.connect()
@@ -531,15 +545,26 @@ describe('the auth routes', () => {
     expect(PlayerSchema.parse(await signedIn.json()).emailVerified).toBe(true)
   })
 
-  it('refuses a verify link used twice', async () => {
+  it('accepts a verify link used earlier in its day', async () => {
     await signUpAna()
     const token = tokenOf(mailer.sentTo(anasSignUp.email)[0])
     await verifyEmail(token)
+    clock.advanceHours(1)
 
     const second = await verifyEmail(token)
 
-    expect(second.status).toBe(400)
-    expect(ApiErrorSchema.parse(await second.json()).kind).toBe('TokenInvalid')
+    expect(second.status).toBe(204)
+  })
+
+  it('keeps the first verified instant when a verify link is used again', async () => {
+    await signUpAna()
+    const token = tokenOf(mailer.sentTo(anasSignUp.email)[0])
+    await verifyEmail(token)
+    clock.advanceHours(1)
+
+    await verifyEmail(token)
+
+    expect(await emailVerifiedAtOf(anasSignUp.email)).toBe(signedUpAt)
   })
 
   it('refuses a verify link past its day', async () => {

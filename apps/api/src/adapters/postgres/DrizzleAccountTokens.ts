@@ -1,6 +1,7 @@
 import type { Instant, PlayerId } from '@mygame/domain'
-import { and, eq, gt, isNotNull, isNull, lte, or } from 'drizzle-orm'
+import { and, eq, gt, isNotNull, isNull, lte, or, sql } from 'drizzle-orm'
 import type { AccountToken, AccountTokenKind, AccountTokens } from '../../auth/AccountTokens'
+import { isRedeemableAgain } from '../../auth/isRedeemableAgain'
 import { tokenDigest } from '../../auth/tokenDigest'
 import type { PostgresSession } from './connectPostgres'
 import { accountTokens, players } from './schema'
@@ -39,17 +40,17 @@ export class DrizzleAccountTokens implements AccountTokens {
   }
 
   async redeem(token: string, kind: AccountTokenKind, now: Instant): Promise<PlayerId | undefined> {
-    const live = and(
+    const redeemable = and(
       eq(accountTokens.tokenDigest, tokenDigest(token)),
       eq(accountTokens.kind, kind),
-      isNull(accountTokens.usedAt),
       gt(accountTokens.expiresAt, dateOf(now)),
+      isRedeemableAgain(kind) ? undefined : isNull(accountTokens.usedAt),
     )
     return this.database.transaction(async (transaction) => {
       const [holder] = await transaction
         .select({ playerId: accountTokens.playerId })
         .from(accountTokens)
-        .where(live)
+        .where(redeemable)
       if (holder === undefined) {
         return undefined
       }
@@ -60,8 +61,8 @@ export class DrizzleAccountTokens implements AccountTokens {
         .for('no key update')
       const [redeemed] = await transaction
         .update(accountTokens)
-        .set({ usedAt: dateOf(now) })
-        .where(live)
+        .set({ usedAt: sql`coalesce(${accountTokens.usedAt}, ${dateOf(now)})` })
+        .where(redeemable)
         .returning({ playerId: accountTokens.playerId })
       return redeemed?.playerId
     })

@@ -3928,7 +3928,7 @@
         },
         "responses": {
           "204": {
-            "description": "The email is verified."
+            "description": "The email is verified; a link redeemed earlier answers the same inside its 24 hours."
           },
           "400": {
             "description": "TokenInvalid; a malformed body answers an empty body.",
