@@ -3,21 +3,31 @@ package com.emm.mygame.core.designsystem
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.width
 import androidx.compose.runtime.Composable
+import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.Rect
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.PixelMap
+import androidx.compose.ui.graphics.toArgb
+import androidx.compose.ui.graphics.toPixelMap
+import androidx.compose.ui.input.InputMode
+import androidx.compose.ui.input.InputModeManager
+import androidx.compose.ui.platform.LocalInputModeManager
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.semantics.LiveRegionMode
-import androidx.compose.ui.semantics.SemanticsNode
 import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.semantics.SemanticsActions
+import androidx.compose.ui.semantics.SemanticsNode
 import androidx.compose.ui.semantics.SemanticsProperties
 import androidx.compose.ui.semantics.getOrNull
 import androidx.compose.ui.test.SemanticsMatcher
 import androidx.compose.ui.test.assert
 import androidx.compose.ui.test.assertCountEquals
 import androidx.compose.ui.test.assertHeightIsAtLeast
+import androidx.compose.ui.test.captureToImage
 import androidx.compose.ui.test.click
+import androidx.compose.ui.test.getBoundsInRoot
 import androidx.compose.ui.test.hasClickAction
 import androidx.compose.ui.test.hasText
 import androidx.compose.ui.test.junit4.ComposeContentTestRule
@@ -27,10 +37,12 @@ import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.onRoot
 import androidx.compose.ui.test.performClick
 import androidx.compose.ui.test.performTouchInput
+import androidx.compose.ui.test.requestFocus
 import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.text.SpanStyle
 import androidx.compose.ui.text.intl.LocaleList
 import androidx.compose.ui.unit.Dp
+import androidx.compose.ui.unit.DpRect
 import androidx.compose.ui.unit.dp
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertTrue
@@ -200,6 +212,33 @@ class MyGameFrameTextTest {
             .fetchSemanticsNode().boundsInRoot
         val frame: Rect = composeRule.onNodeWithText("The day is ____.").fetchSemanticsNode().boundsInRoot
         assertEquals(plainWidth(), word.left - frame.left, 1f)
+    }
+
+    @OptIn(ExperimentalComposeUiApi::class)
+    @Test
+    @GraphicsMode(GraphicsMode.Mode.NATIVE)
+    fun `draws a focused word's ring outside its letters`() {
+        var inputModes: InputModeManager? = null
+        var ink: Color = Color.Unspecified
+        composeRule.setContent {
+            inputModes = LocalInputModeManager.current
+            MyGameTheme {
+                ink = MyGameTheme.colors.onBlock
+                MyGameFrameText(
+                    frame = MyGameFrame(dayFrame),
+                    openPiece = null,
+                    style = MyGameTypography.reading,
+                    onPieceTap = {},
+                )
+            }
+        }
+        composeRule.runOnIdle { inputModes?.requestInputMode(InputMode.Keyboard) }
+        val word: DpRect = composeRule.onNodeWithText("day").requestFocus().getBoundsInRoot()
+
+        val pixels: PixelMap = composeRule.onRoot().captureToImage().toPixelMap()
+        val ringX: Int = with(composeRule.density) { (word.left - MyGameStrokeWidths.focus).roundToPx() }
+        val middle: Int = with(composeRule.density) { ((word.top + word.bottom) / 2).roundToPx() }
+        assertEquals(Integer.toHexString(ink.toArgb()), Integer.toHexString(pixels[ringX, middle].toArgb()))
     }
 
     @Test
