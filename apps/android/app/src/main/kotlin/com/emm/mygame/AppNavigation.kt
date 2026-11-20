@@ -54,6 +54,7 @@ import com.emm.mygame.feature.school.SchoolUiState
 import com.emm.mygame.feature.school.SchoolViewModel
 import com.emm.mygame.feature.school.schoolStudyGo
 import com.emm.mygame.feature.signin.ForgotPasswordRoute
+import com.emm.mygame.feature.signin.ResetPasswordRoute
 import com.emm.mygame.feature.signin.SettingsNavigation
 import com.emm.mygame.feature.signin.SettingsRoute
 import com.emm.mygame.feature.signin.SignInRoute
@@ -74,6 +75,7 @@ import kotlinx.coroutines.flow.Flow
 internal fun AppNavigation(
     dependencies: AppDependencies,
     reminderTaps: Flow<StudyReminderLine>,
+    resetLinks: Flow<Destination.ResetPassword>,
     modifier: Modifier = Modifier,
     backStack: NavBackStack<NavKey> = rememberNavBackStack(Destination.SignIn(isSessionEnded = false)),
     status: TownStatusViewModel = viewModel { TownStatusViewModel(dependencies.towns, dependencies.clock) },
@@ -85,6 +87,9 @@ internal fun AppNavigation(
     }
     LaunchedEffect(navigator) {
         reminderTaps.collect(navigator::openReminder)
+    }
+    LaunchedEffect(navigator) {
+        resetLinks.collect(navigator::openResetPassword)
     }
     val shown: NavKey? = backStack.lastOrNull()
     LifecycleStartEffect(status, shown) {
@@ -158,6 +163,14 @@ private fun AppScreens(
             }
             entry<Destination.ForgotPassword> {
                 ForgotPasswordRoute(sessions = dependencies.sessions, onSignInOpen = navigator::openSignIn)
+            }
+            entry<Destination.ResetPassword> { link: Destination.ResetPassword ->
+                ResetPasswordRoute(
+                    sessions = dependencies.sessions,
+                    token = link.token,
+                    onSignInOpen = navigator::openSignIn,
+                    onForgotPasswordOpen = navigator::openForgotPassword,
+                )
             }
             signedInEntries(chrome(navigator))
         },
@@ -470,7 +483,12 @@ private fun SignedInFrame(
 }
 
 private fun NavKey?.statusScreen(): TownStatusScreen = when (val destination: Destination? = this as? Destination) {
-    null, is Destination.SignIn, Destination.SignUp, Destination.ForgotPassword -> TownStatusScreen.Outside
+    null,
+    is Destination.SignIn,
+    Destination.SignUp,
+    Destination.ForgotPassword,
+    is Destination.ResetPassword,
+    -> TownStatusScreen.Outside
     Destination.Town -> TownStatusScreen.ReadsTown
     Destination.School -> TownStatusScreen.School
     Destination.Map -> TownStatusScreen.ReadsTown

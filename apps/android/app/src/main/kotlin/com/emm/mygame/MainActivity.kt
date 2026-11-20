@@ -21,24 +21,27 @@ class MainActivity : ComponentActivity() {
 
     private val reminderTaps: Channel<StudyReminderLine> = Channel(Channel.BUFFERED)
 
+    private val resetLinks: Channel<Destination.ResetPassword> = Channel(Channel.BUFFERED)
+
     override fun onCreate(savedInstanceState: Bundle?) {
         enableEdgeToEdge()
         super.onCreate(savedInstanceState)
-        if (savedInstanceState == null) sendReminderTap(intent)
+        if (savedInstanceState == null) take(intent)
         val dependencies: AppDependencies = application as AppDependencies
         val taps: Flow<StudyReminderLine> = reminderTaps.receiveAsFlow()
+        val links: Flow<Destination.ResetPassword> = resetLinks.receiveAsFlow()
         lifecycleScope.launch { dependencies.themes.pick.collect(::followNightMode) }
         setContent {
             val pick: ThemePick by dependencies.themes.pick.collectAsStateWithLifecycle()
             PickedTheme(pick = pick) {
-                AppNavigation(dependencies = dependencies, reminderTaps = taps)
+                AppNavigation(dependencies = dependencies, reminderTaps = taps, resetLinks = links)
             }
         }
     }
 
     override fun onNewIntent(intent: Intent) {
         super.onNewIntent(intent)
-        sendReminderTap(intent)
+        take(intent)
     }
 
     private fun followNightMode(pick: ThemePick) {
@@ -46,8 +49,13 @@ class MainActivity : ComponentActivity() {
         getSystemService(UiModeManager::class.java).setApplicationNightMode(nightModeOf(pick))
     }
 
-    private fun sendReminderTap(intent: Intent) {
+    private fun take(intent: Intent) {
         if (intent.flags and Intent.FLAG_ACTIVITY_LAUNCHED_FROM_HISTORY != 0) return
+        sendReminderTap(intent)
+        resetPasswordDestinationOf(intent)?.let(resetLinks::trySend)
+    }
+
+    private fun sendReminderTap(intent: Intent) {
         val tapped: String = intent.getStringExtra(STUDY_REMINDER_LINE) ?: return
         val line: StudyReminderLine =
             StudyReminderLine.entries.firstOrNull { line: StudyReminderLine -> line.name == tapped } ?: return

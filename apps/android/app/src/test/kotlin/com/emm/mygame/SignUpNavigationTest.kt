@@ -50,7 +50,7 @@ class SignUpNavigationTest {
         repeat(READS_AVAILABLE) { towns.answerRead(TownReadResult.NoTown) }
         composeRule.setContent {
             MyGameTheme {
-                AppNavigation(dependencies = dependencies, reminderTaps = emptyFlow())
+                AppNavigation(dependencies = dependencies, reminderTaps = emptyFlow(), resetLinks = emptyFlow())
             }
         }
         waitForLine("Crea tu cuenta")

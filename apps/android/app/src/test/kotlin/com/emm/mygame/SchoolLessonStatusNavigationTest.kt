@@ -97,6 +97,7 @@ class SchoolLessonStatusNavigationTest {
                 AppNavigation(
                     dependencies = dependencies,
                     reminderTaps = emptyFlow(),
+                    resetLinks = emptyFlow(),
                     backStack = rememberNavBackStack(Destination.Town, Destination.School),
                     status = TownStatusViewModel(statusTowns, fixedClock),
                 )

@@ -29,17 +29,26 @@ internal class Navigator(private val backStack: MutableList<NavKey>, private val
     }
 
     fun openForgotPassword() {
-        if (backStack.lastOrNull() is Destination.SignIn) backStack.add(Destination.ForgotPassword)
+        when (backStack.lastOrNull()) {
+            is Destination.SignIn -> backStack.add(Destination.ForgotPassword)
+            is Destination.ResetPassword -> backStack[backStack.lastIndex] = Destination.ForgotPassword
+            else -> Unit
+        }
+    }
+
+    fun openResetPassword(link: Destination.ResetPassword) {
+        backStack.showAlone(listOf(Destination.SignIn(isSessionEnded = false), link))
     }
 
     fun openSignIn() {
         when (backStack.lastOrNull()) {
-            Destination.SignUp, Destination.ForgotPassword -> back()
+            Destination.SignUp, Destination.ForgotPassword, is Destination.ResetPassword -> back()
             else -> Unit
         }
     }
 
     fun signedIn() {
+        if (backStack.lastOrNull() is Destination.ResetPassword) return
         val shownAboveTown: Destination? = links.reminderLineOnSignIn?.shownAboveTown()
         links.reminderLineOnSignIn = null
         backStack.showAlone(listOfNotNull(Destination.Town, shownAboveTown))
