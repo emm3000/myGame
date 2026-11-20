@@ -55,6 +55,11 @@ fun removed(flag: Boolean): Boolean {
     if (flag) return true
     return false
 }
+
+fun shade(level: Int): Int = when (level) {
+    0 -> 0
+    else -> 1
+}
 KOTLIN
   write "$typescript" <<'TYPESCRIPT'
 export function kept(flag: boolean): number {
@@ -119,6 +124,50 @@ class Tagged(@Suppress("unused") val size: Int = 1)
 class Card(
     val name: String = "",
 )
+
+fun arms(level: Int, shape: Any): Int {
+    val size = when {
+        level > 3 -> 3
+        shape is String -> 2
+        else -> 1
+    }
+    return when (shape) {
+        is Int -> shape
+        else -> size
+    }
+}
+
+fun shade(level: Int): Int = when (level) {
+    0 -> 0
+    1 -> 5
+    else -> 1
+}
+
+fun labels(words: List<String>, onPick: (String) -> Unit, content: @Composable RowScope.() -> Unit): Unit {
+    words.forEach { word -> onPick(word) }
+    words.forEach { line: MyGameLabel ->
+        onPick(line.text)
+    }
+    val pick: ((String) -> Unit)? = null
+}
+
+fun guards(level: Int, name: String?, shapes: List<Any>): List<Any> {
+    val high = level.takeIf { it > 3 }
+    val low = level.takeUnless { it > 3 }
+    val kept = shapes.filter { it != high }
+    val dropped = shapes.filterNot { it == low }
+    name?.let { println(it) }
+    val strings = shapes.filterIsInstance<String>()
+    val letter = name?.letter
+    return kept + dropped + strings
+}
+
+fun handlers(shapes: List<Any>): Unit {
+    val loads: List<suspend () -> Unit> = emptyList()
+    val handlers: Map<String, (Int) -> Unit> = emptyMap()
+    val words = shapes.refilter().retakeIf().retakeUnless().refilterNot().takeIfAny().takeUnlessAll().filterNotNull()
+    val draw: @Composable RowScope.() -> Unit = {}
+}
 KOTLIN
   write "$typescript" <<'TYPESCRIPT'
 export function kept(flag: boolean): number {
@@ -171,6 +220,9 @@ export function withOptions(options: { loud: boolean } = { loud: false }): boole
   const { data: town } = useQuery(options);
   return town;
 }
+
+export const double = (value: number): number => value * 2;
+export const named = (words: string[]): string[] => words.filter((word) => word.length > 0);
 TYPESCRIPT
   write "$non_ascii" <<'NON_ASCII'
 if (open) { start() }
@@ -279,6 +331,47 @@ lists_an_added_if() {
 
 lists_an_added_when() {
   expect_listed "${FUNCNAME[0]}" "$kotlin:14"
+}
+
+lists_each_added_condition_arm_of_a_kotlin_when() {
+  expect_listed "${FUNCNAME[0]}" "$kotlin:15" "$kotlin:50" "$kotlin:51"
+}
+
+lists_each_added_is_arm_of_a_kotlin_when() {
+  expect_listed "${FUNCNAME[0]}" "$kotlin:55"
+}
+
+lists_each_added_else_arm_of_a_kotlin_when() {
+  expect_listed "${FUNCNAME[0]}" "$kotlin:16" "$kotlin:52" "$kotlin:56"
+}
+
+lists_an_arm_added_to_a_when_whose_head_is_unchanged() {
+  expect_listed "${FUNCNAME[0]}" "$kotlin:62" || return 1
+  expect_not_listed "${FUNCNAME[0]}" "$kotlin:60" "$kotlin:61" "$kotlin:63"
+}
+
+skips_a_kotlin_lambda_arrow_and_a_function_type_arrow() {
+  expect_not_listed "${FUNCNAME[0]}" "$kotlin:66" "$kotlin:67" "$kotlin:68" "$kotlin:71" "$kotlin:86" "$kotlin:87" "$kotlin:89"
+}
+
+skips_a_typescript_arrow() {
+  expect_not_listed "${FUNCNAME[0]}" "$typescript:52"
+}
+
+lists_an_added_take_if_or_take_unless() {
+  expect_listed "${FUNCNAME[0]}" "$kotlin:75" "$kotlin:76"
+}
+
+lists_an_added_filter_or_filter_not() {
+  expect_listed "${FUNCNAME[0]}" "$kotlin:77" "$kotlin:78" "$typescript:53"
+}
+
+lists_an_added_safe_call_let() {
+  expect_listed "${FUNCNAME[0]}" "$kotlin:79"
+}
+
+skips_a_word_that_only_starts_or_ends_with_a_guard_token() {
+  expect_not_listed "${FUNCNAME[0]}" "$kotlin:80" "$kotlin:81" "$kotlin:88"
 }
 
 lists_an_added_elvis_in_kotlin() {
@@ -478,9 +571,9 @@ prints_a_line_with_two_tokens_once() {
 
 expected_list() {
   local entry
-  for entry in 13 14 18 19 20 21 22 26 30 38 41 42 45; do echo "$kotlin:$entry"; done
+  for entry in 13 14 15 16 18 19 20 21 22 26 30 38 41 42 45 49 50 51 52 54 55 56 62 75 76 77 78 79; do echo "$kotlin:$entry"; done
   for entry in 2 9 13; do echo "$tsx:$entry"; done
-  for entry in 11 14 15 21 25 32 37 39 44 47; do echo "$typescript:$entry"; done
+  for entry in 11 14 15 21 25 32 37 39 44 47 53; do echo "$typescript:$entry"; done
   echo "$non_ascii:1"
 }
 
@@ -546,6 +639,16 @@ run() {
 build_the_fixture_repo
 run lists_an_added_if
 run lists_an_added_when
+run lists_each_added_condition_arm_of_a_kotlin_when
+run lists_each_added_is_arm_of_a_kotlin_when
+run lists_each_added_else_arm_of_a_kotlin_when
+run lists_an_arm_added_to_a_when_whose_head_is_unchanged
+run skips_a_kotlin_lambda_arrow_and_a_function_type_arrow
+run skips_a_typescript_arrow
+run lists_an_added_take_if_or_take_unless
+run lists_an_added_filter_or_filter_not
+run lists_an_added_safe_call_let
+run skips_a_word_that_only_starts_or_ends_with_a_guard_token
 run lists_an_added_elvis_in_kotlin
 run lists_an_added_max_of
 run lists_an_added_min_of

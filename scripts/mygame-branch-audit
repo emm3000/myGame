@@ -27,6 +27,10 @@ kotlin_parameter = (
     r"(?:(?:@\w+(?:\([^()]*\))?|private|internal|protected|public|override|open|vararg|crossinline|noinline)\s+)*"
     r"(?:va[lr]\s+)?\w+\s*:\s*" + kotlin_type + assigned
 )
+kotlin_function_type_arrow = (
+    r"[:<,]\s*(?:@\w+\s+)*(?:suspend\s+)?(?:[\w.]+\.)?\(+[^()]*\)\s*->"
+)
+kotlin_when_arm = r"^(?![^{]*?" + kotlin_function_type_arrow + r")[^{]*->"
 typescript_type = r"(?:[^=(){}]|=>|\([^()]*\)|\{[^{}]*\})+?"
 typescript_parameter = (
     r"(?:(?:public|private|protected|readonly)\s+)*\w+\s*(?::\s*" + typescript_type + r")?" + assigned
@@ -38,11 +42,17 @@ shared = [
     re.compile(r"\bmaxOf\b"),
     re.compile(r"\bminOf\b"),
     re.compile(r"\bcoerce[A-Z]\w*"),
+    re.compile(r"\bfilter\b"),
     re.compile(r"\?\?"),
     re.compile(r"(?:^|\s)\?(?:\s|$)"),
 ]
 kotlin = shared + [
     re.compile(r"\?:"),
+    re.compile(kotlin_when_arm),
+    re.compile(r"\btakeIf\b"),
+    re.compile(r"\btakeUnless\b"),
+    re.compile(r"\bfilterNot\b"),
+    re.compile(r"\?\.let\b"),
     re.compile(r"[(,]\s*" + kotlin_parameter),
     re.compile(r"^\s*" + kotlin_parameter + r".*,\s*$"),
 ]
