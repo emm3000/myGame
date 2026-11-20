@@ -31,6 +31,8 @@ import {
   ReviewHintSchema,
   type Reviews,
   ReviewsSchema,
+  type Scaffold,
+  type ScaffoldChange,
   type SendCleanUp,
   type SendJob,
   type SignInRequest,
@@ -59,6 +61,7 @@ export interface ApiClient {
   signIn(request: SignInRequest): Promise<ApiOutcome<Player>>
   signOut(): Promise<ApiOutcome<undefined>>
   currentPlayer(): Promise<Player | undefined>
+  changeScaffold(scaffold: Scaffold): Promise<ApiOutcome<Player>>
   town(): Promise<ApiOutcome<TownOverview>>
   townNews(): Promise<ApiOutcome<TownNewsFeed>>
   text(textId: string): Promise<ApiOutcome<TextRead>>
@@ -177,6 +180,15 @@ export const createApiClient = (baseUrl: string): ApiClient => {
       }
       const outcome = await playerOf(response)
       return outcome.ok ? outcome.value : undefined
+    },
+    changeScaffold: async (scaffold) => {
+      const request: ScaffoldChange = { scaffold }
+      const response = await send('/player/scaffold', {
+        method: 'PUT',
+        headers: { 'content-type': 'application/json' },
+        body: JSON.stringify(request),
+      })
+      return response === undefined ? unexpected : playerOf(response)
     },
     town: async () => {
       const response = await send('/town', { method: 'GET' })

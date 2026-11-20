@@ -100,6 +100,7 @@ export const stubApiClient = (overrides: Partial<ApiClient> = {}): ApiClient => 
   signIn: async () => ({ ok: true, value: knownPlayer }),
   signOut: async () => ({ ok: true, value: undefined }),
   currentPlayer: async () => undefined,
+  changeScaffold: async (scaffold) => ({ ok: true, value: { ...knownPlayer, scaffold } }),
   town: async () => ({ ok: true, value: knownTown }),
   townNews: async () => ({ ok: true, value: { items: [] } }),
   text: async () => ({ ok: true, value: { kind: 'notOpen' } }),
