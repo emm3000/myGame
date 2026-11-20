@@ -1,25 +1,19 @@
 package com.emm.mygame.feature.report
 
 import androidx.compose.runtime.MutableState
-import org.robolectric.annotation.GraphicsMode
-import org.robolectric.annotation.Config
-import org.junit.Assert.assertFalse
-import androidx.compose.ui.text.TextLayoutResult
-import androidx.compose.ui.test.onRoot
-import androidx.compose.ui.test.getBoundsInRoot
-import androidx.compose.ui.test.SemanticsNodeInteraction
-import androidx.compose.ui.semantics.SemanticsActions
 import androidx.compose.runtime.State
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.ui.semantics.LiveRegionMode
 import androidx.compose.ui.semantics.SemanticsProperties
 import androidx.compose.ui.test.SemanticsMatcher
+import androidx.compose.ui.test.SemanticsNodeInteraction
 import androidx.compose.ui.test.assert
 import androidx.compose.ui.test.assertCountEquals
 import androidx.compose.ui.test.assertIsDisplayed
+import androidx.compose.ui.test.getBoundsInRoot
 import androidx.compose.ui.test.getUnclippedBoundsInRoot
-import androidx.compose.ui.test.hasClickAction
 import androidx.compose.ui.test.hasAnyAncestor
+import androidx.compose.ui.test.hasClickAction
 import androidx.compose.ui.test.hasTestTag
 import androidx.compose.ui.test.hasText
 import androidx.compose.ui.test.isHeading
@@ -28,8 +22,10 @@ import androidx.compose.ui.test.junit4.createComposeRule
 import androidx.compose.ui.test.onAllNodesWithTag
 import androidx.compose.ui.test.onAllNodesWithText
 import androidx.compose.ui.test.onNodeWithText
+import androidx.compose.ui.test.onRoot
 import androidx.compose.ui.test.performClick
 import androidx.compose.ui.test.performScrollTo
+import androidx.compose.ui.text.TextLayoutResult
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.DpRect
 import androidx.compose.ui.unit.dp
@@ -50,11 +46,14 @@ import java.time.ZoneId
 import kotlin.time.Duration.Companion.hours
 import kotlin.time.Instant
 import org.junit.Assert.assertEquals
+import org.junit.Assert.assertFalse
 import org.junit.Assert.assertTrue
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.robolectric.RobolectricTestRunner
+import org.robolectric.annotation.Config
+import org.robolectric.annotation.GraphicsMode
 
 @RunWith(RobolectricTestRunner::class)
 class ReportScreenTest {
@@ -314,12 +313,6 @@ class ReportScreenTest {
         show(contentWith(news = ReportUiState.ReportNews.Closed))
 
         composeRule.onAllNodesWithText("Cerrar las noticias").assertCountEquals(0)
-    }
-
-    private fun layoutOf(node: SemanticsNodeInteraction): TextLayoutResult {
-        val results: MutableList<TextLayoutResult> = mutableListOf()
-        node.fetchSemanticsNode().config[SemanticsActions.GetTextLayoutResult].action?.invoke(results)
-        return results.first()
     }
 
     private fun topOf(line: String): Float =
