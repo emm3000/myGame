@@ -50,7 +50,7 @@ class TownTextNavigationTest {
         sentences = listOf(listOf(FrameSpan("We open a shop on the river.", null))),
     )
 
-    private val caughtUpWithTheShop: TownSnapshot = townOf(
+    private val caughtUpWithANewestText: TownSnapshot = townOf(
         readAt,
         nextStep = NextStep.CaughtUp(
             CaughtUpReason.LessonsDone,
@@ -62,7 +62,7 @@ class TownTextNavigationTest {
 
     @Test
     fun `opens the newest text from its line on the town home`() {
-        repeat(READS_AVAILABLE) { towns.answerRead(TownReadResult.Read(caughtUpWithTheShop)) }
+        repeat(READS_AVAILABLE) { towns.answerRead(TownReadResult.Read(caughtUpWithANewestText)) }
         composeRule.setContent {
             MyGameTheme {
                 AppNavigation(
