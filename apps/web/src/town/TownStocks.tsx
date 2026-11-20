@@ -1,6 +1,7 @@
 import {
   schoolSkillName,
   townFull,
+  townFullAt,
   townPeople,
   townRate,
   townSeasonLine,
@@ -18,6 +19,7 @@ import { SeasonLine } from '../design-system/SeasonLine'
 import { Track } from '../design-system/Track'
 import { townResourceNameOf } from '../resources/townResourceNameOf'
 import { seasonNameOf } from '../seasons/seasonNameOf'
+import { formatClock } from '../time/formatClock'
 import type { LiveTown } from './liveTown'
 import { townSeasonEndsInOf } from './townSeasonEndsInOf'
 
@@ -39,16 +41,38 @@ function SkillMark({
   )
 }
 
+const fillHourWindowMilliseconds = 8 * 60 * 60 * 1000
+
+const fillsWithinWindow = (fullAt: string | null, readAt: string): fullAt is string =>
+  fullAt !== null && Date.parse(fullAt) - Date.parse(readAt) <= fillHourWindowMilliseconds
+
+const rateLineOf = (
+  stock: TownOverview['stocks'][ResourceKind],
+  isFull: boolean,
+  readAt: string,
+  at: Date,
+): string => {
+  const { fullAt } = stock
+  if (isFull || !fillsWithinWindow(fullAt, readAt)) {
+    return townRate({ rate: formatQuantity(Math.floor(stock.ratePerHour)) })
+  }
+  return townFullAt({ clock: formatClock(new Date(fullAt), at) })
+}
+
 function StockItem({
   resource,
   amount,
   stock,
   skills,
+  readAt,
+  at,
 }: {
   readonly resource: ResourceKind
   readonly amount: number
   readonly stock: TownOverview['stocks'][ResourceKind]
   readonly skills: TownOverview['skills']
+  readonly readAt: string
+  readonly at: Date
 }): ReactElement {
   const Icon = resourceAccent[resource]
   const shown = Math.floor(amount)
@@ -63,7 +87,7 @@ function StockItem({
       <span className="font-sans text-numeral text-ink">{formatQuantity(shown)}</span>
       <span className="flex flex-wrap justify-between gap-x-3 font-sans text-caption text-ink-muted tabular-nums">
         <span>{isFull ? townFull({ capacity }) : townStockOf({ capacity })}</span>
-        <span>{townRate({ rate: formatQuantity(Math.floor(stock.ratePerHour)) })}</span>
+        <span>{rateLineOf(stock, isFull, readAt, at)}</span>
       </span>
       <Track value={shown} total={stock.capacity} fillClass="fill-ink" />
       <SkillMark resource={resource} skills={skills} />
@@ -121,6 +145,8 @@ export function TownStocks({ town, titleRef }: TownStocksProps): ReactElement {
             amount={stocks[resource]}
             stock={overview.stocks[resource]}
             skills={overview.skills}
+            readAt={overview.readAt}
+            at={town.at}
           />
         ))}
       </ul>

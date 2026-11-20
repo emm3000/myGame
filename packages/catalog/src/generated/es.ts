@@ -231,6 +231,7 @@ export const townAtTopLevel = (): string => `Ya está en su nivel más alto.`
 export const townBuild = ({ level }: { readonly level: string | number }): string => `Construir nivel ${String(level)}`
 export const townCostName = ({ resource }: { readonly resource: string | number }): string => `de ${String(resource)}`
 export const townFull = ({ capacity }: { readonly capacity: string | number }): string => `Lleno: ${String(capacity)}`
+export const townFullAt = ({ clock }: { readonly clock: string | number }): string => `Lleno ${String(clock)}`
 export const townGoToSchool = (): string => `Ir a la escuela`
 export const townGoalClose = (): string => `Cerrar la meta`
 export const townGoalLine = ({ count, level, place, position }: { readonly count: string | number; readonly level: string | number; readonly place: string | number; readonly position: string | number }): string => `Meta ${String(position)} de ${String(count)}: ${String(place)}, nivel ${String(level)}`

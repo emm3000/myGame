@@ -754,6 +754,7 @@
   "town.build": "Construir nivel {level}",
   "town.costName": "de {resource}",
   "town.full": "Lleno: {capacity}",
+  "town.fullAt": "Lleno {clock}",
   "town.goToSchool": "Ir a la escuela",
   "town.goal.close": "Cerrar la meta",
   "town.goal.line": "Meta {position} de {count}: {place}, nivel {level}",
