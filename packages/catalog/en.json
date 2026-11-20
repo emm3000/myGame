@@ -716,6 +716,7 @@
   "review.failed": "We could not read your reviews.",
   "review.hint": "It starts with “{firstLetter}” and has {letterCount, plural, =1 {# letter} other {# letters}}.",
   "review.lessonReady": "Lesson {number} is ready",
+  "review.levelOpen": "You have the words for level {level} now.",
   "review.loading": "Reading your reviews…",
   "review.nearMiss": "Almost. Check the spelling and try again.",
   "review.next": "Next",

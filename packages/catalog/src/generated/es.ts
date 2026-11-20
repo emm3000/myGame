@@ -193,6 +193,7 @@ export const reviewDueCount = ({ count }: { readonly count: string | number }): 
 export const reviewFailed = (): string => `No hemos podido leer tu repaso.`
 export const reviewHint = ({ firstLetter, letterCount }: { readonly firstLetter: string | number; readonly letterCount: number }): string => `Empieza por «${String(firstLetter)}» y tiene ${letterCount === 1 ? `${String(letterCount)} letra` : `${String(letterCount)} letras`}.`
 export const reviewLessonReady = ({ number }: { readonly number: string | number }): string => `La lección ${String(number)} está lista`
+export const reviewLevelOpen = ({ level }: { readonly level: string | number }): string => `Ya tienes las palabras para el nivel ${String(level)}.`
 export const reviewLoading = (): string => `Estamos leyendo tu repaso…`
 export const reviewNearMiss = (): string => `Casi. Revisa cómo se escribe y vuelve a comprobar.`
 export const reviewNext = (): string => `Siguiente`

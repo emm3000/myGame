@@ -9,6 +9,7 @@ import {
   reviewDueCount,
   reviewFailed,
   reviewHint,
+  reviewLevelOpen,
   reviewLoading,
   reviewNearMiss,
   reviewNext,
@@ -414,6 +415,53 @@ it('shows an earned skill without rates while the player holds no town', async (
   expect(
     screen.getByText(reviewSkillRate({ percent: 5, resource: townResourceNameOf('food') })),
   ).toBeTruthy()
+})
+
+it('draws the opened level after the verdict line and the earned skill', async () => {
+  const answerReview = answering({
+    ...correctSchool,
+    openedLevel: 3,
+    earnedSkill: { ...foodSkill, level: 2, ratePerHourBefore: 120, ratePerHourAfter: 126 },
+  })
+  await showReview(recallDue, { answerReview })
+
+  await typeAndCheck('school')
+
+  const verdict = screen.getByRole('region', { name: reviewCorrect() })
+  const lines = Array.from(verdict.querySelectorAll('p'), (line) => line.textContent)
+  const levelLine = reviewLevelOpen({ level: 3 })
+  expect(lines.at(-1)).toBe(levelLine)
+  expect(lines.indexOf(reviewCorrect())).toBeLessThan(lines.indexOf(levelLine))
+  expect(
+    lines.indexOf(reviewSkillEarned({ resource: townResourceNameOf('food'), level: 2 })),
+  ).toBeLessThan(lines.indexOf(levelLine))
+})
+
+it('draws no level line when a correct answer opens none', async () => {
+  await showReview(recallDue, { answerReview: answering(correctSchool) })
+
+  await typeAndCheck('school')
+
+  expect(screen.getByText(reviewCorrect())).toBeTruthy()
+  expect(screen.queryByText(reviewLevelOpen({ level: 3 }))).toBeNull()
+})
+
+it('draws no level line after a wrong answer', async () => {
+  const answerReview = answering({
+    kind: 'wrong',
+    word: 'school',
+    gloss: 'escuela',
+    dueAt: readInstant,
+    stableWordCount: 0,
+    retainedWordCount: 0,
+    openedLevel: 3,
+  })
+  await showReview(recallDue, { answerReview })
+
+  await typeAndCheck('house')
+
+  expect(screen.getByText(reviewWrong())).toBeTruthy()
+  expect(screen.queryByText(reviewLevelOpen({ level: 3 }))).toBeNull()
 })
 
 it('caps the typed answer at the 100 characters the api accepts', async () => {

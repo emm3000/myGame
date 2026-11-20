@@ -716,6 +716,7 @@
   "review.failed": "No hemos podido leer tu repaso.",
   "review.hint": "Empieza por «{firstLetter}» y tiene {letterCount, plural, =1 {# letra} other {# letras}}.",
   "review.lessonReady": "La lección {number} está lista",
+  "review.levelOpen": "Ya tienes las palabras para el nivel {level}.",
   "review.loading": "Estamos leyendo tu repaso…",
   "review.nearMiss": "Casi. Revisa cómo se escribe y vuelve a comprobar.",
   "review.next": "Siguiente",
