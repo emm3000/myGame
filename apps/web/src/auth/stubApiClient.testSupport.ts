@@ -102,6 +102,7 @@ export const stubApiClient = (overrides: Partial<ApiClient> = {}): ApiClient => 
   currentPlayer: async () => undefined,
   town: async () => ({ ok: true, value: knownTown }),
   townNews: async () => ({ ok: true, value: { items: [] } }),
+  text: async () => ({ ok: true, value: { kind: 'notOpen' } }),
   foundTown: async () => ({ ok: true, value: knownTown }),
   startBuildingWork: async () => ({ ok: true, value: knownTown }),
   stopBuildingWork: async () => ({ ok: true, value: knownTown }),

@@ -10,6 +10,8 @@ import {
   type JobQuote,
   JobQuoteSchema,
   type MarkTipSeen,
+  type OpenText,
+  OpenTextSchema,
   type PlaceHiringOrder,
   type BuildingKind as PlaceKind,
   type Placement,
@@ -59,6 +61,7 @@ export interface ApiClient {
   currentPlayer(): Promise<Player | undefined>
   town(): Promise<ApiOutcome<TownOverview>>
   townNews(): Promise<ApiOutcome<TownNewsFeed>>
+  text(textId: string): Promise<ApiOutcome<TextRead>>
   foundTown(name: string): Promise<ApiOutcome<TownOverview>>
   startBuildingWork(place: PlaceKind): Promise<ApiOutcome<TownOverview>>
   stopBuildingWork(target: StopBuildingWork): Promise<ApiOutcome<TownOverview>>
@@ -88,6 +91,10 @@ export interface ApiClient {
   forgotPassword(email: string): Promise<ApiRefusal | undefined>
   resetPassword(request: ResetPasswordRequest): Promise<ApiRefusal | undefined>
 }
+
+export type TextRead =
+  | { readonly kind: 'open'; readonly text: OpenText }
+  | { readonly kind: 'notOpen' }
 
 export interface AnsweredReview {
   readonly wordId: string
@@ -121,6 +128,17 @@ const refusalOrNothing = async (
     return 'Unexpected'
   }
   return response.ok ? undefined : refusalKindOf(response)
+}
+
+const notOpen: ApiOutcome<TextRead> = { ok: true, value: { kind: 'notOpen' } }
+
+const textReadOf = async (response: Response): Promise<ApiOutcome<TextRead>> => {
+  if (response.status === 404) {
+    const refusal = await refusalKindOf(response)
+    return refusal === 'Unexpected' ? notOpen : { ok: false, refusal }
+  }
+  const outcome = await bodyOf(response, OpenTextSchema)
+  return outcome.ok ? { ok: true, value: { kind: 'open', text: outcome.value } } : outcome
 }
 
 const playerOf = (response: Response): Promise<ApiOutcome<Player>> => bodyOf(response, PlayerSchema)
@@ -167,6 +185,10 @@ export const createApiClient = (baseUrl: string): ApiClient => {
     townNews: async () => {
       const response = await send('/town/news', { method: 'GET' })
       return response === undefined ? unexpected : bodyOf(response, TownNewsFeedSchema)
+    },
+    text: async (textId) => {
+      const response = await send(`/town/texts/${encodeURIComponent(textId)}`, { method: 'GET' })
+      return response === undefined ? unexpected : textReadOf(response)
     },
     foundTown: async (name) => {
       const request: FoundTown = { name }

@@ -901,7 +901,6 @@ it('sends a lesson while another one runs in the slot, since the api decides', a
 const openTextOf = (number: number): TownOverview['texts'][number] => ({
   id: `text-${number}`,
   title: `Text ${number}`,
-  sentences: [[{ text: `Sentence of text ${number}.`, support: null }]],
 })
 
 const textList = (): HTMLElement | null => screen.queryByRole('region', { name: schoolTexts() })
@@ -923,10 +922,17 @@ it('shows no text list while no text is open', async () => {
 })
 
 it('opens a text from its row', async () => {
-  await showSchool(schoolOf({ texts: [openTextOf(1)] }))
+  const router = renderAppAt(
+    '/school',
+    stubApiClient({
+      currentPlayer: async () => knownPlayer,
+      town: async () => ({ ok: true, value: schoolOf({ texts: [openTextOf(1)] }) }),
+    }),
+  )
+  await passSeconds(0)
 
   fireEvent.click(screen.getByRole('link', { name: 'Text 1' }))
   await passSeconds(0)
 
-  expect(screen.getByRole('heading', { level: 1, name: 'Text 1' })).toBeDefined()
+  expect(router.state.location.pathname).toBe('/school/texts/text-1')
 })

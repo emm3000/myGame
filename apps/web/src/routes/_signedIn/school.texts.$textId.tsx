@@ -1,24 +1,25 @@
 import { townLoading } from '@mygame/catalog'
 import { createFileRoute, Navigate } from '@tanstack/react-router'
 import type { ReactElement, ReactNode } from 'react'
+import type { TextRead } from '../../api/apiClient'
 import { LoadingSkeleton, type LoadingSkeletonProps } from '../../design-system/LoadingSkeleton'
 import { NothingToRead } from '../../school/NothingToRead'
 import { SchoolTextScreen } from '../../school/SchoolTextScreen'
 import { SchoolTitled } from '../../school/SchoolTitled'
-import type { LiveTown } from '../../town/liveTown'
+import { type OpenTextHandle, useOpenText } from '../../school/useOpenText'
 import { TownReadFailed } from '../../town/TownReadFailed'
-import { useLayoutTown } from '../../town/useLayoutTown'
-import type { TownHandle } from '../../town/useTown'
 
-function TextPage({
-  town,
-  textId,
-}: {
-  readonly town: LiveTown
-  readonly textId: string
-}): ReactElement {
-  const text = town.overview.texts.find(({ id }) => id === textId)
-  return text === undefined ? <NothingToRead /> : <SchoolTextScreen key={text.id} text={text} />
+function TextPage({ read }: { readonly read: TextRead }): ReactElement {
+  switch (read.kind) {
+    case 'notOpen':
+      return <NothingToRead />
+    case 'open':
+      return <SchoolTextScreen key={read.text.id} text={read.text} />
+    default: {
+      const unreachable: never = read
+      return unreachable
+    }
+  }
 }
 
 const textSkeletonGroups: LoadingSkeletonProps['groups'] = [['control', 'place-card', 'action']]
@@ -31,44 +32,40 @@ function TextSkeletonFrame({ children }: { readonly children: ReactNode }): Reac
   )
 }
 
-function TextAnswer({
-  town,
-  textId,
-}: {
-  readonly town: TownHandle
-  readonly textId: string
-}): ReactElement | null {
-  switch (town.state.kind) {
+function TextAnswer({ text }: { readonly text: OpenTextHandle }): ReactElement | null {
+  const { state, reread } = text
+  switch (state.kind) {
     case 'loading':
       return null
-    case 'noTown':
-      return <Navigate to="/" />
     case 'refused':
-      return (
+      return state.refusal === 'TownNotFound' ? (
+        <Navigate to="/" />
+      ) : (
         <SchoolTitled>
-          <TownReadFailed refusal={town.state.refusal} onRetry={town.reread} />
+          <TownReadFailed refusal={state.refusal} onRetry={reread} />
         </SchoolTitled>
       )
-    case 'live':
-      return <TextPage town={town.state.town} textId={textId} />
+    case 'read':
+      return <TextPage read={state.read} />
     default: {
-      const unreachable: never = town.state
+      const unreachable: never = state
       return unreachable
     }
   }
 }
 
 function TextRoute(): ReactElement {
+  const { apiClient } = Route.useRouteContext()
   const { textId } = Route.useParams()
-  const town = useLayoutTown()
+  const text = useOpenText(apiClient, textId)
   return (
     <LoadingSkeleton
-      isLoading={town.state.kind === 'loading'}
+      isLoading={text.state.kind === 'loading'}
       line={townLoading()}
       groups={textSkeletonGroups}
       Frame={TextSkeletonFrame}
     >
-      <TextAnswer town={town} textId={textId} />
+      <TextAnswer text={text} />
     </LoadingSkeleton>
   )
 }

@@ -1,11 +1,9 @@
 import { townGoToSchool } from '@mygame/catalog'
-import type { FrameSpan, TownOverview, WordSupport } from '@mygame/contracts'
+import type { FrameSpan, OpenText, WordSupport } from '@mygame/contracts'
 import { type ReactElement, useId, useState } from 'react'
 import { Block } from '../design-system/Block'
 import { blockFocusTargetClass } from '../design-system/focusTargetClass'
 import { TextLink } from '../design-system/TextLink'
-
-type OpenText = TownOverview['texts'][number]
 
 interface SpanAt {
   readonly sentence: number

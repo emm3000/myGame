@@ -364,3 +364,40 @@ it('answers a dismissal the api cannot be reached for as unexpected', async () =
 
   expect(await createApiClient('/api').dismissGuidance()).toBe('Unexpected')
 })
+
+const openText = {
+  id: 'text-1',
+  title: 'A New Course',
+  sentences: [[{ text: 'We are at school.', support: null }]],
+}
+
+it('reads an open text by its id', async () => {
+  const fetch = answeringFetch(200, openText)
+
+  const outcome = await createApiClient('/api').text('text-1')
+
+  expect(outcome).toEqual({ ok: true, value: { kind: 'open', text: openText } })
+  const [url, init] = fetch.mock.calls[0] ?? []
+  expect(url).toBe('/api/town/texts/text-1')
+  expect(init?.method).toBe('GET')
+})
+
+it('answers an empty not found on a text as a text not open', async () => {
+  vi.stubGlobal(
+    'fetch',
+    vi.fn(async () => new Response(null, { status: 404 })),
+  )
+
+  const outcome = await createApiClient('/api').text('text-9')
+
+  expect(outcome).toEqual({ ok: true, value: { kind: 'notOpen' } })
+})
+
+it('answers a text read without a town by its refusal', async () => {
+  answeringFetch(404, { kind: 'TownNotFound' })
+
+  expect(await createApiClient('/api').text('text-1')).toMatchObject({
+    ok: false,
+    refusal: 'TownNotFound',
+  })
+})
