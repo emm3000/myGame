@@ -15,28 +15,17 @@ Totals of the rows folded out of Recent. Until #1207 they were also split by the
 
 | Model:effort | PRs | MERGE | FIX FIRST checklist | FIX FIRST judgment | FIX FIRST spec |
 |---|---|---|---|---|---|
-| sonnet:low | 32 | 24 | 0 | 1 | 7 |
+| sonnet:low | 35 | 27 | 0 | 1 | 7 |
 | sonnet:medium | 2 | 0 | 0 | 2 | 0 |
 | sonnet:high | 3 | 0 | 0 | 2 | 1 |
 | opus:medium | 103 | 77 | 11 | 12 | 3 |
-| opus:high | 410 | 270 | 60 | 50 | 29 |
+| opus:high | 418 | 275 | 61 | 50 | 31 |
 | fable:high | 79 | 60 | 2 | 12 | 5 |
 
 ## Recent
 
 | PR | Model:effort | First review | Cause | Rounds | Lines +/- |
 |---|---|---|---|---|---|
-| #1411 | opus:high | FIX FIRST | checklist | 2 | +294/-8 |
-| #1412 | opus:high | MERGE |  | 1 | +380/-0 |
-| #1413 | opus:high | MERGE |  | 1 | +96/-12 |
-| #1414 | opus:high | MERGE |  | 1 | +52/-17 |
-| #1415 | opus:high | FIX FIRST | spec | 2 | +17/-4 |
-| #1416 | opus:high | FIX FIRST | spec | 2 | +76/-22 |
-| #1417 | opus:high | MERGE |  | 1 | +150/-15 |
-| #1418 | sonnet:low | MERGE |  | 1 | +19/-23 |
-| #1419 | opus:high | MERGE |  | 1 | +5/-4 |
-| #1432 | sonnet:low | MERGE |  | 1 | +75/-43 |
-| #1433 | sonnet:low | MERGE |  | 1 | +27/-12 |
 | #1431 | sonnet:low | MERGE |  | 1 | +45/-37 |
 | #1434 | sonnet:low | MERGE |  | 1 | +2/-2 |
 | #1436 | opus:high | MERGE |  | 1 | +11/-0 |
@@ -46,3 +35,14 @@ Totals of the rows folded out of Recent. Until #1207 they were also split by the
 | #1440 | opus:high | MERGE |  | 1 | +39/-1 |
 | #1442 | opus:high | MERGE |  | 1 | +36/-0 |
 | #1443 | opus:high | FIX FIRST | checklist | 2 | +82/-42 |
+| #1449 | opus:high | MERGE |  | 1 | +24/-0 |
+| #1450 | opus:high | MERGE |  | 1 | +35/-25 |
+| #1452 | opus:high | MERGE |  | 1 | +179/-13 |
+| #1453 | sonnet:low | MERGE |  | 1 | +2/-2 |
+| #1454 | sonnet:low | MERGE |  | 1 | +4/-4 |
+| #1461 | sonnet:low | MERGE |  | 1 | +1/-1 |
+| #1463 | sonnet:low | MERGE |  | 1 | +3/-2 |
+| #1464 | sonnet:low | MERGE |  | 1 | +1/-1 |
+| #1465 | opus:high | MERGE |  | 1 | +197/-26 |
+| #1467 | opus:high | FIX FIRST | judgment | 2 | +1216/-13 |
+| #1468 | opus:high | MERGE |  | 1 | +1100/-107 |
