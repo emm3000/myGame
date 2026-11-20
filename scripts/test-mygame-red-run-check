@@ -247,6 +247,22 @@ EOF" \
   done
 }
 
+passes_a_long_heredoc_and_a_long_comment_run_within_two_seconds() {
+  local command started elapsed
+  for command in \
+    "python3 - <<'EOF'
+$(printf 'high = print\n%.0s' $(seq 4000))
+EOF" \
+    "gh pr view 1
+$(printf '# x\n%.0s' $(seq 4000))"; do
+    started=$SECONDS
+    hook "$command"
+    elapsed=$((SECONDS - started))
+    expect_pass "${FUNCNAME[0]}" || return 1
+    [ "$elapsed" -le 2 ] || fail "${FUNCNAME[0]}" "a $(printf '%s\n' "$command" | wc -l | tr -d ' ')-line command took ${elapsed} s" || return 1
+  done
+}
+
 blocks_a_body_file_with_no_row_naming_every_line() {
   printf 'Closes #1\n\nNo table here.\n' | write "$repo/notes/plain.md"
   hook "gh pr create --title t --body-file notes/plain.md"
@@ -480,6 +496,7 @@ run checks_gh_pr_create_inside_a_command_substitution_in_double_quotes
 run checks_gh_pr_create_after_a_closed_or_escaped_quote
 run checks_gh_pr_create_after_a_heredoc_or_a_comment_holding_an_apostrophe
 run passes_a_command_quoting_gh_pr_create_inside_a_heredoc_or_a_comment
+run passes_a_long_heredoc_and_a_long_comment_run_within_two_seconds
 run blocks_a_body_file_with_no_row_naming_every_line
 run checks_gh_pr_create_spelled_with_extra_whitespace
 run blocks_a_body_missing_one_row_and_names_exactly_that_path_line
