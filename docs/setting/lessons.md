@@ -646,3 +646,30 @@ The batch also gives each of the 55 entries of lessons 17 to 27 one later frame,
 | in fact | phrase | adverb | It is not a small town; in fact, it is a city. | It is not a small town; ____ ____, it is a city. | de hecho | a way to say that something is true, often more than you think |
 | at all | phrase | adverb | I do not like it at all. | I do not like it ____ ____. | para nada | in any way |
 
+## Texts
+
+One text closes every four band lessons, from lesson 31 on (ADR 049, #1273, #1276). It holds every card word of its four band lessons, the band lessons up to and including its `fromLessonId` with unit lessons skipped, in any form the grammar admits, and no token unknown at its lesson. The gate checks both. Its length, 80 to 150 tokens in band 1 as `tokensOf` counts the title and the sentences, is checked by the review of check 7. Each text is told in the first person by someone who lives in the town and names no one.
+
+### text-1, lesson 31
+
+**Title:** *A New Course*. **Band lessons:** 28 to 31. **Tokens:** 138. **In no card sense:** *before*.
+
+> I live in a little old house down by the river. Some days the power is off, but the house is my own. This fall I started a course at the school. On the first day, I asked a man at the power station where the school was. He pointed to number 4 on the map, between the farm and the factory. I went through the field, and there it was. In the course, we talk about the news. The people in the course come from many places, such as the city. Both of the people I study with help me with the words I do not know. Today the mayor came to meet us. Before I leave, I put my new words on a list. I think this town is a great place to live.
+
+### text-2, lesson 36
+
+**Title:** *Free Time*. **Band lessons:** 33 to 36. **Tokens:** 132.
+
+> My family came to this town from another country. Life here is very different from life in our old city. In my free time, I read a book by the river. For me, the river is the best part of the town. My children play in the big field by the school, and they always come home late. One day a week, a woman at the station asks me questions about my country. She has a great interest in the world. She asks why we came here and what we did in our old country. I also like to hear about her family. She wants to become a worker at the new factory. There is always something new to do here, and I have never had so much free time.
+
+### text-3, lesson 41
+
+**Title:** *A Small Business*. **Band lessons:** 38 to 41. **Tokens:** 127.
+
+> This month, my friend and I moved to the town to start a business. We live in a little house on a high hill, with farms all around it. Every day we leave home early and go down to our office by the station. We bring food from the farms to the people of the town. The office is open all day, and each worker has a job. A small group of workers helps us. Few people in town have a truck, so they need us. While we work, we talk about the news. My friend says we must keep some money for the winter. Let me tell you what I think: our business might be small, but it is important to the town.
+
+### text-4, lesson 46
+
+**Title:** *At the Market*. **Band lessons:** 43 to 46. **Tokens:** 147.
+
+> This spring, the town began a new market by the river. The government set a goal for it: good food from the farms for every home. I love the market, and I go there every week. You can buy many kinds of food there. To get there, follow the river down the hill and turn at the old factory. The children run to the river while we buy food. I always have a list in my hand. The market seems small, but the fact is, it has a lot of food. The office by the market has information about each farm. The pay for each worker includes some food. The mayor is away this week, but the workers know the plan. What will happen in the winter? Some people believe the market will close. In that case, we will buy food at the farms.

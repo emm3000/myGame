@@ -18,5 +18,61 @@
       "I think this town is a great place to live."
     ],
     "noCardSense": ["before"]
+  },
+  {
+    "id": "text-2",
+    "fromLessonId": "lesson-36",
+    "title": "Free Time",
+    "sentences": [
+      "My family came to this town from another country.",
+      "Life here is very different from life in our old city.",
+      "In my free time, I read a book by the river.",
+      "For me, the river is the best part of the town.",
+      "My children play in the big field by the school, and they always come home late.",
+      "One day a week, a woman at the station asks me questions about my country.",
+      "She has a great interest in the world.",
+      "She asks why we came here and what we did in our old country.",
+      "I also like to hear about her family.",
+      "She wants to become a worker at the new factory.",
+      "There is always something new to do here, and I have never had so much free time."
+    ]
+  },
+  {
+    "id": "text-3",
+    "fromLessonId": "lesson-41",
+    "title": "A Small Business",
+    "sentences": [
+      "This month, my friend and I moved to the town to start a business.",
+      "We live in a little house on a high hill, with farms all around it.",
+      "Every day we leave home early and go down to our office by the station.",
+      "We bring food from the farms to the people of the town.",
+      "The office is open all day, and each worker has a job.",
+      "A small group of workers helps us.",
+      "Few people in town have a truck, so they need us.",
+      "While we work, we talk about the news.",
+      "My friend says we must keep some money for the winter.",
+      "Let me tell you what I think: our business might be small, but it is important to the town."
+    ]
+  },
+  {
+    "id": "text-4",
+    "fromLessonId": "lesson-46",
+    "title": "At the Market",
+    "sentences": [
+      "This spring, the town began a new market by the river.",
+      "The government set a goal for it: good food from the farms for every home.",
+      "I love the market, and I go there every week.",
+      "You can buy many kinds of food there.",
+      "To get there, follow the river down the hill and turn at the old factory.",
+      "The children run to the river while we buy food.",
+      "I always have a list in my hand.",
+      "The market seems small, but the fact is, it has a lot of food.",
+      "The office by the market has information about each farm.",
+      "The pay for each worker includes some food.",
+      "The mayor is away this week, but the workers know the plan.",
+      "What will happen in the winter?",
+      "Some people believe the market will close.",
+      "In that case, we will buy food at the farms."
+    ]
   }
 ]
