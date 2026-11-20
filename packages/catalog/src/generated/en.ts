@@ -244,6 +244,7 @@ export const schoolSlotRefund = (): string => `Stop it and you can study it agai
 export const schoolSlotStop = (): string => `Stop studying`
 export const schoolSlotStopOf = ({ number }: { readonly number: string | number }): string => `Stop studying lesson ${String(number)}`
 export const schoolSlotTitle = (): string => `Studying`
+export const schoolTexts = (): string => `Read`
 export const shellLessonFinishClose = (): string => `Close`
 export const shellLessonFinishLine = ({ number }: { readonly number: string | number }): string => `Lesson ${String(number)} is done.`
 export const shellNavigationReport = (): string => `Report`

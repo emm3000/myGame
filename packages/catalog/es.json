@@ -767,6 +767,7 @@
   "school.slot.stop": "Parar el estudio",
   "school.slot.stopOf": "Parar el estudio de la lección {number}",
   "school.slot.title": "En estudio",
+  "school.texts": "Para leer",
   "shell.lessonFinish.close": "Cerrar",
   "shell.lessonFinish.line": "La lección {number} terminó.",
   "shell.navigation.report": "Informe",
