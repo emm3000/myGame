@@ -9,7 +9,7 @@ import androidx.compose.ui.text.TextLayoutResult
 
 private const val TNUM_FEATURE: String = "tnum"
 
-fun ComposeContentTestRule.tabularRunsOf(shownText: String): List<String> {
+internal fun ComposeContentTestRule.tabularRunsOf(shownText: String): List<String> {
     val layouts: MutableList<TextLayoutResult> = mutableListOf()
     onNodeWithText(shownText, substring = true, useUnmergedTree = true).fetchSemanticsNode()
         .config[SemanticsActions.GetTextLayoutResult].action?.invoke(layouts)

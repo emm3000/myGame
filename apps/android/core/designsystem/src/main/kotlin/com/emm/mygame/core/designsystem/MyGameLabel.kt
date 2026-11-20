@@ -26,8 +26,13 @@ fun MyGameText(label: MyGameLabel, style: TextStyle, color: Color, modifier: Mod
         MyGameText(text = label.text, style = style, color = color, modifier = modifier)
         return
     }
-    MyGameTranslatedLines(style = style, modifier = modifier) { lineStyle: TextStyle, isTranslation: Boolean ->
-        MyGameText(text = if (isTranslation) translation else label.text, style = lineStyle, color = color)
+    MyGameTranslatedLines(
+        text = label.text,
+        translation = translation,
+        style = style,
+        modifier = modifier,
+    ) { line: String, lineStyle: TextStyle ->
+        MyGameText(text = line, style = lineStyle, color = color)
     }
 }
 
@@ -44,25 +49,29 @@ fun MyGameText(
         MyGameText(text = styledLineOf(label.text), style = style, color = color, modifier = modifier)
         return
     }
-    MyGameTranslatedLines(style = style, modifier = modifier) { lineStyle: TextStyle, isTranslation: Boolean ->
-        MyGameText(
-            text = styledLineOf(if (isTranslation) translation else label.text),
-            style = lineStyle,
-            color = color,
-        )
+    MyGameTranslatedLines(
+        text = label.text,
+        translation = translation,
+        style = style,
+        modifier = modifier,
+    ) { line: String, lineStyle: TextStyle ->
+        MyGameText(text = styledLineOf(line), style = lineStyle, color = color)
     }
 }
 
+// Private helper: both callers pass the modifier, and each line is its own node, so no slot state is shared.
+@Suppress("ContentSlotReused", "ModifierWithoutDefault")
 @Composable
 private fun MyGameTranslatedLines(
+    text: String,
+    translation: String,
     style: TextStyle,
-    modifier: Modifier = Modifier,
-    drawLine: @Composable (lineStyle: TextStyle, isTranslation: Boolean) -> Unit,
+    modifier: Modifier,
+    drawLine: @Composable (line: String, lineStyle: TextStyle) -> Unit,
 ) {
     Column(horizontalAlignment = alignmentOf(style.textAlign), modifier = modifier) {
-        listOf(false, true).forEach { isTranslation: Boolean ->
-            drawLine(if (isTranslation) translationStyleOf(style) else style, isTranslation)
-        }
+        drawLine(text, style)
+        drawLine(translation, translationStyleOf(style))
     }
 }
 
