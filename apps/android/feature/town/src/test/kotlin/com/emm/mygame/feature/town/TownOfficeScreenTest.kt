@@ -5,6 +5,8 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.semantics.SemanticsActions
+import androidx.compose.ui.semantics.SemanticsNode
 import androidx.compose.ui.semantics.SemanticsProperties
 import androidx.compose.ui.test.SemanticsMatcher
 import androidx.compose.ui.test.assertIsDisplayed
@@ -14,11 +16,13 @@ import androidx.compose.ui.test.hasContentDescription
 import androidx.compose.ui.test.hasText
 import androidx.compose.ui.test.junit4.ComposeContentTestRule
 import androidx.compose.ui.test.junit4.createComposeRule
+import androidx.compose.ui.test.onAllNodesWithText
 import androidx.compose.ui.test.onNodeWithContentDescription
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
 import androidx.compose.ui.test.performScrollTo
 import androidx.compose.ui.test.performTextReplacement
+import androidx.compose.ui.text.TextLayoutResult
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.DpRect
 import androidx.compose.ui.unit.DpSize
@@ -36,6 +40,8 @@ import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.robolectric.RobolectricTestRunner
+import org.robolectric.annotation.Config
+import org.robolectric.annotation.GraphicsMode
 
 @RunWith(RobolectricTestRunner::class)
 class TownOfficeScreenTest {
@@ -177,6 +183,15 @@ class TownOfficeScreenTest {
         show(office.copy(hiring = busyHiring))
 
         composeRule.onNodeWithText("1 de 3 contratados").performScrollTo().assertIsDisplayed()
+    }
+
+    @Test
+    @Config(qualifiers = "+w360dp-h640dp", fontScale = 2.0f)
+    @GraphicsMode(GraphicsMode.Mode.NATIVE)
+    fun `breaks the hiring's name only between words on a phone at the largest font`() {
+        show(office.copy(hiring = busyHiring))
+
+        assertEquals(emptyList<String>(), wordFragmentsOf("Trabajadores"))
     }
 
     @Test
@@ -350,6 +365,23 @@ class TownOfficeScreenTest {
             composeRule.onNode(hasContentDescription(STREET, substring = true)).getUnclippedBoundsInRoot().top
         assertTrue("refusal ends at ${alert.bottom}, street starts at $streetTop", alert.bottom <= streetTop)
         assertTrue("refusal starts at ${alert.top}", alert.top >= 0.dp)
+    }
+
+    private fun wordFragmentsOf(name: String): List<String> {
+        val words: List<String> = name.split(" ")
+        val shown: List<SemanticsNode> =
+            composeRule.onAllNodesWithText(name, useUnmergedTree = true).fetchSemanticsNodes()
+        check(shown.isNotEmpty()) { "no node shows $name" }
+        return shown.flatMap(::linesOf).filterNot { line: String -> words.containsAll(line.trim().split(" ")) }
+    }
+
+    private fun linesOf(node: SemanticsNode): List<String> {
+        val layouts: MutableList<TextLayoutResult> = mutableListOf()
+        node.config[SemanticsActions.GetTextLayoutResult].action?.invoke(layouts)
+        val layout: TextLayoutResult = layouts.single()
+        return (0 until layout.lineCount).map { line: Int ->
+            layout.layoutInput.text.text.substring(layout.getLineStart(line), layout.getLineEnd(line))
+        }
     }
 
     private fun show(shown: TownUiState.OfficeLine) {

@@ -2,6 +2,7 @@ package com.emm.mygame.feature.town
 
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.FlowRow
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.padding
 import androidx.compose.runtime.Composable
@@ -100,9 +101,9 @@ private fun HireMarkRow(mark: TownUiState.DurationMark, modifier: Modifier = Mod
 
 @Composable
 private fun HiringTitle(hire: TownHireKind, count: Int, delivered: Int, modifier: Modifier = Modifier) {
-    Row(
-        verticalAlignment = Alignment.Bottom,
+    FlowRow(
         horizontalArrangement = Arrangement.spacedBy(MyGameSpacing.step2),
+        itemVerticalAlignment = Alignment.Bottom,
         modifier = modifier,
     ) {
         MyGameText(

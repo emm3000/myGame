@@ -88,6 +88,13 @@ class TownCaptionFiguresTest {
         assertEquals(listOf("3"), tabularRunsOf("termina en"))
     }
 
+    @Test
+    fun `sets tabular figures on the work's level and never on its word`() {
+        showWork(TownUiState.SlotLine.Done(TownBuildingKind.Farm, level = 2))
+
+        assertEquals(listOf("2"), tabularRunsOf("Nivel"))
+    }
+
     private fun tabularRunsOf(shownText: String): List<String> {
         val layouts: MutableList<TextLayoutResult> = mutableListOf()
         composeRule.onNodeWithText(shownText, substring = true, useUnmergedTree = true).fetchSemanticsNode()
@@ -125,6 +132,20 @@ class TownCaptionFiguresTest {
             closed = ClosedGuidance.none,
         )
         composeRule.setContent { MyGameTheme { PlaceStocks(place = TownBuildingKind.Storage, content = content) } }
+    }
+
+    private fun showWork(slot: TownUiState.SlotLine) {
+        val content: TownUiState.Content = townOf(readAt = localRead).contentAt(
+            now = localRead,
+            gap = Duration.ZERO,
+            mutations = TownMutations.none,
+            registered = TownRegistered.nothing,
+            hireEntries = emptyMap(),
+            closed = ClosedGuidance.none,
+        ).copy(slot = slot)
+        composeRule.setContent {
+            MyGameTheme { PlaceBuildingWork(place = TownBuildingKind.Farm, content = content, onIntent = {}) }
+        }
     }
 
     private fun showSeason(season: TownUiState.SeasonLine) {
