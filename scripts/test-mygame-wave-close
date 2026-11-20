@@ -266,6 +266,32 @@ closing_keeps_a_branch_whose_merged_state_gh_cannot_answer() {
   [ "$(rg -F 'gh pr list failed' <<<"$output")" = "gh pr list failed: branch fix/5-first kept" ] || fail "${FUNCNAME[0]}" "$output"
 }
 
+closing_keeps_trunk_when_no_worktree_holds_it() {
+  build_a_peer_with_two_earlier_merged_tickets_and_an_open_one earlier-trunk
+  git -C "$repo" switch -q --detach trunk
+  git -C "$case_dir/mygame-probe" switch -q trunk
+  git -C "$case_dir/mygame-probe" switch -q chore/7-probe
+  echo trunk >>"$case_dir/state/merged"
+  local output
+  output=$(with_stubs scripts/mygame-wave-close probe) || fail "${FUNCNAME[0]}" "$output" || return 1
+  git -C "$repo" show-ref --verify --quiet refs/heads/trunk || fail "${FUNCNAME[0]}" "local trunk deleted: $output" || return 1
+  git --git-dir="$case_dir/origin.git" show-ref --verify --quiet refs/heads/trunk || fail "${FUNCNAME[0]}" "origin trunk deleted: $output"
+}
+
+closing_leaves_a_merged_branch_gone_locally_to_the_orphan_report() {
+  build_a_peer_with_two_earlier_merged_tickets_and_an_open_one earlier-gone
+  git -C "$case_dir/mygame-probe" switch -q -c fix/4-gone trunk
+  git -C "$repo" push -q origin fix/4-gone
+  git -C "$case_dir/mygame-probe" switch -q chore/7-probe
+  git -C "$repo" branch -q -D fix/4-gone
+  echo fix/4-gone >>"$case_dir/state/merged"
+  local output
+  output=$(with_stubs scripts/mygame-wave-close probe) || fail "${FUNCNAME[0]}" "$output" || return 1
+  git --git-dir="$case_dir/origin.git" show-ref --verify --quiet refs/heads/fix/4-gone ||
+    fail "${FUNCNAME[0]}" "origin fix/4-gone deleted: $output" || return 1
+  [ "$(rg -F 'fix/4-gone' <<<"$output")" = "orphan: remote ref refs/remotes/origin/fix/4-gone" ] || fail "${FUNCNAME[0]}" "$output"
+}
+
 build_a_peer_with_its_own_avd() {
   build_a_merged_ticket_beside_a_live_peer "$1"
   add_an_avd mygame-probe
@@ -609,6 +635,8 @@ run closing_deletes_the_branches_of_the_peer_earlier_merged_tickets
 run closing_keeps_a_branch_of_the_peer_whose_pr_is_open
 run closing_keeps_a_merged_branch_another_peer_holds
 run closing_keeps_a_branch_whose_merged_state_gh_cannot_answer
+run closing_keeps_trunk_when_no_worktree_holds_it
+run closing_leaves_a_merged_branch_gone_locally_to_the_orphan_report
 run orphans_treats_a_same_name_claude_outside_the_worktree_as_not_live
 run closing_stops_the_peer_emulator_by_its_avd_and_deletes_the_avd
 run closing_probe_spares_the_mygame_probe2_emulator_and_avd

@@ -151,7 +151,7 @@ git -C "$repo" worktree prune
 merged_earlier() {
   local name count
   while read -r name; do
-    [ -n "$name" ] && [ "$name" != trunk ] && [ "$name" != "$branch" ] || continue
+    [ "$name" != trunk ] || continue
     awk -v name="$name" '$0 == name { found = 1 } END { exit found }' <<<"$held" || continue
     git -C "$repo" show-ref --verify --quiet "refs/heads/$name" || continue
     count=$(gh pr list --head "$name" --state merged --json number --jq length) ||
