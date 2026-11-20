@@ -47,7 +47,7 @@ Before `gh pr create`, run `scripts/mygame-branch-audit` in your worktree: every
 
 A mutation, fuzz or timing run, and any command that can loop, starts as `/usr/bin/timeout -k 1 <seconds> <command>`: at the bound it kills the command's whole process group. It is the only bound. `--foreground` and `subprocess.run(timeout=)` kill the direct child alone, and the Bash tool's timeout only moves the command to the background. _Why: four mutation runs outlived `subprocess.run(timeout=90)`, grew to 108 GB and panicked the owner's Mac (#1403)._
 
-- Exit 124 or 137 is a hang. Before the next command, `ps -Ao pid,ppid,rss,etime,comm -r | head -15` shows nothing you started; kill by PID what it does show, a `java` test worker included, since the Gradle daemon that forked it is outside the group. A mutation that hung runs once: its red-run row quotes the `exit 124` line.
+- Exit 124 or 137 is a hang. Before the next command, `ps -Ao pid,ppid,rss,etime,comm -r | head -15` shows nothing you started; kill by PID what it does show. A Gradle daemon forks its `java` test workers outside the group, and `comm` cannot tell yours from another peer's: kill a `java` only when `lsof -a -d cwd -p <pid>` prints a path inside your worktree, and report any other. A mutation that hung runs once: its red-run row quotes the `exit 124` line.
 - A script under `scripts/` is mutated only through its `scripts/test-mygame-*`, itself under the bound: the test bounds every call it makes, so a hang prints `FAIL` with `exit 124`.
 
 ## Screenshots
