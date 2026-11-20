@@ -14,38 +14,20 @@ import androidx.navigation3.runtime.NavKey
 import androidx.navigation3.runtime.rememberNavBackStack
 import androidx.test.ext.junit.rules.ActivityScenarioRule
 import com.emm.mygame.core.designsystem.MyGameTheme
-import com.emm.mygame.core.network.HoldoutCheckRepository
-import com.emm.mygame.core.network.LearningRepository
-import com.emm.mygame.core.network.PlacementRepository
 import com.emm.mygame.core.network.PlayerChromePhase
 import com.emm.mygame.core.network.PlayerLanguage
 import com.emm.mygame.core.network.PlayerScaffold
-import com.emm.mygame.core.network.ReminderNotifications
 import com.emm.mygame.core.network.ReportReadResult
-import com.emm.mygame.core.network.ReportRepository
 import com.emm.mygame.core.network.RestoreResult
 import com.emm.mygame.core.network.ScaffoldChangeResult
-import com.emm.mygame.core.network.SessionEnds
 import com.emm.mygame.core.network.SessionRepository
 import com.emm.mygame.core.network.SignedInPlayer
-import com.emm.mygame.core.network.StudyReminderChoice
-import com.emm.mygame.core.network.StudyReminderSettings
 import com.emm.mygame.core.network.ThemePick
-import com.emm.mygame.core.network.ThemeSettings
 import com.emm.mygame.core.network.TownReport
-import com.emm.mygame.core.network.TownRepository
-import com.emm.mygame.core.testing.FakeHoldoutCheckRepository
-import com.emm.mygame.core.testing.FakeLearningRepository
-import com.emm.mygame.core.testing.FakePlacementRepository
-import com.emm.mygame.core.testing.FakeReminderNotifications
 import com.emm.mygame.core.testing.FakeReportRepository
 import com.emm.mygame.core.testing.FakeSessionRepository
-import com.emm.mygame.core.testing.FakeStudyReminderSettings
 import com.emm.mygame.core.testing.FakeThemeSettings
-import com.emm.mygame.core.testing.FakeTownRepository
-import kotlin.time.Clock
 import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.emptyFlow
 import org.junit.Assert.assertEquals
 import org.junit.Rule
@@ -62,18 +44,18 @@ class SettingsNavigationTest {
     val composeRule: AndroidComposeTestRule<ActivityScenarioRule<ComponentActivity>, ComponentActivity> =
         createAndroidComposeRule<ComponentActivity>()
 
-    private val sessionsFake: FakeSessionRepository = FakeSessionRepository()
+    private val sessions: FakeSessionRepository = FakeSessionRepository()
 
-    private val reportsFake: FakeReportRepository = FakeReportRepository()
+    private val reports: FakeReportRepository = FakeReportRepository()
 
     private val latestRead: MutableStateFlow<PlayerLanguage?> =
         MutableStateFlow(PlayerLanguage(PlayerScaffold.Spanish, PlayerChromePhase.Scaffold))
 
     private val heldScaffold: MutableStateFlow<PlayerScaffold?> = MutableStateFlow(PlayerScaffold.Spanish)
 
-    private val sessionsHoldingTheAnsweredLanguage: SessionRepository = object : SessionRepository by sessionsFake {
+    private val sessionsHoldingTheAnsweredLanguage: SessionRepository = object : SessionRepository by sessions {
         override suspend fun changeScaffold(scaffold: PlayerScaffold): ScaffoldChangeResult {
-            val answer: ScaffoldChangeResult = sessionsFake.changeScaffold(scaffold)
+            val answer: ScaffoldChangeResult = sessions.changeScaffold(scaffold)
             val answered: PlayerScaffold? = (answer as? ScaffoldChangeResult.Changed)?.player?.scaffold
             if (answered == null) return answer
             latestRead.value = PlayerLanguage(answered, PlayerChromePhase.English)
@@ -82,25 +64,15 @@ class SettingsNavigationTest {
         }
     }
 
-    private val themesFake: FakeThemeSettings = FakeThemeSettings(ThemePick.System)
+    private val themes: FakeThemeSettings = FakeThemeSettings(ThemePick.System)
 
-    private val dependencies: AppDependencies = object : AppDependencies {
-        override val clock: Clock = Clock.System
-        override val sessionEnds: SessionEnds = SessionEnds()
-        override val playerLanguage: StateFlow<PlayerLanguage?> = latestRead
-        override val playerScaffold: StateFlow<PlayerScaffold?> = heldScaffold
-        override val sessions: SessionRepository = sessionsHoldingTheAnsweredLanguage
-        override val towns: TownRepository = FakeTownRepository()
-        override val learning: LearningRepository = FakeLearningRepository()
-        override val reports: ReportRepository = reportsFake
-        override val placements: PlacementRepository = FakePlacementRepository()
-        override val holdoutChecks: HoldoutCheckRepository = FakeHoldoutCheckRepository()
-        override val studyReminders: StudyReminderSettings =
-            FakeStudyReminderSettings(StudyReminderChoice.firstChoice)
-        override val reminderNotifications: ReminderNotifications =
-            FakeReminderNotifications(areAllowed = true, canAsk = true)
-        override val themes: ThemeSettings = themesFake
-    }
+    private val dependencies: AppDependencies = dependenciesOf(
+        playerLanguage = latestRead,
+        playerScaffold = heldScaffold,
+        sessions = sessionsHoldingTheAnsweredLanguage,
+        reports = reports,
+        themes = themes,
+    )
 
     private val nothingDue: TownReport =
         TownReport(dueCount = 0, readFirst = emptyList(), nextDueAt = null, news = emptyList())
@@ -114,8 +86,8 @@ class SettingsNavigationTest {
     }
 
     private fun showReading(session: RestoreResult, vararg destinations: Destination) {
-        repeat(SESSION_READS) { sessionsFake.answerRestore(session) }
-        reportsFake.answerRead(ReportReadResult.Read(nothingDue))
+        repeat(SESSION_READS) { sessions.answerRestore(session) }
+        reports.answerRead(ReportReadResult.Read(nothingDue))
         composeRule.setContent {
             MyGameTheme {
                 val backStack: NavBackStack<NavKey> = rememberNavBackStack(*destinations)
@@ -152,7 +124,7 @@ class SettingsNavigationTest {
         composeRule.onNodeWithText("Oscuro").performScrollTo().performClick()
         composeRule.waitForIdle()
 
-        assertEquals(ThemePick.Dark, themesFake.pick.value)
+        assertEquals(ThemePick.Dark, themes.pick.value)
     }
 
     @Test
@@ -164,7 +136,7 @@ class SettingsNavigationTest {
         composeRule.onNodeWithText("Oscuro").performScrollTo().performClick()
         composeRule.waitForIdle()
 
-        assertEquals(ThemePick.Dark, themesFake.pick.value)
+        assertEquals(ThemePick.Dark, themes.pick.value)
     }
 
     @Test
@@ -185,7 +157,7 @@ class SettingsNavigationTest {
         waitForLine(NONE_OPTION_IN_SPANISH)
 
         composeRule.onNodeWithText(NONE_OPTION_IN_SPANISH).performScrollTo().performClick()
-        sessionsFake.answerScaffoldChange(ScaffoldChangeResult.Changed(playerWith(PlayerScaffold.None)))
+        sessions.answerScaffoldChange(ScaffoldChangeResult.Changed(playerWith(PlayerScaffold.None)))
 
         waitForLine("Saved.")
         composeRule.onAllNodesWithText("Settings").assertCountEquals(1)
@@ -198,9 +170,9 @@ class SettingsNavigationTest {
         show(Destination.Town, Destination.Report, Destination.Settings)
         waitForLine(NONE_OPTION_IN_SPANISH)
         composeRule.onNodeWithText(NONE_OPTION_IN_SPANISH).performScrollTo().performClick()
-        sessionsFake.answerScaffoldChange(ScaffoldChangeResult.Changed(playerWith(PlayerScaffold.None)))
+        sessions.answerScaffoldChange(ScaffoldChangeResult.Changed(playerWith(PlayerScaffold.None)))
         waitForLine("Saved.")
-        reportsFake.answerRead(ReportReadResult.Read(nothingDue))
+        reports.answerRead(ReportReadResult.Read(nothingDue))
 
         composeRule.activityRule.scenario.onActivity { activity: ComponentActivity ->
             activity.onBackPressedDispatcher.onBackPressed()

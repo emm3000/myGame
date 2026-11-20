@@ -29,7 +29,7 @@ class MainActivityThemeTest {
 
     @Before
     fun answerNoSession() {
-        application.sessionsFake.answerRestore(RestoreResult.SignedOut)
+        application.sessions.answerRestore(RestoreResult.SignedOut)
     }
 
     @Test

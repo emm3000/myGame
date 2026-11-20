@@ -19,46 +19,20 @@ import androidx.compose.ui.test.performScrollTo
 import androidx.lifecycle.Lifecycle
 import androidx.test.ext.junit.rules.ActivityScenarioRule
 import com.emm.mygame.core.designsystem.MyGameTheme
-import com.emm.mygame.core.network.CaughtUpReason
-import com.emm.mygame.core.network.HoldoutCheckRepository
-import com.emm.mygame.core.network.LearningRepository
-import com.emm.mygame.core.network.NextStep
-import com.emm.mygame.core.network.PlacementRepository
-import com.emm.mygame.core.network.PlayerLanguage
 import com.emm.mygame.core.network.PlayerScaffold
-import com.emm.mygame.core.network.ReminderNotifications
 import com.emm.mygame.core.network.ReportReadResult
-import com.emm.mygame.core.network.ReportRepository
 import com.emm.mygame.core.network.RestoreResult
-import com.emm.mygame.core.network.SessionEnds
-import com.emm.mygame.core.network.SessionRepository
 import com.emm.mygame.core.network.SignedInPlayer
-import com.emm.mygame.core.network.StudyReminderChoice
-import com.emm.mygame.core.network.StudyReminderSettings
-import com.emm.mygame.core.network.ThemePick
-import com.emm.mygame.core.network.ThemeSettings
-import com.emm.mygame.core.network.TownBuildingKind
-import com.emm.mygame.core.network.TownLabel
 import com.emm.mygame.core.network.TownReadResult
 import com.emm.mygame.core.network.TownReport
-import com.emm.mygame.core.network.TownRepository
 import com.emm.mygame.core.network.TownSnapshot
 import com.emm.mygame.core.network.VerificationResendResult
-import com.emm.mygame.core.testing.FakeHoldoutCheckRepository
-import com.emm.mygame.core.testing.FakeLearningRepository
-import com.emm.mygame.core.testing.FakePlacementRepository
-import com.emm.mygame.core.testing.FakeReminderNotifications
 import com.emm.mygame.core.testing.FakeReportRepository
 import com.emm.mygame.core.testing.FakeSessionRepository
-import com.emm.mygame.core.testing.FakeStudyReminderSettings
-import com.emm.mygame.core.testing.FakeThemeSettings
 import com.emm.mygame.core.testing.FakeTownRepository
-import com.emm.mygame.core.testing.hiringOf
+import com.emm.mygame.core.testing.townOf
 import com.emm.mygame.feature.town.TOWN_DOCK
-import kotlin.time.Clock
 import kotlin.time.Instant
-import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.emptyFlow
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertTrue
@@ -74,29 +48,17 @@ class VerificationBannerNavigationTest {
     val composeRule: AndroidComposeTestRule<ActivityScenarioRule<ComponentActivity>, ComponentActivity> =
         createAndroidComposeRule<ComponentActivity>()
 
-    private val sessionsFake: FakeSessionRepository = FakeSessionRepository()
+    private val sessions: FakeSessionRepository = FakeSessionRepository()
 
-    private val townsFake: FakeTownRepository = FakeTownRepository()
+    private val towns: FakeTownRepository = FakeTownRepository()
 
-    private val reportsFake: FakeReportRepository = FakeReportRepository()
+    private val reports: FakeReportRepository = FakeReportRepository()
 
-    private val dependencies: AppDependencies = object : AppDependencies {
-        override val clock: Clock = Clock.System
-        override val sessionEnds: SessionEnds = SessionEnds()
-        override val playerLanguage: StateFlow<PlayerLanguage?> = MutableStateFlow(null)
-        override val playerScaffold: StateFlow<PlayerScaffold?> = MutableStateFlow(null)
-        override val sessions: SessionRepository = sessionsFake
-        override val towns: TownRepository = townsFake
-        override val learning: LearningRepository = FakeLearningRepository()
-        override val reports: ReportRepository = reportsFake
-        override val placements: PlacementRepository = FakePlacementRepository()
-        override val holdoutChecks: HoldoutCheckRepository = FakeHoldoutCheckRepository()
-        override val studyReminders: StudyReminderSettings =
-            FakeStudyReminderSettings(StudyReminderChoice.firstChoice)
-        override val reminderNotifications: ReminderNotifications =
-            FakeReminderNotifications(areAllowed = true, canAsk = true)
-        override val themes: ThemeSettings = FakeThemeSettings(ThemePick.System)
-    }
+    private val dependencies: AppDependencies = dependenciesOf(
+        sessions = sessions,
+        towns = towns,
+        reports = reports,
+    )
 
     private val unverifiedSession: RestoreResult =
         RestoreResult.SignedIn(
@@ -108,35 +70,7 @@ class VerificationBannerNavigationTest {
             SignedInPlayer("player@example.com", isEmailVerified = true, scaffold = PlayerScaffold.Spanish),
         )
 
-    private val heldTown: TownSnapshot = TownSnapshot(
-        name = "Riverton",
-        label = TownLabel.Town,
-        seasonInForce = null,
-        seasonEndsAt = null,
-        stocks = emptyList(),
-        people = TownSnapshot.People(supplied = 10, free = 4, atWork = 6),
-        buildings = listOf(
-            TownSnapshot.Building(TownBuildingKind.School, level = 1, next = null),
-            TownSnapshot.Building(TownBuildingKind.Office, level = 0, next = null),
-        ),
-        work = TownSnapshot.Work(slot = null, waitingList = emptyList(), cap = 2),
-        lessons = emptyList(),
-        releasedLessons = emptyList(),
-        texts = emptyList(),
-        dueHoldoutChecks = emptyList(),
-        hasBandStarted = false,
-        skills = emptyList(),
-        learning = TownSnapshot.Learning(cap = 10, inLearning = 0, retainedWords = null, nextInLearningDueAt = null),
-        stableWordCount = 0,
-        retainedWordCount = 0,
-        lessonSlot = null,
-        hiring = hiringOf(),
-        job = null,
-        nextStep = NextStep.CaughtUp(CaughtUpReason.LessonsDone, goal = null),
-        tip = null,
-        nextDueAt = null,
-        readAt = Instant.parse("2026-11-05T10:00:00Z"),
-    )
+    private val heldTown: TownSnapshot = townOf(Instant.parse("2026-11-05T10:00:00Z"))
 
     private val nothingDue: TownReport =
         TownReport(dueCount = 0, readFirst = emptyList(), nextDueAt = null, news = emptyList())
@@ -191,7 +125,7 @@ class VerificationBannerNavigationTest {
     fun `hides the banner on the return from a verify made on the web`() {
         signedIn(session = unverifiedSession, town = TownReadResult.Read(heldTown))
         waitForLine(BANNER_LINE)
-        sessionsFake.answerRestore(verifiedSession)
+        sessions.answerRestore(verifiedSession)
 
         composeRule.activityRule.scenario.moveToState(Lifecycle.State.CREATED)
         composeRule.activityRule.scenario.moveToState(Lifecycle.State.RESUMED)
@@ -208,21 +142,21 @@ class VerificationBannerNavigationTest {
         waitForLine(BANNER_LINE)
 
         composeRule.onNodeWithText(RESEND).performClick()
-        sessionsFake.answerResend(VerificationResendResult.Sent)
+        sessions.answerResend(VerificationResendResult.Sent)
         waitForLine("Enviado. Revisa tu correo.")
 
-        assertEquals(1, sessionsFake.resendCount)
+        assertEquals(1, sessions.resendCount)
     }
 
     @Test
     fun `draws no banner on sign-in once the unverified player signs out`() {
         signedIn(session = unverifiedSession, town = TownReadResult.Read(heldTown))
         waitForLine(BANNER_LINE)
-        reportsFake.answerRead(ReportReadResult.Read(nothingDue))
+        reports.answerRead(ReportReadResult.Read(nothingDue))
         wayToTheReport().performClick()
         waitForLine("NOTICIAS DEL PUEBLO")
-        sessionsFake.answerSignOut()
-        sessionsFake.answerRestore(RestoreResult.SignedOut)
+        sessions.answerSignOut()
+        sessions.answerRestore(RestoreResult.SignedOut)
 
         composeRule.onNodeWithText("Salir").performScrollTo().performClick()
         waitForLine("Entrar")
@@ -231,8 +165,8 @@ class VerificationBannerNavigationTest {
     }
 
     private fun signedIn(session: RestoreResult, town: TownReadResult) {
-        repeat(SESSION_READS) { sessionsFake.answerRestore(session) }
-        repeat(READS_AVAILABLE) { townsFake.answerRead(town) }
+        repeat(SESSION_READS) { sessions.answerRestore(session) }
+        repeat(READS_AVAILABLE) { towns.answerRead(town) }
         composeRule.setContent {
             MyGameTheme {
                 AppNavigation(dependencies = dependencies, reminderTaps = emptyFlow())
