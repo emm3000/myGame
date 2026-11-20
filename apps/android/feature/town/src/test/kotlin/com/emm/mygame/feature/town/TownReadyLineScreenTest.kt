@@ -1,15 +1,11 @@
 package com.emm.mygame.feature.town
 
-import androidx.compose.ui.semantics.SemanticsActions
 import androidx.compose.ui.test.SemanticsMatcher
 import androidx.compose.ui.test.assertIsDisplayed
 import androidx.compose.ui.test.hasText
 import androidx.compose.ui.test.junit4.ComposeContentTestRule
 import androidx.compose.ui.test.junit4.createComposeRule
 import androidx.compose.ui.test.onNodeWithText
-import androidx.compose.ui.text.AnnotatedString
-import androidx.compose.ui.text.SpanStyle
-import androidx.compose.ui.text.TextLayoutResult
 import com.emm.mygame.core.designsystem.MyGameTheme
 import com.emm.mygame.core.network.TownBuildingKind
 import com.emm.mygame.core.network.TownResourceKind
@@ -82,23 +78,23 @@ class TownReadyLineScreenTest {
     fun `sets tabular figures on the time left and never on its words`() {
         show(shortOfFoodUntil(TownUiState.ReadyTime(remaining = 35.seconds, readyAt = localReady)))
 
-        assertEquals(emptyList<String>(), tabularRunsOf("Lista en"))
-        assertEquals(listOf("0:35"), tabularRunsOf("0:35"))
+        assertEquals(emptyList<String>(), composeRule.tabularRunsOf("Lista en"))
+        assertEquals(listOf("0:35"), composeRule.tabularRunsOf("0:35"))
     }
 
     @Test
     fun `sets tabular figures on the ready clock and never on its words`() {
         show(shortOfFoodUntil(TownUiState.ReadyTime(remaining = 1.hours, readyAt = localReady)))
 
-        assertEquals(emptyList<String>(), tabularRunsOf("Lista"))
-        assertEquals(listOf("09:30"), tabularRunsOf("09:30"))
+        assertEquals(emptyList<String>(), composeRule.tabularRunsOf("Lista"))
+        assertEquals(listOf("09:30"), composeRule.tabularRunsOf("09:30"))
     }
 
     @Test
     fun `sets tabular figures on tomorrow's ready clock and never on its word`() {
         show(shortOfFoodUntil(TownUiState.ReadyTime(remaining = 12.hours, readyAt = localReady)))
 
-        assertEquals(listOf("09:30"), tabularRunsOf("mañana"))
+        assertEquals(listOf("09:30"), composeRule.tabularRunsOf("mañana"))
     }
 
     @Test
@@ -109,18 +105,6 @@ class TownReadyLineScreenTest {
     }
 
     private fun readyLine(words: String, time: String): SemanticsMatcher = hasText(words) and hasText(time)
-
-    private fun tabularRunsOf(shownText: String): List<String> {
-        val layouts: MutableList<TextLayoutResult> = mutableListOf()
-        composeRule.onNodeWithText(shownText, substring = true, useUnmergedTree = true).fetchSemanticsNode()
-            .config[SemanticsActions.GetTextLayoutResult].action?.invoke(layouts)
-        val layout: TextLayoutResult = layouts.single()
-        val text: AnnotatedString = layout.layoutInput.text
-        if (layout.layoutInput.style.fontFeatureSettings == TABULAR) return listOf(text.text)
-        return text.spanStyles
-            .filter { span: AnnotatedString.Range<SpanStyle> -> span.item.fontFeatureSettings == TABULAR }
-            .map { span: AnnotatedString.Range<SpanStyle> -> text.text.substring(span.start, span.end) }
-    }
 
     private fun shortOfFoodUntil(ready: TownUiState.ReadyTime?): TownUiState.BlockReason =
         TownUiState.BlockReason.Resources(listOf(TownUiState.Shortfall(TownResourceKind.Food, 20)), ready = ready)
@@ -137,9 +121,5 @@ class TownReadyLineScreenTest {
                 )
             }
         }
-    }
-
-    private companion object {
-        const val TABULAR: String = "tnum"
     }
 }
