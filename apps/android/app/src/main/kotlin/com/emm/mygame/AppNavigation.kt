@@ -1,6 +1,7 @@
 package com.emm.mygame
 
 import android.content.Context
+import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.WindowInsets
@@ -165,6 +166,7 @@ private fun AppScreens(
                 ForgotPasswordRoute(sessions = dependencies.sessions, onSignInOpen = navigator::openSignIn)
             }
             entry<Destination.ResetPassword> { link: Destination.ResetPassword ->
+                BackHandler(onBack = navigator::openSignIn)
                 ResetPasswordRoute(
                     sessions = dependencies.sessions,
                     token = link.token,

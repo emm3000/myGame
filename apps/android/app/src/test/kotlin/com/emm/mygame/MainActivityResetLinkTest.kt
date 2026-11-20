@@ -4,11 +4,16 @@ import android.content.Intent
 import android.net.Uri
 import androidx.compose.ui.test.SemanticsMatcher
 import androidx.compose.ui.test.assertCountEquals
+import androidx.compose.ui.test.hasClickAction
 import androidx.compose.ui.test.hasContentDescription
+import androidx.compose.ui.test.hasSetTextAction
 import androidx.compose.ui.test.hasText
 import androidx.compose.ui.test.isHeading
 import androidx.compose.ui.test.junit4.ComposeTestRule
 import androidx.compose.ui.test.junit4.createEmptyComposeRule
+import androidx.compose.ui.test.performClick
+import androidx.compose.ui.test.performTextInput
+import com.emm.mygame.core.network.PasswordResetResult
 import com.emm.mygame.core.network.PlayerScaffold
 import com.emm.mygame.core.network.RestoreResult
 import com.emm.mygame.core.network.SignedInPlayer
@@ -62,6 +67,37 @@ class MainActivityResetLinkTest {
     }
 
     @Test
+    fun `a signed-in player who changes the password from a mailed link reaches the sign-in form`() {
+        Robolectric.buildActivity(MainActivity::class.java, mailedLink()).setup()
+        waitFor(newPasswordTitle)
+        application.sessions.answerPasswordChange(PasswordResetResult.Changed)
+        application.sessions.answerRestore(RestoreResult.SignedOut)
+        composeRule.onNode(hasSetTextAction() and hasContentDescription(NEW_PASSWORD)).performTextInput("hierro-y-lana")
+        composeRule.onNode(hasClickAction() and hasText(CHANGE_PASSWORD)).performClick()
+        waitFor(hasText(PASSWORD_CHANGED))
+
+        composeRule.onNode(hasClickAction() and hasText(TO_SIGN_IN)).performClick()
+
+        waitFor(hasClickAction() and hasText(SIGN_IN))
+    }
+
+    @Test
+    fun `back from a mailed link returns a signed-in player to the town`() {
+        val activity: ActivityController<MainActivity> =
+            Robolectric.buildActivity(MainActivity::class.java, mailedLink()).setup()
+        waitFor(newPasswordTitle)
+        application.sessions.answerRestore(
+            RestoreResult.SignedIn(
+                SignedInPlayer("ines@example.com", isEmailVerified = true, scaffold = PlayerScaffold.Spanish),
+            ),
+        )
+
+        composeRule.runOnIdle { activity.get().onBackPressedDispatcher.onBackPressed() }
+
+        waitFor(townLoading)
+    }
+
+    @Test
     fun `a launch from Recents opens no new password screen`() {
         val replayed: Intent = mailedLink().addFlags(Intent.FLAG_ACTIVITY_LAUNCHED_FROM_HISTORY)
 
@@ -85,5 +121,10 @@ class MainActivityResetLinkTest {
         const val MAILED_LINK: String = "https://mygame.emm3000.com/reset-password?token=rbi-I29wMEaqgA12gHRHjVk7"
         const val NEW_PASSWORD_TITLE: String = "Elige una contraseña nueva"
         const val TOWN_LOADING: String = "Estamos leyendo tu pueblo…"
+        const val NEW_PASSWORD: String = "Contraseña nueva"
+        const val CHANGE_PASSWORD: String = "Cambiar la contraseña"
+        const val PASSWORD_CHANGED: String = "Tu contraseña ha cambiado y hemos cerrado todas tus sesiones."
+        const val TO_SIGN_IN: String = "Entra en tu pueblo"
+        const val SIGN_IN: String = "Entrar"
     }
 }
