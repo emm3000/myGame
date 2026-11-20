@@ -6,9 +6,6 @@ export const authSignInSwitchLink = (): string => `Create your account`
 export const authSignInSwitchPrompt = (): string => `No account yet?`
 export const authSignInTitle = (): string => `Sign in to your town`
 export const authSignUpPasswordHint = (): string => `At least 8 characters.`
-export const authSignUpScaffoldEs = (): string => `Spanish: a translation beside each new word`
-export const authSignUpScaffoldLabel = (): string => `Help language`
-export const authSignUpScaffoldNone = (): string => `None: everything in English, with English definitions`
 export const authSignUpSubmit = (): string => `Create account`
 export const authSignUpSwitchLink = (): string => `Sign in`
 export const authSignUpSwitchPrompt = (): string => `Already have an account?`
@@ -210,6 +207,9 @@ export const reviewSkillWords = (): string => `Words:`
 export const reviewTitle = (): string => `Reviews`
 export const reviewWrong = (): string => `That is not correct.`
 export const reviewYourAnswer = (): string => `Your answer:`
+export const scaffoldEs = (): string => `Spanish: a translation beside each new word`
+export const scaffoldLabel = (): string => `Help language`
+export const scaffoldNone = (): string => `None: everything in English, with English definitions`
 export const schoolLearning = ({ cap, inLearning }: { readonly cap: string | number; readonly inLearning: string | number }): string => `Words in learning: ${String(inLearning)} of ${String(cap)}`
 export const schoolLearningFull = ({ count }: { readonly count: number }): string => `${count === 1 ? `The next lesson needs 1 word.` : `The next lesson needs ${String(count)} words.`} Start the reviews.`
 export const schoolLearningFullNextWordDue = ({ count, timeLeft }: { readonly count: number; readonly timeLeft: string | number }): string => `${count === 1 ? `The next lesson needs 1 word.` : `The next lesson needs ${String(count)} words.`} The next word in learning is due in ${String(timeLeft)}.`

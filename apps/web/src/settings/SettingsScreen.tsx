@@ -1,8 +1,16 @@
-import { settingsCardsKept, settingsSaved, settingsSaving, settingsTitle } from '@mygame/catalog'
+import {
+  scaffoldEs,
+  scaffoldLabel,
+  scaffoldNone,
+  settingsCardsKept,
+  settingsSaved,
+  settingsSaving,
+  settingsTitle,
+} from '@mygame/catalog'
 import type { Scaffold } from '@mygame/contracts'
 import { type ReactElement, useId } from 'react'
-import { ScaffoldChoice } from '../auth/ScaffoldChoice'
 import { FormAlert } from '../design-system/FormAlert'
+import { ScaffoldChoice } from '../design-system/ScaffoldChoice'
 import { refusalLineOf } from '../refusals/refusalLineOf'
 import type { ScaffoldChange } from './useScaffoldSetting'
 
@@ -10,6 +18,11 @@ export interface SettingsScreenProps {
   readonly stored: Scaffold
   readonly change: ScaffoldChange
   readonly onPick: (scaffold: Scaffold) => void
+}
+
+const scaffoldLines: Readonly<Record<Scaffold, string>> = {
+  es: scaffoldEs(),
+  none: scaffoldNone(),
 }
 
 function ChangeNote({ line }: { readonly line: string }): ReactElement {
@@ -47,6 +60,8 @@ export function SettingsScreen({ stored, change, onPick }: SettingsScreenProps):
       </h1>
       <div className="flex flex-col gap-4">
         <ScaffoldChoice
+          legend={scaffoldLabel()}
+          lines={scaffoldLines}
           picked={isSaving ? change.scaffold : stored}
           isDisabled={isSaving}
           onPick={onPick}
