@@ -11,8 +11,8 @@ function NewsEntry({ row }: { readonly row: NewsRow }): ReactElement {
         {row.instant}
       </time>
       <p className="m-0 font-sans text-body text-ink">{row.line}</p>
-      {row.pay === undefined ? null : (
-        <p className="m-0 font-sans text-caption text-ink-muted">{row.pay}</p>
+      {row.amounts === undefined ? null : (
+        <p className="m-0 font-sans text-caption text-ink-muted">{row.amounts}</p>
       )}
     </li>
   )

@@ -13,6 +13,7 @@ import {
   reportNewsLessonStopped,
   reportNewsLessonStudied,
   reportNewsPay,
+  reportNewsRefund,
   reportNewsSkillEarned,
 } from '@mygame/catalog'
 import type { HireKind, ResourceAmounts, TownNewsItem } from '@mygame/contracts'
@@ -26,7 +27,7 @@ export interface NewsRow {
   readonly occurredAt: string
   readonly instant: string
   readonly line: string
-  readonly pay: string | undefined
+  readonly amounts: string | undefined
 }
 
 type NewsOf<Kind extends TownNewsItem['kind']> = Extract<TownNewsItem, { readonly kind: Kind }>
@@ -102,25 +103,29 @@ function lineOf(item: TownNewsItem): string {
   }
 }
 
-const payPhraseOf = (amounts: ResourceAmounts): string | undefined => {
+const amountsPhraseOf = (
+  phrase: typeof reportNewsPay,
+  amounts: ResourceAmounts,
+): string | undefined => {
   const line = amountsLineOf(amounts)
-  return line === undefined ? undefined : reportNewsPay({ amounts: line })
+  return line === undefined ? undefined : phrase({ amounts: line })
 }
 
-function payOf(item: TownNewsItem): string | undefined {
+function amountsOf(item: TownNewsItem): string | undefined {
   switch (item.kind) {
     case 'jobBack':
     case 'jobCalledBack':
-      return payPhraseOf(item.params.pay)
+      return amountsPhraseOf(reportNewsPay, item.params.pay)
     case 'cleanUpDone':
-      return payPhraseOf(item.params.reward)
-    case 'buildingWorkFinished':
+      return amountsPhraseOf(reportNewsPay, item.params.reward)
     case 'buildingWorkStopped':
+    case 'hiringStopped':
+      return amountsPhraseOf(reportNewsRefund, item.params.refund)
+    case 'buildingWorkFinished':
     case 'lessonStudied':
     case 'lessonStopped':
     case 'skillEarned':
     case 'hiringDelivered':
-    case 'hiringStopped':
     case 'cleanUpFailed':
     case 'becameCity':
       return undefined
@@ -138,6 +143,6 @@ export function newsRowOf(item: TownNewsItem, now: Date): NewsRow {
     occurredAt: item.occurredAt,
     instant: formatInstant(new Date(item.occurredAt), now),
     line: lineOf(item),
-    pay: payOf(item),
+    amounts: amountsOf(item),
   }
 }

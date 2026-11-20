@@ -109,12 +109,12 @@ it('writes one line per event kind with its instant', async () => {
     'Hoy, 09:57Tu equipo limpió los residuos de la región 1, zona 3, sitio 12.Pago: 40 de comida',
     'Hoy, 09:56Llamaste de vuelta a tu equipo de la región 1, zona 3, sitio 12.Pago: 40 de comida',
     'Hoy, 09:55Tu equipo volvió de la región 1, zona 3, sitio 12.Pago: 40 de comida',
-    'Hoy, 09:54Paraste la contratación de trabajadores: llegaron 2 de 5.',
+    'Hoy, 09:54Paraste la contratación de trabajadores: llegaron 2 de 5.Recuperaste: 40 de comida',
     'Hoy, 09:53Contrataste 3 camiones.',
     'Hoy, 09:52Ganaste una habilidad de comida: +5 % de comida.',
     'Hoy, 09:51Paraste el estudio de una lección.',
     'Hoy, 09:50Estudiaste una lección.',
-    'Hoy, 09:49Paraste la obra: Hogares, nivel 3.',
+    'Hoy, 09:49Paraste la obra: Hogares, nivel 3.Recuperaste: 40 de comida',
     'Hoy, 09:48Granja: ahora en nivel 2.',
   ])
 })
