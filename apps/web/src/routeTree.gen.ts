@@ -18,6 +18,7 @@ import { Route as GuestSignInRouteImport } from './routes/_guest/sign-in'
 import { Route as GuestSignUpRouteImport } from './routes/_guest/sign-up'
 import { Route as SignedInIndexRouteImport } from './routes/_signedIn/index'
 import { Route as SignedInNewsRouteImport } from './routes/_signedIn/news'
+import { Route as SignedInPlacementRouteImport } from './routes/_signedIn/placement'
 import { Route as SignedInReportRouteImport } from './routes/_signedIn/report'
 import { Route as SignedInReviewsRouteImport } from './routes/_signedIn/reviews'
 import { Route as SignedInMapIndexRouteImport } from './routes/_signedIn/map.index'
@@ -68,6 +69,11 @@ const SignedInNewsRoute = SignedInNewsRouteImport.update({
   path: '/news',
   getParentRoute: () => SignedInRoute,
 } as any)
+const SignedInPlacementRoute = SignedInPlacementRouteImport.update({
+  id: '/placement',
+  path: '/placement',
+  getParentRoute: () => SignedInRoute,
+} as any)
 const SignedInReportRoute = SignedInReportRouteImport.update({
   id: '/report',
   path: '/report',
@@ -107,6 +113,7 @@ export interface FileRoutesByFullPath {
   '/sign-in': typeof GuestSignInRoute
   '/sign-up': typeof GuestSignUpRoute
   '/news': typeof SignedInNewsRoute
+  '/placement': typeof SignedInPlacementRoute
   '/report': typeof SignedInReportRoute
   '/reviews': typeof SignedInReviewsRoute
   '/map/$area': typeof SignedInMapAreaRoute
@@ -122,6 +129,7 @@ export interface FileRoutesByTo {
   '/sign-in': typeof GuestSignInRoute
   '/sign-up': typeof GuestSignUpRoute
   '/news': typeof SignedInNewsRoute
+  '/placement': typeof SignedInPlacementRoute
   '/report': typeof SignedInReportRoute
   '/reviews': typeof SignedInReviewsRoute
   '/map/$area': typeof SignedInMapAreaRoute
@@ -139,6 +147,7 @@ export interface FileRoutesById {
   '/_guest/sign-in': typeof GuestSignInRoute
   '/_guest/sign-up': typeof GuestSignUpRoute
   '/_signedIn/news': typeof SignedInNewsRoute
+  '/_signedIn/placement': typeof SignedInPlacementRoute
   '/_signedIn/report': typeof SignedInReportRoute
   '/_signedIn/reviews': typeof SignedInReviewsRoute
   '/_signedIn/': typeof SignedInIndexRoute
@@ -157,6 +166,7 @@ export interface FileRouteTypes {
     | '/sign-in'
     | '/sign-up'
     | '/news'
+    | '/placement'
     | '/report'
     | '/reviews'
     | '/map/$area'
@@ -172,6 +182,7 @@ export interface FileRouteTypes {
     | '/sign-in'
     | '/sign-up'
     | '/news'
+    | '/placement'
     | '/report'
     | '/reviews'
     | '/map/$area'
@@ -188,6 +199,7 @@ export interface FileRouteTypes {
     | '/_guest/sign-in'
     | '/_guest/sign-up'
     | '/_signedIn/news'
+    | '/_signedIn/placement'
     | '/_signedIn/report'
     | '/_signedIn/reviews'
     | '/_signedIn/'
@@ -269,6 +281,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof SignedInNewsRouteImport
       parentRoute: typeof SignedInRoute
     }
+    '/_signedIn/placement': {
+      id: '/_signedIn/placement'
+      path: '/placement'
+      fullPath: '/placement'
+      preLoaderRoute: typeof SignedInPlacementRouteImport
+      parentRoute: typeof SignedInRoute
+    }
     '/_signedIn/report': {
       id: '/_signedIn/report'
       path: '/report'
@@ -330,6 +349,7 @@ const GuestRouteWithChildren = GuestRoute._addFileChildren(GuestRouteChildren)
 
 interface SignedInRouteChildren {
   SignedInNewsRoute: typeof SignedInNewsRoute
+  SignedInPlacementRoute: typeof SignedInPlacementRoute
   SignedInReportRoute: typeof SignedInReportRoute
   SignedInReviewsRoute: typeof SignedInReviewsRoute
   SignedInIndexRoute: typeof SignedInIndexRoute
@@ -341,6 +361,7 @@ interface SignedInRouteChildren {
 
 const SignedInRouteChildren: SignedInRouteChildren = {
   SignedInNewsRoute: SignedInNewsRoute,
+  SignedInPlacementRoute: SignedInPlacementRoute,
   SignedInReportRoute: SignedInReportRoute,
   SignedInReviewsRoute: SignedInReviewsRoute,
   SignedInIndexRoute: SignedInIndexRoute,

@@ -12,6 +12,9 @@ import {
   type MarkTipSeen,
   type PlaceHiringOrder,
   type BuildingKind as PlaceKind,
+  type Placement,
+  type PlacementAnswers,
+  PlacementSchema,
   type Player,
   PlayerSchema,
   type RegionMap,
@@ -72,6 +75,10 @@ export interface ApiClient {
   reviews(): Promise<ApiOutcome<Reviews>>
   reviewHint(wordId: string): Promise<ApiOutcome<ReviewHint>>
   answerReview(answer: AnsweredReview): Promise<ApiOutcome<ReviewAnswer>>
+  placement(): Promise<ApiOutcome<Placement>>
+  beginPlacement(): Promise<ApiOutcome<Placement>>
+  skipPlacement(): Promise<ApiOutcome<Placement>>
+  answerPlacement(answers: PlacementAnswers): Promise<ApiOutcome<Placement>>
   report(): Promise<ApiOutcome<Report>>
   closeReport(): Promise<ApiRefusal | undefined>
   markTipSeen(tip: TipKind): Promise<ApiRefusal | undefined>
@@ -237,6 +244,22 @@ export const createApiClient = (baseUrl: string): ApiClient => {
       const request: ReviewAnswerRequest = { answer }
       const response = await postJson(`/reviews/${encodeURIComponent(wordId)}/answer`, request)
       return response === undefined ? unexpected : bodyOf(response, ReviewAnswerSchema)
+    },
+    placement: async () => {
+      const response = await send('/placement', { method: 'GET' })
+      return response === undefined ? unexpected : bodyOf(response, PlacementSchema)
+    },
+    beginPlacement: async () => {
+      const response = await send('/placement', { method: 'POST' })
+      return response === undefined ? unexpected : bodyOf(response, PlacementSchema)
+    },
+    skipPlacement: async () => {
+      const response = await send('/placement/skip', { method: 'POST' })
+      return response === undefined ? unexpected : bodyOf(response, PlacementSchema)
+    },
+    answerPlacement: async (answers) => {
+      const response = await postJson('/placement/answers', answers)
+      return response === undefined ? unexpected : bodyOf(response, PlacementSchema)
     },
     report: async () => {
       const response = await send('/report', { method: 'GET' })

@@ -86,6 +86,28 @@ export const passwordResetNewPasswordTitle = (): string => `Elige una contraseñ
 export const passwordResetRequestConfirmation = (): string => `Si ese correo tiene una cuenta y está confirmado, te llegará un enlace que vale una hora.`
 export const passwordResetRequestSubmit = (): string => `Enviar enlace`
 export const passwordResetRequestTitle = (): string => `Recupera tu contraseña`
+export const placementBand = ({ band }: { readonly band: string | number }): string => `Banda ${String(band)}`
+export const placementChoose = (): string => `Elige un significado para seguir.`
+export const placementClosedNone = (): string => `No tienes ninguna prueba de nivel pendiente. Tus lecciones te esperan en la escuela.`
+export const placementFailed = (): string => `No hemos podido leer tu prueba de nivel.`
+export const placementLoading = (): string => `Estamos leyendo tu prueba de nivel…`
+export const placementNext = (): string => `Siguiente`
+export const placementNotPlacedOut = (): string => `No superada.`
+export const placementOfferLine = (): string => `¿Ya sabes algo de inglés? Una prueba corta te deja empezar más adelante.`
+export const placementOfferLink = (): string => `Hacer la prueba de nivel`
+export const placementOfferResumeLink = (): string => `Seguir con la prueba de nivel`
+export const placementOfferedLine = (): string => `Verás palabras en inglés de una en una y elegirás qué significa cada una. Si conoces casi todas las de una banda, sus lecciones cuentan como sabidas y te las saltas. Solo puedes hacerla una vez.`
+export const placementOfferedSkipLine = (): string => `Si la saltas, empiezas por la lección 1.`
+export const placementPlacedOut = (): string => `Superada: sus lecciones cuentan como sabidas.`
+export const placementProgress = ({ number, total }: { readonly number: string | number; readonly total: string | number }): string => `Palabra ${String(number)} de ${String(total)}`
+export const placementPrompt = (): string => `¿Qué significa?`
+export const placementResultBand = ({ band, score }: { readonly band: string | number; readonly score: number }): string => `Banda ${String(band)}: ${score === 1 ? `1 acierto` : `${String(score)} aciertos`}`
+export const placementResultTitle = (): string => `Tu resultado`
+export const placementRetry = (): string => `Volver a intentarlo`
+export const placementSendBand = ({ band }: { readonly band: string | number }): string => `Enviar la banda ${String(band)}`
+export const placementSkip = (): string => `Saltar la prueba`
+export const placementStart = (): string => `Empezar la prueba`
+export const placementTitle = (): string => `Prueba de nivel`
 export const refusalAreaNotFound = (): string => `Esa zona está más allá del final del mapa.`
 export const refusalBlankTownName = (): string => `Escribe un nombre para tu pueblo.`
 export const refusalBuildingWorkNotFound = ({ level }: { readonly level: string | number }): string => `La obra del nivel ${String(level)} ya no está en la lista. Quizá ya terminó.`
