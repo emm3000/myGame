@@ -2,7 +2,7 @@ import { fileURLToPath } from 'node:url'
 import { Instant } from '@mygame/domain'
 import { Client } from 'pg'
 import { afterAll, beforeAll, beforeEach, describe, expect, it } from 'vitest'
-import { deleteEveryMail, deliveredTo } from '../adapters/smtp/mailpit.testSupport'
+import { deleteMailTo, deliveredTo } from '../adapters/smtp/mailpit.testSupport'
 import { createApp } from '../app'
 import type { Mail, MailDelivery, Mailer } from '../auth/Mailer'
 import { type ComposedServer, composeServer } from '../composeServer'
@@ -80,6 +80,8 @@ const leaveTheHost = (): void => {
 }
 
 const ana = { email: 'ana@example.com', password: 'hierro-y-lana' }
+
+const unknownEmail = 'nadie@example.com'
 
 const englishVerificationMail = (token: string): Mail => ({
   to: ana.email,
@@ -159,7 +161,7 @@ describe('the auth mail in the scaffold language', () => {
 
   beforeEach(async () => {
     await truncateAccounts()
-    await deleteEveryMail()
+    await deleteMailTo([ana.email, unknownEmail])
     mailer = recordingMailer(server.mailer)
     app = createApp({ ...server, clock: fixedClock, mailer })
   })
@@ -214,7 +216,7 @@ describe('the auth mail in the scaffold language', () => {
     const cookie = await signUp(scaffold)
     const [verificationMail] = await deliveredMailTo(ana.email)
     await app.request('/auth/verify-email', post({ token: tokenOf(verificationMail) }))
-    await deleteEveryMail()
+    await deleteMailTo([ana.email])
     return cookie
   }
 
@@ -253,7 +255,7 @@ describe('the auth mail in the scaffold language', () => {
     await verifiedPlayer('none')
 
     const known = await forgotPassword(ana.email)
-    const unknown = await forgotPassword('nadie@example.com')
+    const unknown = await forgotPassword(unknownEmail)
 
     expect([unknown.status, await unknown.text()]).toEqual([known.status, await known.text()])
   })
@@ -261,9 +263,9 @@ describe('the auth mail in the scaffold language', () => {
   it('mails nothing in any language to an address with no player', async () => {
     await verifiedPlayer('none')
 
-    await forgotPassword('nadie@example.com')
+    await forgotPassword(unknownEmail)
 
-    expect(await deliveredMailTo('nadie@example.com')).toEqual([])
+    expect(await deliveredMailTo(unknownEmail)).toEqual([])
   })
 
   it('hands the reset mail to the host to finish after the answer', async () => {

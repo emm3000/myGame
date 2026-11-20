@@ -1,7 +1,7 @@
 import { createServer, type Server, type Socket } from 'node:net'
 import { describe, expect, it } from 'vitest'
-import { mailerContract } from '../mailerContract'
-import { deleteEveryMail, deliveredTo } from './mailpit.testSupport'
+import { mailerContract, mailerContractRecipients } from '../mailerContract'
+import { deleteMailTo, deliveredTo } from './mailpit.testSupport'
 import { SmtpMailer } from './SmtpMailer'
 
 const requiredVariable = (name: string): string => {
@@ -17,7 +17,7 @@ const unreachableSmtpUrl = 'smtp://127.0.0.1:1'
 const sender = 'myGame <no-reply@mygame.local>'
 
 mailerContract('SmtpMailer', async () => {
-  await deleteEveryMail()
+  await deleteMailTo(mailerContractRecipients)
   return {
     mailer: new SmtpMailer(requiredVariable('SMTP_URL'), sender),
     unreachableMailer: new SmtpMailer(unreachableSmtpUrl, sender),
