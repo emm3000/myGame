@@ -254,6 +254,17 @@ class SettingsScreenTest {
     }
 
     @Test
+    fun `draws only the choices, the switch, the settings link and the time steps when denied with the reminder on`() {
+        draw(
+            untouched.copy(
+                reminder = firstReminder.copy(isOn = true, ask = SettingsUiState.NotificationAsk.Denied),
+            ),
+        )
+
+        assertOnlyOwnControls(count = 8)
+    }
+
+    @Test
     fun `draws only the retry when the settings cannot be read`() {
         draw(SettingsUiState.Failed)
 
