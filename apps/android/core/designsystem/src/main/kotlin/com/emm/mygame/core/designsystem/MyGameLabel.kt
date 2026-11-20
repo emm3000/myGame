@@ -59,8 +59,8 @@ fun MyGameText(
     }
 }
 
-// Private helper: both callers pass the modifier, and each line is its own node, so no slot state is shared.
-@Suppress("ContentSlotReused", "ModifierWithoutDefault")
+// Private helper: both callers pass the modifier, so a default would never be used.
+@Suppress("ModifierWithoutDefault")
 @Composable
 private fun MyGameTranslatedLines(
     text: String,
@@ -70,8 +70,8 @@ private fun MyGameTranslatedLines(
     drawLine: @Composable (line: String, lineStyle: TextStyle) -> Unit,
 ) {
     Column(horizontalAlignment = alignmentOf(style.textAlign), modifier = modifier) {
-        drawLine(text, style)
-        drawLine(translation, translationStyleOf(style))
+        val lines: List<Pair<String, TextStyle>> = listOf(text to style, translation to translationStyleOf(style))
+        lines.forEach { (line: String, lineStyle: TextStyle) -> drawLine(line, lineStyle) }
     }
 }
 
