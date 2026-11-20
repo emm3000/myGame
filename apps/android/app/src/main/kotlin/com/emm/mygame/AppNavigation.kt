@@ -217,6 +217,9 @@ private fun EntryProviderScope<NavKey>.townEntry(chrome: SignedInChrome) {
                 navigation = TownNavigation(
                     onSchoolOpen = navigator::openSchool,
                     onMapOpen = navigator::openMap,
+                    onTextOpen = { text: TextId ->
+                        navigator.openAbove(Destination.Town, Destination.SchoolText(text))
+                    },
                     onSigningOut = navigator::signingOut,
                     onSignedOut = { navigator.signedOut(isSessionEnded = false) },
                 ),

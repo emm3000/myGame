@@ -1,6 +1,7 @@
 package com.emm.mygame.feature.town
 
 import com.emm.mygame.core.network.NeededWordKind
+import com.emm.mygame.core.network.NextStepText
 import com.emm.mygame.core.network.SeasonKind
 import com.emm.mygame.core.network.TipKind
 import com.emm.mygame.core.network.TownBuildingKind
@@ -46,6 +47,7 @@ sealed interface TownUiState {
         val nextStepPlace: TownBuildingKind,
         val goal: TownGoal?,
         val caughtUpGoal: TownGoal?,
+        val newestText: NextStepText?,
         val tip: TipKind?,
         val start: StartStatus,
         val stop: StopStatus,

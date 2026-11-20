@@ -6,11 +6,13 @@ sealed interface NextStep {
 
     data class HoldoutCheck(val band: PlacementBand, val week: HoldoutCheckWeek) : NextStep
 
-    data class LessonRunning(val goal: TownGoal?) : NextStep
+    data class LessonRunning(val goal: TownGoal?, val text: NextStepText? = null) : NextStep
 
     data class ReleasedLesson(val lesson: LessonId, val band: PlacementBand, val position: Int) : NextStep
 
     data class LessonToStudy(val lesson: LessonId) : NextStep
 
-    data class CaughtUp(val reason: CaughtUpReason, val goal: TownGoal?) : NextStep
+    data class CaughtUp(val reason: CaughtUpReason, val goal: TownGoal?, val text: NextStepText? = null) : NextStep
 }
+
+data class NextStepText(val id: TextId, val title: String)

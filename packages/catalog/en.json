@@ -390,6 +390,7 @@
   "android.town.town_next_study": "Study lesson {number}",
   "android.town.town_next_study_released": "Study the returning words",
   "android.town.town_next_studying": "Studying",
+  "android.town.town_next_text": "Read: {title}",
   "android.town.town_next_title": "What is next",
   "android.town.town_not_built": "Not built",
   "android.town.town_office_busy": "Wait for this hiring to end.",

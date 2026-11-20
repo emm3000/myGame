@@ -45,6 +45,7 @@
     <string name="town_next_study">Estudiar la lección {number}</string>
     <string name="town_next_study_released">Estudiar las palabras que vuelven</string>
     <string name="town_next_studying">En estudio</string>
+    <string name="town_next_text">Lee: {title}</string>
     <string name="town_next_title">Tu siguiente paso</string>
     <string name="town_not_built">Sin construir</string>
     <string name="town_office_busy">Espera a que termine esta contratación.</string>

@@ -78,6 +78,42 @@ class TownNextStepRepositoryTest {
     }
 
     @Test
+    fun `reads the newest text on a caught up step`() = runTest {
+        val step: String =
+            """{"kind":"caughtUp","reason":"lessonsDone","goal":null,"text":{"id":"text-31","title":"The New Shop"}}"""
+        api.enqueue(json(200, townWithNextStep(step)))
+
+        val read: TownSnapshot = (town().read() as TownReadResult.Read).town
+
+        assertEquals(
+            NextStep.CaughtUp(CaughtUpReason.LessonsDone, goal = null, NextStepText(TextId("text-31"), "The New Shop")),
+            read.nextStep,
+        )
+    }
+
+    @Test
+    fun `reads the newest text on a running lesson`() = runTest {
+        val step: String = """{"kind":"lessonRunning","goal":null,"text":{"id":"text-31","title":"The New Shop"}}"""
+        api.enqueue(json(200, townWithNextStep(step)))
+
+        val read: TownSnapshot = (town().read() as TownReadResult.Read).town
+
+        assertEquals(
+            NextStep.LessonRunning(goal = null, NextStepText(TextId("text-31"), "The New Shop")),
+            read.nextStep,
+        )
+    }
+
+    @Test
+    fun `reads no text on a running lesson before one opens`() = runTest {
+        api.enqueue(json(200, townWithNextStep("""{"kind":"lessonRunning","goal":null,"text":null}""")))
+
+        val read: TownSnapshot = (town().read() as TownReadResult.Read).town
+
+        assertEquals(NextStep.LessonRunning(goal = null, text = null), read.nextStep)
+    }
+
+    @Test
     fun `answers unreachable for a caught up step on a reason the client does not know`() = runTest {
         api.enqueue(json(200, townWithNextStep("""{"kind":"caughtUp","reason":"slotBusy","goal":null,"text":null}""")))
 

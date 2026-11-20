@@ -18,6 +18,8 @@ import com.emm.mygame.core.designsystem.MyGameText
 import com.emm.mygame.core.designsystem.MyGameTextLink
 import com.emm.mygame.core.designsystem.MyGameTheme
 import com.emm.mygame.core.designsystem.MyGameTypography
+import com.emm.mygame.core.network.NextStepText
+import com.emm.mygame.core.network.TextId
 import com.emm.mygame.core.network.TipKind
 import com.emm.mygame.core.network.TownBuildingKind
 import com.emm.mygame.core.network.TownGoal
@@ -80,6 +82,7 @@ private fun PageHeader(
         content.caughtUpGoal?.takeIf { goal: TownGoal -> goal.building != place.kind }?.let { goal: TownGoal ->
             GoalLine(goal = goal)
         }
+        content.newestText?.let { text: NextStepText -> NewestTextLine(text = text, onTextOpen = slots.onTextOpen) }
         top.reportRow()
         if (place.isInWork) content.buildMark?.let { mark: TownUiState.DurationMark -> BuildMarkRow(mark = mark) }
     }
@@ -144,6 +147,15 @@ private fun GoalLine(goal: TownGoal, modifier: Modifier = Modifier) {
         label = rememberPlayerCopy().chrome { goalLineOf(goal) },
         style = MyGameTypography.body,
         color = MyGameTheme.colors.inkMuted,
+        modifier = modifier,
+    )
+}
+
+@Composable
+private fun NewestTextLine(text: NextStepText, onTextOpen: (TextId) -> Unit, modifier: Modifier = Modifier) {
+    MyGameTextLink(
+        label = chromeResource(R.string.town_next_text, "title" to text.title),
+        onClick = { onTextOpen(text.id) },
         modifier = modifier,
     )
 }

@@ -49,6 +49,7 @@ fun TownRoute(
         onIntent = viewModel::onIntent,
         onSchoolOpen = navigation.onSchoolOpen,
         onMapOpen = navigation.onMapOpen,
+        onTextOpen = navigation.onTextOpen,
         modifier = modifier,
         ring = ring,
         status = status,

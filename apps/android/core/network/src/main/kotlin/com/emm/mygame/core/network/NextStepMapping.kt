@@ -6,6 +6,7 @@ import com.emm.mygame.core.network.generated.models.HoldoutCheckStep
 import com.emm.mygame.core.network.generated.models.LessonRunningStep
 import com.emm.mygame.core.network.generated.models.ReleasedLessonStep
 import com.emm.mygame.core.network.generated.models.NextStep as WireNextStep
+import com.emm.mygame.core.network.generated.models.NextStepText as WireNextStepText
 
 internal fun WireNextStep.toNextStep(): NextStep? = when (this) {
     is WireNextStep.ReviewsWrapper -> NextStep.Reviews(value.count, value.readFirst.map(::LessonId))
@@ -28,17 +29,21 @@ private fun ReleasedLessonStep.toReleasedLesson(): NextStep? {
 }
 
 private fun LessonRunningStep.toLessonRunning(): NextStep? {
-    val named: Goal = goal ?: return NextStep.LessonRunning(goal = null)
+    val newest: NextStepText? = text?.toNextStepText()
+    val named: Goal = goal ?: return NextStep.LessonRunning(goal = null, newest)
     val next: TownGoal = named.toTownGoal() ?: return null
-    return NextStep.LessonRunning(next)
+    return NextStep.LessonRunning(next, newest)
 }
 
 private fun CaughtUpStep.toCaughtUp(): NextStep? {
     val why: CaughtUpReason = reason.toCaughtUpReason() ?: return null
-    val named: Goal = goal ?: return NextStep.CaughtUp(why, goal = null)
+    val newest: NextStepText? = text?.toNextStepText()
+    val named: Goal = goal ?: return NextStep.CaughtUp(why, goal = null, newest)
     val next: TownGoal = named.toTownGoal() ?: return null
-    return NextStep.CaughtUp(why, next)
+    return NextStep.CaughtUp(why, next, newest)
 }
+
+private fun WireNextStepText.toNextStepText(): NextStepText = NextStepText(TextId(id), title)
 
 private fun CaughtUpStep.Reason.toCaughtUpReason(): CaughtUpReason? = when (this) {
     CaughtUpStep.Reason.learningCap -> CaughtUpReason.LearningCap
