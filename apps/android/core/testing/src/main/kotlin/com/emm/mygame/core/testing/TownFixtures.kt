@@ -41,6 +41,7 @@ fun townOf(
     texts = texts,
     dueHoldoutChecks = dueHoldoutChecks,
     hasBandStarted = false,
+    bandLines = emptyList(),
     skills = emptyList(),
     learning = TownSnapshot.Learning(
         cap = 10,

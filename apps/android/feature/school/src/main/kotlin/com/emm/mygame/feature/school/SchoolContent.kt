@@ -36,6 +36,7 @@ internal fun TownSnapshot.contentAt(
         start = mutations.start,
         stop = mutations.stop,
         isHoldoutNoteShown = hasBandStarted,
+        bandLines = bandLines,
         selected = selected,
     )
 }

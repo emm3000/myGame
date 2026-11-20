@@ -781,6 +781,7 @@ class TownStatusViewModelTest {
         texts = emptyList(),
         dueHoldoutChecks = emptyList(),
         hasBandStarted = false,
+        bandLines = emptyList(),
         skills = emptyList(),
         learning = TownSnapshot.Learning(cap = 10, inLearning = 0, retainedWords = null, nextInLearningDueAt = null),
         stableWordCount = 0,

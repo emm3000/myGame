@@ -8,6 +8,7 @@ import com.emm.mygame.core.network.SeasonKind
 import com.emm.mygame.core.network.TextId
 import com.emm.mygame.core.network.TownLessonRefusal
 import com.emm.mygame.core.network.TownResourceKind
+import com.emm.mygame.core.network.TownSnapshot
 import kotlin.time.Duration
 import kotlin.time.Instant
 
@@ -30,6 +31,7 @@ sealed interface SchoolUiState {
         val start: LessonRequest,
         val stop: LessonRequest,
         val isHoldoutNoteShown: Boolean,
+        val bandLines: List<TownSnapshot.BandLine>,
         val selected: LessonId? = null,
     ) : SchoolUiState {
 

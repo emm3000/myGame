@@ -209,6 +209,7 @@
   "android.review.review_unreachable": "No hemos podido hablar con el servidor. Vuelve a intentarlo en un momento.",
   "android.review.review_wrong": "No es correcto.",
   "android.review.review_yours": "Tu respuesta: {answer}",
+  "android.school.school_band_line": "Banda {band}: {count} de {total} palabras estudiadas",
   "android.school.school_duration_hours": "{hours}\u00a0h",
   "android.school.school_duration_hours_minutes": "{hours}\u00a0h {minutes}\u00a0min",
   "android.school.school_duration_minutes": "{minutes}\u00a0min",

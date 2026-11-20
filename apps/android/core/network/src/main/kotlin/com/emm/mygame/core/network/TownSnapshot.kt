@@ -17,6 +17,7 @@ data class TownSnapshot(
     val texts: List<OpenText>,
     val dueHoldoutChecks: List<DueHoldoutCheck>,
     val hasBandStarted: Boolean,
+    val bandLines: List<BandLine>,
     val skills: List<EarnedSkill>,
     val learning: Learning,
     val stableWordCount: Int,
@@ -90,6 +91,8 @@ data class TownSnapshot(
     data class OpenText(val id: TextId, val title: String, val sentences: List<List<FrameSpan>>)
 
     data class DueHoldoutCheck(val band: PlacementBand, val week: HoldoutCheckWeek)
+
+    data class BandLine(val band: PlacementBand, val count: Int, val total: Int)
 
     data class WordReading(val word: String, val frame: List<FrameSpan>, val support: WordSupport?)
 

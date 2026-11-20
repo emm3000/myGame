@@ -6,6 +6,7 @@ import com.emm.mygame.core.network.generated.models.ResourceAmounts
 import com.emm.mygame.core.network.generated.models.StartBuildingWork
 import com.emm.mygame.core.network.generated.models.TownJob
 import com.emm.mygame.core.network.generated.models.TownOverview
+import com.emm.mygame.core.network.generated.models.TownOverviewBandLinesInner
 import com.emm.mygame.core.network.generated.models.TownOverviewDueHoldoutChecksInner
 import com.emm.mygame.core.network.generated.models.TownOverviewHiring
 import com.emm.mygame.core.network.generated.models.TownOverviewHiringOrder
@@ -45,6 +46,7 @@ internal fun TownOverview.toSnapshot(): TownSnapshot? {
         texts = texts.map(TownOverviewTextsInner::toOpenText),
         dueHoldoutChecks = dueHoldoutChecks.mapNotNull(TownOverviewDueHoldoutChecksInner::toDueHoldoutCheck),
         hasBandStarted = hasBandStarted,
+        bandLines = bandLines.mapNotNull(TownOverviewBandLinesInner::toBandLine),
         skills = school.skills,
         learning = learning.toLearning(),
         stableWordCount = stableWordCount,
@@ -63,6 +65,11 @@ private fun TownOverviewDueHoldoutChecksInner.toDueHoldoutCheck(): TownSnapshot.
     val checkBand: PlacementBand = band.toBand() ?: return null
     val checkWeek: HoldoutCheckWeek = week.toWeek() ?: return null
     return TownSnapshot.DueHoldoutCheck(checkBand, checkWeek)
+}
+
+private fun TownOverviewBandLinesInner.toBandLine(): TownSnapshot.BandLine? {
+    val lineBand: PlacementBand = band.toBand() ?: return null
+    return TownSnapshot.BandLine(lineBand, count, total)
 }
 
 internal fun TownBuildingKind.toWireBuilding(): StartBuildingWork.Building = when (this) {

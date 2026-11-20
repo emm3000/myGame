@@ -97,6 +97,7 @@ internal fun townOf(
     readAt: Instant = readInstant,
     releasedLessons: List<TownSnapshot.ReleasedLesson> = emptyList(),
     hasBandStarted: Boolean = false,
+    bandLines: List<TownSnapshot.BandLine> = emptyList(),
     texts: List<TownSnapshot.OpenText> = emptyList(),
 ): TownSnapshot = TownSnapshot(
     name = "Riverton",
@@ -115,6 +116,7 @@ internal fun townOf(
     texts = texts,
     dueHoldoutChecks = emptyList(),
     hasBandStarted = hasBandStarted,
+    bandLines = bandLines,
     skills = skills,
     learning = learning,
     stableWordCount = 0,

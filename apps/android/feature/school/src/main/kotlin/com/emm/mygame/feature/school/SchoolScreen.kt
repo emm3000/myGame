@@ -42,6 +42,7 @@ import com.emm.mygame.core.network.SeasonKind
 import com.emm.mygame.core.network.TextId
 import com.emm.mygame.core.network.TownLessonRefusal
 import com.emm.mygame.core.network.TownResourceKind
+import com.emm.mygame.core.network.TownSnapshot
 import com.emm.mygame.core.ui.ChromePhase
 import com.emm.mygame.core.ui.CopyLanguage
 import com.emm.mygame.core.ui.PlayerCopy
@@ -160,6 +161,7 @@ private fun SchoolContent(
         LearningSection(learning = content.learning)
         LessonRows(content = content, onIntent = onIntent)
         TextRows(content = content, onTextOpen = onTextOpen)
+        BandLines(content = content)
         if (content.isHoldoutNoteShown) HoldoutNote()
         LessonSlotSection(
             slot = content.slot,
@@ -168,6 +170,25 @@ private fun SchoolContent(
             onIntent = onIntent,
         )
         SkillsSection(content = content)
+    }
+}
+
+@Composable
+private fun BandLines(content: SchoolUiState.Content, modifier: Modifier = Modifier) {
+    if (content.bandLines.isEmpty()) return
+    Column(verticalArrangement = Arrangement.spacedBy(MyGameSpacing.step2), modifier = modifier) {
+        content.bandLines.forEach { line: TownSnapshot.BandLine ->
+            MyGameText(
+                text = fixedCopyResource(
+                    R.string.school_band_line,
+                    "band" to line.band.number.toString(),
+                    "count" to line.count.toString(),
+                    "total" to line.total.toString(),
+                ),
+                style = MyGameTypography.body,
+                color = MyGameTheme.colors.ink,
+            )
+        }
     }
 }
 
@@ -356,6 +377,7 @@ private val previewContent: SchoolUiState.Content = SchoolUiState.Content(
     start = SchoolUiState.LessonRequest.Idle,
     stop = SchoolUiState.LessonRequest.Idle,
     isHoldoutNoteShown = true,
+    bandLines = listOf(TownSnapshot.BandLine(PlacementBand.First, count = 12, total = 875)),
 )
 
 private val previewStudying: SchoolUiState.Content = previewContent.copy(
