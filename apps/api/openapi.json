@@ -2874,6 +2874,28 @@
           "hasBandStarted": {
             "type": "boolean"
           },
+          "bandLines": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "band": {
+                  "$ref": "#/components/schemas/PlacementBand"
+                },
+                "count": {
+                  "type": "integer",
+                  "minimum": 0
+                },
+                "total": {
+                  "type": "integer",
+                  "minimum": 0,
+                  "exclusiveMinimum": true
+                }
+              },
+              "required": ["band", "count", "total"],
+              "additionalProperties": false
+            }
+          },
           "skills": {
             "type": "array",
             "items": {
@@ -3011,6 +3033,7 @@
           "texts",
           "dueHoldoutChecks",
           "hasBandStarted",
+          "bandLines",
           "skills",
           "lessonSlot",
           "learning",

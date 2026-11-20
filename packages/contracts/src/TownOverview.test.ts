@@ -128,6 +128,7 @@ const overview = (overrides: Record<string, unknown> = {}): Record<string, unkno
   texts: [],
   dueHoldoutChecks: [],
   hasBandStarted: false,
+  bandLines: [],
   skills: [earnedFood],
   lessonSlot: lessonUnderStudy,
   learning: { cap: 15, inLearning: 5, retainedWords: null, nextInLearningDueAt: null },
@@ -363,6 +364,24 @@ describe('TownOverviewSchema', () => {
     const { hasBandStarted: _, ...withoutBandStart } = overview()
 
     expect(TownOverviewSchema.safeParse(withoutBandStart).success).toBe(false)
+  })
+
+  it('carries the held count and the total of each started band', () => {
+    const bandLines = [{ band: 1, count: 12, total: 875 }]
+
+    expect(TownOverviewSchema.parse(overview({ bandLines })).bandLines).toEqual(bandLines)
+  })
+
+  it('rejects an overview without the band lines', () => {
+    const { bandLines: _, ...withoutBandLines } = overview()
+
+    expect(TownOverviewSchema.safeParse(withoutBandLines).success).toBe(false)
+  })
+
+  it('rejects a band line of a band placement does not know', () => {
+    const bandLines = [{ band: 4, count: 0, total: 875 }]
+
+    expect(TownOverviewSchema.safeParse(overview({ bandLines })).success).toBe(false)
   })
 
   it('carries the scaffold language and its version', () => {

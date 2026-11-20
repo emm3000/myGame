@@ -9,6 +9,7 @@ import { LessonStateSchema } from './LessonState'
 import { NeededWordKindSchema } from './NeededWordKind'
 import { NextStepSchema } from './NextStep'
 import { OpenTextSchema } from './OpenText'
+import { PlacementBandSchema } from './PlacementBand'
 import { ReleasedLessonStateSchema } from './ReleasedLessonState'
 import { ResourceAmountsSchema } from './ResourceAmounts'
 import { ResourceKindSchema } from './ResourceKind'
@@ -60,6 +61,12 @@ const LessonUnderStudySchema = z.strictObject({
 })
 
 const RetainedWordsSchema = z.strictObject({
+  count: WholeCountSchema,
+  total: WholeCountSchema.positive(),
+})
+
+const BandLineSchema = z.strictObject({
+  band: PlacementBandSchema,
   count: WholeCountSchema,
   total: WholeCountSchema.positive(),
 })
@@ -133,6 +140,7 @@ export const TownOverviewSchema = z
     texts: z.array(OpenTextSchema),
     dueHoldoutChecks: z.array(DueHoldoutCheckStateSchema),
     hasBandStarted: z.boolean(),
+    bandLines: z.array(BandLineSchema),
     skills: z.array(EarnedSkillSchema),
     lessonSlot: LessonUnderStudySchema.nullable(),
     learning: LearningLoadSchema,
