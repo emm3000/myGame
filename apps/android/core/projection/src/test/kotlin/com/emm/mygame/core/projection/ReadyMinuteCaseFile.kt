@@ -17,11 +17,13 @@ private val caseFields: Set<String> = setOf(
     "expectedReadyEpochMilliseconds",
 )
 
+private val needFields: Set<String> = setOf("storedAmount", "ratePerHour", "capacity", "cost")
+
 fun readReadyMinuteCases(): List<ReadyMinuteCase> =
     readSharedCases(property = "projection.cases", fields = caseFields, section = "readyMinuteCases")
         .map { case: JsonObject -> case.toReadyMinuteCase() }
 
-private fun JsonObject.toReadyMinuteCase(): ReadyMinuteCase = ReadyMinuteCase(
+internal fun JsonObject.toReadyMinuteCase(): ReadyMinuteCase = ReadyMinuteCase(
     name = primitive("name").content,
     needs = getValue("needs").jsonArray.map { need: JsonElement -> need.jsonObject.toResourceNeed() },
     readAt = Instant.fromEpochMilliseconds(primitive("readAtEpochMilliseconds").long),
@@ -29,11 +31,14 @@ private fun JsonObject.toReadyMinuteCase(): ReadyMinuteCase = ReadyMinuteCase(
         ?.let { ready: JsonElement -> Instant.fromEpochMilliseconds(ready.jsonPrimitive.long) },
 )
 
-private fun JsonObject.toResourceNeed(): ResourceNeed = ResourceNeed(
-    stock = ResourceStock(
-        amount = primitive("storedAmount").long,
-        ratePerHour = primitive("ratePerHour").double,
-        capacity = primitive("capacity").long,
-    ),
-    cost = primitive("cost").long,
-)
+private fun JsonObject.toResourceNeed(): ResourceNeed {
+    require(keys == needFields) { "a need holds $keys, expected $needFields" }
+    return ResourceNeed(
+        stock = ResourceStock(
+            amount = primitive("storedAmount").long,
+            ratePerHour = primitive("ratePerHour").double,
+            capacity = primitive("capacity").long,
+        ),
+        cost = primitive("cost").long,
+    )
+}

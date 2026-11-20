@@ -104,6 +104,18 @@ class TownLessonsRepositoryTest {
     }
 
     @Test
+    fun `answers unreachable for a band line on a band the client does not know`() = runTest {
+        api.enqueue(
+            json(
+                200,
+                TOWN.replace(""""bandLines":[]""", """"bandLines":[{"band":4,"count":12,"total":875}]"""),
+            ),
+        )
+
+        assertEquals(TownReadResult.Unreachable, town().read())
+    }
+
+    @Test
     fun `reads no band line before a band starts`() = runTest {
         api.enqueue(json(200, TOWN))
 
