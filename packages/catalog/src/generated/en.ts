@@ -246,6 +246,7 @@ export const schoolSlotStopOf = ({ number }: { readonly number: string | number 
 export const schoolSlotTitle = (): string => `Studying`
 export const shellLessonFinishClose = (): string => `Close`
 export const shellLessonFinishLine = ({ number }: { readonly number: string | number }): string => `Lesson ${String(number)} is done.`
+export const shellLessonFinishReleased = ({ band, number }: { readonly band: string | number; readonly number: string | number }): string => `The returning words of band ${String(band)}, set ${String(number)} are done.`
 export const shellNavigationReport = (): string => `Report`
 export const shellNavigationTown = (): string => `Town`
 export const shellRetainedWords = ({ count, total }: { readonly count: string | number; readonly total: number }): string => `${String(count)} of ${total === 1 ? `1 word` : `${String(total)} words`} learned`
@@ -278,6 +279,7 @@ export const townNextGoToReport = (): string => `Go to the Report`
 export const townNextHoldoutCheck = ({ band }: { readonly band: string | number }): string => `Word check for band ${String(band)}`
 export const townNextLessonReadyIn = ({ number }: { readonly number: string | number }): string => `Lesson ${String(number)} ready in`
 export const townNextReleasedLesson = ({ band, number }: { readonly band: string | number; readonly number: string | number }): string => `Returning words: band ${String(band)}, set ${String(number)}`
+export const townNextReleasedReadyIn = ({ band, number }: { readonly band: string | number; readonly number: string | number }): string => `Returning words: band ${String(band)}, set ${String(number)} ready in`
 export const townNextTitle = (): string => `What is next`
 export const townNotBuilt = (): string => `Not built`
 export const townOfficeBusy = (): string => `Wait for this hiring to end.`

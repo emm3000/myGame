@@ -8,6 +8,8 @@ export function lessonFinishedBetween(
   if (lessonSlot === null) {
     return undefined
   }
-  const lesson = next.lessons.find(({ id }) => id === lessonSlot.lessonId)
+  const lesson = [...next.lessons, ...next.releasedLessons].find(
+    ({ id }) => id === lessonSlot.lessonId,
+  )
   return lesson?.isStudied === true ? lesson.id : undefined
 }

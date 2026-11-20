@@ -13,12 +13,14 @@ import {
   townNextHoldoutCheck,
   townNextLessonReadyIn,
   townNextReleasedLesson,
+  townNextReleasedReadyIn,
 } from '@mygame/catalog'
 import type { NextStep } from '@mygame/contracts'
 import type { SlotCountdown } from '../design-system/CountdownLine'
 import { formatQuantity } from '../design-system/formatQuantity'
 import { lessonNumberOf } from '../school/lessonCardOf'
 import { formatFinish } from '../time/formatFinish'
+import { type LessonName, lessonNameOf } from './lessonNameOf'
 import type { LiveTown } from './liveTown'
 
 type Step<Kind extends NextStep['kind']> = Extract<NextStep, { readonly kind: Kind }>
@@ -34,6 +36,19 @@ export interface NextStepCardContent {
   readonly action: NextStepAction
 }
 
+const readyWordsOf = (name: LessonName): string => {
+  switch (name.kind) {
+    case 'shelved':
+      return townNextLessonReadyIn({ number: name.number })
+    case 'released':
+      return townNextReleasedReadyIn({ band: name.band, number: name.set })
+    default: {
+      const unreachable: never = name
+      return unreachable
+    }
+  }
+}
+
 export const lessonCountdownOf = ({
   lessonSlot,
   overview,
@@ -42,7 +57,7 @@ export const lessonCountdownOf = ({
   lessonSlot === null
     ? undefined
     : {
-        words: townNextLessonReadyIn({ number: lessonNumberOf(lessonSlot.lessonId, overview) }),
+        words: readyWordsOf(lessonNameOf(lessonSlot.lessonId, overview)),
         time: formatFinish(lessonSlot.remainingSeconds, at),
       }
 
@@ -71,15 +86,22 @@ function reviewsCardOf({ count, readFirst }: Step<'reviews'>, town: LiveTown): N
   }
 }
 
+const runningLessonActionOf = ({ lessonSlot, overview }: LiveTown): NextStepAction => {
+  if (lessonSlot === null) {
+    return { label: schoolLessonReadWords(), to: '/school' }
+  }
+  const name = lessonNameOf(lessonSlot.lessonId, overview)
+  return name.kind === 'released'
+    ? { label: townGoToSchool(), to: '/school' }
+    : readWords(lessonSlot.lessonId)
+}
+
 function lessonRunningCardOf(town: LiveTown): NextStepCardContent {
   return {
     line: schoolSlotTitle(),
     detail: undefined,
     countdown: lessonCountdownOf(town),
-    action:
-      town.lessonSlot === null
-        ? { label: schoolLessonReadWords(), to: '/school' }
-        : readWords(town.lessonSlot.lessonId),
+    action: runningLessonActionOf(town),
   }
 }
 

@@ -9,11 +9,13 @@ import {
   schoolLessonTitle,
   schoolLessonWords,
   schoolSlotTitle,
+  shellLessonFinishReleased,
   townGoToSchool,
   townNextGoToReport,
   townNextHoldoutCheck,
   townNextLessonReadyIn,
   townNextReleasedLesson,
+  townNextReleasedReadyIn,
   townNextTitle,
   townSkylineBuilt,
 } from '@mygame/catalog'
@@ -277,6 +279,68 @@ it('re-reads at nextDueAt', async () => {
   await passSeconds(1)
 
   expect([readsBefore, town.mock.calls.length]).toEqual([1, 2])
+})
+
+const releasedSetTwoOfBandTwo = (isStudied: boolean): TownOverview['releasedLessons'][number] => ({
+  id: 'released-2-2',
+  band: 2,
+  position: 2,
+  durationSeconds: 300,
+  requiredSchoolLevel: 1,
+  isStudied,
+  words: [],
+})
+
+const releasedRunning = townAt(
+  { kind: 'lessonRunning', goal: null, text: null },
+  {
+    lessonSlot: {
+      lessonId: 'released-2-2',
+      startedAt: secondsAfterRead(-60),
+      finishesAt: secondsAfterRead(240),
+    },
+    releasedLessons: [releasedSetTwoOfBandTwo(false)],
+  },
+)
+
+const releasedFinished = townAt(reviewsStep(1, []), {
+  releasedLessons: [releasedSetTwoOfBandTwo(true)],
+  readAt: secondsAfterRead(240),
+})
+
+it('names a running released lesson by band and set', async () => {
+  await showTown(releasedRunning)
+
+  const readyIn = `${townNextReleasedReadyIn({ band: 2, number: 2 })}4 min`
+  const timers = screen.getAllByRole('timer').map(({ textContent }) => textContent)
+
+  expect(timers).toEqual([readyIn, readyIn])
+  expect(document.body.textContent).not.toContain(townNextLessonReadyIn({ number: 0 }))
+})
+
+it('names a finished released lesson by band and set', async () => {
+  renderAppAt(
+    '/',
+    stubApiClient({
+      currentPlayer: async () => knownPlayer,
+      town: async () => ({
+        ok: true,
+        value: Date.now() < Date.parse(secondsAfterRead(240)) ? releasedRunning : releasedFinished,
+      }),
+    }),
+  )
+  await passSeconds(0)
+
+  await passSeconds(240)
+
+  const line = shellLessonFinishReleased({ band: 2, number: 2 })
+  expect(screen.getByRole('region', { name: line })).toBeDefined()
+})
+
+it('sends a running released lesson to the school', async () => {
+  await showTown(releasedRunning)
+
+  expect(pill(townGoToSchool()).getAttribute('href')).toBe('/school')
 })
 
 const workUnderWay: TownOverview['work'] = {

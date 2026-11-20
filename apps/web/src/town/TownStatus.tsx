@@ -1,16 +1,31 @@
-import { shellLessonFinishClose, shellLessonFinishLine } from '@mygame/catalog'
+import {
+  shellLessonFinishClose,
+  shellLessonFinishLine,
+  shellLessonFinishReleased,
+} from '@mygame/catalog'
 import type { ReactElement } from 'react'
 import { Button } from '../design-system/Button'
 import { CountdownLine } from '../design-system/CountdownLine'
 import { LiveRegion } from '../design-system/LiveRegion'
-import { lessonNumberOf } from '../school/lessonCardOf'
+import { lessonNameOf } from './lessonNameOf'
 import type { LiveTown } from './liveTown'
 import { NextStepLink } from './NextStepLink'
 import { lessonCountdownOf, reviewsActionOf } from './nextStepCardOf'
 import type { LessonFinish } from './useLessonFinish'
 
-const finishLineOf = ({ overview }: LiveTown, lessonId: string): string =>
-  shellLessonFinishLine({ number: lessonNumberOf(lessonId, overview) })
+const finishLineOf = ({ overview }: LiveTown, lessonId: string): string => {
+  const name = lessonNameOf(lessonId, overview)
+  switch (name.kind) {
+    case 'shelved':
+      return shellLessonFinishLine({ number: name.number })
+    case 'released':
+      return shellLessonFinishReleased({ band: name.band, number: name.set })
+    default: {
+      const unreachable: never = name
+      return unreachable
+    }
+  }
+}
 
 function FinishNotice({
   line,
