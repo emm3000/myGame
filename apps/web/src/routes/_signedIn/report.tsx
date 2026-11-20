@@ -1,9 +1,10 @@
-import { reportLoading } from '@mygame/catalog'
+import { reportLoading, settingsTitle } from '@mygame/catalog'
 import type { Report } from '@mygame/contracts'
 import { createFileRoute } from '@tanstack/react-router'
 import type { ReactElement } from 'react'
 import type { ApiClient } from '../../api/apiClient'
 import { SignOutColumn } from '../../auth/SignOutColumn'
+import { ButtonLink } from '../../design-system/ButtonLink'
 import { LoadingSkeleton, type LoadingSkeletonProps } from '../../design-system/LoadingSkeleton'
 import { newsRowOf } from '../../news/newsRowOf'
 import { refusalLineOf } from '../../refusals/refusalLineOf'
@@ -93,7 +94,14 @@ function ReportBody({ apiClient }: { readonly apiClient: ApiClient }): ReactElem
 function ReportRoute(): ReactElement {
   const { apiClient } = Route.useRouteContext()
   return (
-    <SignOutColumn apiClient={apiClient}>
+    <SignOutColumn
+      apiClient={apiClient}
+      beside={
+        <ButtonLink to="/settings" tone="text">
+          {settingsTitle()}
+        </ButtonLink>
+      }
+    >
       <ReportBody apiClient={apiClient} />
     </SignOutColumn>
   )
