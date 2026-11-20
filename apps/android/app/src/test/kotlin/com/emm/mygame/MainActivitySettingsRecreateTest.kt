@@ -60,7 +60,7 @@ class MainActivitySettingsRecreateTest {
         waitForLine(DARK_PICK)
         composeRule.onNodeWithText(DARK_PICK).assertIsSelected()
         composeRule.runOnIdle { activity.get().onBackPressedDispatcher.onBackPressed() }
-        waitForLine(REPORT_NOTHING_DUE)
+        waitForLine(REPORT_NO_NEWS)
         composeRule.runOnIdle { activity.get().onBackPressedDispatcher.onBackPressed() }
         composeRule.waitUntil(WAIT_MILLIS) {
             composeRule.onAllNodes(hasContentDescription(TOWN_LOADING)).fetchSemanticsNodes().isNotEmpty()
@@ -82,7 +82,7 @@ class MainActivitySettingsRecreateTest {
         const val REPORT_READS: Int = 3
         const val SETTINGS_LINK: String = "Ajustes"
         const val DARK_PICK: String = "Oscuro"
-        const val REPORT_NOTHING_DUE: String = "No tienes repasos pendientes ahora."
+        const val REPORT_NO_NEWS: String = "No hay noticias."
         const val TOWN_LOADING: String = "Estamos leyendo tu pueblo…"
     }
 }
