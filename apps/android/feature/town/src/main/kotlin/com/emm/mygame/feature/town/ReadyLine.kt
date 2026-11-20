@@ -19,12 +19,12 @@ internal fun ReadyLine(ready: TownUiState.ReadyTime, modifier: Modifier = Modifi
     val copy: PlayerCopy = rememberPlayerCopy()
     val color: Color = MyGameTheme.colors.inkMuted
     FlowRow(
-        horizontalArrangement = Arrangement.spacedBy(MyGameSpacing.step1),
+        horizontalArrangement = Arrangement.spacedBy(MyGameSpacing.step2),
         modifier = modifier.semantics(mergeDescendants = true) {},
     ) {
         MyGameText(label = copy.chrome { readyWordsOf(ready) }, style = MyGameTypography.caption, color = color)
         MyGameText(
-            label = copy.chrome { readyTimeOf(ready) },
+            label = copy.chrome { readyTimeLabelOf(ready) },
             style = MyGameTypography.caption.withTabularFigures(),
             color = color,
         )

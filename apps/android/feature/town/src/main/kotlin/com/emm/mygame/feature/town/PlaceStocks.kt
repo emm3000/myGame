@@ -21,7 +21,6 @@ import com.emm.mygame.core.designsystem.MyGameTrack
 import com.emm.mygame.core.designsystem.MyGameTypography
 import com.emm.mygame.core.designsystem.PreviewMyGame
 import com.emm.mygame.core.designsystem.formatQuantity
-import com.emm.mygame.core.designsystem.withTabularFigures
 import com.emm.mygame.core.network.SeasonKind
 import com.emm.mygame.core.network.TownBuildingKind
 import com.emm.mygame.core.network.TownResourceKind
@@ -92,20 +91,18 @@ private fun StockItem(stock: TownUiState.StockLine, modifier: Modifier = Modifie
             horizontalArrangement = Arrangement.SpaceBetween,
             modifier = Modifier.fillMaxWidth(),
         ) {
-            MyGameText(
+            FiguredCaption(
                 label = copy.chrome(
                     if (stock.isFull) R.string.town_full else R.string.town_stock_of,
                     "capacity" to capacity,
                 ),
-                style = MyGameTypography.caption.withTabularFigures(),
                 color = MyGameTheme.colors.inkMuted,
             )
-            MyGameText(
+            FiguredCaption(
                 label = copy.chrome {
                     stock.fill?.let { fill: TownUiState.FillTime -> fillLabelOf(fill) }
                         ?: text(R.string.town_rate, "rate" to formatQuantity(stock.ratePerHour))
                 },
-                style = MyGameTypography.caption.withTabularFigures(),
                 color = MyGameTheme.colors.inkMuted,
             )
         }
@@ -193,7 +190,7 @@ internal fun SeasonRow(season: TownUiState.SeasonLine, modifier: Modifier = Modi
             color = MyGameTheme.colors.inkMuted,
             modifier = Modifier.clearAndSetSemantics { },
         )
-        MyGameText(
+        FiguredCaption(
             label = copy.chrome {
                 text(
                     R.string.town_season_ends_in,
@@ -201,7 +198,6 @@ internal fun SeasonRow(season: TownUiState.SeasonLine, modifier: Modifier = Modi
                     "timeLeft" to seasonTimeLeftOf(season),
                 )
             },
-            style = MyGameTypography.caption.withTabularFigures(),
             color = MyGameTheme.colors.inkMuted,
         )
     }
