@@ -18,7 +18,9 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.Shape
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.semantics.Role
@@ -41,6 +43,7 @@ fun MyGameNavRow(
     val interactions: MutableInteractionSource = remember { MutableInteractionSource() }
     val isFocused: Boolean by interactions.collectIsFocusedAsState()
     val chevronSize: Dp = with(LocalDensity.current) { MyGameSizes.icon.value.sp.toDp() }
+    val shape: Shape = RoundedCornerShape(MyGameRadii.sm)
     Column(modifier = modifier.fillMaxWidth()) {
         Row(
             horizontalArrangement = Arrangement.spacedBy(MyGameSpacing.step3),
@@ -48,7 +51,8 @@ fun MyGameNavRow(
             modifier = Modifier
                 .fillMaxWidth()
                 .defaultMinSize(minHeight = MyGameSizes.secondary)
-                .focusRingWhen(isFocused = isFocused, color = colors.focus)
+                .focusRingWhen(isFocused = isFocused, color = colors.focus, shape = shape)
+                .clip(shape)
                 .clickable(
                     interactionSource = interactions,
                     indication = LocalIndication.current,
@@ -84,8 +88,8 @@ fun MyGameNavRow(
     }
 }
 
-private fun Modifier.focusRingWhen(isFocused: Boolean, color: Color): Modifier =
-    if (isFocused) border(MyGameStrokeWidths.focus, color, RoundedCornerShape(MyGameRadii.sm)) else this
+private fun Modifier.focusRingWhen(isFocused: Boolean, color: Color, shape: Shape): Modifier =
+    if (isFocused) border(MyGameStrokeWidths.focus, color, shape) else this
 
 @Composable
 private fun NavRowTitle(title: MyGameLabel, status: MyGameLabel?, modifier: Modifier = Modifier) {
