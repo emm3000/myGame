@@ -1729,7 +1729,7 @@ describe('the town route', () => {
         `INSERT INTO held_out_words (player_id, band, headword) SELECT id, 1, '${heldOut().headword}' FROM players`,
       )
       await runSql(
-        `INSERT INTO cards (player_id, word_id, state, stability, difficulty, last_review_at, last_rating, entered_at) SELECT id, '${practised().id}', 'review', 365, 5, '${weeksBefore(1)}', 'good', '${weeksBefore(weeksAgo)}' FROM players`,
+        `INSERT INTO cards (player_id, word_id, state, stability, difficulty, last_review_at, last_rating, entered_at) SELECT id, '${practised().id}', 'review', 365, 5, '${weeksBefore(1)}', 'good', '${weeksBefore(weeksAgo)}' FROM players WHERE email = 'ana@example.com'`,
       )
       if (releasingCheck === 'begun') {
         await runSql(
@@ -1867,9 +1867,13 @@ describe('the town route', () => {
       return curriculum.slice(0, last + 1).flatMap(({ words }) => words.map(({ id }) => id))
     }
 
-    const holdCards = (wordIds: ReadonlyArray<string>, stability: number): Promise<void> =>
+    const holdCards = (
+      email: string,
+      wordIds: ReadonlyArray<string>,
+      stability: number,
+    ): Promise<void> =>
       runSql(
-        `INSERT INTO cards (player_id, word_id, state, stability, difficulty, last_review_at, last_rating, entered_at) SELECT id, word_id, 'review', ${stability}, 5, '2026-11-01T08:00:00Z', 'good', '2026-11-01T07:00:00Z' FROM players, unnest(ARRAY[${wordIds.map((id) => `'${id}'`).join(', ')}]) word_id`,
+        `INSERT INTO cards (player_id, word_id, state, stability, difficulty, last_review_at, last_rating, entered_at) SELECT id, word_id, 'review', ${stability}, 5, '2026-11-01T08:00:00Z', 'good', '2026-11-01T07:00:00Z' FROM players, unnest(ARRAY[${wordIds.map((id) => `'${id}'`).join(', ')}]) word_id WHERE email = '${email}'`,
       )
 
     const setStability = (wordId: string, stability: number): Promise<void> =>
@@ -1883,7 +1887,7 @@ describe('the town route', () => {
 
     it('serves a text with each card word’s support', async () => {
       const cookie = await signUpWithTown('ana@example.com')
-      await holdCards(wordIdsUpTo('lesson-31'), 3)
+      await holdCards('ana@example.com', wordIdsUpTo('lesson-31'), 3)
       await setStability('word-38', 7)
       await setStability('word-22', 30)
 
@@ -1910,6 +1914,7 @@ describe('the town route', () => {
     it('glosses a held-out word beside it', async () => {
       const cookie = await signUpWithTown('ana@example.com')
       await holdCards(
+        'ana@example.com',
         wordIdsUpTo('lesson-31').filter((id) => id !== 'word-149'),
         60,
       )
@@ -1936,7 +1941,7 @@ describe('the town route', () => {
           'lesson-31',
         )
           .map((id) => `'${id}'`)
-          .join(', ')}]) word_id`,
+          .join(', ')}]) word_id WHERE email = 'ana@example.com'`,
       )
 
       const town = await overviewOf(await readTown(cookie))
@@ -1950,7 +1955,7 @@ describe('the town route', () => {
 
     it('serves no text before the stage reaches lesson 31', async () => {
       const cookie = await signUpWithTown('ana@example.com')
-      await holdCards(wordIdsUpTo('lesson-30'), 3)
+      await holdCards('ana@example.com', wordIdsUpTo('lesson-30'), 3)
 
       const overview = await overviewOf(await readTown(cookie))
 
@@ -2039,7 +2044,7 @@ describe('the town route', () => {
       const cookie = await signUpWithTown('ana@example.com')
       await runSql(`INSERT INTO cards (player_id, word_id, state, stability, difficulty, last_review_at, last_rating, entered_at)
         SELECT id, 'filler-' || n, 'review', 3, 5, '2026-11-05T08:00:00Z', 'good', '2026-11-01T08:00:00Z'
-        FROM players, generate_series(1, 15) AS n`)
+        FROM players, generate_series(1, 15) AS n WHERE email = 'ana@example.com'`)
 
       const town = await overviewOf(await readTown(cookie))
 
@@ -2062,10 +2067,10 @@ describe('the town route', () => {
       const cookie = await signUpWithTown('ana@example.com')
       await runSql(`INSERT INTO cards (player_id, word_id, state, stability, difficulty, last_review_at, last_rating, entered_at)
         SELECT id, 'filler-' || n, 'review', 3, 5, TIMESTAMPTZ '2026-11-04T08:00:00Z' + n * INTERVAL '1 hour', 'good', '2026-11-01T08:00:00Z'
-        FROM players, generate_series(1, 15) AS n`)
+        FROM players, generate_series(1, 15) AS n WHERE email = 'ana@example.com'`)
       await runSql(`INSERT INTO cards (player_id, word_id, state, stability, difficulty, last_review_at, last_rating, entered_at)
         SELECT id, 'stable', 'review', 10, 5, '2026-10-27T08:00:00Z', 'good', '2026-10-01T08:00:00Z'
-        FROM players`)
+        FROM players WHERE email = 'ana@example.com'`)
 
       const town = await overviewOf(await readTown(cookie))
 
@@ -2084,7 +2089,7 @@ describe('the town route', () => {
       const cookie = await signUpWithTown('ana@example.com')
       await runSql(`INSERT INTO cards (player_id, word_id, state, stability, difficulty, last_review_at, last_rating, entered_at)
         SELECT id, 'stable', 'review', 10, 5, '2026-10-27T08:00:00Z', 'good', '2026-10-01T08:00:00Z'
-        FROM players`)
+        FROM players WHERE email = 'ana@example.com'`)
 
       const town = await overviewOf(await readTown(cookie))
 

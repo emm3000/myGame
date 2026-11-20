@@ -706,7 +706,7 @@ describe('the learning routes', () => {
       const player = await signUpWithATown()
       clock.setTo(lessonStartsAt)
       await runSql(`INSERT INTO cards (player_id, word_id, state, stability, difficulty, last_review_at, last_rating, entered_at)
-        SELECT id, 'lapsed-' || n, 'review', 4 + n * 0.29, 5, '2026-11-09T07:00:00Z', 'good', '2026-11-01T07:00:00Z'
+        SELECT id, 'settling-' || n, 'review', 4 + n * 0.29, 5, '2026-11-09T07:00:00Z', 'good', '2026-11-01T07:00:00Z'
         FROM players, generate_series(0, 10) AS n`)
 
       expect((await overviewOf(await startLesson(player))).lessonSlot).toEqual({
