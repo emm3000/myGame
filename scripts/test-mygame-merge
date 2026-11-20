@@ -58,11 +58,11 @@ build_a_log_with_recent_rows() {
   local count=$2 pr
   mkdir -p "$repo/scripts" "$repo/docs/agents" "$case_dir/state"
   cp "$scripts_dir/mygame-merge" "$repo/scripts/"
-  {
-    echo '#!/usr/bin/env bash'
-    echo 'echo "$*" >>"$FAKE_STATE/closed"'
-    echo 'echo "orphans: none"'
-  } >"$repo/scripts/mygame-wave-close"
+  awk 1 >"$repo/scripts/mygame-wave-close" <<'STUB'
+#!/usr/bin/env bash
+echo "$*" >>"$FAKE_STATE/closed"
+echo "orphans: none"
+STUB
   chmod +x "$repo/scripts/mygame-wave-close"
   {
     printf '# Dispatch log\n\n## Summary\n\n'
@@ -94,7 +94,7 @@ with_stubs() {
   (
     export FAKE_STATE="$case_dir/state" PATH="$sandbox/bin:$PATH"
     [ "$(type -P gh)" = "$sandbox/bin/gh" ] || { echo "refusing to run: stub gh is not first on PATH" >&2; exit 70; }
-    cd "$repo" && "$@" 2>&1
+    cd "$repo" && /usr/bin/timeout -k 1 20 "$@" 2>&1
   )
 }
 
