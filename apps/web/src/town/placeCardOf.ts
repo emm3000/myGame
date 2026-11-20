@@ -8,6 +8,7 @@ import {
   townPeopleAtWork,
   townPeopleShort,
   townTopLevel,
+  townWordsNeeded,
 } from '@mygame/catalog'
 import type { BuildingKind } from '@mygame/contracts'
 import type { CardActionState } from '../design-system/CardAction'
@@ -23,12 +24,26 @@ export interface PlaceCardContent {
   readonly levelLabel: string
   readonly effect: string
   readonly costs: ReadonlyArray<CardCost>
+  readonly wordsLine: string | null
   readonly actionLabel: string
   readonly durationSeconds: number
   readonly state: CardActionState
 }
 
 type NextLevel = NonNullable<LiveTown['overview']['buildings'][BuildingKind]['nextLevel']>
+
+const heldWordsOf = (
+  standing: NonNullable<NextLevel['wordsNeeded']>['standing'],
+  { stableWordCount, retainedWordCount }: LiveTown['overview'],
+): number => (standing === 'stable' ? stableWordCount : retainedWordCount)
+
+function wordsLineOf({ wordsNeeded }: NextLevel, overview: LiveTown['overview']): string | null {
+  if (wordsNeeded === null) {
+    return null
+  }
+  const { count, standing } = wordsNeeded
+  return townWordsNeeded({ standing, needed: count, held: heldWordsOf(standing, overview) })
+}
 
 const isWaitingListFull = ({ work }: LiveTown['overview']): boolean =>
   work.slot !== null && work.waitingList.length >= work.cap
@@ -74,6 +89,7 @@ export function placeCardOf(place: BuildingKind, town: LiveTown): PlaceCardConte
       ...common,
       effect: townAtTopLevel(),
       costs: [],
+      wordsLine: null,
       actionLabel: townTopLevel(),
       durationSeconds: 0,
       state: { kind: 'atMaxLevel', label: townTopLevel() },
@@ -83,6 +99,7 @@ export function placeCardOf(place: BuildingKind, town: LiveTown): PlaceCardConte
     ...common,
     effect: townPeopleAtWork({ people: nextLevel.people }),
     costs: cardCostsOf(nextLevel.cost, town.stocks),
+    wordsLine: wordsLineOf(nextLevel, town.overview),
     actionLabel: townBuild({ level: nextLevel.level }),
     durationSeconds: nextLevel.durationSeconds,
     state: stateOf(nextLevel, town),

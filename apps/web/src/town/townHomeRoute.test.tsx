@@ -34,6 +34,9 @@ import {
   townSkylineBuilt,
   townStocks,
   townTryAgain,
+  townWordsLearned,
+  townWordsNeeded,
+  townWordsReviewed,
 } from '@mygame/catalog'
 import type { TownOverview } from '@mygame/contracts'
 import { act, fireEvent, screen, within } from '@testing-library/react'
@@ -484,6 +487,60 @@ it("keeps a cost's name for a screen reader", async () => {
   expect(within(costs).getByRole('listitem').textContent).toContain(
     townCostName({ resource: namesTownResourcesMoney() }),
   )
+})
+
+const farmNeeding = (
+  wordsNeeded: NonNullable<TownOverview['buildings']['farm']['nextLevel']>['wordsNeeded'],
+): TownOverview['buildings']['farm'] => ({
+  level: 2,
+  nextLevel: {
+    level: 3,
+    cost: { money: 60, food: 0, power: 0, material: 0 },
+    people: 2,
+    durationSeconds: 60,
+    wordsNeeded,
+  },
+})
+
+const townWithWords = (farm: TownOverview['buildings']['farm']): TownOverview => ({
+  ...knownTown,
+  buildings: { ...knownTown.buildings, farm },
+  stableWordCount: 7,
+  retainedWordCount: 3,
+})
+
+const farmRow = (): ReturnType<typeof within> =>
+  within(screen.getByRole('listitem', { name: namesPlacesFarm() }))
+
+it('draws a stable need with its count', async () => {
+  await showTown(serving(townWithWords(farmNeeding({ count: 10, standing: 'stable' }))))
+
+  expect(
+    farmRow().getByText(townWordsNeeded({ standing: 'stable', needed: 10, held: 7 })),
+  ).toBeDefined()
+})
+
+it('draws a retained need with its count', async () => {
+  await showTown(serving(townWithWords(farmNeeding({ count: 5, standing: 'retained' }))))
+
+  expect(
+    farmRow().getByText(townWordsNeeded({ standing: 'retained', needed: 5, held: 3 })),
+  ).toBeDefined()
+})
+
+it('draws no need below level 3', async () => {
+  await showTown(serving(townWithWords(farmNeeding(null))))
+
+  expect(farmRow().queryByText(/Necesita/)).toBeNull()
+})
+
+it("draws the town's reviewed and learned words", async () => {
+  await showTown(serving(townWithWords(farmNeeding(null))))
+
+  const stocks = within(screen.getByRole('region', { name: townStocks() }))
+
+  expect(stocks.getByText(townWordsReviewed({ count: 7 }))).toBeDefined()
+  expect(stocks.getByText(townWordsLearned({ count: 3 }))).toBeDefined()
 })
 
 it('writes the season under the stocks', async () => {
