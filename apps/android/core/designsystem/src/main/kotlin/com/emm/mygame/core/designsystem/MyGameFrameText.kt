@@ -15,12 +15,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.drawWithContent
-import androidx.compose.ui.geometry.CornerRadius
-import androidx.compose.ui.geometry.Offset
-import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.semantics.SemanticsPropertyKey
 import androidx.compose.ui.semantics.SemanticsPropertyReceiver
@@ -120,7 +115,13 @@ private fun WordOnTap(text: String, isOpen: Boolean, ink: TextStyle, onTap: () -
         contentAlignment = Alignment.Center,
         modifier = Modifier
             .defaultMinSize(minHeight = MyGameSizes.control)
-            .then(if (isFocused) Modifier.focusRingOutside(ringColor) else Modifier)
+            .focusRingAround(
+                isFocused = isFocused,
+                color = ringColor,
+                horizontalReach = MyGameStrokeWidths.focus,
+                verticalReach = -MyGameStrokeWidths.focus / 2,
+                radius = MyGameRadii.sm,
+            )
             .clickable(
                 interactionSource = interactions,
                 indication = LocalIndication.current,
@@ -135,18 +136,6 @@ private fun WordOnTap(text: String, isOpen: Boolean, ink: TextStyle, onTap: () -
             color = ink.color,
         )
     }
-}
-
-private fun Modifier.focusRingOutside(color: Color): Modifier = drawWithContent {
-    drawContent()
-    val stroke: Float = MyGameStrokeWidths.focus.toPx()
-    drawRoundRect(
-        color = color,
-        topLeft = Offset(x = -stroke, y = stroke / 2),
-        size = Size(width = size.width + 2 * stroke, height = size.height - stroke),
-        cornerRadius = CornerRadius(MyGameRadii.sm.toPx()),
-        style = Stroke(width = stroke),
-    )
 }
 
 private fun spokenFrameOf(frame: MyGameFrame): AnnotatedString = buildAnnotatedString {
