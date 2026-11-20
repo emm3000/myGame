@@ -8,9 +8,23 @@ status=0
 printf '%s' "$input" | python3 -I -c '
 import json, os, re, shlex, subprocess, sys
 
+heredoc_operator = re.compile(r"(?<!<)<<(-?)\s*([\x27\"]?)(\w+)\2")
+
+def heredoc_bodies_end(command, at, heredocs):
+    for strip_tabs, delimiter in heredocs:
+        while at < len(command):
+            line_end = command.find("\n", at)
+            line_end = len(command) if line_end < 0 else line_end
+            line = command[at:line_end]
+            at = line_end + 1
+            if (line.lstrip("\t") if strip_tabs else line) == delimiter:
+                break
+    return at
+
 def unquoted(command):
     kept = []
     open_quotes = []
+    heredocs = []
     at = 0
     while at < len(command):
         quote = open_quotes[-1] if open_quotes else ""
@@ -33,6 +47,24 @@ def unquoted(command):
                 open_quotes.pop()
             kept.append(char if char == "\"" else " ")
         else:
+            heredoc = heredoc_operator.match(command, at)
+            if heredoc:
+                heredocs.append((heredoc.group(1) == "-", heredoc.group(3)))
+                kept.append(" " * len(heredoc.group(0)))
+                at = heredoc.end()
+                continue
+            if char == "\n" and heredocs:
+                body_end = heredoc_bodies_end(command, at + 1, heredocs)
+                kept.append(re.sub(r"[^\n]", " ", command[at:body_end]))
+                heredocs = []
+                at = body_end
+                continue
+            if char == "#" and (at == 0 or command[at - 1] in " \t\n;&|("):
+                line_end = command.find("\n", at)
+                line_end = len(command) if line_end < 0 else line_end
+                kept.append(" " * (line_end - at))
+                at = line_end
+                continue
             if char == "\\":
                 kept.append(command[at:at + 2])
                 at += 2
@@ -43,7 +75,7 @@ def unquoted(command):
                 open_quotes.pop()
             kept.append(char)
         at += 1
-    return "".join(kept)
+    return command if open_quotes else "".join(kept)
 
 hook = json.load(sys.stdin)
 command = hook["tool_input"]["command"]
