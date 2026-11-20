@@ -7,6 +7,8 @@ import androidx.compose.ui.semantics.getOrNull
 import androidx.compose.ui.test.SemanticsMatcher
 import androidx.compose.ui.test.assertCountEquals
 import androidx.compose.ui.test.getUnclippedBoundsInRoot
+import androidx.compose.ui.test.hasAnyAncestor
+import androidx.compose.ui.test.hasTestTag
 import androidx.compose.ui.test.junit4.ComposeContentTestRule
 import androidx.compose.ui.test.junit4.createComposeRule
 import androidx.compose.ui.test.onAllNodesWithContentDescription
@@ -52,6 +54,12 @@ class SchoolReleasedLessonsTest {
     private val firstSetTitle: String = "Palabras que vuelven: banda 2, grupo\u00A01"
 
     private val fiveWords: Regex = Regex("""\b5\s+palabras?\b""")
+
+    private val inSizeLabel: SemanticsMatcher =
+        hasTestTag(LESSON_SIZE_LABEL) or hasAnyAncestor(hasTestTag(LESSON_SIZE_LABEL))
+
+    private val capShortOfFiveWords: TownSnapshot.Learning =
+        TownSnapshot.Learning(cap = 10, inLearning = 8, retainedWords = null, nextInLearningDueAt = null)
 
     private val intents: MutableList<SchoolIntent> = mutableListOf()
 
@@ -145,10 +153,8 @@ class SchoolReleasedLessonsTest {
 
     @Test
     fun `states the next lesson's word count once with the cap full and a released lesson blocked`() {
-        val fullCap: TownSnapshot.Learning =
-            TownSnapshot.Learning(cap = 10, inLearning = 8, retainedWords = null, nextInLearningDueAt = null)
         val onlyTheNextLessonHoldsFive: TownSnapshot = shelvedAndReleased.copy(
-            learning = fullCap,
+            learning = capShortOfFiveWords,
             lessons = listOf(lessonOf(), lessonOf(id = secondLesson, theme = "Work and money", wordCount = 4)),
             releasedLessons = listOf(
                 releasedLessonOf(secondSet, position = 2, wordCount = 4),
@@ -157,24 +163,17 @@ class SchoolReleasedLessonsTest {
         )
         show(contentOf(onlyTheNextLessonHoldsFive))
 
-        val statements: List<String> = composeRule
-            .onAllNodes(SemanticsMatcher("any node") { true }, useUnmergedTree = true)
-            .fetchSemanticsNodes()
-            .flatMap(::linesOf)
-            .filter { line: String -> fiveWords.containsMatchIn(line) }
-
+        assertEquals(listOf("5 palabras · Habilidad: comida +5 %"), fiveWordStatementsOf(inSizeLabel))
         assertEquals(
-            listOf("5 palabras · Habilidad: comida +5 %", "La siguiente lección trae 5 palabras. Empieza los repasos."),
-            statements,
+            listOf("La siguiente lección trae 5 palabras. Empieza los repasos."),
+            fiveWordStatementsOf(!inSizeLabel),
         )
     }
 
     @Test
     fun `states the next lesson's word count once when another lesson holds as many words`() {
-        val fullCap: TownSnapshot.Learning =
-            TownSnapshot.Learning(cap = 10, inLearning = 8, retainedWords = null, nextInLearningDueAt = null)
         val twoLessonsHoldFive: TownSnapshot = shelvedAndReleased.copy(
-            learning = fullCap,
+            learning = capShortOfFiveWords,
             lessons = listOf(lessonOf(), lessonOf(id = secondLesson, theme = "Work and money", wordCount = 5)),
             releasedLessons = listOf(
                 releasedLessonOf(secondSet, position = 2, wordCount = 5),
@@ -183,14 +182,24 @@ class SchoolReleasedLessonsTest {
         )
         show(contentOf(twoLessonsHoldFive))
 
-        val statements: List<String> = composeRule
-            .onAllNodes(SemanticsMatcher("any node") { true }, useUnmergedTree = true)
-            .fetchSemanticsNodes()
-            .filterNot(::isInSizeLabel)
-            .flatMap(::linesOf)
-            .filter { line: String -> fiveWords.containsMatchIn(line) }
+        assertEquals(
+            listOf("La siguiente lección trae 5 palabras. Empieza los repasos."),
+            fiveWordStatementsOf(!inSizeLabel),
+        )
+    }
 
-        assertEquals(listOf("La siguiente lección trae 5 palabras. Empieza los repasos."), statements)
+    @Test
+    fun `states the next lesson's word count once beside a studied lesson of as many words`() {
+        val studiedLessonHoldsFive: TownSnapshot = townOf(
+            learning = capShortOfFiveWords,
+            lessons = listOf(lessonOf(isStudied = true), lessonOf(id = secondLesson, theme = "Work and money")),
+        )
+        show(contentOf(studiedLessonHoldsFive))
+
+        assertEquals(
+            listOf("La siguiente lección trae 5 palabras. Empieza los repasos."),
+            fiveWordStatementsOf(!inSizeLabel),
+        )
     }
 
     @Test
@@ -306,10 +315,11 @@ class SchoolReleasedLessonsTest {
             node.config.getOrNull(SemanticsProperties.ContentDescription).orEmpty() +
             listOfNotNull(node.config.getOrNull(SemanticsProperties.StateDescription))
 
-    private fun isInSizeLabel(node: SemanticsNode): Boolean =
-        generateSequence(node, SemanticsNode::parent).any { ancestor: SemanticsNode ->
-            ancestor.config.getOrNull(SemanticsProperties.TestTag) == LESSON_SIZE_LABEL
-        }
+    private fun fiveWordStatementsOf(nodes: SemanticsMatcher): List<String> = composeRule
+        .onAllNodes(nodes, useUnmergedTree = true)
+        .fetchSemanticsNodes()
+        .flatMap(::linesOf)
+        .filter { line: String -> fiveWords.containsMatchIn(line) }
 
     private fun topOf(text: String): Dp = composeRule.onNodeWithText(text).getUnclippedBoundsInRoot().top
 
