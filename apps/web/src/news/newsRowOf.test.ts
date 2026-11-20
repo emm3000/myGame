@@ -1,3 +1,4 @@
+import { reportNewsRefund } from '@mygame/catalog'
 import type { TownNewsItem } from '@mygame/contracts'
 import { expect, it } from 'vitest'
 import { newsRowOf } from './newsRowOf'
@@ -113,20 +114,65 @@ it('writes the town becoming a city', () => {
 })
 
 it("names a job's pay above zero in the resources' order", () => {
-  expect(newsRowOf({ kind: 'jobBack', params: { site, pay }, occurredAt }, now).pay).toBe(
+  expect(newsRowOf({ kind: 'jobBack', params: { site, pay }, occurredAt }, now).amounts).toBe(
     'Pago: 40 de comida y 1 200 de material',
   )
 })
 
 it("names a clean-up's reward as its pay", () => {
   expect(
-    newsRowOf({ kind: 'cleanUpDone', params: { site, reward: pay }, occurredAt }, now).pay,
+    newsRowOf({ kind: 'cleanUpDone', params: { site, reward: pay }, occurredAt }, now).amounts,
   ).toBe('Pago: 40 de comida y 1 200 de material')
 })
 
 it('names no pay when every amount is zero', () => {
   expect(
-    newsRowOf({ kind: 'jobCalledBack', params: { site, pay: noAmounts }, occurredAt }, now).pay,
+    newsRowOf({ kind: 'jobCalledBack', params: { site, pay: noAmounts }, occurredAt }, now).amounts,
+  ).toBeUndefined()
+})
+
+it('names the refund of a stopped work', () => {
+  expect(
+    newsRowOf(
+      {
+        kind: 'buildingWorkStopped',
+        params: { building: 'homes', level: 3, refund: pay },
+        occurredAt,
+      },
+      now,
+    ).amounts,
+  ).toBe(reportNewsRefund({ amounts: '40 de comida y 1\u202f200 de material' }))
+})
+
+it('names the refund of a stopped hiring', () => {
+  expect(
+    newsRowOf(
+      {
+        kind: 'hiringStopped',
+        params: { hire: 'worker', delivered: 2, stopped: 3, refund: pay },
+        occurredAt,
+      },
+      now,
+    ).amounts,
+  ).toBe(reportNewsRefund({ amounts: '40 de comida y 1\u202f200 de material' }))
+})
+
+it('draws no refund line for a stop that cost nothing', () => {
+  expect(
+    newsRowOf(
+      {
+        kind: 'buildingWorkStopped',
+        params: { building: 'homes', level: 3, refund: noAmounts },
+        occurredAt,
+      },
+      now,
+    ).amounts,
+  ).toBeUndefined()
+})
+
+it('names no refund for a stopped lesson', () => {
+  expect(
+    newsRowOf({ kind: 'lessonStopped', params: { lessonId: 'lesson-2' }, occurredAt }, now).amounts,
   ).toBeUndefined()
 })
 
