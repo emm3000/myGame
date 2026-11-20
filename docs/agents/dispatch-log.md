@@ -15,30 +15,17 @@ Totals of the rows folded out of Recent. Until #1207 they were also split by the
 
 | Model:effort | PRs | MERGE | FIX FIRST checklist | FIX FIRST judgment | FIX FIRST spec |
 |---|---|---|---|---|---|
-| sonnet:low | 31 | 23 | 0 | 1 | 7 |
+| sonnet:low | 32 | 24 | 0 | 1 | 7 |
 | sonnet:medium | 2 | 0 | 0 | 2 | 0 |
 | sonnet:high | 3 | 0 | 0 | 2 | 1 |
 | opus:medium | 103 | 77 | 11 | 12 | 3 |
-| opus:high | 400 | 266 | 57 | 49 | 27 |
-| fable:high | 77 | 59 | 2 | 11 | 5 |
+| opus:high | 410 | 270 | 60 | 50 | 29 |
+| fable:high | 79 | 60 | 2 | 12 | 5 |
 
 ## Recent
 
 | PR | Model:effort | First review | Cause | Rounds | Lines +/- |
 |---|---|---|---|---|---|
-| #1383 | opus:high | MERGE |  | 1 | +356/-193 |
-| #1384 | opus:high | FIX FIRST | spec | 2 | +166/-13 |
-| #1386 | opus:high | MERGE |  | 1 | +128/-7 |
-| #1385 | opus:high | FIX FIRST | checklist | 2 | +1085/-16 |
-| #1387 | opus:high | FIX FIRST | spec | 2 | +148/-2 |
-| #1399 | sonnet:low | MERGE |  | 1 | +2/-2 |
-| #1400 | opus:high | FIX FIRST | checklist | 2 | +142/-9 |
-| #1401 | opus:high | FIX FIRST | judgment | 3 | +312/-3 |
-| #1404 | fable:high | FIX FIRST | judgment | 2 | +176/-717 |
-| #1405 | fable:high | MERGE |  | 1 | +9/-820 |
-| #1406 | opus:high | MERGE |  | 1 | +308/-11 |
-| #1408 | opus:high | FIX FIRST | checklist | 2 | +129/-10 |
-| #1409 | opus:high | MERGE |  | 1 | +264/-78 |
 | #1411 | opus:high | FIX FIRST | checklist | 2 | +294/-8 |
 | #1412 | opus:high | MERGE |  | 1 | +380/-0 |
 | #1413 | opus:high | MERGE |  | 1 | +96/-12 |
@@ -46,3 +33,16 @@ Totals of the rows folded out of Recent. Until #1207 they were also split by the
 | #1415 | opus:high | FIX FIRST | spec | 2 | +17/-4 |
 | #1416 | opus:high | FIX FIRST | spec | 2 | +76/-22 |
 | #1417 | opus:high | MERGE |  | 1 | +150/-15 |
+| #1418 | sonnet:low | MERGE |  | 1 | +19/-23 |
+| #1419 | opus:high | MERGE |  | 1 | +5/-4 |
+| #1432 | sonnet:low | MERGE |  | 1 | +75/-43 |
+| #1433 | sonnet:low | MERGE |  | 1 | +27/-12 |
+| #1431 | sonnet:low | MERGE |  | 1 | +45/-37 |
+| #1434 | sonnet:low | MERGE |  | 1 | +2/-2 |
+| #1436 | opus:high | MERGE |  | 1 | +11/-0 |
+| #1437 | opus:high | MERGE |  | 1 | +472/-1082 |
+| #1438 | sonnet:low | MERGE |  | 1 | +2/-2 |
+| #1441 | opus:high | MERGE |  | 1 | +75/-26 |
+| #1440 | opus:high | MERGE |  | 1 | +39/-1 |
+| #1442 | opus:high | MERGE |  | 1 | +36/-0 |
+| #1443 | opus:high | FIX FIRST | checklist | 2 | +82/-42 |
