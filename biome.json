@@ -546,7 +546,6 @@
         "apps/api/src/adapters/townRepositoryContract.ts",
         "apps/api/src/contentGate/checkGrammar.test.ts",
         "apps/api/src/openApiConformance.test.ts",
-        "apps/api/src/routes/auth.test.ts",
         "apps/api/src/routes/learning.test.ts",
         "apps/api/src/routes/town.test.ts",
         "apps/api/src/routes/town.ts",
@@ -567,13 +566,11 @@
     },
     {
       "includes": [
-        "apps/api/src/adapters/accountTokensContract.ts",
         "apps/api/src/adapters/bandStartRepositoryContract.ts",
         "apps/api/src/adapters/pendingReviewRepositoryContract.ts",
         "apps/api/src/adapters/placementRepositoryContract.ts",
         "apps/api/src/adapters/postgres/DrizzleTownNews.ts",
         "apps/api/src/adapters/townRepositoryContract.ts",
-        "apps/api/src/routes/auth.ts",
         "apps/api/src/routes/holdoutChecks.ts",
         "apps/api/src/routes/learning.ts",
         "apps/api/src/routes/placement.ts",

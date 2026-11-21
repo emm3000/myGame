@@ -27,7 +27,7 @@ One row for each folder directly under `apps/api/src` or `packages/domain/src`. 
 | Folder | Package | What it holds |
 |---|---|---|
 | `platform` | api | What holds no game word: the HTTP kernel, the Postgres kernel, the system clock and ids, the failure sink and the deferred work. |
-| `account` | api | Players, sessions, account tokens and mail. Today its HTTP session files, the password hasher and session token ports with their system adapters, and the account's stores; the rest comes from `auth` and `routes`. |
+| `account` | api | Players, sessions, account tokens and mail, the scaffold choice and the chrome phase. |
 | `town` | api, domain | The holding: stocks, accrual, founding, building work, hiring, jobs, the school, guidance and news. |
 | `learning` | api, domain | Reviews, hints, frames, retention and the curriculum's shape. |
 | `holdout` | api, domain | Holdout checks and released lessons. In the api, today only its tables. |
@@ -39,8 +39,7 @@ One row for each folder directly under `apps/api/src` or `packages/domain/src`. 
 | `hash` | domain | Text hashes and the ids drawn from them, with no game word. |
 | `grid` | domain | Grid cells, with no game word. |
 | `ports` | domain | `Clock`, `IdGenerator` and `RandomSource`, the ports no feature owns. |
-| `adapters` | api | *Moving.* Drizzle, memory, JSON and SMTP adapters, each to the feature whose port it implements. |
-| `auth` | api | *Moving* to `account/application/`: the account's use cases and ports. |
+| `adapters` | api | *Moving.* Drizzle, memory and JSON adapters, each to the feature whose port it implements. |
 | `routes` | api | *Moving.* One endpoint per file, to each feature's `infrastructure/http/`. |
 | `contentGate` | api | *Moving* to `content`: the checks the JSON catalogs pass. |
 | `useCases` | domain | *Moving* into each feature's `useCases/`. |
