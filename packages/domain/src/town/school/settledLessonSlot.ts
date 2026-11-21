@@ -1,13 +1,13 @@
-import type { BandStart } from '../learning/BandStart'
-import type { HeldCard } from '../learning/HeldCard'
-import { heldOutWordsAt } from '../learning/heldOutWordsAt'
-import { holdsLessonCards } from '../learning/holdsLessonCards'
-import { lessonCardsEnteredAt } from '../learning/lessonCardsEnteredAt'
-import type { Instant } from '../time/Instant'
+import type { BandStart } from '../../learning/BandStart'
+import type { HeldCard } from '../../learning/HeldCard'
+import { heldOutWordsAt } from '../../learning/heldOutWordsAt'
+import { holdsLessonCards } from '../../learning/holdsLessonCards'
+import { lessonCardsEnteredAt } from '../../learning/lessonCardsEnteredAt'
+import type { Instant } from '../../time/Instant'
+import { idleLessonSlot, type LessonSlot } from '../LessonSlot'
+import type { TownEvent } from '../TownEvent'
 import { isLessonFinishedBy } from './isLessonFinishedBy'
-import { idleLessonSlot, type LessonSlot } from './LessonSlot'
 import type { SchoolLessons } from './schoolLessonsOf'
-import type { TownEvent } from './TownEvent'
 
 export type SettledLessonSlot = {
   readonly slot: LessonSlot

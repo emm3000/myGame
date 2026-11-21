@@ -1,7 +1,7 @@
-import type { DomainError } from '../DomainError'
-import { err, ok, type Result } from '../Result'
-import type { SchoolLevel } from './BuildingLevel'
-import type { TownCatalog } from './TownCatalog'
+import type { DomainError } from '../../DomainError'
+import { err, ok, type Result } from '../../Result'
+import type { SchoolLevel } from '../BuildingLevel'
+import type { TownCatalog } from '../TownCatalog'
 
 export const schoolLevelOf = (
   level: number,

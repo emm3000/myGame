@@ -10,18 +10,12 @@ domain_promise_outside_its_roles packages/domain/src/placement/readPlacement.ts
 domain_promise_outside_its_roles packages/domain/src/placement/skipPlacement.ts
 domain_promise_outside_its_roles packages/domain/src/town/EarnedSkillRepository.ts
 domain_promise_outside_its_roles packages/domain/src/town/foundTown.ts
-domain_promise_outside_its_roles packages/domain/src/town/LessonSlotRepository.ts
 domain_promise_outside_its_roles packages/domain/src/town/resolvedTownOf.ts
 domain_promise_outside_its_roles packages/domain/src/town/resolveTown.ts
 domain_promise_outside_its_roles packages/domain/src/town/saveChangedTown.ts
-domain_promise_outside_its_roles packages/domain/src/town/saveLessonSlot.ts
 domain_promise_outside_its_roles packages/domain/src/town/saveResolvedTown.ts
-domain_promise_outside_its_roles packages/domain/src/town/settledSchoolOf.ts
-domain_promise_outside_its_roles packages/domain/src/town/settleSchoolLesson.ts
 domain_promise_outside_its_roles packages/domain/src/town/startBuildingWork.ts
-domain_promise_outside_its_roles packages/domain/src/town/startSchoolLesson.ts
 domain_promise_outside_its_roles packages/domain/src/town/stopBuildingWork.ts
-domain_promise_outside_its_roles packages/domain/src/town/stopSchoolLesson.ts
 domain_promise_outside_its_roles packages/domain/src/town/TownNews.ts
 domain_promise_outside_its_roles packages/domain/src/town/TownRepository.ts
 file_over_export_cap packages/domain/src/holdout/HoldoutCheck.ts
@@ -44,5 +38,4 @@ reading_named_of_is_async apps/api/src/town/townNewsOf.ts
 reading_named_of_is_async apps/api/src/town/townReadingOf.ts
 reading_named_of_is_async packages/domain/src/holdout/dueBandStartOf.ts
 reading_named_of_is_async packages/domain/src/town/resolvedTownOf.ts
-reading_named_of_is_async packages/domain/src/town/settledSchoolOf.ts
 type_over_method_cap packages/domain/src/town/Town.ts

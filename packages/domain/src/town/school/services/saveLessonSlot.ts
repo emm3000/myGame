@@ -1,13 +1,13 @@
-import type { DomainError } from '../DomainError'
-import type { HeldCard } from '../learning/HeldCard'
-import type { PlayerId } from '../player/PlayerId'
-import type { CardRepository } from '../ports/CardRepository'
-import { ok, type Result } from '../Result'
-import type { LessonSlot } from './LessonSlot'
-import type { LessonSlotRepository } from './LessonSlotRepository'
-import type { TownEvent } from './TownEvent'
-import type { TownId } from './TownId'
-import type { TownNews } from './TownNews'
+import type { DomainError } from '../../../DomainError'
+import type { HeldCard } from '../../../learning/HeldCard'
+import type { PlayerId } from '../../../player/PlayerId'
+import type { CardRepository } from '../../../ports/CardRepository'
+import { ok, type Result } from '../../../Result'
+import type { LessonSlot } from '../../LessonSlot'
+import type { TownEvent } from '../../TownEvent'
+import type { TownId } from '../../TownId'
+import type { TownNews } from '../../TownNews'
+import type { LessonSlotRepository } from '../ports/LessonSlotRepository'
 
 export type LessonSlotChange = {
   readonly entered: ReadonlyArray<HeldCard>

@@ -6,7 +6,7 @@ import type { SchoolLesson } from '../learning/Lesson'
 import { err, ok, type Result } from '../Result'
 import type { SchoolLevel } from './BuildingLevel'
 import type { LessonSlot } from './LessonSlot'
-import { schoolLevelOf } from './schoolLevelOf'
+import { schoolLevelOf } from './school/schoolLevelOf'
 import type { TownCatalog } from './TownCatalog'
 
 export type SchoolLessonRefusal = Extract<

@@ -1,9 +1,9 @@
 import { describe, expect, it } from 'vitest'
-import type { BandStart } from '../learning/BandStart'
-import { inMemoryLessons } from '../testing/inMemoryLessons'
-import { lessonOne } from '../testing/lessonOne'
-import { Instant } from '../time/Instant'
-import type { LessonSlot } from './LessonSlot'
+import type { BandStart } from '../../learning/BandStart'
+import { inMemoryLessons } from '../../testing/inMemoryLessons'
+import { lessonOne } from '../../testing/lessonOne'
+import { Instant } from '../../time/Instant'
+import type { LessonSlot } from '../LessonSlot'
 import { settledLessonSlot } from './settledLessonSlot'
 
 const startedAt = Instant.fromEpochMilliseconds(1_791_162_000_000)

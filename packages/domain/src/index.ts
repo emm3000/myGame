@@ -164,7 +164,6 @@ export {
 export { buildingKinds } from './town/buildingKinds'
 export { buildPercentAt } from './town/buildPercentAt'
 export { deriveFullAt, type FullAt } from './town/deriveFullAt'
-export { deriveLessonDurationSeconds } from './town/deriveLessonDurationSeconds'
 export { derivePeople } from './town/derivePeople'
 export { deriveResourceRates, type ResourceRates } from './town/deriveResourceRates'
 export { deriveStorageCapacity } from './town/deriveStorageCapacity'
@@ -198,7 +197,6 @@ export {
   type StopHiringOrderDependencies,
   stopHiringOrder,
 } from './town/hiring/useCases/stopHiringOrder'
-export { isLessonFinishedBy } from './town/isLessonFinishedBy'
 export type { CleanUp } from './town/jobs/CleanUp'
 export type { CleanUpOrder } from './town/jobs/CleanUpOrder'
 export type { CleanUpQuote } from './town/jobs/CleanUpQuote'
@@ -237,7 +235,6 @@ export { type SendCleanUpDependencies, sendCleanUp } from './town/jobs/useCases/
 export { type SendJobDependencies, sendJob } from './town/jobs/useCases/sendJob'
 export type { WasteSize } from './town/jobs/WasteSize'
 export { type BusyLessonSlot, idleLessonSlot, type LessonSlot } from './town/LessonSlot'
-export type { LessonSlotRepository } from './town/LessonSlotRepository'
 export { type LevelWordNeed, levelWordNeedOf } from './town/levelWordNeedOf'
 export type { NeededWordKind } from './town/NeededWordKind'
 export { type GoalShortfall, type NextGoal, nextGoalOf } from './town/nextGoalOf'
@@ -255,32 +252,35 @@ export { type ResolveTownDependencies, resolveTown } from './town/resolveTown'
 export { resourceKinds } from './town/resourceKinds'
 export type { SiteAddress } from './town/SiteAddress'
 export type { Stocks } from './town/Stocks'
-export { schoolLevelOf } from './town/schoolLevelOf'
+export { deriveLessonDurationSeconds } from './town/school/deriveLessonDurationSeconds'
+export { isLessonFinishedBy } from './town/school/isLessonFinishedBy'
+export type { LessonSlotRepository } from './town/school/ports/LessonSlotRepository'
+export { schoolLevelOf } from './town/school/schoolLevelOf'
+export { studyPercentAt } from './town/school/studyPercentAt'
 export {
   type SettleSchoolLessonDependencies,
   settleSchoolLesson,
-} from './town/settleSchoolLesson'
+} from './town/school/useCases/settleSchoolLesson'
+export {
+  type StartSchoolLessonCommand,
+  type StartSchoolLessonDependencies,
+  startSchoolLesson,
+} from './town/school/useCases/startSchoolLesson'
+export {
+  type StopSchoolLessonCommand,
+  type StopSchoolLessonDependencies,
+  stopSchoolLesson,
+} from './town/school/useCases/stopSchoolLesson'
 export {
   type StartBuildingWorkCommand,
   type StartBuildingWorkDependencies,
   startBuildingWork,
 } from './town/startBuildingWork'
 export {
-  type StartSchoolLessonCommand,
-  type StartSchoolLessonDependencies,
-  startSchoolLesson,
-} from './town/startSchoolLesson'
-export {
   type StopBuildingWorkCommand,
   type StopBuildingWorkDependencies,
   stopBuildingWork,
 } from './town/stopBuildingWork'
-export {
-  type StopSchoolLessonCommand,
-  type StopSchoolLessonDependencies,
-  stopSchoolLesson,
-} from './town/stopSchoolLesson'
-export { studyPercentAt } from './town/studyPercentAt'
 export type { TipKind } from './town/TipKind'
 export { type ChangedTown, type StoredTown, Town, type TownFounding } from './town/Town'
 export { TownAddress } from './town/TownAddress'
