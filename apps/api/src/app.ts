@@ -1,10 +1,9 @@
 import { OpenAPIHono } from '@hono/zod-openapi'
 import type { HealthResponse } from '@mygame/contracts'
-import { type AuthDependencies, authRoutes } from './account/infrastructure/http/accountRoutes'
 import {
-  type PlayerRouteDependencies,
-  playerRoutes,
-} from './account/infrastructure/http/changeScaffoldRoute'
+  type AccountRouteDependencies,
+  accountRoutes,
+} from './account/infrastructure/http/accountRoutes'
 import type { FailureSink } from './platform/application/ports/FailureSink'
 import { honoPathOf } from './platform/infrastructure/http/honoPath'
 import { reportServerFailures } from './platform/infrastructure/http/reportServerFailures'
@@ -20,10 +19,9 @@ import { type ReportRouteDependencies, reportRoutes } from './routes/report'
 import { type TownDependencies, townRoutes } from './routes/town'
 import { type TownMapDependencies, townMapRoutes } from './routes/townMap'
 
-export type AppDependencies = AuthDependencies &
+export type AppDependencies = AccountRouteDependencies &
   LearningRouteDependencies &
   PlacementRouteDependencies &
-  PlayerRouteDependencies &
   ReportRouteDependencies &
   TownDependencies &
   TownMapDependencies & {
@@ -45,8 +43,7 @@ export const createApp = (dependencies: AppDependencies): OpenAPIHono => {
     return c.json(body)
   })
   app
-    .route('/auth', authRoutes(dependencies))
-    .route('/player', playerRoutes(dependencies))
+    .route('/', accountRoutes(dependencies))
     .route('/reviews', learningRoutes(dependencies))
     .route('/placement', placementRoutes(dependencies))
     .route('/holdout-checks', holdoutCheckRoutes(dependencies))

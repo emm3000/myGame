@@ -1,178 +1,80 @@
 import { OpenAPIHono } from '@hono/zod-openapi'
+import type { RequestPasswordResetDependencies } from '../../application/requestPasswordReset'
+import type { ResetPasswordDependencies } from '../../application/resetPassword'
+import type { VerifyEmailDependencies } from '../../application/verifyEmail'
 import {
-  ForgotPasswordRequestSchema,
-  type NativeSession,
-  ResetPasswordRequestSchema,
-  SignInRequestSchema,
-  SignUpRequestSchema,
-  VerifyEmailRequestSchema,
-} from '@mygame/contracts'
-import type { Result } from '@mygame/domain'
-import type { Context } from 'hono'
-import type { ContentfulStatusCode } from 'hono/utils/http-status'
-import type { Refusal } from '../../../platform/application/Refusal'
-import { answerRefusal } from '../../../platform/infrastructure/http/answerRefusal'
-import { readJsonBody } from '../../../platform/infrastructure/http/readJsonBody'
+  type ChangeScaffoldRouteDependencies,
+  changeScaffoldDeclaration,
+  changeScaffoldRoute,
+} from './changeScaffoldRoute'
 import {
-  type NamedIssue,
-  requestRefusalOf,
-} from '../../../platform/infrastructure/http/requestRefusalOf'
-import type { ReadChromePhaseDependencies } from '../../application/readChromePhase'
+  type NativeSignInRouteDependencies,
+  nativeSignInDeclaration,
+  nativeSignInRoute,
+} from './nativeSignInRoute'
 import {
-  type RequestPasswordResetDependencies,
-  requestPasswordReset,
-} from '../../application/requestPasswordReset'
+  type NativeSignUpRouteDependencies,
+  nativeSignUpDeclaration,
+  nativeSignUpRoute,
+} from './nativeSignUpRoute'
 import {
-  type ResendVerificationMailDependencies,
-  resendVerificationMail,
-} from '../../application/resendVerificationMail'
-import { type ResetPasswordDependencies, resetPassword } from '../../application/resetPassword'
-import type { SignedIn } from '../../application/SignedIn'
-import { type SignInDependencies, signIn } from '../../application/signIn'
-import { type SignUpDependencies, signUp } from '../../application/signUp'
-import { type VerifyEmailDependencies, verifyEmail } from '../../application/verifyEmail'
-import { authDeclarations } from './authDeclarations'
-import { presentPlayer } from './presentPlayer'
-import { type RequirePlayerDependencies, requirePlayer } from './requirePlayer'
-import { clearSessionCookie, writeSessionCookie } from './sessionCookie'
+  type ReadSessionRouteDependencies,
+  readSessionDeclaration,
+  readSessionRoute,
+} from './readSessionRoute'
+import {
+  requestPasswordResetDeclaration,
+  requestPasswordResetRoute,
+} from './requestPasswordResetRoute'
+import {
+  type ResendVerificationMailRouteDependencies,
+  resendVerificationMailDeclaration,
+  resendVerificationMailRoute,
+} from './resendVerificationMailRoute'
+import { resetPasswordDeclaration, resetPasswordRoute } from './resetPasswordRoute'
+import { type SignInRouteDependencies, signInDeclaration, signInRoute } from './signInRoute'
+import { type SignOutRouteDependencies, signOutDeclaration, signOutRoute } from './signOutRoute'
+import { type SignUpRouteDependencies, signUpDeclaration, signUpRoute } from './signUpRoute'
+import { verifyEmailDeclaration, verifyEmailRoute } from './verifyEmailRoute'
 
-export type AuthDependencies = SignUpDependencies &
-  SignInDependencies &
+export type AccountRouteDependencies = SignUpRouteDependencies &
+  NativeSignUpRouteDependencies &
+  SignInRouteDependencies &
+  NativeSignInRouteDependencies &
+  SignOutRouteDependencies &
+  ReadSessionRouteDependencies &
   VerifyEmailDependencies &
-  ResendVerificationMailDependencies &
+  ResendVerificationMailRouteDependencies &
   RequestPasswordResetDependencies &
   ResetPasswordDependencies &
-  RequirePlayerDependencies &
-  ReadChromePhaseDependencies
+  ChangeScaffoldRouteDependencies
 
-const answerDone = (c: Context, done: Result<void, Refusal>): Response =>
-  done.ok ? c.body(null, 204) : answerRefusal(c, done.error)
-
-const accountIssues: ReadonlyArray<NamedIssue> = [
-  ['email', 'invalid_format', { kind: 'MalformedEmail' }],
-  ['password', 'too_small', { kind: 'WeakPassword' }],
-]
-
-const answerSignedIn = async (
-  c: Context,
-  signedIn: Result<SignedIn, Refusal>,
-  status: ContentfulStatusCode,
-  dependencies: AuthDependencies,
-): Promise<Response> => {
-  if (!signedIn.ok) {
-    return answerRefusal(c, signedIn.error)
-  }
-  writeSessionCookie(c, signedIn.value.session, dependencies.isSessionCookieSecure)
-  return c.json(await presentPlayer(signedIn.value.player, dependencies), status)
+export const accountDeclarations = {
+  signUp: signUpDeclaration,
+  nativeSignUp: nativeSignUpDeclaration,
+  signIn: signInDeclaration,
+  nativeSignIn: nativeSignInDeclaration,
+  signOut: signOutDeclaration,
+  session: readSessionDeclaration,
+  verifyEmail: verifyEmailDeclaration,
+  resendVerification: resendVerificationMailDeclaration,
+  forgotPassword: requestPasswordResetDeclaration,
+  resetPassword: resetPasswordDeclaration,
+  changeScaffold: changeScaffoldDeclaration,
 }
 
-const answerNativeSession = async (
-  c: Context,
-  signedIn: Result<SignedIn, Refusal>,
-  status: ContentfulStatusCode,
-  dependencies: AuthDependencies,
-): Promise<Response> => {
-  if (!signedIn.ok) {
-    return answerRefusal(c, signedIn.error)
-  }
-  const nativeSession: NativeSession = {
-    token: signedIn.value.session.token,
-    player: await presentPlayer(signedIn.value.player, dependencies),
-  }
-  return c.json(nativeSession, status)
-}
-
-export const authRoutes = (dependencies: AuthDependencies): OpenAPIHono => {
-  const signedInPlayer = requirePlayer(dependencies)
+export const accountRoutes = (dependencies: AccountRouteDependencies): OpenAPIHono => {
   const routes = new OpenAPIHono()
-  for (const declaration of Object.values(authDeclarations)) {
-    routes.openAPIRegistry.registerPath(declaration)
-  }
-  routes.on(authDeclarations.signUp.method, authDeclarations.signUp.path, async (c) => {
-    const request = SignUpRequestSchema.safeParse(await readJsonBody(c))
-    if (!request.success) {
-      return answerRefusal(c, requestRefusalOf(accountIssues, request.error.issues))
-    }
-    return answerSignedIn(c, await signUp(request.data, dependencies), 201, dependencies)
-  })
-  routes.on(authDeclarations.nativeSignUp.method, authDeclarations.nativeSignUp.path, async (c) => {
-    const request = SignUpRequestSchema.safeParse(await readJsonBody(c))
-    if (!request.success) {
-      return answerRefusal(c, requestRefusalOf(accountIssues, request.error.issues))
-    }
-    return answerNativeSession(c, await signUp(request.data, dependencies), 201, dependencies)
-  })
-  routes.on(authDeclarations.signIn.method, authDeclarations.signIn.path, async (c) => {
-    const request = SignInRequestSchema.safeParse(await readJsonBody(c))
-    if (!request.success) {
-      return answerRefusal(c, { kind: 'InvalidCredentials' })
-    }
-    return answerSignedIn(c, await signIn(request.data, dependencies), 200, dependencies)
-  })
-  routes.on(authDeclarations.nativeSignIn.method, authDeclarations.nativeSignIn.path, async (c) => {
-    const request = SignInRequestSchema.safeParse(await readJsonBody(c))
-    if (!request.success) {
-      return answerRefusal(c, { kind: 'InvalidCredentials' })
-    }
-    return answerNativeSession(c, await signIn(request.data, dependencies), 200, dependencies)
-  })
-  routes.on(
-    authDeclarations.signOut.method,
-    authDeclarations.signOut.path,
-    signedInPlayer,
-    async (c) => {
-      await dependencies.sessions.closeSession(c.var.sessionToken)
-      clearSessionCookie(c, dependencies.isSessionCookieSecure)
-      return c.body(null, 204)
-    },
-  )
-  routes.on(
-    authDeclarations.session.method,
-    authDeclarations.session.path,
-    signedInPlayer,
-    async (c) => {
-      const player = await dependencies.accounts.playerOf(c.var.playerId)
-      if (player === undefined) {
-        return answerRefusal(c, { kind: 'SignedOut' })
-      }
-      return c.json(await presentPlayer(player, dependencies))
-    },
-  )
-  routes.on(authDeclarations.verifyEmail.method, authDeclarations.verifyEmail.path, async (c) => {
-    const request = VerifyEmailRequestSchema.safeParse(await readJsonBody(c))
-    if (!request.success) {
-      return answerRefusal(c, { kind: 'MalformedRequest' })
-    }
-    return answerDone(c, await verifyEmail(request.data, dependencies))
-  })
-  routes.on(
-    authDeclarations.resendVerification.method,
-    authDeclarations.resendVerification.path,
-    signedInPlayer,
-    async (c) => answerDone(c, await resendVerificationMail(c.var.playerId, dependencies)),
-  )
-  routes.on(
-    authDeclarations.forgotPassword.method,
-    authDeclarations.forgotPassword.path,
-    async (c) => {
-      const request = ForgotPasswordRequestSchema.safeParse(await readJsonBody(c))
-      if (!request.success) {
-        return answerRefusal(c, { kind: 'MalformedRequest' })
-      }
-      requestPasswordReset(request.data, dependencies)
-      return c.body(null, 202)
-    },
-  )
-  routes.on(
-    authDeclarations.resetPassword.method,
-    authDeclarations.resetPassword.path,
-    async (c) => {
-      const request = ResetPasswordRequestSchema.safeParse(await readJsonBody(c))
-      if (!request.success) {
-        return answerRefusal(c, requestRefusalOf(accountIssues, request.error.issues))
-      }
-      return answerDone(c, await resetPassword(request.data, dependencies))
-    },
-  )
+  signUpRoute(routes, dependencies)
+  nativeSignUpRoute(routes, dependencies)
+  signInRoute(routes, dependencies)
+  nativeSignInRoute(routes, dependencies)
+  signOutRoute(routes, dependencies)
+  readSessionRoute(routes, dependencies)
+  verifyEmailRoute(routes, dependencies)
+  resendVerificationMailRoute(routes, dependencies)
+  requestPasswordResetRoute(routes, dependencies)
+  resetPasswordRoute(routes, dependencies)
+  changeScaffoldRoute(routes, dependencies)
   return routes
 }
