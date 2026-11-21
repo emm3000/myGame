@@ -56,7 +56,14 @@ export const beginHoldoutCheckRoute = (
         async (stores, { band, week }, at) =>
           beginHoldoutCheck(
             { playerId, band, week, scaffold: await readScaffold(playerId, stores.accounts) },
-            { ...stores, lessons, words: lessons, random, clock: at },
+            {
+              bandStarts: stores.bandStarts,
+              cards: stores.cards,
+              lessons,
+              words: lessons,
+              random,
+              clock: at,
+            },
           ),
         dependencies,
       )

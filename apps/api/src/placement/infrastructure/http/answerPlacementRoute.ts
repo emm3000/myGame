@@ -43,7 +43,6 @@ export const answerPlacementRoute = (
   dependencies: AnswerPlacementRouteDependencies,
 ): void => {
   const { lessons } = dependencies
-  const content = { words: lessons, bands: lessons }
   routes.openAPIRegistry.registerPath(answerPlacementDeclaration)
   routes.on(
     answerPlacementDeclaration.method,
@@ -65,7 +64,7 @@ export const answerPlacementRoute = (
               answers: request.data.answers,
               scaffold: await readScaffold(playerId, stores.accounts),
             },
-            { ...stores, ...content, clock },
+            { placements: stores.placements, bandStarts: stores.bandStarts, words: lessons, clock },
           ),
         dependencies,
       )

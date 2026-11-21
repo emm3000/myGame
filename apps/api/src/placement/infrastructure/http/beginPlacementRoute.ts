@@ -35,7 +35,6 @@ export const beginPlacementRoute = (
   dependencies: BeginPlacementRouteDependencies,
 ): void => {
   const { lessons, random } = dependencies
-  const content = { words: lessons, bands: lessons }
   routes.openAPIRegistry.registerPath(beginPlacementDeclaration)
   routes.on(
     beginPlacementDeclaration.method,
@@ -46,9 +45,29 @@ export const beginPlacementRoute = (
       const view = await mutateTown(
         playerId,
         async (stores, clock) => {
-          const begun = await beginPlacement({ playerId }, { ...stores, ...content, random, clock })
+          const begun = await beginPlacement(
+            { playerId },
+            {
+              placements: stores.placements,
+              bandStarts: stores.bandStarts,
+              words: lessons,
+              bands: lessons,
+              random,
+              clock,
+            },
+          )
           const scaffold = await readScaffold(playerId, stores.accounts)
-          return begun.ok ? readPlacement({ playerId, scaffold }, { ...stores, ...content }) : begun
+          return begun.ok
+            ? readPlacement(
+                { playerId, scaffold },
+                {
+                  placements: stores.placements,
+                  bandStarts: stores.bandStarts,
+                  words: lessons,
+                  bands: lessons,
+                },
+              )
+            : begun
         },
         dependencies,
       )
