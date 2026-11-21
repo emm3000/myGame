@@ -90,7 +90,7 @@ const admitWork = (
   cards: ReadonlyArray<HeldCard>,
   catalog: TownCatalog,
 ): Result<BuildingLevel, DomainError> => {
-  const room = town.roomForWork(catalog.townSettings().waitingListCap)
+  const room = town.buildingWork.room(catalog.townSettings().waitingListCap)
   if (!room.ok) {
     return room
   }
@@ -120,7 +120,7 @@ const startWorkAt = (
     return accrual
   }
   const settings = catalog.townSettings()
-  const started = town.startWork(
+  const started = town.buildingWork.start(
     {
       building: next.building,
       level: next.level,

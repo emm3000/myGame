@@ -50,7 +50,7 @@ const finishWork = (
   if (!accrual.ok) {
     return accrual
   }
-  const completed = town.completeWork(accrual.value.stocks)
+  const completed = town.buildingWork.complete(accrual.value.stocks)
   if (!completed.ok) {
     return completed
   }
