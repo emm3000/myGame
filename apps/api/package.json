@@ -3,6 +3,9 @@
   "private": true,
   "version": "0.0.0",
   "type": "module",
+  "imports": {
+    "#*": "./src/*.ts"
+  },
   "scripts": {
     "dev": "tsx watch src/listen.ts",
     "build": "esbuild src/index.ts --bundle --platform=node --format=esm --target=node24 --outfile=dist/index.js --external:hono --external:pg --external:drizzle-orm --external:@node-rs/argon2 --external:nodemailer --external:@hono/zod-openapi --external:zod --external:@vercel/functions",
