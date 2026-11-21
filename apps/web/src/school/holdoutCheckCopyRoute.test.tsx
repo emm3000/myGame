@@ -5,6 +5,7 @@ import { expect, it } from 'vitest'
 import type { ApiClient } from '../api/apiClient'
 import { renderAppAt } from '../auth/renderAppAt.testSupport'
 import { knownPlayer, knownTown, stubApiClient } from '../auth/stubApiClient.testSupport'
+import { shownLinesDrawnAlone } from '../town/lineDrawnAlone.testSupport'
 
 type CopyLanguage = Pick<TownOverview, 'scaffold' | 'chromePhase'>
 
@@ -44,6 +45,34 @@ it('writes a check that is not open in English under none', async () => {
   renderAppAt('/school/check/1/8', servingChecksIn(noScaffold, otherBandDue))
 
   expect(await screen.findByText(en.holdoutCheckRefused())).toBeDefined()
+})
+
+const askingWith = (gloss: string): HoldoutChecks => ({
+  checks: [
+    {
+      kind: 'asking',
+      band: 1,
+      week: 8,
+      items: [
+        { wordId: 'word-house', word: 'house', choices: [{ choiceId: 'choice-house', gloss }] },
+      ],
+    },
+  ],
+})
+
+it('marks each choice of the check as Spanish for an es player', async () => {
+  renderAppAt('/school/check/1/8', servingChecksIn(englishPhase, askingWith('casa')))
+
+  expect(await screen.findByRole('radio', { name: 'casa' })).toBeDefined()
+  expect(shownLinesDrawnAlone('casa', 'es')).toHaveLength(1)
+})
+
+it('marks each choice of the check as English under none', async () => {
+  const definition = 'a building where people live'
+  renderAppAt('/school/check/1/8', servingChecksIn(noScaffold, askingWith(definition)))
+
+  expect(await screen.findByRole('radio', { name: definition })).toBeDefined()
+  expect(shownLinesDrawnAlone(definition, 'en')).toHaveLength(1)
 })
 
 it('names the way back to the school in English over Spanish in the both phase', async () => {

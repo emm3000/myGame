@@ -201,3 +201,87 @@ it('offers a retry when the placement cannot be read', async () => {
 
   expect(button(es.placementStart())).toBeDefined()
 })
+
+const secondBandAsked: Placement = {
+  kind: 'asking',
+  band: 2,
+  scores: [{ band: 1, score: 21, takenAt: knownTown.readAt, isPlacedOut: true }],
+  items: [
+    {
+      wordId: 'word-road',
+      word: 'road',
+      choices: [
+        { choiceId: 'choice-road', gloss: 'camino' },
+        { choiceId: 'choice-bread', gloss: 'pan' },
+      ],
+    },
+  ],
+}
+
+const answerFirstBand = async (): Promise<void> => {
+  await choose('casa')
+  await click(es.placementNext())
+  await choose('agua')
+  await click(es.placementSendBand({ band: 1 }))
+}
+
+it('moves focus to the first word once the placement is taken', async () => {
+  await showPlacement({
+    placement: readingInTurn(offered),
+    beginPlacement: async () => ({ ok: true, value: firstBandAsked }),
+  })
+
+  await click(es.placementStart())
+
+  expect(document.activeElement).toBe(screen.getByRole('heading', { name: 'house' }))
+})
+
+it('moves focus to the next word of the band after next', async () => {
+  await showPlacement({ placement: readingInTurn(firstBandAsked) })
+
+  await choose('casa')
+  await click(es.placementNext())
+
+  expect(document.activeElement).toBe(screen.getByRole('heading', { name: 'water' }))
+})
+
+it('moves focus to the first word of the next band once a band is sent', async () => {
+  await showPlacement({
+    placement: readingInTurn(firstBandAsked),
+    answerPlacement: async () => ({ ok: true, value: secondBandAsked }),
+  })
+
+  await answerFirstBand()
+
+  expect(document.activeElement).toBe(screen.getByRole('heading', { name: 'road' }))
+})
+
+it('moves focus to the result once the last band is sent', async () => {
+  await showPlacement({
+    placement: readingInTurn(firstBandAsked),
+    answerPlacement: async () => ({ ok: true, value: closedWithScores }),
+  })
+
+  await answerFirstBand()
+
+  expect(document.activeElement).toBe(
+    screen.getByRole('heading', { name: es.placementResultTitle() }),
+  )
+})
+
+it('moves focus to the closed line once the placement is skipped', async () => {
+  await showPlacement({
+    placement: readingInTurn(offered),
+    skipPlacement: async () => ({ ok: true, value: closedWithoutScores }),
+  })
+
+  await click(es.placementSkip())
+
+  expect(document.activeElement).toBe(screen.getByText(es.placementClosedNone()).closest('p'))
+})
+
+it('leaves focus where it was when a placement begun before is read', async () => {
+  await showPlacement({ placement: readingInTurn(firstBandAsked) })
+
+  expect(document.activeElement).toBe(document.body)
+})

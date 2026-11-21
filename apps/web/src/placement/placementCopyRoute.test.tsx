@@ -5,6 +5,7 @@ import { expect, it } from 'vitest'
 import type { ApiClient } from '../api/apiClient'
 import { renderAppAt } from '../auth/renderAppAt.testSupport'
 import { knownPlayer, knownTown, stubApiClient } from '../auth/stubApiClient.testSupport'
+import { shownLinesDrawnAlone } from '../town/lineDrawnAlone.testSupport'
 
 type CopyLanguage = Pick<TownOverview, 'scaffold' | 'chromePhase'>
 
@@ -60,6 +61,28 @@ it('shows the placement result in English under none', async () => {
 
   expect(await screen.findByText(en.placementResultBand({ band: 1, score: 9 }))).toBeDefined()
   expect(screen.getByText(en.placementPlacedOut())).toBeDefined()
+})
+
+const askingWith = (gloss: string): Placement => ({
+  kind: 'asking',
+  band: 1,
+  scores: [],
+  items: [{ wordId: 'word-house', word: 'house', choices: [{ choiceId: 'choice-house', gloss }] }],
+})
+
+it('marks each choice of the placement as Spanish for an es player', async () => {
+  renderAppAt('/placement', servingPlacementIn(englishPhase, askingWith('casa')))
+
+  expect(await screen.findByRole('radio', { name: 'casa' })).toBeDefined()
+  expect(shownLinesDrawnAlone('casa', 'es')).toHaveLength(1)
+})
+
+it('marks each choice of the placement as English under none', async () => {
+  const definition = 'a building where people live'
+  renderAppAt('/placement', servingPlacementIn(noScaffold, askingWith(definition)))
+
+  expect(await screen.findByRole('radio', { name: definition })).toBeDefined()
+  expect(shownLinesDrawnAlone(definition, 'en')).toHaveLength(1)
 })
 
 it('offers the placement from the town home in English under none', async () => {
