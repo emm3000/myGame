@@ -1,8 +1,9 @@
-import { townNextTitle } from '@mygame/catalog'
 import { type ReactElement, type ReactNode, type Ref, useId } from 'react'
+import { usePlayerCopy } from '../copy/usePlayerCopy'
 import { Block } from '../design-system/Block'
 import { CountdownLine } from '../design-system/CountdownLine'
 import { blockFocusTargetClass } from '../design-system/focusTargetClass'
+import { LabelText } from '../design-system/LabelText'
 import type { NextStepCardContent } from './nextStepCardOf'
 
 export interface NextStepBlockProps {
@@ -19,6 +20,7 @@ export function NextStepBlock({
   children,
 }: NextStepBlockProps): ReactElement {
   const titleId = useId()
+  const copy = usePlayerCopy()
   return (
     <Block hue="peach" labelledBy={titleId}>
       <Heading
@@ -27,10 +29,16 @@ export function NextStepBlock({
         tabIndex={headingRef === undefined ? undefined : -1}
         className={`m-0 text-meta text-on-block-muted ${blockFocusTargetClass}`}
       >
-        {townNextTitle()}
+        <LabelText label={copy.chrome((catalog) => catalog.townNextTitle())} />
       </Heading>
-      <p className="m-0 text-display wrap-anywhere">{line}</p>
-      {detail !== undefined && <p className="m-0 text-body">{detail}</p>}
+      <p className="m-0 text-display wrap-anywhere">
+        <LabelText label={line} />
+      </p>
+      {detail !== undefined && (
+        <p className="m-0 text-body">
+          <LabelText label={detail} />
+        </p>
+      )}
       {children}
       {countdown !== undefined && <CountdownLine {...countdown} ground="block" />}
     </Block>

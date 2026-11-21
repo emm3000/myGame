@@ -1,19 +1,23 @@
-import { townSeasonDays, townSeasonEndsIn } from '@mygame/catalog'
 import type { SeasonKind } from '@mygame/contracts'
+import type { ChromeCatalog } from '../copy/PlayerCopy'
 import { capitalize } from '../design-system/capitalize'
 import { seasonNameOf } from '../seasons/seasonNameOf'
 import { formatTimeLeft } from '../time/formatTimeLeft'
 
 const secondsPerDay = 86_400
 
-const timeLeftOf = (seconds: number): string => {
+const timeLeftOf = (catalog: ChromeCatalog, seconds: number): string => {
   const days = Math.floor(seconds / secondsPerDay)
-  return days >= 1 ? townSeasonDays({ days }) : formatTimeLeft(seconds)
+  return days >= 1 ? catalog.townSeasonDays({ days }) : formatTimeLeft(seconds)
 }
 
-export function townSeasonEndsInOf(season: SeasonKind, remainingSeconds: number): string {
-  return townSeasonEndsIn({
-    season: capitalize(seasonNameOf(season)),
-    timeLeft: timeLeftOf(remainingSeconds),
+export function townSeasonEndsInOf(
+  catalog: ChromeCatalog,
+  season: SeasonKind,
+  remainingSeconds: number,
+): string {
+  return catalog.townSeasonEndsIn({
+    season: capitalize(seasonNameOf(catalog, season)),
+    timeLeft: timeLeftOf(catalog, remainingSeconds),
   })
 }

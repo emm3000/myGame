@@ -1,9 +1,9 @@
 import type { BuildingKind } from '@mygame/contracts'
 import type { ReactElement } from 'react'
+import { usePlayerCopy } from '../copy/usePlayerCopy'
 import { CardAction } from '../design-system/CardAction'
 import { CostList } from '../design-system/CostList'
-import { formatDuration } from '../design-system/formatDuration'
-import { lineLabelOf } from '../design-system/lineLabelOf'
+import { LabelText } from '../design-system/LabelText'
 import { PlaceArt } from '../design-system/PlaceArt'
 import { raisedPlaceArtOf } from '../design-system/placeArtOf'
 import type { LiveTown } from './liveTown'
@@ -24,8 +24,11 @@ export function PlaceRow({
   isWaiting,
   onBuild,
 }: PlaceRowProps): ReactElement {
-  const { name, levelLabel, effect, costs, wordsLine, actionLabel, durationSeconds, state } =
-    placeCardOf(place, town)
+  const { name, levelLabel, effect, costs, wordsLine, actionLabel, state } = placeCardOf(
+    usePlayerCopy(),
+    place,
+    town,
+  )
   return (
     <div className="flex items-start gap-3">
       <PlaceArt
@@ -34,17 +37,25 @@ export function PlaceRow({
       />
       <div className="flex min-w-0 grow flex-col gap-2">
         <div>
-          <h4 className="m-0 font-sans text-title text-ink">{name}</h4>
-          <p className="m-0 font-sans text-caption text-ink-muted tabular-nums">{levelLabel}</p>
+          <h4 className="m-0 font-sans text-title text-ink">
+            <LabelText label={name} />
+          </h4>
+          <p className="m-0 font-sans text-caption text-ink-muted tabular-nums">
+            <LabelText label={levelLabel} />
+          </p>
         </div>
-        <p className="m-0 font-sans text-caption text-ink-muted">{effect}</p>
+        <p className="m-0 font-sans text-caption text-ink-muted">
+          <LabelText label={effect} />
+        </p>
         {state.kind !== 'atMaxLevel' && <CostList costs={costs} />}
         {wordsLine !== null && (
-          <p className="m-0 font-sans text-caption text-ink-muted">{wordsLine}</p>
+          <p className="m-0 font-sans text-caption text-ink-muted">
+            <LabelText label={wordsLine} />
+          </p>
         )}
         <CardAction
           type="button"
-          label={lineLabelOf(`${actionLabel} · ${formatDuration(durationSeconds)}`, 'es')}
+          label={actionLabel}
           state={state}
           isWaiting={isWaiting}
           tone="quiet"

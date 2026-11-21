@@ -2,9 +2,12 @@ import { townReadyIn } from '@mygame/catalog'
 import type { TownOverview } from '@mygame/contracts'
 import { expect, it } from 'vitest'
 import { knownTown } from '../auth/stubApiClient.testSupport'
+import { playerCopyOf } from '../copy/playerCopyOf'
 import { lineLabelOf } from '../design-system/lineLabelOf'
 import { hireCardOf } from './hireCardOf'
 import { liveTownAt } from './liveTown'
+
+const spanishCopy = playerCopyOf({ scaffold: 'es', chromePhase: 'scaffold' })
 
 const instantAfter = (seconds: number): string =>
   new Date(Date.parse(knownTown.readAt) + seconds * 1000).toISOString()
@@ -26,7 +29,7 @@ const hiringTown: TownOverview = {
 }
 
 it('asks for a whole count before naming a running order', () => {
-  const card = hireCardOf('worker', '', liveTownAt(hiringTown, 0))
+  const card = hireCardOf(spanishCopy, 'worker', '', liveTownAt(hiringTown, 0))
 
   expect(card.kind === 'open' ? card.state : undefined).toEqual({
     kind: 'invalidEntry',
@@ -44,7 +47,7 @@ const shortOfMoneyTown: TownOverview = {
 }
 
 const readyOf = (town: TownOverview, entry: string): string | undefined => {
-  const card = hireCardOf('worker', entry, liveTownAt(town, 0))
+  const card = hireCardOf(spanishCopy, 'worker', entry, liveTownAt(town, 0))
   return card.kind === 'open' && card.state.kind === 'blocked' ? card.state.ready?.text : undefined
 }
 

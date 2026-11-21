@@ -2,9 +2,12 @@ import { statusTomorrow, townReadyAt, townReadyIn } from '@mygame/catalog'
 import type { TownOverview } from '@mygame/contracts'
 import { expect, it } from 'vitest'
 import { knownTown } from '../auth/stubApiClient.testSupport'
+import { playerCopyOf } from '../copy/playerCopyOf'
 import type { CardActionState } from '../design-system/CardAction'
 import { liveTownAt } from './liveTown'
 import { placeCardOf } from './placeCardOf'
+
+const spanishCopy = playerCopyOf({ scaffold: 'es', chromePhase: 'scaffold' })
 
 type Stock = TownOverview['stocks']['material']
 
@@ -21,7 +24,11 @@ const townWith = (stocks: Partial<TownOverview['stocks']>): TownOverview => ({
 })
 
 const readyOf = (town: TownOverview, elapsedSeconds = 0): string | undefined => {
-  const state: CardActionState = placeCardOf('farm', liveTownAt(town, elapsedSeconds)).state
+  const state: CardActionState = placeCardOf(
+    spanishCopy,
+    'farm',
+    liveTownAt(town, elapsedSeconds),
+  ).state
   return state.kind === 'blocked' ? state.ready?.text : undefined
 }
 

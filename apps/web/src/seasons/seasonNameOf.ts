@@ -1,18 +1,13 @@
-import {
-  namesSeasonsFall,
-  namesSeasonsSpring,
-  namesSeasonsSummer,
-  namesSeasonsWinter,
-} from '@mygame/catalog'
 import type { SeasonKind } from '@mygame/contracts'
+import type { ChromeCatalog } from '../copy/PlayerCopy'
 
-const seasonNames: Readonly<Record<SeasonKind, () => string>> = {
-  spring: namesSeasonsSpring,
-  summer: namesSeasonsSummer,
-  fall: namesSeasonsFall,
-  winter: namesSeasonsWinter,
+const seasonNames: Readonly<Record<SeasonKind, (catalog: ChromeCatalog) => string>> = {
+  spring: (catalog) => catalog.namesSeasonsSpring(),
+  summer: (catalog) => catalog.namesSeasonsSummer(),
+  fall: (catalog) => catalog.namesSeasonsFall(),
+  winter: (catalog) => catalog.namesSeasonsWinter(),
 }
 
-export function seasonNameOf(season: SeasonKind): string {
-  return seasonNames[season]()
+export function seasonNameOf(catalog: ChromeCatalog, season: SeasonKind): string {
+  return seasonNames[season](catalog)
 }

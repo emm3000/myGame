@@ -1,44 +1,35 @@
-import {
-  namesHiresTruck,
-  namesHiresWorker,
-  townOfficeCountTruck,
-  townOfficeCountWorker,
-  townOfficeHireAnyTruck,
-  townOfficeHireAnyWorker,
-  townOfficeHireTruck,
-  townOfficeHireWorker,
-  townOfficeStopOfTruck,
-  townOfficeStopOfWorker,
-  townOfficeTeamTruck,
-  townOfficeTeamWorker,
-} from '@mygame/catalog'
 import type { HireKind } from '@mygame/contracts'
+import type { ChromeCatalog } from '../copy/PlayerCopy'
+
+interface Counted {
+  readonly count: number
+}
 
 export interface HireWords {
-  readonly name: () => string
-  readonly team: (counted: { readonly count: number }) => string
-  readonly fieldLabel: () => string
-  readonly hire: (counted: { readonly count: number }) => string
-  readonly hireAny: () => string
-  readonly stopOf: () => string
+  readonly name: (catalog: ChromeCatalog) => string
+  readonly team: (catalog: ChromeCatalog, counted: Counted) => string
+  readonly fieldLabel: (catalog: ChromeCatalog) => string
+  readonly hire: (catalog: ChromeCatalog, counted: Counted) => string
+  readonly hireAny: (catalog: ChromeCatalog) => string
+  readonly stopOf: (catalog: ChromeCatalog) => string
 }
 
 const hireWords: Readonly<Record<HireKind, HireWords>> = {
   worker: {
-    name: namesHiresWorker,
-    team: townOfficeTeamWorker,
-    fieldLabel: townOfficeCountWorker,
-    hire: townOfficeHireWorker,
-    hireAny: townOfficeHireAnyWorker,
-    stopOf: townOfficeStopOfWorker,
+    name: (catalog) => catalog.namesHiresWorker(),
+    team: (catalog, counted) => catalog.townOfficeTeamWorker(counted),
+    fieldLabel: (catalog) => catalog.townOfficeCountWorker(),
+    hire: (catalog, counted) => catalog.townOfficeHireWorker(counted),
+    hireAny: (catalog) => catalog.townOfficeHireAnyWorker(),
+    stopOf: (catalog) => catalog.townOfficeStopOfWorker(),
   },
   truck: {
-    name: namesHiresTruck,
-    team: townOfficeTeamTruck,
-    fieldLabel: townOfficeCountTruck,
-    hire: townOfficeHireTruck,
-    hireAny: townOfficeHireAnyTruck,
-    stopOf: townOfficeStopOfTruck,
+    name: (catalog) => catalog.namesHiresTruck(),
+    team: (catalog, counted) => catalog.townOfficeTeamTruck(counted),
+    fieldLabel: (catalog) => catalog.townOfficeCountTruck(),
+    hire: (catalog, counted) => catalog.townOfficeHireTruck(counted),
+    hireAny: (catalog) => catalog.townOfficeHireAnyTruck(),
+    stopOf: (catalog) => catalog.townOfficeStopOfTruck(),
   },
 }
 

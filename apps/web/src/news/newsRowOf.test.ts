@@ -1,7 +1,11 @@
-import { en, es, reportNewsRefund } from '@mygame/catalog'
+import { reportNewsRefund } from '@mygame/catalog'
 import type { TownNewsItem } from '@mygame/contracts'
 import { expect, it } from 'vitest'
+import { playerCopyOf } from '../copy/playerCopyOf'
 import { newsRowOf } from './newsRowOf'
+
+const es = playerCopyOf({ scaffold: 'es', chromePhase: 'scaffold' })
+const en = playerCopyOf({ scaffold: 'none', chromePhase: 'english' })
 
 const now = new Date('2026-11-10T09:00:00.000Z')
 const occurredAt = '2026-11-10T08:50:00.000Z'
@@ -9,7 +13,7 @@ const site = { region: 1, area: 3, site: 12 }
 const noAmounts = { money: 0, food: 0, power: 0, material: 0 }
 const pay = { money: 0, food: 40, power: 0, material: 1200 }
 
-const lineOf = (item: TownNewsItem): string => newsRowOf(es, item, now).line
+const lineOf = (item: TownNewsItem): string => newsRowOf(es, item, now).line.text
 
 it('writes a finished building work with its place and level', () => {
   expect(
@@ -114,21 +118,22 @@ it('writes the town becoming a city', () => {
 })
 
 it("names a job's pay above zero in the resources' order", () => {
-  expect(newsRowOf(es, { kind: 'jobBack', params: { site, pay }, occurredAt }, now).amounts).toBe(
-    'Pago: 40 de comida y 1 200 de material',
-  )
+  expect(
+    newsRowOf(es, { kind: 'jobBack', params: { site, pay }, occurredAt }, now).amounts?.text,
+  ).toBe('Pago: 40 de comida y 1 200 de material')
 })
 
 it("names a clean-up's reward as its pay", () => {
   expect(
-    newsRowOf(es, { kind: 'cleanUpDone', params: { site, reward: pay }, occurredAt }, now).amounts,
+    newsRowOf(es, { kind: 'cleanUpDone', params: { site, reward: pay }, occurredAt }, now).amounts
+      ?.text,
   ).toBe('Pago: 40 de comida y 1 200 de material')
 })
 
 it('names no pay when every amount is zero', () => {
   expect(
     newsRowOf(es, { kind: 'jobCalledBack', params: { site, pay: noAmounts }, occurredAt }, now)
-      .amounts,
+      .amounts?.text,
   ).toBeUndefined()
 })
 
@@ -142,7 +147,7 @@ it('names the refund of a stopped work', () => {
         occurredAt,
       },
       now,
-    ).amounts,
+    ).amounts?.text,
   ).toBe(reportNewsRefund({ amounts: '40 de comida y 1\u202f200 de material' }))
 })
 
@@ -156,7 +161,7 @@ it('names the refund of a stopped hiring', () => {
         occurredAt,
       },
       now,
-    ).amounts,
+    ).amounts?.text,
   ).toBe(reportNewsRefund({ amounts: '40 de comida y 1\u202f200 de material' }))
 })
 
@@ -170,40 +175,40 @@ it('draws no refund line for a stop that cost nothing', () => {
         occurredAt,
       },
       now,
-    ).amounts,
+    ).amounts?.text,
   ).toBeUndefined()
 })
 
 it('names no refund for a stopped lesson', () => {
   expect(
     newsRowOf(es, { kind: 'lessonStopped', params: { lessonId: 'lesson-2' }, occurredAt }, now)
-      .amounts,
+      .amounts?.text,
   ).toBeUndefined()
 })
 
 it('reads the instant of the news', () => {
-  expect(newsRowOf(es, { kind: 'becameCity', occurredAt }, now).instant).toBe('Hoy, 09:50')
+  expect(newsRowOf(es, { kind: 'becameCity', occurredAt }, now).instant.text).toBe('Hoy, 09:50')
 })
 
-it('writes a news row from the catalog it is given', () => {
+it('writes a news row from the copy it is given', () => {
   const row = newsRowOf(
     en,
     { kind: 'jobBack', params: { site, pay: { ...noAmounts, money: 60 } }, occurredAt },
     now,
   )
 
-  expect([row.line, row.amounts]).toEqual([
+  expect([row.line.text, row.amounts?.text]).toEqual([
     'Your team came back from region 1, area 3, site 12.',
     'Pay: 60 money',
   ])
 })
 
-it('names an instant from today from the catalog it is given', () => {
+it('names an instant from today from the copy it is given', () => {
   const row = newsRowOf(
     en,
     { kind: 'lessonStudied', params: { lessonId: 'lesson-1' }, occurredAt },
     now,
   )
 
-  expect(row.instant).toBe('Today, 09:50')
+  expect(row.instant.text).toBe('Today, 09:50')
 })

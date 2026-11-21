@@ -1,6 +1,7 @@
 import type { ReactElement } from 'react'
 import type { ButtonTone } from '../design-system/Button'
 import { ButtonLink } from '../design-system/ButtonLink'
+import { LabelText } from '../design-system/LabelText'
 import type { NextStepAction } from './nextStepCardOf'
 
 export interface NextStepLinkProps {
@@ -12,13 +13,13 @@ export function NextStepLink({ action, tone }: NextStepLinkProps): ReactElement 
   if (action.to === '/school/$lessonId') {
     return (
       <ButtonLink to={action.to} params={{ lessonId: action.lessonId }} tone={tone}>
-        {action.label}
+        <LabelText label={action.label} />
       </ButtonLink>
     )
   }
   return (
     <ButtonLink to={action.to} tone={tone}>
-      {action.label}
+      <LabelText label={action.label} />
     </ButtonLink>
   )
 }

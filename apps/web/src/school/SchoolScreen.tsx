@@ -1,4 +1,3 @@
-import { es } from '@mygame/catalog'
 import { type ReactElement, useEffect, useState } from 'react'
 import type { ChromeCatalog, PlayerCopy } from '../copy/PlayerCopy'
 import { usePlayerCopy } from '../copy/usePlayerCopy'
@@ -127,12 +126,12 @@ function ReviewsLink({
   if (nextStep.kind !== 'reviews') {
     return null
   }
-  const action = reviewsActionOf(es, nextStep.readFirst)
+  const action = reviewsActionOf(copy, nextStep.readFirst)
   const named =
     action.to === '/school/$lessonId'
       ? {
           ...action,
-          label: spokenLineOf(readWordsLabelOf(action.lessonId, shownLessonId, overview, copy)),
+          label: readWordsLabelOf(action.lessonId, shownLessonId, overview, copy),
         }
       : action
   return <NextStepLink action={named} tone="quiet" />

@@ -1,16 +1,9 @@
-import {
-  es,
-  townNamingField,
-  townNamingGoToTown,
-  townNamingMayor,
-  townNamingSubmit,
-  townNamingTitle,
-} from '@mygame/catalog'
 import { type FormEvent, type ReactElement, useId } from 'react'
 import type { ApiRefusal } from '../api/apiClient'
+import { usePlayerCopy } from '../copy/usePlayerCopy'
 import { Button } from '../design-system/Button'
 import { FormAlert } from '../design-system/FormAlert'
-import { lineLabelOf } from '../design-system/lineLabelOf'
+import { LabelText } from '../design-system/LabelText'
 import { Panel } from '../design-system/Panel'
 import { PlaceArt } from '../design-system/PlaceArt'
 import { placeArtOf } from '../design-system/placeArtOf'
@@ -30,6 +23,8 @@ const artSizeClass = 'size-thumbnail md:size-place-card'
 
 export function NameTownScreen(props: NameTownScreenProps): ReactElement {
   const titleId = useId()
+  const copy = usePlayerCopy()
+  const { refusal } = props
   const submit = (event: FormEvent<HTMLFormElement>): void => {
     event.preventDefault()
     props.onSubmit()
@@ -46,12 +41,14 @@ export function NameTownScreen(props: NameTownScreenProps): ReactElement {
         <PlaceArt shapes={placeArtOf('school', 0)} sizeClass={artSizeClass} />
       </div>
       <h2 id={titleId} className="m-0 font-sans text-display text-ink">
-        {townNamingTitle()}
+        <LabelText label={copy.chrome((catalog) => catalog.townNamingTitle())} />
       </h2>
-      <p className="m-0 font-sans text-body text-ink">{townNamingMayor()}</p>
+      <p className="m-0 font-sans text-body text-ink">
+        <LabelText label={copy.chrome((catalog) => catalog.townNamingMayor())} />
+      </p>
       <form aria-labelledby={titleId} className="flex flex-col gap-4" onSubmit={submit}>
         <TextField
-          label={lineLabelOf(townNamingField(), 'es')}
+          label={copy.chrome((catalog) => catalog.townNamingField())}
           name="name"
           type="text"
           autoComplete="off"
@@ -59,12 +56,12 @@ export function NameTownScreen(props: NameTownScreenProps): ReactElement {
           onChange={props.onNameChange}
           isDisabled={props.isSubmitting}
         />
-        {props.refusal !== undefined && (
-          <FormAlert message={lineLabelOf(refusalLineOf(es, props.refusal), 'es')} />
+        {refusal !== undefined && (
+          <FormAlert message={copy.fixedCopy((catalog) => refusalLineOf(catalog, refusal))} />
         )}
         {props.refusal === 'PlayerAlreadyHoldsTown' ? (
           <Button type="button" tone="primary" onClick={props.onGoToTown}>
-            {townNamingGoToTown()}
+            <LabelText label={copy.chrome((catalog) => catalog.townNamingGoToTown())} />
           </Button>
         ) : (
           <Button
@@ -72,7 +69,7 @@ export function NameTownScreen(props: NameTownScreenProps): ReactElement {
             tone="primary"
             availability={props.isSubmitting ? 'waiting' : 'available'}
           >
-            {townNamingSubmit()}
+            <LabelText label={copy.chrome((catalog) => catalog.townNamingSubmit())} />
           </Button>
         )}
       </form>

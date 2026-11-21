@@ -1,9 +1,10 @@
-import { townSkylineBuilt } from '@mygame/catalog'
 import type { BuildingKind, TownOverview } from '@mygame/contracts'
 import { createElement, type ReactElement } from 'react'
 import { placeHeight, placeWidth } from '../art/placeShapesOf'
+import { usePlayerCopy } from '../copy/usePlayerCopy'
 import { color } from '../design/tokens'
 import { raisedPlaceArtOf } from '../design-system/placeArtOf'
+import { spokenLineOf } from '../design-system/spokenLineOf'
 import { levelBeforeOf, type RaisedPlace } from './registeredBetween'
 
 const placesAlongTheLine: ReadonlyArray<BuildingKind> = [
@@ -29,10 +30,14 @@ export function TownSkyline({
   readonly raised: ReadonlyArray<RaisedPlace>
 }): ReactElement {
   const built = placesAlongTheLine.filter((place) => buildings[place].level > 0).length
+  const label = usePlayerCopy().chrome((catalog) =>
+    catalog.townSkylineBuilt({ built, total: placesAlongTheLine.length }),
+  )
   return (
     <svg
       role="img"
-      aria-label={townSkylineBuilt({ built, total: placesAlongTheLine.length })}
+      aria-label={spokenLineOf(label)}
+      lang={label.language}
       viewBox={`0 0 ${skylineWidth} ${placeHeight}`}
       className="block w-full"
     >
