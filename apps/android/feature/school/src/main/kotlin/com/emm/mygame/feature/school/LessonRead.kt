@@ -11,7 +11,7 @@ import kotlin.time.Instant
 
 internal data class LessonRead(val town: TownSnapshot, val readFirst: List<LessonId>?) {
 
-    fun isDrawableWithoutReport(lesson: LessonId, now: Instant): Boolean =
+    fun isDrawableWithoutReadFirst(lesson: LessonId, now: Instant): Boolean =
         readingsOf(lesson).isEmpty() || remainingOf(lesson, now) != null
 
     fun nextFinishAfter(now: Instant): Instant? =

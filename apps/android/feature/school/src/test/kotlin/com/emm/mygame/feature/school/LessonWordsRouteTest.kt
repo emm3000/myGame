@@ -16,7 +16,7 @@ import com.emm.mygame.core.network.LessonId
 import com.emm.mygame.core.network.TownReadResult
 import com.emm.mygame.core.network.TownSnapshot
 import com.emm.mygame.core.ui.TaskDockHook
-import com.emm.mygame.core.testing.FakeReportRepository
+import com.emm.mygame.core.testing.FakeLearningRepository
 import com.emm.mygame.core.testing.FakeTownRepository
 import kotlin.time.Clock
 import org.junit.Assert.assertEquals
@@ -33,7 +33,7 @@ class LessonWordsRouteTest {
 
     private val towns: FakeTownRepository = FakeTownRepository()
 
-    private val reports: FakeReportRepository = FakeReportRepository()
+    private val learning: FakeLearningRepository = FakeLearningRepository()
 
     private val screenOwner: ScreenOwner = ScreenOwner()
 
@@ -52,7 +52,7 @@ class LessonWordsRouteTest {
                     LessonWordsRoute(
                         walk = LessonWalk(firstLesson, walked),
                         towns = towns,
-                        reports = reports,
+                        learning = learning,
                         clock = Clock.System,
                         navigation = LessonWordsNavigation(
                             onNoTown = { noTownCount += 1 },
@@ -74,7 +74,7 @@ class LessonWordsRouteTest {
 
     private fun answerReads(town: TownSnapshot, readFirst: List<LessonId> = emptyList()) {
         towns.answerRead(TownReadResult.Read(town))
-        reports.answerRead(readReportOf(readFirst))
+        learning.answerRead(readReviewsOf(readFirst))
     }
 
     private fun waitForLine(line: String) {
@@ -92,7 +92,7 @@ class LessonWordsRouteTest {
         composeRule.runOnIdle { screenOwner.move(Lifecycle.State.RESUMED) }
         waitForLine("I drink water.")
 
-        assertEquals(listOf(2, 2), listOf(towns.readCount, reports.readCount))
+        assertEquals(listOf(2, 2), listOf(towns.readCount, learning.readCount))
     }
 
     @Test
@@ -103,7 +103,7 @@ class LessonWordsRouteTest {
 
         composeRule.waitForIdle()
 
-        assertEquals(listOf(1, 1), listOf(towns.readCount, reports.readCount))
+        assertEquals(listOf(1, 1), listOf(towns.readCount, learning.readCount))
     }
 
     @Test

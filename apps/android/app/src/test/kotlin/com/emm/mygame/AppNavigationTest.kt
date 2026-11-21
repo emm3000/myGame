@@ -125,12 +125,8 @@ class AppNavigationTest {
 
     private val townWord: TownSnapshot.WordReading = wordReadingOf("town", "pueblo", "We live in a town.")
 
-    private val walkReport: TownReport = TownReport(
-        dueCount = 3,
-        readFirst = listOf(firstLesson, secondLesson),
-        nextDueAt = null,
-        news = emptyList(),
-        readAt = readAt,
+    private val walkReviews: ReviewsReadResult.Read = ReviewsReadResult.Read(
+        DueReviews(due = emptyList(), readFirst = listOf(firstLesson, secondLesson), nextDueAt = null, readAt = readAt),
     )
 
     private val reviewsDueTown: TownSnapshot
@@ -320,7 +316,7 @@ class AppNavigationTest {
     private fun onTheFirstLessonOfTheWalk(secondReadings: List<TownSnapshot.WordReading>) {
         val lessons: List<TownSnapshot.Lesson> =
             listOf(lessonOf(firstLesson, listOf(waterWord)), lessonOf(secondLesson, secondReadings))
-        repeat(2) { reports.answerRead(ReportReadResult.Read(walkReport)) }
+        repeat(2) { learning.answerRead(walkReviews) }
         val unreadFirst: NextStep = NextStep.Reviews(count = 3, readFirst = listOf(firstLesson, secondLesson))
         signedInAtTown(town = playedTown(lessons = lessons, nextStep = unreadFirst))
         dockGo("Leer las palabras").performClick()
@@ -416,9 +412,9 @@ class AppNavigationTest {
 
     @Test
     fun `opens the unread lesson's words from the next step on the town home`() {
-        reports.answerRead(
-            ReportReadResult.Read(
-                TownReport(1, listOf(firstLesson), nextDueAt = null, news = emptyList(), readAt = readAt),
+        learning.answerRead(
+            ReviewsReadResult.Read(
+                DueReviews(due = emptyList(), readFirst = listOf(firstLesson), nextDueAt = null, readAt = readAt),
             ),
         )
         signedInAtTown(town = playedTown(nextStep = NextStep.Reviews(1, listOf(firstLesson))))
@@ -643,7 +639,7 @@ class AppNavigationTest {
 
     @Test
     fun `leaves the read at the lesson's finish to the lesson's words`() {
-        repeat(2) { reports.answerRead(ReportReadResult.Read(walkReport)) }
+        repeat(2) { learning.answerRead(walkReviews) }
         onLessonOneNearItsFinish(Destination.Town, Destination.LessonWords(firstLesson, emptyList()))
 
         passingTheFinish()
@@ -667,7 +663,7 @@ class AppNavigationTest {
     fun `closes the finish notice on the unread words`() {
         asLessonOneFinishes(finishedTown(readFirst = listOf(firstLesson)))
         repeat(2) { towns.answerRead(TownReadResult.Read(finishedTown(listOf(firstLesson)))) }
-        reports.answerRead(ReportReadResult.Read(walkReport))
+        learning.answerRead(walkReviews)
 
         dockGo("Leer las palabras").performClick()
         waitForLine("I drink water.")
