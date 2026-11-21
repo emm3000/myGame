@@ -1,8 +1,8 @@
 import { drizzle } from 'drizzle-orm/node-postgres'
 import { Pool } from 'pg'
 import { afterAll, beforeAll } from 'vitest'
-import { truncatePlayerTables } from '../../truncatePlayerTables.testSupport'
-import { pendingReviewRepositoryContract } from '../pendingReviewRepositoryContract'
+import { truncatePlayerTables } from '../../../truncatePlayerTables.testSupport'
+import { pendingReviewRepositoryContract } from '../memory/pendingReviewRepositoryContract.testSupport'
 import { DrizzlePendingReviewRepository } from './DrizzlePendingReviewRepository'
 
 function databaseUrl(): string {

@@ -1,5 +1,5 @@
-import { pendingReviewRepositoryContract } from '../pendingReviewRepositoryContract'
 import { MemoryPendingReviewRepository } from './MemoryPendingReviewRepository'
+import { pendingReviewRepositoryContract } from './pendingReviewRepositoryContract.testSupport'
 
 pendingReviewRepositoryContract('MemoryPendingReviewRepository', async () => ({
   pendingReviews: new MemoryPendingReviewRepository(),

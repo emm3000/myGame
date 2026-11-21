@@ -6,6 +6,10 @@ import {
 } from './account/infrastructure/http/accountRoutes'
 import { holdoutCheckRoutes } from './holdout/infrastructure/http/holdoutCheckRoutes'
 import {
+  type LearningRouteDependencies,
+  learningRoutes,
+} from './learning/infrastructure/http/learningRoutes'
+import {
   type PlacementRouteDependencies,
   placementRoutes,
 } from './placement/infrastructure/http/placementRoutes'
@@ -21,7 +25,6 @@ import {
   reportRoutes,
 } from './report/infrastructure/http/reportRoutes'
 import { healthDeclarations } from './routes/healthDeclarations'
-import { type LearningRouteDependencies, learningRoutes } from './routes/learning'
 import { type TownDependencies, townRoutes } from './routes/town'
 import { type TownMapDependencies, townMapRoutes } from './routes/townMap'
 

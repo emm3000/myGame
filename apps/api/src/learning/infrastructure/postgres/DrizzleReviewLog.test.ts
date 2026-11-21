@@ -3,11 +3,11 @@ import { asc, eq } from 'drizzle-orm'
 import { drizzle } from 'drizzle-orm/node-postgres'
 import { Pool } from 'pg'
 import { afterAll, beforeAll } from 'vitest'
-import { reviewLog } from '../../learning/infrastructure/postgres/learningTables'
-import { truncatePlayerTables } from '../../truncatePlayerTables.testSupport'
-import { reviewLogContract } from '../reviewLogContract'
+import { truncatePlayerTables } from '../../../truncatePlayerTables.testSupport'
+import { reviewLogContract } from '../memory/reviewLogContract.testSupport'
+import { cardColumnsOf, storedMemoryCardOf } from './cardColumns'
 import { DrizzleReviewLog } from './DrizzleReviewLog'
-import { cardColumnsOf, storedMemoryCardOf } from './storedMemoryCards'
+import { reviewLog } from './learningTables'
 
 function databaseUrl(): string {
   const url = process.env.DATABASE_URL

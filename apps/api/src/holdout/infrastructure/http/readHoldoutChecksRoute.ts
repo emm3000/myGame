@@ -5,7 +5,7 @@ import {
   type RequirePlayerDependencies,
   requirePlayer,
 } from '../../../account/infrastructure/http/requirePlayer'
-import type { LearningDependencies } from '../../../learning/LearningDependencies'
+import type { LearningDependencies } from '../../../learning/application/LearningDependencies'
 import { honoPathOf } from '../../../platform/infrastructure/http/honoPath'
 import { signedInRoute } from '../../../platform/infrastructure/http/signedInRoute'
 import { answerHoldoutChecks } from './answerHoldoutChecks'

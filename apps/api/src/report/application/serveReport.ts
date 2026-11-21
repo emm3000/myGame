@@ -9,7 +9,11 @@ import {
   type TownEvent,
   type TownId,
 } from '@mygame/domain'
-import { type DueReviews, type ReviewTerms, serveDueReviews } from '../../learning/reviewsOf'
+import {
+  type DueReviews,
+  type ReviewTerms,
+  serveDueReviews,
+} from '../../learning/application/serveDueReviews'
 import { type CurrentTownDependencies, currentTownOf } from '../../town/currentTownOf'
 import type { TownNewsReader } from '../../town/TownNewsReader'
 import type { ReportClosings } from './ports/ReportClosings'
