@@ -7,12 +7,12 @@ import type { TownCatalog } from '../ports/TownCatalog'
 import { creditedStocks, type Stocks } from '../resources/Stocks'
 import type { TownEvent } from '../TownEvent'
 import type { TownState, TownStateChange } from '../TownState'
+import { terrainOf } from '../terrainOf'
 import { coversWaste } from './coversWaste'
 import { idleJobSlot, type Job, type JobCleanUp } from './Job'
 import { jobInstantsOf } from './jobInstantsOf'
 import { jobPayOfMilliseconds } from './jobPayOfMilliseconds'
 import { jobPhaseAt } from './jobPhaseAt'
-import { terrainOf } from './terrainOf'
 
 const jobReturnOf = (job: Job, occurredAt: Instant): TownEvent => ({
   kind: job.calledBackAt === undefined ? 'jobBack' : 'jobCalledBack',

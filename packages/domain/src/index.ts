@@ -250,9 +250,6 @@ export type { CleanUpReader } from '#town/jobs/ports/CleanUpReader'
 export type { CleanUpRepository } from '#town/jobs/ports/CleanUpRepository'
 export type { RegionMapReader, SiteHolder } from '#town/jobs/ports/RegionMapReader'
 export type { RegionMap, RegionSite, SiteWaste } from '#town/jobs/RegionMap'
-export type { SiteAddress } from '#town/jobs/SiteAddress'
-export type { Terrain } from '#town/jobs/Terrain'
-export { terrainOf } from '#town/jobs/terrainOf'
 export {
   type CallJobBackCommand,
   type CallJobBackDependencies,
@@ -282,6 +279,7 @@ export type { ResourceKind } from '#town/resources/ResourceKind'
 export { rebaseFullSince } from '#town/resources/rebaseFullSince'
 export { resourceKinds } from '#town/resources/resourceKinds'
 export type { Stocks } from '#town/resources/Stocks'
+export type { SiteAddress } from '#town/SiteAddress'
 export { deriveLessonDurationSeconds } from '#town/school/deriveLessonDurationSeconds'
 export { isLessonFinishedBy } from '#town/school/isLessonFinishedBy'
 export { type BusyLessonSlot, idleLessonSlot, type LessonSlot } from '#town/school/LessonSlot'
@@ -304,6 +302,7 @@ export {
   type StopSchoolLessonDependencies,
   stopSchoolLesson,
 } from '#town/school/useCases/stopSchoolLesson'
+export type { Terrain } from '#town/Terrain'
 export { type ChangedTown, Town, type TownFounding } from '#town/Town'
 export { TownAddress } from '#town/TownAddress'
 export type { TownEvent, TownEventKind } from '#town/TownEvent'
@@ -318,6 +317,7 @@ export type {
 } from '#town/TownSettings'
 export type { TownSkill } from '#town/TownSkill'
 export type { StoredTown } from '#town/TownState'
+export { terrainOf } from '#town/terrainOf'
 export { townLabelOf } from '#town/townLabelOf'
 export { type TownSeason, townSeasonAt } from '#town/townSeasonAt'
 export {

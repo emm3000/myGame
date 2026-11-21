@@ -43,7 +43,7 @@ The map is region : area : site (ADR 040), one area at a time, browsed with *Pre
 
 ### The three terrains
 
-An area's terrain is set by its number (ADR 040). The rotation below is the one `terrainOf` returns (`packages/domain/src/town/jobs/terrainOf.ts`).
+An area's terrain is set by its number (ADR 040). The rotation below is the one `terrainOf` returns (`packages/domain/src/town/terrainOf.ts`).
 
 | Terrain | Rank | Areas | What the player sees | Source |
 |---|---|---|---|---|

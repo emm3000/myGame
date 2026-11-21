@@ -1,5 +1,5 @@
 import type { PlayerId } from '#player/PlayerId'
-import type { SiteAddress } from '../SiteAddress'
+import type { SiteAddress } from '../../SiteAddress'
 
 export type SiteHolder = {
   readonly site: number
