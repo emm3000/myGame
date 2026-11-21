@@ -11,6 +11,7 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import com.emm.mygame.core.network.ReportRepository
 import com.emm.mygame.core.network.SessionRepository
 import com.emm.mygame.core.network.StudyReminderSettings
+import com.emm.mygame.core.network.TownRepository
 import kotlin.time.Clock
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
@@ -18,13 +19,14 @@ import kotlinx.coroutines.withContext
 @Composable
 fun ReportRoute(
     reports: ReportRepository,
+    towns: TownRepository,
     sessions: SessionRepository,
     reminders: StudyReminderSettings,
     clock: Clock,
     navigation: ReportNavigation,
     modifier: Modifier = Modifier,
     foldedDock: @Composable () -> Unit = {},
-    viewModel: ReportViewModel = viewModel { ReportViewModel(reports, sessions, reminders, clock) },
+    viewModel: ReportViewModel = viewModel { ReportViewModel(reports, towns, sessions, reminders, clock) },
 ) {
     val state: ReportUiState by viewModel.state.collectAsStateWithLifecycle()
     val currentNavigation: ReportNavigation by rememberUpdatedState(navigation)

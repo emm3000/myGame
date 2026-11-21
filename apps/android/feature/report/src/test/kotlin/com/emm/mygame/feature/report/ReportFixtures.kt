@@ -9,6 +9,7 @@ import com.emm.mygame.core.network.TownReport
 import com.emm.mygame.core.testing.FakeReportRepository
 import com.emm.mygame.core.testing.FakeSessionRepository
 import com.emm.mygame.core.testing.FakeStudyReminderSettings
+import com.emm.mygame.core.testing.FakeTownRepository
 import com.emm.mygame.core.testing.TestClock
 import kotlin.time.Instant
 import kotlinx.coroutines.CoroutineStart
@@ -43,8 +44,15 @@ internal fun TestScope.reportViewModelOf(
     sessions: FakeSessionRepository = FakeSessionRepository(),
     start: Instant = readInstant,
     reminders: FakeStudyReminderSettings = FakeStudyReminderSettings(StudyReminderChoice.firstChoice),
+    towns: FakeTownRepository = FakeTownRepository(),
 ): ReportViewModel {
-    val viewModel: ReportViewModel = ReportViewModel(reports, sessions, reminders, TestClock(testScheduler, start))
+    val viewModel: ReportViewModel = ReportViewModel(
+        reports = reports,
+        towns = towns,
+        sessions = sessions,
+        reminders = reminders,
+        clock = TestClock(testScheduler, start),
+    )
     backgroundScope.launch(start = CoroutineStart.UNDISPATCHED) {
         try {
             awaitCancellation()
@@ -55,9 +63,13 @@ internal fun TestScope.reportViewModelOf(
     return viewModel
 }
 
-internal fun TestScope.reportReadingFrom(reports: FakeReportRepository, report: TownReport): ReportViewModel {
+internal fun TestScope.reportReadingFrom(
+    reports: FakeReportRepository,
+    report: TownReport,
+    towns: FakeTownRepository = FakeTownRepository(),
+): ReportViewModel {
     reports.answerRead(ReportReadResult.Read(report))
-    val viewModel: ReportViewModel = reportViewModelOf(reports)
+    val viewModel: ReportViewModel = reportViewModelOf(reports, towns = towns)
     runCurrent()
     return viewModel
 }

@@ -19,6 +19,7 @@ import com.emm.mygame.core.network.StudyReminderChoice
 import com.emm.mygame.core.testing.FakeReportRepository
 import com.emm.mygame.core.testing.FakeSessionRepository
 import com.emm.mygame.core.testing.FakeStudyReminderSettings
+import com.emm.mygame.core.testing.FakeTownRepository
 import kotlin.time.Clock
 import kotlin.time.Instant
 import org.junit.Assert.assertEquals
@@ -37,6 +38,8 @@ class ReportRouteTest {
 
     private val sessions: FakeSessionRepository = FakeSessionRepository()
 
+    private val towns: FakeTownRepository = FakeTownRepository()
+
     private val reminders: FakeStudyReminderSettings = FakeStudyReminderSettings(StudyReminderChoice.firstChoice)
 
     private val screenOwner: ScreenOwner = ScreenOwner()
@@ -52,6 +55,7 @@ class ReportRouteTest {
             MyGameTheme {
                 ReportRoute(
                     reports = reports,
+                    towns = towns,
                     sessions = sessions,
                     reminders = reminders,
                     clock = frozenClock,
@@ -69,14 +73,14 @@ class ReportRouteTest {
     }
 
     private fun showRoute() {
-        composeRule.setContent(routeShowing(ReportViewModel(reports, sessions, reminders, Clock.System)))
+        composeRule.setContent(routeShowing(ReportViewModel(reports, towns, sessions, reminders, Clock.System)))
         composeRule.runOnIdle { screenOwner.move(Lifecycle.State.RESUMED) }
         composeRule.waitForIdle()
     }
 
     private fun showRebuildableRoute(): StateRestorationTester {
         val restoration: StateRestorationTester = StateRestorationTester(composeRule)
-        restoration.setContent(routeShowing(ReportViewModel(reports, sessions, reminders, frozenClock)))
+        restoration.setContent(routeShowing(ReportViewModel(reports, towns, sessions, reminders, frozenClock)))
         composeRule.runOnIdle { screenOwner.move(Lifecycle.State.RESUMED) }
         return restoration
     }

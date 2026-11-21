@@ -312,6 +312,7 @@ private fun EntryProviderScope<NavKey>.reportEntry(chrome: SignedInChrome) {
         ) { frame: ScreenFrame ->
             ReportRoute(
                 reports = dependencies.reports,
+                towns = dependencies.towns,
                 sessions = dependencies.sessions,
                 reminders = dependencies.studyReminders,
                 clock = dependencies.clock,
