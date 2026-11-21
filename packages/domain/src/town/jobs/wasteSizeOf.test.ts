@@ -1,7 +1,7 @@
 import { describe, expect, it } from 'vitest'
 import type { SiteAddress } from '../SiteAddress'
-import type { WasteTerms } from '../TownSettings'
 import { plainTownSettings } from '../testing/townCatalogOf'
+import type { WasteTerms } from './WasteTerms'
 import { wasteSizeOf } from './wasteSizeOf'
 
 const wasteTerms = plainTownSettings.waste

@@ -4,9 +4,9 @@ import { holdsLessonCards } from '../../learning/holdsLessonCards'
 import type { SchoolLesson } from '../../learning/Lesson'
 import { cardsInLearningOf } from '../../learning/retention/cardsInLearningOf'
 import { err, ok, type Result } from '../../Result'
-import type { SchoolLevel } from '../building/BuildingLevel'
 import type { TownCatalog } from '../ports/TownCatalog'
 import type { LessonSlot } from './LessonSlot'
+import type { SchoolLevel } from './SchoolLevel'
 import { schoolLevelOf } from './schoolLevelOf'
 
 export type SchoolLessonRefusal = Extract<

@@ -5,9 +5,6 @@ domain_promise_outside_its_roles packages/domain/src/holdout/readHoldoutChecks.t
 domain_promise_outside_its_roles packages/domain/src/holdout/skipHoldoutCheck.ts
 file_over_export_cap packages/domain/src/holdout/HoldoutCheck.ts
 file_over_export_cap packages/domain/src/learning/Lesson.ts
-file_over_export_cap packages/domain/src/town/building/BuildingLevel.ts
-file_over_export_cap packages/domain/src/town/building/BuildingWork.ts
-file_over_export_cap packages/domain/src/town/TownSettings.ts
 reading_named_of_is_async apps/api/src/town/currentTownOf.ts
 reading_named_of_is_async apps/api/src/town/quotedCleanUpOf.ts
 reading_named_of_is_async apps/api/src/town/quotedJobOf.ts

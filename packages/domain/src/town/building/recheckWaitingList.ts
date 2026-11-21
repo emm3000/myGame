@@ -4,7 +4,8 @@ import { derivePeople } from '../derivePeople'
 import type { Hires } from '../hiring/Hires'
 import type { TownCatalog } from '../ports/TownCatalog'
 import type { BuildingLevels } from './BuildingLevels'
-import type { WaitingList, WaitingWork, WorkSlot } from './BuildingWork'
+import type { WorkSlot } from './BuildingWork'
+import type { WaitingList, WaitingWork } from './WaitingList'
 
 export type RecheckedWaitingList = {
   readonly kept: WaitingList

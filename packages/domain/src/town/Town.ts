@@ -8,13 +8,12 @@ import { foundingLevels } from './building/BuildingLevels'
 import {
   type BusyWorkSlot,
   idleWorkSlot,
-  type WaitingList,
-  type WaitingWork,
   type WorkSlot,
   type WorkTarget,
 } from './building/BuildingWork'
 import { buildingKinds } from './building/buildingKinds'
 import { recheckWaitingList } from './building/recheckWaitingList'
+import type { WaitingList, WaitingWork } from './building/WaitingList'
 import { type FullSince, noStoreFull } from './FullSince'
 import { deliveredHiresOf } from './hiring/deliveredHiresOf'
 import type { HireKind } from './hiring/HireKind'
