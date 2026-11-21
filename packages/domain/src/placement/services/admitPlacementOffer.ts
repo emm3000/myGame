@@ -1,20 +1,15 @@
 import type { DomainError } from '../../DomainError'
 import type { BandStartRepository } from '../../holdout/ports/BandStartRepository'
-import type { BandStart } from '../../learning/curriculum/BandStart'
 import type { PlayerId } from '../../player/PlayerId'
 import { err, ok, type Result } from '../../Result'
-import { isPlacementDrawable, type PlacementContent } from '../placementSamplesDrawn'
+import { isPlacementOffered } from '../isPlacementOffered'
+import type { PlacementContent } from '../placementSamplesDrawn'
 import type { PlacementRepository } from '../ports/PlacementRepository'
 
 export type PlacementOfferDependencies = PlacementContent & {
   readonly placements: Pick<PlacementRepository, 'placementOf'>
   readonly bandStarts: Pick<BandStartRepository, 'bandStartsOf'>
 }
-
-export const isPlacementOffered = (
-  starts: ReadonlyArray<BandStart>,
-  content: PlacementContent,
-): boolean => starts.length === 0 && isPlacementDrawable(content)
 
 export const admitPlacementOffer = async (
   playerId: PlayerId,
