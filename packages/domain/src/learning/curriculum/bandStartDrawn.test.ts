@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import { firstItemsRandom } from '../../testing/firstItemsRandom'
+import { firstItemsRandom } from '../../ports/testing/firstItemsRandom'
 import { Instant } from '../../time/Instant'
 import type { BandWord, Headword } from './BandStart'
 import { bandStartDrawn } from './bandStartDrawn'

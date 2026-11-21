@@ -1,14 +1,4 @@
 export type { DomainError } from './DomainError'
-export {
-  type AnswerHoldoutCheckCommand,
-  type AnswerHoldoutCheckDependencies,
-  answerHoldoutCheck,
-} from './holdout/answerHoldoutCheck'
-export {
-  type BeginHoldoutCheckCommand,
-  type BeginHoldoutCheckDependencies,
-  beginHoldoutCheck,
-} from './holdout/beginHoldoutCheck'
 export type { DueHoldoutCheck } from './holdout/DueHoldoutCheck'
 export { dueHoldoutChecksOf } from './holdout/dueHoldoutChecksOf'
 export type {
@@ -24,15 +14,25 @@ export { hasBandStartedAt } from './holdout/hasBandStartedAt'
 export { HOLDOUT_CHECK_WEEKS, RELEASING_WEEK } from './holdout/holdoutCheckWeeks'
 export type { BandStartRepository } from './holdout/ports/BandStartRepository'
 export type { ReleasedLesson } from './holdout/ReleasedLesson'
+export { type ReleaseContent, releasedLessonsOf } from './holdout/releasedLessonsOf'
+export {
+  type AnswerHoldoutCheckCommand,
+  type AnswerHoldoutCheckDependencies,
+  answerHoldoutCheck,
+} from './holdout/useCases/answerHoldoutCheck'
+export {
+  type BeginHoldoutCheckCommand,
+  type BeginHoldoutCheckDependencies,
+  beginHoldoutCheck,
+} from './holdout/useCases/beginHoldoutCheck'
 export {
   type ReadHoldoutChecksDependencies,
   readHoldoutChecks,
-} from './holdout/readHoldoutChecks'
-export { type ReleaseContent, releasedLessonsOf } from './holdout/releasedLessonsOf'
+} from './holdout/useCases/readHoldoutChecks'
 export {
   type SkipHoldoutCheckDependencies,
   skipHoldoutCheck,
-} from './holdout/skipHoldoutCheck'
+} from './holdout/useCases/skipHoldoutCheck'
 export type { Band, BandStart, BandWord, Headword } from './learning/curriculum/BandStart'
 export { bandLinesOf } from './learning/curriculum/bandLinesOf'
 export { headwordOf } from './learning/curriculum/headwordOf'

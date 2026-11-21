@@ -1,4 +1,4 @@
-import type { RandomSource } from '../ports/RandomSource'
+import type { RandomSource } from '../RandomSource'
 
 export const firstItemsRandom: RandomSource = {
   sampleOf: (items, count) => {
