@@ -428,7 +428,7 @@ The batch also gives each of the 55 entries of lessons 17 to 27 one later frame,
 | meet | verb | 135 | I want you to meet the mayor. | I want you to ____ the mayor. | conocer | to see and talk with someone for the first time |
 | talk | verb | 137 | Can we talk after the lesson? | Can we ____ after the lesson? | hablar | to speak with someone |
 | ask | verb | 134 | Ask the mayor about the job. | ____ the mayor about the job. | preguntar | to say something because you want to know the answer |
-| help | verb | 133 | Can you help me with this? | Can you ____ me with this? | ayudar | to make it easier for someone to do something |
+| help | verb | 133 | Can you help me with this? | Can you ____ me with this? | ayudar | to do some of the work for someone, or give them what they need |
 
 ### Lesson 30
 
@@ -464,7 +464,7 @@ The batch also gives each of the 55 entries of lessons 17 to 27 one later frame,
 | go back | phave | verb | I want to go back to my old job. | I want to ____ ____ to my old job. | regresar | to return to a place where you were before |
 | point out | phave | verb | Can you point out the problem? | Can you ____ ____ the problem? | hacer notar | to tell someone about something they did not see |
 | of course | phrase | adverb | Of course you can come with us. | ____ ____ you can come with us. | por supuesto | a way to say yes, or to say that something is clear |
-| so that | phrase | adverb | Tell the mayor so that she can help. | Tell the mayor ____ ____ she can help. | para que | in order to make something possible |
+| so that | phrase | adverb | Tell the mayor so that she can help. | Tell the mayor ____ ____ she can help. | para que | a way to say what you want to happen because of what you do |
 
 ### Lesson 33
 
