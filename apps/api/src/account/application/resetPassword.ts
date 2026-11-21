@@ -1,4 +1,3 @@
-import type { ResetPasswordRequest } from '@mygame/contracts'
 import { type Clock, err, ok, type Result } from '@mygame/domain'
 import type { Transaction } from '../../platform/application/ports/Transaction'
 import type { Refusal } from '../../platform/application/Refusal'
@@ -12,7 +11,7 @@ export type ResetPasswordDependencies = {
 }
 
 export const resetPassword = async (
-  request: ResetPasswordRequest,
+  request: { readonly token: string; readonly password: string },
   { inTransaction, clock, passwords }: ResetPasswordDependencies,
 ): Promise<Result<void, Refusal>> => {
   const passwordHash = await passwords.hashOf(request.password)

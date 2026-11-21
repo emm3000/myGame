@@ -1,4 +1,3 @@
-import type { VerifyEmailRequest } from '@mygame/contracts'
 import { type Clock, err, ok, type Result } from '@mygame/domain'
 import type { Transaction } from '../../platform/application/ports/Transaction'
 import type { Refusal } from '../../platform/application/Refusal'
@@ -10,7 +9,7 @@ export type VerifyEmailDependencies = {
 }
 
 export const verifyEmail = (
-  request: VerifyEmailRequest,
+  request: { readonly token: string },
   { inTransaction, clock }: VerifyEmailDependencies,
 ): Promise<Result<void, Refusal>> =>
   inTransaction<void, Refusal>(async ({ accounts, accountTokens }) => {
