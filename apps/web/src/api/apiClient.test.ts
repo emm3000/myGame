@@ -293,18 +293,18 @@ it('reads a Report the schema refuses as unexpected', async () => {
 })
 
 it("reads the town's news through its schema", async () => {
-  const feed = { items: reportWithNews.news }
-  const fetch = answeringFetch(200, feed)
+  const news = { items: reportWithNews.news }
+  const fetch = answeringFetch(200, news)
 
   const outcome = await createApiClient('/api').townNews()
 
-  expect(outcome).toEqual({ ok: true, value: feed })
+  expect(outcome).toEqual({ ok: true, value: news })
   const [url, init] = fetch.mock.calls[0] ?? []
   expect(url).toBe('/api/town/news')
   expect(init?.method).toBe('GET')
 })
 
-it('reads a news feed the schema refuses as unexpected', async () => {
+it('reads Town News the schema refuses as unexpected', async () => {
   answeringFetch(200, { items: [{ kind: 'townFounded' }] })
 
   expect(await createApiClient('/api').townNews()).toEqual({ ok: false, refusal: 'Unexpected' })

@@ -13,7 +13,7 @@ import com.emm.mygame.core.network.generated.models.Report
 import com.emm.mygame.core.network.generated.models.ResourceAmounts
 import com.emm.mygame.core.network.generated.models.SkillEarnedNews
 import com.emm.mygame.core.network.generated.models.SkillEarnedNewsParams
-import com.emm.mygame.core.network.generated.models.TownNewsFeed
+import com.emm.mygame.core.network.generated.models.TownNewsItems
 import com.emm.mygame.core.network.generated.models.TownNewsItem
 
 internal fun Report.toTownReport(): TownReport = TownReport(
@@ -24,7 +24,7 @@ internal fun Report.toTownReport(): TownReport = TownReport(
     readAt = readAt.toKotlinInstant(),
 )
 
-internal fun TownNewsFeed.toTownNews(): List<TownNews> = items.mapNotNull(TownNewsItem::toTownNews)
+internal fun TownNewsItems.toTownNews(): List<TownNews> = items.mapNotNull(TownNewsItem::toTownNews)
 
 private fun TownNewsItem.toTownNews(): TownNews? = when (this) {
     is TownNewsItem.BuildingworkfinishedWrapper -> value.toFinishedWork()

@@ -328,7 +328,7 @@ class ReportRepositoryTest {
 
     @Test
     fun `reads the town news at its path with the bearer`() = runTest {
-        api.enqueue(json(200, feedOf()))
+        api.enqueue(json(200, newsOf()))
 
         reports().news()
 
@@ -340,7 +340,7 @@ class ReportRepositoryTest {
 
     @Test
     fun `reads the town news in the order the api answers`() = runTest {
-        api.enqueue(json(200, feedOf("${becameCity()},${lesson("lessonStudied")}")))
+        api.enqueue(json(200, newsOf("${becameCity()},${lesson("lessonStudied")}")))
 
         assertEquals(
             TownNewsReadResult.Read(listOf(TownNews.BecameCity(occurredAt), TownNews.LessonStudied(occurredAt))),
@@ -351,13 +351,13 @@ class ReportRepositoryTest {
     @Test
     fun `skips a town news kind the client does not know`() = runTest {
         val unknownKind: String = """{"kind":"festivalHeld","occurredAt":"2026-11-05T09:10:00.000Z"}"""
-        api.enqueue(json(200, feedOf("$unknownKind,${becameCity()}")))
+        api.enqueue(json(200, newsOf("$unknownKind,${becameCity()}")))
 
         assertEquals(TownNewsReadResult.Read(listOf(TownNews.BecameCity(occurredAt))), reports().news())
     }
 
     @Test
-    fun `answers unreachable for a body that is not a news feed`() = runTest {
+    fun `answers unreachable for a body that is not Town News`() = runTest {
         api.enqueue(json(200, "[]"))
 
         assertEquals(TownNewsReadResult.Unreachable, reports().news())
@@ -404,7 +404,7 @@ class ReportRepositoryTest {
         """{"dueCount":$dueCount,"due":[],"readFirst":[$readFirst],"nextDueAt":$nextDueAt,""" +
             """"readAt":"2026-11-10T09:00:00.000Z","news":[$news]}"""
 
-    private fun feedOf(items: String = ""): String = """{"items":[$items]}"""
+    private fun newsOf(items: String = ""): String = """{"items":[$items]}"""
 
     private fun buildingWork(kind: String, building: String): String =
         """{"kind":"$kind","params":{"building":"$building","level":2},"occurredAt":"$OCCURRED_AT"}"""

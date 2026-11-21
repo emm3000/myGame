@@ -63,7 +63,7 @@ export { type RegionMapRequest, RegionMapRequestSchema } from './town/jobs/Regio
 export { type SendCleanUp, SendCleanUpSchema } from './town/jobs/SendCleanUp'
 export { type SendJob, SendJobSchema } from './town/jobs/SendJob'
 export { type TownNewsItem, TownNewsItemSchema } from './town/news/TownNewsItem'
-export { type TownNewsFeed, TownNewsFeedSchema } from './town/news/TownNewsItems'
+export { type TownNewsItems, TownNewsItemsSchema } from './town/news/TownNewsItems'
 export { type ResourceAmounts, ResourceAmountsSchema } from './town/ResourceAmounts'
 export { type ResourceKind, ResourceKindSchema } from './town/ResourceKind'
 export { type SeasonKind, SeasonKindSchema } from './town/SeasonKind'

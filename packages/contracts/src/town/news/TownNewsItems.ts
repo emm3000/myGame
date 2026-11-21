@@ -1,8 +1,8 @@
 import { z } from 'zod'
 import { TownNewsItemSchema } from './TownNewsItem'
 
-export const TownNewsFeedSchema = z
+export const TownNewsItemsSchema = z
   .strictObject({ items: z.array(TownNewsItemSchema).max(100) })
-  .meta({ id: 'TownNewsFeed' })
+  .meta({ id: 'TownNewsItems' })
 
-export type TownNewsFeed = z.infer<typeof TownNewsFeedSchema>
+export type TownNewsItems = z.infer<typeof TownNewsItemsSchema>

@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import { ReportSchema, TownNewsFeedSchema } from '../index'
+import { ReportSchema, TownNewsItemsSchema } from '../index'
 
 const recall = {
   wordId: 'lesson-1-1',
@@ -85,14 +85,14 @@ describe('ReportSchema', () => {
   })
 })
 
-describe('TownNewsFeedSchema', () => {
+describe('TownNewsItemsSchema', () => {
   it('parses the town news', () => {
-    expect(TownNewsFeedSchema.parse({ items: [finishedFarm] })).toEqual({ items: [finishedFarm] })
+    expect(TownNewsItemsSchema.parse({ items: [finishedFarm] })).toEqual({ items: [finishedFarm] })
   })
 
   it('rejects more than the 100 kept items', () => {
     const items = Array.from({ length: 101 }, () => finishedFarm)
 
-    expect(TownNewsFeedSchema.safeParse({ items }).success).toBe(false)
+    expect(TownNewsItemsSchema.safeParse({ items }).success).toBe(false)
   })
 })

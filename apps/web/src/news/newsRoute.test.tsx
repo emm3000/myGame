@@ -1,5 +1,5 @@
 import { es } from '@mygame/catalog'
-import type { TownNewsFeed, TownNewsItem } from '@mygame/contracts'
+import type { TownNewsItem, TownNewsItems } from '@mygame/contracts'
 import { act, fireEvent, screen, within } from '@testing-library/react'
 import { afterEach, beforeEach, expect, it, vi } from 'vitest'
 import type { ApiClient } from '../api/apiClient'
@@ -69,10 +69,10 @@ const homesFinished: TownNewsItem = {
   occurredAt: at('08:45'),
 }
 
-const feedOf = (items: ReadonlyArray<TownNewsItem>): TownNewsFeed => ({ items: [...items] })
+const newsOf = (items: ReadonlyArray<TownNewsItem>): TownNewsItems => ({ items: [...items] })
 
-const answering = (feed: TownNewsFeed): ApiClient['townNews'] =>
-  vi.fn<ApiClient['townNews']>().mockResolvedValue({ ok: true, value: feed })
+const answering = (news: TownNewsItems): ApiClient['townNews'] =>
+  vi.fn<ApiClient['townNews']>().mockResolvedValue({ ok: true, value: news })
 
 const showNews = async (
   townNews: ApiClient['townNews'],
@@ -94,7 +94,7 @@ const rowTexts = (): ReadonlyArray<string | null> =>
     .map((row) => row.textContent)
 
 it('writes one line per event kind with its instant', async () => {
-  await showNews(answering(feedOf(everyKind)))
+  await showNews(answering(newsOf(everyKind)))
 
   expect(rowTexts()).toEqual([
     'Hoy, 09:59Tu pueblo ahora es una ciudad.',
@@ -113,7 +113,7 @@ it('writes one line per event kind with its instant', async () => {
 })
 
 it('lists the newest first, in the order the server answers', async () => {
-  await showNews(answering(feedOf([homesFinished, farmFinished])))
+  await showNews(answering(newsOf([homesFinished, farmFinished])))
 
   expect(rowTexts()).toEqual([
     'Hoy, 09:45Hogares: ahora en nivel 2.',
@@ -126,7 +126,7 @@ it('opens the news from its row on the Report', async () => {
     '/report',
     stubApiClient({
       currentPlayer: async () => knownPlayer,
-      townNews: answering(feedOf([homesFinished])),
+      townNews: answering(newsOf([homesFinished])),
     }),
   )
   await passSeconds(0)
@@ -140,7 +140,7 @@ it('opens the news from its row on the Report', async () => {
 })
 
 it('says there is no news when the town has none', async () => {
-  await showNews(answering(feedOf([])))
+  await showNews(answering(newsOf([])))
 
   expect(within(newsRegion()).getByText(es.newsNone())).toBeDefined()
   expect(within(newsRegion()).queryByRole('list')).toBeNull()
@@ -162,7 +162,7 @@ it('reads the news again on a retry after a failed read', async () => {
   const townNews = vi
     .fn<ApiClient['townNews']>()
     .mockResolvedValueOnce({ ok: false, refusal: 'Unexpected' })
-    .mockResolvedValue({ ok: true, value: feedOf([homesFinished]) })
+    .mockResolvedValue({ ok: true, value: newsOf([homesFinished]) })
   await showNews(townNews)
 
   fireEvent.click(screen.getByRole('button', { name: es.townTryAgain() }))

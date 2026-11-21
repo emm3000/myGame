@@ -209,7 +209,7 @@ describe('the OpenAPI document', () => {
             cleanUpFailed: 'CleanUpFailedNews',
             becameCity: 'BecameCityNews',
           }),
-          TownNewsFeed: {
+          TownNewsItems: {
             properties: { items: { items: { $ref: '#/components/schemas/TownNewsItem' } } },
           },
         },

@@ -3552,7 +3552,7 @@
         "required": ["kind", "reason", "goal", "text"],
         "additionalProperties": false
       },
-      "TownNewsFeed": {
+      "TownNewsItems": {
         "type": "object",
         "properties": {
           "items": {
@@ -4754,7 +4754,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/TownNewsFeed"
+                  "$ref": "#/components/schemas/TownNewsItems"
                 }
               }
             }

@@ -1,4 +1,4 @@
-import { type TownNewsFeed, TownNewsFeedSchema } from '@mygame/contracts'
+import { type TownNewsItems, TownNewsItemsSchema } from '@mygame/contracts'
 import { afterAll, afterEach, beforeAll, beforeEach, describe, expect, it, vi } from 'vitest'
 import { createApp } from '#app'
 import type { ComposedServer } from '#composeServer'
@@ -42,9 +42,9 @@ describe('the town route', () => {
     const readNews = (cookie: string): Promise<Response> =>
       Promise.resolve(app.request('/town/news', { headers: { cookie } }))
 
-    const newsOf = async (response: Response): Promise<TownNewsFeed> => {
+    const newsOf = async (response: Response): Promise<TownNewsItems> => {
       expect(response.status).toBe(200)
-      return TownNewsFeedSchema.parse(await response.json())
+      return TownNewsItemsSchema.parse(await response.json())
     }
 
     it('answers the news newest first, each with its kind, its params and its instant', async () => {

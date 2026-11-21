@@ -115,7 +115,7 @@ segment: `apps/api/src/town/jobs/infrastructure/http/sendJobRoute.ts`.
 | `town/jobs` | jobs, clean-ups, waste, the region map | yes | yes | yes |
 | `town/school` | the lesson slot and the lessons a school runs | yes | yes | yes |
 | `town/guidance` | the next step, the goal, tips | yes | yes | yes |
-| `town/news` | town events and the news feed | no | yes | yes |
+| `town/news` | town events and Town News | no | yes | yes |
 | `learning` | reviews, hints, frames, retention, the curriculum's shape | yes | yes | yes |
 | `placement` | the placement offer and its bands | yes | yes | yes |
 | `holdout` | holdout checks and released lessons | yes | yes | yes |
