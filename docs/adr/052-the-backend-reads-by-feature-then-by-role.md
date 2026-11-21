@@ -22,7 +22,7 @@ ADR:
   `learning/`, `routes/`, `time/` and `town/`: three of the ten name
   the game. One player intent, sending a job, is read in 8
   directories. 22 api files carry `town` in their name, in 6
-  directories. 26 of the last 105 `feat` and `fix` commits that touched
+  directories. 26 of the last 104 `feat` and `fix` commits that touched
   the backend's production files touched 5 directories or more.
 - **A folder does not say a role.** `packages/domain/src/town/` is 126
   production files at one level, `learning/` 65, and
@@ -62,7 +62,7 @@ the domain's `*Of`, `derive*`, `is*` vocabulary for pure functions.
 
 ### How the numbers were taken
 
-Every number in this ADR was taken on trunk at `5996377e`, and the pull
+Every number in this ADR was taken on trunk at `781147ee`, and the pull
 request that files the ADR lists each one with its command and its
 output. Three definitions hold throughout:
 
@@ -92,7 +92,7 @@ names a layer, with the owner's three words written out:
 |---|---|
 | Domain | `packages/domain/src/<feature>/`: entities, value objects, pure rules, and the use cases and ports of ADR 004 |
 | Application | `apps/api/src/<feature>/application/`: what one request does around a domain use case, and the account |
-| Infrastructure | `apps/api/src/<feature>/infrastructure/{http,postgres,memory,json,smtp}/`: one folder per technology |
+| Infrastructure | `apps/api/src/<feature>/infrastructure/{http,postgres,memory,json,smtp,system}/`: one folder per technology |
 
 `apps/api/src/platform/` holds what no feature owns, in the same two
 folders: `platform/application/` and
@@ -179,17 +179,37 @@ These are the lines against the graph on trunk, and how each one ends:
   need (`frameWordsOf`, `readingOf`, `readingTermsOf`, `isUnitLesson`)
   move beside the JSON catalog, so the gate depends on the catalog and
   never the reverse.
-- **One database.** `DrizzleTownRepository.ts` reads the town's screen
-  through `aggregatedCards.ts`, `aggregatedBandStarts.ts` and
-  `aggregatedPlacementScores.ts`, which nothing else imports and which
-  query the tables of `learning`, `holdout` and `placement`.
-  `DrizzleChromeProgress.ts` reads `cards` and the town's tables. A
-  table lives with the feature that writes it, and its `*Tables.ts`
-  file is the one thing an `infrastructure/postgres/` folder may import
-  from a feature to its right: the features share one database, and a
-  read model joins across it. A `*Tables.ts` file itself imports only
-  to its left; every foreign key on trunk points at `players` or
-  `towns`.
+- **One database.** A table lives with the adapter that inserts its
+  rows, in that adapter's feature. 22 of the 24 tables are written by
+  one adapter; the other two take an update of one column from a
+  second (`players` from `DrizzleReportClosings`, `towns` from
+  `DrizzleGuidanceDismissals`). So `cards` lives in `learning` with
+  `DrizzleCardRepository`, though use cases of the town and of learning
+  both save cards through the port; and `bandStarts`, `heldOutWords`,
+  `holdoutChecks` and `holdoutCheckWords` live in `holdout` with
+  `DrizzleBandStarts`, which stores a band start with its held-out
+  words and its checks.
+
+  Two adapters to the left of those tables read them. The town's
+  screen read model does, through `aggregatedCards.ts`,
+  `aggregatedBandStarts.ts` and `aggregatedPlacementScores.ts`, which
+  nothing but `DrizzleTownRepository.ts` imports. And
+  `DrizzleChromeProgress.ts`, which goes to the account, reads `cards`,
+  `earnedSkills`, `townLessonSlots` and `towns`.
+
+  So the graph has one written exemption, and it applies only inside
+  `<feature>/infrastructure/postgres/`. A file there may import, from
+  any feature's `infrastructure/postgres/`, the files that describe
+  the schema: `*Tables.ts` and the row mappers `*FromRow.ts` and
+  `*Columns.ts`. The row mappers are in it because the read model
+  already needs them: `aggregatedCards.ts` maps a card row with
+  `heldCardOf` of `storedMemoryCards.ts`, and
+  `aggregatedBandStarts.ts` a check row with `holdoutCheckOf`. A file
+  there may import nothing else from a feature to its right, and no
+  file outside `infrastructure/postgres/` has the exemption. The
+  features share one database, and a read model joins across it. A
+  `*Tables.ts` file itself imports only to its left; every foreign key
+  on trunk points at `players` or `towns`.
 
 These are the lines the folder-to-folder imports and the adapters'
 imports show on trunk. Each feature's override is what proves the rest
@@ -230,6 +250,12 @@ no feature, and their fakes sit beside them in `ports/testing/`:
 `firstItemsRandom.ts` and `sequentialIds.ts`. `Clock` has no shared
 fake and gains none: a test that freezes time writes the one-line
 literal `{ now: () => instant }`, as 37 test files do today.
+A port more than one feature reads goes to the feature that holds its
+adapter in the api, so a port and its adapter carry one feature name:
+`BandStartRepository`, read by `holdout`, `town`, `placement` and
+`answerReview`, goes to `holdout/ports/`, as `DrizzleBandStarts` goes
+to `holdout` in the api. The domain has no feature graph (below), so
+no rule places it to the left of anything.
 `DomainError.ts`, `Result.ts` and `index.ts` stay at the root.
 `town/projection-cases.json` stays where it is: Android's
 `core/projection/build.gradle.kts` reads that path.
@@ -246,6 +272,7 @@ index.ts  listen.ts  app.ts  composeServer.ts  composeStores.ts    the compositi
   infrastructure/memory/      in-memory adapters and the port's contract suite
   infrastructure/json/        the JSON catalogs (content)
   infrastructure/smtp/        the mailer (account)
+  infrastructure/system/      the password hasher and the session tokens (account)
 platform/
   application/                Refusal
   application/ports/          the ports no feature owns: Transaction, FailureSink, AfterResponse
@@ -366,7 +393,7 @@ folders they name.
 | Lines in a function | 50 | Biome `complexity/noExcessiveLinesPerFunction` | 7, and 5 of the suites named `*Contract.ts` |
 | Cognitive complexity | 15, as today | Biome `complexity/noExcessiveCognitiveComplexity` | 0 |
 | Production files in one folder, not counting sub-folders | 30 | `scripts/mygame-structure-check` | 5: domain `town` 126, the contracts' root 83, domain `learning` 65, api `contentGate` 32, `adapters/postgres` 31 |
-| Lines in a test file | 600 | Biome, by override | 7 |
+| Lines in a test file | 600 | Biome, by override | 8 |
 | Import cycles between files | none | Biome `suspicious/noImportCycles` | 0 |
 
 The two caps of "Readability standards", exports per file and methods
@@ -395,64 +422,94 @@ school, hiring, jobs), one short `switch` each, the outer one still
 exhaustive.
 
 Until its step lands, a file over a limit is named in one baseline: a
-Biome override that turns that rule off for it, or the structure
-check's own list for the limits it enforces. The step that fixes the
-file deletes its line; the last step of the migration lands with every
-baseline empty. A baseline is a list in `biome.json` or in the script,
-not code, so it is not a shim under `architecture.md`.
+Biome override that turns that rule off for it, or, for a limit the
+structure check enforces, a line `<check> <path>` of
+`scripts/mygame-structure-check.baseline`, a file beside the script and
+never inside it. The step that fixes the file deletes its line, and the
+check fails on a line whose file no longer fails. The last step of the
+migration lands with every baseline empty. A baseline is a list, not
+code, so it is not a shim under `architecture.md`.
 
 ### 7. The checks
 
-Each is expected empty. They run in `scripts/mygame-structure-check`,
-which the `gate` script calls after `biome check`, and they are listed
-in `architecture.md` beside the leak check.
+Each check has a name, the one the script prints and the baseline
+file uses, and each is expected empty. They run in
+`scripts/mygame-structure-check`, which the `gate` script calls after
+`biome check`, and they are listed in `architecture.md` beside the
+leak check.
 
 ```
+# application_imports_infrastructure
 rg -n "from '(\.\./)+(\w+/)*infrastructure/" apps/api/src -g '**/application/**' -g '!*.test.ts'
+# application_knows_wire: no contracts, Hono, Drizzle or zod in the application
 rg -n "from '(@mygame/contracts|@?hono|drizzle|zod)" apps/api/src -g '**/application/**' -g '!*.test.ts'
+# persistence_knows_http
 rg -n "from '@?hono" apps/api/src -g '**/infrastructure/{postgres,memory,json,smtp,system}/**' -g '!*.test.ts'
+# http_knows_database
 rg -n "from 'drizzle" apps/api/src -g '**/infrastructure/http/**' -g '!*.test.ts'
+# adapter_built_outside_root: only the composition root constructs an adapter
 rg -n "new (Drizzle|Smtp|Argon2|Crypto|System|Vercel)\w*\(" apps/api/src -g '!*.test.ts' -g '!*.testSupport.ts' -g '!/apps/api/src/*.ts'
+# reading_named_of_is_async: `*Of` is never asynchronous
 rg -l "Promise<|\basync\b" apps/api/src packages/domain/src -g '*Of.ts' -g '!*.test.ts'
+# use_case_named_of: a use case or a service is never named `*Of`
 fd -g '*Of.ts' -E '*.test.ts' . apps/api/src packages/domain/src | rg '/(application|useCases|services)/'
+# domain_promise_outside_its_roles: only a use case, a service, a port or a fake names a promise
 rg -l "Promise<|\basync\b" packages/domain/src -g '!**/useCases/**' -g '!**/services/**' -g '!**/ports/**' -g '!**/testing/**' -g '!*.test.ts'
+# use_case_imports_use_case: from its own folder (`./x`) or another's
 rg -n "from '(\./|(\.\./)+(\w+/)*useCases/)" packages/domain/src -g '**/useCases/**' -g '!*.test.ts'
+# service_is_public
 rg -n "/services/" packages/domain/src/index.ts
+# folder_over_limit: no folder passes 30 production files
 { printf '%s\n' apps/api/src packages/domain/src packages/contracts/src; fd -t d . apps/api/src packages/domain/src packages/contracts/src; } | while read -r d; do n=$(fd -t f -e ts -d 1 -E '*.test.ts' -E '*.testSupport.ts' . "$d" | wc -l); [ "$n" -gt 30 ] && echo "$n $d"; done
 ```
 
-In order: the application imports no infrastructure; the application
-knows no wire, HTTP, database or zod; persistence knows no HTTP; HTTP
-knows no database; only the composition root constructs an adapter;
-`*Of` is never asynchronous; a use case or a service is never named
-`*Of`; in the domain only a use case, a service, a port or a fake
-names a promise; a use case imports no use case, from its own folder or
-another's; a service is not public; no folder passes 30 production
-files.
+`file_over_export_cap` and `type_over_method_cap` are the two commands
+of section 9.
 
-Run on trunk with today's folders, the fifth lists the 15
-constructions in `postgresTransaction.ts`, the sixth 20 files, the
-eighth 41 and the last 5 folders; the ninth is empty over today's
-`useCases/`, and the others have no target folder yet. The fifth leaves
-out `Json*` and `Memory*` on purpose: a JSON catalog is built by its
-own static `fromDirectory`, and an in-memory adapter by a test or by
-its own factory.
+Run on trunk with today's folders, `adapter_built_outside_root` lists
+the 15 constructions in `postgresTransaction.ts`,
+`reading_named_of_is_async` 20 files,
+`domain_promise_outside_its_roles` 41 and `folder_over_limit` 5
+folders; `use_case_imports_use_case` is empty over today's `useCases/`,
+and the others have no target folder yet.
+`adapter_built_outside_root` leaves out `Json*` and `Memory*` on
+purpose: a JSON catalog is built by its own static `fromDirectory`, and
+an in-memory adapter by a test or by its own factory.
 
-The feature graph of section 2 is one `style/noRestrictedImports`
-override per feature of the api in `biome.json`: the override over
-`apps/api/src/account/**` forbids `**/town/**`, `**/learning/**`,
-`**/placement/**`, `**/holdout/**` and `**/report/**`, and so on down
-the line. Each leaves one door open, the `*Tables.ts` files of section
-2. The domain and the contracts get no such override.
+`feature_graph`, the graph of section 2, is one
+`style/noRestrictedImports` override per feature of the api in
+`biome.json`: the override over `apps/api/src/account/**` forbids
+`**/town/**`, `**/learning/**`, `**/placement/**`, `**/holdout/**` and
+`**/report/**`, and so on down the line, with the schema exemption of
+section 2 written into each. The domain and the contracts get no such
+override. The same rule as a line a reader or a ticket can run, here
+for the account:
 
-The map check: every folder directly under `apps/api/src` and
-`packages/domain/src` is a row of the folder table of
-`ARCHITECTURE.md`, and every row of the table is a folder under one of
-them.
+```
+rg -n "from '(\.\./)+(\w+/)*(town|learning|placement|holdout|report)/" apps/api/src/account -g '!*.test.ts' | rg -v "^[^:]*/infrastructure/postgres/[^:]*:.*/infrastructure/postgres/\w+(Tables|FromRow|Columns)'"
+```
+
+A ticket that proves the graph with the first half alone would refuse
+`DrizzleChromeProgress`, which sits in the account and imports the
+tables of `learning` and `town`.
+
+`map`, as the script reports it: every folder directly under
+`apps/api/src` and `packages/domain/src` is a row of the folder table
+of `ARCHITECTURE.md`, and every row of the table is a folder under one
+of them. It has no baseline.
 
 ```
 diff <(fd -t d -d 1 . apps/api/src packages/domain/src -x basename | sort -u) <(rg -o '^\| `(\w+)` \|' -r '$1' ARCHITECTURE.md | sort -u)
 ```
+
+It passes on nothing until `ARCHITECTURE.md` exists, and it is hard
+from the commit that adds the file. While the tree is mixed the table
+therefore has a row for every folder that still stands, old ones
+included: `adapters`, `routes`, `auth`, `contentGate`, `useCases` and
+`testing` each keep a row that says where their files are going, and
+the step that empties a folder deletes its row with it. The table is
+then the migration's progress at every commit, and at A10 it holds
+only the folders of section 2.
 
 The existing leak checks and `pnpm gate` stay as they are.
 
@@ -465,7 +522,8 @@ with this ADR. It holds what the tree cannot say by itself:
 1. The packages and their arrows.
 2. The folder table: the features of section 2 and the domain's five
    kernel folders, one row and one sentence for each folder directly
-   under `apps/api/src` or `packages/domain/src`.
+   under `apps/api/src` or `packages/domain/src`, and until A10 one
+   row for each old folder that still stands.
 3. The folder grammar and the file-name grammar of sections 3 and 5.
 4. One request followed end to end with real paths: `POST
    /town/jobs`, from
@@ -475,7 +533,7 @@ with this ADR. It holds what the tree cannot say by itself:
    and back through `presentTownOverview.ts`.
 5. "Where does a new thing go": the two questions of section 4, and
    the files a new endpoint adds, in order.
-6. The checks of section 7 and what each one guards.
+6. The checks of section 7, by name, and what each one guards.
 
 It holds no inventory of files. The tree is the inventory, and the
 grammar is what makes the tree readable; a list of files is the part
@@ -495,38 +553,50 @@ direction, errors, time, lazy evaluation, the checks) and links to the
 map instead of describing folders. The package `CLAUDE.md` files keep
 commands and traps and replace "the code is the map" with a link.
 `CONTEXT.md` stays the glossary. The map check of section 7 fails the
-gate when the table and the folders part.
+gate when the table and the folders part (the `map` check).
 
 ### 9. Readability standards
 
 The bar the owner named, as the standards a reviewer holds a change
-to. Each one has one home, a rule file that states it, and a check
-that fails without a reader. This section names both and restates
-neither; where it adds a rule, the rule is written here once and
-`typescript-style.md` or `architecture.md` takes it in step 0.
+to. Each one has one home, a rule file that states it. This section
+names that home and restates nothing; where it adds a rule, the rule
+is written here once and `typescript-style.md` or `architecture.md`
+takes it in step 0.
 
-| Standard | Stated in | Checked by |
-|---|---|---|
-| Intention-revealing names (*Clean Code*, ch. 2) | `naming.md`: "A name is a sentence fragment a reader understands without opening the file", and its Rejected list | review; Biome has no rule for it |
-| One word per concept (ch. 2) | `typescript-style.md`, Naming by layer, with the role rows of section 5: a use case is a verb, and `Route`, `Routes`, `present*`, `*FromRow`, `*Columns`, `*Tables`, `*Repository` each name one role | the sixth and seventh checks of section 7 |
-| No name hides a write (command-query separation) | section 5: `*Of` is a pure, synchronous derivation; a function that writes is not named as a reading | the sixth and eighth checks of section 7: a write is a port call, and a port call is a promise |
-| Small functions that do one thing (ch. 3) | `principles.md`, Flat control flow; `typescript-style.md`, Idioms ("about 30 lines") | Biome: 50 lines a function, cognitive complexity 15, `noNestedTernary`, `noUselessElse` |
-| Small classes with one reason to change (ch. 10) | `principles.md`, Single responsibility | 250 lines a file, and the two caps below |
-| The dependency rule (*Clean Architecture*, ch. 22) | `architecture.md`, Layers and the dependency direction | its leak checks between packages; the first five checks of section 7 inside the api |
-| Screaming Architecture (ch. 21) | sections 2 and 3, then `ARCHITECTURE.md` | the map check and the folder limit |
-| The five SOLID tests | `principles.md`, "SOLID, with its tests" | below |
+A check is named beside a standard only for the part of it a machine
+can see. Most of these checks are proxies: they catch the common way
+of breaking the standard, and the rest stays with the reviewer. The
+table says which.
 
-`principles.md` gives each SOLID principle a test a reviewer runs.
-This ADR gives each test the check that runs it without the reviewer:
+| Standard | Stated in | Checked by | What the check does not see |
+|---|---|---|---|
+| Intention-revealing names (*Clean Code*, ch. 2) | `naming.md`: "A name is a sentence fragment a reader understands without opening the file", and its Rejected list | nothing | all of it: review |
+| One word per concept (ch. 2) | `typescript-style.md`, Naming by layer, with the role rows of section 5: a use case is a verb, and `Route`, `Routes`, `present*`, `*FromRow`, `*Columns`, `*Tables`, `*Repository` each name one role | `reading_named_of_is_async`, `use_case_named_of` | every word but `Of`: a presenter not named `present*` passes |
+| No name hides a write (command-query separation) | section 5: `*Of` is a pure, synchronous derivation; a function that writes is not named as a reading | `reading_named_of_is_async`, `domain_promise_outside_its_roles`: a write is a port call, and a port call is a promise | a reading-shaped name that is not `*Of`, in the api |
+| Small functions that do one thing (ch. 3) | `principles.md`, Flat control flow; `typescript-style.md`, Idioms ("about 30 lines") | Biome: 50 lines a function, cognitive complexity 15, `noNestedTernary`, `noUselessElse` | "one thing": a short function can still do two |
+| Small classes with one reason to change (ch. 10) | `principles.md`, Single responsibility | 250 lines a file, `file_over_export_cap`, `type_over_method_cap` | the reasons: the checks measure size |
+| The dependency rule (*Clean Architecture*, ch. 22) | `architecture.md`, Layers and the dependency direction | its leak checks between packages; inside the api `application_imports_infrastructure`, `application_knows_wire`, `persistence_knows_http`, `http_knows_database`, `adapter_built_outside_root`, `feature_graph` | nothing between packages; inside the api, a dependency passed as a value of a concrete type |
+| Screaming Architecture (ch. 21) | sections 2 and 3, then `ARCHITECTURE.md` | `map`, `folder_over_limit` | whether a folder's name is the right word |
 
-- **Single responsibility**: the file limit and the two caps.
+`principles.md` gives each SOLID principle a test a reviewer runs, in
+"SOLID, with its tests". This ADR names the nearest check that runs
+without the reviewer, and says how near it is:
+
+- **Single responsibility**: the file limit and the two caps. A proxy:
+  they bound size, and the test ("name what it does without and") is
+  still the reviewer's.
 - **Open/closed**: an exhaustive `switch` with no `default`, which
   `tsc` refuses when a case is missing (`typescript-style.md`, Types).
+  A proxy: it proves no case is forgotten, not that a sixth building
+  touches few files.
 - **Liskov**: the port's contract suite, run against every adapter of
-  the port (`<port>Contract.testSupport.ts`).
-- **Interface segregation**: the method cap.
-- **Dependency inversion**: the leak checks, and the first and fifth
-  checks of section 7.
+  the port (`<port>Contract.testSupport.ts`). This one is the test
+  itself.
+- **Interface segregation**: `type_over_method_cap`. A proxy: a ceiling
+  on width, not proof that every method has a caller.
+- **Dependency inversion**: the leak checks, which are the test itself
+  between packages; `application_imports_infrastructure` and
+  `adapter_built_outside_root` carry it inside the api.
 
 #### No god file, no god class: two caps
 
@@ -539,9 +609,9 @@ test file.
 asks for one primary thing per file; the cap is the wall behind it:
 the primary thing and the few types that travel with it. It does not
 bind a package's `src/index.ts` or a `*Tables.ts` file, which are
-lists by nature and bounded by the file limit. On trunk 547 of the 558
+lists by nature and bounded by the file limit. On trunk 546 of the 558
 production files that export anything export five names or fewer, and
-9 files pass the cap:
+10 files pass the cap (`file_over_export_cap`):
 
 ```
 rg -c '^export ' apps/api/src packages/domain/src packages/contracts/src -g '*.ts' -g '!*.test.ts' -g '!*.testSupport.ts' -g '!**/testing/**' -g '!index.ts' -g '!*Tables.ts' | awk -F: '$2 > 5'
@@ -549,7 +619,8 @@ rg -c '^export ' apps/api/src packages/domain/src packages/contracts/src -g '*.t
 
 `schema.ts` (36), `TownSettings.ts` (9), `Lesson.ts` (8),
 `responseDeclarations.ts` (7), and `nextStepOf.ts`, `BuildingWork.ts`,
-`BuildingLevel.ts`, `HoldoutCheck.ts` and `Accounts.ts` (6 each).
+`BuildingLevel.ts`, `HoldoutCheck.ts`, `cardWordFormOf.ts` and
+`Accounts.ts` (6 each).
 
 **At most 7 methods in a class or an interface.** A method is a member
 that takes arguments: a method, a method signature, or a property
@@ -557,7 +628,7 @@ whose value is a function. The constructor and the accessors (`get`,
 `set`) are not counted: an accessor reads a field. On trunk 78 of the
 84 classes and interfaces of production files hold five methods or
 fewer, the largest that reads as one concern holds seven
-(`DrizzlePlacements`), and 4 pass the cap:
+(`DrizzlePlacements`), and 4 pass the cap (`type_over_method_cap`):
 
 ```
 fd -e ts -E '*.test.ts' -E '*.testSupport.ts' -E testing . apps/api/src packages/domain/src packages/contracts/src -X awk '
@@ -582,8 +653,9 @@ fd -e ts -E '*.test.ts' -E '*.testSupport.ts' -E testing . apps/api/src packages
   sessions and the player row lock in one port. They are cut into one
   port per concern.
 
-A file over a cap on trunk is in the structure check's baseline until
-the step that moves it, as section 6 says of every limit.
+A file over a cap on trunk has its line in
+`scripts/mygame-structure-check.baseline` until the step that moves
+it, as section 6 says of every limit.
 
 ## The migration
 
@@ -616,22 +688,23 @@ contracts. Three tracks therefore run side by side from the first day.
 ### Step 0, the rails
 
 - This ADR, accepted.
-- `scripts/mygame-structure-check` with its `scripts/test-mygame-*`,
-  wired into `gate`; checks whose target folders do not exist yet pass
-  on nothing.
+- `scripts/mygame-structure-check` with its baseline file and its
+  `scripts/test-mygame-*`, wired into `gate`; checks whose target
+  folders do not exist yet pass on nothing.
 - The Biome limits of section 6 and the caps of section 9, each with
   its baseline.
 - The amendments to `architecture.md`, `typescript-style.md`,
   `naming.md` and `principles.md`.
-- One test support that resolves a path from the api package's root,
-  in place of the 34 test and test-support files that compute one from
-  their own depth with `new URL('../…', import.meta.url)`, 31 of them
-  `content/`: a file moved one folder deeper would read a directory
-  that does not exist. The five production files that do the same
+- One test support that resolves a path from the api package's root:
+  done, as `apiPackagePath.testSupport.ts` at the root of
+  `apps/api/src` (#1713). It is now the one test or test-support file
+  that reads `import.meta.url`; before it, a test moved one folder
+  deeper would have read a directory that does not exist. Five
+  production files still find a path from their own depth
   (`index.ts`, `listen.ts`, `writeOpenApiDocument.ts`,
   `adapters/postgres/migratePostgres.ts`,
-  `contentGate/gateContentOf.ts`) are rewritten by the step that moves
-  each; the first three do not move.
+  `contentGate/gateContentOf.ts`) and are rewritten by the step that
+  moves each; the first three do not move.
 
 ### Track A, the api
 
@@ -640,17 +713,24 @@ Serial first, because these three touch every importer:
 - **A1. `platform/`.** `http/`, `failures/`, `afterResponse/`,
   `time/`, `adapters/system/`, `adapters/vercel/`, and the Postgres
   kernel (`connectPostgres`, `migratePostgres`, `postgresTransaction`,
-  `jsonAggregateOf`, `violatedUniqueConstraint`). Four files stay
-  behind for the step that owns them: `http/sessionCookie.ts`,
-  `http/requirePlayer.ts`, `Argon2Passwords` and
-  `CryptoSessionTokens`, all the account's. `ARCHITECTURE.md` lands
-  here with the grammar and its first row.
+  `jsonAggregateOf`, `violatedUniqueConstraint`). Four of those files
+  are the account's and never enter `platform`: `http/sessionCookie.ts`
+  and `http/requirePlayer.ts` move in this step, straight to
+  `account/infrastructure/http/`, so that `http/` is emptied;
+  `Argon2Passwords` and `CryptoSessionTokens` stay in
+  `adapters/system/` for A2. `ARCHITECTURE.md` lands here with the
+  grammar and one row for every folder that stands.
 - **A2. The inversions of section 4.** `Transaction<Stores>`,
-  `composeStores.ts`, `PasswordHasher`, `SessionTokens`. The first two
-  checks of section 7 can fail from here.
+  `composeStores.ts`, and the ports `PasswordHasher` and
+  `SessionTokens` in `account/application/ports/`. This step moves
+  `Argon2Passwords` and `CryptoSessionTokens` from `adapters/system/`
+  to `account/infrastructure/system/`, where they implement those
+  ports, and `adapters/system/` is gone. `application_imports_infrastructure`
+  and `application_knows_wire` can fail from here.
 - **A3. `schema.ts` becomes one `<feature>Tables.ts` per feature**, in
   each feature's `infrastructure/postgres/`, each table with the
-  feature that writes it; `drizzle.config.ts` takes the glob
+  adapter that inserts its rows (section 2); `drizzle.config.ts` takes
+  the glob
   `./src/**/infrastructure/postgres/*Tables.ts`. The `db:generate`
   probe is this step's whole proof.
 
@@ -658,7 +738,8 @@ Then a wave of four peers, on disjoint files:
 
 - **A4 `account`**: `auth/`, `routes/auth*`, `routes/player*`, the
   accounts, tokens and mailer adapters, and what section 2 moves to
-  the account: the two HTTP files, the chrome phase and the scaffold.
+  the account: the chrome phase with its port and adapters, and the
+  scaffold.
 - **A5 `content`**: `adapters/json/` and `contentGate/`, the cycle
   between them ended, and `LessonLibrary`.
 - **A6 `placement` and `holdout`**: their routes, adapters and
@@ -698,8 +779,23 @@ Then, serial again, because `learning` and `town` hold the cycle:
 - **D2 `learning`, then `placement`, then `holdout`**, a second peer:
   the root `useCases/`, `ports/` and `testing/` dissolve into them.
 
-D1 and D2 meet where `town/school` imports `learning` and in
-`index.ts`; they merge one at a time.
+D1 and D2 meet in `index.ts` and wherever `town` and `learning` name
+each other, which is every sub-area of the town but `jobs` and
+`hiring`:
+
+- `school`: `startSchoolLesson`, `settledLessonSlot`,
+  `admitSchoolLesson`, `settledSchoolOf`, `stopSchoolLesson`,
+  `schoolLessonsOf`, `saveLessonSlot`, `LessonSlot`.
+- `guidance`: `nextStepOf`, 10 import lines from `learning` and 3 from
+  `holdout`, 13 in all.
+- `building`: `startBuildingWork`, `openedLevelOf`, `wordShortfallOf`.
+- `news`: `TownEvent`. The root: `TownSkill`.
+- Back from D2's side: `Lesson`, `chromePhaseOf` and `retainedWordsOf`
+  name the town by type, and `answerReview` imports it in 10 lines.
+
+A D1 pull request that moves one of those files and a D2 pull request
+that moves what it imports rewrite the same import line, so the two
+tracks merge one at a time and the second rebases.
 
 ### Track C, the contracts, any time
 
