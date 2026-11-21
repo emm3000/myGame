@@ -121,9 +121,7 @@ class SchoolViewModel(private val towns: TownRepository, private val clock: Cloc
 
     private fun select(lesson: LessonId) {
         selected = lesson
-        _state.update { current: SchoolUiState ->
-            if (current is SchoolUiState.Content) current.copy(selected = lesson) else current
-        }
+        shown?.let(::draw)
     }
 
     private fun start(lesson: LessonId) {
