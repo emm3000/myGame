@@ -238,6 +238,16 @@ describe('content gate check 6, grammar', () => {
       ])
     })
 
+    it("reads a past form after hasn't as a past participle", () => {
+      const hasntMade = newHomeHolding("This hasn't made my new home.")
+
+      expect(
+        checkGrammar(
+          afterLessonOne(pastFrom('lesson-1', 'irregular past', 'has', "n't"), go, make, hasntMade),
+        ),
+      ).toEqual(['word-3: frame holds made, a past participle inflection no structure admits'])
+    })
+
     it('reads a past form after have and an adverb as a past participle', () => {
       const haveNeverGone = newHomeHolding('We have never gone to my new home.')
 
@@ -301,9 +311,9 @@ describe('content gate check 6, grammar', () => {
     const structures = [...lessonOneStructures, structureOf('lesson-1', [], ['-ly', 'homes', 'be'])]
 
     expect(checkGrammar(contentOf({ structures }))).toEqual([
-      'structure "Grammar of lesson-1" lists -ly, which is neither a form of a frame word nor -s, -ed, -ing, -er, -est, plural, irregular past or past participle',
-      'structure "Grammar of lesson-1" lists homes, which is neither a form of a frame word nor -s, -ed, -ing, -er, -est, plural, irregular past or past participle',
-      'structure "Grammar of lesson-1" lists be, which is neither a form of a frame word nor -s, -ed, -ing, -er, -est, plural, irregular past or past participle',
+      'structure "Grammar of lesson-1" lists -ly, which is neither a form of a frame word, a contraction piece nor -s, -ed, -ing, -er, -est, plural, irregular past or past participle',
+      'structure "Grammar of lesson-1" lists homes, which is neither a form of a frame word, a contraction piece nor -s, -ed, -ing, -er, -est, plural, irregular past or past participle',
+      'structure "Grammar of lesson-1" lists be, which is neither a form of a frame word, a contraction piece nor -s, -ed, -ing, -er, -est, plural, irregular past or past participle',
     ])
   })
 
@@ -348,5 +358,121 @@ describe('content gate check 6, grammar', () => {
     const text = textOf('lesson-3', ['This is our home.'])
 
     expect(checkGrammar({ ...ourHomeFrom('lesson-3'), texts: [text] })).toEqual([])
+  })
+
+  describe('contraction pieces, cannot, whom and whose', () => {
+    const later = entryOf('word-2', 'leave', 'We leave home.', { partOfSpeech: 'verb' })
+    const pieceFrom = (lessonId: string, piece: string) => [
+      ...lessonOneStructures,
+      structureOf('lesson-1', ['can', 'who', 'it', 'will']),
+      structureOf(lessonId, [], [piece]),
+    ]
+    const newHomeHolding = (frame: string) =>
+      entryOf('word-1', 'new', frame, { partOfSpeech: 'adjective' })
+
+    it.each([
+      ["'m", "I'm at my new home.", "'m, an inflection"],
+      ["'re", "We're at my new home.", "'re, an inflection"],
+      ["'s", "It's my new home.", "'s, an inflection"],
+      ["n't", "We don't work at my new home.", "n't, an inflection"],
+      ["'ll", "We'll work at my new home.", "'ll, an inflection"],
+      ["possessive 's", "The school's food is new.", "'s, a possessive 's inflection"],
+      ['cannot', 'We cannot work at my new home.', 'cannot, an inflection'],
+    ])('fails %s one lesson before the structure that admits it', (piece, frame, holding) => {
+      expect(
+        checkGrammar(afterLessonOne(pieceFrom('lesson-3', piece), newHomeHolding(frame), later)),
+      ).toEqual([`word-1: frame holds ${holding} admitted after lesson-2`])
+    })
+
+    it.each([
+      ["'m", "I'm at my new home."],
+      ["'re", "We're at my new home."],
+      ["'s", "It's my new home."],
+      ["'ll", "We'll work at my new home."],
+      ["n't", "We don't work at my new home."],
+      ["possessive 's", "The school's food is new."],
+      ['cannot', 'We cannot work at my new home.'],
+    ])('passes %s from the lesson of the structure that admits it', (piece, frame) => {
+      expect(
+        checkGrammar(afterLessonOne(pieceFrom('lesson-2', piece), newHomeHolding(frame))),
+      ).toEqual([])
+    })
+
+    it.each([
+      ["can't", 'can'],
+      ["won't", 'will'],
+    ])("reads %s as %s and n't", (contraction, stem) => {
+      const structures = [
+        ...lessonOneStructures,
+        structureOf(
+          'lesson-1',
+          ['can', 'will'].filter((word) => word !== stem),
+          ["n't"],
+        ),
+        structureOf('lesson-3', [stem]),
+      ]
+      const holding = newHomeHolding(`We ${contraction} work at my new home.`)
+
+      expect(checkGrammar(afterLessonOne(structures, holding, later))).toEqual([
+        `word-1: frame holds ${stem}, a frame word admitted after lesson-2`,
+      ])
+    })
+
+    it('reads a curly apostrophe as a straight one', () => {
+      const curly = newHomeHolding('I\u2019m at my new home.')
+
+      expect(checkGrammar(afterLessonOne(pieceFrom('lesson-3', "'m"), curly, later))).toEqual([
+        "word-1: frame holds 'm, an inflection admitted after lesson-2",
+      ])
+    })
+
+    it("reads 's after a card adverb as the piece of be", () => {
+      const there = entryOf('word-1', 'there', 'We work there.', { partOfSpeech: 'adverb' })
+      const theresFood = entryOf('word-2', 'new', "There's food at my new home.", {
+        partOfSpeech: 'adjective',
+      })
+      const leave = entryOf('word-3', 'leave', 'We leave home.', { partOfSpeech: 'verb' })
+
+      expect(
+        checkGrammar(afterLessonOne(pieceFrom('lesson-4', "'s"), there, theresFood, leave)),
+      ).toEqual(["word-2: frame holds 's, an inflection admitted after lesson-3"])
+    })
+
+    it.each([
+      ['whom', 'We work for whom?'],
+      ['whose', 'Whose home is new?'],
+    ])('fails %s, which no structure admits', (word, frame) => {
+      expect(
+        checkGrammar(afterLessonOne(pieceFrom('lesson-1', 'cannot'), newHomeHolding(frame))),
+      ).toEqual([`word-1: frame holds ${word}, an inflection no structure admits`])
+    })
+
+    it('fails a definition holding a piece admitted after the lesson that teaches its word', () => {
+      const defined = entryOf('word-1', 'new', 'My home is new.', {
+        partOfSpeech: 'adjective',
+        definition: "you'll have this at home",
+      })
+
+      expect(checkGrammar(afterLessonOne(pieceFrom('lesson-3', "'ll"), defined, later))).toEqual([
+        "word-1: definition holds 'll, an inflection admitted after lesson-2",
+      ])
+    })
+
+    it('fails a lesson theme holding a piece admitted after the lesson', () => {
+      const content = afterLessonOne(
+        pieceFrom('lesson-3', "'ll"),
+        newHomeHolding('My home is new.'),
+        later,
+      )
+      const lessons = content.lessons.map((lesson) =>
+        lesson.content.id === 'lesson-2'
+          ? { ...lesson, content: { ...lesson.content, theme: "We'll work" } }
+          : lesson,
+      )
+
+      expect(checkGrammar({ ...content, lessons })).toEqual([
+        "lesson-2: theme holds 'll, an inflection admitted after lesson-2",
+      ])
+    })
   })
 })

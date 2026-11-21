@@ -99,7 +99,7 @@ Each frame follows the frame rule as lesson 1's does: its lemma once, in its own
 
 ### Lesson 5
 
-**Theme:** *Building a home*, es *Construir un hogar*. **Skill:** food, 5 %.
+**Theme:** *Build a home*, es *Construir un hogar*. **Skill:** food, 5 %.
 
 | Lemma | Part of speech | NGSL 1.2 rank | Frame | Gapped form | es gloss |
 |---|---|---|---|---|---|

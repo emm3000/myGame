@@ -1,6 +1,8 @@
 import { cardWordInflections } from './cardWordFormOf'
+import { contractionPieces } from './contractionPieces'
 import { frameWordsOf } from './frameWordsOf'
 import type { GateContent } from './GateContent'
+import { lessonPositionOf } from './lessonPositionOf'
 import { repeated } from './repeated'
 
 const unlistedLessonFailures = ({ grammar, curriculum }: GateContent): ReadonlyArray<string> =>
@@ -15,7 +17,7 @@ const orderFailures = ({ grammar, curriculum }: GateContent): ReadonlyArray<stri
   const admissions = grammar.structures.map(({ name, admittingLessonId }) => ({
     name,
     admittingLessonId,
-    position: curriculum.lessonIds.indexOf(admittingLessonId) + 1,
+    position: lessonPositionOf(curriculum, admittingLessonId),
   }))
   return admissions
     .filter(
@@ -30,16 +32,22 @@ const orderFailures = ({ grammar, curriculum }: GateContent): ReadonlyArray<stri
 
 const unknownInflectionFailures = ({ grammar, forms }: GateContent): ReadonlyArray<string> => {
   const frameWords = frameWordsOf(grammar)
-  const cardInflections: ReadonlyArray<string> = cardWordInflections
+  const pieceOrCardInflections: ReadonlyArray<string> = [
+    ...contractionPieces,
+    ...cardWordInflections,
+  ]
   const isFrameWordForm = (inflection: string): boolean =>
     !frameWords.has(inflection) &&
     [...(forms.get(inflection) ?? [])].some((word) => frameWords.has(word))
   return grammar.structures.flatMap(({ name, inflections }) =>
     inflections
-      .filter((inflection) => !cardInflections.includes(inflection) && !isFrameWordForm(inflection))
+      .filter(
+        (inflection) =>
+          !pieceOrCardInflections.includes(inflection) && !isFrameWordForm(inflection),
+      )
       .map(
         (inflection) =>
-          `structure "${name}" lists ${inflection}, which is neither a form of a frame word nor ${cardWordInflections.slice(0, -1).join(', ')} or ${cardWordInflections.at(-1)}`,
+          `structure "${name}" lists ${inflection}, which is neither a form of a frame word, a contraction piece nor ${cardWordInflections.slice(0, -1).join(', ')} or ${cardWordInflections.at(-1)}`,
       ),
   )
 }

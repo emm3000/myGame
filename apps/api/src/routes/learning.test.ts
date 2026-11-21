@@ -935,7 +935,7 @@ describe('the learning routes', () => {
         'the place where you live',
         'to do a job for money',
         'what people and animals eat',
-        'what you pay with when you buy things',
+        'what you pay with to buy things',
       ])
     })
 

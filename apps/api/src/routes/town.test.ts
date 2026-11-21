@@ -1949,7 +1949,7 @@ describe('the town route', () => {
         { shown: 'onTap', text: 'río', language: 'es' },
         {
           shown: 'onTap',
-          text: 'new information about something that has just happened',
+          text: 'new information about people, places and the world',
           language: 'en',
         },
       ])
