@@ -1,4 +1,4 @@
-import type { Stocks } from '../Stocks'
+import type { Stocks } from '../resources/Stocks'
 import type { WorkTarget } from './BuildingWork'
 
 export type WaitingWork = WorkTarget & {

@@ -1,10 +1,10 @@
 import { assert, describe, expect, it } from 'vitest'
-import { Instant } from '../time/Instant'
-import type { BuildingLevels } from './building/BuildingLevels'
+import { Instant } from '../../time/Instant'
+import type { BuildingLevels } from '../building/BuildingLevels'
+import type { TownSettings } from '../TownSettings'
+import type { TownSkill } from '../TownSkill'
+import { plainTownSettings, townCatalogOf } from '../testing/townCatalogOf'
 import { deriveResourceRates } from './deriveResourceRates'
-import type { TownSettings } from './TownSettings'
-import type { TownSkill } from './TownSkill'
-import { plainTownSettings, townCatalogOf } from './testing/townCatalogOf'
 
 const MILLISECONDS_PER_DAY = 86_400_000
 

@@ -1,8 +1,8 @@
 import type { DomainError } from '../DomainError'
 import { ok, type Result } from '../Result'
-import { accrueTown } from './accrueTown'
 import type { TownCatalog } from './ports/TownCatalog'
-import { rebaseFullSince } from './rebaseFullSince'
+import { accrueTown } from './resources/accrueTown'
+import { rebaseFullSince } from './resources/rebaseFullSince'
 import type { ChangedTown, Town } from './Town'
 import type { TownSkill } from './TownSkill'
 

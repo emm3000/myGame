@@ -1,15 +1,15 @@
-import type { DomainError } from '../DomainError'
-import { ok, type Result } from '../Result'
-import { SEASONS_PER_YEAR } from '../season/seasonAt'
+import type { DomainError } from '../../DomainError'
+import { ok, type Result } from '../../Result'
+import { SEASONS_PER_YEAR } from '../../season/seasonAt'
+import type { TownCatalog } from '../ports/TownCatalog'
+import type { Town } from '../Town'
 import { deriveStorageCapacity } from './deriveStorageCapacity'
 import type { FullSince } from './FullSince'
-import type { TownCatalog } from './ports/TownCatalog'
 import type { ResourceKind } from './ResourceKind'
 import { resourceKinds } from './resourceKinds'
 import { fullSinceOf, type Stores } from './Stores'
 import { storedStoresOf } from './storedStoresOf'
 import { storesAfterSeasonSegment } from './storesAfterSeasonSegment'
-import type { Town } from './Town'
 
 export type FullAt = FullSince
 

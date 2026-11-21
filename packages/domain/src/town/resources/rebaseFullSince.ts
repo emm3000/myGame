@@ -1,11 +1,11 @@
-import type { DomainError } from '../DomainError'
-import { ok, type Result } from '../Result'
-import type { Instant } from '../time/Instant'
+import type { DomainError } from '../../DomainError'
+import { ok, type Result } from '../../Result'
+import type { Instant } from '../../time/Instant'
+import type { TownCatalog } from '../ports/TownCatalog'
+import type { Town } from '../Town'
 import { deriveStorageCapacity } from './deriveStorageCapacity'
 import type { FullSince } from './FullSince'
-import type { TownCatalog } from './ports/TownCatalog'
 import type { ResourceKind } from './ResourceKind'
-import type { Town } from './Town'
 
 export const rebaseFullSince = (
   accrued: FullSince,

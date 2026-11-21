@@ -1,4 +1,4 @@
-import { Instant } from '../time/Instant'
+import { Instant } from '../../time/Instant'
 
 export type Store = {
   readonly amount: number

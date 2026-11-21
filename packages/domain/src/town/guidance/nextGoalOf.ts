@@ -1,13 +1,13 @@
 import type { DomainError } from '../../DomainError'
 import { err, ok, type Result } from '../../Result'
 import type { Instant } from '../../time/Instant'
-import { accrueTown } from '../accrueTown'
 import type { BuildingKind } from '../building/BuildingKind'
 import type { BuildingLevel } from '../building/BuildingLevel'
 import { derivePeople } from '../derivePeople'
 import type { TownCatalog } from '../ports/TownCatalog'
-import { resourceKinds } from '../resourceKinds'
-import type { Stocks } from '../Stocks'
+import { accrueTown } from '../resources/accrueTown'
+import { resourceKinds } from '../resources/resourceKinds'
+import type { Stocks } from '../resources/Stocks'
 import type { Town } from '../Town'
 
 export type GoalShortfall = {
