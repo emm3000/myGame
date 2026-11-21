@@ -1,7 +1,7 @@
 import { type BandStart, Instant } from '@mygame/domain'
 import { asc, type Column, eq, type SQL, sql } from 'drizzle-orm'
 import { z } from 'zod'
-import { holdoutCheckOf } from '../../holdout/infrastructure/postgres/holdoutCheckFromRow'
+import { holdoutCheckFromRow } from '../../holdout/infrastructure/postgres/holdoutCheckFromRow'
 import {
   bandStarts,
   heldOutWords,
@@ -79,5 +79,5 @@ export const bandStartsFrom = (aggregate: unknown): ReadonlyArray<BandStart> =>
     band,
     startedAt: Instant.fromEpochMilliseconds(startedAt.getTime()),
     heldOutWords: heldOutWords.map(({ headword }) => headword),
-    checks: checks.map(({ words, ...check }) => holdoutCheckOf(check, words)),
+    checks: checks.map(({ words, ...check }) => holdoutCheckFromRow(check, words)),
   }))

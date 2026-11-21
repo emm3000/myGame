@@ -30,7 +30,7 @@ const required = <T>(value: T | null, column: string): T => {
   return value
 }
 
-export const holdoutCheckOf = (
+export const holdoutCheckFromRow = (
   row: StoredHoldoutCheck,
   asked: ReadonlyArray<StoredHoldoutCheckWord>,
 ): HoldoutCheck => {
