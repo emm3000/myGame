@@ -12,8 +12,8 @@ import { readJsonBody } from '#platform/infrastructure/http/readJsonBody'
 import { respondRefusal } from '#platform/infrastructure/http/respondRefusal'
 import { jsonBody } from '#platform/infrastructure/http/responseDeclarations'
 import { signedInRoute } from '#platform/infrastructure/http/signedInRoute'
+import { mutateHoldoutCheck } from '../../application/mutateHoldoutCheck'
 import { checkNotDue, checkPath, checksResponse } from './holdoutCheckComponents'
-import { mutateHoldoutCheck } from './readChecksAfter'
 import { respondHoldoutChecks } from './respondHoldoutChecks'
 
 export const answerHoldoutCheckDeclaration = createRoute(
