@@ -58,9 +58,9 @@ export class Town {
     readonly address: TownAddress,
     private readonly state: TownState,
   ) {
-    this.buildingWork = new TownBuildingWork(this, Town.changed)
-    this.hiring = new TownHiring(this, Town.changed)
-    this.jobs = new TownJobs(this, Town.changed)
+    this.buildingWork = new TownBuildingWork(this)
+    this.hiring = new TownHiring(this)
+    this.jobs = new TownJobs(this)
   }
 
   static found({ id, playerId, name, address, startingStocks, skills, at }: TownFounding): Town {
@@ -160,7 +160,7 @@ export class Town {
   }
 
   earnSkill(skill: TownSkill, stocksAtEarn: Stocks): Town {
-    return Town.changed(this, {
+    return this.changedBy({
       skills: [...this.skills, skill],
       stocks: stocksAtEarn,
       storedAt: skill.earnedAt,
@@ -168,10 +168,10 @@ export class Town {
   }
 
   withFullSince(fullSince: FullSince): Town {
-    return Town.changed(this, { fullSince })
+    return this.changedBy({ fullSince })
   }
 
-  private static changed(town: Town, change: Partial<TownState>): Town {
-    return new Town(town.id, town.playerId, town.name, town.address, { ...town.state, ...change })
+  changedBy(change: Partial<TownState>): Town {
+    return new Town(this.id, this.playerId, this.name, this.address, { ...this.state, ...change })
   }
 }

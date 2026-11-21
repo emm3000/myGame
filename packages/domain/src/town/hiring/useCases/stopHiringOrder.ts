@@ -41,7 +41,11 @@ export const stopHiringOrder = async (
   if (!stopped.ok) {
     return stopped
   }
-  const rebased = rebaseFullSince(accrual.value.fullSince, stopped.value.town, catalog)
+  const rebased = rebaseFullSince(
+    accrual.value.fullSince,
+    town.changedBy(stopped.value.state),
+    catalog,
+  )
   if (!rebased.ok) {
     return rebased
   }

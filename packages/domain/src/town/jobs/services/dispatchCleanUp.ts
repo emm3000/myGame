@@ -80,5 +80,5 @@ export const dispatchCleanUp = async (
   if (!sent.ok) {
     return sent
   }
-  return ok({ town: sent.value, events, job: job.value })
+  return ok({ town: town.changedBy(sent.value), events, job: job.value })
 }

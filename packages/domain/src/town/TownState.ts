@@ -9,6 +9,7 @@ import type { JobSlot } from './jobs/Job'
 import type { FullSince } from './resources/FullSince'
 import type { Stocks } from './resources/Stocks'
 import type { TownAddress } from './TownAddress'
+import type { TownEvent } from './TownEvent'
 import type { TownId } from './TownId'
 import type { TownName } from './TownName'
 import type { TownSkill } from './TownSkill'
@@ -31,4 +32,9 @@ export type StoredTown = TownState & {
   readonly playerId: PlayerId
   readonly name: TownName
   readonly address: TownAddress
+}
+
+export type TownStateChange = {
+  readonly state: Partial<TownState>
+  readonly events: ReadonlyArray<TownEvent>
 }

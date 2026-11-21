@@ -33,18 +33,20 @@ export const callJobBack = async (
   if (!resolved.ok) {
     return resolved
   }
-  const called = resolved.value.town.jobs.callBack(sentAt, now, catalog)
+  const town = resolved.value.town
+  const called = town.jobs.callBack(sentAt, now, catalog)
   if (!called.ok) {
     return called
   }
+  const calledBack = town.changedBy(called.value)
   const saved = await saveChangedTown(
-    { town: called.value, events: resolved.value.events },
+    { town: calledBack, events: resolved.value.events },
     towns,
     news,
   )
   if (!saved.ok) {
     return saved
   }
-  const cancelled = await cleanUps.cancel(called.value.id, sentAt)
-  return cancelled.ok ? ok(called.value) : cancelled
+  const cancelled = await cleanUps.cancel(calledBack.id, sentAt)
+  return cancelled.ok ? ok(calledBack) : cancelled
 }

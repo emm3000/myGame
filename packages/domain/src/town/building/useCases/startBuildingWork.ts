@@ -137,7 +137,7 @@ const startWorkAt = (
   if (!started.ok) {
     return started
   }
-  return rebaseFullSince(accrual.value.fullSince, started.value, catalog)
+  return rebaseFullSince(accrual.value.fullSince, town.changedBy(started.value), catalog)
 }
 
 export const startBuildingWork = async (

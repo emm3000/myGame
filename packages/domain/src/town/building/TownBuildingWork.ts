@@ -2,12 +2,12 @@ import type { DomainError } from '../../DomainError'
 import { err, ok, type Result } from '../../Result'
 import { Duration } from '../../time/Duration'
 import type { Instant } from '../../time/Instant'
+import type { Hires } from '../hiring/Hires'
 import type { TownCatalog } from '../ports/TownCatalog'
 import { chargedStocks } from '../resources/chargedStocks'
 import { creditedStocks, type Stocks, stocksOf } from '../resources/Stocks'
-import type { ChangedTown, Town } from '../Town'
 import type { TownEvent } from '../TownEvent'
-import type { TownState } from '../TownState'
+import type { TownState, TownStateChange } from '../TownState'
 import {
   type BusyWorkSlot,
   idleWorkSlot,
@@ -69,8 +69,9 @@ const workStoppedAt = (work: PaidWork, at: Instant): TownEvent => ({
 
 export class TownBuildingWork {
   constructor(
-    private readonly town: Town,
-    private readonly changed: (town: Town, change: Partial<TownState>) => Town,
+    private readonly town: Pick<TownState, 'buildingLevels' | 'workSlot' | 'waitingList'> & {
+      readonly staffedHires: Hires
+    },
   ) {}
 
   room(waitingListCap: number): Result<void, DomainError> {
@@ -86,7 +87,7 @@ export class TownBuildingWork {
     stocksAtNow: Stocks,
     now: Instant,
     waitingListCap: number,
-  ): Result<Town, DomainError> {
+  ): Result<Partial<TownState>, DomainError> {
     const room = this.room(waitingListCap)
     if (!room.ok) {
       return room
@@ -97,19 +98,13 @@ export class TownBuildingWork {
     }
     const stocks = charged.value
     if (this.town.workSlot.kind === 'busy') {
-      return ok(
-        this.changed(this.town, {
-          stocks,
-          storedAt: now,
-          waitingList: [...this.town.waitingList, work],
-        }),
-      )
+      return ok({ stocks, storedAt: now, waitingList: [...this.town.waitingList, work] })
     }
     const slot = busySlotOf(work, now)
     if (!slot.ok) {
       return slot
     }
-    return ok(this.changed(this.town, { stocks, storedAt: now, workSlot: slot.value }))
+    return ok({ stocks, storedAt: now, workSlot: slot.value })
   }
 
   stop(
@@ -117,7 +112,7 @@ export class TownBuildingWork {
     stocksAtNow: Stocks,
     now: Instant,
     catalog: TownCatalog,
-  ): Result<ChangedTown, DomainError> {
+  ): Result<TownStateChange, DomainError> {
     const { workSlot: slot, waitingList } = this.town
     if (slot.kind === 'busy' && isWorkOf(target, slot)) {
       return this.stoppedWith(slot, idleWorkSlot, waitingList, stocksAtNow, now, catalog)
@@ -131,36 +126,32 @@ export class TownBuildingWork {
     return this.stoppedWith(stoppedWork, slot, rest, stocksAtNow, now, catalog)
   }
 
-  complete(stocksAtFinish: Stocks): Result<Town, DomainError> {
+  complete(stocksAtFinish: Stocks): Result<Partial<TownState>, DomainError> {
     const finished = this.town.workSlot
     if (finished.kind === 'idle') {
-      return ok(this.town)
+      return ok({})
     }
     const buildingLevels = { ...this.town.buildingLevels, [finished.building]: finished.level }
     const [next, ...waitingList] = this.town.waitingList
     if (next === undefined) {
-      return ok(
-        this.changed(this.town, {
-          stocks: stocksAtFinish,
-          storedAt: finished.finishesAt,
-          buildingLevels,
-          workSlot: idleWorkSlot,
-        }),
-      )
+      return ok({
+        stocks: stocksAtFinish,
+        storedAt: finished.finishesAt,
+        buildingLevels,
+        workSlot: idleWorkSlot,
+      })
     }
     const slot = busySlotOf(next, finished.finishesAt)
     if (!slot.ok) {
       return slot
     }
-    return ok(
-      this.changed(this.town, {
-        stocks: stocksAtFinish,
-        storedAt: finished.finishesAt,
-        buildingLevels,
-        workSlot: slot.value,
-        waitingList,
-      }),
-    )
+    return ok({
+      stocks: stocksAtFinish,
+      storedAt: finished.finishesAt,
+      buildingLevels,
+      workSlot: slot.value,
+      waitingList,
+    })
   }
 
   private stoppedWith(
@@ -170,7 +161,7 @@ export class TownBuildingWork {
     stocksAtNow: Stocks,
     now: Instant,
     catalog: TownCatalog,
-  ): Result<ChangedTown, DomainError> {
+  ): Result<TownStateChange, DomainError> {
     const rechecked = recheckWaitingList(
       this.town.buildingLevels,
       workSlot,
@@ -187,11 +178,11 @@ export class TownBuildingWork {
     }
     const stopped = [stoppedWork, ...rechecked.value.stopped]
     return ok({
-      town: this.changed(this.town, {
+      state: {
         stocks: creditedStocks(stocksAtNow, refundOf(stopped)),
         storedAt: now,
         ...resumed.value,
-      }),
+      },
       events: stopped.map((work) => workStoppedAt(work, now)),
     })
   }
