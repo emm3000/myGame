@@ -31,6 +31,7 @@ const lessonOf = (words: ReadonlyArray<LessonWord>): Lesson => ({
   skill: { resource: 'food', ratePercent: 5 },
   isStudied: true,
   words: [...words],
+  enteringWordCount: words.length,
 })
 
 const twoWords = lessonOf([readableWord('home'), readableWord('town')])
@@ -90,6 +91,7 @@ it('keeps a released lesson title in Spanish for an es player in the English pha
     requiredSchoolLevel: 1,
     isStudied: true,
     words: twoWords.words,
+    enteringWordCount: twoWords.enteringWordCount,
   }
   renderAppAt(
     '/school/released-2-1',

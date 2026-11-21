@@ -311,7 +311,7 @@ class TownLessonsRepositoryTest {
         const val FLAT: String = """{"level":1,"nextLevel":null}"""
         const val LESSON: String =
             """{"id":"lesson-1","theme":"A day in town","durationSeconds":150,"requiredSchoolLevel":2,""" +
-                """"skill":{"resource":"food","ratePercent":5},"isStudied":true,""" +
+                """"skill":{"resource":"food","ratePercent":5},"enteringWordCount":1,"isStudied":true,""" +
                 """"words":[{"wordId":"word-1","standing":"recognize",""" +
                 """"reading":{"word":"home","frame":[{"text":"This is my home.","support":null}]},""" +
                 """"support":{"shown":"beside","text":"hogar","language":"es"}},""" +

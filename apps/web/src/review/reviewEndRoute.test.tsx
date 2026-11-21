@@ -35,6 +35,7 @@ const lessonOf = (number: number, overrides: Partial<Lesson> = {}): Lesson => ({
     reading: null,
     support: { shown: 'beside', text: 'gloss', language: 'es' },
   })),
+  enteringWordCount: 5,
   ...overrides,
 })
 

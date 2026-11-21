@@ -36,6 +36,7 @@ const lessonOf = (number: number, wordCount: number): TownOverview['lessons'][nu
     reading: null,
     support: { shown: 'beside', text: 'gloss', language: 'es' },
   })),
+  enteringWordCount: wordCount,
 })
 
 const lessons = [lessonOf(1, 5), lessonOf(2, 1)]
@@ -271,6 +272,7 @@ const releasedSetTwoOfBandTwo = (isStudied: boolean): TownOverview['releasedLess
   requiredSchoolLevel: 1,
   isStudied,
   words: [],
+  enteringWordCount: 0,
 })
 
 const releasedRunning = townAt(

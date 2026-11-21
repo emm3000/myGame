@@ -31,6 +31,7 @@ const lessonOne = {
       support: besideSchool,
     },
   ],
+  enteringWordCount: 2,
 }
 
 const earnedFood = {
@@ -533,6 +534,7 @@ describe('TownOverviewSchema holdout', () => {
     requiredSchoolLevel: 1,
     isStudied: false,
     words: lessonOne.words,
+    enteringWordCount: lessonOne.enteringWordCount,
   }
 
   it('reads the due checks by band and week', () => {

@@ -113,7 +113,7 @@ const lessonWordsOf = (
   lesson: SchoolLesson,
   learner: LearnerState,
   lessons: LessonLibrary,
-): Pick<LessonState, 'isStudied' | 'words'> => {
+): Pick<LessonState, 'isStudied' | 'words' | 'enteringWordCount'> => {
   const { heldCards, heldOutWords, lessonSlot, placedOutBands, scaffold } = learner
   const isRunning = lessonSlot.kind === 'busy' && lessonSlot.lessonId === lesson.id
   const readable = readableWordsOf(lesson, heldOutWords, heldCards, isRunning)
@@ -134,6 +134,7 @@ const lessonWordsOf = (
         { cards: heldCards, placedOutBands, scaffold, lessons },
       ),
     ),
+    enteringWordCount: entering.length,
   }
 }
 

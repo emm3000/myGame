@@ -58,6 +58,7 @@ const lessonOf = (number: number, words: ReadonlyArray<LessonWord>): Lesson => (
   skill: { resource: 'food', ratePercent: 5 },
   isStudied: words.length > 0,
   words: [...words],
+  enteringWordCount: words.length,
 })
 
 const unreadLessonOf = (number: number): Lesson =>
@@ -684,6 +685,7 @@ const releasedSetTwo: ReleasedLesson = {
   requiredSchoolLevel: 1,
   isStudied: false,
   words: [readableWord('neighbor'), readableWord('street')],
+  enteringWordCount: 2,
 }
 
 const releasedTitle = es.schoolReleasedTitle({ band: 2, number: 2 })

@@ -37,6 +37,7 @@ const lessonOf = (number: number): TownOverview['lessons'][number] => ({
       support: { shown: 'beside', text: 'gloss', language: 'es' },
     },
   ],
+  enteringWordCount: 1,
 })
 
 const lessons = [lessonOf(1), lessonOf(2)]

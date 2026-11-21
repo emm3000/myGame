@@ -53,6 +53,7 @@ const lessonOf = (number: number, overrides: Partial<Lesson> = {}): Lesson => ({
     reading: null,
     support: { shown: 'beside', text: 'gloss', language: 'es' },
   })),
+  enteringWordCount: 5,
   ...overrides,
 })
 
@@ -419,6 +420,30 @@ it('marks a lesson past the cap before the tap with the words in learning', asyn
   )
 })
 
+it('marks no cap on a lesson whose words entering learning fit the cap though its held-out words would not', async () => {
+  await showSchool(
+    schoolOf({
+      lessons: [lessonOf(1, { enteringWordCount: 3 })],
+      learning: { cap: 15, inLearning: 12, retainedWords: null, nextInLearningDueAt: null },
+    }),
+  )
+
+  expect(accessibleDescriptionOf(studyButtonOf(1))).toBe('')
+})
+
+it('names the words entering learning in the cap line of a lesson past the cap', async () => {
+  await showSchool(
+    schoolOf({
+      lessons: [lessonOf(1, { enteringWordCount: 4 })],
+      learning: { cap: 15, inLearning: 12, retainedWords: null, nextInLearningDueAt: null },
+    }),
+  )
+
+  expect(accessibleDescriptionOf(studyButtonOf(1))).toBe(
+    es.schoolLessonCapReached({ inLearning: 12, cap: 15, count: 4 }),
+  )
+})
+
 it('refuses a lesson past the cap and names the cap', async () => {
   await showSchool(schoolOf({}), {
     startLesson: async () => ({
@@ -516,9 +541,24 @@ const fullCapBefore = (wordCount: number): Partial<TownOverview> => ({
   lessons: [
     lessonOf(1, {
       words: wordsOf(...Array.from({ length: wordCount }, (): WordStanding => 'notStarted')),
+      enteringWordCount: wordCount,
     }),
   ],
   learning: { ...fullCapWaiting, inLearning: 15 },
+})
+
+it('names the words entering learning in the full-cap line of the next lesson', async () => {
+  await showSchool(
+    schoolOf({
+      lessons: [lessonOf(1, { enteringWordCount: 4 })],
+      learning: { ...fullCapWaiting, inLearning: 12 },
+      nextStep: reviewsDue,
+    }),
+  )
+
+  expect(
+    screen.getByText(isDrawnAlone(es.schoolLearningFull({ count: 4, wordCount: 4 }), 'es')),
+  ).toBeDefined()
 })
 
 it.each([
@@ -1122,6 +1162,7 @@ const releasedOf = (position: number, overrides: Partial<ReleasedLesson> = {}): 
   requiredSchoolLevel: 1,
   isStudied: false,
   words: wordsOf('notStarted', 'notStarted', 'notStarted'),
+  enteringWordCount: 3,
   ...overrides,
 })
 

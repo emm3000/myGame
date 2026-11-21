@@ -11,4 +11,5 @@ export const ReleasedLessonStateSchema = z.strictObject({
   requiredSchoolLevel: BuildingLevelSchema,
   isStudied: z.boolean(),
   words: z.array(LessonWordStateSchema),
+  enteringWordCount: WholeCountSchema,
 })

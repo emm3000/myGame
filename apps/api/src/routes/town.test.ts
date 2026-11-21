@@ -1873,6 +1873,7 @@ describe('the town route', () => {
           requiredSchoolLevel: 1,
           isStudied: false,
           words: [shelved?.words.find(({ wordId }) => wordId === heldOut().id)],
+          enteringWordCount: 1,
         },
       ])
     })

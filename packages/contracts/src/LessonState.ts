@@ -29,4 +29,5 @@ export const LessonStateSchema = z.strictObject({
   }),
   isStudied: z.boolean(),
   words: z.array(LessonWordStateSchema),
+  enteringWordCount: WholeCountSchema,
 })
