@@ -61,6 +61,8 @@ import {
   revealSeconds,
   skeletonBlocks,
 } from '../design-system/loadingSkeleton.testSupport'
+import { finishSeparator } from '../time/finishSeparator'
+import { formatTimeLeft } from '../time/formatTimeLeft'
 import { inkPills } from './inkPills.testSupport'
 
 const readAt = Date.parse(knownTown.readAt)
@@ -502,7 +504,10 @@ const refusedPastTheCapIn = async (
   language: Pick<TownOverview, 'scaffold' | 'chromePhase'>,
 ): Promise<string | null | undefined> => {
   await showSchool(
-    schoolOf({ ...language, learning: { ...fullCapWaiting, inLearning: 0 } }),
+    schoolOf({
+      ...language,
+      learning: { ...fullCapWaiting, inLearning: 0, nextInLearningDueAt: instantAfter(20 * 3600) },
+    }),
     capRefused,
   )
   fireEvent.click(screen.getByRole('button', { name: /· 5:00$/ }))
@@ -515,7 +520,7 @@ it('keeps the cap refusal in Spanish for an es player in the English phase', asy
     es.refusalLearningCapNextWordDue({
       learningCap: 15,
       cardsInLearning: 12,
-      timeLeft: nextWordDueIn,
+      timeLeft: `${formatTimeLeft(20 * 3600)} ${finishSeparator} ${es.statusTomorrow({ time: '06:00' })}`,
     }),
   )
 })
@@ -525,7 +530,7 @@ it('writes the cap refusal in English under none', async () => {
     en.refusalLearningCapNextWordDue({
       learningCap: 15,
       cardsInLearning: 12,
-      timeLeft: nextWordDueIn,
+      timeLeft: `${formatTimeLeft(20 * 3600)} ${finishSeparator} ${en.statusTomorrow({ time: '06:00' })}`,
     }),
   )
 })

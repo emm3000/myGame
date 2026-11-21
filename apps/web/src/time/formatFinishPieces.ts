@@ -1,11 +1,11 @@
-import type { ChromeCatalog } from '../copy/PlayerCopy'
+import type { FixedLinePieces } from '../copy/PlayerCopy'
 import { formatClock } from './formatClock'
 import { formatTimeLeft } from './formatTimeLeft'
 
 const secondsPerHour = 3600
 
 export function formatFinishPieces(
-  catalog: ChromeCatalog,
+  catalog: FixedLinePieces,
   remainingSeconds: number,
   now: Date,
 ): ReadonlyArray<string> {

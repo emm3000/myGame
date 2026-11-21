@@ -1,13 +1,13 @@
 import type { ResourceKind } from '@mygame/contracts'
-import type { ChromeCatalog } from '../copy/PlayerCopy'
+import type { FixedLinePieces } from '../copy/PlayerCopy'
 
-const townResourceNames: Readonly<Record<ResourceKind, (catalog: ChromeCatalog) => string>> = {
+const townResourceNames: Readonly<Record<ResourceKind, (catalog: FixedLinePieces) => string>> = {
   money: (catalog) => catalog.namesTownResourcesMoney(),
   food: (catalog) => catalog.namesTownResourcesFood(),
   power: (catalog) => catalog.namesTownResourcesPower(),
   material: (catalog) => catalog.namesTownResourcesMaterial(),
 }
 
-export function townResourceNameOf(catalog: ChromeCatalog, resource: ResourceKind): string {
+export function townResourceNameOf(catalog: FixedLinePieces, resource: ResourceKind): string {
   return townResourceNames[resource](catalog)
 }

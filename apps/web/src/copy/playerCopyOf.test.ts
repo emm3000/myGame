@@ -87,11 +87,11 @@ it('refuses a chrome line as fixed copy', () => {
   expect(copy.fixedCopy((catalog) => catalog.shellNavigationReport()).text).toBe('Informe')
 })
 
-it('hands a fixed-copy line the chrome of the scaffold for its pieces in the English phase', () => {
+it('hands a fixed-copy line the pieces of the scaffold in the English phase', () => {
   const rates = playerCopyOf({ scaffold: 'es', chromePhase: 'english' }).fixedCopy(
-    (catalog, scaffoldChrome) =>
+    (catalog, pieces) =>
       catalog.reviewSkillRates({
-        resource: scaffoldChrome.namesTownResourcesFood(),
+        resource: pieces.namesTownResourcesFood(),
         before: 120,
         after: 126,
       }),
@@ -100,4 +100,11 @@ it('hands a fixed-copy line the chrome of the scaffold for its pieces in the Eng
   expect(rates.text).toBe(
     es.reviewSkillRates({ resource: es.namesTownResourcesFood(), before: 120, after: 126 }),
   )
+})
+
+it('refuses a chrome line passed as a piece of a fixed-copy line', () => {
+  const copy = playerCopyOf({ scaffold: 'es', chromePhase: 'english' })
+
+  // @ts-expect-error review.title is chrome, and a fixed line's pieces hold only its times and resource names
+  expect(copy.fixedCopy((_, pieces) => pieces.reviewTitle()).text).toBe('Repaso')
 })

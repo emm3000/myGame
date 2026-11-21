@@ -17,6 +17,7 @@ import { expect, it } from 'vitest'
 import type { ApiClient, ApiOutcome } from '../api/apiClient'
 import { renderAppAt } from '../auth/renderAppAt.testSupport'
 import { knownPlayer, knownTown, stubApiClient } from '../auth/stubApiClient.testSupport'
+import { shownLinesDrawnAlone } from '../town/lineDrawnAlone.testSupport'
 
 const scaffoldLines: Readonly<Record<Scaffold, string>> = {
   es: scaffoldEs(),
@@ -145,15 +146,22 @@ it('keeps the settings and the sign-out in Spanish for an es player in the Engli
   renderAppAt('/settings', signedInIn({ scaffold: 'es', chromePhase: 'english' }))
 
   expect(await screen.findByRole('heading', { level: 1, name: es.settingsTitle() })).toBeTruthy()
-  expect(screen.getByRole('group', { name: es.scaffoldLabel() })).toBeTruthy()
-  expect(screen.getByRole('button', { name: es.shellSignOut() })).toBeTruthy()
+  expect(shownLinesDrawnAlone(es.settingsTitle(), 'es')).toHaveLength(1)
+  expect(
+    screen.getByRole('group', { name: es.scaffoldLabel() }).closest('[lang]')?.getAttribute('lang'),
+  ).toBe('es')
+  expect(shownLinesDrawnAlone(es.settingsCardsKept(), 'es')).toHaveLength(1)
+  expect(shownLinesDrawnAlone(es.shellSignOut(), 'es')).toHaveLength(1)
 })
 
 it('draws the settings and the sign-out in English under none', async () => {
   renderAppAt('/settings', signedInIn({ scaffold: 'none', chromePhase: 'english' }))
 
   expect(await screen.findByRole('heading', { level: 1, name: en.settingsTitle() })).toBeTruthy()
-  expect(screen.getByRole('group', { name: en.scaffoldLabel() })).toBeTruthy()
-  expect(screen.getByText(en.settingsCardsKept())).toBeTruthy()
-  expect(screen.getByRole('button', { name: en.shellSignOut() })).toBeTruthy()
+  expect(shownLinesDrawnAlone(en.settingsTitle(), 'en')).toHaveLength(1)
+  expect(
+    screen.getByRole('group', { name: en.scaffoldLabel() }).closest('[lang]')?.getAttribute('lang'),
+  ).toBe('en')
+  expect(shownLinesDrawnAlone(en.settingsCardsKept(), 'en')).toHaveLength(1)
+  expect(shownLinesDrawnAlone(en.shellSignOut(), 'en')).toHaveLength(1)
 })
