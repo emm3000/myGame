@@ -1,5 +1,6 @@
 import { expect, it } from 'vitest'
 import { knownTown } from '../auth/stubApiClient.testSupport'
+import { firstHireEntries } from './hireCardOf'
 import { liveTownAt } from './liveTown'
 import { townRepaintDelayMsOf } from './townRepaintDelayMsOf'
 
@@ -21,15 +22,15 @@ const townWith = (lessonFinishSeconds: number, nextDueSeconds: number | null) =>
   )
 
 it("repaints every second in a countdown's last minute", () => {
-  expect(townRepaintDelayMsOf(townWith(45, null))).toBe(1000)
+  expect(townRepaintDelayMsOf(townWith(45, null), firstHireEntries)).toBe(1000)
 })
 
 it('ignores a countdown already at zero', () => {
-  expect(townRepaintDelayMsOf(townWith(0, 600))).toBe(60_000)
+  expect(townRepaintDelayMsOf(townWith(0, 600), firstHireEntries)).toBe(60_000)
 })
 
 it('repaints once a minute with every countdown at zero', () => {
-  expect(townRepaintDelayMsOf(townWith(0, null))).toBe(60_000)
+  expect(townRepaintDelayMsOf(townWith(0, null), firstHireEntries)).toBe(60_000)
 })
 
 const jobInstantOfPhase = {
@@ -61,15 +62,15 @@ const townWithJob = (phase: keyof typeof jobInstantOfPhase, nextSeconds: number)
   )
 
 it("follows the countdown to a job's arrival while its team is on the way", () => {
-  expect(townRepaintDelayMsOf(townWithJob('outbound', 45))).toBe(1000)
+  expect(townRepaintDelayMsOf(townWithJob('outbound', 45), firstHireEntries)).toBe(1000)
 })
 
 it("follows the countdown to a job's leaving while its team works", () => {
-  expect(townRepaintDelayMsOf(townWithJob('working', 30))).toBe(1000)
+  expect(townRepaintDelayMsOf(townWithJob('working', 30), firstHireEntries)).toBe(1000)
 })
 
 it("follows the countdown to a job's return while its team comes back", () => {
-  expect(townRepaintDelayMsOf(townWithJob('returning', 90))).toBe(30_000)
+  expect(townRepaintDelayMsOf(townWithJob('returning', 90), firstHireEntries)).toBe(30_000)
 })
 
 it("repaints every second in the season's last minute", () => {
@@ -86,7 +87,7 @@ it("repaints every second in the season's last minute", () => {
     },
     0,
   )
-  expect(townRepaintDelayMsOf(town)).toBe(1000)
+  expect(townRepaintDelayMsOf(town, firstHireEntries)).toBe(1000)
 })
 
 const materialShortByOne = {
@@ -96,7 +97,7 @@ const materialShortByOne = {
 
 it("repaints every second in a ready minute's last minute", () => {
   const town = liveTownAt({ ...knownTown, stocks: materialShortByOne }, 15)
-  expect(townRepaintDelayMsOf(town)).toBe(1000)
+  expect(townRepaintDelayMsOf(town, firstHireEntries)).toBe(1000)
 })
 
 it('ignores the ready minute of a card blocked by something other than resources', () => {
@@ -108,7 +109,7 @@ it('ignores the ready minute of a card blocked by something other than resources
     },
     15,
   )
-  expect(townRepaintDelayMsOf(town)).toBe(60_000)
+  expect(townRepaintDelayMsOf(town, firstHireEntries)).toBe(60_000)
 })
 
 it("repaints every second in a hire's ready minute's last minute", () => {
@@ -124,5 +125,66 @@ it("repaints every second in a hire's ready minute's last minute", () => {
     },
     15,
   )
-  expect(townRepaintDelayMsOf(town)).toBe(1000)
+  expect(townRepaintDelayMsOf(town, firstHireEntries)).toBe(1000)
+})
+
+const officeOpen = { ...knownTown.buildings, office: { ...knownTown.buildings.office, level: 1 } }
+
+const moneyAt = (amount: number) => ({
+  ...knownTown.stocks,
+  money: { ...knownTown.stocks.money, amount },
+})
+
+it('follows the ready minute of the count the player typed for a hire', () => {
+  const town = liveTownAt(
+    {
+      ...knownTown,
+      stocks: moneyAt(119),
+      buildings: officeOpen,
+      work: {
+        slot: {
+          building: 'farm',
+          level: 1,
+          cost: { money: 60, food: 40, power: 0, material: 80 },
+          startsAt: finishesAfter(-60),
+          finishesAt: finishesAfter(7200),
+        },
+        waitingList: [],
+        cap: 0,
+      },
+    },
+    15,
+  )
+  expect(townRepaintDelayMsOf(town, { worker: '3', truck: '1' })).toBe(1000)
+})
+
+it('ignores the ready minute of a hire while the office is busy', () => {
+  const town = liveTownAt(
+    {
+      ...knownTown,
+      stocks: moneyAt(39),
+      buildings: officeOpen,
+      hiring: {
+        ...knownTown.hiring,
+        order: {
+          hire: 'worker',
+          count: 120,
+          delivered: 0,
+          secondsPerHire: 60,
+          startedAt: finishesAfter(-60),
+          endsAt: finishesAfter(7200),
+        },
+      },
+    },
+    15,
+  )
+  expect(townRepaintDelayMsOf(town, firstHireEntries)).toBe(60_000)
+})
+
+it('ignores the ready minute of a hire the office level has not opened', () => {
+  const town = liveTownAt(
+    { ...knownTown, stocks: moneyAt(39), people: { ...knownTown.people, free: 1 } },
+    15,
+  )
+  expect(townRepaintDelayMsOf(town, firstHireEntries)).toBe(60_000)
 })
