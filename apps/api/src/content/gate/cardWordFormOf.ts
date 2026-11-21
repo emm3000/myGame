@@ -1,4 +1,5 @@
 import type { LexiconEntry } from '../infrastructure/json/readLessonContentFiles'
+import type { CardWordFormContext } from './CardWordFormContext'
 
 export const cardWordInflections = [
   '-s',
@@ -17,18 +18,6 @@ export type CardWordForm =
   | { readonly kind: 'ungated' }
   | { readonly kind: 'inflected'; readonly inflection: CardWordInflection }
   | { readonly kind: 'unlistedPast' }
-
-export type IrregularForms = {
-  readonly past: string
-  readonly pastParticiple: string
-}
-
-export type HaveBefore = 'none' | 'have' | "'s"
-
-export type CardWordFormContext = {
-  readonly irregularVerbs: ReadonlyMap<string, IrregularForms>
-  readonly haveBefore: HaveBefore
-}
 
 const ungated: CardWordForm = { kind: 'ungated' }
 

@@ -1,5 +1,6 @@
 import { describe, expect, it } from 'vitest'
-import { type CardWordFormContext, cardWordFormOf } from './cardWordFormOf'
+import type { CardWordFormContext } from './CardWordFormContext'
+import { cardWordFormOf } from './cardWordFormOf'
 import { entryOf } from './contentGate.testSupport'
 
 const context: CardWordFormContext = { irregularVerbs: new Map(), haveBefore: 'none' }
