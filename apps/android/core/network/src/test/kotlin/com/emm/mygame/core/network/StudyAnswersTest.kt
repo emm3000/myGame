@@ -104,7 +104,7 @@ class StudyAnswersTest {
     }
 
     @Test
-    fun `a Report answer reaches the reminder`() = runTest {
+    fun `a Report answer reaches the study answer sink`() = runTest {
         api.enqueue(json(200, REPORT))
 
         val read: TownReport = (reports().read() as ReportReadResult.Read).report
