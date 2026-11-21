@@ -24,6 +24,7 @@ import type { TownEvent } from './TownEvent'
 import type { TownId } from './TownId'
 import type { TownName } from './TownName'
 import type { TownSkill } from './TownSkill'
+import type { StoredTown, TownState } from './TownState'
 
 export type TownFounding = {
   readonly id: TownId
@@ -33,26 +34,6 @@ export type TownFounding = {
   readonly startingStocks: Stocks
   readonly skills: ReadonlyArray<TownSkill>
   readonly at: Instant
-}
-
-export type TownState = {
-  readonly stocks: Stocks
-  readonly storedAt: Instant
-  readonly fullSince: FullSince
-  readonly buildingLevels: BuildingLevels
-  readonly workSlot: WorkSlot
-  readonly waitingList: WaitingList
-  readonly skills: ReadonlyArray<TownSkill>
-  readonly hires: Hires
-  readonly hiringSlot: HiringSlot
-  readonly jobSlot: JobSlot
-}
-
-export type StoredTown = TownState & {
-  readonly id: TownId
-  readonly playerId: PlayerId
-  readonly name: TownName
-  readonly address: TownAddress
 }
 
 export type ChangedTown = {
