@@ -1,18 +1,8 @@
-import {
-  placementClosedNone,
-  placementFailed,
-  placementOfferedLine,
-  placementOfferedSkipLine,
-  placementResultTitle,
-  placementRetry,
-  placementSkip,
-  placementStart,
-  placementTitle,
-} from '@mygame/catalog'
 import type { Placement } from '@mygame/contracts'
 import { type ReactElement, type ReactNode, useId } from 'react'
+import { usePlayerCopy } from '../copy/usePlayerCopy'
 import { Button, type ButtonAvailability } from '../design-system/Button'
-import { lineLabelOf } from '../design-system/lineLabelOf'
+import { LabelText } from '../design-system/LabelText'
 import { ReadFailed } from '../design-system/ReadFailed'
 import { BandScores } from './BandScores'
 import { PlacementAsking } from './PlacementAsking'
@@ -22,10 +12,11 @@ type ClosedPlacement = Extract<Placement, { readonly kind: 'closed' }>
 
 export function PlacementTitled({ children }: { readonly children: ReactNode }): ReactElement {
   const titleId = useId()
+  const { fixedCopy } = usePlayerCopy()
   return (
     <section aria-labelledby={titleId} className="flex max-w-form flex-col gap-6">
       <h1 id={titleId} className="m-0 font-sans text-display text-ink">
-        {placementTitle()}
+        <LabelText label={fixedCopy((catalog) => catalog.placementTitle())} />
       </h1>
       {children}
     </section>
@@ -43,17 +34,22 @@ const availabilityOf = (
 }
 
 function PlacementOffered({ placement }: { readonly placement: PlacementHandle }): ReactElement {
+  const { fixedCopy } = usePlayerCopy()
   return (
     <div className="flex flex-col gap-4 font-sans">
-      <p className="m-0 text-body text-ink">{placementOfferedLine()}</p>
-      <p className="m-0 text-body text-ink-muted">{placementOfferedSkipLine()}</p>
+      <p className="m-0 text-body text-ink">
+        <LabelText label={fixedCopy((catalog) => catalog.placementOfferedLine())} />
+      </p>
+      <p className="m-0 text-body text-ink-muted">
+        <LabelText label={fixedCopy((catalog) => catalog.placementOfferedSkipLine())} />
+      </p>
       <Button
         type="button"
         tone="primary"
         availability={availabilityOf('begin', placement.waiting)}
         onClick={placement.begin}
       >
-        {placementStart()}
+        <LabelText label={fixedCopy((catalog) => catalog.placementStart())} />
       </Button>
       <Button
         type="button"
@@ -61,19 +57,26 @@ function PlacementOffered({ placement }: { readonly placement: PlacementHandle }
         availability={availabilityOf('skip', placement.waiting)}
         onClick={placement.skip}
       >
-        {placementSkip()}
+        <LabelText label={fixedCopy((catalog) => catalog.placementSkip())} />
       </Button>
     </div>
   )
 }
 
 function PlacementResult({ closed }: { readonly closed: ClosedPlacement }): ReactElement {
+  const { fixedCopy } = usePlayerCopy()
   if (closed.scores.length === 0) {
-    return <p className="m-0 font-sans text-body text-ink">{placementClosedNone()}</p>
+    return (
+      <p className="m-0 font-sans text-body text-ink">
+        <LabelText label={fixedCopy((catalog) => catalog.placementClosedNone())} />
+      </p>
+    )
   }
   return (
     <div className="flex flex-col gap-4">
-      <h2 className="m-0 font-sans text-heading text-ink">{placementResultTitle()}</h2>
+      <h2 className="m-0 font-sans text-heading text-ink">
+        <LabelText label={fixedCopy((catalog) => catalog.placementResultTitle())} />
+      </h2>
       <BandScores scores={closed.scores} />
     </div>
   )
@@ -113,6 +116,7 @@ export function PlacementScreen({
   readonly placement: PlacementHandle
 }): ReactElement | null {
   const { view } = placement
+  const { fixedCopy } = usePlayerCopy()
   switch (view.kind) {
     case 'loading':
       return null
@@ -120,8 +124,8 @@ export function PlacementScreen({
       return (
         <PlacementTitled>
           <ReadFailed
-            message={lineLabelOf(placementFailed(), 'es')}
-            retryLabel={lineLabelOf(placementRetry(), 'es')}
+            message={fixedCopy((catalog) => catalog.placementFailed())}
+            retryLabel={fixedCopy((catalog) => catalog.placementRetry())}
             onRetry={placement.reread}
           />
         </PlacementTitled>

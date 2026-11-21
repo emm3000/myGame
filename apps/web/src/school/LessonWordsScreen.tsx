@@ -1,37 +1,32 @@
-import {
-  reportStartReviews,
-  schoolLessonNext,
-  schoolLessonWordNext,
-  schoolLessonWordPosition,
-  schoolLessonWordThen,
-  schoolSlotTitle,
-  townGoToSchool,
-  townWorkReady,
-} from '@mygame/catalog'
 import { type ReactElement, useId } from 'react'
+import { usePlayerCopy } from '../copy/usePlayerCopy'
 import { Block } from '../design-system/Block'
 import { Button } from '../design-system/Button'
 import { ButtonLink } from '../design-system/ButtonLink'
 import { blockHueOf } from '../design-system/blockHueOf'
 import { Countdown } from '../design-system/Countdown'
 import { blockFocusTargetClass } from '../design-system/focusTargetClass'
-import { lineLabelOf } from '../design-system/lineLabelOf'
+import { LabelText } from '../design-system/LabelText'
 import { PlaceArt } from '../design-system/PlaceArt'
 import { TextLink } from '../design-system/TextLink'
 import { Track } from '../design-system/Track'
 import { useFocusTarget } from '../focus/useFocusTarget'
+import { formatFinish } from '../time/formatFinish'
 import type { LessonWord, LessonWords, RunningLesson } from './lessonWordsOf'
 import { useWordWalk } from './useWordWalk'
 import type { WayOn } from './wayOnOf'
 
 function RunningTime({ running }: { readonly running: RunningLesson }): ReactElement {
+  const { chrome } = usePlayerCopy()
   return (
     <div className="flex flex-col gap-2">
-      <span className="font-sans text-label text-ink-muted">{schoolSlotTitle()}</span>
+      <span className="font-sans text-label text-ink-muted">
+        <LabelText label={chrome((catalog) => catalog.schoolSlotTitle())} />
+      </span>
       <Countdown
         remainingSeconds={running.remainingSeconds}
-        time={running.time}
-        finishedLabel={lineLabelOf(townWorkReady(), 'es')}
+        time={chrome((catalog) => formatFinish(catalog, running.remainingSeconds, running.at)).text}
+        finishedLabel={chrome((catalog) => catalog.townWorkReady())}
       />
     </div>
   )
@@ -44,16 +39,17 @@ function WayOnLink({
   readonly wayOn: WayOn
   readonly tone: 'primary' | 'quiet'
 }): ReactElement {
+  const { chrome } = usePlayerCopy()
   if (wayOn.kind === 'reviews') {
     return (
       <ButtonLink to="/reviews" tone={tone}>
-        {reportStartReviews()}
+        <LabelText label={chrome((catalog) => catalog.reportStartReviews())} />
       </ButtonLink>
     )
   }
   return (
     <ButtonLink to="/school/$lessonId" params={{ lessonId: wayOn.lessonId }} tone={tone}>
-      {schoolLessonNext()}
+      <LabelText label={chrome((catalog) => catalog.schoolLessonNext())} />
     </ButtonLink>
   )
 }
@@ -72,10 +68,13 @@ function WordBlock({
   readonly headingRef: ReturnType<typeof useFocusTarget<HTMLHeadingElement>>['ref']
 }): ReactElement {
   const wordId = useId()
+  const { chrome } = usePlayerCopy()
   return (
     <Block hue={blockHueOf(walked)} labelledBy={wordId}>
       <p className="m-0 text-label text-on-block-muted tabular-nums">
-        {schoolLessonWordPosition({ number, count })}
+        <LabelText
+          label={chrome((catalog) => catalog.schoolLessonWordPosition({ number, count }))}
+        />
       </p>
       {word.art !== undefined && <PlaceArt shapes={word.art} />}
       <h2
@@ -108,18 +107,23 @@ function WordActions({
   readonly wayOn: WayOn
   readonly onNextWord: () => void
 }): ReactElement {
+  const { chrome } = usePlayerCopy()
   return (
     <div className="flex flex-col gap-3">
       {!isLastWord && (
         <Button type="button" tone="primary" onClick={onNextWord}>
-          {schoolLessonWordNext()}
+          <LabelText label={chrome((catalog) => catalog.schoolLessonWordNext())} />
         </Button>
       )}
       {!isRunning && <WayOnLink wayOn={wayOn} tone={isLastWord ? 'primary' : 'quiet'} />}
       {isRunning && isLastWord && (
         <>
-          <p className="m-0 font-sans text-body text-ink">{schoolLessonWordThen()}</p>
-          <TextLink to="/school">{townGoToSchool()}</TextLink>
+          <p className="m-0 font-sans text-body text-ink">
+            <LabelText label={chrome((catalog) => catalog.schoolLessonWordThen())} />
+          </p>
+          <TextLink to="/school">
+            <LabelText label={chrome((catalog) => catalog.townGoToSchool())} />
+          </TextLink>
         </>
       )}
     </div>
@@ -139,6 +143,7 @@ export function LessonWordsScreen({
 }: LessonWordsScreenProps): ReactElement {
   const { wordIndex, walked, walkOn } = useWordWalk(lessonId)
   const wordHeading = useFocusTarget<HTMLHeadingElement>()
+  const { chrome } = usePlayerCopy()
   const { words, running } = lesson
   const lastIndex = words.length - 1
   const shownIndex = Math.min(wordIndex, lastIndex)
@@ -150,7 +155,11 @@ export function LessonWordsScreen({
   return (
     <div className="mx-auto flex w-full max-w-form flex-col gap-4">
       <header className="flex flex-col gap-1">
-        <h1 className="m-0 font-sans text-title text-ink">{lesson.title}</h1>
+        <h1 className="m-0 font-sans text-title text-ink">
+          <LabelText
+            label={chrome((catalog) => catalog.schoolLessonTitle({ number: lesson.number }))}
+          />
+        </h1>
         <p lang="en" className="m-0 font-sans text-reading text-ink">
           {lesson.theme}
         </p>

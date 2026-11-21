@@ -1,8 +1,9 @@
-import { townGoToSchool } from '@mygame/catalog'
 import type { FrameSpan, OpenText, WordSupport } from '@mygame/contracts'
 import { type ReactElement, useId, useState } from 'react'
+import { usePlayerCopy } from '../copy/usePlayerCopy'
 import { Block } from '../design-system/Block'
 import { blockFocusTargetClass } from '../design-system/focusTargetClass'
+import { LabelText } from '../design-system/LabelText'
 import { TextLink } from '../design-system/TextLink'
 
 interface SpanAt {
@@ -87,6 +88,7 @@ export interface SchoolTextScreenProps {
 
 export function SchoolTextScreen({ text }: SchoolTextScreenProps): ReactElement {
   const titleId = useId()
+  const { chrome } = usePlayerCopy()
   const [tapped, setTapped] = useState<SpanAt | null>(null)
   const openSupport = supportAt(text, tapped)
   const toggle = (at: SpanAt): void =>
@@ -111,7 +113,9 @@ export function SchoolTextScreen({ text }: SchoolTextScreenProps): ReactElement 
           </div>
         ))}
       </Block>
-      <TextLink to="/school">{townGoToSchool()}</TextLink>
+      <TextLink to="/school">
+        <LabelText label={chrome((catalog) => catalog.townGoToSchool())} />
+      </TextLink>
     </div>
   )
 }

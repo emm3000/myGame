@@ -1,4 +1,6 @@
 import {
+  en,
+  es,
   namesPlacesSchool,
   refusalLearningCapNextWordDue,
   refusalLearningCapReached,
@@ -494,6 +496,38 @@ it('a full cap with a review due still sends to the reviews', async () => {
   await showSchool(schoolOf({ learning: fullCapWaiting, nextStep: reviewsDue }))
 
   expect(screen.getByText(schoolLearningFull({ count: 5 }))).toBeDefined()
+})
+
+const refusedPastTheCapIn = async (
+  language: Pick<TownOverview, 'scaffold' | 'chromePhase'>,
+): Promise<string | null | undefined> => {
+  await showSchool(
+    schoolOf({ ...language, learning: { ...fullCapWaiting, inLearning: 0 } }),
+    capRefused,
+  )
+  fireEvent.click(screen.getByRole('button', { name: /· 5:00$/ }))
+  await passSeconds(0)
+  return within(screen.getByRole('main')).getByRole('alert').textContent
+}
+
+it('keeps the cap refusal in Spanish for an es player in the English phase', async () => {
+  expect(await refusedPastTheCapIn({ scaffold: 'es', chromePhase: 'english' })).toBe(
+    es.refusalLearningCapNextWordDue({
+      learningCap: 15,
+      cardsInLearning: 12,
+      timeLeft: nextWordDueIn,
+    }),
+  )
+})
+
+it('writes the cap refusal in English under none', async () => {
+  expect(await refusedPastTheCapIn({ scaffold: 'none', chromePhase: 'english' })).toBe(
+    en.refusalLearningCapNextWordDue({
+      learningCap: 15,
+      cardsInLearning: 12,
+      timeLeft: nextWordDueIn,
+    }),
+  )
 })
 
 it('refuses a lesson past the cap with no review due and names when the next word is due', async () => {

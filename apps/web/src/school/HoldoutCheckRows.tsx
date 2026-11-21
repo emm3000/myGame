@@ -1,23 +1,29 @@
-import { schoolHoldoutCheckOpen, schoolHoldoutCheckRow } from '@mygame/catalog'
 import type { TownOverview } from '@mygame/contracts'
 import { type ReactElement, useId } from 'react'
+import { usePlayerCopy } from '../copy/usePlayerCopy'
+import { LabelText } from '../design-system/LabelText'
 import { TextLink } from '../design-system/TextLink'
 
 type DueHoldoutCheck = TownOverview['dueHoldoutChecks'][number]
 
 function HoldoutCheckRow({ check }: { readonly check: DueHoldoutCheck }): ReactElement {
   const lineId = useId()
+  const { fixedCopy } = usePlayerCopy()
   return (
     <li className="flex flex-col items-start gap-1 rounded-md border border-line bg-surface-raised p-5">
       <p id={lineId} className="m-0 font-sans text-body text-ink">
-        {schoolHoldoutCheckRow({ band: check.band, week: check.week })}
+        <LabelText
+          label={fixedCopy((catalog) =>
+            catalog.schoolHoldoutCheckRow({ band: check.band, week: check.week }),
+          )}
+        />
       </p>
       <TextLink
         to="/school/check/$band/$week"
         params={{ band: String(check.band), week: String(check.week) }}
         aria-describedby={lineId}
       >
-        {schoolHoldoutCheckOpen()}
+        <LabelText label={fixedCopy((catalog) => catalog.schoolHoldoutCheckOpen())} />
       </TextLink>
     </li>
   )

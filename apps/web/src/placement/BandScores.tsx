@@ -1,6 +1,7 @@
-import { placementNotPlacedOut, placementPlacedOut, placementResultBand } from '@mygame/catalog'
 import type { Placement } from '@mygame/contracts'
 import type { ReactElement } from 'react'
+import { usePlayerCopy } from '../copy/usePlayerCopy'
+import { LabelText } from '../design-system/LabelText'
 
 type PlacementScore = Extract<Placement, { readonly kind: 'closed' }>['scores'][number]
 
@@ -9,6 +10,7 @@ export function BandScores({
 }: {
   readonly scores: ReadonlyArray<PlacementScore>
 }): ReactElement | null {
+  const { fixedCopy } = usePlayerCopy()
   if (scores.length === 0) {
     return null
   }
@@ -17,10 +19,18 @@ export function BandScores({
       {scores.map((score) => (
         <li key={score.band} className="flex flex-col border-line border-t pt-2 font-sans">
           <span className="text-body text-ink">
-            {placementResultBand({ band: score.band, score: score.score })}
+            <LabelText
+              label={fixedCopy((catalog) =>
+                catalog.placementResultBand({ band: score.band, score: score.score }),
+              )}
+            />
           </span>
           <span className="text-caption text-ink-muted">
-            {score.isPlacedOut ? placementPlacedOut() : placementNotPlacedOut()}
+            <LabelText
+              label={fixedCopy((catalog) =>
+                score.isPlacedOut ? catalog.placementPlacedOut() : catalog.placementNotPlacedOut(),
+              )}
+            />
           </span>
         </li>
       ))}
