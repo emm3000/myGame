@@ -68,7 +68,9 @@ type RefusalReason = Exclude<CaughtUpReason, 'lessonsDone'>
 
 type Refusal = { readonly kind: 'refused'; readonly reason: RefusalReason }
 
-type Admission = { readonly kind: 'admitted' } | { readonly kind: 'studied' } | Refusal
+type Studied = { readonly kind: 'studied' }
+
+type Admission = { readonly kind: 'admitted' } | Studied | Refusal
 
 type Unadmitted = Refusal | { readonly kind: 'noneRefused' }
 
@@ -76,7 +78,7 @@ type Weighing<Admissible extends SchoolLesson> =
   | { readonly kind: 'admitted'; readonly lesson: Admissible }
   | Unadmitted
 
-const reasonOf = (refusal: SchoolLessonRefusal): Result<Admission, DomainError> => {
+const reasonOf = (refusal: SchoolLessonRefusal): Result<Refusal | Studied, SchoolLessonRefusal> => {
   switch (refusal.kind) {
     case 'LearningCapReached':
       return ok({ kind: 'refused', reason: 'learningCap' })
