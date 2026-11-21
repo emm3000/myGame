@@ -198,3 +198,34 @@ it('draws a reading word without the border, padding and focus color of an actio
     expect.arrayContaining([expect.stringMatching(/^(border|py-2|focus-visible:outline-focus)$/)]),
   )
 })
+
+const rowClasses = (): ReadonlyArray<string> => {
+  render(
+    <Button type="button" tone="row">
+      Lesson 2
+    </Button>,
+  )
+  return screen.getByRole('button', { name: 'Lesson 2' }).className.split(' ')
+}
+
+it('draws a row full width with its lines stacked and left-aligned at the secondary height', () => {
+  expect(rowClasses()).toEqual(
+    expect.arrayContaining([
+      'flex',
+      'w-full',
+      'flex-col',
+      'items-start',
+      'text-left',
+      'min-h-secondary',
+      'focus-visible:outline-focus',
+      'border-0',
+      'bg-transparent',
+    ]),
+  )
+})
+
+it('draws a row without the border, the fill and the vertical padding of an action', () => {
+  expect(rowClasses()).not.toEqual(
+    expect.arrayContaining([expect.stringMatching(/^(border|py-2|bg-action)$/)]),
+  )
+})
