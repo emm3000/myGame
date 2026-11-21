@@ -22,7 +22,7 @@ A file under `<feature>/infrastructure/postgres/` may also import, from any feat
 
 ## The folders
 
-One row for each folder directly under `apps/api/src` or `packages/domain/src`. The migration of ADR 052 is under way: a folder marked *moving* still stands, and the step that empties it deletes its row.
+One row for each folder directly under `apps/api/src` or `packages/domain/src`: the features of ADR 052 (section 2) and the domain's kernel folders. A new folder there adds its row in the same commit.
 
 | Folder | Package | What it holds |
 |---|---|---|
@@ -56,7 +56,7 @@ testing/      the feature's in-memory ports and fixtures
 <subArea>/    the same grammar again
 ```
 
-A domain file lives in the sub-area whose word it names in the "What it is" column of ADR 052's feature table (section 2), even when another sub-area reads it, and the feature's root keeps the aggregate and the words no domain sub-area names. The root and its sub-areas may import one another; Biome's `noImportCycles` keeps the files free of runtime cycles, and type-only imports are not checked.
+A domain file lives in the sub-area whose word it names in the "What it is" column of ADR 052's feature table (section 2), even when another sub-area reads it, and the feature's root keeps the aggregate and the words no domain sub-area names. The root and its sub-areas may import one another; Biome's `noImportCycles` keeps the files free of runtime cycles, and type-only imports are not checked. A type-only cycle between an aggregate and the parts it composes, `Town.ts` and `TownBuildingWork`, `TownHiring`, `TownJobs` and `refuseInvalidTown`, is accepted until #1774.
 
 `apps/api/src/`:
 
@@ -74,7 +74,7 @@ index.ts  listen.ts  app.ts  composeServer.ts  composeStores.ts    the compositi
   gate/                       the content gate (content): the checks the shipped content passes, one file per check in checks/ and the readings they share beside them; no request, port or adapter reaches it, only its tests
 ```
 
-`platform/` follows the same grammar: `application/` holds `Refusal`, `application/ports/` the transaction, the failure sink and the deferred work, and `infrastructure/{http,postgres,system,vercel}/` the kernels. Only `platform/` may hold, at its root, a pure function that both its `application/` and its `infrastructure/` read; `thrownCauseOf.ts` is the one case, and a feature folder may not. An adapter lives in the feature whose port it implements. `packages/contracts/src/<feature>/` holds one schema per file, with no layer folder.
+`platform/` follows the same grammar: `application/` holds `Refusal`, `application/ports/` the transaction, the failure sink and the deferred work, and `infrastructure/{http,postgres,system,vercel}/` the kernels. Only `platform/` may hold, at its root, a pure function that both its `application/` and its `infrastructure/` read; `thrownCauseOf.ts` is the one case, and a feature folder may not. An adapter lives in the feature whose port it implements. `packages/contracts/src/<feature>/` holds one schema per file, with no layer folder. Only `infrastructure/http/`, `infrastructure/json/` and `content/gate/` import `@mygame/contracts`: they parse, or check, a shape written outside the process, a request or a content file.
 
 ## The file-name grammar
 
@@ -93,13 +93,13 @@ index.ts  listen.ts  app.ts  composeServer.ts  composeStores.ts    the compositi
 | Tables | `infrastructure/postgres/` | feature + `Tables` | `townTables.ts` |
 | Row mapper | `infrastructure/postgres/` | noun + `FromRow`, noun + `Columns` | `lessonSlotFromRow.ts` |
 | Contract suite | `infrastructure/memory/` | port + `Contract.testSupport.ts` | `townRepositoryContract.testSupport.ts` |
-| Test | beside its subject | subject + `.test.ts` | `sendJobRoute.test.ts` |
+| Test | beside its subject | subject + `.test.ts` | `jobsRoutes.test.ts` |
 
 `*Of` is a pure, synchronous derivation and nothing else: a function that returns a promise is named by a verb, and a function that writes is never named as a reading.
 
 ## One request, end to end
 
-`POST /town/jobs`, on today's paths:
+`POST /town/jobs`:
 
 1. `apps/api/src/town/jobs/infrastructure/http/sendJobRoute.ts` parses the body with `SendJobSchema` and hands the change to `apps/api/src/town/infrastructure/http/answerTownChange.ts`, which opens the town's transaction with `apps/api/src/town/application/mutateTown.ts`.
 2. `packages/domain/src/town/jobs/useCases/sendJob.ts` decides the rule over the ports it is handed.
@@ -115,11 +115,13 @@ A pass-through earns no file: the route calls the store. A port lives with its u
 
 ## The checks
 
-`pnpm gate` runs them; each is expected empty, and `scripts/mygame-structure-check.baseline` names the files not yet moved.
+`pnpm gate` runs them, and each fails on any hit: `scripts/mygame-structure-check.baseline` is empty.
 
 - `feature_graph` (Biome): a feature imports only from its left.
-- `map`: the folders above and the folders on disk are the same list.
+- `noImportCycles` (Biome): no runtime import cycle between two files.
+- `map`: the folders above and the folders on disk are the same list, and a missing `ARCHITECTURE.md` fails.
 - `application_imports_infrastructure`, `application_knows_wire`: the application reads no adapter, no wire type and no HTTP or database library.
+- `contracts_outside_adapters`: `@mygame/contracts` stays in `infrastructure/http/`, `infrastructure/json/` and `content/gate/`.
 - `persistence_knows_http`, `http_knows_database`: each technology stays in its folder.
 - `adapter_built_outside_root`: only the composition root constructs an adapter.
 - `reading_named_of_is_async`, `use_case_named_of`, `domain_promise_outside_its_roles`: a name says whether it reads a port.

@@ -1,6 +1,6 @@
 # apps/android
 
-The native Android client (ADR 034): Kotlin and Jetpack Compose, a renderer of what the api returns. A Gradle project of its own, outside the pnpm workspace. The rules: `.claude/rules/android-architecture.md`, `kotlin-style.md`, `android-testing.md`, `ui-components.md`. The code is the map: this file holds only the commands and the traps nothing else catches.
+The native Android client (ADR 034): Kotlin and Jetpack Compose, a renderer of what the api returns. A Gradle project of its own, outside the pnpm workspace. The rules: `.claude/rules/android-architecture.md`, `kotlin-style.md`, `android-testing.md`, `ui-components.md`. This file holds only the commands and the traps nothing else catches.
 
 ## Commands
 
