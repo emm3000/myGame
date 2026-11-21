@@ -15,10 +15,10 @@ import {
   type TownNews,
   type TownRepository,
 } from '@mygame/domain'
-import type { TownReader } from './application/ports/TownReader'
 import { type MutateTownDependencies, mutateTown } from './mutateTown'
+import type { TownReader } from './ports/TownReader'
+import { townReadingOf } from './readTownReading'
 import type { TownReading } from './TownReading'
-import { townReadingOf } from './townReadingOf'
 
 export type CurrentTownDependencies = MutateTownDependencies & {
   readonly towns: Omit<TownRepository, 'save'>

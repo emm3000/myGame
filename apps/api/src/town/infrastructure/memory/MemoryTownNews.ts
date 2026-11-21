@@ -7,7 +7,7 @@ import {
   type TownId,
   type TownNews,
 } from '@mygame/domain'
-import { keptEventsPerTown, type TownNewsReader } from '../../TownNewsReader'
+import { keptEventsPerTown, type TownNewsReader } from '../../application/ports/TownNewsReader'
 
 type NumberedEvent = {
   readonly id: number

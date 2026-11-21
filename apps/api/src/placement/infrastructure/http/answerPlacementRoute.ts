@@ -12,7 +12,7 @@ import { honoPathOf } from '../../../platform/infrastructure/http/honoPath'
 import { readJsonBody } from '../../../platform/infrastructure/http/readJsonBody'
 import { jsonBody } from '../../../platform/infrastructure/http/responseDeclarations'
 import { signedInRoute } from '../../../platform/infrastructure/http/signedInRoute'
-import { mutateTown } from '../../../town/mutateTown'
+import { mutateTown } from '../../../town/application/mutateTown'
 import { answerPlacementView } from './answerPlacementView'
 import { placementResponse } from './placementComponents'
 

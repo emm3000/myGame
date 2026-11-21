@@ -1,8 +1,3 @@
 file_over_export_cap packages/domain/src/holdout/HoldoutCheck.ts
 file_over_export_cap packages/domain/src/learning/Lesson.ts
-reading_named_of_is_async apps/api/src/town/currentTownOf.ts
-reading_named_of_is_async apps/api/src/town/quotedCleanUpOf.ts
-reading_named_of_is_async apps/api/src/town/quotedJobOf.ts
-reading_named_of_is_async apps/api/src/town/townNewsOf.ts
-reading_named_of_is_async apps/api/src/town/townReadingOf.ts
 type_over_method_cap packages/domain/src/town/Town.ts

@@ -14,7 +14,7 @@ import {
 } from '../account/infrastructure/http/requirePlayer'
 import { answerRefusal } from '../platform/infrastructure/http/answerRefusal'
 import { honoPathOf } from '../platform/infrastructure/http/honoPath'
-import { regionMapOf } from '../town/regionMapOf'
+import { regionMapOf } from '../town/jobs/infrastructure/http/presentRegionMap'
 import { townMapDeclarations } from './townMapDeclarations'
 
 export type TownMapDependencies = RequirePlayerDependencies & {

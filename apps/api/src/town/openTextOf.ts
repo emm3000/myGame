@@ -7,7 +7,7 @@ import {
   textReadingOf,
 } from '@mygame/domain'
 import type { LessonLibrary } from '../content/application/ports/LessonLibrary'
-import type { TownReading } from './TownReading'
+import type { TownReading } from './application/TownReading'
 
 export const openTextOf = (
   textId: TextId,

@@ -7,7 +7,7 @@ import {
   type Result,
   type TownRepository,
 } from '@mygame/domain'
-import type { GuidanceDismissals } from '../../GuidanceDismissals'
+import type { GuidanceDismissals } from '../../application/ports/GuidanceDismissals'
 
 export class MemoryGuidanceDismissals implements GuidanceDismissals {
   private readonly dismissals = new Map<PlayerId, Instant>()

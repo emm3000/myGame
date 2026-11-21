@@ -1,6 +1,6 @@
 import { type DomainError, ok, type PlayerId, type Result, type TownEvent } from '@mygame/domain'
-import { type CurrentTownDependencies, currentTownOf } from './currentTownOf'
-import type { TownNewsReader } from './TownNewsReader'
+import type { TownNewsReader } from '../../application/ports/TownNewsReader'
+import { type CurrentTownDependencies, currentTownOf } from '../../application/resolveCurrentTown'
 
 export type TownNewsDependencies = CurrentTownDependencies & {
   readonly townNews: TownNewsReader

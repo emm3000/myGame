@@ -1,5 +1,5 @@
 import { type DomainError, err, type Instant, ok, type PlayerId, type Result } from '@mygame/domain'
-import type { TownReader } from './application/ports/TownReader'
+import type { TownReader } from './ports/TownReader'
 import type { TownReading } from './TownReading'
 
 export const townReadingOf = async (

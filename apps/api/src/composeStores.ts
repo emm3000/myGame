@@ -8,6 +8,7 @@ import { DrizzlePendingReviewRepository } from './learning/infrastructure/postgr
 import { DrizzleReviewLog } from './learning/infrastructure/postgres/DrizzleReviewLog'
 import { DrizzlePlacements } from './placement/infrastructure/postgres/DrizzlePlacements'
 import type { PostgresSession } from './platform/infrastructure/postgres/connectPostgres'
+import type { TownStores } from './town/application/mutateTown'
 import { DrizzleCleanUpRepository } from './town/infrastructure/postgres/DrizzleCleanUpRepository'
 import { DrizzleEarnedSkills } from './town/infrastructure/postgres/DrizzleEarnedSkills'
 import { DrizzleGuidanceDismissals } from './town/infrastructure/postgres/DrizzleGuidanceDismissals'
@@ -17,7 +18,6 @@ import { DrizzleSeenTips } from './town/infrastructure/postgres/DrizzleSeenTips'
 import { DrizzleTownNews } from './town/infrastructure/postgres/DrizzleTownNews'
 import { DrizzleTownReader } from './town/infrastructure/postgres/DrizzleTownReader'
 import { DrizzleTownRepository } from './town/infrastructure/postgres/DrizzleTownRepository'
-import type { TownStores } from './town/mutateTown'
 
 export type ComposedStores = AccountStores & TownStores
 

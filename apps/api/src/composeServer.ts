@@ -43,13 +43,13 @@ import { SystemClock } from './platform/infrastructure/system/SystemClock'
 import { VercelAfterResponse } from './platform/infrastructure/vercel/VercelAfterResponse'
 import type { ReportClosings } from './report/application/ports/ReportClosings'
 import { DrizzleReportClosings } from './report/infrastructure/postgres/DrizzleReportClosings'
+import type { TownNewsReader } from './town/application/ports/TownNewsReader'
 import type { TownReader } from './town/application/ports/TownReader'
 import { DrizzleCleanUpRepository } from './town/infrastructure/postgres/DrizzleCleanUpRepository'
 import { DrizzleRegionMap } from './town/infrastructure/postgres/DrizzleRegionMap'
 import { DrizzleTownNews } from './town/infrastructure/postgres/DrizzleTownNews'
 import { DrizzleTownReader } from './town/infrastructure/postgres/DrizzleTownReader'
 import { DrizzleTownRepository } from './town/infrastructure/postgres/DrizzleTownRepository'
-import type { TownNewsReader } from './town/TownNewsReader'
 
 const isSessionCookieSecureFrom = (flag: string | undefined): boolean => {
   if (flag === undefined || flag === 'true') {

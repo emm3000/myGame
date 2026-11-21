@@ -7,7 +7,7 @@ import {
   type TownRepository,
 } from '@mygame/domain'
 import { assert, describe, expect, it } from 'vitest'
-import type { GuidanceDismissals } from '../../GuidanceDismissals'
+import type { GuidanceDismissals } from '../../application/ports/GuidanceDismissals'
 
 export type GuidanceDismissalsFixture = {
   readonly dismissals: GuidanceDismissals
