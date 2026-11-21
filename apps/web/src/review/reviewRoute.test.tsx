@@ -421,8 +421,9 @@ it('draws no level line when a correct answer opens none', async () => {
 
   await typeAndCheck('school')
 
-  expect(screen.getByText(es.reviewCorrect())).toBeTruthy()
-  expect(screen.queryByText(es.reviewLevelOpen({ level: 3 }))).toBeNull()
+  const verdict = screen.getByRole('region', { name: es.reviewCorrect() })
+  const lines = Array.from(verdict.querySelectorAll('p'), (line) => line.textContent)
+  expect(lines.at(-1)).toBe(es.reviewCorrect())
 })
 
 it('draws no level line after a wrong answer', async () => {
