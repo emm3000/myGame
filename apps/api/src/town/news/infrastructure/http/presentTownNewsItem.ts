@@ -105,9 +105,5 @@ export const presentTownNewsItem = (event: TownEvent): TownNewsItem => {
       return jobsNewsItemOf(event, occurredAt)
     case 'becameCity':
       return { kind: event.kind, occurredAt }
-    default: {
-      const unreachable: never = event
-      return unreachable
-    }
   }
 }
