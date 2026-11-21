@@ -1,48 +1,15 @@
 import {
   type BandCatalog,
-  type BandStartRepository,
-  type CardRepository,
-  type CleanUpRepository,
   type Clock,
   type DomainError,
-  type EarnedSkillRepository,
   type LessonCatalog,
-  type LessonSlotRepository,
   laterOf,
-  type PendingReviewRepository,
-  type PlacementRepository,
   type PlayerId,
-  type RegionMapReader,
   type Result,
-  type ReviewLog,
   settleSchoolLesson,
-  type TownNews,
-  type TownRepository,
 } from '@mygame/domain'
-import type { Accounts } from '../../account/application/ports/Accounts'
 import type { Transaction } from '../../platform/application/ports/Transaction'
-import type { GuidanceDismissals } from './ports/GuidanceDismissals'
-import type { SeenTips } from './ports/SeenTips'
-import type { TownNewsReader } from './ports/TownNewsReader'
-import type { TownReader } from './ports/TownReader'
-
-export type TownStores = {
-  readonly accounts: Accounts
-  readonly towns: TownRepository
-  readonly townsWithSchool: TownReader
-  readonly townNews: TownNews & TownNewsReader
-  readonly lessonSlots: LessonSlotRepository
-  readonly cards: CardRepository
-  readonly pendingReviews: PendingReviewRepository
-  readonly reviewLog: ReviewLog
-  readonly earnedSkills: EarnedSkillRepository
-  readonly bandStarts: BandStartRepository
-  readonly placements: PlacementRepository
-  readonly regionMap: RegionMapReader
-  readonly cleanUps: CleanUpRepository
-  readonly seenTips: SeenTips
-  readonly guidanceDismissals: GuidanceDismissals
-}
+import type { TownStores } from './ports/TownStores'
 
 export type TownMutation<T> = (stores: TownStores, clock: Clock) => Promise<Result<T, DomainError>>
 

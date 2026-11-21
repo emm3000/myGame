@@ -9,20 +9,20 @@ import {
   type RegionMapReader,
   type Result,
   type TownCatalog,
-  type TownRepository,
 } from '@mygame/domain'
+import type { ReadOnlyTowns } from '../../application/ports/ReadOnlyTowns'
 
-export type QuotedCleanUpDependencies = {
-  readonly towns: Omit<TownRepository, 'save'>
+export type QuoteCleanUpNowDependencies = {
+  readonly towns: ReadOnlyTowns
   readonly regionMap: RegionMapReader
   readonly cleanUps: CleanUpReader
   readonly townCatalog: TownCatalog
   readonly clock: Clock
 }
 
-export const quotedCleanUpOf = async (
+export const quoteCleanUpNow = async (
   order: CleanUpOrder,
-  { towns, regionMap, cleanUps, townCatalog, clock }: QuotedCleanUpDependencies,
+  { towns, regionMap, cleanUps, townCatalog, clock }: QuoteCleanUpNowDependencies,
 ): Promise<Result<CleanUpQuote, DomainError>> => {
   const stored = await towns.townOf(order.playerId)
   if (!stored.ok) {

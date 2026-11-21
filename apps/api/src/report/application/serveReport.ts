@@ -16,12 +16,12 @@ import {
 } from '../../learning/application/serveDueReviews'
 import type { TownNewsReader } from '../../town/application/ports/TownNewsReader'
 import {
-  type CurrentTownDependencies,
-  currentTownOf,
+  type ResolveCurrentTownDependencies,
+  resolveCurrentTown,
 } from '../../town/application/resolveCurrentTown'
 import type { ReportClosings } from './ports/ReportClosings'
 
-export type ServeReportDependencies = CurrentTownDependencies &
+export type ServeReportDependencies = ResolveCurrentTownDependencies &
   ReviewTerms & {
     readonly reportClosings: ReportClosings
   }
@@ -42,7 +42,7 @@ const readReportTown = async (
   playerId: PlayerId,
   dependencies: ServeReportDependencies,
 ): Promise<Result<ReportTown, DomainError>> => {
-  const reading = await currentTownOf(playerId, dependencies)
+  const reading = await resolveCurrentTown(playerId, dependencies)
   if (!reading.ok) {
     return reading.error.kind === 'TownNotFound'
       ? ok({ at: dependencies.clock.now(), townId: undefined })

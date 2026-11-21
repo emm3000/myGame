@@ -7,7 +7,7 @@ const regionSiteOf = ({ site, town, waste }: RegionSite): RegionMap['sites'][num
   waste: waste === undefined ? null : { size: waste.size, waste: waste.waste },
 })
 
-export const regionMapOf = (map: DomainRegionMap): RegionMap => ({
+export const presentRegionMap = (map: DomainRegionMap): RegionMap => ({
   region: map.region,
   area: map.area,
   lastArea: map.lastArea,

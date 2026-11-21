@@ -8,7 +8,7 @@ import { DrizzlePendingReviewRepository } from './learning/infrastructure/postgr
 import { DrizzleReviewLog } from './learning/infrastructure/postgres/DrizzleReviewLog'
 import { DrizzlePlacements } from './placement/infrastructure/postgres/DrizzlePlacements'
 import type { PostgresSession } from './platform/infrastructure/postgres/connectPostgres'
-import type { TownStores } from './town/application/mutateTown'
+import type { TownStores } from './town/application/ports/TownStores'
 import { DrizzleCleanUpRepository } from './town/infrastructure/postgres/DrizzleCleanUpRepository'
 import { DrizzleEarnedSkills } from './town/infrastructure/postgres/DrizzleEarnedSkills'
 import { DrizzleGuidanceDismissals } from './town/infrastructure/postgres/DrizzleGuidanceDismissals'

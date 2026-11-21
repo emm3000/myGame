@@ -9,7 +9,6 @@ import {
   type RandomSource,
   type RegionMapReader,
   type TownCatalog,
-  type TownRepository,
 } from '@mygame/domain'
 import { waitUntil } from '@vercel/functions'
 import type { Accounts } from './account/application/ports/Accounts'
@@ -43,6 +42,7 @@ import { SystemClock } from './platform/infrastructure/system/SystemClock'
 import { VercelAfterResponse } from './platform/infrastructure/vercel/VercelAfterResponse'
 import type { ReportClosings } from './report/application/ports/ReportClosings'
 import { DrizzleReportClosings } from './report/infrastructure/postgres/DrizzleReportClosings'
+import type { ReadOnlyTowns } from './town/application/ports/ReadOnlyTowns'
 import type { TownNewsReader } from './town/application/ports/TownNewsReader'
 import type { TownReader } from './town/application/ports/TownReader'
 import { DrizzleCleanUpRepository } from './town/infrastructure/postgres/DrizzleCleanUpRepository'
@@ -106,7 +106,7 @@ export type ComposedServer = MailSettings & {
   readonly clock: Clock
   readonly ids: IdGenerator
   readonly random: RandomSource
-  readonly towns: Omit<TownRepository, 'save'>
+  readonly towns: ReadOnlyTowns
   readonly townsWithSchool: TownReader
   readonly townNews: TownNewsReader
   readonly regionMap: RegionMapReader

@@ -9,7 +9,8 @@ import {
 } from '@mygame/domain'
 import { readScaffold } from '../../../account/application/readScaffold'
 import type { LearningDependencies } from '../../../learning/application/LearningDependencies'
-import { mutateTown, type TownStores } from '../../../town/application/mutateTown'
+import { mutateTown } from '../../../town/application/mutateTown'
+import type { TownStores } from '../../../town/application/ports/TownStores'
 
 export type CheckMutation = (
   stores: TownStores,

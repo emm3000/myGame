@@ -2,7 +2,7 @@ import { type DomainError, err, type Instant, ok, type PlayerId, type Result } f
 import type { TownReader } from './ports/TownReader'
 import type { TownReading } from './TownReading'
 
-export const townReadingOf = async (
+export const readTownReading = async (
   playerId: PlayerId,
   at: Instant,
   towns: TownReader,
