@@ -29,7 +29,7 @@ export type SettledSchoolSources = ReleaseContent & {
   readonly lessons: Pick<LessonCatalog, 'lessonOf' | 'lessonOfWord'>
 }
 
-export const settledSchoolOf = async (
+export const readSettledSchool = async (
   playerId: PlayerId,
   townId: TownId,
   sources: SettledSchoolSources,

@@ -14,7 +14,7 @@ import type { TownCatalog } from '../../TownCatalog'
 import type { TownNews } from '../../TownNews'
 import type { TownRepository } from '../../TownRepository'
 import type { LessonSlotRepository } from '../ports/LessonSlotRepository'
-import { settledSchoolOf } from '../services/readSettledSchool'
+import { readSettledSchool } from '../services/readSettledSchool'
 import { saveLessonSlot } from '../services/saveLessonSlot'
 
 export type StopSchoolLessonCommand = {
@@ -45,7 +45,7 @@ export const stopSchoolLesson = async (
     return resolved
   }
   const { town } = resolved.value
-  const settled = await settledSchoolOf(playerId, town.id, dependencies, now)
+  const settled = await readSettledSchool(playerId, town.id, dependencies, now)
   if (!settled.ok) {
     return settled
   }

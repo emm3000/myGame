@@ -9,7 +9,7 @@ import { ok, type Result } from '../../../Result'
 import type { TownNews } from '../../TownNews'
 import type { TownRepository } from '../../TownRepository'
 import type { LessonSlotRepository } from '../ports/LessonSlotRepository'
-import { settledSchoolOf } from '../services/readSettledSchool'
+import { readSettledSchool } from '../services/readSettledSchool'
 import { saveLessonSlot } from '../services/saveLessonSlot'
 
 export type SettleSchoolLessonDependencies = {
@@ -34,7 +34,7 @@ export const settleSchoolLesson = async (
   if (town.value === undefined) {
     return ok(undefined)
   }
-  const settled = await settledSchoolOf(
+  const settled = await readSettledSchool(
     playerId,
     town.value.id,
     dependencies,
