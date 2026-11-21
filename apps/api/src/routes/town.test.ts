@@ -27,7 +27,6 @@ import {
   it,
   vi,
 } from 'vitest'
-import type { Transaction, TransactionStores } from '../adapters/postgres/postgresTransaction'
 import { apiPackagePath } from '../apiPackagePath.testSupport'
 import { createApp } from '../app'
 import { type ComposedServer, composeServer } from '../composeServer'
@@ -38,6 +37,10 @@ import {
   lockedPlayerReadQuery,
   lockProbeLimit,
 } from '../lockWaitProbe.testSupport'
+import type {
+  Transaction,
+  TransactionStores,
+} from '../platform/infrastructure/postgres/postgresTransaction'
 import { truncatePlayerTables } from '../truncatePlayerTables.testSupport'
 
 const contentDirectory = apiPackagePath('content/')

@@ -1,7 +1,7 @@
-import type { AfterResponse } from '../../afterResponse/AfterResponse'
-import type { AfterResponseDrain } from '../../afterResponse/AfterResponseDrain'
-import type { FailureSink } from '../../failures/FailureSink'
-import { thrownCauseOf } from '../../failures/thrownCauseOf'
+import type { AfterResponse } from '../../application/ports/AfterResponse'
+import type { AfterResponseDrain } from '../../application/ports/AfterResponseDrain'
+import type { FailureSink } from '../../application/ports/FailureSink'
+import { thrownCauseOf } from '../../thrownCauseOf'
 
 export const pendingWorkCap = 5
 

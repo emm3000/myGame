@@ -1,9 +1,12 @@
 import { OpenAPIHono } from '@hono/zod-openapi'
 import type { HealthResponse } from '@mygame/contracts'
-import type { FailureSink } from './failures/FailureSink'
-import { honoPathOf } from './http/honoPath'
-import { reportServerFailures } from './http/reportServerFailures'
-import { sessionBearerScheme, sessionBearerSecurityScheme } from './http/responseDeclarations'
+import type { FailureSink } from './platform/application/ports/FailureSink'
+import { honoPathOf } from './platform/infrastructure/http/honoPath'
+import { reportServerFailures } from './platform/infrastructure/http/reportServerFailures'
+import {
+  sessionBearerScheme,
+  sessionBearerSecurityScheme,
+} from './platform/infrastructure/http/responseDeclarations'
 import { type AuthDependencies, authRoutes } from './routes/auth'
 import { healthDeclarations } from './routes/healthDeclarations'
 import { holdoutCheckRoutes } from './routes/holdoutChecks'

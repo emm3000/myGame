@@ -10,8 +10,8 @@ import {
   type TownEvent,
   type TownId,
 } from '@mygame/domain'
-import type { Refusal } from '../http/Refusal'
 import { type ReviewTerms, reviewsOf } from '../learning/reviewsOf'
+import type { Refusal } from '../platform/application/Refusal'
 import { type CurrentTownDependencies, currentTownOf } from './currentTownOf'
 import type { ReportClosings } from './ReportClosings'
 import type { TownNewsReader } from './TownNewsReader'

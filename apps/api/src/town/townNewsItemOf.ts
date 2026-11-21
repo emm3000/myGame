@@ -1,6 +1,6 @@
 import type { TownNewsItem } from '@mygame/contracts'
 import type { TownEvent } from '@mygame/domain'
-import { isoOf } from '../http/isoOf'
+import { isoOf } from '../platform/infrastructure/http/isoOf'
 
 export const townNewsItemOf = (event: TownEvent): TownNewsItem => {
   const occurredAt = isoOf(event.occurredAt)

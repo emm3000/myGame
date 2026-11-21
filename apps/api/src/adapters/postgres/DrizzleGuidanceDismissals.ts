@@ -1,7 +1,7 @@
 import { type DomainError, err, type Instant, ok, type PlayerId, type Result } from '@mygame/domain'
 import { eq, sql } from 'drizzle-orm'
+import type { PostgresSession } from '../../platform/infrastructure/postgres/connectPostgres'
 import type { GuidanceDismissals } from '../../town/GuidanceDismissals'
-import type { PostgresSession } from './connectPostgres'
 import { towns } from './schema'
 
 export class DrizzleGuidanceDismissals implements GuidanceDismissals {

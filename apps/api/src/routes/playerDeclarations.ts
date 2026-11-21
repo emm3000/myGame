@@ -5,7 +5,7 @@ import {
   jsonResponse,
   malformedResponse,
   signedInRoute,
-} from '../http/responseDeclarations'
+} from '../platform/infrastructure/http/responseDeclarations'
 import { PlayerComponent } from './playerComponent'
 
 const ScaffoldChangeComponent = ScaffoldChangeSchema.meta({ id: 'ScaffoldChange' })

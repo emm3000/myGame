@@ -1,7 +1,7 @@
 import type { VerifyEmailRequest } from '@mygame/contracts'
 import { type Clock, err, ok, type Result } from '@mygame/domain'
-import type { Transaction } from '../adapters/postgres/postgresTransaction'
-import type { Refusal } from '../http/Refusal'
+import type { Refusal } from '../platform/application/Refusal'
+import type { Transaction } from '../platform/infrastructure/postgres/postgresTransaction'
 
 export type VerifyEmailDependencies = {
   readonly inTransaction: Transaction

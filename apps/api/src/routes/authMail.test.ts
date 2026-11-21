@@ -2,12 +2,12 @@ import { Instant } from '@mygame/domain'
 import { Client } from 'pg'
 import { afterAll, beforeAll, beforeEach, describe, expect, it } from 'vitest'
 import { deleteMailTo, deliveredTo } from '../adapters/smtp/mailpit.testSupport'
-import { pendingWorkCap } from '../adapters/vercel/VercelAfterResponse'
 import { apiPackagePath } from '../apiPackagePath.testSupport'
 import { createApp } from '../app'
 import type { Mail, MailDelivery, Mailer } from '../auth/Mailer'
 import { type ComposedServer, composeServer } from '../composeServer'
 import { mailEnvironment } from '../composeServer.testSupport'
+import { pendingWorkCap } from '../platform/infrastructure/vercel/VercelAfterResponse'
 import { truncatePlayerTables } from '../truncatePlayerTables.testSupport'
 
 const contentDirectory = apiPackagePath('content/')

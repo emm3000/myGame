@@ -141,6 +141,7 @@ export type { SeasonKind } from './season/SeasonKind'
 export { type Season, seasonAt } from './season/seasonAt'
 export { Duration } from './time/Duration'
 export { Instant } from './time/Instant'
+export { laterOf } from './time/laterOf'
 export { type Accrual, accrueTown } from './town/accrueTown'
 export type { BuildingKind } from './town/BuildingKind'
 export type {

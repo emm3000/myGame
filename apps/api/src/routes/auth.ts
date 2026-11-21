@@ -11,6 +11,14 @@ import type { Result } from '@mygame/domain'
 import type { Context } from 'hono'
 import type { ContentfulStatusCode } from 'hono/utils/http-status'
 import {
+  type RequirePlayerDependencies,
+  requirePlayer,
+} from '../account/infrastructure/http/requirePlayer'
+import {
+  clearSessionCookie,
+  writeSessionCookie,
+} from '../account/infrastructure/http/sessionCookie'
+import {
   type RequestPasswordResetDependencies,
   requestPasswordReset,
 } from '../auth/requestPasswordReset'
@@ -23,13 +31,11 @@ import type { SignedIn } from '../auth/SignedIn'
 import { type SignInDependencies, signIn } from '../auth/signIn'
 import { type SignUpDependencies, signUp } from '../auth/signUp'
 import { type VerifyEmailDependencies, verifyEmail } from '../auth/verifyEmail'
-import { answerRefusal } from '../http/answerRefusal'
-import { bodyOf } from '../http/bodyOf'
-import type { Refusal } from '../http/Refusal'
-import { type NamedIssue, requestRefusalOf } from '../http/requestRefusalOf'
-import { type RequirePlayerDependencies, requirePlayer } from '../http/requirePlayer'
-import { clearSessionCookie, writeSessionCookie } from '../http/sessionCookie'
 import type { PlayerChromePhaseDependencies } from '../learning/playerChromePhaseOf'
+import type { Refusal } from '../platform/application/Refusal'
+import { answerRefusal } from '../platform/infrastructure/http/answerRefusal'
+import { bodyOf } from '../platform/infrastructure/http/bodyOf'
+import { type NamedIssue, requestRefusalOf } from '../platform/infrastructure/http/requestRefusalOf'
 import { authDeclarations } from './authDeclarations'
 import { playerBodyOf } from './playerBodyOf'
 

@@ -15,7 +15,6 @@ import { type CardRepository, type Clock, Instant, type RandomSource } from '@my
 import { Client, type QueryResultRow } from 'pg'
 import { afterAll, assert, beforeAll, beforeEach, describe, expect, it } from 'vitest'
 import { shippedCurriculum } from '../adapters/json/shippedCurriculum.testSupport'
-import type { Transaction } from '../adapters/postgres/postgresTransaction'
 import { apiPackagePath } from '../apiPackagePath.testSupport'
 import { createApp } from '../app'
 import { type ComposedServer, composeServer } from '../composeServer'
@@ -26,6 +25,7 @@ import {
   lockedPlayerReadQuery,
   lockProbeLimit,
 } from '../lockWaitProbe.testSupport'
+import type { Transaction } from '../platform/infrastructure/postgres/postgresTransaction'
 import { truncatePlayerTables } from '../truncatePlayerTables.testSupport'
 
 const contentDirectory = apiPackagePath('content/')

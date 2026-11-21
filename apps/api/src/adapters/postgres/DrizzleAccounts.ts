@@ -9,10 +9,10 @@ import type {
   StoredPlayer,
 } from '../../auth/Accounts'
 import { tokenDigest } from '../../auth/tokenDigest'
-import type { PostgresSession } from './connectPostgres'
+import type { PostgresSession } from '../../platform/infrastructure/postgres/connectPostgres'
+import { violatedUniqueConstraint } from '../../platform/infrastructure/postgres/violatedUniqueConstraint'
 import { players, sessions } from './schema'
 import { storedScaffoldColumns } from './storedScaffoldColumns'
-import { violatedUniqueConstraint } from './violatedUniqueConstraint'
 
 const dateOf = (instant: Instant): Date => new Date(instant.epochMilliseconds)
 

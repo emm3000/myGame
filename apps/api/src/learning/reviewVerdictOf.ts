@@ -12,7 +12,7 @@ import {
   type TownCatalog,
   type TownSkill,
 } from '@mygame/domain'
-import { isoOf } from '../http/isoOf'
+import { isoOf } from '../platform/infrastructure/http/isoOf'
 import type { ReviewOutcome } from './answerReviewOf'
 
 type RatesAtEarn = Pick<RaisedSkill, 'ratePerHourBefore' | 'ratePerHourAfter'>

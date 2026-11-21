@@ -18,13 +18,16 @@ import {
   TownNewsFeedSchema,
   TownOverviewSchema,
 } from '@mygame/contracts'
-import { type ResponseDeclaration, refusalResponse } from '../http/refusalResponse'
+import {
+  type ResponseDeclaration,
+  refusalResponse,
+} from '../platform/infrastructure/http/refusalResponse'
 import {
   jsonBody,
   jsonResponse,
   malformedResponse,
   signedInRoute,
-} from '../http/responseDeclarations'
+} from '../platform/infrastructure/http/responseDeclarations'
 
 const townNotFoundResponse = refusalResponse('TownNotFound: the player holds no town yet.')
 

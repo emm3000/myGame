@@ -6,15 +6,18 @@ import {
   ReviewRequestSchema,
   type Reviews,
 } from '@mygame/contracts'
-import { answerRefusal } from '../http/answerRefusal'
-import { bodyOf } from '../http/bodyOf'
-import { honoPathOf } from '../http/honoPath'
-import { type RequirePlayerDependencies, requirePlayer } from '../http/requirePlayer'
+import {
+  type RequirePlayerDependencies,
+  requirePlayer,
+} from '../account/infrastructure/http/requirePlayer'
 import { answerReviewOf } from '../learning/answerReviewOf'
 import type { LearningDependencies } from '../learning/LearningDependencies'
 import { requestHintOf } from '../learning/requestHintOf'
 import { reviewsOf } from '../learning/reviewsOf'
 import { reviewVerdictOf } from '../learning/reviewVerdictOf'
+import { answerRefusal } from '../platform/infrastructure/http/answerRefusal'
+import { bodyOf } from '../platform/infrastructure/http/bodyOf'
+import { honoPathOf } from '../platform/infrastructure/http/honoPath'
 import { mutateTown } from '../town/mutateTown'
 import { learningDeclarations } from './learningDeclarations'
 

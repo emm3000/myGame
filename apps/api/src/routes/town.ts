@@ -39,13 +39,16 @@ import {
   stopSchoolLesson,
 } from '@mygame/domain'
 import type { Context } from 'hono'
-import { answerRefusal } from '../http/answerRefusal'
-import { bodyOf } from '../http/bodyOf'
-import { honoPathOf } from '../http/honoPath'
-import { type NamedIssue, requestRefusalOf } from '../http/requestRefusalOf'
-import { type RequirePlayerDependencies, requirePlayer } from '../http/requirePlayer'
+import {
+  type RequirePlayerDependencies,
+  requirePlayer,
+} from '../account/infrastructure/http/requirePlayer'
 import type { LessonLibrary } from '../learning/LessonLibrary'
 import { openTextOf } from '../learning/openTextOf'
+import { answerRefusal } from '../platform/infrastructure/http/answerRefusal'
+import { bodyOf } from '../platform/infrastructure/http/bodyOf'
+import { honoPathOf } from '../platform/infrastructure/http/honoPath'
+import { type NamedIssue, requestRefusalOf } from '../platform/infrastructure/http/requestRefusalOf'
 import { type CurrentTownDependencies, currentTownOf } from '../town/currentTownOf'
 import { foundTownOnFreeSite } from '../town/foundTownOnFreeSite'
 import { mutateTown } from '../town/mutateTown'

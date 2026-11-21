@@ -1,5 +1,5 @@
 import { assert, describe, expect, it } from 'vitest'
-import type { FailureSink } from '../../failures/FailureSink'
+import type { FailureSink } from '../../application/ports/FailureSink'
 import { pendingWorkCap, VercelAfterResponse } from './VercelAfterResponse'
 
 type HeldWork = {

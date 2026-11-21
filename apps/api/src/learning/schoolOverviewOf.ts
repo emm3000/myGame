@@ -36,7 +36,7 @@ import {
   wordStandingOf,
   wordsEnteringOf,
 } from '@mygame/domain'
-import { isoOf } from '../http/isoOf'
+import { isoOf } from '../platform/infrastructure/http/isoOf'
 import type { TownReading } from '../town/TownReading'
 import type { LessonLibrary, ShelvedLesson } from './LessonLibrary'
 

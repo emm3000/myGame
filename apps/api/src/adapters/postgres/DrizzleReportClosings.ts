@@ -1,7 +1,7 @@
 import { Instant, type PlayerId } from '@mygame/domain'
 import { eq, sql } from 'drizzle-orm'
+import type { PostgresSession } from '../../platform/infrastructure/postgres/connectPostgres'
 import type { ReportClosings } from '../../town/ReportClosings'
-import type { PostgresSession } from './connectPostgres'
 import { players } from './schema'
 
 export class DrizzleReportClosings implements ReportClosings {

@@ -1,7 +1,7 @@
 import type { PlayerId, TipKind } from '@mygame/domain'
+import type { PostgresSession } from '../../platform/infrastructure/postgres/connectPostgres'
 import type { SeenTips } from '../../town/SeenTips'
 import { storedTips } from './aggregatedSeenTips'
-import type { PostgresSession } from './connectPostgres'
 import { playerSeenTips } from './schema'
 
 export class DrizzleSeenTips implements SeenTips {

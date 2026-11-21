@@ -2,13 +2,13 @@ import {
   type Clock,
   type DomainError,
   type JobOrder,
+  laterOf,
   quoteJob,
   type RegionMapReader,
   type Result,
   type Stocks,
   type TownCatalog,
 } from '@mygame/domain'
-import { laterOf } from '../time/laterOf'
 import type { TownReader } from './TownReader'
 
 export type QuotedJobDependencies = {

@@ -12,8 +12,8 @@ import {
   type TownNews,
 } from '@mygame/domain'
 import { and, desc, eq, gt, notInArray } from 'drizzle-orm'
+import type { PostgresSession } from '../../platform/infrastructure/postgres/connectPostgres'
 import { keptEventsPerTown, type TownNewsReader } from '../../town/TownNewsReader'
-import type { PostgresSession } from './connectPostgres'
 import { type townBuilding, townEvents } from './schema'
 
 type StoredTownBuilding = (typeof townBuilding.enumValues)[number]

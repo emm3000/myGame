@@ -1,6 +1,6 @@
 import { createRoute } from '@hono/zod-openapi'
 import { HealthResponseSchema } from '@mygame/contracts'
-import { jsonResponse } from '../http/responseDeclarations'
+import { jsonResponse } from '../platform/infrastructure/http/responseDeclarations'
 
 export const healthDeclarations = {
   health: createRoute({

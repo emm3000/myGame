@@ -1,4 +1,4 @@
-import type { Instant } from '@mygame/domain'
+import type { Instant } from './Instant'
 
 export const laterOf = (left: Instant, right: Instant): Instant =>
   left.epochMilliseconds >= right.epochMilliseconds ? left : right

@@ -8,7 +8,7 @@ import {
   type TownSkill,
 } from '@mygame/domain'
 import { asc, eq, sql } from 'drizzle-orm'
-import type { PostgresSession } from './connectPostgres'
+import type { PostgresSession } from '../../platform/infrastructure/postgres/connectPostgres'
 import { earnedSkills } from './schema'
 
 export class DrizzleEarnedSkills implements EarnedSkillRepository {

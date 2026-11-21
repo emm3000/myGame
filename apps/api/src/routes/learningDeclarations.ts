@@ -6,13 +6,13 @@ import {
   ReviewRequestSchema,
   ReviewsSchema,
 } from '@mygame/contracts'
-import { refusalResponse } from '../http/refusalResponse'
+import { refusalResponse } from '../platform/infrastructure/http/refusalResponse'
 import {
   jsonBody,
   jsonResponse,
   malformedResponse,
   signedInRoute,
-} from '../http/responseDeclarations'
+} from '../platform/infrastructure/http/responseDeclarations'
 
 const reviewRefusals = 'UnknownWord, WordNotHeld or ReviewNotDue'
 

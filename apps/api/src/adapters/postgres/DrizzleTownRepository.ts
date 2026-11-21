@@ -30,14 +30,15 @@ import {
 } from '@mygame/domain'
 import { eq, sql } from 'drizzle-orm'
 import { z } from 'zod'
+import type { PostgresSession } from '../../platform/infrastructure/postgres/connectPostgres'
+import { jsonAggregateOf } from '../../platform/infrastructure/postgres/jsonAggregateOf'
+import { violatedUniqueConstraint } from '../../platform/infrastructure/postgres/violatedUniqueConstraint'
 import type { TownReader, TownWithSchool } from '../../town/TownReader'
 import { byEarnedAt } from '../byEarnedAt'
 import { aggregatedBandStartsOf, bandStartsFrom } from './aggregatedBandStarts'
 import { aggregatedCardsOf, heldCardsOf } from './aggregatedCards'
 import { aggregatedPlacementScoresOf, placementScoresFrom } from './aggregatedPlacementScores'
 import { aggregatedSeenTipsOf, seenTipsFrom } from './aggregatedSeenTips'
-import type { PostgresSession } from './connectPostgres'
-import { jsonAggregateOf } from './jsonAggregateOf'
 import { lessonSlotOf } from './lessonSlotOf'
 import {
   earnedSkills,
@@ -54,7 +55,6 @@ import {
   townWaitingWork,
 } from './schema'
 import { storedScaffoldColumns } from './storedScaffoldColumns'
-import { violatedUniqueConstraint } from './violatedUniqueConstraint'
 
 export type TownRead = 'lockedForUpdate' | 'lockFree'
 
