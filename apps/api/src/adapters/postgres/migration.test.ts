@@ -18,8 +18,8 @@ import {
   pendingReviews,
   reviewLog,
 } from '../../learning/infrastructure/postgres/learningTables'
+import { DrizzleTownRepository } from '../../town/infrastructure/postgres/DrizzleTownRepository'
 import { earnedSkills } from '../../town/infrastructure/postgres/schoolTables'
-import { DrizzleTownRepository } from './DrizzleTownRepository'
 
 const migrationsFolder = apiPackagePath('migrations')
 
