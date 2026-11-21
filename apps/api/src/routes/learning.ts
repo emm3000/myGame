@@ -13,7 +13,7 @@ import {
 import { answerReviewOf } from '../learning/answerReviewOf'
 import type { LearningDependencies } from '../learning/LearningDependencies'
 import { requestHintOf } from '../learning/requestHintOf'
-import { reviewsOf } from '../learning/reviewsOf'
+import { presentReviews, serveDueReviews } from '../learning/reviewsOf'
 import { reviewVerdictOf } from '../learning/reviewVerdictOf'
 import { answerRefusal } from '../platform/infrastructure/http/answerRefusal'
 import { honoPathOf } from '../platform/infrastructure/http/honoPath'
@@ -37,13 +37,13 @@ export const learningRoutes = (dependencies: LearningRouteDependencies): OpenAPI
       const playerId = c.var.playerId
       const reviews = await mutateTown(
         playerId,
-        (stores, clock) => reviewsOf(playerId, stores, clock, dependencies),
+        (stores, clock) => serveDueReviews(playerId, stores, clock, dependencies),
         dependencies,
       )
       if (!reviews.ok) {
         return answerRefusal(c, reviews.error)
       }
-      const body: Reviews = reviews.value
+      const body: Reviews = presentReviews(reviews.value)
       return c.json(body)
     },
   )

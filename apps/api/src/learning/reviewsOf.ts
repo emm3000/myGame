@@ -7,16 +7,19 @@ import {
   type HeldCard,
   heldCardsOf,
   type Instant,
+  type LessonId,
   type MemoryTerms,
   ok,
   type PendingReviewRepository,
   type PlayerId,
   type Result,
+  type ReviewPrompt,
   readFirstOf,
   reviewPromptOf,
   type ShownReview,
   showDueReviews,
   stageOf,
+  type WordId,
 } from '@mygame/domain'
 import type { LessonLibrary } from '../content/application/ports/LessonLibrary'
 import { isoOf } from '../platform/infrastructure/http/isoOf'
@@ -27,12 +30,32 @@ export type ReviewTerms = {
   readonly memoryTerms: MemoryTerms
 }
 
-const dueReviewOf = (
+type PromptedReview = {
+  readonly wordId: WordId
+  readonly lessonId: LessonId
+  readonly dueAt: Instant
+  readonly prompt: ReviewPrompt
+}
+
+export type DueReviews = {
+  readonly due: ReadonlyArray<PromptedReview>
+  readonly readFirst: ReadonlyArray<LessonId>
+  readonly nextDueAt: Instant | null
+  readonly readAt: Instant
+}
+
+const promptedReviewOf = (
   { lesson, word, due, shownFrame }: ShownReview,
   reader: FrameReader,
-): DueReview => {
-  const asked = { wordId: word.id, lessonId: lesson.id, dueAt: isoOf(due.dueAt) }
-  const prompt = reviewPromptOf({ lesson, word, card: due.card, shownFrame }, reader)
+): PromptedReview => ({
+  wordId: word.id,
+  lessonId: lesson.id,
+  dueAt: due.dueAt,
+  prompt: reviewPromptOf({ lesson, word, card: due.card, shownFrame }, reader),
+})
+
+const dueReviewOf = ({ wordId, lessonId, dueAt, prompt }: PromptedReview): DueReview => {
+  const asked = { wordId, lessonId, dueAt: isoOf(dueAt) }
   if (prompt.mode === 'recall') {
     return { ...asked, ...prompt, gappedFrame: [...prompt.gappedFrame] }
   }
@@ -58,12 +81,12 @@ export const nextDueAtOf = (
   return ok(next)
 }
 
-export const reviewsOf = async (
+export const serveDueReviews = async (
   playerId: PlayerId,
   stores: LearnerStores & { readonly pendingReviews: PendingReviewRepository },
   clock: Clock,
   { lessons, memoryTerms }: ReviewTerms,
-): Promise<Result<Reviews, DomainError>> => {
+): Promise<Result<DueReviews, DomainError>> => {
   const learner = await learnerOf(playerId, stores)
   if (!learner.ok) {
     return learner
@@ -83,14 +106,19 @@ export const reviewsOf = async (
   }
   const reader = { cards: heldCardsOf(cards), placedOutBands, scaffold, lessons }
   return ok({
-    due: shown.value.map((review) => dueReviewOf(review, reader)),
-    readFirst: [
-      ...readFirstOf(
-        lessons.lessons(),
-        shown.value.map(({ due }) => due),
-      ),
-    ],
-    nextDueAt: nextDueAt.value === null ? null : isoOf(nextDueAt.value),
-    readAt: isoOf(readAt),
+    due: shown.value.map((review) => promptedReviewOf(review, reader)),
+    readFirst: readFirstOf(
+      lessons.lessons(),
+      shown.value.map(({ due }) => due),
+    ),
+    nextDueAt: nextDueAt.value,
+    readAt,
   })
 }
+
+export const presentReviews = ({ due, readFirst, nextDueAt, readAt }: DueReviews): Reviews => ({
+  due: due.map(dueReviewOf),
+  readFirst: [...readFirst],
+  nextDueAt: nextDueAt === null ? null : isoOf(nextDueAt),
+  readAt: isoOf(readAt),
+})
