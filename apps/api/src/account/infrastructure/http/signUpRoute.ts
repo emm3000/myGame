@@ -1,13 +1,13 @@
 import { createRoute, type OpenAPIHono } from '@hono/zod-openapi'
 import { SignUpRequestSchema } from '@mygame/contracts'
-import { answerRefusal } from '#platform/infrastructure/http/answerRefusal'
 import { readJsonBody } from '#platform/infrastructure/http/readJsonBody'
 import { requestRefusalOf } from '#platform/infrastructure/http/requestRefusalOf'
+import { answerRefusal } from '#platform/infrastructure/http/respondRefusal'
 import { jsonBody } from '#platform/infrastructure/http/responseDeclarations'
 import { type SignUpDependencies, signUp } from '../../application/signUp'
 import { playerResponse, SignUpRequestComponent, signUpRefusals } from './accountComponents'
 import { accountIssues } from './accountIssues'
-import { type AnswerSignedInDependencies, answerSignedIn } from './answerSignedIn'
+import { type AnswerSignedInDependencies, answerSignedIn } from './respondSignedIn'
 
 export const signUpDeclaration = createRoute({
   method: 'post',

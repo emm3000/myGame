@@ -5,8 +5,8 @@ import {
   type ResendVerificationMailDependencies,
   resendVerificationMail,
 } from '../../application/resendVerificationMail'
-import { answerDone } from './answerDone'
 import { type RequirePlayerDependencies, requirePlayer } from './requirePlayer'
+import { answerDone } from './respondDone'
 
 export const resendVerificationMailDeclaration = createRoute(
   signedInRoute({

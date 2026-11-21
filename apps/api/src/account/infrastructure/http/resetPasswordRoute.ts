@@ -1,13 +1,13 @@
 import { createRoute, type OpenAPIHono } from '@hono/zod-openapi'
 import { ResetPasswordRequestSchema } from '@mygame/contracts'
-import { answerRefusal } from '#platform/infrastructure/http/answerRefusal'
 import { readJsonBody } from '#platform/infrastructure/http/readJsonBody'
 import { refusalResponse } from '#platform/infrastructure/http/refusalResponse'
 import { requestRefusalOf } from '#platform/infrastructure/http/requestRefusalOf'
+import { answerRefusal } from '#platform/infrastructure/http/respondRefusal'
 import { jsonBody } from '#platform/infrastructure/http/responseDeclarations'
 import { type ResetPasswordDependencies, resetPassword } from '../../application/resetPassword'
 import { accountIssues } from './accountIssues'
-import { answerDone } from './answerDone'
+import { answerDone } from './respondDone'
 
 export const resetPasswordDeclaration = createRoute({
   method: 'post',

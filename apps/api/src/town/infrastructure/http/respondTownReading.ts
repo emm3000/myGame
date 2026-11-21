@@ -2,7 +2,7 @@ import type { TownOverview } from '@mygame/contracts'
 import type { DomainError, MemoryTerms, Result, TownCatalog } from '@mygame/domain'
 import type { Context } from 'hono'
 import type { LessonLibrary } from '#content/application/ports/LessonLibrary'
-import { answerRefusal } from '#platform/infrastructure/http/answerRefusal'
+import { answerRefusal } from '#platform/infrastructure/http/respondRefusal'
 import type { TownReading } from '../../application/TownReading'
 import { presentTownOverview } from './presentTownOverview'
 

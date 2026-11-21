@@ -5,9 +5,9 @@ import {
   requirePlayer,
 } from '#account/infrastructure/http/requirePlayer'
 import type { LessonLibrary } from '#content/application/ports/LessonLibrary'
-import { answerRefusal } from '#platform/infrastructure/http/answerRefusal'
 import { honoPathOf } from '#platform/infrastructure/http/honoPath'
 import { refusalResponse } from '#platform/infrastructure/http/refusalResponse'
+import { answerRefusal } from '#platform/infrastructure/http/respondRefusal'
 import { jsonResponse } from '#platform/infrastructure/http/responseDeclarations'
 import { signedInRoute } from '#platform/infrastructure/http/signedInRoute'
 import {

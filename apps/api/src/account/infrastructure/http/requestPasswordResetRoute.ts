@@ -1,7 +1,7 @@
 import { createRoute, type OpenAPIHono } from '@hono/zod-openapi'
 import { ForgotPasswordRequestSchema } from '@mygame/contracts'
-import { answerRefusal } from '#platform/infrastructure/http/answerRefusal'
 import { readJsonBody } from '#platform/infrastructure/http/readJsonBody'
+import { answerRefusal } from '#platform/infrastructure/http/respondRefusal'
 import { jsonBody } from '#platform/infrastructure/http/responseDeclarations'
 import {
   type RequestPasswordResetDependencies,

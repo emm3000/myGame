@@ -6,17 +6,17 @@ import {
   requirePlayer,
 } from '#account/infrastructure/http/requirePlayer'
 import type { Transaction } from '#platform/application/ports/Transaction'
-import { answerRefusal } from '#platform/infrastructure/http/answerRefusal'
 import { honoPathOf } from '#platform/infrastructure/http/honoPath'
 import { readJsonBody } from '#platform/infrastructure/http/readJsonBody'
 import { refusalResponse } from '#platform/infrastructure/http/refusalResponse'
 import { type NamedIssue, requestRefusalOf } from '#platform/infrastructure/http/requestRefusalOf'
+import { answerRefusal } from '#platform/infrastructure/http/respondRefusal'
 import { jsonBody } from '#platform/infrastructure/http/responseDeclarations'
 import { signedInRoute } from '#platform/infrastructure/http/signedInRoute'
 import { foundTownOnFreeSite } from '../../application/foundTownOnFreeSite'
 import type { TownStores } from '../../application/ports/TownStores'
 import { readTownReading } from '../../application/readTownReading'
-import { type AnswerTownReadingDependencies, answerTownReading } from './answerTownReading'
+import { type AnswerTownReadingDependencies, answerTownReading } from './respondTownReading'
 import { overviewResponse } from './townComponents'
 
 const foundingIssues: ReadonlyArray<NamedIssue> = [['name', 'too_small', { kind: 'BlankTownName' }]]

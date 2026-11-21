@@ -1,5 +1,5 @@
 import { createRoute, type OpenAPIHono } from '@hono/zod-openapi'
-import { answerRefusal } from '#platform/infrastructure/http/answerRefusal'
+import { answerRefusal } from '#platform/infrastructure/http/respondRefusal'
 import { signedInRoute } from '#platform/infrastructure/http/signedInRoute'
 import type { Accounts } from '../../application/ports/Accounts'
 import type { ReadChromePhaseDependencies } from '../../application/readChromePhase'

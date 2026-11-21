@@ -8,8 +8,8 @@ import {
 import type { LearningDependencies } from '#learning/application/LearningDependencies'
 import { honoPathOf } from '#platform/infrastructure/http/honoPath'
 import { signedInRoute } from '#platform/infrastructure/http/signedInRoute'
-import { answerHoldoutChecks } from './answerHoldoutChecks'
 import { checksResponse } from './holdoutCheckComponents'
+import { answerHoldoutChecks } from './respondHoldoutChecks'
 
 export const readHoldoutChecksDeclaration = createRoute(
   signedInRoute({

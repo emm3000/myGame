@@ -1,13 +1,13 @@
 import { createRoute, type OpenAPIHono } from '@hono/zod-openapi'
 import { SignInRequestSchema } from '@mygame/contracts'
-import { answerRefusal } from '#platform/infrastructure/http/answerRefusal'
 import { readJsonBody } from '#platform/infrastructure/http/readJsonBody'
 import { refusalResponse } from '#platform/infrastructure/http/refusalResponse'
+import { answerRefusal } from '#platform/infrastructure/http/respondRefusal'
 import { jsonBody, jsonResponse } from '#platform/infrastructure/http/responseDeclarations'
 import type { ReadChromePhaseDependencies } from '../../application/readChromePhase'
 import { type SignInDependencies, signIn } from '../../application/signIn'
 import { NativeSessionComponent, SignInRequestComponent } from './accountComponents'
-import { answerNativeSession } from './answerSignedIn'
+import { answerNativeSession } from './respondSignedIn'
 
 export const nativeSignInDeclaration = createRoute({
   method: 'post',

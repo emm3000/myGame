@@ -1,12 +1,12 @@
 import { createRoute, type OpenAPIHono } from '@hono/zod-openapi'
 import { SignInRequestSchema } from '@mygame/contracts'
-import { answerRefusal } from '#platform/infrastructure/http/answerRefusal'
 import { readJsonBody } from '#platform/infrastructure/http/readJsonBody'
 import { refusalResponse } from '#platform/infrastructure/http/refusalResponse'
+import { answerRefusal } from '#platform/infrastructure/http/respondRefusal'
 import { jsonBody } from '#platform/infrastructure/http/responseDeclarations'
 import { type SignInDependencies, signIn } from '../../application/signIn'
 import { playerResponse, SignInRequestComponent } from './accountComponents'
-import { type AnswerSignedInDependencies, answerSignedIn } from './answerSignedIn'
+import { type AnswerSignedInDependencies, answerSignedIn } from './respondSignedIn'
 
 export const signInDeclaration = createRoute({
   method: 'post',

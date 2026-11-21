@@ -5,16 +5,16 @@ import {
   type RequirePlayerDependencies,
   requirePlayer,
 } from '#account/infrastructure/http/requirePlayer'
-import { answerRefusal } from '#platform/infrastructure/http/answerRefusal'
 import { honoPathOf } from '#platform/infrastructure/http/honoPath'
 import { readJsonBody } from '#platform/infrastructure/http/readJsonBody'
 import { refusalResponse } from '#platform/infrastructure/http/refusalResponse'
+import { answerRefusal } from '#platform/infrastructure/http/respondRefusal'
 import { jsonBody } from '#platform/infrastructure/http/responseDeclarations'
 import { signedInRoute } from '#platform/infrastructure/http/signedInRoute'
 import {
   type AnswerTownChangeDependencies,
   answerTownChange,
-} from '../../../infrastructure/http/answerTownChange'
+} from '../../../infrastructure/http/respondTownChange'
 import { overviewResponse, townNotFoundResponse } from '../../../infrastructure/http/townComponents'
 
 export const sendJobDeclaration = createRoute(

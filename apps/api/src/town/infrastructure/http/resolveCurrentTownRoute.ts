@@ -9,7 +9,7 @@ import {
   type ResolveCurrentTownDependencies,
   resolveCurrentTown,
 } from '../../application/resolveCurrentTown'
-import { type AnswerTownReadingDependencies, answerTownReading } from './answerTownReading'
+import { type AnswerTownReadingDependencies, answerTownReading } from './respondTownReading'
 import { overviewResponse, townNotFoundResponse } from './townComponents'
 
 export const resolveCurrentTownDeclaration = createRoute(

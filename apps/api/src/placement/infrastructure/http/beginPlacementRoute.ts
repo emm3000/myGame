@@ -9,8 +9,8 @@ import type { LearningDependencies } from '#learning/application/LearningDepende
 import { honoPathOf } from '#platform/infrastructure/http/honoPath'
 import { signedInRoute } from '#platform/infrastructure/http/signedInRoute'
 import { mutateTown } from '#town/application/mutateTown'
-import { answerPlacementView } from './answerPlacementView'
 import { offerRefused, placementResponse } from './placementComponents'
+import { answerPlacementView } from './respondPlacementView'
 
 export const beginPlacementDeclaration = createRoute(
   signedInRoute({

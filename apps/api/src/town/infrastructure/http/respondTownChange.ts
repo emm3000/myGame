@@ -3,7 +3,7 @@ import type { Context } from 'hono'
 import { type MutateTownDependencies, mutateTown } from '../../application/mutateTown'
 import type { TownStores } from '../../application/ports/TownStores'
 import { readTownReading } from '../../application/readTownReading'
-import { type AnswerTownReadingDependencies, answerTownReading } from './answerTownReading'
+import { type AnswerTownReadingDependencies, answerTownReading } from './respondTownReading'
 
 export type TownChange = (stores: TownStores, clock: Clock) => Promise<Result<Instant, DomainError>>
 
