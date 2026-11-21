@@ -10,7 +10,7 @@ import { honoPathOf } from '#platform/infrastructure/http/honoPath'
 import { respondRefusal } from '#platform/infrastructure/http/respondRefusal'
 import { signedInRoute } from '#platform/infrastructure/http/signedInRoute'
 import { checkNotDue, checkPath, checksResponse, malformedCheck } from './holdoutCheckComponents'
-import { readChecksAfter } from './readChecksAfter'
+import { mutateHoldoutCheck } from './readChecksAfter'
 import { respondHoldoutChecks } from './respondHoldoutChecks'
 
 export const skipHoldoutCheckDeclaration = createRoute(
@@ -45,9 +45,8 @@ export const skipHoldoutCheckRoute = (
         return respondRefusal(c, { kind: 'MalformedRequest' })
       }
       const playerId = c.var.playerId
-      const views = await readChecksAfter(
-        playerId,
-        check.data,
+      const views = await mutateHoldoutCheck(
+        { playerId, ...check.data },
         (stores, { band, week }, at) =>
           skipHoldoutCheck({ playerId, band, week }, { bandStarts: stores.bandStarts, clock: at }),
         dependencies,

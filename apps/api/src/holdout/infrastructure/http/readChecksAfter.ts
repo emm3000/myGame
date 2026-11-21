@@ -1,8 +1,9 @@
-import type { HoldoutCheckRequest } from '@mygame/contracts'
 import {
+  type Band,
   type Clock,
   type DomainError,
   type HoldoutCheckView,
+  type HoldoutCheckWeek,
   type PlayerId,
   type Result,
   readHoldoutChecks,
@@ -12,27 +13,35 @@ import type { LearningDependencies } from '#learning/application/LearningDepende
 import { mutateTown } from '#town/application/mutateTown'
 import type { TownStores } from '#town/application/ports/TownStores'
 
+export type HoldoutCheckCommand = {
+  readonly playerId: PlayerId
+  readonly band: Band
+  readonly week: HoldoutCheckWeek
+}
+
 export type CheckMutation = (
   stores: TownStores,
-  check: HoldoutCheckRequest,
+  command: HoldoutCheckCommand,
   clock: Clock,
 ) => Promise<Result<unknown, DomainError>>
 
-export const readChecksAfter = (
-  playerId: PlayerId,
-  check: HoldoutCheckRequest,
+export const mutateHoldoutCheck = (
+  command: HoldoutCheckCommand,
   mutation: CheckMutation,
   dependencies: LearningDependencies,
 ): Promise<Result<ReadonlyArray<HoldoutCheckView>, DomainError>> =>
   mutateTown(
-    playerId,
+    command.playerId,
     async (stores, mutationClock) => {
-      const changed = await mutation(stores, check, mutationClock)
+      const changed = await mutation(stores, command, mutationClock)
       if (!changed.ok) {
         return changed
       }
       return readHoldoutChecks(
-        { playerId, scaffold: await readScaffold(playerId, stores.accounts) },
+        {
+          playerId: command.playerId,
+          scaffold: await readScaffold(command.playerId, stores.accounts),
+        },
         { bandStarts: stores.bandStarts, words: dependencies.lessons, clock: mutationClock },
       )
     },

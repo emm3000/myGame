@@ -11,7 +11,7 @@ import { honoPathOf } from '#platform/infrastructure/http/honoPath'
 import { respondRefusal } from '#platform/infrastructure/http/respondRefusal'
 import { signedInRoute } from '#platform/infrastructure/http/signedInRoute'
 import { checkNotDue, checkPath, checksResponse, malformedCheck } from './holdoutCheckComponents'
-import { readChecksAfter } from './readChecksAfter'
+import { mutateHoldoutCheck } from './readChecksAfter'
 import { respondHoldoutChecks } from './respondHoldoutChecks'
 
 export const beginHoldoutCheckDeclaration = createRoute(
@@ -50,9 +50,8 @@ export const beginHoldoutCheckRoute = (
         return respondRefusal(c, { kind: 'MalformedRequest' })
       }
       const playerId = c.var.playerId
-      const views = await readChecksAfter(
-        playerId,
-        check.data,
+      const views = await mutateHoldoutCheck(
+        { playerId, ...check.data },
         async (stores, { band, week }, at) =>
           beginHoldoutCheck(
             { playerId, band, week, scaffold: await readScaffold(playerId, stores.accounts) },
