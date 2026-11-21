@@ -186,6 +186,7 @@ class LessonWordsViewModelTest {
         runCurrent()
 
         assertEquals(LessonWordsUiState.WayOn.Lesson(secondLesson), readingOf(viewModel).wayOn)
+        assertEquals(1, towns.readCount)
     }
 
     @Test
