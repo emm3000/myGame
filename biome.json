@@ -536,16 +536,6 @@
           }
         }
       }
-    },
-    {
-      "includes": ["apps/api/src/openApiConformance.test.ts"],
-      "linter": {
-        "rules": {
-          "style": {
-            "noExcessiveLinesPerFile": "off"
-          }
-        }
-      }
     }
   ]
 }
