@@ -1247,6 +1247,13 @@ it('holds one ink pill on the school with a released step ahead', async () => {
   expect(inkPills()).toEqual([releasedStepStudyLabel])
 })
 
+it('opens the words of a running released lesson from the block', async () => {
+  await showSchool(releasedLessonRunning)
+
+  const way = within(nextStepColumn()).getByRole('link', { name: es.schoolLessonReadWords() })
+  expect(way.getAttribute('href')).toBe('/school/released-2-2')
+})
+
 it.each<[string, TownOverview]>([
   ['a released step', releasedStepAhead],
   ['a check step', checkStepAhead],

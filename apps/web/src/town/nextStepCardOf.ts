@@ -87,16 +87,10 @@ const reviewsCardOf = (
   action: reviewsActionOf(copy, readFirst),
 })
 
-const runningLessonActionOf = (
-  copy: PlayerCopy,
-  { lessonSlot, overview }: LiveTown,
-): NextStepAction => {
-  if (lessonSlot === null) {
-    return { label: copy.chrome((catalog) => catalog.schoolLessonReadWords()), to: '/school' }
-  }
-  const name = lessonNameOf(lessonSlot.lessonId, overview)
-  return name.kind === 'released' ? goToSchool(copy) : readWords(copy, lessonSlot.lessonId)
-}
+const runningLessonActionOf = (copy: PlayerCopy, { lessonSlot }: LiveTown): NextStepAction =>
+  lessonSlot === null
+    ? { label: copy.chrome((catalog) => catalog.schoolLessonReadWords()), to: '/school' }
+    : readWords(copy, lessonSlot.lessonId)
 
 const lessonRunningCardOf = (copy: PlayerCopy, town: LiveTown): NextStepCardContent => ({
   line: copy.chrome((catalog) => catalog.schoolSlotTitle()),
