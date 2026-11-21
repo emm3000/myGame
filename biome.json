@@ -542,7 +542,6 @@
     {
       "includes": [
         "apps/api/src/adapters/postgres/migration.test.ts",
-        "apps/api/src/town/infrastructure/memory/townRepositoryContract.testSupport.ts",
         "apps/api/src/openApiConformance.test.ts",
         "apps/api/src/routes/town.test.ts",
         "apps/api/src/routes/town.ts",
@@ -559,11 +558,7 @@
       }
     },
     {
-      "includes": [
-        "apps/api/src/town/infrastructure/memory/townRepositoryContract.testSupport.ts",
-        "apps/api/src/routes/town.ts",
-        "apps/api/src/town/townNewsItemOf.ts"
-      ],
+      "includes": ["apps/api/src/routes/town.ts", "apps/api/src/town/townNewsItemOf.ts"],
       "linter": {
         "rules": {
           "complexity": {
