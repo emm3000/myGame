@@ -261,7 +261,7 @@ A frame such as *This is my home.* passes: *this*, *is* (*be*) and *my*
 
 - **Content is drafted offline and never at runtime.** The api and CI
   hold no model key and call no model; a text reaches a player only as
-  a committed file that passed the gate and the owner's review (§3.5).
+  a committed file that passed the gate and the content review (§3.5).
 - **The drafter is a Claude Code authoring session**, dispatched as a
   content ticket like any other: it reads `docs/setting/` and this ADR,
   writes the lexicon and lesson files, runs the gate and fixes what it
@@ -400,7 +400,7 @@ A frame such as *This is my home.* passes: *this*, *is* (*be*) and *my*
   homographs, and adds no dependency.
 - **A grammar check by parser.** A part-of-speech tagger would catch
   structures, not only words and inflections, at the cost of a model in
-  CI whose errors become gate failures. Rejected; the owner's review
+  CI whose errors become gate failures. Rejected; the content review
   covers structure.
 - **A review mark in the content.** A field an agent can set proves
   nothing, since every commit carries the owner's identity. Rejected

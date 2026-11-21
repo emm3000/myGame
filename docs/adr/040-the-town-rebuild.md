@@ -395,7 +395,7 @@ What trunk holds, checked at `1f0b1c41`:
 - **Spanish chrome is neutral Latin American** (*costo*, *pago*), never
   peninsular (*coste*) or Rioplatense. ADR 035 already rules out vos;
   most Spanish-speaking adults live in Latin America, so its neutral
-  register serves most learners. The owner's review of `es.json` is
+  register serves most learners. The content review of `es.json` is
   the check.
 - **A Spanish chrome label of a card word is that word's gloss** where
   the gloss names the thing: *Homes* is *Hogares*, as *home* is glossed

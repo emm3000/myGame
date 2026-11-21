@@ -129,7 +129,7 @@ L2 study gives the fade point.
   message that does not parse, two
   languages naming different arguments for one key, and, in `es`, a
   denylist of voseo forms (*vos*, *sos*, *tenés*, *podés*, *querés*,
-  *sabés* and their kin); the owner's review is the guarantee, the
+  *sabés* and their kin); the content review is the guarantee, the
   denylist the tripwire.
 - **It generates what the clients read.** The web and the api import
   typed functions from `@mygame/catalog`, one per key and language, the
@@ -178,7 +178,7 @@ L2 study gives the fade point.
 ### Spanish addresses the reader as tú
 
 Every Spanish message and gloss addresses the reader as tú, never vos
-(ADR 035, N6), checked by the owner's review and the catalog's
+(ADR 035, N6), checked by the content review and the catalog's
 denylist. A gloss that is a verb is glossed in the infinitive, as
 *trabajar* is for *work*, so it addresses no one.
 
