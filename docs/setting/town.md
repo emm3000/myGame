@@ -43,7 +43,7 @@ The map is region : area : site (ADR 040), one area at a time, browsed with *Pre
 
 ### The three terrains
 
-An area's terrain is set by its number (ADR 040). The rotation below is the one `terrainOf` returns (`packages/domain/src/town/terrainOf.ts`).
+An area's terrain is set by its number (ADR 040). The rotation below is the one `terrainOf` returns (`packages/domain/src/town/jobs/terrainOf.ts`).
 
 | Terrain | Rank | Areas | What the player sees | Source |
 |---|---|---|---|---|
@@ -55,7 +55,7 @@ The gain is the bonus to the town's own site (ADR 040). A job's pay is fixed at 
 
 ### The waste sites
 
-Waste sites sit on a content fraction of the free sites, placed by a hash of the address, in three sizes (ADR 040, ADR 020, `packages/domain/src/town/wasteSizeOf.ts`). A site shows *Waste site*, *Size 2* and *Waste: 12*, the waste regrowing from 0 after a clean-up up to its size's top. A team whose strength covers the waste cleans it and comes back with money and material; a smaller team comes back with nothing; nobody is lost.
+Waste sites sit on a content fraction of the free sites, placed by a hash of the address, in three sizes (ADR 040, ADR 020, `packages/domain/src/town/jobs/wasteSizeOf.ts`). A site shows *Waste site*, *Size 2* and *Waste: 12*, the waste regrowing from 0 after a clean-up up to its size's top. A team whose strength covers the waste cleans it and comes back with money and material; a smaller team comes back with nothing; nobody is lost.
 
 | Size | Rank | What the player sees | Source |
 |---|---|---|---|

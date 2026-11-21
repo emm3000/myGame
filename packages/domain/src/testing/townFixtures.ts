@@ -6,7 +6,7 @@ import { idleWorkSlot, type WaitingList, type WorkSlot } from '../town/BuildingW
 import { noStoreFull } from '../town/FullSince'
 import { type Hires, noHires } from '../town/Hires'
 import { type HiringSlot, idleHiringSlot } from '../town/HiringOrder'
-import { idleJobSlot, type JobSlot } from '../town/Job'
+import { idleJobSlot, type JobSlot } from '../town/jobs/Job'
 import type { Stocks } from '../town/Stocks'
 import { type StoredTown, Town } from '../town/Town'
 import { TownAddress } from '../town/TownAddress'
