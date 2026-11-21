@@ -352,11 +352,29 @@ class SchoolScreenTest {
     fun `reads a lesson row's theme in English`() {
         show(idleSchool)
 
+        assertEquals(LocaleList("en"), themeLocale())
+    }
+
+    @Test
+    fun `reads a studied lesson's theme in English`() {
+        show(idleSchool.copy(lessons = listOf(readyLesson.copy(state = SchoolUiState.LessonState.Studied))))
+
+        assertEquals(LocaleList("en"), themeLocale())
+    }
+
+    @Test
+    fun `reads the shown lesson's theme in English`() {
+        show(blocked(SchoolUiState.LessonBlock.CapReached))
+
+        assertEquals(LocaleList("en"), themeLocale())
+    }
+
+    private fun themeLocale(): LocaleList? {
         val theme: AnnotatedString = composeRule.onNodeWithText("A day in town", useUnmergedTree = true)
             .fetchSemanticsNode()
             .config[SemanticsProperties.Text]
             .single()
-        assertEquals(LocaleList("en"), theme.spanStyles.single().item.localeList)
+        return theme.spanStyles.single().item.localeList
     }
 
     @Test
