@@ -1,3 +1,4 @@
+import type { NextStep } from '@mygame/contracts'
 import { type ReactElement, useEffect, useState } from 'react'
 import type { ChromeCatalog, PlayerCopy } from '../copy/PlayerCopy'
 import { usePlayerCopy } from '../copy/usePlayerCopy'
@@ -148,6 +149,12 @@ const shownCardOf = (
   )
 }
 
+const isAheadOfTheShelf = ({ kind }: NextStep): boolean =>
+  kind === 'releasedLesson' || kind === 'holdoutCheck'
+
+const stepReleasedIdOf = (nextStep: NextStep): string | undefined =>
+  nextStep.kind === 'releasedLesson' ? nextStep.lessonId : undefined
+
 export function SchoolScreen({ town, lessons }: SchoolScreenProps): ReactElement {
   const { overview } = town
   const copy = usePlayerCopy()
@@ -162,10 +169,12 @@ export function SchoolScreen({ town, lessons }: SchoolScreenProps): ReactElement
     }
   }, [selectedId, focusBlockTitle])
   const cards = overview.lessons.map((lesson) => lessonCardOf(lesson, overview, copy))
-  const shown = shownCardOf(cards, selectedId)
-  const releasedCards = overview.releasedLessons.map((lesson) =>
-    releasedRowOf(lesson, overview, copy),
-  )
+  const isStepAhead = selectedId === undefined && isAheadOfTheShelf(overview.nextStep)
+  const shown = isStepAhead ? undefined : shownCardOf(cards, selectedId)
+  const stepReleasedId = shown === undefined ? stepReleasedIdOf(overview.nextStep) : undefined
+  const releasedCards = overview.releasedLessons
+    .filter(({ id }) => id !== stepReleasedId)
+    .map((lesson) => releasedRowOf(lesson, overview, copy))
   const stopRefused = lessons.stopRefused
   return (
     <div className="flex flex-col gap-6">
@@ -184,7 +193,7 @@ export function SchoolScreen({ town, lessons }: SchoolScreenProps): ReactElement
       <div className="grid items-start gap-6 lg:grid-cols-2">
         <div className="flex min-w-0 flex-col gap-6">
           {shown === undefined ? (
-            <SchoolNextStep town={town} />
+            <SchoolNextStep town={town} lessons={lessons} />
           ) : (
             <ShownLesson card={shown} town={town} lessons={lessons} titleRef={blockTitle.ref} />
           )}
