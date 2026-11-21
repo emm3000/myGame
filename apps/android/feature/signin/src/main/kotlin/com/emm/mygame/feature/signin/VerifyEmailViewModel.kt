@@ -17,7 +17,7 @@ class VerifyEmailViewModel(
     private val token: EmailVerificationToken?,
 ) : ViewModel() {
 
-    private val settledState: VerifyEmailUiState? = settledStateOf(savedState.get<String>(SETTLED_ANSWER))
+    private val settledState: VerifyEmailUiState? = settledStateOf(savedState.get<SettledAnswer>(SETTLED_ANSWER))
 
     private val _state: MutableStateFlow<VerifyEmailUiState> =
         MutableStateFlow(settledState ?: VerifyEmailUiState.LinkRefused)
@@ -52,20 +52,18 @@ class VerifyEmailViewModel(
 
 private const val SETTLED_ANSWER: String = "settledAnswer"
 
-private const val VERIFIED: String = "verified"
+private enum class SettledAnswer { Verified, LinkRefused }
 
-private const val LINK_REFUSED: String = "linkRefused"
-
-private fun settledAnswerOf(answer: EmailVerificationResult): String? = when (answer) {
-    EmailVerificationResult.Verified -> VERIFIED
-    EmailVerificationResult.LinkRefused -> LINK_REFUSED
+private fun settledAnswerOf(answer: EmailVerificationResult): SettledAnswer? = when (answer) {
+    EmailVerificationResult.Verified -> SettledAnswer.Verified
+    EmailVerificationResult.LinkRefused -> SettledAnswer.LinkRefused
     EmailVerificationResult.Unreachable -> null
 }
 
-private fun settledStateOf(settledAnswer: String?): VerifyEmailUiState? = when (settledAnswer) {
-    VERIFIED -> VerifyEmailUiState.Verified
-    LINK_REFUSED -> VerifyEmailUiState.LinkRefused
-    else -> null
+private fun settledStateOf(settledAnswer: SettledAnswer?): VerifyEmailUiState? = when (settledAnswer) {
+    SettledAnswer.Verified -> VerifyEmailUiState.Verified
+    SettledAnswer.LinkRefused -> VerifyEmailUiState.LinkRefused
+    null -> null
 }
 
 private fun stateOf(answer: EmailVerificationResult): VerifyEmailUiState = when (answer) {
