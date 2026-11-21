@@ -6,6 +6,7 @@ import { afterEach, beforeEach, expect, it, vi } from 'vitest'
 import type { ApiClient, ApiOutcome } from '../api/apiClient'
 import { renderAppAt } from '../auth/renderAppAt.testSupport'
 import { knownPlayer, knownTown, stubApiClient } from '../auth/stubApiClient.testSupport'
+import { linePatternOf } from '../copy/linePatternOf.testSupport'
 import { accessibleDescriptionOf } from '../design-system/accessibleDescriptionOf.testSupport'
 import { formatDuration } from '../design-system/formatDuration'
 import {
@@ -954,10 +955,17 @@ it('shows the held words of each started band', async () => {
   expect(screen.getByText(es.schoolBandLine({ band: 2, count: 0, total: 500 }))).toBeDefined()
 })
 
+const alwaysDrawnLine = es.schoolLearning(knownTown.learning)
+
 it('shows no band line before a band starts', async () => {
   await showSchool(schoolOf({ bandLines: [] }))
 
-  expect(screen.queryByText(/^Banda \d+: /)).toBeNull()
+  const anyBandLine = linePatternOf(
+    es.schoolBandLine({ band: 101, count: 202, total: 303 }),
+    [101, 202, 303],
+  )
+  expect(screen.getByText(alwaysDrawnLine)).toBeDefined()
+  expect(screen.queryByText(anyBandLine)).toBeNull()
 })
 
 it('tells the player about the holdout once a band has started', async () => {
@@ -975,6 +983,7 @@ it('tells the holdout in English under no scaffold', async () => {
 it('says nothing of the holdout before a band starts', async () => {
   await showSchool(schoolOf({ hasBandStarted: false }))
 
+  expect(screen.getByText(alwaysDrawnLine)).toBeDefined()
   expect(shownLinesDrawnAlone(es.schoolHoldoutNote(), 'es')).toHaveLength(0)
 })
 

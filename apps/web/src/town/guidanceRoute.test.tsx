@@ -5,6 +5,7 @@ import { afterEach, beforeEach, expect, it, vi } from 'vitest'
 import type { ApiClient, ApiOutcome, ApiRefusal } from '../api/apiClient'
 import { renderAppAt } from '../auth/renderAppAt.testSupport'
 import { knownPlayer, knownTown, stubApiClient } from '../auth/stubApiClient.testSupport'
+import { linePatternOf } from '../copy/linePatternOf.testSupport'
 import type { TownGoal } from './TownGoal'
 
 beforeEach(() => {
@@ -67,6 +68,25 @@ const card = (): HTMLElement => screen.getByRole('region', { name: es.townNextTi
 
 const factoryGoalLine = es.townGoalLine({ position: 2, count: 9, place: 'Fábrica', level: 1 })
 
+const anyGoalLine = linePatternOf(
+  es.townGoalLine({ position: 101, count: 202, place: 'PLACE', level: 303 }),
+  [101, 202, 'PLACE', 303],
+)
+
+const lessonRunning = (goal: TownGoal | null): NextStep => ({
+  kind: 'lessonRunning',
+  goal,
+  text: null,
+})
+
+const runningLessonOne: Partial<TownOverview> = {
+  lessonSlot: {
+    lessonId: 'lesson-1',
+    startedAt: knownTown.readAt,
+    finishesAt: new Date(Date.parse(knownTown.readAt) + 240_000).toISOString(),
+  },
+}
+
 it('shows the next goal', async () => {
   const missing = { resources: { money: 45, food: 0, power: 0, material: 65 }, people: 2 }
 
@@ -98,14 +118,35 @@ it('shows a goal underway as in work', async () => {
 it('shows no goal beside any other next step', async () => {
   await showTown(townAt({ kind: 'reviews', count: 3, readFirst: [] }))
 
-  expect(within(card()).queryByText(/Meta \d/)).toBeNull()
+  expect(within(card()).queryByText(anyGoalLine)).toBeNull()
   expect(screen.queryByRole('button', { name: es.townGoalClose() })).toBeNull()
 })
 
 it('shows no goal once none is left', async () => {
   await showTown(townAt(caughtUp(null)))
 
-  expect(within(card()).queryByText(/Meta \d/)).toBeNull()
+  expect(within(card()).queryByText(anyGoalLine)).toBeNull()
+  expect(screen.queryByRole('button', { name: es.townGoalClose() })).toBeNull()
+})
+
+it('shows the goal beside a running lesson', async () => {
+  await showTown(townAt(lessonRunning(underwayFarm), runningLessonOne))
+
+  expect(
+    within(card()).getByText(es.townGoalLine({ position: 1, count: 9, place: 'Granja', level: 1 })),
+  ).toBeDefined()
+  expect(within(card()).getByText(es.townInWork())).toBeDefined()
+})
+
+it('closes the goal beside a running lesson with one dismiss', async () => {
+  const dismissGuidance = vi.fn(async (): Promise<ApiRefusal | undefined> => undefined)
+  await showTown(townAt(lessonRunning(underwayFarm), runningLessonOne), { dismissGuidance })
+
+  fireEvent.click(screen.getByRole('button', { name: es.townGoalClose() }))
+  await passSeconds(0)
+
+  expect(dismissGuidance).toHaveBeenCalledTimes(1)
+  expect(within(card()).queryByText(anyGoalLine)).toBeNull()
   expect(screen.queryByRole('button', { name: es.townGoalClose() })).toBeNull()
 })
 

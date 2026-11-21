@@ -5,6 +5,7 @@ import { afterEach, beforeEach, expect, it, vi } from 'vitest'
 import type { ApiClient } from '../api/apiClient'
 import { renderAppAt } from '../auth/renderAppAt.testSupport'
 import { knownPlayer, knownTown, stubApiClient } from '../auth/stubApiClient.testSupport'
+import { linePatternOf } from '../copy/linePatternOf.testSupport'
 import type { TownGoal } from './TownGoal'
 
 beforeEach(() => {
@@ -471,7 +472,9 @@ it('a running lesson names it beside the goal', async () => {
 it('names no text while the next step carries none', async () => {
   await showTown(townAt({ kind: 'caughtUp', reason: 'lessonsDone', goal: null, text: null }))
 
-  expect(screen.queryByRole('link', { name: /^Lee: / })).toBeNull()
+  const anyTextLine = linePatternOf(es.townNextText({ title: 'TITLE' }), ['TITLE'])
+
+  expect(screen.queryByRole('link', { name: anyTextLine })).toBeNull()
 })
 
 it('marks the newest text title in English inside the Spanish read line', async () => {

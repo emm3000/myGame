@@ -1,4 +1,4 @@
-import type { NextStep } from '@mygame/contracts'
+import type { NextStep, NextStepText } from '@mygame/contracts'
 import type { ReactElement } from 'react'
 import { chromeAroundOf } from '../copy/chromeAroundOf'
 import { usePlayerCopy } from '../copy/usePlayerCopy'
@@ -38,12 +38,10 @@ function GoalLines({ goal }: { readonly goal: TownGoal }): ReactElement {
   )
 }
 
-type NewestText = NonNullable<Extract<NextStep, { readonly kind: 'caughtUp' }>['text']>
-
-const newestTextOf = (nextStep: NextStep): NewestText | null =>
+const newestTextOf = (nextStep: NextStep): NextStepText | null =>
   nextStep.kind === 'caughtUp' || nextStep.kind === 'lessonRunning' ? nextStep.text : null
 
-function NewestTextLine({ text }: { readonly text: NewestText }): ReactElement {
+function NewestTextLine({ text }: { readonly text: NextStepText }): ReactElement {
   const copy = usePlayerCopy()
   return (
     <div>
