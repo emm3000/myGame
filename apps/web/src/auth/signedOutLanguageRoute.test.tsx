@@ -1,5 +1,9 @@
+import { en, es } from '@mygame/catalog'
 import { cleanup, fireEvent, screen } from '@testing-library/react'
 import { afterEach, expect, it, vi } from 'vitest'
+import type { Catalog } from '../copy/PlayerCopy'
+import type { LineLanguage } from '../design-system/Label'
+import { linesDrawnAlone } from '../town/lineDrawnAlone.testSupport'
 import { renderAppAt } from './renderAppAt.testSupport'
 import { stubApiClient } from './stubApiClient.testSupport'
 
@@ -111,3 +115,32 @@ it('preselects the scaffold of the language switched to', async () => {
   expect(await titleOf()).toBe('Crea tu cuenta')
   expect(await checkedScaffoldOf()).toBe('es')
 })
+
+const refusedSignIn = async (catalog: Catalog): Promise<void> => {
+  fireEvent.change(await screen.findByLabelText(catalog.authEmail()), {
+    target: { value: 'aldonza@example.com' },
+  })
+  fireEvent.change(screen.getByLabelText(catalog.authPassword()), {
+    target: { value: 'piedra-equivocada' },
+  })
+  fireEvent.click(screen.getByRole('button', { name: catalog.authSignInSubmit() }))
+}
+
+it.each<[string, Catalog, LineLanguage, string, LineLanguage]>([
+  ['en-US', en, 'en', 'Español', 'es'],
+  ['es-ES', es, 'es', 'English', 'en'],
+])(
+  'marks each sign-in line for a %s browser with the language drawn',
+  async (browserLanguage, catalog, language, switchName, switchLanguage) => {
+    browseIn(browserLanguage)
+    renderAppAt(
+      '/sign-in',
+      stubApiClient({ signIn: async () => ({ ok: false, refusal: 'InvalidCredentials' }) }),
+    )
+
+    expect(await linesDrawnAlone(catalog.authEmail(), language)).toHaveLength(1)
+    expect(await linesDrawnAlone(switchName, switchLanguage)).toHaveLength(1)
+    await refusedSignIn(catalog)
+    expect(await linesDrawnAlone(catalog.refusalInvalidCredentials(), language)).toHaveLength(1)
+  },
+)
