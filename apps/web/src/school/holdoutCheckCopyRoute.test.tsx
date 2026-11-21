@@ -1,13 +1,12 @@
 import { en, es } from '@mygame/catalog'
-import type { HoldoutChecks, TownOverview } from '@mygame/contracts'
+import type { HoldoutChecks } from '@mygame/contracts'
 import { screen } from '@testing-library/react'
 import { expect, it } from 'vitest'
 import type { ApiClient } from '../api/apiClient'
 import { renderAppAt } from '../auth/renderAppAt.testSupport'
 import { knownPlayer, knownTown, stubApiClient } from '../auth/stubApiClient.testSupport'
+import type { CopyLanguage } from '../copy/playerCopyOf'
 import { shownLinesDrawnAlone } from '../town/lineDrawnAlone.testSupport'
-
-type CopyLanguage = Pick<TownOverview, 'scaffold' | 'chromePhase'>
 
 const spanishPhase: CopyLanguage = { scaffold: 'es', chromePhase: 'scaffold' }
 const bothPhase: CopyLanguage = { scaffold: 'es', chromePhase: 'both' }

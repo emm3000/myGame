@@ -1,11 +1,12 @@
 import { en, es } from '@mygame/catalog'
-import type { DueReview, ReviewAnswer, Reviews, TownOverview } from '@mygame/contracts'
+import type { DueReview, ReviewAnswer, Reviews } from '@mygame/contracts'
 import { act, fireEvent, render, screen, within } from '@testing-library/react'
 import type { ReactElement } from 'react'
 import { afterEach, beforeEach, expect, it, vi } from 'vitest'
 import type { ApiClient, ApiOutcome } from '../api/apiClient'
 import { renderAppAt } from '../auth/renderAppAt.testSupport'
 import { knownPlayer, knownTown, stubApiClient } from '../auth/stubApiClient.testSupport'
+import type { CopyLanguage } from '../copy/playerCopyOf'
 import { capitalize } from '../design-system/capitalize'
 import { CheckIcon } from '../design-system/icons/CheckIcon'
 import { CrossIcon } from '../design-system/icons/CrossIcon'
@@ -790,8 +791,6 @@ it('draws no skeleton under a card when a re-read after an answer is slow', asyn
   expect(skeletonBlocks()).toEqual([])
   expect(screen.getByText('escuela')).toBeDefined()
 })
-
-type CopyLanguage = Pick<TownOverview, 'scaffold' | 'chromePhase'>
 
 const showReviewIn = async (
   language: CopyLanguage,
