@@ -541,7 +541,6 @@
     },
     {
       "includes": [
-        "apps/api/src/adapters/postgres/migration.test.ts",
         "apps/api/src/openApiConformance.test.ts",
         "apps/api/src/routes/town.test.ts",
         "apps/api/src/routes/town.ts",
