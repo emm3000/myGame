@@ -27,6 +27,7 @@ One row for each folder directly under `apps/api/src` or `packages/domain/src`. 
 | Folder | Package | What it holds |
 |---|---|---|
 | `platform` | api | What holds no game word: the HTTP kernel, the Postgres kernel, the system clock and ids, the failure sink and the deferred work. |
+| `content` | api | The JSON catalogs of the town and the lessons, and the content gate: the checks the shipped content passes. |
 | `account` | api | Players, sessions, account tokens and mail, the scaffold choice and the chrome phase. |
 | `town` | api, domain | The holding: stocks, accrual, founding, building work, hiring, jobs, the school, guidance and news. |
 | `learning` | api, domain | Reviews, hints, frames, retention and the curriculum's shape. |
@@ -39,9 +40,8 @@ One row for each folder directly under `apps/api/src` or `packages/domain/src`. 
 | `hash` | domain | Text hashes and the ids drawn from them, with no game word. |
 | `grid` | domain | Grid cells, with no game word. |
 | `ports` | domain | `Clock`, `IdGenerator` and `RandomSource`, the ports no feature owns. |
-| `adapters` | api | *Moving.* Drizzle, memory and JSON adapters, each to the feature whose port it implements. |
+| `adapters` | api | *Moving.* Drizzle and memory adapters, each to the feature whose port it implements. |
 | `routes` | api | *Moving.* One endpoint per file, to each feature's `infrastructure/http/`. |
-| `contentGate` | api | *Moving* to `content`: the checks the JSON catalogs pass. |
 | `useCases` | domain | *Moving* into each feature's `useCases/`. |
 | `testing` | domain | *Moving* into each feature's `testing/`. |
 
@@ -72,6 +72,7 @@ index.ts  listen.ts  app.ts  composeServer.ts  composeStores.ts    the compositi
   infrastructure/json/        the JSON catalogs
   infrastructure/smtp/        the mailer
   infrastructure/system/      the password hasher and the session tokens
+  gate/                       the content gate (content): the checks the shipped content passes, one file per check in checks/ and the readings they share beside them; no request, port or adapter reaches it, only its tests
 ```
 
 `platform/` follows the same grammar: `application/` holds `Refusal`, `application/ports/` the transaction, the failure sink and the deferred work, and `infrastructure/{http,postgres,system,vercel}/` the kernels. Only `platform/` may hold, at its root, a pure function that both its `application/` and its `infrastructure/` read; `thrownCauseOf.ts` is the one case, and a feature folder may not. An adapter lives in the feature whose port it implements. `packages/contracts/src/<feature>/` holds one schema per file, with no layer folder.

@@ -26,14 +26,12 @@ domain_promise_outside_its_roles packages/domain/src/town/stopHiringOrder.ts
 domain_promise_outside_its_roles packages/domain/src/town/stopSchoolLesson.ts
 domain_promise_outside_its_roles packages/domain/src/town/TownNews.ts
 domain_promise_outside_its_roles packages/domain/src/town/TownRepository.ts
-file_over_export_cap apps/api/src/contentGate/cardWordFormOf.ts
 file_over_export_cap packages/domain/src/holdout/HoldoutCheck.ts
 file_over_export_cap packages/domain/src/learning/Lesson.ts
 file_over_export_cap packages/domain/src/town/BuildingLevel.ts
 file_over_export_cap packages/domain/src/town/BuildingWork.ts
 file_over_export_cap packages/domain/src/town/nextStepOf.ts
 file_over_export_cap packages/domain/src/town/TownSettings.ts
-folder_over_limit apps/api/src/contentGate
 folder_over_limit packages/domain/src/learning
 folder_over_limit packages/domain/src/town
 reading_named_of_is_async apps/api/src/learning/answerReviewOf.ts
@@ -49,5 +47,4 @@ reading_named_of_is_async apps/api/src/town/townReadingOf.ts
 reading_named_of_is_async packages/domain/src/holdout/dueBandStartOf.ts
 reading_named_of_is_async packages/domain/src/town/resolvedTownOf.ts
 reading_named_of_is_async packages/domain/src/town/settledSchoolOf.ts
-type_over_method_cap apps/api/src/adapters/json/JsonLessonCatalog.ts
 type_over_method_cap packages/domain/src/town/Town.ts

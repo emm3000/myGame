@@ -296,6 +296,13 @@ An adapter lives in the feature whose port it implements.
 ports, so they live in `account/infrastructure/system/`, not in
 `platform`.
 
+`content/gate/` is the one feature folder that is neither
+`application/` nor `infrastructure/`: it holds the content gate, the
+checks the shipped content passes, one file per check in
+`gate/checks/` and the readings they share beside them, and it is a
+role of its own because no request, port or adapter reaches it, only
+the gate's tests over what `infrastructure/json/` reads.
+
 Only `platform/` may hold, at its root, a pure function that both its
 `application/` and its `infrastructure/` read (`thrownCauseOf.ts`); a
 feature folder may not.
