@@ -104,7 +104,7 @@ index.ts  listen.ts  app.ts  composeServer.ts  composeStores.ts    the compositi
 1. `apps/api/src/town/jobs/infrastructure/http/sendJobRoute.ts` parses the body with `SendJobSchema` and hands the change to `apps/api/src/town/infrastructure/http/answerTownChange.ts`, which opens the town's transaction with `apps/api/src/town/application/mutateTown.ts`.
 2. `packages/domain/src/town/jobs/useCases/sendJob.ts` decides the rule over the ports it is handed.
 3. `apps/api/src/town/infrastructure/postgres/DrizzleTownRepository.ts` stores the changed town.
-4. `apps/api/src/town/application/readTownReading.ts` reads the town back through `apps/api/src/town/infrastructure/postgres/DrizzleTownReader.ts`, and `apps/api/src/town/infrastructure/http/answerTownReading.ts` presents it through `townOverviewOf` as the `TownOverview` the route answers.
+4. `apps/api/src/town/application/readTownReading.ts` reads the town back through `apps/api/src/town/infrastructure/postgres/DrizzleTownReader.ts`, and `apps/api/src/town/infrastructure/http/answerTownReading.ts` presents it through `apps/api/src/town/infrastructure/http/presentTownOverview.ts` as the `TownOverview` the route answers.
 
 ## Where a new thing goes
 
