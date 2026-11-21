@@ -26,7 +26,7 @@ export type DispatchedCleanUp = ChangedTown & {
   readonly job: CleanUpJob
 }
 
-const admittedCleanUpOf = async (
+const admitCleanUp = async (
   town: Town,
   { site, team }: CleanUpOrder,
   { map, cleanUps, catalog }: CleanUpDispatchDependencies,
@@ -57,7 +57,7 @@ const admittedCleanUpOf = async (
   return ok(cleanUpJobOf(town, target.value, team, { size, waste }, catalog, now))
 }
 
-export const dispatchedCleanUpOf = async (
+export const dispatchCleanUp = async (
   order: CleanUpOrder,
   dependencies: CleanUpDispatchDependencies,
   now: Instant,
@@ -72,7 +72,7 @@ export const dispatchedCleanUpOf = async (
     return resolved
   }
   const { town, events } = resolved.value
-  const job = await admittedCleanUpOf(town, order, dependencies, now)
+  const job = await admitCleanUp(town, order, dependencies, now)
   if (!job.ok) {
     return job
   }

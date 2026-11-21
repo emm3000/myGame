@@ -6,7 +6,7 @@ import type { TownCatalog } from '../../TownCatalog'
 import type { TownRepository } from '../../TownRepository'
 import type { JobOrder } from '../JobOrder'
 import type { RegionMapReader } from '../ports/RegionMapReader'
-import { dispatchedJobOf } from '../services/dispatchJob'
+import { dispatchJob } from '../services/dispatchJob'
 
 export type QuoteJobDependencies = {
   readonly towns: Pick<TownRepository, 'townOf'>
@@ -19,6 +19,6 @@ export const quoteJob = async (
   order: JobOrder,
   { towns, map, catalog, clock }: QuoteJobDependencies,
 ): Promise<Result<Stocks, DomainError>> => {
-  const dispatched = await dispatchedJobOf(order, { towns, map, catalog }, clock.now())
+  const dispatched = await dispatchJob(order, { towns, map, catalog }, clock.now())
   return dispatched.ok ? ok(dispatched.value.job.pay) : dispatched
 }

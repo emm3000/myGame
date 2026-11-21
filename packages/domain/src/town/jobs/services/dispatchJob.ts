@@ -63,7 +63,7 @@ const jobTo = (
   }
 }
 
-export const dispatchedJobOf = async (
+export const dispatchJob = async (
   order: JobOrder,
   { towns, map, catalog }: JobDispatchDependencies,
   now: Instant,
