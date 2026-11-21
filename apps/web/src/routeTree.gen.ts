@@ -27,6 +27,7 @@ import { Route as SignedInMapAreaRouteImport } from './routes/_signedIn/map.$are
 import { Route as SignedInSchoolIndexRouteImport } from './routes/_signedIn/school.index'
 import { Route as SignedInSchoolLessonIdRouteImport } from './routes/_signedIn/school.$lessonId'
 import { Route as SignedInSchoolTextsTextIdRouteImport } from './routes/_signedIn/school.texts.$textId'
+import { Route as SignedInSchoolCheckBandWeekRouteImport } from './routes/_signedIn/school.check.$band.$week'
 
 const GuestRoute = GuestRouteImport.update({
   id: '/_guest',
@@ -117,6 +118,12 @@ const SignedInSchoolTextsTextIdRoute =
     path: '/school/texts/$textId',
     getParentRoute: () => SignedInRoute,
   } as any)
+const SignedInSchoolCheckBandWeekRoute =
+  SignedInSchoolCheckBandWeekRouteImport.update({
+    id: '/school/check/$band/$week',
+    path: '/school/check/$band/$week',
+    getParentRoute: () => SignedInRoute,
+  } as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof SignedInIndexRoute
@@ -135,6 +142,7 @@ export interface FileRoutesByFullPath {
   '/map/': typeof SignedInMapIndexRoute
   '/school/': typeof SignedInSchoolIndexRoute
   '/school/texts/$textId': typeof SignedInSchoolTextsTextIdRoute
+  '/school/check/$band/$week': typeof SignedInSchoolCheckBandWeekRoute
 }
 export interface FileRoutesByTo {
   '/': typeof SignedInIndexRoute
@@ -153,6 +161,7 @@ export interface FileRoutesByTo {
   '/map': typeof SignedInMapIndexRoute
   '/school': typeof SignedInSchoolIndexRoute
   '/school/texts/$textId': typeof SignedInSchoolTextsTextIdRoute
+  '/school/check/$band/$week': typeof SignedInSchoolCheckBandWeekRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -174,6 +183,7 @@ export interface FileRoutesById {
   '/_signedIn/map/': typeof SignedInMapIndexRoute
   '/_signedIn/school/': typeof SignedInSchoolIndexRoute
   '/_signedIn/school/texts/$textId': typeof SignedInSchoolTextsTextIdRoute
+  '/_signedIn/school/check/$band/$week': typeof SignedInSchoolCheckBandWeekRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
@@ -194,6 +204,7 @@ export interface FileRouteTypes {
     | '/map/'
     | '/school/'
     | '/school/texts/$textId'
+    | '/school/check/$band/$week'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
@@ -212,6 +223,7 @@ export interface FileRouteTypes {
     | '/map'
     | '/school'
     | '/school/texts/$textId'
+    | '/school/check/$band/$week'
   id:
     | '__root__'
     | '/_guest'
@@ -232,6 +244,7 @@ export interface FileRouteTypes {
     | '/_signedIn/map/'
     | '/_signedIn/school/'
     | '/_signedIn/school/texts/$textId'
+    | '/_signedIn/school/check/$band/$week'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -369,6 +382,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof SignedInSchoolTextsTextIdRouteImport
       parentRoute: typeof SignedInRoute
     }
+    '/_signedIn/school/check/$band/$week': {
+      id: '/_signedIn/school/check/$band/$week'
+      path: '/school/check/$band/$week'
+      fullPath: '/school/check/$band/$week'
+      preLoaderRoute: typeof SignedInSchoolCheckBandWeekRouteImport
+      parentRoute: typeof SignedInRoute
+    }
   }
 }
 
@@ -398,6 +418,7 @@ interface SignedInRouteChildren {
   SignedInMapIndexRoute: typeof SignedInMapIndexRoute
   SignedInSchoolIndexRoute: typeof SignedInSchoolIndexRoute
   SignedInSchoolTextsTextIdRoute: typeof SignedInSchoolTextsTextIdRoute
+  SignedInSchoolCheckBandWeekRoute: typeof SignedInSchoolCheckBandWeekRoute
 }
 
 const SignedInRouteChildren: SignedInRouteChildren = {
@@ -412,6 +433,7 @@ const SignedInRouteChildren: SignedInRouteChildren = {
   SignedInMapIndexRoute: SignedInMapIndexRoute,
   SignedInSchoolIndexRoute: SignedInSchoolIndexRoute,
   SignedInSchoolTextsTextIdRoute: SignedInSchoolTextsTextIdRoute,
+  SignedInSchoolCheckBandWeekRoute: SignedInSchoolCheckBandWeekRoute,
 }
 
 const SignedInRouteWithChildren = SignedInRoute._addFileChildren(

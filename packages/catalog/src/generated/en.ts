@@ -11,6 +11,18 @@ export const authSignUpSwitchLink = (): string => `Sign in`
 export const authSignUpSwitchPrompt = (): string => `Already have an account?`
 export const authSignUpTitle = (): string => `Create your account`
 export const authTagline = (): string => `Learn English while your town grows.`
+export const holdoutCheckDone = (): string => `Thanks. Your answers are saved.`
+export const holdoutCheckDueLine = ({ band, week }: { readonly band: string | number; readonly week: string | number }): string => `Band ${String(band)}, week ${String(week)}: a check of words you studied and words kept back. Your score does not change your lessons.`
+export const holdoutCheckFailed = (): string => `We couldn't read your check.`
+export const holdoutCheckLoading = (): string => `Reading your check…`
+export const holdoutCheckRefusalInvalid = (): string => `We could not save your answers.`
+export const holdoutCheckRefused = (): string => `This check is not open now.`
+export const holdoutCheckSend = (): string => `Send your answers`
+export const holdoutCheckSkip = (): string => `Skip the check`
+export const holdoutCheckSkipLine = (): string => `Your lessons are the same whether you take it or skip it.`
+export const holdoutCheckSkipped = (): string => `You skipped this check.`
+export const holdoutCheckStart = (): string => `Start the check`
+export const holdoutCheckTitle = (): string => `Word check`
 export const mailResetSubject = (): string => `Change your password`
 export const mailResetText = ({ link }: { readonly link: string | number }): string => `Someone asked to change your Townword password. If it was you, open this link and choose a new one:\n\n${String(link)}\n\nThe link works for one hour and only once.\n\nIf you did not ask for this, ignore this email: your password stays the same.`
 export const mailVerificationSubject = (): string => `Confirm your email`
@@ -212,6 +224,8 @@ export const scaffoldEs = (): string => `Spanish: a translation beside each new 
 export const scaffoldLabel = (): string => `Help language`
 export const scaffoldNone = (): string => `None: everything in English, with English definitions`
 export const schoolBandLine = ({ band, count, total }: { readonly band: string | number; readonly count: string | number; readonly total: string | number }): string => `Band ${String(band)}: ${String(count)} of ${String(total)} words studied`
+export const schoolHoldoutCheckOpen = (): string => `Open the check`
+export const schoolHoldoutCheckRow = ({ band, week }: { readonly band: string | number; readonly week: string | number }): string => `A word check for band ${String(band)}, week ${String(week)} is due.`
 export const schoolLearning = ({ cap, inLearning }: { readonly cap: string | number; readonly inLearning: string | number }): string => `Words in learning: ${String(inLearning)} of ${String(cap)}`
 export const schoolLearningFull = ({ count }: { readonly count: number }): string => `${count === 1 ? `The next lesson needs 1 word.` : `The next lesson needs ${String(count)} words.`} Start the reviews.`
 export const schoolLearningFullNextWordDue = ({ count, timeLeft }: { readonly count: number; readonly timeLeft: string | number }): string => `${count === 1 ? `The next lesson needs 1 word.` : `The next lesson needs ${String(count)} words.`} The next word in learning is due in ${String(timeLeft)}.`

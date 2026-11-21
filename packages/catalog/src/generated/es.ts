@@ -11,6 +11,18 @@ export const authSignUpSwitchLink = (): string => `Entra`
 export const authSignUpSwitchPrompt = (): string => `¿Ya tienes cuenta?`
 export const authSignUpTitle = (): string => `Crea tu cuenta`
 export const authTagline = (): string => `Aprende inglés mientras tu pueblo crece.`
+export const holdoutCheckDone = (): string => `Gracias. Tus respuestas están guardadas.`
+export const holdoutCheckDueLine = ({ band, week }: { readonly band: string | number; readonly week: string | number }): string => `Banda ${String(band)}, semana ${String(week)}: una prueba con palabras que estudiaste y palabras que se apartaron. Tu resultado no cambia tus lecciones.`
+export const holdoutCheckFailed = (): string => `No hemos podido leer tu prueba.`
+export const holdoutCheckLoading = (): string => `Estamos leyendo tu prueba…`
+export const holdoutCheckRefusalInvalid = (): string => `No hemos podido guardar tus respuestas.`
+export const holdoutCheckRefused = (): string => `Esta prueba no está abierta ahora.`
+export const holdoutCheckSend = (): string => `Enviar tus respuestas`
+export const holdoutCheckSkip = (): string => `Saltar la prueba`
+export const holdoutCheckSkipLine = (): string => `Tus lecciones son las mismas tanto si la haces como si la saltas.`
+export const holdoutCheckSkipped = (): string => `Saltaste esta prueba.`
+export const holdoutCheckStart = (): string => `Empezar la prueba`
+export const holdoutCheckTitle = (): string => `Prueba de palabras`
 export const mailResetSubject = (): string => `Cambia tu contraseña`
 export const mailResetText = ({ link }: { readonly link: string | number }): string => `Alguien ha pedido cambiar tu contraseña de Townword. Si fuiste tú, abre este enlace y elige una nueva:\n\n${String(link)}\n\nEl enlace vale una hora y una sola vez.\n\nSi no pediste nada, ignora este correo: tu contraseña sigue siendo la misma.`
 export const mailVerificationSubject = (): string => `Confirma tu correo`
@@ -212,6 +224,8 @@ export const scaffoldEs = (): string => `Español: una traducción junto a cada 
 export const scaffoldLabel = (): string => `Idioma de ayuda`
 export const scaffoldNone = (): string => `Ninguno: todo en inglés, con definiciones en inglés`
 export const schoolBandLine = ({ band, count, total }: { readonly band: string | number; readonly count: string | number; readonly total: string | number }): string => `Banda ${String(band)}: ${String(count)} de ${String(total)} palabras estudiadas`
+export const schoolHoldoutCheckOpen = (): string => `Abrir la prueba`
+export const schoolHoldoutCheckRow = ({ band, week }: { readonly band: string | number; readonly week: string | number }): string => `Tienes pendiente una prueba de palabras de la banda ${String(band)}, semana ${String(week)}.`
 export const schoolLearning = ({ cap, inLearning }: { readonly cap: string | number; readonly inLearning: string | number }): string => `Palabras en aprendizaje: ${String(inLearning)} de ${String(cap)}`
 export const schoolLearningFull = ({ count }: { readonly count: number }): string => `${count === 1 ? `La siguiente lección trae 1 palabra.` : `La siguiente lección trae ${String(count)} palabras.`} Empieza los repasos.`
 export const schoolLearningFullNextWordDue = ({ count, timeLeft }: { readonly count: number; readonly timeLeft: string | number }): string => `${count === 1 ? `La siguiente lección trae 1 palabra.` : `La siguiente lección trae ${String(count)} palabras.`} La siguiente palabra en aprendizaje se repasa en ${String(timeLeft)}.`

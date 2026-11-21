@@ -1,8 +1,8 @@
 import { placementNotPlacedOut, placementPlacedOut, placementResultBand } from '@mygame/catalog'
+import type { Placement } from '@mygame/contracts'
 import type { ReactElement } from 'react'
-import type { AskingPlacement } from './useBandWalk'
 
-type PlacementScore = AskingPlacement['scores'][number]
+type PlacementScore = Extract<Placement, { readonly kind: 'closed' }>['scores'][number]
 
 export function BandScores({
   scores,
