@@ -11,7 +11,7 @@ import {
 } from '@mygame/domain'
 import { and, asc, eq, sql } from 'drizzle-orm'
 import type { PostgresSession } from '../../../platform/infrastructure/postgres/connectPostgres'
-import { holdoutCheckOf } from './holdoutCheckFromRow'
+import { holdoutCheckFromRow } from './holdoutCheckFromRow'
 import { bandStarts, heldOutWords, holdoutChecks, holdoutCheckWords } from './holdoutTables'
 
 type CheckRow = typeof holdoutChecks.$inferSelect
@@ -88,7 +88,7 @@ export class DrizzleBandStarts implements BandStartRepository {
         checks: checks
           .filter((check) => check.band === band)
           .map((row) =>
-            holdoutCheckOf(
+            holdoutCheckFromRow(
               row,
               checkWords.filter((word) => word.band === row.band && word.week === row.week),
             ),

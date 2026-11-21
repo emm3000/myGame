@@ -22,7 +22,7 @@ import { honoPathOf } from '../../../platform/infrastructure/http/honoPath'
 import { readJsonBody } from '../../../platform/infrastructure/http/readJsonBody'
 import { mutateTown } from '../../../town/mutateTown'
 import { placementDeclarations } from './placementDeclarations'
-import { placementBodyOf } from './presentPlacement'
+import { presentPlacement } from './presentPlacement'
 
 export type PlacementRouteDependencies = LearningDependencies &
   RequirePlayerDependencies & {
@@ -33,7 +33,7 @@ const answerPlacementView = (c: Context, view: Result<PlacementView, DomainError
   if (!view.ok) {
     return answerRefusal(c, view.error)
   }
-  const body: Placement = placementBodyOf(view.value)
+  const body: Placement = presentPlacement(view.value)
   return c.json(body)
 }
 

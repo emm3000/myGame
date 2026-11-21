@@ -27,7 +27,7 @@ import { honoPathOf } from '../../../platform/infrastructure/http/honoPath'
 import { readJsonBody } from '../../../platform/infrastructure/http/readJsonBody'
 import { mutateTown, type TownStores } from '../../../town/mutateTown'
 import { holdoutCheckDeclarations } from './holdoutCheckDeclarations'
-import { holdoutChecksBodyOf } from './presentHoldoutChecks'
+import { presentHoldoutChecks } from './presentHoldoutChecks'
 
 export type HoldoutCheckRouteDependencies = LearningDependencies &
   RequirePlayerDependencies & {
@@ -43,7 +43,8 @@ type CheckMutation = (
 const answerChecks = (
   c: Context,
   views: Result<ReadonlyArray<HoldoutCheckView>, DomainError>,
-): Response => (views.ok ? c.json(holdoutChecksBodyOf(views.value)) : answerRefusal(c, views.error))
+): Response =>
+  views.ok ? c.json(presentHoldoutChecks(views.value)) : answerRefusal(c, views.error)
 
 export const holdoutCheckRoutes = (dependencies: HoldoutCheckRouteDependencies): OpenAPIHono => {
   const signedInPlayer = requirePlayer(dependencies)

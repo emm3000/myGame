@@ -14,7 +14,7 @@ const scoresOf = (scores: ReadonlyArray<PlacementScore>): PlacementScores => {
   }))
 }
 
-export const placementBodyOf = (view: PlacementView): Placement => {
+export const presentPlacement = (view: PlacementView): Placement => {
   switch (view.kind) {
     case 'offered':
       return { kind: 'offered' }

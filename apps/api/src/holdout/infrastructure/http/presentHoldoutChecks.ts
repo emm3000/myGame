@@ -22,6 +22,6 @@ const checkStateOf = (view: HoldoutCheckView): HoldoutCheckState => {
   }
 }
 
-export const holdoutChecksBodyOf = (views: ReadonlyArray<HoldoutCheckView>): HoldoutChecks => ({
+export const presentHoldoutChecks = (views: ReadonlyArray<HoldoutCheckView>): HoldoutChecks => ({
   checks: views.map(checkStateOf),
 })
