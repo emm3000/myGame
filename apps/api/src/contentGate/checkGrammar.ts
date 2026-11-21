@@ -19,6 +19,7 @@ type GrammarTerms = {
 type PassageToken = {
   readonly token: string
   readonly previous: string | undefined
+  readonly next: string | undefined
   readonly isAfterHave: boolean
 }
 
@@ -45,6 +46,7 @@ const passageTokensOf = (tokens: ReadonlyArray<string>): ReadonlyArray<PassageTo
   tokens.map((token, index) => ({
     token,
     previous: tokens[index - 1],
+    next: tokens[index + 1],
     isAfterHave: followsHave(tokens.slice(0, index)),
   }))
 
@@ -127,16 +129,24 @@ const cardWordFailures = (
 
 const isContractionPiece = (token: string): boolean => token.startsWith("'") || token === "n't"
 
+const wordOf = (
+  token: string | undefined,
+  passage: GrammarPassage,
+  terms: GrammarTerms,
+): string | undefined => {
+  const reading = token === undefined ? undefined : readingOf(token, passage, terms.reading)
+  return reading?.kind === 'word' ? reading.word : undefined
+}
+
 const isBeHost = (
   previous: string | undefined,
   passage: GrammarPassage,
   terms: GrammarTerms,
 ): boolean => {
-  const reading = previous === undefined ? undefined : readingOf(previous, passage, terms.reading)
+  const word = wordOf(previous, passage, terms)
   return (
-    reading?.kind === 'word' &&
-    (terms.frameWordsAdmittedAt.has(reading.word) ||
-      terms.cardWords.get(reading.word)?.partOfSpeech === 'adverb')
+    word !== undefined &&
+    (terms.frameWordsAdmittedAt.has(word) || terms.cardWords.get(word)?.partOfSpeech === 'adverb')
   )
 }
 
@@ -147,6 +157,18 @@ const pieceFailures = (
 ): ReadonlyArray<string> => {
   const isPossessive = token === "'s" && !isBeHost(previous, passage, terms)
   return inflectionFailures(token, isPossessive ? "possessive 's" : token, passage, terms)
+}
+
+const isObjectRelative = (
+  { token, previous, next }: PassageToken,
+  passage: GrammarPassage,
+  terms: GrammarTerms,
+): boolean => {
+  if (token !== 'that' || next === undefined || !subjectPronouns.has(next)) {
+    return false
+  }
+  const antecedent = wordOf(previous, passage, terms)
+  return antecedent === undefined || !terms.frameWordsAdmittedAt.has(antecedent)
 }
 
 const tokenFailures = (
@@ -161,6 +183,9 @@ const tokenFailures = (
   const reading = readingOf(token, passage, terms.reading)
   if (reading.kind !== 'word') {
     return []
+  }
+  if (isObjectRelative(passageToken, passage, terms)) {
+    return inflectionFailures(token, 'object relative that', passage, terms)
   }
   if (terms.frameWordsAdmittedAt.has(reading.word)) {
     return frameWordFormFailures(token, reading.word, passage, terms)
