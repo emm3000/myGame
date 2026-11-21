@@ -1,6 +1,6 @@
 import type { Band } from '../learning/curriculum/BandStart'
 import type { PlacementItem } from '../placement/PlacementView'
-import type { HoldoutCheckWeek } from './HoldoutCheck'
+import type { HoldoutCheckWeek } from './HoldoutCheckWeek'
 
 export type HoldoutCheckView =
   | { readonly kind: 'due'; readonly band: Band; readonly week: HoldoutCheckWeek }

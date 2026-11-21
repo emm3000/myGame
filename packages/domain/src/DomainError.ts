@@ -1,4 +1,4 @@
-import type { HoldoutCheckWeek } from './holdout/HoldoutCheck'
+import type { HoldoutCheckWeek } from './holdout/HoldoutCheckWeek'
 import type { LessonId, WordId } from './learning/Lesson'
 import type { PlayerId } from './player/PlayerId'
 import type { DurationError } from './time/DurationError'

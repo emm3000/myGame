@@ -1,7 +1,7 @@
 import type { BandStart } from '../learning/curriculum/BandStart'
 import type { Instant } from '../time/Instant'
 import { checkOfWeek } from './checkOfWeek'
-import type { HoldoutCheckWeek } from './HoldoutCheck'
+import type { HoldoutCheckWeek } from './HoldoutCheckWeek'
 
 const MILLISECONDS_PER_WEEK = 7 * 24 * 3_600_000
 

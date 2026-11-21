@@ -3,7 +3,7 @@ import type { Band, BandStart } from '../../learning/curriculum/BandStart'
 import type { PlayerId } from '../../player/PlayerId'
 import { err, ok, type Result } from '../../Result'
 import type { Instant } from '../../time/Instant'
-import type { HoldoutCheckWeek } from '../HoldoutCheck'
+import type { HoldoutCheckWeek } from '../HoldoutCheckWeek'
 import { isHoldoutCheckDue } from '../holdoutCheckWeeks'
 import type { BandStartRepository } from '../ports/BandStartRepository'
 
