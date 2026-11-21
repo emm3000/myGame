@@ -62,6 +62,7 @@ export type {
   WordId,
 } from './learning/Lesson'
 export { lemmaWordsOf } from './learning/lemmaWordsOf'
+export { nextDueAtOf } from './learning/nextDueAtOf'
 export { nextInLearningDueAtOf } from './learning/nextInLearningDueAtOf'
 export { openTextsOf, type TextReader } from './learning/openTextsOf'
 export type { PendingReview } from './learning/PendingReview'

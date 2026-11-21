@@ -26,10 +26,6 @@ file_over_export_cap packages/domain/src/town/nextStepOf.ts
 file_over_export_cap packages/domain/src/town/TownSettings.ts
 folder_over_limit packages/domain/src/learning
 folder_over_limit packages/domain/src/town
-reading_named_of_is_async apps/api/src/learning/answerReviewOf.ts
-reading_named_of_is_async apps/api/src/learning/learnerOf.ts
-reading_named_of_is_async apps/api/src/learning/requestHintOf.ts
-reading_named_of_is_async apps/api/src/learning/reviewsOf.ts
 reading_named_of_is_async apps/api/src/town/currentTownOf.ts
 reading_named_of_is_async apps/api/src/town/quotedCleanUpOf.ts
 reading_named_of_is_async apps/api/src/town/quotedJobOf.ts

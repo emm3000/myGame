@@ -49,7 +49,7 @@ const heldWordsOf = async (
   )
 }
 
-export const answerReviewOf = (
+export const submitReviewAnswer = (
   playerId: PlayerId,
   wordId: WordId,
   answer: string,

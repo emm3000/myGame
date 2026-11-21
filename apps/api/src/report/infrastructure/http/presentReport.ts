@@ -1,5 +1,5 @@
 import type { Report } from '@mygame/contracts'
-import { presentReviews } from '../../../learning/application/serveDueReviews'
+import { presentReviews } from '../../../learning/infrastructure/http/presentReviews'
 import { townNewsItemOf } from '../../../town/townNewsItemOf'
 import type { ServedReport } from '../../application/serveReport'
 

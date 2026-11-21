@@ -545,7 +545,6 @@
         "apps/api/src/adapters/postgres/migration.test.ts",
         "apps/api/src/adapters/townRepositoryContract.ts",
         "apps/api/src/openApiConformance.test.ts",
-        "apps/api/src/routes/learning.test.ts",
         "apps/api/src/routes/town.test.ts",
         "apps/api/src/routes/town.ts",
         "apps/api/src/routes/townDeclarations.ts",
@@ -564,10 +563,8 @@
     },
     {
       "includes": [
-        "apps/api/src/adapters/pendingReviewRepositoryContract.ts",
         "apps/api/src/adapters/postgres/DrizzleTownNews.ts",
         "apps/api/src/adapters/townRepositoryContract.ts",
-        "apps/api/src/routes/learning.ts",
         "apps/api/src/routes/town.ts",
         "apps/api/src/town/townNewsItemOf.ts"
       ],
@@ -575,16 +572,6 @@
         "rules": {
           "complexity": {
             "noExcessiveLinesPerFunction": "off"
-          }
-        }
-      }
-    },
-    {
-      "includes": ["apps/api/src/town/townOverviewOf.ts"],
-      "linter": {
-        "rules": {
-          "style": {
-            "noRestrictedImports": "off"
           }
         }
       }
