@@ -162,13 +162,21 @@ if [ -d "$worktree" ] && awk -v worktree="worktree $worktree" '$0 == worktree { 
 fi
 git -C "$repo" worktree prune
 
+origin_url=$(git -C "$repo" remote get-url origin 2>/dev/null) || origin_url=""
+[ -n "$origin_url" ] || echo "no origin URL for $repo: every merged answer counts as failed" >&2
+
+merged_count() {
+  [ -n "$origin_url" ] || return 1
+  gh pr list -R "$origin_url" --head "$1" --state merged --json number --jq length
+}
+
 merged_earlier() {
   local name count
   while read -r name; do
     [ "$name" != trunk ] || continue
     awk -v name="$name" '$0 == name { found = 1 } END { exit found }' <<<"$held" || continue
     git -C "$repo" show-ref --verify --quiet "refs/heads/$name" || continue
-    count=$(gh pr list --head "$name" --state merged --json number --jq length) ||
+    count=$(merged_count "$name") ||
       { echo "gh pr list failed: branch $name kept" >&2; continue; }
     case $count in '' | 0 | *[!0-9]*) continue ;; esac
     echo "$name"
@@ -177,7 +185,7 @@ merged_earlier() {
 
 peer_branches=$(
   if [ -n "$branch" ] && [ "$branch" != trunk ]; then
-    merged=$(gh pr list --head "$branch" --state merged --json number --jq length) ||
+    merged=$(merged_count "$branch") ||
       { echo "gh pr list failed: branch $branch kept" >&2; merged=failed; }
     case $merged in
       (failed) ;;
