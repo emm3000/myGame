@@ -16,7 +16,7 @@ const closeKeyOf = (close: GuidanceClose): string =>
   close.kind === 'goal' ? 'goal' : `tip:${close.tip}`
 
 const goalOf = ({ nextStep }: TownOverview): TownGoal | null =>
-  nextStep.kind === 'caughtUp' ? nextStep.goal : null
+  nextStep.kind === 'caughtUp' || nextStep.kind === 'lessonRunning' ? nextStep.goal : null
 
 function useGuidanceCloses(
   apiClient: ApiClient,

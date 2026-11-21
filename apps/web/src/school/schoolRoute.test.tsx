@@ -4,6 +4,7 @@ import {
   refusalLearningCapReached,
   reportNoReviewsDue,
   reportStartReviews,
+  schoolBandLine,
   schoolLearning,
   schoolLearningFull,
   schoolLearningFullNextWordDue,
@@ -935,4 +936,24 @@ it('opens a text from its row', async () => {
   await passSeconds(0)
 
   expect(router.state.location.pathname).toBe('/school/texts/text-1')
+})
+
+it('shows the held words of each started band', async () => {
+  await showSchool(
+    schoolOf({
+      bandLines: [
+        { band: 1, count: 12, total: 875 },
+        { band: 2, count: 0, total: 500 },
+      ],
+    }),
+  )
+
+  expect(screen.getByText(schoolBandLine({ band: 1, count: 12, total: 875 }))).toBeDefined()
+  expect(screen.getByText(schoolBandLine({ band: 2, count: 0, total: 500 }))).toBeDefined()
+})
+
+it('shows no band line before a band starts', async () => {
+  await showSchool(schoolOf({ bandLines: [] }))
+
+  expect(screen.queryByText(/^Banda \d+: /)).toBeNull()
 })

@@ -323,6 +323,7 @@ export const fixedCopyKeys: ReadonlySet<string> = new Set([
   'scaffold.es',
   'scaffold.label',
   'scaffold.none',
+  'school.bandLine',
   'settings.cardsKept',
   'settings.saved',
   'settings.saving',

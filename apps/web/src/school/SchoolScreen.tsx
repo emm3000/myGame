@@ -25,6 +25,7 @@ import { formatFinish } from '../time/formatFinish'
 import type { LiveTown } from '../town/liveTown'
 import { NextStepLink } from '../town/NextStepLink'
 import { reviewsActionOf } from '../town/nextStepCardOf'
+import { BandLines } from './BandLines'
 import { capWaitLabelOf } from './capWaitLabelOf'
 import { LessonRows } from './LessonRows'
 import {
@@ -174,6 +175,7 @@ export function SchoolScreen({ town, lessons }: SchoolScreenProps): ReactElement
             onSelect={setSelectedId}
           />
           <TextRows texts={overview.texts} />
+          <BandLines bandLines={overview.bandLines} />
           <BuildSlot state={slotStateOf(town, lessons, slotTitle.focus)} titleRef={slotTitle.ref} />
           {stopRefused !== undefined && (
             <FormAlert message={refusalLineOf(stopRefused.refusal, stopRefused.error)} />

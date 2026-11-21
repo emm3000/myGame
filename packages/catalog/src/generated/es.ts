@@ -211,6 +211,7 @@ export const reviewYourAnswer = (): string => `Tu respuesta:`
 export const scaffoldEs = (): string => `Español: una traducción junto a cada palabra nueva`
 export const scaffoldLabel = (): string => `Idioma de ayuda`
 export const scaffoldNone = (): string => `Ninguno: todo en inglés, con definiciones en inglés`
+export const schoolBandLine = ({ band, count, total }: { readonly band: string | number; readonly count: string | number; readonly total: string | number }): string => `Banda ${String(band)}: ${String(count)} de ${String(total)} palabras estudiadas`
 export const schoolLearning = ({ cap, inLearning }: { readonly cap: string | number; readonly inLearning: string | number }): string => `Palabras en aprendizaje: ${String(inLearning)} de ${String(cap)}`
 export const schoolLearningFull = ({ count }: { readonly count: number }): string => `${count === 1 ? `La siguiente lección trae 1 palabra.` : `La siguiente lección trae ${String(count)} palabras.`} Empieza los repasos.`
 export const schoolLearningFullNextWordDue = ({ count, timeLeft }: { readonly count: number; readonly timeLeft: string | number }): string => `${count === 1 ? `La siguiente lección trae 1 palabra.` : `La siguiente lección trae ${String(count)} palabras.`} La siguiente palabra en aprendizaje se repasa en ${String(timeLeft)}.`
@@ -286,6 +287,7 @@ export const townNextHoldoutCheck = ({ band }: { readonly band: string | number 
 export const townNextLessonReadyIn = ({ number }: { readonly number: string | number }): string => `Lección ${String(number)} lista en`
 export const townNextReleasedLesson = ({ band, number }: { readonly band: string | number; readonly number: string | number }): string => `Palabras que vuelven: banda ${String(band)}, grupo ${String(number)}`
 export const townNextReleasedReadyIn = ({ band, number }: { readonly band: string | number; readonly number: string | number }): string => `Palabras que vuelven: banda ${String(band)}, grupo ${String(number)} listas en`
+export const townNextText = ({ title }: { readonly title: string | number }): string => `Lee: ${String(title)}`
 export const townNextTitle = (): string => `Tu siguiente paso`
 export const townNotBuilt = (): string => `Sin construir`
 export const townOfficeBusy = (): string => `Espera a que termine esta contratación.`

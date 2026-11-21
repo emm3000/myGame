@@ -211,6 +211,7 @@ export const reviewYourAnswer = (): string => `Your answer:`
 export const scaffoldEs = (): string => `Spanish: a translation beside each new word`
 export const scaffoldLabel = (): string => `Help language`
 export const scaffoldNone = (): string => `None: everything in English, with English definitions`
+export const schoolBandLine = ({ band, count, total }: { readonly band: string | number; readonly count: string | number; readonly total: string | number }): string => `Band ${String(band)}: ${String(count)} of ${String(total)} words studied`
 export const schoolLearning = ({ cap, inLearning }: { readonly cap: string | number; readonly inLearning: string | number }): string => `Words in learning: ${String(inLearning)} of ${String(cap)}`
 export const schoolLearningFull = ({ count }: { readonly count: number }): string => `${count === 1 ? `The next lesson needs 1 word.` : `The next lesson needs ${String(count)} words.`} Start the reviews.`
 export const schoolLearningFullNextWordDue = ({ count, timeLeft }: { readonly count: number; readonly timeLeft: string | number }): string => `${count === 1 ? `The next lesson needs 1 word.` : `The next lesson needs ${String(count)} words.`} The next word in learning is due in ${String(timeLeft)}.`
@@ -286,6 +287,7 @@ export const townNextHoldoutCheck = ({ band }: { readonly band: string | number 
 export const townNextLessonReadyIn = ({ number }: { readonly number: string | number }): string => `Lesson ${String(number)} ready in`
 export const townNextReleasedLesson = ({ band, number }: { readonly band: string | number; readonly number: string | number }): string => `Returning words: band ${String(band)}, set ${String(number)}`
 export const townNextReleasedReadyIn = ({ band, number }: { readonly band: string | number; readonly number: string | number }): string => `Returning words: band ${String(band)}, set ${String(number)} ready in`
+export const townNextText = ({ title }: { readonly title: string | number }): string => `Read: ${String(title)}`
 export const townNextTitle = (): string => `What is next`
 export const townNotBuilt = (): string => `Not built`
 export const townOfficeBusy = (): string => `Wait for this hiring to end.`
