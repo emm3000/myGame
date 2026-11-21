@@ -41,7 +41,6 @@ One row for each folder directly under `apps/api/src` or `packages/domain/src`. 
 | `hash` | domain | Text hashes and the ids drawn from them, with no game word. |
 | `grid` | domain | Grid cells, with no game word. |
 | `ports` | domain | `Clock`, `IdGenerator` and `RandomSource`, the ports no feature owns, and in `ports/testing/` the fakes `firstItemsRandom` and `sequentialIds`. |
-| `routes` | api | *Moving.* One endpoint per file, to each feature's `infrastructure/http/`. |
 
 ## The folder grammar
 

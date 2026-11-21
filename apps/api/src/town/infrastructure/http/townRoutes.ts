@@ -42,29 +42,32 @@ import type { Context } from 'hono'
 import {
   type RequirePlayerDependencies,
   requirePlayer,
-} from '../account/infrastructure/http/requirePlayer'
-import type { LessonLibrary } from '../content/application/ports/LessonLibrary'
-import { answerRefusal } from '../platform/infrastructure/http/answerRefusal'
-import { honoPathOf } from '../platform/infrastructure/http/honoPath'
-import { readJsonBody } from '../platform/infrastructure/http/readJsonBody'
-import { type NamedIssue, requestRefusalOf } from '../platform/infrastructure/http/requestRefusalOf'
-import { foundTownOnFreeSite } from '../town/application/foundTownOnFreeSite'
-import { mutateTown } from '../town/application/mutateTown'
-import { readTownReading } from '../town/application/readTownReading'
+} from '../../../account/infrastructure/http/requirePlayer'
+import type { LessonLibrary } from '../../../content/application/ports/LessonLibrary'
+import { answerRefusal } from '../../../platform/infrastructure/http/answerRefusal'
+import { honoPathOf } from '../../../platform/infrastructure/http/honoPath'
+import { readJsonBody } from '../../../platform/infrastructure/http/readJsonBody'
+import {
+  type NamedIssue,
+  requestRefusalOf,
+} from '../../../platform/infrastructure/http/requestRefusalOf'
+import { foundTownOnFreeSite } from '../../application/foundTownOnFreeSite'
+import { mutateTown } from '../../application/mutateTown'
+import { readTownReading } from '../../application/readTownReading'
 import {
   type ResolveCurrentTownDependencies,
   resolveCurrentTown,
-} from '../town/application/resolveCurrentTown'
-import type { TownReading } from '../town/application/TownReading'
-import { quoteCleanUpNow } from '../town/jobs/application/quoteCleanUpNow'
-import { quoteJobNow } from '../town/jobs/application/quoteJobNow'
+} from '../../application/resolveCurrentTown'
+import type { TownReading } from '../../application/TownReading'
+import { quoteCleanUpNow } from '../../jobs/application/quoteCleanUpNow'
+import { quoteJobNow } from '../../jobs/application/quoteJobNow'
 import {
   type ResolveTownNewsDependencies,
   resolveTownNews,
-} from '../town/news/application/resolveTownNews'
-import { openTextOf } from '../town/openTextOf'
-import { townNewsItemOf } from '../town/townNewsItemOf'
-import { townOverviewOf } from '../town/townOverviewOf'
+} from '../../news/application/resolveTownNews'
+import { openTextOf } from '../../openTextOf'
+import { townNewsItemOf } from '../../townNewsItemOf'
+import { townOverviewOf } from '../../townOverviewOf'
 import { townDeclarations } from './townDeclarations'
 
 const foundingIssues: ReadonlyArray<NamedIssue> = [['name', 'too_small', { kind: 'BlankTownName' }]]

@@ -11,11 +11,11 @@ import type { Context } from 'hono'
 import {
   type RequirePlayerDependencies,
   requirePlayer,
-} from '../account/infrastructure/http/requirePlayer'
-import { answerRefusal } from '../platform/infrastructure/http/answerRefusal'
-import { honoPathOf } from '../platform/infrastructure/http/honoPath'
-import { presentRegionMap } from '../town/jobs/infrastructure/http/presentRegionMap'
-import { townMapDeclarations } from './townMapDeclarations'
+} from '../../../../account/infrastructure/http/requirePlayer'
+import { answerRefusal } from '../../../../platform/infrastructure/http/answerRefusal'
+import { honoPathOf } from '../../../../platform/infrastructure/http/honoPath'
+import { presentRegionMap } from './presentRegionMap'
+import { townMapDeclarations } from './regionMapDeclarations'
 
 export type TownMapDependencies = RequirePlayerDependencies & {
   readonly regionMap: RegionMapReader

@@ -25,8 +25,11 @@ import {
   type ReportRouteDependencies,
   reportRoutes,
 } from './report/infrastructure/http/reportRoutes'
-import { type TownDependencies, townRoutes } from './routes/town'
-import { type TownMapDependencies, townMapRoutes } from './routes/townMap'
+import { type TownDependencies, townRoutes } from './town/infrastructure/http/townRoutes'
+import {
+  type TownMapDependencies,
+  townMapRoutes,
+} from './town/jobs/infrastructure/http/regionMapRoutes'
 
 export type AppDependencies = AccountRouteDependencies &
   LearningRouteDependencies &

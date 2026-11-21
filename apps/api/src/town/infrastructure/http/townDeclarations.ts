@@ -21,13 +21,13 @@ import {
 import {
   type ResponseDeclaration,
   refusalResponse,
-} from '../platform/infrastructure/http/refusalResponse'
+} from '../../../platform/infrastructure/http/refusalResponse'
 import {
   jsonBody,
   jsonResponse,
   malformedResponse,
-} from '../platform/infrastructure/http/responseDeclarations'
-import { signedInRoute } from '../platform/infrastructure/http/signedInRoute'
+} from '../../../platform/infrastructure/http/responseDeclarations'
+import { signedInRoute } from '../../../platform/infrastructure/http/signedInRoute'
 
 const townNotFoundResponse = refusalResponse('TownNotFound: the player holds no town yet.')
 

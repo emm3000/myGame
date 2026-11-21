@@ -1,11 +1,11 @@
 import { createRoute } from '@hono/zod-openapi'
 import { RegionMapRequestSchema, RegionMapSchema } from '@mygame/contracts'
-import { refusalResponse } from '../platform/infrastructure/http/refusalResponse'
+import { refusalResponse } from '../../../../platform/infrastructure/http/refusalResponse'
 import {
   jsonResponse,
   malformedResponse,
-} from '../platform/infrastructure/http/responseDeclarations'
-import { signedInRoute } from '../platform/infrastructure/http/signedInRoute'
+} from '../../../../platform/infrastructure/http/responseDeclarations'
+import { signedInRoute } from '../../../../platform/infrastructure/http/signedInRoute'
 
 export const townMapDeclarations = {
   ownArea: createRoute(
