@@ -540,10 +540,7 @@
       }
     },
     {
-      "includes": [
-        "apps/api/src/openApiConformance.test.ts",
-        "apps/api/src/town/infrastructure/http/presentTownOverview.ts"
-      ],
+      "includes": ["apps/api/src/openApiConformance.test.ts"],
       "linter": {
         "rules": {
           "style": {
