@@ -531,6 +531,10 @@ What trunk holds, checked at `1f0b1c41`:
   than the under three weeks of ADR 038's one-lesson example; how much
   longer depends on the cap and the player's pace.
 
+## Amendment (2026-11-20)
+
+Closing the Report marks read what the last served Report showed, never more (#815, #1650). `GET /report` stores the instant of the Report it answers in `players.report_served_at`, keeping the later of the stored and the new one, and `POST /report/close` moves `report_read_at` to that instant, never to the clock. Building work that finishes between the read and the close is recorded at an instant after the served one, so the next Report shows it; a close with no Report served since leaves `report_read_at` as it was. The read resolves the town as `GET /town` does, taking the town lock only when work or a lesson is due. Its reviews and its news are read under the player lock, which every town mutation and review answer takes, so news a concurrent request commits before the Report's instant is shown, never marked read unseen; news dated after that instant waits for the next Report. Two devices: a close on one marks read what the other's later Report showed, which the player saw.
+
 ## References
 
 - ADR 005, 007, 008, 011, 013, 014, 016–022, 027, 035, 036, 037, 038, 039.

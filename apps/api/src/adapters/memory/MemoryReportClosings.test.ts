@@ -5,6 +5,9 @@ reportClosingsContract('MemoryReportClosings', async () => {
   const closings = new MemoryReportClosings()
   return {
     closings,
-    signUp: (playerId, at) => closings.close(playerId, at),
+    signUp: async (playerId, at) => {
+      await closings.serve(playerId, at)
+      await closings.close(playerId)
+    },
   }
 })

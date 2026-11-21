@@ -40,6 +40,7 @@ export const players = pgTable(
     createdAt: timestamp('created_at', { withTimezone: true }).notNull(),
     emailVerifiedAt: timestamp('email_verified_at', { withTimezone: true }),
     reportReadAt: timestamp('report_read_at', { withTimezone: true }).notNull(),
+    reportServedAt: timestamp('report_served_at', { withTimezone: true }),
     scaffold: scaffold('scaffold').notNull(),
     scaffoldVersion: integer('scaffold_version').notNull().default(0),
   },

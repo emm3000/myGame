@@ -1,15 +1,23 @@
 import type { Instant, PlayerId } from '@mygame/domain'
+import { laterOf } from '../../time/laterOf'
 import type { ReportClosings } from '../../town/ReportClosings'
 
 export class MemoryReportClosings implements ReportClosings {
+  private readonly served = new Map<PlayerId, Instant>()
   private readonly closes = new Map<PlayerId, Instant>()
 
-  async close(playerId: PlayerId, now: Instant): Promise<void> {
-    const stored = this.closes.get(playerId)
-    const isLater = stored === undefined || now.epochMilliseconds > stored.epochMilliseconds
-    if (isLater) {
-      this.closes.set(playerId, now)
+  async serve(playerId: PlayerId, at: Instant): Promise<void> {
+    const stored = this.served.get(playerId)
+    this.served.set(playerId, stored === undefined ? at : laterOf(stored, at))
+  }
+
+  async close(playerId: PlayerId): Promise<void> {
+    const served = this.served.get(playerId)
+    if (served === undefined) {
+      return
     }
+    const closed = this.closes.get(playerId)
+    this.closes.set(playerId, closed === undefined ? served : laterOf(closed, served))
   }
 
   async closedAt(playerId: PlayerId): Promise<Instant | undefined> {

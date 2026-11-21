@@ -1,0 +1,1 @@
+ALTER TABLE "players" ADD COLUMN "report_served_at" timestamp with time zone;

@@ -1,6 +1,7 @@
 import type { Instant, PlayerId } from '@mygame/domain'
 
 export interface ReportClosings {
-  close(playerId: PlayerId, now: Instant): Promise<void>
+  serve(playerId: PlayerId, at: Instant): Promise<void>
+  close(playerId: PlayerId): Promise<void>
   closedAt(playerId: PlayerId): Promise<Instant | undefined>
 }

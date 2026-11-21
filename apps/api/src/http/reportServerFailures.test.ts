@@ -131,6 +131,7 @@ describe('the server failure report', () => {
   })
 
   const unreachableReportClosings: ReportClosings = {
+    serve: () => Promise.reject(new TypeError('the report store is unreachable')),
     close: () => Promise.reject(new TypeError('the report store is unreachable')),
     closedAt: () => Promise.reject(new TypeError('the report store is unreachable')),
   }

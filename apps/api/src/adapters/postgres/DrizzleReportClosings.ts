@@ -7,12 +7,19 @@ import { players } from './schema'
 export class DrizzleReportClosings implements ReportClosings {
   constructor(private readonly database: PostgresSession) {}
 
-  async close(playerId: PlayerId, now: Instant): Promise<void> {
+  async serve(playerId: PlayerId, at: Instant): Promise<void> {
     await this.database
       .update(players)
       .set({
-        reportReadAt: sql`greatest(${players.reportReadAt}, ${new Date(now.epochMilliseconds)})`,
+        reportServedAt: sql`greatest(${players.reportServedAt}, ${new Date(at.epochMilliseconds)})`,
       })
+      .where(eq(players.id, playerId))
+  }
+
+  async close(playerId: PlayerId): Promise<void> {
+    await this.database
+      .update(players)
+      .set({ reportReadAt: sql`greatest(${players.reportReadAt}, ${players.reportServedAt})` })
       .where(eq(players.id, playerId))
   }
 
