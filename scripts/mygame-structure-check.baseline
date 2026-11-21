@@ -14,8 +14,6 @@ domain_promise_outside_its_roles packages/domain/src/town/resolvedTownOf.ts
 domain_promise_outside_its_roles packages/domain/src/town/resolveTown.ts
 domain_promise_outside_its_roles packages/domain/src/town/saveChangedTown.ts
 domain_promise_outside_its_roles packages/domain/src/town/saveResolvedTown.ts
-domain_promise_outside_its_roles packages/domain/src/town/startBuildingWork.ts
-domain_promise_outside_its_roles packages/domain/src/town/stopBuildingWork.ts
 domain_promise_outside_its_roles packages/domain/src/town/TownNews.ts
 domain_promise_outside_its_roles packages/domain/src/town/TownRepository.ts
 file_over_export_cap packages/domain/src/holdout/HoldoutCheck.ts

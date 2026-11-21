@@ -161,8 +161,22 @@ export {
   type WorkSlot,
   type WorkTarget,
 } from './town/BuildingWork'
+export { buildPercentAt } from './town/building/buildPercentAt'
+export { type LevelWordNeed, levelWordNeedOf } from './town/building/levelWordNeedOf'
+export type { NeededWordKind } from './town/building/NeededWordKind'
+export {
+  type StartBuildingWorkCommand,
+  type StartBuildingWorkDependencies,
+  startBuildingWork,
+} from './town/building/useCases/startBuildingWork'
+export {
+  type StopBuildingWorkCommand,
+  type StopBuildingWorkDependencies,
+  stopBuildingWork,
+} from './town/building/useCases/stopBuildingWork'
+export type { WordNeed } from './town/building/WordNeed'
+export { type WordShortfall, wordShortfallOf } from './town/building/wordShortfallOf'
 export { buildingKinds } from './town/buildingKinds'
-export { buildPercentAt } from './town/buildPercentAt'
 export { deriveFullAt, type FullAt } from './town/deriveFullAt'
 export { derivePeople } from './town/derivePeople'
 export { deriveResourceRates, type ResourceRates } from './town/deriveResourceRates'
@@ -235,8 +249,6 @@ export { type SendCleanUpDependencies, sendCleanUp } from './town/jobs/useCases/
 export { type SendJobDependencies, sendJob } from './town/jobs/useCases/sendJob'
 export type { WasteSize } from './town/jobs/WasteSize'
 export { type BusyLessonSlot, idleLessonSlot, type LessonSlot } from './town/LessonSlot'
-export { type LevelWordNeed, levelWordNeedOf } from './town/levelWordNeedOf'
-export type { NeededWordKind } from './town/NeededWordKind'
 export { type GoalShortfall, type NextGoal, nextGoalOf } from './town/nextGoalOf'
 export {
   type NextStep,
@@ -271,16 +283,6 @@ export {
   type StopSchoolLessonDependencies,
   stopSchoolLesson,
 } from './town/school/useCases/stopSchoolLesson'
-export {
-  type StartBuildingWorkCommand,
-  type StartBuildingWorkDependencies,
-  startBuildingWork,
-} from './town/startBuildingWork'
-export {
-  type StopBuildingWorkCommand,
-  type StopBuildingWorkDependencies,
-  stopBuildingWork,
-} from './town/stopBuildingWork'
 export type { TipKind } from './town/TipKind'
 export { type ChangedTown, type StoredTown, Town, type TownFounding } from './town/Town'
 export { TownAddress } from './town/TownAddress'
@@ -305,8 +307,6 @@ export { tipKinds } from './town/tipKinds'
 export { type TipReading, tipOf } from './town/tipOf'
 export { townLabelOf } from './town/townLabelOf'
 export { type TownSeason, townSeasonAt } from './town/townSeasonAt'
-export type { WordNeed } from './town/WordNeed'
-export { type WordShortfall, wordShortfallOf } from './town/wordShortfallOf'
 export {
   type AnsweredReview,
   type AnswerReviewCommand,

@@ -13,6 +13,7 @@ import {
   type WorkSlot,
   type WorkTarget,
 } from './BuildingWork'
+import { recheckWaitingList } from './building/recheckWaitingList'
 import { buildingKinds } from './buildingKinds'
 import { type FullSince, noStoreFull } from './FullSince'
 import type { HireKind } from './HireKind'
@@ -35,7 +36,6 @@ import { refuseInvalidTeam } from './jobs/refuseInvalidTeam'
 import type { Terrain } from './jobs/Terrain'
 import { terrainOf } from './jobs/terrainOf'
 import type { ResourceKind } from './ResourceKind'
-import { recheckWaitingList } from './recheckWaitingList'
 import { resourceKinds } from './resourceKinds'
 import type { Stocks } from './Stocks'
 import type { TownAddress } from './TownAddress'
