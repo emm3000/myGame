@@ -1,8 +1,10 @@
 import { type ReactElement, useId } from 'react'
+import type { StepFocus } from '../focus/useStepFocus'
 import { Block } from './Block'
 import { Button } from './Button'
 import { blockHueOf } from './blockHueOf'
-import type { Label } from './Label'
+import { blockFocusTargetClass } from './focusTargetClass'
+import type { Label, LineLanguage } from './Label'
 import { LabelText } from './LabelText'
 import { Track } from './Track'
 import {
@@ -24,6 +26,8 @@ export interface ChoiceWalkLines {
 export interface ChoiceWalkProps {
   readonly items: ReadonlyArray<WalkItem>
   readonly lines: ChoiceWalkLines
+  readonly choiceLanguage: LineLanguage
+  readonly word: StepFocus
   readonly isSending: boolean
   readonly onSend: (answers: ReadonlyArray<ChosenAnswer>) => void
 }
@@ -32,11 +36,13 @@ function Choices({
   item,
   walk,
   prompt,
+  choiceLanguage,
   isSending,
 }: {
   readonly item: WalkItem
   readonly walk: ChoiceWalkState
   readonly prompt: Label
+  readonly choiceLanguage: LineLanguage
   readonly isSending: boolean
 }): ReactElement {
   return (
@@ -47,7 +53,6 @@ function Choices({
       {item.choices.map((choice) => (
         <label
           key={choice.choiceId}
-          lang="es"
           className="flex min-h-secondary cursor-pointer items-center gap-3 rounded-md border border-line-strong bg-surface px-3 py-2 font-sans text-gloss text-ink has-checked:border-action has-checked:font-bold"
         >
           <input
@@ -58,7 +63,7 @@ function Choices({
             onChange={() => walk.choose(choice.choiceId)}
             className="size-icon accent-action"
           />
-          {choice.gloss}
+          <span lang={choiceLanguage}>{choice.gloss}</span>
         </label>
       ))}
     </fieldset>
@@ -67,6 +72,7 @@ function Choices({
 
 function WalkAction({
   lines,
+  word,
   isSending,
   onSend,
   walk,
@@ -74,6 +80,10 @@ function WalkAction({
   const reasonId = useId()
   const isBlocked = walk.chosenForShown === undefined
   const availability = isBlocked ? 'blocked' : 'available'
+  const showNext = (): void => {
+    walk.next()
+    word.focus()
+  }
   const send = (): void => {
     const answers = walk.answers()
     if (answers !== undefined) {
@@ -98,7 +108,7 @@ function WalkAction({
           tone="primary"
           availability={availability}
           describedBy={isBlocked ? reasonId : undefined}
-          onClick={walk.next}
+          onClick={showNext}
         >
           <LabelText label={lines.next} />
         </Button>
@@ -126,7 +136,7 @@ function EmptyWalk({ lines, isSending, onSend }: Omit<ChoiceWalkProps, 'items'>)
 }
 
 export function ChoiceWalk(props: ChoiceWalkProps): ReactElement {
-  const { items, lines, isSending } = props
+  const { items, lines, choiceLanguage, word, isSending } = props
   const walk = useChoiceWalk(items)
   const wordId = useId()
   if (walk.shown === undefined) {
@@ -144,11 +154,23 @@ export function ChoiceWalk(props: ChoiceWalkProps): ReactElement {
         <Track value={walk.shownIndex + 1} total={items.length} fillClass="fill-action" />
       </div>
       <Block hue={blockHueOf(walk.shownIndex)} labelledBy={wordId}>
-        <h2 id={wordId} lang="en" className="m-0 text-word wrap-anywhere">
+        <h2
+          id={wordId}
+          ref={word.ref}
+          tabIndex={-1}
+          lang="en"
+          className={`m-0 text-word wrap-anywhere ${blockFocusTargetClass}`}
+        >
           {walk.shown.word}
         </h2>
       </Block>
-      <Choices item={walk.shown} walk={walk} prompt={lines.prompt} isSending={isSending} />
+      <Choices
+        item={walk.shown}
+        walk={walk}
+        prompt={lines.prompt}
+        choiceLanguage={choiceLanguage}
+        isSending={isSending}
+      />
       <WalkAction {...props} walk={walk} />
     </>
   )

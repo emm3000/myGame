@@ -271,3 +271,52 @@ it('sends an empty answer list for a check asked with no words', async () => {
   expect(answerHoldoutCheck).toHaveBeenCalledWith({ band: 1, week: 8 }, { answers: [] })
   expect(screen.getByText(es.holdoutCheckDone())).toBeDefined()
 })
+
+it('moves focus to the first word once the check begins', async () => {
+  await showCheck({
+    holdoutChecks: reading(firstBandDue),
+    beginHoldoutCheck: changedTo(firstBandAsking),
+  })
+
+  await click(es.holdoutCheckStart())
+
+  expect(document.activeElement).toBe(screen.getByRole('heading', { name: 'house' }))
+})
+
+it('moves focus to the next word after next', async () => {
+  await showCheck({ holdoutChecks: reading(firstBandAsking) })
+
+  await choose('casa')
+  await click(es.placementNext())
+
+  expect(document.activeElement).toBe(screen.getByRole('heading', { name: 'water' }))
+})
+
+it('moves focus to the line that says the check is done once its answers are sent', async () => {
+  await showCheck({
+    holdoutChecks: reading(firstBandAsking),
+    answerHoldoutCheck: changedTo({ checks: [] }),
+  })
+
+  await answerBoth()
+  await click(es.holdoutCheckSend())
+
+  expect(document.activeElement).toBe(screen.getByText(es.holdoutCheckDone()).closest('p'))
+})
+
+it('moves focus to the line that says the check is skipped once it is skipped', async () => {
+  await showCheck({
+    holdoutChecks: reading(firstBandDue),
+    skipHoldoutCheck: changedTo({ checks: [] }),
+  })
+
+  await click(es.holdoutCheckSkip())
+
+  expect(document.activeElement).toBe(screen.getByText(es.holdoutCheckSkipped()).closest('p'))
+})
+
+it('leaves focus where it was when a check begun before is read', async () => {
+  await showCheck({ holdoutChecks: reading(firstBandAsking) })
+
+  expect(document.activeElement).toBe(document.body)
+})

@@ -20,7 +20,16 @@ const lines: ChoiceWalkLines = {
 }
 
 it('draws its send line as English over Spanish, each line marked with its language', () => {
-  render(<ChoiceWalk items={[]} lines={lines} isSending={false} onSend={() => undefined} />)
+  render(
+    <ChoiceWalk
+      items={[]}
+      lines={lines}
+      choiceLanguage="en"
+      word={{ ref: () => undefined, focus: () => undefined }}
+      isSending={false}
+      onSend={() => undefined}
+    />,
+  )
 
   expect(screen.getByRole('button', { name: 'Send Enviar' })).toBeDefined()
   expect([

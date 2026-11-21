@@ -1,12 +1,14 @@
 import type { Placement } from '@mygame/contracts'
-import { type ReactElement, type ReactNode, useId } from 'react'
+import { type ReactElement, type ReactNode, type RefCallback, useId } from 'react'
 import { usePlayerCopy } from '../copy/usePlayerCopy'
 import { Button, type ButtonAvailability } from '../design-system/Button'
+import { focusTargetClass } from '../design-system/focusTargetClass'
 import { LabelText } from '../design-system/LabelText'
 import { ReadFailed } from '../design-system/ReadFailed'
+import { type StepFocus, useStepFocus } from '../focus/useStepFocus'
 import { BandScores } from './BandScores'
 import { PlacementAsking } from './PlacementAsking'
-import type { PlacementAction, PlacementHandle } from './usePlacement'
+import type { PlacementAction, PlacementHandle, PlacementView } from './usePlacement'
 
 type ClosedPlacement = Extract<Placement, { readonly kind: 'closed' }>
 
@@ -63,18 +65,32 @@ function PlacementOffered({ placement }: { readonly placement: PlacementHandle }
   )
 }
 
-function PlacementResult({ closed }: { readonly closed: ClosedPlacement }): ReactElement {
+function PlacementResult({
+  closed,
+  titleRef,
+}: {
+  readonly closed: ClosedPlacement
+  readonly titleRef: RefCallback<HTMLElement>
+}): ReactElement {
   const { fixedCopy } = usePlayerCopy()
   if (closed.scores.length === 0) {
     return (
-      <p className="m-0 font-sans text-body text-ink">
+      <p
+        ref={titleRef}
+        tabIndex={-1}
+        className={`m-0 font-sans text-body text-ink ${focusTargetClass}`}
+      >
         <LabelText label={fixedCopy((catalog) => catalog.placementClosedNone())} />
       </p>
     )
   }
   return (
     <div className="flex flex-col gap-4">
-      <h2 className="m-0 font-sans text-heading text-ink">
+      <h2
+        ref={titleRef}
+        tabIndex={-1}
+        className={`m-0 font-sans text-heading text-ink ${focusTargetClass}`}
+      >
         <LabelText label={fixedCopy((catalog) => catalog.placementResultTitle())} />
       </h2>
       <BandScores scores={closed.scores} />
@@ -85,9 +101,11 @@ function PlacementResult({ closed }: { readonly closed: ClosedPlacement }): Reac
 function PlacementRead({
   shown,
   placement,
+  step,
 }: {
   readonly shown: Placement
   readonly placement: PlacementHandle
+  readonly step: StepFocus
 }): ReactElement {
   switch (shown.kind) {
     case 'offered':
@@ -97,14 +115,32 @@ function PlacementRead({
         <PlacementAsking
           key={shown.band}
           asking={shown}
+          word={step}
           isSending={placement.waiting === 'answers'}
           onSend={placement.send}
         />
       )
     case 'closed':
-      return <PlacementResult closed={shown} />
+      return <PlacementResult closed={shown} titleRef={step.ref} />
     default: {
       const unreachable: never = shown
+      return unreachable
+    }
+  }
+}
+
+const stepOf = (view: PlacementView): string | undefined => {
+  switch (view.kind) {
+    case 'loading':
+      return undefined
+    case 'failed':
+      return view.kind
+    case 'read':
+      return view.placement.kind === 'asking'
+        ? `asking-${view.placement.band}`
+        : view.placement.kind
+    default: {
+      const unreachable: never = view
       return unreachable
     }
   }
@@ -117,6 +153,7 @@ export function PlacementScreen({
 }): ReactElement | null {
   const { view } = placement
   const { fixedCopy } = usePlayerCopy()
+  const step = useStepFocus(stepOf(view))
   switch (view.kind) {
     case 'loading':
       return null
@@ -133,7 +170,7 @@ export function PlacementScreen({
     case 'read':
       return (
         <PlacementTitled>
-          <PlacementRead shown={view.placement} placement={placement} />
+          <PlacementRead shown={view.placement} placement={placement} step={step} />
         </PlacementTitled>
       )
     default: {
