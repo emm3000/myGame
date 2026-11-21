@@ -4,6 +4,7 @@ import { admitDueReview, type DueReview } from '../learning/admitDueReview'
 import { freshPendingReview } from '../learning/freshPendingReview'
 import { gradeTypedAnswer } from '../learning/gradeTypedAnswer'
 import type { HeldCard } from '../learning/HeldCard'
+import { type HeldCards, heldCardsOf } from '../learning/HeldCards'
 import { isLessonRetained } from '../learning/isLessonRetained'
 import type { Lesson, WordId } from '../learning/Lesson'
 import type { PendingReview } from '../learning/PendingReview'
@@ -76,7 +77,7 @@ const gradeOf = (
   review: DueReview,
   answer: string,
   pending: PendingReview | undefined,
-  held: ReadonlyArray<HeldCard>,
+  held: HeldCards,
   lessons: LessonCatalog,
 ): Result<Grade, DomainError> => {
   if (reviewFormatOf(review.held.card) === 'recognition') {
@@ -265,7 +266,7 @@ export const answerReview = async (
     return review
   }
   const pending = await pendingReviews.pendingReviewOf(playerId, wordId)
-  const grade = gradeOf(review.value, answer, pending, held.value, lessons)
+  const grade = gradeOf(review.value, answer, pending, heldCardsOf(held.value), lessons)
   if (!grade.ok) {
     return grade
   }

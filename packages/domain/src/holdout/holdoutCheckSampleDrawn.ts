@@ -1,5 +1,6 @@
 import type { BandStart } from '../learning/BandStart'
 import type { HeldCard } from '../learning/HeldCard'
+import { heldCardsOf } from '../learning/HeldCards'
 import { holdsLessonCards } from '../learning/holdsLessonCards'
 import type { LessonCatalog } from '../ports/LessonCatalog'
 import type { PlacementWordCatalog } from '../ports/PlacementWordCatalog'
@@ -24,9 +25,8 @@ export const holdoutCheckSampleDrawn = (
   const heldOutWordIds = ofStudiedLessons
     .filter(({ headword }) => heldOutWords.includes(headword))
     .map(({ id }) => id)
-  const practised = ofStudiedLessons
-    .filter(({ id }) => held.some(({ wordId }) => wordId === id))
-    .map(({ id }) => id)
+  const heldByWord = heldCardsOf(held)
+  const practised = ofStudiedLessons.filter(({ id }) => heldByWord.has(id)).map(({ id }) => id)
   const asked = [
     ...heldOutWordIds,
     ...random.sampleOf(practised, Math.min(practised.length, heldOutWordIds.length)),

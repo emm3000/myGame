@@ -45,7 +45,7 @@ const recognitionOf = (
   { lesson, word, card, shownFrame }: ShownWord,
   reader: FrameReader,
 ): ReviewPrompt => {
-  const choices = recognitionChoicesOf(word.id, lesson, card, [...reader.cards.values()]).flatMap(
+  const choices = recognitionChoicesOf(word.id, lesson, card, reader.cards).flatMap(
     ({ choiceId, wordId }) =>
       lesson.words
         .filter(({ id }) => id === wordId)
