@@ -6,10 +6,10 @@ import {
 } from '../../../account/infrastructure/http/requirePlayer'
 import { answerRefusal } from '../../../platform/infrastructure/http/answerRefusal'
 import { honoPathOf } from '../../../platform/infrastructure/http/honoPath'
-import { type ReportDependencies, reportOf } from '../../application/reportOf'
+import { type ServeReportDependencies, serveReport } from '../../application/serveReport'
 import { reportDeclarations } from './reportDeclarations'
 
-export type ReportRouteDependencies = RequirePlayerDependencies & ReportDependencies
+export type ReportRouteDependencies = RequirePlayerDependencies & ServeReportDependencies
 
 export const reportRoutes = (dependencies: ReportRouteDependencies): OpenAPIHono => {
   const signedInPlayer = requirePlayer(dependencies)
@@ -22,7 +22,7 @@ export const reportRoutes = (dependencies: ReportRouteDependencies): OpenAPIHono
     honoPathOf(reportDeclarations.read),
     signedInPlayer,
     async (c) => {
-      const report = await reportOf(c.var.playerId, dependencies)
+      const report = await serveReport(c.var.playerId, dependencies)
       if (!report.ok) {
         return answerRefusal(c, report.error)
       }
