@@ -416,7 +416,7 @@ The batch also gives each of the 55 entries of lessons 17 to 27 one later frame,
 | down | adverb | 109 | Go down the hill to the river. | Go ____ the hill to the river. | abajo | to a lower place |
 | between | adverb | 116 | The school is between the farm and the river. | The school is ____ the farm and the river. | entre | with one thing on one side and another thing on the other side |
 | leave | verb | 126 | When do you leave the office? | When do you ____ the office? | salir de | to go away from a place |
-| off | adverb | 150 | The power is off at the factory. | The power is ____ at the factory. | apagado | not on, so it does not work |
+| off | adverb | 150 | The power is off at the factory. | The power is ____ at the factory. | apagado | not on, so you cannot use it |
 
 ### Lesson 29
 
