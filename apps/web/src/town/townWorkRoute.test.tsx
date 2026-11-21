@@ -1,14 +1,4 @@
-import {
-  namesPlacesFarm,
-  namesPlacesHomes,
-  namesPlacesSchool,
-  refusalNotEnoughResources,
-  refusalWaitingListFull,
-  townWorkRefund,
-  townWorkStop,
-  townWorkStopOf,
-  townWorkWaitingList,
-} from '@mygame/catalog'
+import { es } from '@mygame/catalog'
 import type { BuildingWork, StopBuildingWork, TownOverview } from '@mygame/contracts'
 import { act, fireEvent, screen, within } from '@testing-library/react'
 import { afterEach, beforeEach, expect, it, vi } from 'vitest'
@@ -76,7 +66,7 @@ const buildButtonOf = (name: string): HTMLElement =>
 it('offers the next level with its cost and duration', async () => {
   await showTown(knownTown)
 
-  const farm = placeCard(namesPlacesFarm())
+  const farm = placeCard(es.namesPlacesFarm())
   expect(within(farm).getByRole('button', { name: 'Construir nivel 1 · 5:00' })).toBeDefined()
   expect(within(farm).getByText('Gente trabajando: +2')).toBeDefined()
   expect(within(farm).getByText('de dinero', { exact: false }).closest('li')?.textContent).toBe(
@@ -96,7 +86,7 @@ it('starts the work of the level offered', async () => {
     },
   })
 
-  fireEvent.click(buildButtonOf(namesPlacesFarm()))
+  fireEvent.click(buildButtonOf(es.namesPlacesFarm()))
   await passSeconds(0)
 
   expect(started).toEqual(['farm'])
@@ -107,9 +97,9 @@ const waitingBuildPill = async (): Promise<HTMLElement> => {
   await showTown(knownTown, {
     startBuildingWork: () => new Promise<ApiOutcome<TownOverview>>(() => undefined),
   })
-  fireEvent.click(buildButtonOf(namesPlacesFarm()))
+  fireEvent.click(buildButtonOf(es.namesPlacesFarm()))
   await passSeconds(0)
-  return buildButtonOf(namesPlacesFarm())
+  return buildButtonOf(es.namesPlacesFarm())
 }
 
 it('holds a waiting build pill at its idle label width', async () => {
@@ -133,21 +123,21 @@ it('marks a level the stocks cannot pay with the shortfall', async () => {
     },
   })
 
-  const button = buildButtonOf(namesPlacesFarm())
+  const button = buildButtonOf(es.namesPlacesFarm())
   expect(accessibleDescriptionOf(button)).toBe('Necesitas 50 de material más.')
 })
 
 it('marks a level the free people cannot staff with the people short', async () => {
   await showTown({ ...knownTown, people: { supplied: 97, free: 1, atWork: 96 } })
 
-  const button = buildButtonOf(namesPlacesFarm())
+  const button = buildButtonOf(es.namesPlacesFarm())
   expect(accessibleDescriptionOf(button)).toBe('Gente necesaria: 2. Libre: 1.')
 })
 
 it('agrees the free people with their count', async () => {
   await showTown({ ...knownTown, people: { supplied: 96, free: 0, atWork: 96 } })
 
-  expect(accessibleDescriptionOf(buildButtonOf(namesPlacesFarm()))).toBe(
+  expect(accessibleDescriptionOf(buildButtonOf(es.namesPlacesFarm()))).toBe(
     'Gente necesaria: 2. Libres: 0.',
   )
 })
@@ -155,7 +145,9 @@ it('agrees the free people with their count', async () => {
 it('shows the slot busy with its countdown', async () => {
   await showTown(withWork(homesBeingBuilt, []))
 
-  expect(screen.getByText(namesPlacesHomes(), { selector: 'span', ignore: 'h4 *' })).toBeDefined()
+  expect(
+    screen.getByText(es.namesPlacesHomes(), { selector: 'span', ignore: 'h4 *' }),
+  ).toBeDefined()
   expect(screen.getByRole('timer').textContent).toBe('4 min')
 })
 
@@ -164,12 +156,12 @@ it('shows work waiting behind the slot in order', async () => {
     withWork(homesBeingBuilt, [workOn('school', 2, 240, 600), workOn('farm', 1, 600, 900)]),
   )
 
-  const waiting = screen.getByRole('list', { name: townWorkWaitingList() })
+  const waiting = screen.getByRole('list', { name: es.townWorkWaitingList() })
   const entries = within(waiting)
     .getAllByRole('listitem')
     .map((entry) => entry.textContent ?? '')
-  expect(entries[0]).toContain(namesPlacesSchool())
-  expect(entries[1]).toContain(namesPlacesFarm())
+  expect(entries[0]).toContain(es.namesPlacesSchool())
+  expect(entries[1]).toContain(es.namesPlacesFarm())
 })
 
 it('marks every level while the waiting list is full', async () => {
@@ -177,8 +169,8 @@ it('marks every level while the waiting list is full', async () => {
     withWork(homesBeingBuilt, [workOn('school', 2, 240, 600), workOn('farm', 1, 600, 900)]),
   )
 
-  expect(accessibleDescriptionOf(buildButtonOf(namesPlacesFarm()))).toBe(
-    refusalWaitingListFull({ cap: 2 }),
+  expect(accessibleDescriptionOf(buildButtonOf(es.namesPlacesFarm()))).toBe(
+    es.refusalWaitingListFull({ cap: 2 }),
   )
 })
 
@@ -190,15 +182,17 @@ it('stops the work and shows the refund it promises', async () => {
       return { ok: true, value: knownTown }
     },
   })
-  expect(screen.getByText(townWorkRefund())).toBeDefined()
+  expect(screen.getByText(es.townWorkRefund())).toBeDefined()
 
   fireEvent.click(
-    screen.getByRole('button', { name: townWorkStopOf({ place: namesPlacesHomes(), level: 2 }) }),
+    screen.getByRole('button', {
+      name: es.townWorkStopOf({ place: es.namesPlacesHomes(), level: 2 }),
+    }),
   )
   await passSeconds(0)
 
   expect(stopped).toEqual([{ building: 'homes', level: 2 }])
-  expect(screen.queryByRole('button', { name: new RegExp(`^${townWorkStop()}`) })).toBeNull()
+  expect(screen.queryByRole('button', { name: new RegExp(`^${es.townWorkStop()}`) })).toBeNull()
 })
 
 it('stops work once on a double click', async () => {
@@ -212,7 +206,7 @@ it('stops work once on a double click', async () => {
   await showTown(withWork(homesBeingBuilt, []), { stopBuildingWork })
 
   const stop = screen.getByRole('button', {
-    name: townWorkStopOf({ place: namesPlacesHomes(), level: 2 }),
+    name: es.townWorkStopOf({ place: es.namesPlacesHomes(), level: 2 }),
   })
   act(() => {
     fireEvent.click(stop)
@@ -239,11 +233,13 @@ it('shows a finished level after the next read', async () => {
       return { ok: true, value: reads === 1 ? withWork(homesBeingBuilt, []) : finished }
     },
   })
-  expect(within(placeCard(namesPlacesHomes())).getByText('Nivel 1 · En construcción')).toBeDefined()
+  expect(
+    within(placeCard(es.namesPlacesHomes())).getByText('Nivel 1 · En construcción'),
+  ).toBeDefined()
 
   await passSeconds(240)
 
-  expect(within(placeCard(namesPlacesHomes())).getByText('Nivel 2')).toBeDefined()
+  expect(within(placeCard(es.namesPlacesHomes())).getByText('Nivel 2')).toBeDefined()
 })
 
 it('shows a refused start with its message under the place', async () => {
@@ -258,11 +254,11 @@ it('shows a refused start with its message under the place', async () => {
     }),
   })
 
-  fireEvent.click(buildButtonOf(namesPlacesFarm()))
+  fireEvent.click(buildButtonOf(es.namesPlacesFarm()))
   await passSeconds(0)
 
-  expect(within(placeCard(namesPlacesFarm())).getByRole('alert').textContent).toBe(
-    refusalNotEnoughResources(),
+  expect(within(placeCard(es.namesPlacesFarm())).getByRole('alert').textContent).toBe(
+    es.refusalNotEnoughResources(),
   )
 })
 
@@ -274,7 +270,7 @@ const pressFarmBuildOf = async (town: TownOverview): Promise<ReadonlyArray<strin
       return { ok: true, value: town }
     },
   })
-  fireEvent.click(buildButtonOf(namesPlacesFarm()))
+  fireEvent.click(buildButtonOf(es.namesPlacesFarm()))
   await passSeconds(0)
   return started
 }
@@ -321,10 +317,10 @@ it('reads the api refusal of a level sent while marked short', async () => {
     },
   )
 
-  fireEvent.click(buildButtonOf(namesPlacesFarm()))
+  fireEvent.click(buildButtonOf(es.namesPlacesFarm()))
   await passSeconds(0)
 
-  expect(within(placeCard(namesPlacesFarm())).getByRole('alert')).toBeDefined()
+  expect(within(placeCard(es.namesPlacesFarm())).getByRole('alert')).toBeDefined()
 })
 
 it('sends a level while the waiting list is full, since the api decides', async () => {

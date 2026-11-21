@@ -1,16 +1,4 @@
-import {
-  en,
-  es,
-  refusalTokenInvalid,
-  refusalUnexpected,
-  scaffoldEs,
-  scaffoldLabel,
-  scaffoldNone,
-  settingsCardsKept,
-  settingsSaved,
-  settingsSaving,
-  settingsTitle,
-} from '@mygame/catalog'
+import { en, es } from '@mygame/catalog'
 import type { Player, Scaffold, TownOverview } from '@mygame/contracts'
 import { act, fireEvent, screen } from '@testing-library/react'
 import { expect, it } from 'vitest'
@@ -20,8 +8,8 @@ import { knownPlayer, knownTown, stubApiClient } from '../auth/stubApiClient.tes
 import { shownLinesDrawnAlone } from '../town/lineDrawnAlone.testSupport'
 
 const scaffoldLines: Readonly<Record<Scaffold, string>> = {
-  es: scaffoldEs(),
-  none: scaffoldNone(),
+  es: es.scaffoldEs(),
+  none: es.scaffoldNone(),
 }
 
 const scaffoldRadioOf = async (scaffold: Scaffold): Promise<HTMLInputElement> => {
@@ -32,7 +20,7 @@ const scaffoldRadioOf = async (scaffold: Scaffold): Promise<HTMLInputElement> =>
   return radio
 }
 
-const scaffoldGroup = (): HTMLElement => screen.getByRole('group', { name: scaffoldLabel() })
+const scaffoldGroup = (): HTMLElement => screen.getByRole('group', { name: es.scaffoldLabel() })
 
 const signedInAs = (scaffold: Scaffold, overrides: Partial<ApiClient> = {}): ApiClient =>
   stubApiClient({ currentPlayer: async () => ({ ...knownPlayer, scaffold }), ...overrides })
@@ -40,10 +28,10 @@ const signedInAs = (scaffold: Scaffold, overrides: Partial<ApiClient> = {}): Api
 it('draws the stored scaffold as the picked help language', async () => {
   renderAppAt('/settings', signedInAs('none'))
 
-  expect(await screen.findByRole('heading', { level: 1, name: settingsTitle() })).toBeTruthy()
+  expect(await screen.findByRole('heading', { level: 1, name: es.settingsTitle() })).toBeTruthy()
   expect((await scaffoldRadioOf('none')).checked).toBe(true)
   expect((await scaffoldRadioOf('es')).checked).toBe(false)
-  expect(screen.getByText(settingsCardsKept())).toBeTruthy()
+  expect(screen.getByText(es.settingsCardsKept())).toBeTruthy()
 })
 
 const heldAnswer = (): {
@@ -92,7 +80,7 @@ it('draws the pick as saving while the api answers', async () => {
 
   fireEvent.click(await scaffoldRadioOf('none'))
 
-  expect((await screen.findByRole('status')).textContent).toBe(settingsSaving())
+  expect((await screen.findByRole('status')).textContent).toBe(es.settingsSaving())
   expect((await scaffoldRadioOf('none')).checked).toBe(true)
   expect(scaffoldGroup().hasAttribute('disabled')).toBe(true)
 })
@@ -102,7 +90,7 @@ it('keeps the pick once the api stores it', async () => {
 
   fireEvent.click(await scaffoldRadioOf('none'))
 
-  expect(await screen.findByText(settingsSaved())).toBeTruthy()
+  expect(await screen.findByText(es.settingsSaved())).toBeTruthy()
   expect((await scaffoldRadioOf('none')).checked).toBe(true)
   expect(scaffoldGroup().hasAttribute('disabled')).toBe(false)
 })
@@ -117,7 +105,7 @@ it('returns to the stored scaffold when the api refuses the pick', async () => {
 
   fireEvent.click(await scaffoldRadioOf('none'))
 
-  expect((await screen.findByRole('alert')).textContent).toBe(refusalTokenInvalid())
+  expect((await screen.findByRole('alert')).textContent).toBe(es.refusalTokenInvalid())
   expect((await scaffoldRadioOf('es')).checked).toBe(true)
   expect((await scaffoldRadioOf('none')).checked).toBe(false)
 })
@@ -132,7 +120,7 @@ it('returns to the stored scaffold when the api cannot be reached', async () => 
 
   fireEvent.click(await scaffoldRadioOf('es'))
 
-  expect((await screen.findByRole('alert')).textContent).toBe(refusalUnexpected())
+  expect((await screen.findByRole('alert')).textContent).toBe(es.refusalUnexpected())
   expect((await scaffoldRadioOf('none')).checked).toBe(true)
 })
 

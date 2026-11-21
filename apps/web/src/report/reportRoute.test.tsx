@@ -1,22 +1,4 @@
-import {
-  refusalUnexpected,
-  reportLoading,
-  reportNewsClose,
-  reportNewsClosed,
-  reportNewsNone,
-  reportNewsTitle,
-  reportNoReviewsDue,
-  reportReviewsDue,
-  reportStartReviews,
-  reportTitle,
-  reviewNextReview,
-  reviewTitle,
-  schoolLessonReadWords,
-  settingsTitle,
-  shellNavigationTown,
-  shellSignOut,
-  townTryAgain,
-} from '@mygame/catalog'
+import { es } from '@mygame/catalog'
 import type { DueReview, Report, TownNewsItem } from '@mygame/contracts'
 import { act, fireEvent, screen, within } from '@testing-library/react'
 import { afterEach, beforeEach, expect, it, vi } from 'vitest'
@@ -119,18 +101,19 @@ const showReport = async (
   return rendered
 }
 
-const reportRegion = (): HTMLElement => screen.getByRole('region', { name: reportTitle() })
+const reportRegion = (): HTMLElement => screen.getByRole('region', { name: es.reportTitle() })
 
-const newsRegion = (): HTMLElement => screen.getByRole('region', { name: reportNewsTitle() })
+const newsRegion = (): HTMLElement => screen.getByRole('region', { name: es.reportNewsTitle() })
 
-const closeButton = (): HTMLElement => screen.getByRole('button', { name: reportNewsClose() })
+const closeButton = (): HTMLElement => screen.getByRole('button', { name: es.reportNewsClose() })
 
-const reviewsDueLine = (): HTMLElement | null => screen.queryByText(reportReviewsDue({ count: 3 }))
+const reviewsDueLine = (): HTMLElement | null =>
+  screen.queryByText(es.reportReviewsDue({ count: 3 }))
 
 it('keeps the loading line in a status region while the Report reads', async () => {
   await showReport(neverAnswering)
 
-  expect(screen.getByRole('status').textContent).toBe(reportLoading())
+  expect(screen.getByRole('status').textContent).toBe(es.reportLoading())
 })
 
 it('never draws the loading line of the Report on the screen', async () => {
@@ -165,7 +148,7 @@ it('keeps the Report title above the skeleton', async () => {
 
   await passSeconds(revealSeconds)
 
-  expect(screen.getByRole('heading', { level: 1, name: reportTitle() })).toBeDefined()
+  expect(screen.getByRole('heading', { level: 1, name: es.reportTitle() })).toBeDefined()
 })
 
 it('keeps the Report skeleton for the minimum hold when the read answers just after it appears', async () => {
@@ -198,7 +181,7 @@ it('draws no skeleton on a refused read of the Report, only the retry', async ()
   await passSeconds(revealSeconds + holdSeconds)
 
   expect(skeletonBlocks()).toEqual([])
-  expect(screen.getByRole('button', { name: townTryAgain() })).toBeDefined()
+  expect(screen.getByRole('button', { name: es.townTryAgain() })).toBeDefined()
 })
 
 it('keeps the refused Report on screen while its retry is on its way', async () => {
@@ -208,12 +191,12 @@ it('keeps the refused Report on screen while its retry is on its way', async () 
     .mockImplementation(neverAnswering)
   await showReport(report)
 
-  fireEvent.click(screen.getByRole('button', { name: townTryAgain() }))
+  fireEvent.click(screen.getByRole('button', { name: es.townTryAgain() }))
   await passSeconds(0)
   await passSeconds(revealSeconds + holdSeconds)
 
   expect(skeletonBlocks()).toEqual([])
-  expect(screen.getByText(refusalUnexpected())).toBeDefined()
+  expect(screen.getByText(es.refusalUnexpected())).toBeDefined()
 })
 
 it('keeps sign-out under the Report skeleton', async () => {
@@ -231,46 +214,48 @@ it('reads a failed Report by its refusal with a way to read it again', async () 
     .mockResolvedValue({ ok: true, value: reviewsDue })
   await showReport(report)
 
-  expect(screen.getByText(refusalUnexpected())).toBeDefined()
-  fireEvent.click(screen.getByRole('button', { name: townTryAgain() }))
+  expect(screen.getByText(es.refusalUnexpected())).toBeDefined()
+  fireEvent.click(screen.getByRole('button', { name: es.townTryAgain() }))
   await passSeconds(0)
 
-  expect(screen.getByText(reportReviewsDue({ count: 3 }))).toBeDefined()
+  expect(screen.getByText(es.reportReviewsDue({ count: 3 }))).toBeDefined()
 })
 
 it('counts the reviews due with a way into them', async () => {
   await showReport(reviewsDue)
 
-  expect(within(reportRegion()).getByText(reportReviewsDue({ count: 3 }))).toBeDefined()
+  expect(within(reportRegion()).getByText(es.reportReviewsDue({ count: 3 }))).toBeDefined()
   expect(
-    within(reportRegion()).getByRole('link', { name: reportStartReviews() }).getAttribute('href'),
+    within(reportRegion())
+      .getByRole('link', { name: es.reportStartReviews() })
+      .getAttribute('href'),
   ).toBe('/reviews')
 })
 
 it('offers no way into the reviews when none is due', async () => {
   await showReport(reportOf({}))
 
-  expect(within(reportRegion()).getByText(reportNoReviewsDue())).toBeDefined()
-  expect(within(reportRegion()).queryByRole('link', { name: reportStartReviews() })).toBeNull()
+  expect(within(reportRegion()).getByText(es.reportNoReviewsDue())).toBeDefined()
+  expect(within(reportRegion()).queryByRole('link', { name: es.reportStartReviews() })).toBeNull()
 })
 
 it('shows the instant of the next review when none is due', async () => {
   await showReport(reportOf({ nextDueAt: '2026-11-10T09:40:00.000Z' }))
 
-  expect(within(reportRegion()).getByText(reviewNextReview())).toBeDefined()
+  expect(within(reportRegion()).getByText(es.reviewNextReview())).toBeDefined()
   expect(within(reportRegion()).getByText('10:40')).toBeDefined()
 })
 
 it('shows no next review with no review ahead', async () => {
   await showReport(reportOf({}))
 
-  expect(within(reportRegion()).queryByText(reviewNextReview())).toBeNull()
+  expect(within(reportRegion()).queryByText(es.reviewNextReview())).toBeNull()
 })
 
 it('shows no next review beside the reviews due', async () => {
   await showReport({ ...reviewsDue, nextDueAt: '2026-11-10T09:40:00.000Z' })
 
-  expect(within(reportRegion()).queryByText(reviewNextReview())).toBeNull()
+  expect(within(reportRegion()).queryByText(es.reviewNextReview())).toBeNull()
 })
 
 const secondsAfterRead = (seconds: number): string =>
@@ -298,7 +283,7 @@ it('draws the reviews the read at the next review answers', async () => {
 
   await passSeconds(30)
 
-  expect(within(reportRegion()).getByText(reportReviewsDue({ count: '3' }))).toBeDefined()
+  expect(within(reportRegion()).getByText(es.reportReviewsDue({ count: '3' }))).toBeDefined()
 })
 
 it('reads once with reviews due', async () => {
@@ -340,26 +325,26 @@ it('waits for a next review past the longest timer', async () => {
 it('opens the unread lesson from the Report', async () => {
   await showReport({ ...reviewsDue, readFirst: ['lesson-2', 'lesson-3'] })
 
-  const link = screen.getByRole('link', { name: schoolLessonReadWords() })
+  const link = screen.getByRole('link', { name: es.schoolLessonReadWords() })
 
   expect(link.getAttribute('href')).toBe('/school/lesson-2')
-  expect(screen.queryByRole('link', { name: reportStartReviews() })).toBeNull()
+  expect(screen.queryByRole('link', { name: es.reportStartReviews() })).toBeNull()
 })
 
 it('opens the reviews from the Report', async () => {
   await showReport(reviewsDue)
 
-  fireEvent.click(screen.getByRole('link', { name: reportStartReviews() }))
+  fireEvent.click(screen.getByRole('link', { name: es.reportStartReviews() }))
   await passSeconds(0)
 
-  expect(screen.getByRole('heading', { level: 1, name: reviewTitle() })).toBeDefined()
+  expect(screen.getByRole('heading', { level: 1, name: es.reviewTitle() })).toBeDefined()
   expect(screen.getByText('home')).toBeDefined()
 })
 
 it('lists the reviews due before the news', async () => {
   await showReport(reportOf({ dueCount: 3, due: [homeRecognition], news: [homesFinished] }))
 
-  const count = screen.getByText(reportReviewsDue({ count: 3 }))
+  const count = screen.getByText(es.reportReviewsDue({ count: 3 }))
   const news = newsRegion()
 
   expect(count.compareDocumentPosition(news) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy()
@@ -379,8 +364,8 @@ it('writes each news item with its instant, newest first as answered', async () 
 it('says there is no news when nothing happened since the last close', async () => {
   await showReport(reportOf({}))
 
-  expect(within(newsRegion()).getByText(reportNewsNone())).toBeDefined()
-  expect(screen.queryByRole('button', { name: reportNewsClose() })).toBeNull()
+  expect(within(newsRegion()).getByText(es.reportNewsNone())).toBeDefined()
+  expect(screen.queryByRole('button', { name: es.reportNewsClose() })).toBeNull()
 })
 
 it('hides the news once closed', async () => {
@@ -389,7 +374,7 @@ it('hides the news once closed', async () => {
   fireEvent.click(closeButton())
   await passSeconds(0)
 
-  expect(within(newsRegion()).getByText(reportNewsClosed())).toBeDefined()
+  expect(within(newsRegion()).getByText(es.reportNewsClosed())).toBeDefined()
   expect(within(newsRegion()).queryByText(homesLine)).toBeNull()
 })
 
@@ -400,7 +385,7 @@ it('moves focus to the news title once closed', async () => {
   await passSeconds(0)
 
   expect(document.activeElement).toBe(
-    within(newsRegion()).getByRole('heading', { name: reportNewsTitle() }),
+    within(newsRegion()).getByRole('heading', { name: es.reportNewsTitle() }),
   )
 })
 
@@ -409,7 +394,7 @@ it('shows only the news since the last close', async () => {
 
   fireEvent.click(closeButton())
   await passSeconds(0)
-  fireEvent.click(screen.getByRole('link', { name: shellNavigationTown() }))
+  fireEvent.click(screen.getByRole('link', { name: es.shellNavigationTown() }))
   await passSeconds(0)
   await act(() => router.navigate({ to: '/report' }))
   await passSeconds(0)
@@ -445,12 +430,12 @@ it('keeps the news with the refusal when the close is refused', async () => {
   await passSeconds(0)
 
   expect(within(newsRegion()).getByText(homesLine)).toBeDefined()
-  expect(within(newsRegion()).getByText(refusalUnexpected())).toBeDefined()
+  expect(within(newsRegion()).getByText(es.refusalUnexpected())).toBeDefined()
   expect(document.activeElement).toBe(closeButton())
 })
 
 const signOutButton = (): HTMLElement =>
-  within(screen.getByRole('main')).getByRole('button', { name: shellSignOut() })
+  within(screen.getByRole('main')).getByRole('button', { name: es.shellSignOut() })
 
 it('keeps sign-out at the foot of the Report and off the header', async () => {
   await showReport(newsSinceClose)
@@ -477,7 +462,7 @@ it('opens the settings from beside sign-out', async () => {
   const router = await showReport(reportOf({}))
 
   const signOutRow = signOutButton().parentElement ?? document.body
-  fireEvent.click(within(signOutRow).getByRole('link', { name: settingsTitle() }))
+  fireEvent.click(within(signOutRow).getByRole('link', { name: es.settingsTitle() }))
   await passSeconds(0)
 
   expect(router.state.location.pathname).toBe('/settings')
@@ -517,14 +502,14 @@ it('closes on a second click after a refused close, dropping the refusal while i
 
   fireEvent.click(closeButton())
   await passSeconds(0)
-  expect(within(newsRegion()).getByText(refusalUnexpected())).toBeDefined()
+  expect(within(newsRegion()).getByText(es.refusalUnexpected())).toBeDefined()
 
   fireEvent.click(closeButton())
   await passSeconds(0)
-  expect(within(newsRegion()).queryByText(refusalUnexpected())).toBeNull()
+  expect(within(newsRegion()).queryByText(es.refusalUnexpected())).toBeNull()
 
   await act(async () => held.answer(undefined))
-  expect(within(newsRegion()).getByText(reportNewsClosed())).toBeDefined()
+  expect(within(newsRegion()).getByText(es.reportNewsClosed())).toBeDefined()
 })
 
 it("draws a job's pay under its line", async () => {
@@ -557,7 +542,7 @@ const inkPills = (): ReadonlyArray<Element> => [
 ]
 
 const dueBlock = (count: number): HTMLElement =>
-  screen.getByRole('region', { name: reportReviewsDue({ count }) })
+  screen.getByRole('region', { name: es.reportReviewsDue({ count }) })
 
 it("keeps the Report's block periwinkle", async () => {
   await showReport(reviewsDue)
@@ -568,7 +553,7 @@ it("keeps the Report's block periwinkle", async () => {
 it('sets the pill under the block, on paper', async () => {
   await showReport(reviewsDue)
 
-  const pill = screen.getByRole('link', { name: reportStartReviews() })
+  const pill = screen.getByRole('link', { name: es.reportStartReviews() })
 
   expect(dueBlock(3).contains(pill)).toBe(false)
   expect(dueBlock(3).compareDocumentPosition(pill) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy()
@@ -578,13 +563,13 @@ it('sets the pill under the block, on paper', async () => {
 it('holds one ink pill with reviews due and news to close', async () => {
   await showReport(reportOf({ dueCount: 3, due: [homeRecognition], news: [homesFinished] }))
 
-  expect(inkPills().map((pill) => pill.textContent)).toEqual([reportStartReviews()])
+  expect(inkPills().map((pill) => pill.textContent)).toEqual([es.reportStartReviews()])
 })
 
 it('holds no pill with nothing due', async () => {
   await showReport(newsSinceClose)
 
-  expect(screen.getByRole('button', { name: reportNewsClose() })).toBeDefined()
+  expect(screen.getByRole('button', { name: es.reportNewsClose() })).toBeDefined()
   expect(inkPills()).toHaveLength(0)
 })
 
@@ -612,7 +597,7 @@ it.each<[string, Report]>([
   await showReport(report)
 
   expect(screen.getAllByRole('heading', { level: 1 }).map((h1) => h1.textContent)).toEqual([
-    reportTitle(),
+    es.reportTitle(),
   ])
 })
 
@@ -620,7 +605,7 @@ it('holds one h1 on the Report with the Report loading', async () => {
   await showReport(neverAnswering)
 
   expect(screen.getAllByRole('heading', { level: 1 }).map((h1) => h1.textContent)).toEqual([
-    reportTitle(),
+    es.reportTitle(),
   ])
 })
 
@@ -630,6 +615,6 @@ it('holds one h1 on the Report with a failed read', async () => {
   })
 
   expect(screen.getAllByRole('heading', { level: 1 }).map((h1) => h1.textContent)).toEqual([
-    reportTitle(),
+    es.reportTitle(),
   ])
 })

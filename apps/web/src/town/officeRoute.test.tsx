@@ -1,4 +1,4 @@
-import { en, es, namesHiresTruck, namesHiresWorker } from '@mygame/catalog'
+import { en, es } from '@mygame/catalog'
 import type { PlaceHiringOrder, TownOverview } from '@mygame/contracts'
 import { act, fireEvent, screen, within } from '@testing-library/react'
 import { afterEach, beforeEach, expect, it, vi } from 'vitest'
@@ -76,7 +76,7 @@ it('hires workers from the office', async () => {
     },
   })
 
-  const workers = hireCard(namesHiresWorker())
+  const workers = hireCard(es.namesHiresWorker())
   fireEvent.change(within(workers).getByLabelText('Trabajadores a contratar'), {
     target: { value: '3' },
   })
@@ -90,7 +90,7 @@ it('hires workers from the office', async () => {
 it('locks trucks below office level 3', async () => {
   await showTown(withOfficeAt(2))
 
-  const trucks = hireCard(namesHiresTruck())
+  const trucks = hireCard(es.namesHiresTruck())
   expect(within(trucks).queryByRole('button')).toBeNull()
   expect(within(trucks).getByText('Necesita la oficina en nivel 3')).toBeDefined()
 })
@@ -148,7 +148,7 @@ it('stops an order once on a double click', async () => {
 it('offers each kind with its cost, duration and the office level it needs', async () => {
   await showTown(withOfficeAt(3))
 
-  const trucks = hireCard(namesHiresTruck())
+  const trucks = hireCard(es.namesHiresTruck())
   expect(within(trucks).getByRole('button', { name: 'Contratar 1 camión · 3:00' })).toBeDefined()
   expect(within(trucks).getByText('Necesita la oficina en nivel 3')).toBeDefined()
   expect(within(trucks).getByText('de material', { exact: false }).closest('li')?.textContent).toBe(
@@ -162,14 +162,16 @@ it('counts the hires the team holds per kind', async () => {
     hiring: { ...officeTown.hiring, hires: { worker: 4, truck: 1 } },
   })
 
-  expect(within(hireCard(namesHiresWorker())).getByText('Tu equipo: 4 trabajadores')).toBeDefined()
-  expect(within(hireCard(namesHiresTruck())).getByText('Tu equipo: 1 camión')).toBeDefined()
+  expect(
+    within(hireCard(es.namesHiresWorker())).getByText('Tu equipo: 4 trabajadores'),
+  ).toBeDefined()
+  expect(within(hireCard(es.namesHiresTruck())).getByText('Tu equipo: 1 camión')).toBeDefined()
 })
 
 it('marks a hire the free people cannot staff with the people short', async () => {
   await showTown({ ...officeTown, people: { supplied: 97, free: 0, atWork: 97 } })
 
-  const hire = within(hireCard(namesHiresWorker())).getByRole('button', { name: /^Contratar/ })
+  const hire = within(hireCard(es.namesHiresWorker())).getByRole('button', { name: /^Contratar/ })
   expect(accessibleDescriptionOf(hire)).toBe('Gente necesaria: 1. Libres: 0.')
 })
 
@@ -182,14 +184,14 @@ it('blocks a hire the stocks cannot pay and names the shortfall', async () => {
     },
   })
 
-  const hire = within(hireCard(namesHiresWorker())).getByRole('button', { name: /^Contratar/ })
+  const hire = within(hireCard(es.namesHiresWorker())).getByRole('button', { name: /^Contratar/ })
   expect(accessibleDescriptionOf(hire)).toBe('Necesitas 30 de dinero más.')
 })
 
 it('blocks a second hire while an order runs', async () => {
   await showTown(hiringWorkers(1, 3))
 
-  const hire = within(hireCard(namesHiresWorker())).getByRole('button', { name: /^Contratar/ })
+  const hire = within(hireCard(es.namesHiresWorker())).getByRole('button', { name: /^Contratar/ })
   expect(accessibleDescriptionOf(hire)).toBe('Espera a que termine esta contratación.')
 })
 
@@ -205,10 +207,12 @@ it('reads a refused hire under its kind', async () => {
     }),
   })
 
-  fireEvent.click(within(hireCard(namesHiresTruck())).getByRole('button', { name: /^Contratar/ }))
+  fireEvent.click(
+    within(hireCard(es.namesHiresTruck())).getByRole('button', { name: /^Contratar/ }),
+  )
   await passSeconds(0)
 
-  expect(within(hireCard(namesHiresTruck())).getByRole('alert').textContent).toBe(
+  expect(within(hireCard(es.namesHiresTruck())).getByRole('alert').textContent).toBe(
     'Tu oficina está en nivel 2 y esta contratación necesita el nivel 3.',
   )
 })
@@ -222,10 +226,12 @@ it('names the hire in a hiring refusal', async () => {
     }),
   })
 
-  fireEvent.click(within(hireCard(namesHiresWorker())).getByRole('button', { name: /^Contratar/ }))
+  fireEvent.click(
+    within(hireCard(es.namesHiresWorker())).getByRole('button', { name: /^Contratar/ }),
+  )
   await passSeconds(0)
 
-  expect(within(hireCard(namesHiresWorker())).getByRole('alert').textContent).toBe(
+  expect(within(hireCard(es.namesHiresWorker())).getByRole('alert').textContent).toBe(
     'Esta contratación necesita 3 personas libres y tienes 1. Sube el nivel de tus hogares.',
   )
 })
@@ -242,10 +248,12 @@ it('names the hire when the stocks cannot pay a hiring', async () => {
     }),
   })
 
-  fireEvent.click(within(hireCard(namesHiresWorker())).getByRole('button', { name: /^Contratar/ }))
+  fireEvent.click(
+    within(hireCard(es.namesHiresWorker())).getByRole('button', { name: /^Contratar/ }),
+  )
   await passSeconds(0)
 
-  expect(within(hireCard(namesHiresWorker())).getByRole('alert').textContent).toBe(
+  expect(within(hireCard(es.namesHiresWorker())).getByRole('alert').textContent).toBe(
     'No tienes recursos suficientes para esta contratación. Espera a que crezcan tus reservas.',
   )
 })
@@ -255,13 +263,17 @@ it('waits only on the kind being placed', async () => {
     placeHiringOrder: () => new Promise(() => undefined),
   })
 
-  fireEvent.click(within(hireCard(namesHiresWorker())).getByRole('button', { name: /^Contratar/ }))
+  fireEvent.click(
+    within(hireCard(es.namesHiresWorker())).getByRole('button', { name: /^Contratar/ }),
+  )
   await passSeconds(0)
 
-  const workerHire = within(hireCard(namesHiresWorker())).getByRole('button', {
+  const workerHire = within(hireCard(es.namesHiresWorker())).getByRole('button', {
     name: /^Contratar/,
   })
-  const truckHire = within(hireCard(namesHiresTruck())).getByRole('button', { name: /^Contratar/ })
+  const truckHire = within(hireCard(es.namesHiresTruck())).getByRole('button', {
+    name: /^Contratar/,
+  })
   expect(workerHire.getAttribute('aria-busy')).toBe('true')
   expect(truckHire.getAttribute('aria-busy')).not.toBe('true')
 })
@@ -274,7 +286,9 @@ const pressWorkerHireOf = async (town: TownOverview): Promise<ReadonlyArray<Plac
       return { ok: true, value: town }
     },
   })
-  fireEvent.click(within(hireCard(namesHiresWorker())).getByRole('button', { name: /^Contratar/ }))
+  fireEvent.click(
+    within(hireCard(es.namesHiresWorker())).getByRole('button', { name: /^Contratar/ }),
+  )
   await passSeconds(0)
   return placed
 }
@@ -312,7 +326,7 @@ it('sends no hire for a count that is not a whole count', async () => {
       return { ok: true, value: officeTown }
     },
   })
-  const workers = hireCard(namesHiresWorker())
+  const workers = hireCard(es.namesHiresWorker())
   fireEvent.change(within(workers).getByLabelText('Trabajadores a contratar'), {
     target: { value: '2.5' },
   })

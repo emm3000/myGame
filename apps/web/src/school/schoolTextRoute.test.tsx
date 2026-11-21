@@ -1,4 +1,4 @@
-import { schoolLessonNothingToRead, townTryAgain } from '@mygame/catalog'
+import { es } from '@mygame/catalog'
 import type { OpenText } from '@mygame/contracts'
 import { act, fireEvent, screen } from '@testing-library/react'
 import { afterEach, beforeEach, expect, it, vi } from 'vitest'
@@ -127,7 +127,7 @@ it('sends no request on a tap', async () => {
 it('says there is nothing to read for a text the stage has not reached', async () => {
   await showText('text-9', async () => ({ ok: true, value: { kind: 'notOpen' } }))
 
-  expect(screen.getByText(schoolLessonNothingToRead())).toBeDefined()
+  expect(screen.getByText(es.schoolLessonNothingToRead())).toBeDefined()
 })
 
 it('sends a player with no town to the town home', async () => {
@@ -143,7 +143,7 @@ it('reads the text again from the retry after a failed read', async () => {
   ]
   await showText('text-1', async () => answers.shift() ?? { ok: false, refusal: 'Unexpected' })
 
-  fireEvent.click(screen.getByRole('button', { name: townTryAgain() }))
+  fireEvent.click(screen.getByRole('button', { name: es.townTryAgain() }))
   await passSeconds(0)
 
   expect(screen.getByRole('heading', { level: 1, name: 'A New Course' })).toBeDefined()

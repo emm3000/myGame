@@ -1,24 +1,4 @@
-import {
-  namesPlacesOffice,
-  townGoalClose,
-  townGoalLine,
-  townGoalPeople,
-  townGoalReady,
-  townInWork,
-  townNextGoToReport,
-  townNextTitle,
-  townPlacesTitleTown,
-  townStocks,
-  townTipClose,
-  townTipFullStore,
-  townTipJobs,
-  townTipOffice,
-  townTipPeople,
-  townTipSeasons,
-  townTipTitle,
-  townTipWaitingList,
-  townWorkTitle,
-} from '@mygame/catalog'
+import { es } from '@mygame/catalog'
 import type { NextStep, TipKind, TownOverview } from '@mygame/contracts'
 import { act, fireEvent, screen, within } from '@testing-library/react'
 import { afterEach, beforeEach, expect, it, vi } from 'vitest'
@@ -83,9 +63,9 @@ const showTown = async (town: TownOverview, overrides: Partial<ApiClient> = {}):
   await passSeconds(0)
 }
 
-const card = (): HTMLElement => screen.getByRole('region', { name: townNextTitle() })
+const card = (): HTMLElement => screen.getByRole('region', { name: es.townNextTitle() })
 
-const factoryGoalLine = townGoalLine({ position: 2, count: 9, place: 'Fábrica', level: 1 })
+const factoryGoalLine = es.townGoalLine({ position: 2, count: 9, place: 'Fábrica', level: 1 })
 
 it('shows the next goal', async () => {
   const missing = { resources: { money: 45, food: 0, power: 0, material: 65 }, people: 2 }
@@ -97,36 +77,36 @@ it('shows the next goal', async () => {
     .map((line) => line.textContent)
   expect(lines).toContain(factoryGoalLine)
   expect(lines).toContain('Necesitas 45 de dinero y 65 de material más.')
-  expect(lines).toContain(townGoalPeople({ count: 2 }))
+  expect(lines).toContain(es.townGoalPeople({ count: 2 }))
 })
 
 it('shows a goal with nothing missing as ready', async () => {
   await showTown(townAt(caughtUp(pendingFactory(nothingMissing))))
 
-  expect(within(card()).getByText(townGoalReady())).toBeDefined()
+  expect(within(card()).getByText(es.townGoalReady())).toBeDefined()
 })
 
 it('shows a goal underway as in work', async () => {
   await showTown(townAt(caughtUp(underwayFarm)))
 
   expect(
-    within(card()).getByText(townGoalLine({ position: 1, count: 9, place: 'Granja', level: 1 })),
+    within(card()).getByText(es.townGoalLine({ position: 1, count: 9, place: 'Granja', level: 1 })),
   ).toBeDefined()
-  expect(within(card()).getByText(townInWork())).toBeDefined()
+  expect(within(card()).getByText(es.townInWork())).toBeDefined()
 })
 
 it('shows no goal beside any other next step', async () => {
   await showTown(townAt({ kind: 'reviews', count: 3, readFirst: [] }))
 
   expect(within(card()).queryByText(/Meta \d/)).toBeNull()
-  expect(screen.queryByRole('button', { name: townGoalClose() })).toBeNull()
+  expect(screen.queryByRole('button', { name: es.townGoalClose() })).toBeNull()
 })
 
 it('shows no goal once none is left', async () => {
   await showTown(townAt(caughtUp(null)))
 
   expect(within(card()).queryByText(/Meta \d/)).toBeNull()
-  expect(screen.queryByRole('button', { name: townGoalClose() })).toBeNull()
+  expect(screen.queryByRole('button', { name: es.townGoalClose() })).toBeNull()
 })
 
 it('keeps the Report the one ink pill beside the goal', async () => {
@@ -135,7 +115,7 @@ it('keeps the Report the one ink pill beside the goal', async () => {
   const pills = screen
     .getAllByRole('link')
     .filter((control) => control.getAttribute('data-tone') === 'primary')
-  expect(pills.map((pill) => pill.textContent)).toEqual([townNextGoToReport()])
+  expect(pills.map((pill) => pill.textContent)).toEqual([es.townNextGoToReport()])
 })
 
 const heldAnswer = (): {
@@ -157,20 +137,20 @@ it('closes the goal at once and dismisses the guidance', async () => {
   const dismissGuidance = vi.fn(async (): Promise<ApiRefusal | undefined> => undefined)
   await showTown(townAt(caughtUp(underwayFarm)), { dismissGuidance })
 
-  fireEvent.click(screen.getByRole('button', { name: townGoalClose() }))
+  fireEvent.click(screen.getByRole('button', { name: es.townGoalClose() }))
   await passSeconds(0)
 
   expect(dismissGuidance).toHaveBeenCalledTimes(1)
-  expect(within(card()).queryByText(townInWork())).toBeNull()
-  expect(screen.queryByRole('button', { name: townGoalClose() })).toBeNull()
+  expect(within(card()).queryByText(es.townInWork())).toBeNull()
+  expect(screen.queryByRole('button', { name: es.townGoalClose() })).toBeNull()
 })
 
 it('moves focus to the next step when the goal closes', async () => {
   await showTown(townAt(caughtUp(underwayFarm)))
 
-  fireEvent.click(screen.getByRole('button', { name: townGoalClose() }))
+  fireEvent.click(screen.getByRole('button', { name: es.townGoalClose() }))
 
-  expect(document.activeElement?.textContent).toBe(townNextTitle())
+  expect(document.activeElement?.textContent).toBe(es.townNextTitle())
 })
 
 it('keeps a closed goal hidden when a read still names it', async () => {
@@ -182,18 +162,18 @@ it('keeps a closed goal hidden when a read still names it', async () => {
   )
   await showTown(townAt(caughtUp(underwayFarm)), { town })
 
-  fireEvent.click(screen.getByRole('button', { name: townGoalClose() }))
+  fireEvent.click(screen.getByRole('button', { name: es.townGoalClose() }))
   await rereadOnce()
 
   expect(town).toHaveBeenCalledTimes(2)
-  expect(within(card()).queryByText(townInWork())).toBeNull()
+  expect(within(card()).queryByText(es.townInWork())).toBeNull()
 })
 
 it('dismisses the guidance once on a double click', async () => {
   const held = heldAnswer()
   const dismissGuidance = vi.fn(() => held.answer)
   await showTown(townAt(caughtUp(underwayFarm)), { dismissGuidance })
-  const close = screen.getByRole('button', { name: townGoalClose() })
+  const close = screen.getByRole('button', { name: es.townGoalClose() })
 
   act(() => {
     fireEvent.click(close)
@@ -211,7 +191,7 @@ it('dismisses the guidance again on the next read when the api could not be reac
     .mockResolvedValueOnce('Unexpected')
   await showTown(townAt(caughtUp(underwayFarm)), { dismissGuidance })
 
-  fireEvent.click(screen.getByRole('button', { name: townGoalClose() }))
+  fireEvent.click(screen.getByRole('button', { name: es.townGoalClose() }))
   await passSeconds(0)
   await rereadOnce()
   await rereadOnce()
@@ -219,14 +199,14 @@ it('dismisses the guidance again on the next read when the api could not be reac
   expect(dismissGuidance).toHaveBeenCalledTimes(2)
 })
 
-const tipLine = townTipWaitingList()
+const tipLine = es.townTipWaitingList()
 
 it('shows a tip once and never again after close', async () => {
   const markTipSeen = vi.fn(async (_tip: TipKind): Promise<ApiRefusal | undefined> => undefined)
   await showTown(townAt(caughtUp(null), { tip: 'waitingList' }), { markTipSeen })
 
-  expect(screen.getByRole('region', { name: townTipTitle() })).toBeDefined()
-  fireEvent.click(screen.getByRole('button', { name: townTipClose() }))
+  expect(screen.getByRole('region', { name: es.townTipTitle() })).toBeDefined()
+  fireEvent.click(screen.getByRole('button', { name: es.townTipClose() }))
   await rereadOnce()
 
   expect(screen.queryByText(tipLine)).toBeNull()
@@ -237,7 +217,7 @@ it('closes a tip once on a double click', async () => {
   const held = heldAnswer()
   const markTipSeen = vi.fn((_tip: TipKind) => held.answer)
   await showTown(townAt(caughtUp(null), { tip: 'waitingList' }), { markTipSeen })
-  const close = screen.getByRole('button', { name: townTipClose() })
+  const close = screen.getByRole('button', { name: es.townTipClose() })
 
   act(() => {
     fireEvent.click(close)
@@ -255,7 +235,7 @@ it('marks a tip seen again on the next read when the api could not be reached', 
     .mockResolvedValueOnce('Unexpected')
   await showTown(townAt(caughtUp(null), { tip: 'waitingList' }), { markTipSeen })
 
-  fireEvent.click(screen.getByRole('button', { name: townTipClose() }))
+  fireEvent.click(screen.getByRole('button', { name: es.townTipClose() }))
   await passSeconds(0)
   await rereadOnce()
   await rereadOnce()
@@ -268,7 +248,7 @@ it('sends no second close on a read while the first still waits', async () => {
   const markTipSeen = vi.fn((_tip: TipKind) => held.answer)
   await showTown(townAt(caughtUp(null), { tip: 'waitingList' }), { markTipSeen })
 
-  fireEvent.click(screen.getByRole('button', { name: townTipClose() }))
+  fireEvent.click(screen.getByRole('button', { name: es.townTipClose() }))
   await rereadOnce()
   held.release('Unexpected')
   await passSeconds(0)
@@ -277,34 +257,34 @@ it('sends no second close on a read while the first still waits', async () => {
 })
 
 it.each<[TipKind, () => string]>([
-  ['seasons', townStocks],
-  ['waitingList', townWorkTitle],
-  ['people', townPlacesTitleTown],
-  ['office', namesPlacesOffice],
+  ['seasons', es.townStocks],
+  ['waitingList', es.townWorkTitle],
+  ['people', es.townPlacesTitleTown],
+  ['office', es.namesPlacesOffice],
 ])('moves focus to the section a closed %s tip sat beside', async (tip, heading) => {
   await showTown(townAt(caughtUp(null), { tip }))
 
-  fireEvent.click(screen.getByRole('button', { name: townTipClose() }))
+  fireEvent.click(screen.getByRole('button', { name: es.townTipClose() }))
 
   expect(document.activeElement?.textContent).toBe(heading())
 })
 
 it.each<[TipKind, () => string]>([
-  ['people', townTipPeople],
-  ['seasons', townTipSeasons],
-  ['waitingList', townTipWaitingList],
-  ['office', townTipOffice],
-  ['jobs', townTipJobs],
-  ['fullStore', townTipFullStore],
+  ['people', es.townTipPeople],
+  ['seasons', es.townTipSeasons],
+  ['waitingList', es.townTipWaitingList],
+  ['office', es.townTipOffice],
+  ['jobs', es.townTipJobs],
+  ['fullStore', es.townTipFullStore],
 ])('shows the %s tip by its own line', async (tip, line) => {
   await showTown(townAt(caughtUp(null), { tip }))
 
-  const note = screen.getByRole('region', { name: townTipTitle() })
+  const note = screen.getByRole('region', { name: es.townTipTitle() })
   expect(within(note).getByText(line())).toBeDefined()
 })
 
 it('shows no tip while the read names none', async () => {
   await showTown(townAt(caughtUp(null), { tip: null }))
 
-  expect(screen.queryByRole('region', { name: townTipTitle() })).toBeNull()
+  expect(screen.queryByRole('region', { name: es.townTipTitle() })).toBeNull()
 })

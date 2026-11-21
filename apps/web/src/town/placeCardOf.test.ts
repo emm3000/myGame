@@ -1,4 +1,4 @@
-import { statusTomorrow, townReadyAt, townReadyIn } from '@mygame/catalog'
+import { es } from '@mygame/catalog'
 import type { TownOverview } from '@mygame/contracts'
 import { expect, it } from 'vitest'
 import { knownTown } from '../auth/stubApiClient.testSupport'
@@ -33,33 +33,35 @@ const readyOf = (town: TownOverview, elapsedSeconds = 0): string | undefined => 
 }
 
 it('names the minutes left when only resources are short and arrive within the hour', () => {
-  expect(readyOf(townWith({ material: stockOf(0, 90) }))).toBe(townReadyIn({ time: '54 min' }))
+  expect(readyOf(townWith({ material: stockOf(0, 90) }))).toBe(es.townReadyIn({ time: '54 min' }))
 })
 
 it('names the latest minute across the short resources', () => {
   const town = townWith({ money: stockOf(0, 60), material: stockOf(0, 90) })
 
-  expect(readyOf(town)).toBe(townReadyAt({ time: '11:00' }))
+  expect(readyOf(town)).toBe(es.townReadyAt({ time: '11:00' }))
 })
 
 it('counts the minutes left down from the live read', () => {
-  expect(readyOf(townWith({ material: stockOf(0, 90) }), 600)).toBe(townReadyIn({ time: '44 min' }))
+  expect(readyOf(townWith({ material: stockOf(0, 90) }), 600)).toBe(
+    es.townReadyIn({ time: '44 min' }),
+  )
 })
 
 it('names the clock the resources arrive at from an hour on', () => {
-  expect(readyOf(townWith({ material: stockOf(0, 30) }))).toBe(townReadyAt({ time: '12:40' }))
+  expect(readyOf(townWith({ material: stockOf(0, 30) }))).toBe(es.townReadyAt({ time: '12:40' }))
 })
 
 it('names tomorrow when the resources arrive past midnight', () => {
   expect(readyOf(townWith({ material: stockOf(0, 5) }))).toBe(
-    townReadyAt({ time: statusTomorrow({ time: '02:00' }) }),
+    es.townReadyAt({ time: es.statusTomorrow({ time: '02:00' }) }),
   )
 })
 
 it('rounds a read carrying seconds up to the next whole minute', () => {
   const town = { ...townWith({ material: stockOf(0, 30) }), readAt: '2026-11-10T09:00:30.000Z' }
 
-  expect(readyOf(town)).toBe(townReadyAt({ time: '12:41' }))
+  expect(readyOf(town)).toBe(es.townReadyAt({ time: '12:41' }))
 })
 
 it('names no minute for a short resource with a rate of 0', () => {

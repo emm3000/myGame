@@ -1,15 +1,4 @@
-import {
-  reportReviewsDue,
-  reportStartReviews,
-  reviewCheck,
-  schoolLessonReadWords,
-  schoolSlotStopOf,
-  shellLessonFinishClose,
-  shellLessonFinishLine,
-  shellNavigationReport,
-  shellSignOut,
-  townNextLessonReadyIn,
-} from '@mygame/catalog'
+import { es } from '@mygame/catalog'
 import type { Reviews, TownOverview } from '@mygame/contracts'
 import { act, fireEvent, screen, within } from '@testing-library/react'
 import { afterEach, assert, beforeEach, expect, it, vi } from 'vitest'
@@ -92,14 +81,14 @@ const dueTown = (count: number): TownOverview => ({
 
 const reportDoor = (count: number): HTMLElement =>
   within(screen.getByRole('main')).getByRole('link', {
-    name: `${shellNavigationReport()} ${reportReviewsDue({ count: String(count) })}`,
+    name: `${es.shellNavigationReport()} ${es.reportReviewsDue({ count: String(count) })}`,
   })
 
 const finishNotice = (number: number): HTMLElement =>
-  screen.getByRole('region', { name: shellLessonFinishLine({ number }) })
+  screen.getByRole('region', { name: es.shellLessonFinishLine({ number }) })
 
 const queryFinishNotice = (number: number): HTMLElement | null =>
-  screen.queryByRole('region', { name: shellLessonFinishLine({ number }) })
+  screen.queryByRole('region', { name: es.shellLessonFinishLine({ number }) })
 
 const shellLiveRegion = (): Element => {
   const region = document.querySelector('body > div [aria-live="polite"]')
@@ -110,7 +99,7 @@ const shellLiveRegion = (): Element => {
 const shellTimers = (): ReadonlyArray<HTMLElement> =>
   screen
     .queryAllByRole('timer')
-    .filter((timer) => timer.textContent?.startsWith(townNextLessonReadyIn({ number: 2 })))
+    .filter((timer) => timer.textContent?.startsWith(es.townNextLessonReadyIn({ number: 2 })))
 
 it("shows a running lesson's time on every signed-in screen", async () => {
   const router = renderAppAt('/', signedInClient(servingTown(lessonTwoRunning)))
@@ -122,7 +111,7 @@ it("shows a running lesson's time on every signed-in screen", async () => {
 
     const shellTimer = screen
       .getAllByRole('timer')
-      .find((timer) => timer.textContent === `${townNextLessonReadyIn({ number: 2 })}4 min`)
+      .find((timer) => timer.textContent === `${es.townNextLessonReadyIn({ number: 2 })}4 min`)
     expect(shellTimer, path).toBeDefined()
   }
 })
@@ -150,7 +139,7 @@ it.each([
     renderAppAt('/report', signedInClient(servingTown(lessonTwoRunning)))
     await passSeconds(0)
 
-    expect(shellTimers()[0]?.textContent).toBe(`${townNextLessonReadyIn({ number: 2 })}4 min`)
+    expect(shellTimers()[0]?.textContent).toBe(`${es.townNextLessonReadyIn({ number: 2 })}4 min`)
   },
 )
 
@@ -179,7 +168,7 @@ it('lowers the due count once a review is answered', async () => {
   await passSeconds(0)
 
   fireEvent.change(screen.getByRole('textbox'), { target: { value: 'lake' } })
-  fireEvent.click(screen.getByRole('button', { name: reviewCheck() }))
+  fireEvent.click(screen.getByRole('button', { name: es.reviewCheck() }))
   await passSeconds(0)
   await act(() => router.navigate({ href: '/' }))
   await passSeconds(0)
@@ -193,7 +182,7 @@ it('opens the unread lesson from the finish notice', async () => {
 
   await passSeconds(240)
 
-  const link = within(finishNotice(2)).getByRole('link', { name: schoolLessonReadWords() })
+  const link = within(finishNotice(2)).getByRole('link', { name: es.schoolLessonReadWords() })
   expect(link.getAttribute('href')).toBe('/school/lesson-2')
 })
 
@@ -203,7 +192,7 @@ it('opens the reviews from the finish notice when no word is unread', async () =
 
   await passSeconds(240)
 
-  const link = within(finishNotice(2)).getByRole('link', { name: reportStartReviews() })
+  const link = within(finishNotice(2)).getByRole('link', { name: es.reportStartReviews() })
   expect(link.getAttribute('href')).toBe('/reviews')
 })
 
@@ -214,7 +203,7 @@ it("announces a lesson's finish once", async () => {
 
   await passSeconds(240)
   const announced = shellLiveRegion().firstElementChild
-  expect(announced?.textContent).toBe(shellLessonFinishLine({ number: 2 }))
+  expect(announced?.textContent).toBe(es.shellLessonFinishLine({ number: 2 }))
 
   await passSeconds(120)
   expect(shellLiveRegion().firstElementChild).toBe(announced)
@@ -226,7 +215,9 @@ it('shows a closed notice no more', async () => {
 
   await passSeconds(240)
 
-  fireEvent.click(within(finishNotice(2)).getByRole('button', { name: shellLessonFinishClose() }))
+  fireEvent.click(
+    within(finishNotice(2)).getByRole('button', { name: es.shellLessonFinishClose() }),
+  )
   await passSeconds(120)
 
   expect(queryFinishNotice(2)).toBeNull()
@@ -237,7 +228,9 @@ it('empties the live region once the notice closes', async () => {
   await passSeconds(0)
   await passSeconds(240)
 
-  fireEvent.click(within(finishNotice(2)).getByRole('button', { name: shellLessonFinishClose() }))
+  fireEvent.click(
+    within(finishNotice(2)).getByRole('button', { name: es.shellLessonFinishClose() }),
+  )
   await passSeconds(0)
 
   expect(shellLiveRegion().textContent).toBe('')
@@ -248,7 +241,9 @@ it('moves focus to the shell header when the notice closes', async () => {
   await passSeconds(0)
   await passSeconds(240)
 
-  fireEvent.click(within(finishNotice(2)).getByRole('button', { name: shellLessonFinishClose() }))
+  fireEvent.click(
+    within(finishNotice(2)).getByRole('button', { name: es.shellLessonFinishClose() }),
+  )
 
   expect(document.activeElement).toBe(screen.getByRole('banner'))
 })
@@ -259,7 +254,7 @@ it('closes the notice once its link is followed', async () => {
 
   await passSeconds(240)
 
-  fireEvent.click(within(finishNotice(2)).getByRole('link', { name: schoolLessonReadWords() }))
+  fireEvent.click(within(finishNotice(2)).getByRole('link', { name: es.schoolLessonReadWords() }))
   await passSeconds(0)
 
   expect(queryFinishNotice(2)).toBeNull()
@@ -284,7 +279,9 @@ it("reads the Report again at a lesson's finish", async () => {
 
   await passSeconds(240)
 
-  expect(within(screen.getByRole('main')).getByText(reportReviewsDue({ count: '3' }))).toBeDefined()
+  expect(
+    within(screen.getByRole('main')).getByText(es.reportReviewsDue({ count: '3' })),
+  ).toBeDefined()
 })
 
 it("reads the Report no more at a lesson's start", async () => {
@@ -329,7 +326,7 @@ it('leaves the strong link to the next step on the town home', async () => {
   await passSeconds(240)
 
   const tones = screen
-    .getAllByRole('link', { name: schoolLessonReadWords() })
+    .getAllByRole('link', { name: es.schoolLessonReadWords() })
     .map((link) => link.dataset.tone)
   expect(tones.sort()).toEqual(['primary', 'quiet'])
 })
@@ -462,7 +459,7 @@ it('still announces a finish with no review due', async () => {
 
   await passSeconds(240)
 
-  expect(shellLiveRegion().textContent).toBe(shellLessonFinishLine({ number: 2 }))
+  expect(shellLiveRegion().textContent).toBe(es.shellLessonFinishLine({ number: 2 }))
 })
 
 it('still announces a lesson finishing on the words it would open', async () => {
@@ -471,7 +468,7 @@ it('still announces a lesson finishing on the words it would open', async () => 
 
   await passSeconds(240)
 
-  expect(shellLiveRegion().textContent).toBe(shellLessonFinishLine({ number: 2 }))
+  expect(shellLiveRegion().textContent).toBe(es.shellLessonFinishLine({ number: 2 }))
 })
 
 it('drops the notice for good once no review is due', async () => {
@@ -535,7 +532,9 @@ it('reopens the notice for a second finish after a Close', async () => {
   renderAppAt('/report', twoFinishesClient())
   await passSeconds(0)
   await passSeconds(240)
-  fireEvent.click(within(finishNotice(2)).getByRole('button', { name: shellLessonFinishClose() }))
+  fireEvent.click(
+    within(finishNotice(2)).getByRole('button', { name: es.shellLessonFinishClose() }),
+  )
 
   await passSeconds(60)
   await passSeconds(240)
@@ -598,7 +597,7 @@ it('shows no notice for a lesson the player stops', async () => {
   await passSeconds(0)
   await passSeconds(10)
 
-  fireEvent.click(screen.getByRole('button', { name: schoolSlotStopOf({ number: 2 }) }))
+  fireEvent.click(screen.getByRole('button', { name: es.schoolSlotStopOf({ number: 2 }) }))
   await passSeconds(0)
 
   expect(queryFinishNotice(2)).toBeNull()
@@ -734,7 +733,7 @@ it('leaves no timer behind once the player signs out', async () => {
   )
   await passSeconds(0)
 
-  fireEvent.click(screen.getByRole('button', { name: shellSignOut() }))
+  fireEvent.click(screen.getByRole('button', { name: es.shellSignOut() }))
   await passSeconds(0)
   town.mockClear()
 
@@ -758,7 +757,7 @@ it('reads the town on no focus once the player signs out', async () => {
     }),
   )
   await passSeconds(2)
-  fireEvent.click(screen.getByRole('button', { name: shellSignOut() }))
+  fireEvent.click(screen.getByRole('button', { name: es.shellSignOut() }))
   await passSeconds(2)
   town.mockClear()
 

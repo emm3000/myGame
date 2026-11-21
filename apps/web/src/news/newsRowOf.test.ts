@@ -1,4 +1,4 @@
-import { reportNewsRefund } from '@mygame/catalog'
+import { es } from '@mygame/catalog'
 import type { TownNewsItem } from '@mygame/contracts'
 import { expect, it } from 'vitest'
 import { playerCopyOf } from '../copy/playerCopyOf'
@@ -152,7 +152,7 @@ it('names the refund of a stopped work', () => {
       },
       now,
     ).amounts?.text,
-  ).toBe(reportNewsRefund({ amounts: '40 de comida y 1\u202f200 de material' }))
+  ).toBe(es.reportNewsRefund({ amounts: '40 de comida y 1\u202f200 de material' }))
 })
 
 it('names the refund of a stopped hiring', () => {
@@ -166,7 +166,7 @@ it('names the refund of a stopped hiring', () => {
       },
       now,
     ).amounts?.text,
-  ).toBe(reportNewsRefund({ amounts: '40 de comida y 1\u202f200 de material' }))
+  ).toBe(es.reportNewsRefund({ amounts: '40 de comida y 1\u202f200 de material' }))
 })
 
 it('draws no refund line for a stop that cost nothing', () => {

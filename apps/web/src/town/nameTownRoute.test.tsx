@@ -1,14 +1,4 @@
-import {
-  authSignInTitle,
-  refusalBlankTownName,
-  refusalPlayerAlreadyHoldsTown,
-  refusalUnexpected,
-  shellSignOut,
-  townNamingField,
-  townNamingGoToTown,
-  townNamingSubmit,
-  townNamingTitle,
-} from '@mygame/catalog'
+import { es } from '@mygame/catalog'
 import type { TownOverview } from '@mygame/contracts'
 import { act, fireEvent, screen } from '@testing-library/react'
 import { beforeEach, expect, it, vi } from 'vitest'
@@ -33,24 +23,24 @@ const withNoTown = (overrides: Partial<ApiClient> = {}): ApiClient =>
 
 const showNaming = async (apiClient: ApiClient): Promise<void> => {
   renderAppAt('/', apiClient)
-  await screen.findByRole('heading', { level: 2, name: townNamingTitle() })
+  await screen.findByRole('heading', { level: 2, name: es.townNamingTitle() })
 }
 
 const typeName = (name: string): void => {
-  fireEvent.change(screen.getByRole('textbox', { name: townNamingField() }), {
+  fireEvent.change(screen.getByRole('textbox', { name: es.townNamingField() }), {
     target: { value: name },
   })
 }
 
-const submitButton = (): HTMLElement => screen.getByRole('button', { name: townNamingSubmit() })
+const submitButton = (): HTMLElement => screen.getByRole('button', { name: es.townNamingSubmit() })
 
 it('shows Name your town to a player with no town', async () => {
   await showNaming(withNoTown())
 
-  expect(screen.getByRole('textbox', { name: townNamingField() })).toBeDefined()
+  expect(screen.getByRole('textbox', { name: es.townNamingField() })).toBeDefined()
 })
 
-const signOutButton = (): HTMLElement => screen.getByRole('button', { name: shellSignOut() })
+const signOutButton = (): HTMLElement => screen.getByRole('button', { name: es.shellSignOut() })
 
 it('signs out from the naming form', async () => {
   let isSignedIn = true
@@ -66,7 +56,7 @@ it('signs out from the naming form', async () => {
 
   fireEvent.click(signOutButton())
 
-  expect(await screen.findByRole('heading', { level: 1, name: authSignInTitle() })).toBeDefined()
+  expect(await screen.findByRole('heading', { level: 1, name: es.authSignInTitle() })).toBeDefined()
   expect(isSignedIn).toBe(false)
 })
 
@@ -108,7 +98,7 @@ it('refuses a blank name without sending it', async () => {
   typeName('   ')
   fireEvent.click(submitButton())
 
-  expect(await screen.findByText(refusalBlankTownName())).toBeDefined()
+  expect(await screen.findByText(es.refusalBlankTownName())).toBeDefined()
   expect(sentNames).toEqual([])
 })
 
@@ -146,8 +136,8 @@ it('offers the town to a player who already holds one', async () => {
 
   typeName('Cedar Creek')
   fireEvent.click(submitButton())
-  expect(await screen.findByText(refusalPlayerAlreadyHoldsTown())).toBeDefined()
-  fireEvent.click(screen.getByRole('button', { name: townNamingGoToTown() }))
+  expect(await screen.findByText(es.refusalPlayerAlreadyHoldsTown())).toBeDefined()
+  fireEvent.click(screen.getByRole('button', { name: es.townNamingGoToTown() }))
 
   expect(
     await screen.findByRole('heading', { level: 1, name: new RegExp(knownTown.name) }),
@@ -169,7 +159,7 @@ it('keeps the name to try again after a failed request', async () => {
 
   typeName('Cedar Creek')
   fireEvent.click(submitButton())
-  expect(await screen.findByText(refusalUnexpected())).toBeDefined()
+  expect(await screen.findByText(es.refusalUnexpected())).toBeDefined()
   fireEvent.click(submitButton())
 
   expect(await screen.findByRole('heading', { level: 1, name: /Cedar Creek/ })).toBeDefined()
@@ -192,7 +182,7 @@ const drawnGeometryOf = (svg: SVGSVGElement): ReadonlyArray<string> =>
 it('draws the homes and the school on the naming screen', async () => {
   await showNaming(withNoTown())
 
-  const naming = screen.getByRole('region', { name: townNamingTitle() })
+  const naming = screen.getByRole('region', { name: es.townNamingTitle() })
   const drawn = [...naming.querySelectorAll('svg')].map(drawnGeometryOf)
 
   expect(drawn).toEqual([
