@@ -1,5 +1,5 @@
 import type { DomainError } from '#DomainError'
-import type { Band } from '#learning/curriculum/BandStart'
+import type { Band } from '#learning/curriculum/Band'
 import type { PlayerId } from '#player/PlayerId'
 import type { Clock } from '#ports/Clock'
 import { ok, type Result } from '#Result'

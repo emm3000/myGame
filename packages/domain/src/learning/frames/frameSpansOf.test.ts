@@ -1,7 +1,7 @@
 import { assert, describe, expect, it } from 'vitest'
 import { MemoryCard, type StoredMemoryCard } from '#memory/MemoryCard'
 import { Instant } from '#time/Instant'
-import type { Band } from '../curriculum/BandStart'
+import type { Band } from '../curriculum/Band'
 import { inMemoryBands } from '../curriculum/testing/inMemoryBands'
 import { inMemoryLessons } from '../curriculum/testing/inMemoryLessons'
 import { lessonOne } from '../curriculum/testing/lessonOne'

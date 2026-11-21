@@ -1,6 +1,6 @@
 import type { HeldCards } from '../HeldCards'
 import type { Lesson, LessonWord } from '../Lesson'
-import type { Headword } from './BandStart'
+import type { Headword } from './Headword'
 import { wordsEnteringOf } from './wordsEnteringOf'
 
 export const readableWordsOf = (

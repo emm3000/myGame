@@ -1,5 +1,5 @@
 import type { Lesson } from '../Lesson'
-import type { Band } from './BandStart'
+import type { Band } from './Band'
 import type { BandCatalog } from './ports/BandCatalog'
 
 export const isLessonPlacedOut = (

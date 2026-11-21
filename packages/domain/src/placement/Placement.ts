@@ -1,4 +1,4 @@
-import type { Band } from '#learning/curriculum/BandStart'
+import type { Band } from '#learning/curriculum/Band'
 import type { WordId } from '#learning/Lesson'
 import type { Instant } from '#time/Instant'
 

@@ -1,5 +1,5 @@
 import type { DueHoldoutCheck } from '#holdout/DueHoldoutCheck'
-import type { Band } from '#learning/curriculum/BandStart'
+import type { Band } from '#learning/curriculum/Band'
 import type { Text } from '#learning/frames/Text'
 import type { LessonId } from '#learning/Lesson'
 

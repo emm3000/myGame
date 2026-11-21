@@ -1,4 +1,4 @@
-import type { Band } from '#learning/curriculum/BandStart'
+import type { Band } from '#learning/curriculum/Band'
 import type { BandCatalog } from '#learning/curriculum/ports/BandCatalog'
 import type { RandomSource } from '#ports/RandomSource'
 import type { PlacementSample } from './Placement'

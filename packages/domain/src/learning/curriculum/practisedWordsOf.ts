@@ -1,5 +1,5 @@
 import type { HeldCard } from '../HeldCard'
-import type { Headword } from './BandStart'
+import type { Headword } from './Headword'
 import { lemmaWordsOf } from './lemmaWordsOf'
 import type { LessonCatalog } from './ports/LessonCatalog'
 
