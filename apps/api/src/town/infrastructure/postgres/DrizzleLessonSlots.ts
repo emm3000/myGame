@@ -8,7 +8,7 @@ import {
 } from '@mygame/domain'
 import { eq } from 'drizzle-orm'
 import type { PostgresSession } from '../../../platform/infrastructure/postgres/connectPostgres'
-import { lessonSlotOf } from './lessonSlotFromRow'
+import { lessonSlotFromRow } from './lessonSlotFromRow'
 import { townLessonSlots } from './schoolTables'
 
 export class DrizzleLessonSlots implements LessonSlotRepository {
@@ -19,7 +19,7 @@ export class DrizzleLessonSlots implements LessonSlotRepository {
       .select()
       .from(townLessonSlots)
       .where(eq(townLessonSlots.townId, townId))
-    return ok(lessonSlotOf(row ?? null))
+    return ok(lessonSlotFromRow(row ?? null))
   }
 
   async save(townId: TownId, slot: LessonSlot): Promise<Result<void, DomainError>> {

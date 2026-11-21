@@ -43,7 +43,7 @@ import { aggregatedSeenTipsOf, seenTipsFrom } from './aggregatedSeenTips'
 import { byEarnedAt } from './byEarnedAt'
 import { townHire, townHires, townHiringOrders } from './hiringTables'
 import { townJobs } from './jobsTables'
-import { lessonSlotOf } from './lessonSlotFromRow'
+import { lessonSlotFromRow } from './lessonSlotFromRow'
 import { earnedSkills, townLessonSlots } from './schoolTables'
 import { townBuilding, townBuildings, townResource, towns, townWaitingWork } from './townTables'
 
@@ -666,7 +666,7 @@ export class DrizzleTownRepository implements TownReader, TownRepository {
     }
     return ok({
       town: town.value,
-      lessonSlot: lessonSlotOf(row.lessonSlot),
+      lessonSlot: lessonSlotFromRow(row.lessonSlot),
       cards: cards.value,
       bandStarts: bandStartsFrom(row.bandStarts),
       placementScores: placementScoresFrom(row.placementScores),

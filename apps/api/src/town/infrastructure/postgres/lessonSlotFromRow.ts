@@ -1,7 +1,7 @@
 import { Instant, idleLessonSlot, type LessonSlot } from '@mygame/domain'
 import type { townLessonSlots } from './schoolTables'
 
-export const lessonSlotOf = (row: typeof townLessonSlots.$inferSelect | null): LessonSlot =>
+export const lessonSlotFromRow = (row: typeof townLessonSlots.$inferSelect | null): LessonSlot =>
   row === null
     ? idleLessonSlot
     : {
