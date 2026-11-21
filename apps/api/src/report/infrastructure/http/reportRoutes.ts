@@ -1,43 +1,25 @@
 import { OpenAPIHono } from '@hono/zod-openapi'
-import type { Report } from '@mygame/contracts'
 import {
-  type RequirePlayerDependencies,
-  requirePlayer,
-} from '../../../account/infrastructure/http/requirePlayer'
-import { answerRefusal } from '../../../platform/infrastructure/http/answerRefusal'
-import { honoPathOf } from '../../../platform/infrastructure/http/honoPath'
-import { type ServeReportDependencies, serveReport } from '../../application/serveReport'
-import { reportDeclarations } from './reportDeclarations'
+  type CloseReportRouteDependencies,
+  closeReportDeclaration,
+  closeReportRoute,
+} from './closeReportRoute'
+import {
+  type ServeReportRouteDependencies,
+  serveReportDeclaration,
+  serveReportRoute,
+} from './serveReportRoute'
 
-export type ReportRouteDependencies = RequirePlayerDependencies & ServeReportDependencies
+export type ReportRouteDependencies = ServeReportRouteDependencies & CloseReportRouteDependencies
+
+export const reportDeclarations = {
+  read: serveReportDeclaration,
+  close: closeReportDeclaration,
+}
 
 export const reportRoutes = (dependencies: ReportRouteDependencies): OpenAPIHono => {
-  const signedInPlayer = requirePlayer(dependencies)
   const routes = new OpenAPIHono()
-  for (const declaration of Object.values(reportDeclarations)) {
-    routes.openAPIRegistry.registerPath(declaration)
-  }
-  routes.on(
-    reportDeclarations.read.method,
-    honoPathOf(reportDeclarations.read),
-    signedInPlayer,
-    async (c) => {
-      const report = await serveReport(c.var.playerId, dependencies)
-      if (!report.ok) {
-        return answerRefusal(c, report.error)
-      }
-      const body: Report = report.value
-      return c.json(body)
-    },
-  )
-  routes.on(
-    reportDeclarations.close.method,
-    honoPathOf(reportDeclarations.close),
-    signedInPlayer,
-    async (c) => {
-      await dependencies.reportClosings.close(c.var.playerId)
-      return c.body(null, 204)
-    },
-  )
+  serveReportRoute(routes, dependencies)
+  closeReportRoute(routes, dependencies)
   return routes
 }
