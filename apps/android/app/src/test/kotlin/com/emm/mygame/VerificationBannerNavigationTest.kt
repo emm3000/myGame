@@ -19,6 +19,8 @@ import androidx.compose.ui.test.performScrollTo
 import androidx.lifecycle.Lifecycle
 import androidx.test.ext.junit.rules.ActivityScenarioRule
 import com.emm.mygame.core.designsystem.MyGameTheme
+import com.emm.mygame.core.network.PlayerChromePhase
+import com.emm.mygame.core.network.PlayerLanguage
 import com.emm.mygame.core.network.PlayerScaffold
 import com.emm.mygame.core.network.ReportReadResult
 import com.emm.mygame.core.network.RestoreResult
@@ -33,6 +35,7 @@ import com.emm.mygame.core.testing.FakeTownRepository
 import com.emm.mygame.core.testing.townOf
 import com.emm.mygame.feature.town.TOWN_DOCK
 import kotlin.time.Instant
+import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.emptyFlow
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertTrue
@@ -40,6 +43,7 @@ import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.robolectric.RobolectricTestRunner
+import org.robolectric.annotation.Config
 
 @RunWith(RobolectricTestRunner::class)
 class VerificationBannerNavigationTest {
@@ -54,7 +58,10 @@ class VerificationBannerNavigationTest {
 
     private val reports: FakeReportRepository = FakeReportRepository()
 
+    private val readLanguage: MutableStateFlow<PlayerLanguage?> = MutableStateFlow(null)
+
     private val dependencies: AppDependencies = dependenciesOf(
+        playerLanguage = readLanguage,
         sessions = sessions,
         towns = towns,
         reports = reports,
@@ -167,6 +174,20 @@ class VerificationBannerNavigationTest {
         waitForLine("Entrar")
 
         composeRule.onAllNodesWithText(BANNER_LINE).assertCountEquals(0)
+    }
+
+    @Test
+    @Config(qualifiers = "en")
+    fun `keeps the banner in the player's language on an English phone while a later read loads`() {
+        readLanguage.value = PlayerLanguage(PlayerScaffold.Spanish, PlayerChromePhase.Scaffold)
+        signedIn(session = unverifiedSession, town = TownReadResult.Read(heldTown))
+        waitForLine(BANNER_LINE)
+
+        readLanguage.value = null
+        composeRule.waitForIdle()
+
+        composeRule.onNodeWithText(BANNER_LINE).assertIsDisplayed()
+        composeRule.onAllNodesWithText("Confirm your email").assertCountEquals(0)
     }
 
     private fun signedIn(session: RestoreResult, town: TownReadResult) {
