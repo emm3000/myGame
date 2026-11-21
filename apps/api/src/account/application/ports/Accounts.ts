@@ -19,12 +19,6 @@ export type PlayerCredentials = StoredPlayer & {
   readonly passwordHash: string
 }
 
-export type Session = {
-  readonly token: string
-  readonly playerId: PlayerId
-  readonly expiresAt: Instant
-}
-
 export type PlayerAdded =
   | { readonly kind: 'added'; readonly player: StoredPlayer }
   | { readonly kind: 'emailTaken' }
@@ -37,8 +31,4 @@ export interface Accounts {
   markEmailVerified(playerId: PlayerId, now: Instant): Promise<void>
   storePasswordHash(playerId: PlayerId, passwordHash: string): Promise<void>
   storeScaffold(playerId: PlayerId, scaffold: Scaffold): Promise<StoredPlayer>
-  openSession(session: Session): Promise<void>
-  renewSession(token: string, now: Instant, expiresAt: Instant): Promise<PlayerId | undefined>
-  closeSession(token: string): Promise<void>
-  closeSessionsOf(playerId: PlayerId): Promise<void>
 }

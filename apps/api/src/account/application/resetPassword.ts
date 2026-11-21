@@ -16,13 +16,13 @@ export const resetPassword = async (
   { inTransaction, clock, passwords }: ResetPasswordDependencies,
 ): Promise<Result<void, Refusal>> => {
   const passwordHash = await passwords.hashOf(request.password)
-  return inTransaction<void, Refusal>(async ({ accounts, accountTokens }) => {
+  return inTransaction<void, Refusal>(async ({ accounts, accountTokens, sessions }) => {
     const playerId = await accountTokens.redeem(request.token, 'reset', clock.now())
     if (playerId === undefined) {
       return err({ kind: 'TokenInvalid' })
     }
     await accounts.storePasswordHash(playerId, passwordHash)
-    await accounts.closeSessionsOf(playerId)
+    await sessions.closeSessionsOf(playerId)
     return ok(undefined)
   })
 }

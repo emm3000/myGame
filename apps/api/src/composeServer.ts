@@ -15,9 +15,11 @@ import type { Accounts } from './account/application/ports/Accounts'
 import type { ChromeProgressReader } from './account/application/ports/ChromeProgressReader'
 import type { Mailer } from './account/application/ports/Mailer'
 import type { PasswordHasher } from './account/application/ports/PasswordHasher'
+import type { Sessions } from './account/application/ports/Sessions'
 import type { SessionTokens } from './account/application/ports/SessionTokens'
 import { DrizzleAccounts } from './account/infrastructure/postgres/DrizzleAccounts'
 import { DrizzleChromeProgress } from './account/infrastructure/postgres/DrizzleChromeProgress'
+import { DrizzleSessions } from './account/infrastructure/postgres/DrizzleSessions'
 import { SmtpMailer } from './account/infrastructure/smtp/SmtpMailer'
 import { Argon2Passwords } from './account/infrastructure/system/Argon2Passwords'
 import { CryptoSessionTokens } from './account/infrastructure/system/CryptoSessionTokens'
@@ -108,6 +110,7 @@ export type ComposedServer = MailSettings & {
   readonly cleanUps: CleanUpReader
   readonly cards: CardReader
   readonly accounts: Accounts
+  readonly sessions: Sessions
   readonly chromeProgress: ChromeProgressReader
   readonly reportClosings: ReportClosings
   readonly passwords: PasswordHasher
@@ -139,6 +142,7 @@ export function composeServer(
     ids: new CryptoIdGenerator(),
     random: new CryptoRandomSource(),
     accounts: new DrizzleAccounts(database),
+    sessions: new DrizzleSessions(database),
     chromeProgress: new DrizzleChromeProgress(database),
     reportClosings: new DrizzleReportClosings(database),
     passwords: new Argon2Passwords(),

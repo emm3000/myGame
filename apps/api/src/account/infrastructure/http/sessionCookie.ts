@@ -1,7 +1,7 @@
 import type { Context } from 'hono'
 import { deleteCookie, getCookie, setCookie } from 'hono/cookie'
 import type { CookieOptions } from 'hono/utils/cookie'
-import type { Session } from '../../application/ports/Accounts'
+import type { Session } from '../../application/ports/Sessions'
 import { sessionLifetimeSeconds } from '../../application/sessionExpiryFrom'
 
 const sessionCookieName = 'session'

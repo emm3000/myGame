@@ -1,5 +1,5 @@
 import type { Instant, PlayerId, Scaffold } from '@mygame/domain'
-import { and, eq, gt, isNull, sql } from 'drizzle-orm'
+import { and, eq, isNull, sql } from 'drizzle-orm'
 import type { PostgresSession } from '../../../platform/infrastructure/postgres/connectPostgres'
 import { violatedUniqueConstraint } from '../../../platform/infrastructure/postgres/violatedUniqueConstraint'
 import type {
@@ -7,11 +7,9 @@ import type {
   NewPlayer,
   PlayerAdded,
   PlayerCredentials,
-  Session,
   StoredPlayer,
 } from '../../application/ports/Accounts'
-import { tokenDigest } from '../../application/tokenDigest'
-import { players, sessions } from './accountTables'
+import { players } from './accountTables'
 import { storedScaffoldColumns } from './storedScaffoldColumns'
 
 const dateOf = (instant: Instant): Date => new Date(instant.epochMilliseconds)
@@ -98,34 +96,5 @@ export class DrizzleAccounts implements Accounts {
       throw new Error(`Player ${playerId} holds no account`)
     }
     return stored
-  }
-
-  async openSession(session: Session): Promise<void> {
-    await this.database.insert(sessions).values({
-      tokenDigest: tokenDigest(session.token),
-      playerId: session.playerId,
-      expiresAt: dateOf(session.expiresAt),
-    })
-  }
-
-  async renewSession(
-    token: string,
-    now: Instant,
-    expiresAt: Instant,
-  ): Promise<PlayerId | undefined> {
-    const [renewed] = await this.database
-      .update(sessions)
-      .set({ expiresAt: dateOf(expiresAt) })
-      .where(and(eq(sessions.tokenDigest, tokenDigest(token)), gt(sessions.expiresAt, dateOf(now))))
-      .returning({ playerId: sessions.playerId })
-    return renewed?.playerId
-  }
-
-  async closeSession(token: string): Promise<void> {
-    await this.database.delete(sessions).where(eq(sessions.tokenDigest, tokenDigest(token)))
-  }
-
-  async closeSessionsOf(playerId: PlayerId): Promise<void> {
-    await this.database.delete(sessions).where(eq(sessions.playerId, playerId))
   }
 }
