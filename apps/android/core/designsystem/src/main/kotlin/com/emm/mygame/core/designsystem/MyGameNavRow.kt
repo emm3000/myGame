@@ -39,6 +39,7 @@ fun MyGameNavRow(
     body: AnnotatedString? = null,
     caption: MyGameLabel? = null,
     captionTag: String? = null,
+    titleLineOf: (String) -> AnnotatedString = { line: String -> AnnotatedString(line) },
 ) {
     val colors: MyGameColors = MyGameTheme.colors
     val interactions: MutableInteractionSource = remember { MutableInteractionSource() }
@@ -66,7 +67,7 @@ fun MyGameNavRow(
                 verticalArrangement = Arrangement.spacedBy(MyGameSpacing.step1),
                 modifier = Modifier.weight(1f),
             ) {
-                NavRowTitle(title = title, status = status)
+                NavRowTitle(title = title, status = status, titleLineOf = titleLineOf)
                 body?.let { line: AnnotatedString ->
                     MyGameText(text = line, style = MyGameTypography.body, color = colors.ink)
                 }
@@ -93,13 +94,19 @@ private fun Modifier.focusRingWhen(isFocused: Boolean, color: Color, shape: Shap
     if (isFocused) border(MyGameStrokeWidths.focus, color, shape) else this
 
 @Composable
-private fun NavRowTitle(title: MyGameLabel, status: MyGameLabel?, modifier: Modifier = Modifier) {
+private fun NavRowTitle(
+    title: MyGameLabel,
+    status: MyGameLabel?,
+    titleLineOf: (String) -> AnnotatedString,
+    modifier: Modifier = Modifier,
+) {
     val colors: MyGameColors = MyGameTheme.colors
     Row(horizontalArrangement = Arrangement.spacedBy(MyGameSpacing.step3), modifier = modifier) {
         MyGameText(
             label = title,
             style = MyGameTypography.title,
             color = colors.ink,
+            styledLineOf = titleLineOf,
             modifier = Modifier
                 .weight(1f, fill = false)
                 .alignByBaseline(),
