@@ -32,8 +32,8 @@ import { DrizzleTownRepository } from './adapters/postgres/DrizzleTownRepository
 import { createApp } from './app'
 import { type ComposedStores, composeStores } from './composeStores'
 import type { LessonLibrary } from './content/application/ports/LessonLibrary'
-import { JsonLessonCatalog } from './content/infrastructure/json/JsonLessonCatalog'
 import { JsonTownCatalog } from './content/infrastructure/json/JsonTownCatalog'
+import { readJsonLessonLibrary } from './content/infrastructure/json/readJsonLessonLibrary'
 import type { CardReader } from './learning/CardReader'
 import type { AfterResponse } from './platform/application/ports/AfterResponse'
 import type { AfterResponseDrain } from './platform/application/ports/AfterResponseDrain'
@@ -133,7 +133,7 @@ export function composeServer(
   const isSessionCookieSecure = isSessionCookieSecureFrom(environment.SESSION_COOKIE_SECURE)
   const mail = mailSettingsFrom(environment)
   const { database, close } = connectPostgres(databaseUrl)
-  const lessons = JsonLessonCatalog.fromDirectory(contentDirectory)
+  const lessons = readJsonLessonLibrary(contentDirectory)
   const dependencies = {
     lessons,
     townCatalog: JsonTownCatalog.fromDirectory(join(contentDirectory, 'town')),

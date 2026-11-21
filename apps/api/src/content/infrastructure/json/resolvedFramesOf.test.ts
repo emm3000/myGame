@@ -15,11 +15,12 @@ import {
 } from '@mygame/domain'
 import { afterEach, assert, describe, expect, it } from 'vitest'
 import { apiPackagePath } from '../../../apiPackagePath.testSupport'
-import { JsonLessonCatalog } from './JsonLessonCatalog'
+import type { LessonLibrary } from '../../application/ports/LessonLibrary'
+import { readJsonLessonLibrary } from './readJsonLessonLibrary'
 
 const shippedContent = apiPackagePath('content/')
 
-const shipped = JsonLessonCatalog.fromDirectory(shippedContent)
+const shipped = readJsonLessonLibrary(shippedContent)
 
 const copies: Array<string> = []
 
@@ -32,7 +33,7 @@ afterEach(() => {
 const catalogWithEntry = (
   wordId: string,
   change: Readonly<Record<string, unknown>>,
-): JsonLessonCatalog => {
+): LessonLibrary => {
   const directory = mkdtempSync(join(tmpdir(), 'mygame-frames-'))
   copies.push(directory)
   cpSync(shippedContent, directory, { recursive: true })
@@ -44,10 +45,10 @@ const catalogWithEntry = (
     wordsFile,
     JSON.stringify(lexicon.map((entry) => (entry.id === wordId ? { ...entry, ...change } : entry))),
   )
-  return JsonLessonCatalog.fromDirectory(directory)
+  return readJsonLessonLibrary(directory)
 }
 
-const catalogWithText = (change: Readonly<Record<string, unknown>>): JsonLessonCatalog => {
+const catalogWithText = (change: Readonly<Record<string, unknown>>): LessonLibrary => {
   const directory = mkdtempSync(join(tmpdir(), 'mygame-texts-'))
   copies.push(directory)
   cpSync(shippedContent, directory, { recursive: true })
@@ -56,7 +57,7 @@ const catalogWithText = (change: Readonly<Record<string, unknown>>): JsonLessonC
     readFileSync(textsFile, 'utf8'),
   )
   writeFileSync(textsFile, JSON.stringify(texts.map((text) => ({ ...text, ...change }))))
-  return JsonLessonCatalog.fromDirectory(directory)
+  return readJsonLessonLibrary(directory)
 }
 
 const enteredAt = Instant.fromEpochMilliseconds(Date.parse('2026-11-10T09:00:00Z'))
@@ -77,7 +78,7 @@ const cardInReview = (): MemoryCard => {
   return card.value
 }
 
-const readerOf = (scaffold: Scaffold, lessons: JsonLessonCatalog = shipped): FrameReader => ({
+const readerOf = (scaffold: Scaffold, lessons: LessonLibrary = shipped): FrameReader => ({
   cards: new Map(),
   placedOutBands: [],
   scaffold,
@@ -86,7 +87,7 @@ const readerOf = (scaffold: Scaffold, lessons: JsonLessonCatalog = shipped): Fra
 
 const taughtOf = (
   wordId: string,
-  lessons: JsonLessonCatalog = shipped,
+  lessons: LessonLibrary = shipped,
 ): { readonly lesson: Lesson; readonly word: LessonWord } => {
   const lesson = lessons.lessonOfWord(wordId)
   const word = lesson?.words.find(({ id }) => id === wordId)
@@ -100,13 +101,13 @@ const supportOf = (spans: FrameSpans, text: string): unknown => {
   return span.support
 }
 
-const readingOf = (wordId: string, lessons: JsonLessonCatalog = shipped): FrameSpans =>
+const readingOf = (wordId: string, lessons: LessonLibrary = shipped): FrameSpans =>
   readingFrameOf(taughtOf(wordId, lessons).word, readerOf('es', lessons))
 
 const recallOf = (
   wordId: string,
   gappedFrame: string,
-  lessons: JsonLessonCatalog = shipped,
+  lessons: LessonLibrary = shipped,
 ): FrameSpans => {
   const prompt = reviewPromptOf(
     { ...taughtOf(wordId, lessons), card: cardInReview(), shownFrame: gappedFrame },

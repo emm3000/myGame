@@ -5,7 +5,7 @@ import { join } from 'node:path'
 import { isUnitLemma } from '@mygame/domain'
 import { afterEach, describe, expect, it } from 'vitest'
 import { apiPackagePath } from '../../../apiPackagePath.testSupport'
-import { JsonLessonCatalog } from './JsonLessonCatalog'
+import { readJsonLessonLibrary } from './readJsonLessonLibrary'
 import { shippedCurriculum } from './shippedCurriculum.testSupport'
 
 const shippedContent = apiPackagePath('content/')
@@ -116,39 +116,39 @@ afterEach(() => {
   }
 })
 
-describe('JsonLessonCatalog', () => {
+describe('readJsonLessonLibrary', () => {
   it('places no chrome lesson in a band', () => {
-    const catalog = JsonLessonCatalog.fromDirectory(shippedContent)
+    const catalog = readJsonLessonLibrary(shippedContent)
 
     expect(catalog.bandOfLesson('lesson-1')).toBeUndefined()
   })
 
   it('places a lesson after the chrome lessons in the band of its rank', () => {
-    const catalog = JsonLessonCatalog.fromDirectory(contentWithBandLessonOf('say'))
+    const catalog = readJsonLessonLibrary(contentWithBandLessonOf('say'))
 
     expect(catalog.bandOfLesson('lesson-17')).toBe(1)
   })
 
   it('places a lesson of ranks past 1 000 in the second band', () => {
-    const catalog = JsonLessonCatalog.fromDirectory(contentWithBandLessonOf('difficulty'))
+    const catalog = readJsonLessonLibrary(contentWithBandLessonOf('difficulty'))
 
     expect(catalog.bandOfLesson('lesson-17')).toBe(2)
   })
 
   it('places a capitalized lemma in the band of its rank', () => {
-    const catalog = JsonLessonCatalog.fromDirectory(contentWithBandLessonOf('TRUE'))
+    const catalog = readJsonLessonLibrary(contentWithBandLessonOf('TRUE'))
 
     expect(catalog.bandOfLesson('lesson-17')).toBe(1)
   })
 
   it('holds a capitalized lemma of the list under its lowercase headword', () => {
-    const catalog = JsonLessonCatalog.fromDirectory(shippedContent)
+    const catalog = readJsonLessonLibrary(shippedContent)
 
     expect(catalog.wordsOfBand(3)).toContainEqual({ headword: 'false', isChrome: false })
   })
 
   it('answers no band for a unit lesson', () => {
-    const catalog = JsonLessonCatalog.fromDirectory(contentWithUnitLesson())
+    const catalog = readJsonLessonLibrary(contentWithUnitLesson())
 
     expect(catalog.bandOfLesson('lesson-17')).toBeUndefined()
   })
@@ -156,19 +156,19 @@ describe('JsonLessonCatalog', () => {
   it('refuses a band lesson that teaches no word of the list', () => {
     const directory = contentWithBandLessonOf('zzz')
 
-    expect(() => JsonLessonCatalog.fromDirectory(directory)).toThrow(
+    expect(() => readJsonLessonLibrary(directory)).toThrow(
       'Lesson lesson-17 teaches no word of the list',
     )
   })
 
   it('counts the words of each band as the list ranks them, leaving the frame words out', () => {
-    const catalog = JsonLessonCatalog.fromDirectory(shippedContent)
+    const catalog = readJsonLessonLibrary(shippedContent)
 
     expect([1, 2, 3].map((band) => catalog.wordsOfBand(band).length)).toEqual([941, 1000, 809])
   })
 
   it("marks the chrome lessons' words, whatever their band", () => {
-    const catalog = JsonLessonCatalog.fromDirectory(shippedContent)
+    const catalog = readJsonLessonLibrary(shippedContent)
 
     expect(
       [1, 2, 3].map((band) => catalog.wordsOfBand(band).filter(({ isChrome }) => !isChrome).length),
@@ -176,19 +176,19 @@ describe('JsonLessonCatalog', () => {
   })
 
   it('holds a word no lesson teaches yet in its band', () => {
-    const catalog = JsonLessonCatalog.fromDirectory(shippedContent)
+    const catalog = readJsonLessonLibrary(shippedContent)
 
     expect(catalog.wordsOfBand(1)).toContainEqual({ headword: 'say', isChrome: false })
   })
 
   it('leaves a frame word out of its band', () => {
-    const catalog = JsonLessonCatalog.fromDirectory(shippedContent)
+    const catalog = readJsonLessonLibrary(shippedContent)
 
     expect(catalog.wordsOfBand(1).map(({ headword }) => headword)).not.toContain('the')
   })
 
   it("offers as band 1's placement words the lexicon's band 1 entries", () => {
-    const catalog = JsonLessonCatalog.fromDirectory(shippedContent)
+    const catalog = readJsonLessonLibrary(shippedContent)
 
     expect(catalog.placementWordsOf(1)).toContainEqual({
       id: 'lesson-1-1',
@@ -201,13 +201,13 @@ describe('JsonLessonCatalog', () => {
   })
 
   it('answers that only band 1 has lessons in the shipped curriculum', () => {
-    const catalog = JsonLessonCatalog.fromDirectory(shippedContent)
+    const catalog = readJsonLessonLibrary(shippedContent)
 
     expect([1, 2, 3].map((band) => catalog.hasLessons(band))).toEqual([true, false, false])
   })
 
   it('marks every word of a band lesson as a placement word outside the chrome', () => {
-    const catalog = JsonLessonCatalog.fromDirectory(shippedContent)
+    const catalog = readJsonLessonLibrary(shippedContent)
     const bandLessonWordIds = catalog
       .lessons()
       .slice(16)
@@ -234,14 +234,14 @@ describe('JsonLessonCatalog', () => {
       isOffList: true,
     }
     writeJson(directory, 'words.json', [...lexicon, offList])
-    const catalog = JsonLessonCatalog.fromDirectory(directory)
+    const catalog = readJsonLessonLibrary(directory)
     const offered = [1, 2, 3].flatMap((band) => catalog.placementWordsOf(band))
 
     expect(offered.map(({ id }) => id)).not.toContain('off-list-word')
   })
 
   it('offers no multi-word unit for placement in any band', () => {
-    const catalog = JsonLessonCatalog.fromDirectory(shippedContent)
+    const catalog = readJsonLessonLibrary(shippedContent)
     const offered = [1, 2, 3].flatMap((band) => catalog.placementWordsOf(band))
 
     expect(offered.filter(({ word }) => isUnitLemma(word))).toEqual([])
@@ -258,7 +258,7 @@ describe('JsonLessonCatalog', () => {
       gloss: { es: 'el' },
     }
     writeJson(directory, 'words.json', [...lexicon, frameWord])
-    const catalog = JsonLessonCatalog.fromDirectory(directory)
+    const catalog = readJsonLessonLibrary(directory)
 
     expect(catalog.placementWordsOf(1).map(({ id }) => id)).not.toContain('frame-word')
   })
@@ -274,13 +274,13 @@ describe('JsonLessonCatalog', () => {
       gloss: {},
     }
     writeJson(directory, 'words.json', [...lexicon, untaught])
-    const catalog = JsonLessonCatalog.fromDirectory(directory)
+    const catalog = readJsonLessonLibrary(directory)
 
     expect(catalog.placementWordsOf(1).map(({ id }) => id)).not.toContain('untaught-word')
   })
 
   it('reads lesson 1 as the lessons table of the setting writes it, row for row', () => {
-    const lesson = JsonLessonCatalog.fromDirectory(shippedContent).lessonOf('lesson-1')
+    const lesson = readJsonLessonLibrary(shippedContent).lessonOf('lesson-1')
 
     expect(
       lesson?.words.map(({ acceptedForms, frames: [anchor], gloss }) => ({
@@ -292,7 +292,7 @@ describe('JsonLessonCatalog', () => {
   })
 
   it('reads the terms of lesson 1 from its content, its skill money at 5 %', () => {
-    const lesson = JsonLessonCatalog.fromDirectory(shippedContent).lessonOf('lesson-1')
+    const lesson = readJsonLessonLibrary(shippedContent).lessonOf('lesson-1')
 
     expect({ ...lesson, words: undefined }).toEqual({
       id: 'lesson-1',
@@ -305,7 +305,7 @@ describe('JsonLessonCatalog', () => {
   })
 
   it('names every word by an opaque id, never its lemma', () => {
-    const lesson = JsonLessonCatalog.fromDirectory(shippedContent).lessonOf('lesson-1')
+    const lesson = readJsonLessonLibrary(shippedContent).lessonOf('lesson-1')
 
     expect(lesson?.words.map(({ id }) => id)).toEqual([
       'lesson-1-1',
@@ -317,7 +317,7 @@ describe('JsonLessonCatalog', () => {
   })
 
   it('finds the lesson of a word by its id', () => {
-    const catalog = JsonLessonCatalog.fromDirectory(shippedContent)
+    const catalog = readJsonLessonLibrary(shippedContent)
 
     expect([catalog.lessonOfWord('lesson-1-5')?.id, catalog.lessonOfWord('food')]).toEqual([
       'lesson-1',
@@ -326,7 +326,7 @@ describe('JsonLessonCatalog', () => {
   })
 
   it('lists every lesson for the overview', () => {
-    const catalog = JsonLessonCatalog.fromDirectory(shippedContent)
+    const catalog = readJsonLessonLibrary(shippedContent)
 
     expect(catalog.lessons().map(({ id, theme }) => ({ id, theme }))).toEqual([
       { id: 'lesson-1', theme: 'A day in town' },
@@ -383,14 +383,14 @@ describe('JsonLessonCatalog', () => {
     const directory = contentOfLessons(['lesson-b', 'lesson-a'])
 
     expect(
-      JsonLessonCatalog.fromDirectory(directory)
+      readJsonLessonLibrary(directory)
         .lessons()
         .map(({ id }) => id),
     ).toEqual(['lesson-b', 'lesson-a'])
   })
 
   it('gives lessons 1, 2 and 27 the money skill at 5 %', () => {
-    const catalog = JsonLessonCatalog.fromDirectory(shippedContent)
+    const catalog = readJsonLessonLibrary(shippedContent)
 
     expect(['lesson-1', 'lesson-2', 'lesson-27'].map((id) => catalog.lessonOf(id)?.skill)).toEqual([
       { resource: 'money', ratePercent: 5 },
@@ -405,8 +405,7 @@ describe('JsonLessonCatalog', () => {
     writeJson(directory, 'words.json', [{ ...home, acceptedForms: ['homes'] }, ...others])
 
     expect(
-      JsonLessonCatalog.fromDirectory(directory).lessonOfWord('lesson-1-1')?.words[0]
-        ?.acceptedForms,
+      readJsonLessonLibrary(directory).lessonOfWord('lesson-1-1')?.words[0]?.acceptedForms,
     ).toEqual(['home', 'homes'])
   })
 
@@ -420,13 +419,13 @@ describe('JsonLessonCatalog', () => {
     ]
     writeJson(directory, 'words.json', [{ ...home, frames }, ...others])
 
-    expect(
-      JsonLessonCatalog.fromDirectory(directory).lessonOfWord('lesson-1-1')?.words[0]?.frames,
-    ).toEqual(frames)
+    expect(readJsonLessonLibrary(directory).lessonOfWord('lesson-1-1')?.words[0]?.frames).toEqual(
+      frames,
+    )
   })
 
   it('reads a headword of the NGSL 1.2 list whatever its case', () => {
-    const catalog = JsonLessonCatalog.fromDirectory(shippedContent)
+    const catalog = readJsonLessonLibrary(shippedContent)
 
     expect(['foot', 'House', 'i', 'scool', 'wok'].map((word) => catalog.isHeadword(word))).toEqual([
       true,
@@ -454,30 +453,28 @@ describe('JsonLessonCatalog', () => {
       JSON.stringify({ ...readJson(directory, `${lessonId}.json`), cost: 0 }),
     )
 
-    expect(() => JsonLessonCatalog.fromDirectory(directory)).toThrow(`${lessonFile} is malformed`)
+    expect(() => readJsonLessonLibrary(directory)).toThrow(`${lessonFile} is malformed`)
   })
 
   it('fails start-up on a lesson file whose id is not the one the curriculum lists', () => {
     const directory = contentOfLessons(['lesson-a'])
     writeJson(directory, 'lesson-a.json', { id: 'lesson-b', ...lessonOneTerms })
 
-    expect(() => JsonLessonCatalog.fromDirectory(directory)).toThrow(/lesson-a\.json is malformed/)
+    expect(() => readJsonLessonLibrary(directory)).toThrow(/lesson-a\.json is malformed/)
   })
 
   it('fails start-up on a malformed curriculum', () => {
     const directory = contentCopy()
     writeJson(directory, 'curriculum.json', { lessonIds: [] })
 
-    expect(() => JsonLessonCatalog.fromDirectory(directory)).toThrow(
-      /curriculum\.json is malformed/,
-    )
+    expect(() => readJsonLessonLibrary(directory)).toThrow(/curriculum\.json is malformed/)
   })
 
   it('fails start-up on a malformed lexicon', () => {
     const directory = contentCopy()
     writeJson(directory, 'words.json', [{ id: 'lesson-1-1' }])
 
-    expect(() => JsonLessonCatalog.fromDirectory(directory)).toThrow(/words\.json is malformed/)
+    expect(() => readJsonLessonLibrary(directory)).toThrow(/words\.json is malformed/)
   })
 
   it('fails start-up on a lesson word the lexicon lacks', () => {
@@ -488,7 +485,7 @@ describe('JsonLessonCatalog', () => {
       wordIds: ['word-0'],
     })
 
-    expect(() => JsonLessonCatalog.fromDirectory(directory)).toThrow(/lesson-a\.json is malformed/)
+    expect(() => readJsonLessonLibrary(directory)).toThrow(/lesson-a\.json is malformed/)
   })
 
   it('fails start-up on a taught word without its es gloss', () => {
@@ -496,7 +493,7 @@ describe('JsonLessonCatalog', () => {
     const [home, ...others] = readJson(directory, 'words.json') as unknown as Array<object>
     writeJson(directory, 'words.json', [{ ...home, gloss: {} }, ...others])
 
-    expect(() => JsonLessonCatalog.fromDirectory(directory)).toThrow(
+    expect(() => readJsonLessonLibrary(directory)).toThrow(
       'Word lesson-1-1 of lesson lesson-1 has no es gloss',
     )
   })
@@ -507,19 +504,19 @@ describe('JsonLessonCatalog', () => {
     const { definition: _, ...withoutDefinition } = home as { readonly definition: string }
     writeJson(directory, 'words.json', [withoutDefinition, ...others])
 
-    expect(() => JsonLessonCatalog.fromDirectory(directory)).toThrow(
+    expect(() => readJsonLessonLibrary(directory)).toThrow(
       'Word lesson-1-1 of lesson lesson-1 has no definition',
     )
   })
 
   it("carries each word's definition from the lexicon", () => {
-    const lesson = JsonLessonCatalog.fromDirectory(shippedContent).lessonOf('lesson-1')
+    const lesson = readJsonLessonLibrary(shippedContent).lessonOf('lesson-1')
 
     expect(lesson?.words[0]?.definition).toBe('the place where you live')
   })
 
   it('lists as chrome lessons the first lessons the curriculum counts as chrome', () => {
-    const catalog = JsonLessonCatalog.fromDirectory(shippedContent)
+    const catalog = readJsonLessonLibrary(shippedContent)
 
     expect(catalog.chromeLessons().map(({ id }) => id)).toEqual(
       catalog
@@ -534,6 +531,6 @@ describe('JsonLessonCatalog', () => {
     const listFile = lessonsFile(directory, 'ngsl-1.2.csv')
     writeFileSync(listFile, `${readFileSync(listFile, 'utf8')}broken row\r\n`)
 
-    expect(() => JsonLessonCatalog.fromDirectory(directory)).toThrow(/ngsl-1\.2\.csv is malformed/)
+    expect(() => readJsonLessonLibrary(directory)).toThrow(/ngsl-1\.2\.csv is malformed/)
   })
 })

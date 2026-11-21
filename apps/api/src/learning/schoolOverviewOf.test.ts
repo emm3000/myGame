@@ -11,14 +11,14 @@ import {
 } from '@mygame/domain'
 import { assert, describe, expect, it } from 'vitest'
 import { apiPackagePath } from '../apiPackagePath.testSupport'
-import { JsonLessonCatalog } from '../content/infrastructure/json/JsonLessonCatalog'
 import { JsonTownCatalog } from '../content/infrastructure/json/JsonTownCatalog'
+import { readJsonLessonLibrary } from '../content/infrastructure/json/readJsonLessonLibrary'
 import type { TownReading } from '../town/TownReading'
 import { schoolOverviewOf } from './schoolOverviewOf'
 
 const contentDirectory = apiPackagePath('content/')
 
-const lessons = JsonLessonCatalog.fromDirectory(contentDirectory)
+const lessons = readJsonLessonLibrary(contentDirectory)
 
 const townCatalog = JsonTownCatalog.fromDirectory(join(contentDirectory, 'town'))
 
