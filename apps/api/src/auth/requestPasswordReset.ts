@@ -1,6 +1,6 @@
 import type { ForgotPasswordRequest } from '@mygame/contracts'
 import { type Clock, ok } from '@mygame/domain'
-import type { CryptoSessionTokens } from '../adapters/system/CryptoSessionTokens'
+import type { CryptoSessionTokens } from '../account/infrastructure/system/CryptoSessionTokens'
 import type { AfterResponse } from '../platform/application/ports/AfterResponse'
 import type { FailureSink } from '../platform/application/ports/FailureSink'
 import type { Transaction } from '../platform/infrastructure/postgres/postgresTransaction'

@@ -1,6 +1,6 @@
 import type { ResetPasswordRequest } from '@mygame/contracts'
 import { type Clock, err, ok, type Result } from '@mygame/domain'
-import type { Argon2Passwords } from '../adapters/system/Argon2Passwords'
+import type { Argon2Passwords } from '../account/infrastructure/system/Argon2Passwords'
 import type { Refusal } from '../platform/application/Refusal'
 import type { Transaction } from '../platform/infrastructure/postgres/postgresTransaction'
 

@@ -1,5 +1,5 @@
 import type { Clock, PlayerId } from '@mygame/domain'
-import type { CryptoSessionTokens } from '../adapters/system/CryptoSessionTokens'
+import type { CryptoSessionTokens } from '../account/infrastructure/system/CryptoSessionTokens'
 import type { AccountTokenKind, AccountTokens } from './AccountTokens'
 import { accountTokenExpiryFrom } from './accountTokenExpiryFrom'
 
