@@ -204,12 +204,21 @@ These are the lines against the graph on trunk, and how each one ends:
   `*Columns.ts`. The row mappers are in it because the read model
   already needs them: `aggregatedCards.ts` maps a card row with
   `heldCardOf` of `storedMemoryCards.ts`, and
-  `aggregatedBandStarts.ts` a check row with `holdoutCheckOf`. A file
-  there may import nothing else from a feature to its right, and no
-  file outside `infrastructure/postgres/` has the exemption. The
-  features share one database, and a read model joins across it. A
-  `*Tables.ts` file itself imports only to its left; every foreign key
-  on trunk points at `players` or `towns`.
+  `aggregatedBandStarts.ts` a check row with `holdoutCheckOf`. Neither
+  file carries its role's name yet: the step that moves each renames
+  it, `storedMemoryCards.ts` with the learning adapters (A8) and
+  `holdoutCheckOf.ts` with the holdout's (A6).
+
+  An exempted row mapper is a leaf, so the exemption opens no second
+  path across the graph: a `*FromRow.ts` or `*Columns.ts` file imports
+  only `@mygame/domain`, `drizzle-orm` and `*Tables.ts`, as the four
+  on trunk do (`storedMemoryCards`, `holdoutCheckOf`, `lessonSlotOf`,
+  `storedScaffoldColumns`). A file there may import nothing else from
+  a feature to its right, and no file outside
+  `infrastructure/postgres/` has the exemption. The features share one
+  database, and a read model joins across it. A `*Tables.ts` file
+  itself imports only to its left; every foreign key on trunk points
+  at `players` or `towns`.
 
 These are the lines the folder-to-folder imports and the adapters'
 imports show on trunk. Each feature's override is what proves the rest
@@ -779,13 +788,14 @@ Then, serial again, because `learning` and `town` hold the cycle:
 - **D2 `learning`, then `placement`, then `holdout`**, a second peer:
   the root `useCases/`, `ports/` and `testing/` dissolve into them.
 
-D1 and D2 meet in `index.ts` and wherever `town` and `learning` name
-each other, which is every sub-area of the town but `jobs` and
-`hiring`:
+D1 and D2 meet in `index.ts` and wherever a file of the town names
+`learning`, `placement` or `holdout`, or one of theirs names the town,
+which is every sub-area of the town but `jobs` and `hiring`:
 
-- `school`: `startSchoolLesson`, `settledLessonSlot`,
-  `admitSchoolLesson`, `settledSchoolOf`, `stopSchoolLesson`,
-  `schoolLessonsOf`, `saveLessonSlot`, `LessonSlot`.
+- `school`: `startSchoolLesson` (also `placement`, 2 lines),
+  `settledLessonSlot`, `admitSchoolLesson`, `settledSchoolOf` (also
+  `holdout`, 1 line), `stopSchoolLesson`, `schoolLessonsOf`,
+  `saveLessonSlot`, `LessonSlot`.
 - `guidance`: `nextStepOf`, 10 import lines from `learning` and 3 from
   `holdout`, 13 in all.
 - `building`: `startBuildingWork`, `openedLevelOf`, `wordShortfallOf`.
