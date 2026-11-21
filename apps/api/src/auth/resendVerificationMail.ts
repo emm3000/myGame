@@ -1,5 +1,5 @@
 import { type Clock, err, ok, type PlayerId, type Result } from '@mygame/domain'
-import type { CryptoSessionTokens } from '../adapters/system/CryptoSessionTokens'
+import type { CryptoSessionTokens } from '../account/infrastructure/system/CryptoSessionTokens'
 import type { Refusal } from '../platform/application/Refusal'
 import type { Transaction } from '../platform/infrastructure/postgres/postgresTransaction'
 import { issueAccountToken } from './issueAccountToken'

@@ -11,6 +11,8 @@ import {
   type TownCatalog,
 } from '@mygame/domain'
 import { waitUntil } from '@vercel/functions'
+import { Argon2Passwords } from './account/infrastructure/system/Argon2Passwords'
+import { CryptoSessionTokens } from './account/infrastructure/system/CryptoSessionTokens'
 import { JsonLessonCatalog } from './adapters/json/JsonLessonCatalog'
 import { JsonTownCatalog } from './adapters/json/JsonTownCatalog'
 import { DrizzleAccounts } from './adapters/postgres/DrizzleAccounts'
@@ -22,8 +24,6 @@ import { DrizzleReportClosings } from './adapters/postgres/DrizzleReportClosings
 import { DrizzleTownNews } from './adapters/postgres/DrizzleTownNews'
 import { DrizzleTownRepository } from './adapters/postgres/DrizzleTownRepository'
 import { SmtpMailer } from './adapters/smtp/SmtpMailer'
-import { Argon2Passwords } from './adapters/system/Argon2Passwords'
-import { CryptoSessionTokens } from './adapters/system/CryptoSessionTokens'
 import { createApp } from './app'
 import type { Accounts } from './auth/Accounts'
 import type { Mailer } from './auth/Mailer'
