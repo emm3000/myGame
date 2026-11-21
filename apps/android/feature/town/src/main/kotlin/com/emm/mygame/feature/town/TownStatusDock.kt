@@ -20,7 +20,7 @@ internal fun TownSnapshot.dockOn(
     return TownStatusUiState.Dock.Step(
         line = card.line,
         detail = caughtUpGoal()?.let(TownStatusUiState.StepDetail::Goal),
-        countdown = card.countdown?.let { countdown: NextStepCard.Countdown -> countdown.timeAt(now, gap) },
+        countdown = (card.countdown as? NextStepCard.Countdown.NextReview)?.timeAt(now, gap),
         go = card.goOn(screen, lessonStart),
         lessonStart = lessonStart,
         capWait = capWaitsUntil(now)?.let { dueAt: Instant ->
@@ -57,7 +57,7 @@ private fun NextStepCard.reportWait(): TownStatusUiState.GoBlock =
         TownStatusUiState.GoBlock.NoReviewsDue
     }
 
-private fun NextStepCard.Countdown.timeAt(now: Instant, gap: Duration): TownStatusUiState.StepCountdown =
+private fun NextStepCard.Countdown.NextReview.timeAt(now: Instant, gap: Duration): TownStatusUiState.StepCountdown =
     TownStatusUiState.StepCountdown(
         countdown = this,
         remaining = countdownTo(finishesAt = at, now = now),
