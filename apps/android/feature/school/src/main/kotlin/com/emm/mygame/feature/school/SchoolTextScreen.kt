@@ -29,6 +29,7 @@ import com.emm.mygame.core.designsystem.MyGameText
 import com.emm.mygame.core.designsystem.MyGameTheme
 import com.emm.mygame.core.designsystem.MyGameTypography
 import com.emm.mygame.core.designsystem.PreviewMyGame
+import com.emm.mygame.core.designsystem.englishTextOf
 import com.emm.mygame.core.network.FrameSpan
 import com.emm.mygame.core.network.OpenText
 import com.emm.mygame.core.network.TextId
@@ -106,7 +107,7 @@ private fun TextReading(
 ) {
     Column(verticalArrangement = Arrangement.spacedBy(MyGameSpacing.step4), modifier = modifier) {
         MyGameText(
-            text = reading.text.title,
+            text = englishTextOf(reading.text.title),
             style = MyGameTypography.title,
             color = MyGameTheme.colors.ink,
             modifier = Modifier.semantics { heading() },

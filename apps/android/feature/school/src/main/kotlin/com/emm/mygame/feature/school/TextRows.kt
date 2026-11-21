@@ -8,6 +8,7 @@ import com.emm.mygame.core.designsystem.MyGameLabel
 import com.emm.mygame.core.designsystem.MyGameNavRow
 import com.emm.mygame.core.designsystem.MyGameSectionTitle
 import com.emm.mygame.core.designsystem.MyGameSpacing
+import com.emm.mygame.core.designsystem.englishTextOf
 import com.emm.mygame.core.network.TextId
 import com.emm.mygame.core.ui.chromeResource
 
@@ -23,6 +24,7 @@ internal fun TextRows(
         content.texts.forEach { card: SchoolUiState.TextCard ->
             MyGameNavRow(
                 title = MyGameLabel(text = card.title, translation = null),
+                titleLineOf = ::englishTextOf,
                 onClick = { onTextOpen(card.text) },
             )
         }
