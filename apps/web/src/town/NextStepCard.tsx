@@ -1,5 +1,6 @@
 import type { NextStep } from '@mygame/contracts'
 import type { ReactElement } from 'react'
+import { chromeAroundOf } from '../copy/chromeAroundOf'
 import { usePlayerCopy } from '../copy/usePlayerCopy'
 import { Button } from '../design-system/Button'
 import { hueClassOf } from '../design-system/blockHueOf'
@@ -47,7 +48,12 @@ function NewestTextLine({ text }: { readonly text: NewestText }): ReactElement {
   return (
     <div>
       <TextLink to="/school/texts/$textId" params={{ textId: text.id }}>
-        <LabelText label={copy.chrome((catalog) => catalog.townNextText({ title: text.title }))} />
+        <LabelText
+          label={chromeAroundOf(copy, (catalog, title) => catalog.townNextText({ title }), {
+            text: text.title,
+            language: 'en',
+          })}
+        />
       </TextLink>
     </div>
   )

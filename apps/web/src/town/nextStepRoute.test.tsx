@@ -473,3 +473,20 @@ it('names no text while the next step carries none', async () => {
 
   expect(screen.queryByRole('link', { name: /^Lee: / })).toBeNull()
 })
+
+it('marks the newest text title in English inside the Spanish read line', async () => {
+  await showTown(
+    townAt({
+      kind: 'caughtUp',
+      reason: 'lessonsDone',
+      goal: null,
+      text: { id: 'text-1', title: 'A New Course' },
+    }),
+  )
+
+  const link = screen.getByRole('link', { name: es.townNextText({ title: 'A New Course' }) })
+  const english = [...link.querySelectorAll('[lang="en"]')].map(({ textContent }) => textContent)
+
+  expect(english).toEqual(['A New Course'])
+  expect(link.querySelector('[lang="en"]')?.parentElement?.getAttribute('lang')).toBe('es')
+})

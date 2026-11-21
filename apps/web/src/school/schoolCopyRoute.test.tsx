@@ -272,3 +272,27 @@ it('names an earned skill in English under none', async () => {
   expect(await screen.findByText(en.schoolSkillName({ resource: food, level: 1 }))).toBeDefined()
   expect(screen.getByText(en.schoolSkillRate({ percent: 5, resource: food }))).toBeDefined()
 })
+
+it('marks a released title in Spanish inside an English read line in the English phase', async () => {
+  renderAppAt(
+    '/school',
+    servingSchoolIn(englishPhase, {
+      releasedLessons: [releasedSetOne],
+      lessonSlot: {
+        lessonId: releasedSetOne.id,
+        startedAt: knownTown.readAt,
+        finishesAt: '2100-01-01T00:00:00.000Z',
+      },
+      nextStep: { kind: 'reviews', count: 2, readFirst: [releasedSetOne.id] },
+    }),
+  )
+
+  const title = es.schoolReleasedTitle({ band: 2, number: 1 })
+  const link = await screen.findByRole('link', {
+    name: `${title} · ${en.schoolLessonReadWords()}`,
+  })
+  const spanish = [...link.querySelectorAll('[lang="es"]')].map(({ textContent }) => textContent)
+
+  expect(spanish).toEqual([title])
+  expect(link.querySelector('[lang="es"]')?.parentElement?.getAttribute('lang')).toBe('en')
+})
