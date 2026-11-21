@@ -41,7 +41,6 @@ One row for each folder directly under `apps/api/src` or `packages/domain/src`. 
 | `hash` | domain | Text hashes and the ids drawn from them, with no game word. |
 | `grid` | domain | Grid cells, with no game word. |
 | `ports` | domain | `Clock`, `IdGenerator` and `RandomSource`, the ports no feature owns. |
-| `adapters` | api | *Moving.* Drizzle and memory adapters, each to the feature whose port it implements. |
 | `routes` | api | *Moving.* One endpoint per file, to each feature's `infrastructure/http/`. |
 | `testing` | domain | *Moving* into each feature's `testing/`. |
 
@@ -104,8 +103,8 @@ index.ts  listen.ts  app.ts  composeServer.ts  composeStores.ts    the compositi
 
 1. `apps/api/src/routes/town.ts` parses the body with `SendJobSchema` and opens the town's transaction with `apps/api/src/town/mutateTown.ts`.
 2. `packages/domain/src/town/jobs/useCases/sendJob.ts` decides the rule over the ports it is handed.
-3. `apps/api/src/adapters/postgres/DrizzleTownRepository.ts` stores the changed town.
-4. `apps/api/src/town/townReadingOf.ts` reads the town back, and `apps/api/src/town/townOverviewOf.ts` presents it as the `TownOverview` the route answers.
+3. `apps/api/src/town/infrastructure/postgres/DrizzleTownRepository.ts` stores the changed town.
+4. `apps/api/src/town/townReadingOf.ts` reads the town back through `apps/api/src/town/infrastructure/postgres/DrizzleTownReader.ts`, and `apps/api/src/town/townOverviewOf.ts` presents it as the `TownOverview` the route answers.
 
 ## Where a new thing goes
 
