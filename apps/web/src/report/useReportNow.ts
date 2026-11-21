@@ -15,5 +15,15 @@ export function useReportNow(readAt: string, receivedAtMs: number): Date {
     )
     return () => clearTimeout(timer)
   }, [nowMs])
+  useEffect(() => {
+    const turnWhenVisible = (): void => {
+      if (document.visibilityState !== 'visible') {
+        return
+      }
+      setTurnedAtMs(Date.now())
+    }
+    document.addEventListener('visibilitychange', turnWhenVisible)
+    return () => document.removeEventListener('visibilitychange', turnWhenVisible)
+  }, [])
   return new Date(nowMs)
 }

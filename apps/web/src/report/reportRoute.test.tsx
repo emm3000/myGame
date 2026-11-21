@@ -22,6 +22,7 @@ beforeEach(() => {
 
 afterEach(() => {
   vi.useRealTimers()
+  Reflect.deleteProperty(document, 'visibilityState')
 })
 
 const passSeconds = async (seconds: number): Promise<void> => {
@@ -700,4 +701,57 @@ it("turns a news row's day at local midnight", async () => {
   expect(
     within(newsRegion()).getByText(`${formatLocalDay(es, new Date(lateNewsAt))}, 23:30`),
   ).toBeDefined()
+})
+
+const sleepHours = 8
+
+const changeVisibilityAfterSleep = async (visibility: DocumentVisibilityState): Promise<void> => {
+  vi.setSystemTime(Date.now() + sleepHours * 60 * 60_000)
+  Object.defineProperty(document, 'visibilityState', { configurable: true, value: visibility })
+  await act(async () => {
+    document.dispatchEvent(new Event('visibilitychange'))
+  })
+}
+
+const wakeAfterSleep = (): Promise<void> => changeVisibilityAfterSleep('visible')
+
+it("turns the next review's day when the tab becomes visible after a sleep through midnight", async () => {
+  vi.setSystemTime(Date.parse(lateRead))
+  await showReport(lateReport)
+  expect(within(reportRegion()).getByText(es.statusTomorrow({ time: '10:40' }))).toBeDefined()
+
+  await wakeAfterSleep()
+
+  expect(within(reportRegion()).getByText('10:40')).toBeDefined()
+})
+
+it('reads the Report once across a wake', async () => {
+  vi.setSystemTime(Date.parse(lateRead))
+  const report = reportReads(lateReport)
+  await showReport(report)
+
+  await wakeAfterSleep()
+
+  expect(report).toHaveBeenCalledTimes(1)
+})
+
+it("turns a news row's day when the tab becomes visible after a sleep through midnight", async () => {
+  vi.setSystemTime(Date.parse(lateRead))
+  await showReport(reportOf({ readAt: lateRead, news: [lateNews] }))
+  expect(within(newsRegion()).getByText(es.timeToday({ time: '23:30' }))).toBeDefined()
+
+  await wakeAfterSleep()
+
+  expect(
+    within(newsRegion()).getByText(`${formatLocalDay(es, new Date(lateNewsAt))}, 23:30`),
+  ).toBeDefined()
+})
+
+it("keeps the next review's day while the tab turns hidden after a sleep through midnight", async () => {
+  vi.setSystemTime(Date.parse(lateRead))
+  await showReport(lateReport)
+
+  await changeVisibilityAfterSleep('hidden')
+
+  expect(within(reportRegion()).getByText(es.statusTomorrow({ time: '10:40' }))).toBeDefined()
 })
