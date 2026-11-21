@@ -1,8 +1,8 @@
 import { assert, describe, expect, it } from 'vitest'
+import type { Instant } from '../../time/Instant'
 import { ana, bandOneStart, weeksAfterStart } from '../testing/holdoutFixtures'
-import type { Instant } from '../time/Instant'
+import { inMemoryBandStarts } from '../testing/inMemoryBandStarts'
 import { skipHoldoutCheck } from './skipHoldoutCheck'
-import { inMemoryBandStarts } from './testing/inMemoryBandStarts'
 
 const skipAt = async (now: Instant) => {
   const bandStarts = inMemoryBandStarts([{ playerId: ana, start: bandOneStart() }])

@@ -1,6 +1,6 @@
 import { assert, describe, expect, it } from 'vitest'
 import type { Clock } from '../../ports/Clock'
-import { sequentialIds } from '../../testing/sequentialIds'
+import { sequentialIds } from '../../ports/testing/sequentialIds'
 import { Instant } from '../../time/Instant'
 import { accrueTown } from '../accrueTown'
 import { noStoreFull } from '../FullSince'

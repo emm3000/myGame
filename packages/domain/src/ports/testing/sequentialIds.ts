@@ -1,4 +1,4 @@
-import type { IdGenerator } from '../ports/IdGenerator'
+import type { IdGenerator } from '../IdGenerator'
 
 export const sequentialIds = (prefix: string): IdGenerator => {
   let issued = 0

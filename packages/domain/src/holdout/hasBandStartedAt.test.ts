@@ -1,7 +1,7 @@
 import { describe, expect, it } from 'vitest'
-import { bandOneStart, bandOneStartedAt, weeksAfterStart } from '../testing/holdoutFixtures'
 import { dueHoldoutChecksOf } from './dueHoldoutChecksOf'
 import { hasBandStartedAt } from './hasBandStartedAt'
+import { bandOneStart, bandOneStartedAt, weeksAfterStart } from './testing/holdoutFixtures'
 
 describe('hasBandStartedAt', () => {
   it('reads false for a player with no band started', () => {
