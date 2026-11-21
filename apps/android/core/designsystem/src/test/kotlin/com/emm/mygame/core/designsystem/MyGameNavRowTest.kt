@@ -40,7 +40,9 @@ import androidx.compose.ui.test.requestFocus
 import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.text.SpanStyle
 import androidx.compose.ui.unit.Density
+import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.DpRect
+import androidx.compose.ui.unit.dp
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertNotEquals
 import org.junit.Assert.assertTrue
@@ -217,6 +219,27 @@ class MyGameNavRowTest {
         assertEquals("the ring ends at the row's end", rootBounds.right, rowBounds.right)
     }
 
+    @OptIn(ExperimentalComposeUiApi::class)
+    @Test
+    fun `a focused nav row at font scale 2 sets its title at least 5 dp inside the ring's inner edge`() {
+        show {
+            inputModes = LocalInputModeManager.current
+            CompositionLocalProvider(LocalDensity provides Density(LocalDensity.current.density, fontScale = 2f)) {
+                MyGameNavRow(title = MyGameLabel(text = "Lesson 10", translation = "Lección 10"), onClick = {})
+            }
+        }
+        composeRule.runOnIdle { inputModes?.requestInputMode(InputMode.Keyboard) }
+        row().requestFocus()
+
+        val ringInnerEdge: Dp = row().getBoundsInRoot().left + MyGameStrokeWidths.focus
+        val titleBounds: DpRect = boundsOf("Lesson 10")
+
+        assertTrue(
+            "the title starts at ${titleBounds.left}, the ring's inner edge at $ringInnerEdge",
+            titleBounds.left - ringInnerEdge >= 5.dp,
+        )
+    }
+
     @Test
     fun `a nav row of one line keeps the secondary height`() {
         showSchoolRow()
@@ -247,7 +270,7 @@ class MyGameNavRowTest {
         val titleBounds: DpRect =
             composeRule.onNodeWithText("Go to the school", useUnmergedTree = true).getBoundsInRoot()
 
-        assertEquals(rowBounds.right - MyGameSpacing.step1, chevronBounds.right)
+        assertEquals(rowBounds.right - MyGameSpacing.step2, chevronBounds.right)
         assertTrue("the chevron follows the title", titleBounds.right <= chevronBounds.left)
     }
 
