@@ -8,12 +8,12 @@ import {
 import { honoPathOf } from '#platform/infrastructure/http/honoPath'
 import { readJsonBody } from '#platform/infrastructure/http/readJsonBody'
 import { refusalResponse } from '#platform/infrastructure/http/refusalResponse'
-import { answerRefusal } from '#platform/infrastructure/http/respondRefusal'
+import { respondRefusal } from '#platform/infrastructure/http/respondRefusal'
 import { jsonBody, malformedResponse } from '#platform/infrastructure/http/responseDeclarations'
 import { signedInRoute } from '#platform/infrastructure/http/signedInRoute'
 import {
-  type AnswerTownChangeDependencies,
-  answerTownChange,
+  type RespondTownChangeDependencies,
+  respondTownChange,
 } from '../../../infrastructure/http/respondTownChange'
 import { overviewResponse } from '../../../infrastructure/http/townComponents'
 
@@ -36,7 +36,7 @@ export const startSchoolLessonDeclaration = createRoute(
 )
 
 export type StartSchoolLessonRouteDependencies = RequirePlayerDependencies &
-  AnswerTownChangeDependencies & {
+  RespondTownChangeDependencies & {
     readonly random: RandomSource
   }
 
@@ -53,10 +53,10 @@ export const startSchoolLessonRoute = (
     async (c) => {
       const request = StartLessonRequestSchema.safeParse(await readJsonBody(c))
       if (!request.success) {
-        return answerRefusal(c, { kind: 'MalformedRequest' })
+        return respondRefusal(c, { kind: 'MalformedRequest' })
       }
       const playerId = c.var.playerId
-      return answerTownChange(
+      return respondTownChange(
         c,
         playerId,
         async (stores, clock) => {

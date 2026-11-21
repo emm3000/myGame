@@ -3,11 +3,11 @@ import { ResetPasswordRequestSchema } from '@mygame/contracts'
 import { readJsonBody } from '#platform/infrastructure/http/readJsonBody'
 import { refusalResponse } from '#platform/infrastructure/http/refusalResponse'
 import { requestRefusalOf } from '#platform/infrastructure/http/requestRefusalOf'
-import { answerRefusal } from '#platform/infrastructure/http/respondRefusal'
+import { respondRefusal } from '#platform/infrastructure/http/respondRefusal'
 import { jsonBody } from '#platform/infrastructure/http/responseDeclarations'
 import { type ResetPasswordDependencies, resetPassword } from '../../application/resetPassword'
 import { accountIssues } from './accountIssues'
-import { answerDone } from './respondDone'
+import { respondDone } from './respondDone'
 
 export const resetPasswordDeclaration = createRoute({
   method: 'post',
@@ -29,8 +29,8 @@ export const resetPasswordRoute = (
   routes.on(resetPasswordDeclaration.method, resetPasswordDeclaration.path, async (c) => {
     const request = ResetPasswordRequestSchema.safeParse(await readJsonBody(c))
     if (!request.success) {
-      return answerRefusal(c, requestRefusalOf(accountIssues, request.error.issues))
+      return respondRefusal(c, requestRefusalOf(accountIssues, request.error.issues))
     }
-    return answerDone(c, await resetPassword(request.data, dependencies))
+    return respondDone(c, await resetPassword(request.data, dependencies))
   })
 }

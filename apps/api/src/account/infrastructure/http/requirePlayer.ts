@@ -2,7 +2,7 @@ import type { Clock, PlayerId } from '@mygame/domain'
 import { createMiddleware } from 'hono/factory'
 import type { MiddlewareHandler } from 'hono/types'
 import { readBearerToken } from '#platform/infrastructure/http/bearerToken'
-import { answerRefusal } from '#platform/infrastructure/http/respondRefusal'
+import { respondRefusal } from '#platform/infrastructure/http/respondRefusal'
 import type { Sessions } from '../../application/ports/Sessions'
 import { sessionExpiryFrom } from '../../application/sessionExpiryFrom'
 import { readSessionCookie, writeSessionCookie } from './sessionCookie'
@@ -29,13 +29,13 @@ export const requirePlayer = ({
     const cookieToken = readSessionCookie(c)
     const token = cookieToken ?? readBearerToken(c)
     if (token === undefined) {
-      return answerRefusal(c, { kind: 'SignedOut' })
+      return respondRefusal(c, { kind: 'SignedOut' })
     }
     const now = clock.now()
     const expiresAt = sessionExpiryFrom(now)
     const playerId = await sessions.renewSession(token, now, expiresAt)
     if (playerId === undefined) {
-      return answerRefusal(c, { kind: 'SignedOut' })
+      return respondRefusal(c, { kind: 'SignedOut' })
     }
     if (cookieToken !== undefined) {
       writeSessionCookie(c, { token, playerId, expiresAt }, isSessionCookieSecure)

@@ -6,7 +6,7 @@ import {
   resendVerificationMail,
 } from '../../application/resendVerificationMail'
 import { type RequirePlayerDependencies, requirePlayer } from './requirePlayer'
-import { answerDone } from './respondDone'
+import { respondDone } from './respondDone'
 
 export const resendVerificationMailDeclaration = createRoute(
   signedInRoute({
@@ -31,6 +31,6 @@ export const resendVerificationMailRoute = (
     resendVerificationMailDeclaration.method,
     resendVerificationMailDeclaration.path,
     requirePlayer(dependencies),
-    async (c) => answerDone(c, await resendVerificationMail(c.var.playerId, dependencies)),
+    async (c) => respondDone(c, await resendVerificationMail(c.var.playerId, dependencies)),
   )
 }

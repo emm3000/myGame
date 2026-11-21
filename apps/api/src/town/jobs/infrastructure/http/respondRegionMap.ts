@@ -8,20 +8,20 @@ import {
   type TownCatalog,
 } from '@mygame/domain'
 import type { Context } from 'hono'
-import { answerRefusal } from '#platform/infrastructure/http/respondRefusal'
+import { respondRefusal } from '#platform/infrastructure/http/respondRefusal'
 import { presentRegionMap } from './presentRegionMap'
 
-export type AnswerRegionMapDependencies = {
+export type RespondRegionMapDependencies = {
   readonly regionMap: RegionMapReader
   readonly cleanUps: CleanUpReader
   readonly townCatalog: TownCatalog
   readonly clock: Clock
 }
 
-export const answerRegionMap = async (
+export const respondRegionMap = async (
   c: Context,
   command: ReadRegionMapCommand,
-  dependencies: AnswerRegionMapDependencies,
+  dependencies: RespondRegionMapDependencies,
 ): Promise<Response> => {
   const map = await readRegionMap(command, {
     map: dependencies.regionMap,
@@ -30,7 +30,7 @@ export const answerRegionMap = async (
     clock: dependencies.clock,
   })
   if (!map.ok) {
-    return answerRefusal(c, map.error)
+    return respondRefusal(c, map.error)
   }
   const body: RegionMap = presentRegionMap(map.value)
   return c.json(body)

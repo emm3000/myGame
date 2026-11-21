@@ -7,7 +7,7 @@ import {
 import { honoPathOf } from '#platform/infrastructure/http/honoPath'
 import { readJsonBody } from '#platform/infrastructure/http/readJsonBody'
 import { refusalResponse } from '#platform/infrastructure/http/refusalResponse'
-import { answerRefusal } from '#platform/infrastructure/http/respondRefusal'
+import { respondRefusal } from '#platform/infrastructure/http/respondRefusal'
 import { jsonBody, jsonResponse } from '#platform/infrastructure/http/responseDeclarations'
 import { signedInRoute } from '#platform/infrastructure/http/signedInRoute'
 import { townNotFoundResponse } from '../../../infrastructure/http/townComponents'
@@ -46,11 +46,11 @@ export const quoteJobRoute = (
     async (c) => {
       const request = SendJobSchema.safeParse(await readJsonBody(c))
       if (!request.success) {
-        return answerRefusal(c, { kind: 'MalformedRequest' })
+        return respondRefusal(c, { kind: 'MalformedRequest' })
       }
       const pay = await quoteJobNow({ playerId: c.var.playerId, ...request.data }, dependencies)
       if (!pay.ok) {
-        return answerRefusal(c, pay.error)
+        return respondRefusal(c, pay.error)
       }
       const body: JobQuote = { pay: pay.value }
       return c.json(body)

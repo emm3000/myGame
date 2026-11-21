@@ -2,10 +2,10 @@ import { createRoute, type OpenAPIHono } from '@hono/zod-openapi'
 import { VerifyEmailRequestSchema } from '@mygame/contracts'
 import { readJsonBody } from '#platform/infrastructure/http/readJsonBody'
 import { refusalResponse } from '#platform/infrastructure/http/refusalResponse'
-import { answerRefusal } from '#platform/infrastructure/http/respondRefusal'
+import { respondRefusal } from '#platform/infrastructure/http/respondRefusal'
 import { jsonBody } from '#platform/infrastructure/http/responseDeclarations'
 import { type VerifyEmailDependencies, verifyEmail } from '../../application/verifyEmail'
-import { answerDone } from './respondDone'
+import { respondDone } from './respondDone'
 
 export const verifyEmailDeclaration = createRoute({
   method: 'post',
@@ -28,8 +28,8 @@ export const verifyEmailRoute = (
   routes.on(verifyEmailDeclaration.method, verifyEmailDeclaration.path, async (c) => {
     const request = VerifyEmailRequestSchema.safeParse(await readJsonBody(c))
     if (!request.success) {
-      return answerRefusal(c, { kind: 'MalformedRequest' })
+      return respondRefusal(c, { kind: 'MalformedRequest' })
     }
-    return answerDone(c, await verifyEmail(request.data, dependencies))
+    return respondDone(c, await verifyEmail(request.data, dependencies))
   })
 }

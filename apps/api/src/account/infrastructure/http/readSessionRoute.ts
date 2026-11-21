@@ -1,5 +1,5 @@
 import { createRoute, type OpenAPIHono } from '@hono/zod-openapi'
-import { answerRefusal } from '#platform/infrastructure/http/respondRefusal'
+import { respondRefusal } from '#platform/infrastructure/http/respondRefusal'
 import { signedInRoute } from '#platform/infrastructure/http/signedInRoute'
 import type { Accounts } from '../../application/ports/Accounts'
 import type { ReadChromePhaseDependencies } from '../../application/readChromePhase'
@@ -34,7 +34,7 @@ export const readSessionRoute = (
     async (c) => {
       const player = await dependencies.accounts.playerOf(c.var.playerId)
       if (player === undefined) {
-        return answerRefusal(c, { kind: 'SignedOut' })
+        return respondRefusal(c, { kind: 'SignedOut' })
       }
       return c.json(await presentPlayer(player, dependencies))
     },

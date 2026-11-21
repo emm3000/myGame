@@ -10,7 +10,7 @@ import { honoPathOf } from '#platform/infrastructure/http/honoPath'
 import { signedInRoute } from '#platform/infrastructure/http/signedInRoute'
 import { mutateTown } from '#town/application/mutateTown'
 import { offerRefused, placementResponse } from './placementComponents'
-import { answerPlacementView } from './respondPlacementView'
+import { respondPlacementView } from './respondPlacementView'
 
 export const beginPlacementDeclaration = createRoute(
   signedInRoute({
@@ -71,7 +71,7 @@ export const beginPlacementRoute = (
         },
         dependencies,
       )
-      return answerPlacementView(c, view)
+      return respondPlacementView(c, view)
     },
   )
 }

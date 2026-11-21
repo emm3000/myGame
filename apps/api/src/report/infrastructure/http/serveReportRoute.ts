@@ -5,7 +5,7 @@ import {
   requirePlayer,
 } from '#account/infrastructure/http/requirePlayer'
 import { honoPathOf } from '#platform/infrastructure/http/honoPath'
-import { answerRefusal } from '#platform/infrastructure/http/respondRefusal'
+import { respondRefusal } from '#platform/infrastructure/http/respondRefusal'
 import { jsonResponse } from '#platform/infrastructure/http/responseDeclarations'
 import { signedInRoute } from '#platform/infrastructure/http/signedInRoute'
 import { type ServeReportDependencies, serveReport } from '../../application/serveReport'
@@ -38,7 +38,7 @@ export const serveReportRoute = (
     async (c) => {
       const report = await serveReport(c.var.playerId, dependencies)
       if (!report.ok) {
-        return answerRefusal(c, report.error)
+        return respondRefusal(c, report.error)
       }
       const body: Report = presentReport(report.value)
       return c.json(body)

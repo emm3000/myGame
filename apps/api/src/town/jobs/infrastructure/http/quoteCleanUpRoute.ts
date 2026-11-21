@@ -7,7 +7,7 @@ import {
 import { honoPathOf } from '#platform/infrastructure/http/honoPath'
 import { readJsonBody } from '#platform/infrastructure/http/readJsonBody'
 import { refusalResponse } from '#platform/infrastructure/http/refusalResponse'
-import { answerRefusal } from '#platform/infrastructure/http/respondRefusal'
+import { respondRefusal } from '#platform/infrastructure/http/respondRefusal'
 import { jsonBody, jsonResponse } from '#platform/infrastructure/http/responseDeclarations'
 import { signedInRoute } from '#platform/infrastructure/http/signedInRoute'
 import { townNotFoundResponse } from '../../../infrastructure/http/townComponents'
@@ -51,14 +51,14 @@ export const quoteCleanUpRoute = (
     async (c) => {
       const request = SendCleanUpSchema.safeParse(await readJsonBody(c))
       if (!request.success) {
-        return answerRefusal(c, { kind: 'MalformedRequest' })
+        return respondRefusal(c, { kind: 'MalformedRequest' })
       }
       const quote = await quoteCleanUpNow(
         { playerId: c.var.playerId, ...request.data },
         dependencies,
       )
       if (!quote.ok) {
-        return answerRefusal(c, quote.error)
+        return respondRefusal(c, quote.error)
       }
       const body: CleanUpQuote = quote.value
       return c.json(body)

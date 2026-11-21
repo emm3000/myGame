@@ -5,7 +5,7 @@ import {
   requirePlayer,
 } from '#account/infrastructure/http/requirePlayer'
 import { honoPathOf } from '#platform/infrastructure/http/honoPath'
-import { answerRefusal } from '#platform/infrastructure/http/respondRefusal'
+import { respondRefusal } from '#platform/infrastructure/http/respondRefusal'
 import { jsonResponse } from '#platform/infrastructure/http/responseDeclarations'
 import { signedInRoute } from '#platform/infrastructure/http/signedInRoute'
 import { townNotFoundResponse } from '../../../infrastructure/http/townComponents'
@@ -44,7 +44,7 @@ export const resolveTownNewsRoute = (
     async (c) => {
       const news = await resolveTownNews(c.var.playerId, dependencies)
       if (!news.ok) {
-        return answerRefusal(c, news.error)
+        return respondRefusal(c, news.error)
       }
       const body: TownNewsFeed = { items: news.value.map(presentTownNewsItem) }
       return c.json(body)

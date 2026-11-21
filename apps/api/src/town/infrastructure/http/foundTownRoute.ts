@@ -10,13 +10,13 @@ import { honoPathOf } from '#platform/infrastructure/http/honoPath'
 import { readJsonBody } from '#platform/infrastructure/http/readJsonBody'
 import { refusalResponse } from '#platform/infrastructure/http/refusalResponse'
 import { type NamedIssue, requestRefusalOf } from '#platform/infrastructure/http/requestRefusalOf'
-import { answerRefusal } from '#platform/infrastructure/http/respondRefusal'
+import { respondRefusal } from '#platform/infrastructure/http/respondRefusal'
 import { jsonBody } from '#platform/infrastructure/http/responseDeclarations'
 import { signedInRoute } from '#platform/infrastructure/http/signedInRoute'
 import { foundTownOnFreeSite } from '../../application/foundTownOnFreeSite'
 import type { TownStores } from '../../application/ports/TownStores'
 import { readTownReading } from '../../application/readTownReading'
-import { type AnswerTownReadingDependencies, answerTownReading } from './respondTownReading'
+import { type RespondTownReadingDependencies, respondTownReading } from './respondTownReading'
 import { overviewResponse } from './townComponents'
 
 const foundingIssues: ReadonlyArray<NamedIssue> = [['name', 'too_small', { kind: 'BlankTownName' }]]
@@ -37,7 +37,7 @@ export const foundTownDeclaration = createRoute(
 )
 
 export type FoundTownRouteDependencies = RequirePlayerDependencies &
-  AnswerTownReadingDependencies & {
+  RespondTownReadingDependencies & {
     readonly inTransaction: Transaction<TownStores>
     readonly ids: IdGenerator
   }
@@ -54,7 +54,7 @@ export const foundTownRoute = (
     async (c) => {
       const request = FoundTownSchema.safeParse(await readJsonBody(c))
       if (!request.success) {
-        return answerRefusal(c, requestRefusalOf(foundingIssues, request.error.issues))
+        return respondRefusal(c, requestRefusalOf(foundingIssues, request.error.issues))
       }
       const playerId = c.var.playerId
       const founded = await dependencies.inTransaction(async (stores) => {
@@ -72,7 +72,7 @@ export const foundTownRoute = (
           ? readTownReading(playerId, town.value.storedAt, stores.townsWithSchool)
           : town
       })
-      return answerTownReading(c, founded, dependencies)
+      return respondTownReading(c, founded, dependencies)
     },
   )
 }

@@ -1,7 +1,7 @@
 import { createRoute, type OpenAPIHono } from '@hono/zod-openapi'
 import { ForgotPasswordRequestSchema } from '@mygame/contracts'
 import { readJsonBody } from '#platform/infrastructure/http/readJsonBody'
-import { answerRefusal } from '#platform/infrastructure/http/respondRefusal'
+import { respondRefusal } from '#platform/infrastructure/http/respondRefusal'
 import { jsonBody } from '#platform/infrastructure/http/responseDeclarations'
 import {
   type RequestPasswordResetDependencies,
@@ -31,7 +31,7 @@ export const requestPasswordResetRoute = (
     async (c) => {
       const request = ForgotPasswordRequestSchema.safeParse(await readJsonBody(c))
       if (!request.success) {
-        return answerRefusal(c, { kind: 'MalformedRequest' })
+        return respondRefusal(c, { kind: 'MalformedRequest' })
       }
       requestPasswordReset(request.data, dependencies)
       return c.body(null, 202)

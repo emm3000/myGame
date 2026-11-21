@@ -1,14 +1,14 @@
 import { Hono } from 'hono'
 import { describe, expect, it } from 'vitest'
 import type { Refusal } from '../../application/Refusal'
-import { answerRefusal } from './respondRefusal'
+import { respondRefusal } from './respondRefusal'
 
 const answerOf = async (refusal: Refusal): Promise<Response> => {
-  const app = new Hono().get('/', (c) => answerRefusal(c, refusal))
+  const app = new Hono().get('/', (c) => respondRefusal(c, refusal))
   return app.request('/')
 }
 
-describe('answerRefusal', () => {
+describe('respondRefusal', () => {
   it('answers a corrupt stored duration as an internal failure with an empty body', async () => {
     const response = await answerOf({ kind: 'NegativeDuration', seconds: -1 })
 

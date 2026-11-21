@@ -5,7 +5,7 @@ import {
   requirePlayer,
 } from '#account/infrastructure/http/requirePlayer'
 import { honoPathOf } from '#platform/infrastructure/http/honoPath'
-import { answerRefusal } from '#platform/infrastructure/http/respondRefusal'
+import { respondRefusal } from '#platform/infrastructure/http/respondRefusal'
 import { jsonResponse } from '#platform/infrastructure/http/responseDeclarations'
 import { signedInRoute } from '#platform/infrastructure/http/signedInRoute'
 import { mutateTown } from '#town/application/mutateTown'
@@ -42,7 +42,7 @@ export const serveDueReviewsRoute = (
         dependencies,
       )
       if (!reviews.ok) {
-        return answerRefusal(c, reviews.error)
+        return respondRefusal(c, reviews.error)
       }
       const body: Reviews = presentReviews(reviews.value)
       return c.json(body)

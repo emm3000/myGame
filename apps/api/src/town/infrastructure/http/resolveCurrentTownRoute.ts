@@ -9,7 +9,7 @@ import {
   type ResolveCurrentTownDependencies,
   resolveCurrentTown,
 } from '../../application/resolveCurrentTown'
-import { type AnswerTownReadingDependencies, answerTownReading } from './respondTownReading'
+import { type RespondTownReadingDependencies, respondTownReading } from './respondTownReading'
 import { overviewResponse, townNotFoundResponse } from './townComponents'
 
 export const resolveCurrentTownDeclaration = createRoute(
@@ -27,7 +27,7 @@ export const resolveCurrentTownDeclaration = createRoute(
 
 export type ResolveCurrentTownRouteDependencies = RequirePlayerDependencies &
   ResolveCurrentTownDependencies &
-  AnswerTownReadingDependencies
+  RespondTownReadingDependencies
 
 export const resolveCurrentTownRoute = (
   routes: OpenAPIHono,
@@ -39,6 +39,6 @@ export const resolveCurrentTownRoute = (
     honoPathOf(resolveCurrentTownDeclaration),
     requirePlayer(dependencies),
     async (c) =>
-      answerTownReading(c, await resolveCurrentTown(c.var.playerId, dependencies), dependencies),
+      respondTownReading(c, await resolveCurrentTown(c.var.playerId, dependencies), dependencies),
   )
 }

@@ -8,7 +8,7 @@ import { honoPathOf } from '#platform/infrastructure/http/honoPath'
 import { refusalResponse } from '#platform/infrastructure/http/refusalResponse'
 import { jsonResponse } from '#platform/infrastructure/http/responseDeclarations'
 import { signedInRoute } from '#platform/infrastructure/http/signedInRoute'
-import { type AnswerRegionMapDependencies, answerRegionMap } from './respondRegionMap'
+import { type RespondRegionMapDependencies, respondRegionMap } from './respondRegionMap'
 
 export const readOwnAreaDeclaration = createRoute(
   signedInRoute({
@@ -24,7 +24,7 @@ export const readOwnAreaDeclaration = createRoute(
   }),
 )
 
-export type ReadOwnAreaRouteDependencies = RequirePlayerDependencies & AnswerRegionMapDependencies
+export type ReadOwnAreaRouteDependencies = RequirePlayerDependencies & RespondRegionMapDependencies
 
 export const readOwnAreaRoute = (
   routes: OpenAPIHono,
@@ -35,6 +35,6 @@ export const readOwnAreaRoute = (
     readOwnAreaDeclaration.method,
     honoPathOf(readOwnAreaDeclaration),
     requirePlayer(dependencies),
-    async (c) => answerRegionMap(c, { playerId: c.var.playerId }, dependencies),
+    async (c) => respondRegionMap(c, { playerId: c.var.playerId }, dependencies),
   )
 }

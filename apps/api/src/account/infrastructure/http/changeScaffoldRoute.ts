@@ -1,7 +1,7 @@
 import { createRoute, type OpenAPIHono } from '@hono/zod-openapi'
 import { ScaffoldChangeSchema } from '@mygame/contracts'
 import { readJsonBody } from '#platform/infrastructure/http/readJsonBody'
-import { answerRefusal } from '#platform/infrastructure/http/respondRefusal'
+import { respondRefusal } from '#platform/infrastructure/http/respondRefusal'
 import {
   jsonBody,
   jsonResponse,
@@ -48,7 +48,7 @@ export const changeScaffoldRoute = (
     async (c) => {
       const change = ScaffoldChangeSchema.safeParse(await readJsonBody(c))
       if (!change.success) {
-        return answerRefusal(c, { kind: 'MalformedRequest' })
+        return respondRefusal(c, { kind: 'MalformedRequest' })
       }
       const stored = await dependencies.accounts.storeScaffold(c.var.playerId, change.data.scaffold)
       return c.json(await presentPlayer(stored, dependencies))

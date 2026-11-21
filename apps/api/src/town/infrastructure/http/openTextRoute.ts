@@ -7,7 +7,7 @@ import {
 import type { LessonLibrary } from '#content/application/ports/LessonLibrary'
 import { honoPathOf } from '#platform/infrastructure/http/honoPath'
 import { refusalResponse } from '#platform/infrastructure/http/refusalResponse'
-import { answerRefusal } from '#platform/infrastructure/http/respondRefusal'
+import { respondRefusal } from '#platform/infrastructure/http/respondRefusal'
 import { jsonResponse } from '#platform/infrastructure/http/responseDeclarations'
 import { signedInRoute } from '#platform/infrastructure/http/signedInRoute'
 import {
@@ -50,11 +50,11 @@ export const openTextRoute = (
     async (c) => {
       const request = ReadTextRequestSchema.safeParse(c.req.param())
       if (!request.success) {
-        return answerRefusal(c, { kind: 'MalformedRequest' })
+        return respondRefusal(c, { kind: 'MalformedRequest' })
       }
       const reading = await resolveCurrentTown(c.var.playerId, dependencies)
       if (!reading.ok) {
-        return answerRefusal(c, reading.error)
+        return respondRefusal(c, reading.error)
       }
       const text = presentOpenText(request.data.textId, reading.value, dependencies.lessons)
       if (text === undefined) {
