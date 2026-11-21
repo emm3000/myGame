@@ -3,9 +3,9 @@ import { textHashOf } from '../hash/textHashOf'
 import { compareWordIds } from '../learning/compareWordIds'
 import { glossOf } from '../learning/scaffold/glossOf'
 import type { Scaffold } from '../learning/scaffold/Scaffold'
-import type { PlacementWordCatalog } from '../ports/PlacementWordCatalog'
 import type { PlacementSample } from './Placement'
 import type { PlacementWord } from './PlacementWord'
+import type { PlacementWordCatalog } from './ports/PlacementWordCatalog'
 
 const CHOICE_COUNT = 4
 

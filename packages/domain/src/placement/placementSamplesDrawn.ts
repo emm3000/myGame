@@ -1,8 +1,8 @@
 import type { Band } from '../learning/curriculum/BandStart'
 import type { BandCatalog } from '../learning/curriculum/ports/BandCatalog'
-import type { PlacementWordCatalog } from '../ports/PlacementWordCatalog'
 import type { RandomSource } from '../ports/RandomSource'
 import type { PlacementSample } from './Placement'
+import type { PlacementWordCatalog } from './ports/PlacementWordCatalog'
 
 export const PLACEMENT_SAMPLE_SIZE = 30
 

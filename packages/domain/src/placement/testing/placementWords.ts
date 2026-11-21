@@ -1,6 +1,6 @@
-import type { Band, BandWord, Headword } from '../learning/curriculum/BandStart'
-import type { PlacementWord } from '../placement/PlacementWord'
-import type { PlacementContent } from '../placement/placementSamplesDrawn'
+import type { Band, BandWord, Headword } from '../../learning/curriculum/BandStart'
+import type { PlacementWord } from '../PlacementWord'
+import type { PlacementContent } from '../placementSamplesDrawn'
 import type { PlacementWordCatalog } from '../ports/PlacementWordCatalog'
 
 export type PlacementShelf = {

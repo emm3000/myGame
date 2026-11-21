@@ -1,10 +1,10 @@
-import type { DomainError } from '../DomainError'
-import type { BandStartRepository } from '../holdout/ports/BandStartRepository'
-import type { BandStart } from '../learning/curriculum/BandStart'
-import type { PlayerId } from '../player/PlayerId'
+import type { DomainError } from '../../DomainError'
+import type { BandStartRepository } from '../../holdout/ports/BandStartRepository'
+import type { BandStart } from '../../learning/curriculum/BandStart'
+import type { PlayerId } from '../../player/PlayerId'
+import { err, ok, type Result } from '../../Result'
+import { isPlacementDrawable, type PlacementContent } from '../placementSamplesDrawn'
 import type { PlacementRepository } from '../ports/PlacementRepository'
-import { err, ok, type Result } from '../Result'
-import { isPlacementDrawable, type PlacementContent } from './placementSamplesDrawn'
 
 export type PlacementOfferDependencies = PlacementContent & {
   readonly placements: Pick<PlacementRepository, 'placementOf'>

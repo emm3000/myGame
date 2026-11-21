@@ -1,10 +1,10 @@
 import type { BandStart } from '../learning/curriculum/BandStart'
 import type { Scaffold } from '../learning/scaffold/Scaffold'
-import type { PlacementWordCatalog } from '../ports/PlacementWordCatalog'
 import { askedSampleOf } from './askedSampleOf'
 import type { Placement } from './Placement'
 import type { PlacementView } from './PlacementView'
 import { placementItemsOf } from './placementItemsOf'
+import type { PlacementWordCatalog } from './ports/PlacementWordCatalog'
 
 export const placementViewOf = (
   placement: Placement,

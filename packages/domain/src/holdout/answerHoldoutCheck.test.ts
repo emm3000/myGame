@@ -1,5 +1,6 @@
 import { assert, describe, expect, it } from 'vitest'
 import type { PlacementItem } from '../placement/PlacementView'
+import { inMemoryPlacementWords } from '../placement/testing/placementWords'
 import {
   ana,
   bandOneStart,
@@ -8,7 +9,6 @@ import {
   practisedOfStudied,
   weeksAfterStart,
 } from '../testing/holdoutFixtures'
-import { inMemoryPlacementWords } from '../testing/placementWords'
 import type { Instant } from '../time/Instant'
 import { answerHoldoutCheck } from './answerHoldoutCheck'
 import type { HoldoutCheck } from './HoldoutCheck'

@@ -2,6 +2,7 @@ import { assert, describe, expect, it } from 'vitest'
 import { inMemoryLessons } from '../learning/curriculum/testing/inMemoryLessons'
 import { inMemoryCards, type OwnedCard } from '../learning/testing/inMemoryCards'
 import type { PlacementWord } from '../placement/PlacementWord'
+import { inMemoryPlacementWords } from '../placement/testing/placementWords'
 import type { RandomSource } from '../ports/RandomSource'
 import { firstItemsRandom } from '../testing/firstItemsRandom'
 import {
@@ -15,7 +16,6 @@ import {
   unstudiedLesson,
   weeksAfterStart,
 } from '../testing/holdoutFixtures'
-import { inMemoryPlacementWords } from '../testing/placementWords'
 import type { Instant } from '../time/Instant'
 import { beginHoldoutCheck } from './beginHoldoutCheck'
 import type { HoldoutCheck, HoldoutCheckWeek } from './HoldoutCheck'

@@ -3,11 +3,6 @@ domain_promise_outside_its_roles packages/domain/src/holdout/beginHoldoutCheck.t
 domain_promise_outside_its_roles packages/domain/src/holdout/dueBandStartOf.ts
 domain_promise_outside_its_roles packages/domain/src/holdout/readHoldoutChecks.ts
 domain_promise_outside_its_roles packages/domain/src/holdout/skipHoldoutCheck.ts
-domain_promise_outside_its_roles packages/domain/src/placement/admitPlacementOffer.ts
-domain_promise_outside_its_roles packages/domain/src/placement/answerPlacement.ts
-domain_promise_outside_its_roles packages/domain/src/placement/beginPlacement.ts
-domain_promise_outside_its_roles packages/domain/src/placement/readPlacement.ts
-domain_promise_outside_its_roles packages/domain/src/placement/skipPlacement.ts
 domain_promise_outside_its_roles packages/domain/src/town/EarnedSkillRepository.ts
 domain_promise_outside_its_roles packages/domain/src/town/foundTown.ts
 domain_promise_outside_its_roles packages/domain/src/town/resolvedTownOf.ts
