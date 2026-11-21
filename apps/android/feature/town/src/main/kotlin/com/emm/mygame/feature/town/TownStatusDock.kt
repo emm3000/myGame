@@ -59,7 +59,6 @@ private fun NextStepCard.reportWait(): TownStatusUiState.GoBlock =
 
 private fun NextStepCard.Countdown.NextReview.timeAt(now: Instant, gap: Duration): TownStatusUiState.StepCountdown =
     TownStatusUiState.StepCountdown(
-        countdown = this,
         remaining = countdownTo(finishesAt = at, now = now),
         finishesAt = at - gap,
     )

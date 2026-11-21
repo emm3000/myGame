@@ -99,7 +99,6 @@ class TownDockTest {
         line = NextStepCard.Line.LearningCap(inLearning = 15, cap = 15),
         go = TownStatusUiState.Go.Acts(NextStepCard.Action.GoToReport, isBusy = false),
         countdown = TownStatusUiState.StepCountdown(
-            countdown = NextStepCard.Countdown.NextReview(reviewAt),
             remaining = 12.minutes,
             finishesAt = reviewAt,
         ),
@@ -311,7 +310,6 @@ class TownDockTest {
                     TownStatusUiState.GoBlock.NextReview,
                 ),
                 countdown = TownStatusUiState.StepCountdown(
-                    countdown = NextStepCard.Countdown.NextReview(reviewAt),
                     remaining = 12.minutes,
                     finishesAt = reviewAt,
                 ),

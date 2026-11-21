@@ -184,7 +184,6 @@ private val previewStep: TownStatusUiState.Dock.Step = TownStatusUiState.Dock.St
     line = NextStepCard.Line.ReviewsDue(count = 4),
     detail = null,
     countdown = TownStatusUiState.StepCountdown(
-        countdown = NextStepCard.Countdown.NextReview(at = previewDueAt),
         remaining = 40.minutes,
         finishesAt = previewDueAt,
     ),
