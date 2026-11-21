@@ -25,18 +25,18 @@ import {
   type ReportRouteDependencies,
   reportRoutes,
 } from './report/infrastructure/http/reportRoutes'
-import { type TownDependencies, townRoutes } from './town/infrastructure/http/townRoutes'
+import { type TownRouteDependencies, townRoutes } from './town/infrastructure/http/townRoutes'
 import {
-  type TownMapDependencies,
-  townMapRoutes,
+  type RegionMapRouteDependencies,
+  regionMapRoutes,
 } from './town/jobs/infrastructure/http/regionMapRoutes'
 
 export type AppDependencies = AccountRouteDependencies &
   LearningRouteDependencies &
   PlacementRouteDependencies &
   ReportRouteDependencies &
-  TownDependencies &
-  TownMapDependencies & {
+  TownRouteDependencies &
+  RegionMapRouteDependencies & {
     readonly failureSink: FailureSink
   }
 
@@ -60,7 +60,7 @@ export const createApp = (dependencies: AppDependencies): OpenAPIHono => {
     .route('/placement', placementRoutes(dependencies))
     .route('/holdout-checks', holdoutCheckRoutes(dependencies))
     .route('/report', reportRoutes(dependencies))
-    .route('/town/map', townMapRoutes(dependencies))
+    .route('/town/map', regionMapRoutes(dependencies))
     .route('/town', townRoutes(dependencies))
   app.doc('/openapi.json', {
     openapi: '3.0.0',

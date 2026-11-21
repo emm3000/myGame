@@ -1,496 +1,91 @@
 import { OpenAPIHono } from '@hono/zod-openapi'
 import {
-  CallJobBackSchema,
-  type CleanUpQuote,
-  FoundTownSchema,
-  type JobQuote,
-  MarkTipSeenSchema,
-  type OpenText,
-  PlaceHiringOrderSchema,
-  ReadTextRequestSchema,
-  SendCleanUpSchema,
-  SendJobSchema,
-  StartBuildingWorkSchema,
-  StartLessonRequestSchema,
-  StopBuildingWorkSchema,
-  StopHiringOrderSchema,
-  StopLessonRequestSchema,
-  type TownNewsFeed,
-  type TownOverview,
-} from '@mygame/contracts'
+  type BuildingRouteDependencies,
+  buildingRoutes,
+} from '../../building/infrastructure/http/buildingRoutes'
+import { startBuildingWorkDeclaration } from '../../building/infrastructure/http/startBuildingWorkRoute'
+import { stopBuildingWorkDeclaration } from '../../building/infrastructure/http/stopBuildingWorkRoute'
+import { dismissGuidanceDeclaration } from '../../guidance/infrastructure/http/dismissGuidanceRoute'
 import {
-  type CleanUpReader,
-  callJobBack,
-  type DomainError,
-  type IdGenerator,
-  Instant,
-  type MemoryTerms,
-  ok,
-  placeHiringOrder,
-  type RandomSource,
-  type RegionMapReader,
-  type Result,
-  sendCleanUp,
-  sendJob,
-  startBuildingWork,
-  startSchoolLesson,
-  stopBuildingWork,
-  stopHiringOrder,
-  stopSchoolLesson,
-} from '@mygame/domain'
-import type { Context } from 'hono'
+  type GuidanceRouteDependencies,
+  guidanceRoutes,
+} from '../../guidance/infrastructure/http/guidanceRoutes'
+import { markTipSeenDeclaration } from '../../guidance/infrastructure/http/markTipSeenRoute'
 import {
-  type RequirePlayerDependencies,
-  requirePlayer,
-} from '../../../account/infrastructure/http/requirePlayer'
-import type { LessonLibrary } from '../../../content/application/ports/LessonLibrary'
-import { answerRefusal } from '../../../platform/infrastructure/http/answerRefusal'
-import { honoPathOf } from '../../../platform/infrastructure/http/honoPath'
-import { readJsonBody } from '../../../platform/infrastructure/http/readJsonBody'
+  type HiringRouteDependencies,
+  hiringRoutes,
+} from '../../hiring/infrastructure/http/hiringRoutes'
+import { placeHiringOrderDeclaration } from '../../hiring/infrastructure/http/placeHiringOrderRoute'
+import { stopHiringOrderDeclaration } from '../../hiring/infrastructure/http/stopHiringOrderRoute'
+import { callJobBackDeclaration } from '../../jobs/infrastructure/http/callJobBackRoute'
+import { type JobsRouteDependencies, jobsRoutes } from '../../jobs/infrastructure/http/jobsRoutes'
+import { quoteCleanUpDeclaration } from '../../jobs/infrastructure/http/quoteCleanUpRoute'
+import { quoteJobDeclaration } from '../../jobs/infrastructure/http/quoteJobRoute'
+import { sendCleanUpDeclaration } from '../../jobs/infrastructure/http/sendCleanUpRoute'
+import { sendJobDeclaration } from '../../jobs/infrastructure/http/sendJobRoute'
 import {
-  type NamedIssue,
-  requestRefusalOf,
-} from '../../../platform/infrastructure/http/requestRefusalOf'
-import { foundTownOnFreeSite } from '../../application/foundTownOnFreeSite'
-import { mutateTown } from '../../application/mutateTown'
-import { readTownReading } from '../../application/readTownReading'
+  type ResolveTownNewsRouteDependencies,
+  resolveTownNewsDeclaration,
+  resolveTownNewsRoute,
+} from '../../news/infrastructure/http/resolveTownNewsRoute'
 import {
-  type ResolveCurrentTownDependencies,
-  resolveCurrentTown,
-} from '../../application/resolveCurrentTown'
-import type { TownReading } from '../../application/TownReading'
-import { quoteCleanUpNow } from '../../jobs/application/quoteCleanUpNow'
-import { quoteJobNow } from '../../jobs/application/quoteJobNow'
+  type SchoolRouteDependencies,
+  schoolRoutes,
+} from '../../school/infrastructure/http/schoolRoutes'
+import { startSchoolLessonDeclaration } from '../../school/infrastructure/http/startSchoolLessonRoute'
+import { stopSchoolLessonDeclaration } from '../../school/infrastructure/http/stopSchoolLessonRoute'
 import {
-  type ResolveTownNewsDependencies,
-  resolveTownNews,
-} from '../../news/application/resolveTownNews'
-import { openTextOf } from '../../openTextOf'
-import { townNewsItemOf } from '../../townNewsItemOf'
-import { townOverviewOf } from '../../townOverviewOf'
-import { townDeclarations } from './townDeclarations'
+  type FoundTownRouteDependencies,
+  foundTownDeclaration,
+  foundTownRoute,
+} from './foundTownRoute'
+import { type OpenTextRouteDependencies, openTextDeclaration, openTextRoute } from './openTextRoute'
+import {
+  type ResolveCurrentTownRouteDependencies,
+  resolveCurrentTownDeclaration,
+  resolveCurrentTownRoute,
+} from './resolveCurrentTownRoute'
 
-const foundingIssues: ReadonlyArray<NamedIssue> = [['name', 'too_small', { kind: 'BlankTownName' }]]
+export type TownRouteDependencies = ResolveCurrentTownRouteDependencies &
+  ResolveTownNewsRouteDependencies &
+  OpenTextRouteDependencies &
+  FoundTownRouteDependencies &
+  BuildingRouteDependencies &
+  HiringRouteDependencies &
+  JobsRouteDependencies &
+  SchoolRouteDependencies &
+  GuidanceRouteDependencies
 
-export type TownDependencies = ResolveCurrentTownDependencies &
-  ResolveTownNewsDependencies &
-  RequirePlayerDependencies & {
-    readonly ids: IdGenerator
-    readonly lessons: LessonLibrary
-    readonly memoryTerms: MemoryTerms
-    readonly random: RandomSource
-    readonly regionMap: RegionMapReader
-    readonly cleanUps: CleanUpReader
-  }
+export const townDeclarations = {
+  overview: resolveCurrentTownDeclaration,
+  news: resolveTownNewsDeclaration,
+  text: openTextDeclaration,
+  found: foundTownDeclaration,
+  startWork: startBuildingWorkDeclaration,
+  stopWork: stopBuildingWorkDeclaration,
+  placeHiring: placeHiringOrderDeclaration,
+  stopHiring: stopHiringOrderDeclaration,
+  sendJob: sendJobDeclaration,
+  quoteJob: quoteJobDeclaration,
+  sendCleanUp: sendCleanUpDeclaration,
+  quoteCleanUp: quoteCleanUpDeclaration,
+  callJobBack: callJobBackDeclaration,
+  startLesson: startSchoolLessonDeclaration,
+  stopLesson: stopSchoolLessonDeclaration,
+  markTipSeen: markTipSeenDeclaration,
+  dismissGuidance: dismissGuidanceDeclaration,
+}
 
-export const townRoutes = (dependencies: TownDependencies): OpenAPIHono => {
-  const { townCatalog: catalog, lessons, memoryTerms, random } = dependencies
-  const answerReading = (c: Context, reading: Result<TownReading, DomainError>): Response => {
-    if (!reading.ok) {
-      return answerRefusal(c, reading.error)
-    }
-    const overview = townOverviewOf(reading.value, catalog, lessons, memoryTerms)
-    if (!overview.ok) {
-      return answerRefusal(c, overview.error)
-    }
-    const body: TownOverview = overview.value
-    return c.json(body)
-  }
-  const signedInPlayer = requirePlayer(dependencies)
+export const townRoutes = (dependencies: TownRouteDependencies): OpenAPIHono => {
   const routes = new OpenAPIHono()
-  for (const declaration of Object.values(townDeclarations)) {
-    routes.openAPIRegistry.registerPath(declaration)
-  }
-  routes.on(
-    townDeclarations.overview.method,
-    honoPathOf(townDeclarations.overview),
-    signedInPlayer,
-    async (c) => answerReading(c, await resolveCurrentTown(c.var.playerId, dependencies)),
-  )
-  routes.on(
-    townDeclarations.news.method,
-    honoPathOf(townDeclarations.news),
-    signedInPlayer,
-    async (c) => {
-      const news = await resolveTownNews(c.var.playerId, dependencies)
-      if (!news.ok) {
-        return answerRefusal(c, news.error)
-      }
-      const body: TownNewsFeed = { items: news.value.map(townNewsItemOf) }
-      return c.json(body)
-    },
-  )
-  routes.on(
-    townDeclarations.text.method,
-    honoPathOf(townDeclarations.text),
-    signedInPlayer,
-    async (c) => {
-      const request = ReadTextRequestSchema.safeParse(c.req.param())
-      if (!request.success) {
-        return answerRefusal(c, { kind: 'MalformedRequest' })
-      }
-      const reading = await resolveCurrentTown(c.var.playerId, dependencies)
-      if (!reading.ok) {
-        return answerRefusal(c, reading.error)
-      }
-      const text = openTextOf(request.data.textId, reading.value, lessons)
-      if (text === undefined) {
-        return c.body(null, 404)
-      }
-      const body: OpenText = text
-      return c.json(body)
-    },
-  )
-  routes.on(
-    townDeclarations.found.method,
-    honoPathOf(townDeclarations.found),
-    signedInPlayer,
-    async (c) => {
-      const request = FoundTownSchema.safeParse(await readJsonBody(c))
-      if (!request.success) {
-        return answerRefusal(c, requestRefusalOf(foundingIssues, request.error.issues))
-      }
-      const playerId = c.var.playerId
-      const founded = await dependencies.inTransaction(async (stores) => {
-        const town = await foundTownOnFreeSite(
-          { playerId, name: request.data.name },
-          {
-            towns: stores.towns,
-            skills: stores.earnedSkills,
-            catalog,
-            clock: dependencies.clock,
-            ids: dependencies.ids,
-          },
-        )
-        return town.ok
-          ? readTownReading(playerId, town.value.storedAt, stores.townsWithSchool)
-          : town
-      })
-      return answerReading(c, founded)
-    },
-  )
-  routes.on(
-    townDeclarations.startWork.method,
-    honoPathOf(townDeclarations.startWork),
-    signedInPlayer,
-    async (c) => {
-      const request = StartBuildingWorkSchema.safeParse(await readJsonBody(c))
-      if (!request.success) {
-        return answerRefusal(c, { kind: 'MalformedRequest' })
-      }
-      const playerId = c.var.playerId
-      const started = await mutateTown(
-        playerId,
-        async (stores, clock) => {
-          const town = await startBuildingWork(
-            { playerId, building: request.data.building },
-            { towns: stores.towns, news: stores.townNews, cards: stores.cards, catalog, clock },
-          )
-          return town.ok
-            ? readTownReading(playerId, town.value.storedAt, stores.townsWithSchool)
-            : town
-        },
-        dependencies,
-      )
-      return answerReading(c, started)
-    },
-  )
-  routes.on(
-    townDeclarations.stopWork.method,
-    honoPathOf(townDeclarations.stopWork),
-    signedInPlayer,
-    async (c) => {
-      const request = StopBuildingWorkSchema.safeParse(c.req.param())
-      if (!request.success) {
-        return answerRefusal(c, { kind: 'MalformedRequest' })
-      }
-      const playerId = c.var.playerId
-      const stopped = await mutateTown(
-        playerId,
-        async (stores, clock) => {
-          const change = await stopBuildingWork(
-            { playerId, ...request.data },
-            { towns: stores.towns, news: stores.townNews, catalog, clock },
-          )
-          if (!change.ok) {
-            return change
-          }
-          const { town } = change.value
-          return readTownReading(playerId, town.storedAt, stores.townsWithSchool)
-        },
-        dependencies,
-      )
-      return answerReading(c, stopped)
-    },
-  )
-  routes.on(
-    townDeclarations.placeHiring.method,
-    honoPathOf(townDeclarations.placeHiring),
-    signedInPlayer,
-    async (c) => {
-      const request = PlaceHiringOrderSchema.safeParse(await readJsonBody(c))
-      if (!request.success) {
-        return answerRefusal(c, { kind: 'MalformedRequest' })
-      }
-      const playerId = c.var.playerId
-      const placed = await mutateTown(
-        playerId,
-        async (stores, clock) => {
-          const town = await placeHiringOrder(
-            { playerId, ...request.data },
-            { towns: stores.towns, news: stores.townNews, catalog, clock },
-          )
-          return town.ok
-            ? readTownReading(playerId, town.value.storedAt, stores.townsWithSchool)
-            : town
-        },
-        dependencies,
-      )
-      return answerReading(c, placed)
-    },
-  )
-  routes.on(
-    townDeclarations.stopHiring.method,
-    honoPathOf(townDeclarations.stopHiring),
-    signedInPlayer,
-    async (c) => {
-      const request = StopHiringOrderSchema.safeParse(c.req.param())
-      if (!request.success) {
-        return answerRefusal(c, { kind: 'MalformedRequest' })
-      }
-      const playerId = c.var.playerId
-      const { hire, startedAt } = request.data
-      const stopped = await mutateTown(
-        playerId,
-        async (stores, clock) => {
-          const change = await stopHiringOrder(
-            { playerId, hire, startedAt: Instant.fromEpochMilliseconds(Date.parse(startedAt)) },
-            { towns: stores.towns, news: stores.townNews, catalog, clock },
-          )
-          if (!change.ok) {
-            return change
-          }
-          const { town } = change.value
-          return readTownReading(playerId, town.storedAt, stores.townsWithSchool)
-        },
-        dependencies,
-      )
-      return answerReading(c, stopped)
-    },
-  )
-  routes.on(
-    townDeclarations.sendJob.method,
-    honoPathOf(townDeclarations.sendJob),
-    signedInPlayer,
-    async (c) => {
-      const request = SendJobSchema.safeParse(await readJsonBody(c))
-      if (!request.success) {
-        return answerRefusal(c, { kind: 'MalformedRequest' })
-      }
-      const playerId = c.var.playerId
-      const sent = await mutateTown(
-        playerId,
-        async (stores, clock) => {
-          const town = await sendJob(
-            { playerId, ...request.data },
-            { towns: stores.towns, map: stores.regionMap, news: stores.townNews, catalog, clock },
-          )
-          return town.ok ? readTownReading(playerId, clock.now(), stores.townsWithSchool) : town
-        },
-        dependencies,
-      )
-      return answerReading(c, sent)
-    },
-  )
-  routes.on(
-    townDeclarations.quoteJob.method,
-    honoPathOf(townDeclarations.quoteJob),
-    signedInPlayer,
-    async (c) => {
-      const request = SendJobSchema.safeParse(await readJsonBody(c))
-      if (!request.success) {
-        return answerRefusal(c, { kind: 'MalformedRequest' })
-      }
-      const pay = await quoteJobNow({ playerId: c.var.playerId, ...request.data }, dependencies)
-      if (!pay.ok) {
-        return answerRefusal(c, pay.error)
-      }
-      const body: JobQuote = { pay: pay.value }
-      return c.json(body)
-    },
-  )
-  routes.on(
-    townDeclarations.sendCleanUp.method,
-    honoPathOf(townDeclarations.sendCleanUp),
-    signedInPlayer,
-    async (c) => {
-      const request = SendCleanUpSchema.safeParse(await readJsonBody(c))
-      if (!request.success) {
-        return answerRefusal(c, { kind: 'MalformedRequest' })
-      }
-      const playerId = c.var.playerId
-      const sent = await mutateTown(
-        playerId,
-        async (stores, clock) => {
-          const town = await sendCleanUp(
-            { playerId, ...request.data },
-            {
-              towns: stores.towns,
-              map: stores.regionMap,
-              cleanUps: stores.cleanUps,
-              news: stores.townNews,
-              catalog,
-              clock,
-            },
-          )
-          return town.ok ? readTownReading(playerId, clock.now(), stores.townsWithSchool) : town
-        },
-        dependencies,
-      )
-      return answerReading(c, sent)
-    },
-  )
-  routes.on(
-    townDeclarations.quoteCleanUp.method,
-    honoPathOf(townDeclarations.quoteCleanUp),
-    signedInPlayer,
-    async (c) => {
-      const request = SendCleanUpSchema.safeParse(await readJsonBody(c))
-      if (!request.success) {
-        return answerRefusal(c, { kind: 'MalformedRequest' })
-      }
-      const quote = await quoteCleanUpNow(
-        { playerId: c.var.playerId, ...request.data },
-        dependencies,
-      )
-      if (!quote.ok) {
-        return answerRefusal(c, quote.error)
-      }
-      const body: CleanUpQuote = quote.value
-      return c.json(body)
-    },
-  )
-  routes.on(
-    townDeclarations.callJobBack.method,
-    honoPathOf(townDeclarations.callJobBack),
-    signedInPlayer,
-    async (c) => {
-      const request = CallJobBackSchema.safeParse(c.req.param())
-      if (!request.success) {
-        return answerRefusal(c, { kind: 'MalformedRequest' })
-      }
-      const playerId = c.var.playerId
-      const sentAt = Instant.fromEpochMilliseconds(Date.parse(request.data.sentAt))
-      const calledBack = await mutateTown(
-        playerId,
-        async (stores, clock) => {
-          const town = await callJobBack(
-            { playerId, sentAt },
-            {
-              towns: stores.towns,
-              cleanUps: stores.cleanUps,
-              news: stores.townNews,
-              catalog,
-              clock,
-            },
-          )
-          return town.ok ? readTownReading(playerId, clock.now(), stores.townsWithSchool) : town
-        },
-        dependencies,
-      )
-      return answerReading(c, calledBack)
-    },
-  )
-  routes.on(
-    townDeclarations.startLesson.method,
-    honoPathOf(townDeclarations.startLesson),
-    signedInPlayer,
-    async (c) => {
-      const request = StartLessonRequestSchema.safeParse(await readJsonBody(c))
-      if (!request.success) {
-        return answerRefusal(c, { kind: 'MalformedRequest' })
-      }
-      const playerId = c.var.playerId
-      const started = await mutateTown(
-        playerId,
-        async (stores, clock) => {
-          const slot = await startSchoolLesson(
-            { playerId, lessonId: request.data.lessonId },
-            {
-              ...stores,
-              news: stores.townNews,
-              lessons,
-              bands: lessons,
-              random,
-              catalog,
-              clock,
-            },
-          )
-          return slot.ok ? readTownReading(playerId, clock.now(), stores.townsWithSchool) : slot
-        },
-        dependencies,
-      )
-      return answerReading(c, started)
-    },
-  )
-  routes.on(
-    townDeclarations.stopLesson.method,
-    honoPathOf(townDeclarations.stopLesson),
-    signedInPlayer,
-    async (c) => {
-      const request = StopLessonRequestSchema.safeParse(c.req.param())
-      if (!request.success) {
-        return answerRefusal(c, { kind: 'MalformedRequest' })
-      }
-      const playerId = c.var.playerId
-      const stopped = await mutateTown(
-        playerId,
-        async (stores, clock) => {
-          const change = await stopSchoolLesson(
-            { playerId, lessonId: request.data.lessonId },
-            { ...stores, news: stores.townNews, lessons, bands: lessons, catalog, clock },
-          )
-          return change.ok ? readTownReading(playerId, clock.now(), stores.townsWithSchool) : change
-        },
-        dependencies,
-      )
-      return answerReading(c, stopped)
-    },
-  )
-  routes.on(
-    townDeclarations.markTipSeen.method,
-    honoPathOf(townDeclarations.markTipSeen),
-    signedInPlayer,
-    async (c) => {
-      const request = MarkTipSeenSchema.safeParse(c.req.param())
-      if (!request.success) {
-        return answerRefusal(c, { kind: 'MalformedRequest' })
-      }
-      const playerId = c.var.playerId
-      const marked = await mutateTown(
-        playerId,
-        async (stores) => {
-          await stores.seenTips.markSeen(playerId, request.data.tip)
-          return ok(undefined)
-        },
-        dependencies,
-      )
-      return marked.ok ? c.body(null, 204) : answerRefusal(c, marked.error)
-    },
-  )
-  routes.on(
-    townDeclarations.dismissGuidance.method,
-    honoPathOf(townDeclarations.dismissGuidance),
-    signedInPlayer,
-    async (c) => {
-      const playerId = c.var.playerId
-      const dismissed = await mutateTown(
-        playerId,
-        (stores, clock) => stores.guidanceDismissals.dismiss(playerId, clock.now()),
-        dependencies,
-      )
-      return dismissed.ok ? c.body(null, 204) : answerRefusal(c, dismissed.error)
-    },
-  )
+  resolveCurrentTownRoute(routes, dependencies)
+  resolveTownNewsRoute(routes, dependencies)
+  openTextRoute(routes, dependencies)
+  foundTownRoute(routes, dependencies)
+  buildingRoutes(routes, dependencies)
+  hiringRoutes(routes, dependencies)
+  jobsRoutes(routes, dependencies)
+  schoolRoutes(routes, dependencies)
+  guidanceRoutes(routes, dependencies)
   return routes
 }
