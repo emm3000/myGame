@@ -42,5 +42,8 @@ export function playerCopyOf({ scaffold, chromePhase }: CopyLanguage): PlayerCop
       }
     }
   }
-  return { chrome, fixedCopy: (line) => lineLabelOf(line(scaffoldCatalog), scaffoldLanguage) }
+  return {
+    chrome,
+    fixedCopy: (line) => lineLabelOf(line(scaffoldCatalog, scaffoldCatalog), scaffoldLanguage),
+  }
 }

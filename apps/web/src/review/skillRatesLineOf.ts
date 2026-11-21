@@ -1,19 +1,23 @@
-import { es, reviewSkillRates } from '@mygame/catalog'
 import type { ResourceKind } from '@mygame/contracts'
+import type { PlayerCopy } from '../copy/PlayerCopy'
 import { capitalize } from '../design-system/capitalize'
 import { formatQuantity } from '../design-system/formatQuantity'
+import type { Label } from '../design-system/Label'
 import { townResourceNameOf } from '../resources/townResourceNameOf'
 
 const shownRateOf = (ratePerHour: number): string => formatQuantity(Math.floor(ratePerHour))
 
 export function skillRatesLineOf(
+  { fixedCopy }: PlayerCopy,
   resource: ResourceKind,
   ratePerHourBefore: number,
   ratePerHourAfter: number,
-): string {
-  return reviewSkillRates({
-    resource: capitalize(townResourceNameOf(es, resource)),
-    before: shownRateOf(ratePerHourBefore),
-    after: shownRateOf(ratePerHourAfter),
-  })
+): Label {
+  return fixedCopy((catalog, scaffoldChrome) =>
+    catalog.reviewSkillRates({
+      resource: capitalize(townResourceNameOf(scaffoldChrome, resource)),
+      before: shownRateOf(ratePerHourBefore),
+      after: shownRateOf(ratePerHourAfter),
+    }),
+  )
 }

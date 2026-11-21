@@ -5,6 +5,7 @@ import { afterEach, beforeEach, expect, it, vi } from 'vitest'
 import type { ApiClient } from '../api/apiClient'
 import { renderAppAt } from '../auth/renderAppAt.testSupport'
 import { knownPlayer, knownTown, stubApiClient } from '../auth/stubApiClient.testSupport'
+import { playerCopyOf } from '../copy/playerCopyOf'
 import { formatQuantity } from '../design-system/formatQuantity'
 import { skillRatesLineOf } from './skillRatesLineOf'
 
@@ -185,8 +186,8 @@ it('changes the rate with the skill verdict', async () => {
 
   await answerHome()
 
-  const rate = screen.getByText(skillRatesLineOf('food', 120, 126))
-  expect(rate.dataset.registers).toBe('rate')
+  const rate = screen.getByText(skillRatesLineOf(playerCopyOf(knownPlayer), 'food', 120, 126).text)
+  expect(rate.closest('p')?.dataset.registers).toBe('rate')
 })
 
 it('lands the card and the rate at once under reduced motion', async () => {

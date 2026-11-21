@@ -1,4 +1,5 @@
 import {
+  en,
   es,
   refusalReviewNotDue,
   reviewAnswerField,
@@ -23,13 +24,14 @@ import {
   reviewTitle,
   reviewWrong,
 } from '@mygame/catalog'
-import type { DueReview, ReviewAnswer, Reviews } from '@mygame/contracts'
+import type { DueReview, ReviewAnswer, Reviews, TownOverview } from '@mygame/contracts'
 import { act, fireEvent, render, screen, within } from '@testing-library/react'
 import type { ReactElement } from 'react'
 import { afterEach, beforeEach, expect, it, vi } from 'vitest'
 import type { ApiClient, ApiOutcome } from '../api/apiClient'
 import { renderAppAt } from '../auth/renderAppAt.testSupport'
-import { knownPlayer, stubApiClient } from '../auth/stubApiClient.testSupport'
+import { knownPlayer, knownTown, stubApiClient } from '../auth/stubApiClient.testSupport'
+import { capitalize } from '../design-system/capitalize'
 import { CheckIcon } from '../design-system/icons/CheckIcon'
 import { CrossIcon } from '../design-system/icons/CrossIcon'
 import {
@@ -523,7 +525,8 @@ const pressNext = async (): Promise<void> => {
   await passSeconds(0)
 }
 
-const classesOf = (element: Element): ReadonlyArray<string> => element.className.split(' ')
+const classesOf = (element: Element): ReadonlyArray<string> =>
+  (element.closest('p') ?? element).className.split(' ')
 
 const drawnPathsOf = (icon: ReactElement): string => {
   const { container, unmount } = render(icon)
@@ -649,7 +652,7 @@ it('draws a wrong answer as a cross and the right answer in ink', async () => {
   const rightAnswer = within(wrongVerdict()).getByText(reviewRightAnswer(), { exact: false })
   expect(iconPathsIn(wrongVerdict())).toBe(drawnPathsOf(<CrossIcon sizeClass="size-icon" />))
   expect(classesOf(rightAnswer)).toContain('text-ink')
-  expect(within(rightAnswer).getByText('school')).toBeTruthy()
+  expect(within(rightAnswer.closest('p') ?? rightAnswer).getByText('school')).toBeTruthy()
 })
 
 it.each<[string, ReviewAnswer['verdict'], () => HTMLElement]>([
@@ -809,4 +812,82 @@ it('draws no skeleton under a card when a re-read after an answer is slow', asyn
 
   expect(skeletonBlocks()).toEqual([])
   expect(screen.getByText('escuela')).toBeDefined()
+})
+
+type CopyLanguage = Pick<TownOverview, 'scaffold' | 'chromePhase'>
+
+const showReviewIn = async (
+  language: CopyLanguage,
+  overrides: Partial<ApiClient> = {},
+): Promise<void> =>
+  showReview(recallDue, {
+    currentPlayer: async () => ({ ...knownPlayer, ...language }),
+    town: async () => ({ ok: true, value: { ...knownTown, ...language } }),
+    ...overrides,
+  })
+
+it('keeps the review card in Spanish and the title in English for an es player in the English phase', async () => {
+  await showReviewIn({ scaffold: 'es', chromePhase: 'english' })
+
+  expect(screen.getByRole('heading', { level: 1 }).textContent).toBe(en.reviewTitle())
+  expect(screen.getByLabelText(es.reviewAnswerField())).toBeTruthy()
+  expect(screen.getByRole('button', { name: es.reviewCheck() })).toBeTruthy()
+})
+
+it('draws the review card in English under none', async () => {
+  await showReviewIn({ scaffold: 'none', chromePhase: 'english' })
+
+  expect(screen.getByLabelText(en.reviewAnswerField())).toBeTruthy()
+  expect(screen.getByRole('button', { name: en.reviewCheck() })).toBeTruthy()
+})
+
+const ratesShownIn = async (
+  language: CopyLanguage,
+  check: string,
+  field: string,
+): Promise<void> => {
+  const answerReview = answering({
+    ...correctSchool,
+    earnedSkill: { ...foodSkill, level: 2, ratePerHourBefore: 120, ratePerHourAfter: 126 },
+  })
+  await showReviewIn(language, { answerReview })
+  fireEvent.change(screen.getByLabelText(field), { target: { value: 'school' } })
+  fireEvent.click(screen.getByRole('button', { name: check }))
+  await passSeconds(0)
+}
+
+it('writes the rates of an earned skill in Spanish for an es player in the English phase', async () => {
+  await ratesShownIn(
+    { scaffold: 'es', chromePhase: 'english' },
+    es.reviewCheck(),
+    es.reviewAnswerField(),
+  )
+
+  expect(
+    screen.getByText(
+      es.reviewSkillRates({
+        resource: capitalize(es.namesTownResourcesFood()),
+        before: '120',
+        after: '126',
+      }),
+    ),
+  ).toBeTruthy()
+})
+
+it('writes the rates of an earned skill in English under none', async () => {
+  await ratesShownIn(
+    { scaffold: 'none', chromePhase: 'english' },
+    en.reviewCheck(),
+    en.reviewAnswerField(),
+  )
+
+  expect(
+    screen.getByText(
+      en.reviewSkillRates({
+        resource: capitalize(en.namesTownResourcesFood()),
+        before: '120',
+        after: '126',
+      }),
+    ),
+  ).toBeTruthy()
 })

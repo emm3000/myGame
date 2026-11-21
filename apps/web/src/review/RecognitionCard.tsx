@@ -1,6 +1,7 @@
-import { reviewRecognitionPrompt } from '@mygame/catalog'
 import type { DueReview } from '@mygame/contracts'
 import type { FormEvent, ReactElement, Ref } from 'react'
+import { usePlayerCopy } from '../copy/usePlayerCopy'
+import { LabelText } from '../design-system/LabelText'
 import { CheckAction } from './CheckAction'
 import { frameTextOf } from './frameTextOf'
 import { RatedVerdictLines } from './RatedVerdictLines'
@@ -16,6 +17,7 @@ export interface RecognitionCardProps {
 }
 
 export function RecognitionCard({ card, review, verdictRef }: RecognitionCardProps): ReactElement {
+  const { fixedCopy } = usePlayerCopy()
   const submit = (event: FormEvent): void => {
     event.preventDefault()
     review.check()
@@ -29,7 +31,7 @@ export function RecognitionCard({ card, review, verdictRef }: RecognitionCardPro
           className="m-0 flex flex-col gap-2 border-0 p-0"
         >
           <legend className="mb-2 font-sans text-caption text-ink-muted">
-            {reviewRecognitionPrompt()}
+            <LabelText label={fixedCopy((catalog) => catalog.reviewRecognitionPrompt())} />
           </legend>
           {card.choices.map((choice) => (
             <label

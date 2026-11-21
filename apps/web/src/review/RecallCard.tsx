@@ -1,14 +1,10 @@
-import {
-  reviewAnswerField,
-  reviewAskHint,
-  reviewHint,
-  reviewNearMiss,
-  reviewRecallPrompt,
-} from '@mygame/catalog'
 import { type DueReview, ReviewAnswerRequestSchema, type ReviewHint } from '@mygame/contracts'
 import type { FormEvent, ReactElement, Ref } from 'react'
+import type { PlayerCopy } from '../copy/PlayerCopy'
+import { usePlayerCopy } from '../copy/usePlayerCopy'
 import { Button } from '../design-system/Button'
-import { lineLabelOf } from '../design-system/lineLabelOf'
+import type { Label } from '../design-system/Label'
+import { LabelText } from '../design-system/LabelText'
 import { TextField } from '../design-system/TextField'
 import { CheckAction } from './CheckAction'
 import { frameTextOf } from './frameTextOf'
@@ -28,22 +24,26 @@ export interface RecallCardProps {
 
 type WordHintLine = {
   readonly hintSoFar: string
-  readonly text: string
+  readonly line: Label
 }
 
-const hintLinesOf = (words: ReviewHint['words']): ReadonlyArray<WordHintLine> =>
+const hintLinesOf = (
+  words: ReviewHint['words'],
+  fixedCopy: PlayerCopy['fixedCopy'],
+): ReadonlyArray<WordHintLine> =>
   words.reduce<ReadonlyArray<WordHintLine>>((lines, word) => {
-    const text = reviewHint(word)
-    return lines.concat({ hintSoFar: `${lines.at(-1)?.hintSoFar ?? ''}${text}\n`, text })
+    const line = fixedCopy((catalog) => catalog.reviewHint(word))
+    return lines.concat({ hintSoFar: `${lines.at(-1)?.hintSoFar ?? ''}${line.text}\n`, line })
   }, [])
 
 function HintLine({ review }: { readonly review: ReviewHandle }): ReactElement {
+  const { fixedCopy } = usePlayerCopy()
   if (review.hint !== undefined) {
     return (
       <div className="flex flex-col gap-1">
-        {hintLinesOf(review.hint.words).map(({ hintSoFar, text }) => (
+        {hintLinesOf(review.hint.words, fixedCopy).map(({ hintSoFar, line }) => (
           <p key={hintSoFar} className="m-0 font-sans text-body text-ink">
-            {text}
+            <LabelText label={line} />
           </p>
         ))}
       </div>
@@ -56,12 +56,13 @@ function HintLine({ review }: { readonly review: ReviewHandle }): ReactElement {
       availability={review.isWaiting ? 'waiting' : 'available'}
       onClick={review.askHint}
     >
-      {reviewAskHint()}
+      <LabelText label={fixedCopy((catalog) => catalog.reviewAskHint())} />
     </Button>
   )
 }
 
 function PendingAnswer({ review }: { readonly review: ReviewHandle }): ReactElement {
+  const { fixedCopy } = usePlayerCopy()
   return (
     <>
       {review.isNearMiss && (
@@ -69,7 +70,7 @@ function PendingAnswer({ review }: { readonly review: ReviewHandle }): ReactElem
           role="status"
           className="m-0 rounded-md border border-ink bg-surface-sunken px-3 py-2 font-sans text-body text-ink"
         >
-          {reviewNearMiss()}
+          <LabelText label={fixedCopy((catalog) => catalog.reviewNearMiss())} />
         </p>
       )}
       <div className="flex flex-col gap-3">
@@ -81,6 +82,7 @@ function PendingAnswer({ review }: { readonly review: ReviewHandle }): ReactElem
 }
 
 export function RecallCard({ card, review, verdictRef }: RecallCardProps): ReactElement {
+  const { fixedCopy } = usePlayerCopy()
   const submit = (event: FormEvent): void => {
     event.preventDefault()
     review.check()
@@ -94,9 +96,11 @@ export function RecallCard({ card, review, verdictRef }: RecallCardProps): React
         review={review}
       />
       <form onSubmit={submit} className="flex flex-col gap-4">
-        <p className="m-0 font-sans text-caption text-ink-muted">{reviewRecallPrompt()}</p>
+        <p className="m-0 font-sans text-caption text-ink-muted">
+          <LabelText label={fixedCopy((catalog) => catalog.reviewRecallPrompt())} />
+        </p>
         <TextField
-          label={lineLabelOf(reviewAnswerField(), 'es')}
+          label={fixedCopy((catalog) => catalog.reviewAnswerField())}
           name="answer"
           type="text"
           autoComplete="off"

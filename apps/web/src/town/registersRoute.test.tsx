@@ -12,6 +12,7 @@ import { afterEach, assert, beforeEach, expect, it, vi } from 'vitest'
 import type { ApiClient } from '../api/apiClient'
 import { renderAppAt } from '../auth/renderAppAt.testSupport'
 import { knownPlayer, knownTown, stubApiClient } from '../auth/stubApiClient.testSupport'
+import { playerCopyOf } from '../copy/playerCopyOf'
 import { skillRatesLineOf } from '../review/skillRatesLineOf'
 
 const readAt = Date.parse(knownTown.readAt)
@@ -178,7 +179,7 @@ it('speaks each row once', async () => {
     [
       reportNewsBuildingWorkFinished({ place: namesPlacesHomes(), level: 3 }),
       shellRetainedWords({ count: 2, total: 5 }),
-      skillRatesLineOf('food', 120, 126),
+      skillRatesLineOf(playerCopyOf(knownPlayer), 'food', 120, 126).text,
     ].join(' '),
   )
 

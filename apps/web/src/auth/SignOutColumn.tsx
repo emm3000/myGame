@@ -1,8 +1,9 @@
-import { shellSignOut } from '@mygame/catalog'
 import { useNavigate } from '@tanstack/react-router'
 import type { ReactElement, ReactNode } from 'react'
 import type { ApiClient } from '../api/apiClient'
+import { usePlayerCopy } from '../copy/usePlayerCopy'
 import { Button } from '../design-system/Button'
+import { LabelText } from '../design-system/LabelText'
 
 interface SignOutColumnProps {
   readonly apiClient: ApiClient
@@ -12,6 +13,7 @@ interface SignOutColumnProps {
 
 export function SignOutColumn({ apiClient, children, beside }: SignOutColumnProps): ReactElement {
   const navigate = useNavigate()
+  const { fixedCopy } = usePlayerCopy()
   const signOut = async (): Promise<void> => {
     await apiClient.signOut()
     await navigate({ to: '/sign-in' })
@@ -21,7 +23,7 @@ export function SignOutColumn({ apiClient, children, beside }: SignOutColumnProp
       {children}
       <div className="-ml-1 flex flex-wrap gap-3">
         <Button type="button" tone="text" onClick={signOut}>
-          {shellSignOut()}
+          <LabelText label={fixedCopy((catalog) => catalog.shellSignOut())} />
         </Button>
         {beside}
       </div>

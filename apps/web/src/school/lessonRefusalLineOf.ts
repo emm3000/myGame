@@ -1,4 +1,3 @@
-import { es } from '@mygame/catalog'
 import type { PlayerCopy } from '../copy/PlayerCopy'
 import type { Label } from '../design-system/Label'
 import { refusalLineOf } from '../refusals/refusalLineOf'
@@ -11,11 +10,11 @@ export function lessonRefusalLineOf(
   town: LiveTown,
   fixedCopy: PlayerCopy['fixedCopy'],
 ): Label {
-  const timeLeft = capWaitLabelOf(es, town)
-  if (error?.kind !== 'LearningCapReached' || timeLeft === null) {
-    return fixedCopy((catalog) => refusalLineOf(catalog, refusal, error))
-  }
-  return fixedCopy((catalog) =>
-    catalog.refusalLearningCapNextWordDue({ ...error.params, timeLeft }),
-  )
+  return fixedCopy((catalog, scaffoldChrome) => {
+    const timeLeft = capWaitLabelOf(scaffoldChrome, town)
+    if (error?.kind !== 'LearningCapReached' || timeLeft === null) {
+      return refusalLineOf(catalog, refusal, error)
+    }
+    return catalog.refusalLearningCapNextWordDue({ ...error.params, timeLeft })
+  })
 }

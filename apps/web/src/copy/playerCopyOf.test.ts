@@ -1,3 +1,4 @@
+import { es } from '@mygame/catalog'
 import { expect, it } from 'vitest'
 import { playerCopyOf } from './playerCopyOf'
 
@@ -84,4 +85,19 @@ it('refuses a chrome line as fixed copy', () => {
 
   // @ts-expect-error shell.navigation.report is chrome, which follows the chrome phase
   expect(copy.fixedCopy((catalog) => catalog.shellNavigationReport()).text).toBe('Informe')
+})
+
+it('hands a fixed-copy line the chrome of the scaffold for its pieces in the English phase', () => {
+  const rates = playerCopyOf({ scaffold: 'es', chromePhase: 'english' }).fixedCopy(
+    (catalog, scaffoldChrome) =>
+      catalog.reviewSkillRates({
+        resource: scaffoldChrome.namesTownResourcesFood(),
+        before: 120,
+        after: 126,
+      }),
+  )
+
+  expect(rates.text).toBe(
+    es.reviewSkillRates({ resource: es.namesTownResourcesFood(), before: 120, after: 126 }),
+  )
 })
