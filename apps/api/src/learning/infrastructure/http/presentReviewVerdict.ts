@@ -65,7 +65,7 @@ const raisedSkillOf = (
   })
 }
 
-export const reviewVerdictOf = (
+export const presentReviewVerdict = (
   outcome: ReviewOutcome,
   catalog: TownCatalog,
   terms: MemoryTerms,

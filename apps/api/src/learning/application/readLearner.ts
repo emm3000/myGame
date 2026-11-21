@@ -1,24 +1,16 @@
 import {
   type Band,
-  type CardRepository,
   type DomainError,
   type HeldCard,
   ok,
-  type PlacementRepository,
   type PlayerId,
   placedOutBandsOf,
   placementScoresOf,
   type Result,
   type Scaffold,
 } from '@mygame/domain'
-import type { Accounts } from '../../account/application/ports/Accounts'
 import { readScaffold } from '../../account/application/readScaffold'
-
-export type LearnerStores = {
-  readonly accounts: Accounts
-  readonly cards: CardRepository
-  readonly placements: PlacementRepository
-}
+import type { LearnerStores } from './ports/LearnerStores'
 
 export type Learner = {
   readonly cards: ReadonlyArray<HeldCard>
@@ -26,7 +18,7 @@ export type Learner = {
   readonly scaffold: Scaffold
 }
 
-export const learnerOf = async (
+export const readLearner = async (
   playerId: PlayerId,
   { accounts, cards, placements }: LearnerStores,
 ): Promise<Result<Learner, DomainError>> => {

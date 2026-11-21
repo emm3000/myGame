@@ -9,7 +9,7 @@ import {
 import { mutateTown } from '../../town/mutateTown'
 import type { LearningDependencies } from './LearningDependencies'
 
-export const requestHintOf = (
+export const requestReviewHint = (
   playerId: PlayerId,
   wordId: WordId,
   dependencies: LearningDependencies,

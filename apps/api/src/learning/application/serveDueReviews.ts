@@ -1,14 +1,12 @@
-import type { DueReview, Reviews } from '@mygame/contracts'
 import {
   type Clock,
   type DomainError,
-  dueInstantOf,
   type FrameReader,
-  type HeldCard,
   heldCardsOf,
   type Instant,
   type LessonId,
   type MemoryTerms,
+  nextDueAtOf,
   ok,
   type PendingReviewRepository,
   type PlayerId,
@@ -22,15 +20,15 @@ import {
   type WordId,
 } from '@mygame/domain'
 import type { LessonLibrary } from '../../content/application/ports/LessonLibrary'
-import { isoOf } from '../../platform/infrastructure/http/isoOf'
-import { type LearnerStores, learnerOf } from './readLearner'
+import type { LearnerStores } from './ports/LearnerStores'
+import { readLearner } from './readLearner'
 
 export type ReviewTerms = {
   readonly lessons: LessonLibrary
   readonly memoryTerms: MemoryTerms
 }
 
-type PromptedReview = {
+export type PromptedReview = {
   readonly wordId: WordId
   readonly lessonId: LessonId
   readonly dueAt: Instant
@@ -54,40 +52,13 @@ const promptedReviewOf = (
   prompt: reviewPromptOf({ lesson, word, card: due.card, shownFrame }, reader),
 })
 
-const dueReviewOf = ({ wordId, lessonId, dueAt, prompt }: PromptedReview): DueReview => {
-  const asked = { wordId, lessonId, dueAt: isoOf(dueAt) }
-  if (prompt.mode === 'recall') {
-    return { ...asked, ...prompt, gappedFrame: [...prompt.gappedFrame] }
-  }
-  return { ...asked, ...prompt, frame: [...prompt.frame], choices: [...prompt.choices] }
-}
-
-export const nextDueAtOf = (
-  cards: ReadonlyArray<HeldCard>,
-  readAt: Instant,
-  terms: MemoryTerms,
-): Result<Instant | null, DomainError> => {
-  let next: Instant | null = null
-  for (const { card } of cards) {
-    const dueAt = dueInstantOf(card, terms)
-    if (!dueAt.ok) {
-      return dueAt
-    }
-    const isLater = dueAt.value.epochMilliseconds > readAt.epochMilliseconds
-    if (isLater && (next === null || dueAt.value.epochMilliseconds < next.epochMilliseconds)) {
-      next = dueAt.value
-    }
-  }
-  return ok(next)
-}
-
 export const serveDueReviews = async (
   playerId: PlayerId,
   stores: LearnerStores & { readonly pendingReviews: PendingReviewRepository },
   clock: Clock,
   { lessons, memoryTerms }: ReviewTerms,
 ): Promise<Result<DueReviews, DomainError>> => {
-  const learner = await learnerOf(playerId, stores)
+  const learner = await readLearner(playerId, stores)
   if (!learner.ok) {
     return learner
   }
@@ -115,10 +86,3 @@ export const serveDueReviews = async (
     readAt,
   })
 }
-
-export const presentReviews = ({ due, readFirst, nextDueAt, readAt }: DueReviews): Reviews => ({
-  due: due.map(dueReviewOf),
-  readFirst: [...readFirst],
-  nextDueAt: nextDueAt === null ? null : isoOf(nextDueAt),
-  readAt: isoOf(readAt),
-})
