@@ -1,7 +1,7 @@
 import { createRoute } from '@hono/zod-openapi'
 import { ReportSchema } from '@mygame/contracts'
-import { jsonResponse } from '../platform/infrastructure/http/responseDeclarations'
-import { signedInRoute } from '../platform/infrastructure/http/signedInRoute'
+import { jsonResponse } from '../../../platform/infrastructure/http/responseDeclarations'
+import { signedInRoute } from '../../../platform/infrastructure/http/signedInRoute'
 
 export const reportDeclarations = {
   read: createRoute(

@@ -580,7 +580,7 @@
       }
     },
     {
-      "includes": ["apps/api/src/town/reportOf.ts", "apps/api/src/town/townOverviewOf.ts"],
+      "includes": ["apps/api/src/town/townOverviewOf.ts"],
       "linter": {
         "rules": {
           "style": {

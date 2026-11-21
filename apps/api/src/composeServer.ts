@@ -26,7 +26,6 @@ import { CryptoSessionTokens } from './account/infrastructure/system/CryptoSessi
 import { DrizzleCardRepository } from './adapters/postgres/DrizzleCardRepository'
 import { DrizzleCleanUpRepository } from './adapters/postgres/DrizzleCleanUpRepository'
 import { DrizzleRegionMap } from './adapters/postgres/DrizzleRegionMap'
-import { DrizzleReportClosings } from './adapters/postgres/DrizzleReportClosings'
 import { DrizzleTownNews } from './adapters/postgres/DrizzleTownNews'
 import { DrizzleTownRepository } from './adapters/postgres/DrizzleTownRepository'
 import { createApp } from './app'
@@ -45,7 +44,8 @@ import { CryptoIdGenerator } from './platform/infrastructure/system/CryptoIdGene
 import { CryptoRandomSource } from './platform/infrastructure/system/CryptoRandomSource'
 import { SystemClock } from './platform/infrastructure/system/SystemClock'
 import { VercelAfterResponse } from './platform/infrastructure/vercel/VercelAfterResponse'
-import type { ReportClosings } from './town/ReportClosings'
+import type { ReportClosings } from './report/application/ports/ReportClosings'
+import { DrizzleReportClosings } from './report/infrastructure/postgres/DrizzleReportClosings'
 import type { TownNewsReader } from './town/TownNewsReader'
 import type { TownReader } from './town/TownReader'
 

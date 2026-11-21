@@ -1,9 +1,9 @@
 import { drizzle } from 'drizzle-orm/node-postgres'
 import { Pool } from 'pg'
 import { afterAll, beforeAll } from 'vitest'
-import { DrizzleAccounts } from '../../account/infrastructure/postgres/DrizzleAccounts'
-import { truncatePlayerTables } from '../../truncatePlayerTables.testSupport'
-import { reportClosingsContract } from '../reportClosingsContract'
+import { DrizzleAccounts } from '../../../account/infrastructure/postgres/DrizzleAccounts'
+import { truncatePlayerTables } from '../../../truncatePlayerTables.testSupport'
+import { reportClosingsContract } from '../memory/reportClosingsContract.testSupport'
 import { DrizzleReportClosings } from './DrizzleReportClosings'
 
 function databaseUrl(): string {
