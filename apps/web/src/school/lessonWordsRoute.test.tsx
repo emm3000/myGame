@@ -324,6 +324,7 @@ it.each([
   ['a stopped or an unstudied lesson', '/school/lesson-1', [lessonOf(1, [notStartedWord])]],
   ['a lesson with every word reviewed', '/school/lesson-1', [lessonOf(1, [reviewedWord('x')])]],
   ['an unknown lesson', '/school/lesson-99', [unreadLessonOf(1)]],
+  ['a released lesson the town does not hold', '/school/released-9-9', [unreadLessonOf(1)]],
 ])('shows nothing to read for %s, with a way back to the school', async (_, path, lessons) => {
   await showLesson(path, townOf({ lessons }))
 
@@ -707,11 +708,13 @@ it('titles a released lesson by its band and set, with no theme line', async () 
 
   expect(screen.getByRole('heading', { level: 1, name: releasedTitle })).toBeDefined()
   expect(pageHeader().textContent).toBe(releasedTitle)
+  expect(pageHeader().querySelector('p[lang="en"]')).toBeNull()
 })
 
 it("never draws lesson 0 on a released lesson's page", async () => {
   await showLesson('/school/released-2-2', releasedRunning)
 
+  expect(wordHeading('neighbor')).toBeDefined()
   expect(screen.queryByText(es.schoolLessonTitle({ number: 0 }))).toBeNull()
 })
 
