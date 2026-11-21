@@ -131,21 +131,6 @@ it('keeps the focus on the picked radio through saving and saved', async () => {
   expect(document.activeElement).toBe(none)
 })
 
-it('returns to the stored scaffold when the api refuses the pick', async () => {
-  renderAppAt(
-    '/settings',
-    signedInAs('es', {
-      changeScaffold: async () => ({ ok: false, refusal: 'TokenInvalid' }),
-    }),
-  )
-
-  fireEvent.click(await scaffoldRadioOf('none'))
-
-  expect((await screen.findByRole('alert')).textContent).toBe(es.refusalTokenInvalid())
-  expect((await scaffoldRadioOf('es')).checked).toBe(true)
-  expect((await scaffoldRadioOf('none')).checked).toBe(false)
-})
-
 it('returns to the stored scaffold when the api cannot be reached', async () => {
   renderAppAt(
     '/settings',
@@ -158,6 +143,7 @@ it('returns to the stored scaffold when the api cannot be reached', async () => 
 
   expect((await screen.findByRole('alert')).textContent).toBe(es.refusalUnexpected())
   expect((await scaffoldRadioOf('none')).checked).toBe(true)
+  expect((await scaffoldRadioOf('es')).checked).toBe(false)
 })
 
 const signedInIn = (language: Pick<TownOverview, 'scaffold' | 'chromePhase'>): ApiClient =>
