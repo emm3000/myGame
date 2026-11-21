@@ -18,8 +18,13 @@ export type CardWordForm =
   | { readonly kind: 'inflected'; readonly inflection: CardWordInflection }
   | { readonly kind: 'unlistedPast' }
 
+export type IrregularForms = {
+  readonly past: string
+  readonly pastParticiple: string
+}
+
 export type CardWordFormContext = {
-  readonly irregularPasts: ReadonlyMap<string, ReadonlySet<string>>
+  readonly irregularVerbs: ReadonlyMap<string, IrregularForms>
   readonly isAfterHave: boolean
 }
 
@@ -39,7 +44,7 @@ const thirdPersonFormsOf = (lemma: string): ReadonlyArray<string> => [
 const verbFormOf = (
   form: string,
   lemma: string,
-  { irregularPasts, isAfterHave }: CardWordFormContext,
+  { irregularVerbs, isAfterHave }: CardWordFormContext,
 ): CardWordForm => {
   if (form.endsWith('ing')) {
     return inflected('-ing')
@@ -47,14 +52,23 @@ const verbFormOf = (
   if (thirdPersonFormsOf(lemma).includes(form)) {
     return inflected('-s')
   }
-  const isIrregularPast = irregularPasts.get(lemma)?.has(form) === true
-  if (!isIrregularPast && !form.endsWith('ed')) {
-    return { kind: 'unlistedPast' }
-  }
-  if (isAfterHave) {
+  const irregular = irregularVerbs.get(lemma)
+  const isPast = irregular?.past === form
+  const isParticiple = irregular?.pastParticiple === form
+  const isRegularPast = form !== lemma && form.endsWith('ed')
+  if (isAfterHave && (isPast || isParticiple || isRegularPast)) {
     return inflected('past participle')
   }
-  return inflected(isIrregularPast ? 'irregular past' : '-ed')
+  if (form === lemma) {
+    return ungated
+  }
+  if (isPast) {
+    return inflected('irregular past')
+  }
+  if (isParticiple) {
+    return inflected('past participle')
+  }
+  return isRegularPast ? inflected('-ed') : { kind: 'unlistedPast' }
 }
 
 export const cardWordFormOf = (
@@ -62,6 +76,9 @@ export const cardWordFormOf = (
   { lemma, partOfSpeech }: LexiconEntry,
   context: CardWordFormContext,
 ): CardWordForm => {
+  if (partOfSpeech === 'verb') {
+    return verbFormOf(form, lemma, context)
+  }
   if (form === lemma) {
     return ungated
   }
@@ -70,8 +87,6 @@ export const cardWordFormOf = (
       return inflected('plural')
     case 'phrase':
       return ungated
-    case 'verb':
-      return verbFormOf(form, lemma, context)
     case 'adjective':
     case 'adverb':
       return inflected(form.endsWith('st') ? '-est' : '-er')

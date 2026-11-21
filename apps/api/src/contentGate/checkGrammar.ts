@@ -1,5 +1,5 @@
 import type { LexiconEntry } from '../adapters/json/lessonContentFilesOf'
-import { cardWordFormOf } from './cardWordFormOf'
+import { cardWordFormOf, type IrregularForms } from './cardWordFormOf'
 import { frameWordAdmissionsOf } from './frameWordAdmissionsOf'
 import type { GateContent } from './GateContent'
 import { type GrammarPassage, grammarPassagesOf } from './grammarPassagesOf'
@@ -13,7 +13,7 @@ type GrammarTerms = {
   readonly frameWordsAdmittedAt: ReadonlyMap<string, number>
   readonly inflectionsAdmittedAt: ReadonlyMap<string, number>
   readonly cardWords: ReadonlyMap<string, LexiconEntry>
-  readonly irregularPasts: ReadonlyMap<string, ReadonlySet<string>>
+  readonly irregularVerbs: ReadonlyMap<string, IrregularForms>
 }
 
 type PassageToken = {
@@ -22,7 +22,9 @@ type PassageToken = {
   readonly isAfterHave: boolean
 }
 
-const haveForms: ReadonlySet<string> = new Set(['have', 'has'])
+const haveForms: ReadonlySet<string> = new Set(['have', 'has', "'s"])
+
+const subjectPronouns: ReadonlySet<string> = new Set(['i', 'you', 'he', 'she', 'it', 'we', 'they'])
 
 const perfectAdverbs: ReadonlySet<string> = new Set([
   'not',
@@ -33,15 +35,18 @@ const perfectAdverbs: ReadonlySet<string> = new Set([
   'ever',
 ])
 
+const followsHave = (earlier: ReadonlyArray<string>): boolean => {
+  const [last, beforeLast] = earlier.filter((token) => !perfectAdverbs.has(token)).toReversed()
+  const host = last !== undefined && subjectPronouns.has(last) ? beforeLast : last
+  return host !== undefined && haveForms.has(host)
+}
+
 const passageTokensOf = (tokens: ReadonlyArray<string>): ReadonlyArray<PassageToken> =>
-  tokens.map((token, index) => {
-    const before = tokens.slice(0, index).findLast((earlier) => !perfectAdverbs.has(earlier))
-    return {
-      token,
-      previous: tokens[index - 1],
-      isAfterHave: before !== undefined && haveForms.has(before),
-    }
-  })
+  tokens.map((token, index) => ({
+    token,
+    previous: tokens[index - 1],
+    isAfterHave: followsHave(tokens.slice(0, index)),
+  }))
 
 const termsOf = (content: GateContent): GrammarTerms => {
   const positionOf = (lessonId: string): number => lessonPositionOf(content.curriculum, lessonId)
@@ -54,9 +59,9 @@ const termsOf = (content: GateContent): GrammarTerms => {
       ),
     ),
     cardWords: new Map(content.lexicon.map((entry) => [entry.lemma, entry])),
-    irregularPasts: new Map(
+    irregularVerbs: new Map(
       content.grammar.irregularVerbs.map(
-        ({ lemma, past, pastParticiple }) => [lemma, new Set([past, pastParticiple])] as const,
+        ({ lemma, past, pastParticiple }) => [lemma, { past, pastParticiple }] as const,
       ),
     ),
   }
@@ -107,7 +112,7 @@ const cardWordFailures = (
   passage: GrammarPassage,
   terms: GrammarTerms,
 ): ReadonlyArray<string> => {
-  const form = cardWordFormOf(token, entry, { irregularPasts: terms.irregularPasts, isAfterHave })
+  const form = cardWordFormOf(token, entry, { irregularVerbs: terms.irregularVerbs, isAfterHave })
   switch (form.kind) {
     case 'ungated':
       return []
