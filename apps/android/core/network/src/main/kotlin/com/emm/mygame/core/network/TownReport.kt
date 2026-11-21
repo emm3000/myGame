@@ -7,4 +7,5 @@ data class TownReport(
     val readFirst: List<LessonId>,
     val nextDueAt: Instant?,
     val news: List<TownNews>,
+    val readAt: Instant,
 )

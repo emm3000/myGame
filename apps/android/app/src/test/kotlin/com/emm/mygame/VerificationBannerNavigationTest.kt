@@ -72,8 +72,13 @@ class VerificationBannerNavigationTest {
 
     private val heldTown: TownSnapshot = townOf(Instant.parse("2026-11-05T10:00:00Z"))
 
-    private val nothingDue: TownReport =
-        TownReport(dueCount = 0, readFirst = emptyList(), nextDueAt = null, news = emptyList())
+    private val nothingDue: TownReport = TownReport(
+        dueCount = 0,
+        readFirst = emptyList(),
+        nextDueAt = null,
+        news = emptyList(),
+        readAt = Instant.parse("2026-11-05T10:00:00Z"),
+    )
 
     @Test
     fun `draws the banner at the foot of the town home, under its header`() {

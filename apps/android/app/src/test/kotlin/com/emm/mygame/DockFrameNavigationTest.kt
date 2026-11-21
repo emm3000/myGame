@@ -133,7 +133,7 @@ class DockFrameNavigationTest {
         DueReviews(due = emptyList(), readFirst = emptyList(), nextDueAt = null, readAt = readAt)
 
     private val nothingDue: TownReport =
-        TownReport(dueCount = 0, readFirst = emptyList(), nextDueAt = null, news = emptyList())
+        TownReport(dueCount = 0, readFirst = emptyList(), nextDueAt = null, news = emptyList(), readAt = readAt)
 
     private fun lessonOf(id: LessonId): TownSnapshot.Lesson = TownSnapshot.Lesson(
         id = id,

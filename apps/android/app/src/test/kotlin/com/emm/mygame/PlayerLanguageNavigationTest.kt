@@ -21,6 +21,7 @@ import com.emm.mygame.core.network.SignedInPlayer
 import com.emm.mygame.core.network.TownReport
 import com.emm.mygame.core.testing.FakeReportRepository
 import com.emm.mygame.core.testing.FakeSessionRepository
+import kotlin.time.Instant
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.emptyFlow
 import org.junit.Rule
@@ -49,8 +50,13 @@ class PlayerLanguageNavigationTest {
         reports = reports,
     )
 
-    private val nothingDue: TownReport =
-        TownReport(dueCount = 0, readFirst = emptyList(), nextDueAt = null, news = emptyList())
+    private val nothingDue: TownReport = TownReport(
+        dueCount = 0,
+        readFirst = emptyList(),
+        nextDueAt = null,
+        news = emptyList(),
+        readAt = Instant.parse("2026-11-05T10:00:00Z"),
+    )
 
     private fun showReport(language: PlayerLanguage) {
         latestRead.value = language

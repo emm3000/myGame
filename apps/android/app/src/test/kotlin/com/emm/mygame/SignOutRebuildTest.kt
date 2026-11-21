@@ -13,6 +13,7 @@ import com.emm.mygame.core.network.RestoreResult
 import com.emm.mygame.core.network.TownReport
 import com.emm.mygame.core.testing.FakeReportRepository
 import com.emm.mygame.core.testing.FakeSessionRepository
+import kotlin.time.Instant
 import org.junit.After
 import org.junit.Rule
 import org.junit.Test
@@ -41,7 +42,13 @@ class SignOutRebuildTest {
     private fun signingOutOnARecreatedReport() {
         reports.answerRead(
             ReportReadResult.Read(
-                TownReport(dueCount = 0, readFirst = emptyList(), nextDueAt = null, news = emptyList()),
+                TownReport(
+                    dueCount = 0,
+                    readFirst = emptyList(),
+                    nextDueAt = null,
+                    news = emptyList(),
+                    readAt = Instant.parse("2026-11-05T10:00:00Z"),
+                ),
             ),
         )
         RebuildHostActivity.shown =

@@ -74,6 +74,13 @@ class ReportRepositoryTest {
     }
 
     @Test
+    fun `reads the instant the api read the report at`() = runTest {
+        api.enqueue(json(200, reportOf()))
+
+        assertEquals(Instant.parse("2026-11-10T09:00:00Z"), read().readAt)
+    }
+
+    @Test
     fun `reads the lessons to read first in the order the api answers`() = runTest {
         api.enqueue(json(200, reportOf(dueCount = 3, readFirst = """"lesson-2","lesson-3"""")))
 
