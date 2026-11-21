@@ -71,7 +71,7 @@ L2 study gives the fade point.
 |---|---|---|
 | Recognition (ADR 036, rule 2) | the word and its frame; choices are the lesson's Spanish glosses | the word and its frame; choices are the lesson's English definitions |
 | Recall | the Spanish gloss and the gapped frame | the English definition and the gapped frame |
-| A word in game text, stability under 7 days or no card (except a placed-out word, ADR 037, read as at 7 days) | marked, its gloss shown beside it on first sight | marked, its definition shown beside it on first sight |
+| A word in game text, stability under 7 days or no card (except a placed-out word, ADR 037, read as at 7 days) | its gloss shown beside it on first sight | its definition shown beside it on first sight |
 | Stability 7 days or more | the gloss on tap | the definition on tap |
 | Stability 30 days or more | the English definition on tap | the definition on tap |
 
@@ -107,7 +107,8 @@ L2 study gives the fade point.
 
   The phase is derived on read from what the player studied and earned,
   and both only ever grow (ADR 036, rules 6 and 7), so the chrome never
-  goes back. The server answers the phase; the client draws it. Under
+  goes back for a given scaffold. A switch from `none` to `es` starts
+  the phases from what the player has studied and earned. The server answers the phase; the client draws it. Under
   `none` the chrome is English from the start. Were lesson 1 the only
   chrome lesson, ADR 036's worked example would turn the chrome to both
   at 2026-11-10 09:00, when lesson 1 finishes, and to English at
