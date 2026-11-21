@@ -21,9 +21,9 @@ import {
   stageOf,
   type WordId,
 } from '@mygame/domain'
-import type { LessonLibrary } from '../content/application/ports/LessonLibrary'
-import { isoOf } from '../platform/infrastructure/http/isoOf'
-import { type LearnerStores, learnerOf } from './learnerOf'
+import type { LessonLibrary } from '../../content/application/ports/LessonLibrary'
+import { isoOf } from '../../platform/infrastructure/http/isoOf'
+import { type LearnerStores, learnerOf } from './readLearner'
 
 export type ReviewTerms = {
   readonly lessons: LessonLibrary

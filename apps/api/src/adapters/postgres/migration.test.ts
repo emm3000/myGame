@@ -12,13 +12,13 @@ import {
 } from '../../account/infrastructure/postgres/accountTables'
 import { DrizzleSessions } from '../../account/infrastructure/postgres/DrizzleSessions'
 import { apiPackagePath } from '../../apiPackagePath.testSupport'
+import { DrizzleCardRepository } from '../../learning/infrastructure/postgres/DrizzleCardRepository'
 import {
   cards,
   pendingReviews,
   reviewLog,
 } from '../../learning/infrastructure/postgres/learningTables'
 import { earnedSkills } from '../../town/infrastructure/postgres/schoolTables'
-import { DrizzleCardRepository } from './DrizzleCardRepository'
 import { DrizzleTownRepository } from './DrizzleTownRepository'
 
 const migrationsFolder = apiPackagePath('migrations')

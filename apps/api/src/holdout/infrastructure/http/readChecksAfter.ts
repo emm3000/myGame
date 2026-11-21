@@ -8,7 +8,7 @@ import {
   readHoldoutChecks,
 } from '@mygame/domain'
 import { readScaffold } from '../../../account/application/readScaffold'
-import type { LearningDependencies } from '../../../learning/LearningDependencies'
+import type { LearningDependencies } from '../../../learning/application/LearningDependencies'
 import { mutateTown, type TownStores } from '../../../town/mutateTown'
 
 export type CheckMutation = (

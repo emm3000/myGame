@@ -9,17 +9,17 @@ import {
 import {
   type RequirePlayerDependencies,
   requirePlayer,
-} from '../account/infrastructure/http/requirePlayer'
-import { answerReviewOf } from '../learning/answerReviewOf'
-import type { LearningDependencies } from '../learning/LearningDependencies'
-import { requestHintOf } from '../learning/requestHintOf'
-import { presentReviews, serveDueReviews } from '../learning/reviewsOf'
-import { reviewVerdictOf } from '../learning/reviewVerdictOf'
-import { answerRefusal } from '../platform/infrastructure/http/answerRefusal'
-import { honoPathOf } from '../platform/infrastructure/http/honoPath'
-import { readJsonBody } from '../platform/infrastructure/http/readJsonBody'
-import { mutateTown } from '../town/mutateTown'
+} from '../../../account/infrastructure/http/requirePlayer'
+import { answerRefusal } from '../../../platform/infrastructure/http/answerRefusal'
+import { honoPathOf } from '../../../platform/infrastructure/http/honoPath'
+import { readJsonBody } from '../../../platform/infrastructure/http/readJsonBody'
+import { mutateTown } from '../../../town/mutateTown'
+import type { LearningDependencies } from '../../application/LearningDependencies'
+import { requestHintOf } from '../../application/requestReviewHint'
+import { presentReviews, serveDueReviews } from '../../application/serveDueReviews'
+import { answerReviewOf } from '../../application/submitReviewAnswer'
 import { learningDeclarations } from './learningDeclarations'
+import { reviewVerdictOf } from './presentReviewVerdict'
 
 export type LearningRouteDependencies = LearningDependencies & RequirePlayerDependencies
 

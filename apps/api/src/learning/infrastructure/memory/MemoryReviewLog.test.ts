@@ -1,5 +1,5 @@
-import { reviewLogContract } from '../reviewLogContract'
 import { MemoryReviewLog } from './MemoryReviewLog'
+import { reviewLogContract } from './reviewLogContract.testSupport'
 
 reviewLogContract('MemoryReviewLog', async () => {
   const reviewLog = new MemoryReviewLog()

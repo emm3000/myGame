@@ -8,8 +8,8 @@ import {
   type WordId,
 } from '@mygame/domain'
 import { and, eq, sql } from 'drizzle-orm'
-import { pendingReviews } from '../../learning/infrastructure/postgres/learningTables'
-import type { PostgresSession } from '../../platform/infrastructure/postgres/connectPostgres'
+import type { PostgresSession } from '../../../platform/infrastructure/postgres/connectPostgres'
+import { pendingReviews } from './learningTables'
 
 const pendingColumns = {
   hintShown: pendingReviews.hintShown,

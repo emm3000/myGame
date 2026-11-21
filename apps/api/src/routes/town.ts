@@ -44,7 +44,6 @@ import {
   requirePlayer,
 } from '../account/infrastructure/http/requirePlayer'
 import type { LessonLibrary } from '../content/application/ports/LessonLibrary'
-import { openTextOf } from '../learning/openTextOf'
 import { answerRefusal } from '../platform/infrastructure/http/answerRefusal'
 import { honoPathOf } from '../platform/infrastructure/http/honoPath'
 import { readJsonBody } from '../platform/infrastructure/http/readJsonBody'
@@ -52,6 +51,7 @@ import { type NamedIssue, requestRefusalOf } from '../platform/infrastructure/ht
 import { type CurrentTownDependencies, currentTownOf } from '../town/currentTownOf'
 import { foundTownOnFreeSite } from '../town/foundTownOnFreeSite'
 import { mutateTown } from '../town/mutateTown'
+import { openTextOf } from '../town/openTextOf'
 import { quotedCleanUpOf } from '../town/quotedCleanUpOf'
 import { quotedJobOf } from '../town/quotedJobOf'
 import type { TownReading } from '../town/TownReading'

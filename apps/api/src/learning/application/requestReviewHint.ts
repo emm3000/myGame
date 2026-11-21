@@ -6,7 +6,7 @@ import {
   requestHint,
   type WordId,
 } from '@mygame/domain'
-import { mutateTown } from '../town/mutateTown'
+import { mutateTown } from '../../town/mutateTown'
 import type { LearningDependencies } from './LearningDependencies'
 
 export const requestHintOf = (

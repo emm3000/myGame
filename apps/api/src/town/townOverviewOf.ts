@@ -45,10 +45,10 @@ import {
 } from '@mygame/domain'
 import { presentScaffold } from '../account/infrastructure/http/presentScaffold'
 import type { LessonLibrary } from '../content/application/ports/LessonLibrary'
-import { nextDueAtOf } from '../learning/reviewsOf'
-import { schoolOverviewOf } from '../learning/schoolOverviewOf'
+import { nextDueAtOf } from '../learning/application/serveDueReviews'
 import { isoOf } from '../platform/infrastructure/http/isoOf'
 import { jobStateOf } from './jobStateOf'
+import { schoolOverviewOf } from './schoolOverviewOf'
 import type { TownReading } from './TownReading'
 
 type BuildingState = TownOverview['buildings'][BuildingKind]

@@ -6,7 +6,7 @@ import {
   type RequirePlayerDependencies,
   requirePlayer,
 } from '../../../account/infrastructure/http/requirePlayer'
-import type { LearningDependencies } from '../../../learning/LearningDependencies'
+import type { LearningDependencies } from '../../../learning/application/LearningDependencies'
 import { answerRefusal } from '../../../platform/infrastructure/http/answerRefusal'
 import { honoPathOf } from '../../../platform/infrastructure/http/honoPath'
 import { readJsonBody } from '../../../platform/infrastructure/http/readJsonBody'
