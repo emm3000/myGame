@@ -83,6 +83,8 @@ function PendingAnswer({ review }: { readonly review: ReviewHandle }): ReactElem
 
 export function RecallCard({ card, review, verdictRef }: RecallCardProps): ReactElement {
   const { fixedCopy } = usePlayerCopy()
+  const prompt = fixedCopy((catalog) => catalog.reviewRecallPrompt())
+  const glossLanguage = prompt.language
   const submit = (event: FormEvent): void => {
     event.preventDefault()
     review.check()
@@ -91,13 +93,13 @@ export function RecallCard({ card, review, verdictRef }: RecallCardProps): React
     <>
       <ReviewBlock
         cue={card.gloss}
-        cueLang="es"
+        cueLang={glossLanguage}
         frame={frameTextOf(card.gappedFrame)}
         review={review}
       />
       <form onSubmit={submit} className="flex flex-col gap-4">
         <p className="m-0 font-sans text-caption text-ink-muted">
-          <LabelText label={fixedCopy((catalog) => catalog.reviewRecallPrompt())} />
+          <LabelText label={prompt} />
         </p>
         <TextField
           label={fixedCopy((catalog) => catalog.reviewAnswerField())}
