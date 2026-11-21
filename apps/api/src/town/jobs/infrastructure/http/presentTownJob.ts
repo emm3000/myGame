@@ -22,7 +22,7 @@ const outFieldsOf = (job: Job, at: Instant): OutFields => {
   }
 }
 
-export const jobStateOf = (town: Town, at: Instant): TownOverview['job'] => {
+export const presentTownJob = (town: Town, at: Instant): TownOverview['job'] => {
   const slot = town.jobSlot
   if (slot.kind === 'idle') {
     return null
