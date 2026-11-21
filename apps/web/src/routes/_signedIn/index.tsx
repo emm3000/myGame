@@ -42,16 +42,16 @@ function TownHomePage({
   town,
   registered,
   readSequence,
-  adopt,
+  handle,
 }: {
   readonly apiClient: ApiClient
   readonly town: LiveTown
   readonly registered: Registered
   readonly readSequence: number
-  readonly adopt: TownHandle['adopt']
+  readonly handle: TownHandle
 }): ReactElement {
-  const work = useTownWork(apiClient, adopt, town.overview.readAt)
-  const hiring = useTownHiring(apiClient, adopt, town.overview.readAt)
+  const work = useTownWork(apiClient, handle.adopt, town.overview.readAt)
+  const hiring = useTownHiring(apiClient, handle, town.overview.readAt)
   const guidance = useTownGuidance(apiClient, town.overview, readSequence)
   const placementOffer = usePlacementOffer(apiClient)
   return (
@@ -102,7 +102,7 @@ function TownAnswer({
           town={town.state.town}
           registered={town.state.registered}
           readSequence={town.state.readSequence}
-          adopt={town.adopt}
+          handle={town}
         />
       )
     default: {

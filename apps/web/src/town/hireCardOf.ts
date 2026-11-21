@@ -36,7 +36,9 @@ interface HireOrder {
   readonly town: LiveTown
 }
 
-export const firstHireEntry = '1'
+export type HireEntries = Readonly<Record<HireKind, string>>
+
+export const firstHireEntries: HireEntries = { worker: '1', truck: '1' }
 
 const wholeCountPattern = /^[0-9]+$/
 
@@ -54,6 +56,9 @@ const costTimes = (cost: ResourceAmounts, count: number): ResourceAmounts => ({
   power: cost.power * count,
   material: cost.material * count,
 })
+
+const isLocked = (terms: HireTerms, { overview }: LiveTown): boolean =>
+  overview.buildings.office.level < terms.requiredOfficeLevel
 
 const freePeopleOf = ({ overview }: LiveTown): number | undefined =>
   overview.work.slot === null && overview.work.waitingList.length === 0
@@ -134,7 +139,7 @@ export function hireCardOf(
   entry: string,
   town: LiveTown,
 ): HireCardContent {
-  const { hiring, buildings } = town.overview
+  const { hiring } = town.overview
   const terms = hiring.terms[hire]
   const words = hireWordsOf(hire)
   const header = {
@@ -145,7 +150,7 @@ export function hireCardOf(
       catalog.townOfficeNeedsLevel({ level: terms.requiredOfficeLevel }),
     ),
   }
-  if (buildings.office.level < terms.requiredOfficeLevel) {
+  if (isLocked(terms, town)) {
     return { ...header, kind: 'locked' }
   }
   const count = hireCountOf(entry)
@@ -168,7 +173,7 @@ export function hireCardOf(
 export function hireReadySecondsOf(hire: HireKind, entry: string, town: LiveTown): number | null {
   const terms = town.overview.hiring.terms[hire]
   const count = hireCountOf(entry)
-  if (town.overview.buildings.office.level < terms.requiredOfficeLevel || count === undefined) {
+  if (isLocked(terms, town) || count === undefined) {
     return null
   }
   return hireBlockOf({ terms, count, town }) === 'resources'

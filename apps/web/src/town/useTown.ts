@@ -1,7 +1,8 @@
-import type { TownOverview } from '@mygame/contracts'
+import type { HireKind, TownOverview } from '@mygame/contracts'
 import { useCallback, useEffect, useRef, useState } from 'react'
 import type { ApiClient, ApiRefusal } from '../api/apiClient'
 import { longestTimeoutMs } from '../time/longestTimeoutMs'
+import { firstHireEntries, type HireEntries } from './hireCardOf'
 import { jobNextInstantOf } from './jobNextInstantOf'
 import { type LiveTown, liveTownAt, secondsUntil } from './liveTown'
 import { nothingRegistered, type Registered, registeredBetween } from './registeredBetween'
@@ -22,6 +23,8 @@ export interface TownHandle {
   readonly state: TownState
   readonly adopt: (overview: TownOverview) => void
   readonly reread: () => void
+  readonly hireEntries: HireEntries
+  readonly enterHire: (hire: HireKind, entry: string) => void
 }
 
 interface LastRead {
@@ -91,7 +94,7 @@ function useRereadPolicy(lastRead: LastRead | undefined, read: () => void): void
   }, [lastRead, read])
 }
 
-function useDisplayClock(lastRead: LastRead | undefined): number {
+function useDisplayClock(lastRead: LastRead | undefined, hireEntries: HireEntries): number {
   const [nowMs, setNowMs] = useState(Date.now)
   useEffect(() => {
     if (lastRead === undefined) {
@@ -105,18 +108,19 @@ function useDisplayClock(lastRead: LastRead | undefined): number {
           setNowMs(Date.now())
           scheduleRepaint()
         },
-        townRepaintDelayMsOf(liveTownAt(lastRead.overview, elapsedSeconds)),
+        townRepaintDelayMsOf(liveTownAt(lastRead.overview, elapsedSeconds), hireEntries),
       )
     }
     scheduleRepaint()
     return () => clearTimeout(repaint)
-  }, [lastRead])
+  }, [lastRead, hireEntries])
   return nowMs
 }
 
 export function useTown(apiClient: ApiClient): TownHandle {
   const [lastRead, setLastRead] = useState<LastRead>()
   const [refusal, setRefusal] = useState<ApiRefusal>()
+  const [hireEntries, setHireEntries] = useState(firstHireEntries)
   const isReading = useRef(false)
 
   const adopt = useCallback((overview: TownOverview): void => {
@@ -149,13 +153,17 @@ export function useTown(apiClient: ApiClient): TownHandle {
     void read()
   }, [read])
   useRereadPolicy(lastRead, read)
-  const nowMs = useDisplayClock(lastRead)
+  const nowMs = useDisplayClock(lastRead, hireEntries)
   const reread = useCallback((): void => {
     void read()
   }, [read])
+  const enterHire = useCallback((hire: HireKind, entry: string): void => {
+    setHireEntries((held) => ({ ...held, [hire]: entry }))
+  }, [])
+  const actions = { adopt, reread, hireEntries, enterHire }
 
   if (refusal === 'TownNotFound') {
-    return { state: { kind: 'noTown' }, adopt, reread }
+    return { state: { kind: 'noTown' }, ...actions }
   }
   if (lastRead !== undefined) {
     const elapsedSeconds = elapsedSecondsSince(lastRead.receivedAtMs, nowMs)
@@ -166,13 +174,11 @@ export function useTown(apiClient: ApiClient): TownHandle {
         registered: lastRead.registered,
         readSequence: lastRead.readSequence,
       },
-      adopt,
-      reread,
+      ...actions,
     }
   }
   return {
     state: refusal === undefined ? { kind: 'loading' } : { kind: 'refused', refusal },
-    adopt,
-    reread,
+    ...actions,
   }
 }

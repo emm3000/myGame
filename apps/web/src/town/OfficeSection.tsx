@@ -1,5 +1,5 @@
 import { type HireKind, HireKindSchema } from '@mygame/contracts'
-import { type ReactElement, type Ref, useId, useState } from 'react'
+import { type ReactElement, type Ref, useId } from 'react'
 import type { PlayerCopy } from '../copy/PlayerCopy'
 import { usePlayerCopy } from '../copy/usePlayerCopy'
 import { BuildSlot, type BuildSlotState } from '../design-system/BuildSlot'
@@ -13,7 +13,7 @@ import { hiringRefusalLineOf } from '../refusals/hiringRefusalLineOf'
 import { refusalLineOf } from '../refusals/refusalLineOf'
 import { finishTimeOf } from './finishTimeOf'
 import { HireCard } from './HireCard'
-import { firstHireEntry, hireCardOf, hireCountOf } from './hireCardOf'
+import { hireCardOf, hireCountOf } from './hireCardOf'
 import { hireWordsOf } from './hireWordsOf'
 import type { LiveTown } from './liveTown'
 import type { TownHiring } from './useTownHiring'
@@ -72,7 +72,7 @@ function HireItem({
   readonly town: LiveTown
   readonly hiring: TownHiring
 }): ReactElement {
-  const [entry, setEntry] = useState(firstHireEntry)
+  const entry = hiring.entries[hire]
   const copy = usePlayerCopy()
   const card = hireCardOf(copy, hire, entry, town)
   const refused = hiring.placeRefused?.subject === hire ? hiring.placeRefused : undefined
@@ -92,7 +92,7 @@ function HireItem({
         card={card}
         entry={entry}
         isWaiting={hiring.placingHire === hire}
-        onEntryChange={setEntry}
+        onEntryChange={(changed) => hiring.enter(hire, changed)}
         onHire={onHire}
       />
       {refused !== undefined && (
