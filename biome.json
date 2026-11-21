@@ -66,5 +66,538 @@
         "organizeImports": "on"
       }
     }
-  }
+  },
+  "overrides": [
+    {
+      "includes": ["apps/api/src/**", "packages/domain/src/**", "packages/contracts/src/**"],
+      "linter": {
+        "rules": {
+          "style": {
+            "noExcessiveLinesPerFile": {
+              "level": "error",
+              "options": {
+                "maxLines": 250
+              }
+            }
+          },
+          "complexity": {
+            "noExcessiveLinesPerFunction": {
+              "level": "error",
+              "options": {
+                "maxLines": 50,
+                "skipBlankLines": true
+              }
+            }
+          },
+          "suspicious": {
+            "noImportCycles": "error"
+          }
+        }
+      }
+    },
+    {
+      "includes": [
+        "apps/api/src/**/*.test.ts",
+        "apps/api/src/**/*.testSupport.ts",
+        "packages/domain/src/**/*.test.ts",
+        "packages/domain/src/**/*.testSupport.ts",
+        "packages/domain/src/**/testing/**",
+        "packages/contracts/src/**/*.test.ts",
+        "packages/contracts/src/**/*.testSupport.ts"
+      ],
+      "linter": {
+        "rules": {
+          "style": {
+            "noExcessiveLinesPerFile": {
+              "level": "error",
+              "options": {
+                "maxLines": 600
+              }
+            }
+          },
+          "complexity": {
+            "noExcessiveLinesPerFunction": "off"
+          }
+        }
+      }
+    },
+    {
+      "includes": [
+        "apps/api/src/index.ts",
+        "packages/domain/src/index.ts",
+        "packages/contracts/src/index.ts"
+      ],
+      "linter": {
+        "rules": {
+          "style": {
+            "noExcessiveLinesPerFile": "off"
+          }
+        }
+      }
+    },
+    {
+      "includes": ["apps/api/src/platform/**"],
+      "linter": {
+        "rules": {
+          "style": {
+            "noRestrictedImports": {
+              "level": "error",
+              "options": {
+                "patterns": [
+                  {
+                    "group": [
+                      "**/content/**",
+                      "**/account/**",
+                      "**/town/**",
+                      "**/learning/**",
+                      "**/placement/**",
+                      "**/holdout/**",
+                      "**/report/**"
+                    ],
+                    "message": "ADR 052: platform imports only from a feature to its left: platform <- content <- account <- town <- learning <- placement, holdout, report."
+                  }
+                ]
+              }
+            }
+          }
+        }
+      }
+    },
+    {
+      "includes": ["apps/api/src/content/**"],
+      "linter": {
+        "rules": {
+          "style": {
+            "noRestrictedImports": {
+              "level": "error",
+              "options": {
+                "patterns": [
+                  {
+                    "group": [
+                      "**/account/**",
+                      "**/town/**",
+                      "**/learning/**",
+                      "**/placement/**",
+                      "**/holdout/**",
+                      "**/report/**"
+                    ],
+                    "message": "ADR 052: content imports only from a feature to its left: platform <- content <- account <- town <- learning <- placement, holdout, report."
+                  }
+                ]
+              }
+            }
+          }
+        }
+      }
+    },
+    {
+      "includes": ["apps/api/src/account/**"],
+      "linter": {
+        "rules": {
+          "style": {
+            "noRestrictedImports": {
+              "level": "error",
+              "options": {
+                "patterns": [
+                  {
+                    "group": [
+                      "**/town/**",
+                      "**/learning/**",
+                      "**/placement/**",
+                      "**/holdout/**",
+                      "**/report/**"
+                    ],
+                    "message": "ADR 052: account imports only from a feature to its left: platform <- content <- account <- town <- learning <- placement, holdout, report."
+                  }
+                ]
+              }
+            }
+          }
+        }
+      }
+    },
+    {
+      "includes": ["apps/api/src/town/**"],
+      "linter": {
+        "rules": {
+          "style": {
+            "noRestrictedImports": {
+              "level": "error",
+              "options": {
+                "patterns": [
+                  {
+                    "group": ["**/learning/**", "**/placement/**", "**/holdout/**", "**/report/**"],
+                    "message": "ADR 052: town imports only from a feature to its left: platform <- content <- account <- town <- learning <- placement, holdout, report."
+                  }
+                ]
+              }
+            }
+          }
+        }
+      }
+    },
+    {
+      "includes": ["apps/api/src/learning/**"],
+      "linter": {
+        "rules": {
+          "style": {
+            "noRestrictedImports": {
+              "level": "error",
+              "options": {
+                "patterns": [
+                  {
+                    "group": ["**/placement/**", "**/holdout/**", "**/report/**"],
+                    "message": "ADR 052: learning imports only from a feature to its left: platform <- content <- account <- town <- learning <- placement, holdout, report."
+                  }
+                ]
+              }
+            }
+          }
+        }
+      }
+    },
+    {
+      "includes": ["apps/api/src/placement/**"],
+      "linter": {
+        "rules": {
+          "style": {
+            "noRestrictedImports": {
+              "level": "error",
+              "options": {
+                "patterns": [
+                  {
+                    "group": ["**/holdout/**", "**/report/**"],
+                    "message": "ADR 052: placement imports only from a feature to its left: platform <- content <- account <- town <- learning <- placement, holdout, report."
+                  }
+                ]
+              }
+            }
+          }
+        }
+      }
+    },
+    {
+      "includes": ["apps/api/src/holdout/**"],
+      "linter": {
+        "rules": {
+          "style": {
+            "noRestrictedImports": {
+              "level": "error",
+              "options": {
+                "patterns": [
+                  {
+                    "group": ["**/placement/**", "**/report/**"],
+                    "message": "ADR 052: holdout imports only from a feature to its left: platform <- content <- account <- town <- learning <- placement, holdout, report."
+                  }
+                ]
+              }
+            }
+          }
+        }
+      }
+    },
+    {
+      "includes": ["apps/api/src/report/**"],
+      "linter": {
+        "rules": {
+          "style": {
+            "noRestrictedImports": {
+              "level": "error",
+              "options": {
+                "patterns": [
+                  {
+                    "group": ["**/placement/**", "**/holdout/**"],
+                    "message": "ADR 052: report imports only from a feature to its left: platform <- content <- account <- town <- learning <- placement, holdout, report."
+                  }
+                ]
+              }
+            }
+          }
+        }
+      }
+    },
+    {
+      "includes": ["apps/api/src/platform/**/infrastructure/postgres/**"],
+      "linter": {
+        "rules": {
+          "style": {
+            "noRestrictedImports": {
+              "level": "error",
+              "options": {
+                "patterns": [
+                  {
+                    "group": [
+                      "**/content/**",
+                      "**/account/**",
+                      "**/town/**",
+                      "**/learning/**",
+                      "**/placement/**",
+                      "**/holdout/**",
+                      "**/report/**",
+                      "!**/infrastructure/postgres/*Tables",
+                      "!**/infrastructure/postgres/*FromRow",
+                      "!**/infrastructure/postgres/*Columns"
+                    ],
+                    "message": "ADR 052: platform imports only from a feature to its left: platform <- content <- account <- town <- learning <- placement, holdout, report."
+                  }
+                ]
+              }
+            }
+          }
+        }
+      }
+    },
+    {
+      "includes": ["apps/api/src/content/**/infrastructure/postgres/**"],
+      "linter": {
+        "rules": {
+          "style": {
+            "noRestrictedImports": {
+              "level": "error",
+              "options": {
+                "patterns": [
+                  {
+                    "group": [
+                      "**/account/**",
+                      "**/town/**",
+                      "**/learning/**",
+                      "**/placement/**",
+                      "**/holdout/**",
+                      "**/report/**",
+                      "!**/infrastructure/postgres/*Tables",
+                      "!**/infrastructure/postgres/*FromRow",
+                      "!**/infrastructure/postgres/*Columns"
+                    ],
+                    "message": "ADR 052: content imports only from a feature to its left: platform <- content <- account <- town <- learning <- placement, holdout, report."
+                  }
+                ]
+              }
+            }
+          }
+        }
+      }
+    },
+    {
+      "includes": ["apps/api/src/account/**/infrastructure/postgres/**"],
+      "linter": {
+        "rules": {
+          "style": {
+            "noRestrictedImports": {
+              "level": "error",
+              "options": {
+                "patterns": [
+                  {
+                    "group": [
+                      "**/town/**",
+                      "**/learning/**",
+                      "**/placement/**",
+                      "**/holdout/**",
+                      "**/report/**",
+                      "!**/infrastructure/postgres/*Tables",
+                      "!**/infrastructure/postgres/*FromRow",
+                      "!**/infrastructure/postgres/*Columns"
+                    ],
+                    "message": "ADR 052: account imports only from a feature to its left: platform <- content <- account <- town <- learning <- placement, holdout, report."
+                  }
+                ]
+              }
+            }
+          }
+        }
+      }
+    },
+    {
+      "includes": ["apps/api/src/town/**/infrastructure/postgres/**"],
+      "linter": {
+        "rules": {
+          "style": {
+            "noRestrictedImports": {
+              "level": "error",
+              "options": {
+                "patterns": [
+                  {
+                    "group": [
+                      "**/learning/**",
+                      "**/placement/**",
+                      "**/holdout/**",
+                      "**/report/**",
+                      "!**/infrastructure/postgres/*Tables",
+                      "!**/infrastructure/postgres/*FromRow",
+                      "!**/infrastructure/postgres/*Columns"
+                    ],
+                    "message": "ADR 052: town imports only from a feature to its left: platform <- content <- account <- town <- learning <- placement, holdout, report."
+                  }
+                ]
+              }
+            }
+          }
+        }
+      }
+    },
+    {
+      "includes": ["apps/api/src/learning/**/infrastructure/postgres/**"],
+      "linter": {
+        "rules": {
+          "style": {
+            "noRestrictedImports": {
+              "level": "error",
+              "options": {
+                "patterns": [
+                  {
+                    "group": [
+                      "**/placement/**",
+                      "**/holdout/**",
+                      "**/report/**",
+                      "!**/infrastructure/postgres/*Tables",
+                      "!**/infrastructure/postgres/*FromRow",
+                      "!**/infrastructure/postgres/*Columns"
+                    ],
+                    "message": "ADR 052: learning imports only from a feature to its left: platform <- content <- account <- town <- learning <- placement, holdout, report."
+                  }
+                ]
+              }
+            }
+          }
+        }
+      }
+    },
+    {
+      "includes": ["apps/api/src/placement/**/infrastructure/postgres/**"],
+      "linter": {
+        "rules": {
+          "style": {
+            "noRestrictedImports": {
+              "level": "error",
+              "options": {
+                "patterns": [
+                  {
+                    "group": [
+                      "**/holdout/**",
+                      "**/report/**",
+                      "!**/infrastructure/postgres/*Tables",
+                      "!**/infrastructure/postgres/*FromRow",
+                      "!**/infrastructure/postgres/*Columns"
+                    ],
+                    "message": "ADR 052: placement imports only from a feature to its left: platform <- content <- account <- town <- learning <- placement, holdout, report."
+                  }
+                ]
+              }
+            }
+          }
+        }
+      }
+    },
+    {
+      "includes": ["apps/api/src/holdout/**/infrastructure/postgres/**"],
+      "linter": {
+        "rules": {
+          "style": {
+            "noRestrictedImports": {
+              "level": "error",
+              "options": {
+                "patterns": [
+                  {
+                    "group": [
+                      "**/placement/**",
+                      "**/report/**",
+                      "!**/infrastructure/postgres/*Tables",
+                      "!**/infrastructure/postgres/*FromRow",
+                      "!**/infrastructure/postgres/*Columns"
+                    ],
+                    "message": "ADR 052: holdout imports only from a feature to its left: platform <- content <- account <- town <- learning <- placement, holdout, report."
+                  }
+                ]
+              }
+            }
+          }
+        }
+      }
+    },
+    {
+      "includes": ["apps/api/src/report/**/infrastructure/postgres/**"],
+      "linter": {
+        "rules": {
+          "style": {
+            "noRestrictedImports": {
+              "level": "error",
+              "options": {
+                "patterns": [
+                  {
+                    "group": [
+                      "**/placement/**",
+                      "**/holdout/**",
+                      "!**/infrastructure/postgres/*Tables",
+                      "!**/infrastructure/postgres/*FromRow",
+                      "!**/infrastructure/postgres/*Columns"
+                    ],
+                    "message": "ADR 052: report imports only from a feature to its left: platform <- content <- account <- town <- learning <- placement, holdout, report."
+                  }
+                ]
+              }
+            }
+          }
+        }
+      }
+    },
+    {
+      "includes": [
+        "apps/api/src/adapters/postgres/DrizzleTownRepository.ts",
+        "apps/api/src/adapters/postgres/migration.test.ts",
+        "apps/api/src/adapters/postgres/schema.ts",
+        "apps/api/src/adapters/townRepositoryContract.ts",
+        "apps/api/src/contentGate/checkGrammar.test.ts",
+        "apps/api/src/openApiConformance.test.ts",
+        "apps/api/src/routes/auth.test.ts",
+        "apps/api/src/routes/learning.test.ts",
+        "apps/api/src/routes/town.test.ts",
+        "apps/api/src/routes/town.ts",
+        "apps/api/src/routes/townDeclarations.ts",
+        "apps/api/src/town/townOverviewOf.ts",
+        "packages/contracts/src/TownOverview.test.ts",
+        "packages/domain/src/town/Town.ts",
+        "packages/domain/src/useCases/answerReview.test.ts",
+        "packages/domain/src/useCases/answerReview.ts"
+      ],
+      "linter": {
+        "rules": {
+          "style": {
+            "noExcessiveLinesPerFile": "off"
+          }
+        }
+      }
+    },
+    {
+      "includes": [
+        "apps/api/src/adapters/accountTokensContract.ts",
+        "apps/api/src/adapters/bandStartRepositoryContract.ts",
+        "apps/api/src/adapters/pendingReviewRepositoryContract.ts",
+        "apps/api/src/adapters/placementRepositoryContract.ts",
+        "apps/api/src/adapters/postgres/DrizzleTownNews.ts",
+        "apps/api/src/adapters/townRepositoryContract.ts",
+        "apps/api/src/routes/auth.ts",
+        "apps/api/src/routes/holdoutChecks.ts",
+        "apps/api/src/routes/learning.ts",
+        "apps/api/src/routes/placement.ts",
+        "apps/api/src/routes/town.ts",
+        "apps/api/src/town/townNewsItemOf.ts"
+      ],
+      "linter": {
+        "rules": {
+          "complexity": {
+            "noExcessiveLinesPerFunction": "off"
+          }
+        }
+      }
+    },
+    {
+      "includes": ["apps/api/src/town/reportOf.ts", "apps/api/src/town/townOverviewOf.ts"],
+      "linter": {
+        "rules": {
+          "style": {
+            "noRestrictedImports": "off"
+          }
+        }
+      }
+    }
+  ]
 }
