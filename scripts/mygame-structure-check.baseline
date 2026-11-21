@@ -39,7 +39,6 @@ domain_promise_outside_its_roles packages/domain/src/town/stopHiringOrder.ts
 domain_promise_outside_its_roles packages/domain/src/town/stopSchoolLesson.ts
 domain_promise_outside_its_roles packages/domain/src/town/TownNews.ts
 domain_promise_outside_its_roles packages/domain/src/town/TownRepository.ts
-file_over_export_cap apps/api/src/auth/Accounts.ts
 file_over_export_cap apps/api/src/contentGate/cardWordFormOf.ts
 file_over_export_cap packages/domain/src/holdout/HoldoutCheck.ts
 file_over_export_cap packages/domain/src/learning/Lesson.ts
@@ -53,11 +52,8 @@ folder_over_limit packages/domain/src/learning
 folder_over_limit packages/domain/src/town
 reading_named_of_is_async apps/api/src/learning/answerReviewOf.ts
 reading_named_of_is_async apps/api/src/learning/learnerOf.ts
-reading_named_of_is_async apps/api/src/learning/playerChromePhaseOf.ts
 reading_named_of_is_async apps/api/src/learning/requestHintOf.ts
 reading_named_of_is_async apps/api/src/learning/reviewsOf.ts
-reading_named_of_is_async apps/api/src/learning/scaffoldOf.ts
-reading_named_of_is_async apps/api/src/routes/playerBodyOf.ts
 reading_named_of_is_async apps/api/src/town/currentTownOf.ts
 reading_named_of_is_async apps/api/src/town/quotedCleanUpOf.ts
 reading_named_of_is_async apps/api/src/town/quotedJobOf.ts
@@ -71,6 +67,4 @@ reading_named_of_is_async packages/domain/src/town/lastAreaOf.ts
 reading_named_of_is_async packages/domain/src/town/resolvedTownOf.ts
 reading_named_of_is_async packages/domain/src/town/settledSchoolOf.ts
 type_over_method_cap apps/api/src/adapters/json/JsonLessonCatalog.ts
-type_over_method_cap apps/api/src/adapters/postgres/DrizzleAccounts.ts
-type_over_method_cap apps/api/src/auth/Accounts.ts
 type_over_method_cap packages/domain/src/town/Town.ts
