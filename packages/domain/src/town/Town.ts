@@ -1,19 +1,12 @@
 import type { DomainError } from '../DomainError'
 import type { PlayerId } from '../player/PlayerId'
 import { err, ok, type Result } from '../Result'
-import { Duration } from '../time/Duration'
 import type { Instant } from '../time/Instant'
 import type { BuildingLevels } from './building/BuildingLevels'
 import { foundingLevels } from './building/BuildingLevels'
-import {
-  type BusyWorkSlot,
-  idleWorkSlot,
-  type PaidWork,
-  type WorkSlot,
-  type WorkTarget,
-} from './building/BuildingWork'
-import { recheckWaitingList } from './building/recheckWaitingList'
-import type { WaitingList, WaitingWork } from './building/WaitingList'
+import { idleWorkSlot, type WorkSlot } from './building/BuildingWork'
+import { TownBuildingWork } from './building/TownBuildingWork'
+import type { WaitingList } from './building/WaitingList'
 import { type FullSince, noStoreFull } from './FullSince'
 import { deliveredHiresOf } from './hiring/deliveredHiresOf'
 import type { HireKind } from './hiring/HireKind'
@@ -24,9 +17,8 @@ import { idleJobSlot, type JobSlot } from './jobs/Job'
 import type { Terrain } from './jobs/Terrain'
 import { TownJobs } from './jobs/TownJobs'
 import { terrainOf } from './jobs/terrainOf'
-import type { TownCatalog } from './ports/TownCatalog'
 import { refuseInvalidTown } from './refuseInvalidTown'
-import { chargedStocks, creditedStocks, type Stocks, stocksOf } from './Stocks'
+import type { Stocks } from './Stocks'
 import type { TownAddress } from './TownAddress'
 import type { TownEvent } from './TownEvent'
 import type { TownId } from './TownId'
@@ -68,58 +60,9 @@ export type ChangedTown = {
   readonly events: ReadonlyArray<TownEvent>
 }
 
-const refundOf = (stopped: ReadonlyArray<PaidWork>): Stocks =>
-  stopped.reduce(
-    (refund, work) => creditedStocks(refund, work.cost),
-    stocksOf(() => 0),
-  )
-
 const hiresOf = (countOf: (hire: HireKind) => number): Hires => ({
   worker: countOf('worker'),
   truck: countOf('truck'),
-})
-
-const busySlotOf = (work: WaitingWork, startedAt: Instant): Result<BusyWorkSlot, DomainError> => {
-  const duration = Duration.ofSeconds(work.durationSeconds)
-  if (!duration.ok) {
-    return duration
-  }
-  const { building, level, cost } = work
-  return ok({
-    kind: 'busy',
-    building,
-    level,
-    cost,
-    startedAt,
-    finishesAt: startedAt.plus(duration.value),
-  })
-}
-
-const resumedWork = (
-  workSlot: WorkSlot,
-  kept: WaitingList,
-  now: Instant,
-): Result<Pick<TownState, 'workSlot' | 'waitingList'>, DomainError> => {
-  const [next, ...waitingList] = kept
-  if (workSlot.kind === 'busy' || next === undefined) {
-    return ok({ workSlot, waitingList: kept })
-  }
-  const slot = busySlotOf(next, now)
-  if (!slot.ok) {
-    return slot
-  }
-  return ok({ workSlot: slot.value, waitingList })
-}
-
-const isWorkOf = (target: WorkTarget, work: WorkTarget): boolean =>
-  work.building === target.building && work.level === target.level
-
-const workStoppedAt = (work: PaidWork, at: Instant): TownEvent => ({
-  kind: 'buildingWorkStopped',
-  building: work.building,
-  level: work.level,
-  refund: work.cost,
-  occurredAt: at,
 })
 
 export class Town {
@@ -195,34 +138,9 @@ export class Town {
     return this.state.jobSlot
   }
 
-  hiresAtHomeAt(at: Instant): Hires {
-    const atHand = this.hiresAt(at)
-    const slot = this.jobSlot
-    return slot.kind === 'idle' ? atHand : hiresOf((hire) => atHand[hire] - slot.team[hire])
-  }
-
-  get jobs(): TownJobs {
-    return new TownJobs(this, (change) => this.changed(change))
-  }
-
   get staffedHires(): Hires {
     const slot = this.hiringSlot
     return slot.kind === 'busy' ? hiresPlus(this.hires, slot.hire, slot.count) : this.hires
-  }
-
-  hiresAt(at: Instant): Hires {
-    const slot = this.hiringSlot
-    return slot.kind === 'busy'
-      ? hiresPlus(this.hires, slot.hire, deliveredHiresOf(slot, at))
-      : this.hires
-  }
-
-  get hiring(): TownHiring {
-    return new TownHiring(this, (change) => this.changed(change))
-  }
-
-  get terrain(): Terrain {
-    return terrainOf(this.address.area)
   }
 
   get projectedLevels(): BuildingLevels {
@@ -235,87 +153,33 @@ export class Town {
     return projected
   }
 
-  roomForWork(waitingListCap: number): Result<void, DomainError> {
-    if (this.workSlot.kind === 'busy' && this.waitingList.length >= waitingListCap) {
-      return err({ kind: 'WaitingListFull', cap: waitingListCap })
-    }
-    return ok(undefined)
+  get terrain(): Terrain {
+    return terrainOf(this.address.area)
   }
 
-  startWork(
-    work: WaitingWork,
-    stocksAtNow: Stocks,
-    now: Instant,
-    waitingListCap: number,
-  ): Result<Town, DomainError> {
-    const room = this.roomForWork(waitingListCap)
-    if (!room.ok) {
-      return room
-    }
-    const charged = chargedStocks(stocksAtNow, work.cost)
-    if (!charged.ok) {
-      return charged
-    }
-    const stocks = charged.value
-    if (this.workSlot.kind === 'busy') {
-      return ok(this.changed({ stocks, storedAt: now, waitingList: [...this.waitingList, work] }))
-    }
-    const slot = busySlotOf(work, now)
-    if (!slot.ok) {
-      return slot
-    }
-    return ok(this.changed({ stocks, storedAt: now, workSlot: slot.value }))
+  hiresAt(at: Instant): Hires {
+    const slot = this.hiringSlot
+    return slot.kind === 'busy'
+      ? hiresPlus(this.hires, slot.hire, deliveredHiresOf(slot, at))
+      : this.hires
   }
 
-  stopWork(
-    target: WorkTarget,
-    stocksAtNow: Stocks,
-    now: Instant,
-    catalog: TownCatalog,
-  ): Result<ChangedTown, DomainError> {
-    const slot = this.workSlot
-    if (slot.kind === 'busy' && isWorkOf(target, slot)) {
-      return this.stoppedWith(slot, idleWorkSlot, this.waitingList, stocksAtNow, now, catalog)
-    }
-    const position = this.waitingList.findIndex((work) => isWorkOf(target, work))
-    const stoppedWork = this.waitingList[position]
-    if (slot.kind === 'idle' || stoppedWork === undefined) {
-      return err({ kind: 'BuildingWorkNotFound', building: target.building, level: target.level })
-    }
-    const rest = this.waitingList.filter((_, index) => index !== position)
-    return this.stoppedWith(stoppedWork, slot, rest, stocksAtNow, now, catalog)
+  hiresAtHomeAt(at: Instant): Hires {
+    const atHand = this.hiresAt(at)
+    const slot = this.jobSlot
+    return slot.kind === 'idle' ? atHand : hiresOf((hire) => atHand[hire] - slot.team[hire])
   }
 
-  completeWork(stocksAtFinish: Stocks): Result<Town, DomainError> {
-    const finished = this.workSlot
-    if (finished.kind === 'idle') {
-      return ok(this)
-    }
-    const buildingLevels = { ...this.buildingLevels, [finished.building]: finished.level }
-    const [next, ...waitingList] = this.waitingList
-    if (next === undefined) {
-      return ok(
-        this.changed({
-          stocks: stocksAtFinish,
-          storedAt: finished.finishesAt,
-          buildingLevels,
-          workSlot: idleWorkSlot,
-        }),
-      )
-    }
-    const slot = busySlotOf(next, finished.finishesAt)
-    if (!slot.ok) {
-      return slot
-    }
-    return ok(
-      this.changed({
-        stocks: stocksAtFinish,
-        storedAt: finished.finishesAt,
-        buildingLevels,
-        workSlot: slot.value,
-        waitingList,
-      }),
-    )
+  get buildingWork(): TownBuildingWork {
+    return new TownBuildingWork(this, (change) => this.changed(change))
+  }
+
+  get hiring(): TownHiring {
+    return new TownHiring(this, (change) => this.changed(change))
+  }
+
+  get jobs(): TownJobs {
+    return new TownJobs(this, (change) => this.changed(change))
   }
 
   earnSkill(skill: TownSkill, stocksAtEarn: Stocks): Town {
@@ -328,39 +192,6 @@ export class Town {
 
   withFullSince(fullSince: FullSince): Town {
     return this.changed({ fullSince })
-  }
-
-  private stoppedWith(
-    stoppedWork: PaidWork,
-    workSlot: WorkSlot,
-    rest: WaitingList,
-    stocksAtNow: Stocks,
-    now: Instant,
-    catalog: TownCatalog,
-  ): Result<ChangedTown, DomainError> {
-    const rechecked = recheckWaitingList(
-      this.buildingLevels,
-      workSlot,
-      rest,
-      this.staffedHires,
-      catalog,
-    )
-    if (!rechecked.ok) {
-      return rechecked
-    }
-    const resumed = resumedWork(workSlot, rechecked.value.kept, now)
-    if (!resumed.ok) {
-      return resumed
-    }
-    const stopped = [stoppedWork, ...rechecked.value.stopped]
-    return ok({
-      town: this.changed({
-        stocks: creditedStocks(stocksAtNow, refundOf(stopped)),
-        storedAt: now,
-        ...resumed.value,
-      }),
-      events: stopped.map((work) => workStoppedAt(work, now)),
-    })
   }
 
   private changed(change: Partial<TownState>): Town {

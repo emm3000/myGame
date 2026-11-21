@@ -37,7 +37,7 @@ export const stopBuildingWork = async (
   if (!accrual.ok) {
     return accrual
   }
-  const stopped = town.stopWork({ building, level }, accrual.value.stocks, now, catalog)
+  const stopped = town.buildingWork.stop({ building, level }, accrual.value.stocks, now, catalog)
   if (!stopped.ok) {
     return stopped
   }

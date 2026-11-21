@@ -1,3 +1,2 @@
 file_over_export_cap packages/domain/src/holdout/HoldoutCheck.ts
 file_over_export_cap packages/domain/src/learning/Lesson.ts
-type_over_method_cap packages/domain/src/town/Town.ts
