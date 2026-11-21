@@ -10,14 +10,9 @@ import {
   type Result,
 } from '@mygame/domain'
 import { and, asc, eq, sql } from 'drizzle-orm'
-import {
-  bandStarts,
-  heldOutWords,
-  holdoutChecks,
-  holdoutCheckWords,
-} from '../../holdout/infrastructure/postgres/holdoutTables'
-import type { PostgresSession } from '../../platform/infrastructure/postgres/connectPostgres'
-import { holdoutCheckOf } from './holdoutCheckOf'
+import type { PostgresSession } from '../../../platform/infrastructure/postgres/connectPostgres'
+import { holdoutCheckOf } from './holdoutCheckFromRow'
+import { bandStarts, heldOutWords, holdoutChecks, holdoutCheckWords } from './holdoutTables'
 
 type CheckRow = typeof holdoutChecks.$inferSelect
 
