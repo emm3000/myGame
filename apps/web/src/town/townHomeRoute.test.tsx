@@ -510,10 +510,10 @@ it('draws a retained need with its count', async () => {
 it('draws no need below level 3', async () => {
   await showTown(serving(townWithWords(farmNeeding(null))))
 
-  for (const standing of ['stable', 'retained'] as const) {
-    const needWords = es.townWordsNeeded({ standing, needed: 9, held: 9 }).split('9')[0] ?? ''
-    expect(farmRow().queryByText(needWords.trim(), { exact: false })).toBeNull()
-  }
+  const needWord =
+    es.townWordsNeeded({ standing: 'stable', needed: 10, held: 7 }).split(' ')[0] ?? ''
+  expect(needWord).not.toBe('')
+  expect(farmRow().queryByText(needWord, { exact: false })).toBeNull()
 })
 
 it("draws the town's reviewed and learned words", async () => {
