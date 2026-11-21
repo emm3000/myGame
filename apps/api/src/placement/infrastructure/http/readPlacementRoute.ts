@@ -7,7 +7,7 @@ import {
 } from '#account/infrastructure/http/requirePlayer'
 import type { LearningDependencies } from '#learning/application/LearningDependencies'
 import { honoPathOf } from '#platform/infrastructure/http/honoPath'
-import { signedInRoute } from '#platform/infrastructure/http/signedInRoute'
+import { signedInRoute } from '#platform/infrastructure/http/signedInDeclaration'
 import { mutateTown } from '#town/application/mutateTown'
 import { placementResponse } from './placementComponents'
 import { respondPlacementView } from './respondPlacementView'

@@ -7,7 +7,7 @@ import {
 import { honoPathOf } from '#platform/infrastructure/http/honoPath'
 import { respondRefusal } from '#platform/infrastructure/http/respondRefusal'
 import { jsonResponse } from '#platform/infrastructure/http/responseDeclarations'
-import { signedInRoute } from '#platform/infrastructure/http/signedInRoute'
+import { signedInRoute } from '#platform/infrastructure/http/signedInDeclaration'
 import { mutateTown } from '#town/application/mutateTown'
 import type { LearningDependencies } from '../../application/LearningDependencies'
 import { serveDueReviews } from '../../application/serveDueReviews'

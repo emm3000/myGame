@@ -8,7 +8,7 @@ import {
 import { honoPathOf } from '#platform/infrastructure/http/honoPath'
 import { respondRefusal } from '#platform/infrastructure/http/respondRefusal'
 import { malformedResponse } from '#platform/infrastructure/http/responseDeclarations'
-import { signedInRoute } from '#platform/infrastructure/http/signedInRoute'
+import { signedInRoute } from '#platform/infrastructure/http/signedInDeclaration'
 import type { MutateTownDependencies } from '../../../application/mutateTown'
 import { respondGuidanceChange } from './respondGuidanceChange'
 

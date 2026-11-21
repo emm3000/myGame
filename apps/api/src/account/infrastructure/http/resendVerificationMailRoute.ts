@@ -1,6 +1,6 @@
 import { createRoute, type OpenAPIHono } from '@hono/zod-openapi'
 import { refusalResponse } from '#platform/infrastructure/http/refusalResponse'
-import { signedInRoute } from '#platform/infrastructure/http/signedInRoute'
+import { signedInRoute } from '#platform/infrastructure/http/signedInDeclaration'
 import {
   type ResendVerificationMailDependencies,
   resendVerificationMail,
