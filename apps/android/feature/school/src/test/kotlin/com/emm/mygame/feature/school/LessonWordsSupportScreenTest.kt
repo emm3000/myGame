@@ -117,6 +117,17 @@ class LessonWordsSupportScreenTest {
         composeRule.onAllNodesWithText("agua", substring = true).assertCountEquals(0)
     }
 
+    @Test
+    fun `reads the lesson's theme in English`() {
+        draw(readingOf(homeWord))
+
+        val theme: AnnotatedString = composeRule.onNodeWithText("A day in town", useUnmergedTree = true)
+            .fetchSemanticsNode()
+            .config[SemanticsProperties.Text]
+            .single()
+        assertEquals(LocaleList("en"), theme.spanStyles.single().item.localeList)
+    }
+
     private fun localeOf(support: String): LocaleList? {
         val node: SemanticsNode = composeRule.onNodeWithText(support).fetchSemanticsNode()
         val text: AnnotatedString = node.config[SemanticsProperties.Text].single()
