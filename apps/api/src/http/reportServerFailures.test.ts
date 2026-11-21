@@ -8,7 +8,6 @@ import { createApp } from '../app'
 import { type ComposedServer, composeServer } from '../composeServer'
 import { mailEnvironment } from '../composeServer.testSupport'
 import type { FailureSink } from '../failures/FailureSink'
-import type { ReportClosings } from '../town/ReportClosings'
 import { truncatePlayerTables } from '../truncatePlayerTables.testSupport'
 
 const contentDirectory = apiPackagePath('content/')
@@ -130,7 +129,7 @@ describe('the server failure report', () => {
     expect(sink.lines).toEqual(['POST /auth/verify-email/resend 503 MailNotSent'])
   })
 
-  const unreachableReportClosings: ReportClosings = {
+  const unreachableReportClosings: ComposedServer['reportClosings'] = {
     serve: () => Promise.reject(new TypeError('the report store is unreachable')),
     close: () => Promise.reject(new TypeError('the report store is unreachable')),
     closedAt: () => Promise.reject(new TypeError('the report store is unreachable')),
