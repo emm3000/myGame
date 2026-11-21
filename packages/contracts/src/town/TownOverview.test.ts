@@ -1,59 +1,15 @@
 import { describe, expect, it } from 'vitest'
 import { TownOverviewSchema } from '../index'
-
-const stock = { amount: 300, ratePerHour: 12.5, capacity: 1000, fullAt: null }
-
-const idle = { level: 0, nextLevel: null }
-
-const besideSchool = { shown: 'beside', text: 'escuela', language: 'es' }
-
-const lessonOne = {
-  id: 'lesson-1',
-  theme: 'A day in town',
-  durationSeconds: 150,
-  requiredSchoolLevel: 1,
-  skill: { resource: 'food', ratePercent: 5 },
-  isStudied: true,
-  words: [
-    {
-      wordId: 'lesson-1-1',
-      standing: 'retained',
-      reading: null,
-      support: { shown: 'onTap', text: 'the place where you live', language: 'en' },
-    },
-    {
-      wordId: 'lesson-1-2',
-      standing: 'recognize',
-      reading: {
-        word: 'school',
-        frame: [{ text: 'We are at school.', support: null }],
-      },
-      support: besideSchool,
-    },
-  ],
-  enteringWordCount: 2,
-}
-
-const earnedFood = {
-  lessonId: 'lesson-1',
-  resource: 'food',
-  ratePercent: 5,
-  earnedAt: '2026-11-23T09:10:00.000Z',
-}
-
-const workerTerms = {
-  cost: { money: 40, food: 0, power: 0, material: 0 },
-  secondsPerHire: 60,
-  people: 1,
-  requiredOfficeLevel: 1,
-}
-
-const truckTerms = {
-  cost: { money: 80, food: 40, power: 40, material: 60 },
-  secondsPerHire: 180,
-  people: 1,
-  requiredOfficeLevel: 3,
-}
+import {
+  besideSchool,
+  earnedFood,
+  lessonOne,
+  lessonUnderStudy,
+  overview,
+  stock,
+  truckTerms,
+  workerTerms,
+} from './TownOverview.testSupport'
 
 const openOrder = {
   hire: 'worker',
@@ -62,12 +18,6 @@ const openOrder = {
   secondsPerHire: 60,
   startedAt: '2026-11-10T08:55:00.000Z',
   endsAt: '2026-11-10T08:58:00.000Z',
-}
-
-const lessonUnderStudy = {
-  lessonId: 'lesson-1',
-  startedAt: '2026-11-10T08:57:30.000Z',
-  finishesAt: '2026-11-10T09:00:00.000Z',
 }
 
 const jobOut = {
@@ -98,51 +48,6 @@ const cleanUpOut = {
   returnsAt: '2026-11-10T08:20:00.000Z',
   calledBackAt: null,
 }
-
-const overview = (overrides: Record<string, unknown> = {}): Record<string, unknown> => ({
-  name: 'Maple Falls',
-  label: 'town',
-  site: { region: 1, area: 1, site: 1 },
-  terrain: 'fields',
-  season: null,
-  stocks: { money: stock, food: stock, power: stock, material: stock },
-  people: { supplied: 10, free: 4, atWork: 6 },
-  buildings: {
-    homes: { level: 1, nextLevel: null },
-    farm: idle,
-    factory: idle,
-    powerStation: idle,
-    storage: idle,
-    school: { level: 1, nextLevel: null },
-    office: idle,
-  },
-  work: { slot: null, waitingList: [], cap: 4 },
-  hiring: {
-    order: null,
-    hires: { worker: 2, truck: 0 },
-    terms: { worker: workerTerms, truck: truckTerms },
-  },
-  job: null,
-  lessons: [lessonOne],
-  releasedLessons: [],
-  texts: [],
-  dueHoldoutChecks: [],
-  hasBandStarted: false,
-  bandLines: [],
-  skills: [earnedFood],
-  lessonSlot: lessonUnderStudy,
-  learning: { cap: 15, inLearning: 5, retainedWords: null, nextInLearningDueAt: null },
-  stableWordCount: 12,
-  retainedWordCount: 4,
-  nextStep: { kind: 'caughtUp', reason: 'lessonsDone', goal: null, text: null },
-  tip: null,
-  chromePhase: 'scaffold',
-  scaffold: 'es',
-  scaffoldVersion: 3,
-  nextDueAt: null,
-  readAt: '2026-11-10T08:58:00.000Z',
-  ...overrides,
-})
 
 const farmLevelThree = {
   level: 3,
@@ -599,204 +504,6 @@ describe('TownOverviewSchema holdout', () => {
     const { dueHoldoutChecks: _, ...withoutChecks } = overview()
 
     expect(TownOverviewSchema.safeParse(withoutChecks).success).toBe(false)
-  })
-})
-
-describe('TownOverviewSchema next step', () => {
-  it('reads the reviews with their count and the lessons to read first', () => {
-    const nextStep = { kind: 'reviews', count: 3, readFirst: ['lesson-1'] }
-
-    expect(TownOverviewSchema.parse(overview({ nextStep })).nextStep).toEqual(nextStep)
-  })
-
-  it('refuses the reviews with none due', () => {
-    const nextStep = { kind: 'reviews', count: 0, readFirst: [] }
-
-    expect(TownOverviewSchema.safeParse(overview({ nextStep })).success).toBe(false)
-  })
-
-  it('reads a running lesson with the next goal', () => {
-    const goal = { position: 1, count: 9, building: 'farm', level: 1, state: 'underway' }
-
-    const read = TownOverviewSchema.parse(
-      overview({ nextStep: { kind: 'lessonRunning', goal, text: null } }),
-    )
-
-    expect(read.nextStep).toEqual({ kind: 'lessonRunning', goal, text: null })
-  })
-
-  it('reads a running lesson with no goal', () => {
-    const nextStep = { kind: 'lessonRunning', goal: null, text: null }
-
-    expect(TownOverviewSchema.parse(overview({ nextStep })).nextStep).toEqual(nextStep)
-  })
-
-  it('refuses a running lesson with a field it does not carry', () => {
-    const nextStep = { kind: 'lessonRunning', goal: null, text: null, building: 'farm' }
-
-    expect(TownOverviewSchema.safeParse(overview({ nextStep })).success).toBe(false)
-  })
-
-  it('reads the lesson to study by its id', () => {
-    const nextStep = { kind: 'lessonToStudy', lessonId: 'lesson-2' }
-
-    expect(TownOverviewSchema.parse(overview({ nextStep })).nextStep).toEqual(nextStep)
-  })
-
-  it('reads a due check by its band and week', () => {
-    const nextStep = { kind: 'holdoutCheck', band: 1, week: 8 }
-
-    expect(TownOverviewSchema.parse(overview({ nextStep })).nextStep).toEqual(nextStep)
-  })
-
-  it('refuses a check on a week the holdout lacks', () => {
-    const nextStep = { kind: 'holdoutCheck', band: 1, week: 12 }
-
-    expect(TownOverviewSchema.safeParse(overview({ nextStep })).success).toBe(false)
-  })
-
-  it('reads a released lesson by its id, band and set', () => {
-    const nextStep = { kind: 'releasedLesson', lessonId: 'released-1-2', band: 1, position: 2 }
-
-    expect(TownOverviewSchema.parse(overview({ nextStep })).nextStep).toEqual(nextStep)
-  })
-
-  it('refuses a released lesson numbered from 0', () => {
-    const nextStep = { kind: 'releasedLesson', lessonId: 'released-1-0', band: 1, position: 0 }
-
-    expect(TownOverviewSchema.safeParse(overview({ nextStep })).success).toBe(false)
-  })
-
-  it('reads caught up with no goal', () => {
-    const nextStep = { kind: 'caughtUp', reason: 'lessonsDone', goal: null, text: null }
-
-    expect(TownOverviewSchema.parse(overview({ nextStep })).nextStep).toEqual(nextStep)
-  })
-
-  it('reads caught up with a pending goal and what it misses', () => {
-    const goal = {
-      position: 2,
-      count: 9,
-      building: 'factory',
-      level: 1,
-      state: 'pending',
-      missing: { resources: { money: 0, food: 0, power: 0, material: 30 }, people: 1 },
-    }
-
-    const read = TownOverviewSchema.parse(
-      overview({ nextStep: { kind: 'caughtUp', reason: 'learningCap', goal, text: null } }),
-    )
-
-    expect(read.nextStep).toEqual({ kind: 'caughtUp', reason: 'learningCap', goal, text: null })
-  })
-
-  it('reads caught up with a goal underway', () => {
-    const goal = { position: 1, count: 9, building: 'farm', level: 1, state: 'underway' }
-
-    const read = TownOverviewSchema.parse(
-      overview({ nextStep: { kind: 'caughtUp', reason: 'learningCap', goal, text: null } }),
-    )
-
-    expect(read.nextStep).toEqual({ kind: 'caughtUp', reason: 'learningCap', goal, text: null })
-  })
-
-  it.each(['learningCap', 'schoolTooLow', 'lessonsDone'])(
-    'reads caught up for the reason %s',
-    (reason) => {
-      const nextStep = { kind: 'caughtUp', reason, goal: null, text: null }
-
-      expect(TownOverviewSchema.parse(overview({ nextStep })).nextStep).toEqual(nextStep)
-    },
-  )
-
-  it('refuses caught up without its reason', () => {
-    const nextStep = { kind: 'caughtUp', goal: null, text: null }
-
-    expect(TownOverviewSchema.safeParse(overview({ nextStep })).success).toBe(false)
-  })
-
-  it('refuses caught up for a reason it does not know', () => {
-    const nextStep = { kind: 'caughtUp', reason: 'slotBusy', goal: null, text: null }
-
-    expect(TownOverviewSchema.safeParse(overview({ nextStep })).success).toBe(false)
-  })
-
-  it('reads caught up with the newest text by its id and title', () => {
-    const nextStep = {
-      kind: 'caughtUp',
-      reason: 'learningCap',
-      goal: null,
-      text: { id: 'text-1', title: 'A New Course' },
-    }
-
-    expect(TownOverviewSchema.parse(overview({ nextStep })).nextStep).toEqual(nextStep)
-  })
-
-  it('reads a running lesson with the newest text', () => {
-    const nextStep = {
-      kind: 'lessonRunning',
-      goal: null,
-      text: { id: 'text-1', title: 'A New Course' },
-    }
-
-    expect(TownOverviewSchema.parse(overview({ nextStep })).nextStep).toEqual(nextStep)
-  })
-
-  it('refuses caught up without its text', () => {
-    const nextStep = { kind: 'caughtUp', reason: 'lessonsDone', goal: null }
-
-    expect(TownOverviewSchema.safeParse(overview({ nextStep })).success).toBe(false)
-  })
-
-  it('refuses caught up without its goal', () => {
-    const nextStep = { kind: 'caughtUp', reason: 'lessonsDone', text: null }
-
-    expect(TownOverviewSchema.safeParse(overview({ nextStep })).success).toBe(false)
-  })
-
-  it('refuses a goal underway that names what it misses', () => {
-    const goal = {
-      position: 1,
-      count: 9,
-      building: 'farm',
-      level: 1,
-      state: 'underway',
-      missing: { resources: { money: 0, food: 0, power: 0, material: 0 }, people: 0 },
-    }
-
-    const parsed = TownOverviewSchema.safeParse(
-      overview({ nextStep: { kind: 'caughtUp', reason: 'learningCap', goal, text: null } }),
-    )
-
-    expect(parsed.success).toBe(false)
-  })
-
-  it('refuses a goal at position 0', () => {
-    const goal = { position: 0, count: 9, building: 'farm', level: 1, state: 'underway' }
-
-    const parsed = TownOverviewSchema.safeParse(
-      overview({ nextStep: { kind: 'caughtUp', reason: 'learningCap', goal, text: null } }),
-    )
-
-    expect(parsed.success).toBe(false)
-  })
-
-  it('refuses an overview without its next step', () => {
-    const { nextStep: _, ...withoutNextStep } = overview()
-
-    expect(TownOverviewSchema.safeParse(withoutNextStep).success).toBe(false)
-  })
-
-  it('reads the next review instant', () => {
-    const nextDueAt = '2026-11-10T09:10:00.000Z'
-
-    expect(TownOverviewSchema.parse(overview({ nextDueAt })).nextDueAt).toBe(nextDueAt)
-  })
-
-  it('refuses an overview without its next review instant', () => {
-    const { nextDueAt: _, ...withoutNextDueAt } = overview()
-
-    expect(TownOverviewSchema.safeParse(withoutNextDueAt).success).toBe(false)
   })
 })
 
