@@ -3,11 +3,11 @@ import { type Report, ReportSchema } from '@mygame/contracts'
 import {
   type RequirePlayerDependencies,
   requirePlayer,
-} from '../../../account/infrastructure/http/requirePlayer'
-import { answerRefusal } from '../../../platform/infrastructure/http/answerRefusal'
-import { honoPathOf } from '../../../platform/infrastructure/http/honoPath'
-import { jsonResponse } from '../../../platform/infrastructure/http/responseDeclarations'
-import { signedInRoute } from '../../../platform/infrastructure/http/signedInRoute'
+} from '#account/infrastructure/http/requirePlayer'
+import { answerRefusal } from '#platform/infrastructure/http/answerRefusal'
+import { honoPathOf } from '#platform/infrastructure/http/honoPath'
+import { jsonResponse } from '#platform/infrastructure/http/responseDeclarations'
+import { signedInRoute } from '#platform/infrastructure/http/signedInRoute'
 import { type ServeReportDependencies, serveReport } from '../../application/serveReport'
 import { presentReport } from './presentReport'
 

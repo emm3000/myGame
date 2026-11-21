@@ -1,18 +1,18 @@
 import { createRoute, type OpenAPIHono } from '@hono/zod-openapi'
 import { PlacementAnswersSchema } from '@mygame/contracts'
 import { answerPlacement } from '@mygame/domain'
-import { readScaffold } from '../../../account/application/readScaffold'
+import { readScaffold } from '#account/application/readScaffold'
 import {
   type RequirePlayerDependencies,
   requirePlayer,
-} from '../../../account/infrastructure/http/requirePlayer'
-import type { LearningDependencies } from '../../../learning/application/LearningDependencies'
-import { answerRefusal } from '../../../platform/infrastructure/http/answerRefusal'
-import { honoPathOf } from '../../../platform/infrastructure/http/honoPath'
-import { readJsonBody } from '../../../platform/infrastructure/http/readJsonBody'
-import { jsonBody } from '../../../platform/infrastructure/http/responseDeclarations'
-import { signedInRoute } from '../../../platform/infrastructure/http/signedInRoute'
-import { mutateTown } from '../../../town/application/mutateTown'
+} from '#account/infrastructure/http/requirePlayer'
+import type { LearningDependencies } from '#learning/application/LearningDependencies'
+import { answerRefusal } from '#platform/infrastructure/http/answerRefusal'
+import { honoPathOf } from '#platform/infrastructure/http/honoPath'
+import { readJsonBody } from '#platform/infrastructure/http/readJsonBody'
+import { jsonBody } from '#platform/infrastructure/http/responseDeclarations'
+import { signedInRoute } from '#platform/infrastructure/http/signedInRoute'
+import { mutateTown } from '#town/application/mutateTown'
 import { answerPlacementView } from './answerPlacementView'
 import { placementResponse } from './placementComponents'
 

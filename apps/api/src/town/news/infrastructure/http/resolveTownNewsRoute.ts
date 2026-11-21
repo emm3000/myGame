@@ -3,11 +3,11 @@ import { type TownNewsFeed, TownNewsFeedSchema } from '@mygame/contracts'
 import {
   type RequirePlayerDependencies,
   requirePlayer,
-} from '../../../../account/infrastructure/http/requirePlayer'
-import { answerRefusal } from '../../../../platform/infrastructure/http/answerRefusal'
-import { honoPathOf } from '../../../../platform/infrastructure/http/honoPath'
-import { jsonResponse } from '../../../../platform/infrastructure/http/responseDeclarations'
-import { signedInRoute } from '../../../../platform/infrastructure/http/signedInRoute'
+} from '#account/infrastructure/http/requirePlayer'
+import { answerRefusal } from '#platform/infrastructure/http/answerRefusal'
+import { honoPathOf } from '#platform/infrastructure/http/honoPath'
+import { jsonResponse } from '#platform/infrastructure/http/responseDeclarations'
+import { signedInRoute } from '#platform/infrastructure/http/signedInRoute'
 import { townNotFoundResponse } from '../../../infrastructure/http/townComponents'
 import {
   type ResolveTownNewsDependencies,

@@ -13,7 +13,7 @@ import {
   unique,
   uuid,
 } from 'drizzle-orm/pg-core'
-import { players } from '../../../account/infrastructure/postgres/accountTables'
+import { players } from '#account/infrastructure/postgres/accountTables'
 
 export const wholeAmount = (name: string, amount: AnyPgColumn): CheckBuilder =>
   check(name, sql`${amount} >= 0 AND ${amount} = trunc(${amount})`)

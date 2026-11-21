@@ -11,9 +11,9 @@ import {
   it,
   vi,
 } from 'vitest'
-import { createApp } from '../../../app'
-import type { ComposedServer } from '../../../composeServer'
-import { truncatePlayerTables } from '../../../truncatePlayerTables.testSupport'
+import { createApp } from '#app'
+import type { ComposedServer } from '#composeServer'
+import { truncatePlayerTables } from '#truncatePlayerTables.testSupport'
 import {
   amountsOf,
   holdStableWords,

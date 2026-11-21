@@ -2,8 +2,8 @@ import { type ReviewAnswer, type TownOverview, TownOverviewSchema } from '@mygam
 import type { RandomSource } from '@mygame/domain'
 import { Client, type QueryResultRow } from 'pg'
 import { assert, beforeEach, describe, expect, it } from 'vitest'
-import { createApp } from '../../../app'
-import type { LessonLibrary, ShelvedLesson } from '../../../content/application/ports/LessonLibrary'
+import { createApp } from '#app'
+import type { LessonLibrary, ShelvedLesson } from '#content/application/ports/LessonLibrary'
 import {
   databaseUrl,
   lateFirstRecallAt,

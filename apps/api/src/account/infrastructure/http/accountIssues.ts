@@ -1,4 +1,4 @@
-import type { NamedIssue } from '../../../platform/infrastructure/http/requestRefusalOf'
+import type { NamedIssue } from '#platform/infrastructure/http/requestRefusalOf'
 
 export const accountIssues: ReadonlyArray<NamedIssue> = [
   ['email', 'invalid_format', { kind: 'MalformedEmail' }],

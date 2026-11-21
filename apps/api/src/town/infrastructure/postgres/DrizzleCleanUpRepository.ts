@@ -9,7 +9,7 @@ import {
   type TownId,
 } from '@mygame/domain'
 import { and, eq, lte, max } from 'drizzle-orm'
-import type { PostgresSession } from '../../../platform/infrastructure/postgres/connectPostgres'
+import type { PostgresSession } from '#platform/infrastructure/postgres/connectPostgres'
 import { siteCleanUps } from './jobsTables'
 
 export class DrizzleCleanUpRepository implements CleanUpRepository {

@@ -1,5 +1,5 @@
 import { eq, type SQL, sql } from 'drizzle-orm'
-import { jsonAggregateOf } from '../../../platform/infrastructure/postgres/jsonAggregateOf'
+import { jsonAggregateOf } from '#platform/infrastructure/postgres/jsonAggregateOf'
 import { townHires, townHiringOrders } from './hiringTables'
 import { townJobs } from './jobsTables'
 import { earnedSkills } from './schoolTables'

@@ -1,15 +1,15 @@
 import { type BandStart, Instant } from '@mygame/domain'
 import { asc, type Column, eq, type SQL, sql } from 'drizzle-orm'
 import { z } from 'zod'
-import { holdoutCheckFromRow } from '../../../holdout/infrastructure/postgres/holdoutCheckFromRow'
+import { holdoutCheckFromRow } from '#holdout/infrastructure/postgres/holdoutCheckFromRow'
 import {
   bandStarts,
   heldOutWords,
   holdoutCheckKind,
   holdoutChecks,
   holdoutCheckWords,
-} from '../../../holdout/infrastructure/postgres/holdoutTables'
-import { jsonAggregateOf } from '../../../platform/infrastructure/postgres/jsonAggregateOf'
+} from '#holdout/infrastructure/postgres/holdoutTables'
+import { jsonAggregateOf } from '#platform/infrastructure/postgres/jsonAggregateOf'
 
 const TimestampSchema = z.string().transform((iso) => new Date(iso))
 

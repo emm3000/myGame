@@ -11,7 +11,7 @@ import type {
   TownNews,
   TownRepository,
 } from '@mygame/domain'
-import type { Accounts } from '../../../account/application/ports/Accounts'
+import type { Accounts } from '#account/application/ports/Accounts'
 import type { GuidanceDismissals } from './GuidanceDismissals'
 import type { SeenTips } from './SeenTips'
 import type { TownNewsReader } from './TownNewsReader'

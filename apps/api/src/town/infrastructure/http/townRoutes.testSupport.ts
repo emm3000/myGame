@@ -7,18 +7,14 @@ import {
 import { type Clock, Instant } from '@mygame/domain'
 import { Client } from 'pg'
 import { assert, expect } from 'vitest'
-import { apiPackagePath } from '../../../apiPackagePath.testSupport'
-import type { createApp } from '../../../app'
-import { type ComposedServer, composeServer } from '../../../composeServer'
-import { mailEnvironment } from '../../../composeServer.testSupport'
-import type { ComposedStores } from '../../../composeStores'
-import type { LessonLibrary } from '../../../content/application/ports/LessonLibrary'
-import {
-  isWaitingOnALock,
-  lockedPlayerReadQuery,
-  lockProbeLimit,
-} from '../../../lockWaitProbe.testSupport'
-import type { Transaction } from '../../../platform/application/ports/Transaction'
+import { apiPackagePath } from '#apiPackagePath.testSupport'
+import type { createApp } from '#app'
+import { type ComposedServer, composeServer } from '#composeServer'
+import { mailEnvironment } from '#composeServer.testSupport'
+import type { ComposedStores } from '#composeStores'
+import type { LessonLibrary } from '#content/application/ports/LessonLibrary'
+import { isWaitingOnALock, lockedPlayerReadQuery, lockProbeLimit } from '#lockWaitProbe.testSupport'
+import type { Transaction } from '#platform/application/ports/Transaction'
 
 export const contentDirectory = apiPackagePath('content/')
 

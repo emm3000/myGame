@@ -1,14 +1,14 @@
 import { createRoute, type OpenAPIHono } from '@hono/zod-openapi'
 import { readPlacement } from '@mygame/domain'
-import { readScaffold } from '../../../account/application/readScaffold'
+import { readScaffold } from '#account/application/readScaffold'
 import {
   type RequirePlayerDependencies,
   requirePlayer,
-} from '../../../account/infrastructure/http/requirePlayer'
-import type { LearningDependencies } from '../../../learning/application/LearningDependencies'
-import { honoPathOf } from '../../../platform/infrastructure/http/honoPath'
-import { signedInRoute } from '../../../platform/infrastructure/http/signedInRoute'
-import { mutateTown } from '../../../town/application/mutateTown'
+} from '#account/infrastructure/http/requirePlayer'
+import type { LearningDependencies } from '#learning/application/LearningDependencies'
+import { honoPathOf } from '#platform/infrastructure/http/honoPath'
+import { signedInRoute } from '#platform/infrastructure/http/signedInRoute'
+import { mutateTown } from '#town/application/mutateTown'
 import { answerPlacementView } from './answerPlacementView'
 import { placementResponse } from './placementComponents'
 

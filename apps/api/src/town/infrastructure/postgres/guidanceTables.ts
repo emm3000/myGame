@@ -1,5 +1,5 @@
 import { pgEnum, pgTable, primaryKey, uuid } from 'drizzle-orm/pg-core'
-import { players } from '../../../account/infrastructure/postgres/accountTables'
+import { players } from '#account/infrastructure/postgres/accountTables'
 
 export const townTip = pgEnum('town_tip', [
   'people',

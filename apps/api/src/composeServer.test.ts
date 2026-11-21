@@ -16,11 +16,11 @@ import {
 } from '@mygame/domain'
 import { Client } from 'pg'
 import { afterAll, assert, beforeAll, describe, expect, it } from 'vitest'
-import type { AccountToken } from './account/application/ports/AccountTokens'
+import type { AccountToken } from '#account/application/ports/AccountTokens'
+import { JsonTownCatalog } from '#content/infrastructure/json/JsonTownCatalog'
 import { apiPackagePath } from './apiPackagePath.testSupport'
 import { type ComposedServer, composeServer } from './composeServer'
 import { mailEnvironment } from './composeServer.testSupport'
-import { JsonTownCatalog } from './content/infrastructure/json/JsonTownCatalog'
 import { isWaitingOnALock, lockProbeLimit } from './lockWaitProbe.testSupport'
 import { truncatePlayerTables } from './truncatePlayerTables.testSupport'
 

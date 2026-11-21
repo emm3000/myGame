@@ -5,7 +5,7 @@ import {
   type ReviewLog,
   type ReviewLogEntry,
 } from '@mygame/domain'
-import type { PostgresSession } from '../../../platform/infrastructure/postgres/connectPostgres'
+import type { PostgresSession } from '#platform/infrastructure/postgres/connectPostgres'
 import { cardColumnsOf } from './cardColumns'
 import { reviewLog } from './learningTables'
 

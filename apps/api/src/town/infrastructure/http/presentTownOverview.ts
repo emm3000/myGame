@@ -21,9 +21,9 @@ import {
   townLabelOf,
   townSeasonAt,
 } from '@mygame/domain'
-import { presentScaffold } from '../../../account/infrastructure/http/presentScaffold'
-import type { LessonLibrary } from '../../../content/application/ports/LessonLibrary'
-import { isoOf } from '../../../platform/infrastructure/http/isoOf'
+import { presentScaffold } from '#account/infrastructure/http/presentScaffold'
+import type { LessonLibrary } from '#content/application/ports/LessonLibrary'
+import { isoOf } from '#platform/infrastructure/http/isoOf'
 import type { TownReading } from '../../application/TownReading'
 import { presentTownBuildings } from '../../building/infrastructure/http/presentTownBuildings'
 import { presentTownWork } from '../../building/infrastructure/http/presentTownWork'

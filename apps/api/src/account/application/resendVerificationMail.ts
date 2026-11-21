@@ -1,6 +1,6 @@
 import { type Clock, err, ok, type PlayerId, type Result } from '@mygame/domain'
-import type { Transaction } from '../../platform/application/ports/Transaction'
-import type { Refusal } from '../../platform/application/Refusal'
+import type { Transaction } from '#platform/application/ports/Transaction'
+import type { Refusal } from '#platform/application/Refusal'
 import { issueAccountToken } from './issueAccountToken'
 import type { MailRecipient } from './MailRecipient'
 import type { AccountStores } from './ports/AccountStores'

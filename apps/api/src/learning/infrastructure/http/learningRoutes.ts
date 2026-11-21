@@ -1,5 +1,5 @@
 import { OpenAPIHono } from '@hono/zod-openapi'
-import type { RequirePlayerDependencies } from '../../../account/infrastructure/http/requirePlayer'
+import type { RequirePlayerDependencies } from '#account/infrastructure/http/requirePlayer'
 import type { LearningDependencies } from '../../application/LearningDependencies'
 import { requestReviewHintDeclaration, requestReviewHintRoute } from './requestReviewHintRoute'
 import { serveDueReviewsDeclaration, serveDueReviewsRoute } from './serveDueReviewsRoute'

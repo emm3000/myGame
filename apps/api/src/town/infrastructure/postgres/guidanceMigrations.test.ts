@@ -7,7 +7,7 @@ import {
   migratedThroughNext,
   openEmptyDatabase,
   uniqueViolation,
-} from '../../../platform/infrastructure/postgres/migrationDatabase.testSupport'
+} from '#platform/infrastructure/postgres/migrationDatabase.testSupport'
 
 const guidanceOwnerId = '00000000-0000-4000-8000-0000000000a5'
 

@@ -1,6 +1,6 @@
 import { sql } from 'drizzle-orm'
 import { check, integer, pgTable, primaryKey, text, timestamp, uuid } from 'drizzle-orm/pg-core'
-import { players } from '../../../account/infrastructure/postgres/accountTables'
+import { players } from '#account/infrastructure/postgres/accountTables'
 import { townResource, towns } from './townTables'
 
 export const earnedSkills = pgTable(

@@ -7,7 +7,7 @@ import {
   migratedFrom,
   migratedThroughNext,
   openEmptyDatabase,
-} from '../../../platform/infrastructure/postgres/migrationDatabase.testSupport'
+} from '#platform/infrastructure/postgres/migrationDatabase.testSupport'
 import { players } from './accountTables'
 import { DrizzleSessions } from './DrizzleSessions'
 import { ana, bruno } from './migrationPlayers.testSupport'

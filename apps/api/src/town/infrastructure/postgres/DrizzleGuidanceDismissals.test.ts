@@ -1,7 +1,7 @@
 import { drizzle } from 'drizzle-orm/node-postgres'
 import { Pool } from 'pg'
 import { afterAll, assert, beforeAll } from 'vitest'
-import { truncatePlayerTables } from '../../../truncatePlayerTables.testSupport'
+import { truncatePlayerTables } from '#truncatePlayerTables.testSupport'
 import { guidanceDismissalsContract } from '../memory/guidanceDismissalsContract.testSupport'
 import { DrizzleGuidanceDismissals } from './DrizzleGuidanceDismissals'
 import { DrizzleTownReader } from './DrizzleTownReader'

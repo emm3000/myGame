@@ -1,13 +1,13 @@
 import { createRoute, type OpenAPIHono } from '@hono/zod-openapi'
 import { ScaffoldChangeSchema } from '@mygame/contracts'
-import { answerRefusal } from '../../../platform/infrastructure/http/answerRefusal'
-import { readJsonBody } from '../../../platform/infrastructure/http/readJsonBody'
+import { answerRefusal } from '#platform/infrastructure/http/answerRefusal'
+import { readJsonBody } from '#platform/infrastructure/http/readJsonBody'
 import {
   jsonBody,
   jsonResponse,
   malformedResponse,
-} from '../../../platform/infrastructure/http/responseDeclarations'
-import { signedInRoute } from '../../../platform/infrastructure/http/signedInRoute'
+} from '#platform/infrastructure/http/responseDeclarations'
+import { signedInRoute } from '#platform/infrastructure/http/signedInRoute'
 import type { Accounts } from '../../application/ports/Accounts'
 import type { ReadChromePhaseDependencies } from '../../application/readChromePhase'
 import { PlayerComponent } from './playerComponent'

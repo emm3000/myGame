@@ -1,8 +1,8 @@
 import { type Clock, Instant } from '@mygame/domain'
 import { Client } from 'pg'
-import { apiPackagePath } from '../../../apiPackagePath.testSupport'
-import { mailEnvironment } from '../../../composeServer.testSupport'
-import { truncatePlayerTables } from '../../../truncatePlayerTables.testSupport'
+import { apiPackagePath } from '#apiPackagePath.testSupport'
+import { mailEnvironment } from '#composeServer.testSupport'
+import { truncatePlayerTables } from '#truncatePlayerTables.testSupport'
 import type { Mail } from '../../application/ports/Mailer'
 
 export const contentDirectory = apiPackagePath('content/')

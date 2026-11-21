@@ -1,7 +1,7 @@
 import { drizzle } from 'drizzle-orm/node-postgres'
 import { Pool } from 'pg'
 import { afterAll, beforeAll } from 'vitest'
-import { truncatePlayerTables } from '../../../truncatePlayerTables.testSupport'
+import { truncatePlayerTables } from '#truncatePlayerTables.testSupport'
 import { chromeProgressContract } from '../memory/chromeProgressContract.testSupport'
 import { DrizzleChromeProgress } from './DrizzleChromeProgress'
 

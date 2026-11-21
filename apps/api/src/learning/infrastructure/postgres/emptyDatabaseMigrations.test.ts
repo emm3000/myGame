@@ -3,13 +3,9 @@ import { readMigrationFiles } from 'drizzle-orm/migrator'
 import { drizzle, type NodePgDatabase } from 'drizzle-orm/node-postgres'
 import type { Client } from 'pg'
 import { afterEach, beforeEach, describe, expect, it } from 'vitest'
-import { tokenDigest } from '../../../account/application/tokenDigest'
-import {
-  accountTokens,
-  players,
-  sessions,
-} from '../../../account/infrastructure/postgres/accountTables'
-import { ana, bruno } from '../../../account/infrastructure/postgres/migrationPlayers.testSupport'
+import { tokenDigest } from '#account/application/tokenDigest'
+import { accountTokens, players, sessions } from '#account/infrastructure/postgres/accountTables'
+import { ana, bruno } from '#account/infrastructure/postgres/migrationPlayers.testSupport'
 import {
   applyMigrations,
   checkViolation,
@@ -18,12 +14,9 @@ import {
   migrationsFolder,
   openEmptyDatabase,
   uniqueViolation,
-} from '../../../platform/infrastructure/postgres/migrationDatabase.testSupport'
-import {
-  insertTownOf,
-  plainStocks,
-} from '../../../town/infrastructure/postgres/migrationTowns.testSupport'
-import { earnedSkills } from '../../../town/infrastructure/postgres/schoolTables'
+} from '#platform/infrastructure/postgres/migrationDatabase.testSupport'
+import { insertTownOf, plainStocks } from '#town/infrastructure/postgres/migrationTowns.testSupport'
+import { earnedSkills } from '#town/infrastructure/postgres/schoolTables'
 import { cards, pendingReviews, reviewLog } from './learningTables'
 
 const lessonFinishedAt = new Date('2026-11-10T09:00:00Z')

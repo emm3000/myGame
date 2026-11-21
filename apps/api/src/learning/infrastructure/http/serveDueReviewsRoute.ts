@@ -3,12 +3,12 @@ import { type Reviews, ReviewsSchema } from '@mygame/contracts'
 import {
   type RequirePlayerDependencies,
   requirePlayer,
-} from '../../../account/infrastructure/http/requirePlayer'
-import { answerRefusal } from '../../../platform/infrastructure/http/answerRefusal'
-import { honoPathOf } from '../../../platform/infrastructure/http/honoPath'
-import { jsonResponse } from '../../../platform/infrastructure/http/responseDeclarations'
-import { signedInRoute } from '../../../platform/infrastructure/http/signedInRoute'
-import { mutateTown } from '../../../town/application/mutateTown'
+} from '#account/infrastructure/http/requirePlayer'
+import { answerRefusal } from '#platform/infrastructure/http/answerRefusal'
+import { honoPathOf } from '#platform/infrastructure/http/honoPath'
+import { jsonResponse } from '#platform/infrastructure/http/responseDeclarations'
+import { signedInRoute } from '#platform/infrastructure/http/signedInRoute'
+import { mutateTown } from '#town/application/mutateTown'
 import type { LearningDependencies } from '../../application/LearningDependencies'
 import { serveDueReviews } from '../../application/serveDueReviews'
 import { presentReviews } from './presentReviews'

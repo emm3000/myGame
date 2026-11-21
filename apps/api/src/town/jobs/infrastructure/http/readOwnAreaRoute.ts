@@ -3,11 +3,11 @@ import { RegionMapSchema } from '@mygame/contracts'
 import {
   type RequirePlayerDependencies,
   requirePlayer,
-} from '../../../../account/infrastructure/http/requirePlayer'
-import { honoPathOf } from '../../../../platform/infrastructure/http/honoPath'
-import { refusalResponse } from '../../../../platform/infrastructure/http/refusalResponse'
-import { jsonResponse } from '../../../../platform/infrastructure/http/responseDeclarations'
-import { signedInRoute } from '../../../../platform/infrastructure/http/signedInRoute'
+} from '#account/infrastructure/http/requirePlayer'
+import { honoPathOf } from '#platform/infrastructure/http/honoPath'
+import { refusalResponse } from '#platform/infrastructure/http/refusalResponse'
+import { jsonResponse } from '#platform/infrastructure/http/responseDeclarations'
+import { signedInRoute } from '#platform/infrastructure/http/signedInRoute'
 import { type AnswerRegionMapDependencies, answerRegionMap } from './answerRegionMap'
 
 export const readOwnAreaDeclaration = createRoute(

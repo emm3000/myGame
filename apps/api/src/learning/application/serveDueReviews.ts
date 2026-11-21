@@ -19,7 +19,7 @@ import {
   stageOf,
   type WordId,
 } from '@mygame/domain'
-import type { LessonLibrary } from '../../content/application/ports/LessonLibrary'
+import type { LessonLibrary } from '#content/application/ports/LessonLibrary'
 import type { LearnerStores } from './ports/LearnerStores'
 import { readLearner } from './readLearner'
 

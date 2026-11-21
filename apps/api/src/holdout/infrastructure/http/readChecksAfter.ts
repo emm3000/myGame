@@ -7,10 +7,10 @@ import {
   type Result,
   readHoldoutChecks,
 } from '@mygame/domain'
-import { readScaffold } from '../../../account/application/readScaffold'
-import type { LearningDependencies } from '../../../learning/application/LearningDependencies'
-import { mutateTown } from '../../../town/application/mutateTown'
-import type { TownStores } from '../../../town/application/ports/TownStores'
+import { readScaffold } from '#account/application/readScaffold'
+import type { LearningDependencies } from '#learning/application/LearningDependencies'
+import { mutateTown } from '#town/application/mutateTown'
+import type { TownStores } from '#town/application/ports/TownStores'
 
 export type CheckMutation = (
   stores: TownStores,

@@ -1,5 +1,5 @@
 import type { DueReview, Reviews } from '@mygame/contracts'
-import { isoOf } from '../../../platform/infrastructure/http/isoOf'
+import { isoOf } from '#platform/infrastructure/http/isoOf'
 import type { DueReviews, PromptedReview } from '../../application/serveDueReviews'
 
 const presentDueReview = ({ wordId, lessonId, dueAt, prompt }: PromptedReview): DueReview => {

@@ -1,6 +1,6 @@
 import { readMigrationFiles } from 'drizzle-orm/migrator'
 import { Client } from 'pg'
-import { apiPackagePath } from '../../../apiPackagePath.testSupport'
+import { apiPackagePath } from '#apiPackagePath.testSupport'
 
 export const migrationsFolder = apiPackagePath('migrations')
 

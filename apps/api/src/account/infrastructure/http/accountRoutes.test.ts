@@ -1,8 +1,8 @@
 import { ApiErrorSchema, NativeSessionSchema, PlayerSchema } from '@mygame/contracts'
 import { afterAll, beforeAll, beforeEach, describe, expect, it } from 'vitest'
-import { createApp } from '../../../app'
-import { type ComposedServer, composeServer } from '../../../composeServer'
-import { mailEnvironment } from '../../../composeServer.testSupport'
+import { createApp } from '#app'
+import { type ComposedServer, composeServer } from '#composeServer'
+import { mailEnvironment } from '#composeServer.testSupport'
 import { tokenDigest } from '../../application/tokenDigest'
 import { MemoryMailer } from '../memory/MemoryMailer'
 import {

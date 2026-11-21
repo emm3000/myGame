@@ -1,6 +1,6 @@
 import { type DomainError, err, type Instant, ok, type PlayerId, type Result } from '@mygame/domain'
 import { eq, sql } from 'drizzle-orm'
-import type { PostgresSession } from '../../../platform/infrastructure/postgres/connectPostgres'
+import type { PostgresSession } from '#platform/infrastructure/postgres/connectPostgres'
 import type { GuidanceDismissals } from '../../application/ports/GuidanceDismissals'
 import { towns } from './townTables'
 
