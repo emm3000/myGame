@@ -118,7 +118,8 @@ This one list replaces the scattered per-PR lines above. Tick each item when it 
 - #1742: content gate (#1695).
 - #1743: structure check and limits in the gate (#1711).
 - #1746: rules (#1712).
-- 21 PRs in all (log 746aec8e).
+- #1750: this logbook (#1749); issue #1515 closed into it.
+- 22 PRs in all (logs 746aec8e and the commit that adds this line).
 
 ### Not proven
 See `## Still to validate`, the 2026-11-21 group.
