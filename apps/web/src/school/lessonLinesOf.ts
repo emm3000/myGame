@@ -1,35 +1,29 @@
-import {
-  schoolLessonSlotBusy,
-  schoolLessonTitle,
-  schoolReleasedSlotBusy,
-  schoolReleasedStopOf,
-  schoolReleasedTitle,
-  schoolSlotStopOf,
-} from '@mygame/catalog'
+import type { PlayerCopy } from '../copy/PlayerCopy'
+import type { Label } from '../design-system/Label'
 import type { LessonName } from '../town/lessonNameOf'
 
 export interface LessonLines {
-  readonly title: string
-  readonly slotBusy: string
-  readonly stopOf: string
+  readonly title: Label
+  readonly slotBusy: Label
+  readonly stopOf: Label
 }
 
-export function lessonLinesOf(name: LessonName): LessonLines {
+export function lessonLinesOf(name: LessonName, { chrome, fixedCopy }: PlayerCopy): LessonLines {
   switch (name.kind) {
     case 'shelved': {
       const { number } = name
       return {
-        title: schoolLessonTitle({ number }),
-        slotBusy: schoolLessonSlotBusy({ number }),
-        stopOf: schoolSlotStopOf({ number }),
+        title: chrome((catalog) => catalog.schoolLessonTitle({ number })),
+        slotBusy: chrome((catalog) => catalog.schoolLessonSlotBusy({ number })),
+        stopOf: chrome((catalog) => catalog.schoolSlotStopOf({ number })),
       }
     }
     case 'released': {
       const set = { band: name.band, number: name.set }
       return {
-        title: schoolReleasedTitle(set),
-        slotBusy: schoolReleasedSlotBusy(set),
-        stopOf: schoolReleasedStopOf(set),
+        title: fixedCopy((catalog) => catalog.schoolReleasedTitle(set)),
+        slotBusy: fixedCopy((catalog) => catalog.schoolReleasedSlotBusy(set)),
+        stopOf: fixedCopy((catalog) => catalog.schoolReleasedStopOf(set)),
       }
     }
     default: {

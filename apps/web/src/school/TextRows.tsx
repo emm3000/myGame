@@ -1,6 +1,7 @@
-import { schoolTexts } from '@mygame/catalog'
 import type { TownOverview } from '@mygame/contracts'
 import { type ReactElement, useId } from 'react'
+import { usePlayerCopy } from '../copy/usePlayerCopy'
+import { LabelText } from '../design-system/LabelText'
 import { TextLink } from '../design-system/TextLink'
 
 export interface TextRowsProps {
@@ -9,13 +10,14 @@ export interface TextRowsProps {
 
 export function TextRows({ texts }: TextRowsProps): ReactElement | null {
   const titleId = useId()
+  const { chrome } = usePlayerCopy()
   if (texts.length === 0) {
     return null
   }
   return (
     <section aria-labelledby={titleId} className="flex flex-col gap-1">
       <h2 id={titleId} className="m-0 font-sans text-heading text-ink">
-        {schoolTexts()}
+        <LabelText label={chrome((catalog) => catalog.schoolTexts())} />
       </h2>
       <ul className="m-0 flex list-none flex-col p-0">
         {texts.map(({ id, title }) => (

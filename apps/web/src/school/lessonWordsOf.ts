@@ -1,8 +1,6 @@
-import { es, schoolLessonTitle } from '@mygame/catalog'
 import type { TownOverview } from '@mygame/contracts'
 import type { ArtTag } from '../art/ArtTag'
 import { frameTextOf } from '../review/frameTextOf'
-import { formatFinish } from '../time/formatFinish'
 import { lessonNumberOf } from '../town/lessonNameOf'
 import type { LiveLesson, LiveTown } from '../town/liveTown'
 import { wordArtOf } from './wordArtOf'
@@ -14,10 +12,10 @@ export type LessonWord = Omit<WordReading, 'frame'> & {
   readonly art: ReadonlyArray<ArtTag> | undefined
 }
 
-export type RunningLesson = LiveLesson & { readonly time: string }
+export type RunningLesson = LiveLesson & { readonly at: Date }
 
 export interface LessonWords {
-  readonly title: string
+  readonly number: number
   readonly theme: string
   readonly words: readonly [LessonWord, ...ReadonlyArray<LessonWord>]
   readonly running: RunningLesson | null
@@ -35,12 +33,9 @@ export function lessonWordsOf(town: LiveTown, lessonId: string): LessonWords | u
     return undefined
   }
   return {
-    title: schoolLessonTitle({ number: lessonNumberOf(lessonId, overview) }),
+    number: lessonNumberOf(lessonId, overview),
     theme: lesson.theme,
     words: [first, ...rest],
-    running:
-      lessonSlot?.lessonId === lessonId
-        ? { ...lessonSlot, time: formatFinish(es, lessonSlot.remainingSeconds, at) }
-        : null,
+    running: lessonSlot?.lessonId === lessonId ? { ...lessonSlot, at } : null,
   }
 }

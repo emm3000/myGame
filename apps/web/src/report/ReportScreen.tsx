@@ -1,22 +1,12 @@
-import {
-  reportNewsAll,
-  reportNewsClose,
-  reportNewsClosed,
-  reportNewsNone,
-  reportNewsTitle,
-  reportNoReviewsDue,
-  reportReviewsDue,
-  reportStartReviews,
-  reportTitle,
-  schoolLessonReadWords,
-} from '@mygame/catalog'
 import { type ReactElement, type ReactNode, useId } from 'react'
+import { usePlayerCopy } from '../copy/usePlayerCopy'
 import { Block } from '../design-system/Block'
 import { Button } from '../design-system/Button'
 import { ButtonLink } from '../design-system/ButtonLink'
 import { FormAlert } from '../design-system/FormAlert'
 import { focusTargetClass } from '../design-system/focusTargetClass'
 import { formatQuantity } from '../design-system/formatQuantity'
+import { LabelText } from '../design-system/LabelText'
 import { lineLabelOf } from '../design-system/lineLabelOf'
 import { TextLink } from '../design-system/TextLink'
 import { useFocusTarget } from '../focus/useFocusTarget'
@@ -41,17 +31,18 @@ export interface ReportScreenProps {
 }
 
 function ReviewsDoor({ readFirst }: { readonly readFirst: ReadonlyArray<string> }): ReactElement {
+  const { chrome } = usePlayerCopy()
   const [firstUnread] = readFirst
   if (firstUnread === undefined) {
     return (
       <ButtonLink to="/reviews" tone="primary">
-        {reportStartReviews()}
+        <LabelText label={chrome((catalog) => catalog.reportStartReviews())} />
       </ButtonLink>
     )
   }
   return (
     <ButtonLink to="/school/$lessonId" params={{ lessonId: firstUnread }} tone="primary">
-      {schoolLessonReadWords()}
+      <LabelText label={chrome((catalog) => catalog.schoolLessonReadWords())} />
     </ButtonLink>
   )
 }
@@ -62,14 +53,24 @@ function ReviewsDue({
   nextReview,
 }: Pick<ReportScreenProps, 'dueCount' | 'readFirst' | 'nextReview'>): ReactElement {
   const countId = useId()
+  const { chrome } = usePlayerCopy()
   if (dueCount === 0) {
-    return <ReviewsAhead line={lineLabelOf(reportNoReviewsDue(), 'es')} nextReview={nextReview} />
+    return (
+      <ReviewsAhead
+        line={chrome((catalog) => catalog.reportNoReviewsDue())}
+        nextReview={nextReview}
+      />
+    )
   }
   return (
     <div className="flex flex-col gap-3">
       <Block hue="periwinkle" labelledBy={countId}>
         <h2 id={countId} className="m-0 text-display wrap-anywhere">
-          {reportReviewsDue({ count: formatQuantity(dueCount) })}
+          <LabelText
+            label={chrome((catalog) =>
+              catalog.reportReviewsDue({ count: formatQuantity(dueCount) }),
+            )}
+          />
         </h2>
       </Block>
       <ReviewsDoor readFirst={readFirst} />
@@ -82,11 +83,12 @@ function NewsBody({
   close,
   onClosed,
 }: ReportScreenProps & { readonly onClosed: () => void }): ReactElement {
+  const { chrome } = usePlayerCopy()
   if (close.isClosed) {
-    return <NewsNote line={lineLabelOf(reportNewsClosed(), 'es')} />
+    return <NewsNote line={chrome((catalog) => catalog.reportNewsClosed())} />
   }
   if (news.length === 0) {
-    return <NewsNote line={lineLabelOf(reportNewsNone(), 'es')} />
+    return <NewsNote line={chrome((catalog) => catalog.reportNewsNone())} />
   }
   return (
     <>
@@ -100,7 +102,7 @@ function NewsBody({
         availability={close.isWaiting ? 'waiting' : 'available'}
         onClick={() => close.onClose(onClosed)}
       >
-        {reportNewsClose()}
+        <LabelText label={chrome((catalog) => catalog.reportNewsClose())} />
       </Button>
     </>
   )
@@ -108,10 +110,11 @@ function NewsBody({
 
 export function ReportTitled({ children }: { readonly children: ReactNode }): ReactElement {
   const titleId = useId()
+  const { chrome } = usePlayerCopy()
   return (
     <section aria-labelledby={titleId} className="flex flex-col gap-6">
       <h1 id={titleId} className="m-0 font-sans text-display text-ink">
-        {reportTitle()}
+        <LabelText label={chrome((catalog) => catalog.reportTitle())} />
       </h1>
       {children}
     </section>
@@ -121,6 +124,7 @@ export function ReportTitled({ children }: { readonly children: ReactNode }): Re
 export function ReportScreen(props: ReportScreenProps): ReactElement {
   const newsId = useId()
   const newsTitle = useFocusTarget<HTMLHeadingElement>()
+  const { chrome } = usePlayerCopy()
   return (
     <ReportTitled>
       <ReviewsDue
@@ -135,11 +139,13 @@ export function ReportScreen(props: ReportScreenProps): ReactElement {
           tabIndex={-1}
           className={`m-0 font-sans text-meta text-ink-muted ${focusTargetClass}`}
         >
-          {reportNewsTitle()}
+          <LabelText label={chrome((catalog) => catalog.reportNewsTitle())} />
         </h2>
         <NewsBody {...props} onClosed={newsTitle.focus} />
         <p className="m-0 border-line border-t pt-1">
-          <TextLink to="/news">{reportNewsAll()}</TextLink>
+          <TextLink to="/news">
+            <LabelText label={chrome((catalog) => catalog.reportNewsAll())} />
+          </TextLink>
         </p>
       </section>
     </ReportTitled>

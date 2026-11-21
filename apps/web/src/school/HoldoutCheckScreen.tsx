@@ -1,30 +1,12 @@
-import {
-  holdoutCheckDone,
-  holdoutCheckDueLine,
-  holdoutCheckFailed,
-  holdoutCheckRefusalInvalid,
-  holdoutCheckRefused,
-  holdoutCheckSend,
-  holdoutCheckSkip,
-  holdoutCheckSkipLine,
-  holdoutCheckSkipped,
-  holdoutCheckStart,
-  holdoutCheckTitle,
-  placementBand,
-  placementChoose,
-  placementNext,
-  placementProgress,
-  placementPrompt,
-  placementRetry,
-  refusalUnexpected,
-  townGoToSchool,
-} from '@mygame/catalog'
 import type { HoldoutCheckRequest } from '@mygame/contracts'
 import { type ReactElement, type ReactNode, useId } from 'react'
+import type { FixedCopyCatalog } from '../copy/PlayerCopy'
+import { usePlayerCopy } from '../copy/usePlayerCopy'
 import { Button, type ButtonAvailability } from '../design-system/Button'
 import { ChoiceWalk } from '../design-system/ChoiceWalk'
 import { FormAlert } from '../design-system/FormAlert'
-import { lineLabelOf } from '../design-system/lineLabelOf'
+import type { Label } from '../design-system/Label'
+import { LabelText } from '../design-system/LabelText'
 import { ReadFailed } from '../design-system/ReadFailed'
 import { TextLink } from '../design-system/TextLink'
 import type {
@@ -36,18 +18,19 @@ import type {
 
 type AskingView = Extract<HoldoutCheckView, { readonly kind: 'asking' }>
 
-const alertLines: Readonly<Record<HoldoutCheckAlert, () => string>> = {
-  notOpen: holdoutCheckRefused,
-  invalidAnswers: holdoutCheckRefusalInvalid,
-  unreachable: refusalUnexpected,
+const alertLines: Readonly<Record<HoldoutCheckAlert, (catalog: FixedCopyCatalog) => string>> = {
+  notOpen: (catalog) => catalog.holdoutCheckRefused(),
+  invalidAnswers: (catalog) => catalog.holdoutCheckRefusalInvalid(),
+  unreachable: (catalog) => catalog.refusalUnexpected(),
 }
 
 export function HoldoutCheckTitled({ children }: { readonly children: ReactNode }): ReactElement {
   const titleId = useId()
+  const { fixedCopy } = usePlayerCopy()
   return (
     <section aria-labelledby={titleId} className="flex max-w-form flex-col gap-6">
       <h1 id={titleId} className="m-0 font-sans text-display text-ink">
-        {holdoutCheckTitle()}
+        <LabelText label={fixedCopy((catalog) => catalog.holdoutCheckTitle())} />
       </h1>
       {children}
     </section>
@@ -69,7 +52,8 @@ function CheckAlert({
 }: {
   readonly alert: HoldoutCheckAlert | undefined
 }): ReactElement | null {
-  return alert === undefined ? null : <FormAlert message={lineLabelOf(alertLines[alert](), 'es')} />
+  const { fixedCopy } = usePlayerCopy()
+  return alert === undefined ? null : <FormAlert message={fixedCopy(alertLines[alert])} />
 }
 
 function CheckDue({
@@ -79,10 +63,15 @@ function CheckDue({
   readonly due: HoldoutCheckRequest
   readonly handle: HoldoutCheckHandle
 }): ReactElement {
+  const { fixedCopy } = usePlayerCopy()
   return (
     <div className="flex flex-col gap-4 font-sans">
-      <p className="m-0 text-body text-ink">{holdoutCheckDueLine(due)}</p>
-      <p className="m-0 text-body text-ink-muted">{holdoutCheckSkipLine()}</p>
+      <p className="m-0 text-body text-ink">
+        <LabelText label={fixedCopy((catalog) => catalog.holdoutCheckDueLine(due))} />
+      </p>
+      <p className="m-0 text-body text-ink-muted">
+        <LabelText label={fixedCopy((catalog) => catalog.holdoutCheckSkipLine())} />
+      </p>
       <CheckAlert alert={handle.alert} />
       <Button
         type="button"
@@ -90,7 +79,7 @@ function CheckDue({
         availability={availabilityOf('begin', handle.waiting)}
         onClick={handle.begin}
       >
-        {holdoutCheckStart()}
+        <LabelText label={fixedCopy((catalog) => catalog.holdoutCheckStart())} />
       </Button>
       <Button
         type="button"
@@ -98,7 +87,7 @@ function CheckDue({
         availability={availabilityOf('skip', handle.waiting)}
         onClick={handle.skip}
       >
-        {holdoutCheckSkip()}
+        <LabelText label={fixedCopy((catalog) => catalog.holdoutCheckSkip())} />
       </Button>
     </div>
   )
@@ -111,17 +100,19 @@ function CheckAsking({
   readonly asking: AskingView
   readonly handle: HoldoutCheckHandle
 }): ReactElement {
+  const { fixedCopy } = usePlayerCopy()
   return (
     <div className="flex flex-col gap-4">
       <ChoiceWalk
         items={asking.check.items}
         lines={{
-          heading: lineLabelOf(placementBand({ band: asking.check.band }), 'es'),
-          prompt: lineLabelOf(placementPrompt(), 'es'),
-          next: lineLabelOf(placementNext(), 'es'),
-          choose: lineLabelOf(placementChoose(), 'es'),
-          send: lineLabelOf(holdoutCheckSend(), 'es'),
-          progressOf: (number, total) => lineLabelOf(placementProgress({ number, total }), 'es'),
+          heading: fixedCopy((catalog) => catalog.placementBand({ band: asking.check.band })),
+          prompt: fixedCopy((catalog) => catalog.placementPrompt()),
+          next: fixedCopy((catalog) => catalog.placementNext()),
+          choose: fixedCopy((catalog) => catalog.placementChoose()),
+          send: fixedCopy((catalog) => catalog.holdoutCheckSend()),
+          progressOf: (number, total) =>
+            fixedCopy((catalog) => catalog.placementProgress({ number, total })),
         }}
         isSending={handle.waiting === 'answers'}
         onSend={(answers) => handle.send({ answers: [...answers] })}
@@ -131,13 +122,16 @@ function CheckAsking({
   )
 }
 
-function CheckEnd({ line }: { readonly line: string }): ReactElement {
+function CheckEnd({ line }: { readonly line: Label }): ReactElement {
+  const { chrome } = usePlayerCopy()
   return (
     <div className="flex flex-col items-start gap-4">
       <p role="status" className="m-0 font-sans text-body text-ink">
-        {line}
+        <LabelText label={line} />
       </p>
-      <TextLink to="/school">{townGoToSchool()}</TextLink>
+      <TextLink to="/school">
+        <LabelText label={chrome((catalog) => catalog.townGoToSchool())} />
+      </TextLink>
     </div>
   )
 }
@@ -149,25 +143,26 @@ function CheckRead({
   readonly handle: HoldoutCheckHandle
   readonly view: Exclude<HoldoutCheckView, { readonly kind: 'loading' }>
 }): ReactElement {
+  const { fixedCopy } = usePlayerCopy()
   switch (view.kind) {
     case 'failed':
       return (
         <ReadFailed
-          message={lineLabelOf(holdoutCheckFailed(), 'es')}
-          retryLabel={lineLabelOf(placementRetry(), 'es')}
+          message={fixedCopy((catalog) => catalog.holdoutCheckFailed())}
+          retryLabel={fixedCopy((catalog) => catalog.placementRetry())}
           onRetry={handle.reread}
         />
       )
     case 'notOpen':
-      return <CheckEnd line={holdoutCheckRefused()} />
+      return <CheckEnd line={fixedCopy((catalog) => catalog.holdoutCheckRefused())} />
     case 'due':
       return <CheckDue due={view.check} handle={handle} />
     case 'asking':
       return <CheckAsking asking={view} handle={handle} />
     case 'done':
-      return <CheckEnd line={holdoutCheckDone()} />
+      return <CheckEnd line={fixedCopy((catalog) => catalog.holdoutCheckDone())} />
     case 'skipped':
-      return <CheckEnd line={holdoutCheckSkipped()} />
+      return <CheckEnd line={fixedCopy((catalog) => catalog.holdoutCheckSkipped())} />
     default: {
       const unreachable: never = view
       return unreachable

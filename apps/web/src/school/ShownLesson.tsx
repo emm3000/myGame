@@ -1,12 +1,11 @@
-import { schoolLessonStudying } from '@mygame/catalog'
 import { type ReactElement, type Ref, useId } from 'react'
+import { usePlayerCopy } from '../copy/usePlayerCopy'
 import { Block } from '../design-system/Block'
 import { ButtonLink } from '../design-system/ButtonLink'
 import { CardAction } from '../design-system/CardAction'
 import { FormAlert } from '../design-system/FormAlert'
 import { blockFocusTargetClass } from '../design-system/focusTargetClass'
-import { formatDuration } from '../design-system/formatDuration'
-import { lineLabelOf } from '../design-system/lineLabelOf'
+import { LabelText } from '../design-system/LabelText'
 import { lessonNameOf } from '../town/lessonNameOf'
 import type { LiveTown } from '../town/liveTown'
 import { type LessonCardContent, readWordsLabelOf } from './lessonCardOf'
@@ -22,6 +21,8 @@ export interface ShownLessonProps {
 
 export function ShownLesson({ card, town, lessons, titleRef }: ShownLessonProps): ReactElement {
   const titleId = useId()
+  const copy = usePlayerCopy()
+  const { chrome, fixedCopy } = copy
   const { lessonSlot } = town
   const readsSlotWords =
     lessonSlot !== null && lessonNameOf(lessonSlot.lessonId, town.overview).kind === 'shelved'
@@ -35,22 +36,24 @@ export function ShownLesson({ card, town, lessons, titleRef }: ShownLessonProps)
           tabIndex={-1}
           className={`m-0 rounded-sm text-display ${blockFocusTargetClass}`}
         >
-          {card.title}
+          <LabelText label={card.title} />
         </h2>
         <p lang="en" className="m-0 text-reading wrap-anywhere">
           {card.theme}
         </p>
         <p className="m-0 text-caption text-on-block-muted">
-          {card.wordsLine} · {card.skillLine}
+          <LabelText label={card.detailLine} />
         </p>
         {card.state.kind === 'studying' && (
-          <p className="m-0 text-label">{schoolLessonStudying()}</p>
+          <p className="m-0 text-label">
+            <LabelText label={chrome((catalog) => catalog.schoolLessonStudying())} />
+          </p>
         )}
       </Block>
       {card.state.kind === 'open' && (
         <CardAction
           type="button"
-          label={lineLabelOf(`${card.actionLabel} · ${formatDuration(card.durationSeconds)}`, 'es')}
+          label={card.studyLabel}
           state={card.state.action}
           isWaiting={lessons.isStarting}
           tone={lessonSlot === null ? 'primary' : 'quiet'}
@@ -63,11 +66,13 @@ export function ShownLesson({ card, town, lessons, titleRef }: ShownLessonProps)
           params={{ lessonId: lessonSlot.lessonId }}
           tone="primary"
         >
-          {readWordsLabelOf(lessonSlot.lessonId, card.lessonId, town.overview)}
+          <LabelText
+            label={readWordsLabelOf(lessonSlot.lessonId, card.lessonId, town.overview, copy)}
+          />
         </ButtonLink>
       )}
       {refused !== undefined && (
-        <FormAlert message={lineLabelOf(lessonRefusalLineOf(refused, town), 'es')} />
+        <FormAlert message={lessonRefusalLineOf(refused, town, fixedCopy)} />
       )}
     </div>
   )

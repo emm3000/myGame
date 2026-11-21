@@ -1,18 +1,17 @@
-import { schoolLessonWords, schoolReleasedStudy } from '@mygame/catalog'
 import type { TownOverview } from '@mygame/contracts'
 import type { WordStanding } from '@mygame/domain'
-import { lessonNameOf } from '../town/lessonNameOf'
+import type { PlayerCopy } from '../copy/PlayerCopy'
+import { formatDuration } from '../design-system/formatDuration'
+import type { Label } from '../design-system/Label'
 import { type LessonCardState, lessonStateOf } from './lessonCardOf'
-import { lessonLinesOf } from './lessonLinesOf'
 
 type ReleasedLesson = TownOverview['releasedLessons'][number]
 
 export interface ReleasedRowContent {
   readonly lessonId: string
-  readonly title: string
-  readonly wordsLine: string
-  readonly actionLabel: string
-  readonly durationSeconds: number
+  readonly title: Label
+  readonly wordsLine: Label
+  readonly studyLabel: Label
   readonly standings: ReadonlyArray<WordStanding>
   readonly state: LessonCardState
 }
@@ -20,12 +19,18 @@ export interface ReleasedRowContent {
 export const releasedRowOf = (
   lesson: ReleasedLesson,
   overview: TownOverview,
-): ReleasedRowContent => ({
-  lessonId: lesson.id,
-  title: lessonLinesOf(lessonNameOf(lesson.id, overview)).title,
-  wordsLine: schoolLessonWords({ count: lesson.words.length }),
-  actionLabel: schoolReleasedStudy(),
-  durationSeconds: lesson.durationSeconds,
-  standings: lesson.words.map(({ standing }) => standing),
-  state: lessonStateOf(lesson, overview),
-})
+  copy: PlayerCopy,
+): ReleasedRowContent => {
+  const set = { band: lesson.band, number: lesson.position }
+  return {
+    lessonId: lesson.id,
+    title: copy.fixedCopy((catalog) => catalog.schoolReleasedTitle(set)),
+    wordsLine: copy.chrome((catalog) => catalog.schoolLessonWords({ count: lesson.words.length })),
+    studyLabel: copy.fixedCopy(
+      (catalog) =>
+        `${catalog.schoolReleasedTitle(set)} · ${catalog.schoolReleasedStudy()} · ${formatDuration(lesson.durationSeconds)}`,
+    ),
+    standings: lesson.words.map(({ standing }) => standing),
+    state: lessonStateOf(lesson, overview, copy),
+  }
+}
