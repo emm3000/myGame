@@ -1,7 +1,7 @@
 import { describe, expect, it } from 'vitest'
 import { apiPackagePath } from '../../../apiPackagePath.testSupport'
 import { contentOf, entryOf, lessonOneLexicon } from '../contentGate.testSupport'
-import { gateContentOf } from '../readGateContent'
+import { readGateContent } from '../readGateContent'
 import { checkChrome } from './checkChrome'
 
 const shippedContent = apiPackagePath('content/')
@@ -11,7 +11,7 @@ const withEnglish = (englishMessages: Readonly<Record<string, string>>) =>
 
 describe("content gate check 9, the chrome's words", () => {
   it('passes the shipped English chrome', () => {
-    expect(checkChrome(gateContentOf(shippedContent))).toEqual([])
+    expect(checkChrome(readGateContent(shippedContent))).toEqual([])
   })
 
   it('passes a chrome message of frame words and the inflected words a chrome lesson teaches', () => {

@@ -9,7 +9,7 @@ import {
   structureOf,
   textOf,
 } from '../contentGate.testSupport'
-import { gateContentOf } from '../readGateContent'
+import { readGateContent } from '../readGateContent'
 import { checkTexts } from './checkTexts'
 
 const shippedContent = apiPackagePath('content/')
@@ -58,7 +58,7 @@ const withUnitLesson = (...texts: ReadonlyArray<ReturnType<typeof textOf>>) => {
 
 describe('content gate check 4, coverage of a running text', () => {
   it('passes the shipped texts', () => {
-    expect(checkTexts(gateContentOf(shippedContent))).toEqual([])
+    expect(checkTexts(readGateContent(shippedContent))).toEqual([])
   })
 
   it('passes a text whose every token is a frame word, an admitted inflection or a card word taught at or before its lesson', () => {

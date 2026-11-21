@@ -7,7 +7,7 @@ import {
   lessonOneLexicon,
   structureOf,
 } from '../contentGate.testSupport'
-import { gateContentOf } from '../readGateContent'
+import { readGateContent } from '../readGateContent'
 import { checkLexicon } from './checkLexicon'
 
 const shippedContent = apiPackagePath('content/')
@@ -18,7 +18,7 @@ const lessonOneStructure = structureOf('lesson-1', lessonOneFrameWords)
 
 describe('content gate check 1, the lexicon holds', () => {
   it('passes the shipped content', () => {
-    expect(checkLexicon(gateContentOf(shippedContent))).toEqual([])
+    expect(checkLexicon(readGateContent(shippedContent))).toEqual([])
   })
 
   it('fails a word id used twice', () => {

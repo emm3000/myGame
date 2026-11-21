@@ -20,7 +20,7 @@ import {
   type LessonContentFiles,
   type LessonOfFiles,
   type LexiconEntry,
-  lessonContentFilesOf,
+  readLessonContentFiles,
 } from './readLessonContentFiles'
 import { type ResolvedFrames, resolvedFramesOf } from './resolvedFramesOf'
 
@@ -93,7 +93,7 @@ export class JsonLessonCatalog implements LessonLibrary {
   ) {}
 
   static fromDirectory(directory: string): JsonLessonCatalog {
-    const files = lessonContentFilesOf(directory)
+    const files = readLessonContentFiles(directory)
     const shelved = files.lessons.map((lesson) => shelvedLessonOf(lesson, files.curriculum))
     const chromeShelf = shelved.slice(0, files.curriculum.chromeLessonCount)
     return new JsonLessonCatalog(

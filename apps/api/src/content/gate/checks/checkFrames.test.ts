@@ -10,7 +10,7 @@ import {
   lessonOneLexicon,
   structureOf,
 } from '../contentGate.testSupport'
-import { gateContentOf } from '../readGateContent'
+import { readGateContent } from '../readGateContent'
 import { checkFrames } from './checkFrames'
 
 const shippedContent = apiPackagePath('content/')
@@ -79,7 +79,7 @@ const theAdmittedAtLessonThree = contentOf({
 
 describe('content gate check 3, the frame rule', () => {
   it('passes the shipped frames', () => {
-    expect(checkFrames(gateContentOf(shippedContent))).toEqual([])
+    expect(checkFrames(readGateContent(shippedContent))).toEqual([])
   })
 
   it('passes a frame holding an inflected card word of an earlier lesson', () => {

@@ -1,7 +1,7 @@
 import { describe, expect, it } from 'vitest'
 import { apiPackagePath } from '../../../apiPackagePath.testSupport'
 import { contentOf, entryOf, lessonOneLexicon, textOf } from '../contentGate.testSupport'
-import { gateContentOf } from '../readGateContent'
+import { readGateContent } from '../readGateContent'
 import { checkTextWords } from './checkTextWords'
 
 const shippedContent = apiPackagePath('content/')
@@ -54,7 +54,7 @@ const withTexts = (...texts: ReadonlyArray<ReturnType<typeof textOf>>) => {
 
 describe('content gate, the card words of a running text', () => {
   it('passes the shipped texts', () => {
-    expect(checkTextWords(gateContentOf(shippedContent))).toEqual([])
+    expect(checkTextWords(readGateContent(shippedContent))).toEqual([])
   })
 
   it('fails a text missing a card word of its four band lessons', () => {

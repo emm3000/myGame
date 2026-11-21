@@ -11,7 +11,7 @@ import {
   structureOf,
   textOf,
 } from '../contentGate.testSupport'
-import { gateContentOf } from '../readGateContent'
+import { readGateContent } from '../readGateContent'
 import { checkGrammar } from './checkGrammar'
 
 const shippedContent = apiPackagePath('content/')
@@ -67,7 +67,7 @@ const ourHomeFrom = (fromLessonId: string) => {
 
 describe('content gate check 6, grammar', () => {
   it('passes the shipped content, lesson 1 included', () => {
-    expect(checkGrammar(gateContentOf(shippedContent))).toEqual([])
+    expect(checkGrammar(readGateContent(shippedContent))).toEqual([])
   })
 
   it('fails a frame word admitted after the lesson', () => {

@@ -5,7 +5,7 @@ import { join } from 'node:path'
 import { BuildingContentSchema } from '@mygame/contracts'
 import { assert, describe, expect, it } from 'vitest'
 import { apiPackagePath } from '../../apiPackagePath.testSupport'
-import { gateContentOf } from './readGateContent'
+import { readGateContent } from './readGateContent'
 
 const shippedContent = apiPackagePath('content/')
 
@@ -31,11 +31,11 @@ const contentWithElevenHomesLevels = (): string => {
   return directory
 }
 
-describe('gateContentOf', () => {
+describe('readGateContent', () => {
   it("reads the top level as the highest of every building's, not the school's alone", () => {
     const directory = contentWithElevenHomesLevels()
     try {
-      const content = gateContentOf(directory)
+      const content = readGateContent(directory)
       expect([content.schoolLevels.length, content.topBuildingLevel]).toEqual([10, 11])
     } finally {
       rmSync(directory, { recursive: true, force: true })
@@ -61,7 +61,7 @@ describe('gateContentOf', () => {
   })
 
   it('reads each form of the teaching list as the headwords it belongs to', () => {
-    const { forms } = gateContentOf(shippedContent)
+    const { forms } = readGateContent(shippedContent)
 
     expect(['went', 'my', 'colour', 'left'].map((form) => [...(forms.get(form) ?? [])])).toEqual([
       ['go'],
@@ -72,7 +72,7 @@ describe('gateContentOf', () => {
   })
 
   it('reads the structures of the grammar inventory in order', () => {
-    const { grammar } = gateContentOf(shippedContent)
+    const { grammar } = readGateContent(shippedContent)
 
     expect(grammar.structures[0]).toEqual({
       name: 'Present of be, with not',

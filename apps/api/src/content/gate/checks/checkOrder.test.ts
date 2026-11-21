@@ -8,7 +8,7 @@ import {
   lessonOneLexicon,
   structureOf,
 } from '../contentGate.testSupport'
-import { gateContentOf } from '../readGateContent'
+import { readGateContent } from '../readGateContent'
 import { checkOrder } from './checkOrder'
 
 const shippedContent = apiPackagePath('content/')
@@ -69,7 +69,7 @@ const bandLessonRun = (first: number, count: number): ReadonlyArray<ReadonlyArra
 
 describe('content gate check 2, the order holds', () => {
   it('passes the shipped curriculum', () => {
-    expect(checkOrder(gateContentOf(shippedContent))).toEqual([])
+    expect(checkOrder(readGateContent(shippedContent))).toEqual([])
   })
 
   it('passes a band lesson holding the head word and four words of the window', () => {
