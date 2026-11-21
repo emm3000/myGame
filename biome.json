@@ -560,7 +560,6 @@
     },
     {
       "includes": [
-        "apps/api/src/town/infrastructure/postgres/DrizzleTownNews.ts",
         "apps/api/src/town/infrastructure/memory/townRepositoryContract.testSupport.ts",
         "apps/api/src/routes/town.ts",
         "apps/api/src/town/townNewsItemOf.ts"
