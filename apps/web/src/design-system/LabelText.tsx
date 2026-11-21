@@ -2,12 +2,16 @@ import type { ReactElement } from 'react'
 import type { Label } from './Label'
 
 export function LabelText({ label }: { readonly label: Label }): ReactElement {
-  if (label.translation === null) {
-    return <>{label.text}</>
+  const { translation } = label
+  if (translation === null) {
+    return <span lang={label.language}>{label.text}</span>
   }
   return (
     <span className="inline-flex flex-col">
-      <span>{label.text}</span> <span className="font-sans text-caption">{label.translation}</span>
+      <span lang={label.language}>{label.text}</span>{' '}
+      <span lang={translation.language} className="font-sans text-caption">
+        {translation.text}
+      </span>
     </span>
   )
 }

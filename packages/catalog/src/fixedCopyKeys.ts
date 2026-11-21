@@ -1,4 +1,4 @@
-export const fixedCopyKeys: ReadonlySet<string> = new Set([
+const fixedCopyKeyList = [
   'android.app.reminder_cards_text',
   'android.app.reminder_cards_title',
   'android.app.reminder_channel',
@@ -72,7 +72,6 @@ export const fixedCopyKeys: ReadonlySet<string> = new Set([
   'android.signin.scaffold_es',
   'android.signin.scaffold_label',
   'android.signin.scaffold_none',
-  'android.signin.settings_back',
   'android.signin.settings_cards_kept',
   'android.signin.settings_failed',
   'android.signin.settings_reminder_denied',
@@ -353,4 +352,8 @@ export const fixedCopyKeys: ReadonlySet<string> = new Set([
   'verification.verify.title',
   'verification.verify.verified',
   'verification.verify.verifying',
-])
+] as const
+
+export type FixedCopyKey = (typeof fixedCopyKeyList)[number]
+
+export const fixedCopyKeys: ReadonlySet<string> = new Set<string>(fixedCopyKeyList)
