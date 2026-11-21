@@ -3,7 +3,7 @@ import { createMiddleware } from 'hono/factory'
 import type { MiddlewareHandler } from 'hono/types'
 import { answerRefusal } from '../../../platform/infrastructure/http/answerRefusal'
 import { readBearerToken } from '../../../platform/infrastructure/http/bearerToken'
-import type { Accounts } from '../../application/ports/Accounts'
+import type { Sessions } from '../../application/ports/Sessions'
 import { sessionExpiryFrom } from '../../application/sessionExpiryFrom'
 import { readSessionCookie, writeSessionCookie } from './sessionCookie'
 
@@ -15,13 +15,13 @@ export type SignedInPlayer = {
 }
 
 export type RequirePlayerDependencies = {
-  readonly accounts: Accounts
+  readonly sessions: Sessions
   readonly clock: Clock
   readonly isSessionCookieSecure: boolean
 }
 
 export const requirePlayer = ({
-  accounts,
+  sessions,
   clock,
   isSessionCookieSecure,
 }: RequirePlayerDependencies): MiddlewareHandler<SignedInPlayer> =>
@@ -33,7 +33,7 @@ export const requirePlayer = ({
     }
     const now = clock.now()
     const expiresAt = sessionExpiryFrom(now)
-    const playerId = await accounts.renewSession(token, now, expiresAt)
+    const playerId = await sessions.renewSession(token, now, expiresAt)
     if (playerId === undefined) {
       return answerRefusal(c, { kind: 'SignedOut' })
     }

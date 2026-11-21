@@ -121,7 +121,7 @@ export const authRoutes = (dependencies: AuthDependencies): OpenAPIHono => {
     authDeclarations.signOut.path,
     signedInPlayer,
     async (c) => {
-      await dependencies.accounts.closeSession(c.var.sessionToken)
+      await dependencies.sessions.closeSession(c.var.sessionToken)
       clearSessionCookie(c, dependencies.isSessionCookieSecure)
       return c.body(null, 204)
     },

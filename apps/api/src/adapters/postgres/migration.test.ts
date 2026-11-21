@@ -10,7 +10,7 @@ import {
   players,
   sessions,
 } from '../../account/infrastructure/postgres/accountTables'
-import { DrizzleAccounts } from '../../account/infrastructure/postgres/DrizzleAccounts'
+import { DrizzleSessions } from '../../account/infrastructure/postgres/DrizzleSessions'
 import { apiPackagePath } from '../../apiPackagePath.testSupport'
 import {
   cards,
@@ -432,7 +432,7 @@ describe('the session token digest migration', () => {
       )
     })
 
-    const renewedFor = await new DrizzleAccounts(drizzle(client)).renewSession(
+    const renewedFor = await new DrizzleSessions(drizzle(client)).renewSession(
       token,
       Instant.fromEpochMilliseconds(Date.parse('2026-09-23T08:00:00Z')),
       Instant.fromEpochMilliseconds(Date.parse('2026-10-23T08:00:00Z')),
