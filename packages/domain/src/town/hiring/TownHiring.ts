@@ -3,8 +3,7 @@ import { err, ok, type Result } from '../../Result'
 import type { Instant } from '../../time/Instant'
 import { chargedStocks } from '../resources/chargedStocks'
 import { creditedStocks, type Stocks, stocksOf } from '../resources/Stocks'
-import type { ChangedTown, Town } from '../Town'
-import type { TownState } from '../TownState'
+import type { TownState, TownStateChange } from '../TownState'
 import { deliveredHiresOf } from './deliveredHiresOf'
 import { hiresPlus } from './Hires'
 import { type HiringOrder, type HiringTarget, idleHiringSlot } from './HiringOrder'
@@ -18,25 +17,30 @@ const isHiringOf = (target: HiringTarget, order: HiringOrder): boolean =>
   order.startedAt.epochMilliseconds === target.startedAt.epochMilliseconds
 
 export class TownHiring {
-  constructor(
-    private readonly town: Town,
-    private readonly changed: (town: Town, change: Partial<TownState>) => Town,
-  ) {}
+  constructor(private readonly town: Pick<TownState, 'hires' | 'hiringSlot'>) {}
 
   room(): Result<void, DomainError> {
     const slot = this.town.hiringSlot
     return slot.kind === 'busy' ? err({ kind: 'HiringSlotBusy', hire: slot.hire }) : ok(undefined)
   }
 
-  place(order: HiringOrder, stocksAtNow: Stocks, now: Instant): Result<Town, DomainError> {
+  place(
+    order: HiringOrder,
+    stocksAtNow: Stocks,
+    now: Instant,
+  ): Result<Partial<TownState>, DomainError> {
     const charged = chargedStocks(stocksAtNow, timesCount(order.costPerHire, order.count))
     if (!charged.ok) {
       return charged
     }
-    return ok(this.changed(this.town, { stocks: charged.value, storedAt: now, hiringSlot: order }))
+    return ok({ stocks: charged.value, storedAt: now, hiringSlot: order })
   }
 
-  stop(target: HiringTarget, stocksAtNow: Stocks, now: Instant): Result<ChangedTown, DomainError> {
+  stop(
+    target: HiringTarget,
+    stocksAtNow: Stocks,
+    now: Instant,
+  ): Result<TownStateChange, DomainError> {
     const slot = this.town.hiringSlot
     if (slot.kind === 'idle' || !isHiringOf(target, slot)) {
       return err({ kind: 'HiringOrderNotFound', hire: target.hire, startedAt: target.startedAt })
@@ -45,32 +49,32 @@ export class TownHiring {
     const stopped = slot.count - delivered
     const refund = timesCount(slot.costPerHire, stopped)
     return ok({
-      town: this.changed(this.town, {
+      state: {
         stocks: creditedStocks(stocksAtNow, refund),
         storedAt: now,
         hires: hiresPlus(this.town.hires, slot.hire, delivered),
         hiringSlot: idleHiringSlot,
-      }),
+      },
       events: [
         { kind: 'hiringStopped', hire: slot.hire, delivered, stopped, refund, occurredAt: now },
       ],
     })
   }
 
-  close(now: Instant): ChangedTown {
+  close(now: Instant): TownStateChange {
     const slot = this.town.hiringSlot
     if (slot.kind === 'idle') {
-      return { town: this.town, events: [] }
+      return { state: {}, events: [] }
     }
     const endsAt = hiringEndsAt(slot)
     if (endsAt.epochMilliseconds > now.epochMilliseconds) {
-      return { town: this.town, events: [] }
+      return { state: {}, events: [] }
     }
     return {
-      town: this.changed(this.town, {
+      state: {
         hires: hiresPlus(this.town.hires, slot.hire, slot.count),
         hiringSlot: idleHiringSlot,
-      }),
+      },
       events: [{ kind: 'hiringDelivered', hire: slot.hire, count: slot.count, occurredAt: endsAt }],
     }
   }

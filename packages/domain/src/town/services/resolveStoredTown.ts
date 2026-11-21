@@ -24,6 +24,10 @@ export const resolveStoredTown = async (
   if (!settled.ok) {
     return settled
   }
-  const closed = settled.value.town.hiring.close(now)
-  return ok({ town: closed.town, events: [...settled.value.events, ...closed.events] })
+  const town = settled.value.town
+  const closed = town.hiring.close(now)
+  return ok({
+    town: town.changedBy(closed.state),
+    events: [...settled.value.events, ...closed.events],
+  })
 }

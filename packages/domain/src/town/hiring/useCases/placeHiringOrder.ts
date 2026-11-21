@@ -114,7 +114,7 @@ const placeHiringAt = (
   if (!placed.ok) {
     return placed
   }
-  return rebaseFullSince(accrual.value.fullSince, placed.value, catalog)
+  return rebaseFullSince(accrual.value.fullSince, town.changedBy(placed.value), catalog)
 }
 
 export const placeHiringOrder = async (

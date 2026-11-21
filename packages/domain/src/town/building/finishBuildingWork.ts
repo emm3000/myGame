@@ -54,7 +54,7 @@ const finishWork = (
   if (!completed.ok) {
     return completed
   }
-  const rebased = rebaseFullSince(accrual.value.fullSince, completed.value, catalog)
+  const rebased = rebaseFullSince(accrual.value.fullSince, town.changedBy(completed.value), catalog)
   if (!rebased.ok) {
     return rebased
   }

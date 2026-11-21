@@ -86,5 +86,5 @@ export const dispatchJob = async (
   if (!sent.ok) {
     return sent
   }
-  return ok({ town: sent.value, events, job })
+  return ok({ town: town.changedBy(sent.value), events, job })
 }

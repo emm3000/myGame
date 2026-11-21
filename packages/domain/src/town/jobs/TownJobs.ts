@@ -1,12 +1,12 @@
 import type { DomainError } from '../../DomainError'
 import { err, ok, type Result } from '../../Result'
 import type { Instant } from '../../time/Instant'
+import type { Hires } from '../hiring/Hires'
 import { hireKinds } from '../hiring/hireKinds'
 import type { TownCatalog } from '../ports/TownCatalog'
 import { creditedStocks, type Stocks } from '../resources/Stocks'
-import type { ChangedTown, Town } from '../Town'
 import type { TownEvent } from '../TownEvent'
-import type { TownState } from '../TownState'
+import type { TownState, TownStateChange } from '../TownState'
 import { coversWaste } from './coversWaste'
 import { idleJobSlot, type Job, type JobCleanUp } from './Job'
 import { jobInstantsOf } from './jobInstantsOf'
@@ -28,15 +28,16 @@ const arrivalOf = ({ site, pay }: Job, cleanUp: JobCleanUp, occurredAt: Instant)
 
 export class TownJobs {
   constructor(
-    private readonly town: Town,
-    private readonly changed: (town: Town, change: Partial<TownState>) => Town,
+    private readonly town: Pick<TownState, 'jobSlot'> & {
+      hiresAtHomeAt(at: Instant): Hires
+    },
   ) {}
 
   room(): Result<void, DomainError> {
     return this.town.jobSlot.kind === 'out' ? err({ kind: 'TeamAlreadyOut' }) : ok(undefined)
   }
 
-  send(job: Job): Result<Town, DomainError> {
+  send(job: Job): Result<Partial<TownState>, DomainError> {
     const room = this.room()
     if (!room.ok) {
       return room
@@ -51,10 +52,14 @@ export class TownJobs {
         atHome: atHome[short],
       })
     }
-    return ok(this.changed(this.town, { jobSlot: job }))
+    return ok({ jobSlot: job })
   }
 
-  callBack(sentAt: Instant, now: Instant, catalog: TownCatalog): Result<Town, DomainError> {
+  callBack(
+    sentAt: Instant,
+    now: Instant,
+    catalog: TownCatalog,
+  ): Result<Partial<TownState>, DomainError> {
     const slot = this.town.jobSlot
     if (slot.kind === 'idle' || slot.sentAt.epochMilliseconds !== sentAt.epochMilliseconds) {
       return err({ kind: 'JobNotFound', sentAt })
@@ -73,34 +78,32 @@ export class TownJobs {
       catalog,
       slot.payPercent,
     )
-    return ok(this.changed(this.town, { jobSlot: { ...slot, calledBackAt: now, pay } }))
+    return ok({ jobSlot: { ...slot, calledBackAt: now, pay } })
   }
 
-  arriveAtWaste(): ChangedTown {
+  arriveAtWaste(): TownStateChange {
     const slot = this.town.jobSlot
     if (slot.kind === 'idle' || slot.cleanUp === undefined || slot.cleanUp.hasArrived) {
-      return { town: this.town, events: [] }
+      return { state: {}, events: [] }
     }
     return {
-      town: this.changed(this.town, {
-        jobSlot: { ...slot, cleanUp: { ...slot.cleanUp, hasArrived: true } },
-      }),
+      state: { jobSlot: { ...slot, cleanUp: { ...slot.cleanUp, hasArrived: true } } },
       events: [arrivalOf(slot, slot.cleanUp, jobInstantsOf(slot).arrivesAt)],
     }
   }
 
-  comeBack(stocksAtReturn: Stocks): ChangedTown {
+  comeBack(stocksAtReturn: Stocks): TownStateChange {
     const slot = this.town.jobSlot
     if (slot.kind === 'idle') {
-      return { town: this.town, events: [] }
+      return { state: {}, events: [] }
     }
     const { returnsAt } = jobInstantsOf(slot)
     return {
-      town: this.changed(this.town, {
+      state: {
         stocks: creditedStocks(stocksAtReturn, slot.pay),
         storedAt: returnsAt,
         jobSlot: idleJobSlot,
-      }),
+      },
       events: [jobReturnOf(slot, returnsAt)],
     }
   }
