@@ -1,13 +1,12 @@
 import { en, es } from '@mygame/catalog'
-import type { Report, TownOverview } from '@mygame/contracts'
-import { act, fireEvent, screen } from '@testing-library/react'
+import type { Report } from '@mygame/contracts'
+import { act, fireEvent, screen, within } from '@testing-library/react'
 import { afterEach, expect, it, vi } from 'vitest'
 import type { ApiClient } from '../api/apiClient'
 import { renderAppAt } from '../auth/renderAppAt.testSupport'
 import { knownPlayer, knownTown, stubApiClient } from '../auth/stubApiClient.testSupport'
+import type { CopyLanguage } from '../copy/playerCopyOf'
 import { shownLinesDrawnAlone } from '../town/lineDrawnAlone.testSupport'
-
-type CopyLanguage = Pick<TownOverview, 'scaffold' | 'chromePhase'>
 
 const spanishPhase: CopyLanguage = { scaffold: 'es', chromePhase: 'scaffold' }
 const bothPhase: CopyLanguage = { scaffold: 'es', chromePhase: 'both' }
@@ -55,6 +54,17 @@ afterEach(() => {
 const reportTitled = (name: string): Promise<HTMLElement> =>
   screen.findByRole('heading', { level: 1, name })
 
+const languagesIn = (
+  scope: HTMLElement,
+  english: string,
+  spanish: string,
+): ReadonlyArray<string | null> => [
+  within(scope).getByText(english).getAttribute('lang'),
+  within(scope).getByText(spanish).getAttribute('lang'),
+]
+
+const englishOverSpanish = ['en', 'es']
+
 it('titles the Report in Spanish alone in the Spanish phase', async () => {
   renderAppAt('/report', servingReportIn(spanishPhase, threeReviewsDue))
 
@@ -64,7 +74,9 @@ it('titles the Report in Spanish alone in the Spanish phase', async () => {
 it('titles the Report in English over Spanish in the both phase', async () => {
   renderAppAt('/report', servingReportIn(bothPhase, threeReviewsDue))
 
-  expect(await reportTitled(`${en.reportTitle()} ${es.reportTitle()}`)).toBeDefined()
+  const title = await reportTitled(`${en.reportTitle()} ${es.reportTitle()}`)
+
+  expect(languagesIn(title, en.reportTitle(), es.reportTitle())).toEqual(englishOverSpanish)
 })
 
 it('titles the Report in English alone in the English phase', async () => {
@@ -85,9 +97,9 @@ it('counts the reviews due in English over Spanish in the both phase', async () 
   const english = en.reportReviewsDue({ count: 3 })
   const spanish = es.reportReviewsDue({ count: 3 })
 
-  expect(
-    await screen.findByRole('heading', { level: 2, name: `${english} ${spanish}` }),
-  ).toBeDefined()
+  const heading = await screen.findByRole('heading', { level: 2, name: `${english} ${spanish}` })
+
+  expect(languagesIn(heading, english, spanish)).toEqual(englishOverSpanish)
 })
 
 it('names the way into the reviews in English under none', async () => {
@@ -122,7 +134,9 @@ it('says there is no news in English over Spanish in the both phase', async () =
   renderAppAt('/report', servingReportIn(bothPhase, reportOf({})))
 
   expect(await screen.findByText(en.reportNewsNone())).toBeDefined()
-  expect(screen.getByText(es.reportNewsNone())).toBeDefined()
+  expect(languagesIn(document.body, en.reportNewsNone(), es.reportNewsNone())).toEqual(
+    englishOverSpanish,
+  )
 })
 
 const readAt = Date.parse(knownTown.readAt)

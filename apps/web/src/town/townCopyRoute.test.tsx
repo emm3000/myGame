@@ -5,10 +5,9 @@ import { expect, it } from 'vitest'
 import type { ApiClient } from '../api/apiClient'
 import { renderAppAt } from '../auth/renderAppAt.testSupport'
 import { knownPlayer, knownTown, stubApiClient } from '../auth/stubApiClient.testSupport'
+import type { CopyLanguage } from '../copy/playerCopyOf'
 import { capitalize } from '../design-system/capitalize'
 import { linesDrawnAlone } from './lineDrawnAlone.testSupport'
-
-type CopyLanguage = Pick<TownOverview, 'scaffold' | 'chromePhase'>
 
 const spanishPhase: CopyLanguage = { scaffold: 'es', chromePhase: 'scaffold' }
 const bothPhase: CopyLanguage = { scaffold: 'es', chromePhase: 'both' }

@@ -5,8 +5,7 @@ import { assert, expect, it } from 'vitest'
 import type { ApiClient } from '../api/apiClient'
 import { renderAppAt } from '../auth/renderAppAt.testSupport'
 import { knownPlayer, knownTown, stubApiClient } from '../auth/stubApiClient.testSupport'
-
-type CopyLanguage = Pick<TownOverview, 'scaffold' | 'chromePhase'>
+import type { CopyLanguage } from '../copy/playerCopyOf'
 
 const spanishPhase: CopyLanguage = { scaffold: 'es', chromePhase: 'scaffold' }
 const bothPhase: CopyLanguage = { scaffold: 'es', chromePhase: 'both' }
