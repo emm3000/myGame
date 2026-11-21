@@ -1,4 +1,4 @@
-import type { BandStart } from '../learning/BandStart'
+import type { BandStart } from '../learning/curriculum/BandStart'
 import type { Instant } from '../time/Instant'
 import { checkOfWeek } from './checkOfWeek'
 import { RELEASING_WEEK } from './holdoutCheckWeeks'

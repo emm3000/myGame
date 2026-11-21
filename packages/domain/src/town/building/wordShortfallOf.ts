@@ -1,6 +1,6 @@
 import type { HeldCard } from '../../learning/HeldCard'
-import { retainedWordCountOf } from '../../learning/retainedWordCountOf'
-import { stableWordCountOf } from '../../learning/stableWordCountOf'
+import { retainedWordCountOf } from '../../learning/retention/retainedWordCountOf'
+import { stableWordCountOf } from '../../learning/retention/stableWordCountOf'
 import { levelWordNeedOf } from './levelWordNeedOf'
 import type { NeededWordKind } from './NeededWordKind'
 import type { WordNeed } from './WordNeed'

@@ -7,7 +7,7 @@ The rules: `.claude/rules/architecture.md`, `typescript-style.md`, `principles.m
 ## Commands
 
 - `pnpm --filter @mygame/domain typecheck` — `tsc --noEmit` over `src` and the Vitest config.
-- `pnpm --filter @mygame/domain test` — Vitest, runs `src/**/*.test.ts`. The in-memory ports and the fixtures the tests pass live in `src/testing/`.
+- `pnpm --filter @mygame/domain test` — Vitest, runs `src/**/*.test.ts`. The in-memory ports and the fixtures the tests pass live in each feature's `testing/`, and those no feature holds yet in `src/testing/`.
 - `pnpm gate` from the repo root before every push.
 
 ## Gotchas

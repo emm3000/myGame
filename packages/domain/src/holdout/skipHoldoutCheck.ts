@@ -1,11 +1,11 @@
 import type { DomainError } from '../DomainError'
-import type { Band } from '../learning/BandStart'
+import type { Band } from '../learning/curriculum/BandStart'
 import type { PlayerId } from '../player/PlayerId'
-import type { BandStartRepository } from '../ports/BandStartRepository'
 import type { Clock } from '../ports/Clock'
 import { ok, type Result } from '../Result'
 import { dueBandStartOf } from './dueBandStartOf'
 import type { HoldoutCheckWeek, SkippedHoldoutCheck } from './HoldoutCheck'
+import type { BandStartRepository } from './ports/BandStartRepository'
 
 export type SkipHoldoutCheckCommand = {
   readonly playerId: PlayerId

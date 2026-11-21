@@ -8,12 +8,12 @@ import {
   practisedOfStudied,
   weeksAfterStart,
 } from '../testing/holdoutFixtures'
-import { inMemoryBandStarts } from '../testing/inMemoryBandStarts'
 import { inMemoryPlacementWords } from '../testing/placementWords'
 import type { Instant } from '../time/Instant'
 import { answerHoldoutCheck } from './answerHoldoutCheck'
 import type { HoldoutCheck } from './HoldoutCheck'
 import { readHoldoutChecks } from './readHoldoutChecks'
+import { inMemoryBandStarts } from './testing/inMemoryBandStarts'
 
 const heldOutIds = heldOutOfStudied.map(({ id }) => id)
 

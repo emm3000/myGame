@@ -1,9 +1,8 @@
 import type { DomainError } from '../DomainError'
-import type { Band } from '../learning/BandStart'
-import type { Scaffold } from '../learning/Scaffold'
+import type { Band } from '../learning/curriculum/BandStart'
+import type { CardRepository } from '../learning/ports/CardRepository'
+import type { Scaffold } from '../learning/scaffold/Scaffold'
 import type { PlayerId } from '../player/PlayerId'
-import type { BandStartRepository } from '../ports/BandStartRepository'
-import type { CardRepository } from '../ports/CardRepository'
 import type { Clock } from '../ports/Clock'
 import type { RandomSource } from '../ports/RandomSource'
 import { ok, type Result } from '../Result'
@@ -13,6 +12,7 @@ import { dueBandStartOf } from './dueBandStartOf'
 import type { BegunHoldoutCheck, HoldoutCheckWeek } from './HoldoutCheck'
 import type { HoldoutCheckView } from './HoldoutCheckView'
 import { type HoldoutCheckContent, holdoutCheckSampleDrawn } from './holdoutCheckSampleDrawn'
+import type { BandStartRepository } from './ports/BandStartRepository'
 
 export type BeginHoldoutCheckCommand = {
   readonly playerId: PlayerId

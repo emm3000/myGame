@@ -1,5 +1,5 @@
-import { glossOf } from '../learning/glossOf'
-import type { Scaffold } from '../learning/Scaffold'
+import { glossOf } from '../learning/scaffold/glossOf'
+import type { Scaffold } from '../learning/scaffold/Scaffold'
 import type { PlacementWordCatalog } from '../ports/PlacementWordCatalog'
 import type { PlacementSample } from './Placement'
 import type { PlacementItem } from './PlacementView'

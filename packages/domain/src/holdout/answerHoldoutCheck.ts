@@ -1,16 +1,16 @@
 import type { DomainError } from '../DomainError'
-import type { Band } from '../learning/BandStart'
-import type { Scaffold } from '../learning/Scaffold'
+import type { Band } from '../learning/curriculum/BandStart'
+import type { Scaffold } from '../learning/scaffold/Scaffold'
 import { placementQuestionsOf } from '../placement/placementQuestionsOf'
 import { type PlacementAnswer, rightWordIdsOf } from '../placement/rightWordIdsOf'
 import type { PlayerId } from '../player/PlayerId'
-import type { BandStartRepository } from '../ports/BandStartRepository'
 import type { Clock } from '../ports/Clock'
 import type { PlacementWordCatalog } from '../ports/PlacementWordCatalog'
 import { err, ok, type Result } from '../Result'
 import { checkOfWeek } from './checkOfWeek'
 import { dueBandStartOf } from './dueBandStartOf'
 import type { HoldoutCheckWeek, TakenHoldoutCheck } from './HoldoutCheck'
+import type { BandStartRepository } from './ports/BandStartRepository'
 
 export type AnswerHoldoutCheckCommand = {
   readonly playerId: PlayerId

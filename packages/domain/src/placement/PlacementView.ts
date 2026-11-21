@@ -1,4 +1,4 @@
-import type { Band } from '../learning/BandStart'
+import type { Band } from '../learning/curriculum/BandStart'
 import type { WordId } from '../learning/Lesson'
 import type { PlacementScore } from './Placement'
 

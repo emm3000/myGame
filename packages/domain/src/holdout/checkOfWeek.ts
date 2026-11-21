@@ -1,4 +1,4 @@
-import type { BandStart } from '../learning/BandStart'
+import type { BandStart } from '../learning/curriculum/BandStart'
 import type { HoldoutCheck, HoldoutCheckWeek } from './HoldoutCheck'
 
 export const checkOfWeek = (

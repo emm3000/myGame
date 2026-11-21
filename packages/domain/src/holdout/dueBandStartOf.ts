@@ -1,11 +1,11 @@
 import type { DomainError } from '../DomainError'
-import type { Band, BandStart } from '../learning/BandStart'
+import type { Band, BandStart } from '../learning/curriculum/BandStart'
 import type { PlayerId } from '../player/PlayerId'
-import type { BandStartRepository } from '../ports/BandStartRepository'
 import { err, ok, type Result } from '../Result'
 import type { Instant } from '../time/Instant'
 import type { HoldoutCheckWeek } from './HoldoutCheck'
 import { isHoldoutCheckDue } from './holdoutCheckWeeks'
+import type { BandStartRepository } from './ports/BandStartRepository'
 
 export const dueBandStartOf = async (
   playerId: PlayerId,
