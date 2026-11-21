@@ -39,7 +39,6 @@ domain_promise_outside_its_roles packages/domain/src/town/stopHiringOrder.ts
 domain_promise_outside_its_roles packages/domain/src/town/stopSchoolLesson.ts
 domain_promise_outside_its_roles packages/domain/src/town/TownNews.ts
 domain_promise_outside_its_roles packages/domain/src/town/TownRepository.ts
-file_over_export_cap apps/api/src/town/infrastructure/postgres/townTables.ts
 file_over_export_cap apps/api/src/auth/Accounts.ts
 file_over_export_cap apps/api/src/contentGate/cardWordFormOf.ts
 file_over_export_cap packages/domain/src/holdout/HoldoutCheck.ts

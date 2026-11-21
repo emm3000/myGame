@@ -543,7 +543,6 @@
       "includes": [
         "apps/api/src/adapters/postgres/DrizzleTownRepository.ts",
         "apps/api/src/adapters/postgres/migration.test.ts",
-        "apps/api/src/town/infrastructure/postgres/townTables.ts",
         "apps/api/src/adapters/townRepositoryContract.ts",
         "apps/api/src/contentGate/checkGrammar.test.ts",
         "apps/api/src/openApiConformance.test.ts",

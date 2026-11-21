@@ -9,7 +9,7 @@ import {
 } from '@mygame/domain'
 import { asc, eq, sql } from 'drizzle-orm'
 import type { PostgresSession } from '../../platform/infrastructure/postgres/connectPostgres'
-import { earnedSkills } from '../../town/infrastructure/postgres/townTables'
+import { earnedSkills } from '../../town/infrastructure/postgres/schoolTables'
 
 export class DrizzleEarnedSkills implements EarnedSkillRepository {
   constructor(private readonly database: PostgresSession) {}

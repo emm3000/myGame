@@ -1,4 +1,4 @@
-import { players } from '../../town/infrastructure/postgres/townTables'
+import { players } from '../../account/infrastructure/postgres/accountTables'
 
 export const storedScaffoldColumns = {
   scaffold: players.scaffold,

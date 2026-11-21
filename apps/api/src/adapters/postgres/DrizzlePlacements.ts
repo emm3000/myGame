@@ -11,12 +11,12 @@ import {
   type TakenPlacement,
 } from '@mygame/domain'
 import { asc, eq } from 'drizzle-orm'
-import type { PostgresSession } from '../../platform/infrastructure/postgres/connectPostgres'
 import {
   placementScores,
   placements,
   placementWords,
-} from '../../town/infrastructure/postgres/townTables'
+} from '../../placement/infrastructure/postgres/placementTables'
+import type { PostgresSession } from '../../platform/infrastructure/postgres/connectPostgres'
 
 const instantOf = (date: Date): Instant => Instant.fromEpochMilliseconds(date.getTime())
 

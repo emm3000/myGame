@@ -7,7 +7,7 @@ import {
 import type {
   holdoutChecks,
   holdoutCheckWords,
-} from '../../town/infrastructure/postgres/townTables'
+} from '../../holdout/infrastructure/postgres/holdoutTables'
 
 export type StoredHoldoutCheck = Omit<typeof holdoutChecks.$inferSelect, 'playerId' | 'band'>
 

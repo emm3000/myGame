@@ -30,8 +30,8 @@ One row for each folder directly under `apps/api/src` or `packages/domain/src`. 
 | `account` | api | Players, sessions, account tokens and mail. Today its HTTP session files, the password hasher and session token ports with their system adapters, and the account's stores; the rest comes from `auth` and `routes`. |
 | `town` | api, domain | The holding: stocks, accrual, founding, building work, hiring, jobs, the school, guidance and news. |
 | `learning` | api, domain | Reviews, hints, frames, retention and the curriculum's shape. |
-| `holdout` | domain | Holdout checks and released lessons. |
-| `placement` | domain | The placement offer and its bands. |
+| `holdout` | api, domain | Holdout checks and released lessons. In the api, today only its tables. |
+| `placement` | api, domain | The placement offer and its bands. In the api, today only its tables. |
 | `memory` | domain | FSRS, the memory model of a card. |
 | `season` | domain | The season calendar. |
 | `player` | domain | The id every feature keys by. |

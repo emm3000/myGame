@@ -1,10 +1,10 @@
 import type { Instant, PlayerId } from '@mygame/domain'
 import { and, eq, gt, isNotNull, isNull, lte, or, sql } from 'drizzle-orm'
+import { accountTokens, players } from '../../account/infrastructure/postgres/accountTables'
 import type { AccountToken, AccountTokenKind, AccountTokens } from '../../auth/AccountTokens'
 import { isRedeemableAgain } from '../../auth/isRedeemableAgain'
 import { tokenDigest } from '../../auth/tokenDigest'
 import type { PostgresSession } from '../../platform/infrastructure/postgres/connectPostgres'
-import { accountTokens, players } from '../../town/infrastructure/postgres/townTables'
 
 const dateOf = (instant: Instant): Date => new Date(instant.epochMilliseconds)
 

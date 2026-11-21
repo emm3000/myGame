@@ -8,7 +8,7 @@ import {
 } from '@mygame/domain'
 import { eq } from 'drizzle-orm'
 import type { PostgresSession } from '../../platform/infrastructure/postgres/connectPostgres'
-import { townLessonSlots } from '../../town/infrastructure/postgres/townTables'
+import { townLessonSlots } from '../../town/infrastructure/postgres/schoolTables'
 import { lessonSlotOf } from './lessonSlotOf'
 
 export class DrizzleLessonSlots implements LessonSlotRepository {

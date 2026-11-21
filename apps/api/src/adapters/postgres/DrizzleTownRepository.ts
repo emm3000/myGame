@@ -30,19 +30,20 @@ import {
 } from '@mygame/domain'
 import { eq, sql } from 'drizzle-orm'
 import { z } from 'zod'
+import { players } from '../../account/infrastructure/postgres/accountTables'
 import type { PostgresSession } from '../../platform/infrastructure/postgres/connectPostgres'
 import { jsonAggregateOf } from '../../platform/infrastructure/postgres/jsonAggregateOf'
 import { violatedUniqueConstraint } from '../../platform/infrastructure/postgres/violatedUniqueConstraint'
 import {
-  earnedSkills,
-  players,
-  townBuilding,
-  townBuildings,
   townHire,
   townHires,
   townHiringOrders,
-  townJobs,
-  townLessonSlots,
+} from '../../town/infrastructure/postgres/hiringTables'
+import { townJobs } from '../../town/infrastructure/postgres/jobsTables'
+import { earnedSkills, townLessonSlots } from '../../town/infrastructure/postgres/schoolTables'
+import {
+  townBuilding,
+  townBuildings,
   townResource,
   towns,
   townWaitingWork,

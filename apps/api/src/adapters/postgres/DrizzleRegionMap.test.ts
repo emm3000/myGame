@@ -1,7 +1,7 @@
 import { drizzle } from 'drizzle-orm/node-postgres'
 import { Pool } from 'pg'
 import { afterAll, assert, beforeAll } from 'vitest'
-import { players } from '../../town/infrastructure/postgres/townTables'
+import { players } from '../../account/infrastructure/postgres/accountTables'
 import { truncatePlayerTables } from '../../truncatePlayerTables.testSupport'
 import { regionMapContract } from '../regionMapContract'
 import { DrizzleRegionMap } from './DrizzleRegionMap'
