@@ -8,6 +8,7 @@ import com.emm.mygame.core.network.StudyReminderChoice
 import com.emm.mygame.core.network.TownNewsReadResult
 import com.emm.mygame.core.testing.FakeSessionRepository
 import com.emm.mygame.core.testing.FakeStudyReminderSettings
+import com.emm.mygame.core.testing.FakeTownRepository
 import com.emm.mygame.core.testing.MainDispatcherRule
 import com.emm.mygame.core.testing.TestClock
 import kotlinx.coroutines.CompletableDeferred
@@ -57,7 +58,13 @@ class ReportCloseRaceTest {
 
     private fun TestScope.viewModelWithAReadPending(): ReportViewModel {
         val clock: TestClock = TestClock(testScheduler, readInstant)
-        val viewModel: ReportViewModel = ReportViewModel(reports, FakeSessionRepository(), reminderOff, clock)
+        val viewModel: ReportViewModel = ReportViewModel(
+            reports = reports,
+            towns = FakeTownRepository(),
+            sessions = FakeSessionRepository(),
+            reminders = reminderOff,
+            clock = clock,
+        )
         backgroundScope.launch(start = CoroutineStart.UNDISPATCHED) {
             try {
                 awaitCancellation()

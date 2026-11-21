@@ -2,6 +2,7 @@ package com.emm.mygame.feature.report
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.emm.mygame.core.network.HeldTown
 import com.emm.mygame.core.network.ReportCloseResult
 import com.emm.mygame.core.network.ReportReadResult
 import com.emm.mygame.core.network.ReportRepository
@@ -9,6 +10,7 @@ import com.emm.mygame.core.network.SessionRepository
 import com.emm.mygame.core.network.StudyReminderChoice
 import com.emm.mygame.core.network.StudyReminderSettings
 import com.emm.mygame.core.network.TownReport
+import com.emm.mygame.core.network.TownRepository
 import kotlin.time.Clock
 import kotlin.time.Duration
 import kotlin.time.Duration.Companion.minutes
@@ -29,6 +31,7 @@ private val failedReadRetry: Duration = 1.minutes
 
 class ReportViewModel(
     private val reports: ReportRepository,
+    private val towns: TownRepository,
     private val sessions: SessionRepository,
     private val reminders: StudyReminderSettings,
     private val clock: Clock,
@@ -46,11 +49,16 @@ class ReportViewModel(
 
     private var waiting: Job? = null
 
+    private var lessonWaiting: Job? = null
+
+    private var lessonEnd: Instant? = null
+
     private var isShown: Boolean = true
 
     init {
         open()
         viewModelScope.launch { reminders.choice.collect { choice: StudyReminderChoice -> drawReminder(choice.isOn) } }
+        viewModelScope.launch { towns.town.collect(::holdLessonEnd) }
     }
 
     fun onIntent(intent: ReportIntent) {
@@ -72,12 +80,31 @@ class ReportViewModel(
             ReportUiState.SigningOut -> Unit
             ReportUiState.Failed, is ReportUiState.Content -> readAgain()
         }
+        awaitLessonEnd()
     }
 
     private fun hide() {
         isShown = false
         reading?.cancel()
         waiting?.cancel()
+        lessonWaiting?.cancel()
+    }
+
+    private fun holdLessonEnd(held: HeldTown?) {
+        val end: Instant = held?.lessonEndOnDevice() ?: return
+        if (end == lessonEnd) return
+        lessonEnd = end
+        if (isShown) awaitLessonEnd()
+    }
+
+    private fun awaitLessonEnd() {
+        val wait: Duration = (lessonEnd ?: return) - clock.now()
+        if (wait <= Duration.ZERO) return
+        lessonWaiting?.cancel()
+        lessonWaiting = viewModelScope.launch {
+            delay(wait)
+            readAgain()
+        }
     }
 
     private fun open() {
@@ -190,3 +217,5 @@ class ReportViewModel(
             ReportUiState.CloseRequest.Idle
         }
 }
+
+private fun HeldTown.lessonEndOnDevice(): Instant? = town.lessonSlot?.finishesAt?.minus(gap)
