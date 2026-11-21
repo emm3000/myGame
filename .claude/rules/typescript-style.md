@@ -49,6 +49,7 @@ None. No JSDoc, no `//`, no `/* */`, no commented-out code, no section banners. 
 | Api use case | verb phrase, never a domain export's name | `resolveCurrentTown`, `serveReport` |
 | Endpoint | use case + `Route` | `sendJobRoute` |
 | Route list | area + `Routes` | `jobsRoutes` |
+| Responder | `respond` + what it turns into a response | `respondTownChange` |
 | Presenter | `present` + wire noun | `presentTownOverview` |
 | Row mapper | noun + `FromRow`, noun + `Columns` | `workSlotFromRow`, `jobColumns` |
 | Contract suite | port + `Contract.testSupport.ts` | `townRepositoryContract.testSupport.ts` |
