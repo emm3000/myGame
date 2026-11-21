@@ -278,6 +278,24 @@ class SchoolViewModelTest {
     }
 
     @Test
+    fun `leaves open a lesson whose entering words fit under the cap though its whole count is past it`() =
+        runTest {
+            val viewModel: SchoolViewModel = schoolReading(
+                townOf(
+                    lessons = listOf(lessonOf(wordCount = 5, enteringWordCount = 4)),
+                    learning = TownSnapshot.Learning(
+                        cap = 10,
+                        inLearning = 6,
+                        retainedWords = null,
+                        nextInLearningDueAt = null,
+                    ),
+                ),
+            )
+
+            assertEquals(SchoolUiState.LessonState.Open(block = null), lessonOfCard(viewModel).state)
+        }
+
+    @Test
     fun `names the school before the cap as the block of a lesson`() = runTest {
         val viewModel: SchoolViewModel = schoolReading(
             townOf(
