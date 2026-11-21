@@ -1,4 +1,4 @@
-import type { Stocks } from './Stocks'
+import type { Stocks } from '../Stocks'
 
 export type HireTerms = {
   readonly cost: Stocks

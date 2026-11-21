@@ -2,7 +2,7 @@ import { Instant } from '../time/Instant'
 import type { BuildingKind } from '../town/BuildingKind'
 import type { BuildingLevel } from '../town/BuildingLevel'
 import type { HireKind } from '../town/HireKind'
-import type { HireTerms } from '../town/HireTerms'
+import type { HireTerms } from '../town/hiring/HireTerms'
 import type { TownCatalog } from '../town/TownCatalog'
 import type { ProductionPercent, TownSettings } from '../town/TownSettings'
 

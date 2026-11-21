@@ -163,9 +163,7 @@ export {
 } from './town/BuildingWork'
 export { buildingKinds } from './town/buildingKinds'
 export { buildPercentAt } from './town/buildPercentAt'
-export { deliveredHiresOf } from './town/deliveredHiresOf'
 export { deriveFullAt, type FullAt } from './town/deriveFullAt'
-export { deriveHireDurationSeconds } from './town/deriveHireDurationSeconds'
 export { deriveLessonDurationSeconds } from './town/deriveLessonDurationSeconds'
 export { derivePeople } from './town/derivePeople'
 export { deriveResourceRates, type ResourceRates } from './town/deriveResourceRates'
@@ -176,16 +174,30 @@ export { type FullSince, noStoreFull } from './town/FullSince'
 export { type FoundTownCommand, type FoundTownDependencies, foundTown } from './town/foundTown'
 export type { HireKind } from './town/HireKind'
 export { type Hires, noHires } from './town/Hires'
-export type { HireTerms } from './town/HireTerms'
+export { hireKinds } from './town/hireKinds'
+export { deliveredHiresOf } from './town/hiring/deliveredHiresOf'
+export { deriveHireDurationSeconds } from './town/hiring/deriveHireDurationSeconds'
+export type { HireTerms } from './town/hiring/HireTerms'
 export {
   type HiringOrder,
   type HiringSlot,
   type HiringTarget,
   idleHiringSlot,
-} from './town/HiringOrder'
-export { hireKinds } from './town/hireKinds'
-export { hirePercentAt } from './town/hirePercentAt'
-export { hiringEndsAt } from './town/hiringEndsAt'
+} from './town/hiring/HiringOrder'
+export { hirePercentAt } from './town/hiring/hirePercentAt'
+export { hiringEndsAt } from './town/hiring/hiringEndsAt'
+export { lowestFreePeopleOf } from './town/hiring/lowestFreePeopleOf'
+export { requiredOfficeLevelOf } from './town/hiring/requiredOfficeLevelOf'
+export {
+  type PlaceHiringOrderCommand,
+  type PlaceHiringOrderDependencies,
+  placeHiringOrder,
+} from './town/hiring/useCases/placeHiringOrder'
+export {
+  type StopHiringOrderCommand,
+  type StopHiringOrderDependencies,
+  stopHiringOrder,
+} from './town/hiring/useCases/stopHiringOrder'
 export { isLessonFinishedBy } from './town/isLessonFinishedBy'
 export type { CleanUp } from './town/jobs/CleanUp'
 export type { CleanUpOrder } from './town/jobs/CleanUpOrder'
@@ -227,7 +239,6 @@ export type { WasteSize } from './town/jobs/WasteSize'
 export { type BusyLessonSlot, idleLessonSlot, type LessonSlot } from './town/LessonSlot'
 export type { LessonSlotRepository } from './town/LessonSlotRepository'
 export { type LevelWordNeed, levelWordNeedOf } from './town/levelWordNeedOf'
-export { lowestFreePeopleOf } from './town/lowestFreePeopleOf'
 export type { NeededWordKind } from './town/NeededWordKind'
 export { type GoalShortfall, type NextGoal, nextGoalOf } from './town/nextGoalOf'
 export {
@@ -237,15 +248,9 @@ export {
   nextStepOf,
 } from './town/nextStepOf'
 export type { People } from './town/People'
-export {
-  type PlaceHiringOrderCommand,
-  type PlaceHiringOrderDependencies,
-  placeHiringOrder,
-} from './town/placeHiringOrder'
 export type { ResourceKind } from './town/ResourceKind'
 export { type ReadyStock, type ResourceNeed, readyMinuteOf } from './town/readyMinuteOf'
 export { rebaseFullSince } from './town/rebaseFullSince'
-export { requiredOfficeLevelOf } from './town/requiredOfficeLevelOf'
 export { type ResolveTownDependencies, resolveTown } from './town/resolveTown'
 export { resourceKinds } from './town/resourceKinds'
 export type { SiteAddress } from './town/SiteAddress'
@@ -270,11 +275,6 @@ export {
   type StopBuildingWorkDependencies,
   stopBuildingWork,
 } from './town/stopBuildingWork'
-export {
-  type StopHiringOrderCommand,
-  type StopHiringOrderDependencies,
-  stopHiringOrder,
-} from './town/stopHiringOrder'
 export {
   type StopSchoolLessonCommand,
   type StopSchoolLessonDependencies,

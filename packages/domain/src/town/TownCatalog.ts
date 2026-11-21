@@ -1,7 +1,7 @@
 import type { BuildingKind } from './BuildingKind'
 import type { BuildingLevel } from './BuildingLevel'
 import type { HireKind } from './HireKind'
-import type { HireTerms } from './HireTerms'
+import type { HireTerms } from './hiring/HireTerms'
 import type { TownSettings } from './TownSettings'
 
 export interface TownCatalog {

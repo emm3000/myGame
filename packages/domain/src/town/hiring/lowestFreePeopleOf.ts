@@ -1,10 +1,10 @@
-import type { DomainError } from '../DomainError'
-import { ok, type Result } from '../Result'
-import type { BuildingLevels } from './BuildingLevels'
-import type { WorkTarget } from './BuildingWork'
-import { derivePeople } from './derivePeople'
-import type { Town } from './Town'
-import type { TownCatalog } from './TownCatalog'
+import type { DomainError } from '../../DomainError'
+import { ok, type Result } from '../../Result'
+import type { BuildingLevels } from '../BuildingLevels'
+import type { WorkTarget } from '../BuildingWork'
+import { derivePeople } from '../derivePeople'
+import type { Town } from '../Town'
+import type { TownCatalog } from '../TownCatalog'
 
 const scheduleOf = (town: Town): ReadonlyArray<BuildingLevels> => {
   const slot = town.workSlot

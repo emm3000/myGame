@@ -11,7 +11,6 @@ domain_promise_outside_its_roles packages/domain/src/placement/skipPlacement.ts
 domain_promise_outside_its_roles packages/domain/src/town/EarnedSkillRepository.ts
 domain_promise_outside_its_roles packages/domain/src/town/foundTown.ts
 domain_promise_outside_its_roles packages/domain/src/town/LessonSlotRepository.ts
-domain_promise_outside_its_roles packages/domain/src/town/placeHiringOrder.ts
 domain_promise_outside_its_roles packages/domain/src/town/resolvedTownOf.ts
 domain_promise_outside_its_roles packages/domain/src/town/resolveTown.ts
 domain_promise_outside_its_roles packages/domain/src/town/saveChangedTown.ts
@@ -22,7 +21,6 @@ domain_promise_outside_its_roles packages/domain/src/town/settleSchoolLesson.ts
 domain_promise_outside_its_roles packages/domain/src/town/startBuildingWork.ts
 domain_promise_outside_its_roles packages/domain/src/town/startSchoolLesson.ts
 domain_promise_outside_its_roles packages/domain/src/town/stopBuildingWork.ts
-domain_promise_outside_its_roles packages/domain/src/town/stopHiringOrder.ts
 domain_promise_outside_its_roles packages/domain/src/town/stopSchoolLesson.ts
 domain_promise_outside_its_roles packages/domain/src/town/TownNews.ts
 domain_promise_outside_its_roles packages/domain/src/town/TownRepository.ts
