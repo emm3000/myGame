@@ -1,26 +1,37 @@
-import type { Placement, PlacementAnswers } from '@mygame/contracts'
 import { useState } from 'react'
 
-export type AskingPlacement = Extract<Placement, { readonly kind: 'asking' }>
+export interface WalkChoice {
+  readonly choiceId: string
+  readonly gloss: string
+}
 
-export type PlacementItem = AskingPlacement['items'][number]
+export interface WalkItem {
+  readonly wordId: string
+  readonly word: string
+  readonly choices: ReadonlyArray<WalkChoice>
+}
 
-export interface BandWalk {
-  readonly shown: PlacementItem | undefined
+export interface ChosenAnswer {
+  readonly wordId: string
+  readonly choiceId: string
+}
+
+export interface ChoiceWalkState {
+  readonly shown: WalkItem | undefined
   readonly shownIndex: number
   readonly chosenForShown: string | undefined
   readonly isLastShown: boolean
   readonly choose: (choiceId: string) => void
   readonly next: () => void
-  readonly answers: () => PlacementAnswers | undefined
+  readonly answers: () => ReadonlyArray<ChosenAnswer> | undefined
 }
 
-export function useBandWalk(asking: AskingPlacement): BandWalk {
+export function useChoiceWalk(items: ReadonlyArray<WalkItem>): ChoiceWalkState {
   const [shownIndex, setShownIndex] = useState(0)
   const [chosen, setChosen] = useState<Readonly<Record<string, string>>>({})
-  const shown = asking.items[shownIndex]
+  const shown = items[shownIndex]
   const chosenForShown = shown === undefined ? undefined : chosen[shown.wordId]
-  const isLastShown = shownIndex >= asking.items.length - 1
+  const isLastShown = shownIndex >= items.length - 1
   return {
     shown,
     shownIndex,
@@ -37,11 +48,11 @@ export function useBandWalk(asking: AskingPlacement): BandWalk {
       }
     },
     answers: () => {
-      const answers = asking.items.flatMap(({ wordId }) => {
+      const answers = items.flatMap(({ wordId }) => {
         const choiceId = chosen[wordId]
         return choiceId === undefined ? [] : [{ wordId, choiceId }]
       })
-      return answers.length === asking.items.length ? { band: asking.band, answers } : undefined
+      return answers.length === items.length ? answers : undefined
     },
   }
 }

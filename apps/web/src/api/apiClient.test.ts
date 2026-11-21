@@ -414,3 +414,97 @@ it('puts a scaffold change and reads the player it stored', async () => {
   expect(init?.method).toBe('PUT')
   expect(JSON.parse(String(init?.body))).toEqual({ scaffold: 'none' })
 })
+
+const askingCheck = {
+  checks: [
+    {
+      kind: 'asking',
+      band: 1,
+      week: 8,
+      items: [
+        { wordId: 'word-house', word: 'house', choices: [{ choiceId: 'c-1', gloss: 'casa' }] },
+      ],
+    },
+  ],
+}
+
+it("reads the player's due holdout checks", async () => {
+  const fetch = answeringFetch(200, { checks: [{ kind: 'due', band: 1, week: 8 }] })
+
+  const outcome = await createApiClient('/api').holdoutChecks()
+
+  expect(outcome).toEqual({ ok: true, value: { checks: [{ kind: 'due', band: 1, week: 8 }] } })
+  const [url, init] = fetch.mock.calls[0] ?? []
+  expect(url).toBe('/api/holdout-checks')
+  expect(init?.method).toBe('GET')
+})
+
+it('begins a holdout check on its band and week and answers the checks it is changed to', async () => {
+  const fetch = answeringFetch(200, askingCheck)
+
+  const change = await createApiClient('/api').beginHoldoutCheck({ band: 1, week: 8 })
+
+  expect(change).toEqual({ kind: 'changed', checks: askingCheck })
+  const [url, init] = fetch.mock.calls[0] ?? []
+  expect(url).toBe('/api/holdout-checks/1/8')
+  expect(init?.method).toBe('POST')
+})
+
+it('skips a holdout check on its band and week', async () => {
+  const fetch = answeringFetch(200, { checks: [] })
+
+  const change = await createApiClient('/api').skipHoldoutCheck({ band: 2, week: 24 })
+
+  expect(change).toEqual({ kind: 'changed', checks: { checks: [] } })
+  const [url, init] = fetch.mock.calls[0] ?? []
+  expect(url).toBe('/api/holdout-checks/2/24/skip')
+  expect(init?.method).toBe('POST')
+})
+
+it('sends every answer of a holdout check at once', async () => {
+  const fetch = answeringFetch(200, { checks: [] })
+  const answers = { answers: [{ wordId: 'word-house', choiceId: 'c-1' }] }
+
+  const change = await createApiClient('/api').answerHoldoutCheck({ band: 1, week: 8 }, answers)
+
+  expect(change).toEqual({ kind: 'changed', checks: { checks: [] } })
+  const [url, init] = fetch.mock.calls[0] ?? []
+  expect(url).toBe('/api/holdout-checks/1/8/answers')
+  expect(init?.method).toBe('POST')
+  expect(JSON.parse(String(init?.body))).toEqual(answers)
+})
+
+it('answers a holdout check refused with a conflict as not open', async () => {
+  vi.stubGlobal('fetch', async () => new Response(null, { status: 409 }))
+
+  const change = await createApiClient('/api').beginHoldoutCheck({ band: 1, week: 8 })
+
+  expect(change).toEqual({ kind: 'refused', refusal: 'notOpen' })
+})
+
+it('answers holdout check answers refused as a bad request as invalid', async () => {
+  vi.stubGlobal('fetch', async () => new Response(null, { status: 400 }))
+
+  const change = await createApiClient('/api').answerHoldoutCheck(
+    { band: 1, week: 8 },
+    { answers: [] },
+  )
+
+  expect(change).toEqual({ kind: 'refused', refusal: 'invalidRequest' })
+})
+
+it('answers a holdout check change the server never answered as unreachable', async () => {
+  vi.stubGlobal('fetch', async () => Promise.reject(new TypeError('offline')))
+
+  const change = await createApiClient('/api').skipHoldoutCheck({ band: 1, week: 8 })
+
+  expect(change).toEqual({ kind: 'unreachable' })
+})
+
+it('answers a holdout check change with a body it cannot read as unreachable', async () => {
+  answeringFetch(500, { kind: 'Unexpected' })
+
+  const change = await createApiClient('/api').skipHoldoutCheck({ band: 1, week: 8 })
+
+  expect(change).toEqual({ kind: 'unreachable' })
+})

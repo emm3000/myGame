@@ -7,6 +7,10 @@ import {
   CleanUpQuoteSchema,
   type ForgotPasswordRequest,
   type FoundTown,
+  type HoldoutCheckAnswers,
+  type HoldoutCheckRequest,
+  type HoldoutChecks,
+  HoldoutChecksSchema,
   type JobQuote,
   JobQuoteSchema,
   type MarkTipSeen,
@@ -85,6 +89,13 @@ export interface ApiClient {
   beginPlacement(): Promise<ApiOutcome<Placement>>
   skipPlacement(): Promise<ApiOutcome<Placement>>
   answerPlacement(answers: PlacementAnswers): Promise<ApiOutcome<Placement>>
+  holdoutChecks(): Promise<ApiOutcome<HoldoutChecks>>
+  beginHoldoutCheck(check: HoldoutCheckRequest): Promise<HoldoutCheckChange>
+  skipHoldoutCheck(check: HoldoutCheckRequest): Promise<HoldoutCheckChange>
+  answerHoldoutCheck(
+    check: HoldoutCheckRequest,
+    answers: HoldoutCheckAnswers,
+  ): Promise<HoldoutCheckChange>
   report(): Promise<ApiOutcome<Report>>
   closeReport(): Promise<ApiRefusal | undefined>
   markTipSeen(tip: TipKind): Promise<ApiRefusal | undefined>
@@ -98,6 +109,13 @@ export interface ApiClient {
 export type TextRead =
   | { readonly kind: 'open'; readonly text: OpenText }
   | { readonly kind: 'notOpen' }
+
+export type HoldoutCheckRefusal = 'notOpen' | 'invalidRequest'
+
+export type HoldoutCheckChange =
+  | { readonly kind: 'changed'; readonly checks: HoldoutChecks }
+  | { readonly kind: 'refused'; readonly refusal: HoldoutCheckRefusal }
+  | { readonly kind: 'unreachable' }
 
 export interface AnsweredReview {
   readonly wordId: string
@@ -145,6 +163,28 @@ const textReadOf = async (response: Response): Promise<ApiOutcome<TextRead>> => 
 }
 
 const playerOf = (response: Response): Promise<ApiOutcome<Player>> => bodyOf(response, PlayerSchema)
+
+const holdoutCheckRefusals: Readonly<Partial<Record<number, HoldoutCheckRefusal>>> = {
+  400: 'invalidRequest',
+  409: 'notOpen',
+}
+
+const holdoutCheckChangeOf = async (
+  response: Response | undefined,
+): Promise<HoldoutCheckChange> => {
+  if (response === undefined) {
+    return { kind: 'unreachable' }
+  }
+  const refusal = holdoutCheckRefusals[response.status]
+  if (refusal !== undefined) {
+    return { kind: 'refused', refusal }
+  }
+  const outcome = await bodyOf(response, HoldoutChecksSchema)
+  return outcome.ok ? { kind: 'changed', checks: outcome.value } : { kind: 'unreachable' }
+}
+
+const holdoutCheckPathOf = ({ band, week }: HoldoutCheckRequest): string =>
+  `/holdout-checks/${band}/${week}`
 
 export const createApiClient = (baseUrl: string): ApiClient => {
   const send = (path: string, init: RequestInit): Promise<Response | undefined> =>
@@ -295,6 +335,16 @@ export const createApiClient = (baseUrl: string): ApiClient => {
       const response = await postJson('/placement/answers', answers)
       return response === undefined ? unexpected : bodyOf(response, PlacementSchema)
     },
+    holdoutChecks: async () => {
+      const response = await send('/holdout-checks', { method: 'GET' })
+      return response === undefined ? unexpected : bodyOf(response, HoldoutChecksSchema)
+    },
+    beginHoldoutCheck: async (check) =>
+      holdoutCheckChangeOf(await send(holdoutCheckPathOf(check), { method: 'POST' })),
+    skipHoldoutCheck: async (check) =>
+      holdoutCheckChangeOf(await send(`${holdoutCheckPathOf(check)}/skip`, { method: 'POST' })),
+    answerHoldoutCheck: async (check, answers) =>
+      holdoutCheckChangeOf(await postJson(`${holdoutCheckPathOf(check)}/answers`, answers)),
     report: async () => {
       const response = await send('/report', { method: 'GET' })
       return response === undefined ? unexpected : bodyOf(response, ReportSchema)

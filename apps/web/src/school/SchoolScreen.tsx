@@ -27,6 +27,7 @@ import { NextStepLink } from '../town/NextStepLink'
 import { reviewsActionOf } from '../town/nextStepCardOf'
 import { BandLines } from './BandLines'
 import { capWaitLabelOf } from './capWaitLabelOf'
+import { HoldoutCheckRows } from './HoldoutCheckRows'
 import { LessonRows } from './LessonRows'
 import {
   isPastLearningCap,
@@ -170,6 +171,7 @@ export function SchoolScreen({ town, lessons }: SchoolScreenProps): ReactElement
           {shown !== undefined && <ReviewsLink town={town} shownLessonId={shown.lessonId} />}
         </div>
         <div className="flex min-w-0 flex-col gap-6">
+          <HoldoutCheckRows checks={overview.dueHoldoutChecks} />
           <LessonRows
             cards={cards.filter(({ lessonId }) => lessonId !== shown?.lessonId)}
             onSelect={setSelectedId}

@@ -5,6 +5,8 @@ import {
   reportNoReviewsDue,
   reportStartReviews,
   schoolBandLine,
+  schoolHoldoutCheckOpen,
+  schoolHoldoutCheckRow,
   schoolLearning,
   schoolLearningFull,
   schoolLearningFullNextWordDue,
@@ -956,4 +958,27 @@ it('shows no band line before a band starts', async () => {
   await showSchool(schoolOf({ bandLines: [] }))
 
   expect(screen.queryByText(/^Banda \d+: /)).toBeNull()
+})
+
+it('draws each due holdout check with a way into it', async () => {
+  await showSchool(
+    schoolOf({
+      dueHoldoutChecks: [
+        { band: 1, week: 24 },
+        { band: 2, week: 8 },
+      ],
+    }),
+  )
+
+  const ways = within(screen.getByRole('main')).getAllByRole('link', {
+    name: schoolHoldoutCheckOpen(),
+  })
+  expect(ways.map((way) => way.getAttribute('href'))).toEqual([
+    '/school/check/1/24',
+    '/school/check/2/8',
+  ])
+  expect(ways.map(accessibleDescriptionOf)).toEqual([
+    schoolHoldoutCheckRow({ band: 1, week: 24 }),
+    schoolHoldoutCheckRow({ band: 2, week: 8 }),
+  ])
 })
