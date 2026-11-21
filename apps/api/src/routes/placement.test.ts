@@ -1,16 +1,16 @@
-import { fileURLToPath } from 'node:url'
 import { type Placement, PlacementSchema } from '@mygame/contracts'
 import { type Clock, Instant } from '@mygame/domain'
 import { Client, type QueryResultRow } from 'pg'
 import { afterAll, assert, beforeAll, beforeEach, describe, expect, it } from 'vitest'
 import { shippedCurriculum } from '../adapters/json/shippedCurriculum.testSupport'
+import { apiPackagePath } from '../apiPackagePath.testSupport'
 import { createApp } from '../app'
 import { type ComposedServer, composeServer } from '../composeServer'
 import { mailEnvironment } from '../composeServer.testSupport'
 import type { LessonLibrary } from '../learning/LessonLibrary'
 import { truncatePlayerTables } from '../truncatePlayerTables.testSupport'
 
-const contentDirectory = fileURLToPath(new URL('../../content/', import.meta.url))
+const contentDirectory = apiPackagePath('content/')
 
 const firstSignInAt = '2026-11-12T09:00:00.000Z'
 

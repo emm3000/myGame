@@ -1,10 +1,8 @@
 import { readFileSync } from 'node:fs'
-import { fileURLToPath } from 'node:url'
 import { type CurriculumContent, CurriculumContentSchema } from '@mygame/contracts'
+import { apiPackagePath } from '../../apiPackagePath.testSupport'
 
-const curriculumFile = fileURLToPath(
-  new URL('../../../content/lessons/curriculum.json', import.meta.url),
-)
+const curriculumFile = apiPackagePath('content/lessons/curriculum.json')
 
 export const shippedCurriculum: CurriculumContent = CurriculumContentSchema.parse(
   JSON.parse(readFileSync(curriculumFile, 'utf8')),

@@ -1,6 +1,6 @@
-import { fileURLToPath } from 'node:url'
 import { describe, expect, it } from 'vitest'
 import type { LexiconEntry } from '../adapters/json/lessonContentFilesOf'
+import { apiPackagePath } from '../apiPackagePath.testSupport'
 import { checkOrder } from './checkOrder'
 import {
   contentOf,
@@ -11,7 +11,7 @@ import {
 } from './contentGate.testSupport'
 import { gateContentOf } from './gateContentOf'
 
-const shippedContent = fileURLToPath(new URL('../../content/', import.meta.url))
+const shippedContent = apiPackagePath('content/')
 
 const frameWordRanks = [...contentOf().ranks].filter(([, rank]) => rank <= 23)
 

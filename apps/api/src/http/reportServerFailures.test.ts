@@ -1,9 +1,9 @@
-import { fileURLToPath } from 'node:url'
 import { PlayerSchema } from '@mygame/contracts'
 import { type Clock, Instant } from '@mygame/domain'
 import { Client } from 'pg'
 import { afterAll, beforeAll, beforeEach, describe, expect, it } from 'vitest'
 import { MemoryMailer } from '../adapters/memory/MemoryMailer'
+import { apiPackagePath } from '../apiPackagePath.testSupport'
 import { createApp } from '../app'
 import { type ComposedServer, composeServer } from '../composeServer'
 import { mailEnvironment } from '../composeServer.testSupport'
@@ -11,7 +11,7 @@ import type { FailureSink } from '../failures/FailureSink'
 import type { ReportClosings } from '../town/ReportClosings'
 import { truncatePlayerTables } from '../truncatePlayerTables.testSupport'
 
-const contentDirectory = fileURLToPath(new URL('../../content/', import.meta.url))
+const contentDirectory = apiPackagePath('content/')
 
 const frozenClock: Clock = {
   now: () => Instant.fromEpochMilliseconds(Date.parse('2026-11-03T08:00:00Z')),

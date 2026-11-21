@@ -1,10 +1,10 @@
-import { fileURLToPath } from 'node:url'
 import type { RouteConfig } from '@hono/zod-openapi'
 import { PlayerSchema } from '@mygame/contracts'
 import { type Clock, Instant } from '@mygame/domain'
 import { Client } from 'pg'
 import { afterAll, beforeAll, describe, expect, it } from 'vitest'
 import { ZodType } from 'zod'
+import { apiPackagePath } from './apiPackagePath.testSupport'
 import { createApp } from './app'
 import { type ComposedServer, composeServer } from './composeServer'
 import { mailEnvironment } from './composeServer.testSupport'
@@ -17,7 +17,7 @@ import { townDeclarations } from './routes/townDeclarations'
 import { townMapDeclarations } from './routes/townMapDeclarations'
 import { truncatePlayerTables } from './truncatePlayerTables.testSupport'
 
-const contentDirectory = fileURLToPath(new URL('../content/', import.meta.url))
+const contentDirectory = apiPackagePath('content/')
 
 const frozenClock: Clock = {
   now: () => Instant.fromEpochMilliseconds(Date.parse('2026-09-22T08:00:00Z')),

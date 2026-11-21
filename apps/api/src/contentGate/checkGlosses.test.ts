@@ -1,5 +1,5 @@
-import { fileURLToPath } from 'node:url'
 import { describe, expect, it } from 'vitest'
+import { apiPackagePath } from '../apiPackagePath.testSupport'
 import { checkGlosses } from './checkGlosses'
 import {
   contentOf,
@@ -19,7 +19,7 @@ const workOnDefined = (definition: string) =>
     ],
   })
 
-const shippedContent = fileURLToPath(new URL('../../content/', import.meta.url))
+const shippedContent = apiPackagePath('content/')
 
 describe('content gate check 5, glossary completeness for es', () => {
   it('passes the shipped lessons', () => {

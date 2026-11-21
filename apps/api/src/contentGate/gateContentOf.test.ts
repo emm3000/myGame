@@ -2,12 +2,12 @@ import { createHash } from 'node:crypto'
 import { cpSync, mkdtempSync, readFileSync, rmSync, writeFileSync } from 'node:fs'
 import { tmpdir } from 'node:os'
 import { join } from 'node:path'
-import { fileURLToPath } from 'node:url'
 import { BuildingContentSchema } from '@mygame/contracts'
 import { assert, describe, expect, it } from 'vitest'
+import { apiPackagePath } from '../apiPackagePath.testSupport'
 import { gateContentOf } from './gateContentOf'
 
-const shippedContent = fileURLToPath(new URL('../../content/', import.meta.url))
+const shippedContent = apiPackagePath('content/')
 
 const shippedFile = (file: string): Buffer => readFileSync(join(shippedContent, 'lessons', file))
 

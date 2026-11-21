@@ -1,10 +1,10 @@
-import { fileURLToPath } from 'node:url'
 import { ApiErrorSchema, NativeSessionSchema, PlayerSchema } from '@mygame/contracts'
 import { type Clock, Instant, ok } from '@mygame/domain'
 import { Client } from 'pg'
 import { afterAll, beforeAll, beforeEach, describe, expect, it } from 'vitest'
 import { MemoryMailer } from '../adapters/memory/MemoryMailer'
 import type { Transaction } from '../adapters/postgres/postgresTransaction'
+import { apiPackagePath } from '../apiPackagePath.testSupport'
 import { createApp } from '../app'
 import { accountTokenExpiryFrom } from '../auth/accountTokenExpiryFrom'
 import type { Mail } from '../auth/Mailer'
@@ -13,7 +13,7 @@ import { type ComposedServer, composeServer } from '../composeServer'
 import { mailEnvironment } from '../composeServer.testSupport'
 import { truncatePlayerTables } from '../truncatePlayerTables.testSupport'
 
-const contentDirectory = fileURLToPath(new URL('../../content/', import.meta.url))
+const contentDirectory = apiPackagePath('content/')
 
 const millisecondsPerHour = 3_600_000
 

@@ -1,4 +1,3 @@
-import { fileURLToPath } from 'node:url'
 import {
   type DomainError,
   Instant,
@@ -9,13 +8,14 @@ import {
 } from '@mygame/domain'
 import { Client } from 'pg'
 import { afterAll, beforeAll, describe, expect, it } from 'vitest'
+import { apiPackagePath } from '../apiPackagePath.testSupport'
 import type { Accounts } from '../auth/Accounts'
 import { type ComposedServer, composeServer } from '../composeServer'
 import { mailEnvironment } from '../composeServer.testSupport'
 import { truncatePlayerTables } from '../truncatePlayerTables.testSupport'
 import { foundTownOnFreeSite } from './foundTownOnFreeSite'
 
-const contentDirectory = fileURLToPath(new URL('../../content/', import.meta.url))
+const contentDirectory = apiPackagePath('content/')
 
 const foundedAt = Instant.fromEpochMilliseconds(Date.parse('2026-11-05T08:00:00Z'))
 const frozenClock = { now: (): Instant => foundedAt }

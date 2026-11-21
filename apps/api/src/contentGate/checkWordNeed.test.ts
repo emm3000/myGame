@@ -1,11 +1,11 @@
-import { fileURLToPath } from 'node:url'
 import { describe, expect, it } from 'vitest'
+import { apiPackagePath } from '../apiPackagePath.testSupport'
 import { checkWordNeed } from './checkWordNeed'
 import { contentOf, entryOf, lessonOneLexicon } from './contentGate.testSupport'
 import { countedWordsOf } from './countedWordsOf'
 import { gateContentOf } from './gateContentOf'
 
-const shippedContent = fileURLToPath(new URL('../../content/', import.meta.url))
+const shippedContent = apiPackagePath('content/')
 
 const chromeWords = Array.from({ length: 80 }, (_, index) =>
   entryOf(`chrome-${index + 1}`, `chrome${index + 1}`, `This is chrome${index + 1}.`),

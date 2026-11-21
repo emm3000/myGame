@@ -1,4 +1,3 @@
-import { fileURLToPath } from 'node:url'
 import {
   PlayerSchema,
   type Report,
@@ -19,6 +18,7 @@ import {
   it,
   vi,
 } from 'vitest'
+import { apiPackagePath } from '../apiPackagePath.testSupport'
 import { createApp } from '../app'
 import { type ComposedServer, composeServer } from '../composeServer'
 import { mailEnvironment } from '../composeServer.testSupport'
@@ -30,7 +30,7 @@ import {
 import { mutateTown } from '../town/mutateTown'
 import { truncatePlayerTables } from '../truncatePlayerTables.testSupport'
 
-const contentDirectory = fileURLToPath(new URL('../../content/', import.meta.url))
+const contentDirectory = apiPackagePath('content/')
 
 type SettableClock = Clock & { readonly setTo: (iso: string) => void }
 

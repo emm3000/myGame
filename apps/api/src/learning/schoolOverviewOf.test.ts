@@ -1,5 +1,4 @@
 import { join } from 'node:path'
-import { fileURLToPath } from 'node:url'
 import {
   defaultMemoryTerms,
   type HeldCard,
@@ -13,10 +12,11 @@ import {
 import { assert, describe, expect, it } from 'vitest'
 import { JsonLessonCatalog } from '../adapters/json/JsonLessonCatalog'
 import { JsonTownCatalog } from '../adapters/json/JsonTownCatalog'
+import { apiPackagePath } from '../apiPackagePath.testSupport'
 import type { TownReading } from '../town/TownReading'
 import { schoolOverviewOf } from './schoolOverviewOf'
 
-const contentDirectory = fileURLToPath(new URL('../../content/', import.meta.url))
+const contentDirectory = apiPackagePath('content/')
 
 const lessons = JsonLessonCatalog.fromDirectory(contentDirectory)
 
