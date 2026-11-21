@@ -81,6 +81,13 @@ fails_an_application_importing_infrastructure() {
   expect_failure "${FUNCNAME[0]}" "structure check application_imports_infrastructure apps/api/src/town/application/sendJob.ts 1:import"
 }
 
+fails_an_application_importing_infrastructure_by_subpath() {
+  fresh_tree
+  plant apps/api/src/town/application/sendJob.ts "import { DrizzleTownRepository } from '#town/infrastructure/postgres/DrizzleTownRepository'\n"
+  check
+  expect_failure "${FUNCNAME[0]}" "structure check application_imports_infrastructure apps/api/src/town/application/sendJob.ts 1:import"
+}
+
 fails_an_application_knowing_the_wire() {
   fresh_tree
   plant apps/api/src/town/application/sendJob.ts "import { z } from 'zod'\n"
@@ -171,6 +178,13 @@ fails_a_use_case_importing_a_use_case_from_its_folder() {
 fails_a_use_case_importing_another_features_use_case() {
   fresh_tree
   plant packages/domain/src/town/useCases/sendJob.ts "import { answerReview } from '../../learning/useCases/answerReview'\n"
+  check
+  expect_failure "${FUNCNAME[0]}" "structure check use_case_imports_use_case packages/domain/src/town/useCases/sendJob.ts 1:import"
+}
+
+fails_a_use_case_importing_another_features_use_case_by_subpath() {
+  fresh_tree
+  plant packages/domain/src/town/useCases/sendJob.ts "import { answerReview } from '#learning/useCases/answerReview'\n"
   check
   expect_failure "${FUNCNAME[0]}" "structure check use_case_imports_use_case packages/domain/src/town/useCases/sendJob.ts 1:import"
 }
@@ -298,6 +312,7 @@ run() {
 
 run passes_a_clean_tree
 run fails_an_application_importing_infrastructure
+run fails_an_application_importing_infrastructure_by_subpath
 run fails_an_application_knowing_the_wire
 run fails_contracts_outside_their_adapters
 run passes_contracts_in_http_json_and_the_gate
@@ -311,6 +326,7 @@ run fails_a_domain_promise_outside_its_roles
 run passes_a_domain_promise_in_a_port
 run fails_a_use_case_importing_a_use_case_from_its_folder
 run fails_a_use_case_importing_another_features_use_case
+run fails_a_use_case_importing_another_features_use_case_by_subpath
 run fails_a_public_service
 run fails_a_folder_over_thirty_production_files
 run passes_a_folder_of_thirty_production_files_and_its_tests

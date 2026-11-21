@@ -153,12 +153,19 @@
                   {
                     "group": [
                       "**/content/**",
+                      "#content/**",
                       "**/account/**",
+                      "#account/**",
                       "**/town/**",
+                      "#town/**",
                       "**/learning/**",
+                      "#learning/**",
                       "**/placement/**",
+                      "#placement/**",
                       "**/holdout/**",
-                      "**/report/**"
+                      "#holdout/**",
+                      "**/report/**",
+                      "#report/**"
                     ],
                     "message": "ADR 052: platform imports only from a feature to its left: platform <- content <- account <- town <- learning <- placement, holdout, report."
                   }
@@ -181,11 +188,17 @@
                   {
                     "group": [
                       "**/account/**",
+                      "#account/**",
                       "**/town/**",
+                      "#town/**",
                       "**/learning/**",
+                      "#learning/**",
                       "**/placement/**",
+                      "#placement/**",
                       "**/holdout/**",
-                      "**/report/**"
+                      "#holdout/**",
+                      "**/report/**",
+                      "#report/**"
                     ],
                     "message": "ADR 052: content imports only from a feature to its left: platform <- content <- account <- town <- learning <- placement, holdout, report."
                   }
@@ -208,10 +221,15 @@
                   {
                     "group": [
                       "**/town/**",
+                      "#town/**",
                       "**/learning/**",
+                      "#learning/**",
                       "**/placement/**",
+                      "#placement/**",
                       "**/holdout/**",
-                      "**/report/**"
+                      "#holdout/**",
+                      "**/report/**",
+                      "#report/**"
                     ],
                     "message": "ADR 052: account imports only from a feature to its left: platform <- content <- account <- town <- learning <- placement, holdout, report."
                   }
@@ -232,7 +250,16 @@
               "options": {
                 "patterns": [
                   {
-                    "group": ["**/learning/**", "**/placement/**", "**/holdout/**", "**/report/**"],
+                    "group": [
+                      "**/learning/**",
+                      "#learning/**",
+                      "**/placement/**",
+                      "#placement/**",
+                      "**/holdout/**",
+                      "#holdout/**",
+                      "**/report/**",
+                      "#report/**"
+                    ],
                     "message": "ADR 052: town imports only from a feature to its left: platform <- content <- account <- town <- learning <- placement, holdout, report."
                   }
                 ]
@@ -252,7 +279,14 @@
               "options": {
                 "patterns": [
                   {
-                    "group": ["**/placement/**", "**/holdout/**", "**/report/**"],
+                    "group": [
+                      "**/placement/**",
+                      "#placement/**",
+                      "**/holdout/**",
+                      "#holdout/**",
+                      "**/report/**",
+                      "#report/**"
+                    ],
                     "message": "ADR 052: learning imports only from a feature to its left: platform <- content <- account <- town <- learning <- placement, holdout, report."
                   }
                 ]
@@ -272,7 +306,7 @@
               "options": {
                 "patterns": [
                   {
-                    "group": ["**/holdout/**", "**/report/**"],
+                    "group": ["**/holdout/**", "#holdout/**", "**/report/**", "#report/**"],
                     "message": "ADR 052: placement imports only from a feature to its left: platform <- content <- account <- town <- learning <- placement, holdout, report."
                   }
                 ]
@@ -292,7 +326,7 @@
               "options": {
                 "patterns": [
                   {
-                    "group": ["**/placement/**", "**/report/**"],
+                    "group": ["**/placement/**", "#placement/**", "**/report/**", "#report/**"],
                     "message": "ADR 052: holdout imports only from a feature to its left: platform <- content <- account <- town <- learning <- placement, holdout, report."
                   }
                 ]
@@ -312,7 +346,7 @@
               "options": {
                 "patterns": [
                   {
-                    "group": ["**/placement/**", "**/holdout/**"],
+                    "group": ["**/placement/**", "#placement/**", "**/holdout/**", "#holdout/**"],
                     "message": "ADR 052: report imports only from a feature to its left: platform <- content <- account <- town <- learning <- placement, holdout, report."
                   }
                 ]
@@ -334,12 +368,19 @@
                   {
                     "group": [
                       "**/content/**",
+                      "#content/**",
                       "**/account/**",
+                      "#account/**",
                       "**/town/**",
+                      "#town/**",
                       "**/learning/**",
+                      "#learning/**",
                       "**/placement/**",
+                      "#placement/**",
                       "**/holdout/**",
+                      "#holdout/**",
                       "**/report/**",
+                      "#report/**",
                       "!**/infrastructure/postgres/*Tables",
                       "!**/infrastructure/postgres/*FromRow",
                       "!**/infrastructure/postgres/*Columns"
@@ -365,11 +406,17 @@
                   {
                     "group": [
                       "**/account/**",
+                      "#account/**",
                       "**/town/**",
+                      "#town/**",
                       "**/learning/**",
+                      "#learning/**",
                       "**/placement/**",
+                      "#placement/**",
                       "**/holdout/**",
+                      "#holdout/**",
                       "**/report/**",
+                      "#report/**",
                       "!**/infrastructure/postgres/*Tables",
                       "!**/infrastructure/postgres/*FromRow",
                       "!**/infrastructure/postgres/*Columns"
@@ -395,10 +442,15 @@
                   {
                     "group": [
                       "**/town/**",
+                      "#town/**",
                       "**/learning/**",
+                      "#learning/**",
                       "**/placement/**",
+                      "#placement/**",
                       "**/holdout/**",
+                      "#holdout/**",
                       "**/report/**",
+                      "#report/**",
                       "!**/infrastructure/postgres/*Tables",
                       "!**/infrastructure/postgres/*FromRow",
                       "!**/infrastructure/postgres/*Columns"
@@ -424,9 +476,13 @@
                   {
                     "group": [
                       "**/learning/**",
+                      "#learning/**",
                       "**/placement/**",
+                      "#placement/**",
                       "**/holdout/**",
+                      "#holdout/**",
                       "**/report/**",
+                      "#report/**",
                       "!**/infrastructure/postgres/*Tables",
                       "!**/infrastructure/postgres/*FromRow",
                       "!**/infrastructure/postgres/*Columns"
@@ -452,8 +508,11 @@
                   {
                     "group": [
                       "**/placement/**",
+                      "#placement/**",
                       "**/holdout/**",
+                      "#holdout/**",
                       "**/report/**",
+                      "#report/**",
                       "!**/infrastructure/postgres/*Tables",
                       "!**/infrastructure/postgres/*FromRow",
                       "!**/infrastructure/postgres/*Columns"
@@ -479,7 +538,9 @@
                   {
                     "group": [
                       "**/holdout/**",
+                      "#holdout/**",
                       "**/report/**",
+                      "#report/**",
                       "!**/infrastructure/postgres/*Tables",
                       "!**/infrastructure/postgres/*FromRow",
                       "!**/infrastructure/postgres/*Columns"
@@ -505,7 +566,9 @@
                   {
                     "group": [
                       "**/placement/**",
+                      "#placement/**",
                       "**/report/**",
+                      "#report/**",
                       "!**/infrastructure/postgres/*Tables",
                       "!**/infrastructure/postgres/*FromRow",
                       "!**/infrastructure/postgres/*Columns"
@@ -531,7 +594,9 @@
                   {
                     "group": [
                       "**/placement/**",
+                      "#placement/**",
                       "**/holdout/**",
+                      "#holdout/**",
                       "!**/infrastructure/postgres/*Tables",
                       "!**/infrastructure/postgres/*FromRow",
                       "!**/infrastructure/postgres/*Columns"

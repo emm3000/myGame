@@ -30,7 +30,7 @@ by_file() {
 }
 
 application_imports_infrastructure() {
-  search -n "from '(\.\./)+(\w+/)*infrastructure/" "$api" -g '**/application/**' -g '!*.test.ts' | by_line
+  search -n "from '((\.\./)+|#)(\w+/)*infrastructure/" "$api" -g '**/application/**' -g '!*.test.ts' | by_line
 }
 
 application_knows_wire() {
@@ -66,7 +66,7 @@ domain_promise_outside_its_roles() {
 }
 
 use_case_imports_use_case() {
-  search -n "from '(\./|(\.\./)+(\w+/)*useCases/)" "$domain" -g '**/useCases/**' -g '!*.test.ts' | by_line
+  search -n "from '(\./|((\.\./)+|#)(\w+/)*useCases/)" "$domain" -g '**/useCases/**' -g '!*.test.ts' | by_line
 }
 
 service_is_public() {
