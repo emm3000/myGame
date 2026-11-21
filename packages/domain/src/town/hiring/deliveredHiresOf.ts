@@ -1,4 +1,4 @@
-import type { Instant } from '../time/Instant'
+import type { Instant } from '../../time/Instant'
 import type { HiringOrder } from './HiringOrder'
 
 export const deliveredHiresOf = (order: HiringOrder, at: Instant): number => {

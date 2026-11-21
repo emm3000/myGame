@@ -14,13 +14,18 @@ import {
   type WorkTarget,
 } from './BuildingWork'
 import { buildingKinds } from './buildingKinds'
-import { deliveredHiresOf } from './deliveredHiresOf'
 import { type FullSince, noStoreFull } from './FullSince'
 import type { HireKind } from './HireKind'
 import { type Hires, noHires } from './Hires'
-import { type HiringOrder, type HiringSlot, type HiringTarget, idleHiringSlot } from './HiringOrder'
 import { hireKinds } from './hireKinds'
-import { hiringEndsAt } from './hiringEndsAt'
+import { deliveredHiresOf } from './hiring/deliveredHiresOf'
+import {
+  type HiringOrder,
+  type HiringSlot,
+  type HiringTarget,
+  idleHiringSlot,
+} from './hiring/HiringOrder'
+import { hiringEndsAt } from './hiring/hiringEndsAt'
 import { coversWaste } from './jobs/coversWaste'
 import { idleJobSlot, type Job, type JobCleanUp, type JobSlot } from './jobs/Job'
 import { jobInstantsOf, uncalledJobInstantsOf } from './jobs/jobInstantsOf'
