@@ -9,7 +9,7 @@ import {
 } from '@mygame/domain'
 import { and, eq, sql } from 'drizzle-orm'
 import type { PostgresSession } from '../../platform/infrastructure/postgres/connectPostgres'
-import { pendingReviews } from './schema'
+import { pendingReviews } from '../../town/infrastructure/postgres/townTables'
 
 const pendingColumns = {
   hintShown: pendingReviews.hintShown,

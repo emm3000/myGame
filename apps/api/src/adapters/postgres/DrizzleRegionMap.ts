@@ -1,7 +1,7 @@
 import type { PlayerId, RegionMapReader, SiteAddress, SiteHolder } from '@mygame/domain'
 import { and, asc, eq, max } from 'drizzle-orm'
 import type { PostgresSession } from '../../platform/infrastructure/postgres/connectPostgres'
-import { towns } from './schema'
+import { towns } from '../../town/infrastructure/postgres/townTables'
 
 export class DrizzleRegionMap implements RegionMapReader {
   constructor(private readonly database: PostgresSession) {}

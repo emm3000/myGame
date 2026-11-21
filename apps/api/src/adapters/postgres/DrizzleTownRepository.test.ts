@@ -10,6 +10,7 @@ import {
 import { drizzle } from 'drizzle-orm/node-postgres'
 import { Pool } from 'pg'
 import { afterAll, assert, beforeAll, describe, expect, it } from 'vitest'
+import { players } from '../../town/infrastructure/postgres/townTables'
 import { truncatePlayerTables } from '../../truncatePlayerTables.testSupport'
 import { townRepositoryContract } from '../townRepositoryContract'
 import { DrizzleAccounts } from './DrizzleAccounts'
@@ -18,7 +19,6 @@ import { DrizzleCardRepository } from './DrizzleCardRepository'
 import { DrizzleEarnedSkills } from './DrizzleEarnedSkills'
 import { DrizzleLessonSlots } from './DrizzleLessonSlots'
 import { DrizzleTownRepository } from './DrizzleTownRepository'
-import { players } from './schema'
 
 function databaseUrl(): string {
   const url = process.env.DATABASE_URL

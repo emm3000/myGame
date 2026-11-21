@@ -33,13 +33,6 @@ import { z } from 'zod'
 import type { PostgresSession } from '../../platform/infrastructure/postgres/connectPostgres'
 import { jsonAggregateOf } from '../../platform/infrastructure/postgres/jsonAggregateOf'
 import { violatedUniqueConstraint } from '../../platform/infrastructure/postgres/violatedUniqueConstraint'
-import type { TownReader, TownWithSchool } from '../../town/TownReader'
-import { byEarnedAt } from '../byEarnedAt'
-import { aggregatedBandStartsOf, bandStartsFrom } from './aggregatedBandStarts'
-import { aggregatedCardsOf, heldCardsOf } from './aggregatedCards'
-import { aggregatedPlacementScoresOf, placementScoresFrom } from './aggregatedPlacementScores'
-import { aggregatedSeenTipsOf, seenTipsFrom } from './aggregatedSeenTips'
-import { lessonSlotOf } from './lessonSlotOf'
 import {
   earnedSkills,
   players,
@@ -53,7 +46,14 @@ import {
   townResource,
   towns,
   townWaitingWork,
-} from './schema'
+} from '../../town/infrastructure/postgres/townTables'
+import type { TownReader, TownWithSchool } from '../../town/TownReader'
+import { byEarnedAt } from '../byEarnedAt'
+import { aggregatedBandStartsOf, bandStartsFrom } from './aggregatedBandStarts'
+import { aggregatedCardsOf, heldCardsOf } from './aggregatedCards'
+import { aggregatedPlacementScoresOf, placementScoresFrom } from './aggregatedPlacementScores'
+import { aggregatedSeenTipsOf, seenTipsFrom } from './aggregatedSeenTips'
+import { lessonSlotOf } from './lessonSlotOf'
 import { storedScaffoldColumns } from './storedScaffoldColumns'
 
 export type TownRead = 'lockedForUpdate' | 'lockFree'

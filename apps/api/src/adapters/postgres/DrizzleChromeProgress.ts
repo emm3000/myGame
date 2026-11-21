@@ -2,7 +2,13 @@ import { Instant, type PlayerId } from '@mygame/domain'
 import { eq, sql } from 'drizzle-orm'
 import type { ChromeProgress, ChromeProgressReader } from '../../learning/ChromeProgressReader'
 import type { PostgresSession } from '../../platform/infrastructure/postgres/connectPostgres'
-import { cards, earnedSkills, players, townLessonSlots, towns } from './schema'
+import {
+  cards,
+  earnedSkills,
+  players,
+  townLessonSlots,
+  towns,
+} from '../../town/infrastructure/postgres/townTables'
 
 export class DrizzleChromeProgress implements ChromeProgressReader {
   constructor(private readonly database: PostgresSession) {}

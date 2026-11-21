@@ -2,7 +2,7 @@ import { type DomainError, err, type Instant, ok, type PlayerId, type Result } f
 import { eq, sql } from 'drizzle-orm'
 import type { PostgresSession } from '../../platform/infrastructure/postgres/connectPostgres'
 import type { GuidanceDismissals } from '../../town/GuidanceDismissals'
-import { towns } from './schema'
+import { towns } from '../../town/infrastructure/postgres/townTables'
 
 export class DrizzleGuidanceDismissals implements GuidanceDismissals {
   constructor(private readonly database: PostgresSession) {}
