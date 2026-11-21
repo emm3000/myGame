@@ -9,7 +9,7 @@ import { honoPathOf } from '#platform/infrastructure/http/honoPath'
 import { refusalResponse } from '#platform/infrastructure/http/refusalResponse'
 import { respondRefusal } from '#platform/infrastructure/http/respondRefusal'
 import { jsonResponse } from '#platform/infrastructure/http/responseDeclarations'
-import { signedInRoute } from '#platform/infrastructure/http/signedInDeclaration'
+import { signedInDeclaration } from '#platform/infrastructure/http/signedInDeclaration'
 import {
   type ResolveCurrentTownDependencies,
   resolveCurrentTown,
@@ -17,7 +17,7 @@ import {
 import { presentOpenText } from './presentOpenText'
 
 export const openTextDeclaration = createRoute(
-  signedInRoute({
+  signedInDeclaration({
     method: 'get',
     path: '/texts/{textId}',
     request: { params: ReadTextRequestSchema },

@@ -8,13 +8,13 @@ import {
 import type { LearningDependencies } from '#learning/application/LearningDependencies'
 import { honoPathOf } from '#platform/infrastructure/http/honoPath'
 import { respondRefusal } from '#platform/infrastructure/http/respondRefusal'
-import { signedInRoute } from '#platform/infrastructure/http/signedInDeclaration'
+import { signedInDeclaration } from '#platform/infrastructure/http/signedInDeclaration'
 import { mutateHoldoutCheck } from '../../application/mutateHoldoutCheck'
 import { checkNotDue, checkPath, checksResponse, malformedCheck } from './holdoutCheckComponents'
 import { respondHoldoutChecks } from './respondHoldoutChecks'
 
 export const skipHoldoutCheckDeclaration = createRoute(
-  signedInRoute({
+  signedInDeclaration({
     method: 'post',
     path: '/{band}/{week}/skip',
     request: checkPath,

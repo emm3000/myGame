@@ -10,7 +10,7 @@ import { readJsonBody } from '#platform/infrastructure/http/readJsonBody'
 import { refusalResponse } from '#platform/infrastructure/http/refusalResponse'
 import { respondRefusal } from '#platform/infrastructure/http/respondRefusal'
 import { jsonBody, malformedResponse } from '#platform/infrastructure/http/responseDeclarations'
-import { signedInRoute } from '#platform/infrastructure/http/signedInDeclaration'
+import { signedInDeclaration } from '#platform/infrastructure/http/signedInDeclaration'
 import {
   type RespondTownChangeDependencies,
   respondTownChange,
@@ -18,7 +18,7 @@ import {
 import { overviewResponse, townNotFoundResponse } from '../../../infrastructure/http/townComponents'
 
 export const placeHiringOrderDeclaration = createRoute(
-  signedInRoute({
+  signedInDeclaration({
     method: 'post',
     path: '/hiring',
     request: { body: jsonBody(PlaceHiringOrderSchema) },

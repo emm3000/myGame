@@ -18,13 +18,13 @@ import {
   jsonResponse,
   malformedResponse,
 } from '#platform/infrastructure/http/responseDeclarations'
-import { signedInRoute } from '#platform/infrastructure/http/signedInDeclaration'
+import { signedInDeclaration } from '#platform/infrastructure/http/signedInDeclaration'
 import type { LearningDependencies } from '../../application/LearningDependencies'
 import { submitReviewAnswer } from '../../application/submitReviewAnswer'
 import { presentReviewVerdict } from './presentReviewVerdict'
 
 export const submitReviewAnswerDeclaration = createRoute(
-  signedInRoute({
+  signedInDeclaration({
     method: 'post',
     path: '/{wordId}/answer',
     request: {

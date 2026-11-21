@@ -12,7 +12,7 @@ import { refusalResponse } from '#platform/infrastructure/http/refusalResponse'
 import { type NamedIssue, requestRefusalOf } from '#platform/infrastructure/http/requestRefusalOf'
 import { respondRefusal } from '#platform/infrastructure/http/respondRefusal'
 import { jsonBody } from '#platform/infrastructure/http/responseDeclarations'
-import { signedInRoute } from '#platform/infrastructure/http/signedInDeclaration'
+import { signedInDeclaration } from '#platform/infrastructure/http/signedInDeclaration'
 import { foundTownOnFreeSite } from '../../application/foundTownOnFreeSite'
 import type { TownStores } from '../../application/ports/TownStores'
 import { readTownReading } from '../../application/readTownReading'
@@ -22,7 +22,7 @@ import { overviewResponse } from './townComponents'
 const foundingIssues: ReadonlyArray<NamedIssue> = [['name', 'too_small', { kind: 'BlankTownName' }]]
 
 export const foundTownDeclaration = createRoute(
-  signedInRoute({
+  signedInDeclaration({
     method: 'post',
     path: '/',
     request: { body: jsonBody(FoundTownSchema) },

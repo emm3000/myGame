@@ -11,13 +11,13 @@ import { honoPathOf } from '#platform/infrastructure/http/honoPath'
 import { readJsonBody } from '#platform/infrastructure/http/readJsonBody'
 import { respondRefusal } from '#platform/infrastructure/http/respondRefusal'
 import { jsonBody } from '#platform/infrastructure/http/responseDeclarations'
-import { signedInRoute } from '#platform/infrastructure/http/signedInDeclaration'
+import { signedInDeclaration } from '#platform/infrastructure/http/signedInDeclaration'
 import { mutateTown } from '#town/application/mutateTown'
 import { placementResponse } from './placementComponents'
 import { respondPlacementView } from './respondPlacementView'
 
 export const answerPlacementDeclaration = createRoute(
-  signedInRoute({
+  signedInDeclaration({
     method: 'post',
     path: '/answers',
     request: { body: jsonBody(PlacementAnswersSchema) },

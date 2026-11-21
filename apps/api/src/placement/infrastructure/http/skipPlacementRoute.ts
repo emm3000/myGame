@@ -7,13 +7,13 @@ import {
 } from '#account/infrastructure/http/requirePlayer'
 import type { LearningDependencies } from '#learning/application/LearningDependencies'
 import { honoPathOf } from '#platform/infrastructure/http/honoPath'
-import { signedInRoute } from '#platform/infrastructure/http/signedInDeclaration'
+import { signedInDeclaration } from '#platform/infrastructure/http/signedInDeclaration'
 import { mutateTown } from '#town/application/mutateTown'
 import { offerRefused, placementResponse } from './placementComponents'
 import { respondPlacementView } from './respondPlacementView'
 
 export const skipPlacementDeclaration = createRoute(
-  signedInRoute({
+  signedInDeclaration({
     method: 'post',
     path: '/skip',
     responses: {

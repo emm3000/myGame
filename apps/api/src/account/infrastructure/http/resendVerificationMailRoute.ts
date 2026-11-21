@@ -1,6 +1,6 @@
 import { createRoute, type OpenAPIHono } from '@hono/zod-openapi'
 import { refusalResponse } from '#platform/infrastructure/http/refusalResponse'
-import { signedInRoute } from '#platform/infrastructure/http/signedInDeclaration'
+import { signedInDeclaration } from '#platform/infrastructure/http/signedInDeclaration'
 import {
   type ResendVerificationMailDependencies,
   resendVerificationMail,
@@ -9,7 +9,7 @@ import { type RequirePlayerDependencies, requirePlayer } from './requirePlayer'
 import { respondDone } from './respondDone'
 
 export const resendVerificationMailDeclaration = createRoute(
-  signedInRoute({
+  signedInDeclaration({
     method: 'post',
     path: '/auth/verify-email/resend',
     responses: {
