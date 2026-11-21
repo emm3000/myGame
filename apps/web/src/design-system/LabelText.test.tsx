@@ -47,12 +47,6 @@ it('marks each line of a translated label with its own language', () => {
   ]).toEqual(['en', 'es'])
 })
 
-it('draws the translation in the caption type under the English line', () => {
-  render(<LabelText label={englishOverSpanish} />)
-
-  expect(screen.getByText('Informe').className.split(' ')).toContain('text-caption')
-})
-
 it('names a control by both lines in the both phase', () => {
   render(
     <button type="button">

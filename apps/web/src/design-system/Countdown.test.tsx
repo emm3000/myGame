@@ -1,6 +1,7 @@
 import { render, screen } from '@testing-library/react'
 import { expect, it } from 'vitest'
 import { Countdown } from './Countdown'
+import type { Label } from './Label'
 import { lineLabelOf } from './lineLabelOf'
 
 it('reads the time of the finish while time remains', () => {
@@ -25,4 +26,19 @@ it('shows the finished label once no time remains', () => {
   )
 
   expect(screen.getByRole('timer').textContent).toBe('Done')
+})
+
+const done: Label = {
+  text: 'Done',
+  language: 'en',
+  translation: { text: 'Listo', language: 'es' },
+}
+
+it('draws its finished label in English and then in Spanish, each in its own language', () => {
+  render(<Countdown remainingSeconds={0} time={lineLabelOf('0:00', 'en')} finishedLabel={done} />)
+
+  expect([
+    screen.getByText('Done').getAttribute('lang'),
+    screen.getByText('Listo').getAttribute('lang'),
+  ]).toEqual(['en', 'es'])
 })
