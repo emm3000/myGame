@@ -49,7 +49,7 @@ One row for each folder directly under `apps/api/src` or `packages/domain/src`. 
 `packages/domain/src/<feature>/`:
 
 ```
-Town.ts  SiteAddress.ts           PascalCase: an entity, a value object or a type
+Town.ts  TownAddress.ts           PascalCase: an entity, a value object or a type
 jobPayOf.ts  isLessonRetained.ts  camelCase: a pure, synchronous function
 useCases/     one file per thing a player or the clock can ask: reads ports, returns a Promise of Result
 services/     a port-reading step two or more use cases share; never exported from index.ts
@@ -57,6 +57,8 @@ ports/        the interfaces the outside implements
 testing/      the feature's in-memory ports and fixtures
 <subArea>/    the same grammar again
 ```
+
+A domain file lives in the sub-area whose word it names in the "What it is" column of ADR 052's feature table (section 2), even when another sub-area reads it, and the feature's root keeps the aggregate and the words no domain sub-area names. The root and its sub-areas may import one another; Biome's `noImportCycles` keeps the files free of runtime cycles, and type-only imports are not checked.
 
 `apps/api/src/`:
 
