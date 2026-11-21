@@ -1,4 +1,3 @@
-import { es } from '@mygame/catalog'
 import { createFileRoute, Navigate } from '@tanstack/react-router'
 import type { ReactElement } from 'react'
 import { usePlayerCopy } from '../../copy/usePlayerCopy'
@@ -12,6 +11,7 @@ const newsSkeletonGroups: LoadingSkeletonProps['groups'] = [['control', 'control
 
 function NewsAnswer({ news }: { readonly news: TownNewsHandle }): ReactElement | null {
   const { state, reread } = news
+  const copy = usePlayerCopy()
   switch (state.kind) {
     case 'loading':
       return null
@@ -25,7 +25,9 @@ function NewsAnswer({ news }: { readonly news: TownNewsHandle }): ReactElement |
       )
     case 'read':
       return (
-        <NewsScreen rows={state.feed.items.map((item) => newsRowOf(es, item, state.receivedAt))} />
+        <NewsScreen
+          rows={state.feed.items.map((item) => newsRowOf(copy, item, state.receivedAt))}
+        />
       )
     default: {
       const unreachable: never = state

@@ -1,8 +1,9 @@
-import { townGoalClose, townNextText } from '@mygame/catalog'
 import type { NextStep } from '@mygame/contracts'
 import type { ReactElement } from 'react'
+import { usePlayerCopy } from '../copy/usePlayerCopy'
 import { Button } from '../design-system/Button'
 import { hueClassOf } from '../design-system/blockHueOf'
+import { LabelText } from '../design-system/LabelText'
 import { TextLink } from '../design-system/TextLink'
 import { useFocusTarget } from '../focus/useFocusTarget'
 import { goalLinesOf } from './goalLinesOf'
@@ -21,13 +22,15 @@ export interface NextStepCardProps {
 }
 
 function GoalLines({ goal }: { readonly goal: TownGoal }): ReactElement {
-  const { line, states } = goalLinesOf(goal)
+  const { line, states } = goalLinesOf(usePlayerCopy(), goal)
   return (
     <>
-      <p className="m-0 text-body">{line}</p>
+      <p className="m-0 text-body">
+        <LabelText label={line} />
+      </p>
       {states.map((state) => (
-        <p key={state} className="m-0 text-body">
-          {state}
+        <p key={state.text} className="m-0 text-body">
+          <LabelText label={state} />
         </p>
       ))}
     </>
@@ -40,17 +43,19 @@ const newestTextOf = (nextStep: NextStep): NewestText | null =>
   nextStep.kind === 'caughtUp' || nextStep.kind === 'lessonRunning' ? nextStep.text : null
 
 function NewestTextLine({ text }: { readonly text: NewestText }): ReactElement {
+  const copy = usePlayerCopy()
   return (
     <div>
       <TextLink to="/school/texts/$textId" params={{ textId: text.id }}>
-        {townNextText({ title: text.title })}
+        <LabelText label={copy.chrome((catalog) => catalog.townNextText({ title: text.title }))} />
       </TextLink>
     </div>
   )
 }
 
 export function NextStepCard({ town, goal, onGoalClose }: NextStepCardProps): ReactElement {
-  const content = nextStepCardOf(town)
+  const copy = usePlayerCopy()
+  const content = nextStepCardOf(copy, town)
   const text = newestTextOf(town.overview.nextStep)
   const heading = useFocusTarget<HTMLHeadingElement>()
   const closeGoal = (): void => {
@@ -74,7 +79,7 @@ export function NextStepCard({ town, goal, onGoalClose }: NextStepCardProps): Re
       {goal !== null && (
         <div>
           <Button type="button" tone="text" onClick={closeGoal}>
-            {townGoalClose()}
+            <LabelText label={copy.chrome((catalog) => catalog.townGoalClose())} />
           </Button>
         </div>
       )}

@@ -1,5 +1,6 @@
 import type { HireKind, ResourceAmounts, TownNewsItem } from '@mygame/contracts'
-import type { ChromeCatalog } from '../copy/PlayerCopy'
+import type { ChromeCatalog, PlayerCopy } from '../copy/PlayerCopy'
+import type { Label } from '../design-system/Label'
 import { amountsLineOf } from '../resources/amountsLineOf'
 import { townResourceNameOf } from '../resources/townResourceNameOf'
 import { formatInstant } from '../time/formatInstant'
@@ -8,9 +9,9 @@ import { placeNameOf } from '../town/placeNameOf'
 export interface NewsRow {
   readonly key: string
   readonly occurredAt: string
-  readonly instant: string
-  readonly line: string
-  readonly amounts: string | undefined
+  readonly instant: Label
+  readonly line: Label
+  readonly amounts: Label | undefined
 }
 
 type NewsOf<Kind extends TownNewsItem['kind']> = Extract<TownNewsItem, { readonly kind: Kind }>
@@ -134,13 +135,18 @@ function amountsOf(catalog: ChromeCatalog, item: TownNewsItem): string | undefin
   }
 }
 
-export function newsRowOf(catalog: ChromeCatalog, item: TownNewsItem, now: Date): NewsRow {
+const amountsLabelOf = (copy: PlayerCopy, item: TownNewsItem): Label | undefined => {
+  const label = copy.chrome((catalog) => amountsOf(catalog, item) ?? '')
+  return label.text === '' ? undefined : label
+}
+
+export function newsRowOf(copy: PlayerCopy, item: TownNewsItem, now: Date): NewsRow {
   const params = 'params' in item ? JSON.stringify(item.params) : ''
   return {
     key: `${item.kind}:${item.occurredAt}:${params}`,
     occurredAt: item.occurredAt,
-    instant: formatInstant(catalog, new Date(item.occurredAt), now),
-    line: lineOf(catalog, item),
-    amounts: amountsOf(catalog, item),
+    instant: copy.chrome((catalog) => formatInstant(catalog, new Date(item.occurredAt), now)),
+    line: copy.chrome((catalog) => lineOf(catalog, item)),
+    amounts: amountsLabelOf(copy, item),
   }
 }

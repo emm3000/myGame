@@ -1,32 +1,41 @@
-import { es, townGoalLine, townGoalPeople, townGoalReady, townInWork } from '@mygame/catalog'
+import type { PlayerCopy } from '../copy/PlayerCopy'
+import type { Label } from '../design-system/Label'
 import { placeNameOf } from './placeNameOf'
-import { missingLineOf } from './shortfallLineOf'
+import { missingOf, shortfallLineOf } from './shortfallLineOf'
 import type { TownGoal } from './TownGoal'
 
 export interface GoalLines {
-  readonly line: string
-  readonly states: ReadonlyArray<string>
+  readonly line: Label
+  readonly states: ReadonlyArray<Label>
 }
 
 type Missing = Extract<TownGoal, { readonly state: 'pending' }>['missing']
 
-function missingLinesOf({ resources, people }: Missing): ReadonlyArray<string> {
+function missingLinesOf(copy: PlayerCopy, { resources, people }: Missing): ReadonlyArray<Label> {
+  const shortfalls = missingOf(resources)
   const lines = [
-    missingLineOf(resources),
-    people > 0 ? townGoalPeople({ count: people }) : undefined,
-  ].filter((line) => line !== undefined)
-  return lines.length === 0 ? [townGoalReady()] : lines
+    ...(shortfalls.length === 0
+      ? []
+      : [copy.chrome((catalog) => shortfallLineOf(catalog, shortfalls))]),
+    ...(people > 0 ? [copy.chrome((catalog) => catalog.townGoalPeople({ count: people }))] : []),
+  ]
+  return lines.length === 0 ? [copy.chrome((catalog) => catalog.townGoalReady())] : lines
 }
 
-export function goalLinesOf(goal: TownGoal): GoalLines {
-  const line = townGoalLine({
-    position: goal.position,
-    count: goal.count,
-    place: placeNameOf(es, goal.building),
-    level: goal.level,
-  })
+export function goalLinesOf(copy: PlayerCopy, goal: TownGoal): GoalLines {
+  const line = copy.chrome((catalog) =>
+    catalog.townGoalLine({
+      position: goal.position,
+      count: goal.count,
+      place: placeNameOf(catalog, goal.building),
+      level: goal.level,
+    }),
+  )
   return {
     line,
-    states: goal.state === 'underway' ? [townInWork()] : missingLinesOf(goal.missing),
+    states:
+      goal.state === 'underway'
+        ? [copy.chrome((catalog) => catalog.townInWork())]
+        : missingLinesOf(copy, goal.missing),
   }
 }

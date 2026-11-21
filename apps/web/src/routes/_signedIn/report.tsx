@@ -28,6 +28,7 @@ function ReportPage({
   readonly receivedAt: Date
 }): ReactElement {
   const close = useReportClose(apiClient)
+  const copy = usePlayerCopy()
   return (
     <ReportScreen
       dueCount={report.dueCount}
@@ -37,7 +38,7 @@ function ReportPage({
           ? undefined
           : formatClock(es, new Date(report.nextDueAt), receivedAt)
       }
-      news={report.news.map((item) => newsRowOf(es, item, receivedAt))}
+      news={report.news.map((item) => newsRowOf(copy, item, receivedAt))}
       close={{
         isClosed: close.isClosed,
         isWaiting: close.isWaiting,

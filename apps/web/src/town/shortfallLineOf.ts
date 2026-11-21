@@ -1,35 +1,38 @@
-import { es, townAmount, townShortfall } from '@mygame/catalog'
 import { type ResourceAmounts, type ResourceKind, ResourceKindSchema } from '@mygame/contracts'
+import type { ChromeCatalog } from '../copy/PlayerCopy'
 import { conjunctionOf } from '../design-system/conjunctionOf'
 import { formatQuantity } from '../design-system/formatQuantity'
 import { townResourceNameOf } from '../resources/townResourceNameOf'
 import type { LiveStocks } from './liveTown'
 
-interface Shortfall {
+export interface Shortfall {
   readonly resource: ResourceKind
   readonly amount: number
 }
 
-const shortfallsOf = (amountOf: (resource: ResourceKind) => number): ReadonlyArray<Shortfall> =>
+const shortfallsBy = (amountOf: (resource: ResourceKind) => number): ReadonlyArray<Shortfall> =>
   ResourceKindSchema.options
     .map((resource) => ({ resource, amount: amountOf(resource) }))
     .filter(({ amount }) => amount > 0)
 
-function lineOf(shortfalls: ReadonlyArray<Shortfall>): string | undefined {
-  if (shortfalls.length === 0) {
-    return undefined
-  }
-  return townShortfall({
+export const shortfallsOf = (cost: ResourceAmounts, stocks: LiveStocks): ReadonlyArray<Shortfall> =>
+  shortfallsBy((resource) => Math.max(0, cost[resource] - Math.floor(stocks[resource])))
+
+export const missingOf = (missing: ResourceAmounts): ReadonlyArray<Shortfall> =>
+  shortfallsBy((resource) => missing[resource])
+
+export function shortfallLineOf(
+  catalog: ChromeCatalog,
+  shortfalls: ReadonlyArray<Shortfall>,
+): string {
+  return catalog.townShortfall({
     missing: conjunctionOf(
       shortfalls.map(({ resource, amount }) =>
-        townAmount({ amount: formatQuantity(amount), resource: townResourceNameOf(es, resource) }),
+        catalog.townAmount({
+          amount: formatQuantity(amount),
+          resource: townResourceNameOf(catalog, resource),
+        }),
       ),
     ),
   })
 }
-
-export const shortfallLineOf = (cost: ResourceAmounts, stocks: LiveStocks): string | undefined =>
-  lineOf(shortfallsOf((resource) => Math.max(0, cost[resource] - Math.floor(stocks[resource]))))
-
-export const missingLineOf = (missing: ResourceAmounts): string | undefined =>
-  lineOf(shortfallsOf((resource) => missing[resource]))

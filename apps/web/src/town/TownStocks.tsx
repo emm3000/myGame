@@ -1,25 +1,15 @@
-import {
-  es,
-  schoolSkillName,
-  townFull,
-  townFullAt,
-  townPeople,
-  townRate,
-  townSeasonLine,
-  townStockOf,
-  townStocks,
-  townWordsLearned,
-  townWordsReviewed,
-} from '@mygame/catalog'
 import { type ResourceKind, ResourceKindSchema, type TownOverview } from '@mygame/contracts'
 import { skillLevelOf } from '@mygame/domain'
 import { type ReactElement, type Ref, useId } from 'react'
+import type { ChromeCatalog } from '../copy/PlayerCopy'
+import { usePlayerCopy } from '../copy/usePlayerCopy'
 import { capitalize } from '../design-system/capitalize'
 import { focusTargetClass } from '../design-system/focusTargetClass'
 import { formatQuantity } from '../design-system/formatQuantity'
-import { lineLabelOf } from '../design-system/lineLabelOf'
+import { LabelText } from '../design-system/LabelText'
 import { resourceAccent } from '../design-system/resourceAccent'
 import { SeasonLine } from '../design-system/SeasonLine'
+import { spokenLineOf } from '../design-system/spokenLineOf'
 import { Track } from '../design-system/Track'
 import { townResourceNameOf } from '../resources/townResourceNameOf'
 import { seasonNameOf } from '../seasons/seasonNameOf'
@@ -35,12 +25,17 @@ function SkillMark({
   readonly skills: TownOverview['skills']
 }): ReactElement | null {
   const level = skillLevelOf(skills, resource)
+  const copy = usePlayerCopy()
   if (level === 0) {
     return null
   }
   return (
     <span className="font-sans text-caption text-ink">
-      {schoolSkillName({ resource: townResourceNameOf(es, resource), level })}
+      <LabelText
+        label={copy.chrome((catalog) =>
+          catalog.schoolSkillName({ resource: townResourceNameOf(catalog, resource), level }),
+        )}
+      />
     </span>
   )
 }
@@ -50,17 +45,19 @@ const fillHourWindowMilliseconds = 8 * 60 * 60 * 1000
 const fillsWithinWindow = (fullAt: string | null, readAt: string): fullAt is string =>
   fullAt !== null && Date.parse(fullAt) - Date.parse(readAt) <= fillHourWindowMilliseconds
 
-const rateLineOf = (
-  stock: TownOverview['stocks'][ResourceKind],
-  isFull: boolean,
-  readAt: string,
-  at: Date,
-): string => {
+interface StockRead {
+  readonly stock: TownOverview['stocks'][ResourceKind]
+  readonly isFull: boolean
+  readonly readAt: string
+  readonly at: Date
+}
+
+const rateLineOf = (catalog: ChromeCatalog, { stock, isFull, readAt, at }: StockRead): string => {
   const { fullAt } = stock
   if (isFull || !fillsWithinWindow(fullAt, readAt)) {
-    return townRate({ rate: formatQuantity(Math.floor(stock.ratePerHour)) })
+    return catalog.townRate({ rate: formatQuantity(Math.floor(stock.ratePerHour)) })
   }
-  return townFullAt({ clock: formatClock(es, new Date(fullAt), at) })
+  return catalog.townFullAt({ clock: formatClock(catalog, new Date(fullAt), at) })
 }
 
 function StockItem({
@@ -82,16 +79,28 @@ function StockItem({
   const shown = Math.floor(amount)
   const capacity = formatQuantity(stock.capacity)
   const isFull = shown >= stock.capacity
+  const copy = usePlayerCopy()
+  const name = copy.chrome((catalog) => capitalize(townResourceNameOf(catalog, resource)))
   return (
-    <li aria-label={capitalize(townResourceNameOf(es, resource))} className="flex flex-col gap-1">
+    <li aria-label={spokenLineOf(name)} className="flex flex-col gap-1">
       <span className="flex items-center gap-2 font-sans text-label text-ink">
         <Icon sizeClass="size-icon" />
-        {capitalize(townResourceNameOf(es, resource))}
+        <LabelText label={name} />
       </span>
       <span className="font-sans text-numeral text-ink">{formatQuantity(shown)}</span>
       <span className="flex flex-wrap justify-between gap-x-3 font-sans text-caption text-ink-muted tabular-nums">
-        <span>{isFull ? townFull({ capacity }) : townStockOf({ capacity })}</span>
-        <span>{rateLineOf(stock, isFull, readAt, at)}</span>
+        <span>
+          <LabelText
+            label={copy.chrome((catalog) =>
+              isFull ? catalog.townFull({ capacity }) : catalog.townStockOf({ capacity }),
+            )}
+          />
+        </span>
+        <span>
+          <LabelText
+            label={copy.chrome((catalog) => rateLineOf(catalog, { stock, isFull, readAt, at }))}
+          />
+        </span>
       </span>
       <Track value={shown} total={stock.capacity} fillClass="fill-ink" />
       <SkillMark resource={resource} skills={skills} />
@@ -101,22 +110,22 @@ function StockItem({
 
 function TownSeason({ town }: { readonly town: LiveTown }): ReactElement | null {
   const { season } = town.overview
-  if (season === null || town.seasonRemainingSeconds === null) {
+  const remainingSeconds = town.seasonRemainingSeconds
+  const copy = usePlayerCopy()
+  if (season === null || remainingSeconds === null) {
     return null
   }
   return (
     <SeasonLine
       season={season.kind}
-      headerLine={lineLabelOf(
-        townSeasonLine({
-          season: capitalize(seasonNameOf(season.kind)),
+      headerLine={copy.chrome((catalog) =>
+        catalog.townSeasonLine({
+          season: capitalize(seasonNameOf(catalog, season.kind)),
           year: season.year,
         }),
-        'es',
       )}
-      countdownLine={lineLabelOf(
-        townSeasonEndsInOf(season.kind, town.seasonRemainingSeconds),
-        'es',
+      countdownLine={copy.chrome((catalog) =>
+        townSeasonEndsInOf(catalog, season.kind, remainingSeconds),
       )}
     />
   )
@@ -131,6 +140,7 @@ export function TownStocks({ town, titleRef }: TownStocksProps): ReactElement {
   const { overview, stocks } = town
   const titleId = useId()
   const Icon = resourceAccent.people
+  const copy = usePlayerCopy()
   return (
     <section
       aria-labelledby={titleId}
@@ -142,7 +152,7 @@ export function TownStocks({ town, titleRef }: TownStocksProps): ReactElement {
         tabIndex={-1}
         className={`m-0 font-sans text-heading text-ink ${focusTargetClass}`}
       >
-        {townStocks()}
+        <LabelText label={copy.chrome((catalog) => catalog.townStocks())} />
       </h3>
       <ul
         aria-labelledby={titleId}
@@ -164,13 +174,25 @@ export function TownStocks({ town, titleRef }: TownStocksProps): ReactElement {
         <span className="flex text-ink">
           <Icon sizeClass="size-icon" />
         </span>
-        {townPeople({ free: overview.people.free, atWork: overview.people.atWork })}
+        <LabelText
+          label={copy.chrome((catalog) =>
+            catalog.townPeople({ free: overview.people.free, atWork: overview.people.atWork }),
+          )}
+        />
       </p>
       <p className="m-0 font-sans text-body text-ink">
-        {townWordsReviewed({ count: overview.stableWordCount })}
+        <LabelText
+          label={copy.chrome((catalog) =>
+            catalog.townWordsReviewed({ count: overview.stableWordCount }),
+          )}
+        />
       </p>
       <p className="m-0 font-sans text-body text-ink">
-        {townWordsLearned({ count: overview.retainedWordCount })}
+        <LabelText
+          label={copy.chrome((catalog) =>
+            catalog.townWordsLearned({ count: overview.retainedWordCount }),
+          )}
+        />
       </p>
       <TownSeason town={town} />
     </section>

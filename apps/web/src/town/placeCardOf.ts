@@ -1,34 +1,22 @@
-import {
-  es,
-  refusalWaitingListFull,
-  townAtTopLevel,
-  townBuild,
-  townInWork,
-  townLevel,
-  townNotBuilt,
-  townPeopleAtWork,
-  townPeopleShort,
-  townTopLevel,
-  townWordsNeeded,
-} from '@mygame/catalog'
 import type { BuildingKind } from '@mygame/contracts'
+import type { ChromeCatalog, PlayerCopy } from '../copy/PlayerCopy'
 import type { CardActionState } from '../design-system/CardAction'
 import type { CardCost } from '../design-system/CostList'
-import { lineLabelOf } from '../design-system/lineLabelOf'
+import { formatDuration } from '../design-system/formatDuration'
+import type { Label } from '../design-system/Label'
 import { cardCostsOf } from './cardCostsOf'
 import type { LiveTown } from './liveTown'
 import { placeNameOf } from './placeNameOf'
 import { readyLineOf } from './readyLineOf'
-import { shortfallLineOf } from './shortfallLineOf'
+import { shortfallLineOf, shortfallsOf } from './shortfallLineOf'
 
 export interface PlaceCardContent {
-  readonly name: string
-  readonly levelLabel: string
-  readonly effect: string
+  readonly name: Label
+  readonly levelLabel: Label
+  readonly effect: Label
   readonly costs: ReadonlyArray<CardCost>
-  readonly wordsLine: string | null
-  readonly actionLabel: string
-  readonly durationSeconds: number
+  readonly wordsLine: Label | null
+  readonly actionLabel: Label
   readonly state: CardActionState
 }
 
@@ -39,12 +27,17 @@ const heldWordsOf = (
   { stableWordCount, retainedWordCount }: LiveTown['overview'],
 ): number => (standing === 'stable' ? stableWordCount : retainedWordCount)
 
-function wordsLineOf({ wordsNeeded }: NextLevel, overview: LiveTown['overview']): string | null {
+function wordsLineOf(
+  copy: PlayerCopy,
+  { wordsNeeded }: NextLevel,
+  overview: LiveTown['overview'],
+): Label | null {
   if (wordsNeeded === null) {
     return null
   }
   const { count, standing } = wordsNeeded
-  return townWordsNeeded({ standing, needed: count, held: heldWordsOf(standing, overview) })
+  const held = heldWordsOf(standing, overview)
+  return copy.chrome((catalog) => catalog.townWordsNeeded({ standing, needed: count, held }))
 }
 
 const isWaitingListFull = ({ work }: LiveTown['overview']): boolean =>
@@ -53,67 +46,71 @@ const isWaitingListFull = ({ work }: LiveTown['overview']): boolean =>
 const isShortOfPeople = (nextLevel: NextLevel, { work, people }: LiveTown['overview']): boolean =>
   work.slot === null && work.waitingList.length === 0 && nextLevel.people > people.free
 
-function stateOf(nextLevel: NextLevel, town: LiveTown): CardActionState {
+function stateOf(copy: PlayerCopy, nextLevel: NextLevel, town: LiveTown): CardActionState {
   const { overview } = town
   if (isWaitingListFull(overview)) {
+    const cap = overview.work.cap
     return {
       kind: 'blocked',
-      reason: lineLabelOf(refusalWaitingListFull({ cap: overview.work.cap }), 'es'),
+      reason: copy.fixedCopy((catalog) => catalog.refusalWaitingListFull({ cap })),
     }
   }
   if (isShortOfPeople(nextLevel, overview)) {
-    return {
-      kind: 'blocked',
-      reason: lineLabelOf(
-        townPeopleShort({ needed: nextLevel.people, free: overview.people.free }),
-        'es',
-      ),
-    }
+    const short = { needed: nextLevel.people, free: overview.people.free }
+    return { kind: 'blocked', reason: copy.chrome((catalog) => catalog.townPeopleShort(short)) }
   }
-  const shortfall = shortfallLineOf(nextLevel.cost, town.stocks)
-  return shortfall === undefined
+  const shortfalls = shortfallsOf(nextLevel.cost, town.stocks)
+  return shortfalls.length === 0
     ? { kind: 'affordable' }
     : {
         kind: 'blocked',
-        reason: lineLabelOf(shortfall, 'es'),
-        ready: readyLineOf(nextLevel.cost, town),
+        reason: copy.chrome((catalog) => shortfallLineOf(catalog, shortfalls)),
+        ready: readyLineOf(copy, nextLevel.cost, town),
       }
 }
 
 const isInWork = (place: BuildingKind, { slot, waitingList }: LiveTown): boolean =>
   slot?.building === place || waitingList.some(({ building }) => building === place)
 
-function levelLabelOf(place: BuildingKind, level: number, town: LiveTown): string {
+function levelLineOf(catalog: ChromeCatalog, level: number, isWorkedOn: boolean): string {
   if (level === 0) {
-    return isInWork(place, town) ? townInWork() : townNotBuilt()
+    return isWorkedOn ? catalog.townInWork() : catalog.townNotBuilt()
   }
-  return isInWork(place, town) ? `${townLevel({ level })} · ${townInWork()}` : townLevel({ level })
+  const levelLine = catalog.townLevel({ level })
+  return isWorkedOn ? `${levelLine} · ${catalog.townInWork()}` : levelLine
 }
 
-export function placeCardOf(place: BuildingKind, town: LiveTown): PlaceCardContent {
+export function placeCardOf(
+  copy: PlayerCopy,
+  place: BuildingKind,
+  town: LiveTown,
+): PlaceCardContent {
   const { level, nextLevel } = town.overview.buildings[place]
+  const isWorkedOn = isInWork(place, town)
   const common = {
-    name: placeNameOf(es, place),
-    levelLabel: levelLabelOf(place, level, town),
+    name: copy.chrome((catalog) => placeNameOf(catalog, place)),
+    levelLabel: copy.chrome((catalog) => levelLineOf(catalog, level, isWorkedOn)),
   }
   if (nextLevel === null) {
+    const topLevel = copy.chrome((catalog) => catalog.townTopLevel())
     return {
       ...common,
-      effect: townAtTopLevel(),
+      effect: copy.chrome((catalog) => catalog.townAtTopLevel()),
       costs: [],
       wordsLine: null,
-      actionLabel: townTopLevel(),
-      durationSeconds: 0,
-      state: { kind: 'atMaxLevel', label: lineLabelOf(townTopLevel(), 'es') },
+      actionLabel: topLevel,
+      state: { kind: 'atMaxLevel', label: topLevel },
     }
   }
+  const duration = formatDuration(nextLevel.durationSeconds)
   return {
     ...common,
-    effect: townPeopleAtWork({ people: nextLevel.people }),
-    costs: cardCostsOf(nextLevel.cost, town.stocks),
-    wordsLine: wordsLineOf(nextLevel, town.overview),
-    actionLabel: townBuild({ level: nextLevel.level }),
-    durationSeconds: nextLevel.durationSeconds,
-    state: stateOf(nextLevel, town),
+    effect: copy.chrome((catalog) => catalog.townPeopleAtWork({ people: nextLevel.people })),
+    costs: cardCostsOf(copy, nextLevel.cost, town.stocks),
+    wordsLine: wordsLineOf(copy, nextLevel, town.overview),
+    actionLabel: copy.chrome(
+      (catalog) => `${catalog.townBuild({ level: nextLevel.level })} · ${duration}`,
+    ),
+    state: stateOf(copy, nextLevel, town),
   }
 }

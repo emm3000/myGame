@@ -1,7 +1,7 @@
 import type { ReactElement } from 'react'
 import { CardAction } from '../design-system/CardAction'
 import { CostList } from '../design-system/CostList'
-import { lineLabelOf } from '../design-system/lineLabelOf'
+import { LabelText } from '../design-system/LabelText'
 import { TextField } from '../design-system/TextField'
 import type { HireCardContent } from './hireCardOf'
 
@@ -25,7 +25,7 @@ function OpenHire({
   return (
     <>
       <TextField
-        label={lineLabelOf(card.fieldLabel, 'es')}
+        label={card.fieldLabel}
         name={`hire-${card.hire}`}
         type="text"
         inputMode="numeric"
@@ -37,7 +37,7 @@ function OpenHire({
       {card.costs.length > 0 && <CostList costs={card.costs} />}
       <CardAction
         type="button"
-        label={lineLabelOf(card.actionLabel, 'es')}
+        label={card.actionLabel}
         state={card.state}
         isWaiting={isWaiting}
         tone="quiet"
@@ -53,13 +53,17 @@ export function HireCard(props: HireCardProps): ReactElement {
   return (
     <div className="flex flex-col gap-2">
       <div>
-        <h4 className="m-0 font-sans text-title text-ink">{card.name}</h4>
-        <p className="m-0 font-sans text-caption text-ink-muted">{card.teamLine}</p>
+        <h4 className="m-0 font-sans text-title text-ink">
+          <LabelText label={card.name} />
+        </h4>
+        <p className="m-0 font-sans text-caption text-ink-muted">
+          <LabelText label={card.teamLine} />
+        </p>
       </div>
       <p
         className={`m-0 font-sans text-caption ${isLocked ? 'text-warning-ink' : 'text-ink-muted'}`}
       >
-        {card.requirement}
+        <LabelText label={card.requirement} />
       </p>
       {card.kind === 'open' && <OpenHire {...props} card={card} />}
     </div>

@@ -1,4 +1,5 @@
 import type { ReactElement } from 'react'
+import { LabelText } from '../design-system/LabelText'
 import type { NewsRow } from './newsRowOf'
 
 function NewsEntry({ row }: { readonly row: NewsRow }): ReactElement {
@@ -8,11 +9,15 @@ function NewsEntry({ row }: { readonly row: NewsRow }): ReactElement {
         dateTime={row.occurredAt}
         className="whitespace-nowrap font-sans text-caption text-ink-muted"
       >
-        {row.instant}
+        <LabelText label={row.instant} />
       </time>
-      <p className="m-0 font-sans text-body text-ink">{row.line}</p>
+      <p className="m-0 font-sans text-body text-ink">
+        <LabelText label={row.line} />
+      </p>
       {row.amounts === undefined ? null : (
-        <p className="m-0 font-sans text-caption text-ink-muted">{row.amounts}</p>
+        <p className="m-0 font-sans text-caption text-ink-muted">
+          <LabelText label={row.amounts} />
+        </p>
       )}
     </li>
   )

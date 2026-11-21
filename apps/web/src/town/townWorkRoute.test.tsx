@@ -155,7 +155,7 @@ it('agrees the free people with their count', async () => {
 it('shows the slot busy with its countdown', async () => {
   await showTown(withWork(homesBeingBuilt, []))
 
-  expect(screen.getByText(namesPlacesHomes(), { selector: 'span' })).toBeDefined()
+  expect(screen.getByText(namesPlacesHomes(), { selector: 'span', ignore: 'h4 *' })).toBeDefined()
   expect(screen.getByRole('timer').textContent).toBe('4 min')
 })
 

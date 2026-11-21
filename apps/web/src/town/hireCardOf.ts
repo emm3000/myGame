@@ -1,41 +1,40 @@
-import {
-  townOfficeBusy,
-  townOfficeCountNeeded,
-  townOfficeNeedsLevel,
-  townOfficePeopleName,
-  townPeopleShort,
-  townShortMark,
-} from '@mygame/catalog'
 import type { HireKind, ResourceAmounts } from '@mygame/contracts'
+import type { PlayerCopy } from '../copy/PlayerCopy'
 import type { OrderActionState } from '../design-system/CardAction'
 import type { CardCost } from '../design-system/CostList'
 import { formatDuration } from '../design-system/formatDuration'
-import { lineLabelOf } from '../design-system/lineLabelOf'
+import type { Label } from '../design-system/Label'
 import { cardCostsOf } from './cardCostsOf'
 import { hireWordsOf } from './hireWordsOf'
 import type { LiveTown } from './liveTown'
 import { readyLineOf } from './readyLineOf'
-import { shortfallLineOf } from './shortfallLineOf'
+import { shortfallLineOf, shortfallsOf } from './shortfallLineOf'
 
 interface HireCardHeader {
   readonly hire: HireKind
-  readonly name: string
-  readonly teamLine: string
-  readonly requirement: string
+  readonly name: Label
+  readonly teamLine: Label
+  readonly requirement: Label
 }
 
 export type HireCardContent =
   | (HireCardHeader & { readonly kind: 'locked' })
   | (HireCardHeader & {
       readonly kind: 'open'
-      readonly fieldLabel: string
+      readonly fieldLabel: Label
       readonly isFieldDisabled: boolean
       readonly costs: ReadonlyArray<CardCost>
-      readonly actionLabel: string
+      readonly actionLabel: Label
       readonly state: OrderActionState
     })
 
 type HireTerms = LiveTown['overview']['hiring']['terms'][HireKind]
+
+interface HireOrder {
+  readonly terms: HireTerms
+  readonly count: number | undefined
+  readonly town: LiveTown
+}
 
 const wholeCountPattern = /^[0-9]+$/
 
@@ -59,71 +58,88 @@ const freePeopleOf = ({ overview }: LiveTown): number | undefined =>
     ? overview.people.free
     : undefined
 
-function stateOf(terms: HireTerms, count: number | undefined, town: LiveTown): OrderActionState {
+function stateOf(copy: PlayerCopy, { terms, count, town }: HireOrder): OrderActionState {
   if (count === undefined) {
-    return { kind: 'invalidEntry', reason: lineLabelOf(townOfficeCountNeeded(), 'es') }
+    return {
+      kind: 'invalidEntry',
+      reason: copy.chrome((catalog) => catalog.townOfficeCountNeeded()),
+    }
   }
   if (town.overview.hiring.order !== null) {
-    return { kind: 'blocked', reason: lineLabelOf(townOfficeBusy(), 'es') }
+    return { kind: 'blocked', reason: copy.chrome((catalog) => catalog.townOfficeBusy()) }
   }
   const needed = terms.people * count
   const free = freePeopleOf(town)
   if (free !== undefined && needed > free) {
-    return { kind: 'blocked', reason: lineLabelOf(townPeopleShort({ needed, free }), 'es') }
+    return {
+      kind: 'blocked',
+      reason: copy.chrome((catalog) => catalog.townPeopleShort({ needed, free })),
+    }
   }
   const cost = costTimes(terms.cost, count)
-  const shortfall = shortfallLineOf(cost, town.stocks)
-  return shortfall === undefined
+  const shortfalls = shortfallsOf(cost, town.stocks)
+  return shortfalls.length === 0
     ? { kind: 'affordable' }
-    : { kind: 'blocked', reason: lineLabelOf(shortfall, 'es'), ready: readyLineOf(cost, town) }
+    : {
+        kind: 'blocked',
+        reason: copy.chrome((catalog) => shortfallLineOf(catalog, shortfalls)),
+        ready: readyLineOf(copy, cost, town),
+      }
 }
 
-function costsOf(
-  terms: HireTerms,
-  count: number | undefined,
-  town: LiveTown,
-): ReadonlyArray<CardCost> {
+function costsOf(copy: PlayerCopy, { terms, count, town }: HireOrder): ReadonlyArray<CardCost> {
   if (count === undefined) {
     return []
   }
   const needed = terms.people * count
   const free = freePeopleOf(town)
   return [
-    ...cardCostsOf(costTimes(terms.cost, count), town.stocks),
+    ...cardCostsOf(copy, costTimes(terms.cost, count), town.stocks),
     {
       kind: 'people',
       amount: needed,
-      spokenName: lineLabelOf(townOfficePeopleName({ count: needed }), 'es'),
+      spokenName: copy.chrome((catalog) => catalog.townOfficePeopleName({ count: needed })),
       shortMark:
-        free !== undefined && needed > free ? lineLabelOf(townShortMark(), 'es') : undefined,
+        free !== undefined && needed > free
+          ? copy.chrome((catalog) => catalog.townShortMark())
+          : undefined,
     },
   ]
 }
 
-export function hireCardOf(hire: HireKind, entry: string, town: LiveTown): HireCardContent {
+export function hireCardOf(
+  copy: PlayerCopy,
+  hire: HireKind,
+  entry: string,
+  town: LiveTown,
+): HireCardContent {
   const { hiring, buildings } = town.overview
   const terms = hiring.terms[hire]
   const words = hireWordsOf(hire)
   const header = {
     hire,
-    name: words.name(),
-    teamLine: words.team({ count: hiring.hires[hire] }),
-    requirement: townOfficeNeedsLevel({ level: terms.requiredOfficeLevel }),
+    name: copy.chrome(words.name),
+    teamLine: copy.chrome((catalog) => words.team(catalog, { count: hiring.hires[hire] })),
+    requirement: copy.chrome((catalog) =>
+      catalog.townOfficeNeedsLevel({ level: terms.requiredOfficeLevel }),
+    ),
   }
   if (buildings.office.level < terms.requiredOfficeLevel) {
     return { ...header, kind: 'locked' }
   }
   const count = hireCountOf(entry)
+  const order = { terms, count, town }
   return {
     ...header,
     kind: 'open',
-    fieldLabel: words.fieldLabel(),
+    fieldLabel: copy.chrome(words.fieldLabel),
     isFieldDisabled: hiring.order !== null,
-    costs: costsOf(terms, count, town),
-    actionLabel:
+    costs: costsOf(copy, order),
+    actionLabel: copy.chrome((catalog) =>
       count === undefined
-        ? words.hireAny()
-        : `${words.hire({ count })} · ${formatDuration(count * terms.secondsPerHire)}`,
-    state: stateOf(terms, count, town),
+        ? words.hireAny(catalog)
+        : `${words.hire(catalog, { count })} · ${formatDuration(count * terms.secondsPerHire)}`,
+    ),
+    state: stateOf(copy, order),
   }
 }

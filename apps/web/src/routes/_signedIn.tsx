@@ -42,7 +42,7 @@ function SignedInLayout(): ReactElement {
                 onFocusAfterClose={shellHeader.focus}
               />
               <LiveRegion
-                line={live === undefined ? '' : registeredLineOf(live.registered)}
+                line={live === undefined ? '' : registeredLineOf(copy, live.registered)}
                 sequence={live?.readSequence ?? 0}
               />
             </>
