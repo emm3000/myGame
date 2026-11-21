@@ -148,9 +148,10 @@ describe('the Report routes', () => {
 
   it('answers the instant of the read as readAt', async () => {
     const ana = await signUpWithATown()
-    clock.setTo(lessonFinishesAt)
+    const readsAt = '2026-11-10T09:15:00.000Z'
+    clock.setTo(readsAt)
 
-    expect((await readReport(ana)).readAt).toBe(lessonFinishesAt)
+    expect((await readReport(ana)).readAt).toBe(readsAt)
   })
 
   it('answers no next review before a card enters', async () => {
