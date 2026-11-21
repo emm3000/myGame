@@ -114,7 +114,7 @@ segment: `apps/api/src/town/jobs/infrastructure/http/sendJobRoute.ts`.
 | `town/jobs` | jobs, clean-ups, waste, the region map | yes | yes | yes |
 | `town/school` | the lesson slot and the lessons a school runs | yes | yes | yes |
 | `town/guidance` | the next step, the goal, tips | yes | yes | yes |
-| `town/news` | town events and the news feed | yes | yes | yes |
+| `town/news` | town events and the news feed | no | yes | yes |
 | `learning` | reviews, hints, frames, retention, the curriculum's shape | yes | yes | yes |
 | `placement` | the placement offer and its bands | yes | yes | yes |
 | `holdout` | holdout checks and released lessons | yes | yes | yes |
@@ -243,7 +243,7 @@ none.
 `packages/domain/src/<feature>/`:
 
 ```
-Town.ts  Stocks.ts  SiteAddress.ts     PascalCase: an entity, a value object or a type
+Town.ts  Stocks.ts  TownAddress.ts     PascalCase: an entity, a value object or a type
 accrueTown.ts  jobPayOf.ts  isLessonFinishedBy.ts  camelCase: a pure, synchronous function
 useCases/     one file per thing a player or the clock can ask: reads ports, returns a Promise of Result
 services/     a port-reading step shared by two or more use cases; never exported from index.ts
@@ -252,7 +252,13 @@ testing/      the feature's in-memory ports and fixtures
 <subArea>/    the same grammar again
 ```
 
-Everything at a feature's root is pure. The top-level `useCases/` and
+Everything at a feature's root is pure. A domain file lives in the
+sub-area whose word it names in the "What it is" column of the
+feature table (section 2), even when another sub-area reads it, and
+the feature's root keeps the aggregate and the words no domain
+sub-area names. The root and its sub-areas may import one another;
+Biome's `noImportCycles` keeps the files free of runtime cycles, and
+type-only imports are not checked. The top-level `useCases/` and
 `testing/` folders dissolve into the features. The top-level `ports/`
 keeps only `Clock`, `IdGenerator` and `RandomSource`, which belong to
 no feature, and their fakes sit beside them in `ports/testing/`:
@@ -371,7 +377,7 @@ open.
 
 | Role | Folder | Name | Example |
 |---|---|---|---|
-| Entity, value object, type | domain feature root | noun, PascalCase | `Town.ts`, `SiteAddress.ts` |
+| Entity, value object, type | domain feature root | noun, PascalCase | `Town.ts`, `TownAddress.ts` |
 | Pure rule | domain feature root | `derive*`, `*Of`, `*At`, `is*`, `has*`, `refuse*` | `jobPayOf.ts`, `isLessonRetained.ts` |
 | Domain use case | `useCases/` | verb phrase | `sendJob.ts` |
 | Domain service | `services/` | verb phrase | `resolveStoredTown.ts` (today `resolvedTownOf`) |
@@ -810,7 +816,10 @@ which is every sub-area of the town but `jobs` and `hiring`:
 - `guidance`: `nextStepOf`, 10 import lines from `learning` and 3 from
   `holdout`, 13 in all.
 - `building`: `startBuildingWork`, `openedLevelOf`, `wordShortfallOf`.
-- `news`: `TownEvent`. The root: `TownSkill`.
+- `news` has no domain sub-area, so `TownEvent`, a word no domain
+  sub-area names, stays at the town's root, and the `TownNews` port
+  goes to `town/ports/` with the town aggregate's adapter. The root:
+  `TownSkill`.
 - Back from D2's side: `Lesson`, `chromePhaseOf` and `retainedWordsOf`
   name the town by type, and `answerReview` imports it in 10 lines.
 
