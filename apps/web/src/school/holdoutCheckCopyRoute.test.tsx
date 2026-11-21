@@ -9,6 +9,7 @@ import { shownLinesDrawnAlone } from '../town/lineDrawnAlone.testSupport'
 
 type CopyLanguage = Pick<TownOverview, 'scaffold' | 'chromePhase'>
 
+const spanishPhase: CopyLanguage = { scaffold: 'es', chromePhase: 'scaffold' }
 const bothPhase: CopyLanguage = { scaffold: 'es', chromePhase: 'both' }
 const englishPhase: CopyLanguage = { scaffold: 'es', chromePhase: 'english' }
 const noScaffold: CopyLanguage = { scaffold: 'none', chromePhase: 'english' }
@@ -23,6 +24,28 @@ const servingChecksIn = (language: CopyLanguage, checks: HoldoutChecks): ApiClie
     town: async () => ({ ok: true, value: { ...knownTown, ...language } }),
     holdoutChecks: async () => ({ ok: true, value: checks }),
   })
+
+it('draws each line of the check alone in Spanish in the Spanish phase', async () => {
+  renderAppAt('/school/check/1/8', servingChecksIn(spanishPhase, firstBandDue))
+
+  expect(await screen.findByRole('button', { name: es.holdoutCheckStart() })).toBeDefined()
+  for (const line of [
+    es.holdoutCheckTitle(),
+    es.holdoutCheckDueLine({ band: 1, week: 8 }),
+    es.holdoutCheckStart(),
+    es.holdoutCheckSkipLine(),
+    es.holdoutCheckSkip(),
+  ]) {
+    expect(shownLinesDrawnAlone(line, 'es'), line).toHaveLength(1)
+  }
+})
+
+it('draws the way back to the school alone in Spanish in the Spanish phase', async () => {
+  renderAppAt('/school/check/1/8', servingChecksIn(spanishPhase, otherBandDue))
+
+  expect(await screen.findByRole('link', { name: es.townGoToSchool() })).toBeDefined()
+  expect(shownLinesDrawnAlone(es.townGoToSchool(), 'es')).toHaveLength(1)
+})
 
 it('keeps the check in Spanish for an es player in the English phase', async () => {
   renderAppAt('/school/check/1/8', servingChecksIn(englishPhase, firstBandDue))
