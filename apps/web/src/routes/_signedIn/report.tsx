@@ -13,6 +13,7 @@ import { ReportScreen, ReportTitled } from '../../report/ReportScreen'
 import { type ReportHandle, useReport } from '../../report/useReport'
 import { useReportAtLessonFinish } from '../../report/useReportAtLessonFinish'
 import { useReportClose } from '../../report/useReportClose'
+import { useReportNow } from '../../report/useReportNow'
 import { formatClock } from '../../time/formatClock'
 import { TownReadFailed } from '../../town/TownReadFailed'
 import { useLayoutTown } from '../../town/useLayoutTown'
@@ -20,14 +21,16 @@ import { useLayoutTown } from '../../town/useLayoutTown'
 function ReportPage({
   apiClient,
   report,
+  receivedAtMs,
 }: {
   readonly apiClient: ApiClient
   readonly report: Report
+  readonly receivedAtMs: number
 }): ReactElement {
   const close = useReportClose(apiClient)
   const copy = usePlayerCopy()
   const { nextDueAt } = report
-  const readAt = new Date(report.readAt)
+  const now = useReportNow(report.readAt, receivedAtMs)
   const { refusal } = close
   return (
     <ReportScreen
@@ -36,9 +39,9 @@ function ReportPage({
       nextReview={
         nextDueAt === null
           ? undefined
-          : copy.chrome((catalog) => formatClock(catalog, new Date(nextDueAt), readAt))
+          : copy.chrome((catalog) => formatClock(catalog, new Date(nextDueAt), now))
       }
-      news={report.news.map((item) => newsRowOf(copy, item, readAt))}
+      news={report.news.map((item) => newsRowOf(copy, item, now))}
       close={{
         isClosed: close.isClosed,
         isWaiting: close.isWaiting,
@@ -74,7 +77,9 @@ function ReportAnswer({
         </ReportTitled>
       )
     case 'read':
-      return <ReportPage apiClient={apiClient} report={state.report} />
+      return (
+        <ReportPage apiClient={apiClient} report={state.report} receivedAtMs={state.receivedAtMs} />
+      )
     default: {
       const unreachable: never = state
       return unreachable
