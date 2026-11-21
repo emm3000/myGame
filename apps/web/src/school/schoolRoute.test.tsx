@@ -17,6 +17,7 @@ import {
 } from '../design-system/loadingSkeleton.testSupport'
 import { finishSeparator } from '../time/finishSeparator'
 import { formatTimeLeft } from '../time/formatTimeLeft'
+import { shownLinesDrawnAlone } from '../town/lineDrawnAlone.testSupport'
 import { inkPills } from './inkPills.testSupport'
 
 const readAt = Date.parse(knownTown.readAt)
@@ -957,6 +958,24 @@ it('shows no band line before a band starts', async () => {
   await showSchool(schoolOf({ bandLines: [] }))
 
   expect(screen.queryByText(/^Banda \d+: /)).toBeNull()
+})
+
+it('tells the player about the holdout once a band has started', async () => {
+  await showSchool(schoolOf({ hasBandStarted: true }))
+
+  expect(shownLinesDrawnAlone(es.schoolHoldoutNote(), 'es')).toHaveLength(1)
+})
+
+it('tells the holdout in English under no scaffold', async () => {
+  await showSchool(schoolOf({ hasBandStarted: true, scaffold: 'none', chromePhase: 'english' }))
+
+  expect(shownLinesDrawnAlone(en.schoolHoldoutNote(), 'en')).toHaveLength(1)
+})
+
+it('says nothing of the holdout before a band starts', async () => {
+  await showSchool(schoolOf({ hasBandStarted: false }))
+
+  expect(shownLinesDrawnAlone(es.schoolHoldoutNote(), 'es')).toHaveLength(0)
 })
 
 it('draws each due holdout check with a way into it', async () => {

@@ -752,6 +752,7 @@
   "school.bandLine": "Band {band}: {count} of {total} words studied",
   "school.holdoutCheck.open": "Open the check",
   "school.holdoutCheck.row": "A word check for band {band}, week {week} is due.",
+  "school.holdoutNote": "1 word in 10 is kept back for two later checks and comes back after the last one.",
   "school.learning": "Words in learning: {inLearning} of {cap}",
   "school.learningFull": "{count, plural, =1 {The next lesson needs 1 word.} other {The next lesson needs # words.}} Start the reviews.",
   "school.learningFullNextWordDue": "{count, plural, =1 {The next lesson needs 1 word.} other {The next lesson needs # words.}} The next word in learning is due in {timeLeft}.",

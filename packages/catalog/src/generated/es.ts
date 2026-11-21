@@ -230,6 +230,7 @@ export const scaffoldNone = (): string => `Ninguno: todo en inglés, con definic
 export const schoolBandLine = ({ band, count, total }: { readonly band: string | number; readonly count: string | number; readonly total: string | number }): string => `Banda ${String(band)}: ${String(count)} de ${String(total)} palabras estudiadas`
 export const schoolHoldoutCheckOpen = (): string => `Abrir la prueba`
 export const schoolHoldoutCheckRow = ({ band, week }: { readonly band: string | number; readonly week: string | number }): string => `Tienes pendiente una prueba de palabras de la banda ${String(band)}, semana ${String(week)}.`
+export const schoolHoldoutNote = (): string => `1 de cada 10 palabras se aparta para dos pruebas posteriores y vuelve después de la última.`
 export const schoolLearning = ({ cap, inLearning }: { readonly cap: string | number; readonly inLearning: string | number }): string => `Palabras en aprendizaje: ${String(inLearning)} de ${String(cap)}`
 export const schoolLearningFull = ({ count }: { readonly count: number }): string => `${count === 1 ? `La siguiente lección trae 1 palabra.` : `La siguiente lección trae ${String(count)} palabras.`} Empieza los repasos.`
 export const schoolLearningFullNextWordDue = ({ count, timeLeft }: { readonly count: number; readonly timeLeft: string | number }): string => `${count === 1 ? `La siguiente lección trae 1 palabra.` : `La siguiente lección trae ${String(count)} palabras.`} La siguiente palabra en aprendizaje se repasa en ${String(timeLeft)}.`

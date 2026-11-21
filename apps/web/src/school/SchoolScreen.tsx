@@ -210,7 +210,7 @@ export function SchoolScreen({ town, lessons }: SchoolScreenProps): ReactElement
             onSelect={setSelectedId}
           />
           <TextRows texts={overview.texts} />
-          <BandLines bandLines={overview.bandLines} />
+          <BandLines bandLines={overview.bandLines} hasBandStarted={overview.hasBandStarted} />
           <BuildSlot
             state={slotStateOf(town, lessons, slotTitle.focus, copy)}
             titleRef={slotTitle.ref}
