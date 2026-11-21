@@ -139,7 +139,7 @@ export function newsRowOf(catalog: ChromeCatalog, item: TownNewsItem, now: Date)
   return {
     key: `${item.kind}:${item.occurredAt}:${params}`,
     occurredAt: item.occurredAt,
-    instant: formatInstant(new Date(item.occurredAt), now),
+    instant: formatInstant(catalog, new Date(item.occurredAt), now),
     line: lineOf(catalog, item),
     amounts: amountsOf(catalog, item),
   }

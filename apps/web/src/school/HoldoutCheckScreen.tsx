@@ -116,12 +116,12 @@ function CheckAsking({
       <ChoiceWalk
         items={asking.check.items}
         lines={{
-          heading: placementBand({ band: asking.check.band }),
-          prompt: placementPrompt(),
-          next: placementNext(),
-          choose: placementChoose(),
-          send: holdoutCheckSend(),
-          progressOf: (number, total) => placementProgress({ number, total }),
+          heading: lineLabelOf(placementBand({ band: asking.check.band }), 'es'),
+          prompt: lineLabelOf(placementPrompt(), 'es'),
+          next: lineLabelOf(placementNext(), 'es'),
+          choose: lineLabelOf(placementChoose(), 'es'),
+          send: lineLabelOf(holdoutCheckSend(), 'es'),
+          progressOf: (number, total) => lineLabelOf(placementProgress({ number, total }), 'es'),
         }}
         isSending={handle.waiting === 'answers'}
         onSend={(answers) => handle.send({ answers: [...answers] })}

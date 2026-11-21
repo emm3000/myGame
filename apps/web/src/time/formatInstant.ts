@@ -1,4 +1,4 @@
-import { timeToday } from '@mygame/catalog'
+import type { ChromeCatalog } from '../copy/PlayerCopy'
 import { formatLocalDay } from './formatLocalDay'
 import { formatLocalTime } from './formatLocalTime'
 
@@ -7,10 +7,10 @@ const isSameDay = (instant: Date, now: Date): boolean =>
   instant.getMonth() === now.getMonth() &&
   instant.getDate() === now.getDate()
 
-export function formatInstant(instant: Date, now: Date): string {
+export function formatInstant(catalog: ChromeCatalog, instant: Date, now: Date): string {
   const time = formatLocalTime(instant)
   if (isSameDay(instant, now)) {
-    return timeToday({ time })
+    return catalog.timeToday({ time })
   }
   const day = formatLocalDay(instant)
   const date = instant.getFullYear() === now.getFullYear() ? day : `${day} ${instant.getFullYear()}`
