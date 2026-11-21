@@ -27,7 +27,7 @@ One row for each folder directly under `apps/api/src` or `packages/domain/src`. 
 | Folder | Package | What it holds |
 |---|---|---|
 | `platform` | api | What holds no game word: the HTTP kernel, the Postgres kernel, the system clock and ids, the failure sink and the deferred work. |
-| `account` | api | Players, sessions, account tokens and mail. Today only its HTTP session files; the rest comes from `auth` and `routes`. |
+| `account` | api | Players, sessions, account tokens and mail. Today its HTTP session files, the password hasher and session token ports with their system adapters, and the account's stores; the rest comes from `auth` and `routes`. |
 | `town` | api, domain | The holding: stocks, accrual, founding, building work, hiring, jobs, the school, guidance and news. |
 | `learning` | api, domain | Reviews, hints, frames, retention and the curriculum's shape. |
 | `holdout` | domain | Holdout checks and released lessons. |
@@ -39,7 +39,7 @@ One row for each folder directly under `apps/api/src` or `packages/domain/src`. 
 | `hash` | domain | Text hashes and the ids drawn from them, with no game word. |
 | `grid` | domain | Grid cells, with no game word. |
 | `ports` | domain | `Clock`, `IdGenerator` and `RandomSource`, the ports no feature owns. |
-| `adapters` | api | *Moving.* Drizzle, memory, JSON, SMTP and the account's system adapters, each to the feature whose port it implements. |
+| `adapters` | api | *Moving.* Drizzle, memory, JSON and SMTP adapters, each to the feature whose port it implements. |
 | `auth` | api | *Moving* to `account/application/`: the account's use cases and ports. |
 | `routes` | api | *Moving.* One endpoint per file, to each feature's `infrastructure/http/`. |
 | `contentGate` | api | *Moving* to `content`: the checks the JSON catalogs pass. |
@@ -63,7 +63,7 @@ testing/      the feature's in-memory ports and fixtures
 `apps/api/src/`:
 
 ```
-index.ts  listen.ts  app.ts  composeServer.ts    the composition root, the only place that constructs an adapter
+index.ts  listen.ts  app.ts  composeServer.ts  composeStores.ts    the composition root, the only place that constructs an adapter
 <feature>/
   application/                the use cases the api owns
   application/ports/          the ports only the api needs
@@ -75,7 +75,7 @@ index.ts  listen.ts  app.ts  composeServer.ts    the composition root, the only 
   infrastructure/system/      the password hasher and the session tokens
 ```
 
-`platform/` follows the same grammar: `application/` holds `Refusal`, `application/ports/` the failure sink and the deferred work, and `infrastructure/{http,postgres,system,vercel}/` the kernels. Only `platform/` may hold, at its root, a pure function that both its `application/` and its `infrastructure/` read; `thrownCauseOf.ts` is the one case, and a feature folder may not. An adapter lives in the feature whose port it implements. `packages/contracts/src/<feature>/` holds one schema per file, with no layer folder.
+`platform/` follows the same grammar: `application/` holds `Refusal`, `application/ports/` the transaction, the failure sink and the deferred work, and `infrastructure/{http,postgres,system,vercel}/` the kernels. Only `platform/` may hold, at its root, a pure function that both its `application/` and its `infrastructure/` read; `thrownCauseOf.ts` is the one case, and a feature folder may not. An adapter lives in the feature whose port it implements. `packages/contracts/src/<feature>/` holds one schema per file, with no layer folder.
 
 ## The file-name grammar
 
