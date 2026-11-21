@@ -3,6 +3,7 @@ import { asc, eq } from 'drizzle-orm'
 import { drizzle } from 'drizzle-orm/node-postgres'
 import { Pool } from 'pg'
 import { afterAll, beforeAll } from 'vitest'
+import { truncatePlayerTables } from '../../truncatePlayerTables.testSupport'
 import { reviewLogContract } from '../reviewLogContract'
 import { DrizzleReviewLog } from './DrizzleReviewLog'
 import { reviewLog } from './schema'
@@ -27,9 +28,7 @@ afterAll(async () => {
 })
 
 const emptyDatabase = async (): Promise<void> => {
-  await pool.query(
-    'TRUNCATE players, towns, town_buildings, town_waiting_work, town_events, town_lesson_slots, town_hires, town_hiring_orders, town_jobs, site_clean_ups, player_seen_tips, earned_skills, band_starts, held_out_words, holdout_checks, holdout_check_words, placements, placement_words, placement_scores, cards, pending_reviews, review_log, sessions, account_tokens',
-  )
+  await pool.query(truncatePlayerTables)
 }
 
 const registerPlayers = async (playerIds: ReadonlyArray<string>): Promise<void> => {
