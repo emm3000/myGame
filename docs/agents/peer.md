@@ -16,6 +16,7 @@ The one playbook a dispatched peer session reads, beside its issue and the docs 
 - Never symlink another worktree's `node_modules` into yours: its workspace links resolve to that peer's sources, and an install there rewrites yours. Your worktree runs its own `pnpm install --frozen-lockfile`.
 - Android: your own AVD `mygame-<name>`, created and started as `apps/android/CLAUDE.md` (Commands) says, or the kept one your dispatch names. Every other AVD belongs to another peer or repo.
 - Stop only what you started, by PID or `adb -s emulator-<port> emu kill`. `pkill` and `killall` on a shared name (`emulator`, `qemu-system`, `adb`, `java`, `gradle`) reach other peers and repos. `netsimd` serves every emulator on the machine, so it is never yours to stop.
+- Never run `./gradlew --stop`: a Gradle daemon serves every checkout on the machine, so `--stop` reaches other peers' builds. Your daemon idles out on its own.
 - Outside your worktree and your containers the machine stays as it was: no `brew services`, no LaunchAgent, no global install.
 - A command never waits on stdin: a script goes in a scratchpad file and runs as `python3 <file>`, never as `python3 - <<'EOF'` inside a pipeline. When a command has printed nothing for two minutes, `pgrep` shows what it runs: a Gradle or test run goes on, a process waiting on stdin is killed.
 
