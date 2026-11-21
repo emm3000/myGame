@@ -1,6 +1,7 @@
 import { assert, describe, expect, it } from 'vitest'
 import type { BandStart } from '../learning/BandStart'
 import type { HeldCard } from '../learning/HeldCard'
+import { heldCardsOf } from '../learning/HeldCards'
 import type { Lesson } from '../learning/Lesson'
 import type { PendingReview } from '../learning/PendingReview'
 import { recognitionChoicesOf } from '../learning/recognitionChoicesOf'
@@ -68,9 +69,12 @@ const cardsOfLessonOne: ReadonlyArray<HeldCard> = lessonOne.words.map(({ id }) =
 }))
 
 const choiceIdOf = (askedWordId: string, chosenWordId: string, card: MemoryCard): string => {
-  const choice = recognitionChoicesOf(askedWordId, lessonOne, card, cardsOfLessonOne).find(
-    ({ wordId }) => wordId === chosenWordId,
-  )
+  const choice = recognitionChoicesOf(
+    askedWordId,
+    lessonOne,
+    card,
+    heldCardsOf(cardsOfLessonOne),
+  ).find(({ wordId }) => wordId === chosenWordId)
   assert(choice !== undefined)
   return choice.choiceId
 }

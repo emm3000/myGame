@@ -6,6 +6,7 @@ import { lessonOne } from '../testing/lessonOne'
 import { unitLessonOne } from '../testing/unitLessonOne'
 import { Instant } from '../time/Instant'
 import type { HeldCard } from './HeldCard'
+import { heldCardsOf } from './HeldCards'
 import type { Lesson } from './Lesson'
 import { lessonCardsEnteredAt } from './lessonCardsEnteredAt'
 import { recognitionChoicesOf } from './recognitionChoicesOf'
@@ -28,13 +29,15 @@ const lessonOfEightWords: Lesson = {
 const cardsOf = (lesson: Lesson): ReadonlyArray<HeldCard> =>
   lesson.words.map(({ id }) => ({ wordId: id, card: enteredCard }))
 
-const heldLessonOne = cardsOf(lessonOne)
+const heldLessonOne = heldCardsOf(cardsOf(lessonOne))
 
-const heldEightWords = cardsOf(lessonOfEightWords)
+const heldEightWords = heldCardsOf(cardsOf(lessonOfEightWords))
 
 describe('recognitionChoicesOf', () => {
   it('leaves a held-out gloss out of the recognition choices', () => {
-    const withoutHeldOutMoney = heldLessonOne.filter(({ wordId }) => wordId !== 'money')
+    const withoutHeldOutMoney = heldCardsOf(
+      cardsOf(lessonOne).filter(({ wordId }) => wordId !== 'money'),
+    )
 
     const choices = recognitionChoicesOf('school', lessonOne, enteredCard, withoutHeldOutMoney)
 
@@ -42,7 +45,9 @@ describe('recognitionChoicesOf', () => {
   })
 
   it('never offers a held-back unit as a recognition choice', () => {
-    const heldWithGiveHeldOut = lessonCardsEnteredAt(unitLessonOne, ['give'], lessonFinish)
+    const heldWithGiveHeldOut = heldCardsOf(
+      lessonCardsEnteredAt(unitLessonOne, ['give'], lessonFinish),
+    )
 
     const choices = recognitionChoicesOf(
       'find-out',

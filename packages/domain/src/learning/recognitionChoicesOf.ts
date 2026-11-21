@@ -2,7 +2,7 @@ import { choiceIdsOf } from '../hash/choiceIdsOf'
 import { keyedTextHashOf } from '../hash/keyedTextHashOf'
 import type { MemoryCard } from '../memory/MemoryCard'
 import { compareWordIds } from './compareWordIds'
-import type { HeldCard } from './HeldCard'
+import type { HeldCards } from './HeldCards'
 import { keyInstantOf } from './keyInstantOf'
 import type { Lesson, WordId } from './Lesson'
 
@@ -29,7 +29,7 @@ export const recognitionChoicesOf = (
   wordId: WordId,
   lesson: Lesson,
   card: MemoryCard,
-  held: ReadonlyArray<HeldCard>,
+  held: HeldCards,
 ): ReadonlyArray<RecognitionChoice> => {
   const keyMilliseconds = keyInstantOf(card).epochMilliseconds
   const hashed = (id: WordId): HashedWord => ({
@@ -37,7 +37,7 @@ export const recognitionChoicesOf = (
     hash: keyedTextHashOf(id, keyMilliseconds),
   })
   const others = lesson.words
-    .filter(({ id }) => id !== wordId && held.some((card) => card.wordId === id))
+    .filter(({ id }) => id !== wordId && held.has(id))
     .map(({ id }) => hashed(id))
     .sort(byHashThenWord)
     .slice(0, MAXIMUM_CHOICES - 1)

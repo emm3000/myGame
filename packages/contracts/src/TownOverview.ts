@@ -8,7 +8,6 @@ import { HireKindSchema } from './HireKind'
 import { LessonStateSchema } from './LessonState'
 import { NeededWordKindSchema } from './NeededWordKind'
 import { NextStepSchema } from './NextStep'
-
 import { PlacementBandSchema } from './PlacementBand'
 import { ReleasedLessonStateSchema } from './ReleasedLessonState'
 import { ResourceAmountsSchema } from './ResourceAmounts'
