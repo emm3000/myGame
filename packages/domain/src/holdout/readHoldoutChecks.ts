@@ -1,12 +1,12 @@
 import type { DomainError } from '../DomainError'
-import type { Scaffold } from '../learning/Scaffold'
+import type { Scaffold } from '../learning/scaffold/Scaffold'
 import type { PlayerId } from '../player/PlayerId'
-import type { BandStartRepository } from '../ports/BandStartRepository'
 import type { Clock } from '../ports/Clock'
 import type { PlacementWordCatalog } from '../ports/PlacementWordCatalog'
 import { ok, type Result } from '../Result'
 import type { HoldoutCheckView } from './HoldoutCheckView'
 import { holdoutCheckViewsOf } from './holdoutCheckViewsOf'
+import type { BandStartRepository } from './ports/BandStartRepository'
 
 export type ReadHoldoutChecksQuery = {
   readonly playerId: PlayerId

@@ -1,10 +1,10 @@
 import { assert, describe, expect, it } from 'vitest'
-import type { BandStart } from '../learning/BandStart'
-import { inMemoryBandStarts } from '../testing/inMemoryBandStarts'
+import type { BandStart } from '../learning/curriculum/BandStart'
 import { inMemoryPlacementWords, placementWordsOfBand } from '../testing/placementWords'
 import { Instant } from '../time/Instant'
 import type { HoldoutCheck } from './HoldoutCheck'
 import { readHoldoutChecks } from './readHoldoutChecks'
+import { inMemoryBandStarts } from './testing/inMemoryBandStarts'
 
 const ana = 'player-ana'
 

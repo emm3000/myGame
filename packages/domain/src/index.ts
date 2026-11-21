@@ -22,6 +22,7 @@ export type {
 export type { HoldoutCheckView } from './holdout/HoldoutCheckView'
 export { hasBandStartedAt } from './holdout/hasBandStartedAt'
 export { HOLDOUT_CHECK_WEEKS, RELEASING_WEEK } from './holdout/holdoutCheckWeeks'
+export type { BandStartRepository } from './holdout/ports/BandStartRepository'
 export type { ReleasedLesson } from './holdout/ReleasedLesson'
 export {
   type ReadHoldoutChecksDependencies,
@@ -32,25 +33,31 @@ export {
   type SkipHoldoutCheckDependencies,
   skipHoldoutCheck,
 } from './holdout/skipHoldoutCheck'
-export { anchorFrameOf } from './learning/anchorFrameOf'
-export type { Band, BandStart, BandWord, Headword } from './learning/BandStart'
-export { bandLinesOf } from './learning/bandLinesOf'
-export { cardsInLearningOf } from './learning/cardsInLearningOf'
-export { type ChromePhase, chromePhaseOf } from './learning/chromePhaseOf'
-export type { DueCard } from './learning/dueCardsAt'
-export type { FrameReader } from './learning/FrameReader'
-export type { FrameSpan, FrameSpans } from './learning/FrameSpan'
-export type { FrameToken } from './learning/FrameToken'
-export { glossOf } from './learning/glossOf'
-export { gradeTypedAnswer, type TypedAnswerGrade } from './learning/gradeTypedAnswer'
+export type { Band, BandStart, BandWord, Headword } from './learning/curriculum/BandStart'
+export { bandLinesOf } from './learning/curriculum/bandLinesOf'
+export { headwordOf } from './learning/curriculum/headwordOf'
+export { heldOutCountOf } from './learning/curriculum/heldOutCountOf'
+export { heldOutWordsAt } from './learning/curriculum/heldOutWordsAt'
+export { isLessonPlacedOut } from './learning/curriculum/isLessonPlacedOut'
+export { isUnitLemma } from './learning/curriculum/isUnitLemma'
+export { lemmaWordsOf } from './learning/curriculum/lemmaWordsOf'
+export type { BandCatalog } from './learning/curriculum/ports/BandCatalog'
+export type { LessonCatalog } from './learning/curriculum/ports/LessonCatalog'
+export { readableWordsOf } from './learning/curriculum/readableWordsOf'
+export { type Stage, stageOf } from './learning/curriculum/stageOf'
+export { wordsEnteringOf } from './learning/curriculum/wordsEnteringOf'
+export { anchorFrameOf } from './learning/frames/anchorFrameOf'
+export type { FrameReader } from './learning/frames/FrameReader'
+export type { FrameSpan, FrameSpans } from './learning/frames/FrameSpan'
+export type { FrameToken } from './learning/frames/FrameToken'
+export { openTextsOf, type TextReader } from './learning/frames/openTextsOf'
+export type { FrameCatalog } from './learning/frames/ports/FrameCatalog'
+export type { TextCatalog } from './learning/frames/ports/TextCatalog'
+export { readingFrameOf } from './learning/frames/readingFrameOf'
+export type { Text, TextId } from './learning/frames/Text'
+export { type TextReading, textReadingOf } from './learning/frames/textReadingOf'
 export type { HeldCard } from './learning/HeldCard'
 export { type HeldCards, heldCardsOf } from './learning/HeldCards'
-export { headwordOf } from './learning/headwordOf'
-export { heldOutCountOf } from './learning/heldOutCountOf'
-export { heldOutWordsAt } from './learning/heldOutWordsAt'
-export { isLessonPlacedOut } from './learning/isLessonPlacedOut'
-export { isUnitLemma } from './learning/isUnitLemma'
-export { isWordRetained } from './learning/isWordRetained'
 export type {
   LaterFrame,
   Lesson,
@@ -61,35 +68,57 @@ export type {
   WordFrame,
   WordId,
 } from './learning/Lesson'
-export { lemmaWordsOf } from './learning/lemmaWordsOf'
-export { nextDueAtOf } from './learning/nextDueAtOf'
-export { nextInLearningDueAtOf } from './learning/nextInLearningDueAtOf'
-export { openTextsOf, type TextReader } from './learning/openTextsOf'
-export type { PendingReview } from './learning/PendingReview'
-export { type ReviewFormat, reviewFormatOf } from './learning/ReviewFormat'
-export type { ReviewLogEntry } from './learning/ReviewLogEntry'
-export { readableWordsOf } from './learning/readableWordsOf'
-export { readFirstOf } from './learning/readFirstOf'
-export { readingFrameOf } from './learning/readingFrameOf'
-export { type RecognitionChoice, recognitionChoicesOf } from './learning/recognitionChoicesOf'
-export { retainedWordCountOf } from './learning/retainedWordCountOf'
-export { type RetainedWords, retainedWordsOf } from './learning/retainedWordsOf'
+export type { CardRepository } from './learning/ports/CardRepository'
+export { cardsInLearningOf } from './learning/retention/cardsInLearningOf'
+export { isWordRetained } from './learning/retention/isWordRetained'
+export { nextInLearningDueAtOf } from './learning/retention/nextInLearningDueAtOf'
+export { retainedWordCountOf } from './learning/retention/retainedWordCountOf'
+export { type RetainedWords, retainedWordsOf } from './learning/retention/retainedWordsOf'
+export { skillLevelOf } from './learning/retention/skillLevelOf'
+export { stableWordCountOf } from './learning/retention/stableWordCountOf'
+export { type WordStanding, wordStandingOf } from './learning/retention/wordStandingOf'
+export type { DueCard } from './learning/reviews/dueCardsAt'
+export { gradeTypedAnswer, type TypedAnswerGrade } from './learning/reviews/gradeTypedAnswer'
+export { nextDueAtOf } from './learning/reviews/nextDueAtOf'
+export type { PendingReview } from './learning/reviews/PendingReview'
+export type { PendingReviewRepository } from './learning/reviews/ports/PendingReviewRepository'
+export type { ReviewLog } from './learning/reviews/ports/ReviewLog'
+export { type ReviewFormat, reviewFormatOf } from './learning/reviews/ReviewFormat'
+export type { ReviewLogEntry } from './learning/reviews/ReviewLogEntry'
+export { readFirstOf } from './learning/reviews/readFirstOf'
+export {
+  type RecognitionChoice,
+  recognitionChoicesOf,
+} from './learning/reviews/recognitionChoicesOf'
 export {
   type ReviewPrompt,
   reviewPromptOf,
   type ShownWord,
-} from './learning/reviewPromptOf'
-export type { Scaffold } from './learning/Scaffold'
-export { skillLevelOf } from './learning/skillLevelOf'
-export { stableWordCountOf } from './learning/stableWordCountOf'
-export { type Stage, stageOf } from './learning/stageOf'
-export { type SupportLevel, supportLevelOf } from './learning/supportLevelOf'
-export { type SupportText, supportTextOf } from './learning/supportTextOf'
-export type { Text, TextId } from './learning/Text'
-export { type TextReading, textReadingOf } from './learning/textReadingOf'
-export type { WordSupport } from './learning/WordSupport'
-export { type WordStanding, wordStandingOf } from './learning/wordStandingOf'
-export { wordsEnteringOf } from './learning/wordsEnteringOf'
+} from './learning/reviews/reviewPromptOf'
+export {
+  type AnsweredReview,
+  type AnswerReviewCommand,
+  type AnswerReviewDependencies,
+  answerReview,
+} from './learning/reviews/useCases/answerReview'
+export {
+  type Hint,
+  type RequestHintCommand,
+  type RequestHintDependencies,
+  requestHint,
+} from './learning/reviews/useCases/requestHint'
+export {
+  type ShowDueReviewsCommand,
+  type ShowDueReviewsDependencies,
+  type ShownReview,
+  showDueReviews,
+} from './learning/reviews/useCases/showDueReviews'
+export { type ChromePhase, chromePhaseOf } from './learning/scaffold/chromePhaseOf'
+export { glossOf } from './learning/scaffold/glossOf'
+export type { Scaffold } from './learning/scaffold/Scaffold'
+export { type SupportLevel, supportLevelOf } from './learning/scaffold/supportLevelOf'
+export { type SupportText, supportTextOf } from './learning/scaffold/supportTextOf'
+export type { WordSupport } from './learning/scaffold/WordSupport'
 export { dueInstantOf } from './memory/dueInstantOf'
 export {
   MemoryCard,
@@ -123,19 +152,11 @@ export { readPlacement } from './placement/readPlacement'
 export type { PlacementAnswer } from './placement/rightWordIdsOf'
 export { type SkipPlacementDependencies, skipPlacement } from './placement/skipPlacement'
 export type { PlayerId } from './player/PlayerId'
-export type { BandCatalog } from './ports/BandCatalog'
-export type { BandStartRepository } from './ports/BandStartRepository'
-export type { CardRepository } from './ports/CardRepository'
 export type { Clock } from './ports/Clock'
-export type { FrameCatalog } from './ports/FrameCatalog'
 export type { IdGenerator } from './ports/IdGenerator'
-export type { LessonCatalog } from './ports/LessonCatalog'
-export type { PendingReviewRepository } from './ports/PendingReviewRepository'
 export type { PlacementRepository } from './ports/PlacementRepository'
 export type { PlacementWordCatalog } from './ports/PlacementWordCatalog'
 export type { RandomSource } from './ports/RandomSource'
-export type { ReviewLog } from './ports/ReviewLog'
-export type { TextCatalog } from './ports/TextCatalog'
 export { err, ok, type Result } from './Result'
 export { deriveBuildDurationSeconds } from './season/deriveBuildDurationSeconds'
 export type { SeasonKind } from './season/SeasonKind'
@@ -308,21 +329,3 @@ export { tipKinds } from './town/tipKinds'
 export { type TipReading, tipOf } from './town/tipOf'
 export { townLabelOf } from './town/townLabelOf'
 export { type TownSeason, townSeasonAt } from './town/townSeasonAt'
-export {
-  type AnsweredReview,
-  type AnswerReviewCommand,
-  type AnswerReviewDependencies,
-  answerReview,
-} from './useCases/answerReview'
-export {
-  type Hint,
-  type RequestHintCommand,
-  type RequestHintDependencies,
-  requestHint,
-} from './useCases/requestHint'
-export {
-  type ShowDueReviewsCommand,
-  type ShowDueReviewsDependencies,
-  type ShownReview,
-  showDueReviews,
-} from './useCases/showDueReviews'

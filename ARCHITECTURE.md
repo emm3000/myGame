@@ -30,7 +30,7 @@ One row for each folder directly under `apps/api/src` or `packages/domain/src`. 
 | `content` | api | The JSON catalogs of the town and the lessons, and the content gate: the checks the shipped content passes. |
 | `account` | api | Players, sessions, account tokens and mail, the scaffold choice and the chrome phase. |
 | `town` | api, domain | The holding: stocks, accrual, founding, building work, hiring, jobs, the school, guidance and news. |
-| `learning` | api, domain | Reviews, hints, frames, retention and the curriculum's shape. |
+| `learning` | api, domain | Reviews, hints, frames, retention and the curriculum's shape; in the domain, the lesson and the held card at its root and the sub-areas `reviews`, `frames`, `retention`, `curriculum` and `scaffold`. |
 | `holdout` | api, domain | Band starts, their holdout checks and released lessons. |
 | `placement` | api, domain | The placement offer and its bands. |
 | `report` | api | The Report: the reviews due and the Town News since the player last closed it, and when it was served and closed. |
@@ -43,7 +43,6 @@ One row for each folder directly under `apps/api/src` or `packages/domain/src`. 
 | `ports` | domain | `Clock`, `IdGenerator` and `RandomSource`, the ports no feature owns. |
 | `adapters` | api | *Moving.* Drizzle and memory adapters, each to the feature whose port it implements. |
 | `routes` | api | *Moving.* One endpoint per file, to each feature's `infrastructure/http/`. |
-| `useCases` | domain | *Moving* into each feature's `useCases/`. |
 | `testing` | domain | *Moving* into each feature's `testing/`. |
 
 ## The folder grammar

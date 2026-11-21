@@ -1,13 +1,16 @@
 import { assert, describe, expect, it } from 'vitest'
+import {
+  inMemoryBandStarts,
+  type OwnedBandStart,
+} from '../../../holdout/testing/inMemoryBandStarts'
+import { inMemoryBands } from '../../../learning/curriculum/testing/inMemoryBands'
+import { inMemoryLessons } from '../../../learning/curriculum/testing/inMemoryLessons'
+import { lessonOne } from '../../../learning/curriculum/testing/lessonOne'
+import { inMemoryCards } from '../../../learning/testing/inMemoryCards'
 import { MemoryCard } from '../../../memory/MemoryCard'
 import type { Clock } from '../../../ports/Clock'
-import { inMemoryBandStarts, type OwnedBandStart } from '../../../testing/inMemoryBandStarts'
-import { inMemoryBands } from '../../../testing/inMemoryBands'
-import { inMemoryCards } from '../../../testing/inMemoryCards'
-import { inMemoryLessons } from '../../../testing/inMemoryLessons'
 import { inMemoryTownNews } from '../../../testing/inMemoryTownNews'
 import { inMemoryTowns } from '../../../testing/inMemoryTowns'
-import { lessonOne } from '../../../testing/lessonOne'
 import { plainTownSettings } from '../../../testing/townCatalogOf'
 import { townOf } from '../../../testing/townFixtures'
 import { Instant } from '../../../time/Instant'

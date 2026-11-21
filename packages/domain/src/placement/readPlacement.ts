@@ -1,5 +1,5 @@
 import type { DomainError } from '../DomainError'
-import type { Scaffold } from '../learning/Scaffold'
+import type { Scaffold } from '../learning/scaffold/Scaffold'
 import type { PlayerId } from '../player/PlayerId'
 import { ok, type Result } from '../Result'
 import { isPlacementOffered, type PlacementOfferDependencies } from './admitPlacementOffer'

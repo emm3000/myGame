@@ -1,5 +1,5 @@
-import type { Band } from '../learning/BandStart'
-import type { BandCatalog } from '../ports/BandCatalog'
+import type { Band } from '../learning/curriculum/BandStart'
+import type { BandCatalog } from '../learning/curriculum/ports/BandCatalog'
 import type { PlacementWordCatalog } from '../ports/PlacementWordCatalog'
 import type { RandomSource } from '../ports/RandomSource'
 import type { PlacementSample } from './Placement'

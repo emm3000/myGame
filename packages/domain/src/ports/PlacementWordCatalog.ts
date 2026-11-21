@@ -1,4 +1,4 @@
-import type { Band } from '../learning/BandStart'
+import type { Band } from '../learning/curriculum/BandStart'
 import type { PlacementWord } from '../placement/PlacementWord'
 
 export interface PlacementWordCatalog {

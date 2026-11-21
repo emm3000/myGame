@@ -1,4 +1,4 @@
-import type { Headword } from '../learning/BandStart'
+import type { Headword } from '../learning/curriculum/BandStart'
 import type { WordId } from '../learning/Lesson'
 
 export type PlacementWord = {

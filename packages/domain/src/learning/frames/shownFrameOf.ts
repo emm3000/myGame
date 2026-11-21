@@ -1,0 +1,11 @@
+import type { MemoryCard } from '../../memory/MemoryCard'
+import type { Stage } from '../curriculum/stageOf'
+import type { LessonWord } from '../Lesson'
+import { reviewFormatOf } from '../reviews/ReviewFormat'
+import { anchorFrameOf } from './anchorFrameOf'
+import { recallFrameOf } from './recallFrameOf'
+
+export const shownFrameOf = (word: LessonWord, card: MemoryCard, stage: Stage): string =>
+  reviewFormatOf(card) === 'recall'
+    ? recallFrameOf(word, card, stage).gappedFrame
+    : anchorFrameOf(word).frame

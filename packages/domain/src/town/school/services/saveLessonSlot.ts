@@ -1,7 +1,7 @@
 import type { DomainError } from '../../../DomainError'
 import type { HeldCard } from '../../../learning/HeldCard'
+import type { CardRepository } from '../../../learning/ports/CardRepository'
 import type { PlayerId } from '../../../player/PlayerId'
-import type { CardRepository } from '../../../ports/CardRepository'
 import { ok, type Result } from '../../../Result'
 import type { LessonSlot } from '../../LessonSlot'
 import type { TownEvent } from '../../TownEvent'

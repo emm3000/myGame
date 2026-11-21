@@ -1,6 +1,6 @@
 import { assert, describe, expect, it } from 'vitest'
-import type { BandStart } from '../learning/BandStart'
-import { inMemoryBandStarts, type OwnedBandStart } from '../testing/inMemoryBandStarts'
+import { inMemoryBandStarts, type OwnedBandStart } from '../holdout/testing/inMemoryBandStarts'
+import type { BandStart } from '../learning/curriculum/BandStart'
 import { inMemoryPlacements, type OwnedPlacement } from '../testing/inMemoryPlacements'
 import {
   type PlacementShelf,
