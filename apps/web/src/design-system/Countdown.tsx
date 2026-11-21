@@ -5,7 +5,7 @@ import { LabelText } from './LabelText'
 
 interface CountdownProps {
   readonly remainingSeconds: number
-  readonly time: string
+  readonly time: Label
   readonly finishedLabel: Label
 }
 
@@ -22,7 +22,7 @@ export function Countdown({ remainingSeconds, time, finishedLabel }: CountdownPr
     <span role="timer" className={`inline-flex items-center gap-2 font-sans tabular-nums ${icon}`}>
       <ClockIcon />
       <span className={digits}>
-        {remainingSeconds <= 0 ? <LabelText label={finishedLabel} /> : time}
+        {remainingSeconds <= 0 ? <LabelText label={finishedLabel} /> : <LabelText label={time} />}
       </span>
     </span>
   )

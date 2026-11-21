@@ -13,6 +13,7 @@ import { Fragment, type ReactElement, type Ref, useEffect, useId } from 'react'
 import { FormAlert } from '../design-system/FormAlert'
 import { focusTargetClass } from '../design-system/focusTargetClass'
 import { formatQuantity } from '../design-system/formatQuantity'
+import type { Label } from '../design-system/Label'
 import { LiveRegion } from '../design-system/LiveRegion'
 import { LoadingSkeleton, type LoadingSkeletonProps } from '../design-system/LoadingSkeleton'
 import { lineLabelOf } from '../design-system/lineLabelOf'
@@ -32,7 +33,7 @@ export type ReviewScreenState =
   | { readonly kind: 'noCards' }
   | {
       readonly kind: 'nothingDue'
-      readonly nextReview: string
+      readonly nextReview: Label
       readonly path: ReviewEndPath | undefined
     }
   | {

@@ -4,6 +4,7 @@ import { placeHeight, placeWidth } from '../art/placeShapesOf'
 import { usePlayerCopy } from '../copy/usePlayerCopy'
 import { color } from '../design/tokens'
 import { raisedPlaceArtOf } from '../design-system/placeArtOf'
+import { spokenLanguageOf } from '../design-system/spokenLanguageOf'
 import { spokenLineOf } from '../design-system/spokenLineOf'
 import { levelBeforeOf, type RaisedPlace } from './registeredBetween'
 
@@ -37,7 +38,7 @@ export function TownSkyline({
     <svg
       role="img"
       aria-label={spokenLineOf(label)}
-      lang={label.language}
+      lang={spokenLanguageOf(label)}
       viewBox={`0 0 ${skylineWidth} ${placeHeight}`}
       className="block w-full"
     >

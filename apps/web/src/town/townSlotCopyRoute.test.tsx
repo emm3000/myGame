@@ -6,7 +6,7 @@ import type { ApiClient } from '../api/apiClient'
 import { renderAppAt } from '../auth/renderAppAt.testSupport'
 import { knownPlayer, knownTown, stubApiClient } from '../auth/stubApiClient.testSupport'
 import { capitalize } from '../design-system/capitalize'
-import { shownLinesDrawnAlone } from './lineDrawnAlone.testSupport'
+import { shownLinesDrawnAlone, shownLinesHolding } from './lineDrawnAlone.testSupport'
 
 type CopyLanguage = Pick<TownOverview, 'scaffold' | 'chromePhase'>
 
@@ -157,4 +157,85 @@ it('counts down to the next review in English over Spanish in the both phase', a
   await showTownIn(bothPhase, { nextDueAt: instantAfter(540) })
 
   expect(linesReading(both(en.reviewNextReview(), es.reviewNextReview()))).not.toHaveLength(0)
+})
+
+const workTillTomorrow: TownOverview['work'] = {
+  slot: {
+    building: 'farm',
+    level: 1,
+    cost: farmCost,
+    startsAt: instantAfter(-60),
+    finishesAt: instantAfter(86_400),
+  },
+  waitingList: [],
+  cap: 2,
+}
+
+it('counts the work down to tomorrow in English over Spanish in the both phase', async () => {
+  await showTownIn(bothPhase, { work: workTillTomorrow })
+
+  const [english] = shownLinesHolding(en.statusTomorrow({ time: '10:00' }), 'en')
+  const [spanish] = shownLinesHolding(es.statusTomorrow({ time: '10:00' }), 'es')
+
+  expect(spanish !== undefined && english?.compareDocumentPosition(spanish)).toBe(
+    Node.DOCUMENT_POSITION_FOLLOWING,
+  )
+})
+
+it('counts the waiting list down in English under none', async () => {
+  await showTownIn(noScaffold, {
+    work: {
+      ...workTillTomorrow,
+      waitingList: [
+        {
+          building: 'homes',
+          level: 2,
+          cost: farmCost,
+          startsAt: instantAfter(86_400),
+          finishesAt: instantAfter(86_700),
+        },
+      ],
+    },
+  })
+
+  expect(shownLinesHolding(en.statusTomorrow({ time: '10:05' }), 'en')).not.toHaveLength(0)
+})
+
+it('marks the stop of the work as Spanish in the Spanish phase', async () => {
+  await showTownIn(spanishPhase, { work: workOnFarm })
+
+  const stop = es.townWorkStopOf({ place: es.namesPlacesFarm(), level: 1 })
+
+  expect(screen.getByRole('button', { name: stop }).getAttribute('lang')).toBe('es')
+})
+
+it('marks no language on the stop of the work read in both languages in the both phase', async () => {
+  await showTownIn(bothPhase, { work: workOnFarm })
+
+  const stop = both(
+    en.townWorkStopOf({ place: en.namesPlacesFarm(), level: 1 }),
+    es.townWorkStopOf({ place: es.namesPlacesFarm(), level: 1 }),
+  )
+
+  expect(screen.getByRole('button', { name: stop }).hasAttribute('lang')).toBe(false)
+})
+
+it('marks the stop of the hiring as Spanish in the Spanish phase', async () => {
+  await showTownIn(spanishPhase, {
+    hiring: {
+      ...knownTown.hiring,
+      order: {
+        hire: 'worker',
+        count: 3,
+        delivered: 1,
+        secondsPerHire: 60,
+        startedAt: instantAfter(-60),
+        endsAt: instantAfter(120),
+      },
+    },
+  })
+
+  const stop = screen.getByRole('button', { name: es.townOfficeStopOfWorker() })
+
+  expect(stop.getAttribute('lang')).toBe('es')
 })

@@ -17,3 +17,14 @@ export const shownLinesDrawnAlone = (
   text: string,
   language: LineLanguage,
 ): ReadonlyArray<HTMLElement> => screen.queryAllByText(isDrawnAlone(text, language))
+
+export const shownLinesHolding = (
+  text: string,
+  language: LineLanguage,
+): ReadonlyArray<HTMLElement> =>
+  screen.queryAllByText(
+    (_, element) =>
+      element?.tagName === 'SPAN' &&
+      element.getAttribute('lang') === language &&
+      (element.textContent ?? '').includes(text),
+  )

@@ -9,6 +9,7 @@ import { formatQuantity } from '../design-system/formatQuantity'
 import { LabelText } from '../design-system/LabelText'
 import { resourceAccent } from '../design-system/resourceAccent'
 import { SeasonLine } from '../design-system/SeasonLine'
+import { spokenLanguageOf } from '../design-system/spokenLanguageOf'
 import { spokenLineOf } from '../design-system/spokenLineOf'
 import { Track } from '../design-system/Track'
 import { townResourceNameOf } from '../resources/townResourceNameOf'
@@ -82,7 +83,11 @@ function StockItem({
   const copy = usePlayerCopy()
   const name = copy.chrome((catalog) => capitalize(townResourceNameOf(catalog, resource)))
   return (
-    <li aria-label={spokenLineOf(name)} className="flex flex-col gap-1">
+    <li
+      aria-label={spokenLineOf(name)}
+      lang={spokenLanguageOf(name)}
+      className="flex flex-col gap-1"
+    >
       <span className="flex items-center gap-2 font-sans text-label text-ink">
         <Icon sizeClass="size-icon" />
         <LabelText label={name} />

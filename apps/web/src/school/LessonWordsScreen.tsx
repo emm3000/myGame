@@ -25,7 +25,7 @@ function RunningTime({ running }: { readonly running: RunningLesson }): ReactEle
       </span>
       <Countdown
         remainingSeconds={running.remainingSeconds}
-        time={chrome((catalog) => formatFinish(catalog, running.remainingSeconds, running.at)).text}
+        time={chrome((catalog) => formatFinish(catalog, running.remainingSeconds, running.at))}
         finishedLabel={chrome((catalog) => catalog.townWorkReady())}
       />
     </div>

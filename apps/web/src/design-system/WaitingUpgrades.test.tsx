@@ -14,7 +14,7 @@ it('names its list by the English line and then the Spanish one', () => {
   render(
     <WaitingUpgrades
       title={waitingList}
-      emptiesAt="13:38"
+      emptiesAt={lineLabelOf('13:38', 'en')}
       upgrades={[]}
       finishedLabel={lineLabelOf('Done', 'en')}
     />,

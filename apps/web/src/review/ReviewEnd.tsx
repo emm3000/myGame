@@ -2,6 +2,7 @@ import { reviewBackToTown, schoolLessonTitle } from '@mygame/catalog'
 import type { WordStanding } from '@mygame/domain'
 import { type ReactElement, useId } from 'react'
 import { ButtonLink } from '../design-system/ButtonLink'
+import type { Label } from '../design-system/Label'
 import { lineLabelOf } from '../design-system/lineLabelOf'
 import { SchoolPath } from '../school/SchoolPath'
 import { ReviewsAhead } from './ReviewsAhead'
@@ -13,7 +14,7 @@ export interface ReviewEndPath {
 
 export interface ReviewEndProps {
   readonly line: string
-  readonly nextReview: string | undefined
+  readonly nextReview: Label | undefined
   readonly path: ReviewEndPath | undefined
 }
 

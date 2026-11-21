@@ -391,3 +391,29 @@ it('offers to read the town again in English under none', async () => {
 
   expect(await screen.findByRole('button', { name: en.townTryAgain() })).toBeDefined()
 })
+
+it('marks no language on the skyline read in both languages in the both phase', async () => {
+  renderAppAt('/', servingTownIn(bothPhase))
+
+  const english = en.townSkylineBuilt({ built: 2, total: 7 })
+  const spanish = es.townSkylineBuilt({ built: 2, total: 7 })
+  const skyline = await screen.findByRole('img', { name: both(english, spanish) })
+
+  expect(skyline.hasAttribute('lang')).toBe(false)
+})
+
+it('marks a place named in Spanish as Spanish in the Spanish phase', async () => {
+  renderAppAt('/', servingTownIn(spanishPhase))
+
+  const farm = await screen.findByRole('listitem', { name: es.namesPlacesFarm() })
+
+  expect(farm.getAttribute('lang')).toBe('es')
+})
+
+it('marks a hire named in Spanish as Spanish in the Spanish phase', async () => {
+  renderAppAt('/', servingTownIn(spanishPhase, officeAt(1)))
+
+  const worker = await screen.findByRole('listitem', { name: es.namesHiresWorker() })
+
+  expect(worker.getAttribute('lang')).toBe('es')
+})

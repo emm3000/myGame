@@ -7,7 +7,7 @@ it('reads the time of the finish while time remains', () => {
   render(
     <Countdown
       remainingSeconds={7260}
-      time="2 h 1 min · 16:04"
+      time={lineLabelOf('2 h 1 min · 16:04', 'en')}
       finishedLabel={lineLabelOf('Done', 'en')}
     />,
   )
@@ -16,7 +16,13 @@ it('reads the time of the finish while time remains', () => {
 })
 
 it('shows the finished label once no time remains', () => {
-  render(<Countdown remainingSeconds={0} time="0:00" finishedLabel={lineLabelOf('Done', 'en')} />)
+  render(
+    <Countdown
+      remainingSeconds={0}
+      time={lineLabelOf('0:00', 'en')}
+      finishedLabel={lineLabelOf('Done', 'en')}
+    />,
+  )
 
   expect(screen.getByRole('timer').textContent).toBe('Done')
 })

@@ -31,7 +31,7 @@ const countdownOf = (
   words: copy.chrome(
     isCalledBack ? (catalog) => catalog.mapJobOutCalledBack() : phaseWords[live.phase],
   ),
-  time: copy.chrome((catalog) => formatFinish(catalog, live.remainingSeconds, town.at)).text,
+  time: copy.chrome((catalog) => formatFinish(catalog, live.remainingSeconds, town.at)),
 })
 
 export function jobOutOf(town: LiveTown, copy: PlayerCopy): JobOutContent | undefined {

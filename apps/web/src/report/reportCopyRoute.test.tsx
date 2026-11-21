@@ -1,10 +1,11 @@
 import { en, es } from '@mygame/catalog'
 import type { Report, TownOverview } from '@mygame/contracts'
-import { screen } from '@testing-library/react'
-import { expect, it } from 'vitest'
+import { act, fireEvent, screen } from '@testing-library/react'
+import { afterEach, expect, it, vi } from 'vitest'
 import type { ApiClient } from '../api/apiClient'
 import { renderAppAt } from '../auth/renderAppAt.testSupport'
 import { knownPlayer, knownTown, stubApiClient } from '../auth/stubApiClient.testSupport'
+import { shownLinesHolding } from '../town/lineDrawnAlone.testSupport'
 
 type CopyLanguage = Pick<TownOverview, 'scaffold' | 'chromePhase'>
 
@@ -34,12 +35,21 @@ const withNews = reportOf({
   ],
 })
 
-const servingReportIn = (language: CopyLanguage, report: Report): ApiClient =>
+const servingReportIn = (
+  language: CopyLanguage,
+  report: Report,
+  overrides: Partial<ApiClient> = {},
+): ApiClient =>
   stubApiClient({
     currentPlayer: async () => ({ ...knownPlayer, ...language }),
     town: async () => ({ ok: true, value: { ...knownTown, ...language } }),
     report: async () => ({ ok: true, value: report }),
+    ...overrides,
   })
+
+afterEach(() => {
+  vi.useRealTimers()
+})
 
 const reportTitled = (name: string): Promise<HTMLElement> =>
   screen.findByRole('heading', { level: 1, name })
@@ -112,4 +122,26 @@ it('says there is no news in English over Spanish in the both phase', async () =
 
   expect(await screen.findByText(en.reportNewsNone())).toBeDefined()
   expect(screen.getByText(es.reportNewsNone())).toBeDefined()
+})
+
+const readAt = Date.parse(knownTown.readAt)
+
+it('writes the time of the next review in English under none', async () => {
+  vi.useFakeTimers({ now: readAt })
+  const nextDueAt = new Date(readAt + 86_400_000).toISOString()
+  renderAppAt('/report', servingReportIn(noScaffold, reportOf({ nextDueAt })))
+  await act(() => vi.advanceTimersByTimeAsync(0))
+
+  expect(shownLinesHolding(en.statusTomorrow({ time: '10:00' }), 'en')).not.toHaveLength(0)
+})
+
+it('refuses the close of the news in English under none', async () => {
+  renderAppAt(
+    '/report',
+    servingReportIn(noScaffold, withNews, { closeReport: async () => 'Unexpected' }),
+  )
+
+  fireEvent.click(await screen.findByRole('button', { name: en.reportNewsClose() }))
+
+  expect(await screen.findByText(en.refusalUnexpected())).toBeDefined()
 })
