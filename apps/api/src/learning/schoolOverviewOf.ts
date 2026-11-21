@@ -36,9 +36,9 @@ import {
   wordStandingOf,
   wordsEnteringOf,
 } from '@mygame/domain'
+import type { LessonLibrary, ShelvedLesson } from '../content/application/ports/LessonLibrary'
 import { isoOf } from '../platform/infrastructure/http/isoOf'
 import type { TownReading } from '../town/TownReading'
-import type { LessonLibrary, ShelvedLesson } from './LessonLibrary'
 
 type SchoolOverview = Pick<
   TownOverview,

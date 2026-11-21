@@ -10,9 +10,9 @@ import {
   TownName,
 } from '@mygame/domain'
 import { assert, describe, expect, it } from 'vitest'
-import { JsonLessonCatalog } from '../adapters/json/JsonLessonCatalog'
-import { JsonTownCatalog } from '../adapters/json/JsonTownCatalog'
 import { apiPackagePath } from '../apiPackagePath.testSupport'
+import { JsonLessonCatalog } from '../content/infrastructure/json/JsonLessonCatalog'
+import { JsonTownCatalog } from '../content/infrastructure/json/JsonTownCatalog'
 import type { TownReading } from '../town/TownReading'
 import { schoolOverviewOf } from './schoolOverviewOf'
 
