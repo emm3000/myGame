@@ -3,7 +3,7 @@ import type { BandStart } from '../../learning/curriculum/BandStart'
 import { inMemoryLessons } from '../../learning/curriculum/testing/inMemoryLessons'
 import { lessonOne } from '../../learning/curriculum/testing/lessonOne'
 import { Instant } from '../../time/Instant'
-import type { LessonSlot } from '../LessonSlot'
+import type { LessonSlot } from './LessonSlot'
 import { settledLessonSlot } from './settledLessonSlot'
 
 const startedAt = Instant.fromEpochMilliseconds(1_791_162_000_000)

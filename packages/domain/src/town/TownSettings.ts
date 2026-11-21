@@ -1,6 +1,6 @@
 import type { SeasonDates } from '../season/SeasonDates'
 import type { SeasonKind } from '../season/SeasonKind'
-import type { BuildingKind } from './BuildingKind'
+import type { BuildingKind } from './building/BuildingKind'
 import type { WordNeed } from './building/WordNeed'
 import type { TipKind } from './guidance/TipKind'
 import type { Terrain } from './jobs/Terrain'

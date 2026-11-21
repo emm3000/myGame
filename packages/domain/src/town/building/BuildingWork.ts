@@ -1,6 +1,6 @@
-import type { Instant } from '../time/Instant'
+import type { Instant } from '../../time/Instant'
+import type { Stocks } from '../Stocks'
 import type { BuildingKind } from './BuildingKind'
-import type { Stocks } from './Stocks'
 
 export type WorkTarget = {
   readonly building: BuildingKind

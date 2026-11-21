@@ -1,5 +1,5 @@
 import type { PlayerId } from '../../player/PlayerId'
-import type { Hires } from '../Hires'
+import type { Hires } from '../hiring/Hires'
 import type { JobTarget } from './JobOrder'
 
 export type CleanUpOrder = {

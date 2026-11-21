@@ -4,9 +4,9 @@ import { lessonCardsEnteredAt } from '../../learning/curriculum/lessonCardsEnter
 import type { HeldCard } from '../../learning/HeldCard'
 import { holdsLessonCards } from '../../learning/holdsLessonCards'
 import type { Instant } from '../../time/Instant'
-import { idleLessonSlot, type LessonSlot } from '../LessonSlot'
 import type { TownEvent } from '../TownEvent'
 import { isLessonFinishedBy } from './isLessonFinishedBy'
+import { idleLessonSlot, type LessonSlot } from './LessonSlot'
 import type { SchoolLessons } from './schoolLessonsOf'
 
 export type SettledLessonSlot = {

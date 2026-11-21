@@ -1,6 +1,6 @@
 import type { HeldCard } from '../../learning/HeldCard'
-import { buildingKinds } from '../buildingKinds'
 import type { TownCatalog } from '../ports/TownCatalog'
+import { buildingKinds } from './buildingKinds'
 import { wordShortfallOf } from './wordShortfallOf'
 
 const isBuildableLevel = (level: number, catalog: TownCatalog): boolean =>

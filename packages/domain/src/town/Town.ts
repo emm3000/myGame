@@ -3,8 +3,8 @@ import type { PlayerId } from '../player/PlayerId'
 import { err, ok, type Result } from '../Result'
 import { Duration } from '../time/Duration'
 import type { Instant } from '../time/Instant'
-import type { BuildingLevels } from './BuildingLevels'
-import { foundingLevels } from './BuildingLevels'
+import type { BuildingLevels } from './building/BuildingLevels'
+import { foundingLevels } from './building/BuildingLevels'
 import {
   type BusyWorkSlot,
   idleWorkSlot,
@@ -12,20 +12,20 @@ import {
   type WaitingWork,
   type WorkSlot,
   type WorkTarget,
-} from './BuildingWork'
+} from './building/BuildingWork'
+import { buildingKinds } from './building/buildingKinds'
 import { recheckWaitingList } from './building/recheckWaitingList'
-import { buildingKinds } from './buildingKinds'
 import { type FullSince, noStoreFull } from './FullSince'
-import type { HireKind } from './HireKind'
-import { type Hires, noHires } from './Hires'
-import { hireKinds } from './hireKinds'
 import { deliveredHiresOf } from './hiring/deliveredHiresOf'
+import type { HireKind } from './hiring/HireKind'
+import { type Hires, noHires } from './hiring/Hires'
 import {
   type HiringOrder,
   type HiringSlot,
   type HiringTarget,
   idleHiringSlot,
 } from './hiring/HiringOrder'
+import { hireKinds } from './hiring/hireKinds'
 import { hiringEndsAt } from './hiring/hiringEndsAt'
 import { coversWaste } from './jobs/coversWaste'
 import { idleJobSlot, type Job, type JobCleanUp, type JobSlot } from './jobs/Job'

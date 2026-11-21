@@ -1,9 +1,9 @@
 import type { DomainError } from '../DomainError'
 import { err, ok, type Result } from '../Result'
-import type { BuildingLevels } from './BuildingLevels'
-import { buildingKinds } from './buildingKinds'
-import type { Hires } from './Hires'
-import { hireKinds } from './hireKinds'
+import type { BuildingLevels } from './building/BuildingLevels'
+import { buildingKinds } from './building/buildingKinds'
+import type { Hires } from './hiring/Hires'
+import { hireKinds } from './hiring/hireKinds'
 import type { People } from './People'
 import type { TownCatalog } from './ports/TownCatalog'
 

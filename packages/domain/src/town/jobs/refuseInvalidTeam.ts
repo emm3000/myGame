@@ -1,6 +1,6 @@
 import type { DomainError } from '../../DomainError'
-import type { Hires } from '../Hires'
-import { hireKinds } from '../hireKinds'
+import type { Hires } from '../hiring/Hires'
+import { hireKinds } from '../hiring/hireKinds'
 import { headsOf } from './headsOf'
 
 const isWholeFromZero = (value: number): boolean => Number.isInteger(value) && value >= 0

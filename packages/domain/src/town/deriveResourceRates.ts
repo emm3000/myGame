@@ -1,7 +1,7 @@
 import type { DomainError } from '../DomainError'
 import { err, ok, type Result } from '../Result'
 import type { Instant } from '../time/Instant'
-import type { BuildingLevels } from './BuildingLevels'
+import type { BuildingLevels } from './building/BuildingLevels'
 import type { ProducerBuilding } from './building/ProducerBuilding'
 import type { Terrain } from './jobs/Terrain'
 import type { TownCatalog } from './ports/TownCatalog'
