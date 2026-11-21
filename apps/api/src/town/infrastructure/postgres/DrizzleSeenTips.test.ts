@@ -5,6 +5,7 @@ import { afterAll, assert, beforeAll } from 'vitest'
 import { truncatePlayerTables } from '../../../truncatePlayerTables.testSupport'
 import { seenTipsContract } from '../memory/seenTipsContract.testSupport'
 import { DrizzleSeenTips } from './DrizzleSeenTips'
+import { DrizzleTownReader } from './DrizzleTownReader'
 import { DrizzleTownRepository } from './DrizzleTownRepository'
 
 function databaseUrl(): string {
@@ -61,7 +62,7 @@ seenTipsContract('DrizzleSeenTips', async () => {
       }
     },
     seenTipsOf: async (playerId) => {
-      const read = await towns.townWithSchoolOf(playerId)
+      const read = await new DrizzleTownReader(database).townWithSchoolOf(playerId)
       assert(read.ok && read.value !== undefined)
       return read.value.seenTips
     },

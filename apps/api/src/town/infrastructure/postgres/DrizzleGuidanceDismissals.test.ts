@@ -4,6 +4,7 @@ import { afterAll, assert, beforeAll } from 'vitest'
 import { truncatePlayerTables } from '../../../truncatePlayerTables.testSupport'
 import { guidanceDismissalsContract } from '../memory/guidanceDismissalsContract.testSupport'
 import { DrizzleGuidanceDismissals } from './DrizzleGuidanceDismissals'
+import { DrizzleTownReader } from './DrizzleTownReader'
 import { DrizzleTownRepository } from './DrizzleTownRepository'
 
 function databaseUrl(): string {
@@ -47,7 +48,7 @@ guidanceDismissalsContract('DrizzleGuidanceDismissals', async () => {
     towns,
     registerPlayers,
     dismissedAtOf: async (playerId) => {
-      const read = await towns.townWithSchoolOf(playerId)
+      const read = await new DrizzleTownReader(database).townWithSchoolOf(playerId)
       assert(read.ok)
       return read.value?.guidanceDismissedAt
     },

@@ -9,6 +9,7 @@ import {
   type RandomSource,
   type RegionMapReader,
   type TownCatalog,
+  type TownRepository,
 } from '@mygame/domain'
 import { waitUntil } from '@vercel/functions'
 import type { Accounts } from './account/application/ports/Accounts'
@@ -46,6 +47,7 @@ import type { TownReader } from './town/application/ports/TownReader'
 import { DrizzleCleanUpRepository } from './town/infrastructure/postgres/DrizzleCleanUpRepository'
 import { DrizzleRegionMap } from './town/infrastructure/postgres/DrizzleRegionMap'
 import { DrizzleTownNews } from './town/infrastructure/postgres/DrizzleTownNews'
+import { DrizzleTownReader } from './town/infrastructure/postgres/DrizzleTownReader'
 import { DrizzleTownRepository } from './town/infrastructure/postgres/DrizzleTownRepository'
 import type { TownNewsReader } from './town/TownNewsReader'
 
@@ -104,7 +106,8 @@ export type ComposedServer = MailSettings & {
   readonly clock: Clock
   readonly ids: IdGenerator
   readonly random: RandomSource
-  readonly towns: TownReader
+  readonly towns: Omit<TownRepository, 'save'>
+  readonly townsWithSchool: TownReader
   readonly townNews: TownNewsReader
   readonly regionMap: RegionMapReader
   readonly cleanUps: CleanUpReader
@@ -149,6 +152,7 @@ export function composeServer(
     sessionTokens: new CryptoSessionTokens(),
     inTransaction: postgresTransaction(database, composeStores),
     towns: new DrizzleTownRepository(database, 'lockFree'),
+    townsWithSchool: new DrizzleTownReader(database),
     townNews: new DrizzleTownNews(database),
     regionMap: new DrizzleRegionMap(database),
     cleanUps: new DrizzleCleanUpRepository(database),

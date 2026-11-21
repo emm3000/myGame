@@ -8,11 +8,11 @@ import {
   type Result,
   type Stocks,
   type TownCatalog,
+  type TownRepository,
 } from '@mygame/domain'
-import type { TownReader } from './application/ports/TownReader'
 
 export type QuotedJobDependencies = {
-  readonly towns: TownReader
+  readonly towns: Omit<TownRepository, 'save'>
   readonly regionMap: RegionMapReader
   readonly townCatalog: TownCatalog
   readonly clock: Clock

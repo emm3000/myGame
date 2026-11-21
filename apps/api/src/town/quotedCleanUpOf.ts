@@ -9,11 +9,11 @@ import {
   type RegionMapReader,
   type Result,
   type TownCatalog,
+  type TownRepository,
 } from '@mygame/domain'
-import type { TownReader } from './application/ports/TownReader'
 
 export type QuotedCleanUpDependencies = {
-  readonly towns: TownReader
+  readonly towns: Omit<TownRepository, 'save'>
   readonly regionMap: RegionMapReader
   readonly cleanUps: CleanUpReader
   readonly townCatalog: TownCatalog

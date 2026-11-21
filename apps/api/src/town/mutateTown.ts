@@ -28,7 +28,8 @@ import type { TownNewsReader } from './TownNewsReader'
 
 export type TownStores = {
   readonly accounts: Accounts
-  readonly towns: TownRepository & Pick<TownReader, 'townWithSchoolOf'>
+  readonly towns: TownRepository
+  readonly townsWithSchool: TownReader
   readonly townNews: TownNews & TownNewsReader
   readonly lessonSlots: LessonSlotRepository
   readonly cards: CardRepository
