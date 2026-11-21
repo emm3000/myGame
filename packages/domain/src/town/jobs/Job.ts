@@ -1,8 +1,8 @@
 import type { Instant } from '../../time/Instant'
 import type { Hires } from '../hiring/Hires'
-import type { SiteAddress } from '../SiteAddress'
 import type { Stocks } from '../Stocks'
 import type { ProductionPercent } from '../TownSettings'
+import type { SiteAddress } from './SiteAddress'
 import type { WasteSize } from './WasteSize'
 
 export type JobCleanUp = {
