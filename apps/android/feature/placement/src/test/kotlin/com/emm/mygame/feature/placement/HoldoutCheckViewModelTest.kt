@@ -414,28 +414,41 @@ class HoldoutCheckViewModelTest {
     }
 
     @Test
-    fun `draws the refusal beside the words of a refused send`() = runTest {
+    fun `draws the check not open once the api refuses its answers as no longer open`() = runTest {
         val viewModel: HoldoutCheckViewModel = askingWithEveryWordChosen()
-
         viewModel.onIntent(HoldoutCheckIntent.AnswersSent)
         holdoutChecks.answerChange(HoldoutCheckChangeResult.Refused(HoldoutCheckRefusal.NotOpen))
         runCurrent()
 
-        assertEquals(
-            HoldoutCheckRequest.Refused(HoldoutCheckAction.Answers, HoldoutCheckRefusal.NotOpen),
-            askingOf(viewModel).request,
-        )
+        holdoutChecks.answerRead(HoldoutChecksReadResult.Read(listOf(secondBandTwentyFourthWeekDue)))
+        runCurrent()
+
+        assertEquals(HoldoutCheckUiState.NotOpen, viewModel.state.value)
     }
 
     @Test
-    fun `keeps the chosen meanings beside a refused send`() = runTest {
+    fun `draws the due check the api offers once it refuses the answers of a check not begun`() = runTest {
         val viewModel: HoldoutCheckViewModel = askingWithEveryWordChosen()
-
         viewModel.onIntent(HoldoutCheckIntent.AnswersSent)
         holdoutChecks.answerChange(HoldoutCheckChangeResult.Refused(HoldoutCheckRefusal.NotOpen))
         runCurrent()
 
-        assertEquals(walkMeaning, askingOf(viewModel).chosenForShown)
+        holdoutChecks.answerRead(HoldoutChecksReadResult.Read(listOf(firstBandEighthWeekDue)))
+        runCurrent()
+
+        val notBegun = HoldoutCheckRequest.Refused(HoldoutCheckAction.Answers, HoldoutCheckRefusal.NotOpen)
+        assertEquals(dueIdle.copy(request = notBegun), viewModel.state.value)
+    }
+
+    @Test
+    fun `reads nothing again after the api refuses a skip as no longer open`() = runTest {
+        val viewModel: HoldoutCheckViewModel = reading(firstBandEighthWeekDue)
+
+        viewModel.onIntent(HoldoutCheckIntent.SkipTapped)
+        holdoutChecks.answerChange(HoldoutCheckChangeResult.Refused(HoldoutCheckRefusal.NotOpen))
+        runCurrent()
+
+        assertEquals(1, holdoutChecks.readCount)
     }
 
     @Test
