@@ -460,21 +460,29 @@ it('a full cap with no review due names when the next word in learning is due', 
 
   expect(
     screen.getByText(
-      isDrawnAlone(es.schoolLearningFullNextWordDue({ count: 5, timeLeft: nextWordDueIn }), 'es'),
+      isDrawnAlone(
+        es.schoolLearningFullNextWordDue({ count: 5, wordCount: 5, timeLeft: nextWordDueIn }),
+        'es',
+      ),
     ),
   ).toBeDefined()
-  expect(screen.queryByText(es.schoolLearningFull({ count: 5 }))).toBeNull()
+  expect(
+    screen.queryByText(isDrawnAlone(es.schoolLearningFull({ count: 5, wordCount: 5 }), 'es')),
+  ).toBeNull()
 })
 
 const fullCapLine = (): HTMLElement =>
   screen.getByText(
-    isDrawnAlone(es.schoolLearningFullNextWordDue({ count: 5, timeLeft: nextWordDueIn }), 'es'),
+    isDrawnAlone(
+      es.schoolLearningFullNextWordDue({ count: 5, wordCount: 5, timeLeft: nextWordDueIn }),
+      'es',
+    ),
   )
 
 it('draws the time left of a full cap as the whole text of its own tabular element', async () => {
   await showSchool(schoolOf({ learning: fullCapWaiting }))
 
-  expect(tabularFiguresOf(fullCapLine())).toEqual(['2 h 15 min', '12:15'])
+  expect(tabularFiguresOf(fullCapLine())).toEqual(['5', '2 h 15 min', '12:15'])
 })
 
 it('keeps tabular figures off the paragraph of the full-cap line', async () => {
@@ -486,8 +494,56 @@ it('keeps tabular figures off the paragraph of the full-cap line', async () => {
 it('a full cap with a review due still sends to the reviews', async () => {
   await showSchool(schoolOf({ learning: fullCapWaiting, nextStep: reviewsDue }))
 
-  expect(screen.getByText(es.schoolLearningFull({ count: 5 }))).toBeDefined()
+  expect(
+    screen.getByText(isDrawnAlone(es.schoolLearningFull({ count: 5, wordCount: 5 }), 'es')),
+  ).toBeDefined()
 })
+
+const fullCapBefore = (wordCount: number): Partial<TownOverview> => ({
+  lessons: [
+    lessonOf(1, {
+      words: wordsOf(...Array.from({ length: wordCount }, (): WordStanding => 'notStarted')),
+    }),
+  ],
+  learning: { ...fullCapWaiting, inLearning: 15 },
+})
+
+it.each([
+  { wordCount: 1, words: 'one word' },
+  { wordCount: 5, words: 'five words' },
+])(
+  'draws the word count of a full cap before a lesson of $words as the whole text of its own tabular element',
+  async ({ wordCount }) => {
+    await showSchool(schoolOf(fullCapBefore(wordCount)))
+
+    const line = screen.getByText(
+      isDrawnAlone(
+        es.schoolLearningFullNextWordDue({
+          count: wordCount,
+          wordCount,
+          timeLeft: nextWordDueIn,
+        }),
+        'es',
+      ),
+    )
+    expect(tabularFiguresOf(line)).toEqual([String(wordCount), '2 h 15 min', '12:15'])
+  },
+)
+
+it.each([
+  { wordCount: 1, words: 'one word' },
+  { wordCount: 5, words: 'five words' },
+])(
+  'draws the word count of a full cap with a review due before a lesson of $words as the whole text of its own tabular element',
+  async ({ wordCount }) => {
+    await showSchool(schoolOf({ ...fullCapBefore(wordCount), nextStep: reviewsDue }))
+
+    const line = screen.getByText(
+      isDrawnAlone(es.schoolLearningFull({ count: wordCount, wordCount }), 'es'),
+    )
+    expect(tabularFiguresOf(line)).toEqual([String(wordCount)])
+  },
+)
 
 const refusedPastTheCapIn = async (
   language: Pick<TownOverview, 'scaffold' | 'chromePhase'>,

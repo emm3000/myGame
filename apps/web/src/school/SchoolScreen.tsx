@@ -85,10 +85,12 @@ function slotStateOf(
 const learningFullLineOf = (copy: PlayerCopy, count: number, town: LiveTown): Label =>
   chromeWithFiguresOf(copy, (catalog, figure) => {
     const pieces = capWaitPiecesOf(catalog, town)
+    const wordCount = figure(String(count))
     return pieces === null
-      ? catalog.schoolLearningFull({ count })
+      ? catalog.schoolLearningFull({ count, wordCount })
       : catalog.schoolLearningFullNextWordDue({
           count,
+          wordCount,
           timeLeft: joinFinishPieces(pieces.map(figure)),
         })
   })

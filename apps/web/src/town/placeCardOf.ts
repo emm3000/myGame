@@ -102,11 +102,16 @@ export function placeReadySecondsOf(place: BuildingKind, town: LiveTown): number
 const isInWork = (place: BuildingKind, { slot, waitingList }: LiveTown): boolean =>
   slot?.building === place || waitingList.some(({ building }) => building === place)
 
-function levelLineOf(catalog: ChromeCatalog, level: number, isWorkedOn: boolean): string {
+function levelLineOf(
+  catalog: ChromeCatalog,
+  figure: (text: string) => string,
+  level: number,
+  isWorkedOn: boolean,
+): string {
   if (level === 0) {
     return isWorkedOn ? catalog.townInWork() : catalog.townNotBuilt()
   }
-  const levelLine = catalog.townLevel({ level })
+  const levelLine = catalog.townLevel({ level: figure(String(level)) })
   return isWorkedOn ? `${levelLine} · ${catalog.townInWork()}` : levelLine
 }
 
@@ -119,7 +124,9 @@ export function placeCardOf(
   const isWorkedOn = isInWork(place, town)
   const common = {
     name: copy.chrome((catalog) => placeNameOf(catalog, place)),
-    levelLabel: copy.chrome((catalog) => levelLineOf(catalog, level, isWorkedOn)),
+    levelLabel: chromeWithFiguresOf(copy, (catalog, figure) =>
+      levelLineOf(catalog, figure, level, isWorkedOn),
+    ),
   }
   if (nextLevel === null) {
     const topLevel = copy.chrome((catalog) => catalog.townTopLevel())
