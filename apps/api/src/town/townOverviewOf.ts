@@ -47,9 +47,9 @@ import {
 import { presentScaffold } from '../account/infrastructure/http/presentScaffold'
 import type { LessonLibrary } from '../content/application/ports/LessonLibrary'
 import { isoOf } from '../platform/infrastructure/http/isoOf'
+import type { TownReading } from './application/TownReading'
 import { jobStateOf } from './jobStateOf'
 import { schoolOverviewOf } from './schoolOverviewOf'
-import type { TownReading } from './TownReading'
 
 type BuildingState = TownOverview['buildings'][BuildingKind]
 

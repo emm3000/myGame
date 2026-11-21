@@ -1,6 +1,6 @@
 import type { PlayerId, TipKind } from '@mygame/domain'
 import { describe, expect, it } from 'vitest'
-import type { SeenTips } from '../../SeenTips'
+import type { SeenTips } from '../../application/ports/SeenTips'
 
 export type SeenTipsFixture = {
   readonly seenTips: SeenTips

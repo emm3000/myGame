@@ -12,7 +12,7 @@ import {
 } from '@mygame/domain'
 import { and, desc, eq, gt, notInArray } from 'drizzle-orm'
 import type { PostgresSession } from '../../../platform/infrastructure/postgres/connectPostgres'
-import { keptEventsPerTown, type TownNewsReader } from '../../TownNewsReader'
+import { keptEventsPerTown, type TownNewsReader } from '../../application/ports/TownNewsReader'
 import { townEvents } from './newsTables'
 import { townEventFromRow } from './townEventFromRow'
 

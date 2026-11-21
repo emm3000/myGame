@@ -14,8 +14,11 @@ import {
   type ReviewTerms,
   serveDueReviews,
 } from '../../learning/application/serveDueReviews'
-import { type CurrentTownDependencies, currentTownOf } from '../../town/currentTownOf'
-import type { TownNewsReader } from '../../town/TownNewsReader'
+import type { TownNewsReader } from '../../town/application/ports/TownNewsReader'
+import {
+  type CurrentTownDependencies,
+  currentTownOf,
+} from '../../town/application/resolveCurrentTown'
 import type { ReportClosings } from './ports/ReportClosings'
 
 export type ServeReportDependencies = CurrentTownDependencies &

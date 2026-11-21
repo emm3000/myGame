@@ -19,12 +19,12 @@ import {
   type TownNews,
   type TownRepository,
 } from '@mygame/domain'
-import type { Accounts } from '../account/application/ports/Accounts'
-import type { Transaction } from '../platform/application/ports/Transaction'
-import type { TownReader } from './application/ports/TownReader'
-import type { GuidanceDismissals } from './GuidanceDismissals'
-import type { SeenTips } from './SeenTips'
-import type { TownNewsReader } from './TownNewsReader'
+import type { Accounts } from '../../account/application/ports/Accounts'
+import type { Transaction } from '../../platform/application/ports/Transaction'
+import type { GuidanceDismissals } from './ports/GuidanceDismissals'
+import type { SeenTips } from './ports/SeenTips'
+import type { TownNewsReader } from './ports/TownNewsReader'
+import type { TownReader } from './ports/TownReader'
 
 export type TownStores = {
   readonly accounts: Accounts

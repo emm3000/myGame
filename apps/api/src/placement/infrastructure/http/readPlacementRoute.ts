@@ -8,7 +8,7 @@ import {
 import type { LearningDependencies } from '../../../learning/application/LearningDependencies'
 import { honoPathOf } from '../../../platform/infrastructure/http/honoPath'
 import { signedInRoute } from '../../../platform/infrastructure/http/signedInRoute'
-import { mutateTown } from '../../../town/mutateTown'
+import { mutateTown } from '../../../town/application/mutateTown'
 import { answerPlacementView } from './answerPlacementView'
 import { placementResponse } from './placementComponents'
 

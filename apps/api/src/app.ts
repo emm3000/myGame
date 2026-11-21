@@ -14,6 +14,7 @@ import {
   placementRoutes,
 } from './placement/infrastructure/http/placementRoutes'
 import type { FailureSink } from './platform/application/ports/FailureSink'
+import { healthDeclarations } from './platform/infrastructure/http/healthDeclarations'
 import { honoPathOf } from './platform/infrastructure/http/honoPath'
 import { reportServerFailures } from './platform/infrastructure/http/reportServerFailures'
 import {
@@ -24,7 +25,6 @@ import {
   type ReportRouteDependencies,
   reportRoutes,
 } from './report/infrastructure/http/reportRoutes'
-import { healthDeclarations } from './routes/healthDeclarations'
 import { type TownDependencies, townRoutes } from './routes/town'
 import { type TownMapDependencies, townMapRoutes } from './routes/townMap'
 

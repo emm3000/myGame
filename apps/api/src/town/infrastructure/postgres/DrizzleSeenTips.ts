@@ -1,6 +1,6 @@
 import type { PlayerId, TipKind } from '@mygame/domain'
 import type { PostgresSession } from '../../../platform/infrastructure/postgres/connectPostgres'
-import type { SeenTips } from '../../SeenTips'
+import type { SeenTips } from '../../application/ports/SeenTips'
 import { storedTips } from './aggregatedSeenTips'
 import { playerSeenTips } from './guidanceTables'
 

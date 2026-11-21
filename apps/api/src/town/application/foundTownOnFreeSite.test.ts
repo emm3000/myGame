@@ -8,11 +8,11 @@ import {
 } from '@mygame/domain'
 import { Client } from 'pg'
 import { afterAll, beforeAll, describe, expect, it } from 'vitest'
-import type { Accounts } from '../account/application/ports/Accounts'
-import { apiPackagePath } from '../apiPackagePath.testSupport'
-import { type ComposedServer, composeServer } from '../composeServer'
-import { mailEnvironment } from '../composeServer.testSupport'
-import { truncatePlayerTables } from '../truncatePlayerTables.testSupport'
+import type { Accounts } from '../../account/application/ports/Accounts'
+import { apiPackagePath } from '../../apiPackagePath.testSupport'
+import { type ComposedServer, composeServer } from '../../composeServer'
+import { mailEnvironment } from '../../composeServer.testSupport'
+import { truncatePlayerTables } from '../../truncatePlayerTables.testSupport'
 import { foundTownOnFreeSite } from './foundTownOnFreeSite'
 
 const contentDirectory = apiPackagePath('content/')

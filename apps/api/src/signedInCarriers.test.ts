@@ -3,11 +3,11 @@ import { type Clock, Instant } from '@mygame/domain'
 import { Client } from 'pg'
 import { afterAll, beforeAll, beforeEach, describe, expect, it } from 'vitest'
 import { z } from 'zod'
-import { apiPackagePath } from '../apiPackagePath.testSupport'
-import { createApp } from '../app'
-import { type ComposedServer, composeServer } from '../composeServer'
-import { mailEnvironment } from '../composeServer.testSupport'
-import { truncatePlayerTables } from '../truncatePlayerTables.testSupport'
+import { apiPackagePath } from './apiPackagePath.testSupport'
+import { createApp } from './app'
+import { type ComposedServer, composeServer } from './composeServer'
+import { mailEnvironment } from './composeServer.testSupport'
+import { truncatePlayerTables } from './truncatePlayerTables.testSupport'
 
 const contentDirectory = apiPackagePath('content/')
 

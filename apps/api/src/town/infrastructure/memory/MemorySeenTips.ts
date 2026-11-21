@@ -1,5 +1,5 @@
 import { type PlayerId, type TipKind, tipKinds } from '@mygame/domain'
-import type { SeenTips } from '../../SeenTips'
+import type { SeenTips } from '../../application/ports/SeenTips'
 
 export class MemorySeenTips implements SeenTips {
   private readonly seen = new Map<PlayerId, ReadonlySet<TipKind>>()

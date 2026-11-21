@@ -1,6 +1,6 @@
 import { Instant, type TownEvent, type TownId, type TownNews } from '@mygame/domain'
 import { describe, expect, it } from 'vitest'
-import type { TownNewsReader } from '../../TownNewsReader'
+import type { TownNewsReader } from '../../application/ports/TownNewsReader'
 
 type TownNewsStore = TownNews & TownNewsReader
 

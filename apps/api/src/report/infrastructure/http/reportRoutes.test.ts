@@ -27,7 +27,7 @@ import {
   lockedPlayerReadQuery,
   lockProbeLimit,
 } from '../../../lockWaitProbe.testSupport'
-import { mutateTown } from '../../../town/mutateTown'
+import { mutateTown } from '../../../town/application/mutateTown'
 import { truncatePlayerTables } from '../../../truncatePlayerTables.testSupport'
 
 const contentDirectory = apiPackagePath('content/')

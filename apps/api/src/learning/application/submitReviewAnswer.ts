@@ -15,7 +15,7 @@ import {
 } from '@mygame/domain'
 import { readScaffold } from '../../account/application/readScaffold'
 import type { LessonLibrary } from '../../content/application/ports/LessonLibrary'
-import { mutateTown } from '../../town/mutateTown'
+import { mutateTown } from '../../town/application/mutateTown'
 import type { LearningDependencies } from './LearningDependencies'
 
 export type ReviewOutcome = {
