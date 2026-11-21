@@ -1,4 +1,4 @@
-import { es, reportNewsRefund } from '@mygame/catalog'
+import { en, es, reportNewsRefund } from '@mygame/catalog'
 import type { TownNewsItem } from '@mygame/contracts'
 import { expect, it } from 'vitest'
 import { newsRowOf } from './newsRowOf'
@@ -183,4 +183,27 @@ it('names no refund for a stopped lesson', () => {
 
 it('reads the instant of the news', () => {
   expect(newsRowOf(es, { kind: 'becameCity', occurredAt }, now).instant).toBe('Hoy, 09:50')
+})
+
+it('writes a news row from the catalog it is given', () => {
+  const row = newsRowOf(
+    en,
+    { kind: 'jobBack', params: { site, pay: { ...noAmounts, money: 60 } }, occurredAt },
+    now,
+  )
+
+  expect([row.line, row.amounts]).toEqual([
+    'Your team came back from region 1, area 3, site 12.',
+    'Pay: 60 money',
+  ])
+})
+
+it('names an instant from today from the catalog it is given', () => {
+  const row = newsRowOf(
+    en,
+    { kind: 'lessonStudied', params: { lessonId: 'lesson-1' }, occurredAt },
+    now,
+  )
+
+  expect(row.instant).toBe('Today, 09:50')
 })

@@ -2,6 +2,8 @@ import { type ReactElement, useId } from 'react'
 import { Block } from './Block'
 import { Button } from './Button'
 import { blockHueOf } from './blockHueOf'
+import type { Label } from './Label'
+import { LabelText } from './LabelText'
 import { Track } from './Track'
 import {
   type ChoiceWalkState,
@@ -11,12 +13,12 @@ import {
 } from './useChoiceWalk'
 
 export interface ChoiceWalkLines {
-  readonly heading: string
-  readonly prompt: string
-  readonly next: string
-  readonly choose: string
-  readonly send: string
-  readonly progressOf: (number: number, total: number) => string
+  readonly heading: Label
+  readonly prompt: Label
+  readonly next: Label
+  readonly choose: Label
+  readonly send: Label
+  readonly progressOf: (number: number, total: number) => Label
 }
 
 export interface ChoiceWalkProps {
@@ -34,12 +36,14 @@ function Choices({
 }: {
   readonly item: WalkItem
   readonly walk: ChoiceWalkState
-  readonly prompt: string
+  readonly prompt: Label
   readonly isSending: boolean
 }): ReactElement {
   return (
     <fieldset disabled={isSending} className="m-0 flex flex-col gap-2 border-0 p-0">
-      <legend className="mb-2 font-sans text-caption text-ink-muted">{prompt}</legend>
+      <legend className="mb-2 font-sans text-caption text-ink-muted">
+        <LabelText label={prompt} />
+      </legend>
       {item.choices.map((choice) => (
         <label
           key={choice.choiceId}
@@ -86,7 +90,7 @@ function WalkAction({
           describedBy={isBlocked ? reasonId : undefined}
           onClick={send}
         >
-          {lines.send}
+          <LabelText label={lines.send} />
         </Button>
       ) : (
         <Button
@@ -96,12 +100,12 @@ function WalkAction({
           describedBy={isBlocked ? reasonId : undefined}
           onClick={walk.next}
         >
-          {lines.next}
+          <LabelText label={lines.next} />
         </Button>
       )}
       {isBlocked && (
         <p id={reasonId} className="m-0 font-sans text-caption text-ink-muted">
-          {lines.choose}
+          <LabelText label={lines.choose} />
         </p>
       )}
     </div>
@@ -116,7 +120,7 @@ function EmptyWalk({ lines, isSending, onSend }: Omit<ChoiceWalkProps, 'items'>)
       availability={isSending ? 'waiting' : 'available'}
       onClick={() => onSend([])}
     >
-      {lines.send}
+      <LabelText label={lines.send} />
     </Button>
   )
 }
@@ -131,9 +135,11 @@ export function ChoiceWalk(props: ChoiceWalkProps): ReactElement {
   return (
     <>
       <div className="flex flex-col gap-2 font-sans">
-        <p className="m-0 text-meta text-ink-muted">{lines.heading}</p>
+        <p className="m-0 text-meta text-ink-muted">
+          <LabelText label={lines.heading} />
+        </p>
         <p className="m-0 text-caption text-ink-muted">
-          {lines.progressOf(walk.shownIndex + 1, items.length)}
+          <LabelText label={lines.progressOf(walk.shownIndex + 1, items.length)} />
         </p>
         <Track value={walk.shownIndex + 1} total={items.length} fillClass="fill-action" />
       </div>

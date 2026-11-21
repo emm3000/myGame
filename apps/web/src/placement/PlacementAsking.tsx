@@ -9,6 +9,7 @@ import {
 import type { Placement, PlacementAnswers } from '@mygame/contracts'
 import type { ReactElement } from 'react'
 import { ChoiceWalk } from '../design-system/ChoiceWalk'
+import { lineLabelOf } from '../design-system/lineLabelOf'
 import { BandScores } from './BandScores'
 
 type AskingPlacement = Extract<Placement, { readonly kind: 'asking' }>
@@ -26,12 +27,12 @@ export function PlacementAsking({ asking, isSending, onSend }: PlacementAskingPr
       <ChoiceWalk
         items={asking.items}
         lines={{
-          heading: placementBand({ band: asking.band }),
-          prompt: placementPrompt(),
-          next: placementNext(),
-          choose: placementChoose(),
-          send: placementSendBand({ band: asking.band }),
-          progressOf: (number, total) => placementProgress({ number, total }),
+          heading: lineLabelOf(placementBand({ band: asking.band }), 'es'),
+          prompt: lineLabelOf(placementPrompt(), 'es'),
+          next: lineLabelOf(placementNext(), 'es'),
+          choose: lineLabelOf(placementChoose(), 'es'),
+          send: lineLabelOf(placementSendBand({ band: asking.band }), 'es'),
+          progressOf: (number, total) => lineLabelOf(placementProgress({ number, total }), 'es'),
         }}
         isSending={isSending}
         onSend={(answers) => onSend({ band: asking.band, answers: [...answers] })}
