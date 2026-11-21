@@ -1,46 +1,42 @@
-import {
-  mapCleanUpAction,
-  mapCleanUpActionTo,
-  mapFree,
-  mapOwnTown,
-  mapSendTeam,
-  mapSendTeamTo,
-  mapSite,
-  mapWasteAmount,
-  mapWasteSize,
-} from '@mygame/catalog'
 import type { RegionMap } from '@mygame/contracts'
+import type { PlayerCopy } from '../copy/PlayerCopy'
+import type { Label } from '../design-system/Label'
 import type { WasteSize } from '../design-system/WasteSize'
 
 type RegionSite = RegionMap['sites'][number]
 
 interface SiteRowHeader {
   readonly site: number
-  readonly label: string
+  readonly label: Label
 }
 
 interface SiteRowAction {
-  readonly actionLabel: string
-  readonly actionName: string
+  readonly actionLabel: Label
+  readonly actionName: Label
 }
 
 export type MapSiteRow =
-  | (SiteRowHeader & SiteRowAction & { readonly kind: 'free'; readonly line: string })
+  | (SiteRowHeader & SiteRowAction & { readonly kind: 'free'; readonly line: Label })
   | (SiteRowHeader &
       SiteRowAction & {
         readonly kind: 'waste'
         readonly size: WasteSize
-        readonly sizeLine: string
-        readonly wasteLine: string
+        readonly sizeLine: Label
+        readonly wasteLine: Label
       })
   | (SiteRowHeader & { readonly kind: 'town'; readonly name: string })
-  | (SiteRowHeader & { readonly kind: 'own'; readonly name: string; readonly line: string })
+  | (SiteRowHeader & { readonly kind: 'own'; readonly name: string; readonly line: Label })
 
-export function mapSiteRowOf({ site, town, waste }: RegionSite): MapSiteRow {
-  const header = { site, label: mapSite({ site }) }
+export function mapSiteRowOf({ site, town, waste }: RegionSite, copy: PlayerCopy): MapSiteRow {
+  const header = { site, label: copy.chrome((catalog) => catalog.mapSite({ site })) }
   if (town !== null) {
     return town.isOwn
-      ? { ...header, kind: 'own', name: town.name, line: mapOwnTown() }
+      ? {
+          ...header,
+          kind: 'own',
+          name: town.name,
+          line: copy.chrome((catalog) => catalog.mapOwnTown()),
+        }
       : { ...header, kind: 'town', name: town.name }
   }
   if (waste !== null) {
@@ -48,17 +44,17 @@ export function mapSiteRowOf({ site, town, waste }: RegionSite): MapSiteRow {
       ...header,
       kind: 'waste',
       size: waste.size,
-      sizeLine: mapWasteSize({ size: waste.size }),
-      wasteLine: mapWasteAmount({ waste: waste.waste }),
-      actionLabel: mapCleanUpAction(),
-      actionName: mapCleanUpActionTo({ site }),
+      sizeLine: copy.chrome((catalog) => catalog.mapWasteSize({ size: waste.size })),
+      wasteLine: copy.chrome((catalog) => catalog.mapWasteAmount({ waste: waste.waste })),
+      actionLabel: copy.chrome((catalog) => catalog.mapCleanUpAction()),
+      actionName: copy.chrome((catalog) => catalog.mapCleanUpActionTo({ site })),
     }
   }
   return {
     ...header,
     kind: 'free',
-    line: mapFree(),
-    actionLabel: mapSendTeam(),
-    actionName: mapSendTeamTo({ site }),
+    line: copy.chrome((catalog) => catalog.mapFree()),
+    actionLabel: copy.chrome((catalog) => catalog.mapSendTeam()),
+    actionName: copy.chrome((catalog) => catalog.mapSendTeamTo({ site })),
   }
 }

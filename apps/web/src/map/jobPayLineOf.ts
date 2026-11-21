@@ -1,8 +1,16 @@
-import { es, mapJobPay } from '@mygame/catalog'
-import type { JobQuote } from '@mygame/contracts'
+import type { ResourceAmounts } from '@mygame/contracts'
+import type { ChromeCatalog, PlayerCopy } from '../copy/PlayerCopy'
+import type { Label } from '../design-system/Label'
 import { amountsLineOf } from '../resources/amountsLineOf'
 
-export function jobPayLineOf(quote: JobQuote | undefined): string | undefined {
-  const amounts = quote === undefined ? undefined : amountsLineOf(es, quote.pay)
-  return amounts === undefined ? undefined : mapJobPay({ amounts })
+export function jobPayLineOf(
+  copy: PlayerCopy,
+  pay: ResourceAmounts,
+  line: (catalog: ChromeCatalog, amounts: string) => string,
+): Label | undefined {
+  const label = copy.chrome((catalog) => {
+    const amounts = amountsLineOf(catalog, pay)
+    return amounts === undefined ? '' : line(catalog, amounts)
+  })
+  return label.text === '' ? undefined : label
 }

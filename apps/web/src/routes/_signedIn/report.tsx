@@ -1,12 +1,13 @@
-import { es, reportLoading, settingsTitle } from '@mygame/catalog'
+import { es } from '@mygame/catalog'
 import type { Report } from '@mygame/contracts'
 import { createFileRoute } from '@tanstack/react-router'
 import type { ReactElement } from 'react'
 import type { ApiClient } from '../../api/apiClient'
 import { SignOutColumn } from '../../auth/SignOutColumn'
+import { usePlayerCopy } from '../../copy/usePlayerCopy'
 import { ButtonLink } from '../../design-system/ButtonLink'
+import { LabelText } from '../../design-system/LabelText'
 import { LoadingSkeleton, type LoadingSkeletonProps } from '../../design-system/LoadingSkeleton'
-import { lineLabelOf } from '../../design-system/lineLabelOf'
 import { newsRowOf } from '../../news/newsRowOf'
 import { refusalLineOf } from '../../refusals/refusalLineOf'
 import { ReportScreen, ReportTitled } from '../../report/ReportScreen'
@@ -82,10 +83,11 @@ function ReportAnswer({
 function ReportBody({ apiClient }: { readonly apiClient: ApiClient }): ReactElement {
   const report = useReport(apiClient)
   useReportAtLessonFinish(useLayoutTown().state, report.reread)
+  const copy = usePlayerCopy()
   return (
     <LoadingSkeleton
       isLoading={report.state.kind === 'loading'}
-      line={lineLabelOf(reportLoading(), 'es')}
+      line={copy.chrome((catalog) => catalog.reportLoading())}
       groups={reportSkeletonGroups}
       Frame={ReportTitled}
     >
@@ -96,12 +98,13 @@ function ReportBody({ apiClient }: { readonly apiClient: ApiClient }): ReactElem
 
 function ReportRoute(): ReactElement {
   const { apiClient } = Route.useRouteContext()
+  const copy = usePlayerCopy()
   return (
     <SignOutColumn
       apiClient={apiClient}
       beside={
         <ButtonLink to="/settings" tone="text">
-          {settingsTitle()}
+          <LabelText label={copy.fixedCopy((catalog) => catalog.settingsTitle())} />
         </ButtonLink>
       }
     >

@@ -1,8 +1,10 @@
-import { mapArea, mapNext, mapPrevious } from '@mygame/catalog'
 import type { RegionMap } from '@mygame/contracts'
 import { type ReactElement, type RefObject, useEffect, useId, useRef, useState } from 'react'
+import { usePlayerCopy } from '../copy/usePlayerCopy'
 import { Button } from '../design-system/Button'
+import { LabelText } from '../design-system/LabelText'
 import { PlaceArt } from '../design-system/PlaceArt'
+import { spokenLineOf } from '../design-system/spokenLineOf'
 import { TextLink } from '../design-system/TextLink'
 import { wasteArtOf } from '../design-system/wasteArtOf'
 import { useFocusTarget } from '../focus/useFocusTarget'
@@ -22,16 +24,17 @@ export interface MapScreenProps {
 }
 
 function AreaLinks({ map }: { readonly map: RegionMap }): ReactElement {
+  const copy = usePlayerCopy()
   return (
     <nav className="flex flex-wrap gap-x-6">
       {map.area > 1 && (
         <TextLink to="/map/$area" params={{ area: String(map.area - 1) }}>
-          {mapPrevious()}
+          <LabelText label={copy.chrome((catalog) => catalog.mapPrevious())} />
         </TextLink>
       )}
       {map.area < map.lastArea && (
         <TextLink to="/map/$area" params={{ area: String(map.area + 1) }}>
-          {mapNext()}
+          <LabelText label={copy.chrome((catalog) => catalog.mapNext())} />
         </TextLink>
       )}
     </nav>
@@ -41,12 +44,20 @@ function AreaLinks({ map }: { readonly map: RegionMap }): ReactElement {
 function SiteHolder({ row }: { readonly row: MapSiteRow }): ReactElement {
   switch (row.kind) {
     case 'free':
-      return <p className="m-0 font-sans text-caption text-ink-muted">{row.line}</p>
+      return (
+        <p className="m-0 font-sans text-caption text-ink-muted">
+          <LabelText label={row.line} />
+        </p>
+      )
     case 'waste':
       return (
         <>
-          <p className="m-0 font-sans text-caption text-ink-muted">{row.sizeLine}</p>
-          <p className="m-0 font-sans text-body text-ink">{row.wasteLine}</p>
+          <p className="m-0 font-sans text-caption text-ink-muted">
+            <LabelText label={row.sizeLine} />
+          </p>
+          <p className="m-0 font-sans text-body text-ink">
+            <LabelText label={row.wasteLine} />
+          </p>
         </>
       )
     case 'town':
@@ -55,7 +66,9 @@ function SiteHolder({ row }: { readonly row: MapSiteRow }): ReactElement {
       return (
         <>
           <p className="m-0 font-sans text-body text-ink">{row.name}</p>
-          <p className="m-0 font-sans text-caption text-ink-muted">{row.line}</p>
+          <p className="m-0 font-sans text-caption text-ink-muted">
+            <LabelText label={row.line} />
+          </p>
         </>
       )
     default: {
@@ -78,7 +91,9 @@ interface SiteItemProps {
 function SiteHeading({ row }: { readonly row: MapSiteRow }): ReactElement {
   const heading = (
     <div className="flex flex-col gap-1">
-      <h3 className="m-0 font-sans text-title text-ink">{row.label}</h3>
+      <h3 className="m-0 font-sans text-title text-ink">
+        <LabelText label={row.label} />
+      </h3>
       <SiteHolder row={row} />
     </div>
   )
@@ -125,7 +140,7 @@ function SiteItem({
   const isSendable = row.kind === 'free' || row.kind === 'waste'
   return (
     <li
-      aria-label={row.label}
+      aria-label={spokenLineOf(row.label)}
       className="flex flex-col gap-2 border-line border-t py-4 first:border-t-0"
     >
       <SiteHeading row={row} />
@@ -133,12 +148,12 @@ function SiteItem({
         <Button
           type="button"
           tone="quiet"
-          accessibleName={row.actionName}
+          accessibleName={spokenLineOf(row.actionName)}
           isExpanded={isChosen}
           controls={isChosen ? formId : undefined}
           onClick={onChoose}
         >
-          {row.actionLabel}
+          <LabelText label={row.actionLabel} />
         </Button>
       )}
       {isChosen && (
@@ -169,10 +184,11 @@ function useFocusOnJobShown(sentAt: string | undefined): {
 }
 
 export function MapScreen({ map, town, job }: MapScreenProps): ReactElement {
+  const copy = usePlayerCopy()
   const [chosenSite, setChosenSite] = useState<number>()
-  const jobOut = jobOutOf(town)
+  const jobOut = jobOutOf(town, copy)
   const jobTitle = useFocusOnJobShown(town.overview.job?.sentAt)
-  const heading = mapArea({ area: map.area })
+  const heading = copy.chrome((catalog) => catalog.mapArea({ area: map.area }))
   const onSent = (): void => {
     setChosenSite(undefined)
     jobTitle.focusOnShow()
@@ -180,15 +196,19 @@ export function MapScreen({ map, town, job }: MapScreenProps): ReactElement {
   return (
     <div className="flex w-full max-w-form flex-col gap-6">
       {jobOut !== undefined && <JobOut content={jobOut} job={job} titleRef={jobTitle.titleRef} />}
-      <section aria-label={heading} className="flex flex-col gap-2">
+      <section aria-label={spokenLineOf(heading)} className="flex flex-col gap-2">
         <div>
-          <h2 className="m-0 font-sans text-heading text-ink">{heading}</h2>
-          <p className="m-0 font-sans text-caption text-ink-muted">{terrainNameOf(map.terrain)}</p>
+          <h2 className="m-0 font-sans text-heading text-ink">
+            <LabelText label={heading} />
+          </h2>
+          <p className="m-0 font-sans text-caption text-ink-muted">
+            <LabelText label={terrainNameOf(map.terrain, copy)} />
+          </p>
         </div>
         <AreaLinks map={map} />
         <ul className="m-0 flex list-none flex-col p-0">
           {map.sites.map((site) => {
-            const row = mapSiteRowOf(site)
+            const row = mapSiteRowOf(site, copy)
             return (
               <SiteItem
                 key={site.site}

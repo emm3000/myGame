@@ -1,8 +1,7 @@
-import { reportLoading, townLoading } from '@mygame/catalog'
 import { createFileRoute, Navigate } from '@tanstack/react-router'
 import type { ReactElement, ReactNode } from 'react'
+import { usePlayerCopy } from '../../copy/usePlayerCopy'
 import { LoadingSkeleton, type LoadingSkeletonProps } from '../../design-system/LoadingSkeleton'
-import { lineLabelOf } from '../../design-system/lineLabelOf'
 import { type ReportHandle, useReport } from '../../report/useReport'
 import { useReportAtLessonFinish } from '../../report/useReportAtLessonFinish'
 import { LessonWordsScreen } from '../../school/LessonWordsScreen'
@@ -102,10 +101,13 @@ function LessonRoute(): ReactElement {
   useReportAtLessonFinish(town.state, report.reread)
   const isTownLoading = town.state.kind === 'loading'
   const isReportLoading = town.state.kind === 'live' && report.state.kind === 'loading'
+  const copy = usePlayerCopy()
   return (
     <LoadingSkeleton
       isLoading={isTownLoading || isReportLoading}
-      line={lineLabelOf(isTownLoading ? townLoading() : reportLoading(), 'es')}
+      line={copy.chrome((catalog) =>
+        isTownLoading ? catalog.townLoading() : catalog.reportLoading(),
+      )}
       groups={lessonSkeletonGroups}
       Frame={LessonSkeletonFrame}
     >

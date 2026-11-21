@@ -1,9 +1,8 @@
-import { es, mapLoading, townTryAgain } from '@mygame/catalog'
 import { Navigate } from '@tanstack/react-router'
 import type { ReactElement } from 'react'
 import type { ApiClient } from '../api/apiClient'
+import { usePlayerCopy } from '../copy/usePlayerCopy'
 import { LoadingSkeleton, type LoadingSkeletonProps } from '../design-system/LoadingSkeleton'
-import { lineLabelOf } from '../design-system/lineLabelOf'
 import { ReadFailed } from '../design-system/ReadFailed'
 import { refusalLineOf } from '../refusals/refusalLineOf'
 import type { LiveTown } from '../town/liveTown'
@@ -31,6 +30,7 @@ function LiveMap({
   readonly town: LiveTown
   readonly adopt: TownHandle['adopt']
 }): ReactElement | null {
+  const copy = usePlayerCopy()
   const job = useJob(apiClient, adopt, town.overview.readAt)
   const { state } = regionMap
   switch (state.kind) {
@@ -41,8 +41,8 @@ function LiveMap({
         <AreaNotFound />
       ) : (
         <ReadFailed
-          message={lineLabelOf(refusalLineOf(es, state.refusal), 'es')}
-          retryLabel={lineLabelOf(townTryAgain(), 'es')}
+          message={copy.fixedCopy((catalog) => refusalLineOf(catalog, state.refusal))}
+          retryLabel={copy.chrome((catalog) => catalog.townTryAgain())}
           onRetry={regionMap.reread}
         />
       )
@@ -94,13 +94,14 @@ export function MapPage({
   readonly apiClient: ApiClient
   readonly area: number | undefined
 }): ReactElement {
+  const copy = usePlayerCopy()
   const town = useLayoutTown()
   const regionMap = useRegionMap(apiClient, area)
   const isLoading = town.state.kind === 'loading' || regionMap.state.kind === 'loading'
   return (
     <LoadingSkeleton
       isLoading={isLoading}
-      line={lineLabelOf(mapLoading(), 'es')}
+      line={copy.chrome((catalog) => catalog.mapLoading())}
       groups={mapSkeletonGroups}
       Frame={MapTitled}
     >

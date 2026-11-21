@@ -1,9 +1,8 @@
-import { townLoading } from '@mygame/catalog'
 import { createFileRoute, Navigate } from '@tanstack/react-router'
 import type { ReactElement } from 'react'
 import type { ApiClient } from '../../api/apiClient'
+import { usePlayerCopy } from '../../copy/usePlayerCopy'
 import { LoadingSkeleton, type LoadingSkeletonProps } from '../../design-system/LoadingSkeleton'
-import { lineLabelOf } from '../../design-system/lineLabelOf'
 import { SchoolScreen } from '../../school/SchoolScreen'
 import { SchoolTitled } from '../../school/SchoolTitled'
 import { useSchoolLessons } from '../../school/useSchoolLessons'
@@ -59,11 +58,12 @@ function SchoolAnswer({
 
 function SchoolRoute(): ReactElement {
   const { apiClient } = Route.useRouteContext()
+  const copy = usePlayerCopy()
   const town = useLayoutTown()
   return (
     <LoadingSkeleton
       isLoading={town.state.kind === 'loading'}
-      line={lineLabelOf(townLoading(), 'es')}
+      line={copy.chrome((catalog) => catalog.townLoading())}
       groups={schoolSkeletonGroups}
       Frame={SchoolTitled}
     >
