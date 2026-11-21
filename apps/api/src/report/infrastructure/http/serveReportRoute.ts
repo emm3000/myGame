@@ -9,6 +9,7 @@ import { honoPathOf } from '../../../platform/infrastructure/http/honoPath'
 import { jsonResponse } from '../../../platform/infrastructure/http/responseDeclarations'
 import { signedInRoute } from '../../../platform/infrastructure/http/signedInRoute'
 import { type ServeReportDependencies, serveReport } from '../../application/serveReport'
+import { presentReport } from './presentReport'
 
 export const serveReportDeclaration = createRoute(
   signedInRoute({
@@ -39,7 +40,7 @@ export const serveReportRoute = (
       if (!report.ok) {
         return answerRefusal(c, report.error)
       }
-      const body: Report = report.value
+      const body: Report = presentReport(report.value)
       return c.json(body)
     },
   )
