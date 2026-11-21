@@ -296,6 +296,10 @@ An adapter lives in the feature whose port it implements.
 ports, so they live in `account/infrastructure/system/`, not in
 `platform`.
 
+Only `platform/` may hold, at its root, a pure function that both its
+`application/` and its `infrastructure/` read (`thrownCauseOf.ts`); a
+feature folder may not.
+
 Persistence follows the aggregate and HTTP follows the intent: a
 sub-area of `town` has its own `infrastructure/http/` and
 `application/`, and every table and adapter of the town aggregate is in

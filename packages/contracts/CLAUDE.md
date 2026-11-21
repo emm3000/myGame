@@ -2,7 +2,7 @@
 
 The wire vocabulary `apps/web` and `apps/api` share: zod schemas and the types inferred from them, one schema per file under `src/`. The api's OpenAPI document is generated from these schemas, and the Android client from that document with no rewrite (#590).
 
-The rules: `.claude/rules/architecture.md`, `typescript-style.md`, `testing.md`, `verification.md`. The code is the map: this file holds only the commands and the traps nothing else catches.
+The rules: `.claude/rules/architecture.md`, `typescript-style.md`, `testing.md`, `verification.md`. The map is `ARCHITECTURE.md` at the repo root: this file holds only the commands and the traps nothing else catches.
 
 ## Commands
 
