@@ -3,6 +3,7 @@ package com.emm.mygame.core.designsystem
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.padding
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.ui.ExperimentalComposeUiApi
@@ -18,6 +19,7 @@ import androidx.compose.ui.input.InputModeManager
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.LocalInputModeManager
 import androidx.compose.ui.semantics.Role
+import androidx.compose.ui.semantics.SemanticsActions
 import androidx.compose.ui.semantics.SemanticsNode
 import androidx.compose.ui.semantics.SemanticsProperties
 import androidx.compose.ui.test.SemanticsMatcher
@@ -39,6 +41,7 @@ import androidx.compose.ui.test.performTouchInput
 import androidx.compose.ui.test.requestFocus
 import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.text.SpanStyle
+import androidx.compose.ui.text.TextLayoutResult
 import androidx.compose.ui.unit.Density
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.DpRect
@@ -50,6 +53,7 @@ import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.robolectric.RobolectricTestRunner
+import org.robolectric.annotation.Config
 import org.robolectric.annotation.GraphicsMode
 
 private const val PRESS_SETTLE_MILLIS: Long = 500L
@@ -210,10 +214,7 @@ class MyGameNavRowTest {
         val rowBounds: DpRect = row().getBoundsInRoot()
         val titleBounds: DpRect = boundsOf("Go to the school")
 
-        assertTrue(
-            "the title starts at ${titleBounds.left}, the ring at ${rowBounds.left}",
-            titleBounds.left - rowBounds.left >= MyGameSpacing.step1,
-        )
+        assertEquals("the title's inset from the ring", MyGameSpacing.step2, titleBounds.left - rowBounds.left)
         val rootBounds: DpRect = composeRule.onRoot().getBoundsInRoot()
         assertEquals("the ring starts at the row's start", rootBounds.left, rowBounds.left)
         assertEquals("the ring ends at the row's end", rootBounds.right, rowBounds.right)
@@ -314,6 +315,46 @@ class MyGameNavRowTest {
 
         assertTrue("the status follows the title", title.right <= status.left)
         assertTrue("the status shares the title's line", status.top < title.bottom && title.top < status.bottom)
+    }
+
+    private fun lineCountOf(text: String): Int {
+        val layouts: MutableList<TextLayoutResult> = mutableListOf()
+        composeRule.onNodeWithText(text, useUnmergedTree = true).fetchSemanticsNode()
+            .config[SemanticsActions.GetTextLayoutResult].action?.invoke(layouts)
+        return layouts.single().lineCount
+    }
+
+    private fun showStudyingRowInsidePageGutters(title: String) {
+        show {
+            Box(modifier = Modifier.padding(horizontal = MyGameSpacing.step4)) {
+                MyGameNavRow(
+                    title = MyGameLabel(text = title, translation = null),
+                    status = MyGameLabel(text = "En estudio", translation = null),
+                    onClick = {},
+                )
+            }
+        }
+    }
+
+    @Test
+    @Config(qualifiers = "+w360dp-h640dp", fontScale = 2.0f)
+    fun `a nav row at font scale 2 wraps its status before it squeezes its title`() {
+        showStudyingRowInsidePageGutters(title = "Lección 1")
+
+        assertEquals("the title's lines", 1, lineCountOf("Lección 1"))
+        assertEquals("the status's lines", 2, lineCountOf("En estudio"))
+    }
+
+    @Test
+    @Config(qualifiers = "+w360dp-h640dp", fontScale = 2.0f)
+    fun `a nav row at font scale 2 keeps each status word whole beside a title too long for one line`() {
+        showStudyingRowInsidePageGutters(title = "Lección 1 · Leer las palabras")
+
+        val title: DpRect = boundsOf("Lección 1 · Leer las palabras")
+        val status: DpRect = boundsOf("En estudio")
+
+        assertEquals("the status's lines", 2, lineCountOf("En estudio"))
+        assertTrue("the status follows the title", title.right <= status.left)
     }
 
     @Test
