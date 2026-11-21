@@ -46,21 +46,21 @@ const verbFormOf = (
   lemma: string,
   { irregularVerbs, isAfterHave }: CardWordFormContext,
 ): CardWordForm => {
+  const irregular = irregularVerbs.get(lemma)
+  const isParticiple = irregular?.pastParticiple === form
+  if (form === lemma) {
+    return isAfterHave && isParticiple ? inflected('past participle') : ungated
+  }
   if (form.endsWith('ing')) {
     return inflected('-ing')
   }
   if (thirdPersonFormsOf(lemma).includes(form)) {
     return inflected('-s')
   }
-  const irregular = irregularVerbs.get(lemma)
   const isPast = irregular?.past === form
-  const isParticiple = irregular?.pastParticiple === form
-  const isRegularPast = form !== lemma && form.endsWith('ed')
+  const isRegularPast = form.endsWith('ed')
   if (isAfterHave && (isPast || isParticiple || isRegularPast)) {
     return inflected('past participle')
-  }
-  if (form === lemma) {
-    return ungated
   }
   if (isPast) {
     return inflected('irregular past')
