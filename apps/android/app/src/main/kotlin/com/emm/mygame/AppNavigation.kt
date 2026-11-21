@@ -119,7 +119,7 @@ internal fun AppNavigation(
         )
         val isSessionOpen: Boolean = shown.statusScreen() != TownStatusScreen.Outside
         val language: PlayerLanguage? by dependencies.playerLanguage.collectAsStateWithLifecycle()
-        InPlayerLanguage(language = language.takeIf { isSessionOpen }) {
+        InPlayerLanguage(language = rememberLastKnown(language).takeIf { isSessionOpen }) {
             VerificationBannerRoute(sessions = dependencies.sessions, isSessionOpen = isSessionOpen)
         }
     }
