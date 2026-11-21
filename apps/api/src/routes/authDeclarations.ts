@@ -11,11 +11,8 @@ import {
   type ResponseDeclaration,
   refusalResponse,
 } from '../platform/infrastructure/http/refusalResponse'
-import {
-  jsonBody,
-  jsonResponse,
-  signedInRoute,
-} from '../platform/infrastructure/http/responseDeclarations'
+import { jsonBody, jsonResponse } from '../platform/infrastructure/http/responseDeclarations'
+import { signedInRoute } from '../platform/infrastructure/http/signedInRoute'
 import { PlayerComponent } from './playerComponent'
 
 const playerResponse = (description: string): ResponseDeclaration =>

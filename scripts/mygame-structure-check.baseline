@@ -43,7 +43,6 @@ domain_promise_outside_its_roles packages/domain/src/town/TownRepository.ts
 file_over_export_cap apps/api/src/adapters/postgres/schema.ts
 file_over_export_cap apps/api/src/auth/Accounts.ts
 file_over_export_cap apps/api/src/contentGate/cardWordFormOf.ts
-file_over_export_cap apps/api/src/platform/infrastructure/http/responseDeclarations.ts
 file_over_export_cap packages/domain/src/holdout/HoldoutCheck.ts
 file_over_export_cap packages/domain/src/learning/Lesson.ts
 file_over_export_cap packages/domain/src/town/BuildingLevel.ts

@@ -5,11 +5,8 @@ import {
   HoldoutChecksSchema,
 } from '@mygame/contracts'
 import type { ResponseDeclaration } from '../platform/infrastructure/http/refusalResponse'
-import {
-  jsonBody,
-  jsonResponse,
-  signedInRoute,
-} from '../platform/infrastructure/http/responseDeclarations'
+import { jsonBody, jsonResponse } from '../platform/infrastructure/http/responseDeclarations'
+import { signedInRoute } from '../platform/infrastructure/http/signedInRoute'
 
 const checkPath = { params: HoldoutCheckRequestSchema }
 

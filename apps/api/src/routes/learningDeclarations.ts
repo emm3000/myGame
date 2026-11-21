@@ -11,8 +11,8 @@ import {
   jsonBody,
   jsonResponse,
   malformedResponse,
-  signedInRoute,
 } from '../platform/infrastructure/http/responseDeclarations'
+import { signedInRoute } from '../platform/infrastructure/http/signedInRoute'
 
 const reviewRefusals = 'UnknownWord, WordNotHeld or ReviewNotDue'
 

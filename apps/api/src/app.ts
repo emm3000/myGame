@@ -6,7 +6,7 @@ import { reportServerFailures } from './platform/infrastructure/http/reportServe
 import {
   sessionBearerScheme,
   sessionBearerSecurityScheme,
-} from './platform/infrastructure/http/responseDeclarations'
+} from './platform/infrastructure/http/signedInRoute'
 import { type AuthDependencies, authRoutes } from './routes/auth'
 import { healthDeclarations } from './routes/healthDeclarations'
 import { holdoutCheckRoutes } from './routes/holdoutChecks'
