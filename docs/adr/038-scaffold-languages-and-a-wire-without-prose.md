@@ -1,5 +1,5 @@
 ---
-status: proposed, fixed copy widened to the review card by ADR 040, a frame's support settled by its amendment of 2026-11-12
+status: proposed, fixed copy widened to the review card by ADR 040, a frame's support settled by its amendment of 2026-11-12, fixed copy widened to the placement and the holdout check by its amendment of 2026-11-20
 date: 2026-11-04
 ---
 # Scaffold languages and a wire without prose
@@ -95,7 +95,8 @@ L2 study gives the fade point.
   the scaffold language: Spanish for `es`, English for `none`. A
   misread refusal, reset mail or correction is a usability failure, not
   a learning moment (§7.3), and a correction misread teaches the error
-  (§6.1).
+  (§6.1). (Amended 2026-11-20: the placement and the holdout check are
+  fixed copy too, see the amendment below.)
 - **Under `es`, the chrome passes three phases, globally**, never word
   by word, so a button never changes language under the player's
   finger (§7.2):
@@ -294,6 +295,13 @@ Considered and rejected:
 - **No support on a review at all.** Rejected: a recall's cue is the meaning, and a frame the learner cannot read carries no context; the exclusions above close what would give the answer away.
 - **The frame string plus offsets of the supported tokens.** Rejected: an offset counts UTF-16 units in TypeScript and Kotlin alike only while every frame is ASCII, and a span list needs no counting at all.
 - **The client matching tokens to lemmas.** Rejected by N1: it would need the lexicon, its forms and the homographs on the phone.
+
+## Amendment (2026-11-20): the placement and the holdout check are fixed copy
+
+Recorded for #1074, matching the code: `packages/catalog/src/fixedCopyKeys.ts` already lists every placement and holdout check key, on the web and on Android.
+
+- **The placement and the holdout check are fixed copy**, for the reason ADR 040 gives for the review card: a misread task is bad data. A placement item misread places a band out, or keeps it in, on a wrong answer; a holdout check item misread skews the comparison of practised and withheld words the check exists to make (ADR 037).
+- **The lines that lead to them are fixed copy too**: the placement offer, the school's holdout row and note and its *Open the check*, and the town's next step to a due holdout check. They name the task the player is about to take, so they stay in the language the task is in.
 
 ## References
 
