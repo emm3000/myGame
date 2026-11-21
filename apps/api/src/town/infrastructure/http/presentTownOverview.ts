@@ -48,8 +48,8 @@ import { presentScaffold } from '../../../account/infrastructure/http/presentSca
 import type { LessonLibrary } from '../../../content/application/ports/LessonLibrary'
 import { isoOf } from '../../../platform/infrastructure/http/isoOf'
 import type { TownReading } from '../../application/TownReading'
-import { jobStateOf } from '../../jobs/infrastructure/http/presentTownJob'
-import { schoolOverviewOf } from '../../school/infrastructure/http/presentTownSchool'
+import { presentTownJob } from '../../jobs/infrastructure/http/presentTownJob'
+import { presentTownSchool } from '../../school/infrastructure/http/presentTownSchool'
 
 type BuildingState = TownOverview['buildings'][BuildingKind]
 
@@ -376,7 +376,7 @@ const guidanceOf = (
   })
 }
 
-export const townOverviewOf = (
+export const presentTownOverview = (
   reading: TownReading,
   catalog: TownCatalog,
   lessons: LessonLibrary,
@@ -407,7 +407,7 @@ export const townOverviewOf = (
     lessons,
     bands: lessons,
   })
-  const school = schoolOverviewOf(reading, catalog, lessons, released, memoryTerms)
+  const school = presentTownSchool(reading, catalog, lessons, released, memoryTerms)
   if (!school.ok) {
     return school
   }
@@ -427,7 +427,7 @@ export const townOverviewOf = (
     buildings: buildings.value,
     work: work.value,
     hiring: hiringOf(reading, catalog),
-    job: jobStateOf(town, at),
+    job: presentTownJob(town, at),
     ...school.value,
     dueHoldoutChecks: dueHoldoutChecksOf(reading.bandStarts, at).map(({ band, week }) => ({
       band: PlacementBandSchema.parse(band),

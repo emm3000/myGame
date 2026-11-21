@@ -14,7 +14,7 @@ import { apiPackagePath } from '../../../../apiPackagePath.testSupport'
 import { JsonTownCatalog } from '../../../../content/infrastructure/json/JsonTownCatalog'
 import { readJsonLessonLibrary } from '../../../../content/infrastructure/json/readJsonLessonLibrary'
 import type { TownReading } from '../../../application/TownReading'
-import { schoolOverviewOf } from './presentTownSchool'
+import { presentTownSchool } from './presentTownSchool'
 
 const contentDirectory = apiPackagePath('content/')
 
@@ -67,11 +67,11 @@ const readingWith = (cards: ReadonlyArray<HeldCard>): TownReading => ({
   scaffoldVersion: 1,
 })
 
-describe('schoolOverviewOf', () => {
+describe('presentTownSchool', () => {
   it('passes up the refusal of the next instant a card in learning is due', () => {
     const strayStepReading = readingWith([learningCardAtStrayStep()])
 
-    const overview = schoolOverviewOf(
+    const overview = presentTownSchool(
       strayStepReading,
       townCatalog,
       lessons,

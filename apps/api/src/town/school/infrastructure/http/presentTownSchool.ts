@@ -189,7 +189,7 @@ const lessonSlotOf = (slot: LessonSlot): TownOverview['lessonSlot'] =>
         finishesAt: isoOf(slot.finishesAt),
       }
 
-export const schoolOverviewOf = (
+export const presentTownSchool = (
   { town, at, lessonSlot, cards, bandStarts, placementScores, scaffold }: TownReading,
   catalog: TownCatalog,
   lessons: LessonLibrary,

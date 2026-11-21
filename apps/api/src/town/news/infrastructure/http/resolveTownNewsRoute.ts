@@ -13,7 +13,7 @@ import {
   type ResolveTownNewsDependencies,
   resolveTownNews,
 } from '../../application/resolveTownNews'
-import { townNewsItemOf } from './presentTownNewsItem'
+import { presentTownNewsItem } from './presentTownNewsItem'
 
 export const resolveTownNewsDeclaration = createRoute(
   signedInRoute({
@@ -46,7 +46,7 @@ export const resolveTownNewsRoute = (
       if (!news.ok) {
         return answerRefusal(c, news.error)
       }
-      const body: TownNewsFeed = { items: news.value.map(townNewsItemOf) }
+      const body: TownNewsFeed = { items: news.value.map(presentTownNewsItem) }
       return c.json(body)
     },
   )

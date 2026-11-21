@@ -85,7 +85,7 @@ const jobsNewsItemOf = (event: JobsEvent, occurredAt: string): TownNewsItem => {
   }
 }
 
-export const townNewsItemOf = (event: TownEvent): TownNewsItem => {
+export const presentTownNewsItem = (event: TownEvent): TownNewsItem => {
   const occurredAt = isoOf(event.occurredAt)
   switch (event.kind) {
     case 'buildingWorkFinished':

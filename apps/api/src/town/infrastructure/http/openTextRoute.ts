@@ -14,7 +14,7 @@ import {
   type ResolveCurrentTownDependencies,
   resolveCurrentTown,
 } from '../../application/resolveCurrentTown'
-import { openTextOf } from './presentOpenText'
+import { presentOpenText } from './presentOpenText'
 
 export const openTextDeclaration = createRoute(
   signedInRoute({
@@ -56,7 +56,7 @@ export const openTextRoute = (
       if (!reading.ok) {
         return answerRefusal(c, reading.error)
       }
-      const text = openTextOf(request.data.textId, reading.value, dependencies.lessons)
+      const text = presentOpenText(request.data.textId, reading.value, dependencies.lessons)
       if (text === undefined) {
         return c.body(null, 404)
       }

@@ -4,7 +4,7 @@ import type { Context } from 'hono'
 import type { LessonLibrary } from '../../../content/application/ports/LessonLibrary'
 import { answerRefusal } from '../../../platform/infrastructure/http/answerRefusal'
 import type { TownReading } from '../../application/TownReading'
-import { townOverviewOf } from './presentTownOverview'
+import { presentTownOverview } from './presentTownOverview'
 
 export type AnswerTownReadingDependencies = {
   readonly townCatalog: TownCatalog
@@ -20,7 +20,7 @@ export const answerTownReading = (
   if (!reading.ok) {
     return answerRefusal(c, reading.error)
   }
-  const overview = townOverviewOf(reading.value, townCatalog, lessons, memoryTerms)
+  const overview = presentTownOverview(reading.value, townCatalog, lessons, memoryTerms)
   if (!overview.ok) {
     return answerRefusal(c, overview.error)
   }

@@ -9,7 +9,7 @@ import {
 import type { LessonLibrary } from '../../../content/application/ports/LessonLibrary'
 import type { TownReading } from '../../application/TownReading'
 
-export const openTextOf = (
+export const presentOpenText = (
   textId: TextId,
   { cards, placementScores, scaffold }: TownReading,
   lessons: LessonLibrary,
