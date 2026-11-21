@@ -1743,7 +1743,7 @@ describe('the learning routes', () => {
 
       await answered(player, 'lesson-1-2', 'school')
 
-      expect((await loggedFramesOf('lesson-1-2')).at(-1)).toBe('We are at ____.')
+      expect(await loggedFramesOf('lesson-1-2')).toEqual(['We are at ____.'])
     })
 
     it('logs the later frame a recall showed', async () => {
@@ -1753,7 +1753,7 @@ describe('the learning routes', () => {
 
       await answered(player, 'lesson-1-2', 'school')
 
-      expect((await loggedFramesOf('lesson-1-2')).at(-1)).toBe('My ____ is new.')
+      expect(await loggedFramesOf('lesson-1-2')).toEqual(['My ____ is new.'])
     })
 
     it('logs the frame shown through a hint and a near-miss', async () => {
@@ -1765,7 +1765,7 @@ describe('the learning routes', () => {
 
       await answered(player, 'lesson-1-2', 'school')
 
-      expect((await loggedFramesOf('lesson-1-2')).at(-1)).toBe('We are at ____.')
+      expect(await loggedFramesOf('lesson-1-2')).toEqual(['We are at ____.'])
     })
 
     it('logs the full anchor each recognition showed', async () => {
@@ -1791,7 +1791,7 @@ describe('the learning routes', () => {
 
       await answered(player, 'lesson-1-2', 'school')
 
-      expect((await loggedFramesOf('lesson-1-2')).at(-1)).toBeNull()
+      expect(await loggedFramesOf('lesson-1-2')).toEqual([null])
     })
 
     it('shows the anchor in recognition though the stage reaches a later frame', async () => {

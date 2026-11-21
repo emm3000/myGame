@@ -10,7 +10,6 @@ type MailpitSummary = {
 }
 
 type MailpitSearch = {
-  readonly messages_count: number
   readonly messages: ReadonlyArray<MailpitSummary>
 }
 
@@ -43,15 +42,30 @@ const mailpitRequest = async (path: string, init: RequestInit): Promise<Response
 const mailpit = async <T>(path: string): Promise<T> =>
   (await (await mailpitRequest(path, { method: 'GET' })).json()) as T
 
-const searchOfMailTo = (recipient: string, limit: number): Promise<MailpitSearch> =>
+const searchPageSize = 50
+
+const searchOfMailTo = (recipient: string, start: number): Promise<MailpitSearch> =>
   mailpit<MailpitSearch>(
-    `/api/v1/search?query=${encodeURIComponent(`to:"${recipient}"`)}&limit=${limit}`,
+    `/api/v1/search?query=${encodeURIComponent(`to:"${recipient}"`)}&start=${start}&limit=${searchPageSize}`,
   )
 
+const matchesFrom = async (
+  recipient: string,
+  start: number,
+): Promise<ReadonlyArray<MailpitSummary>> => {
+  const { messages } = await searchOfMailTo(recipient, start)
+  if (messages.length < searchPageSize) {
+    return messages
+  }
+  return [...messages, ...(await matchesFrom(recipient, start + searchPageSize))]
+}
+
 const summariesTo = async (recipient: string): Promise<ReadonlyArray<MailpitSummary>> => {
-  const { messages_count: matchCount } = await searchOfMailTo(recipient, 1)
-  const { messages } = await searchOfMailTo(recipient, matchCount)
-  return messages.filter((summary) => summary.To.some((address) => address.Address === recipient))
+  const matches = await matchesFrom(recipient, 0)
+  const uniqueMatches = [...new Map(matches.map((summary) => [summary.ID, summary])).values()]
+  return uniqueMatches.filter((summary) =>
+    summary.To.some((address) => address.Address === recipient),
+  )
 }
 
 const deleteMessages = async (ids: ReadonlyArray<string>): Promise<void> => {
