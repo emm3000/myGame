@@ -13,12 +13,10 @@ import { hiringRefusalLineOf } from '../refusals/hiringRefusalLineOf'
 import { refusalLineOf } from '../refusals/refusalLineOf'
 import { finishTimeOf } from './finishTimeOf'
 import { HireCard } from './HireCard'
-import { hireCardOf, hireCountOf } from './hireCardOf'
+import { firstHireEntry, hireCardOf, hireCountOf } from './hireCardOf'
 import { hireWordsOf } from './hireWordsOf'
 import type { LiveTown } from './liveTown'
 import type { TownHiring } from './useTownHiring'
-
-const firstEntry = '1'
 
 interface HiringStop {
   readonly hiring: TownHiring
@@ -74,7 +72,7 @@ function HireItem({
   readonly town: LiveTown
   readonly hiring: TownHiring
 }): ReactElement {
-  const [entry, setEntry] = useState(firstEntry)
+  const [entry, setEntry] = useState(firstHireEntry)
   const copy = usePlayerCopy()
   const card = hireCardOf(copy, hire, entry, town)
   const refused = hiring.placeRefused?.subject === hire ? hiring.placeRefused : undefined

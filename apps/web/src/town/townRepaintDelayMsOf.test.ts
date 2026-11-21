@@ -71,3 +71,58 @@ it("follows the countdown to a job's leaving while its team works", () => {
 it("follows the countdown to a job's return while its team comes back", () => {
   expect(townRepaintDelayMsOf(townWithJob('returning', 90))).toBe(30_000)
 })
+
+it("repaints every second in the season's last minute", () => {
+  const town = liveTownAt(
+    {
+      ...knownTown,
+      season: {
+        kind: 'summer',
+        year: 2,
+        endsAt: finishesAfter(45),
+        productionPercent: { money: 100, food: 125, power: 100, material: 100 },
+        durationPercent: { build: 75, study: 100, hire: 100, road: 100 },
+      },
+    },
+    0,
+  )
+  expect(townRepaintDelayMsOf(town)).toBe(1000)
+})
+
+const materialShortByOne = {
+  ...knownTown.stocks,
+  material: { ...knownTown.stocks.material, amount: 79 },
+}
+
+it("repaints every second in a ready minute's last minute", () => {
+  const town = liveTownAt({ ...knownTown, stocks: materialShortByOne }, 15)
+  expect(townRepaintDelayMsOf(town)).toBe(1000)
+})
+
+it('ignores the ready minute of a card blocked by something other than resources', () => {
+  const town = liveTownAt(
+    {
+      ...knownTown,
+      stocks: materialShortByOne,
+      people: { ...knownTown.people, free: 1 },
+    },
+    15,
+  )
+  expect(townRepaintDelayMsOf(town)).toBe(60_000)
+})
+
+it("repaints every second in a hire's ready minute's last minute", () => {
+  const town = liveTownAt(
+    {
+      ...knownTown,
+      stocks: { ...knownTown.stocks, money: { ...knownTown.stocks.money, amount: 39 } },
+      people: { ...knownTown.people, free: 1 },
+      buildings: {
+        ...knownTown.buildings,
+        office: { ...knownTown.buildings.office, level: 1 },
+      },
+    },
+    15,
+  )
+  expect(townRepaintDelayMsOf(town)).toBe(1000)
+})
