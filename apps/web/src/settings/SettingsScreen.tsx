@@ -5,15 +5,15 @@ import { FormAlert } from '../design-system/FormAlert'
 import { LabelText } from '../design-system/LabelText'
 import { ScaffoldChoice } from '../design-system/ScaffoldChoice'
 import { refusalLineOf } from '../refusals/refusalLineOf'
-import type { ScaffoldChange } from './useScaffoldSetting'
+import type { SettingChange } from './useScaffoldSetting'
 
 export interface SettingsScreenProps {
   readonly stored: Scaffold
-  readonly change: ScaffoldChange
+  readonly change: SettingChange
   readonly onPick: (scaffold: Scaffold) => void
 }
 
-function ChangeNote({ change }: { readonly change: ScaffoldChange }): ReactElement | null {
+function ChangeNote({ change }: { readonly change: SettingChange }): ReactElement | null {
   const { fixedCopy } = usePlayerCopy()
   switch (change.kind) {
     case 'untouched':
@@ -30,7 +30,7 @@ function ChangeNote({ change }: { readonly change: ScaffoldChange }): ReactEleme
   }
 }
 
-function ChangeRefusal({ change }: { readonly change: ScaffoldChange }): ReactElement | null {
+function ChangeRefusal({ change }: { readonly change: SettingChange }): ReactElement | null {
   const { fixedCopy } = usePlayerCopy()
   if (change.kind !== 'refused') {
     return null

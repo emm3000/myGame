@@ -103,7 +103,7 @@ function lineOf(catalog: ChromeCatalog, item: TownNewsItem): string {
 
 const amountsPhraseOf = (
   catalog: ChromeCatalog,
-  phrase: ChromeCatalog['reportNewsPay'],
+  phrase: (params: { amounts: string }) => string,
   amounts: ResourceAmounts,
 ): string | undefined => {
   const line = amountsLineOf(catalog, amounts)
