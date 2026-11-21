@@ -322,8 +322,53 @@ describe('content gate check 6, grammar', () => {
       ])
     })
 
-    it("keeps reading 's before a word that is no past form as be", () => {
-      expect(checkGrammar(holdingAt('lesson-2', "He's at my new home."))).toEqual([])
+    it.each(["He's here.", "He's at my new home."])(
+      "keeps reading 's before a word that is no past form as be: %s",
+      (frame) => {
+        expect(checkGrammar(holdingAt('lesson-2', frame))).toEqual([])
+      },
+    )
+
+    it('stops the have lookback at a sentence end', () => {
+      expect(
+        ['Do you see what we have? I made my new home.', 'Have you made my new home?'].map(
+          (frame) => checkGrammar(holdingAt('lesson-2', frame)),
+        ),
+      ).toEqual([
+        [],
+        ['word-1: frame holds made, a past participle inflection admitted after lesson-2'],
+      ])
+    })
+  })
+
+  describe("'s before a regular -ed form", () => {
+    const close = entryOf('word-2', 'close', 'We close the school.', { partOfSpeech: 'verb' })
+    const make = entryOf('word-3', 'make', 'We make food.', { partOfSpeech: 'verb' })
+    const edBeforeThePerfect = [
+      ...lessonOneStructures,
+      structureOf('lesson-1', ['he', 'it'], ['irregular past', "'s"]),
+      structureOf('lesson-3', [], ['-ed']),
+      structureOf('lesson-4', [], ['past participle']),
+    ]
+    const holdingAt = (lessonId: string, frame: string) => {
+      const holding = entryOf('word-1', 'new', frame, { partOfSpeech: 'adjective' })
+      return lessonId === 'lesson-2'
+        ? afterLessonOne(edBeforeThePerfect, holding, close, make)
+        : afterLessonOne(edBeforeThePerfect, close, holding, make)
+    }
+
+    it("reads 's before a regular -ed form as is", () => {
+      expect(
+        [
+          holdingAt('lesson-2', "It's closed."),
+          holdingAt('lesson-3', "It's closed."),
+          holdingAt('lesson-3', "He's made my new home."),
+        ].map((content) => checkGrammar(content)),
+      ).toEqual([
+        ['word-1: frame holds closed, an -ed inflection admitted after lesson-2'],
+        [],
+        ['word-1: frame holds made, a past participle inflection admitted after lesson-3'],
+      ])
     })
   })
 

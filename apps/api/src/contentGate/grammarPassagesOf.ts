@@ -1,7 +1,7 @@
 import type { LexiconEntry } from '../adapters/json/lessonContentFilesOf'
 import { framePlacementsOf } from './framePlacementsOf'
 import type { GateContent } from './GateContent'
-import { grammarTokensOf } from './grammarTokensOf'
+import { grammarSentencesOf } from './grammarSentencesOf'
 import { lessonPositionOf } from './lessonPositionOf'
 import { textPlacementsOf } from './textPlacementsOf'
 
@@ -11,7 +11,7 @@ export type GrammarPassage = {
   readonly lessonId: string
   readonly position: number
   readonly homographs: LexiconEntry['homographs']
-  readonly tokens: ReadonlyArray<string>
+  readonly sentences: ReadonlyArray<ReadonlyArray<string>>
 }
 
 const lessonPassagesOf = (content: GateContent): ReadonlyArray<GrammarPassage> =>
@@ -25,7 +25,7 @@ const lessonPassagesOf = (content: GateContent): ReadonlyArray<GrammarPassage> =
       kind: 'theme',
       label: lesson.id,
       homographs: undefined,
-      tokens: grammarTokensOf(lesson.theme),
+      sentences: grammarSentencesOf(lesson.theme),
     }
     const definitions = words.flatMap(
       ({ id, definition, homographs }): ReadonlyArray<GrammarPassage> =>
@@ -37,7 +37,7 @@ const lessonPassagesOf = (content: GateContent): ReadonlyArray<GrammarPassage> =
                 kind: 'definition',
                 label: id,
                 homographs,
-                tokens: grammarTokensOf(definition),
+                sentences: grammarSentencesOf(definition),
               },
             ],
     )
@@ -52,7 +52,7 @@ export const grammarPassagesOf = (content: GateContent): ReadonlyArray<GrammarPa
       lessonId,
       position,
       homographs: entry.homographs,
-      tokens: grammarTokensOf(frame),
+      sentences: grammarSentencesOf(frame),
     }),
   ),
   ...textPlacementsOf(content).texts.map(
@@ -62,7 +62,9 @@ export const grammarPassagesOf = (content: GateContent): ReadonlyArray<GrammarPa
       lessonId,
       position,
       homographs: text.homographs,
-      tokens: grammarTokensOf([text.title, ...text.sentences].join(' ')),
+      sentences: [text.title, ...text.sentences].flatMap((sentence) =>
+        grammarSentencesOf(sentence),
+      ),
     }),
   ),
   ...lessonPassagesOf(content),

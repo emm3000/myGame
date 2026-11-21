@@ -1,8 +1,8 @@
 import { describe, expect, it } from 'vitest'
-import { cardWordFormOf } from './cardWordFormOf'
+import { type CardWordFormContext, cardWordFormOf } from './cardWordFormOf'
 import { entryOf } from './contentGate.testSupport'
 
-const context = { irregularVerbs: new Map(), isAfterHave: false }
+const context: CardWordFormContext = { irregularVerbs: new Map(), haveBefore: 'none' }
 
 describe('cardWordFormOf', () => {
   it('reads no ending on a form of a phrase, whatever it ends in', () => {
