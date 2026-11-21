@@ -7,12 +7,12 @@ import {
 } from '#account/infrastructure/http/requirePlayer'
 import { honoPathOf } from '#platform/infrastructure/http/honoPath'
 import { refusalResponse } from '#platform/infrastructure/http/refusalResponse'
-import { answerRefusal } from '#platform/infrastructure/http/respondRefusal'
+import { respondRefusal } from '#platform/infrastructure/http/respondRefusal'
 import { malformedResponse } from '#platform/infrastructure/http/responseDeclarations'
 import { signedInRoute } from '#platform/infrastructure/http/signedInRoute'
 import {
-  type AnswerTownChangeDependencies,
-  answerTownChange,
+  type RespondTownChangeDependencies,
+  respondTownChange,
 } from '../../../infrastructure/http/respondTownChange'
 import { overviewResponse, townNotFoundResponse } from '../../../infrastructure/http/townComponents'
 
@@ -32,7 +32,7 @@ export const callJobBackDeclaration = createRoute(
   }),
 )
 
-export type CallJobBackRouteDependencies = RequirePlayerDependencies & AnswerTownChangeDependencies
+export type CallJobBackRouteDependencies = RequirePlayerDependencies & RespondTownChangeDependencies
 
 export const callJobBackRoute = (
   routes: OpenAPIHono,
@@ -46,11 +46,11 @@ export const callJobBackRoute = (
     async (c) => {
       const request = CallJobBackSchema.safeParse(c.req.param())
       if (!request.success) {
-        return answerRefusal(c, { kind: 'MalformedRequest' })
+        return respondRefusal(c, { kind: 'MalformedRequest' })
       }
       const playerId = c.var.playerId
       const sentAt = Instant.fromEpochMilliseconds(Date.parse(request.data.sentAt))
-      return answerTownChange(
+      return respondTownChange(
         c,
         playerId,
         async (stores, clock) => {

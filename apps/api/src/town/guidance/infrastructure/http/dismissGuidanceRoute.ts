@@ -7,7 +7,7 @@ import { honoPathOf } from '#platform/infrastructure/http/honoPath'
 import { signedInRoute } from '#platform/infrastructure/http/signedInRoute'
 import type { MutateTownDependencies } from '../../../application/mutateTown'
 import { townNotFoundResponse } from '../../../infrastructure/http/townComponents'
-import { answerGuidanceChange } from './respondGuidanceChange'
+import { respondGuidanceChange } from './respondGuidanceChange'
 
 export const dismissGuidanceDeclaration = createRoute(
   signedInRoute({
@@ -33,7 +33,7 @@ export const dismissGuidanceRoute = (
     requirePlayer(dependencies),
     async (c) => {
       const playerId = c.var.playerId
-      return answerGuidanceChange(
+      return respondGuidanceChange(
         c,
         playerId,
         (stores, clock) => stores.guidanceDismissals.dismiss(playerId, clock.now()),

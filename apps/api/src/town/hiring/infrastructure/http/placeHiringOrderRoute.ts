@@ -8,12 +8,12 @@ import {
 import { honoPathOf } from '#platform/infrastructure/http/honoPath'
 import { readJsonBody } from '#platform/infrastructure/http/readJsonBody'
 import { refusalResponse } from '#platform/infrastructure/http/refusalResponse'
-import { answerRefusal } from '#platform/infrastructure/http/respondRefusal'
+import { respondRefusal } from '#platform/infrastructure/http/respondRefusal'
 import { jsonBody, malformedResponse } from '#platform/infrastructure/http/responseDeclarations'
 import { signedInRoute } from '#platform/infrastructure/http/signedInRoute'
 import {
-  type AnswerTownChangeDependencies,
-  answerTownChange,
+  type RespondTownChangeDependencies,
+  respondTownChange,
 } from '../../../infrastructure/http/respondTownChange'
 import { overviewResponse, townNotFoundResponse } from '../../../infrastructure/http/townComponents'
 
@@ -32,7 +32,7 @@ export const placeHiringOrderDeclaration = createRoute(
 )
 
 export type PlaceHiringOrderRouteDependencies = RequirePlayerDependencies &
-  AnswerTownChangeDependencies
+  RespondTownChangeDependencies
 
 export const placeHiringOrderRoute = (
   routes: OpenAPIHono,
@@ -46,10 +46,10 @@ export const placeHiringOrderRoute = (
     async (c) => {
       const request = PlaceHiringOrderSchema.safeParse(await readJsonBody(c))
       if (!request.success) {
-        return answerRefusal(c, { kind: 'MalformedRequest' })
+        return respondRefusal(c, { kind: 'MalformedRequest' })
       }
       const playerId = c.var.playerId
-      return answerTownChange(
+      return respondTownChange(
         c,
         playerId,
         async (stores, clock) => {

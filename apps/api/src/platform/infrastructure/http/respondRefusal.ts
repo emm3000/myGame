@@ -144,7 +144,7 @@ const refusalBodyOf = (refusal: Refusal): RefusalBody => {
   }
 }
 
-export const answerRefusal = (c: Context, refusal: Refusal): Response => {
+export const respondRefusal = (c: Context, refusal: Refusal): Response => {
   c.set('refusalKind', refusal.kind)
   const { status, body } = refusalBodyOf(refusal)
   return body === undefined ? c.body(null, status) : c.json(body, status)

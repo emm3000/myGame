@@ -9,12 +9,12 @@ import {
 import type { LearningDependencies } from '#learning/application/LearningDependencies'
 import { honoPathOf } from '#platform/infrastructure/http/honoPath'
 import { readJsonBody } from '#platform/infrastructure/http/readJsonBody'
-import { answerRefusal } from '#platform/infrastructure/http/respondRefusal'
+import { respondRefusal } from '#platform/infrastructure/http/respondRefusal'
 import { jsonBody } from '#platform/infrastructure/http/responseDeclarations'
 import { signedInRoute } from '#platform/infrastructure/http/signedInRoute'
 import { checkNotDue, checkPath, checksResponse } from './holdoutCheckComponents'
 import { readChecksAfter } from './readChecksAfter'
-import { answerHoldoutChecks } from './respondHoldoutChecks'
+import { respondHoldoutChecks } from './respondHoldoutChecks'
 
 export const answerHoldoutCheckDeclaration = createRoute(
   signedInRoute({
@@ -50,7 +50,7 @@ export const answerHoldoutCheckRoute = (
       const check = HoldoutCheckRequestSchema.safeParse(c.req.param())
       const request = HoldoutCheckAnswersSchema.safeParse(await readJsonBody(c))
       if (!check.success || !request.success) {
-        return answerRefusal(c, { kind: 'MalformedRequest' })
+        return respondRefusal(c, { kind: 'MalformedRequest' })
       }
       const playerId = c.var.playerId
       const views = await readChecksAfter(
@@ -69,7 +69,7 @@ export const answerHoldoutCheckRoute = (
           ),
         dependencies,
       )
-      return answerHoldoutChecks(c, views)
+      return respondHoldoutChecks(c, views)
     },
   )
 }

@@ -9,7 +9,7 @@ import type { LearningDependencies } from '#learning/application/LearningDepende
 import { honoPathOf } from '#platform/infrastructure/http/honoPath'
 import { signedInRoute } from '#platform/infrastructure/http/signedInRoute'
 import { checksResponse } from './holdoutCheckComponents'
-import { answerHoldoutChecks } from './respondHoldoutChecks'
+import { respondHoldoutChecks } from './respondHoldoutChecks'
 
 export const readHoldoutChecksDeclaration = createRoute(
   signedInRoute({
@@ -43,7 +43,7 @@ export const readHoldoutChecksRoute = (
           { bandStarts: stores.bandStarts, words: lessons, clock },
         ),
       )
-      return answerHoldoutChecks(c, views)
+      return respondHoldoutChecks(c, views)
     },
   )
 }

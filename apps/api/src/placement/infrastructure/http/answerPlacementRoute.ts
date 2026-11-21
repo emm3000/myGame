@@ -9,12 +9,12 @@ import {
 import type { LearningDependencies } from '#learning/application/LearningDependencies'
 import { honoPathOf } from '#platform/infrastructure/http/honoPath'
 import { readJsonBody } from '#platform/infrastructure/http/readJsonBody'
-import { answerRefusal } from '#platform/infrastructure/http/respondRefusal'
+import { respondRefusal } from '#platform/infrastructure/http/respondRefusal'
 import { jsonBody } from '#platform/infrastructure/http/responseDeclarations'
 import { signedInRoute } from '#platform/infrastructure/http/signedInRoute'
 import { mutateTown } from '#town/application/mutateTown'
 import { placementResponse } from './placementComponents'
-import { answerPlacementView } from './respondPlacementView'
+import { respondPlacementView } from './respondPlacementView'
 
 export const answerPlacementDeclaration = createRoute(
   signedInRoute({
@@ -51,7 +51,7 @@ export const answerPlacementRoute = (
     async (c) => {
       const request = PlacementAnswersSchema.safeParse(await readJsonBody(c))
       if (!request.success) {
-        return answerRefusal(c, { kind: 'MalformedRequest' })
+        return respondRefusal(c, { kind: 'MalformedRequest' })
       }
       const playerId = c.var.playerId
       const view = await mutateTown(
@@ -68,7 +68,7 @@ export const answerPlacementRoute = (
           ),
         dependencies,
       )
-      return answerPlacementView(c, view)
+      return respondPlacementView(c, view)
     },
   )
 }

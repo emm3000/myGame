@@ -2,12 +2,12 @@ import { createRoute, type OpenAPIHono } from '@hono/zod-openapi'
 import { SignUpRequestSchema } from '@mygame/contracts'
 import { readJsonBody } from '#platform/infrastructure/http/readJsonBody'
 import { requestRefusalOf } from '#platform/infrastructure/http/requestRefusalOf'
-import { answerRefusal } from '#platform/infrastructure/http/respondRefusal'
+import { respondRefusal } from '#platform/infrastructure/http/respondRefusal'
 import { jsonBody } from '#platform/infrastructure/http/responseDeclarations'
 import { type SignUpDependencies, signUp } from '../../application/signUp'
 import { playerResponse, SignUpRequestComponent, signUpRefusals } from './accountComponents'
 import { accountIssues } from './accountIssues'
-import { type AnswerSignedInDependencies, answerSignedIn } from './respondSignedIn'
+import { type RespondSignedInDependencies, respondSignedIn } from './respondSignedIn'
 
 export const signUpDeclaration = createRoute({
   method: 'post',
@@ -19,15 +19,15 @@ export const signUpDeclaration = createRoute({
   },
 })
 
-export type SignUpRouteDependencies = SignUpDependencies & AnswerSignedInDependencies
+export type SignUpRouteDependencies = SignUpDependencies & RespondSignedInDependencies
 
 export const signUpRoute = (routes: OpenAPIHono, dependencies: SignUpRouteDependencies): void => {
   routes.openAPIRegistry.registerPath(signUpDeclaration)
   routes.on(signUpDeclaration.method, signUpDeclaration.path, async (c) => {
     const request = SignUpRequestSchema.safeParse(await readJsonBody(c))
     if (!request.success) {
-      return answerRefusal(c, requestRefusalOf(accountIssues, request.error.issues))
+      return respondRefusal(c, requestRefusalOf(accountIssues, request.error.issues))
     }
-    return answerSignedIn(c, await signUp(request.data, dependencies), 201, dependencies)
+    return respondSignedIn(c, await signUp(request.data, dependencies), 201, dependencies)
   })
 }

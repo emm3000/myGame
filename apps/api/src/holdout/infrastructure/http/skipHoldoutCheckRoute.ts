@@ -7,11 +7,11 @@ import {
 } from '#account/infrastructure/http/requirePlayer'
 import type { LearningDependencies } from '#learning/application/LearningDependencies'
 import { honoPathOf } from '#platform/infrastructure/http/honoPath'
-import { answerRefusal } from '#platform/infrastructure/http/respondRefusal'
+import { respondRefusal } from '#platform/infrastructure/http/respondRefusal'
 import { signedInRoute } from '#platform/infrastructure/http/signedInRoute'
 import { checkNotDue, checkPath, checksResponse, malformedCheck } from './holdoutCheckComponents'
 import { readChecksAfter } from './readChecksAfter'
-import { answerHoldoutChecks } from './respondHoldoutChecks'
+import { respondHoldoutChecks } from './respondHoldoutChecks'
 
 export const skipHoldoutCheckDeclaration = createRoute(
   signedInRoute({
@@ -42,7 +42,7 @@ export const skipHoldoutCheckRoute = (
     async (c) => {
       const check = HoldoutCheckRequestSchema.safeParse(c.req.param())
       if (!check.success) {
-        return answerRefusal(c, { kind: 'MalformedRequest' })
+        return respondRefusal(c, { kind: 'MalformedRequest' })
       }
       const playerId = c.var.playerId
       const views = await readChecksAfter(
@@ -52,7 +52,7 @@ export const skipHoldoutCheckRoute = (
           skipHoldoutCheck({ playerId, band, week }, { bandStarts: stores.bandStarts, clock: at }),
         dependencies,
       )
-      return answerHoldoutChecks(c, views)
+      return respondHoldoutChecks(c, views)
     },
   )
 }

@@ -3,17 +3,17 @@ import type { Context } from 'hono'
 import { type MutateTownDependencies, mutateTown } from '../../application/mutateTown'
 import type { TownStores } from '../../application/ports/TownStores'
 import { readTownReading } from '../../application/readTownReading'
-import { type AnswerTownReadingDependencies, answerTownReading } from './respondTownReading'
+import { type RespondTownReadingDependencies, respondTownReading } from './respondTownReading'
 
 export type TownChange = (stores: TownStores, clock: Clock) => Promise<Result<Instant, DomainError>>
 
-export type AnswerTownChangeDependencies = MutateTownDependencies & AnswerTownReadingDependencies
+export type RespondTownChangeDependencies = MutateTownDependencies & RespondTownReadingDependencies
 
-export const answerTownChange = async (
+export const respondTownChange = async (
   c: Context,
   playerId: PlayerId,
   change: TownChange,
-  dependencies: AnswerTownChangeDependencies,
+  dependencies: RespondTownChangeDependencies,
 ): Promise<Response> => {
   const changed = await mutateTown(
     playerId,
@@ -23,5 +23,5 @@ export const answerTownChange = async (
     },
     dependencies,
   )
-  return answerTownReading(c, changed, dependencies)
+  return respondTownReading(c, changed, dependencies)
 }

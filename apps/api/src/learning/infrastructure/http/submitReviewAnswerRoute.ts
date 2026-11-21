@@ -12,7 +12,7 @@ import {
 import { honoPathOf } from '#platform/infrastructure/http/honoPath'
 import { readJsonBody } from '#platform/infrastructure/http/readJsonBody'
 import { refusalResponse } from '#platform/infrastructure/http/refusalResponse'
-import { answerRefusal } from '#platform/infrastructure/http/respondRefusal'
+import { respondRefusal } from '#platform/infrastructure/http/respondRefusal'
 import {
   jsonBody,
   jsonResponse,
@@ -54,7 +54,7 @@ export const submitReviewAnswerRoute = (
       const path = ReviewRequestSchema.safeParse(c.req.param())
       const request = ReviewAnswerRequestSchema.safeParse(await readJsonBody(c))
       if (!path.success || !request.success) {
-        return answerRefusal(c, { kind: 'MalformedRequest' })
+        return respondRefusal(c, { kind: 'MalformedRequest' })
       }
       const outcome = await submitReviewAnswer(
         c.var.playerId,
@@ -63,7 +63,7 @@ export const submitReviewAnswerRoute = (
         dependencies,
       )
       if (!outcome.ok) {
-        return answerRefusal(c, outcome.error)
+        return respondRefusal(c, outcome.error)
       }
       const verdict = presentReviewVerdict(
         outcome.value,
@@ -71,7 +71,7 @@ export const submitReviewAnswerRoute = (
         dependencies.memoryTerms,
       )
       if (!verdict.ok) {
-        return answerRefusal(c, verdict.error)
+        return respondRefusal(c, verdict.error)
       }
       const body: ReviewAnswer = { verdict: verdict.value }
       return c.json(body)

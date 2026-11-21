@@ -6,10 +6,10 @@ import {
 } from '#account/infrastructure/http/requirePlayer'
 import { honoPathOf } from '#platform/infrastructure/http/honoPath'
 import { refusalResponse } from '#platform/infrastructure/http/refusalResponse'
-import { answerRefusal } from '#platform/infrastructure/http/respondRefusal'
+import { respondRefusal } from '#platform/infrastructure/http/respondRefusal'
 import { jsonResponse, malformedResponse } from '#platform/infrastructure/http/responseDeclarations'
 import { signedInRoute } from '#platform/infrastructure/http/signedInRoute'
-import { type AnswerRegionMapDependencies, answerRegionMap } from './respondRegionMap'
+import { type RespondRegionMapDependencies, respondRegionMap } from './respondRegionMap'
 
 export const readAreaDeclaration = createRoute(
   signedInRoute({
@@ -27,7 +27,7 @@ export const readAreaDeclaration = createRoute(
   }),
 )
 
-export type ReadAreaRouteDependencies = RequirePlayerDependencies & AnswerRegionMapDependencies
+export type ReadAreaRouteDependencies = RequirePlayerDependencies & RespondRegionMapDependencies
 
 export const readAreaRoute = (
   routes: OpenAPIHono,
@@ -41,9 +41,13 @@ export const readAreaRoute = (
     async (c) => {
       const request = RegionMapRequestSchema.safeParse(c.req.param())
       if (!request.success) {
-        return answerRefusal(c, { kind: 'MalformedRequest' })
+        return respondRefusal(c, { kind: 'MalformedRequest' })
       }
-      return answerRegionMap(c, { playerId: c.var.playerId, area: request.data.area }, dependencies)
+      return respondRegionMap(
+        c,
+        { playerId: c.var.playerId, area: request.data.area },
+        dependencies,
+      )
     },
   )
 }

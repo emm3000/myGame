@@ -6,7 +6,7 @@ import {
 } from '#account/infrastructure/http/requirePlayer'
 import { honoPathOf } from '#platform/infrastructure/http/honoPath'
 import { refusalResponse } from '#platform/infrastructure/http/refusalResponse'
-import { answerRefusal } from '#platform/infrastructure/http/respondRefusal'
+import { respondRefusal } from '#platform/infrastructure/http/respondRefusal'
 import { jsonResponse, malformedResponse } from '#platform/infrastructure/http/responseDeclarations'
 import { signedInRoute } from '#platform/infrastructure/http/signedInRoute'
 import type { LearningDependencies } from '../../application/LearningDependencies'
@@ -39,11 +39,11 @@ export const requestReviewHintRoute = (
     async (c) => {
       const request = ReviewRequestSchema.safeParse(c.req.param())
       if (!request.success) {
-        return answerRefusal(c, { kind: 'MalformedRequest' })
+        return respondRefusal(c, { kind: 'MalformedRequest' })
       }
       const hint = await requestReviewHint(c.var.playerId, request.data.wordId, dependencies)
       if (!hint.ok) {
-        return answerRefusal(c, hint.error)
+        return respondRefusal(c, hint.error)
       }
       const body: ReviewHint = { words: [...hint.value.words] }
       return c.json(body)
