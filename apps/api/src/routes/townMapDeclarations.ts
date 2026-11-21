@@ -4,8 +4,8 @@ import { refusalResponse } from '../platform/infrastructure/http/refusalResponse
 import {
   jsonResponse,
   malformedResponse,
-  signedInRoute,
 } from '../platform/infrastructure/http/responseDeclarations'
+import { signedInRoute } from '../platform/infrastructure/http/signedInRoute'
 
 export const townMapDeclarations = {
   ownArea: createRoute(

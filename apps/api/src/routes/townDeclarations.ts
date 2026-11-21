@@ -26,8 +26,8 @@ import {
   jsonBody,
   jsonResponse,
   malformedResponse,
-  signedInRoute,
 } from '../platform/infrastructure/http/responseDeclarations'
+import { signedInRoute } from '../platform/infrastructure/http/signedInRoute'
 
 const townNotFoundResponse = refusalResponse('TownNotFound: the player holds no town yet.')
 

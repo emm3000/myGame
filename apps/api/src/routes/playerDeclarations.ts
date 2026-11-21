@@ -4,8 +4,8 @@ import {
   jsonBody,
   jsonResponse,
   malformedResponse,
-  signedInRoute,
 } from '../platform/infrastructure/http/responseDeclarations'
+import { signedInRoute } from '../platform/infrastructure/http/signedInRoute'
 import { PlayerComponent } from './playerComponent'
 
 const ScaffoldChangeComponent = ScaffoldChangeSchema.meta({ id: 'ScaffoldChange' })
