@@ -1,6 +1,8 @@
 package com.emm.mygame.core.designsystem
 
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.width
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.ExperimentalComposeUiApi
@@ -13,6 +15,7 @@ import androidx.compose.ui.graphics.toArgb
 import androidx.compose.ui.graphics.toPixelMap
 import androidx.compose.ui.input.InputMode
 import androidx.compose.ui.input.InputModeManager
+import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.LocalInputModeManager
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.semantics.LiveRegionMode
@@ -40,7 +43,9 @@ import androidx.compose.ui.test.performTouchInput
 import androidx.compose.ui.test.requestFocus
 import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.text.SpanStyle
+import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.intl.LocaleList
+import androidx.compose.ui.text.rememberTextMeasurer
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.DpRect
 import androidx.compose.ui.unit.dp
@@ -254,6 +259,82 @@ class MyGameFrameTextTest {
     }
 
     @Test
+    fun `starts no drawn chunk of a frame with whitespace or punctuation, at any width`() {
+        val frames: List<List<MyGameFramePiece>> = listOf(longFrame, takeOffFrame, walkFrame(beside), dayFrame)
+
+        val starts: List<String> = frames
+            .flatMap { pieces: List<MyGameFramePiece> -> frameChunksOf(MyGameFrame(pieces)) }
+            .map(::drawnTextOf)
+            .filter { chunk: String -> Regex("""[\s\p{P}&&[^_]]""").matches(chunk.take(1)) }
+        assertEquals(emptyList<String>(), starts)
+    }
+
+    @Test
+    fun `keeps a space after a word on tap in the word's chunk`() {
+        val chunks: List<String> = frameChunksOf(MyGameFrame(goFrame)).map(::drawnTextOf)
+
+        assertEquals(listOf("We ", "go ", "home."), chunks)
+    }
+
+    @Test
+    fun `lets a blank start its own chunk`() {
+        val chunks: List<String> = frameChunksOf(MyGameFrame(dayFrame)).map(::drawnTextOf)
+
+        assertEquals(listOf("The ", "day ", "is ", "____."), chunks)
+    }
+
+    @Test
+    @GraphicsMode(GraphicsMode.Mode.NATIVE)
+    fun `drops a support beside its word to the next line when it does not fit beside it`() {
+        show {
+            val ink: TextStyle = MyGameTypography.reading.copy(color = MyGameTheme.colors.onBlock)
+            val firstLine: Dp = with(LocalDensity.current) {
+                rememberTextMeasurer().measure("The kids ", ink).size.width.toDp()
+            }
+            MyGameFrameText(
+                frame = MyGameFrame(walkFrame(beside)),
+                openPiece = null,
+                style = MyGameTypography.reading,
+                onPieceTap = {},
+                modifier = Modifier.width(firstLine),
+            )
+        }
+
+        val frame: DpRect = composeRule.onNodeWithText("The kids walk caminar to school.").getBoundsInRoot()
+        val support: DpRect = composeRule.onNodeWithTag(BESIDE_SUPPORT, useUnmergedTree = true).getBoundsInRoot()
+        assertEquals(frame.left + MyGameSpacing.step1, support.left)
+    }
+
+    @Test
+    @GraphicsMode(GraphicsMode.Mode.NATIVE)
+    fun `draws the comma after a word on tap on that word's line`() {
+        show {
+            val ink: TextStyle = MyGameTypography.reading.copy(color = MyGameTheme.colors.onBlock)
+            val lineEndingAtComma: Dp = with(LocalDensity.current) {
+                rememberTextMeasurer().measure("Take off,", ink).size.width.toDp()
+            }
+            Box(modifier = Modifier.fillMaxSize()) {
+                MyGameFrameText(
+                    frame = MyGameFrame(takeOffFrame),
+                    openPiece = null,
+                    style = MyGameTypography.reading,
+                    onPieceTap = {},
+                    modifier = Modifier.width(lineEndingAtComma),
+                )
+            }
+        }
+
+        val off: Rect = composeRule.onNode(hasText("off") and hasClickAction()).fetchSemanticsNode().boundsInRoot
+        val pixels: PixelMap = composeRule.onRoot().captureToImage().toPixelMap()
+        val ground: Color = pixels[pixels.width - 1, pixels.height - 1]
+        val commaReach: Int = with(composeRule.density) { MyGameSpacing.step1.roundToPx() }
+        val inkBesideWord: Boolean = (off.right.toInt() + 1..off.right.toInt() + commaReach).any { x: Int ->
+            (off.top.toInt() until off.bottom.toInt()).any { y: Int -> x < pixels.width && pixels[x, y] != ground }
+        }
+        assertTrue("no ink right of off at $off", inkBesideWord)
+    }
+
+    @Test
     fun `announces a word on tap as a button`() {
         showFrame(walkFrame(onTap))
 
@@ -348,6 +429,20 @@ class MyGameFrameTextTest {
             MyGameFramePiece(text = "walk", support = support),
             MyGameFramePiece(text = " to school.", support = null),
         )
+
+        val takeOffFrame: List<MyGameFramePiece> = listOf(
+            MyGameFramePiece(text = "Take ", support = null),
+            MyGameFramePiece(text = "off", support = onTap),
+            MyGameFramePiece(text = ", then go.", support = null),
+        )
+
+        fun drawnTextOf(chunk: FrameChunk): String = chunk.runs.joinToString(separator = "") { run: FrameRun ->
+            when (run) {
+                is FrameRun.Plain -> run.text
+                is FrameRun.Word -> run.text
+                is FrameRun.Beside -> run.support.spokenText().text
+            }
+        }
 
         val dayFrame: List<MyGameFramePiece> = listOf(
             MyGameFramePiece(text = "The ", support = null),

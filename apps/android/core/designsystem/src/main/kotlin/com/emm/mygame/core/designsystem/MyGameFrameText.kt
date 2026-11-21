@@ -6,6 +6,7 @@ import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.interaction.collectIsFocusedAsState
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.FlowRow
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.defaultMinSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
@@ -32,7 +33,19 @@ import androidx.compose.ui.tooling.preview.PreviewParameter
 import androidx.compose.ui.tooling.preview.PreviewParameterProvider
 import androidx.compose.ui.unit.dp
 
-private val wordChunks: Regex = Regex("""\s*\S+\s*|\s+""")
+private val chunkStarts: Regex = Regex("""(?<=\s)(?=[^\s\p{P}]|_)""")
+
+internal sealed interface FrameRun {
+    data class Plain(val text: String) : FrameRun
+
+    data class Word(val pieceIndex: Int, val text: String) : FrameRun
+
+    data class Beside(val support: MyGameWordSupport) : FrameRun
+}
+
+internal data class FrameChunk(val runs: List<FrameRun>)
+
+private data class FrameSlice(val startsChunk: Boolean, val run: FrameRun)
 
 val FRAME_STYLE: SemanticsPropertyKey<TextStyle> = SemanticsPropertyKey("FRAME_STYLE")
 
@@ -58,40 +71,66 @@ fun MyGameFrameText(
                 frameStyle = ink
             },
     ) {
-        frame.pieces.forEachIndexed { index: Int, piece: MyGameFramePiece ->
-            FramePiece(
-                piece = piece,
-                isOpen = index == openPiece,
-                ink = ink,
-                onTap = { onPieceTap(index) },
-            )
+        frameChunksOf(frame).forEach { chunk: FrameChunk ->
+            Row(verticalAlignment = Alignment.CenterVertically) {
+                chunk.runs.forEach { run: FrameRun ->
+                    FrameRunText(run = run, openPiece = openPiece, ink = ink, onPieceTap = onPieceTap)
+                }
+            }
         }
     }
 }
 
-@Composable
-private fun FramePiece(piece: MyGameFramePiece, isOpen: Boolean, ink: TextStyle, onTap: () -> Unit) {
+internal fun frameChunksOf(frame: MyGameFrame): List<FrameChunk> {
+    val text: String = frame.pieces.joinToString(separator = "", transform = MyGameFramePiece::text)
+    val starts: Set<Int> = chunkStarts.findAll(text)
+        .map { start: MatchResult -> start.range.first }
+        .toSet()
+    val offsets: List<Int> = frame.pieces.runningFold(0) { offset: Int, piece: MyGameFramePiece ->
+        offset + piece.text.length
+    }
+    val chunks: MutableList<MutableList<FrameRun>> = mutableListOf()
+    frame.pieces
+        .flatMapIndexed { index: Int, piece: MyGameFramePiece -> slicesOf(piece, index, offsets[index], starts) }
+        .forEach { slice: FrameSlice ->
+            if (slice.startsChunk || chunks.isEmpty()) chunks.add(mutableListOf())
+            chunks.last().add(slice.run)
+        }
+    return chunks.map { runs: List<FrameRun> -> FrameChunk(runs.toList()) }
+}
+
+private fun slicesOf(piece: MyGameFramePiece, index: Int, offset: Int, starts: Set<Int>): List<FrameSlice> {
     val support: MyGameWordSupport? = piece.support
-    when {
-        support == null -> PlainChunks(text = piece.text, ink = ink)
-        support.isOnTap -> WordOnTap(text = piece.text, isOpen = isOpen, ink = ink, onTap = onTap)
-        else -> {
-            PlainChunks(text = piece.text, ink = ink)
-            BesideSupport(support = support)
-        }
+    if (support?.isOnTap == true) return listOf(FrameSlice(offset in starts, FrameRun.Word(index, piece.text)))
+    val cuts: List<Int> = piece.text.indices.filter { at: Int -> at == 0 || offset + at in starts }
+    val plains: List<FrameSlice> = (cuts + piece.text.length).zipWithNext { from: Int, until: Int ->
+        FrameSlice(offset + from in starts, FrameRun.Plain(piece.text.substring(from, until)))
+    }
+    return if (support == null) plains else plains + FrameSlice(startsChunk = true, run = FrameRun.Beside(support))
+}
+
+@Composable
+private fun FrameRunText(run: FrameRun, openPiece: Int?, ink: TextStyle, onPieceTap: (Int) -> Unit) {
+    when (run) {
+        is FrameRun.Plain -> PlainText(text = run.text, ink = ink)
+        is FrameRun.Word -> WordOnTap(
+            text = run.text,
+            isOpen = run.pieceIndex == openPiece,
+            ink = ink,
+            onTap = { onPieceTap(run.pieceIndex) },
+        )
+        is FrameRun.Beside -> BesideSupport(support = run.support)
     }
 }
 
 @Composable
-private fun PlainChunks(text: String, ink: TextStyle) {
-    wordChunks.findAll(text).forEach { chunk: MatchResult ->
-        MyGameText(
-            text = chunk.value,
-            style = ink,
-            color = ink.color,
-            modifier = Modifier.clearAndSetSemantics { },
-        )
-    }
+private fun PlainText(text: String, ink: TextStyle) {
+    MyGameText(
+        text = text,
+        style = ink,
+        color = ink.color,
+        modifier = Modifier.clearAndSetSemantics { },
+    )
 }
 
 @Composable
