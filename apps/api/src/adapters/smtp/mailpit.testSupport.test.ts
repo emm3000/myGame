@@ -52,7 +52,7 @@ const lateMail: Mail = {
   text: 'Follow this other link.',
 }
 
-const bodyOf = async (request: IncomingMessage): Promise<Buffer> => {
+const readRequestBytes = async (request: IncomingMessage): Promise<Buffer> => {
   const chunks: Buffer[] = []
   for await (const chunk of request) {
     chunks.push(chunk as Buffer)
@@ -75,7 +75,7 @@ const searchPagesAskedWhile = async (
         limit: url.searchParams.get('limit'),
       })
     }
-    const body = await bodyOf(request)
+    const body = await readRequestBytes(request)
     const forwarded = await fetch(url, {
       method: request.method ?? 'GET',
       headers: { 'content-type': 'application/json' },

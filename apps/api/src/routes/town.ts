@@ -46,8 +46,8 @@ import {
 import type { LessonLibrary } from '../learning/LessonLibrary'
 import { openTextOf } from '../learning/openTextOf'
 import { answerRefusal } from '../platform/infrastructure/http/answerRefusal'
-import { bodyOf } from '../platform/infrastructure/http/bodyOf'
 import { honoPathOf } from '../platform/infrastructure/http/honoPath'
+import { readJsonBody } from '../platform/infrastructure/http/readJsonBody'
 import { type NamedIssue, requestRefusalOf } from '../platform/infrastructure/http/requestRefusalOf'
 import { type CurrentTownDependencies, currentTownOf } from '../town/currentTownOf'
 import { foundTownOnFreeSite } from '../town/foundTownOnFreeSite'
@@ -136,7 +136,7 @@ export const townRoutes = (dependencies: TownDependencies): OpenAPIHono => {
     honoPathOf(townDeclarations.found),
     signedInPlayer,
     async (c) => {
-      const request = FoundTownSchema.safeParse(await bodyOf(c))
+      const request = FoundTownSchema.safeParse(await readJsonBody(c))
       if (!request.success) {
         return answerRefusal(c, requestRefusalOf(foundingIssues, request.error.issues))
       }
@@ -162,7 +162,7 @@ export const townRoutes = (dependencies: TownDependencies): OpenAPIHono => {
     honoPathOf(townDeclarations.startWork),
     signedInPlayer,
     async (c) => {
-      const request = StartBuildingWorkSchema.safeParse(await bodyOf(c))
+      const request = StartBuildingWorkSchema.safeParse(await readJsonBody(c))
       if (!request.success) {
         return answerRefusal(c, { kind: 'MalformedRequest' })
       }
@@ -214,7 +214,7 @@ export const townRoutes = (dependencies: TownDependencies): OpenAPIHono => {
     honoPathOf(townDeclarations.placeHiring),
     signedInPlayer,
     async (c) => {
-      const request = PlaceHiringOrderSchema.safeParse(await bodyOf(c))
+      const request = PlaceHiringOrderSchema.safeParse(await readJsonBody(c))
       if (!request.success) {
         return answerRefusal(c, { kind: 'MalformedRequest' })
       }
@@ -267,7 +267,7 @@ export const townRoutes = (dependencies: TownDependencies): OpenAPIHono => {
     honoPathOf(townDeclarations.sendJob),
     signedInPlayer,
     async (c) => {
-      const request = SendJobSchema.safeParse(await bodyOf(c))
+      const request = SendJobSchema.safeParse(await readJsonBody(c))
       if (!request.success) {
         return answerRefusal(c, { kind: 'MalformedRequest' })
       }
@@ -291,7 +291,7 @@ export const townRoutes = (dependencies: TownDependencies): OpenAPIHono => {
     honoPathOf(townDeclarations.quoteJob),
     signedInPlayer,
     async (c) => {
-      const request = SendJobSchema.safeParse(await bodyOf(c))
+      const request = SendJobSchema.safeParse(await readJsonBody(c))
       if (!request.success) {
         return answerRefusal(c, { kind: 'MalformedRequest' })
       }
@@ -308,7 +308,7 @@ export const townRoutes = (dependencies: TownDependencies): OpenAPIHono => {
     honoPathOf(townDeclarations.sendCleanUp),
     signedInPlayer,
     async (c) => {
-      const request = SendCleanUpSchema.safeParse(await bodyOf(c))
+      const request = SendCleanUpSchema.safeParse(await readJsonBody(c))
       if (!request.success) {
         return answerRefusal(c, { kind: 'MalformedRequest' })
       }
@@ -339,7 +339,7 @@ export const townRoutes = (dependencies: TownDependencies): OpenAPIHono => {
     honoPathOf(townDeclarations.quoteCleanUp),
     signedInPlayer,
     async (c) => {
-      const request = SendCleanUpSchema.safeParse(await bodyOf(c))
+      const request = SendCleanUpSchema.safeParse(await readJsonBody(c))
       if (!request.success) {
         return answerRefusal(c, { kind: 'MalformedRequest' })
       }
@@ -390,7 +390,7 @@ export const townRoutes = (dependencies: TownDependencies): OpenAPIHono => {
     honoPathOf(townDeclarations.startLesson),
     signedInPlayer,
     async (c) => {
-      const request = StartLessonRequestSchema.safeParse(await bodyOf(c))
+      const request = StartLessonRequestSchema.safeParse(await readJsonBody(c))
       if (!request.success) {
         return answerRefusal(c, { kind: 'MalformedRequest' })
       }

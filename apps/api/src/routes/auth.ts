@@ -34,7 +34,7 @@ import { type VerifyEmailDependencies, verifyEmail } from '../auth/verifyEmail'
 import type { PlayerChromePhaseDependencies } from '../learning/playerChromePhaseOf'
 import type { Refusal } from '../platform/application/Refusal'
 import { answerRefusal } from '../platform/infrastructure/http/answerRefusal'
-import { bodyOf } from '../platform/infrastructure/http/bodyOf'
+import { readJsonBody } from '../platform/infrastructure/http/readJsonBody'
 import { type NamedIssue, requestRefusalOf } from '../platform/infrastructure/http/requestRefusalOf'
 import { authDeclarations } from './authDeclarations'
 import { playerBodyOf } from './playerBodyOf'
@@ -92,28 +92,28 @@ export const authRoutes = (dependencies: AuthDependencies): OpenAPIHono => {
     routes.openAPIRegistry.registerPath(declaration)
   }
   routes.on(authDeclarations.signUp.method, authDeclarations.signUp.path, async (c) => {
-    const request = SignUpRequestSchema.safeParse(await bodyOf(c))
+    const request = SignUpRequestSchema.safeParse(await readJsonBody(c))
     if (!request.success) {
       return answerRefusal(c, requestRefusalOf(accountIssues, request.error.issues))
     }
     return answerSignedIn(c, await signUp(request.data, dependencies), 201, dependencies)
   })
   routes.on(authDeclarations.nativeSignUp.method, authDeclarations.nativeSignUp.path, async (c) => {
-    const request = SignUpRequestSchema.safeParse(await bodyOf(c))
+    const request = SignUpRequestSchema.safeParse(await readJsonBody(c))
     if (!request.success) {
       return answerRefusal(c, requestRefusalOf(accountIssues, request.error.issues))
     }
     return answerNativeSession(c, await signUp(request.data, dependencies), 201, dependencies)
   })
   routes.on(authDeclarations.signIn.method, authDeclarations.signIn.path, async (c) => {
-    const request = SignInRequestSchema.safeParse(await bodyOf(c))
+    const request = SignInRequestSchema.safeParse(await readJsonBody(c))
     if (!request.success) {
       return answerRefusal(c, { kind: 'InvalidCredentials' })
     }
     return answerSignedIn(c, await signIn(request.data, dependencies), 200, dependencies)
   })
   routes.on(authDeclarations.nativeSignIn.method, authDeclarations.nativeSignIn.path, async (c) => {
-    const request = SignInRequestSchema.safeParse(await bodyOf(c))
+    const request = SignInRequestSchema.safeParse(await readJsonBody(c))
     if (!request.success) {
       return answerRefusal(c, { kind: 'InvalidCredentials' })
     }
@@ -142,7 +142,7 @@ export const authRoutes = (dependencies: AuthDependencies): OpenAPIHono => {
     },
   )
   routes.on(authDeclarations.verifyEmail.method, authDeclarations.verifyEmail.path, async (c) => {
-    const request = VerifyEmailRequestSchema.safeParse(await bodyOf(c))
+    const request = VerifyEmailRequestSchema.safeParse(await readJsonBody(c))
     if (!request.success) {
       return answerRefusal(c, { kind: 'MalformedRequest' })
     }
@@ -158,7 +158,7 @@ export const authRoutes = (dependencies: AuthDependencies): OpenAPIHono => {
     authDeclarations.forgotPassword.method,
     authDeclarations.forgotPassword.path,
     async (c) => {
-      const request = ForgotPasswordRequestSchema.safeParse(await bodyOf(c))
+      const request = ForgotPasswordRequestSchema.safeParse(await readJsonBody(c))
       if (!request.success) {
         return answerRefusal(c, { kind: 'MalformedRequest' })
       }
@@ -170,7 +170,7 @@ export const authRoutes = (dependencies: AuthDependencies): OpenAPIHono => {
     authDeclarations.resetPassword.method,
     authDeclarations.resetPassword.path,
     async (c) => {
-      const request = ResetPasswordRequestSchema.safeParse(await bodyOf(c))
+      const request = ResetPasswordRequestSchema.safeParse(await readJsonBody(c))
       if (!request.success) {
         return answerRefusal(c, requestRefusalOf(accountIssues, request.error.issues))
       }

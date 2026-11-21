@@ -54,7 +54,6 @@ folder_over_limit apps/api/src/contentGate
 folder_over_limit packages/contracts/src
 folder_over_limit packages/domain/src/learning
 folder_over_limit packages/domain/src/town
-reading_named_of_is_async apps/api/src/platform/infrastructure/http/bodyOf.ts
 reading_named_of_is_async apps/api/src/learning/answerReviewOf.ts
 reading_named_of_is_async apps/api/src/learning/learnerOf.ts
 reading_named_of_is_async apps/api/src/learning/playerChromePhaseOf.ts

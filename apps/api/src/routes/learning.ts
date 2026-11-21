@@ -16,8 +16,8 @@ import { requestHintOf } from '../learning/requestHintOf'
 import { reviewsOf } from '../learning/reviewsOf'
 import { reviewVerdictOf } from '../learning/reviewVerdictOf'
 import { answerRefusal } from '../platform/infrastructure/http/answerRefusal'
-import { bodyOf } from '../platform/infrastructure/http/bodyOf'
 import { honoPathOf } from '../platform/infrastructure/http/honoPath'
+import { readJsonBody } from '../platform/infrastructure/http/readJsonBody'
 import { mutateTown } from '../town/mutateTown'
 import { learningDeclarations } from './learningDeclarations'
 
@@ -70,7 +70,7 @@ export const learningRoutes = (dependencies: LearningRouteDependencies): OpenAPI
     signedInPlayer,
     async (c) => {
       const path = ReviewRequestSchema.safeParse(c.req.param())
-      const request = ReviewAnswerRequestSchema.safeParse(await bodyOf(c))
+      const request = ReviewAnswerRequestSchema.safeParse(await readJsonBody(c))
       if (!path.success || !request.success) {
         return answerRefusal(c, { kind: 'MalformedRequest' })
       }
