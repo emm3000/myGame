@@ -435,7 +435,6 @@ describe('the learning routes', () => {
         standing: 'notStarted',
         reading: {
           word: 'school',
-          gloss: 'escuela',
           frame: [{ text: 'We are at school.', support: null }],
         },
         support: { shown: 'beside', text: 'escuela', language: 'es' },
@@ -453,7 +452,6 @@ describe('the learning routes', () => {
         standing: 'notStarted',
         reading: {
           word: 'school',
-          gloss: 'a place where children go to learn',
           frame: [{ text: 'We are at school.', support: null }],
         },
         support: { shown: 'beside', text: 'a place where children go to learn', language: 'en' },
@@ -1813,7 +1811,6 @@ describe('the learning routes', () => {
 
       expect(lessons[0]?.words[1]?.reading).toEqual({
         word: 'school',
-        gloss: 'escuela',
         frame: [{ text: 'We are at school.', support: null }],
       })
     })

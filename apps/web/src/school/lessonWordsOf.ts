@@ -12,6 +12,7 @@ type WordReading = NonNullable<LessonWordState['reading']>
 export type LessonWord = Omit<WordReading, 'frame'> & {
   readonly frame: string
   readonly art: ReadonlyArray<ArtTag> | undefined
+  readonly support: LessonWordState['support']
 }
 
 export type RunningLesson = LiveLesson & { readonly at: Date }
@@ -40,10 +41,17 @@ const openedLessonOf = (overview: TownOverview, lessonId: string): OpenedLesson 
 export function lessonWordsOf(town: LiveTown, lessonId: string): LessonWords | undefined {
   const { overview, lessonSlot, at } = town
   const lesson = openedLessonOf(overview, lessonId)
-  const [first, ...rest] = (lesson?.words ?? []).flatMap(({ reading }) =>
+  const [first, ...rest] = (lesson?.words ?? []).flatMap(({ reading, support }) =>
     reading === null
       ? []
-      : [{ ...reading, frame: frameTextOf(reading.frame), art: wordArtOf(reading.word) }],
+      : [
+          {
+            ...reading,
+            frame: frameTextOf(reading.frame),
+            art: wordArtOf(reading.word),
+            support,
+          },
+        ],
   )
   if (lesson === undefined || first === undefined) {
     return undefined

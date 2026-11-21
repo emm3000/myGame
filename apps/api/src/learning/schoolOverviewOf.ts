@@ -7,7 +7,6 @@ import {
   type DomainError,
   deriveLessonDurationSeconds,
   type FrameReader,
-  glossOf,
   type Headword,
   type HeldCard,
   type HeldCards,
@@ -103,7 +102,6 @@ const wordStateOf = (
     reading: isReadable
       ? {
           word: word.acceptedForms[0],
-          gloss: glossOf(word, reader.scaffold),
           frame: [...readingFrameOf(word, reader)],
         }
       : null,

@@ -26,7 +26,6 @@ const lessonOne = {
       standing: 'recognize',
       reading: {
         word: 'school',
-        gloss: 'escuela',
         frame: [{ text: 'We are at school.', support: null }],
       },
       support: besideSchool,
@@ -297,7 +296,7 @@ describe('TownOverviewSchema', () => {
   })
 
   it('rejects a reading without its frame', () => {
-    const reading = { word: 'home', gloss: 'hogar' }
+    const reading = { word: 'home' }
     const words = [{ wordId: 'lesson-1-1', standing: 'notStarted', reading, support: besideSchool }]
 
     expect(
@@ -306,7 +305,7 @@ describe('TownOverviewSchema', () => {
   })
 
   it('rejects a reading whose frame is a plain string', () => {
-    const reading = { word: 'school', gloss: 'escuela', frame: 'We are at school.' }
+    const reading = { word: 'school', frame: 'We are at school.' }
     const words = [{ wordId: 'lesson-1-2', standing: 'recognize', reading, support: besideSchool }]
 
     expect(
