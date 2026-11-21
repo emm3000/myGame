@@ -10,7 +10,6 @@ import {
 import { drizzle } from 'drizzle-orm/node-postgres'
 import { afterAll, assert, beforeAll, describe, expect, it } from 'vitest'
 import { DrizzleAccounts } from '../../../account/infrastructure/postgres/DrizzleAccounts'
-import { composeStores } from '../../../composeStores'
 import { DrizzleLessonSlots } from './DrizzleLessonSlots'
 import { DrizzleTownReader } from './DrizzleTownReader'
 import { DrizzleTownRepository } from './DrizzleTownRepository'
@@ -60,7 +59,9 @@ describe('DrizzleTownReader', () => {
     const enteredCard = MemoryCard.entered(instantAt('2026-11-10T09:00:00Z'))
     assert((await towns.save(town)).ok)
     await new DrizzleLessonSlots(session).save(town.id, lessonOneUnderStudy)
-    await composeStores(session).cards.save(ana, { wordId: 'lesson-1-1', card: enteredCard })
+    await pool().query(
+      `INSERT INTO cards (player_id, word_id, state, step, entered_at) VALUES ('${ana}', 'lesson-1-1', 'learning', 0, '2026-11-10T09:00:00Z')`,
+    )
 
     const read = await reader.townWithSchoolOf(ana)
 
@@ -108,49 +109,50 @@ describe('DrizzleTownReader', () => {
     const reader = new DrizzleTownReader(session)
     const startedAt = instantAt('2026-11-10T08:55:00Z')
     const closedAt = instantAt('2027-04-27T09:00:00Z')
-    const { bandStarts } = composeStores(session)
     assert((await towns.save(anasTown(ana))).ok)
-    assert(
-      (await bandStarts.save(ana, { band: 2, startedAt, heldOutWords: ['say'], checks: [] })).ok,
-    )
-    assert(
-      (await bandStarts.save(ana, { band: 1, startedAt, heldOutWords: ['know', 'go'], checks: [] }))
-        .ok,
-    )
-    assert(
-      (await bandStarts.save(otherPlayer, { band: 1, startedAt, heldOutWords: ['go'], checks: [] }))
-        .ok,
-    )
+    await pool().query(`
+      INSERT INTO band_starts (player_id, band, started_at) VALUES
+        ('${ana}', 2, '2026-11-10T08:55:00Z'),
+        ('${ana}', 1, '2026-11-10T08:55:00Z'),
+        ('${otherPlayer}', 1, '2026-11-10T08:55:00Z');
+      INSERT INTO held_out_words (player_id, band, headword) VALUES
+        ('${ana}', 2, 'say'), ('${ana}', 1, 'know'), ('${ana}', 1, 'go'), ('${otherPlayer}', 1, 'go');
+      INSERT INTO holdout_checks (player_id, band, week, kind, begun_at, closed_at, held_out_score, practised_score) VALUES
+        ('${ana}', 1, 24, 'skipped', NULL, '2027-04-27T09:00:00Z', NULL, NULL),
+        ('${ana}', 2, 8, 'taken', '2026-11-10T08:55:00Z', '2027-04-27T09:00:00Z', 1, 2),
+        ('${ana}', 2, 24, 'begun', '2027-04-27T09:00:00Z', NULL, NULL, NULL);
+      INSERT INTO holdout_check_words (player_id, band, week, position, word_id, is_held_out) VALUES
+        ('${ana}', 2, 8, 1, 'word-say', true), ('${ana}', 2, 8, 2, 'word-time', false),
+        ('${ana}', 2, 24, 1, 'word-say', true), ('${ana}', 2, 24, 2, 'word-time', false)
+    `)
     const sample = { wordIds: ['word-say', 'word-time'], heldOutWordIds: ['word-say'] }
-    assert(
-      (await bandStarts.saveCheck(ana, 1, { kind: 'skipped', week: 24, skippedAt: closedAt })).ok,
-    )
-    assert(
-      (
-        await bandStarts.saveCheck(ana, 2, {
-          kind: 'taken',
-          week: 8,
-          begunAt: startedAt,
-          sample,
-          heldOutScore: 1,
-          practisedScore: 2,
-          takenAt: closedAt,
-        })
-      ).ok,
-    )
-    assert(
-      (await bandStarts.saveCheck(ana, 2, { kind: 'begun', week: 24, begunAt: closedAt, sample }))
-        .ok,
-    )
-    const stored = await bandStarts.bandStartsOf(ana)
-    assert(stored.ok)
 
     const read = await reader.townWithSchoolOf(ana)
 
-    expect(read.ok && read.value?.bandStarts).toEqual(stored.value)
-    expect(stored.value.map(({ band, heldOutWords }) => ({ band, heldOutWords }))).toEqual([
-      { band: 1, heldOutWords: ['go', 'know'] },
-      { band: 2, heldOutWords: ['say'] },
+    expect(read.ok && read.value?.bandStarts).toEqual([
+      {
+        band: 1,
+        startedAt,
+        heldOutWords: ['go', 'know'],
+        checks: [{ kind: 'skipped', week: 24, skippedAt: closedAt }],
+      },
+      {
+        band: 2,
+        startedAt,
+        heldOutWords: ['say'],
+        checks: [
+          {
+            kind: 'taken',
+            week: 8,
+            begunAt: startedAt,
+            sample,
+            heldOutScore: 1,
+            practisedScore: 2,
+            takenAt: closedAt,
+          },
+          { kind: 'begun', week: 24, begunAt: closedAt, sample },
+        ],
+      },
     ])
   })
 
