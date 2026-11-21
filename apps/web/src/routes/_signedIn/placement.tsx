@@ -1,9 +1,8 @@
-import { placementLoading } from '@mygame/catalog'
 import { createFileRoute } from '@tanstack/react-router'
 import type { ReactElement } from 'react'
 import { SignOutColumn } from '../../auth/SignOutColumn'
+import { usePlayerCopy } from '../../copy/usePlayerCopy'
 import { LoadingSkeleton, type LoadingSkeletonProps } from '../../design-system/LoadingSkeleton'
-import { lineLabelOf } from '../../design-system/lineLabelOf'
 import { PlacementScreen, PlacementTitled } from '../../placement/PlacementScreen'
 import { usePlacement } from '../../placement/usePlacement'
 
@@ -14,11 +13,12 @@ const placementSkeletonGroups: LoadingSkeletonProps['groups'] = [
 function PlacementRoute(): ReactElement {
   const { apiClient } = Route.useRouteContext()
   const placement = usePlacement(apiClient)
+  const copy = usePlayerCopy()
   return (
     <SignOutColumn apiClient={apiClient}>
       <LoadingSkeleton
         isLoading={placement.view.kind === 'loading'}
-        line={lineLabelOf(placementLoading(), 'es')}
+        line={copy.fixedCopy((catalog) => catalog.placementLoading())}
         groups={placementSkeletonGroups}
         Frame={PlacementTitled}
       >

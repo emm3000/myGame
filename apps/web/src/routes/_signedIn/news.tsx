@@ -1,8 +1,8 @@
-import { es, newsLoading } from '@mygame/catalog'
+import { es } from '@mygame/catalog'
 import { createFileRoute, Navigate } from '@tanstack/react-router'
 import type { ReactElement } from 'react'
+import { usePlayerCopy } from '../../copy/usePlayerCopy'
 import { LoadingSkeleton, type LoadingSkeletonProps } from '../../design-system/LoadingSkeleton'
-import { lineLabelOf } from '../../design-system/lineLabelOf'
 import { NewsScreen, NewsTitled } from '../../news/NewsScreen'
 import { newsRowOf } from '../../news/newsRowOf'
 import { type TownNewsHandle, useTownNews } from '../../news/useTownNews'
@@ -37,10 +37,11 @@ function NewsAnswer({ news }: { readonly news: TownNewsHandle }): ReactElement |
 function NewsRoute(): ReactElement {
   const { apiClient } = Route.useRouteContext()
   const news = useTownNews(apiClient)
+  const copy = usePlayerCopy()
   return (
     <LoadingSkeleton
       isLoading={news.state.kind === 'loading'}
-      line={lineLabelOf(newsLoading(), 'es')}
+      line={copy.chrome((catalog) => catalog.newsLoading())}
       groups={newsSkeletonGroups}
       Frame={NewsTitled}
     >

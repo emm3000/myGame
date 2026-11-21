@@ -1,63 +1,65 @@
-import {
-  es,
-  mapCleanUpOutTitle,
-  mapJobOutCallBack,
-  mapJobOutCalledBack,
-  mapJobOutOutbound,
-  mapJobOutPay,
-  mapJobOutReturning,
-  mapJobOutSite,
-  mapJobOutTeam,
-  mapJobOutTitle,
-  mapJobOutWorking,
-  mapWasteAmount,
-} from '@mygame/catalog'
 import type { CallJobBack } from '@mygame/contracts'
+import type { ChromeCatalog, PlayerCopy } from '../copy/PlayerCopy'
 import type { SlotCountdown } from '../design-system/CountdownLine'
-import { lineLabelOf } from '../design-system/lineLabelOf'
-import { amountsLineOf } from '../resources/amountsLineOf'
+import type { Label } from '../design-system/Label'
 import { formatFinish } from '../time/formatFinish'
 import type { LiveJob, LiveTown } from '../town/liveTown'
+import { jobPayLineOf } from './jobPayLineOf'
 
 export interface JobOutContent {
-  readonly title: string
-  readonly siteLine: string
-  readonly teamLine: string
-  readonly wasteLine: string | undefined
+  readonly title: Label
+  readonly siteLine: Label
+  readonly teamLine: Label
+  readonly wasteLine: Label | undefined
   readonly countdown: SlotCountdown
-  readonly pay: string | undefined
-  readonly callBack: { readonly label: string; readonly target: CallJobBack } | undefined
+  readonly pay: Label | undefined
+  readonly callBack: { readonly label: Label; readonly target: CallJobBack } | undefined
 }
 
-const phaseWords: Readonly<Record<LiveJob['phase'], () => string>> = {
-  outbound: mapJobOutOutbound,
-  working: mapJobOutWorking,
-  returning: mapJobOutReturning,
+const phaseWords: Readonly<Record<LiveJob['phase'], (catalog: ChromeCatalog) => string>> = {
+  outbound: (catalog) => catalog.mapJobOutOutbound(),
+  working: (catalog) => catalog.mapJobOutWorking(),
+  returning: (catalog) => catalog.mapJobOutReturning(),
 }
 
-export function jobOutOf(town: LiveTown): JobOutContent | undefined {
+const countdownOf = (
+  town: LiveTown,
+  live: LiveJob,
+  isCalledBack: boolean,
+  copy: PlayerCopy,
+): SlotCountdown => ({
+  words: copy.chrome(
+    isCalledBack ? (catalog) => catalog.mapJobOutCalledBack() : phaseWords[live.phase],
+  ),
+  time: copy.chrome((catalog) => formatFinish(catalog, live.remainingSeconds, town.at)).text,
+})
+
+export function jobOutOf(town: LiveTown, copy: PlayerCopy): JobOutContent | undefined {
   const answered = town.overview.job
   const live = town.job
   if (answered === null || live === null) {
     return undefined
   }
-  const pay = amountsLineOf(es, answered.pay)
   return {
-    title: answered.kind === 'cleanUp' ? mapCleanUpOutTitle() : mapJobOutTitle(),
-    siteLine: mapJobOutSite(answered.site),
-    teamLine: mapJobOutTeam({ workers: answered.team.worker, trucks: answered.team.truck }),
-    wasteLine: answered.kind === 'cleanUp' ? mapWasteAmount({ waste: answered.waste }) : undefined,
-    countdown: {
-      words: lineLabelOf(
-        answered.calledBackAt === null ? phaseWords[live.phase]() : mapJobOutCalledBack(),
-        'es',
-      ),
-      time: formatFinish(es, live.remainingSeconds, town.at),
-    },
-    pay: pay === undefined ? undefined : mapJobOutPay({ amounts: pay }),
+    title: copy.chrome((catalog) =>
+      answered.kind === 'cleanUp' ? catalog.mapCleanUpOutTitle() : catalog.mapJobOutTitle(),
+    ),
+    siteLine: copy.chrome((catalog) => catalog.mapJobOutSite(answered.site)),
+    teamLine: copy.chrome((catalog) =>
+      catalog.mapJobOutTeam({ workers: answered.team.worker, trucks: answered.team.truck }),
+    ),
+    wasteLine:
+      answered.kind === 'cleanUp'
+        ? copy.chrome((catalog) => catalog.mapWasteAmount({ waste: answered.waste }))
+        : undefined,
+    countdown: countdownOf(town, live, answered.calledBackAt !== null, copy),
+    pay: jobPayLineOf(copy, answered.pay, (catalog, amounts) => catalog.mapJobOutPay({ amounts })),
     callBack:
       live.phase === 'returning'
         ? undefined
-        : { label: mapJobOutCallBack(), target: { sentAt: answered.sentAt } },
+        : {
+            label: copy.chrome((catalog) => catalog.mapJobOutCallBack()),
+            target: { sentAt: answered.sentAt },
+          },
   }
 }

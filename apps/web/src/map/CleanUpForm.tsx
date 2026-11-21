@@ -1,9 +1,10 @@
-import { es } from '@mygame/catalog'
 import { type SendCleanUp, SendCleanUpSchema } from '@mygame/contracts'
 import { type ReactElement, useState } from 'react'
+import { usePlayerCopy } from '../copy/usePlayerCopy'
 import { CardAction } from '../design-system/CardAction'
 import { FormAlert } from '../design-system/FormAlert'
-import { lineLabelOf } from '../design-system/lineLabelOf'
+import { LabelText } from '../design-system/LabelText'
+import { spokenLineOf } from '../design-system/spokenLineOf'
 import { TextField } from '../design-system/TextField'
 import { refusalLineOf } from '../refusals/refusalLineOf'
 import type { LiveTown } from '../town/liveTown'
@@ -27,13 +28,21 @@ function QuoteLines({ lines }: { readonly lines: CleanUpQuoteLines | undefined }
     <div aria-live="polite" className="flex flex-col gap-1 empty:absolute">
       {lines !== undefined && (
         <>
-          <p className="m-0 font-sans text-body text-ink">{lines.waste}</p>
-          <p className="m-0 font-sans text-body text-ink">{lines.team}</p>
+          <p className="m-0 font-sans text-body text-ink">
+            <LabelText label={lines.waste} />
+          </p>
+          <p className="m-0 font-sans text-body text-ink">
+            <LabelText label={lines.team} />
+          </p>
           {lines.pay !== undefined && (
-            <p className="m-0 font-sans text-body text-ink">{lines.pay}</p>
+            <p className="m-0 font-sans text-body text-ink">
+              <LabelText label={lines.pay} />
+            </p>
           )}
           {lines.short !== undefined && (
-            <p className="m-0 font-sans text-caption text-warning-ink">{lines.short}</p>
+            <p className="m-0 font-sans text-caption text-warning-ink">
+              <LabelText label={lines.short} />
+            </p>
           )}
         </>
       )}
@@ -42,11 +51,12 @@ function QuoteLines({ lines }: { readonly lines: CleanUpQuoteLines | undefined }
 }
 
 export function CleanUpForm({ id, target, town, job, onSent }: CleanUpFormProps): ReactElement {
+  const copy = usePlayerCopy()
   const [entries, setEntries] = useState<TeamEntries>(firstCleanUpEntries)
-  const form = cleanUpFormOf(target, entries, town)
+  const form = cleanUpFormOf(target, entries, town, copy)
   const sentKey = form.cleanUp === undefined ? undefined : sentKeyOf(form.cleanUp)
   const quoted = useQuote(job.quoteCleanUp, SendCleanUpSchema, form.cleanUp, town.overview.season)
-  const lines = quoted?.ok === true ? cleanUpQuoteLinesOf(quoted.value) : undefined
+  const lines = quoted?.ok === true ? cleanUpQuoteLinesOf(quoted.value, copy) : undefined
   const refused = job.sendRefused?.subject === sentKey ? job.sendRefused : undefined
   const enter = (field: keyof TeamEntries, entry: string): void =>
     setEntries((held) => ({ ...held, [field]: entry }))
@@ -58,15 +68,17 @@ export function CleanUpForm({ id, target, town, job, onSent }: CleanUpFormProps)
   return (
     <section
       id={id}
-      aria-label={form.title}
+      aria-label={spokenLineOf(form.title)}
       className="flex flex-col gap-3 rounded-md border border-line bg-surface-raised p-4"
     >
-      <h4 className="m-0 font-sans text-title text-ink">{form.title}</h4>
+      <h4 className="m-0 font-sans text-title text-ink">
+        <LabelText label={form.title} />
+      </h4>
       {form.teamFields.map(({ hire, label, hint }) => (
         <TextField
           key={hire}
-          label={lineLabelOf(label, 'es')}
-          hint={lineLabelOf(hint, 'es')}
+          label={label}
+          hint={hint}
           name={`clean-up-${hire}`}
           type="text"
           inputMode="numeric"
@@ -77,18 +89,26 @@ export function CleanUpForm({ id, target, town, job, onSent }: CleanUpFormProps)
       ))}
       <QuoteLines lines={lines} />
       {quoted?.ok === false && quoted.refusal === 'Unexpected' && refused === undefined && (
-        <FormAlert message={lineLabelOf(refusalLineOf(es, quoted.refusal, quoted.error), 'es')} />
+        <FormAlert
+          message={copy.fixedCopy((catalog) =>
+            refusalLineOf(catalog, quoted.refusal, quoted.error),
+          )}
+        />
       )}
       <CardAction
         type="button"
-        label={lineLabelOf(form.actionLabel, 'es')}
-        state={sendStateOf(form.state, quoted, refused !== undefined)}
+        label={form.actionLabel}
+        state={sendStateOf(form.state, quoted, refused !== undefined, copy)}
         isWaiting={job.isSending}
         announcesReason
         onAction={onSend}
       />
       {refused !== undefined && (
-        <FormAlert message={lineLabelOf(refusalLineOf(es, refused.refusal, refused.error), 'es')} />
+        <FormAlert
+          message={copy.fixedCopy((catalog) =>
+            refusalLineOf(catalog, refused.refusal, refused.error),
+          )}
+        />
       )}
     </section>
   )
