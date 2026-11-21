@@ -28,7 +28,7 @@ const arrivalOf = ({ site, pay }: Job, cleanUp: JobCleanUp, occurredAt: Instant)
 export class TownJobs {
   constructor(
     private readonly town: Town,
-    private readonly changed: (change: Partial<TownState>) => Town,
+    private readonly changed: (town: Town, change: Partial<TownState>) => Town,
   ) {}
 
   room(): Result<void, DomainError> {
@@ -50,7 +50,7 @@ export class TownJobs {
         atHome: atHome[short],
       })
     }
-    return ok(this.changed({ jobSlot: job }))
+    return ok(this.changed(this.town, { jobSlot: job }))
   }
 
   callBack(sentAt: Instant, now: Instant, catalog: TownCatalog): Result<Town, DomainError> {
@@ -72,7 +72,7 @@ export class TownJobs {
       catalog,
       slot.payPercent,
     )
-    return ok(this.changed({ jobSlot: { ...slot, calledBackAt: now, pay } }))
+    return ok(this.changed(this.town, { jobSlot: { ...slot, calledBackAt: now, pay } }))
   }
 
   arriveAtWaste(): ChangedTown {
@@ -81,7 +81,9 @@ export class TownJobs {
       return { town: this.town, events: [] }
     }
     return {
-      town: this.changed({ jobSlot: { ...slot, cleanUp: { ...slot.cleanUp, hasArrived: true } } }),
+      town: this.changed(this.town, {
+        jobSlot: { ...slot, cleanUp: { ...slot.cleanUp, hasArrived: true } },
+      }),
       events: [arrivalOf(slot, slot.cleanUp, jobInstantsOf(slot).arrivesAt)],
     }
   }
@@ -93,7 +95,7 @@ export class TownJobs {
     }
     const { returnsAt } = jobInstantsOf(slot)
     return {
-      town: this.changed({
+      town: this.changed(this.town, {
         stocks: creditedStocks(stocksAtReturn, slot.pay),
         storedAt: returnsAt,
         jobSlot: idleJobSlot,

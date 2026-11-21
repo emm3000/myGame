@@ -66,13 +66,21 @@ const hiresOf = (countOf: (hire: HireKind) => number): Hires => ({
 })
 
 export class Town {
+  readonly buildingWork: TownBuildingWork
+  readonly hiring: TownHiring
+  readonly jobs: TownJobs
+
   private constructor(
     readonly id: TownId,
     readonly playerId: PlayerId,
     readonly name: TownName,
     readonly address: TownAddress,
     private readonly state: TownState,
-  ) {}
+  ) {
+    this.buildingWork = new TownBuildingWork(this, Town.changed)
+    this.hiring = new TownHiring(this, Town.changed)
+    this.jobs = new TownJobs(this, Town.changed)
+  }
 
   static found({ id, playerId, name, address, startingStocks, skills, at }: TownFounding): Town {
     return new Town(id, playerId, name, address, {
@@ -170,20 +178,8 @@ export class Town {
     return slot.kind === 'idle' ? atHand : hiresOf((hire) => atHand[hire] - slot.team[hire])
   }
 
-  get buildingWork(): TownBuildingWork {
-    return new TownBuildingWork(this, (change) => this.changed(change))
-  }
-
-  get hiring(): TownHiring {
-    return new TownHiring(this, (change) => this.changed(change))
-  }
-
-  get jobs(): TownJobs {
-    return new TownJobs(this, (change) => this.changed(change))
-  }
-
   earnSkill(skill: TownSkill, stocksAtEarn: Stocks): Town {
-    return this.changed({
+    return Town.changed(this, {
       skills: [...this.skills, skill],
       stocks: stocksAtEarn,
       storedAt: skill.earnedAt,
@@ -191,10 +187,10 @@ export class Town {
   }
 
   withFullSince(fullSince: FullSince): Town {
-    return this.changed({ fullSince })
+    return Town.changed(this, { fullSince })
   }
 
-  private changed(change: Partial<TownState>): Town {
-    return new Town(this.id, this.playerId, this.name, this.address, { ...this.state, ...change })
+  private static changed(town: Town, change: Partial<TownState>): Town {
+    return new Town(town.id, town.playerId, town.name, town.address, { ...town.state, ...change })
   }
 }

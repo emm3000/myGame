@@ -18,7 +18,7 @@ const isHiringOf = (target: HiringTarget, order: HiringOrder): boolean =>
 export class TownHiring {
   constructor(
     private readonly town: Town,
-    private readonly changed: (change: Partial<TownState>) => Town,
+    private readonly changed: (town: Town, change: Partial<TownState>) => Town,
   ) {}
 
   room(): Result<void, DomainError> {
@@ -31,7 +31,7 @@ export class TownHiring {
     if (!charged.ok) {
       return charged
     }
-    return ok(this.changed({ stocks: charged.value, storedAt: now, hiringSlot: order }))
+    return ok(this.changed(this.town, { stocks: charged.value, storedAt: now, hiringSlot: order }))
   }
 
   stop(target: HiringTarget, stocksAtNow: Stocks, now: Instant): Result<ChangedTown, DomainError> {
@@ -43,7 +43,7 @@ export class TownHiring {
     const stopped = slot.count - delivered
     const refund = timesCount(slot.costPerHire, stopped)
     return ok({
-      town: this.changed({
+      town: this.changed(this.town, {
         stocks: creditedStocks(stocksAtNow, refund),
         storedAt: now,
         hires: hiresPlus(this.town.hires, slot.hire, delivered),
@@ -65,7 +65,7 @@ export class TownHiring {
       return { town: this.town, events: [] }
     }
     return {
-      town: this.changed({
+      town: this.changed(this.town, {
         hires: hiresPlus(this.town.hires, slot.hire, slot.count),
         hiringSlot: idleHiringSlot,
       }),
