@@ -145,12 +145,13 @@ case "$1 $2" in
 esac
 STUB
 write_stub gh <<'STUB'
-if [ "$#" -eq 10 ] && [ "$1 $2 $3" = "pr list --head" ] && [ "$5 $6 $7 $8 $9 ${10}" = "--state merged --json number --jq length" ]; then
-  if awk -v name="$4" '$0 == name { found = 1 } END { exit !found }' "$FAKE_STATE/unreachable"; then
+if [ "$#" -eq 12 ] && [ "$1 $2 $3" = "pr list -R" ] && [ "$5" = --head ] && [ "$7 $8 $9 ${10} ${11} ${12}" = "--state merged --json number --jq length" ]; then
+  echo "$4" >>"$FAKE_STATE/gh_repositories"
+  if awk -v name="$6" '$0 == name { found = 1 } END { exit !found }' "$FAKE_STATE/unreachable"; then
     echo "error connecting to api.github.com" >&2
     exit 1
   fi
-  awk -v name="$4" '$0 == name { found = 1 } END { print found ? 1 : 0 }' "$FAKE_STATE/merged"
+  awk -v name="$6" '$0 == name { found = 1 } END { print found ? 1 : 0 }' "$FAKE_STATE/merged"
   exit 0
 fi
 echo "unexpected gh $*" >&2
@@ -328,6 +329,34 @@ closing_keeps_trunk_when_no_worktree_holds_it() {
   git --git-dir="$case_dir/origin.git" show-ref --verify --quiet refs/heads/trunk || fail "${FUNCNAME[0]}" "origin trunk deleted: $output"
 }
 
+closing_from_another_checkout_asks_gh_about_the_repo_origin() {
+  build_a_peer_with_two_earlier_merged_tickets_and_an_open_one other-checkout
+  local caller_dir="$case_dir/elsewhere"
+  git init -q --bare -b trunk "$case_dir/another-origin.git"
+  git init -q -b trunk "$caller_dir"
+  git -C "$caller_dir" remote add origin "$case_dir/another-origin.git"
+  local output
+  output=$(with_stubs "$repo/scripts/mygame-wave-close" probe) || fail "${FUNCNAME[0]}" "$output" || return 1
+  [ -s "$case_dir/state/gh_repositories" ] || fail "${FUNCNAME[0]}" "no gh pr list call named a repository: $output" || return 1
+  local named
+  named=$(awk -v origin="$case_dir/origin.git" '$0 == "" || $0 != origin { print "[" $0 "]" }' "$case_dir/state/gh_repositories")
+  [ -z "$named" ] || fail "${FUNCNAME[0]}" "gh pr list named $named: $output"
+}
+
+closing_without_an_origin_url_keeps_every_branch() {
+  build_a_peer_with_two_earlier_merged_tickets_and_an_open_one no-origin
+  git -C "$repo" remote remove origin
+  local output name
+  output=$(with_stubs scripts/mygame-wave-close probe) || fail "${FUNCNAME[0]}" "$output" || return 1
+  for name in fix/5-first fix/6-second chore/7-probe fix/8-open; do
+    git -C "$repo" show-ref --verify --quiet "refs/heads/$name" || fail "${FUNCNAME[0]}" "local $name deleted: $output" || return 1
+    git --git-dir="$case_dir/origin.git" show-ref --verify --quiet "refs/heads/$name" ||
+      fail "${FUNCNAME[0]}" "origin lost $name: $output" || return 1
+  done
+  [ ! -s "$case_dir/state/gh_repositories" ] || fail "${FUNCNAME[0]}" "gh pr list ran without an origin URL: $output" || return 1
+  rg -qF "no origin URL for $repo" <<<"$output" || fail "${FUNCNAME[0]}" "$output"
+}
+
 closing_leaves_a_merged_branch_gone_locally_to_the_orphan_report() {
   build_a_peer_with_two_earlier_merged_tickets_and_an_open_one earlier-gone
   git -C "$case_dir/mygame-probe" switch -q -c fix/4-gone trunk
@@ -364,7 +393,7 @@ with_stubs() {
     for tool in adb docker gh kill lsof ps; do
       [ "$(type -P "$tool")" = "$sandbox/bin/$tool" ] || { echo "refusing to run: stub $tool is not first on PATH" >&2; exit 70; }
     done
-    cd "$repo" && bound 20 "$@" 2>&1
+    cd "${caller_dir:-$repo}" && bound 20 "$@" 2>&1
   )
 }
 
@@ -762,6 +791,8 @@ run closing_keeps_a_merged_branch_another_peer_holds
 run closing_keeps_a_branch_whose_merged_state_gh_cannot_answer
 run closing_keeps_trunk_when_no_worktree_holds_it
 run closing_leaves_a_merged_branch_gone_locally_to_the_orphan_report
+run closing_from_another_checkout_asks_gh_about_the_repo_origin
+run closing_without_an_origin_url_keeps_every_branch
 run orphans_treats_a_same_name_claude_outside_the_worktree_as_not_live
 run closing_stops_the_peer_emulator_by_its_avd_and_deletes_the_avd
 run closing_probe_spares_the_mygame_probe2_emulator_and_avd
