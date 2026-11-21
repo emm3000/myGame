@@ -163,16 +163,6 @@ export {
 } from './town/BuildingWork'
 export { buildingKinds } from './town/buildingKinds'
 export { buildPercentAt } from './town/buildPercentAt'
-export type { CleanUp } from './town/CleanUp'
-export type { CleanUpOrder } from './town/CleanUpOrder'
-export type { CleanUpQuote } from './town/CleanUpQuote'
-export type { CleanUpReader } from './town/CleanUpReader'
-export type { CleanUpRepository } from './town/CleanUpRepository'
-export {
-  type CallJobBackCommand,
-  type CallJobBackDependencies,
-  callJobBack,
-} from './town/callJobBack'
 export { deliveredHiresOf } from './town/deliveredHiresOf'
 export { deriveFullAt, type FullAt } from './town/deriveFullAt'
 export { deriveHireDurationSeconds } from './town/deriveHireDurationSeconds'
@@ -197,19 +187,43 @@ export { hireKinds } from './town/hireKinds'
 export { hirePercentAt } from './town/hirePercentAt'
 export { hiringEndsAt } from './town/hiringEndsAt'
 export { isLessonFinishedBy } from './town/isLessonFinishedBy'
+export type { CleanUp } from './town/jobs/CleanUp'
+export type { CleanUpOrder } from './town/jobs/CleanUpOrder'
+export type { CleanUpQuote } from './town/jobs/CleanUpQuote'
 export {
   type CleanUpJob,
   idleJobSlot,
   type Job,
   type JobCleanUp,
   type JobSlot,
-} from './town/Job'
-export type { JobOrder, JobTarget } from './town/JobOrder'
-export { type JobInstants, jobInstantsOf } from './town/jobInstantsOf'
-export { jobOneWaySeconds } from './town/jobOneWaySeconds'
-export { jobPayOf } from './town/jobPayOf'
-export { type JobPhase, jobPhaseAt } from './town/jobPhaseAt'
-export { type JobSeason, jobSeasonAt } from './town/jobSeasonAt'
+} from './town/jobs/Job'
+export type { JobOrder, JobTarget } from './town/jobs/JobOrder'
+export { type JobInstants, jobInstantsOf } from './town/jobs/jobInstantsOf'
+export { jobOneWaySeconds } from './town/jobs/jobOneWaySeconds'
+export { jobPayOf } from './town/jobs/jobPayOf'
+export { type JobPhase, jobPhaseAt } from './town/jobs/jobPhaseAt'
+export { type JobSeason, jobSeasonAt } from './town/jobs/jobSeasonAt'
+export type { CleanUpReader } from './town/jobs/ports/CleanUpReader'
+export type { CleanUpRepository } from './town/jobs/ports/CleanUpRepository'
+export type { RegionMapReader, SiteHolder } from './town/jobs/ports/RegionMapReader'
+export type { RegionMap, RegionSite, SiteWaste } from './town/jobs/RegionMap'
+export type { Terrain } from './town/jobs/Terrain'
+export { terrainOf } from './town/jobs/terrainOf'
+export {
+  type CallJobBackCommand,
+  type CallJobBackDependencies,
+  callJobBack,
+} from './town/jobs/useCases/callJobBack'
+export { type QuoteCleanUpDependencies, quoteCleanUp } from './town/jobs/useCases/quoteCleanUp'
+export { type QuoteJobDependencies, quoteJob } from './town/jobs/useCases/quoteJob'
+export {
+  type ReadRegionMapCommand,
+  type ReadRegionMapDependencies,
+  readRegionMap,
+} from './town/jobs/useCases/readRegionMap'
+export { type SendCleanUpDependencies, sendCleanUp } from './town/jobs/useCases/sendCleanUp'
+export { type SendJobDependencies, sendJob } from './town/jobs/useCases/sendJob'
+export type { WasteSize } from './town/jobs/WasteSize'
 export { type BusyLessonSlot, idleLessonSlot, type LessonSlot } from './town/LessonSlot'
 export type { LessonSlotRepository } from './town/LessonSlotRepository'
 export { type LevelWordNeed, levelWordNeedOf } from './town/levelWordNeedOf'
@@ -228,16 +242,7 @@ export {
   type PlaceHiringOrderDependencies,
   placeHiringOrder,
 } from './town/placeHiringOrder'
-export { type QuoteCleanUpDependencies, quoteCleanUp } from './town/quoteCleanUp'
-export { type QuoteJobDependencies, quoteJob } from './town/quoteJob'
-export type { RegionMap, RegionSite, SiteWaste } from './town/RegionMap'
-export type { RegionMapReader, SiteHolder } from './town/RegionMapReader'
 export type { ResourceKind } from './town/ResourceKind'
-export {
-  type ReadRegionMapCommand,
-  type ReadRegionMapDependencies,
-  readRegionMap,
-} from './town/readRegionMap'
 export { type ReadyStock, type ResourceNeed, readyMinuteOf } from './town/readyMinuteOf'
 export { rebaseFullSince } from './town/rebaseFullSince'
 export { requiredOfficeLevelOf } from './town/requiredOfficeLevelOf'
@@ -246,8 +251,6 @@ export { resourceKinds } from './town/resourceKinds'
 export type { SiteAddress } from './town/SiteAddress'
 export type { Stocks } from './town/Stocks'
 export { schoolLevelOf } from './town/schoolLevelOf'
-export { type SendCleanUpDependencies, sendCleanUp } from './town/sendCleanUp'
-export { type SendJobDependencies, sendJob } from './town/sendJob'
 export {
   type SettleSchoolLessonDependencies,
   settleSchoolLesson,
@@ -278,7 +281,6 @@ export {
   stopSchoolLesson,
 } from './town/stopSchoolLesson'
 export { studyPercentAt } from './town/studyPercentAt'
-export type { Terrain } from './town/Terrain'
 export type { TipKind } from './town/TipKind'
 export { type ChangedTown, type StoredTown, Town, type TownFounding } from './town/Town'
 export { TownAddress } from './town/TownAddress'
@@ -299,12 +301,10 @@ export type {
   TownSettings,
 } from './town/TownSettings'
 export type { TownSkill } from './town/TownSkill'
-export { terrainOf } from './town/terrainOf'
 export { tipKinds } from './town/tipKinds'
 export { type TipReading, tipOf } from './town/tipOf'
 export { townLabelOf } from './town/townLabelOf'
 export { type TownSeason, townSeasonAt } from './town/townSeasonAt'
-export type { WasteSize } from './town/WasteSize'
 export type { WordNeed } from './town/WordNeed'
 export { type WordShortfall, wordShortfallOf } from './town/wordShortfallOf'
 export {

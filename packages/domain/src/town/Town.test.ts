@@ -4,11 +4,11 @@ import { storedTownOf } from '../testing/townFixtures'
 import { Instant } from '../time/Instant'
 import { accrueTown } from './accrueTown'
 import type { HiringOrder } from './HiringOrder'
-import type { Job } from './Job'
+import type { Job } from './jobs/Job'
+import { terrainOf } from './jobs/terrainOf'
 import { Town } from './Town'
 import { TownAddress } from './TownAddress'
 import type { TownSkill } from './TownSkill'
-import { terrainOf } from './terrainOf'
 
 const storedAt = Instant.fromEpochMilliseconds(1_791_244_800_000)
 

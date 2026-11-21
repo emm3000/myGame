@@ -6,7 +6,7 @@ import { plainTownSettings, townCatalogOf } from '../testing/townCatalogOf'
 import { townOf } from '../testing/townFixtures'
 import { Instant } from '../time/Instant'
 import type { WaitingWork, WorkSlot } from './BuildingWork'
-import type { Job } from './Job'
+import type { Job } from './jobs/Job'
 import { resolveTown } from './resolveTown'
 
 const MILLISECONDS_PER_MINUTE = 60_000
