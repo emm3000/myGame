@@ -17,7 +17,7 @@ const returnOf = (
   if (!accrual.ok) {
     return accrual
   }
-  const returned = town.returnJob(accrual.value.stocks)
+  const returned = town.jobs.comeBack(accrual.value.stocks)
   const rebased = rebaseFullSince(accrual.value.fullSince, returned.town, catalog)
   if (!rebased.ok) {
     return rebased
@@ -61,7 +61,7 @@ const settleArrivalTo = (
   if (!before.ok) {
     return before
   }
-  const arrived = before.value.town.arriveAtWaste()
+  const arrived = before.value.town.jobs.arriveAtWaste()
   return ok({ town: arrived.town, events: [...before.value.events, ...arrived.events] })
 }
 

@@ -40,7 +40,7 @@ const admitJobTerms = (
   if (!isWholeFromOneTo(hours, maxHours)) {
     return err({ kind: 'JobHoursOutOfRange', hours, maxHours })
   }
-  return town.roomForJob()
+  return town.jobs.room()
 }
 
 const jobTo = (
@@ -82,7 +82,7 @@ export const dispatchJob = async (
     return site
   }
   const job = jobTo(town, site.value, order, catalog, now)
-  const sent = town.sendJob(job)
+  const sent = town.jobs.send(job)
   if (!sent.ok) {
     return sent
   }

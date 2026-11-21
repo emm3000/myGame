@@ -36,7 +36,7 @@ const admitCleanUp = async (
   if (invalidTeam !== undefined) {
     return err(invalidTeam)
   }
-  const room = town.roomForJob()
+  const room = town.jobs.room()
   if (!room.ok) {
     return room
   }
@@ -76,7 +76,7 @@ export const dispatchCleanUp = async (
   if (!job.ok) {
     return job
   }
-  const sent = town.sendJob(job.value)
+  const sent = town.jobs.send(job.value)
   if (!sent.ok) {
     return sent
   }
