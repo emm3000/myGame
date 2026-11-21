@@ -9,11 +9,11 @@ import { honoPathOf } from '../../../../platform/infrastructure/http/honoPath'
 import { jsonResponse } from '../../../../platform/infrastructure/http/responseDeclarations'
 import { signedInRoute } from '../../../../platform/infrastructure/http/signedInRoute'
 import { townNotFoundResponse } from '../../../infrastructure/http/townComponents'
-import { townNewsItemOf } from '../../../townNewsItemOf'
 import {
   type ResolveTownNewsDependencies,
   resolveTownNews,
 } from '../../application/resolveTownNews'
+import { townNewsItemOf } from './presentTownNewsItem'
 
 export const resolveTownNewsDeclaration = createRoute(
   signedInRoute({

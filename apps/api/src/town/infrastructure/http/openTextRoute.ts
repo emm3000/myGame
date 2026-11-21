@@ -14,7 +14,7 @@ import {
   type ResolveCurrentTownDependencies,
   resolveCurrentTown,
 } from '../../application/resolveCurrentTown'
-import { openTextOf } from '../../openTextOf'
+import { openTextOf } from './presentOpenText'
 
 export const openTextDeclaration = createRoute(
   signedInRoute({

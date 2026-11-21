@@ -10,11 +10,11 @@ import {
   TownName,
 } from '@mygame/domain'
 import { assert, describe, expect, it } from 'vitest'
-import { apiPackagePath } from '../apiPackagePath.testSupport'
-import { JsonTownCatalog } from '../content/infrastructure/json/JsonTownCatalog'
-import { readJsonLessonLibrary } from '../content/infrastructure/json/readJsonLessonLibrary'
-import type { TownReading } from './application/TownReading'
-import { schoolOverviewOf } from './schoolOverviewOf'
+import { apiPackagePath } from '../../../../apiPackagePath.testSupport'
+import { JsonTownCatalog } from '../../../../content/infrastructure/json/JsonTownCatalog'
+import { readJsonLessonLibrary } from '../../../../content/infrastructure/json/readJsonLessonLibrary'
+import type { TownReading } from '../../../application/TownReading'
+import { schoolOverviewOf } from './presentTownSchool'
 
 const contentDirectory = apiPackagePath('content/')
 

@@ -1,6 +1,6 @@
 import type { Report } from '@mygame/contracts'
 import { presentReviews } from '../../../learning/infrastructure/http/presentReviews'
-import { townNewsItemOf } from '../../../town/townNewsItemOf'
+import { townNewsItemOf } from '../../../town/news/infrastructure/http/presentTownNewsItem'
 import type { ServedReport } from '../../application/serveReport'
 
 export const presentReport = ({ reviews, news }: ServedReport): Report => {

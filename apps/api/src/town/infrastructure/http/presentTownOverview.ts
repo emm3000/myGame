@@ -44,12 +44,12 @@ import {
   type WaitingList,
   wordShortfallOf,
 } from '@mygame/domain'
-import { presentScaffold } from '../account/infrastructure/http/presentScaffold'
-import type { LessonLibrary } from '../content/application/ports/LessonLibrary'
-import { isoOf } from '../platform/infrastructure/http/isoOf'
-import type { TownReading } from './application/TownReading'
-import { jobStateOf } from './jobStateOf'
-import { schoolOverviewOf } from './schoolOverviewOf'
+import { presentScaffold } from '../../../account/infrastructure/http/presentScaffold'
+import type { LessonLibrary } from '../../../content/application/ports/LessonLibrary'
+import { isoOf } from '../../../platform/infrastructure/http/isoOf'
+import type { TownReading } from '../../application/TownReading'
+import { jobStateOf } from '../../jobs/infrastructure/http/presentTownJob'
+import { schoolOverviewOf } from '../../school/infrastructure/http/presentTownSchool'
 
 type BuildingState = TownOverview['buildings'][BuildingKind]
 

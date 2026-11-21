@@ -1,6 +1,6 @@
 import type { TownOverview } from '@mygame/contracts'
 import { type Instant, type Job, jobInstantsOf, jobPhaseAt, type Town } from '@mygame/domain'
-import { isoOf } from '../platform/infrastructure/http/isoOf'
+import { isoOf } from '../../../../platform/infrastructure/http/isoOf'
 
 type TownJob = NonNullable<TownOverview['job']>
 
