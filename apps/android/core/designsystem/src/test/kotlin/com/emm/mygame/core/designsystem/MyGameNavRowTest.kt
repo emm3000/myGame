@@ -358,6 +358,26 @@ class MyGameNavRowTest {
     }
 
     @Test
+    @Config(qualifiers = "+w360dp-h640dp", fontScale = 2.0f)
+    fun `a nav row at font scale 2 keeps half its text room for the title beside a status word wider than half`() {
+        show {
+            Box(modifier = Modifier.padding(horizontal = MyGameSpacing.step4)) {
+                MyGameNavRow(
+                    title = MyGameLabel(text = "Lección 1 · Leer las palabras", translation = null),
+                    status = MyGameLabel(text = "Internacionalización", translation = null),
+                    onClick = {},
+                )
+            }
+        }
+
+        val title: DpRect = boundsOf("Lección 1 · Leer las palabras")
+        val textRoom: Dp = chevron().getBoundsInRoot().left - MyGameSpacing.step3 - title.left - MyGameSpacing.step3
+        val titleWidth: Dp = title.right - title.left
+
+        assertTrue("the title is $titleWidth of $textRoom", titleWidth >= textRoom / 2)
+    }
+
+    @Test
     fun `a nav row draws its body under its title`() {
         showLessonRow()
 
