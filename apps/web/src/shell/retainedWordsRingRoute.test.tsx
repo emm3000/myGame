@@ -1,4 +1,4 @@
-import { reviewAnswerField, reviewCheck, reviewCorrect, shellRetainedWords } from '@mygame/catalog'
+import { es } from '@mygame/catalog'
 import type { DueReview, ReviewAnswer, TownOverview } from '@mygame/contracts'
 import { act, fireEvent, screen, within } from '@testing-library/react'
 import { afterEach, beforeEach, expect, it, vi } from 'vitest'
@@ -37,7 +37,7 @@ const showTownAt = async (path: string, retainedWords: RetainedWords): Promise<v
 const header = (): HTMLElement => screen.getByRole('banner')
 
 const ringOf = (count: number, total: number): HTMLElement =>
-  screen.getByRole('img', { name: shellRetainedWords({ count, total }) })
+  screen.getByRole('img', { name: es.shellRetainedWords({ count, total }) })
 
 const schoolRecall: DueReview = {
   wordId: 'lesson-1-2',
@@ -108,10 +108,10 @@ it('moves the ring on no answer short of retained', async () => {
   )
   await passSeconds(0)
 
-  fireEvent.change(screen.getByLabelText(reviewAnswerField()), { target: { value: 'school' } })
-  fireEvent.click(screen.getByRole('button', { name: reviewCheck() }))
+  fireEvent.change(screen.getByLabelText(es.reviewAnswerField()), { target: { value: 'school' } })
+  fireEvent.click(screen.getByRole('button', { name: es.reviewCheck() }))
   await passSeconds(0)
 
-  expect(screen.getByText(reviewCorrect())).toBeTruthy()
+  expect(screen.getByText(es.reviewCorrect())).toBeTruthy()
   expect(ringOf(2, 5)).toBeTruthy()
 })

@@ -1,19 +1,4 @@
-import {
-  es,
-  reviewAnswerField,
-  reviewBackToTown,
-  reviewCheck,
-  reviewCorrect,
-  reviewLessonReady,
-  reviewNext,
-  reviewSkillRate,
-  reviewSkillRates,
-  reviewSkillWords,
-  schoolLessonReadWords,
-  schoolLessonTitle,
-  schoolPathCount,
-  schoolPathStudied,
-} from '@mygame/catalog'
+import { es } from '@mygame/catalog'
 import type { DueReview, Reviews, ReviewVerdict, TownOverview } from '@mygame/contracts'
 import { act, fireEvent, screen, within } from '@testing-library/react'
 import { afterEach, beforeEach, expect, it, vi } from 'vitest'
@@ -112,10 +97,10 @@ const showReviews = async (
 }
 
 const answerAndGoOn = async (): Promise<void> => {
-  fireEvent.change(screen.getByLabelText(reviewAnswerField()), { target: { value: 'school' } })
-  fireEvent.click(screen.getByRole('button', { name: reviewCheck() }))
+  fireEvent.change(screen.getByLabelText(es.reviewAnswerField()), { target: { value: 'school' } })
+  fireEvent.click(screen.getByRole('button', { name: es.reviewCheck() }))
   await passSeconds(0)
-  fireEvent.click(screen.getByRole('button', { name: reviewNext() }))
+  fireEvent.click(screen.getByRole('button', { name: es.reviewNext() }))
   await passSeconds(0)
 }
 
@@ -129,18 +114,18 @@ it('sends the player to the words when a lesson finishes during the reviews', as
 
   await answerAndGoOn()
 
-  expect(screen.getByRole('heading', { name: reviewLessonReady({ number: 2 }) })).toBeTruthy()
-  expect(screen.getByRole('link', { name: schoolLessonReadWords() }).getAttribute('href')).toBe(
+  expect(screen.getByRole('heading', { name: es.reviewLessonReady({ number: 2 }) })).toBeTruthy()
+  expect(screen.getByRole('link', { name: es.schoolLessonReadWords() }).getAttribute('href')).toBe(
     '/school/lesson-2',
   )
-  expect(screen.queryByLabelText(reviewAnswerField())).toBeNull()
+  expect(screen.queryByLabelText(es.reviewAnswerField())).toBeNull()
 })
 
 it('never sends back a player who walked the words', async () => {
   await showReviews(readingInTurn(reviewsOf([recallOf('lesson-2', 'farm')], ['lesson-2'])))
 
-  expect(screen.getByLabelText(reviewAnswerField())).toBeTruthy()
-  expect(screen.queryByRole('link', { name: schoolLessonReadWords() })).toBeNull()
+  expect(screen.getByLabelText(es.reviewAnswerField())).toBeTruthy()
+  expect(screen.queryByRole('link', { name: es.schoolLessonReadWords() })).toBeNull()
 })
 
 it('reviews the earlier cards before it stops at the finished lesson', async () => {
@@ -153,7 +138,7 @@ it('reviews the earlier cards before it stops at the finished lesson', async () 
 
   await answerAndGoOn()
 
-  expect(screen.getByLabelText(reviewAnswerField())).toBeTruthy()
+  expect(screen.getByLabelText(es.reviewAnswerField())).toBeTruthy()
   expect(screen.getByText('gloss of home')).toBeTruthy()
 })
 
@@ -168,21 +153,21 @@ it('stops at the finished lesson with no line while the town is unread', async (
 
   await answerAndGoOn()
 
-  expect(inkPills()).toEqual([schoolLessonReadWords()])
+  expect(inkPills()).toEqual([es.schoolLessonReadWords()])
   expect(screen.queryByRole('heading', { level: 2 })).toBeNull()
 })
 
 it("offers a way back at the review's end", async () => {
   await showReviews(readingInTurn(reviewsOf([], [], '2026-11-10T10:00:00.000Z')))
 
-  expect(inkPills()).toEqual([reviewBackToTown()])
-  expect(screen.getByRole('link', { name: reviewBackToTown() }).getAttribute('href')).toBe('/')
+  expect(inkPills()).toEqual([es.reviewBackToTown()])
+  expect(screen.getByRole('link', { name: es.reviewBackToTown() }).getAttribute('href')).toBe('/')
 })
 
 it('offers a way back when the player holds no cards', async () => {
   await showReviews(readingInTurn(reviewsOf([], [])))
 
-  expect(inkPills()).toEqual([reviewBackToTown()])
+  expect(inkPills()).toEqual([es.reviewBackToTown()])
 })
 
 const laterReview = '2026-11-10T10:00:00.000Z'
@@ -199,7 +184,7 @@ const retainedLessonOne = lessonOf(1, {
 })
 
 const pathSection = (number: number): HTMLElement =>
-  screen.getByRole('region', { name: schoolLessonTitle({ number }) })
+  screen.getByRole('region', { name: es.schoolLessonTitle({ number }) })
 
 it("shows the school path at the review's end", async () => {
   const town = townWith({ lessons: [retainedLessonOne, lessonOf(2)], skills: [earnedFood] })
@@ -208,8 +193,8 @@ it("shows the school path at the review's end", async () => {
   })
 
   const path = within(pathSection(2))
-  expect(path.getByText(schoolPathStudied())).toBeTruthy()
-  expect(path.getAllByText(schoolPathCount({ count: 5, total: 5 }))).toHaveLength(1)
+  expect(path.getByText(es.schoolPathStudied())).toBeTruthy()
+  expect(path.getAllByText(es.schoolPathCount({ count: 5, total: 5 }))).toHaveLength(1)
 })
 
 it('shows no school path once every studied lesson earned its skill', async () => {
@@ -222,7 +207,7 @@ it('shows no school path once every studied lesson earned its skill', async () =
     town: async () => ({ ok: true, value: town }),
   })
 
-  expect(screen.queryByRole('region', { name: schoolLessonTitle({ number: 2 }) })).toBeNull()
+  expect(screen.queryByRole('region', { name: es.schoolLessonTitle({ number: 2 }) })).toBeNull()
 })
 
 it('shows no school path to a player with no town', async () => {
@@ -230,8 +215,8 @@ it('shows no school path to a player with no town', async () => {
     town: async () => ({ ok: false, refusal: 'TownNotFound' }),
   })
 
-  expect(screen.queryByText(schoolPathStudied())).toBeNull()
-  expect(inkPills()).toEqual([reviewBackToTown()])
+  expect(screen.queryByText(es.schoolPathStudied())).toBeNull()
+  expect(inkPills()).toEqual([es.reviewBackToTown()])
 })
 
 const earningVerdict = (
@@ -252,22 +237,22 @@ const answerEarning = async (verdict: ReviewVerdict): Promise<HTMLElement> => {
   await showReviews(readingInTurn(reviewsOf([recallOf('lesson-1', 'school')], [])), {
     answerReview: async () => ({ ok: true, value: { verdict } }),
   })
-  fireEvent.change(screen.getByLabelText(reviewAnswerField()), { target: { value: 'school' } })
-  fireEvent.click(screen.getByRole('button', { name: reviewCheck() }))
+  fireEvent.change(screen.getByLabelText(es.reviewAnswerField()), { target: { value: 'school' } })
+  fireEvent.click(screen.getByRole('button', { name: es.reviewCheck() }))
   await passSeconds(0)
-  return screen.getByRole('region', { name: reviewCorrect() })
+  return screen.getByRole('region', { name: es.reviewCorrect() })
 }
 
 it("shows the rates and the lesson's words on the skill verdict", async () => {
   const verdict = within(await answerEarning(earningVerdict(120.5, 126.75)))
 
   expect(
-    verdict.getByText(reviewSkillRates({ resource: 'Comida', before: '120', after: '126' })),
+    verdict.getByText(es.reviewSkillRates({ resource: 'Comida', before: '120', after: '126' })),
   ).toBeTruthy()
   const words = verdict.getByText('home, school, work')
   expect([words.getAttribute('lang'), words.parentElement?.textContent]).toEqual([
     'en',
-    `${reviewSkillWords()} home, school, work`,
+    `${es.reviewSkillWords()} home, school, work`,
   ])
 })
 
@@ -275,7 +260,7 @@ it('keeps the percent line with no town', async () => {
   const verdict = within(await answerEarning(earningVerdict(null, null)))
 
   expect(
-    verdict.getByText(reviewSkillRate({ percent: 5, resource: townResourceNameOf(es, 'food') })),
+    verdict.getByText(es.reviewSkillRate({ percent: 5, resource: townResourceNameOf(es, 'food') })),
   ).toBeTruthy()
   expect(verdict.queryByText(/\/ h,/)).toBeNull()
 })

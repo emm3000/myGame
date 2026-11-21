@@ -1,11 +1,4 @@
-import {
-  newsLoading,
-  newsNone,
-  newsTitle,
-  refusalUnexpected,
-  reportNewsAll,
-  townTryAgain,
-} from '@mygame/catalog'
+import { es } from '@mygame/catalog'
 import type { TownNewsFeed, TownNewsItem } from '@mygame/contracts'
 import { act, fireEvent, screen, within } from '@testing-library/react'
 import { afterEach, beforeEach, expect, it, vi } from 'vitest'
@@ -93,7 +86,7 @@ const showNews = async (
   return rendered
 }
 
-const newsRegion = (): HTMLElement => screen.getByRole('region', { name: newsTitle() })
+const newsRegion = (): HTMLElement => screen.getByRole('region', { name: es.newsTitle() })
 
 const rowTexts = (): ReadonlyArray<string | null> =>
   within(newsRegion())
@@ -138,31 +131,31 @@ it('opens the news from its row on the Report', async () => {
   )
   await passSeconds(0)
 
-  fireEvent.click(screen.getByRole('link', { name: reportNewsAll() }))
+  fireEvent.click(screen.getByRole('link', { name: es.reportNewsAll() }))
   await passSeconds(0)
 
   expect(router.state.location.pathname).toBe('/news')
-  expect(screen.getByRole('heading', { level: 1, name: newsTitle() })).toBeDefined()
+  expect(screen.getByRole('heading', { level: 1, name: es.newsTitle() })).toBeDefined()
   expect(within(newsRegion()).getByText('Hogares: ahora en nivel 2.')).toBeDefined()
 })
 
 it('says there is no news when the town has none', async () => {
   await showNews(answering(feedOf([])))
 
-  expect(within(newsRegion()).getByText(newsNone())).toBeDefined()
+  expect(within(newsRegion()).getByText(es.newsNone())).toBeDefined()
   expect(within(newsRegion()).queryByRole('list')).toBeNull()
 })
 
 it('keeps the loading line in a status region while the news reads', async () => {
   await showNews(neverAnswering)
 
-  expect(screen.getByRole('status').textContent).toBe(newsLoading())
+  expect(screen.getByRole('status').textContent).toBe(es.newsLoading())
 })
 
 it('reads the refusal of a failed read', async () => {
   await showNews(refusedRead)
 
-  expect(within(newsRegion()).getByText(refusalUnexpected())).toBeDefined()
+  expect(within(newsRegion()).getByText(es.refusalUnexpected())).toBeDefined()
 })
 
 it('reads the news again on a retry after a failed read', async () => {
@@ -172,7 +165,7 @@ it('reads the news again on a retry after a failed read', async () => {
     .mockResolvedValue({ ok: true, value: feedOf([homesFinished]) })
   await showNews(townNews)
 
-  fireEvent.click(screen.getByRole('button', { name: townTryAgain() }))
+  fireEvent.click(screen.getByRole('button', { name: es.townTryAgain() }))
   await passSeconds(0)
 
   expect(within(newsRegion()).getByText('Hogares: ahora en nivel 2.')).toBeDefined()

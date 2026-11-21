@@ -1,20 +1,4 @@
-import {
-  holdoutCheckDone,
-  holdoutCheckDueLine,
-  holdoutCheckFailed,
-  holdoutCheckRefusalInvalid,
-  holdoutCheckRefused,
-  holdoutCheckSend,
-  holdoutCheckSkip,
-  holdoutCheckSkipLine,
-  holdoutCheckSkipped,
-  holdoutCheckStart,
-  placementNext,
-  placementProgress,
-  placementPrompt,
-  placementRetry,
-  refusalUnexpected,
-} from '@mygame/catalog'
+import { es } from '@mygame/catalog'
 import type { HoldoutChecks } from '@mygame/contracts'
 import { act, fireEvent, screen } from '@testing-library/react'
 import { afterEach, beforeEach, expect, it, vi } from 'vitest'
@@ -96,7 +80,7 @@ const choose = async (gloss: string): Promise<void> => {
 
 const answerBoth = async (): Promise<void> => {
   await choose('casa')
-  await click(placementNext())
+  await click(es.placementNext())
   await choose('agua')
 }
 
@@ -105,21 +89,21 @@ const alert = (): string | null => screen.getByRole('alert').textContent
 it('draws a due check with its band and week, a way to take it and a way to skip it', async () => {
   await showCheck({ holdoutChecks: reading(firstBandDue) })
 
-  expect(screen.getByText(holdoutCheckDueLine({ band: 1, week: 8 }))).toBeDefined()
-  expect(screen.getByText(holdoutCheckSkipLine())).toBeDefined()
-  expect(button(holdoutCheckStart())).toBeDefined()
-  expect(button(holdoutCheckSkip())).toBeDefined()
+  expect(screen.getByText(es.holdoutCheckDueLine({ band: 1, week: 8 }))).toBeDefined()
+  expect(screen.getByText(es.holdoutCheckSkipLine())).toBeDefined()
+  expect(button(es.holdoutCheckStart())).toBeDefined()
+  expect(button(es.holdoutCheckSkip())).toBeDefined()
 })
 
 it('begins the check of its band and week and asks its first word', async () => {
   const beginHoldoutCheck = vi.fn(changedTo(firstBandAsking))
   await showCheck({ holdoutChecks: reading(firstBandDue), beginHoldoutCheck })
 
-  await click(holdoutCheckStart())
+  await click(es.holdoutCheckStart())
 
   expect(beginHoldoutCheck).toHaveBeenCalledWith({ band: 1, week: 8 })
   expect(screen.getByRole('heading', { name: 'house' })).toBeDefined()
-  expect(screen.getByText(placementProgress({ number: 1, total: 2 }))).toBeDefined()
+  expect(screen.getByText(es.placementProgress({ number: 1, total: 2 }))).toBeDefined()
 })
 
 it('asks a check begun before from its first word', async () => {
@@ -133,7 +117,7 @@ it('sends every answer of the check at once', async () => {
   await showCheck({ holdoutChecks: reading(firstBandAsking), answerHoldoutCheck })
 
   await answerBoth()
-  await click(holdoutCheckSend())
+  await click(es.holdoutCheckSend())
 
   expect(answerHoldoutCheck).toHaveBeenCalledOnce()
   expect(answerHoldoutCheck).toHaveBeenCalledWith(
@@ -154,9 +138,9 @@ it('draws the check done once its answers are saved', async () => {
   })
 
   await answerBoth()
-  await click(holdoutCheckSend())
+  await click(es.holdoutCheckSend())
 
-  expect(screen.getByText(holdoutCheckDone())).toBeDefined()
+  expect(screen.getByText(es.holdoutCheckDone())).toBeDefined()
 })
 
 it('holds the send while the answers are on their way', async () => {
@@ -166,20 +150,22 @@ it('holds the send while the answers are on their way', async () => {
   })
 
   await answerBoth()
-  await click(holdoutCheckSend())
+  await click(es.holdoutCheckSend())
 
-  expect(button(holdoutCheckSend()).getAttribute('aria-busy')).toBe('true')
-  expect(screen.getByRole('group', { name: placementPrompt() }).hasAttribute('disabled')).toBe(true)
+  expect(button(es.holdoutCheckSend()).getAttribute('aria-busy')).toBe('true')
+  expect(screen.getByRole('group', { name: es.placementPrompt() }).hasAttribute('disabled')).toBe(
+    true,
+  )
 })
 
 it('skips the check and says so', async () => {
   const skipHoldoutCheck = vi.fn(changedTo({ checks: [] }))
   await showCheck({ holdoutChecks: reading(firstBandDue), skipHoldoutCheck })
 
-  await click(holdoutCheckSkip())
+  await click(es.holdoutCheckSkip())
 
   expect(skipHoldoutCheck).toHaveBeenCalledWith({ band: 1, week: 8 })
-  expect(screen.getByText(holdoutCheckSkipped())).toBeDefined()
+  expect(screen.getByText(es.holdoutCheckSkipped())).toBeDefined()
 })
 
 it('draws a check refused as not open inline and keeps the way to take it', async () => {
@@ -188,10 +174,10 @@ it('draws a check refused as not open inline and keeps the way to take it', asyn
     beginHoldoutCheck: async () => ({ kind: 'refused', refusal: 'notOpen' }),
   })
 
-  await click(holdoutCheckStart())
+  await click(es.holdoutCheckStart())
 
-  expect(alert()).toBe(holdoutCheckRefused())
-  expect(button(holdoutCheckStart())).toBeDefined()
+  expect(alert()).toBe(es.holdoutCheckRefused())
+  expect(button(es.holdoutCheckStart())).toBeDefined()
 })
 
 it('draws answers refused as not open inline and keeps the asked word', async () => {
@@ -201,9 +187,9 @@ it('draws answers refused as not open inline and keeps the asked word', async ()
   })
 
   await answerBoth()
-  await click(holdoutCheckSend())
+  await click(es.holdoutCheckSend())
 
-  expect(alert()).toBe(holdoutCheckRefused())
+  expect(alert()).toBe(es.holdoutCheckRefused())
   expect(screen.getByRole('heading', { name: 'water' })).toBeDefined()
 })
 
@@ -214,9 +200,9 @@ it('draws answers refused as invalid inline', async () => {
   })
 
   await answerBoth()
-  await click(holdoutCheckSend())
+  await click(es.holdoutCheckSend())
 
-  expect(alert()).toBe(holdoutCheckRefusalInvalid())
+  expect(alert()).toBe(es.holdoutCheckRefusalInvalid())
 })
 
 it('draws a change the server never answered inline', async () => {
@@ -225,24 +211,24 @@ it('draws a change the server never answered inline', async () => {
     skipHoldoutCheck: async () => ({ kind: 'unreachable' }),
   })
 
-  await click(holdoutCheckSkip())
+  await click(es.holdoutCheckSkip())
 
-  expect(alert()).toBe(refusalUnexpected())
-  expect(button(holdoutCheckSkip())).toBeDefined()
+  expect(alert()).toBe(es.refusalUnexpected())
+  expect(button(es.holdoutCheckSkip())).toBeDefined()
 })
 
 it('says the check is not open when the read has no check of its band and week', async () => {
   await showCheck({ holdoutChecks: reading(otherBandDue) })
 
-  expect(screen.getByText(holdoutCheckRefused())).toBeDefined()
-  expect(screen.queryByRole('button', { name: holdoutCheckStart() })).toBeNull()
+  expect(screen.getByText(es.holdoutCheckRefused())).toBeDefined()
+  expect(screen.queryByRole('button', { name: es.holdoutCheckStart() })).toBeNull()
 })
 
 it('says the check is not open on a week no check is taken at', async () => {
   const holdoutChecks = vi.fn(reading(firstBandDue))
   await showCheck({ holdoutChecks }, '/school/check/1/9')
 
-  expect(screen.getByText(holdoutCheckRefused())).toBeDefined()
+  expect(screen.getByText(es.holdoutCheckRefused())).toBeDefined()
   expect(holdoutChecks).not.toHaveBeenCalled()
 })
 
@@ -253,10 +239,10 @@ it('offers a retry when the checks cannot be read and reads them again', async (
     .mockResolvedValue({ ok: true, value: firstBandDue })
   await showCheck({ holdoutChecks })
 
-  expect(screen.getByText(holdoutCheckFailed())).toBeDefined()
-  await click(placementRetry())
+  expect(screen.getByText(es.holdoutCheckFailed())).toBeDefined()
+  await click(es.placementRetry())
 
-  expect(button(holdoutCheckStart())).toBeDefined()
+  expect(button(es.holdoutCheckStart())).toBeDefined()
 })
 
 it('begins the check once when its start is pressed twice', async () => {
@@ -266,8 +252,8 @@ it('begins the check once when its start is pressed twice', async () => {
   await showCheck({ holdoutChecks: reading(firstBandDue), beginHoldoutCheck })
 
   await act(async () => {
-    fireEvent.click(button(holdoutCheckStart()))
-    fireEvent.click(button(holdoutCheckStart()))
+    fireEvent.click(button(es.holdoutCheckStart()))
+    fireEvent.click(button(es.holdoutCheckStart()))
   })
 
   expect(beginHoldoutCheck).toHaveBeenCalledOnce()
@@ -280,8 +266,8 @@ it('sends an empty answer list for a check asked with no words', async () => {
     answerHoldoutCheck,
   })
 
-  await click(holdoutCheckSend())
+  await click(es.holdoutCheckSend())
 
   expect(answerHoldoutCheck).toHaveBeenCalledWith({ band: 1, week: 8 }, { answers: [] })
-  expect(screen.getByText(holdoutCheckDone())).toBeDefined()
+  expect(screen.getByText(es.holdoutCheckDone())).toBeDefined()
 })

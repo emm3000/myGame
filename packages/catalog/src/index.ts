@@ -1,5 +1,4 @@
 export type { FixedCopyName } from './FixedCopyName'
 export { type FixedCopyKey, fixedCopyKeys } from './fixedCopyKeys'
 export * as en from './generated/en'
-export * from './generated/es'
 export * as es from './generated/es'

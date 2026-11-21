@@ -1,13 +1,4 @@
-import {
-  mapLoading,
-  refusalAreaNotFound,
-  refusalInvalidTeam,
-  refusalJobAlreadyReturning,
-  refusalNotEnoughHiresAtHome,
-  refusalTeamAlreadyOut,
-  refusalUnexpected,
-  townTryAgain,
-} from '@mygame/catalog'
+import { es } from '@mygame/catalog'
 import type { RegionMap, SendJob, TownOverview } from '@mygame/contracts'
 import { act, fireEvent, screen, within } from '@testing-library/react'
 import { afterEach, beforeEach, expect, it, vi } from 'vitest'
@@ -125,7 +116,7 @@ it('reads an area past the last one as the end of the map, with the way back', a
         : { ok: true, value: knownAreaMap },
   })
 
-  expect(screen.getByRole('alert').textContent).toBe(refusalAreaNotFound())
+  expect(screen.getByRole('alert').textContent).toBe(es.refusalAreaNotFound())
   fireEvent.click(screen.getByRole('link', { name: 'Volver a tu zona' }))
   await passSeconds(0)
   expect(screen.getByRole('heading', { level: 2, name: 'Zona 1' })).toBeDefined()
@@ -135,14 +126,14 @@ it('reads a malformed area as the end of the map without asking for it', async (
   const asked: Array<number | undefined> = []
   await showMap('/map/zero', knownTown, { regionMap: servingAreas(3, asked) })
 
-  expect(screen.getByRole('alert').textContent).toBe(refusalAreaNotFound())
+  expect(screen.getByRole('alert').textContent).toBe(es.refusalAreaNotFound())
   expect(asked).toEqual([])
 })
 
 it('keeps the loading line in a status region while the map loads', async () => {
   await showMap('/map', knownTown, { regionMap: () => new Promise(() => undefined) })
 
-  expect(screen.getByRole('status').textContent).toBe(mapLoading())
+  expect(screen.getByRole('status').textContent).toBe(es.mapLoading())
 })
 
 it('retries a failed read of the map', async () => {
@@ -153,9 +144,9 @@ it('retries a failed read of the map', async () => {
       return reads === 1 ? { ok: false, refusal: 'Unexpected' } : { ok: true, value: knownAreaMap }
     },
   })
-  expect(screen.getByRole('alert').textContent).toBe(refusalUnexpected())
+  expect(screen.getByRole('alert').textContent).toBe(es.refusalUnexpected())
 
-  fireEvent.click(screen.getByRole('button', { name: townTryAgain() }))
+  fireEvent.click(screen.getByRole('button', { name: es.townTryAgain() }))
   await passSeconds(0)
 
   expect(screen.getByRole('heading', { level: 2, name: 'Zona 1' })).toBeDefined()
@@ -170,7 +161,7 @@ it('retries a failed read of the town on the map', async () => {
     },
   })
 
-  fireEvent.click(screen.getByRole('button', { name: townTryAgain() }))
+  fireEvent.click(screen.getByRole('button', { name: es.townTryAgain() }))
   await passSeconds(0)
 
   expect(screen.getByRole('heading', { level: 2, name: 'Zona 1' })).toBeDefined()
@@ -362,7 +353,7 @@ it('blocks a team with nobody in it', async () => {
   const send = sendButton(openJobForm(2))
 
   expect(send.getAttribute('aria-disabled')).toBe('true')
-  expect(accessibleDescriptionOf(send)).toBe(refusalInvalidTeam())
+  expect(accessibleDescriptionOf(send)).toBe(es.refusalInvalidTeam())
 })
 
 it('sends a team larger than the one at home and reads the refusal under the form', async () => {
@@ -385,7 +376,7 @@ it('sends a team larger than the one at home and reads the refusal under the for
 
   expect(sent).toEqual([{ site: { area: 1, site: 2 }, team: { worker: 0, truck: 2 }, hours: 1 }])
   expect(within(form).getByRole('alert').textContent).toBe(
-    refusalNotEnoughHiresAtHome({ hire: 'truck', count: 2, atHome: 1 }),
+    es.refusalNotEnoughHiresAtHome({ hire: 'truck', count: 2, atHome: 1 }),
   )
 })
 
@@ -422,7 +413,7 @@ it('asks the pay of a second job while a team is out and marks the send with the
 
   expect(quoted).toEqual([{ site: { area: 1, site: 2 }, team: { worker: 1, truck: 0 }, hours: 1 }])
   expect(reasonOf(sendButton(form))?.getAttribute('aria-live')).toBe('polite')
-  expect(accessibleDescriptionOf(sendButton(form))).toBe(refusalTeamAlreadyOut())
+  expect(accessibleDescriptionOf(sendButton(form))).toBe(es.refusalTeamAlreadyOut())
 })
 
 it('sends a job its refused quote marks, since the api decides', async () => {
@@ -469,7 +460,7 @@ it('reads one refusal when the send is refused as its quote was', async () => {
     within(form)
       .getAllByRole('alert')
       .map((alert) => alert.textContent),
-  ).toEqual([refusalNotEnoughHiresAtHome({ hire: 'worker', count: 5, atHome: 3 })])
+  ).toEqual([es.refusalNotEnoughHiresAtHome({ hire: 'worker', count: 5, atHome: 3 })])
 })
 
 it('marks the send with the refusal of the new team once the player changes a refused one', async () => {
@@ -497,7 +488,7 @@ it('marks the send with the refusal of the new team once the player changes a re
 
   expect(within(form).queryByRole('alert')).toBeNull()
   expect(accessibleDescriptionOf(sendButton(form))).toBe(
-    refusalNotEnoughHiresAtHome({ hire: 'worker', count: 4, atHome: 3 }),
+    es.refusalNotEnoughHiresAtHome({ hire: 'worker', count: 4, atHome: 3 }),
   )
 })
 
@@ -553,7 +544,7 @@ it('asks the pay again a moment after the server could not be reached', async ()
   enterTeam(form, { 'Trabajadores a enviar': '2' })
   await passSeconds(0)
 
-  expect(within(form).getByRole('alert').textContent).toBe(refusalUnexpected())
+  expect(within(form).getByRole('alert').textContent).toBe(es.refusalUnexpected())
   await passSeconds(5)
   expect(within(form).getByText('Este trabajo paga 12 de comida')).toBeDefined()
   expect(within(form).queryByRole('alert')).toBeNull()
@@ -680,5 +671,5 @@ it('reads a refused call back under the job', async () => {
   fireEvent.click(within(jobOut()).getByRole('button', { name: 'Llamar de vuelta al equipo' }))
   await passSeconds(0)
 
-  expect(within(jobOut()).getByRole('alert').textContent).toBe(refusalJobAlreadyReturning())
+  expect(within(jobOut()).getByRole('alert').textContent).toBe(es.refusalJobAlreadyReturning())
 })

@@ -1,51 +1,4 @@
-import {
-  en,
-  es,
-  namesPlacesSchool,
-  refusalLearningCapNextWordDue,
-  refusalLearningCapReached,
-  reportNoReviewsDue,
-  reportStartReviews,
-  schoolBandLine,
-  schoolHoldoutCheckOpen,
-  schoolHoldoutCheckRow,
-  schoolLearning,
-  schoolLearningFull,
-  schoolLearningFullNextWordDue,
-  schoolLessonCapReached,
-  schoolLessonNeedsSchool,
-  schoolLessonReadWords,
-  schoolLessonReward,
-  schoolLessonSlotBusy,
-  schoolLessonStudied,
-  schoolLessonStudy,
-  schoolLessonStudying,
-  schoolLessons,
-  schoolLessonTitle,
-  schoolLessonWords,
-  schoolPathCount,
-  schoolPathLearned,
-  schoolPathRead,
-  schoolPathReviewed,
-  schoolPathStudied,
-  schoolReleasedSlotBusy,
-  schoolReleasedStopOf,
-  schoolReleasedStudy,
-  schoolReleasedTitle,
-  schoolSkillName,
-  schoolSkillRate,
-  schoolSkillsNone,
-  schoolSlotDone,
-  schoolSlotStopOf,
-  schoolTexts,
-  townGoToSchool,
-  townLevel,
-  townLoading,
-  townNamingTitle,
-  townNextGoToReport,
-  townNextTitle,
-  townTryAgain,
-} from '@mygame/catalog'
+import { en, es } from '@mygame/catalog'
 import type { TownOverview } from '@mygame/contracts'
 import type { WordStanding } from '@mygame/domain'
 import { act, fireEvent, screen, within } from '@testing-library/react'
@@ -131,15 +84,15 @@ const lessonRow = (number: number): HTMLElement =>
   screen.getByRole('listitem', { name: `Lección ${number}` })
 
 const lessonBlock = (number: number): HTMLElement =>
-  screen.getByRole('region', { name: schoolLessonTitle({ number }) })
+  screen.getByRole('region', { name: es.schoolLessonTitle({ number }) })
 
-const studyLabelOf = (number: number): string => `${schoolLessonStudy({ number })} · 5:00`
+const studyLabelOf = (number: number): string => `${es.schoolLessonStudy({ number })} · 5:00`
 
 const studyButtonOf = (number: number): HTMLElement =>
   screen.getByRole('button', { name: studyLabelOf(number) })
 
 const readWordsOfLessonOne = (): string =>
-  `${schoolLessonTitle({ number: 1 })} · ${schoolLessonReadWords()}`
+  `${es.schoolLessonTitle({ number: 1 })} · ${es.schoolLessonReadWords()}`
 
 const selectRow = async (number: number): Promise<void> => {
   fireEvent.click(within(lessonRow(number)).getByRole('button'))
@@ -172,10 +125,10 @@ const pathLinesOf = (
   learned: number,
   total: number,
 ): ReadonlyArray<string> => [
-  `${schoolPathStudied()} ${schoolPathCount({ count: studied, total })}`,
-  `${schoolPathRead()} ${schoolPathCount({ count: read, total })}`,
-  `${schoolPathReviewed()} ${schoolPathCount({ count: reviewed, total })}`,
-  `${schoolPathLearned()} ${schoolPathCount({ count: learned, total })}`,
+  `${es.schoolPathStudied()} ${es.schoolPathCount({ count: studied, total })}`,
+  `${es.schoolPathRead()} ${es.schoolPathCount({ count: read, total })}`,
+  `${es.schoolPathReviewed()} ${es.schoolPathCount({ count: reviewed, total })}`,
+  `${es.schoolPathLearned()} ${es.schoolPathCount({ count: learned, total })}`,
 ]
 
 const isBefore = (earlier: Element, later: Element): boolean =>
@@ -234,7 +187,7 @@ it('draws no path on a lesson with no word held', async () => {
 it("reads the next lesson's reward as one line, from its words to the skill to the rate", async () => {
   await showSchool(schoolOf({ lessons: studiedThrough(1, 3) }))
 
-  const reward = `${schoolLessonWords({ count: 5 })} · ${schoolLessonReward({ percent: 5, resource: 'comida' })}`
+  const reward = `${es.schoolLessonWords({ count: 5 })} · ${es.schoolLessonReward({ percent: 5, resource: 'comida' })}`
   expect(lessonBlock(2).textContent).toContain(reward)
 })
 
@@ -270,7 +223,7 @@ it("tells the school's link from the running lesson's pill", async () => {
 
   await selectRow(2)
 
-  const pill = screen.getByRole('link', { name: schoolLessonReadWords() })
+  const pill = screen.getByRole('link', { name: es.schoolLessonReadWords() })
   const link = screen.getByRole('link', { name: readWordsOfLessonOne() })
   expect(pill.getAttribute('href')).toBe('/school/lesson-2')
   expect(link.getAttribute('href')).toBe('/school/lesson-1')
@@ -284,14 +237,14 @@ it('leaves the reviews to the one pill once every lesson is studied', async () =
     }),
   )
 
-  expect(screen.getAllByRole('link', { name: reportStartReviews() })).toHaveLength(1)
+  expect(screen.getAllByRole('link', { name: es.reportStartReviews() })).toHaveLength(1)
 })
 
 it("opens the reviews from the school's link once no lesson is unread", async () => {
   const lessons = [lessonOf(1, { isStudied: true }), lessonOf(2)]
   await showSchool(schoolOf({ lessons, nextStep: { kind: 'reviews', count: 2, readFirst: [] } }))
 
-  const link = screen.getByRole('link', { name: reportStartReviews() })
+  const link = screen.getByRole('link', { name: es.reportStartReviews() })
   expect(link.getAttribute('href')).toBe('/reviews')
 })
 
@@ -299,17 +252,17 @@ it('shows no link to the reviews when none is due', async () => {
   const lessons = [lessonOf(1, { isStudied: true }), lessonOf(2)]
   await showSchool(schoolOf({ lessons, nextStep: { kind: 'lessonToStudy', lessonId: 'lesson-2' } }))
 
-  expect(screen.queryByRole('link', { name: reportStartReviews() })).toBeNull()
-  expect(screen.queryByRole('link', { name: schoolLessonReadWords() })).toBeNull()
+  expect(screen.queryByRole('link', { name: es.reportStartReviews() })).toBeNull()
+  expect(screen.queryByRole('link', { name: es.schoolLessonReadWords() })).toBeNull()
 })
 
 it('opens the school from the town home', async () => {
   await showSchool(schoolOf({}), {}, '/')
 
-  fireEvent.click(screen.getByRole('link', { name: townGoToSchool() }))
+  fireEvent.click(screen.getByRole('link', { name: es.townGoToSchool() }))
   await passSeconds(0)
 
-  expect(screen.getByRole('heading', { level: 1, name: namesPlacesSchool() })).toBeDefined()
+  expect(screen.getByRole('heading', { level: 1, name: es.namesPlacesSchool() })).toBeDefined()
 })
 
 it('starts lesson 1 from the school', async () => {
@@ -331,7 +284,7 @@ it('starts lesson 1 from the school', async () => {
 it("opens a running lesson's words from the school", async () => {
   await showSchool(schoolOf({ lessonSlot: lessonOneStudying }))
 
-  const readWords = screen.getByRole('link', { name: schoolLessonReadWords() })
+  const readWords = screen.getByRole('link', { name: es.schoolLessonReadWords() })
 
   expect(readWords.getAttribute('href')).toBe('/school/lesson-1')
 })
@@ -347,7 +300,7 @@ it("opens the running lesson's words from under another lesson's block", async (
 it('offers no words to read while no lesson runs', async () => {
   await showSchool(schoolOf({}))
 
-  expect(screen.queryByRole('link', { name: schoolLessonReadWords() })).toBeNull()
+  expect(screen.queryByRole('link', { name: es.schoolLessonReadWords() })).toBeNull()
 })
 
 it('shows a running lesson’s countdown', async () => {
@@ -399,10 +352,10 @@ it('reads the town again when the lesson finishes and marks it studied', async (
 
   await passSeconds(1)
   expect(reads).toBe(2)
-  expect(screen.getByText(schoolSlotDone())).toBeDefined()
+  expect(screen.getByText(es.schoolSlotDone())).toBeDefined()
 
   await act(async () => answerFinishRead({ ok: true, value: studied }))
-  expect(within(lessonRow(1)).getByText(schoolLessonStudied())).toBeDefined()
+  expect(within(lessonRow(1)).getByText(es.schoolLessonStudied())).toBeDefined()
 })
 
 it('stops a lesson once on a double click', async () => {
@@ -415,7 +368,7 @@ it('stops a lesson once on a double click', async () => {
   )
   await showSchool(schoolOf({ lessonSlot: lessonOneStudying }), { stopLesson })
 
-  const stop = screen.getByRole('button', { name: schoolSlotStopOf({ number: 1 }) })
+  const stop = screen.getByRole('button', { name: es.schoolSlotStopOf({ number: 1 }) })
   act(() => {
     fireEvent.click(stop)
     fireEvent.click(stop)
@@ -433,7 +386,7 @@ it('marks a lesson whose school level is too low with the level', async () => {
   )
 
   const study = studyButtonOf(2)
-  expect(accessibleDescriptionOf(study)).toBe(schoolLessonNeedsSchool({ level: 2 }))
+  expect(accessibleDescriptionOf(study)).toBe(es.schoolLessonNeedsSchool({ level: 2 }))
 })
 
 it('marks a lesson past the cap before the tap with the words in learning', async () => {
@@ -443,9 +396,9 @@ it('marks a lesson past the cap before the tap with the words in learning', asyn
     }),
   )
 
-  expect(screen.getByText(schoolLearning({ inLearning: 12, cap: 15 }))).toBeDefined()
+  expect(screen.getByText(es.schoolLearning({ inLearning: 12, cap: 15 }))).toBeDefined()
   expect(accessibleDescriptionOf(studyButtonOf(1))).toBe(
-    schoolLessonCapReached({ inLearning: 12, cap: 15, count: 5 }),
+    es.schoolLessonCapReached({ inLearning: 12, cap: 15, count: 5 }),
   )
 })
 
@@ -462,7 +415,7 @@ it('refuses a lesson past the cap and names the cap', async () => {
   await passSeconds(0)
 
   expect(within(screen.getByRole('main')).getByRole('alert').textContent).toBe(
-    refusalLearningCapReached({ learningCap: 15, cardsInLearning: 12 }),
+    es.refusalLearningCapReached({ learningCap: 15, cardsInLearning: 12 }),
   )
 })
 
@@ -489,15 +442,15 @@ it('a full cap with no review due names when the next word in learning is due', 
   await showSchool(schoolOf({ learning: fullCapWaiting }))
 
   expect(
-    screen.getByText(schoolLearningFullNextWordDue({ count: 5, timeLeft: nextWordDueIn })),
+    screen.getByText(es.schoolLearningFullNextWordDue({ count: 5, timeLeft: nextWordDueIn })),
   ).toBeDefined()
-  expect(screen.queryByText(schoolLearningFull({ count: 5 }))).toBeNull()
+  expect(screen.queryByText(es.schoolLearningFull({ count: 5 }))).toBeNull()
 })
 
 it('a full cap with a review due still sends to the reviews', async () => {
   await showSchool(schoolOf({ learning: fullCapWaiting, nextStep: reviewsDue }))
 
-  expect(screen.getByText(schoolLearningFull({ count: 5 }))).toBeDefined()
+  expect(screen.getByText(es.schoolLearningFull({ count: 5 }))).toBeDefined()
 })
 
 const refusedPastTheCapIn = async (
@@ -542,7 +495,7 @@ it('refuses a lesson past the cap with no review due and names when the next wor
   await passSeconds(0)
 
   expect(within(screen.getByRole('main')).getByRole('alert').textContent).toBe(
-    refusalLearningCapNextWordDue({
+    es.refusalLearningCapNextWordDue({
       learningCap: 15,
       cardsInLearning: 12,
       timeLeft: nextWordDueIn,
@@ -560,14 +513,14 @@ it('refuses a lesson past the cap with a review due and sends to the reviews', a
   await passSeconds(0)
 
   expect(within(screen.getByRole('main')).getByRole('alert').textContent).toBe(
-    refusalLearningCapReached({ learningCap: 15, cardsInLearning: 12 }),
+    es.refusalLearningCapReached({ learningCap: 15, cardsInLearning: 12 }),
   )
 })
 
 it('marks a studied lesson with no study button', async () => {
   await showSchool(schoolOf({ lessons: [lessonOf(1, { isStudied: true })] }))
 
-  expect(within(lessonRow(1)).getByText(schoolLessonStudied())).toBeDefined()
+  expect(within(lessonRow(1)).getByText(es.schoolLessonStudied())).toBeDefined()
   expect(within(lessonRow(1)).queryByRole('button')).toBeNull()
 })
 
@@ -584,16 +537,16 @@ it('lists each earned skill with its resource and percent', async () => {
 
   const skills = screen.getAllByRole('listitem', { name: /^Habilidad/ })
   expect(skills.map((skill) => skill.textContent)).toEqual([
-    `${schoolSkillName({ resource: 'comida', level: 1 })}${schoolSkillRate({ percent: 5, resource: 'comida' })}`,
-    `${schoolSkillName({ resource: 'material', level: 1 })}${schoolSkillRate({ percent: 5, resource: 'material' })}`,
-    `${schoolSkillName({ resource: 'comida', level: 2 })}${schoolSkillRate({ percent: 5, resource: 'comida' })}`,
+    `${es.schoolSkillName({ resource: 'comida', level: 1 })}${es.schoolSkillRate({ percent: 5, resource: 'comida' })}`,
+    `${es.schoolSkillName({ resource: 'material', level: 1 })}${es.schoolSkillRate({ percent: 5, resource: 'material' })}`,
+    `${es.schoolSkillName({ resource: 'comida', level: 2 })}${es.schoolSkillRate({ percent: 5, resource: 'comida' })}`,
   ])
 })
 
 it('says so when no skill is earned', async () => {
   await showSchool(schoolOf({}))
 
-  expect(screen.getByText(schoolSkillsNone())).toBeDefined()
+  expect(screen.getByText(es.schoolSkillsNone())).toBeDefined()
 })
 
 it('sends a player with no town to name one', async () => {
@@ -603,7 +556,7 @@ it('sends a player with no town to name one', async () => {
 
   await passSeconds(0)
 
-  expect(screen.getByRole('heading', { level: 2, name: townNamingTitle() })).toBeDefined()
+  expect(screen.getByRole('heading', { level: 2, name: es.townNamingTitle() })).toBeDefined()
 })
 
 it('reads the school while the town loads', async () => {
@@ -616,7 +569,7 @@ it('reads the school while the town loads', async () => {
   )
   await passSeconds(0)
 
-  expect(screen.getByRole('status').textContent).toBe(townLoading())
+  expect(screen.getByRole('status').textContent).toBe(es.townLoading())
 })
 
 it('retries a failed read of the school', async () => {
@@ -628,7 +581,7 @@ it('retries a failed read of the school', async () => {
     },
   })
 
-  fireEvent.click(screen.getByRole('button', { name: townTryAgain() }))
+  fireEvent.click(screen.getByRole('button', { name: es.townTryAgain() }))
   await passSeconds(0)
 
   expect(lessonBlock(1)).toBeDefined()
@@ -645,7 +598,7 @@ it('puts the next lesson in a block with its pill under it', async () => {
 it('keeps the order of the block, the pill, the learning load and the rows', async () => {
   await showSchool(schoolOf({ lessons: studiedThrough(1, 3) }))
 
-  const load = screen.getByText(schoolLearning({ inLearning: 0, cap: 15 }))
+  const load = screen.getByText(es.schoolLearning({ inLearning: 0, cap: 15 }))
   expect(isBefore(studyButtonOf(2), load)).toBe(true)
   expect(isBefore(load, lessonRow(1))).toBe(true)
 })
@@ -675,7 +628,7 @@ it('moves the focus to the block of the selected lesson', async () => {
   await selectRow(3)
 
   expect(document.activeElement).toBe(
-    screen.getByRole('heading', { name: schoolLessonTitle({ number: 3 }) }),
+    screen.getByRole('heading', { name: es.schoolLessonTitle({ number: 3 }) }),
   )
 })
 
@@ -716,7 +669,7 @@ it('keeps a selected lesson in the block once it runs, with its words under it',
   await passSeconds(0)
 
   expect(lessonBlock(3)).toBeDefined()
-  expect(inkPills()).toEqual([schoolLessonReadWords()])
+  expect(inkPills()).toEqual([es.schoolLessonReadWords()])
 })
 
 it('offers no selection on a studied lesson', async () => {
@@ -731,7 +684,7 @@ it('selects the running lesson from its row, with its words as the one pill', as
   await selectRow(1)
 
   expect(lessonBlock(1)).toBeDefined()
-  expect(inkPills()).toEqual([schoolLessonReadWords()])
+  expect(inkPills()).toEqual([es.schoolLessonReadWords()])
   expect(screen.queryByRole('button', { name: studyLabelOf(2) })).toBeNull()
 })
 
@@ -769,7 +722,7 @@ it("takes a lesson's hue from its place in the curriculum", async () => {
 it('says why the next lesson waits while another one runs', async () => {
   await showSchool(schoolOf({ lessons: studiedThrough(0, 2), lessonSlot: lessonOneStudying }))
 
-  expect(accessibleDescriptionOf(studyButtonOf(2))).toBe(schoolLessonSlotBusy({ number: 1 }))
+  expect(accessibleDescriptionOf(studyButtonOf(2))).toBe(es.schoolLessonSlotBusy({ number: 1 }))
 })
 
 it('draws the running lesson in the block when no other lesson is open', async () => {
@@ -781,10 +734,10 @@ it('draws the running lesson in the block when no other lesson is open', async (
 it('draws the next step in the block once every lesson is studied', async () => {
   await showSchool(schoolOf({ lessons: studiedThrough(2, 2) }))
 
-  const block = screen.getByRole('region', { name: townNextTitle() })
+  const block = screen.getByRole('region', { name: es.townNextTitle() })
   expect(block.getAttribute('data-hue')).toBe('peach')
-  expect(within(block).getByText(reportNoReviewsDue())).toBeDefined()
-  expect(within(block).getByRole('heading', { level: 2, name: townNextTitle() })).toBeDefined()
+  expect(within(block).getByText(es.reportNoReviewsDue())).toBeDefined()
+  expect(within(block).getByRole('heading', { level: 2, name: es.townNextTitle() })).toBeDefined()
 })
 
 const everyLessonStudied = { lessons: studiedThrough(2, 2) }
@@ -796,7 +749,7 @@ it.each<[string, Partial<TownOverview>, () => string]>([
     { lessons: studiedThrough(0, 2), lessonSlot: lessonOneStudying },
     readWordsOfLessonOne,
   ],
-  ['the last lesson running', { lessonSlot: lessonOneStudying }, schoolLessonReadWords],
+  ['the last lesson running', { lessonSlot: lessonOneStudying }, es.schoolLessonReadWords],
   [
     "the next lesson locked by the school's level",
     { lessons: [lessonOf(1, { requiredSchoolLevel: 9 })] },
@@ -807,11 +760,11 @@ it.each<[string, Partial<TownOverview>, () => string]>([
     { learning: { cap: 15, inLearning: 12, retainedWords: null, nextInLearningDueAt: null } },
     () => studyLabelOf(1),
   ],
-  ['every lesson studied, nothing due', everyLessonStudied, townNextGoToReport],
+  ['every lesson studied, nothing due', everyLessonStudied, es.townNextGoToReport],
   [
     'every lesson studied, reviews due',
     { ...everyLessonStudied, nextStep: { kind: 'reviews', count: 2, readFirst: [] } },
-    reportStartReviews,
+    es.reportStartReviews,
   ],
 ])('holds one ink pill on the school with %s', async (_state, overrides, label) => {
   await showSchool(schoolOf(overrides))
@@ -830,18 +783,18 @@ it('holds one ink pill on the school with a row selected', async () => {
 it('holds one ink pill on the school with a failed read', async () => {
   await showSchool(schoolOf({}), { town: async () => ({ ok: false, refusal: 'Unexpected' }) })
 
-  expect(inkPills()).toEqual([townTryAgain()])
+  expect(inkPills()).toEqual([es.townTryAgain()])
 })
 
 const schoolLevelLine = (): HTMLElement | null =>
-  screen.queryByText(townLevel({ level: knownTown.buildings.school.level }))
+  screen.queryByText(es.townLevel({ level: knownTown.buildings.school.level }))
 
 const townNeverAnswering: Partial<ApiClient> = { town: neverAnswering }
 
 it('keeps the loading line in a status region while the school loads', async () => {
   await showSchool(schoolOf({}), townNeverAnswering)
 
-  expect(screen.getByRole('status').textContent).toBe(townLoading())
+  expect(screen.getByRole('status').textContent).toBe(es.townLoading())
 })
 
 it('renders no skeleton on the school before the reveal delay', async () => {
@@ -866,7 +819,7 @@ it('keeps the school title above the skeleton', async () => {
 
   await passSeconds(revealSeconds)
 
-  expect(screen.getByRole('heading', { level: 1, name: namesPlacesSchool() })).toBeDefined()
+  expect(screen.getByRole('heading', { level: 1, name: es.namesPlacesSchool() })).toBeDefined()
 })
 
 it('keeps the school skeleton for the minimum hold when the town answers just after it appears', async () => {
@@ -887,7 +840,7 @@ it('draws no skeleton on a refused read of the school, only the retry', async ()
   await passSeconds(revealSeconds + holdSeconds)
 
   expect(skeletonBlocks()).toEqual([])
-  expect(screen.getByRole('button', { name: townTryAgain() })).toBeDefined()
+  expect(screen.getByRole('button', { name: es.townTryAgain() })).toBeDefined()
 })
 
 it.each<[string, Partial<ApiClient>]>([
@@ -898,7 +851,7 @@ it.each<[string, Partial<ApiClient>]>([
   await showSchool(schoolOf({}), overrides)
 
   expect(screen.getAllByRole('heading', { level: 1 }).map((h1) => h1.textContent)).toEqual([
-    namesPlacesSchool(),
+    es.namesPlacesSchool(),
   ])
 })
 
@@ -951,12 +904,12 @@ const openTextOf = (number: number): TownOverview['texts'][number] => ({
   title: `Text ${number}`,
 })
 
-const textList = (): HTMLElement | null => screen.queryByRole('region', { name: schoolTexts() })
+const textList = (): HTMLElement | null => screen.queryByRole('region', { name: es.schoolTexts() })
 
 it('lists the open texts newest first', async () => {
   await showSchool(schoolOf({ texts: [openTextOf(3), openTextOf(2), openTextOf(1)] }))
 
-  const titles = within(screen.getByRole('region', { name: schoolTexts() }))
+  const titles = within(screen.getByRole('region', { name: es.schoolTexts() }))
     .getAllByRole('link')
     .map(({ textContent }) => textContent)
 
@@ -995,8 +948,8 @@ it('shows the held words of each started band', async () => {
     }),
   )
 
-  expect(screen.getByText(schoolBandLine({ band: 1, count: 12, total: 875 }))).toBeDefined()
-  expect(screen.getByText(schoolBandLine({ band: 2, count: 0, total: 500 }))).toBeDefined()
+  expect(screen.getByText(es.schoolBandLine({ band: 1, count: 12, total: 875 }))).toBeDefined()
+  expect(screen.getByText(es.schoolBandLine({ band: 2, count: 0, total: 500 }))).toBeDefined()
 })
 
 it('shows no band line before a band starts', async () => {
@@ -1016,15 +969,15 @@ it('draws each due holdout check with a way into it', async () => {
   )
 
   const ways = within(screen.getByRole('main')).getAllByRole('link', {
-    name: schoolHoldoutCheckOpen(),
+    name: es.schoolHoldoutCheckOpen(),
   })
   expect(ways.map((way) => way.getAttribute('href'))).toEqual([
     '/school/check/1/24',
     '/school/check/2/8',
   ])
   expect(ways.map(accessibleDescriptionOf)).toEqual([
-    schoolHoldoutCheckRow({ band: 1, week: 24 }),
-    schoolHoldoutCheckRow({ band: 2, week: 8 }),
+    es.schoolHoldoutCheckRow({ band: 1, week: 24 }),
+    es.schoolHoldoutCheckRow({ band: 2, week: 8 }),
   ])
 })
 
@@ -1042,14 +995,14 @@ const releasedOf = (position: number, overrides: Partial<ReleasedLesson> = {}): 
 })
 
 const releasedTitleOf = (position: number): string =>
-  schoolReleasedTitle({ band: 2, number: position })
+  es.schoolReleasedTitle({ band: 2, number: position })
 
 const releasedRow = (position: number): HTMLElement =>
   screen.getByRole('listitem', { name: releasedTitleOf(position) })
 
 const releasedStudyOf = (position: number): HTMLElement =>
   within(releasedRow(position)).getByRole('button', {
-    name: `${releasedTitleOf(position)} · ${schoolReleasedStudy()} · 5:00`,
+    name: `${releasedTitleOf(position)} · ${es.schoolReleasedStudy()} · 5:00`,
   })
 
 const shelvedAndReleased = schoolOf({
@@ -1064,7 +1017,7 @@ const releasedSetTwoStudying: TownOverview['lessonSlot'] = {
 }
 
 const rowNames = (): ReadonlyArray<string | null> =>
-  within(screen.getByRole('region', { name: schoolLessons() }))
+  within(screen.getByRole('region', { name: es.schoolLessons() }))
     .getAllByRole('listitem')
     .map((row) => row.getAttribute('aria-label'))
 
@@ -1099,14 +1052,14 @@ it('starts a released lesson as a shelved one starts', async () => {
 it('counts the words of a released lesson on its row', async () => {
   await showSchool(shelvedAndReleased)
 
-  expect(within(releasedRow(1)).getByText(schoolLessonWords({ count: 3 }))).toBeDefined()
+  expect(within(releasedRow(1)).getByText(es.schoolLessonWords({ count: 3 }))).toBeDefined()
 })
 
 it('names a running released lesson by band and set in the slot, never as lesson 0', async () => {
   await showSchool({ ...shelvedAndReleased, lessonSlot: releasedSetTwoStudying })
 
   expect(
-    screen.getByRole('button', { name: schoolReleasedStopOf({ band: 2, number: 2 }) }),
+    screen.getByRole('button', { name: es.schoolReleasedStopOf({ band: 2, number: 2 }) }),
   ).toBeDefined()
   expect(screen.queryByText(/Lección 0/)).toBeNull()
 })
@@ -1115,21 +1068,21 @@ it('marks a lesson blocked by a running released lesson with its band and set', 
   await showSchool({ ...shelvedAndReleased, lessonSlot: releasedSetTwoStudying })
 
   expect(accessibleDescriptionOf(studyButtonOf(1))).toBe(
-    schoolReleasedSlotBusy({ band: 2, number: 2 }),
+    es.schoolReleasedSlotBusy({ band: 2, number: 2 }),
   )
 })
 
 it('offers no words to read for a running released lesson', async () => {
   await showSchool({ ...shelvedAndReleased, lessonSlot: releasedSetTwoStudying })
 
-  expect(screen.queryByRole('link', { name: new RegExp(schoolLessonReadWords()) })).toBeNull()
+  expect(screen.queryByRole('link', { name: new RegExp(es.schoolLessonReadWords()) })).toBeNull()
 })
 
 it('marks a released lesson under study as studying, with no start', async () => {
   await showSchool({ ...shelvedAndReleased, lessonSlot: releasedSetTwoStudying })
 
   const row = within(releasedRow(2))
-  expect(row.getByText(schoolLessonStudying())).toBeDefined()
+  expect(row.getByText(es.schoolLessonStudying())).toBeDefined()
   expect(row.queryByRole('button')).toBeNull()
 })
 
@@ -1142,7 +1095,7 @@ it('marks a studied released lesson as studied, with no start', async () => {
   )
 
   const row = within(releasedRow(1))
-  expect(row.getByText(schoolLessonStudied())).toBeDefined()
+  expect(row.getByText(es.schoolLessonStudied())).toBeDefined()
   expect(row.queryByRole('button')).toBeNull()
 })
 
@@ -1159,6 +1112,6 @@ it("draws the api's refusal under the released lesson it answers", async () => {
   await passSeconds(0)
 
   expect(within(releasedRow(2)).getByRole('alert').textContent).toBe(
-    refusalLearningCapReached({ learningCap: 15, cardsInLearning: 12 }),
+    es.refusalLearningCapReached({ learningCap: 15, cardsInLearning: 12 }),
   )
 })

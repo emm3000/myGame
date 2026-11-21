@@ -1,11 +1,4 @@
-import {
-  namesPlacesFarm,
-  namesPlacesHomes,
-  reportNewsBuildingWorkFinished,
-  shellRetainedWords,
-  townLevel,
-  townSkylineBuilt,
-} from '@mygame/catalog'
+import { es } from '@mygame/catalog'
 import type { BuildingKind, TownOverview } from '@mygame/contracts'
 import { act, screen, within } from '@testing-library/react'
 import { afterEach, assert, beforeEach, expect, it, vi } from 'vitest'
@@ -65,12 +58,12 @@ const showTown = async (apiClient: ApiClient, path = '/'): Promise<void> => {
 }
 
 const skyline = (built: number): HTMLElement =>
-  screen.getByRole('img', { name: townSkylineBuilt({ built, total: 7 }) })
+  screen.getByRole('img', { name: es.townSkylineBuilt({ built, total: 7 }) })
 
 const placeRow = (name: string): HTMLElement => screen.getByRole('listitem', { name })
 
 const ring = (count: number): HTMLElement =>
-  screen.getByRole('img', { name: shellRetainedWords({ count, total: 5 }) })
+  screen.getByRole('img', { name: es.shellRetainedWords({ count, total: 5 }) })
 
 const playing = (scope: Element, row: string): ReadonlyArray<Element> => [
   ...scope.querySelectorAll(`[data-registers="${row}"]`),
@@ -115,8 +108,8 @@ it('writes the new level on the place row', async () => {
 
   await passSeconds(60)
 
-  const row = placeRow(namesPlacesHomes())
-  expect(within(row).getByText(townLevel({ level: 3 }))).toBeDefined()
+  const row = placeRow(es.namesPlacesHomes())
+  expect(within(row).getByText(es.townLevel({ level: 3 }))).toBeDefined()
   expect(playing(row, 'window')).toHaveLength(1)
 })
 
@@ -125,7 +118,7 @@ it('gives a place its hue when first built', async () => {
 
   await passSeconds(60)
 
-  const row = placeRow(namesPlacesFarm())
+  const row = placeRow(es.namesPlacesFarm())
   expect(playing(row, 'hue').length).toBeGreaterThan(0)
   expect(playing(skyline(3), 'hue').length).toBeGreaterThan(0)
 })
@@ -177,8 +170,8 @@ it('speaks each row once', async () => {
   const spoken = registeredRegion().firstElementChild
   expect(spoken?.textContent).toBe(
     [
-      reportNewsBuildingWorkFinished({ place: namesPlacesHomes(), level: 3 }),
-      shellRetainedWords({ count: 2, total: 5 }),
+      es.reportNewsBuildingWorkFinished({ place: es.namesPlacesHomes(), level: 3 }),
+      es.shellRetainedWords({ count: 2, total: 5 }),
       skillRatesLineOf(playerCopyOf(knownPlayer), 'food', 120, 126).text,
     ].join(' '),
   )

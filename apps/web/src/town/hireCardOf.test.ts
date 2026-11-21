@@ -1,4 +1,4 @@
-import { townReadyIn } from '@mygame/catalog'
+import { es } from '@mygame/catalog'
 import type { TownOverview } from '@mygame/contracts'
 import { expect, it } from 'vitest'
 import { knownTown } from '../auth/stubApiClient.testSupport'
@@ -52,7 +52,7 @@ const readyOf = (town: TownOverview, entry: string): string | undefined => {
 }
 
 it('names the minute the money arrives when only resources are short', () => {
-  expect(readyOf(shortOfMoneyTown, '1')).toBe(townReadyIn({ time: '40 min' }))
+  expect(readyOf(shortOfMoneyTown, '1')).toBe(es.townReadyIn({ time: '40 min' }))
 })
 
 it('names no minute while a hiring order is open', () => {

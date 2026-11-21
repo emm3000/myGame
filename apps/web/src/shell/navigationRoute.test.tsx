@@ -1,15 +1,4 @@
-import {
-  es,
-  reportReviewsDue,
-  reportTitle,
-  shellNavigationReport,
-  shellNavigationTown,
-  shellSignOut,
-  shellTitle,
-  townGoToSchool,
-  townLabelCity,
-  townLabelTown,
-} from '@mygame/catalog'
+import { es } from '@mygame/catalog'
 import type { TownOverview } from '@mygame/contracts'
 import { act, fireEvent, screen, within } from '@testing-library/react'
 import { assert, expect, it } from 'vitest'
@@ -52,7 +41,7 @@ const shellHeader = async (): Promise<HTMLElement> => {
 }
 
 const backLink = async (): Promise<HTMLElement> =>
-  within(await shellHeader()).findByRole('link', { name: shellNavigationTown() })
+  within(await shellHeader()).findByRole('link', { name: es.shellNavigationTown() })
 
 it('draws no navigation bar', async () => {
   renderAppAt('/', signedInClient)
@@ -70,14 +59,16 @@ it('opens the school and the Report from the two doors', async () => {
   ).toBeDefined()
 
   await act(() => router.navigate({ to: '/' }))
-  fireEvent.click(await reportDoor(shellNavigationReport()))
-  expect(await screen.findByRole('heading', { level: 1, name: reportTitle() })).toBeDefined()
+  fireEvent.click(await reportDoor(es.shellNavigationReport()))
+  expect(await screen.findByRole('heading', { level: 1, name: es.reportTitle() })).toBeDefined()
 })
 
 it('shows the due count on the Report door', async () => {
   renderAppAt('/', servingTown(townDue(5)))
 
-  const door = await reportDoor(`${shellNavigationReport()} ${reportReviewsDue({ count: '5' })}`)
+  const door = await reportDoor(
+    `${es.shellNavigationReport()} ${es.reportReviewsDue({ count: '5' })}`,
+  )
 
   expect(door.getAttribute('href')).toBe('/report')
 })
@@ -86,14 +77,16 @@ it('shows a due count of 1 on the Report door', async () => {
   renderAppAt('/', servingTown(townDue(1)))
 
   expect(
-    await reportDoor(`${shellNavigationReport()} ${reportReviewsDue({ count: '1' })}`),
+    await reportDoor(`${es.shellNavigationReport()} ${es.reportReviewsDue({ count: '1' })}`),
   ).toBeDefined()
 })
 
 it('shows no count with nothing due', async () => {
   renderAppAt('/', servingTown(knownTown))
 
-  expect((await reportDoor(shellNavigationReport())).textContent).toBe(shellNavigationReport())
+  expect((await reportDoor(es.shellNavigationReport())).textContent).toBe(
+    es.shellNavigationReport(),
+  )
 })
 
 it('shows no door to a player with no town', async () => {
@@ -102,7 +95,7 @@ it('shows no door to a player with no town', async () => {
   await screen.findByRole('textbox')
 
   expect(screen.queryByRole('link', { name: placeNameOf(es, 'school') })).toBeNull()
-  expect(screen.queryByRole('link', { name: shellNavigationReport() })).toBeNull()
+  expect(screen.queryByRole('link', { name: es.shellNavigationReport() })).toBeNull()
 })
 
 it('holds the name and the label of the town in the header of the town home', async () => {
@@ -111,13 +104,13 @@ it('holds the name and the label of the town in the header of the town home', as
   const heading = await townHeading()
 
   expect((await shellHeader()).contains(heading)).toBe(true)
-  expect(heading.textContent).toBe(`${knownTown.name} · ${townLabelTown()}`)
+  expect(heading.textContent).toBe(`${knownTown.name} · ${es.townLabelTown()}`)
 })
 
 it('names a city as a city in the header', async () => {
   renderAppAt('/', servingTown({ ...knownTown, label: 'city' }))
 
-  expect((await townHeading()).textContent).toBe(`${knownTown.name} · ${townLabelCity()}`)
+  expect((await townHeading()).textContent).toBe(`${knownTown.name} · ${es.townLabelCity()}`)
 })
 
 it('writes the name of the town once on the town home', async () => {
@@ -150,10 +143,10 @@ it('holds the town in the back link for a player with no town', async () => {
 it('gives the back link, a text link and a text button control height', async () => {
   const router = renderAppAt('/report', signedInClient)
   const back = await backLink()
-  const signOut = await screen.findByRole('button', { name: shellSignOut() })
+  const signOut = await screen.findByRole('button', { name: es.shellSignOut() })
 
   await act(() => router.navigate({ to: '/' }))
-  const textLink = await screen.findByRole('link', { name: townGoToSchool() })
+  const textLink = await screen.findByRole('link', { name: es.townGoToSchool() })
 
   const heights = [back, signOut, textLink].map((control) =>
     control.className.split(' ').includes('min-h-control'),
@@ -171,10 +164,10 @@ it('keeps room on the page for the sticky foot under a focused control', async (
 it("keeps Townword off the signed-in header and in the browser's title", async () => {
   const router = renderAppAt('/', signedInClient)
   await townHeading()
-  expect(within(await shellHeader()).queryByText(shellTitle())).toBeNull()
+  expect(within(await shellHeader()).queryByText(es.shellTitle())).toBeNull()
 
   await act(() => router.navigate({ to: '/report' }))
 
-  expect(within(await shellHeader()).queryByText(shellTitle())).toBeNull()
-  expect(document.title).toBe(shellTitle())
+  expect(within(await shellHeader()).queryByText(es.shellTitle())).toBeNull()
+  expect(document.title).toBe(es.shellTitle())
 })

@@ -1,26 +1,4 @@
-import {
-  namesPlacesSchool,
-  reportNoReviewsDue,
-  reportReviewsDue,
-  reportStartReviews,
-  reviewNextReview,
-  schoolLessonReadWords,
-  schoolLessonStudy,
-  schoolLessonTitle,
-  schoolLessonWords,
-  schoolSlotTitle,
-  shellLessonFinishReleased,
-  townGoalLine,
-  townGoToSchool,
-  townNextGoToReport,
-  townNextHoldoutCheck,
-  townNextLessonReadyIn,
-  townNextReleasedLesson,
-  townNextReleasedReadyIn,
-  townNextText,
-  townNextTitle,
-  townSkylineBuilt,
-} from '@mygame/catalog'
+import { es } from '@mygame/catalog'
 import type { NextStep, TownOverview } from '@mygame/contracts'
 import { act, fireEvent, screen, within } from '@testing-library/react'
 import { afterEach, beforeEach, expect, it, vi } from 'vitest'
@@ -86,7 +64,7 @@ const showTown = async (town: TownOverview, overrides: Partial<ApiClient> = {}):
   await passSeconds(0)
 }
 
-const card = (): HTMLElement => screen.getByRole('region', { name: townNextTitle() })
+const card = (): HTMLElement => screen.getByRole('region', { name: es.townNextTitle() })
 
 const controlsWithTone = (tone: string): ReadonlyArray<HTMLElement> =>
   [...screen.queryAllByRole('button'), ...screen.queryAllByRole('link')].filter(
@@ -112,28 +90,28 @@ const reviewsStep = (count: number, readFirst: ReadonlyArray<string>): NextStep 
 it('opens the unread lesson first from the reviews state', async () => {
   await showTown(townAt(reviewsStep(5, ['lesson-2', 'lesson-1'])))
 
-  const link = pill(schoolLessonReadWords())
+  const link = pill(es.schoolLessonReadWords())
 
   expect(link.getAttribute('href')).toBe('/school/lesson-2')
-  expect(screen.queryByRole('link', { name: reportStartReviews() })).toBeNull()
+  expect(screen.queryByRole('link', { name: es.reportStartReviews() })).toBeNull()
 })
 
 it('opens the reviews when no word is unread', async () => {
   await showTown(townAt(reviewsStep(5, [])))
 
-  expect(pill(reportStartReviews()).getAttribute('href')).toBe('/reviews')
+  expect(pill(es.reportStartReviews()).getAttribute('href')).toBe('/reviews')
 })
 
 it('counts the reviews due', async () => {
   await showTown(townAt(reviewsStep(3, [])))
 
-  expect(within(card()).getByText(reportReviewsDue({ count: '3' }))).toBeDefined()
+  expect(within(card()).getByText(es.reportReviewsDue({ count: '3' }))).toBeDefined()
 })
 
 it('counts a single review due', async () => {
   await showTown(townAt(reviewsStep(1, [])))
 
-  expect(within(card()).getByText(reportReviewsDue({ count: '1' }))).toBeDefined()
+  expect(within(card()).getByText(es.reportReviewsDue({ count: '1' }))).toBeDefined()
 })
 
 it("shows the running lesson's time beside the reviews", async () => {
@@ -141,7 +119,7 @@ it("shows the running lesson's time beside the reviews", async () => {
 
   const timer = within(card()).getByRole('timer')
 
-  expect(timer.textContent).toBe(`${townNextLessonReadyIn({ number: 2 })}4 min`)
+  expect(timer.textContent).toBe(`${es.townNextLessonReadyIn({ number: 2 })}4 min`)
 })
 
 it('shows no lesson time beside the reviews while no lesson runs', async () => {
@@ -155,14 +133,14 @@ it('opens the words of the running lesson', async () => {
     townAt({ kind: 'lessonRunning', goal: null, text: null }, { lessonSlot: runningLessonTwo }),
   )
 
-  expect(within(card()).getByText(schoolSlotTitle())).toBeDefined()
-  expect(pill(schoolLessonReadWords()).getAttribute('href')).toBe('/school/lesson-2')
+  expect(within(card()).getByText(es.schoolSlotTitle())).toBeDefined()
+  expect(pill(es.schoolLessonReadWords()).getAttribute('href')).toBe('/school/lesson-2')
 })
 
 it('opens the school if the read holds no running lesson', async () => {
   await showTown(townAt({ kind: 'lessonRunning', goal: null, text: null }))
 
-  expect(pill(schoolLessonReadWords()).getAttribute('href')).toBe('/school')
+  expect(pill(es.schoolLessonReadWords()).getAttribute('href')).toBe('/school')
 })
 
 it("opens the school with the next review's time", async () => {
@@ -170,8 +148,8 @@ it("opens the school with the next review's time", async () => {
     townAt({ kind: 'lessonToStudy', lessonId: 'lesson-1' }, { nextDueAt: secondsAfterRead(540) }),
   )
 
-  expect(pill(schoolLessonStudy({ number: 1 })).getAttribute('href')).toBe('/school')
-  expect(within(card()).getByRole('timer').textContent).toBe(`${reviewNextReview()}9 min`)
+  expect(pill(es.schoolLessonStudy({ number: 1 })).getAttribute('href')).toBe('/school')
+  expect(within(card()).getByRole('timer').textContent).toBe(`${es.reviewNextReview()}9 min`)
 })
 
 it('shows no time with no review ahead', async () => {
@@ -183,8 +161,8 @@ it('shows no time with no review ahead', async () => {
 it('names the lesson to study with its words', async () => {
   await showTown(townAt({ kind: 'lessonToStudy', lessonId: 'lesson-1' }))
 
-  expect(within(card()).getByText(schoolLessonTitle({ number: 1 }))).toBeDefined()
-  expect(within(card()).getByText(schoolLessonWords({ count: 5 }))).toBeDefined()
+  expect(within(card()).getByText(es.schoolLessonTitle({ number: 1 }))).toBeDefined()
+  expect(within(card()).getByText(es.schoolLessonWords({ count: 5 }))).toBeDefined()
 })
 
 it('reads a lesson of a single word in the singular', async () => {
@@ -205,25 +183,25 @@ const releasedSetThree: NextStep = {
 it('names a due check by its band', async () => {
   await showTown(townAt(dueCheck))
 
-  expect(within(card()).getByText(townNextHoldoutCheck({ band: 2 }))).toBeDefined()
+  expect(within(card()).getByText(es.townNextHoldoutCheck({ band: 2 }))).toBeDefined()
 })
 
 it('opens the school from a due check', async () => {
   await showTown(townAt(dueCheck))
 
-  expect(pill(townGoToSchool()).getAttribute('href')).toBe('/school')
+  expect(pill(es.townGoToSchool()).getAttribute('href')).toBe('/school')
 })
 
 it('names a released lesson by its band and set', async () => {
   await showTown(townAt(releasedSetThree))
 
-  expect(within(card()).getByText(townNextReleasedLesson({ band: 1, number: 3 }))).toBeDefined()
+  expect(within(card()).getByText(es.townNextReleasedLesson({ band: 1, number: 3 }))).toBeDefined()
 })
 
 it('opens the school from a released lesson', async () => {
   await showTown(townAt(releasedSetThree))
 
-  expect(pill(townGoToSchool()).getAttribute('href')).toBe('/school')
+  expect(pill(es.townGoToSchool()).getAttribute('href')).toBe('/school')
 })
 
 it('opens the Report when caught up', async () => {
@@ -234,9 +212,9 @@ it('opens the Report when caught up', async () => {
     ),
   )
 
-  expect(within(card()).getByText(reportNoReviewsDue())).toBeDefined()
-  expect(within(card()).getByRole('timer').textContent).toBe(`${reviewNextReview()}9 min`)
-  expect(pill(townNextGoToReport()).getAttribute('href')).toBe('/report')
+  expect(within(card()).getByText(es.reportNoReviewsDue())).toBeDefined()
+  expect(within(card()).getByRole('timer').textContent).toBe(`${es.reviewNextReview()}9 min`)
+  expect(pill(es.townNextGoToReport()).getAttribute('href')).toBe('/report')
 })
 
 it('counts the next review down between reads', async () => {
@@ -253,7 +231,7 @@ it('counts the next review down between reads', async () => {
 
   await passSeconds(120)
 
-  expect(within(card()).getByRole('timer').textContent).toBe(`${reviewNextReview()}7 min`)
+  expect(within(card()).getByRole('timer').textContent).toBe(`${es.reviewNextReview()}7 min`)
 })
 
 it('counts the last minute of the next review by the second', async () => {
@@ -266,7 +244,7 @@ it('counts the last minute of the next review by the second', async () => {
 
   await passSeconds(10)
 
-  expect(within(card()).getByRole('timer').textContent).toBe(`${reviewNextReview()}0:35`)
+  expect(within(card()).getByRole('timer').textContent).toBe(`${es.reviewNextReview()}0:35`)
 })
 
 it('re-reads at nextDueAt', async () => {
@@ -314,11 +292,11 @@ const releasedFinished = townAt(reviewsStep(1, []), {
 it('names a running released lesson by band and set', async () => {
   await showTown(releasedRunning)
 
-  const readyIn = `${townNextReleasedReadyIn({ band: 2, number: 2 })}4 min`
+  const readyIn = `${es.townNextReleasedReadyIn({ band: 2, number: 2 })}4 min`
   const timers = screen.getAllByRole('timer').map(({ textContent }) => textContent)
 
   expect(timers).toEqual([readyIn, readyIn])
-  expect(document.body.textContent).not.toContain(townNextLessonReadyIn({ number: 0 }))
+  expect(document.body.textContent).not.toContain(es.townNextLessonReadyIn({ number: 0 }))
 })
 
 it('names a finished released lesson by band and set', async () => {
@@ -336,14 +314,14 @@ it('names a finished released lesson by band and set', async () => {
 
   await passSeconds(240)
 
-  const line = shellLessonFinishReleased({ band: 2, number: 2 })
+  const line = es.shellLessonFinishReleased({ band: 2, number: 2 })
   expect(screen.getByRole('region', { name: line })).toBeDefined()
 })
 
 it('sends a running released lesson to the school', async () => {
   await showTown(releasedRunning)
 
-  expect(pill(townGoToSchool()).getAttribute('href')).toBe('/school')
+  expect(pill(es.townGoToSchool()).getAttribute('href')).toBe('/school')
 })
 
 const workUnderWay: TownOverview['work'] = {
@@ -359,37 +337,37 @@ const workUnderWay: TownOverview['work'] = {
 }
 
 it.each<[string, NextStep, Partial<TownOverview>, () => string]>([
-  ['the reviews', reviewsStep(3, []), {}, reportStartReviews],
-  ['an unread lesson', reviewsStep(3, ['lesson-1']), {}, schoolLessonReadWords],
+  ['the reviews', reviewsStep(3, []), {}, es.reportStartReviews],
+  ['an unread lesson', reviewsStep(3, ['lesson-1']), {}, es.schoolLessonReadWords],
   [
     'the reviews beside a running lesson',
     reviewsStep(3, []),
     { lessonSlot: runningLessonTwo },
-    reportStartReviews,
+    es.reportStartReviews,
   ],
   [
     'a running lesson',
     { kind: 'lessonRunning', goal: null, text: null },
     { lessonSlot: runningLessonTwo },
-    schoolLessonReadWords,
+    es.schoolLessonReadWords,
   ],
   [
     'a lesson to study',
     { kind: 'lessonToStudy', lessonId: 'lesson-1' },
     {},
-    () => schoolLessonStudy({ number: 1 }),
+    () => es.schoolLessonStudy({ number: 1 }),
   ],
   [
     'caught up',
     { kind: 'caughtUp', reason: 'lessonsDone', goal: null, text: null },
     {},
-    townNextGoToReport,
+    es.townNextGoToReport,
   ],
   [
     'building work under way',
     { kind: 'caughtUp', reason: 'lessonsDone', goal: null, text: null },
     { work: workUnderWay },
-    townNextGoToReport,
+    es.townNextGoToReport,
   ],
 ])('holds one ink pill on the town home at %s', async (_state, step, overrides, label) => {
   await showTown(townAt(step, overrides))
@@ -415,7 +393,7 @@ it("keeps the next step's block peach", async () => {
 it('puts the next step before the skyline', async () => {
   await showTown(townAt({ kind: 'caughtUp', reason: 'lessonsDone', goal: null, text: null }))
 
-  const skyline = screen.getByRole('img', { name: townSkylineBuilt({ built: 2, total: 7 }) })
+  const skyline = screen.getByRole('img', { name: es.townSkylineBuilt({ built: 2, total: 7 }) })
 
   expect(card().compareDocumentPosition(skyline)).toBe(Node.DOCUMENT_POSITION_FOLLOWING)
 })
@@ -425,7 +403,7 @@ it('draws the school first', async () => {
 
   const [firstPlace] = screen.getAllByRole('heading', { level: 4 })
 
-  expect(firstPlace?.textContent).toContain(namesPlacesSchool())
+  expect(firstPlace?.textContent).toContain(es.namesPlacesSchool())
 })
 
 it('draws the card before the places', async () => {
@@ -433,7 +411,7 @@ it('draws the card before the places', async () => {
 
   const [firstHeading] = screen.getAllByRole('heading', { level: 3 })
 
-  expect(firstHeading?.textContent).toBe(townNextTitle())
+  expect(firstHeading?.textContent).toBe(es.townNextTitle())
 })
 
 it('shows the same card on a return visit, with no greeting', async () => {
@@ -451,7 +429,7 @@ it('shows the same card on a return visit, with no greeting', async () => {
 
 const newestText = { id: 'text-31', title: 'The New Shop' }
 
-const newestTextLine = (): string => townNextText({ title: newestText.title })
+const newestTextLine = (): string => es.townNextText({ title: newestText.title })
 
 const underwayFarm: TownGoal = {
   position: 1,
@@ -482,7 +460,7 @@ it('a running lesson names it beside the goal', async () => {
     ),
   )
 
-  const goalLine = townGoalLine({ position: 1, count: 9, place: 'Granja', level: 1 })
+  const goalLine = es.townGoalLine({ position: 1, count: 9, place: 'Granja', level: 1 })
 
   expect(within(card()).getByText(goalLine)).toBeDefined()
   expect(screen.getByRole('link', { name: newestTextLine() }).getAttribute('href')).toBe(

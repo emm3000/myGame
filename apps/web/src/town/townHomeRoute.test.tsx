@@ -1,44 +1,4 @@
-import {
-  authSignInTitle,
-  es,
-  mapRowLink,
-  mapTitle,
-  namesPlacesFarm,
-  namesPlacesHomes,
-  namesPlacesOffice,
-  namesPlacesPowerStation,
-  namesPlacesSchool,
-  namesTownResourcesMoney,
-  refusalUnexpected,
-  schoolSkillName,
-  shellNavigationTown,
-  shellSignOut,
-  townAmount,
-  townBuild,
-  townCostName,
-  townFull,
-  townFullAt,
-  townGoToSchool,
-  townInWork,
-  townLabelCity,
-  townLabelTown,
-  townLevel,
-  townLoading,
-  townNotBuilt,
-  townPlacesTitleCity,
-  townPlacesTitleTown,
-  townReadyAt,
-  townSeasonDays,
-  townSeasonEndsIn,
-  townSeasonLine,
-  townShortfall,
-  townSkylineBuilt,
-  townStocks,
-  townTryAgain,
-  townWordsLearned,
-  townWordsNeeded,
-  townWordsReviewed,
-} from '@mygame/catalog'
+import { es } from '@mygame/catalog'
 import type { TownOverview } from '@mygame/contracts'
 import { act, fireEvent, screen, within } from '@testing-library/react'
 import { afterEach, beforeEach, expect, it, vi } from 'vitest'
@@ -86,12 +46,12 @@ const showTown = async (apiClient: ApiClient): Promise<void> => {
 const stockCell = (name: string): HTMLElement => screen.getByRole('listitem', { name })
 
 const townHomeLink = (): HTMLElement | null =>
-  screen.queryByRole('link', { name: townGoToSchool() })
+  screen.queryByRole('link', { name: es.townGoToSchool() })
 
 it('keeps the loading line in a status region while the town loads', async () => {
   await showTown(serving(knownTown, { town: () => new Promise(() => undefined) }))
 
-  expect(screen.getByRole('status').textContent).toBe(townLoading())
+  expect(screen.getByRole('status').textContent).toBe(es.townLoading())
 })
 
 it('never draws the loading line on the screen', async () => {
@@ -153,7 +113,7 @@ it('draws no skeleton on a refused read, only the retry', async () => {
   await passSeconds(revealSeconds + holdSeconds)
 
   expect(skeletonBlocks()).toEqual([])
-  expect(screen.getByRole('button', { name: townTryAgain() })).toBeDefined()
+  expect(screen.getByRole('button', { name: es.townTryAgain() })).toBeDefined()
 })
 
 it('draws the held town with no loading state when coming back from the school', async () => {
@@ -169,16 +129,16 @@ it('draws the held town with no loading state when coming back from the school',
     }),
   )
 
-  fireEvent.click(screen.getByRole('link', { name: townGoToSchool() }))
+  fireEvent.click(screen.getByRole('link', { name: es.townGoToSchool() }))
   await passSeconds(0)
-  expect(screen.getByRole('heading', { level: 1, name: namesPlacesSchool() })).toBeDefined()
+  expect(screen.getByRole('heading', { level: 1, name: es.namesPlacesSchool() })).toBeDefined()
   expect(screen.queryByRole('status')).toBeNull()
 
-  fireEvent.click(screen.getByRole('link', { name: shellNavigationTown() }))
+  fireEvent.click(screen.getByRole('link', { name: es.shellNavigationTown() }))
   await passSeconds(0)
 
   expect(townHomeLink()).not.toBeNull()
-  expect(screen.queryByText(townLoading())).toBeNull()
+  expect(screen.queryByText(es.townLoading())).toBeNull()
   expect(skeletonBlocks()).toEqual([])
 })
 
@@ -195,9 +155,9 @@ it('offers to read the town again after a failed read', async () => {
     }),
   )
   expect(screen.getByText(refusalLineOf(es, 'InvalidCredentials'))).toBeDefined()
-  expect(screen.queryByText(refusalUnexpected())).toBeNull()
+  expect(screen.queryByText(es.refusalUnexpected())).toBeNull()
 
-  fireEvent.click(screen.getByRole('button', { name: townTryAgain() }))
+  fireEvent.click(screen.getByRole('button', { name: es.townTryAgain() }))
   await passSeconds(0)
 
   expect(screen.getByRole('heading', { level: 1, name: new RegExp(knownTown.name) })).toBeDefined()
@@ -208,7 +168,7 @@ const failedRead = async (): Promise<ApiOutcome<TownOverview>> => ({
   refusal: 'Unexpected',
 })
 
-const signOutButton = (): HTMLElement => screen.getByRole('button', { name: shellSignOut() })
+const signOutButton = (): HTMLElement => screen.getByRole('button', { name: es.shellSignOut() })
 
 it('signs out from a failed town read', async () => {
   let isSignedIn = true
@@ -226,7 +186,7 @@ it('signs out from a failed town read', async () => {
   fireEvent.click(signOutButton())
   await passSeconds(0)
 
-  expect(screen.getByRole('heading', { level: 1, name: authSignInTitle() })).toBeDefined()
+  expect(screen.getByRole('heading', { level: 1, name: es.authSignInTitle() })).toBeDefined()
   expect(isSignedIn).toBe(false)
 })
 
@@ -239,7 +199,7 @@ it('draws the failed read sign-out as a text button', async () => {
 it('keeps sign-out off the live town home', async () => {
   await showTown(serving(knownTown))
 
-  expect(screen.queryByRole('button', { name: shellSignOut() })).toBeNull()
+  expect(screen.queryByRole('button', { name: es.shellSignOut() })).toBeNull()
 })
 
 it('shows each stock with its rate and its storage', async () => {
@@ -266,7 +226,7 @@ it('reads the fill hour within 8 h', async () => {
   await showTown(serving(foodFullAt('2026-11-10T14:30:00.000Z')))
 
   const food = within(stockCell('Comida'))
-  expect(food.getByText(townFullAt({ clock: '15:30' }))).toBeDefined()
+  expect(food.getByText(es.townFullAt({ clock: '15:30' }))).toBeDefined()
   expect(food.queryByText('+120 / h')).toBeNull()
 })
 
@@ -275,7 +235,7 @@ it('reads the rate past 8 h', async () => {
 
   const food = within(stockCell('Comida'))
   expect(food.getByText('+120 / h')).toBeDefined()
-  expect(food.queryByText(townFullAt({ clock: '18:00' }))).toBeNull()
+  expect(food.queryByText(es.townFullAt({ clock: '18:00' }))).toBeNull()
 })
 
 it('reads the rate while the store has no fill instant', async () => {
@@ -288,8 +248,8 @@ it('reads full for a full store', async () => {
   await showTown(serving(foodFullAt(knownTown.readAt, knownTown.stocks.food.capacity)))
 
   const food = within(stockCell('Comida'))
-  expect(food.getByText(townFull({ capacity: '5 000' }))).toBeDefined()
-  expect(food.queryByText(townFullAt({ clock: '10:00' }))).toBeNull()
+  expect(food.getByText(es.townFull({ capacity: '5 000' }))).toBeDefined()
+  expect(food.queryByText(es.townFullAt({ clock: '10:00' }))).toBeNull()
 })
 
 const earnedSkill = (
@@ -306,10 +266,10 @@ it('shows the earned skill beside its resource', async () => {
   const skills = [earnedSkill('lesson-1', 'food'), earnedSkill('lesson-3', 'food')]
   await showTown(serving({ ...knownTown, skills }))
 
-  const foodSkill = schoolSkillName({ resource: townResourceNameOf(es, 'food'), level: 2 })
+  const foodSkill = es.schoolSkillName({ resource: townResourceNameOf(es, 'food'), level: 2 })
   expect(within(stockCell('Comida')).getByText(foodSkill)).toBeDefined()
   const money = within(stockCell('Dinero'))
-  const moneySkill = schoolSkillName({ resource: townResourceNameOf(es, 'money'), level: 1 })
+  const moneySkill = es.schoolSkillName({ resource: townResourceNameOf(es, 'money'), level: 1 })
   expect([money.queryByText(foodSkill), money.queryByText(moneySkill)]).toEqual([null, null])
 })
 
@@ -319,7 +279,7 @@ it('shows no skill beside a resource while none is earned', async () => {
   const shownLevels = [0, 1].filter(
     (level) =>
       within(stockCell('Comida')).queryByText(
-        schoolSkillName({ resource: townResourceNameOf(es, 'food'), level }),
+        es.schoolSkillName({ resource: townResourceNameOf(es, 'food'), level }),
       ) !== null,
   )
   expect(shownLevels).toEqual([])
@@ -367,10 +327,12 @@ it('draws each place with one window per level, a place not built with none', as
     screen
       .getByRole('listitem', { name: place })
       .querySelectorAll(`svg [fill="${palette['on-block'].light}"]`).length
-  const builtLevels = [namesPlacesHomes(), namesPlacesFarm(), namesPlacesPowerStation()].map(
-    windowsOf,
-  )
-  const places = screen.getByRole('region', { name: townPlacesTitleTown() })
+  const builtLevels = [
+    es.namesPlacesHomes(),
+    es.namesPlacesFarm(),
+    es.namesPlacesPowerStation(),
+  ].map(windowsOf)
+  const places = screen.getByRole('region', { name: es.townPlacesTitleTown() })
   expect(within(places).getAllByRole('heading', { level: 4 })).toHaveLength(7)
   expect(builtLevels).toEqual([4, 0, 0])
 })
@@ -387,7 +349,7 @@ it('holds one top heading on the town home, with the name of the town', async ()
 it('orders the stocks money, food, power, material', async () => {
   await showTown(serving(knownTown))
 
-  const stocks = within(screen.getByRole('list', { name: townStocks() }))
+  const stocks = within(screen.getByRole('list', { name: es.townStocks() }))
     .getAllByRole('listitem')
     .map((stock) => stock.getAttribute('aria-label'))
 
@@ -397,7 +359,9 @@ it('orders the stocks money, food, power, material', async () => {
 it('says how many places are built on the skyline', async () => {
   await showTown(serving(knownTown))
 
-  expect(screen.getByRole('img', { name: townSkylineBuilt({ built: 2, total: 7 }) })).toBeDefined()
+  expect(
+    screen.getByRole('img', { name: es.townSkylineBuilt({ built: 2, total: 7 }) }),
+  ).toBeDefined()
 })
 
 const workOnFarm: TownOverview['work'] = {
@@ -426,12 +390,12 @@ it('writes the level beside every place', async () => {
   const row = (place: string): ReturnType<typeof within> =>
     within(screen.getByRole('listitem', { name: place }))
 
-  expect(row(namesPlacesOffice()).getByText(townNotBuilt())).toBeDefined()
-  expect(row(namesPlacesFarm()).getByText(townInWork())).toBeDefined()
+  expect(row(es.namesPlacesOffice()).getByText(es.townNotBuilt())).toBeDefined()
+  expect(row(es.namesPlacesFarm()).getByText(es.townInWork())).toBeDefined()
   expect(
-    row(namesPlacesHomes()).getByText(`${townLevel({ level: 1 })} · ${townInWork()}`),
+    row(es.namesPlacesHomes()).getByText(`${es.townLevel({ level: 1 })} · ${es.townInWork()}`),
   ).toBeDefined()
-  expect(row(namesPlacesSchool()).getByText(townLevel({ level: 1 }))).toBeDefined()
+  expect(row(es.namesPlacesSchool()).getByText(es.townLevel({ level: 1 }))).toBeDefined()
 })
 
 const farmToBuild: TownOverview['buildings']['farm'] = {
@@ -450,15 +414,15 @@ it('says a shortfall in words', async () => {
     serving({ ...knownTown, buildings: { ...knownTown.buildings, farm: farmToBuild } }),
   )
 
-  const farm = within(screen.getByRole('listitem', { name: namesPlacesFarm() }))
+  const farm = within(screen.getByRole('listitem', { name: es.namesPlacesFarm() }))
 
   expect(
     farm.getByRole('button', {
-      name: new RegExp(townBuild({ level: 1 })),
+      name: new RegExp(es.townBuild({ level: 1 })),
       description: (description) =>
         description.startsWith(
-          townShortfall({
-            missing: townAmount({ amount: '400', resource: namesTownResourcesMoney() }),
+          es.townShortfall({
+            missing: es.townAmount({ amount: '400', resource: es.namesTownResourcesMoney() }),
           }),
         ),
     }),
@@ -470,14 +434,14 @@ it('names the minute the resources arrive under a card short only of them', asyn
     serving({ ...knownTown, buildings: { ...knownTown.buildings, farm: farmToBuild } }),
   )
 
-  const farm = within(screen.getByRole('listitem', { name: namesPlacesFarm() }))
+  const farm = within(screen.getByRole('listitem', { name: es.namesPlacesFarm() }))
 
   expect(
     farm.getByRole('button', {
-      name: new RegExp(townBuild({ level: 1 })),
-      description: `${townShortfall({
-        missing: townAmount({ amount: '400', resource: namesTownResourcesMoney() }),
-      })} ${townReadyAt({ time: '16:40' })}`,
+      name: new RegExp(es.townBuild({ level: 1 })),
+      description: `${es.townShortfall({
+        missing: es.townAmount({ amount: '400', resource: es.namesTownResourcesMoney() }),
+      })} ${es.townReadyAt({ time: '16:40' })}`,
     }),
   ).toBeDefined()
 })
@@ -487,10 +451,12 @@ it("keeps a cost's name for a screen reader", async () => {
     serving({ ...knownTown, buildings: { ...knownTown.buildings, farm: farmToBuild } }),
   )
 
-  const costs = within(screen.getByRole('listitem', { name: namesPlacesFarm() })).getByRole('list')
+  const costs = within(screen.getByRole('listitem', { name: es.namesPlacesFarm() })).getByRole(
+    'list',
+  )
 
   expect(within(costs).getByRole('listitem').textContent).toContain(
-    townCostName({ resource: namesTownResourcesMoney() }),
+    es.townCostName({ resource: es.namesTownResourcesMoney() }),
   )
 })
 
@@ -515,13 +481,13 @@ const townWithWords = (farm: TownOverview['buildings']['farm']): TownOverview =>
 })
 
 const farmRow = (): ReturnType<typeof within> =>
-  within(screen.getByRole('listitem', { name: namesPlacesFarm() }))
+  within(screen.getByRole('listitem', { name: es.namesPlacesFarm() }))
 
 it('draws a stable need with its count', async () => {
   await showTown(serving(townWithWords(farmNeeding({ count: 10, standing: 'stable' }))))
 
   expect(
-    farmRow().getByText(townWordsNeeded({ standing: 'stable', needed: 10, held: 7 })),
+    farmRow().getByText(es.townWordsNeeded({ standing: 'stable', needed: 10, held: 7 })),
   ).toBeDefined()
 })
 
@@ -529,7 +495,7 @@ it('draws a retained need with its count', async () => {
   await showTown(serving(townWithWords(farmNeeding({ count: 5, standing: 'retained' }))))
 
   expect(
-    farmRow().getByText(townWordsNeeded({ standing: 'retained', needed: 5, held: 3 })),
+    farmRow().getByText(es.townWordsNeeded({ standing: 'retained', needed: 5, held: 3 })),
   ).toBeDefined()
 })
 
@@ -542,10 +508,10 @@ it('draws no need below level 3', async () => {
 it("draws the town's reviewed and learned words", async () => {
   await showTown(serving(townWithWords(farmNeeding(null))))
 
-  const stocks = within(screen.getByRole('region', { name: townStocks() }))
+  const stocks = within(screen.getByRole('region', { name: es.townStocks() }))
 
-  expect(stocks.getByText(townWordsReviewed({ count: 7 }))).toBeDefined()
-  expect(stocks.getByText(townWordsLearned({ count: 3 }))).toBeDefined()
+  expect(stocks.getByText(es.townWordsReviewed({ count: 7 }))).toBeDefined()
+  expect(stocks.getByText(es.townWordsLearned({ count: 3 }))).toBeDefined()
 })
 
 it('writes the season under the stocks', async () => {
@@ -562,11 +528,13 @@ it('writes the season under the stocks', async () => {
     }),
   )
 
-  const stocks = within(screen.getByRole('region', { name: townStocks() }))
+  const stocks = within(screen.getByRole('region', { name: es.townStocks() }))
 
-  expect(stocks.getByText(townSeasonLine({ season: 'Otoño', year: 2 }))).toBeDefined()
+  expect(stocks.getByText(es.townSeasonLine({ season: 'Otoño', year: 2 }))).toBeDefined()
   expect(
-    stocks.getByText(townSeasonEndsIn({ season: 'Otoño', timeLeft: townSeasonDays({ days: 3 }) })),
+    stocks.getByText(
+      es.townSeasonEndsIn({ season: 'Otoño', timeLeft: es.townSeasonDays({ days: 3 }) }),
+    ),
   ).toBeDefined()
 })
 
@@ -574,14 +542,14 @@ it('labels the town a city once the server does', async () => {
   await showTown(serving({ ...knownTown, label: 'city' }))
 
   const heading = screen.getByRole('heading', { level: 1 })
-  expect(heading.textContent).toContain(townLabelCity())
-  expect(heading.textContent).not.toContain(townLabelTown())
+  expect(heading.textContent).toContain(es.townLabelCity())
+  expect(heading.textContent).not.toContain(es.townLabelTown())
 })
 
 it('titles the places of a city as the city', async () => {
   await showTown(serving({ ...knownTown, label: 'city' }))
 
-  expect(screen.getByRole('heading', { level: 3, name: townPlacesTitleCity() })).toBeDefined()
+  expect(screen.getByRole('heading', { level: 3, name: es.townPlacesTitleCity() })).toBeDefined()
 })
 
 it('reads the town again when its season ends', async () => {
@@ -616,9 +584,9 @@ it('reads the town again when its season ends', async () => {
 it('opens the map from its row on the town home', async () => {
   await showTown(serving(knownTown))
 
-  fireEvent.click(screen.getByRole('link', { name: mapRowLink() }))
+  fireEvent.click(screen.getByRole('link', { name: es.mapRowLink() }))
   await passSeconds(0)
 
-  expect(screen.getByRole('heading', { level: 1, name: mapTitle() })).toBeDefined()
+  expect(screen.getByRole('heading', { level: 1, name: es.mapTitle() })).toBeDefined()
   expect(screen.getByRole('heading', { level: 2, name: 'Zona 1' })).toBeDefined()
 })

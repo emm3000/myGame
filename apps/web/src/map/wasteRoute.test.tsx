@@ -1,4 +1,4 @@
-import { mapCleanUpShort, refusalNoWasteYet, refusalTeamAlreadyOut } from '@mygame/catalog'
+import { es } from '@mygame/catalog'
 import type { CleanUpQuote, RegionMap, SendCleanUp, TownOverview } from '@mygame/contracts'
 import { act, fireEvent, screen, within } from '@testing-library/react'
 import { afterEach, beforeEach, expect, it, vi } from 'vitest'
@@ -190,7 +190,7 @@ it('reads whether the team covers the waste from the server, never from its stre
   enterTeam(form, { 'Trabajadores a enviar': '2' })
   await passSeconds(0)
 
-  expect(within(form).getByText(mapCleanUpShort())).toBeDefined()
+  expect(within(form).getByText(es.mapCleanUpShort())).toBeDefined()
 })
 
 it('still sends a team that cannot cover the waste, as the server decides', async () => {
@@ -265,7 +265,7 @@ it('reads a refused clean-up under the form', async () => {
   fireEvent.click(sendButton(form))
   await passSeconds(0)
 
-  expect(within(form).getByRole('alert').textContent).toBe(refusalNoWasteYet())
+  expect(within(form).getByRole('alert').textContent).toBe(es.refusalNoWasteYet())
 })
 
 it('marks the send with the reason of a refused quote', async () => {
@@ -282,7 +282,7 @@ it('marks the send with the reason of a refused quote', async () => {
   await passSeconds(0)
 
   expect(reasonOf(sendButton(form))?.getAttribute('aria-live')).toBe('polite')
-  expect(accessibleDescriptionOf(sendButton(form))).toBe(refusalTeamAlreadyOut())
+  expect(accessibleDescriptionOf(sendButton(form))).toBe(es.refusalTeamAlreadyOut())
 })
 
 it('sends a clean-up its refused quote marks, since the api decides', async () => {
@@ -322,7 +322,7 @@ it('drops a refused clean-up once the player edits the team', async () => {
   enterTeam(form, { 'Trabajadores a enviar': '3' })
   fireEvent.click(sendButton(form))
   await passSeconds(0)
-  expect(within(form).getByRole('alert').textContent).toBe(refusalNoWasteYet())
+  expect(within(form).getByRole('alert').textContent).toBe(es.refusalNoWasteYet())
 
   enterTeam(form, { 'Trabajadores a enviar': '4' })
   await passSeconds(0)

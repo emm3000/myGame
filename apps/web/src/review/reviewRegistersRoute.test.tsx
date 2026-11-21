@@ -1,4 +1,4 @@
-import { reviewCheck, reviewDueCount, reviewNext } from '@mygame/catalog'
+import { es } from '@mygame/catalog'
 import type { DueReview, ReviewAnswer, Reviews } from '@mygame/contracts'
 import { act, fireEvent, screen } from '@testing-library/react'
 import { afterEach, beforeEach, expect, it, vi } from 'vitest'
@@ -89,12 +89,12 @@ const showReview = async (
 
 const answerHome = async (): Promise<void> => {
   fireEvent.click(screen.getByRole('radio', { name: 'hogar' }))
-  fireEvent.click(screen.getByRole('button', { name: reviewCheck() }))
+  fireEvent.click(screen.getByRole('button', { name: es.reviewCheck() }))
   await passSeconds(0)
 }
 
 const pressNext = async (): Promise<void> => {
-  fireEvent.click(screen.getByRole('button', { name: reviewNext() }))
+  fireEvent.click(screen.getByRole('button', { name: es.reviewNext() }))
   await passSeconds(0)
 }
 
@@ -157,7 +157,7 @@ it('speaks the due count when it deals the next card', async () => {
   expect(reviewLiveRegion()?.textContent).toBe('')
   await pressNext()
 
-  expect(reviewLiveRegion()?.textContent).toBe(reviewDueCount({ count: formatQuantity(1) }))
+  expect(reviewLiveRegion()?.textContent).toBe(es.reviewDueCount({ count: formatQuantity(1) }))
 })
 
 const correctHomeEarningFood: ReviewAnswer['verdict'] = {

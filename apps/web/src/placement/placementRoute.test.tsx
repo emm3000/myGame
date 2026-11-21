@@ -1,18 +1,4 @@
-import {
-  placementChoose,
-  placementClosedNone,
-  placementFailed,
-  placementNext,
-  placementNotPlacedOut,
-  placementOfferedLine,
-  placementPlacedOut,
-  placementProgress,
-  placementResultBand,
-  placementRetry,
-  placementSendBand,
-  placementSkip,
-  placementStart,
-} from '@mygame/catalog'
+import { es } from '@mygame/catalog'
 import type { Placement, PlacementAnswers } from '@mygame/contracts'
 import { act, fireEvent, screen } from '@testing-library/react'
 import { afterEach, beforeEach, expect, it, vi } from 'vitest'
@@ -96,9 +82,9 @@ const choose = async (gloss: string): Promise<void> => {
 it('offers the placement with a way to take it and a way to skip it', async () => {
   await showPlacement({ placement: readingInTurn(offered) })
 
-  expect(screen.getByText(placementOfferedLine())).toBeDefined()
-  expect(button(placementStart())).toBeDefined()
-  expect(button(placementSkip())).toBeDefined()
+  expect(screen.getByText(es.placementOfferedLine())).toBeDefined()
+  expect(button(es.placementStart())).toBeDefined()
+  expect(button(es.placementSkip())).toBeDefined()
 })
 
 it('skips the placement and draws the placement the api answers', async () => {
@@ -108,10 +94,10 @@ it('skips the placement and draws the placement the api answers', async () => {
   }))
   await showPlacement({ placement: readingInTurn(offered), skipPlacement })
 
-  await click(placementSkip())
+  await click(es.placementSkip())
 
   expect(skipPlacement).toHaveBeenCalledOnce()
-  expect(screen.getByText(placementClosedNone())).toBeDefined()
+  expect(screen.getByText(es.placementClosedNone())).toBeDefined()
 })
 
 it('takes the placement and asks the first word of the band with its choices', async () => {
@@ -120,23 +106,23 @@ it('takes the placement and asks the first word of the band with its choices', a
     beginPlacement: async () => ({ ok: true, value: firstBandAsked }),
   })
 
-  await click(placementStart())
+  await click(es.placementStart())
 
   expect(screen.getByRole('heading', { name: 'house' })).toBeDefined()
   expect(screen.getByRole('radio', { name: 'perro' })).toBeDefined()
   expect(screen.getByRole('radio', { name: 'casa' })).toBeDefined()
-  expect(screen.getByText(placementProgress({ number: 1, total: 2 }))).toBeDefined()
+  expect(screen.getByText(es.placementProgress({ number: 1, total: 2 }))).toBeDefined()
 })
 
 it('keeps the next button blocked with its reason until a meaning is chosen', async () => {
   await showPlacement({ placement: readingInTurn(firstBandAsked) })
 
-  expect(button(placementNext()).getAttribute('aria-disabled')).toBe('true')
-  expect(screen.getByText(placementChoose())).toBeDefined()
+  expect(button(es.placementNext()).getAttribute('aria-disabled')).toBe('true')
+  expect(screen.getByText(es.placementChoose())).toBeDefined()
 
   await choose('casa')
 
-  expect(button(placementNext()).getAttribute('aria-disabled')).not.toBe('true')
+  expect(button(es.placementNext()).getAttribute('aria-disabled')).not.toBe('true')
 })
 
 it('sends the band answers in one request and draws the placement the api answers next', async () => {
@@ -147,9 +133,9 @@ it('sends the band answers in one request and draws the placement the api answer
   await showPlacement({ placement: readingInTurn(firstBandAsked), answerPlacement })
 
   await choose('casa')
-  await click(placementNext())
+  await click(es.placementNext())
   await choose('agua')
-  await click(placementSendBand({ band: 1 }))
+  await click(es.placementSendBand({ band: 1 }))
 
   const sent: PlacementAnswers = {
     band: 1,
@@ -159,7 +145,7 @@ it('sends the band answers in one request and draws the placement the api answer
     ],
   }
   expect(answerPlacement.mock.calls).toEqual([[sent]])
-  expect(screen.getByText(placementResultBand({ band: 1, score: 21 }))).toBeDefined()
+  expect(screen.getByText(es.placementResultBand({ band: 1, score: 21 }))).toBeDefined()
 })
 
 it('sends the band answers once on a double click', async () => {
@@ -171,8 +157,8 @@ it('sends the band answers once on a double click', async () => {
   await choose('casa')
 
   await act(async () => {
-    fireEvent.click(button(placementSendBand({ band: 1 })))
-    fireEvent.click(button(placementSendBand({ band: 1 })))
+    fireEvent.click(button(es.placementSendBand({ band: 1 })))
+    fireEvent.click(button(es.placementSendBand({ band: 1 })))
   })
 
   expect(answerPlacement).toHaveBeenCalledOnce()
@@ -184,8 +170,8 @@ it('shows each band score and whether it is placed out as the wire says', async 
   const bandLines = screen.getAllByRole('listitem').map(({ textContent }) => textContent)
 
   expect(bandLines).toEqual([
-    `${placementResultBand({ band: 1, score: 21 })}${placementPlacedOut()}`,
-    `${placementResultBand({ band: 2, score: 30 })}${placementNotPlacedOut()}`,
+    `${es.placementResultBand({ band: 1, score: 21 })}${es.placementPlacedOut()}`,
+    `${es.placementResultBand({ band: 2, score: 30 })}${es.placementNotPlacedOut()}`,
   ])
 })
 
@@ -196,7 +182,7 @@ it('re-reads the placement after a refused call and draws its answer', async () 
     beginPlacement: async () => ({ ok: false, refusal: 'Unexpected' }),
   })
 
-  await click(placementStart())
+  await click(es.placementStart())
 
   expect(placement).toHaveBeenCalledTimes(2)
   expect(screen.getByRole('heading', { name: 'house' })).toBeDefined()
@@ -209,9 +195,9 @@ it('offers a retry when the placement cannot be read', async () => {
     .mockResolvedValue({ ok: true, value: offered })
   await showPlacement({ placement })
 
-  expect(screen.getByText(placementFailed())).toBeDefined()
+  expect(screen.getByText(es.placementFailed())).toBeDefined()
 
-  await click(placementRetry())
+  await click(es.placementRetry())
 
-  expect(button(placementStart())).toBeDefined()
+  expect(button(es.placementStart())).toBeDefined()
 })

@@ -1,18 +1,4 @@
-import {
-  namesPlacesSchool,
-  reportLoading,
-  reportStartReviews,
-  reviewTitle,
-  schoolLessonNext,
-  schoolLessonNothingToRead,
-  schoolLessonTitle,
-  schoolLessonWordNext,
-  schoolLessonWordPosition,
-  schoolLessonWordThen,
-  townGoToSchool,
-  townLoading,
-  townTryAgain,
-} from '@mygame/catalog'
+import { es } from '@mygame/catalog'
 import type { Report, TownOverview } from '@mygame/contracts'
 import { act, fireEvent, screen, within } from '@testing-library/react'
 import { afterEach, beforeEach, expect, it, vi } from 'vitest'
@@ -120,15 +106,15 @@ const wordHeading = (word: string): HTMLElement =>
 
 const wordBlock = (word: string): HTMLElement => screen.getByRole('region', { name: word })
 
-const nextWord = (): HTMLElement => screen.getByRole('button', { name: schoolLessonWordNext() })
+const nextWord = (): HTMLElement => screen.getByRole('button', { name: es.schoolLessonWordNext() })
 
 const startReviews = (): HTMLElement =>
-  within(screen.getByRole('main')).getByRole('link', { name: reportStartReviews() })
+  within(screen.getByRole('main')).getByRole('link', { name: es.reportStartReviews() })
 
-const nextLesson = (): HTMLElement => screen.getByRole('link', { name: schoolLessonNext() })
+const nextLesson = (): HTMLElement => screen.getByRole('link', { name: es.schoolLessonNext() })
 
 const lessonHeading = (number: number): HTMLElement =>
-  screen.getByRole('heading', { level: 1, name: schoolLessonTitle({ number }) })
+  screen.getByRole('heading', { level: 1, name: es.schoolLessonTitle({ number }) })
 
 const follow = async (link: HTMLElement): Promise<void> => {
   fireEvent.click(link)
@@ -144,7 +130,7 @@ it('shows one word at a time with its gloss and frame', async () => {
   expect(wordHeading('first1').getAttribute('lang')).toBe('en')
   expect(screen.getByText('gloss of first1')).toBeDefined()
   expect(screen.getByText('A frame of first1.').getAttribute('lang')).toBe('en')
-  expect(screen.getByText(schoolLessonWordPosition({ number: 1, count: 2 }))).toBeDefined()
+  expect(screen.getByText(es.schoolLessonWordPosition({ number: 1, count: 2 }))).toBeDefined()
   expect(screen.queryByText('second1')).toBeNull()
 
   await follow(nextWord())
@@ -214,18 +200,20 @@ it('stays on the last word when a fresh read shortens the lesson', async () => {
   await passSeconds(240)
 
   expect(wordHeading('second')).toBeDefined()
-  expect(screen.getByText(schoolLessonWordPosition({ number: 2, count: 2 }))).toBeDefined()
+  expect(screen.getByText(es.schoolLessonWordPosition({ number: 2, count: 2 }))).toBeDefined()
 })
 
 it('offers the way on only once the lesson has finished', async () => {
   const town = townOf({ lessonSlot: running('lesson-1') })
   await showLesson('/school/lesson-1', town)
 
-  expect(screen.queryByRole('link', { name: reportStartReviews() })).toBeNull()
+  expect(screen.queryByRole('link', { name: es.reportStartReviews() })).toBeNull()
   await follow(nextWord())
-  expect(screen.queryByRole('link', { name: reportStartReviews() })).toBeNull()
-  expect(screen.getByText(schoolLessonWordThen())).toBeDefined()
-  expect(screen.getByRole('link', { name: townGoToSchool() }).getAttribute('href')).toBe('/school')
+  expect(screen.queryByRole('link', { name: es.reportStartReviews() })).toBeNull()
+  expect(screen.getByText(es.schoolLessonWordThen())).toBeDefined()
+  expect(screen.getByRole('link', { name: es.townGoToSchool() }).getAttribute('href')).toBe(
+    '/school',
+  )
 })
 
 it('offers the way on from every word of a finished lesson', async () => {
@@ -304,8 +292,8 @@ it('shows the rest of a lesson with some words already reviewed', async () => {
   await showLesson('/school/lesson-1', town)
 
   expect(wordHeading('second1')).toBeDefined()
-  expect(screen.getByText(schoolLessonWordPosition({ number: 1, count: 1 }))).toBeDefined()
-  expect(screen.queryByRole('button', { name: schoolLessonWordNext() })).toBeNull()
+  expect(screen.getByText(es.schoolLessonWordPosition({ number: 1, count: 1 }))).toBeDefined()
+  expect(screen.queryByRole('button', { name: es.schoolLessonWordNext() })).toBeNull()
 })
 
 it('never shows a word that carries no reading', async () => {
@@ -321,7 +309,7 @@ it('never shows a word that carries no reading', async () => {
   })
   await showLesson('/school/lesson-1', town)
 
-  expect(screen.getByText(schoolLessonWordPosition({ number: 1, count: 1 }))).toBeDefined()
+  expect(screen.getByText(es.schoolLessonWordPosition({ number: 1, count: 1 }))).toBeDefined()
   expect(screen.queryByText('id-say')).toBeNull()
 })
 
@@ -339,9 +327,9 @@ it.each([
 ])('shows nothing to read for %s, with a way back to the school', async (_, path, lessons) => {
   await showLesson(path, townOf({ lessons }))
 
-  expect(screen.getByText(schoolLessonNothingToRead())).toBeDefined()
-  await follow(screen.getByRole('link', { name: townGoToSchool() }))
-  expect(screen.getByRole('heading', { level: 1, name: namesPlacesSchool() })).toBeDefined()
+  expect(screen.getByText(es.schoolLessonNothingToRead())).toBeDefined()
+  await follow(screen.getByRole('link', { name: es.townGoToSchool() }))
+  expect(screen.getByRole('heading', { level: 1, name: es.namesPlacesSchool() })).toBeDefined()
 })
 
 it('walks every unread lesson in curriculum order and then the reviews', async () => {
@@ -356,9 +344,9 @@ it('walks every unread lesson in curriculum order and then the reviews', async (
   expect(lessonHeading(3)).toBeDefined()
 
   expect(startReviews().getAttribute('href')).toBe('/reviews')
-  expect(screen.queryByRole('link', { name: schoolLessonNext() })).toBeNull()
+  expect(screen.queryByRole('link', { name: es.schoolLessonNext() })).toBeNull()
   await follow(startReviews())
-  expect(screen.getByRole('heading', { level: 1, name: reviewTitle() })).toBeDefined()
+  expect(screen.getByRole('heading', { level: 1, name: es.reviewTitle() })).toBeDefined()
 })
 
 it('starts each lesson of the walk at its first word', async () => {
@@ -434,13 +422,13 @@ const firstWordLine = (): HTMLElement | null => screen.queryByText('first1')
 it('keeps the town loading line in a status region before the first read', async () => {
   await showLesson('/school/lesson-1', townOf({}), { town: townNeverAnswers })
 
-  expect(screen.getByRole('status').textContent).toBe(townLoading())
+  expect(screen.getByRole('status').textContent).toBe(es.townLoading())
 })
 
 it('keeps the report loading line in a status region while the Report reads', async () => {
   await showLesson('/school/lesson-1', townOf({}), { report: reportNeverAnswers })
 
-  expect(screen.getByRole('status').textContent).toBe(reportLoading())
+  expect(screen.getByRole('status').textContent).toBe(es.reportLoading())
 })
 
 it('never draws the loading line of the words on the screen', async () => {
@@ -522,7 +510,7 @@ it('keeps the school title above the skeleton of the words', async () => {
 
   await passSeconds(revealSeconds)
 
-  expect(screen.getByRole('heading', { level: 1, name: namesPlacesSchool() })).toBeDefined()
+  expect(screen.getByRole('heading', { level: 1, name: es.namesPlacesSchool() })).toBeDefined()
 })
 
 it('holds the skeleton to the column of the words', async () => {
@@ -542,7 +530,7 @@ it.each<[string, Partial<ApiClient>]>([
   await passSeconds(revealSeconds + holdSeconds)
 
   expect(skeletonBlocks()).toEqual([])
-  expect(screen.getByRole('button', { name: townTryAgain() })).toBeDefined()
+  expect(screen.getByRole('button', { name: es.townTryAgain() })).toBeDefined()
 })
 
 it('draws the refused town at once while the Report still reads', async () => {
@@ -551,7 +539,7 @@ it('draws the refused town at once while the Report still reads', async () => {
     report: reportNeverAnswers,
   })
 
-  expect(screen.getByRole('button', { name: townTryAgain() })).toBeDefined()
+  expect(screen.getByRole('button', { name: es.townTryAgain() })).toBeDefined()
   expect(screen.queryByRole('status')).toBeNull()
 })
 
@@ -572,7 +560,7 @@ const fromTheSchool = async (report: ApiClient['report']): Promise<void> => {
 it('reads the held town with no town loading line when coming from the school', async () => {
   await fromTheSchool(reportNeverAnswers)
 
-  expect(screen.getByRole('status').textContent).toBe(reportLoading())
+  expect(screen.getByRole('status').textContent).toBe(es.reportLoading())
 })
 
 it('draws the word of the held town with no loading state on a fast Report', async () => {
@@ -592,7 +580,7 @@ it('retries a failed town read', async () => {
     },
   })
 
-  await follow(screen.getByRole('button', { name: townTryAgain() }))
+  await follow(screen.getByRole('button', { name: es.townTryAgain() }))
 
   expect(wordHeading('first1')).toBeDefined()
 })
@@ -606,7 +594,7 @@ it('retries a failed Report read', async () => {
     },
   })
 
-  await follow(screen.getByRole('button', { name: townTryAgain() }))
+  await follow(screen.getByRole('button', { name: es.townTryAgain() }))
 
   expect(wordHeading('first1')).toBeDefined()
 })
@@ -682,12 +670,12 @@ it('wraps a long word rather than clipping it', async () => {
 })
 
 it.each<[string, Partial<TownOverview>, ReadonlyArray<() => string>]>([
-  ['a running lesson on a word', { lessonSlot: running('lesson-1') }, [schoolLessonWordNext]],
-  ['a finished lesson on a word', {}, [schoolLessonWordNext]],
+  ['a running lesson on a word', { lessonSlot: running('lesson-1') }, [es.schoolLessonWordNext]],
+  ['a finished lesson on a word', {}, [es.schoolLessonWordNext]],
   [
     'a finished lesson on its only word',
     { lessons: [lessonOf(1, [readableWord('only')])] },
-    [reportStartReviews],
+    [es.reportStartReviews],
   ],
   [
     'a running lesson on its only word',
@@ -707,19 +695,19 @@ it('holds no ink pill on the words with nothing to read', async () => {
 })
 
 it.each<[string, string, Partial<ApiClient>, () => string]>([
-  ['a word', '/school/lesson-1', {}, () => schoolLessonTitle({ number: 1 })],
-  ['nothing to read', '/school/lesson-99', {}, namesPlacesSchool],
+  ['a word', '/school/lesson-1', {}, () => es.schoolLessonTitle({ number: 1 })],
+  ['nothing to read', '/school/lesson-99', {}, es.namesPlacesSchool],
   [
     'the town loading',
     '/school/lesson-1',
     { town: () => new Promise(() => undefined) },
-    namesPlacesSchool,
+    es.namesPlacesSchool,
   ],
   [
     'a failed read',
     '/school/lesson-1',
     { town: async () => ({ ok: false, refusal: 'Unexpected' }) },
-    namesPlacesSchool,
+    es.namesPlacesSchool,
   ],
 ])('holds one h1 on the words with %s', async (_state, path, overrides, title) => {
   await showLesson(path, townOf({}), overrides)
