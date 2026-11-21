@@ -42,6 +42,49 @@ describe('LexiconContentSchema', () => {
     expect(LexiconContentSchema.parse([giveUp])).toEqual([giveUp])
   })
 
+  it('parses a phrase unit filed under the phrase part of speech', () => {
+    const suchAs = {
+      ...school,
+      id: 'word-1',
+      lemma: 'such as',
+      partOfSpeech: 'phrase',
+      source: 'phrase',
+    }
+
+    expect(LexiconContentSchema.parse([suchAs])).toEqual([suchAs])
+  })
+
+  it('refuses a phrase unit filed under any part of speech but phrase', () => {
+    const suchAsFiledUnder = (partOfSpeech: string) => ({
+      ...school,
+      id: 'word-1',
+      lemma: 'such as',
+      partOfSpeech,
+      source: 'phrase',
+    })
+
+    expect(
+      ['noun', 'verb', 'adjective', 'adverb'].map(
+        (partOfSpeech) => LexiconContentSchema.safeParse([suchAsFiledUnder(partOfSpeech)]).success,
+      ),
+    ).toEqual([false, false, false, false])
+  })
+
+  it('refuses the phrase part of speech on an entry that is not a phrase unit', () => {
+    const giveUp = {
+      ...school,
+      id: 'word-1',
+      lemma: 'give up',
+      partOfSpeech: 'phrase',
+      source: 'phave',
+    }
+    const sourceless = { ...school, partOfSpeech: 'phrase' }
+
+    expect(
+      [giveUp, sourceless].map((entry) => LexiconContentSchema.safeParse([entry]).success),
+    ).toEqual([false, false])
+  })
+
   it('rejects a source no unit list names', () => {
     expect(LexiconContentSchema.safeParse([{ ...school, source: 'ngsl' }]).success).toBe(false)
   })
