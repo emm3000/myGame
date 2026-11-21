@@ -1,85 +1,42 @@
-import {
-  refusalAreaNotFound,
-  refusalBlankTownName,
-  refusalBuildingWorkNotFound,
-  refusalEmailTaken,
-  refusalHintOnRecognition,
-  refusalHiringOrderNotFound,
-  refusalHiringSlotBusy,
-  refusalInvalidCredentials,
-  refusalInvalidTeam,
-  refusalJobAlreadyReturning,
-  refusalJobHoursOutOfRange,
-  refusalJobNotFound,
-  refusalJobSiteOutOfBounds,
-  refusalJobToOwnSite,
-  refusalLearningCapReached,
-  refusalLessonAlreadyStudied,
-  refusalLessonSchoolTooLow,
-  refusalLessonStudyNotFound,
-  refusalLessonUnderStudy,
-  refusalMailNotSent,
-  refusalMalformedEmail,
-  refusalNotAWasteSite,
-  refusalNotEnoughHiresAtHome,
-  refusalNotEnoughPeople,
-  refusalNotEnoughResources,
-  refusalNotEnoughWords,
-  refusalNoWasteYet,
-  refusalOfficeTooLow,
-  refusalPlayerAlreadyHoldsTown,
-  refusalReviewNotDue,
-  refusalSiteHeld,
-  refusalStudySlotBusy,
-  refusalTeamAlreadyOut,
-  refusalTokenInvalid,
-  refusalTopLevelReached,
-  refusalTownNotFound,
-  refusalUnexpected,
-  refusalUnknownChoice,
-  refusalUnknownWord,
-  refusalWaitingListFull,
-  refusalWeakPassword,
-  refusalWordNotHeld,
-} from '@mygame/catalog'
 import type { ApiError } from '@mygame/contracts'
 import type { ApiRefusal } from '../api/apiClient'
+import type { FixedCopyCatalog } from '../copy/PlayerCopy'
 
 type RefusalWithParams = Extract<ApiError, { readonly params: unknown }>
 
 type SlotFreeRefusal = Exclude<ApiRefusal, RefusalWithParams['kind']>
 
-const slotFreeLines: Readonly<Record<SlotFreeRefusal, () => string>> = {
-  InvalidCredentials: refusalInvalidCredentials,
-  EmailTaken: refusalEmailTaken,
-  WeakPassword: refusalWeakPassword,
-  MalformedEmail: refusalMalformedEmail,
-  StudySlotBusy: refusalStudySlotBusy,
-  TokenInvalid: refusalTokenInvalid,
-  MailNotSent: refusalMailNotSent,
-  LessonSchoolTooLow: refusalLessonSchoolTooLow,
-  LessonAlreadyStudied: refusalLessonAlreadyStudied,
-  LessonUnderStudy: refusalLessonUnderStudy,
-  LessonStudyNotFound: refusalLessonStudyNotFound,
-  ReviewNotDue: refusalReviewNotDue,
-  HintOnRecognition: refusalHintOnRecognition,
-  UnknownChoice: refusalUnknownChoice,
-  WordNotHeld: refusalWordNotHeld,
-  UnknownWord: refusalUnknownWord,
-  TownNotFound: refusalTownNotFound,
-  PlayerAlreadyHoldsTown: refusalPlayerAlreadyHoldsTown,
-  BlankTownName: refusalBlankTownName,
-  AreaNotFound: refusalAreaNotFound,
-  InvalidTeam: refusalInvalidTeam,
-  JobSiteOutOfBounds: refusalJobSiteOutOfBounds,
-  TeamAlreadyOut: refusalTeamAlreadyOut,
-  JobToOwnSite: refusalJobToOwnSite,
-  SiteHeld: refusalSiteHeld,
-  JobNotFound: refusalJobNotFound,
-  JobAlreadyReturning: refusalJobAlreadyReturning,
-  NotAWasteSite: refusalNotAWasteSite,
-  NoWasteYet: refusalNoWasteYet,
-  Unexpected: refusalUnexpected,
+const slotFreeLines: Readonly<Record<SlotFreeRefusal, (catalog: FixedCopyCatalog) => string>> = {
+  InvalidCredentials: (catalog) => catalog.refusalInvalidCredentials(),
+  EmailTaken: (catalog) => catalog.refusalEmailTaken(),
+  WeakPassword: (catalog) => catalog.refusalWeakPassword(),
+  MalformedEmail: (catalog) => catalog.refusalMalformedEmail(),
+  StudySlotBusy: (catalog) => catalog.refusalStudySlotBusy(),
+  TokenInvalid: (catalog) => catalog.refusalTokenInvalid(),
+  MailNotSent: (catalog) => catalog.refusalMailNotSent(),
+  LessonSchoolTooLow: (catalog) => catalog.refusalLessonSchoolTooLow(),
+  LessonAlreadyStudied: (catalog) => catalog.refusalLessonAlreadyStudied(),
+  LessonUnderStudy: (catalog) => catalog.refusalLessonUnderStudy(),
+  LessonStudyNotFound: (catalog) => catalog.refusalLessonStudyNotFound(),
+  ReviewNotDue: (catalog) => catalog.refusalReviewNotDue(),
+  HintOnRecognition: (catalog) => catalog.refusalHintOnRecognition(),
+  UnknownChoice: (catalog) => catalog.refusalUnknownChoice(),
+  WordNotHeld: (catalog) => catalog.refusalWordNotHeld(),
+  UnknownWord: (catalog) => catalog.refusalUnknownWord(),
+  TownNotFound: (catalog) => catalog.refusalTownNotFound(),
+  PlayerAlreadyHoldsTown: (catalog) => catalog.refusalPlayerAlreadyHoldsTown(),
+  BlankTownName: (catalog) => catalog.refusalBlankTownName(),
+  AreaNotFound: (catalog) => catalog.refusalAreaNotFound(),
+  InvalidTeam: (catalog) => catalog.refusalInvalidTeam(),
+  JobSiteOutOfBounds: (catalog) => catalog.refusalJobSiteOutOfBounds(),
+  TeamAlreadyOut: (catalog) => catalog.refusalTeamAlreadyOut(),
+  JobToOwnSite: (catalog) => catalog.refusalJobToOwnSite(),
+  SiteHeld: (catalog) => catalog.refusalSiteHeld(),
+  JobNotFound: (catalog) => catalog.refusalJobNotFound(),
+  JobAlreadyReturning: (catalog) => catalog.refusalJobAlreadyReturning(),
+  NotAWasteSite: (catalog) => catalog.refusalNotAWasteSite(),
+  NoWasteYet: (catalog) => catalog.refusalNoWasteYet(),
+  Unexpected: (catalog) => catalog.refusalUnexpected(),
 }
 
 const isSlotFree = (refusal: ApiRefusal): refusal is SlotFreeRefusal =>
@@ -87,32 +44,32 @@ const isSlotFree = (refusal: ApiRefusal): refusal is SlotFreeRefusal =>
 
 const hasParams = (error: ApiError): error is RefusalWithParams => 'params' in error
 
-const lineWithParamsOf = (error: RefusalWithParams): string => {
+const lineWithParamsOf = (catalog: FixedCopyCatalog, error: RefusalWithParams): string => {
   switch (error.kind) {
     case 'WaitingListFull':
-      return refusalWaitingListFull(error.params)
+      return catalog.refusalWaitingListFull(error.params)
     case 'NotEnoughPeople':
-      return refusalNotEnoughPeople(error.params)
+      return catalog.refusalNotEnoughPeople(error.params)
     case 'NotEnoughWords':
-      return refusalNotEnoughWords(error.params)
+      return catalog.refusalNotEnoughWords(error.params)
     case 'NotEnoughResources':
-      return refusalNotEnoughResources()
+      return catalog.refusalNotEnoughResources()
     case 'TopLevelReached':
-      return refusalTopLevelReached({ level: error.params.level })
+      return catalog.refusalTopLevelReached({ level: error.params.level })
     case 'BuildingWorkNotFound':
-      return refusalBuildingWorkNotFound({ level: error.params.level })
+      return catalog.refusalBuildingWorkNotFound({ level: error.params.level })
     case 'LearningCapReached':
-      return refusalLearningCapReached(error.params)
+      return catalog.refusalLearningCapReached(error.params)
     case 'OfficeTooLow':
-      return refusalOfficeTooLow(error.params)
+      return catalog.refusalOfficeTooLow(error.params)
     case 'HiringSlotBusy':
-      return refusalHiringSlotBusy()
+      return catalog.refusalHiringSlotBusy()
     case 'HiringOrderNotFound':
-      return refusalHiringOrderNotFound()
+      return catalog.refusalHiringOrderNotFound()
     case 'JobHoursOutOfRange':
-      return refusalJobHoursOutOfRange({ maxHours: error.params.maxHours })
+      return catalog.refusalJobHoursOutOfRange({ maxHours: error.params.maxHours })
     case 'NotEnoughHiresAtHome':
-      return refusalNotEnoughHiresAtHome(error.params)
+      return catalog.refusalNotEnoughHiresAtHome(error.params)
     default: {
       const unhandled: never = error
       return unhandled
@@ -120,9 +77,13 @@ const lineWithParamsOf = (error: RefusalWithParams): string => {
   }
 }
 
-export function refusalLineOf(refusal: ApiRefusal, error?: ApiError): string {
+export function refusalLineOf(
+  catalog: FixedCopyCatalog,
+  refusal: ApiRefusal,
+  error?: ApiError,
+): string {
   if (error !== undefined && hasParams(error)) {
-    return lineWithParamsOf(error)
+    return lineWithParamsOf(catalog, error)
   }
-  return isSlotFree(refusal) ? slotFreeLines[refusal]() : refusalUnexpected()
+  return isSlotFree(refusal) ? slotFreeLines[refusal](catalog) : catalog.refusalUnexpected()
 }

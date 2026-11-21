@@ -1,3 +1,4 @@
+import { es } from '@mygame/catalog'
 import type { Reviews, TownOverview } from '@mygame/contracts'
 import { createFileRoute } from '@tanstack/react-router'
 import type { ReactElement } from 'react'
@@ -19,7 +20,7 @@ interface ReviewRead {
 
 function nextReviewOf(nextDueAt: string, at: Date): string {
   const remainingSeconds = Math.max(0, secondsBetween(at.toISOString(), nextDueAt))
-  return formatFinish(remainingSeconds, at)
+  return formatFinish(es, remainingSeconds, at)
 }
 
 function pathOf(overview: TownOverview | undefined): ReviewEndPath | undefined {

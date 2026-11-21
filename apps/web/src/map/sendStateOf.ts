@@ -1,3 +1,4 @@
+import { es } from '@mygame/catalog'
 import type { ApiOutcome } from '../api/apiClient'
 import type { OrderActionState } from '../design-system/CardAction'
 import { lineLabelOf } from '../design-system/lineLabelOf'
@@ -16,5 +17,8 @@ export function sendStateOf<Answer>(
   if (isSendRefused || !isQuoteVerdict(quoted)) {
     return admitted
   }
-  return { kind: 'blocked', reason: lineLabelOf(refusalLineOf(quoted.refusal, quoted.error), 'es') }
+  return {
+    kind: 'blocked',
+    reason: lineLabelOf(refusalLineOf(es, quoted.refusal, quoted.error), 'es'),
+  }
 }

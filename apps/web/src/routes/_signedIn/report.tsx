@@ -40,7 +40,7 @@ function ReportPage({
       close={{
         isClosed: close.isClosed,
         isWaiting: close.isWaiting,
-        refusalLine: close.refusal === undefined ? undefined : refusalLineOf(close.refusal),
+        refusalLine: close.refusal === undefined ? undefined : refusalLineOf(es, close.refusal),
         onClose: close.close,
       }}
     />

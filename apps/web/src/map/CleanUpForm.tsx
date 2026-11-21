@@ -1,3 +1,4 @@
+import { es } from '@mygame/catalog'
 import { type SendCleanUp, SendCleanUpSchema } from '@mygame/contracts'
 import { type ReactElement, useState } from 'react'
 import { CardAction } from '../design-system/CardAction'
@@ -76,7 +77,7 @@ export function CleanUpForm({ id, target, town, job, onSent }: CleanUpFormProps)
       ))}
       <QuoteLines lines={lines} />
       {quoted?.ok === false && quoted.refusal === 'Unexpected' && refused === undefined && (
-        <FormAlert message={lineLabelOf(refusalLineOf(quoted.refusal, quoted.error), 'es')} />
+        <FormAlert message={lineLabelOf(refusalLineOf(es, quoted.refusal, quoted.error), 'es')} />
       )}
       <CardAction
         type="button"
@@ -87,7 +88,7 @@ export function CleanUpForm({ id, target, town, job, onSent }: CleanUpFormProps)
         onAction={onSend}
       />
       {refused !== undefined && (
-        <FormAlert message={lineLabelOf(refusalLineOf(refused.refusal, refused.error), 'es')} />
+        <FormAlert message={lineLabelOf(refusalLineOf(es, refused.refusal, refused.error), 'es')} />
       )}
     </section>
   )

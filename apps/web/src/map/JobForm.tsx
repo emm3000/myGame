@@ -1,3 +1,4 @@
+import { es } from '@mygame/catalog'
 import { type SendJob, SendJobSchema } from '@mygame/contracts'
 import { type ReactElement, useState } from 'react'
 import { CardAction } from '../design-system/CardAction'
@@ -67,7 +68,7 @@ export function JobForm({ id, target, town, job, onSent }: JobFormProps): ReactE
         {payLine}
       </p>
       {quoted?.ok === false && quoted.refusal === 'Unexpected' && refused === undefined && (
-        <FormAlert message={lineLabelOf(refusalLineOf(quoted.refusal, quoted.error), 'es')} />
+        <FormAlert message={lineLabelOf(refusalLineOf(es, quoted.refusal, quoted.error), 'es')} />
       )}
       <CardAction
         type="button"
@@ -78,7 +79,7 @@ export function JobForm({ id, target, town, job, onSent }: JobFormProps): ReactE
         onAction={onSend}
       />
       {refused !== undefined && (
-        <FormAlert message={lineLabelOf(refusalLineOf(refused.refusal, refused.error), 'es')} />
+        <FormAlert message={lineLabelOf(refusalLineOf(es, refused.refusal, refused.error), 'es')} />
       )}
     </section>
   )

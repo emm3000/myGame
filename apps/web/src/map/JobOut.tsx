@@ -1,3 +1,4 @@
+import { es } from '@mygame/catalog'
 import type { ReactElement, Ref } from 'react'
 import { CardAction } from '../design-system/CardAction'
 import { CountdownLine } from '../design-system/CountdownLine'
@@ -51,7 +52,7 @@ export function JobOut({ content, job, titleRef }: JobOutProps): ReactElement {
         />
       )}
       {refused !== undefined && (
-        <FormAlert message={lineLabelOf(refusalLineOf(refused.refusal, refused.error), 'es')} />
+        <FormAlert message={lineLabelOf(refusalLineOf(es, refused.refusal, refused.error), 'es')} />
       )}
     </section>
   )

@@ -1,4 +1,5 @@
 import {
+  es,
   reviewDueCount,
   reviewFailed,
   reviewLoading,
@@ -102,7 +103,7 @@ function DueCard({
         sequence={review.walked}
       />
       {review.refusal !== undefined && (
-        <FormAlert message={lineLabelOf(refusalLineOf(review.refusal), 'es')} />
+        <FormAlert message={lineLabelOf(refusalLineOf(es, review.refusal), 'es')} />
       )}
     </div>
   )

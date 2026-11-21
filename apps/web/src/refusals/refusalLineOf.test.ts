@@ -1,27 +1,28 @@
+import { en, es } from '@mygame/catalog'
 import { expect, it } from 'vitest'
 import { refusalLineOf } from './refusalLineOf'
 
 it('reads a refusal the api did not answer as a failed exchange', () => {
-  expect(refusalLineOf('Unexpected', undefined)).toBe(
+  expect(refusalLineOf(es, 'Unexpected', undefined)).toBe(
     'No hemos podido hablar con el servidor. Vuelve a intentarlo en un momento.',
   )
 })
 
 it('reads a kind that owes params but carries none as a failed exchange', () => {
-  expect(refusalLineOf('WaitingListFull')).toBe(
+  expect(refusalLineOf(es, 'WaitingListFull')).toBe(
     'No hemos podido hablar con el servidor. Vuelve a intentarlo en un momento.',
   )
 })
 
 it('renders a full waiting list from its cap', () => {
-  expect(refusalLineOf('WaitingListFull', { kind: 'WaitingListFull', params: { cap: 4 } })).toBe(
-    'La lista de espera ya tiene 4 obras. Espera a que termine alguna.',
-  )
+  expect(
+    refusalLineOf(es, 'WaitingListFull', { kind: 'WaitingListFull', params: { cap: 4 } }),
+  ).toBe('La lista de espera ya tiene 4 obras. Espera a que termine alguna.')
 })
 
 it('renders too few free people from the people the work needs and the free ones', () => {
   expect(
-    refusalLineOf('NotEnoughPeople', {
+    refusalLineOf(es, 'NotEnoughPeople', {
       kind: 'NotEnoughPeople',
       params: { requiredPeople: 1, freePeople: 0 },
     }),
@@ -30,7 +31,7 @@ it('renders too few free people from the people the work needs and the free ones
 
 it('renders too few stable words as words out of learning', () => {
   expect(
-    refusalLineOf('NotEnoughWords', {
+    refusalLineOf(es, 'NotEnoughWords', {
       kind: 'NotEnoughWords',
       params: { needed: 10, held: 9, standing: 'stable' },
     }),
@@ -41,7 +42,7 @@ it('renders too few stable words as words out of learning', () => {
 
 it('renders too few retained words as learned words', () => {
   expect(
-    refusalLineOf('NotEnoughWords', {
+    refusalLineOf(es, 'NotEnoughWords', {
       kind: 'NotEnoughWords',
       params: { needed: 50, held: 49, standing: 'retained' },
     }),
@@ -52,7 +53,7 @@ it('renders too few retained words as learned words', () => {
 
 it('renders a town shortfall as its line', () => {
   expect(
-    refusalLineOf('NotEnoughResources', {
+    refusalLineOf(es, 'NotEnoughResources', {
       kind: 'NotEnoughResources',
       params: { missing: { money: 40, food: 0, power: 0, material: 0 } },
     }),
@@ -61,7 +62,7 @@ it('renders a town shortfall as its line', () => {
 
 it('renders a top level from its level', () => {
   expect(
-    refusalLineOf('TopLevelReached', {
+    refusalLineOf(es, 'TopLevelReached', {
       kind: 'TopLevelReached',
       params: { building: 'farm', level: 10 },
     }),
@@ -70,7 +71,7 @@ it('renders a top level from its level', () => {
 
 it('renders work that is not there from its level', () => {
   expect(
-    refusalLineOf('BuildingWorkNotFound', {
+    refusalLineOf(es, 'BuildingWorkNotFound', {
       kind: 'BuildingWorkNotFound',
       params: { building: 'farm', level: 2 },
     }),
@@ -78,20 +79,20 @@ it('renders work that is not there from its level', () => {
 })
 
 it('renders a second town from its line', () => {
-  expect(refusalLineOf('PlayerAlreadyHoldsTown', { kind: 'PlayerAlreadyHoldsTown' })).toBe(
+  expect(refusalLineOf(es, 'PlayerAlreadyHoldsTown', { kind: 'PlayerAlreadyHoldsTown' })).toBe(
     'Ya tienes un pueblo. Solo puedes tener uno.',
   )
 })
 
 it('renders a busy hiring slot as its line', () => {
   expect(
-    refusalLineOf('HiringSlotBusy', { kind: 'HiringSlotBusy', params: { hire: 'worker' } }),
+    refusalLineOf(es, 'HiringSlotBusy', { kind: 'HiringSlotBusy', params: { hire: 'worker' } }),
   ).toBe('Ya tienes una contratación en curso. Espera a que termine.')
 })
 
 it('renders a hiring order that is not there as its line', () => {
   expect(
-    refusalLineOf('HiringOrderNotFound', {
+    refusalLineOf(es, 'HiringOrderNotFound', {
       kind: 'HiringOrderNotFound',
       params: { hire: 'truck', startedAt: '2026-11-10T09:00:00.000Z' },
     }),
@@ -99,14 +100,14 @@ it('renders a hiring order that is not there as its line', () => {
 })
 
 it('renders a held site as its line', () => {
-  expect(refusalLineOf('SiteHeld', { kind: 'SiteHeld' })).toBe(
+  expect(refusalLineOf(es, 'SiteHeld', { kind: 'SiteHeld' })).toBe(
     'En ese sitio hay otro pueblo. Elige un sitio libre.',
   )
 })
 
 it('renders job hours out of range from the most allowed', () => {
   expect(
-    refusalLineOf('JobHoursOutOfRange', {
+    refusalLineOf(es, 'JobHoursOutOfRange', {
       kind: 'JobHoursOutOfRange',
       params: { hours: 9, maxHours: 8 },
     }),
@@ -115,9 +116,19 @@ it('renders job hours out of range from the most allowed', () => {
 
 it('renders too few trucks at home from the count asked and the count at home', () => {
   expect(
-    refusalLineOf('NotEnoughHiresAtHome', {
+    refusalLineOf(es, 'NotEnoughHiresAtHome', {
       kind: 'NotEnoughHiresAtHome',
       params: { hire: 'truck', count: 2, atHome: 1 },
     }),
   ).toBe('El equipo necesita 2 camiones y tienes 1 en casa.')
+})
+
+it('reads a refusal from the catalog it is given', () => {
+  expect(refusalLineOf(en, 'InvalidCredentials')).toBe('The email or the password is not correct.')
+})
+
+it('renders a refusal with params from the catalog it is given', () => {
+  expect(
+    refusalLineOf(en, 'WaitingListFull', { kind: 'WaitingListFull', params: { cap: 4 } }),
+  ).toBe('The waiting list already holds 4 works. Wait for one to finish.')
 })

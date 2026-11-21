@@ -7,6 +7,7 @@ import {
   authSignInSwitchPrompt,
   authSignInTitle,
   authTagline,
+  es,
 } from '@mygame/catalog'
 import type { SignInRequest } from '@mygame/contracts'
 import { type ReactElement, useState } from 'react'
@@ -57,7 +58,7 @@ export function SignInScreen(props: SignInScreenProps): ReactElement {
         onChange={setPassword}
       />
       {props.refusal === undefined ? null : (
-        <FormAlert message={lineLabelOf(refusalLineOf(props.refusal), 'es')} />
+        <FormAlert message={lineLabelOf(refusalLineOf(es, props.refusal), 'es')} />
       )}
       <Button type="submit" tone="primary" disabled={props.isSubmitting}>
         {authSignInSubmit()}

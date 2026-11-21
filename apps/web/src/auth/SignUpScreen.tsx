@@ -7,6 +7,7 @@ import {
   authSignUpSwitchPrompt,
   authSignUpTitle,
   authTagline,
+  es,
   refusalMalformedEmail,
   refusalWeakPassword,
   scaffoldEs,
@@ -76,7 +77,7 @@ export function SignUpScreen(props: SignUpScreenProps): ReactElement {
   const errors: FieldErrors =
     props.refusal === undefined || refusedField === undefined
       ? clientErrors
-      : { ...clientErrors, [refusedField]: refusalLineOf(props.refusal) }
+      : { ...clientErrors, [refusedField]: refusalLineOf(es, props.refusal) }
   const formRefusal = refusedField === undefined ? props.refusal : undefined
 
   const edit =
@@ -136,7 +137,7 @@ export function SignUpScreen(props: SignUpScreenProps): ReactElement {
         error={errors.password}
       />
       {formRefusal === undefined ? null : (
-        <FormAlert message={lineLabelOf(refusalLineOf(formRefusal), 'es')} />
+        <FormAlert message={lineLabelOf(refusalLineOf(es, formRefusal), 'es')} />
       )}
       <Button type="submit" tone="primary" disabled={props.isSubmitting}>
         {authSignUpSubmit()}

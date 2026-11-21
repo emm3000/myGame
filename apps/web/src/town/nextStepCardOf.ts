@@ -59,13 +59,13 @@ export const lessonCountdownOf = ({
     ? undefined
     : {
         words: lineLabelOf(readyWordsOf(lessonNameOf(lessonSlot.lessonId, overview)), 'es'),
-        time: formatFinish(lessonSlot.remainingSeconds, at),
+        time: formatFinish(es, lessonSlot.remainingSeconds, at),
       }
 
 const nextReviewCountdownOf = ({ nextDueSeconds, at }: LiveTown): SlotCountdown | undefined =>
   nextDueSeconds === null
     ? undefined
-    : { words: lineLabelOf(reviewNextReview(), 'es'), time: formatFinish(nextDueSeconds, at) }
+    : { words: lineLabelOf(reviewNextReview(), 'es'), time: formatFinish(es, nextDueSeconds, at) }
 
 const readWords = (catalog: ChromeCatalog, lessonId: string): NextStepAction => ({
   label: catalog.schoolLessonReadWords(),

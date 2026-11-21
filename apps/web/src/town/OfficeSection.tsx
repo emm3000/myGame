@@ -1,4 +1,5 @@
 import {
+  es,
   namesPlacesOffice,
   townOfficeDelivered,
   townOfficeDone,
@@ -50,7 +51,7 @@ function slotStateOf(town: LiveTown, hiring: TownHiring, onStopped: () => void):
   return {
     kind: 'busy',
     remainingSeconds: live.remainingSeconds,
-    time: formatFinish(live.remainingSeconds, town.at),
+    time: formatFinish(es, live.remainingSeconds, town.at),
     totalSeconds: live.totalSeconds,
     finishedLabel: lineLabelOf(townWorkReady(), 'es'),
     cancel: {
@@ -129,7 +130,7 @@ export function OfficeSection({
       <BuildSlot state={slotStateOf(town, hiring, slotTitle.focus)} titleRef={slotTitle.ref} />
       {stopRefused !== undefined && (
         <FormAlert
-          message={lineLabelOf(refusalLineOf(stopRefused.refusal, stopRefused.error), 'es')}
+          message={lineLabelOf(refusalLineOf(es, stopRefused.refusal, stopRefused.error), 'es')}
         />
       )}
       <ul className="m-0 flex list-none flex-col p-0">
