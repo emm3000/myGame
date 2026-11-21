@@ -21,21 +21,11 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Shape
-import androidx.compose.ui.layout.AlignmentLine
-import androidx.compose.ui.layout.FirstBaseline
-import androidx.compose.ui.layout.Layout
-import androidx.compose.ui.layout.Measurable
-import androidx.compose.ui.layout.MeasurePolicy
-import androidx.compose.ui.layout.MeasureResult
-import androidx.compose.ui.layout.MeasureScope
-import androidx.compose.ui.layout.Placeable
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.text.AnnotatedString
-import androidx.compose.ui.unit.Constraints
 import androidx.compose.ui.unit.Dp
-import androidx.compose.ui.unit.constrainWidth
 import androidx.compose.ui.unit.sp
 
 const val NAV_ROW_CHEVRON: String = "nav_row_chevron"
@@ -77,7 +67,7 @@ fun MyGameNavRow(
                 verticalArrangement = Arrangement.spacedBy(MyGameSpacing.step1),
                 modifier = Modifier.weight(1f),
             ) {
-                NavRowTitle(title = title, status = status, titleLineOf = titleLineOf)
+                MyGameTitleLine(title = title, status = status, titleLineOf = titleLineOf)
                 body?.let { line: AnnotatedString ->
                     MyGameText(text = line, style = MyGameTypography.body, color = colors.ink)
                 }
@@ -102,81 +92,6 @@ fun MyGameNavRow(
 
 private fun Modifier.focusRingWhen(isFocused: Boolean, color: Color, shape: Shape): Modifier =
     if (isFocused) border(MyGameStrokeWidths.focus, color, shape) else this
-
-@Composable
-private fun NavRowTitle(
-    title: MyGameLabel,
-    status: MyGameLabel?,
-    titleLineOf: (String) -> AnnotatedString,
-    modifier: Modifier = Modifier,
-) {
-    val colors: MyGameColors = MyGameTheme.colors
-    Layout(
-        content = {
-            MyGameText(label = title, style = MyGameTypography.title, color = colors.ink, styledLineOf = titleLineOf)
-            status?.let { line: MyGameLabel ->
-                MyGameText(label = line, style = MyGameTypography.caption, color = colors.inkMuted)
-            }
-        },
-        measurePolicy = TitleBesideStatus,
-        modifier = modifier,
-    )
-}
-
-private object TitleBesideStatus : MeasurePolicy {
-    override fun MeasureScope.measure(measurables: List<Measurable>, constraints: Constraints): MeasureResult {
-        val title: Measurable = measurables.first()
-        val status: Measurable = measurables.getOrNull(1)
-            ?: return placeAlone(title.measure(constraints.copy(minWidth = 0)))
-        val gap: Int = MyGameSpacing.step3.roundToPx()
-        val titleWidest: Int = title.maxIntrinsicWidth(constraints.maxHeight)
-        val statusWidest: Int = status.maxIntrinsicWidth(constraints.maxHeight)
-        val room: Int = if (constraints.hasBoundedWidth) constraints.maxWidth - gap else titleWidest + statusWidest
-        val titleShare: Int = titleShareOf(
-            room = room,
-            titleWidest = titleWidest,
-            statusWidest = statusWidest,
-            statusLongestWord = status.minIntrinsicWidth(constraints.maxHeight),
-        )
-        val titlePlaced: Placeable = title.measure(
-            Constraints(maxWidth = titleShare, maxHeight = constraints.maxHeight),
-        )
-        val statusPlaced: Placeable = status.measure(
-            Constraints(maxWidth = (room - titlePlaced.width).coerceAtLeast(0), maxHeight = constraints.maxHeight),
-        )
-        return placeOnOneBaseline(titlePlaced, statusPlaced, gap, constraints)
-    }
-}
-
-private fun titleShareOf(room: Int, titleWidest: Int, statusWidest: Int, statusLongestWord: Int): Int {
-    if (titleWidest + statusWidest <= room) return titleWidest
-    return minOf(titleWidest, maxOf(room - statusLongestWord, room / 2)).coerceAtLeast(0)
-}
-
-private fun MeasureScope.placeAlone(title: Placeable): MeasureResult =
-    layout(title.width, title.height) { title.placeRelative(0, 0) }
-
-private fun MeasureScope.placeOnOneBaseline(
-    title: Placeable,
-    status: Placeable,
-    gap: Int,
-    constraints: Constraints,
-): MeasureResult {
-    val baseline: Int = maxOf(firstBaselineOf(title), firstBaselineOf(status))
-    val titleTop: Int = baseline - firstBaselineOf(title)
-    val statusTop: Int = baseline - firstBaselineOf(status)
-    val width: Int = constraints.constrainWidth(title.width + gap + status.width)
-    val height: Int = maxOf(titleTop + title.height, statusTop + status.height)
-    return layout(width, height) {
-        title.placeRelative(0, titleTop)
-        status.placeRelative(title.width + gap, statusTop)
-    }
-}
-
-private fun firstBaselineOf(placeable: Placeable): Int {
-    val baseline: Int = placeable[FirstBaseline]
-    return if (baseline == AlignmentLine.Unspecified) 0 else baseline
-}
 
 @PreviewMyGame
 @Composable
