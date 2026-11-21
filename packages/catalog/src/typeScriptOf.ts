@@ -20,6 +20,8 @@ const keyShape = /^[a-z][a-zA-Z0-9]*(?:\.[a-zA-Z][a-zA-Z0-9]*)*$/
 
 const exactSelector = /^=(\d+)$/
 
+const localeExport = 'locale'
+
 const functionNameOf = (key: string): string =>
   key
     .split('.')
@@ -173,6 +175,9 @@ const functionOf = ([key, message]: [string, string]): string => {
   if (!keyShape.test(key)) {
     throw new Error(`${key}: a key is dotted camelCase segments`)
   }
+  if (functionNameOf(key) === localeExport) {
+    throw new Error(`${key}: the generated module already exports ${localeExport}`)
+  }
   const elements = parsed(key, message)
   const body = templateOf(key, elements, undefined)
   const parameters = parametersOf(key, elements)
@@ -183,5 +188,5 @@ export const typeScriptOf = (messages: Messages, language: Language): string => 
   const entries = Object.entries(messages)
     .filter(([key]) => !isAndroidKey(key))
     .sort(([left], [right]) => (left < right ? -1 : 1))
-  return `export const locale = '${language}'\n${entries.map(functionOf).join('')}`
+  return `export const ${localeExport} = '${language}'\n${entries.map(functionOf).join('')}`
 }

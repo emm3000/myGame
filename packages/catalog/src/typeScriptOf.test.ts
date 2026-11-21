@@ -2,12 +2,16 @@ import { mkdtempSync, writeFileSync } from 'node:fs'
 import { tmpdir } from 'node:os'
 import { join } from 'node:path'
 import { assert, describe, expect, it } from 'vitest'
+import type { Language } from './Catalogs'
 import type { Messages } from './Messages'
 import { typeScriptOf } from './typeScriptOf'
 
-const generatedModuleOf = async (messages: Messages): Promise<Record<string, unknown>> => {
+const generatedModuleOf = async (
+  messages: Messages,
+  language: Language = 'es',
+): Promise<Record<string, unknown>> => {
   const path = join(mkdtempSync(join(tmpdir(), 'catalog-')), 'messages.ts')
-  writeFileSync(path, typeScriptOf(messages, 'es'))
+  writeFileSync(path, typeScriptOf(messages, language))
   return import(path)
 }
 
@@ -122,10 +126,17 @@ describe('typeScriptOf', () => {
     expect(() => typeScriptOf(snakeKey, 'es')).toThrow(/town\.fills_at/)
   })
 
-  it('exports the locale of the language it generates', async () => {
-    const module = await generatedModuleOf({ 'town.loading': 'Cargando' })
+  it('refuses a key that names the locale export', () => {
+    const localeKey = { locale: 'x' }
 
-    expect(module.locale).toBe('es')
+    expect(() => typeScriptOf(localeKey, 'es')).toThrow(/locale/)
+  })
+
+  it('exports the locale of the language it generates', async () => {
+    const spanish = await generatedModuleOf({ 'town.loading': 'Cargando' }, 'es')
+    const english = await generatedModuleOf({ 'town.loading': 'Loading' }, 'en')
+
+    expect([spanish.locale, english.locale]).toEqual(['es', 'en'])
   })
 
   it('leaves the android keys out', () => {
