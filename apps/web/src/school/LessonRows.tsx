@@ -1,9 +1,10 @@
 import { type ReactElement, useId } from 'react'
 import type { ChromeCatalog } from '../copy/PlayerCopy'
 import { usePlayerCopy } from '../copy/usePlayerCopy'
-import { focusTargetClass } from '../design-system/focusTargetClass'
+import { Button } from '../design-system/Button'
 import type { Label } from '../design-system/Label'
 import { LabelText } from '../design-system/LabelText'
+import { rowLayoutClass } from '../design-system/rowLayoutClass'
 import { spokenLineOf } from '../design-system/spokenLineOf'
 import type { LiveTown } from '../town/liveTown'
 import type { LessonCardContent, LessonCardState } from './lessonCardOf'
@@ -64,8 +65,6 @@ function RowContent({ card }: { readonly card: LessonCardContent }): ReactElemen
   )
 }
 
-const rowClass = 'flex w-full flex-col items-start gap-1 pt-3 text-left'
-
 const rowItemClass = 'flex flex-col gap-2 border-line border-t pb-3 first:border-t-0'
 
 function LessonRow({
@@ -78,15 +77,11 @@ function LessonRow({
   return (
     <li aria-label={spokenLineOf(card.title)} className={rowItemClass}>
       {card.state.kind !== 'studied' ? (
-        <button
-          type="button"
-          onClick={() => onSelect(card.lessonId)}
-          className={`${rowClass} min-h-secondary cursor-pointer rounded-sm border-0 bg-transparent px-0 ${focusTargetClass}`}
-        >
+        <Button type="button" tone="row" onClick={() => onSelect(card.lessonId)}>
           <RowContent card={card} />
-        </button>
+        </Button>
       ) : (
-        <div className={rowClass}>
+        <div className={rowLayoutClass}>
           <RowContent card={card} />
         </div>
       )}
@@ -106,7 +101,7 @@ function ReleasedLessonRow({
 }): ReactElement {
   return (
     <li aria-label={spokenLineOf(card.title)} className={rowItemClass}>
-      <div className={rowClass}>
+      <div className={rowLayoutClass}>
         <RowTitle title={card.title} state={card.state} />
         <span className="font-sans text-caption text-ink-muted">
           <LabelText label={card.wordsLine} />

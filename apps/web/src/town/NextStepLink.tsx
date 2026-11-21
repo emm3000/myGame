@@ -1,12 +1,12 @@
 import type { ReactElement } from 'react'
-import type { ButtonTone } from '../design-system/Button'
+import type { ActionTone } from '../design-system/Button'
 import { ButtonLink } from '../design-system/ButtonLink'
 import { LabelText } from '../design-system/LabelText'
 import type { NextStepAction } from './nextStepCardOf'
 
 export interface NextStepLinkProps {
   readonly action: NextStepAction
-  readonly tone: ButtonTone
+  readonly tone: ActionTone
 }
 
 export function NextStepLink({ action, tone }: NextStepLinkProps): ReactElement {

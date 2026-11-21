@@ -1,8 +1,8 @@
 import { createLink, type LinkComponent } from '@tanstack/react-router'
 import type { ComponentProps, ReactElement } from 'react'
-import { type ButtonTone, buttonClassOf } from './Button'
+import { type ActionTone, buttonClassOf } from './Button'
 
-type ButtonAnchorProps = Omit<ComponentProps<'a'>, 'className'> & { readonly tone: ButtonTone }
+type ButtonAnchorProps = Omit<ComponentProps<'a'>, 'className'> & { readonly tone: ActionTone }
 
 function ButtonAnchor({ tone, ...props }: ButtonAnchorProps): ReactElement {
   return (
