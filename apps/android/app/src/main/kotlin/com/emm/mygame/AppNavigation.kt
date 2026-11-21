@@ -33,7 +33,6 @@ import com.emm.mygame.core.designsystem.MyGameDockGo
 import com.emm.mygame.core.designsystem.MyGameTheme
 import com.emm.mygame.core.network.HeldTown
 import com.emm.mygame.core.network.LessonId
-import com.emm.mygame.core.network.PlayerLanguage
 import com.emm.mygame.core.network.TextId
 import com.emm.mygame.core.projection.StudyReminderLine
 import com.emm.mygame.feature.map.MapRoute
@@ -81,6 +80,7 @@ internal fun AppNavigation(
     modifier: Modifier = Modifier,
     backStack: NavBackStack<NavKey> = rememberNavBackStack(Destination.SignIn(isSessionEnded = false)),
     status: TownStatusViewModel = viewModel { TownStatusViewModel(dependencies.towns, dependencies.clock) },
+    bannerLanguage: PlayerLanguageViewModel = viewModel { PlayerLanguageViewModel(dependencies.playerLanguage) },
 ) {
     val links: NavigationLinks = retain { NavigationLinks() }
     val navigator: Navigator = remember(backStack, links) { Navigator(backStack, links) }
@@ -118,8 +118,12 @@ internal fun AppNavigation(
             modifier = Modifier.weight(1f),
         )
         val isSessionOpen: Boolean = shown.statusScreen() != TownStatusScreen.Outside
-        val language: PlayerLanguage? by dependencies.playerLanguage.collectAsStateWithLifecycle()
-        InPlayerLanguage(language = rememberLastKnown(language).takeIf { isSessionOpen }) {
+        LaunchedEffect(bannerLanguage, isSessionOpen) {
+            if (isSessionOpen) return@LaunchedEffect
+            bannerLanguage.onIntent(PlayerLanguageIntent.SessionClosed)
+        }
+        val banner: PlayerLanguageUiState by bannerLanguage.state.collectAsStateWithLifecycle()
+        InPlayerLanguage(language = banner.language.takeIf { isSessionOpen }) {
             VerificationBannerRoute(sessions = dependencies.sessions, isSessionOpen = isSessionOpen)
         }
     }
@@ -472,10 +476,11 @@ private fun SignedInFrame(
     modifier: Modifier = Modifier,
     isDockWithheld: Boolean = false,
     studyInPlace: @Composable (Int) -> MyGameDockGo? = { null },
+    frameLanguage: PlayerLanguageViewModel = viewModel { PlayerLanguageViewModel(chrome.dependencies.playerLanguage) },
     content: @Composable (ScreenFrame) -> Unit,
 ) {
-    val language: PlayerLanguage? by chrome.dependencies.playerLanguage.collectAsStateWithLifecycle()
-    InPlayerLanguage(language = rememberLastKnown(language)) {
+    val framed: PlayerLanguageUiState by frameLanguage.state.collectAsStateWithLifecycle()
+    InPlayerLanguage(language = framed.language) {
         FramedScreen(
             kind = kind,
             doesScreenReadTown = doesScreenReadTown,

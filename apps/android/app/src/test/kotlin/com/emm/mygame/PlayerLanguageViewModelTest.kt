@@ -1,0 +1,46 @@
+package com.emm.mygame
+
+import com.emm.mygame.core.network.PlayerChromePhase
+import com.emm.mygame.core.network.PlayerLanguage
+import com.emm.mygame.core.network.PlayerScaffold
+import com.emm.mygame.core.testing.MainDispatcherRule
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.test.runCurrent
+import kotlinx.coroutines.test.runTest
+import org.junit.Assert.assertEquals
+import org.junit.Rule
+import org.junit.Test
+
+class PlayerLanguageViewModelTest {
+
+    @get:Rule
+    val mainDispatcher: MainDispatcherRule = MainDispatcherRule()
+
+    private val latestRead: MutableStateFlow<PlayerLanguage?> = MutableStateFlow(null)
+
+    private val spanishScaffold: PlayerLanguage = PlayerLanguage(PlayerScaffold.Spanish, PlayerChromePhase.Scaffold)
+
+    @Test
+    fun `keeps the last known language when a read comes back empty`() = runTest {
+        latestRead.value = spanishScaffold
+        val viewModel: PlayerLanguageViewModel = PlayerLanguageViewModel(latestRead)
+
+        latestRead.value = null
+        runCurrent()
+
+        assertEquals(PlayerLanguageUiState(language = spanishScaffold), viewModel.state.value)
+    }
+
+    @Test
+    fun `forgets the last known language when the session closes`() = runTest {
+        latestRead.value = spanishScaffold
+        val viewModel: PlayerLanguageViewModel = PlayerLanguageViewModel(latestRead)
+        latestRead.value = null
+        runCurrent()
+
+        viewModel.onIntent(PlayerLanguageIntent.SessionClosed)
+        runCurrent()
+
+        assertEquals(PlayerLanguageUiState(language = null), viewModel.state.value)
+    }
+}
