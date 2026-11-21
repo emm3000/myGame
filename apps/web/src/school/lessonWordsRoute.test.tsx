@@ -520,7 +520,11 @@ it('holds the skeleton to the column of the words', async () => {
 
   await passSeconds(revealSeconds)
 
-  expect(document.querySelector('.max-w-form [data-skeleton-block]')).not.toBeNull()
+  const schoolColumn = screen.queryByRole('heading', {
+    level: 1,
+    name: es.namesPlacesSchool(),
+  })?.parentElement
+  expect(skeletonBlocks().some((block) => schoolColumn?.contains(block))).toBe(true)
 })
 
 it.each<[string, Partial<ApiClient>]>([

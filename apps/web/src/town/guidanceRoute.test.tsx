@@ -1,4 +1,4 @@
-import { es } from '@mygame/catalog'
+import { en, es } from '@mygame/catalog'
 import type { NextStep, TipKind, TownOverview } from '@mygame/contracts'
 import { act, fireEvent, screen, within } from '@testing-library/react'
 import { afterEach, beforeEach, expect, it, vi } from 'vitest'
@@ -69,7 +69,9 @@ const card = (): HTMLElement => screen.getByRole('region', { name: es.townNextTi
 const factoryGoalLine = es.townGoalLine({ position: 2, count: 9, place: 'Fábrica', level: 1 })
 
 const anyGoalLine = linePatternOf(
-  es.townGoalLine({ position: 101, count: 202, place: 'PLACE', level: 303 }),
+  [en, es].map((catalog) =>
+    catalog.townGoalLine({ position: 101, count: 202, place: 'PLACE', level: 303 }),
+  ),
   [101, 202, 'PLACE', 303],
 )
 

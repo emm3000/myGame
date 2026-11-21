@@ -1,4 +1,4 @@
-import { es } from '@mygame/catalog'
+import { en, es } from '@mygame/catalog'
 import type { CleanUpQuote, RegionMap, SendCleanUp, TownOverview } from '@mygame/contracts'
 import { act, fireEvent, screen, within } from '@testing-library/react'
 import { afterEach, beforeEach, expect, it, vi } from 'vitest'
@@ -14,6 +14,7 @@ import {
   knownTown,
   stubApiClient,
 } from '../auth/stubApiClient.testSupport'
+import { linePatternOf } from '../copy/linePatternOf.testSupport'
 import { accessibleDescriptionOf } from '../design-system/accessibleDescriptionOf.testSupport'
 import type { WasteSize } from '../design-system/WasteSize'
 
@@ -369,5 +370,9 @@ it('shows a clean-up coming back with the pay the server answered', async () => 
 it('shows a clean-up coming back with no pay line when the server answered none', async () => {
   await showMap(cleanUpIn('returning'))
 
-  expect(within(cleanUpOut()).queryByText(/Pago:/)).toBeNull()
+  const anyPayLine = linePatternOf(
+    [en, es].map((catalog) => catalog.mapJobOutPay({ amounts: 'AMOUNTS' })),
+    ['AMOUNTS'],
+  )
+  expect(within(cleanUpOut()).queryByText(anyPayLine)).toBeNull()
 })
