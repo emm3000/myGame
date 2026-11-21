@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import { apiPackagePath } from '../../../apiPackagePath.testSupport'
+import { apiPackagePath } from '#apiPackagePath.testSupport'
 import {
   afterLessonOne,
   contentOf,

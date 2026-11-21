@@ -1,5 +1,5 @@
 import { assert, describe, expect, it } from 'vitest'
-import { createApp } from '../../../app'
+import { createApp } from '#app'
 import {
   choiceIdOf,
   dueAtsOf,

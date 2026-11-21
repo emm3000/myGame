@@ -1,9 +1,9 @@
 import { createRoute, type OpenAPIHono } from '@hono/zod-openapi'
 import { VerifyEmailRequestSchema } from '@mygame/contracts'
-import { answerRefusal } from '../../../platform/infrastructure/http/answerRefusal'
-import { readJsonBody } from '../../../platform/infrastructure/http/readJsonBody'
-import { refusalResponse } from '../../../platform/infrastructure/http/refusalResponse'
-import { jsonBody } from '../../../platform/infrastructure/http/responseDeclarations'
+import { answerRefusal } from '#platform/infrastructure/http/answerRefusal'
+import { readJsonBody } from '#platform/infrastructure/http/readJsonBody'
+import { refusalResponse } from '#platform/infrastructure/http/refusalResponse'
+import { jsonBody } from '#platform/infrastructure/http/responseDeclarations'
 import { type VerifyEmailDependencies, verifyEmail } from '../../application/verifyEmail'
 import { answerDone } from './answerDone'
 

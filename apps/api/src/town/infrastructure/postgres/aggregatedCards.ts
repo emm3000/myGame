@@ -1,13 +1,9 @@
 import { type DomainError, type HeldCard, ok, type Result } from '@mygame/domain'
 import { type Column, eq, type SQL, sql } from 'drizzle-orm'
 import { z } from 'zod'
-import { heldCardOf } from '../../../learning/infrastructure/postgres/cardColumns'
-import {
-  cards,
-  memoryRating,
-  memoryState,
-} from '../../../learning/infrastructure/postgres/learningTables'
-import { jsonAggregateOf } from '../../../platform/infrastructure/postgres/jsonAggregateOf'
+import { heldCardOf } from '#learning/infrastructure/postgres/cardColumns'
+import { cards, memoryRating, memoryState } from '#learning/infrastructure/postgres/learningTables'
+import { jsonAggregateOf } from '#platform/infrastructure/postgres/jsonAggregateOf'
 
 const TimestampSchema = z.string().transform((iso) => new Date(iso))
 

@@ -11,18 +11,14 @@ import {
 import { type CardRepository, type Clock, Instant } from '@mygame/domain'
 import { Client } from 'pg'
 import { afterAll, assert, beforeAll, beforeEach, expect } from 'vitest'
-import { apiPackagePath } from '../../../apiPackagePath.testSupport'
-import { createApp } from '../../../app'
-import { type ComposedServer, composeServer } from '../../../composeServer'
-import { mailEnvironment } from '../../../composeServer.testSupport'
-import type { ComposedStores } from '../../../composeStores'
-import {
-  isWaitingOnALock,
-  lockedPlayerReadQuery,
-  lockProbeLimit,
-} from '../../../lockWaitProbe.testSupport'
-import type { Transaction } from '../../../platform/application/ports/Transaction'
-import { truncatePlayerTables } from '../../../truncatePlayerTables.testSupport'
+import { apiPackagePath } from '#apiPackagePath.testSupport'
+import { createApp } from '#app'
+import { type ComposedServer, composeServer } from '#composeServer'
+import { mailEnvironment } from '#composeServer.testSupport'
+import type { ComposedStores } from '#composeStores'
+import { isWaitingOnALock, lockedPlayerReadQuery, lockProbeLimit } from '#lockWaitProbe.testSupport'
+import type { Transaction } from '#platform/application/ports/Transaction'
+import { truncatePlayerTables } from '#truncatePlayerTables.testSupport'
 
 const contentDirectory = apiPackagePath('content/')
 

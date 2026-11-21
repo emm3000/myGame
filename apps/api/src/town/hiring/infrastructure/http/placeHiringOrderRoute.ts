@@ -4,16 +4,13 @@ import { ok, placeHiringOrder } from '@mygame/domain'
 import {
   type RequirePlayerDependencies,
   requirePlayer,
-} from '../../../../account/infrastructure/http/requirePlayer'
-import { answerRefusal } from '../../../../platform/infrastructure/http/answerRefusal'
-import { honoPathOf } from '../../../../platform/infrastructure/http/honoPath'
-import { readJsonBody } from '../../../../platform/infrastructure/http/readJsonBody'
-import { refusalResponse } from '../../../../platform/infrastructure/http/refusalResponse'
-import {
-  jsonBody,
-  malformedResponse,
-} from '../../../../platform/infrastructure/http/responseDeclarations'
-import { signedInRoute } from '../../../../platform/infrastructure/http/signedInRoute'
+} from '#account/infrastructure/http/requirePlayer'
+import { answerRefusal } from '#platform/infrastructure/http/answerRefusal'
+import { honoPathOf } from '#platform/infrastructure/http/honoPath'
+import { readJsonBody } from '#platform/infrastructure/http/readJsonBody'
+import { refusalResponse } from '#platform/infrastructure/http/refusalResponse'
+import { jsonBody, malformedResponse } from '#platform/infrastructure/http/responseDeclarations'
+import { signedInRoute } from '#platform/infrastructure/http/signedInRoute'
 import {
   type AnswerTownChangeDependencies,
   answerTownChange,

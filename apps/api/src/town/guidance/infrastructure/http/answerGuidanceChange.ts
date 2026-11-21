@@ -1,6 +1,6 @@
 import type { Clock, DomainError, PlayerId, Result } from '@mygame/domain'
 import type { Context } from 'hono'
-import { answerRefusal } from '../../../../platform/infrastructure/http/answerRefusal'
+import { answerRefusal } from '#platform/infrastructure/http/answerRefusal'
 import { type MutateTownDependencies, mutateTown } from '../../../application/mutateTown'
 import type { TownStores } from '../../../application/ports/TownStores'
 

@@ -1,6 +1,6 @@
 import type { Instant, PlayerId } from '@mygame/domain'
 import { and, eq, gt } from 'drizzle-orm'
-import type { PostgresSession } from '../../../platform/infrastructure/postgres/connectPostgres'
+import type { PostgresSession } from '#platform/infrastructure/postgres/connectPostgres'
 import type { Session, Sessions } from '../../application/ports/Sessions'
 import { tokenDigest } from '../../application/tokenDigest'
 import { sessions } from './accountTables'

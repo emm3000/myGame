@@ -5,7 +5,7 @@ import {
   closeWithoutChanges,
   migratedThroughNext,
   openEmptyDatabase,
-} from '../../../platform/infrastructure/postgres/migrationDatabase.testSupport'
+} from '#platform/infrastructure/postgres/migrationDatabase.testSupport'
 
 const hiringOwnerId = '00000000-0000-4000-8000-0000000000a2'
 

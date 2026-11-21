@@ -1,6 +1,6 @@
 import { PlayerSchema } from '@mygame/contracts'
 import { describe, expect, it } from 'vitest'
-import { shippedCurriculum } from '../../../content/infrastructure/json/shippedCurriculum.testSupport'
+import { shippedCurriculum } from '#content/infrastructure/json/shippedCurriculum.testSupport'
 import {
   choiceIdOf,
   dueWordsOf,

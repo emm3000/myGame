@@ -13,12 +13,12 @@ import {
   type DueReviews,
   type ReviewTerms,
   serveDueReviews,
-} from '../../learning/application/serveDueReviews'
-import type { TownNewsReader } from '../../town/application/ports/TownNewsReader'
+} from '#learning/application/serveDueReviews'
+import type { TownNewsReader } from '#town/application/ports/TownNewsReader'
 import {
   type ResolveCurrentTownDependencies,
   resolveCurrentTown,
-} from '../../town/application/resolveCurrentTown'
+} from '#town/application/resolveCurrentTown'
 import type { ReportClosings } from './ports/ReportClosings'
 
 export type ServeReportDependencies = ResolveCurrentTownDependencies &

@@ -9,7 +9,7 @@ import {
 } from '@mygame/domain'
 import { drizzle } from 'drizzle-orm/node-postgres'
 import { afterAll, assert, beforeAll, describe, expect, it } from 'vitest'
-import { DrizzleAccounts } from '../../../account/infrastructure/postgres/DrizzleAccounts'
+import { DrizzleAccounts } from '#account/infrastructure/postgres/DrizzleAccounts'
 import { DrizzleLessonSlots } from './DrizzleLessonSlots'
 import { DrizzleTownReader } from './DrizzleTownReader'
 import { DrizzleTownRepository } from './DrizzleTownRepository'

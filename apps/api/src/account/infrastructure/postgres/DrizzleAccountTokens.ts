@@ -1,6 +1,6 @@
 import type { Instant, PlayerId } from '@mygame/domain'
 import { and, eq, gt, isNotNull, isNull, lte, or, sql } from 'drizzle-orm'
-import type { PostgresSession } from '../../../platform/infrastructure/postgres/connectPostgres'
+import type { PostgresSession } from '#platform/infrastructure/postgres/connectPostgres'
 import { isRedeemableAgain } from '../../application/isRedeemableAgain'
 import type {
   AccountToken,

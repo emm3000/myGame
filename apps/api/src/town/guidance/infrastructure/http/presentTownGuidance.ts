@@ -12,8 +12,8 @@ import {
   type TownCatalog,
   tipOf,
 } from '@mygame/domain'
-import type { LessonLibrary } from '../../../../content/application/ports/LessonLibrary'
-import { isoOf } from '../../../../platform/infrastructure/http/isoOf'
+import type { LessonLibrary } from '#content/application/ports/LessonLibrary'
+import { isoOf } from '#platform/infrastructure/http/isoOf'
 import type { TownReading } from '../../../application/TownReading'
 
 type Goal = Extract<TownOverview['nextStep'], { kind: 'caughtUp' }>['goal']

@@ -14,7 +14,7 @@ import {
   timestamp,
   uuid,
 } from 'drizzle-orm/pg-core'
-import { players } from '../../../account/infrastructure/postgres/accountTables'
+import { players } from '#account/infrastructure/postgres/accountTables'
 
 export const memoryState = pgEnum('memory_state', ['learning', 'review', 'relearning'])
 

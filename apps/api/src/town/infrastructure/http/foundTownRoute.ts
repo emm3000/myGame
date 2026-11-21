@@ -4,18 +4,15 @@ import type { IdGenerator } from '@mygame/domain'
 import {
   type RequirePlayerDependencies,
   requirePlayer,
-} from '../../../account/infrastructure/http/requirePlayer'
-import type { Transaction } from '../../../platform/application/ports/Transaction'
-import { answerRefusal } from '../../../platform/infrastructure/http/answerRefusal'
-import { honoPathOf } from '../../../platform/infrastructure/http/honoPath'
-import { readJsonBody } from '../../../platform/infrastructure/http/readJsonBody'
-import { refusalResponse } from '../../../platform/infrastructure/http/refusalResponse'
-import {
-  type NamedIssue,
-  requestRefusalOf,
-} from '../../../platform/infrastructure/http/requestRefusalOf'
-import { jsonBody } from '../../../platform/infrastructure/http/responseDeclarations'
-import { signedInRoute } from '../../../platform/infrastructure/http/signedInRoute'
+} from '#account/infrastructure/http/requirePlayer'
+import type { Transaction } from '#platform/application/ports/Transaction'
+import { answerRefusal } from '#platform/infrastructure/http/answerRefusal'
+import { honoPathOf } from '#platform/infrastructure/http/honoPath'
+import { readJsonBody } from '#platform/infrastructure/http/readJsonBody'
+import { refusalResponse } from '#platform/infrastructure/http/refusalResponse'
+import { type NamedIssue, requestRefusalOf } from '#platform/infrastructure/http/requestRefusalOf'
+import { jsonBody } from '#platform/infrastructure/http/responseDeclarations'
+import { signedInRoute } from '#platform/infrastructure/http/signedInRoute'
 import { foundTownOnFreeSite } from '../../application/foundTownOnFreeSite'
 import type { TownStores } from '../../application/ports/TownStores'
 import { readTownReading } from '../../application/readTownReading'

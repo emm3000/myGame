@@ -2,8 +2,8 @@ import { NativeSessionSchema, SignInRequestSchema, SignUpRequestSchema } from '@
 import {
   type ResponseDeclaration,
   refusalResponse,
-} from '../../../platform/infrastructure/http/refusalResponse'
-import { jsonResponse } from '../../../platform/infrastructure/http/responseDeclarations'
+} from '#platform/infrastructure/http/refusalResponse'
+import { jsonResponse } from '#platform/infrastructure/http/responseDeclarations'
 import { PlayerComponent } from './playerComponent'
 
 export const playerResponse = (description: string): ResponseDeclaration =>

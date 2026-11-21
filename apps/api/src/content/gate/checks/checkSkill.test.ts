@@ -1,6 +1,6 @@
 import type { CurriculumContent } from '@mygame/contracts'
 import { describe, expect, it } from 'vitest'
-import { apiPackagePath } from '../../../apiPackagePath.testSupport'
+import { apiPackagePath } from '#apiPackagePath.testSupport'
 import { contentOf } from '../contentGate.testSupport'
 import { readGateContent } from '../readGateContent'
 import { checkSkill } from './checkSkill'

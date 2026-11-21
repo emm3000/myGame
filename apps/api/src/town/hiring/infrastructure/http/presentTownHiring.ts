@@ -10,7 +10,7 @@ import {
   type Town,
   type TownCatalog,
 } from '@mygame/domain'
-import { isoOf } from '../../../../platform/infrastructure/http/isoOf'
+import { isoOf } from '#platform/infrastructure/http/isoOf'
 import type { TownReading } from '../../../application/TownReading'
 
 type HireTermsState = TownOverview['hiring']['terms'][HireKind]

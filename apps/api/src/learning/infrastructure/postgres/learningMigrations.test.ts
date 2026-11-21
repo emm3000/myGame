@@ -4,13 +4,13 @@ import { afterEach, beforeEach, describe, expect, it } from 'vitest'
 import {
   ana,
   insertPlayersBeforeTheReport,
-} from '../../../account/infrastructure/postgres/migrationPlayers.testSupport'
+} from '#account/infrastructure/postgres/migrationPlayers.testSupport'
 import {
   closeWithoutChanges,
   migratedFrom,
   migratedThroughNext,
   openEmptyDatabase,
-} from '../../../platform/infrastructure/postgres/migrationDatabase.testSupport'
+} from '#platform/infrastructure/postgres/migrationDatabase.testSupport'
 import { DrizzleCardRepository } from './DrizzleCardRepository'
 
 describe('the learning memory migration', () => {

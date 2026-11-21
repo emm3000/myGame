@@ -4,7 +4,7 @@ import { tmpdir } from 'node:os'
 import { join } from 'node:path'
 import { isUnitLemma } from '@mygame/domain'
 import { afterEach, describe, expect, it } from 'vitest'
-import { apiPackagePath } from '../../../apiPackagePath.testSupport'
+import { apiPackagePath } from '#apiPackagePath.testSupport'
 import { readJsonLessonLibrary } from './readJsonLessonLibrary'
 import { shippedCurriculum } from './shippedCurriculum.testSupport'
 

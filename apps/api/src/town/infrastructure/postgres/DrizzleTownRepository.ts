@@ -13,8 +13,8 @@ import {
   type TownRepository,
 } from '@mygame/domain'
 import { eq } from 'drizzle-orm'
-import type { PostgresSession } from '../../../platform/infrastructure/postgres/connectPostgres'
-import { violatedUniqueConstraint } from '../../../platform/infrastructure/postgres/violatedUniqueConstraint'
+import type { PostgresSession } from '#platform/infrastructure/postgres/connectPostgres'
+import { violatedUniqueConstraint } from '#platform/infrastructure/postgres/violatedUniqueConstraint'
 import { aggregatedTown } from './aggregatedTown'
 import { townHires, townHiringOrders } from './hiringTables'
 import { townJobs } from './jobsTables'

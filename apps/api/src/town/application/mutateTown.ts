@@ -8,7 +8,7 @@ import {
   type Result,
   settleSchoolLesson,
 } from '@mygame/domain'
-import type { Transaction } from '../../platform/application/ports/Transaction'
+import type { Transaction } from '#platform/application/ports/Transaction'
 import type { TownStores } from './ports/TownStores'
 
 export type TownMutation<T> = (stores: TownStores, clock: Clock) => Promise<Result<T, DomainError>>

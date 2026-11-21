@@ -1,7 +1,7 @@
 import { readMigrationFiles } from 'drizzle-orm/migrator'
 import type { Client } from 'pg'
 import { afterEach, beforeEach, describe, expect, it } from 'vitest'
-import { ana } from '../../../account/infrastructure/postgres/migrationPlayers.testSupport'
+import { ana } from '#account/infrastructure/postgres/migrationPlayers.testSupport'
 import {
   applyMigrations,
   checkViolation,
@@ -11,7 +11,7 @@ import {
   migrationsFolder,
   openEmptyDatabase,
   uniqueViolation,
-} from '../../../platform/infrastructure/postgres/migrationDatabase.testSupport'
+} from '#platform/infrastructure/postgres/migrationDatabase.testSupport'
 
 describe('the band starts migration', () => {
   let client: Client

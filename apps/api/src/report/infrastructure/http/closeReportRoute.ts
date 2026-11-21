@@ -2,9 +2,9 @@ import { createRoute, type OpenAPIHono } from '@hono/zod-openapi'
 import {
   type RequirePlayerDependencies,
   requirePlayer,
-} from '../../../account/infrastructure/http/requirePlayer'
-import { honoPathOf } from '../../../platform/infrastructure/http/honoPath'
-import { signedInRoute } from '../../../platform/infrastructure/http/signedInRoute'
+} from '#account/infrastructure/http/requirePlayer'
+import { honoPathOf } from '#platform/infrastructure/http/honoPath'
+import { signedInRoute } from '#platform/infrastructure/http/signedInRoute'
 import type { ReportClosings } from '../../application/ports/ReportClosings'
 
 export const closeReportDeclaration = createRoute(

@@ -2,32 +2,32 @@ import { OpenAPIHono } from '@hono/zod-openapi'
 import {
   type AccountRouteDependencies,
   accountRoutes,
-} from './account/infrastructure/http/accountRoutes'
-import { holdoutCheckRoutes } from './holdout/infrastructure/http/holdoutCheckRoutes'
+} from '#account/infrastructure/http/accountRoutes'
+import { holdoutCheckRoutes } from '#holdout/infrastructure/http/holdoutCheckRoutes'
 import {
   type LearningRouteDependencies,
   learningRoutes,
-} from './learning/infrastructure/http/learningRoutes'
+} from '#learning/infrastructure/http/learningRoutes'
 import {
   type PlacementRouteDependencies,
   placementRoutes,
-} from './placement/infrastructure/http/placementRoutes'
-import type { FailureSink } from './platform/application/ports/FailureSink'
-import { healthRoute } from './platform/infrastructure/http/healthRoute'
-import { reportServerFailures } from './platform/infrastructure/http/reportServerFailures'
+} from '#placement/infrastructure/http/placementRoutes'
+import type { FailureSink } from '#platform/application/ports/FailureSink'
+import { healthRoute } from '#platform/infrastructure/http/healthRoute'
+import { reportServerFailures } from '#platform/infrastructure/http/reportServerFailures'
 import {
   sessionBearerScheme,
   sessionBearerSecurityScheme,
-} from './platform/infrastructure/http/signedInRoute'
+} from '#platform/infrastructure/http/signedInRoute'
 import {
   type ReportRouteDependencies,
   reportRoutes,
-} from './report/infrastructure/http/reportRoutes'
-import { type TownRouteDependencies, townRoutes } from './town/infrastructure/http/townRoutes'
+} from '#report/infrastructure/http/reportRoutes'
+import { type TownRouteDependencies, townRoutes } from '#town/infrastructure/http/townRoutes'
 import {
   type RegionMapRouteDependencies,
   regionMapRoutes,
-} from './town/jobs/infrastructure/http/regionMapRoutes'
+} from '#town/jobs/infrastructure/http/regionMapRoutes'
 
 export type AppDependencies = AccountRouteDependencies &
   LearningRouteDependencies &

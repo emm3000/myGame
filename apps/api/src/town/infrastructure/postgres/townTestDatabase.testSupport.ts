@@ -1,7 +1,7 @@
 import { drizzle } from 'drizzle-orm/node-postgres'
 import { Pool } from 'pg'
-import { players } from '../../../account/infrastructure/postgres/accountTables'
-import { truncatePlayerTables } from '../../../truncatePlayerTables.testSupport'
+import { players } from '#account/infrastructure/postgres/accountTables'
+import { truncatePlayerTables } from '#truncatePlayerTables.testSupport'
 
 export type TownTestDatabase = {
   readonly open: () => void

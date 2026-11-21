@@ -9,7 +9,7 @@ import {
   type TownCatalog,
   type WaitingList,
 } from '@mygame/domain'
-import { isoOf } from '../../../../platform/infrastructure/http/isoOf'
+import { isoOf } from '#platform/infrastructure/http/isoOf'
 
 type BuildingWork = TownOverview['work']['waitingList'][number]
 

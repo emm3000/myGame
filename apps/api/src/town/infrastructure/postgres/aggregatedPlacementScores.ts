@@ -1,8 +1,8 @@
 import { Instant, type PlacementScore } from '@mygame/domain'
 import { asc, type Column, eq, type SQL } from 'drizzle-orm'
 import { z } from 'zod'
-import { placementScores } from '../../../placement/infrastructure/postgres/placementTables'
-import { jsonAggregateOf } from '../../../platform/infrastructure/postgres/jsonAggregateOf'
+import { placementScores } from '#placement/infrastructure/postgres/placementTables'
+import { jsonAggregateOf } from '#platform/infrastructure/postgres/jsonAggregateOf'
 
 const AggregatedPlacementScoresSchema = z.array(
   z.strictObject({ band: z.number().int(), score: z.number().int(), takenAt: z.string() }),

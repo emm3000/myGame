@@ -1,6 +1,6 @@
 import { ReviewsSchema } from '@mygame/contracts'
 import { assert, describe, expect, it } from 'vitest'
-import { createApp } from '../../../app'
+import { createApp } from '#app'
 import {
   choiceIdOf,
   firstRecallAt,

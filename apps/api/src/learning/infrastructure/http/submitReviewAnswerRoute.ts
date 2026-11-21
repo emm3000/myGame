@@ -8,17 +8,17 @@ import {
 import {
   type RequirePlayerDependencies,
   requirePlayer,
-} from '../../../account/infrastructure/http/requirePlayer'
-import { answerRefusal } from '../../../platform/infrastructure/http/answerRefusal'
-import { honoPathOf } from '../../../platform/infrastructure/http/honoPath'
-import { readJsonBody } from '../../../platform/infrastructure/http/readJsonBody'
-import { refusalResponse } from '../../../platform/infrastructure/http/refusalResponse'
+} from '#account/infrastructure/http/requirePlayer'
+import { answerRefusal } from '#platform/infrastructure/http/answerRefusal'
+import { honoPathOf } from '#platform/infrastructure/http/honoPath'
+import { readJsonBody } from '#platform/infrastructure/http/readJsonBody'
+import { refusalResponse } from '#platform/infrastructure/http/refusalResponse'
 import {
   jsonBody,
   jsonResponse,
   malformedResponse,
-} from '../../../platform/infrastructure/http/responseDeclarations'
-import { signedInRoute } from '../../../platform/infrastructure/http/signedInRoute'
+} from '#platform/infrastructure/http/responseDeclarations'
+import { signedInRoute } from '#platform/infrastructure/http/signedInRoute'
 import type { LearningDependencies } from '../../application/LearningDependencies'
 import { submitReviewAnswer } from '../../application/submitReviewAnswer'
 import { presentReviewVerdict } from './presentReviewVerdict'

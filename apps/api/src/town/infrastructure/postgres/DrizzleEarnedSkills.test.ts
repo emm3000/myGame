@@ -1,8 +1,8 @@
 import { drizzle } from 'drizzle-orm/node-postgres'
 import { Pool } from 'pg'
 import { afterAll, beforeAll } from 'vitest'
-import { players } from '../../../account/infrastructure/postgres/accountTables'
-import { truncatePlayerTables } from '../../../truncatePlayerTables.testSupport'
+import { players } from '#account/infrastructure/postgres/accountTables'
+import { truncatePlayerTables } from '#truncatePlayerTables.testSupport'
 import { earnedSkillRepositoryContract } from '../memory/earnedSkillRepositoryContract.testSupport'
 import { DrizzleEarnedSkills } from './DrizzleEarnedSkills'
 

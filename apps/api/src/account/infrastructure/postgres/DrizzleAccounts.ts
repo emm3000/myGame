@@ -1,7 +1,7 @@
 import type { Instant, PlayerId, Scaffold } from '@mygame/domain'
 import { and, eq, isNull, sql } from 'drizzle-orm'
-import type { PostgresSession } from '../../../platform/infrastructure/postgres/connectPostgres'
-import { violatedUniqueConstraint } from '../../../platform/infrastructure/postgres/violatedUniqueConstraint'
+import type { PostgresSession } from '#platform/infrastructure/postgres/connectPostgres'
+import { violatedUniqueConstraint } from '#platform/infrastructure/postgres/violatedUniqueConstraint'
 import type {
   Accounts,
   NewPlayer,

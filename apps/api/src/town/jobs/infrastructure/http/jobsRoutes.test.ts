@@ -5,9 +5,9 @@ import {
   type SendCleanUp,
 } from '@mygame/contracts'
 import { afterAll, afterEach, beforeAll, beforeEach, describe, expect, it, vi } from 'vitest'
-import { createApp } from '../../../../app'
-import type { ComposedServer } from '../../../../composeServer'
-import { truncatePlayerTables } from '../../../../truncatePlayerTables.testSupport'
+import { createApp } from '#app'
+import type { ComposedServer } from '#composeServer'
+import { truncatePlayerTables } from '#truncatePlayerTables.testSupport'
 import {
   jsonRequest,
   type MovableClock,

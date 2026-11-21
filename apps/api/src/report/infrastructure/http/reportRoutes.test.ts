@@ -18,17 +18,13 @@ import {
   it,
   vi,
 } from 'vitest'
-import { apiPackagePath } from '../../../apiPackagePath.testSupport'
-import { createApp } from '../../../app'
-import { type ComposedServer, composeServer } from '../../../composeServer'
-import { mailEnvironment } from '../../../composeServer.testSupport'
-import {
-  isWaitingOnALock,
-  lockedPlayerReadQuery,
-  lockProbeLimit,
-} from '../../../lockWaitProbe.testSupport'
-import { mutateTown } from '../../../town/application/mutateTown'
-import { truncatePlayerTables } from '../../../truncatePlayerTables.testSupport'
+import { apiPackagePath } from '#apiPackagePath.testSupport'
+import { createApp } from '#app'
+import { type ComposedServer, composeServer } from '#composeServer'
+import { mailEnvironment } from '#composeServer.testSupport'
+import { isWaitingOnALock, lockedPlayerReadQuery, lockProbeLimit } from '#lockWaitProbe.testSupport'
+import { mutateTown } from '#town/application/mutateTown'
+import { truncatePlayerTables } from '#truncatePlayerTables.testSupport'
 
 const contentDirectory = apiPackagePath('content/')
 

@@ -1,7 +1,7 @@
 import { type DueReview, ReportSchema } from '@mygame/contracts'
 import { assert, beforeEach, describe, expect, it } from 'vitest'
-import { createApp } from '../../../app'
-import type { LessonLibrary, ShelvedLesson } from '../../../content/application/ports/LessonLibrary'
+import { createApp } from '#app'
+import type { LessonLibrary, ShelvedLesson } from '#content/application/ports/LessonLibrary'
 import {
   learningWorld,
   lessonFinishesAt,

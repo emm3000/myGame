@@ -6,7 +6,7 @@ import {
   ana,
   bruno,
   insertPlayersBeforeTheReport,
-} from '../../../account/infrastructure/postgres/migrationPlayers.testSupport'
+} from '#account/infrastructure/postgres/migrationPlayers.testSupport'
 import {
   applyMigrations,
   checkViolation,
@@ -16,7 +16,7 @@ import {
   migrationsFolder,
   openEmptyDatabase,
   uniqueViolation,
-} from '../../../platform/infrastructure/postgres/migrationDatabase.testSupport'
+} from '#platform/infrastructure/postgres/migrationDatabase.testSupport'
 import { DrizzleTownRepository } from './DrizzleTownRepository'
 import { insertTownOf, plainStocks } from './migrationTowns.testSupport'
 import { earnedSkills } from './schoolTables'

@@ -12,7 +12,7 @@ import {
   unique,
   uuid,
 } from 'drizzle-orm/pg-core'
-import { players } from '../../../account/infrastructure/postgres/accountTables'
+import { players } from '#account/infrastructure/postgres/accountTables'
 
 export const bandStarts = pgTable(
   'band_starts',

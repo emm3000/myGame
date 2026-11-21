@@ -1,9 +1,9 @@
 import { Instant, type PlayerId } from '@mygame/domain'
 import { eq, sql } from 'drizzle-orm'
-import { cards } from '../../../learning/infrastructure/postgres/learningTables'
-import type { PostgresSession } from '../../../platform/infrastructure/postgres/connectPostgres'
-import { earnedSkills, townLessonSlots } from '../../../town/infrastructure/postgres/schoolTables'
-import { towns } from '../../../town/infrastructure/postgres/townTables'
+import { cards } from '#learning/infrastructure/postgres/learningTables'
+import type { PostgresSession } from '#platform/infrastructure/postgres/connectPostgres'
+import { earnedSkills, townLessonSlots } from '#town/infrastructure/postgres/schoolTables'
+import { towns } from '#town/infrastructure/postgres/townTables'
 import type {
   ChromeProgress,
   ChromeProgressReader,

@@ -4,7 +4,7 @@ import { tmpdir } from 'node:os'
 import { join } from 'node:path'
 import { BuildingContentSchema } from '@mygame/contracts'
 import { assert, describe, expect, it } from 'vitest'
-import { apiPackagePath } from '../../apiPackagePath.testSupport'
+import { apiPackagePath } from '#apiPackagePath.testSupport'
 import { readGateContent } from './readGateContent'
 
 const shippedContent = apiPackagePath('content/')

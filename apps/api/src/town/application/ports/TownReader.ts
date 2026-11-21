@@ -10,7 +10,7 @@ import type {
   TipKind,
   Town,
 } from '@mygame/domain'
-import type { StoredScaffold } from '../../../account/application/ports/StoredScaffold'
+import type { StoredScaffold } from '#account/application/ports/StoredScaffold'
 
 export type TownWithSchool = StoredScaffold & {
   readonly town: Town

@@ -1,6 +1,6 @@
 import { type Clock, err, type IdGenerator, ok, type Result, type Scaffold } from '@mygame/domain'
-import type { Transaction } from '../../platform/application/ports/Transaction'
-import type { Refusal } from '../../platform/application/Refusal'
+import type { Transaction } from '#platform/application/ports/Transaction'
+import type { Refusal } from '#platform/application/Refusal'
 import { issueAccountToken } from './issueAccountToken'
 import { openSession } from './openSession'
 import type { AccountStores } from './ports/AccountStores'

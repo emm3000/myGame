@@ -3,7 +3,7 @@ import { tmpdir } from 'node:os'
 import { join } from 'node:path'
 import { type BuildingKind, Instant } from '@mygame/domain'
 import { describe, expect, it } from 'vitest'
-import { apiPackagePath } from '../../../apiPackagePath.testSupport'
+import { apiPackagePath } from '#apiPackagePath.testSupport'
 import { JsonTownCatalog } from './JsonTownCatalog'
 
 const shippedTownContent = apiPackagePath('content/town/')

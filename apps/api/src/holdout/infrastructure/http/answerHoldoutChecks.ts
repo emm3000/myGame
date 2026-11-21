@@ -1,6 +1,6 @@
 import type { DomainError, HoldoutCheckView, Result } from '@mygame/domain'
 import type { Context } from 'hono'
-import { answerRefusal } from '../../../platform/infrastructure/http/answerRefusal'
+import { answerRefusal } from '#platform/infrastructure/http/answerRefusal'
 import { presentHoldoutChecks } from './presentHoldoutChecks'
 
 export const answerHoldoutChecks = (

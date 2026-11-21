@@ -2,11 +2,11 @@ import { type ChromePhase, type Player, PlayerSchema } from '@mygame/contracts'
 import { Instant } from '@mygame/domain'
 import { Client } from 'pg'
 import { afterAll, beforeAll, beforeEach, describe, expect, it } from 'vitest'
-import { apiPackagePath } from '../../../apiPackagePath.testSupport'
-import { createApp } from '../../../app'
-import { type ComposedServer, composeServer } from '../../../composeServer'
-import { mailEnvironment } from '../../../composeServer.testSupport'
-import { truncatePlayerTables } from '../../../truncatePlayerTables.testSupport'
+import { apiPackagePath } from '#apiPackagePath.testSupport'
+import { createApp } from '#app'
+import { type ComposedServer, composeServer } from '#composeServer'
+import { mailEnvironment } from '#composeServer.testSupport'
+import { truncatePlayerTables } from '#truncatePlayerTables.testSupport'
 
 const contentDirectory = apiPackagePath('content/')
 

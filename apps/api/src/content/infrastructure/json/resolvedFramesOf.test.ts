@@ -14,7 +14,7 @@ import {
   type StoredMemoryCard,
 } from '@mygame/domain'
 import { afterEach, assert, describe, expect, it } from 'vitest'
-import { apiPackagePath } from '../../../apiPackagePath.testSupport'
+import { apiPackagePath } from '#apiPackagePath.testSupport'
 import type { LessonLibrary } from '../../application/ports/LessonLibrary'
 import { readJsonLessonLibrary } from './readJsonLessonLibrary'
 
