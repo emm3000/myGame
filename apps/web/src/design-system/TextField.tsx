@@ -1,13 +1,15 @@
 import { type ReactElement, useId } from 'react'
+import type { Label } from './Label'
+import { LabelText } from './LabelText'
 
 export interface TextFieldProps {
-  readonly label: string
+  readonly label: Label
   readonly name: string
   readonly type: 'email' | 'password' | 'text'
   readonly autoComplete: string
   readonly value: string
   readonly onChange: (value: string) => void
-  readonly hint?: string | undefined
+  readonly hint?: Label | undefined
   readonly error?: string | undefined
   readonly isDisabled?: boolean | undefined
   readonly maxLength?: number | undefined
@@ -24,7 +26,7 @@ export function TextField(props: TextFieldProps): ReactElement {
   return (
     <div className="flex flex-col gap-1">
       <label htmlFor={id} className="font-sans text-label text-ink-muted">
-        {props.label}
+        <LabelText label={props.label} />
       </label>
       <input
         id={id}
@@ -43,7 +45,7 @@ export function TextField(props: TextFieldProps): ReactElement {
       />
       {props.hint === undefined ? null : (
         <span id={hintId} className="font-sans text-caption text-ink-muted">
-          {props.hint}
+          <LabelText label={props.hint} />
         </span>
       )}
       {props.error === undefined ? null : (

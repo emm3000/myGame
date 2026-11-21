@@ -1,4 +1,4 @@
-import { reportReviewsDue, shellNavigationReport } from '@mygame/catalog'
+import { es, reportReviewsDue, shellNavigationReport } from '@mygame/catalog'
 import type { ReactElement } from 'react'
 import { ButtonLink } from '../design-system/ButtonLink'
 import { formatQuantity } from '../design-system/formatQuantity'
@@ -24,7 +24,7 @@ export function TownDoors({ dueCount }: { readonly dueCount: number }): ReactEle
   return (
     <div className="grid max-w-form grid-cols-2 gap-3">
       <ButtonLink to="/school" tone="quiet">
-        {placeNameOf('school')}
+        {placeNameOf(es, 'school')}
       </ButtonLink>
       <ButtonLink to="/report" tone="quiet">
         {shellNavigationReport()}

@@ -14,6 +14,7 @@ import { focusTargetClass } from '../design-system/focusTargetClass'
 import { formatQuantity } from '../design-system/formatQuantity'
 import { LiveRegion } from '../design-system/LiveRegion'
 import { LoadingSkeleton, type LoadingSkeletonProps } from '../design-system/LoadingSkeleton'
+import { lineLabelOf } from '../design-system/lineLabelOf'
 import { ReadFailed } from '../design-system/ReadFailed'
 import { Track } from '../design-system/Track'
 import { useFocusTarget } from '../focus/useFocusTarget'
@@ -100,7 +101,9 @@ function DueCard({
         line={review.isDealt ? reviewDueCount({ count: formatQuantity(state.dueCount) }) : ''}
         sequence={review.walked}
       />
-      {review.refusal !== undefined && <FormAlert message={refusalLineOf(review.refusal)} />}
+      {review.refusal !== undefined && (
+        <FormAlert message={lineLabelOf(refusalLineOf(review.refusal), 'es')} />
+      )}
     </div>
   )
 }
@@ -117,7 +120,11 @@ function ReviewBody({
       return null
     case 'failed':
       return (
-        <ReadFailed message={reviewFailed()} retryLabel={reviewRetry()} onRetry={state.onRetry} />
+        <ReadFailed
+          message={lineLabelOf(reviewFailed(), 'es')}
+          retryLabel={lineLabelOf(reviewRetry(), 'es')}
+          onRetry={state.onRetry}
+        />
       )
     case 'noCards':
       return <ReviewEnd line={reviewNoCards()} nextReview={undefined} path={undefined} />
@@ -153,7 +160,7 @@ export function ReviewScreen({ state }: { readonly state: ReviewScreenState }): 
       </h1>
       <LoadingSkeleton
         isLoading={state.kind === 'loading'}
-        line={reviewLoading()}
+        line={lineLabelOf(reviewLoading(), 'es')}
         groups={reviewSkeletonGroups}
         Frame={Fragment}
       >

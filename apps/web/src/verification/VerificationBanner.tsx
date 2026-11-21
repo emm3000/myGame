@@ -4,6 +4,7 @@ import {
   verificationBannerSent,
 } from '@mygame/catalog'
 import type { ReactElement } from 'react'
+import { lineLabelOf } from '../design-system/lineLabelOf'
 import { NoticeBanner, type NoticeOutcome } from '../design-system/NoticeBanner'
 import { refusalLineOf } from '../refusals/refusalLineOf'
 import type { ResendState, ResendVerification } from './useResendVerification'
@@ -14,9 +15,9 @@ const outcomeOf = (state: ResendState): NoticeOutcome | undefined => {
     case 'sending':
       return undefined
     case 'sent':
-      return { kind: 'sent', message: verificationBannerSent() }
+      return { kind: 'sent', message: lineLabelOf(verificationBannerSent(), 'es') }
     case 'refused':
-      return { kind: 'failed', message: refusalLineOf(state.refusal) }
+      return { kind: 'failed', message: lineLabelOf(refusalLineOf(state.refusal), 'es') }
     default: {
       const unreachable: never = state
       return unreachable
@@ -27,8 +28,8 @@ const outcomeOf = (state: ResendState): NoticeOutcome | undefined => {
 export function VerificationBanner({ state, resend }: ResendVerification): ReactElement {
   return (
     <NoticeBanner
-      line={verificationBannerLine()}
-      actionLabel={verificationBannerResend()}
+      line={lineLabelOf(verificationBannerLine(), 'es')}
+      actionLabel={lineLabelOf(verificationBannerResend(), 'es')}
       isBusy={state.kind === 'sending'}
       onAction={resend}
       outcome={outcomeOf(state)}

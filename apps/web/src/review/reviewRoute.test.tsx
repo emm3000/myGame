@@ -1,4 +1,5 @@
 import {
+  es,
   refusalReviewNotDue,
   reviewAnswerField,
   reviewAskHint,
@@ -393,10 +394,10 @@ it('names the skill a correct answer earns at the level the api answers', async 
   await typeAndCheck('school')
 
   expect(
-    screen.getByText(reviewSkillEarned({ resource: townResourceNameOf('food'), level: 2 })),
+    screen.getByText(reviewSkillEarned({ resource: townResourceNameOf(es, 'food'), level: 2 })),
   ).toBeTruthy()
   expect(
-    screen.getByText(reviewSkillRate({ percent: 5, resource: townResourceNameOf('food') })),
+    screen.getByText(reviewSkillRate({ percent: 5, resource: townResourceNameOf(es, 'food') })),
   ).toBeTruthy()
 })
 
@@ -410,10 +411,10 @@ it('shows an earned skill without rates while the player holds no town', async (
   await typeAndCheck('school')
 
   expect(
-    screen.getByText(reviewSkillEarned({ resource: townResourceNameOf('food'), level: 1 })),
+    screen.getByText(reviewSkillEarned({ resource: townResourceNameOf(es, 'food'), level: 1 })),
   ).toBeTruthy()
   expect(
-    screen.getByText(reviewSkillRate({ percent: 5, resource: townResourceNameOf('food') })),
+    screen.getByText(reviewSkillRate({ percent: 5, resource: townResourceNameOf(es, 'food') })),
   ).toBeTruthy()
 })
 
@@ -433,7 +434,7 @@ it('draws the opened level after the verdict line and the earned skill', async (
   expect(lines.at(-1)).toBe(levelLine)
   expect(lines.indexOf(reviewCorrect())).toBeLessThan(lines.indexOf(levelLine))
   expect(
-    lines.indexOf(reviewSkillEarned({ resource: townResourceNameOf('food'), level: 2 })),
+    lines.indexOf(reviewSkillEarned({ resource: townResourceNameOf(es, 'food'), level: 2 })),
   ).toBeLessThan(lines.indexOf(levelLine))
 })
 

@@ -3,6 +3,7 @@ import { HoldoutCheckRequestSchema } from '@mygame/contracts'
 import { createFileRoute } from '@tanstack/react-router'
 import type { ReactElement } from 'react'
 import { LoadingSkeleton, type LoadingSkeletonProps } from '../../design-system/LoadingSkeleton'
+import { lineLabelOf } from '../../design-system/lineLabelOf'
 import { HoldoutCheckScreen, HoldoutCheckTitled } from '../../school/HoldoutCheckScreen'
 import { useHoldoutCheck } from '../../school/useHoldoutCheck'
 
@@ -18,7 +19,7 @@ function HoldoutCheckRoute(): ReactElement {
     <div className="mx-auto flex w-full max-w-form flex-col gap-6">
       <LoadingSkeleton
         isLoading={handle.view.kind === 'loading'}
-        line={holdoutCheckLoading()}
+        line={lineLabelOf(holdoutCheckLoading(), 'es')}
         groups={checkSkeletonGroups}
         Frame={HoldoutCheckTitled}
       >

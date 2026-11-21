@@ -1,4 +1,4 @@
-import { schoolSkillName, schoolSkillRate } from '@mygame/catalog'
+import { es, schoolSkillName, schoolSkillRate } from '@mygame/catalog'
 import type { TownOverview } from '@mygame/contracts'
 import { skillLevelOf } from '@mygame/domain'
 import { type ReactElement, useId } from 'react'
@@ -17,7 +17,7 @@ interface SkillLine {
 const skillLinesOf = (skills: ReadonlyArray<EarnedSkill>): ReadonlyArray<SkillLine> =>
   skills.map(({ lessonId, resource, ratePercent }, index) => {
     const level = skillLevelOf(skills.slice(0, index + 1), resource)
-    const resourceName = townResourceNameOf(resource)
+    const resourceName = townResourceNameOf(es, resource)
     return {
       key: lessonId,
       resource,

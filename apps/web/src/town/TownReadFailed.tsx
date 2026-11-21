@@ -1,6 +1,7 @@
 import { townTryAgain } from '@mygame/catalog'
 import type { ReactElement } from 'react'
 import type { ApiRefusal } from '../api/apiClient'
+import { lineLabelOf } from '../design-system/lineLabelOf'
 import { ReadFailed } from '../design-system/ReadFailed'
 import { refusalLineOf } from '../refusals/refusalLineOf'
 
@@ -11,6 +12,10 @@ interface TownReadFailedProps {
 
 export function TownReadFailed({ refusal, onRetry }: TownReadFailedProps): ReactElement {
   return (
-    <ReadFailed message={refusalLineOf(refusal)} retryLabel={townTryAgain()} onRetry={onRetry} />
+    <ReadFailed
+      message={lineLabelOf(refusalLineOf(refusal), 'es')}
+      retryLabel={lineLabelOf(townTryAgain(), 'es')}
+      onRetry={onRetry}
+    />
   )
 }

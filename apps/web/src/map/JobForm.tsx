@@ -2,6 +2,7 @@ import { type SendJob, SendJobSchema } from '@mygame/contracts'
 import { type ReactElement, useState } from 'react'
 import { CardAction } from '../design-system/CardAction'
 import { FormAlert } from '../design-system/FormAlert'
+import { lineLabelOf } from '../design-system/lineLabelOf'
 import { TextField } from '../design-system/TextField'
 import { refusalLineOf } from '../refusals/refusalLineOf'
 import type { LiveTown } from '../town/liveTown'
@@ -43,8 +44,8 @@ export function JobForm({ id, target, town, job, onSent }: JobFormProps): ReactE
       {form.teamFields.map(({ hire, label, hint }) => (
         <TextField
           key={hire}
-          label={label}
-          hint={hint}
+          label={lineLabelOf(label, 'es')}
+          hint={lineLabelOf(hint, 'es')}
           name={`job-${hire}`}
           type="text"
           inputMode="numeric"
@@ -54,7 +55,7 @@ export function JobForm({ id, target, town, job, onSent }: JobFormProps): ReactE
         />
       ))}
       <TextField
-        label={form.hoursLabel}
+        label={lineLabelOf(form.hoursLabel, 'es')}
         name="job-hours"
         type="text"
         inputMode="numeric"
@@ -66,18 +67,18 @@ export function JobForm({ id, target, town, job, onSent }: JobFormProps): ReactE
         {payLine}
       </p>
       {quoted?.ok === false && quoted.refusal === 'Unexpected' && refused === undefined && (
-        <FormAlert message={refusalLineOf(quoted.refusal, quoted.error)} />
+        <FormAlert message={lineLabelOf(refusalLineOf(quoted.refusal, quoted.error), 'es')} />
       )}
       <CardAction
         type="button"
-        label={form.actionLabel}
+        label={lineLabelOf(form.actionLabel, 'es')}
         state={sendStateOf(form.state, quoted, refused !== undefined)}
         isWaiting={job.isSending}
         announcesReason
         onAction={onSend}
       />
       {refused !== undefined && (
-        <FormAlert message={refusalLineOf(refused.refusal, refused.error)} />
+        <FormAlert message={lineLabelOf(refusalLineOf(refused.refusal, refused.error), 'es')} />
       )}
     </section>
   )

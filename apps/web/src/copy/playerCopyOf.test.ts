@@ -61,7 +61,7 @@ it('keeps the fixed copy in Spanish for an es player in the English phase', () =
     catalog.shellSignOut(),
   )
 
-  expect(signOut).toBe('Salir')
+  expect(signOut).toEqual({ text: 'Salir', language: 'es', translation: null })
 })
 
 it('writes the fixed copy in English under none', () => {
@@ -69,7 +69,7 @@ it('writes the fixed copy in English under none', () => {
     catalog.shellSignOut(),
   )
 
-  expect(signOut).toBe('Sign out')
+  expect(signOut).toEqual({ text: 'Sign out', language: 'en', translation: null })
 })
 
 it('refuses a fixed-copy line as chrome', () => {
@@ -83,5 +83,5 @@ it('refuses a chrome line as fixed copy', () => {
   const copy = playerCopyOf({ scaffold: 'es', chromePhase: 'both' })
 
   // @ts-expect-error shell.navigation.report is chrome, which follows the chrome phase
-  expect(copy.fixedCopy((catalog) => catalog.shellNavigationReport())).toBe('Informe')
+  expect(copy.fixedCopy((catalog) => catalog.shellNavigationReport()).text).toBe('Informe')
 })

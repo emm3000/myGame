@@ -12,6 +12,7 @@ import {
 import type { Placement } from '@mygame/contracts'
 import { type ReactElement, type ReactNode, useId } from 'react'
 import { Button, type ButtonAvailability } from '../design-system/Button'
+import { lineLabelOf } from '../design-system/lineLabelOf'
 import { ReadFailed } from '../design-system/ReadFailed'
 import { BandScores } from './BandScores'
 import { PlacementAsking } from './PlacementAsking'
@@ -119,8 +120,8 @@ export function PlacementScreen({
       return (
         <PlacementTitled>
           <ReadFailed
-            message={placementFailed()}
-            retryLabel={placementRetry()}
+            message={lineLabelOf(placementFailed(), 'es')}
+            retryLabel={lineLabelOf(placementRetry(), 'es')}
             onRetry={placement.reread}
           />
         </PlacementTitled>

@@ -1,10 +1,12 @@
 import type { ReactElement } from 'react'
 import { ClockIcon } from './icons/ClockIcon'
+import type { Label } from './Label'
+import { LabelText } from './LabelText'
 
 interface CountdownProps {
   readonly remainingSeconds: number
   readonly time: string
-  readonly finishedLabel: string
+  readonly finishedLabel: Label
 }
 
 function tone(remainingSeconds: number): { readonly icon: string; readonly digits: string } {
@@ -19,7 +21,9 @@ export function Countdown({ remainingSeconds, time, finishedLabel }: CountdownPr
   return (
     <span role="timer" className={`inline-flex items-center gap-2 font-sans tabular-nums ${icon}`}>
       <ClockIcon />
-      <span className={digits}>{remainingSeconds <= 0 ? finishedLabel : time}</span>
+      <span className={digits}>
+        {remainingSeconds <= 0 ? <LabelText label={finishedLabel} /> : time}
+      </span>
     </span>
   )
 }

@@ -3,6 +3,7 @@ import { createFileRoute } from '@tanstack/react-router'
 import type { ReactElement } from 'react'
 import { SignOutColumn } from '../../auth/SignOutColumn'
 import { LoadingSkeleton, type LoadingSkeletonProps } from '../../design-system/LoadingSkeleton'
+import { lineLabelOf } from '../../design-system/lineLabelOf'
 import { PlacementScreen, PlacementTitled } from '../../placement/PlacementScreen'
 import { usePlacement } from '../../placement/usePlacement'
 
@@ -17,7 +18,7 @@ function PlacementRoute(): ReactElement {
     <SignOutColumn apiClient={apiClient}>
       <LoadingSkeleton
         isLoading={placement.view.kind === 'loading'}
-        line={placementLoading()}
+        line={lineLabelOf(placementLoading(), 'es')}
         groups={placementSkeletonGroups}
         Frame={PlacementTitled}
       >

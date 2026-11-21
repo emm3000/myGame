@@ -1,11 +1,13 @@
 import type { SeasonKind } from '@mygame/contracts'
 import type { ReactElement } from 'react'
+import type { Label } from './Label'
+import { LabelText } from './LabelText'
 import { seasonIconOf } from './seasonIconOf'
 
 export interface SeasonLineProps {
   readonly season: SeasonKind
-  readonly headerLine: string
-  readonly countdownLine: string
+  readonly headerLine: Label
+  readonly countdownLine: Label
 }
 
 export function SeasonLine({ season, headerLine, countdownLine }: SeasonLineProps): ReactElement {
@@ -16,14 +18,14 @@ export function SeasonLine({ season, headerLine, countdownLine }: SeasonLineProp
         <span className="flex text-ink-muted">
           <Icon />
         </span>
-        <span>{headerLine}</span>
+        <LabelText label={headerLine} />
       </span>
       <span className="relative">
         <span aria-hidden="true" className="absolute right-full mr-1 text-ink-muted">
           ·
         </span>
         <span role="timer" className="text-ink-muted tabular-nums">
-          {countdownLine}
+          <LabelText label={countdownLine} />
         </span>
       </span>
     </p>

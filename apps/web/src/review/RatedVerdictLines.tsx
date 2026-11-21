@@ -1,4 +1,5 @@
 import {
+  es,
   reviewComesBack,
   reviewCorrect,
   reviewLevelOpen,
@@ -68,12 +69,15 @@ function SkillLines({ skill }: { readonly skill: RaisedSkill }): ReactElement {
   return (
     <>
       <p className="m-0 font-sans text-title text-ink">
-        {reviewSkillEarned({ resource: townResourceNameOf(skill.resource), level: skill.level })}
+        {reviewSkillEarned({
+          resource: townResourceNameOf(es, skill.resource),
+          level: skill.level,
+        })}
       </p>
       <p className="m-0 font-sans text-caption text-ink">
         {reviewSkillRate({
           percent: skill.ratePercent,
-          resource: townResourceNameOf(skill.resource),
+          resource: townResourceNameOf(es, skill.resource),
         })}
       </p>
       <RatesLine skill={skill} />

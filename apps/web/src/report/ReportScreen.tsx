@@ -17,6 +17,7 @@ import { ButtonLink } from '../design-system/ButtonLink'
 import { FormAlert } from '../design-system/FormAlert'
 import { focusTargetClass } from '../design-system/focusTargetClass'
 import { formatQuantity } from '../design-system/formatQuantity'
+import { lineLabelOf } from '../design-system/lineLabelOf'
 import { TextLink } from '../design-system/TextLink'
 import { useFocusTarget } from '../focus/useFocusTarget'
 import { NewsList } from '../news/NewsList'
@@ -62,7 +63,7 @@ function ReviewsDue({
 }: Pick<ReportScreenProps, 'dueCount' | 'readFirst' | 'nextReview'>): ReactElement {
   const countId = useId()
   if (dueCount === 0) {
-    return <ReviewsAhead line={reportNoReviewsDue()} nextReview={nextReview} />
+    return <ReviewsAhead line={lineLabelOf(reportNoReviewsDue(), 'es')} nextReview={nextReview} />
   }
   return (
     <div className="flex flex-col gap-3">
@@ -82,15 +83,17 @@ function NewsBody({
   onClosed,
 }: ReportScreenProps & { readonly onClosed: () => void }): ReactElement {
   if (close.isClosed) {
-    return <NewsNote line={reportNewsClosed()} />
+    return <NewsNote line={lineLabelOf(reportNewsClosed(), 'es')} />
   }
   if (news.length === 0) {
-    return <NewsNote line={reportNewsNone()} />
+    return <NewsNote line={lineLabelOf(reportNewsNone(), 'es')} />
   }
   return (
     <>
       <NewsList rows={news} />
-      {close.refusalLine !== undefined && <FormAlert message={close.refusalLine} />}
+      {close.refusalLine !== undefined && (
+        <FormAlert message={lineLabelOf(close.refusalLine, 'es')} />
+      )}
       <Button
         type="button"
         tone="quiet"

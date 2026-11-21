@@ -1,4 +1,4 @@
-import { townAmount, townShortfall } from '@mygame/catalog'
+import { es, townAmount, townShortfall } from '@mygame/catalog'
 import { type ResourceAmounts, type ResourceKind, ResourceKindSchema } from '@mygame/contracts'
 import { conjunctionOf } from '../design-system/conjunctionOf'
 import { formatQuantity } from '../design-system/formatQuantity'
@@ -22,7 +22,7 @@ function lineOf(shortfalls: ReadonlyArray<Shortfall>): string | undefined {
   return townShortfall({
     missing: conjunctionOf(
       shortfalls.map(({ resource, amount }) =>
-        townAmount({ amount: formatQuantity(amount), resource: townResourceNameOf(resource) }),
+        townAmount({ amount: formatQuantity(amount), resource: townResourceNameOf(es, resource) }),
       ),
     ),
   })

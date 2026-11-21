@@ -1,13 +1,15 @@
 import { type ReactElement, useId } from 'react'
 import { Button } from './Button'
+import type { Label } from './Label'
+import { LabelText } from './LabelText'
 
 export type NoticeOutcome =
-  | { readonly kind: 'sent'; readonly message: string }
-  | { readonly kind: 'failed'; readonly message: string }
+  | { readonly kind: 'sent'; readonly message: Label }
+  | { readonly kind: 'failed'; readonly message: Label }
 
 export interface NoticeBannerProps {
-  readonly line: string
-  readonly actionLabel: string
+  readonly line: Label
+  readonly actionLabel: Label
   readonly isBusy: boolean
   readonly onAction: () => void
   readonly outcome: NoticeOutcome | undefined
@@ -23,17 +25,17 @@ function NoticeLine({
   if (outcome === undefined) {
     return (
       <p id={id} className={`${lineClass} text-ink-muted`}>
-        {line}
+        <LabelText label={line} />
       </p>
     )
   }
   return outcome.kind === 'failed' ? (
     <p id={id} role="alert" className={`${lineClass} text-destructive-ink`}>
-      {outcome.message}
+      <LabelText label={outcome.message} />
     </p>
   ) : (
     <p id={id} role="status" className={`${lineClass} text-ink`}>
-      {outcome.message}
+      <LabelText label={outcome.message} />
     </p>
   )
 }
@@ -49,7 +51,7 @@ export function NoticeBanner(props: NoticeBannerProps): ReactElement {
       <NoticeLine id={lineId} line={props.line} outcome={props.outcome} />
       <span className="-mr-3 flex shrink-0">
         <Button type="button" tone="text" disabled={props.isBusy} onClick={props.onAction}>
-          {props.actionLabel}
+          <LabelText label={props.actionLabel} />
         </Button>
       </span>
     </section>

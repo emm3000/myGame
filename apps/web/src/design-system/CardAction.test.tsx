@@ -1,12 +1,14 @@
 import { fireEvent, render, screen } from '@testing-library/react'
 import { expect, it } from 'vitest'
 import { CardAction, type CardActionState } from './CardAction'
+import type { Label } from './Label'
+import { lineLabelOf } from './lineLabelOf'
 
 const showWaitingPill = (keepsLabelWidth?: boolean): HTMLElement => {
   render(
     <CardAction
       type="button"
-      label="Study"
+      label={lineLabelOf('Study', 'en')}
       state={{ kind: 'affordable' }}
       isWaiting
       tone="quiet"
@@ -44,7 +46,7 @@ const pressCardAction = (state: CardActionState): ReadonlyArray<string> => {
   render(
     <CardAction
       type="button"
-      label="Build"
+      label={lineLabelOf('Build', 'en')}
       state={state}
       isWaiting={false}
       onAction={() => pressed.push('Build')}
@@ -55,19 +57,23 @@ const pressCardAction = (state: CardActionState): ReadonlyArray<string> => {
 }
 
 it('sends a blocked action when pressed, since the api holds the verdict', () => {
-  expect(pressCardAction({ kind: 'blocked', reason: 'Need 50 more material.' })).toEqual(['Build'])
+  expect(
+    pressCardAction({ kind: 'blocked', reason: lineLabelOf('Need 50 more material.', 'en') }),
+  ).toEqual(['Build'])
 })
 
 it('sends nothing for an entry that builds no request', () => {
-  expect(pressCardAction({ kind: 'invalidEntry', reason: 'Enter a count.' })).toEqual([])
+  expect(
+    pressCardAction({ kind: 'invalidEntry', reason: lineLabelOf('Enter a count.', 'en') }),
+  ).toEqual([])
 })
 
 it('waits on a blocked action while its request is in flight', () => {
   render(
     <CardAction
       type="button"
-      label="Build"
-      state={{ kind: 'blocked', reason: 'Need 50 more material.' }}
+      label={lineLabelOf('Build', 'en')}
+      state={{ kind: 'blocked', reason: lineLabelOf('Need 50 more material.', 'en') }}
       isWaiting
     />,
   )
@@ -79,7 +85,7 @@ it('announces the reason of a marked action when it arrives', () => {
   const { rerender } = render(
     <CardAction
       type="button"
-      label="Send"
+      label={lineLabelOf('Send', 'en')}
       state={{ kind: 'affordable' }}
       isWaiting={false}
       announcesReason
@@ -88,8 +94,8 @@ it('announces the reason of a marked action when it arrives', () => {
   rerender(
     <CardAction
       type="button"
-      label="Send"
-      state={{ kind: 'blocked', reason: 'Your team is out.' }}
+      label={lineLabelOf('Send', 'en')}
+      state={{ kind: 'blocked', reason: lineLabelOf('Your team is out.', 'en') }}
       isWaiting={false}
       announcesReason
     />,
@@ -103,8 +109,8 @@ it('keeps an announced reason as the description of its action', () => {
   render(
     <CardAction
       type="button"
-      label="Send"
-      state={{ kind: 'blocked', reason: 'Your team is out.' }}
+      label={lineLabelOf('Send', 'en')}
+      state={{ kind: 'blocked', reason: lineLabelOf('Your team is out.', 'en') }}
       isWaiting={false}
       announcesReason
     />,
@@ -119,8 +125,8 @@ it('draws a blocked action with the dashed border of the mark', () => {
   render(
     <CardAction
       type="button"
-      label="Build"
-      state={{ kind: 'blocked', reason: 'Need 50 more material.' }}
+      label={lineLabelOf('Build', 'en')}
+      state={{ kind: 'blocked', reason: lineLabelOf('Need 50 more material.', 'en') }}
       isWaiting={false}
     />,
   )
@@ -134,8 +140,8 @@ it('keeps the reason of an entry that builds no request out of the announcement'
   render(
     <CardAction
       type="button"
-      label="Send"
-      state={{ kind: 'invalidEntry', reason: 'Enter a whole count.' }}
+      label={lineLabelOf('Send', 'en')}
+      state={{ kind: 'invalidEntry', reason: lineLabelOf('Enter a whole count.', 'en') }}
       isWaiting={false}
       announcesReason
     />,
@@ -151,7 +157,7 @@ it('keeps an empty announcement in the accessibility tree', () => {
   render(
     <CardAction
       type="button"
-      label="Send"
+      label={lineLabelOf('Send', 'en')}
       state={{ kind: 'affordable' }}
       isWaiting={false}
       announcesReason
@@ -161,4 +167,47 @@ it('keeps an empty announcement in the accessibility tree', () => {
   expect(document.querySelector('[aria-live="polite"]')?.className.split(' ')).not.toContain(
     'empty:hidden',
   )
+})
+
+const buildBoth: Label = {
+  text: 'Build',
+  language: 'en',
+  translation: { text: 'Construir', language: 'es' },
+}
+
+it('draws a both-phase label as English over Spanish, each line marked with its language', () => {
+  render(
+    <CardAction type="button" label={buildBoth} state={{ kind: 'affordable' }} isWaiting={false} />,
+  )
+
+  const english = screen.getByText('Build')
+  const translation = screen.getByText('Construir')
+
+  expect(english.compareDocumentPosition(translation)).toBe(Node.DOCUMENT_POSITION_FOLLOWING)
+  expect([english.getAttribute('lang'), translation.getAttribute('lang')]).toEqual(['en', 'es'])
+})
+
+it('describes a blocked action by both lines of its reason', () => {
+  render(
+    <CardAction
+      type="button"
+      label={buildBoth}
+      state={{
+        kind: 'blocked',
+        reason: {
+          text: 'Need more material.',
+          language: 'en',
+          translation: { text: 'Falta material.', language: 'es' },
+        },
+      }}
+      isWaiting={false}
+    />,
+  )
+
+  expect(
+    screen.getByRole('button', {
+      name: 'Build Construir',
+      description: 'Need more material. Falta material.',
+    }),
+  ).toBeDefined()
 })

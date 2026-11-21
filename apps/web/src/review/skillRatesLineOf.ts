@@ -1,4 +1,4 @@
-import { reviewSkillRates } from '@mygame/catalog'
+import { es, reviewSkillRates } from '@mygame/catalog'
 import type { ResourceKind } from '@mygame/contracts'
 import { capitalize } from '../design-system/capitalize'
 import { formatQuantity } from '../design-system/formatQuantity'
@@ -12,7 +12,7 @@ export function skillRatesLineOf(
   ratePerHourAfter: number,
 ): string {
   return reviewSkillRates({
-    resource: capitalize(townResourceNameOf(resource)),
+    resource: capitalize(townResourceNameOf(es, resource)),
     before: shownRateOf(ratePerHourBefore),
     after: shownRateOf(ratePerHourAfter),
   })

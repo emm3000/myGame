@@ -1,7 +1,7 @@
 import {
+  es,
   reportNoReviewsDue,
   reportReviewsDue,
-  reportStartReviews,
   reviewNextReview,
   schoolLessonReadWords,
   schoolLessonStudy,
@@ -16,8 +16,10 @@ import {
   townNextReleasedReadyIn,
 } from '@mygame/catalog'
 import type { NextStep } from '@mygame/contracts'
+import type { ChromeCatalog } from '../copy/PlayerCopy'
 import type { SlotCountdown } from '../design-system/CountdownLine'
 import { formatQuantity } from '../design-system/formatQuantity'
+import { lineLabelOf } from '../design-system/lineLabelOf'
 import { formatFinish } from '../time/formatFinish'
 import { type LessonName, lessonNameOf, lessonNumberOf } from './lessonNameOf'
 import type { LiveTown } from './liveTown'
@@ -56,32 +58,35 @@ export const lessonCountdownOf = ({
   lessonSlot === null
     ? undefined
     : {
-        words: readyWordsOf(lessonNameOf(lessonSlot.lessonId, overview)),
+        words: lineLabelOf(readyWordsOf(lessonNameOf(lessonSlot.lessonId, overview)), 'es'),
         time: formatFinish(lessonSlot.remainingSeconds, at),
       }
 
 const nextReviewCountdownOf = ({ nextDueSeconds, at }: LiveTown): SlotCountdown | undefined =>
   nextDueSeconds === null
     ? undefined
-    : { words: reviewNextReview(), time: formatFinish(nextDueSeconds, at) }
+    : { words: lineLabelOf(reviewNextReview(), 'es'), time: formatFinish(nextDueSeconds, at) }
 
-const readWords = (lessonId: string): NextStepAction => ({
-  label: schoolLessonReadWords(),
+const readWords = (catalog: ChromeCatalog, lessonId: string): NextStepAction => ({
+  label: catalog.schoolLessonReadWords(),
   to: '/school/$lessonId',
   lessonId,
 })
 
-export const reviewsActionOf = ([firstUnread]: ReadonlyArray<string>): NextStepAction =>
+export const reviewsActionOf = (
+  catalog: ChromeCatalog,
+  [firstUnread]: ReadonlyArray<string>,
+): NextStepAction =>
   firstUnread === undefined
-    ? { label: reportStartReviews(), to: '/reviews' }
-    : readWords(firstUnread)
+    ? { label: catalog.reportStartReviews(), to: '/reviews' }
+    : readWords(catalog, firstUnread)
 
 function reviewsCardOf({ count, readFirst }: Step<'reviews'>, town: LiveTown): NextStepCardContent {
   return {
     line: reportReviewsDue({ count: formatQuantity(count) }),
     detail: undefined,
     countdown: lessonCountdownOf(town),
-    action: reviewsActionOf(readFirst),
+    action: reviewsActionOf(es, readFirst),
   }
 }
 
@@ -92,7 +97,7 @@ const runningLessonActionOf = ({ lessonSlot, overview }: LiveTown): NextStepActi
   const name = lessonNameOf(lessonSlot.lessonId, overview)
   return name.kind === 'released'
     ? { label: townGoToSchool(), to: '/school' }
-    : readWords(lessonSlot.lessonId)
+    : readWords(es, lessonSlot.lessonId)
 }
 
 function lessonRunningCardOf(town: LiveTown): NextStepCardContent {

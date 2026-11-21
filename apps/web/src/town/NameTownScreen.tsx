@@ -9,6 +9,7 @@ import { type FormEvent, type ReactElement, useId } from 'react'
 import type { ApiRefusal } from '../api/apiClient'
 import { Button } from '../design-system/Button'
 import { FormAlert } from '../design-system/FormAlert'
+import { lineLabelOf } from '../design-system/lineLabelOf'
 import { Panel } from '../design-system/Panel'
 import { PlaceArt } from '../design-system/PlaceArt'
 import { placeArtOf } from '../design-system/placeArtOf'
@@ -49,7 +50,7 @@ export function NameTownScreen(props: NameTownScreenProps): ReactElement {
       <p className="m-0 font-sans text-body text-ink">{townNamingMayor()}</p>
       <form aria-labelledby={titleId} className="flex flex-col gap-4" onSubmit={submit}>
         <TextField
-          label={townNamingField()}
+          label={lineLabelOf(townNamingField(), 'es')}
           name="name"
           type="text"
           autoComplete="off"
@@ -57,7 +58,9 @@ export function NameTownScreen(props: NameTownScreenProps): ReactElement {
           onChange={props.onNameChange}
           isDisabled={props.isSubmitting}
         />
-        {props.refusal !== undefined && <FormAlert message={refusalLineOf(props.refusal)} />}
+        {props.refusal !== undefined && (
+          <FormAlert message={lineLabelOf(refusalLineOf(props.refusal), 'es')} />
+        )}
         {props.refusal === 'PlayerAlreadyHoldsTown' ? (
           <Button type="button" tone="primary" onClick={props.onGoToTown}>
             {townNamingGoToTown()}

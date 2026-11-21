@@ -1,4 +1,4 @@
-import { reportLoading, settingsTitle } from '@mygame/catalog'
+import { es, reportLoading, settingsTitle } from '@mygame/catalog'
 import type { Report } from '@mygame/contracts'
 import { createFileRoute } from '@tanstack/react-router'
 import type { ReactElement } from 'react'
@@ -6,6 +6,7 @@ import type { ApiClient } from '../../api/apiClient'
 import { SignOutColumn } from '../../auth/SignOutColumn'
 import { ButtonLink } from '../../design-system/ButtonLink'
 import { LoadingSkeleton, type LoadingSkeletonProps } from '../../design-system/LoadingSkeleton'
+import { lineLabelOf } from '../../design-system/lineLabelOf'
 import { newsRowOf } from '../../news/newsRowOf'
 import { refusalLineOf } from '../../refusals/refusalLineOf'
 import { ReportScreen, ReportTitled } from '../../report/ReportScreen'
@@ -31,9 +32,11 @@ function ReportPage({
       dueCount={report.dueCount}
       readFirst={report.readFirst}
       nextReview={
-        report.nextDueAt === null ? undefined : formatClock(new Date(report.nextDueAt), receivedAt)
+        report.nextDueAt === null
+          ? undefined
+          : formatClock(es, new Date(report.nextDueAt), receivedAt)
       }
-      news={report.news.map((item) => newsRowOf(item, receivedAt))}
+      news={report.news.map((item) => newsRowOf(es, item, receivedAt))}
       close={{
         isClosed: close.isClosed,
         isWaiting: close.isWaiting,
@@ -82,7 +85,7 @@ function ReportBody({ apiClient }: { readonly apiClient: ApiClient }): ReactElem
   return (
     <LoadingSkeleton
       isLoading={report.state.kind === 'loading'}
-      line={reportLoading()}
+      line={lineLabelOf(reportLoading(), 'es')}
       groups={reportSkeletonGroups}
       Frame={ReportTitled}
     >

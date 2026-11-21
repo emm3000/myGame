@@ -1,5 +1,7 @@
 import type { ReactElement, ReactNode, Ref } from 'react'
 import { focusTargetClass } from './focusTargetClass'
+import type { Label } from './Label'
+import { LabelText } from './LabelText'
 
 export function SlotHeading({
   icon,
@@ -7,7 +9,7 @@ export function SlotHeading({
   titleRef,
 }: {
   readonly icon: ReactNode
-  readonly title: string
+  readonly title: Label
   readonly titleRef?: Ref<HTMLSpanElement> | undefined
 }): ReactElement {
   return (
@@ -18,7 +20,7 @@ export function SlotHeading({
         tabIndex={-1}
         className={`rounded-sm font-sans text-label ${focusTargetClass}`}
       >
-        {title}
+        <LabelText label={title} />
       </span>
     </span>
   )

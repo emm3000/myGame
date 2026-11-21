@@ -2,6 +2,7 @@ import { reportLoading, townLoading } from '@mygame/catalog'
 import { createFileRoute, Navigate } from '@tanstack/react-router'
 import type { ReactElement, ReactNode } from 'react'
 import { LoadingSkeleton, type LoadingSkeletonProps } from '../../design-system/LoadingSkeleton'
+import { lineLabelOf } from '../../design-system/lineLabelOf'
 import { type ReportHandle, useReport } from '../../report/useReport'
 import { useReportAtLessonFinish } from '../../report/useReportAtLessonFinish'
 import { LessonWordsScreen } from '../../school/LessonWordsScreen'
@@ -104,7 +105,7 @@ function LessonRoute(): ReactElement {
   return (
     <LoadingSkeleton
       isLoading={isTownLoading || isReportLoading}
-      line={isTownLoading ? townLoading() : reportLoading()}
+      line={lineLabelOf(isTownLoading ? townLoading() : reportLoading(), 'es')}
       groups={lessonSkeletonGroups}
       Frame={LessonSkeletonFrame}
     >

@@ -1,18 +1,22 @@
 import type { ReactElement } from 'react'
 import { Button } from './Button'
 import type { CancelAction } from './CancelAction'
+import type { Label } from './Label'
+import { LabelText } from './LabelText'
 
 export function CancelRow({
   cancel,
   refund,
 }: {
   readonly cancel: CancelAction
-  readonly refund: string | undefined
+  readonly refund: Label | undefined
 }): ReactElement {
   return (
     <div className="flex flex-wrap items-center justify-end gap-x-4 gap-y-2 self-stretch border-line border-t pt-3">
       {refund !== undefined && (
-        <p className="m-0 min-w-0 grow font-sans text-caption text-ink-muted">{refund}</p>
+        <p className="m-0 min-w-0 grow font-sans text-caption text-ink-muted">
+          <LabelText label={refund} />
+        </p>
       )}
       <Button
         type="button"
@@ -21,7 +25,7 @@ export function CancelRow({
         accessibleName={cancel.accessibleName}
         onClick={cancel.onCancel}
       >
-        {cancel.label}
+        <LabelText label={cancel.label} />
       </Button>
     </div>
   )

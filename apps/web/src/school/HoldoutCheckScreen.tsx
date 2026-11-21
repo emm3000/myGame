@@ -24,6 +24,7 @@ import { type ReactElement, type ReactNode, useId } from 'react'
 import { Button, type ButtonAvailability } from '../design-system/Button'
 import { ChoiceWalk } from '../design-system/ChoiceWalk'
 import { FormAlert } from '../design-system/FormAlert'
+import { lineLabelOf } from '../design-system/lineLabelOf'
 import { ReadFailed } from '../design-system/ReadFailed'
 import { TextLink } from '../design-system/TextLink'
 import type {
@@ -68,7 +69,7 @@ function CheckAlert({
 }: {
   readonly alert: HoldoutCheckAlert | undefined
 }): ReactElement | null {
-  return alert === undefined ? null : <FormAlert message={alertLines[alert]()} />
+  return alert === undefined ? null : <FormAlert message={lineLabelOf(alertLines[alert](), 'es')} />
 }
 
 function CheckDue({
@@ -152,8 +153,8 @@ function CheckRead({
     case 'failed':
       return (
         <ReadFailed
-          message={holdoutCheckFailed()}
-          retryLabel={placementRetry()}
+          message={lineLabelOf(holdoutCheckFailed(), 'es')}
+          retryLabel={lineLabelOf(placementRetry(), 'es')}
           onRetry={handle.reread}
         />
       )

@@ -1,4 +1,5 @@
 import {
+  es,
   reportReviewsDue,
   reportTitle,
   shellNavigationReport,
@@ -39,7 +40,7 @@ const townHeading = (): Promise<HTMLElement> =>
   screen.findByRole('heading', { level: 1, name: new RegExp(knownTown.name) })
 
 const schoolDoor = async (): Promise<HTMLElement> =>
-  within(await screen.findByRole('main')).findByRole('link', { name: placeNameOf('school') })
+  within(await screen.findByRole('main')).findByRole('link', { name: placeNameOf(es, 'school') })
 
 const reportDoor = async (name: string): Promise<HTMLElement> =>
   within(await screen.findByRole('main')).findByRole('link', { name })
@@ -65,7 +66,7 @@ it('opens the school and the Report from the two doors', async () => {
 
   fireEvent.click(await schoolDoor())
   expect(
-    await screen.findByRole('heading', { level: 1, name: placeNameOf('school') }),
+    await screen.findByRole('heading', { level: 1, name: placeNameOf(es, 'school') }),
   ).toBeDefined()
 
   await act(() => router.navigate({ to: '/' }))
@@ -100,7 +101,7 @@ it('shows no door to a player with no town', async () => {
 
   await screen.findByRole('textbox')
 
-  expect(screen.queryByRole('link', { name: placeNameOf('school') })).toBeNull()
+  expect(screen.queryByRole('link', { name: placeNameOf(es, 'school') })).toBeNull()
   expect(screen.queryByRole('link', { name: shellNavigationReport() })).toBeNull()
 })
 

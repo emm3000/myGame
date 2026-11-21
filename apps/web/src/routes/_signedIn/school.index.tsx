@@ -3,6 +3,7 @@ import { createFileRoute, Navigate } from '@tanstack/react-router'
 import type { ReactElement } from 'react'
 import type { ApiClient } from '../../api/apiClient'
 import { LoadingSkeleton, type LoadingSkeletonProps } from '../../design-system/LoadingSkeleton'
+import { lineLabelOf } from '../../design-system/lineLabelOf'
 import { SchoolScreen } from '../../school/SchoolScreen'
 import { SchoolTitled } from '../../school/SchoolTitled'
 import { useSchoolLessons } from '../../school/useSchoolLessons'
@@ -62,7 +63,7 @@ function SchoolRoute(): ReactElement {
   return (
     <LoadingSkeleton
       isLoading={town.state.kind === 'loading'}
-      line={townLoading()}
+      line={lineLabelOf(townLoading(), 'es')}
       groups={schoolSkeletonGroups}
       Frame={SchoolTitled}
     >

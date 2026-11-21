@@ -3,6 +3,7 @@ import type { ReactElement } from 'react'
 import { CardAction } from '../design-system/CardAction'
 import { CostList } from '../design-system/CostList'
 import { formatDuration } from '../design-system/formatDuration'
+import { lineLabelOf } from '../design-system/lineLabelOf'
 import { PlaceArt } from '../design-system/PlaceArt'
 import { raisedPlaceArtOf } from '../design-system/placeArtOf'
 import type { LiveTown } from './liveTown'
@@ -43,7 +44,7 @@ export function PlaceRow({
         )}
         <CardAction
           type="button"
-          label={`${actionLabel} · ${formatDuration(durationSeconds)}`}
+          label={lineLabelOf(`${actionLabel} · ${formatDuration(durationSeconds)}`, 'es')}
           state={state}
           isWaiting={isWaiting}
           tone="quiet"

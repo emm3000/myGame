@@ -3,6 +3,7 @@ import { Navigate } from '@tanstack/react-router'
 import type { ReactElement } from 'react'
 import type { ApiClient } from '../api/apiClient'
 import { LoadingSkeleton, type LoadingSkeletonProps } from '../design-system/LoadingSkeleton'
+import { lineLabelOf } from '../design-system/lineLabelOf'
 import { ReadFailed } from '../design-system/ReadFailed'
 import { refusalLineOf } from '../refusals/refusalLineOf'
 import type { LiveTown } from '../town/liveTown'
@@ -40,8 +41,8 @@ function LiveMap({
         <AreaNotFound />
       ) : (
         <ReadFailed
-          message={refusalLineOf(state.refusal)}
-          retryLabel={townTryAgain()}
+          message={lineLabelOf(refusalLineOf(state.refusal), 'es')}
+          retryLabel={lineLabelOf(townTryAgain(), 'es')}
           onRetry={regionMap.reread}
         />
       )
@@ -99,7 +100,7 @@ export function MapPage({
   return (
     <LoadingSkeleton
       isLoading={isLoading}
-      line={mapLoading()}
+      line={lineLabelOf(mapLoading(), 'es')}
       groups={mapSkeletonGroups}
       Frame={MapTitled}
     >

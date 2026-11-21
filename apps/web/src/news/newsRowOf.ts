@@ -1,22 +1,5 @@
-import {
-  reportNewsBecameCity,
-  reportNewsBuildingWorkFinished,
-  reportNewsBuildingWorkStopped,
-  reportNewsCleanUpDone,
-  reportNewsCleanUpFailed,
-  reportNewsHiringDeliveredTruck,
-  reportNewsHiringDeliveredWorker,
-  reportNewsHiringStoppedTruck,
-  reportNewsHiringStoppedWorker,
-  reportNewsJobBack,
-  reportNewsJobCalledBack,
-  reportNewsLessonStopped,
-  reportNewsLessonStudied,
-  reportNewsPay,
-  reportNewsRefund,
-  reportNewsSkillEarned,
-} from '@mygame/catalog'
 import type { HireKind, ResourceAmounts, TownNewsItem } from '@mygame/contracts'
+import type { ChromeCatalog } from '../copy/PlayerCopy'
 import { amountsLineOf } from '../resources/amountsLineOf'
 import { townResourceNameOf } from '../resources/townResourceNameOf'
 import { formatInstant } from '../time/formatInstant'
@@ -32,70 +15,84 @@ export interface NewsRow {
 
 type NewsOf<Kind extends TownNewsItem['kind']> = Extract<TownNewsItem, { readonly kind: Kind }>
 
-const hiresDelivered: Readonly<Record<HireKind, (count: number) => string>> = {
-  worker: (count) => reportNewsHiringDeliveredWorker({ count }),
-  truck: (count) => reportNewsHiringDeliveredTruck({ count }),
-}
+type SiteKind = 'jobBack' | 'jobCalledBack' | 'cleanUpDone' | 'cleanUpFailed'
 
-const hiringStopped: Readonly<Record<HireKind, typeof reportNewsHiringStoppedWorker>> = {
-  worker: reportNewsHiringStoppedWorker,
-  truck: reportNewsHiringStoppedTruck,
-}
+type SiteLine = (catalog: ChromeCatalog, site: NewsOf<SiteKind>['params']['site']) => string
 
-const siteLines: Readonly<
-  Record<'jobBack' | 'jobCalledBack' | 'cleanUpDone' | 'cleanUpFailed', typeof reportNewsJobBack>
+const hiresDelivered: Readonly<
+  Record<HireKind, (catalog: ChromeCatalog, count: number) => string>
 > = {
-  jobBack: reportNewsJobBack,
-  jobCalledBack: reportNewsJobCalledBack,
-  cleanUpDone: reportNewsCleanUpDone,
-  cleanUpFailed: reportNewsCleanUpFailed,
+  worker: (catalog, count) => catalog.reportNewsHiringDeliveredWorker({ count }),
+  truck: (catalog, count) => catalog.reportNewsHiringDeliveredTruck({ count }),
 }
 
-const buildingWorkLineOf = ({
-  kind,
-  params,
-}: NewsOf<'buildingWorkFinished' | 'buildingWorkStopped'>): string => {
-  const subject = { place: placeNameOf(params.building), level: params.level }
+interface StoppedCounts {
+  readonly delivered: number
+  readonly count: number
+}
+
+const hiringStopped: Readonly<
+  Record<HireKind, (catalog: ChromeCatalog, counts: StoppedCounts) => string>
+> = {
+  worker: (catalog, counts) => catalog.reportNewsHiringStoppedWorker(counts),
+  truck: (catalog, counts) => catalog.reportNewsHiringStoppedTruck(counts),
+}
+
+const siteLines: Readonly<Record<SiteKind, SiteLine>> = {
+  jobBack: (catalog, site) => catalog.reportNewsJobBack(site),
+  jobCalledBack: (catalog, site) => catalog.reportNewsJobCalledBack(site),
+  cleanUpDone: (catalog, site) => catalog.reportNewsCleanUpDone(site),
+  cleanUpFailed: (catalog, site) => catalog.reportNewsCleanUpFailed(site),
+}
+
+const buildingWorkLineOf = (
+  catalog: ChromeCatalog,
+  { kind, params }: NewsOf<'buildingWorkFinished' | 'buildingWorkStopped'>,
+): string => {
+  const subject = { place: placeNameOf(catalog, params.building), level: params.level }
   return kind === 'buildingWorkFinished'
-    ? reportNewsBuildingWorkFinished(subject)
-    : reportNewsBuildingWorkStopped(subject)
+    ? catalog.reportNewsBuildingWorkFinished(subject)
+    : catalog.reportNewsBuildingWorkStopped(subject)
 }
 
-const hiringLineOf = (item: NewsOf<'hiringDelivered' | 'hiringStopped'>): string =>
+const hiringLineOf = (
+  catalog: ChromeCatalog,
+  item: NewsOf<'hiringDelivered' | 'hiringStopped'>,
+): string =>
   item.kind === 'hiringDelivered'
-    ? hiresDelivered[item.params.hire](item.params.count)
-    : hiringStopped[item.params.hire]({
+    ? hiresDelivered[item.params.hire](catalog, item.params.count)
+    : hiringStopped[item.params.hire](catalog, {
         delivered: item.params.delivered,
         count: item.params.delivered + item.params.stopped,
       })
 
-const skillLineOf = ({ params }: NewsOf<'skillEarned'>): string =>
-  reportNewsSkillEarned({
-    resource: townResourceNameOf(params.resource),
+const skillLineOf = (catalog: ChromeCatalog, { params }: NewsOf<'skillEarned'>): string =>
+  catalog.reportNewsSkillEarned({
+    resource: townResourceNameOf(catalog, params.resource),
     percent: params.ratePercent,
   })
 
-function lineOf(item: TownNewsItem): string {
+function lineOf(catalog: ChromeCatalog, item: TownNewsItem): string {
   switch (item.kind) {
     case 'buildingWorkFinished':
     case 'buildingWorkStopped':
-      return buildingWorkLineOf(item)
+      return buildingWorkLineOf(catalog, item)
     case 'lessonStudied':
-      return reportNewsLessonStudied()
+      return catalog.reportNewsLessonStudied()
     case 'lessonStopped':
-      return reportNewsLessonStopped()
+      return catalog.reportNewsLessonStopped()
     case 'skillEarned':
-      return skillLineOf(item)
+      return skillLineOf(catalog, item)
     case 'hiringDelivered':
     case 'hiringStopped':
-      return hiringLineOf(item)
+      return hiringLineOf(catalog, item)
     case 'jobBack':
     case 'jobCalledBack':
     case 'cleanUpDone':
     case 'cleanUpFailed':
-      return siteLines[item.kind](item.params.site)
+      return siteLines[item.kind](catalog, item.params.site)
     case 'becameCity':
-      return reportNewsBecameCity()
+      return catalog.reportNewsBecameCity()
     default: {
       const unreachable: never = item
       return unreachable
@@ -104,23 +101,24 @@ function lineOf(item: TownNewsItem): string {
 }
 
 const amountsPhraseOf = (
-  phrase: typeof reportNewsPay,
+  catalog: ChromeCatalog,
+  phrase: ChromeCatalog['reportNewsPay'],
   amounts: ResourceAmounts,
 ): string | undefined => {
-  const line = amountsLineOf(amounts)
+  const line = amountsLineOf(catalog, amounts)
   return line === undefined ? undefined : phrase({ amounts: line })
 }
 
-function amountsOf(item: TownNewsItem): string | undefined {
+function amountsOf(catalog: ChromeCatalog, item: TownNewsItem): string | undefined {
   switch (item.kind) {
     case 'jobBack':
     case 'jobCalledBack':
-      return amountsPhraseOf(reportNewsPay, item.params.pay)
+      return amountsPhraseOf(catalog, catalog.reportNewsPay, item.params.pay)
     case 'cleanUpDone':
-      return amountsPhraseOf(reportNewsPay, item.params.reward)
+      return amountsPhraseOf(catalog, catalog.reportNewsPay, item.params.reward)
     case 'buildingWorkStopped':
     case 'hiringStopped':
-      return amountsPhraseOf(reportNewsRefund, item.params.refund)
+      return amountsPhraseOf(catalog, catalog.reportNewsRefund, item.params.refund)
     case 'buildingWorkFinished':
     case 'lessonStudied':
     case 'lessonStopped':
@@ -136,13 +134,13 @@ function amountsOf(item: TownNewsItem): string | undefined {
   }
 }
 
-export function newsRowOf(item: TownNewsItem, now: Date): NewsRow {
+export function newsRowOf(catalog: ChromeCatalog, item: TownNewsItem, now: Date): NewsRow {
   const params = 'params' in item ? JSON.stringify(item.params) : ''
   return {
     key: `${item.kind}:${item.occurredAt}:${params}`,
     occurredAt: item.occurredAt,
     instant: formatInstant(new Date(item.occurredAt), now),
-    line: lineOf(item),
-    amounts: amountsOf(item),
+    line: lineOf(catalog, item),
+    amounts: amountsOf(catalog, item),
   }
 }

@@ -1,4 +1,5 @@
 import {
+  es,
   shellLessonFinishClose,
   shellLessonFinishLine,
   shellLessonFinishReleased,
@@ -43,7 +44,7 @@ function FinishNotice({
     >
       <p className="m-0 font-sans text-label text-ink">{line}</p>
       <div className="flex flex-wrap items-center gap-2">
-        <NextStepLink action={reviewsActionOf(readFirst)} tone="quiet" />
+        <NextStepLink action={reviewsActionOf(es, readFirst)} tone="quiet" />
         <Button type="button" tone="quiet" onClick={onClose}>
           {shellLessonFinishClose()}
         </Button>

@@ -1,18 +1,13 @@
-import {
-  namesTownResourcesFood,
-  namesTownResourcesMaterial,
-  namesTownResourcesMoney,
-  namesTownResourcesPower,
-} from '@mygame/catalog'
 import type { ResourceKind } from '@mygame/contracts'
+import type { ChromeCatalog } from '../copy/PlayerCopy'
 
-const townResourceNames: Readonly<Record<ResourceKind, () => string>> = {
-  money: namesTownResourcesMoney,
-  food: namesTownResourcesFood,
-  power: namesTownResourcesPower,
-  material: namesTownResourcesMaterial,
+const townResourceNames: Readonly<Record<ResourceKind, (catalog: ChromeCatalog) => string>> = {
+  money: (catalog) => catalog.namesTownResourcesMoney(),
+  food: (catalog) => catalog.namesTownResourcesFood(),
+  power: (catalog) => catalog.namesTownResourcesPower(),
+  material: (catalog) => catalog.namesTownResourcesMaterial(),
 }
 
-export function townResourceNameOf(resource: ResourceKind): string {
-  return townResourceNames[resource]()
+export function townResourceNameOf(catalog: ChromeCatalog, resource: ResourceKind): string {
+  return townResourceNames[resource](catalog)
 }

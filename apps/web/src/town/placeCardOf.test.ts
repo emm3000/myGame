@@ -22,7 +22,7 @@ const townWith = (stocks: Partial<TownOverview['stocks']>): TownOverview => ({
 
 const readyOf = (town: TownOverview, elapsedSeconds = 0): string | undefined => {
   const state: CardActionState = placeCardOf('farm', liveTownAt(town, elapsedSeconds)).state
-  return state.kind === 'blocked' ? state.ready : undefined
+  return state.kind === 'blocked' ? state.ready?.text : undefined
 }
 
 it('names the minutes left when only resources are short and arrive within the hour', () => {

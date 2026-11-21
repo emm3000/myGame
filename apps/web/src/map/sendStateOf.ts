@@ -1,5 +1,6 @@
 import type { ApiOutcome } from '../api/apiClient'
 import type { OrderActionState } from '../design-system/CardAction'
+import { lineLabelOf } from '../design-system/lineLabelOf'
 import { refusalLineOf } from '../refusals/refusalLineOf'
 
 const isQuoteVerdict = <Answer>(
@@ -15,5 +16,5 @@ export function sendStateOf<Answer>(
   if (isSendRefused || !isQuoteVerdict(quoted)) {
     return admitted
   }
-  return { kind: 'blocked', reason: refusalLineOf(quoted.refusal, quoted.error) }
+  return { kind: 'blocked', reason: lineLabelOf(refusalLineOf(quoted.refusal, quoted.error), 'es') }
 }

@@ -13,6 +13,7 @@ import { type ReactElement, useState } from 'react'
 import type { ApiRefusal } from '../api/apiClient'
 import { Button } from '../design-system/Button'
 import { FormAlert } from '../design-system/FormAlert'
+import { lineLabelOf } from '../design-system/lineLabelOf'
 import { TextField } from '../design-system/TextField'
 import { TextLink } from '../design-system/TextLink'
 import { refusalLineOf } from '../refusals/refusalLineOf'
@@ -40,7 +41,7 @@ export function SignInScreen(props: SignInScreenProps): ReactElement {
       }
     >
       <TextField
-        label={authEmail()}
+        label={lineLabelOf(authEmail(), 'es')}
         name="email"
         type="email"
         autoComplete="email"
@@ -48,14 +49,16 @@ export function SignInScreen(props: SignInScreenProps): ReactElement {
         onChange={setEmail}
       />
       <TextField
-        label={authPassword()}
+        label={lineLabelOf(authPassword(), 'es')}
         name="password"
         type="password"
         autoComplete="current-password"
         value={password}
         onChange={setPassword}
       />
-      {props.refusal === undefined ? null : <FormAlert message={refusalLineOf(props.refusal)} />}
+      {props.refusal === undefined ? null : (
+        <FormAlert message={lineLabelOf(refusalLineOf(props.refusal), 'es')} />
+      )}
       <Button type="submit" tone="primary" disabled={props.isSubmitting}>
         {authSignInSubmit()}
       </Button>

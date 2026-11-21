@@ -150,7 +150,7 @@ it('offers each kind with its cost, duration and the office level it needs', asy
   const trucks = hireCard(namesHiresTruck())
   expect(within(trucks).getByRole('button', { name: 'Contratar 1 camión · 3:00' })).toBeDefined()
   expect(within(trucks).getByText('Necesita la oficina en nivel 3')).toBeDefined()
-  expect(within(trucks).getByText('de material', { exact: false }).parentElement?.textContent).toBe(
+  expect(within(trucks).getByText('de material', { exact: false }).closest('li')?.textContent).toBe(
     '60 de material',
   )
 })

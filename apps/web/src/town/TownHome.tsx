@@ -1,4 +1,5 @@
 import {
+  es,
   townGoToSchool,
   townLevel,
   townPlacesTitleCity,
@@ -23,6 +24,7 @@ import { BuildSlot, type BuildSlotState } from '../design-system/BuildSlot'
 import type { CancelAction } from '../design-system/CancelAction'
 import { FormAlert } from '../design-system/FormAlert'
 import { focusTargetClass } from '../design-system/focusTargetClass'
+import { lineLabelOf } from '../design-system/lineLabelOf'
 import { TextLink } from '../design-system/TextLink'
 import { WaitingUpgrades } from '../design-system/WaitingUpgrades'
 import { type FocusTarget, useFocusTarget } from '../focus/useFocusTarget'
@@ -66,8 +68,11 @@ function stopActionOf(
   onStopped: () => void,
 ): CancelAction {
   return {
-    label: townWorkStop(),
-    accessibleName: townWorkStopOf({ place: placeNameOf(target.building), level: target.level }),
+    label: lineLabelOf(townWorkStop(), 'es'),
+    accessibleName: townWorkStopOf({
+      place: placeNameOf(es, target.building),
+      level: target.level,
+    }),
     isWaiting: work.isStopping,
     onCancel: () => work.stop(target, onStopped),
   }
@@ -76,24 +81,33 @@ function stopActionOf(
 function slotStateOf(town: LiveTown, work: TownWork, onStopped: () => void): BuildSlotState {
   const { slot } = town
   if (slot === null) {
-    return { kind: 'idle', title: townWorkTitle(), invitation: townWorkIdle() }
+    return {
+      kind: 'idle',
+      title: lineLabelOf(townWorkTitle(), 'es'),
+      invitation: lineLabelOf(townWorkIdle(), 'es'),
+    }
   }
   const place = {
-    buildingName: placeNameOf(slot.building),
-    levelLabel: townLevel({ level: slot.level }),
+    buildingName: lineLabelOf(placeNameOf(es, slot.building), 'es'),
+    levelLabel: lineLabelOf(townLevel({ level: slot.level }), 'es'),
   }
   if (slot.remainingSeconds <= 0) {
-    return { kind: 'justFinished', title: townWorkTitle(), message: townWorkDone(), ...place }
+    return {
+      kind: 'justFinished',
+      title: lineLabelOf(townWorkTitle(), 'es'),
+      message: lineLabelOf(townWorkDone(), 'es'),
+      ...place,
+    }
   }
   return {
     kind: 'busy',
-    title: townWorkTitle(),
+    title: lineLabelOf(townWorkTitle(), 'es'),
     remainingSeconds: slot.remainingSeconds,
     time: formatFinish(slot.remainingSeconds, town.at),
     totalSeconds: slot.totalSeconds,
-    finishedLabel: townWorkReady(),
+    finishedLabel: lineLabelOf(townWorkReady(), 'es'),
     cancel: stopActionOf(work, { building: slot.building, level: slot.level }, onStopped),
-    refund: townWorkRefund(),
+    refund: lineLabelOf(townWorkRefund(), 'es'),
     ...place,
   }
 }
@@ -112,19 +126,19 @@ function WaitingList({
     return null
   }
   const entries = town.waitingList.map(({ building, level, remainingSeconds }) => ({
-    buildingName: placeNameOf(building),
-    levelLabel: townLevel({ level }),
+    buildingName: lineLabelOf(placeNameOf(es, building), 'es'),
+    levelLabel: lineLabelOf(townLevel({ level }), 'es'),
     remainingSeconds,
     time: formatFinish(remainingSeconds, town.at),
     cancel: stopActionOf(work, { building, level }, onStopped),
-    refund: townWorkRefund(),
+    refund: lineLabelOf(townWorkRefund(), 'es'),
   }))
   return (
     <WaitingUpgrades
-      title={townWorkWaitingList()}
+      title={lineLabelOf(townWorkWaitingList(), 'es')}
       emptiesAt={formatFinish(last.remainingSeconds, town.at)}
       upgrades={entries}
-      finishedLabel={townWorkReady()}
+      finishedLabel={lineLabelOf(townWorkReady(), 'es')}
     />
   )
 }
@@ -143,7 +157,7 @@ function PlaceItem({
   const refused = work.startRefused?.subject === place ? work.startRefused : undefined
   return (
     <li
-      aria-label={placeNameOf(place)}
+      aria-label={placeNameOf(es, place)}
       className="flex flex-col gap-2 border-line border-t py-4 first:border-t-0"
     >
       <PlaceRow
@@ -154,7 +168,7 @@ function PlaceItem({
         onBuild={() => work.start(place)}
       />
       {refused !== undefined && (
-        <FormAlert message={refusalLineOf(refused.refusal, refused.error)} />
+        <FormAlert message={lineLabelOf(refusalLineOf(refused.refusal, refused.error), 'es')} />
       )}
       {place === 'school' && <TextLink to="/school">{townGoToSchool()}</TextLink>}
     </li>
@@ -217,7 +231,9 @@ export function TownHome({
       <div className="flex min-w-0 flex-col gap-4 lg:row-span-2">
         <BuildSlot state={slotStateOf(town, work, slotTitle.focus)} titleRef={slotTitle.ref} />
         {stopRefused !== undefined && (
-          <FormAlert message={refusalLineOf(stopRefused.refusal, stopRefused.error)} />
+          <FormAlert
+            message={lineLabelOf(refusalLineOf(stopRefused.refusal, stopRefused.error), 'es')}
+          />
         )}
         <WaitingList town={town} work={work} onStopped={slotTitle.focus} />
         {tipAt('work')}

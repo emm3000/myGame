@@ -13,6 +13,7 @@ import { type ReactElement, type Ref, useId, useState } from 'react'
 import { BuildSlot, type BuildSlotState } from '../design-system/BuildSlot'
 import { FormAlert } from '../design-system/FormAlert'
 import { focusTargetClass } from '../design-system/focusTargetClass'
+import { lineLabelOf } from '../design-system/lineLabelOf'
 import { useFocusTarget } from '../focus/useFocusTarget'
 import { hiringRefusalLineOf } from '../refusals/hiringRefusalLineOf'
 import { refusalLineOf } from '../refusals/refusalLineOf'
@@ -29,30 +30,37 @@ function slotStateOf(town: LiveTown, hiring: TownHiring, onStopped: () => void):
   const live = town.hiringOrder
   const answered = town.overview.hiring.order
   if (live === null || answered === null) {
-    return { kind: 'idle', title: townOfficeHiring(), invitation: townOfficeIdle() }
+    return {
+      kind: 'idle',
+      title: lineLabelOf(townOfficeHiring(), 'es'),
+      invitation: lineLabelOf(townOfficeIdle(), 'es'),
+    }
   }
   const order = {
-    title: townOfficeHiring(),
-    buildingName: hireWordsOf(live.hire).name(),
-    levelLabel: townOfficeDelivered({ delivered: live.delivered, count: live.count }),
+    title: lineLabelOf(townOfficeHiring(), 'es'),
+    buildingName: lineLabelOf(hireWordsOf(live.hire).name(), 'es'),
+    levelLabel: lineLabelOf(
+      townOfficeDelivered({ delivered: live.delivered, count: live.count }),
+      'es',
+    ),
   }
   if (live.remainingSeconds <= 0) {
-    return { kind: 'justFinished', message: townOfficeDone(), ...order }
+    return { kind: 'justFinished', message: lineLabelOf(townOfficeDone(), 'es'), ...order }
   }
   return {
     kind: 'busy',
     remainingSeconds: live.remainingSeconds,
     time: formatFinish(live.remainingSeconds, town.at),
     totalSeconds: live.totalSeconds,
-    finishedLabel: townWorkReady(),
+    finishedLabel: lineLabelOf(townWorkReady(), 'es'),
     cancel: {
-      label: townOfficeStop(),
+      label: lineLabelOf(townOfficeStop(), 'es'),
       accessibleName: hireWordsOf(answered.hire).stopOf(),
       isWaiting: hiring.isStopping,
       onCancel: () =>
         hiring.stop({ hire: answered.hire, startedAt: answered.startedAt }, onStopped),
     },
-    refund: townOfficeRefund(),
+    refund: lineLabelOf(townOfficeRefund(), 'es'),
     ...order,
   }
 }
@@ -88,7 +96,9 @@ function HireItem({
         onHire={onHire}
       />
       {refused !== undefined && (
-        <FormAlert message={hiringRefusalLineOf(refused.refusal, refused.error)} />
+        <FormAlert
+          message={lineLabelOf(hiringRefusalLineOf(refused.refusal, refused.error), 'es')}
+        />
       )}
     </li>
   )
@@ -118,7 +128,9 @@ export function OfficeSection({
       </h3>
       <BuildSlot state={slotStateOf(town, hiring, slotTitle.focus)} titleRef={slotTitle.ref} />
       {stopRefused !== undefined && (
-        <FormAlert message={refusalLineOf(stopRefused.refusal, stopRefused.error)} />
+        <FormAlert
+          message={lineLabelOf(refusalLineOf(stopRefused.refusal, stopRefused.error), 'es')}
+        />
       )}
       <ul className="m-0 flex list-none flex-col p-0">
         {HireKindSchema.options.map((hire) => (

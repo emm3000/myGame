@@ -1,4 +1,5 @@
 import {
+  es,
   schoolSkillName,
   townFull,
   townFullAt,
@@ -16,6 +17,7 @@ import { type ReactElement, type Ref, useId } from 'react'
 import { capitalize } from '../design-system/capitalize'
 import { focusTargetClass } from '../design-system/focusTargetClass'
 import { formatQuantity } from '../design-system/formatQuantity'
+import { lineLabelOf } from '../design-system/lineLabelOf'
 import { resourceAccent } from '../design-system/resourceAccent'
 import { SeasonLine } from '../design-system/SeasonLine'
 import { Track } from '../design-system/Track'
@@ -38,7 +40,7 @@ function SkillMark({
   }
   return (
     <span className="font-sans text-caption text-ink">
-      {schoolSkillName({ resource: townResourceNameOf(resource), level })}
+      {schoolSkillName({ resource: townResourceNameOf(es, resource), level })}
     </span>
   )
 }
@@ -58,7 +60,7 @@ const rateLineOf = (
   if (isFull || !fillsWithinWindow(fullAt, readAt)) {
     return townRate({ rate: formatQuantity(Math.floor(stock.ratePerHour)) })
   }
-  return townFullAt({ clock: formatClock(new Date(fullAt), at) })
+  return townFullAt({ clock: formatClock(es, new Date(fullAt), at) })
 }
 
 function StockItem({
@@ -81,10 +83,10 @@ function StockItem({
   const capacity = formatQuantity(stock.capacity)
   const isFull = shown >= stock.capacity
   return (
-    <li aria-label={capitalize(townResourceNameOf(resource))} className="flex flex-col gap-1">
+    <li aria-label={capitalize(townResourceNameOf(es, resource))} className="flex flex-col gap-1">
       <span className="flex items-center gap-2 font-sans text-label text-ink">
         <Icon sizeClass="size-icon" />
-        {capitalize(townResourceNameOf(resource))}
+        {capitalize(townResourceNameOf(es, resource))}
       </span>
       <span className="font-sans text-numeral text-ink">{formatQuantity(shown)}</span>
       <span className="flex flex-wrap justify-between gap-x-3 font-sans text-caption text-ink-muted tabular-nums">
@@ -105,11 +107,17 @@ function TownSeason({ town }: { readonly town: LiveTown }): ReactElement | null 
   return (
     <SeasonLine
       season={season.kind}
-      headerLine={townSeasonLine({
-        season: capitalize(seasonNameOf(season.kind)),
-        year: season.year,
-      })}
-      countdownLine={townSeasonEndsInOf(season.kind, town.seasonRemainingSeconds)}
+      headerLine={lineLabelOf(
+        townSeasonLine({
+          season: capitalize(seasonNameOf(season.kind)),
+          year: season.year,
+        }),
+        'es',
+      )}
+      countdownLine={lineLabelOf(
+        townSeasonEndsInOf(season.kind, town.seasonRemainingSeconds),
+        'es',
+      )}
     />
   )
 }
