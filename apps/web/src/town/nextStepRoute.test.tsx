@@ -10,21 +10,24 @@ import {
   schoolLessonWords,
   schoolSlotTitle,
   shellLessonFinishReleased,
+  townGoalLine,
   townGoToSchool,
   townNextGoToReport,
   townNextHoldoutCheck,
   townNextLessonReadyIn,
   townNextReleasedLesson,
   townNextReleasedReadyIn,
+  townNextText,
   townNextTitle,
   townSkylineBuilt,
 } from '@mygame/catalog'
 import type { NextStep, TownOverview } from '@mygame/contracts'
-import { act, screen, within } from '@testing-library/react'
+import { act, fireEvent, screen, within } from '@testing-library/react'
 import { afterEach, beforeEach, expect, it, vi } from 'vitest'
 import type { ApiClient } from '../api/apiClient'
 import { renderAppAt } from '../auth/renderAppAt.testSupport'
 import { knownPlayer, knownTown, stubApiClient } from '../auth/stubApiClient.testSupport'
+import type { TownGoal } from './TownGoal'
 
 beforeEach(() => {
   vi.useFakeTimers({ now: new Date(knownTown.readAt) })
@@ -444,4 +447,51 @@ it('shows the same card on a return visit, with no greeting', async () => {
   await passSeconds(0)
 
   expect(card().textContent).toBe(firstVisit)
+})
+
+const newestText = { id: 'text-31', title: 'The New Shop' }
+
+const newestTextLine = (): string => townNextText({ title: newestText.title })
+
+const underwayFarm: TownGoal = {
+  position: 1,
+  count: 9,
+  building: 'farm',
+  level: 1,
+  state: 'underway',
+}
+
+it('a caught-up next step names the newest text', async () => {
+  const router = renderAppAt(
+    '/',
+    serving(townAt({ kind: 'caughtUp', reason: 'lessonsDone', goal: null, text: newestText })),
+  )
+  await passSeconds(0)
+
+  fireEvent.click(screen.getByRole('link', { name: newestTextLine() }))
+  await passSeconds(0)
+
+  expect(router.state.location.pathname).toBe('/school/texts/text-31')
+})
+
+it('a running lesson names it beside the goal', async () => {
+  await showTown(
+    townAt(
+      { kind: 'lessonRunning', goal: underwayFarm, text: newestText },
+      { lessonSlot: runningLessonTwo },
+    ),
+  )
+
+  const goalLine = townGoalLine({ position: 1, count: 9, place: 'Granja', level: 1 })
+
+  expect(within(card()).getByText(goalLine)).toBeDefined()
+  expect(screen.getByRole('link', { name: newestTextLine() }).getAttribute('href')).toBe(
+    '/school/texts/text-31',
+  )
+})
+
+it('names no text while the next step carries none', async () => {
+  await showTown(townAt({ kind: 'caughtUp', reason: 'lessonsDone', goal: null, text: null }))
+
+  expect(screen.queryByRole('link', { name: /^Lee: / })).toBeNull()
 })

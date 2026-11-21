@@ -1,7 +1,9 @@
-import { townGoalClose } from '@mygame/catalog'
+import { townGoalClose, townNextText } from '@mygame/catalog'
+import type { NextStep } from '@mygame/contracts'
 import type { ReactElement } from 'react'
 import { Button } from '../design-system/Button'
 import { hueClassOf } from '../design-system/blockHueOf'
+import { TextLink } from '../design-system/TextLink'
 import { useFocusTarget } from '../focus/useFocusTarget'
 import { goalLinesOf } from './goalLinesOf'
 import type { LiveTown } from './liveTown'
@@ -32,8 +34,24 @@ function GoalLines({ goal }: { readonly goal: TownGoal }): ReactElement {
   )
 }
 
+type NewestText = NonNullable<Extract<NextStep, { readonly kind: 'caughtUp' }>['text']>
+
+const newestTextOf = (nextStep: NextStep): NewestText | null =>
+  nextStep.kind === 'caughtUp' || nextStep.kind === 'lessonRunning' ? nextStep.text : null
+
+function NewestTextLine({ text }: { readonly text: NewestText }): ReactElement {
+  return (
+    <div>
+      <TextLink to="/school/texts/$textId" params={{ textId: text.id }}>
+        {townNextText({ title: text.title })}
+      </TextLink>
+    </div>
+  )
+}
+
 export function NextStepCard({ town, goal, onGoalClose }: NextStepCardProps): ReactElement {
   const content = nextStepCardOf(town)
+  const text = newestTextOf(town.overview.nextStep)
   const heading = useFocusTarget<HTMLHeadingElement>()
   const closeGoal = (): void => {
     onGoalClose()
@@ -51,6 +69,7 @@ export function NextStepCard({ town, goal, onGoalClose }: NextStepCardProps): Re
           {goal !== null && <GoalLines goal={goal} />}
         </NextStepBlock>
       </div>
+      {text !== null && <NewestTextLine text={text} />}
       <NextStepLink action={content.action} tone="primary" />
       {goal !== null && (
         <div>
