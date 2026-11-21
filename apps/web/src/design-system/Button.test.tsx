@@ -1,6 +1,8 @@
 import { fireEvent, render, screen } from '@testing-library/react'
 import { expect, it, vi } from 'vitest'
 import { Button, type ButtonAvailability, type ButtonTone } from './Button'
+import type { Label } from './Label'
+import { lineLabelOf } from './lineLabelOf'
 
 it('never fires the action of a blocked button when pressed', () => {
   const onClick = vi.fn()
@@ -127,4 +129,31 @@ it('marks a pill waiting in place as busy', () => {
   classesOf('quiet', 'waitingInPlace')
 
   expect(screen.getByRole('button', { name: 'Upgrade' }).getAttribute('aria-busy')).toBe('true')
+})
+
+it('marks its name with the language of a name read in one language', () => {
+  render(
+    <Button type="button" tone="quiet" accessibleName={lineLabelOf('Detener granja', 'es')}>
+      Detener
+    </Button>,
+  )
+
+  expect(screen.getByRole('button', { name: 'Detener granja' }).getAttribute('lang')).toBe('es')
+})
+
+it('marks no language on a name read in two languages', () => {
+  const stop: Label = {
+    text: 'Stop farm',
+    language: 'en',
+    translation: { text: 'Detener granja', language: 'es' },
+  }
+  render(
+    <Button type="button" tone="quiet" accessibleName={stop}>
+      Stop
+    </Button>,
+  )
+
+  expect(
+    screen.getByRole('button', { name: 'Stop farm Detener granja' }).hasAttribute('lang'),
+  ).toBe(false)
 })

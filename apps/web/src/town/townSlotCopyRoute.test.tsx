@@ -6,6 +6,8 @@ import type { ApiClient } from '../api/apiClient'
 import { renderAppAt } from '../auth/renderAppAt.testSupport'
 import { knownPlayer, knownTown, stubApiClient } from '../auth/stubApiClient.testSupport'
 import { capitalize } from '../design-system/capitalize'
+import { finishSeparator } from '../time/finishSeparator'
+import { formatTimeLeft } from '../time/formatTimeLeft'
 import { shownLinesDrawnAlone, shownLinesHolding } from './lineDrawnAlone.testSupport'
 
 type CopyLanguage = Pick<TownOverview, 'scaffold' | 'chromePhase'>
@@ -198,7 +200,9 @@ it('counts the waiting list down in English under none', async () => {
     },
   })
 
-  expect(shownLinesHolding(en.statusTomorrow({ time: '10:05' }), 'en')).not.toHaveLength(0)
+  const entryTime = `${formatTimeLeft(86_700)} ${finishSeparator} ${en.statusTomorrow({ time: '10:05' })}`
+
+  expect(shownLinesDrawnAlone(entryTime, 'en')).not.toHaveLength(0)
 })
 
 it('marks the stop of the work as Spanish in the Spanish phase', async () => {

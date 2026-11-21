@@ -4,7 +4,9 @@ import { act } from '@testing-library/react'
 import { afterEach, beforeEach, expect, it, vi } from 'vitest'
 import { renderAppAt } from '../auth/renderAppAt.testSupport'
 import { knownPlayer, knownTown, stubApiClient } from '../auth/stubApiClient.testSupport'
-import { shownLinesHolding } from '../town/lineDrawnAlone.testSupport'
+import { finishSeparator } from '../time/finishSeparator'
+import { formatTimeLeft } from '../time/formatTimeLeft'
+import { shownLinesDrawnAlone } from '../town/lineDrawnAlone.testSupport'
 
 const readAt = Date.parse(knownTown.readAt)
 
@@ -39,5 +41,7 @@ it('counts down to the next review in English under none', async () => {
   )
   await act(() => vi.advanceTimersByTimeAsync(0))
 
-  expect(shownLinesHolding(en.statusTomorrow({ time: '10:00' }), 'en')).not.toHaveLength(0)
+  const nextReview = `${formatTimeLeft(86_400)} ${finishSeparator} ${en.statusTomorrow({ time: '10:00' })}`
+
+  expect(shownLinesDrawnAlone(nextReview, 'en')).not.toHaveLength(0)
 })
