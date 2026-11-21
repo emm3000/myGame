@@ -79,7 +79,7 @@ WHERE id = '<town_id>';
 
 ### Recipe: seed cards
 
-A word counts only as a card, and a lesson reads as studied once any of its words is a card (`schoolOverviewOf`). A **stable word** has a stability of 7 or more. A **retained word** also has a `retained_at`, which the schema holds equal to `last_review_at` (ADR 045, *The words a town holds*). Take the words in curriculum order:
+A word counts only as a card, and a lesson reads as studied once any of its words is a card (`presentTownSchool`). A **stable word** has a stability of 7 or more. A **retained word** also has a `retained_at`, which the schema holds equal to `last_review_at` (ADR 045, *The words a town holds*). Take the words in curriculum order:
 
 ```sh
 words=$(jq -rn '[inputs.wordIds[]] | map(@sh) | join(",")' apps/api/content/lessons/lesson-{1..10}.json)
