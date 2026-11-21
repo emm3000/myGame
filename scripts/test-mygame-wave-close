@@ -224,6 +224,7 @@ build_a_merged_ticket_beside_a_live_peer() {
   } >>"$case_dir/state/processes"
   printf '%s\n' mygame-probe-pg mygame-probe-mail >>"$case_dir/state/containers"
   printf 'mygame-probe-pgdata\t\tmygame-probe-pg\n' >>"$case_dir/state/volumes"
+  echo chore/7-probe >"$case_dir/state/merged"
 }
 
 build_a_peer_with_two_earlier_merged_tickets_and_an_open_one() {
@@ -268,6 +269,30 @@ closing_keeps_a_branch_of_the_peer_whose_pr_is_open() {
   git -C "$repo" show-ref --verify --quiet refs/heads/assets/8-visual-check ||
     fail "${FUNCNAME[0]}" "local assets/8-visual-check deleted: $output" || return 1
   git --git-dir="$case_dir/origin.git" show-ref --verify --quiet refs/heads/fix/8-open || fail "${FUNCNAME[0]}" "origin fix/8-open deleted: $output"
+}
+
+closing_keeps_the_peer_current_branch_whose_pr_is_open() {
+  build_a_merged_ticket_beside_a_live_peer current-open
+  : >"$case_dir/state/merged"
+  local output
+  output=$(with_stubs scripts/mygame-wave-close probe) || fail "${FUNCNAME[0]}" "$output" || return 1
+  git -C "$repo" show-ref --verify --quiet refs/heads/chore/7-probe || fail "${FUNCNAME[0]}" "local chore/7-probe deleted: $output" || return 1
+  git -C "$repo" show-ref --verify --quiet refs/heads/assets/7-visual-check ||
+    fail "${FUNCNAME[0]}" "local assets/7-visual-check deleted: $output" || return 1
+  git --git-dir="$case_dir/origin.git" show-ref --verify --quiet refs/heads/chore/7-probe ||
+    fail "${FUNCNAME[0]}" "origin chore/7-probe deleted: $output" || return 1
+  [ "$(rg -F 'kept branch' <<<"$output")" = "kept branch chore/7-probe: no merged PR" ] || fail "${FUNCNAME[0]}" "$output"
+}
+
+closing_keeps_the_peer_current_branch_whose_merged_state_gh_cannot_answer() {
+  build_a_merged_ticket_beside_a_live_peer current-unreachable
+  echo chore/7-probe >"$case_dir/state/unreachable"
+  local output
+  output=$(with_stubs scripts/mygame-wave-close probe) || fail "${FUNCNAME[0]}" "$output" || return 1
+  git -C "$repo" show-ref --verify --quiet refs/heads/chore/7-probe || fail "${FUNCNAME[0]}" "local chore/7-probe deleted: $output" || return 1
+  git --git-dir="$case_dir/origin.git" show-ref --verify --quiet refs/heads/chore/7-probe ||
+    fail "${FUNCNAME[0]}" "origin chore/7-probe deleted: $output" || return 1
+  [ "$(rg -F 'gh pr list failed' <<<"$output")" = "gh pr list failed: branch chore/7-probe kept" ] || fail "${FUNCNAME[0]}" "$output"
 }
 
 closing_keeps_a_merged_branch_another_peer_holds() {
@@ -731,6 +756,8 @@ run orphans_reports_only_mygame_dangling_volumes
 run closing_a_session_on_trunk_keeps_trunk
 run closing_deletes_the_branches_of_the_peer_earlier_merged_tickets
 run closing_keeps_a_branch_of_the_peer_whose_pr_is_open
+run closing_keeps_the_peer_current_branch_whose_pr_is_open
+run closing_keeps_the_peer_current_branch_whose_merged_state_gh_cannot_answer
 run closing_keeps_a_merged_branch_another_peer_holds
 run closing_keeps_a_branch_whose_merged_state_gh_cannot_answer
 run closing_keeps_trunk_when_no_worktree_holds_it
