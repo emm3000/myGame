@@ -17,7 +17,7 @@ import {
   showDueReviews,
   stageOf,
 } from '@mygame/domain'
-import { isoOf } from '../http/isoOf'
+import { isoOf } from '../platform/infrastructure/http/isoOf'
 import type { TownStores } from '../town/mutateTown'
 import type { LessonLibrary } from './LessonLibrary'
 import { learnerOf } from './learnerOf'

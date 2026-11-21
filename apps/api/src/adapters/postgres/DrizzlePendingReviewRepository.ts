@@ -8,7 +8,7 @@ import {
   type WordId,
 } from '@mygame/domain'
 import { and, eq, sql } from 'drizzle-orm'
-import type { PostgresSession } from './connectPostgres'
+import type { PostgresSession } from '../../platform/infrastructure/postgres/connectPostgres'
 import { pendingReviews } from './schema'
 
 const pendingColumns = {

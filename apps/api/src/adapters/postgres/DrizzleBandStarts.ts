@@ -10,7 +10,7 @@ import {
   type Result,
 } from '@mygame/domain'
 import { and, asc, eq, sql } from 'drizzle-orm'
-import type { PostgresSession } from './connectPostgres'
+import type { PostgresSession } from '../../platform/infrastructure/postgres/connectPostgres'
 import { holdoutCheckOf } from './holdoutCheckOf'
 import { bandStarts, heldOutWords, holdoutChecks, holdoutCheckWords } from './schema'
 

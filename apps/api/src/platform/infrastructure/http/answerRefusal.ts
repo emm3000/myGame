@@ -1,8 +1,8 @@
 import type { ApiError, ApiErrorKind } from '@mygame/contracts'
 import type { Context } from 'hono'
 import type { ContentfulStatusCode } from 'hono/utils/http-status'
+import type { Refusal } from '../../application/Refusal'
 import { isoOf } from './isoOf'
-import type { Refusal } from './Refusal'
 
 declare module 'hono' {
   interface ContextVariableMap {

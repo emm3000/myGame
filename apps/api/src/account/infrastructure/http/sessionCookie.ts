@@ -1,8 +1,8 @@
 import type { Context } from 'hono'
 import { deleteCookie, getCookie, setCookie } from 'hono/cookie'
 import type { CookieOptions } from 'hono/utils/cookie'
-import type { Session } from '../auth/Accounts'
-import { sessionLifetimeSeconds } from '../auth/sessionExpiryFrom'
+import type { Session } from '../../../auth/Accounts'
+import { sessionLifetimeSeconds } from '../../../auth/sessionExpiryFrom'
 
 const sessionCookieName = 'session'
 

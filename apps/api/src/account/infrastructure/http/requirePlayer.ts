@@ -1,10 +1,10 @@
 import type { Clock, PlayerId } from '@mygame/domain'
 import { createMiddleware } from 'hono/factory'
 import type { MiddlewareHandler } from 'hono/types'
-import type { Accounts } from '../auth/Accounts'
-import { sessionExpiryFrom } from '../auth/sessionExpiryFrom'
-import { answerRefusal } from './answerRefusal'
-import { readBearerToken } from './bearerToken'
+import type { Accounts } from '../../../auth/Accounts'
+import { sessionExpiryFrom } from '../../../auth/sessionExpiryFrom'
+import { answerRefusal } from '../../../platform/infrastructure/http/answerRefusal'
+import { readBearerToken } from '../../../platform/infrastructure/http/bearerToken'
 import { readSessionCookie, writeSessionCookie } from './sessionCookie'
 
 export type SignedInPlayer = {

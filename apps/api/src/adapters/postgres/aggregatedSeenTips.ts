@@ -1,7 +1,7 @@
 import { type TipKind, tipKinds } from '@mygame/domain'
 import { type Column, eq, type SQL, sql } from 'drizzle-orm'
 import { z } from 'zod'
-import { jsonAggregateOf } from './jsonAggregateOf'
+import { jsonAggregateOf } from '../../platform/infrastructure/postgres/jsonAggregateOf'
 import { playerSeenTips, townTip } from './schema'
 
 type StoredTip = (typeof townTip.enumValues)[number]

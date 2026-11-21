@@ -11,13 +11,16 @@ import {
   skipPlacement,
 } from '@mygame/domain'
 import type { Context } from 'hono'
-import { answerRefusal } from '../http/answerRefusal'
-import { bodyOf } from '../http/bodyOf'
-import { honoPathOf } from '../http/honoPath'
-import { type RequirePlayerDependencies, requirePlayer } from '../http/requirePlayer'
+import {
+  type RequirePlayerDependencies,
+  requirePlayer,
+} from '../account/infrastructure/http/requirePlayer'
 import type { LearningDependencies } from '../learning/LearningDependencies'
 import { placementBodyOf } from '../learning/placementBodyOf'
 import { scaffoldOf } from '../learning/scaffoldOf'
+import { answerRefusal } from '../platform/infrastructure/http/answerRefusal'
+import { bodyOf } from '../platform/infrastructure/http/bodyOf'
+import { honoPathOf } from '../platform/infrastructure/http/honoPath'
 import { mutateTown } from '../town/mutateTown'
 import { placementDeclarations } from './placementDeclarations'
 

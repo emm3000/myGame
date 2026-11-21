@@ -4,12 +4,12 @@ import {
   type CleanUpReader,
   type Clock,
   type DomainError,
+  laterOf,
   quoteCleanUp,
   type RegionMapReader,
   type Result,
   type TownCatalog,
 } from '@mygame/domain'
-import { laterOf } from '../time/laterOf'
 import type { TownReader } from './TownReader'
 
 export type QuotedCleanUpDependencies = {

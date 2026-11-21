@@ -7,7 +7,7 @@ import {
   type Result,
 } from '@mygame/domain'
 import { eq, sql } from 'drizzle-orm'
-import type { PostgresSession } from './connectPostgres'
+import type { PostgresSession } from '../../platform/infrastructure/postgres/connectPostgres'
 import { cards } from './schema'
 import { cardColumnsOf, heldCardOf } from './storedMemoryCards'
 

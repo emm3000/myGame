@@ -1,8 +1,11 @@
 import { OpenAPIHono } from '@hono/zod-openapi'
 import type { Report } from '@mygame/contracts'
-import { answerRefusal } from '../http/answerRefusal'
-import { honoPathOf } from '../http/honoPath'
-import { type RequirePlayerDependencies, requirePlayer } from '../http/requirePlayer'
+import {
+  type RequirePlayerDependencies,
+  requirePlayer,
+} from '../account/infrastructure/http/requirePlayer'
+import { answerRefusal } from '../platform/infrastructure/http/answerRefusal'
+import { honoPathOf } from '../platform/infrastructure/http/honoPath'
 import { type ReportDependencies, reportOf } from '../town/reportOf'
 import { reportDeclarations } from './reportDeclarations'
 

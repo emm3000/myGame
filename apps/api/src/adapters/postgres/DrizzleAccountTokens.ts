@@ -3,7 +3,7 @@ import { and, eq, gt, isNotNull, isNull, lte, or, sql } from 'drizzle-orm'
 import type { AccountToken, AccountTokenKind, AccountTokens } from '../../auth/AccountTokens'
 import { isRedeemableAgain } from '../../auth/isRedeemableAgain'
 import { tokenDigest } from '../../auth/tokenDigest'
-import type { PostgresSession } from './connectPostgres'
+import type { PostgresSession } from '../../platform/infrastructure/postgres/connectPostgres'
 import { accountTokens, players } from './schema'
 
 const dateOf = (instant: Instant): Date => new Date(instant.epochMilliseconds)

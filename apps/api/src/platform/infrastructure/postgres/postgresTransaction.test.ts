@@ -1,7 +1,7 @@
 import { ok } from '@mygame/domain'
 import { Client } from 'pg'
 import { afterAll, beforeAll, describe, expect, it } from 'vitest'
-import { thrownCauseOf } from '../../failures/thrownCauseOf'
+import { thrownCauseOf } from '../../thrownCauseOf'
 import { connectPostgres, type PostgresConnection } from './connectPostgres'
 import { postgresTransaction, type Transaction } from './postgresTransaction'
 

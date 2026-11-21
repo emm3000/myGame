@@ -43,11 +43,11 @@ import {
   type WaitingList,
   wordShortfallOf,
 } from '@mygame/domain'
-import { isoOf } from '../http/isoOf'
 import type { LessonLibrary } from '../learning/LessonLibrary'
 import { nextDueAtOf } from '../learning/reviewsOf'
 import { scaffoldBodyOf } from '../learning/scaffoldBodyOf'
 import { schoolOverviewOf } from '../learning/schoolOverviewOf'
+import { isoOf } from '../platform/infrastructure/http/isoOf'
 import { jobStateOf } from './jobStateOf'
 import type { TownReading } from './TownReading'
 

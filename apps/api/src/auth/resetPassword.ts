@@ -1,8 +1,8 @@
 import type { ResetPasswordRequest } from '@mygame/contracts'
 import { type Clock, err, ok, type Result } from '@mygame/domain'
-import type { Transaction } from '../adapters/postgres/postgresTransaction'
 import type { Argon2Passwords } from '../adapters/system/Argon2Passwords'
-import type { Refusal } from '../http/Refusal'
+import type { Refusal } from '../platform/application/Refusal'
+import type { Transaction } from '../platform/infrastructure/postgres/postgresTransaction'
 
 export type ResetPasswordDependencies = {
   readonly inTransaction: Transaction

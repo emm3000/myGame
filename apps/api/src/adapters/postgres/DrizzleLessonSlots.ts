@@ -7,7 +7,7 @@ import {
   type TownId,
 } from '@mygame/domain'
 import { eq } from 'drizzle-orm'
-import type { PostgresSession } from './connectPostgres'
+import type { PostgresSession } from '../../platform/infrastructure/postgres/connectPostgres'
 import { lessonSlotOf } from './lessonSlotOf'
 import { townLessonSlots } from './schema'
 

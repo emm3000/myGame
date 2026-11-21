@@ -1,10 +1,13 @@
 import { OpenAPIHono } from '@hono/zod-openapi'
 import { ScaffoldChangeSchema } from '@mygame/contracts'
+import {
+  type RequirePlayerDependencies,
+  requirePlayer,
+} from '../account/infrastructure/http/requirePlayer'
 import type { Accounts } from '../auth/Accounts'
-import { answerRefusal } from '../http/answerRefusal'
-import { bodyOf } from '../http/bodyOf'
-import { type RequirePlayerDependencies, requirePlayer } from '../http/requirePlayer'
 import type { PlayerChromePhaseDependencies } from '../learning/playerChromePhaseOf'
+import { answerRefusal } from '../platform/infrastructure/http/answerRefusal'
+import { bodyOf } from '../platform/infrastructure/http/bodyOf'
 import { playerBodyOf } from './playerBodyOf'
 import { playerDeclarations } from './playerDeclarations'
 

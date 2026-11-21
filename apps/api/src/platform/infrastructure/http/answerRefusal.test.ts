@@ -1,7 +1,7 @@
 import { Hono } from 'hono'
 import { describe, expect, it } from 'vitest'
+import type { Refusal } from '../../application/Refusal'
 import { answerRefusal } from './answerRefusal'
-import type { Refusal } from './Refusal'
 
 const answerOf = async (refusal: Refusal): Promise<Response> => {
   const app = new Hono().get('/', (c) => answerRefusal(c, refusal))

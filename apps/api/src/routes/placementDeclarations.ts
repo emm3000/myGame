@@ -1,7 +1,11 @@
 import { createRoute } from '@hono/zod-openapi'
 import { PlacementAnswersSchema, PlacementSchema } from '@mygame/contracts'
-import type { ResponseDeclaration } from '../http/refusalResponse'
-import { jsonBody, jsonResponse, signedInRoute } from '../http/responseDeclarations'
+import type { ResponseDeclaration } from '../platform/infrastructure/http/refusalResponse'
+import {
+  jsonBody,
+  jsonResponse,
+  signedInRoute,
+} from '../platform/infrastructure/http/responseDeclarations'
 
 const offerRefused: ResponseDeclaration = {
   description:

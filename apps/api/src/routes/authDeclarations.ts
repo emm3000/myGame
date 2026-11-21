@@ -7,8 +7,15 @@ import {
   SignUpRequestSchema,
   VerifyEmailRequestSchema,
 } from '@mygame/contracts'
-import { type ResponseDeclaration, refusalResponse } from '../http/refusalResponse'
-import { jsonBody, jsonResponse, signedInRoute } from '../http/responseDeclarations'
+import {
+  type ResponseDeclaration,
+  refusalResponse,
+} from '../platform/infrastructure/http/refusalResponse'
+import {
+  jsonBody,
+  jsonResponse,
+  signedInRoute,
+} from '../platform/infrastructure/http/responseDeclarations'
 import { PlayerComponent } from './playerComponent'
 
 const playerResponse = (description: string): ResponseDeclaration =>

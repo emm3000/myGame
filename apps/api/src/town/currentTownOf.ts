@@ -5,6 +5,7 @@ import {
   type Instant,
   isLessonFinishedBy,
   type LessonSlot,
+  laterOf,
   ok,
   type PlayerId,
   type Result,
@@ -14,7 +15,6 @@ import {
   type TownNews,
   type TownRepository,
 } from '@mygame/domain'
-import { laterOf } from '../time/laterOf'
 import { type MutateTownDependencies, mutateTown } from './mutateTown'
 import type { TownReader } from './TownReader'
 import type { TownReading } from './TownReading'

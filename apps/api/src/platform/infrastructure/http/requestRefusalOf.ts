@@ -1,4 +1,4 @@
-import type { Refusal } from './Refusal'
+import type { Refusal } from '../../application/Refusal'
 
 type ParseIssue = {
   readonly path: ReadonlyArray<PropertyKey>

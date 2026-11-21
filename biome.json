@@ -598,6 +598,16 @@
           }
         }
       }
+    },
+    {
+      "includes": ["apps/api/src/platform/infrastructure/postgres/postgresTransaction.ts"],
+      "linter": {
+        "rules": {
+          "style": {
+            "noRestrictedImports": "off"
+          }
+        }
+      }
     }
   ]
 }

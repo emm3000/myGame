@@ -8,9 +8,12 @@ import {
   type TownCatalog,
 } from '@mygame/domain'
 import type { Context } from 'hono'
-import { answerRefusal } from '../http/answerRefusal'
-import { honoPathOf } from '../http/honoPath'
-import { type RequirePlayerDependencies, requirePlayer } from '../http/requirePlayer'
+import {
+  type RequirePlayerDependencies,
+  requirePlayer,
+} from '../account/infrastructure/http/requirePlayer'
+import { answerRefusal } from '../platform/infrastructure/http/answerRefusal'
+import { honoPathOf } from '../platform/infrastructure/http/honoPath'
 import { regionMapOf } from '../town/regionMapOf'
 import { townMapDeclarations } from './townMapDeclarations'
 

@@ -3,12 +3,15 @@ import {
   type Clock,
   type DomainError,
   type LessonCatalog,
+  laterOf,
   type PlayerId,
   type Result,
   settleSchoolLesson,
 } from '@mygame/domain'
-import type { Transaction, TransactionStores } from '../adapters/postgres/postgresTransaction'
-import { laterOf } from '../time/laterOf'
+import type {
+  Transaction,
+  TransactionStores,
+} from '../platform/infrastructure/postgres/postgresTransaction'
 
 export type TownStores = Pick<
   TransactionStores,

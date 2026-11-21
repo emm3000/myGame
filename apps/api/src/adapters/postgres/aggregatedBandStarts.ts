@@ -1,8 +1,8 @@
 import { type BandStart, Instant } from '@mygame/domain'
 import { asc, type Column, eq, type SQL, sql } from 'drizzle-orm'
 import { z } from 'zod'
+import { jsonAggregateOf } from '../../platform/infrastructure/postgres/jsonAggregateOf'
 import { holdoutCheckOf } from './holdoutCheckOf'
-import { jsonAggregateOf } from './jsonAggregateOf'
 import {
   bandStarts,
   heldOutWords,
