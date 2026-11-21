@@ -1,0 +1,13 @@
+import { z } from 'zod'
+import { WholeCountSchema } from '../platform/Wire'
+
+export const ResourceAmountsSchema = z
+  .strictObject({
+    money: WholeCountSchema,
+    food: WholeCountSchema,
+    power: WholeCountSchema,
+    material: WholeCountSchema,
+  })
+  .meta({ id: 'ResourceAmounts' })
+
+export type ResourceAmounts = z.infer<typeof ResourceAmountsSchema>
