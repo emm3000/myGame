@@ -842,12 +842,12 @@ const homeRecognitionUnderNone: DueReview = {
   ],
 }
 
-const showRecognitionIn = async (
+const showCardIn = async (
   language: CopyLanguage,
-  recognition: DueReview,
+  card: DueReview,
   overrides: Partial<ApiClient> = {},
 ): Promise<void> =>
-  showReview(withReviews([recognition], null), {
+  showReview(withReviews([card], null), {
     currentPlayer: async () => ({ ...knownPlayer, ...language }),
     town: async () => ({ ok: true, value: { ...knownTown, ...language } }),
     ...overrides,
@@ -857,13 +857,13 @@ const choiceLanguages = (): ReadonlyArray<string | null | undefined> =>
   screen.getAllByRole('radio').map((choice) => choice.closest('label')?.getAttribute('lang'))
 
 it('marks every choice of a recognition as Spanish for an es player', async () => {
-  await showRecognitionIn({ scaffold: 'es', chromePhase: 'english' }, homeRecognition)
+  await showCardIn({ scaffold: 'es', chromePhase: 'english' }, homeRecognition)
 
   expect(choiceLanguages()).toEqual(['es', 'es', 'es'])
 })
 
 it('marks every choice of a recognition as English under none', async () => {
-  await showRecognitionIn({ scaffold: 'none', chromePhase: 'english' }, homeRecognitionUnderNone)
+  await showCardIn({ scaffold: 'none', chromePhase: 'english' }, homeRecognitionUnderNone)
 
   expect(choiceLanguages()).toEqual(['en', 'en', 'en'])
 })
@@ -878,7 +878,7 @@ it('marks the definition chosen and the right one as English after a wrong recog
     retainedWordCount: 0,
     openedLevel: null,
   })
-  await showRecognitionIn({ scaffold: 'none', chromePhase: 'english' }, homeRecognitionUnderNone, {
+  await showCardIn({ scaffold: 'none', chromePhase: 'english' }, homeRecognitionUnderNone, {
     answerReview,
   })
 
@@ -891,6 +891,27 @@ it('marks the definition chosen and the right one as English after a wrong recog
     within(verdict).getByText('what you pay with when you buy things').getAttribute('lang'),
   ).toBe('en')
   expect(within(verdict).getByText('the place where you live').getAttribute('lang')).toBe('en')
+})
+
+const schoolRecallUnderNone: DueReview = {
+  ...schoolRecall,
+  gloss: 'a place where children go to learn',
+}
+
+it('marks the cue of a recall as Spanish for an es player', async () => {
+  await showCardIn({ scaffold: 'es', chromePhase: 'english' }, schoolRecall)
+
+  expect(screen.getByRole('heading', { name: 'escuela' }).getAttribute('lang')).toBe('es')
+})
+
+it('marks the cue of a recall as English under none', async () => {
+  await showCardIn({ scaffold: 'none', chromePhase: 'english' }, schoolRecallUnderNone)
+
+  expect(
+    screen
+      .getByRole('heading', { name: 'a place where children go to learn' })
+      .getAttribute('lang'),
+  ).toBe('en')
 })
 
 const ratesShownIn = async (
