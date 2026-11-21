@@ -10,6 +10,11 @@ import {
   holdoutCheckSkipped,
   holdoutCheckStart,
   holdoutCheckTitle,
+  placementBand,
+  placementChoose,
+  placementNext,
+  placementProgress,
+  placementPrompt,
   placementRetry,
   refusalUnexpected,
   townGoToSchool,
@@ -108,9 +113,15 @@ function CheckAsking({
   return (
     <div className="flex flex-col gap-4">
       <ChoiceWalk
-        band={asking.check.band}
         items={asking.check.items}
-        sendLabel={holdoutCheckSend()}
+        lines={{
+          heading: placementBand({ band: asking.check.band }),
+          prompt: placementPrompt(),
+          next: placementNext(),
+          choose: placementChoose(),
+          send: holdoutCheckSend(),
+          progressOf: (number, total) => placementProgress({ number, total }),
+        }}
         isSending={handle.waiting === 'answers'}
         onSend={(answers) => handle.send({ answers: [...answers] })}
       />
