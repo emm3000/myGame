@@ -6,7 +6,6 @@ import { CardAction } from '../design-system/CardAction'
 import { FormAlert } from '../design-system/FormAlert'
 import { blockFocusTargetClass } from '../design-system/focusTargetClass'
 import { LabelText } from '../design-system/LabelText'
-import { lessonNameOf } from '../town/lessonNameOf'
 import type { LiveTown } from '../town/liveTown'
 import { type LessonCardContent, readWordsLabelOf } from './lessonCardOf'
 import { lessonRefusalLineOf } from './lessonRefusalLineOf'
@@ -24,8 +23,6 @@ export function ShownLesson({ card, town, lessons, titleRef }: ShownLessonProps)
   const copy = usePlayerCopy()
   const { chrome, fixedCopy } = copy
   const { lessonSlot } = town
-  const readsSlotWords =
-    lessonSlot !== null && lessonNameOf(lessonSlot.lessonId, town.overview).kind === 'shelved'
   const refused = lessons.startRefused?.subject === card.lessonId ? lessons.startRefused : undefined
   return (
     <div className="flex flex-col gap-5">
@@ -60,7 +57,7 @@ export function ShownLesson({ card, town, lessons, titleRef }: ShownLessonProps)
           onAction={() => lessons.start(card.lessonId)}
         />
       )}
-      {lessonSlot !== null && readsSlotWords && (
+      {lessonSlot !== null && (
         <ButtonLink
           to="/school/$lessonId"
           params={{ lessonId: lessonSlot.lessonId }}

@@ -283,7 +283,7 @@ it('marks a released title in Spanish inside an English read line in the English
         startedAt: knownTown.readAt,
         finishesAt: '2100-01-01T00:00:00.000Z',
       },
-      nextStep: { kind: 'reviews', count: 2, readFirst: [releasedSetOne.id] },
+      nextStep: { kind: 'lessonRunning', goal: null, text: null },
     }),
   )
 

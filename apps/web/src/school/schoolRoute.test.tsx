@@ -1092,10 +1092,14 @@ it('marks a lesson blocked by a running released lesson with its band and set', 
   )
 })
 
-it('offers no words to read for a running released lesson', async () => {
+it('offers the words of a running released lesson, named by its band and set', async () => {
   await showSchool({ ...shelvedAndReleased, lessonSlot: releasedSetTwoStudying })
 
-  expect(screen.queryByRole('link', { name: new RegExp(es.schoolLessonReadWords()) })).toBeNull()
+  const readWords = screen.getByRole('link', {
+    name: `${releasedTitleOf(2)} · ${es.schoolLessonReadWords()}`,
+  })
+  expect(readWords.getAttribute('href')).toBe('/school/released-2-2')
+  expect(screen.queryByText(/Lección 0/)).toBeNull()
 })
 
 it('marks a released lesson under study as studying, with no start', async () => {

@@ -1,11 +1,13 @@
 import type { TownOverview } from '@mygame/contracts'
 import type { ArtTag } from '../art/ArtTag'
 import { frameTextOf } from '../review/frameTextOf'
-import { lessonNumberOf } from '../town/lessonNameOf'
+import { type LessonName, lessonNameOf } from '../town/lessonNameOf'
 import type { LiveLesson, LiveTown } from '../town/liveTown'
 import { wordArtOf } from './wordArtOf'
 
-type WordReading = NonNullable<TownOverview['lessons'][number]['words'][number]['reading']>
+type LessonWordState = TownOverview['lessons'][number]['words'][number]
+
+type WordReading = NonNullable<LessonWordState['reading']>
 
 export type LessonWord = Omit<WordReading, 'frame'> & {
   readonly frame: string
@@ -15,15 +17,29 @@ export type LessonWord = Omit<WordReading, 'frame'> & {
 export type RunningLesson = LiveLesson & { readonly at: Date }
 
 export interface LessonWords {
-  readonly number: number
-  readonly theme: string
+  readonly name: LessonName
+  readonly theme: string | null
   readonly words: readonly [LessonWord, ...ReadonlyArray<LessonWord>]
   readonly running: RunningLesson | null
 }
 
+interface OpenedLesson {
+  readonly theme: string | null
+  readonly words: ReadonlyArray<LessonWordState>
+}
+
+const openedLessonOf = (overview: TownOverview, lessonId: string): OpenedLesson | undefined => {
+  const shelved = overview.lessons.find(({ id }) => id === lessonId)
+  if (shelved !== undefined) {
+    return shelved
+  }
+  const released = overview.releasedLessons.find(({ id }) => id === lessonId)
+  return released === undefined ? undefined : { theme: null, words: released.words }
+}
+
 export function lessonWordsOf(town: LiveTown, lessonId: string): LessonWords | undefined {
   const { overview, lessonSlot, at } = town
-  const lesson = overview.lessons.find(({ id }) => id === lessonId)
+  const lesson = openedLessonOf(overview, lessonId)
   const [first, ...rest] = (lesson?.words ?? []).flatMap(({ reading }) =>
     reading === null
       ? []
@@ -33,7 +49,7 @@ export function lessonWordsOf(town: LiveTown, lessonId: string): LessonWords | u
     return undefined
   }
   return {
-    number: lessonNumberOf(lessonId, overview),
+    name: lessonNameOf(lessonId, overview),
     theme: lesson.theme,
     words: [first, ...rest],
     running: lessonSlot?.lessonId === lessonId ? { ...lessonSlot, at } : null,
