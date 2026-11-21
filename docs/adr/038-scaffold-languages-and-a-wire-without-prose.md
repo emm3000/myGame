@@ -108,8 +108,8 @@ L2 study gives the fade point.
   The phase is derived on read from what the player studied and earned,
   and both only ever grow (ADR 036, rules 6 and 7), so the chrome never
   goes back for a given scaffold. A switch from `none` to `es` starts
-  the phases from what the player has studied and earned. The server answers the phase; the client draws it. Under
-  `none` the chrome is English from the start. Were lesson 1 the only
+  the phases from what the player has studied and earned. The server
+  answers the phase; the client draws it. Under `none` the chrome is English from the start. Were lesson 1 the only
   chrome lesson, ADR 036's worked example would turn the chrome to both
   at 2026-11-10 09:00, when lesson 1 finishes, and to English at
   2026-11-23 09:10, when its skill is earned.
