@@ -233,3 +233,22 @@ export const contentOf = (overrides: Partial<ContentParts> = {}): GateContent =>
     texts: [...parts.texts],
   }
 }
+
+export const lessonOneIds = lessonOneLexicon.map(({ id }) => id)
+
+export const afterLessonOne = (
+  structures: GateContent['grammar']['structures'],
+  ...laterLessons: ReadonlyArray<LexiconEntry>
+): GateContent =>
+  contentOf({
+    structures,
+    lexicon: [...lessonOneLexicon, ...laterLessons],
+    lessons: [
+      ['lesson-1', lessonOneIds],
+      ...laterLessons.map(({ id }, index) => [`lesson-${index + 2}`, [id]] as const),
+    ],
+  })
+
+export const lessonOneStructures = [
+  structureOf('lesson-1', lessonOneFrameWords, lessonOneInflections),
+]
