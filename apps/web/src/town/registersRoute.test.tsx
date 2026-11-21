@@ -7,6 +7,7 @@ import { renderAppAt } from '../auth/renderAppAt.testSupport'
 import { knownPlayer, knownTown, stubApiClient } from '../auth/stubApiClient.testSupport'
 import { playerCopyOf } from '../copy/playerCopyOf'
 import { skillRatesLineOf } from '../review/skillRatesLineOf'
+import { isDrawnAlone } from './lineDrawnAlone.testSupport'
 
 const readAt = Date.parse(knownTown.readAt)
 
@@ -109,7 +110,7 @@ it('writes the new level on the place row', async () => {
   await passSeconds(60)
 
   const row = placeRow(es.namesPlacesHomes())
-  expect(within(row).getByText(es.townLevel({ level: 3 }))).toBeDefined()
+  expect(within(row).getByText(isDrawnAlone(es.townLevel({ level: 3 }), 'es'))).toBeDefined()
   expect(playing(row, 'window')).toHaveLength(1)
 })
 

@@ -403,9 +403,73 @@ it('writes the level beside every place', async () => {
   expect(row(es.namesPlacesOffice()).getByText(es.townNotBuilt())).toBeDefined()
   expect(row(es.namesPlacesFarm()).getByText(es.townInWork())).toBeDefined()
   expect(
-    row(es.namesPlacesHomes()).getByText(`${es.townLevel({ level: 1 })} · ${es.townInWork()}`),
+    row(es.namesPlacesHomes()).getByText(
+      isDrawnAlone(`${es.townLevel({ level: 1 })} · ${es.townInWork()}`, 'es'),
+    ),
   ).toBeDefined()
-  expect(row(es.namesPlacesSchool()).getByText(es.townLevel({ level: 1 }))).toBeDefined()
+  expect(
+    row(es.namesPlacesSchool()).getByText(isDrawnAlone(es.townLevel({ level: 1 }), 'es')),
+  ).toBeDefined()
+})
+
+const farmAtLevelThree: TownOverview['buildings']['farm'] = {
+  level: 3,
+  nextLevel: {
+    level: 4,
+    cost: { money: 60, food: 0, power: 0, material: 0 },
+    people: 2,
+    durationSeconds: 60,
+    wordsNeeded: null,
+  },
+}
+
+const workOnFarmLevelFour: TownOverview['work'] = {
+  slot: {
+    building: 'farm',
+    level: 4,
+    cost: { money: 60, food: 0, power: 0, material: 0 },
+    startsAt: '2026-11-10T08:59:00.000Z',
+    finishesAt: '2026-11-10T09:04:00.000Z',
+  },
+  waitingList: [],
+  cap: 2,
+}
+
+const placeLevelLine = (place: string, line: string): HTMLElement =>
+  within(screen.getByRole('listitem', { name: place })).getByText(isDrawnAlone(line, 'es'))
+
+it('draws the level of an idle place as the whole text of its own tabular element', async () => {
+  await showTown(
+    serving({ ...knownTown, buildings: { ...knownTown.buildings, farm: farmAtLevelThree } }),
+  )
+
+  const levelLine = placeLevelLine(es.namesPlacesFarm(), es.townLevel({ level: 3 }))
+  expect(tabularFiguresOf(levelLine)).toEqual(['3'])
+  expect(levelLine.closest('p')?.classList.contains('tabular-nums')).toBe(false)
+})
+
+it('draws the level of a place in work as the whole text of its own tabular element', async () => {
+  await showTown(
+    serving({
+      ...knownTown,
+      buildings: { ...knownTown.buildings, farm: farmAtLevelThree },
+      work: workOnFarmLevelFour,
+    }),
+  )
+
+  const levelLine = placeLevelLine(
+    es.namesPlacesFarm(),
+    `${es.townLevel({ level: 3 })} · ${es.townInWork()}`,
+  )
+  expect(tabularFiguresOf(levelLine)).toEqual(['3'])
+  expect(levelLine.closest('p')?.classList.contains('tabular-nums')).toBe(false)
+})
+
+it('draws no tabular figure on the level line of a place not built', async () => {
+  await showTown(serving({ ...knownTown, work: workOnFarm }))
+
+  expect(tabularFiguresOf(placeLevelLine(es.namesPlacesOffice(), es.townNotBuilt()))).toEqual([])
+  expect(tabularFiguresOf(placeLevelLine(es.namesPlacesFarm(), es.townInWork()))).toEqual([])
 })
 
 const farmToBuild: TownOverview['buildings']['farm'] = {

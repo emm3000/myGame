@@ -40,7 +40,7 @@ export function PlaceRow({
           <h4 className="m-0 font-sans text-title text-ink">
             <LabelText label={name} />
           </h4>
-          <p className="m-0 font-sans text-caption text-ink-muted tabular-nums">
+          <p className="m-0 font-sans text-caption text-ink-muted">
             <LabelText label={levelLabel} />
           </p>
         </div>

@@ -237,12 +237,16 @@ it('shows a finished level after the next read', async () => {
     },
   })
   expect(
-    within(placeCard(es.namesPlacesHomes())).getByText('Nivel 1 · En construcción'),
+    within(placeCard(es.namesPlacesHomes())).getByText(
+      isDrawnAlone('Nivel 1 · En construcción', 'es'),
+    ),
   ).toBeDefined()
 
   await passSeconds(240)
 
-  expect(within(placeCard(es.namesPlacesHomes())).getByText('Nivel 2')).toBeDefined()
+  expect(
+    within(placeCard(es.namesPlacesHomes())).getByText(isDrawnAlone('Nivel 2', 'es')),
+  ).toBeDefined()
 })
 
 it('shows a refused start with its message under the place', async () => {
