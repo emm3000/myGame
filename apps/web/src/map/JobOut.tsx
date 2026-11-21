@@ -3,6 +3,7 @@ import { CardAction } from '../design-system/CardAction'
 import { CountdownLine } from '../design-system/CountdownLine'
 import { FormAlert } from '../design-system/FormAlert'
 import { focusTargetClass } from '../design-system/focusTargetClass'
+import { lineLabelOf } from '../design-system/lineLabelOf'
 import { refusalLineOf } from '../refusals/refusalLineOf'
 import type { JobOutContent } from './jobOutOf'
 import type { TownJob } from './useJob'
@@ -42,7 +43,7 @@ export function JobOut({ content, job, titleRef }: JobOutProps): ReactElement {
       {callBack !== undefined && (
         <CardAction
           type="button"
-          label={callBack.label}
+          label={lineLabelOf(callBack.label, 'es')}
           state={{ kind: 'affordable' }}
           isWaiting={job.isCallingBack}
           tone="quiet"
@@ -50,7 +51,7 @@ export function JobOut({ content, job, titleRef }: JobOutProps): ReactElement {
         />
       )}
       {refused !== undefined && (
-        <FormAlert message={refusalLineOf(refused.refusal, refused.error)} />
+        <FormAlert message={lineLabelOf(refusalLineOf(refused.refusal, refused.error), 'es')} />
       )}
     </section>
   )

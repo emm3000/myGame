@@ -4,6 +4,7 @@ import { afterEach, beforeEach, expect, it, vi } from 'vitest'
 import { numberBefore } from '../design/android/numberBefore'
 import { durations } from '../design/tokens'
 import { LoadingSkeleton, type LoadingSkeletonProps } from './LoadingSkeleton'
+import { lineLabelOf } from './lineLabelOf'
 import { skeletonBlocks } from './loadingSkeleton.testSupport'
 
 const revealMs = numberBefore('ms', durations.reveal)
@@ -22,7 +23,7 @@ afterEach(() => {
 const skeletonOf = (isLoading: boolean): ReactElement => (
   <LoadingSkeleton
     isLoading={isLoading}
-    line={loadingLine}
+    line={lineLabelOf(loadingLine, 'en')}
     groups={[['place-card', 'action'], ['thumbnail']]}
     Frame={Fragment}
   >
@@ -62,7 +63,12 @@ it('draws one block per entry once the reveal delay passes', () => {
 
 const columnClassesOf = (groups: LoadingSkeletonProps['groups']): ReadonlyArray<string> => {
   render(
-    <LoadingSkeleton isLoading line={loadingLine} groups={groups} Frame={Fragment}>
+    <LoadingSkeleton
+      isLoading
+      line={lineLabelOf(loadingLine, 'en')}
+      groups={groups}
+      Frame={Fragment}
+    >
       <p>{contentLine}</p>
     </LoadingSkeleton>,
   )
@@ -185,4 +191,27 @@ it('pulses only under motion-safe, never through the default animate-pulse', () 
     'motion-safe:animate-skeleton-pulse',
     'motion-safe:animate-skeleton-pulse',
   ])
+})
+
+it('marks each line of a both-phase loading line with its language', () => {
+  render(
+    <LoadingSkeleton
+      isLoading
+      line={{
+        text: 'Reading your town',
+        language: 'en',
+        translation: { text: 'Leyendo tu pueblo', language: 'es' },
+      }}
+      groups={[['action']]}
+      Frame={Fragment}
+    >
+      <p>{contentLine}</p>
+    </LoadingSkeleton>,
+  )
+
+  expect(screen.getByRole('status').textContent).toBe('Reading your town Leyendo tu pueblo')
+  expect([
+    screen.getByText('Reading your town').getAttribute('lang'),
+    screen.getByText('Leyendo tu pueblo').getAttribute('lang'),
+  ]).toEqual(['en', 'es'])
 })

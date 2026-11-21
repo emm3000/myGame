@@ -3,29 +3,31 @@ import type { CancelAction } from './CancelAction'
 import { CancelRow } from './CancelRow'
 import { Countdown } from './Countdown'
 import { SlotIcon } from './icons/SlotIcon'
+import type { Label } from './Label'
+import { LabelText } from './LabelText'
 import { SlotHeading } from './SlotHeading'
 import { Track } from './Track'
 
 export type BuildSlotState =
-  | { readonly kind: 'idle'; readonly title: string; readonly invitation: string }
+  | { readonly kind: 'idle'; readonly title: Label; readonly invitation: Label }
   | {
       readonly kind: 'busy'
-      readonly title: string
-      readonly buildingName: string
-      readonly levelLabel: string | undefined
+      readonly title: Label
+      readonly buildingName: Label
+      readonly levelLabel: Label | undefined
       readonly remainingSeconds: number
       readonly time: string
       readonly totalSeconds: number
-      readonly finishedLabel: string
+      readonly finishedLabel: Label
       readonly cancel: CancelAction
-      readonly refund: string | undefined
+      readonly refund: Label | undefined
     }
   | {
       readonly kind: 'justFinished'
-      readonly title: string
-      readonly buildingName: string
-      readonly levelLabel: string | undefined
-      readonly message: string
+      readonly title: Label
+      readonly buildingName: Label
+      readonly levelLabel: Label | undefined
+      readonly message: Label
     }
 
 const frameClass = 'flex flex-col gap-3 rounded-md p-5'
@@ -34,15 +36,17 @@ function Building({
   name,
   levelLabel,
 }: {
-  readonly name: string
-  readonly levelLabel: string | undefined
+  readonly name: Label
+  readonly levelLabel: Label | undefined
 }): ReactElement {
   return (
     <span className="flex items-baseline justify-between gap-2">
-      <span className="font-sans text-title text-ink">{name}</span>
+      <span className="font-sans text-title text-ink">
+        <LabelText label={name} />
+      </span>
       {levelLabel !== undefined && (
         <span className="whitespace-nowrap font-sans text-caption text-ink-muted tabular-nums">
-          {levelLabel}
+          <LabelText label={levelLabel} />
         </span>
       )}
     </span>
@@ -61,7 +65,9 @@ export function BuildSlot({
       return (
         <section className={`${frameClass} border border-line bg-surface-raised text-ink-muted`}>
           <SlotHeading icon={<SlotIcon />} title={state.title} titleRef={titleRef} />
-          <p className="m-0 font-sans text-caption">{state.invitation}</p>
+          <p className="m-0 font-sans text-caption">
+            <LabelText label={state.invitation} />
+          </p>
         </section>
       )
     case 'busy':
@@ -87,7 +93,9 @@ export function BuildSlot({
         <section className={`${frameClass} border border-ink bg-surface-sunken text-ink`}>
           <SlotHeading icon={<SlotIcon />} title={state.title} titleRef={titleRef} />
           <Building name={state.buildingName} levelLabel={state.levelLabel} />
-          <p className="m-0 font-sans text-caption">{state.message}</p>
+          <p className="m-0 font-sans text-caption">
+            <LabelText label={state.message} />
+          </p>
         </section>
       )
     default: {

@@ -42,9 +42,9 @@ it('shows the 8-character hint under the new password', async () => {
   renderAppAt('/reset-password?token=link-token', stubApiClient())
 
   const field = await screen.findByLabelText(passwordResetNewPasswordPassword())
-  const hint = screen.getByText('Al menos 8 caracteres.')
+  const hint = screen.getByText('Al menos 8 caracteres.').closest('[id]')
 
-  expect(field.getAttribute('aria-describedby')).toBe(hint.id)
+  expect(field.getAttribute('aria-describedby')).toBe(hint?.id)
 })
 
 it('refuses a short new password', async () => {

@@ -10,6 +10,7 @@ import type { HireKind, ResourceAmounts } from '@mygame/contracts'
 import type { OrderActionState } from '../design-system/CardAction'
 import type { CardCost } from '../design-system/CostList'
 import { formatDuration } from '../design-system/formatDuration'
+import { lineLabelOf } from '../design-system/lineLabelOf'
 import { cardCostsOf } from './cardCostsOf'
 import { hireWordsOf } from './hireWordsOf'
 import type { LiveTown } from './liveTown'
@@ -60,21 +61,21 @@ const freePeopleOf = ({ overview }: LiveTown): number | undefined =>
 
 function stateOf(terms: HireTerms, count: number | undefined, town: LiveTown): OrderActionState {
   if (count === undefined) {
-    return { kind: 'invalidEntry', reason: townOfficeCountNeeded() }
+    return { kind: 'invalidEntry', reason: lineLabelOf(townOfficeCountNeeded(), 'es') }
   }
   if (town.overview.hiring.order !== null) {
-    return { kind: 'blocked', reason: townOfficeBusy() }
+    return { kind: 'blocked', reason: lineLabelOf(townOfficeBusy(), 'es') }
   }
   const needed = terms.people * count
   const free = freePeopleOf(town)
   if (free !== undefined && needed > free) {
-    return { kind: 'blocked', reason: townPeopleShort({ needed, free }) }
+    return { kind: 'blocked', reason: lineLabelOf(townPeopleShort({ needed, free }), 'es') }
   }
   const cost = costTimes(terms.cost, count)
   const shortfall = shortfallLineOf(cost, town.stocks)
   return shortfall === undefined
     ? { kind: 'affordable' }
-    : { kind: 'blocked', reason: shortfall, ready: readyLineOf(cost, town) }
+    : { kind: 'blocked', reason: lineLabelOf(shortfall, 'es'), ready: readyLineOf(cost, town) }
 }
 
 function costsOf(
@@ -92,8 +93,9 @@ function costsOf(
     {
       kind: 'people',
       amount: needed,
-      spokenName: townOfficePeopleName({ count: needed }),
-      shortMark: free !== undefined && needed > free ? townShortMark() : undefined,
+      spokenName: lineLabelOf(townOfficePeopleName({ count: needed }), 'es'),
+      shortMark:
+        free !== undefined && needed > free ? lineLabelOf(townShortMark(), 'es') : undefined,
     },
   ]
 }

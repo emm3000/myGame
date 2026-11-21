@@ -1,4 +1,4 @@
-import { townGoalLine, townGoalPeople, townGoalReady, townInWork } from '@mygame/catalog'
+import { es, townGoalLine, townGoalPeople, townGoalReady, townInWork } from '@mygame/catalog'
 import { placeNameOf } from './placeNameOf'
 import { missingLineOf } from './shortfallLineOf'
 import type { TownGoal } from './TownGoal'
@@ -22,7 +22,7 @@ export function goalLinesOf(goal: TownGoal): GoalLines {
   const line = townGoalLine({
     position: goal.position,
     count: goal.count,
-    place: placeNameOf(goal.building),
+    place: placeNameOf(es, goal.building),
     level: goal.level,
   })
   return {

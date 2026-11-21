@@ -1,6 +1,7 @@
 import { mapCleanUpTitle, mapJobSend } from '@mygame/catalog'
 import type { SendCleanUp } from '@mygame/contracts'
 import type { OrderActionState } from '../design-system/CardAction'
+import { lineLabelOf } from '../design-system/lineLabelOf'
 import type { LiveTown } from '../town/liveTown'
 import { type TeamEntries, type TeamField, teamFormOf } from './teamFormOf'
 
@@ -27,7 +28,7 @@ export function cleanUpFormOf(
     state:
       admitted.kind === 'ready'
         ? { kind: 'affordable' }
-        : { kind: 'invalidEntry', reason: admitted.reason },
+        : { kind: 'invalidEntry', reason: lineLabelOf(admitted.reason, 'es') },
     cleanUp: admitted.kind === 'ready' ? { site, team: admitted.team } : undefined,
   }
 }

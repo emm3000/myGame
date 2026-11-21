@@ -14,6 +14,7 @@ import { AuthPanel } from '../auth/AuthPanel'
 import { Button } from '../design-system/Button'
 import { ButtonLink } from '../design-system/ButtonLink'
 import { FormAlert } from '../design-system/FormAlert'
+import { lineLabelOf } from '../design-system/lineLabelOf'
 import { TextField } from '../design-system/TextField'
 import { refusalLineOf } from '../refusals/refusalLineOf'
 import { ConfirmationLine } from './ConfirmationLine'
@@ -40,15 +41,17 @@ function NewPasswordForm(props: NewPasswordFormProps): ReactElement {
   return (
     <AuthPanel title={passwordResetNewPasswordTitle()} onSubmit={() => props.onSubmit(password)}>
       <TextField
-        label={passwordResetNewPasswordPassword()}
+        label={lineLabelOf(passwordResetNewPasswordPassword(), 'es')}
         name="new-password"
         type="password"
         autoComplete="new-password"
         value={password}
         onChange={setPassword}
-        hint={passwordResetNewPasswordPasswordHint()}
+        hint={lineLabelOf(passwordResetNewPasswordPasswordHint(), 'es')}
       />
-      {props.refusal === undefined ? null : <FormAlert message={refusalLineOf(props.refusal)} />}
+      {props.refusal === undefined ? null : (
+        <FormAlert message={lineLabelOf(refusalLineOf(props.refusal), 'es')} />
+      )}
       <Button type="submit" tone="primary" disabled={props.isSending}>
         {passwordResetNewPasswordSubmit()}
       </Button>
@@ -79,7 +82,7 @@ export function ResetPasswordScreen({ state, onSubmit }: ResetPasswordScreenProp
     case 'linkRefused':
       return (
         <AuthPanel title={passwordResetNewPasswordTitle()}>
-          <FormAlert message={refusalTokenInvalid()} />
+          <FormAlert message={lineLabelOf(refusalTokenInvalid(), 'es')} />
           <span className="flex">
             <ButtonLink to="/forgot-password" tone="quiet">
               {passwordResetNewPasswordNewLink()}

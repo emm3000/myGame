@@ -2,6 +2,7 @@ import { reviewBackToTown, schoolLessonTitle } from '@mygame/catalog'
 import type { WordStanding } from '@mygame/domain'
 import { type ReactElement, useId } from 'react'
 import { ButtonLink } from '../design-system/ButtonLink'
+import { lineLabelOf } from '../design-system/lineLabelOf'
 import { SchoolPath } from '../school/SchoolPath'
 import { ReviewsAhead } from './ReviewsAhead'
 
@@ -31,7 +32,7 @@ function LessonPath({ path }: { readonly path: ReviewEndPath }): ReactElement {
 export function ReviewEnd({ line, nextReview, path }: ReviewEndProps): ReactElement {
   return (
     <div className="flex flex-col gap-4">
-      <ReviewsAhead line={line} nextReview={nextReview} />
+      <ReviewsAhead line={lineLabelOf(line, 'es')} nextReview={nextReview} />
       {path !== undefined && <LessonPath path={path} />}
       <ButtonLink to="/" tone="primary">
         {reviewBackToTown()}

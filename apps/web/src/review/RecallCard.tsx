@@ -8,6 +8,7 @@ import {
 import { type DueReview, ReviewAnswerRequestSchema, type ReviewHint } from '@mygame/contracts'
 import type { FormEvent, ReactElement, Ref } from 'react'
 import { Button } from '../design-system/Button'
+import { lineLabelOf } from '../design-system/lineLabelOf'
 import { TextField } from '../design-system/TextField'
 import { CheckAction } from './CheckAction'
 import { frameTextOf } from './frameTextOf'
@@ -95,7 +96,7 @@ export function RecallCard({ card, review, verdictRef }: RecallCardProps): React
       <form onSubmit={submit} className="flex flex-col gap-4">
         <p className="m-0 font-sans text-caption text-ink-muted">{reviewRecallPrompt()}</p>
         <TextField
-          label={reviewAnswerField()}
+          label={lineLabelOf(reviewAnswerField(), 'es')}
           name="answer"
           type="text"
           autoComplete="off"

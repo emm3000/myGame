@@ -10,6 +10,7 @@ import {
 import type { Scaffold } from '@mygame/contracts'
 import { type ReactElement, useId } from 'react'
 import { FormAlert } from '../design-system/FormAlert'
+import { lineLabelOf } from '../design-system/lineLabelOf'
 import { ScaffoldChoice } from '../design-system/ScaffoldChoice'
 import { refusalLineOf } from '../refusals/refusalLineOf'
 import type { ScaffoldChange } from './useScaffoldSetting'
@@ -42,7 +43,7 @@ function ChangeLine({ change }: { readonly change: ScaffoldChange }): ReactEleme
     case 'saved':
       return <ChangeNote line={settingsSaved()} />
     case 'refused':
-      return <FormAlert message={refusalLineOf(change.refusal)} />
+      return <FormAlert message={lineLabelOf(refusalLineOf(change.refusal), 'es')} />
     default: {
       const unreachable: never = change
       return unreachable

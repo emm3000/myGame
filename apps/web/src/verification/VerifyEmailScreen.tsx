@@ -9,6 +9,7 @@ import type { ReactElement } from 'react'
 import { AuthPanel } from '../auth/AuthPanel'
 import { ButtonLink } from '../design-system/ButtonLink'
 import { FormAlert } from '../design-system/FormAlert'
+import { lineLabelOf } from '../design-system/lineLabelOf'
 import { TextLink } from '../design-system/TextLink'
 import { refusalLineOf } from '../refusals/refusalLineOf'
 import type { VerifyEmailState } from './useVerifyEmail'
@@ -44,7 +45,7 @@ export function VerifyEmailScreen({ state }: VerifyEmailScreenProps): ReactEleme
           title={verificationVerifyTitle()}
           footer={<TextLink to="/sign-in">{authSignInTitle()}</TextLink>}
         >
-          <FormAlert message={refusalLineOf(state.refusal)} />
+          <FormAlert message={lineLabelOf(refusalLineOf(state.refusal), 'es')} />
         </AuthPanel>
       )
     default: {

@@ -1,5 +1,6 @@
 import {
   authSignInTitle,
+  es,
   mapRowLink,
   mapTitle,
   namesPlacesFarm,
@@ -301,10 +302,10 @@ it('shows the earned skill beside its resource', async () => {
   const skills = [earnedSkill('lesson-1', 'food'), earnedSkill('lesson-3', 'food')]
   await showTown(serving({ ...knownTown, skills }))
 
-  const foodSkill = schoolSkillName({ resource: townResourceNameOf('food'), level: 2 })
+  const foodSkill = schoolSkillName({ resource: townResourceNameOf(es, 'food'), level: 2 })
   expect(within(stockCell('Comida')).getByText(foodSkill)).toBeDefined()
   const money = within(stockCell('Dinero'))
-  const moneySkill = schoolSkillName({ resource: townResourceNameOf('money'), level: 1 })
+  const moneySkill = schoolSkillName({ resource: townResourceNameOf(es, 'money'), level: 1 })
   expect([money.queryByText(foodSkill), money.queryByText(moneySkill)]).toEqual([null, null])
 })
 
@@ -314,7 +315,7 @@ it('shows no skill beside a resource while none is earned', async () => {
   const shownLevels = [0, 1].filter(
     (level) =>
       within(stockCell('Comida')).queryByText(
-        schoolSkillName({ resource: townResourceNameOf('food'), level }),
+        schoolSkillName({ resource: townResourceNameOf(es, 'food'), level }),
       ) !== null,
   )
   expect(shownLevels).toEqual([])

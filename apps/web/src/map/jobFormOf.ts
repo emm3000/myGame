@@ -1,6 +1,7 @@
 import { mapJobHours, mapJobHoursNeeded, mapJobSend, mapJobTitle } from '@mygame/catalog'
 import type { HireKind, SendJob } from '@mygame/contracts'
 import type { OrderActionState } from '../design-system/CardAction'
+import { lineLabelOf } from '../design-system/lineLabelOf'
 import type { LiveTown } from '../town/liveTown'
 import { type AdmittedTeam, type TeamField, teamFormOf } from './teamFormOf'
 import { wholeCountFrom } from './wholeCountFrom'
@@ -47,7 +48,7 @@ export function jobFormOf(
     state:
       admitted.kind === 'ready'
         ? { kind: 'affordable' }
-        : { kind: 'invalidEntry', reason: admitted.reason },
+        : { kind: 'invalidEntry', reason: lineLabelOf(admitted.reason, 'es') },
     job: admitted.kind === 'ready' ? admitted.job : undefined,
   }
 }

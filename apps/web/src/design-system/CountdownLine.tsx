@@ -1,8 +1,10 @@
 import type { ReactElement } from 'react'
 import { ClockIcon } from './icons/ClockIcon'
+import type { Label } from './Label'
+import { LabelText } from './LabelText'
 
 export interface SlotCountdown {
-  readonly words: string
+  readonly words: Label
   readonly time: string
 }
 
@@ -24,7 +26,9 @@ export function CountdownLine({
   return (
     <span role="timer" className={`flex flex-wrap items-center gap-x-2 gap-y-1 font-sans ${line}`}>
       <ClockIcon sizeClass="size-icon" />
-      <span className="text-caption">{words}</span>
+      <span className="text-caption">
+        <LabelText label={words} />
+      </span>
       <span className={`text-heading tabular-nums ${timeClass}`}>{time}</span>
     </span>
   )

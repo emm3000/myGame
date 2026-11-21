@@ -1,4 +1,4 @@
-import { statusTomorrow } from '@mygame/catalog'
+import type { ChromeCatalog } from '../copy/PlayerCopy'
 import { formatLocalDay } from './formatLocalDay'
 import { formatLocalTime } from './formatLocalTime'
 
@@ -8,13 +8,13 @@ const dayOf = (instant: Date): number =>
 const dayAfter = (instant: Date): number =>
   new Date(instant.getFullYear(), instant.getMonth(), instant.getDate() + 1).getTime()
 
-export function formatClock(instant: Date, now: Date): string {
+export function formatClock(catalog: ChromeCatalog, instant: Date, now: Date): string {
   const time = formatLocalTime(instant)
   if (dayOf(instant) === dayOf(now)) {
     return time
   }
   if (dayOf(instant) === dayAfter(now)) {
-    return statusTomorrow({ time })
+    return catalog.statusTomorrow({ time })
   }
   return `${formatLocalDay(instant)} ${time}`
 }

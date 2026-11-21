@@ -1,3 +1,4 @@
+import { es } from '@mygame/catalog'
 import { formatClock } from './formatClock'
 import { formatTimeLeft } from './formatTimeLeft'
 
@@ -9,5 +10,5 @@ export function formatFinishPieces(remainingSeconds: number, now: Date): Readonl
     return [timeLeft]
   }
   const finish = new Date(now.getTime() + remainingSeconds * 1000)
-  return [timeLeft, formatClock(finish, now)]
+  return [timeLeft, formatClock(es, finish, now)]
 }

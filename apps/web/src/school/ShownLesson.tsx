@@ -6,6 +6,7 @@ import { CardAction } from '../design-system/CardAction'
 import { FormAlert } from '../design-system/FormAlert'
 import { blockFocusTargetClass } from '../design-system/focusTargetClass'
 import { formatDuration } from '../design-system/formatDuration'
+import { lineLabelOf } from '../design-system/lineLabelOf'
 import { lessonNameOf } from '../town/lessonNameOf'
 import type { LiveTown } from '../town/liveTown'
 import { type LessonCardContent, readWordsLabelOf } from './lessonCardOf'
@@ -49,7 +50,7 @@ export function ShownLesson({ card, town, lessons, titleRef }: ShownLessonProps)
       {card.state.kind === 'open' && (
         <CardAction
           type="button"
-          label={`${card.actionLabel} · ${formatDuration(card.durationSeconds)}`}
+          label={lineLabelOf(`${card.actionLabel} · ${formatDuration(card.durationSeconds)}`, 'es')}
           state={card.state.action}
           isWaiting={lessons.isStarting}
           tone={lessonSlot === null ? 'primary' : 'quiet'}
@@ -65,7 +66,9 @@ export function ShownLesson({ card, town, lessons, titleRef }: ShownLessonProps)
           {readWordsLabelOf(lessonSlot.lessonId, card.lessonId, town.overview)}
         </ButtonLink>
       )}
-      {refused !== undefined && <FormAlert message={lessonRefusalLineOf(refused, town)} />}
+      {refused !== undefined && (
+        <FormAlert message={lineLabelOf(lessonRefusalLineOf(refused, town), 'es')} />
+      )}
     </div>
   )
 }

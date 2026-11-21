@@ -1,4 +1,5 @@
 import {
+  es,
   reviewAnswerField,
   reviewBackToTown,
   reviewCheck,
@@ -274,7 +275,7 @@ it('keeps the percent line with no town', async () => {
   const verdict = within(await answerEarning(earningVerdict(null, null)))
 
   expect(
-    verdict.getByText(reviewSkillRate({ percent: 5, resource: townResourceNameOf('food') })),
+    verdict.getByText(reviewSkillRate({ percent: 5, resource: townResourceNameOf(es, 'food') })),
   ).toBeTruthy()
   expect(verdict.queryByText(/\/ h,/)).toBeNull()
 })

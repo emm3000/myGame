@@ -1,7 +1,8 @@
-import { newsLoading } from '@mygame/catalog'
+import { es, newsLoading } from '@mygame/catalog'
 import { createFileRoute, Navigate } from '@tanstack/react-router'
 import type { ReactElement } from 'react'
 import { LoadingSkeleton, type LoadingSkeletonProps } from '../../design-system/LoadingSkeleton'
+import { lineLabelOf } from '../../design-system/lineLabelOf'
 import { NewsScreen, NewsTitled } from '../../news/NewsScreen'
 import { newsRowOf } from '../../news/newsRowOf'
 import { type TownNewsHandle, useTownNews } from '../../news/useTownNews'
@@ -23,7 +24,9 @@ function NewsAnswer({ news }: { readonly news: TownNewsHandle }): ReactElement |
         </NewsTitled>
       )
     case 'read':
-      return <NewsScreen rows={state.feed.items.map((item) => newsRowOf(item, state.receivedAt))} />
+      return (
+        <NewsScreen rows={state.feed.items.map((item) => newsRowOf(es, item, state.receivedAt))} />
+      )
     default: {
       const unreachable: never = state
       return unreachable
@@ -37,7 +40,7 @@ function NewsRoute(): ReactElement {
   return (
     <LoadingSkeleton
       isLoading={news.state.kind === 'loading'}
-      line={newsLoading()}
+      line={lineLabelOf(newsLoading(), 'es')}
       groups={newsSkeletonGroups}
       Frame={NewsTitled}
     >

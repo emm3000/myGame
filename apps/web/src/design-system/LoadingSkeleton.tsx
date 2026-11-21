@@ -1,12 +1,14 @@
 import { type ComponentType, type ReactElement, type ReactNode, useEffect, useState } from 'react'
 import { numberBefore } from '../design/android/numberBefore'
 import { durations } from '../design/tokens'
+import type { Label } from './Label'
+import { LabelText } from './LabelText'
 
 export type SkeletonBlock = 'control' | 'secondary' | 'action' | 'thumbnail' | 'place-card'
 
 export interface LoadingSkeletonProps {
   readonly isLoading: boolean
-  readonly line: string
+  readonly line: Label
   readonly groups: ReadonlyArray<ReadonlyArray<SkeletonBlock>>
   readonly Frame: ComponentType<{ readonly children: ReactNode }>
   readonly children: ReactNode
@@ -94,7 +96,7 @@ export function LoadingSkeleton({
     <Frame>
       <section aria-busy="true" className="flex flex-col">
         <p role="status" className="sr-only">
-          {line}
+          <LabelText label={line} />
         </p>
         {isDrawn && <SkeletonBlocks groups={groups} />}
       </section>

@@ -1,4 +1,5 @@
 import {
+  es,
   schoolLessonCapReached,
   schoolLessonNeedsSchool,
   schoolLessonReadWords,
@@ -11,6 +12,7 @@ import type { TownOverview } from '@mygame/contracts'
 import type { WordStanding } from '@mygame/domain'
 import { type BlockHue, blockHueOf } from '../design-system/blockHueOf'
 import type { OrderActionState } from '../design-system/CardAction'
+import { lineLabelOf } from '../design-system/lineLabelOf'
 import { townResourceNameOf } from '../resources/townResourceNameOf'
 import { lessonNameOf, lessonNumberOf } from '../town/lessonNameOf'
 import { lessonLinesOf } from './lessonLinesOf'
@@ -56,23 +58,29 @@ function actionOf(lesson: StudyableLesson, overview: TownOverview): OrderActionS
   if (lessonSlot !== null) {
     return {
       kind: 'blocked',
-      reason: lessonLinesOf(lessonNameOf(lessonSlot.lessonId, overview)).slotBusy,
+      reason: lineLabelOf(
+        lessonLinesOf(lessonNameOf(lessonSlot.lessonId, overview)).slotBusy,
+        'es',
+      ),
     }
   }
   if (buildings.school.level < lesson.requiredSchoolLevel) {
     return {
       kind: 'blocked',
-      reason: schoolLessonNeedsSchool({ level: lesson.requiredSchoolLevel }),
+      reason: lineLabelOf(schoolLessonNeedsSchool({ level: lesson.requiredSchoolLevel }), 'es'),
     }
   }
   if (isPastLearningCap(lesson, overview)) {
     return {
       kind: 'blocked',
-      reason: schoolLessonCapReached({
-        inLearning: learning.inLearning,
-        cap: learning.cap,
-        count: lesson.words.length,
-      }),
+      reason: lineLabelOf(
+        schoolLessonCapReached({
+          inLearning: learning.inLearning,
+          cap: learning.cap,
+          count: lesson.words.length,
+        }),
+        'es',
+      ),
     }
   }
   return { kind: 'affordable' }
@@ -98,7 +106,7 @@ export function lessonCardOf(lesson: Lesson, overview: TownOverview): LessonCard
     wordsLine: schoolLessonWords({ count: lesson.words.length }),
     skillLine: schoolLessonReward({
       percent: lesson.skill.ratePercent,
-      resource: townResourceNameOf(lesson.skill.resource),
+      resource: townResourceNameOf(es, lesson.skill.resource),
     }),
     actionLabel: schoolLessonStudy({ number }),
     durationSeconds: lesson.durationSeconds,

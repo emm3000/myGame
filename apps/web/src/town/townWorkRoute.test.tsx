@@ -79,10 +79,10 @@ it('offers the next level with its cost and duration', async () => {
   const farm = placeCard(namesPlacesFarm())
   expect(within(farm).getByRole('button', { name: 'Construir nivel 1 · 5:00' })).toBeDefined()
   expect(within(farm).getByText('Gente trabajando: +2')).toBeDefined()
-  expect(within(farm).getByText('de dinero', { exact: false }).parentElement?.textContent).toBe(
+  expect(within(farm).getByText('de dinero', { exact: false }).closest('li')?.textContent).toBe(
     '60 de dinero',
   )
-  expect(within(farm).getByText('de material', { exact: false }).parentElement?.textContent).toBe(
+  expect(within(farm).getByText('de material', { exact: false }).closest('li')?.textContent).toBe(
     '80 de material',
   )
 })

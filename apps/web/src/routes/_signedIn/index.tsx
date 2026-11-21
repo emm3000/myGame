@@ -4,6 +4,7 @@ import { Fragment, type ReactElement } from 'react'
 import type { ApiClient } from '../../api/apiClient'
 import { SignOutColumn } from '../../auth/SignOutColumn'
 import { LoadingSkeleton, type LoadingSkeletonProps } from '../../design-system/LoadingSkeleton'
+import { lineLabelOf } from '../../design-system/lineLabelOf'
 import { usePlacementOffer } from '../../placement/usePlacementOffer'
 import type { LiveTown } from '../../town/liveTown'
 import { NameTownScreen } from '../../town/NameTownScreen'
@@ -118,7 +119,7 @@ function TownPage(): ReactElement {
   return (
     <LoadingSkeleton
       isLoading={town.state.kind === 'loading'}
-      line={townLoading()}
+      line={lineLabelOf(townLoading(), 'es')}
       groups={townSkeletonGroups}
       Frame={Fragment}
     >

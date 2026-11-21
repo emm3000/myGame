@@ -12,6 +12,7 @@ import type { ApiRefusal } from '../api/apiClient'
 import { AuthPanel } from '../auth/AuthPanel'
 import { Button } from '../design-system/Button'
 import { FormAlert } from '../design-system/FormAlert'
+import { lineLabelOf } from '../design-system/lineLabelOf'
 import { TextField } from '../design-system/TextField'
 import { TextLink } from '../design-system/TextLink'
 import { refusalLineOf } from '../refusals/refusalLineOf'
@@ -52,7 +53,7 @@ function RequestForm(props: RequestFormProps): ReactElement {
       footer={<TextLink to="/sign-in">{authSignInTitle()}</TextLink>}
     >
       <TextField
-        label={authEmail()}
+        label={lineLabelOf(authEmail(), 'es')}
         name="email"
         type="email"
         autoComplete="email"
@@ -60,7 +61,9 @@ function RequestForm(props: RequestFormProps): ReactElement {
         onChange={setEmail}
         error={emailError}
       />
-      {props.refusal === undefined ? null : <FormAlert message={refusalLineOf(props.refusal)} />}
+      {props.refusal === undefined ? null : (
+        <FormAlert message={lineLabelOf(refusalLineOf(props.refusal), 'es')} />
+      )}
       <Button type="submit" tone="primary" disabled={props.isSending}>
         {passwordResetRequestSubmit()}
       </Button>

@@ -1,18 +1,20 @@
 import { type ReactElement, useId } from 'react'
 import { Button, type ButtonTone } from './Button'
 import { ClockIcon } from './icons/ClockIcon'
+import type { Label } from './Label'
+import { LabelText } from './LabelText'
 
 export type CardActionState =
   | { readonly kind: 'affordable' }
-  | { readonly kind: 'blocked'; readonly reason: string; readonly ready?: string | undefined }
-  | { readonly kind: 'invalidEntry'; readonly reason: string }
-  | { readonly kind: 'atMaxLevel'; readonly label: string }
+  | { readonly kind: 'blocked'; readonly reason: Label; readonly ready?: Label | undefined }
+  | { readonly kind: 'invalidEntry'; readonly reason: Label }
+  | { readonly kind: 'atMaxLevel'; readonly label: Label }
 
 export type OrderActionState = Exclude<CardActionState, { readonly kind: 'atMaxLevel' }>
 
 export interface CardActionProps {
   readonly type: 'button' | 'submit'
-  readonly label: string
+  readonly label: Label
   readonly state: CardActionState
   readonly isWaiting: boolean
   readonly tone?: ButtonTone | undefined
@@ -31,8 +33,8 @@ const cardTone: Readonly<Record<CardActionState['kind'], string>> = {
 export const cardToneOf = (state: CardActionState): string => cardTone[state.kind]
 
 interface ShownReason {
-  readonly reason: string
-  readonly ready: string | undefined
+  readonly reason: Label
+  readonly ready: Label | undefined
 }
 
 function shownReasonOf(state: CardActionState, isWaiting: boolean): ShownReason | undefined {
@@ -48,12 +50,14 @@ function shownReasonOf(state: CardActionState, isWaiting: boolean): ShownReason 
 function ReasonLine({ shown }: { readonly shown: ShownReason }): ReactElement {
   return (
     <>
-      <span className="font-sans text-caption text-warning-ink">{shown.reason}</span>
+      <span className="font-sans text-caption text-warning-ink">
+        <LabelText label={shown.reason} />
+      </span>
       {shown.ready !== undefined && (
         <>
           {' '}
           <span className="font-sans font-semibold text-caption text-ink tabular-nums">
-            {shown.ready}
+            <LabelText label={shown.ready} />
           </span>
         </>
       )}
@@ -72,7 +76,7 @@ function ActionButton({
   onAction,
 }: {
   readonly type: CardActionProps['type']
-  readonly label: string
+  readonly label: Label
   readonly state: CardActionState
   readonly isWaiting: boolean
   readonly tone: ButtonTone
@@ -83,14 +87,14 @@ function ActionButton({
   if (state.kind === 'atMaxLevel') {
     return (
       <Button type={type} tone={tone} availability="blocked">
-        {state.label}
+        <LabelText label={state.label} />
       </Button>
     )
   }
   if (state.kind === 'invalidEntry') {
     return (
       <Button type={type} tone={tone} availability="blocked" describedBy={describedBy}>
-        {label}
+        <LabelText label={label} />
       </Button>
     )
   }
@@ -98,7 +102,7 @@ function ActionButton({
     return (
       <Button type={type} tone={tone} availability={keepsLabelWidth ? 'waitingInPlace' : 'waiting'}>
         <ClockIcon sizeClass={keepsLabelWidth ? 'size-icon-small' : 'size-icon'} />
-        <span>{label}</span>
+        <LabelText label={label} />
       </Button>
     )
   }
@@ -110,7 +114,7 @@ function ActionButton({
       describedBy={describedBy}
       onClick={onAction}
     >
-      {label}
+      <LabelText label={label} />
     </Button>
   )
 }

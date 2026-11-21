@@ -1,6 +1,7 @@
 import type { ReactElement } from 'react'
 import { CardAction } from '../design-system/CardAction'
 import { CostList } from '../design-system/CostList'
+import { lineLabelOf } from '../design-system/lineLabelOf'
 import { TextField } from '../design-system/TextField'
 import type { HireCardContent } from './hireCardOf'
 
@@ -24,7 +25,7 @@ function OpenHire({
   return (
     <>
       <TextField
-        label={card.fieldLabel}
+        label={lineLabelOf(card.fieldLabel, 'es')}
         name={`hire-${card.hire}`}
         type="text"
         inputMode="numeric"
@@ -36,7 +37,7 @@ function OpenHire({
       {card.costs.length > 0 && <CostList costs={card.costs} />}
       <CardAction
         type="button"
-        label={card.actionLabel}
+        label={lineLabelOf(card.actionLabel, 'es')}
         state={card.state}
         isWaiting={isWaiting}
         tone="quiet"

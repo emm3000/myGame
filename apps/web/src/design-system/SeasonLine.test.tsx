@@ -1,10 +1,15 @@
 import { render, screen } from '@testing-library/react'
 import { expect, it } from 'vitest'
+import { lineLabelOf } from './lineLabelOf'
 import { SeasonLine } from './SeasonLine'
 
 function renderSpringLine(): void {
   render(
-    <SeasonLine season="spring" headerLine="Primavera, año 2" countdownLine="Verano en 0:42" />,
+    <SeasonLine
+      season="spring"
+      headerLine={lineLabelOf('Primavera, año 2', 'es')}
+      countdownLine={lineLabelOf('Verano en 0:42', 'es')}
+    />,
   )
 }
 

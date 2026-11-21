@@ -1,4 +1,5 @@
 import {
+  es,
   refusalWaitingListFull,
   townAtTopLevel,
   townBuild,
@@ -13,6 +14,7 @@ import {
 import type { BuildingKind } from '@mygame/contracts'
 import type { CardActionState } from '../design-system/CardAction'
 import type { CardCost } from '../design-system/CostList'
+import { lineLabelOf } from '../design-system/lineLabelOf'
 import { cardCostsOf } from './cardCostsOf'
 import type { LiveTown } from './liveTown'
 import { placeNameOf } from './placeNameOf'
@@ -54,18 +56,28 @@ const isShortOfPeople = (nextLevel: NextLevel, { work, people }: LiveTown['overv
 function stateOf(nextLevel: NextLevel, town: LiveTown): CardActionState {
   const { overview } = town
   if (isWaitingListFull(overview)) {
-    return { kind: 'blocked', reason: refusalWaitingListFull({ cap: overview.work.cap }) }
+    return {
+      kind: 'blocked',
+      reason: lineLabelOf(refusalWaitingListFull({ cap: overview.work.cap }), 'es'),
+    }
   }
   if (isShortOfPeople(nextLevel, overview)) {
     return {
       kind: 'blocked',
-      reason: townPeopleShort({ needed: nextLevel.people, free: overview.people.free }),
+      reason: lineLabelOf(
+        townPeopleShort({ needed: nextLevel.people, free: overview.people.free }),
+        'es',
+      ),
     }
   }
   const shortfall = shortfallLineOf(nextLevel.cost, town.stocks)
   return shortfall === undefined
     ? { kind: 'affordable' }
-    : { kind: 'blocked', reason: shortfall, ready: readyLineOf(nextLevel.cost, town) }
+    : {
+        kind: 'blocked',
+        reason: lineLabelOf(shortfall, 'es'),
+        ready: readyLineOf(nextLevel.cost, town),
+      }
 }
 
 const isInWork = (place: BuildingKind, { slot, waitingList }: LiveTown): boolean =>
@@ -81,7 +93,7 @@ function levelLabelOf(place: BuildingKind, level: number, town: LiveTown): strin
 export function placeCardOf(place: BuildingKind, town: LiveTown): PlaceCardContent {
   const { level, nextLevel } = town.overview.buildings[place]
   const common = {
-    name: placeNameOf(place),
+    name: placeNameOf(es, place),
     levelLabel: levelLabelOf(place, level, town),
   }
   if (nextLevel === null) {
@@ -92,7 +104,7 @@ export function placeCardOf(place: BuildingKind, town: LiveTown): PlaceCardConte
       wordsLine: null,
       actionLabel: townTopLevel(),
       durationSeconds: 0,
-      state: { kind: 'atMaxLevel', label: townTopLevel() },
+      state: { kind: 'atMaxLevel', label: lineLabelOf(townTopLevel(), 'es') },
     }
   }
   return {

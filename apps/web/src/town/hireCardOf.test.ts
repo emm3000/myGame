@@ -2,6 +2,7 @@ import { townReadyIn } from '@mygame/catalog'
 import type { TownOverview } from '@mygame/contracts'
 import { expect, it } from 'vitest'
 import { knownTown } from '../auth/stubApiClient.testSupport'
+import { lineLabelOf } from '../design-system/lineLabelOf'
 import { hireCardOf } from './hireCardOf'
 import { liveTownAt } from './liveTown'
 
@@ -29,7 +30,7 @@ it('asks for a whole count before naming a running order', () => {
 
   expect(card.kind === 'open' ? card.state : undefined).toEqual({
     kind: 'invalidEntry',
-    reason: 'Contrata 1 o más.',
+    reason: lineLabelOf('Contrata 1 o más.', 'es'),
   })
 })
 
@@ -44,7 +45,7 @@ const shortOfMoneyTown: TownOverview = {
 
 const readyOf = (town: TownOverview, entry: string): string | undefined => {
   const card = hireCardOf('worker', entry, liveTownAt(town, 0))
-  return card.kind === 'open' && card.state.kind === 'blocked' ? card.state.ready : undefined
+  return card.kind === 'open' && card.state.kind === 'blocked' ? card.state.ready?.text : undefined
 }
 
 it('names the minute the money arrives when only resources are short', () => {

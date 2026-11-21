@@ -1,12 +1,14 @@
 import type { ReactElement } from 'react'
 import { formatQuantity } from './formatQuantity'
+import type { Label } from './Label'
+import { LabelText } from './LabelText'
 import { type Accent, resourceAccent } from './resourceAccent'
 
 export interface CardCost {
   readonly kind: Accent
   readonly amount: number
-  readonly spokenName: string
-  readonly shortMark: string | undefined
+  readonly spokenName: Label
+  readonly shortMark: Label | undefined
 }
 
 export function CostList({ costs }: { readonly costs: ReadonlyArray<CardCost> }): ReactElement {
@@ -23,8 +25,15 @@ export function CostList({ costs }: { readonly costs: ReadonlyArray<CardCost> })
               <Icon />
             </span>
             {formatQuantity(cost.amount)}
-            <span className="sr-only">{` ${cost.spokenName}`}</span>
-            {cost.shortMark !== undefined && <span className="sr-only">{cost.shortMark}</span>}
+            <span className="sr-only">
+              {' '}
+              <LabelText label={cost.spokenName} />
+            </span>
+            {cost.shortMark !== undefined && (
+              <span className="sr-only">
+                <LabelText label={cost.shortMark} />
+              </span>
+            )}
           </li>
         )
       })}

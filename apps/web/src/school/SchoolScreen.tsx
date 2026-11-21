@@ -1,4 +1,5 @@
 import {
+  es,
   namesPlacesSchool,
   schoolLearning,
   schoolLearningFull,
@@ -16,6 +17,7 @@ import {
 import { type ReactElement, useEffect, useState } from 'react'
 import { BuildSlot, type BuildSlotState } from '../design-system/BuildSlot'
 import { FormAlert } from '../design-system/FormAlert'
+import { lineLabelOf } from '../design-system/lineLabelOf'
 import { Track } from '../design-system/Track'
 import { useFocusTarget } from '../focus/useFocusTarget'
 import { refusalLineOf } from '../refusals/refusalLineOf'
@@ -54,27 +56,36 @@ function slotStateOf(
 ): BuildSlotState {
   const slot = town.lessonSlot
   if (slot === null) {
-    return { kind: 'idle', title: schoolSlotTitle(), invitation: schoolSlotIdle() }
+    return {
+      kind: 'idle',
+      title: lineLabelOf(schoolSlotTitle(), 'es'),
+      invitation: lineLabelOf(schoolSlotIdle(), 'es'),
+    }
   }
   const lines = lessonLinesOf(lessonNameOf(slot.lessonId, town.overview))
-  const lesson = { buildingName: lines.title, levelLabel: undefined }
+  const lesson = { buildingName: lineLabelOf(lines.title, 'es'), levelLabel: undefined }
   if (slot.remainingSeconds <= 0) {
-    return { kind: 'justFinished', title: schoolSlotTitle(), message: schoolSlotDone(), ...lesson }
+    return {
+      kind: 'justFinished',
+      title: lineLabelOf(schoolSlotTitle(), 'es'),
+      message: lineLabelOf(schoolSlotDone(), 'es'),
+      ...lesson,
+    }
   }
   return {
     kind: 'busy',
-    title: schoolSlotTitle(),
+    title: lineLabelOf(schoolSlotTitle(), 'es'),
     remainingSeconds: slot.remainingSeconds,
     time: formatFinish(slot.remainingSeconds, town.at),
     totalSeconds: slot.totalSeconds,
-    finishedLabel: townWorkReady(),
+    finishedLabel: lineLabelOf(townWorkReady(), 'es'),
     cancel: {
-      label: schoolSlotStop(),
+      label: lineLabelOf(schoolSlotStop(), 'es'),
       accessibleName: lines.stopOf,
       isWaiting: lessons.isStopping,
       onCancel: () => lessons.stop(slot.lessonId, onStopped),
     },
-    refund: schoolSlotRefund(),
+    refund: lineLabelOf(schoolSlotRefund(), 'es'),
     ...lesson,
   }
 }
@@ -118,7 +129,7 @@ function ReviewsLink({
   if (nextStep.kind !== 'reviews') {
     return null
   }
-  const action = reviewsActionOf(nextStep.readFirst)
+  const action = reviewsActionOf(es, nextStep.readFirst)
   const named =
     action.to === '/school/$lessonId'
       ? { ...action, label: readWordsLabelOf(action.lessonId, shownLessonId, overview) }
@@ -184,7 +195,9 @@ export function SchoolScreen({ town, lessons }: SchoolScreenProps): ReactElement
           <BandLines bandLines={overview.bandLines} />
           <BuildSlot state={slotStateOf(town, lessons, slotTitle.focus)} titleRef={slotTitle.ref} />
           {stopRefused !== undefined && (
-            <FormAlert message={refusalLineOf(stopRefused.refusal, stopRefused.error)} />
+            <FormAlert
+              message={lineLabelOf(refusalLineOf(stopRefused.refusal, stopRefused.error), 'es')}
+            />
           )}
           <SkillList skills={overview.skills} title={schoolSkills()} empty={schoolSkillsNone()} />
         </div>

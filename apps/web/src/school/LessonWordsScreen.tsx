@@ -15,6 +15,7 @@ import { ButtonLink } from '../design-system/ButtonLink'
 import { blockHueOf } from '../design-system/blockHueOf'
 import { Countdown } from '../design-system/Countdown'
 import { blockFocusTargetClass } from '../design-system/focusTargetClass'
+import { lineLabelOf } from '../design-system/lineLabelOf'
 import { PlaceArt } from '../design-system/PlaceArt'
 import { TextLink } from '../design-system/TextLink'
 import { Track } from '../design-system/Track'
@@ -30,7 +31,7 @@ function RunningTime({ running }: { readonly running: RunningLesson }): ReactEle
       <Countdown
         remainingSeconds={running.remainingSeconds}
         time={running.time}
-        finishedLabel={townWorkReady()}
+        finishedLabel={lineLabelOf(townWorkReady(), 'es')}
       />
     </div>
   )

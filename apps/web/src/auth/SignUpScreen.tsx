@@ -18,6 +18,7 @@ import { type ReactElement, useState } from 'react'
 import type { ApiRefusal } from '../api/apiClient'
 import { Button } from '../design-system/Button'
 import { FormAlert } from '../design-system/FormAlert'
+import { lineLabelOf } from '../design-system/lineLabelOf'
 import { ScaffoldChoice } from '../design-system/ScaffoldChoice'
 import { TextField } from '../design-system/TextField'
 import { TextLink } from '../design-system/TextLink'
@@ -116,7 +117,7 @@ export function SignUpScreen(props: SignUpScreenProps): ReactElement {
         onPick={pick}
       />
       <TextField
-        label={authEmail()}
+        label={lineLabelOf(authEmail(), 'es')}
         name="email"
         type="email"
         autoComplete="email"
@@ -125,16 +126,18 @@ export function SignUpScreen(props: SignUpScreenProps): ReactElement {
         error={errors.email}
       />
       <TextField
-        label={authPassword()}
+        label={lineLabelOf(authPassword(), 'es')}
         name="password"
         type="password"
         autoComplete="new-password"
         value={request.password}
         onChange={edit('password')}
-        hint={authSignUpPasswordHint()}
+        hint={lineLabelOf(authSignUpPasswordHint(), 'es')}
         error={errors.password}
       />
-      {formRefusal === undefined ? null : <FormAlert message={refusalLineOf(formRefusal)} />}
+      {formRefusal === undefined ? null : (
+        <FormAlert message={lineLabelOf(refusalLineOf(formRefusal), 'es')} />
+      )}
       <Button type="submit" tone="primary" disabled={props.isSubmitting}>
         {authSignUpSubmit()}
       </Button>
