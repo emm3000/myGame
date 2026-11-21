@@ -1,10 +1,10 @@
+import type { Band } from '#learning/curriculum/Band'
+import type { BandWord } from '#learning/curriculum/BandWord'
+import type { Headword } from '#learning/curriculum/Headword'
 import type { RandomSource } from '#ports/RandomSource'
 import type { Instant } from '#time/Instant'
-import type { Band } from './Band'
 import type { BandStart } from './BandStart'
-import type { BandWord } from './BandWord'
 import { drawableHeadwordsOf } from './drawableHeadwordsOf'
-import type { Headword } from './Headword'
 import { heldOutCountOf } from './heldOutCountOf'
 
 export const bandStartDrawn = (

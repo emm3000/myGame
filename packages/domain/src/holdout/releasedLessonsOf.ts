@@ -1,5 +1,4 @@
 import { compareWordIds } from '#learning/compareWordIds'
-import type { BandStart } from '#learning/curriculum/BandStart'
 import { isUnitLemma } from '#learning/curriculum/isUnitLemma'
 import { lemmaWordsOf } from '#learning/curriculum/lemmaWordsOf'
 import type { BandCatalog } from '#learning/curriculum/ports/BandCatalog'
@@ -7,6 +6,7 @@ import type { LessonCatalog } from '#learning/curriculum/ports/LessonCatalog'
 import type { HeldCard } from '#learning/HeldCard'
 import type { Lesson, LessonWord } from '#learning/Lesson'
 import type { Instant } from '#time/Instant'
+import type { BandStart } from './BandStart'
 import type { ReleasedLesson } from './ReleasedLesson'
 import { releasedAtOf } from './releasedAtOf'
 

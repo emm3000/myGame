@@ -1,3 +1,4 @@
+export type { BandStart } from '#holdout/BandStart'
 export type { DueHoldoutCheck } from '#holdout/DueHoldoutCheck'
 export { dueHoldoutChecksOf } from '#holdout/dueHoldoutChecksOf'
 export type {
@@ -10,6 +11,8 @@ export type {
 export type { HoldoutCheckView } from '#holdout/HoldoutCheckView'
 export type { HoldoutCheckWeek } from '#holdout/HoldoutCheckWeek'
 export { hasBandStartedAt } from '#holdout/hasBandStartedAt'
+export { heldOutCountOf } from '#holdout/heldOutCountOf'
+export { heldOutWordsAt } from '#holdout/heldOutWordsAt'
 export { HOLDOUT_CHECK_WEEKS, RELEASING_WEEK } from '#holdout/holdoutCheckWeeks'
 export type { BandStartRepository } from '#holdout/ports/BandStartRepository'
 export type { ReleasedLesson } from '#holdout/ReleasedLesson'
@@ -33,13 +36,10 @@ export {
   skipHoldoutCheck,
 } from '#holdout/useCases/skipHoldoutCheck'
 export type { Band } from '#learning/curriculum/Band'
-export type { BandStart } from '#learning/curriculum/BandStart'
 export type { BandWord } from '#learning/curriculum/BandWord'
 export { bandLinesOf } from '#learning/curriculum/bandLinesOf'
 export type { Headword } from '#learning/curriculum/Headword'
 export { headwordOf } from '#learning/curriculum/headwordOf'
-export { heldOutCountOf } from '#learning/curriculum/heldOutCountOf'
-export { heldOutWordsAt } from '#learning/curriculum/heldOutWordsAt'
 export { isLessonPlacedOut } from '#learning/curriculum/isLessonPlacedOut'
 export { isUnitLemma } from '#learning/curriculum/isUnitLemma'
 export { lemmaWordsOf } from '#learning/curriculum/lemmaWordsOf'

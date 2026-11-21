@@ -1,4 +1,5 @@
 import { assert } from 'vitest'
+import type { BandStart } from '#holdout/BandStart'
 import { inMemoryBandStarts } from '#holdout/testing/inMemoryBandStarts'
 import { dueInstantOf } from '#memory/dueInstantOf'
 import { MemoryCard } from '#memory/MemoryCard'
@@ -19,7 +20,6 @@ import { type InMemoryTownNews, inMemoryTownNews } from '#town/testing/inMemoryT
 import { type InMemoryTowns, inMemoryTowns } from '#town/testing/inMemoryTowns'
 import { plainTownLevels, plainTownSettings, townCatalogOf } from '#town/testing/townCatalogOf'
 import { type TownShape, townOf } from '#town/testing/townFixtures'
-import type { BandStart } from '../../curriculum/BandStart'
 import { inMemoryBands } from '../../curriculum/testing/inMemoryBands'
 import { inMemoryLessons } from '../../curriculum/testing/inMemoryLessons'
 import { lessonOne } from '../../curriculum/testing/lessonOne'

@@ -1,9 +1,9 @@
 import { describe, expect, it } from 'vitest'
+import type { BandWord } from '#learning/curriculum/BandWord'
+import type { Headword } from '#learning/curriculum/Headword'
 import { firstItemsRandom } from '#ports/testing/firstItemsRandom'
 import { Instant } from '#time/Instant'
-import type { BandWord } from './BandWord'
 import { bandStartDrawn } from './bandStartDrawn'
-import type { Headword } from './Headword'
 
 const startedAt = Instant.fromEpochMilliseconds(Date.parse('2026-11-18T09:00:00Z'))
 

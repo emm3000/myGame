@@ -1,7 +1,7 @@
 import { assert, describe, expect, it } from 'vitest'
+import type { BandStart } from '#holdout/BandStart'
 import type { HoldoutCheck } from '#holdout/HoldoutCheck'
 import type { ReleasedLesson } from '#holdout/ReleasedLesson'
-import type { BandStart } from '#learning/curriculum/BandStart'
 import { inMemoryBands } from '#learning/curriculum/testing/inMemoryBands'
 import { lessonOne } from '#learning/curriculum/testing/lessonOne'
 import { unitLessonOne } from '#learning/curriculum/testing/unitLessonOne'

@@ -1,5 +1,5 @@
-import type { BandStart } from '#learning/curriculum/BandStart'
 import type { Instant } from '#time/Instant'
+import type { BandStart } from './BandStart'
 import { isWeekReached } from './holdoutCheckWeeks'
 
 const BAND_START_WEEK = 0

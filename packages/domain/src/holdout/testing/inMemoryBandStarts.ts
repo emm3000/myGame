@@ -1,6 +1,6 @@
-import type { BandStart } from '#learning/curriculum/BandStart'
 import type { PlayerId } from '#player/PlayerId'
 import { ok } from '#Result'
+import type { BandStart } from '../BandStart'
 import type { BandStartRepository } from '../ports/BandStartRepository'
 
 export type OwnedBandStart = {
