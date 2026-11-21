@@ -461,7 +461,7 @@ const fullCapLine = (): HTMLElement =>
 it('draws the time left of a full cap as the whole text of its own tabular element', async () => {
   await showSchool(schoolOf({ learning: fullCapWaiting }))
 
-  expect(tabularFiguresOf(fullCapLine())).toEqual([nextWordDueIn])
+  expect(tabularFiguresOf(fullCapLine())).toEqual(['2 h 15 min', '12:15'])
 })
 
 it('keeps tabular figures off the paragraph of the full-cap line', async () => {
