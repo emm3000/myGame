@@ -10,7 +10,7 @@ import {
   type TownEvent,
   type TownId,
 } from '@mygame/domain'
-import { type ReviewTerms, reviewsOf } from '../../learning/reviewsOf'
+import { presentReviews, type ReviewTerms, serveDueReviews } from '../../learning/reviewsOf'
 import type { Refusal } from '../../platform/application/Refusal'
 import { type CurrentTownDependencies, currentTownOf } from '../../town/currentTownOf'
 import type { TownNewsReader } from '../../town/TownNewsReader'
@@ -66,12 +66,12 @@ const shownAt = (
   const readClock: Clock = { now: () => town.at }
   return dependencies.inTransaction(async (stores) => {
     await stores.accounts.lockPlayer(playerId)
-    const reviews = await reviewsOf(playerId, stores, readClock, dependencies)
+    const reviews = await serveDueReviews(playerId, stores, readClock, dependencies)
     if (!reviews.ok) {
       return reviews
     }
     const news = await newsBetween(closedAt, town, stores.townNews)
-    return ok({ reviews: reviews.value, news })
+    return ok({ reviews: presentReviews(reviews.value), news })
   })
 }
 
