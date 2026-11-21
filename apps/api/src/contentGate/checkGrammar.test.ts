@@ -271,6 +271,62 @@ describe('content gate check 6, grammar', () => {
     })
   })
 
+  describe('the present perfect', () => {
+    const see = entryOf('word-2', 'see', 'We see you.', { partOfSpeech: 'verb' })
+    const come = entryOf('word-3', 'come', 'We come home.', { partOfSpeech: 'verb' })
+    const make = entryOf('word-4', 'make', 'We make food.', { partOfSpeech: 'verb' })
+    const perfectAfterThePast = [
+      ...lessonOneStructures,
+      structureOf('lesson-1', ['he', 'she', 'it'], ['irregular past', 'was', 'has', "'s", "n't"]),
+      structureOf('lesson-3', [], ['past participle']),
+    ]
+    const holdingAt = (lessonId: string, frame: string) => {
+      const holding = entryOf('word-1', 'new', frame, { partOfSpeech: 'adjective' })
+      return lessonId === 'lesson-2'
+        ? afterLessonOne(perfectAfterThePast, holding, see, come, make)
+        : afterLessonOne(perfectAfterThePast, see, holding, come, make)
+    }
+
+    it.each([
+      ['seen', 'My new home was seen.'],
+      ['come', 'We have come to my new home.'],
+    ])('fails %s as a past participle before the lesson that admits it', (form, frame) => {
+      expect(checkGrammar(holdingAt('lesson-2', frame))).toEqual([
+        `word-1: frame holds ${form}, a past participle inflection admitted after lesson-2`,
+      ])
+    })
+
+    it('passes saw as the irregular past it is', () => {
+      expect(checkGrammar(holdingAt('lesson-2', 'We saw my new home.'))).toEqual([])
+    })
+
+    it.each([
+      ['seen', 'Have you seen my new home?'],
+      ['made', 'Have you made my new home?'],
+    ])('reads %s after have and a question subject as a past participle', (form, frame) => {
+      expect(checkGrammar(holdingAt('lesson-2', frame))).toEqual([
+        `word-1: frame holds ${form}, a past participle inflection admitted after lesson-2`,
+      ])
+    })
+
+    it("passes hasn't and a past participle from the lesson that admits it", () => {
+      expect(checkGrammar(holdingAt('lesson-3', "She hasn't made my new home."))).toEqual([])
+    })
+
+    it.each([
+      ['seen', "He's seen my new home."],
+      ['made', "He's made my new home."],
+    ])("reads 's before %s as has", (form, frame) => {
+      expect(checkGrammar(holdingAt('lesson-2', frame))).toEqual([
+        `word-1: frame holds ${form}, a past participle inflection admitted after lesson-2`,
+      ])
+    })
+
+    it("keeps reading 's before a word that is no past form as be", () => {
+      expect(checkGrammar(holdingAt('lesson-2', "He's at my new home."))).toEqual([])
+    })
+  })
+
   it('reads a homograph form by the word its entry names', () => {
     const leave = entryOf('word-1', 'leave', 'We leave home.', { partOfSpeech: 'verb' })
     const newAfterLeaving = entryOf('word-2', 'new', 'We left my new home.', {

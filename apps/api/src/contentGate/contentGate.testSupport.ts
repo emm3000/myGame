@@ -132,7 +132,7 @@ const fixtureRanks: ReadonlyArray<readonly [string, number]> = [
 ]
 
 const fixtureInflections: ReadonlyArray<readonly [string, ReadonlyArray<string>]> = [
-  ['be', ['is', 'are', 'am']],
+  ['be', ['is', 'are', 'am', 'was']],
   ['have', ['has']],
   ['i', ['me', 'my']],
   ['we', ['us', 'our']],
@@ -148,6 +148,10 @@ const fixtureInflections: ReadonlyArray<readonly [string, ReadonlyArray<string>]
   ['make', ['made']],
   ['try', ['tries']],
   ['leave', ['left']],
+  ['see', ['see', 'saw', 'seen']],
+  ['come', ['come', 'came']],
+  ['he', ['he']],
+  ['she', ['she']],
 ]
 
 export const lessonOneInflections: ReadonlyArray<string> = [
@@ -181,6 +185,8 @@ const lessonOneParts = (): ContentParts => ({
     { lemma: 'go', past: 'went', pastParticiple: 'gone' },
     { lemma: 'make', past: 'made', pastParticiple: 'made' },
     { lemma: 'leave', past: 'left', pastParticiple: 'left' },
+    { lemma: 'see', past: 'saw', pastParticiple: 'seen' },
+    { lemma: 'come', past: 'came', pastParticiple: 'come' },
   ],
   ranks: new Map(fixtureRanks),
   forms: fixtureForms(),
