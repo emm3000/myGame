@@ -17,15 +17,15 @@ class VerifyEmailViewModel(
     private val token: EmailVerificationToken?,
 ) : ViewModel() {
 
-    private val isEmailVerified: Boolean = savedState.get<Boolean>(EMAIL_VERIFIED) == true
+    private val settledState: VerifyEmailUiState? = settledStateOf(savedState.get<String>(SETTLED_ANSWER))
 
     private val _state: MutableStateFlow<VerifyEmailUiState> =
-        MutableStateFlow(if (isEmailVerified) VerifyEmailUiState.Verified else VerifyEmailUiState.LinkRefused)
+        MutableStateFlow(settledState ?: VerifyEmailUiState.LinkRefused)
 
     val state: StateFlow<VerifyEmailUiState> = _state.asStateFlow()
 
     init {
-        if (!isEmailVerified) verify()
+        if (settledState == null) verify()
     }
 
     fun onIntent(intent: VerifyEmailIntent) {
@@ -44,13 +44,29 @@ class VerifyEmailViewModel(
         _state.value = VerifyEmailUiState.Verifying
         viewModelScope.launch {
             val answer: EmailVerificationResult = sessions.verifyEmail(mailed)
-            savedState[EMAIL_VERIFIED] = answer == EmailVerificationResult.Verified
+            savedState[SETTLED_ANSWER] = settledAnswerOf(answer)
             _state.value = stateOf(answer)
         }
     }
 }
 
-private const val EMAIL_VERIFIED: String = "emailVerified"
+private const val SETTLED_ANSWER: String = "settledAnswer"
+
+private const val VERIFIED: String = "verified"
+
+private const val LINK_REFUSED: String = "linkRefused"
+
+private fun settledAnswerOf(answer: EmailVerificationResult): String? = when (answer) {
+    EmailVerificationResult.Verified -> VERIFIED
+    EmailVerificationResult.LinkRefused -> LINK_REFUSED
+    EmailVerificationResult.Unreachable -> null
+}
+
+private fun settledStateOf(settledAnswer: String?): VerifyEmailUiState? = when (settledAnswer) {
+    VERIFIED -> VerifyEmailUiState.Verified
+    LINK_REFUSED -> VerifyEmailUiState.LinkRefused
+    else -> null
+}
 
 private fun stateOf(answer: EmailVerificationResult): VerifyEmailUiState = when (answer) {
     EmailVerificationResult.Verified -> VerifyEmailUiState.Verified
