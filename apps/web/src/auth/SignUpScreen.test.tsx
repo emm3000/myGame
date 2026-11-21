@@ -1,7 +1,8 @@
-import { es } from '@mygame/catalog'
+import { en, es } from '@mygame/catalog'
 import type { Scaffold, SignUpRequest } from '@mygame/contracts'
 import { fireEvent, screen } from '@testing-library/react'
 import { afterEach, beforeEach, expect, it, vi } from 'vitest'
+import { linesDrawnAlone } from '../town/lineDrawnAlone.testSupport'
 import { renderAppAt } from './renderAppAt.testSupport'
 import { knownPlayer, stubApiClient } from './stubApiClient.testSupport'
 
@@ -153,8 +154,25 @@ it('locks the scaffold choice while the sign-up is in flight', async () => {
   await fillSignUp(newcomer)
 
   await vi.waitFor(() =>
-    expect(screen.getByRole('group', { name: es.scaffoldLabel() }).hasAttribute('disabled')).toBe(
-      true,
-    ),
+    expect(
+      screen.getByRole('group', { name: es.scaffoldLabel() }).getAttribute('aria-disabled'),
+    ).toBe('true'),
   )
 })
+
+it.each([
+  ['es-ES', es, 'es'],
+  ['en-US', en, 'en'],
+] as const)(
+  'says under the scaffold choice for a %s browser that the scaffold can change later',
+  async (browserLanguage, catalog, language) => {
+    browseIn(browserLanguage)
+    renderAppAt('/sign-up', stubApiClient())
+
+    const [line] = await linesDrawnAlone(catalog.authSignUpScaffoldChange(), language)
+    const group = screen.getByRole('group', { name: catalog.scaffoldLabel() })
+
+    expect(line).toBeDefined()
+    expect(group.nextElementSibling?.contains(line ?? null)).toBe(true)
+  },
+)
