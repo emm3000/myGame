@@ -30,7 +30,7 @@ import type { TownRepository } from '../../TownRepository'
 import { deriveLessonDurationSeconds } from '../deriveLessonDurationSeconds'
 import type { LessonSlotRepository } from '../ports/LessonSlotRepository'
 import { schoolLessonsOf } from '../schoolLessonsOf'
-import { type SettledSchool, settledSchoolOf } from '../services/readSettledSchool'
+import { readSettledSchool, type SettledSchool } from '../services/readSettledSchool'
 import { saveLessonSlot } from '../services/saveLessonSlot'
 import { studyPercentAt } from '../studyPercentAt'
 
@@ -114,7 +114,7 @@ const admittedLessonOf = async (
   dependencies: StartSchoolLessonDependencies,
   now: Instant,
 ): Promise<Result<AdmittedLesson, DomainError>> => {
-  const settled = await settledSchoolOf(playerId, resolved.town.id, dependencies, now)
+  const settled = await readSettledSchool(playerId, resolved.town.id, dependencies, now)
   if (!settled.ok) {
     return settled
   }
