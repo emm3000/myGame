@@ -6,12 +6,28 @@ import {
   type TownOverview,
   TownOverviewSchema,
 } from '@mygame/contracts'
-import { type Clock, Instant, type PlayerId } from '@mygame/domain'
+import { type Clock, Instant, ok, type PlayerId } from '@mygame/domain'
 import { Client } from 'pg'
-import { afterAll, assert, beforeAll, beforeEach, describe, expect, it } from 'vitest'
+import {
+  afterAll,
+  afterEach,
+  assert,
+  beforeAll,
+  beforeEach,
+  describe,
+  expect,
+  it,
+  vi,
+} from 'vitest'
 import { createApp } from '../app'
 import { type ComposedServer, composeServer } from '../composeServer'
 import { mailEnvironment } from '../composeServer.testSupport'
+import {
+  isWaitingOnALock,
+  lockedPlayerReadQuery,
+  lockProbeLimit,
+} from '../lockWaitProbe.testSupport'
+import { mutateTown } from '../town/mutateTown'
 import { truncatePlayerTables } from '../truncatePlayerTables.testSupport'
 
 const contentDirectory = fileURLToPath(new URL('../../content/', import.meta.url))
@@ -46,6 +62,45 @@ const runSql = async (statement: string): Promise<void> => {
   }
 }
 
+const statementTextOf = (query: unknown): string => {
+  if (typeof query === 'string') {
+    return query
+  }
+  if (typeof query === 'object' && query !== null && 'text' in query) {
+    return String(query.text)
+  }
+  return ''
+}
+
+type Signal = { readonly promise: Promise<void>; readonly resolve: () => void }
+
+const signal = (): Signal => {
+  let resolve = (): void => {}
+  const promise = new Promise<void>((resolved) => {
+    resolve = resolved
+  })
+  return { promise, resolve }
+}
+
+const untilPlayerBlockedOrRead = async (reading: Promise<unknown>): Promise<void> => {
+  let hasRead = false
+  void reading.then(() => {
+    hasRead = true
+  })
+  const observer = new Client({ connectionString: databaseUrl() })
+  await observer.connect()
+  try {
+    for (let probes = 0; probes < lockProbeLimit; probes += 1) {
+      if (hasRead || (await isWaitingOnALock(observer, [lockedPlayerReadQuery]))) {
+        return
+      }
+    }
+    throw new Error('The Report neither waited on the player lock nor answered')
+  } finally {
+    await observer.end()
+  }
+}
+
 const sessionCookieOf = (response: Response): string => {
   const [pair = ''] = (response.headers.get('set-cookie') ?? '').split(';')
   return pair
@@ -77,6 +132,10 @@ describe('the Report routes', () => {
 
   afterAll(async () => {
     await server.close()
+  })
+
+  afterEach(() => {
+    vi.restoreAllMocks()
   })
 
   beforeEach(async () => {
@@ -182,7 +241,7 @@ describe('the Report routes', () => {
     const ana = await signUpWithATown()
     await workFinishOf(ana, 'farm')
     clock.setTo(firstWorkDoneAt)
-    await send(ana.cookie, 'GET', '/town')
+    await readReport(ana)
     await closeReport(ana)
     const homesDoneAt = await workFinishOf(ana, 'homes')
     clock.setTo(secondWorkDoneAt)
@@ -229,15 +288,120 @@ describe('the Report routes', () => {
     expect([report.dueCount, report.due.length, report.news]).toEqual([5, 5, []])
   })
 
-  it('stores the close instant', async () => {
+  it('shows on the next Report work that finished between the read and the close', async () => {
     const ana = await signUpWithATown()
+    const farmDoneAt = await workFinishOf(ana, 'farm')
+    await readReport(ana)
     clock.setTo(firstWorkDoneAt)
+    await send(ana.cookie, 'GET', '/town')
+
+    await closeReport(ana)
+
+    expect((await readReport(ana)).news).toEqual([
+      {
+        kind: 'buildingWorkFinished',
+        params: { building: 'farm', level: 1 },
+        occurredAt: farmDoneAt,
+      },
+    ])
+  })
+
+  it('marks read nothing on a close with no Report served since', async () => {
+    const ana = await signUpWithATown()
+    const farmDoneAt = await workFinishOf(ana, 'farm')
+    clock.setTo(firstWorkDoneAt)
+    await send(ana.cookie, 'GET', '/town')
 
     const response = await closeReport(ana)
 
     expect([response.status, await response.text()]).toEqual([204, ''])
-    expect(await server.reportClosings.closedAt(ana.playerId)).toEqual(
-      Instant.fromEpochMilliseconds(Date.parse(firstWorkDoneAt)),
+    expect((await readReport(ana)).news).toEqual([
+      {
+        kind: 'buildingWorkFinished',
+        params: { building: 'farm', level: 1 },
+        occurredAt: farmDoneAt,
+      },
+    ])
+  })
+
+  it('takes no town lock on a read with nothing due', async () => {
+    const ana = await signUpWithATown()
+    await server.afterResponse.settled()
+    const statements: Array<string> = []
+    const query = Client.prototype.query
+    vi.spyOn(Client.prototype, 'query').mockImplementation(function (
+      this: Client,
+      ...parameters: Parameters<typeof query>
+    ) {
+      statements.push(statementTextOf(parameters[0]))
+      return Reflect.apply(query, this, parameters)
+    })
+
+    await readReport(ana)
+
+    expect(statements.filter((statement) => statement.includes('for update'))).toEqual([])
+  })
+
+  const studiedWhileHoldingThePlayer = async (
+    { playerId }: SignedUpPlayer,
+    occurredAt: string,
+    hasRecorded: Signal,
+    release: Signal,
+  ): Promise<void> => {
+    const held = await mutateTown(
+      playerId,
+      async (stores) => {
+        const town = await stores.towns.townOf(playerId)
+        assert(town.ok && town.value !== undefined)
+        const studied = {
+          kind: 'lessonStudied',
+          lessonId: 'lesson-1',
+          occurredAt: Instant.fromEpochMilliseconds(Date.parse(occurredAt)),
+        } as const
+        await stores.townNews.record(town.value.id, [studied])
+        hasRecorded.resolve()
+        await release.promise
+        return ok(undefined)
+      },
+      { ...server, clock },
     )
+    assert(held.ok)
+  }
+
+  const readReportPastAConcurrentStudy = async (
+    ana: SignedUpPlayer,
+    occurredAt: string,
+  ): Promise<Report> => {
+    const hasRecorded = signal()
+    const release = signal()
+    const holding = studiedWhileHoldingThePlayer(ana, occurredAt, hasRecorded, release)
+    await hasRecorded.promise
+    const reading = readReport(ana)
+    await untilPlayerBlockedOrRead(reading)
+    release.resolve()
+    await holding
+    return reading
+  }
+
+  it('shows news a request holding the player commits while the Report waits', async () => {
+    const ana = await signUpWithATown()
+    clock.setTo(firstWorkDoneAt)
+
+    const report = await readReportPastAConcurrentStudy(ana, firstWorkDoneAt)
+
+    expect(report.news.map(({ kind }) => kind)).toEqual(['lessonStudied'])
+  })
+
+  it('leaves for the next Report news dated after the instant it answers', async () => {
+    const ana = await signUpWithATown()
+    clock.setTo(firstWorkDoneAt)
+    const hasRecorded = signal()
+    const release = signal()
+    release.resolve()
+    await studiedWhileHoldingThePlayer(ana, secondWorkDoneAt, hasRecorded, release)
+
+    const report = await readReport(ana)
+
+    expect(report.news).toEqual([])
   })
 })

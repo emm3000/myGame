@@ -32,7 +32,7 @@ export const reportRoutes = (dependencies: ReportRouteDependencies): OpenAPIHono
     honoPathOf(reportDeclarations.close),
     signedInPlayer,
     async (c) => {
-      await dependencies.reportClosings.close(c.var.playerId, dependencies.clock.now())
+      await dependencies.reportClosings.close(c.var.playerId)
       return c.body(null, 204)
     },
   )

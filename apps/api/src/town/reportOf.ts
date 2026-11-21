@@ -1,4 +1,4 @@
-import type { Report } from '@mygame/contracts'
+import type { Report, Reviews } from '@mygame/contracts'
 import {
   type Clock,
   type DomainError,
@@ -7,39 +7,72 @@ import {
   ok,
   type PlayerId,
   type Result,
-  resolveTown,
-  type TownCatalog,
   type TownEvent,
+  type TownId,
 } from '@mygame/domain'
 import type { Refusal } from '../http/Refusal'
 import { type ReviewTerms, reviewsOf } from '../learning/reviewsOf'
-import { type MutateTownDependencies, mutateTown, type TownStores } from './mutateTown'
+import { type CurrentTownDependencies, currentTownOf } from './currentTownOf'
 import type { ReportClosings } from './ReportClosings'
+import type { TownNewsReader } from './TownNewsReader'
 import { townNewsItemOf } from './townNewsItemOf'
 
-export type ReportDependencies = MutateTownDependencies &
+export type ReportDependencies = CurrentTownDependencies &
   ReviewTerms & {
     readonly reportClosings: ReportClosings
-    readonly townCatalog: TownCatalog
   }
 
-const newsSinceOf = async (
+type ReportTown = {
+  readonly at: Instant
+  readonly townId: TownId | undefined
+}
+
+type ReportShown = {
+  readonly reviews: Reviews
+  readonly news: ReadonlyArray<TownEvent>
+}
+
+const reportTownOf = async (
+  playerId: PlayerId,
+  dependencies: ReportDependencies,
+): Promise<Result<ReportTown, DomainError>> => {
+  const reading = await currentTownOf(playerId, dependencies)
+  if (!reading.ok) {
+    return reading.error.kind === 'TownNotFound'
+      ? ok({ at: dependencies.clock.now(), townId: undefined })
+      : reading
+  }
+  return ok({ at: reading.value.at, townId: reading.value.town.id })
+}
+
+const newsBetween = async (
+  closedAt: Instant,
+  { at, townId }: ReportTown,
+  townNews: TownNewsReader,
+): Promise<ReadonlyArray<TownEvent>> => {
+  if (townId === undefined) {
+    return []
+  }
+  const news = await townNews.newsAfter(townId, closedAt)
+  return news.filter(({ occurredAt }) => occurredAt.epochMilliseconds <= at.epochMilliseconds)
+}
+
+const shownAt = (
   playerId: PlayerId,
   closedAt: Instant,
-  stores: TownStores,
-  clock: Clock,
-  catalog: TownCatalog,
-): Promise<Result<ReadonlyArray<TownEvent>, DomainError>> => {
-  const resolved = await resolveTown(playerId, {
-    towns: stores.towns,
-    news: stores.townNews,
-    catalog,
-    clock,
+  town: ReportTown,
+  dependencies: ReportDependencies,
+): Promise<Result<ReportShown, DomainError>> => {
+  const readClock: Clock = { now: () => town.at }
+  return dependencies.inTransaction(async (stores) => {
+    await stores.accounts.lockPlayer(playerId)
+    const reviews = await reviewsOf(playerId, stores, readClock, dependencies)
+    if (!reviews.ok) {
+      return reviews
+    }
+    const news = await newsBetween(closedAt, town, stores.townNews)
+    return ok({ reviews: reviews.value, news })
   })
-  if (!resolved.ok) {
-    return resolved.error.kind === 'TownNotFound' ? ok([]) : resolved
-  }
-  return ok(await stores.townNews.newsAfter(resolved.value.town.id, closedAt))
 }
 
 export const reportOf = async (
@@ -50,27 +83,22 @@ export const reportOf = async (
   if (closedAt === undefined) {
     return err({ kind: 'SignedOut' })
   }
-  return mutateTown(
-    playerId,
-    async (stores, clock) => {
-      const reviews = await reviewsOf(playerId, stores, clock, dependencies)
-      if (!reviews.ok) {
-        return reviews
-      }
-      const news = await newsSinceOf(playerId, closedAt, stores, clock, dependencies.townCatalog)
-      if (!news.ok) {
-        return news
-      }
-      const { due, readFirst, nextDueAt, readAt } = reviews.value
-      return ok({
-        dueCount: due.length,
-        due,
-        readFirst,
-        nextDueAt,
-        readAt,
-        news: news.value.map(townNewsItemOf),
-      })
-    },
-    dependencies,
-  )
+  const town = await reportTownOf(playerId, dependencies)
+  if (!town.ok) {
+    return town
+  }
+  const shown = await shownAt(playerId, closedAt, town.value, dependencies)
+  if (!shown.ok) {
+    return shown
+  }
+  await dependencies.reportClosings.serve(playerId, town.value.at)
+  const { due, readFirst, nextDueAt, readAt } = shown.value.reviews
+  return ok({
+    dueCount: due.length,
+    due,
+    readFirst,
+    nextDueAt,
+    readAt,
+    news: shown.value.news.map(townNewsItemOf),
+  })
 }

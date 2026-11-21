@@ -27,31 +27,53 @@ export const reportClosingsContract = (
       expect(await closings.closedAt(ana)).toEqual(signedUpAt)
     })
 
-    it('stores the close at the instant given', async () => {
+    it('moves the read to the instant of the Report served last', async () => {
       const { closings, signUp } = await arrange()
       await signUp(ana, signedUpAt)
+      await closings.serve(ana, hoursAfterSignUp(5))
 
-      await closings.close(ana, hoursAfterSignUp(5))
+      await closings.close(ana)
 
       expect(await closings.closedAt(ana)).toEqual(hoursAfterSignUp(5))
     })
 
-    it('keeps the later close when an earlier one is stored after it', async () => {
+    it('keeps the later Report when an earlier one is served after it', async () => {
       const { closings, signUp } = await arrange()
       await signUp(ana, signedUpAt)
-      await closings.close(ana, hoursAfterSignUp(5))
+      await closings.serve(ana, hoursAfterSignUp(5))
 
-      await closings.close(ana, hoursAfterSignUp(3))
+      await closings.serve(ana, hoursAfterSignUp(3))
+      await closings.close(ana)
 
       expect(await closings.closedAt(ana)).toEqual(hoursAfterSignUp(5))
+    })
+
+    it('keeps the read while no Report is served', async () => {
+      const { closings, signUp } = await arrange()
+      await signUp(ana, signedUpAt)
+
+      await closings.close(ana)
+
+      expect(await closings.closedAt(ana)).toEqual(signedUpAt)
+    })
+
+    it('keeps the read until the served Report is closed', async () => {
+      const { closings, signUp } = await arrange()
+      await signUp(ana, signedUpAt)
+
+      await closings.serve(ana, hoursAfterSignUp(5))
+
+      expect(await closings.closedAt(ana)).toEqual(signedUpAt)
     })
 
     it('keeps the close of one player from another', async () => {
       const { closings, signUp } = await arrange()
       await signUp(ana, signedUpAt)
       await signUp(bruno, signedUpAt)
+      await closings.serve(ana, hoursAfterSignUp(5))
+      await closings.serve(bruno, hoursAfterSignUp(2))
 
-      await closings.close(ana, hoursAfterSignUp(5))
+      await closings.close(ana)
 
       expect(await closings.closedAt(bruno)).toEqual(signedUpAt)
     })
