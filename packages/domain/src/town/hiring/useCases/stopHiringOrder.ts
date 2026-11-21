@@ -37,7 +37,7 @@ export const stopHiringOrder = async (
   if (!accrual.ok) {
     return accrual
   }
-  const stopped = town.stopHiring({ hire, startedAt }, accrual.value.stocks, now)
+  const stopped = town.hiring.stop({ hire, startedAt }, accrual.value.stocks, now)
   if (!stopped.ok) {
     return stopped
   }
