@@ -53,8 +53,18 @@ class NextStepCardTest {
     }
 
     @Test
-    fun `never numbers a released lesson`() {
+    fun `shows a running released lesson's countdown by band and set`() {
         val running: TownSnapshot = townOf(NextStep.LessonRunning(goal = null, text = null), running = releasedLesson)
+
+        assertEquals(
+            NextStepCard.Countdown.LessonReady(LessonName.Released(PlacementBand.Second, set = 3), readAt + 5.minutes),
+            running.nextStepCard().countdown,
+        )
+    }
+
+    @Test
+    fun `shows no countdown for a running lesson the town does not hold`() {
+        val running: TownSnapshot = townOf(NextStep.LessonRunning(goal = null, text = null), running = LessonId("gone"))
 
         assertNull(running.nextStepCard().countdown)
     }
@@ -85,7 +95,7 @@ class NextStepCardTest {
         val running: TownSnapshot = townOf(NextStep.LessonRunning(goal = null, text = null), running = shelvedLesson)
 
         assertEquals(
-            NextStepCard.Countdown.LessonReady(number = 1, at = readAt + 5.minutes),
+            NextStepCard.Countdown.LessonReady(LessonName.Shelved(number = 1), at = readAt + 5.minutes),
             running.nextStepCard().countdown,
         )
     }

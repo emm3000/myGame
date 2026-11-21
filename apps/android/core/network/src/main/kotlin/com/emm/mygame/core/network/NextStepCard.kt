@@ -30,7 +30,7 @@ data class NextStepCard(val line: Line, val detail: Detail?, val countdown: Coun
 
         val at: Instant
 
-        data class LessonReady(val number: Int, override val at: Instant) : Countdown
+        data class LessonReady(val name: LessonName, override val at: Instant) : Countdown
 
         data class NextReview(override val at: Instant) : Countdown
     }
@@ -113,8 +113,8 @@ private fun TownSnapshot.isHeld(lesson: LessonId): Boolean =
 
 private fun TownSnapshot.lessonCountdown(): NextStepCard.Countdown? {
     val slot: TownSnapshot.LessonSlot = lessonSlot ?: return null
-    if (lessons.none { held: TownSnapshot.Lesson -> held.id == slot.lesson }) return null
-    return NextStepCard.Countdown.LessonReady(numberOf(slot.lesson), slot.finishesAt)
+    if (!isHeld(slot.lesson)) return null
+    return NextStepCard.Countdown.LessonReady(nameOf(slot.lesson), slot.finishesAt)
 }
 
 private fun TownSnapshot.nextReviewCountdown(): NextStepCard.Countdown? =

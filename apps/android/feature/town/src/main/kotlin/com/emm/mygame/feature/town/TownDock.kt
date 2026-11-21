@@ -10,6 +10,7 @@ import com.emm.mygame.core.designsystem.MyGameLabel
 import com.emm.mygame.core.designsystem.MyGamePreviewSurface
 import com.emm.mygame.core.designsystem.PreviewMyGame
 import com.emm.mygame.core.designsystem.formatQuantity
+import com.emm.mygame.core.network.LessonName
 import com.emm.mygame.core.network.NextStepCard
 import com.emm.mygame.core.ui.CopyReader
 import com.emm.mygame.core.ui.PlayerCopy
@@ -127,10 +128,7 @@ private fun TownDockActions.act(action: NextStepCard.Action) {
 private fun PlayerCopy.blockOf(reason: TownStatusUiState.GoBlock, countdown: TownStatusUiState.StepCountdown?): String =
     when (reason) {
         TownStatusUiState.GoBlock.NextReview -> countdown?.let { shown: TownStatusUiState.StepCountdown ->
-            chrome {
-                val finish: String = finishLabelOf(shown.remaining, shown.finishesAt, townDurationCopy)
-                "${countdownWordsOf(shown.countdown)} $finish"
-            }.spoken
+            countdownLineOf(shown)
         } ?: chrome(R.string.town_next_no_reviews_due).spoken
         TownStatusUiState.GoBlock.NoReviewsDue -> chrome(R.string.town_next_no_reviews_due).spoken
         TownStatusUiState.GoBlock.Studying -> chrome(R.string.town_next_studying).spoken
@@ -160,10 +158,25 @@ private fun PlayerCopy.lineOf(line: NextStepCard.Line): MyGameLabel = when (line
 
 private fun fixedLabel(text: String): MyGameLabel = MyGameLabel(text = text, translation = null)
 
-private fun CopyReader.countdownWordsOf(countdown: NextStepCard.Countdown): String = when (countdown) {
-    is NextStepCard.Countdown.LessonReady ->
-        text(R.string.town_next_lesson_ready_in, "number" to countdown.number.toString())
-    is NextStepCard.Countdown.NextReview -> text(R.string.town_next_review)
+private fun PlayerCopy.countdownLineOf(shown: TownStatusUiState.StepCountdown): String {
+    val finish: CopyReader.() -> String = { finishLabelOf(shown.remaining, shown.finishesAt, townDurationCopy) }
+    return when (val countdown: NextStepCard.Countdown = shown.countdown) {
+        is NextStepCard.Countdown.NextReview -> chrome { "${text(R.string.town_next_review)} ${finish()}" }.spoken
+        is NextStepCard.Countdown.LessonReady -> readyLineOf(countdown.name, finish)
+    }
+}
+
+private fun PlayerCopy.readyLineOf(name: LessonName, finish: CopyReader.() -> String): String = when (name) {
+    is LessonName.Shelved ->
+        chrome { "${text(R.string.town_next_lesson_ready_in, "number" to name.number.toString())} ${finish()}" }.spoken
+    is LessonName.Released -> {
+        val words: String = fixedCopy(
+            R.string.town_status_released_ready_in,
+            "band" to name.band.number.toString(),
+            "number" to name.set.toString(),
+        )
+        "$words ${chrome(finish).spoken}"
+    }
 }
 
 private fun PlayerCopy.actionLabelOf(action: NextStepCard.Action): MyGameLabel = when (action) {
