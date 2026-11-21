@@ -1,6 +1,7 @@
 import type { HireKind, TownOverview } from '@mygame/contracts'
 import { useCallback, useEffect, useRef, useState } from 'react'
 import type { ApiClient, ApiRefusal } from '../api/apiClient'
+import { elapsedMsSince } from '../time/elapsedMsSince'
 import { longestTimeoutMs } from '../time/longestTimeoutMs'
 import { firstHireEntries, type HireEntries } from './hireCardOf'
 import { jobNextInstantOf } from './jobNextInstantOf'
@@ -38,7 +39,7 @@ const rereadIntervalMs = 60_000
 const focusFloorMs = 1000
 
 const elapsedSecondsSince = (receivedAtMs: number, nowMs: number): number =>
-  Math.max(0, (nowMs - receivedAtMs) / 1000)
+  elapsedMsSince(receivedAtMs, nowMs) / 1000
 
 const slotFinishSecondsOf = (overview: TownOverview): number =>
   overview.work.slot === null ? 0 : secondsUntil(overview.work.slot.finishesAt, overview, 0)
