@@ -87,6 +87,18 @@ export const bandStartRepositoryContract = (
       expect(await starts.bandStartsOf(ana)).toEqual({ ok: true, value: [emptyDraw] })
     })
 
+    it('reads back the held-out words of a start in headword order, whatever order they were saved in', async () => {
+      const { starts, registerPlayers } = await arrange()
+      await registerPlayers([ana])
+
+      await starts.save(ana, { ...bandOneStart, heldOutWords: ['know', 'go'] })
+
+      expect(await starts.bandStartsOf(ana)).toEqual({
+        ok: true,
+        value: [{ ...bandOneStart, heldOutWords: ['go', 'know'] }],
+      })
+    })
+
     it('keeps the first draw of a band saved twice', async () => {
       const { starts, registerPlayers } = await arrange()
       await registerPlayers([ana])
