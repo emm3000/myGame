@@ -19,7 +19,7 @@ None. No JSDoc, no `//`, no `/* */`, no commented-out code, no section banners. 
 - `interface` for object shapes that adapters implement (ports); `type` for unions, tuples, mapped and inferred types.
 - No `any`, no non-null assertion, no `as` outside a test fixture. Narrow with a type guard or parse with zod.
 - `readonly` on every property of an entity or value object, and `ReadonlyArray` for collections they expose.
-- Discriminated unions with a `kind` field for every closed set of states or errors. `switch` over `kind` with an exhaustive `never` default.
+- Discriminated unions with a `kind` field for every closed set of states or errors. `switch` over `kind` with an exhaustive `never` default, except when every case returns and the function declares a return type that excludes `undefined`: the compiler then refuses a missing case, so the `switch` has no `default`.
 
 ## Idioms
 
