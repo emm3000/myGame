@@ -10,7 +10,7 @@ import { err, ok, type Result } from '../../Result'
 import { checkOfWeek } from '../checkOfWeek'
 import type { HoldoutCheckWeek, TakenHoldoutCheck } from '../HoldoutCheck'
 import type { BandStartRepository } from '../ports/BandStartRepository'
-import { dueBandStartOf } from '../services/resolveDueBandStart'
+import { resolveDueBandStart } from '../services/resolveDueBandStart'
 
 export type AnswerHoldoutCheckCommand = {
   readonly playerId: PlayerId
@@ -31,7 +31,7 @@ export const answerHoldoutCheck = async (
   { bandStarts, words, clock }: AnswerHoldoutCheckDependencies,
 ): Promise<Result<TakenHoldoutCheck, DomainError>> => {
   const now = clock.now()
-  const due = await dueBandStartOf(playerId, band, week, bandStarts, now)
+  const due = await resolveDueBandStart(playerId, band, week, bandStarts, now)
   if (!due.ok) {
     return due
   }
