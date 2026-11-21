@@ -3,7 +3,8 @@ import { mixed32 } from '../../hash/mixed32'
 import type { MemoryCard } from '../../memory/MemoryCard'
 import type { Stage } from '../curriculum/stageOf'
 import { keyInstantOf } from '../keyInstantOf'
-import type { LessonWord, WordFrame } from '../Lesson'
+import type { LessonWord } from '../Lesson'
+import type { WordFrame } from './WordFrame'
 
 export const recallFrameOf = (
   { id, frames: [anchor, ...laterFrames] }: LessonWord,

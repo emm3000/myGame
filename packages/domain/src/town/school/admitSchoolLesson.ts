@@ -1,11 +1,11 @@
 import type { DomainError } from '../../DomainError'
 import type { HeldCard } from '../../learning/HeldCard'
 import { holdsLessonCards } from '../../learning/holdsLessonCards'
-import type { SchoolLesson } from '../../learning/Lesson'
 import { cardsInLearningOf } from '../../learning/retention/cardsInLearningOf'
 import { err, ok, type Result } from '../../Result'
 import type { TownCatalog } from '../ports/TownCatalog'
 import type { LessonSlot } from './LessonSlot'
+import type { SchoolLesson } from './SchoolLesson'
 import type { SchoolLevel } from './SchoolLevel'
 import { schoolLevelOf } from './schoolLevelOf'
 

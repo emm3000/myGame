@@ -1,7 +1,6 @@
 import type { WordId } from '../learning/Lesson'
 import type { Instant } from '../time/Instant'
-
-export type HoldoutCheckWeek = 8 | 24
+import type { HoldoutCheckWeek } from './HoldoutCheckWeek'
 
 export type HoldoutCheckSample = {
   readonly wordIds: ReadonlyArray<WordId>

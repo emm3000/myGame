@@ -3,8 +3,9 @@ import { MemoryCard } from '../../memory/MemoryCard'
 import { defaultMemoryTerms } from '../../memory/MemoryTerms'
 import { reviewMemoryCard } from '../../memory/reviewMemoryCard'
 import { Instant } from '../../time/Instant'
-import type { LaterFrame, LessonWord, WordFrame } from '../Lesson'
+import type { LaterFrame, LessonWord } from '../Lesson'
 import { recallFrameOf } from './recallFrameOf'
+import type { WordFrame } from './WordFrame'
 
 const enteredAt = Instant.fromEpochMilliseconds(1_794_301_200_000)
 

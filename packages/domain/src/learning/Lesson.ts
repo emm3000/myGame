@@ -1,13 +1,9 @@
-import type { ResourceKind } from '../town/ResourceKind'
+import type { WordFrame } from './frames/WordFrame'
+import type { LessonSkill } from './LessonSkill'
 
 export type LessonId = string
 
 export type WordId = string
-
-export type WordFrame = {
-  readonly frame: string
-  readonly gappedFrame: string
-}
 
 export type LaterFrame = WordFrame & {
   readonly fromLessonId: LessonId
@@ -21,11 +17,6 @@ export type LessonWord = {
   readonly frames: readonly [WordFrame, ...ReadonlyArray<LaterFrame>]
 }
 
-export type LessonSkill = {
-  readonly resource: ResourceKind
-  readonly ratePercent: number
-}
-
 export type Lesson = {
   readonly id: LessonId
   readonly durationSeconds: number
@@ -33,5 +24,3 @@ export type Lesson = {
   readonly words: ReadonlyArray<LessonWord>
   readonly skill: LessonSkill
 }
-
-export type SchoolLesson = Omit<Lesson, 'skill'>

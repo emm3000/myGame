@@ -5,11 +5,11 @@ export type {
   BegunHoldoutCheck,
   HoldoutCheck,
   HoldoutCheckSample,
-  HoldoutCheckWeek,
   SkippedHoldoutCheck,
   TakenHoldoutCheck,
 } from './holdout/HoldoutCheck'
 export type { HoldoutCheckView } from './holdout/HoldoutCheckView'
+export type { HoldoutCheckWeek } from './holdout/HoldoutCheckWeek'
 export { hasBandStartedAt } from './holdout/hasBandStartedAt'
 export { HOLDOUT_CHECK_WEEKS, RELEASING_WEEK } from './holdout/holdoutCheckWeeks'
 export type { BandStartRepository } from './holdout/ports/BandStartRepository'
@@ -56,18 +56,11 @@ export type { TextCatalog } from './learning/frames/ports/TextCatalog'
 export { readingFrameOf } from './learning/frames/readingFrameOf'
 export type { Text, TextId } from './learning/frames/Text'
 export { type TextReading, textReadingOf } from './learning/frames/textReadingOf'
+export type { WordFrame } from './learning/frames/WordFrame'
 export type { HeldCard } from './learning/HeldCard'
 export { type HeldCards, heldCardsOf } from './learning/HeldCards'
-export type {
-  LaterFrame,
-  Lesson,
-  LessonId,
-  LessonSkill,
-  LessonWord,
-  SchoolLesson,
-  WordFrame,
-  WordId,
-} from './learning/Lesson'
+export type { LaterFrame, Lesson, LessonId, LessonWord, WordId } from './learning/Lesson'
+export type { LessonSkill } from './learning/LessonSkill'
 export type { CardRepository } from './learning/ports/CardRepository'
 export { cardsInLearningOf } from './learning/retention/cardsInLearningOf'
 export { isWordRetained } from './learning/retention/isWordRetained'
@@ -292,6 +285,7 @@ export { deriveLessonDurationSeconds } from './town/school/deriveLessonDurationS
 export { isLessonFinishedBy } from './town/school/isLessonFinishedBy'
 export { type BusyLessonSlot, idleLessonSlot, type LessonSlot } from './town/school/LessonSlot'
 export type { LessonSlotRepository } from './town/school/ports/LessonSlotRepository'
+export type { SchoolLesson } from './town/school/SchoolLesson'
 export type { SchoolLevel } from './town/school/SchoolLevel'
 export { schoolLevelOf } from './town/school/schoolLevelOf'
 export { studyPercentAt } from './town/school/studyPercentAt'
