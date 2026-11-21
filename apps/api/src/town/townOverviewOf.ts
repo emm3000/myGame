@@ -44,7 +44,7 @@ import {
   wordShortfallOf,
 } from '@mygame/domain'
 import { presentScaffold } from '../account/infrastructure/http/presentScaffold'
-import type { LessonLibrary } from '../learning/LessonLibrary'
+import type { LessonLibrary } from '../content/application/ports/LessonLibrary'
 import { nextDueAtOf } from '../learning/reviewsOf'
 import { schoolOverviewOf } from '../learning/schoolOverviewOf'
 import { isoOf } from '../platform/infrastructure/http/isoOf'

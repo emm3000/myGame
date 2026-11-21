@@ -43,7 +43,7 @@ import {
   type RequirePlayerDependencies,
   requirePlayer,
 } from '../account/infrastructure/http/requirePlayer'
-import type { LessonLibrary } from '../learning/LessonLibrary'
+import type { LessonLibrary } from '../content/application/ports/LessonLibrary'
 import { openTextOf } from '../learning/openTextOf'
 import { answerRefusal } from '../platform/infrastructure/http/answerRefusal'
 import { honoPathOf } from '../platform/infrastructure/http/honoPath'

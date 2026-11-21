@@ -14,9 +14,9 @@ import {
   type WordId,
 } from '@mygame/domain'
 import { readScaffold } from '../account/application/readScaffold'
+import type { LessonLibrary } from '../content/application/ports/LessonLibrary'
 import { mutateTown } from '../town/mutateTown'
 import type { LearningDependencies } from './LearningDependencies'
-import type { LessonLibrary } from './LessonLibrary'
 
 export type ReviewOutcome = {
   readonly answered: AnsweredReview

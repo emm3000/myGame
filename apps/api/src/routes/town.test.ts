@@ -32,7 +32,7 @@ import { createApp } from '../app'
 import { type ComposedServer, composeServer } from '../composeServer'
 import { mailEnvironment } from '../composeServer.testSupport'
 import type { ComposedStores } from '../composeStores'
-import type { LessonLibrary } from '../learning/LessonLibrary'
+import type { LessonLibrary } from '../content/application/ports/LessonLibrary'
 import {
   isWaitingOnALock,
   lockedPlayerReadQuery,
