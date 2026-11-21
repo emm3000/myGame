@@ -12,7 +12,7 @@ import type {
   TownNews,
   TownRepository,
 } from '@mygame/domain'
-import { TransactionRollbackError } from 'drizzle-orm'
+import { sql, TransactionRollbackError } from 'drizzle-orm'
 import type { NodePgDatabase } from 'drizzle-orm/node-postgres'
 import type { Accounts } from '../../auth/Accounts'
 import type { AccountTokens } from '../../auth/AccountTokens'
@@ -35,6 +35,10 @@ import { DrizzleReviewLog } from './DrizzleReviewLog'
 import { DrizzleSeenTips } from './DrizzleSeenTips'
 import { DrizzleTownNews } from './DrizzleTownNews'
 import { DrizzleTownRepository } from './DrizzleTownRepository'
+
+export const statementTimeoutMilliseconds = 2_000
+
+const statementTimeout = sql.raw(`SET LOCAL statement_timeout = ${statementTimeoutMilliseconds}`)
 
 export type TransactionStores = {
   readonly accounts: Accounts
@@ -66,6 +70,7 @@ export const postgresTransaction =
     let refused: Result<T, E> | undefined
     try {
       return await database.transaction(async (transaction) => {
+        await transaction.execute(statementTimeout)
         const outcome = await work({
           accounts: new DrizzleAccounts(transaction),
           accountTokens: new DrizzleAccountTokens(transaction),

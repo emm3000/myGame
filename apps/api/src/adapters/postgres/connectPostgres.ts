@@ -9,7 +9,12 @@ export type PostgresConnection = {
   readonly close: () => Promise<void>
 }
 
+export const connectionTimeoutMilliseconds = 3_000
+
 export const connectPostgres = (databaseUrl: string): PostgresConnection => {
-  const pool = new Pool({ connectionString: databaseUrl })
+  const pool = new Pool({
+    connectionString: databaseUrl,
+    connectionTimeoutMillis: connectionTimeoutMilliseconds,
+  })
   return { database: drizzle(pool), close: () => pool.end() }
 }
