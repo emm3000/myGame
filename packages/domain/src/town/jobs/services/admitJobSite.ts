@@ -1,11 +1,11 @@
 import type { DomainError } from '#DomainError'
 import { err, ok, type Result } from '#Result'
 import type { TownCatalog } from '../../ports/TownCatalog'
+import type { SiteAddress } from '../../SiteAddress'
 import type { Town } from '../../Town'
 import { isWholeFromOneTo } from '../isWholeFromOneTo'
 import type { JobTarget } from '../JobOrder'
 import type { RegionMapReader } from '../ports/RegionMapReader'
-import type { SiteAddress } from '../SiteAddress'
 import { readLastArea } from './readLastArea'
 
 export const admitJobSite = async (

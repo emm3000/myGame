@@ -1,4 +1,4 @@
-import type { Terrain } from './Terrain'
+import type { Terrain } from '../Terrain'
 import type { WasteSize } from './WasteSize'
 
 export type SiteWaste = {

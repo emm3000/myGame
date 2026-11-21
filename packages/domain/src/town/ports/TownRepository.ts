@@ -1,7 +1,7 @@
 import type { DomainError } from '#DomainError'
 import type { PlayerId } from '#player/PlayerId'
 import type { Result } from '#Result'
-import type { SiteAddress } from '../jobs/SiteAddress'
+import type { SiteAddress } from '../SiteAddress'
 import type { Town } from '../Town'
 
 export interface TownRepository {
