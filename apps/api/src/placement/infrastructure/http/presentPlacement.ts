@@ -1,6 +1,6 @@
 import { type Placement, PlacementBandSchema } from '@mygame/contracts'
 import { type PlacementScore, type PlacementView, placedOutBandsOf } from '@mygame/domain'
-import { isoOf } from '../platform/infrastructure/http/isoOf'
+import { isoOf } from '../../../platform/infrastructure/http/isoOf'
 
 type PlacementScores = Extract<Placement, { readonly kind: 'closed' }>['scores']
 

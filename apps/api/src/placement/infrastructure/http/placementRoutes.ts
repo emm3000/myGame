@@ -11,18 +11,18 @@ import {
   skipPlacement,
 } from '@mygame/domain'
 import type { Context } from 'hono'
-import { readScaffold } from '../account/application/readScaffold'
+import { readScaffold } from '../../../account/application/readScaffold'
 import {
   type RequirePlayerDependencies,
   requirePlayer,
-} from '../account/infrastructure/http/requirePlayer'
-import type { LearningDependencies } from '../learning/LearningDependencies'
-import { placementBodyOf } from '../learning/placementBodyOf'
-import { answerRefusal } from '../platform/infrastructure/http/answerRefusal'
-import { honoPathOf } from '../platform/infrastructure/http/honoPath'
-import { readJsonBody } from '../platform/infrastructure/http/readJsonBody'
-import { mutateTown } from '../town/mutateTown'
+} from '../../../account/infrastructure/http/requirePlayer'
+import type { LearningDependencies } from '../../../learning/LearningDependencies'
+import { answerRefusal } from '../../../platform/infrastructure/http/answerRefusal'
+import { honoPathOf } from '../../../platform/infrastructure/http/honoPath'
+import { readJsonBody } from '../../../platform/infrastructure/http/readJsonBody'
+import { mutateTown } from '../../../town/mutateTown'
 import { placementDeclarations } from './placementDeclarations'
+import { placementBodyOf } from './presentPlacement'
 
 export type PlacementRouteDependencies = LearningDependencies &
   RequirePlayerDependencies & {

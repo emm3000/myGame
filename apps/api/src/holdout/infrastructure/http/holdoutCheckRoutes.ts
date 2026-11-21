@@ -16,18 +16,18 @@ import {
   skipHoldoutCheck,
 } from '@mygame/domain'
 import type { Context } from 'hono'
-import { readScaffold } from '../account/application/readScaffold'
+import { readScaffold } from '../../../account/application/readScaffold'
 import {
   type RequirePlayerDependencies,
   requirePlayer,
-} from '../account/infrastructure/http/requirePlayer'
-import { holdoutChecksBodyOf } from '../learning/holdoutChecksBodyOf'
-import type { LearningDependencies } from '../learning/LearningDependencies'
-import { answerRefusal } from '../platform/infrastructure/http/answerRefusal'
-import { honoPathOf } from '../platform/infrastructure/http/honoPath'
-import { readJsonBody } from '../platform/infrastructure/http/readJsonBody'
-import { mutateTown, type TownStores } from '../town/mutateTown'
+} from '../../../account/infrastructure/http/requirePlayer'
+import type { LearningDependencies } from '../../../learning/LearningDependencies'
+import { answerRefusal } from '../../../platform/infrastructure/http/answerRefusal'
+import { honoPathOf } from '../../../platform/infrastructure/http/honoPath'
+import { readJsonBody } from '../../../platform/infrastructure/http/readJsonBody'
+import { mutateTown, type TownStores } from '../../../town/mutateTown'
 import { holdoutCheckDeclarations } from './holdoutCheckDeclarations'
+import { holdoutChecksBodyOf } from './presentHoldoutChecks'
 
 export type HoldoutCheckRouteDependencies = LearningDependencies &
   RequirePlayerDependencies & {

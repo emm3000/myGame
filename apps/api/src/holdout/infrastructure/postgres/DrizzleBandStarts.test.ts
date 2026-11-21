@@ -1,9 +1,9 @@
 import { drizzle } from 'drizzle-orm/node-postgres'
 import { Pool } from 'pg'
 import { afterAll, beforeAll } from 'vitest'
-import { players } from '../../account/infrastructure/postgres/accountTables'
-import { truncatePlayerTables } from '../../truncatePlayerTables.testSupport'
-import { bandStartRepositoryContract } from '../bandStartRepositoryContract'
+import { players } from '../../../account/infrastructure/postgres/accountTables'
+import { truncatePlayerTables } from '../../../truncatePlayerTables.testSupport'
+import { bandStartRepositoryContract } from '../memory/bandStartRepositoryContract.testSupport'
 import { DrizzleBandStarts } from './DrizzleBandStarts'
 
 function databaseUrl(): string {
