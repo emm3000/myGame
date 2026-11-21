@@ -4,8 +4,7 @@ import { type Clock, Instant } from '@mygame/domain'
 import { Client } from 'pg'
 import { afterAll, beforeAll, describe, expect, it } from 'vitest'
 import { ZodType } from 'zod'
-import { authDeclarations } from './account/infrastructure/http/authDeclarations'
-import { playerDeclarations } from './account/infrastructure/http/playerDeclarations'
+import { accountDeclarations } from './account/infrastructure/http/accountRoutes'
 import { apiPackagePath } from './apiPackagePath.testSupport'
 import { createApp } from './app'
 import { type ComposedServer, composeServer } from './composeServer'
@@ -48,9 +47,8 @@ const sessionCookieOf = (response: Response): string => {
 
 const mounted: ReadonlyArray<readonly [string, Readonly<Record<string, RouteConfig>>]> = [
   ['', healthDeclarations],
-  ['/auth', authDeclarations],
+  ['', accountDeclarations],
   ['/reviews', learningDeclarations],
-  ['/player', playerDeclarations],
   ['/report', reportDeclarations],
   ['/town', townDeclarations],
   ['/town/map', townMapDeclarations],
