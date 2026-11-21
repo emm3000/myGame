@@ -19,6 +19,7 @@ import com.emm.mygame.core.designsystem.MyGameSpacing
 import com.emm.mygame.core.designsystem.MyGameText
 import com.emm.mygame.core.designsystem.MyGameTheme
 import com.emm.mygame.core.designsystem.MyGameTypography
+import com.emm.mygame.core.designsystem.englishTextOf
 import com.emm.mygame.core.network.LessonId
 import com.emm.mygame.core.network.SchoolPathCounts
 import com.emm.mygame.core.ui.CopyReader
@@ -191,7 +192,7 @@ private fun LessonTarget(
     MyGameNavRow(
         title = copy.chrome(R.string.school_lesson_title, "number" to card.number.toString()),
         status = statusOf(card.state)?.let { status: Int -> copy.chrome(status) },
-        body = MyGameLabel(text = card.theme, translation = null),
+        body = englishTextOf(card.theme),
         caption = copy.chrome { lessonSummaryOf(card) },
         captionTag = LESSON_SIZE_LABEL,
         onClick = { onIntent(SchoolIntent.LessonSelected(card.lesson)) },
@@ -213,7 +214,7 @@ private fun StudiedLesson(card: SchoolUiState.LessonCard, modifier: Modifier = M
             title = copy.chrome(R.string.school_lesson_title, "number" to card.number.toString()),
             state = card.state,
         )
-        MyGameText(text = card.theme, style = MyGameTypography.body, color = MyGameTheme.colors.ink)
+        MyGameText(text = englishTextOf(card.theme), style = MyGameTypography.body, color = MyGameTheme.colors.ink)
         MyGameText(
             label = copy.chrome { lessonSummaryOf(card) },
             style = MyGameTypography.caption,

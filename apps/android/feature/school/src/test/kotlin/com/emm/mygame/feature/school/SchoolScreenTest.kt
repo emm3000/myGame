@@ -20,7 +20,9 @@ import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
 import androidx.compose.ui.test.performScrollTo
+import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.text.TextLayoutResult
+import androidx.compose.ui.text.intl.LocaleList
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.DpRect
 import com.emm.mygame.core.designsystem.MyGameTheme
@@ -344,6 +346,17 @@ class SchoolScreenTest {
 
         showing("Lección 1")
         showing("A day in town")
+    }
+
+    @Test
+    fun `reads a lesson row's theme in English`() {
+        show(idleSchool)
+
+        val theme: AnnotatedString = composeRule.onNodeWithText("A day in town", useUnmergedTree = true)
+            .fetchSemanticsNode()
+            .config[SemanticsProperties.Text]
+            .single()
+        assertEquals(LocaleList("en"), theme.spanStyles.single().item.localeList)
     }
 
     @Test

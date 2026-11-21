@@ -271,7 +271,7 @@ class MyGameNavRowTest {
             MyGameNavRow(
                 title = MyGameLabel(text = "Lesson 2", translation = null),
                 status = MyGameLabel(text = "Studying", translation = null),
-                body = MyGameLabel(text = "Work and money", translation = null),
+                body = AnnotatedString("Work and money"),
                 caption = MyGameLabel(text = "5 words", translation = null),
                 onClick = {},
             )
@@ -311,7 +311,7 @@ class MyGameNavRowTest {
         show {
             MyGameNavRow(
                 title = MyGameLabel(text = "Lesson 2", translation = null),
-                body = MyGameLabel(text = "Work and money", translation = null),
+                body = AnnotatedString("Work and money"),
                 caption = MyGameLabel(text = "5 words", translation = null),
                 captionTag = "lesson_size",
                 onClick = {},
@@ -331,7 +331,7 @@ class MyGameNavRowTest {
             MyGameNavRow(
                 title = MyGameLabel(text = "Lesson 2", translation = "Lección 2"),
                 status = MyGameLabel(text = "Studying", translation = "Estudiando"),
-                body = MyGameLabel(text = "Work and money", translation = "Trabajo y dinero"),
+                body = AnnotatedString("Work and money"),
                 caption = MyGameLabel(text = "5 words", translation = "5 palabras"),
                 captionTag = "lesson_size",
                 onClick = {},

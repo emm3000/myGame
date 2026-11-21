@@ -21,8 +21,6 @@ import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.text.SpanStyle
 import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.text.intl.LocaleList
-import androidx.compose.ui.text.withStyle
 import com.emm.mygame.core.designsystem.MyGameColors
 import com.emm.mygame.core.designsystem.MyGameErrorBanner
 import com.emm.mygame.core.designsystem.MyGameIcon
@@ -34,6 +32,7 @@ import com.emm.mygame.core.designsystem.MyGameSpacing
 import com.emm.mygame.core.designsystem.MyGameText
 import com.emm.mygame.core.designsystem.MyGameTheme
 import com.emm.mygame.core.designsystem.MyGameTypography
+import com.emm.mygame.core.designsystem.englishTextOf
 import com.emm.mygame.core.designsystem.formatQuantity
 import com.emm.mygame.core.designsystem.registering
 import com.emm.mygame.core.designsystem.rememberRegisteredFraction
@@ -195,7 +194,7 @@ private fun CopyReader.ratesLineOf(@StringRes resourceName: Int, rates: ReviewUi
 private fun wordsLineOf(label: String, words: List<String>): AnnotatedString = buildAnnotatedString {
     append(label)
     append(" ")
-    withStyle(SpanStyle(localeList = LocaleList("en"))) { append(words.joinToString(", ")) }
+    append(englishTextOf(words.joinToString(", ")))
 }
 
 @Composable

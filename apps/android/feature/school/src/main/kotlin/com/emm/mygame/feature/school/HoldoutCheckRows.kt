@@ -5,6 +5,7 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.tooling.preview.PreviewParameter
 import androidx.compose.ui.tooling.preview.PreviewParameterProvider
 import androidx.lifecycle.compose.LifecycleStartEffect
@@ -62,7 +63,7 @@ private fun HoldoutCheckRowLine(
     )
     MyGameNavRow(
         title = MyGameLabel(text = fixedCopyResource(R.string.school_holdout_open), translation = null),
-        body = MyGameLabel(text = due, translation = null),
+        body = AnnotatedString(due),
         onClick = { onHoldoutCheckOpen(row) },
         modifier = modifier,
     )

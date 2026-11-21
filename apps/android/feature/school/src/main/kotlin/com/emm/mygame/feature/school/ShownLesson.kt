@@ -20,6 +20,7 @@ import com.emm.mygame.core.designsystem.MyGameText
 import com.emm.mygame.core.designsystem.MyGameTheme
 import com.emm.mygame.core.designsystem.MyGameTypography
 import com.emm.mygame.core.designsystem.blockHueOf
+import com.emm.mygame.core.designsystem.englishTextOf
 import com.emm.mygame.core.network.LessonId
 import com.emm.mygame.core.network.LessonName
 import com.emm.mygame.core.ui.PlayerCopy
@@ -70,7 +71,11 @@ private fun LessonBlock(card: SchoolUiState.LessonCard, isStep: Boolean, modifie
             color = MyGameTheme.colors.onBlock,
             modifier = Modifier.semantics { heading() },
         )
-        MyGameText(text = card.theme, style = MyGameTypography.reading, color = MyGameTheme.colors.onBlock)
+        MyGameText(
+            text = englishTextOf(card.theme),
+            style = MyGameTypography.reading,
+            color = MyGameTheme.colors.onBlock,
+        )
         MyGameText(
             label = copy.chrome { lessonSummaryOf(card) },
             style = MyGameTypography.caption,

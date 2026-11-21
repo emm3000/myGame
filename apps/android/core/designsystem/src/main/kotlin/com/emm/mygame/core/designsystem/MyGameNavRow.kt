@@ -24,6 +24,7 @@ import androidx.compose.ui.graphics.Shape
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.semantics.Role
+import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.sp
 
@@ -35,7 +36,7 @@ fun MyGameNavRow(
     onClick: () -> Unit,
     modifier: Modifier = Modifier,
     status: MyGameLabel? = null,
-    body: MyGameLabel? = null,
+    body: AnnotatedString? = null,
     caption: MyGameLabel? = null,
     captionTag: String? = null,
 ) {
@@ -66,8 +67,8 @@ fun MyGameNavRow(
                 modifier = Modifier.weight(1f),
             ) {
                 NavRowTitle(title = title, status = status)
-                body?.let { line: MyGameLabel ->
-                    MyGameText(label = line, style = MyGameTypography.body, color = colors.ink)
+                body?.let { line: AnnotatedString ->
+                    MyGameText(text = line, style = MyGameTypography.body, color = colors.ink)
                 }
                 caption?.let { line: MyGameLabel ->
                     MyGameText(
@@ -122,7 +123,7 @@ private fun MyGameNavRowPreview() {
         MyGameNavRow(
             title = MyGameLabel(text = "Lesson 2", translation = "Lección 2"),
             status = MyGameLabel(text = "Studying", translation = "Estudiando"),
-            body = MyGameLabel(text = "Work and money", translation = null),
+            body = englishTextOf("Work and money"),
             caption = MyGameLabel(text = "5 words · Skill: money +5 %", translation = null),
             onClick = {},
         )

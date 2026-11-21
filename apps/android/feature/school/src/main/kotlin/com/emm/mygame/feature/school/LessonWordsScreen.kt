@@ -44,6 +44,7 @@ import com.emm.mygame.core.designsystem.MyGameTypography
 import com.emm.mygame.core.designsystem.MyGameWordArt
 import com.emm.mygame.core.designsystem.PreviewMyGame
 import com.emm.mygame.core.designsystem.blockHueOf
+import com.emm.mygame.core.designsystem.englishTextOf
 import com.emm.mygame.core.designsystem.withTabularFigures
 import com.emm.mygame.core.designsystem.wordStyle
 import com.emm.mygame.core.network.FrameSpan
@@ -157,7 +158,7 @@ private fun LessonHeader(reading: LessonWordsUiState.Reading, modifier: Modifier
             modifier = Modifier.semantics { heading() },
         )
         reading.theme?.let { theme: String ->
-            MyGameText(text = theme, style = MyGameTypography.reading, color = MyGameTheme.colors.ink)
+            MyGameText(text = englishTextOf(theme), style = MyGameTypography.reading, color = MyGameTheme.colors.ink)
         }
     }
 }
