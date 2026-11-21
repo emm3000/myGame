@@ -129,7 +129,7 @@ describe('typeScriptOf', () => {
   it('refuses a key that names the locale export', () => {
     const localeKey = { locale: 'x' }
 
-    expect(() => typeScriptOf(localeKey, 'es')).toThrow(/locale/)
+    expect(() => typeScriptOf(localeKey, 'es')).toThrow(/^locale: /)
   })
 
   it('exports the locale of the language it generates', async () => {
