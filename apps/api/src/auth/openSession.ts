@@ -1,12 +1,12 @@
 import type { Clock, PlayerId } from '@mygame/domain'
-import type { CryptoSessionTokens } from '../account/infrastructure/system/CryptoSessionTokens'
+import type { SessionTokens } from '../account/application/ports/SessionTokens'
 import type { Accounts, Session } from './Accounts'
 import { sessionExpiryFrom } from './sessionExpiryFrom'
 
 export type OpenSessionDependencies = {
   readonly accounts: Accounts
   readonly clock: Clock
-  readonly sessionTokens: CryptoSessionTokens
+  readonly sessionTokens: SessionTokens
 }
 
 export const openSession = async (

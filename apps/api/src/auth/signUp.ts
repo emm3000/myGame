@@ -1,7 +1,7 @@
 import type { SignUpRequest } from '@mygame/contracts'
 import { type Clock, err, type IdGenerator, ok, type Result } from '@mygame/domain'
-import type { Argon2Passwords } from '../account/infrastructure/system/Argon2Passwords'
-import type { CryptoSessionTokens } from '../account/infrastructure/system/CryptoSessionTokens'
+import type { PasswordHasher } from '../account/application/ports/PasswordHasher'
+import type { SessionTokens } from '../account/application/ports/SessionTokens'
 import type { Refusal } from '../platform/application/Refusal'
 import type { Transaction } from '../platform/infrastructure/postgres/postgresTransaction'
 import { issueAccountToken } from './issueAccountToken'
@@ -13,8 +13,8 @@ export type SignUpDependencies = SendVerificationMailDependencies & {
   readonly inTransaction: Transaction
   readonly clock: Clock
   readonly ids: IdGenerator
-  readonly passwords: Argon2Passwords
-  readonly sessionTokens: CryptoSessionTokens
+  readonly passwords: PasswordHasher
+  readonly sessionTokens: SessionTokens
 }
 
 type SignedUp = SignedIn & {

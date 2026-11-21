@@ -11,6 +11,8 @@ import {
   type TownCatalog,
 } from '@mygame/domain'
 import { waitUntil } from '@vercel/functions'
+import type { PasswordHasher } from './account/application/ports/PasswordHasher'
+import type { SessionTokens } from './account/application/ports/SessionTokens'
 import { Argon2Passwords } from './account/infrastructure/system/Argon2Passwords'
 import { CryptoSessionTokens } from './account/infrastructure/system/CryptoSessionTokens'
 import { JsonLessonCatalog } from './adapters/json/JsonLessonCatalog'
@@ -109,8 +111,8 @@ export type ComposedServer = MailSettings & {
   readonly accounts: Accounts
   readonly chromeProgress: ChromeProgressReader
   readonly reportClosings: ReportClosings
-  readonly passwords: Argon2Passwords
-  readonly sessionTokens: CryptoSessionTokens
+  readonly passwords: PasswordHasher
+  readonly sessionTokens: SessionTokens
   readonly inTransaction: Transaction
   readonly isSessionCookieSecure: boolean
   readonly failureSink: FailureSink
