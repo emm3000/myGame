@@ -47,7 +47,8 @@
       },
       "suspicious": {
         "noExplicitAny": "error",
-        "noConsole": "warn"
+        "noConsole": "warn",
+        "noImportCycles": "error"
       },
       "style": {
         "noNestedTernary": "error",
@@ -88,9 +89,6 @@
                 "skipBlankLines": true
               }
             }
-          },
-          "suspicious": {
-            "noImportCycles": "error"
           }
         }
       }
