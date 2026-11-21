@@ -7,7 +7,7 @@ import {
 import type { Accounts } from '../auth/Accounts'
 import type { PlayerChromePhaseDependencies } from '../learning/playerChromePhaseOf'
 import { answerRefusal } from '../platform/infrastructure/http/answerRefusal'
-import { bodyOf } from '../platform/infrastructure/http/bodyOf'
+import { readJsonBody } from '../platform/infrastructure/http/readJsonBody'
 import { playerBodyOf } from './playerBodyOf'
 import { playerDeclarations } from './playerDeclarations'
 
@@ -27,7 +27,7 @@ export const playerRoutes = (dependencies: PlayerRouteDependencies): OpenAPIHono
     playerDeclarations.changeScaffold.path,
     signedInPlayer,
     async (c) => {
-      const change = ScaffoldChangeSchema.safeParse(await bodyOf(c))
+      const change = ScaffoldChangeSchema.safeParse(await readJsonBody(c))
       if (!change.success) {
         return answerRefusal(c, { kind: 'MalformedRequest' })
       }

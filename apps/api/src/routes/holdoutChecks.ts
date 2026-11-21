@@ -24,8 +24,8 @@ import { holdoutChecksBodyOf } from '../learning/holdoutChecksBodyOf'
 import type { LearningDependencies } from '../learning/LearningDependencies'
 import { scaffoldOf } from '../learning/scaffoldOf'
 import { answerRefusal } from '../platform/infrastructure/http/answerRefusal'
-import { bodyOf } from '../platform/infrastructure/http/bodyOf'
 import { honoPathOf } from '../platform/infrastructure/http/honoPath'
+import { readJsonBody } from '../platform/infrastructure/http/readJsonBody'
 import { mutateTown, type TownStores } from '../town/mutateTown'
 import { holdoutCheckDeclarations } from './holdoutCheckDeclarations'
 
@@ -111,7 +111,7 @@ export const holdoutCheckRoutes = (dependencies: HoldoutCheckRouteDependencies):
     signedInPlayer,
     async (c) => {
       const check = HoldoutCheckRequestSchema.safeParse(c.req.param())
-      const request = HoldoutCheckAnswersSchema.safeParse(await bodyOf(c))
+      const request = HoldoutCheckAnswersSchema.safeParse(await readJsonBody(c))
       if (!check.success || !request.success) {
         return answerRefusal(c, { kind: 'MalformedRequest' })
       }

@@ -19,8 +19,8 @@ import type { LearningDependencies } from '../learning/LearningDependencies'
 import { placementBodyOf } from '../learning/placementBodyOf'
 import { scaffoldOf } from '../learning/scaffoldOf'
 import { answerRefusal } from '../platform/infrastructure/http/answerRefusal'
-import { bodyOf } from '../platform/infrastructure/http/bodyOf'
 import { honoPathOf } from '../platform/infrastructure/http/honoPath'
+import { readJsonBody } from '../platform/infrastructure/http/readJsonBody'
 import { mutateTown } from '../town/mutateTown'
 import { placementDeclarations } from './placementDeclarations'
 
@@ -106,7 +106,7 @@ export const placementRoutes = (dependencies: PlacementRouteDependencies): OpenA
     honoPathOf(placementDeclarations.answerPlacement),
     signedInPlayer,
     async (c) => {
-      const request = PlacementAnswersSchema.safeParse(await bodyOf(c))
+      const request = PlacementAnswersSchema.safeParse(await readJsonBody(c))
       if (!request.success) {
         return answerRefusal(c, { kind: 'MalformedRequest' })
       }
