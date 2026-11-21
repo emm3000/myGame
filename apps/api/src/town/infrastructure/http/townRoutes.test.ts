@@ -27,19 +27,19 @@ import {
   it,
   vi,
 } from 'vitest'
-import { apiPackagePath } from '../apiPackagePath.testSupport'
-import { createApp } from '../app'
-import { type ComposedServer, composeServer } from '../composeServer'
-import { mailEnvironment } from '../composeServer.testSupport'
-import type { ComposedStores } from '../composeStores'
-import type { LessonLibrary } from '../content/application/ports/LessonLibrary'
+import { apiPackagePath } from '../../../apiPackagePath.testSupport'
+import { createApp } from '../../../app'
+import { type ComposedServer, composeServer } from '../../../composeServer'
+import { mailEnvironment } from '../../../composeServer.testSupport'
+import type { ComposedStores } from '../../../composeStores'
+import type { LessonLibrary } from '../../../content/application/ports/LessonLibrary'
 import {
   isWaitingOnALock,
   lockedPlayerReadQuery,
   lockProbeLimit,
-} from '../lockWaitProbe.testSupport'
-import type { Transaction } from '../platform/application/ports/Transaction'
-import { truncatePlayerTables } from '../truncatePlayerTables.testSupport'
+} from '../../../lockWaitProbe.testSupport'
+import type { Transaction } from '../../../platform/application/ports/Transaction'
+import { truncatePlayerTables } from '../../../truncatePlayerTables.testSupport'
 
 const contentDirectory = apiPackagePath('content/')
 

@@ -12,8 +12,8 @@ import { mailEnvironment } from './composeServer.testSupport'
 import { learningDeclarations } from './learning/infrastructure/http/learningRoutes'
 import { healthDeclarations } from './platform/infrastructure/http/healthDeclarations'
 import { reportDeclarations } from './report/infrastructure/http/reportRoutes'
-import { townDeclarations } from './routes/townDeclarations'
-import { townMapDeclarations } from './routes/townMapDeclarations'
+import { townDeclarations } from './town/infrastructure/http/townDeclarations'
+import { townMapDeclarations } from './town/jobs/infrastructure/http/regionMapDeclarations'
 import { truncatePlayerTables } from './truncatePlayerTables.testSupport'
 
 const contentDirectory = apiPackagePath('content/')
