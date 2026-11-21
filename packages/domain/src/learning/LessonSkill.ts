@@ -1,4 +1,4 @@
-import type { ResourceKind } from '../town/ResourceKind'
+import type { ResourceKind } from '../town/resources/ResourceKind'
 
 export type LessonSkill = {
   readonly resource: ResourceKind

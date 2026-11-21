@@ -3,8 +3,8 @@ import type { Instant } from '../time/Instant'
 import type { BuildingKind } from './building/BuildingKind'
 import type { HireKind } from './hiring/HireKind'
 import type { SiteAddress } from './jobs/SiteAddress'
-import type { ResourceKind } from './ResourceKind'
-import type { Stocks } from './Stocks'
+import type { ResourceKind } from './resources/ResourceKind'
+import type { Stocks } from './resources/Stocks'
 
 type Occurred = { readonly occurredAt: Instant }
 

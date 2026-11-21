@@ -1,13 +1,13 @@
-import type { DomainError } from '../DomainError'
-import { err, ok, type Result } from '../Result'
-import type { Instant } from '../time/Instant'
-import type { BuildingLevels } from './building/BuildingLevels'
-import type { ProducerBuilding } from './building/ProducerBuilding'
-import type { Terrain } from './jobs/Terrain'
-import type { TownCatalog } from './ports/TownCatalog'
+import type { DomainError } from '../../DomainError'
+import { err, ok, type Result } from '../../Result'
+import type { Instant } from '../../time/Instant'
+import type { BuildingLevels } from '../building/BuildingLevels'
+import type { ProducerBuilding } from '../building/ProducerBuilding'
+import type { Terrain } from '../jobs/Terrain'
+import type { TownCatalog } from '../ports/TownCatalog'
+import { seasonPercentsAt } from '../seasonPercentsAt'
+import type { TownSkill } from '../TownSkill'
 import type { ResourceKind } from './ResourceKind'
-import { seasonPercentsAt } from './seasonPercentsAt'
-import type { TownSkill } from './TownSkill'
 
 export type ResourceRates = Readonly<Record<ResourceKind, number>>
 

@@ -1,11 +1,11 @@
 import { assert, describe, expect, it } from 'vitest'
-import { Instant } from '../time/Instant'
+import { Instant } from '../../time/Instant'
+import type { Town } from '../Town'
+import type { TownSettings } from '../TownSettings'
+import { plainTownSettings, townCatalogOf } from '../testing/townCatalogOf'
+import { townOf } from '../testing/townFixtures'
 import { accrueTown } from './accrueTown'
 import { deriveFullAt } from './deriveFullAt'
-import type { Town } from './Town'
-import type { TownSettings } from './TownSettings'
-import { plainTownSettings, townCatalogOf } from './testing/townCatalogOf'
-import { townOf } from './testing/townFixtures'
 
 const MILLISECONDS_PER_HOUR = 3_600_000
 

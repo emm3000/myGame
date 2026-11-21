@@ -10,8 +10,8 @@ import { hireKinds } from './hiring/hireKinds'
 import type { Job, JobSlot } from './jobs/Job'
 import { jobInstantsOf, uncalledJobInstantsOf } from './jobs/jobInstantsOf'
 import { refuseInvalidTeam } from './jobs/refuseInvalidTeam'
-import { resourceKinds } from './resourceKinds'
-import type { Stocks } from './Stocks'
+import { resourceKinds } from './resources/resourceKinds'
+import type { Stocks } from './resources/Stocks'
 import type { StoredTown } from './Town'
 
 const isWholeFromZero = (value: number): boolean => Number.isInteger(value) && value >= 0

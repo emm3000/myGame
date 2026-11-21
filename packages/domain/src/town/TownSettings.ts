@@ -5,8 +5,8 @@ import type { TipKind } from './guidance/TipKind'
 import type { TownGoal } from './guidance/TownGoal'
 import type { JobTerms } from './jobs/JobTerms'
 import type { WasteTerms } from './jobs/WasteTerms'
-import type { ResourceKind } from './ResourceKind'
-import type { Stocks } from './Stocks'
+import type { ResourceKind } from './resources/ResourceKind'
+import type { Stocks } from './resources/Stocks'
 
 export type ProductionPercent = Readonly<Record<ResourceKind, number>>
 
