@@ -164,6 +164,12 @@ metric needs (§8.2), not for a claim of more learning.
    matching the card's own word id against its choices, cannot leak
    the answer (amended 2026-11-04, #713: the answer was the chosen
    word's id, which a recognition card's own word id gave away).
+   Recognition sets no floor on its choices: a lesson whose other
+   words are all held out (ADR 037) offers one choice. The case is
+   rare, recognition is only the on-ramp, and recall, which no
+   held-out word changes, gates `review`, retention and the skill. A
+   floor would draw distractors from other lessons into a choice set
+   this rule defines by the lesson, and change grading.
 4. **A typed answer is compared after Unicode NFC, the typographic
    apostrophe ’ read as ', trimming, collapsing inner whitespace to one
    space, and lower-casing, against the word and any further form its
