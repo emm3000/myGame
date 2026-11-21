@@ -28,6 +28,7 @@ fresh_tree() {
   printf "export const jobPayOf = (hours: number): number => hours * 2\n" >"$tree/packages/domain/src/town/jobPayOf.ts"
   printf "export { jobPayOf } from './town/jobPayOf'\n" >"$tree/packages/domain/src/index.ts"
   printf "export const SendJob = 'send-job'\n" >"$tree/packages/contracts/src/SendJob.ts"
+  plant ARCHITECTURE.md "| Folder | What |\n|---|---|\n| \`town\` | the holding |\n"
 }
 
 plant() {
@@ -85,6 +86,23 @@ fails_an_application_knowing_the_wire() {
   plant apps/api/src/town/application/sendJob.ts "import { z } from 'zod'\n"
   check
   expect_failure "${FUNCNAME[0]}" "structure check application_knows_wire apps/api/src/town/application/sendJob.ts 1:import"
+}
+
+fails_contracts_outside_their_adapters() {
+  fresh_tree
+  plant apps/api/src/town/application/readTown.ts "import type { TownOverview } from '@mygame/contracts'\n"
+  check
+  expect_failure "${FUNCNAME[0]}" "structure check contracts_outside_adapters apps/api/src/town/application/readTown.ts 1:import"
+}
+
+passes_contracts_in_http_json_and_the_gate() {
+  fresh_tree
+  plant apps/api/src/town/infrastructure/http/presentTown.ts "import type { TownOverview } from '@mygame/contracts'\n"
+  plant apps/api/src/content/infrastructure/json/JsonTownCatalog.ts "import { TownContentSchema } from '@mygame/contracts'\n"
+  plant apps/api/src/content/gate/lessonPositionOf.ts "import type { CurriculumContent } from '@mygame/contracts'\n"
+  plant ARCHITECTURE.md "| Folder | What |\n|---|---|\n| \`content\` | the catalogs |\n| \`town\` | the holding |\n"
+  check
+  expect_pass "${FUNCNAME[0]}"
 }
 
 fails_persistence_knowing_http() {
@@ -217,6 +235,20 @@ fails_a_map_that_misses_a_folder() {
   expect_failure "${FUNCNAME[0]}" "structure check map: the folders under apps/api/src and packages/domain/src and the rows of ARCHITECTURE.md differ"
 }
 
+fails_a_map_with_a_row_for_no_folder() {
+  fresh_tree
+  plant ARCHITECTURE.md "| Feature | What |\n|---|---|\n| \`routes\` | the old routes |\n| \`town\` | the holding |\n"
+  check
+  expect_failure "${FUNCNAME[0]}" "> routes"
+}
+
+fails_without_a_map() {
+  fresh_tree
+  rm "$tree/ARCHITECTURE.md"
+  check
+  expect_failure "${FUNCNAME[0]}" "structure check map: ARCHITECTURE.md could not be read"
+}
+
 passes_a_map_that_matches_the_folders() {
   fresh_tree
   plant ARCHITECTURE.md "| Feature | What |\n|---|---|\n| \`town\` | the holding |\n"
@@ -267,6 +299,8 @@ run() {
 run passes_a_clean_tree
 run fails_an_application_importing_infrastructure
 run fails_an_application_knowing_the_wire
+run fails_contracts_outside_their_adapters
+run passes_contracts_in_http_json_and_the_gate
 run fails_persistence_knowing_http
 run fails_http_knowing_the_database
 run fails_an_adapter_built_outside_the_composition_root
@@ -285,6 +319,8 @@ run passes_tables_and_entries_over_five_exports
 run fails_an_interface_over_seven_methods
 run passes_a_class_of_seven_methods_and_its_accessors
 run fails_a_map_that_misses_a_folder
+run fails_a_map_with_a_row_for_no_folder
+run fails_without_a_map
 run passes_a_map_that_matches_the_folders
 run passes_a_baselined_violation
 run fails_a_baseline_line_that_no_longer_fails
