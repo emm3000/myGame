@@ -200,9 +200,9 @@ passes_a_folder_of_thirty_production_files_and_its_tests() {
 
 fails_a_file_over_five_exports() {
   fresh_tree
-  plant packages/domain/src/town/TownSettings.ts "export const a = 1\nexport const b = 2\nexport const c = 3\nexport const d = 4\nexport const e = 5\nexport const f = 6\n"
+  plant packages/domain/src/town/SixExports.ts "export const a = 1\nexport const b = 2\nexport const c = 3\nexport const d = 4\nexport const e = 5\nexport const f = 6\n"
   check
-  expect_failure "${FUNCNAME[0]}" "structure check file_over_export_cap packages/domain/src/town/TownSettings.ts 6 exports"
+  expect_failure "${FUNCNAME[0]}" "structure check file_over_export_cap packages/domain/src/town/SixExports.ts 6 exports"
 }
 
 passes_tables_and_entries_over_five_exports() {
