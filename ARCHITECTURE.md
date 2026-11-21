@@ -56,7 +56,7 @@ testing/      the feature's in-memory ports and fixtures
 <subArea>/    the same grammar again
 ```
 
-A domain file lives in the sub-area whose word it names in the "What it is" column of ADR 052's feature table (section 2), even when another sub-area reads it, and the feature's root keeps the aggregate and the words no domain sub-area names. The root and its sub-areas may import one another; Biome's `noImportCycles` keeps the files free of runtime cycles, and type-only imports are not checked. A type-only cycle between an aggregate and the parts it composes, `Town.ts` and `TownBuildingWork`, `TownHiring`, `TownJobs` and `refuseInvalidTown`, is accepted until #1774.
+A domain file lives in the sub-area whose word it names in the "What it is" column of ADR 052's feature table (section 2), even when another sub-area reads it, and the feature's root keeps the aggregate and the words no domain sub-area names. The root and its sub-areas may import one another, and they stay free of cycles: Biome's `noImportCycles` checks type-only imports as well as runtime ones in the backend.
 
 `apps/api/src/`:
 
@@ -118,7 +118,7 @@ A pass-through earns no file: the route calls the store. A port lives with its u
 `pnpm gate` runs them, and each fails on any hit: `scripts/mygame-structure-check.baseline` is empty.
 
 - `feature_graph` (Biome): a feature imports only from its left.
-- `noImportCycles` (Biome): no runtime import cycle between two files.
+- `noImportCycles` (Biome): no import cycle between two files, and in the backend no type-only one either.
 - `map`: the folders above and the folders on disk are the same list, and a missing `ARCHITECTURE.md` fails.
 - `application_imports_infrastructure`, `application_knows_wire`: the application reads no adapter, no wire type and no HTTP or database library.
 - `contracts_outside_adapters`: `@mygame/contracts` stays in `infrastructure/http/`, `infrastructure/json/` and `content/gate/`.

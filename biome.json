@@ -89,6 +89,14 @@
                 "skipBlankLines": true
               }
             }
+          },
+          "suspicious": {
+            "noImportCycles": {
+              "level": "error",
+              "options": {
+                "ignoreTypes": false
+              }
+            }
           }
         }
       }

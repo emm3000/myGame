@@ -257,11 +257,9 @@ Everything at a feature's root is pure. A domain file lives in the
 sub-area whose word it names in the "What it is" column of the
 feature table (section 2), even when another sub-area reads it, and
 the feature's root keeps the aggregate and the words no domain
-sub-area names. The root and its sub-areas may import one another;
-Biome's `noImportCycles` keeps the files free of runtime cycles, and
-type-only imports are not checked. A type-only cycle between an
-aggregate and the parts it composes (`Town.ts` and its sub-area
-classes) is accepted until #1774. The top-level `useCases/` and
+sub-area names. The root and its sub-areas may import one another,
+and they stay free of cycles: Biome's `noImportCycles` checks
+type-only imports as well as runtime ones. The top-level `useCases/` and
 `testing/` folders dissolve into the features. The top-level `ports/`
 keeps only `Clock`, `IdGenerator` and `RandomSource`, which belong to
 no feature, and their fakes sit beside them in `ports/testing/`:
