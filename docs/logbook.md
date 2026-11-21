@@ -1,0 +1,143 @@
+# Logbook
+
+What each working session advanced and what is still unproven, so a human can follow the project with no AI and nothing lives only in an issue thread. It replaces the checklists that lived on issue #1515.
+
+Rule: every session adds its section below before the orchestrator's `/clear`, and moves what it proved out of `## Still to validate`. Sections run newest first.
+
+## Still to validate
+
+### Session 2026-11-21 (21 PRs, log 746aec8e): what was not proven
+
+The normal flow ran this session. Each peer ran the local `pnpm gate`, the TDD red runs, and emulator screenshots for screen PRs. These items are still open:
+
+- [ ] **Red runs were not re-run by any reviewer.** The reviewers of #1742 (check 6 lookback) and #1743 (structure check: folder limit 31, method cap 8) traced them by hand or read the PR body. Re-running them means reverting the fix and watching the test fail.
+- [ ] **No reviewer ran the local `pnpm gate`.** The reviewers of #1740–#1746 relied on CI's `gate` job; only the writers ran it locally.
+- [ ] **The `map` check has never run.** `scripts/mygame-structure-check` skips it until `ARCHITECTURE.md` exists. It first runs with A1 (#1714), which is where to confirm it fails on a missing folder row.
+- [ ] **`feature_graph` has no proof on real code.** The Biome postgres exemption (`*Tables`, `*FromRow`, `*Columns`) was tested only on planted probe files, because no `*Tables.ts` exists yet. The first real check is A3 (#1716) and A4 (#1717).
+- [ ] **Draft #1739 (#1694) is red.** Its WIP commit fails `town.test.ts` "reads the town in one round trip". It resumes after #1714.
+- [ ] **The images of PR #1709 are broken.** Closing it deleted `assets/1703-visual-check`. #1747 and #1748 move the screenshot flow to one branch.
+- [ ] **The Android smoke (#1194) has not run since #1683–#1709.** Run 5 was earlier in this session. Run it once on trunk before the Android restructure (#1744).
+
+
+### Session 2026-11-20 (fast mode, 100 PRs, log 71f93dcd): consolidated debt
+
+This one list replaces the scattered per-PR lines above. Tick each item when it is checked.
+
+#### 1. Never validated in this session (applies to every PR)
+- [ ] `pnpm gate` run locally on trunk. Only CI ran it.
+- [ ] Red-run tables: the new tests were not shown failing first. Mutation proofs exist only for #1661, #1664, #1666, #1667 and #1668.
+- [ ] Screenshots of every changed web screen (`apps/web/CLAUDE.md` seed).
+- [ ] Emulator flows for every changed Android screen.
+- [x] Android smoke (`docs/qa/android.md`, #1194) on the trunk after #1659–#1671. Run 4 passed 7 of 7 before that wave; run 5 passed 7 of 7 on 2026-11-21, and the bug it found (#1688) was fixed by #1698.
+
+#### 2. Deploy and production (owner)
+- [ ] #1660 (#1650): open the Report, finish a building in another tab, then close the Report. The next Report shows that news and does not mark it read early. Neon gets migration 0045 (report_served_at) at deploy.
+- [ ] #1662 (#1649): after deploy, request forgot-password once on prod-like preview. The mail arrives and the response is the same as for an unknown address. The cap (5 pending per instance) cannot be hit by hand.
+- [ ] Confirm that Neon applied migration 0045 (`players.report_served_at`) on the first deploy after #1660.
+
+#### 3. Android (15)
+- [ ] #1519 (#1367): texts moved to their own read. On Android, the school's text list shows titles and a text opens through `GET /town/texts/{id}`; a text not reached reads its own not-open state. Measure a town read's size with many texts on a real account.
+- [ ] #1530 (#1528): Android model only; the town home's status strip already drew a running released lesson's countdown by band and set. Confirm it still does on the emulator.
+- [ ] #1581 (#1573): Android: open a refused verify link, background the app, `adb shell am kill com.emm.mygame`, then return. It still shows the refused link and sends no token. The emulator run was waived.
+- [ ] #1587 (#834): TalkBack on Android reads the school's lesson theme, the shown lesson and the words-page theme in English. The emulator screenshots and the remove-the-marks mutation check were not run.
+- [ ] #1620 (#1614): with TalkBack on Android, the text titles on the school and on the text page read as English. Emulator run waived.
+- [ ] #1625 (#1615): Android study reminder. With the phone clock set off from the server, the reminder fires at the time computed from the Report's server `readAt`. Emulator run waived.
+- [ ] #1663 (#1645): on the web lesson-words page, the support line under `es` is Spanish with `lang=es`. Under `none` it is the English definition with `lang=en`. Android lesson words are unchanged. Screenshots waived.
+- [ ] #1665 (#1651): on Android, finish a building. The finish notice shows with only *Close*, there is no way-on row, and the dock's go still leads to the next step. Emulator waived.
+- [ ] #1661 (#1654): on Android at font scale 2.0, open the lesson words and a review card. No line starts with a space or punctuation; a support that does not fit beside its word drops to the next line; `____` can open a line. Emulator waived.
+- [ ] #1669 (#1655): on Android at 360x640, font scale 2.0, es, check for truncation or awkward wrap on: school LessonRows and ShownLesson (title plus status), Report rows (`report_reminder_offer`), PlacementOffer, the TownPage school and map links, and TownReportRow.
+- [ ] #1666 (#1656): on Android, reproduce the holdout check's 400 by switching the scaffold between es and none mid-check, so the gloss dedup differs, then send. The check re-reads with the refusal line and fresh words. Emulator waived.
+- [ ] #1670 (#1653): on Android, with an es player whose email is unverified on an English phone, sign out and in, and kill the api briefly. The verification banner stays in Spanish. Emulator waived.
+- [ ] #1671 (#1652): on Android, earn a skill in a review during the English chrome phase under es. The verdict reads *Habilidad ganada: comida, nivel 2.* in Spanish; under none it is English. Emulator waived.
+- [ ] #1667 (#1648): on web and Android, open lessons 1–10 and read the new definitions (money, town, full, come, worker, build, news, team, office, list, mayor, ready, station, clean, waste, top, due, try, review) and lesson 5's theme *Build a home*. Each reads naturally beside its word.
+- [ ] #1668 (#1657): on the web school with 11 words in learning, a 5-word lesson with 1 word held out shows as open, with no cap mark, and study starts. Android still blocks it (follow-up on #1497).
+
+#### 4. Web (38). The web is parked by ADR 043, so check these when it is unparked.
+- [ ] #1517 (#1042): docs only; S22's not-yet-shipped mark removed. Check the S22 row against the shipped screens in the smoke.
+- [ ] #1518 (#1002): the News screen and the Report's news name a stopped build's or hire's refund (*Recuperaste: ...*); an all-zero refund draws nothing.
+- [ ] #1524 (#1521, pending CI): the town home's stable and retained word counts, and a place card's *n of m words* need; none at top level.
+- [ ] #1516 (#1281, pending CI): the web school lists the texts reached, newest first; a text opens on its own read; a word under 7 days shows its gloss beside it, a stable word on tap, a second tap closes it; a text not reached reads *nothing to read*.
+- [ ] #1526 (#1090, pending CI): on the web town home, a running released lesson reads by band and set with its countdown, never *Lesson 0*; its finish notice too; the card goes to /school.
+- [ ] #1529 (#1522, pending CI): after a correct review that opens a building level, the web verdict reads *Ya tienes ... nivel N*; none on a wrong answer.
+- [ ] #1523 (#1064): the web settings screen changes the scaffold (es / none), shows *Saving...* then *Saved.*; a refusal and an unreachable api each restore the stored value. `ScaffoldChoice` moved to the design system and its keys were renamed to `scaffold.*`: recheck sign-up's picker too.
+- [ ] #1533 (#1282, pending CI): the web town home names the newest text on caught-up and on a running lesson (beside the goal) and opens it; the web school shows *Banda N: x de y* per started band, none before.
+- [ ] #1534 (#1066 A): the web school draws a due holdout check; take it (placement format, all answers at once), skip it, a 409 inline, and a check with no words sends an empty list. Placement's asking components moved to the design system: recheck placement too.
+- [ ] #1539 (#1065 A): the web shell draws its chrome by the server's phase (Spanish, English over Spanish, English) and English under none; each line carries its `lang`; a screen reader voices the back link and the retained-words ring in the right language. The fixed-copy key list moved to `packages/catalog`.
+- [ ] #1540 (#1527): the web school lists released lessons after the shelved ones, named by band and set (no more *Lesson 0* in the school), starts one, and shows a refusal inside its row; with none released, no row.
+- [ ] #1541 (#1537 seam): no visible change is expected. Spot-check that the town, school, map and report still read the same in Spanish, since 102 files moved to `Label` props.
+- [ ] #1544 (#1536): the web school, placement, holdout check and report draw chrome by phase (Spanish / English over Spanish / English) and fixed copy in the scaffold; under none everything is English. Known gap: the school's reviews link stays Spanish until #1535 merges.
+- [ ] #1545 (#1537): the web map (terrain, jobs, clean-up, job-out) and the signed-in routes draw chrome by phase, with refusals and loading in the scaffold. Known gaps: news, report and reviews routes still pass `es`; a job-out time in the both phase shows English only.
+- [ ] #1546 (#1535): the web town home, buildings, slots, resources, seasons and news draw chrome by phase; the next step's holdout and released lines stay in the scaffold. Known gaps: finish times in the both phase show English only (#1547); months and "y" stay Spanish (#1542).
+- [ ] #1548 (#1542): under none or in the English phase, dates past tomorrow show English months, and amounts join with "and".
+- [ ] #1547 / PR #1551 (pending): in the both phase, a countdown due tomorrow shows *tomorrow* over *mañana*. Check the layout of `WaitingUpgrades.tsx:38`, where a `' · '` separator sits beside a two-line column. It is unverified because screenshots were waived.
+- [ ] #1552 (#1538 E1): signed in, the review card, refusals, settings, verification banner and sign-out are in the scaffold language whatever the phase; under none everything is English, including the cap refusal's time.
+- [ ] #1553 (#1549 E2, fixes #1514): before sign-in the account screens follow the browser (`es*` Spanish, else English), with a visible switch that is remembered; sign-up's preselected scaffold matches; html lang follows. Check with an English browser and with a Spanish one, and with storage blocked (private window).
+- [ ] #1554 (#1550 E3): no visible change is expected; the catalog no longer exports flat functions. Smoke any signed-in and signed-out screen in Spanish.
+- [ ] #1564 (#1558): under none, a recognition's choices and its verdict's right answer are the English definitions, marked `lang="en"`; under es, the Spanish glosses.
+- [ ] #1565 (#1555): on /school, when the next step is a released lesson or a holdout check, the block shows that step ahead of the shelf; it starts the lesson or opens the check, never links back to /school; a refused start shows inside the block.
+- [ ] #1566 (#1559): Settings keeps focus on the picked radio while saving; sign-up shows *You can change it at any time in Settings.*; a pick during sign-up submit is ignored.
+- [ ] #1569 (#1568): under none the recall cue is the English definition, marked `lang="en"`; under es, the Spanish gloss marked `lang="es"`.
+- [ ] #1567 (#1560): on the town home, a season ending within a minute and a card whose resources arrive within a minute count down every second. Type a hire count of 3 and watch the ready line tick. A typed count now survives leaving the town home.
+- [ ] #1570 (#1556): once a band starts, the web school shows the holdout note under the band lines (*1 word in 10 is kept back…*); none before.
+- [ ] #1572 (#1557): in the web holdout check and placement walks, focus moves to the new word or end line after each step. Under none the choices are marked `lang="en"`, under es `lang="es"`. Try it with a keyboard and a screen reader.
+- [ ] #1571 (#1561): on the town home the newest text's English title is marked `lang="en"` inside its Spanish line; on the school a released lesson's Spanish title is marked `lang="es"` inside an English line.
+- [ ] #1582 (#1577): with a released lesson running, the web school's slot opens its words on `/school/released-<band>-<set>`, titled by band and set, with no *Lesson 0*.
+- [ ] #1589 (#1578): on the web town home and on the school, a running released lesson's next step opens `/school/released-<band>-<set>`.
+- [ ] #1590 (#854): with the device clock set 3+ s ahead, the web Report re-reads at `nextDueAt`, timed from the server's `readAt`. Screenshot waived.
+- [ ] #1609 (#1596): on the web town home, in a countdown's last minute, type in the office form faster than once a second; every countdown keeps ticking. Check at 360 px and 1280 px (screenshots waived).
+- [ ] #1611 (#1595): web school text page. Check four states: loading, before a tap, the Spanish gloss open, and the English definition open. The support region announces on a tap (screen reader). Screenshots waived.
+- [ ] #1624 (#1601): web school full-cap line and town home place cards. Figures take `tabular-nums` one by one, with no shift while the numbers change. Check at 360 px and 1280 px in the es, both and en phases (screenshots waived).
+- [ ] #1631 (#1628): on the web school text page, the tap word still looks and behaves the same (focus ring, expanded state, the support region opens) in light and dark mode. Screenshots waived.
+- [ ] #1630 (#1627): leave the web Report open across local midnight. The next-review line and the news rows turn their day at 00:00. Screenshot waived.
+- [ ] #1643 (#1639): leave the web Report open, put the laptop to sleep across midnight, then wake it. The next-review line shows the new day right away, with no new read. Screenshot waived.
+- [ ] #1641 (#1634): on the web town home, place cards show the level number in `tabular-nums`; on the school, the full-cap word count does too. Check in the es, both and en phases (screenshots waived).
+
+#### 5. Bugs and follow-ups found, not yet ticketed (details on #1497)
+- [ ] **Android learning-cap bug**, the twin of #1657: `SchoolContent.kt:66,75,140` compares `words.size`. A player sees a lesson blocked that the api would accept. Fix this first.
+- [ ] Web skill verdict drawn as chrome, the twin of #1652 (`RatedVerdictLines.tsx`).
+- [ ] `GET /report` from lesson words moves the served instant (#1660).
+- [ ] No pg pool or statement timeout (`connectPostgres.ts:13`, #1662).
+- [ ] Check 6 reader gaps: past and participle in one set, the *have* lookback, 's never read as *has*, relative *that* (#1664, #1667).
+- [ ] `LessonWordsScreen` ignores `support.shown` (#1663).
+- [ ] The holdout check 409 keeps old words (#1666); the `NavRowTitle` status weight (#1669); `rememberLastKnown` against `android-architecture.md:62` (#1670).
+- [ ] No CI check that the generated `strings.xml` matches the catalog (#1671).
+- [ ] `ReportRepositoryTest` cast at :381 flakes under load (#1668).
+
+#### 6. Waiting on the owner
+- #1460 (release key and production), #1114 (a real reset mail from production), #642 (a Cloudflare token), #641 (branch protection), and #1112, #1003 and #1010, which the owner parked.
+- The PRD S7 wording (ADR 015) and the *energy* exception in `CONTEXT.md`.
+
+
+
+## 2026-11-21: Android close-out and ADR 052 step 0
+
+### Advanced
+- #1683–#1709: Android and content.
+- #1740: test path helper (#1713).
+- #1741: ADR 052.
+- #1742: content gate (#1695).
+- #1743: structure check and limits in the gate (#1711).
+- #1746: rules (#1712).
+- 21 PRs in all (log 746aec8e).
+
+### Not proven
+See `## Still to validate`, the 2026-11-21 group.
+
+### Next
+- #1714, #1725 and #1736 in parallel.
+- #1694 parked as draft #1739.
+- Asset branches: #1747 and #1748.
+- Audits: #1744 (Android) and #1745 (web, parked).
+
+## 2026-11-20: fast-mode session
+
+### Advanced
+- 100 PRs in fast mode (log 71f93dcd), among them #1517–#1671 as listed under `## Still to validate`.
+- Mutation proofs exist for #1661, #1664, #1666, #1667 and #1668.
+
+### Not proven
+See `## Still to validate`, the 2026-11-20 group, items 1 to 5.
+
+### Next
+- Fix the Android learning-cap bug first (item 5 of that group).
+- Owner items in item 2 and the waiting list in item 6.
