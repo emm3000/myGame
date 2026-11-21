@@ -9,10 +9,11 @@ import { type HiringSlot, idleHiringSlot } from '../hiring/HiringOrder'
 import { idleJobSlot, type JobSlot } from '../jobs/Job'
 import { noStoreFull } from '../resources/FullSince'
 import type { Stocks } from '../resources/Stocks'
-import { type StoredTown, Town } from '../Town'
+import { Town } from '../Town'
 import { TownAddress } from '../TownAddress'
 import { TownName } from '../TownName'
 import type { TownSkill } from '../TownSkill'
+import type { StoredTown } from '../TownState'
 
 export type TownShape = {
   readonly id?: string

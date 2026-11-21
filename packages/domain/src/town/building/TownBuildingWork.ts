@@ -5,8 +5,9 @@ import type { Instant } from '../../time/Instant'
 import type { TownCatalog } from '../ports/TownCatalog'
 import { chargedStocks } from '../resources/chargedStocks'
 import { creditedStocks, type Stocks, stocksOf } from '../resources/Stocks'
-import type { ChangedTown, Town, TownState } from '../Town'
+import type { ChangedTown, Town } from '../Town'
 import type { TownEvent } from '../TownEvent'
+import type { TownState } from '../TownState'
 import {
   type BusyWorkSlot,
   idleWorkSlot,

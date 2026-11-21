@@ -303,7 +303,7 @@ export {
   type StopSchoolLessonDependencies,
   stopSchoolLesson,
 } from './town/school/useCases/stopSchoolLesson'
-export { type ChangedTown, type StoredTown, Town, type TownFounding } from './town/Town'
+export { type ChangedTown, Town, type TownFounding } from './town/Town'
 export { TownAddress } from './town/TownAddress'
 export type { TownEvent, TownEventKind } from './town/TownEvent'
 export type { TownId } from './town/TownId'
@@ -316,6 +316,7 @@ export type {
   TownSettings,
 } from './town/TownSettings'
 export type { TownSkill } from './town/TownSkill'
+export type { StoredTown } from './town/TownState'
 export { townLabelOf } from './town/townLabelOf'
 export { type TownSeason, townSeasonAt } from './town/townSeasonAt'
 export {
