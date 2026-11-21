@@ -8,56 +8,19 @@ import {
   TownName,
 } from '@mygame/domain'
 import { drizzle } from 'drizzle-orm/node-postgres'
-import { Pool } from 'pg'
 import { afterAll, assert, beforeAll, describe, expect, it } from 'vitest'
-import { players } from '../../../account/infrastructure/postgres/accountTables'
 import { DrizzleAccounts } from '../../../account/infrastructure/postgres/DrizzleAccounts'
 import { composeStores } from '../../../composeStores'
-import { truncatePlayerTables } from '../../../truncatePlayerTables.testSupport'
 import { DrizzleLessonSlots } from './DrizzleLessonSlots'
 import { DrizzleTownReader } from './DrizzleTownReader'
 import { DrizzleTownRepository } from './DrizzleTownRepository'
+import { townTestDatabase } from './townTestDatabase.testSupport'
 
-function databaseUrl(): string {
-  const url = process.env.DATABASE_URL
-  if (!url) {
-    throw new Error('DATABASE_URL is not set')
-  }
-  return url
-}
+const { open, close, pool, registerPlayers, truncateAll } = townTestDatabase()
 
-let pool: Pool
+beforeAll(open)
 
-beforeAll(() => {
-  pool = new Pool({ connectionString: databaseUrl() })
-})
-
-afterAll(async () => {
-  await pool.end()
-})
-
-const registerPlayers = async (playerIds: ReadonlyArray<string>): Promise<void> => {
-  if (playerIds.length === 0) {
-    return
-  }
-  await drizzle(pool)
-    .insert(players)
-    .values(
-      playerIds.map((id) => ({
-        id,
-        email: `${id}@example.com`,
-        passwordHash: 'argon2id-hash',
-        createdAt: new Date('2026-11-04T08:00:00Z'),
-        digestAcknowledgedAt: new Date('2026-11-04T08:00:00Z'),
-        reportReadAt: new Date('2026-11-04T08:00:00Z'),
-        scaffold: 'es' as const,
-      })),
-    )
-}
-
-const truncateAll = async (): Promise<void> => {
-  await pool.query(truncatePlayerTables)
-}
+afterAll(close)
 
 const ana = '00000000-0000-4000-8000-000000000001'
 const otherPlayer = '00000000-0000-4000-8000-000000000002'
@@ -91,7 +54,7 @@ describe('DrizzleTownReader', () => {
     await truncateAll()
     await registerPlayers([ana])
     const town = anasTown(ana)
-    const session = drizzle(pool)
+    const session = drizzle(pool())
     const towns = new DrizzleTownRepository(session, 'lockFree')
     const reader = new DrizzleTownReader(session)
     const enteredCard = MemoryCard.entered(instantAt('2026-11-10T09:00:00Z'))
@@ -112,7 +75,7 @@ describe('DrizzleTownReader', () => {
   it("reads the player's scaffold language with the town", async () => {
     await truncateAll()
     await registerPlayers([ana])
-    const session = drizzle(pool)
+    const session = drizzle(pool())
     const towns = new DrizzleTownRepository(session, 'lockFree')
     const reader = new DrizzleTownReader(session)
     assert((await towns.save(anasTown(ana))).ok)
@@ -126,7 +89,7 @@ describe('DrizzleTownReader', () => {
   it("reads with the town the scaffold version the player's account reads", async () => {
     await truncateAll()
     await registerPlayers([ana])
-    const session = drizzle(pool)
+    const session = drizzle(pool())
     const towns = new DrizzleTownRepository(session, 'lockFree')
     const reader = new DrizzleTownReader(session)
     assert((await towns.save(anasTown(ana))).ok)
@@ -140,7 +103,7 @@ describe('DrizzleTownReader', () => {
   it("reads the player's band starts with their held-out words and checks with the town", async () => {
     await truncateAll()
     await registerPlayers([ana, otherPlayer])
-    const session = drizzle(pool)
+    const session = drizzle(pool())
     const towns = new DrizzleTownRepository(session, 'lockFree')
     const reader = new DrizzleTownReader(session)
     const startedAt = instantAt('2026-11-10T08:55:00Z')
@@ -194,8 +157,8 @@ describe('DrizzleTownReader', () => {
   it('reads no band start before a band starts', async () => {
     await truncateAll()
     await registerPlayers([ana])
-    const towns = new DrizzleTownRepository(drizzle(pool), 'lockFree')
-    const reader = new DrizzleTownReader(drizzle(pool))
+    const towns = new DrizzleTownRepository(drizzle(pool()), 'lockFree')
+    const reader = new DrizzleTownReader(drizzle(pool()))
     assert((await towns.save(anasTown(ana))).ok)
 
     const read = await reader.townWithSchoolOf(ana)
@@ -206,8 +169,8 @@ describe('DrizzleTownReader', () => {
   it('reads an idle school for a town with no lesson slot row', async () => {
     await truncateAll()
     await registerPlayers([ana])
-    const towns = new DrizzleTownRepository(drizzle(pool), 'lockFree')
-    const reader = new DrizzleTownReader(drizzle(pool))
+    const towns = new DrizzleTownRepository(drizzle(pool()), 'lockFree')
+    const reader = new DrizzleTownReader(drizzle(pool()))
     assert((await towns.save(anasTown(ana))).ok)
 
     const read = await reader.townWithSchoolOf(ana)
