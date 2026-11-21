@@ -327,7 +327,7 @@ it('reads once with no review ahead', async () => {
   expect(report).toHaveBeenCalledTimes(1)
 })
 
-it('reads once when the next review already passed on this device', async () => {
+it("reads once when the next review already passed at the server's read", async () => {
   const report = reportReads(reportOf({ nextDueAt: secondsAfterRead(-30) }))
   await showReport(report)
 
