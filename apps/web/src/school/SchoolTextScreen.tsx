@@ -22,10 +22,12 @@ function SupportText({ support }: { readonly support: WordSupport }): ReactEleme
 function SpanPiece({
   span,
   isOpen,
+  regionId,
   onTap,
 }: {
   readonly span: FrameSpan
   readonly isOpen: boolean
+  readonly regionId: string
   readonly onTap: () => void
 }): ReactElement {
   const { support } = span
@@ -43,6 +45,7 @@ function SpanPiece({
     <button
       type="button"
       aria-expanded={isOpen}
+      aria-controls={regionId}
       onClick={onTap}
       className={`inline-flex min-h-control min-w-12 cursor-pointer items-center justify-center rounded-sm border-0 bg-transparent p-0 align-baseline font-sans text-reading text-on-block underline underline-offset-2 ${blockFocusTargetClass}`}
     >
@@ -59,11 +62,13 @@ const supportAt = (text: OpenText, at: SpanAt | null): WordSupport | null => {
 function Sentence({
   spans,
   sentence,
+  regionId,
   tapped,
   onTap,
 }: {
   readonly spans: ReadonlyArray<FrameSpan>
   readonly sentence: number
+  readonly regionId: string
   readonly tapped: SpanAt | null
   readonly onTap: (at: SpanAt) => void
 }): ReactElement {
@@ -75,6 +80,7 @@ function Sentence({
           key={index}
           span={span}
           isOpen={tapped?.sentence === sentence && tapped.span === index}
+          regionId={regionId}
           onTap={() => onTap({ sentence, span: index })}
         />
       ))}
@@ -88,6 +94,8 @@ export interface SchoolTextScreenProps {
 
 export function SchoolTextScreen({ text }: SchoolTextScreenProps): ReactElement {
   const titleId = useId()
+  const supportIdPrefix = useId()
+  const supportIdOf = (sentence: number): string => `${supportIdPrefix}-${sentence}`
   const { chrome } = usePlayerCopy()
   const [tapped, setTapped] = useState<SpanAt | null>(null)
   const openSupport = supportAt(text, tapped)
@@ -104,12 +112,23 @@ export function SchoolTextScreen({ text }: SchoolTextScreenProps): ReactElement 
         {text.sentences.map((spans, sentence) => (
           // biome-ignore lint/suspicious/noArrayIndexKey: a text's sentences are content that never reorders
           <div key={sentence} className="flex flex-col gap-1">
-            <Sentence spans={spans} sentence={sentence} tapped={tapped} onTap={toggle} />
-            {openSupport !== null && tapped?.sentence === sentence && (
-              <p aria-live="polite" className="m-0">
+            <Sentence
+              spans={spans}
+              sentence={sentence}
+              regionId={supportIdOf(sentence)}
+              tapped={tapped}
+              onTap={toggle}
+            />
+            <p
+              id={supportIdOf(sentence)}
+              role="status"
+              aria-live="polite"
+              className="m-0 empty:absolute"
+            >
+              {openSupport !== null && tapped?.sentence === sentence && (
                 <SupportText support={openSupport} />
-              </p>
-            )}
+              )}
+            </p>
           </div>
         ))}
       </Block>
