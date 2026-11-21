@@ -8,7 +8,6 @@ const WordStandingSchema = z.enum(['notStarted', 'recognize', 'recall', 'hold', 
 
 const WordReadingSchema = z.strictObject({
   word: z.string().min(1),
-  gloss: z.string().min(1),
   frame: z.array(FrameSpanSchema).min(1),
 })
 

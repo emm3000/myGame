@@ -87,9 +87,14 @@ function WordBlock({
       >
         {word.word}
       </h2>
-      <p lang="es" className="m-0 text-reading text-on-block-muted wrap-anywhere">
-        {word.gloss}
-      </p>
+      {word.support !== null && (
+        <p
+          lang={word.support.language}
+          className="m-0 text-reading text-on-block-muted wrap-anywhere"
+        >
+          {word.support.text}
+        </p>
+      )}
       <p lang="en" className="m-0 text-reading wrap-anywhere">
         {word.frame}
       </p>

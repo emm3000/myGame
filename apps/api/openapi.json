@@ -2694,10 +2694,6 @@
                             "type": "string",
                             "minLength": 1
                           },
-                          "gloss": {
-                            "type": "string",
-                            "minLength": 1
-                          },
                           "frame": {
                             "type": "array",
                             "items": {
@@ -2706,7 +2702,7 @@
                             "minItems": 1
                           }
                         },
-                        "required": ["word", "gloss", "frame"],
+                        "required": ["word", "frame"],
                         "additionalProperties": false
                       },
                       "support": {
@@ -2787,10 +2783,6 @@
                             "type": "string",
                             "minLength": 1
                           },
-                          "gloss": {
-                            "type": "string",
-                            "minLength": 1
-                          },
                           "frame": {
                             "type": "array",
                             "items": {
@@ -2799,7 +2791,7 @@
                             "minItems": 1
                           }
                         },
-                        "required": ["word", "gloss", "frame"],
+                        "required": ["word", "frame"],
                         "additionalProperties": false
                       },
                       "support": {

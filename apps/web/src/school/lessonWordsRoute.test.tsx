@@ -38,7 +38,6 @@ const readableWord = (word: string): LessonWord => ({
   standing: 'recognize',
   reading: {
     word,
-    gloss: `gloss of ${word}`,
     frame: [{ text: `A frame of ${word}.`, support: null }],
   },
   support: { shown: 'beside', text: `gloss of ${word}`, language: 'es' },
@@ -777,4 +776,34 @@ it.each<[string, string, Partial<ApiClient>, () => string]>([
   expect(screen.getAllByRole('heading', { level: 1 }).map((h1) => h1.textContent)).toEqual([
     title(),
   ])
+})
+
+it('tags the definition shown under no scaffold as English', async () => {
+  const defined: LessonWord = {
+    ...readableWord('house'),
+    support: { shown: 'beside', text: 'the place where you live', language: 'en' },
+  }
+  const noScaffold = { scaffold: 'none', chromePhase: 'english' } as const
+  await showLesson(
+    '/school/lesson-1',
+    townOf({ ...noScaffold, lessons: [lessonOf(1, [defined])] }),
+    { currentPlayer: async () => ({ ...knownPlayer, ...noScaffold }) },
+  )
+
+  const definition = within(wordBlock('house')).getByText('the place where you live')
+  expect(definition.getAttribute('lang')).toBe('en')
+})
+
+it('tags the gloss shown under the es scaffold as Spanish', async () => {
+  await showLesson('/school/lesson-1', townOf({ lessons: [lessonOf(1, [readableWord('house')])] }))
+
+  const gloss = within(wordBlock('house')).getByText('gloss of house')
+  expect(gloss.getAttribute('lang')).toBe('es')
+})
+
+it('draws no support line under a word that carries no support', async () => {
+  const unsupported: LessonWord = { ...readableWord('house'), support: null }
+  await showLesson('/school/lesson-1', townOf({ lessons: [lessonOf(1, [unsupported])] }))
+
+  expect(within(wordBlock('house')).queryByText('gloss of house')).toBeNull()
 })

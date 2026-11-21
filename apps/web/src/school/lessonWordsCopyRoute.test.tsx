@@ -19,7 +19,7 @@ type LessonWord = Lesson['words'][number]
 const readableWord = (word: string): LessonWord => ({
   wordId: `id-${word}`,
   standing: 'recognize',
-  reading: { word, gloss: `gloss of ${word}`, frame: [{ text: `A ${word}.`, support: null }] },
+  reading: { word, frame: [{ text: `A ${word}.`, support: null }] },
   support: { shown: 'beside', text: `gloss of ${word}`, language: 'es' },
 })
 
