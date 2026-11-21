@@ -568,8 +568,6 @@
         "apps/api/src/adapters/pendingReviewRepositoryContract.ts",
         "apps/api/src/adapters/postgres/DrizzleTownNews.ts",
         "apps/api/src/adapters/townRepositoryContract.ts",
-        "apps/api/src/holdout/infrastructure/http/holdoutCheckRoutes.ts",
-        "apps/api/src/placement/infrastructure/http/placementRoutes.ts",
         "apps/api/src/routes/learning.ts",
         "apps/api/src/routes/town.ts",
         "apps/api/src/town/townNewsItemOf.ts"

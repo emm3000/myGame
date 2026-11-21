@@ -1,132 +1,19 @@
 import { OpenAPIHono } from '@hono/zod-openapi'
-import { type Placement, PlacementAnswersSchema } from '@mygame/contracts'
-import {
-  answerPlacement,
-  beginPlacement,
-  type DomainError,
-  type PlacementView,
-  type RandomSource,
-  type Result,
-  readPlacement,
-  skipPlacement,
-} from '@mygame/domain'
-import type { Context } from 'hono'
-import { readScaffold } from '../../../account/application/readScaffold'
-import {
-  type RequirePlayerDependencies,
-  requirePlayer,
-} from '../../../account/infrastructure/http/requirePlayer'
-import type { LearningDependencies } from '../../../learning/LearningDependencies'
-import { answerRefusal } from '../../../platform/infrastructure/http/answerRefusal'
-import { honoPathOf } from '../../../platform/infrastructure/http/honoPath'
-import { readJsonBody } from '../../../platform/infrastructure/http/readJsonBody'
-import { mutateTown } from '../../../town/mutateTown'
-import { placementDeclarations } from './placementDeclarations'
-import { presentPlacement } from './presentPlacement'
+import { type AnswerPlacementRouteDependencies, answerPlacementRoute } from './answerPlacementRoute'
+import { type BeginPlacementRouteDependencies, beginPlacementRoute } from './beginPlacementRoute'
+import { type ReadPlacementRouteDependencies, readPlacementRoute } from './readPlacementRoute'
+import { type SkipPlacementRouteDependencies, skipPlacementRoute } from './skipPlacementRoute'
 
-export type PlacementRouteDependencies = LearningDependencies &
-  RequirePlayerDependencies & {
-    readonly random: RandomSource
-  }
-
-const answerPlacementView = (c: Context, view: Result<PlacementView, DomainError>): Response => {
-  if (!view.ok) {
-    return answerRefusal(c, view.error)
-  }
-  const body: Placement = presentPlacement(view.value)
-  return c.json(body)
-}
+export type PlacementRouteDependencies = ReadPlacementRouteDependencies &
+  BeginPlacementRouteDependencies &
+  SkipPlacementRouteDependencies &
+  AnswerPlacementRouteDependencies
 
 export const placementRoutes = (dependencies: PlacementRouteDependencies): OpenAPIHono => {
-  const signedInPlayer = requirePlayer(dependencies)
-  const { lessons, random } = dependencies
-  const content = { words: lessons, bands: lessons }
   const routes = new OpenAPIHono()
-  for (const declaration of Object.values(placementDeclarations)) {
-    routes.openAPIRegistry.registerPath(declaration)
-  }
-  routes.on(
-    placementDeclarations.readPlacement.method,
-    honoPathOf(placementDeclarations.readPlacement),
-    signedInPlayer,
-    async (c) => {
-      const playerId = c.var.playerId
-      const view = await mutateTown(
-        playerId,
-        async (stores) =>
-          readPlacement(
-            { playerId, scaffold: await readScaffold(playerId, stores.accounts) },
-            { ...stores, ...content },
-          ),
-        dependencies,
-      )
-      return answerPlacementView(c, view)
-    },
-  )
-  routes.on(
-    placementDeclarations.beginPlacement.method,
-    honoPathOf(placementDeclarations.beginPlacement),
-    signedInPlayer,
-    async (c) => {
-      const playerId = c.var.playerId
-      const view = await mutateTown(
-        playerId,
-        async (stores, clock) => {
-          const begun = await beginPlacement({ playerId }, { ...stores, ...content, random, clock })
-          const scaffold = await readScaffold(playerId, stores.accounts)
-          return begun.ok ? readPlacement({ playerId, scaffold }, { ...stores, ...content }) : begun
-        },
-        dependencies,
-      )
-      return answerPlacementView(c, view)
-    },
-  )
-  routes.on(
-    placementDeclarations.skipPlacement.method,
-    honoPathOf(placementDeclarations.skipPlacement),
-    signedInPlayer,
-    async (c) => {
-      const playerId = c.var.playerId
-      const view = await mutateTown(
-        playerId,
-        async (stores, clock) => {
-          const skipped = await skipPlacement({ playerId }, { ...stores, ...content, clock })
-          const scaffold = await readScaffold(playerId, stores.accounts)
-          return skipped.ok
-            ? readPlacement({ playerId, scaffold }, { ...stores, ...content })
-            : skipped
-        },
-        dependencies,
-      )
-      return answerPlacementView(c, view)
-    },
-  )
-  routes.on(
-    placementDeclarations.answerPlacement.method,
-    honoPathOf(placementDeclarations.answerPlacement),
-    signedInPlayer,
-    async (c) => {
-      const request = PlacementAnswersSchema.safeParse(await readJsonBody(c))
-      if (!request.success) {
-        return answerRefusal(c, { kind: 'MalformedRequest' })
-      }
-      const playerId = c.var.playerId
-      const view = await mutateTown(
-        playerId,
-        async (stores, clock) =>
-          answerPlacement(
-            {
-              playerId,
-              band: request.data.band,
-              answers: request.data.answers,
-              scaffold: await readScaffold(playerId, stores.accounts),
-            },
-            { ...stores, ...content, clock },
-          ),
-        dependencies,
-      )
-      return answerPlacementView(c, view)
-    },
-  )
+  readPlacementRoute(routes, dependencies)
+  beginPlacementRoute(routes, dependencies)
+  skipPlacementRoute(routes, dependencies)
+  answerPlacementRoute(routes, dependencies)
   return routes
 }

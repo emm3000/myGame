@@ -1,152 +1,31 @@
 import { OpenAPIHono } from '@hono/zod-openapi'
 import {
-  HoldoutCheckAnswersSchema,
-  type HoldoutCheckRequest,
-  HoldoutCheckRequestSchema,
-} from '@mygame/contracts'
+  type AnswerHoldoutCheckRouteDependencies,
+  answerHoldoutCheckRoute,
+} from './answerHoldoutCheckRoute'
 import {
-  answerHoldoutCheck,
-  beginHoldoutCheck,
-  type DomainError,
-  type HoldoutCheckView,
-  type PlayerId,
-  type RandomSource,
-  type Result,
-  readHoldoutChecks,
-  skipHoldoutCheck,
-} from '@mygame/domain'
-import type { Context } from 'hono'
-import { readScaffold } from '../../../account/application/readScaffold'
+  type BeginHoldoutCheckRouteDependencies,
+  beginHoldoutCheckRoute,
+} from './beginHoldoutCheckRoute'
 import {
-  type RequirePlayerDependencies,
-  requirePlayer,
-} from '../../../account/infrastructure/http/requirePlayer'
-import type { LearningDependencies } from '../../../learning/LearningDependencies'
-import { answerRefusal } from '../../../platform/infrastructure/http/answerRefusal'
-import { honoPathOf } from '../../../platform/infrastructure/http/honoPath'
-import { readJsonBody } from '../../../platform/infrastructure/http/readJsonBody'
-import { mutateTown, type TownStores } from '../../../town/mutateTown'
-import { holdoutCheckDeclarations } from './holdoutCheckDeclarations'
-import { presentHoldoutChecks } from './presentHoldoutChecks'
+  type ReadHoldoutChecksRouteDependencies,
+  readHoldoutChecksRoute,
+} from './readHoldoutChecksRoute'
+import {
+  type SkipHoldoutCheckRouteDependencies,
+  skipHoldoutCheckRoute,
+} from './skipHoldoutCheckRoute'
 
-export type HoldoutCheckRouteDependencies = LearningDependencies &
-  RequirePlayerDependencies & {
-    readonly random: RandomSource
-  }
-
-type CheckMutation = (
-  stores: TownStores,
-  check: HoldoutCheckRequest,
-  clock: LearningDependencies['clock'],
-) => Promise<Result<unknown, DomainError>>
-
-const answerChecks = (
-  c: Context,
-  views: Result<ReadonlyArray<HoldoutCheckView>, DomainError>,
-): Response =>
-  views.ok ? c.json(presentHoldoutChecks(views.value)) : answerRefusal(c, views.error)
+export type HoldoutCheckRouteDependencies = ReadHoldoutChecksRouteDependencies &
+  BeginHoldoutCheckRouteDependencies &
+  AnswerHoldoutCheckRouteDependencies &
+  SkipHoldoutCheckRouteDependencies
 
 export const holdoutCheckRoutes = (dependencies: HoldoutCheckRouteDependencies): OpenAPIHono => {
-  const signedInPlayer = requirePlayer(dependencies)
-  const { lessons, random, inTransaction, clock } = dependencies
   const routes = new OpenAPIHono()
-  for (const declaration of Object.values(holdoutCheckDeclarations)) {
-    routes.openAPIRegistry.registerPath(declaration)
-  }
-  const checksAfter = (
-    playerId: PlayerId,
-    check: HoldoutCheckRequest,
-    mutation: CheckMutation,
-  ): Promise<Result<ReadonlyArray<HoldoutCheckView>, DomainError>> =>
-    mutateTown(
-      playerId,
-      async (stores, mutationClock) => {
-        const changed = await mutation(stores, check, mutationClock)
-        if (!changed.ok) {
-          return changed
-        }
-        return readHoldoutChecks(
-          { playerId, scaffold: await readScaffold(playerId, stores.accounts) },
-          { bandStarts: stores.bandStarts, words: lessons, clock: mutationClock },
-        )
-      },
-      dependencies,
-    )
-  routes.on(
-    holdoutCheckDeclarations.readHoldoutChecks.method,
-    honoPathOf(holdoutCheckDeclarations.readHoldoutChecks),
-    signedInPlayer,
-    async (c) => {
-      const playerId = c.var.playerId
-      const views = await inTransaction(async (stores) =>
-        readHoldoutChecks(
-          { playerId, scaffold: await readScaffold(playerId, stores.accounts) },
-          { bandStarts: stores.bandStarts, words: lessons, clock },
-        ),
-      )
-      return answerChecks(c, views)
-    },
-  )
-  routes.on(
-    holdoutCheckDeclarations.beginHoldoutCheck.method,
-    honoPathOf(holdoutCheckDeclarations.beginHoldoutCheck),
-    signedInPlayer,
-    async (c) => {
-      const check = HoldoutCheckRequestSchema.safeParse(c.req.param())
-      if (!check.success) {
-        return answerRefusal(c, { kind: 'MalformedRequest' })
-      }
-      const playerId = c.var.playerId
-      const views = await checksAfter(playerId, check.data, async (stores, { band, week }, at) =>
-        beginHoldoutCheck(
-          { playerId, band, week, scaffold: await readScaffold(playerId, stores.accounts) },
-          { ...stores, lessons, words: lessons, random, clock: at },
-        ),
-      )
-      return answerChecks(c, views)
-    },
-  )
-  routes.on(
-    holdoutCheckDeclarations.answerHoldoutCheck.method,
-    honoPathOf(holdoutCheckDeclarations.answerHoldoutCheck),
-    signedInPlayer,
-    async (c) => {
-      const check = HoldoutCheckRequestSchema.safeParse(c.req.param())
-      const request = HoldoutCheckAnswersSchema.safeParse(await readJsonBody(c))
-      if (!check.success || !request.success) {
-        return answerRefusal(c, { kind: 'MalformedRequest' })
-      }
-      const playerId = c.var.playerId
-      const views = await checksAfter(playerId, check.data, async (stores, { band, week }, at) =>
-        answerHoldoutCheck(
-          {
-            playerId,
-            band,
-            week,
-            answers: request.data.answers,
-            scaffold: await readScaffold(playerId, stores.accounts),
-          },
-          { bandStarts: stores.bandStarts, words: lessons, clock: at },
-        ),
-      )
-      return answerChecks(c, views)
-    },
-  )
-  routes.on(
-    holdoutCheckDeclarations.skipHoldoutCheck.method,
-    honoPathOf(holdoutCheckDeclarations.skipHoldoutCheck),
-    signedInPlayer,
-    async (c) => {
-      const check = HoldoutCheckRequestSchema.safeParse(c.req.param())
-      if (!check.success) {
-        return answerRefusal(c, { kind: 'MalformedRequest' })
-      }
-      const playerId = c.var.playerId
-      const views = await checksAfter(playerId, check.data, (stores, { band, week }, at) =>
-        skipHoldoutCheck({ playerId, band, week }, { bandStarts: stores.bandStarts, clock: at }),
-      )
-      return answerChecks(c, views)
-    },
-  )
+  readHoldoutChecksRoute(routes, dependencies)
+  beginHoldoutCheckRoute(routes, dependencies)
+  answerHoldoutCheckRoute(routes, dependencies)
+  skipHoldoutCheckRoute(routes, dependencies)
   return routes
 }
