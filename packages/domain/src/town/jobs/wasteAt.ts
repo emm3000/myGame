@@ -1,5 +1,5 @@
 import type { Instant } from '../../time/Instant'
-import type { WasteSizeTerms } from '../TownSettings'
+import type { WasteSizeTerms } from './WasteTerms'
 
 const MILLISECONDS_PER_HOUR = 3_600_000
 

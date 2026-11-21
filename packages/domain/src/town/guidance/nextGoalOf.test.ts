@@ -3,10 +3,10 @@ import { Instant } from '../../time/Instant'
 import type { BuildingLevel } from '../building/BuildingLevel'
 import type { BuildingLevels } from '../building/BuildingLevels'
 import type { TownCatalog } from '../ports/TownCatalog'
-import type { TownGoal } from '../TownSettings'
 import { plainTownLevels, plainTownSettings, townCatalogOf } from '../testing/townCatalogOf'
 import { type TownShape, townOf } from '../testing/townFixtures'
 import { type NextGoal, nextGoalOf } from './nextGoalOf'
+import type { TownGoal } from './TownGoal'
 
 const noCost = { money: 0, food: 0, power: 0, material: 0 }
 

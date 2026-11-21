@@ -1,12 +1,6 @@
-import type { HireKind } from '../hiring/HireKind'
-import type { Stocks } from '../Stocks'
-
-type LevelTerms = {
-  readonly level: number
-  readonly cost: Stocks
-  readonly durationSeconds: number
-  readonly people: number
-}
+import type { OfficeLevel } from '../hiring/OfficeLevel'
+import type { SchoolLevel } from '../school/SchoolLevel'
+import type { LevelTerms } from './LevelTerms'
 
 export type HomesLevel = LevelTerms & {
   readonly building: 'homes'
@@ -21,17 +15,6 @@ export type ProducerLevel = LevelTerms & {
 export type StorageLevel = LevelTerms & {
   readonly building: 'storage'
   readonly capacity: number
-}
-
-export type SchoolLevel = LevelTerms & {
-  readonly building: 'school'
-  readonly lessonPercent: number
-  readonly learningCap: number
-}
-
-export type OfficeLevel = LevelTerms & {
-  readonly building: 'office'
-  readonly hires: ReadonlyArray<HireKind>
 }
 
 export type BuildingLevel = HomesLevel | ProducerLevel | StorageLevel | SchoolLevel | OfficeLevel

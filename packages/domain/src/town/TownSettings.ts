@@ -1,10 +1,10 @@
 import type { SeasonDates } from '../season/SeasonDates'
 import type { SeasonKind } from '../season/SeasonKind'
-import type { BuildingKind } from './building/BuildingKind'
 import type { WordNeed } from './building/WordNeed'
 import type { TipKind } from './guidance/TipKind'
-import type { Terrain } from './jobs/Terrain'
-import type { WasteSize } from './jobs/WasteSize'
+import type { TownGoal } from './guidance/TownGoal'
+import type { JobTerms } from './jobs/JobTerms'
+import type { WasteTerms } from './jobs/WasteTerms'
 import type { ResourceKind } from './ResourceKind'
 import type { Stocks } from './Stocks'
 
@@ -20,32 +20,6 @@ export type TownDurationPercent = {
 export type TownSeasons = SeasonDates & {
   readonly productionPercent: Readonly<Record<SeasonKind, ProductionPercent>>
   readonly durationPercent: Readonly<Record<SeasonKind, TownDurationPercent>>
-}
-
-export type JobPayPerHour = Readonly<Record<ResourceKind, number>>
-
-export type JobTerms = {
-  readonly secondsPerArea: number
-  readonly secondsPerSite: number
-  readonly maxHours: number
-  readonly payPerHour: Readonly<Record<Terrain, JobPayPerHour>>
-}
-
-export type WasteSizeTerms = {
-  readonly maxWaste: number
-  readonly regrowHours: number
-}
-
-export type WasteTerms = {
-  readonly siteFraction: number
-  readonly moneyPerPoint: number
-  readonly materialPerPoint: number
-  readonly sizes: Readonly<Record<WasteSize, WasteSizeTerms>>
-}
-
-export type TownGoal = {
-  readonly building: BuildingKind
-  readonly level: number
 }
 
 export type TownSettings = {
