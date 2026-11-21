@@ -17,7 +17,7 @@ import type { WaitingList, WaitingWork } from './building/WaitingList'
 import { type FullSince, noStoreFull } from './FullSince'
 import { deliveredHiresOf } from './hiring/deliveredHiresOf'
 import type { HireKind } from './hiring/HireKind'
-import { type Hires, noHires } from './hiring/Hires'
+import { type Hires, hiresPlus, noHires } from './hiring/Hires'
 import {
   type HiringOrder,
   type HiringSlot,
@@ -34,10 +34,8 @@ import { jobPhaseAt } from './jobs/jobPhaseAt'
 import type { Terrain } from './jobs/Terrain'
 import { terrainOf } from './jobs/terrainOf'
 import type { TownCatalog } from './ports/TownCatalog'
-import type { ResourceKind } from './ResourceKind'
 import { refuseInvalidTown } from './refuseInvalidTown'
-import { resourceKinds } from './resourceKinds'
-import type { Stocks } from './Stocks'
+import { chargedStocks, creditedStocks, type Stocks, stocksOf } from './Stocks'
 import type { TownAddress } from './TownAddress'
 import type { TownEvent } from './TownEvent'
 import type { TownId } from './TownId'
@@ -79,38 +77,14 @@ export type ChangedTown = {
   readonly events: ReadonlyArray<TownEvent>
 }
 
-const stocksOf = (amountOf: (resource: ResourceKind) => number): Stocks => ({
-  money: amountOf('money'),
-  food: amountOf('food'),
-  power: amountOf('power'),
-  material: amountOf('material'),
-})
-
-const credited = (stocks: Stocks, amounts: Stocks): Stocks =>
-  stocksOf((resource) => stocks[resource] + amounts[resource])
-
-const debited = (stocks: Stocks, amounts: Stocks): Stocks =>
-  stocksOf((resource) => stocks[resource] - amounts[resource])
-
-const shortfallOf = (stocks: Stocks, cost: Stocks): Stocks =>
-  stocksOf((resource) => Math.max(0, cost[resource] - stocks[resource]))
-
-const isShort = (missing: Stocks): boolean =>
-  resourceKinds.some((resource) => missing[resource] > 0)
-
 const refundOf = (stopped: ReadonlyArray<PaidWork>): Stocks =>
   stopped.reduce(
-    (refund, work) => credited(refund, work.cost),
+    (refund, work) => creditedStocks(refund, work.cost),
     stocksOf(() => 0),
   )
 
 const timesCount = (amounts: Stocks, count: number): Stocks =>
   stocksOf((resource) => amounts[resource] * count)
-
-const hiresPlus = (hires: Hires, hire: HireKind, count: number): Hires => ({
-  ...hires,
-  [hire]: hires[hire] + count,
-})
 
 const hiresOf = (countOf: (hire: HireKind) => number): Hires => ({
   worker: countOf('worker'),
@@ -318,7 +292,7 @@ export class Town {
     const { returnsAt } = jobInstantsOf(slot)
     return {
       town: this.changed({
-        stocks: credited(stocksAtReturn, slot.pay),
+        stocks: creditedStocks(stocksAtReturn, slot.pay),
         storedAt: returnsAt,
         jobSlot: idleJobSlot,
       }),
@@ -344,14 +318,11 @@ export class Town {
   }
 
   placeHiring(order: HiringOrder, stocksAtNow: Stocks, now: Instant): Result<Town, DomainError> {
-    const cost = timesCount(order.costPerHire, order.count)
-    const missing = shortfallOf(stocksAtNow, cost)
-    if (isShort(missing)) {
-      return err({ kind: 'NotEnoughResources', missing })
+    const charged = chargedStocks(stocksAtNow, timesCount(order.costPerHire, order.count))
+    if (!charged.ok) {
+      return charged
     }
-    return ok(
-      this.changed({ stocks: debited(stocksAtNow, cost), storedAt: now, hiringSlot: order }),
-    )
+    return ok(this.changed({ stocks: charged.value, storedAt: now, hiringSlot: order }))
   }
 
   stopHiring(
@@ -368,7 +339,7 @@ export class Town {
     const refund = timesCount(slot.costPerHire, stopped)
     return ok({
       town: this.changed({
-        stocks: credited(stocksAtNow, refund),
+        stocks: creditedStocks(stocksAtNow, refund),
         storedAt: now,
         hires: hiresPlus(this.hires, slot.hire, delivered),
         hiringSlot: idleHiringSlot,
@@ -428,11 +399,11 @@ export class Town {
     if (!room.ok) {
       return room
     }
-    const missing = shortfallOf(stocksAtNow, work.cost)
-    if (isShort(missing)) {
-      return err({ kind: 'NotEnoughResources', missing })
+    const charged = chargedStocks(stocksAtNow, work.cost)
+    if (!charged.ok) {
+      return charged
     }
-    const stocks = debited(stocksAtNow, work.cost)
+    const stocks = charged.value
     if (this.workSlot.kind === 'busy') {
       return ok(this.changed({ stocks, storedAt: now, waitingList: [...this.waitingList, work] }))
     }
@@ -531,7 +502,7 @@ export class Town {
     const stopped = [stoppedWork, ...rechecked.value.stopped]
     return ok({
       town: this.changed({
-        stocks: credited(stocksAtNow, refundOf(stopped)),
+        stocks: creditedStocks(stocksAtNow, refundOf(stopped)),
         storedAt: now,
         ...resumed.value,
       }),
