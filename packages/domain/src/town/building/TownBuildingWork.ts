@@ -68,7 +68,7 @@ const workStoppedAt = (work: PaidWork, at: Instant): TownEvent => ({
 export class TownBuildingWork {
   constructor(
     private readonly town: Town,
-    private readonly changed: (change: Partial<TownState>) => Town,
+    private readonly changed: (town: Town, change: Partial<TownState>) => Town,
   ) {}
 
   room(waitingListCap: number): Result<void, DomainError> {
@@ -96,14 +96,18 @@ export class TownBuildingWork {
     const stocks = charged.value
     if (this.town.workSlot.kind === 'busy') {
       return ok(
-        this.changed({ stocks, storedAt: now, waitingList: [...this.town.waitingList, work] }),
+        this.changed(this.town, {
+          stocks,
+          storedAt: now,
+          waitingList: [...this.town.waitingList, work],
+        }),
       )
     }
     const slot = busySlotOf(work, now)
     if (!slot.ok) {
       return slot
     }
-    return ok(this.changed({ stocks, storedAt: now, workSlot: slot.value }))
+    return ok(this.changed(this.town, { stocks, storedAt: now, workSlot: slot.value }))
   }
 
   stop(
@@ -134,7 +138,7 @@ export class TownBuildingWork {
     const [next, ...waitingList] = this.town.waitingList
     if (next === undefined) {
       return ok(
-        this.changed({
+        this.changed(this.town, {
           stocks: stocksAtFinish,
           storedAt: finished.finishesAt,
           buildingLevels,
@@ -147,7 +151,7 @@ export class TownBuildingWork {
       return slot
     }
     return ok(
-      this.changed({
+      this.changed(this.town, {
         stocks: stocksAtFinish,
         storedAt: finished.finishesAt,
         buildingLevels,
@@ -181,7 +185,7 @@ export class TownBuildingWork {
     }
     const stopped = [stoppedWork, ...rechecked.value.stopped]
     return ok({
-      town: this.changed({
+      town: this.changed(this.town, {
         stocks: creditedStocks(stocksAtNow, refundOf(stopped)),
         storedAt: now,
         ...resumed.value,
