@@ -1,7 +1,7 @@
-import { releasedAtOf } from '#holdout/releasedAtOf'
+import type { Headword } from '#learning/curriculum/Headword'
 import type { Instant } from '#time/Instant'
 import type { BandStart } from './BandStart'
-import type { Headword } from './Headword'
+import { releasedAtOf } from './releasedAtOf'
 
 export const isHeldOutAt = (start: BandStart, at: Instant): boolean => {
   const releasedAt = releasedAtOf(start)

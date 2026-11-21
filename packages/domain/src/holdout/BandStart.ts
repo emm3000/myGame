@@ -1,7 +1,7 @@
-import type { HoldoutCheck } from '#holdout/HoldoutCheck'
+import type { Band } from '#learning/curriculum/Band'
+import type { Headword } from '#learning/curriculum/Headword'
 import type { Instant } from '#time/Instant'
-import type { Band } from './Band'
-import type { Headword } from './Headword'
+import type { HoldoutCheck } from './HoldoutCheck'
 
 export type BandStart = {
   readonly band: Band

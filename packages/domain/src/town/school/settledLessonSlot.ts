@@ -1,5 +1,5 @@
-import type { BandStart } from '#learning/curriculum/BandStart'
-import { heldOutWordsAt } from '#learning/curriculum/heldOutWordsAt'
+import type { BandStart } from '#holdout/BandStart'
+import { heldOutWordsAt } from '#holdout/heldOutWordsAt'
 import { lessonCardsEnteredAt } from '#learning/curriculum/lessonCardsEnteredAt'
 import type { HeldCard } from '#learning/HeldCard'
 import { holdsLessonCards } from '#learning/holdsLessonCards'

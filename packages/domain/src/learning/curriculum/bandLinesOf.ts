@@ -1,6 +1,6 @@
+import type { BandStart } from '#holdout/BandStart'
 import type { HeldCard } from '../HeldCard'
 import type { Band } from './Band'
-import type { BandStart } from './BandStart'
 import type { Headword } from './Headword'
 import { headwordOf } from './headwordOf'
 import type { BandCatalog } from './ports/BandCatalog'

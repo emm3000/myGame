@@ -1,10 +1,10 @@
-import type { BandStart } from '#learning/curriculum/BandStart'
 import { lessonOne } from '#learning/curriculum/testing/lessonOne'
 import type { Lesson } from '#learning/Lesson'
 import type { OwnedCard } from '#learning/testing/inMemoryCards'
 import { MemoryCard } from '#memory/MemoryCard'
 import { placementWordsOfBand } from '#placement/testing/placementWords'
 import { Instant } from '#time/Instant'
+import type { BandStart } from '../BandStart'
 import type { HoldoutCheck } from '../HoldoutCheck'
 
 const MILLISECONDS_PER_WEEK = 7 * 24 * 3_600_000

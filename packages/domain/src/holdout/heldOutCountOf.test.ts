@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import type { BandWord } from './BandWord'
+import type { BandWord } from '#learning/curriculum/BandWord'
 import { heldOutCountOf } from './heldOutCountOf'
 
 const wordsCounting = (count: number, isChrome: boolean): ReadonlyArray<BandWord> =>
