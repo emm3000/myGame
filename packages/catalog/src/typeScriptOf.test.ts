@@ -7,7 +7,7 @@ import { typeScriptOf } from './typeScriptOf'
 
 const generatedModuleOf = async (messages: Messages): Promise<Record<string, unknown>> => {
   const path = join(mkdtempSync(join(tmpdir(), 'catalog-')), 'messages.ts')
-  writeFileSync(path, typeScriptOf(messages))
+  writeFileSync(path, typeScriptOf(messages, 'es'))
   return import(path)
 }
 
@@ -29,7 +29,7 @@ describe('typeScriptOf', () => {
   it('declares a message without arguments as a function of none', () => {
     const subject = { 'mail.reset.subject': 'Cambia tu contraseña' }
 
-    expect(typeScriptOf(subject)).toContain('export const mailResetSubject = (): string =>')
+    expect(typeScriptOf(subject, 'es')).toContain('export const mailResetSubject = (): string =>')
   })
 
   it('keeps line breaks, backticks, backslashes and dollar signs as written', async () => {
@@ -51,7 +51,7 @@ describe('typeScriptOf', () => {
   it('types a simple argument as a string or a number', () => {
     const fillsAt = { 'town.fillsAt': 'Se llena a las {time}.' }
 
-    expect(typeScriptOf(fillsAt)).toContain('{ readonly time: string | number }')
+    expect(typeScriptOf(fillsAt, 'es')).toContain('{ readonly time: string | number }')
   })
 
   it('picks an exact plural selector before other', async () => {
@@ -71,7 +71,7 @@ describe('typeScriptOf', () => {
   it('types a plural argument as a number', () => {
     const peasants = { 'town.peasants': '{count, plural, =1 {uno} other {#}}' }
 
-    expect(typeScriptOf(peasants)).toContain('{ readonly count: number }')
+    expect(typeScriptOf(peasants, 'es')).toContain('{ readonly count: number }')
   })
 
   it('picks a select option by its key', async () => {
@@ -89,42 +89,48 @@ describe('typeScriptOf', () => {
       'march.order': '{order, select, forage {forrajeo} attack {ataque} other {marcha}}',
     }
 
-    expect(typeScriptOf(order)).toContain(`{ readonly order: 'forage' | 'attack' }`)
+    expect(typeScriptOf(order, 'es')).toContain(`{ readonly order: 'forage' | 'attack' }`)
   })
 
   it('refuses a plural category that needs runtime plural rules', () => {
     const categorical = { 'town.peasants': '{count, plural, one {uno} other {#}}' }
 
-    expect(() => typeScriptOf(categorical)).toThrow(/town\.peasants/)
+    expect(() => typeScriptOf(categorical, 'es')).toThrow(/town\.peasants/)
   })
 
   it('refuses a number skeleton', () => {
     const skeleton = { 'town.wood': '{amount, number, integer}' }
 
-    expect(() => typeScriptOf(skeleton)).toThrow(/town\.wood/)
+    expect(() => typeScriptOf(skeleton, 'es')).toThrow(/town\.wood/)
   })
 
   it('refuses a tag', () => {
     const tagged = { 'town.bold': 'Una <b>palabra</b>' }
 
-    expect(() => typeScriptOf(tagged)).toThrow(/town\.bold/)
+    expect(() => typeScriptOf(tagged, 'es')).toThrow(/town\.bold/)
   })
 
   it('refuses one argument used in two roles', () => {
     const twoRoles = { 'town.count': '{count} {count, plural, =1 {uno} other {varios}}' }
 
-    expect(() => typeScriptOf(twoRoles)).toThrow(/town\.count/)
+    expect(() => typeScriptOf(twoRoles, 'es')).toThrow(/town\.count/)
   })
 
   it('refuses a key outside the dotted camelCase shape', () => {
     const snakeKey = { 'town.fills_at': 'Se llena' }
 
-    expect(() => typeScriptOf(snakeKey)).toThrow(/town\.fills_at/)
+    expect(() => typeScriptOf(snakeKey, 'es')).toThrow(/town\.fills_at/)
+  })
+
+  it('exports the locale of the language it generates', async () => {
+    const module = await generatedModuleOf({ 'town.loading': 'Cargando' })
+
+    expect(module.locale).toBe('es')
   })
 
   it('leaves the android keys out', () => {
     const androidOnly = { 'android.signin.sign_in_title': 'Entra en tu feudo' }
 
-    expect(typeScriptOf(androidOnly)).not.toContain('Entra en tu feudo')
+    expect(typeScriptOf(androidOnly, 'es')).not.toContain('Entra en tu feudo')
   })
 })

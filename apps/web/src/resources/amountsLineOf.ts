@@ -16,5 +16,5 @@ export function amountsLineOf(
         resource: townResourceNameOf(catalog, resource),
       }),
     )
-  return quantities.length === 0 ? undefined : conjunctionOf(quantities)
+  return quantities.length === 0 ? undefined : conjunctionOf(catalog, quantities)
 }

@@ -1,3 +1,4 @@
+export const locale = 'es'
 export const authEmail = (): string => `Correo`
 export const authPassword = (): string => `Contraseña`
 export const authSignInForgotPassword = (): string => `¿Has olvidado tu contraseña?`
