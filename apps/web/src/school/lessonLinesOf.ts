@@ -25,11 +25,11 @@ export function lessonLinesOf(name: LessonName): LessonLines {
       }
     }
     case 'released': {
-      const slot = { band: name.band, number: name.set }
+      const set = { band: name.band, number: name.set }
       return {
-        title: schoolReleasedTitle(slot),
-        slotBusy: schoolReleasedSlotBusy(slot),
-        stopOf: schoolReleasedStopOf(slot),
+        title: schoolReleasedTitle(set),
+        slotBusy: schoolReleasedSlotBusy(set),
+        stopOf: schoolReleasedStopOf(set),
       }
     }
     default: {

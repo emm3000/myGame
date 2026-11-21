@@ -7,7 +7,7 @@ import { formatDuration } from '../design-system/formatDuration'
 import type { LiveTown } from '../town/liveTown'
 import type { LessonCardContent, LessonCardState } from './lessonCardOf'
 import { lessonRefusalLineOf } from './lessonRefusalLineOf'
-import type { ReleasedLessonCardContent } from './releasedLessonCardOf'
+import type { ReleasedRowContent } from './releasedRowOf'
 import { SchoolPath } from './SchoolPath'
 import type { SchoolLessons } from './useSchoolLessons'
 
@@ -94,7 +94,7 @@ function ReleasedLessonRow({
   town,
   lessons,
 }: {
-  readonly card: ReleasedLessonCardContent
+  readonly card: ReleasedRowContent
   readonly town: LiveTown
   readonly lessons: SchoolLessons
 }): ReactElement {
@@ -109,7 +109,7 @@ function ReleasedLessonRow({
       {card.state.kind === 'open' && (
         <CardAction
           type="button"
-          label={`${card.actionLabel} · ${formatDuration(card.durationSeconds)}`}
+          label={`${card.title} · ${card.actionLabel} · ${formatDuration(card.durationSeconds)}`}
           state={card.state.action}
           isWaiting={lessons.isStarting}
           tone="quiet"
@@ -123,7 +123,7 @@ function ReleasedLessonRow({
 
 export interface LessonRowsProps {
   readonly cards: ReadonlyArray<LessonCardContent>
-  readonly releasedCards: ReadonlyArray<ReleasedLessonCardContent>
+  readonly releasedCards: ReadonlyArray<ReleasedRowContent>
   readonly town: LiveTown
   readonly lessons: SchoolLessons
   readonly onSelect: (lessonId: string) => void

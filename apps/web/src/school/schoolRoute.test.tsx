@@ -1009,7 +1009,9 @@ const releasedRow = (position: number): HTMLElement =>
   screen.getByRole('listitem', { name: releasedTitleOf(position) })
 
 const releasedStudyOf = (position: number): HTMLElement =>
-  within(releasedRow(position)).getByRole('button', { name: `${schoolReleasedStudy()} · 5:00` })
+  within(releasedRow(position)).getByRole('button', {
+    name: `${releasedTitleOf(position)} · ${schoolReleasedStudy()} · 5:00`,
+  })
 
 const shelvedAndReleased = schoolOf({
   lessons: studiedThrough(0, 2),
@@ -1103,4 +1105,21 @@ it('marks a studied released lesson as studied, with no start', async () => {
   const row = within(releasedRow(1))
   expect(row.getByText(schoolLessonStudied())).toBeDefined()
   expect(row.queryByRole('button')).toBeNull()
+})
+
+it("draws the api's refusal under the released lesson it answers", async () => {
+  await showSchool(shelvedAndReleased, {
+    startLesson: async () => ({
+      ok: false,
+      refusal: 'LearningCapReached',
+      error: { kind: 'LearningCapReached', params: { learningCap: 15, cardsInLearning: 12 } },
+    }),
+  })
+
+  fireEvent.click(releasedStudyOf(2))
+  await passSeconds(0)
+
+  expect(within(releasedRow(2)).getByRole('alert').textContent).toBe(
+    refusalLearningCapReached({ learningCap: 15, cardsInLearning: 12 }),
+  )
 })
