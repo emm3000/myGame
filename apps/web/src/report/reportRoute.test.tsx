@@ -247,6 +247,15 @@ it('shows the instant of the next review when none is due', async () => {
   expect(within(reportRegion()).getByText('10:40')).toBeDefined()
 })
 
+it("dates the Report's lines by the server's read", async () => {
+  vi.setSystemTime(readAt + 24 * 60 * 60_000)
+
+  await showReport(reportOf({ nextDueAt: '2026-11-10T09:40:00.000Z', news: [homesFinished] }))
+
+  expect(within(reportRegion()).getByText('10:40')).toBeDefined()
+  expect(within(newsRegion()).getByText(es.timeToday({ time: '09:30' }))).toBeDefined()
+})
+
 it('shows no next review with no review ahead', async () => {
   await showReport(reportOf({}))
 

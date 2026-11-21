@@ -6,7 +6,7 @@ import { longestTimeoutMs } from '../time/longestTimeoutMs'
 export type ReportState =
   | { readonly kind: 'loading' }
   | { readonly kind: 'refused'; readonly refusal: ApiRefusal }
-  | { readonly kind: 'read'; readonly report: Report; readonly receivedAt: Date }
+  | { readonly kind: 'read'; readonly report: Report }
 
 export interface ReportHandle {
   readonly state: ReportState
@@ -28,7 +28,7 @@ export function useReport(apiClient: ApiClient): ReportHandle {
     void apiClient.report().then((outcome) => {
       setState(
         outcome.ok
-          ? { kind: 'read', report: outcome.value, receivedAt: new Date() }
+          ? { kind: 'read', report: outcome.value }
           : { kind: 'refused', refusal: outcome.refusal },
       )
     })

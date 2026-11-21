@@ -20,15 +20,14 @@ import { useLayoutTown } from '../../town/useLayoutTown'
 function ReportPage({
   apiClient,
   report,
-  receivedAt,
 }: {
   readonly apiClient: ApiClient
   readonly report: Report
-  readonly receivedAt: Date
 }): ReactElement {
   const close = useReportClose(apiClient)
   const copy = usePlayerCopy()
   const { nextDueAt } = report
+  const readAt = new Date(report.readAt)
   const { refusal } = close
   return (
     <ReportScreen
@@ -37,9 +36,9 @@ function ReportPage({
       nextReview={
         nextDueAt === null
           ? undefined
-          : copy.chrome((catalog) => formatClock(catalog, new Date(nextDueAt), receivedAt))
+          : copy.chrome((catalog) => formatClock(catalog, new Date(nextDueAt), readAt))
       }
-      news={report.news.map((item) => newsRowOf(copy, item, receivedAt))}
+      news={report.news.map((item) => newsRowOf(copy, item, readAt))}
       close={{
         isClosed: close.isClosed,
         isWaiting: close.isWaiting,
@@ -75,9 +74,7 @@ function ReportAnswer({
         </ReportTitled>
       )
     case 'read':
-      return (
-        <ReportPage apiClient={apiClient} report={state.report} receivedAt={state.receivedAt} />
-      )
+      return <ReportPage apiClient={apiClient} report={state.report} />
     default: {
       const unreachable: never = state
       return unreachable
