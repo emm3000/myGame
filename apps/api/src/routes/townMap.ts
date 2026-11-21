@@ -14,7 +14,7 @@ import {
 } from '../account/infrastructure/http/requirePlayer'
 import { answerRefusal } from '../platform/infrastructure/http/answerRefusal'
 import { honoPathOf } from '../platform/infrastructure/http/honoPath'
-import { regionMapOf } from '../town/jobs/infrastructure/http/presentRegionMap'
+import { presentRegionMap } from '../town/jobs/infrastructure/http/presentRegionMap'
 import { townMapDeclarations } from './townMapDeclarations'
 
 export type TownMapDependencies = RequirePlayerDependencies & {
@@ -34,7 +34,7 @@ export const townMapRoutes = (dependencies: TownMapDependencies): OpenAPIHono =>
     if (!map.ok) {
       return answerRefusal(c, map.error)
     }
-    const body: RegionMap = regionMapOf(map.value)
+    const body: RegionMap = presentRegionMap(map.value)
     return c.json(body)
   }
   const signedInPlayer = requirePlayer(dependencies)

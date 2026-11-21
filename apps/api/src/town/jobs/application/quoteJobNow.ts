@@ -8,19 +8,19 @@ import {
   type Result,
   type Stocks,
   type TownCatalog,
-  type TownRepository,
 } from '@mygame/domain'
+import type { ReadOnlyTowns } from '../../application/ports/ReadOnlyTowns'
 
-export type QuotedJobDependencies = {
-  readonly towns: Omit<TownRepository, 'save'>
+export type QuoteJobNowDependencies = {
+  readonly towns: ReadOnlyTowns
   readonly regionMap: RegionMapReader
   readonly townCatalog: TownCatalog
   readonly clock: Clock
 }
 
-export const quotedJobOf = async (
+export const quoteJobNow = async (
   order: JobOrder,
-  { towns, regionMap, townCatalog, clock }: QuotedJobDependencies,
+  { towns, regionMap, townCatalog, clock }: QuoteJobNowDependencies,
 ): Promise<Result<Stocks, DomainError>> => {
   const stored = await towns.townOf(order.playerId)
   if (!stored.ok) {

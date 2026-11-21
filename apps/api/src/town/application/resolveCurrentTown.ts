@@ -16,22 +16,20 @@ import {
   type TownRepository,
 } from '@mygame/domain'
 import { type MutateTownDependencies, mutateTown } from './mutateTown'
+import type { ReadOnlyTowns } from './ports/ReadOnlyTowns'
 import type { TownReader } from './ports/TownReader'
-import { townReadingOf } from './readTownReading'
+import { readTownReading } from './readTownReading'
 import type { TownReading } from './TownReading'
 
-export type CurrentTownDependencies = MutateTownDependencies & {
-  readonly towns: Omit<TownRepository, 'save'>
+export type ResolveCurrentTownDependencies = MutateTownDependencies & {
+  readonly towns: ReadOnlyTowns
   readonly townsWithSchool: TownReader
   readonly townCatalog: TownCatalog
 }
 
 const discardingNews: TownNews = { record: async () => ok(undefined) }
 
-const alreadyRead = (
-  town: Town | undefined,
-  towns: Omit<TownRepository, 'save'>,
-): TownRepository => ({
+const alreadyRead = (town: Town | undefined, towns: ReadOnlyTowns): TownRepository => ({
   holdsTown: (playerId) => towns.holdsTown(playerId),
   occupiedSites: () => towns.occupiedSites(),
   townOf: async () => ok(town),
@@ -41,9 +39,9 @@ const alreadyRead = (
 const isSlotFinishedBy = (slot: LessonSlot, readAt: Instant): boolean =>
   slot.kind === 'busy' && isLessonFinishedBy(slot, readAt)
 
-const persistedResolveOf = (
+const persistResolvedTown = (
   playerId: PlayerId,
-  dependencies: CurrentTownDependencies,
+  dependencies: ResolveCurrentTownDependencies,
 ): Promise<Result<TownReading, DomainError>> =>
   mutateTown(
     playerId,
@@ -54,14 +52,14 @@ const persistedResolveOf = (
         catalog: dependencies.townCatalog,
         clock,
       })
-      return changed.ok ? townReadingOf(playerId, clock.now(), stores.townsWithSchool) : changed
+      return changed.ok ? readTownReading(playerId, clock.now(), stores.townsWithSchool) : changed
     },
     dependencies,
   )
 
-export const currentTownOf = async (
+export const resolveCurrentTown = async (
   playerId: PlayerId,
-  dependencies: CurrentTownDependencies,
+  dependencies: ResolveCurrentTownDependencies,
 ): Promise<Result<TownReading, DomainError>> => {
   const stored = await dependencies.townsWithSchool.townWithSchoolOf(playerId)
   if (!stored.ok) {
@@ -86,5 +84,5 @@ export const currentTownOf = async (
     dryRun.value.events.length === 0 && !isSlotFinishedBy(stored.value.lessonSlot, readAt)
   return isUnchanged
     ? ok({ ...stored.value, town: dryRun.value.town, at: readAt })
-    : persistedResolveOf(playerId, dependencies)
+    : persistResolvedTown(playerId, dependencies)
 }

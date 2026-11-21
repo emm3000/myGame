@@ -50,12 +50,18 @@ import { readJsonBody } from '../platform/infrastructure/http/readJsonBody'
 import { type NamedIssue, requestRefusalOf } from '../platform/infrastructure/http/requestRefusalOf'
 import { foundTownOnFreeSite } from '../town/application/foundTownOnFreeSite'
 import { mutateTown } from '../town/application/mutateTown'
-import { townReadingOf } from '../town/application/readTownReading'
-import { type CurrentTownDependencies, currentTownOf } from '../town/application/resolveCurrentTown'
+import { readTownReading } from '../town/application/readTownReading'
+import {
+  type ResolveCurrentTownDependencies,
+  resolveCurrentTown,
+} from '../town/application/resolveCurrentTown'
 import type { TownReading } from '../town/application/TownReading'
-import { quotedCleanUpOf } from '../town/jobs/application/quoteCleanUpNow'
-import { quotedJobOf } from '../town/jobs/application/quoteJobNow'
-import { type TownNewsDependencies, townNewsOf } from '../town/news/application/resolveTownNews'
+import { quoteCleanUpNow } from '../town/jobs/application/quoteCleanUpNow'
+import { quoteJobNow } from '../town/jobs/application/quoteJobNow'
+import {
+  type ResolveTownNewsDependencies,
+  resolveTownNews,
+} from '../town/news/application/resolveTownNews'
 import { openTextOf } from '../town/openTextOf'
 import { townNewsItemOf } from '../town/townNewsItemOf'
 import { townOverviewOf } from '../town/townOverviewOf'
@@ -63,8 +69,8 @@ import { townDeclarations } from './townDeclarations'
 
 const foundingIssues: ReadonlyArray<NamedIssue> = [['name', 'too_small', { kind: 'BlankTownName' }]]
 
-export type TownDependencies = CurrentTownDependencies &
-  TownNewsDependencies &
+export type TownDependencies = ResolveCurrentTownDependencies &
+  ResolveTownNewsDependencies &
   RequirePlayerDependencies & {
     readonly ids: IdGenerator
     readonly lessons: LessonLibrary
@@ -96,14 +102,14 @@ export const townRoutes = (dependencies: TownDependencies): OpenAPIHono => {
     townDeclarations.overview.method,
     honoPathOf(townDeclarations.overview),
     signedInPlayer,
-    async (c) => answerReading(c, await currentTownOf(c.var.playerId, dependencies)),
+    async (c) => answerReading(c, await resolveCurrentTown(c.var.playerId, dependencies)),
   )
   routes.on(
     townDeclarations.news.method,
     honoPathOf(townDeclarations.news),
     signedInPlayer,
     async (c) => {
-      const news = await townNewsOf(c.var.playerId, dependencies)
+      const news = await resolveTownNews(c.var.playerId, dependencies)
       if (!news.ok) {
         return answerRefusal(c, news.error)
       }
@@ -120,7 +126,7 @@ export const townRoutes = (dependencies: TownDependencies): OpenAPIHono => {
       if (!request.success) {
         return answerRefusal(c, { kind: 'MalformedRequest' })
       }
-      const reading = await currentTownOf(c.var.playerId, dependencies)
+      const reading = await resolveCurrentTown(c.var.playerId, dependencies)
       if (!reading.ok) {
         return answerRefusal(c, reading.error)
       }
@@ -153,7 +159,9 @@ export const townRoutes = (dependencies: TownDependencies): OpenAPIHono => {
             ids: dependencies.ids,
           },
         )
-        return town.ok ? townReadingOf(playerId, town.value.storedAt, stores.townsWithSchool) : town
+        return town.ok
+          ? readTownReading(playerId, town.value.storedAt, stores.townsWithSchool)
+          : town
       })
       return answerReading(c, founded)
     },
@@ -176,7 +184,7 @@ export const townRoutes = (dependencies: TownDependencies): OpenAPIHono => {
             { towns: stores.towns, news: stores.townNews, cards: stores.cards, catalog, clock },
           )
           return town.ok
-            ? townReadingOf(playerId, town.value.storedAt, stores.townsWithSchool)
+            ? readTownReading(playerId, town.value.storedAt, stores.townsWithSchool)
             : town
         },
         dependencies,
@@ -205,7 +213,7 @@ export const townRoutes = (dependencies: TownDependencies): OpenAPIHono => {
             return change
           }
           const { town } = change.value
-          return townReadingOf(playerId, town.storedAt, stores.townsWithSchool)
+          return readTownReading(playerId, town.storedAt, stores.townsWithSchool)
         },
         dependencies,
       )
@@ -230,7 +238,7 @@ export const townRoutes = (dependencies: TownDependencies): OpenAPIHono => {
             { towns: stores.towns, news: stores.townNews, catalog, clock },
           )
           return town.ok
-            ? townReadingOf(playerId, town.value.storedAt, stores.townsWithSchool)
+            ? readTownReading(playerId, town.value.storedAt, stores.townsWithSchool)
             : town
         },
         dependencies,
@@ -260,7 +268,7 @@ export const townRoutes = (dependencies: TownDependencies): OpenAPIHono => {
             return change
           }
           const { town } = change.value
-          return townReadingOf(playerId, town.storedAt, stores.townsWithSchool)
+          return readTownReading(playerId, town.storedAt, stores.townsWithSchool)
         },
         dependencies,
       )
@@ -284,7 +292,7 @@ export const townRoutes = (dependencies: TownDependencies): OpenAPIHono => {
             { playerId, ...request.data },
             { towns: stores.towns, map: stores.regionMap, news: stores.townNews, catalog, clock },
           )
-          return town.ok ? townReadingOf(playerId, clock.now(), stores.townsWithSchool) : town
+          return town.ok ? readTownReading(playerId, clock.now(), stores.townsWithSchool) : town
         },
         dependencies,
       )
@@ -300,7 +308,7 @@ export const townRoutes = (dependencies: TownDependencies): OpenAPIHono => {
       if (!request.success) {
         return answerRefusal(c, { kind: 'MalformedRequest' })
       }
-      const pay = await quotedJobOf({ playerId: c.var.playerId, ...request.data }, dependencies)
+      const pay = await quoteJobNow({ playerId: c.var.playerId, ...request.data }, dependencies)
       if (!pay.ok) {
         return answerRefusal(c, pay.error)
       }
@@ -332,7 +340,7 @@ export const townRoutes = (dependencies: TownDependencies): OpenAPIHono => {
               clock,
             },
           )
-          return town.ok ? townReadingOf(playerId, clock.now(), stores.townsWithSchool) : town
+          return town.ok ? readTownReading(playerId, clock.now(), stores.townsWithSchool) : town
         },
         dependencies,
       )
@@ -348,7 +356,7 @@ export const townRoutes = (dependencies: TownDependencies): OpenAPIHono => {
       if (!request.success) {
         return answerRefusal(c, { kind: 'MalformedRequest' })
       }
-      const quote = await quotedCleanUpOf(
+      const quote = await quoteCleanUpNow(
         { playerId: c.var.playerId, ...request.data },
         dependencies,
       )
@@ -383,7 +391,7 @@ export const townRoutes = (dependencies: TownDependencies): OpenAPIHono => {
               clock,
             },
           )
-          return town.ok ? townReadingOf(playerId, clock.now(), stores.townsWithSchool) : town
+          return town.ok ? readTownReading(playerId, clock.now(), stores.townsWithSchool) : town
         },
         dependencies,
       )
@@ -415,7 +423,7 @@ export const townRoutes = (dependencies: TownDependencies): OpenAPIHono => {
               clock,
             },
           )
-          return slot.ok ? townReadingOf(playerId, clock.now(), stores.townsWithSchool) : slot
+          return slot.ok ? readTownReading(playerId, clock.now(), stores.townsWithSchool) : slot
         },
         dependencies,
       )
@@ -439,7 +447,7 @@ export const townRoutes = (dependencies: TownDependencies): OpenAPIHono => {
             { playerId, lessonId: request.data.lessonId },
             { ...stores, news: stores.townNews, lessons, bands: lessons, catalog, clock },
           )
-          return change.ok ? townReadingOf(playerId, clock.now(), stores.townsWithSchool) : change
+          return change.ok ? readTownReading(playerId, clock.now(), stores.townsWithSchool) : change
         },
         dependencies,
       )
