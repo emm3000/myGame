@@ -6,6 +6,7 @@ import type { ApiClient, ApiOutcome } from '../api/apiClient'
 import { renderAppAt } from '../auth/renderAppAt.testSupport'
 import { knownPlayer, knownTown, stubApiClient } from '../auth/stubApiClient.testSupport'
 import { accessibleDescriptionOf } from '../design-system/accessibleDescriptionOf.testSupport'
+import { isDrawnAlone } from './lineDrawnAlone.testSupport'
 
 const readAt = Date.parse(knownTown.readAt)
 
@@ -68,7 +69,9 @@ it('offers the next level with its cost and duration', async () => {
 
   const farm = placeCard(es.namesPlacesFarm())
   expect(within(farm).getByRole('button', { name: 'Construir nivel 1 · 5:00' })).toBeDefined()
-  expect(within(farm).getByText('Gente trabajando: +2')).toBeDefined()
+  expect(
+    within(farm).getByText(isDrawnAlone(es.townPeopleAtWork({ people: 2 }), 'es')),
+  ).toBeDefined()
   expect(within(farm).getByText('de dinero', { exact: false }).closest('li')?.textContent).toBe(
     '60 de dinero',
   )

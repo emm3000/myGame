@@ -1,8 +1,8 @@
 import { screen } from '@testing-library/react'
 import type { LineLanguage } from '../design-system/Label'
 
-const isDrawnAlone =
-  (text: string, language: LineLanguage) =>
+export const isDrawnAlone =
+  (text: string, language: LineLanguage): ((_: string, element: Element | null) => boolean) =>
   (_: string, element: Element | null): boolean =>
     element?.getAttribute('lang') === language &&
     element.textContent === text &&
