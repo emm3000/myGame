@@ -1,5 +1,7 @@
 import { createFileRoute, Outlet, redirect, useLocation } from '@tanstack/react-router'
-import type { ReactElement } from 'react'
+import { type ReactElement, useMemo } from 'react'
+import { PlayerCopyContext } from '../copy/PlayerCopyContext'
+import { playerCopyOf } from '../copy/playerCopyOf'
 import { LiveRegion } from '../design-system/LiveRegion'
 import { useFocusTarget } from '../focus/useFocusTarget'
 import { AppShell } from '../shell/AppShell'
@@ -19,32 +21,36 @@ function SignedInLayout(): ReactElement {
   const pathname = useLocation({ select: (location) => location.pathname })
   const lessonFinish = useLessonFinish(liveTown?.overview, pathname)
   const shellHeader = useFocusTarget<HTMLElement>()
+  const { scaffold, chromePhase } = liveTown?.overview ?? player
+  const copy = useMemo(() => playerCopyOf({ scaffold, chromePhase }), [scaffold, chromePhase])
 
   return (
     <TownContext value={town}>
-      <AppShell
-        player={player}
-        verification={verification}
-        town={liveTown?.overview}
-        ringCountBefore={live?.registered.retainedWords?.countBefore}
-        isTownHome={pathname === '/'}
-        headerRef={shellHeader.ref}
-        townStatus={
-          <>
-            <TownStatus
-              town={liveTown}
-              finish={lessonFinish}
-              onFocusAfterClose={shellHeader.focus}
-            />
-            <LiveRegion
-              line={live === undefined ? '' : registeredLineOf(live.registered)}
-              sequence={live?.readSequence ?? 0}
-            />
-          </>
-        }
-      >
-        <Outlet />
-      </AppShell>
+      <PlayerCopyContext value={copy}>
+        <AppShell
+          player={player}
+          verification={verification}
+          town={liveTown?.overview}
+          ringCountBefore={live?.registered.retainedWords?.countBefore}
+          isTownHome={pathname === '/'}
+          headerRef={shellHeader.ref}
+          townStatus={
+            <>
+              <TownStatus
+                town={liveTown}
+                finish={lessonFinish}
+                onFocusAfterClose={shellHeader.focus}
+              />
+              <LiveRegion
+                line={live === undefined ? '' : registeredLineOf(live.registered)}
+                sequence={live?.readSequence ?? 0}
+              />
+            </>
+          }
+        >
+          <Outlet />
+        </AppShell>
+      </PlayerCopyContext>
     </TownContext>
   )
 }

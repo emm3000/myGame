@@ -1,9 +1,10 @@
-import { shellNavigationTown, townLabelCity, townLabelTown } from '@mygame/catalog'
 import type { Player, TownOverview } from '@mygame/contracts'
 import { Link } from '@tanstack/react-router'
 import type { ReactElement, ReactNode, RefObject } from 'react'
+import { usePlayerCopy } from '../copy/usePlayerCopy'
 import { focusTargetClass } from '../design-system/focusTargetClass'
 import { BackIcon } from '../design-system/icons/BackIcon'
+import { LabelText } from '../design-system/LabelText'
 import type { ResendVerification } from '../verification/useResendVerification'
 import { VerificationBanner } from '../verification/VerificationBanner'
 import { RetainedWordsRing } from './RetainedWordsRing'
@@ -20,22 +21,26 @@ export interface AppShellProps {
 }
 
 function TownTitle({ town }: { readonly town: TownOverview }): ReactElement {
+  const copy = usePlayerCopy()
+  const label = copy.chrome((catalog) =>
+    town.label === 'city' ? catalog.townLabelCity() : catalog.townLabelTown(),
+  )
   return (
     <h1 className="m-0 font-sans text-meta text-ink-muted wrap-anywhere">
-      {town.name} <span aria-hidden="true">·</span>{' '}
-      {town.label === 'city' ? townLabelCity() : townLabelTown()}
+      {town.name} <span aria-hidden="true">·</span> <LabelText label={label} />
     </h1>
   )
 }
 
 function BackLink(): ReactElement {
+  const copy = usePlayerCopy()
   return (
     <Link
       to="/"
       className={`inline-flex min-h-control items-center gap-1 font-sans text-meta text-ink-muted no-underline ${focusTargetClass}`}
     >
       <BackIcon />
-      {shellNavigationTown()}
+      <LabelText label={copy.chrome((catalog) => catalog.shellNavigationTown())} />
     </Link>
   )
 }
