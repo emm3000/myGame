@@ -5,6 +5,7 @@ import androidx.lifecycle.viewModelScope
 import com.emm.mygame.core.network.ChoiceId
 import com.emm.mygame.core.network.HoldoutCheck
 import com.emm.mygame.core.network.HoldoutCheckChangeResult
+import com.emm.mygame.core.network.HoldoutCheckRefusal
 import com.emm.mygame.core.network.HoldoutCheckRepository
 import com.emm.mygame.core.network.HoldoutCheckWeek
 import com.emm.mygame.core.network.HoldoutChecksReadResult
@@ -53,7 +54,7 @@ class HoldoutCheckViewModel(
         _state.value = HoldoutCheckUiState.Loading
         viewModelScope.launch {
             _state.value = when (val answer: HoldoutChecksReadResult = holdoutChecks.read()) {
-                is HoldoutChecksReadResult.Read -> stateOf(answer.checks)
+                is HoldoutChecksReadResult.Read -> stateOf(answer.checks, HoldoutCheckRequest.Idle)
                 HoldoutChecksReadResult.Unreachable -> HoldoutCheckUiState.Failed
             }
         }
@@ -102,8 +103,20 @@ class HoldoutCheckViewModel(
     private suspend fun answered(action: HoldoutCheckAction, answer: HoldoutCheckChangeResult) {
         when (answer) {
             is HoldoutCheckChangeResult.Changed -> drawChanged(changedStateOf(action, answer.checks))
-            is HoldoutCheckChangeResult.Refused -> drawRequest(HoldoutCheckRequest.Refused(action, answer.refusal))
+            is HoldoutCheckChangeResult.Refused -> refused(HoldoutCheckRequest.Refused(action, answer.refusal))
             HoldoutCheckChangeResult.Unreachable -> drawRequest(HoldoutCheckRequest.Unreachable)
+        }
+    }
+
+    private suspend fun refused(refusal: HoldoutCheckRequest.Refused) {
+        if (refusal.isOfInvalidAnswers()) readAfter(refusal) else drawRequest(refusal)
+    }
+
+    private suspend fun readAfter(refusal: HoldoutCheckRequest.Refused) {
+        _state.value = HoldoutCheckUiState.Loading
+        when (val answer: HoldoutChecksReadResult = holdoutChecks.read()) {
+            is HoldoutChecksReadResult.Read -> _state.value = stateOf(answer.checks, refusal)
+            HoldoutChecksReadResult.Unreachable -> _state.value = HoldoutCheckUiState.Failed
         }
     }
 
@@ -114,7 +127,7 @@ class HoldoutCheckViewModel(
 
     private fun changedStateOf(action: HoldoutCheckAction, checks: List<HoldoutCheck>): HoldoutCheckUiState =
         when (action) {
-            HoldoutCheckAction.Begin -> stateOf(checks)
+            HoldoutCheckAction.Begin -> stateOf(checks, HoldoutCheckRequest.Idle)
             HoldoutCheckAction.Skip -> HoldoutCheckUiState.Skipped
             HoldoutCheckAction.Answers -> HoldoutCheckUiState.Answered
         }
@@ -134,19 +147,22 @@ class HoldoutCheckViewModel(
         }
     }
 
-    private fun stateOf(checks: List<HoldoutCheck>): HoldoutCheckUiState {
+    private fun stateOf(checks: List<HoldoutCheck>, request: HoldoutCheckRequest): HoldoutCheckUiState {
         val check: HoldoutCheck = checks.firstOrNull { it.band == band && it.week == week }
             ?: return HoldoutCheckUiState.NotOpen
         return when (check) {
-            is HoldoutCheck.Due -> HoldoutCheckUiState.Due(band, week, HoldoutCheckRequest.Idle)
+            is HoldoutCheck.Due -> HoldoutCheckUiState.Due(band, week, request)
             is HoldoutCheck.Asking -> HoldoutCheckUiState.Asking(
                 band = band,
                 week = week,
                 items = check.items,
                 shownIndex = 0,
                 chosen = emptyMap(),
-                request = HoldoutCheckRequest.Idle,
+                request = request,
             )
         }
     }
 }
+
+private fun HoldoutCheckRequest.Refused.isOfInvalidAnswers(): Boolean =
+    action == HoldoutCheckAction.Answers && refusal == HoldoutCheckRefusal.InvalidRequest

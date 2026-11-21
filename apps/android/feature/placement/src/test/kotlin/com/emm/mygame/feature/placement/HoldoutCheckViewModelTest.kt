@@ -8,6 +8,7 @@ import com.emm.mygame.core.network.HoldoutCheckWeek
 import com.emm.mygame.core.network.HoldoutChecksReadResult
 import com.emm.mygame.core.network.PlacementAnswer
 import com.emm.mygame.core.network.PlacementBand
+import com.emm.mygame.core.network.PlacementChoice
 import com.emm.mygame.core.testing.FakeHoldoutCheckRepository
 import com.emm.mygame.core.testing.HoldoutCheckChange
 import com.emm.mygame.core.testing.MainDispatcherRule
@@ -42,6 +43,24 @@ class HoldoutCheckViewModelTest {
         viewModel.onIntent(HoldoutCheckIntent.ChoiceChosen(walkMeaning))
         return viewModel
     }
+
+    private fun TestScope.refusedAnswers(viewModel: HoldoutCheckViewModel) {
+        viewModel.onIntent(HoldoutCheckIntent.AnswersSent)
+        holdoutChecks.answerChange(HoldoutCheckChangeResult.Refused(HoldoutCheckRefusal.InvalidRequest))
+        runCurrent()
+    }
+
+    private val askedAgainUnderNone: HoldoutCheck.Asking = firstBandEighthWeekAsking.copy(
+        items = listOf(
+            house.copy(
+                choices = listOf(
+                    PlacementChoice(houseMeaning, "a building people live in"),
+                    PlacementChoice(runMeaning, "to move fast on foot"),
+                ),
+            ),
+            walk,
+        ),
+    )
 
     private fun askingOf(viewModel: HoldoutCheckViewModel): HoldoutCheckUiState.Asking =
         viewModel.state.value as HoldoutCheckUiState.Asking
@@ -420,17 +439,95 @@ class HoldoutCheckViewModelTest {
     }
 
     @Test
-    fun `draws the invalid request beside the words when the api cannot take the answers`() = runTest {
+    fun `reads the check again after the api refuses its answers`() = runTest {
         val viewModel: HoldoutCheckViewModel = askingWithEveryWordChosen()
 
-        viewModel.onIntent(HoldoutCheckIntent.AnswersSent)
+        refusedAnswers(viewModel)
+
+        assertEquals(2, holdoutChecks.readCount)
+    }
+
+    @Test
+    fun `draws loading while the check is read again after its answers are refused`() = runTest {
+        val viewModel: HoldoutCheckViewModel = askingWithEveryWordChosen()
+
+        refusedAnswers(viewModel)
+
+        assertEquals(HoldoutCheckUiState.Loading, viewModel.state.value)
+    }
+
+    @Test
+    fun `reads the check again after each refusal of its answers`() = runTest {
+        val viewModel: HoldoutCheckViewModel = askingWithEveryWordChosen()
+        refusedAnswers(viewModel)
+        holdoutChecks.answerRead(HoldoutChecksReadResult.Read(listOf(askedAgainUnderNone)))
+        runCurrent()
+        viewModel.onIntent(HoldoutCheckIntent.ChoiceChosen(houseMeaning))
+        viewModel.onIntent(HoldoutCheckIntent.NextTapped)
+        viewModel.onIntent(HoldoutCheckIntent.ChoiceChosen(walkMeaning))
+
+        refusedAnswers(viewModel)
+
+        assertEquals(3, holdoutChecks.readCount)
+    }
+
+    @Test
+    fun `reads nothing again after the api refuses a start as invalid`() = runTest {
+        val viewModel: HoldoutCheckViewModel = reading(firstBandEighthWeekDue)
+
+        viewModel.onIntent(HoldoutCheckIntent.StartTapped)
         holdoutChecks.answerChange(HoldoutCheckChangeResult.Refused(HoldoutCheckRefusal.InvalidRequest))
+        runCurrent()
+
+        assertEquals(1, holdoutChecks.readCount)
+    }
+
+    @Test
+    fun `draws the invalid start beside the due check`() = runTest {
+        val viewModel: HoldoutCheckViewModel = reading(firstBandEighthWeekDue)
+
+        viewModel.onIntent(HoldoutCheckIntent.StartTapped)
+        holdoutChecks.answerChange(HoldoutCheckChangeResult.Refused(HoldoutCheckRefusal.InvalidRequest))
+        runCurrent()
+
+        val invalidStart = HoldoutCheckRequest.Refused(HoldoutCheckAction.Begin, HoldoutCheckRefusal.InvalidRequest)
+        assertEquals(dueIdle.copy(request = invalidStart), viewModel.state.value)
+    }
+
+    @Test
+    fun `draws the words the api asks again after it refuses the answers`() = runTest {
+        val viewModel: HoldoutCheckViewModel = askingWithEveryWordChosen()
+        refusedAnswers(viewModel)
+
+        holdoutChecks.answerRead(HoldoutChecksReadResult.Read(listOf(askedAgainUnderNone)))
+        runCurrent()
+
+        assertEquals(askedAgainUnderNone.items, askingOf(viewModel).items)
+    }
+
+    @Test
+    fun `draws the invalid request beside the words the api asks again`() = runTest {
+        val viewModel: HoldoutCheckViewModel = askingWithEveryWordChosen()
+        refusedAnswers(viewModel)
+
+        holdoutChecks.answerRead(HoldoutChecksReadResult.Read(listOf(askedAgainUnderNone)))
         runCurrent()
 
         assertEquals(
             HoldoutCheckRequest.Refused(HoldoutCheckAction.Answers, HoldoutCheckRefusal.InvalidRequest),
             askingOf(viewModel).request,
         )
+    }
+
+    @Test
+    fun `draws failed when the check cannot be read again after its answers are refused`() = runTest {
+        val viewModel: HoldoutCheckViewModel = askingWithEveryWordChosen()
+        refusedAnswers(viewModel)
+
+        holdoutChecks.answerRead(HoldoutChecksReadResult.Unreachable)
+        runCurrent()
+
+        assertEquals(HoldoutCheckUiState.Failed, viewModel.state.value)
     }
 
     @Test
