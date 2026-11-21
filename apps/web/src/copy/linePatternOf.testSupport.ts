@@ -8,7 +8,10 @@ const holeFilled = (pattern: string, hole: string | number): string => {
   return pattern.replace(escapedHole, '.+?')
 }
 
-export const linePatternOf = (line: string, holes: ReadonlyArray<string | number>): RegExp =>
-  new RegExp(
-    `^${holes.reduce<string>((pattern, hole) => holeFilled(pattern, hole), escapedOf(line))}$`,
-  )
+const openedLineOf = (line: string, holes: ReadonlyArray<string | number>): string =>
+  holes.reduce<string>((pattern, hole) => holeFilled(pattern, hole), escapedOf(line))
+
+export const linePatternOf = (
+  lines: ReadonlyArray<string>,
+  holes: ReadonlyArray<string | number>,
+): RegExp => new RegExp(`^(?:${lines.map((line) => openedLineOf(line, holes)).join('|')})$`)

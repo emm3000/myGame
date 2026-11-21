@@ -174,11 +174,24 @@ it('shows every word of a lesson past the last standing', async () => {
   expect(pathOf(1)).toEqual(pathLinesOf(5, 5, 5, 5, 5))
 })
 
+const daysAwayWords = [en, es].flatMap((catalog) =>
+  [
+    catalog.townSeasonDays({ days: 1 }),
+    catalog.townSeasonDays({ days: 2 }),
+    catalog.statusTomorrow({ time: '' }),
+  ].map((line) => line.replace(/[\d\s]/g, '')),
+)
+
+const anyDateOrDaysAway = new RegExp(
+  `(?<!\\p{L})(?:${daysAwayWords.join('|')})|\\d:\\d|\\/\\d`,
+  'iu',
+)
+
 it('shows no date and no days away on the path', async () => {
   const lesson = studiedLessonOf('recognize', 'recall', 'hold', 'hold', 'retained')
   await showSchool(schoolOf({ lessons: [lesson, lessonOf(2)], nextDueAt: instantAfter(86_400) }))
 
-  expect(lessonRow(1).textContent).not.toMatch(/d[ií]as?\b|\bma[ñn]ana\b|semanas?\b|\d:\d|\/\d/i)
+  expect(lessonRow(1).textContent).not.toMatch(anyDateOrDaysAway)
   expect(pathOf(1)).toHaveLength(4)
 })
 
@@ -981,7 +994,7 @@ it('shows no band line before a band starts', async () => {
   await showSchool(schoolOf({ bandLines: [] }))
 
   const anyBandLine = linePatternOf(
-    es.schoolBandLine({ band: 101, count: 202, total: 303 }),
+    [en, es].map((catalog) => catalog.schoolBandLine({ band: 101, count: 202, total: 303 })),
     [101, 202, 303],
   )
   expect(screen.getByText(alwaysDrawnLine)).toBeDefined()

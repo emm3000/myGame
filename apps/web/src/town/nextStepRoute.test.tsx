@@ -1,4 +1,4 @@
-import { es } from '@mygame/catalog'
+import { en, es } from '@mygame/catalog'
 import type { NextStep, TownOverview } from '@mygame/contracts'
 import { act, fireEvent, screen, within } from '@testing-library/react'
 import { afterEach, beforeEach, expect, it, vi } from 'vitest'
@@ -472,7 +472,10 @@ it('a running lesson names it beside the goal', async () => {
 it('names no text while the next step carries none', async () => {
   await showTown(townAt({ kind: 'caughtUp', reason: 'lessonsDone', goal: null, text: null }))
 
-  const anyTextLine = linePatternOf(es.townNextText({ title: 'TITLE' }), ['TITLE'])
+  const anyTextLine = linePatternOf(
+    [en.townNextText({ title: 'TITLE' }), es.townNextText({ title: 'TITLE' })],
+    ['TITLE'],
+  )
 
   expect(screen.queryByRole('link', { name: anyTextLine })).toBeNull()
 })
