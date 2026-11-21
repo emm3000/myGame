@@ -1115,3 +1115,104 @@ it("draws the api's refusal under the released lesson it answers", async () => {
     es.refusalLearningCapReached({ learningCap: 15, cardsInLearning: 12 }),
   )
 })
+
+const releasedStep: TownOverview['nextStep'] = {
+  kind: 'releasedLesson',
+  lessonId: 'released-2-1',
+  band: 2,
+  position: 1,
+}
+
+const checkStep: TownOverview['nextStep'] = { kind: 'holdoutCheck', band: 2, week: 8 }
+
+const releasedStepAhead = { ...shelvedAndReleased, nextStep: releasedStep }
+
+const checkStepAhead = schoolOf({
+  lessons: studiedThrough(0, 2),
+  dueHoldoutChecks: [{ band: 2, week: 8 }],
+  nextStep: checkStep,
+})
+
+const releasedLessonRunning = schoolOf({
+  lessons: studiedThrough(2, 2),
+  releasedLessons: [releasedOf(2), releasedOf(1)],
+  lessonSlot: releasedSetTwoStudying,
+  nextStep: { kind: 'lessonRunning', goal: null, text: null },
+})
+
+const nextStepColumn = (): HTMLElement => {
+  const column = screen.getByRole('region', { name: es.townNextTitle() }).parentElement
+  if (column === null) {
+    throw new Error('the next-step block has no column')
+  }
+  return column
+}
+
+const releasedStepStudyLabel = `${releasedTitleOf(1)} · ${es.schoolReleasedStudy()} · 5:00`
+
+it.each<[string, TownOverview]>([
+  ['a released step', releasedStepAhead],
+  ['a check step', checkStepAhead],
+])('draws %s ahead of the shelf lesson with no lesson picked', async (_step, town) => {
+  await showSchool(town)
+
+  expect(screen.getByRole('region', { name: es.townNextTitle() })).toBeDefined()
+  expect(screen.queryByRole('region', { name: es.schoolLessonTitle({ number: 1 }) })).toBeNull()
+  expect(rowNames()).toContain('Lección 1')
+})
+
+it('draws the picked shelf lesson over a released step', async () => {
+  await showSchool(releasedStepAhead)
+
+  await selectRow(1)
+
+  expect(lessonBlock(1)).toBeDefined()
+  expect(screen.queryByRole('region', { name: es.townNextTitle() })).toBeNull()
+})
+
+it("starts the released step's lesson from the block", async () => {
+  const started: Array<string> = []
+  await showSchool(releasedStepAhead, {
+    startLesson: async (lessonId) => {
+      started.push(lessonId)
+      return { ok: true, value: releasedStepAhead }
+    },
+  })
+
+  fireEvent.click(within(nextStepColumn()).getByRole('button', { name: releasedStepStudyLabel }))
+  await passSeconds(0)
+
+  expect(started).toEqual(['released-2-1'])
+})
+
+it('draws the released row the step names only in the block', async () => {
+  await showSchool(releasedStepAhead)
+
+  expect(rowNames()).toEqual(['Lección 1', 'Lección 2', releasedTitleOf(2)])
+})
+
+it("opens the check step's check from the block", async () => {
+  await showSchool(checkStepAhead)
+
+  const way = within(nextStepColumn()).getByRole('link', { name: es.schoolHoldoutCheckOpen() })
+  expect(way.getAttribute('href')).toBe('/school/check/2/8')
+})
+
+it('holds one ink pill on the school with a released step ahead', async () => {
+  await showSchool(releasedStepAhead)
+
+  expect(inkPills()).toEqual([releasedStepStudyLabel])
+})
+
+it.each<[string, TownOverview]>([
+  ['a released step', releasedStepAhead],
+  ['a check step', checkStepAhead],
+  ['a released lesson running', releasedLessonRunning],
+])('links the school to itself nowhere in the next step with %s', async (_step, town) => {
+  await showSchool(town)
+
+  const targets = within(nextStepColumn())
+    .queryAllByRole('link')
+    .map((link) => link.getAttribute('href'))
+  expect(targets).not.toContain('/school')
+})
