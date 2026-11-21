@@ -318,10 +318,10 @@ it('names a finished released lesson by band and set', async () => {
   expect(screen.getByRole('region', { name: line })).toBeDefined()
 })
 
-it('sends a running released lesson to the school', async () => {
+it('opens the words of a running released lesson', async () => {
   await showTown(releasedRunning)
 
-  expect(pill(es.townGoToSchool()).getAttribute('href')).toBe('/school')
+  expect(pill(es.schoolLessonReadWords()).getAttribute('href')).toBe('/school/released-2-2')
 })
 
 const workUnderWay: TownOverview['work'] = {
