@@ -38,6 +38,7 @@ import androidx.compose.ui.test.performClick
 import androidx.compose.ui.test.performTouchInput
 import androidx.compose.ui.test.requestFocus
 import androidx.compose.ui.text.AnnotatedString
+import androidx.compose.ui.text.SpanStyle
 import androidx.compose.ui.unit.Density
 import androidx.compose.ui.unit.DpRect
 import org.junit.Assert.assertEquals
@@ -365,5 +366,16 @@ class MyGameNavRowTest {
         val drawn: VectorPath = MyGameIcons.forward.root.single() as VectorPath
 
         assertEquals(PathParser().parsePathString("m9 6 6 6-6 6").toNodes(), drawn.pathData)
+    }
+
+    @Test
+    fun `a nav row given no title line draws its title with no span`() {
+        showSchoolRow()
+
+        val title: AnnotatedString = composeRule.onNodeWithText("Go to the school", useUnmergedTree = true)
+            .fetchSemanticsNode()
+            .config[SemanticsProperties.Text]
+            .single()
+        assertEquals(emptyList<AnnotatedString.Range<SpanStyle>>(), title.spanStyles)
     }
 }

@@ -39,7 +39,7 @@ fun MyGameNavRow(
     body: AnnotatedString? = null,
     caption: MyGameLabel? = null,
     captionTag: String? = null,
-    titleLineOf: (String) -> AnnotatedString = { line: String -> AnnotatedString(line) },
+    titleLineOf: (String) -> AnnotatedString = ::AnnotatedString,
 ) {
     val colors: MyGameColors = MyGameTheme.colors
     val interactions: MutableInteractionSource = remember { MutableInteractionSource() }
