@@ -35,7 +35,7 @@ import {
   readWordsLabelOf,
 } from './lessonCardOf'
 import { lessonLinesOf } from './lessonLinesOf'
-import { releasedLessonCardOf } from './releasedLessonCardOf'
+import { releasedRowOf } from './releasedRowOf'
 import { SchoolNextStep } from './SchoolNextStep'
 import { ShownLesson } from './ShownLesson'
 import { SkillList } from './SkillList'
@@ -151,9 +151,7 @@ export function SchoolScreen({ town, lessons }: SchoolScreenProps): ReactElement
   }, [selectedId, focusBlockTitle])
   const cards = overview.lessons.map((lesson) => lessonCardOf(lesson, overview))
   const shown = shownCardOf(cards, selectedId)
-  const releasedCards = overview.releasedLessons.map((lesson) =>
-    releasedLessonCardOf(lesson, overview),
-  )
+  const releasedCards = overview.releasedLessons.map((lesson) => releasedRowOf(lesson, overview))
   const stopRefused = lessons.stopRefused
   return (
     <div className="flex flex-col gap-6">

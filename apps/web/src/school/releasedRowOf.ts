@@ -7,7 +7,7 @@ import { lessonLinesOf } from './lessonLinesOf'
 
 type ReleasedLesson = TownOverview['releasedLessons'][number]
 
-export interface ReleasedLessonCardContent {
+export interface ReleasedRowContent {
   readonly lessonId: string
   readonly title: string
   readonly wordsLine: string
@@ -17,10 +17,10 @@ export interface ReleasedLessonCardContent {
   readonly state: LessonCardState
 }
 
-export const releasedLessonCardOf = (
+export const releasedRowOf = (
   lesson: ReleasedLesson,
   overview: TownOverview,
-): ReleasedLessonCardContent => ({
+): ReleasedRowContent => ({
   lessonId: lesson.id,
   title: lessonLinesOf(lessonNameOf(lesson.id, overview)).title,
   wordsLine: schoolLessonWords({ count: lesson.words.length }),
