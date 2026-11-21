@@ -1,9 +1,9 @@
-import type { DomainError } from '../DomainError'
-import { ok, type Result } from '../Result'
+import type { DomainError } from '../../DomainError'
+import { ok, type Result } from '../../Result'
+import type { TownNews } from '../ports/TownNews'
+import type { TownRepository } from '../ports/TownRepository'
+import type { ChangedTown } from '../Town'
 import { saveChangedTown } from './saveChangedTown'
-import type { ChangedTown } from './Town'
-import type { TownNews } from './TownNews'
-import type { TownRepository } from './TownRepository'
 
 export const saveResolvedTown = async (
   resolved: ChangedTown,

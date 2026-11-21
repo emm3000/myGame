@@ -3,12 +3,12 @@ import { err, ok, type Result } from '../Result'
 import type { Instant } from '../time/Instant'
 import { deriveStorageCapacity } from './deriveStorageCapacity'
 import type { FullSince } from './FullSince'
+import type { TownCatalog } from './ports/TownCatalog'
 import type { Stocks } from './Stocks'
 import { fullSinceOf, type Stores } from './Stores'
 import { storedStoresOf } from './storedStoresOf'
 import { storesAfterSeasonSegment } from './storesAfterSeasonSegment'
 import type { Town } from './Town'
-import type { TownCatalog } from './TownCatalog'
 
 export type Accrual = {
   readonly stocks: Stocks

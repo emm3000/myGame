@@ -1,6 +1,4 @@
 import { assert, describe, expect, it } from 'vitest'
-import { townCatalogOf } from '../testing/townCatalogOf'
-import { storedTownOf } from '../testing/townFixtures'
 import { Instant } from '../time/Instant'
 import { accrueTown } from './accrueTown'
 import type { HiringOrder } from './hiring/HiringOrder'
@@ -9,6 +7,8 @@ import { terrainOf } from './jobs/terrainOf'
 import { Town } from './Town'
 import { TownAddress } from './TownAddress'
 import type { TownSkill } from './TownSkill'
+import { townCatalogOf } from './testing/townCatalogOf'
+import { storedTownOf } from './testing/townFixtures'
 
 const storedAt = Instant.fromEpochMilliseconds(1_791_244_800_000)
 

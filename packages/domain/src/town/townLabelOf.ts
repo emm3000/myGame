@@ -2,7 +2,7 @@ import type { DomainError } from '../DomainError'
 import { ok, type Result } from '../Result'
 import type { BuildingLevels } from './BuildingLevels'
 import { deriveSuppliedPeople } from './derivePeople'
-import type { TownCatalog } from './TownCatalog'
+import type { TownCatalog } from './ports/TownCatalog'
 import type { TownLabel } from './TownLabel'
 
 export const townLabelOf = (

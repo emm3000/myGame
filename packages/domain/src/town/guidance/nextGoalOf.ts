@@ -5,10 +5,10 @@ import { accrueTown } from '../accrueTown'
 import type { BuildingKind } from '../BuildingKind'
 import type { BuildingLevel } from '../BuildingLevel'
 import { derivePeople } from '../derivePeople'
+import type { TownCatalog } from '../ports/TownCatalog'
 import { resourceKinds } from '../resourceKinds'
 import type { Stocks } from '../Stocks'
 import type { Town } from '../Town'
-import type { TownCatalog } from '../TownCatalog'
 
 export type GoalShortfall = {
   readonly resources: Stocks

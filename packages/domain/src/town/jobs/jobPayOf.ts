@@ -1,6 +1,6 @@
 import type { Hires } from '../Hires'
+import type { TownCatalog } from '../ports/TownCatalog'
 import type { Stocks } from '../Stocks'
-import type { TownCatalog } from '../TownCatalog'
 import type { ProductionPercent } from '../TownSettings'
 import { jobPayOfMilliseconds } from './jobPayOfMilliseconds'
 import type { Terrain } from './Terrain'

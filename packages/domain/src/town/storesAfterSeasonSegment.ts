@@ -3,11 +3,11 @@ import { ok, type Result } from '../Result'
 import { nextSeasonBoundaryAfter } from '../season/nextSeasonBoundaryAfter'
 import type { Instant } from '../time/Instant'
 import { deriveResourceRates } from './deriveResourceRates'
+import type { TownCatalog } from './ports/TownCatalog'
 import type { ResourceKind } from './ResourceKind'
 import type { Stores } from './Stores'
 import { type Store, storeAfterSegment } from './storeAfterSegment'
 import type { Town } from './Town'
-import type { TownCatalog } from './TownCatalog'
 
 export type SeasonSegment = {
   readonly stores: Stores

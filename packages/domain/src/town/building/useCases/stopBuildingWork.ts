@@ -4,13 +4,13 @@ import type { Clock } from '../../../ports/Clock'
 import { ok, type Result } from '../../../Result'
 import { accrueTown } from '../../accrueTown'
 import type { WorkTarget } from '../../BuildingWork'
+import type { TownCatalog } from '../../ports/TownCatalog'
+import type { TownNews } from '../../ports/TownNews'
+import type { TownRepository } from '../../ports/TownRepository'
 import { rebaseFullSince } from '../../rebaseFullSince'
-import { resolvedTownOf } from '../../resolvedTownOf'
-import { saveChangedTown } from '../../saveChangedTown'
+import { resolvedTownOf } from '../../services/resolveStoredTown'
+import { saveChangedTown } from '../../services/saveChangedTown'
 import type { ChangedTown } from '../../Town'
-import type { TownCatalog } from '../../TownCatalog'
-import type { TownNews } from '../../TownNews'
-import type { TownRepository } from '../../TownRepository'
 
 export type StopBuildingWorkCommand = WorkTarget & {
   readonly playerId: PlayerId

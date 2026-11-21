@@ -1,6 +1,6 @@
 import { assert, describe, expect, it } from 'vitest'
-import { townCatalogOf } from '../testing/townCatalogOf'
 import type { BuildingLevels } from './BuildingLevels'
+import { townCatalogOf } from './testing/townCatalogOf'
 import { townLabelOf } from './townLabelOf'
 
 const levelsWithHomesAt = (homes: number): BuildingLevels => ({

@@ -4,9 +4,9 @@ import type { Instant } from '../time/Instant'
 import type { BuildingLevels } from './BuildingLevels'
 import type { ProducerBuilding } from './building/ProducerBuilding'
 import type { Terrain } from './jobs/Terrain'
+import type { TownCatalog } from './ports/TownCatalog'
 import type { ResourceKind } from './ResourceKind'
 import { seasonPercentsAt } from './seasonPercentsAt'
-import type { TownCatalog } from './TownCatalog'
 import type { TownSkill } from './TownSkill'
 
 export type ResourceRates = Readonly<Record<ResourceKind, number>>

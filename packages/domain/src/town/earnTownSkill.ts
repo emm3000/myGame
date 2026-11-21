@@ -1,9 +1,9 @@
 import type { DomainError } from '../DomainError'
 import { ok, type Result } from '../Result'
 import { accrueTown } from './accrueTown'
+import type { TownCatalog } from './ports/TownCatalog'
 import { rebaseFullSince } from './rebaseFullSince'
 import type { ChangedTown, Town } from './Town'
-import type { TownCatalog } from './TownCatalog'
 import type { TownSkill } from './TownSkill'
 
 export const earnTownSkill = (

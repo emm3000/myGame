@@ -4,9 +4,9 @@ import type { CardRepository } from '../../../learning/ports/CardRepository'
 import type { PlayerId } from '../../../player/PlayerId'
 import { ok, type Result } from '../../../Result'
 import type { LessonSlot } from '../../LessonSlot'
+import type { TownNews } from '../../ports/TownNews'
 import type { TownEvent } from '../../TownEvent'
 import type { TownId } from '../../TownId'
-import type { TownNews } from '../../TownNews'
 import type { LessonSlotRepository } from '../ports/LessonSlotRepository'
 
 export type LessonSlotChange = {

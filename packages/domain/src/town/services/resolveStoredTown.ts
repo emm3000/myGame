@@ -1,11 +1,11 @@
-import type { DomainError } from '../DomainError'
-import type { PlayerId } from '../player/PlayerId'
-import { err, ok, type Result } from '../Result'
-import type { Instant } from '../time/Instant'
-import { settleTownTo } from './settleTownTo'
-import type { ChangedTown } from './Town'
-import type { TownCatalog } from './TownCatalog'
-import type { TownRepository } from './TownRepository'
+import type { DomainError } from '../../DomainError'
+import type { PlayerId } from '../../player/PlayerId'
+import { err, ok, type Result } from '../../Result'
+import type { Instant } from '../../time/Instant'
+import type { TownCatalog } from '../ports/TownCatalog'
+import type { TownRepository } from '../ports/TownRepository'
+import { settleTownTo } from '../settleTownTo'
+import type { ChangedTown } from '../Town'
 
 export const resolvedTownOf = async (
   playerId: PlayerId,

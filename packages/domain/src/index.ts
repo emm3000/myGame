@@ -206,10 +206,8 @@ export { deriveFullAt, type FullAt } from './town/deriveFullAt'
 export { derivePeople } from './town/derivePeople'
 export { deriveResourceRates, type ResourceRates } from './town/deriveResourceRates'
 export { deriveStorageCapacity } from './town/deriveStorageCapacity'
-export type { EarnedSkillRepository } from './town/EarnedSkillRepository'
 export { earnTownSkill } from './town/earnTownSkill'
 export { type FullSince, noStoreFull } from './town/FullSince'
-export { type FoundTownCommand, type FoundTownDependencies, foundTown } from './town/foundTown'
 export type { NextStep } from './town/guidance/NextStep'
 export { type GoalShortfall, type NextGoal, nextGoalOf } from './town/guidance/nextGoalOf'
 export { type NextStepReading, type NextStepTerms, nextStepOf } from './town/guidance/nextStepOf'
@@ -282,9 +280,12 @@ export { type SendJobDependencies, sendJob } from './town/jobs/useCases/sendJob'
 export type { WasteSize } from './town/jobs/WasteSize'
 export { type BusyLessonSlot, idleLessonSlot, type LessonSlot } from './town/LessonSlot'
 export type { People } from './town/People'
+export type { EarnedSkillRepository } from './town/ports/EarnedSkillRepository'
+export type { TownCatalog } from './town/ports/TownCatalog'
+export type { TownNews } from './town/ports/TownNews'
+export type { TownRepository } from './town/ports/TownRepository'
 export type { ResourceKind } from './town/ResourceKind'
 export { rebaseFullSince } from './town/rebaseFullSince'
-export { type ResolveTownDependencies, resolveTown } from './town/resolveTown'
 export { resourceKinds } from './town/resourceKinds'
 export type { SiteAddress } from './town/SiteAddress'
 export type { Stocks } from './town/Stocks'
@@ -309,13 +310,10 @@ export {
 } from './town/school/useCases/stopSchoolLesson'
 export { type ChangedTown, type StoredTown, Town, type TownFounding } from './town/Town'
 export { TownAddress } from './town/TownAddress'
-export type { TownCatalog } from './town/TownCatalog'
 export type { TownEvent, TownEventKind } from './town/TownEvent'
 export type { TownId } from './town/TownId'
 export type { TownLabel } from './town/TownLabel'
 export { TownName } from './town/TownName'
-export type { TownNews } from './town/TownNews'
-export type { TownRepository } from './town/TownRepository'
 export type {
   JobPayPerHour,
   JobTerms,
@@ -328,3 +326,9 @@ export type {
 export type { TownSkill } from './town/TownSkill'
 export { townLabelOf } from './town/townLabelOf'
 export { type TownSeason, townSeasonAt } from './town/townSeasonAt'
+export {
+  type FoundTownCommand,
+  type FoundTownDependencies,
+  foundTown,
+} from './town/useCases/foundTown'
+export { type ResolveTownDependencies, resolveTown } from './town/useCases/resolveTown'

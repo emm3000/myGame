@@ -1,12 +1,12 @@
 import { assert, describe, expect, it } from 'vitest'
-import type { Clock } from '../ports/Clock'
+import type { Clock } from '../../ports/Clock'
+import { Instant } from '../../time/Instant'
+import type { WaitingWork, WorkSlot } from '../BuildingWork'
+import type { Job } from '../jobs/Job'
 import { inMemoryTownNews } from '../testing/inMemoryTownNews'
 import { inMemoryTowns } from '../testing/inMemoryTowns'
 import { plainTownSettings, townCatalogOf } from '../testing/townCatalogOf'
 import { townOf } from '../testing/townFixtures'
-import { Instant } from '../time/Instant'
-import type { WaitingWork, WorkSlot } from './BuildingWork'
-import type { Job } from './jobs/Job'
 import { resolveTown } from './resolveTown'
 
 const MILLISECONDS_PER_MINUTE = 60_000

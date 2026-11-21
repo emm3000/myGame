@@ -3,9 +3,9 @@ import { ok, type Result } from '../Result'
 import type { Instant } from '../time/Instant'
 import { deriveStorageCapacity } from './deriveStorageCapacity'
 import type { FullSince } from './FullSince'
+import type { TownCatalog } from './ports/TownCatalog'
 import type { ResourceKind } from './ResourceKind'
 import type { Town } from './Town'
-import type { TownCatalog } from './TownCatalog'
 
 export const rebaseFullSince = (
   accrued: FullSince,

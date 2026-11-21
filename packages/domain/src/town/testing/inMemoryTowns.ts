@@ -1,7 +1,7 @@
-import type { PlayerId } from '../player/PlayerId'
-import { err, ok } from '../Result'
-import type { Town } from '../town/Town'
-import type { TownRepository } from '../town/TownRepository'
+import type { PlayerId } from '../../player/PlayerId'
+import { err, ok } from '../../Result'
+import type { TownRepository } from '../ports/TownRepository'
+import type { Town } from '../Town'
 
 export type InMemoryTowns = TownRepository & {
   readonly storedTownOf: (playerId: PlayerId) => Town | undefined
