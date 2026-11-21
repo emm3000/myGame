@@ -12,6 +12,7 @@ import { TextLink } from '../design-system/TextLink'
 import { Track } from '../design-system/Track'
 import { useFocusTarget } from '../focus/useFocusTarget'
 import { formatFinish } from '../time/formatFinish'
+import { lessonLinesOf } from './lessonLinesOf'
 import type { LessonWord, LessonWords, RunningLesson } from './lessonWordsOf'
 import { useWordWalk } from './useWordWalk'
 import type { WayOn } from './wayOnOf'
@@ -143,7 +144,7 @@ export function LessonWordsScreen({
 }: LessonWordsScreenProps): ReactElement {
   const { wordIndex, walked, walkOn } = useWordWalk(lessonId)
   const wordHeading = useFocusTarget<HTMLHeadingElement>()
-  const { chrome } = usePlayerCopy()
+  const copy = usePlayerCopy()
   const { words, running } = lesson
   const lastIndex = words.length - 1
   const shownIndex = Math.min(wordIndex, lastIndex)
@@ -156,13 +157,13 @@ export function LessonWordsScreen({
     <div className="mx-auto flex w-full max-w-form flex-col gap-4">
       <header className="flex flex-col gap-1">
         <h1 className="m-0 font-sans text-title text-ink">
-          <LabelText
-            label={chrome((catalog) => catalog.schoolLessonTitle({ number: lesson.number }))}
-          />
+          <LabelText label={lessonLinesOf(lesson.name, copy).title} />
         </h1>
-        <p lang="en" className="m-0 font-sans text-reading text-ink">
-          {lesson.theme}
-        </p>
+        {lesson.theme !== null && (
+          <p lang="en" className="m-0 font-sans text-reading text-ink">
+            {lesson.theme}
+          </p>
+        )}
       </header>
       {running !== null && <RunningTime running={running} />}
       <Track value={shownIndex + 1} total={words.length} fillClass="fill-action" />

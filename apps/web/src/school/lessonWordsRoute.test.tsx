@@ -669,6 +669,60 @@ it('wraps a long word rather than clipping it', async () => {
   expect(wordHeading(longWord).className).toContain('wrap-anywhere')
 })
 
+type ReleasedLesson = TownOverview['releasedLessons'][number]
+
+const releasedSetTwo: ReleasedLesson = {
+  id: 'released-2-2',
+  band: 2,
+  position: 2,
+  durationSeconds: 300,
+  requiredSchoolLevel: 1,
+  isStudied: false,
+  words: [readableWord('neighbor'), readableWord('street')],
+}
+
+const releasedTitle = es.schoolReleasedTitle({ band: 2, number: 2 })
+
+const releasedRunning = townOf({
+  releasedLessons: [releasedSetTwo],
+  lessonSlot: running('released-2-2'),
+})
+
+const releasedFinished = townOf({
+  releasedLessons: [{ ...releasedSetTwo, isStudied: true }],
+})
+
+const pageHeader = (): HTMLElement => within(screen.getByRole('main')).getByRole('banner')
+
+it('shows the words of a running released lesson with its time', async () => {
+  await showLesson('/school/released-2-2', releasedRunning)
+
+  expect(wordHeading('neighbor')).toBeDefined()
+  expect(screen.getByText(es.schoolLessonWordPosition({ number: 1, count: 2 }))).toBeDefined()
+  expect(within(screen.getByRole('main')).getByRole('timer').textContent).toBe('4 min')
+})
+
+it('titles a released lesson by its band and set, with no theme line', async () => {
+  await showLesson('/school/released-2-2', releasedRunning)
+
+  expect(screen.getByRole('heading', { level: 1, name: releasedTitle })).toBeDefined()
+  expect(pageHeader().textContent).toBe(releasedTitle)
+})
+
+it("never draws lesson 0 on a released lesson's page", async () => {
+  await showLesson('/school/released-2-2', releasedRunning)
+
+  expect(screen.queryByText(es.schoolLessonTitle({ number: 0 }))).toBeNull()
+})
+
+it('offers the way on from a finished released lesson', async () => {
+  await showLesson('/school/released-2-2', releasedFinished)
+
+  expect(screen.getByRole('heading', { level: 1, name: releasedTitle })).toBeDefined()
+  expect(startReviews().getAttribute('href')).toBe('/reviews')
+  expect(within(screen.getByRole('main')).queryByRole('timer')).toBeNull()
+})
+
 it.each<[string, Partial<TownOverview>, ReadonlyArray<() => string>]>([
   ['a running lesson on a word', { lessonSlot: running('lesson-1') }, [es.schoolLessonWordNext]],
   ['a finished lesson on a word', {}, [es.schoolLessonWordNext]],

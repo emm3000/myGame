@@ -5,6 +5,7 @@ import { expect, it } from 'vitest'
 import type { ApiClient } from '../api/apiClient'
 import { renderAppAt } from '../auth/renderAppAt.testSupport'
 import { knownPlayer, knownTown, stubApiClient } from '../auth/stubApiClient.testSupport'
+import { shownLinesDrawnAlone } from '../town/lineDrawnAlone.testSupport'
 
 type CopyLanguage = Pick<TownOverview, 'scaffold' | 'chromePhase'>
 
@@ -72,6 +73,34 @@ it('titles the lesson in English over Spanish in the both phase', async () => {
   expect(
     await screen.findByRole('heading', { level: 1, name: `${english} ${spanish}` }),
   ).toBeDefined()
+})
+
+it('keeps a released lesson title in Spanish for an es player in the English phase', async () => {
+  const released: TownOverview['releasedLessons'][number] = {
+    id: 'released-2-1',
+    band: 2,
+    position: 1,
+    durationSeconds: 300,
+    requiredSchoolLevel: 1,
+    isStudied: true,
+    words: twoWords.words,
+  }
+  renderAppAt(
+    '/school/released-2-1',
+    stubApiClient({
+      currentPlayer: async () => ({ ...knownPlayer, ...englishPhase }),
+      town: async () => ({
+        ok: true,
+        value: { ...knownTown, ...englishPhase, lessons: [oneWord], releasedLessons: [released] },
+      }),
+      report: async () => ({ ok: true, value: noReviewsAhead }),
+    }),
+  )
+
+  const title = es.schoolReleasedTitle({ band: 2, number: 1 })
+  await screen.findByRole('heading', { level: 1, name: title })
+
+  expect(shownLinesDrawnAlone(title, 'es')).toHaveLength(1)
 })
 
 it('walks the words in English alone in the English phase', async () => {
