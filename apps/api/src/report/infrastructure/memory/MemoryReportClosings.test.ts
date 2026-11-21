@@ -1,5 +1,5 @@
-import { reportClosingsContract } from '../reportClosingsContract'
 import { MemoryReportClosings } from './MemoryReportClosings'
+import { reportClosingsContract } from './reportClosingsContract.testSupport'
 
 reportClosingsContract('MemoryReportClosings', async () => {
   const closings = new MemoryReportClosings()

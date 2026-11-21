@@ -3,10 +3,10 @@ import type { Report } from '@mygame/contracts'
 import {
   type RequirePlayerDependencies,
   requirePlayer,
-} from '../account/infrastructure/http/requirePlayer'
-import { answerRefusal } from '../platform/infrastructure/http/answerRefusal'
-import { honoPathOf } from '../platform/infrastructure/http/honoPath'
-import { type ReportDependencies, reportOf } from '../town/reportOf'
+} from '../../../account/infrastructure/http/requirePlayer'
+import { answerRefusal } from '../../../platform/infrastructure/http/answerRefusal'
+import { honoPathOf } from '../../../platform/infrastructure/http/honoPath'
+import { type ReportDependencies, reportOf } from '../../application/reportOf'
 import { reportDeclarations } from './reportDeclarations'
 
 export type ReportRouteDependencies = RequirePlayerDependencies & ReportDependencies

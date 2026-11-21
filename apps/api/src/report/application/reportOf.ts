@@ -10,12 +10,12 @@ import {
   type TownEvent,
   type TownId,
 } from '@mygame/domain'
-import { type ReviewTerms, reviewsOf } from '../learning/reviewsOf'
-import type { Refusal } from '../platform/application/Refusal'
-import { type CurrentTownDependencies, currentTownOf } from './currentTownOf'
-import type { ReportClosings } from './ReportClosings'
-import type { TownNewsReader } from './TownNewsReader'
-import { townNewsItemOf } from './townNewsItemOf'
+import { type ReviewTerms, reviewsOf } from '../../learning/reviewsOf'
+import type { Refusal } from '../../platform/application/Refusal'
+import { type CurrentTownDependencies, currentTownOf } from '../../town/currentTownOf'
+import type { TownNewsReader } from '../../town/TownNewsReader'
+import { townNewsItemOf } from '../../town/townNewsItemOf'
+import type { ReportClosings } from './ports/ReportClosings'
 
 export type ReportDependencies = CurrentTownDependencies &
   ReviewTerms & {

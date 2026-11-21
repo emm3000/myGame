@@ -1,6 +1,6 @@
 import type { Instant, PlayerId } from '@mygame/domain'
 import { laterOf } from '@mygame/domain'
-import type { ReportClosings } from '../../town/ReportClosings'
+import type { ReportClosings } from '../../application/ports/ReportClosings'
 
 export class MemoryReportClosings implements ReportClosings {
   private readonly served = new Map<PlayerId, Instant>()

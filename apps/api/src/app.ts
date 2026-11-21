@@ -16,9 +16,12 @@ import {
   sessionBearerScheme,
   sessionBearerSecurityScheme,
 } from './platform/infrastructure/http/signedInRoute'
+import {
+  type ReportRouteDependencies,
+  reportRoutes,
+} from './report/infrastructure/http/reportRoutes'
 import { healthDeclarations } from './routes/healthDeclarations'
 import { type LearningRouteDependencies, learningRoutes } from './routes/learning'
-import { type ReportRouteDependencies, reportRoutes } from './routes/report'
 import { type TownDependencies, townRoutes } from './routes/town'
 import { type TownMapDependencies, townMapRoutes } from './routes/townMap'
 
