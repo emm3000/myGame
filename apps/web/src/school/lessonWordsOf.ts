@@ -3,8 +3,8 @@ import type { TownOverview } from '@mygame/contracts'
 import type { ArtTag } from '../art/ArtTag'
 import { frameTextOf } from '../review/frameTextOf'
 import { formatFinish } from '../time/formatFinish'
+import { lessonNumberOf } from '../town/lessonNameOf'
 import type { LiveLesson, LiveTown } from '../town/liveTown'
-import { lessonNumberOf } from './lessonCardOf'
 import { wordArtOf } from './wordArtOf'
 
 type WordReading = NonNullable<TownOverview['lessons'][number]['words'][number]['reading']>

@@ -3,14 +3,12 @@ import {
   schoolLearning,
   schoolLearningFull,
   schoolLearningFullNextWordDue,
-  schoolLessonTitle,
   schoolSkills,
   schoolSkillsNone,
   schoolSlotDone,
   schoolSlotIdle,
   schoolSlotRefund,
   schoolSlotStop,
-  schoolSlotStopOf,
   schoolSlotTitle,
   townLevel,
   townWorkReady,
@@ -22,6 +20,7 @@ import { Track } from '../design-system/Track'
 import { useFocusTarget } from '../focus/useFocusTarget'
 import { refusalLineOf } from '../refusals/refusalLineOf'
 import { formatFinish } from '../time/formatFinish'
+import { lessonNameOf } from '../town/lessonNameOf'
 import type { LiveTown } from '../town/liveTown'
 import { NextStepLink } from '../town/NextStepLink'
 import { reviewsActionOf } from '../town/nextStepCardOf'
@@ -33,9 +32,10 @@ import {
   isPastLearningCap,
   type LessonCardContent,
   lessonCardOf,
-  lessonNumberOf,
   readWordsLabelOf,
 } from './lessonCardOf'
+import { lessonLinesOf } from './lessonLinesOf'
+import { releasedLessonCardOf } from './releasedLessonCardOf'
 import { SchoolNextStep } from './SchoolNextStep'
 import { ShownLesson } from './ShownLesson'
 import { SkillList } from './SkillList'
@@ -56,8 +56,8 @@ function slotStateOf(
   if (slot === null) {
     return { kind: 'idle', title: schoolSlotTitle(), invitation: schoolSlotIdle() }
   }
-  const number = lessonNumberOf(slot.lessonId, town.overview)
-  const lesson = { buildingName: schoolLessonTitle({ number }), levelLabel: undefined }
+  const lines = lessonLinesOf(lessonNameOf(slot.lessonId, town.overview))
+  const lesson = { buildingName: lines.title, levelLabel: undefined }
   if (slot.remainingSeconds <= 0) {
     return { kind: 'justFinished', title: schoolSlotTitle(), message: schoolSlotDone(), ...lesson }
   }
@@ -70,7 +70,7 @@ function slotStateOf(
     finishedLabel: townWorkReady(),
     cancel: {
       label: schoolSlotStop(),
-      accessibleName: schoolSlotStopOf({ number }),
+      accessibleName: lines.stopOf,
       isWaiting: lessons.isStopping,
       onCancel: () => lessons.stop(slot.lessonId, onStopped),
     },
@@ -151,6 +151,9 @@ export function SchoolScreen({ town, lessons }: SchoolScreenProps): ReactElement
   }, [selectedId, focusBlockTitle])
   const cards = overview.lessons.map((lesson) => lessonCardOf(lesson, overview))
   const shown = shownCardOf(cards, selectedId)
+  const releasedCards = overview.releasedLessons.map((lesson) =>
+    releasedLessonCardOf(lesson, overview),
+  )
   const stopRefused = lessons.stopRefused
   return (
     <div className="flex flex-col gap-6">
@@ -174,6 +177,9 @@ export function SchoolScreen({ town, lessons }: SchoolScreenProps): ReactElement
           <HoldoutCheckRows checks={overview.dueHoldoutChecks} />
           <LessonRows
             cards={cards.filter(({ lessonId }) => lessonId !== shown?.lessonId)}
+            releasedCards={releasedCards}
+            town={town}
+            lessons={lessons}
             onSelect={setSelectedId}
           />
           <TextRows texts={overview.texts} />

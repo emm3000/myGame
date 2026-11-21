@@ -5,9 +5,9 @@ import type { ReviewEndPath } from '../../review/ReviewEnd'
 import { ReviewScreen, type ReviewScreenState } from '../../review/ReviewScreen'
 import { type ReviewHandle, useReview } from '../../review/useReview'
 import { useReviews } from '../../review/useReviews'
-import { lessonNumberOf } from '../../school/lessonCardOf'
 import { formatFinish } from '../../time/formatFinish'
 import { secondsBetween } from '../../time/secondsBetween'
+import { lessonNumberOf } from '../../town/lessonNameOf'
 import { useLayoutTown } from '../../town/useLayoutTown'
 
 interface ReviewRead {
