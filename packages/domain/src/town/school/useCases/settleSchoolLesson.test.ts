@@ -1,15 +1,12 @@
 import { assert, describe, expect, it } from 'vitest'
-import {
-  inMemoryBandStarts,
-  type OwnedBandStart,
-} from '../../../holdout/testing/inMemoryBandStarts'
-import { inMemoryBands } from '../../../learning/curriculum/testing/inMemoryBands'
-import { inMemoryLessons } from '../../../learning/curriculum/testing/inMemoryLessons'
-import { lessonOne } from '../../../learning/curriculum/testing/lessonOne'
-import { inMemoryCards } from '../../../learning/testing/inMemoryCards'
-import { MemoryCard } from '../../../memory/MemoryCard'
-import type { Clock } from '../../../ports/Clock'
-import { Instant } from '../../../time/Instant'
+import { inMemoryBandStarts, type OwnedBandStart } from '#holdout/testing/inMemoryBandStarts'
+import { inMemoryBands } from '#learning/curriculum/testing/inMemoryBands'
+import { inMemoryLessons } from '#learning/curriculum/testing/inMemoryLessons'
+import { lessonOne } from '#learning/curriculum/testing/lessonOne'
+import { inMemoryCards } from '#learning/testing/inMemoryCards'
+import { MemoryCard } from '#memory/MemoryCard'
+import type { Clock } from '#ports/Clock'
+import { Instant } from '#time/Instant'
 import { inMemoryTownNews } from '../../testing/inMemoryTownNews'
 import { inMemoryTowns } from '../../testing/inMemoryTowns'
 import { plainTownSettings } from '../../testing/townCatalogOf'

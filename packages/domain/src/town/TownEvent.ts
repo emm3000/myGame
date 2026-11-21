@@ -1,5 +1,5 @@
-import type { LessonId } from '../learning/Lesson'
-import type { Instant } from '../time/Instant'
+import type { LessonId } from '#learning/Lesson'
+import type { Instant } from '#time/Instant'
 import type { BuildingKind } from './building/BuildingKind'
 import type { HireKind } from './hiring/HireKind'
 import type { SiteAddress } from './jobs/SiteAddress'

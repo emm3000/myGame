@@ -1,5 +1,5 @@
-import type { Headword } from '../learning/curriculum/BandStart'
-import type { WordId } from '../learning/Lesson'
+import type { Headword } from '#learning/curriculum/BandStart'
+import type { WordId } from '#learning/Lesson'
 
 export type PlacementWord = {
   readonly id: WordId

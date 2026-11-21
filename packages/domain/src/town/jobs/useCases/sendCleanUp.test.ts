@@ -1,6 +1,6 @@
 import { assert, describe, expect, it } from 'vitest'
-import type { Clock } from '../../../ports/Clock'
-import { Instant } from '../../../time/Instant'
+import type { Clock } from '#ports/Clock'
+import { Instant } from '#time/Instant'
 import type { Hires } from '../../hiring/Hires'
 import { accrueTown } from '../../resources/accrueTown'
 import type { Stocks } from '../../resources/Stocks'

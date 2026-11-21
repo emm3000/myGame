@@ -1,8 +1,8 @@
 import { assert, describe, expect, it } from 'vitest'
-import { MemoryCard, type StoredMemoryCard } from '../../memory/MemoryCard'
-import { defaultMemoryTerms } from '../../memory/MemoryTerms'
-import { reviewMemoryCard } from '../../memory/reviewMemoryCard'
-import { Instant } from '../../time/Instant'
+import { MemoryCard, type StoredMemoryCard } from '#memory/MemoryCard'
+import { defaultMemoryTerms } from '#memory/MemoryTerms'
+import { reviewMemoryCard } from '#memory/reviewMemoryCard'
+import { Instant } from '#time/Instant'
 import type { HeldCard } from '../HeldCard'
 import { wordStandingOf } from './wordStandingOf'
 

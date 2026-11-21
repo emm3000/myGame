@@ -1,4 +1,4 @@
-import type { PlayerId } from '../../../player/PlayerId'
+import type { PlayerId } from '#player/PlayerId'
 import type { SiteAddress } from '../SiteAddress'
 
 export type SiteHolder = {

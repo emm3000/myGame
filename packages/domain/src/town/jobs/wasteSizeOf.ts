@@ -1,4 +1,4 @@
-import { mixed32 } from '../../hash/mixed32'
+import { mixed32 } from '#hash/mixed32'
 import type { SiteAddress } from './SiteAddress'
 import type { WasteSize } from './WasteSize'
 import type { WasteTerms } from './WasteTerms'

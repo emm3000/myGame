@@ -1,5 +1,5 @@
-import type { DomainError } from '../DomainError'
-import type { Instant } from '../time/Instant'
+import type { DomainError } from '#DomainError'
+import type { Instant } from '#time/Instant'
 import type { BuildingLevels } from './building/BuildingLevels'
 import type { PaidWork, WorkSlot } from './building/BuildingWork'
 import { buildingKinds } from './building/buildingKinds'

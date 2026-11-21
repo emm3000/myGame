@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import { Instant } from '../time/Instant'
+import { Instant } from '#time/Instant'
 import { seasonPercentsAt } from './seasonPercentsAt'
 import type { TownSettings } from './TownSettings'
 import { plainTownSettings } from './testing/townCatalogOf'

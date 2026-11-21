@@ -1,4 +1,4 @@
-import type { Band, BandWord, Headword } from '../../learning/curriculum/BandStart'
+import type { Band, BandWord, Headword } from '#learning/curriculum/BandStart'
 import type { PlacementWord } from '../PlacementWord'
 import type { PlacementContent } from '../placementSamplesDrawn'
 import type { PlacementWordCatalog } from '../ports/PlacementWordCatalog'

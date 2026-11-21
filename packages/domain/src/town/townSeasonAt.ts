@@ -1,5 +1,5 @@
-import { type Season, seasonAt } from '../season/seasonAt'
-import type { Instant } from '../time/Instant'
+import { type Season, seasonAt } from '#season/seasonAt'
+import type { Instant } from '#time/Instant'
 import type { ProductionPercent, TownDurationPercent, TownSettings } from './TownSettings'
 
 export type TownSeason = Season & {

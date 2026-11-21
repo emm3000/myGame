@@ -1,5 +1,5 @@
-import type { WordId } from '../learning/Lesson'
-import type { Instant } from '../time/Instant'
+import type { WordId } from '#learning/Lesson'
+import type { Instant } from '#time/Instant'
 import type { HoldoutCheckWeek } from './HoldoutCheckWeek'
 
 export type HoldoutCheckSample = {

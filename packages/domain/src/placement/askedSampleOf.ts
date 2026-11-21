@@ -1,4 +1,4 @@
-import type { BandStart } from '../learning/curriculum/BandStart'
+import type { BandStart } from '#learning/curriculum/BandStart'
 import type { PlacementSample, TakenPlacement } from './Placement'
 
 export const PLACEMENT_PASSING_SCORE = 29

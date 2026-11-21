@@ -1,4 +1,4 @@
-import type { DomainError } from '../../DomainError'
+import type { DomainError } from '#DomainError'
 import type { Hires } from '../hiring/Hires'
 import { hireKinds } from '../hiring/hireKinds'
 import { headsOf } from './headsOf'

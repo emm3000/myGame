@@ -1,7 +1,7 @@
 import { assert, describe, expect, it } from 'vitest'
-import { MemoryCard } from '../../../memory/MemoryCard'
-import { defaultMemoryTerms } from '../../../memory/MemoryTerms'
-import { Instant } from '../../../time/Instant'
+import { MemoryCard } from '#memory/MemoryCard'
+import { defaultMemoryTerms } from '#memory/MemoryTerms'
+import { Instant } from '#time/Instant'
 import { inMemoryLessons } from '../../curriculum/testing/inMemoryLessons'
 import {
   arrange,

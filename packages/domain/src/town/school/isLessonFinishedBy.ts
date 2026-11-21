@@ -1,4 +1,4 @@
-import type { Instant } from '../../time/Instant'
+import type { Instant } from '#time/Instant'
 import type { BusyLessonSlot } from './LessonSlot'
 
 export const isLessonFinishedBy = (

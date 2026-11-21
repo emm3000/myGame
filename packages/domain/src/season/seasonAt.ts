@@ -1,4 +1,4 @@
-import { Instant } from '../time/Instant'
+import { Instant } from '#time/Instant'
 import type { SeasonedSettings } from './SeasonedSettings'
 import type { SeasonKind } from './SeasonKind'
 

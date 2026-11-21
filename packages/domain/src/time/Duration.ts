@@ -1,4 +1,4 @@
-import { err, ok, type Result } from '../Result'
+import { err, ok, type Result } from '#Result'
 import type { DurationError } from './DurationError'
 
 export class Duration {

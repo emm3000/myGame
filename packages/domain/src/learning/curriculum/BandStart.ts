@@ -1,5 +1,5 @@
-import type { HoldoutCheck } from '../../holdout/HoldoutCheck'
-import type { Instant } from '../../time/Instant'
+import type { HoldoutCheck } from '#holdout/HoldoutCheck'
+import type { Instant } from '#time/Instant'
 
 export type Band = number
 

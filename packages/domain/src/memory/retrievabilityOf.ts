@@ -1,4 +1,4 @@
-import type { Instant } from '../time/Instant'
+import type { Instant } from '#time/Instant'
 import { forgettingCurveOf } from './forgettingCurveOf'
 import type { MemoryCard } from './MemoryCard'
 import type { MemoryTerms } from './MemoryTerms'

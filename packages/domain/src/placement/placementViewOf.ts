@@ -1,5 +1,5 @@
-import type { BandStart } from '../learning/curriculum/BandStart'
-import type { Scaffold } from '../learning/scaffold/Scaffold'
+import type { BandStart } from '#learning/curriculum/BandStart'
+import type { Scaffold } from '#learning/scaffold/Scaffold'
 import { askedSampleOf } from './askedSampleOf'
 import type { Placement } from './Placement'
 import type { PlacementView } from './PlacementView'

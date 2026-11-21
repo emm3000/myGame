@@ -1,5 +1,5 @@
-import type { DomainError } from '../DomainError'
-import { ok, type Result } from '../Result'
+import type { DomainError } from '#DomainError'
+import { ok, type Result } from '#Result'
 import type { TownCatalog } from './ports/TownCatalog'
 import { accrueTown } from './resources/accrueTown'
 import { rebaseFullSince } from './resources/rebaseFullSince'

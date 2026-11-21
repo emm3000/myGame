@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import { Instant } from '../../time/Instant'
+import { Instant } from '#time/Instant'
 import type { Job } from './Job'
 import { jobPhaseAt } from './jobPhaseAt'
 

@@ -1,4 +1,4 @@
-import { Instant } from '../../time/Instant'
+import { Instant } from '#time/Instant'
 import type { BuildingKind } from '../building/BuildingKind'
 import type { BuildingLevel } from '../building/BuildingLevel'
 import type { HireKind } from '../hiring/HireKind'

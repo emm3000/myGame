@@ -1,5 +1,5 @@
-import type { DomainError } from '../DomainError'
-import { err, ok, type Result } from '../Result'
+import type { DomainError } from '#DomainError'
+import { err, ok, type Result } from '#Result'
 import type { Cell } from './Cell'
 
 const cellKey = ({ row, column }: Cell): string => `${row}:${column}`

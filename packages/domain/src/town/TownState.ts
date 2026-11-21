@@ -1,5 +1,5 @@
-import type { PlayerId } from '../player/PlayerId'
-import type { Instant } from '../time/Instant'
+import type { PlayerId } from '#player/PlayerId'
+import type { Instant } from '#time/Instant'
 import type { BuildingLevels } from './building/BuildingLevels'
 import type { WorkSlot } from './building/BuildingWork'
 import type { WaitingList } from './building/WaitingList'

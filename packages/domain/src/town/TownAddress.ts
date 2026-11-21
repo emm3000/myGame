@@ -1,5 +1,5 @@
-import type { DomainError } from '../DomainError'
-import { err, ok, type Result } from '../Result'
+import type { DomainError } from '#DomainError'
+import { err, ok, type Result } from '#Result'
 
 const isPositiveWholeNumber = (value: number): boolean => Number.isInteger(value) && value > 0
 

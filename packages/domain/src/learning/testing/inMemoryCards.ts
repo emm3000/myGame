@@ -1,5 +1,5 @@
-import type { PlayerId } from '../../player/PlayerId'
-import { ok } from '../../Result'
+import type { PlayerId } from '#player/PlayerId'
+import { ok } from '#Result'
 import type { HeldCard } from '../HeldCard'
 import type { WordId } from '../Lesson'
 import type { CardRepository } from '../ports/CardRepository'

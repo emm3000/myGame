@@ -1,5 +1,5 @@
 import { assert, describe, expect, it } from 'vitest'
-import { Instant } from '../time/Instant'
+import { Instant } from '#time/Instant'
 import { MemoryCard } from './MemoryCard'
 import { defaultMemoryTerms } from './MemoryTerms'
 import { retrievabilityOf } from './retrievabilityOf'
