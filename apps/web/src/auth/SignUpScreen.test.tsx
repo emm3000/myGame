@@ -176,3 +176,18 @@ it.each([
     expect(group.nextElementSibling?.contains(line ?? null)).toBe(true)
   },
 )
+
+it('keeps the picked scaffold while the sign-up is in flight', async () => {
+  renderAppAt('/sign-up', stubApiClient({ signUp: () => new Promise(() => undefined) }))
+
+  await fillSignUp(newcomer)
+  await vi.waitFor(() =>
+    expect(
+      screen.getByRole('group', { name: es.scaffoldLabel() }).getAttribute('aria-disabled'),
+    ).toBe('true'),
+  )
+  fireEvent.click(await scaffoldRadioOf('none'))
+
+  expect((await scaffoldRadioOf('es')).checked).toBe(true)
+  expect((await scaffoldRadioOf('none')).checked).toBe(false)
+})
