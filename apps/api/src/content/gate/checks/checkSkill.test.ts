@@ -2,7 +2,7 @@ import type { CurriculumContent } from '@mygame/contracts'
 import { describe, expect, it } from 'vitest'
 import { apiPackagePath } from '../../../apiPackagePath.testSupport'
 import { contentOf } from '../contentGate.testSupport'
-import { gateContentOf } from '../readGateContent'
+import { readGateContent } from '../readGateContent'
 import { checkSkill } from './checkSkill'
 
 const shippedContent = apiPackagePath('content/')
@@ -12,7 +12,7 @@ const skillOf = (skill: CurriculumContent['skill']): ReturnType<typeof contentOf
 
 describe('content gate check 10, the skill', () => {
   it('passes the shipped curriculum', () => {
-    expect(checkSkill(gateContentOf(shippedContent))).toEqual([])
+    expect(checkSkill(readGateContent(shippedContent))).toEqual([])
   })
 
   it('refuses a skill on food', () => {

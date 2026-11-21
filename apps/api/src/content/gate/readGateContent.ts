@@ -4,7 +4,7 @@ import { fileURLToPath } from 'node:url'
 import { type BuildingKind, buildingKinds, type TownCatalog } from '@mygame/domain'
 import { z } from 'zod'
 import { JsonTownCatalog } from '../infrastructure/json/JsonTownCatalog'
-import { lessonContentFilesOf } from '../infrastructure/json/readLessonContentFiles'
+import { readLessonContentFiles } from '../infrastructure/json/readLessonContentFiles'
 import type { GateContent } from './GateContent'
 
 const englishCatalog = fileURLToPath(
@@ -22,10 +22,10 @@ const levelsOf = (catalog: TownCatalog, building: BuildingKind): ReadonlyArray<n
 const topBuildingLevelOf = (catalog: TownCatalog): number =>
   Math.max(...buildingKinds.map((building) => levelsOf(catalog, building).length))
 
-export const gateContentOf = (directory: string): GateContent => {
+export const readGateContent = (directory: string): GateContent => {
   const town = JsonTownCatalog.fromDirectory(join(directory, 'town'))
   return {
-    ...lessonContentFilesOf(directory),
+    ...readLessonContentFiles(directory),
     englishMessages: z
       .record(z.string(), z.string())
       .parse(JSON.parse(readFileSync(englishCatalog, 'utf8'))),

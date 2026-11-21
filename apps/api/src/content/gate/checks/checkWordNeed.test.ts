@@ -2,7 +2,7 @@ import { describe, expect, it } from 'vitest'
 import { apiPackagePath } from '../../../apiPackagePath.testSupport'
 import { contentOf, entryOf, lessonOneLexicon } from '../contentGate.testSupport'
 import { countedWordsOf } from '../countedWordsOf'
-import { gateContentOf } from '../readGateContent'
+import { readGateContent } from '../readGateContent'
 import { checkWordNeed } from './checkWordNeed'
 
 const shippedContent = apiPackagePath('content/')
@@ -41,7 +41,7 @@ const ranksHoldingOut = (heldOutCount: number): ReadonlyMap<string, number> =>
 
 describe('content gate check 11, the word need', () => {
   it('passes on the shipped content, every need counting 123 words', () => {
-    const shipped = gateContentOf(shippedContent)
+    const shipped = readGateContent(shippedContent)
     expect(shipped.schoolLevels.map((level) => countedWordsOf(shipped, level))).toEqual(
       Array.from({ length: 10 }, () => 123),
     )

@@ -8,7 +8,7 @@ import {
   lessonOneLexicon,
   structureOf,
 } from '../contentGate.testSupport'
-import { gateContentOf } from '../readGateContent'
+import { readGateContent } from '../readGateContent'
 import { checkGlosses } from './checkGlosses'
 
 const workOnDefined = (definition: string) =>
@@ -23,7 +23,7 @@ const shippedContent = apiPackagePath('content/')
 
 describe('content gate check 5, glossary completeness for es', () => {
   it('passes the shipped lessons', () => {
-    expect(checkGlosses(gateContentOf(shippedContent))).toEqual([])
+    expect(checkGlosses(readGateContent(shippedContent))).toEqual([])
   })
 
   it('fails a taught word without an es gloss', () => {
