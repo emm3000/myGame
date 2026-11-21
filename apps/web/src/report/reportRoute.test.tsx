@@ -650,3 +650,36 @@ it('holds one h1 on the Report with a failed read', async () => {
     es.reportTitle(),
   ])
 })
+
+const lateRead = '2026-11-10T22:50:00.000Z'
+
+const lateReport = reportOf({ readAt: lateRead, nextDueAt: '2026-11-11T09:40:00.000Z' })
+
+it("turns the next review's day at local midnight", async () => {
+  vi.setSystemTime(Date.parse(lateRead))
+  await showReport(lateReport)
+  expect(within(reportRegion()).getByText(es.statusTomorrow({ time: '10:40' }))).toBeDefined()
+
+  await passSeconds(20 * 60)
+
+  expect(within(reportRegion()).getByText('10:40')).toBeDefined()
+})
+
+it("turns the next review's day at local midnight without a new read", async () => {
+  vi.setSystemTime(Date.parse(lateRead))
+  const report = reportReads(lateReport)
+  await showReport(report)
+
+  await passSeconds(20 * 60)
+
+  expect(report).toHaveBeenCalledTimes(1)
+})
+
+it("turns the next review's day from the server's read on a device clock a day ahead", async () => {
+  vi.setSystemTime(Date.parse(lateRead) + 24 * 60 * 60_000)
+  await showReport(lateReport)
+
+  await passSeconds(20 * 60)
+
+  expect(within(reportRegion()).getByText('10:40')).toBeDefined()
+})
