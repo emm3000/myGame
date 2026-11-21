@@ -2,7 +2,7 @@ import type { FrameSpan, OpenText, WordSupport } from '@mygame/contracts'
 import { type ReactElement, useId, useState } from 'react'
 import { usePlayerCopy } from '../copy/usePlayerCopy'
 import { Block } from '../design-system/Block'
-import { blockFocusTargetClass } from '../design-system/focusTargetClass'
+import { Button } from '../design-system/Button'
 import { LabelText } from '../design-system/LabelText'
 import { TextLink } from '../design-system/TextLink'
 
@@ -42,15 +42,15 @@ function SpanPiece({
     )
   }
   return (
-    <button
+    <Button
       type="button"
-      aria-expanded={isOpen}
-      aria-controls={regionId}
+      tone="readingWord"
+      isExpanded={isOpen}
+      controls={regionId}
       onClick={onTap}
-      className={`inline-flex min-h-control min-w-12 cursor-pointer items-center justify-center rounded-sm border-0 bg-transparent p-0 align-baseline font-sans text-reading text-on-block underline underline-offset-2 ${blockFocusTargetClass}`}
     >
       {span.text}
-    </button>
+    </Button>
   )
 }
 

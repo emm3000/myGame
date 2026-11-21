@@ -1,5 +1,5 @@
 import { type ReactElement, useId } from 'react'
-import { Button, type ButtonTone } from './Button'
+import { type ActionTone, Button } from './Button'
 import { ClockIcon } from './icons/ClockIcon'
 import type { Label } from './Label'
 import { LabelText } from './LabelText'
@@ -17,7 +17,7 @@ export interface CardActionProps {
   readonly label: Label
   readonly state: CardActionState
   readonly isWaiting: boolean
-  readonly tone?: ButtonTone | undefined
+  readonly tone?: ActionTone | undefined
   readonly keepsLabelWidth?: boolean | undefined
   readonly announcesReason?: boolean | undefined
   readonly onAction?: (() => void) | undefined
@@ -79,7 +79,7 @@ function ActionButton({
   readonly label: Label
   readonly state: CardActionState
   readonly isWaiting: boolean
-  readonly tone: ButtonTone
+  readonly tone: ActionTone
   readonly keepsLabelWidth: boolean
   readonly describedBy: string | undefined
   readonly onAction: (() => void) | undefined

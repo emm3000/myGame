@@ -1,6 +1,6 @@
 import type { ReactElement } from 'react'
 import { usePlayerCopy } from '../copy/usePlayerCopy'
-import type { ButtonTone } from '../design-system/Button'
+import type { ActionTone } from '../design-system/Button'
 import { CardAction } from '../design-system/CardAction'
 import { FormAlert } from '../design-system/FormAlert'
 import type { LiveTown } from '../town/liveTown'
@@ -12,7 +12,7 @@ export interface ReleasedStudyProps {
   readonly card: ReleasedRowContent
   readonly town: LiveTown
   readonly lessons: SchoolLessons
-  readonly tone: ButtonTone
+  readonly tone: ActionTone
 }
 
 export function ReleasedStudy({ card, town, lessons, tone }: ReleasedStudyProps): ReactElement {
