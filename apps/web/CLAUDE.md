@@ -2,7 +2,7 @@
 
 TanStack Start on Vite: the routes, the design system and the game screens. It reads the api through `@mygame/contracts` only. Its copy comes only from `packages/catalog`, which holds the American English copy in `en.json` and the scaffold copy in `es.json`.
 
-The rules: `.claude/rules/architecture.md`, `typescript-style.md`, `testing.md`, `ui-components.md`, `verification.md`. The code is the map: this file holds only the commands and the traps nothing else catches.
+The rules: `.claude/rules/architecture.md`, `typescript-style.md`, `testing.md`, `ui-components.md`, `verification.md`. This file holds only the commands and the traps nothing else catches.
 
 ## Commands
 

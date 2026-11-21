@@ -28,16 +28,16 @@ rg -n "from '@mygame/" packages/catalog/src
 rg -l '"@mygame/catalog":' packages/*/package.json
 ```
 
-The api's own layers follow the same arrow, laid out by feature then by role (ADR 052, `docs/adr/052-the-backend-reads-by-feature-then-by-role.md`, sections "The folder grammar" and "Where a use case and a port go"; the map is `ARCHITECTURE.md`): `application/` imports no `infrastructure/`, no wire type and no HTTP or database library, and only the composition root constructs an adapter. `scripts/mygame-structure-check` runs the structure checks, and `pnpm gate` calls it beside the leak check. Each is expected empty; the ADR's "The checks" holds each one's command, and the baseline file beside the script holds the files not yet moved:
+The api's own layers follow the same arrow, laid out by feature then by role (ADR 052, `docs/adr/052-the-backend-reads-by-feature-then-by-role.md`, sections "The folder grammar" and "Where a use case and a port go"; the map is `ARCHITECTURE.md`): `application/` imports no `infrastructure/`, no wire type and no HTTP or database library, and only the composition root constructs an adapter. `@mygame/contracts` is read only by `infrastructure/http/`, `infrastructure/json/` and `content/gate/`: the adapters that parse a shape written outside the process, a request or a content file, and the gate that checks those content files. `scripts/mygame-structure-check` runs the structure checks, and `pnpm gate` calls it beside the leak check. Each fails on any hit; the script holds each one's command, and the baseline file beside it is empty:
 
 ```
 application_imports_infrastructure   application_knows_wire
-persistence_knows_http               http_knows_database
-adapter_built_outside_root           reading_named_of_is_async
-use_case_named_of                    domain_promise_outside_its_roles
-use_case_imports_use_case            service_is_public
-folder_over_limit                    file_over_export_cap
-type_over_method_cap
+contracts_outside_adapters           persistence_knows_http
+http_knows_database                  adapter_built_outside_root
+reading_named_of_is_async            use_case_named_of
+domain_promise_outside_its_roles     use_case_imports_use_case
+service_is_public                    folder_over_limit
+file_over_export_cap                 type_over_method_cap
 ```
 
 `feature_graph` is enforced by Biome, not the script, and `map` joins the script with `ARCHITECTURE.md` (ADR 052, "The checks").
