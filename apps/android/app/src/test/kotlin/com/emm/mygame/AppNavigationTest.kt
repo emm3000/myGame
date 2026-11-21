@@ -123,14 +123,22 @@ class AppNavigationTest {
 
     private val townWord: TownSnapshot.WordReading = wordReadingOf("town", "pueblo", "We live in a town.")
 
-    private val walkReport: TownReport =
-        TownReport(dueCount = 3, readFirst = listOf(firstLesson, secondLesson), nextDueAt = null, news = emptyList())
+    private val walkReport: TownReport = TownReport(
+        dueCount = 3,
+        readFirst = listOf(firstLesson, secondLesson),
+        nextDueAt = null,
+        news = emptyList(),
+        readAt = readAt,
+    )
 
     private val reviewsDueTown: TownSnapshot
         get() = playedTown(nextStep = NextStep.Reviews(count = 3, readFirst = emptyList()))
 
     private val nothingDue: TownReport =
-        TownReport(dueCount = 0, readFirst = emptyList(), nextDueAt = null, news = emptyList())
+        TownReport(dueCount = 0, readFirst = emptyList(), nextDueAt = null, news = emptyList(), readAt = readAt)
+
+    private val threeDue: TownReport =
+        TownReport(dueCount = 3, readFirst = emptyList(), nextDueAt = null, news = emptyList(), readAt = readAt)
 
     private fun playedTown(
         inLearning: Int = 0,
@@ -363,7 +371,7 @@ class AppNavigationTest {
 
     @Test
     fun `reads the town for the ring over a screen that reads none`() {
-        reports.answerRead(ReportReadResult.Read(TownReport(3, emptyList(), nextDueAt = null, news = emptyList())))
+        reports.answerRead(ReportReadResult.Read(threeDue))
         repeat(READS_ON_ARRIVAL) { towns.answerRead(TownReadResult.Read(playedTown(retainedWords = threeOfFive))) }
 
         composeRule.setContent {
@@ -393,7 +401,7 @@ class AppNavigationTest {
         waitForRing(THREE_OF_FIVE)
         towns.answerRead(TownReadResult.Read(playedTown(retainedWords = RetainedWords(count = 2, total = 5))))
 
-        openReport(TownReport(dueCount = 3, readFirst = emptyList(), nextDueAt = null, news = emptyList()))
+        openReport(threeDue)
 
         waitForRing("2 de 5 palabras aprendidas")
     }
@@ -401,7 +409,9 @@ class AppNavigationTest {
     @Test
     fun `opens the unread lesson's words from the next step on the town home`() {
         reports.answerRead(
-            ReportReadResult.Read(TownReport(1, listOf(firstLesson), nextDueAt = null, news = emptyList())),
+            ReportReadResult.Read(
+                TownReport(1, listOf(firstLesson), nextDueAt = null, news = emptyList(), readAt = readAt),
+            ),
         )
         signedInAtTown(town = playedTown(nextStep = NextStep.Reviews(1, listOf(firstLesson))))
 
@@ -412,7 +422,7 @@ class AppNavigationTest {
 
     @Test
     fun `opens the Report from the next step on the town home`() {
-        reports.answerRead(ReportReadResult.Read(TownReport(0, emptyList(), nextDueAt = null, news = emptyList())))
+        reports.answerRead(ReportReadResult.Read(nothingDue))
         signedInAtTown()
 
         dockGo("Ir al informe").performClick()
@@ -457,7 +467,7 @@ class AppNavigationTest {
     fun `opens the Report from its row on the town home`() {
         signedInAtTown()
 
-        openReport(TownReport(dueCount = 3, readFirst = emptyList(), nextDueAt = null, news = emptyList()))
+        openReport(threeDue)
 
         composeRule.onNodeWithText("Repasos pendientes: 3").assertIsDisplayed()
     }
@@ -465,7 +475,7 @@ class AppNavigationTest {
     @Test
     fun `opens the news from its row on the Report`() {
         signedInAtTown()
-        openReport(TownReport(dueCount = 0, readFirst = emptyList(), nextDueAt = null, news = emptyList()))
+        openReport(nothingDue)
         reports.answerNews(
             TownNewsReadResult.Read(listOf(TownNews.BuildingWorkFinished(readAt, TownBuildingKind.Homes, level = 2))),
         )
@@ -510,7 +520,7 @@ class AppNavigationTest {
     @Test
     fun `opens the reviews from the Report`() {
         signedInAtTown(town = reviewsDueTown)
-        openReport(TownReport(dueCount = 3, readFirst = emptyList(), nextDueAt = null, news = emptyList()))
+        openReport(threeDue)
         learning.answerRead(noReviews)
 
         dockGo("Empezar los repasos").performClick()
@@ -544,7 +554,7 @@ class AppNavigationTest {
         link("Pueblo").performClick()
         wayToTheReport().performScrollTo()
 
-        openReport(TownReport(dueCount = 3, readFirst = emptyList(), nextDueAt = null, news = emptyList()))
+        openReport(threeDue)
         assertStatusShown()
 
         learning.answerRead(noReviews)
@@ -747,7 +757,7 @@ class AppNavigationTest {
     @Test
     fun `links back to the town from the reviews`() {
         signedInAtTown(town = reviewsDueTown)
-        openReport(TownReport(dueCount = 3, readFirst = emptyList(), nextDueAt = null, news = emptyList()))
+        openReport(threeDue)
         learning.answerRead(noReviews)
         dockGo("Empezar los repasos").performClick()
         waitForLine("Aún no tienes palabras que repasar.")
@@ -764,7 +774,7 @@ class AppNavigationTest {
     @Test
     fun `signs out from the foot of the Report`() {
         signedInAtTown()
-        openReport(TownReport(dueCount = 0, readFirst = emptyList(), nextDueAt = null, news = emptyList()))
+        openReport(nothingDue)
         sessions.answerSignOut()
         sessions.answerRestore(RestoreResult.SignedOut)
 
@@ -802,7 +812,7 @@ class AppNavigationTest {
     @Test
     fun `reads the Report again on the way back from the reviews`() {
         signedInAtTown(town = playedTown(nextStep = NextStep.Reviews(count = 3, readFirst = emptyList())))
-        openReport(TownReport(dueCount = 3, readFirst = emptyList(), nextDueAt = null, news = emptyList()))
+        openReport(threeDue)
         learning.answerRead(noReviews)
         dockGo("Empezar los repasos").performClick()
         waitForLine("Aún no tienes palabras que repasar.")

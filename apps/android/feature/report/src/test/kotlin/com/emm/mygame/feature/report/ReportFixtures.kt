@@ -29,7 +29,8 @@ internal fun reportOf(
     dueCount: Int = 0,
     news: List<TownNews> = emptyList(),
     nextDueAt: Instant? = null,
-): TownReport = TownReport(dueCount = dueCount, readFirst = emptyList(), nextDueAt = nextDueAt, news = news)
+): TownReport =
+    TownReport(dueCount = dueCount, readFirst = emptyList(), nextDueAt = nextDueAt, news = news, readAt = readInstant)
 
 internal fun contentOf(viewModel: ReportViewModel): ReportUiState.Content =
     viewModel.state.value as ReportUiState.Content

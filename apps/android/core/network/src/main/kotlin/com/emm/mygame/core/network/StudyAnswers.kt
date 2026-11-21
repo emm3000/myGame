@@ -1,9 +1,8 @@
 package com.emm.mygame.core.network
 
 import java.util.concurrent.atomic.AtomicLong
-import kotlin.time.Clock
 
-class StudyAnswers(tokenStore: TokenStore, private val sink: StudyAnswerSink, private val clock: Clock) {
+class StudyAnswers(tokenStore: TokenStore, private val sink: StudyAnswerSink) {
 
     private val holding: Any = Any()
 
@@ -51,7 +50,7 @@ class StudyAnswers(tokenStore: TokenStore, private val sink: StudyAnswerSink, pr
         synchronized(holding) {
             if (request.isForgotten() || request.wasSentBefore(lastCardsSend)) return
             lastCardsSend = request.order
-            sink.reportAnswered(report, arrivedAt = clock.now())
+            sink.reportAnswered(report)
         }
     }
 

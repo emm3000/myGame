@@ -72,7 +72,6 @@ class MyGameApplication : Application(), AppDependencies {
         StudyAnswers(
             tokenStore = tokenStore,
             sink = StudyReminderFeed(store = reminderStore, towns = { towns }, scope = applicationScope),
-            clock = clock,
         )
     }
 

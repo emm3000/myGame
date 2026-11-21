@@ -129,7 +129,7 @@ class StudyReminderFeedTest {
     fun `asks nothing after a Report with due cards`() = runTest {
         store.choose(reminderOn)
 
-        feed().reportAnswered(reportOf(dueCount = 2), readAt)
+        feed().reportAnswered(reportOf(dueCount = 2, readAt = readAt))
         runCurrent()
 
         assertEquals(0, towns.readCount)
@@ -182,12 +182,12 @@ class StudyReminderFeedTest {
     }
 
     @Test
-    fun `a Report answer with due cards waits from its arrival`() = runTest {
-        val arrivedAt: Instant = Instant.parse("2026-11-17T09:00:42Z")
+    fun `a Report answer with due cards waits from its read`() = runTest {
+        val reportReadAt: Instant = Instant.parse("2026-11-17T09:00:42Z")
 
-        feed().reportAnswered(reportOf(dueCount = 2), arrivedAt)
+        feed().reportAnswered(reportOf(dueCount = 2, readAt = reportReadAt))
 
-        assertEquals(StudyReminderFacts(cardsWaitingFrom = arrivedAt), store.facts.value)
+        assertEquals(StudyReminderFacts(cardsWaitingFrom = reportReadAt), store.facts.value)
     }
 
     @Test
@@ -211,7 +211,7 @@ class StudyReminderFeedTest {
     fun `asks the town once after a Report answer with nothing due while on`() = runTest {
         store.choose(reminderOn)
 
-        feed().reportAnswered(reportOf(dueCount = 0), readAt)
+        feed().reportAnswered(reportOf(dueCount = 0, readAt = readAt))
         runCurrent()
 
         assertEquals(1, towns.readCount)
@@ -242,7 +242,7 @@ class StudyReminderFeedTest {
         val feed: StudyReminderFeed = feed()
 
         feed.reviewsAnswered(DueReviews(emptyList(), readFirst = emptyList(), nextDueAt = nextDueAt, readAt = readAt))
-        feed.reportAnswered(reportOf(dueCount = 0), readAt)
+        feed.reportAnswered(reportOf(dueCount = 0, readAt = readAt))
         feed.holdoutChecksAnswered(emptyList())
         runCurrent()
 
@@ -302,8 +302,13 @@ class StudyReminderFeedTest {
         gappedFrame = emptyList(),
     )
 
-    private fun reportOf(dueCount: Int): TownReport =
-        TownReport(dueCount = dueCount, readFirst = emptyList(), nextDueAt = nextDueAt, news = emptyList())
+    private fun reportOf(dueCount: Int, readAt: Instant): TownReport = TownReport(
+        dueCount = dueCount,
+        readFirst = emptyList(),
+        nextDueAt = nextDueAt,
+        news = emptyList(),
+        readAt = readAt,
+    )
 
     private fun answeredTown(
         nextStep: NextStep,

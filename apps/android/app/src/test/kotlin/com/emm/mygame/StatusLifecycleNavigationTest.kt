@@ -61,7 +61,7 @@ class StatusLifecycleNavigationTest {
     )
 
     private val nothingDue: TownReport =
-        TownReport(dueCount = 0, readFirst = emptyList(), nextDueAt = null, news = emptyList())
+        TownReport(dueCount = 0, readFirst = emptyList(), nextDueAt = null, news = emptyList(), readAt = readAt)
 
     private val lessonNearItsFinish: TownSnapshot = townOf(
         readAt,

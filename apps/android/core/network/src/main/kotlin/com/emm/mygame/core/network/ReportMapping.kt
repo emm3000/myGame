@@ -21,6 +21,7 @@ internal fun Report.toTownReport(): TownReport = TownReport(
     readFirst = readFirst.map(::LessonId),
     nextDueAt = nextDueAt?.toKotlinInstant(),
     news = news.mapNotNull(TownNewsItem::toTownNews),
+    readAt = readAt.toKotlinInstant(),
 )
 
 internal fun TownNewsFeed.toTownNews(): List<TownNews> = items.mapNotNull(TownNewsItem::toTownNews)

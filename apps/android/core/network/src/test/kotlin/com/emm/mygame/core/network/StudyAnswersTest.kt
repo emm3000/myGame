@@ -6,12 +6,10 @@ import com.emm.mygame.core.testing.StudyAnswer
 import com.emm.mygame.core.testing.TestClock
 import java.io.File
 import java.util.concurrent.CountDownLatch
-import kotlin.time.Duration.Companion.seconds
 import kotlin.time.Instant
 import kotlinx.coroutines.CoroutineStart
 import kotlinx.coroutines.Deferred
 import kotlinx.coroutines.async
-import kotlinx.coroutines.delay
 import kotlinx.coroutines.test.TestScope
 import kotlinx.coroutines.test.UnconfinedTestDispatcher
 import kotlinx.coroutines.test.runTest
@@ -106,19 +104,12 @@ class StudyAnswersTest {
     }
 
     @Test
-    fun `the Report answer waits from the instant it arrived`() = runTest {
-        val held: HeldAnswers = HeldAnswers()
-        val reportAnswer: CountDownLatch = held.holding(REPORT_PATH, json(200, REPORT))
-        api.dispatcher = held
-        val reports: ReportRepository = reports()
+    fun `a Report answer reaches the reminder`() = runTest {
+        api.enqueue(json(200, REPORT))
 
-        val reading: Deferred<ReportReadResult> = async(start = CoroutineStart.UNDISPATCHED) { reports.read() }
-        api.takeRequestWithin()
-        delay(90.seconds)
-        reportAnswer.countDown()
-        val read: TownReport = (reading.await() as ReportReadResult.Read).report
+        val read: TownReport = (reports().read() as ReportReadResult.Read).report
 
-        assertEquals(listOf(StudyAnswer.Report(read, Instant.parse("2026-11-05T10:01:30Z"))), sink.answers)
+        assertEquals(listOf(StudyAnswer.Report(read)), sink.answers)
     }
 
     @Test
@@ -349,11 +340,8 @@ class StudyAnswersTest {
     private fun freshTown(town: TownSnapshot): StudyAnswer =
         StudyAnswer.Town(town, TownAnswerFreshness(areCardsFresh = true, isCheckFresh = true))
 
-    private fun TestScope.studyAnswers(): StudyAnswers = answers ?: StudyAnswers(
-        store,
-        sink,
-        TestClock(testScheduler, Instant.parse("2026-11-05T10:00:00Z")),
-    ).also { created: StudyAnswers -> answers = created }
+    private fun studyAnswers(): StudyAnswers =
+        answers ?: StudyAnswers(store, sink).also { created: StudyAnswers -> answers = created }
 
     private fun TestScope.town(): TownRepository = TownRepository(
         baseUrl = api.url("/api/").toString(),

@@ -46,8 +46,8 @@ class StudyReminderFeed(
         )
     }
 
-    override fun reportAnswered(report: TownReport, arrivedAt: Instant) {
-        cardsAnswered(CardsRead(readAt = arrivedAt, hasDueCard = report.dueCount > 0, nextDueAt = report.nextDueAt))
+    override fun reportAnswered(report: TownReport) {
+        cardsAnswered(CardsRead(readAt = report.readAt, hasDueCard = report.dueCount > 0, nextDueAt = report.nextDueAt))
     }
 
     override fun holdoutChecksAnswered(checks: List<HoldoutCheck>) {

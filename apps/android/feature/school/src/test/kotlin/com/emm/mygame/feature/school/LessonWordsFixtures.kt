@@ -36,7 +36,9 @@ internal fun wordReadingOf(word: String, gloss: String, frame: String): TownSnap
     )
 
 internal fun readReportOf(readFirst: List<LessonId> = emptyList()): ReportReadResult =
-    ReportReadResult.Read(TownReport(dueCount = 0, readFirst = readFirst, nextDueAt = null, news = emptyList()))
+    ReportReadResult.Read(
+        TownReport(dueCount = 0, readFirst = readFirst, nextDueAt = null, news = emptyList(), readAt = readInstant),
+    )
 
 internal fun readingOf(viewModel: LessonWordsViewModel): LessonWordsUiState.Reading =
     viewModel.state.value as LessonWordsUiState.Reading

@@ -15,6 +15,7 @@ import com.emm.mygame.core.network.RestoreResult
 import com.emm.mygame.core.network.SignedInPlayer
 import com.emm.mygame.core.network.TownReport
 import com.emm.mygame.core.projection.StudyReminderLine
+import kotlin.time.Instant
 import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
@@ -34,8 +35,13 @@ class MainActivitySettingsRecreateTest {
 
     private val application: ReminderTapApplication = RuntimeEnvironment.getApplication() as ReminderTapApplication
 
-    private val nothingDue: TownReport =
-        TownReport(dueCount = 0, readFirst = emptyList(), nextDueAt = null, news = emptyList())
+    private val nothingDue: TownReport = TownReport(
+        dueCount = 0,
+        readFirst = emptyList(),
+        nextDueAt = null,
+        news = emptyList(),
+        readAt = Instant.parse("2026-11-05T10:00:00Z"),
+    )
 
     @Before
     fun restoreASession() {

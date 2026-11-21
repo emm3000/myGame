@@ -60,7 +60,7 @@ class OpenAboveNavigationTest {
     private val townWithANewestText: TownSnapshot = townOf(readAt, texts = listOf(newestText))
 
     private val nothingDue: TownReport =
-        TownReport(dueCount = 0, readFirst = emptyList(), nextDueAt = null, news = emptyList())
+        TownReport(dueCount = 0, readFirst = emptyList(), nextDueAt = null, news = emptyList(), readAt = readAt)
 
     private var shownStack: NavBackStack<NavKey>? = null
 

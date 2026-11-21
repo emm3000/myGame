@@ -7,7 +7,6 @@ import com.emm.mygame.core.network.TownAnswerFreshness
 import com.emm.mygame.core.network.TownReport
 import com.emm.mygame.core.network.TownSnapshot
 import java.util.concurrent.CopyOnWriteArrayList
-import kotlin.time.Instant
 
 class FakeStudyAnswerSink : StudyAnswerSink {
 
@@ -24,8 +23,8 @@ class FakeStudyAnswerSink : StudyAnswerSink {
         _answers += StudyAnswer.Reviews(reviews)
     }
 
-    override fun reportAnswered(report: TownReport, arrivedAt: Instant) {
-        _answers += StudyAnswer.Report(report, arrivedAt)
+    override fun reportAnswered(report: TownReport) {
+        _answers += StudyAnswer.Report(report)
     }
 
     override fun holdoutChecksAnswered(checks: List<HoldoutCheck>) {
