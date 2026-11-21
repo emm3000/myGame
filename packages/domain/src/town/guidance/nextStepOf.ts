@@ -1,5 +1,4 @@
 import type { DomainError } from '../../DomainError'
-import type { DueHoldoutCheck } from '../../holdout/DueHoldoutCheck'
 import { dueHoldoutChecksOf } from '../../holdout/dueHoldoutChecksOf'
 import type { ReleasedLesson } from '../../holdout/ReleasedLesson'
 import type { Band, BandStart, Headword } from '../../learning/curriculum/BandStart'
@@ -10,7 +9,7 @@ import { wordsEnteringOf } from '../../learning/curriculum/wordsEnteringOf'
 import { openTextsOf } from '../../learning/frames/openTextsOf'
 import type { Text } from '../../learning/frames/Text'
 import type { HeldCard } from '../../learning/HeldCard'
-import type { Lesson, LessonId, SchoolLesson } from '../../learning/Lesson'
+import type { Lesson, SchoolLesson } from '../../learning/Lesson'
 import { dueCardsAt } from '../../learning/reviews/dueCardsAt'
 import { readFirstOf } from '../../learning/reviews/readFirstOf'
 import type { MemoryTerms } from '../../memory/MemoryTerms'
@@ -20,31 +19,7 @@ import { admitSchoolLesson, type SchoolLessonRefusal } from '../admitSchoolLesso
 import type { LessonSlot } from '../LessonSlot'
 import type { Town } from '../Town'
 import type { TownCatalog } from '../TownCatalog'
-
-export type NextStep =
-  | {
-      readonly kind: 'reviews'
-      readonly count: number
-      readonly readFirst: ReadonlyArray<LessonId>
-    }
-  | ({ readonly kind: 'holdoutCheck' } & DueHoldoutCheck)
-  | { readonly kind: 'lessonRunning'; readonly text: NextStepText | null }
-  | {
-      readonly kind: 'releasedLesson'
-      readonly lessonId: LessonId
-      readonly band: Band
-      readonly position: number
-    }
-  | { readonly kind: 'lessonToStudy'; readonly lessonId: LessonId }
-  | {
-      readonly kind: 'caughtUp'
-      readonly reason: CaughtUpReason
-      readonly text: NextStepText | null
-    }
-
-export type NextStepText = Pick<Text, 'id' | 'title'>
-
-export type CaughtUpReason = 'learningCap' | 'schoolTooLow' | 'lessonsDone'
+import type { CaughtUpReason, NextStep, NextStepText } from './NextStep'
 
 export type NextStepReading = {
   readonly town: Town
