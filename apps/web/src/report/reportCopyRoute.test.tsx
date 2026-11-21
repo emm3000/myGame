@@ -5,7 +5,7 @@ import { afterEach, expect, it, vi } from 'vitest'
 import type { ApiClient } from '../api/apiClient'
 import { renderAppAt } from '../auth/renderAppAt.testSupport'
 import { knownPlayer, knownTown, stubApiClient } from '../auth/stubApiClient.testSupport'
-import { shownLinesHolding } from '../town/lineDrawnAlone.testSupport'
+import { shownLinesDrawnAlone } from '../town/lineDrawnAlone.testSupport'
 
 type CopyLanguage = Pick<TownOverview, 'scaffold' | 'chromePhase'>
 
@@ -132,7 +132,7 @@ it('writes the time of the next review in English under none', async () => {
   renderAppAt('/report', servingReportIn(noScaffold, reportOf({ nextDueAt })))
   await act(() => vi.advanceTimersByTimeAsync(0))
 
-  expect(shownLinesHolding(en.statusTomorrow({ time: '10:00' }), 'en')).not.toHaveLength(0)
+  expect(shownLinesDrawnAlone(en.statusTomorrow({ time: '10:00' }), 'en')).not.toHaveLength(0)
 })
 
 it('refuses the close of the news in English under none', async () => {

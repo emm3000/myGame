@@ -3,8 +3,6 @@ import { Button } from './Button'
 import type { CancelAction } from './CancelAction'
 import type { Label } from './Label'
 import { LabelText } from './LabelText'
-import { spokenLanguageOf } from './spokenLanguageOf'
-import { spokenLineOf } from './spokenLineOf'
 
 export function CancelRow({
   cancel,
@@ -24,8 +22,7 @@ export function CancelRow({
         type="button"
         tone="quiet"
         availability={cancel.isWaiting ? 'waiting' : 'available'}
-        accessibleName={spokenLineOf(cancel.accessibleName)}
-        accessibleLanguage={spokenLanguageOf(cancel.accessibleName)}
+        accessibleName={cancel.accessibleName}
         onClick={cancel.onCancel}
       >
         <LabelText label={cancel.label} />

@@ -1,5 +1,7 @@
 import type { MouseEvent, ReactElement, ReactNode } from 'react'
-import type { LineLanguage } from './Label'
+import type { Label } from './Label'
+import { spokenLanguageOf } from './spokenLanguageOf'
+import { spokenLineOf } from './spokenLineOf'
 
 export type ButtonTone = 'primary' | 'quiet' | 'text'
 
@@ -11,8 +13,7 @@ export interface ButtonProps {
   readonly tone: ButtonTone
   readonly disabled?: boolean
   readonly availability?: ButtonAvailability
-  readonly accessibleName?: string
-  readonly accessibleLanguage?: LineLanguage | undefined
+  readonly accessibleName?: Label
   readonly describedBy?: string | undefined
   readonly isExpanded?: boolean
   readonly controls?: string | undefined
@@ -68,6 +69,7 @@ export function Button(props: ButtonProps): ReactElement {
   const isUnavailable = availability !== 'available'
   const isWaiting = availability === 'waiting' || availability === 'waitingInPlace'
   const isWithheld = isUnavailable && availability !== 'marked'
+  const { accessibleName } = props
   const press = (event: MouseEvent<HTMLButtonElement>): void => {
     if (isWithheld) {
       event.preventDefault()
@@ -81,8 +83,8 @@ export function Button(props: ButtonProps): ReactElement {
       disabled={props.disabled}
       aria-disabled={isWithheld ? true : undefined}
       aria-busy={isWaiting ? true : undefined}
-      aria-label={props.accessibleName}
-      lang={props.accessibleLanguage}
+      aria-label={accessibleName === undefined ? undefined : spokenLineOf(accessibleName)}
+      lang={accessibleName === undefined ? undefined : spokenLanguageOf(accessibleName)}
       aria-describedby={props.describedBy}
       aria-expanded={props.isExpanded}
       aria-controls={props.controls}

@@ -148,7 +148,7 @@ function SiteItem({
         <Button
           type="button"
           tone="quiet"
-          accessibleName={spokenLineOf(row.actionName)}
+          accessibleName={row.actionName}
           isExpanded={isChosen}
           controls={isChosen ? formId : undefined}
           onClick={onChoose}
