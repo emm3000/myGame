@@ -2,7 +2,7 @@
 
 The game rules as pure TypeScript (ADR 004): entities, value objects, use cases, the port interfaces and `DomainError`. Everything else depends on this package; it depends on nothing.
 
-The rules: `.claude/rules/architecture.md`, `typescript-style.md`, `principles.md`, `testing.md`, `verification.md`. The code is the map: this file holds only the commands and the traps nothing else catches.
+The rules: `.claude/rules/architecture.md`, `typescript-style.md`, `principles.md`, `testing.md`, `verification.md`. The map is `ARCHITECTURE.md` at the repo root: this file holds only the commands and the traps nothing else catches.
 
 ## Commands
 

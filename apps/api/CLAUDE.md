@@ -1,6 +1,6 @@
 # apps/api
 
-Hono on Node: the HTTP adapters, the persistence adapters that implement the domain ports, auth, and the composition root. The rules: `.claude/rules/architecture.md`, `typescript-style.md`, `testing.md`, `verification.md`. The code is the map: this file holds only the commands, the two container recipes and the traps nothing else catches.
+Hono on Node: the HTTP adapters, the persistence adapters that implement the domain ports, auth, and the composition root. The rules: `.claude/rules/architecture.md`, `typescript-style.md`, `testing.md`, `verification.md`. The map is `ARCHITECTURE.md` at the repo root: this file holds only the commands, the two container recipes and the traps nothing else catches.
 
 ## Commands
 

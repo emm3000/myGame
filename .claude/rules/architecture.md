@@ -28,7 +28,7 @@ rg -n "from '@mygame/" packages/catalog/src
 rg -l '"@mygame/catalog":' packages/*/package.json
 ```
 
-The api's own layers follow the same arrow, laid out by feature then by role (ADR 052, `docs/adr/052-the-backend-reads-by-feature-then-by-role.md`, sections "The folder grammar" and "Where a use case and a port go"; `ARCHITECTURE.md` takes the map once it lands): `application/` imports no `infrastructure/`, no wire type and no HTTP or database library, and only the composition root constructs an adapter. `scripts/mygame-structure-check` runs the structure checks, and `pnpm gate` calls it beside the leak check. Each is expected empty; the ADR's "The checks" holds each one's command, and the baseline file beside the script holds the files not yet moved:
+The api's own layers follow the same arrow, laid out by feature then by role (ADR 052, `docs/adr/052-the-backend-reads-by-feature-then-by-role.md`, sections "The folder grammar" and "Where a use case and a port go"; the map is `ARCHITECTURE.md`): `application/` imports no `infrastructure/`, no wire type and no HTTP or database library, and only the composition root constructs an adapter. `scripts/mygame-structure-check` runs the structure checks, and `pnpm gate` calls it beside the leak check. Each is expected empty; the ADR's "The checks" holds each one's command, and the baseline file beside the script holds the files not yet moved:
 
 ```
 application_imports_infrastructure   application_knows_wire
