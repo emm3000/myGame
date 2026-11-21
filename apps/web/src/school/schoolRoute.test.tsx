@@ -499,6 +499,19 @@ it('a full cap with a review due still sends to the reviews', async () => {
   ).toBeDefined()
 })
 
+it('draws the word count of a full cap in the English line of the both phase as its own tabular element', async () => {
+  await showSchool(schoolOf({ ...fullCapBefore(5), chromePhase: 'both' }))
+
+  const englishLine = screen.getByText(
+    (_, element) =>
+      element?.tagName === 'SPAN' &&
+      element.getAttribute('lang') === 'en' &&
+      element.textContent ===
+        en.schoolLearningFullNextWordDue({ count: 5, wordCount: 5, timeLeft: nextWordDueIn }),
+  )
+  expect(tabularFiguresOf(englishLine)).toEqual(['5', '2 h 15 min', '12:15'])
+})
+
 const fullCapBefore = (wordCount: number): Partial<TownOverview> => ({
   lessons: [
     lessonOf(1, {
