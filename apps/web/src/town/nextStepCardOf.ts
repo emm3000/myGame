@@ -7,7 +7,7 @@ import { finishTimeOf } from './finishTimeOf'
 import { type LessonName, lessonNameOf, lessonNumberOf } from './lessonNameOf'
 import type { LiveTown } from './liveTown'
 
-type Step<Kind extends NextStep['kind']> = Extract<NextStep, { readonly kind: Kind }>
+export type Step<Kind extends NextStep['kind']> = Extract<NextStep, { readonly kind: Kind }>
 
 export type NextStepAction =
   | { readonly label: Label; readonly to: '/reviews' | '/school' | '/report' }

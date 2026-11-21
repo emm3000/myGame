@@ -1,15 +1,13 @@
 import { type ReactElement, useId } from 'react'
 import type { ChromeCatalog } from '../copy/PlayerCopy'
 import { usePlayerCopy } from '../copy/usePlayerCopy'
-import { CardAction } from '../design-system/CardAction'
-import { FormAlert } from '../design-system/FormAlert'
 import { focusTargetClass } from '../design-system/focusTargetClass'
 import type { Label } from '../design-system/Label'
 import { LabelText } from '../design-system/LabelText'
 import { spokenLineOf } from '../design-system/spokenLineOf'
 import type { LiveTown } from '../town/liveTown'
 import type { LessonCardContent, LessonCardState } from './lessonCardOf'
-import { lessonRefusalLineOf } from './lessonRefusalLineOf'
+import { ReleasedStudy } from './ReleasedStudy'
 import type { ReleasedRowContent } from './releasedRowOf'
 import { SchoolPath } from './SchoolPath'
 import type { SchoolLessons } from './useSchoolLessons'
@@ -106,8 +104,6 @@ function ReleasedLessonRow({
   readonly town: LiveTown
   readonly lessons: SchoolLessons
 }): ReactElement {
-  const { fixedCopy } = usePlayerCopy()
-  const refused = lessons.startRefused?.subject === card.lessonId ? lessons.startRefused : undefined
   return (
     <li aria-label={spokenLineOf(card.title)} className={rowItemClass}>
       <div className={rowClass}>
@@ -117,19 +113,7 @@ function ReleasedLessonRow({
         </span>
       </div>
       <SchoolPath standings={card.standings} />
-      {card.state.kind === 'open' && (
-        <CardAction
-          type="button"
-          label={card.studyLabel}
-          state={card.state.action}
-          isWaiting={lessons.isStarting}
-          tone="quiet"
-          onAction={() => lessons.start(card.lessonId)}
-        />
-      )}
-      {refused !== undefined && (
-        <FormAlert message={lessonRefusalLineOf(refused, town, fixedCopy)} />
-      )}
+      <ReleasedStudy card={card} town={town} lessons={lessons} tone="quiet" />
     </li>
   )
 }
