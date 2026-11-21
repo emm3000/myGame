@@ -553,16 +553,6 @@
           }
         }
       }
-    },
-    {
-      "includes": ["apps/api/src/town/townNewsItemOf.ts"],
-      "linter": {
-        "rules": {
-          "complexity": {
-            "noExcessiveLinesPerFunction": "off"
-          }
-        }
-      }
     }
   ]
 }
