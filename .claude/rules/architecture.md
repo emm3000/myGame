@@ -28,6 +28,20 @@ rg -n "from '@mygame/" packages/catalog/src
 rg -l '"@mygame/catalog":' packages/*/package.json
 ```
 
+The api's own layers follow the same arrow, laid out by feature then by role (ADR 052, `docs/adr/052-the-backend-reads-by-feature-then-by-role.md`, sections "The folder grammar" and "Where a use case and a port go"; `ARCHITECTURE.md` takes the map once it lands): `application/` imports no `infrastructure/`, no wire type and no HTTP or database library, and only the composition root constructs an adapter. `scripts/mygame-structure-check` runs the structure checks, and `pnpm gate` calls it beside the leak check. Each is expected empty; the ADR's "The checks" holds each one's command, and the baseline file beside the script holds the files not yet moved:
+
+```
+application_imports_infrastructure   application_knows_wire
+persistence_knows_http               http_knows_database
+adapter_built_outside_root           reading_named_of_is_async
+use_case_named_of                    domain_promise_outside_its_roles
+use_case_imports_use_case            service_is_public
+folder_over_limit                    file_over_export_cap
+type_over_method_cap
+```
+
+`feature_graph` is enforced by Biome, not the script, and `map` joins the script with `ARCHITECTURE.md` (ADR 052, "The checks").
+
 And the reverse leak, an app reaching into another package's internals instead of its public entry, expected empty:
 
 ```
@@ -43,7 +57,7 @@ The only source of copy (ADR 038): `es.json` and `en.json`, ICU MessageFormat, o
 - **Entities** hold identity and invariants (`Town`, `BuildingWork`). Invariants are enforced in constructors or factory functions that return `Result<T, DomainError>`, never by a validator called later.
 - **Value objects** are immutable and compared by value (`Duration`, `SiteAddress`, `TownName`). Arithmetic lives on them, not on the caller.
 - **Use cases** are one exported function or one class with one `execute`. A use case takes its ports as parameters and returns `Result`. It never imports another use case; shared logic is a domain service.
-- **Ports** are interfaces the domain needs the outside to fulfil: `TownRepository`, `Clock`, `IdGenerator`. Defined in `packages/domain`, implemented in `apps/api`.
+- **Ports** are interfaces the domain needs the outside to fulfil: `TownRepository`, `Clock`, `IdGenerator`. A port follows its user: one a domain use case reads is defined in `packages/domain`; one only the api's application reads lives in `<feature>/application/ports/`, in the leftmost feature that reads it. Adapters implement them in `apps/api`.
 - **Use-case admission**: a use case earns a file when it enforces a rule or coordinates more than one port. A pass-through from a route to a repository is not a use case; the route calls the repository.
 
 ## Errors
@@ -73,7 +87,7 @@ zod schemas for every request and response the api serves, and the types inferre
 
 ## `apps/api`
 
-Hono routes are thin: parse with the contract schema, call the use case, map the `Result`. Adapters implement the domain ports over the database. The composition root wires ports to adapters in one file; nothing else constructs an adapter. Auth is middleware that yields a `PlayerId`, never a domain concern.
+Hono routes are thin: parse with the contract schema, call the use case, map the `Result`. Adapters implement the domain ports over the database. The composition root wires ports to adapters in one file; nothing else constructs an adapter. Auth is middleware that yields a `PlayerId`, never a domain concern; the account's use cases are api use cases.
 
 ## `apps/web`
 

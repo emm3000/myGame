@@ -17,11 +17,11 @@ The simplest structure that passes the criteria and respects the layers. A plain
 
 ## SOLID, with its tests
 
-- **Single responsibility**: a module has one reason to change. Test: can you name what it does without "and".
+- **Single responsibility**: a module has one reason to change. Test: can you name what it does without "and". A god file or class fails it; the size limits and caps are in `typescript-style.md`.
 - **Open/closed**: a new building or resource is a new data entry or union member, not an edit to a `switch` or `when` in five files. Test: adding the sixth building touches how many files.
 - **Liskov**: an adapter is substitutable for its port in every test the port has. Test: the port's contract test passes against every adapter.
 - **Interface segregation**: a port exposes what one use case needs. Test: is any method unused by every caller.
-- **Dependency inversion**: the domain declares the port, the app implements it. Test: the leak check in `architecture.md` is empty, and `checkModuleBoundaries` in `android-architecture.md` is green.
+- **Dependency inversion**: the domain declares the port, the app implements it. Test: the leak check and `scripts/mygame-structure-check` in `architecture.md` are empty, and `checkModuleBoundaries` in `android-architecture.md` is green.
 
 ## DRY, with its caveat
 

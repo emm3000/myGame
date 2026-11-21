@@ -27,7 +27,8 @@ None. No JSDoc, no `//`, no `/* */`, no commented-out code, no section banners. 
 - Named exports only. A file exports one primary thing whose name matches the file.
 - No default parameters that hide a dependency (a clock, an id generator, a repository). Dependencies are passed.
 - Pure functions in `packages/domain`; a function that reads a port is a use case and is named as one.
-- Control flow follows Flat control flow in `principles.md`; `biome.json` enforces part of it, and a finding is fixed by shape, never by a `biome-ignore`. A function longer than about 30 lines is split.
+- Control flow follows Flat control flow in `principles.md`; `biome.json` enforces part of it, and a finding is fixed by shape, never by a `biome-ignore`. A function longer than about 30 lines is split; the limits are in ADR 052, "The limits a check enforces": 250 lines a file, 50 a function, 30 production files a folder, 600 a test file, and the gate enforces them.
+- A production file holds at most 5 exports and a class or interface at most 7 methods (ADR 052, "No god file, no god class"); `scripts/mygame-structure-check` enforces both (`file_over_export_cap`, `type_over_method_cap`), and `src/index.ts` and `*Tables.ts` files are exempt from the export cap.
 - A callback is a function reference, `rows.map(toRow)`, only when the callee takes exactly one parameter; otherwise it is an arrow, `rows.map((row) => toRow(row))`. `map` passes the index and the array too, so `['1', '2'].map(parseInt)` returns `[1, NaN]`.
 - Prefer `Result<T, E>` over exceptions across every boundary the domain touches. Exceptions are for programmer errors and are never caught for control flow.
 
@@ -43,13 +44,18 @@ None. No JSDoc, no `//`, no `/* */`, no commented-out code, no section banners. 
 |---|---|---|
 | Entity | noun | `Town`, `BuildingWork` |
 | Value object | noun, immutable | `Duration`, `SiteAddress`, `TownName` |
-| Use case | verb phrase | `startBuildingWork`, `settleSchoolLesson` |
+| Domain use case | verb phrase | `startBuildingWork`, `settleSchoolLesson` |
+| Api use case | verb phrase, never a domain export's name | `resolveCurrentTown`, `serveReport` |
+| Endpoint | use case + `Route` | `sendJobRoute` |
+| Route list | area + `Routes` | `jobsRoutes` |
+| Presenter | `present` + wire noun | `presentTownOverview` |
+| Row mapper | noun + `FromRow`, noun + `Columns` | `workSlotFromRow`, `jobColumns` |
+| Contract suite | port + `Contract.testSupport.ts` | `townRepositoryContract.testSupport.ts` |
 | Port | noun + role | `TownRepository`, `Clock`, `IdGenerator` |
 | Adapter | technology + port | `DrizzleTownRepository`, `SystemClock` |
 | Domain error member | past or present participle of the failure | `SiteTaken`, `TopLevelReached` |
 | Contract schema | wire noun + `Schema` | `TownOverviewSchema`, `StartBuildingWorkSchema` |
 | Contract type | the schema's noun | `TownOverview`, `StartBuildingWork` |
-| Hono route module | resource | `town.ts`, `report.ts` |
 | Web route | TanStack file route | `routes/school.$lessonId.tsx` |
 | Component | noun, PascalCase | `Block`, `BuildSlot` |
 | Hook | `use` + noun | `useTownOverview` |
@@ -58,7 +64,8 @@ None. No JSDoc, no `//`, no `/* */`, no commented-out code, no section banners. 
 ## File names
 
 - camelCase for files that export a function or value, PascalCase for files that export a type, class or component.
-- Directories are plural nouns for collections (`useCases/`, `ports/`, `adapters/`) and singular for a single concern (`auth/`).
+- Directories are plural nouns for collections and singular for a single concern. Which folder holds which role is ADR 052, "The folder grammar"; the first folder is a feature, the second a role.
+- `*Of` names a pure, synchronous derivation and nothing else: a function that returns a promise is named by a verb, and a function that writes is never named as a reading.
 
 ## Formatting
 
