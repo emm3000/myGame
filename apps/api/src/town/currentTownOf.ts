@@ -15,8 +15,8 @@ import {
   type TownNews,
   type TownRepository,
 } from '@mygame/domain'
+import type { TownReader } from './application/ports/TownReader'
 import { type MutateTownDependencies, mutateTown } from './mutateTown'
-import type { TownReader } from './TownReader'
 import type { TownReading } from './TownReading'
 import { townReadingOf } from './townReadingOf'
 

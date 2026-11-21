@@ -21,10 +21,10 @@ import {
 } from '@mygame/domain'
 import type { Accounts } from '../account/application/ports/Accounts'
 import type { Transaction } from '../platform/application/ports/Transaction'
+import type { TownReader } from './application/ports/TownReader'
 import type { GuidanceDismissals } from './GuidanceDismissals'
 import type { SeenTips } from './SeenTips'
 import type { TownNewsReader } from './TownNewsReader'
-import type { TownReader } from './TownReader'
 
 export type TownStores = {
   readonly accounts: Accounts
