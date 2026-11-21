@@ -211,6 +211,8 @@ const fixedCopyKeyList = [
   'android.town.town_refusal_waiting_list_full',
   'android.town.town_sign_out',
   'auth.email',
+  'auth.language.en',
+  'auth.language.es',
   'auth.password',
   'auth.signIn.forgotPassword',
   'auth.signIn.submit',

@@ -1,22 +1,7 @@
-import {
-  authEmail,
-  authPassword,
-  authSignUpPasswordHint,
-  authSignUpSubmit,
-  authSignUpSwitchLink,
-  authSignUpSwitchPrompt,
-  authSignUpTitle,
-  authTagline,
-  es,
-  refusalMalformedEmail,
-  refusalWeakPassword,
-  scaffoldEs,
-  scaffoldLabel,
-  scaffoldNone,
-} from '@mygame/catalog'
 import { type Scaffold, type SignUpRequest, SignUpRequestSchema } from '@mygame/contracts'
 import { type ReactElement, useState } from 'react'
 import type { ApiRefusal } from '../api/apiClient'
+import type { Catalog } from '../copy/PlayerCopy'
 import { Button } from '../design-system/Button'
 import { FormAlert } from '../design-system/FormAlert'
 import { lineLabelOf } from '../design-system/lineLabelOf'
@@ -25,27 +10,24 @@ import { TextField } from '../design-system/TextField'
 import { TextLink } from '../design-system/TextLink'
 import { refusalLineOf } from '../refusals/refusalLineOf'
 import { AuthPanel } from './AuthPanel'
-
-const scaffoldLines: Readonly<Record<Scaffold, string>> = {
-  es: scaffoldEs(),
-  none: scaffoldNone(),
-}
+import type { SignedOutCopy } from './SignedOutCopy'
 
 type SignUpField = Exclude<keyof SignUpRequest, 'scaffold'>
 
-type FieldErrors = Partial<Record<SignUpField, string>>
+type Credentials = Pick<SignUpRequest, SignUpField>
+
+type FieldRefusals = Partial<Record<SignUpField, ApiRefusal>>
 
 export interface SignUpScreenProps {
+  readonly copy: SignedOutCopy
   readonly refusal: ApiRefusal | undefined
   readonly isSubmitting: boolean
-  readonly preselectedScaffold: Scaffold
-  readonly onScaffoldPick: (scaffold: Scaffold) => void
   readonly onSubmit: (request: SignUpRequest) => void
 }
 
-const fieldMessages: Readonly<Record<SignUpField, string>> = {
-  email: refusalMalformedEmail(),
-  password: refusalWeakPassword(),
+const fieldRefusals: Readonly<Record<SignUpField, ApiRefusal>> = {
+  email: 'MalformedEmail',
+  password: 'WeakPassword',
 }
 
 const refusalFields: Partial<Record<ApiRefusal, SignUpField>> = {
@@ -57,42 +39,46 @@ const refusalFields: Partial<Record<ApiRefusal, SignUpField>> = {
 const isSignUpField = (key: PropertyKey | undefined): key is SignUpField =>
   key === 'email' || key === 'password'
 
-const fieldErrorsOf = (request: SignUpRequest): FieldErrors => {
+const fieldRefusalsOf = (request: SignUpRequest): FieldRefusals => {
   const parsed = SignUpRequestSchema.safeParse(request)
   if (parsed.success) {
     return {}
   }
   const fields = parsed.error.issues.map((issue) => issue.path[0]).filter(isSignUpField)
-  return Object.fromEntries(fields.map((field) => [field, fieldMessages[field]]))
+  return Object.fromEntries(fields.map((field) => [field, fieldRefusals[field]]))
 }
 
+const scaffoldLinesOf = (catalog: Catalog): Readonly<Record<Scaffold, string>> => ({
+  es: catalog.scaffoldEs(),
+  none: catalog.scaffoldNone(),
+})
+
 export function SignUpScreen(props: SignUpScreenProps): ReactElement {
-  const [request, setRequest] = useState<SignUpRequest>({
-    email: '',
-    password: '',
-    scaffold: props.preselectedScaffold,
-  })
-  const [clientErrors, setClientErrors] = useState<FieldErrors>({})
+  const { catalog, language } = props.copy
+  const [credentials, setCredentials] = useState<Credentials>({ email: '', password: '' })
+  const [pickedScaffold, setPickedScaffold] = useState<Scaffold | undefined>(undefined)
+  const [clientRefusals, setClientRefusals] = useState<FieldRefusals>({})
+  const scaffold = pickedScaffold ?? (language === 'es' ? 'es' : 'none')
+  const request: SignUpRequest = { ...credentials, scaffold }
   const refusedField = props.refusal === undefined ? undefined : refusalFields[props.refusal]
-  const errors: FieldErrors =
-    props.refusal === undefined || refusedField === undefined
-      ? clientErrors
-      : { ...clientErrors, [refusedField]: refusalLineOf(es, props.refusal) }
+  const refusals: FieldRefusals =
+    refusedField === undefined
+      ? clientRefusals
+      : { ...clientRefusals, [refusedField]: props.refusal }
   const formRefusal = refusedField === undefined ? props.refusal : undefined
+  const errorOf = (field: SignUpField): string | undefined => {
+    const refusal = refusals[field]
+    return refusal === undefined ? undefined : refusalLineOf(catalog, refusal)
+  }
 
   const edit =
     (field: SignUpField) =>
     (value: string): void =>
-      setRequest((current) => ({ ...current, [field]: value }))
-
-  const pick = (scaffold: Scaffold): void => {
-    setRequest((current) => ({ ...current, scaffold }))
-    props.onScaffoldPick(scaffold)
-  }
+      setCredentials((current) => ({ ...current, [field]: value }))
 
   const submit = (): void => {
-    const found = fieldErrorsOf(request)
-    setClientErrors(found)
+    const found = fieldRefusalsOf(request)
+    setClientRefusals(found)
     if (Object.keys(found).length === 0) {
       props.onSubmit(request)
     }
@@ -100,47 +86,48 @@ export function SignUpScreen(props: SignUpScreenProps): ReactElement {
 
   return (
     <AuthPanel
-      title={authSignUpTitle()}
-      lead={authTagline()}
+      copy={props.copy}
+      title={catalog.authSignUpTitle()}
+      lead={catalog.authTagline()}
       onSubmit={submit}
       footer={
         <>
-          {authSignUpSwitchPrompt()}
-          <TextLink to="/sign-in">{authSignUpSwitchLink()}</TextLink>
+          {catalog.authSignUpSwitchPrompt()}
+          <TextLink to="/sign-in">{catalog.authSignUpSwitchLink()}</TextLink>
         </>
       }
     >
       <ScaffoldChoice
-        legend={scaffoldLabel()}
-        lines={scaffoldLines}
-        picked={request.scaffold}
+        legend={catalog.scaffoldLabel()}
+        lines={scaffoldLinesOf(catalog)}
+        picked={scaffold}
         isDisabled={props.isSubmitting}
-        onPick={pick}
+        onPick={setPickedScaffold}
       />
       <TextField
-        label={lineLabelOf(authEmail(), 'es')}
+        label={lineLabelOf(catalog.authEmail(), language)}
         name="email"
         type="email"
         autoComplete="email"
-        value={request.email}
+        value={credentials.email}
         onChange={edit('email')}
-        error={errors.email}
+        error={errorOf('email')}
       />
       <TextField
-        label={lineLabelOf(authPassword(), 'es')}
+        label={lineLabelOf(catalog.authPassword(), language)}
         name="password"
         type="password"
         autoComplete="new-password"
-        value={request.password}
+        value={credentials.password}
         onChange={edit('password')}
-        hint={lineLabelOf(authSignUpPasswordHint(), 'es')}
-        error={errors.password}
+        hint={lineLabelOf(catalog.authSignUpPasswordHint(), language)}
+        error={errorOf('password')}
       />
       {formRefusal === undefined ? null : (
-        <FormAlert message={lineLabelOf(refusalLineOf(es, formRefusal), 'es')} />
+        <FormAlert message={lineLabelOf(refusalLineOf(catalog, formRefusal), language)} />
       )}
       <Button type="submit" tone="primary" disabled={props.isSubmitting}>
-        {authSignUpSubmit()}
+        {catalog.authSignUpSubmit()}
       </Button>
     </AuthPanel>
   )

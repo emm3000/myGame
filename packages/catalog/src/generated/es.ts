@@ -1,5 +1,7 @@
 export const locale = 'es'
 export const authEmail = (): string => `Correo`
+export const authLanguageEn = (): string => `English`
+export const authLanguageEs = (): string => `Español`
 export const authPassword = (): string => `Contraseña`
 export const authSignInForgotPassword = (): string => `¿Has olvidado tu contraseña?`
 export const authSignInSubmit = (): string => `Entrar`

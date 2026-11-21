@@ -11,7 +11,7 @@ import {
 } from '@mygame/catalog'
 import type { TownOverview } from '@mygame/contracts'
 import { act, fireEvent, screen } from '@testing-library/react'
-import { expect, it } from 'vitest'
+import { beforeEach, expect, it, vi } from 'vitest'
 import homesSvg from '../../public/art/places/homes.svg?raw'
 import schoolSvg from '../../public/art/places/school.svg?raw'
 import type { ApiClient, ApiOutcome } from '../api/apiClient'
@@ -19,6 +19,10 @@ import type { ArtTag } from '../art/ArtTag'
 import { placeShapesOf } from '../art/placeShapesOf'
 import { renderAppAt } from '../auth/renderAppAt.testSupport'
 import { knownPlayer, knownTown, stubApiClient } from '../auth/stubApiClient.testSupport'
+
+beforeEach(() => {
+  vi.spyOn(navigator, 'language', 'get').mockReturnValue('es-ES')
+})
 
 const withNoTown = (overrides: Partial<ApiClient> = {}): ApiClient =>
   stubApiClient({

@@ -1,8 +1,12 @@
-import { shellTitle } from '@mygame/catalog'
+import { es } from '@mygame/catalog'
 import { screen } from '@testing-library/react'
-import { expect, it } from 'vitest'
+import { beforeEach, expect, it, vi } from 'vitest'
 import { renderAppAt } from './renderAppAt.testSupport'
 import { stubApiClient } from './stubApiClient.testSupport'
+
+beforeEach(() => {
+  vi.spyOn(navigator, 'language', 'get').mockReturnValue('es-ES')
+})
 
 const guestPaths = ['/sign-in', '/sign-up', '/forgot-password'] as const
 
@@ -45,5 +49,5 @@ it('names the game inside the sign-in panel', async () => {
   const heading = await screen.findByRole('heading', { level: 1 })
 
   const panel = heading.closest('section')
-  expect(panel?.contains(screen.getByText(shellTitle()))).toBe(true)
+  expect(panel?.contains(screen.getByText(es.shellTitle()))).toBe(true)
 })

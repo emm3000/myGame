@@ -1,8 +1,11 @@
-import { shellTitle } from '@mygame/catalog'
 import type { FormEvent, ReactElement, ReactNode } from 'react'
+import { Button } from '../design-system/Button'
+import type { LineLanguage } from '../design-system/Label'
 import { Panel } from '../design-system/Panel'
+import type { SignedOutCopy } from './SignedOutCopy'
 
 export interface AuthPanelProps {
+  readonly copy: SignedOutCopy
   readonly title: string
   readonly lead?: string
   readonly onSubmit?: () => void
@@ -32,6 +35,21 @@ function Body({ onSubmit, children }: BodyProps): ReactElement {
   )
 }
 
+const otherLanguageOf: Readonly<Record<LineLanguage, LineLanguage>> = { en: 'es', es: 'en' }
+
+function LanguageSwitch({ copy }: { readonly copy: SignedOutCopy }): ReactElement {
+  const other = otherLanguageOf[copy.language]
+  const names: Readonly<Record<LineLanguage, string>> = {
+    en: copy.catalog.authLanguageEn(),
+    es: copy.catalog.authLanguageEs(),
+  }
+  return (
+    <Button type="button" tone="text" onClick={() => copy.onSwitch(other)}>
+      <span lang={other}>{names[other]}</span>
+    </Button>
+  )
+}
+
 export function AuthPanel(props: AuthPanelProps): ReactElement {
   return (
     <div className="flex min-h-screen flex-col bg-surface text-ink">
@@ -42,7 +60,12 @@ export function AuthPanel(props: AuthPanelProps): ReactElement {
             toneClass="border-line bg-surface-raised"
             spacingClass="gap-6 p-6"
           >
-            <p className="m-0 -mb-2 font-sans text-title text-action">{shellTitle()}</p>
+            <div className="-mb-2 flex items-center justify-between gap-4">
+              <p className="m-0 font-sans text-title text-action">
+                {props.copy.catalog.shellTitle()}
+              </p>
+              <LanguageSwitch copy={props.copy} />
+            </div>
             <h1 className="m-0 font-sans text-display text-ink">{props.title}</h1>
             {props.lead === undefined ? null : (
               <p className="m-0 -mt-2 font-sans text-body text-ink-muted">{props.lead}</p>

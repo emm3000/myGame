@@ -1,13 +1,17 @@
-import { authSignInTitle, shellSignOut } from '@mygame/catalog'
+import { es } from '@mygame/catalog'
 import { fireEvent, screen } from '@testing-library/react'
-import { expect, it } from 'vitest'
+import { beforeEach, expect, it, vi } from 'vitest'
 import { renderAppAt } from './renderAppAt.testSupport'
 import { knownPlayer, stubApiClient } from './stubApiClient.testSupport'
+
+beforeEach(() => {
+  vi.spyOn(navigator, 'language', 'get').mockReturnValue('es-ES')
+})
 
 it('sends a signed-out visitor to the sign-in screen', async () => {
   renderAppAt('/', stubApiClient({ currentPlayer: async () => undefined }))
 
-  expect(await screen.findByRole('heading', { level: 1, name: authSignInTitle() })).toBeDefined()
+  expect(await screen.findByRole('heading', { level: 1, name: es.authSignInTitle() })).toBeDefined()
 })
 
 it('returns a player who signs out to the sign-in screen', async () => {
@@ -23,7 +27,7 @@ it('returns a player who signs out to the sign-in screen', async () => {
     }),
   )
 
-  fireEvent.click(await screen.findByRole('button', { name: shellSignOut() }))
+  fireEvent.click(await screen.findByRole('button', { name: es.shellSignOut() }))
 
-  expect(await screen.findByRole('heading', { level: 1, name: authSignInTitle() })).toBeDefined()
+  expect(await screen.findByRole('heading', { level: 1, name: es.authSignInTitle() })).toBeDefined()
 })

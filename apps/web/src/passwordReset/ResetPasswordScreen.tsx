@@ -1,17 +1,7 @@
-import {
-  authSignInTitle,
-  es,
-  passwordResetNewPasswordChanged,
-  passwordResetNewPasswordNewLink,
-  passwordResetNewPasswordPassword,
-  passwordResetNewPasswordPasswordHint,
-  passwordResetNewPasswordSubmit,
-  passwordResetNewPasswordTitle,
-  refusalTokenInvalid,
-} from '@mygame/catalog'
 import { type ReactElement, useState } from 'react'
 import type { ApiRefusal } from '../api/apiClient'
 import { AuthPanel } from '../auth/AuthPanel'
+import type { SignedOutCopy } from '../auth/SignedOutCopy'
 import { Button } from '../design-system/Button'
 import { ButtonLink } from '../design-system/ButtonLink'
 import { FormAlert } from '../design-system/FormAlert'
@@ -27,45 +17,58 @@ export type ResetPasswordState =
   | { readonly kind: 'linkRefused' }
 
 export interface ResetPasswordScreenProps {
+  readonly copy: SignedOutCopy
   readonly state: ResetPasswordState
   readonly onSubmit: (password: string) => void
 }
 
 interface NewPasswordFormProps {
+  readonly copy: SignedOutCopy
   readonly refusal: ApiRefusal | undefined
   readonly isSending: boolean
   readonly onSubmit: (password: string) => void
 }
 
 function NewPasswordForm(props: NewPasswordFormProps): ReactElement {
+  const { catalog, language } = props.copy
   const [password, setPassword] = useState('')
   return (
-    <AuthPanel title={passwordResetNewPasswordTitle()} onSubmit={() => props.onSubmit(password)}>
+    <AuthPanel
+      copy={props.copy}
+      title={catalog.passwordResetNewPasswordTitle()}
+      onSubmit={() => props.onSubmit(password)}
+    >
       <TextField
-        label={lineLabelOf(passwordResetNewPasswordPassword(), 'es')}
+        label={lineLabelOf(catalog.passwordResetNewPasswordPassword(), language)}
         name="new-password"
         type="password"
         autoComplete="new-password"
         value={password}
         onChange={setPassword}
-        hint={lineLabelOf(passwordResetNewPasswordPasswordHint(), 'es')}
+        hint={lineLabelOf(catalog.passwordResetNewPasswordPasswordHint(), language)}
       />
       {props.refusal === undefined ? null : (
-        <FormAlert message={lineLabelOf(refusalLineOf(es, props.refusal), 'es')} />
+        <FormAlert message={lineLabelOf(refusalLineOf(catalog, props.refusal), language)} />
       )}
       <Button type="submit" tone="primary" disabled={props.isSending}>
-        {passwordResetNewPasswordSubmit()}
+        {catalog.passwordResetNewPasswordSubmit()}
       </Button>
     </AuthPanel>
   )
 }
 
-export function ResetPasswordScreen({ state, onSubmit }: ResetPasswordScreenProps): ReactElement {
+export function ResetPasswordScreen({
+  copy,
+  state,
+  onSubmit,
+}: ResetPasswordScreenProps): ReactElement {
+  const { catalog, language } = copy
   switch (state.kind) {
     case 'editing':
     case 'sending':
       return (
         <NewPasswordForm
+          copy={copy}
           refusal={state.kind === 'editing' ? state.refusal : undefined}
           isSending={state.kind === 'sending'}
           onSubmit={onSubmit}
@@ -73,20 +76,20 @@ export function ResetPasswordScreen({ state, onSubmit }: ResetPasswordScreenProp
       )
     case 'changed':
       return (
-        <AuthPanel title={passwordResetNewPasswordTitle()}>
-          <ConfirmationLine line={passwordResetNewPasswordChanged()} />
+        <AuthPanel copy={copy} title={catalog.passwordResetNewPasswordTitle()}>
+          <ConfirmationLine line={catalog.passwordResetNewPasswordChanged()} />
           <ButtonLink to="/sign-in" tone="primary">
-            {authSignInTitle()}
+            {catalog.authSignInTitle()}
           </ButtonLink>
         </AuthPanel>
       )
     case 'linkRefused':
       return (
-        <AuthPanel title={passwordResetNewPasswordTitle()}>
-          <FormAlert message={lineLabelOf(refusalTokenInvalid(), 'es')} />
+        <AuthPanel copy={copy} title={catalog.passwordResetNewPasswordTitle()}>
+          <FormAlert message={lineLabelOf(catalog.refusalTokenInvalid(), language)} />
           <span className="flex">
             <ButtonLink to="/forgot-password" tone="quiet">
-              {passwordResetNewPasswordNewLink()}
+              {catalog.passwordResetNewPasswordNewLink()}
             </ButtonLink>
           </span>
         </AuthPanel>

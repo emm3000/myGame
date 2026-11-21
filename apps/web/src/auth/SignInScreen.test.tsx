@@ -1,13 +1,12 @@
-import {
-  authEmail,
-  authPassword,
-  authSignInSubmit,
-  refusalInvalidCredentials,
-} from '@mygame/catalog'
+import { es } from '@mygame/catalog'
 import { fireEvent, screen } from '@testing-library/react'
-import { expect, it } from 'vitest'
+import { beforeEach, expect, it, vi } from 'vitest'
 import { renderAppAt } from './renderAppAt.testSupport'
 import { stubApiClient } from './stubApiClient.testSupport'
+
+beforeEach(() => {
+  vi.spyOn(navigator, 'language', 'get').mockReturnValue('es-ES')
+})
 
 it('shows the Spanish message for a refused credential', async () => {
   renderAppAt(
@@ -15,15 +14,15 @@ it('shows the Spanish message for a refused credential', async () => {
     stubApiClient({ signIn: async () => ({ ok: false, refusal: 'InvalidCredentials' }) }),
   )
 
-  fireEvent.change(await screen.findByLabelText(authEmail()), {
+  fireEvent.change(await screen.findByLabelText(es.authEmail()), {
     target: { value: 'aldonza@example.com' },
   })
-  fireEvent.change(screen.getByLabelText(authPassword()), {
+  fireEvent.change(screen.getByLabelText(es.authPassword()), {
     target: { value: 'piedra-equivocada' },
   })
-  fireEvent.click(screen.getByRole('button', { name: authSignInSubmit() }))
+  fireEvent.click(screen.getByRole('button', { name: es.authSignInSubmit() }))
 
-  expect((await screen.findByRole('alert')).textContent).toBe(refusalInvalidCredentials())
+  expect((await screen.findByRole('alert')).textContent).toBe(es.refusalInvalidCredentials())
 })
 
 it('opens the reset request from the sign-in screen', async () => {

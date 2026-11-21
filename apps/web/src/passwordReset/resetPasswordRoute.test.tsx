@@ -1,21 +1,19 @@
-import {
-  passwordResetNewPasswordPassword,
-  passwordResetNewPasswordSubmit,
-  refusalTokenInvalid,
-  refusalUnexpected,
-  refusalWeakPassword,
-} from '@mygame/catalog'
+import { es } from '@mygame/catalog'
 import type { ResetPasswordRequest } from '@mygame/contracts'
 import { fireEvent, screen, waitFor } from '@testing-library/react'
-import { expect, it } from 'vitest'
+import { beforeEach, expect, it, vi } from 'vitest'
 import { renderAppAt } from '../auth/renderAppAt.testSupport'
 import { knownPlayer, stubApiClient } from '../auth/stubApiClient.testSupport'
 
+beforeEach(() => {
+  vi.spyOn(navigator, 'language', 'get').mockReturnValue('es-ES')
+})
+
 const chooseNewPassword = async (password: string): Promise<void> => {
-  fireEvent.change(await screen.findByLabelText(passwordResetNewPasswordPassword()), {
+  fireEvent.change(await screen.findByLabelText(es.passwordResetNewPasswordPassword()), {
     target: { value: password },
   })
-  fireEvent.click(screen.getByRole('button', { name: passwordResetNewPasswordSubmit() }))
+  fireEvent.click(screen.getByRole('button', { name: es.passwordResetNewPasswordSubmit() }))
 }
 
 it('sets the new password from the link', async () => {
@@ -41,7 +39,7 @@ it('sets the new password from the link', async () => {
 it('shows the 8-character hint under the new password', async () => {
   renderAppAt('/reset-password?token=link-token', stubApiClient())
 
-  const field = await screen.findByLabelText(passwordResetNewPasswordPassword())
+  const field = await screen.findByLabelText(es.passwordResetNewPasswordPassword())
   const hint = screen.getByText('Al menos 8 caracteres.').closest('[id]')
 
   expect(field.getAttribute('aria-describedby')).toBe(hint?.id)
@@ -75,7 +73,7 @@ it('shows the WeakPassword line the api answers', async () => {
 
   await chooseNewPassword('piedra-nueva')
 
-  expect((await screen.findByRole('alert')).textContent).toBe(refusalWeakPassword())
+  expect((await screen.findByRole('alert')).textContent).toBe(es.refusalWeakPassword())
 })
 
 it('offers a new link when the reset link is refused', async () => {
@@ -92,7 +90,7 @@ it('offers a new link when the reset link is refused', async () => {
   expect(screen.getByRole('link', { name: 'Pedir otro enlace' }).getAttribute('href')).toBe(
     '/forgot-password',
   )
-  expect(screen.queryByLabelText(passwordResetNewPasswordPassword())).toBeNull()
+  expect(screen.queryByLabelText(es.passwordResetNewPasswordPassword())).toBeNull()
 })
 
 it('shows the Spanish line of an unexpected answer to a new password', async () => {
@@ -103,7 +101,7 @@ it('shows the Spanish line of an unexpected answer to a new password', async () 
 
   await chooseNewPassword('piedra-nueva')
 
-  expect((await screen.findByRole('alert')).textContent).toBe(refusalUnexpected())
+  expect((await screen.findByRole('alert')).textContent).toBe(es.refusalUnexpected())
 })
 
 it('shows the invalid link without a request when the token is missing', async () => {
@@ -118,8 +116,8 @@ it('shows the invalid link without a request when the token is missing', async (
     }),
   )
 
-  expect((await screen.findByRole('alert')).textContent).toBe(refusalTokenInvalid())
-  expect(screen.queryByLabelText(passwordResetNewPasswordPassword())).toBeNull()
+  expect((await screen.findByRole('alert')).textContent).toBe(es.refusalTokenInvalid())
+  expect(screen.queryByLabelText(es.passwordResetNewPasswordPassword())).toBeNull()
   expect(resets).toBe(0)
 })
 
