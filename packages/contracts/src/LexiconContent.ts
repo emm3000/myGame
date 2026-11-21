@@ -23,18 +23,23 @@ const FramesSchema = z
     error: `A word holds at most ${MAXIMUM_FRAMES} frames`,
   })
 
-const LexiconEntrySchema = z.strictObject({
-  id: z.string().min(1),
-  lemma: z.string().min(1),
-  partOfSpeech: z.enum(['noun', 'verb', 'adjective', 'adverb']),
-  frames: FramesSchema,
-  gloss: z.strictObject({ es: z.string().min(1).optional() }),
-  definition: z.string().min(1).optional(),
-  acceptedForms: z.array(z.string().min(1)).optional(),
-  homographs: HomographsSchema.optional(),
-  isOffList: z.literal(true).optional(),
-  source: z.enum(['phave', 'phrase']).optional(),
-})
+const LexiconEntrySchema = z
+  .strictObject({
+    id: z.string().min(1),
+    lemma: z.string().min(1),
+    partOfSpeech: z.enum(['noun', 'verb', 'adjective', 'adverb', 'phrase']),
+    frames: FramesSchema,
+    gloss: z.strictObject({ es: z.string().min(1).optional() }),
+    definition: z.string().min(1).optional(),
+    acceptedForms: z.array(z.string().min(1)).optional(),
+    homographs: HomographsSchema.optional(),
+    isOffList: z.literal(true).optional(),
+    source: z.enum(['phave', 'phrase']).optional(),
+  })
+  .refine(({ source, partOfSpeech }) => (source === 'phrase') === (partOfSpeech === 'phrase'), {
+    error: 'A phrase unit, and only a phrase unit, is filed under the phrase part of speech',
+    path: ['partOfSpeech'],
+  })
 
 export const LexiconContentSchema = z.array(LexiconEntrySchema).min(1)
 

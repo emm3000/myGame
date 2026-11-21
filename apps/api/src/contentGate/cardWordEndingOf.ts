@@ -26,6 +26,7 @@ export const cardWordEndingOf = (
   }
   switch (partOfSpeech) {
     case 'noun':
+    case 'phrase':
       return undefined
     case 'verb':
       return verbEndingOf(form, lemma)

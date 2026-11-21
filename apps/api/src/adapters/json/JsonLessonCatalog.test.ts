@@ -3,6 +3,7 @@ import { cpSync, mkdtempSync, readFileSync, rmSync, writeFileSync } from 'node:f
 import { tmpdir } from 'node:os'
 import { join } from 'node:path'
 import { fileURLToPath } from 'node:url'
+import { isUnitLemma } from '@mygame/domain'
 import { afterEach, describe, expect, it } from 'vitest'
 import { JsonLessonCatalog } from './JsonLessonCatalog'
 import { shippedCurriculum } from './shippedCurriculum.testSupport'
@@ -239,6 +240,13 @@ describe('JsonLessonCatalog', () => {
     const offered = [1, 2, 3].flatMap((band) => catalog.placementWordsOf(band))
 
     expect(offered.map(({ id }) => id)).not.toContain('off-list-word')
+  })
+
+  it('offers no multi-word unit for placement in any band', () => {
+    const catalog = JsonLessonCatalog.fromDirectory(shippedContent)
+    const offered = [1, 2, 3].flatMap((band) => catalog.placementWordsOf(band))
+
+    expect(offered.filter(({ word }) => isUnitLemma(word))).toEqual([])
   })
 
   it('offers no frame word for placement', () => {
