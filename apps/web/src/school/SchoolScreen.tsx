@@ -11,12 +11,13 @@ import { Track } from '../design-system/Track'
 import { useFocusTarget } from '../focus/useFocusTarget'
 import { refusalLineOf } from '../refusals/refusalLineOf'
 import { formatFinish } from '../time/formatFinish'
+import { joinFinishPieces } from '../time/joinFinishPieces'
 import { lessonNameOf } from '../town/lessonNameOf'
 import type { LiveTown } from '../town/liveTown'
 import { NextStepLink } from '../town/NextStepLink'
 import { reviewsActionOf } from '../town/nextStepCardOf'
 import { BandLines } from './BandLines'
-import { capWaitLabelOf } from './capWaitLabelOf'
+import { capWaitPiecesOf } from './capWaitPiecesOf'
 import { HoldoutCheckRows } from './HoldoutCheckRows'
 import { LessonRows } from './LessonRows'
 import {
@@ -83,10 +84,13 @@ function slotStateOf(
 
 const learningFullLineOf = (copy: PlayerCopy, count: number, town: LiveTown): Label =>
   chromeWithFiguresOf(copy, (catalog, figure) => {
-    const timeLeft = capWaitLabelOf(catalog, town)
-    return timeLeft === null
+    const pieces = capWaitPiecesOf(catalog, town)
+    return pieces === null
       ? catalog.schoolLearningFull({ count })
-      : catalog.schoolLearningFullNextWordDue({ count, timeLeft: figure(timeLeft) })
+      : catalog.schoolLearningFullNextWordDue({
+          count,
+          timeLeft: joinFinishPieces(pieces.map(figure)),
+        })
   })
 
 function LearningLoad({ town }: { readonly town: LiveTown }): ReactElement {

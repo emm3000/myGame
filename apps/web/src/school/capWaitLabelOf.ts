@@ -1,15 +1,9 @@
 import type { FixedLinePieces } from '../copy/PlayerCopy'
-import { formatFinish } from '../time/formatFinish'
+import { joinFinishPieces } from '../time/joinFinishPieces'
 import type { LiveTown } from '../town/liveTown'
+import { capWaitPiecesOf } from './capWaitPiecesOf'
 
-export function capWaitLabelOf(
-  catalog: FixedLinePieces,
-  { overview, at }: LiveTown,
-): string | null {
-  const dueAt = overview.learning.nextInLearningDueAt
-  if (dueAt === null || overview.nextStep.kind === 'reviews') {
-    return null
-  }
-  const remainingSeconds = (Date.parse(dueAt) - at.getTime()) / 1000
-  return remainingSeconds > 0 ? formatFinish(catalog, remainingSeconds, at) : null
+export function capWaitLabelOf(catalog: FixedLinePieces, town: LiveTown): string | null {
+  const pieces = capWaitPiecesOf(catalog, town)
+  return pieces === null ? null : joinFinishPieces(pieces)
 }

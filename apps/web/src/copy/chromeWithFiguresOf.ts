@@ -1,8 +1,8 @@
 import type { Label, LabelFigure, LabelLine } from '../design-system/Label'
 import type { ChromeCatalog, PlayerCopy } from './PlayerCopy'
 
-const figureOpen = ''
-const figureClose = ''
+const figureOpen = '\uE001'
+const figureClose = '\uE002'
 const figureMark = new RegExp(`${figureOpen}([^${figureClose}]*)${figureClose}`)
 
 const figureOf = (text: string): string => `${figureOpen}${text}${figureClose}`
