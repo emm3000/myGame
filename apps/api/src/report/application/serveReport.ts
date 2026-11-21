@@ -1,4 +1,3 @@
-import type { Report, Reviews } from '@mygame/contracts'
 import {
   type Clock,
   type DomainError,
@@ -10,11 +9,9 @@ import {
   type TownEvent,
   type TownId,
 } from '@mygame/domain'
-import { presentReviews, type ReviewTerms, serveDueReviews } from '../../learning/reviewsOf'
-import type { Refusal } from '../../platform/application/Refusal'
+import { type DueReviews, type ReviewTerms, serveDueReviews } from '../../learning/reviewsOf'
 import { type CurrentTownDependencies, currentTownOf } from '../../town/currentTownOf'
 import type { TownNewsReader } from '../../town/TownNewsReader'
-import { townNewsItemOf } from '../../town/townNewsItemOf'
 import type { ReportClosings } from './ports/ReportClosings'
 
 export type ServeReportDependencies = CurrentTownDependencies &
@@ -22,14 +19,16 @@ export type ServeReportDependencies = CurrentTownDependencies &
     readonly reportClosings: ReportClosings
   }
 
+export type ServedReport = {
+  readonly reviews: DueReviews
+  readonly news: ReadonlyArray<TownEvent>
+}
+
+export type ReportNotServed = DomainError | { readonly kind: 'SignedOut' }
+
 type ReportTown = {
   readonly at: Instant
   readonly townId: TownId | undefined
-}
-
-type ReportShown = {
-  readonly reviews: Reviews
-  readonly news: ReadonlyArray<TownEvent>
 }
 
 const readReportTown = async (
@@ -62,7 +61,7 @@ const shownAt = (
   closedAt: Instant,
   town: ReportTown,
   dependencies: ServeReportDependencies,
-): Promise<Result<ReportShown, DomainError>> => {
+): Promise<Result<ServedReport, DomainError>> => {
   const readClock: Clock = { now: () => town.at }
   return dependencies.inTransaction(async (stores) => {
     await stores.accounts.lockPlayer(playerId)
@@ -71,14 +70,14 @@ const shownAt = (
       return reviews
     }
     const news = await newsBetween(closedAt, town, stores.townNews)
-    return ok({ reviews: presentReviews(reviews.value), news })
+    return ok({ reviews: reviews.value, news })
   })
 }
 
 export const serveReport = async (
   playerId: PlayerId,
   dependencies: ServeReportDependencies,
-): Promise<Result<Report, Refusal>> => {
+): Promise<Result<ServedReport, ReportNotServed>> => {
   const closedAt = await dependencies.reportClosings.closedAt(playerId)
   if (closedAt === undefined) {
     return err({ kind: 'SignedOut' })
@@ -92,13 +91,5 @@ export const serveReport = async (
     return shown
   }
   await dependencies.reportClosings.serve(playerId, town.value.at)
-  const { due, readFirst, nextDueAt, readAt } = shown.value.reviews
-  return ok({
-    dueCount: due.length,
-    due,
-    readFirst,
-    nextDueAt,
-    readAt,
-    news: shown.value.news.map(townNewsItemOf),
-  })
+  return shown
 }
