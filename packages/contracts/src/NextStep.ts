@@ -72,3 +72,5 @@ export const NextStepSchema = z
   .meta({ id: 'NextStep' })
 
 export type NextStep = z.infer<typeof NextStepSchema>
+
+export type NextStepText = z.infer<typeof NextStepTextSchema>

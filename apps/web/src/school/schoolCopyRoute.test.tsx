@@ -5,6 +5,7 @@ import { expect, it } from 'vitest'
 import type { ApiClient } from '../api/apiClient'
 import { renderAppAt } from '../auth/renderAppAt.testSupport'
 import { knownPlayer, knownTown, stubApiClient } from '../auth/stubApiClient.testSupport'
+import { linesDrawnAlone, shownLinesDrawnAlone } from '../town/lineDrawnAlone.testSupport'
 
 type CopyLanguage = Pick<TownOverview, 'scaffold' | 'chromePhase'>
 
@@ -94,7 +95,9 @@ it('marks a studied lesson in English alone in the English phase', async () => {
 
   const lessons = await sectionNamed(en.schoolLessons())
 
-  expect(within(lessons).getByText(en.schoolLessonStudied())).toBeDefined()
+  expect(
+    shownLinesDrawnAlone(en.schoolLessonStudied(), 'en').filter((line) => lessons.contains(line)),
+  ).toHaveLength(1)
 })
 
 it('marks the shown lesson under study in English alone in the English phase', async () => {
@@ -121,7 +124,7 @@ it('counts the words in learning in English alone in the English phase', async (
 
   const { inLearning, cap } = knownTown.learning
 
-  expect(await screen.findByText(en.schoolLearning({ inLearning, cap }))).toBeDefined()
+  expect(await linesDrawnAlone(en.schoolLearning({ inLearning, cap }), 'en')).toHaveLength(1)
 })
 
 it('heads the texts in English under none', async () => {
@@ -205,7 +208,7 @@ it('gives the reason a lesson waits in English alone in the English phase', asyn
     servingSchoolIn(englishPhase, { lessons: [lessonOf(1, { requiredSchoolLevel: 3 })] }),
   )
 
-  expect(await screen.findByText(en.schoolLessonNeedsSchool({ level: 3 }))).toBeDefined()
+  expect(await linesDrawnAlone(en.schoolLessonNeedsSchool({ level: 3 }), 'en')).toHaveLength(1)
 })
 
 it('writes the words and the skill of a lesson in English under none', async () => {
