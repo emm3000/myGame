@@ -31,7 +31,6 @@ export const readPlacementRoute = (
   dependencies: ReadPlacementRouteDependencies,
 ): void => {
   const { lessons } = dependencies
-  const content = { words: lessons, bands: lessons }
   routes.openAPIRegistry.registerPath(readPlacementDeclaration)
   routes.on(
     readPlacementDeclaration.method,
@@ -44,7 +43,12 @@ export const readPlacementRoute = (
         async (stores) =>
           readPlacement(
             { playerId, scaffold: await readScaffold(playerId, stores.accounts) },
-            { ...stores, ...content },
+            {
+              placements: stores.placements,
+              bandStarts: stores.bandStarts,
+              words: lessons,
+              bands: lessons,
+            },
           ),
         dependencies,
       )

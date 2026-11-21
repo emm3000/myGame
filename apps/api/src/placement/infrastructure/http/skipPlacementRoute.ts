@@ -30,7 +30,6 @@ export const skipPlacementRoute = (
   dependencies: SkipPlacementRouteDependencies,
 ): void => {
   const { lessons } = dependencies
-  const content = { words: lessons, bands: lessons }
   routes.openAPIRegistry.registerPath(skipPlacementDeclaration)
   routes.on(
     skipPlacementDeclaration.method,
@@ -41,10 +40,27 @@ export const skipPlacementRoute = (
       const view = await mutateTown(
         playerId,
         async (stores, clock) => {
-          const skipped = await skipPlacement({ playerId }, { ...stores, ...content, clock })
+          const skipped = await skipPlacement(
+            { playerId },
+            {
+              placements: stores.placements,
+              bandStarts: stores.bandStarts,
+              words: lessons,
+              bands: lessons,
+              clock,
+            },
+          )
           const scaffold = await readScaffold(playerId, stores.accounts)
           return skipped.ok
-            ? readPlacement({ playerId, scaffold }, { ...stores, ...content })
+            ? readPlacement(
+                { playerId, scaffold },
+                {
+                  placements: stores.placements,
+                  bandStarts: stores.bandStarts,
+                  words: lessons,
+                  bands: lessons,
+                },
+              )
             : skipped
         },
         dependencies,
