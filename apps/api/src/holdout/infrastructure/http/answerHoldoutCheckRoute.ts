@@ -11,13 +11,13 @@ import { honoPathOf } from '#platform/infrastructure/http/honoPath'
 import { readJsonBody } from '#platform/infrastructure/http/readJsonBody'
 import { respondRefusal } from '#platform/infrastructure/http/respondRefusal'
 import { jsonBody } from '#platform/infrastructure/http/responseDeclarations'
-import { signedInRoute } from '#platform/infrastructure/http/signedInDeclaration'
+import { signedInDeclaration } from '#platform/infrastructure/http/signedInDeclaration'
 import { mutateHoldoutCheck } from '../../application/mutateHoldoutCheck'
 import { checkNotDue, checkPath, checksResponse } from './holdoutCheckComponents'
 import { respondHoldoutChecks } from './respondHoldoutChecks'
 
 export const answerHoldoutCheckDeclaration = createRoute(
-  signedInRoute({
+  signedInDeclaration({
     method: 'post',
     path: '/{band}/{week}/answers',
     request: { ...checkPath, body: jsonBody(HoldoutCheckAnswersSchema) },

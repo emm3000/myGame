@@ -1,6 +1,6 @@
 import { createRoute, type OpenAPIHono } from '@hono/zod-openapi'
 import { respondRefusal } from '#platform/infrastructure/http/respondRefusal'
-import { signedInRoute } from '#platform/infrastructure/http/signedInDeclaration'
+import { signedInDeclaration } from '#platform/infrastructure/http/signedInDeclaration'
 import type { Accounts } from '../../application/ports/Accounts'
 import type { ReadChromePhaseDependencies } from '../../application/readChromePhase'
 import { playerResponse } from './accountComponents'
@@ -8,7 +8,7 @@ import { presentPlayer } from './presentPlayer'
 import { type RequirePlayerDependencies, requirePlayer } from './requirePlayer'
 
 export const readSessionDeclaration = createRoute(
-  signedInRoute({
+  signedInDeclaration({
     method: 'get',
     path: '/auth/session',
     responses: {

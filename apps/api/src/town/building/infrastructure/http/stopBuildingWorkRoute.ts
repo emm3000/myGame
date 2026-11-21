@@ -9,7 +9,7 @@ import { honoPathOf } from '#platform/infrastructure/http/honoPath'
 import { refusalResponse } from '#platform/infrastructure/http/refusalResponse'
 import { respondRefusal } from '#platform/infrastructure/http/respondRefusal'
 import { malformedResponse } from '#platform/infrastructure/http/responseDeclarations'
-import { signedInRoute } from '#platform/infrastructure/http/signedInDeclaration'
+import { signedInDeclaration } from '#platform/infrastructure/http/signedInDeclaration'
 import {
   type RespondTownChangeDependencies,
   respondTownChange,
@@ -17,7 +17,7 @@ import {
 import { overviewResponse, townNotFoundResponse } from '../../../infrastructure/http/townComponents'
 
 export const stopBuildingWorkDeclaration = createRoute(
-  signedInRoute({
+  signedInDeclaration({
     method: 'delete',
     path: '/work/{building}/{level}',
     request: { params: StopBuildingWorkSchema },

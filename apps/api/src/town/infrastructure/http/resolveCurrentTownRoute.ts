@@ -4,7 +4,7 @@ import {
   requirePlayer,
 } from '#account/infrastructure/http/requirePlayer'
 import { honoPathOf } from '#platform/infrastructure/http/honoPath'
-import { signedInRoute } from '#platform/infrastructure/http/signedInDeclaration'
+import { signedInDeclaration } from '#platform/infrastructure/http/signedInDeclaration'
 import {
   type ResolveCurrentTownDependencies,
   resolveCurrentTown,
@@ -13,7 +13,7 @@ import { type RespondTownReadingDependencies, respondTownReading } from './respo
 import { overviewResponse, townNotFoundResponse } from './townComponents'
 
 export const resolveCurrentTownDeclaration = createRoute(
-  signedInRoute({
+  signedInDeclaration({
     method: 'get',
     path: '/',
     responses: {

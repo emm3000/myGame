@@ -7,12 +7,12 @@ import {
 import { honoPathOf } from '#platform/infrastructure/http/honoPath'
 import { respondRefusal } from '#platform/infrastructure/http/respondRefusal'
 import { jsonResponse } from '#platform/infrastructure/http/responseDeclarations'
-import { signedInRoute } from '#platform/infrastructure/http/signedInDeclaration'
+import { signedInDeclaration } from '#platform/infrastructure/http/signedInDeclaration'
 import { type ServeReportDependencies, serveReport } from '../../application/serveReport'
 import { presentReport } from './presentReport'
 
 export const serveReportDeclaration = createRoute(
-  signedInRoute({
+  signedInDeclaration({
     method: 'get',
     path: '/',
     responses: {

@@ -7,7 +7,7 @@ import {
   jsonResponse,
   malformedResponse,
 } from '#platform/infrastructure/http/responseDeclarations'
-import { signedInRoute } from '#platform/infrastructure/http/signedInDeclaration'
+import { signedInDeclaration } from '#platform/infrastructure/http/signedInDeclaration'
 import type { Accounts } from '../../application/ports/Accounts'
 import type { ReadChromePhaseDependencies } from '../../application/readChromePhase'
 import { PlayerComponent } from './playerComponent'
@@ -17,7 +17,7 @@ import { type RequirePlayerDependencies, requirePlayer } from './requirePlayer'
 const ScaffoldChangeComponent = ScaffoldChangeSchema.meta({ id: 'ScaffoldChange' })
 
 export const changeScaffoldDeclaration = createRoute(
-  signedInRoute({
+  signedInDeclaration({
     method: 'put',
     path: '/player/scaffold',
     request: { body: jsonBody(ScaffoldChangeComponent) },

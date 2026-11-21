@@ -9,7 +9,7 @@ import { readJsonBody } from '#platform/infrastructure/http/readJsonBody'
 import { refusalResponse } from '#platform/infrastructure/http/refusalResponse'
 import { respondRefusal } from '#platform/infrastructure/http/respondRefusal'
 import { jsonBody, jsonResponse } from '#platform/infrastructure/http/responseDeclarations'
-import { signedInRoute } from '#platform/infrastructure/http/signedInDeclaration'
+import { signedInDeclaration } from '#platform/infrastructure/http/signedInDeclaration'
 import { townNotFoundResponse } from '../../../infrastructure/http/townComponents'
 import {
   type QuoteCleanUpNowDependencies,
@@ -17,7 +17,7 @@ import {
 } from '../../application/quoteCleanUpNow'
 
 export const quoteCleanUpDeclaration = createRoute(
-  signedInRoute({
+  signedInDeclaration({
     method: 'post',
     path: '/clean-ups/quote',
     request: { body: jsonBody(SendCleanUpSchema) },

@@ -15,7 +15,7 @@ const signedOutResponse: ResponseDeclaration = {
     'No live session: neither a session cookie nor, without one, an Authorization bearer token names one. Empty body.',
 }
 
-export const signedInRoute = <Route extends RouteConfig>(route: Route): Route => ({
+export const signedInDeclaration = <Route extends RouteConfig>(route: Route): Route => ({
   ...route,
   security: [{ [sessionBearerScheme]: [] }],
   responses: { ...route.responses, 401: signedOutResponse },

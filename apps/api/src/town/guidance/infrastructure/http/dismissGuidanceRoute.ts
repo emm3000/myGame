@@ -4,13 +4,13 @@ import {
   requirePlayer,
 } from '#account/infrastructure/http/requirePlayer'
 import { honoPathOf } from '#platform/infrastructure/http/honoPath'
-import { signedInRoute } from '#platform/infrastructure/http/signedInDeclaration'
+import { signedInDeclaration } from '#platform/infrastructure/http/signedInDeclaration'
 import type { MutateTownDependencies } from '../../../application/mutateTown'
 import { townNotFoundResponse } from '../../../infrastructure/http/townComponents'
 import { respondGuidanceChange } from './respondGuidanceChange'
 
 export const dismissGuidanceDeclaration = createRoute(
-  signedInRoute({
+  signedInDeclaration({
     method: 'post',
     path: '/guidance/dismissal',
     responses: {

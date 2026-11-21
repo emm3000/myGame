@@ -7,12 +7,12 @@ import {
 } from '#account/infrastructure/http/requirePlayer'
 import type { LearningDependencies } from '#learning/application/LearningDependencies'
 import { honoPathOf } from '#platform/infrastructure/http/honoPath'
-import { signedInRoute } from '#platform/infrastructure/http/signedInDeclaration'
+import { signedInDeclaration } from '#platform/infrastructure/http/signedInDeclaration'
 import { checksResponse } from './holdoutCheckComponents'
 import { respondHoldoutChecks } from './respondHoldoutChecks'
 
 export const readHoldoutChecksDeclaration = createRoute(
-  signedInRoute({
+  signedInDeclaration({
     method: 'get',
     path: '/',
     responses: {
