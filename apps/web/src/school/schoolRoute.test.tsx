@@ -17,6 +17,8 @@ import {
   schoolLessonSlotBusy,
   schoolLessonStudied,
   schoolLessonStudy,
+  schoolLessonStudying,
+  schoolLessons,
   schoolLessonTitle,
   schoolLessonWords,
   schoolPathCount,
@@ -24,6 +26,10 @@ import {
   schoolPathRead,
   schoolPathReviewed,
   schoolPathStudied,
+  schoolReleasedSlotBusy,
+  schoolReleasedStopOf,
+  schoolReleasedStudy,
+  schoolReleasedTitle,
   schoolSkillName,
   schoolSkillRate,
   schoolSkillsNone,
@@ -981,4 +987,120 @@ it('draws each due holdout check with a way into it', async () => {
     schoolHoldoutCheckRow({ band: 1, week: 24 }),
     schoolHoldoutCheckRow({ band: 2, week: 8 }),
   ])
+})
+
+type ReleasedLesson = TownOverview['releasedLessons'][number]
+
+const releasedOf = (position: number, overrides: Partial<ReleasedLesson> = {}): ReleasedLesson => ({
+  id: `released-2-${position}`,
+  band: 2,
+  position,
+  durationSeconds: 300,
+  requiredSchoolLevel: 1,
+  isStudied: false,
+  words: wordsOf('notStarted', 'notStarted', 'notStarted'),
+  ...overrides,
+})
+
+const releasedTitleOf = (position: number): string =>
+  schoolReleasedTitle({ band: 2, number: position })
+
+const releasedRow = (position: number): HTMLElement =>
+  screen.getByRole('listitem', { name: releasedTitleOf(position) })
+
+const releasedStudyOf = (position: number): HTMLElement =>
+  within(releasedRow(position)).getByRole('button', { name: `${schoolReleasedStudy()} · 5:00` })
+
+const shelvedAndReleased = schoolOf({
+  lessons: studiedThrough(0, 2),
+  releasedLessons: [releasedOf(2), releasedOf(1)],
+})
+
+const releasedSetTwoStudying: TownOverview['lessonSlot'] = {
+  lessonId: 'released-2-2',
+  startedAt: instantAfter(-60),
+  finishesAt: instantAfter(240),
+}
+
+const rowNames = (): ReadonlyArray<string | null> =>
+  within(screen.getByRole('region', { name: schoolLessons() }))
+    .getAllByRole('listitem')
+    .map((row) => row.getAttribute('aria-label'))
+
+it('draws the released lessons after the shelved ones', async () => {
+  await showSchool(shelvedAndReleased)
+
+  expect(rowNames()).toEqual(['Lección 2', releasedTitleOf(2), releasedTitleOf(1)])
+})
+
+it('draws no released row with none released', async () => {
+  await showSchool(schoolOf({ lessons: studiedThrough(0, 2), releasedLessons: [] }))
+
+  expect(rowNames()).toEqual(['Lección 2'])
+})
+
+it('starts a released lesson as a shelved one starts', async () => {
+  const started: Array<string> = []
+  await showSchool(shelvedAndReleased, {
+    startLesson: async (lessonId) => {
+      started.push(lessonId)
+      return { ok: true, value: { ...shelvedAndReleased, lessonSlot: releasedSetTwoStudying } }
+    },
+  })
+
+  fireEvent.click(releasedStudyOf(2))
+  await passSeconds(0)
+
+  expect(started).toEqual(['released-2-2'])
+  expect(within(screen.getByRole('main')).getByRole('timer').textContent).toBe('4 min')
+})
+
+it('counts the words of a released lesson on its row', async () => {
+  await showSchool(shelvedAndReleased)
+
+  expect(within(releasedRow(1)).getByText(schoolLessonWords({ count: 3 }))).toBeDefined()
+})
+
+it('names a running released lesson by band and set in the slot, never as lesson 0', async () => {
+  await showSchool({ ...shelvedAndReleased, lessonSlot: releasedSetTwoStudying })
+
+  expect(
+    screen.getByRole('button', { name: schoolReleasedStopOf({ band: 2, number: 2 }) }),
+  ).toBeDefined()
+  expect(screen.queryByText(/Lección 0/)).toBeNull()
+})
+
+it('marks a lesson blocked by a running released lesson with its band and set', async () => {
+  await showSchool({ ...shelvedAndReleased, lessonSlot: releasedSetTwoStudying })
+
+  expect(accessibleDescriptionOf(studyButtonOf(1))).toBe(
+    schoolReleasedSlotBusy({ band: 2, number: 2 }),
+  )
+})
+
+it('offers no words to read for a running released lesson', async () => {
+  await showSchool({ ...shelvedAndReleased, lessonSlot: releasedSetTwoStudying })
+
+  expect(screen.queryByRole('link', { name: new RegExp(schoolLessonReadWords()) })).toBeNull()
+})
+
+it('marks a released lesson under study as studying, with no start', async () => {
+  await showSchool({ ...shelvedAndReleased, lessonSlot: releasedSetTwoStudying })
+
+  const row = within(releasedRow(2))
+  expect(row.getByText(schoolLessonStudying())).toBeDefined()
+  expect(row.queryByRole('button')).toBeNull()
+})
+
+it('marks a studied released lesson as studied, with no start', async () => {
+  await showSchool(
+    schoolOf({
+      lessons: studiedThrough(0, 2),
+      releasedLessons: [releasedOf(1, { isStudied: true })],
+    }),
+  )
+
+  const row = within(releasedRow(1))
+  expect(row.getByText(schoolLessonStudied())).toBeDefined()
+  expect(row.queryByRole('button')).toBeNull()
 })

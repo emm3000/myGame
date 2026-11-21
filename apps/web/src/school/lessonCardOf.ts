@@ -3,7 +3,6 @@ import {
   schoolLessonNeedsSchool,
   schoolLessonReadWords,
   schoolLessonReward,
-  schoolLessonSlotBusy,
   schoolLessonStudy,
   schoolLessonTitle,
   schoolLessonWords,
@@ -13,8 +12,12 @@ import type { WordStanding } from '@mygame/domain'
 import { type BlockHue, blockHueOf } from '../design-system/blockHueOf'
 import type { OrderActionState } from '../design-system/CardAction'
 import { townResourceNameOf } from '../resources/townResourceNameOf'
+import { lessonNameOf, lessonNumberOf } from '../town/lessonNameOf'
+import { lessonLinesOf } from './lessonLinesOf'
 
 type Lesson = TownOverview['lessons'][number]
+
+type StudyableLesson = Pick<Lesson, 'id' | 'isStudied' | 'requiredSchoolLevel' | 'words'>
 
 export type LessonCardState =
   | { readonly kind: 'studied' }
@@ -34,9 +37,6 @@ export interface LessonCardContent {
   readonly state: LessonCardState
 }
 
-export const lessonNumberOf = (lessonId: string, overview: TownOverview): number =>
-  overview.lessons.findIndex(({ id }) => id === lessonId) + 1
-
 export const readWordsLabelOf = (
   lessonId: string,
   shownLessonId: string,
@@ -44,17 +44,19 @@ export const readWordsLabelOf = (
 ): string =>
   lessonId === shownLessonId
     ? schoolLessonReadWords()
-    : `${schoolLessonTitle({ number: lessonNumberOf(lessonId, overview) })} · ${schoolLessonReadWords()}`
+    : `${lessonLinesOf(lessonNameOf(lessonId, overview)).title} · ${schoolLessonReadWords()}`
 
-export const isPastLearningCap = (lesson: Lesson, { learning }: TownOverview): boolean =>
-  learning.inLearning + lesson.words.length > learning.cap
+export const isPastLearningCap = (
+  lesson: Pick<Lesson, 'words'>,
+  { learning }: TownOverview,
+): boolean => learning.inLearning + lesson.words.length > learning.cap
 
-function actionOf(lesson: Lesson, overview: TownOverview): OrderActionState {
+function actionOf(lesson: StudyableLesson, overview: TownOverview): OrderActionState {
   const { lessonSlot, learning, buildings } = overview
   if (lessonSlot !== null) {
     return {
       kind: 'blocked',
-      reason: schoolLessonSlotBusy({ number: lessonNumberOf(lessonSlot.lessonId, overview) }),
+      reason: lessonLinesOf(lessonNameOf(lessonSlot.lessonId, overview)).slotBusy,
     }
   }
   if (buildings.school.level < lesson.requiredSchoolLevel) {
@@ -76,7 +78,7 @@ function actionOf(lesson: Lesson, overview: TownOverview): OrderActionState {
   return { kind: 'affordable' }
 }
 
-function stateOf(lesson: Lesson, overview: TownOverview): LessonCardState {
+export function lessonStateOf(lesson: StudyableLesson, overview: TownOverview): LessonCardState {
   if (lesson.isStudied) {
     return { kind: 'studied' }
   }
@@ -101,6 +103,6 @@ export function lessonCardOf(lesson: Lesson, overview: TownOverview): LessonCard
     actionLabel: schoolLessonStudy({ number }),
     durationSeconds: lesson.durationSeconds,
     standings: lesson.words.map(({ standing }) => standing),
-    state: stateOf(lesson, overview),
+    state: lessonStateOf(lesson, overview),
   }
 }

@@ -250,6 +250,10 @@ export const schoolPathLearned = (): string => `Learned`
 export const schoolPathRead = (): string => `Can read`
 export const schoolPathReviewed = (): string => `Reviewed`
 export const schoolPathStudied = (): string => `Studied`
+export const schoolReleasedSlotBusy = ({ band, number }: { readonly band: string | number; readonly number: string | number }): string => `The school is studying the returning words of band ${String(band)}, set ${String(number)}.`
+export const schoolReleasedStopOf = ({ band, number }: { readonly band: string | number; readonly number: string | number }): string => `Stop studying the returning words of band ${String(band)}, set ${String(number)}`
+export const schoolReleasedStudy = (): string => `Study the returning words`
+export const schoolReleasedTitle = ({ band, number }: { readonly band: string | number; readonly number: string | number }): string => `Returning words: band ${String(band)}, set ${String(number)}`
 export const schoolSkillName = ({ level, resource }: { readonly level: string | number; readonly resource: string | number }): string => `Level ${String(level)} ${String(resource)} skill`
 export const schoolSkillRate = ({ percent, resource }: { readonly percent: string | number; readonly resource: string | number }): string => `+${String(percent)} % ${String(resource)}`
 export const schoolSkills = (): string => `Your skills`

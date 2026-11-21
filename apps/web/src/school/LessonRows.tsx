@@ -1,10 +1,17 @@
 import { schoolLessonStudied, schoolLessonStudying, schoolLessons } from '@mygame/catalog'
 import { type ReactElement, useId } from 'react'
+import { CardAction } from '../design-system/CardAction'
+import { FormAlert } from '../design-system/FormAlert'
 import { focusTargetClass } from '../design-system/focusTargetClass'
-import type { LessonCardContent } from './lessonCardOf'
+import { formatDuration } from '../design-system/formatDuration'
+import type { LiveTown } from '../town/liveTown'
+import type { LessonCardContent, LessonCardState } from './lessonCardOf'
+import { lessonRefusalLineOf } from './lessonRefusalLineOf'
+import type { ReleasedLessonCardContent } from './releasedLessonCardOf'
 import { SchoolPath } from './SchoolPath'
+import type { SchoolLessons } from './useSchoolLessons'
 
-const statusOf = ({ state }: LessonCardContent): string | undefined => {
+const statusOf = (state: LessonCardState): string | undefined => {
   switch (state.kind) {
     case 'studied':
       return schoolLessonStudied()
@@ -19,16 +26,28 @@ const statusOf = ({ state }: LessonCardContent): string | undefined => {
   }
 }
 
+function RowTitle({
+  title,
+  state,
+}: {
+  readonly title: string
+  readonly state: LessonCardState
+}): ReactElement {
+  const status = statusOf(state)
+  return (
+    <span className="flex flex-wrap items-baseline gap-x-3">
+      <span className="font-sans text-title text-ink">{title}</span>
+      {status !== undefined && (
+        <span className="font-sans text-caption text-ink-muted">{status}</span>
+      )}
+    </span>
+  )
+}
+
 function RowContent({ card }: { readonly card: LessonCardContent }): ReactElement {
-  const status = statusOf(card)
   return (
     <>
-      <span className="flex flex-wrap items-baseline gap-x-3">
-        <span className="font-sans text-title text-ink">{card.title}</span>
-        {status !== undefined && (
-          <span className="font-sans text-caption text-ink-muted">{status}</span>
-        )}
-      </span>
+      <RowTitle title={card.title} state={card.state} />
       <span lang="en" className="font-sans text-body text-ink wrap-anywhere">
         {card.theme}
       </span>
@@ -41,6 +60,8 @@ function RowContent({ card }: { readonly card: LessonCardContent }): ReactElemen
 
 const rowClass = 'flex w-full flex-col items-start gap-1 pt-3 text-left'
 
+const rowItemClass = 'flex flex-col gap-2 border-line border-t pb-3 first:border-t-0'
+
 function LessonRow({
   card,
   onSelect,
@@ -49,10 +70,7 @@ function LessonRow({
   readonly onSelect: (lessonId: string) => void
 }): ReactElement {
   return (
-    <li
-      aria-label={card.title}
-      className="flex flex-col gap-2 border-line border-t pb-3 first:border-t-0"
-    >
+    <li aria-label={card.title} className={rowItemClass}>
       {card.state.kind !== 'studied' ? (
         <button
           type="button"
@@ -71,14 +89,55 @@ function LessonRow({
   )
 }
 
+function ReleasedLessonRow({
+  card,
+  town,
+  lessons,
+}: {
+  readonly card: ReleasedLessonCardContent
+  readonly town: LiveTown
+  readonly lessons: SchoolLessons
+}): ReactElement {
+  const refused = lessons.startRefused?.subject === card.lessonId ? lessons.startRefused : undefined
+  return (
+    <li aria-label={card.title} className={rowItemClass}>
+      <div className={rowClass}>
+        <RowTitle title={card.title} state={card.state} />
+        <span className="font-sans text-caption text-ink-muted">{card.wordsLine}</span>
+      </div>
+      <SchoolPath standings={card.standings} />
+      {card.state.kind === 'open' && (
+        <CardAction
+          type="button"
+          label={`${card.actionLabel} · ${formatDuration(card.durationSeconds)}`}
+          state={card.state.action}
+          isWaiting={lessons.isStarting}
+          tone="quiet"
+          onAction={() => lessons.start(card.lessonId)}
+        />
+      )}
+      {refused !== undefined && <FormAlert message={lessonRefusalLineOf(refused, town)} />}
+    </li>
+  )
+}
+
 export interface LessonRowsProps {
   readonly cards: ReadonlyArray<LessonCardContent>
+  readonly releasedCards: ReadonlyArray<ReleasedLessonCardContent>
+  readonly town: LiveTown
+  readonly lessons: SchoolLessons
   readonly onSelect: (lessonId: string) => void
 }
 
-export function LessonRows({ cards, onSelect }: LessonRowsProps): ReactElement | null {
+export function LessonRows({
+  cards,
+  releasedCards,
+  town,
+  lessons,
+  onSelect,
+}: LessonRowsProps): ReactElement | null {
   const titleId = useId()
-  if (cards.length === 0) {
+  if (cards.length === 0 && releasedCards.length === 0) {
     return null
   }
   return (
@@ -89,6 +148,9 @@ export function LessonRows({ cards, onSelect }: LessonRowsProps): ReactElement |
       <ul className="m-0 flex list-none flex-col p-0">
         {cards.map((card) => (
           <LessonRow key={card.lessonId} card={card} onSelect={onSelect} />
+        ))}
+        {releasedCards.map((card) => (
+          <ReleasedLessonRow key={card.lessonId} card={card} town={town} lessons={lessons} />
         ))}
       </ul>
     </section>

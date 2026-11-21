@@ -18,9 +18,8 @@ import {
 import type { NextStep } from '@mygame/contracts'
 import type { SlotCountdown } from '../design-system/CountdownLine'
 import { formatQuantity } from '../design-system/formatQuantity'
-import { lessonNumberOf } from '../school/lessonCardOf'
 import { formatFinish } from '../time/formatFinish'
-import { type LessonName, lessonNameOf } from './lessonNameOf'
+import { type LessonName, lessonNameOf, lessonNumberOf } from './lessonNameOf'
 import type { LiveTown } from './liveTown'
 
 type Step<Kind extends NextStep['kind']> = Extract<NextStep, { readonly kind: Kind }>
