@@ -5,6 +5,8 @@ import { afterEach, beforeEach, expect, it, vi } from 'vitest'
 import type { ApiClient } from '../api/apiClient'
 import { renderAppAt } from '../auth/renderAppAt.testSupport'
 import { knownPlayer, knownTown, stubApiClient } from '../auth/stubApiClient.testSupport'
+import { capitalize } from '../design-system/capitalize'
+import { shownLinesDrawnAlone } from './lineDrawnAlone.testSupport'
 
 type CopyLanguage = Pick<TownOverview, 'scaffold' | 'chromePhase'>
 
@@ -87,7 +89,7 @@ it('stops the work by a Spanish button in the Spanish phase', async () => {
 it('titles the waiting list in English alone in the English phase', async () => {
   await showTownIn(englishPhase, { work: workOnFarm })
 
-  expect(linesReading(en.townWorkWaitingList())).not.toHaveLength(0)
+  expect(shownLinesDrawnAlone(en.townWorkWaitingList(), 'en')).not.toHaveLength(0)
 })
 
 it('invites to hire in English over Spanish in the both phase', async () => {
@@ -115,6 +117,8 @@ it('names the hires on order in English under none', async () => {
   expect(linesReading(en.townOfficeDelivered({ delivered: 1, count: 3 }))).not.toHaveLength(0)
 })
 
+const fall = capitalize(en.namesSeasonsFall())
+
 const fallOfYearTwo: Partial<TownOverview> = {
   season: {
     kind: 'fall',
@@ -128,13 +132,15 @@ const fallOfYearTwo: Partial<TownOverview> = {
 it('writes the season in English alone in the English phase', async () => {
   await showTownIn(englishPhase, fallOfYearTwo)
 
-  expect(linesReading(en.townSeasonLine({ season: 'Fall', year: 2 }))).not.toHaveLength(0)
+  expect(shownLinesDrawnAlone(en.townSeasonLine({ season: fall, year: 2 }), 'en')).not.toHaveLength(
+    0,
+  )
 })
 
 it('counts down the season in English under none', async () => {
   await showTownIn(noScaffold, fallOfYearTwo)
 
-  const endsIn = en.townSeasonEndsIn({ season: 'Fall', timeLeft: en.townSeasonDays({ days: 3 }) })
+  const endsIn = en.townSeasonEndsIn({ season: fall, timeLeft: en.townSeasonDays({ days: 3 }) })
 
   expect(linesReading(endsIn)).not.toHaveLength(0)
 })
@@ -144,7 +150,7 @@ it('names the minute the money arrives in English alone in the English phase', a
     stocks: { ...knownTown.stocks, money: { ...knownTown.stocks.money, amount: 10 } },
   })
 
-  expect(linesReading(en.townReadyIn({ time: '50 min' }))).not.toHaveLength(0)
+  expect(shownLinesDrawnAlone(en.townReadyIn({ time: '50 min' }), 'en')).not.toHaveLength(0)
 })
 
 it('counts down to the next review in English over Spanish in the both phase', async () => {

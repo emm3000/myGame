@@ -5,6 +5,8 @@ import { expect, it } from 'vitest'
 import type { ApiClient } from '../api/apiClient'
 import { renderAppAt } from '../auth/renderAppAt.testSupport'
 import { knownPlayer, knownTown, stubApiClient } from '../auth/stubApiClient.testSupport'
+import { capitalize } from '../design-system/capitalize'
+import { linesDrawnAlone } from './lineDrawnAlone.testSupport'
 
 type CopyLanguage = Pick<TownOverview, 'scaffold' | 'chromePhase'>
 
@@ -41,7 +43,7 @@ it('titles a tip in English over Spanish in the both phase', async () => {
 it('writes a tip in English alone in the English phase', async () => {
   renderAppAt('/', servingTownIn(englishPhase, { tip: 'people' }))
 
-  expect(await screen.findByText(en.townTipPeople())).toBeDefined()
+  expect(await linesDrawnAlone(en.townTipPeople(), 'en')).toHaveLength(1)
 })
 
 it('closes a tip by an English button under none', async () => {
@@ -251,7 +253,7 @@ it('writes a place not built yet in English under none', async () => {
 it('writes the people a place puts to work in Spanish alone in the Spanish phase', async () => {
   renderAppAt('/', servingTownIn(spanishPhase))
 
-  expect((await screen.findAllByText(es.townPeopleAtWork({ people: 2 }))).length).toBeGreaterThan(0)
+  expect(await linesDrawnAlone(es.townPeopleAtWork({ people: 2 }), 'es')).not.toHaveLength(0)
 })
 
 it('builds the next level by an English button in the English phase', async () => {
@@ -299,7 +301,7 @@ it('hires workers by an English button under none', async () => {
 it('names the people a hire takes in Spanish alone in the Spanish phase', async () => {
   renderAppAt('/', servingTownIn(spanishPhase, officeAt(1)))
 
-  expect(await linesReading(es.townOfficePeopleName({ count: 1 }))).not.toHaveLength(0)
+  expect(await linesDrawnAlone(es.townOfficePeopleName({ count: 1 }), 'es')).not.toHaveLength(0)
 })
 
 it('writes the goal and its state in English in the English phase', async () => {
@@ -348,7 +350,9 @@ it('writes a due holdout check in English under none', async () => {
 it('names each stock in English alone in the English phase', async () => {
   renderAppAt('/', servingTownIn(englishPhase))
 
-  expect(await screen.findByRole('listitem', { name: 'Food' })).toBeDefined()
+  expect(
+    await screen.findByRole('listitem', { name: capitalize(en.namesTownResourcesFood()) }),
+  ).toBeDefined()
 })
 
 it('writes a stock rate in English under none', async () => {
