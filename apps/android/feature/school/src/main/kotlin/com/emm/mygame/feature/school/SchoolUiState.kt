@@ -97,6 +97,7 @@ sealed interface SchoolUiState {
         val number: Int,
         val theme: String,
         val wordCount: Int,
+        val enteringWordCount: Int,
         val resource: TownResourceKind,
         val ratePercent: Int,
         val duration: Duration,

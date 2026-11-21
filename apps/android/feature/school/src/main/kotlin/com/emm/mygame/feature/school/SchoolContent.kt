@@ -26,7 +26,7 @@ internal fun TownSnapshot.contentAt(
     val lessonCards: List<SchoolUiState.LessonCard> = lessons.map { lesson: TownSnapshot.Lesson -> lesson.cardIn(this) }
     return SchoolUiState.Content(
         schoolLevel = schoolLevel(),
-        learning = learningLineAt(now, gap, featured = lessonCards.featuredWith(selected)),
+        learning = learningLineAt(now, gap, startable = lessonCards.startableWith(selected)),
         slot = lessonSlot?.lineIn(this, now) ?: SchoolUiState.SlotLine.Idle,
         skills = skills.mapIndexed { index: Int, skill: TownSnapshot.EarnedSkill -> skill.lineAt(index, skills) },
         lessons = lessonCards,
@@ -70,19 +70,18 @@ private fun TownSnapshot.isPastCap(enteringWordCount: Int): Boolean =
 private fun TownSnapshot.learningLineAt(
     now: Instant,
     gap: Duration,
-    featured: SchoolUiState.LessonCard?,
-): SchoolUiState.LearningLine {
-    val open: LessonId? = featured?.lesson?.takeIf { featured.state is SchoolUiState.LessonState.Open }
-    return SchoolUiState.LearningLine(
-        inLearning = learning.inLearning,
-        cap = learning.cap,
-        pastCapWords = open?.let(::enteringWordCountOf)?.takeIf(::isPastCap),
-        opening = capOpeningAt(now, gap),
-    )
-}
+    startable: SchoolUiState.LessonCard?,
+): SchoolUiState.LearningLine = SchoolUiState.LearningLine(
+    inLearning = learning.inLearning,
+    cap = learning.cap,
+    pastCapWords = startable?.enteringWordCount?.takeIf(::isPastCap),
+    opening = capOpeningAt(now, gap),
+)
 
-private fun TownSnapshot.enteringWordCountOf(lesson: LessonId): Int =
-    lessons.single { held: TownSnapshot.Lesson -> held.id == lesson }.enteringWordCount
+private fun List<SchoolUiState.LessonCard>.startableWith(selected: LessonId?): SchoolUiState.LessonCard? =
+    featuredWith(selected)?.takeIf(::isOpen) ?: firstOrNull(::isOpen)
+
+private fun isOpen(card: SchoolUiState.LessonCard): Boolean = card.state is SchoolUiState.LessonState.Open
 
 private fun TownSnapshot.capOpeningAt(now: Instant, gap: Duration): SchoolUiState.CapOpening {
     val dueAt: Instant = capWaitsUntil(now) ?: return SchoolUiState.CapOpening.ReviewsDue
@@ -111,6 +110,7 @@ internal fun TownSnapshot.Lesson.cardIn(town: TownSnapshot): SchoolUiState.Lesso
     number = town.numberOf(id),
     theme = theme,
     wordCount = wordCount,
+    enteringWordCount = enteringWordCount,
     resource = skill.resource,
     ratePercent = skill.ratePercent,
     duration = duration,

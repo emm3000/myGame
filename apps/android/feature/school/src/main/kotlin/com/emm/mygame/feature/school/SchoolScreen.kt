@@ -318,6 +318,7 @@ private val previewOpenLesson: SchoolUiState.LessonCard = SchoolUiState.LessonCa
     number = 1,
     theme = "A day in town",
     wordCount = 5,
+    enteringWordCount = 5,
     resource = TownResourceKind.Food,
     ratePercent = 5,
     duration = 150.seconds,
