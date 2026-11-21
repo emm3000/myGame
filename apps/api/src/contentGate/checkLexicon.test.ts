@@ -1,5 +1,5 @@
-import { fileURLToPath } from 'node:url'
 import { describe, expect, it } from 'vitest'
+import { apiPackagePath } from '../apiPackagePath.testSupport'
 import { checkLexicon } from './checkLexicon'
 import {
   contentOf,
@@ -10,7 +10,7 @@ import {
 } from './contentGate.testSupport'
 import { gateContentOf } from './gateContentOf'
 
-const shippedContent = fileURLToPath(new URL('../../content/', import.meta.url))
+const shippedContent = apiPackagePath('content/')
 
 const lessonOneIds = lessonOneLexicon.map(({ id }) => id)
 

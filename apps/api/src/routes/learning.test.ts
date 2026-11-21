@@ -1,4 +1,3 @@
-import { fileURLToPath } from 'node:url'
 import {
   ApiErrorSchema,
   type DueReview,
@@ -17,6 +16,7 @@ import { Client, type QueryResultRow } from 'pg'
 import { afterAll, assert, beforeAll, beforeEach, describe, expect, it } from 'vitest'
 import { shippedCurriculum } from '../adapters/json/shippedCurriculum.testSupport'
 import type { Transaction } from '../adapters/postgres/postgresTransaction'
+import { apiPackagePath } from '../apiPackagePath.testSupport'
 import { createApp } from '../app'
 import { type ComposedServer, composeServer } from '../composeServer'
 import { mailEnvironment } from '../composeServer.testSupport'
@@ -28,7 +28,7 @@ import {
 } from '../lockWaitProbe.testSupport'
 import { truncatePlayerTables } from '../truncatePlayerTables.testSupport'
 
-const contentDirectory = fileURLToPath(new URL('../../content/', import.meta.url))
+const contentDirectory = apiPackagePath('content/')
 
 type SettableClock = Clock & { readonly setTo: (iso: string) => void }
 

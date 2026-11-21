@@ -1,10 +1,10 @@
-import { fileURLToPath } from 'node:url'
 import { Instant } from '@mygame/domain'
 import { eq } from 'drizzle-orm'
 import { readMigrationFiles } from 'drizzle-orm/migrator'
 import { drizzle, type NodePgDatabase } from 'drizzle-orm/node-postgres'
 import { Client } from 'pg'
 import { afterEach, beforeEach, describe, expect, it } from 'vitest'
+import { apiPackagePath } from '../../apiPackagePath.testSupport'
 import { tokenDigest } from '../../auth/tokenDigest'
 import { DrizzleAccounts } from './DrizzleAccounts'
 import { DrizzleCardRepository } from './DrizzleCardRepository'
@@ -19,7 +19,7 @@ import {
   sessions,
 } from './schema'
 
-const migrationsFolder = fileURLToPath(new URL('../../../migrations', import.meta.url))
+const migrationsFolder = apiPackagePath('migrations')
 
 const uniqueViolation = '23505'
 

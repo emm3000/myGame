@@ -1,10 +1,10 @@
-import { fileURLToPath } from 'node:url'
 import { describe, expect, it } from 'vitest'
+import { apiPackagePath } from '../apiPackagePath.testSupport'
 import { checkTextWords } from './checkTextWords'
 import { contentOf, entryOf, lessonOneLexicon, textOf } from './contentGate.testSupport'
 import { gateContentOf } from './gateContentOf'
 
-const shippedContent = fileURLToPath(new URL('../../content/', import.meta.url))
+const shippedContent = apiPackagePath('content/')
 
 const river = entryOf('word-2', 'river', 'We live by the river.')
 

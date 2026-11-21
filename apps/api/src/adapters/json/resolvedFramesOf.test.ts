@@ -1,7 +1,6 @@
 import { cpSync, mkdtempSync, readFileSync, rmSync, writeFileSync } from 'node:fs'
 import { tmpdir } from 'node:os'
 import { join } from 'node:path'
-import { fileURLToPath } from 'node:url'
 import {
   type FrameReader,
   type FrameSpans,
@@ -15,9 +14,10 @@ import {
   type StoredMemoryCard,
 } from '@mygame/domain'
 import { afterEach, assert, describe, expect, it } from 'vitest'
+import { apiPackagePath } from '../../apiPackagePath.testSupport'
 import { JsonLessonCatalog } from './JsonLessonCatalog'
 
-const shippedContent = fileURLToPath(new URL('../../../content/', import.meta.url))
+const shippedContent = apiPackagePath('content/')
 
 const shipped = JsonLessonCatalog.fromDirectory(shippedContent)
 

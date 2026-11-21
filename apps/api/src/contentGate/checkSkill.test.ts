@@ -1,11 +1,11 @@
-import { fileURLToPath } from 'node:url'
 import type { CurriculumContent } from '@mygame/contracts'
 import { describe, expect, it } from 'vitest'
+import { apiPackagePath } from '../apiPackagePath.testSupport'
 import { checkSkill } from './checkSkill'
 import { contentOf } from './contentGate.testSupport'
 import { gateContentOf } from './gateContentOf'
 
-const shippedContent = fileURLToPath(new URL('../../content/', import.meta.url))
+const shippedContent = apiPackagePath('content/')
 
 const skillOf = (skill: CurriculumContent['skill']): ReturnType<typeof contentOf> =>
   contentOf({ skill })

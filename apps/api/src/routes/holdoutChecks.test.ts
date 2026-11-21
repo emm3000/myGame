@@ -1,4 +1,3 @@
-import { fileURLToPath } from 'node:url'
 import {
   type HoldoutChecks,
   HoldoutChecksSchema,
@@ -9,6 +8,7 @@ import { type BandStartRepository, type Clock, Instant, type RandomSource } from
 import { Client, type QueryResultRow } from 'pg'
 import { afterAll, assert, beforeAll, beforeEach, describe, expect, it } from 'vitest'
 import type { Transaction } from '../adapters/postgres/postgresTransaction'
+import { apiPackagePath } from '../apiPackagePath.testSupport'
 import { createApp } from '../app'
 import { type ComposedServer, composeServer } from '../composeServer'
 import { mailEnvironment } from '../composeServer.testSupport'
@@ -19,7 +19,7 @@ import {
 } from '../lockWaitProbe.testSupport'
 import { truncatePlayerTables } from '../truncatePlayerTables.testSupport'
 
-const contentDirectory = fileURLToPath(new URL('../../content/', import.meta.url))
+const contentDirectory = apiPackagePath('content/')
 
 const MILLISECONDS_PER_WEEK = 7 * 24 * 3_600_000
 

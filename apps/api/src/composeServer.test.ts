@@ -1,7 +1,6 @@
 import { cpSync, mkdtempSync, readFileSync, rmSync, writeFileSync } from 'node:fs'
 import { tmpdir } from 'node:os'
 import { join } from 'node:path'
-import { fileURLToPath } from 'node:url'
 import {
   type DomainError,
   err,
@@ -18,13 +17,14 @@ import {
 import { Client } from 'pg'
 import { afterAll, assert, beforeAll, describe, expect, it } from 'vitest'
 import { JsonTownCatalog } from './adapters/json/JsonTownCatalog'
+import { apiPackagePath } from './apiPackagePath.testSupport'
 import type { AccountToken } from './auth/AccountTokens'
 import { type ComposedServer, composeServer } from './composeServer'
 import { mailEnvironment } from './composeServer.testSupport'
 import { isWaitingOnALock, lockProbeLimit } from './lockWaitProbe.testSupport'
 import { truncatePlayerTables } from './truncatePlayerTables.testSupport'
 
-const contentDirectory = fileURLToPath(new URL('../content/', import.meta.url))
+const contentDirectory = apiPackagePath('content/')
 
 const unusedDatabaseUrl = 'postgres://composer@localhost:5432/unused'
 

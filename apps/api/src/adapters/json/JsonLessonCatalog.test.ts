@@ -2,17 +2,15 @@ import { createHash } from 'node:crypto'
 import { cpSync, mkdtempSync, readFileSync, rmSync, writeFileSync } from 'node:fs'
 import { tmpdir } from 'node:os'
 import { join } from 'node:path'
-import { fileURLToPath } from 'node:url'
 import { isUnitLemma } from '@mygame/domain'
 import { afterEach, describe, expect, it } from 'vitest'
+import { apiPackagePath } from '../../apiPackagePath.testSupport'
 import { JsonLessonCatalog } from './JsonLessonCatalog'
 import { shippedCurriculum } from './shippedCurriculum.testSupport'
 
-const shippedContent = fileURLToPath(new URL('../../../content/', import.meta.url))
+const shippedContent = apiPackagePath('content/')
 
-const lessonsDocument = fileURLToPath(
-  new URL('../../../../../docs/setting/lessons.md', import.meta.url),
-)
+const lessonsDocument = apiPackagePath('../../docs/setting/lessons.md')
 
 type TableWord = {
   readonly lemma: string

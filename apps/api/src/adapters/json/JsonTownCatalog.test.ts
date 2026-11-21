@@ -1,12 +1,12 @@
 import { cpSync, mkdtempSync, readFileSync, rmSync, writeFileSync } from 'node:fs'
 import { tmpdir } from 'node:os'
 import { join } from 'node:path'
-import { fileURLToPath } from 'node:url'
 import { type BuildingKind, Instant } from '@mygame/domain'
 import { describe, expect, it } from 'vitest'
+import { apiPackagePath } from '../../apiPackagePath.testSupport'
 import { JsonTownCatalog } from './JsonTownCatalog'
 
-const shippedTownContent = fileURLToPath(new URL('../../../content/town/', import.meta.url))
+const shippedTownContent = apiPackagePath('content/town/')
 
 const shippedCatalog = (): JsonTownCatalog => JsonTownCatalog.fromDirectory(shippedTownContent)
 

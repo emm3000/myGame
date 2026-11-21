@@ -1,4 +1,3 @@
-import { fileURLToPath } from 'node:url'
 import {
   ApiErrorSchema,
   CleanUpQuoteSchema,
@@ -29,6 +28,7 @@ import {
   vi,
 } from 'vitest'
 import type { Transaction, TransactionStores } from '../adapters/postgres/postgresTransaction'
+import { apiPackagePath } from '../apiPackagePath.testSupport'
 import { createApp } from '../app'
 import { type ComposedServer, composeServer } from '../composeServer'
 import { mailEnvironment } from '../composeServer.testSupport'
@@ -40,7 +40,7 @@ import {
 } from '../lockWaitProbe.testSupport'
 import { truncatePlayerTables } from '../truncatePlayerTables.testSupport'
 
-const contentDirectory = fileURLToPath(new URL('../../content/', import.meta.url))
+const contentDirectory = apiPackagePath('content/')
 
 const millisecondsPerMinute = 60_000
 

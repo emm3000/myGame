@@ -1,14 +1,14 @@
-import { fileURLToPath } from 'node:url'
 import { ApiErrorSchema, PlayerSchema, type RegionMap, RegionMapSchema } from '@mygame/contracts'
 import { Instant } from '@mygame/domain'
 import { Client } from 'pg'
 import { afterAll, beforeAll, beforeEach, describe, expect, it } from 'vitest'
+import { apiPackagePath } from '../apiPackagePath.testSupport'
 import { createApp } from '../app'
 import { type ComposedServer, composeServer } from '../composeServer'
 import { mailEnvironment } from '../composeServer.testSupport'
 import { truncatePlayerTables } from '../truncatePlayerTables.testSupport'
 
-const contentDirectory = fileURLToPath(new URL('../../content/', import.meta.url))
+const contentDirectory = apiPackagePath('content/')
 
 const fixedClock = { now: () => Instant.fromEpochMilliseconds(Date.parse('2026-11-05T08:00:00Z')) }
 

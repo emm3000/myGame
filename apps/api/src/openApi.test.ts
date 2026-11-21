@@ -1,11 +1,11 @@
 import { readFileSync } from 'node:fs'
-import { fileURLToPath } from 'node:url'
 import { afterAll, beforeAll, describe, expect, it } from 'vitest'
+import { apiPackagePath } from './apiPackagePath.testSupport'
 import { createApp } from './app'
 import { type ComposedServer, composeServer } from './composeServer'
 import { mailEnvironment } from './composeServer.testSupport'
 
-const contentDirectory = fileURLToPath(new URL('../content/', import.meta.url))
+const contentDirectory = apiPackagePath('content/')
 
 function databaseUrl(): string {
   const url = process.env.DATABASE_URL
@@ -16,7 +16,7 @@ function databaseUrl(): string {
 }
 
 const committedDocument = (): unknown =>
-  JSON.parse(readFileSync(new URL('../openapi.json', import.meta.url), 'utf8'))
+  JSON.parse(readFileSync(apiPackagePath('openapi.json'), 'utf8'))
 
 const jsonOf = (component: string): object => ({
   content: { 'application/json': { schema: { $ref: `#/components/schemas/${component}` } } },
