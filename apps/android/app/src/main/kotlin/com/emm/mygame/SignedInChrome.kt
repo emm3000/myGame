@@ -10,5 +10,5 @@ internal class SignedInChrome(
     val navigator: Navigator,
     val status: State<TownStatusUiState>,
     val onStatusIntent: (TownStatusIntent) -> Unit,
-    val banner: @Composable (TownStatusUiState.Dock?) -> Unit,
+    val banner: @Composable () -> Unit,
 )

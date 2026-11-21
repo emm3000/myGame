@@ -14,7 +14,6 @@ import androidx.compose.ui.semantics.semantics
 import com.emm.mygame.core.designsystem.MyGameCountdownGround
 import com.emm.mygame.core.designsystem.MyGameCountdownLine
 import com.emm.mygame.core.designsystem.MyGameLabel
-import com.emm.mygame.core.designsystem.MyGameNavRow
 import com.emm.mygame.core.designsystem.MyGameOutlinedButton
 import com.emm.mygame.core.designsystem.MyGamePreviewSurface
 import com.emm.mygame.core.designsystem.MyGameSpacing
@@ -22,9 +21,7 @@ import com.emm.mygame.core.designsystem.MyGameText
 import com.emm.mygame.core.designsystem.MyGameTheme
 import com.emm.mygame.core.designsystem.MyGameTypography
 import com.emm.mygame.core.designsystem.PreviewMyGame
-import com.emm.mygame.core.network.LessonId
 import com.emm.mygame.core.network.LessonName
-import com.emm.mygame.core.network.NextStepCard
 import com.emm.mygame.core.network.PlacementBand
 import com.emm.mygame.core.ui.ChromePhase
 import com.emm.mygame.core.ui.CopyLanguage
@@ -42,10 +39,7 @@ const val TOWN_STATUS: String = "town_status"
 @Composable
 fun TownStatus(
     state: TownStatusUiState,
-    dock: TownStatusUiState.Dock?,
     onNoticeClose: () -> Unit,
-    onLessonOpen: (LessonId) -> Unit,
-    onReviewsOpen: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
     if (state.running == null && state.notice == null) return
@@ -59,12 +53,7 @@ fun TownStatus(
     ) {
         state.running?.let { running: TownStatusUiState.RunningLesson -> RunningLessonLine(running) }
         state.notice?.let { notice: TownStatusUiState.FinishNotice ->
-            FinishNoticeRows(
-                notice = notice,
-                onClose = onNoticeClose,
-                onOpen = { notice.firstUnread?.let(onLessonOpen) ?: onReviewsOpen() },
-                isWayOnDrawn = !notice.isOpenedBy(dock),
-            )
+            FinishNoticeRows(notice = notice, onClose = onNoticeClose)
         }
     }
 }
@@ -84,8 +73,6 @@ private fun RunningLessonLine(running: TownStatusUiState.RunningLesson, modifier
 private fun FinishNoticeRows(
     notice: TownStatusUiState.FinishNotice,
     onClose: () -> Unit,
-    onOpen: () -> Unit,
-    isWayOnDrawn: Boolean,
     modifier: Modifier = Modifier,
 ) {
     val waiting: String = chromeResource(R.string.town_waiting).spoken
@@ -96,14 +83,6 @@ private fun FinishNoticeRows(
             color = MyGameTheme.colors.ink,
             modifier = Modifier.semantics(mergeDescendants = true) { liveRegion = LiveRegionMode.Polite },
         )
-        if (isWayOnDrawn) {
-            MyGameNavRow(
-                title = chromeResource(
-                    if (notice.firstUnread == null) R.string.town_next_start_reviews else R.string.town_next_read_words,
-                ),
-                onClick = onOpen,
-            )
-        }
         MyGameOutlinedButton(
             label = chromeResource(R.string.town_status_finish_close),
             isBusy = false,
@@ -113,15 +92,6 @@ private fun FinishNoticeRows(
         )
     }
 }
-
-private fun TownStatusUiState.FinishNotice.isOpenedBy(dock: TownStatusUiState.Dock?): Boolean {
-    val go: TownStatusUiState.Go.Acts = (dock as? TownStatusUiState.Dock.Step)?.go as? TownStatusUiState.Go.Acts
-        ?: return false
-    return go.action == wayOnAction()
-}
-
-private fun TownStatusUiState.FinishNotice.wayOnAction(): NextStepCard.Action =
-    firstUnread?.let { lesson: LessonId -> NextStepCard.Action.ReadWords(lesson) } ?: NextStepCard.Action.StartReviews
 
 private fun PlayerCopy.readyWordsOf(name: LessonName): MyGameLabel = when (name) {
     is LessonName.Shelved -> chrome(R.string.town_next_lesson_ready_in, "number" to name.number.toString())
@@ -159,15 +129,9 @@ private fun TownStatusBothPreview() {
                         remaining = 4.minutes,
                         finishesAt = Instant.parse("2026-11-12T15:04:00Z"),
                     ),
-                    notice = TownStatusUiState.FinishNotice(
-                        name = LessonName.Released(PlacementBand.Second, set = 2),
-                        firstUnread = null,
-                    ),
+                    notice = TownStatusUiState.FinishNotice(LessonName.Released(PlacementBand.Second, set = 2)),
                 ),
-                dock = null,
                 onNoticeClose = {},
-                onLessonOpen = {},
-                onReviewsOpen = {},
             )
         }
     }

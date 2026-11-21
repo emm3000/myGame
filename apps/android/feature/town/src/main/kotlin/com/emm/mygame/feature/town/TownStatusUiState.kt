@@ -1,6 +1,5 @@
 package com.emm.mygame.feature.town
 
-import com.emm.mygame.core.network.LessonId
 import com.emm.mygame.core.network.LessonName
 import com.emm.mygame.core.network.NextStepCard
 import com.emm.mygame.core.network.TownGoal
@@ -11,7 +10,7 @@ data class TownStatusUiState(val running: RunningLesson?, val notice: FinishNoti
 
     data class RunningLesson(val name: LessonName, val remaining: Duration, val finishesAt: Instant)
 
-    data class FinishNotice(val name: LessonName, val firstUnread: LessonId?)
+    data class FinishNotice(val name: LessonName)
 
     sealed interface Dock {
 

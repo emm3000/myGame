@@ -156,7 +156,7 @@ class TownLanguageTest {
         composeRule.setContent {
             ProvideCopyLanguage(language = language) {
                 MyGameTheme {
-                    TownStatus(state = state, dock = null, onNoticeClose = {}, onLessonOpen = {}, onReviewsOpen = {})
+                    TownStatus(state = state, onNoticeClose = {})
                 }
             }
         }
@@ -399,18 +399,17 @@ class TownLanguageTest {
 
     @Test
     fun `draws the lesson status English over Spanish in the both phase`() {
-        val notice = TownStatusUiState.FinishNotice(LessonName.Shelved(2), firstUnread = null)
+        val notice = TownStatusUiState.FinishNotice(LessonName.Shelved(2))
 
         showStatus(bothPhase, TownStatusUiState(running = null, notice = notice))
 
         assertEnglishOverSpanish("Lesson 2 is done.", "La lección 2 terminó.")
-        assertEnglishOverSpanish("Start the reviews", "Empezar los repasos")
         assertEnglishOverSpanish("Close", "Cerrar")
     }
 
     @Test
     fun `announces both lines of the finish notice in the both phase`() {
-        val notice = TownStatusUiState.FinishNotice(LessonName.Shelved(2), firstUnread = null)
+        val notice = TownStatusUiState.FinishNotice(LessonName.Shelved(2))
 
         showStatus(bothPhase, TownStatusUiState(running = null, notice = notice))
 

@@ -5,6 +5,7 @@ import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.semantics.SemanticsProperties
 import androidx.compose.ui.test.SemanticsMatcher
 import androidx.compose.ui.test.SemanticsNodeInteraction
+import androidx.compose.ui.test.assert
 import androidx.compose.ui.test.assertCountEquals
 import androidx.compose.ui.test.assertIsDisplayed
 import androidx.compose.ui.test.hasAnyAncestor
@@ -24,13 +25,14 @@ import androidx.navigation3.runtime.rememberNavBackStack
 import androidx.test.ext.junit.rules.ActivityScenarioRule
 import com.emm.mygame.core.designsystem.INK_PILL
 import com.emm.mygame.core.designsystem.MyGameTheme
-import com.emm.mygame.core.designsystem.NAV_ROW_CHEVRON
 import com.emm.mygame.core.designsystem.PILL_BADGE
 import com.emm.mygame.core.network.DueReviews
 import com.emm.mygame.core.network.FrameSpan
+import com.emm.mygame.core.network.HoldoutCheckWeek
 import com.emm.mygame.core.network.LessonId
 import com.emm.mygame.core.network.NextStep
 import com.emm.mygame.core.network.Placement
+import com.emm.mygame.core.network.PlacementBand
 import com.emm.mygame.core.network.PlacementReadResult
 import com.emm.mygame.core.network.PlayerScaffold
 import com.emm.mygame.core.network.RegionMap
@@ -245,6 +247,12 @@ class AppNavigationTest {
 
     private fun statusLine(): SemanticsMatcher =
         hasTestTag(TOWN_STATUS).and(hasAnyDescendant(hasText(LESSON_ONE_READY)))
+
+    private fun assertCloseIsTheNoticeOnlyControl() {
+        val noticeControl: SemanticsMatcher = hasClickAction() and hasAnyAncestor(hasTestTag(TOWN_STATUS))
+        composeRule.onAllNodes(noticeControl).assertCountEquals(1)
+        composeRule.onNode(noticeControl).assert(hasText("Cerrar"))
+    }
 
     private fun asLessonOneFinishes(finished: TownSnapshot, vararg stack: Destination = onTheReport) {
         reports.answerRead(ReportReadResult.Read(nothingDue))
@@ -684,27 +692,21 @@ class AppNavigationTest {
     }
 
     @Test
-    fun `draws no way on in the finish notice beside the dock's go to the same words`() {
-        asLessonOneFinishes(finishedTown(readFirst = listOf(firstLesson, secondLesson)))
-        dockGo("Leer las palabras")
+    fun `draws the finish notice's close as its only control on the placement`() {
+        asLessonOneFinishes(finishedTown(readFirst = listOf(firstLesson)), Destination.Town, Destination.Placement)
 
-        composeRule.onAllNodes(noticeWayOn("Leer las palabras"), useUnmergedTree = true).assertCountEquals(0)
+        assertCloseIsTheNoticeOnlyControl()
     }
 
     @Test
-    fun `draws no way on in the finish notice on the town home beside the dock's go to the same words`() {
-        asLessonOneFinishes(finishedTown(readFirst = listOf(firstLesson)), Destination.Town)
-        dockGo("Leer las palabras")
+    fun `draws the finish notice's close as its only control on the holdout check`() {
+        asLessonOneFinishes(
+            finishedTown(readFirst = listOf(firstLesson)),
+            Destination.Town,
+            Destination.HoldoutCheck(PlacementBand.First, HoldoutCheckWeek.Eighth),
+        )
 
-        composeRule.onAllNodes(noticeWayOn("Leer las palabras"), useUnmergedTree = true).assertCountEquals(0)
-    }
-
-    @Test
-    fun `draws no way on in the finish notice beside the dock's go to the reviews`() {
-        asLessonOneFinishes(finishedTown(readFirst = emptyList()))
-        dockGo("Empezar los repasos")
-
-        composeRule.onAllNodes(noticeWayOn("Empezar los repasos"), useUnmergedTree = true).assertCountEquals(0)
+        assertCloseIsTheNoticeOnlyControl()
     }
 
     @Test
@@ -860,11 +862,6 @@ private class MovableClock : Clock {
 }
 
 private val onTheReport: Array<Destination> = arrayOf(Destination.Town, Destination.Report)
-
-private fun noticeWayOn(label: String): SemanticsMatcher = hasClickAction()
-    .and(hasAnyDescendant(hasText(label)))
-    .and(hasAnyDescendant(hasTestTag(NAV_ROW_CHEVRON)))
-    .and(hasAnyAncestor(hasTestTag(TOWN_STATUS)))
 
 private val ringWording: Regex = Regex("\\d+ de \\d+ palabras? aprendidas?")
 
