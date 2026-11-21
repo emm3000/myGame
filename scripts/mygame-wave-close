@@ -176,7 +176,15 @@ merged_earlier() {
 }
 
 peer_branches=$(
-  if [ -n "$branch" ] && [ "$branch" != trunk ]; then echo "$branch"; fi
+  if [ -n "$branch" ] && [ "$branch" != trunk ]; then
+    merged=$(gh pr list --head "$branch" --state merged --json number --jq length) ||
+      { echo "gh pr list failed: branch $branch kept" >&2; merged=failed; }
+    case $merged in
+      (failed) ;;
+      ('' | 0 | *[!0-9]*) echo "kept branch $branch: no merged PR" >&2 ;;
+      (*) echo "$branch" ;;
+    esac
+  fi
   merged_earlier
 )
 if [ -n "$peer_branches" ]; then
