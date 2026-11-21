@@ -13,6 +13,7 @@ import type { GivenAnswer } from './useReview'
 export interface RatedVerdictLinesProps {
   readonly answered: GivenAnswer
   readonly answerLang: 'en' | 'es'
+  readonly rightAnswer: string
   readonly verdictRef: Ref<HTMLElement>
   readonly onNext: () => void
 }
@@ -20,10 +21,9 @@ export interface RatedVerdictLinesProps {
 function WrongLines({
   answered,
   answerLang,
-}: Pick<RatedVerdictLinesProps, 'answered' | 'answerLang'>): ReactElement {
+  rightAnswer,
+}: Pick<RatedVerdictLinesProps, 'answered' | 'answerLang' | 'rightAnswer'>): ReactElement {
   const { fixedCopy } = usePlayerCopy()
-  const { verdict } = answered
-  const correctForm = answerLang === 'en' ? verdict.word : verdict.gloss
   return (
     <>
       <p className="m-0 font-sans text-body text-ink">
@@ -33,7 +33,7 @@ function WrongLines({
       <p className="m-0 font-sans text-body text-ink">
         <LabelText label={fixedCopy((catalog) => catalog.reviewRightAnswer())} />{' '}
         <b lang={answerLang} className="font-bold">
-          {correctForm}
+          {rightAnswer}
         </b>
       </p>
       <p className="m-0 font-sans text-caption text-ink">
@@ -97,6 +97,7 @@ function SkillLines({ skill }: { readonly skill: RaisedSkill }): ReactElement {
 export function RatedVerdictLines({
   answered,
   answerLang,
+  rightAnswer,
   verdictRef,
   onNext,
 }: RatedVerdictLinesProps): ReactElement {
@@ -124,7 +125,9 @@ export function RatedVerdictLines({
             />
           </p>
         </div>
-        {!isCorrect && <WrongLines answered={answered} answerLang={answerLang} />}
+        {!isCorrect && (
+          <WrongLines answered={answered} answerLang={answerLang} rightAnswer={rightAnswer} />
+        )}
         {skill !== null && <SkillLines skill={skill} />}
         {openedLevel !== null && (
           <p className="m-0 font-sans text-body text-ink">

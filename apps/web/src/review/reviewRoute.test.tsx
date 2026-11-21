@@ -833,6 +833,66 @@ it('draws the nothing-due end of the reviews in English under none', async () =>
   expect(shownLinesDrawnAlone(en.reviewBackToTown(), 'en')).toHaveLength(1)
 })
 
+const homeRecognitionUnderNone: DueReview = {
+  ...homeRecognition,
+  choices: [
+    { choiceId: 'choice-a', gloss: 'a place where children go to learn' },
+    { choiceId: 'choice-b', gloss: 'the place where you live' },
+    { choiceId: 'choice-c', gloss: 'what you pay with when you buy things' },
+  ],
+}
+
+const showRecognitionIn = async (
+  language: CopyLanguage,
+  recognition: DueReview,
+  overrides: Partial<ApiClient> = {},
+): Promise<void> =>
+  showReview(withReviews([recognition], null), {
+    currentPlayer: async () => ({ ...knownPlayer, ...language }),
+    town: async () => ({ ok: true, value: { ...knownTown, ...language } }),
+    ...overrides,
+  })
+
+const choiceLanguages = (): ReadonlyArray<string | null | undefined> =>
+  screen.getAllByRole('radio').map((choice) => choice.closest('label')?.getAttribute('lang'))
+
+it('marks every choice of a recognition as Spanish for an es player', async () => {
+  await showRecognitionIn({ scaffold: 'es', chromePhase: 'english' }, homeRecognition)
+
+  expect(choiceLanguages()).toEqual(['es', 'es', 'es'])
+})
+
+it('marks every choice of a recognition as English under none', async () => {
+  await showRecognitionIn({ scaffold: 'none', chromePhase: 'english' }, homeRecognitionUnderNone)
+
+  expect(choiceLanguages()).toEqual(['en', 'en', 'en'])
+})
+
+it('marks the definition chosen and the right one as English after a wrong recognition under none', async () => {
+  const answerReview = answering({
+    kind: 'wrong',
+    word: 'home',
+    gloss: 'the place where you live',
+    dueAt: readInstant,
+    stableWordCount: 0,
+    retainedWordCount: 0,
+    openedLevel: null,
+  })
+  await showRecognitionIn({ scaffold: 'none', chromePhase: 'english' }, homeRecognitionUnderNone, {
+    answerReview,
+  })
+
+  fireEvent.click(screen.getByRole('radio', { name: 'what you pay with when you buy things' }))
+  fireEvent.click(screen.getByRole('button', { name: en.reviewCheck() }))
+  await passSeconds(0)
+
+  const verdict = screen.getByRole('region', { name: en.reviewWrong() })
+  expect(
+    within(verdict).getByText('what you pay with when you buy things').getAttribute('lang'),
+  ).toBe('en')
+  expect(within(verdict).getByText('the place where you live').getAttribute('lang')).toBe('en')
+})
+
 const ratesShownIn = async (
   language: CopyLanguage,
   check: string,
