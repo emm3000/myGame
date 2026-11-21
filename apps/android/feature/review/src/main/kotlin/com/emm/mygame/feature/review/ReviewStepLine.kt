@@ -143,14 +143,14 @@ private fun SkillEarned(skill: ReviewUiState.SkillLine, modifier: Modifier = Mod
     val resourceName: Int = skillResourceNameOf(skill.resource)
     Column(verticalArrangement = Arrangement.spacedBy(MyGameSpacing.step1), modifier = modifier) {
         MyGameText(
-            label = copy.chrome {
+            text = copy.fixedCopy {
                 text(R.string.review_skill_earned, "resource" to text(resourceName), "level" to skill.level.toString())
             },
             style = MyGameTypography.title,
             color = MyGameTheme.colors.ink,
         )
         MyGameText(
-            label = copy.chrome {
+            text = copy.fixedCopy {
                 text(
                     R.string.review_skill_rate,
                     "percent" to skill.ratePercent.toString(),

@@ -36,6 +36,8 @@ const fixedCopyKeyList = [
   'android.review.review_refusal_unknown_choice',
   'android.review.review_refusal_word_not_held',
   'android.review.review_returns',
+  'android.review.review_skill_earned',
+  'android.review.review_skill_rate',
   'android.review.review_skill_rates',
   'android.review.review_skill_words',
   'android.review.review_unreachable',
