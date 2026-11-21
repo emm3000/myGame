@@ -1,0 +1,293 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+scripts_dir=$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd -P)
+
+temp_base=${TMPDIR:-/tmp}
+sandbox=$(mktemp -d "${temp_base%/}/structure-check-test.XXXXXX") || { echo "refusing the sandbox: mktemp -d failed" >&2; exit 70; }
+[ -n "$sandbox" ] && [ -d "$sandbox" ] || { echo "refusing the sandbox: mktemp -d printed no directory" >&2; exit 70; }
+sandbox=$(cd "$sandbox" && pwd -P)
+case $sandbox in
+  "$(cd "$temp_base" && pwd -P)"/?*) ;;
+  *) echo "refusing the sandbox: $sandbox is not under $temp_base" >&2; exit 70 ;;
+esac
+trap 'rm -rf "$sandbox"' EXIT
+
+failures=0
+status=0
+err=""
+tree="$sandbox/tree"
+baseline="$tree/scripts/mygame-structure-check.baseline"
+
+fresh_tree() {
+  rm -rf "$tree"
+  mkdir -p "$tree/scripts" "$tree/apps/api/src/town" "$tree/packages/domain/src/town" "$tree/packages/contracts/src"
+  cp "$scripts_dir/mygame-structure-check" "$tree/scripts/"
+  : >"$baseline"
+  printf "export const port = 3000\n" >"$tree/apps/api/src/listen.ts"
+  printf "export const jobPayOf = (hours: number): number => hours * 2\n" >"$tree/packages/domain/src/town/jobPayOf.ts"
+  printf "export { jobPayOf } from './town/jobPayOf'\n" >"$tree/packages/domain/src/index.ts"
+  printf "export const SendJob = 'send-job'\n" >"$tree/packages/contracts/src/SendJob.ts"
+}
+
+plant() {
+  mkdir -p "$(dirname "$tree/$1")"
+  printf '%b' "$2" >"$tree/$1"
+}
+
+run_the_check() {
+  status=0
+  (cd "$tree" && /usr/bin/timeout -k 1 20 "$@") >"$sandbox/stdout" 2>"$sandbox/stderr" || status=$?
+  err=$(<"$sandbox/stderr")
+}
+
+check() {
+  run_the_check scripts/mygame-structure-check
+}
+
+fail() {
+  printf 'FAIL %s: %s\n' "$1" "$2" >&2
+  return 1
+}
+
+expect_pass() {
+  [ "$status" -eq 0 ] && [ -z "$err" ] || fail "$1" "exit $status, stderr '$err'"
+}
+
+expect_failure() {
+  local test=$1 line=$2
+  [ "$status" -eq 1 ] || fail "$test" "exit $status, stderr '$err'" || return 1
+  printf '%s\n' "$err" | rg --no-config -qF -- "$line" || fail "$test" "'$line' is not on stderr: '$err'"
+}
+
+files_in() {
+  local folder=$1 count=$2 index
+  for index in $(seq 1 "$count"); do
+    plant "$folder/Schema$index.ts" "export const Schema$index = $index\n"
+  done
+}
+
+passes_a_clean_tree() {
+  fresh_tree
+  check
+  expect_pass "${FUNCNAME[0]}"
+}
+
+fails_an_application_importing_infrastructure() {
+  fresh_tree
+  plant apps/api/src/town/application/sendJob.ts "import { DrizzleTownRepository } from '../infrastructure/postgres/DrizzleTownRepository'\n"
+  check
+  expect_failure "${FUNCNAME[0]}" "structure check application_imports_infrastructure apps/api/src/town/application/sendJob.ts 1:import"
+}
+
+fails_an_application_knowing_the_wire() {
+  fresh_tree
+  plant apps/api/src/town/application/sendJob.ts "import { z } from 'zod'\n"
+  check
+  expect_failure "${FUNCNAME[0]}" "structure check application_knows_wire apps/api/src/town/application/sendJob.ts 1:import"
+}
+
+fails_persistence_knowing_http() {
+  fresh_tree
+  plant apps/api/src/town/infrastructure/postgres/DrizzleTownRepository.ts "import { Hono } from 'hono'\n"
+  check
+  expect_failure "${FUNCNAME[0]}" "structure check persistence_knows_http apps/api/src/town/infrastructure/postgres/DrizzleTownRepository.ts 1:import"
+}
+
+fails_http_knowing_the_database() {
+  fresh_tree
+  plant apps/api/src/town/infrastructure/http/sendJobRoute.ts "import { eq } from 'drizzle-orm'\n"
+  check
+  expect_failure "${FUNCNAME[0]}" "structure check http_knows_database apps/api/src/town/infrastructure/http/sendJobRoute.ts 1:import"
+}
+
+fails_an_adapter_built_outside_the_composition_root() {
+  fresh_tree
+  plant apps/api/src/town/application/sendJob.ts "export const towns = new DrizzleTownRepository(database)\n"
+  check
+  expect_failure "${FUNCNAME[0]}" "structure check adapter_built_outside_root apps/api/src/town/application/sendJob.ts 1:export"
+}
+
+passes_an_adapter_built_in_the_composition_root() {
+  fresh_tree
+  plant apps/api/src/composeStores.ts "export const towns = new DrizzleTownRepository(database)\n"
+  check
+  expect_pass "${FUNCNAME[0]}"
+}
+
+fails_an_async_reading_named_of() {
+  fresh_tree
+  plant apps/api/src/town/application/currentTownOf.ts "export async function currentTownOf(): Promise<number> {\n  return 1\n}\n"
+  check
+  expect_failure "${FUNCNAME[0]}" "structure check reading_named_of_is_async apps/api/src/town/application/currentTownOf.ts"
+}
+
+fails_a_use_case_named_of() {
+  fresh_tree
+  plant packages/domain/src/town/useCases/townOf.ts "export const townOf = (id: string): string => id\n"
+  check
+  expect_failure "${FUNCNAME[0]}" "structure check use_case_named_of packages/domain/src/town/useCases/townOf.ts"
+}
+
+fails_a_domain_promise_outside_its_roles() {
+  fresh_tree
+  plant packages/domain/src/town/readTown.ts "export const readTown = (): Promise<number> => Promise.resolve(1)\n"
+  check
+  expect_failure "${FUNCNAME[0]}" "structure check domain_promise_outside_its_roles packages/domain/src/town/readTown.ts"
+}
+
+passes_a_domain_promise_in_a_port() {
+  fresh_tree
+  plant packages/domain/src/town/ports/TownRepository.ts "export interface TownRepository {\n  find(id: string): Promise<number>\n}\n"
+  check
+  expect_pass "${FUNCNAME[0]}"
+}
+
+fails_a_use_case_importing_a_use_case_from_its_folder() {
+  fresh_tree
+  plant packages/domain/src/town/useCases/sendJob.ts "import { quoteJob } from './quoteJob'\n"
+  check
+  expect_failure "${FUNCNAME[0]}" "structure check use_case_imports_use_case packages/domain/src/town/useCases/sendJob.ts 1:import"
+}
+
+fails_a_use_case_importing_another_features_use_case() {
+  fresh_tree
+  plant packages/domain/src/town/useCases/sendJob.ts "import { answerReview } from '../../learning/useCases/answerReview'\n"
+  check
+  expect_failure "${FUNCNAME[0]}" "structure check use_case_imports_use_case packages/domain/src/town/useCases/sendJob.ts 1:import"
+}
+
+fails_a_public_service() {
+  fresh_tree
+  plant packages/domain/src/index.ts "export { resolveStoredTown } from './town/services/resolveStoredTown'\n"
+  check
+  expect_failure "${FUNCNAME[0]}" "structure check service_is_public packages/domain/src/index.ts 1:export"
+}
+
+fails_a_folder_over_thirty_production_files() {
+  fresh_tree
+  files_in packages/contracts/src/town 31
+  check
+  expect_failure "${FUNCNAME[0]}" "structure check folder_over_limit packages/contracts/src/town 31 production files"
+}
+
+passes_a_folder_of_thirty_production_files_and_its_tests() {
+  fresh_tree
+  files_in packages/contracts/src/town 30
+  plant packages/contracts/src/town/Schema1.test.ts "export const test = 1\n"
+  plant packages/contracts/src/town/schema.testSupport.ts "export const support = 1\n"
+  check
+  expect_pass "${FUNCNAME[0]}"
+}
+
+fails_a_file_over_five_exports() {
+  fresh_tree
+  plant packages/domain/src/town/TownSettings.ts "export const a = 1\nexport const b = 2\nexport const c = 3\nexport const d = 4\nexport const e = 5\nexport const f = 6\n"
+  check
+  expect_failure "${FUNCNAME[0]}" "structure check file_over_export_cap packages/domain/src/town/TownSettings.ts 6 exports"
+}
+
+passes_tables_and_entries_over_five_exports() {
+  local exports="export const a = 1\nexport const b = 2\nexport const c = 3\nexport const d = 4\nexport const e = 5\nexport const f = 6\n"
+  fresh_tree
+  plant apps/api/src/town/infrastructure/postgres/townTables.ts "$exports"
+  plant packages/contracts/src/index.ts "$exports"
+  check
+  expect_pass "${FUNCNAME[0]}"
+}
+
+fails_an_interface_over_seven_methods() {
+  fresh_tree
+  plant apps/api/src/account/application/ports/Accounts.ts "export interface Accounts {\n  a(): void\n  b(): void\n  c(): void\n  d(): void\n  e(): void\n  f(): void\n  g(): void\n  h(): void\n}\n"
+  check
+  expect_failure "${FUNCNAME[0]}" "structure check type_over_method_cap apps/api/src/account/application/ports/Accounts.ts 8 methods in export interface Accounts {"
+}
+
+passes_a_class_of_seven_methods_and_its_accessors() {
+  fresh_tree
+  plant packages/domain/src/town/Town.ts "export class Town {\n  constructor(private readonly id: string) {}\n  get name(): string {\n    return this.id\n  }\n  a(): void {}\n  b(): void {}\n  c(): void {}\n  d(): void {}\n  e(): void {}\n  f(): void {}\n  private g(): void {}\n}\n"
+  check
+  expect_pass "${FUNCNAME[0]}"
+}
+
+fails_a_map_that_misses_a_folder() {
+  fresh_tree
+  plant ARCHITECTURE.md "| Feature | What |\n|---|---|\n| \`platform\` | the kernel |\n"
+  check
+  expect_failure "${FUNCNAME[0]}" "structure check map: the folders under apps/api/src and packages/domain/src and the rows of ARCHITECTURE.md differ"
+}
+
+passes_a_map_that_matches_the_folders() {
+  fresh_tree
+  plant ARCHITECTURE.md "| Feature | What |\n|---|---|\n| \`town\` | the holding |\n"
+  check
+  expect_pass "${FUNCNAME[0]}"
+}
+
+passes_a_baselined_violation() {
+  fresh_tree
+  plant packages/domain/src/town/readTown.ts "export const readTown = (): Promise<number> => Promise.resolve(1)\n"
+  printf 'domain_promise_outside_its_roles packages/domain/src/town/readTown.ts\n' >"$baseline"
+  check
+  expect_pass "${FUNCNAME[0]}"
+}
+
+fails_a_baseline_line_that_no_longer_fails() {
+  fresh_tree
+  printf 'folder_over_limit packages/domain/src/town\n' >"$baseline"
+  check
+  expect_failure "${FUNCNAME[0]}" "structure baseline folder_over_limit: packages/domain/src/town no longer fails; delete its line"
+}
+
+fails_a_baseline_line_that_names_no_check() {
+  fresh_tree
+  printf 'oversized packages/domain/src/town\n' >"$baseline"
+  check
+  expect_failure "${FUNCNAME[0]}" "structure baseline: 'oversized packages/domain/src/town' names no check"
+}
+
+refuses_to_run_without_ripgrep() {
+  local bin="$sandbox/bin-without-rg"
+  fresh_tree
+  mkdir -p "$bin"
+  ln -sf "$(command -v bash)" "$bin/bash"
+  ln -sf "$(command -v dirname)" "$bin/dirname"
+  run_the_check env PATH="$bin" scripts/mygame-structure-check
+  [ "$status" -eq 2 ] && [ "$err" = "structure check: rg (ripgrep) is not installed" ] || fail "${FUNCNAME[0]}" "exit $status, stderr '$err'"
+}
+
+run() {
+  if "$1"; then
+    echo "ok   $1"
+  else
+    failures=$((failures + 1))
+  fi
+}
+
+run passes_a_clean_tree
+run fails_an_application_importing_infrastructure
+run fails_an_application_knowing_the_wire
+run fails_persistence_knowing_http
+run fails_http_knowing_the_database
+run fails_an_adapter_built_outside_the_composition_root
+run passes_an_adapter_built_in_the_composition_root
+run fails_an_async_reading_named_of
+run fails_a_use_case_named_of
+run fails_a_domain_promise_outside_its_roles
+run passes_a_domain_promise_in_a_port
+run fails_a_use_case_importing_a_use_case_from_its_folder
+run fails_a_use_case_importing_another_features_use_case
+run fails_a_public_service
+run fails_a_folder_over_thirty_production_files
+run passes_a_folder_of_thirty_production_files_and_its_tests
+run fails_a_file_over_five_exports
+run passes_tables_and_entries_over_five_exports
+run fails_an_interface_over_seven_methods
+run passes_a_class_of_seven_methods_and_its_accessors
+run fails_a_map_that_misses_a_folder
+run passes_a_map_that_matches_the_folders
+run passes_a_baselined_violation
+run fails_a_baseline_line_that_no_longer_fails
+run fails_a_baseline_line_that_names_no_check
+run refuses_to_run_without_ripgrep
+[ "$failures" -eq 0 ]
