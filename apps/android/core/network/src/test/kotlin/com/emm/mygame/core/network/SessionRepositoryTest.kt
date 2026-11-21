@@ -8,6 +8,7 @@ import java.security.GeneralSecurityException
 import java.security.ProviderException
 import kotlin.time.Duration.Companion.seconds
 import kotlin.time.Instant
+import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.test.TestScope
 import kotlinx.coroutines.test.UnconfinedTestDispatcher
 import kotlinx.coroutines.test.runTest
@@ -199,6 +200,22 @@ class SessionRepositoryTest {
             sessions.restore()
 
             awaitItem()
+        }
+    }
+
+    @Test
+    fun `forgets the language before it reports the end of the session`() = runTest {
+        val store: TokenStore = tokenStore()
+        val languages: PlayerLanguages = PlayerLanguages(store, onNamed = {})
+        val sessions: SessionRepository = repository(store, languages)
+        api.enqueue(nativeSession(token = "opaque-session", email = "ines@sotoverde.es"))
+        api.enqueue(MockResponse.Builder().code(401).build())
+        sessions.signIn("ines@sotoverde.es", "contrasena")
+
+        sessionEnds.ended.map { languages.language.value }.test {
+            sessions.restore()
+
+            assertNull(awaitItem())
         }
     }
 
@@ -643,11 +660,14 @@ class SessionRepositoryTest {
         }
     }
 
-    private fun TestScope.repository(store: TokenStore): SessionRepository =
+    private fun TestScope.repository(
+        store: TokenStore,
+        languages: PlayerLanguages = PlayerLanguages(store, onNamed = {}),
+    ): SessionRepository =
         SessionRepository(
             baseUrl = api.url("/api/").toString(),
             tokenStore = store,
-            languages = PlayerLanguages(store, onNamed = {}),
+            languages = languages,
             sessionEnds = sessionEnds,
             ioDispatcher = UnconfinedTestDispatcher(testScheduler),
         )
