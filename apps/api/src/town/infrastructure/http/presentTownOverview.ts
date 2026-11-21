@@ -1,61 +1,36 @@
 import { PlacementBandSchema, type TownOverview } from '@mygame/contracts'
 import {
   accrueTown,
-  type BuildingKind,
-  type BuildingLevel,
   type BuildingLevels,
-  buildingKinds,
-  buildPercentAt,
   type DomainError,
-  Duration,
-  deliveredHiresOf,
-  deriveBuildDurationSeconds,
   deriveFullAt,
-  deriveHireDurationSeconds,
   derivePeople,
   deriveResourceRates,
   deriveStorageCapacity,
   dueHoldoutChecksOf,
-  type HeldCard,
-  type HireKind,
   type Hires,
-  hirePercentAt,
-  hiringEndsAt,
   type Instant,
   type MemoryTerms,
-  nextDueAtOf,
-  nextGoalOf,
-  nextStepOf,
-  noHires,
   ok,
-  placedOutBandsOf,
-  type ReleasedLesson,
   type ResourceKind,
   type Result,
   releasedLessonsOf,
-  requiredOfficeLevelOf,
   retainedWordCountOf,
   stableWordCountOf,
-  type Town,
   type TownCatalog,
-  tipOf,
   townLabelOf,
   townSeasonAt,
-  type WaitingList,
-  wordShortfallOf,
 } from '@mygame/domain'
 import { presentScaffold } from '../../../account/infrastructure/http/presentScaffold'
 import type { LessonLibrary } from '../../../content/application/ports/LessonLibrary'
 import { isoOf } from '../../../platform/infrastructure/http/isoOf'
 import type { TownReading } from '../../application/TownReading'
+import { presentTownBuildings } from '../../building/infrastructure/http/presentTownBuildings'
+import { presentTownWork } from '../../building/infrastructure/http/presentTownWork'
+import { presentTownGuidance } from '../../guidance/infrastructure/http/presentTownGuidance'
+import { presentTownHiring } from '../../hiring/infrastructure/http/presentTownHiring'
 import { presentTownJob } from '../../jobs/infrastructure/http/presentTownJob'
 import { presentTownSchool } from '../../school/infrastructure/http/presentTownSchool'
-
-type BuildingState = TownOverview['buildings'][BuildingKind]
-
-type WordsNeeded = NonNullable<BuildingState['nextLevel']>['wordsNeeded']
-
-type BuildingWork = TownOverview['work']['waitingList'][number]
 
 const isoOrNullOf = (instant: Instant | null): string | null =>
   instant === null ? null : isoOf(instant)
@@ -94,128 +69,6 @@ const stocksOf = (
   })
 }
 
-const peopleForWorkOf = (
-  projected: BuildingLevels,
-  next: BuildingLevel,
-  catalog: TownCatalog,
-): Result<number, DomainError> => {
-  const before = derivePeople(projected, noHires, catalog)
-  if (!before.ok) {
-    return before
-  }
-  const after = derivePeople({ ...projected, [next.building]: next.level }, noHires, catalog)
-  if (!after.ok) {
-    return after
-  }
-  return ok(after.value.occupied - before.value.occupied)
-}
-
-const wordsNeededOf = (
-  next: BuildingLevel,
-  cards: ReadonlyArray<HeldCard>,
-  catalog: TownCatalog,
-): WordsNeeded => {
-  const shortfall = wordShortfallOf(next.level, cards, catalog.townSettings().wordNeed)
-  return shortfall === null ? null : { count: shortfall.needed, standing: shortfall.standing }
-}
-
-const nextLevelOf = (
-  building: BuildingKind,
-  { town, cards }: TownReading,
-  catalog: TownCatalog,
-  buildPercent: number,
-): Result<BuildingState['nextLevel'], DomainError> => {
-  const projected = town.projectedLevels
-  const next = catalog.levelOf(building, projected[building] + 1)
-  if (next?.building !== building) {
-    return ok(null)
-  }
-  const people = peopleForWorkOf(projected, next, catalog)
-  if (!people.ok) {
-    return people
-  }
-  return ok({
-    level: next.level,
-    cost: { ...next.cost },
-    durationSeconds: deriveBuildDurationSeconds(next.durationSeconds, buildPercent),
-    people: people.value,
-    wordsNeeded: wordsNeededOf(next, cards, catalog),
-  })
-}
-
-const buildingsOf = (
-  reading: TownReading,
-  catalog: TownCatalog,
-): Result<TownOverview['buildings'], DomainError> => {
-  const levels = reading.town.buildingLevels
-  const buildings: Record<BuildingKind, BuildingState> = {
-    homes: { level: levels.homes, nextLevel: null },
-    farm: { level: levels.farm, nextLevel: null },
-    factory: { level: levels.factory, nextLevel: null },
-    powerStation: { level: levels.powerStation, nextLevel: null },
-    storage: { level: levels.storage, nextLevel: null },
-    school: { level: levels.school, nextLevel: null },
-    office: { level: levels.office, nextLevel: null },
-  }
-  const buildPercent = buildPercentAt(reading.at, catalog.townSettings())
-  for (const building of buildingKinds) {
-    const nextLevel = nextLevelOf(building, reading, catalog, buildPercent)
-    if (!nextLevel.ok) {
-      return nextLevel
-    }
-    buildings[building] = { ...buildings[building], nextLevel: nextLevel.value }
-  }
-  return ok(buildings)
-}
-
-const scheduledWaitingListOf = (
-  slotFinishesAt: Instant,
-  waitingList: WaitingList,
-): Result<Array<BuildingWork>, DomainError> => {
-  const scheduled: Array<BuildingWork> = []
-  let startsAt = slotFinishesAt
-  for (const { building, level, cost, durationSeconds } of waitingList) {
-    const duration = Duration.ofSeconds(durationSeconds)
-    if (!duration.ok) {
-      return duration
-    }
-    const finishesAt = startsAt.plus(duration.value)
-    scheduled.push({
-      building,
-      level,
-      cost: { ...cost },
-      startsAt: isoOf(startsAt),
-      finishesAt: isoOf(finishesAt),
-    })
-    startsAt = finishesAt
-  }
-  return ok(scheduled)
-}
-
-const workOf = (town: Town, catalog: TownCatalog): Result<TownOverview['work'], DomainError> => {
-  const cap = catalog.townSettings().waitingListCap
-  const slot = town.workSlot
-  if (slot.kind === 'idle') {
-    return ok({ slot: null, waitingList: [], cap })
-  }
-  const { building, level, cost, startedAt, finishesAt } = slot
-  const waitingList = scheduledWaitingListOf(finishesAt, town.waitingList)
-  if (!waitingList.ok) {
-    return waitingList
-  }
-  return ok({
-    slot: {
-      building,
-      level,
-      cost: { ...cost },
-      startsAt: isoOf(startedAt),
-      finishesAt: isoOf(finishesAt),
-    },
-    waitingList: waitingList.value,
-    cap,
-  })
-}
-
 const seasonOf = (at: Instant, catalog: TownCatalog): TownOverview['season'] => {
   const season = townSeasonAt(at, catalog.townSettings())
   return season === undefined
@@ -242,140 +95,6 @@ const peopleOf = (
   return ok({ supplied, free, atWork: occupied })
 }
 
-type HireTermsState = TownOverview['hiring']['terms'][HireKind]
-
-const hireTermsOf = (
-  hire: HireKind,
-  town: Town,
-  catalog: TownCatalog,
-  at: Instant,
-): HireTermsState => {
-  const { cost, durationSeconds, people } = catalog.hireTermsOf(hire)
-  return {
-    cost: { ...cost },
-    secondsPerHire: deriveHireDurationSeconds(
-      durationSeconds,
-      town.buildingLevels.office,
-      hirePercentAt(at, catalog.townSettings()),
-    ),
-    people,
-    requiredOfficeLevel: requiredOfficeLevelOf(hire, catalog),
-  }
-}
-
-const hiringOrderOf = (town: Town, at: Instant): TownOverview['hiring']['order'] => {
-  const slot = town.hiringSlot
-  if (slot.kind === 'idle') {
-    return null
-  }
-  const { hire, count, secondsPerHire, startedAt } = slot
-  return {
-    hire,
-    count,
-    delivered: deliveredHiresOf(slot, at),
-    secondsPerHire,
-    startedAt: isoOf(startedAt),
-    endsAt: isoOf(hiringEndsAt(slot)),
-  }
-}
-
-const hiringOf = ({ town, at }: TownReading, catalog: TownCatalog): TownOverview['hiring'] => {
-  const hires = town.hiresAt(at)
-  return {
-    order: hiringOrderOf(town, at),
-    hires: { worker: hires.worker, truck: hires.truck },
-    terms: {
-      worker: hireTermsOf('worker', town, catalog, at),
-      truck: hireTermsOf('truck', town, catalog, at),
-    },
-  }
-}
-
-type Goal = Extract<TownOverview['nextStep'], { kind: 'caughtUp' }>['goal']
-
-const goalOf = (reading: TownReading, catalog: TownCatalog): Result<Goal, DomainError> => {
-  if (reading.guidanceDismissedAt !== undefined) {
-    return ok(null)
-  }
-  const goal = nextGoalOf(reading.town, reading.at, catalog)
-  if (!goal.ok) {
-    return goal
-  }
-  const next = goal.value
-  if (next === undefined) {
-    return ok(null)
-  }
-  const { position, count, building, level } = next
-  return ok(
-    next.state === 'underway'
-      ? { position, count, building, level, state: 'underway' }
-      : {
-          position,
-          count,
-          building,
-          level,
-          state: 'pending',
-          missing: { resources: { ...next.missing.resources }, people: next.missing.people },
-        },
-  )
-}
-
-const nextStepOfReading = (
-  reading: TownReading,
-  released: ReadonlyArray<ReleasedLesson>,
-  catalog: TownCatalog,
-  lessons: LessonLibrary,
-  memoryTerms: MemoryTerms,
-): Result<TownOverview['nextStep'], DomainError> => {
-  const step = nextStepOf(
-    { ...reading, released, placedOutBands: placedOutBandsOf(reading.placementScores) },
-    { lessons: lessons.lessons(), texts: lessons.texts(), bands: lessons, memoryTerms, catalog },
-  )
-  if (!step.ok) {
-    return step
-  }
-  switch (step.value.kind) {
-    case 'reviews':
-      return ok({ ...step.value, readFirst: [...step.value.readFirst] })
-    case 'holdoutCheck':
-    case 'releasedLesson':
-      return ok({ ...step.value, band: PlacementBandSchema.parse(step.value.band) })
-    case 'lessonToStudy':
-      return ok(step.value)
-    case 'lessonRunning':
-    case 'caughtUp': {
-      const goal = goalOf(reading, catalog)
-      return goal.ok ? ok({ ...step.value, goal: goal.value }) : goal
-    }
-  }
-}
-
-const guidanceOf = (
-  reading: TownReading,
-  released: ReadonlyArray<ReleasedLesson>,
-  catalog: TownCatalog,
-  lessons: LessonLibrary,
-  memoryTerms: MemoryTerms,
-): Result<Pick<TownOverview, 'nextStep' | 'tip' | 'nextDueAt'>, DomainError> => {
-  const nextStep = nextStepOfReading(reading, released, catalog, lessons, memoryTerms)
-  if (!nextStep.ok) {
-    return nextStep
-  }
-  const tip = tipOf(reading, catalog)
-  if (!tip.ok) {
-    return tip
-  }
-  const nextDueAt = nextDueAtOf(reading.cards, reading.at, memoryTerms)
-  if (!nextDueAt.ok) {
-    return nextDueAt
-  }
-  return ok({
-    nextStep: nextStep.value,
-    tip: tip.value ?? null,
-    nextDueAt: isoOrNullOf(nextDueAt.value),
-  })
-}
-
 export const presentTownOverview = (
   reading: TownReading,
   catalog: TownCatalog,
@@ -395,11 +114,11 @@ export const presentTownOverview = (
   if (!label.ok) {
     return label
   }
-  const buildings = buildingsOf(reading, catalog)
+  const buildings = presentTownBuildings(reading, catalog)
   if (!buildings.ok) {
     return buildings
   }
-  const work = workOf(town, catalog)
+  const work = presentTownWork(town, catalog)
   if (!work.ok) {
     return work
   }
@@ -411,7 +130,7 @@ export const presentTownOverview = (
   if (!school.ok) {
     return school
   }
-  const guidance = guidanceOf(reading, released, catalog, lessons, memoryTerms)
+  const guidance = presentTownGuidance(reading, released, catalog, lessons, memoryTerms)
   if (!guidance.ok) {
     return guidance
   }
@@ -426,7 +145,7 @@ export const presentTownOverview = (
     people: people.value,
     buildings: buildings.value,
     work: work.value,
-    hiring: hiringOf(reading, catalog),
+    hiring: presentTownHiring(reading, catalog),
     job: presentTownJob(town, at),
     ...school.value,
     dueHoldoutChecks: dueHoldoutChecksOf(reading.bandStarts, at).map(({ band, week }) => ({
