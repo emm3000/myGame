@@ -16,7 +16,7 @@ import {
   skipHoldoutCheck,
 } from '@mygame/domain'
 import type { Context } from 'hono'
-import { scaffoldOf } from '../account/application/readScaffold'
+import { readScaffold } from '../account/application/readScaffold'
 import {
   type RequirePlayerDependencies,
   requirePlayer,
@@ -65,7 +65,7 @@ export const holdoutCheckRoutes = (dependencies: HoldoutCheckRouteDependencies):
           return changed
         }
         return readHoldoutChecks(
-          { playerId, scaffold: await scaffoldOf(playerId, stores.accounts) },
+          { playerId, scaffold: await readScaffold(playerId, stores.accounts) },
           { bandStarts: stores.bandStarts, words: lessons, clock: mutationClock },
         )
       },
@@ -79,7 +79,7 @@ export const holdoutCheckRoutes = (dependencies: HoldoutCheckRouteDependencies):
       const playerId = c.var.playerId
       const views = await inTransaction(async (stores) =>
         readHoldoutChecks(
-          { playerId, scaffold: await scaffoldOf(playerId, stores.accounts) },
+          { playerId, scaffold: await readScaffold(playerId, stores.accounts) },
           { bandStarts: stores.bandStarts, words: lessons, clock },
         ),
       )
@@ -98,7 +98,7 @@ export const holdoutCheckRoutes = (dependencies: HoldoutCheckRouteDependencies):
       const playerId = c.var.playerId
       const views = await checksAfter(playerId, check.data, async (stores, { band, week }, at) =>
         beginHoldoutCheck(
-          { playerId, band, week, scaffold: await scaffoldOf(playerId, stores.accounts) },
+          { playerId, band, week, scaffold: await readScaffold(playerId, stores.accounts) },
           { ...stores, lessons, words: lessons, random, clock: at },
         ),
       )
@@ -123,7 +123,7 @@ export const holdoutCheckRoutes = (dependencies: HoldoutCheckRouteDependencies):
             band,
             week,
             answers: request.data.answers,
-            scaffold: await scaffoldOf(playerId, stores.accounts),
+            scaffold: await readScaffold(playerId, stores.accounts),
           },
           { bandStarts: stores.bandStarts, words: lessons, clock: at },
         ),

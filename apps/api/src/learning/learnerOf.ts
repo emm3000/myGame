@@ -12,7 +12,7 @@ import {
   type Scaffold,
 } from '@mygame/domain'
 import type { Accounts } from '../account/application/ports/Accounts'
-import { scaffoldOf } from '../account/application/readScaffold'
+import { readScaffold } from '../account/application/readScaffold'
 
 export type LearnerStores = {
   readonly accounts: Accounts
@@ -41,6 +41,6 @@ export const learnerOf = async (
   return ok({
     cards: held.value,
     placedOutBands: placedOutBandsOf(placementScoresOf(placement.value)),
-    scaffold: await scaffoldOf(playerId, accounts),
+    scaffold: await readScaffold(playerId, accounts),
   })
 }

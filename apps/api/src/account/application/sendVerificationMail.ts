@@ -1,5 +1,5 @@
 import type { MailRecipient } from './MailRecipient'
-import { fixedCopyOf } from './pickFixedCopy'
+import { pickFixedCopy } from './pickFixedCopy'
 import type { MailDelivery, Mailer } from './ports/Mailer'
 
 export type SendVerificationMailDependencies = {
@@ -12,7 +12,7 @@ export const sendVerificationMail = (
   token: string,
   { mailer, webUrl }: SendVerificationMailDependencies,
 ): Promise<MailDelivery> => {
-  const copy = fixedCopyOf(scaffold)
+  const copy = pickFixedCopy(scaffold)
   return mailer.send({
     to: email,
     subject: copy.mailVerificationSubject(),
