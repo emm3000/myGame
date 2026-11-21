@@ -18,6 +18,8 @@ export interface RecognitionCardProps {
 
 export function RecognitionCard({ card, review, verdictRef }: RecognitionCardProps): ReactElement {
   const { fixedCopy } = usePlayerCopy()
+  const prompt = fixedCopy((catalog) => catalog.reviewRecognitionPrompt())
+  const glossLanguage = prompt.language
   const submit = (event: FormEvent): void => {
     event.preventDefault()
     review.check()
@@ -31,12 +33,12 @@ export function RecognitionCard({ card, review, verdictRef }: RecognitionCardPro
           className="m-0 flex flex-col gap-2 border-0 p-0"
         >
           <legend className="mb-2 font-sans text-caption text-ink-muted">
-            <LabelText label={fixedCopy((catalog) => catalog.reviewRecognitionPrompt())} />
+            <LabelText label={prompt} />
           </legend>
           {card.choices.map((choice) => (
             <label
               key={choice.choiceId}
-              lang="es"
+              lang={glossLanguage}
               className="flex min-h-secondary cursor-pointer items-center gap-3 rounded-md border border-line-strong bg-surface px-3 py-2 font-sans text-gloss text-ink has-checked:border-action has-checked:font-bold"
             >
               <input
@@ -57,7 +59,8 @@ export function RecognitionCard({ card, review, verdictRef }: RecognitionCardPro
         {review.answered !== undefined && (
           <RatedVerdictLines
             answered={review.answered}
-            answerLang="es"
+            answerLang={glossLanguage}
+            rightAnswer={review.answered.verdict.gloss}
             verdictRef={verdictRef}
             onNext={review.next}
           />

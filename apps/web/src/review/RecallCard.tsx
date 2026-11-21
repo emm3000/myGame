@@ -115,6 +115,7 @@ export function RecallCard({ card, review, verdictRef }: RecallCardProps): React
           <RatedVerdictLines
             answered={review.answered}
             answerLang="en"
+            rightAnswer={review.answered.verdict.word}
             verdictRef={verdictRef}
             onNext={review.next}
           />
