@@ -1,5 +1,5 @@
 import { type Clock, err, ok, type PlayerId, type Result } from '@mygame/domain'
-import type { CryptoSessionTokens } from '../account/infrastructure/system/CryptoSessionTokens'
+import type { SessionTokens } from '../account/application/ports/SessionTokens'
 import type { Refusal } from '../platform/application/Refusal'
 import type { Transaction } from '../platform/infrastructure/postgres/postgresTransaction'
 import { issueAccountToken } from './issueAccountToken'
@@ -9,7 +9,7 @@ import { type SendVerificationMailDependencies, sendVerificationMail } from './s
 export type ResendVerificationMailDependencies = SendVerificationMailDependencies & {
   readonly inTransaction: Transaction
   readonly clock: Clock
-  readonly sessionTokens: CryptoSessionTokens
+  readonly sessionTokens: SessionTokens
 }
 
 type VerifyLink = {

@@ -1,7 +1,7 @@
 import type { SignInRequest } from '@mygame/contracts'
 import { type Clock, err, ok, type Result } from '@mygame/domain'
-import type { Argon2Passwords } from '../account/infrastructure/system/Argon2Passwords'
-import type { CryptoSessionTokens } from '../account/infrastructure/system/CryptoSessionTokens'
+import type { PasswordHasher } from '../account/application/ports/PasswordHasher'
+import type { SessionTokens } from '../account/application/ports/SessionTokens'
 import type { Refusal } from '../platform/application/Refusal'
 import type { Accounts } from './Accounts'
 import { openSession } from './openSession'
@@ -10,8 +10,8 @@ import type { SignedIn } from './SignedIn'
 export type SignInDependencies = {
   readonly accounts: Accounts
   readonly clock: Clock
-  readonly passwords: Argon2Passwords
-  readonly sessionTokens: CryptoSessionTokens
+  readonly passwords: PasswordHasher
+  readonly sessionTokens: SessionTokens
 }
 
 export const signIn = async (

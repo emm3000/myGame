@@ -1,6 +1,6 @@
 import type { ForgotPasswordRequest } from '@mygame/contracts'
 import { type Clock, ok } from '@mygame/domain'
-import type { CryptoSessionTokens } from '../account/infrastructure/system/CryptoSessionTokens'
+import type { SessionTokens } from '../account/application/ports/SessionTokens'
 import type { AfterResponse } from '../platform/application/ports/AfterResponse'
 import type { FailureSink } from '../platform/application/ports/FailureSink'
 import type { Transaction } from '../platform/infrastructure/postgres/postgresTransaction'
@@ -13,7 +13,7 @@ import type { MailRecipient } from './MailRecipient'
 export type RequestPasswordResetDependencies = {
   readonly inTransaction: Transaction
   readonly clock: Clock
-  readonly sessionTokens: CryptoSessionTokens
+  readonly sessionTokens: SessionTokens
   readonly mailer: Mailer
   readonly webUrl: string
   readonly afterResponse: AfterResponse

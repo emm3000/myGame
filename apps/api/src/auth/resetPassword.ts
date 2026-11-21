@@ -1,13 +1,13 @@
 import type { ResetPasswordRequest } from '@mygame/contracts'
 import { type Clock, err, ok, type Result } from '@mygame/domain'
-import type { Argon2Passwords } from '../account/infrastructure/system/Argon2Passwords'
+import type { PasswordHasher } from '../account/application/ports/PasswordHasher'
 import type { Refusal } from '../platform/application/Refusal'
 import type { Transaction } from '../platform/infrastructure/postgres/postgresTransaction'
 
 export type ResetPasswordDependencies = {
   readonly inTransaction: Transaction
   readonly clock: Clock
-  readonly passwords: Argon2Passwords
+  readonly passwords: PasswordHasher
 }
 
 export const resetPassword = async (
