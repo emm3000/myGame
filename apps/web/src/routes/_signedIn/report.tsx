@@ -1,4 +1,3 @@
-import { es } from '@mygame/catalog'
 import type { Report } from '@mygame/contracts'
 import { createFileRoute } from '@tanstack/react-router'
 import type { ReactElement } from 'react'
@@ -29,20 +28,25 @@ function ReportPage({
 }): ReactElement {
   const close = useReportClose(apiClient)
   const copy = usePlayerCopy()
+  const { nextDueAt } = report
+  const { refusal } = close
   return (
     <ReportScreen
       dueCount={report.dueCount}
       readFirst={report.readFirst}
       nextReview={
-        report.nextDueAt === null
+        nextDueAt === null
           ? undefined
-          : formatClock(es, new Date(report.nextDueAt), receivedAt)
+          : copy.chrome((catalog) => formatClock(catalog, new Date(nextDueAt), receivedAt))
       }
       news={report.news.map((item) => newsRowOf(copy, item, receivedAt))}
       close={{
         isClosed: close.isClosed,
         isWaiting: close.isWaiting,
-        refusalLine: close.refusal === undefined ? undefined : refusalLineOf(es, close.refusal),
+        refusalLine:
+          refusal === undefined
+            ? undefined
+            : copy.fixedCopy((catalog) => refusalLineOf(catalog, refusal)),
         onClose: close.close,
       }}
     />

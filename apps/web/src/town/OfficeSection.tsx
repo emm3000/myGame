@@ -7,6 +7,7 @@ import { FormAlert } from '../design-system/FormAlert'
 import { focusTargetClass } from '../design-system/focusTargetClass'
 import { LabelText } from '../design-system/LabelText'
 import { lineLabelOf } from '../design-system/lineLabelOf'
+import { spokenLanguageOf } from '../design-system/spokenLanguageOf'
 import { spokenLineOf } from '../design-system/spokenLineOf'
 import { useFocusTarget } from '../focus/useFocusTarget'
 import { hiringRefusalLineOf } from '../refusals/hiringRefusalLineOf'
@@ -55,7 +56,7 @@ function slotStateOf(
     finishedLabel: copy.chrome((catalog) => catalog.townWorkReady()),
     cancel: {
       label: copy.chrome((catalog) => catalog.townOfficeStop()),
-      accessibleName: spokenLineOf(copy.chrome(hireWordsOf(answered.hire).stopOf)),
+      accessibleName: copy.chrome(hireWordsOf(answered.hire).stopOf),
       isWaiting: hiring.isStopping,
       onCancel: () =>
         hiring.stop({ hire: answered.hire, startedAt: answered.startedAt }, onStopped),
@@ -87,6 +88,7 @@ function HireItem({
   return (
     <li
       aria-label={spokenLineOf(card.name)}
+      lang={spokenLanguageOf(card.name)}
       className="flex flex-col gap-2 border-line border-t py-4 first:border-t-0"
     >
       <HireCard

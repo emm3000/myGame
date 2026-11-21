@@ -1,7 +1,9 @@
-import { es } from '@mygame/catalog'
 import type { Reviews, TownOverview } from '@mygame/contracts'
 import { createFileRoute } from '@tanstack/react-router'
 import type { ReactElement } from 'react'
+import type { PlayerCopy } from '../../copy/PlayerCopy'
+import { usePlayerCopy } from '../../copy/usePlayerCopy'
+import type { Label } from '../../design-system/Label'
 import type { ReviewEndPath } from '../../review/ReviewEnd'
 import { ReviewScreen, type ReviewScreenState } from '../../review/ReviewScreen'
 import { type ReviewHandle, useReview } from '../../review/useReview'
@@ -18,9 +20,9 @@ interface ReviewRead {
   readonly overview: TownOverview | undefined
 }
 
-function nextReviewOf(nextDueAt: string, at: Date): string {
+function nextReviewOf(copy: PlayerCopy, nextDueAt: string, at: Date): Label {
   const remainingSeconds = Math.max(0, secondsBetween(at.toISOString(), nextDueAt))
-  return formatFinish(es, remainingSeconds, at)
+  return copy.chrome((catalog) => formatFinish(catalog, remainingSeconds, at))
 }
 
 function pathOf(overview: TownOverview | undefined): ReviewEndPath | undefined {
@@ -50,7 +52,7 @@ function finishedLessonOf(
   return reviews.readFirst.includes(card.lessonId) ? card.lessonId : undefined
 }
 
-function readStateOf(read: ReviewRead, review: ReviewHandle): ReviewScreenState {
+function readStateOf(copy: PlayerCopy, read: ReviewRead, review: ReviewHandle): ReviewScreenState {
   const finishedLessonId = finishedLessonOf(review.card, read)
   if (finishedLessonId !== undefined) {
     return {
@@ -68,7 +70,7 @@ function readStateOf(read: ReviewRead, review: ReviewHandle): ReviewScreenState 
   }
   return {
     kind: 'nothingDue',
-    nextReview: nextReviewOf(read.reviews.nextDueAt, read.at),
+    nextReview: nextReviewOf(copy, read.reviews.nextDueAt, read.at),
     path: pathOf(read.overview),
   }
 }
@@ -78,6 +80,7 @@ function ReviewPage(): ReactElement {
   const { state, reread } = useReviews(apiClient)
   const reviews = state.kind === 'read' ? state.reviews : undefined
   const town = useLayoutTown()
+  const copy = usePlayerCopy()
   const overview = town.state.kind === 'live' ? town.state.town.overview : undefined
   const rereadAfterAnswer = async (): Promise<void> => {
     town.reread()
@@ -90,7 +93,7 @@ function ReviewPage(): ReactElement {
     case 'refused':
       return <ReviewScreen state={{ kind: 'failed', onRetry: () => void reread() }} />
     case 'read':
-      return <ReviewScreen state={readStateOf({ ...state, overview }, review)} />
+      return <ReviewScreen state={readStateOf(copy, { ...state, overview }, review)} />
     default: {
       const unreachable: never = state
       return unreachable

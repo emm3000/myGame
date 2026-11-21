@@ -6,8 +6,8 @@ import { ButtonLink } from '../design-system/ButtonLink'
 import { FormAlert } from '../design-system/FormAlert'
 import { focusTargetClass } from '../design-system/focusTargetClass'
 import { formatQuantity } from '../design-system/formatQuantity'
+import type { Label } from '../design-system/Label'
 import { LabelText } from '../design-system/LabelText'
-import { lineLabelOf } from '../design-system/lineLabelOf'
 import { TextLink } from '../design-system/TextLink'
 import { useFocusTarget } from '../focus/useFocusTarget'
 import { NewsList } from '../news/NewsList'
@@ -18,14 +18,14 @@ import { ReviewsAhead } from '../review/ReviewsAhead'
 export interface ReportNewsClose {
   readonly isClosed: boolean
   readonly isWaiting: boolean
-  readonly refusalLine: string | undefined
+  readonly refusalLine: Label | undefined
   readonly onClose: (onClosed: () => void) => void
 }
 
 export interface ReportScreenProps {
   readonly dueCount: number
   readonly readFirst: ReadonlyArray<string>
-  readonly nextReview: string | undefined
+  readonly nextReview: Label | undefined
   readonly news: ReadonlyArray<NewsRow>
   readonly close: ReportNewsClose
 }
@@ -93,9 +93,7 @@ function NewsBody({
   return (
     <>
       <NewsList rows={news} />
-      {close.refusalLine !== undefined && (
-        <FormAlert message={lineLabelOf(close.refusalLine, 'es')} />
-      )}
+      {close.refusalLine !== undefined && <FormAlert message={close.refusalLine} />}
       <Button
         type="button"
         tone="quiet"

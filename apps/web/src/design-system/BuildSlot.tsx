@@ -16,7 +16,7 @@ export type BuildSlotState =
       readonly buildingName: Label
       readonly levelLabel: Label | undefined
       readonly remainingSeconds: number
-      readonly time: string
+      readonly time: Label
       readonly totalSeconds: number
       readonly finishedLabel: Label
       readonly cancel: CancelAction

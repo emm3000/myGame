@@ -10,14 +10,14 @@ export interface WaitingUpgrade {
   readonly buildingName: Label
   readonly levelLabel: Label
   readonly remainingSeconds: number
-  readonly time: string
+  readonly time: Label
   readonly cancel: CancelAction
   readonly refund: Label
 }
 
 interface WaitingUpgradesProps {
   readonly title: Label
-  readonly emptiesAt: string
+  readonly emptiesAt: Label
   readonly upgrades: ReadonlyArray<WaitingUpgrade>
   readonly finishedLabel: Label
 }
@@ -34,7 +34,10 @@ export function WaitingUpgrades({
         <span className="text-label">
           <LabelText label={title} />
         </span>
-        <span className="text-caption">{` · ${emptiesAt}`}</span>
+        <span className="text-caption">
+          {' · '}
+          <LabelText label={emptiesAt} />
+        </span>
       </span>
       <ol aria-label={spokenLineOf(title)} className="m-0 flex list-none flex-col gap-3 p-0">
         {upgrades.map(({ buildingName, levelLabel, remainingSeconds, time, cancel, refund }) => (

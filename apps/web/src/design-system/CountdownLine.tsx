@@ -5,7 +5,7 @@ import { LabelText } from './LabelText'
 
 export interface SlotCountdown {
   readonly words: Label
-  readonly time: string
+  readonly time: Label
 }
 
 export type CountdownGround = 'paper' | 'block'
@@ -29,7 +29,9 @@ export function CountdownLine({
       <span className="text-caption">
         <LabelText label={words} />
       </span>
-      <span className={`text-heading tabular-nums ${timeClass}`}>{time}</span>
+      <span className={`text-heading tabular-nums ${timeClass}`}>
+        <LabelText label={time} />
+      </span>
     </span>
   )
 }

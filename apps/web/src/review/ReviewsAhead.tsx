@@ -7,7 +7,7 @@ import { lineLabelOf } from '../design-system/lineLabelOf'
 
 export interface ReviewsAheadProps {
   readonly line: Label
-  readonly nextReview: string | undefined
+  readonly nextReview: Label | undefined
 }
 
 export function ReviewsAhead({ line, nextReview }: ReviewsAheadProps): ReactElement {

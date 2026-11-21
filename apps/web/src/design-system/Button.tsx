@@ -1,4 +1,5 @@
 import type { MouseEvent, ReactElement, ReactNode } from 'react'
+import type { LineLanguage } from './Label'
 
 export type ButtonTone = 'primary' | 'quiet' | 'text'
 
@@ -11,6 +12,7 @@ export interface ButtonProps {
   readonly disabled?: boolean
   readonly availability?: ButtonAvailability
   readonly accessibleName?: string
+  readonly accessibleLanguage?: LineLanguage | undefined
   readonly describedBy?: string | undefined
   readonly isExpanded?: boolean
   readonly controls?: string | undefined
@@ -80,6 +82,7 @@ export function Button(props: ButtonProps): ReactElement {
       aria-disabled={isWithheld ? true : undefined}
       aria-busy={isWaiting ? true : undefined}
       aria-label={props.accessibleName}
+      lang={props.accessibleLanguage}
       aria-describedby={props.describedBy}
       aria-expanded={props.isExpanded}
       aria-controls={props.controls}

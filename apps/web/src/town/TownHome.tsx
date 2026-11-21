@@ -12,6 +12,7 @@ import type { CancelAction } from '../design-system/CancelAction'
 import { FormAlert } from '../design-system/FormAlert'
 import { focusTargetClass } from '../design-system/focusTargetClass'
 import { LabelText } from '../design-system/LabelText'
+import { spokenLanguageOf } from '../design-system/spokenLanguageOf'
 import { spokenLineOf } from '../design-system/spokenLineOf'
 import { TextLink } from '../design-system/TextLink'
 import { WaitingUpgrades } from '../design-system/WaitingUpgrades'
@@ -65,7 +66,7 @@ function stopActionOf(
   )
   return {
     label: copy.chrome((catalog) => catalog.townWorkStop()),
-    accessibleName: spokenLineOf(stopOf),
+    accessibleName: stopOf,
     isWaiting: work.isStopping,
     onCancel: () => work.stop(target, onStopped),
   }
@@ -147,9 +148,11 @@ function PlaceItem({
 }): ReactElement {
   const refused = work.startRefused?.subject === place ? work.startRefused : undefined
   const copy = usePlayerCopy()
+  const name = copy.chrome((catalog) => placeNameOf(catalog, place))
   return (
     <li
-      aria-label={spokenLineOf(copy.chrome((catalog) => placeNameOf(catalog, place)))}
+      aria-label={spokenLineOf(name)}
+      lang={spokenLanguageOf(name)}
       className="flex flex-col gap-2 border-line border-t py-4 first:border-t-0"
     >
       <PlaceRow
