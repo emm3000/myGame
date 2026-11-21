@@ -65,4 +65,38 @@ class SchoolEnteringWordsTest {
 
         assertEquals(null, contentOf(viewModel).learning.pastCapWords)
     }
+
+    @Test
+    fun `counts no words past the cap while the featured lesson's entering words fit`() = runTest {
+        val viewModel: SchoolViewModel = schoolReading(
+            townOf(
+                lessons = listOf(
+                    lessonOf(wordCount = 5),
+                    lessonOf(id = secondLesson, wordCount = 6, enteringWordCount = 4),
+                ),
+                learning = fourWordsFree,
+            ),
+        )
+
+        viewModel.onIntent(SchoolIntent.LessonSelected(secondLesson))
+
+        assertEquals(null, contentOf(viewModel).learning.pastCapWords)
+    }
+
+    @Test
+    fun `counts the entering words the featured lesson would pass the cap with`() = runTest {
+        val viewModel: SchoolViewModel = schoolReading(
+            townOf(
+                lessons = listOf(
+                    lessonOf(wordCount = 5),
+                    lessonOf(id = secondLesson, wordCount = 6, enteringWordCount = 3),
+                ),
+                learning = twoWordsFree,
+            ),
+        )
+
+        viewModel.onIntent(SchoolIntent.LessonSelected(secondLesson))
+
+        assertEquals(3, contentOf(viewModel).learning.pastCapWords)
+    }
 }

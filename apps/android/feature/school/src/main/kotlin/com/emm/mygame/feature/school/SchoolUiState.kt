@@ -36,14 +36,7 @@ sealed interface SchoolUiState {
     ) : SchoolUiState {
 
         val shown: LessonCard?
-            get() {
-                val unstudied: List<LessonCard> = lessons.filter { card: LessonCard ->
-                    card.state != LessonState.Studied
-                }
-                return unstudied.firstOrNull { card: LessonCard -> card.lesson == selected }
-                    ?: unstudied.firstOrNull { card: LessonCard -> card.state is LessonState.Open }
-                    ?: unstudied.firstOrNull()
-            }
+            get() = lessons.featuredWith(selected)
 
         val isNextStepAhead: Boolean
             get() = selected == null && nextStep.action.isAheadOfTheShelf()
@@ -157,4 +150,13 @@ private fun NextStepCard.Action.isAheadOfTheShelf(): Boolean = when (this) {
     is NextStepCard.Action.Study,
     NextStepCard.Action.GoToReport,
     -> false
+}
+
+internal fun List<SchoolUiState.LessonCard>.featuredWith(selected: LessonId?): SchoolUiState.LessonCard? {
+    val unstudied: List<SchoolUiState.LessonCard> = filter { card: SchoolUiState.LessonCard ->
+        card.state != SchoolUiState.LessonState.Studied
+    }
+    return unstudied.firstOrNull { card: SchoolUiState.LessonCard -> card.lesson == selected }
+        ?: unstudied.firstOrNull { card: SchoolUiState.LessonCard -> card.state is SchoolUiState.LessonState.Open }
+        ?: unstudied.firstOrNull()
 }
