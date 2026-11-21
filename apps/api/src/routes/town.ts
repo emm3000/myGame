@@ -55,6 +55,7 @@ import { openTextOf } from '../town/openTextOf'
 import { quotedCleanUpOf } from '../town/quotedCleanUpOf'
 import { quotedJobOf } from '../town/quotedJobOf'
 import type { TownReading } from '../town/TownReading'
+import { townNewsItemOf } from '../town/townNewsItemOf'
 import { type TownNewsDependencies, townNewsOf } from '../town/townNewsOf'
 import { townOverviewOf } from '../town/townOverviewOf'
 import { townReadingOf } from '../town/townReadingOf'
@@ -106,7 +107,7 @@ export const townRoutes = (dependencies: TownDependencies): OpenAPIHono => {
       if (!news.ok) {
         return answerRefusal(c, news.error)
       }
-      const body: TownNewsFeed = news.value
+      const body: TownNewsFeed = { items: news.value.map(townNewsItemOf) }
       return c.json(body)
     },
   )
