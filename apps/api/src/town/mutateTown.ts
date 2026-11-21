@@ -19,7 +19,7 @@ import {
   type TownNews,
   type TownRepository,
 } from '@mygame/domain'
-import type { Accounts } from '../auth/Accounts'
+import type { Accounts } from '../account/application/ports/Accounts'
 import type { Transaction } from '../platform/application/ports/Transaction'
 import type { GuidanceDismissals } from './GuidanceDismissals'
 import type { SeenTips } from './SeenTips'

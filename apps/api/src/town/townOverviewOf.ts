@@ -43,9 +43,9 @@ import {
   type WaitingList,
   wordShortfallOf,
 } from '@mygame/domain'
+import { scaffoldBodyOf } from '../account/infrastructure/http/presentScaffold'
 import type { LessonLibrary } from '../learning/LessonLibrary'
 import { nextDueAtOf } from '../learning/reviewsOf'
-import { scaffoldBodyOf } from '../learning/scaffoldBodyOf'
 import { schoolOverviewOf } from '../learning/schoolOverviewOf'
 import { isoOf } from '../platform/infrastructure/http/isoOf'
 import { jobStateOf } from './jobStateOf'

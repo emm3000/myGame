@@ -2,7 +2,6 @@ import { PlayerSchema } from '@mygame/contracts'
 import { type Clock, Instant } from '@mygame/domain'
 import { Client } from 'pg'
 import { afterAll, beforeAll, beforeEach, describe, expect, it } from 'vitest'
-import { MemoryMailer } from '../../../adapters/memory/MemoryMailer'
 import { apiPackagePath } from '../../../apiPackagePath.testSupport'
 import { createApp } from '../../../app'
 import { type ComposedServer, composeServer } from '../../../composeServer'
@@ -110,12 +109,14 @@ describe('the server failure report', () => {
     expect(sink.lines).toEqual([])
   })
 
+  const failingMailer: ComposedServer['mailer'] = { send: () => Promise.resolve('failed') }
+
   it('writes one line naming the kind for an unsent mail', async () => {
     const ana = await signUpAna()
     const failingApp = createApp({
       ...server,
       clock: frozenClock,
-      mailer: MemoryMailer.failing(),
+      mailer: failingMailer,
       failureSink: sink,
     })
 

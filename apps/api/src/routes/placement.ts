@@ -11,13 +11,13 @@ import {
   skipPlacement,
 } from '@mygame/domain'
 import type { Context } from 'hono'
+import { scaffoldOf } from '../account/application/readScaffold'
 import {
   type RequirePlayerDependencies,
   requirePlayer,
 } from '../account/infrastructure/http/requirePlayer'
 import type { LearningDependencies } from '../learning/LearningDependencies'
 import { placementBodyOf } from '../learning/placementBodyOf'
-import { scaffoldOf } from '../learning/scaffoldOf'
 import { answerRefusal } from '../platform/infrastructure/http/answerRefusal'
 import { honoPathOf } from '../platform/infrastructure/http/honoPath'
 import { readJsonBody } from '../platform/infrastructure/http/readJsonBody'

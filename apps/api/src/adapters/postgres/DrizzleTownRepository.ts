@@ -31,6 +31,7 @@ import {
 import { eq, sql } from 'drizzle-orm'
 import { z } from 'zod'
 import { players } from '../../account/infrastructure/postgres/accountTables'
+import { storedScaffoldColumns } from '../../account/infrastructure/postgres/storedScaffoldColumns'
 import type { PostgresSession } from '../../platform/infrastructure/postgres/connectPostgres'
 import { jsonAggregateOf } from '../../platform/infrastructure/postgres/jsonAggregateOf'
 import { violatedUniqueConstraint } from '../../platform/infrastructure/postgres/violatedUniqueConstraint'
@@ -55,7 +56,6 @@ import { aggregatedCardsOf, heldCardsOf } from './aggregatedCards'
 import { aggregatedPlacementScoresOf, placementScoresFrom } from './aggregatedPlacementScores'
 import { aggregatedSeenTipsOf, seenTipsFrom } from './aggregatedSeenTips'
 import { lessonSlotOf } from './lessonSlotOf'
-import { storedScaffoldColumns } from './storedScaffoldColumns'
 
 export type TownRead = 'lockedForUpdate' | 'lockFree'
 
