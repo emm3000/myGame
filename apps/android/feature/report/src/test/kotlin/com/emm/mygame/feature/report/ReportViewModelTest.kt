@@ -42,8 +42,13 @@ class ReportViewModelTest {
 
     private fun TestScope.reportReading(report: TownReport): ReportViewModel = reportReadingFrom(reports, report)
 
-    private fun holdLessonFinishing(finishesAt: Instant, gap: Duration = Duration.ZERO) {
-        val slot: TownSnapshot.LessonSlot = TownSnapshot.LessonSlot(firstLesson, readInstant, finishesAt)
+    private fun holdLessonFinishing(
+        finishesAt: Instant,
+        gap: Duration = Duration.ZERO,
+        lesson: LessonId = firstLesson,
+        startedAt: Instant = readInstant,
+    ) {
+        val slot: TownSnapshot.LessonSlot = TownSnapshot.LessonSlot(lesson, startedAt, finishesAt)
         towns.hold(HeldTown(townOf(readAt = readInstant, lessonSlot = slot), gap))
     }
 
@@ -719,6 +724,40 @@ class ReportViewModelTest {
     }
 
     @Test
+    fun `waits again for a later lesson's finish`() = runTest {
+        holdLessonFinishing(finishesAt = readInstant + 4.minutes)
+        reportReadingFrom(reports, reportOf(), towns)
+        repeat(times = 2) { reports.answerRead(ReportReadResult.Read(reportOf())) }
+
+        advanceTimeBy(4.minutes)
+        runCurrent()
+        val readsAtTheFirstFinish: Int = reports.readCount
+        holdLessonFinishing(
+            finishesAt = readInstant + 10.minutes,
+            lesson = secondLesson,
+            startedAt = readInstant + 4.minutes,
+        )
+        runCurrent()
+        advanceTimeBy(1.hours)
+        runCurrent()
+
+        assertEquals(2, readsAtTheFirstFinish)
+        assertEquals(3, reports.readCount)
+    }
+
+    @Test
+    fun `reads nothing more for a lesson finish already past when the screen opens`() = runTest {
+        holdLessonFinishing(finishesAt = readInstant - 1.minutes, startedAt = readInstant - 5.minutes)
+        reportReadingFrom(reports, reportOf(), towns)
+        reports.answerRead(ReportReadResult.Read(reportOf()))
+
+        advanceTimeBy(1.hours)
+        runCurrent()
+
+        assertEquals(1, reports.readCount)
+    }
+
+    @Test
     fun `draws the reminder as off while it is off`() = runTest {
         val viewModel: ReportViewModel = reportReading(reportOf())
 
@@ -754,5 +793,7 @@ class ReportViewModelTest {
         const val READS_AVAILABLE: Int = 5
 
         val firstLesson: LessonId = LessonId("lesson-1")
+
+        val secondLesson: LessonId = LessonId("lesson-2")
     }
 }
