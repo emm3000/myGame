@@ -41,6 +41,10 @@ persistence_knows_http() {
   search -n "from '@?hono" "$api" -g '**/infrastructure/{postgres,memory,json,smtp,system}/**' -g '!*.test.ts' | by_line
 }
 
+contracts_outside_adapters() {
+  search -n "from '@mygame/contracts'" "$api" -g '!**/infrastructure/http/**' -g '!**/infrastructure/json/**' -g '!**/content/gate/**' -g '!*.test.ts' -g '!*.testSupport.ts' | by_line
+}
+
 http_knows_database() {
   search -n "from 'drizzle" "$api" -g '**/infrastructure/http/**' -g '!*.test.ts' | by_line
 }
@@ -101,6 +105,7 @@ type_over_method_cap() {
 checks=(
   application_imports_infrastructure
   application_knows_wire
+  contracts_outside_adapters
   persistence_knows_http
   http_knows_database
   adapter_built_outside_root
@@ -153,13 +158,15 @@ for check in "${checks[@]}"; do
 done
 
 map=ARCHITECTURE.md
-if [ -f "$map" ]; then
-  folders=$(for folder in "$api"/*/ "$domain"/*/; do [ -d "$folder" ] && basename "$folder"; done | sort -u)
-  rows=$(search -o "^\\| \`(\\w+)\` \\|" -r "\$1" "$map" | sort -u)
-  map_diff=$(diff <(printf '%s\n' "$folders") <(printf '%s\n' "$rows")) || {
+shopt -s nullglob
+folders=$(for folder in "$api"/*/ "$domain"/*/; do basename "$folder"; done | sort -u)
+if rows=$(search -o "^\\| \`(\\w+)\` \\|" -r "\$1" "$map"); then
+  map_diff=$(diff <(printf '%s\n' "$folders") <(printf '%s\n' "$rows" | sort -u)) || {
     report "structure check map: the folders under $api and $domain and the rows of $map differ (< folder only, > row only):"
     printf '%s\n' "$map_diff" >&2
   }
+else
+  report "structure check map: $map could not be read"
 fi
 
 if [ "$failures" -gt 0 ]; then
