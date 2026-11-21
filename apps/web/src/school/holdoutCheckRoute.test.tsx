@@ -272,3 +272,16 @@ it('begins the check once when its start is pressed twice', async () => {
 
   expect(beginHoldoutCheck).toHaveBeenCalledOnce()
 })
+
+it('sends an empty answer list for a check asked with no words', async () => {
+  const answerHoldoutCheck = vi.fn(changedTo({ checks: [] }))
+  await showCheck({
+    holdoutChecks: reading({ checks: [{ kind: 'asking', band: 1, week: 8, items: [] }] }),
+    answerHoldoutCheck,
+  })
+
+  await click(holdoutCheckSend())
+
+  expect(answerHoldoutCheck).toHaveBeenCalledWith({ band: 1, week: 8 }, { answers: [] })
+  expect(screen.getByText(holdoutCheckDone())).toBeDefined()
+})

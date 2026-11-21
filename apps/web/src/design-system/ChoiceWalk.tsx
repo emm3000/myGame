@@ -1,10 +1,3 @@
-import {
-  placementBand,
-  placementChoose,
-  placementNext,
-  placementProgress,
-  placementPrompt,
-} from '@mygame/catalog'
 import { type ReactElement, useId } from 'react'
 import { Block } from './Block'
 import { Button } from './Button'
@@ -17,10 +10,18 @@ import {
   type WalkItem,
 } from './useChoiceWalk'
 
+export interface ChoiceWalkLines {
+  readonly heading: string
+  readonly prompt: string
+  readonly next: string
+  readonly choose: string
+  readonly send: string
+  readonly progressOf: (number: number, total: number) => string
+}
+
 export interface ChoiceWalkProps {
-  readonly band: number
   readonly items: ReadonlyArray<WalkItem>
-  readonly sendLabel: string
+  readonly lines: ChoiceWalkLines
   readonly isSending: boolean
   readonly onSend: (answers: ReadonlyArray<ChosenAnswer>) => void
 }
@@ -28,15 +29,17 @@ export interface ChoiceWalkProps {
 function Choices({
   item,
   walk,
+  prompt,
   isSending,
 }: {
   readonly item: WalkItem
   readonly walk: ChoiceWalkState
+  readonly prompt: string
   readonly isSending: boolean
 }): ReactElement {
   return (
     <fieldset disabled={isSending} className="m-0 flex flex-col gap-2 border-0 p-0">
-      <legend className="mb-2 font-sans text-caption text-ink-muted">{placementPrompt()}</legend>
+      <legend className="mb-2 font-sans text-caption text-ink-muted">{prompt}</legend>
       {item.choices.map((choice) => (
         <label
           key={choice.choiceId}
@@ -59,11 +62,11 @@ function Choices({
 }
 
 function WalkAction({
-  sendLabel,
+  lines,
   isSending,
   onSend,
   walk,
-}: Omit<ChoiceWalkProps, 'band' | 'items'> & { readonly walk: ChoiceWalkState }): ReactElement {
+}: Omit<ChoiceWalkProps, 'items'> & { readonly walk: ChoiceWalkState }): ReactElement {
   const reasonId = useId()
   const isBlocked = walk.chosenForShown === undefined
   const availability = isBlocked ? 'blocked' : 'available'
@@ -83,7 +86,7 @@ function WalkAction({
           describedBy={isBlocked ? reasonId : undefined}
           onClick={send}
         >
-          {sendLabel}
+          {lines.send}
         </Button>
       ) : (
         <Button
@@ -93,31 +96,44 @@ function WalkAction({
           describedBy={isBlocked ? reasonId : undefined}
           onClick={walk.next}
         >
-          {placementNext()}
+          {lines.next}
         </Button>
       )}
       {isBlocked && (
         <p id={reasonId} className="m-0 font-sans text-caption text-ink-muted">
-          {placementChoose()}
+          {lines.choose}
         </p>
       )}
     </div>
   )
 }
 
-export function ChoiceWalk(props: ChoiceWalkProps): ReactElement | null {
-  const { band, items, isSending } = props
+function EmptyWalk({ lines, isSending, onSend }: Omit<ChoiceWalkProps, 'items'>): ReactElement {
+  return (
+    <Button
+      type="button"
+      tone="primary"
+      availability={isSending ? 'waiting' : 'available'}
+      onClick={() => onSend([])}
+    >
+      {lines.send}
+    </Button>
+  )
+}
+
+export function ChoiceWalk(props: ChoiceWalkProps): ReactElement {
+  const { items, lines, isSending } = props
   const walk = useChoiceWalk(items)
   const wordId = useId()
   if (walk.shown === undefined) {
-    return null
+    return <EmptyWalk {...props} />
   }
   return (
     <>
       <div className="flex flex-col gap-2 font-sans">
-        <p className="m-0 text-meta text-ink-muted">{placementBand({ band })}</p>
+        <p className="m-0 text-meta text-ink-muted">{lines.heading}</p>
         <p className="m-0 text-caption text-ink-muted">
-          {placementProgress({ number: walk.shownIndex + 1, total: items.length })}
+          {lines.progressOf(walk.shownIndex + 1, items.length)}
         </p>
         <Track value={walk.shownIndex + 1} total={items.length} fillClass="fill-action" />
       </div>
@@ -126,7 +142,7 @@ export function ChoiceWalk(props: ChoiceWalkProps): ReactElement | null {
           {walk.shown.word}
         </h2>
       </Block>
-      <Choices item={walk.shown} walk={walk} isSending={isSending} />
+      <Choices item={walk.shown} walk={walk} prompt={lines.prompt} isSending={isSending} />
       <WalkAction {...props} walk={walk} />
     </>
   )

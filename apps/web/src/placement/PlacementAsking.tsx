@@ -1,4 +1,11 @@
-import { placementSendBand } from '@mygame/catalog'
+import {
+  placementBand,
+  placementChoose,
+  placementNext,
+  placementProgress,
+  placementPrompt,
+  placementSendBand,
+} from '@mygame/catalog'
 import type { Placement, PlacementAnswers } from '@mygame/contracts'
 import type { ReactElement } from 'react'
 import { ChoiceWalk } from '../design-system/ChoiceWalk'
@@ -17,9 +24,15 @@ export function PlacementAsking({ asking, isSending, onSend }: PlacementAskingPr
     <div className="flex flex-col gap-4">
       <BandScores scores={asking.scores} />
       <ChoiceWalk
-        band={asking.band}
         items={asking.items}
-        sendLabel={placementSendBand({ band: asking.band })}
+        lines={{
+          heading: placementBand({ band: asking.band }),
+          prompt: placementPrompt(),
+          next: placementNext(),
+          choose: placementChoose(),
+          send: placementSendBand({ band: asking.band }),
+          progressOf: (number, total) => placementProgress({ number, total }),
+        }}
         isSending={isSending}
         onSend={(answers) => onSend({ band: asking.band, answers: [...answers] })}
       />
