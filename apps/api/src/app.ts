@@ -1,5 +1,4 @@
 import { OpenAPIHono } from '@hono/zod-openapi'
-import type { HealthResponse } from '@mygame/contracts'
 import {
   type AccountRouteDependencies,
   accountRoutes,
@@ -14,8 +13,7 @@ import {
   placementRoutes,
 } from './placement/infrastructure/http/placementRoutes'
 import type { FailureSink } from './platform/application/ports/FailureSink'
-import { healthDeclarations } from './platform/infrastructure/http/healthDeclarations'
-import { honoPathOf } from './platform/infrastructure/http/honoPath'
+import { healthRoute } from './platform/infrastructure/http/healthRoute'
 import { reportServerFailures } from './platform/infrastructure/http/reportServerFailures'
 import {
   sessionBearerScheme,
@@ -49,11 +47,7 @@ export const createApp = (dependencies: AppDependencies): OpenAPIHono => {
     sessionBearerScheme,
     sessionBearerSecurityScheme,
   )
-  app.openAPIRegistry.registerPath(healthDeclarations.health)
-  app.on(healthDeclarations.health.method, honoPathOf(healthDeclarations.health), (c) => {
-    const body: HealthResponse = { status: 'ok' }
-    return c.json(body)
-  })
+  healthRoute(app)
   app
     .route('/', accountRoutes(dependencies))
     .route('/reviews', learningRoutes(dependencies))
