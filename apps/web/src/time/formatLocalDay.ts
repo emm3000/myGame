@@ -1,5 +1,6 @@
-const monthFormat = new Intl.DateTimeFormat('es', { month: 'short' })
+import type { ChromeCatalog } from '../copy/PlayerCopy'
 
-export function formatLocalDay(instant: Date): string {
-  return `${instant.getDate()} ${monthFormat.format(instant)}`
+export function formatLocalDay(catalog: ChromeCatalog, instant: Date): string {
+  const month = new Intl.DateTimeFormat(catalog.locale, { month: 'short' }).format(instant)
+  return `${instant.getDate()} ${month}`
 }

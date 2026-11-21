@@ -8,6 +8,7 @@ import {
 } from '@formatjs/icu-messageformat-parser'
 import { isAndroidKey } from './androidKeyOf'
 import { type ArgumentUse, argumentUsesOf } from './argumentUsesOf'
+import type { Language } from './Catalogs'
 import type { Messages } from './Messages'
 
 type Branch = {
@@ -178,9 +179,9 @@ const functionOf = ([key, message]: [string, string]): string => {
   return `export const ${functionNameOf(key)} = ${parameters}: string => \`${body}\`\n`
 }
 
-export const typeScriptOf = (messages: Messages): string => {
+export const typeScriptOf = (messages: Messages, language: Language): string => {
   const entries = Object.entries(messages)
     .filter(([key]) => !isAndroidKey(key))
     .sort(([left], [right]) => (left < right ? -1 : 1))
-  return entries.length === 0 ? 'export {}\n' : entries.map(functionOf).join('')
+  return `export const locale = '${language}'\n${entries.map(functionOf).join('')}`
 }

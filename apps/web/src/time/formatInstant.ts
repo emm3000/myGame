@@ -12,7 +12,7 @@ export function formatInstant(catalog: ChromeCatalog, instant: Date, now: Date):
   if (isSameDay(instant, now)) {
     return catalog.timeToday({ time })
   }
-  const day = formatLocalDay(instant)
+  const day = formatLocalDay(catalog, instant)
   const date = instant.getFullYear() === now.getFullYear() ? day : `${day} ${instant.getFullYear()}`
   return `${date}, ${time}`
 }

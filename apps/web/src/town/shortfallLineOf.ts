@@ -27,6 +27,7 @@ export function shortfallLineOf(
 ): string {
   return catalog.townShortfall({
     missing: conjunctionOf(
+      catalog,
       shortfalls.map(({ resource, amount }) =>
         catalog.townAmount({
           amount: formatQuantity(amount),

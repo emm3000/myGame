@@ -16,5 +16,5 @@ export function formatClock(catalog: ChromeCatalog, instant: Date, now: Date): s
   if (dayOf(instant) === dayAfter(now)) {
     return catalog.statusTomorrow({ time })
   }
-  return `${formatLocalDay(instant)} ${time}`
+  return `${formatLocalDay(catalog, instant)} ${time}`
 }

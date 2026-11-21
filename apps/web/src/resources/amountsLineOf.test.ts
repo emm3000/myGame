@@ -5,3 +5,9 @@ import { amountsLineOf } from './amountsLineOf'
 it('writes an amount from the catalog it is given', () => {
   expect(amountsLineOf(en, { money: 60, food: 0, power: 0, material: 0 })).toBe('60 money')
 })
+
+it('joins two amounts in the language of the catalog it is given', () => {
+  expect(amountsLineOf(en, { money: 60, food: 5, power: 0, material: 0 })).toBe(
+    '60 money and 5 food',
+  )
+})
