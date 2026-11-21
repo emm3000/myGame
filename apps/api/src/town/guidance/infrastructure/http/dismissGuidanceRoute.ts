@@ -7,7 +7,7 @@ import { honoPathOf } from '#platform/infrastructure/http/honoPath'
 import { signedInRoute } from '#platform/infrastructure/http/signedInRoute'
 import type { MutateTownDependencies } from '../../../application/mutateTown'
 import { townNotFoundResponse } from '../../../infrastructure/http/townComponents'
-import { answerGuidanceChange } from './answerGuidanceChange'
+import { answerGuidanceChange } from './respondGuidanceChange'
 
 export const dismissGuidanceDeclaration = createRoute(
   signedInRoute({

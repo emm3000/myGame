@@ -1,7 +1,7 @@
 import type { Placement } from '@mygame/contracts'
 import type { DomainError, PlacementView, Result } from '@mygame/domain'
 import type { Context } from 'hono'
-import { answerRefusal } from '#platform/infrastructure/http/answerRefusal'
+import { answerRefusal } from '#platform/infrastructure/http/respondRefusal'
 import { presentPlacement } from './presentPlacement'
 
 export const answerPlacementView = (

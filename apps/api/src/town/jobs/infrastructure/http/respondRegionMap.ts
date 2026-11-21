@@ -8,7 +8,7 @@ import {
   type TownCatalog,
 } from '@mygame/domain'
 import type { Context } from 'hono'
-import { answerRefusal } from '#platform/infrastructure/http/answerRefusal'
+import { answerRefusal } from '#platform/infrastructure/http/respondRefusal'
 import { presentRegionMap } from './presentRegionMap'
 
 export type AnswerRegionMapDependencies = {

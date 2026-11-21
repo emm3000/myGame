@@ -7,14 +7,14 @@ import {
   requirePlayer,
 } from '#account/infrastructure/http/requirePlayer'
 import type { LearningDependencies } from '#learning/application/LearningDependencies'
-import { answerRefusal } from '#platform/infrastructure/http/answerRefusal'
 import { honoPathOf } from '#platform/infrastructure/http/honoPath'
 import { readJsonBody } from '#platform/infrastructure/http/readJsonBody'
+import { answerRefusal } from '#platform/infrastructure/http/respondRefusal'
 import { jsonBody } from '#platform/infrastructure/http/responseDeclarations'
 import { signedInRoute } from '#platform/infrastructure/http/signedInRoute'
 import { mutateTown } from '#town/application/mutateTown'
-import { answerPlacementView } from './answerPlacementView'
 import { placementResponse } from './placementComponents'
+import { answerPlacementView } from './respondPlacementView'
 
 export const answerPlacementDeclaration = createRoute(
   signedInRoute({

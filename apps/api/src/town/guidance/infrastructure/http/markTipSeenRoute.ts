@@ -5,12 +5,12 @@ import {
   type RequirePlayerDependencies,
   requirePlayer,
 } from '#account/infrastructure/http/requirePlayer'
-import { answerRefusal } from '#platform/infrastructure/http/answerRefusal'
 import { honoPathOf } from '#platform/infrastructure/http/honoPath'
+import { answerRefusal } from '#platform/infrastructure/http/respondRefusal'
 import { malformedResponse } from '#platform/infrastructure/http/responseDeclarations'
 import { signedInRoute } from '#platform/infrastructure/http/signedInRoute'
 import type { MutateTownDependencies } from '../../../application/mutateTown'
-import { answerGuidanceChange } from './answerGuidanceChange'
+import { answerGuidanceChange } from './respondGuidanceChange'
 
 export const markTipSeenDeclaration = createRoute(
   signedInRoute({

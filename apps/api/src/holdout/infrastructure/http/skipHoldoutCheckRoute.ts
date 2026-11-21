@@ -6,12 +6,12 @@ import {
   requirePlayer,
 } from '#account/infrastructure/http/requirePlayer'
 import type { LearningDependencies } from '#learning/application/LearningDependencies'
-import { answerRefusal } from '#platform/infrastructure/http/answerRefusal'
 import { honoPathOf } from '#platform/infrastructure/http/honoPath'
+import { answerRefusal } from '#platform/infrastructure/http/respondRefusal'
 import { signedInRoute } from '#platform/infrastructure/http/signedInRoute'
-import { answerHoldoutChecks } from './answerHoldoutChecks'
 import { checkNotDue, checkPath, checksResponse, malformedCheck } from './holdoutCheckComponents'
 import { readChecksAfter } from './readChecksAfter'
+import { answerHoldoutChecks } from './respondHoldoutChecks'
 
 export const skipHoldoutCheckDeclaration = createRoute(
   signedInRoute({
