@@ -80,7 +80,7 @@ describe('gateContentOf', () => {
       cefrjItem: '58',
       admittingLessonId: 'lesson-1',
       frameWords: ['be', 'not'],
-      inflections: ['am', 'is', 'are'],
+      inflections: ['am', 'is', 'are', "'m", "'re", "'s", "n't"],
     })
   })
 })

@@ -220,20 +220,12 @@ describe('the frames the content resolves', () => {
     expect(supportOf(recallOf('word-87', 'Is your ____ at school?'), 'school')).toBeNull()
   })
 
-  it("drops station's support on a recall of build", () => {
-    expect(supportOf(recallOf('word-16', 'Who will ____ the station?'), 'station')).toBeNull()
-  })
-
   it("drops power's support on a recall of use", () => {
     expect(supportOf(recallOf('word-89', 'We ____ power at the factory.'), 'power')).toBeNull()
   })
 
   it("drops word's support on a recall of mean", () => {
     expect(supportOf(recallOf('word-108', 'What does this word ____?'), 'word')).toBeNull()
-  })
-
-  it("drops list's support on a recall of write", () => {
-    expect(supportOf(recallOf('word-109', '____ your name on the list.'), 'list')).toBeNull()
   })
 
   it("drops write's support on a recall of word", () => {

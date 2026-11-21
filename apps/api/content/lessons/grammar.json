@@ -6,7 +6,7 @@
       "cefrjItem": "58",
       "admittingLessonId": "lesson-1",
       "frameWords": ["be", "not"],
-      "inflections": ["am", "is", "are"]
+      "inflections": ["am", "is", "are", "'m", "'re", "'s", "n't"]
     },
     {
       "name": "Subject pronouns",
@@ -22,7 +22,7 @@
       "cefrjItem": "6",
       "admittingLessonId": "lesson-1",
       "frameWords": [],
-      "inflections": ["my", "your", "his", "her", "its", "our", "their"]
+      "inflections": ["my", "your", "his", "her", "its", "our", "their", "possessive 's"]
     },
     {
       "name": "Object pronouns",
@@ -165,7 +165,7 @@
       "cefrjItem": "69",
       "admittingLessonId": "lesson-5",
       "frameWords": ["will"],
-      "inflections": []
+      "inflections": ["'ll"]
     },
     {
       "name": "Modal have to",
@@ -189,7 +189,7 @@
       "cefrjItem": "123",
       "admittingLessonId": "lesson-6",
       "frameWords": ["can"],
-      "inflections": []
+      "inflections": ["cannot"]
     },
     {
       "name": "Relative who",
@@ -367,6 +367,11 @@
       "pastParticiple": "begun"
     },
     {
+      "lemma": "build",
+      "past": "built",
+      "pastParticiple": "built"
+    },
+    {
       "lemma": "come",
       "past": "came",
       "pastParticiple": "come"
@@ -392,9 +397,29 @@
       "pastParticiple": "made"
     },
     {
+      "lemma": "say",
+      "past": "said",
+      "pastParticiple": "said"
+    },
+    {
       "lemma": "see",
       "past": "saw",
       "pastParticiple": "seen"
+    },
+    {
+      "lemma": "show",
+      "past": "showed",
+      "pastParticiple": "shown"
+    },
+    {
+      "lemma": "take",
+      "past": "took",
+      "pastParticiple": "taken"
+    },
+    {
+      "lemma": "write",
+      "past": "wrote",
+      "pastParticiple": "written"
     }
   ]
 }

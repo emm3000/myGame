@@ -1,5 +1,6 @@
 import { frameWordsOf } from './frameWordsOf'
 import type { GateContent } from './GateContent'
+import { lessonPositionOf } from './lessonPositionOf'
 
 export const frameWordAdmissionsOf = ({
   grammar,
@@ -8,6 +9,6 @@ export const frameWordAdmissionsOf = ({
   new Map(
     [...frameWordsOf(grammar)].map(([word, lessonId]) => [
       word,
-      curriculum.lessonIds.indexOf(lessonId) + 1,
+      lessonPositionOf(curriculum, lessonId),
     ]),
   )

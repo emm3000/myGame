@@ -335,7 +335,7 @@ describe('JsonLessonCatalog', () => {
       { id: 'lesson-2', theme: 'A town for people' },
       { id: 'lesson-3', theme: 'A job in spring' },
       { id: 'lesson-4', theme: 'Summer on the farm' },
-      { id: 'lesson-5', theme: 'Building a home' },
+      { id: 'lesson-5', theme: 'Build a home' },
       { id: 'lesson-6', theme: 'News from the city' },
       { id: 'lesson-7', theme: 'A team for the town' },
       { id: 'lesson-8', theme: 'At the office' },

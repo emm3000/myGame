@@ -1,4 +1,5 @@
 import type { GateContent } from './GateContent'
+import { lessonPositionOf } from './lessonPositionOf'
 
 export const cardWordPositionsOf = ({
   curriculum,
@@ -7,7 +8,7 @@ export const cardWordPositionsOf = ({
   new Map(
     lessons.flatMap(({ content, words }) =>
       words.map(
-        ({ lemma }) => [lemma.toLowerCase(), curriculum.lessonIds.indexOf(content.id) + 1] as const,
+        ({ lemma }) => [lemma.toLowerCase(), lessonPositionOf(curriculum, content.id)] as const,
       ),
     ),
   )
