@@ -1,16 +1,17 @@
 import type { SignUpRequest } from '@mygame/contracts'
 import { type Clock, err, type IdGenerator, ok, type Result } from '@mygame/domain'
+import type { AccountStores } from '../account/application/ports/AccountStores'
 import type { PasswordHasher } from '../account/application/ports/PasswordHasher'
 import type { SessionTokens } from '../account/application/ports/SessionTokens'
+import type { Transaction } from '../platform/application/ports/Transaction'
 import type { Refusal } from '../platform/application/Refusal'
-import type { Transaction } from '../platform/infrastructure/postgres/postgresTransaction'
 import { issueAccountToken } from './issueAccountToken'
 import { openSession } from './openSession'
 import type { SignedIn } from './SignedIn'
 import { type SendVerificationMailDependencies, sendVerificationMail } from './sendVerificationMail'
 
 export type SignUpDependencies = SendVerificationMailDependencies & {
-  readonly inTransaction: Transaction
+  readonly inTransaction: Transaction<AccountStores>
   readonly clock: Clock
   readonly ids: IdGenerator
   readonly passwords: PasswordHasher

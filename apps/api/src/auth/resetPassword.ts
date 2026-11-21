@@ -1,11 +1,12 @@
 import type { ResetPasswordRequest } from '@mygame/contracts'
 import { type Clock, err, ok, type Result } from '@mygame/domain'
+import type { AccountStores } from '../account/application/ports/AccountStores'
 import type { PasswordHasher } from '../account/application/ports/PasswordHasher'
+import type { Transaction } from '../platform/application/ports/Transaction'
 import type { Refusal } from '../platform/application/Refusal'
-import type { Transaction } from '../platform/infrastructure/postgres/postgresTransaction'
 
 export type ResetPasswordDependencies = {
-  readonly inTransaction: Transaction
+  readonly inTransaction: Transaction<AccountStores>
   readonly clock: Clock
   readonly passwords: PasswordHasher
 }

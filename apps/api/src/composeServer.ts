@@ -29,17 +29,16 @@ import { SmtpMailer } from './adapters/smtp/SmtpMailer'
 import { createApp } from './app'
 import type { Accounts } from './auth/Accounts'
 import type { Mailer } from './auth/Mailer'
+import { type ComposedStores, composeStores } from './composeStores'
 import type { CardReader } from './learning/CardReader'
 import type { ChromeProgressReader } from './learning/ChromeProgressReader'
 import type { LessonLibrary } from './learning/LessonLibrary'
 import type { AfterResponse } from './platform/application/ports/AfterResponse'
 import type { AfterResponseDrain } from './platform/application/ports/AfterResponseDrain'
 import type { FailureSink } from './platform/application/ports/FailureSink'
+import type { Transaction } from './platform/application/ports/Transaction'
 import { connectPostgres } from './platform/infrastructure/postgres/connectPostgres'
-import {
-  postgresTransaction,
-  type Transaction,
-} from './platform/infrastructure/postgres/postgresTransaction'
+import { postgresTransaction } from './platform/infrastructure/postgres/postgresTransaction'
 import { CryptoIdGenerator } from './platform/infrastructure/system/CryptoIdGenerator'
 import { CryptoRandomSource } from './platform/infrastructure/system/CryptoRandomSource'
 import { SystemClock } from './platform/infrastructure/system/SystemClock'
@@ -113,7 +112,7 @@ export type ComposedServer = MailSettings & {
   readonly reportClosings: ReportClosings
   readonly passwords: PasswordHasher
   readonly sessionTokens: SessionTokens
-  readonly inTransaction: Transaction
+  readonly inTransaction: Transaction<ComposedStores>
   readonly isSessionCookieSecure: boolean
   readonly failureSink: FailureSink
   readonly afterResponse: AfterResponse & AfterResponseDrain
@@ -144,7 +143,7 @@ export function composeServer(
     reportClosings: new DrizzleReportClosings(database),
     passwords: new Argon2Passwords(),
     sessionTokens: new CryptoSessionTokens(),
-    inTransaction: postgresTransaction(database),
+    inTransaction: postgresTransaction(database, composeStores),
     towns: new DrizzleTownRepository(database, 'lockFree'),
     townNews: new DrizzleTownNews(database),
     regionMap: new DrizzleRegionMap(database),

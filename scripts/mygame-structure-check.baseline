@@ -1,4 +1,3 @@
-adapter_built_outside_root apps/api/src/platform/infrastructure/postgres/postgresTransaction.ts
 domain_promise_outside_its_roles packages/domain/src/holdout/answerHoldoutCheck.ts
 domain_promise_outside_its_roles packages/domain/src/holdout/beginHoldoutCheck.ts
 domain_promise_outside_its_roles packages/domain/src/holdout/dueBandStartOf.ts
