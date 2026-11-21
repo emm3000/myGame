@@ -17,7 +17,7 @@ import type { TownNewsReader } from '../../town/TownNewsReader'
 import { townNewsItemOf } from '../../town/townNewsItemOf'
 import type { ReportClosings } from './ports/ReportClosings'
 
-export type ReportDependencies = CurrentTownDependencies &
+export type ServeReportDependencies = CurrentTownDependencies &
   ReviewTerms & {
     readonly reportClosings: ReportClosings
   }
@@ -32,9 +32,9 @@ type ReportShown = {
   readonly news: ReadonlyArray<TownEvent>
 }
 
-const reportTownOf = async (
+const readReportTown = async (
   playerId: PlayerId,
-  dependencies: ReportDependencies,
+  dependencies: ServeReportDependencies,
 ): Promise<Result<ReportTown, DomainError>> => {
   const reading = await currentTownOf(playerId, dependencies)
   if (!reading.ok) {
@@ -61,7 +61,7 @@ const shownAt = (
   playerId: PlayerId,
   closedAt: Instant,
   town: ReportTown,
-  dependencies: ReportDependencies,
+  dependencies: ServeReportDependencies,
 ): Promise<Result<ReportShown, DomainError>> => {
   const readClock: Clock = { now: () => town.at }
   return dependencies.inTransaction(async (stores) => {
@@ -75,15 +75,15 @@ const shownAt = (
   })
 }
 
-export const reportOf = async (
+export const serveReport = async (
   playerId: PlayerId,
-  dependencies: ReportDependencies,
+  dependencies: ServeReportDependencies,
 ): Promise<Result<Report, Refusal>> => {
   const closedAt = await dependencies.reportClosings.closedAt(playerId)
   if (closedAt === undefined) {
     return err({ kind: 'SignedOut' })
   }
-  const town = await reportTownOf(playerId, dependencies)
+  const town = await readReportTown(playerId, dependencies)
   if (!town.ok) {
     return town
   }

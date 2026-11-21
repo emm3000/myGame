@@ -39,7 +39,6 @@ reading_named_of_is_async apps/api/src/learning/reviewsOf.ts
 reading_named_of_is_async apps/api/src/town/currentTownOf.ts
 reading_named_of_is_async apps/api/src/town/quotedCleanUpOf.ts
 reading_named_of_is_async apps/api/src/town/quotedJobOf.ts
-reading_named_of_is_async apps/api/src/report/application/reportOf.ts
 reading_named_of_is_async apps/api/src/town/townNewsOf.ts
 reading_named_of_is_async apps/api/src/town/townReadingOf.ts
 reading_named_of_is_async packages/domain/src/holdout/dueBandStartOf.ts
