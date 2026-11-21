@@ -119,3 +119,5 @@ export const townWaitingWork = pgTable(
     wholeAmount('town_waiting_work_cost_material_whole', table.costMaterial),
   ],
 )
+
+export type TownRow = typeof towns.$inferSelect

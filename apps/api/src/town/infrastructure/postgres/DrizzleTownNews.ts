@@ -1,5 +1,4 @@
 import {
-  type BuildingKind,
   type DomainError,
   type Instant,
   ok,
@@ -14,21 +13,10 @@ import { and, desc, eq, gt, notInArray } from 'drizzle-orm'
 import type { PostgresSession } from '../../../platform/infrastructure/postgres/connectPostgres'
 import { keptEventsPerTown, type TownNewsReader } from '../../application/ports/TownNewsReader'
 import { townEvents } from './newsTables'
+import { storedBuildings } from './townColumns'
 import { townEventFromRow } from './townEventFromRow'
 
-type StoredTownBuilding = (typeof townEvents.building.enumValues)[number]
-
 type NewEventRow = typeof townEvents.$inferInsert
-
-const storedBuildings: Readonly<Record<BuildingKind, StoredTownBuilding>> = {
-  homes: 'homes',
-  farm: 'farm',
-  factory: 'factory',
-  powerStation: 'power_station',
-  storage: 'storage',
-  school: 'school',
-  office: 'office',
-}
 
 const amountsOf = (stocks: Stocks): Partial<NewEventRow> => ({
   amountMoney: stocks.money,
