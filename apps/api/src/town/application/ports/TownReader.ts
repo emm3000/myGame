@@ -9,7 +9,6 @@ import type {
   Result,
   TipKind,
   Town,
-  TownRepository,
 } from '@mygame/domain'
 import type { StoredScaffold } from '../../../account/application/ports/StoredScaffold'
 
@@ -23,6 +22,6 @@ export type TownWithSchool = StoredScaffold & {
   readonly seenTips: ReadonlyArray<TipKind>
 }
 
-export interface TownReader extends Omit<TownRepository, 'save'> {
+export interface TownReader {
   townWithSchoolOf(playerId: PlayerId): Promise<Result<TownWithSchool | undefined, DomainError>>
 }

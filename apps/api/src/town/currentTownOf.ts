@@ -21,13 +21,17 @@ import type { TownReading } from './TownReading'
 import { townReadingOf } from './townReadingOf'
 
 export type CurrentTownDependencies = MutateTownDependencies & {
-  readonly towns: TownReader
+  readonly towns: Omit<TownRepository, 'save'>
+  readonly townsWithSchool: TownReader
   readonly townCatalog: TownCatalog
 }
 
 const discardingNews: TownNews = { record: async () => ok(undefined) }
 
-const alreadyRead = (town: Town | undefined, towns: TownReader): TownRepository => ({
+const alreadyRead = (
+  town: Town | undefined,
+  towns: Omit<TownRepository, 'save'>,
+): TownRepository => ({
   holdsTown: (playerId) => towns.holdsTown(playerId),
   occupiedSites: () => towns.occupiedSites(),
   townOf: async () => ok(town),
@@ -50,7 +54,7 @@ const persistedResolveOf = (
         catalog: dependencies.townCatalog,
         clock,
       })
-      return changed.ok ? townReadingOf(playerId, clock.now(), stores.towns) : changed
+      return changed.ok ? townReadingOf(playerId, clock.now(), stores.townsWithSchool) : changed
     },
     dependencies,
   )
@@ -59,7 +63,7 @@ export const currentTownOf = async (
   playerId: PlayerId,
   dependencies: CurrentTownDependencies,
 ): Promise<Result<TownReading, DomainError>> => {
-  const stored = await dependencies.towns.townWithSchoolOf(playerId)
+  const stored = await dependencies.townsWithSchool.townWithSchoolOf(playerId)
   if (!stored.ok) {
     return stored
   }

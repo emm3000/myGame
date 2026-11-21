@@ -152,7 +152,7 @@ export const townRoutes = (dependencies: TownDependencies): OpenAPIHono => {
             ids: dependencies.ids,
           },
         )
-        return town.ok ? townReadingOf(playerId, town.value.storedAt, stores.towns) : town
+        return town.ok ? townReadingOf(playerId, town.value.storedAt, stores.townsWithSchool) : town
       })
       return answerReading(c, founded)
     },
@@ -174,7 +174,9 @@ export const townRoutes = (dependencies: TownDependencies): OpenAPIHono => {
             { playerId, building: request.data.building },
             { towns: stores.towns, news: stores.townNews, cards: stores.cards, catalog, clock },
           )
-          return town.ok ? townReadingOf(playerId, town.value.storedAt, stores.towns) : town
+          return town.ok
+            ? townReadingOf(playerId, town.value.storedAt, stores.townsWithSchool)
+            : town
         },
         dependencies,
       )
@@ -202,7 +204,7 @@ export const townRoutes = (dependencies: TownDependencies): OpenAPIHono => {
             return change
           }
           const { town } = change.value
-          return townReadingOf(playerId, town.storedAt, stores.towns)
+          return townReadingOf(playerId, town.storedAt, stores.townsWithSchool)
         },
         dependencies,
       )
@@ -226,7 +228,9 @@ export const townRoutes = (dependencies: TownDependencies): OpenAPIHono => {
             { playerId, ...request.data },
             { towns: stores.towns, news: stores.townNews, catalog, clock },
           )
-          return town.ok ? townReadingOf(playerId, town.value.storedAt, stores.towns) : town
+          return town.ok
+            ? townReadingOf(playerId, town.value.storedAt, stores.townsWithSchool)
+            : town
         },
         dependencies,
       )
@@ -255,7 +259,7 @@ export const townRoutes = (dependencies: TownDependencies): OpenAPIHono => {
             return change
           }
           const { town } = change.value
-          return townReadingOf(playerId, town.storedAt, stores.towns)
+          return townReadingOf(playerId, town.storedAt, stores.townsWithSchool)
         },
         dependencies,
       )
@@ -279,7 +283,7 @@ export const townRoutes = (dependencies: TownDependencies): OpenAPIHono => {
             { playerId, ...request.data },
             { towns: stores.towns, map: stores.regionMap, news: stores.townNews, catalog, clock },
           )
-          return town.ok ? townReadingOf(playerId, clock.now(), stores.towns) : town
+          return town.ok ? townReadingOf(playerId, clock.now(), stores.townsWithSchool) : town
         },
         dependencies,
       )
@@ -327,7 +331,7 @@ export const townRoutes = (dependencies: TownDependencies): OpenAPIHono => {
               clock,
             },
           )
-          return town.ok ? townReadingOf(playerId, clock.now(), stores.towns) : town
+          return town.ok ? townReadingOf(playerId, clock.now(), stores.townsWithSchool) : town
         },
         dependencies,
       )
@@ -378,7 +382,7 @@ export const townRoutes = (dependencies: TownDependencies): OpenAPIHono => {
               clock,
             },
           )
-          return town.ok ? townReadingOf(playerId, clock.now(), stores.towns) : town
+          return town.ok ? townReadingOf(playerId, clock.now(), stores.townsWithSchool) : town
         },
         dependencies,
       )
@@ -410,7 +414,7 @@ export const townRoutes = (dependencies: TownDependencies): OpenAPIHono => {
               clock,
             },
           )
-          return slot.ok ? townReadingOf(playerId, clock.now(), stores.towns) : slot
+          return slot.ok ? townReadingOf(playerId, clock.now(), stores.townsWithSchool) : slot
         },
         dependencies,
       )
@@ -434,7 +438,7 @@ export const townRoutes = (dependencies: TownDependencies): OpenAPIHono => {
             { playerId, lessonId: request.data.lessonId },
             { ...stores, news: stores.townNews, lessons, bands: lessons, catalog, clock },
           )
-          return change.ok ? townReadingOf(playerId, clock.now(), stores.towns) : change
+          return change.ok ? townReadingOf(playerId, clock.now(), stores.townsWithSchool) : change
         },
         dependencies,
       )

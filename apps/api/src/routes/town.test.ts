@@ -161,7 +161,6 @@ const pausingFirstRead = (
 ): ComposedStores['towns'] => {
   let hasRead = false
   return {
-    townWithSchoolOf: (playerId) => towns.townWithSchoolOf(playerId),
     holdsTown: (playerId) => towns.holdsTown(playerId),
     occupiedSites: () => towns.occupiedSites(),
     save: (town) => towns.save(town),

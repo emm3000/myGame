@@ -15,6 +15,7 @@ import { DrizzleLessonSlots } from './town/infrastructure/postgres/DrizzleLesson
 import { DrizzleRegionMap } from './town/infrastructure/postgres/DrizzleRegionMap'
 import { DrizzleSeenTips } from './town/infrastructure/postgres/DrizzleSeenTips'
 import { DrizzleTownNews } from './town/infrastructure/postgres/DrizzleTownNews'
+import { DrizzleTownReader } from './town/infrastructure/postgres/DrizzleTownReader'
 import { DrizzleTownRepository } from './town/infrastructure/postgres/DrizzleTownRepository'
 import type { TownStores } from './town/mutateTown'
 
@@ -28,6 +29,7 @@ export const composeStores = (transaction: PostgresSession): ComposedStores => (
   pendingReviews: new DrizzlePendingReviewRepository(transaction),
   reviewLog: new DrizzleReviewLog(transaction),
   towns: new DrizzleTownRepository(transaction, 'lockedForUpdate'),
+  townsWithSchool: new DrizzleTownReader(transaction),
   townNews: new DrizzleTownNews(transaction),
   lessonSlots: new DrizzleLessonSlots(transaction),
   earnedSkills: new DrizzleEarnedSkills(transaction),
