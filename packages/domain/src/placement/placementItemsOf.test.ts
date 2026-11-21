@@ -1,8 +1,8 @@
 import { describe, expect, it } from 'vitest'
-import { inMemoryPlacementWords, placementWordsOfBand } from '../testing/placementWords'
 import type { PlacementSample } from './Placement'
 import type { PlacementWord } from './PlacementWord'
 import { placementItemsOf } from './placementItemsOf'
+import { inMemoryPlacementWords, placementWordsOfBand } from './testing/placementWords'
 
 const wordOf = (name: string, gloss: string, definition: string): PlacementWord => ({
   id: `word-${name}`,

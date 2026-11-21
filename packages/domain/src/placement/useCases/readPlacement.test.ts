@@ -1,14 +1,14 @@
 import { assert, describe, expect, it } from 'vitest'
-import { inMemoryBandStarts, type OwnedBandStart } from '../holdout/testing/inMemoryBandStarts'
-import type { BandStart } from '../learning/curriculum/BandStart'
+import { inMemoryBandStarts, type OwnedBandStart } from '../../holdout/testing/inMemoryBandStarts'
+import type { BandStart } from '../../learning/curriculum/BandStart'
+import { Instant } from '../../time/Instant'
+import type { TakenPlacement } from '../Placement'
 import { inMemoryPlacements, type OwnedPlacement } from '../testing/inMemoryPlacements'
 import {
   type PlacementShelf,
   placementContentOf,
   placementWordsOfBand,
 } from '../testing/placementWords'
-import { Instant } from '../time/Instant'
-import type { TakenPlacement } from './Placement'
 import { readPlacement } from './readPlacement'
 
 const ana = 'player-ana'

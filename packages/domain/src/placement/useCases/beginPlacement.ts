@@ -1,12 +1,15 @@
-import type { DomainError } from '../DomainError'
-import type { PlayerId } from '../player/PlayerId'
-import type { Clock } from '../ports/Clock'
+import type { DomainError } from '../../DomainError'
+import type { PlayerId } from '../../player/PlayerId'
+import type { Clock } from '../../ports/Clock'
+import type { RandomSource } from '../../ports/RandomSource'
+import { ok, type Result } from '../../Result'
+import type { TakenPlacement } from '../Placement'
+import { placementSamplesDrawn } from '../placementSamplesDrawn'
 import type { PlacementRepository } from '../ports/PlacementRepository'
-import type { RandomSource } from '../ports/RandomSource'
-import { ok, type Result } from '../Result'
-import { admitPlacementOffer, type PlacementOfferDependencies } from './admitPlacementOffer'
-import type { TakenPlacement } from './Placement'
-import { placementSamplesDrawn } from './placementSamplesDrawn'
+import {
+  admitPlacementOffer,
+  type PlacementOfferDependencies,
+} from '../services/admitPlacementOffer'
 
 export type BeginPlacementCommand = {
   readonly playerId: PlayerId

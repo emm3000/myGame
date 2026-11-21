@@ -1,6 +1,6 @@
 import type { BandStart } from '../learning/curriculum/BandStart'
 import type { Scaffold } from '../learning/scaffold/Scaffold'
-import type { PlacementWordCatalog } from '../ports/PlacementWordCatalog'
+import type { PlacementWordCatalog } from '../placement/ports/PlacementWordCatalog'
 import type { Instant } from '../time/Instant'
 import { askingViewOf } from './askingViewOf'
 import { checkOfWeek } from './checkOfWeek'

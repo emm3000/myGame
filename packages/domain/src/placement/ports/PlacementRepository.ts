@@ -1,7 +1,7 @@
-import type { DomainError } from '../DomainError'
-import type { Placement } from '../placement/Placement'
-import type { PlayerId } from '../player/PlayerId'
-import type { Result } from '../Result'
+import type { DomainError } from '../../DomainError'
+import type { PlayerId } from '../../player/PlayerId'
+import type { Result } from '../../Result'
+import type { Placement } from '../Placement'
 
 export interface PlacementRepository {
   placementOf(playerId: PlayerId): Promise<Result<Placement | undefined, DomainError>>

@@ -1,10 +1,13 @@
-import type { DomainError } from '../DomainError'
-import type { PlayerId } from '../player/PlayerId'
-import type { Clock } from '../ports/Clock'
+import type { DomainError } from '../../DomainError'
+import type { PlayerId } from '../../player/PlayerId'
+import type { Clock } from '../../ports/Clock'
+import { ok, type Result } from '../../Result'
+import type { SkippedPlacement } from '../Placement'
 import type { PlacementRepository } from '../ports/PlacementRepository'
-import { ok, type Result } from '../Result'
-import { admitPlacementOffer, type PlacementOfferDependencies } from './admitPlacementOffer'
-import type { SkippedPlacement } from './Placement'
+import {
+  admitPlacementOffer,
+  type PlacementOfferDependencies,
+} from '../services/admitPlacementOffer'
 
 export type SkipPlacementCommand = {
   readonly playerId: PlayerId

@@ -131,12 +131,6 @@ export type { MemoryRating } from './memory/MemoryRating'
 export { defaultMemoryTerms, type FsrsParameters, type MemoryTerms } from './memory/MemoryTerms'
 export { retrievabilityOf } from './memory/retrievabilityOf'
 export { reviewMemoryCard } from './memory/reviewMemoryCard'
-export {
-  type AnswerPlacementCommand,
-  type AnswerPlacementDependencies,
-  answerPlacement,
-} from './placement/answerPlacement'
-export { type BeginPlacementDependencies, beginPlacement } from './placement/beginPlacement'
 export type {
   Placement,
   PlacementSample,
@@ -148,14 +142,23 @@ export type { PlacementItem, PlacementView } from './placement/PlacementView'
 export type { PlacementWord } from './placement/PlacementWord'
 export { placedOutBandsOf } from './placement/placedOutBandsOf'
 export { placementScoresOf } from './placement/placementScoresOf'
-export { readPlacement } from './placement/readPlacement'
+export type { PlacementRepository } from './placement/ports/PlacementRepository'
+export type { PlacementWordCatalog } from './placement/ports/PlacementWordCatalog'
 export type { PlacementAnswer } from './placement/rightWordIdsOf'
-export { type SkipPlacementDependencies, skipPlacement } from './placement/skipPlacement'
+export {
+  type AnswerPlacementCommand,
+  type AnswerPlacementDependencies,
+  answerPlacement,
+} from './placement/useCases/answerPlacement'
+export {
+  type BeginPlacementDependencies,
+  beginPlacement,
+} from './placement/useCases/beginPlacement'
+export { readPlacement } from './placement/useCases/readPlacement'
+export { type SkipPlacementDependencies, skipPlacement } from './placement/useCases/skipPlacement'
 export type { PlayerId } from './player/PlayerId'
 export type { Clock } from './ports/Clock'
 export type { IdGenerator } from './ports/IdGenerator'
-export type { PlacementRepository } from './ports/PlacementRepository'
-export type { PlacementWordCatalog } from './ports/PlacementWordCatalog'
 export type { RandomSource } from './ports/RandomSource'
 export { err, ok, type Result } from './Result'
 export { deriveBuildDurationSeconds } from './season/deriveBuildDurationSeconds'

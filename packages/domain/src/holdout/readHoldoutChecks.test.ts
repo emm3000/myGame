@@ -1,6 +1,6 @@
 import { assert, describe, expect, it } from 'vitest'
 import type { BandStart } from '../learning/curriculum/BandStart'
-import { inMemoryPlacementWords, placementWordsOfBand } from '../testing/placementWords'
+import { inMemoryPlacementWords, placementWordsOfBand } from '../placement/testing/placementWords'
 import { Instant } from '../time/Instant'
 import type { HoldoutCheck } from './HoldoutCheck'
 import { readHoldoutChecks } from './readHoldoutChecks'
