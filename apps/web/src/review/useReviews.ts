@@ -1,6 +1,7 @@
 import type { Reviews } from '@mygame/contracts'
 import { useCallback, useEffect, useState } from 'react'
 import type { ApiClient } from '../api/apiClient'
+import { elapsedMsSince } from '../time/elapsedMsSince'
 
 export type ReviewsState =
   | { readonly kind: 'loading' }
@@ -84,8 +85,9 @@ export function useReviews(apiClient: ApiClient): ReviewsHandle {
   const nowMs = useDisplayClock(lastRead)
 
   if (lastRead !== undefined && arrivalReadFirst !== undefined) {
-    const elapsedMs = Math.max(0, nowMs - lastRead.receivedAtMs)
-    const at = new Date(Date.parse(lastRead.reviews.readAt) + elapsedMs)
+    const at = new Date(
+      Date.parse(lastRead.reviews.readAt) + elapsedMsSince(lastRead.receivedAtMs, nowMs),
+    )
     return { state: { kind: 'read', reviews: lastRead.reviews, at, arrivalReadFirst }, reread }
   }
   return { state: isRefused ? { kind: 'refused' } : { kind: 'loading' }, reread }

@@ -12,6 +12,7 @@ import {
   revealSeconds,
   skeletonBlocks,
 } from '../design-system/loadingSkeleton.testSupport'
+import { formatLocalDay } from '../time/formatLocalDay'
 
 const readAt = Date.parse(knownTown.readAt)
 
@@ -678,8 +679,25 @@ it("turns the next review's day at local midnight without a new read", async () 
 it("turns the next review's day from the server's read on a device clock a day ahead", async () => {
   vi.setSystemTime(Date.parse(lateRead) + 24 * 60 * 60_000)
   await showReport(lateReport)
+  expect(within(reportRegion()).getByText(es.statusTomorrow({ time: '10:40' }))).toBeDefined()
 
   await passSeconds(20 * 60)
 
   expect(within(reportRegion()).getByText('10:40')).toBeDefined()
+})
+
+const lateNewsAt = '2026-11-10T22:30:00.000Z'
+
+const lateNews: TownNewsItem = { ...homesFinished, occurredAt: lateNewsAt }
+
+it("turns a news row's day at local midnight", async () => {
+  vi.setSystemTime(Date.parse(lateRead))
+  await showReport(reportOf({ readAt: lateRead, news: [lateNews] }))
+  expect(within(newsRegion()).getByText(es.timeToday({ time: '23:30' }))).toBeDefined()
+
+  await passSeconds(20 * 60)
+
+  expect(
+    within(newsRegion()).getByText(`${formatLocalDay(es, new Date(lateNewsAt))}, 23:30`),
+  ).toBeDefined()
 })
