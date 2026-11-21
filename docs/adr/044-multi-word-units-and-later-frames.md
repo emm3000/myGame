@@ -159,7 +159,7 @@ The evidence (`docs/research/multi-word-units.md`):
   units not yet taught, and that list is the lists' contents, which the
   repository may not hold (below, The inventory). The drafting session
   takes, among the ready units, the most frequent first by the lists it
-  reads outside the repository, and the owner's review (check 7) reads
+  reads outside the repository, and the content review (check 7) reads
   each unit lesson against them. No rule merges the two lists, since
   they count different corpora: which of a ready phrasal verb and a
   ready phrase comes first is the drafter's call, judged by the owner. The gate checks only what the shipped
@@ -323,7 +323,7 @@ ticket that first needs it.
    and it is literal. *at least* and *no longer* are not, and the gate
    cannot tell the two kinds apart without an inventory, so the owner's
    review (check 7) judges chrome copy that leans on an opaque unit.
-6. **The owner's review** (check 7) lists every unit with its source
+6. **The content review** (check 7) lists every unit with its source
    list, and every ready item of the lists, more frequent than the
    units taught, that the pull request leaves out, with the reason: British only, a structure of the
    grammar inventory (*going to*), already taught by a word's frame

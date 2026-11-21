@@ -1,6 +1,6 @@
 # Lessons
 
-Status: proposal. Every fact below is a proposal until the author accepts it; the frames and the es glosses wait on the owner's review (`docs/research/english-pivot/decisions.md` §3.6). The rules each line relies on are ADR 036's; the Spanish lines a player reads around a lesson are in `packages/catalog/es.json`.
+Status: proposal. Every fact below is a proposal until the author accepts it; the frames and the es glosses wait on the content review (`docs/research/english-pivot/decisions.md` §3.6). The rules each line relies on are ADR 036's; the Spanish lines a player reads around a lesson are in `packages/catalog/es.json`.
 
 A **lesson** brings a set of new words in through the library's study slot (ADR 036, rule 6), grouped by a theme, never by a semantic set (§3.2). Each **item** is one word: its lemma, its part of speech, its NGSL 1.2 rank, one US-English example frame, the frame's gapped form for recall, and one gloss per scaffold language (§3.4). The target is American English (ADR 035); S39 serves the `es` gloss only, addressed as tú where a gloss addresses anyone (ADR 036, Consequences).
 
@@ -243,7 +243,7 @@ Each frame follows the frame rule as lesson 1's does: its lemma once, in its own
 
 ### The glosses that leave `chrome.md`'s Spanish column
 
-`chrome.md`'s Spanish column is the chrome's label; a gloss names the word in the sense its frame and definition use, so five differ, for the owner's review:
+`chrome.md`'s Spanish column is the chrome's label; a gloss names the word in the sense its frame and definition use, so five differ, for the content review:
 
 - *come* is glossed *venir*; the chrome's *volver* labels *come back*.
 - *station* is glossed *estación*; the chrome's *central* labels *power station*.
