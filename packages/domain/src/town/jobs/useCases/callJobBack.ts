@@ -33,7 +33,7 @@ export const callJobBack = async (
   if (!resolved.ok) {
     return resolved
   }
-  const called = resolved.value.town.callJobBack(sentAt, now, catalog)
+  const called = resolved.value.town.jobs.callBack(sentAt, now, catalog)
   if (!called.ok) {
     return called
   }
