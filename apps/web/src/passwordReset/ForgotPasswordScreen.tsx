@@ -1,16 +1,8 @@
-import {
-  authEmail,
-  authSignInTitle,
-  es,
-  passwordResetRequestConfirmation,
-  passwordResetRequestSubmit,
-  passwordResetRequestTitle,
-  refusalMalformedEmail,
-} from '@mygame/catalog'
 import { ForgotPasswordRequestSchema } from '@mygame/contracts'
 import { type ReactElement, useState } from 'react'
 import type { ApiRefusal } from '../api/apiClient'
 import { AuthPanel } from '../auth/AuthPanel'
+import type { SignedOutCopy } from '../auth/SignedOutCopy'
 import { Button } from '../design-system/Button'
 import { FormAlert } from '../design-system/FormAlert'
 import { lineLabelOf } from '../design-system/lineLabelOf'
@@ -25,23 +17,26 @@ export type ForgotPasswordState =
   | { readonly kind: 'sent' }
 
 export interface ForgotPasswordScreenProps {
+  readonly copy: SignedOutCopy
   readonly state: ForgotPasswordState
   readonly onSubmit: (email: string) => void
 }
 
 interface RequestFormProps {
+  readonly copy: SignedOutCopy
   readonly refusal: ApiRefusal | undefined
   readonly isSending: boolean
   readonly onSubmit: (email: string) => void
 }
 
 function RequestForm(props: RequestFormProps): ReactElement {
+  const { catalog, language } = props.copy
   const [email, setEmail] = useState('')
-  const [emailError, setEmailError] = useState<string | undefined>(undefined)
+  const [isMalformed, setIsMalformed] = useState(false)
 
   const submit = (): void => {
     const isValid = ForgotPasswordRequestSchema.safeParse({ email }).success
-    setEmailError(isValid ? undefined : refusalMalformedEmail())
+    setIsMalformed(!isValid)
     if (isValid) {
       props.onSubmit(email)
     }
@@ -49,42 +44,49 @@ function RequestForm(props: RequestFormProps): ReactElement {
 
   return (
     <AuthPanel
-      title={passwordResetRequestTitle()}
+      copy={props.copy}
+      title={catalog.passwordResetRequestTitle()}
       onSubmit={submit}
-      footer={<TextLink to="/sign-in">{authSignInTitle()}</TextLink>}
+      footer={<TextLink to="/sign-in">{catalog.authSignInTitle()}</TextLink>}
     >
       <TextField
-        label={lineLabelOf(authEmail(), 'es')}
+        label={lineLabelOf(catalog.authEmail(), language)}
         name="email"
         type="email"
         autoComplete="email"
         value={email}
         onChange={setEmail}
-        error={emailError}
+        error={isMalformed ? catalog.refusalMalformedEmail() : undefined}
       />
       {props.refusal === undefined ? null : (
-        <FormAlert message={lineLabelOf(refusalLineOf(es, props.refusal), 'es')} />
+        <FormAlert message={lineLabelOf(refusalLineOf(catalog, props.refusal), language)} />
       )}
       <Button type="submit" tone="primary" disabled={props.isSending}>
-        {passwordResetRequestSubmit()}
+        {catalog.passwordResetRequestSubmit()}
       </Button>
     </AuthPanel>
   )
 }
 
-export function ForgotPasswordScreen({ state, onSubmit }: ForgotPasswordScreenProps): ReactElement {
+export function ForgotPasswordScreen({
+  copy,
+  state,
+  onSubmit,
+}: ForgotPasswordScreenProps): ReactElement {
   if (state.kind === 'sent') {
     return (
       <AuthPanel
-        title={passwordResetRequestTitle()}
-        footer={<TextLink to="/sign-in">{authSignInTitle()}</TextLink>}
+        copy={copy}
+        title={copy.catalog.passwordResetRequestTitle()}
+        footer={<TextLink to="/sign-in">{copy.catalog.authSignInTitle()}</TextLink>}
       >
-        <ConfirmationLine line={passwordResetRequestConfirmation()} />
+        <ConfirmationLine line={copy.catalog.passwordResetRequestConfirmation()} />
       </AuthPanel>
     )
   }
   return (
     <RequestForm
+      copy={copy}
       refusal={state.kind === 'editing' ? state.refusal : undefined}
       isSending={state.kind === 'sending'}
       onSubmit={onSubmit}

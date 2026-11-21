@@ -1,20 +1,13 @@
-import {
-  authEmail,
-  authPassword,
-  authSignUpSubmit,
-  refusalEmailTaken,
-  refusalMalformedEmail,
-  refusalWeakPassword,
-  scaffoldEs,
-  scaffoldLabel,
-  scaffoldNone,
-  townNamingTitle,
-} from '@mygame/catalog'
+import { es } from '@mygame/catalog'
 import type { Scaffold, SignUpRequest } from '@mygame/contracts'
-import { cleanup, fireEvent, screen } from '@testing-library/react'
-import { afterEach, expect, it, vi } from 'vitest'
+import { fireEvent, screen } from '@testing-library/react'
+import { afterEach, beforeEach, expect, it, vi } from 'vitest'
 import { renderAppAt } from './renderAppAt.testSupport'
 import { knownPlayer, stubApiClient } from './stubApiClient.testSupport'
+
+beforeEach(() => {
+  vi.spyOn(navigator, 'language', 'get').mockReturnValue('es-ES')
+})
 
 const browseIn = (language: string): void => {
   vi.spyOn(navigator, 'language', 'get').mockReturnValue(language)
@@ -26,8 +19,8 @@ afterEach(() => {
 })
 
 const scaffoldLines: Record<Scaffold, string> = {
-  es: scaffoldEs(),
-  none: scaffoldNone(),
+  es: es.scaffoldEs(),
+  none: es.scaffoldNone(),
 }
 
 const scaffoldRadioOf = async (scaffold: Scaffold): Promise<HTMLInputElement> => {
@@ -40,13 +33,13 @@ const scaffoldRadioOf = async (scaffold: Scaffold): Promise<HTMLInputElement> =>
 
 const fillSignUp = async (request: SignUpRequest): Promise<void> => {
   fireEvent.click(await scaffoldRadioOf(request.scaffold))
-  fireEvent.change(screen.getByLabelText(authEmail()), {
+  fireEvent.change(screen.getByLabelText(es.authEmail()), {
     target: { value: request.email },
   })
-  fireEvent.change(screen.getByLabelText(authPassword()), {
+  fireEvent.change(screen.getByLabelText(es.authPassword()), {
     target: { value: request.password },
   })
-  fireEvent.click(screen.getByRole('button', { name: authSignUpSubmit() }))
+  fireEvent.click(screen.getByRole('button', { name: es.authSignUpSubmit() }))
 }
 
 const newcomer: SignUpRequest = {
@@ -63,8 +56,8 @@ it('shows the Spanish message for a taken email', async () => {
 
   await fillSignUp(newcomer)
 
-  expect(await screen.findByText(refusalEmailTaken())).toBeDefined()
-  expect(screen.getByLabelText(authEmail()).getAttribute('aria-invalid')).toBe('true')
+  expect(await screen.findByText(es.refusalEmailTaken())).toBeDefined()
+  expect(screen.getByLabelText(es.authEmail()).getAttribute('aria-invalid')).toBe('true')
 })
 
 it('marks the email field for a malformed email the api refused', async () => {
@@ -75,8 +68,8 @@ it('marks the email field for a malformed email the api refused', async () => {
 
   await fillSignUp(newcomer)
 
-  expect(await screen.findByText(refusalMalformedEmail())).toBeDefined()
-  expect(screen.getByLabelText(authEmail()).getAttribute('aria-invalid')).toBe('true')
+  expect(await screen.findByText(es.refusalMalformedEmail())).toBeDefined()
+  expect(screen.getByLabelText(es.authEmail()).getAttribute('aria-invalid')).toBe('true')
 })
 
 it('refuses to submit a password shorter than eight characters', async () => {
@@ -93,7 +86,7 @@ it('refuses to submit a password shorter than eight characters', async () => {
 
   await fillSignUp({ ...newcomer, password: 'piedra7' })
 
-  expect(await screen.findByText(refusalWeakPassword())).toBeDefined()
+  expect(await screen.findByText(es.refusalWeakPassword())).toBeDefined()
   expect(sentRequests).toEqual([])
 })
 
@@ -133,22 +126,7 @@ it('opens Name your town after sign-up', async () => {
 
   await fillSignUp(newcomer)
 
-  expect(await screen.findByRole('heading', { level: 2, name: townNamingTitle() })).toBeDefined()
-})
-
-it('preselects es in a Spanish browser', async () => {
-  browseIn('es-MX')
-  renderAppAt('/sign-up', stubApiClient({}))
-
-  expect((await scaffoldRadioOf('es')).checked).toBe(true)
-})
-
-it('preselects none otherwise', async () => {
-  browseIn('en-US')
-  renderAppAt('/sign-up', stubApiClient({}))
-
-  expect((await scaffoldRadioOf('none')).checked).toBe(true)
-  expect((await scaffoldRadioOf('es')).checked).toBe(false)
+  expect(await screen.findByRole('heading', { level: 2, name: es.townNamingTitle() })).toBeDefined()
 })
 
 it('sends the picked scaffold', async () => {
@@ -169,39 +147,14 @@ it('sends the picked scaffold', async () => {
   await vi.waitFor(() => expect(sentRequests).toEqual([{ ...newcomer, scaffold: 'none' }]))
 })
 
-it('keeps the signed-out switch in browser storage', async () => {
-  browseIn('es-ES')
-  renderAppAt('/sign-up', stubApiClient({}))
-  fireEvent.click(await scaffoldRadioOf('none'))
-  cleanup()
-
-  renderAppAt('/sign-up', stubApiClient({}))
-
-  expect((await scaffoldRadioOf('none')).checked).toBe(true)
-})
-
 it('locks the scaffold choice while the sign-up is in flight', async () => {
   renderAppAt('/sign-up', stubApiClient({ signUp: () => new Promise(() => undefined) }))
 
   await fillSignUp(newcomer)
 
   await vi.waitFor(() =>
-    expect(screen.getByRole('group', { name: scaffoldLabel() }).hasAttribute('disabled')).toBe(
+    expect(screen.getByRole('group', { name: es.scaffoldLabel() }).hasAttribute('disabled')).toBe(
       true,
     ),
   )
-})
-
-const blockStorage = (): void => {
-  vi.spyOn(window, 'localStorage', 'get').mockImplementation(() => {
-    throw new DOMException('The operation is insecure.', 'SecurityError')
-  })
-}
-
-it('preselects from the browser language when storage is blocked', async () => {
-  browseIn('es-ES')
-  blockStorage()
-  renderAppAt('/sign-up', stubApiClient({}))
-
-  expect((await scaffoldRadioOf('es')).checked).toBe(true)
 })

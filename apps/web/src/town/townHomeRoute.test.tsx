@@ -56,6 +56,10 @@ import { refusalLineOf } from '../refusals/refusalLineOf'
 import { townResourceNameOf } from '../resources/townResourceNameOf'
 
 beforeEach(() => {
+  vi.spyOn(navigator, 'language', 'get').mockReturnValue('es-ES')
+})
+
+beforeEach(() => {
   vi.useFakeTimers({ now: new Date(knownTown.readAt) })
 })
 

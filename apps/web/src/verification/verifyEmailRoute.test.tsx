@@ -1,16 +1,13 @@
-import {
-  authSignInTitle,
-  refusalTokenInvalid,
-  refusalUnexpected,
-  verificationVerifyToTown,
-  verificationVerifyVerified,
-  verificationVerifyVerifying,
-} from '@mygame/catalog'
+import { es } from '@mygame/catalog'
 import { screen } from '@testing-library/react'
-import { expect, it } from 'vitest'
+import { beforeEach, expect, it, vi } from 'vitest'
 import type { ApiRefusal } from '../api/apiClient'
 import { renderAppAt } from '../auth/renderAppAt.testSupport'
 import { stubApiClient } from '../auth/stubApiClient.testSupport'
+
+beforeEach(() => {
+  vi.spyOn(navigator, 'language', 'get').mockReturnValue('es-ES')
+})
 
 it('verifies the email from the link', async () => {
   const postedTokens: string[] = []
@@ -24,9 +21,9 @@ it('verifies the email from the link', async () => {
     }),
   )
 
-  const link = await screen.findByRole('link', { name: verificationVerifyToTown() })
+  const link = await screen.findByRole('link', { name: es.verificationVerifyToTown() })
 
-  expect(screen.getByRole('status').textContent).toBe(verificationVerifyVerified())
+  expect(screen.getByRole('status').textContent).toBe(es.verificationVerifyVerified())
   expect(link.getAttribute('href')).toBe('/')
   expect(postedTokens).toEqual(['link-token'])
 })
@@ -44,7 +41,7 @@ it('posts the link token once', async () => {
     { isStrict: true },
   )
 
-  await screen.findByRole('link', { name: verificationVerifyToTown() })
+  await screen.findByRole('link', { name: es.verificationVerifyToTown() })
 
   expect(posts).toBe(1)
 })
@@ -55,7 +52,7 @@ it('shows the verifying line while the api answers', async () => {
     stubApiClient({ verifyEmail: () => new Promise<ApiRefusal | undefined>(() => {}) }),
   )
 
-  expect((await screen.findByRole('status')).textContent).toBe(verificationVerifyVerifying())
+  expect((await screen.findByRole('status')).textContent).toBe(es.verificationVerifyVerifying())
 })
 
 it('shows the invalid link for a refused token', async () => {
@@ -67,7 +64,7 @@ it('shows the invalid link for a refused token', async () => {
   expect((await screen.findByRole('alert')).textContent).toBe(
     'Ese enlace no vale: ha caducado, ya se ha usado o nunca se envió. Pide otro.',
   )
-  expect(screen.getByRole('link', { name: authSignInTitle() }).getAttribute('href')).toBe(
+  expect(screen.getByRole('link', { name: es.authSignInTitle() }).getAttribute('href')).toBe(
     '/sign-in',
   )
 })
@@ -78,7 +75,7 @@ it('shows the Spanish line of an unexpected answer', async () => {
     stubApiClient({ verifyEmail: async () => 'Unexpected' }),
   )
 
-  expect((await screen.findByRole('alert')).textContent).toBe(refusalUnexpected())
+  expect((await screen.findByRole('alert')).textContent).toBe(es.refusalUnexpected())
 })
 
 it('shows the invalid link without a request when the token is missing', async () => {
@@ -93,6 +90,6 @@ it('shows the invalid link without a request when the token is missing', async (
     }),
   )
 
-  expect((await screen.findByRole('alert')).textContent).toBe(refusalTokenInvalid())
+  expect((await screen.findByRole('alert')).textContent).toBe(es.refusalTokenInvalid())
   expect(posts).toBe(0)
 })

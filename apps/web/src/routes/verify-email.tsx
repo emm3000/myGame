@@ -1,6 +1,7 @@
 import { VerifyEmailRequestSchema } from '@mygame/contracts'
 import { createFileRoute } from '@tanstack/react-router'
 import type { ReactElement } from 'react'
+import { useSignedOutCopy } from '../auth/useSignedOutCopy'
 import { useVerifyEmail } from '../verification/useVerifyEmail'
 import { VerifyEmailScreen } from '../verification/VerifyEmailScreen'
 
@@ -11,7 +12,8 @@ interface VerifyEmailSearch {
 function VerifyEmailPage(): ReactElement {
   const { apiClient } = Route.useRouteContext()
   const { token } = Route.useSearch()
-  return <VerifyEmailScreen state={useVerifyEmail(apiClient, token)} />
+  const copy = useSignedOutCopy()
+  return <VerifyEmailScreen copy={copy} state={useVerifyEmail(apiClient, token)} />
 }
 
 export const Route = createFileRoute('/verify-email')({

@@ -522,6 +522,8 @@
   "android.town.town_work_title": "Building work",
   "android.town.town_work_waiting_list": "Waiting list",
   "auth.email": "Email",
+  "auth.language.en": "English",
+  "auth.language.es": "Español",
   "auth.password": "Password",
   "auth.signIn.forgotPassword": "Forgot your password?",
   "auth.signIn.submit": "Sign in",

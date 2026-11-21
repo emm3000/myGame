@@ -1,6 +1,7 @@
 import { ResetPasswordRequestSchema } from '@mygame/contracts'
 import { createFileRoute } from '@tanstack/react-router'
 import { type ReactElement, useState } from 'react'
+import { useSignedOutCopy } from '../auth/useSignedOutCopy'
 import { ResetPasswordScreen, type ResetPasswordState } from '../passwordReset/ResetPasswordScreen'
 
 interface ResetPasswordSearch {
@@ -10,6 +11,7 @@ interface ResetPasswordSearch {
 function ResetPasswordRoute(): ReactElement {
   const { apiClient } = Route.useRouteContext()
   const { token } = Route.useSearch()
+  const copy = useSignedOutCopy()
   const [state, setState] = useState<ResetPasswordState>(
     token === undefined ? { kind: 'linkRefused' } : { kind: 'editing', refusal: undefined },
   )
@@ -29,7 +31,7 @@ function ResetPasswordRoute(): ReactElement {
     setState(refusal === 'TokenInvalid' ? { kind: 'linkRefused' } : { kind: 'editing', refusal })
   }
 
-  return <ResetPasswordScreen state={state} onSubmit={reset} />
+  return <ResetPasswordScreen copy={copy} state={state} onSubmit={reset} />
 }
 
 export const Route = createFileRoute('/reset-password')({

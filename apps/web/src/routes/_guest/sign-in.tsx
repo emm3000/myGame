@@ -3,10 +3,12 @@ import { createFileRoute, useNavigate } from '@tanstack/react-router'
 import { type ReactElement, useState } from 'react'
 import type { ApiRefusal } from '../../api/apiClient'
 import { SignInScreen } from '../../auth/SignInScreen'
+import { useSignedOutCopy } from '../../auth/useSignedOutCopy'
 
 function SignInRoute(): ReactElement {
   const { apiClient } = Route.useRouteContext()
   const navigate = useNavigate()
+  const copy = useSignedOutCopy()
   const [refusal, setRefusal] = useState<ApiRefusal | undefined>(undefined)
   const [isSubmitting, setIsSubmitting] = useState(false)
 
@@ -22,7 +24,9 @@ function SignInRoute(): ReactElement {
     await navigate({ to: '/' })
   }
 
-  return <SignInScreen refusal={refusal} isSubmitting={isSubmitting} onSubmit={signIn} />
+  return (
+    <SignInScreen copy={copy} refusal={refusal} isSubmitting={isSubmitting} onSubmit={signIn} />
+  )
 }
 
 export const Route = createFileRoute('/_guest/sign-in')({
