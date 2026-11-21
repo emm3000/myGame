@@ -1,18 +1,18 @@
 import type { MouseEvent, ReactElement, ReactNode } from 'react'
+import { blockFocusTargetClass, focusTargetClass } from './focusTargetClass'
 import type { Label } from './Label'
 import { spokenLanguageOf } from './spokenLanguageOf'
 import { spokenLineOf } from './spokenLineOf'
 
-export type ButtonTone = 'primary' | 'quiet' | 'text'
+export type ActionTone = 'primary' | 'quiet' | 'text'
+
+export type ButtonTone = ActionTone | 'readingWord'
 
 export type ButtonAvailability = 'available' | 'blocked' | 'marked' | 'waiting' | 'waitingInPlace'
 
-export interface ButtonProps {
+interface ButtonCommonProps {
   readonly children: ReactNode
   readonly type: 'button' | 'submit'
-  readonly tone: ButtonTone
-  readonly disabled?: boolean
-  readonly availability?: ButtonAvailability
   readonly accessibleName?: Label
   readonly describedBy?: string | undefined
   readonly isExpanded?: boolean
@@ -20,22 +20,37 @@ export interface ButtonProps {
   readonly onClick?: (() => void) | undefined
 }
 
+interface ActionButtonProps extends ButtonCommonProps {
+  readonly tone: ActionTone
+  readonly disabled?: boolean
+  readonly availability?: ButtonAvailability
+}
+
+interface ReadingWordButtonProps extends ButtonCommonProps {
+  readonly tone: 'readingWord'
+}
+
+export type ButtonProps = ActionButtonProps | ReadingWordButtonProps
+
 const toneClass: Readonly<Record<ButtonTone, string>> = {
   primary: 'border-action bg-action text-on-action',
   quiet: 'border-line-strong bg-transparent text-ink',
   text: 'border-transparent bg-transparent text-ink underline underline-offset-2',
+  readingWord: 'bg-transparent text-on-block underline underline-offset-2',
 }
 
 const shapeClass: Readonly<Record<ButtonTone, string>> = {
   primary: 'min-h-action rounded-pill text-button',
   quiet: 'min-h-secondary rounded-pill text-label',
   text: 'min-h-control min-w-12 rounded-sm text-label',
+  readingWord: 'min-h-control min-w-12 rounded-sm text-reading',
 }
 
 const paddingClass: Readonly<Record<ButtonTone, string>> = {
   primary: 'px-6',
   quiet: 'px-5',
   text: 'px-1',
+  readingWord: 'p-0',
 }
 
 const waitingClass =
@@ -50,11 +65,17 @@ const unavailableClass: Readonly<Record<Exclude<ButtonAvailability, 'available'>
   waitingInPlace: `${waitingClass} gap-1`,
 }
 
-const baseClass =
-  'border py-2 font-sans focus-visible:outline-3 focus-visible:outline-offset-2 focus-visible:outline-focus'
+const actionFrameClass = `border py-2 font-sans ${focusTargetClass}`
+
+const frameClass: Readonly<Record<ButtonTone, string>> = {
+  primary: actionFrameClass,
+  quiet: actionFrameClass,
+  text: actionFrameClass,
+  readingWord: `inline-flex items-center justify-center align-baseline border-0 font-sans ${blockFocusTargetClass}`,
+}
 
 export const buttonClassOf = (tone: ButtonTone): string =>
-  `${baseClass} ${shapeClass[tone]} ${paddingClass[tone]} cursor-pointer disabled:cursor-not-allowed disabled:border-dashed disabled:border-line disabled:bg-surface-sunken disabled:text-ink-muted ${toneClass[tone]}`
+  `${frameClass[tone]} ${shapeClass[tone]} ${paddingClass[tone]} cursor-pointer disabled:cursor-not-allowed disabled:border-dashed disabled:border-line disabled:bg-surface-sunken disabled:text-ink-muted ${toneClass[tone]}`
 
 const paddingOf = (tone: ButtonTone, availability: ButtonAvailability): string =>
   availability === 'waitingInPlace' ? 'px-2' : paddingClass[tone]
@@ -62,10 +83,11 @@ const paddingOf = (tone: ButtonTone, availability: ButtonAvailability): string =
 const classOf = (tone: ButtonTone, availability: ButtonAvailability): string =>
   availability === 'available'
     ? buttonClassOf(tone)
-    : `${baseClass} ${shapeClass[tone]} ${paddingOf(tone, availability)} ${unavailableClass[availability]}`
+    : `${frameClass[tone]} ${shapeClass[tone]} ${paddingOf(tone, availability)} ${unavailableClass[availability]}`
 
 export function Button(props: ButtonProps): ReactElement {
-  const availability = props.availability ?? 'available'
+  const availability =
+    props.tone === 'readingWord' ? 'available' : (props.availability ?? 'available')
   const isUnavailable = availability !== 'available'
   const isWaiting = availability === 'waiting' || availability === 'waitingInPlace'
   const isWithheld = isUnavailable && availability !== 'marked'
@@ -80,7 +102,7 @@ export function Button(props: ButtonProps): ReactElement {
   return (
     <button
       type={props.type}
-      disabled={props.disabled}
+      disabled={props.tone === 'readingWord' ? undefined : props.disabled}
       aria-disabled={isWithheld ? true : undefined}
       aria-busy={isWaiting ? true : undefined}
       aria-label={accessibleName === undefined ? undefined : spokenLineOf(accessibleName)}

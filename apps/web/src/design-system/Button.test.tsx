@@ -1,6 +1,6 @@
 import { fireEvent, render, screen } from '@testing-library/react'
 import { expect, it, vi } from 'vitest'
-import { Button, type ButtonAvailability, type ButtonTone } from './Button'
+import { type ActionTone, Button, type ButtonAvailability } from './Button'
 import type { Label } from './Label'
 import { lineLabelOf } from './lineLabelOf'
 
@@ -77,7 +77,7 @@ it('fires the action of an available button when pressed', () => {
   expect(onClick).toHaveBeenCalledTimes(1)
 })
 
-const classesOf = (tone: ButtonTone, availability?: ButtonAvailability): ReadonlyArray<string> => {
+const classesOf = (tone: ActionTone, availability?: ButtonAvailability): ReadonlyArray<string> => {
   render(
     <Button type="button" tone={tone} availability={availability ?? 'available'}>
       Upgrade
@@ -86,7 +86,7 @@ const classesOf = (tone: ButtonTone, availability?: ButtonAvailability): Readonl
   return screen.getByRole('button', { name: 'Upgrade' }).className.split(' ')
 }
 
-it.each<[ButtonTone, string]>([
+it.each<[ActionTone, string]>([
   ['primary', 'min-h-action'],
   ['quiet', 'min-h-secondary'],
   ['text', 'min-h-control'],
@@ -102,7 +102,7 @@ it('holds a text action at the touch target width', () => {
   expect(classesOf('text')).toContain('min-w-12')
 })
 
-it.each<[ButtonTone, boolean]>([
+it.each<[ActionTone, boolean]>([
   ['primary', true],
   ['quiet', false],
   ['text', false],
@@ -156,4 +156,45 @@ it('marks no language on a name read in two languages', () => {
   expect(
     screen.getByRole('button', { name: 'Stop farm Detener granja' }).hasAttribute('lang'),
   ).toBe(false)
+})
+
+const readingWordClasses = (): ReadonlyArray<string> => {
+  render(
+    <Button type="button" tone="readingWord">
+      home
+    </Button>,
+  )
+  return screen.getByRole('button', { name: 'home' }).className.split(' ')
+}
+
+it.each<ActionTone>(['primary', 'quiet', 'text'])(
+  'frames a %s action with a border, its vertical padding and the action focus outline',
+  (tone) => {
+    expect(classesOf(tone)).toEqual(
+      expect.arrayContaining(['border', 'py-2', 'focus-visible:outline-focus']),
+    )
+  },
+)
+
+it('draws a reading word inline on the reading line in on-block ink at the touch target', () => {
+  expect(readingWordClasses()).toEqual(
+    expect.arrayContaining([
+      'inline-flex',
+      'align-baseline',
+      'border-0',
+      'p-0',
+      'text-reading',
+      'text-on-block',
+      'underline',
+      'min-h-control',
+      'min-w-12',
+      'focus-visible:outline-on-block',
+    ]),
+  )
+})
+
+it('draws a reading word without the border, padding and focus color of an action', () => {
+  expect(readingWordClasses()).not.toEqual(
+    expect.arrayContaining([expect.stringMatching(/^(border|py-2|focus-visible:outline-focus)$/)]),
+  )
 })
