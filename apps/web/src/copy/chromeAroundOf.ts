@@ -1,7 +1,7 @@
 import type { Label, LabelLine } from '../design-system/Label'
 import type { ChromeCatalog, PlayerCopy } from './PlayerCopy'
 
-const insetMark = ''
+const insetMark = '\uE000'
 
 const lineAround = <Line extends LabelLine>(line: Line, inset: LabelLine): Line => {
   const at = line.text.indexOf(insetMark)
@@ -10,7 +10,7 @@ const lineAround = <Line extends LabelLine>(line: Line, inset: LabelLine): Line 
   }
   return {
     ...line,
-    text: line.text.replace(insetMark, inset.text),
+    text: line.text.replace(insetMark, () => inset.text),
     inset: { at, text: inset.text, language: inset.language },
   }
 }

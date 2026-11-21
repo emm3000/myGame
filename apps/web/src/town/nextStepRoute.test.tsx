@@ -476,12 +476,15 @@ it('names no text while the next step carries none', async () => {
 
 it('marks the newest text title in English inside the Spanish read line', async () => {
   await showTown(
-    townAt({
-      kind: 'caughtUp',
-      reason: 'lessonsDone',
-      goal: null,
-      text: { id: 'text-1', title: 'A New Course' },
-    }),
+    townAt(
+      {
+        kind: 'caughtUp',
+        reason: 'lessonsDone',
+        goal: null,
+        text: { id: 'text-1', title: 'A New Course' },
+      },
+      { scaffold: 'es', chromePhase: 'scaffold' },
+    ),
   )
 
   const link = screen.getByRole('link', { name: es.townNextText({ title: 'A New Course' }) })
