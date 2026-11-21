@@ -210,6 +210,17 @@ export type { EarnedSkillRepository } from './town/EarnedSkillRepository'
 export { earnTownSkill } from './town/earnTownSkill'
 export { type FullSince, noStoreFull } from './town/FullSince'
 export { type FoundTownCommand, type FoundTownDependencies, foundTown } from './town/foundTown'
+export { type GoalShortfall, type NextGoal, nextGoalOf } from './town/guidance/nextGoalOf'
+export {
+  type NextStep,
+  type NextStepReading,
+  type NextStepTerms,
+  nextStepOf,
+} from './town/guidance/nextStepOf'
+export { type ReadyStock, type ResourceNeed, readyMinuteOf } from './town/guidance/readyMinuteOf'
+export type { TipKind } from './town/guidance/TipKind'
+export { tipKinds } from './town/guidance/tipKinds'
+export { type TipReading, tipOf } from './town/guidance/tipOf'
 export type { HireKind } from './town/HireKind'
 export { type Hires, noHires } from './town/Hires'
 export { hireKinds } from './town/hireKinds'
@@ -274,16 +285,8 @@ export { type SendCleanUpDependencies, sendCleanUp } from './town/jobs/useCases/
 export { type SendJobDependencies, sendJob } from './town/jobs/useCases/sendJob'
 export type { WasteSize } from './town/jobs/WasteSize'
 export { type BusyLessonSlot, idleLessonSlot, type LessonSlot } from './town/LessonSlot'
-export { type GoalShortfall, type NextGoal, nextGoalOf } from './town/nextGoalOf'
-export {
-  type NextStep,
-  type NextStepReading,
-  type NextStepTerms,
-  nextStepOf,
-} from './town/nextStepOf'
 export type { People } from './town/People'
 export type { ResourceKind } from './town/ResourceKind'
-export { type ReadyStock, type ResourceNeed, readyMinuteOf } from './town/readyMinuteOf'
 export { rebaseFullSince } from './town/rebaseFullSince'
 export { type ResolveTownDependencies, resolveTown } from './town/resolveTown'
 export { resourceKinds } from './town/resourceKinds'
@@ -308,7 +311,6 @@ export {
   type StopSchoolLessonDependencies,
   stopSchoolLesson,
 } from './town/school/useCases/stopSchoolLesson'
-export type { TipKind } from './town/TipKind'
 export { type ChangedTown, type StoredTown, Town, type TownFounding } from './town/Town'
 export { TownAddress } from './town/TownAddress'
 export type { TownCatalog } from './town/TownCatalog'
@@ -328,7 +330,5 @@ export type {
   TownSettings,
 } from './town/TownSettings'
 export type { TownSkill } from './town/TownSkill'
-export { tipKinds } from './town/tipKinds'
-export { type TipReading, tipOf } from './town/tipOf'
 export { townLabelOf } from './town/townLabelOf'
 export { type TownSeason, townSeasonAt } from './town/townSeasonAt'

@@ -1,5 +1,5 @@
-import { Instant } from '../time/Instant'
-import { storeAfterSegment } from './storeAfterSegment'
+import { Instant } from '../../time/Instant'
+import { storeAfterSegment } from '../storeAfterSegment'
 
 export interface ReadyStock {
   readonly amount: number

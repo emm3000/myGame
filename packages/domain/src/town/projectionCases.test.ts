@@ -1,7 +1,7 @@
 import { describe, expect, it } from 'vitest'
 import { Instant } from '../time/Instant'
+import { readyMinuteOf } from './guidance/readyMinuteOf'
 import projection from './projection-cases.json'
-import { readyMinuteOf } from './readyMinuteOf'
 import { storeAfterSegment } from './storeAfterSegment'
 
 describe('the shared projection cases', () => {
