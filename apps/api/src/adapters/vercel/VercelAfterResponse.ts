@@ -3,6 +3,8 @@ import type { AfterResponseDrain } from '../../afterResponse/AfterResponseDrain'
 import type { FailureSink } from '../../failures/FailureSink'
 import { thrownCauseOf } from '../../failures/thrownCauseOf'
 
+export const pendingWorkCap = 5
+
 export type LifetimeExtension = (work: Promise<void>) => void
 
 export class VercelAfterResponse implements AfterResponse, AfterResponseDrain {
@@ -13,8 +15,13 @@ export class VercelAfterResponse implements AfterResponse, AfterResponseDrain {
     private readonly failureSink: FailureSink,
   ) {}
 
-  defer(work: Promise<void>): void {
-    const tracked = work
+  defer(start: () => Promise<void>): void {
+    if (this.pending.size >= pendingWorkCap) {
+      this.failureSink.write('deferred work dropped')
+      return
+    }
+    const tracked = Promise.resolve()
+      .then(start)
       .catch((error: unknown) => this.reportThrown(error))
       .finally(() => this.pending.delete(tracked))
     this.pending.add(tracked)

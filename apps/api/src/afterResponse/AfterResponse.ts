@@ -1,3 +1,3 @@
 export interface AfterResponse {
-  defer(work: Promise<void>): void
+  defer(start: () => Promise<void>): void
 }
