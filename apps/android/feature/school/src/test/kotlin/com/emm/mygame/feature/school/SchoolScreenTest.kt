@@ -10,6 +10,7 @@ import androidx.compose.ui.test.assert
 import androidx.compose.ui.test.assertCountEquals
 import androidx.compose.ui.test.assertIsDisplayed
 import androidx.compose.ui.test.getUnclippedBoundsInRoot
+import androidx.compose.ui.test.hasAnySibling
 import androidx.compose.ui.test.hasText
 import androidx.compose.ui.test.junit4.ComposeContentTestRule
 import androidx.compose.ui.test.junit4.createComposeRule
@@ -46,6 +47,8 @@ import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.robolectric.RobolectricTestRunner
+import org.robolectric.annotation.Config
+import org.robolectric.annotation.GraphicsMode
 
 @RunWith(RobolectricTestRunner::class)
 class SchoolScreenTest {
@@ -732,6 +735,19 @@ class SchoolScreenTest {
 
         showing("Estudiada")
         composeRule.onAllNodesWithText("Estudiar la lección 1", substring = true).assertCountEquals(0)
+    }
+
+    @Test
+    @Config(qualifiers = "+w360dp-h640dp", fontScale = 2.0f)
+    @GraphicsMode(GraphicsMode.Mode.NATIVE)
+    fun `a studied lesson's row at font scale 2 keeps its title on one line beside its status`() {
+        show(idleSchool.copy(lessons = listOf(readyLesson.copy(state = SchoolUiState.LessonState.Studied))))
+
+        val results: MutableList<TextLayoutResult> = mutableListOf()
+        composeRule.onNode(hasText("Lección 1") and hasAnySibling(hasText("Estudiada")), useUnmergedTree = true)
+            .fetchSemanticsNode().config[SemanticsActions.GetTextLayoutResult].action?.invoke(results)
+
+        assertEquals("the title's lines", 1, results.first().lineCount)
     }
 
     @Test
