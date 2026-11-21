@@ -13,7 +13,7 @@ import { respondRefusal } from '#platform/infrastructure/http/respondRefusal'
 import { jsonBody } from '#platform/infrastructure/http/responseDeclarations'
 import { signedInRoute } from '#platform/infrastructure/http/signedInRoute'
 import { checkNotDue, checkPath, checksResponse } from './holdoutCheckComponents'
-import { readChecksAfter } from './readChecksAfter'
+import { mutateHoldoutCheck } from './readChecksAfter'
 import { respondHoldoutChecks } from './respondHoldoutChecks'
 
 export const answerHoldoutCheckDeclaration = createRoute(
@@ -53,9 +53,8 @@ export const answerHoldoutCheckRoute = (
         return respondRefusal(c, { kind: 'MalformedRequest' })
       }
       const playerId = c.var.playerId
-      const views = await readChecksAfter(
-        playerId,
-        check.data,
+      const views = await mutateHoldoutCheck(
+        { playerId, ...check.data },
         async (stores, { band, week }, at) =>
           answerHoldoutCheck(
             {
