@@ -22,7 +22,7 @@ export function registeredLineOf(
           ),
         ]
   const rateLines = rates.map(({ resource, ratePerHourBefore, ratePerHourAfter }) =>
-    skillRatesLineOf(resource, ratePerHourBefore, ratePerHourAfter),
+    skillRatesLineOf(copy, resource, ratePerHourBefore, ratePerHourAfter),
   )
-  return [...[...placeLines, ...ringLines].map(spokenLineOf), ...rateLines].join(' ')
+  return [...placeLines, ...ringLines, ...rateLines].map(spokenLineOf).join(' ')
 }

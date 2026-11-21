@@ -11,5 +11,7 @@ export type FixedCopyCatalog = Pick<Catalog, FixedCopyFunctionName>
 
 export interface PlayerCopy {
   readonly chrome: (line: (catalog: ChromeCatalog) => string) => Label
-  readonly fixedCopy: (line: (catalog: FixedCopyCatalog) => string) => Label
+  readonly fixedCopy: (
+    line: (catalog: FixedCopyCatalog, scaffoldChrome: ChromeCatalog) => string,
+  ) => Label
 }

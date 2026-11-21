@@ -1,9 +1,12 @@
 import {
+  en,
+  es,
   passwordResetRequestSubmit,
   verificationBannerLine,
   verificationBannerResend,
   verificationBannerSent,
 } from '@mygame/catalog'
+import type { TownOverview } from '@mygame/contracts'
 import { act, fireEvent, screen } from '@testing-library/react'
 import { expect, it } from 'vitest'
 import type { ApiClient, ApiRefusal } from '../api/apiClient'
@@ -107,4 +110,24 @@ it('names its resend apart from the password reset form', async () => {
   await resendButton()
 
   expect(screen.queryByRole('button', { name: passwordResetRequestSubmit() })).toBeNull()
+})
+
+const unverifiedIn = (language: Pick<TownOverview, 'scaffold' | 'chromePhase'>): ApiClient =>
+  stubApiClient({
+    currentPlayer: async () => ({ ...unverifiedPlayer, ...language }),
+    town: async () => ({ ok: true, value: { ...knownTown, ...language } }),
+  })
+
+it('keeps the banner in Spanish for an es player in the English phase', async () => {
+  renderAppAt('/', unverifiedIn({ scaffold: 'es', chromePhase: 'english' }))
+
+  expect(await screen.findByText(es.verificationBannerLine())).toBeDefined()
+  expect(screen.getByRole('button', { name: es.verificationBannerResend() })).toBeDefined()
+})
+
+it('draws the banner in English under none', async () => {
+  renderAppAt('/', unverifiedIn({ scaffold: 'none', chromePhase: 'english' }))
+
+  expect(await screen.findByText(en.verificationBannerLine())).toBeDefined()
+  expect(screen.getByRole('button', { name: en.verificationBannerResend() })).toBeDefined()
 })

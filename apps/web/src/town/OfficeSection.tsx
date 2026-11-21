@@ -6,7 +6,6 @@ import { BuildSlot, type BuildSlotState } from '../design-system/BuildSlot'
 import { FormAlert } from '../design-system/FormAlert'
 import { focusTargetClass } from '../design-system/focusTargetClass'
 import { LabelText } from '../design-system/LabelText'
-import { lineLabelOf } from '../design-system/lineLabelOf'
 import { spokenLanguageOf } from '../design-system/spokenLanguageOf'
 import { spokenLineOf } from '../design-system/spokenLineOf'
 import { useFocusTarget } from '../focus/useFocusTarget'
@@ -100,7 +99,9 @@ function HireItem({
       />
       {refused !== undefined && (
         <FormAlert
-          message={lineLabelOf(hiringRefusalLineOf(refused.refusal, refused.error), 'es')}
+          message={copy.fixedCopy((catalog) =>
+            hiringRefusalLineOf(catalog, refused.refusal, refused.error),
+          )}
         />
       )}
     </li>

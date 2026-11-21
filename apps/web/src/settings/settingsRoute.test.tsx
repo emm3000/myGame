@@ -1,4 +1,6 @@
 import {
+  en,
+  es,
   refusalTokenInvalid,
   refusalUnexpected,
   scaffoldEs,
@@ -9,12 +11,12 @@ import {
   settingsSaving,
   settingsTitle,
 } from '@mygame/catalog'
-import type { Player, Scaffold } from '@mygame/contracts'
+import type { Player, Scaffold, TownOverview } from '@mygame/contracts'
 import { act, fireEvent, screen } from '@testing-library/react'
 import { expect, it } from 'vitest'
 import type { ApiClient, ApiOutcome } from '../api/apiClient'
 import { renderAppAt } from '../auth/renderAppAt.testSupport'
-import { knownPlayer, stubApiClient } from '../auth/stubApiClient.testSupport'
+import { knownPlayer, knownTown, stubApiClient } from '../auth/stubApiClient.testSupport'
 
 const scaffoldLines: Readonly<Record<Scaffold, string>> = {
   es: scaffoldEs(),
@@ -131,4 +133,27 @@ it('returns to the stored scaffold when the api cannot be reached', async () => 
 
   expect((await screen.findByRole('alert')).textContent).toBe(refusalUnexpected())
   expect((await scaffoldRadioOf('none')).checked).toBe(true)
+})
+
+const signedInIn = (language: Pick<TownOverview, 'scaffold' | 'chromePhase'>): ApiClient =>
+  stubApiClient({
+    currentPlayer: async () => ({ ...knownPlayer, ...language }),
+    town: async () => ({ ok: true, value: { ...knownTown, ...language } }),
+  })
+
+it('keeps the settings and the sign-out in Spanish for an es player in the English phase', async () => {
+  renderAppAt('/settings', signedInIn({ scaffold: 'es', chromePhase: 'english' }))
+
+  expect(await screen.findByRole('heading', { level: 1, name: es.settingsTitle() })).toBeTruthy()
+  expect(screen.getByRole('group', { name: es.scaffoldLabel() })).toBeTruthy()
+  expect(screen.getByRole('button', { name: es.shellSignOut() })).toBeTruthy()
+})
+
+it('draws the settings and the sign-out in English under none', async () => {
+  renderAppAt('/settings', signedInIn({ scaffold: 'none', chromePhase: 'english' }))
+
+  expect(await screen.findByRole('heading', { level: 1, name: en.settingsTitle() })).toBeTruthy()
+  expect(screen.getByRole('group', { name: en.scaffoldLabel() })).toBeTruthy()
+  expect(screen.getByText(en.settingsCardsKept())).toBeTruthy()
+  expect(screen.getByRole('button', { name: en.shellSignOut() })).toBeTruthy()
 })

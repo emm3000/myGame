@@ -1,4 +1,4 @@
-import { namesHiresTruck, namesHiresWorker } from '@mygame/catalog'
+import { en, namesHiresTruck, namesHiresWorker } from '@mygame/catalog'
 import type { PlaceHiringOrder, TownOverview } from '@mygame/contracts'
 import { act, fireEvent, screen, within } from '@testing-library/react'
 import { afterEach, beforeEach, expect, it, vi } from 'vitest'
@@ -319,4 +319,29 @@ it('sends no hire for a count that is not a whole count', async () => {
   await passSeconds(0)
 
   expect(placed).toEqual([])
+})
+
+it('writes a hiring refusal in English under none', async () => {
+  const none = { scaffold: 'none', chromePhase: 'english' } as const
+  await showTown(
+    { ...officeTown, ...none },
+    {
+      currentPlayer: async () => ({ ...knownPlayer, ...none }),
+      placeHiringOrder: async () => ({
+        ok: false,
+        refusal: 'NotEnoughResources',
+        error: {
+          kind: 'NotEnoughResources',
+          params: { missing: { money: 0, food: 0, power: 0, material: 40 } },
+        },
+      }),
+    },
+  )
+
+  fireEvent.click(within(hireCard(en.namesHiresWorker())).getByRole('button', { name: /^Hire/ }))
+  await passSeconds(0)
+
+  expect(within(hireCard(en.namesHiresWorker())).getByRole('alert').textContent).toBe(
+    en.refusalHiringNotEnoughResources(),
+  )
 })

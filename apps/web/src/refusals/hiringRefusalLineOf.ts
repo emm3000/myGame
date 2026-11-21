@@ -1,14 +1,18 @@
-import { es, refusalHiringNotEnoughPeople, refusalHiringNotEnoughResources } from '@mygame/catalog'
 import type { ApiError } from '@mygame/contracts'
 import type { ApiRefusal } from '../api/apiClient'
+import type { FixedCopyCatalog } from '../copy/PlayerCopy'
 import { refusalLineOf } from './refusalLineOf'
 
-export function hiringRefusalLineOf(refusal: ApiRefusal, error?: ApiError): string {
+export function hiringRefusalLineOf(
+  catalog: FixedCopyCatalog,
+  refusal: ApiRefusal,
+  error?: ApiError,
+): string {
   if (error?.kind === 'NotEnoughPeople') {
-    return refusalHiringNotEnoughPeople(error.params)
+    return catalog.refusalHiringNotEnoughPeople(error.params)
   }
   if (error?.kind === 'NotEnoughResources') {
-    return refusalHiringNotEnoughResources()
+    return catalog.refusalHiringNotEnoughResources()
   }
-  return refusalLineOf(es, refusal, error)
+  return refusalLineOf(catalog, refusal, error)
 }
