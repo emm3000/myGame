@@ -20,7 +20,7 @@ file_over_export_cap packages/domain/src/holdout/HoldoutCheck.ts
 file_over_export_cap packages/domain/src/learning/Lesson.ts
 file_over_export_cap packages/domain/src/town/BuildingLevel.ts
 file_over_export_cap packages/domain/src/town/BuildingWork.ts
-file_over_export_cap packages/domain/src/town/nextStepOf.ts
+file_over_export_cap packages/domain/src/town/guidance/nextStepOf.ts
 file_over_export_cap packages/domain/src/town/TownSettings.ts
 folder_over_limit packages/domain/src/town
 reading_named_of_is_async apps/api/src/town/currentTownOf.ts

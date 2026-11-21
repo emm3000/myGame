@@ -2,11 +2,11 @@ import type { SeasonDates } from '../season/SeasonDates'
 import type { SeasonKind } from '../season/SeasonKind'
 import type { BuildingKind } from './BuildingKind'
 import type { WordNeed } from './building/WordNeed'
+import type { TipKind } from './guidance/TipKind'
 import type { Terrain } from './jobs/Terrain'
 import type { WasteSize } from './jobs/WasteSize'
 import type { ResourceKind } from './ResourceKind'
 import type { Stocks } from './Stocks'
-import type { TipKind } from './TipKind'
 
 export type ProductionPercent = Readonly<Record<ResourceKind, number>>
 

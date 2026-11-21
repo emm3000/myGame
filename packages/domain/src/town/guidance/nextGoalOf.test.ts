@@ -1,12 +1,12 @@
 import { assert, describe, expect, it } from 'vitest'
-import { plainTownLevels, plainTownSettings, townCatalogOf } from '../testing/townCatalogOf'
-import { type TownShape, townOf } from '../testing/townFixtures'
-import { Instant } from '../time/Instant'
-import type { BuildingLevel } from './BuildingLevel'
-import type { BuildingLevels } from './BuildingLevels'
+import { plainTownLevels, plainTownSettings, townCatalogOf } from '../../testing/townCatalogOf'
+import { type TownShape, townOf } from '../../testing/townFixtures'
+import { Instant } from '../../time/Instant'
+import type { BuildingLevel } from '../BuildingLevel'
+import type { BuildingLevels } from '../BuildingLevels'
+import type { TownCatalog } from '../TownCatalog'
+import type { TownGoal } from '../TownSettings'
 import { type NextGoal, nextGoalOf } from './nextGoalOf'
-import type { TownCatalog } from './TownCatalog'
-import type { TownGoal } from './TownSettings'
 
 const noCost = { money: 0, food: 0, power: 0, material: 0 }
 
