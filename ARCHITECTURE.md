@@ -12,7 +12,7 @@ packages/domain    -> nothing
 packages/catalog   -> nothing
 ```
 
-A package is imported only through its `src/index.ts`. Inside `apps/api` the features form a graph with no cycle, and a feature imports only from a feature to its left:
+A package is imported only through its `src/index.ts`. Inside `apps/api` and `packages/domain`, an import that leaves its top-level folder, or starts from a file at the `src/` root, is a subpath import named from the package root (`#town/useCases/sendJob`, `#DomainError`); an import inside one top-level folder stays relative (`./`, `../`). Inside `apps/api` the features form a graph with no cycle, and a feature imports only from a feature to its left:
 
 ```
 platform <- content <- account <- town <- learning <- placement, holdout, report

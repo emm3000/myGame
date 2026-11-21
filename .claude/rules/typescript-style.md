@@ -36,6 +36,7 @@ None. No JSDoc, no `//`, no `/* */`, no commented-out code, no section banners. 
 
 - ESM only, `verbatimModuleSyntax`, `import type` for type-only imports.
 - A package exposes one entry (`src/index.ts`) and consumers import only from it.
+- In `apps/api` and `packages/domain`, an import that leaves its top-level folder under `src/` (a feature, `platform`, a domain kernel folder such as `ports`), or starts from a file at the `src/` root, is a Node subpath import named from the package root: `#town/useCases/sendJob`, `#DomainError`. The one mapping is `"imports": { "#*": "./src/*.ts" }` in the package's `package.json`. An import inside one top-level folder stays relative, `./` or `../`, never a subpath import.
 - No barrel files inside a package beyond that single entry.
 
 ## Naming by layer
