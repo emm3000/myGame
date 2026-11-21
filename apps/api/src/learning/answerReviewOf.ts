@@ -13,7 +13,7 @@ import {
   type TownSkill,
   type WordId,
 } from '@mygame/domain'
-import { scaffoldOf } from '../account/application/readScaffold'
+import { readScaffold } from '../account/application/readScaffold'
 import { mutateTown } from '../town/mutateTown'
 import type { LearningDependencies } from './LearningDependencies'
 import type { LessonLibrary } from './LessonLibrary'
@@ -99,7 +99,7 @@ export const answerReviewOf = (
       return ok({
         answered: answered.value,
         word,
-        scaffold: await scaffoldOf(playerId, stores.accounts),
+        scaffold: await readScaffold(playerId, stores.accounts),
         skills: skills.value,
         town: town.value,
         skillWords: skillWords.value,

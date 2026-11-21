@@ -6,7 +6,7 @@ import type { Transaction } from '../../platform/application/ports/Transaction'
 import { thrownCauseOf } from '../../platform/thrownCauseOf'
 import { issueAccountToken } from './issueAccountToken'
 import type { MailRecipient } from './MailRecipient'
-import { fixedCopyOf } from './pickFixedCopy'
+import { pickFixedCopy } from './pickFixedCopy'
 import type { AccountStores } from './ports/AccountStores'
 import type { MailDelivery, Mailer } from './ports/Mailer'
 import type { SessionTokens } from './ports/SessionTokens'
@@ -50,7 +50,7 @@ const sendResetMail = async (
     return undefined
   }
   const { recipient, token } = issued.value
-  const copy = fixedCopyOf(recipient.scaffold)
+  const copy = pickFixedCopy(recipient.scaffold)
   return mailer.send({
     to: recipient.email,
     subject: copy.mailResetSubject(),

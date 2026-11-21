@@ -17,7 +17,7 @@ import {
   type NamedIssue,
   requestRefusalOf,
 } from '../../../platform/infrastructure/http/requestRefusalOf'
-import type { PlayerChromePhaseDependencies } from '../../application/readChromePhase'
+import type { ReadChromePhaseDependencies } from '../../application/readChromePhase'
 import {
   type RequestPasswordResetDependencies,
   requestPasswordReset,
@@ -32,7 +32,7 @@ import { type SignInDependencies, signIn } from '../../application/signIn'
 import { type SignUpDependencies, signUp } from '../../application/signUp'
 import { type VerifyEmailDependencies, verifyEmail } from '../../application/verifyEmail'
 import { authDeclarations } from './authDeclarations'
-import { playerBodyOf } from './presentPlayer'
+import { presentPlayer } from './presentPlayer'
 import { type RequirePlayerDependencies, requirePlayer } from './requirePlayer'
 import { clearSessionCookie, writeSessionCookie } from './sessionCookie'
 
@@ -43,7 +43,7 @@ export type AuthDependencies = SignUpDependencies &
   RequestPasswordResetDependencies &
   ResetPasswordDependencies &
   RequirePlayerDependencies &
-  PlayerChromePhaseDependencies
+  ReadChromePhaseDependencies
 
 const answerDone = (c: Context, done: Result<void, Refusal>): Response =>
   done.ok ? c.body(null, 204) : answerRefusal(c, done.error)
@@ -63,7 +63,7 @@ const answerSignedIn = async (
     return answerRefusal(c, signedIn.error)
   }
   writeSessionCookie(c, signedIn.value.session, dependencies.isSessionCookieSecure)
-  return c.json(await playerBodyOf(signedIn.value.player, dependencies), status)
+  return c.json(await presentPlayer(signedIn.value.player, dependencies), status)
 }
 
 const answerNativeSession = async (
@@ -77,7 +77,7 @@ const answerNativeSession = async (
   }
   const nativeSession: NativeSession = {
     token: signedIn.value.session.token,
-    player: await playerBodyOf(signedIn.value.player, dependencies),
+    player: await presentPlayer(signedIn.value.player, dependencies),
   }
   return c.json(nativeSession, status)
 }
@@ -135,7 +135,7 @@ export const authRoutes = (dependencies: AuthDependencies): OpenAPIHono => {
       if (player === undefined) {
         return answerRefusal(c, { kind: 'SignedOut' })
       }
-      return c.json(await playerBodyOf(player, dependencies))
+      return c.json(await presentPlayer(player, dependencies))
     },
   )
   routes.on(authDeclarations.verifyEmail.method, authDeclarations.verifyEmail.path, async (c) => {

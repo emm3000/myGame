@@ -1,7 +1,7 @@
 import type { PlayerId, Scaffold } from '@mygame/domain'
 import type { Accounts } from './ports/Accounts'
 
-export const scaffoldOf = async (
+export const readScaffold = async (
   playerId: PlayerId,
   accounts: Pick<Accounts, 'playerOf'>,
 ): Promise<Scaffold> => {

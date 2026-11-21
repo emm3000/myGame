@@ -11,7 +11,7 @@ import {
   skipPlacement,
 } from '@mygame/domain'
 import type { Context } from 'hono'
-import { scaffoldOf } from '../account/application/readScaffold'
+import { readScaffold } from '../account/application/readScaffold'
 import {
   type RequirePlayerDependencies,
   requirePlayer,
@@ -55,7 +55,7 @@ export const placementRoutes = (dependencies: PlacementRouteDependencies): OpenA
         playerId,
         async (stores) =>
           readPlacement(
-            { playerId, scaffold: await scaffoldOf(playerId, stores.accounts) },
+            { playerId, scaffold: await readScaffold(playerId, stores.accounts) },
             { ...stores, ...content },
           ),
         dependencies,
@@ -73,7 +73,7 @@ export const placementRoutes = (dependencies: PlacementRouteDependencies): OpenA
         playerId,
         async (stores, clock) => {
           const begun = await beginPlacement({ playerId }, { ...stores, ...content, random, clock })
-          const scaffold = await scaffoldOf(playerId, stores.accounts)
+          const scaffold = await readScaffold(playerId, stores.accounts)
           return begun.ok ? readPlacement({ playerId, scaffold }, { ...stores, ...content }) : begun
         },
         dependencies,
@@ -91,7 +91,7 @@ export const placementRoutes = (dependencies: PlacementRouteDependencies): OpenA
         playerId,
         async (stores, clock) => {
           const skipped = await skipPlacement({ playerId }, { ...stores, ...content, clock })
-          const scaffold = await scaffoldOf(playerId, stores.accounts)
+          const scaffold = await readScaffold(playerId, stores.accounts)
           return skipped.ok
             ? readPlacement({ playerId, scaffold }, { ...stores, ...content })
             : skipped
@@ -119,7 +119,7 @@ export const placementRoutes = (dependencies: PlacementRouteDependencies): OpenA
               playerId,
               band: request.data.band,
               answers: request.data.answers,
-              scaffold: await scaffoldOf(playerId, stores.accounts),
+              scaffold: await readScaffold(playerId, stores.accounts),
             },
             { ...stores, ...content, clock },
           ),

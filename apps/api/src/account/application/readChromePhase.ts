@@ -1,17 +1,25 @@
-import { type ChromePhase, type Clock, chromePhaseOf, isLessonFinishedBy } from '@mygame/domain'
-import type { LessonLibrary } from '../../learning/LessonLibrary'
+import {
+  type ChromePhase,
+  type Clock,
+  chromePhaseOf,
+  isLessonFinishedBy,
+  type Lesson,
+  type LessonCatalog,
+} from '@mygame/domain'
 import type { StoredPlayer } from './ports/Accounts'
 import type { ChromeProgress, ChromeProgressReader } from './ports/ChromeProgressReader'
 
-export type PlayerChromePhaseDependencies = {
+export type ReadChromePhaseDependencies = {
   readonly chromeProgress: ChromeProgressReader
-  readonly lessons: Pick<LessonLibrary, 'chromeLessons' | 'lessonOf'>
+  readonly lessons: Pick<LessonCatalog, 'lessonOf'> & {
+    chromeLessons(): ReadonlyArray<Lesson>
+  }
   readonly clock: Clock
 }
 
 const finishedLessonCardsOf = (
   { lessonSlot }: ChromeProgress,
-  { lessons, clock }: PlayerChromePhaseDependencies,
+  { lessons, clock }: ReadChromePhaseDependencies,
 ): ChromeProgress['cards'] => {
   if (lessonSlot === null || !isLessonFinishedBy(lessonSlot, clock.now())) {
     return []
@@ -20,9 +28,9 @@ const finishedLessonCardsOf = (
   return words.map(({ id }) => ({ wordId: id }))
 }
 
-export const playerChromePhaseOf = async (
+export const readChromePhase = async (
   { id, scaffold }: StoredPlayer,
-  dependencies: PlayerChromePhaseDependencies,
+  dependencies: ReadChromePhaseDependencies,
 ): Promise<ChromePhase> => {
   const progress = await dependencies.chromeProgress.chromeProgressOf(id)
   if (progress === undefined) {
