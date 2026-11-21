@@ -4,7 +4,7 @@ import type { AccountToken, AccountTokenKind, AccountTokens } from '../../auth/A
 import { isRedeemableAgain } from '../../auth/isRedeemableAgain'
 import { tokenDigest } from '../../auth/tokenDigest'
 import type { PostgresSession } from '../../platform/infrastructure/postgres/connectPostgres'
-import { accountTokens, players } from './schema'
+import { accountTokens, players } from '../../town/infrastructure/postgres/townTables'
 
 const dateOf = (instant: Instant): Date => new Date(instant.epochMilliseconds)
 

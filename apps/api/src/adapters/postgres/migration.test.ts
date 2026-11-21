@@ -6,9 +6,6 @@ import { Client } from 'pg'
 import { afterEach, beforeEach, describe, expect, it } from 'vitest'
 import { apiPackagePath } from '../../apiPackagePath.testSupport'
 import { tokenDigest } from '../../auth/tokenDigest'
-import { DrizzleAccounts } from './DrizzleAccounts'
-import { DrizzleCardRepository } from './DrizzleCardRepository'
-import { DrizzleTownRepository } from './DrizzleTownRepository'
 import {
   accountTokens,
   cards,
@@ -17,7 +14,10 @@ import {
   players,
   reviewLog,
   sessions,
-} from './schema'
+} from '../../town/infrastructure/postgres/townTables'
+import { DrizzleAccounts } from './DrizzleAccounts'
+import { DrizzleCardRepository } from './DrizzleCardRepository'
+import { DrizzleTownRepository } from './DrizzleTownRepository'
 
 const migrationsFolder = apiPackagePath('migrations')
 

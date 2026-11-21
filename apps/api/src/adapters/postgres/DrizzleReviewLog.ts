@@ -6,7 +6,7 @@ import {
   type ReviewLogEntry,
 } from '@mygame/domain'
 import type { PostgresSession } from '../../platform/infrastructure/postgres/connectPostgres'
-import { reviewLog } from './schema'
+import { reviewLog } from '../../town/infrastructure/postgres/townTables'
 import { cardColumnsOf } from './storedMemoryCards'
 
 const recalledColumnsOf = (entry: ReviewLogEntry) => {

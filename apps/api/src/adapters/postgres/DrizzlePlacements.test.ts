@@ -1,10 +1,10 @@
 import { drizzle } from 'drizzle-orm/node-postgres'
 import { Pool } from 'pg'
 import { afterAll, beforeAll } from 'vitest'
+import { players } from '../../town/infrastructure/postgres/townTables'
 import { truncatePlayerTables } from '../../truncatePlayerTables.testSupport'
 import { placementRepositoryContract } from '../placementRepositoryContract'
 import { DrizzlePlacements } from './DrizzlePlacements'
-import { players } from './schema'
 
 function databaseUrl(): string {
   const url = process.env.DATABASE_URL

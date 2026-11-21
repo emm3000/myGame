@@ -4,7 +4,10 @@ import {
   type HoldoutCheckWeek,
   Instant,
 } from '@mygame/domain'
-import type { holdoutChecks, holdoutCheckWords } from './schema'
+import type {
+  holdoutChecks,
+  holdoutCheckWords,
+} from '../../town/infrastructure/postgres/townTables'
 
 export type StoredHoldoutCheck = Omit<typeof holdoutChecks.$inferSelect, 'playerId' | 'band'>
 

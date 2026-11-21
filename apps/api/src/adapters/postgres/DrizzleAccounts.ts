@@ -11,7 +11,7 @@ import type {
 import { tokenDigest } from '../../auth/tokenDigest'
 import type { PostgresSession } from '../../platform/infrastructure/postgres/connectPostgres'
 import { violatedUniqueConstraint } from '../../platform/infrastructure/postgres/violatedUniqueConstraint'
-import { players, sessions } from './schema'
+import { players, sessions } from '../../town/infrastructure/postgres/townTables'
 import { storedScaffoldColumns } from './storedScaffoldColumns'
 
 const dateOf = (instant: Instant): Date => new Date(instant.epochMilliseconds)

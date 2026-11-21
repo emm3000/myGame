@@ -3,10 +3,10 @@ import { asc, eq } from 'drizzle-orm'
 import { drizzle } from 'drizzle-orm/node-postgres'
 import { Pool } from 'pg'
 import { afterAll, beforeAll } from 'vitest'
+import { reviewLog } from '../../town/infrastructure/postgres/townTables'
 import { truncatePlayerTables } from '../../truncatePlayerTables.testSupport'
 import { reviewLogContract } from '../reviewLogContract'
 import { DrizzleReviewLog } from './DrizzleReviewLog'
-import { reviewLog } from './schema'
 import { cardColumnsOf, storedMemoryCardOf } from './storedMemoryCards'
 
 function databaseUrl(): string {
