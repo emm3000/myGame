@@ -1,4 +1,4 @@
-import { es } from '@mygame/catalog'
+import { en, es } from '@mygame/catalog'
 import type { TownOverview } from '@mygame/contracts'
 import { act, fireEvent, screen, within } from '@testing-library/react'
 import { afterEach, beforeEach, expect, it, vi } from 'vitest'
@@ -446,6 +446,25 @@ it('draws the level of an idle place as the whole text of its own tabular elemen
   const levelLine = placeLevelLine(es.namesPlacesFarm(), es.townLevel({ level: 3 }))
   expect(tabularFiguresOf(levelLine)).toEqual(['3'])
   expect(levelLine.closest('p')?.classList.contains('tabular-nums')).toBe(false)
+})
+
+it('draws the level of a place in the English line of the both phase as its own tabular element', async () => {
+  await showTown(
+    serving({
+      ...knownTown,
+      chromePhase: 'both',
+      buildings: { ...knownTown.buildings, farm: farmAtLevelThree },
+    }),
+  )
+
+  const farmRow = within(screen.getByRole('listitem', { name: new RegExp(en.namesPlacesFarm()) }))
+  const englishLevel = farmRow.getByText(
+    (_, element) =>
+      element?.tagName === 'SPAN' &&
+      element.getAttribute('lang') === 'en' &&
+      element.textContent === en.townLevel({ level: 3 }),
+  )
+  expect(tabularFiguresOf(englishLevel)).toEqual(['3'])
 })
 
 it('draws the level of a place in work as the whole text of its own tabular element', async () => {
