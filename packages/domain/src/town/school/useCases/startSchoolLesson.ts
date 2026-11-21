@@ -22,7 +22,7 @@ import type { SchoolLevel } from '../../building/BuildingLevel'
 import type { TownCatalog } from '../../ports/TownCatalog'
 import type { TownNews } from '../../ports/TownNews'
 import type { TownRepository } from '../../ports/TownRepository'
-import { resolvedTownOf } from '../../services/resolveStoredTown'
+import { resolveStoredTown } from '../../services/resolveStoredTown'
 import { saveResolvedTown } from '../../services/saveResolvedTown'
 import type { ChangedTown } from '../../Town'
 import { admitSchoolLesson } from '../admitSchoolLesson'
@@ -175,7 +175,7 @@ export const startSchoolLesson = async (
 ): Promise<Result<BusyLessonSlot, DomainError>> => {
   const { towns, catalog, clock } = dependencies
   const now = clock.now()
-  const resolved = await resolvedTownOf(playerId, towns, catalog, now)
+  const resolved = await resolveStoredTown(playerId, towns, catalog, now)
   if (!resolved.ok) {
     return resolved
   }
