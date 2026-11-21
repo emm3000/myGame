@@ -104,6 +104,14 @@
       "inflections": []
     },
     {
+      "name": "Relative that, as subject",
+      "cefr": "A1.1",
+      "cefrjItem": "174",
+      "admittingLessonId": "lesson-1",
+      "frameWords": [],
+      "inflections": []
+    },
+    {
       "name": "Present simple with have and lexical verbs",
       "cefr": "A1.1",
       "cefrjItem": "59",
@@ -350,6 +358,14 @@
       "admittingLessonId": "lesson-16",
       "frameWords": ["which"],
       "inflections": []
+    },
+    {
+      "name": "Object relative that",
+      "cefr": "B2.2",
+      "cefrjItem": "178",
+      "admittingLessonId": "lesson-16",
+      "frameWords": [],
+      "inflections": ["object relative that"]
     },
     {
       "name": "there with be",
