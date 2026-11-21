@@ -1,20 +1,12 @@
-import { type ResourceAmounts, ResourceKindSchema } from '@mygame/contracts'
+import type { ResourceAmounts } from '@mygame/contracts'
 import type { ChromeCatalog } from '../copy/PlayerCopy'
 import { conjunctionOf } from '../design-system/conjunctionOf'
-import { formatQuantity } from '../design-system/formatQuantity'
-import { townResourceNameOf } from './townResourceNameOf'
+import { amountLinesOf } from './amountLinesOf'
 
 export function amountsLineOf(
   catalog: ChromeCatalog,
   amounts: ResourceAmounts,
 ): string | undefined {
-  const quantities = ResourceKindSchema.options
-    .filter((resource) => amounts[resource] > 0)
-    .map((resource) =>
-      catalog.townAmount({
-        amount: formatQuantity(amounts[resource]),
-        resource: townResourceNameOf(catalog, resource),
-      }),
-    )
+  const quantities = amountLinesOf(catalog, amounts)
   return quantities.length === 0 ? undefined : conjunctionOf(catalog, quantities)
 }

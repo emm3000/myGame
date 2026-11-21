@@ -1,16 +1,16 @@
 import type { ResourceAmounts } from '@mygame/contracts'
 import type { ChromeCatalog, PlayerCopy } from '../copy/PlayerCopy'
+import { conjunctionOf } from '../design-system/conjunctionOf'
 import type { Label } from '../design-system/Label'
-import { amountsLineOf } from '../resources/amountsLineOf'
+import { amountLinesOf } from '../resources/amountLinesOf'
+import { paidResourcesOf } from '../resources/paidResourcesOf'
 
 export function jobPayLineOf(
   copy: PlayerCopy,
   pay: ResourceAmounts,
   line: (catalog: ChromeCatalog, amounts: string) => string,
 ): Label | undefined {
-  const label = copy.chrome((catalog) => {
-    const amounts = amountsLineOf(catalog, pay)
-    return amounts === undefined ? '' : line(catalog, amounts)
-  })
-  return label.text === '' ? undefined : label
+  return paidResourcesOf(pay).length === 0
+    ? undefined
+    : copy.chrome((catalog) => line(catalog, conjunctionOf(catalog, amountLinesOf(catalog, pay))))
 }
