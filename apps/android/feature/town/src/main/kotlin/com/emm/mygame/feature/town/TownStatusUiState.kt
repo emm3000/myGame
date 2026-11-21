@@ -36,7 +36,11 @@ data class TownStatusUiState(val running: RunningLesson?, val notice: FinishNoti
 
     data class CapWait(val remaining: Duration, val dueAt: Instant)
 
-    data class StepCountdown(val countdown: NextStepCard.Countdown, val remaining: Duration, val finishesAt: Instant)
+    data class StepCountdown(
+        val countdown: NextStepCard.Countdown.NextReview,
+        val remaining: Duration,
+        val finishesAt: Instant,
+    )
 
     sealed interface Go {
 
