@@ -1,4 +1,3 @@
-import type { ForgotPasswordRequest } from '@mygame/contracts'
 import { type Clock, ok } from '@mygame/domain'
 import type { AfterResponse } from '../../platform/application/ports/AfterResponse'
 import type { FailureSink } from '../../platform/application/ports/FailureSink'
@@ -29,7 +28,7 @@ type ResetLink = {
 const resetRequestLine = (cause: string): string => `reset request ${cause}`
 
 const sendResetMail = async (
-  request: ForgotPasswordRequest,
+  request: { readonly email: string },
   { inTransaction, clock, sessionTokens, mailer, webUrl }: RequestPasswordResetDependencies,
 ): Promise<MailDelivery | undefined> => {
   const issued = await inTransaction<ResetLink | undefined, never>(
@@ -59,7 +58,7 @@ const sendResetMail = async (
 }
 
 export const requestPasswordReset = (
-  request: ForgotPasswordRequest,
+  request: { readonly email: string },
   dependencies: RequestPasswordResetDependencies,
 ): void => {
   const { afterResponse, failureSink } = dependencies

@@ -1,4 +1,3 @@
-import type { SignInRequest } from '@mygame/contracts'
 import { type Clock, err, ok, type Result } from '@mygame/domain'
 import type { Refusal } from '../../platform/application/Refusal'
 import { openSession } from './openSession'
@@ -17,7 +16,7 @@ export type SignInDependencies = {
 }
 
 export const signIn = async (
-  request: SignInRequest,
+  request: { readonly email: string; readonly password: string },
   { accounts, sessions, clock, passwords, sessionTokens }: SignInDependencies,
 ): Promise<Result<SignedIn, Refusal>> => {
   const credentials = await accounts.credentialsOf(request.email)

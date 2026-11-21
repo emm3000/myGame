@@ -1,5 +1,4 @@
-import type { SignUpRequest } from '@mygame/contracts'
-import { type Clock, err, type IdGenerator, ok, type Result } from '@mygame/domain'
+import { type Clock, err, type IdGenerator, ok, type Result, type Scaffold } from '@mygame/domain'
 import type { Transaction } from '../../platform/application/ports/Transaction'
 import type { Refusal } from '../../platform/application/Refusal'
 import { issueAccountToken } from './issueAccountToken'
@@ -23,7 +22,7 @@ type SignedUp = SignedIn & {
 }
 
 export const signUp = async (
-  request: SignUpRequest,
+  request: { readonly email: string; readonly password: string; readonly scaffold: Scaffold },
   { inTransaction, clock, ids, passwords, sessionTokens, mailer, webUrl }: SignUpDependencies,
 ): Promise<Result<SignedIn, Refusal>> => {
   const passwordHash = await passwords.hashOf(request.password)
