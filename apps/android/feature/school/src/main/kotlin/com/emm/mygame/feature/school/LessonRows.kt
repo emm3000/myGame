@@ -3,7 +3,6 @@ package com.emm.mygame.feature.school
 import androidx.annotation.StringRes
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.runtime.Composable
@@ -17,6 +16,7 @@ import com.emm.mygame.core.designsystem.MyGameOutlinedButton
 import com.emm.mygame.core.designsystem.MyGameSectionTitle
 import com.emm.mygame.core.designsystem.MyGameSpacing
 import com.emm.mygame.core.designsystem.MyGameText
+import com.emm.mygame.core.designsystem.MyGameTitleLine
 import com.emm.mygame.core.designsystem.MyGameTheme
 import com.emm.mygame.core.designsystem.MyGameTypography
 import com.emm.mygame.core.designsystem.englishTextOf
@@ -96,7 +96,10 @@ private fun ReleasedLessonRow(
             verticalArrangement = Arrangement.spacedBy(MyGameSpacing.step1),
             modifier = Modifier.semantics(mergeDescendants = true) { },
         ) {
-            LessonHeading(title = copy.lessonTitleOf(card.name), state = card.state)
+            MyGameTitleLine(
+                title = copy.lessonTitleOf(card.name),
+                status = statusOf(card.state)?.let { status: Int -> copy.chrome(status) },
+            )
             MyGameText(
                 label = copy.chrome(R.string.school_lesson_words, "count" to card.wordCount),
                 style = MyGameTypography.caption,
@@ -210,9 +213,9 @@ private fun StudiedLesson(card: SchoolUiState.LessonCard, modifier: Modifier = M
             .semantics(mergeDescendants = true) { }
             .padding(vertical = MyGameSpacing.step3),
     ) {
-        LessonHeading(
+        MyGameTitleLine(
             title = copy.chrome(R.string.school_lesson_title, "number" to card.number.toString()),
-            state = card.state,
+            status = statusOf(card.state)?.let { status: Int -> copy.chrome(status) },
         )
         MyGameText(text = englishTextOf(card.theme), style = MyGameTypography.body, color = MyGameTheme.colors.ink)
         MyGameText(
@@ -221,28 +224,6 @@ private fun StudiedLesson(card: SchoolUiState.LessonCard, modifier: Modifier = M
             color = MyGameTheme.colors.inkMuted,
             modifier = Modifier.semantics { testTag = LESSON_SIZE_LABEL },
         )
-    }
-}
-
-@Composable
-private fun LessonHeading(title: MyGameLabel, state: SchoolUiState.LessonState, modifier: Modifier = Modifier) {
-    Row(horizontalArrangement = Arrangement.spacedBy(MyGameSpacing.step3), modifier = modifier) {
-        MyGameText(
-            label = title,
-            style = MyGameTypography.title,
-            color = MyGameTheme.colors.ink,
-            modifier = Modifier
-                .weight(1f, fill = false)
-                .alignByBaseline(),
-        )
-        statusOf(state)?.let { status: Int ->
-            MyGameText(
-                label = chromeResource(status),
-                style = MyGameTypography.caption,
-                color = MyGameTheme.colors.inkMuted,
-                modifier = Modifier.alignByBaseline(),
-            )
-        }
     }
 }
 

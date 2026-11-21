@@ -8,7 +8,9 @@ import androidx.compose.ui.test.SemanticsMatcher
 import androidx.compose.ui.test.assertCountEquals
 import androidx.compose.ui.test.getUnclippedBoundsInRoot
 import androidx.compose.ui.test.hasAnyAncestor
+import androidx.compose.ui.test.hasAnySibling
 import androidx.compose.ui.test.hasTestTag
+import androidx.compose.ui.test.hasText
 import androidx.compose.ui.test.junit4.ComposeContentTestRule
 import androidx.compose.ui.test.junit4.createComposeRule
 import androidx.compose.ui.test.onAllNodesWithContentDescription
@@ -247,6 +249,20 @@ class SchoolReleasedLessonsTest {
             .fetchSemanticsNode().config[SemanticsActions.GetTextLayoutResult].action?.invoke(results)
 
         assertEquals(1, results.first().lineCount)
+    }
+
+    @Test
+    @Config(qualifiers = "+w360dp-h640dp", fontScale = 2.0f)
+    @GraphicsMode(GraphicsMode.Mode.NATIVE)
+    fun `a released lesson's row at font scale 2 wraps its status before it squeezes its title`() {
+        show(contentOf(releasedUnderStudy))
+
+        val results: MutableList<TextLayoutResult> = mutableListOf()
+        val rowStatus: SemanticsMatcher = hasText("En estudio") and hasAnySibling(hasTestTag(LESSON_SIZE_LABEL))
+        composeRule.onNode(rowStatus, useUnmergedTree = true)
+            .fetchSemanticsNode().config[SemanticsActions.GetTextLayoutResult].action?.invoke(results)
+
+        assertEquals("the status's lines", 2, results.first().lineCount)
     }
 
     @Test
