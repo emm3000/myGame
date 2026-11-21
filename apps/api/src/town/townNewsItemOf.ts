@@ -2,8 +2,17 @@ import type { TownNewsItem } from '@mygame/contracts'
 import type { TownEvent } from '@mygame/domain'
 import { isoOf } from '../platform/infrastructure/http/isoOf'
 
-export const townNewsItemOf = (event: TownEvent): TownNewsItem => {
-  const occurredAt = isoOf(event.occurredAt)
+type EventOf<Kind extends TownEvent['kind']> = Extract<TownEvent, { readonly kind: Kind }>
+
+type BuildingEvent = EventOf<'buildingWorkFinished' | 'buildingWorkStopped'>
+
+type SchoolEvent = EventOf<'lessonStudied' | 'lessonStopped' | 'skillEarned'>
+
+type HiringEvent = EventOf<'hiringDelivered' | 'hiringStopped'>
+
+type JobsEvent = EventOf<'jobBack' | 'jobCalledBack' | 'cleanUpDone' | 'cleanUpFailed'>
+
+const buildingNewsItemOf = (event: BuildingEvent, occurredAt: string): TownNewsItem => {
   switch (event.kind) {
     case 'buildingWorkFinished':
       return {
@@ -17,6 +26,11 @@ export const townNewsItemOf = (event: TownEvent): TownNewsItem => {
         params: { building: event.building, level: event.level, refund: { ...event.refund } },
         occurredAt,
       }
+  }
+}
+
+const schoolNewsItemOf = (event: SchoolEvent, occurredAt: string): TownNewsItem => {
+  switch (event.kind) {
     case 'lessonStudied':
     case 'lessonStopped':
       return { kind: event.kind, params: { lessonId: event.lessonId }, occurredAt }
@@ -30,6 +44,11 @@ export const townNewsItemOf = (event: TownEvent): TownNewsItem => {
         },
         occurredAt,
       }
+  }
+}
+
+const hiringNewsItemOf = (event: HiringEvent, occurredAt: string): TownNewsItem => {
+  switch (event.kind) {
     case 'hiringDelivered':
       return { kind: event.kind, params: { hire: event.hire, count: event.count }, occurredAt }
     case 'hiringStopped':
@@ -43,6 +62,11 @@ export const townNewsItemOf = (event: TownEvent): TownNewsItem => {
         },
         occurredAt,
       }
+  }
+}
+
+const jobsNewsItemOf = (event: JobsEvent, occurredAt: string): TownNewsItem => {
+  switch (event.kind) {
     case 'jobBack':
     case 'jobCalledBack':
       return {
@@ -58,6 +82,27 @@ export const townNewsItemOf = (event: TownEvent): TownNewsItem => {
       }
     case 'cleanUpFailed':
       return { kind: event.kind, params: { site: { ...event.site } }, occurredAt }
+  }
+}
+
+export const townNewsItemOf = (event: TownEvent): TownNewsItem => {
+  const occurredAt = isoOf(event.occurredAt)
+  switch (event.kind) {
+    case 'buildingWorkFinished':
+    case 'buildingWorkStopped':
+      return buildingNewsItemOf(event, occurredAt)
+    case 'lessonStudied':
+    case 'lessonStopped':
+    case 'skillEarned':
+      return schoolNewsItemOf(event, occurredAt)
+    case 'hiringDelivered':
+    case 'hiringStopped':
+      return hiringNewsItemOf(event, occurredAt)
+    case 'jobBack':
+    case 'jobCalledBack':
+    case 'cleanUpDone':
+    case 'cleanUpFailed':
+      return jobsNewsItemOf(event, occurredAt)
     case 'becameCity':
       return { kind: event.kind, occurredAt }
     default: {
