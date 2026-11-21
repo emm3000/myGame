@@ -1,7 +1,7 @@
 import { en, es } from '@mygame/catalog'
 import type { Player, Scaffold, TownOverview } from '@mygame/contracts'
 import { act, fireEvent, screen } from '@testing-library/react'
-import { expect, it } from 'vitest'
+import { expect, it, vi } from 'vitest'
 import type { ApiClient, ApiOutcome } from '../api/apiClient'
 import { renderAppAt } from '../auth/renderAppAt.testSupport'
 import { knownPlayer, knownTown, stubApiClient } from '../auth/stubApiClient.testSupport'
@@ -82,7 +82,7 @@ it('draws the pick as saving while the api answers', async () => {
 
   expect((await screen.findByRole('status')).textContent).toBe(es.settingsSaving())
   expect((await scaffoldRadioOf('none')).checked).toBe(true)
-  expect(scaffoldGroup().hasAttribute('disabled')).toBe(true)
+  expect(scaffoldGroup().getAttribute('aria-disabled')).toBe('true')
 })
 
 it('keeps the pick once the api stores it', async () => {
@@ -92,7 +92,43 @@ it('keeps the pick once the api stores it', async () => {
 
   expect(await screen.findByText(es.settingsSaved())).toBeTruthy()
   expect((await scaffoldRadioOf('none')).checked).toBe(true)
-  expect(scaffoldGroup().hasAttribute('disabled')).toBe(false)
+  expect(scaffoldGroup().getAttribute('aria-disabled')).toBe('false')
+})
+
+it('announces saving then saved in the status region drawn empty before the pick', async () => {
+  const held = heldAnswer()
+  renderAppAt('/settings', signedInAs('es', { changeScaffold: () => held.answer }))
+  const none = await scaffoldRadioOf('none')
+  const region = screen.getByRole('status')
+
+  expect(region.textContent).toBe('')
+
+  fireEvent.click(none)
+
+  await vi.waitFor(() => expect(region.textContent).toBe(es.settingsSaving()))
+
+  await act(async () => held.settle(storedAs('none')))
+
+  expect(region.textContent).toBe(es.settingsSaved())
+  expect(screen.getByRole('status')).toBe(region)
+})
+
+it('keeps the focus on the picked radio through saving and saved', async () => {
+  const held = heldAnswer()
+  renderAppAt('/settings', signedInAs('es', { changeScaffold: () => held.answer }))
+  const none = await scaffoldRadioOf('none')
+
+  none.focus()
+  fireEvent.click(none)
+
+  expect((await screen.findByRole('status')).textContent).toBe(es.settingsSaving())
+  expect(none.closest(':disabled')).toBeNull()
+  expect(document.activeElement).toBe(none)
+
+  await act(async () => held.settle(storedAs('none')))
+
+  expect(screen.getByRole('status').textContent).toBe(es.settingsSaved())
+  expect(document.activeElement).toBe(none)
 })
 
 it('returns to the stored scaffold when the api refuses the pick', async () => {
