@@ -427,6 +427,19 @@ class HoldoutCheckViewModelTest {
     }
 
     @Test
+    fun `a check the api refuses as no longer open asks the town to read again`() = runTest {
+        val viewModel: HoldoutCheckViewModel = askingWithEveryWordChosen()
+
+        viewModel.effects.test {
+            viewModel.onIntent(HoldoutCheckIntent.AnswersSent)
+            holdoutChecks.answerChange(HoldoutCheckChangeResult.Refused(HoldoutCheckRefusal.NotOpen))
+            holdoutChecks.answerRead(HoldoutChecksReadResult.Read(emptyList()))
+
+            assertEquals(HoldoutCheckEffect.Ended, awaitItem())
+        }
+    }
+
+    @Test
     fun `draws the due check the api offers once it refuses the answers of a check not begun`() = runTest {
         val viewModel: HoldoutCheckViewModel = askingWithEveryWordChosen()
         viewModel.onIntent(HoldoutCheckIntent.AnswersSent)

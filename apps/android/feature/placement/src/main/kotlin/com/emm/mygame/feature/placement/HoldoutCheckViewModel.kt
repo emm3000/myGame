@@ -114,7 +114,7 @@ class HoldoutCheckViewModel(
     private suspend fun readAfter(refusal: HoldoutCheckRequest.Refused) {
         _state.value = HoldoutCheckUiState.Loading
         when (val answer: HoldoutChecksReadResult = holdoutChecks.read()) {
-            is HoldoutChecksReadResult.Read -> _state.value = stateOf(answer.checks, refusal)
+            is HoldoutChecksReadResult.Read -> drawChanged(stateOf(answer.checks, refusal))
             HoldoutChecksReadResult.Unreachable -> _state.value = HoldoutCheckUiState.Failed
         }
     }
