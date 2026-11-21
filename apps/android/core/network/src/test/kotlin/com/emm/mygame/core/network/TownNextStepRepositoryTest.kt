@@ -147,6 +147,7 @@ class TownNextStepRepositoryTest {
                     requiredSchoolLevel = 1,
                     isStudied = false,
                     wordCount = 1,
+                    enteringWordCount = 1,
                     readings = emptyList(),
                     standings = listOf(WordStanding.NotStarted),
                 ),

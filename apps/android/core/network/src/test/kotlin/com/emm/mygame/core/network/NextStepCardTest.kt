@@ -184,6 +184,7 @@ class NextStepCardTest {
         skill = TownSnapshot.LessonSkill(TownResourceKind.Food, ratePercent = 5),
         isStudied = false,
         wordCount = 5,
+        enteringWordCount = 5,
         readings = emptyList(),
         standings = emptyList(),
     )
@@ -196,6 +197,7 @@ class NextStepCardTest {
         requiredSchoolLevel = 1,
         isStudied = false,
         wordCount = 4,
+        enteringWordCount = 4,
         readings = emptyList(),
         standings = emptyList(),
     )

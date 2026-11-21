@@ -40,6 +40,7 @@ class SchoolReleasedSlotTest {
         requiredSchoolLevel = 1,
         isStudied = false,
         wordCount = 5,
+        enteringWordCount = 5,
         readings = emptyList(),
         standings = emptyList(),
     )

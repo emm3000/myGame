@@ -97,6 +97,7 @@ internal fun lessonOf(id: String, standings: List<WordStanding>): TownSnapshot.L
     skill = TownSnapshot.LessonSkill(resource = TownResourceKind.Food, ratePercent = 5),
     isStudied = standings.any { standing: WordStanding -> standing != WordStanding.NotStarted },
     wordCount = standings.size,
+    enteringWordCount = standings.size,
     readings = emptyList(),
     standings = standings,
 )

@@ -171,6 +171,7 @@ class TownRegisteredTest {
         requiredSchoolLevel = 1,
         isStudied = isStudied,
         wordCount = 5,
+        enteringWordCount = 5,
         readings = emptyList(),
         standings = emptyList(),
     )
@@ -183,6 +184,7 @@ class TownRegisteredTest {
         skill = TownSnapshot.LessonSkill(TownResourceKind.Food, ratePercent = 5),
         isStudied = isStudied,
         wordCount = 5,
+        enteringWordCount = 5,
         readings = emptyList(),
         standings = emptyList(),
     )

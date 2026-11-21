@@ -72,6 +72,7 @@ data class TownSnapshot(
         val skill: LessonSkill,
         val isStudied: Boolean,
         val wordCount: Int,
+        val enteringWordCount: Int,
         val readings: List<WordReading>,
         val standings: List<WordStanding>,
     )
@@ -84,6 +85,7 @@ data class TownSnapshot(
         val requiredSchoolLevel: Int,
         val isStudied: Boolean,
         val wordCount: Int,
+        val enteringWordCount: Int,
         val readings: List<WordReading>,
         val standings: List<WordStanding>,
     )

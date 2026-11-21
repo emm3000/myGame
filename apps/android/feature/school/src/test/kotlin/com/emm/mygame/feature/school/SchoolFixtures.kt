@@ -44,6 +44,7 @@ internal fun lessonOf(
     requiredSchoolLevel: Int = 1,
     isStudied: Boolean = false,
     wordCount: Int = 5,
+    enteringWordCount: Int = wordCount,
     duration: Duration = 150.seconds,
     readings: List<TownSnapshot.WordReading> = emptyList(),
     standings: List<WordStanding> = List(size = wordCount) { WordStanding.NotStarted },
@@ -58,6 +59,7 @@ internal fun lessonOf(
     skill = TownSnapshot.LessonSkill(resource, ratePercent),
     isStudied = isStudied,
     wordCount = wordCount,
+    enteringWordCount = enteringWordCount,
     readings = readings,
     standings = standings,
 )
@@ -160,6 +162,7 @@ internal fun releasedLessonOf(
     band: PlacementBand = PlacementBand.Second,
     isStudied: Boolean = false,
     wordCount: Int = 5,
+    enteringWordCount: Int = wordCount,
     readings: List<TownSnapshot.WordReading> = emptyList(),
     standings: List<WordStanding> = List(size = wordCount) { WordStanding.NotStarted },
 ): TownSnapshot.ReleasedLesson = TownSnapshot.ReleasedLesson(
@@ -170,6 +173,7 @@ internal fun releasedLessonOf(
     requiredSchoolLevel = 1,
     isStudied = isStudied,
     wordCount = wordCount,
+    enteringWordCount = enteringWordCount,
     readings = readings,
     standings = standings,
 )
