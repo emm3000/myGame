@@ -15,15 +15,14 @@ export function RetainedWordsRing({
   total,
   countBefore,
 }: RetainedWordsRingProps): ReactElement {
-  const copy = usePlayerCopy()
+  const label = usePlayerCopy().chrome((catalog) => catalog.shellRetainedWords({ count, total }))
   const isRetainedNow = (position: number): boolean => position >= countBefore && position < count
   const words = Array.from({ length: total }, (_, position) => position)
   return (
     <svg
       role="img"
-      aria-label={spokenLineOf(
-        copy.chrome((catalog) => catalog.shellRetainedWords({ count, total })),
-      )}
+      aria-label={spokenLineOf(label)}
+      lang={label.language}
       viewBox="0 0 32 32"
       fill="none"
       strokeWidth={strokeWidths.ring}

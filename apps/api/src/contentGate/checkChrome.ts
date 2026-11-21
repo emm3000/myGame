@@ -6,7 +6,7 @@ import {
   parse,
   TYPE,
 } from '@formatjs/icu-messageformat-parser'
-import { fixedCopyKeys } from './fixedCopyKeys'
+import { fixedCopyKeys } from '@mygame/catalog'
 import { frameWordsOf } from './frameWordsOf'
 import type { GateContent } from './GateContent'
 import { tokensOf } from './tokensOf'

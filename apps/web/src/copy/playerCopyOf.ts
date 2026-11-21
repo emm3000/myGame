@@ -1,25 +1,46 @@
 import { en, es } from '@mygame/catalog'
 import type { Player } from '@mygame/contracts'
-import type { Label } from '../design-system/Label'
-import type { Catalog, CatalogLine, PlayerCopy } from './PlayerCopy'
+import type { Label, LineLanguage } from '../design-system/Label'
+import type { Catalog, ChromeCatalog, PlayerCopy } from './PlayerCopy'
 
 export type CopyLanguage = Pick<Player, 'scaffold' | 'chromePhase'>
 
-const bilingualLabelOf = (english: string, scaffolded: string): Label => ({
-  text: english,
-  translation: scaffolded === english ? null : scaffolded,
+type ChromeLine = (catalog: ChromeCatalog) => string
+
+const labelOf = (text: string, language: LineLanguage): Label => ({
+  text,
+  language,
+  translation: null,
 })
+
+const bilingualLabelOf = (
+  line: ChromeLine,
+  scaffoldCatalog: Catalog,
+  scaffoldLanguage: LineLanguage,
+): Label => {
+  const english = line(en)
+  const scaffolded = line(scaffoldCatalog)
+  if (scaffolded === english) {
+    return labelOf(english, 'en')
+  }
+  return {
+    text: english,
+    language: 'en',
+    translation: { text: scaffolded, language: scaffoldLanguage },
+  }
+}
 
 export function playerCopyOf({ scaffold, chromePhase }: CopyLanguage): PlayerCopy {
   const scaffoldCatalog: Catalog = scaffold === 'es' ? es : en
-  const chrome = (line: CatalogLine): Label => {
+  const scaffoldLanguage: LineLanguage = scaffold === 'es' ? 'es' : 'en'
+  const chrome = (line: ChromeLine): Label => {
     switch (chromePhase) {
       case 'scaffold':
-        return { text: line(scaffoldCatalog), translation: null }
+        return labelOf(line(scaffoldCatalog), scaffoldLanguage)
       case 'both':
-        return bilingualLabelOf(line(en), line(scaffoldCatalog))
+        return bilingualLabelOf(line, scaffoldCatalog, scaffoldLanguage)
       case 'english':
-        return { text: line(en), translation: null }
+        return labelOf(line(en), 'en')
       default: {
         const unknownPhase: never = chromePhase
         return unknownPhase

@@ -103,3 +103,31 @@ it('names the retained words in English under none', async () => {
 
   expect(await ringNamed(en.shellRetainedWords({ count: 3, total: 5 }))).toBeDefined()
 })
+
+it('marks the retained words as Spanish in the Spanish phase', async () => {
+  renderAppAt('/', servingTownIn(spanishPhase, holdingThreeOfFive))
+
+  const ring = await ringNamed(es.shellRetainedWords({ count: 3, total: 5 }))
+
+  expect(ring.getAttribute('lang')).toBe('es')
+})
+
+it('marks the retained words as English under none', async () => {
+  renderAppAt('/', servingTownIn(noScaffold, holdingThreeOfFive))
+
+  const ring = await ringNamed(en.shellRetainedWords({ count: 3, total: 5 }))
+
+  expect(ring.getAttribute('lang')).toBe('en')
+})
+
+it('draws the phase the player signed in with while the town is still loading', async () => {
+  renderAppAt(
+    '/report',
+    stubApiClient({
+      currentPlayer: async () => ({ ...knownPlayer, ...englishPhase }),
+      town: () => new Promise(() => {}),
+    }),
+  )
+
+  expect(await backLinkNamed(en.shellNavigationTown())).toBeDefined()
+})
