@@ -1,6 +1,7 @@
 import type { TownOverview } from '@mygame/contracts'
 import type { WordStanding } from '@mygame/domain'
-import type { ChromeCatalog, PlayerCopy } from '../copy/PlayerCopy'
+import { chromeAroundOf } from '../copy/chromeAroundOf'
+import type { PlayerCopy } from '../copy/PlayerCopy'
 import { type BlockHue, blockHueOf } from '../design-system/blockHueOf'
 import type { OrderActionState } from '../design-system/CardAction'
 import { formatDuration } from '../design-system/formatDuration'
@@ -36,14 +37,19 @@ export const readWordsLabelOf = (
   copy: PlayerCopy,
 ): Label => {
   const name = lessonNameOf(lessonId, overview)
-  const titleOf = (catalog: ChromeCatalog): string =>
-    name.kind === 'shelved'
-      ? catalog.schoolLessonTitle({ number: name.number })
-      : lessonLinesOf(name, copy).title.text
-  return copy.chrome((catalog) =>
-    lessonId === shownLessonId
-      ? catalog.schoolLessonReadWords()
-      : `${titleOf(catalog)} · ${catalog.schoolLessonReadWords()}`,
+  if (lessonId === shownLessonId) {
+    return copy.chrome((catalog) => catalog.schoolLessonReadWords())
+  }
+  if (name.kind === 'released') {
+    return chromeAroundOf(
+      copy,
+      (catalog, title) => `${title} · ${catalog.schoolLessonReadWords()}`,
+      lessonLinesOf(name, copy).title,
+    )
+  }
+  return copy.chrome(
+    (catalog) =>
+      `${catalog.schoolLessonTitle({ number: name.number })} · ${catalog.schoolLessonReadWords()}`,
   )
 }
 
