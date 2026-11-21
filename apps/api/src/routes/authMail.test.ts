@@ -3,6 +3,7 @@ import { Instant } from '@mygame/domain'
 import { Client } from 'pg'
 import { afterAll, beforeAll, beforeEach, describe, expect, it } from 'vitest'
 import { deleteMailTo, deliveredTo } from '../adapters/smtp/mailpit.testSupport'
+import { pendingWorkCap } from '../adapters/vercel/VercelAfterResponse'
 import { createApp } from '../app'
 import type { Mail, MailDelivery, Mailer } from '../auth/Mailer'
 import { type ComposedServer, composeServer } from '../composeServer'
@@ -281,5 +282,48 @@ describe('the auth mail in the scaffold language', () => {
 
     const delivered = await deliveredTo(ana.email)
     expect([extended.length, delivered]).toEqual([1, [englishResetMail(tokenOf(delivered[0]))]])
+  })
+
+  const holdThePendingCap = (): (() => void) => {
+    const releases: Array<() => void> = []
+    for (let held = 0; held < pendingWorkCap; held += 1) {
+      server.afterResponse.defer(
+        () =>
+          new Promise<void>((resolve) => {
+            releases.push(resolve)
+          }),
+      )
+    }
+    return () => {
+      for (const release of releases) {
+        release()
+      }
+    }
+  }
+
+  it('answers a reset request past the pending cap as it answers one under it', async () => {
+    await verifiedPlayer('none')
+    const underTheCap = await forgotPassword(ana.email)
+    await server.afterResponse.settled()
+    const releaseTheCap = holdThePendingCap()
+
+    const pastTheCap = await forgotPassword(ana.email)
+    releaseTheCap()
+    await server.afterResponse.settled()
+
+    expect([pastTheCap.status, await pastTheCap.text()]).toEqual([
+      underTheCap.status,
+      await underTheCap.text(),
+    ])
+  })
+
+  it('mails nothing for a reset request past the pending cap', async () => {
+    await verifiedPlayer('none')
+    const releaseTheCap = holdThePendingCap()
+
+    await forgotPassword(ana.email)
+    releaseTheCap()
+
+    expect(await deliveredMailTo(ana.email)).toEqual([])
   })
 })

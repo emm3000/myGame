@@ -72,5 +72,5 @@ export const requestPasswordReset = (
       resetRequestLine(error instanceof Error ? thrownCauseOf(error) : typeof error),
     )
   }
-  afterResponse.defer(sendResetMail(request, dependencies).then(reportUnsent, reportThrown))
+  afterResponse.defer(() => sendResetMail(request, dependencies).then(reportUnsent, reportThrown))
 }
