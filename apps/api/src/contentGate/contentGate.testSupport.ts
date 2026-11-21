@@ -152,6 +152,9 @@ const fixtureInflections: ReadonlyArray<readonly [string, ReadonlyArray<string>]
   ['come', ['come', 'came']],
   ['he', ['he']],
   ['she', ['she']],
+  ['that', ['that']],
+  ['so', ['so']],
+  ['after', ['after']],
 ]
 
 export const lessonOneInflections: ReadonlyArray<string> = [
