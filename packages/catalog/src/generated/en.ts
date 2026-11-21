@@ -230,6 +230,7 @@ export const scaffoldNone = (): string => `None: everything in English, with Eng
 export const schoolBandLine = ({ band, count, total }: { readonly band: string | number; readonly count: string | number; readonly total: string | number }): string => `Band ${String(band)}: ${String(count)} of ${String(total)} words studied`
 export const schoolHoldoutCheckOpen = (): string => `Open the check`
 export const schoolHoldoutCheckRow = ({ band, week }: { readonly band: string | number; readonly week: string | number }): string => `A word check for band ${String(band)}, week ${String(week)} is due.`
+export const schoolHoldoutNote = (): string => `1 word in 10 is kept back for two later checks and comes back after the last one.`
 export const schoolLearning = ({ cap, inLearning }: { readonly cap: string | number; readonly inLearning: string | number }): string => `Words in learning: ${String(inLearning)} of ${String(cap)}`
 export const schoolLearningFull = ({ count }: { readonly count: number }): string => `${count === 1 ? `The next lesson needs 1 word.` : `The next lesson needs ${String(count)} words.`} Start the reviews.`
 export const schoolLearningFullNextWordDue = ({ count, timeLeft }: { readonly count: number; readonly timeLeft: string | number }): string => `${count === 1 ? `The next lesson needs 1 word.` : `The next lesson needs ${String(count)} words.`} The next word in learning is due in ${String(timeLeft)}.`

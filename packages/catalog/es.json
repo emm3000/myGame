@@ -752,6 +752,7 @@
   "school.bandLine": "Banda {band}: {count} de {total} palabras estudiadas",
   "school.holdoutCheck.open": "Abrir la prueba",
   "school.holdoutCheck.row": "Tienes pendiente una prueba de palabras de la banda {band}, semana {week}.",
+  "school.holdoutNote": "1 de cada 10 palabras se aparta para dos pruebas posteriores y vuelve después de la última.",
   "school.learning": "Palabras en aprendizaje: {inLearning} de {cap}",
   "school.learningFull": "{count, plural, =1 {La siguiente lección trae 1 palabra.} other {La siguiente lección trae # palabras.}} Empieza los repasos.",
   "school.learningFullNextWordDue": "{count, plural, =1 {La siguiente lección trae 1 palabra.} other {La siguiente lección trae # palabras.}} La siguiente palabra en aprendizaje se repasa en {timeLeft}.",

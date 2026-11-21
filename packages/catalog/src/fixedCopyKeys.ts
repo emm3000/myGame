@@ -340,6 +340,7 @@ const fixedCopyKeyList = [
   'school.bandLine',
   'school.holdoutCheck.open',
   'school.holdoutCheck.row',
+  'school.holdoutNote',
   'school.released.slotBusy',
   'school.released.stopOf',
   'school.released.study',
