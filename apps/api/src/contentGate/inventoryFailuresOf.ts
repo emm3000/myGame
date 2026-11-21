@@ -1,5 +1,6 @@
 import { cardWordInflections } from './cardWordFormOf'
 import { contractionPieces } from './contractionPieces'
+import { frameWordReadings } from './frameWordReadings'
 import { frameWordsOf } from './frameWordsOf'
 import type { GateContent } from './GateContent'
 import { lessonPositionOf } from './lessonPositionOf'
@@ -34,6 +35,7 @@ const unknownInflectionFailures = ({ grammar, forms }: GateContent): ReadonlyArr
   const frameWords = frameWordsOf(grammar)
   const pieceOrCardInflections: ReadonlyArray<string> = [
     ...contractionPieces,
+    ...frameWordReadings,
     ...cardWordInflections,
   ]
   const isFrameWordForm = (inflection: string): boolean =>

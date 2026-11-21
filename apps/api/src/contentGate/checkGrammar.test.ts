@@ -373,6 +373,15 @@ describe('content gate check 6, grammar', () => {
     ])
   })
 
+  it('passes a structure listing the object relative that', () => {
+    const structures = [
+      ...lessonOneStructures,
+      structureOf('lesson-1', ['that'], ['object relative that']),
+    ]
+
+    expect(checkGrammar(contentOf({ structures }))).toEqual([])
+  })
+
   it('passes a later frame using an inflection the lesson it is written for admits', () => {
     expect(checkGrammar(ourHomeFrom('lesson-3'))).toEqual([])
   })
