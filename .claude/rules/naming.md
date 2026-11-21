@@ -13,6 +13,10 @@ English for every identifier, file, directory, branch, commit and doc. Player-fa
 - Collections are plural: `buildings`, never `buildingList`.
 - Quantities carry their unit: `durationSeconds`, `ratePerHour`, `capacityUnits`.
 
+## One word per concept
+
+A name says what the thing is for, not how it is built. One concept has one word across the repo (`fetch` and `load` and `get` do not all mean read). The role names by layer and the `*Of` grammar are in `typescript-style.md`.
+
 ## Game content
 
 Names players see come from `docs/setting/` and `CONTEXT.md`, never invented in code. The identifier stays English (`storage`); the player-facing label lives only in `packages/catalog` (`en.json` and `es.json`), which generates the web's and the api's functions and the Android string resources (ADR 038).
