@@ -7,6 +7,7 @@ import type { ApiClient, ApiOutcome } from '../api/apiClient'
 import { renderAppAt } from '../auth/renderAppAt.testSupport'
 import { knownPlayer, knownTown, stubApiClient } from '../auth/stubApiClient.testSupport'
 import { accessibleDescriptionOf } from '../design-system/accessibleDescriptionOf.testSupport'
+import { formatDuration } from '../design-system/formatDuration'
 import {
   answeringOnDemand,
   holdSeconds,
@@ -1148,7 +1149,9 @@ const nextStepColumn = (): HTMLElement => {
   return column
 }
 
-const releasedStepStudyLabel = `${releasedTitleOf(1)} · ${es.schoolReleasedStudy()} · 5:00`
+const releasedStepStudyLabel = `${releasedTitleOf(1)} · ${es.schoolReleasedStudy()} · ${formatDuration(300)}`
+
+const lessonTitleOf = (number: number): string => es.schoolLessonTitle({ number })
 
 it.each<[string, TownOverview]>([
   ['a released step', releasedStepAhead],
@@ -1158,7 +1161,7 @@ it.each<[string, TownOverview]>([
 
   expect(screen.getByRole('region', { name: es.townNextTitle() })).toBeDefined()
   expect(screen.queryByRole('region', { name: es.schoolLessonTitle({ number: 1 }) })).toBeNull()
-  expect(rowNames()).toContain('Lección 1')
+  expect(rowNames()).toContain(lessonTitleOf(1))
 })
 
 it('draws the picked shelf lesson over a released step', async () => {
@@ -1188,7 +1191,24 @@ it("starts the released step's lesson from the block", async () => {
 it('draws the released row the step names only in the block', async () => {
   await showSchool(releasedStepAhead)
 
-  expect(rowNames()).toEqual(['Lección 1', 'Lección 2', releasedTitleOf(2)])
+  expect(rowNames()).toEqual([lessonTitleOf(1), lessonTitleOf(2), releasedTitleOf(2)])
+})
+
+it("draws the api's refusal under the released step it answers", async () => {
+  await showSchool(releasedStepAhead, {
+    startLesson: async () => ({
+      ok: false,
+      refusal: 'LearningCapReached',
+      error: { kind: 'LearningCapReached', params: { learningCap: 15, cardsInLearning: 12 } },
+    }),
+  })
+
+  fireEvent.click(within(nextStepColumn()).getByRole('button', { name: releasedStepStudyLabel }))
+  await passSeconds(0)
+
+  expect(within(nextStepColumn()).getByRole('alert').textContent).toBe(
+    es.refusalLearningCapReached({ learningCap: 15, cardsInLearning: 12 }),
+  )
 })
 
 it("opens the check step's check from the block", async () => {

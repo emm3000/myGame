@@ -1,19 +1,14 @@
-import type { NextStep } from '@mygame/contracts'
 import type { ReactElement } from 'react'
 import { usePlayerCopy } from '../copy/usePlayerCopy'
 import { ButtonLink } from '../design-system/ButtonLink'
-import { CardAction } from '../design-system/CardAction'
-import { FormAlert } from '../design-system/FormAlert'
 import { LabelText } from '../design-system/LabelText'
 import type { LiveTown } from '../town/liveTown'
 import { NextStepBlock } from '../town/NextStepBlock'
 import { NextStepLink } from '../town/NextStepLink'
-import { type NextStepAction, nextStepCardOf } from '../town/nextStepCardOf'
-import { lessonRefusalLineOf } from './lessonRefusalLineOf'
+import { type NextStepAction, nextStepCardOf, type Step } from '../town/nextStepCardOf'
+import { ReleasedStudy } from './ReleasedStudy'
 import { releasedRowOf } from './releasedRowOf'
 import type { SchoolLessons } from './useSchoolLessons'
-
-type Step<Kind extends NextStep['kind']> = Extract<NextStep, { readonly kind: Kind }>
 
 export interface SchoolNextStepProps {
   readonly town: LiveTown
@@ -30,24 +25,13 @@ function ReleasedStepAction({
   if (lesson === undefined) {
     return null
   }
-  const card = releasedRowOf(lesson, town.overview, copy)
-  if (card.state.kind !== 'open') {
-    return null
-  }
-  const refused = lessons.startRefused?.subject === lesson.id ? lessons.startRefused : undefined
   return (
-    <>
-      <CardAction
-        type="button"
-        label={card.studyLabel}
-        state={card.state.action}
-        isWaiting={lessons.isStarting}
-        onAction={() => lessons.start(lesson.id)}
-      />
-      {refused !== undefined && (
-        <FormAlert message={lessonRefusalLineOf(refused, town, copy.fixedCopy)} />
-      )}
-    </>
+    <ReleasedStudy
+      card={releasedRowOf(lesson, town.overview, copy)}
+      town={town}
+      lessons={lessons}
+      tone="primary"
+    />
   )
 }
 
