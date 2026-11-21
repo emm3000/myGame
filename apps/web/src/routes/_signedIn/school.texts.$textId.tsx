@@ -1,9 +1,10 @@
 import { createFileRoute, Navigate } from '@tanstack/react-router'
-import type { ReactElement, ReactNode } from 'react'
+import type { ReactElement } from 'react'
 import type { TextRead } from '../../api/apiClient'
 import { usePlayerCopy } from '../../copy/usePlayerCopy'
 import { LoadingSkeleton, type LoadingSkeletonProps } from '../../design-system/LoadingSkeleton'
 import { NothingToRead } from '../../school/NothingToRead'
+import { SchoolColumnTitled } from '../../school/SchoolColumnTitled'
 import { SchoolTextScreen } from '../../school/SchoolTextScreen'
 import { SchoolTitled } from '../../school/SchoolTitled'
 import { type OpenTextHandle, useOpenText } from '../../school/useOpenText'
@@ -23,14 +24,6 @@ function TextPage({ read }: { readonly read: TextRead }): ReactElement {
 }
 
 const textSkeletonGroups: LoadingSkeletonProps['groups'] = [['control', 'place-card', 'action']]
-
-function TextSkeletonFrame({ children }: { readonly children: ReactNode }): ReactElement {
-  return (
-    <div className="mx-auto w-full max-w-form">
-      <SchoolTitled>{children}</SchoolTitled>
-    </div>
-  )
-}
 
 function TextAnswer({ text }: { readonly text: OpenTextHandle }): ReactElement | null {
   const { state, reread } = text
@@ -64,7 +57,7 @@ function TextRoute(): ReactElement {
       isLoading={text.state.kind === 'loading'}
       line={copy.chrome((catalog) => catalog.townLoading())}
       groups={textSkeletonGroups}
-      Frame={TextSkeletonFrame}
+      Frame={SchoolColumnTitled}
     >
       <TextAnswer text={text} />
     </LoadingSkeleton>

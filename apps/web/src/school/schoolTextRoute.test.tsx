@@ -5,6 +5,11 @@ import { afterEach, beforeEach, expect, it, vi } from 'vitest'
 import type { ApiClient } from '../api/apiClient'
 import { renderAppAt } from '../auth/renderAppAt.testSupport'
 import { knownPlayer, knownTown, stubApiClient } from '../auth/stubApiClient.testSupport'
+import {
+  neverAnswering,
+  revealSeconds,
+  skeletonBlocks,
+} from '../design-system/loadingSkeleton.testSupport'
 import type { AppRouter } from '../router'
 
 const readAt = Date.parse(knownTown.readAt)
@@ -35,8 +40,25 @@ const firstText: OpenText = {
       { text: 'course', support: { shown: 'onTap', text: 'curso', language: 'es' } },
       { text: ' at the school.', support: null },
     ],
+    [
+      { text: 'We read the ', support: null },
+      {
+        text: 'news',
+        support: {
+          shown: 'onTap',
+          text: 'new information about something that has just happened',
+          language: 'en',
+        },
+      },
+      { text: ' together.', support: null },
+    ],
   ],
 }
+
+const regionControlledBy = (word: HTMLElement): HTMLElement | null =>
+  screen
+    .getAllByRole('status')
+    .find((region) => region.id === word.getAttribute('aria-controls')) ?? null
 
 const answeringText: ApiClient['text'] = async () => ({
   ok: true,
@@ -91,6 +113,42 @@ it("shows a stable word's gloss on tap", async () => {
 
   expect(screen.getByText('curso').getAttribute('lang')).toBe('es')
   expect(word.getAttribute('aria-expanded')).toBe('true')
+})
+
+it('keeps the live region of a tapped word mounted and empty before the tap', async () => {
+  await showText('text-1')
+  const word = screen.getByRole('button', { name: 'course' })
+  const region = regionControlledBy(word)
+
+  expect(region?.getAttribute('aria-live')).toBe('polite')
+  expect(region?.textContent).toBe('')
+
+  fireEvent.click(word)
+  await passSeconds(0)
+
+  expect(regionControlledBy(word)).toBe(region)
+  expect(region?.textContent).toBe('curso')
+})
+
+it("shows a stable word's English definition on tap", async () => {
+  await showText('text-1')
+  const word = screen.getByRole('button', { name: 'news' })
+
+  fireEvent.click(word)
+  await passSeconds(0)
+
+  const definition = screen.getByText('new information about something that has just happened')
+  expect(definition.getAttribute('lang')).toBe('en')
+  expect(regionControlledBy(word)?.contains(definition)).toBe(true)
+})
+
+it('shows the skeleton under the school title while the text read waits', async () => {
+  await showText('text-1', neverAnswering)
+
+  await passSeconds(revealSeconds)
+
+  expect(screen.getByRole('heading', { level: 1, name: es.namesPlacesSchool() })).toBeDefined()
+  expect(skeletonBlocks().length).toBeGreaterThan(0)
 })
 
 it('closes the support on a second tap of its word', async () => {

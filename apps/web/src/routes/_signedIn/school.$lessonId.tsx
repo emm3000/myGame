@@ -1,5 +1,5 @@
 import { createFileRoute, Navigate } from '@tanstack/react-router'
-import type { ReactElement, ReactNode } from 'react'
+import type { ReactElement } from 'react'
 import { usePlayerCopy } from '../../copy/usePlayerCopy'
 import { LoadingSkeleton, type LoadingSkeletonProps } from '../../design-system/LoadingSkeleton'
 import { type ReportHandle, useReport } from '../../report/useReport'
@@ -7,6 +7,7 @@ import { useReportAtLessonFinish } from '../../report/useReportAtLessonFinish'
 import { LessonWordsScreen } from '../../school/LessonWordsScreen'
 import { lessonWordsOf } from '../../school/lessonWordsOf'
 import { NothingToRead } from '../../school/NothingToRead'
+import { SchoolColumnTitled } from '../../school/SchoolColumnTitled'
 import { SchoolTitled } from '../../school/SchoolTitled'
 import { useOpenedLessons } from '../../school/useOpenedLessons'
 import { wayOnOf } from '../../school/wayOnOf'
@@ -56,14 +57,6 @@ function LessonPage({
 
 const lessonSkeletonGroups: LoadingSkeletonProps['groups'] = [['control', 'place-card', 'action']]
 
-function LessonSkeletonFrame({ children }: { readonly children: ReactNode }): ReactElement {
-  return (
-    <div className="mx-auto w-full max-w-form">
-      <SchoolTitled>{children}</SchoolTitled>
-    </div>
-  )
-}
-
 function LessonAnswer({
   town,
   lessonId,
@@ -109,7 +102,7 @@ function LessonRoute(): ReactElement {
         isTownLoading ? catalog.townLoading() : catalog.reportLoading(),
       )}
       groups={lessonSkeletonGroups}
-      Frame={LessonSkeletonFrame}
+      Frame={SchoolColumnTitled}
     >
       <LessonAnswer town={town} lessonId={lessonId} report={report} />
     </LoadingSkeleton>
