@@ -152,27 +152,30 @@ class VerifyEmailViewModelTest {
     }
 
     @Test
-    fun `shows the refused link when a resend restored before any answer is refused whatever account is signed in`() =
-        runTest {
-            val sessions: FakeSessionRepository = FakeSessionRepository()
-            val unansweredState: SavedStateHandle = savedStateBeforeAnswer()
-            sessions.answerEmailVerification(EmailVerificationResult.LinkRefused)
+    fun `shows the refused link when restored after a refused answer`() = runTest {
+        val sessions: FakeSessionRepository = FakeSessionRepository()
+        val refusedState: SavedStateHandle = savedStateAfter(EmailVerificationResult.LinkRefused, sessions)
 
-            val restored: VerifyEmailViewModel = verifyEmailViewModel(sessions, mailedToken, unansweredState)
+        val restored: VerifyEmailViewModel = verifyEmailViewModel(sessions, mailedToken, refusedState)
 
-            assertEquals(VerifyEmailUiState.LinkRefused, restored.state.value)
-        }
+        assertEquals(VerifyEmailUiState.LinkRefused, restored.state.value)
+    }
+
+    @Test
+    fun `sends no second token when restored after a refused answer`() = runTest {
+        val sessions: FakeSessionRepository = FakeSessionRepository()
+        val refusedState: SavedStateHandle = savedStateAfter(EmailVerificationResult.LinkRefused, sessions)
+        sessions.answerEmailVerification(EmailVerificationResult.Verified)
+
+        verifyEmailViewModel(sessions, mailedToken, refusedState)
+
+        assertEquals(listOf(mailedToken), sessions.emailVerifications)
+    }
 
     private fun savedStateAfter(answer: EmailVerificationResult, sessions: FakeSessionRepository): SavedStateHandle {
         sessions.answerEmailVerification(answer)
         val savedState: SavedStateHandle = SavedStateHandle()
         verifyEmailViewModel(sessions, mailedToken, savedState)
-        return copyOf(savedState)
-    }
-
-    private fun savedStateBeforeAnswer(): SavedStateHandle {
-        val savedState: SavedStateHandle = SavedStateHandle()
-        verifyEmailViewModel(FakeSessionRepository(), mailedToken, savedState)
         return copyOf(savedState)
     }
 
