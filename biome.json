@@ -541,9 +541,9 @@
     },
     {
       "includes": [
-        "apps/api/src/adapters/postgres/DrizzleTownRepository.ts",
+        "apps/api/src/town/infrastructure/postgres/DrizzleTownRepository.ts",
         "apps/api/src/adapters/postgres/migration.test.ts",
-        "apps/api/src/adapters/townRepositoryContract.ts",
+        "apps/api/src/town/infrastructure/memory/townRepositoryContract.testSupport.ts",
         "apps/api/src/openApiConformance.test.ts",
         "apps/api/src/routes/town.test.ts",
         "apps/api/src/routes/town.ts",
@@ -561,8 +561,8 @@
     },
     {
       "includes": [
-        "apps/api/src/adapters/postgres/DrizzleTownNews.ts",
-        "apps/api/src/adapters/townRepositoryContract.ts",
+        "apps/api/src/town/infrastructure/postgres/DrizzleTownNews.ts",
+        "apps/api/src/town/infrastructure/memory/townRepositoryContract.testSupport.ts",
         "apps/api/src/routes/town.ts",
         "apps/api/src/town/townNewsItemOf.ts"
       ],
