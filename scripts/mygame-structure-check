@@ -1,0 +1,168 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+root=$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd -P)
+cd "$root"
+
+baseline_file=scripts/mygame-structure-check.baseline
+api=apps/api/src
+domain=packages/domain/src
+contracts=packages/contracts/src
+folder_limit=30
+export_cap=5
+method_cap=7
+
+command -v rg >/dev/null || { echo "structure check: rg (ripgrep) is not installed" >&2; exit 2; }
+[ -f "$baseline_file" ] || { echo "structure check: $baseline_file is missing" >&2; exit 2; }
+
+search() {
+  local status=0
+  rg --no-config "$@" || status=$?
+  [ "$status" -le 1 ]
+}
+
+by_line() {
+  awk '{ path = $0; sub(/:.*/, "", path); detail = substr($0, length(path) + 2); print path "\t" detail }'
+}
+
+by_file() {
+  awk '{ print $0 "\t" }'
+}
+
+application_imports_infrastructure() {
+  search -n "from '(\.\./)+(\w+/)*infrastructure/" "$api" -g '**/application/**' -g '!*.test.ts' | by_line
+}
+
+application_knows_wire() {
+  search -n "from '(@mygame/contracts|@?hono|drizzle|zod)" "$api" -g '**/application/**' -g '!*.test.ts' | by_line
+}
+
+persistence_knows_http() {
+  search -n "from '@?hono" "$api" -g '**/infrastructure/{postgres,memory,json,smtp,system}/**' -g '!*.test.ts' | by_line
+}
+
+http_knows_database() {
+  search -n "from 'drizzle" "$api" -g '**/infrastructure/http/**' -g '!*.test.ts' | by_line
+}
+
+adapter_built_outside_root() {
+  search -n "new (Drizzle|Smtp|Argon2|Crypto|System|Vercel)\w*\(" "$api" -g '!*.test.ts' -g '!*.testSupport.ts' -g "!/$api/*.ts" | by_line
+}
+
+reading_named_of_is_async() {
+  search -l "Promise<|\basync\b" "$api" "$domain" -g '*Of.ts' -g '!*.test.ts' | by_file
+}
+
+use_case_named_of() {
+  search --files "$api" "$domain" -g '*Of.ts' -g '!*.test.ts' | { search '/(application|useCases|services)/'; } | by_file
+}
+
+domain_promise_outside_its_roles() {
+  search -l "Promise<|\basync\b" "$domain" -g '!**/useCases/**' -g '!**/services/**' -g '!**/ports/**' -g '!**/testing/**' -g '!*.test.ts' | by_file
+}
+
+use_case_imports_use_case() {
+  search -n "from '(\./|(\.\./)+(\w+/)*useCases/)" "$domain" -g '**/useCases/**' -g '!*.test.ts' | by_line
+}
+
+service_is_public() {
+  search -n "/services/" "$domain/index.ts" | awk -v file="$domain/index.ts" '{ print file "\t" $0 }'
+}
+
+folder_over_limit() {
+  search --files "$api" "$domain" "$contracts" -g '*.ts' -g '!*.test.ts' -g '!*.testSupport.ts' |
+    awk -v limit="$folder_limit" '
+      { sub(/\/[^\/]*$/, ""); count[$0]++ }
+      END { for (folder in count) if (count[folder] > limit) print folder "\t" count[folder] " production files" }'
+}
+
+file_over_export_cap() {
+  search -c '^export ' "$api" "$domain" "$contracts" -g '*.ts' -g '!*.test.ts' -g '!*.testSupport.ts' -g '!**/testing/**' -g '!index.ts' -g '!*Tables.ts' |
+    awk -F: -v cap="$export_cap" '$2 > cap { print $1 "\t" $2 " exports" }'
+}
+
+type_over_method_cap() {
+  search --files "$api" "$domain" "$contracts" -g '*.ts' -g '!*.test.ts' -g '!*.testSupport.ts' -g '!**/testing/**' |
+    awk -v cap="$method_cap" '
+      {
+        file = $0
+        type = ""
+        while ((getline line < file) > 0) {
+          if (line ~ /^(export )?(abstract )?(class|interface) /) { type = line; n = 0; continue }
+          if (type == "") continue
+          if (line ~ /^}/) { if (n > cap) print file "\t" n " methods in " type; type = ""; continue }
+          if (line ~ /^  (static )?(get|set) / || line ~ /^  (private |protected )?constructor\(/) continue
+          if (line ~ /^  ([a-z#]+ )*[A-Za-z_][A-Za-z0-9_]*\??(<[^(]*>)?(: | = (async )?)?\(/) n++
+        }
+        close(file)
+      }'
+}
+
+checks=(
+  application_imports_infrastructure
+  application_knows_wire
+  persistence_knows_http
+  http_knows_database
+  adapter_built_outside_root
+  reading_named_of_is_async
+  use_case_named_of
+  domain_promise_outside_its_roles
+  use_case_imports_use_case
+  service_is_public
+  folder_over_limit
+  file_over_export_cap
+  type_over_method_cap
+)
+
+failures=0
+
+report() {
+  printf '%s\n' "$1" >&2
+  failures=$((failures + 1))
+}
+
+known_check() {
+  local check
+  for check in "${checks[@]}"; do
+    [ "$check" = "$1" ] && return 0
+  done
+  return 1
+}
+
+while read -r check path rest; do
+  [ -n "$check" ] || continue
+  known_check "$check" || report "structure baseline: '$check $path' names no check"
+  [ -n "$path" ] && [ -z "$rest" ] || report "structure baseline: '$check $path $rest' is not '<check> <path>'"
+done <"$baseline_file"
+
+for check in "${checks[@]}"; do
+  hits=$("$check") || { report "structure check $check: the search failed"; continue; }
+  baselined=$(awk -v check="$check" '$1 == check { print $2 }' "$baseline_file" | sort -u)
+  hit_paths=$(printf '%s\n' "$hits" | awk -F'\t' 'NF { print $1 }' | sort -u)
+  while IFS= read -r path; do
+    [ -n "$path" ] || continue
+    printf '%s\n' "$baselined" | rg --no-config -qxF -- "$path" && continue
+    printf '%s\n' "$hits" | awk -F'\t' -v path="$path" -v check="$check" '$1 == path { print "structure check " check " " path " " $2 }' >&2
+    failures=$((failures + 1))
+  done <<<"$hit_paths"
+  while IFS= read -r path; do
+    [ -n "$path" ] || continue
+    printf '%s\n' "$hit_paths" | rg --no-config -qxF -- "$path" && continue
+    report "structure baseline $check: $path no longer fails; delete its line from $baseline_file"
+  done <<<"$baselined"
+done
+
+map=ARCHITECTURE.md
+if [ -f "$map" ]; then
+  folders=$(for folder in "$api"/*/ "$domain"/*/; do [ -d "$folder" ] && basename "$folder"; done | sort -u)
+  rows=$(search -o "^\\| \`(\\w+)\` \\|" -r "\$1" "$map" | sort -u)
+  map_diff=$(diff <(printf '%s\n' "$folders") <(printf '%s\n' "$rows")) || {
+    report "structure check map: the folders under $api and $domain and the rows of $map differ (< folder only, > row only):"
+    printf '%s\n' "$map_diff" >&2
+  }
+fi
+
+if [ "$failures" -gt 0 ]; then
+  echo "structure check: $failures failure(s)" >&2
+  exit 1
+fi

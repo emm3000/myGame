@@ -77,6 +77,19 @@ jobs:
           node-version-file: .node-version
           cache: pnpm
       - run: pnpm install --frozen-lockfile
+      - name: install ripgrep for the structure check
+        env:
+          RIPGREP_VERSION: 14.1.1
+          RIPGREP_SHA256: 4cf9f2741e6c465ffdb7c26f38056a59e2a2544b51f7cc128ef28337eeae4d8e
+        run: |
+          name="ripgrep-$RIPGREP_VERSION-x86_64-unknown-linux-musl"
+          dir="$RUNNER_TEMP/ripgrep"
+          mkdir -p "$dir"
+          curl -fsSL --retry 3 -o "$dir/$name.tar.gz" "https://github.com/BurntSushi/ripgrep/releases/download/$RIPGREP_VERSION/$name.tar.gz"
+          echo "$RIPGREP_SHA256  $dir/$name.tar.gz" | sha256sum -c -
+          tar -xzf "$dir/$name.tar.gz" -C "$dir" "$name/rg"
+          echo "$dir/$name" >> "$GITHUB_PATH"
+          "$dir/$name/rg" --version
       - run: pnpm gate
       - name: build and probe the api
         run: |

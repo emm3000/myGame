@@ -7,7 +7,7 @@
     "node": ">=24"
   },
   "scripts": {
-    "gate": "pnpm -r typecheck && pnpm -r test && pnpm biome check .",
+    "gate": "pnpm -r typecheck && pnpm -r test && pnpm biome check . && scripts/mygame-structure-check",
     "typecheck": "pnpm -r typecheck",
     "test": "pnpm -r test",
     "lint": "biome check .",
