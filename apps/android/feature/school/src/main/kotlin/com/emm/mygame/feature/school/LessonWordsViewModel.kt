@@ -3,8 +3,8 @@ package com.emm.mygame.feature.school
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.emm.mygame.core.network.HeldTown
-import com.emm.mygame.core.network.ReportReadResult
-import com.emm.mygame.core.network.ReportRepository
+import com.emm.mygame.core.network.LearningRepository
+import com.emm.mygame.core.network.ReviewsReadResult
 import com.emm.mygame.core.network.TownReadResult
 import com.emm.mygame.core.network.TownRepository
 import com.emm.mygame.core.network.TownSnapshot
@@ -28,7 +28,7 @@ private val failedReadRetry: Duration = 1.minutes
 class LessonWordsViewModel(
     private val walk: LessonWalk,
     private val towns: TownRepository,
-    private val reports: ReportRepository,
+    private val learning: LearningRepository,
     private val clock: Clock,
 ) : ViewModel() {
 
@@ -95,7 +95,7 @@ class LessonWordsViewModel(
     }
 
     private fun isDrawnAlone(held: HeldTown): Boolean =
-        LessonRead(held.town, readFirst = null).isDrawableWithoutReport(walk.lesson, clock.now() + held.gap)
+        LessonRead(held.town, readFirst = null).isDrawableWithoutReadFirst(walk.lesson, clock.now() + held.gap)
 
     private fun openHeld(held: HeldTown) {
         gap = held.gap
@@ -159,9 +159,9 @@ class LessonWordsViewModel(
             TownReadResult.Unreachable -> return LessonAnswer.Unreachable
         }
         gap = town.readAt - clock.now()
-        return when (val answer: ReportReadResult = reports.read()) {
-            is ReportReadResult.Read -> LessonAnswer.Read(LessonRead(town, answer.report.readFirst))
-            ReportReadResult.Unreachable -> LessonAnswer.Unreachable
+        return when (val answer: ReviewsReadResult = learning.reviews()) {
+            is ReviewsReadResult.Read -> LessonAnswer.Read(LessonRead(town, answer.reviews.readFirst))
+            ReviewsReadResult.Unreachable -> LessonAnswer.Unreachable
         }
     }
 

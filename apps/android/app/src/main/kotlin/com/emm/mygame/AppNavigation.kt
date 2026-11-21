@@ -433,7 +433,7 @@ private fun EntryProviderScope<NavKey>.lessonWordsEntry(chrome: SignedInChrome) 
             LessonWordsRoute(
                 walk = LessonWalk(shown.lesson, shown.walked),
                 towns = dependencies.towns,
-                reports = dependencies.reports,
+                learning = dependencies.learning,
                 clock = dependencies.clock,
                 navigation = LessonWordsNavigation(
                     onNoTown = navigator::openTown,

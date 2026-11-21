@@ -8,7 +8,7 @@ import androidx.compose.ui.Modifier
 import androidx.lifecycle.compose.LifecycleStartEffect
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
-import com.emm.mygame.core.network.ReportRepository
+import com.emm.mygame.core.network.LearningRepository
 import com.emm.mygame.core.network.TownRepository
 import com.emm.mygame.core.ui.TaskDockHook
 import kotlin.time.Clock
@@ -19,13 +19,13 @@ import kotlinx.coroutines.withContext
 fun LessonWordsRoute(
     walk: LessonWalk,
     towns: TownRepository,
-    reports: ReportRepository,
+    learning: LearningRepository,
     clock: Clock,
     navigation: LessonWordsNavigation,
     task: TaskDockHook,
     foldedDock: @Composable () -> Unit,
     modifier: Modifier = Modifier,
-    viewModel: LessonWordsViewModel = viewModel { LessonWordsViewModel(walk, towns, reports, clock) },
+    viewModel: LessonWordsViewModel = viewModel { LessonWordsViewModel(walk, towns, learning, clock) },
 ) {
     val state: LessonWordsUiState by viewModel.state.collectAsStateWithLifecycle()
     val currentNavigation: LessonWordsNavigation by rememberUpdatedState(navigation)

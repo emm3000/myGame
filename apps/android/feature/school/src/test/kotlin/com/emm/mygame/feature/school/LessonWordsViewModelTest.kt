@@ -5,10 +5,10 @@ import com.emm.mygame.core.network.LessonId
 import com.emm.mygame.core.network.LessonName
 import com.emm.mygame.core.network.NextStep
 import com.emm.mygame.core.network.PlacementBand
-import com.emm.mygame.core.network.ReportReadResult
+import com.emm.mygame.core.network.ReviewsReadResult
 import com.emm.mygame.core.network.TownReadResult
 import com.emm.mygame.core.network.TownSnapshot
-import com.emm.mygame.core.testing.FakeReportRepository
+import com.emm.mygame.core.testing.FakeLearningRepository
 import com.emm.mygame.core.testing.FakeTownRepository
 import com.emm.mygame.core.testing.MainDispatcherRule
 import kotlin.time.Duration.Companion.minutes
@@ -31,7 +31,7 @@ class LessonWordsViewModelTest {
 
     private val towns: FakeTownRepository = FakeTownRepository()
 
-    private val reports: FakeReportRepository = FakeReportRepository()
+    private val learning: FakeLearningRepository = FakeLearningRepository()
 
     private val twoWords: TownSnapshot.Lesson = lessonOf(readings = listOf(homeWord, waterWord))
 
@@ -41,14 +41,14 @@ class LessonWordsViewModelTest {
 
     @Test
     fun `starts at the first word of the lesson`() = runTest {
-        val viewModel: LessonWordsViewModel = lessonWordsReadingFrom(towns, reports, finishedTown)
+        val viewModel: LessonWordsViewModel = lessonWordsReadingFrom(towns, learning, finishedTown)
 
         assertEquals(homeWord, readingOf(viewModel).word)
     }
 
     @Test
     fun `shows the next word when the player asks for it`() = runTest {
-        val viewModel: LessonWordsViewModel = lessonWordsReadingFrom(towns, reports, finishedTown)
+        val viewModel: LessonWordsViewModel = lessonWordsReadingFrom(towns, learning, finishedTown)
 
         viewModel.onIntent(LessonWordsIntent.NextWordTapped)
 
@@ -57,7 +57,7 @@ class LessonWordsViewModelTest {
 
     @Test
     fun `stays on the last word`() = runTest {
-        val viewModel: LessonWordsViewModel = lessonWordsReadingFrom(towns, reports, finishedTown)
+        val viewModel: LessonWordsViewModel = lessonWordsReadingFrom(towns, learning, finishedTown)
 
         repeat(3) { viewModel.onIntent(LessonWordsIntent.NextWordTapped) }
 
@@ -69,7 +69,7 @@ class LessonWordsViewModelTest {
         val partlyReviewed: TownSnapshot.Lesson = lessonOf(wordCount = 2, readings = listOf(waterWord))
         val town: TownSnapshot = townOf(lessons = listOf(partlyReviewed))
 
-        val viewModel: LessonWordsViewModel = lessonWordsReadingFrom(towns, reports, town)
+        val viewModel: LessonWordsViewModel = lessonWordsReadingFrom(towns, learning, town)
 
         assertEquals(listOf(waterWord), readingOf(viewModel).words)
     }
@@ -78,7 +78,7 @@ class LessonWordsViewModelTest {
     fun `numbers the lesson by its place in the curriculum`() = runTest {
         val town: TownSnapshot = townOf(lessons = listOf(lessonOf(id = secondLesson), twoWords))
 
-        val viewModel: LessonWordsViewModel = lessonWordsReadingFrom(towns, reports, town)
+        val viewModel: LessonWordsViewModel = lessonWordsReadingFrom(towns, learning, town)
 
         assertEquals(LessonName.Shelved(number = 2), readingOf(viewModel).name)
     }
@@ -104,15 +104,15 @@ class LessonWordsViewModelTest {
             releasedLessons = listOf(releasedLessonOf(released, position = 3, readings = listOf(farmWord))),
         )
         towns.answerRead(TownReadResult.Read(town))
-        reports.answerRead(readReportOf())
-        val viewModel: LessonWordsViewModel = lessonWordsViewModelOf(towns, reports, lesson = released)
+        learning.answerRead(readReviewsOf())
+        val viewModel: LessonWordsViewModel = lessonWordsViewModelOf(towns, learning, lesson = released)
         runCurrent()
         return viewModel
     }
 
     @Test
     fun `shows the time of the lesson that holds the slot`() = runTest {
-        val viewModel: LessonWordsViewModel = lessonWordsReadingFrom(towns, reports, runningTown)
+        val viewModel: LessonWordsViewModel = lessonWordsReadingFrom(towns, learning, runningTown)
 
         assertEquals(150.seconds, readingOf(viewModel).remaining)
     }
@@ -125,14 +125,14 @@ class LessonWordsViewModelTest {
             nextStep = NextStep.LessonRunning(goal = null, text = null),
         )
 
-        val viewModel: LessonWordsViewModel = lessonWordsReadingFrom(towns, reports, town)
+        val viewModel: LessonWordsViewModel = lessonWordsReadingFrom(towns, learning, town)
 
         assertTrue(readingOf(viewModel).isNextStepThisLesson)
     }
 
     @Test
     fun `leaves the reading off the town's step while the step is elsewhere`() = runTest {
-        val viewModel: LessonWordsViewModel = lessonWordsReadingFrom(towns, reports, runningTown)
+        val viewModel: LessonWordsViewModel = lessonWordsReadingFrom(towns, learning, runningTown)
 
         assertFalse(readingOf(viewModel).isNextStepThisLesson)
     }
@@ -141,17 +141,17 @@ class LessonWordsViewModelTest {
     fun `shows no time while another lesson holds the slot`() = runTest {
         val town: TownSnapshot = townOf(lessons = listOf(twoWords), lessonSlot = slotOf(lesson = secondLesson))
 
-        val viewModel: LessonWordsViewModel = lessonWordsReadingFrom(towns, reports, town)
+        val viewModel: LessonWordsViewModel = lessonWordsReadingFrom(towns, learning, town)
 
         assertNull(readingOf(viewModel).remaining)
     }
 
     @Test
     fun `offers the way on only once the lesson has finished`() = runTest {
-        val viewModel: LessonWordsViewModel = lessonWordsReadingFrom(towns, reports, runningTown)
+        val viewModel: LessonWordsViewModel = lessonWordsReadingFrom(towns, learning, runningTown)
         val wayOnWhileRunning: LessonWordsUiState.WayOn? = readingOf(viewModel).wayOn
         towns.answerRead(TownReadResult.Read(finishedTown.copy(readAt = readInstant + 150.seconds)))
-        reports.answerRead(readReportOf())
+        learning.answerRead(readReviewsOf())
 
         advanceTimeBy(150.seconds)
         runCurrent()
@@ -164,7 +164,7 @@ class LessonWordsViewModelTest {
 
     @Test
     fun `offers the reviews once nothing is left to read first`() = runTest {
-        val viewModel: LessonWordsViewModel = lessonWordsReadingFrom(towns, reports, finishedTown)
+        val viewModel: LessonWordsViewModel = lessonWordsReadingFrom(towns, learning, finishedTown)
 
         assertEquals(LessonWordsUiState.WayOn.Reviews, readingOf(viewModel).wayOn)
     }
@@ -172,7 +172,18 @@ class LessonWordsViewModelTest {
     @Test
     fun `offers the next unread lesson of the walk`() = runTest {
         val viewModel: LessonWordsViewModel =
-            lessonWordsReadingFrom(towns, reports, finishedTown, readFirst = listOf(firstLesson, secondLesson))
+            lessonWordsReadingFrom(towns, learning, finishedTown, readFirst = listOf(firstLesson, secondLesson))
+
+        assertEquals(LessonWordsUiState.WayOn.Lesson(secondLesson), readingOf(viewModel).wayOn)
+    }
+
+    @Test
+    fun `reads the read-first order from the reviews, which serve no Report`() = runTest {
+        towns.answerRead(TownReadResult.Read(finishedTown))
+        learning.answerRead(readReviewsOf(readFirst = listOf(firstLesson, secondLesson)))
+
+        val viewModel: LessonWordsViewModel = lessonWordsViewModelOf(towns, learning)
+        runCurrent()
 
         assertEquals(LessonWordsUiState.WayOn.Lesson(secondLesson), readingOf(viewModel).wayOn)
     }
@@ -181,7 +192,7 @@ class LessonWordsViewModelTest {
     fun `skips a lesson already opened on this walk`() = runTest {
         val viewModel: LessonWordsViewModel = lessonWordsReadingFrom(
             towns,
-            reports,
+            learning,
             finishedTown,
             readFirst = listOf(firstLesson, secondLesson),
             walked = listOf(secondLesson),
@@ -191,10 +202,10 @@ class LessonWordsViewModelTest {
     }
 
     @Test
-    fun `reads the town and the report again when the lesson finishes`() = runTest {
-        val viewModel: LessonWordsViewModel = lessonWordsReadingFrom(towns, reports, runningTown)
+    fun `reads the town and the reviews again when the lesson finishes`() = runTest {
+        val viewModel: LessonWordsViewModel = lessonWordsReadingFrom(towns, learning, runningTown)
         towns.answerRead(TownReadResult.Read(finishedTown.copy(readAt = readInstant + 150.seconds)))
-        reports.answerRead(readReportOf(readFirst = listOf(secondLesson)))
+        learning.answerRead(readReviewsOf(readFirst = listOf(secondLesson)))
 
         advanceTimeBy(150.seconds)
         runCurrent()
@@ -206,10 +217,10 @@ class LessonWordsViewModelTest {
     fun `stays on the last word when a fresh read shortens the lesson`() = runTest {
         val threeWords: TownSnapshot.Lesson = lessonOf(readings = listOf(homeWord, waterWord, farmWord))
         val studying: TownSnapshot = townOf(lessons = listOf(threeWords), lessonSlot = slotOf())
-        val viewModel: LessonWordsViewModel = lessonWordsReadingFrom(towns, reports, studying)
+        val viewModel: LessonWordsViewModel = lessonWordsReadingFrom(towns, learning, studying)
         repeat(2) { viewModel.onIntent(LessonWordsIntent.NextWordTapped) }
         towns.answerRead(TownReadResult.Read(finishedTown.copy(readAt = readInstant + 150.seconds)))
-        reports.answerRead(readReportOf())
+        learning.answerRead(readReviewsOf())
 
         advanceTimeBy(150.seconds)
         runCurrent()
@@ -220,22 +231,22 @@ class LessonWordsViewModelTest {
     @Test
     fun `projects the countdown from the server's instant on a skewed device`() = runTest {
         towns.answerRead(TownReadResult.Read(runningTown))
-        reports.answerRead(readReportOf())
+        learning.answerRead(readReviewsOf())
 
-        val viewModel: LessonWordsViewModel = lessonWordsViewModelOf(towns, reports, start = readInstant + 2.minutes)
+        val viewModel: LessonWordsViewModel = lessonWordsViewModelOf(towns, learning, start = readInstant + 2.minutes)
         runCurrent()
 
         assertEquals(150.seconds, readingOf(viewModel).remaining)
     }
 
     @Test
-    fun `measures the gap when the town arrives, not when the report does`() = runTest {
+    fun `measures the gap when the town arrives, not when the reviews do`() = runTest {
         towns.answerRead(TownReadResult.Read(runningTown))
-        val viewModel: LessonWordsViewModel = lessonWordsViewModelOf(towns, reports)
+        val viewModel: LessonWordsViewModel = lessonWordsViewModelOf(towns, learning)
         runCurrent()
         advanceTimeBy(10.seconds)
 
-        reports.answerRead(readReportOf())
+        learning.answerRead(readReviewsOf())
         runCurrent()
 
         assertEquals(140.seconds, readingOf(viewModel).remaining)
@@ -243,10 +254,10 @@ class LessonWordsViewModelTest {
 
     @Test
     fun `keeps the word on screen across the read at the finish`() = runTest {
-        val viewModel: LessonWordsViewModel = lessonWordsReadingFrom(towns, reports, runningTown)
+        val viewModel: LessonWordsViewModel = lessonWordsReadingFrom(towns, learning, runningTown)
         viewModel.onIntent(LessonWordsIntent.NextWordTapped)
         towns.answerRead(TownReadResult.Read(finishedTown.copy(readAt = readInstant + 150.seconds)))
-        reports.answerRead(readReportOf())
+        learning.answerRead(readReviewsOf())
 
         advanceTimeBy(150.seconds)
         runCurrent()
@@ -256,12 +267,12 @@ class LessonWordsViewModelTest {
 
     @Test
     fun `asks again a minute after a failed read at the finish`() = runTest {
-        lessonWordsReadingFrom(towns, reports, runningTown)
+        lessonWordsReadingFrom(towns, learning, runningTown)
         towns.answerRead(TownReadResult.Unreachable)
         advanceTimeBy(150.seconds)
         runCurrent()
         towns.answerRead(TownReadResult.Read(finishedTown))
-        reports.answerRead(readReportOf())
+        learning.answerRead(readReviewsOf())
 
         advanceTimeBy(1.minutes)
         runCurrent()
@@ -271,10 +282,10 @@ class LessonWordsViewModelTest {
 
     @Test
     fun `shows the rest when the player comes back from a review`() = runTest {
-        val viewModel: LessonWordsViewModel = lessonWordsReadingFrom(towns, reports, finishedTown)
+        val viewModel: LessonWordsViewModel = lessonWordsReadingFrom(towns, learning, finishedTown)
         val reviewed: TownSnapshot = townOf(lessons = listOf(lessonOf(readings = listOf(waterWord))))
         towns.answerRead(TownReadResult.Read(reviewed))
-        reports.answerRead(readReportOf())
+        learning.answerRead(readReviewsOf())
 
         viewModel.onIntent(LessonWordsIntent.ScreenHidden)
         viewModel.onIntent(LessonWordsIntent.ScreenShown)
@@ -285,7 +296,7 @@ class LessonWordsViewModelTest {
 
     @Test
     fun `reads nothing while the screen is hidden`() = runTest {
-        val viewModel: LessonWordsViewModel = lessonWordsReadingFrom(towns, reports, runningTown)
+        val viewModel: LessonWordsViewModel = lessonWordsReadingFrom(towns, learning, runningTown)
 
         viewModel.onIntent(LessonWordsIntent.ScreenHidden)
         advanceTimeBy(150.seconds)
@@ -298,7 +309,7 @@ class LessonWordsViewModelTest {
     fun `has nothing to read when no word of the lesson can be read`() = runTest {
         val town: TownSnapshot = townOf(lessons = listOf(lessonOf(readings = emptyList())))
 
-        val viewModel: LessonWordsViewModel = lessonWordsReadingFrom(towns, reports, town)
+        val viewModel: LessonWordsViewModel = lessonWordsReadingFrom(towns, learning, town)
 
         assertEquals(LessonWordsUiState.NothingToRead, viewModel.state.value)
     }
@@ -307,7 +318,7 @@ class LessonWordsViewModelTest {
     fun `has nothing to read in a lesson the town does not hold`() = runTest {
         val town: TownSnapshot = townOf(lessons = listOf(lessonOf(id = secondLesson, readings = listOf(homeWord))))
 
-        val viewModel: LessonWordsViewModel = lessonWordsReadingFrom(towns, reports, town)
+        val viewModel: LessonWordsViewModel = lessonWordsReadingFrom(towns, learning, town)
 
         assertEquals(LessonWordsUiState.NothingToRead, viewModel.state.value)
     }
@@ -316,18 +327,18 @@ class LessonWordsViewModelTest {
     fun `waits for the tap after a failed town read`() = runTest {
         towns.answerRead(TownReadResult.Unreachable)
 
-        val viewModel: LessonWordsViewModel = lessonWordsViewModelOf(towns, reports)
+        val viewModel: LessonWordsViewModel = lessonWordsViewModelOf(towns, learning)
         runCurrent()
 
         assertEquals(LessonWordsUiState.Failed, viewModel.state.value)
     }
 
     @Test
-    fun `fails when the report cannot be read`() = runTest {
+    fun `fails when the reviews cannot be read`() = runTest {
         towns.answerRead(TownReadResult.Read(finishedTown))
-        reports.answerRead(ReportReadResult.Unreachable)
+        learning.answerRead(ReviewsReadResult.Unreachable)
 
-        val viewModel: LessonWordsViewModel = lessonWordsViewModelOf(towns, reports)
+        val viewModel: LessonWordsViewModel = lessonWordsViewModelOf(towns, learning)
         runCurrent()
 
         assertEquals(LessonWordsUiState.Failed, viewModel.state.value)
@@ -336,10 +347,10 @@ class LessonWordsViewModelTest {
     @Test
     fun `reads again from the retry`() = runTest {
         towns.answerRead(TownReadResult.Unreachable)
-        val viewModel: LessonWordsViewModel = lessonWordsViewModelOf(towns, reports)
+        val viewModel: LessonWordsViewModel = lessonWordsViewModelOf(towns, learning)
         runCurrent()
         towns.answerRead(TownReadResult.Read(finishedTown))
-        reports.answerRead(readReportOf())
+        learning.answerRead(readReviewsOf())
 
         viewModel.onIntent(LessonWordsIntent.RetryTapped)
         runCurrent()
@@ -350,7 +361,7 @@ class LessonWordsViewModelTest {
     @Test
     fun `leaves for the town when the player holds none`() = runTest {
         towns.answerRead(TownReadResult.NoTown)
-        val viewModel: LessonWordsViewModel = lessonWordsViewModelOf(towns, reports)
+        val viewModel: LessonWordsViewModel = lessonWordsViewModelOf(towns, learning)
 
         viewModel.effects.test {
             assertEquals(LessonWordsEffect.NoTown, awaitItem())
@@ -359,20 +370,21 @@ class LessonWordsViewModelTest {
 
     @Test
     fun `sends no write while the player reads`() = runTest {
-        val viewModel: LessonWordsViewModel = lessonWordsReadingFrom(towns, reports, finishedTown)
+        val viewModel: LessonWordsViewModel = lessonWordsReadingFrom(towns, learning, finishedTown)
 
         viewModel.onIntent(LessonWordsIntent.NextWordTapped)
         runCurrent()
 
         assertEquals(
-            listOf(0, 0, 0, 0, 0, 0),
+            listOf(0, 0, 0, 0, 0, 0, 0),
             listOf(
                 towns.foundings.size,
                 towns.starts.size,
                 towns.stops.size,
                 towns.lessonStarts.size,
                 towns.lessonStops.size,
-                reports.closeCount,
+                learning.hints.size,
+                learning.answers.size,
             ),
         )
     }

@@ -1,10 +1,10 @@
 package com.emm.mygame.feature.school
 
 import com.emm.mygame.core.network.HeldTown
-import com.emm.mygame.core.network.ReportReadResult
+import com.emm.mygame.core.network.ReviewsReadResult
 import com.emm.mygame.core.network.TownReadResult
 import com.emm.mygame.core.network.TownSnapshot
-import com.emm.mygame.core.testing.FakeReportRepository
+import com.emm.mygame.core.testing.FakeLearningRepository
 import com.emm.mygame.core.testing.FakeTownRepository
 import com.emm.mygame.core.testing.MainDispatcherRule
 import kotlin.time.Duration
@@ -25,7 +25,7 @@ class LessonWordsHeldTownTest {
 
     private val towns: FakeTownRepository = FakeTownRepository()
 
-    private val reports: FakeReportRepository = FakeReportRepository()
+    private val learning: FakeLearningRepository = FakeLearningRepository()
 
     private val twoWords: TownSnapshot.Lesson = lessonOf(readings = listOf(homeWord, waterWord))
 
@@ -39,29 +39,29 @@ class LessonWordsHeldTownTest {
     fun `draws the held lesson before the re-read answers`() = runTest {
         towns.hold(HeldTown(runningTown, gap = Duration.ZERO))
 
-        val viewModel: LessonWordsViewModel = lessonWordsViewModelOf(towns, reports)
+        val viewModel: LessonWordsViewModel = lessonWordsViewModelOf(towns, learning)
 
         assertEquals(homeWord, readingOf(viewModel).word)
     }
 
     @Test
-    fun `reads the town and the report behind the held lesson`() = runTest {
+    fun `reads the town and the reviews behind the held lesson`() = runTest {
         towns.hold(heldRunning)
-        lessonWordsViewModelOf(towns, reports)
+        lessonWordsViewModelOf(towns, learning)
         towns.answerRead(TownReadResult.Read(runningTown))
 
         runCurrent()
 
-        assertEquals(listOf(1, 1), listOf(towns.readCount, reports.readCount))
+        assertEquals(listOf(1, 1), listOf(towns.readCount, learning.readCount))
     }
 
     @Test
     fun `replaces the held lesson with the re-read`() = runTest {
         towns.hold(heldRunning)
-        val viewModel: LessonWordsViewModel = lessonWordsViewModelOf(towns, reports)
+        val viewModel: LessonWordsViewModel = lessonWordsViewModelOf(towns, learning)
         val reviewed: TownSnapshot = townOf(lessons = listOf(lessonOf(readings = listOf(waterWord))))
         towns.answerRead(TownReadResult.Read(reviewed))
-        reports.answerRead(readReportOf())
+        learning.answerRead(readReviewsOf())
 
         runCurrent()
 
@@ -71,9 +71,9 @@ class LessonWordsHeldTownTest {
     @Test
     fun `fills the way on from the re-read of a held lesson that has finished`() = runTest {
         towns.hold(heldRunning)
-        val viewModel: LessonWordsViewModel = lessonWordsViewModelOf(towns, reports)
+        val viewModel: LessonWordsViewModel = lessonWordsViewModelOf(towns, learning)
         towns.answerRead(TownReadResult.Read(finishedTown))
-        reports.answerRead(readReportOf(readFirst = listOf(secondLesson)))
+        learning.answerRead(readReviewsOf(readFirst = listOf(secondLesson)))
 
         runCurrent()
 
@@ -83,7 +83,7 @@ class LessonWordsHeldTownTest {
     @Test
     fun `keeps the held lesson when the town re-read fails`() = runTest {
         towns.hold(heldRunning)
-        val viewModel: LessonWordsViewModel = lessonWordsViewModelOf(towns, reports)
+        val viewModel: LessonWordsViewModel = lessonWordsViewModelOf(towns, learning)
         towns.answerRead(TownReadResult.Unreachable)
 
         runCurrent()
@@ -92,11 +92,11 @@ class LessonWordsHeldTownTest {
     }
 
     @Test
-    fun `keeps the held lesson when the report re-read fails`() = runTest {
+    fun `keeps the held lesson when the reviews re-read fails`() = runTest {
         towns.hold(heldRunning)
-        val viewModel: LessonWordsViewModel = lessonWordsViewModelOf(towns, reports)
+        val viewModel: LessonWordsViewModel = lessonWordsViewModelOf(towns, learning)
         towns.answerRead(TownReadResult.Read(runningTown))
-        reports.answerRead(ReportReadResult.Unreachable)
+        learning.answerRead(ReviewsReadResult.Unreachable)
 
         runCurrent()
 
@@ -107,7 +107,7 @@ class LessonWordsHeldTownTest {
     fun `projects the held lesson with the gap measured when it arrived`() = runTest {
         towns.hold(HeldTown(runningTown, gap = (-2).minutes))
 
-        val viewModel: LessonWordsViewModel = lessonWordsViewModelOf(towns, reports, start = readInstant + 3.minutes)
+        val viewModel: LessonWordsViewModel = lessonWordsViewModelOf(towns, learning, start = readInstant + 3.minutes)
 
         assertEquals(90.seconds, readingOf(viewModel).remaining)
     }
@@ -116,32 +116,32 @@ class LessonWordsHeldTownTest {
     fun `reads cold when the held gap puts the lesson past its finish`() = runTest {
         towns.hold(HeldTown(runningTown, gap = 200.seconds))
 
-        val viewModel: LessonWordsViewModel = lessonWordsViewModelOf(towns, reports)
+        val viewModel: LessonWordsViewModel = lessonWordsViewModelOf(towns, learning)
 
         assertEquals(LessonWordsUiState.Loading, viewModel.state.value)
     }
 
     @Test
     fun `reads cold with nothing held`() = runTest {
-        val viewModel: LessonWordsViewModel = lessonWordsViewModelOf(towns, reports)
+        val viewModel: LessonWordsViewModel = lessonWordsViewModelOf(towns, learning)
 
         assertEquals(LessonWordsUiState.Loading, viewModel.state.value)
     }
 
     @Test
-    fun `reads cold when the held lesson has finished, since its way on needs the report`() = runTest {
+    fun `reads cold when the held lesson has finished, since its way on needs the reviews`() = runTest {
         towns.hold(HeldTown(finishedTown, gap = Duration.ZERO))
 
-        val viewModel: LessonWordsViewModel = lessonWordsViewModelOf(towns, reports)
+        val viewModel: LessonWordsViewModel = lessonWordsViewModelOf(towns, learning)
 
         assertEquals(LessonWordsUiState.Loading, viewModel.state.value)
     }
 
     @Test
-    fun `offers no way on when the held lesson finishes before a report has answered`() = runTest {
+    fun `offers no way on when the held lesson finishes before the reviews have answered`() = runTest {
         val shortLesson: TownSnapshot = townOf(lessons = listOf(twoWords), lessonSlot = slotOf(lasting = 30.seconds))
         towns.hold(HeldTown(shortLesson, gap = Duration.ZERO))
-        val viewModel: LessonWordsViewModel = lessonWordsViewModelOf(towns, reports)
+        val viewModel: LessonWordsViewModel = lessonWordsViewModelOf(towns, learning)
         towns.answerRead(TownReadResult.Unreachable)
         runCurrent()
 
@@ -155,16 +155,16 @@ class LessonWordsHeldTownTest {
     fun `draws nothing to read at once when the held town has no reading of the lesson`() = runTest {
         towns.hold(HeldTown(townOf(lessons = listOf(lessonOf(readings = emptyList()))), gap = Duration.ZERO))
 
-        val viewModel: LessonWordsViewModel = lessonWordsViewModelOf(towns, reports)
+        val viewModel: LessonWordsViewModel = lessonWordsViewModelOf(towns, learning)
 
         assertEquals(LessonWordsUiState.NothingToRead, viewModel.state.value)
     }
 
     @Test
-    fun `opens from the held town on a retry after the report failed`() = runTest {
+    fun `opens from the held town on a retry after the reviews failed`() = runTest {
         towns.answerRead(TownReadResult.Read(runningTown))
-        reports.answerRead(ReportReadResult.Unreachable)
-        val viewModel: LessonWordsViewModel = lessonWordsViewModelOf(towns, reports)
+        learning.answerRead(ReviewsReadResult.Unreachable)
+        val viewModel: LessonWordsViewModel = lessonWordsViewModelOf(towns, learning)
         runCurrent()
 
         viewModel.onIntent(LessonWordsIntent.RetryTapped)
@@ -174,7 +174,7 @@ class LessonWordsHeldTownTest {
 
     @Test
     fun `opens from the held town when the screen returns to a read hidden before its answer`() = runTest {
-        val viewModel: LessonWordsViewModel = lessonWordsViewModelOf(towns, reports)
+        val viewModel: LessonWordsViewModel = lessonWordsViewModelOf(towns, learning)
         runCurrent()
         viewModel.onIntent(LessonWordsIntent.ScreenHidden)
         towns.hold(heldRunning)
@@ -187,7 +187,7 @@ class LessonWordsHeldTownTest {
     @Test
     fun `stays failed when the screen returns to a failed read`() = runTest {
         towns.answerRead(TownReadResult.Unreachable)
-        val viewModel: LessonWordsViewModel = lessonWordsViewModelOf(towns, reports)
+        val viewModel: LessonWordsViewModel = lessonWordsViewModelOf(towns, learning)
         runCurrent()
 
         viewModel.onIntent(LessonWordsIntent.ScreenHidden)
