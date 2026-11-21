@@ -542,7 +542,7 @@
     {
       "includes": [
         "apps/api/src/openApiConformance.test.ts",
-        "apps/api/src/town/townOverviewOf.ts"
+        "apps/api/src/town/infrastructure/http/presentTownOverview.ts"
       ],
       "linter": {
         "rules": {

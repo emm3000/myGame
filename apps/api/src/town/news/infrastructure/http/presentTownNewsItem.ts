@@ -1,6 +1,6 @@
 import type { TownNewsItem } from '@mygame/contracts'
 import type { TownEvent } from '@mygame/domain'
-import { isoOf } from '../platform/infrastructure/http/isoOf'
+import { isoOf } from '../../../../platform/infrastructure/http/isoOf'
 
 type EventOf<Kind extends TownEvent['kind']> = Extract<TownEvent, { readonly kind: Kind }>
 

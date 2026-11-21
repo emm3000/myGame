@@ -4,7 +4,7 @@ import type { Context } from 'hono'
 import type { LessonLibrary } from '../../../content/application/ports/LessonLibrary'
 import { answerRefusal } from '../../../platform/infrastructure/http/answerRefusal'
 import type { TownReading } from '../../application/TownReading'
-import { townOverviewOf } from '../../townOverviewOf'
+import { townOverviewOf } from './presentTownOverview'
 
 export type AnswerTownReadingDependencies = {
   readonly townCatalog: TownCatalog
