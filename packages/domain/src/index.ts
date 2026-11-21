@@ -77,6 +77,8 @@ export { type RetainedWords, retainedWordsOf } from './learning/retention/retain
 export { skillLevelOf } from './learning/retention/skillLevelOf'
 export { stableWordCountOf } from './learning/retention/stableWordCountOf'
 export { type WordStanding, wordStandingOf } from './learning/retention/wordStandingOf'
+export type { AnsweredReview } from './learning/reviews/AnsweredReview'
+export type { AnswerReviewCommand } from './learning/reviews/AnswerReviewCommand'
 export type { DueCard } from './learning/reviews/dueCardsAt'
 export { gradeTypedAnswer, type TypedAnswerGrade } from './learning/reviews/gradeTypedAnswer'
 export { nextDueAtOf } from './learning/reviews/nextDueAtOf'
@@ -96,8 +98,6 @@ export {
   type ShownWord,
 } from './learning/reviews/reviewPromptOf'
 export {
-  type AnsweredReview,
-  type AnswerReviewCommand,
   type AnswerReviewDependencies,
   answerReview,
 } from './learning/reviews/useCases/answerReview'

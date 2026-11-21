@@ -550,8 +550,7 @@
         "apps/api/src/routes/townDeclarations.ts",
         "apps/api/src/town/townOverviewOf.ts",
         "packages/domain/src/town/Town.ts",
-        "packages/domain/src/learning/reviews/useCases/answerReview.test.ts",
-        "packages/domain/src/learning/reviews/useCases/answerReview.ts"
+        "packages/domain/src/learning/reviews/useCases/answerReview.test.ts"
       ],
       "linter": {
         "rules": {

@@ -2,15 +2,12 @@ import type { DomainError } from '../../../DomainError'
 import type { BandStartRepository } from '../../../holdout/ports/BandStartRepository'
 import { type ReleaseContent, releasedLessonsOf } from '../../../holdout/releasedLessonsOf'
 import type { MemoryCard } from '../../../memory/MemoryCard'
-import type { MemoryRating } from '../../../memory/MemoryRating'
 import type { MemoryTerms } from '../../../memory/MemoryTerms'
 import { reviewMemoryCard } from '../../../memory/reviewMemoryCard'
-import { wholeDaysBetween } from '../../../memory/wholeDaysBetween'
 import type { PlayerId } from '../../../player/PlayerId'
 import type { Clock } from '../../../ports/Clock'
-import { err, ok, type Result } from '../../../Result'
+import { ok, type Result } from '../../../Result'
 import type { Instant } from '../../../time/Instant'
-import { openedLevelOf } from '../../../town/building/openedLevelOf'
 import type { EarnedSkillRepository } from '../../../town/EarnedSkillRepository'
 import { earnTownSkill } from '../../../town/earnTownSkill'
 import { saveChangedTown } from '../../../town/saveChangedTown'
@@ -22,28 +19,21 @@ import type { TownRepository } from '../../../town/TownRepository'
 import type { TownSkill } from '../../../town/TownSkill'
 import type { LessonCatalog } from '../../curriculum/ports/LessonCatalog'
 import type { HeldCard } from '../../HeldCard'
-import { type HeldCards, heldCardsOf } from '../../HeldCards'
+import { heldCardsOf } from '../../HeldCards'
 import type { Lesson, WordId } from '../../Lesson'
 import type { CardRepository } from '../../ports/CardRepository'
 import { isLessonRetained } from '../../retention/isLessonRetained'
-import { retainedWordCountOf } from '../../retention/retainedWordCountOf'
-import { stableWordCountOf } from '../../retention/stableWordCountOf'
+import { type AnsweredReview, ratedReviewOf } from '../AnsweredReview'
+import type { AnswerReviewCommand } from '../AnswerReviewCommand'
 import { admitDueReview, type DueReview } from '../admitDueReview'
+import { answerGradeOf } from '../answerGradeOf'
 import { freshPendingReview } from '../freshPendingReview'
-import { gradeTypedAnswer } from '../gradeTypedAnswer'
 import type { PendingReview } from '../PendingReview'
 import type { PendingReviewRepository } from '../ports/PendingReviewRepository'
 import type { ReviewLog } from '../ports/ReviewLog'
-import { reviewFormatOf } from '../ReviewFormat'
 import type { ReviewLogEntry } from '../ReviewLogEntry'
-import { type AnswerGrade, ratingOf } from '../ratingOf'
-import { recognitionChoicesOf } from '../recognitionChoicesOf'
-
-export type AnswerReviewCommand = {
-  readonly playerId: PlayerId
-  readonly wordId: WordId
-  readonly answer: string
-}
+import { ratingOf } from '../ratingOf'
+import { reviewLogEntryOf } from '../reviewLogEntryOf'
 
 export type AnswerReviewDependencies = ReleaseContent & {
   readonly cards: CardRepository
@@ -57,71 +47,6 @@ export type AnswerReviewDependencies = ReleaseContent & {
   readonly towns: TownRepository
   readonly news: TownNews
   readonly catalog: TownCatalog
-}
-
-export type AnsweredReview =
-  | { readonly kind: 'nearMiss' }
-  | {
-      readonly kind: 'rated'
-      readonly rating: MemoryRating
-      readonly card: MemoryCard
-      readonly earnedSkill: TownSkill | undefined
-      readonly stableWordCount: number
-      readonly retainedWordCount: number
-      readonly openedLevel: number | null
-    }
-
-type Grade = AnswerGrade | 'nearMiss'
-
-const gradeOf = (
-  review: DueReview,
-  answer: string,
-  pending: PendingReview | undefined,
-  held: HeldCards,
-  lessons: LessonCatalog,
-): Result<Grade, DomainError> => {
-  if (reviewFormatOf(review.held.card) === 'recognition') {
-    const chosen = recognitionChoicesOf(review.word.id, review.lesson, review.held.card, held).find(
-      ({ choiceId }) => choiceId === answer,
-    )
-    if (chosen === undefined) {
-      return err({ kind: 'UnknownChoice', wordId: review.word.id })
-    }
-    return ok(chosen.wordId === review.word.id ? 'correct' : 'wrong')
-  }
-  const grade = gradeTypedAnswer(answer, review.word.acceptedForms, (word) =>
-    lessons.isHeadword(word),
-  )
-  if (grade === 'nearMiss' && pending !== undefined && pending.nearMissAnswer !== null) {
-    return ok('wrong')
-  }
-  return ok(grade)
-}
-
-const logEntryOf = (
-  command: AnswerReviewCommand,
-  review: DueReview,
-  pending: PendingReview | undefined,
-  rating: MemoryRating,
-  after: MemoryCard,
-  now: Instant,
-): ReviewLogEntry => {
-  const before = review.held.card.stored
-  const { nearMissAnswer, hintShown, shownFrame } = pending ?? freshPendingReview
-  return {
-    playerId: command.playerId,
-    wordId: command.wordId,
-    reviewedAt: now,
-    format: reviewFormatOf(review.held.card),
-    answer: command.answer,
-    nearMissAnswer,
-    hintShown,
-    rating,
-    elapsedDays: before.lastReviewAt === null ? null : wholeDaysBetween(before.lastReviewAt, now),
-    shownFrame,
-    before,
-    after: after.stored,
-  }
 }
 
 const rebaseTownAtEarn = async (
@@ -201,23 +126,6 @@ const skillEarnedBy = async (
   return earnSkill(playerId, lesson, earnedAt, dependencies)
 }
 
-const ratedReviewOf = (
-  rating: MemoryRating,
-  card: MemoryCard,
-  earnedSkill: TownSkill | undefined,
-  before: ReadonlyArray<HeldCard>,
-  after: ReadonlyArray<HeldCard>,
-  catalog: TownCatalog,
-): AnsweredReview => ({
-  kind: 'rated',
-  rating,
-  card,
-  earnedSkill,
-  stableWordCount: stableWordCountOf(after),
-  retainedWordCount: retainedWordCountOf(after),
-  openedLevel: openedLevelOf(before, after, catalog),
-})
-
 const markNearMiss = async (
   { playerId, wordId, answer }: AnswerReviewCommand,
   pending: PendingReview | undefined,
@@ -266,7 +174,7 @@ export const answerReview = async (
     return review
   }
   const pending = await pendingReviews.pendingReviewOf(playerId, wordId)
-  const grade = gradeOf(review.value, answer, pending, heldCardsOf(held.value), lessons)
+  const grade = answerGradeOf(review.value, answer, pending, heldCardsOf(held.value), lessons)
   if (!grade.ok) {
     return grade
   }
@@ -278,7 +186,7 @@ export const answerReview = async (
   if (!next.ok) {
     return next
   }
-  const entry = logEntryOf(command, review.value, pending, rating, next.value, now)
+  const entry = reviewLogEntryOf(command, review.value, pending, rating, next.value, now)
   const recorded = await recordRating(command, entry, next.value, pending, dependencies)
   if (!recorded.ok) {
     return recorded
