@@ -1,3 +1,5 @@
+const sentenceEndPattern = /[.!?]+/
+
 const wordPattern = /[a-z]+(?:'[a-z]+)?/g
 
 const negativeStems: ReadonlyMap<string, string> = new Map([
@@ -16,7 +18,13 @@ const piecesOf = (word: string): ReadonlyArray<string> => {
   return [stem, `'${suffix}`]
 }
 
-export const grammarTokensOf = (text: string): ReadonlyArray<string> =>
-  (text.toLowerCase().replaceAll('’', "'").match(wordPattern) ?? []).flatMap((word) =>
-    piecesOf(word),
-  )
+const tokensOf = (sentence: string): ReadonlyArray<string> =>
+  (sentence.match(wordPattern) ?? []).flatMap((word) => piecesOf(word))
+
+export const grammarSentencesOf = (text: string): ReadonlyArray<ReadonlyArray<string>> =>
+  text
+    .toLowerCase()
+    .replaceAll('’', "'")
+    .split(sentenceEndPattern)
+    .map((sentence) => tokensOf(sentence))
+    .filter((tokens) => tokens.length > 0)

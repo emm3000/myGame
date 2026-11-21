@@ -23,9 +23,11 @@ export type IrregularForms = {
   readonly pastParticiple: string
 }
 
+export type HaveBefore = 'none' | 'have' | "'s"
+
 export type CardWordFormContext = {
   readonly irregularVerbs: ReadonlyMap<string, IrregularForms>
-  readonly isAfterHave: boolean
+  readonly haveBefore: HaveBefore
 }
 
 const ungated: CardWordForm = { kind: 'ungated' }
@@ -44,8 +46,9 @@ const thirdPersonFormsOf = (lemma: string): ReadonlyArray<string> => [
 const verbFormOf = (
   form: string,
   lemma: string,
-  { irregularVerbs, isAfterHave }: CardWordFormContext,
+  { irregularVerbs, haveBefore }: CardWordFormContext,
 ): CardWordForm => {
+  const isAfterHave = haveBefore !== 'none'
   const irregular = irregularVerbs.get(lemma)
   const isParticiple = irregular?.pastParticiple === form
   if (form === lemma) {
@@ -59,7 +62,8 @@ const verbFormOf = (
   }
   const isPast = irregular?.past === form
   const isRegularPast = form.endsWith('ed')
-  if (isAfterHave && (isPast || isParticiple || isRegularPast)) {
+  const isRegularParticiple = isRegularPast && haveBefore === 'have'
+  if (isAfterHave && (isPast || isParticiple || isRegularParticiple)) {
     return inflected('past participle')
   }
   if (isPast) {
