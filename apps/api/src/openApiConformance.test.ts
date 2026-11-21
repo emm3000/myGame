@@ -12,8 +12,8 @@ import { mailEnvironment } from './composeServer.testSupport'
 import { learningDeclarations } from './learning/infrastructure/http/learningRoutes'
 import { healthDeclarations } from './platform/infrastructure/http/healthDeclarations'
 import { reportDeclarations } from './report/infrastructure/http/reportRoutes'
-import { townDeclarations } from './town/infrastructure/http/townDeclarations'
-import { townMapDeclarations } from './town/jobs/infrastructure/http/regionMapDeclarations'
+import { townDeclarations } from './town/infrastructure/http/townRoutes'
+import { regionMapDeclarations } from './town/jobs/infrastructure/http/regionMapRoutes'
 import { truncatePlayerTables } from './truncatePlayerTables.testSupport'
 
 const contentDirectory = apiPackagePath('content/')
@@ -51,7 +51,7 @@ const mounted: ReadonlyArray<readonly [string, Readonly<Record<string, RouteConf
   ['/reviews', learningDeclarations],
   ['/report', reportDeclarations],
   ['/town', townDeclarations],
-  ['/town/map', townMapDeclarations],
+  ['/town/map', regionMapDeclarations],
 ]
 
 const declarationsByOperation = new Map<string, RouteConfig>(

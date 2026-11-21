@@ -1,64 +1,21 @@
 import { OpenAPIHono } from '@hono/zod-openapi'
-import { type RegionMap, RegionMapRequestSchema } from '@mygame/contracts'
+import { type ReadAreaRouteDependencies, readAreaDeclaration, readAreaRoute } from './readAreaRoute'
 import {
-  type CleanUpReader,
-  type ReadRegionMapCommand,
-  type RegionMapReader,
-  readRegionMap,
-  type TownCatalog,
-} from '@mygame/domain'
-import type { Context } from 'hono'
-import {
-  type RequirePlayerDependencies,
-  requirePlayer,
-} from '../../../../account/infrastructure/http/requirePlayer'
-import { answerRefusal } from '../../../../platform/infrastructure/http/answerRefusal'
-import { honoPathOf } from '../../../../platform/infrastructure/http/honoPath'
-import { presentRegionMap } from './presentRegionMap'
-import { townMapDeclarations } from './regionMapDeclarations'
+  type ReadOwnAreaRouteDependencies,
+  readOwnAreaDeclaration,
+  readOwnAreaRoute,
+} from './readOwnAreaRoute'
 
-export type TownMapDependencies = RequirePlayerDependencies & {
-  readonly regionMap: RegionMapReader
-  readonly cleanUps: CleanUpReader
-  readonly townCatalog: TownCatalog
+export type RegionMapRouteDependencies = ReadOwnAreaRouteDependencies & ReadAreaRouteDependencies
+
+export const regionMapDeclarations = {
+  ownArea: readOwnAreaDeclaration,
+  area: readAreaDeclaration,
 }
 
-export const townMapRoutes = (dependencies: TownMapDependencies): OpenAPIHono => {
-  const answerArea = async (c: Context, command: ReadRegionMapCommand): Promise<Response> => {
-    const map = await readRegionMap(command, {
-      map: dependencies.regionMap,
-      cleanUps: dependencies.cleanUps,
-      catalog: dependencies.townCatalog,
-      clock: dependencies.clock,
-    })
-    if (!map.ok) {
-      return answerRefusal(c, map.error)
-    }
-    const body: RegionMap = presentRegionMap(map.value)
-    return c.json(body)
-  }
-  const signedInPlayer = requirePlayer(dependencies)
+export const regionMapRoutes = (dependencies: RegionMapRouteDependencies): OpenAPIHono => {
   const routes = new OpenAPIHono()
-  for (const declaration of Object.values(townMapDeclarations)) {
-    routes.openAPIRegistry.registerPath(declaration)
-  }
-  routes.on(
-    townMapDeclarations.ownArea.method,
-    honoPathOf(townMapDeclarations.ownArea),
-    signedInPlayer,
-    async (c) => answerArea(c, { playerId: c.var.playerId }),
-  )
-  routes.on(
-    townMapDeclarations.area.method,
-    honoPathOf(townMapDeclarations.area),
-    signedInPlayer,
-    async (c) => {
-      const request = RegionMapRequestSchema.safeParse(c.req.param())
-      if (!request.success) {
-        return answerRefusal(c, { kind: 'MalformedRequest' })
-      }
-      return answerArea(c, { playerId: c.var.playerId, area: request.data.area })
-    },
-  )
+  readOwnAreaRoute(routes, dependencies)
+  readAreaRoute(routes, dependencies)
   return routes
 }

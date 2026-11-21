@@ -543,8 +543,6 @@
       "includes": [
         "apps/api/src/openApiConformance.test.ts",
         "apps/api/src/town/infrastructure/http/townRoutes.test.ts",
-        "apps/api/src/town/infrastructure/http/townRoutes.ts",
-        "apps/api/src/town/infrastructure/http/townDeclarations.ts",
         "apps/api/src/town/townOverviewOf.ts",
         "packages/domain/src/town/Town.ts"
       ],
@@ -557,10 +555,7 @@
       }
     },
     {
-      "includes": [
-        "apps/api/src/town/infrastructure/http/townRoutes.ts",
-        "apps/api/src/town/townNewsItemOf.ts"
-      ],
+      "includes": ["apps/api/src/town/townNewsItemOf.ts"],
       "linter": {
         "rules": {
           "complexity": {
