@@ -2,12 +2,12 @@ import type { DomainError } from '../../DomainError'
 import { ok, type Result } from '../../Result'
 import type { Instant } from '../../time/Instant'
 import { accrueTown } from '../accrueTown'
-import type { BusyWorkSlot } from '../BuildingWork'
 import type { TownCatalog } from '../ports/TownCatalog'
 import { rebaseFullSince } from '../rebaseFullSince'
 import type { ChangedTown, Town } from '../Town'
 import type { TownEvent } from '../TownEvent'
 import { townLabelOf } from '../townLabelOf'
+import type { BusyWorkSlot } from './BuildingWork'
 
 const finishedSlotOf = (town: Town, now: Instant): BusyWorkSlot | undefined => {
   const slot = town.workSlot

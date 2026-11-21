@@ -1,5 +1,5 @@
-import type { HireKind } from './HireKind'
-import type { Stocks } from './Stocks'
+import type { HireKind } from '../hiring/HireKind'
+import type { Stocks } from '../Stocks'
 
 type LevelTerms = {
   readonly level: number

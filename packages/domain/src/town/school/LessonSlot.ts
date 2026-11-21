@@ -1,5 +1,5 @@
-import type { LessonId } from '../learning/Lesson'
-import type { Instant } from '../time/Instant'
+import type { LessonId } from '../../learning/Lesson'
+import type { Instant } from '../../time/Instant'
 
 export type BusyLessonSlot = {
   readonly kind: 'busy'

@@ -1,4 +1,4 @@
-import type { Hires } from '../Hires'
+import type { Hires } from '../hiring/Hires'
 import type { TownCatalog } from '../ports/TownCatalog'
 import type { Stocks } from '../Stocks'
 import type { ProductionPercent } from '../TownSettings'

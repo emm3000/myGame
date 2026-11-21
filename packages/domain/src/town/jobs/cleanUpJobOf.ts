@@ -1,5 +1,5 @@
 import type { Instant } from '../../time/Instant'
-import type { Hires } from '../Hires'
+import type { Hires } from '../hiring/Hires'
 import type { TownCatalog } from '../ports/TownCatalog'
 import type { SiteAddress } from '../SiteAddress'
 import { unchangedProductionPercent } from '../seasonPercentsAt'

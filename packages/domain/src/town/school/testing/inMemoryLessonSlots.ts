@@ -1,6 +1,6 @@
 import { ok } from '../../../Result'
-import { idleLessonSlot, type LessonSlot } from '../../LessonSlot'
 import type { TownId } from '../../TownId'
+import { idleLessonSlot, type LessonSlot } from '../LessonSlot'
 import type { LessonSlotRepository } from '../ports/LessonSlotRepository'
 
 export type StoredLessonSlot = {

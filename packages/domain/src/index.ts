@@ -168,7 +168,7 @@ export { Duration } from './time/Duration'
 export { Instant } from './time/Instant'
 export { laterOf } from './time/laterOf'
 export { type Accrual, accrueTown } from './town/accrueTown'
-export type { BuildingKind } from './town/BuildingKind'
+export type { BuildingKind } from './town/building/BuildingKind'
 export type {
   BuildingLevel,
   HomesLevel,
@@ -176,8 +176,8 @@ export type {
   ProducerLevel,
   SchoolLevel,
   StorageLevel,
-} from './town/BuildingLevel'
-export { type BuildingLevels, foundingLevels } from './town/BuildingLevels'
+} from './town/building/BuildingLevel'
+export { type BuildingLevels, foundingLevels } from './town/building/BuildingLevels'
 export {
   type BusyWorkSlot,
   idleWorkSlot,
@@ -185,7 +185,8 @@ export {
   type WaitingWork,
   type WorkSlot,
   type WorkTarget,
-} from './town/BuildingWork'
+} from './town/building/BuildingWork'
+export { buildingKinds } from './town/building/buildingKinds'
 export { buildPercentAt } from './town/building/buildPercentAt'
 export { type LevelWordNeed, levelWordNeedOf } from './town/building/levelWordNeedOf'
 export type { NeededWordKind } from './town/building/NeededWordKind'
@@ -201,7 +202,6 @@ export {
 } from './town/building/useCases/stopBuildingWork'
 export type { WordNeed } from './town/building/WordNeed'
 export { type WordShortfall, wordShortfallOf } from './town/building/wordShortfallOf'
-export { buildingKinds } from './town/buildingKinds'
 export { deriveFullAt, type FullAt } from './town/deriveFullAt'
 export { derivePeople } from './town/derivePeople'
 export { deriveResourceRates, type ResourceRates } from './town/deriveResourceRates'
@@ -215,11 +215,10 @@ export { type ReadyStock, type ResourceNeed, readyMinuteOf } from './town/guidan
 export type { TipKind } from './town/guidance/TipKind'
 export { tipKinds } from './town/guidance/tipKinds'
 export { type TipReading, tipOf } from './town/guidance/tipOf'
-export type { HireKind } from './town/HireKind'
-export { type Hires, noHires } from './town/Hires'
-export { hireKinds } from './town/hireKinds'
 export { deliveredHiresOf } from './town/hiring/deliveredHiresOf'
 export { deriveHireDurationSeconds } from './town/hiring/deriveHireDurationSeconds'
+export type { HireKind } from './town/hiring/HireKind'
+export { type Hires, noHires } from './town/hiring/Hires'
 export type { HireTerms } from './town/hiring/HireTerms'
 export {
   type HiringOrder,
@@ -227,6 +226,7 @@ export {
   type HiringTarget,
   idleHiringSlot,
 } from './town/hiring/HiringOrder'
+export { hireKinds } from './town/hiring/hireKinds'
 export { hirePercentAt } from './town/hiring/hirePercentAt'
 export { hiringEndsAt } from './town/hiring/hiringEndsAt'
 export { lowestFreePeopleOf } from './town/hiring/lowestFreePeopleOf'
@@ -278,7 +278,6 @@ export {
 export { type SendCleanUpDependencies, sendCleanUp } from './town/jobs/useCases/sendCleanUp'
 export { type SendJobDependencies, sendJob } from './town/jobs/useCases/sendJob'
 export type { WasteSize } from './town/jobs/WasteSize'
-export { type BusyLessonSlot, idleLessonSlot, type LessonSlot } from './town/LessonSlot'
 export type { People } from './town/People'
 export type { EarnedSkillRepository } from './town/ports/EarnedSkillRepository'
 export type { TownCatalog } from './town/ports/TownCatalog'
@@ -291,6 +290,7 @@ export type { SiteAddress } from './town/SiteAddress'
 export type { Stocks } from './town/Stocks'
 export { deriveLessonDurationSeconds } from './town/school/deriveLessonDurationSeconds'
 export { isLessonFinishedBy } from './town/school/isLessonFinishedBy'
+export { type BusyLessonSlot, idleLessonSlot, type LessonSlot } from './town/school/LessonSlot'
 export type { LessonSlotRepository } from './town/school/ports/LessonSlotRepository'
 export { schoolLevelOf } from './town/school/schoolLevelOf'
 export { studyPercentAt } from './town/school/studyPercentAt'

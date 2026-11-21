@@ -1,4 +1,4 @@
-import type { Hires } from '../Hires'
+import type { Hires } from '../hiring/Hires'
 import type { TownCatalog } from '../ports/TownCatalog'
 import type { ResourceKind } from '../ResourceKind'
 import { resourceKinds } from '../resourceKinds'

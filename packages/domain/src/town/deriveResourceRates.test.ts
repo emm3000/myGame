@@ -1,6 +1,6 @@
 import { assert, describe, expect, it } from 'vitest'
 import { Instant } from '../time/Instant'
-import type { BuildingLevels } from './BuildingLevels'
+import type { BuildingLevels } from './building/BuildingLevels'
 import { deriveResourceRates } from './deriveResourceRates'
 import type { TownSettings } from './TownSettings'
 import type { TownSkill } from './TownSkill'

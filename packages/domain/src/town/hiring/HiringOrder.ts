@@ -1,6 +1,6 @@
 import type { Instant } from '../../time/Instant'
-import type { HireKind } from '../HireKind'
 import type { Stocks } from '../Stocks'
+import type { HireKind } from './HireKind'
 
 export type HiringOrder = {
   readonly kind: 'busy'
