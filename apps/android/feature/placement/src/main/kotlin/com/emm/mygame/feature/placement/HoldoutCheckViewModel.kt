@@ -5,7 +5,6 @@ import androidx.lifecycle.viewModelScope
 import com.emm.mygame.core.network.ChoiceId
 import com.emm.mygame.core.network.HoldoutCheck
 import com.emm.mygame.core.network.HoldoutCheckChangeResult
-import com.emm.mygame.core.network.HoldoutCheckRefusal
 import com.emm.mygame.core.network.HoldoutCheckRepository
 import com.emm.mygame.core.network.HoldoutCheckWeek
 import com.emm.mygame.core.network.HoldoutChecksReadResult
@@ -109,7 +108,7 @@ class HoldoutCheckViewModel(
     }
 
     private suspend fun refused(refusal: HoldoutCheckRequest.Refused) {
-        if (refusal.isOfInvalidAnswers()) readAfter(refusal) else drawRequest(refusal)
+        if (refusal.action == HoldoutCheckAction.Answers) readAfter(refusal) else drawRequest(refusal)
     }
 
     private suspend fun readAfter(refusal: HoldoutCheckRequest.Refused) {
@@ -163,6 +162,3 @@ class HoldoutCheckViewModel(
         }
     }
 }
-
-private fun HoldoutCheckRequest.Refused.isOfInvalidAnswers(): Boolean =
-    action == HoldoutCheckAction.Answers && refusal == HoldoutCheckRefusal.InvalidRequest
