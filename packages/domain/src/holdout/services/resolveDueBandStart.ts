@@ -7,7 +7,7 @@ import type { HoldoutCheckWeek } from '../HoldoutCheck'
 import { isHoldoutCheckDue } from '../holdoutCheckWeeks'
 import type { BandStartRepository } from '../ports/BandStartRepository'
 
-export const dueBandStartOf = async (
+export const resolveDueBandStart = async (
   playerId: PlayerId,
   band: Band,
   week: HoldoutCheckWeek,

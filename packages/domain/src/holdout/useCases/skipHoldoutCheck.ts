@@ -5,7 +5,7 @@ import type { Clock } from '../../ports/Clock'
 import { ok, type Result } from '../../Result'
 import type { HoldoutCheckWeek, SkippedHoldoutCheck } from '../HoldoutCheck'
 import type { BandStartRepository } from '../ports/BandStartRepository'
-import { dueBandStartOf } from '../services/resolveDueBandStart'
+import { resolveDueBandStart } from '../services/resolveDueBandStart'
 
 export type SkipHoldoutCheckCommand = {
   readonly playerId: PlayerId
@@ -23,7 +23,7 @@ export const skipHoldoutCheck = async (
   { bandStarts, clock }: SkipHoldoutCheckDependencies,
 ): Promise<Result<SkippedHoldoutCheck, DomainError>> => {
   const now = clock.now()
-  const due = await dueBandStartOf(playerId, band, week, bandStarts, now)
+  const due = await resolveDueBandStart(playerId, band, week, bandStarts, now)
   if (!due.ok) {
     return due
   }

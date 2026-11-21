@@ -12,7 +12,7 @@ import type { BegunHoldoutCheck, HoldoutCheckWeek } from '../HoldoutCheck'
 import type { HoldoutCheckView } from '../HoldoutCheckView'
 import { type HoldoutCheckContent, holdoutCheckSampleDrawn } from '../holdoutCheckSampleDrawn'
 import type { BandStartRepository } from '../ports/BandStartRepository'
-import { dueBandStartOf } from '../services/resolveDueBandStart'
+import { resolveDueBandStart } from '../services/resolveDueBandStart'
 
 export type BeginHoldoutCheckCommand = {
   readonly playerId: PlayerId
@@ -34,7 +34,7 @@ export const beginHoldoutCheck = async (
 ): Promise<Result<HoldoutCheckView, DomainError>> => {
   const { bandStarts, cards, random, clock } = dependencies
   const now = clock.now()
-  const due = await dueBandStartOf(playerId, band, week, bandStarts, now)
+  const due = await resolveDueBandStart(playerId, band, week, bandStarts, now)
   if (!due.ok) {
     return due
   }
