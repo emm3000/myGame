@@ -11,7 +11,7 @@ import type {
   Town,
   TownRepository,
 } from '@mygame/domain'
-import type { StoredScaffold } from '../auth/StoredScaffold'
+import type { StoredScaffold } from '../account/application/ports/StoredScaffold'
 
 export type TownWithSchool = StoredScaffold & {
   readonly town: Town

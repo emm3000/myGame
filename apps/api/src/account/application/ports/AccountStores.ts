@@ -1,5 +1,5 @@
-import type { Accounts } from '../../../auth/Accounts'
-import type { AccountTokens } from '../../../auth/AccountTokens'
+import type { Accounts } from './Accounts'
+import type { AccountTokens } from './AccountTokens'
 
 export type AccountStores = {
   readonly accounts: Accounts

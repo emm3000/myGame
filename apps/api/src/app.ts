@@ -1,5 +1,10 @@
 import { OpenAPIHono } from '@hono/zod-openapi'
 import type { HealthResponse } from '@mygame/contracts'
+import { type AuthDependencies, authRoutes } from './account/infrastructure/http/accountRoutes'
+import {
+  type PlayerRouteDependencies,
+  playerRoutes,
+} from './account/infrastructure/http/changeScaffoldRoute'
 import type { FailureSink } from './platform/application/ports/FailureSink'
 import { honoPathOf } from './platform/infrastructure/http/honoPath'
 import { reportServerFailures } from './platform/infrastructure/http/reportServerFailures'
@@ -7,12 +12,10 @@ import {
   sessionBearerScheme,
   sessionBearerSecurityScheme,
 } from './platform/infrastructure/http/signedInRoute'
-import { type AuthDependencies, authRoutes } from './routes/auth'
 import { healthDeclarations } from './routes/healthDeclarations'
 import { holdoutCheckRoutes } from './routes/holdoutChecks'
 import { type LearningRouteDependencies, learningRoutes } from './routes/learning'
 import { type PlacementRouteDependencies, placementRoutes } from './routes/placement'
-import { type PlayerRouteDependencies, playerRoutes } from './routes/player'
 import { type ReportRouteDependencies, reportRoutes } from './routes/report'
 import { type TownDependencies, townRoutes } from './routes/town'
 import { type TownMapDependencies, townMapRoutes } from './routes/townMap'

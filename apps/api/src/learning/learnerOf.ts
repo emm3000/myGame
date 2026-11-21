@@ -11,8 +11,8 @@ import {
   type Result,
   type Scaffold,
 } from '@mygame/domain'
-import type { Accounts } from '../auth/Accounts'
-import { scaffoldOf } from './scaffoldOf'
+import type { Accounts } from '../account/application/ports/Accounts'
+import { scaffoldOf } from '../account/application/readScaffold'
 
 export type LearnerStores = {
   readonly accounts: Accounts

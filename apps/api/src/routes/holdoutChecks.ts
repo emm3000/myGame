@@ -16,13 +16,13 @@ import {
   skipHoldoutCheck,
 } from '@mygame/domain'
 import type { Context } from 'hono'
+import { scaffoldOf } from '../account/application/readScaffold'
 import {
   type RequirePlayerDependencies,
   requirePlayer,
 } from '../account/infrastructure/http/requirePlayer'
 import { holdoutChecksBodyOf } from '../learning/holdoutChecksBodyOf'
 import type { LearningDependencies } from '../learning/LearningDependencies'
-import { scaffoldOf } from '../learning/scaffoldOf'
 import { answerRefusal } from '../platform/infrastructure/http/answerRefusal'
 import { honoPathOf } from '../platform/infrastructure/http/honoPath'
 import { readJsonBody } from '../platform/infrastructure/http/readJsonBody'

@@ -4,20 +4,20 @@ import { readMigrationFiles } from 'drizzle-orm/migrator'
 import { drizzle, type NodePgDatabase } from 'drizzle-orm/node-postgres'
 import { Client } from 'pg'
 import { afterEach, beforeEach, describe, expect, it } from 'vitest'
+import { tokenDigest } from '../../account/application/tokenDigest'
 import {
   accountTokens,
   players,
   sessions,
 } from '../../account/infrastructure/postgres/accountTables'
+import { DrizzleAccounts } from '../../account/infrastructure/postgres/DrizzleAccounts'
 import { apiPackagePath } from '../../apiPackagePath.testSupport'
-import { tokenDigest } from '../../auth/tokenDigest'
 import {
   cards,
   pendingReviews,
   reviewLog,
 } from '../../learning/infrastructure/postgres/learningTables'
 import { earnedSkills } from '../../town/infrastructure/postgres/schoolTables'
-import { DrizzleAccounts } from './DrizzleAccounts'
 import { DrizzleCardRepository } from './DrizzleCardRepository'
 import { DrizzleTownRepository } from './DrizzleTownRepository'
 

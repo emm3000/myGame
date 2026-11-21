@@ -13,10 +13,10 @@ import {
   type TownSkill,
   type WordId,
 } from '@mygame/domain'
+import { scaffoldOf } from '../account/application/readScaffold'
 import { mutateTown } from '../town/mutateTown'
 import type { LearningDependencies } from './LearningDependencies'
 import type { LessonLibrary } from './LessonLibrary'
-import { scaffoldOf } from './scaffoldOf'
 
 export type ReviewOutcome = {
   readonly answered: AnsweredReview

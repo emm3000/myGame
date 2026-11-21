@@ -1,0 +1,901 @@
+import { ApiErrorSchema, NativeSessionSchema, PlayerSchema } from '@mygame/contracts'
+import { type Clock, Instant, ok } from '@mygame/domain'
+import { Client } from 'pg'
+import { afterAll, beforeAll, beforeEach, describe, expect, it } from 'vitest'
+import { apiPackagePath } from '../../../apiPackagePath.testSupport'
+import { createApp } from '../../../app'
+import { type ComposedServer, composeServer } from '../../../composeServer'
+import { mailEnvironment } from '../../../composeServer.testSupport'
+import type { ComposedStores } from '../../../composeStores'
+import type { Transaction } from '../../../platform/application/ports/Transaction'
+import { truncatePlayerTables } from '../../../truncatePlayerTables.testSupport'
+import { accountTokenExpiryFrom } from '../../application/accountTokenExpiryFrom'
+import type { Mail } from '../../application/ports/Mailer'
+import { tokenDigest } from '../../application/tokenDigest'
+import { MemoryMailer } from '../memory/MemoryMailer'
+
+const contentDirectory = apiPackagePath('content/')
+
+const millisecondsPerHour = 3_600_000
+
+const millisecondsPerDay = 24 * millisecondsPerHour
+
+const signedUpAt = Date.parse('2026-09-22T08:00:00Z')
+
+type MovableClock = Clock & {
+  readonly advanceDays: (days: number) => void
+  readonly advanceHours: (hours: number) => void
+}
+
+const movableClock = (): MovableClock => {
+  let current = Instant.fromEpochMilliseconds(signedUpAt)
+  const advance = (milliseconds: number): void => {
+    current = Instant.fromEpochMilliseconds(current.epochMilliseconds + milliseconds)
+  }
+  return {
+    now: () => current,
+    advanceDays: (days) => advance(days * millisecondsPerDay),
+    advanceHours: (hours) => advance(hours * millisecondsPerHour),
+  }
+}
+
+function databaseUrl(): string {
+  const url = process.env.DATABASE_URL
+  if (!url) {
+    throw new Error('DATABASE_URL is not set')
+  }
+  return url
+}
+
+const truncateAccounts = async (): Promise<void> => {
+  const client = new Client({ connectionString: databaseUrl() })
+  await client.connect()
+  try {
+    await client.query(truncatePlayerTables)
+  } finally {
+    await client.end()
+  }
+}
+
+const playersWithEmail = async (email: string): Promise<number> => {
+  const client = new Client({ connectionString: databaseUrl() })
+  await client.connect()
+  try {
+    const found = await client.query('SELECT id FROM players WHERE lower(email) = lower($1)', [
+      email,
+    ])
+    return found.rowCount ?? 0
+  } finally {
+    await client.end()
+  }
+}
+
+const storedSessionKeys = async (): Promise<ReadonlyArray<string>> => {
+  const client = new Client({ connectionString: databaseUrl() })
+  await client.connect()
+  try {
+    const found = await client.query<{ key: string }>('SELECT token_digest AS key FROM sessions')
+    return found.rows.map((row) => row.key)
+  } finally {
+    await client.end()
+  }
+}
+
+const storedTowns = async (): Promise<number> => {
+  const client = new Client({ connectionString: databaseUrl() })
+  await client.connect()
+  try {
+    const found = await client.query<{ count: number }>('SELECT count(*)::int AS count FROM towns')
+    return found.rows[0]?.count ?? -1
+  } finally {
+    await client.end()
+  }
+}
+
+const emailVerifiedAtOf = async (email: string): Promise<number | undefined> => {
+  const client = new Client({ connectionString: databaseUrl() })
+  await client.connect()
+  try {
+    const found = await client.query<{ verifiedAt: Date | null }>(
+      'SELECT email_verified_at AS "verifiedAt" FROM players WHERE lower(email) = lower($1)',
+      [email],
+    )
+    return found.rows[0]?.verifiedAt?.getTime()
+  } finally {
+    await client.end()
+  }
+}
+
+const storedResetTokens = async (): Promise<number> => {
+  const client = new Client({ connectionString: databaseUrl() })
+  await client.connect()
+  try {
+    const found = await client.query("SELECT token_digest FROM account_tokens WHERE kind = 'reset'")
+    return found.rowCount ?? 0
+  } finally {
+    await client.end()
+  }
+}
+
+const post = (body: object, cookie?: string): RequestInit => ({
+  method: 'POST',
+  headers: {
+    'content-type': 'application/json',
+    ...(cookie === undefined ? {} : { cookie }),
+  },
+  body: JSON.stringify(body),
+})
+
+const sessionCookieOf = (response: Response): string => {
+  const setCookie = response.headers.get('set-cookie') ?? ''
+  const [pair = ''] = setCookie.split(';')
+  return pair
+}
+
+const anasSignUp = { email: 'ana@example.com', password: 'hierro-y-lana', scaffold: 'es' }
+
+const tokenOf = (mail: Mail | undefined): string => {
+  const link = mail?.text.split('\n').find((line) => line.startsWith(mailEnvironment.WEB_URL))
+  return link === undefined ? '' : (new URL(link).searchParams.get('token') ?? '')
+}
+
+describe('the auth routes', () => {
+  let server: ComposedServer
+  let clock: MovableClock
+  let mailer: MemoryMailer
+  let app: ReturnType<typeof createApp>
+
+  beforeAll(() => {
+    server = composeServer({ DATABASE_URL: databaseUrl(), ...mailEnvironment }, contentDirectory)
+  })
+
+  afterAll(async () => {
+    await server.close()
+  })
+
+  beforeEach(async () => {
+    await truncateAccounts()
+    clock = movableClock()
+    mailer = new MemoryMailer()
+    app = createApp({ ...server, clock, mailer })
+  })
+
+  it('refuses a password shorter than eight characters', async () => {
+    const response = await app.request(
+      '/auth/sign-up',
+      post({ ...anasSignUp, password: 'corta77' }),
+    )
+
+    expect(response.status).toBe(400)
+    expect(ApiErrorSchema.parse(await response.json()).kind).toBe('WeakPassword')
+  })
+
+  it('refuses a password that is not text as a malformed request', async () => {
+    const response = await app.request('/auth/sign-up', post({ ...anasSignUp, password: 12345678 }))
+
+    expect(response.status).toBe(400)
+    expect(await response.text()).toBe('')
+  })
+
+  const signUpAna = async (): Promise<Response> => app.request('/auth/sign-up', post(anasSignUp))
+
+  const sessionOf = async (cookie: string): Promise<Response> =>
+    app.request('/auth/session', { headers: { cookie } })
+
+  it('signs up without founding anything', async () => {
+    const response = await signUpAna()
+
+    expect(response.status).toBe(201)
+    PlayerSchema.parse(await response.json())
+    expect(await storedTowns()).toBe(0)
+  })
+
+  it.each(['/auth/sign-up', '/auth/sign-up/native'])(
+    'stores on %s the scaffold language the player picks at sign-up',
+    async (route) => {
+      await app.request(route, post({ ...anasSignUp, scaffold: 'none' }))
+      const signedIn = await app.request('/auth/sign-in', post(anasSignUp))
+
+      expect(PlayerSchema.parse(await signedIn.json()).scaffold).toBe('none')
+    },
+  )
+
+  it('refuses a sign-up without a scaffold language as a malformed request', async () => {
+    const { scaffold: _, ...withoutScaffold } = anasSignUp
+    const response = await app.request('/auth/sign-up', post(withoutScaffold))
+
+    expect(response.status).toBe(400)
+    expect(await response.text()).toBe('')
+  })
+
+  it.each(['/auth/sign-up', '/auth/sign-up/native'])(
+    'signs up on %s an older client that sends a field the request no longer names',
+    async (route) => {
+      const response = await app.request(
+        route,
+        post({ ...anasSignUp, retiredField: 'Maple Grove' }),
+      )
+
+      expect(response.status).toBe(201)
+      expect(await playersWithEmail(anasSignUp.email)).toBe(1)
+      expect(await storedTowns()).toBe(0)
+    },
+  )
+
+  it('refuses a malformed email with a message the sign-up screen can show', async () => {
+    const response = await app.request(
+      '/auth/sign-up',
+      post({ ...anasSignUp, email: 'ana-sin-arroba' }),
+    )
+
+    expect(response.status).toBe(400)
+    expect(ApiErrorSchema.parse(await response.json()).kind).toBe('MalformedEmail')
+  })
+
+  it('names the malformed email before the short password', async () => {
+    const response = await app.request(
+      '/auth/sign-up',
+      post({ ...anasSignUp, email: 'ana-sin-arroba', password: 'corta77' }),
+    )
+
+    expect(response.status).toBe(400)
+    expect(ApiErrorSchema.parse(await response.json()).kind).toBe('MalformedEmail')
+  })
+
+  it('refuses an email that is not text as a malformed request', async () => {
+    const response = await app.request('/auth/sign-up', post({ ...anasSignUp, email: 42 }))
+
+    expect(response.status).toBe(400)
+    expect(await response.text()).toBe('')
+  })
+
+  it('answers the same refusal for an unknown email and a wrong password', async () => {
+    await signUpAna()
+
+    const wrongPassword = await app.request(
+      '/auth/sign-in',
+      post({ email: anasSignUp.email, password: 'lana-y-hierro' }),
+    )
+    const unknownEmail = await app.request(
+      '/auth/sign-in',
+      post({ email: 'nadie@example.com', password: anasSignUp.password }),
+    )
+
+    expect(wrongPassword.status).toBe(401)
+    expect(unknownEmail.status).toBe(wrongPassword.status)
+    const refusal = ApiErrorSchema.parse(await wrongPassword.json())
+    expect(refusal.kind).toBe('InvalidCredentials')
+    expect(ApiErrorSchema.parse(await unknownEmail.json())).toEqual(refusal)
+  })
+
+  it('signs in with the email in any letter case and the right password', async () => {
+    await signUpAna()
+
+    const response = await app.request(
+      '/auth/sign-in',
+      post({ email: 'ANA@example.com', password: anasSignUp.password }),
+    )
+
+    expect(response.status).toBe(200)
+    expect(PlayerSchema.parse(await response.json()).email).toBe(anasSignUp.email)
+  })
+
+  it('refuses a second account on the same email', async () => {
+    await signUpAna()
+
+    const response = await app.request(
+      '/auth/sign-up',
+      post({ ...anasSignUp, email: 'Ana@Example.com' }),
+    )
+
+    expect(response.status).toBe(409)
+    expect(ApiErrorSchema.parse(await response.json()).kind).toBe('EmailTaken')
+  })
+
+  it('sets the session in a secure http-only cookie that lasts thirty days', async () => {
+    const response = await signUpAna()
+
+    const setCookie = response.headers.get('set-cookie') ?? ''
+    expect(setCookie).toMatch(/^session=[A-Za-z0-9_-]{43};/)
+    expect(setCookie).toContain('Max-Age=2592000')
+    expect(setCookie).toContain('HttpOnly')
+    expect(setCookie).toContain('Secure')
+    expect(setCookie).toContain('SameSite=Lax')
+  })
+
+  it('sets the session cookie without Secure when the server is composed for plain http', async () => {
+    const plainHttpApp = createApp({ ...server, clock, isSessionCookieSecure: false })
+
+    const response = await plainHttpApp.request('/auth/sign-up', post(anasSignUp))
+
+    const setCookie = response.headers.get('set-cookie') ?? ''
+    expect(setCookie).toContain('HttpOnly')
+    expect(setCookie).not.toContain('Secure')
+  })
+
+  it('stores the digest of the session token, never the token', async () => {
+    const [, token = ''] = sessionCookieOf(await signUpAna()).split('=')
+
+    expect(await storedSessionKeys()).toEqual([tokenDigest(token)])
+  })
+
+  it('answers the signed-in player behind the session cookie', async () => {
+    const cookie = sessionCookieOf(await signUpAna())
+
+    const response = await sessionOf(cookie)
+
+    expect(response.status).toBe(200)
+    expect(PlayerSchema.parse(await response.json()).email).toBe(anasSignUp.email)
+  })
+
+  it('answers 401 without a session', async () => {
+    const response = await app.request('/auth/session')
+
+    expect(response.status).toBe(401)
+  })
+
+  it('stops authenticating a session thirty days after its last use', async () => {
+    const cookie = sessionCookieOf(await signUpAna())
+
+    clock.advanceDays(31)
+
+    expect((await sessionOf(cookie)).status).toBe(401)
+  })
+
+  it('slides the session expiry on an authenticated request', async () => {
+    const cookie = sessionCookieOf(await signUpAna())
+    clock.advanceDays(20)
+    await sessionOf(cookie)
+
+    clock.advanceDays(20)
+
+    expect((await sessionOf(cookie)).status).toBe(200)
+  })
+
+  it('stops authenticating a signed-out token', async () => {
+    const cookie = sessionCookieOf(await signUpAna())
+
+    const signedOut = await app.request('/auth/sign-out', post({}, cookie))
+
+    expect(signedOut.status).toBe(204)
+    expect((await sessionOf(cookie)).status).toBe(401)
+  })
+
+  it('clears the session cookie on sign-out', async () => {
+    const cookie = sessionCookieOf(await signUpAna())
+
+    const signedOut = await app.request('/auth/sign-out', post({}, cookie))
+
+    expect(signedOut.headers.getSetCookie().at(-1)).toMatch(/^session=; Max-Age=0;/)
+  })
+
+  const anasSignIn = { email: anasSignUp.email, password: anasSignUp.password }
+
+  const signInNatively = async (body: object): Promise<Response> =>
+    app.request('/auth/sign-in/native', post(body))
+
+  it('answers the session token in the body of the native sign-in', async () => {
+    await signUpAna()
+
+    const response = await signInNatively(anasSignIn)
+
+    expect(response.status).toBe(200)
+    expect(NativeSessionSchema.parse(await response.json()).player.email).toBe(anasSignUp.email)
+  })
+
+  it('sets no cookie on the native sign-in', async () => {
+    await signUpAna()
+
+    const response = await signInNatively(anasSignIn)
+
+    expect(response.status).toBe(200)
+    expect(response.headers.get('set-cookie')).toBeNull()
+  })
+
+  it('accepts the native sign-in token as a bearer on the session read', async () => {
+    await signUpAna()
+    const { token } = NativeSessionSchema.parse(await (await signInNatively(anasSignIn)).json())
+
+    const response = await app.request('/auth/session', {
+      headers: { authorization: `Bearer ${token}` },
+    })
+
+    expect(response.status).toBe(200)
+    expect(PlayerSchema.parse(await response.json()).email).toBe(anasSignUp.email)
+  })
+
+  it('refuses the bearer token after its sign-out', async () => {
+    await signUpAna()
+    const { token } = NativeSessionSchema.parse(await (await signInNatively(anasSignIn)).json())
+    const bearer = { authorization: `Bearer ${token}` }
+
+    const signedOut = await app.request('/auth/sign-out', { method: 'POST', headers: bearer })
+
+    expect(signedOut.status).toBe(204)
+    expect((await app.request('/auth/session', { headers: bearer })).status).toBe(401)
+  })
+
+  it('refuses the native sign-in with a wrong password as invalid credentials', async () => {
+    await signUpAna()
+
+    const response = await signInNatively({ ...anasSignIn, password: 'lana-y-hierro' })
+
+    expect(response.status).toBe(401)
+    expect(ApiErrorSchema.parse(await response.json()).kind).toBe('InvalidCredentials')
+  })
+
+  it('refuses a malformed native sign-in as invalid credentials', async () => {
+    const response = await signInNatively({ email: 'no-es-un-correo' })
+
+    expect(response.status).toBe(401)
+    expect(ApiErrorSchema.parse(await response.json()).kind).toBe('InvalidCredentials')
+  })
+
+  it('answers no token in the body of the web sign-in', async () => {
+    await signUpAna()
+
+    const response = await app.request('/auth/sign-in', post(anasSignIn))
+
+    const [, token = ''] = sessionCookieOf(response).split('=')
+    expect(token).not.toBe('')
+    expect(await response.text()).not.toContain(token)
+  })
+
+  const signUpNatively = async (body: object): Promise<Response> =>
+    app.request('/auth/sign-up/native', post(body))
+
+  it('answers the token and no cookie to a native sign-up', async () => {
+    const response = await signUpNatively(anasSignUp)
+
+    expect(response.status).toBe(201)
+    expect(response.headers.get('set-cookie')).toBeNull()
+    const { token, player } = NativeSessionSchema.parse(await response.json())
+    expect(player.email).toBe(anasSignUp.email)
+    const session = await app.request('/auth/session', {
+      headers: { authorization: `Bearer ${token}` },
+    })
+    expect(PlayerSchema.parse(await session.json()).email).toBe(anasSignUp.email)
+  })
+
+  it('refuses a native sign-up as the web sign-up does', async () => {
+    await signUpAna()
+    const refusedSignUps = [
+      { ...anasSignUp, email: 'bea@example.com', password: 'corta77' },
+      { ...anasSignUp, email: 'Ana@Example.com' },
+      { ...anasSignUp, email: 'bea@example.com', password: 12345678 },
+      { ...anasSignUp, email: 'bea-sin-arroba' },
+    ]
+
+    const webAnswers: Array<readonly [number, string]> = []
+    const nativeAnswers: Array<readonly [number, string]> = []
+    for (const body of refusedSignUps) {
+      const web = await app.request('/auth/sign-up', post(body))
+      webAnswers.push([web.status, await web.text()])
+      const native = await signUpNatively(body)
+      nativeAnswers.push([native.status, await native.text()])
+    }
+
+    expect(webAnswers.map(([status]) => status)).toEqual([400, 409, 400, 400])
+    expect(
+      [webAnswers[0], webAnswers[1], webAnswers[3]].map(
+        (answer) => ApiErrorSchema.parse(JSON.parse(answer?.[1] ?? '')).kind,
+      ),
+    ).toEqual(['WeakPassword', 'EmailTaken', 'MalformedEmail'])
+    expect(nativeAnswers).toEqual(webAnswers)
+  })
+
+  it('sends the verification mail to a native sign-up', async () => {
+    await signUpNatively(anasSignUp)
+
+    expect(tokenOf(mailer.sentTo(anasSignUp.email)[0])).toMatch(/^[A-Za-z0-9_-]{43}$/)
+  })
+
+  it('answers no token in the body of the web sign-up', async () => {
+    const response = await signUpAna()
+
+    const [, token = ''] = sessionCookieOf(response).split('=')
+    expect(token).not.toBe('')
+    expect(await response.text()).not.toContain(token)
+  })
+
+  const verifyEmail = async (token: string): Promise<Response> =>
+    app.request('/auth/verify-email', post({ token }))
+
+  const resendFor = async (cookie: string, resendingApp = app): Promise<Response> =>
+    resendingApp.request('/auth/verify-email/resend', post({}, cookie))
+
+  const isEmailVerified = async (cookie: string): Promise<boolean> =>
+    PlayerSchema.parse(await (await sessionOf(cookie)).json()).emailVerified
+
+  it('sends the verification mail to a new player', async () => {
+    await signUpAna()
+
+    const sent = mailer.sentTo(anasSignUp.email)
+    expect(sent).toHaveLength(1)
+    expect(tokenOf(sent[0])).toMatch(/^[A-Za-z0-9_-]{43}$/)
+  })
+
+  it('signs up a player whose email is not verified', async () => {
+    const response = await signUpAna()
+
+    expect(PlayerSchema.parse(await response.json()).emailVerified).toBe(false)
+    expect(await isEmailVerified(sessionCookieOf(response))).toBe(false)
+  })
+
+  it('signs up even when the mail cannot be sent', async () => {
+    const failingApp = createApp({ ...server, clock, mailer: MemoryMailer.failing() })
+
+    const response = await failingApp.request('/auth/sign-up', post(anasSignUp))
+
+    expect(response.status).toBe(201)
+    expect(await playersWithEmail(anasSignUp.email)).toBe(1)
+  })
+
+  it('verifies the email the link was sent to', async () => {
+    const cookie = sessionCookieOf(await signUpAna())
+
+    const verified = await verifyEmail(tokenOf(mailer.sentTo(anasSignUp.email)[0]))
+
+    expect(verified.status).toBe(204)
+    expect(await isEmailVerified(cookie)).toBe(true)
+    const signedIn = await app.request(
+      '/auth/sign-in',
+      post({ email: anasSignUp.email, password: anasSignUp.password }),
+    )
+    expect(PlayerSchema.parse(await signedIn.json()).emailVerified).toBe(true)
+  })
+
+  it('accepts a verify link used earlier in its day', async () => {
+    await signUpAna()
+    const token = tokenOf(mailer.sentTo(anasSignUp.email)[0])
+    await verifyEmail(token)
+    clock.advanceHours(1)
+
+    const second = await verifyEmail(token)
+
+    expect(second.status).toBe(204)
+  })
+
+  it('keeps the first verified instant when a verify link is used again', async () => {
+    await signUpAna()
+    const token = tokenOf(mailer.sentTo(anasSignUp.email)[0])
+    await verifyEmail(token)
+    clock.advanceHours(1)
+
+    await verifyEmail(token)
+
+    expect(await emailVerifiedAtOf(anasSignUp.email)).toBe(signedUpAt)
+  })
+
+  it('refuses a verify link past its day', async () => {
+    const cookie = sessionCookieOf(await signUpAna())
+    clock.advanceDays(1)
+
+    const response = await verifyEmail(tokenOf(mailer.sentTo(anasSignUp.email)[0]))
+
+    expect(response.status).toBe(400)
+    expect(ApiErrorSchema.parse(await response.json()).kind).toBe('TokenInvalid')
+    expect(await isEmailVerified(cookie)).toBe(false)
+  })
+
+  it('refuses a reset token as a verify link', async () => {
+    const player = PlayerSchema.parse(await (await signUpAna()).json())
+    const resetToken = 'a-reset-token-that-no-verify-link-carries'
+    await server.inTransaction(async ({ accountTokens }) => {
+      await accountTokens.issue(
+        {
+          token: resetToken,
+          playerId: player.id,
+          kind: 'reset',
+          expiresAt: accountTokenExpiryFrom('reset', clock.now()),
+        },
+        clock.now(),
+      )
+      return ok(undefined)
+    })
+
+    const response = await verifyEmail(resetToken)
+
+    expect(response.status).toBe(400)
+    expect(ApiErrorSchema.parse(await response.json()).kind).toBe('TokenInvalid')
+  })
+
+  it('refuses a token no link carried', async () => {
+    await signUpAna()
+
+    const response = await verifyEmail('a-token-nobody-was-sent')
+
+    expect(response.status).toBe(400)
+    expect(ApiErrorSchema.parse(await response.json()).kind).toBe('TokenInvalid')
+  })
+
+  it('refuses a verify request without a token as malformed', async () => {
+    const response = await app.request('/auth/verify-email', post({}))
+
+    expect(response.status).toBe(400)
+    expect(await response.text()).toBe('')
+  })
+
+  it('stops the earlier link working when a new one is sent', async () => {
+    const cookie = sessionCookieOf(await signUpAna())
+    const earlierToken = tokenOf(mailer.sentTo(anasSignUp.email)[0])
+
+    const resent = await resendFor(cookie)
+
+    expect(resent.status).toBe(204)
+    const laterToken = tokenOf(mailer.sentTo(anasSignUp.email)[1])
+    expect((await verifyEmail(earlierToken)).status).toBe(400)
+    expect((await verifyEmail(laterToken)).status).toBe(204)
+  })
+
+  it('sends no mail to a verified player', async () => {
+    const cookie = sessionCookieOf(await signUpAna())
+    await verifyEmail(tokenOf(mailer.sentTo(anasSignUp.email)[0]))
+
+    const resent = await resendFor(cookie)
+
+    expect(resent.status).toBe(204)
+    expect(mailer.sentTo(anasSignUp.email)).toHaveLength(1)
+  })
+
+  it('answers 503 when the new link cannot be sent', async () => {
+    const cookie = sessionCookieOf(await signUpAna())
+    const failingApp = createApp({ ...server, clock, mailer: MemoryMailer.failing() })
+
+    const resent = await resendFor(cookie, failingApp)
+
+    expect(resent.status).toBe(503)
+    expect(ApiErrorSchema.parse(await resent.json()).kind).toBe('MailNotSent')
+  })
+
+  it('answers 401 for a resend without a session', async () => {
+    const response = await app.request('/auth/verify-email/resend', post({}))
+
+    expect(response.status).toBe(401)
+  })
+
+  const resetMailSubject = 'Cambia tu contraseña'
+
+  const resetMailsTo = (email: string): ReadonlyArray<Mail> =>
+    mailer.sentTo(email).filter((mail) => mail.subject === resetMailSubject)
+
+  const verifiedAna = async (): Promise<string> => {
+    const cookie = sessionCookieOf(await signUpAna())
+    await verifyEmail(tokenOf(mailer.sentTo(anasSignUp.email)[0]))
+    return cookie
+  }
+
+  const forgotPassword = async (email: string, forgettingApp = app): Promise<Response> =>
+    forgettingApp.request('/auth/forgot-password', post({ email }))
+
+  const resetPassword = async (token: string, password: string): Promise<Response> =>
+    app.request('/auth/reset-password', post({ token, password }))
+
+  const signInAna = async (password: string): Promise<Response> =>
+    app.request('/auth/sign-in', post({ email: anasSignUp.email, password }))
+
+  const resetLinkOfAna = async (): Promise<string> => {
+    await forgotPassword(anasSignUp.email)
+    await server.afterResponse.settled()
+    return tokenOf(resetMailsTo(anasSignUp.email).at(-1))
+  }
+
+  const newPassword = 'acero-y-trigo'
+
+  it('sends a reset link to a verified email', async () => {
+    await verifiedAna()
+
+    const response = await forgotPassword(anasSignUp.email)
+    await server.afterResponse.settled()
+
+    expect(response.status).toBe(202)
+    expect(await response.text()).toBe('')
+    const sent = resetMailsTo(anasSignUp.email)
+    expect(sent).toHaveLength(1)
+    expect(tokenOf(sent[0])).toMatch(/^[A-Za-z0-9_-]{43}$/)
+  })
+
+  it('sends nothing to an unverified email', async () => {
+    await signUpAna()
+
+    const response = await forgotPassword(anasSignUp.email)
+    await server.afterResponse.settled()
+
+    expect(response.status).toBe(202)
+    expect(resetMailsTo(anasSignUp.email)).toEqual([])
+    expect(await storedResetTokens()).toBe(0)
+  })
+
+  it('answers an unknown email as it answers a known one', async () => {
+    await verifiedAna()
+
+    const known = await forgotPassword(anasSignUp.email)
+    const unknown = await forgotPassword('nadie@example.com')
+    await server.afterResponse.settled()
+
+    expect([unknown.status, await unknown.text()]).toEqual([known.status, await known.text()])
+    expect(mailer.sentTo('nadie@example.com')).toEqual([])
+  })
+
+  it('answers a reset request before it looks the address up', async () => {
+    let lookups = 0
+    let release = (): void => {}
+    const released = new Promise<void>((resolve) => {
+      release = resolve
+    })
+    const heldTransaction: Transaction<ComposedStores> = (work) => {
+      lookups += 1
+      return released.then(() => server.inTransaction(work))
+    }
+
+    const response = await forgotPassword(
+      anasSignUp.email,
+      createApp({ ...server, clock, mailer, inTransaction: heldTransaction }),
+    )
+
+    expect([response.status, lookups]).toEqual([202, 1])
+    release()
+    await server.afterResponse.settled()
+  })
+
+  it('reports a reset request whose send threw by the error class alone', async () => {
+    await verifiedAna()
+    const failures: Array<string> = []
+    const throwingApp = createApp({
+      ...server,
+      clock,
+      mailer: { send: () => Promise.reject(new TypeError('ana@example.com refused')) },
+      failureSink: { write: (line) => failures.push(line) },
+    })
+
+    await forgotPassword(anasSignUp.email, throwingApp)
+    await server.afterResponse.settled()
+
+    expect(failures).toEqual(['reset request TypeError'])
+  })
+
+  it('answers 202 when the reset link cannot be sent', async () => {
+    await verifiedAna()
+    const failingApp = createApp({ ...server, clock, mailer: MemoryMailer.failing() })
+
+    const response = await forgotPassword(anasSignUp.email, failingApp)
+    await server.afterResponse.settled()
+
+    expect(response.status).toBe(202)
+  })
+
+  it('reports a reset request whose mail could not be sent without its address', async () => {
+    await verifiedAna()
+    const failures: Array<string> = []
+    const failingApp = createApp({
+      ...server,
+      clock,
+      mailer: MemoryMailer.failing(),
+      failureSink: { write: (line) => failures.push(line) },
+    })
+
+    await forgotPassword(anasSignUp.email, failingApp)
+    await server.afterResponse.settled()
+
+    expect(failures).toEqual(['reset request MailNotSent'])
+  })
+
+  it('refuses a reset request with a malformed email', async () => {
+    const response = await forgotPassword('ana')
+
+    expect(response.status).toBe(400)
+    expect(await response.text()).toBe('')
+  })
+
+  it('sets the new password', async () => {
+    await verifiedAna()
+
+    const reset = await resetPassword(await resetLinkOfAna(), newPassword)
+
+    expect(reset.status).toBe(204)
+    expect((await signInAna(newPassword)).status).toBe(200)
+  })
+
+  it('opens no session when it sets the new password', async () => {
+    await verifiedAna()
+
+    const reset = await resetPassword(await resetLinkOfAna(), newPassword)
+
+    expect(reset.headers.get('set-cookie')).toBeNull()
+    expect(await storedSessionKeys()).toEqual([])
+  })
+
+  it('refuses the old password after a reset', async () => {
+    await verifiedAna()
+
+    await resetPassword(await resetLinkOfAna(), newPassword)
+
+    const signedIn = await signInAna(anasSignUp.password)
+    expect(signedIn.status).toBe(401)
+    expect(ApiErrorSchema.parse(await signedIn.json()).kind).toBe('InvalidCredentials')
+  })
+
+  it('signs out every session of the player', async () => {
+    const signUpCookie = await verifiedAna()
+    const signInCookie = sessionCookieOf(await signInAna(anasSignUp.password))
+
+    await resetPassword(await resetLinkOfAna(), newPassword)
+
+    expect((await sessionOf(signUpCookie)).status).toBe(401)
+    expect((await sessionOf(signInCookie)).status).toBe(401)
+  })
+
+  it('keeps the sessions of every other player', async () => {
+    await verifiedAna()
+    const brunosCookie = sessionCookieOf(
+      await app.request(
+        '/auth/sign-up',
+        post({ email: 'bruno@example.com', password: 'piedra-y-oro', scaffold: 'es' }),
+      ),
+    )
+
+    await resetPassword(await resetLinkOfAna(), newPassword)
+
+    expect((await sessionOf(brunosCookie)).status).toBe(200)
+  })
+
+  it('refuses a reset link used twice', async () => {
+    await verifiedAna()
+    const token = await resetLinkOfAna()
+    await resetPassword(token, newPassword)
+
+    const second = await resetPassword(token, 'otra-clave-nueva')
+
+    expect(second.status).toBe(400)
+    expect(ApiErrorSchema.parse(await second.json()).kind).toBe('TokenInvalid')
+  })
+
+  it('refuses a reset link past its hour', async () => {
+    await verifiedAna()
+    const token = await resetLinkOfAna()
+    clock.advanceHours(1)
+
+    const response = await resetPassword(token, newPassword)
+
+    expect(response.status).toBe(400)
+    expect(ApiErrorSchema.parse(await response.json()).kind).toBe('TokenInvalid')
+  })
+
+  it('refuses a verify token as a reset link', async () => {
+    await signUpAna()
+    const verifyToken = tokenOf(mailer.sentTo(anasSignUp.email)[0])
+
+    const response = await resetPassword(verifyToken, newPassword)
+
+    expect(response.status).toBe(400)
+    expect(ApiErrorSchema.parse(await response.json()).kind).toBe('TokenInvalid')
+  })
+
+  it('refuses a short new password', async () => {
+    await verifiedAna()
+    const token = await resetLinkOfAna()
+
+    const response = await resetPassword(token, 'corta77')
+
+    expect(response.status).toBe(400)
+    expect(ApiErrorSchema.parse(await response.json()).kind).toBe('WeakPassword')
+    expect((await resetPassword(token, newPassword)).status).toBe(204)
+  })
+
+  it('refuses a reset without a token as malformed', async () => {
+    const response = await app.request('/auth/reset-password', post({ password: newPassword }))
+
+    expect(response.status).toBe(400)
+    expect(await response.text()).toBe('')
+  })
+
+  it('stops the earlier reset link working when a new one is asked', async () => {
+    await verifiedAna()
+    const earlierToken = await resetLinkOfAna()
+
+    const laterToken = await resetLinkOfAna()
+
+    expect((await resetPassword(earlierToken, newPassword)).status).toBe(400)
+    expect((await resetPassword(laterToken, newPassword)).status).toBe(204)
+  })
+})

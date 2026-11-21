@@ -1,6 +1,6 @@
 import type { AccountStores } from './account/application/ports/AccountStores'
-import { DrizzleAccounts } from './adapters/postgres/DrizzleAccounts'
-import { DrizzleAccountTokens } from './adapters/postgres/DrizzleAccountTokens'
+import { DrizzleAccounts } from './account/infrastructure/postgres/DrizzleAccounts'
+import { DrizzleAccountTokens } from './account/infrastructure/postgres/DrizzleAccountTokens'
 import { DrizzleBandStarts } from './adapters/postgres/DrizzleBandStarts'
 import { DrizzleCardRepository } from './adapters/postgres/DrizzleCardRepository'
 import { DrizzleCleanUpRepository } from './adapters/postgres/DrizzleCleanUpRepository'
