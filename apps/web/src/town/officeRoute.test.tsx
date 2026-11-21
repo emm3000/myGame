@@ -381,3 +381,33 @@ it('writes a hiring refusal in English under none', async () => {
   ).toBe(en.refusalHiringNotEnoughResources())
   expect(shownLinesDrawnAlone(en.refusalHiringNotEnoughResources(), 'en')).toHaveLength(1)
 })
+
+const inSeasonLastMinute: TownOverview = {
+  ...officeTown,
+  season: {
+    kind: 'fall',
+    year: 1,
+    endsAt: instantAfter(50),
+    productionPercent: { money: 100, food: 100, power: 100, material: 100 },
+    durationPercent: { build: 100, study: 100, hire: 100, road: 75 },
+  },
+}
+
+const seasonCountdown = (timeLeft: string): HTMLElement =>
+  within(screen.getByRole('region', { name: es.townStocks() })).getByText(
+    es.townSeasonEndsIn({ season: 'Otoño', timeLeft }),
+  )
+
+it("counts the season's last minute down while the office form is typed", async () => {
+  await showTown(inSeasonLastMinute)
+  const count = within(hireCard(es.namesHiresWorker())).getByLabelText('Trabajadores a contratar')
+
+  for (const second of [1, 2, 3]) {
+    fireEvent.change(count, { target: { value: String(second * 2 - 1) } })
+    await passSeconds(0.5)
+    fireEvent.change(count, { target: { value: String(second * 2) } })
+    await passSeconds(0.5)
+
+    expect(seasonCountdown(`0:${50 - second}`)).toBeDefined()
+  }
+})
