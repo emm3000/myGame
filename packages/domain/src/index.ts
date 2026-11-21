@@ -207,13 +207,9 @@ export type { EarnedSkillRepository } from './town/EarnedSkillRepository'
 export { earnTownSkill } from './town/earnTownSkill'
 export { type FullSince, noStoreFull } from './town/FullSince'
 export { type FoundTownCommand, type FoundTownDependencies, foundTown } from './town/foundTown'
+export type { NextStep } from './town/guidance/NextStep'
 export { type GoalShortfall, type NextGoal, nextGoalOf } from './town/guidance/nextGoalOf'
-export {
-  type NextStep,
-  type NextStepReading,
-  type NextStepTerms,
-  nextStepOf,
-} from './town/guidance/nextStepOf'
+export { type NextStepReading, type NextStepTerms, nextStepOf } from './town/guidance/nextStepOf'
 export { type ReadyStock, type ResourceNeed, readyMinuteOf } from './town/guidance/readyMinuteOf'
 export type { TipKind } from './town/guidance/TipKind'
 export { tipKinds } from './town/guidance/tipKinds'
