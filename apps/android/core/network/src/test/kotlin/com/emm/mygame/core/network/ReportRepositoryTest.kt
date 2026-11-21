@@ -393,7 +393,9 @@ class ReportRepositoryTest {
         news: String = "",
         readFirst: String = "",
         nextDueAt: String = "null",
-    ): String = """{"dueCount":$dueCount,"due":[],"readFirst":[$readFirst],"nextDueAt":$nextDueAt,"news":[$news]}"""
+    ): String =
+        """{"dueCount":$dueCount,"due":[],"readFirst":[$readFirst],"nextDueAt":$nextDueAt,""" +
+            """"readAt":"2026-11-10T09:00:00.000Z","news":[$news]}"""
 
     private fun feedOf(items: String = ""): String = """{"items":[$items]}"""
 

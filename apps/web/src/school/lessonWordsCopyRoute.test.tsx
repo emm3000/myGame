@@ -40,7 +40,14 @@ const oneWord = lessonOf([readableWord('home')])
 
 const nothingToRead = lessonOf([{ ...readableWord('home'), reading: null }])
 
-const noReviewsAhead: Report = { dueCount: 0, due: [], readFirst: [], nextDueAt: null, news: [] }
+const noReviewsAhead: Report = {
+  dueCount: 0,
+  due: [],
+  readFirst: [],
+  nextDueAt: null,
+  readAt: knownTown.readAt,
+  news: [],
+}
 
 const openText: OpenText = {
   id: 'text-1',

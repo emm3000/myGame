@@ -136,7 +136,14 @@ export const stubApiClient = (overrides: Partial<ApiClient> = {}): ApiClient => 
   answerReview: async () => ({ ok: true, value: { verdict: { kind: 'nearMiss' } } }),
   report: async () => ({
     ok: true,
-    value: { dueCount: 0, due: [], readFirst: [], nextDueAt: null, news: [] },
+    value: {
+      dueCount: 0,
+      due: [],
+      readFirst: [],
+      nextDueAt: null,
+      readAt: knownTown.readAt,
+      news: [],
+    },
   }),
   placement: async () => ({ ok: true, value: { kind: 'closed', scores: [] } }),
   beginPlacement: async () => ({ ok: true, value: { kind: 'closed', scores: [] } }),

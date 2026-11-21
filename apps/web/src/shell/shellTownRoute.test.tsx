@@ -270,6 +270,7 @@ it("reads the Report again at a lesson's finish", async () => {
         due: [],
         readFirst: [],
         nextDueAt: null,
+        readAt: knownTown.readAt,
         news: [],
       },
     }),
@@ -287,7 +288,14 @@ it("reads the Report again at a lesson's finish", async () => {
 it("reads the Report no more at a lesson's start", async () => {
   const report = vi.fn<ApiClient['report']>(async () => ({
     ok: true,
-    value: { dueCount: 0, due: [], readFirst: [], nextDueAt: null, news: [] },
+    value: {
+      dueCount: 0,
+      due: [],
+      readFirst: [],
+      nextDueAt: null,
+      readAt: knownTown.readAt,
+      news: [],
+    },
   }))
   renderAppAt(
     '/report',

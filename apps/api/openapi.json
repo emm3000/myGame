@@ -1322,6 +1322,10 @@
             "nullable": true,
             "format": "date-time"
           },
+          "readAt": {
+            "type": "string",
+            "format": "date-time"
+          },
           "news": {
             "type": "array",
             "items": {
@@ -1330,7 +1334,7 @@
             "maxItems": 100
           }
         },
-        "required": ["dueCount", "due", "readFirst", "nextDueAt", "news"],
+        "required": ["dueCount", "due", "readFirst", "nextDueAt", "readAt", "news"],
         "additionalProperties": false
       },
       "TownNewsItem": {
