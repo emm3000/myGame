@@ -10,7 +10,7 @@ import { isWholeFromOneTo } from '../isWholeFromOneTo'
 import type { CleanUpReader } from '../ports/CleanUpReader'
 import type { RegionMapReader, SiteHolder } from '../ports/RegionMapReader'
 import type { RegionMap, RegionSite, SiteWaste } from '../RegionMap'
-import { lastAreaOf } from '../services/readLastArea'
+import { readLastArea } from '../services/readLastArea'
 import { terrainOf } from '../terrainOf'
 import { wasteAt } from '../wasteAt'
 import { wasteSizeOf } from '../wasteSizeOf'
@@ -67,7 +67,7 @@ export const readRegionMap = async (
   }
   const { region } = address
   const shown = area ?? address.area
-  const lastArea = await lastAreaOf(region, map)
+  const lastArea = await readLastArea(region, map)
   if (!isWholeFromOneTo(shown, lastArea)) {
     return err({ kind: 'AreaNotFound', area: shown })
   }

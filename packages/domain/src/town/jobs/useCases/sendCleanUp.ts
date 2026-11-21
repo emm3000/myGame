@@ -12,7 +12,7 @@ import type { CleanUpJob } from '../Job'
 import { jobInstantsOf } from '../jobInstantsOf'
 import type { CleanUpRepository } from '../ports/CleanUpRepository'
 import type { RegionMapReader } from '../ports/RegionMapReader'
-import { dispatchedCleanUpOf } from '../services/dispatchCleanUp'
+import { dispatchCleanUp } from '../services/dispatchCleanUp'
 
 export type SendCleanUpDependencies = {
   readonly towns: TownRepository
@@ -41,11 +41,7 @@ export const sendCleanUp = async (
   order: CleanUpOrder,
   { towns, map, cleanUps, news, catalog, clock }: SendCleanUpDependencies,
 ): Promise<Result<Town, DomainError>> => {
-  const dispatched = await dispatchedCleanUpOf(
-    order,
-    { towns, map, cleanUps, catalog },
-    clock.now(),
-  )
+  const dispatched = await dispatchCleanUp(order, { towns, map, cleanUps, catalog }, clock.now())
   if (!dispatched.ok) {
     return dispatched
   }

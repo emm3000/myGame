@@ -4,7 +4,7 @@ import { ok, type Result } from '../../../Result'
 import type { CleanUpOrder } from '../CleanUpOrder'
 import type { CleanUpQuote } from '../CleanUpQuote'
 import { coversWaste } from '../coversWaste'
-import { type CleanUpDispatchDependencies, dispatchedCleanUpOf } from '../services/dispatchCleanUp'
+import { type CleanUpDispatchDependencies, dispatchCleanUp } from '../services/dispatchCleanUp'
 
 export type QuoteCleanUpDependencies = CleanUpDispatchDependencies & {
   readonly clock: Clock
@@ -14,7 +14,7 @@ export const quoteCleanUp = async (
   order: CleanUpOrder,
   { clock, ...dependencies }: QuoteCleanUpDependencies,
 ): Promise<Result<CleanUpQuote, DomainError>> => {
-  const dispatched = await dispatchedCleanUpOf(order, dependencies, clock.now())
+  const dispatched = await dispatchCleanUp(order, dependencies, clock.now())
   if (!dispatched.ok) {
     return dispatched
   }

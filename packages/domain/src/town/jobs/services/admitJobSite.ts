@@ -6,7 +6,7 @@ import type { TownCatalog } from '../../TownCatalog'
 import { isWholeFromOneTo } from '../isWholeFromOneTo'
 import type { JobTarget } from '../JobOrder'
 import type { RegionMapReader } from '../ports/RegionMapReader'
-import { lastAreaOf } from './readLastArea'
+import { readLastArea } from './readLastArea'
 
 export const admitJobSite = async (
   town: Town,
@@ -15,7 +15,7 @@ export const admitJobSite = async (
   catalog: TownCatalog,
 ): Promise<Result<SiteAddress, DomainError>> => {
   const { region } = town.address
-  const lastArea = await lastAreaOf(region, map)
+  const lastArea = await readLastArea(region, map)
   const { sitesPerArea } = catalog.townSettings()
   if (!isWholeFromOneTo(area, lastArea) || !isWholeFromOneTo(site, sitesPerArea)) {
     return err({ kind: 'JobSiteOutOfBounds', area, site })
