@@ -1,12 +1,8 @@
 import type { Result } from '@mygame/domain'
-import { sql, TransactionRollbackError } from 'drizzle-orm'
+import { TransactionRollbackError } from 'drizzle-orm'
 import type { NodePgDatabase } from 'drizzle-orm/node-postgres'
 import type { Transaction } from '../../application/ports/Transaction'
 import type { PostgresSession } from './connectPostgres'
-
-export const statementTimeoutMilliseconds = 2_000
-
-const statementTimeout = sql.raw(`SET LOCAL statement_timeout = ${statementTimeoutMilliseconds}`)
 
 export const postgresTransaction =
   <Stores>(
@@ -17,7 +13,6 @@ export const postgresTransaction =
     let refused: Result<T, E> | undefined
     try {
       return await database.transaction(async (transaction) => {
-        await transaction.execute(statementTimeout)
         const outcome = await work(composeStores(transaction))
         if (!outcome.ok) {
           refused = outcome
