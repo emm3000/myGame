@@ -6,8 +6,8 @@ import { cardsInLearningOf } from '../learning/retention/cardsInLearningOf'
 import { err, ok, type Result } from '../Result'
 import type { SchoolLevel } from './BuildingLevel'
 import type { LessonSlot } from './LessonSlot'
+import type { TownCatalog } from './ports/TownCatalog'
 import { schoolLevelOf } from './school/schoolLevelOf'
-import type { TownCatalog } from './TownCatalog'
 
 export type SchoolLessonRefusal = Extract<
   DomainError,

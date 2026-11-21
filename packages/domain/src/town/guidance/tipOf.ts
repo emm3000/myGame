@@ -5,10 +5,10 @@ import { accrueTown } from '../accrueTown'
 import { buildingKinds } from '../buildingKinds'
 import { derivePeople } from '../derivePeople'
 import { hireKinds } from '../hireKinds'
+import type { TownCatalog } from '../ports/TownCatalog'
 import { resourceKinds } from '../resourceKinds'
 import { seasonPercentsAt } from '../seasonPercentsAt'
 import type { Town } from '../Town'
-import type { TownCatalog } from '../TownCatalog'
 import type { TipKind } from './TipKind'
 
 export type TipReading = {

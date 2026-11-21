@@ -1,6 +1,6 @@
 import type { Hires } from '../Hires'
 import { hireKinds } from '../hireKinds'
-import type { TownCatalog } from '../TownCatalog'
+import type { TownCatalog } from '../ports/TownCatalog'
 
 export const carryOf = (team: Hires, catalog: TownCatalog): number =>
   hireKinds.reduce((total, hire) => total + team[hire] * catalog.hireTermsOf(hire).carry, 0)

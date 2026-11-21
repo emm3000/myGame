@@ -4,9 +4,9 @@ import type { Instant } from '../time/Instant'
 import { accrueTown } from './accrueTown'
 import { finishBuildingWork } from './building/finishBuildingWork'
 import { jobInstantsOf } from './jobs/jobInstantsOf'
+import type { TownCatalog } from './ports/TownCatalog'
 import { rebaseFullSince } from './rebaseFullSince'
 import type { ChangedTown, Town } from './Town'
-import type { TownCatalog } from './TownCatalog'
 
 const returnOf = (
   town: Town,

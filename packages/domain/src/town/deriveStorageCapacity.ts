@@ -1,6 +1,6 @@
 import type { DomainError } from '../DomainError'
 import { err, ok, type Result } from '../Result'
-import type { TownCatalog } from './TownCatalog'
+import type { TownCatalog } from './ports/TownCatalog'
 
 export const deriveStorageCapacity = (
   storageLevel: number,

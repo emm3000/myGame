@@ -1,7 +1,7 @@
 import type { MemoryCard } from '../../memory/MemoryCard'
 import type { MemoryRating } from '../../memory/MemoryRating'
 import { openedLevelOf } from '../../town/building/openedLevelOf'
-import type { TownCatalog } from '../../town/TownCatalog'
+import type { TownCatalog } from '../../town/ports/TownCatalog'
 import type { TownSkill } from '../../town/TownSkill'
 import type { HeldCard } from '../HeldCard'
 import { retainedWordCountOf } from '../retention/retainedWordCountOf'

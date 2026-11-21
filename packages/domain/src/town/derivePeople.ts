@@ -5,7 +5,7 @@ import { buildingKinds } from './buildingKinds'
 import type { Hires } from './Hires'
 import { hireKinds } from './hireKinds'
 import type { People } from './People'
-import type { TownCatalog } from './TownCatalog'
+import type { TownCatalog } from './ports/TownCatalog'
 
 export const deriveSuppliedPeople = (
   homesLevel: number,

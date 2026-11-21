@@ -17,8 +17,8 @@ import { err, ok, type Result } from '../../Result'
 import type { Instant } from '../../time/Instant'
 import { admitSchoolLesson, type SchoolLessonRefusal } from '../admitSchoolLesson'
 import type { LessonSlot } from '../LessonSlot'
+import type { TownCatalog } from '../ports/TownCatalog'
 import type { Town } from '../Town'
-import type { TownCatalog } from '../TownCatalog'
 import type { CaughtUpReason, NextStep, NextStepText } from './NextStep'
 
 export type NextStepReading = {

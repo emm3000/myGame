@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest'
-import { Instant } from '../time/Instant'
-import type { TownSkill } from '../town/TownSkill'
+import { Instant } from '../../time/Instant'
+import type { TownSkill } from '../TownSkill'
 import { inMemoryEarnedSkills } from './inMemoryEarnedSkills'
 
 const foodSkill: TownSkill = {

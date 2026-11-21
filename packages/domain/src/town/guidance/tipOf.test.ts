@@ -1,9 +1,9 @@
 import { assert, describe, expect, it } from 'vitest'
-import { plainTownSettings, townCatalogOf } from '../../testing/townCatalogOf'
-import { type TownShape, townOf } from '../../testing/townFixtures'
 import { Instant } from '../../time/Instant'
 import type { BusyWorkSlot } from '../BuildingWork'
 import type { TownSettings } from '../TownSettings'
+import { plainTownSettings, townCatalogOf } from '../testing/townCatalogOf'
+import { type TownShape, townOf } from '../testing/townFixtures'
 import type { TipKind } from './TipKind'
 import { type TipReading, tipOf } from './tipOf'
 

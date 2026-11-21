@@ -1,8 +1,8 @@
 import { assert, describe, expect, it } from 'vitest'
-import { townCatalogOf } from '../testing/townCatalogOf'
 import type { BuildingLevels } from './BuildingLevels'
 import { derivePeople } from './derivePeople'
 import { noHires } from './Hires'
+import { townCatalogOf } from './testing/townCatalogOf'
 
 const noBuilding: BuildingLevels = {
   homes: 0,

@@ -1,10 +1,10 @@
-import { Instant } from '../time/Instant'
-import type { BuildingKind } from '../town/BuildingKind'
-import type { BuildingLevel } from '../town/BuildingLevel'
-import type { HireKind } from '../town/HireKind'
-import type { HireTerms } from '../town/hiring/HireTerms'
-import type { TownCatalog } from '../town/TownCatalog'
-import type { ProductionPercent, TownSettings } from '../town/TownSettings'
+import { Instant } from '../../time/Instant'
+import type { BuildingKind } from '../BuildingKind'
+import type { BuildingLevel } from '../BuildingLevel'
+import type { HireKind } from '../HireKind'
+import type { HireTerms } from '../hiring/HireTerms'
+import type { TownCatalog } from '../ports/TownCatalog'
+import type { ProductionPercent, TownSettings } from '../TownSettings'
 
 const unscaled: ProductionPercent = { money: 100, food: 100, power: 100, material: 100 }
 

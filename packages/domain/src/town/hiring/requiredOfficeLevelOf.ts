@@ -1,5 +1,5 @@
 import type { HireKind } from '../HireKind'
-import type { TownCatalog } from '../TownCatalog'
+import type { TownCatalog } from '../ports/TownCatalog'
 
 export const requiredOfficeLevelOf = (hire: HireKind, catalog: TownCatalog): number => {
   let level = 1
