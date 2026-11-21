@@ -1,7 +1,7 @@
 import type { HeldCard } from '../HeldCard'
 import { holdsLessonCards } from '../holdsLessonCards'
 import type { Lesson, LessonId } from '../Lesson'
-import type { Band } from './BandStart'
+import type { Band } from './Band'
 import { isLessonPlacedOut } from './isLessonPlacedOut'
 import { isUnitLesson } from './isUnitLesson'
 import type { BandCatalog } from './ports/BandCatalog'

@@ -1,6 +1,7 @@
 import type { DomainError } from '#DomainError'
 import type { BandStartRepository } from '#holdout/ports/BandStartRepository'
-import type { Band, BandStart } from '#learning/curriculum/BandStart'
+import type { Band } from '#learning/curriculum/Band'
+import type { BandStart } from '#learning/curriculum/BandStart'
 import type { Scaffold } from '#learning/scaffold/Scaffold'
 import type { PlayerId } from '#player/PlayerId'
 import type { Clock } from '#ports/Clock'

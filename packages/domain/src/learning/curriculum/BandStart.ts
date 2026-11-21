@@ -1,14 +1,7 @@
 import type { HoldoutCheck } from '#holdout/HoldoutCheck'
 import type { Instant } from '#time/Instant'
-
-export type Band = number
-
-export type Headword = string
-
-export type BandWord = {
-  readonly headword: Headword
-  readonly isChrome: boolean
-}
+import type { Band } from './Band'
+import type { Headword } from './Headword'
 
 export type BandStart = {
   readonly band: Band

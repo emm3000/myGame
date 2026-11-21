@@ -1,5 +1,5 @@
 import type { Lesson, LessonWord } from '../Lesson'
-import type { Headword } from './BandStart'
+import type { Headword } from './Headword'
 import { lemmaWordsOf } from './lemmaWordsOf'
 
 export const wordsEnteringOf = (

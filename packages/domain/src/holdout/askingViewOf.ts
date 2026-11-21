@@ -1,4 +1,4 @@
-import type { Band } from '#learning/curriculum/BandStart'
+import type { Band } from '#learning/curriculum/Band'
 import type { Scaffold } from '#learning/scaffold/Scaffold'
 import { placementItemsOf } from '#placement/placementItemsOf'
 import type { PlacementWordCatalog } from '#placement/ports/PlacementWordCatalog'

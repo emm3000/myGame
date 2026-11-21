@@ -1,4 +1,4 @@
-import type { Band } from '../curriculum/BandStart'
+import type { Band } from '../curriculum/Band'
 import type { BandCatalog } from '../curriculum/ports/BandCatalog'
 import type { LessonCatalog } from '../curriculum/ports/LessonCatalog'
 import type { HeldCards } from '../HeldCards'

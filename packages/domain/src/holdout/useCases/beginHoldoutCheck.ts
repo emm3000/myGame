@@ -1,5 +1,5 @@
 import type { DomainError } from '#DomainError'
-import type { Band } from '#learning/curriculum/BandStart'
+import type { Band } from '#learning/curriculum/Band'
 import type { CardRepository } from '#learning/ports/CardRepository'
 import type { Scaffold } from '#learning/scaffold/Scaffold'
 import type { PlayerId } from '#player/PlayerId'

@@ -1,5 +1,6 @@
 import type { LessonId } from '../../Lesson'
-import type { Band, BandWord } from '../BandStart'
+import type { Band } from '../Band'
+import type { BandWord } from '../BandWord'
 import type { BandCatalog } from '../ports/BandCatalog'
 
 export type BandShelf = {

@@ -1,0 +1,1 @@
+export type Headword = string
