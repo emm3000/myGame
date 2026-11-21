@@ -7,6 +7,8 @@ export type WorkTarget = {
   readonly level: number
 }
 
+export type PaidWork = WorkTarget & { readonly cost: Stocks }
+
 export type BusyWorkSlot = WorkTarget & {
   readonly kind: 'busy'
   readonly cost: Stocks
