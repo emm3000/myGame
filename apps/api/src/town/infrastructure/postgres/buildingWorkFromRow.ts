@@ -8,11 +8,9 @@ import {
 } from '@mygame/domain'
 import { z } from 'zod'
 import { stocksFromRow } from './stocksFromRow'
-import { townBuilding, type towns } from './townTables'
+import { type TownRow, townBuilding } from './townTables'
 
 type StoredTownBuilding = (typeof townBuilding.enumValues)[number]
-
-type TownRow = typeof towns.$inferSelect
 
 const AggregatedLevelsSchema = z.array(
   z.strictObject({ building: z.enum(townBuilding.enumValues), level: z.number().int() }),
@@ -30,7 +28,7 @@ const AggregatedWaitingWorkSchema = z.array(
   }),
 )
 
-const buildingKindOf: Readonly<Record<StoredTownBuilding, BuildingKind>> = {
+export const buildingKindOf: Readonly<Record<StoredTownBuilding, BuildingKind>> = {
   homes: 'homes',
   farm: 'farm',
   factory: 'factory',

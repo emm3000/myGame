@@ -1,11 +1,9 @@
 import type { BuildingKind, HiringSlot, Instant, JobSlot, Town, WorkSlot } from '@mygame/domain'
 import type { townHiringOrders } from './hiringTables'
 import type { townJobs } from './jobsTables'
-import type { townBuilding, towns, townWaitingWork } from './townTables'
+import type { TownRow, townBuilding, townWaitingWork } from './townTables'
 
 type StoredTownBuilding = (typeof townBuilding.enumValues)[number]
-
-type TownRow = typeof towns.$inferSelect
 
 type SavedTownRow = Omit<TownRow, 'guidanceDismissedAt'>
 

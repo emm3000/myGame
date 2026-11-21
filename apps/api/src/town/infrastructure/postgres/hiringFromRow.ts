@@ -2,9 +2,7 @@ import { type Hires, type HiringSlot, Instant, idleHiringSlot } from '@mygame/do
 import { z } from 'zod'
 import { townHire } from './hiringTables'
 import { stocksFromRow } from './stocksFromRow'
-import type { towns } from './townTables'
-
-type TownRow = typeof towns.$inferSelect
+import type { TownRow } from './townTables'
 
 const AggregatedHiresSchema = z.array(
   z.strictObject({ hire: z.enum(townHire.enumValues), count: z.number().int() }),

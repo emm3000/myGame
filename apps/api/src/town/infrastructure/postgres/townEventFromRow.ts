@@ -6,9 +6,8 @@ import {
   type Stocks,
   type TownEvent,
 } from '@mygame/domain'
+import { buildingKindOf } from './buildingWorkFromRow'
 import type { townEvents } from './newsTables'
-
-type StoredTownBuilding = (typeof townEvents.building.enumValues)[number]
 
 type EventRow = typeof townEvents.$inferSelect
 
@@ -30,16 +29,6 @@ type JobsEventKind = Extract<
   StoredEventKind,
   'job_back' | 'job_called_back' | 'clean_up_done' | 'clean_up_failed'
 >
-
-const buildingKindOf: Readonly<Record<StoredTownBuilding, BuildingKind>> = {
-  homes: 'homes',
-  farm: 'farm',
-  factory: 'factory',
-  power_station: 'powerStation',
-  storage: 'storage',
-  school: 'school',
-  office: 'office',
-}
 
 const required = <T>(value: T | null, column: string, row: EventRow): T => {
   if (value === null) {

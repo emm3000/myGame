@@ -13,9 +13,7 @@ import { buildingLevelsFromRow, waitingListFromRow, workSlotFromRow } from './bu
 import { byEarnedAt } from './byEarnedAt'
 import { hiresFromRow, hiringSlotFromRow } from './hiringFromRow'
 import { jobSlotFromRow } from './jobSlotFromRow'
-import { townResource, type towns } from './townTables'
-
-type TownRow = typeof towns.$inferSelect
+import { type TownRow, townResource } from './townTables'
 
 export type TownReadRow = {
   readonly town: TownRow
