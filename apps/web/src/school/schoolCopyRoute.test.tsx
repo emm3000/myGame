@@ -28,6 +28,7 @@ const lessonOf = (number: number, overrides: Partial<Lesson> = {}): Lesson => ({
     reading: null,
     support: { shown: 'beside', text: 'gloss', language: 'es' },
   })),
+  enteringWordCount: 5,
   ...overrides,
 })
 
@@ -190,6 +191,7 @@ const releasedSetOne: TownOverview['releasedLessons'][number] = {
   requiredSchoolLevel: 1,
   isStudied: false,
   words: lessonOf(9).words,
+  enteringWordCount: 5,
 }
 
 it('names the study button in English over Spanish in the both phase', async () => {

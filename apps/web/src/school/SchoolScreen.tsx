@@ -114,7 +114,7 @@ function LearningLoad({ town }: { readonly town: LiveTown }): ReactElement {
       <Track value={learning.inLearning} total={learning.cap} fillClass="fill-action" />
       {next !== undefined && isPastLearningCap(next, town.overview) && (
         <p className="m-0 font-sans text-caption text-warning-ink">
-          <LabelText label={learningFullLineOf(copy, next.words.length, town)} />
+          <LabelText label={learningFullLineOf(copy, next.enteringWordCount, town)} />
         </p>
       )}
     </section>

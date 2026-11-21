@@ -12,7 +12,10 @@ import { lessonLinesOf } from './lessonLinesOf'
 
 type Lesson = TownOverview['lessons'][number]
 
-type StudyableLesson = Pick<Lesson, 'id' | 'isStudied' | 'requiredSchoolLevel' | 'words'>
+type StudyableLesson = Pick<
+  Lesson,
+  'id' | 'isStudied' | 'requiredSchoolLevel' | 'words' | 'enteringWordCount'
+>
 
 export type LessonCardState =
   | { readonly kind: 'studied' }
@@ -54,9 +57,9 @@ export const readWordsLabelOf = (
 }
 
 export const isPastLearningCap = (
-  lesson: Pick<Lesson, 'words'>,
+  lesson: Pick<Lesson, 'enteringWordCount'>,
   { learning }: TownOverview,
-): boolean => learning.inLearning + lesson.words.length > learning.cap
+): boolean => learning.inLearning + lesson.enteringWordCount > learning.cap
 
 function actionOf(
   lesson: StudyableLesson,
@@ -85,7 +88,7 @@ function actionOf(
         catalog.schoolLessonCapReached({
           inLearning: learning.inLearning,
           cap: learning.cap,
-          count: lesson.words.length,
+          count: lesson.enteringWordCount,
         }),
       ),
     }

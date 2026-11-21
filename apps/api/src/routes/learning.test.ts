@@ -419,6 +419,7 @@ describe('the learning routes', () => {
             reading: null,
             support: { shown: 'beside', text: lessonOneGlosses[index], language: 'es' },
           })),
+          enteringWordCount: wordIds.length,
         },
         skills: [],
         lessonSlot: null,
@@ -1528,6 +1529,41 @@ describe('the learning routes', () => {
 
       const lesson = lessons.find(({ id }) => id === 'lesson-fixture-holdout')
       expect(lesson?.words.find(({ wordId }) => wordId === 'word-say')?.reading).toBeNull()
+    })
+
+    const drawSayAndFillLearningTo = async (inLearning: number): Promise<Player> => {
+      app = createApp({
+        ...server,
+        clock,
+        lessons: libraryWithBandLesson(),
+        random: holdingOutSayAndTheLastRanks,
+      })
+      const player = await signUpWithATown()
+      clock.setTo(lessonStartsAt)
+      await startLesson(player, 'lesson-fixture-holdout')
+      await stopLesson(player, 'lesson-fixture-holdout')
+      await runSql(`INSERT INTO cards (player_id, word_id, state, step, entered_at)
+        SELECT id, 'filler-' || n, 'learning', 0, '2026-11-10T07:00:00Z' FROM players, generate_series(1, ${inLearning}) AS n`)
+      return player
+    }
+
+    it('admits a start whose words entering learning fit the cap though its held-out word would not', async () => {
+      const player = await drawSayAndFillLearningTo(11)
+      const { learning, lessons } = await readTown(player)
+      const lesson = lessons.find(({ id }) => id === 'lesson-fixture-holdout')
+      assert(lesson !== undefined)
+      expect(learning.inLearning + lesson.words.length).toBeGreaterThan(learning.cap)
+
+      expect((await startLesson(player, 'lesson-fixture-holdout')).status).toBe(200)
+    })
+
+    it('counts no held-out word among the words a lesson enters into learning', async () => {
+      const player = await drawSayAndFillLearningTo(0)
+
+      const { lessons } = await readTown(player)
+
+      const lesson = lessons.find(({ id }) => id === 'lesson-fixture-holdout')
+      expect(lesson?.enteringWordCount).toBe(4)
     })
 
     it('enters no card for a held-out word when the lesson finishes', async () => {

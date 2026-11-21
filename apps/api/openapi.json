@@ -2719,6 +2719,10 @@
                     "required": ["wordId", "standing", "reading", "support"],
                     "additionalProperties": false
                   }
+                },
+                "enteringWordCount": {
+                  "type": "integer",
+                  "minimum": 0
                 }
               },
               "required": [
@@ -2728,7 +2732,8 @@
                 "requiredSchoolLevel",
                 "skill",
                 "isStudied",
-                "words"
+                "words",
+                "enteringWordCount"
               ],
               "additionalProperties": false
             }
@@ -2808,6 +2813,10 @@
                     "required": ["wordId", "standing", "reading", "support"],
                     "additionalProperties": false
                   }
+                },
+                "enteringWordCount": {
+                  "type": "integer",
+                  "minimum": 0
                 }
               },
               "required": [
@@ -2817,7 +2826,8 @@
                 "durationSeconds",
                 "requiredSchoolLevel",
                 "isStudied",
-                "words"
+                "words",
+                "enteringWordCount"
               ],
               "additionalProperties": false
             }
