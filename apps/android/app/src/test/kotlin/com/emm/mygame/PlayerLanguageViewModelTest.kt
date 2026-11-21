@@ -32,6 +32,18 @@ class PlayerLanguageViewModelTest {
     }
 
     @Test
+    fun `keeps a language read after it starts when a later read comes back empty`() = runTest {
+        val viewModel: PlayerLanguageViewModel = PlayerLanguageViewModel(latestRead)
+
+        latestRead.value = spanishScaffold
+        runCurrent()
+        latestRead.value = null
+        runCurrent()
+
+        assertEquals(PlayerLanguageUiState(language = spanishScaffold), viewModel.state.value)
+    }
+
+    @Test
     fun `forgets the last known language when the session closes`() = runTest {
         latestRead.value = spanishScaffold
         val viewModel: PlayerLanguageViewModel = PlayerLanguageViewModel(latestRead)
