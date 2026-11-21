@@ -99,4 +99,23 @@ class SchoolEnteringWordsTest {
 
         assertEquals(3, contentOf(viewModel).learning.pastCapWords)
     }
+
+    @Test
+    fun `leaves the past-cap line on the first open unstudied lesson while the running lesson is featured`() =
+        runTest {
+            val viewModel: SchoolViewModel = schoolReading(
+                townOf(
+                    lessons = listOf(
+                        lessonOf(wordCount = 5),
+                        lessonOf(id = secondLesson, wordCount = 6, enteringWordCount = 3),
+                    ),
+                    learning = twoWordsFree,
+                    lessonSlot = slotOf(lesson = firstLesson),
+                ),
+            )
+
+            viewModel.onIntent(SchoolIntent.LessonSelected(firstLesson))
+
+            assertEquals(3, contentOf(viewModel).learning.pastCapWords)
+        }
 }
