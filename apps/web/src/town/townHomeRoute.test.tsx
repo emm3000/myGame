@@ -230,6 +230,14 @@ it('reads the fill hour within 8 h', async () => {
   expect(food.queryByText('+120 / h')).toBeNull()
 })
 
+it('reads the fill hour at exactly 8 h', async () => {
+  await showTown(serving(foodFullAt('2026-11-10T17:00:00.000Z')))
+
+  const food = within(stockCell('Comida'))
+  expect(food.getByText(es.townFullAt({ clock: '18:00' }))).toBeDefined()
+  expect(food.queryByText('+120 / h')).toBeNull()
+})
+
 it('reads the rate past 8 h', async () => {
   await showTown(serving(foodFullAt('2026-11-10T17:00:01.000Z')))
 
@@ -502,7 +510,10 @@ it('draws a retained need with its count', async () => {
 it('draws no need below level 3', async () => {
   await showTown(serving(townWithWords(farmNeeding(null))))
 
-  expect(farmRow().queryByText(/Necesita/)).toBeNull()
+  for (const standing of ['stable', 'retained'] as const) {
+    const needWords = es.townWordsNeeded({ standing, needed: 9, held: 9 }).split('9')[0] ?? ''
+    expect(farmRow().queryByText(needWords.trim(), { exact: false })).toBeNull()
+  }
 })
 
 it("draws the town's reviewed and learned words", async () => {
@@ -512,6 +523,15 @@ it("draws the town's reviewed and learned words", async () => {
 
   expect(stocks.getByText(es.townWordsReviewed({ count: 7 }))).toBeDefined()
   expect(stocks.getByText(es.townWordsLearned({ count: 3 }))).toBeDefined()
+})
+
+it("draws the town's reviewed and learned words at zero", async () => {
+  await showTown(serving({ ...knownTown, stableWordCount: 0, retainedWordCount: 0 }))
+
+  const stocks = within(screen.getByRole('region', { name: es.townStocks() }))
+
+  expect(stocks.getByText(es.townWordsReviewed({ count: 0 }))).toBeDefined()
+  expect(stocks.getByText(es.townWordsLearned({ count: 0 }))).toBeDefined()
 })
 
 it('writes the season under the stocks', async () => {

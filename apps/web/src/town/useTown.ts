@@ -96,22 +96,28 @@ function useRereadPolicy(lastRead: LastRead | undefined, read: () => void): void
 
 function useDisplayClock(lastRead: LastRead | undefined, hireEntries: HireEntries): number {
   const [nowMs, setNowMs] = useState(Date.now)
+  const paintedAtMs = useRef(nowMs)
   useEffect(() => {
     if (lastRead === undefined) {
       return
     }
     let repaint: ReturnType<typeof setTimeout>
-    const scheduleRepaint = (): void => {
-      const elapsedSeconds = elapsedSecondsSince(lastRead.receivedAtMs, Date.now())
+    const scheduleRepaint = (fromMs: number): void => {
+      const elapsedSeconds = elapsedSecondsSince(lastRead.receivedAtMs, fromMs)
+      const delayMs = townRepaintDelayMsOf(
+        liveTownAt(lastRead.overview, elapsedSeconds),
+        hireEntries,
+      )
       repaint = setTimeout(
         () => {
-          setNowMs(Date.now())
-          scheduleRepaint()
+          paintedAtMs.current = Date.now()
+          setNowMs(paintedAtMs.current)
+          scheduleRepaint(paintedAtMs.current)
         },
-        townRepaintDelayMsOf(liveTownAt(lastRead.overview, elapsedSeconds), hireEntries),
+        Math.max(0, fromMs + delayMs - Date.now()),
       )
     }
-    scheduleRepaint()
+    scheduleRepaint(Math.max(paintedAtMs.current, lastRead.receivedAtMs))
     return () => clearTimeout(repaint)
   }, [lastRead, hireEntries])
   return nowMs
