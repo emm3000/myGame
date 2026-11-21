@@ -18,6 +18,7 @@ const reportOf = (overrides: Partial<Report>): Report => ({
   dueCount: 0,
   readFirst: [],
   nextDueAt: null,
+  readAt: knownTown.readAt,
   due: [],
   news: [],
   ...overrides,

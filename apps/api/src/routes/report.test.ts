@@ -146,6 +146,13 @@ describe('the Report routes', () => {
     expect([running.readFirst, finished.readFirst]).toEqual([[], ['lesson-1']])
   })
 
+  it('answers the instant of the read as readAt', async () => {
+    const ana = await signUpWithATown()
+    clock.setTo(lessonFinishesAt)
+
+    expect((await readReport(ana)).readAt).toBe(lessonFinishesAt)
+  })
+
   it('answers no next review before a card enters', async () => {
     const ana = await signUpWithATown()
 

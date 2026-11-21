@@ -61,12 +61,13 @@ export const reportOf = async (
       if (!news.ok) {
         return news
       }
-      const { due, readFirst, nextDueAt } = reviews.value
+      const { due, readFirst, nextDueAt, readAt } = reviews.value
       return ok({
         dueCount: due.length,
         due,
         readFirst,
         nextDueAt,
+        readAt,
         news: news.value.map(townNewsItemOf),
       })
     },

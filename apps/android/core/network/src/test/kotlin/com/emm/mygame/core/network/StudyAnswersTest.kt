@@ -408,7 +408,8 @@ class StudyAnswersTest {
         const val NOTHING_DUE: String =
             """{"due":[],"readFirst":[],"nextDueAt":"2026-11-10T09:10:00.000Z","readAt":"2026-11-10T09:04:00.000Z"}"""
         const val REPORT: String =
-            """{"dueCount":0,"due":[],"readFirst":[],"nextDueAt":"2026-11-07T08:00:00.000Z","news":[]}"""
+            """{"dueCount":0,"due":[],"readFirst":[],"nextDueAt":"2026-11-07T08:00:00.000Z",""" +
+                """"readAt":"2026-11-07T07:00:00.000Z","news":[]}"""
         const val STOCK: String = """{"amount":120,"ratePerHour":30.5,"capacity":1000,"fullAt":null}"""
         const val FLAT: String = """{"level":1,"nextLevel":null}"""
         const val HIRING: String =

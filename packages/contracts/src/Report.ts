@@ -9,6 +9,7 @@ export const ReportSchema = z
     due: z.array(DueReviewSchema),
     readFirst: z.array(z.string().min(1)),
     nextDueAt: InstantSchema.nullable(),
+    readAt: InstantSchema,
     news: z.array(TownNewsItemSchema).max(100),
   })
   .meta({ id: 'Report' })

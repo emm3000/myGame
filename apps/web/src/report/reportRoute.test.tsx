@@ -65,6 +65,7 @@ const reportOf = (overrides: Partial<Report>): Report => ({
   dueCount: 0,
   readFirst: [],
   nextDueAt: null,
+  readAt: knownTown.readAt,
   due: [],
   news: [],
   ...overrides,
@@ -273,6 +274,28 @@ it('re-reads at the next review', async () => {
   await passSeconds(1)
 
   expect([readsBefore, report.mock.calls.length]).toEqual([1, 2])
+})
+
+it('re-reads at the next review on a device clock running ahead of the server', async () => {
+  vi.setSystemTime(readAt + 3000)
+  const report = reportReads(reportOf({ nextDueAt: secondsAfterRead(30) }))
+  await showReport(report)
+  await passSeconds(29)
+  const readsBefore = report.mock.calls.length
+
+  await passSeconds(1)
+
+  expect([readsBefore, report.mock.calls.length]).toEqual([1, 2])
+})
+
+it('cancels the re-read at the next review when the player leaves the Report', async () => {
+  const report = reportReads(reportOf({ nextDueAt: secondsAfterRead(30) }))
+  const router = await showReport(report)
+  await act(() => router.navigate({ to: '/' }))
+
+  await passSeconds(30)
+
+  expect(report).toHaveBeenCalledTimes(1)
 })
 
 it('draws the reviews the read at the next review answers', async () => {

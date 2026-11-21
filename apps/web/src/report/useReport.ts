@@ -17,7 +17,7 @@ function nextReviewDelayMsOf(state: ReportState): number | undefined {
   if (state.kind !== 'read' || state.report.dueCount > 0 || state.report.nextDueAt === null) {
     return undefined
   }
-  const delayMs = Date.parse(state.report.nextDueAt) - state.receivedAt.getTime()
+  const delayMs = Date.parse(state.report.nextDueAt) - Date.parse(state.report.readAt)
   return delayMs > 0 ? Math.min(delayMs, longestTimeoutMs) : undefined
 }
 
