@@ -46,8 +46,8 @@ import {
   type StopBuildingWork,
   type StopHiringOrder,
   type TipKind,
-  type TownNewsFeed,
-  TownNewsFeedSchema,
+  type TownNewsItems,
+  TownNewsItemsSchema,
   type TownOverview,
   TownOverviewSchema,
   type VerifyEmailRequest,
@@ -67,7 +67,7 @@ export interface ApiClient {
   currentPlayer(): Promise<Player | undefined>
   changeScaffold(scaffold: Scaffold): Promise<ApiOutcome<Player>>
   town(): Promise<ApiOutcome<TownOverview>>
-  townNews(): Promise<ApiOutcome<TownNewsFeed>>
+  townNews(): Promise<ApiOutcome<TownNewsItems>>
   text(textId: string): Promise<ApiOutcome<TextRead>>
   foundTown(name: string): Promise<ApiOutcome<TownOverview>>
   startBuildingWork(place: PlaceKind): Promise<ApiOutcome<TownOverview>>
@@ -236,7 +236,7 @@ export const createApiClient = (baseUrl: string): ApiClient => {
     },
     townNews: async () => {
       const response = await send('/town/news', { method: 'GET' })
-      return response === undefined ? unexpected : bodyOf(response, TownNewsFeedSchema)
+      return response === undefined ? unexpected : bodyOf(response, TownNewsItemsSchema)
     },
     text: async (textId) => {
       const response = await send(`/town/texts/${encodeURIComponent(textId)}`, { method: 'GET' })

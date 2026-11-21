@@ -1,11 +1,11 @@
-import type { TownNewsFeed } from '@mygame/contracts'
+import type { TownNewsItems } from '@mygame/contracts'
 import { useCallback, useEffect, useState } from 'react'
 import type { ApiClient, ApiRefusal } from '../api/apiClient'
 
 export type TownNewsState =
   | { readonly kind: 'loading' }
   | { readonly kind: 'refused'; readonly refusal: ApiRefusal }
-  | { readonly kind: 'read'; readonly feed: TownNewsFeed; readonly receivedAt: Date }
+  | { readonly kind: 'read'; readonly news: TownNewsItems; readonly receivedAt: Date }
 
 export interface TownNewsHandle {
   readonly state: TownNewsState
@@ -19,7 +19,7 @@ export function useTownNews(apiClient: ApiClient): TownNewsHandle {
     void apiClient.townNews().then((outcome) => {
       setState(
         outcome.ok
-          ? { kind: 'read', feed: outcome.value, receivedAt: new Date() }
+          ? { kind: 'read', news: outcome.value, receivedAt: new Date() }
           : { kind: 'refused', refusal: outcome.refusal },
       )
     })

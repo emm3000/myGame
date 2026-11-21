@@ -13,7 +13,7 @@ import com.emm.mygame.core.network.generated.models.LessonStoppedNews
 import com.emm.mygame.core.network.generated.models.LessonStudiedNews
 import com.emm.mygame.core.network.generated.models.Report
 import com.emm.mygame.core.network.generated.models.SkillEarnedNews
-import com.emm.mygame.core.network.generated.models.TownNewsFeed
+import com.emm.mygame.core.network.generated.models.TownNewsItems
 import java.lang.reflect.Type
 import kotlinx.serialization.KSerializer
 import kotlinx.serialization.SerializationException
@@ -34,7 +34,7 @@ internal class KnownTownNewsConverterFactory(private val json: Json) : Converter
         retrofit: Retrofit,
     ): Converter<ResponseBody, *>? = when (type) {
         Report::class.java -> Converter { body: ResponseBody -> decode(body, Report.serializer(), NEWS) }
-        TownNewsFeed::class.java -> Converter { body: ResponseBody -> decode(body, TownNewsFeed.serializer(), ITEMS) }
+        TownNewsItems::class.java -> Converter { body: ResponseBody -> decode(body, TownNewsItems.serializer(), ITEMS) }
         else -> null
     }
 

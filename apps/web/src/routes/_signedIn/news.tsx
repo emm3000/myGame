@@ -26,7 +26,7 @@ function NewsAnswer({ news }: { readonly news: TownNewsHandle }): ReactElement |
     case 'read':
       return (
         <NewsScreen
-          rows={state.feed.items.map((item) => newsRowOf(copy, item, state.receivedAt))}
+          rows={state.news.items.map((item) => newsRowOf(copy, item, state.receivedAt))}
         />
       )
     default: {
