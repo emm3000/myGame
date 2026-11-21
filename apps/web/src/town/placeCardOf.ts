@@ -1,4 +1,5 @@
 import type { BuildingKind } from '@mygame/contracts'
+import { chromeWithFiguresOf } from '../copy/chromeWithFiguresOf'
 import type { ChromeCatalog, PlayerCopy } from '../copy/PlayerCopy'
 import type { CardActionState } from '../design-system/CardAction'
 import type { CardCost } from '../design-system/CostList'
@@ -37,7 +38,13 @@ function wordsLineOf(
   }
   const { count, standing } = wordsNeeded
   const held = heldWordsOf(standing, overview)
-  return copy.chrome((catalog) => catalog.townWordsNeeded({ standing, needed: count, held }))
+  return chromeWithFiguresOf(copy, (catalog, figure) =>
+    catalog.townWordsNeeded({
+      standing,
+      needed: figure(String(count)),
+      held: figure(String(held)),
+    }),
+  )
 }
 
 const isWaitingListFull = ({ work }: LiveTown['overview']): boolean =>
@@ -128,7 +135,9 @@ export function placeCardOf(
   const duration = formatDuration(nextLevel.durationSeconds)
   return {
     ...common,
-    effect: copy.chrome((catalog) => catalog.townPeopleAtWork({ people: nextLevel.people })),
+    effect: chromeWithFiguresOf(copy, (catalog, figure) =>
+      catalog.townPeopleAtWork({ people: figure(String(nextLevel.people)) }),
+    ),
     costs: cardCostsOf(copy, nextLevel.cost, town.stocks),
     wordsLine: wordsLineOf(copy, nextLevel, town.overview),
     actionLabel: copy.chrome(

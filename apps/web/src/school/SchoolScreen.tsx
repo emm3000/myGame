@@ -1,9 +1,11 @@
 import type { NextStep } from '@mygame/contracts'
 import { type ReactElement, useEffect, useState } from 'react'
-import type { ChromeCatalog, PlayerCopy } from '../copy/PlayerCopy'
+import { chromeWithFiguresOf } from '../copy/chromeWithFiguresOf'
+import type { PlayerCopy } from '../copy/PlayerCopy'
 import { usePlayerCopy } from '../copy/usePlayerCopy'
 import { BuildSlot, type BuildSlotState } from '../design-system/BuildSlot'
 import { FormAlert } from '../design-system/FormAlert'
+import type { Label } from '../design-system/Label'
 import { LabelText } from '../design-system/LabelText'
 import { Track } from '../design-system/Track'
 import { useFocusTarget } from '../focus/useFocusTarget'
@@ -79,17 +81,17 @@ function slotStateOf(
   }
 }
 
-const learningFullLineOf =
-  (count: number, town: LiveTown): ((catalog: ChromeCatalog) => string) =>
-  (catalog) => {
+const learningFullLineOf = (copy: PlayerCopy, count: number, town: LiveTown): Label =>
+  chromeWithFiguresOf(copy, (catalog, figure) => {
     const timeLeft = capWaitLabelOf(catalog, town)
     return timeLeft === null
       ? catalog.schoolLearningFull({ count })
-      : catalog.schoolLearningFullNextWordDue({ count, timeLeft })
-  }
+      : catalog.schoolLearningFullNextWordDue({ count, timeLeft: figure(timeLeft) })
+  })
 
 function LearningLoad({ town }: { readonly town: LiveTown }): ReactElement {
-  const { chrome } = usePlayerCopy()
+  const copy = usePlayerCopy()
+  const { chrome } = copy
   const { learning } = town.overview
   const next = town.overview.lessons.find(
     (lesson) => !lesson.isStudied && town.overview.lessonSlot?.lessonId !== lesson.id,
@@ -106,7 +108,7 @@ function LearningLoad({ town }: { readonly town: LiveTown }): ReactElement {
       <Track value={learning.inLearning} total={learning.cap} fillClass="fill-action" />
       {next !== undefined && isPastLearningCap(next, town.overview) && (
         <p className="m-0 font-sans text-caption text-warning-ink">
-          <LabelText label={chrome(learningFullLineOf(next.words.length, town))} />
+          <LabelText label={learningFullLineOf(copy, next.words.length, town)} />
         </p>
       )}
     </section>

@@ -16,9 +16,10 @@ import {
   revealSeconds,
   skeletonBlocks,
 } from '../design-system/loadingSkeleton.testSupport'
+import { tabularFiguresOf } from '../design-system/tabularFiguresOf.testSupport'
 import { finishSeparator } from '../time/finishSeparator'
 import { formatTimeLeft } from '../time/formatTimeLeft'
-import { shownLinesDrawnAlone } from '../town/lineDrawnAlone.testSupport'
+import { isDrawnAlone, shownLinesDrawnAlone } from '../town/lineDrawnAlone.testSupport'
 import { inkPills } from './inkPills.testSupport'
 
 const readAt = Date.parse(knownTown.readAt)
@@ -445,9 +446,28 @@ it('a full cap with no review due names when the next word in learning is due', 
   await showSchool(schoolOf({ learning: fullCapWaiting }))
 
   expect(
-    screen.getByText(es.schoolLearningFullNextWordDue({ count: 5, timeLeft: nextWordDueIn })),
+    screen.getByText(
+      isDrawnAlone(es.schoolLearningFullNextWordDue({ count: 5, timeLeft: nextWordDueIn }), 'es'),
+    ),
   ).toBeDefined()
   expect(screen.queryByText(es.schoolLearningFull({ count: 5 }))).toBeNull()
+})
+
+const fullCapLine = (): HTMLElement =>
+  screen.getByText(
+    isDrawnAlone(es.schoolLearningFullNextWordDue({ count: 5, timeLeft: nextWordDueIn }), 'es'),
+  )
+
+it('draws the time left of a full cap as the whole text of its own tabular element', async () => {
+  await showSchool(schoolOf({ learning: fullCapWaiting }))
+
+  expect(tabularFiguresOf(fullCapLine())).toEqual([nextWordDueIn])
+})
+
+it('keeps tabular figures off the paragraph of the full-cap line', async () => {
+  await showSchool(schoolOf({ learning: fullCapWaiting }))
+
+  expect(fullCapLine().closest('p')?.classList.contains('tabular-nums')).toBe(false)
 })
 
 it('a full cap with a review due still sends to the reviews', async () => {

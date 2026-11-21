@@ -12,8 +12,10 @@ import {
   revealSeconds,
   skeletonBlocks,
 } from '../design-system/loadingSkeleton.testSupport'
+import { tabularFiguresOf } from '../design-system/tabularFiguresOf.testSupport'
 import { refusalLineOf } from '../refusals/refusalLineOf'
 import { townResourceNameOf } from '../resources/townResourceNameOf'
+import { isDrawnAlone } from './lineDrawnAlone.testSupport'
 
 beforeEach(() => {
   vi.spyOn(navigator, 'language', 'get').mockReturnValue('es-ES')
@@ -495,7 +497,9 @@ it('draws a stable need with its count', async () => {
   await showTown(serving(townWithWords(farmNeeding({ count: 10, standing: 'stable' }))))
 
   expect(
-    farmRow().getByText(es.townWordsNeeded({ standing: 'stable', needed: 10, held: 7 })),
+    farmRow().getByText(
+      isDrawnAlone(es.townWordsNeeded({ standing: 'stable', needed: 10, held: 7 }), 'es'),
+    ),
   ).toBeDefined()
 })
 
@@ -503,8 +507,40 @@ it('draws a retained need with its count', async () => {
   await showTown(serving(townWithWords(farmNeeding({ count: 5, standing: 'retained' }))))
 
   expect(
-    farmRow().getByText(es.townWordsNeeded({ standing: 'retained', needed: 5, held: 3 })),
+    farmRow().getByText(
+      isDrawnAlone(es.townWordsNeeded({ standing: 'retained', needed: 5, held: 3 }), 'es'),
+    ),
   ).toBeDefined()
+})
+
+const stableNeedLine = (): HTMLElement =>
+  farmRow().getByText(
+    isDrawnAlone(es.townWordsNeeded({ standing: 'stable', needed: 10, held: 7 }), 'es'),
+  )
+
+const peopleAtWorkLine = (): HTMLElement =>
+  farmRow().getByText(isDrawnAlone(es.townPeopleAtWork({ people: 2 }), 'es'))
+
+it('draws each number of a word need as the whole text of its own tabular element', async () => {
+  await showTown(serving(townWithWords(farmNeeding({ count: 10, standing: 'stable' }))))
+
+  expect(tabularFiguresOf(stableNeedLine())).toEqual(['10', '7', '10'])
+})
+
+it('draws the people a place puts to work as the whole text of its own tabular element', async () => {
+  await showTown(serving(townWithWords(farmNeeding({ count: 10, standing: 'stable' }))))
+
+  expect(tabularFiguresOf(peopleAtWorkLine())).toEqual(['2'])
+})
+
+it('keeps tabular figures off the paragraphs of a place card', async () => {
+  await showTown(serving(townWithWords(farmNeeding({ count: 10, standing: 'stable' }))))
+
+  expect(
+    [stableNeedLine(), peopleAtWorkLine()].map((line) =>
+      line.closest('p')?.classList.contains('tabular-nums'),
+    ),
+  ).toEqual([false, false])
 })
 
 it('draws no need below level 3', async () => {

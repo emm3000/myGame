@@ -1,5 +1,41 @@
-import type { ReactElement } from 'react'
-import type { Label, LabelLine } from './Label'
+import type { ReactElement, ReactNode } from 'react'
+import type { Label, LabelFigure, LabelInset, LabelLine } from './Label'
+
+type LineMark =
+  | ({ readonly kind: 'inset' } & LabelInset)
+  | ({ readonly kind: 'figure' } & LabelFigure)
+
+const marksOf = ({ inset, figures }: LabelLine): ReadonlyArray<LineMark> =>
+  [
+    ...(inset === undefined ? [] : [{ kind: 'inset' as const, ...inset }]),
+    ...(figures ?? []).map((figure) => ({ kind: 'figure' as const, ...figure })),
+  ].sort((first, second) => first.at - second.at)
+
+function MarkText({ mark }: { readonly mark: LineMark }): ReactElement {
+  return mark.kind === 'inset' ? (
+    <span lang={mark.language}>{mark.text}</span>
+  ) : (
+    <span className="tabular-nums">{mark.text}</span>
+  )
+}
+
+function piecesOf(line: LabelLine): ReadonlyArray<ReactNode> {
+  const { pieces, from } = marksOf(line).reduce<{
+    readonly pieces: ReadonlyArray<ReactNode>
+    readonly from: number
+  }>(
+    (drawn, mark) => ({
+      pieces: [
+        ...drawn.pieces,
+        line.text.slice(drawn.from, mark.at),
+        <MarkText key={mark.at} mark={mark} />,
+      ],
+      from: mark.at + mark.text.length,
+    }),
+    { pieces: [], from: 0 },
+  )
+  return [...pieces, line.text.slice(from)]
+}
 
 function LineText({
   line,
@@ -8,19 +44,9 @@ function LineText({
   readonly line: LabelLine
   readonly className?: string
 }): ReactElement {
-  const { inset } = line
-  if (inset === undefined) {
-    return (
-      <span lang={line.language} className={className}>
-        {line.text}
-      </span>
-    )
-  }
   return (
     <span lang={line.language} className={className}>
-      {line.text.slice(0, inset.at)}
-      <span lang={inset.language}>{inset.text}</span>
-      {line.text.slice(inset.at + inset.text.length)}
+      {piecesOf(line)}
     </span>
   )
 }
