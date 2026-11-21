@@ -1,5 +1,6 @@
 import {
   authSignInTitle,
+  es,
   verificationVerifyTitle,
   verificationVerifyToTown,
   verificationVerifyVerified,
@@ -45,7 +46,7 @@ export function VerifyEmailScreen({ state }: VerifyEmailScreenProps): ReactEleme
           title={verificationVerifyTitle()}
           footer={<TextLink to="/sign-in">{authSignInTitle()}</TextLink>}
         >
-          <FormAlert message={lineLabelOf(refusalLineOf(state.refusal), 'es')} />
+          <FormAlert message={lineLabelOf(refusalLineOf(es, state.refusal), 'es')} />
         </AuthPanel>
       )
     default: {

@@ -190,7 +190,7 @@ it('offers to read the town again after a failed read', async () => {
       },
     }),
   )
-  expect(screen.getByText(refusalLineOf('InvalidCredentials'))).toBeDefined()
+  expect(screen.getByText(refusalLineOf(es, 'InvalidCredentials'))).toBeDefined()
   expect(screen.queryByText(refusalUnexpected())).toBeNull()
 
   fireEvent.click(screen.getByRole('button', { name: townTryAgain() }))

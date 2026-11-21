@@ -1,4 +1,5 @@
 import {
+  es,
   verificationBannerLine,
   verificationBannerResend,
   verificationBannerSent,
@@ -17,7 +18,7 @@ const outcomeOf = (state: ResendState): NoticeOutcome | undefined => {
     case 'sent':
       return { kind: 'sent', message: lineLabelOf(verificationBannerSent(), 'es') }
     case 'refused':
-      return { kind: 'failed', message: lineLabelOf(refusalLineOf(state.refusal), 'es') }
+      return { kind: 'failed', message: lineLabelOf(refusalLineOf(es, state.refusal), 'es') }
     default: {
       const unreachable: never = state
       return unreachable

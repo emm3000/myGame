@@ -1,5 +1,6 @@
 import {
   authSignInTitle,
+  es,
   passwordResetNewPasswordChanged,
   passwordResetNewPasswordNewLink,
   passwordResetNewPasswordPassword,
@@ -50,7 +51,7 @@ function NewPasswordForm(props: NewPasswordFormProps): ReactElement {
         hint={lineLabelOf(passwordResetNewPasswordPasswordHint(), 'es')}
       />
       {props.refusal === undefined ? null : (
-        <FormAlert message={lineLabelOf(refusalLineOf(props.refusal), 'es')} />
+        <FormAlert message={lineLabelOf(refusalLineOf(es, props.refusal), 'es')} />
       )}
       <Button type="submit" tone="primary" disabled={props.isSending}>
         {passwordResetNewPasswordSubmit()}

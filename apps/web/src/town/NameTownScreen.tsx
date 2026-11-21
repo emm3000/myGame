@@ -1,4 +1,5 @@
 import {
+  es,
   townNamingField,
   townNamingGoToTown,
   townNamingMayor,
@@ -59,7 +60,7 @@ export function NameTownScreen(props: NameTownScreenProps): ReactElement {
           isDisabled={props.isSubmitting}
         />
         {props.refusal !== undefined && (
-          <FormAlert message={lineLabelOf(refusalLineOf(props.refusal), 'es')} />
+          <FormAlert message={lineLabelOf(refusalLineOf(es, props.refusal), 'es')} />
         )}
         {props.refusal === 'PlayerAlreadyHoldsTown' ? (
           <Button type="button" tone="primary" onClick={props.onGoToTown}>

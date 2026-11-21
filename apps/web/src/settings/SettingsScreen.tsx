@@ -1,4 +1,5 @@
 import {
+  es,
   scaffoldEs,
   scaffoldLabel,
   scaffoldNone,
@@ -43,7 +44,7 @@ function ChangeLine({ change }: { readonly change: ScaffoldChange }): ReactEleme
     case 'saved':
       return <ChangeNote line={settingsSaved()} />
     case 'refused':
-      return <FormAlert message={lineLabelOf(refusalLineOf(change.refusal), 'es')} />
+      return <FormAlert message={lineLabelOf(refusalLineOf(es, change.refusal), 'es')} />
     default: {
       const unreachable: never = change
       return unreachable

@@ -1,4 +1,4 @@
-import { refusalLearningCapNextWordDue } from '@mygame/catalog'
+import { es, refusalLearningCapNextWordDue } from '@mygame/catalog'
 import { refusalLineOf } from '../refusals/refusalLineOf'
 import type { LiveTown } from '../town/liveTown'
 import type { RefusedTownAction } from '../town/useTownAction'
@@ -10,7 +10,7 @@ export function lessonRefusalLineOf(
 ): string {
   const timeLeft = capWaitLabelOf(town)
   if (error?.kind !== 'LearningCapReached' || timeLeft === null) {
-    return refusalLineOf(refusal, error)
+    return refusalLineOf(es, refusal, error)
   }
   return refusalLearningCapNextWordDue({ ...error.params, timeLeft })
 }

@@ -52,7 +52,7 @@ export function jobOutOf(town: LiveTown): JobOutContent | undefined {
         answered.calledBackAt === null ? phaseWords[live.phase]() : mapJobOutCalledBack(),
         'es',
       ),
-      time: formatFinish(live.remainingSeconds, town.at),
+      time: formatFinish(es, live.remainingSeconds, town.at),
     },
     pay: pay === undefined ? undefined : mapJobOutPay({ amounts: pay }),
     callBack:

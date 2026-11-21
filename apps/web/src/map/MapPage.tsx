@@ -1,4 +1,4 @@
-import { mapLoading, townTryAgain } from '@mygame/catalog'
+import { es, mapLoading, townTryAgain } from '@mygame/catalog'
 import { Navigate } from '@tanstack/react-router'
 import type { ReactElement } from 'react'
 import type { ApiClient } from '../api/apiClient'
@@ -41,7 +41,7 @@ function LiveMap({
         <AreaNotFound />
       ) : (
         <ReadFailed
-          message={lineLabelOf(refusalLineOf(state.refusal), 'es')}
+          message={lineLabelOf(refusalLineOf(es, state.refusal), 'es')}
           retryLabel={lineLabelOf(townTryAgain(), 'es')}
           onRetry={regionMap.reread}
         />

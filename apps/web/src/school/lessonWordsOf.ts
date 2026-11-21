@@ -1,4 +1,4 @@
-import { schoolLessonTitle } from '@mygame/catalog'
+import { es, schoolLessonTitle } from '@mygame/catalog'
 import type { TownOverview } from '@mygame/contracts'
 import type { ArtTag } from '../art/ArtTag'
 import { frameTextOf } from '../review/frameTextOf'
@@ -40,7 +40,7 @@ export function lessonWordsOf(town: LiveTown, lessonId: string): LessonWords | u
     words: [first, ...rest],
     running:
       lessonSlot?.lessonId === lessonId
-        ? { ...lessonSlot, time: formatFinish(lessonSlot.remainingSeconds, at) }
+        ? { ...lessonSlot, time: formatFinish(es, lessonSlot.remainingSeconds, at) }
         : null,
   }
 }

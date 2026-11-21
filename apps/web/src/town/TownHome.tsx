@@ -103,7 +103,7 @@ function slotStateOf(town: LiveTown, work: TownWork, onStopped: () => void): Bui
     kind: 'busy',
     title: lineLabelOf(townWorkTitle(), 'es'),
     remainingSeconds: slot.remainingSeconds,
-    time: formatFinish(slot.remainingSeconds, town.at),
+    time: formatFinish(es, slot.remainingSeconds, town.at),
     totalSeconds: slot.totalSeconds,
     finishedLabel: lineLabelOf(townWorkReady(), 'es'),
     cancel: stopActionOf(work, { building: slot.building, level: slot.level }, onStopped),
@@ -129,14 +129,14 @@ function WaitingList({
     buildingName: lineLabelOf(placeNameOf(es, building), 'es'),
     levelLabel: lineLabelOf(townLevel({ level }), 'es'),
     remainingSeconds,
-    time: formatFinish(remainingSeconds, town.at),
+    time: formatFinish(es, remainingSeconds, town.at),
     cancel: stopActionOf(work, { building, level }, onStopped),
     refund: lineLabelOf(townWorkRefund(), 'es'),
   }))
   return (
     <WaitingUpgrades
       title={lineLabelOf(townWorkWaitingList(), 'es')}
-      emptiesAt={formatFinish(last.remainingSeconds, town.at)}
+      emptiesAt={formatFinish(es, last.remainingSeconds, town.at)}
       upgrades={entries}
       finishedLabel={lineLabelOf(townWorkReady(), 'es')}
     />
@@ -168,7 +168,7 @@ function PlaceItem({
         onBuild={() => work.start(place)}
       />
       {refused !== undefined && (
-        <FormAlert message={lineLabelOf(refusalLineOf(refused.refusal, refused.error), 'es')} />
+        <FormAlert message={lineLabelOf(refusalLineOf(es, refused.refusal, refused.error), 'es')} />
       )}
       {place === 'school' && <TextLink to="/school">{townGoToSchool()}</TextLink>}
     </li>
@@ -232,7 +232,7 @@ export function TownHome({
         <BuildSlot state={slotStateOf(town, work, slotTitle.focus)} titleRef={slotTitle.ref} />
         {stopRefused !== undefined && (
           <FormAlert
-            message={lineLabelOf(refusalLineOf(stopRefused.refusal, stopRefused.error), 'es')}
+            message={lineLabelOf(refusalLineOf(es, stopRefused.refusal, stopRefused.error), 'es')}
           />
         )}
         <WaitingList town={town} work={work} onStopped={slotTitle.focus} />

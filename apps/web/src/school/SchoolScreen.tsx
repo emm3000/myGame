@@ -76,7 +76,7 @@ function slotStateOf(
     kind: 'busy',
     title: lineLabelOf(schoolSlotTitle(), 'es'),
     remainingSeconds: slot.remainingSeconds,
-    time: formatFinish(slot.remainingSeconds, town.at),
+    time: formatFinish(es, slot.remainingSeconds, town.at),
     totalSeconds: slot.totalSeconds,
     finishedLabel: lineLabelOf(townWorkReady(), 'es'),
     cancel: {
@@ -196,7 +196,7 @@ export function SchoolScreen({ town, lessons }: SchoolScreenProps): ReactElement
           <BuildSlot state={slotStateOf(town, lessons, slotTitle.focus)} titleRef={slotTitle.ref} />
           {stopRefused !== undefined && (
             <FormAlert
-              message={lineLabelOf(refusalLineOf(stopRefused.refusal, stopRefused.error), 'es')}
+              message={lineLabelOf(refusalLineOf(es, stopRefused.refusal, stopRefused.error), 'es')}
             />
           )}
           <SkillList skills={overview.skills} title={schoolSkills()} empty={schoolSkillsNone()} />

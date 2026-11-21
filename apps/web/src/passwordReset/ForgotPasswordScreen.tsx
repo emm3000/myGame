@@ -1,6 +1,7 @@
 import {
   authEmail,
   authSignInTitle,
+  es,
   passwordResetRequestConfirmation,
   passwordResetRequestSubmit,
   passwordResetRequestTitle,
@@ -62,7 +63,7 @@ function RequestForm(props: RequestFormProps): ReactElement {
         error={emailError}
       />
       {props.refusal === undefined ? null : (
-        <FormAlert message={lineLabelOf(refusalLineOf(props.refusal), 'es')} />
+        <FormAlert message={lineLabelOf(refusalLineOf(es, props.refusal), 'es')} />
       )}
       <Button type="submit" tone="primary" disabled={props.isSending}>
         {passwordResetRequestSubmit()}
