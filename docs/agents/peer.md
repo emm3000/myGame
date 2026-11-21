@@ -28,7 +28,7 @@ The commands that run one file or one module, each with one measured run (#1200)
 |---|---|
 | `pnpm --filter @mygame/domain test src/town/startBuildingWork.test.ts` | 0.7 s |
 | `pnpm --filter @mygame/domain test src/town` | 1.2 s |
-| `pnpm --filter @mygame/api test src/routes/placement.test.ts` | 2.9 s |
+| `pnpm --filter @mygame/api test src/placement/infrastructure/http/placementRoutes.test.ts` | 2.9 s |
 | `pnpm --filter @mygame/web test src/town/officeRoute.test.tsx` | 3.0 s |
 | `taskpolicy -c utility ./gradlew :feature:town:testDebugUnitTest --tests '<Class>'` | 1.7 s JVM, 7.9 s Robolectric |
 | `taskpolicy -c utility ./gradlew :feature:town:testDebugUnitTest` | 15.9 s |

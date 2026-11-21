@@ -30,8 +30,8 @@ One row for each folder directly under `apps/api/src` or `packages/domain/src`. 
 | `account` | api | Players, sessions, account tokens and mail, the scaffold choice and the chrome phase. |
 | `town` | api, domain | The holding: stocks, accrual, founding, building work, hiring, jobs, the school, guidance and news. |
 | `learning` | api, domain | Reviews, hints, frames, retention and the curriculum's shape. |
-| `holdout` | api, domain | Holdout checks and released lessons. In the api, today only its tables. |
-| `placement` | api, domain | The placement offer and its bands. In the api, today only its tables. |
+| `holdout` | api, domain | Band starts, their holdout checks and released lessons. |
+| `placement` | api, domain | The placement offer and its bands. |
 | `memory` | domain | FSRS, the memory model of a card. |
 | `season` | domain | The season calendar. |
 | `player` | domain | The id every feature keys by. |
