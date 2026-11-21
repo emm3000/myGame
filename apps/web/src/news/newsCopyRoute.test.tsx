@@ -5,6 +5,7 @@ import { expect, it } from 'vitest'
 import type { ApiClient } from '../api/apiClient'
 import { renderAppAt } from '../auth/renderAppAt.testSupport'
 import { knownPlayer, knownTown, stubApiClient } from '../auth/stubApiClient.testSupport'
+import { linesDrawnAlone } from '../town/lineDrawnAlone.testSupport'
 
 type CopyLanguage = Pick<TownOverview, 'scaffold' | 'chromePhase'>
 
@@ -72,7 +73,7 @@ it('writes the news of a finished place in English alone in the English phase', 
 
   const line = en.reportNewsBuildingWorkFinished({ place: en.namesPlacesFarm(), level: 3 })
 
-  expect(await linesReading(line)).not.toHaveLength(0)
+  expect(await linesDrawnAlone(line, 'en')).toHaveLength(1)
 })
 
 it('writes the pay of a job in English over Spanish in the both phase', async () => {
@@ -95,5 +96,5 @@ it('writes no news in English under none', async () => {
 it('writes no news in Spanish alone in the Spanish phase', async () => {
   renderAppAt('/news', servingNewsIn(spanishPhase))
 
-  expect(await linesReading(es.newsNone())).not.toHaveLength(0)
+  expect(await linesDrawnAlone(es.newsNone(), 'es')).toHaveLength(1)
 })
