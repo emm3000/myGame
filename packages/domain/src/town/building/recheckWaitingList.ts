@@ -1,10 +1,10 @@
-import type { DomainError } from '../DomainError'
-import { ok, type Result } from '../Result'
-import type { BuildingLevels } from './BuildingLevels'
-import type { WaitingList, WaitingWork, WorkSlot } from './BuildingWork'
-import { derivePeople } from './derivePeople'
-import type { Hires } from './Hires'
-import type { TownCatalog } from './TownCatalog'
+import type { DomainError } from '../../DomainError'
+import { ok, type Result } from '../../Result'
+import type { BuildingLevels } from '../BuildingLevels'
+import type { WaitingList, WaitingWork, WorkSlot } from '../BuildingWork'
+import { derivePeople } from '../derivePeople'
+import type { Hires } from '../Hires'
+import type { TownCatalog } from '../TownCatalog'
 
 export type RecheckedWaitingList = {
   readonly kept: WaitingList

@@ -26,7 +26,7 @@ The commands that run one file or one module, each with one measured run (#1200)
 
 | Command | Wall clock |
 |---|---|
-| `pnpm --filter @mygame/domain test src/town/startBuildingWork.test.ts` | 0.7 s |
+| `pnpm --filter @mygame/domain test src/town/building/useCases/startBuildingWork.test.ts` | 0.7 s |
 | `pnpm --filter @mygame/domain test src/town` | 1.2 s |
 | `pnpm --filter @mygame/api test src/placement/infrastructure/http/placementRoutes.test.ts` | 2.9 s |
 | `pnpm --filter @mygame/web test src/town/officeRoute.test.tsx` | 3.0 s |
