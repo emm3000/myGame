@@ -221,7 +221,7 @@ describe('content gate check 2, the order holds', () => {
       structureOf('lesson-3', ['up']),
     ]
 
-    expect(checkOrder({ ...content, grammar: { structures } })).toEqual([
+    expect(checkOrder({ ...content, grammar: { ...content.grammar, structures } })).toEqual([
       'lesson-2: work up holds up, a frame word admitted after lesson-2',
     ])
   })

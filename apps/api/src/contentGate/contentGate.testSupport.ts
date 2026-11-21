@@ -10,6 +10,7 @@ type ContentParts = {
   readonly lessons: ReadonlyArray<readonly [string, ReadonlyArray<string>]>
   readonly chromeLessonCount: number
   readonly structures: GrammarContent['structures']
+  readonly irregularVerbs: GrammarContent['irregularVerbs']
   readonly ranks: ReadonlyMap<string, number>
   readonly forms: ReadonlyMap<string, ReadonlySet<string>>
   readonly skill: CurriculumContent['skill']
@@ -132,12 +133,14 @@ const fixtureRanks: ReadonlyArray<readonly [string, number]> = [
 
 const fixtureInflections: ReadonlyArray<readonly [string, ReadonlyArray<string>]> = [
   ['be', ['is', 'are', 'am']],
+  ['have', ['has']],
   ['i', ['me', 'my']],
   ['we', ['us', 'our']],
   ['home', ['homes']],
   ['work', ['works', 'worked', 'working']],
   ['new', ['newer', 'newest']],
-  ['go', ['goes']],
+  ['go', ['goes', 'went', 'gone']],
+  ['make', ['made']],
   ['try', ['tries']],
   ['leave', ['left']],
 ]
@@ -169,6 +172,11 @@ const lessonOneParts = (): ContentParts => ({
   lessons: [['lesson-1', lessonOneLexicon.map(({ id }) => id)]],
   chromeLessonCount: 1,
   structures: [structureOf('lesson-1', lessonOneFrameWords, lessonOneInflections)],
+  irregularVerbs: [
+    { lemma: 'go', past: 'went', pastParticiple: 'gone' },
+    { lemma: 'make', past: 'made', pastParticiple: 'made' },
+    { lemma: 'leave', past: 'left', pastParticiple: 'left' },
+  ],
   ranks: new Map(fixtureRanks),
   forms: fixtureForms(),
   skill: { resource: 'money', ratePercent: 5 },
@@ -200,7 +208,7 @@ export const contentOf = (overrides: Partial<ContentParts> = {}): GateContent =>
     })),
     lexicon: [...parts.lexicon],
     ranks: parts.ranks,
-    grammar: { structures: [...parts.structures] },
+    grammar: { structures: [...parts.structures], irregularVerbs: [...parts.irregularVerbs] },
     forms: parts.forms,
     englishMessages: parts.englishMessages,
     wordNeed: parts.wordNeed,
