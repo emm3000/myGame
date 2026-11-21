@@ -336,9 +336,9 @@ state that holds wins:
 - **The next step wins over the goals.** The owner settled this on
   2026-11-05, so a town home never shows two *next* cards. Learning goals
   leave the content's list, since `lessonToStudy` already says *Study
-  lesson 2*. A building goal shows only inside `caughtUp`, as the
-  variant's nullable `goal`, so no client can draw it beside another
-  state. It is a line: the button stays on the Report, and the place
+  lesson 2*. A building goal shows only inside `lessonRunning` and
+  `caughtUp`, as each variant's nullable `goal`, so no client can draw it
+  beside another state. It is a line: the button stays on the Report, and the place
   card opens the building. A dismissed guidance leaves `goal` null. Tips
   keep ADR 040's rule, since a tip does not say where to go.
 - **`nextDueAt` joins it**, from `reviewsOf`'s logic, nullable as
