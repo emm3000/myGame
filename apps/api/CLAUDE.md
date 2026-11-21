@@ -9,7 +9,7 @@ Hono on Node: the HTTP adapters, the persistence adapters that implement the dom
 - `pnpm --filter @mygame/api test` — Vitest, `src/**/*.test.ts`. Route tests compose the real server on the session's Postgres, with the real adapters; an in-memory adapter exists only to run a port's contract suite beside the Drizzle one.
 - `pnpm --filter @mygame/api typecheck` — `tsc --noEmit` over `src`, the Vitest config and `drizzle.config.ts`.
 - `pnpm --filter @mygame/api openapi:write` — composes the server from the shell's `DATABASE_URL`, `SMTP_URL`, `MAIL_FROM` and `WEB_URL` (nothing connects) and writes `openapi.json`, the copy the Android client is generated from, OpenAPI 3.0.0 because openapi-generator's 3.1 support is partial. `src/openApi.test.ts` turns `pnpm gate` red while it differs from what the app emits.
-- `pnpm --filter @mygame/api db:generate --name <change>` — `drizzle-kit generate`: diffs `src/adapters/postgres/schema.ts` against `migrations/meta` and writes the next SQL migration. It needs `DATABASE_URL` set, though it never connects. Commit the SQL and the `meta` files together; a merged migration is never edited.
+- `pnpm --filter @mygame/api db:generate --name <change>` — `drizzle-kit generate`: diffs the `*Tables.ts` files under `src/<feature>/infrastructure/postgres/` against `migrations/meta` and writes the next SQL migration. It needs `DATABASE_URL` set, though it never connects. Commit the SQL and the `meta` files together; a merged migration is never edited.
 - `pnpm --filter @mygame/api db:migrate` — `drizzle-kit migrate`: applies pending migrations to `DATABASE_URL`.
 - `pnpm gate` from the repo root before every push.
 
@@ -46,10 +46,10 @@ export WEB_URL=http://localhost:3233
 
 - Every town mutation runs through `mutateTown` (`src/town/mutateTown.ts`), which locks the player's row, then the town's. A new lock taken in another order can deadlock.
 - Inside `inTransaction`, every store comes from the transaction's stores (`src/composeStores.ts`): a write through an outside store that touches a row referencing `towns` blocks on the town's `FOR UPDATE` lock, since the foreign key takes `FOR KEY SHARE`.
-- Drizzle's `insert` lists every column of the current `schema.ts`, so it fails on a database at an older migration: a migration test seeds the previous version's rows with `client.query` and plain SQL.
+- Drizzle's `insert` lists every column of its table in the current `*Tables.ts` file, so it fails on a database at an older migration: a migration test seeds the previous version's rows with `client.query` and plain SQL.
 - A new table that references `players` or `towns` joins `truncatePlayerTables` (`src/truncatePlayerTables.testSupport.ts`), the one list every api test empties the database with.
 - Drizzle runs every pending migration of one `db:migrate` in one transaction, and Postgres refuses a value that `ALTER TYPE ... ADD VALUE` added in that transaction unless the type was created there too: a migration never uses an enum value that it, or an earlier pending one, adds.
-- `drizzle-kit generate` asks whether a new column renames an old one and fails without a TTY ("Interactive prompts require a TTY terminal"). Run `db:generate --custom --name <change>`, write the SQL, edit the new snapshot to match `schema.ts`, and confirm with `db:generate --name probe`, which must write no file.
+- `drizzle-kit generate` asks whether a new column renames an old one and fails without a TTY ("Interactive prompts require a TTY terminal"). Run `db:generate --custom --name <change>`, write the SQL, edit the new snapshot to match the `*Tables.ts` files, and confirm with `db:generate --name probe`, which must write no file.
 - In a `CHECK`, test each nullable column with `IS NOT NULL` or count with `num_nonnulls`: a comparison with a null passes the check.
 - A new runtime dependency gets its own `--external:` in the `build` script, so Vercel's trace carries it into the function. `zod` is external because `@hono/zod-openapi` imports it from `node_modules`: an inlined copy would be a second zod at runtime.
 - `src/index.ts` default-exports a plain `Hono` that mounts the server: Vercel's detection needs a value import of `hono` in the bundle, and without it `vercel build` fails with `No entrypoint found which imports hono`.

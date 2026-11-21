@@ -1,5 +1,5 @@
 import { Instant, idleLessonSlot, type LessonSlot } from '@mygame/domain'
-import type { townLessonSlots } from '../../town/infrastructure/postgres/townTables'
+import type { townLessonSlots } from '../../town/infrastructure/postgres/schoolTables'
 
 export const lessonSlotOf = (row: typeof townLessonSlots.$inferSelect | null): LessonSlot =>
   row === null

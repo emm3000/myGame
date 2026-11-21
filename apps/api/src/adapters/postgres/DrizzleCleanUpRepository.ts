@@ -10,7 +10,7 @@ import {
 } from '@mygame/domain'
 import { and, eq, lte, max } from 'drizzle-orm'
 import type { PostgresSession } from '../../platform/infrastructure/postgres/connectPostgres'
-import { siteCleanUps } from '../../town/infrastructure/postgres/townTables'
+import { siteCleanUps } from '../../town/infrastructure/postgres/jobsTables'
 
 export class DrizzleCleanUpRepository implements CleanUpRepository {
   constructor(private readonly database: PostgresSession) {}

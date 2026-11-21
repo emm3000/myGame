@@ -1,14 +1,11 @@
 import { Instant, type PlayerId } from '@mygame/domain'
 import { eq, sql } from 'drizzle-orm'
+import { players } from '../../account/infrastructure/postgres/accountTables'
 import type { ChromeProgress, ChromeProgressReader } from '../../learning/ChromeProgressReader'
+import { cards } from '../../learning/infrastructure/postgres/learningTables'
 import type { PostgresSession } from '../../platform/infrastructure/postgres/connectPostgres'
-import {
-  cards,
-  earnedSkills,
-  players,
-  townLessonSlots,
-  towns,
-} from '../../town/infrastructure/postgres/townTables'
+import { earnedSkills, townLessonSlots } from '../../town/infrastructure/postgres/schoolTables'
+import { towns } from '../../town/infrastructure/postgres/townTables'
 
 export class DrizzleChromeProgress implements ChromeProgressReader {
   constructor(private readonly database: PostgresSession) {}

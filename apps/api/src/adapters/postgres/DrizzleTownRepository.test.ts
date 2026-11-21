@@ -10,7 +10,7 @@ import {
 import { drizzle } from 'drizzle-orm/node-postgres'
 import { Pool } from 'pg'
 import { afterAll, assert, beforeAll, describe, expect, it } from 'vitest'
-import { players } from '../../town/infrastructure/postgres/townTables'
+import { players } from '../../account/infrastructure/postgres/accountTables'
 import { truncatePlayerTables } from '../../truncatePlayerTables.testSupport'
 import { townRepositoryContract } from '../townRepositoryContract'
 import { DrizzleAccounts } from './DrizzleAccounts'

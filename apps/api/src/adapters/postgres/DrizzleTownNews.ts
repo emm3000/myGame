@@ -13,10 +13,10 @@ import {
 } from '@mygame/domain'
 import { and, desc, eq, gt, notInArray } from 'drizzle-orm'
 import type { PostgresSession } from '../../platform/infrastructure/postgres/connectPostgres'
-import { type townBuilding, townEvents } from '../../town/infrastructure/postgres/townTables'
+import { townEvents } from '../../town/infrastructure/postgres/newsTables'
 import { keptEventsPerTown, type TownNewsReader } from '../../town/TownNewsReader'
 
-type StoredTownBuilding = (typeof townBuilding.enumValues)[number]
+type StoredTownBuilding = (typeof townEvents.building.enumValues)[number]
 
 type EventRow = typeof townEvents.$inferSelect
 

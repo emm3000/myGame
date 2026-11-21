@@ -7,7 +7,7 @@ import {
   type Result,
   type StoredMemoryCard,
 } from '@mygame/domain'
-import type { cards } from '../../town/infrastructure/postgres/townTables'
+import type { cards } from '../../learning/infrastructure/postgres/learningTables'
 
 export type CardColumns = Pick<
   typeof cards.$inferSelect,

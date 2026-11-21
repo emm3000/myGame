@@ -7,8 +7,8 @@ import {
   type Result,
 } from '@mygame/domain'
 import { eq, sql } from 'drizzle-orm'
+import { cards } from '../../learning/infrastructure/postgres/learningTables'
 import type { PostgresSession } from '../../platform/infrastructure/postgres/connectPostgres'
-import { cards } from '../../town/infrastructure/postgres/townTables'
 import { cardColumnsOf, heldCardOf } from './storedMemoryCards'
 
 export class DrizzleCardRepository implements CardRepository {

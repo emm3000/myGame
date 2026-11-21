@@ -4,17 +4,19 @@ import { readMigrationFiles } from 'drizzle-orm/migrator'
 import { drizzle, type NodePgDatabase } from 'drizzle-orm/node-postgres'
 import { Client } from 'pg'
 import { afterEach, beforeEach, describe, expect, it } from 'vitest'
+import {
+  accountTokens,
+  players,
+  sessions,
+} from '../../account/infrastructure/postgres/accountTables'
 import { apiPackagePath } from '../../apiPackagePath.testSupport'
 import { tokenDigest } from '../../auth/tokenDigest'
 import {
-  accountTokens,
   cards,
-  earnedSkills,
   pendingReviews,
-  players,
   reviewLog,
-  sessions,
-} from '../../town/infrastructure/postgres/townTables'
+} from '../../learning/infrastructure/postgres/learningTables'
+import { earnedSkills } from '../../town/infrastructure/postgres/schoolTables'
 import { DrizzleAccounts } from './DrizzleAccounts'
 import { DrizzleCardRepository } from './DrizzleCardRepository'
 import { DrizzleTownRepository } from './DrizzleTownRepository'
