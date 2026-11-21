@@ -77,7 +77,7 @@ const admitHiring = (
   if (!office.ok) {
     return office
   }
-  const room = town.roomForHiring()
+  const room = town.hiring.room()
   if (!room.ok) {
     return room
   }
@@ -95,7 +95,7 @@ const placeHiringAt = (
     return accrual
   }
   const terms = catalog.hireTermsOf(hire)
-  const placed = town.placeHiring(
+  const placed = town.hiring.place(
     {
       kind: 'busy',
       hire,

@@ -18,14 +18,9 @@ import { type FullSince, noStoreFull } from './FullSince'
 import { deliveredHiresOf } from './hiring/deliveredHiresOf'
 import type { HireKind } from './hiring/HireKind'
 import { type Hires, hiresPlus, noHires } from './hiring/Hires'
-import {
-  type HiringOrder,
-  type HiringSlot,
-  type HiringTarget,
-  idleHiringSlot,
-} from './hiring/HiringOrder'
+import { type HiringSlot, idleHiringSlot } from './hiring/HiringOrder'
 import { hireKinds } from './hiring/hireKinds'
-import { hiringEndsAt } from './hiring/hiringEndsAt'
+import { TownHiring } from './hiring/TownHiring'
 import { coversWaste } from './jobs/coversWaste'
 import { idleJobSlot, type Job, type JobCleanUp, type JobSlot } from './jobs/Job'
 import { jobInstantsOf } from './jobs/jobInstantsOf'
@@ -52,7 +47,7 @@ export type TownFounding = {
   readonly at: Instant
 }
 
-type TownState = {
+export type TownState = {
   readonly stocks: Stocks
   readonly storedAt: Instant
   readonly fullSince: FullSince
@@ -83,9 +78,6 @@ const refundOf = (stopped: ReadonlyArray<PaidWork>): Stocks =>
     stocksOf(() => 0),
   )
 
-const timesCount = (amounts: Stocks, count: number): Stocks =>
-  stocksOf((resource) => amounts[resource] * count)
-
 const hiresOf = (countOf: (hire: HireKind) => number): Hires => ({
   worker: countOf('worker'),
   truck: countOf('truck'),
@@ -102,10 +94,6 @@ const arrivalOf = ({ site, pay }: Job, cleanUp: JobCleanUp, occurredAt: Instant)
   coversWaste(cleanUp)
     ? { kind: 'cleanUpDone', site, reward: pay, occurredAt }
     : { kind: 'cleanUpFailed', site, occurredAt }
-
-const isHiringOf = (target: HiringTarget, order: HiringOrder): boolean =>
-  order.hire === target.hire &&
-  order.startedAt.epochMilliseconds === target.startedAt.epochMilliseconds
 
 const busySlotOf = (work: WaitingWork, startedAt: Instant): Result<BusyWorkSlot, DomainError> => {
   const duration = Duration.ofSeconds(work.durationSeconds)
@@ -312,60 +300,8 @@ export class Town {
       : this.hires
   }
 
-  roomForHiring(): Result<void, DomainError> {
-    const slot = this.hiringSlot
-    return slot.kind === 'busy' ? err({ kind: 'HiringSlotBusy', hire: slot.hire }) : ok(undefined)
-  }
-
-  placeHiring(order: HiringOrder, stocksAtNow: Stocks, now: Instant): Result<Town, DomainError> {
-    const charged = chargedStocks(stocksAtNow, timesCount(order.costPerHire, order.count))
-    if (!charged.ok) {
-      return charged
-    }
-    return ok(this.changed({ stocks: charged.value, storedAt: now, hiringSlot: order }))
-  }
-
-  stopHiring(
-    target: HiringTarget,
-    stocksAtNow: Stocks,
-    now: Instant,
-  ): Result<ChangedTown, DomainError> {
-    const slot = this.hiringSlot
-    if (slot.kind === 'idle' || !isHiringOf(target, slot)) {
-      return err({ kind: 'HiringOrderNotFound', hire: target.hire, startedAt: target.startedAt })
-    }
-    const delivered = deliveredHiresOf(slot, now)
-    const stopped = slot.count - delivered
-    const refund = timesCount(slot.costPerHire, stopped)
-    return ok({
-      town: this.changed({
-        stocks: creditedStocks(stocksAtNow, refund),
-        storedAt: now,
-        hires: hiresPlus(this.hires, slot.hire, delivered),
-        hiringSlot: idleHiringSlot,
-      }),
-      events: [
-        { kind: 'hiringStopped', hire: slot.hire, delivered, stopped, refund, occurredAt: now },
-      ],
-    })
-  }
-
-  closeHiring(now: Instant): ChangedTown {
-    const slot = this.hiringSlot
-    if (slot.kind === 'idle') {
-      return { town: this, events: [] }
-    }
-    const endsAt = hiringEndsAt(slot)
-    if (endsAt.epochMilliseconds > now.epochMilliseconds) {
-      return { town: this, events: [] }
-    }
-    return {
-      town: this.changed({
-        hires: hiresPlus(this.hires, slot.hire, slot.count),
-        hiringSlot: idleHiringSlot,
-      }),
-      events: [{ kind: 'hiringDelivered', hire: slot.hire, count: slot.count, occurredAt: endsAt }],
-    }
+  get hiring(): TownHiring {
+    return new TownHiring(this, (change) => this.changed(change))
   }
 
   get terrain(): Terrain {
