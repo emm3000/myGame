@@ -4,7 +4,7 @@ import type { Instant } from '../../../time/Instant'
 import type { TownCatalog } from '../../ports/TownCatalog'
 import type { TownRepository } from '../../ports/TownRepository'
 import type { SiteAddress } from '../../SiteAddress'
-import { resolvedTownOf } from '../../services/resolveStoredTown'
+import { resolveStoredTown } from '../../services/resolveStoredTown'
 import type { ChangedTown, Town } from '../../Town'
 import { isWholeFromOneTo } from '../isWholeFromOneTo'
 import type { Job } from '../Job'
@@ -68,7 +68,7 @@ export const dispatchJob = async (
   { towns, map, catalog }: JobDispatchDependencies,
   now: Instant,
 ): Promise<Result<DispatchedJob, DomainError>> => {
-  const resolved = await resolvedTownOf(order.playerId, towns, catalog, now)
+  const resolved = await resolveStoredTown(order.playerId, towns, catalog, now)
   if (!resolved.ok) {
     return resolved
   }

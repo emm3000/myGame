@@ -7,7 +7,7 @@ import type { TownRepository } from '../ports/TownRepository'
 import { settleTownTo } from '../settleTownTo'
 import type { ChangedTown } from '../Town'
 
-export const resolvedTownOf = async (
+export const resolveStoredTown = async (
   playerId: PlayerId,
   towns: Pick<TownRepository, 'townOf'>,
   catalog: TownCatalog,

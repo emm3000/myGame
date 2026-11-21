@@ -13,7 +13,7 @@ import type { TownCatalog } from '../../ports/TownCatalog'
 import type { TownNews } from '../../ports/TownNews'
 import type { TownRepository } from '../../ports/TownRepository'
 import { rebaseFullSince } from '../../rebaseFullSince'
-import { resolvedTownOf } from '../../services/resolveStoredTown'
+import { resolveStoredTown } from '../../services/resolveStoredTown'
 import { saveChangedTown } from '../../services/saveChangedTown'
 import type { Town } from '../../Town'
 import type { BuildingKind } from '../BuildingKind'
@@ -145,7 +145,7 @@ export const startBuildingWork = async (
   { towns, news, cards, catalog, clock }: StartBuildingWorkDependencies,
 ): Promise<Result<Town, DomainError>> => {
   const now = clock.now()
-  const resolved = await resolvedTownOf(playerId, towns, catalog, now)
+  const resolved = await resolveStoredTown(playerId, towns, catalog, now)
   if (!resolved.ok) {
     return resolved
   }

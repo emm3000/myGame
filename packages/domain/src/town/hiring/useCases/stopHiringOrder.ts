@@ -7,7 +7,7 @@ import type { TownCatalog } from '../../ports/TownCatalog'
 import type { TownNews } from '../../ports/TownNews'
 import type { TownRepository } from '../../ports/TownRepository'
 import { rebaseFullSince } from '../../rebaseFullSince'
-import { resolvedTownOf } from '../../services/resolveStoredTown'
+import { resolveStoredTown } from '../../services/resolveStoredTown'
 import { saveChangedTown } from '../../services/saveChangedTown'
 import type { ChangedTown } from '../../Town'
 import type { HiringTarget } from '../HiringOrder'
@@ -28,7 +28,7 @@ export const stopHiringOrder = async (
   { towns, news, catalog, clock }: StopHiringOrderDependencies,
 ): Promise<Result<ChangedTown, DomainError>> => {
   const now = clock.now()
-  const resolved = await resolvedTownOf(playerId, towns, catalog, now)
+  const resolved = await resolveStoredTown(playerId, towns, catalog, now)
   if (!resolved.ok) {
     return resolved
   }

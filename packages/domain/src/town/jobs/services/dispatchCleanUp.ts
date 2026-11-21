@@ -3,7 +3,7 @@ import { err, ok, type Result } from '../../../Result'
 import type { Instant } from '../../../time/Instant'
 import type { TownCatalog } from '../../ports/TownCatalog'
 import type { TownRepository } from '../../ports/TownRepository'
-import { resolvedTownOf } from '../../services/resolveStoredTown'
+import { resolveStoredTown } from '../../services/resolveStoredTown'
 import type { ChangedTown, Town } from '../../Town'
 import type { CleanUpOrder } from '../CleanUpOrder'
 import { cleanUpJobOf } from '../cleanUpJobOf'
@@ -62,7 +62,7 @@ export const dispatchCleanUp = async (
   dependencies: CleanUpDispatchDependencies,
   now: Instant,
 ): Promise<Result<DispatchedCleanUp, DomainError>> => {
-  const resolved = await resolvedTownOf(
+  const resolved = await resolveStoredTown(
     order.playerId,
     dependencies.towns,
     dependencies.catalog,

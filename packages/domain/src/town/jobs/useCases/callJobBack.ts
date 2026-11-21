@@ -6,7 +6,7 @@ import type { Instant } from '../../../time/Instant'
 import type { TownCatalog } from '../../ports/TownCatalog'
 import type { TownNews } from '../../ports/TownNews'
 import type { TownRepository } from '../../ports/TownRepository'
-import { resolvedTownOf } from '../../services/resolveStoredTown'
+import { resolveStoredTown } from '../../services/resolveStoredTown'
 import { saveChangedTown } from '../../services/saveChangedTown'
 import type { Town } from '../../Town'
 import type { CleanUpRepository } from '../ports/CleanUpRepository'
@@ -29,7 +29,7 @@ export const callJobBack = async (
   { towns, cleanUps, news, catalog, clock }: CallJobBackDependencies,
 ): Promise<Result<Town, DomainError>> => {
   const now = clock.now()
-  const resolved = await resolvedTownOf(playerId, towns, catalog, now)
+  const resolved = await resolveStoredTown(playerId, towns, catalog, now)
   if (!resolved.ok) {
     return resolved
   }
