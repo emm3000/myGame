@@ -551,7 +551,6 @@
         "apps/api/src/routes/town.ts",
         "apps/api/src/routes/townDeclarations.ts",
         "apps/api/src/town/townOverviewOf.ts",
-        "packages/contracts/src/town/TownOverview.test.ts",
         "packages/domain/src/town/Town.ts",
         "packages/domain/src/useCases/answerReview.test.ts",
         "packages/domain/src/useCases/answerReview.ts"
