@@ -1,5 +1,5 @@
 import { assert, describe, expect, it } from 'vitest'
-import { Instant } from '../time/Instant'
+import { Instant } from '#time/Instant'
 import { earnTownSkill } from './earnTownSkill'
 import { accrueTown } from './resources/accrueTown'
 import type { TownSkill } from './TownSkill'

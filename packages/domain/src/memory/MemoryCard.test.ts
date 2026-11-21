@@ -1,5 +1,5 @@
 import { assert, describe, expect, it } from 'vitest'
-import { Instant } from '../time/Instant'
+import { Instant } from '#time/Instant'
 import { MemoryCard } from './MemoryCard'
 
 const enteredAt = Instant.fromEpochMilliseconds(1_669_724_000_000)

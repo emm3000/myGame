@@ -1,6 +1,6 @@
-import type { Band } from '../learning/curriculum/BandStart'
-import type { WordId } from '../learning/Lesson'
-import type { Instant } from '../time/Instant'
+import type { Band } from '#learning/curriculum/BandStart'
+import type { WordId } from '#learning/Lesson'
+import type { Instant } from '#time/Instant'
 
 export type PlacementSample = {
   readonly band: Band

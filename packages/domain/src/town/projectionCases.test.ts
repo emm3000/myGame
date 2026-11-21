@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import { Instant } from '../time/Instant'
+import { Instant } from '#time/Instant'
 import { readyMinuteOf } from './guidance/readyMinuteOf'
 import projection from './projection-cases.json'
 import { storeAfterSegment } from './resources/storeAfterSegment'

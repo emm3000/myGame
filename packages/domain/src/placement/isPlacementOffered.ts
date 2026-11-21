@@ -1,4 +1,4 @@
-import type { BandStart } from '../learning/curriculum/BandStart'
+import type { BandStart } from '#learning/curriculum/BandStart'
 import { isPlacementDrawable, type PlacementContent } from './placementSamplesDrawn'
 
 export const isPlacementOffered = (

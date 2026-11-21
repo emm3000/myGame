@@ -1,4 +1,4 @@
-import type { PlayerId } from '../../player/PlayerId'
+import type { PlayerId } from '#player/PlayerId'
 import type { WordId } from '../Lesson'
 
 export type AnswerReviewCommand = {

@@ -1,4 +1,4 @@
-import type { Instant } from '../../time/Instant'
+import type { Instant } from '#time/Instant'
 import type { TownId } from '../TownId'
 import type { SiteAddress } from './SiteAddress'
 

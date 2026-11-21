@@ -1,4 +1,4 @@
-import { Instant } from '../../time/Instant'
+import { Instant } from '#time/Instant'
 import { storeAfterSegment } from '../resources/storeAfterSegment'
 
 export interface ReadyStock {

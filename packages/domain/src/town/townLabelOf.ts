@@ -1,5 +1,5 @@
-import type { DomainError } from '../DomainError'
-import { ok, type Result } from '../Result'
+import type { DomainError } from '#DomainError'
+import { ok, type Result } from '#Result'
 import type { BuildingLevels } from './building/BuildingLevels'
 import { deriveSuppliedPeople } from './derivePeople'
 import type { TownCatalog } from './ports/TownCatalog'

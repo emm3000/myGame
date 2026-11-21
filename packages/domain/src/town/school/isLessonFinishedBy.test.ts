@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import { Instant } from '../../time/Instant'
+import { Instant } from '#time/Instant'
 import { isLessonFinishedBy } from './isLessonFinishedBy'
 
 const finishesAt = Instant.fromEpochMilliseconds(Date.parse('2026-11-12T09:00:00Z'))

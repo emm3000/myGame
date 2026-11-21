@@ -1,5 +1,5 @@
-import type { PlayerId } from '../../player/PlayerId'
-import { ok } from '../../Result'
+import type { PlayerId } from '#player/PlayerId'
+import { ok } from '#Result'
 import type { EarnedSkillRepository } from '../ports/EarnedSkillRepository'
 import type { TownSkill } from '../TownSkill'
 

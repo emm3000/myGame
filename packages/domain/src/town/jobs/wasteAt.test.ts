@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import { Instant } from '../../time/Instant'
+import { Instant } from '#time/Instant'
 import { wasteAt } from './wasteAt'
 
 const MILLISECONDS_PER_HOUR = 3_600_000

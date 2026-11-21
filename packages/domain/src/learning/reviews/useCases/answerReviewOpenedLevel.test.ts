@@ -1,5 +1,5 @@
 import { assert, describe, expect, it } from 'vitest'
-import type { Town } from '../../../town/Town'
+import type { Town } from '#town/Town'
 import {
   arrange,
   dueAtOf,

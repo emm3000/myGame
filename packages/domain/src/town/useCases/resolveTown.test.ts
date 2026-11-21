@@ -1,6 +1,6 @@
 import { assert, describe, expect, it } from 'vitest'
-import type { Clock } from '../../ports/Clock'
-import { Instant } from '../../time/Instant'
+import type { Clock } from '#ports/Clock'
+import { Instant } from '#time/Instant'
 import type { WorkSlot } from '../building/BuildingWork'
 import type { WaitingWork } from '../building/WaitingList'
 import type { Job } from '../jobs/Job'

@@ -1,4 +1,4 @@
-import type { Instant } from '../time/Instant'
+import type { Instant } from '#time/Instant'
 
 const MILLISECONDS_PER_DAY = 86_400_000
 

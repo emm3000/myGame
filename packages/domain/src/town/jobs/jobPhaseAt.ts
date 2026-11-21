@@ -1,4 +1,4 @@
-import type { Instant } from '../../time/Instant'
+import type { Instant } from '#time/Instant'
 import type { Job } from './Job'
 import { jobInstantsOf } from './jobInstantsOf'
 

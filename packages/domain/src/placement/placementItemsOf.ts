@@ -1,5 +1,5 @@
-import { glossOf } from '../learning/scaffold/glossOf'
-import type { Scaffold } from '../learning/scaffold/Scaffold'
+import { glossOf } from '#learning/scaffold/glossOf'
+import type { Scaffold } from '#learning/scaffold/Scaffold'
 import type { PlacementSample } from './Placement'
 import type { PlacementItem } from './PlacementView'
 import { placementQuestionsOf } from './placementQuestionsOf'

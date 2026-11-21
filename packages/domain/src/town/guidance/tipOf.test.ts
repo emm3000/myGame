@@ -1,5 +1,5 @@
 import { assert, describe, expect, it } from 'vitest'
-import { Instant } from '../../time/Instant'
+import { Instant } from '#time/Instant'
 import type { BusyWorkSlot } from '../building/BuildingWork'
 import type { TownSettings } from '../TownSettings'
 import { plainTownSettings, townCatalogOf } from '../testing/townCatalogOf'

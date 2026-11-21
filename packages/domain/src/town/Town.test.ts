@@ -1,5 +1,5 @@
 import { assert, describe, expect, it } from 'vitest'
-import { Instant } from '../time/Instant'
+import { Instant } from '#time/Instant'
 import type { HiringOrder } from './hiring/HiringOrder'
 import type { Job } from './jobs/Job'
 import { terrainOf } from './jobs/terrainOf'

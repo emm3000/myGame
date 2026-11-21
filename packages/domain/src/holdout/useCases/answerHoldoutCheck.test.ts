@@ -1,7 +1,7 @@
 import { assert, describe, expect, it } from 'vitest'
-import type { PlacementItem } from '../../placement/PlacementView'
-import { inMemoryPlacementWords } from '../../placement/testing/placementWords'
-import type { Instant } from '../../time/Instant'
+import type { PlacementItem } from '#placement/PlacementView'
+import { inMemoryPlacementWords } from '#placement/testing/placementWords'
+import type { Instant } from '#time/Instant'
 import type { HoldoutCheck } from '../HoldoutCheck'
 import {
   ana,

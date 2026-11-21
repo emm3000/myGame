@@ -1,4 +1,4 @@
-import { ok } from '../../../Result'
+import { ok } from '#Result'
 import type { TownId } from '../../TownId'
 import { idleLessonSlot, type LessonSlot } from '../LessonSlot'
 import type { LessonSlotRepository } from '../ports/LessonSlotRepository'

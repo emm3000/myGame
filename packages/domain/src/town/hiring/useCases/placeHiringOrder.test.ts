@@ -1,6 +1,6 @@
 import { assert, describe, expect, it } from 'vitest'
-import type { Clock } from '../../../ports/Clock'
-import { Instant } from '../../../time/Instant'
+import type { Clock } from '#ports/Clock'
+import { Instant } from '#time/Instant'
 import type { BuildingLevel } from '../../building/BuildingLevel'
 import { derivePeople } from '../../derivePeople'
 import type { TownCatalog } from '../../ports/TownCatalog'

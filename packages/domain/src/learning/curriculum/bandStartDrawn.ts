@@ -1,5 +1,5 @@
-import type { RandomSource } from '../../ports/RandomSource'
-import type { Instant } from '../../time/Instant'
+import type { RandomSource } from '#ports/RandomSource'
+import type { Instant } from '#time/Instant'
 import type { Band, BandStart, BandWord, Headword } from './BandStart'
 import { drawableHeadwordsOf } from './drawableHeadwordsOf'
 import { heldOutCountOf } from './heldOutCountOf'

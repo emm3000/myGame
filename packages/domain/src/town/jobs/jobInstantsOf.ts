@@ -1,4 +1,4 @@
-import { Instant } from '../../time/Instant'
+import { Instant } from '#time/Instant'
 import type { Job } from './Job'
 
 const MILLISECONDS_PER_SECOND = 1_000

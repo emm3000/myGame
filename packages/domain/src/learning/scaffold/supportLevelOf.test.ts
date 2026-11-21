@@ -1,6 +1,6 @@
 import { assert, describe, expect, it } from 'vitest'
-import { MemoryCard, type StoredMemoryCard } from '../../memory/MemoryCard'
-import { Instant } from '../../time/Instant'
+import { MemoryCard, type StoredMemoryCard } from '#memory/MemoryCard'
+import { Instant } from '#time/Instant'
 import type { HeldCard } from '../HeldCard'
 import { supportLevelOf } from './supportLevelOf'
 

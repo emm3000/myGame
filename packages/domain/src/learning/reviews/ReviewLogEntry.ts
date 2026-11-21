@@ -1,7 +1,7 @@
-import type { StoredMemoryCard } from '../../memory/MemoryCard'
-import type { MemoryRating } from '../../memory/MemoryRating'
-import type { PlayerId } from '../../player/PlayerId'
-import type { Instant } from '../../time/Instant'
+import type { StoredMemoryCard } from '#memory/MemoryCard'
+import type { MemoryRating } from '#memory/MemoryRating'
+import type { PlayerId } from '#player/PlayerId'
+import type { Instant } from '#time/Instant'
 import type { WordId } from '../Lesson'
 import type { ReviewFormat } from './ReviewFormat'
 

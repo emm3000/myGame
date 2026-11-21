@@ -1,5 +1,5 @@
 import { assert, describe, expect, it } from 'vitest'
-import { Instant } from '../../time/Instant'
+import { Instant } from '#time/Instant'
 import { plainTownSettings, townCatalogOf } from '../testing/townCatalogOf'
 import { townOf } from '../testing/townFixtures'
 import { accrueTown } from './accrueTown'

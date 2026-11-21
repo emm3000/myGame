@@ -1,4 +1,4 @@
-import type { Instant } from '../../time/Instant'
+import type { Instant } from '#time/Instant'
 import type { Hires } from '../hiring/Hires'
 import type { Stocks } from '../resources/Stocks'
 import type { ProductionPercent } from '../TownSettings'

@@ -1,4 +1,4 @@
-import { ok } from '../../../Result'
+import { ok } from '#Result'
 import type { ReviewLog } from '../ports/ReviewLog'
 import type { ReviewLogEntry } from '../ReviewLogEntry'
 

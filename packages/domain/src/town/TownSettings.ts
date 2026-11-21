@@ -1,5 +1,5 @@
-import type { SeasonDates } from '../season/SeasonDates'
-import type { SeasonKind } from '../season/SeasonKind'
+import type { SeasonDates } from '#season/SeasonDates'
+import type { SeasonKind } from '#season/SeasonKind'
 import type { WordNeed } from './building/WordNeed'
 import type { TipKind } from './guidance/TipKind'
 import type { TownGoal } from './guidance/TownGoal'

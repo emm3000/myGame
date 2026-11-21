@@ -1,6 +1,6 @@
 import { assert, describe, expect, it } from 'vitest'
-import { MemoryCard } from '../../memory/MemoryCard'
-import { Instant } from '../../time/Instant'
+import { MemoryCard } from '#memory/MemoryCard'
+import { Instant } from '#time/Instant'
 import { lessonOne } from '../curriculum/testing/lessonOne'
 import type { HeldCard } from '../HeldCard'
 import type { Lesson, LessonWord } from '../Lesson'

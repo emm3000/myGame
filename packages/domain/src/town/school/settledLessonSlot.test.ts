@@ -1,8 +1,8 @@
 import { describe, expect, it } from 'vitest'
-import type { BandStart } from '../../learning/curriculum/BandStart'
-import { inMemoryLessons } from '../../learning/curriculum/testing/inMemoryLessons'
-import { lessonOne } from '../../learning/curriculum/testing/lessonOne'
-import { Instant } from '../../time/Instant'
+import type { BandStart } from '#learning/curriculum/BandStart'
+import { inMemoryLessons } from '#learning/curriculum/testing/inMemoryLessons'
+import { lessonOne } from '#learning/curriculum/testing/lessonOne'
+import { Instant } from '#time/Instant'
 import type { LessonSlot } from './LessonSlot'
 import { settledLessonSlot } from './settledLessonSlot'
 

@@ -1,4 +1,4 @@
-import type { MemoryRating } from '../../memory/MemoryRating'
+import type { MemoryRating } from '#memory/MemoryRating'
 import type { PendingReview } from './PendingReview'
 
 export type AnswerGrade = 'correct' | 'wrong'

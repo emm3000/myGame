@@ -1,5 +1,5 @@
-import type { PlayerId } from '../../player/PlayerId'
-import { ok } from '../../Result'
+import type { PlayerId } from '#player/PlayerId'
+import { ok } from '#Result'
 import type { Placement } from '../Placement'
 import type { PlacementRepository } from '../ports/PlacementRepository'
 
