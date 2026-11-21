@@ -223,7 +223,7 @@ private fun TownSnapshot.statusAt(
                 )
             },
         notice = finished?.let { lesson: LessonId ->
-            TownStatusUiState.FinishNotice(nameOf(lesson), (nextStep as? NextStep.Reviews)?.readFirst?.firstOrNull())
+            TownStatusUiState.FinishNotice(nameOf(lesson))
         },
     )
 

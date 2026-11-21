@@ -390,6 +390,16 @@ so that no sentence leaves the screen before its new place draws it.
   count that stays beside a two-line label would lower the maximum at
   360 by 640 with font scale 2.0 from 191 dp; that is not decided here.
 
+## Amendment (2026-11-20)
+
+Slice 6 is replaced: the finish notice has no way on, only its line and
+its close (#1329, #1651). The notice exists only while the next step is
+`Reviews`. Every screen that draws the town dock hid the way on, since
+the dock's go opens the same screen, and on the placement and the
+holdout check, the screens that draw no dock, `Navigator.openLesson`
+and `openReviews` do nothing, so the way on was drawn dead. The status strip no longer reads the
+dock, and the notice no longer carries the first unread lesson.
+
 ## References
 
 - The canvas (https://claude.ai/artifact/EtNPQqnanMYhjuFwu9NZCy, #1294):

@@ -190,7 +190,7 @@ class TownStatusViewModelTest {
         passing(2.minutes + 1.seconds)
 
         assertEquals(
-            TownStatusUiState.FinishNotice(LessonName.Released(PlacementBand.Second, set = 3), firstUnread = null),
+            TownStatusUiState.FinishNotice(LessonName.Released(PlacementBand.Second, set = 3)),
             viewModel.state.value.notice,
         )
     }
@@ -233,7 +233,7 @@ class TownStatusViewModelTest {
         passing(2.minutes + 1.seconds)
 
         assertEquals(2, towns.readCount)
-        assertEquals(TownStatusUiState.FinishNotice(LessonName.Shelved(2), secondLesson), viewModel.state.value.notice)
+        assertEquals(TownStatusUiState.FinishNotice(LessonName.Shelved(2)), viewModel.state.value.notice)
     }
 
     @Test
@@ -347,19 +347,6 @@ class TownStatusViewModelTest {
     }
 
     @Test
-    fun `opens the first lesson of readFirst from the notice`() = runTest {
-        val clock = TestClock(testScheduler, deviceStart)
-        val viewModel: TownStatusViewModel = statusOf(clock)
-        shownWith(viewModel, runningTown(readAt = clock.now(), finishesAt = clock.now() + 10.minutes))
-        runCurrent()
-
-        heldOf(finishedTown(clock.now(), readFirst = listOf(secondLesson, thirdLesson)))
-        runCurrent()
-
-        assertEquals(secondLesson, viewModel.state.value.notice?.firstUnread)
-    }
-
-    @Test
     fun `draws a closed notice no more across reads`() = runTest {
         val clock = TestClock(testScheduler, deviceStart)
         val viewModel: TownStatusViewModel = statusOf(clock)
@@ -416,7 +403,7 @@ class TownStatusViewModelTest {
 
         viewModel.onIntent(TownStatusIntent.ScreenShown(TownStatusScreen.LessonWords(thirdLesson)))
 
-        assertEquals(TownStatusUiState.FinishNotice(LessonName.Shelved(2), secondLesson), viewModel.state.value.notice)
+        assertEquals(TownStatusUiState.FinishNotice(LessonName.Shelved(2)), viewModel.state.value.notice)
     }
 
     @Test

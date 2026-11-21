@@ -16,8 +16,6 @@ import androidx.compose.ui.test.assertCountEquals
 import androidx.compose.ui.test.assertIsDisplayed
 import androidx.compose.ui.test.getUnclippedBoundsInRoot
 import androidx.compose.ui.test.hasAnyAncestor
-import androidx.compose.ui.test.hasAnyDescendant
-import androidx.compose.ui.test.hasClickAction
 import androidx.compose.ui.test.hasContentDescription
 import androidx.compose.ui.test.hasScrollAction
 import androidx.compose.ui.test.hasTestTag
@@ -41,20 +39,14 @@ import com.emm.mygame.core.designsystem.MyGameLabel
 import com.emm.mygame.core.designsystem.MyGameText
 import com.emm.mygame.core.designsystem.MyGameTheme
 import com.emm.mygame.core.designsystem.MyGameTypography
-import com.emm.mygame.core.designsystem.NAV_ROW_CHEVRON
 import com.emm.mygame.core.designsystem.OUTLINED_PILL
-import com.emm.mygame.core.network.LessonId
-import com.emm.mygame.core.network.LessonName
-import com.emm.mygame.core.network.NextStepCard
 import com.emm.mygame.core.ui.FillTaskDock
 import com.emm.mygame.core.ui.FoldedTaskEnd
 import com.emm.mygame.core.ui.FollowTownDock
 import com.emm.mygame.core.ui.TaskDock
 import com.emm.mygame.core.ui.TaskDockHook
-import com.emm.mygame.feature.town.TownStatus
 import com.emm.mygame.feature.town.TownStatusIntent
 import com.emm.mygame.feature.town.TownStatusUiState
-import com.emm.mygame.feature.town.TownUiState
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertTrue
 import org.junit.Rule
@@ -81,7 +73,6 @@ class TaskDockFrameTest {
         isFollowingTown: Boolean = false,
         status: TownStatusUiState = TownStatusUiState.none,
         cardHeight: Dp = 0.dp,
-        banner: @Composable (TownStatusUiState.Dock?) -> Unit = {},
     ) {
         composeRule.setContent {
             MyGameTheme {
@@ -94,7 +85,7 @@ class TaskDockFrameTest {
                         navigator = Navigator(backStack, NavigationLinks()),
                         status = mutableStateOf(status),
                         onStatusIntent = sent::add,
-                        banner = banner,
+                        banner = {},
                     ),
                 ) { frame: ScreenFrame ->
                     if (kind == FrameKind.Home) frame.status()
@@ -247,77 +238,6 @@ class TaskDockFrameTest {
         composeRule.onAllNodes(hasTestTag(INK_PILL)).assertCountEquals(0)
     }
 
-    @Test
-    fun `a task screen with its own dock draws the finish notice's way on`() {
-        showingFakeTask(status = finishedWithWordsToRead, banner = finishNotice)
-
-        composeRule.onNode(wayOnToTheWords, useUnmergedTree = true).assertExists()
-    }
-
-    @Test
-    fun `a place frame draws the finish notice's way on while the keyboard hides the dock`() {
-        showingFakeTask(
-            kind = FrameKind.Place,
-            isFilled = false,
-            status = finishedWithWordsToRead,
-            banner = finishNotice,
-        )
-
-        composeRule.keyboard(isOpen = true)
-
-        composeRule.onAllNodes(wayOnToTheWords, useUnmergedTree = true).assertCountEquals(1)
-    }
-
-    @Test
-    fun `the town home's frame draws the finish notice's way on while the keyboard hides the dock`() {
-        showingFakeTask(
-            kind = FrameKind.Home,
-            isFilled = false,
-            status = finishedWithWordsToRead,
-            banner = finishNotice,
-        )
-
-        composeRule.keyboard(isOpen = true)
-
-        composeRule.onAllNodes(wayOnToTheWords, useUnmergedTree = true).assertCountEquals(1)
-    }
-
-    @Test
-    fun `a task screen that follows the town draws no way on beside the town's go to the same words`() {
-        showingFakeTask(
-            isFilled = false,
-            isFollowingTown = true,
-            status = finishedWithWordsToRead,
-            banner = finishNotice,
-        )
-
-        composeRule.onAllNodes(wayOnToTheWords, useUnmergedTree = true).assertCountEquals(0)
-    }
-
-    @Test
-    fun `a task screen that follows the town draws no way on while the keyboard is open`() {
-        showingFakeTask(
-            isFilled = false,
-            isFollowingTown = true,
-            status = finishedWithWordsToRead,
-            banner = finishNotice,
-        )
-
-        composeRule.keyboard(isOpen = true)
-
-        composeRule.onAllNodes(wayOnToTheWords, useUnmergedTree = true).assertCountEquals(0)
-    }
-
-    private val finishNotice: @Composable (TownStatusUiState.Dock?) -> Unit = { dock: TownStatusUiState.Dock? ->
-        TownStatus(
-            state = finishedWithWordsToRead,
-            dock = dock,
-            onNoticeClose = {},
-            onLessonOpen = {},
-            onReviewsOpen = {},
-        )
-    }
-
     private fun placedBounds(matcher: SemanticsMatcher): DpRect =
         composeRule.onAllNodes(matcher and isPlaced).onFirst().getUnclippedBoundsInRoot()
 
@@ -331,25 +251,6 @@ class TaskDockFrameTest {
 
     private companion object {
         val refusedTown: TownStatusUiState = TownStatusUiState.none.copy(dock = TownStatusUiState.Dock.Refused)
-
-        val unreadLesson: LessonId = LessonId("lesson-2")
-
-        val finishedWithWordsToRead: TownStatusUiState = TownStatusUiState(
-            running = null,
-            notice = TownStatusUiState.FinishNotice(LessonName.Shelved(number = 2), firstUnread = unreadLesson),
-            dock = TownStatusUiState.Dock.Step(
-                line = NextStepCard.Line.Lesson(number = 3),
-                detail = null,
-                countdown = null,
-                go = TownStatusUiState.Go.Acts(NextStepCard.Action.ReadWords(unreadLesson), isBusy = false),
-                lessonStart = TownUiState.LessonStartStatus.Idle,
-                capWait = null,
-            ),
-        )
-
-        val wayOnToTheWords: SemanticsMatcher = hasClickAction() and
-            hasAnyDescendant(hasText("Leer las palabras")) and
-            hasAnyDescendant(hasTestTag(NAV_ROW_CHEVRON))
 
         const val CARD: String = "The card"
         const val TOWN_UNREACHABLE: String =

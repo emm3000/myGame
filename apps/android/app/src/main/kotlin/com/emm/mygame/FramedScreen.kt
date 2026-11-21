@@ -88,7 +88,7 @@ internal fun FramedScreen(
                 TownReportRow(dock = shown, onClick = chrome.navigator::openReport)
             }
         },
-        status = { chrome.banner(dock.takeUnless { isDockUnderKeyboard }) },
+        status = chrome.banner,
     )
     Column(
         modifier = modifier
