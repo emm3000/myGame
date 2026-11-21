@@ -7,7 +7,7 @@ import type { Label } from '../design-system/Label'
 import { cardCostsOf } from './cardCostsOf'
 import { hireWordsOf } from './hireWordsOf'
 import type { LiveTown } from './liveTown'
-import { readyLineOf } from './readyLineOf'
+import { readyLineOf, readySecondsOf } from './readyLineOf'
 import { shortfallLineOf, shortfallsOf } from './shortfallLineOf'
 
 interface HireCardHeader {
@@ -36,6 +36,8 @@ interface HireOrder {
   readonly town: LiveTown
 }
 
+export const firstHireEntry = '1'
+
 const wholeCountPattern = /^[0-9]+$/
 
 export function hireCountOf(entry: string): number | undefined {
@@ -58,33 +60,52 @@ const freePeopleOf = ({ overview }: LiveTown): number | undefined =>
     ? overview.people.free
     : undefined
 
-function stateOf(copy: PlayerCopy, { terms, count, town }: HireOrder): OrderActionState {
-  if (count === undefined) {
-    return {
-      kind: 'invalidEntry',
-      reason: copy.chrome((catalog) => catalog.townOfficeCountNeeded()),
-    }
-  }
+type HireBlock = 'busy' | 'peopleShort' | 'resources'
+
+interface CountedOrder {
+  readonly terms: HireTerms
+  readonly count: number
+  readonly town: LiveTown
+}
+
+function hireBlockOf({ terms, count, town }: CountedOrder): HireBlock | null {
   if (town.overview.hiring.order !== null) {
-    return { kind: 'blocked', reason: copy.chrome((catalog) => catalog.townOfficeBusy()) }
+    return 'busy'
   }
-  const needed = terms.people * count
   const free = freePeopleOf(town)
-  if (free !== undefined && needed > free) {
-    return {
-      kind: 'blocked',
-      reason: copy.chrome((catalog) => catalog.townPeopleShort({ needed, free })),
-    }
+  if (free !== undefined && terms.people * count > free) {
+    return 'peopleShort'
   }
-  const cost = costTimes(terms.cost, count)
-  const shortfalls = shortfallsOf(cost, town.stocks)
-  return shortfalls.length === 0
-    ? { kind: 'affordable' }
-    : {
+  return shortfallsOf(costTimes(terms.cost, count), town.stocks).length === 0 ? null : 'resources'
+}
+
+function countedStateOf(copy: PlayerCopy, order: CountedOrder): OrderActionState {
+  const { terms, count, town } = order
+  switch (hireBlockOf(order)) {
+    case 'busy':
+      return { kind: 'blocked', reason: copy.chrome((catalog) => catalog.townOfficeBusy()) }
+    case 'peopleShort': {
+      const short = { needed: terms.people * count, free: town.overview.people.free }
+      return { kind: 'blocked', reason: copy.chrome((catalog) => catalog.townPeopleShort(short)) }
+    }
+    case 'resources': {
+      const cost = costTimes(terms.cost, count)
+      const shortfalls = shortfallsOf(cost, town.stocks)
+      return {
         kind: 'blocked',
         reason: copy.chrome((catalog) => shortfallLineOf(catalog, shortfalls)),
         ready: readyLineOf(copy, cost, town),
       }
+    }
+    case null:
+      return { kind: 'affordable' }
+  }
+}
+
+function stateOf(copy: PlayerCopy, { terms, count, town }: HireOrder): OrderActionState {
+  return count === undefined
+    ? { kind: 'invalidEntry', reason: copy.chrome((catalog) => catalog.townOfficeCountNeeded()) }
+    : countedStateOf(copy, { terms, count, town })
 }
 
 function costsOf(copy: PlayerCopy, { terms, count, town }: HireOrder): ReadonlyArray<CardCost> {
@@ -142,4 +163,15 @@ export function hireCardOf(
     ),
     state: stateOf(copy, order),
   }
+}
+
+export function hireReadySecondsOf(hire: HireKind, entry: string, town: LiveTown): number | null {
+  const terms = town.overview.hiring.terms[hire]
+  const count = hireCountOf(entry)
+  if (town.overview.buildings.office.level < terms.requiredOfficeLevel || count === undefined) {
+    return null
+  }
+  return hireBlockOf({ terms, count, town }) === 'resources'
+    ? readySecondsOf(costTimes(terms.cost, count), town)
+    : null
 }

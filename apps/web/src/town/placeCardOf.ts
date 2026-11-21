@@ -7,7 +7,7 @@ import type { Label } from '../design-system/Label'
 import { cardCostsOf } from './cardCostsOf'
 import type { LiveTown } from './liveTown'
 import { placeNameOf } from './placeNameOf'
-import { readyLineOf } from './readyLineOf'
+import { readyLineOf, readySecondsOf } from './readyLineOf'
 import { shortfallLineOf, shortfallsOf } from './shortfallLineOf'
 
 export interface PlaceCardContent {
@@ -46,27 +46,50 @@ const isWaitingListFull = ({ work }: LiveTown['overview']): boolean =>
 const isShortOfPeople = (nextLevel: NextLevel, { work, people }: LiveTown['overview']): boolean =>
   work.slot === null && work.waitingList.length === 0 && nextLevel.people > people.free
 
+type PlaceBlock = 'waitingListFull' | 'peopleShort' | 'resources'
+
+function placeBlockOf(nextLevel: NextLevel, town: LiveTown): PlaceBlock | null {
+  if (isWaitingListFull(town.overview)) {
+    return 'waitingListFull'
+  }
+  if (isShortOfPeople(nextLevel, town.overview)) {
+    return 'peopleShort'
+  }
+  return shortfallsOf(nextLevel.cost, town.stocks).length === 0 ? null : 'resources'
+}
+
 function stateOf(copy: PlayerCopy, nextLevel: NextLevel, town: LiveTown): CardActionState {
   const { overview } = town
-  if (isWaitingListFull(overview)) {
-    const cap = overview.work.cap
-    return {
-      kind: 'blocked',
-      reason: copy.fixedCopy((catalog) => catalog.refusalWaitingListFull({ cap })),
+  switch (placeBlockOf(nextLevel, town)) {
+    case 'waitingListFull': {
+      const cap = overview.work.cap
+      return {
+        kind: 'blocked',
+        reason: copy.fixedCopy((catalog) => catalog.refusalWaitingListFull({ cap })),
+      }
     }
-  }
-  if (isShortOfPeople(nextLevel, overview)) {
-    const short = { needed: nextLevel.people, free: overview.people.free }
-    return { kind: 'blocked', reason: copy.chrome((catalog) => catalog.townPeopleShort(short)) }
-  }
-  const shortfalls = shortfallsOf(nextLevel.cost, town.stocks)
-  return shortfalls.length === 0
-    ? { kind: 'affordable' }
-    : {
+    case 'peopleShort': {
+      const short = { needed: nextLevel.people, free: overview.people.free }
+      return { kind: 'blocked', reason: copy.chrome((catalog) => catalog.townPeopleShort(short)) }
+    }
+    case 'resources': {
+      const shortfalls = shortfallsOf(nextLevel.cost, town.stocks)
+      return {
         kind: 'blocked',
         reason: copy.chrome((catalog) => shortfallLineOf(catalog, shortfalls)),
         ready: readyLineOf(copy, nextLevel.cost, town),
       }
+    }
+    case null:
+      return { kind: 'affordable' }
+  }
+}
+
+export function placeReadySecondsOf(place: BuildingKind, town: LiveTown): number | null {
+  const { nextLevel } = town.overview.buildings[place]
+  return nextLevel !== null && placeBlockOf(nextLevel, town) === 'resources'
+    ? readySecondsOf(nextLevel.cost, town)
+    : null
 }
 
 const isInWork = (place: BuildingKind, { slot, waitingList }: LiveTown): boolean =>
