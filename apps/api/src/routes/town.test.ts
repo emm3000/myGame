@@ -31,16 +31,14 @@ import { apiPackagePath } from '../apiPackagePath.testSupport'
 import { createApp } from '../app'
 import { type ComposedServer, composeServer } from '../composeServer'
 import { mailEnvironment } from '../composeServer.testSupport'
+import type { ComposedStores } from '../composeStores'
 import type { LessonLibrary } from '../learning/LessonLibrary'
 import {
   isWaitingOnALock,
   lockedPlayerReadQuery,
   lockProbeLimit,
 } from '../lockWaitProbe.testSupport'
-import type {
-  Transaction,
-  TransactionStores,
-} from '../platform/infrastructure/postgres/postgresTransaction'
+import type { Transaction } from '../platform/application/ports/Transaction'
 import { truncatePlayerTables } from '../truncatePlayerTables.testSupport'
 
 const contentDirectory = apiPackagePath('content/')
@@ -158,9 +156,9 @@ const signal = (): { readonly promise: Promise<void>; readonly resolve: () => vo
 }
 
 const pausingFirstRead = (
-  towns: TransactionStores['towns'],
+  towns: ComposedStores['towns'],
   afterRead: () => Promise<void>,
-): TransactionStores['towns'] => {
+): ComposedStores['towns'] => {
   let hasRead = false
   return {
     townWithSchoolOf: (playerId) => towns.townWithSchoolOf(playerId),
@@ -179,9 +177,9 @@ const pausingFirstRead = (
 }
 
 const pausingFirstTransaction = (
-  inTransaction: Transaction,
+  inTransaction: Transaction<ComposedStores>,
   afterFirstRead: () => Promise<void>,
-): Transaction => {
+): Transaction<ComposedStores> => {
   let transactions = 0
   return (work) => {
     transactions += 1

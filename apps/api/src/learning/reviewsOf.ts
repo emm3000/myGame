@@ -9,6 +9,7 @@ import {
   type Instant,
   type MemoryTerms,
   ok,
+  type PendingReviewRepository,
   type PlayerId,
   type Result,
   readFirstOf,
@@ -18,9 +19,8 @@ import {
   stageOf,
 } from '@mygame/domain'
 import { isoOf } from '../platform/infrastructure/http/isoOf'
-import type { TownStores } from '../town/mutateTown'
 import type { LessonLibrary } from './LessonLibrary'
-import { learnerOf } from './learnerOf'
+import { type LearnerStores, learnerOf } from './learnerOf'
 
 export type ReviewTerms = {
   readonly lessons: LessonLibrary
@@ -60,7 +60,7 @@ export const nextDueAtOf = (
 
 export const reviewsOf = async (
   playerId: PlayerId,
-  stores: Pick<TownStores, 'accounts' | 'cards' | 'placements' | 'pendingReviews'>,
+  stores: LearnerStores & { readonly pendingReviews: PendingReviewRepository },
   clock: Clock,
   { lessons, memoryTerms }: ReviewTerms,
 ): Promise<Result<Reviews, DomainError>> => {

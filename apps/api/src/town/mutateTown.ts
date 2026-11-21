@@ -1,40 +1,52 @@
 import {
   type BandCatalog,
+  type BandStartRepository,
+  type CardRepository,
+  type CleanUpRepository,
   type Clock,
   type DomainError,
+  type EarnedSkillRepository,
   type LessonCatalog,
+  type LessonSlotRepository,
   laterOf,
+  type PendingReviewRepository,
+  type PlacementRepository,
   type PlayerId,
+  type RegionMapReader,
   type Result,
+  type ReviewLog,
   settleSchoolLesson,
+  type TownNews,
+  type TownRepository,
 } from '@mygame/domain'
-import type {
-  Transaction,
-  TransactionStores,
-} from '../platform/infrastructure/postgres/postgresTransaction'
+import type { Accounts } from '../auth/Accounts'
+import type { Transaction } from '../platform/application/ports/Transaction'
+import type { GuidanceDismissals } from './GuidanceDismissals'
+import type { SeenTips } from './SeenTips'
+import type { TownNewsReader } from './TownNewsReader'
+import type { TownReader } from './TownReader'
 
-export type TownStores = Pick<
-  TransactionStores,
-  | 'accounts'
-  | 'towns'
-  | 'townNews'
-  | 'lessonSlots'
-  | 'cards'
-  | 'pendingReviews'
-  | 'reviewLog'
-  | 'earnedSkills'
-  | 'bandStarts'
-  | 'placements'
-  | 'regionMap'
-  | 'cleanUps'
-  | 'seenTips'
-  | 'guidanceDismissals'
->
+export type TownStores = {
+  readonly accounts: Accounts
+  readonly towns: TownRepository & Pick<TownReader, 'townWithSchoolOf'>
+  readonly townNews: TownNews & TownNewsReader
+  readonly lessonSlots: LessonSlotRepository
+  readonly cards: CardRepository
+  readonly pendingReviews: PendingReviewRepository
+  readonly reviewLog: ReviewLog
+  readonly earnedSkills: EarnedSkillRepository
+  readonly bandStarts: BandStartRepository
+  readonly placements: PlacementRepository
+  readonly regionMap: RegionMapReader
+  readonly cleanUps: CleanUpRepository
+  readonly seenTips: SeenTips
+  readonly guidanceDismissals: GuidanceDismissals
+}
 
 export type TownMutation<T> = (stores: TownStores, clock: Clock) => Promise<Result<T, DomainError>>
 
 export type MutateTownDependencies = {
-  readonly inTransaction: Transaction
+  readonly inTransaction: Transaction<TownStores>
   readonly clock: Clock
   readonly lessons: Pick<LessonCatalog, 'lessonOf' | 'lessonOfWord'> &
     Pick<BandCatalog, 'wordsOfBand'>

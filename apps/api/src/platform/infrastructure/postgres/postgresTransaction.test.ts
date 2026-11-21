@@ -1,9 +1,11 @@
 import { ok } from '@mygame/domain'
+import { sql } from 'drizzle-orm'
 import { Client } from 'pg'
 import { afterAll, beforeAll, describe, expect, it } from 'vitest'
+import type { Transaction } from '../../application/ports/Transaction'
 import { thrownCauseOf } from '../../thrownCauseOf'
-import { connectPostgres, type PostgresConnection } from './connectPostgres'
-import { postgresTransaction, type Transaction } from './postgresTransaction'
+import { connectPostgres, type PostgresConnection, type PostgresSession } from './connectPostgres'
+import { postgresTransaction } from './postgresTransaction'
 
 function databaseUrl(): string {
   const url = process.env.DATABASE_URL
@@ -17,19 +19,21 @@ const causeOf = (failure: unknown): string =>
   failure instanceof Error ? thrownCauseOf(failure) : typeof failure
 
 let connection: PostgresConnection
-let inTransaction: Transaction
+let inTransaction: Transaction<PostgresSession>
+
+const credentialsOfNobody = sql`SELECT password_hash FROM players WHERE email = 'nobody@example.com'`
 
 beforeAll(() => {
   connection = connectPostgres(databaseUrl())
-  inTransaction = postgresTransaction(connection.database)
+  inTransaction = postgresTransaction(connection.database, (transaction) => transaction)
 })
 
 afterAll(async () => {
   await connection.close()
 })
 
-const credentialsLookup = (): ReturnType<Transaction> =>
-  inTransaction(async ({ accounts }) => ok(await accounts.credentialsOf('nobody@example.com')))
+const credentialsLookup = (): ReturnType<Transaction<PostgresSession>> =>
+  inTransaction(async (session) => ok((await session.execute(credentialsOfNobody)).rows[0]))
 
 describe('postgresTransaction', () => {
   it('cancels a statement past the statement timeout, leaving the pool able to answer', async () => {

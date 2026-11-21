@@ -1,13 +1,14 @@
 import { type Clock, err, ok, type PlayerId, type Result } from '@mygame/domain'
+import type { AccountStores } from '../account/application/ports/AccountStores'
 import type { SessionTokens } from '../account/application/ports/SessionTokens'
+import type { Transaction } from '../platform/application/ports/Transaction'
 import type { Refusal } from '../platform/application/Refusal'
-import type { Transaction } from '../platform/infrastructure/postgres/postgresTransaction'
 import { issueAccountToken } from './issueAccountToken'
 import type { MailRecipient } from './MailRecipient'
 import { type SendVerificationMailDependencies, sendVerificationMail } from './sendVerificationMail'
 
 export type ResendVerificationMailDependencies = SendVerificationMailDependencies & {
-  readonly inTransaction: Transaction
+  readonly inTransaction: Transaction<AccountStores>
   readonly clock: Clock
   readonly sessionTokens: SessionTokens
 }

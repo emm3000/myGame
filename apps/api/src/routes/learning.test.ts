@@ -19,13 +19,14 @@ import { apiPackagePath } from '../apiPackagePath.testSupport'
 import { createApp } from '../app'
 import { type ComposedServer, composeServer } from '../composeServer'
 import { mailEnvironment } from '../composeServer.testSupport'
+import type { ComposedStores } from '../composeStores'
 import type { LessonLibrary, ShelvedLesson } from '../learning/LessonLibrary'
 import {
   isWaitingOnALock,
   lockedPlayerReadQuery,
   lockProbeLimit,
 } from '../lockWaitProbe.testSupport'
-import type { Transaction } from '../platform/infrastructure/postgres/postgresTransaction'
+import type { Transaction } from '../platform/application/ports/Transaction'
 import { truncatePlayerTables } from '../truncatePlayerTables.testSupport'
 
 const contentDirectory = apiPackagePath('content/')
@@ -115,9 +116,9 @@ const pausingFirstCardRead = (
 }
 
 const pausingFirstTransaction = (
-  inTransaction: Transaction,
+  inTransaction: Transaction<ComposedStores>,
   afterFirstCardRead: () => Promise<void>,
-): Transaction => {
+): Transaction<ComposedStores> => {
   let transactions = 0
   return (work) => {
     transactions += 1

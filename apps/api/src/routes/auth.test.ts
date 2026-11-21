@@ -10,7 +10,8 @@ import type { Mail } from '../auth/Mailer'
 import { tokenDigest } from '../auth/tokenDigest'
 import { type ComposedServer, composeServer } from '../composeServer'
 import { mailEnvironment } from '../composeServer.testSupport'
-import type { Transaction } from '../platform/infrastructure/postgres/postgresTransaction'
+import type { ComposedStores } from '../composeStores'
+import type { Transaction } from '../platform/application/ports/Transaction'
 import { truncatePlayerTables } from '../truncatePlayerTables.testSupport'
 
 const contentDirectory = apiPackagePath('content/')
@@ -722,7 +723,7 @@ describe('the auth routes', () => {
     const released = new Promise<void>((resolve) => {
       release = resolve
     })
-    const heldTransaction: Transaction = (work) => {
+    const heldTransaction: Transaction<ComposedStores> = (work) => {
       lookups += 1
       return released.then(() => server.inTransaction(work))
     }

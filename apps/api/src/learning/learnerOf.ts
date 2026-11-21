@@ -1,16 +1,24 @@
 import {
   type Band,
+  type CardRepository,
   type DomainError,
   type HeldCard,
   ok,
+  type PlacementRepository,
   type PlayerId,
   placedOutBandsOf,
   placementScoresOf,
   type Result,
   type Scaffold,
 } from '@mygame/domain'
-import type { TownStores } from '../town/mutateTown'
+import type { Accounts } from '../auth/Accounts'
 import { scaffoldOf } from './scaffoldOf'
+
+export type LearnerStores = {
+  readonly accounts: Accounts
+  readonly cards: CardRepository
+  readonly placements: PlacementRepository
+}
 
 export type Learner = {
   readonly cards: ReadonlyArray<HeldCard>
@@ -20,7 +28,7 @@ export type Learner = {
 
 export const learnerOf = async (
   playerId: PlayerId,
-  { accounts, cards, placements }: Pick<TownStores, 'accounts' | 'cards' | 'placements'>,
+  { accounts, cards, placements }: LearnerStores,
 ): Promise<Result<Learner, DomainError>> => {
   const held = await cards.cardsOf(playerId)
   if (!held.ok) {
