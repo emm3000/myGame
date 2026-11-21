@@ -6,8 +6,8 @@ import type { BuildingKind } from './town/building/BuildingKind'
 import type { NeededWordKind } from './town/building/NeededWordKind'
 import type { HireKind } from './town/hiring/HireKind'
 import type { Hires } from './town/hiring/Hires'
+import type { SiteAddress } from './town/jobs/SiteAddress'
 import type { ResourceKind } from './town/ResourceKind'
-import type { SiteAddress } from './town/SiteAddress'
 import type { Stocks } from './town/Stocks'
 
 export type DomainError =
