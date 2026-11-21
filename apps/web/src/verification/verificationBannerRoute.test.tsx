@@ -12,6 +12,7 @@ import { expect, it } from 'vitest'
 import type { ApiClient, ApiRefusal } from '../api/apiClient'
 import { renderAppAt } from '../auth/renderAppAt.testSupport'
 import { knownPlayer, knownTown, stubApiClient } from '../auth/stubApiClient.testSupport'
+import { shownLinesDrawnAlone } from '../town/lineDrawnAlone.testSupport'
 
 const unverifiedPlayer = { ...knownPlayer, emailVerified: false }
 
@@ -122,12 +123,14 @@ it('keeps the banner in Spanish for an es player in the English phase', async ()
   renderAppAt('/', unverifiedIn({ scaffold: 'es', chromePhase: 'english' }))
 
   expect(await screen.findByText(es.verificationBannerLine())).toBeDefined()
-  expect(screen.getByRole('button', { name: es.verificationBannerResend() })).toBeDefined()
+  expect(shownLinesDrawnAlone(es.verificationBannerLine(), 'es')).toHaveLength(1)
+  expect(shownLinesDrawnAlone(es.verificationBannerResend(), 'es')).toHaveLength(1)
 })
 
 it('draws the banner in English under none', async () => {
   renderAppAt('/', unverifiedIn({ scaffold: 'none', chromePhase: 'english' }))
 
   expect(await screen.findByText(en.verificationBannerLine())).toBeDefined()
-  expect(screen.getByRole('button', { name: en.verificationBannerResend() })).toBeDefined()
+  expect(shownLinesDrawnAlone(en.verificationBannerLine(), 'en')).toHaveLength(1)
+  expect(shownLinesDrawnAlone(en.verificationBannerResend(), 'en')).toHaveLength(1)
 })

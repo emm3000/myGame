@@ -1,8 +1,11 @@
-import type { ChromeCatalog } from '../copy/PlayerCopy'
+import type { FixedLinePieces } from '../copy/PlayerCopy'
 import { formatFinish } from '../time/formatFinish'
 import type { LiveTown } from '../town/liveTown'
 
-export function capWaitLabelOf(catalog: ChromeCatalog, { overview, at }: LiveTown): string | null {
+export function capWaitLabelOf(
+  catalog: FixedLinePieces,
+  { overview, at }: LiveTown,
+): string | null {
   const dueAt = overview.learning.nextInLearningDueAt
   if (dueAt === null || overview.nextStep.kind === 'reviews') {
     return null

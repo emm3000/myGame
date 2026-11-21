@@ -13,9 +13,9 @@ export function skillRatesLineOf(
   ratePerHourBefore: number,
   ratePerHourAfter: number,
 ): Label {
-  return fixedCopy((catalog, scaffoldChrome) =>
+  return fixedCopy((catalog, pieces) =>
     catalog.reviewSkillRates({
-      resource: capitalize(townResourceNameOf(scaffoldChrome, resource)),
+      resource: capitalize(townResourceNameOf(pieces, resource)),
       before: shownRateOf(ratePerHourBefore),
       after: shownRateOf(ratePerHourAfter),
     }),

@@ -10,8 +10,8 @@ export function lessonRefusalLineOf(
   town: LiveTown,
   fixedCopy: PlayerCopy['fixedCopy'],
 ): Label {
-  return fixedCopy((catalog, scaffoldChrome) => {
-    const timeLeft = capWaitLabelOf(scaffoldChrome, town)
+  return fixedCopy((catalog, pieces) => {
+    const timeLeft = capWaitLabelOf(pieces, town)
     if (error?.kind !== 'LearningCapReached' || timeLeft === null) {
       return refusalLineOf(catalog, refusal, error)
     }

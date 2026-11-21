@@ -9,9 +9,19 @@ export type ChromeCatalog = Omit<Catalog, FixedCopyFunctionName>
 
 export type FixedCopyCatalog = Pick<Catalog, FixedCopyFunctionName>
 
+export type FixedLinePieces = Pick<
+  ChromeCatalog,
+  | 'locale'
+  | 'statusTomorrow'
+  | 'namesTownResourcesMoney'
+  | 'namesTownResourcesFood'
+  | 'namesTownResourcesPower'
+  | 'namesTownResourcesMaterial'
+>
+
 export interface PlayerCopy {
   readonly chrome: (line: (catalog: ChromeCatalog) => string) => Label
   readonly fixedCopy: (
-    line: (catalog: FixedCopyCatalog, scaffoldChrome: ChromeCatalog) => string,
+    line: (catalog: FixedCopyCatalog, pieces: FixedLinePieces) => string,
   ) => Label
 }

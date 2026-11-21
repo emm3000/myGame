@@ -1,4 +1,4 @@
-import { en, namesHiresTruck, namesHiresWorker } from '@mygame/catalog'
+import { en, es, namesHiresTruck, namesHiresWorker } from '@mygame/catalog'
 import type { PlaceHiringOrder, TownOverview } from '@mygame/contracts'
 import { act, fireEvent, screen, within } from '@testing-library/react'
 import { afterEach, beforeEach, expect, it, vi } from 'vitest'
@@ -6,6 +6,7 @@ import type { ApiClient } from '../api/apiClient'
 import { renderAppAt } from '../auth/renderAppAt.testSupport'
 import { knownPlayer, knownTown, stubApiClient } from '../auth/stubApiClient.testSupport'
 import { accessibleDescriptionOf } from '../design-system/accessibleDescriptionOf.testSupport'
+import { shownLinesDrawnAlone } from '../town/lineDrawnAlone.testSupport'
 
 const readAt = Date.parse(knownTown.readAt)
 
@@ -321,12 +322,15 @@ it('sends no hire for a count that is not a whole count', async () => {
   expect(placed).toEqual([])
 })
 
-it('writes a hiring refusal in English under none', async () => {
-  const none = { scaffold: 'none', chromePhase: 'english' } as const
+const hiringRefusedIn = async (
+  language: Pick<TownOverview, 'scaffold' | 'chromePhase'>,
+  workers: string,
+  hire: RegExp,
+): Promise<string | null> => {
   await showTown(
-    { ...officeTown, ...none },
+    { ...officeTown, ...language },
     {
-      currentPlayer: async () => ({ ...knownPlayer, ...none }),
+      currentPlayer: async () => ({ ...knownPlayer, ...language }),
       placeHiringOrder: async () => ({
         ok: false,
         refusal: 'NotEnoughResources',
@@ -337,11 +341,29 @@ it('writes a hiring refusal in English under none', async () => {
       }),
     },
   )
-
-  fireEvent.click(within(hireCard(en.namesHiresWorker())).getByRole('button', { name: /^Hire/ }))
+  fireEvent.click(within(hireCard(workers)).getByRole('button', { name: hire }))
   await passSeconds(0)
+  return within(hireCard(workers)).getByRole('alert').textContent
+}
 
-  expect(within(hireCard(en.namesHiresWorker())).getByRole('alert').textContent).toBe(
-    en.refusalHiringNotEnoughResources(),
-  )
+it('keeps a hiring refusal in Spanish for an es player in the English phase', async () => {
+  expect(
+    await hiringRefusedIn(
+      { scaffold: 'es', chromePhase: 'english' },
+      en.namesHiresWorker(),
+      /^Hire/,
+    ),
+  ).toBe(es.refusalHiringNotEnoughResources())
+  expect(shownLinesDrawnAlone(es.refusalHiringNotEnoughResources(), 'es')).toHaveLength(1)
+})
+
+it('writes a hiring refusal in English under none', async () => {
+  expect(
+    await hiringRefusedIn(
+      { scaffold: 'none', chromePhase: 'english' },
+      en.namesHiresWorker(),
+      /^Hire/,
+    ),
+  ).toBe(en.refusalHiringNotEnoughResources())
+  expect(shownLinesDrawnAlone(en.refusalHiringNotEnoughResources(), 'en')).toHaveLength(1)
 })

@@ -43,6 +43,7 @@ import {
   skeletonBlocks,
 } from '../design-system/loadingSkeleton.testSupport'
 import { townResourceNameOf } from '../resources/townResourceNameOf'
+import { shownLinesDrawnAlone } from '../town/lineDrawnAlone.testSupport'
 
 const readInstant = '2026-09-22T12:00:00.000Z'
 
@@ -829,16 +830,32 @@ const showReviewIn = async (
 it('keeps the review card in Spanish and the title in English for an es player in the English phase', async () => {
   await showReviewIn({ scaffold: 'es', chromePhase: 'english' })
 
-  expect(screen.getByRole('heading', { level: 1 }).textContent).toBe(en.reviewTitle())
-  expect(screen.getByLabelText(es.reviewAnswerField())).toBeTruthy()
-  expect(screen.getByRole('button', { name: es.reviewCheck() })).toBeTruthy()
+  expect(shownLinesDrawnAlone(en.reviewTitle(), 'en')).toHaveLength(1)
+  expect(shownLinesDrawnAlone(es.reviewRecallPrompt(), 'es')).toHaveLength(1)
+  expect(shownLinesDrawnAlone(es.reviewAnswerField(), 'es')).toHaveLength(1)
+  expect(shownLinesDrawnAlone(es.reviewCheck(), 'es')).toHaveLength(1)
 })
 
 it('draws the review card in English under none', async () => {
   await showReviewIn({ scaffold: 'none', chromePhase: 'english' })
 
-  expect(screen.getByLabelText(en.reviewAnswerField())).toBeTruthy()
-  expect(screen.getByRole('button', { name: en.reviewCheck() })).toBeTruthy()
+  expect(shownLinesDrawnAlone(en.reviewRecallPrompt(), 'en')).toHaveLength(1)
+  expect(shownLinesDrawnAlone(en.reviewAnswerField(), 'en')).toHaveLength(1)
+  expect(shownLinesDrawnAlone(en.reviewCheck(), 'en')).toHaveLength(1)
+})
+
+it('draws the nothing-due end of the reviews in English under none', async () => {
+  await showReview(nothingDue, {
+    currentPlayer: async () => ({ ...knownPlayer, scaffold: 'none', chromePhase: 'english' }),
+    town: async () => ({
+      ok: true,
+      value: { ...knownTown, scaffold: 'none', chromePhase: 'english' },
+    }),
+  })
+
+  expect(shownLinesDrawnAlone(en.reviewNothingDue(), 'en')).toHaveLength(1)
+  expect(shownLinesDrawnAlone(en.reviewNextReview(), 'en')).toHaveLength(1)
+  expect(shownLinesDrawnAlone(en.reviewBackToTown(), 'en')).toHaveLength(1)
 })
 
 const ratesShownIn = async (
@@ -864,14 +881,15 @@ it('writes the rates of an earned skill in Spanish for an es player in the Engli
   )
 
   expect(
-    screen.getByText(
+    shownLinesDrawnAlone(
       es.reviewSkillRates({
         resource: capitalize(es.namesTownResourcesFood()),
         before: '120',
         after: '126',
       }),
+      'es',
     ),
-  ).toBeTruthy()
+  ).toHaveLength(1)
 })
 
 it('writes the rates of an earned skill in English under none', async () => {
@@ -882,12 +900,13 @@ it('writes the rates of an earned skill in English under none', async () => {
   )
 
   expect(
-    screen.getByText(
+    shownLinesDrawnAlone(
       en.reviewSkillRates({
         resource: capitalize(en.namesTownResourcesFood()),
         before: '120',
         after: '126',
       }),
+      'en',
     ),
-  ).toBeTruthy()
+  ).toHaveLength(1)
 })
