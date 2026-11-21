@@ -18,7 +18,7 @@ import { reportServerFailures } from '#platform/infrastructure/http/reportServer
 import {
   sessionBearerScheme,
   sessionBearerSecurityScheme,
-} from '#platform/infrastructure/http/signedInRoute'
+} from '#platform/infrastructure/http/signedInDeclaration'
 import {
   type ReportRouteDependencies,
   reportRoutes,

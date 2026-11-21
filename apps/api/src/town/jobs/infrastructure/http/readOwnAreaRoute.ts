@@ -7,7 +7,7 @@ import {
 import { honoPathOf } from '#platform/infrastructure/http/honoPath'
 import { refusalResponse } from '#platform/infrastructure/http/refusalResponse'
 import { jsonResponse } from '#platform/infrastructure/http/responseDeclarations'
-import { signedInRoute } from '#platform/infrastructure/http/signedInRoute'
+import { signedInRoute } from '#platform/infrastructure/http/signedInDeclaration'
 import { type RespondRegionMapDependencies, respondRegionMap } from './respondRegionMap'
 
 export const readOwnAreaDeclaration = createRoute(

@@ -1,6 +1,6 @@
 import { createRoute, type OpenAPIHono } from '@hono/zod-openapi'
 import { respondRefusal } from '#platform/infrastructure/http/respondRefusal'
-import { signedInRoute } from '#platform/infrastructure/http/signedInRoute'
+import { signedInRoute } from '#platform/infrastructure/http/signedInDeclaration'
 import type { Accounts } from '../../application/ports/Accounts'
 import type { ReadChromePhaseDependencies } from '../../application/readChromePhase'
 import { playerResponse } from './accountComponents'
