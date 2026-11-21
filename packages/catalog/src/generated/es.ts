@@ -9,6 +9,7 @@ export const authSignInSwitchLink = (): string => `Crea tu cuenta`
 export const authSignInSwitchPrompt = (): string => `¿Aún no tienes cuenta?`
 export const authSignInTitle = (): string => `Entra en tu pueblo`
 export const authSignUpPasswordHint = (): string => `Al menos 8 caracteres.`
+export const authSignUpScaffoldChange = (): string => `Puedes cambiarlo cuando quieras en Ajustes.`
 export const authSignUpSubmit = (): string => `Crear cuenta`
 export const authSignUpSwitchLink = (): string => `Entra`
 export const authSignUpSwitchPrompt = (): string => `¿Ya tienes cuenta?`

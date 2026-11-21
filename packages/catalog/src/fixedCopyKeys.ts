@@ -220,6 +220,7 @@ const fixedCopyKeyList = [
   'auth.signIn.switchPrompt',
   'auth.signIn.title',
   'auth.signUp.passwordHint',
+  'auth.signUp.scaffoldChange',
   'auth.signUp.submit',
   'auth.signUp.switchLink',
   'auth.signUp.switchPrompt',

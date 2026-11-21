@@ -4,6 +4,7 @@ import type { ApiRefusal } from '../api/apiClient'
 import type { Catalog } from '../copy/PlayerCopy'
 import { Button } from '../design-system/Button'
 import { FormAlert } from '../design-system/FormAlert'
+import { LabelText } from '../design-system/LabelText'
 import { lineLabelOf } from '../design-system/lineLabelOf'
 import { ScaffoldChoice } from '../design-system/ScaffoldChoice'
 import { TextField } from '../design-system/TextField'
@@ -97,13 +98,18 @@ export function SignUpScreen(props: SignUpScreenProps): ReactElement {
         </>
       }
     >
-      <ScaffoldChoice
-        legend={catalog.scaffoldLabel()}
-        lines={scaffoldLinesOf(catalog)}
-        picked={scaffold}
-        isDisabled={props.isSubmitting}
-        onPick={setPickedScaffold}
-      />
+      <div className="flex flex-col gap-2">
+        <ScaffoldChoice
+          legend={catalog.scaffoldLabel()}
+          lines={scaffoldLinesOf(catalog)}
+          picked={scaffold}
+          isDisabled={props.isSubmitting}
+          onPick={setPickedScaffold}
+        />
+        <p className="m-0 font-sans text-caption text-ink-muted">
+          <LabelText label={lineLabelOf(catalog.authSignUpScaffoldChange(), language)} />
+        </p>
+      </div>
       <TextField
         label={lineLabelOf(catalog.authEmail(), language)}
         name="email"
