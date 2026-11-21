@@ -197,6 +197,19 @@ describe('DrizzleAccountTokens stores', () => {
     expect(redeemed.filter((playerId) => playerId === ana)).toHaveLength(1)
   })
 
+  it('answers the player to each of two racing redeems of one verify token', async () => {
+    await emptyDatabase()
+    await registerPlayers([ana])
+    await storeToken('racing-verify', ana, 'verify', '2026-09-29T08:00:00Z', null)
+
+    const redeemed = await Promise.all([
+      new DrizzleAccountTokens(drizzle(pool)).redeem('racing-verify', 'verify', dawn),
+      new DrizzleAccountTokens(drizzle(pool)).redeem('racing-verify', 'verify', dawn),
+    ])
+
+    expect(redeemed).toEqual([ana, ana])
+  })
+
   it('lets a redeem and an issue of the same kind race without a deadlock', async () => {
     await emptyDatabase()
     await registerPlayers([ana])
