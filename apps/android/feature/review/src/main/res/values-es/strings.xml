@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <string name="building_waiting">Esperando al servidor</string>
+    <string name="building_waiting">Esperando</string>
     <string name="review_answer_label">Tu respuesta en inglés</string>
     <string name="review_check">Comprobar</string>
     <string name="review_check_empty">Escribe tu respuesta para comprobarla.</string>

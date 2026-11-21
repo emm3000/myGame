@@ -206,12 +206,17 @@ class ReviewLanguageTest {
     }
 
     @Test
-    fun `draws the verdict's rates in Spanish beside the earned skill in English in the English phase`() {
+    fun `draws the earned skill's verdict in Spanish only for an es player in the English phase`() {
         show(englishPhase, rightWithSkill)
 
-        assertDrawn("Correcto.", "Comida: +60 / h, ahora +66 / h", "Skill earned: food, level 2.", "+10 % food / h.")
+        assertDrawn(
+            "Correcto.",
+            "Comida: +60 / h, ahora +66 / h",
+            "Habilidad ganada: comida, nivel 2.",
+            "+10 % de comida / h.",
+        )
         assertPartlyDrawn("Palabras:")
-        assertNotDrawn("Correct.", "Food: +60 / h, now +66 / h", "Habilidad ganada: comida, nivel 2.")
+        assertNotDrawn("Correct.", "Food: +60 / h, now +66 / h", "Skill earned: food, level 2.", "+10 % food / h.")
     }
 
     @Test

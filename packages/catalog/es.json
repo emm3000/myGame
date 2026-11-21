@@ -164,7 +164,7 @@
   "android.report.report_today": "Hoy, {time}",
   "android.report.report_try_again": "Volver a intentarlo",
   "android.report.report_waiting": "Esperando",
-  "android.review.building_waiting": "Esperando al servidor",
+  "android.review.building_waiting": "Esperando",
   "android.review.review_answer_label": "Tu respuesta en inglés",
   "android.review.review_check": "Comprobar",
   "android.review.review_check_empty": "Escribe tu respuesta para comprobarla.",
