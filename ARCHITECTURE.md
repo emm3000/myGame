@@ -33,6 +33,7 @@ One row for each folder directly under `apps/api/src` or `packages/domain/src`. 
 | `learning` | api, domain | Reviews, hints, frames, retention and the curriculum's shape. |
 | `holdout` | api, domain | Band starts, their holdout checks and released lessons. |
 | `placement` | api, domain | The placement offer and its bands. |
+| `report` | api | The Report: the reviews due and the Town News since the player last closed it, and when it was served and closed. |
 | `memory` | domain | FSRS, the memory model of a card. |
 | `season` | domain | The season calendar. |
 | `player` | domain | The id every feature keys by. |
