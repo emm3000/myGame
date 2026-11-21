@@ -108,7 +108,8 @@ segment: `apps/api/src/town/jobs/infrastructure/http/sendJobRoute.ts`.
 | Feature | What it is | domain | api | contracts |
 |---|---|---|---|---|
 | `account` | players, sessions, account tokens, mail, the scaffold choice and the chrome phase | no | yes | yes |
-| `town` | the holding: stocks, accrual, founding, resolve, the overview | yes | yes | yes |
+| `town` | the holding: founding, resolve, the overview | yes | yes | yes |
+| `town/resources` | the resources, "one of money, food, power, material", each with "an amount, a rate per hour and a capacity on a town" (`CONTEXT.md`, Resource): the stocks, their storage and their accrual | yes | no | no |
 | `town/building` | building work and the waiting list | yes | yes | yes |
 | `town/hiring` | hiring orders and hires | yes | yes | yes |
 | `town/jobs` | jobs, clean-ups, waste, the region map | yes | yes | yes |

@@ -29,7 +29,7 @@ One row for each folder directly under `apps/api/src` or `packages/domain/src`: 
 | `platform` | api | What holds no game word: the HTTP kernel, the Postgres kernel, the system clock and ids, the failure sink and the deferred work. |
 | `content` | api | The JSON catalogs of the town and the lessons, and the content gate: the checks the shipped content passes. |
 | `account` | api | Players, sessions, account tokens and mail, the scaffold choice and the chrome phase. |
-| `town` | api, domain | The holding: stocks, accrual, founding, building work, hiring, jobs, the school, guidance and news. |
+| `town` | api, domain | The holding: founding, building work, hiring, jobs, the school, guidance and news; in the domain, the sub-area `resources`, each resource's "amount, a rate per hour and a capacity on a town" (`CONTEXT.md`, Resource): the stocks, their storage and their accrual. |
 | `learning` | api, domain | Reviews, hints, frames, retention and the curriculum's shape; in the domain, the lesson and the held card at its root and the sub-areas `reviews`, `frames`, `retention`, `curriculum` and `scaffold`. |
 | `holdout` | api, domain | Band starts, their holdout checks and released lessons. |
 | `placement` | api, domain | The placement offer and its bands. |
