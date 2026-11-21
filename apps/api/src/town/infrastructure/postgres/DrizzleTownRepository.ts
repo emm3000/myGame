@@ -35,7 +35,7 @@ import { storedScaffoldColumns } from '../../../account/infrastructure/postgres/
 import type { PostgresSession } from '../../../platform/infrastructure/postgres/connectPostgres'
 import { jsonAggregateOf } from '../../../platform/infrastructure/postgres/jsonAggregateOf'
 import { violatedUniqueConstraint } from '../../../platform/infrastructure/postgres/violatedUniqueConstraint'
-import type { TownReader, TownWithSchool } from '../../TownReader'
+import type { TownReader, TownWithSchool } from '../../application/ports/TownReader'
 import { aggregatedBandStartsOf, bandStartsFrom } from './aggregatedBandStarts'
 import { aggregatedCardsOf, heldCardsOf } from './aggregatedCards'
 import { aggregatedPlacementScoresOf, placementScoresFrom } from './aggregatedPlacementScores'

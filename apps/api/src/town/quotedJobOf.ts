@@ -9,7 +9,7 @@ import {
   type Stocks,
   type TownCatalog,
 } from '@mygame/domain'
-import type { TownReader } from './TownReader'
+import type { TownReader } from './application/ports/TownReader'
 
 export type QuotedJobDependencies = {
   readonly towns: TownReader
