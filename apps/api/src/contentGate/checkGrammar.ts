@@ -1,5 +1,5 @@
 import type { LexiconEntry } from '../adapters/json/lessonContentFilesOf'
-import { cardWordEndingOf } from './cardWordEndingOf'
+import { cardWordFormOf } from './cardWordFormOf'
 import { framePlacementsOf } from './framePlacementsOf'
 import { frameWordAdmissionsOf } from './frameWordAdmissionsOf'
 import type { GateContent } from './GateContent'
@@ -23,7 +23,23 @@ type GrammarTerms = {
   readonly frameWordsAdmittedAt: ReadonlyMap<string, number>
   readonly inflectionsAdmittedAt: ReadonlyMap<string, number>
   readonly cardWords: ReadonlyMap<string, LexiconEntry>
+  readonly irregularPasts: ReadonlyMap<string, ReadonlySet<string>>
 }
+
+type PassageToken = {
+  readonly token: string
+  readonly isAfterHave: boolean
+}
+
+const haveForms: ReadonlySet<string> = new Set(['have', 'has'])
+
+const perfectAdverbs: ReadonlySet<string> = new Set(['not', 'never', 'just', 'already', 'ever'])
+
+const passageTokensOf = (tokens: ReadonlyArray<string>): ReadonlyArray<PassageToken> =>
+  tokens.map((token, index) => {
+    const before = tokens.slice(0, index).findLast((earlier) => !perfectAdverbs.has(earlier))
+    return { token, isAfterHave: before !== undefined && haveForms.has(before) }
+  })
 
 const termsOf = (content: GateContent): GrammarTerms => {
   const positionOf = (lessonId: string): number =>
@@ -37,11 +53,18 @@ const termsOf = (content: GateContent): GrammarTerms => {
       ),
     ),
     cardWords: new Map(content.lexicon.map((entry) => [entry.lemma, entry])),
+    irregularPasts: new Map(
+      content.grammar.irregularVerbs.map(
+        ({ lemma, past, pastParticiple }) => [lemma, new Set([past, pastParticiple])] as const,
+      ),
+    ),
   }
 }
 
 const isAdmittedBy = (admittedAt: number | undefined, { position }: Passage): boolean =>
   admittedAt !== undefined && admittedAt <= position
+
+const articleOf = (inflection: string): string => (/^[-aeiou]/.test(inflection) ? 'an' : 'a')
 
 const inflectionFailures = (
   token: string,
@@ -53,7 +76,8 @@ const inflectionFailures = (
   if (isAdmittedBy(admittedAt, passage)) {
     return []
   }
-  const label = inflection === token ? 'an inflection' : `an ${inflection} inflection`
+  const label =
+    inflection === token ? 'an inflection' : `${articleOf(inflection)} ${inflection} inflection`
   const holding = `${passage.label}: ${passage.kind} holds ${token}, ${label}`
   return admittedAt === undefined
     ? [`${holding} no structure admits`]
@@ -77,20 +101,30 @@ const frameWordFormFailures = (
 }
 
 const cardWordFailures = (
-  token: string,
+  { token, isAfterHave }: PassageToken,
   entry: LexiconEntry,
   passage: Passage,
   terms: GrammarTerms,
 ): ReadonlyArray<string> => {
-  const ending = cardWordEndingOf(token, entry)
-  return ending === undefined ? [] : inflectionFailures(token, ending, passage, terms)
+  const form = cardWordFormOf(token, entry, { irregularPasts: terms.irregularPasts, isAfterHave })
+  switch (form.kind) {
+    case 'ungated':
+      return []
+    case 'inflected':
+      return inflectionFailures(token, form.inflection, passage, terms)
+    case 'unlistedPast':
+      return [
+        `${passage.label}: ${passage.kind} holds ${token}, a form of ${entry.lemma} the irregular verb list does not name`,
+      ]
+  }
 }
 
 const tokenFailures = (
-  token: string,
+  passageToken: PassageToken,
   passage: Passage,
   terms: GrammarTerms,
 ): ReadonlyArray<string> => {
+  const { token } = passageToken
   const reading = readingOf(token, passage, terms.reading)
   if (reading.kind !== 'word') {
     return []
@@ -99,7 +133,7 @@ const tokenFailures = (
     return frameWordFormFailures(token, reading.word, passage, terms)
   }
   const cardWord = terms.cardWords.get(reading.word)
-  return cardWord === undefined ? [] : cardWordFailures(token, cardWord, passage, terms)
+  return cardWord === undefined ? [] : cardWordFailures(passageToken, cardWord, passage, terms)
 }
 
 const passagesOf = (content: GateContent): ReadonlyArray<Passage> => [
@@ -128,7 +162,9 @@ const passagesOf = (content: GateContent): ReadonlyArray<Passage> => [
 const passageFailures = (content: GateContent): ReadonlyArray<string> => {
   const terms = termsOf(content)
   return passagesOf(content).flatMap((passage) =>
-    passage.tokens.flatMap((token) => tokenFailures(token, passage, terms)),
+    passageTokensOf(passage.tokens).flatMap((passageToken) =>
+      tokenFailures(passageToken, passage, terms),
+    ),
   )
 }
 

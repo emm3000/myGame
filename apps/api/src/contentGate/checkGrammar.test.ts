@@ -177,10 +177,88 @@ describe('content gate check 6, grammar', () => {
     ])
   })
 
-  it('passes the plural of a card noun, which no structure gates', () => {
+  it("fails a card noun's plural before the lesson that admits noun plurals", () => {
+    const structures = [...lessonOneStructures, structureOf('lesson-3', [], ['plural'])]
+    const newHomes = entryOf('word-1', 'new', 'We have new homes.', { partOfSpeech: 'adjective' })
+    const leave = entryOf('word-2', 'leave', 'We leave home.', { partOfSpeech: 'verb' })
+
+    expect(checkGrammar(afterLessonOne(structures, newHomes, leave))).toEqual([
+      'word-1: frame holds homes, a plural inflection admitted after lesson-2',
+    ])
+  })
+
+  it("passes a card noun's plural from the lesson that admits noun plurals", () => {
+    const structures = [...lessonOneStructures, structureOf('lesson-2', [], ['plural'])]
     const newHomes = entryOf('word-1', 'new', 'We have new homes.', { partOfSpeech: 'adjective' })
 
-    expect(checkGrammar(afterLessonOne(lessonOneStructures, newHomes))).toEqual([])
+    expect(checkGrammar(afterLessonOne(structures, newHomes))).toEqual([])
+  })
+
+  describe('past forms', () => {
+    const go = entryOf('word-1', 'go', 'We go home.', { partOfSpeech: 'verb' })
+    const make = entryOf('word-2', 'make', 'We make food.', { partOfSpeech: 'verb' })
+    const leave = entryOf('word-4', 'leave', 'We leave home.', { partOfSpeech: 'verb' })
+    const pastFrom = (lessonId: string, ...inflections: ReadonlyArray<string>) => [
+      ...lessonOneStructures,
+      structureOf(lessonId, [], inflections),
+    ]
+    const newHomeHolding = (frame: string) =>
+      entryOf('word-3', 'new', frame, { partOfSpeech: 'adjective' })
+
+    it('fails went and made before the lesson that admits irregular pasts', () => {
+      const wentAndMade = newHomeHolding('We went home, we made my new home.')
+
+      expect(
+        checkGrammar(
+          afterLessonOne(pastFrom('lesson-5', 'irregular past'), go, make, wentAndMade, leave),
+        ),
+      ).toEqual([
+        'word-3: frame holds went, an irregular past inflection admitted after lesson-4',
+        'word-3: frame holds made, an irregular past inflection admitted after lesson-4',
+      ])
+    })
+
+    it('passes went and made from the lesson that admits irregular pasts', () => {
+      const wentAndMade = newHomeHolding('We went home, we made my new home.')
+
+      expect(
+        checkGrammar(afterLessonOne(pastFrom('lesson-4', 'irregular past'), go, make, wentAndMade)),
+      ).toEqual([])
+    })
+
+    it('fails has made before the lesson that admits the present perfect', () => {
+      const structures = [
+        ...pastFrom('lesson-1', 'irregular past', 'has'),
+        structureOf('lesson-5', [], ['past participle']),
+      ]
+      const hasMade = newHomeHolding('This has made my new home.')
+
+      expect(checkGrammar(afterLessonOne(structures, go, make, hasMade, leave))).toEqual([
+        'word-3: frame holds made, a past participle inflection admitted after lesson-4',
+      ])
+    })
+
+    it('reads a past form after have and an adverb as a past participle', () => {
+      const haveNeverGone = newHomeHolding('We have never gone to my new home.')
+
+      expect(
+        checkGrammar(
+          afterLessonOne(pastFrom('lesson-1', 'irregular past'), go, make, haveNeverGone),
+        ),
+      ).toEqual(['word-3: frame holds gone, a past participle inflection no structure admits'])
+    })
+
+    it('fails a past form the irregular verb list does not name', () => {
+      const wentAndMade = newHomeHolding('We went home, we made my new home.')
+      const content = afterLessonOne(pastFrom('lesson-1', 'irregular past'), go, make, wentAndMade)
+
+      expect(
+        checkGrammar({ ...content, grammar: { ...content.grammar, irregularVerbs: [] } }),
+      ).toEqual([
+        'word-3: frame holds went, a form of go the irregular verb list does not name',
+        'word-3: frame holds made, a form of make the irregular verb list does not name',
+      ])
+    })
   })
 
   it('reads a homograph form by the word its entry names', () => {
@@ -191,7 +269,7 @@ describe('content gate check 6, grammar', () => {
     })
 
     expect(checkGrammar(afterLessonOne(lessonOneStructures, leave, newAfterLeaving))).toEqual([
-      'word-2: frame holds left, an -ed inflection no structure admits',
+      'word-2: frame holds left, an irregular past inflection no structure admits',
     ])
   })
 
@@ -223,9 +301,9 @@ describe('content gate check 6, grammar', () => {
     const structures = [...lessonOneStructures, structureOf('lesson-1', [], ['-ly', 'homes', 'be'])]
 
     expect(checkGrammar(contentOf({ structures }))).toEqual([
-      'structure "Grammar of lesson-1" lists -ly, which is neither a form of a frame word nor -s, -ed, -ing, -er or -est',
-      'structure "Grammar of lesson-1" lists homes, which is neither a form of a frame word nor -s, -ed, -ing, -er or -est',
-      'structure "Grammar of lesson-1" lists be, which is neither a form of a frame word nor -s, -ed, -ing, -er or -est',
+      'structure "Grammar of lesson-1" lists -ly, which is neither a form of a frame word nor -s, -ed, -ing, -er, -est, plural, irregular past or past participle',
+      'structure "Grammar of lesson-1" lists homes, which is neither a form of a frame word nor -s, -ed, -ing, -er, -est, plural, irregular past or past participle',
+      'structure "Grammar of lesson-1" lists be, which is neither a form of a frame word nor -s, -ed, -ing, -er, -est, plural, irregular past or past participle',
     ])
   })
 

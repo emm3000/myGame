@@ -49,6 +49,13 @@
       "inflections": []
     },
     {
+      "name": "Noun plurals",
+      "cefr": "Pre-A1",
+      "admittingLessonId": "lesson-1",
+      "frameWords": [],
+      "inflections": ["plural"]
+    },
+    {
       "name": "Demonstratives this and that",
       "cefr": "A1.1",
       "cefrjItem": "8",
@@ -161,6 +168,14 @@
       "inflections": []
     },
     {
+      "name": "Modal have to",
+      "cefr": "A2.2",
+      "cefrjItem": "127",
+      "admittingLessonId": "lesson-5",
+      "frameWords": [],
+      "inflections": []
+    },
+    {
       "name": "Questions and clauses with when",
       "cefr": "A1.2",
       "cefrjItem": "155",
@@ -198,7 +213,7 @@
       "cefrjItem": "65",
       "admittingLessonId": "lesson-11",
       "frameWords": [],
-      "inflections": ["-ed", "did", "had"]
+      "inflections": ["-ed", "did", "had", "irregular past"]
     },
     {
       "name": "Present progressive",
@@ -238,7 +253,7 @@
       "cefrjItem": "62",
       "admittingLessonId": "lesson-16",
       "frameWords": [],
-      "inflections": ["been", "done"]
+      "inflections": ["been", "done", "past participle"]
     },
     {
       "name": "Modal would",
@@ -289,6 +304,14 @@
       "inflections": []
     },
     {
+      "name": "Future with be going to",
+      "cefr": "A2.2",
+      "cefrjItem": "122",
+      "admittingLessonId": "lesson-16",
+      "frameWords": [],
+      "inflections": []
+    },
+    {
       "name": "Determiner other and pronoun others",
       "cefr": "B1.1",
       "cefrjItem": "29",
@@ -327,6 +350,51 @@
       "admittingLessonId": "lesson-16",
       "frameWords": ["which"],
       "inflections": []
+    },
+    {
+      "name": "there with be",
+      "cefr": "A1.2",
+      "cefrjItem": "146",
+      "admittingLessonId": "lesson-19",
+      "frameWords": [],
+      "inflections": []
+    }
+  ],
+  "irregularVerbs": [
+    {
+      "lemma": "begin",
+      "past": "began",
+      "pastParticiple": "begun"
+    },
+    {
+      "lemma": "come",
+      "past": "came",
+      "pastParticiple": "come"
+    },
+    {
+      "lemma": "get",
+      "past": "got",
+      "pastParticiple": "gotten"
+    },
+    {
+      "lemma": "go",
+      "past": "went",
+      "pastParticiple": "gone"
+    },
+    {
+      "lemma": "leave",
+      "past": "left",
+      "pastParticiple": "left"
+    },
+    {
+      "lemma": "make",
+      "past": "made",
+      "pastParticiple": "made"
+    },
+    {
+      "lemma": "see",
+      "past": "saw",
+      "pastParticiple": "seen"
     }
   ]
 }
