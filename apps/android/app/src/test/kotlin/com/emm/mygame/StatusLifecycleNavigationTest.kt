@@ -76,6 +76,7 @@ class StatusLifecycleNavigationTest {
                 skill = TownSnapshot.LessonSkill(TownResourceKind.Food, ratePercent = 5),
                 isStudied = false,
                 wordCount = 5,
+                enteringWordCount = 5,
                 readings = emptyList(),
                 standings = emptyList(),
             ),

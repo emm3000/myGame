@@ -22,6 +22,7 @@ internal fun TownOverviewLessonsInner.toLesson(): TownSnapshot.Lesson? {
         skill = TownSnapshot.LessonSkill(resource, skill.ratePercent),
         isStudied = isStudied,
         wordCount = words.size,
+        enteringWordCount = enteringWordCount,
         readings = words.mapNotNull { word: TownOverviewLessonsInnerWordsInner -> word.toWordReading() },
         standings = words.mapNotNull { word: TownOverviewLessonsInnerWordsInner -> word.standing.toWordStanding() },
     )
@@ -37,6 +38,7 @@ internal fun TownOverviewReleasedLessonsInner.toReleasedLesson(): TownSnapshot.R
         requiredSchoolLevel = requiredSchoolLevel,
         isStudied = isStudied,
         wordCount = words.size,
+        enteringWordCount = enteringWordCount,
         readings = words.mapNotNull { word: TownOverviewLessonsInnerWordsInner -> word.toWordReading() },
         standings = words.mapNotNull { word: TownOverviewLessonsInnerWordsInner -> word.standing.toWordStanding() },
     )

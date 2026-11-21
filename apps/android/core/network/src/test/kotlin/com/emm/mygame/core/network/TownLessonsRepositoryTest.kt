@@ -53,6 +53,7 @@ class TownLessonsRepositoryTest {
                     skill = TownSnapshot.LessonSkill(TownResourceKind.Food, ratePercent = 5),
                     isStudied = true,
                     wordCount = 2,
+                    enteringWordCount = 1,
                     readings = listOf(
                         TownSnapshot.WordReading(
                             word = "home",
@@ -69,6 +70,24 @@ class TownLessonsRepositoryTest {
             ),
             read.lessons,
         )
+    }
+
+    @Test
+    fun `reads the words a lesson enters into learning apart from its word count`() = runTest {
+        api.enqueue(json(200, TOWN))
+
+        val read: TownSnapshot = (town().read() as TownReadResult.Read).town
+
+        assertEquals(1, read.lessons.single().enteringWordCount)
+    }
+
+    @Test
+    fun `reads the words a released lesson enters into learning apart from its word count`() = runTest {
+        api.enqueue(json(200, TOWN.replace(""""releasedLessons":[]""", """"releasedLessons":[$RELEASED]""")))
+
+        val read: TownSnapshot = (town().read() as TownReadResult.Read).town
+
+        assertEquals(1, read.releasedLessons.single().enteringWordCount)
     }
 
     @Test
@@ -316,6 +335,12 @@ class TownLessonsRepositoryTest {
                 """"reading":{"word":"home","frame":[{"text":"This is my home.","support":null}]},""" +
                 """"support":{"shown":"beside","text":"hogar","language":"es"}},""" +
                 """{"wordId":"word-2","standing":"retained","reading":null,"support":null}]}"""
+        const val RELEASED: String =
+            """{"id":"released-2-1","band":2,"position":1,"durationSeconds":300,"requiredSchoolLevel":1,""" +
+                """"isStudied":false,"words":[""" +
+                """{"wordId":"word-1","standing":"notStarted","reading":null,"support":null},""" +
+                """{"wordId":"word-2","standing":"notStarted","reading":null,"support":null}],""" +
+                """"enteringWordCount":1}"""
         const val SKILL: String =
             """{"lessonId":"lesson-1","resource":"food","ratePercent":5,"earnedAt":"2026-11-04T10:00:00.000Z"}"""
         const val HIRING: String =
