@@ -1,6 +1,7 @@
 import type { HoldoutCheckWeek } from './holdout/HoldoutCheck'
 import type { LessonId, WordId } from './learning/Lesson'
 import type { PlayerId } from './player/PlayerId'
+import type { DurationError } from './time/DurationError'
 import type { Instant } from './time/Instant'
 import type { BuildingKind } from './town/building/BuildingKind'
 import type { NeededWordKind } from './town/building/NeededWordKind'
@@ -11,8 +12,7 @@ import type { ResourceKind } from './town/ResourceKind'
 import type { Stocks } from './town/Stocks'
 
 export type DomainError =
-  | { readonly kind: 'NegativeDuration'; readonly seconds: number }
-  | { readonly kind: 'FractionalDuration'; readonly seconds: number }
+  | DurationError
   | { readonly kind: 'InstantBeforeStored'; readonly storedAt: Instant; readonly now: Instant }
   | {
       readonly kind: 'InvalidMemoryCard'
