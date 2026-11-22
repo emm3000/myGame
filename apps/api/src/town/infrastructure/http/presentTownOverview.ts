@@ -1,20 +1,6 @@
 import type { TownOverview } from '@mygame/contracts'
-import {
-  type DomainError,
-  dueHoldoutChecksOf,
-  type Instant,
-  type MemoryTerms,
-  ok,
-  type ResourceKind,
-  type Result,
-  releasedLessonsOf,
-  retainedWordCountOf,
-  stableWordCountOf,
-  type TownCatalog,
-  townSeasonAt,
-} from '@mygame/domain'
+import type { Instant, ResourceKind, TownCatalog, TownSeason } from '@mygame/domain'
 import { presentScaffold } from '#account/infrastructure/http/presentScaffold'
-import type { LessonLibrary } from '#content/application/ports/LessonLibrary'
 import { isoOf } from '#platform/infrastructure/http/isoOf'
 import type { StockView, TownView } from '../../application/gatherTownView'
 import type { TownReading } from '../../application/TownReading'
@@ -47,9 +33,8 @@ const presentStocks = (stocks: TownView['stocks']): TownOverview['stocks'] => ({
   material: presentStock(stocks.material),
 })
 
-const seasonOf = (at: Instant, catalog: TownCatalog): TownOverview['season'] => {
-  const season = townSeasonAt(at, catalog.townSettings())
-  return season === undefined
+const presentSeason = (season: TownSeason | null): TownOverview['season'] =>
+  season === null
     ? null
     : {
         kind: season.kind,
@@ -58,31 +43,20 @@ const seasonOf = (at: Instant, catalog: TownCatalog): TownOverview['season'] => 
         productionPercent: { ...season.productionPercent },
         durationPercent: { ...season.durationPercent },
       }
-}
 
 export const presentTownOverview = (
   reading: TownReading,
   view: TownView,
   catalog: TownCatalog,
-  lessons: LessonLibrary,
-  memoryTerms: MemoryTerms,
-): Result<TownOverview, DomainError> => {
+): TownOverview => {
   const { town, at } = reading
-  const released = releasedLessonsOf(reading.bandStarts, reading.cards, {
-    lessons,
-    bands: lessons,
-  })
-  const guidance = presentTownGuidance(reading, released, catalog, lessons, memoryTerms)
-  if (!guidance.ok) {
-    return guidance
-  }
   const { region, area, site } = town.address
-  return ok({
+  return {
     name: town.name.value,
     label: view.label,
     site: { region, area, site },
     terrain: town.terrain,
-    season: seasonOf(at, catalog),
+    season: presentSeason(view.season),
     stocks: presentStocks(view.stocks),
     people: {
       supplied: view.people.supplied,
@@ -94,14 +68,11 @@ export const presentTownOverview = (
     hiring: presentTownHiring(reading, catalog),
     job: presentTownJob(town, at),
     ...presentTownSchool(view.school),
-    dueHoldoutChecks: dueHoldoutChecksOf(reading.bandStarts, at).map(({ band, week }) => ({
-      band,
-      week,
-    })),
-    stableWordCount: stableWordCountOf(reading.cards),
-    retainedWordCount: retainedWordCountOf(reading.cards),
-    ...guidance.value,
+    dueHoldoutChecks: view.dueHoldoutChecks.map(({ band, week }) => ({ band, week })),
+    stableWordCount: view.stableWordCount,
+    retainedWordCount: view.retainedWordCount,
+    ...presentTownGuidance(view.guidance),
     ...presentScaffold(reading),
     readAt: isoOf(at),
-  })
+  }
 }
