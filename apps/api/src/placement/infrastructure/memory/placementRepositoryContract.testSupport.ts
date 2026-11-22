@@ -1,6 +1,7 @@
 import {
   Instant,
   type PlacementRepository,
+  type PlacementScore,
   type PlayerId,
   type SkippedPlacement,
   type TakenPlacement,
@@ -31,9 +32,9 @@ const begun: TakenPlacement = {
 
 const skipped: SkippedPlacement = { kind: 'skipped', skippedAt: begunAt }
 
-const bandOneScore = { band: 1, score: 29, takenAt: bandOneTakenAt }
+const bandOneScore: PlacementScore = { band: 1, score: 29, takenAt: bandOneTakenAt }
 
-const bandTwoScore = { band: 2, score: 12, takenAt: bandTwoTakenAt }
+const bandTwoScore: PlacementScore = { band: 2, score: 12, takenAt: bandTwoTakenAt }
 
 export const placementRepositoryContract = (
   adapterName: string,

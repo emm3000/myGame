@@ -1,5 +1,7 @@
 import { assert, describe, expect, it } from 'vitest'
+import type { BandStart } from '#holdout/BandStart'
 import { inMemoryBandStarts, type OwnedBandStart } from '#holdout/testing/inMemoryBandStarts'
+import type { Band } from '#learning/curriculum/Band'
 import { inMemoryBands } from '#learning/curriculum/testing/inMemoryBands'
 import { inMemoryLessons } from '#learning/curriculum/testing/inMemoryLessons'
 import { lessonOne } from '#learning/curriculum/testing/lessonOne'
@@ -116,7 +118,7 @@ const bandsOf = inMemoryBands([
   },
 ])
 
-const placementPassing = (bands: ReadonlyArray<number>): Placement => ({
+const placementPassing = (bands: ReadonlyArray<Band>): Placement => ({
   kind: 'taken',
   begunAt: hoursAfterEpoch(1),
   samples: [],
@@ -125,7 +127,7 @@ const placementPassing = (bands: ReadonlyArray<number>): Placement => ({
 
 type Setup = {
   readonly bandStarts?: ReadonlyArray<OwnedBandStart>
-  readonly placedOut?: ReadonlyArray<number>
+  readonly placedOut?: ReadonlyArray<Band>
   readonly random?: RandomSource
   readonly town?: Omit<TownShape, 'storedAt'>
   readonly cards?: ReadonlyArray<OwnedCard>
@@ -273,7 +275,7 @@ describe('startSchoolLesson', () => {
   })
 
   it("keeps the draw and the instant of the band's start when a later lesson starts", async () => {
-    const stored = {
+    const stored: BandStart = {
       band: 1,
       startedAt: hoursAfterEpoch(1),
       heldOutWords: ['think', 'see'],
@@ -294,7 +296,7 @@ describe('startSchoolLesson', () => {
         return items.slice(0, count)
       },
     }
-    const stored = {
+    const stored: BandStart = {
       band: 1,
       startedAt: hoursAfterEpoch(1),
       heldOutWords: ['think', 'see'],
@@ -328,7 +330,7 @@ describe('startSchoolLesson', () => {
   })
 
   it('counts only the words the player will hold against the learning cap', async () => {
-    const withoutMake = {
+    const withoutMake: BandStart = {
       band: 1,
       startedAt: hoursAfterEpoch(1),
       heldOutWords: ['make'],

@@ -4,6 +4,7 @@ import { MemoryCard } from '#memory/MemoryCard'
 import { Instant } from '#time/Instant'
 import type { HeldCard } from '../HeldCard'
 import type { Lesson, LessonWord } from '../Lesson'
+import type { Band } from './Band'
 import { bandLinesOf } from './bandLinesOf'
 import { inMemoryBands } from './testing/inMemoryBands'
 import { inMemoryLessons } from './testing/inMemoryLessons'
@@ -48,7 +49,7 @@ const content = {
   ]),
 }
 
-const startOf = (band: number): BandStart => ({ band, startedAt, heldOutWords: [], checks: [] })
+const startOf = (band: Band): BandStart => ({ band, startedAt, heldOutWords: [], checks: [] })
 
 const heldOf = (...headwords: ReadonlyArray<string>): ReadonlyArray<HeldCard> =>
   headwords.map((headword) => ({ wordId: `word-${headword}`, card: MemoryCard.entered(startedAt) }))

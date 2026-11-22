@@ -1,12 +1,11 @@
 import type { Band } from '#learning/curriculum/Band'
+import { BANDS, laterBandOf } from '#learning/curriculum/bands'
 import type { BandCatalog } from '#learning/curriculum/ports/BandCatalog'
 import type { RandomSource } from '#ports/RandomSource'
 import type { PlacementSample } from './Placement'
 import type { PlacementWordCatalog } from './ports/PlacementWordCatalog'
 
 export const PLACEMENT_SAMPLE_SIZE = 30
-
-const FIRST_BAND: Band = 1
 
 export type PlacementContent = {
   readonly words: PlacementWordCatalog
@@ -25,8 +24,10 @@ const isBandDrafted = (band: Band, { words, bands }: PlacementContent): boolean 
   return bandWords.length > 0 && bandWords.every(({ headword }) => entered.has(headword))
 }
 
-const isNextBandOpen = (band: Band, { bands }: PlacementContent): boolean =>
-  bands.wordsOfBand(band + 1).length === 0 || bands.hasLessons(band + 1)
+const isNextBandOpen = (band: Band, { bands }: PlacementContent): boolean => {
+  const later = laterBandOf(band)
+  return later === undefined || bands.wordsOfBand(later).length === 0 || bands.hasLessons(later)
+}
 
 const isBandPlaceable = (band: Band, content: PlacementContent): boolean =>
   isBandDrafted(band, content) &&
@@ -34,15 +35,12 @@ const isBandPlaceable = (band: Band, content: PlacementContent): boolean =>
   drawableWordIdsOf(band, content.words).length >= PLACEMENT_SAMPLE_SIZE
 
 const placeableBandsOf = (content: PlacementContent): ReadonlyArray<Band> => {
-  const placeable: Array<Band> = []
-  for (let band = FIRST_BAND; isBandPlaceable(band, content); band += 1) {
-    placeable.push(band)
-  }
-  return placeable
+  const firstUnplaceable = BANDS.findIndex((band) => !isBandPlaceable(band, content))
+  return firstUnplaceable === -1 ? BANDS : BANDS.slice(0, firstUnplaceable)
 }
 
 export const isPlacementDrawable = (content: PlacementContent): boolean =>
-  isBandPlaceable(FIRST_BAND, content)
+  placeableBandsOf(content).length > 0
 
 export const placementSamplesDrawn = (
   content: PlacementContent,

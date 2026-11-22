@@ -38,6 +38,7 @@ export {
 export type { Band } from '#learning/curriculum/Band'
 export type { BandWord } from '#learning/curriculum/BandWord'
 export { bandLinesOf } from '#learning/curriculum/bandLinesOf'
+export { BANDS, bandOf } from '#learning/curriculum/bands'
 export type { Headword } from '#learning/curriculum/Headword'
 export { headwordOf } from '#learning/curriculum/headwordOf'
 export { isLessonPlacedOut } from '#learning/curriculum/isLessonPlacedOut'
@@ -332,4 +333,4 @@ export {
 } from '#town/useCases/foundTown'
 export { type ResolveTownDependencies, resolveTown } from '#town/useCases/resolveTown'
 export type { DomainError } from './DomainError'
-export { err, ok, type Result } from './Result'
+export { allOk, err, ok, type Result } from './Result'

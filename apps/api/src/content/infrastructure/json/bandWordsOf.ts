@@ -1,5 +1,5 @@
 import { type Band, type BandWord, headwordOf } from '@mygame/domain'
-import { bandOfRank } from './bandOfRank'
+import { bandOfListedRank } from './bandOfListedRank'
 import { frameWordsOf } from './frameWordsOf'
 import type { LessonContentFiles } from './readLessonContentFiles'
 
@@ -18,7 +18,7 @@ export const bandWordsOf = ({
   const bands = new Map<Band, ReadonlyArray<BandWord>>()
   for (const [headword, rank] of ranks) {
     if (!frameWords.has(headword)) {
-      const band = bandOfRank(rank)
+      const band = bandOfListedRank(headword, rank)
       const word = { headword, isChrome: chromeWords.has(headword) }
       bands.set(band, [...(bands.get(band) ?? []), word])
     }

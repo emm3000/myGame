@@ -1,4 +1,5 @@
 import { assert, describe, expect, it } from 'vitest'
+import type { Band } from '#learning/curriculum/Band'
 import { inMemoryBands } from '#learning/curriculum/testing/inMemoryBands'
 import { inMemoryLessons } from '#learning/curriculum/testing/inMemoryLessons'
 import { lessonOne } from '#learning/curriculum/testing/lessonOne'
@@ -211,7 +212,7 @@ describe('the release of the held-out words', () => {
 
 describe('releasedLessonsOf', () => {
   const startOf = (
-    band: number,
+    band: Band,
     held: ReadonlyArray<string>,
     checks: ReadonlyArray<HoldoutCheck>,
   ): BandStart => ({ band, startedAt: bandStartedAt, heldOutWords: held, checks })

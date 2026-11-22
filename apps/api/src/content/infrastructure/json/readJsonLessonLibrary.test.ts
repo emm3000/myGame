@@ -2,7 +2,7 @@ import { createHash } from 'node:crypto'
 import { cpSync, mkdtempSync, readFileSync, rmSync, writeFileSync } from 'node:fs'
 import { tmpdir } from 'node:os'
 import { join } from 'node:path'
-import { isUnitLemma } from '@mygame/domain'
+import { BANDS, isUnitLemma } from '@mygame/domain'
 import { afterEach, describe, expect, it } from 'vitest'
 import { apiPackagePath } from '#apiPackagePath.testSupport'
 import { readJsonLessonLibrary } from './readJsonLessonLibrary'
@@ -164,14 +164,14 @@ describe('readJsonLessonLibrary', () => {
   it('counts the words of each band as the list ranks them, leaving the frame words out', () => {
     const catalog = readJsonLessonLibrary(shippedContent)
 
-    expect([1, 2, 3].map((band) => catalog.wordsOfBand(band).length)).toEqual([941, 1000, 809])
+    expect(BANDS.map((band) => catalog.wordsOfBand(band).length)).toEqual([941, 1000, 809])
   })
 
   it("marks the chrome lessons' words, whatever their band", () => {
     const catalog = readJsonLessonLibrary(shippedContent)
 
     expect(
-      [1, 2, 3].map((band) => catalog.wordsOfBand(band).filter(({ isChrome }) => !isChrome).length),
+      BANDS.map((band) => catalog.wordsOfBand(band).filter(({ isChrome }) => !isChrome).length),
     ).toEqual([875, 989, 806])
   })
 
@@ -203,7 +203,7 @@ describe('readJsonLessonLibrary', () => {
   it('answers that only band 1 has lessons in the shipped curriculum', () => {
     const catalog = readJsonLessonLibrary(shippedContent)
 
-    expect([1, 2, 3].map((band) => catalog.hasLessons(band))).toEqual([true, false, false])
+    expect(BANDS.map((band) => catalog.hasLessons(band))).toEqual([true, false, false])
   })
 
   it('marks every word of a band lesson as a placement word outside the chrome', () => {
@@ -235,14 +235,14 @@ describe('readJsonLessonLibrary', () => {
     }
     writeJson(directory, 'words.json', [...lexicon, offList])
     const catalog = readJsonLessonLibrary(directory)
-    const offered = [1, 2, 3].flatMap((band) => catalog.placementWordsOf(band))
+    const offered = BANDS.flatMap((band) => catalog.placementWordsOf(band))
 
     expect(offered.map(({ id }) => id)).not.toContain('off-list-word')
   })
 
   it('offers no multi-word unit for placement in any band', () => {
     const catalog = readJsonLessonLibrary(shippedContent)
-    const offered = [1, 2, 3].flatMap((band) => catalog.placementWordsOf(band))
+    const offered = BANDS.flatMap((band) => catalog.placementWordsOf(band))
 
     expect(offered.filter(({ word }) => isUnitLemma(word))).toEqual([])
   })
@@ -532,5 +532,15 @@ describe('readJsonLessonLibrary', () => {
     writeFileSync(listFile, `${readFileSync(listFile, 'utf8')}broken row\r\n`)
 
     expect(() => readJsonLessonLibrary(directory)).toThrow(/ngsl-1\.2\.csv is malformed/)
+  })
+
+  it('fails start-up on a rank of the NGSL 1.2 list past the third band', () => {
+    const directory = contentCopy()
+    const listFile = lessonsFile(directory, 'ngsl-1.2.csv')
+    writeFileSync(listFile, `${readFileSync(listFile, 'utf8')}zeppelin,3001,1.00,1\r\n`)
+
+    expect(() => readJsonLessonLibrary(directory)).toThrow(
+      'Headword zeppelin ranks 3001, past the last band',
+    )
   })
 })

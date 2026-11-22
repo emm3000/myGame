@@ -1,6 +1,7 @@
-import { type BandStart, Instant } from '@mygame/domain'
+import { allOk, type BandStart, type DomainError, type Result } from '@mygame/domain'
 import { asc, type Column, eq, type SQL, sql } from 'drizzle-orm'
 import { z } from 'zod'
+import { bandStartFromRow } from '#holdout/infrastructure/postgres/bandStartFromRow'
 import { holdoutCheckFromRow } from '#holdout/infrastructure/postgres/holdoutCheckFromRow'
 import {
   bandStarts,
@@ -74,10 +75,14 @@ export const aggregatedBandStartsOf = (playerId: Column): SQL<unknown> =>
     asc(bandStarts.band),
   )
 
-export const bandStartsFrom = (aggregate: unknown): ReadonlyArray<BandStart> =>
-  AggregatedBandStartsSchema.parse(aggregate).map(({ band, startedAt, heldOutWords, checks }) => ({
-    band,
-    startedAt: Instant.fromEpochMilliseconds(startedAt.getTime()),
-    heldOutWords: heldOutWords.map(({ headword }) => headword),
-    checks: checks.map(({ words, ...check }) => holdoutCheckFromRow(check, words)),
-  }))
+export const bandStartsFrom = (aggregate: unknown): Result<ReadonlyArray<BandStart>, DomainError> =>
+  allOk(
+    AggregatedBandStartsSchema.parse(aggregate).map(({ band, startedAt, heldOutWords, checks }) =>
+      bandStartFromRow({
+        band,
+        startedAt,
+        heldOutWords: heldOutWords.map(({ headword }) => headword),
+        checks: checks.map(({ words, ...check }) => holdoutCheckFromRow(check, words)),
+      }),
+    ),
+  )
