@@ -10,12 +10,12 @@ import {
 } from '../../building/infrastructure/http/buildingRoutes'
 import { startBuildingWorkDeclaration } from '../../building/infrastructure/http/StartBuildingWorkController'
 import { stopBuildingWorkDeclaration } from '../../building/infrastructure/http/StopBuildingWorkController'
-import { dismissGuidanceDeclaration } from '../../guidance/infrastructure/http/dismissGuidanceRoute'
+import { dismissGuidanceDeclaration } from '../../guidance/infrastructure/http/DismissGuidanceController'
 import {
   type GuidanceRouteDependencies,
   guidanceRoutes,
 } from '../../guidance/infrastructure/http/guidanceRoutes'
-import { markTipSeenDeclaration } from '../../guidance/infrastructure/http/markTipSeenRoute'
+import { markTipSeenDeclaration } from '../../guidance/infrastructure/http/MarkTipSeenController'
 import {
   type HiringRouteDependencies,
   hiringRoutes,
@@ -29,10 +29,10 @@ import { quoteJobDeclaration } from '../../jobs/infrastructure/http/QuoteJobCont
 import { sendCleanUpDeclaration } from '../../jobs/infrastructure/http/SendCleanUpController'
 import { sendJobDeclaration } from '../../jobs/infrastructure/http/SendJobController'
 import {
-  type ResolveTownNewsRouteDependencies,
+  ResolveTownNewsController,
+  type ResolveTownNewsControllerDependencies,
   resolveTownNewsDeclaration,
-  resolveTownNewsRoute,
-} from '../../news/infrastructure/http/resolveTownNewsRoute'
+} from '../../news/infrastructure/http/ResolveTownNewsController'
 import { startSchoolLessonDeclaration } from '../../school/infrastructure/http/StartSchoolLessonController'
 import { stopSchoolLessonDeclaration } from '../../school/infrastructure/http/StopSchoolLessonController'
 import {
@@ -57,7 +57,7 @@ import {
 
 export type TownRouteDependencies = RequirePlayerDependencies &
   ResolveCurrentTownControllerDependencies &
-  ResolveTownNewsRouteDependencies &
+  ResolveTownNewsControllerDependencies &
   OpenTextControllerDependencies &
   FoundTownControllerDependencies &
   BuildingRouteDependencies &
@@ -90,6 +90,7 @@ export const townRoutes = (dependencies: TownRouteDependencies): OpenAPIHono => 
   const routes = new OpenAPIHono()
   const signedIn = requirePlayer(dependencies)
   const resolveCurrentTownController = new ResolveCurrentTownController(dependencies)
+  const resolveTownNewsController = new ResolveTownNewsController(dependencies)
   const openTextController = new OpenTextController(dependencies)
   const foundTownController = new FoundTownController(dependencies)
   routes.openAPIRegistry.registerPath(resolveCurrentTownDeclaration)
@@ -99,7 +100,13 @@ export const townRoutes = (dependencies: TownRouteDependencies): OpenAPIHono => 
     signedIn,
     (c) => resolveCurrentTownController.handle(c),
   )
-  resolveTownNewsRoute(routes, dependencies)
+  routes.openAPIRegistry.registerPath(resolveTownNewsDeclaration)
+  routes.on(
+    resolveTownNewsDeclaration.method,
+    honoPathOf(resolveTownNewsDeclaration),
+    signedIn,
+    (c) => resolveTownNewsController.handle(c),
+  )
   routes.openAPIRegistry.registerPath(openTextDeclaration)
   routes.on(openTextDeclaration.method, honoPathOf(openTextDeclaration), signedIn, (c) =>
     openTextController.handle(c),
