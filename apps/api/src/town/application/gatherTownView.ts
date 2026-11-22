@@ -6,6 +6,7 @@ import {
   deriveResourceRates,
   deriveStorageCapacity,
   type Instant,
+  type MemoryTerms,
   ok,
   type People,
   type ResourceKind,
@@ -14,11 +15,13 @@ import {
   type TownLabel,
   townLabelOf,
 } from '@mygame/domain'
+import type { LessonLibrary } from '#content/application/ports/LessonLibrary'
 import {
   type BuildingsView,
   gatherBuildingsView,
 } from '../building/application/gatherBuildingsView'
 import { gatherWorkView, type WorkView } from '../building/application/gatherWorkView'
+import { gatherSchoolView, type SchoolView } from '../school/application/gatherSchoolView'
 import type { TownReading } from './TownReading'
 
 export type StockView = {
@@ -34,6 +37,7 @@ export type TownView = {
   readonly label: TownLabel
   readonly buildings: BuildingsView
   readonly work: WorkView
+  readonly school: SchoolView
 }
 
 const gatherStocks = (
@@ -73,6 +77,8 @@ const gatherStocks = (
 export const gatherTownView = (
   reading: TownReading,
   catalog: TownCatalog,
+  lessons: LessonLibrary,
+  memoryTerms: MemoryTerms,
 ): Result<TownView, DomainError> => {
   const { town } = reading
   const stocks = gatherStocks(reading, catalog)
@@ -95,11 +101,16 @@ export const gatherTownView = (
   if (!work.ok) {
     return work
   }
+  const school = gatherSchoolView(reading, catalog, lessons, memoryTerms)
+  if (!school.ok) {
+    return school
+  }
   return ok({
     stocks: stocks.value,
     people: people.value,
     label: label.value,
     buildings: buildings.value,
     work: work.value,
+    school: school.value,
   })
 }
