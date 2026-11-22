@@ -29,7 +29,7 @@ export const readHoldoutChecksRoute = (
   routes: OpenAPIHono,
   dependencies: ReadHoldoutChecksRouteDependencies,
 ): void => {
-  const { lessons, inTransaction, clock } = dependencies
+  const { lessons, unitOfWork, clock } = dependencies
   routes.openAPIRegistry.registerPath(readHoldoutChecksDeclaration)
   routes.on(
     readHoldoutChecksDeclaration.method,
@@ -37,7 +37,7 @@ export const readHoldoutChecksRoute = (
     requirePlayer(dependencies),
     async (c) => {
       const playerId = c.var.playerId
-      const views = await inTransaction(async (stores) =>
+      const views = await unitOfWork.transact(async (stores) =>
         readHoldoutChecks(
           { playerId, scaffold: await readScaffold(playerId, stores.accounts) },
           { bandStarts: stores.bandStarts, words: lessons, clock },

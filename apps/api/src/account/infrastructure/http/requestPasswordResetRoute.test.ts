@@ -1,9 +1,9 @@
+import type { UnitOfWork } from '@mygame/domain'
 import { afterAll, beforeAll, beforeEach, describe, expect, it } from 'vitest'
 import { createApp } from '#app'
 import { type ComposedServer, composeServer } from '#composeServer'
 import { mailEnvironment } from '#composeServer.testSupport'
 import type { ComposedStores } from '#composeStores'
-import type { Transaction } from '#platform/application/ports/Transaction'
 import { MemoryMailer } from '../memory/MemoryMailer'
 import {
   accountRequests,
@@ -88,14 +88,16 @@ describe('the forgot-password route', () => {
     const released = new Promise<void>((resolve) => {
       release = resolve
     })
-    const heldTransaction: Transaction<ComposedStores> = (work) => {
-      lookups += 1
-      return released.then(() => server.inTransaction(work))
+    const heldUnitOfWork: UnitOfWork<ComposedStores> = {
+      transact: (work) => {
+        lookups += 1
+        return released.then(() => server.unitOfWork.transact(work))
+      },
     }
 
     const response = await forgotPassword(
       anasSignUp.email,
-      createApp({ ...server, clock, mailer, inTransaction: heldTransaction }),
+      createApp({ ...server, clock, mailer, unitOfWork: heldUnitOfWork }),
     )
 
     expect([response.status, lookups]).toEqual([202, 1])

@@ -13,7 +13,7 @@ import {
   type PlacementRouteDependencies,
   placementRoutes,
 } from '#placement/infrastructure/http/placementRoutes'
-import { healthRoute } from '#platform/infrastructure/http/healthRoute'
+import { healthRoutes } from '#platform/infrastructure/http/healthRoutes'
 import { reportServerFailures } from '#platform/infrastructure/http/reportServerFailures'
 import {
   sessionBearerScheme,
@@ -47,7 +47,7 @@ export const createApp = (dependencies: AppDependencies): OpenAPIHono => {
     sessionBearerScheme,
     sessionBearerSecurityScheme,
   )
-  healthRoute(app)
+  healthRoutes(app)
   app
     .route('/', accountRoutes(dependencies))
     .route('/reviews', learningRoutes(dependencies))

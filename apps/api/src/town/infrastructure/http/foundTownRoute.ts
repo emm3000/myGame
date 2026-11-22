@@ -1,11 +1,10 @@
 import { createRoute, type OpenAPIHono } from '@hono/zod-openapi'
 import { FoundTownSchema } from '@mygame/contracts'
-import type { IdGenerator } from '@mygame/domain'
+import type { IdGenerator, UnitOfWork } from '@mygame/domain'
 import {
   type RequirePlayerDependencies,
   requirePlayer,
 } from '#account/infrastructure/http/requirePlayer'
-import type { Transaction } from '#platform/application/ports/Transaction'
 import { honoPathOf } from '#platform/infrastructure/http/honoPath'
 import { readJsonBody } from '#platform/infrastructure/http/readJsonBody'
 import { refusalResponse } from '#platform/infrastructure/http/refusalResponse'
@@ -38,7 +37,7 @@ export const foundTownDeclaration = createRoute(
 
 export type FoundTownRouteDependencies = RequirePlayerDependencies &
   RespondTownReadingDependencies & {
-    readonly inTransaction: Transaction<TownStores>
+    readonly unitOfWork: UnitOfWork<TownStores>
     readonly ids: IdGenerator
   }
 
@@ -57,7 +56,7 @@ export const foundTownRoute = (
         return respondRefusal(c, requestRefusalOf(foundingIssues, request.error.issues))
       }
       const playerId = c.var.playerId
-      const founded = await dependencies.inTransaction(async (stores) => {
+      const founded = await dependencies.unitOfWork.transact(async (stores) => {
         const town = await foundTownOnFreeSite(
           { playerId, name: request.data.name },
           {

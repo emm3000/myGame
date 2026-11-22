@@ -234,7 +234,7 @@ fails_a_domain_test_importing_its_own_folder_by_subpath() {
 
 passes_a_subpath_import_that_leaves_its_folder_or_the_root() {
   fresh_tree
-  plant apps/api/src/town/infrastructure/http/townRoutes.ts "import { refusal } from '#platform/application/Refusal'\nimport { townRoutesBy } from '#townRoutes/byName'\n"
+  plant apps/api/src/town/infrastructure/http/townRoutes.ts "import { respondRefusal } from '#platform/infrastructure/http/respondRefusal'\nimport { townRoutesBy } from '#townRoutes/byName'\n"
   plant apps/api/src/composeServer.ts "import { townRoutes } from '#town/infrastructure/http/townRoutes'\n"
   check
   expect_pass "${FUNCNAME[0]}"

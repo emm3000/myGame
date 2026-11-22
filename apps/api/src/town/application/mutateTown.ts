@@ -7,14 +7,14 @@ import {
   type PlayerId,
   type Result,
   settleSchoolLesson,
+  type UnitOfWork,
 } from '@mygame/domain'
-import type { Transaction } from '#platform/application/ports/Transaction'
 import type { TownStores } from './ports/TownStores'
 
 export type TownMutation<T> = (stores: TownStores, clock: Clock) => Promise<Result<T, DomainError>>
 
 export type MutateTownDependencies = {
-  readonly inTransaction: Transaction<TownStores>
+  readonly unitOfWork: UnitOfWork<TownStores>
   readonly clock: Clock
   readonly lessons: Pick<LessonCatalog, 'lessonOf' | 'lessonOfWord'> &
     Pick<BandCatalog, 'wordsOfBand'>
@@ -23,9 +23,9 @@ export type MutateTownDependencies = {
 export const mutateTown = <T>(
   playerId: PlayerId,
   mutation: TownMutation<T>,
-  { inTransaction, clock, lessons }: MutateTownDependencies,
+  { unitOfWork, clock, lessons }: MutateTownDependencies,
 ): Promise<Result<T, DomainError>> =>
-  inTransaction(async (stores) => {
+  unitOfWork.transact(async (stores) => {
     await stores.accounts.lockPlayer(playerId)
     const locked = await stores.towns.townOf(playerId)
     if (!locked.ok) {

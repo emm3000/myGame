@@ -3,6 +3,7 @@ export { inMemoryPendingReviews } from '#learning/reviews/testing/inMemoryPendin
 export { inMemoryReviewLog } from '#learning/reviews/testing/inMemoryReviewLog'
 export { inMemoryCards } from '#learning/testing/inMemoryCards'
 export { inMemoryPlacements } from '#placement/testing/inMemoryPlacements'
+export { inMemoryUnitOfWork } from '#platform/testing/inMemoryUnitOfWork'
 export { inMemoryCleanUps } from '#town/jobs/testing/inMemoryCleanUps'
 export { inMemoryRegionMap } from '#town/jobs/testing/inMemoryRegionMap'
 export { inMemoryLessonSlots } from '#town/school/testing/inMemoryLessonSlots'

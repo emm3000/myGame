@@ -6,8 +6,8 @@ import {
   type Refusal,
   type Result,
   type Scaffold,
+  type UnitOfWork,
 } from '@mygame/domain'
-import type { Transaction } from '#platform/application/ports/Transaction'
 import { issueAccountToken } from './issueAccountToken'
 import { openSession } from './openSession'
 import type { AccountStores } from './ports/AccountStores'
@@ -17,7 +17,7 @@ import type { SignedIn } from './SignedIn'
 import { type SendVerificationMailDependencies, sendVerificationMail } from './sendVerificationMail'
 
 export type SignUpDependencies = SendVerificationMailDependencies & {
-  readonly inTransaction: Transaction<AccountStores>
+  readonly unitOfWork: UnitOfWork<AccountStores>
   readonly clock: Clock
   readonly ids: IdGenerator
   readonly passwords: PasswordHasher
@@ -30,10 +30,10 @@ type SignedUp = SignedIn & {
 
 export const signUp = async (
   request: { readonly email: string; readonly password: string; readonly scaffold: Scaffold },
-  { inTransaction, clock, ids, passwords, sessionTokens, mailer, webUrl }: SignUpDependencies,
+  { unitOfWork, clock, ids, passwords, sessionTokens, mailer, webUrl }: SignUpDependencies,
 ): Promise<Result<SignedIn, Refusal>> => {
   const passwordHash = await passwords.hashOf(request.password)
-  const signedUp = await inTransaction<SignedUp, Refusal>(
+  const signedUp = await unitOfWork.transact<SignedUp, Refusal>(
     async ({ accounts, accountTokens, sessions }) => {
       const added = await accounts.addPlayer({
         id: ids.newId(),

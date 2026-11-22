@@ -13,7 +13,7 @@ import {
   type MovableClock,
   movableClock,
   overviewOf,
-  pausingFirstTransaction,
+  pausingFirstUnitOfWork,
   refusalOf,
   runSql,
   signal,
@@ -319,7 +319,7 @@ describe('the town route', () => {
       const racingApp = createApp({
         ...server,
         clock,
-        inTransaction: pausingFirstTransaction(server.inTransaction, async () => {
+        unitOfWork: pausingFirstUnitOfWork(server.unitOfWork, async () => {
           firstHasRead.resolve()
           await secondIsBlockedOrHasRead
         }),
@@ -542,7 +542,7 @@ describe('the town route', () => {
       const racingApp = createApp({
         ...server,
         clock,
-        inTransaction: pausingFirstTransaction(server.inTransaction, async () => {
+        unitOfWork: pausingFirstUnitOfWork(server.unitOfWork, async () => {
           firstHasRead.resolve()
           await secondIsBlockedOrHasRead
         }),

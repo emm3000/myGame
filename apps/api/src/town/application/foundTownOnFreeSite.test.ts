@@ -111,8 +111,8 @@ const raceTwoFoundings = (
 ): Promise<ReadonlyArray<Outcome>> => {
   const meet = meetingOfTwo()
   const found = (playerId: PlayerId): Promise<Outcome> =>
-    server
-      .inTransaction(({ towns, earnedSkills }) =>
+    server.unitOfWork
+      .transact(({ towns, earnedSkills }) =>
         foundTownOnFreeSite(
           { playerId, name: 'Maple Falls' },
           {

@@ -4,7 +4,13 @@ import {
   ReviewsSchema,
   TownOverviewSchema,
 } from '@mygame/contracts'
-import { type BandStartRepository, type Clock, Instant, type RandomSource } from '@mygame/domain'
+import {
+  type BandStartRepository,
+  type Clock,
+  Instant,
+  type RandomSource,
+  type UnitOfWork,
+} from '@mygame/domain'
 import { Client, type QueryResultRow } from 'pg'
 import { afterAll, assert, beforeAll, beforeEach, describe, expect, it } from 'vitest'
 import { apiPackagePath } from '#apiPackagePath.testSupport'
@@ -13,7 +19,6 @@ import { type ComposedServer, composeServer } from '#composeServer'
 import { mailEnvironment } from '#composeServer.testSupport'
 import type { ComposedStores } from '#composeStores'
 import { isWaitingOnALock, lockedPlayerReadQuery, lockProbeLimit } from '#lockWaitProbe.testSupport'
-import type { Transaction } from '#platform/application/ports/Transaction'
 import { truncatePlayerTables } from '#truncatePlayerTables.testSupport'
 
 const contentDirectory = apiPackagePath('content/')
@@ -80,24 +85,26 @@ const pausingFirstStartsRead = (
   }
 }
 
-const pausingFirstTransaction = (
-  inTransaction: Transaction<ComposedStores>,
+const pausingFirstUnitOfWork = (
+  unitOfWork: UnitOfWork<ComposedStores>,
   afterFirstStartsRead: () => Promise<void>,
-): Transaction<ComposedStores> => {
+): UnitOfWork<ComposedStores> => {
   let transactions = 0
-  return (work) => {
-    transactions += 1
-    const isFirst = transactions === 1
-    return inTransaction((stores) =>
-      work(
-        isFirst
-          ? {
-              ...stores,
-              bandStarts: pausingFirstStartsRead(stores.bandStarts, afterFirstStartsRead),
-            }
-          : stores,
-      ),
-    )
+  return {
+    transact: (work) => {
+      transactions += 1
+      const isFirst = transactions === 1
+      return unitOfWork.transact((stores) =>
+        work(
+          isFirst
+            ? {
+                ...stores,
+                bandStarts: pausingFirstStartsRead(stores.bandStarts, afterFirstStartsRead),
+              }
+            : stores,
+        ),
+      )
+    },
   }
 }
 
@@ -340,7 +347,7 @@ describe('the holdout check routes', () => {
       ...server,
       clock,
       random: everyTenthFirst,
-      inTransaction: pausingFirstTransaction(server.inTransaction, async () => {
+      unitOfWork: pausingFirstUnitOfWork(server.unitOfWork, async () => {
         firstHasRead.resolve()
         await secondIsBlockedOrHasAnswered
       }),
