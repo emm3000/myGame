@@ -9,7 +9,7 @@ Hono on Node: the HTTP adapters, the persistence adapters that implement the dom
 - `pnpm --filter @mygame/api test` — Vitest, `src/**/*.test.ts`. Route tests compose the real server on the session's Postgres, with the real adapters; an in-memory adapter exists only to run a port's contract suite beside the Drizzle one.
 - `pnpm --filter @mygame/api typecheck` — `tsc --noEmit` over `src`, the Vitest config and `drizzle.config.ts`.
 - `pnpm --filter @mygame/api openapi:write` — composes the server from the shell's `DATABASE_URL`, `SMTP_URL`, `MAIL_FROM` and `WEB_URL` (nothing connects) and writes `openapi.json`, the copy the Android client is generated from, OpenAPI 3.0.0 because openapi-generator's 3.1 support is partial. `src/openApi.test.ts` turns `pnpm gate` red while it differs from what the app emits.
-- `pnpm --filter @mygame/api db:generate --name <change>` — `drizzle-kit generate`: diffs the `*Tables.ts` files under `src/<feature>/infrastructure/postgres/` against `migrations/meta` and writes the next SQL migration. It needs `DATABASE_URL` set, though it never connects. Commit the SQL and the `meta` files together; a merged migration is never edited.
+- `pnpm --filter @mygame/api db:generate --name <change>` — `drizzle-kit generate`: diffs the `*Tables.ts` files under `src/<feature>/infrastructure/persistence/` against `migrations/meta` and writes the next SQL migration. It needs `DATABASE_URL` set, though it never connects. Commit the SQL and the `meta` files together; a merged migration is never edited.
 - `pnpm --filter @mygame/api db:migrate` — `drizzle-kit migrate`: applies pending migrations to `DATABASE_URL`.
 - `pnpm gate` from the repo root before every push.
 

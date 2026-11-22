@@ -1,6 +1,6 @@
 import { Client } from 'pg'
 import type { TestProject } from 'vitest/node'
-import { migratePostgres } from './src/platform/infrastructure/postgres/migratePostgres'
+import { migratePostgres } from './src/platform/infrastructure/persistence/migratePostgres'
 
 declare module 'vitest' {
   export interface ProvidedContext {

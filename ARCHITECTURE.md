@@ -18,7 +18,7 @@ A package is imported only through its `src/index.ts`. Inside `apps/api` and `pa
 platform <- content <- account <- town <- learning <- placement, holdout, report
 ```
 
-A file under `<feature>/infrastructure/postgres/` may also import, from any feature's `infrastructure/postgres/`, the files that describe the schema: `*Tables.ts`, `*FromRow.ts` and `*Columns.ts`.
+A file under `<feature>/infrastructure/persistence/` may also import, from any feature's `infrastructure/persistence/`, the files that describe the schema: `*Tables.ts`, `*FromRow.ts` and `*Columns.ts`.
 
 ## The folders
 
@@ -64,18 +64,18 @@ A domain file lives in the sub-area whose word it names in the "What it is" colu
 index.ts  listen.ts  app.ts  composeServer.ts  composeStores.ts    the composition root, the only place that constructs an adapter
 listenPortOf.ts  writeOpenApiDocument.ts                          the api's own entry helpers; no other source file
 <feature>/
-  application/                the use cases the api owns
-  application/ports/          the ports only the api needs
-  infrastructure/http/        endpoints, route lists, responders, presenters, the wire declarations and the request and response helpers they share (`bearerToken`, `honoPath`, `readJsonBody`, `refusalResponse`, `reportServerFailures`)
-  infrastructure/postgres/    Drizzle adapters, the feature's tables, row mappers
-  infrastructure/memory/      in-memory adapters of application/ports/, each port's contract suite, and the test that runs a domain port's suite on its fake
-  infrastructure/json/        the JSON catalogs
-  infrastructure/smtp/        the mailer
-  infrastructure/system/      the password hasher and the session tokens
-  gate/                       the content gate (content): the checks the shipped content passes, one file per check in checks/ and the readings they share beside them; no request, port or adapter reaches it, only its tests
+  application/                 the use cases the api owns
+  application/ports/           the ports only the api needs
+  infrastructure/http/         endpoints, route lists, responders, presenters, the wire declarations and the request and response helpers they share (`bearerToken`, `honoPath`, `readJsonBody`, `refusalResponse`, `reportServerFailures`)
+  infrastructure/persistence/  Drizzle adapters, the feature's tables, row mappers
+  infrastructure/memory/       in-memory adapters of application/ports/, each port's contract suite, and the test that runs a domain port's suite on its fake
+  infrastructure/json/         the JSON catalogs
+  infrastructure/smtp/         the mailer
+  infrastructure/system/       the password hasher and the session tokens
+  gate/                        the content gate (content): the checks the shipped content passes, one file per check in checks/ and the readings they share beside them; no request, port or adapter reaches it, only its tests
 ```
 
-`platform/` follows the same grammar: `application/` holds `Refusal`, `application/ports/` the transaction, the failure sink and the deferred work, and `infrastructure/{http,postgres,system,vercel}/` the kernels. Only `platform/` may hold, at its root, a pure function that both its `application/` and its `infrastructure/` read; `thrownCauseOf.ts` is the one case, and a feature folder may not. A layer with nothing to hold has no folder: `placement` has no `application/`, and `content` has only `application/ports/`. An adapter lives in the feature whose port it implements. A domain port has one in-memory implementation, the fake in its domain feature's `testing/`, which the api's contract suite runs against beside the Drizzle adapter, reading it through `@mygame/domain/testing`; an in-memory adapter in `infrastructure/memory/` implements only a port of `application/ports/`. `packages/contracts/src/<feature>/` holds one schema per file, with no layer folder. Only `infrastructure/http/`, `infrastructure/json/` and `content/gate/` import `@mygame/contracts`: they parse, or check, a shape written outside the process, a request or a content file.
+`platform/` follows the same grammar: `application/` holds `Refusal`, `application/ports/` the transaction, the failure sink and the deferred work, and `infrastructure/{http,persistence,system,vercel}/` the kernels. Only `platform/` may hold, at its root, a pure function that both its `application/` and its `infrastructure/` read; `thrownCauseOf.ts` is the one case, and a feature folder may not. A layer with nothing to hold has no folder: `placement` has no `application/`, and `content` has only `application/ports/`. An adapter lives in the feature whose port it implements. A domain port has one in-memory implementation, the fake in its domain feature's `testing/`, which the api's contract suite runs against beside the Drizzle adapter, reading it through `@mygame/domain/testing`; an in-memory adapter in `infrastructure/memory/` implements only a port of `application/ports/`. `packages/contracts/src/<feature>/` holds one schema per file, with no layer folder. Only `infrastructure/http/`, `infrastructure/json/` and `content/gate/` import `@mygame/contracts`: they parse, or check, a shape written outside the process, a request or a content file.
 
 ## The file-name grammar
 
@@ -99,10 +99,10 @@ listenPortOf.ts  writeOpenApiDocument.ts                          the api's own 
 | Responder | `infrastructure/http/` | `respond` + what it turns into a response | `respondTownChange.ts` |
 | Presenter | `infrastructure/http/` | `present` + wire noun | `presentTownOverview.ts` |
 | Adapter | `infrastructure/<technology>/` | technology + port | `DrizzleTownRepository.ts` |
-| Aggregate read | `infrastructure/postgres/` | `aggregated` + noun | `aggregatedTown.ts` |
+| Aggregate read | `infrastructure/persistence/` | `aggregated` + noun | `aggregatedTown.ts` |
 | Catalog builder | `infrastructure/json/` | `json` + catalog + `Of` | `jsonLessonCatalogOf.ts` |
-| Tables | `infrastructure/postgres/` | feature + `Tables` | `townTables.ts` |
-| Row mapper | `infrastructure/postgres/` | noun + `FromRow`, noun + `Columns` | `lessonSlotFromRow.ts` |
+| Tables | `infrastructure/persistence/` | feature + `Tables` | `townTables.ts` |
+| Row mapper | `infrastructure/persistence/` | noun + `FromRow`, noun + `Columns` | `lessonSlotFromRow.ts` |
 | Contract suite | `infrastructure/memory/` | port + `Contract.testSupport.ts` | `townRepositoryContract.testSupport.ts` |
 | Test | beside its subject | subject + `.test.ts` | `jobsRoutes.test.ts` |
 
@@ -116,8 +116,8 @@ A route's cases sit in one test beside its area's route list, `<area>Routes.test
 
 1. `apps/api/src/town/jobs/infrastructure/http/sendJobRoute.ts` parses the body with `SendJobSchema` and hands the change to `apps/api/src/town/infrastructure/http/respondTownChange.ts`, which opens the town's transaction with `apps/api/src/town/application/mutateTown.ts`.
 2. `packages/domain/src/town/jobs/useCases/sendJob.ts` decides the rule over the ports it is handed.
-3. `apps/api/src/town/infrastructure/postgres/DrizzleTownRepository.ts` stores the changed town.
-4. `apps/api/src/town/application/readTownReading.ts` reads the town back through `apps/api/src/town/infrastructure/postgres/DrizzleTownReader.ts`, and `apps/api/src/town/infrastructure/http/respondTownReading.ts` presents it through `apps/api/src/town/infrastructure/http/presentTownOverview.ts` as the `TownOverview` the route answers.
+3. `apps/api/src/town/infrastructure/persistence/DrizzleTownRepository.ts` stores the changed town.
+4. `apps/api/src/town/application/readTownReading.ts` reads the town back through `apps/api/src/town/infrastructure/persistence/DrizzleTownReader.ts`, and `apps/api/src/town/infrastructure/http/respondTownReading.ts` presents it through `apps/api/src/town/infrastructure/http/presentTownOverview.ts` as the `TownOverview` the route answers.
 
 ## Where a new thing goes
 

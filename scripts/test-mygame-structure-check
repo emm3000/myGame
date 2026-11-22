@@ -76,14 +76,14 @@ passes_a_clean_tree() {
 
 fails_an_application_importing_infrastructure() {
   fresh_tree
-  plant apps/api/src/town/application/sendJob.ts "import { DrizzleTownRepository } from '../infrastructure/postgres/DrizzleTownRepository'\n"
+  plant apps/api/src/town/application/sendJob.ts "import { DrizzleTownRepository } from '../infrastructure/persistence/DrizzleTownRepository'\n"
   check
   expect_failure "${FUNCNAME[0]}" "structure check application_imports_infrastructure apps/api/src/town/application/sendJob.ts 1:import"
 }
 
 fails_an_application_importing_infrastructure_by_subpath() {
   fresh_tree
-  plant apps/api/src/town/application/sendJob.ts "import { DrizzleTownRepository } from '#town/infrastructure/postgres/DrizzleTownRepository'\n"
+  plant apps/api/src/town/application/sendJob.ts "import { DrizzleTownRepository } from '#town/infrastructure/persistence/DrizzleTownRepository'\n"
   check
   expect_failure "${FUNCNAME[0]}" "structure check application_imports_infrastructure apps/api/src/town/application/sendJob.ts 1:import"
 }
@@ -114,9 +114,9 @@ passes_contracts_in_http_json_and_the_gate() {
 
 fails_persistence_knowing_http() {
   fresh_tree
-  plant apps/api/src/town/infrastructure/postgres/DrizzleTownRepository.ts "import { Hono } from 'hono'\n"
+  plant apps/api/src/town/infrastructure/persistence/DrizzleTownRepository.ts "import { Hono } from 'hono'\n"
   check
-  expect_failure "${FUNCNAME[0]}" "structure check persistence_knows_http apps/api/src/town/infrastructure/postgres/DrizzleTownRepository.ts 1:import"
+  expect_failure "${FUNCNAME[0]}" "structure check persistence_knows_http apps/api/src/town/infrastructure/persistence/DrizzleTownRepository.ts 1:import"
 }
 
 fails_http_knowing_the_database() {
@@ -242,9 +242,9 @@ passes_a_subpath_import_that_leaves_its_folder_or_the_root() {
 
 fails_an_api_file_importing_the_domain_fakes() {
   fresh_tree
-  plant apps/api/src/town/infrastructure/postgres/DrizzleTownRepository.ts "import { inMemoryTowns } from '@mygame/domain/testing'\n"
+  plant apps/api/src/town/infrastructure/persistence/DrizzleTownRepository.ts "import { inMemoryTowns } from '@mygame/domain/testing'\n"
   check
-  expect_failure "${FUNCNAME[0]}" "structure check production_imports_fakes apps/api/src/town/infrastructure/postgres/DrizzleTownRepository.ts 1:import"
+  expect_failure "${FUNCNAME[0]}" "structure check production_imports_fakes apps/api/src/town/infrastructure/persistence/DrizzleTownRepository.ts 1:import"
 }
 
 fails_a_domain_file_importing_a_fake() {

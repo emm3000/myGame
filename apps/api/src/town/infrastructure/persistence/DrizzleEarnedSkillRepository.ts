@@ -1,0 +1,49 @@
+import {
+  type DomainError,
+  type EarnedSkillRepository,
+  Instant,
+  ok,
+  type PlayerId,
+  type Result,
+  type TownSkill,
+} from '@mygame/domain'
+import { asc, eq, sql } from 'drizzle-orm'
+import type { PostgresSession } from '#platform/infrastructure/persistence/connectPostgres'
+import { earnedSkills } from './schoolTables'
+
+export class DrizzleEarnedSkillRepository implements EarnedSkillRepository {
+  constructor(private readonly database: PostgresSession) {}
+
+  async skillsOf(playerId: PlayerId): Promise<Result<ReadonlyArray<TownSkill>, DomainError>> {
+    const rows = await this.database
+      .select({
+        lessonId: earnedSkills.lessonId,
+        resource: earnedSkills.resource,
+        ratePercent: earnedSkills.ratePercent,
+        earnedAt: earnedSkills.earnedAt,
+      })
+      .from(earnedSkills)
+      .where(eq(earnedSkills.playerId, playerId))
+      .orderBy(asc(earnedSkills.earnedAt), sql`${earnedSkills.lessonId} COLLATE "C"`)
+    return ok(
+      rows.map((row) => ({
+        ...row,
+        earnedAt: Instant.fromEpochMilliseconds(row.earnedAt.getTime()),
+      })),
+    )
+  }
+
+  async save(playerId: PlayerId, skill: TownSkill): Promise<Result<void, DomainError>> {
+    await this.database
+      .insert(earnedSkills)
+      .values({
+        playerId,
+        lessonId: skill.lessonId,
+        resource: skill.resource,
+        ratePercent: skill.ratePercent,
+        earnedAt: new Date(skill.earnedAt.epochMilliseconds),
+      })
+      .onConflictDoNothing({ target: [earnedSkills.playerId, earnedSkills.lessonId] })
+    return ok(undefined)
+  }
+}
