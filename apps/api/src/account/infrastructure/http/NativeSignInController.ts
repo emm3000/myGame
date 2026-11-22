@@ -1,13 +1,13 @@
-import { createRoute, type OpenAPIHono } from '@hono/zod-openapi'
+import { createRoute } from '@hono/zod-openapi'
 import { SignInRequestSchema } from '@mygame/contracts'
+import type { SignIn } from '@mygame/domain'
+import type { Context } from 'hono'
 import { readJsonBody } from '#platform/infrastructure/http/readJsonBody'
 import { refusalResponse } from '#platform/infrastructure/http/refusalResponse'
 import { respondRefusal } from '#platform/infrastructure/http/respondRefusal'
 import { jsonBody, jsonResponse } from '#platform/infrastructure/http/responseDeclarations'
-import type { ReadChromePhaseDependencies } from '../../application/readChromePhase'
-import { type SignInDependencies, signIn } from '../../application/signIn'
 import { NativeSessionComponent, SignInRequestComponent } from './accountComponents'
-import { respondNativeSession } from './respondSignedIn'
+import { type RespondNativeSessionDependencies, respondNativeSession } from './respondSignedIn'
 
 export const nativeSignInDeclaration = createRoute({
   method: 'post',
@@ -22,18 +22,19 @@ export const nativeSignInDeclaration = createRoute({
   },
 })
 
-export type NativeSignInRouteDependencies = SignInDependencies & ReadChromePhaseDependencies
+export type NativeSignInControllerDependencies = RespondNativeSessionDependencies & {
+  readonly signIn: SignIn
+}
 
-export const nativeSignInRoute = (
-  routes: OpenAPIHono,
-  dependencies: NativeSignInRouteDependencies,
-): void => {
-  routes.openAPIRegistry.registerPath(nativeSignInDeclaration)
-  routes.on(nativeSignInDeclaration.method, nativeSignInDeclaration.path, async (c) => {
+export class NativeSignInController {
+  constructor(private readonly dependencies: NativeSignInControllerDependencies) {}
+
+  async handle(c: Context): Promise<Response> {
     const request = SignInRequestSchema.safeParse(await readJsonBody(c))
     if (!request.success) {
       return respondRefusal(c, { kind: 'InvalidCredentials' })
     }
-    return respondNativeSession(c, await signIn(request.data, dependencies), 200, dependencies)
-  })
+    const signedIn = await this.dependencies.signIn.execute(request.data)
+    return respondNativeSession(c, signedIn, 200, this.dependencies)
+  }
 }

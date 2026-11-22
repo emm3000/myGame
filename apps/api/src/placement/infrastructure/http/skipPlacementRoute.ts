@@ -1,6 +1,5 @@
 import { createRoute, type OpenAPIHono } from '@hono/zod-openapi'
-import { readPlacement, skipPlacement } from '@mygame/domain'
-import { readScaffold } from '#account/application/readScaffold'
+import { readPlacement, readScaffold, skipPlacement } from '@mygame/domain'
 import {
   type RequirePlayerDependencies,
   requirePlayer,

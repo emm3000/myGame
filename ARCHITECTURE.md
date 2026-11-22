@@ -28,7 +28,7 @@ One row for each folder directly under `apps/api/src` or `packages/domain/src`: 
 |---|---|---|
 | `platform` | api, domain | What holds no game word: the HTTP kernel, the Postgres kernel, the system clock and ids, the failure sink and the deferred work. In the domain, `platform/domain/` holds the ports no feature owns (`Clock`, `IdGenerator`, `RandomSource`, `UnitOfWork`, `FailureSink`, `AfterResponse`, `AfterResponseDrain`), `Refusal` and `thrownCauseOf`, and `platform/testing/` the fakes `firstItemsRandom`, `sequentialIds` and `inMemoryUnitOfWork`. |
 | `content` | api | The JSON catalogs of the town and the lessons, and the content gate: the checks the shipped content passes. |
-| `account` | api, domain | Players, sessions, account tokens and mail, the scaffold choice and the chrome phase. In the domain, `account/domain/` holds the ports (`Accounts`, `AccountTokens`, `Sessions`, `AccountStores`, `ChromeProgressReader`, `Mailer`, `MailCopy`, `PasswordHasher`, `SessionTokens`, `StoredScaffold`), the types `MailRecipient` and `SignedIn` and the pure rules `accountTokenExpiryFrom`, `sessionExpiryFrom` and `isRedeemableAgain`, and `account/testing/` the fakes `MemoryAccountTokens`, `MemoryChromeProgressReader` and `MemoryMailer`. |
+| `account` | api, domain | Players, sessions, account tokens and mail, the scaffold choice and the chrome phase. In the domain, `account/domain/` holds the ports (`Accounts`, `AccountTokens`, `Sessions`, `AccountStores`, `ChromeProgressReader`, `Mailer`, `MailCopy`, `PasswordHasher`, `SessionTokens`, `StoredScaffold`), the types `MailRecipient` and `SignedIn` and the pure rules `accountTokenExpiryFrom`, `sessionExpiryFrom` and `isRedeemableAgain`; `account/application/` the use-case classes `SignUp`, `SignIn`, `VerifyEmail`, `ResendVerificationMail`, `RequestPasswordReset`, `ResetPassword` and `ReadChromePhase` and their steps `issueAccountToken`, `openSession`, `sendVerificationMail` and `readScaffold`; and `account/testing/` the fakes `MemoryAccountTokens`, `MemoryChromeProgressReader` and `MemoryMailer`. |
 | `town` | api, domain | The holding: founding, resolve, the overview. In the domain, the root keeps the name, label and address (`TownName`, `townLabelOf`, `TownAddress`), the terrain and site (`Terrain`, `SiteAddress`), the people (`derivePeople`), the skills the player earns (`TownSkill`, `earnTownSkill`), the settings (`TownSettings`), Town News (`TownEvent`) and the season percents (`townSeasonAt`, `seasonPercentsAt`); the sub-areas are `resources` (stocks, storage, accrual), `building` (building work, the waiting list), `hiring` (orders and hires), `jobs` (jobs, clean-ups, waste, the region map), `school` (the lesson slot and its lessons) and `guidance` (the next step, the goal, tips). In the api, `news` resolves Town News. |
 | `learning` | api, domain | Reviews, hints, frames, retention and the curriculum's shape; in the domain, the lesson and the held card at its root and the sub-areas `reviews` (pending reviews, grading, due cards), `frames` (word frames and texts), `retention` (retained and stable words, skill levels), `curriculum` (the bands, their words and headwords) and `scaffold` (support text, glosses, the chrome phase). |
 | `holdout` | api, domain | Band starts and the draw of their held-out words, their holdout checks and released lessons. |
@@ -51,6 +51,8 @@ jobPayOf.ts  isLessonRetained.ts  camelCase: a pure, synchronous function
 useCases/     one file per thing a player or the clock can ask: reads ports, returns a Promise of Result
 services/     a port-reading step two or more use cases share; never exported from index.ts
 ports/        the interfaces the outside implements
+domain/       in a moved feature (ADR 054): its types, pure rules and ports
+application/  in a moved feature: its use-case classes (`SignUp.ts`) and the steps they call (`issueAccountToken.ts`)
 testing/      the feature's in-memory ports and fixtures
 <subArea>/    the same grammar again
 ```
@@ -61,6 +63,7 @@ A domain file lives in the sub-area whose word it names in the "What it is" colu
 
 ```
 index.ts  listen.ts  app.ts  composeServer.ts  composeStores.ts    the composition root, the only place that constructs an adapter
+composeUseCases.ts                                                the composition root's use cases, the only place that constructs one
 listenPortOf.ts  writeOpenApiDocument.ts                          the api's own entry helpers; no other source file
 <feature>/
   application/                 the use cases the api owns
@@ -92,8 +95,10 @@ listenPortOf.ts  writeOpenApiDocument.ts                          the api's own 
 | Api use case | `application/` | verb phrase, never a domain export's name | `serveReport.ts` |
 | Api type or pure rule | `application/` | noun, or `*From`, `is*` | `TownReading.ts`, `accountTokenExpiryFrom.ts` |
 | View or verdict gatherer | `application/` | `gather` + view or verdict | `gatherTownView.ts` |
-| Endpoint | `infrastructure/http/` | use case + `Route` | `sendJobRoute.ts` |
-| Route list | `infrastructure/http/` | area + `Routes` | `jobsRoutes.ts` |
+| Use case | domain `<feature>/application/` | verb phrase, PascalCase, a class with `execute` | `SignUp.ts` |
+| Step | domain `<feature>/application/` | verb phrase, camelCase, a function a use case calls | `issueAccountToken.ts` |
+| Endpoint | `infrastructure/http/` | use case + `Route`; in a moved feature, use case + `Controller`, a class with `handle` | `sendJobRoute.ts`, `SignUpController.ts` |
+| Route list | `infrastructure/http/` | area + `Routes`; it builds its controllers and its `requirePlayer` once | `jobsRoutes.ts`, `sessionRoutes.ts` |
 | Wire declarations, request helper | `infrastructure/http/` | feature + `Components` or `Declarations`; a verb or noun | `townComponents.ts`, `requirePlayer.ts` |
 | Responder | `infrastructure/http/` | `respond` + what it turns into a response | `respondTownChange.ts` |
 | Presenter | `infrastructure/http/` | `present` + wire noun | `presentTownOverview.ts` |
@@ -121,7 +126,7 @@ A route's cases sit in one test beside its area's route list, `<area>Routes.test
 ## Where a new thing goes
 
 1. Does it decide a game rule, or coordinate more than one domain port? A domain use case, in `packages/domain/src/<feature>/useCases/`.
-2. Does it only place a domain use case in a transaction, gather what one response needs, or belong to the account? An api use case, in `apps/api/src/<feature>/application/`.
+2. Does it only place a domain use case in a transaction or gather what one response needs? An api use case, in `apps/api/src/<feature>/application/`. In a moved feature, the account among them, what an endpoint asks is a use-case class in `packages/domain/src/<feature>/application/`, built in `composeUseCases.ts`.
 
 A new refusal adds, in order: its member of `DomainError` (`packages/domain/src/DomainError.ts`) or of `Refusal` (`packages/domain/src/platform/domain/Refusal.ts`), its status in `respondRefusal.ts`, its `ApiErrorKind` in `packages/contracts/src/platform/ApiErrorKind.ts`, and its `refusal.<Kind>` key in `en.json` and `es.json` of `packages/catalog`. A new domain or contracts file adds its export to that package's `src/index.ts`. A new persistence adapter adds, in order: its port, its Drizzle adapter and its table in `*Tables.ts` with a migration from `db:generate`, its in-memory adapter and contract suite, its field in `AccountStores.ts`, `TownStores.ts` or `LearnerStores.ts` under `application/ports/`, and its line in `composeStores.ts`. A pass-through earns no file: the route calls the store. A port lives with its user: in the domain when a domain use case reads it, otherwise in the leftmost api feature that reads it. A new endpoint adds, in order: its schema in `packages/contracts`, its use case if it earns one, its `*Route.ts` with its test, its line in the area's `*Routes.ts`, and a new `openapi.json` from `openapi:write`.
 

@@ -7,9 +7,9 @@ import {
   placedOutBandsOf,
   placementScoresOf,
   type Result,
+  readScaffold,
   type Scaffold,
 } from '@mygame/domain'
-import { readScaffold } from '#account/application/readScaffold'
 import type { LearnerStores } from './ports/LearnerStores'
 
 export type Learner = {

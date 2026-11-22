@@ -1,10 +1,11 @@
-import { createRoute, type OpenAPIHono } from '@hono/zod-openapi'
+import { createRoute } from '@hono/zod-openapi'
 import { VerifyEmailRequestSchema } from '@mygame/contracts'
+import type { VerifyEmail } from '@mygame/domain'
+import type { Context } from 'hono'
 import { readJsonBody } from '#platform/infrastructure/http/readJsonBody'
 import { refusalResponse } from '#platform/infrastructure/http/refusalResponse'
 import { respondRefusal } from '#platform/infrastructure/http/respondRefusal'
 import { jsonBody } from '#platform/infrastructure/http/responseDeclarations'
-import { type VerifyEmailDependencies, verifyEmail } from '../../application/verifyEmail'
 import { respondDone } from './respondDone'
 
 export const verifyEmailDeclaration = createRoute({
@@ -20,16 +21,18 @@ export const verifyEmailDeclaration = createRoute({
   },
 })
 
-export const verifyEmailRoute = (
-  routes: OpenAPIHono,
-  dependencies: VerifyEmailDependencies,
-): void => {
-  routes.openAPIRegistry.registerPath(verifyEmailDeclaration)
-  routes.on(verifyEmailDeclaration.method, verifyEmailDeclaration.path, async (c) => {
+export type VerifyEmailControllerDependencies = {
+  readonly verifyEmail: VerifyEmail
+}
+
+export class VerifyEmailController {
+  constructor(private readonly dependencies: VerifyEmailControllerDependencies) {}
+
+  async handle(c: Context): Promise<Response> {
     const request = VerifyEmailRequestSchema.safeParse(await readJsonBody(c))
     if (!request.success) {
       return respondRefusal(c, { kind: 'MalformedRequest' })
     }
-    return respondDone(c, await verifyEmail(request.data, dependencies))
-  })
+    return respondDone(c, await this.dependencies.verifyEmail.execute(request.data))
+  }
 }

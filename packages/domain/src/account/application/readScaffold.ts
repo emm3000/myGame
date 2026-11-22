@@ -1,4 +1,6 @@
-import type { Accounts, PlayerId, Scaffold } from '@mygame/domain'
+import type { Scaffold } from '#learning/scaffold/Scaffold'
+import type { PlayerId } from '#player/PlayerId'
+import type { Accounts } from '../domain/Accounts'
 
 export const readScaffold = async (
   playerId: PlayerId,

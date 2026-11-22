@@ -7,8 +7,8 @@ import {
   type PlayerId,
   type Result,
   readHoldoutChecks,
+  readScaffold,
 } from '@mygame/domain'
-import { readScaffold } from '#account/application/readScaffold'
 import type { LearningDependencies } from '#learning/application/LearningDependencies'
 import { mutateTown } from '#town/application/mutateTown'
 import type { TownStores } from '#town/application/ports/TownStores'

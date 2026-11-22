@@ -1,16 +1,16 @@
 import type { NativeSession } from '@mygame/contracts'
-import type { Refusal, Result, SignedIn } from '@mygame/domain'
+import type { ReadChromePhase, Refusal, Result, SignedIn } from '@mygame/domain'
 import type { Context } from 'hono'
 import type { ContentfulStatusCode } from 'hono/utils/http-status'
 import { respondRefusal } from '#platform/infrastructure/http/respondRefusal'
-import {
-  type ReadChromePhaseDependencies,
-  readChromePhase,
-} from '../../application/readChromePhase'
 import { presentPlayer } from './presentPlayer'
 import { writeSessionCookie } from './sessionCookie'
 
-export type RespondSignedInDependencies = ReadChromePhaseDependencies & {
+export type RespondNativeSessionDependencies = {
+  readonly readChromePhase: ReadChromePhase
+}
+
+export type RespondSignedInDependencies = RespondNativeSessionDependencies & {
   readonly isSessionCookieSecure: boolean
 }
 
@@ -27,7 +27,7 @@ export const respondSignedIn = async (
   return c.json(
     presentPlayer(
       signedIn.value.player,
-      await readChromePhase(signedIn.value.player, dependencies),
+      await dependencies.readChromePhase.execute(signedIn.value.player),
     ),
     status,
   )
@@ -37,7 +37,7 @@ export const respondNativeSession = async (
   c: Context,
   signedIn: Result<SignedIn, Refusal>,
   status: ContentfulStatusCode,
-  dependencies: ReadChromePhaseDependencies,
+  dependencies: RespondNativeSessionDependencies,
 ): Promise<Response> => {
   if (!signedIn.ok) {
     return respondRefusal(c, signedIn.error)
@@ -46,7 +46,7 @@ export const respondNativeSession = async (
     token: signedIn.value.session.token,
     player: presentPlayer(
       signedIn.value.player,
-      await readChromePhase(signedIn.value.player, dependencies),
+      await dependencies.readChromePhase.execute(signedIn.value.player),
     ),
   }
   return c.json(nativeSession, status)

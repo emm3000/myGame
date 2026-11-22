@@ -47,6 +47,8 @@ None. No JSDoc, no `//`, no `/* */`, no commented-out code, no section banners. 
 | Value object | noun, immutable | `Duration`, `SiteAddress`, `TownName` |
 | Domain use case | verb phrase | `startBuildingWork`, `settleSchoolLesson` |
 | Api use case | verb phrase, never a domain export's name | `resolveCurrentTown`, `serveReport` |
+| Use case | verb phrase in PascalCase, a class in `packages/domain/src/<feature>/application/` with one `dependencies` constructor parameter and one `execute` | `SignUp`, `RequestPasswordReset` |
+| Step | verb phrase, a function in `<feature>/application/` that a use case calls with the ports it reads; never exported from `index.ts` | `issueAccountToken`, `openSession` |
 | Endpoint | use case + `Route` | `sendJobRoute` |
 | Controller | use case + `Controller`, a class | `HealthController` |
 | Route list | area + `Routes` | `jobsRoutes` |

@@ -1,6 +1,5 @@
 import { createRoute, type OpenAPIHono } from '@hono/zod-openapi'
-import { readHoldoutChecks } from '@mygame/domain'
-import { readScaffold } from '#account/application/readScaffold'
+import { readHoldoutChecks, readScaffold } from '@mygame/domain'
 import {
   type RequirePlayerDependencies,
   requirePlayer,

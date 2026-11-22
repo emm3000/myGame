@@ -1,11 +1,8 @@
-import {
-  type Clock,
-  type PlayerId,
-  type Session,
-  type Sessions,
-  type SessionTokens,
-  sessionExpiryFrom,
-} from '@mygame/domain'
+import type { Clock } from '#platform/domain/Clock'
+import type { PlayerId } from '#player/PlayerId'
+import type { Session, Sessions } from '../domain/Sessions'
+import type { SessionTokens } from '../domain/SessionTokens'
+import { sessionExpiryFrom } from '../domain/sessionExpiryFrom'
 
 export type OpenSessionDependencies = {
   readonly sessions: Sessions
