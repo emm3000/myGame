@@ -23,13 +23,14 @@ townRepositoryContract('DrizzleTownRepository', async () => {
 })
 
 const ana: PlayerId = '00000000-0000-4000-8000-000000000001'
+const anasTownId = '00000000-0000-4000-8000-00000000000a'
 
 const anasTown = (): Town => {
   const address = TownAddress.create(1, 1, 1)
   const name = TownName.create('Town a')
   assert(address.ok && name.ok)
   return Town.found({
-    id: '00000000-0000-4000-8000-00000000000a',
+    id: anasTownId,
     playerId: ana,
     name: name.value,
     address: address.value,
@@ -81,7 +82,7 @@ describe('DrizzleTownRepository read lockedForUpdate', () => {
       firstHoldsTheTown.resolve()
       await firstMayCommit.promise
     })
-    await firstHoldsTheTown.promise
+    await Promise.race([firstHoldsTheTown.promise, firstRead])
     let secondTown: Town | undefined
     const secondRead = database.transaction(async (transaction) => {
       const read = await new DrizzleTownRepository(transaction, 'lockedForUpdate').townOf(ana)
@@ -96,6 +97,6 @@ describe('DrizzleTownRepository read lockedForUpdate', () => {
     }
     await Promise.all([firstRead, secondRead])
     expect(outcome).toBe('waitedOnTheTownLock')
-    expect(secondTown?.id).toBe('00000000-0000-4000-8000-00000000000a')
+    expect(secondTown?.id).toBe(anasTownId)
   })
 })
