@@ -7,7 +7,7 @@ import { refusalResponse } from '#platform/infrastructure/http/refusalResponse'
 import { respondRefusal } from '#platform/infrastructure/http/respondRefusal'
 import { jsonBody, jsonResponse } from '#platform/infrastructure/http/responseDeclarations'
 import { NativeSessionComponent, SignInRequestComponent } from './accountComponents'
-import { type RespondNativeSessionDependencies, respondNativeSession } from './respondSignedIn'
+import { type RespondNativeSessionDependencies, respondNativeSession } from './respondNativeSession'
 
 export const nativeSignInDeclaration = createRoute({
   method: 'post',
