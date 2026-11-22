@@ -146,6 +146,9 @@ why.
 
 #### The feature graph is the api's
 
+Amended by ADR 055: the order also binds the `application/` folders of
+the domain package.
+
 Inside `apps/api/src` the features form a graph with no cycle, written
 here and checked:
 

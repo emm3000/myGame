@@ -1018,6 +1018,8 @@ binds them, and on trunk one line of a use case or service crosses a
 feature, `answerReview.ts:16` reading the town's `saveChangedTown`,
 which runs with the graph.
 
+Amended by ADR 055.
+
 ### 13. The rule and doc edits
 
 Named here, not applied. A sentence that states a rule lands in step

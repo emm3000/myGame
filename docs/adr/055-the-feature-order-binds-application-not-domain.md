@@ -1,5 +1,5 @@
 ---
-status: proposed
+status: accepted
 date: 2026-11-22
 ---
 # The feature order binds `application/`, not `domain/`
