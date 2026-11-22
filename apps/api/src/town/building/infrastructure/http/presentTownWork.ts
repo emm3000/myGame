@@ -1,41 +1,30 @@
 import type { TownOverview } from '@mygame/contracts'
 import {
+  type BusyWorkSlot,
   type DomainError,
-  Duration,
-  type Instant,
   ok,
   type Result,
   type Town,
   type TownCatalog,
-  type WaitingList,
+  waitingListScheduleOf,
 } from '@mygame/domain'
 import { isoOf } from '#platform/infrastructure/http/isoOf'
 
 type BuildingWork = TownOverview['work']['waitingList'][number]
 
-const scheduledWaitingListOf = (
-  slotFinishesAt: Instant,
-  waitingList: WaitingList,
-): Result<Array<BuildingWork>, DomainError> => {
-  const scheduled: Array<BuildingWork> = []
-  let startsAt = slotFinishesAt
-  for (const { building, level, cost, durationSeconds } of waitingList) {
-    const duration = Duration.ofSeconds(durationSeconds)
-    if (!duration.ok) {
-      return duration
-    }
-    const finishesAt = startsAt.plus(duration.value)
-    scheduled.push({
-      building,
-      level,
-      cost: { ...cost },
-      startsAt: isoOf(startsAt),
-      finishesAt: isoOf(finishesAt),
-    })
-    startsAt = finishesAt
-  }
-  return ok(scheduled)
-}
+const buildingWorkOf = ({
+  building,
+  level,
+  cost,
+  startedAt,
+  finishesAt,
+}: BusyWorkSlot): BuildingWork => ({
+  building,
+  level,
+  cost: { ...cost },
+  startsAt: isoOf(startedAt),
+  finishesAt: isoOf(finishesAt),
+})
 
 export const presentTownWork = (
   town: Town,
@@ -46,20 +35,9 @@ export const presentTownWork = (
   if (slot.kind === 'idle') {
     return ok({ slot: null, waitingList: [], cap })
   }
-  const { building, level, cost, startedAt, finishesAt } = slot
-  const waitingList = scheduledWaitingListOf(finishesAt, town.waitingList)
-  if (!waitingList.ok) {
-    return waitingList
+  const schedule = waitingListScheduleOf(slot, town.waitingList)
+  if (!schedule.ok) {
+    return schedule
   }
-  return ok({
-    slot: {
-      building,
-      level,
-      cost: { ...cost },
-      startsAt: isoOf(startedAt),
-      finishesAt: isoOf(finishesAt),
-    },
-    waitingList: waitingList.value,
-    cap,
-  })
+  return ok({ slot: buildingWorkOf(slot), waitingList: schedule.value.map(buildingWorkOf), cap })
 }
