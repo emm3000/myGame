@@ -1,4 +1,4 @@
-import type { FrameReader } from './FrameReader'
+import type { FrameReader } from './FrameLearner'
 import type { FrameSpans } from './FrameSpan'
 import { frameSpansOf, withholdingNothing } from './frameSpansOf'
 import type { TextCatalog } from './ports/TextCatalog'

@@ -1,5 +1,5 @@
 import type { MemoryCard } from '#memory/MemoryCard'
-import type { FrameReader } from '../frames/FrameReader'
+import type { FrameReader } from '../frames/FrameLearner'
 import type { FrameSpans } from '../frames/FrameSpan'
 import { frameSpansOf } from '../frames/frameSpansOf'
 import { glossOf } from '../scaffold/glossOf'

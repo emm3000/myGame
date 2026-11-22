@@ -3,7 +3,7 @@ import { inMemoryBands } from '../curriculum/testing/inMemoryBands'
 import { inMemoryLessons } from '../curriculum/testing/inMemoryLessons'
 import { lessonOne } from '../curriculum/testing/lessonOne'
 import { townLessonTwo } from '../curriculum/testing/townLessonTwo'
-import type { FrameReader } from './FrameReader'
+import type { FrameReader } from './FrameLearner'
 import { readingFrameOf } from './readingFrameOf'
 import { inMemoryFrames } from './testing/inMemoryFrames'
 
