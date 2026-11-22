@@ -1,8 +1,7 @@
-import { MemoryEarnedSkillRepository } from './MemoryEarnedSkillRepository'
-import { MemoryTownRepository } from './MemoryTownRepository'
+import { inMemoryEarnedSkills, inMemoryTowns } from '@mygame/domain/testing'
 import { townRepositoryContract } from './townRepositoryContract.testSupport'
 
-townRepositoryContract('MemoryTownRepository', async () => {
-  const skills = new MemoryEarnedSkillRepository()
-  return { towns: new MemoryTownRepository(skills), skills, registerPlayers: async () => {} }
+townRepositoryContract('inMemoryTowns', async () => {
+  const skills = inMemoryEarnedSkills([])
+  return { towns: inMemoryTowns([], skills), skills, registerPlayers: async () => {} }
 })

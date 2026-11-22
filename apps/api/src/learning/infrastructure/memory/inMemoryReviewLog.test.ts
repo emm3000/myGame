@@ -1,14 +1,15 @@
-import { MemoryReviewLog } from './MemoryReviewLog'
+import { inMemoryReviewLog } from '@mygame/domain/testing'
 import { reviewLogContract } from './reviewLogContract.testSupport'
 
-reviewLogContract('MemoryReviewLog', async () => {
-  const reviewLog = new MemoryReviewLog()
+reviewLogContract('inMemoryReviewLog', async () => {
+  const reviewLog = inMemoryReviewLog()
   return {
     reviewLog,
     registerPlayers: async () => {},
     logBeforeTheShownFrame: async (entry) => {
       await reviewLog.append({ ...entry, shownFrame: null })
     },
-    loggedEntriesOf: async (playerId) => reviewLog.entriesOf(playerId),
+    loggedEntriesOf: async (playerId) =>
+      reviewLog.entries().filter((entry) => entry.playerId === playerId),
   }
 })

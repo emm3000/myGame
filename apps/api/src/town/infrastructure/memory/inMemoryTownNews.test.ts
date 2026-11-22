@@ -1,13 +1,13 @@
-import { MemoryTownNews } from './MemoryTownNews'
+import { inMemoryTownNews } from '@mygame/domain/testing'
+import { MemoryTownNewsReader } from './MemoryTownNewsReader'
 import { townNewsContract } from './townNewsContract.testSupport'
 
-townNewsContract('MemoryTownNews', async () => {
-  const news = new MemoryTownNews()
+townNewsContract('inMemoryTownNews', async () => {
+  const news = inMemoryTownNews()
   return {
     news,
+    reader: new MemoryTownNewsReader((townId) => news.recordedEventsOf(townId)),
     registerTowns: async () => {},
-    recordThenRollBack: async (townId, events) => {
-      await news.draft().record(townId, events)
-    },
+    recordThenRollBack: async () => {},
   }
 })

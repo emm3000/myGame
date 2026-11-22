@@ -1,7 +1,7 @@
+import { inMemoryLessonSlots } from '@mygame/domain/testing'
 import { lessonSlotRepositoryContract } from './lessonSlotRepositoryContract.testSupport'
-import { MemoryLessonSlotRepository } from './MemoryLessonSlotRepository'
 
-lessonSlotRepositoryContract('MemoryLessonSlotRepository', async () => ({
-  lessonSlots: new MemoryLessonSlotRepository(),
+lessonSlotRepositoryContract('inMemoryLessonSlots', async () => ({
+  lessonSlots: inMemoryLessonSlots([]),
   registerTowns: async () => {},
 }))

@@ -1,7 +1,7 @@
+import { inMemoryCards } from '@mygame/domain/testing'
 import { cardRepositoryContract } from './cardRepositoryContract.testSupport'
-import { MemoryCardRepository } from './MemoryCardRepository'
 
-cardRepositoryContract('MemoryCardRepository', async () => ({
-  cards: new MemoryCardRepository(),
+cardRepositoryContract('inMemoryCards', async () => ({
+  cards: inMemoryCards([]),
   registerPlayers: async () => {},
 }))
