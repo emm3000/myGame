@@ -24,7 +24,6 @@ file_outside_layer packages/domain/src/placement/ports
 file_outside_layer packages/domain/src/placement/services
 file_outside_layer packages/domain/src/placement/useCases
 file_outside_layer packages/domain/src/town/guidance
-file_outside_layer packages/domain/src/town/hiring/useCases
 file_outside_layer packages/domain/src/town/resources
 file_outside_layer packages/domain/src/town/school
 file_outside_layer packages/domain/src/town/school/ports
@@ -45,7 +44,6 @@ role_folder packages/domain/src/learning/reviews/useCases
 role_folder packages/domain/src/placement/ports
 role_folder packages/domain/src/placement/services
 role_folder packages/domain/src/placement/useCases
-role_folder packages/domain/src/town/hiring/useCases
 role_folder packages/domain/src/town/school/ports
 role_folder packages/domain/src/town/school/services
 role_folder packages/domain/src/town/school/useCases
@@ -67,8 +65,6 @@ route_file apps/api/src/report/infrastructure/http/closeReportRoute.ts
 route_file apps/api/src/report/infrastructure/http/serveReportRoute.ts
 route_file apps/api/src/town/guidance/infrastructure/http/dismissGuidanceRoute.ts
 route_file apps/api/src/town/guidance/infrastructure/http/markTipSeenRoute.ts
-route_file apps/api/src/town/hiring/infrastructure/http/placeHiringOrderRoute.ts
-route_file apps/api/src/town/hiring/infrastructure/http/stopHiringOrderRoute.ts
 route_file apps/api/src/town/news/infrastructure/http/resolveTownNewsRoute.test.ts
 route_file apps/api/src/town/news/infrastructure/http/resolveTownNewsRoute.ts
 route_file apps/api/src/town/school/infrastructure/http/startSchoolLessonRoute.ts

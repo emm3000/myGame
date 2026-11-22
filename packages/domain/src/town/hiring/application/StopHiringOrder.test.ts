@@ -1,16 +1,23 @@
 import { assert, describe, expect, it } from 'vitest'
+import { signedUpAccountsOf } from '#account/testing/signedUpAccountsOf'
+import { inMemoryBands } from '#learning/curriculum/testing/inMemoryBands'
+import { inMemoryLessons } from '#learning/curriculum/testing/inMemoryLessons'
 import type { Clock } from '#platform/domain/Clock'
+import { inMemoryUnitOfWork } from '#platform/testing/inMemoryUnitOfWork'
 import { Instant } from '#time/Instant'
 import { resolveTown } from '../../application/resolveTown'
 import { derivePeople } from '../../domain/derivePeople'
+import type { TownCatalog } from '../../domain/TownCatalog'
+import type { TownStores } from '../../domain/TownStores'
 import { inMemoryEarnedSkills } from '../../testing/inMemoryEarnedSkills'
-import { inMemoryTownNews } from '../../testing/inMemoryTownNews'
+import { type InMemoryTownNews, inMemoryTownNews } from '../../testing/inMemoryTownNews'
+import { inMemoryTownStores, townNewsOver } from '../../testing/inMemoryTownStores'
 import { inMemoryTowns } from '../../testing/inMemoryTowns'
 import { plainTownSettings, townCatalogOf } from '../../testing/townCatalogOf'
 import { townOf } from '../../testing/townFixtures'
 import type { HiringOrder } from '../domain/HiringOrder'
-import { placeHiringOrder } from './placeHiringOrder'
-import { stopHiringOrder } from './stopHiringOrder'
+import { PlaceHiringOrder } from './PlaceHiringOrder'
+import { StopHiringOrder, type StopHiringOrderCommand } from './StopHiringOrder'
 
 const MILLISECONDS_PER_MINUTE = 60_000
 
@@ -45,12 +52,39 @@ const hiringTown = (): ReturnType<typeof townOf> =>
     hiringSlot: fiveWorkers,
   })
 
+const noLessons = { ...inMemoryLessons([], []), ...inMemoryBands([]) }
+
+type HiringFixture = {
+  readonly towns: ReturnType<typeof inMemoryTowns>
+  readonly news: InMemoryTownNews
+  readonly catalog: TownCatalog
+  readonly clock: Clock
+}
+
+const storesOf = ({ towns, news }: HiringFixture): TownStores =>
+  inMemoryTownStores({
+    accounts: signedUpAccountsOf(['player-1']),
+    towns,
+    townNews: townNewsOver(news),
+  })
+
+const stopOrder = (
+  command: StopHiringOrderCommand,
+  fixture: HiringFixture,
+): ReturnType<StopHiringOrder['execute']> =>
+  new StopHiringOrder({
+    unitOfWork: inMemoryUnitOfWork(storesOf(fixture)),
+    townCatalog: fixture.catalog,
+    lessons: noLessons,
+    clock: fixture.clock,
+  }).execute(command)
+
 const stopAt = (
   at: Instant,
   town: ReturnType<typeof townOf>,
   startedAt: Instant = storedAt,
-): ReturnType<typeof stopHiringOrder> =>
-  stopHiringOrder(
+): ReturnType<StopHiringOrder['execute']> =>
+  stopOrder(
     { playerId: town.playerId, hire: 'worker', startedAt },
     {
       towns: inMemoryTowns([town], inMemoryEarnedSkills([])),
@@ -60,7 +94,7 @@ const stopAt = (
     },
   )
 
-describe('stopHiringOrder', () => {
+describe('StopHiringOrder', () => {
   it('keeps the delivered hires at a stop and refunds the rest in full', async () => {
     const stopped = await stopAt(minutesAfterEpoch(62.5), hiringTown())
 
@@ -113,10 +147,15 @@ describe('stopHiringOrder', () => {
     const deliveredAt = minutesAfterEpoch(65)
     const dependencies = { towns, news, catalog, clock: frozenClock(minutesAfterEpoch(66)) }
     await resolveTown(town.playerId, dependencies)
-    await placeHiringOrder({ playerId: town.playerId, hire: 'worker', count: 3 }, dependencies)
+    await new PlaceHiringOrder({
+      unitOfWork: inMemoryUnitOfWork(storesOf(dependencies)),
+      townCatalog: catalog,
+      lessons: noLessons,
+      clock: dependencies.clock,
+    }).execute({ playerId: town.playerId, hire: 'worker', count: 3 })
     const stopAtMinute = minutesAfterEpoch(67)
 
-    await stopHiringOrder(
+    await stopOrder(
       { playerId: town.playerId, hire: 'worker', startedAt: minutesAfterEpoch(66) },
       { ...dependencies, clock: frozenClock(stopAtMinute) },
     )
