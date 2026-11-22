@@ -385,9 +385,29 @@ fails_a_role_folder_in_the_domain() {
   plant packages/domain/src/learning/ports/CardRepository.ts "export interface CardRepository {}\n"
   plant ARCHITECTURE.md "| Folder | What |\n|---|---|\n| \`town\` | the holding |\n| \`learning\` | the cards and reviews |\n"
   check
-  expect_failure "${FUNCNAME[0]}" "structure check file_outside_layer packages/domain/src/learning/reviews/useCases" &&
-    expect_failure "${FUNCNAME[0]}" "structure check file_outside_layer packages/domain/src/learning/services" &&
-    expect_failure "${FUNCNAME[0]}" "structure check file_outside_layer packages/domain/src/learning/ports"
+  expect_failure "${FUNCNAME[0]}" "structure check role_folder packages/domain/src/learning/reviews/useCases" &&
+    expect_failure "${FUNCNAME[0]}" "structure check role_folder packages/domain/src/learning/services" &&
+    expect_failure "${FUNCNAME[0]}" "structure check role_folder packages/domain/src/learning/ports"
+}
+
+fails_a_role_folder_in_a_kernel_folder() {
+  fresh_tree
+  plant packages/domain/src/player/useCases/namePlayer.ts "export const namePlayer = 1\n"
+  plant packages/domain/src/player/services/admitPlayer.ts "export const admitPlayer = 1\n"
+  plant packages/domain/src/time/ports/Calendar.ts "export interface Calendar {}\n"
+  plant packages/domain/src/grid/useCases/plantHOf.ts "export const plantHOf = 1\n"
+  check
+  expect_failure "${FUNCNAME[0]}" "structure check role_folder packages/domain/src/player/useCases" &&
+    expect_failure "${FUNCNAME[0]}" "structure check role_folder packages/domain/src/player/services" &&
+    expect_failure "${FUNCNAME[0]}" "structure check role_folder packages/domain/src/time/ports" &&
+    expect_failure "${FUNCNAME[0]}" "structure check role_folder packages/domain/src/grid/useCases"
+}
+
+fails_a_role_folder_above_a_layer_folder() {
+  fresh_tree
+  plant packages/domain/src/town/services/domain/plant.ts "export const plant = 1\n"
+  check
+  expect_failure "${FUNCNAME[0]}" "structure check role_folder packages/domain/src/town/services"
 }
 
 fails_a_role_folder_in_the_api() {
@@ -643,6 +663,8 @@ run fails_a_public_step
 run passes_a_public_use_case
 run fails_a_layer_folder_in_the_api
 run fails_a_role_folder_in_the_domain
+run fails_a_role_folder_in_a_kernel_folder
+run fails_a_role_folder_above_a_layer_folder
 run fails_a_role_folder_in_the_api
 run fails_a_feature_file_outside_its_layers
 run passes_files_in_the_layers_the_kernel_and_the_root

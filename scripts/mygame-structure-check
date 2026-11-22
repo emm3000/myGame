@@ -77,7 +77,7 @@ api_holds_layer() {
 }
 
 role_folder() {
-  folders_named 'postgres|memory' "$api"
+  folders_named 'useCases|services|ports' "$domain" && folders_named 'postgres|memory' "$api"
 }
 
 file_outside_layer() {
