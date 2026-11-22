@@ -4,6 +4,7 @@ import { holdsLessonCards } from '#learning/holdsLessonCards'
 import { cardsInLearningOf } from '#learning/retention/cardsInLearningOf'
 import { err, ok, type Result } from '#Result'
 import type { TownCatalog } from '../ports/TownCatalog'
+import { isLessonUnderStudy } from './isLessonUnderStudy'
 import type { LessonSlot } from './LessonSlot'
 import type { SchoolLesson } from './SchoolLesson'
 import type { SchoolLevel } from './SchoolLevel'
@@ -54,12 +55,11 @@ export const admitSchoolLesson = (
   if (holdsLessonCards(lesson, cards)) {
     return err({ kind: 'LessonAlreadyStudied', lessonId: lesson.id })
   }
+  if (isLessonUnderStudy(lesson, slot)) {
+    return err({ kind: 'LessonUnderStudy', lessonId: lesson.id })
+  }
   if (slot.kind === 'busy') {
-    return err(
-      slot.lessonId === lesson.id
-        ? { kind: 'LessonUnderStudy', lessonId: lesson.id }
-        : { kind: 'StudySlotBusy' },
-    )
+    return err({ kind: 'StudySlotBusy' })
   }
   if (schoolLevel < lesson.requiredSchoolLevel) {
     return err({

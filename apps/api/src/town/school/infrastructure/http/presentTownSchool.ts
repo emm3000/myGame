@@ -14,6 +14,7 @@ import {
   heldCardsOf,
   heldOutWordsAt,
   isLessonPlacedOut,
+  isLessonUnderStudy,
   type LessonSlot,
   type LessonWord,
   type MemoryTerms,
@@ -115,7 +116,7 @@ const lessonWordsOf = (
   lessons: LessonLibrary,
 ): Pick<LessonState, 'isStudied' | 'words' | 'enteringWordCount'> => {
   const { heldCards, heldOutWords, lessonSlot, placedOutBands, scaffold } = learner
-  const isRunning = lessonSlot.kind === 'busy' && lessonSlot.lessonId === lesson.id
+  const isRunning = isLessonUnderStudy(lesson, lessonSlot)
   const readable = readableWordsOf(lesson, heldOutWords, heldCards, isRunning)
   const entering = wordsEnteringOf(lesson, heldOutWords)
   const isPlacedOut = isLessonPlacedOut(lesson, placedOutBands, lessons)
