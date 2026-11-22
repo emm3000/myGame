@@ -244,7 +244,7 @@ describe('the frames the content resolves', () => {
   it('keeps a neighbour support holding no form of the answer on a recall', () => {
     expect(supportOf(recallOf('word-109', '____ your name on the list.'), 'name')).toEqual({
       shown: 'beside',
-      text: 'the word you call a person or thing',
+      text: 'the word you call a person or thing by',
       language: 'en',
     })
   })
