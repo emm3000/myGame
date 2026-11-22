@@ -30,7 +30,16 @@ type SignedUp = SignedIn & {
 
 export const signUp = async (
   request: { readonly email: string; readonly password: string; readonly scaffold: Scaffold },
-  { unitOfWork, clock, ids, passwords, sessionTokens, mailer, webUrl }: SignUpDependencies,
+  {
+    unitOfWork,
+    clock,
+    ids,
+    passwords,
+    sessionTokens,
+    mailer,
+    mailCopy,
+    webUrl,
+  }: SignUpDependencies,
 ): Promise<Result<SignedIn, Refusal>> => {
   const passwordHash = await passwords.hashOf(request.password)
   const signedUp = await unitOfWork.transact<SignedUp, Refusal>(
@@ -59,6 +68,6 @@ export const signUp = async (
     return signedUp
   }
   const { player, session, verifyToken } = signedUp.value
-  await sendVerificationMail(player, verifyToken, { mailer, webUrl })
+  await sendVerificationMail(player, verifyToken, { mailer, mailCopy, webUrl })
   return ok({ player, session })
 }

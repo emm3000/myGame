@@ -8,8 +8,8 @@ import {
 } from '@mygame/domain'
 import { issueAccountToken } from './issueAccountToken'
 import type { MailRecipient } from './MailRecipient'
-import { pickFixedCopy } from './pickFixedCopy'
 import type { AccountStores } from './ports/AccountStores'
+import type { MailCopy } from './ports/MailCopy'
 import type { MailDelivery, Mailer } from './ports/Mailer'
 import type { SessionTokens } from './ports/SessionTokens'
 
@@ -18,6 +18,7 @@ export type RequestPasswordResetDependencies = {
   readonly clock: Clock
   readonly sessionTokens: SessionTokens
   readonly mailer: Mailer
+  readonly mailCopy: MailCopy
   readonly webUrl: string
   readonly afterResponse: AfterResponse
   readonly failureSink: FailureSink
@@ -32,7 +33,7 @@ const resetRequestLine = (cause: string): string => `reset request ${cause}`
 
 const sendResetMail = async (
   request: { readonly email: string },
-  { unitOfWork, clock, sessionTokens, mailer, webUrl }: RequestPasswordResetDependencies,
+  { unitOfWork, clock, sessionTokens, mailer, mailCopy, webUrl }: RequestPasswordResetDependencies,
 ): Promise<MailDelivery | undefined> => {
   const issued = await unitOfWork.transact<ResetLink | undefined, never>(
     async ({ accounts, accountTokens }) => {
@@ -52,11 +53,9 @@ const sendResetMail = async (
     return undefined
   }
   const { recipient, token } = issued.value
-  const copy = pickFixedCopy(recipient.scaffold)
   return mailer.send({
     to: recipient.email,
-    subject: copy.mailResetSubject(),
-    text: copy.mailResetText({ link: `${webUrl}/reset-password?token=${token}` }),
+    ...mailCopy.resetMail(recipient.scaffold, `${webUrl}/reset-password?token=${token}`),
   })
 }
 
