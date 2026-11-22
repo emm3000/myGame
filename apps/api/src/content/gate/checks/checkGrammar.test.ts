@@ -403,6 +403,7 @@ describe('content gate check 6, grammar', () => {
     const objectRelativeFrom = (lessonId: string) => [
       ...lessonOneStructures,
       structureOf('lesson-1', ['that'], ['-s']),
+      namedAtLessonOne('Prepositions', ['for']),
       namedAtLessonOne('Coordinating conjunctions', ['so']),
       namedAtLessonOne('Subordinate clauses with after, because, than and where', ['after']),
       namedAtLessonOne('Determiners some, any and all', ['some', 'all']),
@@ -481,6 +482,7 @@ describe('content gate check 6, grammar', () => {
     it.each([
       ['so', 'so that she can help'],
       ['after', 'after that you go'],
+      ['for', 'for that you work'],
     ])('reads that after the frame word %s as no object relative', (_, definition) => {
       const defined = definedAs(definition)
 

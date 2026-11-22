@@ -4,6 +4,7 @@ import { type ReadingTerms, readingTermsOf } from '../../infrastructure/json/rea
 import type { LexiconEntry } from '../../infrastructure/json/readLessonContentFiles'
 import type { HaveBefore, IrregularForms } from '../CardWordFormContext'
 import { cardWordFormOf } from '../cardWordFormOf'
+import { clauseLinkingStructures } from '../clauseLinkingStructures'
 import { frameWordAdmissionsOf } from '../frameWordAdmissionsOf'
 import type { GateContent } from '../GateContent'
 import { type GrammarPassage, grammarPassagesOf } from '../grammarPassagesOf'
@@ -30,12 +31,6 @@ const haveForms: ReadonlyMap<string, HaveBefore> = new Map([
   ['have', 'have'],
   ['has', 'have'],
   ["'s", "'s"],
-])
-
-const clauseLinkingStructures: ReadonlySet<string> = new Set([
-  'Prepositions',
-  'Coordinating conjunctions',
-  'Subordinate clauses with after, because, than and where',
 ])
 
 const subjectPronouns: ReadonlySet<string> = new Set(['i', 'you', 'he', 'she', 'it', 'we', 'they'])
