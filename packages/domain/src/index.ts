@@ -287,15 +287,15 @@ export { rebaseFullSince } from '#town/resources/rebaseFullSince'
 export { resourceKinds } from '#town/resources/resourceKinds'
 export type { Stocks } from '#town/resources/Stocks'
 export type { SiteAddress } from '#town/SiteAddress'
-export { deriveLessonDurationSeconds } from '#town/school/deriveLessonDurationSeconds'
 export { isLessonFinishedBy } from '#town/school/isLessonFinishedBy'
 export { isLessonUnderStudy } from '#town/school/isLessonUnderStudy'
 export { type BusyLessonSlot, idleLessonSlot, type LessonSlot } from '#town/school/LessonSlot'
+export { lessonDurationSecondsAt } from '#town/school/lessonDurationSecondsAt'
 export type { LessonSlotRepository } from '#town/school/ports/LessonSlotRepository'
 export type { SchoolLesson } from '#town/school/SchoolLesson'
 export type { SchoolLevel } from '#town/school/SchoolLevel'
 export { schoolLevelOf } from '#town/school/schoolLevelOf'
-export { studyPercentAt } from '#town/school/studyPercentAt'
+
 export {
   type SettleSchoolLessonDependencies,
   settleSchoolLesson,

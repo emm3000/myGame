@@ -5,12 +5,12 @@ import {
   cardsInLearningOf,
   chromePhaseOf,
   type DomainError,
-  deriveLessonDurationSeconds,
   hasBandStartedAt,
   heldCardsOf,
   heldOutWordsAt,
   type Instant,
   type LessonSlot,
+  lessonDurationSecondsAt,
   type MemoryTerms,
   nextInLearningDueAtOf,
   ok,
@@ -24,7 +24,6 @@ import {
   type SchoolLesson,
   type SchoolLevel,
   schoolLevelOf,
-  studyPercentAt,
   type Text,
   type TownCatalog,
   type TownSkill,
@@ -84,14 +83,10 @@ const lessonViewsOf = (
   lessons: LessonLibrary,
 ): Pick<SchoolView, 'lessons' | 'releasedLessons'> => {
   const learner = learnerOf(reading)
-  const studyPercent = studyPercentAt(reading.at, catalog.townSettings())
+  const settings = catalog.townSettings()
   const lessonViewOf = <Shelf extends SchoolLesson>(lesson: Shelf): LessonView<Shelf> => ({
     lesson,
-    durationSeconds: deriveLessonDurationSeconds(
-      lesson.durationSeconds,
-      school.lessonPercent,
-      studyPercent,
-    ),
+    durationSeconds: lessonDurationSecondsAt(lesson, school, reading.at, settings),
     ...gatherLessonWordsView(lesson, learner, lessons),
   })
   const released = releasedLessonsOf(reading.bandStarts, reading.cards, {
