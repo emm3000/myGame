@@ -1,11 +1,9 @@
 import { type ReviewAnswer, type TownOverview, TownOverviewSchema } from '@mygame/contracts'
 import type { RandomSource } from '@mygame/domain'
-import { Client, type QueryResultRow } from 'pg'
 import { assert, beforeEach, describe, expect, it } from 'vitest'
 import { createApp } from '#app'
-import type { LessonLibrary, ShelvedLesson } from '#content/application/ports/LessonLibrary'
+import { bandLessonFixtures } from './heldOutWords.testSupport'
 import {
-  databaseUrl,
   lateFirstRecallAt,
   learningWorld,
   lessonFinishesAt,
@@ -23,71 +21,13 @@ describe('the learning routes', () => {
   const { signUpWithATown, readTown, readReviews, startLesson, stopLesson, answered } = world
 
   describe('the holdout', () => {
-    const bandLessonHeadwords = ['say', 'time', 'year', 'think', 'come']
-
-    const bandLesson = (): ShelvedLesson => {
-      const lessonOne = world.server.lessons.lessonOf('lesson-1')
-      assert(lessonOne !== undefined)
-      return {
-        ...lessonOne,
-        id: 'lesson-fixture-holdout',
-        theme: 'Saying and thinking',
-        words: bandLessonHeadwords.map((headword) => ({
-          id: `word-${headword}`,
-          acceptedForms: [headword] as const,
-          gloss: `gloss of ${headword}`,
-          definition: `definition of ${headword}`,
-          frames: [{ frame: `They ${headword} it.`, gappedFrame: 'They ____ it.' }],
-        })),
-      }
-    }
-
-    const libraryWithBandLesson = (): LessonLibrary => {
-      const lesson = bandLesson()
-      const { lessons } = world.server
-      return {
-        lessonOf: (lessonId) => (lessonId === lesson.id ? lesson : lessons.lessonOf(lessonId)),
-        lessonOfWord: (wordId) =>
-          lesson.words.some(({ id }) => id === wordId) ? lesson : lessons.lessonOfWord(wordId),
-        isHeadword: (word) => lessons.isHeadword(word),
-        bandOfLesson: (lessonId) => (lessonId === lesson.id ? 1 : lessons.bandOfLesson(lessonId)),
-        wordsOfBand: (band) => lessons.wordsOfBand(band),
-        hasLessons: (band) => lessons.hasLessons(band),
-        placementWordsOf: (band) => lessons.placementWordsOf(band),
-        lessons: () => [...lessons.lessons(), lesson],
-        chromeLessons: () => lessons.chromeLessons(),
-        frameTokensOf: (wordId, frame) => lessons.frameTokensOf(wordId, frame),
-        answerFormsOf: (wordId) => lessons.answerFormsOf(wordId),
-        texts: () => lessons.texts(),
-        textTokensOf: (textId, passage) => lessons.textTokensOf(textId, passage),
-      }
-    }
+    const { libraryWithBandLesson } = bandLessonFixtures(world)
 
     const holdingOutSayAndTheLastRanks: RandomSource = {
       sampleOf: <T>(items: ReadonlyArray<T>, count: number): ReadonlyArray<T> => {
         const others = items.filter((item) => item !== 'say').reverse()
         return [...items.filter((item) => item === 'say'), ...others].slice(0, count)
       },
-    }
-
-    const storedRows = async <Row extends QueryResultRow>(
-      statement: string,
-    ): Promise<ReadonlyArray<Row>> => {
-      const client = new Client({ connectionString: databaseUrl() })
-      await client.connect()
-      try {
-        return (await client.query<Row>(statement)).rows
-      } finally {
-        await client.end()
-      }
-    }
-
-    const heldOutCount = async (): Promise<number> => {
-      const [counted] = await storedRows<{ count: number }>(
-        'SELECT count(*)::int AS count FROM held_out_words',
-      )
-      assert(counted !== undefined)
-      return counted.count
     }
 
     beforeEach(() => {
@@ -98,61 +38,12 @@ describe('the learning routes', () => {
       })
     })
 
-    it("stores a tenth of band 1's card words outside the chrome lessons", async () => {
-      const player = await signUpWithATown()
-
-      expect((await startLesson(player, 'lesson-fixture-holdout')).status).toBe(200)
-
-      expect(await heldOutCount()).toBe(87)
-    })
-
-    it('stores the instant of the band start', async () => {
-      const player = await signUpWithATown()
-      world.clock.setTo(lessonStartsAt)
-
-      await startLesson(player, 'lesson-fixture-holdout')
-
-      expect(await storedRows('SELECT band, started_at AS "startedAt" FROM band_starts')).toEqual([
-        { band: 1, startedAt: new Date(lessonStartsAt) },
-      ])
-    })
-
     it('answers that a band has started on the start that draws it', async () => {
       const player = await signUpWithATown()
 
       const response = await startLesson(player, 'lesson-fixture-holdout')
 
       expect(TownOverviewSchema.parse(await response.json()).hasBandStarted).toBe(true)
-    })
-
-    it('draws nothing when a chrome lesson starts', async () => {
-      const player = await signUpWithATown()
-
-      await startLesson(player, 'lesson-1')
-
-      expect(await storedRows('SELECT band FROM band_starts')).toEqual([])
-    })
-
-    it('stores no draw for a start the busy slot refuses', async () => {
-      const player = await signUpWithATown()
-      await startLesson(player, 'lesson-1')
-
-      expect((await startLesson(player, 'lesson-fixture-holdout')).status).toBe(409)
-
-      expect(await storedRows('SELECT band FROM band_starts')).toEqual([])
-    })
-
-    it('keeps the draw when a stopped lesson starts again', async () => {
-      const player = await signUpWithATown()
-      await startLesson(player, 'lesson-fixture-holdout')
-      const drawn = await storedRows('SELECT headword FROM held_out_words ORDER BY headword')
-      await stopLesson(player, 'lesson-fixture-holdout')
-
-      await startLesson(player, 'lesson-fixture-holdout')
-
-      expect(await storedRows('SELECT headword FROM held_out_words ORDER BY headword')).toEqual(
-        drawn,
-      )
     })
 
     it('never reads a held-out word', async () => {
