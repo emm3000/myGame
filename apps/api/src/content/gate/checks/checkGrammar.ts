@@ -1,3 +1,4 @@
+import { headwordOf } from '@mygame/domain'
 import { readingOf } from '../../infrastructure/json/readingOf'
 import { type ReadingTerms, readingTermsOf } from '../../infrastructure/json/readingTermsOf'
 import type { LexiconEntry } from '../../infrastructure/json/readLessonContentFiles'
@@ -12,6 +13,7 @@ import { lessonPositionOf } from '../lessonPositionOf'
 type GrammarTerms = {
   readonly reading: ReadingTerms
   readonly frameWordsAdmittedAt: ReadonlyMap<string, number>
+  readonly clauseLinkingWords: ReadonlySet<string>
   readonly inflectionsAdmittedAt: ReadonlyMap<string, number>
   readonly cardWords: ReadonlyMap<string, LexiconEntry>
   readonly irregularVerbs: ReadonlyMap<string, IrregularForms>
@@ -28,6 +30,12 @@ const haveForms: ReadonlyMap<string, HaveBefore> = new Map([
   ['have', 'have'],
   ['has', 'have'],
   ["'s", "'s"],
+])
+
+const clauseLinkingStructures: ReadonlySet<string> = new Set([
+  'Prepositions',
+  'Coordinating conjunctions',
+  'Subordinate clauses with after, because, than and where',
 ])
 
 const subjectPronouns: ReadonlySet<string> = new Set(['i', 'you', 'he', 'she', 'it', 'we', 'they'])
@@ -60,6 +68,11 @@ const termsOf = (content: GateContent): GrammarTerms => {
   return {
     reading: readingTermsOf(content),
     frameWordsAdmittedAt: frameWordAdmissionsOf(content),
+    clauseLinkingWords: new Set(
+      content.grammar.structures
+        .filter(({ name }) => clauseLinkingStructures.has(name))
+        .flatMap(({ frameWords }) => frameWords.map((word) => headwordOf(word))),
+    ),
     inflectionsAdmittedAt: new Map(
       content.grammar.structures.flatMap(({ inflections, admittingLessonId }) =>
         inflections.map((inflection) => [inflection, positionOf(admittingLessonId)] as const),
@@ -164,16 +177,24 @@ const pieceFailures = (
   return inflectionFailures(token, isPossessive ? "possessive 's" : token, passage, terms)
 }
 
+const isAntecedent = (word: string, terms: GrammarTerms): boolean =>
+  !terms.clauseLinkingWords.has(word) && terms.cardWords.get(word)?.partOfSpeech !== 'adverb'
+
 const isObjectRelative = (
   { token, previous, next }: PassageToken,
   passage: GrammarPassage,
   terms: GrammarTerms,
 ): boolean => {
-  if (token !== 'that' || next === undefined || !subjectPronouns.has(next)) {
+  if (
+    token !== 'that' ||
+    previous === undefined ||
+    next === undefined ||
+    !subjectPronouns.has(next)
+  ) {
     return false
   }
   const antecedent = wordOf(previous, passage, terms)
-  return antecedent === undefined || !terms.frameWordsAdmittedAt.has(antecedent)
+  return antecedent === undefined || isAntecedent(antecedent, terms)
 }
 
 const tokenFailures = (
