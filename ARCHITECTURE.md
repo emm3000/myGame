@@ -138,7 +138,7 @@ A new refusal adds, in order: its member of `DomainError` (`packages/domain/src/
 - `adapter_built_outside_root`: only the composition root constructs an adapter.
 - `reading_named_of_is_async`, `reading_is_async`, `use_case_named_of`, `domain_promise_outside_its_roles`: a name says whether it reads a port, and no `function` or `const` named `*Of`, `*At`, `*For` or `*Between` is `async` or returns a `Promise`.
 - `use_case_imports_use_case`, `step_is_public`: use cases share a step, and a step stays inside the domain.
-- `api_holds_layer`, `role_folder`, `file_outside_layer`: the api holds no `application/`, `domain/`, `postgres/` or `memory/` folder, and every file of a domain feature sits in `domain/`, `application/` or `testing/`, so no other role folder holds one.
+- `api_holds_layer`, `role_folder`, `file_outside_layer`: the api holds no `application/` or `domain/` folder; `role_folder` refuses a `useCases/`, `services/` or `ports/` folder anywhere in the domain package, the kernel folders included, and a `postgres/` or `memory/` folder in the api; and every file of a domain feature sits in `domain/`, `application/` or `testing/`.
 - `route_file`, `use_case_shape`, `controller_shape`: an endpoint is a controller class with one `async handle(`, and a use case a class of `application/` with one `async execute(`.
 - `use_case_built_outside_root`, `controller_built_outside_route_list`: only the composition root builds a use case, and only a route list builds a controller.
 - `folder_over_limit`, `file_over_export_cap`, `type_over_method_cap`, and Biome's line limits: no folder, file, type or function grows past its wall.
