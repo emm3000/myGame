@@ -1,5 +1,4 @@
 import { assert, describe, expect, it } from 'vitest'
-import { signedUpAccountsOf } from '#account/testing/signedUpAccountsOf'
 import { inMemoryBands } from '#learning/curriculum/testing/inMemoryBands'
 import { inMemoryLessons } from '#learning/curriculum/testing/inMemoryLessons'
 import type { Clock } from '#platform/domain/Clock'
@@ -8,8 +7,8 @@ import { Instant } from '#time/Instant'
 import type { Town } from '../../domain/Town'
 import { inMemoryEarnedSkills } from '../../testing/inMemoryEarnedSkills'
 import { inMemoryTownNews } from '../../testing/inMemoryTownNews'
-import { inMemoryTownStores, townNewsOver } from '../../testing/inMemoryTownStores'
 import { inMemoryTowns } from '../../testing/inMemoryTowns'
+import { signedUpTownStoresOf } from '../../testing/signedUpTownStoresOf'
 import { plainTownSettings, townCatalogOf } from '../../testing/townCatalogOf'
 import { townOf } from '../../testing/townFixtures'
 import type { Job, JobSlot } from '../domain/Job'
@@ -58,10 +57,9 @@ const callBack = async (
   const news = inMemoryTownNews()
   const called = await new CallJobBack({
     unitOfWork: inMemoryUnitOfWork(
-      inMemoryTownStores({
-        accounts: signedUpAccountsOf(['player-1']),
+      signedUpTownStoresOf({
         towns,
-        townNews: townNewsOver(news),
+        news,
         cleanUps: inMemoryCleanUps(),
       }),
     ),

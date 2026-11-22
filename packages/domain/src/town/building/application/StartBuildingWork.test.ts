@@ -1,5 +1,4 @@
 import { assert, describe, expect, it } from 'vitest'
-import { signedUpAccountsOf } from '#account/testing/signedUpAccountsOf'
 import { inMemoryBands } from '#learning/curriculum/testing/inMemoryBands'
 import { inMemoryLessons } from '#learning/curriculum/testing/inMemoryLessons'
 import type { HeldCard } from '#learning/domain/HeldCard'
@@ -11,8 +10,8 @@ import { Instant } from '#time/Instant'
 import type { TownCatalog } from '../../domain/TownCatalog'
 import { inMemoryEarnedSkills } from '../../testing/inMemoryEarnedSkills'
 import { type InMemoryTownNews, inMemoryTownNews } from '../../testing/inMemoryTownNews'
-import { inMemoryTownStores, townNewsOver } from '../../testing/inMemoryTownStores'
 import { inMemoryTowns } from '../../testing/inMemoryTowns'
+import { signedUpTownStoresOf } from '../../testing/signedUpTownStoresOf'
 import { plainTownLevels, plainTownSettings, townCatalogOf } from '../../testing/townCatalogOf'
 import { type TownShape, townOf } from '../../testing/townFixtures'
 import type { BuildingKind } from '../domain/BuildingKind'
@@ -111,10 +110,9 @@ const startWork = (
 ): Started =>
   new StartBuildingWork({
     unitOfWork: inMemoryUnitOfWork(
-      inMemoryTownStores({
-        accounts: signedUpAccountsOf(['player-1']),
+      signedUpTownStoresOf({
         towns,
-        townNews: townNewsOver(news),
+        news,
         cards,
       }),
     ),
