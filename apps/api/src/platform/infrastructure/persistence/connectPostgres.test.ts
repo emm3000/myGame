@@ -1,9 +1,9 @@
 import { once } from 'node:events'
 import { createServer, type Server, type Socket } from 'node:net'
+import { thrownCauseOf } from '@mygame/domain'
 import { sql } from 'drizzle-orm'
 import { Client } from 'pg'
 import { afterAll, beforeAll, describe, expect, it } from 'vitest'
-import { thrownCauseOf } from '../../thrownCauseOf'
 import { connectPostgres } from './connectPostgres'
 
 function databaseUrl(): string {

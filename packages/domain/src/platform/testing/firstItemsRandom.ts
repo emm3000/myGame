@@ -1,4 +1,4 @@
-import type { RandomSource } from '../RandomSource'
+import type { RandomSource } from '../domain/RandomSource'
 
 export const firstItemsRandom: RandomSource = {
   sampleOf: (items, count) => {

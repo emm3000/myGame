@@ -1,7 +1,7 @@
 import type { Band } from '#learning/curriculum/Band'
 import type { BandWord } from '#learning/curriculum/BandWord'
 import type { Headword } from '#learning/curriculum/Headword'
-import type { RandomSource } from '#ports/RandomSource'
+import type { RandomSource } from '#platform/domain/RandomSource'
 import type { Instant } from '#time/Instant'
 import type { BandStart } from './BandStart'
 import { drawableHeadwordsOf } from './drawableHeadwordsOf'

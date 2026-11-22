@@ -1,5 +1,5 @@
 import { PlayerSchema } from '@mygame/contracts'
-import { type Clock, Instant } from '@mygame/domain'
+import { type Clock, type FailureSink, Instant } from '@mygame/domain'
 import { Client } from 'pg'
 import { afterAll, beforeAll, beforeEach, describe, expect, it } from 'vitest'
 import { apiPackagePath } from '#apiPackagePath.testSupport'
@@ -7,7 +7,6 @@ import { createApp } from '#app'
 import { type ComposedServer, composeServer } from '#composeServer'
 import { mailEnvironment } from '#composeServer.testSupport'
 import { truncatePlayerTables } from '#truncatePlayerTables.testSupport'
-import type { FailureSink } from '../../application/ports/FailureSink'
 
 const contentDirectory = apiPackagePath('content/')
 

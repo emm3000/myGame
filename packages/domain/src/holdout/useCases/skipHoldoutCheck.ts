@@ -1,7 +1,7 @@
 import type { DomainError } from '#DomainError'
 import type { Band } from '#learning/curriculum/Band'
+import type { Clock } from '#platform/domain/Clock'
 import type { PlayerId } from '#player/PlayerId'
-import type { Clock } from '#ports/Clock'
 import { ok, type Result } from '#Result'
 import type { SkippedHoldoutCheck } from '../HoldoutCheck'
 import type { HoldoutCheckWeek } from '../HoldoutCheckWeek'

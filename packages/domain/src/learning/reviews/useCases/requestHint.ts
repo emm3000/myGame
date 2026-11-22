@@ -1,7 +1,7 @@
 import type { DomainError } from '#DomainError'
 import type { MemoryTerms } from '#memory/MemoryTerms'
+import type { Clock } from '#platform/domain/Clock'
 import type { PlayerId } from '#player/PlayerId'
-import type { Clock } from '#ports/Clock'
 import { err, ok, type Result } from '#Result'
 import type { LessonCatalog } from '../../curriculum/ports/LessonCatalog'
 import type { WordId } from '../../Lesson'

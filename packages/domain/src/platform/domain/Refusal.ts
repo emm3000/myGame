@@ -1,4 +1,4 @@
-import type { DomainError } from '@mygame/domain'
+import type { DomainError } from '#DomainError'
 
 export type Refusal =
   | DomainError

@@ -56,7 +56,7 @@ export WEB_URL=http://localhost:3233
 - `@node-rs/argon2` loads a prebuilt binary per platform, and a function takes the architecture of the machine that ran `vercel build`: never deploy a `vercel build` run on macOS.
 - Never run `src` with plain `node`: the workspace packages export raw `.ts` with extensionless imports (`ERR_MODULE_NOT_FOUND`). `dev` runs `tsx`, production the bundle; both find `../content/` from `import.meta.url`, so `dist/` stays beside `src/`.
 - A route is declared with `openAPIRegistry.registerPath`, never `app.openapi`, which validates the body itself and answers 415 or a plain-text 400 where the route answers its own refusal.
-- Never write a thrown error's `message` to a log: `DrizzleQueryError`'s is `Failed query: <query>\nparams: <params>`, an email and a password hash included. Write `thrownCauseOf(error)` (`src/platform/thrownCauseOf.ts`).
+- Never write a thrown error's `message` to a log: `DrizzleQueryError`'s is `Failed query: <query>\nparams: <params>`, an email and a password hash included. Write `thrownCauseOf(error)` (`packages/domain/src/platform/domain/thrownCauseOf.ts`, exported by `@mygame/domain`).
 - A test awaits `server.afterResponse.settled()` before it reads what deferred work wrote (the password reset's mail), never Mailpit alone.
 
 A PR adds a gotcha here only when it is a trap no code, rule or test catches, in one line, and never narrates its module.

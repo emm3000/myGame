@@ -3,7 +3,7 @@ import type { HeldCard } from '#learning/HeldCard'
 import { heldCardsOf } from '#learning/HeldCards'
 import { holdsLessonCards } from '#learning/holdsLessonCards'
 import type { PlacementWordCatalog } from '#placement/ports/PlacementWordCatalog'
-import type { RandomSource } from '#ports/RandomSource'
+import type { RandomSource } from '#platform/domain/RandomSource'
 import type { BandStart } from './BandStart'
 import type { HoldoutCheckSample } from './HoldoutCheck'
 
