@@ -1,19 +1,25 @@
 import {
   accrueTown,
   type DomainError,
+  type DueHoldoutCheck,
   deriveFullAt,
   derivePeople,
   deriveResourceRates,
   deriveStorageCapacity,
+  dueHoldoutChecksOf,
   type Instant,
   type MemoryTerms,
   ok,
   type People,
   type ResourceKind,
   type Result,
+  retainedWordCountOf,
+  stableWordCountOf,
   type TownCatalog,
   type TownLabel,
+  type TownSeason,
   townLabelOf,
+  townSeasonAt,
 } from '@mygame/domain'
 import type { LessonLibrary } from '#content/application/ports/LessonLibrary'
 import {
@@ -21,6 +27,7 @@ import {
   gatherBuildingsView,
 } from '../building/application/gatherBuildingsView'
 import { gatherWorkView, type WorkView } from '../building/application/gatherWorkView'
+import { type GuidanceView, gatherGuidanceView } from '../guidance/application/gatherGuidanceView'
 import { gatherSchoolView, type SchoolView } from '../school/application/gatherSchoolView'
 import type { TownReading } from './TownReading'
 
@@ -37,7 +44,12 @@ export type TownView = {
   readonly label: TownLabel
   readonly buildings: BuildingsView
   readonly work: WorkView
+  readonly season: TownSeason | null
   readonly school: SchoolView
+  readonly guidance: GuidanceView
+  readonly dueHoldoutChecks: ReadonlyArray<DueHoldoutCheck>
+  readonly stableWordCount: number
+  readonly retainedWordCount: number
 }
 
 const gatherStocks = (
@@ -74,17 +86,11 @@ const gatherStocks = (
   })
 }
 
-export const gatherTownView = (
+const gatherHolding = (
   reading: TownReading,
   catalog: TownCatalog,
-  lessons: LessonLibrary,
-  memoryTerms: MemoryTerms,
-): Result<TownView, DomainError> => {
+): Result<Pick<TownView, 'people' | 'label' | 'buildings' | 'work'>, DomainError> => {
   const { town } = reading
-  const stocks = gatherStocks(reading, catalog)
-  if (!stocks.ok) {
-    return stocks
-  }
   const people = derivePeople(town.buildingLevels, town.staffedHires, catalog)
   if (!people.ok) {
     return people
@@ -101,16 +107,46 @@ export const gatherTownView = (
   if (!work.ok) {
     return work
   }
-  const school = gatherSchoolView(reading, catalog, lessons, memoryTerms)
-  if (!school.ok) {
-    return school
-  }
   return ok({
-    stocks: stocks.value,
     people: people.value,
     label: label.value,
     buildings: buildings.value,
     work: work.value,
+  })
+}
+
+export const gatherTownView = (
+  reading: TownReading,
+  catalog: TownCatalog,
+  lessons: LessonLibrary,
+  memoryTerms: MemoryTerms,
+): Result<TownView, DomainError> => {
+  const { at, bandStarts, cards } = reading
+  const stocks = gatherStocks(reading, catalog)
+  if (!stocks.ok) {
+    return stocks
+  }
+  const holding = gatherHolding(reading, catalog)
+  if (!holding.ok) {
+    return holding
+  }
+  const school = gatherSchoolView(reading, catalog, lessons, memoryTerms)
+  if (!school.ok) {
+    return school
+  }
+  const released = school.value.releasedLessons.map(({ lesson }) => lesson)
+  const guidance = gatherGuidanceView(reading, released, catalog, lessons, memoryTerms)
+  if (!guidance.ok) {
+    return guidance
+  }
+  return ok({
+    ...holding.value,
+    stocks: stocks.value,
+    season: townSeasonAt(at, catalog.townSettings()) ?? null,
     school: school.value,
+    guidance: guidance.value,
+    dueHoldoutChecks: dueHoldoutChecksOf(bandStarts, at),
+    stableWordCount: stableWordCountOf(cards),
+    retainedWordCount: retainedWordCountOf(cards),
   })
 }

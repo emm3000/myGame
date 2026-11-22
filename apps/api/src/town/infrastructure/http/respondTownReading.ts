@@ -25,10 +25,6 @@ export const respondTownReading = (
   if (!view.ok) {
     return respondRefusal(c, view.error)
   }
-  const overview = presentTownOverview(reading.value, view.value, townCatalog, lessons, memoryTerms)
-  if (!overview.ok) {
-    return respondRefusal(c, overview.error)
-  }
-  const body: TownOverview = overview.value
+  const body: TownOverview = presentTownOverview(reading.value, view.value, townCatalog)
   return c.json(body)
 }

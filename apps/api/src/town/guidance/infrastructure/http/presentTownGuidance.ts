@@ -1,101 +1,47 @@
 import type { TownOverview } from '@mygame/contracts'
-import {
-  type DomainError,
-  type MemoryTerms,
-  nextDueAtOf,
-  nextGoalOf,
-  nextStepOf,
-  ok,
-  placedOutBandsOf,
-  type ReleasedLesson,
-  type Result,
-  type TownCatalog,
-  tipOf,
-} from '@mygame/domain'
-import type { LessonLibrary } from '#content/application/ports/LessonLibrary'
+import type { NextGoal } from '@mygame/domain'
 import { isoOf } from '#platform/infrastructure/http/isoOf'
-import type { TownReading } from '../../../application/TownReading'
+import type { GuidanceView, GuidedStep } from '../../application/gatherGuidanceView'
 
 type Goal = Extract<TownOverview['nextStep'], { kind: 'caughtUp' }>['goal']
 
-const goalOf = (reading: TownReading, catalog: TownCatalog): Result<Goal, DomainError> => {
-  if (reading.guidanceDismissedAt !== undefined) {
-    return ok(null)
+const presentGoal = (goal: NextGoal | null): Goal => {
+  if (goal === null) {
+    return null
   }
-  const goal = nextGoalOf(reading.town, reading.at, catalog)
-  if (!goal.ok) {
-    return goal
-  }
-  const next = goal.value
-  if (next === undefined) {
-    return ok(null)
-  }
-  const { position, count, building, level } = next
-  return ok(
-    next.state === 'underway'
-      ? { position, count, building, level, state: 'underway' }
-      : {
-          position,
-          count,
-          building,
-          level,
-          state: 'pending',
-          missing: { resources: { ...next.missing.resources }, people: next.missing.people },
-        },
-  )
+  const { position, count, building, level } = goal
+  return goal.state === 'underway'
+    ? { position, count, building, level, state: 'underway' }
+    : {
+        position,
+        count,
+        building,
+        level,
+        state: 'pending',
+        missing: { resources: { ...goal.missing.resources }, people: goal.missing.people },
+      }
 }
 
-const nextStepOfReading = (
-  reading: TownReading,
-  released: ReadonlyArray<ReleasedLesson>,
-  catalog: TownCatalog,
-  lessons: LessonLibrary,
-  memoryTerms: MemoryTerms,
-): Result<TownOverview['nextStep'], DomainError> => {
-  const step = nextStepOf(
-    { ...reading, released, placedOutBands: placedOutBandsOf(reading.placementScores) },
-    { lessons: lessons.lessons(), texts: lessons.texts(), bands: lessons, memoryTerms, catalog },
-  )
-  if (!step.ok) {
-    return step
-  }
-  switch (step.value.kind) {
+const presentNextStep = (step: GuidedStep): TownOverview['nextStep'] => {
+  switch (step.kind) {
     case 'reviews':
-      return ok({ ...step.value, readFirst: [...step.value.readFirst] })
+      return { ...step, readFirst: [...step.readFirst] }
     case 'holdoutCheck':
     case 'releasedLesson':
     case 'lessonToStudy':
-      return ok(step.value)
+      return step
     case 'lessonRunning':
-    case 'caughtUp': {
-      const goal = goalOf(reading, catalog)
-      return goal.ok ? ok({ ...step.value, goal: goal.value }) : goal
-    }
+    case 'caughtUp':
+      return { ...step, goal: presentGoal(step.goal) }
   }
 }
 
-export const presentTownGuidance = (
-  reading: TownReading,
-  released: ReadonlyArray<ReleasedLesson>,
-  catalog: TownCatalog,
-  lessons: LessonLibrary,
-  memoryTerms: MemoryTerms,
-): Result<Pick<TownOverview, 'nextStep' | 'tip' | 'nextDueAt'>, DomainError> => {
-  const nextStep = nextStepOfReading(reading, released, catalog, lessons, memoryTerms)
-  if (!nextStep.ok) {
-    return nextStep
-  }
-  const tip = tipOf(reading, catalog)
-  if (!tip.ok) {
-    return tip
-  }
-  const nextDueAt = nextDueAtOf(reading.cards, reading.at, memoryTerms)
-  if (!nextDueAt.ok) {
-    return nextDueAt
-  }
-  return ok({
-    nextStep: nextStep.value,
-    tip: tip.value ?? null,
-    nextDueAt: nextDueAt.value === null ? null : isoOf(nextDueAt.value),
-  })
-}
+export const presentTownGuidance = ({
+  nextStep,
+  tip,
+  nextDueAt,
+}: GuidanceView): Pick<TownOverview, 'nextStep' | 'tip' | 'nextDueAt'> => ({
+  nextStep: presentNextStep(nextStep),
+  tip,
+  nextDueAt: nextDueAt === null ? null : isoOf(nextDueAt),
+})
