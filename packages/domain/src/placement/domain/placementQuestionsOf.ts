@@ -5,7 +5,7 @@ import { glossOf } from '#learning/scaffold/glossOf'
 import type { Scaffold } from '#learning/scaffold/Scaffold'
 import type { PlacementSample } from './Placement'
 import type { PlacementWord } from './PlacementWord'
-import type { PlacementWordCatalog } from './ports/PlacementWordCatalog'
+import type { PlacementWordCatalog } from './PlacementWordCatalog'
 
 const CHOICE_COUNT = 4
 

@@ -1,7 +1,7 @@
 import type { PlayerId } from '#player/PlayerId'
 import { ok } from '#Result'
-import type { Placement } from '../Placement'
-import type { PlacementRepository } from '../ports/PlacementRepository'
+import type { Placement } from '../domain/Placement'
+import type { PlacementRepository } from '../domain/PlacementRepository'
 
 export type OwnedPlacement = {
   readonly playerId: PlayerId

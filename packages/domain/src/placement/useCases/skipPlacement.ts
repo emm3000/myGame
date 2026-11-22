@@ -2,12 +2,12 @@ import type { DomainError } from '#DomainError'
 import type { Clock } from '#platform/domain/Clock'
 import type { PlayerId } from '#player/PlayerId'
 import { ok, type Result } from '#Result'
-import type { SkippedPlacement } from '../Placement'
-import type { PlacementRepository } from '../ports/PlacementRepository'
 import {
   admitPlacementOffer,
   type PlacementOfferDependencies,
-} from '../services/admitPlacementOffer'
+} from '../application/admitPlacementOffer'
+import type { SkippedPlacement } from '../domain/Placement'
+import type { PlacementRepository } from '../domain/PlacementRepository'
 
 export type SkipPlacementCommand = {
   readonly playerId: PlayerId

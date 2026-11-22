@@ -1,5 +1,5 @@
 import type { Scaffold } from '#learning/scaffold/Scaffold'
-import type { PlacementWordCatalog } from '#placement/ports/PlacementWordCatalog'
+import type { PlacementWordCatalog } from '#placement/domain/PlacementWordCatalog'
 import type { Instant } from '#time/Instant'
 import { askingViewOf } from './askingViewOf'
 import type { BandStart } from './BandStart'

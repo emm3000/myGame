@@ -3,8 +3,8 @@ import type { Scaffold } from '#learning/scaffold/Scaffold'
 import { askedSampleOf } from './askedSampleOf'
 import type { Placement } from './Placement'
 import type { PlacementView } from './PlacementView'
+import type { PlacementWordCatalog } from './PlacementWordCatalog'
 import { placementItemsOf } from './placementItemsOf'
-import type { PlacementWordCatalog } from './ports/PlacementWordCatalog'
 
 export const placementViewOf = (
   placement: Placement,

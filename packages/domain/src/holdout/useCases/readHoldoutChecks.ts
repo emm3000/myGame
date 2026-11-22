@@ -1,6 +1,6 @@
 import type { DomainError } from '#DomainError'
 import type { Scaffold } from '#learning/scaffold/Scaffold'
-import type { PlacementWordCatalog } from '#placement/ports/PlacementWordCatalog'
+import type { PlacementWordCatalog } from '#placement/domain/PlacementWordCatalog'
 import type { Clock } from '#platform/domain/Clock'
 import type { PlayerId } from '#player/PlayerId'
 import { ok, type Result } from '#Result'

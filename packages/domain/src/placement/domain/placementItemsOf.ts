@@ -2,8 +2,8 @@ import { glossOf } from '#learning/scaffold/glossOf'
 import type { Scaffold } from '#learning/scaffold/Scaffold'
 import type { PlacementSample } from './Placement'
 import type { PlacementItem } from './PlacementView'
+import type { PlacementWordCatalog } from './PlacementWordCatalog'
 import { placementQuestionsOf } from './placementQuestionsOf'
-import type { PlacementWordCatalog } from './ports/PlacementWordCatalog'
 
 export const placementItemsOf = (
   sample: PlacementSample,

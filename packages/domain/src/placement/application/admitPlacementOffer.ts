@@ -2,9 +2,9 @@ import type { DomainError } from '#DomainError'
 import type { BandStartRepository } from '#holdout/ports/BandStartRepository'
 import type { PlayerId } from '#player/PlayerId'
 import { err, ok, type Result } from '#Result'
-import { isPlacementOffered } from '../isPlacementOffered'
-import type { PlacementContent } from '../placementSamplesDrawn'
-import type { PlacementRepository } from '../ports/PlacementRepository'
+import { isPlacementOffered } from '../domain/isPlacementOffered'
+import type { PlacementRepository } from '../domain/PlacementRepository'
+import type { PlacementContent } from '../domain/placementSamplesDrawn'
 
 export type PlacementOfferDependencies = PlacementContent & {
   readonly placements: Pick<PlacementRepository, 'placementOf'>

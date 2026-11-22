@@ -177,14 +177,14 @@ export type {
   PlacementScore,
   SkippedPlacement,
   TakenPlacement,
-} from '#placement/Placement'
-export type { PlacementItem, PlacementView } from '#placement/PlacementView'
-export type { PlacementWord } from '#placement/PlacementWord'
-export { placedOutBandsOf } from '#placement/placedOutBandsOf'
-export { placementScoresOf } from '#placement/placementScoresOf'
-export type { PlacementRepository } from '#placement/ports/PlacementRepository'
-export type { PlacementWordCatalog } from '#placement/ports/PlacementWordCatalog'
-export type { PlacementAnswer } from '#placement/rightWordIdsOf'
+} from '#placement/domain/Placement'
+export type { PlacementRepository } from '#placement/domain/PlacementRepository'
+export type { PlacementItem, PlacementView } from '#placement/domain/PlacementView'
+export type { PlacementWord } from '#placement/domain/PlacementWord'
+export type { PlacementWordCatalog } from '#placement/domain/PlacementWordCatalog'
+export { placedOutBandsOf } from '#placement/domain/placedOutBandsOf'
+export { placementScoresOf } from '#placement/domain/placementScoresOf'
+export type { PlacementAnswer } from '#placement/domain/rightWordIdsOf'
 export {
   type AnswerPlacementCommand,
   type AnswerPlacementDependencies,

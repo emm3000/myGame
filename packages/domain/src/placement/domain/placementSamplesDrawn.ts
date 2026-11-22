@@ -3,7 +3,7 @@ import { BANDS, laterBandOf } from '#learning/curriculum/bands'
 import type { BandCatalog } from '#learning/curriculum/ports/BandCatalog'
 import type { RandomSource } from '#platform/domain/RandomSource'
 import type { PlacementSample } from './Placement'
-import type { PlacementWordCatalog } from './ports/PlacementWordCatalog'
+import type { PlacementWordCatalog } from './PlacementWordCatalog'
 
 export const PLACEMENT_SAMPLE_SIZE = 30
 
