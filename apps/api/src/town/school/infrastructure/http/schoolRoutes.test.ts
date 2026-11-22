@@ -1,11 +1,10 @@
 import { PlayerSchema } from '@mygame/contracts'
 import { describe, expect, it } from 'vitest'
-import { runSql } from '../../../infrastructure/http/townRoutes.testSupport'
+import { overviewOf, runSql } from '../../../infrastructure/http/townRoutes.testSupport'
 import {
   lessonFinishesAt,
   lessonStartsAt,
-  overviewOf,
-  refusalOf,
+  refusalWithStatusOf,
   schoolWorld,
   wordIds,
 } from './schoolRoutes.testSupport'
@@ -152,7 +151,7 @@ describe('the school routes', () => {
       const player = await signUpWithATown()
       await runSql("UPDATE town_buildings SET level = 0 WHERE building = 'school'")
 
-      expect(await refusalOf(await startLesson(player))).toEqual({
+      expect(await refusalWithStatusOf(await startLesson(player))).toEqual({
         status: 409,
         body: { kind: 'LessonSchoolTooLow' },
       })
@@ -161,7 +160,7 @@ describe('the school routes', () => {
     it('refuses lesson 1 while the school studies it', async () => {
       const player = await studyLessonOne()
 
-      expect(await refusalOf(await startLesson(player))).toEqual({
+      expect(await refusalWithStatusOf(await startLesson(player))).toEqual({
         status: 409,
         body: { kind: 'LessonUnderStudy' },
       })
@@ -171,7 +170,7 @@ describe('the school routes', () => {
       const player = await studyLessonOne()
       world.clock.setTo(lessonFinishesAt)
 
-      expect(await refusalOf(await startLesson(player))).toEqual({
+      expect(await refusalWithStatusOf(await startLesson(player))).toEqual({
         status: 409,
         body: { kind: 'LessonAlreadyStudied' },
       })
@@ -180,7 +179,7 @@ describe('the school routes', () => {
     it('refuses a lesson without a town as TownNotFound', async () => {
       const player = await signUp()
 
-      expect(await refusalOf(await startLesson(player))).toEqual({
+      expect(await refusalWithStatusOf(await startLesson(player))).toEqual({
         status: 404,
         body: { kind: 'TownNotFound' },
       })
@@ -216,7 +215,7 @@ describe('the school routes', () => {
       const player = await studyLessonOne()
       await stopLesson(player)
 
-      expect(await refusalOf(await stopLesson(player))).toEqual({
+      expect(await refusalWithStatusOf(await stopLesson(player))).toEqual({
         status: 409,
         body: { kind: 'LessonStudyNotFound' },
       })

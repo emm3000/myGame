@@ -1,10 +1,11 @@
-import { ApiErrorSchema, type TownOverview, TownOverviewSchema } from '@mygame/contracts'
+import { ApiErrorSchema, type TownOverview } from '@mygame/contracts'
 import { afterAll, beforeAll, beforeEach, expect } from 'vitest'
 import { createApp } from '#app'
 import type { ComposedServer } from '#composeServer'
 import { type SettableClock, settableClock } from '#settableClock.testSupport'
 import { truncatePlayerTables } from '#truncatePlayerTables.testSupport'
 import {
+  overviewOf,
   runSql,
   sessionCookieOf,
   townServer,
@@ -20,12 +21,7 @@ export const lessonStartsAt = '2026-11-10T08:55:00.000Z'
 
 export const lessonFinishesAt = '2026-11-10T09:00:00.000Z'
 
-export const overviewOf = async (response: Response): Promise<TownOverview> => {
-  expect(response.status).toBe(200)
-  return TownOverviewSchema.parse(await response.json())
-}
-
-export const refusalOf = async (response: Response): Promise<unknown> => ({
+export const refusalWithStatusOf = async (response: Response): Promise<unknown> => ({
   status: response.status,
   body: ApiErrorSchema.parse(await response.json()),
 })
