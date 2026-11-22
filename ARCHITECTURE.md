@@ -67,14 +67,14 @@ index.ts  listen.ts  app.ts  composeServer.ts  composeStores.ts    the compositi
   application/ports/          the ports only the api needs
   infrastructure/http/        endpoints, route lists, presenters
   infrastructure/postgres/    Drizzle adapters, the feature's tables, row mappers
-  infrastructure/memory/      in-memory adapters and the port's contract suite
+  infrastructure/memory/      in-memory adapters of application/ports/, each port's contract suite, and the test that runs a domain port's suite on its fake
   infrastructure/json/        the JSON catalogs
   infrastructure/smtp/        the mailer
   infrastructure/system/      the password hasher and the session tokens
   gate/                       the content gate (content): the checks the shipped content passes, one file per check in checks/ and the readings they share beside them; no request, port or adapter reaches it, only its tests
 ```
 
-`platform/` follows the same grammar: `application/` holds `Refusal`, `application/ports/` the transaction, the failure sink and the deferred work, and `infrastructure/{http,postgres,system,vercel}/` the kernels. Only `platform/` may hold, at its root, a pure function that both its `application/` and its `infrastructure/` read; `thrownCauseOf.ts` is the one case, and a feature folder may not. An adapter lives in the feature whose port it implements. `packages/contracts/src/<feature>/` holds one schema per file, with no layer folder. Only `infrastructure/http/`, `infrastructure/json/` and `content/gate/` import `@mygame/contracts`: they parse, or check, a shape written outside the process, a request or a content file.
+`platform/` follows the same grammar: `application/` holds `Refusal`, `application/ports/` the transaction, the failure sink and the deferred work, and `infrastructure/{http,postgres,system,vercel}/` the kernels. Only `platform/` may hold, at its root, a pure function that both its `application/` and its `infrastructure/` read; `thrownCauseOf.ts` is the one case, and a feature folder may not. An adapter lives in the feature whose port it implements. A domain port has one in-memory implementation, the fake in its domain feature's `testing/`, which the api's contract suite runs against beside the Drizzle adapter, reading it through `@mygame/domain/testing`; an in-memory adapter in `infrastructure/memory/` implements only a port of `application/ports/`. `packages/contracts/src/<feature>/` holds one schema per file, with no layer folder. Only `infrastructure/http/`, `infrastructure/json/` and `content/gate/` import `@mygame/contracts`: they parse, or check, a shape written outside the process, a request or a content file.
 
 ## The file-name grammar
 
