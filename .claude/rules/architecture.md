@@ -32,9 +32,10 @@ The api's own layers follow the same arrow, laid out by feature then by role (AD
 
 ```
 application_imports_infrastructure   application_knows_wire
-contracts_outside_adapters           persistence_knows_http
-http_knows_database                  adapter_built_outside_root
-reading_named_of_is_async            use_case_named_of
+subpath_import_inside_folder         contracts_outside_adapters
+persistence_knows_http               http_knows_database
+adapter_built_outside_root           reading_named_of_is_async
+reading_const_is_async               use_case_named_of
 domain_promise_outside_its_roles     use_case_imports_use_case
 service_is_public                    folder_over_limit
 file_over_export_cap                 type_over_method_cap

@@ -147,6 +147,50 @@ fails_an_async_reading_named_of() {
   expect_failure "${FUNCNAME[0]}" "structure check reading_named_of_is_async apps/api/src/town/application/currentTownOf.ts"
 }
 
+fails_an_async_const_named_of() {
+  fresh_tree
+  plant packages/domain/src/town/useCases/sendJob.ts "const askedJobOf = async (id: string): Promise<string> => id\n"
+  check
+  expect_failure "${FUNCNAME[0]}" "structure check reading_const_is_async packages/domain/src/town/useCases/sendJob.ts 1:const askedJobOf"
+}
+
+fails_a_const_named_at_that_declares_a_promise() {
+  fresh_tree
+  plant apps/api/src/town/application/serveReport.ts "export const serveReport = (): number => 1\n\nexport const shownAt = (\n  playerId: string,\n  read: (at: number) => number,\n): Promise<number> => Promise.resolve(read(1))\n"
+  check
+  expect_failure "${FUNCNAME[0]}" "structure check reading_const_is_async apps/api/src/town/application/serveReport.ts 3:const shownAt"
+}
+
+passes_a_synchronous_const_named_of_and_an_async_one_in_a_test() {
+  fresh_tree
+  plant packages/domain/src/town/jobSiteOf.ts "export const jobSiteOf = (id: string): string => id\nexport const jobDueAt = (pay: (hours: number) => number): number => pay(1)\n"
+  plant apps/api/src/town/infrastructure/http/townRoutes.testSupport.ts "export const overviewOf = async (response: Response): Promise<unknown> => response.json()\n"
+  check
+  expect_pass "${FUNCNAME[0]}"
+}
+
+fails_a_subpath_import_inside_its_own_folder() {
+  fresh_tree
+  plant apps/api/src/town/jobs/infrastructure/http/sendJobRoute.ts "import { mutateTown } from '#town/application/mutateTown'\n"
+  check
+  expect_failure "${FUNCNAME[0]}" "structure check subpath_import_inside_folder apps/api/src/town/jobs/infrastructure/http/sendJobRoute.ts 1:import { mutateTown } from '#town/application/mutateTown'"
+}
+
+fails_a_domain_test_importing_its_own_folder_by_subpath() {
+  fresh_tree
+  plant packages/domain/src/town/jobPayOf.test.ts "const loaded = import('#town/jobPayOf')\n"
+  check
+  expect_failure "${FUNCNAME[0]}" "structure check subpath_import_inside_folder packages/domain/src/town/jobPayOf.test.ts 1:const loaded"
+}
+
+passes_a_subpath_import_that_leaves_its_folder_or_the_root() {
+  fresh_tree
+  plant apps/api/src/town/infrastructure/http/townRoutes.ts "import { refusal } from '#platform/application/Refusal'\nimport { townRoutesBy } from '#townRoutes/byName'\n"
+  plant apps/api/src/composeServer.ts "import { townRoutes } from '#town/infrastructure/http/townRoutes'\n"
+  check
+  expect_pass "${FUNCNAME[0]}"
+}
+
 fails_a_use_case_named_of() {
   fresh_tree
   plant packages/domain/src/town/useCases/townOf.ts "export const townOf = (id: string): string => id\n"
@@ -321,6 +365,12 @@ run fails_http_knowing_the_database
 run fails_an_adapter_built_outside_the_composition_root
 run passes_an_adapter_built_in_the_composition_root
 run fails_an_async_reading_named_of
+run fails_an_async_const_named_of
+run fails_a_const_named_at_that_declares_a_promise
+run passes_a_synchronous_const_named_of_and_an_async_one_in_a_test
+run fails_a_subpath_import_inside_its_own_folder
+run fails_a_domain_test_importing_its_own_folder_by_subpath
+run passes_a_subpath_import_that_leaves_its_folder_or_the_root
 run fails_a_use_case_named_of
 run fails_a_domain_promise_outside_its_roles
 run passes_a_domain_promise_in_a_port
