@@ -1,4 +1,4 @@
-import type { LessonLibrary } from '@mygame/domain'
+import type { LearnerStores, LessonLibrary } from '@mygame/domain'
 import {
   type Clock,
   type DomainError,
@@ -20,7 +20,6 @@ import {
   stageOf,
   type WordId,
 } from '@mygame/domain'
-import type { LearnerStores } from './ports/LearnerStores'
 import { readLearner } from './readLearner'
 
 export type ReviewTerms = {

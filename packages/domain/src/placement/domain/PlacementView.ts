@@ -1,5 +1,5 @@
-import type { Band } from '#learning/curriculum/Band'
-import type { WordId } from '#learning/Lesson'
+import type { Band } from '#learning/curriculum/domain/Band'
+import type { WordId } from '#learning/domain/Lesson'
 import type { PlacementScore } from './Placement'
 
 export type PlacementItem = {

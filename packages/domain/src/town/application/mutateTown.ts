@@ -1,6 +1,6 @@
 import type { DomainError } from '#DomainError'
-import type { BandCatalog } from '#learning/curriculum/ports/BandCatalog'
-import type { LessonCatalog } from '#learning/curriculum/ports/LessonCatalog'
+import type { BandCatalog } from '#learning/curriculum/domain/BandCatalog'
+import type { LessonCatalog } from '#learning/curriculum/domain/LessonCatalog'
 import type { Clock } from '#platform/domain/Clock'
 import type { UnitOfWork } from '#platform/domain/UnitOfWork'
 import type { PlayerId } from '#player/PlayerId'

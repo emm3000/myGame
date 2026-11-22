@@ -1,5 +1,5 @@
 import type { DomainError } from '#DomainError'
-import type { Scaffold } from '#learning/scaffold/Scaffold'
+import type { Scaffold } from '#learning/scaffold/domain/Scaffold'
 import type { PlayerId } from '#player/PlayerId'
 import { ok, type Result } from '#Result'
 import { isPlacementOffered } from '../domain/isPlacementOffered'

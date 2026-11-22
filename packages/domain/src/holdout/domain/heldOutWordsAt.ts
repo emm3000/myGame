@@ -1,4 +1,4 @@
-import type { Headword } from '#learning/curriculum/Headword'
+import type { Headword } from '#learning/curriculum/domain/Headword'
 import type { Instant } from '#time/Instant'
 import type { BandStart } from './BandStart'
 import { releasedAtOf } from './releasedAtOf'

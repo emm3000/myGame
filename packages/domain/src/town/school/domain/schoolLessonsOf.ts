@@ -1,5 +1,5 @@
-import type { LessonCatalog } from '#learning/curriculum/ports/LessonCatalog'
-import type { LessonId } from '#learning/Lesson'
+import type { LessonCatalog } from '#learning/curriculum/domain/LessonCatalog'
+import type { LessonId } from '#learning/domain/Lesson'
 import type { SchoolLesson } from './SchoolLesson'
 
 export type SchoolLessons = {

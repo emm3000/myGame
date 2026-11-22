@@ -1,4 +1,4 @@
-import type { WordId } from '#learning/Lesson'
+import type { WordId } from '#learning/domain/Lesson'
 import type { PlacementQuestion } from './placementQuestionsOf'
 
 export type PlacementAnswer = {

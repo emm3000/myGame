@@ -1,6 +1,6 @@
 import type { DomainError } from '#DomainError'
-import type { HeldCard } from '#learning/HeldCard'
-import type { CardRepository } from '#learning/ports/CardRepository'
+import type { CardRepository } from '#learning/domain/CardRepository'
+import type { HeldCard } from '#learning/domain/HeldCard'
 import type { PlayerId } from '#player/PlayerId'
 import { ok, type Result } from '#Result'
 import type { TownEvent } from '../../domain/TownEvent'

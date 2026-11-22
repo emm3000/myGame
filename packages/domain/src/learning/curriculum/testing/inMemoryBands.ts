@@ -1,7 +1,7 @@
-import type { LessonId } from '../../Lesson'
-import type { Band } from '../Band'
-import type { BandWord } from '../BandWord'
-import type { BandCatalog } from '../ports/BandCatalog'
+import type { LessonId } from '../../domain/Lesson'
+import type { Band } from '../domain/Band'
+import type { BandCatalog } from '../domain/BandCatalog'
+import type { BandWord } from '../domain/BandWord'
 
 export type BandShelf = {
   readonly band: Band

@@ -2,6 +2,7 @@ import {
   type Band,
   type DomainError,
   type HeldCard,
+  type LearnerStores,
   ok,
   type PlayerId,
   placedOutBandsOf,
@@ -10,7 +11,6 @@ import {
   readScaffold,
   type Scaffold,
 } from '@mygame/domain'
-import type { LearnerStores } from './ports/LearnerStores'
 
 export type Learner = {
   readonly cards: ReadonlyArray<HeldCard>

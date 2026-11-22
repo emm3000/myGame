@@ -1,4 +1,4 @@
-import type { LessonId } from '#learning/Lesson'
+import type { LessonId } from '#learning/domain/Lesson'
 import type { Instant } from '#time/Instant'
 
 export type BusyLessonSlot = {

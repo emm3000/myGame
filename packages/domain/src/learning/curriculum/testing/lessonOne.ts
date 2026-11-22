@@ -1,4 +1,4 @@
-import type { Lesson } from '../../Lesson'
+import type { Lesson } from '../../domain/Lesson'
 
 export const lessonOne: Lesson = {
   id: 'lesson-1',

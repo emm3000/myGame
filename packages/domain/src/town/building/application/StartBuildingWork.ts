@@ -1,5 +1,5 @@
 import type { DomainError } from '#DomainError'
-import type { HeldCard } from '#learning/HeldCard'
+import type { HeldCard } from '#learning/domain/HeldCard'
 import type { PlayerId } from '#player/PlayerId'
 import { err, ok, type Result } from '#Result'
 import type { Instant } from '#time/Instant'

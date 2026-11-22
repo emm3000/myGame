@@ -4,10 +4,10 @@ import { drizzle } from 'drizzle-orm/node-postgres'
 import { Pool } from 'pg'
 import { afterAll, beforeAll } from 'vitest'
 import { truncatePlayerTables } from '#truncatePlayerTables.testSupport'
-import { reviewLogContract } from '../memory/reviewLogContract.testSupport'
 import { cardColumnsOf, storedMemoryCardOf } from './cardColumns'
 import { DrizzleReviewLog } from './DrizzleReviewLog'
 import { reviewLog } from './learningTables'
+import { reviewLogContract } from './reviewLogContract.testSupport'
 
 function databaseUrl(): string {
   const url = process.env.DATABASE_URL

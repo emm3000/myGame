@@ -30,7 +30,7 @@ One row for each folder directly under `apps/api/src` or `packages/domain/src`: 
 | `content` | api, domain | The JSON catalogs of the town and the lessons, and the content gate: the checks the shipped content passes. In the domain, `content/domain/` holds `LessonLibrary`, the port the use cases read the lessons through. |
 | `account` | api, domain | Players, sessions, account tokens and mail, the scaffold choice and the chrome phase. In the domain, `account/domain/` holds the ports (`Accounts`, `AccountTokens`, `Sessions`, `AccountStores`, `ChromeProgressReader`, `Mailer`, `MailCopy`, `PasswordHasher`, `SessionTokens`, `StoredScaffold`), the types `MailRecipient` and `SignedIn` and the pure rules `accountTokenExpiryFrom`, `sessionExpiryFrom` and `isRedeemableAgain`; `account/application/` the use-case classes `SignUp`, `SignIn`, `VerifyEmail`, `ResendVerificationMail`, `RequestPasswordReset`, `ResetPassword` and `ReadChromePhase` and their steps `issueAccountToken`, `openSession`, `sendVerificationMail` and `readScaffold`; and `account/testing/` the fakes `inMemoryAccounts`, `MemoryAccountTokens`, `MemoryChromeProgressReader` and `MemoryMailer`. |
 | `town` | api, domain | The holding: founding, resolve, the overview. In the domain, `town/domain/` keeps the name, label and address (`TownName`, `townLabelOf`, `TownAddress`), the terrain and site (`Terrain`, `SiteAddress`), the people (`derivePeople`), the skills the player earns (`TownSkill`, `earnTownSkill`), the settings (`TownSettings`), Town News (`TownEvent`), and the season percents (`townSeasonAt`, `seasonPercentsAt`), the ports (`TownRepository`, `EarnedSkillRepository`, `TownCatalog`, `TownNews`, `TownNewsReader`, `TownReader`, `ReadOnlyTowns`), the store list `TownStores` and the type `TownReading`; `town/application/` the use-case classes `FoundTown` and `ResolveCurrentTown` and the steps `mutateTown`, `changeTown`, `readTownReading`, `resolveTown`, `resolveTownReading`, `resolveStoredTown`, `saveChangedTown` and `saveResolvedTown`; `town/testing/` the fakes, `inMemoryTownStores`, `inMemoryTownReader` and `MemoryTownNewsReader` among them; `town/guidance/domain/` the next step, the goal and the tips (`nextStepOf`, `nextGoalOf`, `tipOf`) and the ports `GuidanceDismissals` and `SeenTips`, `town/guidance/application/` the use-case classes `DismissGuidance` and `MarkTipSeen`, and `town/guidance/testing/` their fakes `MemoryGuidanceDismissals` and `MemorySeenTips`; `town/news/application/` the use-case class `ResolveTownNews`; `town/resources/domain/` the stocks, the storage and the accrual (`Stocks`, `deriveStorageCapacity`, `accrueTown`); the sub-areas are `resources` (stocks, storage, accrual), `building` (building work, the waiting list), `hiring` (orders and hires), `jobs` (jobs, clean-ups, waste, the region map), `school` (the lesson slot and its lessons) and `guidance` (the next step, the goal, tips). In the api, `news` answers Town News through `ResolveTownNewsController`, and `guidance` marks tips seen and dismisses the guidance through `MarkTipSeenController` and `DismissGuidanceController`. |
-| `learning` | api, domain | Reviews, hints, frames, retention and the curriculum's shape; in the domain, the lesson and the held card at its root and the sub-areas `reviews` (pending reviews, grading, due cards), `frames` (word frames and texts), `retention` (retained and stable words, skill levels), `curriculum` (the bands, their words and headwords) and `scaffold` (support text, glosses, the chrome phase). |
+| `learning` | api, domain | Reviews, hints, frames, retention and the curriculum's shape; in the domain, `learning/domain/` keeps the lesson, the held card and the ports `CardRepository`, `CardReader` and `LearnerStores`, and each sub-area keeps its own `domain/`: `reviews` (pending reviews, grading, due cards, the ports `PendingReviewRepository` and `ReviewLog`), `frames` (word frames and texts, the ports `FrameCatalog` and `TextCatalog`), `retention` (retained and stable words, skill levels), `curriculum` (the bands, their words and headwords, the ports `BandCatalog` and `LessonCatalog`) and `scaffold` (support text, glosses, the chrome phase). |
 | `holdout` | api, domain | Band starts and the draw of their held-out words, their holdout checks and released lessons. In the domain, `holdout/domain/` keeps the band start, the checks and their views, the weeks, the draws and the port `BandStartRepository`; `holdout/application/` the use-case classes `ReadHoldoutChecks`, `BeginHoldoutCheck`, `AnswerHoldoutCheck` and `SkipHoldoutCheck` and the steps `mutateHoldoutCheck`, `readHoldoutCheckViews` and `resolveDueBandStart`; `holdout/testing/` the fake `inMemoryBandStarts` and the fixtures. In the api, `infrastructure/http/` the four controllers `holdoutCheckRoutes` builds, and `infrastructure/persistence/` the Drizzle adapter beside the port's contract suite. |
 | `placement` | api, domain | The placement offer and its bands. In the domain, `placement/domain/` keeps the placement, its view, its samples and scores and the ports `PlacementRepository` and `PlacementWordCatalog`; `placement/application/` the use-case classes `ReadPlacement`, `BeginPlacement`, `SkipPlacement` and `AnswerPlacement` and the steps `admitPlacementOffer` and `readPlacementView`; `placement/testing/` the fake `inMemoryPlacements`. In the api, `infrastructure/http/` the four controllers `placementRoutes` builds, and `infrastructure/persistence/` the Drizzle adapter beside the port's contract suite. |
 | `report` | api | The Report: the reviews due and the Town News since the player last closed it, and when it was served and closed. |
@@ -46,17 +46,14 @@ One row for each folder directly under `apps/api/src` or `packages/domain/src`: 
 `packages/domain/src/<feature>/`:
 
 ```
-Town.ts  TownAddress.ts           PascalCase: an entity, a value object or a type
-holdsLessonCards.ts  keyInstantOf.ts  camelCase: a pure, synchronous function
-useCases/     one file per thing a player or the clock can ask: reads ports, returns a Promise of Result
-ports/        the interfaces the outside implements
-domain/       in a moved feature (ADR 054): its types, pure rules and ports
-application/  in a moved feature: its use-case classes (`SignUp.ts`) and the steps they call (`issueAccountToken.ts`)
+domain/       its types, pure rules and ports (ADR 054): PascalCase for an entity, a value object or a type (`HeldCard.ts`), camelCase for a pure, synchronous function (`keyInstantOf.ts`)
+application/  its use-case classes (`SignUp.ts`) and the steps they call (`issueAccountToken.ts`)
+useCases/     only in `learning/reviews/`, until ADR 054 step 14 moves it: one file per thing a player or the clock can ask
 testing/      the feature's in-memory ports and fixtures
 <subArea>/    the same grammar again
 ```
 
-A domain file lives in the sub-area whose word it names in the "What it is" column of ADR 052's feature table (section 2), even when another sub-area reads it, and the feature's root keeps the aggregate and the words no domain sub-area names. The root and its sub-areas may import one another, and they stay free of cycles: Biome's `noImportCycles` checks type-only imports as well as runtime ones in the backend.
+A domain file lives in the sub-area whose word it names in the "What it is" column of ADR 052's feature table (section 2), even when another sub-area reads it, and the feature's own `domain/` keeps the aggregate and the words no domain sub-area names. The feature and its sub-areas may import one another, and they stay free of cycles: Biome's `noImportCycles` checks type-only imports as well as runtime ones in the backend.
 
 `apps/api/src/`:
 
@@ -83,13 +80,13 @@ listenPortOf.ts  writeOpenApiDocument.ts                          the api's own 
 
 | Role | Folder | Name | Example |
 |---|---|---|---|
-| Entity, value object, type | domain feature root | noun, PascalCase | `HeldCard.ts` |
-| Pure rule | domain feature root | `derive*`, `*Of`, `*At`, `*For`, `*Between`, `*After`, a unit suffix (`*Days`, `*Seconds`, `*Milliseconds`), `is*`, `has*`, `covers*`, `holds*`, `refuse*` | `holdsLessonCards.ts`, `wholeDaysBetween.ts` |
-| Constant list | domain feature root; in a moved feature, its `domain/` | plural noun | `holdoutCheckWeeks.ts` |
-| Draw | domain feature root; in a moved feature, its `domain/` | noun + `Drawn` | `bandStartDrawn.ts` |
-| Pure change | domain feature root, sub-area; in a moved feature, its `domain/` | verb phrase, returns the changed value, no port | `accrueTown.ts` |
-| Domain use case | `useCases/` | verb phrase | `requestHint.ts` |
-| Port | `ports/`, `application/ports/` | noun + role | `CardRepository.ts` |
+| Entity, value object, type | domain `domain/` | noun, PascalCase | `HeldCard.ts` |
+| Pure rule | domain `domain/` | `derive*`, `*Of`, `*At`, `*For`, `*Between`, `*After`, a unit suffix (`*Days`, `*Seconds`, `*Milliseconds`), `is*`, `has*`, `covers*`, `holds*`, `refuse*` | `holdsLessonCards.ts`, `wholeDaysBetween.ts` |
+| Constant list | domain `domain/` | plural noun | `holdoutCheckWeeks.ts` |
+| Draw | domain `domain/` | noun + `Drawn` | `bandStartDrawn.ts` |
+| Pure change | domain `domain/` | verb phrase, returns the changed value, no port | `accrueTown.ts` |
+| Domain use case | `useCases/`, only in `learning/reviews/` until ADR 054 step 14 | verb phrase | `requestHint.ts` |
+| Port | domain `domain/`; the api's `application/ports/` | noun + role | `CardRepository.ts` |
 | Api use case | `application/` | verb phrase, never a domain export's name | `serveReport.ts` |
 | Api type or pure rule | `application/` | noun, or `*From`, `is*` | `LearningDependencies.ts` |
 | View or verdict gatherer | `application/` | `gather` + view or verdict | `gatherReviewVerdict.ts` |

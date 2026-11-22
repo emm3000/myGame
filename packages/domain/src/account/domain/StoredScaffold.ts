@@ -1,4 +1,4 @@
-import type { Scaffold } from '#learning/scaffold/Scaffold'
+import type { Scaffold } from '#learning/scaffold/domain/Scaffold'
 
 export type StoredScaffold = {
   readonly scaffold: Scaffold

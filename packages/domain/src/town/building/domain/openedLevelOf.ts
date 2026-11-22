@@ -1,4 +1,4 @@
-import type { HeldCard } from '#learning/HeldCard'
+import type { HeldCard } from '#learning/domain/HeldCard'
 import type { TownCatalog } from '../../domain/TownCatalog'
 import { buildingKinds } from './buildingKinds'
 import { wordShortfallOf } from './wordShortfallOf'
