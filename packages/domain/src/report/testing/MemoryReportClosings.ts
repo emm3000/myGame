@@ -1,6 +1,7 @@
-import type { Instant, PlayerId } from '@mygame/domain'
-import { laterOf } from '@mygame/domain'
-import type { ReportClosings } from '../../application/ports/ReportClosings'
+import type { PlayerId } from '#player/PlayerId'
+import type { Instant } from '#time/Instant'
+import { laterOf } from '#time/laterOf'
+import type { ReportClosings } from '../domain/ReportClosings'
 
 export class MemoryReportClosings implements ReportClosings {
   private readonly served = new Map<PlayerId, Instant>()

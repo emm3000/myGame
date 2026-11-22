@@ -1,4 +1,5 @@
-import type { Instant, PlayerId } from '@mygame/domain'
+import type { PlayerId } from '#player/PlayerId'
+import type { Instant } from '#time/Instant'
 
 export interface ReportClosings {
   serve(playerId: PlayerId, at: Instant): Promise<void>
