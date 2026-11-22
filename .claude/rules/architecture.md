@@ -45,7 +45,7 @@ folder_over_limit                    file_over_export_cap
 type_over_method_cap
 ```
 
-`feature_graph` is enforced by Biome, not the script, and `map` joins the script with `ARCHITECTURE.md` (ADR 054, "The checks").
+`feature_graph` is enforced by Biome, not the script, and `map` joins the script with `ARCHITECTURE.md` (ADR 054, "The checks"). It binds every import between two features of `apps/api/src`, and in `packages/domain/src` every import that names another feature's `application/` folder. The `domain/` folders of the domain package are not ordered among features: `noImportCycles` is their only import rule (ADR 055).
 
 And the reverse leak, an app reaching into another package's internals instead of its public entry, expected empty:
 
@@ -61,7 +61,7 @@ The only source of copy (ADR 038): `es.json` and `en.json`, ICU MessageFormat, o
 
 - **Entities** hold identity and invariants (`Town`, `BuildingWork`). Invariants are enforced in constructors or factory functions that return `Result<T, DomainError>`, never by a validator called later.
 - **Value objects** are immutable and compared by value (`Duration`, `SiteAddress`, `TownName`). Arithmetic lives on them, not on the caller.
-- **Use cases**: a use case is one class in `application/` with a constructor and one `execute`; it opens the unit of work it needs and returns `Result`. A step it shares is a function beside it. A use case never imports another use case.
+- **Use cases**: a use case is one class in `application/` with a constructor and one `execute`; it opens the unit of work it needs and returns `Result`. A step it shares is a function beside it. A use case never imports another use case. A step is imported across features only from a feature to its right in the api's order.
 - **Ports** are interfaces the domain needs the outside to fulfil: `TownRepository`, `Clock`, `IdGenerator`. A port is an interface in the `domain/` folder of its feature. Adapters implement them in `apps/api`.
 - **Use-case admission**: a use case earns a file when it enforces a rule or coordinates more than one port. A pass-through from a route to a repository is not a use case; the route calls the repository.
 

@@ -572,6 +572,240 @@
           }
         }
       }
+    },
+    {
+      "includes": [
+        "packages/domain/src/platform/**",
+        "packages/domain/src/memory/**",
+        "packages/domain/src/season/**"
+      ],
+      "linter": {
+        "rules": {
+          "style": {
+            "noRestrictedImports": {
+              "level": "error",
+              "options": {
+                "patterns": [
+                  {
+                    "group": [
+                      "**/content/**/application/**",
+                      "#content/**/application/**",
+                      "**/account/**/application/**",
+                      "#account/**/application/**",
+                      "**/town/**/application/**",
+                      "#town/**/application/**",
+                      "**/learning/**/application/**",
+                      "#learning/**/application/**",
+                      "**/placement/**/application/**",
+                      "#placement/**/application/**",
+                      "**/holdout/**/application/**",
+                      "#holdout/**/application/**",
+                      "**/report/**/application/**",
+                      "#report/**/application/**"
+                    ],
+                    "message": "ADR 055: platform imports an application/ folder only of a feature to its left: platform <- content <- account <- town <- learning <- placement, holdout, report."
+                  }
+                ]
+              }
+            }
+          }
+        }
+      }
+    },
+    {
+      "includes": ["packages/domain/src/content/**"],
+      "linter": {
+        "rules": {
+          "style": {
+            "noRestrictedImports": {
+              "level": "error",
+              "options": {
+                "patterns": [
+                  {
+                    "group": [
+                      "**/account/**/application/**",
+                      "#account/**/application/**",
+                      "**/town/**/application/**",
+                      "#town/**/application/**",
+                      "**/learning/**/application/**",
+                      "#learning/**/application/**",
+                      "**/placement/**/application/**",
+                      "#placement/**/application/**",
+                      "**/holdout/**/application/**",
+                      "#holdout/**/application/**",
+                      "**/report/**/application/**",
+                      "#report/**/application/**"
+                    ],
+                    "message": "ADR 055: content imports an application/ folder only of a feature to its left: platform <- content <- account <- town <- learning <- placement, holdout, report."
+                  }
+                ]
+              }
+            }
+          }
+        }
+      }
+    },
+    {
+      "includes": ["packages/domain/src/account/**"],
+      "linter": {
+        "rules": {
+          "style": {
+            "noRestrictedImports": {
+              "level": "error",
+              "options": {
+                "patterns": [
+                  {
+                    "group": [
+                      "**/town/**/application/**",
+                      "#town/**/application/**",
+                      "**/learning/**/application/**",
+                      "#learning/**/application/**",
+                      "**/placement/**/application/**",
+                      "#placement/**/application/**",
+                      "**/holdout/**/application/**",
+                      "#holdout/**/application/**",
+                      "**/report/**/application/**",
+                      "#report/**/application/**"
+                    ],
+                    "message": "ADR 055: account imports an application/ folder only of a feature to its left: platform <- content <- account <- town <- learning <- placement, holdout, report."
+                  }
+                ]
+              }
+            }
+          }
+        }
+      }
+    },
+    {
+      "includes": ["packages/domain/src/town/**"],
+      "linter": {
+        "rules": {
+          "style": {
+            "noRestrictedImports": {
+              "level": "error",
+              "options": {
+                "patterns": [
+                  {
+                    "group": [
+                      "**/learning/**/application/**",
+                      "#learning/**/application/**",
+                      "**/placement/**/application/**",
+                      "#placement/**/application/**",
+                      "**/holdout/**/application/**",
+                      "#holdout/**/application/**",
+                      "**/report/**/application/**",
+                      "#report/**/application/**"
+                    ],
+                    "message": "ADR 055: town imports an application/ folder only of a feature to its left: platform <- content <- account <- town <- learning <- placement, holdout, report."
+                  }
+                ]
+              }
+            }
+          }
+        }
+      }
+    },
+    {
+      "includes": ["packages/domain/src/learning/**"],
+      "linter": {
+        "rules": {
+          "style": {
+            "noRestrictedImports": {
+              "level": "error",
+              "options": {
+                "patterns": [
+                  {
+                    "group": [
+                      "**/placement/**/application/**",
+                      "#placement/**/application/**",
+                      "**/holdout/**/application/**",
+                      "#holdout/**/application/**",
+                      "**/report/**/application/**",
+                      "#report/**/application/**"
+                    ],
+                    "message": "ADR 055: learning imports an application/ folder only of a feature to its left: platform <- content <- account <- town <- learning <- placement, holdout, report."
+                  }
+                ]
+              }
+            }
+          }
+        }
+      }
+    },
+    {
+      "includes": ["packages/domain/src/placement/**"],
+      "linter": {
+        "rules": {
+          "style": {
+            "noRestrictedImports": {
+              "level": "error",
+              "options": {
+                "patterns": [
+                  {
+                    "group": [
+                      "**/holdout/**/application/**",
+                      "#holdout/**/application/**",
+                      "**/report/**/application/**",
+                      "#report/**/application/**"
+                    ],
+                    "message": "ADR 055: placement imports an application/ folder only of a feature to its left: platform <- content <- account <- town <- learning <- placement, holdout, report."
+                  }
+                ]
+              }
+            }
+          }
+        }
+      }
+    },
+    {
+      "includes": ["packages/domain/src/holdout/**"],
+      "linter": {
+        "rules": {
+          "style": {
+            "noRestrictedImports": {
+              "level": "error",
+              "options": {
+                "patterns": [
+                  {
+                    "group": [
+                      "**/placement/**/application/**",
+                      "#placement/**/application/**",
+                      "**/report/**/application/**",
+                      "#report/**/application/**"
+                    ],
+                    "message": "ADR 055: holdout imports an application/ folder only of a feature to its left: platform <- content <- account <- town <- learning <- placement, holdout, report."
+                  }
+                ]
+              }
+            }
+          }
+        }
+      }
+    },
+    {
+      "includes": ["packages/domain/src/report/**"],
+      "linter": {
+        "rules": {
+          "style": {
+            "noRestrictedImports": {
+              "level": "error",
+              "options": {
+                "patterns": [
+                  {
+                    "group": [
+                      "**/placement/**/application/**",
+                      "#placement/**/application/**",
+                      "**/holdout/**/application/**",
+                      "#holdout/**/application/**"
+                    ],
+                    "message": "ADR 055: report imports an application/ folder only of a feature to its left: platform <- content <- account <- town <- learning <- placement, holdout, report."
+                  }
+                ]
+              }
+            }
+          }
+        }
+      }
     }
   ]
 }

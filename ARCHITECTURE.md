@@ -18,7 +18,7 @@ A package is imported only through its `src/index.ts`. Inside `apps/api` and `pa
 platform <- content <- account <- town <- learning <- placement, holdout, report
 ```
 
-A file under `<feature>/infrastructure/persistence/` may also import, from any feature's `infrastructure/persistence/`, the files that describe the schema: `*Tables.ts`, `*FromRow.ts` and `*Columns.ts`.
+A file under `<feature>/infrastructure/persistence/` may also import, from any feature's `infrastructure/persistence/`, the files that describe the schema: `*Tables.ts`, `*FromRow.ts` and `*Columns.ts`. In `packages/domain`, the same order holds for `application/`: a file imports another feature's `application/` folder only from a feature to its left, with `memory` and `season` beside `platform`. The `domain/` folders are not ordered among features (ADR 055).
 
 ## The folders
 
@@ -129,7 +129,7 @@ A new refusal adds, in order: its member of `DomainError` (`packages/domain/src/
 
 `pnpm gate` runs them, and each fails on any hit that `scripts/mygame-structure-check.baseline` does not list. The baseline is empty: every feature has moved (ADR 054).
 
-- `feature_graph` (Biome): a feature imports only from its left.
+- `feature_graph` (Biome): in the api a feature imports only from its left; in the domain package an `application/` folder is imported only from its right.
 - `noImportCycles` (Biome): no import cycle between two files, and in the backend no type-only one either.
 - `map`: the folders above and the folders on disk are the same list, and a missing `ARCHITECTURE.md` fails.
 - `subpath_import_inside_folder`: no file imports its own top-level folder by a `#` subpath.
