@@ -86,7 +86,7 @@ const gatherStocks = (
   })
 }
 
-const gatherHolding = (
+const gatherBuildingsAndPeople = (
   reading: TownReading,
   catalog: TownCatalog,
 ): Result<Pick<TownView, 'people' | 'label' | 'buildings' | 'work'>, DomainError> => {
@@ -126,9 +126,9 @@ export const gatherTownView = (
   if (!stocks.ok) {
     return stocks
   }
-  const holding = gatherHolding(reading, catalog)
-  if (!holding.ok) {
-    return holding
+  const buildingsAndPeople = gatherBuildingsAndPeople(reading, catalog)
+  if (!buildingsAndPeople.ok) {
+    return buildingsAndPeople
   }
   const school = gatherSchoolView(reading, catalog, lessons, memoryTerms)
   if (!school.ok) {
@@ -140,7 +140,7 @@ export const gatherTownView = (
     return guidance
   }
   return ok({
-    ...holding.value,
+    ...buildingsAndPeople.value,
     stocks: stocks.value,
     season: townSeasonAt(at, catalog.townSettings()) ?? null,
     school: school.value,
