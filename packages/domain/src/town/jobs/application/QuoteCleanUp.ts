@@ -1,8 +1,8 @@
 import type { DomainError } from '#DomainError'
 import type { Clock } from '#platform/domain/Clock'
 import { ok, type Result } from '#Result'
-import { laterOf } from '#time/laterOf'
 import type { ReadOnlyTowns } from '../../domain/ReadOnlyTowns'
+import { readInstantOf } from '../../domain/readInstantOf'
 import type { TownCatalog } from '../../domain/TownCatalog'
 import type { CleanUpOrder } from '../domain/CleanUpOrder'
 import type { CleanUpQuote } from '../domain/CleanUpQuote'
@@ -29,7 +29,7 @@ export class QuoteCleanUp {
       return stored
     }
     const now = clock.now()
-    const readAt = stored.value === undefined ? now : laterOf(now, stored.value.storedAt)
+    const readAt = readInstantOf(now, stored.value?.storedAt)
     const dispatched = await dispatchCleanUp(
       order,
       { towns: { townOf: async () => stored }, map: regionMap, cleanUps, catalog: townCatalog },

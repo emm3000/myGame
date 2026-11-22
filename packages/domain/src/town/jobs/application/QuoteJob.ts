@@ -1,8 +1,8 @@
 import type { DomainError } from '#DomainError'
 import type { Clock } from '#platform/domain/Clock'
 import { ok, type Result } from '#Result'
-import { laterOf } from '#time/laterOf'
 import type { ReadOnlyTowns } from '../../domain/ReadOnlyTowns'
+import { readInstantOf } from '../../domain/readInstantOf'
 import type { TownCatalog } from '../../domain/TownCatalog'
 import type { Stocks } from '../../resources/domain/Stocks'
 import type { JobOrder } from '../domain/JobOrder'
@@ -26,7 +26,7 @@ export class QuoteJob {
       return stored
     }
     const now = clock.now()
-    const readAt = stored.value === undefined ? now : laterOf(now, stored.value.storedAt)
+    const readAt = readInstantOf(now, stored.value?.storedAt)
     const dispatched = await dispatchJob(
       order,
       { towns: { townOf: async () => stored }, map: regionMap, catalog: townCatalog },
