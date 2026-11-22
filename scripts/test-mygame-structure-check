@@ -25,8 +25,8 @@ fresh_tree() {
   cp "$scripts_dir/mygame-structure-check" "$tree/scripts/"
   : >"$baseline"
   printf "export const port = 3000\n" >"$tree/apps/api/src/listen.ts"
-  printf "export const jobPayOf = (hours: number): number => hours * 2\n" >"$tree/packages/domain/src/town/jobPayOf.ts"
-  printf "export { jobPayOf } from './town/jobPayOf'\n" >"$tree/packages/domain/src/index.ts"
+  plant packages/domain/src/town/domain/jobPayOf.ts "export const jobPayOf = (hours: number): number => hours * 2\n"
+  printf "export { jobPayOf } from './town/domain/jobPayOf'\n" >"$tree/packages/domain/src/index.ts"
   printf "export const SendJob = 'send-job'\n" >"$tree/packages/contracts/src/SendJob.ts"
   plant ARCHITECTURE.md "| Folder | What |\n|---|---|\n| \`town\` | the holding |\n"
 }
@@ -198,21 +198,21 @@ fails_an_async_const_named_for() {
 
 passes_a_synchronous_reading_that_takes_a_promise_callback() {
   fresh_tree
-  plant apps/api/src/town/application/sendJob.ts "export function retriesFor(task: () => Promise<void>): number {\n  return task.length\n}\nexport const retriesBetween = (task: () => Promise<void>, from: number): number => from\nconst attemptsAt: (task: () => Promise<void>) => number = (task) => task.length\n"
+  plant packages/domain/src/town/application/sendJob.ts "export function retriesFor(task: () => Promise<void>): number {\n  return task.length\n}\nexport const retriesBetween = (task: () => Promise<void>, from: number): number => from\nconst attemptsAt: (task: () => Promise<void>) => number = (task) => task.length\n"
   check
   expect_pass "${FUNCNAME[0]}"
 }
 
 passes_a_synchronous_reading_that_returns_a_promise_like_in_a_union() {
   fresh_tree
-  plant apps/api/src/town/application/sendJob.ts "export function settledAt(at: number): number | PromiseLike<number> {\n  return at\n}\nconst settledFor = (at: number): PromiseLike<number> | number => at\n"
+  plant packages/domain/src/town/application/sendJob.ts "export function settledAt(at: number): number | PromiseLike<number> {\n  return at\n}\nconst settledFor = (at: number): PromiseLike<number> | number => at\n"
   check
   expect_pass "${FUNCNAME[0]}"
 }
 
 passes_a_synchronous_const_named_of_and_an_async_one_in_a_test() {
   fresh_tree
-  plant packages/domain/src/town/jobSiteOf.ts "export const jobSiteOf = (id: string): string => id\nexport const jobDueAt = (pay: (hours: number) => number): number => pay(1)\n"
+  plant packages/domain/src/town/domain/jobSiteOf.ts "export const jobSiteOf = (id: string): string => id\nexport const jobDueAt = (pay: (hours: number) => number): number => pay(1)\n"
   plant apps/api/src/town/infrastructure/http/townRoutes.testSupport.ts "export const overviewOf = async (response: Response): Promise<unknown> => response.json()\n"
   check
   expect_pass "${FUNCNAME[0]}"
@@ -278,9 +278,9 @@ fails_a_web_file_importing_the_domain_fakes() {
 passes_the_fakes_in_tests_contract_suites_and_the_testing_entry() {
   local exports="export const a = 1\nexport const b = 2\nexport const c = 3\nexport const d = 4\nexport const e = 5\nexport { inMemoryTowns } from '#town/testing/inMemoryTowns'\n"
   fresh_tree
-  plant apps/api/src/town/infrastructure/memory/inMemoryTowns.test.ts "import { inMemoryTowns } from '@mygame/domain/testing'\n"
-  plant apps/api/src/town/infrastructure/memory/townRepositoryContract.testSupport.ts "import { inMemoryTowns } from '@mygame/domain/testing'\n"
-  plant packages/domain/src/town/useCases/sendJob.test.ts "import { inMemoryTowns } from '../testing/inMemoryTowns'\n"
+  plant apps/api/src/town/infrastructure/persistence/inMemoryTowns.test.ts "import { inMemoryTowns } from '@mygame/domain/testing'\n"
+  plant apps/api/src/town/infrastructure/persistence/townRepositoryContract.testSupport.ts "import { inMemoryTowns } from '@mygame/domain/testing'\n"
+  plant packages/domain/src/town/application/SendJob.test.ts "import { inMemoryTowns } from '../testing/inMemoryTowns'\n"
   plant packages/domain/src/town/testing/inMemoryTowns.ts "import { inMemoryEarnedSkills } from './inMemoryEarnedSkills'\n"
   plant packages/domain/src/testing.ts "$exports"
   plant apps/web/src/town/TownScreen.test.tsx "import { inMemoryTowns } from '@mygame/domain/testing'\n"
@@ -295,6 +295,13 @@ fails_a_use_case_named_of() {
   expect_failure "${FUNCNAME[0]}" "structure check use_case_named_of packages/domain/src/town/useCases/townOf.ts"
 }
 
+fails_a_step_named_of() {
+  fresh_tree
+  plant packages/domain/src/town/application/townOf.ts "export const townOf = (id: string): string => id\n"
+  check
+  expect_failure "${FUNCNAME[0]}" "structure check use_case_named_of packages/domain/src/town/application/townOf.ts"
+}
+
 fails_a_domain_promise_outside_its_roles() {
   fresh_tree
   plant packages/domain/src/town/readTown.ts "export const readTown = (): Promise<number> => Promise.resolve(1)\n"
@@ -304,9 +311,30 @@ fails_a_domain_promise_outside_its_roles() {
 
 passes_a_domain_promise_in_a_port() {
   fresh_tree
-  plant packages/domain/src/town/ports/TownRepository.ts "export interface TownRepository {\n  find(id: string): Promise<number>\n}\n"
+  plant packages/domain/src/town/domain/TownRepository.ts "export interface TownRepository {\n  find(id: string): Promise<number>\n}\n"
   check
   expect_pass "${FUNCNAME[0]}"
+}
+
+passes_a_domain_promise_in_the_application() {
+  fresh_tree
+  plant packages/domain/src/town/application/mutateTown.ts "export const mutateTown = async (): Promise<number> => 1\n"
+  check
+  expect_pass "${FUNCNAME[0]}"
+}
+
+fails_a_domain_promise_in_a_port_type() {
+  fresh_tree
+  plant packages/domain/src/town/ports/Transaction.ts "export type Transaction = <T>(work: () => Promise<T>) => Promise<T>\n"
+  check
+  expect_failure "${FUNCNAME[0]}" "structure check domain_promise_outside_its_roles packages/domain/src/town/ports/Transaction.ts"
+}
+
+fails_an_async_function_beside_a_port() {
+  fresh_tree
+  plant packages/domain/src/town/domain/TownRepository.ts "export interface TownRepository {\n  find(id: string): Promise<number>\n}\n\nexport const findTown = async (towns: TownRepository): Promise<number> => towns.find('a')\n"
+  check
+  expect_failure "${FUNCNAME[0]}" "structure check domain_promise_outside_its_roles packages/domain/src/town/domain/TownRepository.ts"
 }
 
 fails_a_use_case_importing_a_use_case_from_its_folder() {
@@ -330,11 +358,173 @@ fails_a_use_case_importing_another_features_use_case_by_subpath() {
   expect_failure "${FUNCNAME[0]}" "structure check use_case_imports_use_case packages/domain/src/town/useCases/sendJob.ts 1:import"
 }
 
+fails_a_use_case_class_importing_a_use_case_class_from_its_folder() {
+  fresh_tree
+  plant packages/domain/src/town/jobs/application/SendJob.ts "import { QuoteJob } from './QuoteJob'\n"
+  check
+  expect_failure "${FUNCNAME[0]}" "structure check use_case_imports_use_case packages/domain/src/town/jobs/application/SendJob.ts 1:import"
+}
+
+fails_a_use_case_class_importing_another_features_use_case_class() {
+  fresh_tree
+  plant packages/domain/src/town/jobs/application/SendJob.ts "import { SubmitReviewAnswer } from '../../../learning/reviews/application/SubmitReviewAnswer'\n"
+  plant packages/domain/src/town/application/FoundTown.ts "import { SignUp } from '#account/application/SignUp'\n"
+  check
+  expect_failure "${FUNCNAME[0]}" "structure check use_case_imports_use_case packages/domain/src/town/jobs/application/SendJob.ts 1:import" &&
+    expect_failure "${FUNCNAME[0]}" "structure check use_case_imports_use_case packages/domain/src/town/application/FoundTown.ts 1:import"
+}
+
+fails_a_use_case_function_importing_a_use_case_class() {
+  fresh_tree
+  plant packages/domain/src/town/jobs/useCases/sendJob.ts "import { FoundTown } from '../../application/FoundTown'\n"
+  check
+  expect_failure "${FUNCNAME[0]}" "structure check use_case_imports_use_case packages/domain/src/town/jobs/useCases/sendJob.ts 1:import"
+}
+
+passes_an_application_file_importing_a_step_and_an_unmoved_use_case() {
+  fresh_tree
+  plant packages/domain/src/town/application/mutateTown.ts "import { settleSchoolLesson } from '../school/useCases/settleSchoolLesson'\nimport { changeTown } from './changeTown'\nimport { dispatchJob } from '../jobs/application/dispatchJob'\n"
+  plant packages/domain/src/town/school/useCases/settleSchoolLesson.ts "export const settleSchoolLesson = (id: string): string => id\n"
+  printf 'file_outside_layer packages/domain/src/town/school/useCases\nrole_folder packages/domain/src/town/school/useCases\n' >"$baseline"
+  check
+  expect_pass "${FUNCNAME[0]}"
+}
+
 fails_a_public_service() {
   fresh_tree
   plant packages/domain/src/index.ts "export { resolveStoredTown } from './town/services/resolveStoredTown'\n"
   check
-  expect_failure "${FUNCNAME[0]}" "structure check service_is_public packages/domain/src/index.ts 1:export"
+  expect_failure "${FUNCNAME[0]}" "structure check step_is_public packages/domain/src/index.ts 1:export"
+}
+
+fails_a_public_step() {
+  fresh_tree
+  plant packages/domain/src/index.ts "export { SendJob } from './town/jobs/application/SendJob'\nexport { mutateTown } from './town/application/mutateTown'\n"
+  check
+  expect_failure "${FUNCNAME[0]}" "structure check step_is_public packages/domain/src/index.ts 2:export"
+}
+
+passes_a_public_use_case() {
+  fresh_tree
+  plant packages/domain/src/index.ts "export { SendJob } from './town/jobs/application/SendJob'\n"
+  check
+  expect_pass "${FUNCNAME[0]}"
+}
+
+fails_a_layer_folder_in_the_api() {
+  fresh_tree
+  plant apps/api/src/town/application/mutateTown.ts "export const mutateTown = 1\n"
+  plant apps/api/src/town/domain/Town.ts "export const Town = 1\n"
+  check
+  expect_failure "${FUNCNAME[0]}" "structure check api_holds_layer apps/api/src/town/application" &&
+    expect_failure "${FUNCNAME[0]}" "structure check api_holds_layer apps/api/src/town/domain"
+}
+
+fails_a_role_folder_in_the_domain() {
+  fresh_tree
+  plant packages/domain/src/town/jobs/useCases/sendJob.ts "export const sendJob = 1\n"
+  plant packages/domain/src/town/jobs/services/dispatchJob.ts "export const dispatchJob = 1\n"
+  plant packages/domain/src/town/jobs/ports/JobLedger.ts "export interface JobLedger {}\n"
+  check
+  expect_failure "${FUNCNAME[0]}" "structure check role_folder packages/domain/src/town/jobs/useCases" &&
+    expect_failure "${FUNCNAME[0]}" "structure check role_folder packages/domain/src/town/jobs/services" &&
+    expect_failure "${FUNCNAME[0]}" "structure check role_folder packages/domain/src/town/jobs/ports"
+}
+
+fails_a_role_folder_in_the_api() {
+  fresh_tree
+  plant apps/api/src/town/infrastructure/postgres/DrizzleTowns.ts "export const towns = 1\n"
+  plant apps/api/src/town/infrastructure/memory/townsContract.testSupport.ts "export const contract = 1\n"
+  check
+  expect_failure "${FUNCNAME[0]}" "structure check role_folder apps/api/src/town/infrastructure/postgres" &&
+    expect_failure "${FUNCNAME[0]}" "structure check role_folder apps/api/src/town/infrastructure/memory"
+}
+
+fails_a_feature_file_outside_its_layers() {
+  fresh_tree
+  plant packages/domain/src/town/jobs/jobSiteOf.ts "export const jobSiteOf = (id: string): string => id\n"
+  check
+  expect_failure "${FUNCNAME[0]}" "structure check file_outside_layer packages/domain/src/town/jobs"
+}
+
+passes_files_in_the_layers_the_kernel_and_the_root() {
+  fresh_tree
+  plant packages/domain/src/town/jobs/domain/JobOrder.ts "export type JobOrder = { readonly id: string }\n"
+  plant packages/domain/src/town/jobs/application/dispatchJob.ts "export const dispatchJob = (id: string): string => id\n"
+  plant packages/domain/src/town/testing/inMemoryTowns.ts "export const inMemoryTowns = (): number => 1\n"
+  plant packages/domain/src/player/PlayerId.ts "export type PlayerId = string\n"
+  plant packages/domain/src/time/Instant.ts "export type Instant = number\n"
+  plant packages/domain/src/hash/stableHash.ts "export const stableHash = (text: string): number => text.length\n"
+  plant packages/domain/src/grid/GridPoint.ts "export type GridPoint = { readonly x: number }\n"
+  plant packages/domain/src/DomainError.ts "export type DomainError = { readonly kind: 'TownNotFound' }\n"
+  plant ARCHITECTURE.md "| Folder | What |\n|---|---|\n| \`grid\` | the grid |\n| \`hash\` | the hash |\n| \`player\` | the player |\n| \`time\` | the time |\n| \`town\` | the holding |\n"
+  check
+  expect_pass "${FUNCNAME[0]}"
+}
+
+fails_an_endpoint_file_and_its_test() {
+  fresh_tree
+  plant apps/api/src/town/jobs/infrastructure/http/sendJobRoute.ts "export const sendJobRoute = 1\n"
+  plant apps/api/src/town/jobs/infrastructure/http/sendJobRoute.test.ts "export const test = 1\n"
+  check
+  expect_failure "${FUNCNAME[0]}" "structure check route_file apps/api/src/town/jobs/infrastructure/http/sendJobRoute.ts" &&
+    expect_failure "${FUNCNAME[0]}" "structure check route_file apps/api/src/town/jobs/infrastructure/http/sendJobRoute.test.ts"
+}
+
+use_case() {
+  plant packages/domain/src/town/jobs/application/SendJob.ts "export type SendJobDependencies = { readonly clock: Clock }\n\nexport class SendJob {\n  constructor(private readonly dependencies: SendJobDependencies) {}\n\n  async execute(command: SendJobCommand): Promise<Result<TownReading, DomainError>> {\n    return dispatchJob(command, this.dependencies)\n  }\n}\n"
+}
+
+controller() {
+  plant apps/api/src/town/jobs/infrastructure/http/SendJobController.ts "export class SendJobController {\n  constructor(private readonly dependencies: SendJobControllerDependencies) {}\n\n  async handle(c: Context<SignedInPlayer>): Promise<Response> {\n    return this.respond(c)\n  }\n\n  private respond(c: Context<SignedInPlayer>): Response {\n    return c.json({})\n  }\n}\n"
+}
+
+passes_a_use_case_its_controller_and_their_builders() {
+  fresh_tree
+  use_case
+  controller
+  plant apps/api/src/composeUseCases.ts "export const composeUseCases = (adapters: UseCaseDependencies): UseCases => ({\n  sendJob: new SendJob(adapters),\n})\n"
+  plant apps/api/src/town/jobs/infrastructure/http/jobsRoutes.ts "export const jobsRoutes = (routes: OpenAPIHono, dependencies: JobsRouteDependencies): void => {\n  const sendJobController = new SendJobController(dependencies)\n}\n"
+  check
+  expect_pass "${FUNCNAME[0]}"
+}
+
+fails_a_use_case_that_is_a_function() {
+  fresh_tree
+  plant packages/domain/src/town/jobs/application/SendJob.ts "export const SendJob = async (command: SendJobCommand): Promise<number> => 1\n"
+  check
+  expect_failure "${FUNCNAME[0]}" "structure check use_case_shape packages/domain/src/town/jobs/application/SendJob.ts is not one exported class with a constructor and one async execute("
+}
+
+fails_a_use_case_with_a_second_method() {
+  fresh_tree
+  plant packages/domain/src/town/jobs/application/SendJob.ts "export class SendJob {\n  constructor(private readonly dependencies: SendJobDependencies) {}\n\n  async execute(command: SendJobCommand): Promise<number> {\n    return this.dispatch(command)\n  }\n\n  private dispatch(command: SendJobCommand): number {\n    return 1\n  }\n}\n"
+  check
+  expect_failure "${FUNCNAME[0]}" "structure check use_case_shape packages/domain/src/town/jobs/application/SendJob.ts a second method:   private dispatch(command: SendJobCommand): number {"
+}
+
+fails_a_controller_without_handle() {
+  fresh_tree
+  plant apps/api/src/town/jobs/infrastructure/http/SendJobController.ts "export class SendJobController {\n  constructor(private readonly dependencies: SendJobControllerDependencies) {}\n\n  async run(c: Context<SignedInPlayer>): Promise<Response> {\n    return c.json({})\n  }\n}\n"
+  check
+  expect_failure "${FUNCNAME[0]}" "structure check controller_shape apps/api/src/town/jobs/infrastructure/http/SendJobController.ts a second method:   async run(" &&
+    expect_failure "${FUNCNAME[0]}" "structure check controller_shape apps/api/src/town/jobs/infrastructure/http/SendJobController.ts is not one exported class with a constructor and one async handle("
+}
+
+fails_a_use_case_built_outside_the_root() {
+  fresh_tree
+  use_case
+  plant apps/api/src/town/jobs/infrastructure/http/jobsRoutes.ts "export const jobsRoutes = (dependencies: JobsRouteDependencies): SendJob => new SendJob(dependencies)\n"
+  check
+  expect_failure "${FUNCNAME[0]}" "structure check use_case_built_outside_root apps/api/src/town/jobs/infrastructure/http/jobsRoutes.ts 1:export"
+}
+
+fails_a_controller_built_outside_its_route_list() {
+  fresh_tree
+  controller
+  plant apps/api/src/app.ts "export const health = new HealthController(dependencies)\n"
+  check
+  expect_failure "${FUNCNAME[0]}" "structure check controller_built_outside_route_list apps/api/src/app.ts 1:export"
 }
 
 fails_a_folder_over_thirty_production_files() {
@@ -363,7 +553,7 @@ fails_a_file_over_five_exports() {
 passes_tables_and_entries_over_five_exports() {
   local exports="export const a = 1\nexport const b = 2\nexport const c = 3\nexport const d = 4\nexport const e = 5\nexport const f = 6\n"
   fresh_tree
-  plant apps/api/src/town/infrastructure/postgres/townTables.ts "$exports"
+  plant apps/api/src/town/infrastructure/persistence/townTables.ts "$exports"
   plant packages/contracts/src/index.ts "$exports"
   check
   expect_pass "${FUNCNAME[0]}"
@@ -378,7 +568,7 @@ fails_an_interface_over_seven_methods() {
 
 passes_a_class_of_seven_methods_and_its_accessors() {
   fresh_tree
-  plant packages/domain/src/town/Town.ts "export class Town {\n  constructor(private readonly id: string) {}\n  get name(): string {\n    return this.id\n  }\n  a(): void {}\n  b(): void {}\n  c(): void {}\n  d(): void {}\n  e(): void {}\n  f(): void {}\n  private g(): void {}\n}\n"
+  plant packages/domain/src/town/domain/Town.ts "export class Town {\n  constructor(private readonly id: string) {}\n  get name(): string {\n    return this.id\n  }\n  a(): void {}\n  b(): void {}\n  c(): void {}\n  d(): void {}\n  e(): void {}\n  f(): void {}\n  private g(): void {}\n}\n"
   check
   expect_pass "${FUNCNAME[0]}"
 }
@@ -413,8 +603,8 @@ passes_a_map_that_matches_the_folders() {
 
 passes_a_baselined_violation() {
   fresh_tree
-  plant packages/domain/src/town/readTown.ts "export const readTown = (): Promise<number> => Promise.resolve(1)\n"
-  printf 'domain_promise_outside_its_roles packages/domain/src/town/readTown.ts\n' >"$baseline"
+  plant packages/domain/src/town/domain/readTown.ts "export const readTown = (): Promise<number> => Promise.resolve(1)\n"
+  printf 'domain_promise_outside_its_roles packages/domain/src/town/domain/readTown.ts\n' >"$baseline"
   check
   expect_pass "${FUNCNAME[0]}"
 }
@@ -482,12 +672,34 @@ run fails_a_domain_root_file_importing_the_testing_entry_relatively
 run fails_a_web_file_importing_the_domain_fakes
 run passes_the_fakes_in_tests_contract_suites_and_the_testing_entry
 run fails_a_use_case_named_of
+run fails_a_step_named_of
 run fails_a_domain_promise_outside_its_roles
 run passes_a_domain_promise_in_a_port
+run passes_a_domain_promise_in_the_application
+run fails_a_domain_promise_in_a_port_type
+run fails_an_async_function_beside_a_port
 run fails_a_use_case_importing_a_use_case_from_its_folder
 run fails_a_use_case_importing_another_features_use_case
 run fails_a_use_case_importing_another_features_use_case_by_subpath
+run fails_a_use_case_class_importing_a_use_case_class_from_its_folder
+run fails_a_use_case_class_importing_another_features_use_case_class
+run fails_a_use_case_function_importing_a_use_case_class
+run passes_an_application_file_importing_a_step_and_an_unmoved_use_case
 run fails_a_public_service
+run fails_a_public_step
+run passes_a_public_use_case
+run fails_a_layer_folder_in_the_api
+run fails_a_role_folder_in_the_domain
+run fails_a_role_folder_in_the_api
+run fails_a_feature_file_outside_its_layers
+run passes_files_in_the_layers_the_kernel_and_the_root
+run fails_an_endpoint_file_and_its_test
+run passes_a_use_case_its_controller_and_their_builders
+run fails_a_use_case_that_is_a_function
+run fails_a_use_case_with_a_second_method
+run fails_a_controller_without_handle
+run fails_a_use_case_built_outside_the_root
+run fails_a_controller_built_outside_its_route_list
 run fails_a_folder_over_thirty_production_files
 run passes_a_folder_of_thirty_production_files_and_its_tests
 run fails_a_file_over_five_exports
