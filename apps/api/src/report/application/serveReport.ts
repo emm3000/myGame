@@ -63,7 +63,7 @@ const newsBetween = async (
   return news.filter(({ occurredAt }) => occurredAt.epochMilliseconds <= at.epochMilliseconds)
 }
 
-const shownAt = (
+const showReport = (
   playerId: PlayerId,
   closedAt: Instant,
   town: ReportTown,
@@ -93,7 +93,7 @@ export const serveReport = async (
   if (!town.ok) {
     return town
   }
-  const shown = await shownAt(playerId, closedAt, town.value, dependencies)
+  const shown = await showReport(playerId, closedAt, town.value, dependencies)
   if (!shown.ok) {
     return shown
   }
