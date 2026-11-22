@@ -1,31 +1,23 @@
 import {
-  type AnsweredReview,
   answerReview,
   type CardRepository,
   type DomainError,
   err,
-  type LessonWord,
   ok,
   type PlayerId,
   type Result,
-  type Scaffold,
-  type Town,
   type TownSkill,
   type WordId,
 } from '@mygame/domain'
 import { readScaffold } from '#account/application/readScaffold'
 import type { LessonLibrary } from '#content/application/ports/LessonLibrary'
 import { mutateTown } from '#town/application/mutateTown'
+import {
+  gatherReviewVerdict,
+  type ReviewOutcome,
+  type ReviewVerdictView,
+} from './gatherReviewVerdict'
 import type { LearningDependencies } from './LearningDependencies'
-
-export type ReviewOutcome = {
-  readonly answered: AnsweredReview
-  readonly word: LessonWord
-  readonly scaffold: Scaffold
-  readonly skills: ReadonlyArray<TownSkill>
-  readonly town: Town | undefined
-  readonly skillWords: ReadonlyArray<string>
-}
 
 const readHeldWords = async (
   playerId: PlayerId,
@@ -49,7 +41,7 @@ const readHeldWords = async (
   )
 }
 
-export const submitReviewAnswer = (
+const recordReviewAnswer = (
   playerId: PlayerId,
   wordId: WordId,
   answer: string,
@@ -107,3 +99,15 @@ export const submitReviewAnswer = (
     },
     dependencies,
   )
+
+export const submitReviewAnswer = async (
+  playerId: PlayerId,
+  wordId: WordId,
+  answer: string,
+  dependencies: LearningDependencies,
+): Promise<Result<ReviewVerdictView, DomainError>> => {
+  const outcome = await recordReviewAnswer(playerId, wordId, answer, dependencies)
+  return outcome.ok
+    ? gatherReviewVerdict(outcome.value, dependencies.townCatalog, dependencies.memoryTerms)
+    : outcome
+}

@@ -65,15 +65,7 @@ export const submitReviewAnswerRoute = (
       if (!outcome.ok) {
         return respondRefusal(c, outcome.error)
       }
-      const verdict = presentReviewVerdict(
-        outcome.value,
-        dependencies.townCatalog,
-        dependencies.memoryTerms,
-      )
-      if (!verdict.ok) {
-        return respondRefusal(c, verdict.error)
-      }
-      const body: ReviewAnswer = { verdict: verdict.value }
+      const body: ReviewAnswer = { verdict: presentReviewVerdict(outcome.value) }
       return c.json(body)
     },
   )
