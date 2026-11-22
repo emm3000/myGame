@@ -1,7 +1,7 @@
 import { ok } from '#Result'
 import type { TownId } from '../../domain/TownId'
-import { idleLessonSlot, type LessonSlot } from '../LessonSlot'
-import type { LessonSlotRepository } from '../ports/LessonSlotRepository'
+import { idleLessonSlot, type LessonSlot } from '../domain/LessonSlot'
+import type { LessonSlotRepository } from '../domain/LessonSlotRepository'
 
 export type StoredLessonSlot = {
   readonly townId: TownId

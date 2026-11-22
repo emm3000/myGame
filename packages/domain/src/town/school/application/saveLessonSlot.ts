@@ -6,8 +6,8 @@ import { ok, type Result } from '#Result'
 import type { TownEvent } from '../../domain/TownEvent'
 import type { TownId } from '../../domain/TownId'
 import type { TownNews } from '../../domain/TownNews'
-import type { LessonSlot } from '../LessonSlot'
-import type { LessonSlotRepository } from '../ports/LessonSlotRepository'
+import type { LessonSlot } from '../domain/LessonSlot'
+import type { LessonSlotRepository } from '../domain/LessonSlotRepository'
 
 export type LessonSlotChange = {
   readonly entered: ReadonlyArray<HeldCard>

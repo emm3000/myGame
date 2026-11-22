@@ -1,8 +1,8 @@
 import type { TownOverview } from '@mygame/contracts'
 import type { LessonSlot, ReleasedLesson, ShelvedLesson } from '@mygame/domain'
 import { isoOf } from '#platform/infrastructure/http/isoOf'
-import type { LessonWordsView } from '../../application/gatherLessonWordsView'
-import type { LessonView, SchoolView } from '../../application/gatherSchoolView'
+import type { LessonWordsView } from './gatherLessonWordsView'
+import type { LessonView, SchoolView } from './gatherSchoolView'
 
 type SchoolOverview = Pick<
   TownOverview,

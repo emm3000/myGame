@@ -19,9 +19,9 @@ import { err, ok, type Result } from '#Result'
 import type { Instant } from '#time/Instant'
 import type { Town } from '../domain/Town'
 import type { TownCatalog } from '../domain/TownCatalog'
-import { admitSchoolLesson, type SchoolLessonRefusal } from '../school/admitSchoolLesson'
-import type { LessonSlot } from '../school/LessonSlot'
-import type { SchoolLesson } from '../school/SchoolLesson'
+import { admitSchoolLesson, type SchoolLessonRefusal } from '../school/domain/admitSchoolLesson'
+import type { LessonSlot } from '../school/domain/LessonSlot'
+import type { SchoolLesson } from '../school/domain/SchoolLesson'
 import type { CaughtUpReason, NextStep, NextStepText } from './NextStep'
 
 export type NextStepReading = {

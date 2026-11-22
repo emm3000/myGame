@@ -9,11 +9,11 @@ import type { PlayerId } from '#player/PlayerId'
 import { ok, type Result } from '#Result'
 import type { Instant } from '#time/Instant'
 import type { TownId } from '../../domain/TownId'
-import type { LessonSlot } from '../LessonSlot'
-import type { LessonSlotRepository } from '../ports/LessonSlotRepository'
-import type { SchoolLesson } from '../SchoolLesson'
-import { schoolLessonsOf } from '../schoolLessonsOf'
-import { type SettledLessonSlot, settledLessonSlot } from '../settledLessonSlot'
+import type { LessonSlot } from '../domain/LessonSlot'
+import type { LessonSlotRepository } from '../domain/LessonSlotRepository'
+import type { SchoolLesson } from '../domain/SchoolLesson'
+import { schoolLessonsOf } from '../domain/schoolLessonsOf'
+import { type SettledLessonSlot, settledLessonSlot } from '../domain/settledLessonSlot'
 
 export type SettledSchool = SettledLessonSlot & {
   readonly stored: LessonSlot

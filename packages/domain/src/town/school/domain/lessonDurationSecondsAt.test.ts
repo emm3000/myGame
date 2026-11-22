@@ -1,7 +1,7 @@
 import { describe, expect, it } from 'vitest'
 import { Instant } from '#time/Instant'
-import type { TownSettings } from '../domain/TownSettings'
-import { plainTownSettings } from '../testing/townCatalogOf'
+import type { TownSettings } from '../../domain/TownSettings'
+import { plainTownSettings } from '../../testing/townCatalogOf'
 import { lessonDurationSecondsAt } from './lessonDurationSecondsAt'
 
 const MILLISECONDS_PER_DAY = 86_400_000
