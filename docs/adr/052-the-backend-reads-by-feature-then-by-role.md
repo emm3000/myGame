@@ -108,14 +108,14 @@ segment: `apps/api/src/town/jobs/infrastructure/http/sendJobRoute.ts`.
 | Feature | What it is | domain | api | contracts |
 |---|---|---|---|---|
 | `account` | players, sessions, account tokens, mail, the scaffold choice and the chrome phase | no | yes | yes |
-| `town` | the holding: founding, resolve, the overview | yes | yes | yes |
+| `town` | the holding: founding, resolve, the overview; at its root the name, label and address, the terrain and site, the people, the skills, the settings, Town News and the season percents | yes | yes | yes |
 | `town/resources` | the resources, "one of money, food, power, material", each with "an amount, a rate per hour and a capacity on a town" (`CONTEXT.md`, Resource): the stocks, their storage and their accrual | yes | no | no |
 | `town/building` | building work and the waiting list | yes | yes | yes |
 | `town/hiring` | hiring orders and hires | yes | yes | yes |
 | `town/jobs` | jobs, clean-ups, waste, the region map | yes | yes | yes |
 | `town/school` | the lesson slot and the lessons a school runs | yes | yes | yes |
 | `town/guidance` | the next step, the goal, tips | yes | yes | yes |
-| `town/news` | town events and Town News | no | yes | yes |
+| `town/news` | Town News | no | yes | yes |
 | `learning` | reviews, hints, frames, retention, the curriculum's shape | yes | yes | yes |
 | `placement` | the placement offer and its bands | yes | yes | yes |
 | `holdout` | holdout checks and released lessons | yes | yes | yes |

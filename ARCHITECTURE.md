@@ -29,8 +29,8 @@ One row for each folder directly under `apps/api/src` or `packages/domain/src`: 
 | `platform` | api | What holds no game word: the HTTP kernel, the Postgres kernel, the system clock and ids, the failure sink and the deferred work. |
 | `content` | api | The JSON catalogs of the town and the lessons, and the content gate: the checks the shipped content passes. |
 | `account` | api | Players, sessions, account tokens and mail, the scaffold choice and the chrome phase. |
-| `town` | api, domain | The holding: founding, building work, hiring, jobs, the school, guidance and news; in the domain, the terrain and the site address at its root, and the sub-area `resources`, each resource's "amount, a rate per hour and a capacity on a town" (`CONTEXT.md`, Resource): the stocks, their storage and their accrual. |
-| `learning` | api, domain | Reviews, hints, frames, retention and the curriculum's shape; in the domain, the lesson and the held card at its root and the sub-areas `reviews`, `frames`, `retention`, `curriculum` (the bands, their words and headwords) and `scaffold`. |
+| `town` | api, domain | The holding: founding, resolve, the overview. In the domain, the root keeps the name, label and address (`TownName`, `townLabelOf`, `TownAddress`), the terrain and site (`Terrain`, `SiteAddress`), the people (`derivePeople`), the skills the player earns (`TownSkill`, `earnTownSkill`), the settings (`TownSettings`), Town News (`TownEvent`) and the season percents (`townSeasonAt`, `seasonPercentsAt`); the sub-areas are `resources` (stocks, storage, accrual), `building` (building work, the waiting list), `hiring` (orders and hires), `jobs` (jobs, clean-ups, waste, the region map), `school` (the lesson slot and its lessons) and `guidance` (the next step, the goal, tips). In the api, `news` resolves Town News. |
+| `learning` | api, domain | Reviews, hints, frames, retention and the curriculum's shape; in the domain, the lesson and the held card at its root and the sub-areas `reviews` (pending reviews, grading, due cards), `frames` (word frames and texts), `retention` (retained and stable words, skill levels), `curriculum` (the bands, their words and headwords) and `scaffold` (support text, glosses, the chrome phase). |
 | `holdout` | api, domain | Band starts and the draw of their held-out words, their holdout checks and released lessons. |
 | `placement` | api, domain | The placement offer and its bands. |
 | `report` | api | The Report: the reviews due and the Town News since the player last closed it, and when it was served and closed. |
@@ -62,10 +62,11 @@ A domain file lives in the sub-area whose word it names in the "What it is" colu
 
 ```
 index.ts  listen.ts  app.ts  composeServer.ts  composeStores.ts    the composition root, the only place that constructs an adapter
+listenPortOf.ts  writeOpenApiDocument.ts                          the api's own entry helpers; nothing else sits at the root
 <feature>/
   application/                the use cases the api owns
   application/ports/          the ports only the api needs
-  infrastructure/http/        endpoints, route lists, presenters
+  infrastructure/http/        endpoints, route lists, responders, presenters, and the wire declarations and request helpers they share
   infrastructure/postgres/    Drizzle adapters, the feature's tables, row mappers
   infrastructure/memory/      in-memory adapters of application/ports/, each port's contract suite, and the test that runs a domain port's suite on its fake
   infrastructure/json/        the JSON catalogs
@@ -74,7 +75,7 @@ index.ts  listen.ts  app.ts  composeServer.ts  composeStores.ts    the compositi
   gate/                       the content gate (content): the checks the shipped content passes, one file per check in checks/ and the readings they share beside them; no request, port or adapter reaches it, only its tests
 ```
 
-`platform/` follows the same grammar: `application/` holds `Refusal`, `application/ports/` the transaction, the failure sink and the deferred work, and `infrastructure/{http,postgres,system,vercel}/` the kernels. Only `platform/` may hold, at its root, a pure function that both its `application/` and its `infrastructure/` read; `thrownCauseOf.ts` is the one case, and a feature folder may not. An adapter lives in the feature whose port it implements. A domain port has one in-memory implementation, the fake in its domain feature's `testing/`, which the api's contract suite runs against beside the Drizzle adapter, reading it through `@mygame/domain/testing`; an in-memory adapter in `infrastructure/memory/` implements only a port of `application/ports/`. `packages/contracts/src/<feature>/` holds one schema per file, with no layer folder. Only `infrastructure/http/`, `infrastructure/json/` and `content/gate/` import `@mygame/contracts`: they parse, or check, a shape written outside the process, a request or a content file.
+`platform/` follows the same grammar: `application/` holds `Refusal`, `application/ports/` the transaction, the failure sink and the deferred work, and `infrastructure/{http,postgres,system,vercel}/` the kernels. Only `platform/` may hold, at its root, a pure function that both its `application/` and its `infrastructure/` read; `thrownCauseOf.ts` is the one case, and a feature folder may not. A layer with nothing to hold has no folder: `placement` has no `application/`, and `content` has only `application/ports/`. An adapter lives in the feature whose port it implements. A domain port has one in-memory implementation, the fake in its domain feature's `testing/`, which the api's contract suite runs against beside the Drizzle adapter, reading it through `@mygame/domain/testing`; an in-memory adapter in `infrastructure/memory/` implements only a port of `application/ports/`. `packages/contracts/src/<feature>/` holds one schema per file, with no layer folder. Only `infrastructure/http/`, `infrastructure/json/` and `content/gate/` import `@mygame/contracts`: they parse, or check, a shape written outside the process, a request or a content file.
 
 ## The file-name grammar
 
@@ -82,15 +83,21 @@ index.ts  listen.ts  app.ts  composeServer.ts  composeStores.ts    the compositi
 |---|---|---|---|
 | Entity, value object, type | domain feature root | noun, PascalCase | `Town.ts` |
 | Pure rule | domain feature root | `derive*`, `*Of`, `*At`, `is*`, `has*`, `refuse*` | `jobPayOf.ts` |
+| Pure change | domain feature root, sub-area | verb phrase, returns the changed value, no port | `accrueTown.ts` |
 | Domain use case | `useCases/` | verb phrase | `sendJob.ts` |
 | Domain service | `services/` | verb phrase | `resolveStoredTown.ts` |
 | Port | `ports/`, `application/ports/` | noun + role | `TownRepository.ts` |
 | Api use case | `application/` | verb phrase, never a domain export's name | `serveReport.ts` |
+| Api type or pure rule | `application/` | noun, or `*From`, `is*` | `TownReading.ts`, `accountTokenExpiryFrom.ts` |
+| View gatherer | `application/` | `gather` + view | `gatherTownView.ts` |
 | Endpoint | `infrastructure/http/` | use case + `Route` | `sendJobRoute.ts` |
 | Route list | `infrastructure/http/` | area + `Routes` | `jobsRoutes.ts` |
+| Wire declarations, request helper | `infrastructure/http/` | feature + `Components` or `Declarations`; a verb or noun | `townComponents.ts`, `requirePlayer.ts` |
 | Responder | `infrastructure/http/` | `respond` + what it turns into a response | `respondTownChange.ts` |
 | Presenter | `infrastructure/http/` | `present` + wire noun | `presentTownOverview.ts` |
 | Adapter | `infrastructure/<technology>/` | technology + port | `DrizzleTownRepository.ts` |
+| Aggregate read | `infrastructure/postgres/` | `aggregated` + noun | `aggregatedTown.ts` |
+| Catalog builder | `infrastructure/json/` | `json` + catalog + `Of` | `jsonLessonCatalogOf.ts` |
 | Tables | `infrastructure/postgres/` | feature + `Tables` | `townTables.ts` |
 | Row mapper | `infrastructure/postgres/` | noun + `FromRow`, noun + `Columns` | `lessonSlotFromRow.ts` |
 | Contract suite | `infrastructure/memory/` | port + `Contract.testSupport.ts` | `townRepositoryContract.testSupport.ts` |
@@ -114,7 +121,7 @@ A route's cases sit in one test beside its area's route list, `<area>Routes.test
 1. Does it decide a game rule, or coordinate more than one domain port? A domain use case, in `packages/domain/src/<feature>/useCases/`.
 2. Does it only place a domain use case in a transaction, gather what one response needs, or belong to the account? An api use case, in `apps/api/src/<feature>/application/`.
 
-A pass-through earns no file: the route calls the store. A port lives with its user: in the domain when a domain use case reads it, otherwise in the leftmost api feature that reads it. A new endpoint adds, in order: its schema in `packages/contracts`, its use case if it earns one, its `*Route.ts` with its test, its line in the area's `*Routes.ts`, and a new `openapi.json` from `openapi:write`.
+A new refusal adds, in order: its member of `DomainError` (`packages/domain/src/DomainError.ts`) or of `Refusal` (`apps/api/src/platform/application/Refusal.ts`), its status in `respondRefusal.ts`, its `ApiErrorKind` in `packages/contracts/src/platform/ApiErrorKind.ts`, and its `refusal.<Kind>` key in `en.json` and `es.json` of `packages/catalog`. A new domain or contracts file adds its export to that package's `src/index.ts`. A new persistence adapter adds, in order: its port, its Drizzle adapter and its table in `*Tables.ts` with a migration from `db:generate`, its in-memory adapter and contract suite, its field in the feature's stores type, and its line in `composeStores.ts`. A pass-through earns no file: the route calls the store. A port lives with its user: in the domain when a domain use case reads it, otherwise in the leftmost api feature that reads it. A new endpoint adds, in order: its schema in `packages/contracts`, its use case if it earns one, its `*Route.ts` with its test, its line in the area's `*Routes.ts`, and a new `openapi.json` from `openapi:write`.
 
 ## The checks
 
