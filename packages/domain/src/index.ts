@@ -308,23 +308,23 @@ export type { TipKind } from '#town/guidance/TipKind'
 export type { TownGoal } from '#town/guidance/TownGoal'
 export { tipKinds } from '#town/guidance/tipKinds'
 export { type TipReading, tipOf } from '#town/guidance/tipOf'
-export { deliveredHiresOf } from '#town/hiring/deliveredHiresOf'
-export { deriveHireDurationSeconds } from '#town/hiring/deriveHireDurationSeconds'
-export type { HireKind } from '#town/hiring/HireKind'
-export { type Hires, noHires } from '#town/hiring/Hires'
-export type { HireTerms } from '#town/hiring/HireTerms'
+export { deliveredHiresOf } from '#town/hiring/domain/deliveredHiresOf'
+export { deriveHireDurationSeconds } from '#town/hiring/domain/deriveHireDurationSeconds'
+export type { HireKind } from '#town/hiring/domain/HireKind'
+export { type Hires, noHires } from '#town/hiring/domain/Hires'
+export type { HireTerms } from '#town/hiring/domain/HireTerms'
 export {
   type HiringOrder,
   type HiringSlot,
   type HiringTarget,
   idleHiringSlot,
-} from '#town/hiring/HiringOrder'
-export { hireKinds } from '#town/hiring/hireKinds'
-export { hirePercentAt } from '#town/hiring/hirePercentAt'
-export { hiringEndsAt } from '#town/hiring/hiringEndsAt'
-export { lowestFreePeopleOf } from '#town/hiring/lowestFreePeopleOf'
-export type { OfficeLevel } from '#town/hiring/OfficeLevel'
-export { requiredOfficeLevelOf } from '#town/hiring/requiredOfficeLevelOf'
+} from '#town/hiring/domain/HiringOrder'
+export { hireKinds } from '#town/hiring/domain/hireKinds'
+export { hirePercentAt } from '#town/hiring/domain/hirePercentAt'
+export { hiringEndsAt } from '#town/hiring/domain/hiringEndsAt'
+export { lowestFreePeopleOf } from '#town/hiring/domain/lowestFreePeopleOf'
+export type { OfficeLevel } from '#town/hiring/domain/OfficeLevel'
+export { requiredOfficeLevelOf } from '#town/hiring/domain/requiredOfficeLevelOf'
 export {
   type PlaceHiringOrderCommand,
   type PlaceHiringOrderDependencies,

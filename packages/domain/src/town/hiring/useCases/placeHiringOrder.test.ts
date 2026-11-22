@@ -10,8 +10,8 @@ import { inMemoryTownNews } from '../../testing/inMemoryTownNews'
 import { inMemoryTowns } from '../../testing/inMemoryTowns'
 import { plainTownLevels, plainTownSettings, townCatalogOf } from '../../testing/townCatalogOf'
 import { type TownShape, townOf } from '../../testing/townFixtures'
-import type { HireKind } from '../HireKind'
-import type { HiringOrder } from '../HiringOrder'
+import type { HireKind } from '../domain/HireKind'
+import type { HiringOrder } from '../domain/HiringOrder'
 import { placeHiringOrder } from './placeHiringOrder'
 
 const MILLISECONDS_PER_MINUTE = 60_000

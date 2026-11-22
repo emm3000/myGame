@@ -1,6 +1,6 @@
 import { assert, describe, expect, it } from 'vitest'
 import type { BuildingLevels } from '../building/domain/BuildingLevels'
-import { noHires } from '../hiring/Hires'
+import { noHires } from '../hiring/domain/Hires'
 import { townCatalogOf } from '../testing/townCatalogOf'
 import { derivePeople } from './derivePeople'
 

@@ -1,7 +1,7 @@
 import type { Terrain } from '../../domain/Terrain'
 import type { TownCatalog } from '../../domain/TownCatalog'
 import type { ProductionPercent } from '../../domain/TownSettings'
-import type { Hires } from '../../hiring/Hires'
+import type { Hires } from '../../hiring/domain/Hires'
 import type { ResourceKind } from '../../resources/ResourceKind'
 import { resourceKinds } from '../../resources/resourceKinds'
 import type { Stocks } from '../../resources/Stocks'

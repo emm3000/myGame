@@ -11,11 +11,11 @@ import type { TownNews } from '../../domain/TownNews'
 import type { TownRepository } from '../../domain/TownRepository'
 import { accrueTown } from '../../resources/accrueTown'
 import { rebaseFullSince } from '../../resources/rebaseFullSince'
-import { deriveHireDurationSeconds } from '../deriveHireDurationSeconds'
-import type { HireKind } from '../HireKind'
-import { hirePercentAt } from '../hirePercentAt'
-import { lowestFreePeopleOf } from '../lowestFreePeopleOf'
-import { requiredOfficeLevelOf } from '../requiredOfficeLevelOf'
+import { deriveHireDurationSeconds } from '../domain/deriveHireDurationSeconds'
+import type { HireKind } from '../domain/HireKind'
+import { hirePercentAt } from '../domain/hirePercentAt'
+import { lowestFreePeopleOf } from '../domain/lowestFreePeopleOf'
+import { requiredOfficeLevelOf } from '../domain/requiredOfficeLevelOf'
 
 export type PlaceHiringOrderCommand = {
   readonly playerId: PlayerId

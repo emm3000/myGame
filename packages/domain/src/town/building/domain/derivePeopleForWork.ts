@@ -2,7 +2,7 @@ import type { DomainError } from '#DomainError'
 import { ok, type Result } from '#Result'
 import { derivePeople } from '../../domain/derivePeople'
 import type { TownCatalog } from '../../domain/TownCatalog'
-import type { Hires } from '../../hiring/Hires'
+import type { Hires } from '../../hiring/domain/Hires'
 import type { BuildingLevel } from './BuildingLevel'
 import type { BuildingLevels } from './BuildingLevels'
 

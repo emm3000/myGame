@@ -8,7 +8,7 @@ import { inMemoryTownNews } from '../../testing/inMemoryTownNews'
 import { inMemoryTowns } from '../../testing/inMemoryTowns'
 import { plainTownSettings, townCatalogOf } from '../../testing/townCatalogOf'
 import { townOf } from '../../testing/townFixtures'
-import type { HiringOrder } from '../HiringOrder'
+import type { HiringOrder } from '../domain/HiringOrder'
 import { placeHiringOrder } from './placeHiringOrder'
 import { stopHiringOrder } from './stopHiringOrder'
 
