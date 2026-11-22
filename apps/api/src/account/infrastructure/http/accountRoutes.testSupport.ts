@@ -1,6 +1,7 @@
-import { PlayerSchema } from '@mygame/contracts'
+import { type ChromePhase, PlayerSchema } from '@mygame/contracts'
 import { type Clock, Instant } from '@mygame/domain'
 import { Client } from 'pg'
+import { expect } from 'vitest'
 import { apiPackagePath } from '#apiPackagePath.testSupport'
 import type { createApp } from '#app'
 import type { ComposedServer } from '#composeServer'
@@ -144,6 +145,7 @@ export type AccountRequests = {
   readonly isEmailVerified: (cookie: string) => Promise<boolean>
   readonly verifyEmail: (token: string) => Promise<Response>
   readonly signInNatively: (body: object) => Promise<Response>
+  readonly chromePhaseOfSession: (cookie: string) => Promise<ChromePhase>
 }
 
 export const accountRequests = (appOf: () => AccountApp): AccountRequests => {
@@ -162,7 +164,20 @@ export const accountRequests = (appOf: () => AccountApp): AccountRequests => {
   const signInNatively = async (body: object): Promise<Response> =>
     appOf().request('/auth/sign-in/native', post(body))
 
-  return { signUpAna, sessionOf, isEmailVerified, verifyEmail, signInNatively }
+  const chromePhaseOfSession = async (cookie: string): Promise<ChromePhase> => {
+    const session = await sessionOf(cookie)
+    expect(session.status).toBe(200)
+    return PlayerSchema.parse(await session.json()).chromePhase
+  }
+
+  return {
+    signUpAna,
+    sessionOf,
+    isEmailVerified,
+    verifyEmail,
+    signInNatively,
+    chromePhaseOfSession,
+  }
 }
 
 export const anasSignIn = { email: anasSignUp.email, password: anasSignUp.password }
