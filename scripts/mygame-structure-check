@@ -8,6 +8,7 @@ baseline_file=scripts/mygame-structure-check.baseline
 api=apps/api/src
 domain=packages/domain/src
 contracts=packages/contracts/src
+web=apps/web/src
 folder_limit=30
 export_cap=5
 method_cap=7
@@ -77,6 +78,12 @@ subpath_import_inside_folder() {
     }'
 }
 
+production_imports_fakes() {
+  local roots=("$api" "$domain" "$contracts")
+  [ -d "$web" ] && roots+=("$web")
+  search -n "from '(@mygame/domain/testing|[^']*/testing/)" "${roots[@]}" -g '*.{ts,tsx}' -g '!*.test.{ts,tsx}' -g '!*.testSupport.ts' -g '!**/testing/**' -g "!/$domain/testing.ts" | by_line
+}
+
 use_case_named_of() {
   search --files "$api" "$domain" -g '*Of.ts' -g '!*.test.ts' | { search '/(application|useCases|services)/'; } | by_file
 }
@@ -101,7 +108,7 @@ folder_over_limit() {
 }
 
 file_over_export_cap() {
-  search -c '^export ' "$api" "$domain" "$contracts" -g '*.ts' -g '!*.test.ts' -g '!*.testSupport.ts' -g '!**/testing/**' -g '!index.ts' -g '!*Tables.ts' |
+  search -c '^export ' "$api" "$domain" "$contracts" -g '*.ts' -g '!*.test.ts' -g '!*.testSupport.ts' -g '!**/testing/**' -g '!index.ts' -g "!/$domain/testing.ts" -g '!*Tables.ts' |
     awk -F: -v cap="$export_cap" '$2 > cap { print $1 "\t" $2 " exports" }'
 }
 
@@ -132,6 +139,7 @@ checks=(
   adapter_built_outside_root
   reading_named_of_is_async
   reading_const_is_async
+  production_imports_fakes
   use_case_named_of
   domain_promise_outside_its_roles
   use_case_imports_use_case
