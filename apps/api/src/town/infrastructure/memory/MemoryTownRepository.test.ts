@@ -1,4 +1,4 @@
-import { MemoryEarnedSkills } from './MemoryEarnedSkills'
+import { MemoryEarnedSkills } from './MemoryEarnedSkillRepository'
 import { MemoryTownRepository } from './MemoryTownRepository'
 import { townRepositoryContract } from './townRepositoryContract.testSupport'
 

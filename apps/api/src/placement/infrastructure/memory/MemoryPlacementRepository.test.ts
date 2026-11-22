@@ -1,4 +1,4 @@
-import { MemoryPlacements } from './MemoryPlacements'
+import { MemoryPlacements } from './MemoryPlacementRepository'
 import { placementRepositoryContract } from './placementRepositoryContract.testSupport'
 
 placementRepositoryContract('MemoryPlacements', async () => ({

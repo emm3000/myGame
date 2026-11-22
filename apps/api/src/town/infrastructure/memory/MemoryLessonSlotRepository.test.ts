@@ -1,5 +1,5 @@
 import { lessonSlotRepositoryContract } from './lessonSlotRepositoryContract.testSupport'
-import { MemoryLessonSlots } from './MemoryLessonSlots'
+import { MemoryLessonSlots } from './MemoryLessonSlotRepository'
 
 lessonSlotRepositoryContract('MemoryLessonSlots', async () => ({
   lessonSlots: new MemoryLessonSlots(),
