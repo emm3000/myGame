@@ -1,5 +1,4 @@
 import { PlayerSchema } from '@mygame/contracts'
-import { Instant } from '@mygame/domain'
 import { afterAll, beforeAll, beforeEach, describe, expect, it } from 'vitest'
 import {
   accountRequests,
@@ -11,11 +10,8 @@ import {
 import { createApp } from '#app'
 import { type ComposedServer, composeServer } from '#composeServer'
 import { mailEnvironment } from '#composeServer.testSupport'
+import { fixedClock } from '#fixedClock.testSupport'
 import { truncatePlayerTables } from '#truncatePlayerTables.testSupport'
-
-const fixedClock = {
-  now: (): Instant => Instant.fromEpochMilliseconds(Date.parse('2026-11-12T08:00:00Z')),
-}
 
 describe('the scaffold and the chrome over held cards', () => {
   let server: ComposedServer
@@ -31,7 +27,7 @@ describe('the scaffold and the chrome over held cards', () => {
 
   beforeEach(async () => {
     await rowsOf(truncatePlayerTables)
-    app = createApp({ ...server, clock: fixedClock })
+    app = createApp({ ...server, clock: fixedClock('2026-11-12T08:00:00Z') })
   })
 
   const signUpInSpanish = async (): Promise<{ readonly cookie: string; readonly id: string }> => {

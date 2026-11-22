@@ -1,10 +1,10 @@
-import { Instant } from '@mygame/domain'
 import { Client } from 'pg'
 import { afterAll, beforeAll, beforeEach, describe, expect, it } from 'vitest'
 import { apiPackagePath } from '#apiPackagePath.testSupport'
 import { createApp } from '#app'
 import { type ComposedServer, composeServer } from '#composeServer'
 import { mailEnvironment } from '#composeServer.testSupport'
+import { fixedClock } from '#fixedClock.testSupport'
 import { pendingWorkCap } from '#platform/infrastructure/vercel/VercelAfterResponse'
 import { truncatePlayerTables } from '#truncatePlayerTables.testSupport'
 import type { Mail, MailDelivery, Mailer } from '../../application/ports/Mailer'
@@ -18,10 +18,6 @@ const requiredVariable = (name: string): string => {
     throw new Error(`${name} is not set`)
   }
   return value
-}
-
-const fixedClock = {
-  now: (): Instant => Instant.fromEpochMilliseconds(Date.parse('2026-11-13T08:00:00Z')),
 }
 
 const truncateAccounts = async (): Promise<void> => {
@@ -163,7 +159,7 @@ describe('the auth mail in the scaffold language', () => {
     await truncateAccounts()
     await deleteMailTo([ana.email, unknownEmail])
     mailer = recordingMailer(server.mailer)
-    app = createApp({ ...server, clock: fixedClock, mailer })
+    app = createApp({ ...server, clock: fixedClock('2026-11-13T08:00:00Z'), mailer })
   })
 
   const deliveredMailTo = async (recipient: string): Promise<ReadonlyArray<Mail>> => {

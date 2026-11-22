@@ -1,16 +1,14 @@
 import { ApiErrorSchema, PlayerSchema, type RegionMap, RegionMapSchema } from '@mygame/contracts'
-import { Instant } from '@mygame/domain'
 import { Client } from 'pg'
 import { afterAll, beforeAll, beforeEach, describe, expect, it } from 'vitest'
 import { apiPackagePath } from '#apiPackagePath.testSupport'
 import { createApp } from '#app'
 import { type ComposedServer, composeServer } from '#composeServer'
 import { mailEnvironment } from '#composeServer.testSupport'
+import { fixedClock } from '#fixedClock.testSupport'
 import { truncatePlayerTables } from '#truncatePlayerTables.testSupport'
 
 const contentDirectory = apiPackagePath('content/')
-
-const fixedClock = { now: () => Instant.fromEpochMilliseconds(Date.parse('2026-11-05T08:00:00Z')) }
 
 function databaseUrl(): string {
   const url = process.env.DATABASE_URL
@@ -49,7 +47,7 @@ describe('the region map route', () => {
 
   beforeEach(async () => {
     await runSql(truncatePlayerTables)
-    app = createApp({ ...server, clock: fixedClock })
+    app = createApp({ ...server, clock: fixedClock('2026-11-05T08:00:00Z') })
   })
 
   const signUp = async (email: string): Promise<string> => {
