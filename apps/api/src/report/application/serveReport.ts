@@ -51,7 +51,7 @@ const readReportTown = async (
   return ok({ at: reading.value.at, townId: reading.value.town.id })
 }
 
-const newsBetween = async (
+const readReportNews = async (
   closedAt: Instant,
   { at, townId }: ReportTown,
   townNews: TownNewsReader,
@@ -76,7 +76,7 @@ const showReport = (
     if (!reviews.ok) {
       return reviews
     }
-    const news = await newsBetween(closedAt, town, stores.townNews)
+    const news = await readReportNews(closedAt, town, stores.townNews)
     return ok({ reviews: reviews.value, news })
   })
 }
