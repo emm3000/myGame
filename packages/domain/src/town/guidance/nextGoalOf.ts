@@ -3,7 +3,7 @@ import { err, ok, type Result } from '#Result'
 import type { Instant } from '#time/Instant'
 import type { BuildingKind } from '../building/BuildingKind'
 import type { BuildingLevel } from '../building/BuildingLevel'
-import { derivePeople } from '../derivePeople'
+import { derivePeopleForWork } from '../building/derivePeopleForWork'
 import type { TownCatalog } from '../ports/TownCatalog'
 import { accrueTown } from '../resources/accrueTown'
 import { resourceKinds } from '../resources/resourceKinds'
@@ -39,12 +39,8 @@ const peopleShortOf = (
   next: BuildingLevel,
   catalog: TownCatalog,
 ): Result<number, DomainError> => {
-  const people = derivePeople(
-    { ...town.projectedLevels, [next.building]: next.level },
-    town.staffedHires,
-    catalog,
-  )
-  return people.ok ? ok(Math.max(0, -people.value.free)) : people
+  const people = derivePeopleForWork(town.projectedLevels, town.staffedHires, next, catalog)
+  return people.ok ? ok(Math.max(0, -people.value.freeAfter)) : people
 }
 
 const shortfallOf = (
@@ -53,7 +49,7 @@ const shortfallOf = (
   at: Instant,
   catalog: TownCatalog,
 ): Result<GoalShortfall, DomainError> => {
-  const level = town.buildingLevels[building] + 1
+  const level = town.projectedLevels[building] + 1
   const next = catalog.levelOf(building, level)
   if (next?.building !== building) {
     return err({ kind: 'UnknownTownBuildingLevel', building, level })
