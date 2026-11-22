@@ -2,7 +2,7 @@ import type { DomainError } from '#DomainError'
 import { err, ok, type Result } from '#Result'
 import type { Instant } from '#time/Instant'
 import { buildingKinds } from '../building/buildingKinds'
-import { derivePeople } from '../derivePeople'
+import { derivePeopleForWork } from '../building/derivePeopleForWork'
 import { hireKinds } from '../hiring/hireKinds'
 import type { TownCatalog } from '../ports/TownCatalog'
 import { accrueTown } from '../resources/accrueTown'
@@ -28,15 +28,11 @@ const lacksPeople: Trigger = ({ town }, catalog) => {
     if (next === undefined) {
       continue
     }
-    const people = derivePeople(
-      { ...projected, [building]: next.level },
-      town.staffedHires,
-      catalog,
-    )
+    const people = derivePeopleForWork(projected, town.staffedHires, next, catalog)
     if (!people.ok) {
       return people
     }
-    if (people.value.free < 0) {
+    if (people.value.freeAfter < 0) {
       return ok(true)
     }
   }
