@@ -1,6 +1,5 @@
 import { assert, describe, expect, it } from 'vitest'
-import type { Accounts } from '#account/domain/Accounts'
-import { inMemoryAccounts } from '#account/testing/inMemoryAccounts'
+import { signedUpAccountsOf } from '#account/testing/signedUpAccountsOf'
 import { inMemoryBands } from '#learning/curriculum/testing/inMemoryBands'
 import { inMemoryLessons } from '#learning/curriculum/testing/inMemoryLessons'
 import { inMemoryUnitOfWork } from '#platform/testing/inMemoryUnitOfWork'
@@ -17,18 +16,6 @@ const storedAt = Instant.fromEpochMilliseconds(Date.parse('2026-11-10T08:00:00Z'
 
 const readAt = Instant.fromEpochMilliseconds(Date.parse('2026-11-10T09:00:00Z'))
 
-const accountsOf = (playerIds: ReadonlyArray<string>): Accounts =>
-  inMemoryAccounts(
-    playerIds.map((id) => ({
-      id,
-      email: `${id}@example.com`,
-      passwordHash: 'argon2id-hash',
-      emailVerified: true,
-      scaffold: 'es',
-      scaffoldVersion: 0,
-    })),
-  )
-
 const resolveCurrentTownOver = (stores: TownStores): ResolveCurrentTown =>
   new ResolveCurrentTown({
     unitOfWork: inMemoryUnitOfWork(stores),
@@ -43,7 +30,7 @@ describe('ResolveCurrentTown', () => {
   it('reads an idle town at the read instant', async () => {
     const town = townOf({ playerId: 'ana', storedAt })
     const stores = inMemoryTownStores({
-      accounts: accountsOf(['ana']),
+      accounts: signedUpAccountsOf(['ana']),
       towns: inMemoryTowns([town], inMemoryEarnedSkills([])),
     })
 

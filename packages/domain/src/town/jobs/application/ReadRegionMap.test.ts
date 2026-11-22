@@ -7,7 +7,7 @@ import { townOf } from '../../testing/townFixtures'
 import type { CleanUp } from '../domain/CleanUp'
 import { inMemoryCleanUps } from '../testing/inMemoryCleanUps'
 import { inMemoryRegionMap } from '../testing/inMemoryRegionMap'
-import { readRegionMap } from './readRegionMap'
+import { ReadRegionMap } from './ReadRegionMap'
 
 const MILLISECONDS_PER_HOUR = 3_600_000
 
@@ -44,15 +44,15 @@ const mapOf = (
   area: number | undefined,
   towns: ReadonlyArray<Town> = [ownTown, neighborTown],
   cleanUps: ReadonlyArray<CleanUp> = [],
-): ReturnType<typeof readRegionMap> =>
-  readRegionMap(area === undefined ? { playerId: 'player-1' } : { playerId: 'player-1', area }, {
-    map: inMemoryRegionMap(towns),
+): ReturnType<ReadRegionMap['execute']> =>
+  new ReadRegionMap({
+    regionMap: inMemoryRegionMap(towns),
     cleanUps: inMemoryCleanUps(cleanUps),
-    catalog: townCatalogOf(),
+    townCatalog: townCatalogOf(),
     clock: frozenClock,
-  })
+  }).execute(area === undefined ? { playerId: 'player-1' } : { playerId: 'player-1', area })
 
-describe('readRegionMap', () => {
+describe('ReadRegionMap', () => {
   it("opens the map on the town's own area", async () => {
     const map = await mapOf(undefined)
 

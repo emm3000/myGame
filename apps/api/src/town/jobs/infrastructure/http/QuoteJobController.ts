@@ -1,17 +1,14 @@
-import { createRoute, type OpenAPIHono } from '@hono/zod-openapi'
+import { createRoute } from '@hono/zod-openapi'
 import { type JobQuote, JobQuoteSchema, SendJobSchema } from '@mygame/contracts'
-import {
-  type RequirePlayerDependencies,
-  requirePlayer,
-} from '#account/infrastructure/http/requirePlayer'
-import { honoPathOf } from '#platform/infrastructure/http/honoPath'
+import type { QuoteJob } from '@mygame/domain'
+import type { Context } from 'hono'
+import type { SignedInPlayer } from '#account/infrastructure/http/requirePlayer'
 import { readJsonBody } from '#platform/infrastructure/http/readJsonBody'
 import { refusalResponse } from '#platform/infrastructure/http/refusalResponse'
 import { respondRefusal } from '#platform/infrastructure/http/respondRefusal'
 import { jsonBody, jsonResponse } from '#platform/infrastructure/http/responseDeclarations'
 import { signedInDeclaration } from '#platform/infrastructure/http/signedInDeclaration'
 import { townNotFoundResponse } from '../../../infrastructure/http/townComponents'
-import { type QuoteJobNowDependencies, quoteJobNow } from '../../application/quoteJobNow'
 
 export const quoteJobDeclaration = createRoute(
   signedInDeclaration({
@@ -32,28 +29,26 @@ export const quoteJobDeclaration = createRoute(
   }),
 )
 
-export type QuoteJobRouteDependencies = RequirePlayerDependencies & QuoteJobNowDependencies
+export type QuoteJobControllerDependencies = {
+  readonly quoteJob: QuoteJob
+}
 
-export const quoteJobRoute = (
-  routes: OpenAPIHono,
-  dependencies: QuoteJobRouteDependencies,
-): void => {
-  routes.openAPIRegistry.registerPath(quoteJobDeclaration)
-  routes.on(
-    quoteJobDeclaration.method,
-    honoPathOf(quoteJobDeclaration),
-    requirePlayer(dependencies),
-    async (c) => {
-      const request = SendJobSchema.safeParse(await readJsonBody(c))
-      if (!request.success) {
-        return respondRefusal(c, { kind: 'MalformedRequest' })
-      }
-      const pay = await quoteJobNow({ playerId: c.var.playerId, ...request.data }, dependencies)
-      if (!pay.ok) {
-        return respondRefusal(c, pay.error)
-      }
-      const body: JobQuote = { pay: pay.value }
-      return c.json(body)
-    },
-  )
+export class QuoteJobController {
+  constructor(private readonly dependencies: QuoteJobControllerDependencies) {}
+
+  async handle(c: Context<SignedInPlayer>): Promise<Response> {
+    const request = SendJobSchema.safeParse(await readJsonBody(c))
+    if (!request.success) {
+      return respondRefusal(c, { kind: 'MalformedRequest' })
+    }
+    const pay = await this.dependencies.quoteJob.execute({
+      playerId: c.var.playerId,
+      ...request.data,
+    })
+    if (!pay.ok) {
+      return respondRefusal(c, pay.error)
+    }
+    const body: JobQuote = { pay: pay.value }
+    return c.json(body)
+  }
 }

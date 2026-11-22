@@ -1,8 +1,16 @@
 import {
+  CallJobBack,
+  type CallJobBackDependencies,
   FoundTown,
   type FoundTownDependencies,
+  QuoteCleanUp,
+  type QuoteCleanUpDependencies,
+  QuoteJob,
+  type QuoteJobDependencies,
   ReadChromePhase,
   type ReadChromePhaseDependencies,
+  ReadRegionMap,
+  type ReadRegionMapDependencies,
   RequestPasswordReset,
   type RequestPasswordResetDependencies,
   ResendVerificationMail,
@@ -11,6 +19,10 @@ import {
   type ResetPasswordDependencies,
   ResolveCurrentTown,
   type ResolveCurrentTownDependencies,
+  SendCleanUp,
+  type SendCleanUpDependencies,
+  SendJob,
+  type SendJobDependencies,
   SignIn,
   type SignInDependencies,
   SignUp,
@@ -27,7 +39,13 @@ export type UseCaseDependencies = SignUpDependencies &
   ResetPasswordDependencies &
   ReadChromePhaseDependencies &
   FoundTownDependencies &
-  ResolveCurrentTownDependencies
+  ResolveCurrentTownDependencies &
+  SendJobDependencies &
+  QuoteJobDependencies &
+  SendCleanUpDependencies &
+  QuoteCleanUpDependencies &
+  CallJobBackDependencies &
+  ReadRegionMapDependencies
 
 export type UseCases = {
   readonly signUp: SignUp
@@ -39,6 +57,12 @@ export type UseCases = {
   readonly readChromePhase: ReadChromePhase
   readonly foundTown: FoundTown
   readonly resolveCurrentTown: ResolveCurrentTown
+  readonly sendJob: SendJob
+  readonly quoteJob: QuoteJob
+  readonly sendCleanUp: SendCleanUp
+  readonly quoteCleanUp: QuoteCleanUp
+  readonly callJobBack: CallJobBack
+  readonly readRegionMap: ReadRegionMap
 }
 
 export const composeUseCases = (adapters: UseCaseDependencies): UseCases => ({
@@ -51,4 +75,10 @@ export const composeUseCases = (adapters: UseCaseDependencies): UseCases => ({
   readChromePhase: new ReadChromePhase(adapters),
   foundTown: new FoundTown(adapters),
   resolveCurrentTown: new ResolveCurrentTown(adapters),
+  sendJob: new SendJob(adapters),
+  quoteJob: new QuoteJob(adapters),
+  sendCleanUp: new SendCleanUp(adapters),
+  quoteCleanUp: new QuoteCleanUp(adapters),
+  callJobBack: new CallJobBack(adapters),
+  readRegionMap: new ReadRegionMap(adapters),
 })

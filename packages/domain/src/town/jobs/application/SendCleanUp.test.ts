@@ -1,13 +1,19 @@
 import { assert, describe, expect, it } from 'vitest'
+import { signedUpAccountsOf } from '#account/testing/signedUpAccountsOf'
+import { inMemoryBands } from '#learning/curriculum/testing/inMemoryBands'
+import { inMemoryLessons } from '#learning/curriculum/testing/inMemoryLessons'
 import type { Clock } from '#platform/domain/Clock'
+import { inMemoryUnitOfWork } from '#platform/testing/inMemoryUnitOfWork'
 import { Instant } from '#time/Instant'
 import { resolveTown } from '../../application/resolveTown'
 import type { Town } from '../../domain/Town'
+import type { TownCatalog } from '../../domain/TownCatalog'
 import type { Hires } from '../../hiring/Hires'
 import { accrueTown } from '../../resources/accrueTown'
 import type { Stocks } from '../../resources/Stocks'
 import { inMemoryEarnedSkills } from '../../testing/inMemoryEarnedSkills'
 import { inMemoryTownNews } from '../../testing/inMemoryTownNews'
+import { inMemoryTownStores, townNewsOver } from '../../testing/inMemoryTownStores'
 import { inMemoryTowns } from '../../testing/inMemoryTowns'
 import { plainTownSettings, townCatalogOf } from '../../testing/townCatalogOf'
 import { type TownShape, townOf } from '../../testing/townFixtures'
@@ -16,8 +22,8 @@ import type { CleanUpRepository } from '../domain/CleanUpRepository'
 import type { Job } from '../domain/Job'
 import { inMemoryCleanUps } from '../testing/inMemoryCleanUps'
 import { inMemoryRegionMap } from '../testing/inMemoryRegionMap'
-import { callJobBack } from './callJobBack'
-import { sendCleanUp } from './sendCleanUp'
+import { CallJobBack } from './CallJobBack'
+import { SendCleanUp, type SendCleanUpDependencies } from './SendCleanUp'
 
 const MILLISECONDS_PER_MINUTE = 60_000
 
@@ -84,17 +90,31 @@ const worldOf = (town: Town = homeTown()): World => ({
   cleanUps: inMemoryCleanUps(),
 })
 
+const changesIn = (
+  world: World,
+  at: Instant,
+  townCatalog: TownCatalog = catalog,
+): SendCleanUpDependencies => ({
+  unitOfWork: inMemoryUnitOfWork(
+    inMemoryTownStores({
+      accounts: signedUpAccountsOf(['player-1']),
+      towns: world.towns,
+      townNews: townNewsOver(world.news),
+      cleanUps: world.cleanUps,
+      regionMap: inMemoryRegionMap([homeTown(), neighborTown]),
+    }),
+  ),
+  townCatalog,
+  lessons: { ...inMemoryLessons([], []), ...inMemoryBands([]) },
+  clock: frozenClock(at),
+})
+
 const sendIn = (
   world: World,
   change: Partial<CleanUpOrder> = {},
   at: Instant = sentAt,
-): ReturnType<typeof sendCleanUp> =>
-  sendCleanUp(order(change), {
-    ...world,
-    map: inMemoryRegionMap([homeTown(), neighborTown]),
-    catalog,
-    clock: frozenClock(at),
-  })
+): ReturnType<SendCleanUp['execute']> =>
+  new SendCleanUp(changesIn(world, at)).execute(order(change))
 
 const resolveIn = async (world: World, at: Instant): Promise<Town> => {
   const resolved = await resolveTown('player-1', { ...world, catalog, clock: frozenClock(at) })
@@ -102,12 +122,12 @@ const resolveIn = async (world: World, at: Instant): Promise<Town> => {
   return resolved.value.town
 }
 
-const callBackIn = (world: World, at: Instant): ReturnType<typeof callJobBack> =>
-  callJobBack({ playerId: 'player-1', sentAt }, { ...world, catalog, clock: frozenClock(at) })
+const callBackIn = (world: World, at: Instant): ReturnType<CallJobBack['execute']> =>
+  new CallJobBack(changesIn(world, at)).execute({ playerId: 'player-1', sentAt })
 
-const sentJobOf = (sent: Awaited<ReturnType<typeof sendCleanUp>>): Job => {
-  assert(sent.ok && sent.value.jobSlot.kind === 'out')
-  return sent.value.jobSlot
+const sentJobOf = (sent: Awaited<ReturnType<SendCleanUp['execute']>>): Job => {
+  assert(sent.ok && sent.value.town.jobSlot.kind === 'out')
+  return sent.value.town.jobSlot
 }
 
 const stocksAt = (town: Town, at: Instant): Stocks => {
@@ -129,7 +149,7 @@ const stocksGainedBy = async (team: Hires, at: Instant = returnsAt): Promise<Sto
   }
 }
 
-describe('sendCleanUp', () => {
+describe('SendCleanUp', () => {
   it("fixes the site's size, its waste and the team's strength at dispatch", async () => {
     const sent = await sendIn(worldOf(), { team: { worker: 3, truck: 1 } })
 
@@ -162,15 +182,16 @@ describe('sendCleanUp', () => {
   })
 
   it('caps the pay at the share of the summed carry', async () => {
-    const sent = await sendCleanUp(order(), {
-      ...worldOf(),
-      map: inMemoryRegionMap([homeTown(), neighborTown]),
-      catalog: townCatalogOf({
-        ...plainTownSettings,
-        waste: { ...plainTownSettings.waste, materialPerPoint: 60 },
-      }),
-      clock: frozenClock(sentAt),
-    })
+    const sent = await new SendCleanUp(
+      changesIn(
+        worldOf(),
+        sentAt,
+        townCatalogOf({
+          ...plainTownSettings,
+          waste: { ...plainTownSettings.waste, materialPerPoint: 60 },
+        }),
+      ),
+    ).execute(order())
 
     expect(sentJobOf(sent).pay).toEqual({ money: 12, food: 0, power: 0, material: 150 })
   })

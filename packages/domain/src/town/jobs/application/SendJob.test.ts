@@ -1,12 +1,16 @@
 import { assert, describe, expect, it } from 'vitest'
+import { signedUpAccountsOf } from '#account/testing/signedUpAccountsOf'
+import { inMemoryBands } from '#learning/curriculum/testing/inMemoryBands'
+import { inMemoryLessons } from '#learning/curriculum/testing/inMemoryLessons'
 import type { Clock } from '#platform/domain/Clock'
+import { inMemoryUnitOfWork } from '#platform/testing/inMemoryUnitOfWork'
 import { Instant } from '#time/Instant'
 import type { Town } from '../../domain/Town'
 import type { TownCatalog } from '../../domain/TownCatalog'
 import type { TownSettings } from '../../domain/TownSettings'
 import type { Hires } from '../../hiring/Hires'
 import { inMemoryEarnedSkills } from '../../testing/inMemoryEarnedSkills'
-import { inMemoryTownNews } from '../../testing/inMemoryTownNews'
+import { inMemoryTownStores } from '../../testing/inMemoryTownStores'
 import { inMemoryTowns } from '../../testing/inMemoryTowns'
 import { plainTownSettings, townCatalogOf } from '../../testing/townCatalogOf'
 import { type TownShape, townOf } from '../../testing/townFixtures'
@@ -14,7 +18,7 @@ import type { Job } from '../domain/Job'
 import type { JobOrder } from '../domain/JobOrder'
 import type { JobTerms } from '../domain/JobTerms'
 import { inMemoryRegionMap } from '../testing/inMemoryRegionMap'
-import { sendJob } from './sendJob'
+import { SendJob } from './SendJob'
 
 const MILLISECONDS_PER_DAY = 86_400_000
 
@@ -28,6 +32,10 @@ const storedAt = daysAfterEpoch(1)
 const sentAt = daysAfterEpoch(2)
 
 const frozenClock = (at: Instant): Clock => ({ now: () => at })
+
+const noLessons = { ...inMemoryLessons([], []), ...inMemoryBands([]) }
+
+type Sent = Awaited<ReturnType<SendJob['execute']>>
 
 const stocks = { money: 100, food: 100, power: 100, material: 100 }
 
@@ -64,26 +72,31 @@ const sendFrom = async (
   catalog: TownCatalog = plainCatalog,
   at: Instant = sentAt,
 ): Promise<{
-  readonly sent: Awaited<ReturnType<typeof sendJob>>
+  readonly sent: Sent
   readonly towns: ReturnType<typeof inMemoryTowns>
 }> => {
   const towns = inMemoryTowns([town, neighborTown], inMemoryEarnedSkills([]))
-  const sent = await sendJob(command(change), {
-    towns,
-    map: inMemoryRegionMap([town, neighborTown]),
-    news: inMemoryTownNews(),
-    catalog,
+  const sent = await new SendJob({
+    unitOfWork: inMemoryUnitOfWork(
+      inMemoryTownStores({
+        accounts: signedUpAccountsOf(['player-1']),
+        towns,
+        regionMap: inMemoryRegionMap([town, neighborTown]),
+      }),
+    ),
+    townCatalog: catalog,
+    lessons: noLessons,
     clock: frozenClock(at),
-  })
+  }).execute(command(change))
   return { sent, towns }
 }
 
 const outcomeOf = ({ sent }: Awaited<ReturnType<typeof sendFrom>>): unknown =>
   sent.ok ? 'sent' : sent.error
 
-const jobOf = (sent: Awaited<ReturnType<typeof sendJob>>): Job => {
-  assert(sent.ok && sent.value.jobSlot.kind === 'out')
-  return sent.value.jobSlot
+const jobOf = (sent: Sent): Job => {
+  assert(sent.ok && sent.value.town.jobSlot.kind === 'out')
+  return sent.value.town.jobSlot
 }
 
 const outJob: Job = {
@@ -97,7 +110,7 @@ const outJob: Job = {
   payPercent: { money: 100, food: 100, power: 100, material: 100 },
 }
 
-describe('sendJob', () => {
+describe('SendJob', () => {
   it("sends a team to a free site for whole hours from 1 to the content's maximum", async () => {
     const outcomes = await Promise.all(
       [1, 8, 0, 9, 1.5].map((hours) => sendFrom(homeTown(), { hours })),

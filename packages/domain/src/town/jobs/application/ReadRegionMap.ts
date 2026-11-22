@@ -21,9 +21,9 @@ export type ReadRegionMapCommand = {
 }
 
 export type ReadRegionMapDependencies = {
-  readonly map: RegionMapReader
+  readonly regionMap: RegionMapReader
   readonly cleanUps: CleanUpReader
-  readonly catalog: TownCatalog
+  readonly townCatalog: TownCatalog
   readonly clock: Clock
 }
 
@@ -57,31 +57,33 @@ const regionSiteOf = (address: SiteAddress, reading: SiteReading): RegionSite =>
   return { site: address.site, town: undefined, waste: siteWasteOf(address, reading) }
 }
 
-export const readRegionMap = async (
-  { playerId, area }: ReadRegionMapCommand,
-  { map, cleanUps, catalog, clock }: ReadRegionMapDependencies,
-): Promise<Result<RegionMap, DomainError>> => {
-  const address = await map.addressOf(playerId)
-  if (address === undefined) {
-    return err({ kind: 'TownNotFound', playerId })
+export class ReadRegionMap {
+  constructor(private readonly dependencies: ReadRegionMapDependencies) {}
+
+  async execute({ playerId, area }: ReadRegionMapCommand): Promise<Result<RegionMap, DomainError>> {
+    const { regionMap, cleanUps, townCatalog, clock } = this.dependencies
+    const address = await regionMap.addressOf(playerId)
+    if (address === undefined) {
+      return err({ kind: 'TownNotFound', playerId })
+    }
+    const { region } = address
+    const shown = area ?? address.area
+    const lastArea = await readLastArea(region, regionMap)
+    if (!isWholeFromOneTo(shown, lastArea)) {
+      return err({ kind: 'AreaNotFound', area: shown })
+    }
+    const at = clock.now()
+    const { sitesPerArea, waste: terms } = townCatalog.townSettings()
+    const reading: SiteReading = {
+      holders: await regionMap.townsIn(region, shown),
+      lastCleanings: await cleanUps.lastCleanedAtIn(region, shown, at),
+      viewer: playerId,
+      terms,
+      at,
+    }
+    const sites = Array.from({ length: sitesPerArea }, (_, index) =>
+      regionSiteOf({ region, area: shown, site: index + 1 }, reading),
+    )
+    return ok({ region, area: shown, lastArea, terrain: terrainOf(shown), sites })
   }
-  const { region } = address
-  const shown = area ?? address.area
-  const lastArea = await readLastArea(region, map)
-  if (!isWholeFromOneTo(shown, lastArea)) {
-    return err({ kind: 'AreaNotFound', area: shown })
-  }
-  const at = clock.now()
-  const { sitesPerArea, waste: terms } = catalog.townSettings()
-  const reading: SiteReading = {
-    holders: await map.townsIn(region, shown),
-    lastCleanings: await cleanUps.lastCleanedAtIn(region, shown, at),
-    viewer: playerId,
-    terms,
-    at,
-  }
-  const sites = Array.from({ length: sitesPerArea }, (_, index) =>
-    regionSiteOf({ region, area: shown, site: index + 1 }, reading),
-  )
-  return ok({ region, area: shown, lastArea, terrain: terrainOf(shown), sites })
 }

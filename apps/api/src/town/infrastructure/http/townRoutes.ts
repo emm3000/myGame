@@ -22,12 +22,12 @@ import {
 } from '../../hiring/infrastructure/http/hiringRoutes'
 import { placeHiringOrderDeclaration } from '../../hiring/infrastructure/http/placeHiringOrderRoute'
 import { stopHiringOrderDeclaration } from '../../hiring/infrastructure/http/stopHiringOrderRoute'
-import { callJobBackDeclaration } from '../../jobs/infrastructure/http/callJobBackRoute'
+import { callJobBackDeclaration } from '../../jobs/infrastructure/http/CallJobBackController'
 import { type JobsRouteDependencies, jobsRoutes } from '../../jobs/infrastructure/http/jobsRoutes'
-import { quoteCleanUpDeclaration } from '../../jobs/infrastructure/http/quoteCleanUpRoute'
-import { quoteJobDeclaration } from '../../jobs/infrastructure/http/quoteJobRoute'
-import { sendCleanUpDeclaration } from '../../jobs/infrastructure/http/sendCleanUpRoute'
-import { sendJobDeclaration } from '../../jobs/infrastructure/http/sendJobRoute'
+import { quoteCleanUpDeclaration } from '../../jobs/infrastructure/http/QuoteCleanUpController'
+import { quoteJobDeclaration } from '../../jobs/infrastructure/http/QuoteJobController'
+import { sendCleanUpDeclaration } from '../../jobs/infrastructure/http/SendCleanUpController'
+import { sendJobDeclaration } from '../../jobs/infrastructure/http/SendJobController'
 import {
   type ResolveTownNewsRouteDependencies,
   resolveTownNewsDeclaration,

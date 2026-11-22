@@ -12,7 +12,7 @@ packages/domain    -> nothing
 packages/catalog   -> nothing
 ```
 
-A package is imported only through its `src/index.ts`. Inside `apps/api` and `packages/domain`, an import that leaves its top-level folder, or goes from a file at the `src/` root into a folder, is a subpath import named from the package root (`#town/useCases/sendJob`, `#DomainError`); an import inside one top-level folder, or between two root files, stays relative (`./`, `../`). Inside `apps/api` the features form a graph with no cycle, and a feature imports only from a feature to its left:
+A package is imported only through its `src/index.ts`. Inside `apps/api` and `packages/domain`, an import that leaves its top-level folder, or goes from a file at the `src/` root into a folder, is a subpath import named from the package root (`#town/jobs/application/SendJob`, `#DomainError`); an import inside one top-level folder, or between two root files, stays relative (`./`, `../`). Inside `apps/api` the features form a graph with no cycle, and a feature imports only from a feature to its left:
 
 ```
 platform <- content <- account <- town <- learning <- placement, holdout, report
@@ -89,7 +89,7 @@ listenPortOf.ts  writeOpenApiDocument.ts                          the api's own 
 | Constant list | domain feature root | plural noun | `buildingKinds.ts` |
 | Draw | domain feature root | noun + `Drawn` | `bandStartDrawn.ts` |
 | Pure change | domain feature root, sub-area | verb phrase, returns the changed value, no port | `accrueTown.ts` |
-| Domain use case | `useCases/` | verb phrase | `sendJob.ts` |
+| Domain use case | `useCases/` | verb phrase | `answerHoldoutCheck.ts` |
 | Domain service | `services/` | verb phrase | `resolveDueBandStart.ts` |
 | Port | `ports/`, `application/ports/` | noun + role | `BandStartRepository.ts` |
 | Api use case | `application/` | verb phrase, never a domain export's name | `serveReport.ts` |
@@ -97,7 +97,7 @@ listenPortOf.ts  writeOpenApiDocument.ts                          the api's own 
 | View or verdict gatherer | `application/` | `gather` + view or verdict | `gatherWorkView.ts` |
 | Use case | domain `<feature>/application/` | verb phrase, PascalCase, a class with `execute` | `SignUp.ts` |
 | Step | domain `<feature>/application/` | verb phrase, camelCase, a function a use case calls | `issueAccountToken.ts` |
-| Endpoint | `infrastructure/http/` | use case + `Route`; in a moved feature, use case + `Controller`, a class with `handle` | `sendJobRoute.ts`, `SignUpController.ts` |
+| Endpoint | `infrastructure/http/` | use case + `Route`; in a moved feature, use case + `Controller`, a class with `handle` | `answerHoldoutCheckRoute.ts`, `SendJobController.ts` |
 | Route list | `infrastructure/http/` | area + `Routes`; it builds its controllers and its `requirePlayer` once | `jobsRoutes.ts`, `sessionRoutes.ts` |
 | Wire declarations, request helper | `infrastructure/http/` | feature + `Components` or `Declarations`; a verb or noun | `townComponents.ts`, `requirePlayer.ts` |
 | Responder | `infrastructure/http/` | `respond` + what it turns into a response | `respondTownChange.ts` |
@@ -118,10 +118,11 @@ A route's cases sit in one test beside its area's route list, `<area>Routes.test
 
 `POST /town/jobs`:
 
-1. `apps/api/src/town/jobs/infrastructure/http/sendJobRoute.ts` parses the body with `SendJobSchema` and hands the change to `apps/api/src/town/infrastructure/http/respondTownChange.ts`, which opens the town's transaction with `packages/domain/src/town/application/mutateTown.ts`.
-2. `packages/domain/src/town/jobs/useCases/sendJob.ts` decides the rule over the ports it is handed.
-3. `apps/api/src/town/infrastructure/persistence/DrizzleTownRepository.ts` stores the changed town.
-4. `packages/domain/src/town/application/readTownReading.ts` reads the town back through `apps/api/src/town/infrastructure/persistence/DrizzleTownReader.ts`, and `apps/api/src/town/infrastructure/http/respondTownReading.ts` presents it through `apps/api/src/town/infrastructure/http/presentTownOverview.ts` as the `TownOverview` the route answers.
+1. `apps/api/src/town/jobs/infrastructure/http/jobsRoutes.ts` builds `SendJobController` once, with the `SendJob` that `apps/api/src/composeUseCases.ts` built, and mounts it behind `requirePlayer`.
+2. `apps/api/src/town/jobs/infrastructure/http/SendJobController.ts` parses the body with `SendJobSchema` and asks `SendJob`.
+3. `packages/domain/src/town/jobs/application/SendJob.ts` hands its change to `packages/domain/src/town/application/changeTown.ts`, whose `packages/domain/src/town/application/mutateTown.ts` opens the unit of work, `apps/api/src/platform/infrastructure/persistence/DrizzleUnitOfWork.ts`, locks the player and fixes the instant. The step `packages/domain/src/town/jobs/application/dispatchJob.ts` decides the rule over the stores of that transaction.
+4. `apps/api/src/town/infrastructure/persistence/DrizzleTownRepository.ts` stores the changed town.
+5. `packages/domain/src/town/application/readTownReading.ts` reads the town back in the same transaction through `apps/api/src/town/infrastructure/persistence/DrizzleTownReader.ts`, and the controller answers that `TownReading` through `apps/api/src/town/infrastructure/http/respondTownReading.ts`, which presents it through `apps/api/src/town/infrastructure/http/presentTownOverview.ts` as the `TownOverview`.
 
 ## Where a new thing goes
 
