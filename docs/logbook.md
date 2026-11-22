@@ -6,17 +6,48 @@ Rule: every session adds its section below before the orchestrator's `/clear`, a
 
 ## Still to validate
 
+### Triage 2026-11-22: every open item checked against trunk dd3e8dfc
+
+Each open item below was checked against the code, git history and GitHub. The ticked ones are proven by later work:
+- the `map` check runs, because `ARCHITECTURE.md` exists;
+- 10 real `*Tables.ts` files pass `feature_graph`;
+- #1739 merged;
+- deploy run 44866181562 applied 0045 on Neon;
+- #1686 fixed the Android cap;
+- #1696, #1683 and #1739, #1687, #1697 and #1742, #1684, #1701 and #1689 fixed §5;
+- `packages/catalog/src/generatedFiles.test.ts` checks `strings.xml`.
+
+The red-run tables of 2026-11-20 are moot, because ADR 052 and ADR 054 rewrote that code.
+
+What is left:
+- **Commands: done 2026-11-22 by peer `verify` on e976b105, all PASS.**
+  - The local `pnpm gate` exits 0: api 1314, web 1456, domain 671, contracts 368, catalog 53.
+  - The #1742 red re-run fails 2 of 71, then passes 71 of 71.
+  - #1743 at limit 31 and cap 8 makes each case fail, and restored it passes.
+  - `TownStatusTest` passes 5 of 5.
+  - The `EnglishText` locale-mark mutation makes 5 of 5 fail. TalkBack itself still needs the emulator.
+- **Emulator QA run 6: done 2026-11-22 by peer `qa` on e976b105** ([#1194 comment](https://github.com/emm3000/myGame/issues/1194#issuecomment-7081244333), screenshots under tag `qa-run-6`).
+  - 17 of 18 cases pass: smoke 7 of 7, #1519, #1530, #1665, #1671, #1666, #1581, #1670, #1625, and #1661/#1669 in es.
+  - Two partial results: #1667 passes for lessons 1–10, where *top*, *due*, *try* and *review* do not appear. PlacementOffer is unreachable on a fresh account.
+  - One failure: #1661 under none failed, filed as #1876 (a lone `.` or `?` after a wrapped support at font scale 2.0) and fixed by #1882.
+  - Not run: TalkBack (#1587, #1620). The emulator's focus does not move under injected input, so it needs the owner's phone (#1112).
+- **Web (parked, ADR 043):** the 38 items of §4, #1663, and the web half of #1667 and #1668. Tickets #1677, #1678 and #1681 are parked.
+- **Owner:**
+  - #1660 and #1662 on production;
+  - §6.
+- **Found by the triage:** production deploys fail since 13:17Z on Vercel's free cap of 100 api deployments a day, so production stays on 8f792520 until the cap resets.
+
 ### Session 2026-11-21 (21 PRs, log 746aec8e): what was not proven
 
 The normal flow ran this session. Each peer ran the local `pnpm gate`, the TDD red runs, and emulator screenshots for screen PRs. These items are still open:
 
-- [ ] **Red runs were not re-run by any reviewer.** The reviewers of #1742 (check 6 lookback) and #1743 (structure check: folder limit 31, method cap 8) traced them by hand or read the PR body. Re-running them means reverting the fix and watching the test fail.
-- [ ] **No reviewer ran the local `pnpm gate`.** The reviewers of #1740–#1746 relied on CI's `gate` job; only the writers ran it locally.
-- [ ] **The `map` check has never run.** `scripts/mygame-structure-check` skips it until `ARCHITECTURE.md` exists. It first runs with A1 (#1714), which is where to confirm it fails on a missing folder row.
-- [ ] **`feature_graph` has no proof on real code.** The Biome postgres exemption (`*Tables`, `*FromRow`, `*Columns`) was tested only on planted probe files, because no `*Tables.ts` exists yet. The first real check is A3 (#1716) and A4 (#1717).
-- [ ] **Draft #1739 (#1694) is red.** Its WIP commit fails `town.test.ts` "reads the town in one round trip". It resumes after #1714.
+- [x] **Red runs were not re-run by any reviewer.** The reviewers of #1742 (check 6 lookback) and #1743 (structure check: folder limit 31, method cap 8) traced them by hand or read the PR body. Re-running them means reverting the fix and watching the test fail.
+- [x] **No reviewer ran the local `pnpm gate`.** The reviewers of #1740–#1746 relied on CI's `gate` job; only the writers ran it locally.
+- [x] **The `map` check has never run.** `scripts/mygame-structure-check` skips it until `ARCHITECTURE.md` exists. It first runs with A1 (#1714), which is where to confirm it fails on a missing folder row.
+- [x] **`feature_graph` has no proof on real code.** The Biome postgres exemption (`*Tables`, `*FromRow`, `*Columns`) was tested only on planted probe files, because no `*Tables.ts` exists yet. The first real check is A3 (#1716) and A4 (#1717).
+- [x] **Draft #1739 (#1694) is red.** Its WIP commit fails `town.test.ts` "reads the town in one round trip". It resumes after #1714.
 - [ ] **The images of PR #1709 are broken.** Closing it deleted `assets/1703-visual-check`. #1747 and #1748 move the screenshot flow to one branch.
-- [ ] **The Android smoke (#1194) has not run since #1683–#1709.** Run 5 was earlier in this session. Run it once on trunk before the Android restructure (#1744).
+- [x] **The Android smoke (#1194) has not run since #1683–#1709.** Run 5 was earlier in this session. Run it once on trunk before the Android restructure (#1744).
 
 
 ### Session 2026-11-20 (fast mode, 100 PRs, log 71f93dcd): consolidated debt
@@ -24,33 +55,33 @@ The normal flow ran this session. Each peer ran the local `pnpm gate`, the TDD r
 This one list replaces the scattered per-PR lines above. Tick each item when it is checked.
 
 #### 1. Never validated in this session (applies to every PR)
-- [ ] `pnpm gate` run locally on trunk. Only CI ran it.
-- [ ] Red-run tables: the new tests were not shown failing first. Mutation proofs exist only for #1661, #1664, #1666, #1667 and #1668.
+- [x] `pnpm gate` run locally on trunk. Only CI ran it.
+- [x] (moot) Red-run tables: the new tests were not shown failing first. Mutation proofs exist only for #1661, #1664, #1666, #1667 and #1668.
 - [ ] Screenshots of every changed web screen (`apps/web/CLAUDE.md` seed).
-- [ ] Emulator flows for every changed Android screen.
+- [x] Emulator flows for every changed Android screen.
 - [x] Android smoke (`docs/qa/android.md`, #1194) on the trunk after #1659–#1671. Run 4 passed 7 of 7 before that wave; run 5 passed 7 of 7 on 2026-11-21, and the bug it found (#1688) was fixed by #1698.
 
 #### 2. Deploy and production (owner)
 - [ ] #1660 (#1650): open the Report, finish a building in another tab, then close the Report. The next Report shows that news and does not mark it read early. Neon gets migration 0045 (report_served_at) at deploy.
 - [ ] #1662 (#1649): after deploy, request forgot-password once on prod-like preview. The mail arrives and the response is the same as for an unknown address. The cap (5 pending per instance) cannot be hit by hand.
-- [ ] Confirm that Neon applied migration 0045 (`players.report_served_at`) on the first deploy after #1660.
+- [x] Confirm that Neon applied migration 0045 (`players.report_served_at`) on the first deploy after #1660.
 
 #### 3. Android (15)
-- [ ] #1519 (#1367): texts moved to their own read. On Android, the school's text list shows titles and a text opens through `GET /town/texts/{id}`; a text not reached reads its own not-open state. Measure a town read's size with many texts on a real account.
-- [ ] #1530 (#1528): Android model only; the town home's status strip already drew a running released lesson's countdown by band and set. Confirm it still does on the emulator.
-- [ ] #1581 (#1573): Android: open a refused verify link, background the app, `adb shell am kill com.emm.mygame`, then return. It still shows the refused link and sends no token. The emulator run was waived.
+- [x] #1519 (#1367): texts moved to their own read. On Android, the school's text list shows titles and a text opens through `GET /town/texts/{id}`; a text not reached reads its own not-open state. Measure a town read's size with many texts on a real account.
+- [x] #1530 (#1528): Android model only; the town home's status strip already drew a running released lesson's countdown by band and set. Confirm it still does on the emulator.
+- [x] #1581 (#1573): Android: open a refused verify link, background the app, `adb shell am kill com.emm.mygame`, then return. It still shows the refused link and sends no token. The emulator run was waived.
 - [ ] #1587 (#834): TalkBack on Android reads the school's lesson theme, the shown lesson and the words-page theme in English. The emulator screenshots and the remove-the-marks mutation check were not run.
 - [ ] #1620 (#1614): with TalkBack on Android, the text titles on the school and on the text page read as English. Emulator run waived.
-- [ ] #1625 (#1615): Android study reminder. With the phone clock set off from the server, the reminder fires at the time computed from the Report's server `readAt`. Emulator run waived.
+- [x] #1625 (#1615): Android study reminder. With the phone clock set off from the server, the reminder fires at the time computed from the Report's server `readAt`. Emulator run waived.
 - [ ] #1663 (#1645): on the web lesson-words page, the support line under `es` is Spanish with `lang=es`. Under `none` it is the English definition with `lang=en`. Android lesson words are unchanged. Screenshots waived.
-- [ ] #1665 (#1651): on Android, finish a building. The finish notice shows with only *Close*, there is no way-on row, and the dock's go still leads to the next step. Emulator waived.
-- [ ] #1661 (#1654): on Android at font scale 2.0, open the lesson words and a review card. No line starts with a space or punctuation; a support that does not fit beside its word drops to the next line; `____` can open a line. Emulator waived.
-- [ ] #1669 (#1655): on Android at 360x640, font scale 2.0, es, check for truncation or awkward wrap on: school LessonRows and ShownLesson (title plus status), Report rows (`report_reminder_offer`), PlacementOffer, the TownPage school and map links, and TownReportRow.
-- [ ] #1666 (#1656): on Android, reproduce the holdout check's 400 by switching the scaffold between es and none mid-check, so the gloss dedup differs, then send. The check re-reads with the refusal line and fresh words. Emulator waived.
-- [ ] #1670 (#1653): on Android, with an es player whose email is unverified on an English phone, sign out and in, and kill the api briefly. The verification banner stays in Spanish. Emulator waived.
-- [ ] #1671 (#1652): on Android, earn a skill in a review during the English chrome phase under es. The verdict reads *Habilidad ganada: comida, nivel 2.* in Spanish; under none it is English. Emulator waived.
+- [x] #1665 (#1651): on Android, finish a building. The finish notice shows with only *Close*, there is no way-on row, and the dock's go still leads to the next step. Emulator waived.
+- [x] #1661 (#1654): on Android at font scale 2.0, open the lesson words and a review card. No line starts with a space or punctuation; a support that does not fit beside its word drops to the next line; `____` can open a line. Emulator waived.
+- [x] #1669 (#1655): on Android at 360x640, font scale 2.0, es, check for truncation or awkward wrap on: school LessonRows and ShownLesson (title plus status), Report rows (`report_reminder_offer`), PlacementOffer, the TownPage school and map links, and TownReportRow.
+- [x] #1666 (#1656): on Android, reproduce the holdout check's 400 by switching the scaffold between es and none mid-check, so the gloss dedup differs, then send. The check re-reads with the refusal line and fresh words. Emulator waived.
+- [x] #1670 (#1653): on Android, with an es player whose email is unverified on an English phone, sign out and in, and kill the api briefly. The verification banner stays in Spanish. Emulator waived.
+- [x] #1671 (#1652): on Android, earn a skill in a review during the English chrome phase under es. The verdict reads *Habilidad ganada: comida, nivel 2.* in Spanish; under none it is English. Emulator waived.
 - [ ] #1667 (#1648): on web and Android, open lessons 1–10 and read the new definitions (money, town, full, come, worker, build, news, team, office, list, mayor, ready, station, clean, waste, top, due, try, review) and lesson 5's theme *Build a home*. Each reads naturally beside its word.
-- [ ] #1668 (#1657): on the web school with 11 words in learning, a 5-word lesson with 1 word held out shows as open, with no cap mark, and study starts. Android still blocks it (follow-up on #1497).
+- [x] #1668 (#1657): on the web school with 11 words in learning, a 5-word lesson with 1 word held out shows as open, with no cap mark, and study starts. Android still blocks it (follow-up on #1497).
 
 #### 4. Web (38). The web is parked by ADR 043, so check these when it is unparked.
 - [ ] #1517 (#1042): docs only; S22's not-yet-shipped mark removed. Check the S22 row against the shipped screens in the smoke.
@@ -93,21 +124,44 @@ This one list replaces the scattered per-PR lines above. Tick each item when it 
 - [ ] #1641 (#1634): on the web town home, place cards show the level number in `tabular-nums`; on the school, the full-cap word count does too. Check in the es, both and en phases (screenshots waived).
 
 #### 5. Bugs and follow-ups found, not yet ticketed (details on #1497)
-- [ ] **Android learning-cap bug**, the twin of #1657: `SchoolContent.kt:66,75,140` compares `words.size`. A player sees a lesson blocked that the api would accept. Fix this first.
+- [x] **Android learning-cap bug**, the twin of #1657: `SchoolContent.kt:66,75,140` compares `words.size`. A player sees a lesson blocked that the api would accept. Fix this first.
 - [ ] Web skill verdict drawn as chrome, the twin of #1652 (`RatedVerdictLines.tsx`).
-- [ ] `GET /report` from lesson words moves the served instant (#1660).
-- [ ] No pg pool or statement timeout (`connectPostgres.ts:13`, #1662).
-- [ ] Check 6 reader gaps: past and participle in one set, the *have* lookback, 's never read as *has*, relative *that* (#1664, #1667).
+- [x] `GET /report` from lesson words moves the served instant (#1660).
+- [x] No pg pool or statement timeout (`connectPostgres.ts:13`, #1662).
+- [x] Check 6 reader gaps: past and participle in one set, the *have* lookback, 's never read as *has*, relative *that* (#1664, #1667).
 - [ ] `LessonWordsScreen` ignores `support.shown` (#1663).
-- [ ] The holdout check 409 keeps old words (#1666); the `NavRowTitle` status weight (#1669); `rememberLastKnown` against `android-architecture.md:62` (#1670).
-- [ ] No CI check that the generated `strings.xml` matches the catalog (#1671).
-- [ ] `ReportRepositoryTest` cast at :381 flakes under load (#1668).
+- [x] The holdout check 409 keeps old words (#1666); the `NavRowTitle` status weight (#1669); `rememberLastKnown` against `android-architecture.md:62` (#1670).
+- [x] No CI check that the generated `strings.xml` matches the catalog (#1671).
+- [ ] `ReportRepositoryTest` cast at :381 flakes under load (#1668), now #1874.
 
 #### 6. Waiting on the owner
 - #1460 (release key and production), #1114 (a real reset mail from production), #642 (a Cloudflare token), #641 (branch protection), and #1112, #1003 and #1010, which the owner parked.
 - The PRD S7 wording (ADR 015) and the *energy* exception in `CONTEXT.md`.
 
 
+
+## 2026-11-22 (afternoon): ADR 055, the #1685 minors and the validation pass
+
+### Advanced
+- #1866: ADR 055. The api's feature order binds the domain's `application/` folders, and `domain/` stays unordered with `noImportCycles` only. #1869 added the eight Biome overrides.
+- #1867, #1870, #1871, #1872, #1873, #1875, #1877, #1878 and #1879: the 9 tickets split from #1685. They cover the domain read instant, the structure check, the town lock test, the Android renames, the content gate (*that* relative, noun subject), two definitions and two Android test pins.
+- #1881: the Android network tests get their own client timeouts, so a loaded machine no longer reads `Unreachable` (#1880, found while working #1874).
+- #1882: fixes a sentence's lone closing punctuation after a wrapped support at font scale 2.0 (#1876, found by QA run 6).
+- Validation pass on the logbook's open debt:
+  - triage against trunk;
+  - local gate and red re-runs by peer `verify`;
+  - Android QA run 6 by peer `qa`, where 17 of 18 cases pass.
+
+  See *Triage 2026-11-22* under Still to validate.
+
+### Not proven
+- TalkBack (#1587, #1620): the emulator's focus does not move under injected input, so it needs the owner's phone (#1112).
+- #1875 leaves "The school that has the money made it." refused; trunk passed it. The gate is stricter there, not weaker, and it is listed on the PR.
+- Production deploys were capped by Vercel's 100 deployments a day from 13:17Z. The first deploy after the reset carries everything since 8f792520.
+
+### Next
+- #1747 then #1748: the asset branches, with the owner at the computer.
+- The Android audit (#1744). The web stays parked: #1865, #1677, #1678, #1681 and the 38 web items.
 
 ## 2026-11-22: ADR 053 and ADR 054, the backend in three layers with classes
 
