@@ -9,29 +9,34 @@ import okhttp3.OkHttpClient
 import retrofit2.Retrofit
 import retrofit2.converter.kotlinx.serialization.asConverterFactory
 
-internal fun signedInApi(baseUrl: String, tokenStore: TokenStore, sessionEnds: SessionEnds): DefaultApi {
+internal val okHttpDefaults: () -> OkHttpClient.Builder = { OkHttpClient.Builder() }
+
+internal fun signedInApi(endpoint: ApiEndpoint, tokenStore: TokenStore, sessionEnds: SessionEnds): DefaultApi {
     val bearer: BearerInterceptor = BearerInterceptor(tokenStore = tokenStore) { refusedToken: String ->
         if (tokenStore.clearIfHolding(refusedToken)) sessionEnds.report()
     }
-    return defaultApi(baseUrl = baseUrl, client = bearerClient(bearer = bearer, callTimeout = Duration.ZERO))
+    val client: OkHttpClient = bearerClient(endpoint = endpoint, bearer = bearer, callTimeout = Duration.ZERO)
+    return defaultApi(endpoint = endpoint, client = client)
 }
 
-internal fun signOutApi(baseUrl: String, tokenStore: TokenStore, callTimeout: Duration): DefaultApi {
+internal fun signOutApi(endpoint: ApiEndpoint, tokenStore: TokenStore, callTimeout: Duration): DefaultApi {
     val bearer: BearerInterceptor = BearerInterceptor(tokenStore = tokenStore) {}
-    return defaultApi(baseUrl = baseUrl, client = bearerClient(bearer = bearer, callTimeout = callTimeout))
+    val client: OkHttpClient = bearerClient(endpoint = endpoint, bearer = bearer, callTimeout = callTimeout)
+    return defaultApi(endpoint = endpoint, client = client)
 }
 
-internal fun accountApi(baseUrl: String): DefaultApi = defaultApi(baseUrl = baseUrl, client = OkHttpClient())
+internal fun accountApi(endpoint: ApiEndpoint): DefaultApi =
+    defaultApi(endpoint = endpoint, client = endpoint.newHttpClient().build())
 
-private fun bearerClient(bearer: BearerInterceptor, callTimeout: Duration): OkHttpClient =
-    OkHttpClient.Builder()
+private fun bearerClient(endpoint: ApiEndpoint, bearer: BearerInterceptor, callTimeout: Duration): OkHttpClient =
+    endpoint.newHttpClient()
         .addInterceptor(bearer)
         .callTimeout(callTimeout.toJavaDuration())
         .build()
 
-private fun defaultApi(baseUrl: String, client: OkHttpClient): DefaultApi {
+private fun defaultApi(endpoint: ApiEndpoint, client: OkHttpClient): DefaultApi {
     val retrofit: Retrofit = Retrofit.Builder()
-        .baseUrl(baseUrl)
+        .baseUrl(endpoint.baseUrl)
         .client(client)
         .addConverterFactory(IsoInstantConverterFactory())
         .addConverterFactory(KnownTownNewsConverterFactory(Serializer.kotlinxSerializationJson))

@@ -169,7 +169,7 @@ class TownReadFlightTest {
     }
 
     private fun TestScope.town(): TownRepository = TownRepository(
-        baseUrl = api.url("/api/").toString(),
+        endpoint = slowMachineEndpoint(api.url("/api/").toString()),
         tokenStore = store,
         languages = PlayerLanguages(store, onNamed = {}),
         sessionEnds = SessionEnds(),
@@ -179,7 +179,7 @@ class TownReadFlightTest {
     )
 
     private fun TestScope.sessions(): SessionRepository = SessionRepository(
-        baseUrl = api.url("/api/").toString(),
+        endpoint = slowMachineEndpoint(api.url("/api/").toString()),
         tokenStore = store,
         languages = PlayerLanguages(store, onNamed = {}),
         sessionEnds = SessionEnds(),

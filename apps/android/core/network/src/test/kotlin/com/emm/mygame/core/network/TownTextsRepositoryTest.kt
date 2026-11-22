@@ -104,7 +104,7 @@ class TownTextsRepositoryTest {
     )
 
     private fun TestScope.texts(): TownTextRepository = TownTextRepository(
-        baseUrl = api.url("/api/").toString(),
+        endpoint = slowMachineEndpoint(api.url("/api/").toString()),
         tokenStore = TokenStore(File(folder.root, "session"), FakeTokenCipher()).apply { write("opaque-session") },
         sessionEnds = SessionEnds(),
         ioDispatcher = UnconfinedTestDispatcher(testScheduler),
@@ -114,7 +114,7 @@ class TownTextsRepositoryTest {
         val store: TokenStore =
             TokenStore(File(folder.root, "session"), FakeTokenCipher()).apply { write("opaque-session") }
         return TownRepository(
-            baseUrl = api.url("/api/").toString(),
+            endpoint = slowMachineEndpoint(api.url("/api/").toString()),
             tokenStore = store,
             languages = PlayerLanguages(store, onNamed = {}),
             sessionEnds = SessionEnds(),

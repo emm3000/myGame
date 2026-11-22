@@ -344,7 +344,7 @@ class StudyAnswersTest {
         answers ?: StudyAnswers(store, sink).also { created: StudyAnswers -> answers = created }
 
     private fun TestScope.town(): TownRepository = TownRepository(
-        baseUrl = api.url("/api/").toString(),
+        endpoint = slowMachineEndpoint(api.url("/api/").toString()),
         tokenStore = store,
         languages = PlayerLanguages(store, onNamed = {}),
         sessionEnds = SessionEnds(),
@@ -354,7 +354,7 @@ class StudyAnswersTest {
     )
 
     private fun TestScope.learning(): LearningRepository = LearningRepository(
-        baseUrl = api.url("/api/").toString(),
+        endpoint = slowMachineEndpoint(api.url("/api/").toString()),
         tokenStore = store,
         sessionEnds = SessionEnds(),
         studyAnswers = studyAnswers(),
@@ -362,7 +362,7 @@ class StudyAnswersTest {
     )
 
     private fun TestScope.reports(): ReportRepository = ReportRepository(
-        baseUrl = api.url("/api/").toString(),
+        endpoint = slowMachineEndpoint(api.url("/api/").toString()),
         tokenStore = store,
         sessionEnds = SessionEnds(),
         studyAnswers = studyAnswers(),
@@ -370,7 +370,7 @@ class StudyAnswersTest {
     )
 
     private fun TestScope.holdoutChecks(): HoldoutCheckRepository = HoldoutCheckRepository(
-        baseUrl = api.url("/api/").toString(),
+        endpoint = slowMachineEndpoint(api.url("/api/").toString()),
         tokenStore = store,
         sessionEnds = SessionEnds(),
         studyAnswers = studyAnswers(),

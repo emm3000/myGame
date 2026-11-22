@@ -231,7 +231,7 @@ class PlacementRepositoryTest {
         val store: TokenStore = TokenStore(file = File(folder.root, "session"), cipher = FakeTokenCipher())
         store.write("opaque-token")
         return PlacementRepository(
-            baseUrl = api.url("/").toString(),
+            endpoint = slowMachineEndpoint(api.url("/").toString()),
             tokenStore = store,
             sessionEnds = SessionEnds(),
             ioDispatcher = UnconfinedTestDispatcher(testScheduler),
