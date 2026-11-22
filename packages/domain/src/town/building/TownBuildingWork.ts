@@ -1,6 +1,5 @@
 import type { DomainError } from '#DomainError'
 import { err, ok, type Result } from '#Result'
-import { Duration } from '#time/Duration'
 import type { Instant } from '#time/Instant'
 import type { Hires } from '../hiring/Hires'
 import type { TownCatalog } from '../ports/TownCatalog'
@@ -8,13 +7,8 @@ import { chargedStocks } from '../resources/chargedStocks'
 import { creditedStocks, type Stocks, stocksOf } from '../resources/Stocks'
 import type { TownEvent } from '../TownEvent'
 import type { TownState, TownStateChange } from '../TownState'
-import {
-  type BusyWorkSlot,
-  idleWorkSlot,
-  type PaidWork,
-  type WorkSlot,
-  type WorkTarget,
-} from './BuildingWork'
+import { idleWorkSlot, type PaidWork, type WorkSlot, type WorkTarget } from './BuildingWork'
+import { busySlotOf } from './busySlotOf'
 import { recheckWaitingList } from './recheckWaitingList'
 import type { WaitingList, WaitingWork } from './WaitingList'
 
@@ -23,22 +17,6 @@ const refundOf = (stopped: ReadonlyArray<PaidWork>): Stocks =>
     (refund, work) => creditedStocks(refund, work.cost),
     stocksOf(() => 0),
   )
-
-const busySlotOf = (work: WaitingWork, startedAt: Instant): Result<BusyWorkSlot, DomainError> => {
-  const duration = Duration.ofSeconds(work.durationSeconds)
-  if (!duration.ok) {
-    return duration
-  }
-  const { building, level, cost } = work
-  return ok({
-    kind: 'busy',
-    building,
-    level,
-    cost,
-    startedAt,
-    finishesAt: startedAt.plus(duration.value),
-  })
-}
 
 const resumedWork = (
   workSlot: WorkSlot,

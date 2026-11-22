@@ -195,6 +195,7 @@ export {
 } from '#town/building/useCases/stopBuildingWork'
 export type { WaitingList, WaitingWork } from '#town/building/WaitingList'
 export type { WordNeed } from '#town/building/WordNeed'
+export { waitingListScheduleOf } from '#town/building/waitingListScheduleOf'
 export { type WordShortfall, wordShortfallOf } from '#town/building/wordShortfallOf'
 export { derivePeople } from '#town/derivePeople'
 export { earnTownSkill } from '#town/earnTownSkill'
