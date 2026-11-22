@@ -62,11 +62,11 @@ A domain file lives in the sub-area whose word it names in the "What it is" colu
 
 ```
 index.ts  listen.ts  app.ts  composeServer.ts  composeStores.ts    the composition root, the only place that constructs an adapter
-listenPortOf.ts  writeOpenApiDocument.ts                          the api's own entry helpers; nothing else sits at the root
+listenPortOf.ts  writeOpenApiDocument.ts                          the api's own entry helpers; no other source file
 <feature>/
   application/                the use cases the api owns
   application/ports/          the ports only the api needs
-  infrastructure/http/        endpoints, route lists, responders, presenters, and the wire declarations and request helpers they share
+  infrastructure/http/        endpoints, route lists, responders, presenters, the wire declarations and the request and response helpers they share (`bearerToken`, `honoPath`, `readJsonBody`, `refusalResponse`, `reportServerFailures`)
   infrastructure/postgres/    Drizzle adapters, the feature's tables, row mappers
   infrastructure/memory/      in-memory adapters of application/ports/, each port's contract suite, and the test that runs a domain port's suite on its fake
   infrastructure/json/        the JSON catalogs
@@ -82,14 +82,17 @@ listenPortOf.ts  writeOpenApiDocument.ts                          the api's own 
 | Role | Folder | Name | Example |
 |---|---|---|---|
 | Entity, value object, type | domain feature root | noun, PascalCase | `Town.ts` |
-| Pure rule | domain feature root | `derive*`, `*Of`, `*At`, `is*`, `has*`, `refuse*` | `jobPayOf.ts` |
+| Pure rule | domain feature root | `derive*`, `*Of`, `*At`, `*For`, `*Between`, `*After`, a unit suffix (`*Days`, `*Seconds`, `*Milliseconds`), `is*`, `has*`, `covers*`, `holds*`, `refuse*` | `jobPayOf.ts`, `wholeDaysBetween.ts` |
+| Constant list | domain feature root | plural noun | `buildingKinds.ts` |
+| Draw | domain feature root | noun + `Drawn` | `bandStartDrawn.ts` |
 | Pure change | domain feature root, sub-area | verb phrase, returns the changed value, no port | `accrueTown.ts` |
 | Domain use case | `useCases/` | verb phrase | `sendJob.ts` |
 | Domain service | `services/` | verb phrase | `resolveStoredTown.ts` |
 | Port | `ports/`, `application/ports/` | noun + role | `TownRepository.ts` |
 | Api use case | `application/` | verb phrase, never a domain export's name | `serveReport.ts` |
-| Api type or pure rule | `application/` | noun, or `*From`, `is*` | `TownReading.ts`, `accountTokenExpiryFrom.ts` |
-| View gatherer | `application/` | `gather` + view | `gatherTownView.ts` |
+| Api type or pure rule | `application/` | noun, or `*From`, `is*`, `*Digest` | `TownReading.ts`, `accountTokenExpiryFrom.ts`, `tokenDigest.ts` |
+| Fixed-copy picker | `application/` | `pick` + what it picks | `pickFixedCopy.ts` |
+| View or verdict gatherer | `application/` | `gather` + view or verdict | `gatherTownView.ts` |
 | Endpoint | `infrastructure/http/` | use case + `Route` | `sendJobRoute.ts` |
 | Route list | `infrastructure/http/` | area + `Routes` | `jobsRoutes.ts` |
 | Wire declarations, request helper | `infrastructure/http/` | feature + `Components` or `Declarations`; a verb or noun | `townComponents.ts`, `requirePlayer.ts` |
@@ -121,7 +124,7 @@ A route's cases sit in one test beside its area's route list, `<area>Routes.test
 1. Does it decide a game rule, or coordinate more than one domain port? A domain use case, in `packages/domain/src/<feature>/useCases/`.
 2. Does it only place a domain use case in a transaction, gather what one response needs, or belong to the account? An api use case, in `apps/api/src/<feature>/application/`.
 
-A new refusal adds, in order: its member of `DomainError` (`packages/domain/src/DomainError.ts`) or of `Refusal` (`apps/api/src/platform/application/Refusal.ts`), its status in `respondRefusal.ts`, its `ApiErrorKind` in `packages/contracts/src/platform/ApiErrorKind.ts`, and its `refusal.<Kind>` key in `en.json` and `es.json` of `packages/catalog`. A new domain or contracts file adds its export to that package's `src/index.ts`. A new persistence adapter adds, in order: its port, its Drizzle adapter and its table in `*Tables.ts` with a migration from `db:generate`, its in-memory adapter and contract suite, its field in the feature's stores type, and its line in `composeStores.ts`. A pass-through earns no file: the route calls the store. A port lives with its user: in the domain when a domain use case reads it, otherwise in the leftmost api feature that reads it. A new endpoint adds, in order: its schema in `packages/contracts`, its use case if it earns one, its `*Route.ts` with its test, its line in the area's `*Routes.ts`, and a new `openapi.json` from `openapi:write`.
+A new refusal adds, in order: its member of `DomainError` (`packages/domain/src/DomainError.ts`) or of `Refusal` (`apps/api/src/platform/application/Refusal.ts`), its status in `respondRefusal.ts`, its `ApiErrorKind` in `packages/contracts/src/platform/ApiErrorKind.ts`, and its `refusal.<Kind>` key in `en.json` and `es.json` of `packages/catalog`. A new domain or contracts file adds its export to that package's `src/index.ts`. A new persistence adapter adds, in order: its port, its Drizzle adapter and its table in `*Tables.ts` with a migration from `db:generate`, its in-memory adapter and contract suite, its field in `AccountStores.ts`, `TownStores.ts` or `LearnerStores.ts` under `application/ports/`, and its line in `composeStores.ts`. A pass-through earns no file: the route calls the store. A port lives with its user: in the domain when a domain use case reads it, otherwise in the leftmost api feature that reads it. A new endpoint adds, in order: its schema in `packages/contracts`, its use case if it earns one, its `*Route.ts` with its test, its line in the area's `*Routes.ts`, and a new `openapi.json` from `openapi:write`.
 
 ## The checks
 
