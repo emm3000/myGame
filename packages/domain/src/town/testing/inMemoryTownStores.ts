@@ -1,4 +1,3 @@
-import type { StoredScaffold } from '#account/domain/StoredScaffold'
 import { inMemoryAccounts } from '#account/testing/inMemoryAccounts'
 import { inMemoryBandStarts } from '#holdout/testing/inMemoryBandStarts'
 import { inMemoryPendingReviews } from '#learning/reviews/testing/inMemoryPendingReviews'
@@ -17,7 +16,10 @@ import { inMemoryTownReader } from './inMemoryTownReader'
 import { inMemoryTowns } from './inMemoryTowns'
 import { MemoryTownNewsReader } from './MemoryTownNewsReader'
 
-const defaultScaffold: StoredScaffold = { scaffold: 'es', scaffoldVersion: 1 }
+export type HeldTownStores = Partial<Omit<TownStores, 'seenTips' | 'guidanceDismissals'>> & {
+  readonly seenTips?: MemorySeenTips
+  readonly guidanceDismissals?: MemoryGuidanceDismissals
+}
 
 const townNewsOf = (): TownStores['townNews'] => {
   const news = inMemoryTownNews()
@@ -29,18 +31,31 @@ const townNewsOf = (): TownStores['townNews'] => {
   }
 }
 
-export const inMemoryTownStores = (held: Partial<TownStores>): TownStores => {
+export const inMemoryTownStores = (held: HeldTownStores): TownStores => {
+  const accounts = held.accounts ?? inMemoryAccounts()
   const earnedSkills = held.earnedSkills ?? inMemoryEarnedSkills([])
   const towns = held.towns ?? inMemoryTowns([], earnedSkills)
   const lessonSlots = held.lessonSlots ?? inMemoryLessonSlots([])
   const cards = held.cards ?? inMemoryCards([])
   const bandStarts = held.bandStarts ?? inMemoryBandStarts([])
+  const placements = held.placements ?? inMemoryPlacements([])
+  const seenTips = held.seenTips ?? new MemorySeenTips()
+  const guidanceDismissals = held.guidanceDismissals ?? new MemoryGuidanceDismissals(towns)
   return {
-    accounts: held.accounts ?? inMemoryAccounts(),
+    accounts,
     towns,
     townsWithSchool:
       held.townsWithSchool ??
-      inMemoryTownReader({ towns, lessonSlots, cards, bandStarts }, defaultScaffold),
+      inMemoryTownReader({
+        accounts,
+        towns,
+        lessonSlots,
+        cards,
+        bandStarts,
+        placements,
+        guidanceDismissals,
+        seenTips,
+      }),
     townNews: held.townNews ?? townNewsOf(),
     lessonSlots,
     cards,
@@ -48,10 +63,10 @@ export const inMemoryTownStores = (held: Partial<TownStores>): TownStores => {
     reviewLog: held.reviewLog ?? inMemoryReviewLog(),
     earnedSkills,
     bandStarts,
-    placements: held.placements ?? inMemoryPlacements([]),
+    placements,
     regionMap: held.regionMap ?? inMemoryRegionMap([]),
     cleanUps: held.cleanUps ?? inMemoryCleanUps(),
-    seenTips: held.seenTips ?? new MemorySeenTips(),
-    guidanceDismissals: held.guidanceDismissals ?? new MemoryGuidanceDismissals(towns),
+    seenTips,
+    guidanceDismissals,
   }
 }

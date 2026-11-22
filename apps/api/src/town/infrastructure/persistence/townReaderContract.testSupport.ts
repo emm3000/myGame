@@ -1,8 +1,12 @@
 import {
+  type Accounts,
+  type GuidanceDismissals,
   Instant,
   idleLessonSlot,
   type LessonSlot,
   type LessonSlotRepository,
+  type PlacementScore,
+  type SeenTips,
   Town,
   TownAddress,
   TownName,
@@ -13,8 +17,15 @@ import { assert, describe, expect, it } from 'vitest'
 
 export type TownReaderArrangement = {
   readonly reader: TownReader
+  readonly accounts: Accounts
   readonly towns: TownRepository
   readonly lessonSlots: LessonSlotRepository
+  readonly recordPlacementScores: (
+    playerId: string,
+    scores: ReadonlyArray<PlacementScore>,
+  ) => Promise<void>
+  readonly guidanceDismissals: GuidanceDismissals
+  readonly seenTips: SeenTips
   readonly registerPlayers: (playerIds: ReadonlyArray<string>) => Promise<void>
 }
 
@@ -43,6 +54,11 @@ const lessonOneUnderStudy: LessonSlot = {
   startedAt: instantAt('2026-11-10T08:55:00Z'),
   finishesAt: instantAt('2026-11-10T09:00:00Z'),
 }
+
+const scoresOutOfBandOrder: ReadonlyArray<PlacementScore> = [
+  { band: 2, score: 3, takenAt: instantAt('2026-11-10T08:20:00Z') },
+  { band: 1, score: 9, takenAt: instantAt('2026-11-10T08:15:00Z') },
+]
 
 export const townReaderContract = (
   adapterName: string,
@@ -82,6 +98,55 @@ export const townReaderContract = (
         [],
         [],
       ])
+    })
+    it('reads with the town the scaffold the player holds and its version', async () => {
+      const { reader, accounts, towns, registerPlayers } = await arrange()
+      await registerPlayers([ana])
+      assert((await towns.save(anasTown())).ok)
+      const stored = await accounts.storeScaffold(ana, 'none')
+
+      const read = await reader.townWithSchoolOf(ana)
+
+      assert(read.ok && read.value !== undefined)
+      expect([read.value.scaffold, read.value.scaffoldVersion]).toEqual([
+        'none',
+        stored.scaffoldVersion,
+      ])
+    })
+
+    it("reads the player's placement scores in band order", async () => {
+      const { reader, towns, recordPlacementScores, registerPlayers } = await arrange()
+      await registerPlayers([ana])
+      assert((await towns.save(anasTown())).ok)
+      await recordPlacementScores(ana, scoresOutOfBandOrder)
+
+      const read = await reader.townWithSchoolOf(ana)
+
+      assert(read.ok && read.value !== undefined)
+      expect(read.value.placementScores.map(({ band }) => band)).toEqual([1, 2])
+    })
+
+    it('reads the instant the player dismissed the guidance', async () => {
+      const { reader, towns, guidanceDismissals, registerPlayers } = await arrange()
+      await registerPlayers([ana])
+      assert((await towns.save(anasTown())).ok)
+      const dismissedAt = instantAt('2026-11-10T08:30:00Z')
+      assert((await guidanceDismissals.dismiss(ana, dismissedAt)).ok)
+
+      const read = await reader.townWithSchoolOf(ana)
+
+      expect(read.ok && read.value?.guidanceDismissedAt).toEqual(dismissedAt)
+    })
+
+    it('reads the tips the player has seen', async () => {
+      const { reader, towns, seenTips, registerPlayers } = await arrange()
+      await registerPlayers([ana])
+      assert((await towns.save(anasTown())).ok)
+      await seenTips.markSeen(ana, 'jobs')
+
+      const read = await reader.townWithSchoolOf(ana)
+
+      expect(read.ok && read.value?.seenTips).toEqual(['jobs'])
     })
   })
 }

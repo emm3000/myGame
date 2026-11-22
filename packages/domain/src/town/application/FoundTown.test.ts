@@ -1,4 +1,6 @@
 import { assert, describe, expect, it } from 'vitest'
+import type { Accounts } from '#account/domain/Accounts'
+import { inMemoryAccounts } from '#account/testing/inMemoryAccounts'
 import type { Clock } from '#platform/domain/Clock'
 import { inMemoryUnitOfWork } from '#platform/testing/inMemoryUnitOfWork'
 import { sequentialIds } from '#platform/testing/sequentialIds'
@@ -42,13 +44,31 @@ const sitesPerAreaOf = (sitesPerArea: number): ReturnType<typeof townCatalogOf> 
 
 const noSkills = inMemoryEarnedSkills([])
 
+const accountsOf = (playerIds: ReadonlyArray<string>): Accounts =>
+  inMemoryAccounts(
+    playerIds.map((id) => ({
+      id,
+      email: `${id}@example.com`,
+      passwordHash: 'argon2id-hash',
+      emailVerified: true,
+      scaffold: 'es',
+      scaffoldVersion: 0,
+    })),
+  )
+
 const foundingIn = (
   towns: TownRepository,
   earnedSkills: EarnedSkillRepository,
   townCatalog: TownCatalog,
 ): FoundTown =>
   new FoundTown({
-    unitOfWork: inMemoryUnitOfWork(inMemoryTownStores({ towns, earnedSkills })),
+    unitOfWork: inMemoryUnitOfWork(
+      inMemoryTownStores({
+        accounts: accountsOf(['learner', 'newcomer', 'ana']),
+        towns,
+        earnedSkills,
+      }),
+    ),
     townCatalog,
     clock: frozenClock,
     ids: sequentialIds('town'),
