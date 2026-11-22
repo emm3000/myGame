@@ -86,7 +86,7 @@ listenPortOf.ts  writeOpenApiDocument.ts                          the api's own 
 |---|---|---|---|
 | Entity, value object, type | domain feature root | noun, PascalCase | `HeldCard.ts` |
 | Pure rule | domain feature root | `derive*`, `*Of`, `*At`, `*For`, `*Between`, `*After`, a unit suffix (`*Days`, `*Seconds`, `*Milliseconds`), `is*`, `has*`, `covers*`, `holds*`, `refuse*` | `heldOutCountOf.ts`, `wholeDaysBetween.ts` |
-| Constant list | domain feature root | plural noun | `buildingKinds.ts` |
+| Constant list | domain feature root | plural noun | `bands.ts` |
 | Draw | domain feature root | noun + `Drawn` | `bandStartDrawn.ts` |
 | Pure change | domain feature root, sub-area | verb phrase, returns the changed value, no port | `accrueTown.ts` |
 | Domain use case | `useCases/` | verb phrase | `answerHoldoutCheck.ts` |
@@ -94,7 +94,7 @@ listenPortOf.ts  writeOpenApiDocument.ts                          the api's own 
 | Port | `ports/`, `application/ports/` | noun + role | `BandStartRepository.ts` |
 | Api use case | `application/` | verb phrase, never a domain export's name | `serveReport.ts` |
 | Api type or pure rule | `application/` | noun, or `*From`, `is*` | `LearningDependencies.ts` |
-| View or verdict gatherer | `application/` | `gather` + view or verdict | `gatherWorkView.ts` |
+| View or verdict gatherer | `application/` | `gather` + view or verdict | `gatherReviewVerdict.ts` |
 | Use case | domain `<feature>/application/` | verb phrase, PascalCase, a class with `execute` | `SignUp.ts` |
 | Step | domain `<feature>/application/` | verb phrase, camelCase, a function a use case calls | `issueAccountToken.ts` |
 | Endpoint | `infrastructure/http/` | use case + `Route`; in a moved feature, use case + `Controller`, a class with `handle` | `answerHoldoutCheckRoute.ts`, `SendJobController.ts` |

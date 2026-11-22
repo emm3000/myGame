@@ -25,8 +25,8 @@ import {
 import {
   type BuildingsView,
   gatherBuildingsView,
-} from '../../building/application/gatherBuildingsView'
-import { gatherWorkView, type WorkView } from '../../building/application/gatherWorkView'
+} from '../../building/infrastructure/http/gatherBuildingsView'
+import { gatherWorkView, type WorkView } from '../../building/infrastructure/http/gatherWorkView'
 import {
   type GuidanceView,
   gatherGuidanceView,

@@ -1,7 +1,7 @@
 import type { DomainError } from '#DomainError'
 import { ok, type Result } from '#Result'
 import type { Instant } from '#time/Instant'
-import { finishBuildingWork } from '../building/finishBuildingWork'
+import { finishBuildingWork } from '../building/domain/finishBuildingWork'
 import { jobInstantsOf } from '../jobs/domain/jobInstantsOf'
 import { accrueTown } from '../resources/accrueTown'
 import { rebaseFullSince } from '../resources/rebaseFullSince'

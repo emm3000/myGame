@@ -1,6 +1,6 @@
 import type { SeasonDates } from '#season/domain/SeasonDates'
 import type { SeasonKind } from '#season/domain/SeasonKind'
-import type { WordNeed } from '../building/WordNeed'
+import type { WordNeed } from '../building/domain/WordNeed'
 import type { TipKind } from '../guidance/TipKind'
 import type { TownGoal } from '../guidance/TownGoal'
 import type { JobTerms } from '../jobs/domain/JobTerms'

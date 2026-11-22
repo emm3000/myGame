@@ -1,9 +1,5 @@
 import type { TownOverview } from '@mygame/contracts'
-import type {
-  BuildingsView,
-  BuildingView,
-  NextLevelView,
-} from '../../application/gatherBuildingsView'
+import type { BuildingsView, BuildingView, NextLevelView } from './gatherBuildingsView'
 
 type BuildingState = TownOverview['buildings'][keyof TownOverview['buildings']]
 

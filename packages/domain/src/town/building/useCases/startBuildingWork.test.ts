@@ -10,8 +10,8 @@ import { inMemoryTownNews } from '../../testing/inMemoryTownNews'
 import { inMemoryTowns } from '../../testing/inMemoryTowns'
 import { plainTownLevels, plainTownSettings, townCatalogOf } from '../../testing/townCatalogOf'
 import { type TownShape, townOf } from '../../testing/townFixtures'
-import type { BuildingKind } from '../BuildingKind'
-import type { BuildingLevel } from '../BuildingLevel'
+import type { BuildingKind } from '../domain/BuildingKind'
+import type { BuildingLevel } from '../domain/BuildingLevel'
 import { startBuildingWork } from './startBuildingWork'
 
 const MILLISECONDS_PER_HOUR = 3_600_000

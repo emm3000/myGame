@@ -1,6 +1,6 @@
 import type { MemoryCard } from '#memory/domain/MemoryCard'
 import type { MemoryRating } from '#memory/domain/MemoryRating'
-import { openedLevelOf } from '#town/building/openedLevelOf'
+import { openedLevelOf } from '#town/building/domain/openedLevelOf'
 import type { TownCatalog } from '#town/domain/TownCatalog'
 import type { TownSkill } from '#town/domain/TownSkill'
 import type { HeldCard } from '../HeldCard'

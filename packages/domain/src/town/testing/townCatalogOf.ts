@@ -1,6 +1,6 @@
 import { Instant } from '#time/Instant'
-import type { BuildingKind } from '../building/BuildingKind'
-import type { BuildingLevel } from '../building/BuildingLevel'
+import type { BuildingKind } from '../building/domain/BuildingKind'
+import type { BuildingLevel } from '../building/domain/BuildingLevel'
 import type { TownCatalog } from '../domain/TownCatalog'
 import type { ProductionPercent, TownSettings } from '../domain/TownSettings'
 import type { HireKind } from '../hiring/HireKind'

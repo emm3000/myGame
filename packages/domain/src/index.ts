@@ -231,28 +231,32 @@ export {
   type ResolveTownReadingDependencies,
   resolveTownReading,
 } from '#town/application/resolveTownReading'
-export type { BuildingKind } from '#town/building/BuildingKind'
+export type { BuildingKind } from '#town/building/domain/BuildingKind'
 export type {
   BuildingLevel,
   HomesLevel,
   ProducerLevel,
   StorageLevel,
-} from '#town/building/BuildingLevel'
-export { type BuildingLevels, foundingLevels } from '#town/building/BuildingLevels'
+} from '#town/building/domain/BuildingLevel'
+export { type BuildingLevels, foundingLevels } from '#town/building/domain/BuildingLevels'
 export {
   type BusyWorkSlot,
   idleWorkSlot,
   type WorkSlot,
   type WorkTarget,
-} from '#town/building/BuildingWork'
-export { buildingKinds } from '#town/building/buildingKinds'
+} from '#town/building/domain/BuildingWork'
+export { buildingKinds } from '#town/building/domain/buildingKinds'
 export {
   derivePeopleForWork,
   type PeopleForWork,
-} from '#town/building/derivePeopleForWork'
-export { type LevelWordNeed, levelWordNeedOf } from '#town/building/levelWordNeedOf'
-export { levelWorkAt } from '#town/building/levelWorkAt'
-export type { NeededWordKind } from '#town/building/NeededWordKind'
+} from '#town/building/domain/derivePeopleForWork'
+export { type LevelWordNeed, levelWordNeedOf } from '#town/building/domain/levelWordNeedOf'
+export { levelWorkAt } from '#town/building/domain/levelWorkAt'
+export type { NeededWordKind } from '#town/building/domain/NeededWordKind'
+export type { WaitingList, WaitingWork } from '#town/building/domain/WaitingList'
+export type { WordNeed } from '#town/building/domain/WordNeed'
+export { waitingListScheduleOf } from '#town/building/domain/waitingListScheduleOf'
+export { type WordShortfall, wordShortfallOf } from '#town/building/domain/wordShortfallOf'
 export {
   type StartBuildingWorkCommand,
   type StartBuildingWorkDependencies,
@@ -263,10 +267,6 @@ export {
   type StopBuildingWorkDependencies,
   stopBuildingWork,
 } from '#town/building/useCases/stopBuildingWork'
-export type { WaitingList, WaitingWork } from '#town/building/WaitingList'
-export type { WordNeed } from '#town/building/WordNeed'
-export { waitingListScheduleOf } from '#town/building/waitingListScheduleOf'
-export { type WordShortfall, wordShortfallOf } from '#town/building/wordShortfallOf'
 export { derivePeople } from '#town/domain/derivePeople'
 export type { EarnedSkillRepository } from '#town/domain/EarnedSkillRepository'
 export { earnTownSkill } from '#town/domain/earnTownSkill'
