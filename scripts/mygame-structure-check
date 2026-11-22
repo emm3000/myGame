@@ -30,6 +30,44 @@ by_file() {
   awk '{ print $0 "\t" }'
 }
 
+folders_named() {
+  local names=$1
+  shift
+  search --files "$@" | awk -v names="^($names)$" '
+    {
+      n = split($0, part, "/")
+      path = part[1]
+      for (i = 2; i < n; i++) {
+        path = path "/" part[i]
+        if (part[i] ~ names) print path
+      }
+    }' | sort -u | by_file
+}
+
+class_shape() {
+  local method=$1 helpers=$2
+  shift 2
+  search --files "$@" | awk -v method="$method" -v helpers="$helpers" '
+    {
+      file = $0
+      classes = 0
+      built = 0
+      asked = 0
+      inside = 0
+      while ((getline line < file) > 0) {
+        if (line ~ /^export class /) { classes++; inside = 1; continue }
+        if (!inside) continue
+        if (line ~ /^}/) { inside = 0; continue }
+        if (line ~ /^  constructor\(/) { built++; continue }
+        if (line ~ "^  async " method "\\(") { asked++; continue }
+        if (helpers && line ~ /^  private /) continue
+        if (line ~ /^  ([a-z#]+ )*[A-Za-z_#][A-Za-z0-9_]*\??(<[^(]*>)?(: | = (async )?)?\(/) print file "\t" "a second method: " line
+      }
+      close(file)
+      if (classes != 1 || built != 1 || asked != 1) print file "\t" "is not one exported class with a constructor and one async " method "("
+    }'
+}
+
 application_imports_infrastructure() {
   search -n "from '((\.\./)+|#)(\w+/)*infrastructure/" "$api" -g '**/application/**' -g '!*.test.ts' | by_line
 }
@@ -40,6 +78,51 @@ application_knows_wire() {
 
 persistence_knows_http() {
   search -n "from '@?hono" "$api" -g '**/infrastructure/{postgres,memory,json,smtp,system}/**' -g '!*.test.ts' | by_line
+}
+
+api_holds_layer() {
+  folders_named 'application|domain' "$api"
+}
+
+role_folder() {
+  folders_named 'useCases|services|ports' "$domain" && folders_named 'postgres|memory' "$api"
+}
+
+file_outside_layer() {
+  search --files "$domain" -g '*.ts' | awk -v root="$domain" '
+    {
+      sub(/\/[^\/]*$/, "")
+      if ($0 == root) next
+      top = substr($0, length(root) + 2)
+      sub(/\/.*/, "", top)
+      folder = $0
+      sub(/.*\//, "", folder)
+      if (top ~ /^(player|time|hash|grid)$/ || folder ~ /^(domain|application|testing)$/) next
+      print $0 "\t"
+    }' | sort -u
+}
+
+route_file() {
+  search --files "$api" -g '*Route.ts' -g '*Route.test.ts' | by_file
+}
+
+use_case_shape() {
+  class_shape execute 0 "$domain" -g '**/application/[A-Z]*.ts' -g '!*.test.ts' -g '!*.testSupport.ts'
+}
+
+controller_shape() {
+  class_shape handle 1 "$api" -g '**/infrastructure/http/*Controller.ts'
+}
+
+use_case_built_outside_root() {
+  local classes
+  classes=$(search --files "$domain" -g '**/application/[A-Z]*.ts' -g '!*.test.ts' -g '!*.testSupport.ts' | awk '{ sub(/.*\//, ""); sub(/\.ts$/, ""); print }' | paste -sd '|' -) || return 1
+  [ -n "$classes" ] || return 0
+  search -n "\bnew ($classes)\(" "$api" -g '!*.test.ts' -g '!*.testSupport.ts' -g "!/$api/*.ts" | by_line
+}
+
+controller_built_outside_route_list() {
+  search -n "\bnew \w+Controller\(" "$api" -g '!*Routes.ts' -g '!*.test.ts' | by_line
 }
 
 contracts_outside_adapters() {
@@ -94,15 +177,30 @@ use_case_named_of() {
 }
 
 domain_promise_outside_its_roles() {
-  search -l "Promise<|\basync\b" "$domain" -g '!**/useCases/**' -g '!**/services/**' -g '!**/ports/**' -g '!**/testing/**' -g '!*.test.ts' | by_file
+  local scope=("$domain" -g '!**/useCases/**' -g '!**/services/**' -g '!**/application/**' -g '!**/testing/**' -g '!*.test.ts')
+  {
+    search -l '\basync\b' "${scope[@]}" &&
+      search -l 'Promise<' "${scope[@]}" | awk '
+        {
+          file = $0
+          port = 0
+          while ((getline line < file) > 0) if (line ~ /^export interface /) port = 1
+          close(file)
+          if (!port) print file
+        }'
+  } | sort -u | by_file
 }
 
 use_case_imports_use_case() {
-  search -n "from '(\./|((\.\./)+|#)(\w+/)*useCases/)" "$domain" -g '**/useCases/**' -g '!*.test.ts' | by_line
+  local use_case="((\.\./)+|#)(\w+/)*application/[A-Z]"
+  {
+    search -n "from '(\./|((\.\./)+|#)(\w+/)*useCases/|$use_case)" "$domain" -g '**/useCases/**' -g '!*.test.ts' &&
+      search -n "from '(\./[A-Z]|$use_case)" "$domain" -g '**/application/**' -g '!*.test.ts'
+  } | by_line
 }
 
-service_is_public() {
-  search -n "/services/" "$domain/index.ts" | awk -v file="$domain/index.ts" '{ print file "\t" $0 }'
+step_is_public() {
+  search -n "/services/|/application/[a-z]" "$domain/index.ts" | awk -v file="$domain/index.ts" '{ print file "\t" $0 }'
 }
 
 folder_over_limit() {
@@ -148,7 +246,15 @@ checks=(
   use_case_named_of
   domain_promise_outside_its_roles
   use_case_imports_use_case
-  service_is_public
+  step_is_public
+  api_holds_layer
+  role_folder
+  file_outside_layer
+  route_file
+  use_case_shape
+  controller_shape
+  use_case_built_outside_root
+  controller_built_outside_route_list
   folder_over_limit
   file_over_export_cap
   type_over_method_cap
