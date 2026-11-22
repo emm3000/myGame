@@ -1,9 +1,13 @@
+import { PlayerSchema } from '@mygame/contracts'
 import { type Clock, Instant } from '@mygame/domain'
 import { Client } from 'pg'
 import { apiPackagePath } from '#apiPackagePath.testSupport'
+import type { createApp } from '#app'
+import type { ComposedServer } from '#composeServer'
 import { mailEnvironment } from '#composeServer.testSupport'
 import { truncatePlayerTables } from '#truncatePlayerTables.testSupport'
 import type { Mail } from '../../application/ports/Mailer'
+import type { MemoryMailer } from '../memory/MemoryMailer'
 
 export const contentDirectory = apiPackagePath('content/')
 
@@ -130,4 +134,84 @@ export const anasSignUp = { email: 'ana@example.com', password: 'hierro-y-lana',
 export const tokenOf = (mail: Mail | undefined): string => {
   const link = mail?.text.split('\n').find((line) => line.startsWith(mailEnvironment.WEB_URL))
   return link === undefined ? '' : (new URL(link).searchParams.get('token') ?? '')
+}
+
+export type AccountApp = ReturnType<typeof createApp>
+
+export type AccountRequests = {
+  readonly signUpAna: () => Promise<Response>
+  readonly sessionOf: (cookie: string) => Promise<Response>
+  readonly isEmailVerified: (cookie: string) => Promise<boolean>
+  readonly verifyEmail: (token: string) => Promise<Response>
+  readonly signInNatively: (body: object) => Promise<Response>
+}
+
+export const accountRequests = (appOf: () => AccountApp): AccountRequests => {
+  const signUpAna = async (): Promise<Response> =>
+    appOf().request('/auth/sign-up', post(anasSignUp))
+
+  const sessionOf = async (cookie: string): Promise<Response> =>
+    appOf().request('/auth/session', { headers: { cookie } })
+
+  const isEmailVerified = async (cookie: string): Promise<boolean> =>
+    PlayerSchema.parse(await (await sessionOf(cookie)).json()).emailVerified
+
+  const verifyEmail = async (token: string): Promise<Response> =>
+    appOf().request('/auth/verify-email', post({ token }))
+
+  const signInNatively = async (body: object): Promise<Response> =>
+    appOf().request('/auth/sign-in/native', post(body))
+
+  return { signUpAna, sessionOf, isEmailVerified, verifyEmail, signInNatively }
+}
+
+export const anasSignIn = { email: anasSignUp.email, password: anasSignUp.password }
+
+const resetMailSubject = 'Cambia tu contraseña'
+
+export type PasswordResets = {
+  readonly resetMailsTo: (email: string) => ReadonlyArray<Mail>
+  readonly verifiedAna: () => Promise<string>
+  readonly forgotPassword: (email: string, forgettingApp?: AccountApp) => Promise<Response>
+  readonly resetPassword: (token: string, password: string) => Promise<Response>
+  readonly signInAna: (password: string) => Promise<Response>
+  readonly resetLinkOfAna: () => Promise<string>
+}
+
+export const passwordResets = (
+  appOf: () => AccountApp,
+  serverOf: () => ComposedServer,
+  mailerOf: () => MemoryMailer,
+): PasswordResets => {
+  const { signUpAna, verifyEmail } = accountRequests(appOf)
+
+  const resetMailsTo = (email: string): ReadonlyArray<Mail> =>
+    mailerOf()
+      .sentTo(email)
+      .filter((mail) => mail.subject === resetMailSubject)
+
+  const verifiedAna = async (): Promise<string> => {
+    const cookie = sessionCookieOf(await signUpAna())
+    await verifyEmail(tokenOf(mailerOf().sentTo(anasSignUp.email)[0]))
+    return cookie
+  }
+
+  const forgotPassword = async (
+    email: string,
+    forgettingApp: AccountApp = appOf(),
+  ): Promise<Response> => forgettingApp.request('/auth/forgot-password', post({ email }))
+
+  const resetPassword = async (token: string, password: string): Promise<Response> =>
+    appOf().request('/auth/reset-password', post({ token, password }))
+
+  const signInAna = async (password: string): Promise<Response> =>
+    appOf().request('/auth/sign-in', post({ email: anasSignUp.email, password }))
+
+  const resetLinkOfAna = async (): Promise<string> => {
+    await forgotPassword(anasSignUp.email)
+    await serverOf().afterResponse.settled()
+    return tokenOf(resetMailsTo(anasSignUp.email).at(-1))
+  }
+
+  return { resetMailsTo, verifiedAna, forgotPassword, resetPassword, signInAna, resetLinkOfAna }
 }
