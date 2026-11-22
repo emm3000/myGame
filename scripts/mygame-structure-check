@@ -68,16 +68,8 @@ class_shape() {
     }'
 }
 
-application_imports_infrastructure() {
-  search -n "from '((\.\./)+|#)(\w+/)*infrastructure/" "$api" -g '**/application/**' -g '!*.test.ts' | by_line
-}
-
-application_knows_wire() {
-  search -n "from '(@mygame/contracts|@?hono|drizzle|zod)" "$api" -g '**/application/**' -g '!*.test.ts' | by_line
-}
-
 persistence_knows_http() {
-  search -n "from '@?hono" "$api" -g '**/infrastructure/{persistence,catalog,memory,json,smtp,system}/**' -g '!*.test.ts' | by_line
+  search -n "from '@?hono" "$api" -g '**/infrastructure/{persistence,catalog,json,smtp,system}/**' -g '!*.test.ts' | by_line
 }
 
 api_holds_layer() {
@@ -85,7 +77,7 @@ api_holds_layer() {
 }
 
 role_folder() {
-  folders_named 'useCases|services|ports' "$domain" && folders_named 'postgres|memory' "$api"
+  folders_named 'postgres|memory' "$api"
 }
 
 file_outside_layer() {
@@ -173,11 +165,11 @@ production_imports_fakes() {
 }
 
 use_case_named_of() {
-  search --files "$api" "$domain" -g '*Of.ts' -g '!*.test.ts' | { search '/(application|useCases|services)/'; } | by_file
+  search --files "$api" "$domain" -g '*Of.ts' -g '!*.test.ts' | { search '/application/'; } | by_file
 }
 
 domain_promise_outside_its_roles() {
-  local scope=("$domain" -g '!**/useCases/**' -g '!**/services/**' -g '!**/application/**' -g '!**/testing/**' -g '!*.test.ts')
+  local scope=("$domain" -g '!**/application/**' -g '!**/testing/**' -g '!*.test.ts')
   {
     search -l '\basync\b' "${scope[@]}" &&
       search -l 'Promise<' "${scope[@]}" | awk '
@@ -192,15 +184,11 @@ domain_promise_outside_its_roles() {
 }
 
 use_case_imports_use_case() {
-  local use_case="((\.\./)+|#)(\w+/)*application/[A-Z]"
-  {
-    search -n "from '(\./|((\.\./)+|#)(\w+/)*useCases/|$use_case)" "$domain" -g '**/useCases/**' -g '!*.test.ts' &&
-      search -n "from '(\./[A-Z]|$use_case)" "$domain" -g '**/application/**' -g '!*.test.ts'
-  } | by_line
+  search -n "from '(\./[A-Z]|((\.\./)+|#)(\w+/)*application/[A-Z])" "$domain" -g '**/application/**' -g '!*.test.ts' | by_line
 }
 
 step_is_public() {
-  search -n "/services/|/application/[a-z]" "$domain/index.ts" | awk -v file="$domain/index.ts" '{ print file "\t" $0 }'
+  search -n "/application/[a-z]" "$domain/index.ts" | awk -v file="$domain/index.ts" '{ print file "\t" $0 }'
 }
 
 folder_over_limit() {
@@ -233,8 +221,6 @@ type_over_method_cap() {
 }
 
 checks=(
-  application_imports_infrastructure
-  application_knows_wire
   subpath_import_inside_folder
   contracts_outside_adapters
   persistence_knows_http

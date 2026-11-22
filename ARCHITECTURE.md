@@ -46,31 +46,36 @@ One row for each folder directly under `apps/api/src` or `packages/domain/src`: 
 `packages/domain/src/<feature>/`:
 
 ```
-domain/       its types, pure rules and ports (ADR 054): PascalCase for an entity, a value object or a type (`HeldCard.ts`), camelCase for a pure, synchronous function (`keyInstantOf.ts`)
-application/  its use-case classes (`SignUp.ts`) and the steps they call (`issueAccountToken.ts`)
-testing/      the feature's in-memory ports and fixtures
-<subArea>/    the same grammar again
+domain/         Town.ts  TownAddress.ts        PascalCase: an entity, a value object, a type
+                jobPayOf.ts  accrueTown.ts     camelCase: a pure, synchronous function
+                TownRepository.ts  TownNews.ts PascalCase: a port, an interface, beside what it stores
+application/    SendJob.ts                     PascalCase: a use case, a class
+                dispatchJob.ts  mutateTown.ts  camelCase: a step use cases share, a function
+testing/        the feature's in-memory ports and fixtures
+<subArea>/      the same grammar again
 ```
+
+The kernel: `platform/` keeps `domain/` (`Clock`, `IdGenerator`, `RandomSource`, `UnitOfWork`, `FailureSink`, `AfterResponse`, `AfterResponseDrain`, `Refusal`) and `testing/`; `player/`, `time/`, `hash/` and `grid/` are values with no port and no use case, one layer by nature; `DomainError.ts`, `Result.ts`, `index.ts` and `testing.ts` stay at the root (ADR 054, section 2).
 
 A domain file lives in the sub-area whose word it names in the "What it is" column of ADR 052's feature table (section 2), even when another sub-area reads it, and the feature's own `domain/` keeps the aggregate and the words no domain sub-area names. The feature and its sub-areas may import one another, and they stay free of cycles: Biome's `noImportCycles` checks type-only imports as well as runtime ones in the backend.
 
 `apps/api/src/`:
 
 ```
-index.ts  listen.ts  app.ts  composeServer.ts  composeStores.ts    the composition root, the only place that constructs an adapter
-composeUseCases.ts                                                the composition root's use cases, the only place that constructs one
-listenPortOf.ts  writeOpenApiDocument.ts                          the api's own entry helpers; no other source file
-<feature>/
-  infrastructure/http/         controllers, route lists, responders, presenters, the wire declarations and the request and response helpers they share (`bearerToken`, `honoPath`, `readJsonBody`, `refusalResponse`, `reportServerFailures`)
-  infrastructure/persistence/  Drizzle adapters, the feature's tables, row mappers, each port's contract suite and the test that runs it on the domain's fake
-  infrastructure/json/         the JSON catalogs
-  infrastructure/catalog/      the mail copy, read from the message catalog
-  infrastructure/smtp/         the mailer
-  infrastructure/system/       the password hasher and the session tokens
-  gate/                        the content gate (content): the checks the shipped content passes, one file per check in checks/ and the readings they share beside them; no request, port or adapter reaches it, only its tests
+index.ts  listen.ts  app.ts  composeServer.ts  composeStores.ts  composeUseCases.ts    the composition root, the only place that constructs an adapter or a use case
+listenPortOf.ts  writeOpenApiDocument.ts                                              the api's own entry helpers; no other source file
+<feature>/infrastructure/
+  http/           one controller per endpoint, the route list, responders, presenters, the views they gather, the wire declarations and the request and response helpers they share (`bearerToken`, `honoPath`, `readJsonBody`, `refusalResponse`, `reportServerFailures`)
+  persistence/    Drizzle adapters, the feature's tables, row mappers, each port's contract suite and the test that runs it on the domain's fake
+  json/           the JSON catalogs (content)
+  catalog/        the copy of a mail (account)
+  smtp/           the mailer (account)
+  system/         the password hasher and the session tokens (account), the clock and ids (platform)
+  vercel/         the deferred work (platform)
+content/gate/     the content gate: the checks the shipped content passes, one file per check in checks/ and the readings they share beside them; no request, port or adapter reaches it, only its tests
 ```
 
-`platform/` follows the same grammar: `infrastructure/{http,persistence,system,vercel}/` holds the kernels, `DrizzleUnitOfWork` among them. A layer with nothing to hold has no folder: in the domain, `content` has only `domain/`. An adapter lives in the feature whose port it implements. A domain port has one in-memory implementation, the fake in its domain feature's `testing/`, which the api's contract suite runs against beside the Drizzle adapter, reading it through `@mygame/domain/testing`. `packages/contracts/src/<feature>/` holds one schema per file, with no layer folder. Only `infrastructure/http/`, `infrastructure/json/` and `content/gate/` import `@mygame/contracts`: they parse, or check, a shape written outside the process, a request or a content file.
+`platform/` follows the same grammar: `infrastructure/{http,persistence,system,vercel}/` holds the kernels, `DrizzleUnitOfWork` among them. A layer with nothing to hold has no folder: in the domain package, `content` has only `domain/`. An adapter lives in the feature whose port it implements. A domain port has one in-memory implementation, the fake in its domain feature's `testing/`, which the api's contract suite runs against beside the Drizzle adapter, reading it through `@mygame/domain/testing`. `packages/contracts/src/<feature>/` holds one schema per file, with no layer folder. Only `infrastructure/http/`, `infrastructure/json/` and `content/gate/` import `@mygame/contracts`: they parse, or check, a shape written outside the process, a request or a content file.
 
 ## The file-name grammar
 
@@ -85,12 +90,12 @@ listenPortOf.ts  writeOpenApiDocument.ts                          the api's own 
 | View or verdict gatherer | `infrastructure/http/`, beside the presenter that reads its view | `gather` + view or verdict | `gatherReviewVerdict.ts` |
 | Use case | domain `<feature>/application/` | verb phrase, PascalCase, a class with `execute` | `SignUp.ts` |
 | Step | domain `<feature>/application/` | verb phrase, camelCase, a function a use case calls | `issueAccountToken.ts` |
-| Endpoint | `infrastructure/http/` | use case + `Controller`, a class with `handle` | `SendJobController.ts`, `CloseReportController.ts` |
+| Controller | `infrastructure/http/`, one per endpoint | use case + `Controller`, a class with `handle` | `SendJobController.ts`, `CloseReportController.ts` |
 | Route list | `infrastructure/http/` | area + `Routes`; it builds its controllers and its `requirePlayer` once | `jobsRoutes.ts`, `sessionRoutes.ts` |
 | Wire declarations, request helper | `infrastructure/http/` | feature + `Components` or `Declarations`; a verb or noun | `townComponents.ts`, `requirePlayer.ts` |
 | Responder | `infrastructure/http/` | `respond` + what it turns into a response | `respondTownReading.ts` |
 | Presenter | `infrastructure/http/` | `present` + wire noun | `presentTownOverview.ts` |
-| Adapter | `infrastructure/<technology>/` | technology + port | `DrizzleTownRepository.ts` |
+| Adapter | `infrastructure/persistence/` for a Drizzle adapter, else the folder of its technology (`smtp/`, `system/`, `vercel/`, `catalog/`, `json/`) | technology + port | `DrizzleTownRepository.ts`, `SmtpMailer.ts` |
 | Aggregate read | `infrastructure/persistence/` | `aggregated` + noun | `aggregatedTown.ts` |
 | Catalog builder | `infrastructure/json/` | `json` + catalog + `Of` | `jsonLessonCatalogOf.ts` |
 | Tables | `infrastructure/persistence/` | feature + `Tables` | `townTables.ts` |
@@ -114,26 +119,26 @@ A route's cases sit in one test beside its area's route list, `<area>Routes.test
 
 ## Where a new thing goes
 
-1. Does it decide a game rule, or coordinate more than one domain port? What an endpoint asks is a use-case class in `packages/domain/src/<feature>/application/`, built in `composeUseCases.ts`, and a function it calls with the ports it reads is a step beside it.
-2. Does it only gather what one response needs? A gatherer, in the feature's `infrastructure/http/`, beside the presenter that reads its view.
+A thing that decides or coordinates is in `packages/domain`, under `domain/` when it is pure and under `application/` when it reads a port; a thing that talks to HTTP, Postgres, a file or a mail server is in `apps/api`, under `infrastructure/` (ADR 054, section 1). What an endpoint asks is a use-case class of `application/`, and a function it calls with the ports it reads is a step beside it; what gathers one response's view is a gatherer in `infrastructure/http/`, beside the presenter that reads it.
 
-A new refusal adds, in order: its member of `DomainError` (`packages/domain/src/DomainError.ts`) or of `Refusal` (`packages/domain/src/platform/domain/Refusal.ts`), its status in `respondRefusal.ts`, its `ApiErrorKind` in `packages/contracts/src/platform/ApiErrorKind.ts`, and its `refusal.<Kind>` key in `en.json` and `es.json` of `packages/catalog`. A new domain or contracts file adds its export to that package's `src/index.ts`. A new persistence adapter adds, in order: its port, its Drizzle adapter and its table in `*Tables.ts` with a migration from `db:generate`, its in-memory adapter and contract suite, its field in `packages/domain/src/account/domain/AccountStores.ts`, `packages/domain/src/town/domain/TownStores.ts` or `packages/domain/src/learning/domain/LearnerStores.ts`, and its line in `composeStores.ts`. A pass-through earns no file: the controller calls the store, as `CloseReportController` calls `ReportClosings`. A port lives in the `domain/` of the feature whose use case reads it. A new endpoint adds, in order: its schema in `packages/contracts`, its use case if it earns one with its line in `composeUseCases.ts`, its `*Controller.ts` with its test in `infrastructure/http/`, its line in the area's `*Routes.ts`, and a new `openapi.json` from `openapi:write`.
+A new endpoint adds, in order: its schema in `packages/contracts`; its use case in `packages/domain/src/<feature>/application/` if it earns one, with its export in `src/index.ts`; its line of `composeUseCases.ts`; its `*Controller.ts` with its test in `infrastructure/http/`; its lines of the area's `*Routes.ts`, the controller built once and mounted behind `requirePlayer`; and a new `openapi.json` from `openapi:write`.
+
+A new refusal adds, in order: its member of `DomainError` (`packages/domain/src/DomainError.ts`) or of `Refusal` (`packages/domain/src/platform/domain/Refusal.ts`), its status in `respondRefusal.ts`, its `ApiErrorKind` in `packages/contracts/src/platform/ApiErrorKind.ts`, and its `refusal.<Kind>` key in `en.json` and `es.json` of `packages/catalog`. A new domain or contracts file adds its export to that package's `src/index.ts`. A new persistence adapter adds, in order: its port, its Drizzle adapter and its table in `*Tables.ts` with a migration from `db:generate`, its in-memory adapter and contract suite, its field in `packages/domain/src/account/domain/AccountStores.ts`, `packages/domain/src/town/domain/TownStores.ts` or `packages/domain/src/learning/domain/LearnerStores.ts`, and its line in `composeStores.ts`. A pass-through earns no file: the controller calls the store, as `CloseReportController` calls `ReportClosings`. A port lives in the `domain/` of the feature whose use case reads it.
 
 ## The checks
 
-`pnpm gate` runs them, and each fails on any hit that `scripts/mygame-structure-check.baseline` does not list. The baseline lists only what the features ADR 054 has yet to move still hold.
+`pnpm gate` runs them, and each fails on any hit that `scripts/mygame-structure-check.baseline` does not list. The baseline is empty: every feature has moved (ADR 054).
 
 - `feature_graph` (Biome): a feature imports only from its left.
 - `noImportCycles` (Biome): no import cycle between two files, and in the backend no type-only one either.
 - `map`: the folders above and the folders on disk are the same list, and a missing `ARCHITECTURE.md` fails.
-- `application_imports_infrastructure`, `application_knows_wire`: the application reads no adapter, no wire type and no HTTP or database library.
 - `subpath_import_inside_folder`: no file imports its own top-level folder by a `#` subpath.
 - `contracts_outside_adapters`: `@mygame/contracts` stays in `infrastructure/http/`, `infrastructure/json/` and `content/gate/`.
 - `persistence_knows_http`, `http_knows_database`: each technology stays in its folder.
 - `adapter_built_outside_root`: only the composition root constructs an adapter.
 - `reading_named_of_is_async`, `reading_is_async`, `use_case_named_of`, `domain_promise_outside_its_roles`: a name says whether it reads a port, and no `function` or `const` named `*Of`, `*At`, `*For` or `*Between` is `async` or returns a `Promise`.
 - `use_case_imports_use_case`, `step_is_public`: use cases share a step, and a step stays inside the domain.
-- `api_holds_layer`, `role_folder`, `file_outside_layer`: the api holds no `application/` or `domain/` folder, no feature keeps a `useCases/`, `services/`, `ports/`, `postgres/` or `memory/` folder, and every file of a domain feature sits in `domain/`, `application/` or `testing/`.
+- `api_holds_layer`, `role_folder`, `file_outside_layer`: the api holds no `application/`, `domain/`, `postgres/` or `memory/` folder, and every file of a domain feature sits in `domain/`, `application/` or `testing/`, so no other role folder holds one.
 - `route_file`, `use_case_shape`, `controller_shape`: an endpoint is a controller class with one `async handle(`, and a use case a class of `application/` with one `async execute(`.
 - `use_case_built_outside_root`, `controller_built_outside_route_list`: only the composition root builds a use case, and only a route list builds a controller.
 - `folder_over_limit`, `file_over_export_cap`, `type_over_method_cap`, and Biome's line limits: no folder, file, type or function grows past its wall.

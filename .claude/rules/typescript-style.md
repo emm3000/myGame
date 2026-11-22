@@ -61,12 +61,12 @@ None. No JSDoc, no `//`, no `/* */`, no commented-out code, no section banners. 
 | Web route | TanStack file route | `routes/school.$lessonId.tsx` |
 | Component | noun, PascalCase | `Block`, `BuildSlot` |
 | Hook | `use` + noun | `useTownOverview` |
-| Test | `<subject>.test.ts` beside the subject | `requestHint.test.ts` |
+| Test | `<subject>.test.ts` beside the subject | `SendJob.test.ts` |
 
 ## File names
 
 - camelCase for files that export a function or value, PascalCase for files that export a type, class or component.
-- Directories are plural nouns for collections and singular for a single concern. Which folder holds which layer is ADR 054, "The folder grammar"; the first folder is a feature, the second a layer. A feature that has not moved keeps ADR 052's folders and is listed in the baseline.
+- Directories are plural nouns for collections and singular for a single concern. Which folder holds which layer is ADR 054, "The folder grammar"; the first folder is a feature, the second a layer.
 - `*Of` names a pure, synchronous derivation and nothing else: a function that returns a promise is named by a verb, and a function that writes is never named as a reading.
 
 ## Formatting

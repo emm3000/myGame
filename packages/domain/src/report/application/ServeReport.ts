@@ -1,9 +1,6 @@
 import type { DomainError } from '#DomainError'
-import {
-  type DueReviews,
-  type ReviewTerms,
-  readDueReviews,
-} from '#learning/reviews/application/readDueReviews'
+import { type ReviewTerms, readDueReviews } from '#learning/reviews/application/readDueReviews'
+import type { DueReviews } from '#learning/reviews/domain/DueReviews'
 import type { Clock } from '#platform/domain/Clock'
 import type { PlayerId } from '#player/PlayerId'
 import { err, ok, type Result } from '#Result'

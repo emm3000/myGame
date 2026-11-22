@@ -74,27 +74,6 @@ passes_a_clean_tree() {
   expect_pass "${FUNCNAME[0]}"
 }
 
-fails_an_application_importing_infrastructure() {
-  fresh_tree
-  plant apps/api/src/town/application/sendJob.ts "import { DrizzleTownRepository } from '../infrastructure/persistence/DrizzleTownRepository'\n"
-  check
-  expect_failure "${FUNCNAME[0]}" "structure check application_imports_infrastructure apps/api/src/town/application/sendJob.ts 1:import"
-}
-
-fails_an_application_importing_infrastructure_by_subpath() {
-  fresh_tree
-  plant apps/api/src/town/application/sendJob.ts "import { DrizzleTownRepository } from '#town/infrastructure/persistence/DrizzleTownRepository'\n"
-  check
-  expect_failure "${FUNCNAME[0]}" "structure check application_imports_infrastructure apps/api/src/town/application/sendJob.ts 1:import"
-}
-
-fails_an_application_knowing_the_wire() {
-  fresh_tree
-  plant apps/api/src/town/application/sendJob.ts "import { z } from 'zod'\n"
-  check
-  expect_failure "${FUNCNAME[0]}" "structure check application_knows_wire apps/api/src/town/application/sendJob.ts 1:import"
-}
-
 fails_contracts_outside_their_adapters() {
   fresh_tree
   plant apps/api/src/town/application/readTown.ts "import type { TownOverview } from '@mygame/contracts'\n"
@@ -149,9 +128,9 @@ fails_an_async_reading_named_of() {
 
 fails_an_async_const_named_of() {
   fresh_tree
-  plant packages/domain/src/town/useCases/sendJob.ts "const askedJobOf = async (id: string): Promise<string> => id\n"
+  plant packages/domain/src/town/application/sendJob.ts "const askedJobOf = async (id: string): Promise<string> => id\n"
   check
-  expect_failure "${FUNCNAME[0]}" "structure check reading_is_async packages/domain/src/town/useCases/sendJob.ts 1:const askedJobOf"
+  expect_failure "${FUNCNAME[0]}" "structure check reading_is_async packages/domain/src/town/application/sendJob.ts 1:const askedJobOf"
 }
 
 fails_a_const_named_at_that_declares_a_promise() {
@@ -170,9 +149,9 @@ fails_an_exported_async_function_named_for() {
 
 fails_a_function_named_at_that_declares_a_promise() {
   fresh_tree
-  plant packages/domain/src/town/useCases/sendJob.ts "export const sendJob = (): number => 1\n\nfunction jobDueAt(\n  read: (at: number) => number,\n): Promise<number> {\n  return Promise.resolve(read(1))\n}\n"
+  plant packages/domain/src/town/application/sendJob.ts "export const sendJob = (): number => 1\n\nfunction jobDueAt(\n  read: (at: number) => number,\n): Promise<number> {\n  return Promise.resolve(read(1))\n}\n"
   check
-  expect_failure "${FUNCNAME[0]}" "structure check reading_is_async packages/domain/src/town/useCases/sendJob.ts 3:function jobDueAt"
+  expect_failure "${FUNCNAME[0]}" "structure check reading_is_async packages/domain/src/town/application/sendJob.ts 3:function jobDueAt"
 }
 
 fails_a_typed_const_named_between_that_returns_a_promise() {
@@ -191,9 +170,9 @@ fails_a_typed_const_named_of_assigned_an_async_arrow() {
 
 fails_an_async_const_named_for() {
   fresh_tree
-  plant packages/domain/src/town/useCases/sendJob.ts "const bandStartFor = async (id: string): Promise<string> => id\n"
+  plant packages/domain/src/town/application/sendJob.ts "const bandStartFor = async (id: string): Promise<string> => id\n"
   check
-  expect_failure "${FUNCNAME[0]}" "structure check reading_is_async packages/domain/src/town/useCases/sendJob.ts 1:const bandStartFor"
+  expect_failure "${FUNCNAME[0]}" "structure check reading_is_async packages/domain/src/town/application/sendJob.ts 1:const bandStartFor"
 }
 
 passes_a_synchronous_reading_that_takes_a_promise_callback() {
@@ -249,16 +228,16 @@ fails_an_api_file_importing_the_domain_fakes() {
 
 fails_a_domain_file_importing_a_fake() {
   fresh_tree
-  plant packages/domain/src/town/useCases/sendJob.ts "import { inMemoryTowns } from '../testing/inMemoryTowns'\n"
+  plant packages/domain/src/town/application/sendJob.ts "import { inMemoryTowns } from '../testing/inMemoryTowns'\n"
   check
-  expect_failure "${FUNCNAME[0]}" "structure check production_imports_fakes packages/domain/src/town/useCases/sendJob.ts 1:import"
+  expect_failure "${FUNCNAME[0]}" "structure check production_imports_fakes packages/domain/src/town/application/sendJob.ts 1:import"
 }
 
 fails_a_domain_file_importing_the_testing_entry_by_subpath() {
   fresh_tree
-  plant packages/domain/src/town/useCases/plantedFake.ts "import { inMemoryTowns } from '#testing'\n"
+  plant packages/domain/src/town/application/plantedFake.ts "import { inMemoryTowns } from '#testing'\n"
   check
-  expect_failure "${FUNCNAME[0]}" "structure check production_imports_fakes packages/domain/src/town/useCases/plantedFake.ts 1:import"
+  expect_failure "${FUNCNAME[0]}" "structure check production_imports_fakes packages/domain/src/town/application/plantedFake.ts 1:import"
 }
 
 fails_a_domain_root_file_importing_the_testing_entry_relatively() {
@@ -286,13 +265,6 @@ passes_the_fakes_in_tests_contract_suites_and_the_testing_entry() {
   plant apps/web/src/town/TownScreen.test.tsx "import { inMemoryTowns } from '@mygame/domain/testing'\n"
   check
   expect_pass "${FUNCNAME[0]}"
-}
-
-fails_a_use_case_named_of() {
-  fresh_tree
-  plant packages/domain/src/town/useCases/townOf.ts "export const townOf = (id: string): string => id\n"
-  check
-  expect_failure "${FUNCNAME[0]}" "structure check use_case_named_of packages/domain/src/town/useCases/townOf.ts"
 }
 
 fails_a_step_named_of() {
@@ -325,9 +297,9 @@ passes_a_domain_promise_in_the_application() {
 
 fails_a_domain_promise_in_a_port_type() {
   fresh_tree
-  plant packages/domain/src/town/ports/Transaction.ts "export type Transaction = <T>(work: () => Promise<T>) => Promise<T>\n"
+  plant packages/domain/src/town/domain/Transaction.ts "export type Transaction = <T>(work: () => Promise<T>) => Promise<T>\n"
   check
-  expect_failure "${FUNCNAME[0]}" "structure check domain_promise_outside_its_roles packages/domain/src/town/ports/Transaction.ts"
+  expect_failure "${FUNCNAME[0]}" "structure check domain_promise_outside_its_roles packages/domain/src/town/domain/Transaction.ts"
 }
 
 fails_an_async_function_beside_a_port() {
@@ -337,25 +309,18 @@ fails_an_async_function_beside_a_port() {
   expect_failure "${FUNCNAME[0]}" "structure check domain_promise_outside_its_roles packages/domain/src/town/domain/TownRepository.ts"
 }
 
-fails_a_use_case_importing_a_use_case_from_its_folder() {
+fails_a_step_importing_another_features_use_case_class() {
   fresh_tree
-  plant packages/domain/src/town/useCases/sendJob.ts "import { quoteJob } from './quoteJob'\n"
+  plant packages/domain/src/town/application/changeTown.ts "import { SubmitReviewAnswer } from '../../learning/reviews/application/SubmitReviewAnswer'\n"
   check
-  expect_failure "${FUNCNAME[0]}" "structure check use_case_imports_use_case packages/domain/src/town/useCases/sendJob.ts 1:import"
+  expect_failure "${FUNCNAME[0]}" "structure check use_case_imports_use_case packages/domain/src/town/application/changeTown.ts 1:import"
 }
 
-fails_a_use_case_importing_another_features_use_case() {
+fails_a_step_importing_another_features_use_case_class_by_subpath() {
   fresh_tree
-  plant packages/domain/src/town/useCases/sendJob.ts "import { answerReview } from '../../learning/useCases/answerReview'\n"
+  plant packages/domain/src/town/application/changeTown.ts "import { SubmitReviewAnswer } from '#learning/reviews/application/SubmitReviewAnswer'\n"
   check
-  expect_failure "${FUNCNAME[0]}" "structure check use_case_imports_use_case packages/domain/src/town/useCases/sendJob.ts 1:import"
-}
-
-fails_a_use_case_importing_another_features_use_case_by_subpath() {
-  fresh_tree
-  plant packages/domain/src/town/useCases/sendJob.ts "import { answerReview } from '#learning/useCases/answerReview'\n"
-  check
-  expect_failure "${FUNCNAME[0]}" "structure check use_case_imports_use_case packages/domain/src/town/useCases/sendJob.ts 1:import"
+  expect_failure "${FUNCNAME[0]}" "structure check use_case_imports_use_case packages/domain/src/town/application/changeTown.ts 1:import"
 }
 
 fails_a_use_case_class_importing_a_use_case_class_from_its_folder() {
@@ -374,28 +339,20 @@ fails_a_use_case_class_importing_another_features_use_case_class() {
     expect_failure "${FUNCNAME[0]}" "structure check use_case_imports_use_case packages/domain/src/town/application/FoundTown.ts 1:import"
 }
 
-fails_a_use_case_function_importing_a_use_case_class() {
+fails_a_step_importing_a_use_case_class_from_its_folder() {
   fresh_tree
-  plant packages/domain/src/learning/reviews/useCases/requestHint.ts "import { FoundTown } from '../../../town/application/FoundTown'\n"
+  plant packages/domain/src/town/jobs/application/dispatchJob.ts "import { SendJob } from './SendJob'\n"
   check
-  expect_failure "${FUNCNAME[0]}" "structure check use_case_imports_use_case packages/domain/src/learning/reviews/useCases/requestHint.ts 1:import"
+  expect_failure "${FUNCNAME[0]}" "structure check use_case_imports_use_case packages/domain/src/town/jobs/application/dispatchJob.ts 1:import"
 }
 
-passes_an_application_file_importing_a_step_and_an_unmoved_use_case() {
+passes_an_application_file_importing_steps() {
   fresh_tree
-  plant packages/domain/src/town/application/mutateTown.ts "import { requestHint } from '#learning/reviews/useCases/requestHint'\nimport { changeTown } from './changeTown'\nimport { dispatchJob } from '../jobs/application/dispatchJob'\n"
-  plant packages/domain/src/learning/reviews/useCases/requestHint.ts "export const requestHint = (id: string): string => id\n"
+  plant packages/domain/src/town/application/mutateTown.ts "import { requestHint } from '#learning/reviews/application/requestHint'\nimport { changeTown } from './changeTown'\nimport { dispatchJob } from '../jobs/application/dispatchJob'\n"
+  plant packages/domain/src/learning/reviews/application/requestHint.ts "export const requestHint = (id: string): string => id\n"
   plant ARCHITECTURE.md "| Folder | What |\n|---|---|\n| \`town\` | the holding |\n| \`learning\` | the cards and reviews |\n"
-  printf 'file_outside_layer packages/domain/src/learning/reviews/useCases\nrole_folder packages/domain/src/learning/reviews/useCases\n' >"$baseline"
   check
   expect_pass "${FUNCNAME[0]}"
-}
-
-fails_a_public_service() {
-  fresh_tree
-  plant packages/domain/src/index.ts "export { resolveStoredTown } from './town/services/resolveStoredTown'\n"
-  check
-  expect_failure "${FUNCNAME[0]}" "structure check step_is_public packages/domain/src/index.ts 1:export"
 }
 
 fails_a_public_step() {
@@ -426,10 +383,11 @@ fails_a_role_folder_in_the_domain() {
   plant packages/domain/src/learning/reviews/useCases/requestHint.ts "export const requestHint = 1\n"
   plant packages/domain/src/learning/services/admitDueReview.ts "export const admitDueReview = 1\n"
   plant packages/domain/src/learning/ports/CardRepository.ts "export interface CardRepository {}\n"
+  plant ARCHITECTURE.md "| Folder | What |\n|---|---|\n| \`town\` | the holding |\n| \`learning\` | the cards and reviews |\n"
   check
-  expect_failure "${FUNCNAME[0]}" "structure check role_folder packages/domain/src/learning/reviews/useCases" &&
-    expect_failure "${FUNCNAME[0]}" "structure check role_folder packages/domain/src/learning/services" &&
-    expect_failure "${FUNCNAME[0]}" "structure check role_folder packages/domain/src/learning/ports"
+  expect_failure "${FUNCNAME[0]}" "structure check file_outside_layer packages/domain/src/learning/reviews/useCases" &&
+    expect_failure "${FUNCNAME[0]}" "structure check file_outside_layer packages/domain/src/learning/services" &&
+    expect_failure "${FUNCNAME[0]}" "structure check file_outside_layer packages/domain/src/learning/ports"
 }
 
 fails_a_role_folder_in_the_api() {
@@ -643,9 +601,6 @@ run() {
 }
 
 run passes_a_clean_tree
-run fails_an_application_importing_infrastructure
-run fails_an_application_importing_infrastructure_by_subpath
-run fails_an_application_knowing_the_wire
 run fails_contracts_outside_their_adapters
 run passes_contracts_in_http_json_and_the_gate
 run fails_persistence_knowing_http
@@ -672,21 +627,18 @@ run fails_a_domain_file_importing_the_testing_entry_by_subpath
 run fails_a_domain_root_file_importing_the_testing_entry_relatively
 run fails_a_web_file_importing_the_domain_fakes
 run passes_the_fakes_in_tests_contract_suites_and_the_testing_entry
-run fails_a_use_case_named_of
 run fails_a_step_named_of
 run fails_a_domain_promise_outside_its_roles
 run passes_a_domain_promise_in_a_port
 run passes_a_domain_promise_in_the_application
 run fails_a_domain_promise_in_a_port_type
 run fails_an_async_function_beside_a_port
-run fails_a_use_case_importing_a_use_case_from_its_folder
-run fails_a_use_case_importing_another_features_use_case
-run fails_a_use_case_importing_another_features_use_case_by_subpath
+run fails_a_step_importing_another_features_use_case_class
+run fails_a_step_importing_another_features_use_case_class_by_subpath
 run fails_a_use_case_class_importing_a_use_case_class_from_its_folder
 run fails_a_use_case_class_importing_another_features_use_case_class
-run fails_a_use_case_function_importing_a_use_case_class
-run passes_an_application_file_importing_a_step_and_an_unmoved_use_case
-run fails_a_public_service
+run fails_a_step_importing_a_use_case_class_from_its_folder
+run passes_an_application_file_importing_steps
 run fails_a_public_step
 run passes_a_public_use_case
 run fails_a_layer_folder_in_the_api
