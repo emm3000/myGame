@@ -28,16 +28,16 @@ None. No JSDoc, no `//`, no `/* */`, no commented-out code, no section banners. 
 - No default parameters that hide a dependency (a clock, an id generator, a repository). Dependencies are passed.
 - Pure functions in `packages/domain`; a function that reads a port is a use case and is named as one.
 - Control flow follows Flat control flow in `principles.md`; `biome.json` enforces part of it, and a finding is fixed by shape, never by a `biome-ignore`. A function longer than about 30 lines is split; the limits are in ADR 052, "The limits a check enforces": 250 lines a file, 50 a function, 30 production files a folder, 600 a test file, and the gate enforces them.
-- A production file holds at most 5 exports and a class or interface at most 7 methods (ADR 052, "No god file, no god class"); `scripts/mygame-structure-check` enforces both (`file_over_export_cap`, `type_over_method_cap`), and `src/index.ts` and `*Tables.ts` files are exempt from the export cap.
+- A production file holds at most 5 exports and a class or interface at most 7 methods (ADR 052, "No god file, no god class"); `scripts/mygame-structure-check` enforces both (`file_over_export_cap`, `type_over_method_cap`), and the package entries (`src/index.ts`, the domain's `src/testing.ts`) and `*Tables.ts` files are exempt from the export cap.
 - A callback is a function reference, `rows.map(toRow)`, only when the callee takes exactly one parameter; otherwise it is an arrow, `rows.map((row) => toRow(row))`. `map` passes the index and the array too, so `['1', '2'].map(parseInt)` returns `[1, NaN]`.
 - Prefer `Result<T, E>` over exceptions across every boundary the domain touches. Exceptions are for programmer errors and are never caught for control flow.
 
 ## Modules
 
 - ESM only, `verbatimModuleSyntax`, `import type` for type-only imports.
-- A package exposes one entry (`src/index.ts`) and consumers import only from it.
+- A package exposes one entry (`src/index.ts`) and consumers import only from it. `@mygame/domain` has a second entry, `@mygame/domain/testing` (`src/testing.ts`), the in-memory port of each domain port that has a Drizzle adapter: a domain test reads the fake from its `testing/` folder, the api's contract suite proves it through that entry, and nothing else imports either (`production_imports_fakes`).
 - In `apps/api` and `packages/domain`, an import that leaves its top-level folder under `src/` (a feature, `platform`, a domain kernel folder such as `ports`) is a Node subpath import named from the package root: `#town/useCases/sendJob`, `#DomainError`. So is an import from a file at the `src/` root that reaches a folder. The one mapping is `"imports": { "#*": "./src/*.ts" }` in the package's `package.json`. An import inside one top-level folder stays relative, `./` or `../`, never a subpath import, and so does an import between two root files (`./composeServer`).
-- No barrel files inside a package beyond that single entry.
+- No barrel files inside a package beyond its entries.
 
 ## Naming by layer
 
