@@ -1,6 +1,6 @@
 import type { RaisedSkill, ReviewVerdict } from '@mygame/contracts'
 import { isoOf } from '#platform/infrastructure/http/isoOf'
-import type { EarnedSkillView, ReviewVerdictView } from '../../application/gatherReviewVerdict'
+import type { EarnedSkillView, ReviewVerdictView } from './gatherReviewVerdict'
 
 const presentRaisedSkill = ({
   skill,

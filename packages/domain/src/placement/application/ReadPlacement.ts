@@ -23,16 +23,21 @@ export class ReadPlacement {
     const { lessons } = this.dependencies
     return mutateTown(
       playerId,
-      async (stores) =>
-        readPlacementView(
-          { playerId, scaffold: await readScaffold(playerId, stores.accounts) },
+      async (stores) => {
+        const scaffold = await readScaffold(playerId, stores.accounts)
+        if (!scaffold.ok) {
+          return scaffold
+        }
+        return readPlacementView(
+          { playerId, scaffold: scaffold.value },
           {
             placements: stores.placements,
             bandStarts: stores.bandStarts,
             words: lessons,
             bands: lessons,
           },
-        ),
+        )
+      },
       this.dependencies,
     )
   }

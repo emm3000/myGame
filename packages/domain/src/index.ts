@@ -11,7 +11,6 @@ export {
   type ResendVerificationMailDependencies,
 } from '#account/application/ResendVerificationMail'
 export { ResetPassword, type ResetPasswordDependencies } from '#account/application/ResetPassword'
-export { readScaffold } from '#account/application/readScaffold'
 export { SignIn, type SignInDependencies } from '#account/application/SignIn'
 export { SignUp, type SignUpDependencies } from '#account/application/SignUp'
 export { VerifyEmail, type VerifyEmailDependencies } from '#account/application/VerifyEmail'
@@ -117,6 +116,27 @@ export { type RetainedWords, retainedWordsOf } from '#learning/retention/domain/
 export { skillLevelOf } from '#learning/retention/domain/skillLevelOf'
 export { stableWordCountOf } from '#learning/retention/domain/stableWordCountOf'
 export { type WordStanding, wordStandingOf } from '#learning/retention/domain/wordStandingOf'
+export {
+  RequestReviewHint,
+  type RequestReviewHintCommand,
+  type RequestReviewHintDependencies,
+} from '#learning/reviews/application/RequestReviewHint'
+export {
+  type DueReviews,
+  type PromptedReview,
+  type ReviewTerms,
+  readDueReviews,
+} from '#learning/reviews/application/readDueReviews'
+export {
+  ServeDueReviews,
+  type ServeDueReviewsDependencies,
+  type ServeDueReviewsQuery,
+} from '#learning/reviews/application/ServeDueReviews'
+export {
+  SubmitReviewAnswer,
+  type SubmitReviewAnswerCommand,
+  type SubmitReviewAnswerDependencies,
+} from '#learning/reviews/application/SubmitReviewAnswer'
 export type { AnsweredReview } from '#learning/reviews/domain/AnsweredReview'
 export type { AnswerReviewCommand } from '#learning/reviews/domain/AnswerReviewCommand'
 export type { DueCard } from '#learning/reviews/domain/dueCardsAt'
@@ -127,6 +147,7 @@ export type { PendingReviewRepository } from '#learning/reviews/domain/PendingRe
 export { type ReviewFormat, reviewFormatOf } from '#learning/reviews/domain/ReviewFormat'
 export type { ReviewLog } from '#learning/reviews/domain/ReviewLog'
 export type { ReviewLogEntry } from '#learning/reviews/domain/ReviewLogEntry'
+export type { ReviewOutcome } from '#learning/reviews/domain/ReviewOutcome'
 export { readFirstOf } from '#learning/reviews/domain/readFirstOf'
 export {
   type RecognitionChoice,
@@ -137,22 +158,6 @@ export {
   reviewPromptOf,
   type ShownWord,
 } from '#learning/reviews/domain/reviewPromptOf'
-export {
-  type AnswerReviewDependencies,
-  answerReview,
-} from '#learning/reviews/useCases/answerReview'
-export {
-  type Hint,
-  type RequestHintCommand,
-  type RequestHintDependencies,
-  requestHint,
-} from '#learning/reviews/useCases/requestHint'
-export {
-  type ShowDueReviewsCommand,
-  type ShowDueReviewsDependencies,
-  type ShownReview,
-  showDueReviews,
-} from '#learning/reviews/useCases/showDueReviews'
 export { type ChromePhase, chromePhaseOf } from '#learning/scaffold/domain/chromePhaseOf'
 export { glossOf } from '#learning/scaffold/domain/glossOf'
 export type { Scaffold } from '#learning/scaffold/domain/Scaffold'

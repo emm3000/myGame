@@ -39,11 +39,12 @@ export const mutateHoldoutCheck = (
       if (!changed.ok) {
         return changed
       }
+      const scaffold = await readScaffold(command.playerId, stores.accounts)
+      if (!scaffold.ok) {
+        return scaffold
+      }
       return readHoldoutCheckViews(
-        {
-          playerId: command.playerId,
-          scaffold: await readScaffold(command.playerId, stores.accounts),
-        },
+        { playerId: command.playerId, scaffold: scaffold.value },
         { bandStarts: stores.bandStarts, words: dependencies.lessons, clock: mutationClock },
       )
     },

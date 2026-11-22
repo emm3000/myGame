@@ -26,11 +26,15 @@ export class ReadHoldoutChecks {
     playerId,
   }: ReadHoldoutChecksQuery): Promise<Result<ReadonlyArray<HoldoutCheckView>, DomainError>> {
     const { unitOfWork, lessons, clock } = this.dependencies
-    return unitOfWork.transact(async (stores) =>
-      readHoldoutCheckViews(
-        { playerId, scaffold: await readScaffold(playerId, stores.accounts) },
+    return unitOfWork.transact(async (stores) => {
+      const scaffold = await readScaffold(playerId, stores.accounts)
+      if (!scaffold.ok) {
+        return scaffold
+      }
+      return readHoldoutCheckViews(
+        { playerId, scaffold: scaffold.value },
         { bandStarts: stores.bandStarts, words: lessons, clock },
-      ),
-    )
+      )
+    })
   }
 }

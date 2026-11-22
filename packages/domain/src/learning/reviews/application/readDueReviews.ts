@@ -1,26 +1,21 @@
-import type { LearnerStores, LessonLibrary } from '@mygame/domain'
-import {
-  type Clock,
-  type DomainError,
-  type FrameLearner,
-  heldCardsOf,
-  type Instant,
-  type LessonId,
-  type MemoryTerms,
-  nextDueAtOf,
-  ok,
-  type PendingReviewRepository,
-  type PlayerId,
-  type Result,
-  type ReviewPrompt,
-  readFirstOf,
-  reviewPromptOf,
-  type ShownReview,
-  showDueReviews,
-  stageOf,
-  type WordId,
-} from '@mygame/domain'
+import type { LessonLibrary } from '#content/domain/LessonLibrary'
+import type { DomainError } from '#DomainError'
+import type { MemoryTerms } from '#memory/domain/MemoryTerms'
+import type { Clock } from '#platform/domain/Clock'
+import type { PlayerId } from '#player/PlayerId'
+import { ok, type Result } from '#Result'
+import type { Instant } from '#time/Instant'
+import { stageOf } from '../../curriculum/domain/stageOf'
+import { heldCardsOf } from '../../domain/HeldCards'
+import type { LearnerStores } from '../../domain/LearnerStores'
+import type { LessonId, WordId } from '../../domain/Lesson'
+import type { FrameLearner } from '../../frames/domain/FrameLearner'
+import { nextDueAtOf } from '../domain/nextDueAtOf'
+import type { PendingReviewRepository } from '../domain/PendingReviewRepository'
+import { readFirstOf } from '../domain/readFirstOf'
+import { type ReviewPrompt, reviewPromptOf } from '../domain/reviewPromptOf'
 import { readLearner } from './readLearner'
+import { type ShownReview, showDueReviews } from './showDueReviews'
 
 export type ReviewTerms = {
   readonly lessons: LessonLibrary
@@ -51,7 +46,7 @@ const promptedReviewOf = (
   prompt: reviewPromptOf({ lesson, word, card: due.card, shownFrame }, learner),
 })
 
-export const serveDueReviews = async (
+export const readDueReviews = async (
   playerId: PlayerId,
   stores: LearnerStores & { readonly pendingReviews: PendingReviewRepository },
   clock: Clock,

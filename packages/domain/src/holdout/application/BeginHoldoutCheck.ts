@@ -82,14 +82,13 @@ export class BeginHoldoutCheck {
     const { lessons, random } = this.dependencies
     return mutateHoldoutCheck(
       command,
-      async (stores, { band, week }, at) =>
-        beginHoldoutCheckIn(
-          {
-            playerId: command.playerId,
-            band,
-            week,
-            scaffold: await readScaffold(command.playerId, stores.accounts),
-          },
+      async (stores, { band, week }, at) => {
+        const scaffold = await readScaffold(command.playerId, stores.accounts)
+        if (!scaffold.ok) {
+          return scaffold
+        }
+        return beginHoldoutCheckIn(
+          { playerId: command.playerId, band, week, scaffold: scaffold.value },
           {
             bandStarts: stores.bandStarts,
             cards: stores.cards,
@@ -98,7 +97,8 @@ export class BeginHoldoutCheck {
             random,
             clock: at,
           },
-        ),
+        )
+      },
       this.dependencies,
     )
   }

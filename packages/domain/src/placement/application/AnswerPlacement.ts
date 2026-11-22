@@ -102,11 +102,16 @@ export class AnswerPlacement {
     const { lessons } = this.dependencies
     return mutateTown(
       command.playerId,
-      async (stores, clock) =>
-        answerPlacementIn(
-          { ...command, scaffold: await readScaffold(command.playerId, stores.accounts) },
+      async (stores, clock) => {
+        const scaffold = await readScaffold(command.playerId, stores.accounts)
+        if (!scaffold.ok) {
+          return scaffold
+        }
+        return answerPlacementIn(
+          { ...command, scaffold: scaffold.value },
           { placements: stores.placements, bandStarts: stores.bandStarts, words: lessons, clock },
-        ),
+        )
+      },
       this.dependencies,
     )
   }

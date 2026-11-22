@@ -31,6 +31,8 @@ import {
   type ReadRegionMapDependencies,
   RequestPasswordReset,
   type RequestPasswordResetDependencies,
+  RequestReviewHint,
+  type RequestReviewHintDependencies,
   ResendVerificationMail,
   type ResendVerificationMailDependencies,
   ResetPassword,
@@ -43,6 +45,8 @@ import {
   type SendCleanUpDependencies,
   SendJob,
   type SendJobDependencies,
+  ServeDueReviews,
+  type ServeDueReviewsDependencies,
   SignIn,
   type SignInDependencies,
   SignUp,
@@ -61,6 +65,8 @@ import {
   type StopHiringOrderDependencies,
   StopSchoolLesson,
   type StopSchoolLessonDependencies,
+  SubmitReviewAnswer,
+  type SubmitReviewAnswerDependencies,
   VerifyEmail,
   type VerifyEmailDependencies,
 } from '@mygame/domain'
@@ -96,7 +102,10 @@ export type UseCaseDependencies = SignUpDependencies &
   ReadHoldoutChecksDependencies &
   BeginHoldoutCheckDependencies &
   AnswerHoldoutCheckDependencies &
-  SkipHoldoutCheckDependencies
+  SkipHoldoutCheckDependencies &
+  ServeDueReviewsDependencies &
+  RequestReviewHintDependencies &
+  SubmitReviewAnswerDependencies
 
 export type UseCases = {
   readonly signUp: SignUp
@@ -131,6 +140,9 @@ export type UseCases = {
   readonly beginHoldoutCheck: BeginHoldoutCheck
   readonly answerHoldoutCheck: AnswerHoldoutCheck
   readonly skipHoldoutCheck: SkipHoldoutCheck
+  readonly serveDueReviews: ServeDueReviews
+  readonly requestReviewHint: RequestReviewHint
+  readonly submitReviewAnswer: SubmitReviewAnswer
 }
 
 export const composeUseCases = (adapters: UseCaseDependencies): UseCases => ({
@@ -166,4 +178,7 @@ export const composeUseCases = (adapters: UseCaseDependencies): UseCases => ({
   beginHoldoutCheck: new BeginHoldoutCheck(adapters),
   answerHoldoutCheck: new AnswerHoldoutCheck(adapters),
   skipHoldoutCheck: new SkipHoldoutCheck(adapters),
+  serveDueReviews: new ServeDueReviews(adapters),
+  requestReviewHint: new RequestReviewHint(adapters),
+  submitReviewAnswer: new SubmitReviewAnswer(adapters),
 })
