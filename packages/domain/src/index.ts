@@ -177,6 +177,10 @@ export {
 export { buildingKinds } from '#town/building/buildingKinds'
 export { buildPercentAt } from '#town/building/buildPercentAt'
 export { deriveBuildDurationSeconds } from '#town/building/deriveBuildDurationSeconds'
+export {
+  derivePeopleForWork,
+  type PeopleForWork,
+} from '#town/building/derivePeopleForWork'
 export { type LevelWordNeed, levelWordNeedOf } from '#town/building/levelWordNeedOf'
 export type { NeededWordKind } from '#town/building/NeededWordKind'
 export {
