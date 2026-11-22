@@ -2,6 +2,7 @@ import { join } from 'node:path'
 import {
   defaultMemoryTerms,
   type HeldCard,
+  headwordOf,
   Instant,
   idleLessonSlot,
   MemoryCard,
@@ -76,6 +77,32 @@ describe('gatherSchoolView', () => {
     expect(view).toEqual({
       ok: false,
       error: { kind: 'UnknownMemoryStep', state: 'learning', step: 9 },
+    })
+  })
+
+  it('shows no support for a word its band holds out', () => {
+    const [firstLesson] = lessons.lessons()
+    assert(firstLesson !== undefined)
+    const [heldOutWord] = firstLesson.words
+    assert(heldOutWord !== undefined)
+    const heldOutReading: TownReading = {
+      ...readingWith([]),
+      bandStarts: [
+        {
+          band: 1,
+          startedAt: instantAt('2026-11-10T08:00:00Z'),
+          heldOutWords: [headwordOf(heldOutWord.acceptedForms[0])],
+          checks: [],
+        },
+      ],
+    }
+
+    const view = gatherSchoolView(heldOutReading, townCatalog, lessons, defaultMemoryTerms)
+
+    assert(view.ok)
+    expect(view.value.lessons[0]?.words[0]).toMatchObject({
+      wordId: heldOutWord.id,
+      support: null,
     })
   })
 })
