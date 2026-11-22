@@ -1,5 +1,9 @@
-import type { MemoryTerms, MutateTownDependencies, TownCatalog } from '@mygame/domain'
-import type { LessonLibrary } from '#content/application/ports/LessonLibrary'
+import type {
+  LessonLibrary,
+  MemoryTerms,
+  MutateTownDependencies,
+  TownCatalog,
+} from '@mygame/domain'
 
 export type LearningDependencies = MutateTownDependencies & {
   readonly lessons: LessonLibrary

@@ -1,4 +1,4 @@
-import type { TownReading } from '@mygame/domain'
+import type { LessonLibrary, TownReading } from '@mygame/domain'
 import {
   type DomainError,
   type Instant,
@@ -16,7 +16,6 @@ import {
   type TownCatalog,
   tipOf,
 } from '@mygame/domain'
-import type { LessonLibrary } from '#content/application/ports/LessonLibrary'
 
 type StepWithGoal = Extract<NextStep, { readonly kind: 'lessonRunning' | 'caughtUp' }>
 

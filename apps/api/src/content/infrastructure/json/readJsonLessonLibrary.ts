@@ -1,4 +1,4 @@
-import type { LessonLibrary } from '../../application/ports/LessonLibrary'
+import type { LessonLibrary } from '@mygame/domain'
 import { jsonBandCatalogOf } from './jsonBandCatalogOf'
 import { jsonFrameCatalogOf } from './jsonFrameCatalogOf'
 import { jsonLessonCatalogOf } from './jsonLessonCatalogOf'

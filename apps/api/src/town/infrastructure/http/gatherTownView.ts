@@ -1,4 +1,4 @@
-import type { TownReading } from '@mygame/domain'
+import type { LessonLibrary, TownReading } from '@mygame/domain'
 import {
   accrueTown,
   type DomainError,
@@ -22,7 +22,6 @@ import {
   townLabelOf,
   townSeasonAt,
 } from '@mygame/domain'
-import type { LessonLibrary } from '#content/application/ports/LessonLibrary'
 import {
   type BuildingsView,
   gatherBuildingsView,
