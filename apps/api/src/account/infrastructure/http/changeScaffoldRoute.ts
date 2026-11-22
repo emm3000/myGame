@@ -9,7 +9,10 @@ import {
 } from '#platform/infrastructure/http/responseDeclarations'
 import { signedInDeclaration } from '#platform/infrastructure/http/signedInDeclaration'
 import type { Accounts } from '../../application/ports/Accounts'
-import type { ReadChromePhaseDependencies } from '../../application/readChromePhase'
+import {
+  type ReadChromePhaseDependencies,
+  readChromePhase,
+} from '../../application/readChromePhase'
 import { PlayerComponent } from './playerComponent'
 import { presentPlayer } from './presentPlayer'
 import { type RequirePlayerDependencies, requirePlayer } from './requirePlayer'
@@ -51,7 +54,7 @@ export const changeScaffoldRoute = (
         return respondRefusal(c, { kind: 'MalformedRequest' })
       }
       const stored = await dependencies.accounts.storeScaffold(c.var.playerId, change.data.scaffold)
-      return c.json(await presentPlayer(stored, dependencies))
+      return c.json(presentPlayer(stored, await readChromePhase(stored, dependencies)))
     },
   )
 }
