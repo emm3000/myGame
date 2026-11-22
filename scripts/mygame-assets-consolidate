@@ -1,0 +1,155 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+usage() {
+  echo "usage: scripts/mygame-assets-consolidate [--apply]" >&2
+  exit 64
+}
+
+refuse() {
+  echo "refusing: $1" >&2
+  exit 65
+}
+
+apply=0
+case $# in
+  0) ;;
+  1) [ "$1" = --apply ] || usage; apply=1 ;;
+  *) usage ;;
+esac
+
+repo=$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd -P)
+origin=$(git -C "$repo" config --get remote.origin.url) || refuse "$repo has no origin URL"
+slug=$(awk '{
+  sub(/\.git$/, "")
+  if (match($0, /github\.com[:\/][A-Za-z0-9_.-]+\/[A-Za-z0-9_.-]+$/)) print substr($0, RSTART + 11)
+}' <<<"$origin")
+[ -n "$slug" ] || refuse "origin $origin is no GitHub repository"
+slug_pattern=${slug//./\\.}
+link='(?<pre>\b'"$slug_pattern"'/(?:(?:raw|blob|tree)/)?(?:refs/heads/)?assets/)(?<n>[0-9]+)-visual-check(?![A-Za-z0-9_-])'
+url_text='[^\s()<>\[\]"'"'"'`]*'
+
+remote_assets() {
+  git ls-remote --heads "$origin" | awk '
+    $2 == "refs/heads/assets" || index($2, "refs/heads/assets/") == 1 { print substr($2, 12) "\t" $1 }' | LC_ALL=C sort
+}
+
+open_heads() {
+  gh pr list -R "$slug" --state open --limit 1000 --json headRefName --jq '.[].headRefName' </dev/null
+}
+
+check_refs() {
+  if awk -F '\t' '$1 == "assets" { found = 1 } END { exit !found }' <<<"$1"; then
+    refuse "refs/heads/assets already exists on origin"
+  fi
+  local stray heads held
+  stray=$(awk -F '\t' '$1 !~ /^assets\/[0-9]+-visual-check$/ { print $1; exit }' <<<"$1")
+  [ -z "$stray" ] || refuse "refs/heads/$stray is no visual-check branch, and assets cannot exist beside it"
+  heads=$(open_heads) || refuse "gh pr list failed, so the open PR branches are unknown"
+  held=$(awk -F '\t' 'FNR == NR { moving[$1] = 1; next } $0 in moving' <(printf '%s\n' "$1") <(printf '%s\n' "$heads") |
+    LC_ALL=C sort -u | tr '\n' ' ')
+  [ -z "$held" ] || refuse "open PRs hold ${held% }"
+}
+
+scan() {
+  {
+    gh api --paginate "repos/$slug/issues?state=all&per_page=100" </dev/null | jq -c --arg link "$link" '
+      .[] | select((.body // "") | test($link; "i"))
+      | {path: "issues/\(.number)", label: "\(if .pull_request then "PR" else "issue" end) #\(.number) body", kind: "bodies", body}'
+    gh api --paginate "repos/$slug/issues/comments?per_page=100" </dev/null | jq -c --arg link "$link" '
+      .[] | select((.body // "") | test($link; "i"))
+      | {path: "issues/comments/\(.id)", label: "issue comment \(.id) on #\(.issue_url | split("/") | last)", kind: "issue comments", body}'
+    gh api --paginate "repos/$slug/pulls/comments?per_page=100" </dev/null | jq -c --arg link "$link" '
+      .[] | select((.body // "") | test($link; "i"))
+      | {path: "pulls/comments/\(.id)", label: "review comment \(.id) on #\(.pull_request_url | split("/") | last)", kind: "review comments", body}'
+  } >"$1"
+}
+
+assets=$(remote_assets)
+[ -n "$assets" ] || refuse "origin holds no refs/heads/assets/*-visual-check branch"
+check_refs "$assets"
+
+temp_base=${TMPDIR:-/tmp}
+scratch=$(mktemp -d "${temp_base%/}/assets-consolidate.XXXXXX")
+keep_scratch=0
+trap '[ "$keep_scratch" -eq 1 ] || rm -rf "$scratch"' EXIT
+clone="$scratch/clone.git"
+git init -q --bare "$clone"
+git -C "$clone" fetch -q --no-tags "$origin" '+refs/heads/assets/*:refs/moving/*'
+
+entries=""
+leases=()
+deletes=()
+while IFS="$(printf '\t')" read -r name sha; do
+  fetched=$(git -C "$clone" rev-parse --verify -q "refs/moving/${name#assets/}^{commit}") || refuse "the fetch missed $name"
+  [ "$fetched" = "$sha" ] || refuse "$name moved during the fetch"
+  ticket=${name#assets/}
+  ticket=${ticket%-visual-check}
+  tree=$(git -C "$clone" rev-parse "$sha^{tree}")
+  files=$(git -C "$clone" ls-tree -r "$tree" | wc -l | tr -d ' ')
+  echo "delete refs/heads/$name $sha into assets:$ticket/ ($files files)"
+  entries="$entries$(printf '040000 tree %s\t%s' "$tree" "$ticket")"$'\n'
+  leases+=("--force-with-lease=refs/heads/$name:$sha")
+  deletes+=(":refs/heads/$name")
+done <<<"$assets"
+
+root=$(printf '%s' "$entries" | git -C "$clone" mktree)
+while IFS="$(printf '\t')" read -r name sha; do
+  ticket=${name#assets/}
+  ticket=${ticket%-visual-check}
+  [ "$(git -C "$clone" rev-parse "$root:$ticket")" = "$(git -C "$clone" rev-parse "$sha^{tree}")" ] ||
+    refuse "assets:$ticket/ differs from $name"
+done <<<"$assets"
+folders=$(git -C "$clone" ls-tree -d --name-only "$root" | wc -l | tr -d ' ')
+
+plan="$scratch/plan.jsonl"
+scan "$plan"
+jq -r --arg link "$link" --arg url "$url_text$link$url_text" '
+  "edit \(.label)",
+  ((.body | [match($url; "gi").string] | unique[]) as $old
+    | "  old \($old)", "  new \($old | gsub($link; "\(.pre)\(.n)"; "i"))")' "$plan"
+echo "create refs/heads/assets from tree $root with $folders folders"
+summary=$(jq -rs --arg refs "${#deletes[@]}" '
+  "\($refs) refs to delete, \([.[] | select(.kind == "bodies")] | length) bodies, \([.[] | select(.kind == "issue comments")] | length) issue comments, \([.[] | select(.kind == "review comments")] | length) review comments to edit"' "$plan")
+
+if [ "$apply" -eq 0 ]; then
+  echo "dry run: $summary; nothing changed"
+  exit 0
+fi
+echo "apply: $summary"
+
+while IFS= read -r item; do
+  [ -n "$item" ] || continue
+  jq --arg link "$link" '{body: (.body | gsub($link; "\(.pre)\(.n)"; "i"))}' <<<"$item" >"$scratch/body.json"
+  gh api -X PATCH "repos/$slug/$(jq -r .path <<<"$item")" --input "$scratch/body.json" </dev/null >/dev/null
+  echo "edited $(jq -r .label <<<"$item")"
+done <"$plan"
+
+left="$scratch/left.jsonl"
+scan "$left"
+if [ -s "$left" ]; then
+  jq -r '"still linked: \(.label)"' "$left"
+  echo "refusing to delete: $(awk 'END { print NR }' "$left") bodies or comments still name an old branch" >&2
+  exit 1
+fi
+
+[ "$(remote_assets)" = "$assets" ] || refuse "the asset branches on origin changed since the plan"
+check_refs "$assets"
+
+commit=$(echo "chore(assets): consolidate $folders asset branches into one folder per ticket" | git -C "$clone" commit-tree "$root")
+if git -C "$clone" push -q --atomic "$origin" "${leases[@]}" --force-with-lease=refs/heads/assets: "${deletes[@]}" "$commit:refs/heads/assets" 2>"$scratch/push.err"; then
+  echo "pushed in one atomic push: ${#deletes[@]} refs deleted, refs/heads/assets created at $commit"
+else
+  echo "origin refused the atomic push: deleting the old refs, then creating assets"
+  awk '{ print "  " $0 }' "$scratch/push.err"
+  keep_scratch=1
+  git -C "$clone" push -q --atomic "$origin" "${leases[@]}" "${deletes[@]}"
+  echo "deleted ${#deletes[@]} refs"
+  git -C "$clone" push -q "$origin" --force-with-lease=refs/heads/assets: "$commit:refs/heads/assets" ||
+    { echo "creating assets failed: push $commit from $clone to refs/heads/assets by hand" >&2; exit 1; }
+  keep_scratch=0
+  echo "created refs/heads/assets at $commit"
+fi
+
+[ "$(remote_assets)" = "$(printf 'assets\t%s' "$commit")" ] || { echo "origin does not show assets at $commit alone" >&2; exit 1; }
+echo "done: $folders folders on assets, no refs/heads/assets/* left"

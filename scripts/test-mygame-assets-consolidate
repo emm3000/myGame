@@ -1,0 +1,307 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+scripts_dir=$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd -P)
+
+while IFS= read -r variable; do
+  unset "$variable"
+done < <(compgen -e | awk '/^GIT_/')
+export GIT_CONFIG_NOSYSTEM=1 GIT_ALLOW_PROTOCOL=file
+export GIT_AUTHOR_NAME=test GIT_AUTHOR_EMAIL=test@example.invalid
+export GIT_COMMITTER_NAME=test GIT_COMMITTER_EMAIL=test@example.invalid
+
+temp_base=${TMPDIR:-/tmp}
+sandbox=$(mktemp -d "${temp_base%/}/assets-consolidate-test.XXXXXX") || { echo "refusing the sandbox: mktemp -d failed" >&2; exit 70; }
+[ -n "$sandbox" ] && [ -d "$sandbox" ] || { echo "refusing the sandbox: mktemp -d printed no directory" >&2; exit 70; }
+sandbox=$(cd "$sandbox" && pwd -P)
+case $sandbox in
+  "$(cd "$temp_base" && pwd -P)"/?*) ;;
+  *) echo "refusing the sandbox: $sandbox is not under $temp_base" >&2; exit 70 ;;
+esac
+trap 'rm -rf "$sandbox"' EXIT
+export GIT_CEILING_DIRECTORIES="$sandbox"
+export GIT_CONFIG_GLOBAL="$sandbox/no-gitconfig"
+
+github_url=https://github.com/emm3000/myGame.git
+raw=https://raw.githubusercontent.com/emm3000/myGame
+web=https://github.com/emm3000/myGame
+old_link='myGame/(raw/|blob/|tree/)?(refs/heads/)?assets/[0-9]+-visual-check'
+failures=0
+case_dir=""
+repo=""
+origin=""
+
+mkdir -p "$sandbox/bin"
+{
+  echo '#!/usr/bin/env bash'
+  awk 1
+} >"$sandbox/bin/gh" <<'STUB'
+endpoint_file() {
+  case $1 in
+    "repos/emm3000/myGame/issues?state=all&per_page=100") echo "$FAKE_STATE/issues.json" ;;
+    "repos/emm3000/myGame/issues/comments?per_page=100") echo "$FAKE_STATE/issue_comments.json" ;;
+    "repos/emm3000/myGame/pulls/comments?per_page=100") echo "$FAKE_STATE/review_comments.json" ;;
+    *) return 1 ;;
+  esac
+}
+if [ "$*" = "pr list -R emm3000/myGame --state open --limit 1000 --json headRefName --jq .[].headRefName" ]; then
+  awk 1 "$FAKE_STATE/open_heads"
+  exit 0
+fi
+if [ "$#" -eq 3 ] && [ "$1 $2" = "api --paginate" ] && file=$(endpoint_file "$3"); then
+  jq -c '.[] | [.]' "$file"
+  exit 0
+fi
+if [ "$#" -eq 6 ] && [ "$1 $2 $3" = "api -X PATCH" ] && [ "$5" = --input ]; then
+  echo "$4" >>"$FAKE_STATE/patched"
+  case $4 in
+    repos/emm3000/myGame/issues/comments/*) file=issue_comments.json key=id value=${4##*/} ;;
+    repos/emm3000/myGame/pulls/comments/*) file=review_comments.json key=id value=${4##*/} ;;
+    repos/emm3000/myGame/issues/*) file=issues.json key=number value=${4##*/} ;;
+    *) echo "unexpected gh $*" >&2; exit 1 ;;
+  esac
+  if awk -v path="$4" '$0 == path { found = 1 } END { exit !found }' "$FAKE_STATE/sticky"; then
+    echo '{}'
+    exit 0
+  fi
+  jq --arg key "$key" --argjson value "$value" --slurpfile input "$6" \
+    'map(if .[$key] == $value then .body = $input[0].body else . end)' "$FAKE_STATE/$file" >"$FAKE_STATE/$file.next"
+  mv "$FAKE_STATE/$file.next" "$FAKE_STATE/$file"
+  echo '{}'
+  exit 0
+fi
+echo "unexpected gh $*" >&2
+exit 1
+STUB
+chmod +x "$sandbox/bin/gh"
+
+commit_files() {
+  local branch=$1 builder="$case_dir/builder"
+  shift
+  git -C "$builder" switch -q --orphan "$branch"
+  local file
+  for file in "$@"; do
+    mkdir -p "$builder/$(dirname "$file")"
+    cp "$case_dir/files/$(basename "$file")" "$builder/$file"
+    git -C "$builder" add -- "$file"
+  done
+  git -C "$builder" commit -q -m "chore(assets): $branch"
+  git -C "$builder" push -q origin "$branch"
+}
+
+build_an_origin_with_two_asset_branches() {
+  case_dir="$sandbox/$1"
+  repo="$case_dir/myGame"
+  origin="$case_dir/origin.git"
+  mkdir -p "$repo/scripts" "$case_dir/state" "$case_dir/files" "$case_dir/tmp"
+  printf '[url "%s"]\n\tinsteadOf = %s\n' "$origin" "$github_url" >"$case_dir/gitconfig"
+  export GIT_CONFIG_GLOBAL="$case_dir/gitconfig"
+  cp "$scripts_dir/mygame-assets-consolidate" "$repo/scripts/"
+  printf '\x89PNG\r\n\x1a\n\x00\x01\xff twelve' >"$case_dir/files/shot-abc.png"
+  printf '\x89PNG\r\n\x1a\n\x00\x02\xfe twelve es' >"$case_dir/files/shot-es.png"
+  printf '\x89PNG\r\n\x1a\n\x00\x03 thirty-four' >"$case_dir/files/home screen.png"
+  printf '\x89PNG\r\n\x1a\n\x00\x04 x' >"$case_dir/files/x.png"
+  git init -q --bare -b trunk "$origin"
+  git -C "$repo" init -q -b trunk
+  git -C "$repo" commit -q --allow-empty -m "chore: start"
+  git -C "$repo" remote add origin "$github_url"
+  git -C "$repo" push -q origin trunk
+  git -C "$repo" switch -q -c feat/5-thing
+  git -C "$repo" commit -q --allow-empty -m "feat: thing"
+  git -C "$repo" push -q origin feat/5-thing
+  git -C "$repo" switch -q -c fix/6-open trunk
+  git -C "$repo" commit -q --allow-empty -m "fix: open"
+  git -C "$repo" push -q origin fix/6-open
+  git -C "$repo" switch -q trunk
+  git clone -q "$github_url" "$case_dir/builder"
+  commit_files assets/12-visual-check shot-abc.png es/shot-es.png
+  commit_files assets/34-visual-check "home screen.png" es/x.png
+  printf 'fix/6-open\n' >"$case_dir/state/open_heads"
+  : >"$case_dir/state/patched"
+  : >"$case_dir/state/sticky"
+  jq -n --arg raw "$raw" --arg web "$web" '[
+    {number: 20, pull_request: {}, body: "Shots:\n![a](\($raw)/assets/12-visual-check/shot-abc.png)\n[b](\($web)/blob/assets/34-visual-check/home%20screen.png)\nseen on origin/assets/12-visual-check"},
+    {number: 21, body: "No link here."},
+    {number: 22, body: "Other repo: https://raw.githubusercontent.com/emm3000/otherRepo/assets/12-visual-check/x.png"},
+    {number: 23, body: null}
+  ]' >"$case_dir/state/issues.json"
+  jq -n --arg raw "$raw" '[
+    {id: 501, issue_url: "https://api.github.com/repos/emm3000/myGame/issues/21", body: "es: <\($raw)/refs/heads/assets/34-visual-check/es/x.png>"},
+    {id: 502, issue_url: "https://api.github.com/repos/emm3000/myGame/issues/21", body: "plain comment"}
+  ]' >"$case_dir/state/issue_comments.json"
+  jq -n --arg web "$web" '[
+    {id: 701, pull_request_url: "https://api.github.com/repos/emm3000/myGame/pulls/20", body: "branch: \($web)/tree/assets/12-visual-check"}
+  ]' >"$case_dir/state/review_comments.json"
+  cp "$case_dir/state/issues.json" "$case_dir/state/issues.before.json"
+  heads >"$case_dir/heads.before"
+}
+
+heads() {
+  git -C "$origin" for-each-ref --format='%(refname) %(objectname)' refs/heads | LC_ALL=C sort
+}
+
+head_of() {
+  awk -v ref="refs/heads/$1" '$1 == ref { print $2 }' "$case_dir/heads.before"
+}
+
+bound() {
+  local seconds=$1
+  shift
+  /usr/bin/timeout -k 1 "$seconds" "$@"
+}
+
+with_stubs() {
+  (
+    export FAKE_STATE="$case_dir/state" PATH="$sandbox/bin:$PATH" TMPDIR="$case_dir/tmp"
+    [ "$(type -P gh)" = "$sandbox/bin/gh" ] || { echo "refusing to run: stub gh is not first on PATH" >&2; exit 70; }
+    cd "$repo" && bound 30 "$@" 2>&1
+  )
+}
+
+old_links_left() {
+  bodies | rg -c "$old_link" || true
+}
+
+bodies() {
+  jq -r '.[].body // empty' "$case_dir/state/issues.json" "$case_dir/state/issue_comments.json" "$case_dir/state/review_comments.json"
+}
+
+fail() {
+  printf 'FAIL %s:\n%s\n' "$1" "$2" >&2
+  return 1
+}
+
+nothing_changed() {
+  [ "$(heads)" = "$(awk 1 "$case_dir/heads.before")" ] || { echo "origin heads changed:"; heads; return 1; }
+  [ ! -s "$case_dir/state/patched" ] || { echo "patched: $(tr '\n' ' ' <"$case_dir/state/patched")"; return 1; }
+  cmp -s "$case_dir/state/issues.json" "$case_dir/state/issues.before.json" || { echo "issue bodies changed"; return 1; }
+}
+
+a_dry_run_lists_every_ref_and_link_and_changes_nothing() {
+  build_an_origin_with_two_asset_branches dry-run
+  local output reason
+  output=$(with_stubs scripts/mygame-assets-consolidate) || fail "${FUNCNAME[0]}" "$output" || return 1
+  local expected
+  for expected in \
+    "delete refs/heads/assets/12-visual-check $(head_of assets/12-visual-check) into assets:12/ (2 files)" \
+    "delete refs/heads/assets/34-visual-check $(head_of assets/34-visual-check) into assets:34/ (2 files)" \
+    "edit PR #20 body" \
+    "  old $raw/assets/12-visual-check/shot-abc.png" \
+    "  new $raw/assets/12/shot-abc.png" \
+    "  old $web/blob/assets/34-visual-check/home%20screen.png" \
+    "  new $web/blob/assets/34/home%20screen.png" \
+    "edit issue comment 501 on #21" \
+    "  old $raw/refs/heads/assets/34-visual-check/es/x.png" \
+    "  new $raw/refs/heads/assets/34/es/x.png" \
+    "edit review comment 701 on #20" \
+    "  old $web/tree/assets/12-visual-check" \
+    "  new $web/tree/assets/12" \
+    "dry run: 2 refs to delete, 1 bodies, 1 issue comments, 1 review comments to edit; nothing changed"; do
+    awk -v line="$expected" '$0 == line { found = 1 } END { exit !found }' <<<"$output" ||
+      fail "${FUNCNAME[0]}" "missing line: $expected"$'\n'"$output" || return 1
+  done
+  if awk '/#21 body|#22|#23|comment 502/ { found = 1 } END { exit !found }' <<<"$output"; then
+    fail "${FUNCNAME[0]}" "plans an edit without a link:"$'\n'"$output" || return 1
+  fi
+  reason=$(nothing_changed) || fail "${FUNCNAME[0]}" "$reason"
+}
+
+apply_moves_every_asset_file_under_its_ticket_folder_and_rewrites_every_link() {
+  build_an_origin_with_two_asset_branches apply
+  local ticket
+  for ticket in 12 34; do
+    git -C "$origin" ls-tree -r "refs/heads/assets/$ticket-visual-check" >"$case_dir/tree.$ticket"
+  done
+  local output
+  output=$(with_stubs scripts/mygame-assets-consolidate --apply) || fail "${FUNCNAME[0]}" "$output" || return 1
+  [ -z "$(git -C "$origin" for-each-ref 'refs/heads/assets/*')" ] || fail "${FUNCNAME[0]}" "asset branches left: $(heads)" || return 1
+  [ "$(git -C "$origin" for-each-ref --format=x refs/heads/assets | wc -l | tr -d ' ')" = 1 ] || fail "${FUNCNAME[0]}" "no assets branch: $(heads)" || return 1
+  [ "$(git -C "$origin" ls-tree -d --name-only assets | tr '\n' ' ')" = "12 34 " ] || fail "${FUNCNAME[0]}" "folders: $(git -C "$origin" ls-tree assets)" || return 1
+  for ticket in 12 34; do
+    [ "$(git -C "$origin" ls-tree -r "assets:$ticket")" = "$(awk 1 "$case_dir/tree.$ticket")" ] ||
+      fail "${FUNCNAME[0]}" "assets:$ticket differs from its branch" || return 1
+  done
+  git -C "$origin" cat-file blob "assets:34/home screen.png" | cmp -s - "$case_dir/files/home screen.png" ||
+    fail "${FUNCNAME[0]}" "the bytes of 34/home screen.png changed" || return 1
+  [ -z "$(git -C "$origin" log --format=%P -1 assets)" ] || fail "${FUNCNAME[0]}" "assets is not an orphan" || return 1
+  local branch
+  for branch in trunk feat/5-thing fix/6-open; do
+    [ "$(git -C "$origin" rev-parse "refs/heads/$branch")" = "$(head_of "$branch")" ] ||
+      fail "${FUNCNAME[0]}" "$branch moved" || return 1
+  done
+  [ "$(old_links_left)" = "" ] || fail "${FUNCNAME[0]}" "old links left:"$'\n'"$(bodies)" || return 1
+  [ "$(LC_ALL=C sort "$case_dir/state/patched" | tr '\n' ' ')" = "repos/emm3000/myGame/issues/20 repos/emm3000/myGame/issues/comments/501 repos/emm3000/myGame/pulls/comments/701 " ] ||
+    fail "${FUNCNAME[0]}" "patched: $(tr '\n' ' ' <"$case_dir/state/patched")" || return 1
+  local body
+  body=$(jq -r '.[] | select(.number == 20) | .body' "$case_dir/state/issues.json")
+  [ "$body" = "Shots:"$'\n'"![a]($raw/assets/12/shot-abc.png)"$'\n'"[b]($web/blob/assets/34/home%20screen.png)"$'\n'"seen on origin/assets/12-visual-check" ] ||
+    fail "${FUNCNAME[0]}" "body of #20: $body" || return 1
+  [ "$(jq -r '.[] | select(.number == 22) | .body' "$case_dir/state/issues.json")" = "Other repo: https://raw.githubusercontent.com/emm3000/otherRepo/assets/12-visual-check/x.png" ] ||
+    fail "${FUNCNAME[0]}" "the other repo's link was edited" || return 1
+  local left
+  left=$(cd "$case_dir/tmp" && shopt -s nullglob dotglob && entries=(*) && echo "${entries[*]:-}")
+  [ -z "$left" ] || fail "${FUNCNAME[0]}" "scratch clone left: $left"
+}
+
+apply_refuses_to_delete_while_a_link_still_names_an_old_branch() {
+  build_an_origin_with_two_asset_branches sticky
+  echo repos/emm3000/myGame/pulls/comments/701 >"$case_dir/state/sticky"
+  local output status=0
+  output=$(with_stubs scripts/mygame-assets-consolidate --apply) || status=$?
+  [ "$status" -ne 0 ] || fail "${FUNCNAME[0]}" "exit 0 with a link left:"$'\n'"$output" || return 1
+  awk '/^refusing to delete: 1 bodies or comments still name an old branch$/ { found = 1 } END { exit !found }' <<<"$output" ||
+    fail "${FUNCNAME[0]}" "$output" || return 1
+  [ "$(heads)" = "$(awk 1 "$case_dir/heads.before")" ] || fail "${FUNCNAME[0]}" "origin heads changed: $(heads)"
+}
+
+apply_falls_back_to_two_pushes_when_origin_refuses_the_atomic_one() {
+  build_an_origin_with_two_asset_branches fallback
+  {
+    echo '#!/usr/bin/env bash'
+    echo "awk '\$3 == \"refs/heads/assets\" { create = 1 } index(\$3, \"refs/heads/assets/\") == 1 { remove = 1 } END { if (create && remove) { print \"refusing a push that deletes assets/* and creates assets\" > \"/dev/stderr\"; exit 1 } }'"
+  } >"$origin/hooks/pre-receive"
+  chmod +x "$origin/hooks/pre-receive"
+  local output
+  output=$(with_stubs scripts/mygame-assets-consolidate --apply) || fail "${FUNCNAME[0]}" "$output" || return 1
+  awk '/^origin refused the atomic push: deleting the old refs, then creating assets$/ { found = 1 } END { exit !found }' <<<"$output" ||
+    fail "${FUNCNAME[0]}" "no fallback reported:"$'\n'"$output" || return 1
+  [ -z "$(git -C "$origin" for-each-ref 'refs/heads/assets/*')" ] || fail "${FUNCNAME[0]}" "asset branches left: $(heads)" || return 1
+  [ "$(git -C "$origin" ls-tree -d --name-only assets | tr '\n' ' ')" = "12 34 " ] || fail "${FUNCNAME[0]}" "folders: $(heads)"
+}
+
+refuses_an_asset_branch_an_open_pr_holds() {
+  build_an_origin_with_two_asset_branches open-pr
+  printf 'fix/6-open\nassets/34-visual-check\n' >"$case_dir/state/open_heads"
+  local output status=0 reason
+  output=$(with_stubs scripts/mygame-assets-consolidate --apply) || status=$?
+  [ "$status" -ne 0 ] || fail "${FUNCNAME[0]}" "exit 0:"$'\n'"$output" || return 1
+  [ "$output" = "refusing: open PRs hold assets/34-visual-check" ] || fail "${FUNCNAME[0]}" "$output" || return 1
+  reason=$(nothing_changed) || fail "${FUNCNAME[0]}" "$reason"
+}
+
+refuses_a_ref_under_assets_that_is_no_visual_check() {
+  build_an_origin_with_two_asset_branches stray
+  git -C "$origin" update-ref refs/heads/assets/notes "$(head_of trunk)"
+  heads >"$case_dir/heads.before"
+  local output status=0 reason
+  output=$(with_stubs scripts/mygame-assets-consolidate --apply) || status=$?
+  [ "$status" -ne 0 ] || fail "${FUNCNAME[0]}" "exit 0:"$'\n'"$output" || return 1
+  [ "$output" = "refusing: refs/heads/assets/notes is no visual-check branch, and assets cannot exist beside it" ] || fail "${FUNCNAME[0]}" "$output" || return 1
+  reason=$(nothing_changed) || fail "${FUNCNAME[0]}" "$reason"
+}
+
+run() {
+  if "$1"; then
+    echo "ok   $1"
+  else
+    failures=$((failures + 1))
+  fi
+}
+
+run a_dry_run_lists_every_ref_and_link_and_changes_nothing
+run apply_moves_every_asset_file_under_its_ticket_folder_and_rewrites_every_link
+run apply_refuses_to_delete_while_a_link_still_names_an_old_branch
+run apply_falls_back_to_two_pushes_when_origin_refuses_the_atomic_one
+run refuses_an_asset_branch_an_open_pr_holds
+run refuses_a_ref_under_assets_that_is_no_visual_check
+[ "$failures" -eq 0 ]
