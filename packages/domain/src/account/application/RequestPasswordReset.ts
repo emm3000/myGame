@@ -1,17 +1,14 @@
-import {
-  type AccountStores,
-  type AfterResponse,
-  type Clock,
-  type FailureSink,
-  type MailCopy,
-  type MailDelivery,
-  type Mailer,
-  type MailRecipient,
-  ok,
-  type SessionTokens,
-  thrownCauseOf,
-  type UnitOfWork,
-} from '@mygame/domain'
+import type { AfterResponse } from '#platform/domain/AfterResponse'
+import type { Clock } from '#platform/domain/Clock'
+import type { FailureSink } from '#platform/domain/FailureSink'
+import { thrownCauseOf } from '#platform/domain/thrownCauseOf'
+import type { UnitOfWork } from '#platform/domain/UnitOfWork'
+import { ok } from '#Result'
+import type { AccountStores } from '../domain/AccountStores'
+import type { MailCopy } from '../domain/MailCopy'
+import type { MailDelivery, Mailer } from '../domain/Mailer'
+import type { MailRecipient } from '../domain/MailRecipient'
+import type { SessionTokens } from '../domain/SessionTokens'
 import { issueAccountToken } from './issueAccountToken'
 
 export type RequestPasswordResetDependencies = {
@@ -25,6 +22,8 @@ export type RequestPasswordResetDependencies = {
   readonly failureSink: FailureSink
 }
 
+type ResetRequest = { readonly email: string }
+
 type ResetLink = {
   readonly recipient: MailRecipient
   readonly token: string
@@ -33,7 +32,7 @@ type ResetLink = {
 const resetRequestLine = (cause: string): string => `reset request ${cause}`
 
 const sendResetMail = async (
-  request: { readonly email: string },
+  request: ResetRequest,
   { unitOfWork, clock, sessionTokens, mailer, mailCopy, webUrl }: RequestPasswordResetDependencies,
 ): Promise<MailDelivery | undefined> => {
   const issued = await unitOfWork.transact<ResetLink | undefined, never>(
@@ -60,20 +59,23 @@ const sendResetMail = async (
   })
 }
 
-export const requestPasswordReset = (
-  request: { readonly email: string },
-  dependencies: RequestPasswordResetDependencies,
-): void => {
-  const { afterResponse, failureSink } = dependencies
-  const reportUnsent = (delivery: MailDelivery | undefined): void => {
-    if (delivery === 'failed') {
-      failureSink.write(resetRequestLine('MailNotSent'))
+export class RequestPasswordReset {
+  constructor(private readonly dependencies: RequestPasswordResetDependencies) {}
+
+  async execute(request: ResetRequest): Promise<void> {
+    const { afterResponse, failureSink } = this.dependencies
+    const reportUnsent = (delivery: MailDelivery | undefined): void => {
+      if (delivery === 'failed') {
+        failureSink.write(resetRequestLine('MailNotSent'))
+      }
     }
-  }
-  const reportThrown = (error: unknown): void => {
-    failureSink.write(
-      resetRequestLine(error instanceof Error ? thrownCauseOf(error) : typeof error),
+    const reportThrown = (error: unknown): void => {
+      failureSink.write(
+        resetRequestLine(error instanceof Error ? thrownCauseOf(error) : typeof error),
+      )
+    }
+    afterResponse.defer(() =>
+      sendResetMail(request, this.dependencies).then(reportUnsent, reportThrown),
     )
   }
-  afterResponse.defer(() => sendResetMail(request, dependencies).then(reportUnsent, reportThrown))
 }

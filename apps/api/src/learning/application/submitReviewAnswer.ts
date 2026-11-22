@@ -6,10 +6,10 @@ import {
   ok,
   type PlayerId,
   type Result,
+  readScaffold,
   type TownSkill,
   type WordId,
 } from '@mygame/domain'
-import { readScaffold } from '#account/application/readScaffold'
 import type { LessonLibrary } from '#content/application/ports/LessonLibrary'
 import { mutateTown } from '#town/application/mutateTown'
 import {

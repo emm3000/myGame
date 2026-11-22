@@ -1,11 +1,8 @@
-import {
-  type AccountTokenKind,
-  type AccountTokens,
-  accountTokenExpiryFrom,
-  type Clock,
-  type PlayerId,
-  type SessionTokens,
-} from '@mygame/domain'
+import type { Clock } from '#platform/domain/Clock'
+import type { PlayerId } from '#player/PlayerId'
+import type { AccountTokenKind, AccountTokens } from '../domain/AccountTokens'
+import { accountTokenExpiryFrom } from '../domain/accountTokenExpiryFrom'
+import type { SessionTokens } from '../domain/SessionTokens'
 
 export type IssueAccountTokenDependencies = {
   readonly accountTokens: AccountTokens

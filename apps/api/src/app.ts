@@ -28,8 +28,9 @@ import {
   type RegionMapRouteDependencies,
   regionMapRoutes,
 } from '#town/jobs/infrastructure/http/regionMapRoutes'
+import { composeUseCases, type UseCaseDependencies, type UseCases } from './composeUseCases'
 
-export type AppDependencies = AccountRouteDependencies &
+type RouteDependencies = AccountRouteDependencies &
   LearningRouteDependencies &
   PlacementRouteDependencies &
   ReportRouteDependencies &
@@ -38,7 +39,10 @@ export type AppDependencies = AccountRouteDependencies &
     readonly failureSink: FailureSink
   }
 
-export const createApp = (dependencies: AppDependencies): OpenAPIHono => {
+export type AppDependencies = Omit<RouteDependencies, keyof UseCases> & UseCaseDependencies
+
+export const createApp = (adapters: AppDependencies): OpenAPIHono => {
+  const dependencies: RouteDependencies = { ...adapters, ...composeUseCases(adapters) }
   const app = new OpenAPIHono()
   app.use(reportServerFailures(dependencies.failureSink))
   app.onError((_error, c) => c.body(null, 500))

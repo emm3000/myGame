@@ -93,7 +93,7 @@ zod schemas for every request and response the api serves, and the types inferre
 
 ## `apps/api`
 
-A controller is thin: parse with the contract schema, execute the use case, map the `Result`. Adapters implement the domain ports over the database. The composition root wires ports to adapters in one file; nothing else constructs an adapter. Auth is middleware that yields a `PlayerId`, never a domain concern; the account's use cases are api use cases.
+A controller is thin: parse with the contract schema, execute the use case, map the `Result`. Adapters implement the domain ports over the database. The composition root wires ports to adapters in one file; nothing else constructs an adapter. Auth is middleware that yields a `PlayerId`, never a domain concern: the account's use cases are classes of `packages/domain/src/account/application/` like every moved feature's, and the session check `requirePlayer` stays a middleware of `account/infrastructure/http/`. `composeUseCases.ts` builds every use-case class, and a route list builds its controllers.
 
 ## `apps/web`
 

@@ -1,4 +1,6 @@
-import type { MailCopy, MailDelivery, Mailer, MailRecipient } from '@mygame/domain'
+import type { MailCopy } from '../domain/MailCopy'
+import type { MailDelivery, Mailer } from '../domain/Mailer'
+import type { MailRecipient } from '../domain/MailRecipient'
 
 export type SendVerificationMailDependencies = {
   readonly mailer: Mailer

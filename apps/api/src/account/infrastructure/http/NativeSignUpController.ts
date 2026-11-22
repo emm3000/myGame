@@ -1,14 +1,14 @@
-import { createRoute, type OpenAPIHono } from '@hono/zod-openapi'
+import { createRoute } from '@hono/zod-openapi'
 import { SignUpRequestSchema } from '@mygame/contracts'
+import type { SignUp } from '@mygame/domain'
+import type { Context } from 'hono'
 import { readJsonBody } from '#platform/infrastructure/http/readJsonBody'
 import { requestRefusalOf } from '#platform/infrastructure/http/requestRefusalOf'
 import { respondRefusal } from '#platform/infrastructure/http/respondRefusal'
 import { jsonBody, jsonResponse } from '#platform/infrastructure/http/responseDeclarations'
-import type { ReadChromePhaseDependencies } from '../../application/readChromePhase'
-import { type SignUpDependencies, signUp } from '../../application/signUp'
 import { NativeSessionComponent, SignUpRequestComponent, signUpRefusals } from './accountComponents'
 import { accountIssues } from './accountIssues'
-import { respondNativeSession } from './respondSignedIn'
+import { type RespondNativeSessionDependencies, respondNativeSession } from './respondSignedIn'
 
 export const nativeSignUpDeclaration = createRoute({
   method: 'post',
@@ -23,18 +23,19 @@ export const nativeSignUpDeclaration = createRoute({
   },
 })
 
-export type NativeSignUpRouteDependencies = SignUpDependencies & ReadChromePhaseDependencies
+export type NativeSignUpControllerDependencies = RespondNativeSessionDependencies & {
+  readonly signUp: SignUp
+}
 
-export const nativeSignUpRoute = (
-  routes: OpenAPIHono,
-  dependencies: NativeSignUpRouteDependencies,
-): void => {
-  routes.openAPIRegistry.registerPath(nativeSignUpDeclaration)
-  routes.on(nativeSignUpDeclaration.method, nativeSignUpDeclaration.path, async (c) => {
+export class NativeSignUpController {
+  constructor(private readonly dependencies: NativeSignUpControllerDependencies) {}
+
+  async handle(c: Context): Promise<Response> {
     const request = SignUpRequestSchema.safeParse(await readJsonBody(c))
     if (!request.success) {
       return respondRefusal(c, requestRefusalOf(accountIssues, request.error.issues))
     }
-    return respondNativeSession(c, await signUp(request.data, dependencies), 201, dependencies)
-  })
+    const signedIn = await this.dependencies.signUp.execute(request.data)
+    return respondNativeSession(c, signedIn, 201, this.dependencies)
+  }
 }

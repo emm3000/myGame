@@ -1,7 +1,6 @@
 import { createRoute, type OpenAPIHono } from '@hono/zod-openapi'
 import { PlacementAnswersSchema } from '@mygame/contracts'
-import { answerPlacement } from '@mygame/domain'
-import { readScaffold } from '#account/application/readScaffold'
+import { answerPlacement, readScaffold } from '@mygame/domain'
 import {
   type RequirePlayerDependencies,
   requirePlayer,

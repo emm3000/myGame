@@ -1,7 +1,6 @@
 import { createRoute, type OpenAPIHono } from '@hono/zod-openapi'
 import { HoldoutCheckRequestSchema } from '@mygame/contracts'
-import { beginHoldoutCheck, type RandomSource } from '@mygame/domain'
-import { readScaffold } from '#account/application/readScaffold'
+import { beginHoldoutCheck, type RandomSource, readScaffold } from '@mygame/domain'
 import {
   type RequirePlayerDependencies,
   requirePlayer,
