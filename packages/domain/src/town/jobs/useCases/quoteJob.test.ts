@@ -2,6 +2,7 @@ import { assert, describe, expect, it } from 'vitest'
 import type { Clock } from '#ports/Clock'
 import { Instant } from '#time/Instant'
 import type { Town } from '../../Town'
+import { inMemoryEarnedSkills } from '../../testing/inMemoryEarnedSkills'
 import { inMemoryTownNews } from '../../testing/inMemoryTownNews'
 import { inMemoryTowns } from '../../testing/inMemoryTowns'
 import { plainTownSettings, townCatalogOf } from '../../testing/townCatalogOf'
@@ -53,7 +54,7 @@ const quoteFrom = (
 
 const sentPayOf = async (town: Town): Promise<unknown> => {
   const sent = await sendJob(order(), {
-    towns: inMemoryTowns([town]),
+    towns: inMemoryTowns([town], inMemoryEarnedSkills([])),
     map: inMemoryRegionMap([town]),
     news: inMemoryTownNews(),
     catalog,
@@ -65,13 +66,15 @@ const sentPayOf = async (town: Town): Promise<unknown> => {
 
 describe('quoteJob', () => {
   it('answers the pay the send then fixes', async () => {
-    const quoted = await quoteFrom(inMemoryTowns([homeTown]))
+    const quoted = await quoteFrom(inMemoryTowns([homeTown], inMemoryEarnedSkills([])))
 
     expect(quoted).toEqual({ ok: true, value: await sentPayOf(homeTown) })
   })
 
   it('refuses an order the send would refuse', async () => {
-    const quoted = await quoteFrom(inMemoryTowns([homeTown]), { hours: 9 })
+    const quoted = await quoteFrom(inMemoryTowns([homeTown], inMemoryEarnedSkills([])), {
+      hours: 9,
+    })
 
     expect(quoted).toEqual({
       ok: false,
@@ -80,13 +83,13 @@ describe('quoteJob', () => {
   })
 
   it('refuses a player with no town', async () => {
-    const quoted = await quoteFrom(inMemoryTowns([]))
+    const quoted = await quoteFrom(inMemoryTowns([], inMemoryEarnedSkills([])))
 
     expect(quoted).toEqual({ ok: false, error: { kind: 'TownNotFound', playerId: 'player-1' } })
   })
 
   it('writes nothing', async () => {
-    const towns = inMemoryTowns([homeTown])
+    const towns = inMemoryTowns([homeTown], inMemoryEarnedSkills([]))
 
     await quoteFrom(towns)
 

@@ -15,5 +15,6 @@ export const inMemoryRegionMap = (towns: ReadonlyArray<Town>): RegionMapReader =
   townsIn: async (region, area) =>
     towns
       .filter((town) => town.address.region === region && town.address.area === area)
-      .map((town) => ({ site: town.address.site, name: town.name.value, playerId: town.playerId })),
+      .map((town) => ({ site: town.address.site, name: town.name.value, playerId: town.playerId }))
+      .sort((left, right) => left.site - right.site),
 })

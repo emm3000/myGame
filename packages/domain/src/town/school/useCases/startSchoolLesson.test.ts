@@ -16,6 +16,7 @@ import { firstItemsRandom } from '#ports/testing/firstItemsRandom'
 import { Instant } from '#time/Instant'
 import type { WorkSlot } from '../../building/BuildingWork'
 import type { TownCatalog } from '../../ports/TownCatalog'
+import { inMemoryEarnedSkills } from '../../testing/inMemoryEarnedSkills'
 import { inMemoryTownNews } from '../../testing/inMemoryTownNews'
 import { inMemoryTowns } from '../../testing/inMemoryTowns'
 import { plainTownSettings, townCatalogOf } from '../../testing/townCatalogOf'
@@ -147,7 +148,10 @@ const schoolOf = ({
   catalog = townCatalogOf(),
 }: Setup) => {
   const frozenClock: Clock = { now: () => now }
-  const towns = inMemoryTowns([townOf({ storedAt: hoursAfterEpoch(1), ...town })])
+  const towns = inMemoryTowns(
+    [townOf({ storedAt: hoursAfterEpoch(1), ...town })],
+    inMemoryEarnedSkills([]),
+  )
   const dependencies = {
     towns,
     lessonSlots: inMemoryLessonSlots(slot === undefined ? [] : [{ townId: 'town-1', slot }]),
@@ -205,7 +209,7 @@ describe('startSchoolLesson', () => {
 
     expect(await school.bandStarts.bandStartsOf('player-1')).toEqual({
       ok: true,
-      value: [{ band: 1, startedAt: springNow, heldOutWords: ['say', 'make'], checks: [] }],
+      value: [{ band: 1, startedAt: springNow, heldOutWords: ['make', 'say'], checks: [] }],
     })
   })
 
@@ -240,7 +244,7 @@ describe('startSchoolLesson', () => {
 
     expect(await school.bandStarts.bandStartsOf('player-1')).toEqual({
       ok: true,
-      value: [{ band: 1, startedAt: springNow, heldOutWords: ['say', 'know'], checks: [] }],
+      value: [{ band: 1, startedAt: springNow, heldOutWords: ['know', 'say'], checks: [] }],
     })
   })
 
@@ -448,7 +452,10 @@ describe('startSchoolLesson', () => {
     const held = await school.cards.cardsOf('player-1')
     assert(held.ok)
     expect(held.value).toEqual(
-      lessonOne.words.map(({ id }) => ({ wordId: id, card: MemoryCard.entered(finishesAt) })),
+      ['food', 'home', 'money', 'school', 'work'].map((wordId) => ({
+        wordId,
+        card: MemoryCard.entered(finishesAt),
+      })),
     )
   })
 

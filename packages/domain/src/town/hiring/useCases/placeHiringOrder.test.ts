@@ -5,6 +5,7 @@ import type { BuildingLevel } from '../../building/BuildingLevel'
 import { derivePeople } from '../../derivePeople'
 import type { TownCatalog } from '../../ports/TownCatalog'
 import type { TownSettings } from '../../TownSettings'
+import { inMemoryEarnedSkills } from '../../testing/inMemoryEarnedSkills'
 import { inMemoryTownNews } from '../../testing/inMemoryTownNews'
 import { inMemoryTowns } from '../../testing/inMemoryTowns'
 import { plainTownLevels, plainTownSettings, townCatalogOf } from '../../testing/townCatalogOf'
@@ -54,7 +55,7 @@ const placeIn = (
   placeHiringOrder(
     { playerId: town.playerId, hire, count },
     {
-      towns: inMemoryTowns([town]),
+      towns: inMemoryTowns([town], inMemoryEarnedSkills([])),
       news: inMemoryTownNews(),
       catalog,
       clock: frozenClock(storedAt),
@@ -214,7 +215,7 @@ describe('placeHiringOrder', () => {
 
   it('saves the placed order', async () => {
     const town = officeTown()
-    const towns = inMemoryTowns([town])
+    const towns = inMemoryTowns([town], inMemoryEarnedSkills([]))
 
     await placeHiringOrder(
       { playerId: town.playerId, hire: 'worker', count: 2 },

@@ -50,8 +50,8 @@ const tenHoursAfterFounding = Instant.fromEpochMilliseconds(
 
 describe('foundTown', () => {
   it("raises the new town's production by the skills the player earned before", async () => {
-    const towns = inMemoryTowns([])
     const skills = inMemoryEarnedSkills([{ playerId: 'learner', skill: foodSkillAtTwentyPercent }])
+    const towns = inMemoryTowns([], skills)
 
     const founded = await foundTown(
       { playerId: 'learner', name: 'Maple Hill' },
@@ -65,7 +65,7 @@ describe('foundTown', () => {
   })
 
   it("starts a town with homes and the school at level 1 and the content's stocks", async () => {
-    const towns = inMemoryTowns([])
+    const towns = inMemoryTowns([], noSkills)
 
     const founded = await foundTown(
       { playerId: 'newcomer', name: '  Maple Hill ' },
@@ -98,7 +98,10 @@ describe('foundTown', () => {
   })
 
   it('founds at the lowest free site of region 1', async () => {
-    const towns = inMemoryTowns([townAt('ana', 1, 1), townAt('bruno', 1, 2), townAt('carla', 2, 1)])
+    const towns = inMemoryTowns(
+      [townAt('ana', 1, 1), townAt('bruno', 1, 2), townAt('carla', 2, 1)],
+      noSkills,
+    )
 
     const founded = await foundTown(
       { playerId: 'newcomer', name: 'Maple Hill' },
@@ -116,7 +119,7 @@ describe('foundTown', () => {
   })
 
   it('refuses a second town with PlayerAlreadyHoldsTown', async () => {
-    const towns = inMemoryTowns([townAt('ana', 1, 1)])
+    const towns = inMemoryTowns([townAt('ana', 1, 1)], noSkills)
 
     const founded = await foundTown(
       { playerId: 'ana', name: 'Second Town' },
@@ -139,7 +142,7 @@ describe('foundTown', () => {
     const founded = await foundTown(
       { playerId: 'newcomer', name: '   ' },
       {
-        towns: inMemoryTowns([]),
+        towns: inMemoryTowns([], noSkills),
         catalog: townCatalogOf(),
         clock: frozenClock,
         ids: sequentialIds('town'),
@@ -151,7 +154,7 @@ describe('foundTown', () => {
   })
 
   it('answers SiteTaken when a rival takes the site between the read and the save', async () => {
-    const towns = inMemoryTowns([])
+    const towns = inMemoryTowns([], noSkills)
     const racingTowns = { ...towns, occupiedSites: async () => [] }
     await towns.save(townAt('ana', 1, 1))
 
