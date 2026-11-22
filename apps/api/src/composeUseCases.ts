@@ -27,6 +27,10 @@ import {
   type SignInDependencies,
   SignUp,
   type SignUpDependencies,
+  StartBuildingWork,
+  type StartBuildingWorkDependencies,
+  StopBuildingWork,
+  type StopBuildingWorkDependencies,
   VerifyEmail,
   type VerifyEmailDependencies,
 } from '@mygame/domain'
@@ -45,7 +49,9 @@ export type UseCaseDependencies = SignUpDependencies &
   SendCleanUpDependencies &
   QuoteCleanUpDependencies &
   CallJobBackDependencies &
-  ReadRegionMapDependencies
+  ReadRegionMapDependencies &
+  StartBuildingWorkDependencies &
+  StopBuildingWorkDependencies
 
 export type UseCases = {
   readonly signUp: SignUp
@@ -63,6 +69,8 @@ export type UseCases = {
   readonly quoteCleanUp: QuoteCleanUp
   readonly callJobBack: CallJobBack
   readonly readRegionMap: ReadRegionMap
+  readonly startBuildingWork: StartBuildingWork
+  readonly stopBuildingWork: StopBuildingWork
 }
 
 export const composeUseCases = (adapters: UseCaseDependencies): UseCases => ({
@@ -81,4 +89,6 @@ export const composeUseCases = (adapters: UseCaseDependencies): UseCases => ({
   quoteCleanUp: new QuoteCleanUp(adapters),
   callJobBack: new CallJobBack(adapters),
   readRegionMap: new ReadRegionMap(adapters),
+  startBuildingWork: new StartBuildingWork(adapters),
+  stopBuildingWork: new StopBuildingWork(adapters),
 })

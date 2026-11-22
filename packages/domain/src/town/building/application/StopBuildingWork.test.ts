@@ -1,14 +1,19 @@
 import { assert, describe, expect, it } from 'vitest'
+import { signedUpAccountsOf } from '#account/testing/signedUpAccountsOf'
+import { inMemoryBands } from '#learning/curriculum/testing/inMemoryBands'
+import { inMemoryLessons } from '#learning/curriculum/testing/inMemoryLessons'
 import type { Clock } from '#platform/domain/Clock'
+import { inMemoryUnitOfWork } from '#platform/testing/inMemoryUnitOfWork'
 import { Instant } from '#time/Instant'
 import { inMemoryEarnedSkills } from '../../testing/inMemoryEarnedSkills'
-import { inMemoryTownNews } from '../../testing/inMemoryTownNews'
+import { type InMemoryTownNews, inMemoryTownNews } from '../../testing/inMemoryTownNews'
+import { inMemoryTownStores, townNewsOver } from '../../testing/inMemoryTownStores'
 import { inMemoryTowns } from '../../testing/inMemoryTowns'
 import { plainTownSettings, townCatalogOf } from '../../testing/townCatalogOf'
 import { type TownShape, townOf } from '../../testing/townFixtures'
 import type { WorkSlot } from '../domain/BuildingWork'
 import type { WaitingWork } from '../domain/WaitingList'
-import { stopBuildingWork } from './stopBuildingWork'
+import { StopBuildingWork, type StopBuildingWorkCommand } from './StopBuildingWork'
 
 const MILLISECONDS_PER_MINUTE = 60_000
 
@@ -93,14 +98,20 @@ const crowdedTown: TownShape = {
   waitingList: [waitingOffice(1), waitingOffice(2)],
 }
 
+const noLessons = { ...inMemoryLessons([], []), ...inMemoryBands([]) }
+
+type StopFixture = {
+  readonly towns: ReturnType<typeof inMemoryTowns>
+  readonly news: InMemoryTownNews
+  readonly catalog: ReturnType<typeof townCatalogOf>
+  readonly clock: Clock
+}
+
 const dependenciesAt = (
   now: Instant,
   town: ReturnType<typeof townOf>,
   catalog: ReturnType<typeof townCatalogOf> = townCatalogOf(),
-): Parameters<typeof stopBuildingWork>[1] & {
-  readonly news: ReturnType<typeof inMemoryTownNews>
-  readonly towns: ReturnType<typeof inMemoryTowns>
-} => {
+): StopFixture => {
   const frozenClock: Clock = { now: () => now }
   return {
     towns: inMemoryTowns([town], inMemoryEarnedSkills([])),
@@ -110,11 +121,28 @@ const dependenciesAt = (
   }
 }
 
-describe('stopBuildingWork', () => {
+const stopWork = (
+  command: StopBuildingWorkCommand,
+  { towns, news, catalog, clock }: StopFixture,
+): ReturnType<StopBuildingWork['execute']> =>
+  new StopBuildingWork({
+    unitOfWork: inMemoryUnitOfWork(
+      inMemoryTownStores({
+        accounts: signedUpAccountsOf(['player-1']),
+        towns,
+        townNews: townNewsOver(news),
+      }),
+    ),
+    townCatalog: catalog,
+    lessons: noLessons,
+    clock,
+  }).execute(command)
+
+describe('StopBuildingWork', () => {
   it('refunds the full cost at a stop', async () => {
     const dependencies = dependenciesAt(minutesAfterEpoch(90), busyTown(minutesAfterEpoch(120)))
 
-    const stopped = await stopBuildingWork(
+    const stopped = await stopWork(
       { playerId: 'player-1', building: 'farm', level: 1 },
       dependencies,
     )
@@ -127,7 +155,7 @@ describe('stopBuildingWork', () => {
     const now = minutesAfterEpoch(90)
     const dependencies = dependenciesAt(now, busyTown(minutesAfterEpoch(120)))
 
-    const stopped = await stopBuildingWork(
+    const stopped = await stopWork(
       { playerId: 'player-1', building: 'farm', level: 1 },
       dependencies,
     )
@@ -149,7 +177,7 @@ describe('stopBuildingWork', () => {
   it('keeps the work ahead of a stopped waiting entry and the work behind it that still fits', async () => {
     const dependencies = dependenciesAt(minutesAfterEpoch(90), busyTown(minutesAfterEpoch(120)))
 
-    const stopped = await stopBuildingWork(
+    const stopped = await stopWork(
       { playerId: 'player-1', building: 'factory', level: 1 },
       dependencies,
     )
@@ -165,7 +193,7 @@ describe('stopBuildingWork', () => {
     const now = minutesAfterEpoch(90)
     const dependencies = dependenciesAt(now, farmChainTown())
 
-    const stopped = await stopBuildingWork(
+    const stopped = await stopWork(
       { playerId: 'player-1', building: 'farm', level: 1 },
       dependencies,
     )
@@ -181,7 +209,7 @@ describe('stopBuildingWork', () => {
     const now = minutesAfterEpoch(90)
     const dependencies = dependenciesAt(now, farmChainTown())
 
-    const stopped = await stopBuildingWork(
+    const stopped = await stopWork(
       { playerId: 'player-1', building: 'farm', level: 1 },
       dependencies,
     )
@@ -218,7 +246,7 @@ describe('stopBuildingWork', () => {
     })
     const dependencies = dependenciesAt(minutesAfterEpoch(90), town)
 
-    const stopped = await stopBuildingWork(
+    const stopped = await stopWork(
       { playerId: 'player-1', building: 'farm', level: 1 },
       dependencies,
     )
@@ -237,7 +265,7 @@ describe('stopBuildingWork', () => {
     })
     const dependencies = dependenciesAt(minutesAfterEpoch(90), town)
 
-    const stopped = await stopBuildingWork(
+    const stopped = await stopWork(
       { playerId: 'player-1', building: 'factory', level: 1 },
       dependencies,
     )
@@ -266,7 +294,7 @@ describe('stopBuildingWork', () => {
     })
     const dependencies = dependenciesAt(now, busyTown(minutesAfterEpoch(120)), fastBuilds)
 
-    const stopped = await stopBuildingWork(
+    const stopped = await stopWork(
       { playerId: 'player-1', building: 'farm', level: 1 },
       dependencies,
     )
@@ -284,7 +312,7 @@ describe('stopBuildingWork', () => {
     const fewPeople = townCatalogOf({ ...plainTownSettings, basePeople: 0 })
     const dependencies = dependenciesAt(now, townOf(crowdedTown), fewPeople)
 
-    const stopped = await stopBuildingWork(
+    const stopped = await stopWork(
       { playerId: 'player-1', building: 'homes', level: 2 },
       dependencies,
     )
@@ -306,15 +334,19 @@ describe('stopBuildingWork', () => {
       hires: { worker: 22, truck: 0 },
     })
 
-    const stopped = await stopBuildingWork(
+    const dependencies = dependenciesAt(now, hiredTown)
+
+    const stopped = await stopWork(
       { playerId: 'player-1', building: 'homes', level: 2 },
-      dependenciesAt(now, hiredTown),
+      dependencies,
     )
 
     assert(stopped.ok)
     expect([
       stopped.value.town.workSlot,
-      stopped.value.events.map(({ kind, ...work }) => [kind, 'level' in work && work.level]),
+      dependencies.news
+        .recordedEventsOf('town-1')
+        .map(({ kind, ...work }) => [kind, 'level' in work && work.level]),
     ]).toEqual([
       { kind: 'idle' },
       [
@@ -329,7 +361,7 @@ describe('stopBuildingWork', () => {
     const now = minutesAfterEpoch(75)
     const dependencies = dependenciesAt(now, busyTown(finishedAt))
 
-    const stopped = await stopBuildingWork(
+    const stopped = await stopWork(
       { playerId: 'player-1', building: 'factory', level: 1 },
       dependencies,
     )
@@ -350,7 +382,7 @@ describe('stopBuildingWork', () => {
   it('refuses a stop of work the town does not hold', async () => {
     const dependencies = dependenciesAt(minutesAfterEpoch(90), busyTown(minutesAfterEpoch(120)))
 
-    const refused = await stopBuildingWork(
+    const refused = await stopWork(
       { playerId: 'player-1', building: 'office', level: 1 },
       dependencies,
     )

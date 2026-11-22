@@ -11,9 +11,11 @@ import {
   ok,
   type PlayerId,
   type Result,
-  startBuildingWork,
-  type Town,
+  StartBuildingWork,
+  type TownReading,
   type TownRepository,
+  type TownStores,
+  type UnitOfWork,
 } from '@mygame/domain'
 import { Client } from 'pg'
 import { afterAll, assert, beforeAll, describe, expect, it } from 'vitest'
@@ -21,7 +23,11 @@ import { JsonTownCatalog } from '#content/infrastructure/json/JsonTownCatalog'
 import { apiPackagePath } from './apiPackagePath.testSupport'
 import { type ComposedServer, composeServer } from './composeServer'
 import { mailEnvironment } from './composeServer.testSupport'
-import { isWaitingOnALock, lockProbeLimit } from './lockWaitProbe.testSupport'
+import {
+  isWaitingOnALock,
+  lockedPlayerReadQuery,
+  lockProbeLimit,
+} from './lockWaitProbe.testSupport'
 import { truncatePlayerTables } from './truncatePlayerTables.testSupport'
 
 const contentDirectory = apiPackagePath('content/')
@@ -279,7 +285,10 @@ const untilTownBlockedOrRead = async (secondRead: Promise<unknown>): Promise<voi
   await observer.connect()
   try {
     for (let probes = 0; probes < lockProbeLimit; probes += 1) {
-      if (hasRead || (await isWaitingOnALock(observer, [lockedTownReadQuery]))) {
+      if (
+        hasRead ||
+        (await isWaitingOnALock(observer, [lockedPlayerReadQuery, lockedTownReadQuery]))
+      ) {
         return
       }
     }
@@ -289,22 +298,26 @@ const untilTownBlockedOrRead = async (secondRead: Promise<unknown>): Promise<voi
   }
 }
 
+const pausingUnitOfWork = (
+  server: ComposedServer,
+  afterRead: () => Promise<void>,
+): UnitOfWork<TownStores> => ({
+  transact: (work) =>
+    server.unitOfWork.transact((stores) =>
+      work({ ...stores, towns: pausingTownRead(stores.towns, afterRead) }),
+    ),
+})
+
 const startFarmWork = (
   server: ComposedServer,
   afterRead: () => Promise<void>,
-): Promise<Result<Town, DomainError>> =>
-  server.unitOfWork.transact(({ towns, townNews, cards }) =>
-    startBuildingWork(
-      { playerId: ana, building: 'farm' },
-      {
-        towns: pausingTownRead(towns, afterRead),
-        news: townNews,
-        cards,
-        catalog: townCatalog,
-        clock: frozenClock,
-      },
-    ),
-  )
+): Promise<Result<TownReading, DomainError>> =>
+  new StartBuildingWork({
+    unitOfWork: pausingUnitOfWork(server, afterRead),
+    townCatalog,
+    lessons: server.lessons,
+    clock: frozenClock,
+  }).execute({ playerId: ana, building: 'farm' })
 
 const raceTwoStarts = async (server: ComposedServer): Promise<ReadonlyArray<Outcome>> => {
   const firstHasRead = signal()

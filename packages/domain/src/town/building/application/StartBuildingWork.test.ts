@@ -1,18 +1,23 @@
 import { assert, describe, expect, it } from 'vitest'
+import { signedUpAccountsOf } from '#account/testing/signedUpAccountsOf'
+import { inMemoryBands } from '#learning/curriculum/testing/inMemoryBands'
+import { inMemoryLessons } from '#learning/curriculum/testing/inMemoryLessons'
 import type { HeldCard } from '#learning/HeldCard'
 import { inMemoryCards } from '#learning/testing/inMemoryCards'
 import { MemoryCard } from '#memory/domain/MemoryCard'
 import type { Clock } from '#platform/domain/Clock'
+import { inMemoryUnitOfWork } from '#platform/testing/inMemoryUnitOfWork'
 import { Instant } from '#time/Instant'
 import type { TownCatalog } from '../../domain/TownCatalog'
 import { inMemoryEarnedSkills } from '../../testing/inMemoryEarnedSkills'
-import { inMemoryTownNews } from '../../testing/inMemoryTownNews'
+import { type InMemoryTownNews, inMemoryTownNews } from '../../testing/inMemoryTownNews'
+import { inMemoryTownStores, townNewsOver } from '../../testing/inMemoryTownStores'
 import { inMemoryTowns } from '../../testing/inMemoryTowns'
 import { plainTownLevels, plainTownSettings, townCatalogOf } from '../../testing/townCatalogOf'
 import { type TownShape, townOf } from '../../testing/townFixtures'
 import type { BuildingKind } from '../domain/BuildingKind'
 import type { BuildingLevel } from '../domain/BuildingLevel'
-import { startBuildingWork } from './startBuildingWork'
+import { StartBuildingWork, type StartBuildingWorkCommand } from './StartBuildingWork'
 
 const MILLISECONDS_PER_HOUR = 3_600_000
 
@@ -88,12 +93,42 @@ const retainedCardsOf = (count: number): ReadonlyArray<HeldCard> =>
 const learningCardsOf = (count: number): ReadonlyArray<HeldCard> =>
   cardsOf('learning', count, 2.3, null)
 
+const noLessons = { ...inMemoryLessons([], []), ...inMemoryBands([]) }
+
+type Started = ReturnType<StartBuildingWork['execute']>
+
+type StartFixture = {
+  readonly towns: ReturnType<typeof inMemoryTowns>
+  readonly news: InMemoryTownNews
+  readonly cards: ReturnType<typeof inMemoryCards>
+  readonly catalog: TownCatalog
+  readonly clock: Clock
+}
+
+const startWork = (
+  command: StartBuildingWorkCommand,
+  { towns, news, cards, catalog, clock }: StartFixture,
+): Started =>
+  new StartBuildingWork({
+    unitOfWork: inMemoryUnitOfWork(
+      inMemoryTownStores({
+        accounts: signedUpAccountsOf(['player-1']),
+        towns,
+        townNews: townNewsOver(news),
+        cards,
+      }),
+    ),
+    townCatalog: catalog,
+    lessons: noLessons,
+    clock,
+  }).execute(command)
+
 const startIn = async (
   shape: Omit<TownShape, 'storedAt'>,
   buildings: ReadonlyArray<BuildingKind>,
   catalog: TownCatalog = pricedCatalog,
   held: ReadonlyArray<HeldCard> = [],
-): Promise<ReturnType<typeof startBuildingWork>> => {
+): Started => {
   const towns = inMemoryTowns(
     [townOf({ stocks: startingStocks, storedAt, ...shape })],
     inMemoryEarnedSkills([]),
@@ -102,19 +137,19 @@ const startIn = async (
   const dependencies = { towns, news: inMemoryTownNews(), cards, catalog, clock: frozenClock }
   const last = buildings.at(-1)
   for (const building of buildings.slice(0, -1)) {
-    const started = await startBuildingWork({ playerId: 'player-1', building }, dependencies)
+    const started = await startWork({ playerId: 'player-1', building }, dependencies)
     assert(started.ok)
   }
   assert(last !== undefined)
-  return startBuildingWork({ playerId: 'player-1', building: last }, dependencies)
+  return startWork({ playerId: 'player-1', building: last }, dependencies)
 }
 
-describe('startBuildingWork', () => {
+describe('StartBuildingWork', () => {
   it('starts work in the idle slot', async () => {
     const started = await startIn({}, ['farm'])
 
     assert(started.ok)
-    expect(started.value.workSlot).toEqual({
+    expect(started.value.town.workSlot).toEqual({
       kind: 'busy',
       building: 'farm',
       level: 1,
@@ -128,7 +163,7 @@ describe('startBuildingWork', () => {
     const started = await startIn({}, ['farm'])
 
     assert(started.ok)
-    expect([started.value.stocks, started.value.storedAt]).toEqual([
+    expect([started.value.town.stocks, started.value.town.storedAt]).toEqual([
       { money: 362, food: 285, power: 200, material: 400 },
       now,
     ])
@@ -138,7 +173,7 @@ describe('startBuildingWork', () => {
     const started = await startIn({}, ['farm', 'farm', 'factory'])
 
     assert(started.ok)
-    expect(started.value.waitingList).toEqual([
+    expect(started.value.town.waitingList).toEqual([
       {
         building: 'farm',
         level: 2,
@@ -177,8 +212,8 @@ describe('startBuildingWork', () => {
 
     const started = await startIn({}, ['farm'], quickSpring)
 
-    assert(started.ok && started.value.workSlot.kind === 'busy')
-    expect(started.value.workSlot.finishesAt).toEqual(secondsAfter(now, 45))
+    assert(started.ok && started.value.town.workSlot.kind === 'busy')
+    expect(started.value.town.workSlot.finishesAt).toEqual(secondsAfter(now, 45))
   })
 
   it('refuses work whose people would pass the free people', async () => {
@@ -208,7 +243,7 @@ describe('startBuildingWork', () => {
     const started = await startIn({}, ['factory'], fullFactory)
 
     assert(started.ok)
-    expect(started.value.workSlot).toEqual({
+    expect(started.value.town.workSlot).toEqual({
       kind: 'busy',
       building: 'factory',
       level: 1,
@@ -270,8 +305,11 @@ describe('startBuildingWork', () => {
       stableCardsOf(10),
     )
 
-    assert(started.ok && started.value.workSlot.kind === 'busy')
-    expect([started.value.workSlot.building, started.value.workSlot.level]).toEqual(['homes', 3])
+    assert(started.ok && started.value.town.workSlot.kind === 'busy')
+    expect([started.value.town.workSlot.building, started.value.town.workSlot.level]).toEqual([
+      'homes',
+      3,
+    ])
   })
 
   it('refuses level 7 with 50 stable words of which 49 are retained', async () => {
@@ -289,10 +327,10 @@ describe('startBuildingWork', () => {
   it('admits levels 1 and 2 with no card', async () => {
     const started = await startIn({}, ['farm', 'farm'])
 
-    assert(started.ok && started.value.workSlot.kind === 'busy')
+    assert(started.ok && started.value.town.workSlot.kind === 'busy')
     expect([
-      started.value.workSlot.level,
-      started.value.waitingList.map(({ building, level }) => [building, level]),
+      started.value.town.workSlot.level,
+      started.value.town.waitingList.map(({ building, level }) => [building, level]),
     ]).toEqual([1, [['farm', 2]]])
   })
 
@@ -336,7 +374,7 @@ describe('startBuildingWork', () => {
     const towns = inMemoryTowns([seeded], inMemoryEarnedSkills([]))
     const news = inMemoryTownNews()
 
-    const refused = await startBuildingWork(
+    const refused = await startWork(
       { playerId: 'player-1', building: 'homes' },
       {
         towns,
@@ -355,7 +393,7 @@ describe('startBuildingWork', () => {
   })
 
   it('refuses a player who holds no town', async () => {
-    const refused = await startBuildingWork(
+    const refused = await startWork(
       { playerId: 'stranger', building: 'farm' },
       {
         towns: inMemoryTowns([], inMemoryEarnedSkills([])),
