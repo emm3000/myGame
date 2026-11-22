@@ -1,5 +1,5 @@
 import { err, ok, type Result, thrownCauseOf, type UnitOfWork } from '@mygame/domain'
-import { sql } from 'drizzle-orm'
+import { type SQL, sql } from 'drizzle-orm'
 import { Client } from 'pg'
 import { afterAll, beforeAll, describe, expect, it } from 'vitest'
 import { connectPostgres, type PostgresConnection, type PostgresSession } from './connectPostgres'
@@ -20,8 +20,8 @@ let connection: PostgresConnection
 let unitOfWork: UnitOfWork<PostgresSession>
 
 const credentialsOfNobody = sql`SELECT password_hash FROM players WHERE email = 'nobody@example.com'`
-const createProbeTable = sql`CREATE TABLE unit_of_work_probe (id integer)`
-const probeTable = sql`SELECT to_regclass('unit_of_work_probe') AS probe`
+const createProbeTable = (name: string): SQL =>
+  sql`CREATE TABLE ${sql.identifier(name)} (id integer)`
 
 beforeAll(() => {
   connection = connectPostgres(databaseUrl())
@@ -35,8 +35,8 @@ afterAll(async () => {
 const credentialsLookup = (): Promise<Result<unknown, never>> =>
   unitOfWork.transact(async (session) => ok((await session.execute(credentialsOfNobody)).rows[0]))
 
-const probeTableOutside = async (): Promise<unknown> =>
-  (await connection.database.execute(probeTable)).rows[0]?.probe
+const probeTableOutside = async (name: string): Promise<unknown> =>
+  (await connection.database.execute(sql`SELECT to_regclass(${name}) AS probe`)).rows[0]?.probe
 
 describe('DrizzleUnitOfWork', () => {
   it('cancels a statement past the statement timeout, leaving the pool able to answer', async () => {
@@ -59,17 +59,20 @@ describe('DrizzleUnitOfWork', () => {
 
   it('keeps nothing a refused work wrote', async () => {
     const refused = await unitOfWork.transact(async (session) => {
-      await session.execute(createProbeTable)
+      await session.execute(createProbeTable('refused_work_probe'))
       return err({ kind: 'MalformedRequest' })
     })
 
-    expect([refused, await probeTableOutside()]).toEqual([err({ kind: 'MalformedRequest' }), null])
+    expect([refused, await probeTableOutside('refused_work_probe')]).toEqual([
+      err({ kind: 'MalformedRequest' }),
+      null,
+    ])
   })
 
   it('keeps nothing a work that threw wrote', async () => {
     const thrown = await unitOfWork
       .transact(async (session) => {
-        await session.execute(createProbeTable)
+        await session.execute(createProbeTable('thrown_work_probe'))
         throw new RangeError('work failed')
       })
       .then(
@@ -77,6 +80,6 @@ describe('DrizzleUnitOfWork', () => {
         (failure: unknown) => causeOf(failure),
       )
 
-    expect([thrown, await probeTableOutside()]).toEqual(['RangeError', null])
+    expect([thrown, await probeTableOutside('thrown_work_probe')]).toEqual(['RangeError', null])
   })
 })
