@@ -205,6 +205,20 @@ fails_a_domain_file_importing_a_fake() {
   expect_failure "${FUNCNAME[0]}" "structure check production_imports_fakes packages/domain/src/town/useCases/sendJob.ts 1:import"
 }
 
+fails_a_domain_file_importing_the_testing_entry_by_subpath() {
+  fresh_tree
+  plant packages/domain/src/town/useCases/plantedFake.ts "import { inMemoryTowns } from '#testing'\n"
+  check
+  expect_failure "${FUNCNAME[0]}" "structure check production_imports_fakes packages/domain/src/town/useCases/plantedFake.ts 1:import"
+}
+
+fails_a_domain_root_file_importing_the_testing_entry_relatively() {
+  fresh_tree
+  plant packages/domain/src/plantedFake.ts "import { inMemoryTowns } from './testing'\n"
+  check
+  expect_failure "${FUNCNAME[0]}" "structure check production_imports_fakes packages/domain/src/plantedFake.ts 1:import"
+}
+
 fails_a_web_file_importing_the_domain_fakes() {
   fresh_tree
   plant apps/web/src/town/TownScreen.tsx "import { inMemoryTowns } from '@mygame/domain/testing'\n"
@@ -407,6 +421,8 @@ run fails_a_domain_test_importing_its_own_folder_by_subpath
 run passes_a_subpath_import_that_leaves_its_folder_or_the_root
 run fails_an_api_file_importing_the_domain_fakes
 run fails_a_domain_file_importing_a_fake
+run fails_a_domain_file_importing_the_testing_entry_by_subpath
+run fails_a_domain_root_file_importing_the_testing_entry_relatively
 run fails_a_web_file_importing_the_domain_fakes
 run passes_the_fakes_in_tests_contract_suites_and_the_testing_entry
 run fails_a_use_case_named_of

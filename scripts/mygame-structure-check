@@ -81,7 +81,7 @@ subpath_import_inside_folder() {
 production_imports_fakes() {
   local roots=("$api" "$domain" "$contracts")
   [ -d "$web" ] && roots+=("$web")
-  search -n "from '(@mygame/domain/testing|[^']*/testing/)" "${roots[@]}" -g '*.{ts,tsx}' -g '!*.test.{ts,tsx}' -g '!*.testSupport.ts' -g '!**/testing/**' -g "!/$domain/testing.ts" | by_line
+  search -n "from '(@mygame/domain/testing|#testing'|(\.{1,2}/)+testing'|[^']*/testing/)" "${roots[@]}" -g '*.{ts,tsx}' -g '!*.test.{ts,tsx}' -g '!*.testSupport.ts' -g '!**/testing/**' -g "!/$domain/testing.ts" | by_line
 }
 
 use_case_named_of() {
