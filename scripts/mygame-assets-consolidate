@@ -69,8 +69,13 @@ assets=$(remote_assets)
 [ -n "$assets" ] || refuse "origin holds no refs/heads/assets/*-visual-check branch"
 check_refs "$assets"
 
-temp_base=${TMPDIR:-/tmp}
-scratch=$(mktemp -d "${temp_base%/}/assets-consolidate.XXXXXX")
+if [ "$apply" -eq 1 ]; then
+  scratch_base=${XDG_STATE_HOME:-$HOME/.local/state}/mygame-assets-consolidate
+  mkdir -p "$scratch_base"
+else
+  scratch_base=${TMPDIR:-/tmp}
+fi
+scratch=$(mktemp -d "${scratch_base%/}/assets-consolidate.XXXXXX")
 keep_scratch=0
 trap '[ "$keep_scratch" -eq 1 ] || rm -rf "$scratch"' EXIT
 clone="$scratch/clone.git"
@@ -118,11 +123,19 @@ if [ "$apply" -eq 0 ]; then
 fi
 echo "apply: $summary"
 
+commit=$(echo "chore(assets): consolidate $folders asset branches into one folder per ticket" | git -C "$clone" commit-tree "$root")
+echo "built $commit in $clone"
+
+edited=0
 while IFS= read -r item; do
   [ -n "$item" ] || continue
+  [ "$edited" -eq 0 ] || sleep 1
+  label=$(jq -r .label <<<"$item")
   jq --arg link "$link" '{body: (.body | gsub($link; "\(.pre)\(.n)"; "i"))}' <<<"$item" >"$scratch/body.json"
-  gh api -X PATCH "repos/$slug/$(jq -r .path <<<"$item")" --input "$scratch/body.json" </dev/null >/dev/null
-  echo "edited $(jq -r .label <<<"$item")"
+  gh api -X PATCH "repos/$slug/$(jq -r .path <<<"$item")" --input "$scratch/body.json" </dev/null >/dev/null ||
+    { echo "editing $label failed after $edited edits; no ref moved, so a rerun resumes" >&2; exit 1; }
+  edited=$((edited + 1))
+  echo "edited $label"
 done <"$plan"
 
 left="$scratch/left.jsonl"
@@ -136,17 +149,32 @@ fi
 [ "$(remote_assets)" = "$assets" ] || refuse "the asset branches on origin changed since the plan"
 check_refs "$assets"
 
-commit=$(echo "chore(assets): consolidate $folders asset branches into one folder per ticket" | git -C "$clone" commit-tree "$root")
+command_line() {
+  local line
+  line=$(printf '%q ' "$@")
+  echo "  ${line% }"
+}
+
+delete_push=(git -C "$clone" push -q --atomic "$origin" "${leases[@]}" "${deletes[@]}")
+create_push=(git -C "$clone" push -q "$origin" --force-with-lease=refs/heads/assets: "$commit:refs/heads/assets")
 if git -C "$clone" push -q --atomic "$origin" "${leases[@]}" --force-with-lease=refs/heads/assets: "${deletes[@]}" "$commit:refs/heads/assets" 2>"$scratch/push.err"; then
   echo "pushed in one atomic push: ${#deletes[@]} refs deleted, refs/heads/assets created at $commit"
 else
   echo "origin refused the atomic push: deleting the old refs, then creating assets"
   awk '{ print "  " $0 }' "$scratch/push.err"
   keep_scratch=1
-  git -C "$clone" push -q --atomic "$origin" "${leases[@]}" "${deletes[@]}"
+  "${delete_push[@]}" || {
+    echo "deleting the old refs failed: no ref moved, the links already name assets/<n>/, and $clone is kept; recover with:" >&2
+    command_line "${delete_push[@]}" >&2
+    command_line "${create_push[@]}" >&2
+    exit 1
+  }
   echo "deleted ${#deletes[@]} refs"
-  git -C "$clone" push -q "$origin" --force-with-lease=refs/heads/assets: "$commit:refs/heads/assets" ||
-    { echo "creating assets failed: push $commit from $clone to refs/heads/assets by hand" >&2; exit 1; }
+  "${create_push[@]}" || {
+    echo "creating assets failed: the old refs are gone and $commit lives only in $clone, which is kept; recover with:" >&2
+    command_line "${create_push[@]}" >&2
+    exit 1
+  }
   keep_scratch=0
   echo "created refs/heads/assets at $commit"
 fi
