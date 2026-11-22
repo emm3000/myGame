@@ -3,6 +3,7 @@ import type { DomainError, MemoryTerms, Result, TownCatalog } from '@mygame/doma
 import type { Context } from 'hono'
 import type { LessonLibrary } from '#content/application/ports/LessonLibrary'
 import { respondRefusal } from '#platform/infrastructure/http/respondRefusal'
+import { gatherTownView } from '../../application/gatherTownView'
 import type { TownReading } from '../../application/TownReading'
 import { presentTownOverview } from './presentTownOverview'
 
@@ -20,7 +21,11 @@ export const respondTownReading = (
   if (!reading.ok) {
     return respondRefusal(c, reading.error)
   }
-  const overview = presentTownOverview(reading.value, townCatalog, lessons, memoryTerms)
+  const view = gatherTownView(reading.value, townCatalog)
+  if (!view.ok) {
+    return respondRefusal(c, view.error)
+  }
+  const overview = presentTownOverview(reading.value, view.value, townCatalog, lessons, memoryTerms)
   if (!overview.ok) {
     return respondRefusal(c, overview.error)
   }
