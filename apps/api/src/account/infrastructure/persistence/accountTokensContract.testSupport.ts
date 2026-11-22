@@ -1,6 +1,5 @@
-import { Instant, type PlayerId } from '@mygame/domain'
+import { type AccountToken, type AccountTokens, Instant, type PlayerId } from '@mygame/domain'
 import { describe, expect, it } from 'vitest'
-import type { AccountToken, AccountTokens } from '../../application/ports/AccountTokens'
 
 export type AccountTokensFixture = {
   readonly accountTokens: AccountTokens

@@ -1,3 +1,6 @@
+export { MemoryAccountTokens } from '#account/testing/MemoryAccountTokens'
+export { MemoryChromeProgressReader } from '#account/testing/MemoryChromeProgressReader'
+export { MemoryMailer } from '#account/testing/MemoryMailer'
 export { inMemoryBandStarts } from '#holdout/testing/inMemoryBandStarts'
 export { inMemoryPendingReviews } from '#learning/reviews/testing/inMemoryPendingReviews'
 export { inMemoryReviewLog } from '#learning/reviews/testing/inMemoryReviewLog'

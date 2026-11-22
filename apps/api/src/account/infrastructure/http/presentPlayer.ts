@@ -1,6 +1,5 @@
 import type { Player } from '@mygame/contracts'
-import type { ChromePhase } from '@mygame/domain'
-import type { StoredPlayer } from '../../application/ports/Accounts'
+import type { ChromePhase, StoredPlayer } from '@mygame/domain'
 import { presentScaffold } from './presentScaffold'
 
 export const presentPlayer = (stored: StoredPlayer, chromePhase: ChromePhase): Player => ({

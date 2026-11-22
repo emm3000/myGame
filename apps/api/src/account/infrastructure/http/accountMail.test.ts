@@ -1,3 +1,4 @@
+import type { Mail, MailDelivery, Mailer } from '@mygame/domain'
 import { Client } from 'pg'
 import { afterAll, beforeAll, beforeEach, describe, expect, it } from 'vitest'
 import { apiPackagePath } from '#apiPackagePath.testSupport'
@@ -7,7 +8,6 @@ import { mailEnvironment } from '#composeServer.testSupport'
 import { fixedClock } from '#fixedClock.testSupport'
 import { pendingWorkCap } from '#platform/infrastructure/vercel/VercelAfterResponse'
 import { truncatePlayerTables } from '#truncatePlayerTables.testSupport'
-import type { Mail, MailDelivery, Mailer } from '../../application/ports/Mailer'
 import { deleteMailTo, deliveredTo } from '../smtp/mailpit.testSupport'
 
 const contentDirectory = apiPackagePath('content/')

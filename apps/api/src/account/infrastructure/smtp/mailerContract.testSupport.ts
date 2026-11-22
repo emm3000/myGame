@@ -1,5 +1,5 @@
+import type { Mail, Mailer } from '@mygame/domain'
 import { describe, expect, it } from 'vitest'
-import type { Mail, Mailer } from '../../application/ports/Mailer'
 
 export type MailerFixture = {
   readonly mailer: Mailer

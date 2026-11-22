@@ -1,4 +1,5 @@
-import type { Instant, PlayerId } from '@mygame/domain'
+import type { PlayerId } from '#player/PlayerId'
+import type { Instant } from '#time/Instant'
 
 export type AccountTokenKind = 'reset' | 'verify'
 

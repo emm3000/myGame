@@ -1,4 +1,6 @@
-import type { Instant, LessonId, PlayerId, WordId } from '@mygame/domain'
+import type { LessonId, WordId } from '#learning/Lesson'
+import type { PlayerId } from '#player/PlayerId'
+import type { Instant } from '#time/Instant'
 
 export type ChromeProgress = {
   readonly cards: ReadonlyArray<{ readonly wordId: WordId }>

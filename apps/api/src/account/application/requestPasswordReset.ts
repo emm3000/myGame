@@ -1,17 +1,18 @@
 import {
+  type AccountStores,
   type AfterResponse,
   type Clock,
   type FailureSink,
+  type MailCopy,
+  type MailDelivery,
+  type Mailer,
+  type MailRecipient,
   ok,
+  type SessionTokens,
   thrownCauseOf,
   type UnitOfWork,
 } from '@mygame/domain'
 import { issueAccountToken } from './issueAccountToken'
-import type { MailRecipient } from './MailRecipient'
-import type { AccountStores } from './ports/AccountStores'
-import type { MailCopy } from './ports/MailCopy'
-import type { MailDelivery, Mailer } from './ports/Mailer'
-import type { SessionTokens } from './ports/SessionTokens'
 
 export type RequestPasswordResetDependencies = {
   readonly unitOfWork: UnitOfWork<AccountStores>

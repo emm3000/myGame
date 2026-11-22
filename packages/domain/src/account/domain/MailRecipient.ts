@@ -1,3 +1,3 @@
-import type { StoredPlayer } from './ports/Accounts'
+import type { StoredPlayer } from './Accounts'
 
 export type MailRecipient = Pick<StoredPlayer, 'email' | 'scaffold'>

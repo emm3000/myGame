@@ -1,4 +1,4 @@
-import type { AccountTokenKind } from './ports/AccountTokens'
+import type { AccountTokenKind } from './AccountTokens'
 
 const redeemableAgain: Readonly<Record<AccountTokenKind, boolean>> = {
   reset: false,

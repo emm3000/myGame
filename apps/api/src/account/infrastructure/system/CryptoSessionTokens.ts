@@ -1,5 +1,5 @@
 import { randomBytes } from 'node:crypto'
-import type { SessionTokens } from '../../application/ports/SessionTokens'
+import type { SessionTokens } from '@mygame/domain'
 
 const tokenBytes = 32
 

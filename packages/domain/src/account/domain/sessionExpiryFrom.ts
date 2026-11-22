@@ -1,4 +1,4 @@
-import { Instant } from '@mygame/domain'
+import { Instant } from '#time/Instant'
 
 export const sessionLifetimeSeconds = 30 * 24 * 60 * 60
 

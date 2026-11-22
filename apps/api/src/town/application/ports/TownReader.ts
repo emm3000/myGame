@@ -7,10 +7,10 @@ import type {
   PlacementScore,
   PlayerId,
   Result,
+  StoredScaffold,
   TipKind,
   Town,
 } from '@mygame/domain'
-import type { StoredScaffold } from '#account/application/ports/StoredScaffold'
 
 export type TownWithSchool = StoredScaffold & {
   readonly town: Town

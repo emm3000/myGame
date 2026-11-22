@@ -1,27 +1,27 @@
 import { join } from 'node:path'
 import type { OpenAPIHono } from '@hono/zod-openapi'
 import {
+  type Accounts,
   type AfterResponse,
   type AfterResponseDrain,
+  type ChromeProgressReader,
   type CleanUpReader,
   type Clock,
   defaultMemoryTerms,
   type FailureSink,
   type IdGenerator,
+  type MailCopy,
+  type Mailer,
   type MemoryTerms,
+  type PasswordHasher,
   type RandomSource,
   type RegionMapReader,
+  type Sessions,
+  type SessionTokens,
   type TownCatalog,
   type UnitOfWork,
 } from '@mygame/domain'
 import { waitUntil } from '@vercel/functions'
-import type { Accounts } from '#account/application/ports/Accounts'
-import type { ChromeProgressReader } from '#account/application/ports/ChromeProgressReader'
-import type { MailCopy } from '#account/application/ports/MailCopy'
-import type { Mailer } from '#account/application/ports/Mailer'
-import type { PasswordHasher } from '#account/application/ports/PasswordHasher'
-import type { Sessions } from '#account/application/ports/Sessions'
-import type { SessionTokens } from '#account/application/ports/SessionTokens'
 import { CatalogMailCopy } from '#account/infrastructure/catalog/CatalogMailCopy'
 import { DrizzleAccounts } from '#account/infrastructure/persistence/DrizzleAccounts'
 import { DrizzleChromeProgressReader } from '#account/infrastructure/persistence/DrizzleChromeProgressReader'

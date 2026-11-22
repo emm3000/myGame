@@ -1,5 +1,5 @@
-import { Instant } from '@mygame/domain'
 import { describe, expect, it } from 'vitest'
+import { Instant } from '#time/Instant'
 import { accountTokenExpiryFrom } from './accountTokenExpiryFrom'
 
 const issuedAt = Instant.fromEpochMilliseconds(Date.parse('2026-09-28T08:00:00Z'))

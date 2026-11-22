@@ -1,6 +1,6 @@
 import { createServer, type Server, type Socket } from 'node:net'
 import { describe, expect, it } from 'vitest'
-import { mailerContract, mailerContractRecipients } from '../memory/mailerContract.testSupport'
+import { mailerContract, mailerContractRecipients } from './mailerContract.testSupport'
 import { deleteMailTo, deliveredTo } from './mailpit.testSupport'
 import { SmtpMailer } from './SmtpMailer'
 

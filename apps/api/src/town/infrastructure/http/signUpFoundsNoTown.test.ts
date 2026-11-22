@@ -1,4 +1,5 @@
 import { PlayerSchema } from '@mygame/contracts'
+import { MemoryMailer } from '@mygame/domain/testing'
 import { Client } from 'pg'
 import { afterAll, beforeAll, beforeEach, describe, expect, it } from 'vitest'
 import {
@@ -11,7 +12,6 @@ import {
   post,
   truncateAccounts,
 } from '#account/infrastructure/http/accountRoutes.testSupport'
-import { MemoryMailer } from '#account/infrastructure/memory/MemoryMailer'
 import { createApp } from '#app'
 import { type ComposedServer, composeServer } from '#composeServer'
 import { mailEnvironment } from '#composeServer.testSupport'

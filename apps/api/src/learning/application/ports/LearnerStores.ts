@@ -1,5 +1,4 @@
-import type { CardRepository, PlacementRepository } from '@mygame/domain'
-import type { Accounts } from '#account/application/ports/Accounts'
+import type { Accounts, CardRepository, PlacementRepository } from '@mygame/domain'
 
 export type LearnerStores = {
   readonly accounts: Accounts

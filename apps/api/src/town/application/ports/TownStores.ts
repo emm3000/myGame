@@ -1,4 +1,5 @@
 import type {
+  Accounts,
   BandStartRepository,
   CardRepository,
   CleanUpRepository,
@@ -11,7 +12,6 @@ import type {
   TownNews,
   TownRepository,
 } from '@mygame/domain'
-import type { Accounts } from '#account/application/ports/Accounts'
 import type { GuidanceDismissals } from './GuidanceDismissals'
 import type { SeenTips } from './SeenTips'
 import type { TownNewsReader } from './TownNewsReader'

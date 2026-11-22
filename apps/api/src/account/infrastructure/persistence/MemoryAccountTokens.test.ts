@@ -1,5 +1,5 @@
+import { MemoryAccountTokens } from '@mygame/domain/testing'
 import { accountTokensContract } from './accountTokensContract.testSupport'
-import { MemoryAccountTokens } from './MemoryAccountTokens'
 
 accountTokensContract('MemoryAccountTokens', async () => {
   const accountTokens = new MemoryAccountTokens()

@@ -1,4 +1,4 @@
-import type { Scaffold } from '@mygame/domain'
+import type { Scaffold } from '#learning/scaffold/Scaffold'
 
 export type StoredScaffold = {
   readonly scaffold: Scaffold

@@ -1,5 +1,12 @@
-import { type Clock, err, ok, type Refusal, type Result, type UnitOfWork } from '@mygame/domain'
-import type { AccountStores } from './ports/AccountStores'
+import {
+  type AccountStores,
+  type Clock,
+  err,
+  ok,
+  type Refusal,
+  type Result,
+  type UnitOfWork,
+} from '@mygame/domain'
 
 export type VerifyEmailDependencies = {
   readonly unitOfWork: UnitOfWork<AccountStores>

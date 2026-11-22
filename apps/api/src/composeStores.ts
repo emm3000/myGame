@@ -1,4 +1,4 @@
-import type { AccountStores } from '#account/application/ports/AccountStores'
+import type { AccountStores } from '@mygame/domain'
 import { DrizzleAccounts } from '#account/infrastructure/persistence/DrizzleAccounts'
 import { DrizzleAccountTokens } from '#account/infrastructure/persistence/DrizzleAccountTokens'
 import { DrizzleSessions } from '#account/infrastructure/persistence/DrizzleSessions'

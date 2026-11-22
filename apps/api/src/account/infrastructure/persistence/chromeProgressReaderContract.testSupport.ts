@@ -1,6 +1,11 @@
-import { Instant, type LessonId, type PlayerId, type WordId } from '@mygame/domain'
+import {
+  type ChromeProgressReader,
+  Instant,
+  type LessonId,
+  type PlayerId,
+  type WordId,
+} from '@mygame/domain'
 import { describe, expect, it } from 'vitest'
-import type { ChromeProgressReader } from '../../application/ports/ChromeProgressReader'
 
 export type ChromeProgressFixture = {
   readonly progress: ChromeProgressReader

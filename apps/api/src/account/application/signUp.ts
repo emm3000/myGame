@@ -1,19 +1,19 @@
 import {
+  type AccountStores,
   type Clock,
   err,
   type IdGenerator,
   ok,
+  type PasswordHasher,
   type Refusal,
   type Result,
   type Scaffold,
+  type SessionTokens,
+  type SignedIn,
   type UnitOfWork,
 } from '@mygame/domain'
 import { issueAccountToken } from './issueAccountToken'
 import { openSession } from './openSession'
-import type { AccountStores } from './ports/AccountStores'
-import type { PasswordHasher } from './ports/PasswordHasher'
-import type { SessionTokens } from './ports/SessionTokens'
-import type { SignedIn } from './SignedIn'
 import { type SendVerificationMailDependencies, sendVerificationMail } from './sendVerificationMail'
 
 export type SignUpDependencies = SendVerificationMailDependencies & {

@@ -1,5 +1,5 @@
 import type { NativeSession } from '@mygame/contracts'
-import type { Refusal, Result } from '@mygame/domain'
+import type { Refusal, Result, SignedIn } from '@mygame/domain'
 import type { Context } from 'hono'
 import type { ContentfulStatusCode } from 'hono/utils/http-status'
 import { respondRefusal } from '#platform/infrastructure/http/respondRefusal'
@@ -7,7 +7,6 @@ import {
   type ReadChromePhaseDependencies,
   readChromePhase,
 } from '../../application/readChromePhase'
-import type { SignedIn } from '../../application/SignedIn'
 import { presentPlayer } from './presentPlayer'
 import { writeSessionCookie } from './sessionCookie'
 

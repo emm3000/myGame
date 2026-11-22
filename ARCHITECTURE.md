@@ -28,7 +28,7 @@ One row for each folder directly under `apps/api/src` or `packages/domain/src`: 
 |---|---|---|
 | `platform` | api, domain | What holds no game word: the HTTP kernel, the Postgres kernel, the system clock and ids, the failure sink and the deferred work. In the domain, `platform/domain/` holds the ports no feature owns (`Clock`, `IdGenerator`, `RandomSource`, `UnitOfWork`, `FailureSink`, `AfterResponse`, `AfterResponseDrain`), `Refusal` and `thrownCauseOf`, and `platform/testing/` the fakes `firstItemsRandom`, `sequentialIds` and `inMemoryUnitOfWork`. |
 | `content` | api | The JSON catalogs of the town and the lessons, and the content gate: the checks the shipped content passes. |
-| `account` | api | Players, sessions, account tokens and mail, the scaffold choice and the chrome phase. |
+| `account` | api, domain | Players, sessions, account tokens and mail, the scaffold choice and the chrome phase. In the domain, `account/domain/` holds the ports (`Accounts`, `AccountTokens`, `Sessions`, `AccountStores`, `ChromeProgressReader`, `Mailer`, `MailCopy`, `PasswordHasher`, `SessionTokens`, `StoredScaffold`), the types `MailRecipient` and `SignedIn` and the pure rules `accountTokenExpiryFrom`, `sessionExpiryFrom` and `isRedeemableAgain`, and `account/testing/` the fakes `MemoryAccountTokens`, `MemoryChromeProgressReader` and `MemoryMailer`. |
 | `town` | api, domain | The holding: founding, resolve, the overview. In the domain, the root keeps the name, label and address (`TownName`, `townLabelOf`, `TownAddress`), the terrain and site (`Terrain`, `SiteAddress`), the people (`derivePeople`), the skills the player earns (`TownSkill`, `earnTownSkill`), the settings (`TownSettings`), Town News (`TownEvent`) and the season percents (`townSeasonAt`, `seasonPercentsAt`); the sub-areas are `resources` (stocks, storage, accrual), `building` (building work, the waiting list), `hiring` (orders and hires), `jobs` (jobs, clean-ups, waste, the region map), `school` (the lesson slot and its lessons) and `guidance` (the next step, the goal, tips). In the api, `news` resolves Town News. |
 | `learning` | api, domain | Reviews, hints, frames, retention and the curriculum's shape; in the domain, the lesson and the held card at its root and the sub-areas `reviews` (pending reviews, grading, due cards), `frames` (word frames and texts), `retention` (retained and stable words, skill levels), `curriculum` (the bands, their words and headwords) and `scaffold` (support text, glosses, the chrome phase). |
 | `holdout` | api, domain | Band starts and the draw of their held-out words, their holdout checks and released lessons. |
@@ -69,6 +69,7 @@ listenPortOf.ts  writeOpenApiDocument.ts                          the api's own 
   infrastructure/persistence/  Drizzle adapters, the feature's tables, row mappers
   infrastructure/memory/       in-memory adapters of application/ports/, each port's contract suite, and the test that runs a domain port's suite on its fake
   infrastructure/json/         the JSON catalogs
+  infrastructure/catalog/      the mail copy, read from the message catalog
   infrastructure/smtp/         the mailer
   infrastructure/system/       the password hasher and the session tokens
   gate/                        the content gate (content): the checks the shipped content passes, one file per check in checks/ and the readings they share beside them; no request, port or adapter reaches it, only its tests
@@ -101,7 +102,7 @@ listenPortOf.ts  writeOpenApiDocument.ts                          the api's own 
 | Catalog builder | `infrastructure/json/` | `json` + catalog + `Of` | `jsonLessonCatalogOf.ts` |
 | Tables | `infrastructure/persistence/` | feature + `Tables` | `townTables.ts` |
 | Row mapper | `infrastructure/persistence/` | noun + `FromRow`, noun + `Columns` | `lessonSlotFromRow.ts` |
-| Contract suite | `infrastructure/memory/` | port + `Contract.testSupport.ts` | `townRepositoryContract.testSupport.ts` |
+| Contract suite | `infrastructure/memory/`; once its feature has moved (ADR 054), beside the real adapter it proves, `infrastructure/persistence/` or `infrastructure/smtp/` | port + `Contract.testSupport.ts` | `townRepositoryContract.testSupport.ts`, `mailerContract.testSupport.ts` |
 | Test | beside its subject | subject + `.test.ts` | `jobsRoutes.test.ts` |
 
 `*Of` is a pure, synchronous derivation and nothing else: a function that returns a promise is named by a verb, and a function that writes is never named as a reading.

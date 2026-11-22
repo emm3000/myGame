@@ -1,6 +1,5 @@
 import { en, es } from '@mygame/catalog'
-import type { Scaffold } from '@mygame/domain'
-import type { MailCopy, MailWording } from '../../application/ports/MailCopy'
+import type { MailCopy, MailWording, Scaffold } from '@mygame/domain'
 
 const copyFor = (scaffold: Scaffold): typeof en | typeof es => (scaffold === 'none' ? en : es)
 
