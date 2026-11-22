@@ -1,6 +1,5 @@
-import { type Clock, err, ok, type Result } from '@mygame/domain'
+import { type Clock, err, ok, type Refusal, type Result } from '@mygame/domain'
 import type { Transaction } from '#platform/application/ports/Transaction'
-import type { Refusal } from '#platform/application/Refusal'
 import type { AccountStores } from './ports/AccountStores'
 import type { PasswordHasher } from './ports/PasswordHasher'
 

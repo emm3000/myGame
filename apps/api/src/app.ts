@@ -1,4 +1,5 @@
 import { OpenAPIHono } from '@hono/zod-openapi'
+import type { FailureSink } from '@mygame/domain'
 import {
   type AccountRouteDependencies,
   accountRoutes,
@@ -12,7 +13,6 @@ import {
   type PlacementRouteDependencies,
   placementRoutes,
 } from '#placement/infrastructure/http/placementRoutes'
-import type { FailureSink } from '#platform/application/ports/FailureSink'
 import { healthRoute } from '#platform/infrastructure/http/healthRoute'
 import { reportServerFailures } from '#platform/infrastructure/http/reportServerFailures'
 import {

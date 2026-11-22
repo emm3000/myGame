@@ -1,9 +1,8 @@
-import { ok } from '@mygame/domain'
+import { ok, thrownCauseOf } from '@mygame/domain'
 import { sql } from 'drizzle-orm'
 import { Client } from 'pg'
 import { afterAll, beforeAll, describe, expect, it } from 'vitest'
 import type { Transaction } from '../../application/ports/Transaction'
-import { thrownCauseOf } from '../../thrownCauseOf'
 import { connectPostgres, type PostgresConnection, type PostgresSession } from './connectPostgres'
 import { postgresTransaction } from './postgresTransaction'
 

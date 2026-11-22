@@ -1,7 +1,7 @@
 import type { Band } from '#learning/curriculum/Band'
 import { BANDS, laterBandOf } from '#learning/curriculum/bands'
 import type { BandCatalog } from '#learning/curriculum/ports/BandCatalog'
-import type { RandomSource } from '#ports/RandomSource'
+import type { RandomSource } from '#platform/domain/RandomSource'
 import type { PlacementSample } from './Placement'
 import type { PlacementWordCatalog } from './ports/PlacementWordCatalog'
 

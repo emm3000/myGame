@@ -1,5 +1,5 @@
+import type { FailureSink } from '@mygame/domain'
 import { assert, describe, expect, it } from 'vitest'
-import type { FailureSink } from '../../application/ports/FailureSink'
 import { pendingWorkCap, VercelAfterResponse } from './VercelAfterResponse'
 
 type HeldWork = {

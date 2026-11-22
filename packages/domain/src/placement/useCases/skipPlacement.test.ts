@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest'
 import { inMemoryBandStarts, type OwnedBandStart } from '#holdout/testing/inMemoryBandStarts'
-import type { Clock } from '#ports/Clock'
+import type { Clock } from '#platform/domain/Clock'
 import { Instant } from '#time/Instant'
 import { inMemoryPlacements, type OwnedPlacement } from '../testing/inMemoryPlacements'
 import { placementContentOf, placementWordsOfBand } from '../testing/placementWords'

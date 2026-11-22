@@ -1,6 +1,6 @@
+import type { Refusal } from '@mygame/domain'
 import { Hono } from 'hono'
 import { describe, expect, it } from 'vitest'
-import type { Refusal } from '../../application/Refusal'
 import { respondRefusal } from './respondRefusal'
 
 const answerOf = async (refusal: Refusal): Promise<Response> => {

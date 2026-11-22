@@ -1,5 +1,5 @@
 import { assert, describe, expect, it } from 'vitest'
-import type { Clock } from '#ports/Clock'
+import type { Clock } from '#platform/domain/Clock'
 import { Instant } from '#time/Instant'
 import { derivePeople } from '../../derivePeople'
 import { inMemoryEarnedSkills } from '../../testing/inMemoryEarnedSkills'

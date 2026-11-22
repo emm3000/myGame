@@ -1,6 +1,6 @@
 import type { DomainError } from '#DomainError'
+import type { Clock } from '#platform/domain/Clock'
 import type { PlayerId } from '#player/PlayerId'
-import type { Clock } from '#ports/Clock'
 import { ok, type Result } from '#Result'
 import type { TownCatalog } from '../../ports/TownCatalog'
 import type { TownNews } from '../../ports/TownNews'

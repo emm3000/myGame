@@ -1,7 +1,7 @@
 import { assert, describe, expect, it } from 'vitest'
 import { inMemoryBandStarts, type OwnedBandStart } from '#holdout/testing/inMemoryBandStarts'
-import type { Clock } from '#ports/Clock'
-import { firstItemsRandom } from '#ports/testing/firstItemsRandom'
+import type { Clock } from '#platform/domain/Clock'
+import { firstItemsRandom } from '#platform/testing/firstItemsRandom'
 import { Instant } from '#time/Instant'
 import { inMemoryPlacements, type OwnedPlacement } from '../testing/inMemoryPlacements'
 import {

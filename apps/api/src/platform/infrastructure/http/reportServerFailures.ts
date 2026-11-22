@@ -1,6 +1,5 @@
+import { type FailureSink, thrownCauseOf } from '@mygame/domain'
 import type { Context, MiddlewareHandler } from 'hono'
-import type { FailureSink } from '../../application/ports/FailureSink'
-import { thrownCauseOf } from '../../thrownCauseOf'
 
 const lowestServerFailureStatus = 500
 

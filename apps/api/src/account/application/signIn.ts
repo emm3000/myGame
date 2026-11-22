@@ -1,5 +1,4 @@
-import { type Clock, err, ok, type Result } from '@mygame/domain'
-import type { Refusal } from '#platform/application/Refusal'
+import { type Clock, err, ok, type Refusal, type Result } from '@mygame/domain'
 import { openSession } from './openSession'
 import type { Accounts } from './ports/Accounts'
 import type { PasswordHasher } from './ports/PasswordHasher'

@@ -1,9 +1,12 @@
 import { join } from 'node:path'
 import type { OpenAPIHono } from '@hono/zod-openapi'
 import {
+  type AfterResponse,
+  type AfterResponseDrain,
   type CleanUpReader,
   type Clock,
   defaultMemoryTerms,
+  type FailureSink,
   type IdGenerator,
   type MemoryTerms,
   type RandomSource,
@@ -28,9 +31,6 @@ import { JsonTownCatalog } from '#content/infrastructure/json/JsonTownCatalog'
 import { readJsonLessonLibrary } from '#content/infrastructure/json/readJsonLessonLibrary'
 import type { CardReader } from '#learning/application/ports/CardReader'
 import { DrizzleCardRepository } from '#learning/infrastructure/persistence/DrizzleCardRepository'
-import type { AfterResponse } from '#platform/application/ports/AfterResponse'
-import type { AfterResponseDrain } from '#platform/application/ports/AfterResponseDrain'
-import type { FailureSink } from '#platform/application/ports/FailureSink'
 import type { Transaction } from '#platform/application/ports/Transaction'
 import { connectPostgres } from '#platform/infrastructure/persistence/connectPostgres'
 import { postgresTransaction } from '#platform/infrastructure/persistence/postgresTransaction'

@@ -1,7 +1,9 @@
-import type { AfterResponse } from '../../application/ports/AfterResponse'
-import type { AfterResponseDrain } from '../../application/ports/AfterResponseDrain'
-import type { FailureSink } from '../../application/ports/FailureSink'
-import { thrownCauseOf } from '../../thrownCauseOf'
+import {
+  type AfterResponse,
+  type AfterResponseDrain,
+  type FailureSink,
+  thrownCauseOf,
+} from '@mygame/domain'
 
 export const pendingWorkCap = 5
 

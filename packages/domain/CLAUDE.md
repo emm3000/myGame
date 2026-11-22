@@ -7,12 +7,12 @@ The rules: `.claude/rules/architecture.md`, `typescript-style.md`, `principles.m
 ## Commands
 
 - `pnpm --filter @mygame/domain typecheck` — `tsc --noEmit` over `src` and the Vitest config.
-- `pnpm --filter @mygame/domain test` — Vitest, runs `src/**/*.test.ts`. The in-memory ports and the fixtures the tests pass live in each feature's `testing/`, and the fakes of the ports no feature owns in `ports/testing/`.
+- `pnpm --filter @mygame/domain test` — Vitest, runs `src/**/*.test.ts`. The in-memory ports and the fixtures the tests pass live in each feature's `testing/`, and the fakes of the ports no feature owns in `platform/testing/`.
 - `pnpm gate` from the repo root before every push.
 
 ## Gotchas
 
-- Nothing throws, tests included: a test narrows a `Result` with Vitest's `assert(result.ok)`. The one `throw` in `src` is `ports/testing/firstItemsRandom.ts`, which refuses an oversized sample as the api's `CryptoRandomSource` does.
+- Nothing throws, tests included: a test narrows a `Result` with Vitest's `assert(result.ok)`. The one `throw` in `src` is `platform/testing/firstItemsRandom.ts`, which refuses an oversized sample as the api's `CryptoRandomSource` does.
 - Randomness comes only through the `RandomSource` port, never `Math.random()`. `sampleOf(items, count)` takes a count no larger than `items`, so every caller caps it.
 - `memory/` is a port of py-fsrs 6.3.2 at commit `9446cb06`, with no fuzz, and keeps its arithmetic: whole days floored, a review interval rounded half to even as Python's `round` (2.5 days is 2, 3.5 is 4), every `e ** x` written `Math.E ** x`, never `Math.exp`.
 - `reviewMemoryCard` never checks the due instant: a use case that rates a card first refuses one not yet due, through `admitDueReview`.

@@ -1,7 +1,7 @@
 import type { ApiError, ApiErrorKind } from '@mygame/contracts'
+import type { Refusal } from '@mygame/domain'
 import type { Context } from 'hono'
 import type { ContentfulStatusCode } from 'hono/utils/http-status'
-import type { Refusal } from '../../application/Refusal'
 import { isoOf } from './isoOf'
 
 declare module 'hono' {
