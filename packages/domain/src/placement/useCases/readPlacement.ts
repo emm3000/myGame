@@ -2,10 +2,10 @@ import type { DomainError } from '#DomainError'
 import type { Scaffold } from '#learning/scaffold/Scaffold'
 import type { PlayerId } from '#player/PlayerId'
 import { ok, type Result } from '#Result'
-import { isPlacementOffered } from '../isPlacementOffered'
-import type { PlacementView } from '../PlacementView'
-import { placementViewOf } from '../placementViewOf'
-import type { PlacementOfferDependencies } from '../services/admitPlacementOffer'
+import type { PlacementOfferDependencies } from '../application/admitPlacementOffer'
+import { isPlacementOffered } from '../domain/isPlacementOffered'
+import type { PlacementView } from '../domain/PlacementView'
+import { placementViewOf } from '../domain/placementViewOf'
 
 export type ReadPlacementQuery = {
   readonly playerId: PlayerId

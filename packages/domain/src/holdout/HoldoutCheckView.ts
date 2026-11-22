@@ -1,5 +1,5 @@
 import type { Band } from '#learning/curriculum/Band'
-import type { PlacementItem } from '#placement/PlacementView'
+import type { PlacementItem } from '#placement/domain/PlacementView'
 import type { HoldoutCheckWeek } from './HoldoutCheckWeek'
 
 export type HoldoutCheckView =

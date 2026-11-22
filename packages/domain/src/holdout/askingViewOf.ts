@@ -1,7 +1,7 @@
 import type { Band } from '#learning/curriculum/Band'
 import type { Scaffold } from '#learning/scaffold/Scaffold'
-import { placementItemsOf } from '#placement/placementItemsOf'
-import type { PlacementWordCatalog } from '#placement/ports/PlacementWordCatalog'
+import type { PlacementWordCatalog } from '#placement/domain/PlacementWordCatalog'
+import { placementItemsOf } from '#placement/domain/placementItemsOf'
 import type { BegunHoldoutCheck } from './HoldoutCheck'
 import type { HoldoutCheckView } from './HoldoutCheckView'
 

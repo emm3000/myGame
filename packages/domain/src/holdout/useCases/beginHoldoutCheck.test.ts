@@ -1,7 +1,7 @@
 import { assert, describe, expect, it } from 'vitest'
 import { inMemoryLessons } from '#learning/curriculum/testing/inMemoryLessons'
 import { inMemoryCards, type OwnedCard } from '#learning/testing/inMemoryCards'
-import type { PlacementWord } from '#placement/PlacementWord'
+import type { PlacementWord } from '#placement/domain/PlacementWord'
 import { inMemoryPlacementWords } from '#placement/testing/placementWords'
 import type { RandomSource } from '#platform/domain/RandomSource'
 import { firstItemsRandom } from '#platform/testing/firstItemsRandom'

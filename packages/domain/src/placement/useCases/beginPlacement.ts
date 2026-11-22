@@ -3,13 +3,13 @@ import type { Clock } from '#platform/domain/Clock'
 import type { RandomSource } from '#platform/domain/RandomSource'
 import type { PlayerId } from '#player/PlayerId'
 import { ok, type Result } from '#Result'
-import type { TakenPlacement } from '../Placement'
-import { placementSamplesDrawn } from '../placementSamplesDrawn'
-import type { PlacementRepository } from '../ports/PlacementRepository'
 import {
   admitPlacementOffer,
   type PlacementOfferDependencies,
-} from '../services/admitPlacementOffer'
+} from '../application/admitPlacementOffer'
+import type { TakenPlacement } from '../domain/Placement'
+import type { PlacementRepository } from '../domain/PlacementRepository'
+import { placementSamplesDrawn } from '../domain/placementSamplesDrawn'
 
 export type BeginPlacementCommand = {
   readonly playerId: PlayerId

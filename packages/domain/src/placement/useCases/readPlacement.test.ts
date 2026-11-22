@@ -2,7 +2,7 @@ import { assert, describe, expect, it } from 'vitest'
 import type { BandStart } from '#holdout/BandStart'
 import { inMemoryBandStarts, type OwnedBandStart } from '#holdout/testing/inMemoryBandStarts'
 import { Instant } from '#time/Instant'
-import type { PlacementScore, TakenPlacement } from '../Placement'
+import type { PlacementScore, TakenPlacement } from '../domain/Placement'
 import { inMemoryPlacements, type OwnedPlacement } from '../testing/inMemoryPlacements'
 import {
   type PlacementShelf,

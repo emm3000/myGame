@@ -3,8 +3,8 @@ import { Pool } from 'pg'
 import { afterAll, beforeAll } from 'vitest'
 import { players } from '#account/infrastructure/persistence/accountTables'
 import { truncatePlayerTables } from '#truncatePlayerTables.testSupport'
-import { placementRepositoryContract } from '../memory/placementRepositoryContract.testSupport'
 import { DrizzlePlacementRepository } from './DrizzlePlacementRepository'
+import { placementRepositoryContract } from './placementRepositoryContract.testSupport'
 
 function databaseUrl(): string {
   const url = process.env.DATABASE_URL
