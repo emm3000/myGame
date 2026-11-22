@@ -1,10 +1,9 @@
+import { inMemoryEarnedSkills, inMemoryTowns } from '@mygame/domain/testing'
 import { guidanceDismissalsContract } from './guidanceDismissalsContract.testSupport'
-import { MemoryEarnedSkillRepository } from './MemoryEarnedSkillRepository'
 import { MemoryGuidanceDismissals } from './MemoryGuidanceDismissals'
-import { MemoryTownRepository } from './MemoryTownRepository'
 
 guidanceDismissalsContract('MemoryGuidanceDismissals', async () => {
-  const towns = new MemoryTownRepository(new MemoryEarnedSkillRepository())
+  const towns = inMemoryTowns([], inMemoryEarnedSkills([]))
   const dismissals = new MemoryGuidanceDismissals(towns)
   return {
     dismissals,

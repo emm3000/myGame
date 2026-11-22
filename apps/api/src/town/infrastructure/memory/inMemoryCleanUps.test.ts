@@ -1,4 +1,4 @@
+import { inMemoryCleanUps } from '@mygame/domain/testing'
 import { cleanUpRepositoryContract } from './cleanUpRepositoryContract.testSupport'
-import { MemoryCleanUpRepository } from './MemoryCleanUpRepository'
 
-cleanUpRepositoryContract('MemoryCleanUpRepository', async () => new MemoryCleanUpRepository())
+cleanUpRepositoryContract('inMemoryCleanUps', async () => inMemoryCleanUps())

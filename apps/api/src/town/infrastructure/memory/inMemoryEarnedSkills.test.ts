@@ -1,7 +1,7 @@
+import { inMemoryEarnedSkills } from '@mygame/domain/testing'
 import { earnedSkillRepositoryContract } from './earnedSkillRepositoryContract.testSupport'
-import { MemoryEarnedSkillRepository } from './MemoryEarnedSkillRepository'
 
-earnedSkillRepositoryContract('MemoryEarnedSkillRepository', async () => ({
-  skills: new MemoryEarnedSkillRepository(),
+earnedSkillRepositoryContract('inMemoryEarnedSkills', async () => ({
+  skills: inMemoryEarnedSkills([]),
   registerPlayers: async () => {},
 }))

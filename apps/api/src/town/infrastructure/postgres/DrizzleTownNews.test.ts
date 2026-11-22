@@ -44,8 +44,10 @@ const rolledBack = new Error('rolled back on purpose')
 townNewsContract('DrizzleTownNews', async () => {
   await pool.query(truncatePlayerTables)
   const database = drizzle(pool)
+  const news = new DrizzleTownNews(database)
   return {
-    news: new DrizzleTownNews(database),
+    news,
+    reader: news,
     registerTowns,
     recordThenRollBack: async (townId, events) => {
       await database

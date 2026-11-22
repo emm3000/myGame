@@ -2,10 +2,9 @@ import { Instant, type TownEvent, type TownId, type TownNews } from '@mygame/dom
 import { describe, expect, it } from 'vitest'
 import type { TownNewsReader } from '../../application/ports/TownNewsReader'
 
-type TownNewsStore = TownNews & TownNewsReader
-
 export type TownNewsFixture = {
-  readonly news: TownNewsStore
+  readonly news: TownNews
+  readonly reader: TownNewsReader
   readonly registerTowns: (townIds: ReadonlyArray<TownId>) => Promise<void>
   readonly recordThenRollBack: (townId: TownId, events: ReadonlyArray<TownEvent>) => Promise<void>
 }
@@ -85,16 +84,16 @@ export const townNewsContract = (
 ): void => {
   describe(`${adapterName} as Town News`, () => {
     it('reads back every kind of town event', async () => {
-      const { news, registerTowns } = await arrange()
+      const { news, reader, registerTowns } = await arrange()
       await registerTowns([maple])
 
       await news.record(maple, everyKind)
 
-      expect(await news.newsOf(maple)).toEqual([...everyKind].reverse())
+      expect(await reader.newsOf(maple)).toEqual([...everyKind].reverse())
     })
 
     it("reads a town's events newest first", async () => {
-      const { news, registerTowns } = await arrange()
+      const { news, reader, registerTowns } = await arrange()
       await registerTowns([maple])
       await news.record(maple, [
         finishedHomes('09:00:00'),
@@ -102,7 +101,7 @@ export const townNewsContract = (
       ])
       await news.record(maple, [finishedHomes('07:00:00')])
 
-      expect(await news.newsOf(maple)).toEqual([
+      expect(await reader.newsOf(maple)).toEqual([
         { kind: 'becameCity', occurredAt: at('09:00:00') },
         finishedHomes('09:00:00'),
         finishedHomes('07:00:00'),
@@ -110,7 +109,7 @@ export const townNewsContract = (
     })
 
     it('reads the events after an instant', async () => {
-      const { news, registerTowns } = await arrange()
+      const { news, reader, registerTowns } = await arrange()
       await registerTowns([maple])
       await news.record(maple, [
         finishedHomes('07:00:00'),
@@ -118,29 +117,29 @@ export const townNewsContract = (
         finishedHomes('09:00:00'),
       ])
 
-      expect(await news.newsAfter(maple, at('08:00:00'))).toEqual([finishedHomes('09:00:00')])
+      expect(await reader.newsAfter(maple, at('08:00:00'))).toEqual([finishedHomes('09:00:00')])
     })
 
     it('reads only the events of the town asked', async () => {
-      const { news, registerTowns } = await arrange()
+      const { news, reader, registerTowns } = await arrange()
       await registerTowns([maple, birch])
       await news.record(birch, [finishedHomes('07:00:00')])
 
-      expect(await news.newsOf(maple)).toEqual([])
+      expect(await reader.newsOf(maple)).toEqual([])
     })
 
     it('keeps the latest 100 events of a town', async () => {
-      const { news, registerTowns } = await arrange()
+      const { news, reader, registerTowns } = await arrange()
       await registerTowns([maple])
       const events = Array.from({ length: 101 }, (_, minute) => finishedHomesAtMinute(minute))
 
       await news.record(maple, events)
 
-      expect(await news.newsOf(maple)).toEqual(events.slice(1).reverse())
+      expect(await reader.newsOf(maple)).toEqual(events.slice(1).reverse())
     })
 
     it('keeps the latest 100 events across records', async () => {
-      const { news, registerTowns } = await arrange()
+      const { news, reader, registerTowns } = await arrange()
       await registerTowns([maple])
       const events = Array.from({ length: 101 }, (_, minute) => finishedHomesAtMinute(minute))
 
@@ -148,17 +147,17 @@ export const townNewsContract = (
         await news.record(maple, [event])
       }
 
-      expect(await news.newsOf(maple)).toEqual(events.slice(1).reverse())
+      expect(await reader.newsOf(maple)).toEqual(events.slice(1).reverse())
     })
 
     it('rolls an event back with the transaction that wrote it', async () => {
-      const { news, registerTowns, recordThenRollBack } = await arrange()
+      const { news, reader, registerTowns, recordThenRollBack } = await arrange()
       await registerTowns([maple])
       await news.record(maple, [finishedHomes('07:00:00')])
 
       await recordThenRollBack(maple, [finishedHomes('08:00:00')])
 
-      expect(await news.newsOf(maple)).toEqual([finishedHomes('07:00:00')])
+      expect(await reader.newsOf(maple)).toEqual([finishedHomes('07:00:00')])
     })
   })
 }

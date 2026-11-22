@@ -1,7 +1,7 @@
-import { MemoryPlacementRepository } from './MemoryPlacementRepository'
+import { inMemoryPlacements } from '@mygame/domain/testing'
 import { placementRepositoryContract } from './placementRepositoryContract.testSupport'
 
-placementRepositoryContract('MemoryPlacementRepository', async () => ({
-  placements: new MemoryPlacementRepository(),
+placementRepositoryContract('inMemoryPlacements', async () => ({
+  placements: inMemoryPlacements([]),
   registerPlayers: async () => {},
 }))

@@ -1,8 +1,8 @@
-import { MemoryPendingReviewRepository } from './MemoryPendingReviewRepository'
+import { inMemoryPendingReviews } from '@mygame/domain/testing'
 import { pendingReviewRepositoryContract } from './pendingReviewRepositoryContract.testSupport'
 
-pendingReviewRepositoryContract('MemoryPendingReviewRepository', async () => ({
-  pendingReviews: new MemoryPendingReviewRepository(),
+pendingReviewRepositoryContract('inMemoryPendingReviews', async () => ({
+  pendingReviews: inMemoryPendingReviews(),
   registerPlayers: async () => {},
   registerCards: async () => {},
 }))

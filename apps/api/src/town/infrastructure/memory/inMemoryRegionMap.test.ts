@@ -1,7 +1,4 @@
-import { MemoryRegionMapReader } from './MemoryRegionMapReader'
+import { inMemoryRegionMap } from '@mygame/domain/testing'
 import { regionMapReaderContract } from './regionMapReaderContract.testSupport'
 
-regionMapReaderContract(
-  'MemoryRegionMapReader',
-  async (heldTowns) => new MemoryRegionMapReader(heldTowns),
-)
+regionMapReaderContract('inMemoryRegionMap', async (heldTowns) => inMemoryRegionMap(heldTowns))
