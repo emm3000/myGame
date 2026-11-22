@@ -5,7 +5,6 @@ import type { PlayerId } from '#player/PlayerId'
 import type { Clock } from '#ports/Clock'
 import { err, ok, type Result } from '#Result'
 import type { Instant } from '#time/Instant'
-import { derivePeople } from '../../derivePeople'
 import type { Hires } from '../../hiring/Hires'
 import type { TownCatalog } from '../../ports/TownCatalog'
 import type { TownNews } from '../../ports/TownNews'
@@ -20,6 +19,7 @@ import type { BuildingLevel } from '../BuildingLevel'
 import type { BuildingLevels } from '../BuildingLevels'
 import { buildPercentAt } from '../buildPercentAt'
 import { deriveBuildDurationSeconds } from '../deriveBuildDurationSeconds'
+import { derivePeopleForWork } from '../derivePeopleForWork'
 import { wordShortfallOf } from '../wordShortfallOf'
 
 export type StartBuildingWorkCommand = {
@@ -57,22 +57,14 @@ const staffWork = (
   next: BuildingLevel,
   catalog: TownCatalog,
 ): Result<void, DomainError> => {
-  const before = derivePeople(projected, hires, catalog)
-  if (!before.ok) {
-    return before
+  const people = derivePeopleForWork(projected, hires, next, catalog)
+  if (!people.ok) {
+    return people
   }
-  const after = derivePeople({ ...projected, [next.building]: next.level }, hires, catalog)
-  if (!after.ok) {
-    return after
-  }
-  if (after.value.free < 0) {
-    return err({
-      kind: 'NotEnoughPeople',
-      requiredPeople: after.value.occupied - before.value.occupied,
-      freePeople: before.value.free,
-    })
-  }
-  return ok(undefined)
+  const { needed, freeBefore, freeAfter } = people.value
+  return freeAfter < 0
+    ? err({ kind: 'NotEnoughPeople', requiredPeople: needed, freePeople: freeBefore })
+    : ok(undefined)
 }
 
 const meetWordNeed = (

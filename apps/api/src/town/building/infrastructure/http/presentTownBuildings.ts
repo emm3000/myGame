@@ -2,14 +2,12 @@ import type { TownOverview } from '@mygame/contracts'
 import {
   type BuildingKind,
   type BuildingLevel,
-  type BuildingLevels,
   buildingKinds,
   buildPercentAt,
   type DomainError,
   deriveBuildDurationSeconds,
-  derivePeople,
+  derivePeopleForWork,
   type HeldCard,
-  noHires,
   ok,
   type Result,
   type TownCatalog,
@@ -20,22 +18,6 @@ import type { TownReading } from '../../../application/TownReading'
 type BuildingState = TownOverview['buildings'][BuildingKind]
 
 type WordsNeeded = NonNullable<BuildingState['nextLevel']>['wordsNeeded']
-
-const peopleForWorkOf = (
-  projected: BuildingLevels,
-  next: BuildingLevel,
-  catalog: TownCatalog,
-): Result<number, DomainError> => {
-  const before = derivePeople(projected, noHires, catalog)
-  if (!before.ok) {
-    return before
-  }
-  const after = derivePeople({ ...projected, [next.building]: next.level }, noHires, catalog)
-  if (!after.ok) {
-    return after
-  }
-  return ok(after.value.occupied - before.value.occupied)
-}
 
 const wordsNeededOf = (
   next: BuildingLevel,
@@ -57,7 +39,7 @@ const nextLevelOf = (
   if (next?.building !== building) {
     return ok(null)
   }
-  const people = peopleForWorkOf(projected, next, catalog)
+  const people = derivePeopleForWork(projected, town.staffedHires, next, catalog)
   if (!people.ok) {
     return people
   }
@@ -65,7 +47,7 @@ const nextLevelOf = (
     level: next.level,
     cost: { ...next.cost },
     durationSeconds: deriveBuildDurationSeconds(next.durationSeconds, buildPercent),
-    people: people.value,
+    people: people.value.needed,
     wordsNeeded: wordsNeededOf(next, cards, catalog),
   })
 }
