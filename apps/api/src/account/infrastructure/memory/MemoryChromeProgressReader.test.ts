@@ -1,5 +1,5 @@
-import { chromeProgressContract } from './chromeProgressContract.testSupport'
-import { MemoryChromeProgress } from './MemoryChromeProgress'
+import { chromeProgressContract } from './chromeProgressReaderContract.testSupport'
+import { MemoryChromeProgress } from './MemoryChromeProgressReader'
 
 chromeProgressContract('MemoryChromeProgress', async () => {
   const progress = new MemoryChromeProgress()

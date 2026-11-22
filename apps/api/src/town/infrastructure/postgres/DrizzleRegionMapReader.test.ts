@@ -3,8 +3,8 @@ import { Pool } from 'pg'
 import { afterAll, assert, beforeAll } from 'vitest'
 import { players } from '#account/infrastructure/postgres/accountTables'
 import { truncatePlayerTables } from '#truncatePlayerTables.testSupport'
-import { regionMapContract } from '../memory/regionMapContract.testSupport'
-import { DrizzleRegionMap } from './DrizzleRegionMap'
+import { regionMapContract } from '../memory/regionMapReaderContract.testSupport'
+import { DrizzleRegionMap } from './DrizzleRegionMapReader'
 import { DrizzleTownRepository } from './DrizzleTownRepository'
 
 function databaseUrl(): string {

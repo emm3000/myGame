@@ -2,8 +2,8 @@ import { drizzle } from 'drizzle-orm/node-postgres'
 import { Pool } from 'pg'
 import { afterAll, beforeAll } from 'vitest'
 import { truncatePlayerTables } from '#truncatePlayerTables.testSupport'
-import { chromeProgressContract } from '../memory/chromeProgressContract.testSupport'
-import { DrizzleChromeProgress } from './DrizzleChromeProgress'
+import { chromeProgressContract } from '../memory/chromeProgressReaderContract.testSupport'
+import { DrizzleChromeProgress } from './DrizzleChromeProgressReader'
 
 function databaseUrl(): string {
   const url = process.env.DATABASE_URL

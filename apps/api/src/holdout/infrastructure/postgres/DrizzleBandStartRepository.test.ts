@@ -3,8 +3,8 @@ import { Pool } from 'pg'
 import { afterAll, beforeAll } from 'vitest'
 import { players } from '#account/infrastructure/postgres/accountTables'
 import { truncatePlayerTables } from '#truncatePlayerTables.testSupport'
-import { placementRepositoryContract } from '../memory/placementRepositoryContract.testSupport'
-import { DrizzlePlacements } from './DrizzlePlacements'
+import { bandStartRepositoryContract } from '../memory/bandStartRepositoryContract.testSupport'
+import { DrizzleBandStarts } from './DrizzleBandStartRepository'
 
 function databaseUrl(): string {
   const url = process.env.DATABASE_URL
@@ -43,7 +43,7 @@ const registerPlayers = async (playerIds: ReadonlyArray<string>): Promise<void> 
     )
 }
 
-placementRepositoryContract('DrizzlePlacements', async () => {
+bandStartRepositoryContract('DrizzleBandStarts', async () => {
   await pool.query(truncatePlayerTables)
-  return { placements: new DrizzlePlacements(drizzle(pool)), registerPlayers }
+  return { starts: new DrizzleBandStarts(drizzle(pool)), registerPlayers }
 })

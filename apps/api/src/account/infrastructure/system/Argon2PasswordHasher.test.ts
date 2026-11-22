@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import { Argon2Passwords } from './Argon2Passwords'
+import { Argon2Passwords } from './Argon2PasswordHasher'
 
 describe('Argon2Passwords', () => {
   it('hashes a password with Argon2id at 19 MiB, two passes and one lane', async () => {

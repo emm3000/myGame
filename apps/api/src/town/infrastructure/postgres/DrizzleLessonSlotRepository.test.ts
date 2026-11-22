@@ -3,7 +3,7 @@ import { Pool } from 'pg'
 import { afterAll, beforeAll } from 'vitest'
 import { truncatePlayerTables } from '#truncatePlayerTables.testSupport'
 import { lessonSlotRepositoryContract } from '../memory/lessonSlotRepositoryContract.testSupport'
-import { DrizzleLessonSlots } from './DrizzleLessonSlots'
+import { DrizzleLessonSlots } from './DrizzleLessonSlotRepository'
 
 function databaseUrl(): string {
   const url = process.env.DATABASE_URL

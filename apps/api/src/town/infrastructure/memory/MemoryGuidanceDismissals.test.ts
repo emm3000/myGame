@@ -1,5 +1,5 @@
 import { guidanceDismissalsContract } from './guidanceDismissalsContract.testSupport'
-import { MemoryEarnedSkills } from './MemoryEarnedSkills'
+import { MemoryEarnedSkills } from './MemoryEarnedSkillRepository'
 import { MemoryGuidanceDismissals } from './MemoryGuidanceDismissals'
 import { MemoryTownRepository } from './MemoryTownRepository'
 

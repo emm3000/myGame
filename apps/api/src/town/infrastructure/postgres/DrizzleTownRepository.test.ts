@@ -1,7 +1,7 @@
 import { drizzle } from 'drizzle-orm/node-postgres'
 import { afterAll, beforeAll } from 'vitest'
 import { townRepositoryContract } from '../memory/townRepositoryContract.testSupport'
-import { DrizzleEarnedSkills } from './DrizzleEarnedSkills'
+import { DrizzleEarnedSkills } from './DrizzleEarnedSkillRepository'
 import { DrizzleTownRepository } from './DrizzleTownRepository'
 import { townTestDatabase } from './townTestDatabase.testSupport'
 
