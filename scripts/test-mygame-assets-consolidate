@@ -54,6 +54,7 @@ if [ "$#" -eq 3 ] && [ "$1 $2" = "api --paginate" ] && file=$(endpoint_file "$3"
 fi
 if [ "$#" -eq 6 ] && [ "$1 $2 $3" = "api -X PATCH" ] && [ "$5" = --input ]; then
   echo "$4" >>"$FAKE_STATE/patched"
+  echo patch >>"$FAKE_STATE/events"
   case $4 in
     repos/emm3000/myGame/issues/comments/*) file=issue_comments.json key=id value=${4##*/} ;;
     repos/emm3000/myGame/pulls/comments/*) file=review_comments.json key=id value=${4##*/} ;;
@@ -74,6 +75,13 @@ echo "unexpected gh $*" >&2
 exit 1
 STUB
 chmod +x "$sandbox/bin/gh"
+{
+  echo '#!/usr/bin/env bash'
+  awk 1
+} >"$sandbox/bin/sleep" <<'STUB'
+echo "sleep $*" >>"$FAKE_STATE/events"
+STUB
+chmod +x "$sandbox/bin/sleep"
 
 commit_files() {
   local branch=$1 builder="$case_dir/builder"
@@ -118,6 +126,7 @@ build_an_origin_with_two_asset_branches() {
   commit_files assets/34-visual-check "home screen.png" es/x.png
   printf 'fix/6-open\n' >"$case_dir/state/open_heads"
   : >"$case_dir/state/patched"
+  : >"$case_dir/state/events"
   : >"$case_dir/state/sticky"
   jq -n --arg raw "$raw" --arg web "$web" '[
     {number: 20, pull_request: {}, body: "Shots:\n![a](\($raw)/assets/12-visual-check/shot-abc.png)\n[b](\($web)/blob/assets/34-visual-check/home%20screen.png)\nseen on origin/assets/12-visual-check"},
@@ -136,6 +145,29 @@ build_an_origin_with_two_asset_branches() {
   heads >"$case_dir/heads.before"
 }
 
+kept_dir() {
+  echo "$case_dir/home/.local/state/mygame-assets-consolidate"
+}
+
+entries_in() {
+  [ -d "$1" ] || return 0
+  (cd "$1" && shopt -s nullglob dotglob && entries=(*) && echo "${entries[*]:-}")
+}
+
+refuse_pushes_where() {
+  {
+    echo '#!/usr/bin/env bash'
+    echo "awk '"
+    awk 1
+    echo "'"
+  } >"$origin/hooks/pre-receive"
+  chmod +x "$origin/hooks/pre-receive"
+}
+
+recovery_lines() {
+  awk 'found && /^  git / { sub(/^  /, ""); print } /recover with:$/ { found = 1 }' <<<"$1"
+}
+
 heads() {
   git -C "$origin" for-each-ref --format='%(refname) %(objectname)' refs/heads | LC_ALL=C sort
 }
@@ -152,8 +184,12 @@ bound() {
 
 with_stubs() {
   (
-    export FAKE_STATE="$case_dir/state" PATH="$sandbox/bin:$PATH" TMPDIR="$case_dir/tmp"
-    [ "$(type -P gh)" = "$sandbox/bin/gh" ] || { echo "refusing to run: stub gh is not first on PATH" >&2; exit 70; }
+    export FAKE_STATE="$case_dir/state" PATH="$sandbox/bin:$PATH" TMPDIR="$case_dir/tmp" HOME="$case_dir/home"
+    unset XDG_STATE_HOME
+    local tool
+    for tool in gh sleep; do
+      [ "$(type -P "$tool")" = "$sandbox/bin/$tool" ] || { echo "refusing to run: stub $tool is not first on PATH" >&2; exit 70; }
+    done
     cd "$repo" && bound 30 "$@" 2>&1
   )
 }
@@ -238,8 +274,12 @@ apply_moves_every_asset_file_under_its_ticket_folder_and_rewrites_every_link() {
     fail "${FUNCNAME[0]}" "body of #20: $body" || return 1
   [ "$(jq -r '.[] | select(.number == 22) | .body' "$case_dir/state/issues.json")" = "Other repo: https://raw.githubusercontent.com/emm3000/otherRepo/assets/12-visual-check/x.png" ] ||
     fail "${FUNCNAME[0]}" "the other repo's link was edited" || return 1
+  awk '/^built [0-9a-f]+ in / { built = NR } /^edited / && !edited { edited = NR } END { exit !(built && edited && built < edited) }' <<<"$output" ||
+    fail "${FUNCNAME[0]}" "the commit was not built before the first edit:"$'\n'"$output" || return 1
+  [ "$(tr '\n' ' ' <"$case_dir/state/events")" = "patch sleep 1 patch sleep 1 patch " ] ||
+    fail "${FUNCNAME[0]}" "events: $(tr '\n' ' ' <"$case_dir/state/events")" || return 1
   local left
-  left=$(cd "$case_dir/tmp" && shopt -s nullglob dotglob && entries=(*) && echo "${entries[*]:-}")
+  left="$(entries_in "$case_dir/tmp")$(entries_in "$(kept_dir)")"
   [ -z "$left" ] || fail "${FUNCNAME[0]}" "scratch clone left: $left"
 }
 
@@ -256,17 +296,59 @@ apply_refuses_to_delete_while_a_link_still_names_an_old_branch() {
 
 apply_falls_back_to_two_pushes_when_origin_refuses_the_atomic_one() {
   build_an_origin_with_two_asset_branches fallback
-  {
-    echo '#!/usr/bin/env bash'
-    echo "awk '\$3 == \"refs/heads/assets\" { create = 1 } index(\$3, \"refs/heads/assets/\") == 1 { remove = 1 } END { if (create && remove) { print \"refusing a push that deletes assets/* and creates assets\" > \"/dev/stderr\"; exit 1 } }'"
-  } >"$origin/hooks/pre-receive"
-  chmod +x "$origin/hooks/pre-receive"
+  refuse_pushes_where <<'AWK'
+$3 == "refs/heads/assets" { create = 1 }
+index($3, "refs/heads/assets/") == 1 { remove = 1 }
+END { exit create && remove }
+AWK
   local output
   output=$(with_stubs scripts/mygame-assets-consolidate --apply) || fail "${FUNCNAME[0]}" "$output" || return 1
   awk '/^origin refused the atomic push: deleting the old refs, then creating assets$/ { found = 1 } END { exit !found }' <<<"$output" ||
     fail "${FUNCNAME[0]}" "no fallback reported:"$'\n'"$output" || return 1
   [ -z "$(git -C "$origin" for-each-ref 'refs/heads/assets/*')" ] || fail "${FUNCNAME[0]}" "asset branches left: $(heads)" || return 1
   [ "$(git -C "$origin" ls-tree -d --name-only assets | tr '\n' ' ')" = "12 34 " ] || fail "${FUNCNAME[0]}" "folders: $(heads)"
+}
+
+a_failed_create_keeps_the_clone_outside_tmpdir_and_prints_the_push_that_recovers() {
+  build_an_origin_with_two_asset_branches failed-create
+  refuse_pushes_where <<'AWK'
+$3 == "refs/heads/assets" { exit 1 }
+AWK
+  local output status=0
+  output=$(with_stubs scripts/mygame-assets-consolidate --apply) || status=$?
+  [ "$status" -eq 1 ] || fail "${FUNCNAME[0]}" "exit $status:"$'\n'"$output" || return 1
+  [ -z "$(git -C "$origin" for-each-ref 'refs/heads/assets/*' refs/heads/assets)" ] || fail "${FUNCNAME[0]}" "heads: $(heads)" || return 1
+  local kept recovery
+  kept=$(entries_in "$(kept_dir)")
+  [ -n "$kept" ] && [ -d "$(kept_dir)/$kept/clone.git" ] || fail "${FUNCNAME[0]}" "no clone kept under $(kept_dir): $kept" || return 1
+  [ -z "$(entries_in "$case_dir/tmp")" ] || fail "${FUNCNAME[0]}" "the clone was kept under TMPDIR" || return 1
+  recovery=$(recovery_lines "$output")
+  [ "$(awk 'END { print NR }' <<<"$recovery")" = 1 ] && [[ $recovery == *" push -q "*"refs/heads/assets" ]] ||
+    fail "${FUNCNAME[0]}" "no recovery push:"$'\n'"$output" || return 1
+  rm "$origin/hooks/pre-receive"
+  (eval "$recovery") || fail "${FUNCNAME[0]}" "the recovery push failed: $recovery" || return 1
+  [ "$(git -C "$origin" ls-tree -d --name-only assets | tr '\n' ' ')" = "12 34 " ] || fail "${FUNCNAME[0]}" "folders after recovery: $(heads)"
+}
+
+a_failed_delete_keeps_every_ref_and_prints_both_recovery_pushes() {
+  build_an_origin_with_two_asset_branches failed-delete
+  refuse_pushes_where <<'AWK'
+$2 ~ /^0+$/ { exit 1 }
+AWK
+  local output status=0
+  output=$(with_stubs scripts/mygame-assets-consolidate --apply) || status=$?
+  [ "$status" -eq 1 ] || fail "${FUNCNAME[0]}" "exit $status:"$'\n'"$output" || return 1
+  [ "$(heads)" = "$(awk 1 "$case_dir/heads.before")" ] || fail "${FUNCNAME[0]}" "origin heads changed: $(heads)" || return 1
+  awk '/^deleting the old refs failed: no ref moved/ { found = 1 } END { exit !found }' <<<"$output" ||
+    fail "${FUNCNAME[0]}" "no delete failure reported:"$'\n'"$output" || return 1
+  local recovery
+  recovery=$(recovery_lines "$output")
+  [ "$(awk 'END { print NR }' <<<"$recovery")" = 2 ] || fail "${FUNCNAME[0]}" "recovery: $recovery" || return 1
+  rm "$origin/hooks/pre-receive"
+  (eval "$(awk 'NR == 1' <<<"$recovery")" && eval "$(awk 'NR == 2' <<<"$recovery")") ||
+    fail "${FUNCNAME[0]}" "the recovery pushes failed: $recovery" || return 1
+  [ -z "$(git -C "$origin" for-each-ref 'refs/heads/assets/*')" ] || fail "${FUNCNAME[0]}" "asset branches left: $(heads)" || return 1
+  [ "$(git -C "$origin" ls-tree -d --name-only assets | tr '\n' ' ')" = "12 34 " ] || fail "${FUNCNAME[0]}" "folders after recovery: $(heads)"
 }
 
 refuses_an_asset_branch_an_open_pr_holds() {
@@ -302,6 +384,8 @@ run a_dry_run_lists_every_ref_and_link_and_changes_nothing
 run apply_moves_every_asset_file_under_its_ticket_folder_and_rewrites_every_link
 run apply_refuses_to_delete_while_a_link_still_names_an_old_branch
 run apply_falls_back_to_two_pushes_when_origin_refuses_the_atomic_one
+run a_failed_create_keeps_the_clone_outside_tmpdir_and_prints_the_push_that_recovers
+run a_failed_delete_keeps_every_ref_and_prints_both_recovery_pushes
 run refuses_an_asset_branch_an_open_pr_holds
 run refuses_a_ref_under_assets_that_is_no_visual_check
 [ "$failures" -eq 0 ]
