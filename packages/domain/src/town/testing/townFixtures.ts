@@ -11,7 +11,7 @@ import type { TownSkill } from '../domain/TownSkill'
 import type { StoredTown } from '../domain/TownState'
 import { type Hires, noHires } from '../hiring/Hires'
 import { type HiringSlot, idleHiringSlot } from '../hiring/HiringOrder'
-import { idleJobSlot, type JobSlot } from '../jobs/Job'
+import { idleJobSlot, type JobSlot } from '../jobs/domain/Job'
 import { noStoreFull } from '../resources/FullSince'
 import type { Stocks } from '../resources/Stocks'
 

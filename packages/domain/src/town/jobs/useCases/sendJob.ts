@@ -6,9 +6,9 @@ import type { Town } from '../../domain/Town'
 import type { TownCatalog } from '../../domain/TownCatalog'
 import type { TownNews } from '../../domain/TownNews'
 import type { TownRepository } from '../../domain/TownRepository'
-import type { JobOrder } from '../JobOrder'
-import type { RegionMapReader } from '../ports/RegionMapReader'
-import { dispatchJob } from '../services/dispatchJob'
+import { dispatchJob } from '../application/dispatchJob'
+import type { JobOrder } from '../domain/JobOrder'
+import type { RegionMapReader } from '../domain/RegionMapReader'
 
 export type SendJobDependencies = {
   readonly towns: TownRepository

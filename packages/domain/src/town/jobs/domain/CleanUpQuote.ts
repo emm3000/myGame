@@ -1,4 +1,4 @@
-import type { Stocks } from '../resources/Stocks'
+import type { Stocks } from '../../resources/Stocks'
 
 export type CleanUpQuote = {
   readonly strength: number

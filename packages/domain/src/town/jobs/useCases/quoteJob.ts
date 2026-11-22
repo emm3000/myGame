@@ -4,9 +4,9 @@ import { ok, type Result } from '#Result'
 import type { TownCatalog } from '../../domain/TownCatalog'
 import type { TownRepository } from '../../domain/TownRepository'
 import type { Stocks } from '../../resources/Stocks'
-import type { JobOrder } from '../JobOrder'
-import type { RegionMapReader } from '../ports/RegionMapReader'
-import { dispatchJob } from '../services/dispatchJob'
+import { dispatchJob } from '../application/dispatchJob'
+import type { JobOrder } from '../domain/JobOrder'
+import type { RegionMapReader } from '../domain/RegionMapReader'
 
 export type QuoteJobDependencies = {
   readonly towns: Pick<TownRepository, 'townOf'>

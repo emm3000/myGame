@@ -1,10 +1,10 @@
 import type { DomainError } from '#DomainError'
 import type { Clock } from '#platform/domain/Clock'
 import { ok, type Result } from '#Result'
-import type { CleanUpOrder } from '../CleanUpOrder'
-import type { CleanUpQuote } from '../CleanUpQuote'
-import { coversWaste } from '../coversWaste'
-import { type CleanUpDispatchDependencies, dispatchCleanUp } from '../services/dispatchCleanUp'
+import { type CleanUpDispatchDependencies, dispatchCleanUp } from '../application/dispatchCleanUp'
+import type { CleanUpOrder } from '../domain/CleanUpOrder'
+import type { CleanUpQuote } from '../domain/CleanUpQuote'
+import { coversWaste } from '../domain/coversWaste'
 
 export type QuoteCleanUpDependencies = CleanUpDispatchDependencies & {
   readonly clock: Clock

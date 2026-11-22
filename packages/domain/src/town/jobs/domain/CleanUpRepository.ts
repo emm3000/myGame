@@ -2,7 +2,7 @@ import type { DomainError } from '#DomainError'
 import type { Result } from '#Result'
 import type { Instant } from '#time/Instant'
 import type { TownId } from '../../domain/TownId'
-import type { CleanUp } from '../CleanUp'
+import type { CleanUp } from './CleanUp'
 import type { CleanUpReader } from './CleanUpReader'
 
 export interface CleanUpRepository extends CleanUpReader {

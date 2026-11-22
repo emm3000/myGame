@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest'
-import type { SiteAddress } from '../domain/SiteAddress'
-import { plainTownSettings } from '../testing/townCatalogOf'
+import type { SiteAddress } from '../../domain/SiteAddress'
+import { plainTownSettings } from '../../testing/townCatalogOf'
 import type { WasteTerms } from './WasteTerms'
 import { wasteSizeOf } from './wasteSizeOf'
 

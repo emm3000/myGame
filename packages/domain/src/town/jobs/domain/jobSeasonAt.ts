@@ -1,6 +1,6 @@
 import type { Instant } from '#time/Instant'
-import { seasonPercentsAt } from '../domain/seasonPercentsAt'
-import type { ProductionPercent, TownSettings } from '../domain/TownSettings'
+import { seasonPercentsAt } from '../../domain/seasonPercentsAt'
+import type { ProductionPercent, TownSettings } from '../../domain/TownSettings'
 
 export type JobSeason = {
   readonly roadPercent: number

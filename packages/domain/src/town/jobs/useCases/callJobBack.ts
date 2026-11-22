@@ -9,7 +9,7 @@ import type { Town } from '../../domain/Town'
 import type { TownCatalog } from '../../domain/TownCatalog'
 import type { TownNews } from '../../domain/TownNews'
 import type { TownRepository } from '../../domain/TownRepository'
-import type { CleanUpRepository } from '../ports/CleanUpRepository'
+import type { CleanUpRepository } from '../domain/CleanUpRepository'
 
 export type CallJobBackCommand = {
   readonly playerId: PlayerId

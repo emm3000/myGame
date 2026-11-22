@@ -3,9 +3,9 @@ import { err, ok, type Result } from '#Result'
 import type { SiteAddress } from '../../domain/SiteAddress'
 import type { Town } from '../../domain/Town'
 import type { TownCatalog } from '../../domain/TownCatalog'
-import { isWholeFromOneTo } from '../isWholeFromOneTo'
-import type { JobTarget } from '../JobOrder'
-import type { RegionMapReader } from '../ports/RegionMapReader'
+import { isWholeFromOneTo } from '../domain/isWholeFromOneTo'
+import type { JobTarget } from '../domain/JobOrder'
+import type { RegionMapReader } from '../domain/RegionMapReader'
 import { readLastArea } from './readLastArea'
 
 export const admitJobSite = async (

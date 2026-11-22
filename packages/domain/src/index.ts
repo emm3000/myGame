@@ -335,27 +335,28 @@ export {
   type StopHiringOrderDependencies,
   stopHiringOrder,
 } from '#town/hiring/useCases/stopHiringOrder'
-export type { CleanUp } from '#town/jobs/CleanUp'
-export type { CleanUpOrder } from '#town/jobs/CleanUpOrder'
-export type { CleanUpQuote } from '#town/jobs/CleanUpQuote'
+export type { CleanUp } from '#town/jobs/domain/CleanUp'
+export type { CleanUpOrder } from '#town/jobs/domain/CleanUpOrder'
+export type { CleanUpQuote } from '#town/jobs/domain/CleanUpQuote'
+export type { CleanUpReader } from '#town/jobs/domain/CleanUpReader'
+export type { CleanUpRepository } from '#town/jobs/domain/CleanUpRepository'
 export {
   type CleanUpJob,
   idleJobSlot,
   type Job,
   type JobCleanUp,
   type JobSlot,
-} from '#town/jobs/Job'
-export type { JobOrder, JobTarget } from '#town/jobs/JobOrder'
-export type { JobPayPerHour, JobTerms } from '#town/jobs/JobTerms'
-export { type JobInstants, jobInstantsOf } from '#town/jobs/jobInstantsOf'
-export { jobOneWaySeconds } from '#town/jobs/jobOneWaySeconds'
-export { jobPayOf } from '#town/jobs/jobPayOf'
-export { type JobPhase, jobPhaseAt } from '#town/jobs/jobPhaseAt'
-export { type JobSeason, jobSeasonAt } from '#town/jobs/jobSeasonAt'
-export type { CleanUpReader } from '#town/jobs/ports/CleanUpReader'
-export type { CleanUpRepository } from '#town/jobs/ports/CleanUpRepository'
-export type { RegionMapReader, SiteHolder } from '#town/jobs/ports/RegionMapReader'
-export type { RegionMap, RegionSite, SiteWaste } from '#town/jobs/RegionMap'
+} from '#town/jobs/domain/Job'
+export type { JobOrder, JobTarget } from '#town/jobs/domain/JobOrder'
+export type { JobPayPerHour, JobTerms } from '#town/jobs/domain/JobTerms'
+export { type JobInstants, jobInstantsOf } from '#town/jobs/domain/jobInstantsOf'
+export { jobOneWaySeconds } from '#town/jobs/domain/jobOneWaySeconds'
+export { jobPayOf } from '#town/jobs/domain/jobPayOf'
+export { type JobPhase, jobPhaseAt } from '#town/jobs/domain/jobPhaseAt'
+export { type JobSeason, jobSeasonAt } from '#town/jobs/domain/jobSeasonAt'
+export type { RegionMap, RegionSite, SiteWaste } from '#town/jobs/domain/RegionMap'
+export type { RegionMapReader, SiteHolder } from '#town/jobs/domain/RegionMapReader'
+export type { WasteSize } from '#town/jobs/domain/WasteSize'
 export {
   type CallJobBackCommand,
   type CallJobBackDependencies,
@@ -370,7 +371,6 @@ export {
 } from '#town/jobs/useCases/readRegionMap'
 export { type SendCleanUpDependencies, sendCleanUp } from '#town/jobs/useCases/sendCleanUp'
 export { type SendJobDependencies, sendJob } from '#town/jobs/useCases/sendJob'
-export type { WasteSize } from '#town/jobs/WasteSize'
 export { type Accrual, accrueTown } from '#town/resources/accrueTown'
 export { deriveFullAt, type FullAt } from '#town/resources/deriveFullAt'
 export { deriveResourceRates, type ResourceRates } from '#town/resources/deriveResourceRates'
