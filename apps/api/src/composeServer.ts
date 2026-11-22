@@ -18,10 +18,10 @@ import type { PasswordHasher } from '#account/application/ports/PasswordHasher'
 import type { Sessions } from '#account/application/ports/Sessions'
 import type { SessionTokens } from '#account/application/ports/SessionTokens'
 import { DrizzleAccounts } from '#account/infrastructure/postgres/DrizzleAccounts'
-import { DrizzleChromeProgress } from '#account/infrastructure/postgres/DrizzleChromeProgressReader'
+import { DrizzleChromeProgressReader } from '#account/infrastructure/postgres/DrizzleChromeProgressReader'
 import { DrizzleSessions } from '#account/infrastructure/postgres/DrizzleSessions'
 import { SmtpMailer } from '#account/infrastructure/smtp/SmtpMailer'
-import { Argon2Passwords } from '#account/infrastructure/system/Argon2PasswordHasher'
+import { Argon2PasswordHasher } from '#account/infrastructure/system/Argon2PasswordHasher'
 import { CryptoSessionTokens } from '#account/infrastructure/system/CryptoSessionTokens'
 import type { LessonLibrary } from '#content/application/ports/LessonLibrary'
 import { JsonTownCatalog } from '#content/infrastructure/json/JsonTownCatalog'
@@ -44,7 +44,7 @@ import type { ReadOnlyTowns } from '#town/application/ports/ReadOnlyTowns'
 import type { TownNewsReader } from '#town/application/ports/TownNewsReader'
 import type { TownReader } from '#town/application/ports/TownReader'
 import { DrizzleCleanUpRepository } from '#town/infrastructure/postgres/DrizzleCleanUpRepository'
-import { DrizzleRegionMap } from '#town/infrastructure/postgres/DrizzleRegionMapReader'
+import { DrizzleRegionMapReader } from '#town/infrastructure/postgres/DrizzleRegionMapReader'
 import { DrizzleTownNews } from '#town/infrastructure/postgres/DrizzleTownNews'
 import { DrizzleTownReader } from '#town/infrastructure/postgres/DrizzleTownReader'
 import { DrizzleTownRepository } from '#town/infrastructure/postgres/DrizzleTownRepository'
@@ -146,15 +146,15 @@ export function composeServer(
     random: new CryptoRandomSource(),
     accounts: new DrizzleAccounts(database),
     sessions: new DrizzleSessions(database),
-    chromeProgress: new DrizzleChromeProgress(database),
+    chromeProgress: new DrizzleChromeProgressReader(database),
     reportClosings: new DrizzleReportClosings(database),
-    passwords: new Argon2Passwords(),
+    passwords: new Argon2PasswordHasher(),
     sessionTokens: new CryptoSessionTokens(),
     inTransaction: postgresTransaction(database, composeStores),
     towns: new DrizzleTownRepository(database, 'lockFree'),
     townsWithSchool: new DrizzleTownReader(database),
     townNews: new DrizzleTownNews(database),
-    regionMap: new DrizzleRegionMap(database),
+    regionMap: new DrizzleRegionMapReader(database),
     cleanUps: new DrizzleCleanUpRepository(database),
     cards: new DrizzleCardRepository(database),
     isSessionCookieSecure,

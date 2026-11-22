@@ -51,7 +51,7 @@ const checkChangesOf = (check: HoldoutCheck): CheckChanges => {
   }
 }
 
-export class DrizzleBandStarts implements BandStartRepository {
+export class DrizzleBandStartRepository implements BandStartRepository {
   constructor(private readonly database: PostgresSession) {}
 
   async bandStartsOf(playerId: PlayerId): Promise<Result<ReadonlyArray<BandStart>, DomainError>> {

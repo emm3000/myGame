@@ -1,8 +1,8 @@
-import { chromeProgressContract } from './chromeProgressReaderContract.testSupport'
-import { MemoryChromeProgress } from './MemoryChromeProgressReader'
+import { chromeProgressReaderContract } from './chromeProgressReaderContract.testSupport'
+import { MemoryChromeProgressReader } from './MemoryChromeProgressReader'
 
-chromeProgressContract('MemoryChromeProgress', async () => {
-  const progress = new MemoryChromeProgress()
+chromeProgressReaderContract('MemoryChromeProgressReader', async () => {
+  const progress = new MemoryChromeProgressReader()
   return {
     progress,
     signUp: async (playerId) => progress.addPlayer(playerId),

@@ -8,7 +8,7 @@ type RunningLesson = NonNullable<ChromeProgress['lessonSlot']>
 
 const byText = (left: string, right: string): number => (left < right ? -1 : Number(left > right))
 
-export class MemoryChromeProgress implements ChromeProgressReader {
+export class MemoryChromeProgressReader implements ChromeProgressReader {
   private readonly players = new Set<PlayerId>()
   private readonly towns = new Set<PlayerId>()
   private readonly cards = new Map<PlayerId, ReadonlyArray<WordId>>()

@@ -8,7 +8,7 @@ import {
   type TownId,
 } from '@mygame/domain'
 
-export class MemoryLessonSlots implements LessonSlotRepository {
+export class MemoryLessonSlotRepository implements LessonSlotRepository {
   private readonly slots = new Map<TownId, LessonSlot>()
 
   async lessonSlotOf(townId: TownId): Promise<Result<LessonSlot, DomainError>> {

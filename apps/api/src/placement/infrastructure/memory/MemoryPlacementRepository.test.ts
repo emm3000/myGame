@@ -1,7 +1,7 @@
-import { MemoryPlacements } from './MemoryPlacementRepository'
+import { MemoryPlacementRepository } from './MemoryPlacementRepository'
 import { placementRepositoryContract } from './placementRepositoryContract.testSupport'
 
-placementRepositoryContract('MemoryPlacements', async () => ({
-  placements: new MemoryPlacements(),
+placementRepositoryContract('MemoryPlacementRepository', async () => ({
+  placements: new MemoryPlacementRepository(),
   registerPlayers: async () => {},
 }))

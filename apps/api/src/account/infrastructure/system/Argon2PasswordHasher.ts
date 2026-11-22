@@ -10,7 +10,7 @@ const argon2idCost: Options = {
   parallelism: 1,
 }
 
-export class Argon2Passwords implements PasswordHasher {
+export class Argon2PasswordHasher implements PasswordHasher {
   private readonly decoyHash: Promise<string> = hash(randomBytes(decoyPasswordBytes), argon2idCost)
 
   hashOf(password: string): Promise<string> {

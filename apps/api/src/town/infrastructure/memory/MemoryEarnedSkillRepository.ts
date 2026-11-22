@@ -8,7 +8,7 @@ import {
 } from '@mygame/domain'
 import { byEarnedAt } from '../postgres/byEarnedAt'
 
-export class MemoryEarnedSkills implements EarnedSkillRepository {
+export class MemoryEarnedSkillRepository implements EarnedSkillRepository {
   private readonly skills = new Map<PlayerId, ReadonlyArray<TownSkill>>()
 
   async skillsOf(playerId: PlayerId): Promise<Result<ReadonlyArray<TownSkill>, DomainError>> {

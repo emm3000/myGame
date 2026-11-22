@@ -2,8 +2,8 @@ import { drizzle } from 'drizzle-orm/node-postgres'
 import { Pool } from 'pg'
 import { afterAll, beforeAll } from 'vitest'
 import { truncatePlayerTables } from '#truncatePlayerTables.testSupport'
-import { chromeProgressContract } from '../memory/chromeProgressReaderContract.testSupport'
-import { DrizzleChromeProgress } from './DrizzleChromeProgressReader'
+import { chromeProgressReaderContract } from '../memory/chromeProgressReaderContract.testSupport'
+import { DrizzleChromeProgressReader } from './DrizzleChromeProgressReader'
 
 function databaseUrl(): string {
   const url = process.env.DATABASE_URL
@@ -25,11 +25,11 @@ afterAll(async () => {
 
 const startedAt = '2026-11-12T08:55:00Z'
 
-chromeProgressContract('DrizzleChromeProgress', async () => {
+chromeProgressReaderContract('DrizzleChromeProgressReader', async () => {
   await pool.query(truncatePlayerTables)
   let sites = 0
   return {
-    progress: new DrizzleChromeProgress(drizzle(pool)),
+    progress: new DrizzleChromeProgressReader(drizzle(pool)),
     signUp: async (playerId) => {
       await pool.query(
         `INSERT INTO players (id, email, password_hash, created_at, report_read_at, scaffold)

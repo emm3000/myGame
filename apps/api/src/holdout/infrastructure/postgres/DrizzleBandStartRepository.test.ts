@@ -4,7 +4,7 @@ import { afterAll, beforeAll } from 'vitest'
 import { players } from '#account/infrastructure/postgres/accountTables'
 import { truncatePlayerTables } from '#truncatePlayerTables.testSupport'
 import { bandStartRepositoryContract } from '../memory/bandStartRepositoryContract.testSupport'
-import { DrizzleBandStarts } from './DrizzleBandStartRepository'
+import { DrizzleBandStartRepository } from './DrizzleBandStartRepository'
 
 function databaseUrl(): string {
   const url = process.env.DATABASE_URL
@@ -43,7 +43,7 @@ const registerPlayers = async (playerIds: ReadonlyArray<string>): Promise<void> 
     )
 }
 
-bandStartRepositoryContract('DrizzleBandStarts', async () => {
+bandStartRepositoryContract('DrizzleBandStartRepository', async () => {
   await pool.query(truncatePlayerTables)
-  return { starts: new DrizzleBandStarts(drizzle(pool)), registerPlayers }
+  return { starts: new DrizzleBandStartRepository(drizzle(pool)), registerPlayers }
 })

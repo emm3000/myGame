@@ -1,6 +1,6 @@
 import type { PlayerId, RegionMapReader, SiteAddress, SiteHolder, Town } from '@mygame/domain'
 
-export class MemoryRegionMap implements RegionMapReader {
+export class MemoryRegionMapReader implements RegionMapReader {
   constructor(private readonly towns: ReadonlyArray<Town>) {}
 
   async addressOf(playerId: PlayerId): Promise<SiteAddress | undefined> {

@@ -11,7 +11,7 @@ import type { PostgresSession } from '#platform/infrastructure/postgres/connectP
 import { lessonSlotFromRow } from './lessonSlotFromRow'
 import { townLessonSlots } from './schoolTables'
 
-export class DrizzleLessonSlots implements LessonSlotRepository {
+export class DrizzleLessonSlotRepository implements LessonSlotRepository {
   constructor(private readonly database: PostgresSession) {}
 
   async lessonSlotOf(townId: TownId): Promise<Result<LessonSlot, DomainError>> {

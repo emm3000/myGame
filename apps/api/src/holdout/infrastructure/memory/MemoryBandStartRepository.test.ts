@@ -1,7 +1,7 @@
 import { bandStartRepositoryContract } from './bandStartRepositoryContract.testSupport'
-import { MemoryBandStarts } from './MemoryBandStartRepository'
+import { MemoryBandStartRepository } from './MemoryBandStartRepository'
 
-bandStartRepositoryContract('MemoryBandStarts', async () => ({
-  starts: new MemoryBandStarts(),
+bandStartRepositoryContract('MemoryBandStartRepository', async () => ({
+  starts: new MemoryBandStartRepository(),
   registerPlayers: async () => {},
 }))

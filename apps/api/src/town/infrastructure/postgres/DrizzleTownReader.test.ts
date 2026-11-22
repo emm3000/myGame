@@ -10,7 +10,7 @@ import {
 import { drizzle } from 'drizzle-orm/node-postgres'
 import { afterAll, assert, beforeAll, describe, expect, it } from 'vitest'
 import { DrizzleAccounts } from '#account/infrastructure/postgres/DrizzleAccounts'
-import { DrizzleLessonSlots } from './DrizzleLessonSlotRepository'
+import { DrizzleLessonSlotRepository } from './DrizzleLessonSlotRepository'
 import { DrizzleTownReader } from './DrizzleTownReader'
 import { DrizzleTownRepository } from './DrizzleTownRepository'
 import { townTestDatabase } from './townTestDatabase.testSupport'
@@ -58,7 +58,7 @@ describe('DrizzleTownReader', () => {
     const reader = new DrizzleTownReader(session)
     const enteredCard = MemoryCard.entered(instantAt('2026-11-10T09:00:00Z'))
     assert((await towns.save(town)).ok)
-    await new DrizzleLessonSlots(session).save(town.id, lessonOneUnderStudy)
+    await new DrizzleLessonSlotRepository(session).save(town.id, lessonOneUnderStudy)
     await pool().query(
       `INSERT INTO cards (player_id, word_id, state, step, entered_at) VALUES ('${ana}', 'lesson-1-1', 'learning', 0, '2026-11-10T09:00:00Z')`,
     )
