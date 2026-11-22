@@ -25,15 +25,14 @@ import { resolveStoredTown } from '../../services/resolveStoredTown'
 import { saveResolvedTown } from '../../services/saveResolvedTown'
 import type { ChangedTown } from '../../Town'
 import { admitSchoolLesson } from '../admitSchoolLesson'
-import { deriveLessonDurationSeconds } from '../deriveLessonDurationSeconds'
 import type { BusyLessonSlot } from '../LessonSlot'
+import { lessonDurationSecondsAt } from '../lessonDurationSecondsAt'
 import type { LessonSlotRepository } from '../ports/LessonSlotRepository'
 import type { SchoolLesson } from '../SchoolLesson'
 import type { SchoolLevel } from '../SchoolLevel'
 import { schoolLessonsOf } from '../schoolLessonsOf'
 import { readSettledSchool, type SettledSchool } from '../services/readSettledSchool'
 import { saveLessonSlot } from '../services/saveLessonSlot'
-import { studyPercentAt } from '../studyPercentAt'
 
 export type StartSchoolLessonCommand = {
   readonly playerId: PlayerId
@@ -61,11 +60,7 @@ const lessonStartedAt = (
   catalog: TownCatalog,
 ): Result<BusyLessonSlot, DomainError> => {
   const duration = Duration.ofSeconds(
-    deriveLessonDurationSeconds(
-      lesson.durationSeconds,
-      school.lessonPercent,
-      studyPercentAt(now, catalog.townSettings()),
-    ),
+    lessonDurationSecondsAt(lesson, school, now, catalog.townSettings()),
   )
   if (!duration.ok) {
     return duration
