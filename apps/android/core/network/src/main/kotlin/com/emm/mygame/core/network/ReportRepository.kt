@@ -19,7 +19,7 @@ fun ReportRepository(
     ioDispatcher: CoroutineDispatcher,
 ): ReportRepository =
     ReportRepository(
-        endpoint = ApiEndpoint(baseUrl = baseUrl, newHttpClient = okHttpDefaults),
+        endpoint = ApiEndpoint(baseUrl = baseUrl, newHttpClientBuilder = okHttpDefaults),
         tokenStore = tokenStore,
         sessionEnds = sessionEnds,
         studyAnswers = studyAnswers,

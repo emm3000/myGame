@@ -25,7 +25,7 @@ fun HoldoutCheckRepository(
     ioDispatcher: CoroutineDispatcher,
 ): HoldoutCheckRepository =
     HoldoutCheckRepository(
-        endpoint = ApiEndpoint(baseUrl = baseUrl, newHttpClient = okHttpDefaults),
+        endpoint = ApiEndpoint(baseUrl = baseUrl, newHttpClientBuilder = okHttpDefaults),
         tokenStore = tokenStore,
         sessionEnds = sessionEnds,
         studyAnswers = studyAnswers,
