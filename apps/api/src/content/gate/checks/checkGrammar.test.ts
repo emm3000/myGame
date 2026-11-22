@@ -13,6 +13,7 @@ import {
   structureOf,
   textOf,
 } from '../contentGate.testSupport'
+import type { GateContent } from '../GateContent'
 import { readGateContent } from '../readGateContent'
 import { checkGrammar } from './checkGrammar'
 
@@ -395,13 +396,24 @@ describe('content gate check 6, grammar', () => {
 
   describe('the relative that', () => {
     const later = entryOf('word-2', 'leave', 'We leave home.', { partOfSpeech: 'verb' })
+    const namedAtLessonOne = (name: string, frameWords: ReadonlyArray<string>) => ({
+      ...structureOf('lesson-1', frameWords),
+      name,
+    })
     const objectRelativeFrom = (lessonId: string) => [
       ...lessonOneStructures,
-      structureOf('lesson-1', ['that', 'so', 'after'], ['-s']),
+      structureOf('lesson-1', ['that'], ['-s']),
+      namedAtLessonOne('Coordinating conjunctions', ['so']),
+      namedAtLessonOne('Subordinate clauses with after, because, than and where', ['after']),
+      namedAtLessonOne('Determiners some, any and all', ['some', 'all']),
       structureOf(lessonId, [], ['object relative that']),
     ]
     const definedAs = (definition: string) =>
       entryOf('word-1', 'new', 'My home is new.', { partOfSpeech: 'adjective', definition })
+    const listing = (content: GateContent, words: ReadonlyArray<string>): GateContent => ({
+      ...content,
+      forms: new Map([...content.forms, ...words.map((word) => [word, new Set([word])] as const)]),
+    })
 
     it('fails an object relative that before the lesson that admits it', () => {
       const defined = definedAs('something that you need')
@@ -416,6 +428,44 @@ describe('content gate check 6, grammar', () => {
 
       expect(checkGrammar(afterLessonOne(objectRelativeFrom('lesson-2'), defined))).toEqual([])
     })
+
+    it('reads a that that ends its sentence as no object relative', () => {
+      const defined = definedAs('I like that. It is good.')
+
+      expect(checkGrammar(afterLessonOne(objectRelativeFrom('lesson-3'), defined, later))).toEqual(
+        [],
+      )
+    })
+
+    it('reads a that that opens its sentence as no object relative', () => {
+      const defined = definedAs('We work here. That we like.')
+
+      expect(checkGrammar(afterLessonOne(objectRelativeFrom('lesson-3'), defined, later))).toEqual(
+        [],
+      )
+    })
+
+    it('passes now that before the lesson that admits the object relative', () => {
+      const defined = definedAs('now that you work here')
+      const now = entryOf('word-3', 'now', 'We work now.', { partOfSpeech: 'adverb' })
+      const content = afterLessonOne(objectRelativeFrom('lesson-3'), defined, later, now)
+
+      expect(checkGrammar(listing(content, ['now']))).toEqual([])
+    })
+
+    it.each([
+      ['all', 'all that you need'],
+      ['some', 'some that we like'],
+    ])(
+      'fails that after the determiner %s before the lesson that admits the object relative',
+      (_, definition) => {
+        const content = afterLessonOne(objectRelativeFrom('lesson-3'), definedAs(definition), later)
+
+        expect(checkGrammar(listing(content, ['all', 'some']))).toEqual([
+          'word-1: definition holds that, an object relative that inflection admitted after lesson-2',
+        ])
+      },
+    )
 
     it.each([
       ['the demonstrative that', 'That man is the mayor.'],
