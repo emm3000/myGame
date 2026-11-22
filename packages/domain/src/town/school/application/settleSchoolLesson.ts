@@ -8,9 +8,9 @@ import type { PlayerId } from '#player/PlayerId'
 import { ok, type Result } from '#Result'
 import type { TownNews } from '../../domain/TownNews'
 import type { TownRepository } from '../../domain/TownRepository'
-import { readSettledSchool } from '../application/readSettledSchool'
-import { saveLessonSlot } from '../application/saveLessonSlot'
 import type { LessonSlotRepository } from '../domain/LessonSlotRepository'
+import { readSettledSchool } from './readSettledSchool'
+import { saveLessonSlot } from './saveLessonSlot'
 
 export type SettleSchoolLessonDependencies = {
   readonly towns: TownRepository

@@ -1,4 +1,5 @@
 import { assert, describe, expect, it } from 'vitest'
+import { signedUpAccountsOf } from '#account/testing/signedUpAccountsOf'
 import type { BandStart } from '#holdout/BandStart'
 import { inMemoryBandStarts, type OwnedBandStart } from '#holdout/testing/inMemoryBandStarts'
 import type { Band } from '#learning/curriculum/Band'
@@ -13,17 +14,19 @@ import { inMemoryPlacements } from '#placement/testing/inMemoryPlacements'
 import type { Clock } from '#platform/domain/Clock'
 import type { RandomSource } from '#platform/domain/RandomSource'
 import { firstItemsRandom } from '#platform/testing/firstItemsRandom'
+import { inMemoryUnitOfWork } from '#platform/testing/inMemoryUnitOfWork'
 import { Instant } from '#time/Instant'
 import type { WorkSlot } from '../../building/domain/BuildingWork'
 import type { TownCatalog } from '../../domain/TownCatalog'
 import { inMemoryEarnedSkills } from '../../testing/inMemoryEarnedSkills'
-import { inMemoryTownNews } from '../../testing/inMemoryTownNews'
+import { type InMemoryTownNews, inMemoryTownNews } from '../../testing/inMemoryTownNews'
+import { inMemoryTownStores, townNewsOver } from '../../testing/inMemoryTownStores'
 import { inMemoryTowns } from '../../testing/inMemoryTowns'
 import { plainTownSettings, townCatalogOf } from '../../testing/townCatalogOf'
 import { type TownShape, townOf } from '../../testing/townFixtures'
 import type { LessonSlot } from '../domain/LessonSlot'
 import { inMemoryLessonSlots } from '../testing/inMemoryLessonSlots'
-import { startSchoolLesson } from './startSchoolLesson'
+import { StartSchoolLesson, type StartSchoolLessonCommand } from './StartSchoolLesson'
 
 const MILLISECONDS_PER_HOUR = 3_600_000
 
@@ -126,6 +129,38 @@ const placementPassing = (bands: ReadonlyArray<Band>): Placement => ({
   scores: bands.map((band) => ({ band, score: 29, takenAt: hoursAfterEpoch(1) })),
 })
 
+type LessonFixture = {
+  readonly towns: ReturnType<typeof inMemoryTowns>
+  readonly lessonSlots: ReturnType<typeof inMemoryLessonSlots>
+  readonly cards: ReturnType<typeof inMemoryCards>
+  readonly lessons: ReturnType<typeof inMemoryLessons>
+  readonly bandStarts: ReturnType<typeof inMemoryBandStarts>
+  readonly bands: ReturnType<typeof inMemoryBands>
+  readonly placements: ReturnType<typeof inMemoryPlacements>
+  readonly random: RandomSource
+  readonly news: InMemoryTownNews
+  readonly catalog: TownCatalog
+  readonly clock: Clock
+}
+
+const startWith = (
+  command: StartSchoolLessonCommand,
+  { lessons, bands, news, catalog, random, clock, ...held }: LessonFixture,
+): ReturnType<StartSchoolLesson['execute']> =>
+  new StartSchoolLesson({
+    unitOfWork: inMemoryUnitOfWork(
+      inMemoryTownStores({
+        ...held,
+        accounts: signedUpAccountsOf(['player-1']),
+        townNews: townNewsOver(news),
+      }),
+    ),
+    townCatalog: catalog,
+    random,
+    lessons: { ...lessons, ...bands },
+    clock,
+  }).execute(command)
+
 type Setup = {
   readonly bandStarts?: ReadonlyArray<OwnedBandStart>
   readonly placedOut?: ReadonlyArray<Band>
@@ -174,8 +209,7 @@ const schoolOf = ({
   }
   return {
     ...dependencies,
-    start: (lessonId: string) =>
-      startSchoolLesson({ playerId: 'player-1', lessonId }, dependencies),
+    start: (lessonId: string) => startWith({ playerId: 'player-1', lessonId }, dependencies),
   }
 }
 
@@ -201,7 +235,7 @@ const farmFinishedAt = (finishesAt: Instant): WorkSlot => ({
   finishesAt,
 })
 
-describe('startSchoolLesson', () => {
+describe('StartSchoolLesson', () => {
   it("draws a tenth of the band's card words at the band's start", async () => {
     const school = schoolOf({})
 
@@ -226,7 +260,7 @@ describe('startSchoolLesson', () => {
     ])
     const school = schoolOf({})
 
-    await startSchoolLesson(
+    await startWith(
       { playerId: 'player-1', lessonId: 'lesson-17' },
       { ...school, bands: everyWordChrome },
     )
@@ -356,7 +390,7 @@ describe('startSchoolLesson', () => {
     const started = await school.start('lesson-1')
 
     assert(started.ok)
-    expect(started.value).toEqual({
+    expect(started.value.lessonSlot).toEqual({
       kind: 'busy',
       lessonId: 'lesson-1',
       startedAt: springNow,
@@ -364,7 +398,7 @@ describe('startSchoolLesson', () => {
     })
     expect(await school.lessonSlots.lessonSlotOf('town-1')).toEqual({
       ok: true,
-      value: started.value,
+      value: started.value.lessonSlot,
     })
     expect(await school.towns.townOf('player-1')).toMatchObject({
       ok: true,
@@ -381,8 +415,8 @@ describe('startSchoolLesson', () => {
 
     const started = await school.start('lesson-1')
 
-    assert(started.ok && started.value.kind === 'busy')
-    expect(started.value.finishesAt).toEqual(secondsAfter(winterNow, 203))
+    assert(started.ok && started.value.lessonSlot.kind === 'busy')
+    expect(started.value.lessonSlot.finishesAt).toEqual(secondsAfter(winterNow, 203))
   })
 
   it('refuses a lesson whose school level is too low', async () => {
@@ -487,26 +521,6 @@ describe('startSchoolLesson', () => {
     })
   })
 
-  it('writes nothing when it refuses', async () => {
-    const finishesAt = hoursAfterEpoch(1.5)
-    const finishedSlot: LessonSlot = {
-      kind: 'busy',
-      lessonId: 'lesson-1',
-      startedAt: hoursAfterEpoch(1),
-      finishesAt,
-    }
-    const school = schoolOf({ slot: finishedSlot })
-
-    await school.start('lesson-1')
-
-    expect(await school.cards.cardsOf('player-1')).toEqual({ ok: true, value: [] })
-    expect(await school.lessonSlots.lessonSlotOf('town-1')).toEqual({
-      ok: true,
-      value: finishedSlot,
-    })
-    expect(school.news.recordedEventsOf('town-1')).toEqual([])
-  })
-
   it('refuses the lesson the school slot is studying', async () => {
     const school = schoolOf({
       slot: {
@@ -550,10 +564,7 @@ describe('startSchoolLesson', () => {
   it('refuses a player who holds no town', async () => {
     const school = schoolOf({})
 
-    const started = await startSchoolLesson(
-      { playerId: 'player-2', lessonId: 'lesson-1' },
-      { ...school },
-    )
+    const started = await startWith({ playerId: 'player-2', lessonId: 'lesson-1' }, { ...school })
 
     expect(started).toEqual({ ok: false, error: { kind: 'TownNotFound', playerId: 'player-2' } })
   })

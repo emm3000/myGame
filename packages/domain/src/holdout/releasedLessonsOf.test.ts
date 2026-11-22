@@ -1,4 +1,5 @@
 import { assert, describe, expect, it } from 'vitest'
+import { signedUpAccountsOf } from '#account/testing/signedUpAccountsOf'
 import type { Band } from '#learning/curriculum/Band'
 import { inMemoryBands } from '#learning/curriculum/testing/inMemoryBands'
 import { inMemoryLessons } from '#learning/curriculum/testing/inMemoryLessons'
@@ -8,13 +9,15 @@ import { inMemoryCards, type OwnedCard } from '#learning/testing/inMemoryCards'
 import { MemoryCard } from '#memory/domain/MemoryCard'
 import { inMemoryPlacements } from '#placement/testing/inMemoryPlacements'
 import { firstItemsRandom } from '#platform/testing/firstItemsRandom'
+import { inMemoryUnitOfWork } from '#platform/testing/inMemoryUnitOfWork'
 import { Instant } from '#time/Instant'
+import { StartSchoolLesson } from '#town/school/application/StartSchoolLesson'
+import { settleSchoolLesson } from '#town/school/application/settleSchoolLesson'
 import type { LessonSlot } from '#town/school/domain/LessonSlot'
 import { inMemoryLessonSlots } from '#town/school/testing/inMemoryLessonSlots'
-import { settleSchoolLesson } from '#town/school/useCases/settleSchoolLesson'
-import { startSchoolLesson } from '#town/school/useCases/startSchoolLesson'
 import { inMemoryEarnedSkills } from '#town/testing/inMemoryEarnedSkills'
 import { inMemoryTownNews } from '#town/testing/inMemoryTownNews'
+import { inMemoryTownStores, townNewsOver } from '#town/testing/inMemoryTownStores'
 import { inMemoryTowns } from '#town/testing/inMemoryTowns'
 import { plainTownSettings, townCatalogOf } from '#town/testing/townCatalogOf'
 import { townOf } from '#town/testing/townFixtures'
@@ -114,19 +117,32 @@ const schoolOf = ({
     catalog: townCatalogOf(),
     clock: { now: () => now },
   }
+  const { lessons, bands, news, catalog, random, clock, ...stores } = dependencies
+  const startSchoolLesson = new StartSchoolLesson({
+    unitOfWork: inMemoryUnitOfWork(
+      inMemoryTownStores({
+        ...stores,
+        accounts: signedUpAccountsOf(['player-1']),
+        townNews: townNewsOver(news),
+      }),
+    ),
+    townCatalog: catalog,
+    random,
+    lessons: { ...lessons, ...bands },
+    clock,
+  })
   const enteredAfterStudying = async (lessonId: string): Promise<ReadonlyArray<string>> => {
     const before = held.enteredWordIdsOf('player-1')
-    const started = await startSchoolLesson({ playerId: 'player-1', lessonId }, dependencies)
-    assert(started.ok)
-    now = started.value.finishesAt
+    const started = await startSchoolLesson.execute({ playerId: 'player-1', lessonId })
+    assert(started.ok && started.value.lessonSlot.kind === 'busy')
+    now = started.value.lessonSlot.finishesAt
     assert((await settleSchoolLesson('player-1', dependencies)).ok)
     return held.enteredWordIdsOf('player-1').filter((wordId) => !before.includes(wordId))
   }
   return {
     ...dependencies,
     enteredAfterStudying,
-    start: (lessonId: string) =>
-      startSchoolLesson({ playerId: 'player-1', lessonId }, dependencies),
+    start: (lessonId: string) => startSchoolLesson.execute({ playerId: 'player-1', lessonId }),
     settleAt: (at: Instant) => {
       now = at
       return settleSchoolLesson('player-1', dependencies)

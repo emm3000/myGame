@@ -100,7 +100,7 @@ listenPortOf.ts  writeOpenApiDocument.ts                          the api's own 
 | Endpoint | `infrastructure/http/` | use case + `Route`; in a moved feature, use case + `Controller`, a class with `handle` | `answerHoldoutCheckRoute.ts`, `SendJobController.ts` |
 | Route list | `infrastructure/http/` | area + `Routes`; it builds its controllers and its `requirePlayer` once | `jobsRoutes.ts`, `sessionRoutes.ts` |
 | Wire declarations, request helper | `infrastructure/http/` | feature + `Components` or `Declarations`; a verb or noun | `townComponents.ts`, `requirePlayer.ts` |
-| Responder | `infrastructure/http/` | `respond` + what it turns into a response | `respondTownChange.ts` |
+| Responder | `infrastructure/http/` | `respond` + what it turns into a response | `respondTownReading.ts` |
 | Presenter | `infrastructure/http/` | `present` + wire noun | `presentTownOverview.ts` |
 | Adapter | `infrastructure/<technology>/` | technology + port | `DrizzleTownRepository.ts` |
 | Aggregate read | `infrastructure/persistence/` | `aggregated` + noun | `aggregatedTown.ts` |

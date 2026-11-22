@@ -18,14 +18,15 @@ import type { PlayerId } from '#player/PlayerId'
 import { err, ok, type Result } from '#Result'
 import { Duration } from '#time/Duration'
 import type { Instant } from '#time/Instant'
+import { changeTown } from '../../application/changeTown'
+import type { MutateTownDependencies } from '../../application/mutateTown'
 import { resolveStoredTown } from '../../application/resolveStoredTown'
 import { saveResolvedTown } from '../../application/saveResolvedTown'
 import type { ChangedTown } from '../../domain/Town'
 import type { TownCatalog } from '../../domain/TownCatalog'
 import type { TownNews } from '../../domain/TownNews'
+import type { TownReading } from '../../domain/TownReading'
 import type { TownRepository } from '../../domain/TownRepository'
-import { readSettledSchool, type SettledSchool } from '../application/readSettledSchool'
-import { saveLessonSlot } from '../application/saveLessonSlot'
 import { admitSchoolLesson } from '../domain/admitSchoolLesson'
 import type { BusyLessonSlot } from '../domain/LessonSlot'
 import type { LessonSlotRepository } from '../domain/LessonSlotRepository'
@@ -33,13 +34,22 @@ import { lessonDurationSecondsAt } from '../domain/lessonDurationSecondsAt'
 import type { SchoolLesson } from '../domain/SchoolLesson'
 import type { SchoolLevel } from '../domain/SchoolLevel'
 import { schoolLessonsOf } from '../domain/schoolLessonsOf'
+import { readSettledSchool, type SettledSchool } from './readSettledSchool'
+import { saveLessonSlot } from './saveLessonSlot'
 
 export type StartSchoolLessonCommand = {
   readonly playerId: PlayerId
   readonly lessonId: LessonId
 }
 
-export type StartSchoolLessonDependencies = {
+export type StartSchoolLessonDependencies = MutateTownDependencies & {
+  readonly townCatalog: TownCatalog
+  readonly random: RandomSource
+  readonly lessons: Pick<LessonCatalog, 'lessonOf' | 'lessonOfWord'> &
+    Pick<BandCatalog, 'bandOfLesson' | 'wordsOfBand'>
+}
+
+type StartLessonPorts = {
   readonly towns: TownRepository
   readonly lessonSlots: LessonSlotRepository
   readonly cards: CardRepository
@@ -84,7 +94,7 @@ const readDrawnBandStart = async (
   playerId: PlayerId,
   lesson: SchoolLesson,
   { bandStarts: started, held }: SettledSchool,
-  { bands, placements, random, lessons }: StartSchoolLessonDependencies,
+  { bands, placements, random, lessons }: StartLessonPorts,
   now: Instant,
 ): Promise<Result<BandStart | undefined, DomainError>> => {
   const band = bands.bandOfLesson(lesson.id)
@@ -107,7 +117,7 @@ const admitLesson = async (
   playerId: PlayerId,
   resolved: ChangedTown,
   lessonId: LessonId,
-  dependencies: StartSchoolLessonDependencies,
+  dependencies: StartLessonPorts,
   now: Instant,
 ): Promise<Result<AdmittedLesson, DomainError>> => {
   const settled = await readSettledSchool(playerId, resolved.town.id, dependencies, now)
@@ -145,7 +155,7 @@ const saveStartedLesson = async (
   resolved: ChangedTown,
   { settled: { entered, events }, drawn }: AdmittedLesson,
   started: BusyLessonSlot,
-  dependencies: StartSchoolLessonDependencies,
+  dependencies: StartLessonPorts,
 ): Promise<Result<void, DomainError>> => {
   const saved = await saveResolvedTown(resolved, dependencies.towns, dependencies.news)
   if (!saved.ok) {
@@ -165,9 +175,9 @@ const saveStartedLesson = async (
   )
 }
 
-export const startSchoolLesson = async (
+const startLessonIn = async (
   { playerId, lessonId }: StartSchoolLessonCommand,
-  dependencies: StartSchoolLessonDependencies,
+  dependencies: StartLessonPorts,
 ): Promise<Result<BusyLessonSlot, DomainError>> => {
   const { towns, catalog, clock } = dependencies
   const now = clock.now()
@@ -195,4 +205,28 @@ export const startSchoolLesson = async (
     return saved
   }
   return started
+}
+
+export class StartSchoolLesson {
+  constructor(private readonly dependencies: StartSchoolLessonDependencies) {}
+
+  async execute(command: StartSchoolLessonCommand): Promise<Result<TownReading, DomainError>> {
+    const { lessons, random, townCatalog } = this.dependencies
+    return changeTown(
+      command.playerId,
+      async (stores, clock) => {
+        const slot = await startLessonIn(command, {
+          ...stores,
+          news: stores.townNews,
+          lessons,
+          bands: lessons,
+          random,
+          catalog: townCatalog,
+          clock,
+        })
+        return slot.ok ? ok(clock.now()) : slot
+      },
+      this.dependencies,
+    )
+  }
 }

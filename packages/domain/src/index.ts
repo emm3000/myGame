@@ -211,7 +211,6 @@ export { type Season, seasonAt } from '#season/domain/seasonAt'
 export { Duration } from '#time/Duration'
 export { Instant } from '#time/Instant'
 export { laterOf } from '#time/laterOf'
-export { changeTown, type TownChange } from '#town/application/changeTown'
 export {
   FoundTown,
   type FoundTownCommand,
@@ -380,6 +379,16 @@ export type { ResourceKind } from '#town/resources/ResourceKind'
 export { rebaseFullSince } from '#town/resources/rebaseFullSince'
 export { resourceKinds } from '#town/resources/resourceKinds'
 export type { Stocks } from '#town/resources/Stocks'
+export {
+  StartSchoolLesson,
+  type StartSchoolLessonCommand,
+  type StartSchoolLessonDependencies,
+} from '#town/school/application/StartSchoolLesson'
+export {
+  StopSchoolLesson,
+  type StopSchoolLessonCommand,
+  type StopSchoolLessonDependencies,
+} from '#town/school/application/StopSchoolLesson'
 export { isLessonFinishedBy } from '#town/school/domain/isLessonFinishedBy'
 export { isLessonUnderStudy } from '#town/school/domain/isLessonUnderStudy'
 export {
@@ -392,19 +401,5 @@ export { lessonDurationSecondsAt } from '#town/school/domain/lessonDurationSecon
 export type { SchoolLesson } from '#town/school/domain/SchoolLesson'
 export type { SchoolLevel } from '#town/school/domain/SchoolLevel'
 export { schoolLevelOf } from '#town/school/domain/schoolLevelOf'
-export {
-  type SettleSchoolLessonDependencies,
-  settleSchoolLesson,
-} from '#town/school/useCases/settleSchoolLesson'
-export {
-  type StartSchoolLessonCommand,
-  type StartSchoolLessonDependencies,
-  startSchoolLesson,
-} from '#town/school/useCases/startSchoolLesson'
-export {
-  type StopSchoolLessonCommand,
-  type StopSchoolLessonDependencies,
-  stopSchoolLesson,
-} from '#town/school/useCases/stopSchoolLesson'
 export type { DomainError } from './DomainError'
 export { allOk, err, ok, type Result } from './Result'

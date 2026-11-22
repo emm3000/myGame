@@ -1,20 +1,23 @@
 import { describe, expect, it } from 'vitest'
+import { signedUpAccountsOf } from '#account/testing/signedUpAccountsOf'
 import { inMemoryBandStarts } from '#holdout/testing/inMemoryBandStarts'
 import { inMemoryBands } from '#learning/curriculum/testing/inMemoryBands'
 import { inMemoryLessons } from '#learning/curriculum/testing/inMemoryLessons'
 import { lessonOne } from '#learning/curriculum/testing/lessonOne'
 import { inMemoryCards } from '#learning/testing/inMemoryCards'
 import type { Clock } from '#platform/domain/Clock'
+import { inMemoryUnitOfWork } from '#platform/testing/inMemoryUnitOfWork'
 import { Instant } from '#time/Instant'
 import type { WorkSlot } from '../../building/domain/BuildingWork'
 import { inMemoryEarnedSkills } from '../../testing/inMemoryEarnedSkills'
-import { inMemoryTownNews } from '../../testing/inMemoryTownNews'
+import { type InMemoryTownNews, inMemoryTownNews } from '../../testing/inMemoryTownNews'
+import { inMemoryTownStores, townNewsOver } from '../../testing/inMemoryTownStores'
 import { inMemoryTowns } from '../../testing/inMemoryTowns'
 import { plainTownSettings, townCatalogOf } from '../../testing/townCatalogOf'
 import { type TownShape, townOf } from '../../testing/townFixtures'
 import type { LessonSlot } from '../domain/LessonSlot'
 import { inMemoryLessonSlots } from '../testing/inMemoryLessonSlots'
-import { stopSchoolLesson } from './stopSchoolLesson'
+import { StopSchoolLesson, type StopSchoolLessonCommand } from './StopSchoolLesson'
 
 const MILLISECONDS_PER_HOUR = 3_600_000
 
@@ -48,6 +51,35 @@ const farmFinishedAt = (finishesAt: Instant): WorkSlot => ({
   finishesAt,
 })
 
+type LessonFixture = {
+  readonly towns: ReturnType<typeof inMemoryTowns>
+  readonly lessonSlots: ReturnType<typeof inMemoryLessonSlots>
+  readonly bandStarts: ReturnType<typeof inMemoryBandStarts>
+  readonly cards: ReturnType<typeof inMemoryCards>
+  readonly lessons: ReturnType<typeof inMemoryLessons>
+  readonly bands: ReturnType<typeof inMemoryBands>
+  readonly news: InMemoryTownNews
+  readonly catalog: ReturnType<typeof townCatalogOf>
+  readonly clock: Clock
+}
+
+const stopWith = (
+  command: StopSchoolLessonCommand,
+  { lessons, bands, news, catalog, clock, ...held }: LessonFixture,
+): ReturnType<StopSchoolLesson['execute']> =>
+  new StopSchoolLesson({
+    unitOfWork: inMemoryUnitOfWork(
+      inMemoryTownStores({
+        ...held,
+        accounts: signedUpAccountsOf(['player-1']),
+        townNews: townNewsOver(news),
+      }),
+    ),
+    townCatalog: catalog,
+    lessons: { ...lessons, ...bands },
+    clock,
+  }).execute(command)
+
 type Setup = {
   readonly town?: Omit<TownShape, 'storedAt'>
   readonly slot?: LessonSlot
@@ -72,17 +104,17 @@ const schoolOf = ({ town = {}, slot }: Setup) => {
   return {
     ...dependencies,
     stop: (lessonId: string, playerId = 'player-1') =>
-      stopSchoolLesson({ playerId, lessonId }, dependencies),
+      stopWith({ playerId, lessonId }, dependencies),
   }
 }
 
-describe('stopSchoolLesson', () => {
+describe('StopSchoolLesson', () => {
   it('idles the school slot that studies the lesson', async () => {
     const school = schoolOf({ slot: runningLesson })
 
     const stopped = await school.stop('lesson-1')
 
-    expect(stopped).toEqual({ ok: true, value: undefined })
+    expect(stopped.ok).toBe(true)
     expect(await school.lessonSlots.lessonSlotOf('town-1')).toEqual({
       ok: true,
       value: { kind: 'idle' },
