@@ -91,13 +91,17 @@ What trunk holds, counted at `707869c1`:
 
   The best order any arrangement of the features allows leaves 15 of
   those lines against it, in 11 files, and that order is `learning <-
-  account <- placement <- holdout <- town`: the api's order with the
-  town and learning the other way round. For whole features, both
-  layers together, the best order leaves 49 lines in 25 files.
+  account <- placement <- holdout <- town`. It is an order of its own,
+  not the api's with one pair swapped: learning goes from the right of
+  the town to the far left, the account follows learning where it
+  preceded it, the town goes last, and the placement stands to the
+  left of the holdout where the api keeps the two apart. For whole
+  features, both layers together, the best order leaves 49 lines in
+  25 files.
 - **The lines that go back are the product.**
   `learning/domain/LessonSkill.ts:1` types a lesson's skill by the
   town's `ResourceKind`: a retained word earns the skill that raises a
-  town resource. `town/domain/TownStores.ts:1-6` lists the learner's
+  town resource. `town/domain/TownStores.ts:2-6` lists the learner's
   `CardRepository`, `PendingReviewRepository` and `ReviewLog`, the
   holdout's `BandStartRepository` and the placement's
   `PlacementRepository`, because a town mutation settles the school
@@ -188,8 +192,9 @@ A file may import the `domain/` folder of any feature. Between the
 rule, as ADR 052 decided for the whole package.
 
 - **No order fits them.** The api's order leaves 118 lines against it,
-  and the best order of their own leaves 15, with the town and
-  learning reversed. A reader would hold two orders for one list of
+  and the best order of their own leaves 15 and differs from the api's
+  in the place of four features: learning, the account, the town and
+  the placement. A reader would hold two orders for one list of
   feature names.
 - **What they share is vocabulary.** 89 of the 118 lines import types.
   A `domain/` folder holds entities, values, pure rules and port
@@ -339,9 +344,14 @@ as in the api.
 - Against: 118 lines in 46 files are against it, and they are not
   misplaced files. They name 43 files of `learning` (25), `placement`
   (9), `holdout` (8) and `town` (1), and those 43 import 26 more of
-  the same features: 69 files would need a home to the left of the
-  town, 42 of the 82 production files of learning's `domain/`
-  folders, 15 of the holdout's 20 and 11 of the placement's 14. That
+  the same features: 69 files would need a new home. 68 of them go at
+  least to the left of the town: 42 of the 82 production files of
+  learning's `domain/` folders, 15 of the holdout's 20 and 11 of the
+  placement's 14. The 69th is the town's own
+  `town/school/domain/isLessonFinishedBy.ts`, which
+  `account/application/ReadChromePhase.ts:7` imports, so it goes to
+  the left of the account; the files `account` and `content` name in
+  learning and the placement go as far left as their importer. That
   is not a move inside the order, it is the order reversed for the
   vocabulary under another name. A feature has the same name in every
   package (ADR 052, section 2), so the new home would be a new
@@ -417,7 +427,7 @@ tickets run, for no reason: section 1 depends on none of them.
 - One order, in both packages, for the thing an order can direct: who
   calls whom. `mutateTown` and `readScaffold` are called from the
   right, never the reverse, and Biome says so.
-- `biome.json` grows by eight overrides, about 200 lines, to 23
+- `biome.json` grows by eight overrides, about 230 lines, to 23
   feature overrides in all. A new feature adds its override in both
   packages.
 - A reader of `town/school` still opens `learning`, and a reader of
