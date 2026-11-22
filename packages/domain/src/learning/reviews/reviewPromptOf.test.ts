@@ -82,7 +82,7 @@ const answerForms = new Map([
   ['find-out', new Set(['find', 'finds', 'found', 'finding', 'out'])],
 ])
 
-const readerOf = (
+const learnerOf = (
   scaffold: Scaffold,
   cards: ReadonlyArray<HeldCard> = lessonCards,
 ): FrameLearner => ({
@@ -117,7 +117,7 @@ const recallOfFindOut = {
 }
 
 const offeredGlosses = (scaffold: Scaffold): ReadonlyArray<string> => {
-  const prompt = reviewPromptOf(recognitionOfSchool, readerOf(scaffold))
+  const prompt = reviewPromptOf(recognitionOfSchool, learnerOf(scaffold))
   assert(prompt.mode === 'recognition')
   return prompt.choices.map(({ gloss }) => gloss).sort()
 }
@@ -128,7 +128,7 @@ const supportedOf = (
 
 describe('reviewPromptOf', () => {
   it('shows a recognition with the word and the glosses of the lesson under es', () => {
-    const prompt = reviewPromptOf(recognitionOfSchool, readerOf('es'))
+    const prompt = reviewPromptOf(recognitionOfSchool, learnerOf('es'))
 
     assert(prompt.mode === 'recognition')
     expect(prompt.word).toBe('school')
@@ -136,21 +136,21 @@ describe('reviewPromptOf', () => {
   })
 
   it('shows a recognition frame as the spans of its stored frame', () => {
-    const prompt = reviewPromptOf(recognitionOfSchool, readerOf('es'))
+    const prompt = reviewPromptOf(recognitionOfSchool, learnerOf('es'))
 
     assert(prompt.mode === 'recognition')
     expect(prompt.frame.map(({ text }) => text).join('')).toBe('My home is by the school in town.')
   })
 
   it('never supports a token whose support equals a choice on a recognition', () => {
-    const prompt = reviewPromptOf(recognitionOfSchool, readerOf('es'))
+    const prompt = reviewPromptOf(recognitionOfSchool, learnerOf('es'))
 
     assert(prompt.mode === 'recognition')
     expect(supportedOf(prompt.frame)).toEqual(['town'])
   })
 
   it('shows a recall with the gloss and the gapped frame under es', () => {
-    const prompt = reviewPromptOf(recallOfSchool, readerOf('es'))
+    const prompt = reviewPromptOf(recallOfSchool, learnerOf('es'))
 
     assert(prompt.mode === 'recall')
     expect(prompt.gloss).toBe('escuela')
@@ -160,21 +160,21 @@ describe('reviewPromptOf', () => {
   })
 
   it('supports a recall frame by its neighbours', () => {
-    const prompt = reviewPromptOf(recallOfSchool, readerOf('es'))
+    const prompt = reviewPromptOf(recallOfSchool, learnerOf('es'))
 
     assert(prompt.mode === 'recall')
     expect(supportedOf(prompt.gappedFrame)).toEqual(['home', 'town'])
   })
 
   it('drops a support holding find on a recall of find out', () => {
-    const prompt = reviewPromptOf(recallOfFindOut, readerOf('none', []))
+    const prompt = reviewPromptOf(recallOfFindOut, learnerOf('none', []))
 
     assert(prompt.mode === 'recall')
     expect(prompt.gappedFrame.map(({ support }) => support)).toEqual([null, null, null])
   })
 
   it('keeps a support holding no form of the answer on a recall', () => {
-    const prompt = reviewPromptOf(recallOfFindOut, readerOf('es', []))
+    const prompt = reviewPromptOf(recallOfFindOut, learnerOf('es', []))
 
     assert(prompt.mode === 'recall')
     expect(supportedOf(prompt.gappedFrame)).toEqual(['map'])
@@ -182,14 +182,14 @@ describe('reviewPromptOf', () => {
 
   it('answers an unmatched stored frame as one span', () => {
     const stale = { ...recallOfSchool, shownFrame: 'I walk to ____ every day.' }
-    const prompt = reviewPromptOf(stale, readerOf('es'))
+    const prompt = reviewPromptOf(stale, learnerOf('es'))
 
     assert(prompt.mode === 'recall')
     expect(prompt.gappedFrame).toEqual([{ text: 'I walk to ____ every day.', support: null }])
   })
 
   it('uses definitions as recognition choices and recall cue under none', () => {
-    const recall = reviewPromptOf(recallOfSchool, readerOf('none'))
+    const recall = reviewPromptOf(recallOfSchool, learnerOf('none'))
 
     assert(recall.mode === 'recall')
     expect({ choices: offeredGlosses('none'), cue: recall.gloss }).toEqual({
