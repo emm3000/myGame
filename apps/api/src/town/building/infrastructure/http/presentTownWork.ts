@@ -1,18 +1,11 @@
 import type { TownOverview } from '@mygame/contracts'
-import {
-  type BusyWorkSlot,
-  type DomainError,
-  ok,
-  type Result,
-  type Town,
-  type TownCatalog,
-  waitingListScheduleOf,
-} from '@mygame/domain'
+import type { BusyWorkSlot } from '@mygame/domain'
 import { isoOf } from '#platform/infrastructure/http/isoOf'
+import type { WorkView } from '../../application/gatherWorkView'
 
 type BuildingWork = TownOverview['work']['waitingList'][number]
 
-const buildingWorkOf = ({
+const presentBuildingWork = ({
   building,
   level,
   cost,
@@ -26,18 +19,8 @@ const buildingWorkOf = ({
   finishesAt: isoOf(finishesAt),
 })
 
-export const presentTownWork = (
-  town: Town,
-  catalog: TownCatalog,
-): Result<TownOverview['work'], DomainError> => {
-  const cap = catalog.townSettings().waitingListCap
-  const slot = town.workSlot
-  if (slot.kind === 'idle') {
-    return ok({ slot: null, waitingList: [], cap })
-  }
-  const schedule = waitingListScheduleOf(slot, town.waitingList)
-  if (!schedule.ok) {
-    return schedule
-  }
-  return ok({ slot: buildingWorkOf(slot), waitingList: schedule.value.map(buildingWorkOf), cap })
-}
+export const presentTownWork = ({ slot, waitingList, cap }: WorkView): TownOverview['work'] => ({
+  slot: slot === null ? null : presentBuildingWork(slot),
+  waitingList: waitingList.map(presentBuildingWork),
+  cap,
+})
