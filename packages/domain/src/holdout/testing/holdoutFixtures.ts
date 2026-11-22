@@ -1,7 +1,7 @@
 import { lessonOne } from '#learning/curriculum/testing/lessonOne'
 import type { Lesson } from '#learning/Lesson'
 import type { OwnedCard } from '#learning/testing/inMemoryCards'
-import { MemoryCard } from '#memory/MemoryCard'
+import { MemoryCard } from '#memory/domain/MemoryCard'
 import { placementWordsOfBand } from '#placement/testing/placementWords'
 import { Instant } from '#time/Instant'
 import type { BandStart } from '../BandStart'

@@ -1,4 +1,4 @@
-import type { MemoryCard } from '#memory/MemoryCard'
+import type { MemoryCard } from '#memory/domain/MemoryCard'
 import type { Stage } from '../curriculum/stageOf'
 import type { LessonWord } from '../Lesson'
 import { reviewFormatOf } from '../reviews/ReviewFormat'

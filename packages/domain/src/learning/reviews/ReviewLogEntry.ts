@@ -1,5 +1,5 @@
-import type { StoredMemoryCard } from '#memory/MemoryCard'
-import type { MemoryRating } from '#memory/MemoryRating'
+import type { StoredMemoryCard } from '#memory/domain/MemoryCard'
+import type { MemoryRating } from '#memory/domain/MemoryRating'
 import type { PlayerId } from '#player/PlayerId'
 import type { Instant } from '#time/Instant'
 import type { WordId } from '../Lesson'

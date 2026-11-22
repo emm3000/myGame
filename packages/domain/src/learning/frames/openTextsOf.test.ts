@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import { MemoryCard } from '#memory/MemoryCard'
+import { MemoryCard } from '#memory/domain/MemoryCard'
 import { Instant } from '#time/Instant'
 import type { Band } from '../curriculum/Band'
 import { inMemoryBands } from '../curriculum/testing/inMemoryBands'

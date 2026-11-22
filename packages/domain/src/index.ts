@@ -116,18 +116,22 @@ export type { Scaffold } from '#learning/scaffold/Scaffold'
 export { type SupportLevel, supportLevelOf } from '#learning/scaffold/supportLevelOf'
 export { type SupportText, supportTextOf } from '#learning/scaffold/supportTextOf'
 export type { WordSupport } from '#learning/scaffold/WordSupport'
-export { dueInstantOf } from '#memory/dueInstantOf'
+export { dueInstantOf } from '#memory/domain/dueInstantOf'
 export {
   MemoryCard,
   type MemoryPlacement,
   type RecalledMemory,
   type StoredMemoryCard,
   type UnreviewedMemory,
-} from '#memory/MemoryCard'
-export type { MemoryRating } from '#memory/MemoryRating'
-export { defaultMemoryTerms, type FsrsParameters, type MemoryTerms } from '#memory/MemoryTerms'
-export { retrievabilityOf } from '#memory/retrievabilityOf'
-export { reviewMemoryCard } from '#memory/reviewMemoryCard'
+} from '#memory/domain/MemoryCard'
+export type { MemoryRating } from '#memory/domain/MemoryRating'
+export {
+  defaultMemoryTerms,
+  type FsrsParameters,
+  type MemoryTerms,
+} from '#memory/domain/MemoryTerms'
+export { retrievabilityOf } from '#memory/domain/retrievabilityOf'
+export { reviewMemoryCard } from '#memory/domain/reviewMemoryCard'
 export type {
   Placement,
   PlacementSample,
@@ -162,8 +166,8 @@ export type { RandomSource } from '#platform/domain/RandomSource'
 export type { Refusal } from '#platform/domain/Refusal'
 export { thrownCauseOf } from '#platform/domain/thrownCauseOf'
 export type { PlayerId } from '#player/PlayerId'
-export type { SeasonKind } from '#season/SeasonKind'
-export { type Season, seasonAt } from '#season/seasonAt'
+export type { SeasonKind } from '#season/domain/SeasonKind'
+export { type Season, seasonAt } from '#season/domain/seasonAt'
 export { Duration } from '#time/Duration'
 export { Instant } from '#time/Instant'
 export { laterOf } from '#time/laterOf'

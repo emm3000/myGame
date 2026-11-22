@@ -1,4 +1,4 @@
-import { MemoryCard } from '#memory/MemoryCard'
+import { MemoryCard } from '#memory/domain/MemoryCard'
 import type { Instant } from '#time/Instant'
 import type { HeldCard } from '../HeldCard'
 import type { Lesson } from '../Lesson'

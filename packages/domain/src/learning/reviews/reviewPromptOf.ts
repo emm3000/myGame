@@ -1,4 +1,4 @@
-import type { MemoryCard } from '#memory/MemoryCard'
+import type { MemoryCard } from '#memory/domain/MemoryCard'
 import type { FrameLearner } from '../frames/FrameLearner'
 import type { FrameSpans } from '../frames/FrameSpan'
 import { frameSpansOf } from '../frames/frameSpansOf'

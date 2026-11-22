@@ -1,6 +1,6 @@
 import type { DomainError } from '#DomainError'
 import { ok, type Result } from '#Result'
-import { SEASONS_PER_YEAR } from '#season/seasonAt'
+import { SEASONS_PER_YEAR } from '#season/domain/seasonAt'
 import type { TownCatalog } from '../ports/TownCatalog'
 import type { Town } from '../Town'
 import { deriveStorageCapacity } from './deriveStorageCapacity'

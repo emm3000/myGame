@@ -1,7 +1,7 @@
 import { assert, describe, expect, it } from 'vitest'
 import type { HeldCard } from '#learning/HeldCard'
 import { inMemoryCards } from '#learning/testing/inMemoryCards'
-import { MemoryCard } from '#memory/MemoryCard'
+import { MemoryCard } from '#memory/domain/MemoryCard'
 import type { Clock } from '#platform/domain/Clock'
 import { Instant } from '#time/Instant'
 import type { TownCatalog } from '../../ports/TownCatalog'

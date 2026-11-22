@@ -1,6 +1,6 @@
 import { assert, describe, expect, it } from 'vitest'
-import { MemoryCard } from '#memory/MemoryCard'
-import { defaultMemoryTerms } from '#memory/MemoryTerms'
+import { MemoryCard } from '#memory/domain/MemoryCard'
+import { defaultMemoryTerms } from '#memory/domain/MemoryTerms'
 import { Instant } from '#time/Instant'
 import type { HeldCard } from '../HeldCard'
 import { nextInLearningDueAtOf } from './nextInLearningDueAtOf'
