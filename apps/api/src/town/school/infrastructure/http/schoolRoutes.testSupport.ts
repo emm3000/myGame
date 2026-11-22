@@ -1,26 +1,14 @@
 import { ApiErrorSchema, type TownOverview, TownOverviewSchema } from '@mygame/contracts'
-import { type Clock, Instant } from '@mygame/domain'
 import { afterAll, beforeAll, beforeEach, expect } from 'vitest'
 import { createApp } from '#app'
 import type { ComposedServer } from '#composeServer'
+import { type SettableClock, settableClock } from '#settableClock.testSupport'
 import { truncatePlayerTables } from '#truncatePlayerTables.testSupport'
 import {
   runSql,
   sessionCookieOf,
   townServer,
 } from '../../../infrastructure/http/townRoutes.testSupport'
-
-type SettableClock = Clock & { readonly setTo: (iso: string) => void }
-
-const settableClock = (iso: string): SettableClock => {
-  let current = Instant.fromEpochMilliseconds(Date.parse(iso))
-  return {
-    now: () => current,
-    setTo: (next) => {
-      current = Instant.fromEpochMilliseconds(Date.parse(next))
-    },
-  }
-}
 
 export type Player = {
   readonly cookie: string
