@@ -297,6 +297,15 @@ export type { TownStores } from '#town/domain/TownStores'
 export { terrainOf } from '#town/domain/terrainOf'
 export { townLabelOf } from '#town/domain/townLabelOf'
 export { type TownSeason, townSeasonAt } from '#town/domain/townSeasonAt'
+export {
+  DismissGuidance,
+  type DismissGuidanceDependencies,
+} from '#town/guidance/application/DismissGuidance'
+export {
+  MarkTipSeen,
+  type MarkTipSeenCommand,
+  type MarkTipSeenDependencies,
+} from '#town/guidance/application/MarkTipSeen'
 export type { GuidanceDismissals } from '#town/guidance/domain/GuidanceDismissals'
 export type { NextStep } from '#town/guidance/domain/NextStep'
 export { type GoalShortfall, type NextGoal, nextGoalOf } from '#town/guidance/domain/nextGoalOf'
@@ -378,6 +387,10 @@ export { type JobSeason, jobSeasonAt } from '#town/jobs/domain/jobSeasonAt'
 export type { RegionMap, RegionSite, SiteWaste } from '#town/jobs/domain/RegionMap'
 export type { RegionMapReader, SiteHolder } from '#town/jobs/domain/RegionMapReader'
 export type { WasteSize } from '#town/jobs/domain/WasteSize'
+export {
+  ResolveTownNews,
+  type ResolveTownNewsDependencies,
+} from '#town/news/application/ResolveTownNews'
 export { type Accrual, accrueTown } from '#town/resources/domain/accrueTown'
 export { deriveFullAt, type FullAt } from '#town/resources/domain/deriveFullAt'
 export { deriveResourceRates, type ResourceRates } from '#town/resources/domain/deriveResourceRates'

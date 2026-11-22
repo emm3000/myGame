@@ -1,8 +1,12 @@
 import {
   CallJobBack,
   type CallJobBackDependencies,
+  DismissGuidance,
+  type DismissGuidanceDependencies,
   FoundTown,
   type FoundTownDependencies,
+  MarkTipSeen,
+  type MarkTipSeenDependencies,
   PlaceHiringOrder,
   type PlaceHiringOrderDependencies,
   QuoteCleanUp,
@@ -21,6 +25,8 @@ import {
   type ResetPasswordDependencies,
   ResolveCurrentTown,
   type ResolveCurrentTownDependencies,
+  ResolveTownNews,
+  type ResolveTownNewsDependencies,
   SendCleanUp,
   type SendCleanUpDependencies,
   SendJob,
@@ -63,7 +69,10 @@ export type UseCaseDependencies = SignUpDependencies &
   PlaceHiringOrderDependencies &
   StopHiringOrderDependencies &
   StartSchoolLessonDependencies &
-  StopSchoolLessonDependencies
+  StopSchoolLessonDependencies &
+  ResolveTownNewsDependencies &
+  MarkTipSeenDependencies &
+  DismissGuidanceDependencies
 
 export type UseCases = {
   readonly signUp: SignUp
@@ -87,6 +96,9 @@ export type UseCases = {
   readonly stopHiringOrder: StopHiringOrder
   readonly startSchoolLesson: StartSchoolLesson
   readonly stopSchoolLesson: StopSchoolLesson
+  readonly resolveTownNews: ResolveTownNews
+  readonly markTipSeen: MarkTipSeen
+  readonly dismissGuidance: DismissGuidance
 }
 
 export const composeUseCases = (adapters: UseCaseDependencies): UseCases => ({
@@ -111,4 +123,7 @@ export const composeUseCases = (adapters: UseCaseDependencies): UseCases => ({
   stopHiringOrder: new StopHiringOrder(adapters),
   startSchoolLesson: new StartSchoolLesson(adapters),
   stopSchoolLesson: new StopSchoolLesson(adapters),
+  resolveTownNews: new ResolveTownNews(adapters),
+  markTipSeen: new MarkTipSeen(adapters),
+  dismissGuidance: new DismissGuidance(adapters),
 })
