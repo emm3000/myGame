@@ -13,7 +13,7 @@ Build what the current ticket's `Done when` needs. No configuration flag for a c
 
 ## KISS
 
-The simplest structure that passes the criteria and respects the layers. A plain function beats a class with one method. A discriminated union (a `sealed interface` in Kotlin) beats a class hierarchy. A hand-written mapper beats a reflection-based one. Complexity has to buy something the reviewer can name.
+The simplest structure that passes the criteria and respects the layers. A plain function beats a class with one method, except a use case and a controller, which are classes by ADR 054. A discriminated union (a `sealed interface` in Kotlin) beats a class hierarchy. A hand-written mapper beats a reflection-based one. Complexity has to buy something the reviewer can name.
 
 ## SOLID, with its tests
 

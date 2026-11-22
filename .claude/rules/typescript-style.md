@@ -26,7 +26,7 @@ None. No JSDoc, no `//`, no `/* */`, no commented-out code, no section banners. 
 - `const` everywhere; `let` only when reassignment is the point.
 - Named exports only. A file exports one primary thing whose name matches the file.
 - No default parameters that hide a dependency (a clock, an id generator, a repository). Dependencies are passed.
-- Pure functions in `packages/domain`; a function that reads a port is a use case and is named as one.
+- Pure functions in `packages/domain`; a function that reads a port is a step of `application/`; a use case is a class there (ADR 054).
 - Control flow follows Flat control flow in `principles.md`; `biome.json` enforces part of it, and a finding is fixed by shape, never by a `biome-ignore`. A function longer than about 30 lines is split; the limits are in ADR 052, "The limits a check enforces": 250 lines a file, 50 a function, 30 production files a folder, 600 a test file, and the gate enforces them.
 - A production file holds at most 5 exports and a class or interface at most 7 methods (ADR 052, "No god file, no god class"); `scripts/mygame-structure-check` enforces both (`file_over_export_cap`, `type_over_method_cap`), and the package entries (`src/index.ts`, the domain's `src/testing.ts`) and `*Tables.ts` files are exempt from the export cap.
 - A callback is a function reference, `rows.map(toRow)`, only when the callee takes exactly one parameter; otherwise it is an arrow, `rows.map((row) => toRow(row))`. `map` passes the index and the array too, so `['1', '2'].map(parseInt)` returns `[1, NaN]`.
@@ -66,7 +66,7 @@ None. No JSDoc, no `//`, no `/* */`, no commented-out code, no section banners. 
 ## File names
 
 - camelCase for files that export a function or value, PascalCase for files that export a type, class or component.
-- Directories are plural nouns for collections and singular for a single concern. Which folder holds which role is ADR 052, "The folder grammar"; the first folder is a feature, the second a role.
+- Directories are plural nouns for collections and singular for a single concern. Which folder holds which layer is ADR 054, "The folder grammar"; the first folder is a feature, the second a layer. A feature that has not moved keeps ADR 052's folders and is listed in the baseline.
 - `*Of` names a pure, synchronous derivation and nothing else: a function that returns a promise is named by a verb, and a function that writes is never named as a reading.
 
 ## Formatting

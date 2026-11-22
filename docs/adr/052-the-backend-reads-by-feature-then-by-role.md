@@ -85,6 +85,8 @@ output. Three definitions hold throughout:
 
 ### 1. Feature first, then the three layers by name
 
+Superseded by ADR 054, section 1.
+
 The first folder under `src/` names a thing the game does. The second
 names a layer, with the owner's three words written out:
 
@@ -241,6 +243,8 @@ none.
 
 ### 3. The folder grammar
 
+Superseded by ADR 054, section 2.
+
 `packages/domain/src/<feature>/`:
 
 ```
@@ -330,6 +334,9 @@ per file as today, with no layer folder: the package is one layer.
 
 ### 4. Where a use case and a port go
 
+Superseded by ADR 054, sections 1, 3 and 4; "a pass-through earns no
+file" is kept.
+
 Two questions, in this order:
 
 1. Does it decide a game rule, or coordinate more than one domain
@@ -372,6 +379,9 @@ A use case answers domain values; a presenter in `infrastructure/http/`
 turns them into the wire type.
 
 ### 5. The file-name grammar
+
+Amended by ADR 054, sections 2, 3 and 6, which replace its rows for a
+use case, a service, a port, an endpoint and a contract suite.
 
 A reader tells the role from the name and the folder, with no file
 open.
@@ -458,6 +468,8 @@ migration lands with every baseline empty. A baseline is a list, not
 code, so it is not a shim under `architecture.md`.
 
 ### 7. The checks
+
+Amended by ADR 054, section 12.
 
 Each check has a name, the one the script prints and the baseline
 file uses, and each is expected empty. They run in

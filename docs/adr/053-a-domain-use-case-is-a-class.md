@@ -1,8 +1,10 @@
 ---
-status: proposed
+status: superseded by ADR 054
 date: 2026-11-21
 ---
 # A domain use case is a class: its ports in the constructor, one `execute`
+
+Superseded by ADR 054, `054-each-feature-reads-domain-application-infrastructure.md`.
 
 ## Context
 
