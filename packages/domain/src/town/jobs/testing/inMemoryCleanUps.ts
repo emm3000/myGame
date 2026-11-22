@@ -1,8 +1,8 @@
 import { ok } from '#Result'
 import type { Instant } from '#time/Instant'
 import type { SiteAddress } from '../../domain/SiteAddress'
-import type { CleanUp } from '../CleanUp'
-import type { CleanUpRepository } from '../ports/CleanUpRepository'
+import type { CleanUp } from '../domain/CleanUp'
+import type { CleanUpRepository } from '../domain/CleanUpRepository'
 
 const isSameSite = (left: SiteAddress, right: SiteAddress): boolean =>
   left.region === right.region && left.area === right.area && left.site === right.site

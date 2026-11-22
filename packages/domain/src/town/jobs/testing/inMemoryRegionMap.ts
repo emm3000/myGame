@@ -1,5 +1,5 @@
 import type { Town } from '../../domain/Town'
-import type { RegionMapReader } from '../ports/RegionMapReader'
+import type { RegionMapReader } from '../domain/RegionMapReader'
 
 export const inMemoryRegionMap = (towns: ReadonlyArray<Town>): RegionMapReader => ({
   addressOf: async (playerId) => {

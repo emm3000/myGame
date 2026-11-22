@@ -1,7 +1,7 @@
 import { assert, describe, expect, it } from 'vitest'
 import { Instant } from '#time/Instant'
 import type { HiringOrder } from '../hiring/HiringOrder'
-import type { Job } from '../jobs/Job'
+import type { Job } from '../jobs/domain/Job'
 import { accrueTown } from '../resources/accrueTown'
 import { townCatalogOf } from '../testing/townCatalogOf'
 import { storedTownOf } from '../testing/townFixtures'

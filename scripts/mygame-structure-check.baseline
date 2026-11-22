@@ -30,9 +30,6 @@ file_outside_layer packages/domain/src/town/building/useCases
 file_outside_layer packages/domain/src/town/guidance
 file_outside_layer packages/domain/src/town/hiring
 file_outside_layer packages/domain/src/town/hiring/useCases
-file_outside_layer packages/domain/src/town/jobs
-file_outside_layer packages/domain/src/town/jobs/ports
-file_outside_layer packages/domain/src/town/jobs/services
 file_outside_layer packages/domain/src/town/jobs/useCases
 file_outside_layer packages/domain/src/town/resources
 file_outside_layer packages/domain/src/town/school
@@ -56,8 +53,6 @@ role_folder packages/domain/src/placement/services
 role_folder packages/domain/src/placement/useCases
 role_folder packages/domain/src/town/building/useCases
 role_folder packages/domain/src/town/hiring/useCases
-role_folder packages/domain/src/town/jobs/ports
-role_folder packages/domain/src/town/jobs/services
 role_folder packages/domain/src/town/jobs/useCases
 role_folder packages/domain/src/town/school/ports
 role_folder packages/domain/src/town/school/services
