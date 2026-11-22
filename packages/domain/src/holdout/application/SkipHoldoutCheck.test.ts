@@ -1,21 +1,30 @@
 import { assert, describe, expect, it } from 'vitest'
+import { signedUpAccountsOf } from '#account/testing/signedUpAccountsOf'
+import { inMemoryBands } from '#learning/curriculum/testing/inMemoryBands'
+import { inMemoryLessons } from '#learning/curriculum/testing/inMemoryLessons'
+import { inMemoryPlacementWords } from '#placement/testing/placementWords'
+import { inMemoryUnitOfWork } from '#platform/testing/inMemoryUnitOfWork'
 import type { Instant } from '#time/Instant'
+import { inMemoryTownStores } from '#town/testing/inMemoryTownStores'
 import { ana, bandOneStart, weeksAfterStart } from '../testing/holdoutFixtures'
 import { inMemoryBandStarts } from '../testing/inMemoryBandStarts'
-import { skipHoldoutCheck } from './skipHoldoutCheck'
+import { SkipHoldoutCheck } from './SkipHoldoutCheck'
 
 const skipAt = async (now: Instant) => {
   const bandStarts = inMemoryBandStarts([{ playerId: ana, start: bandOneStart() }])
-  const skipped = await skipHoldoutCheck(
-    { playerId: ana, band: 1, week: 24 },
-    { bandStarts, clock: { now: () => now } },
-  )
+  const skipped = await new SkipHoldoutCheck({
+    unitOfWork: inMemoryUnitOfWork(
+      inMemoryTownStores({ bandStarts, accounts: signedUpAccountsOf([ana]) }),
+    ),
+    lessons: { ...inMemoryLessons([], []), ...inMemoryBands([]), ...inMemoryPlacementWords([]) },
+    clock: { now: () => now },
+  }).execute({ playerId: ana, band: 1, week: 24 })
   const stored = await bandStarts.bandStartsOf(ana)
   assert(stored.ok)
   return { skipped, checks: stored.value[0]?.checks }
 }
 
-describe('skipHoldoutCheck', () => {
+describe('SkipHoldoutCheck', () => {
   it('stores a due check as skipped at the instant it is skipped', async () => {
     const skippedAt = weeksAfterStart(25)
     const { checks } = await skipAt(skippedAt)

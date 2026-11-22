@@ -1,3 +1,4 @@
+import { readScaffold } from '#account/application/readScaffold'
 import type { DomainError } from '#DomainError'
 import type { Band } from '#learning/curriculum/Band'
 import type { CardRepository } from '#learning/ports/CardRepository'
@@ -17,24 +18,28 @@ import {
   type HoldoutCheckContent,
   holdoutCheckSampleDrawn,
 } from '../domain/holdoutCheckSampleDrawn'
+import { type MutateHoldoutCheckDependencies, mutateHoldoutCheck } from './mutateHoldoutCheck'
 
 export type BeginHoldoutCheckCommand = {
   readonly playerId: PlayerId
   readonly band: Band
   readonly week: HoldoutCheckWeek
+}
+
+type ScaffoldedBegin = BeginHoldoutCheckCommand & {
   readonly scaffold: Scaffold
 }
 
-export type BeginHoldoutCheckDependencies = HoldoutCheckContent & {
+type BeginPorts = HoldoutCheckContent & {
   readonly bandStarts: BandStartRepository
   readonly cards: Pick<CardRepository, 'cardsOf'>
   readonly random: RandomSource
   readonly clock: Clock
 }
 
-export const beginHoldoutCheck = async (
-  { playerId, band, week, scaffold }: BeginHoldoutCheckCommand,
-  dependencies: BeginHoldoutCheckDependencies,
+const beginHoldoutCheckIn = async (
+  { playerId, band, week, scaffold }: ScaffoldedBegin,
+  dependencies: BeginPorts,
 ): Promise<Result<HoldoutCheckView, DomainError>> => {
   const { bandStarts, cards, random, clock } = dependencies
   const now = clock.now()
@@ -62,4 +67,39 @@ export const beginHoldoutCheck = async (
     return saved
   }
   return ok(askingViewOf(band, begun, dependencies.words, scaffold))
+}
+
+export type BeginHoldoutCheckDependencies = MutateHoldoutCheckDependencies & {
+  readonly random: RandomSource
+}
+
+export class BeginHoldoutCheck {
+  constructor(private readonly dependencies: BeginHoldoutCheckDependencies) {}
+
+  async execute(
+    command: BeginHoldoutCheckCommand,
+  ): Promise<Result<ReadonlyArray<HoldoutCheckView>, DomainError>> {
+    const { lessons, random } = this.dependencies
+    return mutateHoldoutCheck(
+      command,
+      async (stores, { band, week }, at) =>
+        beginHoldoutCheckIn(
+          {
+            playerId: command.playerId,
+            band,
+            week,
+            scaffold: await readScaffold(command.playerId, stores.accounts),
+          },
+          {
+            bandStarts: stores.bandStarts,
+            cards: stores.cards,
+            lessons,
+            words: lessons,
+            random,
+            clock: at,
+          },
+        ),
+      this.dependencies,
+    )
+  }
 }

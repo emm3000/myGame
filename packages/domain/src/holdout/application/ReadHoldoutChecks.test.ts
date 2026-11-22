@@ -1,10 +1,13 @@
 import { assert, describe, expect, it } from 'vitest'
+import { signedUpAccountsOf } from '#account/testing/signedUpAccountsOf'
 import { inMemoryPlacementWords, placementWordsOfBand } from '#placement/testing/placementWords'
+import { inMemoryUnitOfWork } from '#platform/testing/inMemoryUnitOfWork'
 import { Instant } from '#time/Instant'
+import { inMemoryTownStores } from '#town/testing/inMemoryTownStores'
 import type { BandStart } from '../domain/BandStart'
 import type { HoldoutCheck } from '../domain/HoldoutCheck'
 import { inMemoryBandStarts } from '../testing/inMemoryBandStarts'
-import { readHoldoutChecks } from './readHoldoutChecks'
+import { ReadHoldoutChecks } from './ReadHoldoutChecks'
 
 const ana = 'player-ana'
 
@@ -27,14 +30,16 @@ const bandOneStart = (checks: ReadonlyArray<HoldoutCheck>): BandStart => ({
 })
 
 const checksAt = async (now: Instant, checks: ReadonlyArray<HoldoutCheck> = []) => {
-  const read = await readHoldoutChecks(
-    { playerId: ana, scaffold: 'es' },
-    {
-      bandStarts: inMemoryBandStarts([{ playerId: ana, start: bandOneStart(checks) }]),
-      words: inMemoryPlacementWords([{ band: 1, words: bandOneWords }]),
-      clock: { now: () => now },
-    },
-  )
+  const read = await new ReadHoldoutChecks({
+    unitOfWork: inMemoryUnitOfWork(
+      inMemoryTownStores({
+        bandStarts: inMemoryBandStarts([{ playerId: ana, start: bandOneStart(checks) }]),
+        accounts: signedUpAccountsOf([ana]),
+      }),
+    ),
+    lessons: inMemoryPlacementWords([{ band: 1, words: bandOneWords }]),
+    clock: { now: () => now },
+  }).execute({ playerId: ana })
   assert(read.ok)
   return read.value
 }
@@ -49,7 +54,7 @@ const takenEightWeekCheck: HoldoutCheck = {
   takenAt: weeksAfterStart(8),
 }
 
-describe('readHoldoutChecks', () => {
+describe('ReadHoldoutChecks', () => {
   it('falls due 8 weeks after the band’s start', async () => {
     expect(await checksAt(weeksAfterStart(8, -1))).toEqual([])
     expect(await checksAt(weeksAfterStart(8))).toEqual([{ kind: 'due', band: 1, week: 8 }])

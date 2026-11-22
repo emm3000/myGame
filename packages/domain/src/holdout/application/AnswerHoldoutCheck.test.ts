@@ -1,7 +1,16 @@
 import { assert, describe, expect, it } from 'vitest'
+import { inMemoryAccounts } from '#account/testing/inMemoryAccounts'
+import { inMemoryBands } from '#learning/curriculum/testing/inMemoryBands'
+import { inMemoryLessons } from '#learning/curriculum/testing/inMemoryLessons'
+import type { Scaffold } from '#learning/scaffold/Scaffold'
 import type { PlacementItem } from '#placement/domain/PlacementView'
+import type { PlacementWordCatalog } from '#placement/domain/PlacementWordCatalog'
 import { inMemoryPlacementWords } from '#placement/testing/placementWords'
+import type { Clock } from '#platform/domain/Clock'
+import { inMemoryUnitOfWork } from '#platform/testing/inMemoryUnitOfWork'
+import type { PlayerId } from '#player/PlayerId'
 import type { Instant } from '#time/Instant'
+import { inMemoryTownStores } from '#town/testing/inMemoryTownStores'
 import type { HoldoutCheck } from '../domain/HoldoutCheck'
 import {
   ana,
@@ -12,8 +21,51 @@ import {
   weeksAfterStart,
 } from '../testing/holdoutFixtures'
 import { inMemoryBandStarts } from '../testing/inMemoryBandStarts'
-import { answerHoldoutCheck } from './answerHoldoutCheck'
-import { readHoldoutChecks } from './readHoldoutChecks'
+import { AnswerHoldoutCheck, type AnswerHoldoutCheckCommand } from './AnswerHoldoutCheck'
+import { ReadHoldoutChecks } from './ReadHoldoutChecks'
+
+type CheckFixture = {
+  readonly bandStarts: ReturnType<typeof inMemoryBandStarts>
+  readonly words: PlacementWordCatalog
+  readonly clock: Clock
+}
+
+const unitOfWorkOf = ({ bandStarts }: CheckFixture, scaffold: Scaffold) =>
+  inMemoryUnitOfWork(
+    inMemoryTownStores({
+      bandStarts,
+      accounts: inMemoryAccounts([
+        {
+          id: ana,
+          email: `${ana}@example.com`,
+          passwordHash: 'argon2id-hash',
+          emailVerified: true,
+          scaffold,
+          scaffoldVersion: 0,
+        },
+      ]),
+    }),
+  )
+
+const answerHoldoutCheck = (
+  { scaffold, ...command }: AnswerHoldoutCheckCommand & { readonly scaffold: Scaffold },
+  fixture: CheckFixture,
+): ReturnType<AnswerHoldoutCheck['execute']> =>
+  new AnswerHoldoutCheck({
+    unitOfWork: unitOfWorkOf(fixture, scaffold),
+    lessons: { ...inMemoryLessons([], []), ...inMemoryBands([]), ...fixture.words },
+    clock: fixture.clock,
+  }).execute(command)
+
+const readHoldoutChecks = (
+  { playerId, scaffold }: { readonly playerId: PlayerId; readonly scaffold: Scaffold },
+  fixture: CheckFixture,
+): ReturnType<ReadHoldoutChecks['execute']> =>
+  new ReadHoldoutChecks({
+    unitOfWork: unitOfWorkOf(fixture, scaffold),
+    lessons: fixture.words,
+    clock: fixture.clock,
+  }).execute({ playerId })
 
 const heldOutIds = heldOutOfStudied.map(({ id }) => id)
 
@@ -57,7 +109,7 @@ const storedCheckOf = async (dependencies: ReturnType<typeof checkOf>) => {
   return stored.value[0]?.checks.find(({ week }) => week === 8)
 }
 
-describe('answerHoldoutCheck', () => {
+describe('AnswerHoldoutCheck', () => {
   it('stores the held-out score apart from the practised score', async () => {
     const takenAt = weeksAfterStart(8, 60_000)
     const dependencies = checkOf([begunCheck], takenAt)
@@ -150,9 +202,11 @@ describe('answerHoldoutCheck', () => {
     )
 
     assert(answered.ok)
+    const taken = await storedCheckOf(dependencies)
+    assert(taken?.kind === 'taken')
     expect({
-      heldOut: answered.value.heldOutScore,
-      practised: answered.value.practisedScore,
+      heldOut: taken.heldOutScore,
+      practised: taken.practisedScore,
     }).toEqual({
       heldOut: 1,
       practised: 2,

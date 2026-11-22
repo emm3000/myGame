@@ -8,20 +8,20 @@ import type { BandStartRepository } from '../domain/BandStartRepository'
 import type { HoldoutCheckView } from '../domain/HoldoutCheckView'
 import { holdoutCheckViewsOf } from '../domain/holdoutCheckViewsOf'
 
-export type ReadHoldoutChecksQuery = {
+export type ReadHoldoutCheckViewsQuery = {
   readonly playerId: PlayerId
   readonly scaffold: Scaffold
 }
 
-export type ReadHoldoutChecksDependencies = {
+export type ReadHoldoutCheckViewsDependencies = {
   readonly bandStarts: Pick<BandStartRepository, 'bandStartsOf'>
   readonly words: PlacementWordCatalog
   readonly clock: Clock
 }
 
-export const readHoldoutChecks = async (
-  { playerId, scaffold }: ReadHoldoutChecksQuery,
-  { bandStarts, words, clock }: ReadHoldoutChecksDependencies,
+export const readHoldoutCheckViews = async (
+  { playerId, scaffold }: ReadHoldoutCheckViewsQuery,
+  { bandStarts, words, clock }: ReadHoldoutCheckViewsDependencies,
 ): Promise<Result<ReadonlyArray<HoldoutCheckView>, DomainError>> => {
   const starts = await bandStarts.bandStartsOf(playerId)
   if (!starts.ok) {
