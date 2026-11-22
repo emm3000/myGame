@@ -1,6 +1,7 @@
 import { assert, describe, expect, it } from 'vitest'
 import type { Clock } from '#ports/Clock'
 import { Instant } from '#time/Instant'
+import { inMemoryEarnedSkills } from '../../testing/inMemoryEarnedSkills'
 import { inMemoryTownNews } from '../../testing/inMemoryTownNews'
 import { inMemoryTowns } from '../../testing/inMemoryTowns'
 import { plainTownSettings, townCatalogOf } from '../../testing/townCatalogOf'
@@ -102,7 +103,7 @@ const dependenciesAt = (
 } => {
   const frozenClock: Clock = { now: () => now }
   return {
-    towns: inMemoryTowns([town]),
+    towns: inMemoryTowns([town], inMemoryEarnedSkills([])),
     news: inMemoryTownNews(),
     catalog,
     clock: frozenClock,

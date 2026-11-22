@@ -5,6 +5,7 @@ import { MemoryCard } from '#memory/MemoryCard'
 import type { Clock } from '#ports/Clock'
 import { Instant } from '#time/Instant'
 import type { TownCatalog } from '../../ports/TownCatalog'
+import { inMemoryEarnedSkills } from '../../testing/inMemoryEarnedSkills'
 import { inMemoryTownNews } from '../../testing/inMemoryTownNews'
 import { inMemoryTowns } from '../../testing/inMemoryTowns'
 import { plainTownLevels, plainTownSettings, townCatalogOf } from '../../testing/townCatalogOf'
@@ -93,7 +94,10 @@ const startIn = async (
   catalog: TownCatalog = pricedCatalog,
   held: ReadonlyArray<HeldCard> = [],
 ): Promise<ReturnType<typeof startBuildingWork>> => {
-  const towns = inMemoryTowns([townOf({ stocks: startingStocks, storedAt, ...shape })])
+  const towns = inMemoryTowns(
+    [townOf({ stocks: startingStocks, storedAt, ...shape })],
+    inMemoryEarnedSkills([]),
+  )
   const cards = inMemoryCards(held.map((card) => ({ ...card, playerId: 'player-1' })))
   const dependencies = { towns, news: inMemoryTownNews(), cards, catalog, clock: frozenClock }
   const last = buildings.at(-1)
@@ -329,7 +333,7 @@ describe('startBuildingWork', () => {
 
   it('charges and stores nothing when refused', async () => {
     const seeded = townOf({ stocks: startingStocks, storedAt, buildingLevels: { homes: 2 } })
-    const towns = inMemoryTowns([seeded])
+    const towns = inMemoryTowns([seeded], inMemoryEarnedSkills([]))
     const news = inMemoryTownNews()
 
     const refused = await startBuildingWork(
@@ -354,7 +358,7 @@ describe('startBuildingWork', () => {
     const refused = await startBuildingWork(
       { playerId: 'stranger', building: 'farm' },
       {
-        towns: inMemoryTowns([]),
+        towns: inMemoryTowns([], inMemoryEarnedSkills([])),
         news: inMemoryTownNews(),
         cards: inMemoryCards([]),
         catalog: pricedCatalog,

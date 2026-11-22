@@ -4,6 +4,7 @@ import { Instant } from '#time/Instant'
 import type { WorkSlot } from '../building/BuildingWork'
 import type { WaitingWork } from '../building/WaitingList'
 import type { Job } from '../jobs/Job'
+import { inMemoryEarnedSkills } from '../testing/inMemoryEarnedSkills'
 import { inMemoryTownNews } from '../testing/inMemoryTownNews'
 import { inMemoryTowns } from '../testing/inMemoryTowns'
 import { plainTownSettings, townCatalogOf } from '../testing/townCatalogOf'
@@ -66,7 +67,7 @@ const resolvedAt = async (
   readonly news: ReturnType<typeof inMemoryTownNews>
 }> => {
   const frozenClock: Clock = { now: () => now }
-  const towns = inMemoryTowns([town])
+  const towns = inMemoryTowns([town], inMemoryEarnedSkills([]))
   const news = inMemoryTownNews()
   const resolved = await resolveTown('player-1', {
     towns,

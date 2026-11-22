@@ -3,6 +3,7 @@ import type { DomainError } from '#DomainError'
 import type { Clock } from '#ports/Clock'
 import { Instant } from '#time/Instant'
 import type { Town } from '../../Town'
+import { inMemoryEarnedSkills } from '../../testing/inMemoryEarnedSkills'
 import { inMemoryTownNews } from '../../testing/inMemoryTownNews'
 import { inMemoryTowns } from '../../testing/inMemoryTowns'
 import { plainTownSettings, townCatalogOf } from '../../testing/townCatalogOf'
@@ -73,7 +74,7 @@ const quoteFrom = (
 const sentCleanUpOf = async (town: Town, change: Partial<CleanUpOrder>): Promise<unknown> => {
   const cleanUps = inMemoryCleanUps()
   const sent = await sendCleanUp(order(change), {
-    towns: inMemoryTowns([town]),
+    towns: inMemoryTowns([town], inMemoryEarnedSkills([])),
     map: inMemoryRegionMap([town]),
     cleanUps,
     news: inMemoryTownNews(),
@@ -88,7 +89,7 @@ const sentCleanUpOf = async (town: Town, change: Partial<CleanUpOrder>): Promise
 
 describe('quoteCleanUp', () => {
   it("answers the team's strength, the site's waste and the pay", async () => {
-    const quoted = await quoteFrom(inMemoryTowns([homeTown]))
+    const quoted = await quoteFrom(inMemoryTowns([homeTown], inMemoryEarnedSkills([])))
 
     expect(quoted).toEqual({
       ok: true,
@@ -102,14 +103,18 @@ describe('quoteCleanUp', () => {
   })
 
   it('answers no pay for a team whose strength falls short of the waste', async () => {
-    const quoted = await quoteFrom(inMemoryTowns([homeTown]), { team: { worker: 5, truck: 0 } })
+    const quoted = await quoteFrom(inMemoryTowns([homeTown], inMemoryEarnedSkills([])), {
+      team: { worker: 5, truck: 0 },
+    })
 
     assert(quoted.ok)
     expect(quoted.value.pay).toEqual({ money: 0, food: 0, power: 0, material: 0 })
   })
 
   it('answers that a team whose strength falls short of the waste does not cover it', async () => {
-    const quoted = await quoteFrom(inMemoryTowns([homeTown]), { team: { worker: 5, truck: 0 } })
+    const quoted = await quoteFrom(inMemoryTowns([homeTown], inMemoryEarnedSkills([])), {
+      team: { worker: 5, truck: 0 },
+    })
 
     assert(quoted.ok)
     expect([quoted.value.strength, quoted.value.waste, quoted.value.covers]).toEqual([5, 6, false])
@@ -123,7 +128,7 @@ describe('quoteCleanUp', () => {
     ]
 
     const quoted = await Promise.all(
-      teams.map((team) => quoteFrom(inMemoryTowns([homeTown]), { team })),
+      teams.map((team) => quoteFrom(inMemoryTowns([homeTown], inMemoryEarnedSkills([])), { team })),
     )
     const sent = await Promise.all(teams.map((team) => sentCleanUpOf(homeTown, { team })))
 
@@ -131,7 +136,7 @@ describe('quoteCleanUp', () => {
   })
 
   const townWithTeamOut = async (): Promise<ReturnType<typeof inMemoryTowns>> => {
-    const towns = inMemoryTowns([homeTown])
+    const towns = inMemoryTowns([homeTown], inMemoryEarnedSkills([]))
     await sendCleanUp(order({ team: { worker: 1, truck: 0 } }), {
       towns,
       map: inMemoryRegionMap([homeTown]),
@@ -152,7 +157,7 @@ describe('quoteCleanUp', () => {
     {
       refusal: 'InvalidTeam',
       change: { team: { worker: 0, truck: 0 } },
-      townsOf: async () => inMemoryTowns([homeTown]),
+      townsOf: async () => inMemoryTowns([homeTown], inMemoryEarnedSkills([])),
       error: { kind: 'InvalidTeam', team: { worker: 0, truck: 0 } },
     },
     {
@@ -164,19 +169,19 @@ describe('quoteCleanUp', () => {
     {
       refusal: 'JobSiteOutOfBounds',
       change: { site: { area: 3, site: 1 } },
-      townsOf: async () => inMemoryTowns([homeTown]),
+      townsOf: async () => inMemoryTowns([homeTown], inMemoryEarnedSkills([])),
       error: { kind: 'JobSiteOutOfBounds', area: 3, site: 1 },
     },
     {
       refusal: 'JobToOwnSite',
       change: { site: { area: 1, site: 1 } },
-      townsOf: async () => inMemoryTowns([homeTown]),
+      townsOf: async () => inMemoryTowns([homeTown], inMemoryEarnedSkills([])),
       error: { kind: 'JobToOwnSite' },
     },
     {
       refusal: 'SiteHeld',
       change: { site: { area: 1, site: 9 } },
-      townsOf: async () => inMemoryTowns([homeTown]),
+      townsOf: async () => inMemoryTowns([homeTown], inMemoryEarnedSkills([])),
       error: { kind: 'SiteHeld', area: 1, site: 9 },
     },
   ]
@@ -191,7 +196,9 @@ describe('quoteCleanUp', () => {
   )
 
   it('refuses a site that holds no waste', async () => {
-    const quoted = await quoteFrom(inMemoryTowns([homeTown]), { site: { area: 2, site: 3 } })
+    const quoted = await quoteFrom(inMemoryTowns([homeTown], inMemoryEarnedSkills([])), {
+      site: { area: 2, site: 3 },
+    })
 
     expect(quoted).toEqual({ ok: false, error: { kind: 'NotAWasteSite', area: 2, site: 3 } })
   })
@@ -204,13 +211,17 @@ describe('quoteCleanUp', () => {
       cleanedAt: quotedAt,
     }
 
-    const quoted = await quoteFrom(inMemoryTowns([homeTown]), {}, [cleaned])
+    const quoted = await quoteFrom(inMemoryTowns([homeTown], inMemoryEarnedSkills([])), {}, [
+      cleaned,
+    ])
 
     expect(quoted).toEqual({ ok: false, error: { kind: 'NoWasteYet', area: 2, site: 1 } })
   })
 
   it('refuses a team larger than the hires at home', async () => {
-    const quoted = await quoteFrom(inMemoryTowns([homeTown]), { team: { worker: 9, truck: 0 } })
+    const quoted = await quoteFrom(inMemoryTowns([homeTown], inMemoryEarnedSkills([])), {
+      team: { worker: 9, truck: 0 },
+    })
 
     expect(quoted).toEqual({
       ok: false,
@@ -219,13 +230,13 @@ describe('quoteCleanUp', () => {
   })
 
   it('refuses a player with no town', async () => {
-    const quoted = await quoteFrom(inMemoryTowns([]))
+    const quoted = await quoteFrom(inMemoryTowns([], inMemoryEarnedSkills([])))
 
     expect(quoted).toEqual({ ok: false, error: { kind: 'TownNotFound', playerId: 'player-1' } })
   })
 
   it('writes nothing', async () => {
-    const towns = inMemoryTowns([homeTown])
+    const towns = inMemoryTowns([homeTown], inMemoryEarnedSkills([]))
 
     await quoteFrom(towns)
 

@@ -13,6 +13,7 @@ import type { LessonSlot } from '#town/school/LessonSlot'
 import { inMemoryLessonSlots } from '#town/school/testing/inMemoryLessonSlots'
 import { settleSchoolLesson } from '#town/school/useCases/settleSchoolLesson'
 import { startSchoolLesson } from '#town/school/useCases/startSchoolLesson'
+import { inMemoryEarnedSkills } from '#town/testing/inMemoryEarnedSkills'
 import { inMemoryTownNews } from '#town/testing/inMemoryTownNews'
 import { inMemoryTowns } from '#town/testing/inMemoryTowns'
 import { plainTownSettings, townCatalogOf } from '#town/testing/townCatalogOf'
@@ -94,7 +95,7 @@ const schoolOf = ({
   let now = weeksAfterStart(25)
   const held = inMemoryCards(cards)
   const dependencies = {
-    towns: inMemoryTowns([townOf({ storedAt: bandStartedAt })]),
+    towns: inMemoryTowns([townOf({ storedAt: bandStartedAt })], inMemoryEarnedSkills([])),
     lessonSlots: inMemoryLessonSlots(slot === undefined ? [] : [{ townId: 'town-1', slot }]),
     cards: held,
     lessons: inMemoryLessons([firstLesson, secondLesson, unstudiedLesson, unitLesson], []),
@@ -114,17 +115,12 @@ const schoolOf = ({
     clock: { now: () => now },
   }
   const enteredAfterStudying = async (lessonId: string): Promise<ReadonlyArray<string>> => {
-    const before = await held.cardsOf('player-1')
-    assert(before.ok)
+    const before = held.enteredWordIdsOf('player-1')
     const started = await startSchoolLesson({ playerId: 'player-1', lessonId }, dependencies)
     assert(started.ok)
     now = started.value.finishesAt
     assert((await settleSchoolLesson('player-1', dependencies)).ok)
-    const after = await held.cardsOf('player-1')
-    assert(after.ok)
-    return after.value
-      .map(({ wordId }) => wordId)
-      .filter((wordId) => !before.value.some((card) => card.wordId === wordId))
+    return held.enteredWordIdsOf('player-1').filter((wordId) => !before.includes(wordId))
   }
   return {
     ...dependencies,

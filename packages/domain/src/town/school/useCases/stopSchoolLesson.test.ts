@@ -7,6 +7,7 @@ import { inMemoryCards } from '#learning/testing/inMemoryCards'
 import type { Clock } from '#ports/Clock'
 import { Instant } from '#time/Instant'
 import type { WorkSlot } from '../../building/BuildingWork'
+import { inMemoryEarnedSkills } from '../../testing/inMemoryEarnedSkills'
 import { inMemoryTownNews } from '../../testing/inMemoryTownNews'
 import { inMemoryTowns } from '../../testing/inMemoryTowns'
 import { plainTownSettings, townCatalogOf } from '../../testing/townCatalogOf'
@@ -55,7 +56,10 @@ type Setup = {
 const schoolOf = ({ town = {}, slot }: Setup) => {
   const frozenClock: Clock = { now: () => now }
   const dependencies = {
-    towns: inMemoryTowns([townOf({ storedAt: hoursAfterEpoch(1), ...town })]),
+    towns: inMemoryTowns(
+      [townOf({ storedAt: hoursAfterEpoch(1), ...town })],
+      inMemoryEarnedSkills([]),
+    ),
     lessonSlots: inMemoryLessonSlots(slot === undefined ? [] : [{ townId: 'town-1', slot }]),
     bandStarts: inMemoryBandStarts([]),
     cards: inMemoryCards([]),

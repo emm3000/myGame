@@ -5,6 +5,7 @@ import type { Hires } from '../../hiring/Hires'
 import type { TownCatalog } from '../../ports/TownCatalog'
 import type { Town } from '../../Town'
 import type { TownSettings } from '../../TownSettings'
+import { inMemoryEarnedSkills } from '../../testing/inMemoryEarnedSkills'
 import { inMemoryTownNews } from '../../testing/inMemoryTownNews'
 import { inMemoryTowns } from '../../testing/inMemoryTowns'
 import { plainTownSettings, townCatalogOf } from '../../testing/townCatalogOf'
@@ -66,7 +67,7 @@ const sendFrom = async (
   readonly sent: Awaited<ReturnType<typeof sendJob>>
   readonly towns: ReturnType<typeof inMemoryTowns>
 }> => {
-  const towns = inMemoryTowns([town, neighborTown])
+  const towns = inMemoryTowns([town, neighborTown], inMemoryEarnedSkills([]))
   const sent = await sendJob(command(change), {
     towns,
     map: inMemoryRegionMap([town, neighborTown]),

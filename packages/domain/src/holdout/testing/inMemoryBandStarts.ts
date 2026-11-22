@@ -16,10 +16,15 @@ export const inMemoryBandStarts = (
     starts.findIndex((stored) => stored.playerId === playerId && stored.start.band === band)
   return {
     bandStartsOf: async (playerId) =>
-      ok(starts.filter((stored) => stored.playerId === playerId).map(({ start }) => start)),
+      ok(
+        starts
+          .filter((stored) => stored.playerId === playerId)
+          .map(({ start }) => start)
+          .sort((left, right) => left.band - right.band),
+      ),
     save: async (playerId, start) => {
       if (indexOf(playerId, start.band) === -1) {
-        starts.push({ playerId, start })
+        starts.push({ playerId, start: { ...start, heldOutWords: [...start.heldOutWords].sort() } })
       }
       return ok(undefined)
     },

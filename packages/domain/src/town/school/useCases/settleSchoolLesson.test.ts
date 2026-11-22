@@ -7,6 +7,7 @@ import { inMemoryCards } from '#learning/testing/inMemoryCards'
 import { MemoryCard } from '#memory/MemoryCard'
 import type { Clock } from '#ports/Clock'
 import { Instant } from '#time/Instant'
+import { inMemoryEarnedSkills } from '../../testing/inMemoryEarnedSkills'
 import { inMemoryTownNews } from '../../testing/inMemoryTownNews'
 import { inMemoryTowns } from '../../testing/inMemoryTowns'
 import { plainTownSettings } from '../../testing/townCatalogOf'
@@ -43,7 +44,7 @@ const runningLesson: LessonSlot = {
 const schoolOf = (slot: LessonSlot, bandStarts: ReadonlyArray<OwnedBandStart> = []) => {
   const frozenClock: Clock = { now: () => now }
   const dependencies = {
-    towns: inMemoryTowns([townOf({ storedAt: hoursAfterEpoch(1) })]),
+    towns: inMemoryTowns([townOf({ storedAt: hoursAfterEpoch(1) })], inMemoryEarnedSkills([])),
     lessonSlots: inMemoryLessonSlots([{ townId: 'town-1', slot }]),
     bandStarts: inMemoryBandStarts(bandStarts),
     cards: inMemoryCards([]),
@@ -75,7 +76,7 @@ describe('settleSchoolLesson', () => {
 
     const held = await school.cards.cardsOf('player-1')
     assert(held.ok)
-    expect(held.value.map(({ wordId }) => wordId)).toEqual(['home', 'school', 'work', 'food'])
+    expect(held.value.map(({ wordId }) => wordId)).toEqual(['food', 'home', 'school', 'work'])
   })
 
   it("enters a finished lesson's cards at its finish", async () => {
@@ -85,8 +86,8 @@ describe('settleSchoolLesson', () => {
 
     expect(await school.cards.cardsOf('player-1')).toEqual({
       ok: true,
-      value: lessonOne.words.map(({ id }) => ({
-        wordId: id,
+      value: ['food', 'home', 'money', 'school', 'work'].map((wordId) => ({
+        wordId,
         card: MemoryCard.entered(finishesAt),
       })),
     })

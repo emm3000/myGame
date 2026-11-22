@@ -2,6 +2,7 @@ import { assert, describe, expect, it } from 'vitest'
 import type { Clock } from '#ports/Clock'
 import { Instant } from '#time/Instant'
 import type { Town } from '../../Town'
+import { inMemoryEarnedSkills } from '../../testing/inMemoryEarnedSkills'
 import { inMemoryTownNews } from '../../testing/inMemoryTownNews'
 import { inMemoryTowns } from '../../testing/inMemoryTowns'
 import { plainTownSettings, townCatalogOf } from '../../testing/townCatalogOf'
@@ -48,7 +49,7 @@ const callBack = async (
   readonly news: ReturnType<typeof inMemoryTownNews>
 }> => {
   const frozenClock: Clock = { now: () => at }
-  const towns = inMemoryTowns([town])
+  const towns = inMemoryTowns([town], inMemoryEarnedSkills([]))
   const news = inMemoryTownNews()
   const called = await callJobBack(
     { playerId: 'player-1', sentAt: named },

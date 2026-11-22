@@ -8,13 +8,22 @@ export type PlayerSkill = {
   readonly skill: TownSkill
 }
 
+const byEarnedAt = (left: TownSkill, right: TownSkill): number =>
+  left.earnedAt.epochMilliseconds - right.earnedAt.epochMilliseconds ||
+  (left.lessonId < right.lessonId ? -1 : Number(left.lessonId > right.lessonId))
+
 export const inMemoryEarnedSkills = (
   existing: ReadonlyArray<PlayerSkill>,
 ): EarnedSkillRepository => {
   const skills = [...existing]
   return {
     skillsOf: async (playerId) =>
-      ok(skills.filter((stored) => stored.playerId === playerId).map(({ skill }) => skill)),
+      ok(
+        skills
+          .filter((stored) => stored.playerId === playerId)
+          .map(({ skill }) => skill)
+          .sort(byEarnedAt),
+      ),
     save: async (playerId, skill) => {
       const isEarned = skills.some(
         (stored) => stored.playerId === playerId && stored.skill.lessonId === skill.lessonId,

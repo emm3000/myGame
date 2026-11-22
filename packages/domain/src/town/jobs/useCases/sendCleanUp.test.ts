@@ -5,6 +5,7 @@ import type { Hires } from '../../hiring/Hires'
 import { accrueTown } from '../../resources/accrueTown'
 import type { Stocks } from '../../resources/Stocks'
 import type { Town } from '../../Town'
+import { inMemoryEarnedSkills } from '../../testing/inMemoryEarnedSkills'
 import { inMemoryTownNews } from '../../testing/inMemoryTownNews'
 import { inMemoryTowns } from '../../testing/inMemoryTowns'
 import { plainTownSettings, townCatalogOf } from '../../testing/townCatalogOf'
@@ -78,7 +79,7 @@ type World = {
 }
 
 const worldOf = (town: Town = homeTown()): World => ({
-  towns: inMemoryTowns([town, neighborTown]),
+  towns: inMemoryTowns([town, neighborTown], inMemoryEarnedSkills([])),
   news: inMemoryTownNews(),
   cleanUps: inMemoryCleanUps(),
 })

@@ -2,6 +2,7 @@ import { assert, describe, expect, it } from 'vitest'
 import type { Clock } from '#ports/Clock'
 import { Instant } from '#time/Instant'
 import { derivePeople } from '../../derivePeople'
+import { inMemoryEarnedSkills } from '../../testing/inMemoryEarnedSkills'
 import { inMemoryTownNews } from '../../testing/inMemoryTownNews'
 import { inMemoryTowns } from '../../testing/inMemoryTowns'
 import { plainTownSettings, townCatalogOf } from '../../testing/townCatalogOf'
@@ -51,7 +52,12 @@ const stopAt = (
 ): ReturnType<typeof stopHiringOrder> =>
   stopHiringOrder(
     { playerId: town.playerId, hire: 'worker', startedAt },
-    { towns: inMemoryTowns([town]), news: inMemoryTownNews(), catalog, clock: frozenClock(at) },
+    {
+      towns: inMemoryTowns([town], inMemoryEarnedSkills([])),
+      news: inMemoryTownNews(),
+      catalog,
+      clock: frozenClock(at),
+    },
   )
 
 describe('stopHiringOrder', () => {
@@ -102,7 +108,7 @@ describe('stopHiringOrder', () => {
       buildingLevels: { homes: 2, office: 1 },
       hiringSlot: fiveWorkers,
     })
-    const towns = inMemoryTowns([town])
+    const towns = inMemoryTowns([town], inMemoryEarnedSkills([]))
     const news = inMemoryTownNews()
     const deliveredAt = minutesAfterEpoch(65)
     const dependencies = { towns, news, catalog, clock: frozenClock(minutesAfterEpoch(66)) }
