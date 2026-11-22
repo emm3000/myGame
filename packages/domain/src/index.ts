@@ -231,6 +231,16 @@ export {
   type ResolveTownReadingDependencies,
   resolveTownReading,
 } from '#town/application/resolveTownReading'
+export {
+  StartBuildingWork,
+  type StartBuildingWorkCommand,
+  type StartBuildingWorkDependencies,
+} from '#town/building/application/StartBuildingWork'
+export {
+  StopBuildingWork,
+  type StopBuildingWorkCommand,
+  type StopBuildingWorkDependencies,
+} from '#town/building/application/StopBuildingWork'
 export type { BuildingKind } from '#town/building/domain/BuildingKind'
 export type {
   BuildingLevel,
@@ -257,16 +267,6 @@ export type { WaitingList, WaitingWork } from '#town/building/domain/WaitingList
 export type { WordNeed } from '#town/building/domain/WordNeed'
 export { waitingListScheduleOf } from '#town/building/domain/waitingListScheduleOf'
 export { type WordShortfall, wordShortfallOf } from '#town/building/domain/wordShortfallOf'
-export {
-  type StartBuildingWorkCommand,
-  type StartBuildingWorkDependencies,
-  startBuildingWork,
-} from '#town/building/useCases/startBuildingWork'
-export {
-  type StopBuildingWorkCommand,
-  type StopBuildingWorkDependencies,
-  stopBuildingWork,
-} from '#town/building/useCases/stopBuildingWork'
 export { derivePeople } from '#town/domain/derivePeople'
 export type { EarnedSkillRepository } from '#town/domain/EarnedSkillRepository'
 export { earnTownSkill } from '#town/domain/earnTownSkill'

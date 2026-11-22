@@ -1,16 +1,15 @@
 import type { DomainError } from '#DomainError'
 import type { HeldCard } from '#learning/HeldCard'
-import type { CardRepository } from '#learning/ports/CardRepository'
-import type { Clock } from '#platform/domain/Clock'
 import type { PlayerId } from '#player/PlayerId'
 import { err, ok, type Result } from '#Result'
 import type { Instant } from '#time/Instant'
+import { changeTown } from '../../application/changeTown'
+import type { MutateTownDependencies } from '../../application/mutateTown'
 import { resolveStoredTown } from '../../application/resolveStoredTown'
 import { saveChangedTown } from '../../application/saveChangedTown'
 import type { Town } from '../../domain/Town'
 import type { TownCatalog } from '../../domain/TownCatalog'
-import type { TownNews } from '../../domain/TownNews'
-import type { TownRepository } from '../../domain/TownRepository'
+import type { TownReading } from '../../domain/TownReading'
 import type { Hires } from '../../hiring/Hires'
 import { accrueTown } from '../../resources/accrueTown'
 import { rebaseFullSince } from '../../resources/rebaseFullSince'
@@ -26,12 +25,8 @@ export type StartBuildingWorkCommand = {
   readonly building: BuildingKind
 }
 
-export type StartBuildingWorkDependencies = {
-  readonly towns: TownRepository
-  readonly news: TownNews
-  readonly cards: CardRepository
-  readonly catalog: TownCatalog
-  readonly clock: Clock
+export type StartBuildingWorkDependencies = MutateTownDependencies & {
+  readonly townCatalog: TownCatalog
 }
 
 const nextLevelOf = (
@@ -123,34 +118,42 @@ const startWorkAt = (
   return rebaseFullSince(accrual.value.fullSince, town.changedBy(started.value), catalog)
 }
 
-export const startBuildingWork = async (
-  { playerId, building }: StartBuildingWorkCommand,
-  { towns, news, cards, catalog, clock }: StartBuildingWorkDependencies,
-): Promise<Result<Town, DomainError>> => {
-  const now = clock.now()
-  const resolved = await resolveStoredTown(playerId, towns, catalog, now)
-  if (!resolved.ok) {
-    return resolved
+export class StartBuildingWork {
+  constructor(private readonly dependencies: StartBuildingWorkDependencies) {}
+
+  async execute({
+    playerId,
+    building,
+  }: StartBuildingWorkCommand): Promise<Result<TownReading, DomainError>> {
+    const { townCatalog } = this.dependencies
+    return changeTown(
+      playerId,
+      async ({ towns, townNews, cards }, clock) => {
+        const now = clock.now()
+        const resolved = await resolveStoredTown(playerId, towns, townCatalog, now)
+        if (!resolved.ok) {
+          return resolved
+        }
+        const held = await cards.cardsOf(playerId)
+        if (!held.ok) {
+          return held
+        }
+        const next = admitWork(resolved.value.town, building, held.value, townCatalog)
+        if (!next.ok) {
+          return next
+        }
+        const started = startWorkAt(resolved.value.town, next.value, townCatalog, now)
+        if (!started.ok) {
+          return started
+        }
+        const saved = await saveChangedTown(
+          { town: started.value, events: resolved.value.events },
+          towns,
+          townNews,
+        )
+        return saved.ok ? ok(started.value.storedAt) : saved
+      },
+      this.dependencies,
+    )
   }
-  const held = await cards.cardsOf(playerId)
-  if (!held.ok) {
-    return held
-  }
-  const next = admitWork(resolved.value.town, building, held.value, catalog)
-  if (!next.ok) {
-    return next
-  }
-  const started = startWorkAt(resolved.value.town, next.value, catalog, now)
-  if (!started.ok) {
-    return started
-  }
-  const saved = await saveChangedTown(
-    { town: started.value, events: resolved.value.events },
-    towns,
-    news,
-  )
-  if (!saved.ok) {
-    return saved
-  }
-  return ok(started.value)
 }

@@ -86,7 +86,7 @@ listenPortOf.ts  writeOpenApiDocument.ts                          the api's own 
 |---|---|---|---|
 | Entity, value object, type | domain feature root | noun, PascalCase | `HeldCard.ts` |
 | Pure rule | domain feature root | `derive*`, `*Of`, `*At`, `*For`, `*Between`, `*After`, a unit suffix (`*Days`, `*Seconds`, `*Milliseconds`), `is*`, `has*`, `covers*`, `holds*`, `refuse*` | `heldOutCountOf.ts`, `wholeDaysBetween.ts` |
-| Constant list | domain feature root | plural noun | `bands.ts` |
+| Constant list | domain feature root | plural noun | `holdoutCheckWeeks.ts` |
 | Draw | domain feature root | noun + `Drawn` | `bandStartDrawn.ts` |
 | Pure change | domain feature root, sub-area | verb phrase, returns the changed value, no port | `accrueTown.ts` |
 | Domain use case | `useCases/` | verb phrase | `answerHoldoutCheck.ts` |

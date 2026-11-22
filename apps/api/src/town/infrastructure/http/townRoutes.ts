@@ -8,8 +8,8 @@ import {
   type BuildingRouteDependencies,
   buildingRoutes,
 } from '../../building/infrastructure/http/buildingRoutes'
-import { startBuildingWorkDeclaration } from '../../building/infrastructure/http/startBuildingWorkRoute'
-import { stopBuildingWorkDeclaration } from '../../building/infrastructure/http/stopBuildingWorkRoute'
+import { startBuildingWorkDeclaration } from '../../building/infrastructure/http/StartBuildingWorkController'
+import { stopBuildingWorkDeclaration } from '../../building/infrastructure/http/StopBuildingWorkController'
 import { dismissGuidanceDeclaration } from '../../guidance/infrastructure/http/dismissGuidanceRoute'
 import {
   type GuidanceRouteDependencies,
