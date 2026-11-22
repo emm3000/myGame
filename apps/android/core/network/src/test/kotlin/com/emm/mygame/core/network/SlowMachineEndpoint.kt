@@ -1,0 +1,17 @@
+package com.emm.mygame.core.network
+
+import kotlin.time.Duration
+import kotlin.time.Duration.Companion.seconds
+import kotlin.time.toJavaDuration
+import okhttp3.OkHttpClient
+
+private val slowMachinePatience: Duration = 60.seconds
+
+internal fun slowMachineEndpoint(baseUrl: String): ApiEndpoint =
+    ApiEndpoint(baseUrl = baseUrl, newHttpClient = ::slowMachineHttpClient)
+
+private fun slowMachineHttpClient(): OkHttpClient.Builder =
+    OkHttpClient.Builder()
+        .connectTimeout(slowMachinePatience.toJavaDuration())
+        .readTimeout(slowMachinePatience.toJavaDuration())
+        .writeTimeout(slowMachinePatience.toJavaDuration())

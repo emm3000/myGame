@@ -18,8 +18,23 @@ fun LearningRepository(
     studyAnswers: StudyAnswers,
     ioDispatcher: CoroutineDispatcher,
 ): LearningRepository =
+    LearningRepository(
+        endpoint = ApiEndpoint(baseUrl = baseUrl, newHttpClient = okHttpDefaults),
+        tokenStore = tokenStore,
+        sessionEnds = sessionEnds,
+        studyAnswers = studyAnswers,
+        ioDispatcher = ioDispatcher,
+    )
+
+internal fun LearningRepository(
+    endpoint: ApiEndpoint,
+    tokenStore: TokenStore,
+    sessionEnds: SessionEnds,
+    studyAnswers: StudyAnswers,
+    ioDispatcher: CoroutineDispatcher,
+): LearningRepository =
     ApiLearningRepository(
-        api = signedInApi(baseUrl = baseUrl, tokenStore = tokenStore, sessionEnds = sessionEnds),
+        api = signedInApi(endpoint = endpoint, tokenStore = tokenStore, sessionEnds = sessionEnds),
         studyAnswers = studyAnswers,
         ioDispatcher = ioDispatcher,
     )

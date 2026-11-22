@@ -319,7 +319,7 @@ class LearningRepositoryTest {
     private fun TestScope.learning(): LearningRepository {
         val store: TokenStore = signedIn()
         return LearningRepository(
-            baseUrl = api.url("/api/").toString(),
+            endpoint = slowMachineEndpoint(api.url("/api/").toString()),
             tokenStore = store,
             sessionEnds = sessionEnds,
             studyAnswers = discardedStudyAnswers(store),

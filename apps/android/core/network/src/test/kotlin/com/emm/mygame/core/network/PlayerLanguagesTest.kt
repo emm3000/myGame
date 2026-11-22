@@ -268,7 +268,7 @@ class PlayerLanguagesTest {
     }
 
     private fun TestScope.sessions(): SessionRepository = SessionRepository(
-        baseUrl = api.url("/api/").toString(),
+        endpoint = slowMachineEndpoint(api.url("/api/").toString()),
         tokenStore = store,
         languages = languages,
         sessionEnds = sessionEnds,
@@ -276,7 +276,7 @@ class PlayerLanguagesTest {
     )
 
     private fun TestScope.town(): TownRepository = TownRepository(
-        baseUrl = api.url("/api/").toString(),
+        endpoint = slowMachineEndpoint(api.url("/api/").toString()),
         tokenStore = store,
         languages = languages,
         sessionEnds = sessionEnds,

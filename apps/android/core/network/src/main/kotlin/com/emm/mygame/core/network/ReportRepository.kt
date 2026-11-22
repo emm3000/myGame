@@ -18,8 +18,23 @@ fun ReportRepository(
     studyAnswers: StudyAnswers,
     ioDispatcher: CoroutineDispatcher,
 ): ReportRepository =
+    ReportRepository(
+        endpoint = ApiEndpoint(baseUrl = baseUrl, newHttpClient = okHttpDefaults),
+        tokenStore = tokenStore,
+        sessionEnds = sessionEnds,
+        studyAnswers = studyAnswers,
+        ioDispatcher = ioDispatcher,
+    )
+
+internal fun ReportRepository(
+    endpoint: ApiEndpoint,
+    tokenStore: TokenStore,
+    sessionEnds: SessionEnds,
+    studyAnswers: StudyAnswers,
+    ioDispatcher: CoroutineDispatcher,
+): ReportRepository =
     ApiReportRepository(
-        api = signedInApi(baseUrl = baseUrl, tokenStore = tokenStore, sessionEnds = sessionEnds),
+        api = signedInApi(endpoint = endpoint, tokenStore = tokenStore, sessionEnds = sessionEnds),
         studyAnswers = studyAnswers,
         ioDispatcher = ioDispatcher,
     )

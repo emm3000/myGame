@@ -24,8 +24,23 @@ fun HoldoutCheckRepository(
     studyAnswers: StudyAnswers,
     ioDispatcher: CoroutineDispatcher,
 ): HoldoutCheckRepository =
+    HoldoutCheckRepository(
+        endpoint = ApiEndpoint(baseUrl = baseUrl, newHttpClient = okHttpDefaults),
+        tokenStore = tokenStore,
+        sessionEnds = sessionEnds,
+        studyAnswers = studyAnswers,
+        ioDispatcher = ioDispatcher,
+    )
+
+internal fun HoldoutCheckRepository(
+    endpoint: ApiEndpoint,
+    tokenStore: TokenStore,
+    sessionEnds: SessionEnds,
+    studyAnswers: StudyAnswers,
+    ioDispatcher: CoroutineDispatcher,
+): HoldoutCheckRepository =
     ApiHoldoutCheckRepository(
-        api = signedInApi(baseUrl = baseUrl, tokenStore = tokenStore, sessionEnds = sessionEnds),
+        api = signedInApi(endpoint = endpoint, tokenStore = tokenStore, sessionEnds = sessionEnds),
         studyAnswers = studyAnswers,
         ioDispatcher = ioDispatcher,
     )

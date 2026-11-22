@@ -137,7 +137,7 @@ class PasswordResetRepositoryTest {
 
     private fun TestScope.repository(store: TokenStore): SessionRepository =
         SessionRepository(
-            baseUrl = api.url("/api/").toString(),
+            endpoint = slowMachineEndpoint(api.url("/api/").toString()),
             tokenStore = store,
             languages = PlayerLanguages(store, onNamed = {}),
             sessionEnds = SessionEnds(),

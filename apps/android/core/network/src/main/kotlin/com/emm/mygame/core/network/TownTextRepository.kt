@@ -13,7 +13,20 @@ fun TownTextRepository(
     sessionEnds: SessionEnds,
     ioDispatcher: CoroutineDispatcher,
 ): TownTextRepository =
+    TownTextRepository(
+        endpoint = ApiEndpoint(baseUrl = baseUrl, newHttpClient = okHttpDefaults),
+        tokenStore = tokenStore,
+        sessionEnds = sessionEnds,
+        ioDispatcher = ioDispatcher,
+    )
+
+internal fun TownTextRepository(
+    endpoint: ApiEndpoint,
+    tokenStore: TokenStore,
+    sessionEnds: SessionEnds,
+    ioDispatcher: CoroutineDispatcher,
+): TownTextRepository =
     ApiTownTextRepository(
-        api = signedInApi(baseUrl = baseUrl, tokenStore = tokenStore, sessionEnds = sessionEnds),
+        api = signedInApi(endpoint = endpoint, tokenStore = tokenStore, sessionEnds = sessionEnds),
         ioDispatcher = ioDispatcher,
     )

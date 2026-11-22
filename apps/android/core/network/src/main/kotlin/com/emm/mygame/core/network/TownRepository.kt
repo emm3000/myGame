@@ -41,8 +41,27 @@ fun TownRepository(
     studyAnswers: StudyAnswers,
     ioDispatcher: CoroutineDispatcher,
     clock: Clock,
+): TownRepository =
+    TownRepository(
+        endpoint = ApiEndpoint(baseUrl = baseUrl, newHttpClient = okHttpDefaults),
+        tokenStore = tokenStore,
+        languages = languages,
+        sessionEnds = sessionEnds,
+        studyAnswers = studyAnswers,
+        ioDispatcher = ioDispatcher,
+        clock = clock,
+    )
+
+internal fun TownRepository(
+    endpoint: ApiEndpoint,
+    tokenStore: TokenStore,
+    languages: PlayerLanguages,
+    sessionEnds: SessionEnds,
+    studyAnswers: StudyAnswers,
+    ioDispatcher: CoroutineDispatcher,
+    clock: Clock,
 ): TownRepository {
-    val api: DefaultApi = signedInApi(baseUrl = baseUrl, tokenStore = tokenStore, sessionEnds = sessionEnds)
+    val api: DefaultApi = signedInApi(endpoint = endpoint, tokenStore = tokenStore, sessionEnds = sessionEnds)
     val answers = TownAnswers(tokenStore = tokenStore, languages = languages, studyAnswers = studyAnswers)
     return ApiTownRepository(
         api = api,

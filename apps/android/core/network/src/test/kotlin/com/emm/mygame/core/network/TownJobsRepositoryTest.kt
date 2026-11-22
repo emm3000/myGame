@@ -272,7 +272,7 @@ class TownJobsRepositoryTest {
         val store: TokenStore =
             TokenStore(File(folder.root, "session"), FakeTokenCipher()).apply { write("opaque-session") }
         return TownRepository(
-            baseUrl = api.url("/api/").toString(),
+            endpoint = slowMachineEndpoint(api.url("/api/").toString()),
             tokenStore = store,
             languages = PlayerLanguages(store, onNamed = {}),
             sessionEnds = SessionEnds(),

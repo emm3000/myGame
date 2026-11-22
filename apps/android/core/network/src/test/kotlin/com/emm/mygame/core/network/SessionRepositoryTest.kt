@@ -665,7 +665,7 @@ class SessionRepositoryTest {
         languages: PlayerLanguages = PlayerLanguages(store, onNamed = {}),
     ): SessionRepository =
         SessionRepository(
-            baseUrl = api.url("/api/").toString(),
+            endpoint = slowMachineEndpoint(api.url("/api/").toString()),
             tokenStore = store,
             languages = languages,
             sessionEnds = sessionEnds,
@@ -674,7 +674,7 @@ class SessionRepositoryTest {
 
     private fun TestScope.townRepository(store: TokenStore): TownRepository =
         TownRepository(
-            baseUrl = api.url("/api/").toString(),
+            endpoint = slowMachineEndpoint(api.url("/api/").toString()),
             tokenStore = store,
             languages = PlayerLanguages(store, onNamed = {}),
             sessionEnds = sessionEnds,

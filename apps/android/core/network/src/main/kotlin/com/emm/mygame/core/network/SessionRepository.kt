@@ -32,10 +32,25 @@ fun SessionRepository(
     sessionEnds: SessionEnds,
     ioDispatcher: CoroutineDispatcher,
 ): SessionRepository =
+    SessionRepository(
+        endpoint = ApiEndpoint(baseUrl = baseUrl, newHttpClient = okHttpDefaults),
+        tokenStore = tokenStore,
+        languages = languages,
+        sessionEnds = sessionEnds,
+        ioDispatcher = ioDispatcher,
+    )
+
+internal fun SessionRepository(
+    endpoint: ApiEndpoint,
+    tokenStore: TokenStore,
+    languages: PlayerLanguages,
+    sessionEnds: SessionEnds,
+    ioDispatcher: CoroutineDispatcher,
+): SessionRepository =
     ApiSessionRepository(
-        api = signedInApi(baseUrl = baseUrl, tokenStore = tokenStore, sessionEnds = sessionEnds),
-        openingApi = accountApi(baseUrl = baseUrl),
-        signOutApi = signOutApi(baseUrl = baseUrl, tokenStore = tokenStore, callTimeout = signOutTimeout),
+        api = signedInApi(endpoint = endpoint, tokenStore = tokenStore, sessionEnds = sessionEnds),
+        openingApi = accountApi(endpoint = endpoint),
+        signOutApi = signOutApi(endpoint = endpoint, tokenStore = tokenStore, callTimeout = signOutTimeout),
         tokenStore = tokenStore,
         languages = languages,
         ioDispatcher = ioDispatcher,

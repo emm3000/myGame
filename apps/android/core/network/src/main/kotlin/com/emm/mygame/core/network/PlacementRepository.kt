@@ -19,7 +19,20 @@ fun PlacementRepository(
     sessionEnds: SessionEnds,
     ioDispatcher: CoroutineDispatcher,
 ): PlacementRepository =
+    PlacementRepository(
+        endpoint = ApiEndpoint(baseUrl = baseUrl, newHttpClient = okHttpDefaults),
+        tokenStore = tokenStore,
+        sessionEnds = sessionEnds,
+        ioDispatcher = ioDispatcher,
+    )
+
+internal fun PlacementRepository(
+    endpoint: ApiEndpoint,
+    tokenStore: TokenStore,
+    sessionEnds: SessionEnds,
+    ioDispatcher: CoroutineDispatcher,
+): PlacementRepository =
     ApiPlacementRepository(
-        api = signedInApi(baseUrl = baseUrl, tokenStore = tokenStore, sessionEnds = sessionEnds),
+        api = signedInApi(endpoint = endpoint, tokenStore = tokenStore, sessionEnds = sessionEnds),
         ioDispatcher = ioDispatcher,
     )
