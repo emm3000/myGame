@@ -1,18 +1,12 @@
 import type { Player } from '@mygame/contracts'
+import type { ChromePhase } from '@mygame/domain'
 import type { StoredPlayer } from '../../application/ports/Accounts'
-import {
-  type ReadChromePhaseDependencies,
-  readChromePhase,
-} from '../../application/readChromePhase'
 import { presentScaffold } from './presentScaffold'
 
-export const presentPlayer = async (
-  stored: StoredPlayer,
-  dependencies: ReadChromePhaseDependencies,
-): Promise<Player> => ({
+export const presentPlayer = (stored: StoredPlayer, chromePhase: ChromePhase): Player => ({
   id: stored.id,
   email: stored.email,
   emailVerified: stored.emailVerified,
   ...presentScaffold(stored),
-  chromePhase: await readChromePhase(stored, dependencies),
+  chromePhase,
 })
