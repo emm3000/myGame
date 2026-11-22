@@ -19,7 +19,7 @@ const mostUnits = 9
 
 const unitLessonSpacing = 4
 
-type Band = { readonly band: number; readonly untaught: ReadonlyArray<string> }
+type UntaughtBand = { readonly band: number; readonly untaught: ReadonlyArray<string> }
 
 const bandsOf = ({ ranks, grammar }: GateContent): ReadonlyArray<ReadonlyArray<string>> => {
   const frameWords = frameWordsOf(grammar)
@@ -34,7 +34,7 @@ const bandsOf = ({ ranks, grammar }: GateContent): ReadonlyArray<ReadonlyArray<s
 const currentBand = (
   bands: ReadonlyArray<ReadonlyArray<string>>,
   taught: ReadonlySet<string>,
-): Band | undefined =>
+): UntaughtBand | undefined =>
   bands
     .map((lemmas, index) => ({
       band: index + 1,
@@ -45,7 +45,7 @@ const currentBand = (
 const wordFailures = (
   lessonId: string,
   { lemma, isOffList }: LexiconEntry,
-  { band, untaught }: Band,
+  { band, untaught }: UntaughtBand,
 ): ReadonlyArray<string> => {
   if (isOffList === true) {
     return [`${lessonId}: ${lemma} is off-list, which only a chrome lesson teaches`]
@@ -60,7 +60,7 @@ const wordFailures = (
 
 const bandLessonFailures = (
   { content, words }: LessonOfFiles,
-  current: Band,
+  current: UntaughtBand,
 ): ReadonlyArray<string> => {
   const [head] = current.untaught
   const expectedCount =
@@ -170,7 +170,7 @@ const spacingFailures = ({ lessons, curriculum }: GateContent): ReadonlyArray<st
 const lessonFailures = (
   lesson: LessonOfFiles,
   index: number,
-  current: Band | undefined,
+  current: UntaughtBand | undefined,
   terms: UnitTerms,
   { curriculum }: GateContent,
 ): ReadonlyArray<string> => {
