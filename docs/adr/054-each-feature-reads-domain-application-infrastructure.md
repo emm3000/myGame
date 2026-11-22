@@ -195,8 +195,12 @@ content/gate/     the content gate, as in ADR 052
 - **`postgres/` becomes `persistence/`, and `memory/` dissolves.** A
   `memory/` folder holds two things today: the 7 `Memory*` adapters,
   which go to the domain package's `testing/`, and the contract suites
-  with the tests that run them, which go beside the adapter they
-  prove. The town's `persistence/` is the largest: 29 production files
+  with the tests that run them, which go beside the real adapter they
+  prove, whatever its technology: `persistence/` for a Drizzle
+  adapter, `smtp/` for `mailerContract.testSupport.ts`, which proves
+  `SmtpMailer` (`smtp/SmtpMailer.test.ts` runs it today) and takes
+  `MemoryMailer.test.ts` with it. The town's `persistence/` is the
+  largest: 29 production files
   today, under the 30 of `folder_over_limit`; a contract suite is a
   `*.testSupport.ts` file and does not count.
 - **`infrastructure/` stays in the path** though it is the only layer
@@ -712,14 +716,25 @@ G holds it and the reasons it gave.
   one, and `healthRoute.ts` asks none: 44 controllers, 36 use cases.
   Where `architecture.md` lets a route call a repository, the
   controller takes that port in `dependencies`.
+- **Every controller has a route list.** `healthRoute` is the one
+  endpoint no list holds: `app.ts:50` calls it. It gains
+  `healthRoutes.ts` in `platform/infrastructure/http/`, which builds
+  `HealthController` and mounts it, and `app.ts` calls the list, so
+  that `app.ts` writes `new` before no controller.
 - **No `Controller` interface.** Codely's `Controller.ts` declares
   `run` for its container to resolve; here nothing takes a controller
   it does not name.
 
 A route list grows by five lines an endpoint. `accountRoutes.ts`
-lists 11, which passes the 50 lines of a function: its ticket splits
-the list or writes the two statements once in
-`platform/infrastructure/http/`. Neither was prototyped.
+lists 11 (`:68-78`), which passes the 50 lines of a function, so step
+5 splits it where the order of registration allows, since that order
+is the order of `openapi.json`: the first six, from `signUpRoute` to
+`readSessionRoute`, become `sessionRoutes.ts`, and the last five, from
+`verifyEmailRoute` to `changeScaffoldRoute`, stay. A split by guard
+would reorder them: the four behind `requirePlayer` are the 5th, 6th,
+8th and 11th. The split was not prototyped; if it does not hold
+`openapi.json` byte-identical, the ticket writes the two statements
+once, as a function of `platform/infrastructure/http/`.
 
 `respondTownChange.ts` is deleted when the last of the nine endpoints
 stops calling it: its first half is `changeTown`, its second is
@@ -760,7 +775,10 @@ They do not become query use cases. The evidence:
 So the application answers readings (`TownReading`, and the
 `ReviewOutcome` that `recordReviewAnswer` builds at
 `submitReviewAnswer.ts:91-98`), and `respondTownReading` keeps its two
-lines, gather then present. The query use case of the town is
+lines, gather then present. `ReviewOutcome` is declared in
+`gatherReviewVerdict.ts:19-26` today, six fields of domain types; it
+is what the use case answers, so the type goes to
+`learning/reviews/domain/` and only the gatherer goes to `http/`. The query use case of the town is
 `ResolveCurrentTown`, and it answers the same `TownReading`.
 
 The files keep their names, and `gatherSchoolView.test.ts` moves with
@@ -1058,11 +1076,18 @@ Every step is one ticket. Where a step both moves and changes, the
 move and the change are separate pull requests, the move first, and
 each passes `pnpm gate` alone.
 
+- **A preparation pull request comes before the move, only where a
+  file cannot move as it is.** Step 5 has the one: three files of the
+  account import what the domain package may not, and each is changed
+  in the api, where it stands, before anything moves. So step 5 is
+  three pull requests, preparation, move, change; every other step is
+  at most two.
 - **A move pull request holds the files whose content stays**:
   entities, values and pure rules to `domain/`, ports to `domain/`,
-  `services/` to `application/`, fakes to `testing/`, contract suites
-  to `persistence/`. It moves them with `git mv`, rewrites every
-  importer and deletes the folders it empties.
+  `services/` to `application/`, fakes to `testing/`, a contract suite
+  beside the real adapter it proves (`persistence/`, or `smtp/` for
+  the mailer's). It moves them with `git mv`, rewrites every importer
+  and deletes the folders it empties.
 - **A change pull request holds what changes shape.** A use case
   arrives at its new path in the pull request that makes it a class:
   `useCases/sendJob.ts` becomes `application/SendJob.ts`, the api's
@@ -1097,10 +1122,10 @@ Four proofs hold at every pull request, on top of the gate:
 |---|---|---|---|
 | 0 | The rails | none | the checks of section 12 with their baselines, the rule edits section 13 gives to step 0, the ADR accepted |
 | 1 | `persistence/` | the 7 `infrastructure/postgres/` folders become `infrastructure/persistence/`; with them the `drizzle.config.ts` glob, the 8 Biome overrides, the glob of `persistence_knows_http` and the row of `verification.md` | none: the `db:generate` probe is its whole proof |
-| 2 | `platform` | the domain's `ports/` and `ports/testing/` to `platform/domain/` and `platform/testing/`; from the api's `platform/application/`, `FailureSink`, `AfterResponse`, `AfterResponseDrain` and `Refusal`, and `thrownCauseOf`, to `platform/domain/`. `Transaction.ts` stays where it is | `Transaction` arrives in the domain as the interface `UnitOfWork`; `postgresTransaction` becomes `DrizzleUnitOfWork`, `inTransaction` `unitOfWork` in 23 files, the four test doubles; `inMemoryUnitOfWork`; `healthRoute.ts` becomes `HealthController.ts`, the first controller |
+| 2 | `platform` | the domain's `ports/` and `ports/testing/` to `platform/domain/` and `platform/testing/`; from the api's `platform/application/`, `FailureSink`, `AfterResponse`, `AfterResponseDrain` and `Refusal`, and `thrownCauseOf`, to `platform/domain/`. `Transaction.ts` stays where it is | `Transaction` arrives in the domain as the interface `UnitOfWork`; `postgresTransaction` becomes `DrizzleUnitOfWork`, `inTransaction` `unitOfWork` in 23 files, the four test doubles; `inMemoryUnitOfWork`; `healthRoute.ts` becomes `HealthController.ts`, the first controller, built and mounted by a new `healthRoutes.ts` that `app.ts:50` calls |
 | 3 | `content` | `LessonLibrary` to `content/domain/` | none |
 | 4 | `memory`, `season` | their files to `memory/domain/` and `season/domain/` | none |
-| 5 | `account` | the files of `application/ports/`, the types and the pure rules to `account/domain/`; the 3 `Memory*` to `account/testing/`; the contract suites of `memory/` beside the adapters they prove | before the move, in the api: `MailCopy` and `CatalogMailCopy` replace `pickFixedCopy`, `MemoryAccountTokens` keys by the token, `tokenDigest` goes to `persistence/` (section 8). After it: the 7 classes of section 3 with their steps, `composeUseCases.ts`, the 11 controllers |
+| 5 | `account`, three pull requests | second: the files of `application/ports/`, the types and the pure rules to `account/domain/`; the 3 `Memory*` to `account/testing/`; of the contract suites of `memory/`, `accountTokensContract` and `chromeProgressReaderContract` to `persistence/` and `mailerContract` to `smtp/`, each with the test that runs it on the fake | first, the preparation, in the api: `MailCopy` and `CatalogMailCopy` replace `pickFixedCopy`, `MemoryAccountTokens` keys by the token, `tokenDigest` goes to `persistence/` (section 8). Third: the 7 classes of section 3 with their steps, `composeUseCases.ts`, the 11 controllers, and `accountRoutes.ts` split in two lists in the order of registration (section 6, not prototyped) |
 | 6 | `town`, the root | the root's files and `ports/` to `town/domain/`, `services/` to `town/application/`. From the api: the 6 files of `town/application/ports/`, of which `TownStores`, `TownReader`, `TownNewsReader` and `ReadOnlyTowns` go to `town/domain/` and `GuidanceDismissals` and `SeenTips` to `town/guidance/domain/`; `TownReading`; `mutateTown` and `readTownReading` to `town/application/`; the 3 `Memory*` of `town/infrastructure/memory/` to `testing/` and its contract suites to `persistence/`; `gatherTownView` to `town/infrastructure/http/` | `changeTown`, `inMemoryTownStores`, `inMemoryTownReader` with its contract suite; `FoundTown` and `ResolveCurrentTown`, which take in `foundTownOnFreeSite.ts` and `resolveCurrentTown.ts`; the 3 controllers |
 | 7 | `town/jobs` | its root files and `ports/` to `domain/`, its `services/` to `application/` | the 6 classes; `respondRegionMap.ts`, `quoteJobNow.ts` and `quoteCleanUpNow.ts` fold into theirs; the 7 controllers |
 | 8 | `town/building` | the same; `gatherBuildingsView` and `gatherWorkView` to its `http/` | 2 classes, 2 controllers |
@@ -1109,7 +1134,7 @@ Four proofs hold at every pull request, on top of the gate:
 | 11 | `town/guidance`, `town/news`, `town/resources` | the same; `gatherGuidanceView` to its `http/` | `DismissGuidance`, `MarkTipSeen`, `ResolveTownNews`; 3 controllers; `respondGuidanceChange.ts` answers what the class answers |
 | 12 | `placement` | its files; the contract suites of its `memory/` | 4 classes, 4 controllers, the offer reading renamed |
 | 13 | `holdout` | its files; the contract suites of its `memory/` | 4 classes, 4 controllers; `mutateHoldoutCheck` becomes a step, the checks reading is renamed |
-| 14 | `learning` | its sub-areas to `domain/` and `application/`; `CardReader`, `LearnerStores`; the contract suites of its `memory/` | the 3 classes of `reviews`, 3 controllers; `gatherReviewVerdict` to `learning/infrastructure/http/`; `LearningDependencies` is deleted |
+| 14 | `learning` | its sub-areas to `domain/` and `application/`; `CardReader`, `LearnerStores`; the contract suites of its `memory/` | the 3 classes of `reviews`, 3 controllers; the type `ReviewOutcome`, which `SubmitReviewAnswer` answers, is split out of `gatherReviewVerdict.ts:19-26` into `learning/reviews/domain/ReviewOutcome.ts`, and the rest of that file goes to `learning/infrastructure/http/`; `LearningDependencies` is deleted |
 | 15 | `report` | `ReportClosings`, `MemoryReportClosings`, the contract suite of its `memory/` | `ServeReport`, 2 controllers |
 | 16 | Close | none | every baseline empty; `step_is_public` empty; the four widened checks narrowed and the two retired ones deleted (section 12); the transitional line of the rules deleted; `ARCHITECTURE.md` final |
 
@@ -1140,7 +1165,13 @@ Why this order:
   `learning/application/`. Once their controllers take a use case,
   nothing outside learning reads it, and step 14 deletes it.
 - **14 before 15**: `ServeReport` shares the due-reviews step.
-- **3 and 4 any time after 0.**
+- **3 before 12**: `LearningDependencies` types `lessons` as
+  `LessonLibrary`, and the use cases of the placement, the holdout
+  and learning (steps 12 to 14) take those `lessons` once they are
+  classes of the domain package; `serveDueReviews.ts` and
+  `submitReviewAnswer.ts` import the type by name. So `LessonLibrary`
+  is in `content/domain/` before step 12.
+- **4 any time after 0.**
 
 While later steps wait, files of the api still call a step that has
 already moved: `readScaffold` from step 5 (7 import lines under
