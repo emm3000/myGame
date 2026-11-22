@@ -177,13 +177,12 @@ export {
   type WorkTarget,
 } from '#town/building/BuildingWork'
 export { buildingKinds } from '#town/building/buildingKinds'
-export { buildPercentAt } from '#town/building/buildPercentAt'
-export { deriveBuildDurationSeconds } from '#town/building/deriveBuildDurationSeconds'
 export {
   derivePeopleForWork,
   type PeopleForWork,
 } from '#town/building/derivePeopleForWork'
 export { type LevelWordNeed, levelWordNeedOf } from '#town/building/levelWordNeedOf'
+export { levelWorkAt } from '#town/building/levelWorkAt'
 export type { NeededWordKind } from '#town/building/NeededWordKind'
 export {
   type StartBuildingWorkCommand,

@@ -17,9 +17,8 @@ import type { Town } from '../../Town'
 import type { BuildingKind } from '../BuildingKind'
 import type { BuildingLevel } from '../BuildingLevel'
 import type { BuildingLevels } from '../BuildingLevels'
-import { buildPercentAt } from '../buildPercentAt'
-import { deriveBuildDurationSeconds } from '../deriveBuildDurationSeconds'
 import { derivePeopleForWork } from '../derivePeopleForWork'
+import { levelWorkAt } from '../levelWorkAt'
 import { wordShortfallOf } from '../wordShortfallOf'
 
 export type StartBuildingWorkCommand = {
@@ -113,15 +112,7 @@ const startWorkAt = (
   }
   const settings = catalog.townSettings()
   const started = town.buildingWork.start(
-    {
-      building: next.building,
-      level: next.level,
-      cost: next.cost,
-      durationSeconds: deriveBuildDurationSeconds(
-        next.durationSeconds,
-        buildPercentAt(now, settings),
-      ),
-    },
+    levelWorkAt(next, now, settings),
     accrual.value.stocks,
     now,
     settings.waitingListCap,
