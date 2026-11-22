@@ -5,7 +5,6 @@ import type {
   AccountTokenKind,
   AccountTokens,
 } from '../../application/ports/AccountTokens'
-import { tokenDigest } from '../../application/tokenDigest'
 
 type StoredToken = {
   readonly playerId: PlayerId
@@ -26,15 +25,15 @@ export class MemoryAccountTokens implements AccountTokens {
   private readonly tokens = new Map<string, StoredToken>()
 
   async issue(token: AccountToken, now: Instant): Promise<void> {
-    for (const [digest, stored] of this.tokens) {
+    for (const [issued, stored] of this.tokens) {
       if (
         stored.playerId === token.playerId &&
         (stored.kind === token.kind || !isLive(stored, now))
       ) {
-        this.tokens.delete(digest)
+        this.tokens.delete(issued)
       }
     }
-    this.tokens.set(tokenDigest(token.token), {
+    this.tokens.set(token.token, {
       playerId: token.playerId,
       kind: token.kind,
       expiresAt: token.expiresAt,
@@ -43,12 +42,11 @@ export class MemoryAccountTokens implements AccountTokens {
   }
 
   async redeem(token: string, kind: AccountTokenKind, now: Instant): Promise<PlayerId | undefined> {
-    const digest = tokenDigest(token)
-    const stored = this.tokens.get(digest)
+    const stored = this.tokens.get(token)
     if (stored === undefined || !isRedeemable(stored, kind, now)) {
       return undefined
     }
-    this.tokens.set(digest, { ...stored, usedAt: stored.usedAt ?? now })
+    this.tokens.set(token, { ...stored, usedAt: stored.usedAt ?? now })
     return stored.playerId
   }
 }

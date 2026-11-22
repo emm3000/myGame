@@ -3,9 +3,9 @@ import { readMigrationFiles } from 'drizzle-orm/migrator'
 import { drizzle, type NodePgDatabase } from 'drizzle-orm/node-postgres'
 import type { Client } from 'pg'
 import { afterEach, beforeEach, describe, expect, it } from 'vitest'
-import { tokenDigest } from '#account/application/tokenDigest'
 import { accountTokens, players, sessions } from '#account/infrastructure/persistence/accountTables'
 import { ana, bruno } from '#account/infrastructure/persistence/migrationPlayers.testSupport'
+import { tokenDigest } from '#account/infrastructure/persistence/tokenDigest'
 import {
   applyMigrations,
   checkViolation,

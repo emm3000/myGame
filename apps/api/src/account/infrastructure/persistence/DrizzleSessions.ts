@@ -2,8 +2,8 @@ import type { Instant, PlayerId } from '@mygame/domain'
 import { and, eq, gt } from 'drizzle-orm'
 import type { PostgresSession } from '#platform/infrastructure/persistence/connectPostgres'
 import type { Session, Sessions } from '../../application/ports/Sessions'
-import { tokenDigest } from '../../application/tokenDigest'
 import { sessions } from './accountTables'
+import { tokenDigest } from './tokenDigest'
 
 const dateOf = (instant: Instant): Date => new Date(instant.epochMilliseconds)
 

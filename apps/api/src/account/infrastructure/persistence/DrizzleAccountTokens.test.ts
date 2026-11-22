@@ -5,10 +5,10 @@ import { afterAll, beforeAll, describe, expect, it } from 'vitest'
 import { isWaitingOnALock, lockProbeLimit } from '#lockWaitProbe.testSupport'
 import { truncatePlayerTables } from '#truncatePlayerTables.testSupport'
 import type { AccountToken } from '../../application/ports/AccountTokens'
-import { tokenDigest } from '../../application/tokenDigest'
 import { accountTokensContract } from '../memory/accountTokensContract.testSupport'
 import { DrizzleAccounts } from './DrizzleAccounts'
 import { DrizzleAccountTokens } from './DrizzleAccountTokens'
+import { tokenDigest } from './tokenDigest'
 
 function databaseUrl(): string {
   const url = process.env.DATABASE_URL
