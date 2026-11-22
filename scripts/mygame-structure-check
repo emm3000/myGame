@@ -58,8 +58,13 @@ reading_named_of_is_async() {
   search -l "Promise<|\basync\b" "$api" "$domain" -g '*Of.ts' -g '!*.test.ts' | by_file
 }
 
-reading_const_is_async() {
-  search -n -U -o "^[ \t]*(?:export )?const (\w+(?:Of|At))\b = (?:async\b|(?:<[^>]*>)?\((?:[^()]|\((?:[^()]|\([^()]*\))*\))*\)\s*:\s*Promise<)" -r "const \$1" "$api" "$domain" -g '*.ts' -g '!*.test.ts' -g '!*.testSupport.ts' -g '!**/testing/**' | by_line
+reading_is_async() {
+  local reading="(\w+(?:Of|At|For|Between))\b" parameters="(?:<[^>]*>)?\((?:[^()]|\((?:[^()]|\([^()]*\))*\))*\)"
+  local scope=("$api" "$domain" -g '*.ts' -g '!*.test.ts' -g '!*.testSupport.ts' -g '!**/testing/**')
+  {
+    search -n -U -o "^[ \t]*(?:export )?(?:default )?(?:async function $reading|function $reading\s*$parameters\s*:\s*Promise<)" -r "function \$1\$2" "${scope[@]}" &&
+      search -n -U -o "^[ \t]*(?:export )?const $reading\s*(?:=\s*(?:async\b|$parameters\s*:\s*Promise<)|:\s*$parameters\s*=>\s*Promise<|:[^=\n]*=\s*async\b)" -r "const \$1" "${scope[@]}"
+  } | by_line
 }
 
 subpath_import_inside_folder() {
@@ -138,7 +143,7 @@ checks=(
   http_knows_database
   adapter_built_outside_root
   reading_named_of_is_async
-  reading_const_is_async
+  reading_is_async
   production_imports_fakes
   use_case_named_of
   domain_promise_outside_its_roles
