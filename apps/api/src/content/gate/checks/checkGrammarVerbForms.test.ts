@@ -62,6 +62,14 @@ describe('content gate check 6, grammar, the forms of a card verb', () => {
       ).toEqual(['word-3: frame holds made, a past participle inflection no structure admits'])
     })
 
+    it('reads a past form after has and a noun subject as a past participle', () => {
+      const hasTheSchoolMade = newHomeHolding('Has the school made it?')
+
+      expect(
+        checkGrammar(afterLessonOne(pastFrom('lesson-1', 'has'), go, make, hasTheSchoolMade)),
+      ).toEqual(['word-3: frame holds made, a past participle inflection no structure admits'])
+    })
+
     it('reads a past form after have and an adverb as a past participle', () => {
       const haveNeverGone = newHomeHolding('We have never gone to my new home.')
 
@@ -170,6 +178,33 @@ describe('content gate check 6, grammar, the forms of a card verb', () => {
         ? afterLessonOne(edBeforeThePerfect, holding, close, make)
         : afterLessonOne(edBeforeThePerfect, close, holding, make)
     }
+
+    it("reads 's after a noun host and before a regular -ed form as is", () => {
+      expect(checkGrammar(holdingAt('lesson-3', "The school's closed."))).toEqual([])
+    })
+
+    it("keeps reading 's after a noun host and before a noun as possessive", () => {
+      const book = entryOf('word-4', 'book', 'We have a book.')
+      const content = afterLessonOne(
+        [structureOf('lesson-1', [], ['plural']), ...edBeforeThePerfect],
+        close,
+        entryOf('word-1', 'new', "The school's books are here.", { partOfSpeech: 'adjective' }),
+        make,
+        book,
+      )
+      const booksListed = {
+        ...content,
+        forms: new Map([
+          ...content.forms,
+          ['book', new Set(['book'])],
+          ['books', new Set(['book'])],
+        ]),
+      }
+
+      expect(checkGrammar(booksListed)).toEqual([
+        "word-1: frame holds 's, a possessive 's inflection no structure admits",
+      ])
+    })
 
     it("reads 's before a regular -ed form as is", () => {
       expect(

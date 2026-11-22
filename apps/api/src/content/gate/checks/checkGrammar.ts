@@ -8,8 +8,10 @@ import { clauseLinkingStructures } from '../clauseLinkingStructures'
 import { frameWordAdmissionsOf } from '../frameWordAdmissionsOf'
 import type { GateContent } from '../GateContent'
 import { type GrammarPassage, grammarPassagesOf } from '../grammarPassagesOf'
+import { haveBeforeOf, type SubjectWords } from '../haveBeforeOf'
 import { inventoryFailuresOf } from '../inventoryFailuresOf'
 import { lessonPositionOf } from '../lessonPositionOf'
+import { subjectPronouns } from '../subjectPronouns'
 
 type GrammarTerms = {
   readonly reading: ReadingTerms
@@ -26,37 +28,6 @@ type PassageToken = {
   readonly next: string | undefined
   readonly haveBefore: HaveBefore
 }
-
-const haveForms: ReadonlyMap<string, HaveBefore> = new Map([
-  ['have', 'have'],
-  ['has', 'have'],
-  ["'s", "'s"],
-])
-
-const subjectPronouns: ReadonlySet<string> = new Set(['i', 'you', 'he', 'she', 'it', 'we', 'they'])
-
-const perfectAdverbs: ReadonlySet<string> = new Set([
-  'not',
-  "n't",
-  'never',
-  'just',
-  'already',
-  'ever',
-])
-
-const haveBeforeOf = (earlier: ReadonlyArray<string>): HaveBefore => {
-  const [last, beforeLast] = earlier.filter((token) => !perfectAdverbs.has(token)).toReversed()
-  const host = last !== undefined && subjectPronouns.has(last) ? beforeLast : last
-  return (host === undefined ? undefined : haveForms.get(host)) ?? 'none'
-}
-
-const passageTokensOf = (sentence: ReadonlyArray<string>): ReadonlyArray<PassageToken> =>
-  sentence.map((token, index) => ({
-    token,
-    previous: sentence[index - 1],
-    next: sentence[index + 1],
-    haveBefore: haveBeforeOf(sentence.slice(0, index)),
-  }))
 
 const termsOf = (content: GateContent): GrammarTerms => {
   const positionOf = (lessonId: string): number => lessonPositionOf(content.curriculum, lessonId)
@@ -151,6 +122,15 @@ const wordOf = (
   return reading?.kind === 'word' ? reading.word : undefined
 }
 
+const cardEntryOf = (
+  token: string | undefined,
+  passage: GrammarPassage,
+  terms: GrammarTerms,
+): LexiconEntry | undefined => {
+  const word = wordOf(token, passage, terms)
+  return word === undefined ? undefined : terms.cardWords.get(word)
+}
+
 const isBeHost = (
   previous: string | undefined,
   passage: GrammarPassage,
@@ -163,12 +143,22 @@ const isBeHost = (
   )
 }
 
+const isVerbForm = (
+  token: string | undefined,
+  passage: GrammarPassage,
+  terms: GrammarTerms,
+): boolean => {
+  const entry = cardEntryOf(token, passage, terms)
+  return entry?.partOfSpeech === 'verb' && token !== entry.lemma
+}
+
 const pieceFailures = (
-  { token, previous }: PassageToken,
+  { token, previous, next }: PassageToken,
   passage: GrammarPassage,
   terms: GrammarTerms,
 ): ReadonlyArray<string> => {
-  const isPossessive = token === "'s" && !isBeHost(previous, passage, terms)
+  const isPossessive =
+    token === "'s" && !isBeHost(previous, passage, terms) && !isVerbForm(next, passage, terms)
   return inflectionFailures(token, isPossessive ? "possessive 's" : token, passage, terms)
 }
 
@@ -215,11 +205,30 @@ const tokenFailures = (
   return cardWord === undefined ? [] : cardWordFailures(passageToken, cardWord, passage, terms)
 }
 
+const subjectWordsOf = (passage: GrammarPassage, terms: GrammarTerms): SubjectWords => ({
+  isNoun: (token) => cardEntryOf(token, passage, terms)?.partOfSpeech === 'noun',
+  isFrameWord: (token) => {
+    const word = wordOf(token, passage, terms)
+    return word !== undefined && terms.frameWordsAdmittedAt.has(word)
+  },
+})
+
+const passageTokensOf = (
+  sentence: ReadonlyArray<string>,
+  subjectWords: SubjectWords,
+): ReadonlyArray<PassageToken> =>
+  sentence.map((token, index) => ({
+    token,
+    previous: sentence[index - 1],
+    next: sentence[index + 1],
+    haveBefore: haveBeforeOf(sentence.slice(0, index), subjectWords),
+  }))
+
 const passageFailures = (content: GateContent): ReadonlyArray<string> => {
   const terms = termsOf(content)
   return grammarPassagesOf(content).flatMap((passage) =>
     passage.sentences.flatMap((sentence) =>
-      passageTokensOf(sentence).flatMap((passageToken) =>
+      passageTokensOf(sentence, subjectWordsOf(passage, terms)).flatMap((passageToken) =>
         tokenFailures(passageToken, passage, terms),
       ),
     ),
