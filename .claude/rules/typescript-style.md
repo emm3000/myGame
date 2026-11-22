@@ -68,6 +68,7 @@ None. No JSDoc, no `//`, no `/* */`, no commented-out code, no section banners. 
 - camelCase for files that export a function or value, PascalCase for files that export a type, class or component.
 - Directories are plural nouns for collections and singular for a single concern. Which folder holds which layer is ADR 054, "The folder grammar"; the first folder is a feature, the second a layer.
 - `*Of` names a pure, synchronous derivation and nothing else: a function that returns a promise is named by a verb, and a function that writes is never named as a reading.
+- `reading_is_async` reads the signature, never a type: a typed `const` whose alias type returns a `Promise`, assigned without `async` (`const totalOf: LoadTotal = (id) => load(id)`), passes it unseen, so review catches that one.
 
 ## Formatting
 
