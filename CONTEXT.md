@@ -90,6 +90,7 @@ The game is Townword, a present-day town the player grows into a city (ADR 035).
 - **Word reading** — a word shown with its gloss and frame, from its lesson's start until its first review, never for a held-out word. It teaches the word, and changes no card (ADR 042).
 - **School path** — a lesson's words on the way to its skill, counted by each word's **standing**: not started, recognize, recall, hold, retained. A standing is derived from the card, so a lapse moves it back, and so does a Hard on a retained word (ADR 042). The standing a building work refused for words names is not this one: it is *stable* or *retained*, the kind of word the level counts, and a stable word can stand at hold or retained on the path (ADR 045).
 - **Next step** — the card first on every town home, the one place the player goes next: reviews, a due holdout check, a running lesson, a released lesson, a lesson to study, or caught up, the first that holds, answered by the server (#1056). Caught up and a running lesson carry the next goal, a building's, and the newest open text, by its id and title (ADR 045, ADR 049). Its screen title is *What is next* (ADR 042).
+- **Guidance** — what the town tells the player to do next: the next step, the town's goal and the tips. Its folder, `guidance`, exists in the domain, the api and the contracts.
 
 ## The Report and Town News
 
