@@ -2,10 +2,9 @@ import {
   type BuildingKind,
   type BuildingLevel,
   buildingKinds,
-  buildPercentAt,
   type DomainError,
-  deriveBuildDurationSeconds,
   derivePeopleForWork,
+  levelWorkAt,
   ok,
   type Result,
   type Stocks,
@@ -32,18 +31,18 @@ export type BuildingsView = Readonly<Record<BuildingKind, BuildingView>>
 
 const nextLevelViewOf = (
   next: BuildingLevel,
-  { town, cards }: TownReading,
+  { town, at, cards }: TownReading,
   catalog: TownCatalog,
-  buildPercent: number,
 ): Result<NextLevelView, DomainError> => {
   const people = derivePeopleForWork(town.projectedLevels, town.staffedHires, next, catalog)
   if (!people.ok) {
     return people
   }
+  const { level, cost, durationSeconds } = levelWorkAt(next, at, catalog.townSettings())
   return ok({
-    level: next.level,
-    cost: next.cost,
-    durationSeconds: deriveBuildDurationSeconds(next.durationSeconds, buildPercent),
+    level,
+    cost,
+    durationSeconds,
     people: people.value.needed,
     wordsNeeded: wordShortfallOf(next.level, cards, catalog.townSettings().wordNeed),
   })
@@ -53,12 +52,9 @@ const nextLevelOf = (
   building: BuildingKind,
   reading: TownReading,
   catalog: TownCatalog,
-  buildPercent: number,
 ): Result<NextLevelView | null, DomainError> => {
   const next = catalog.levelOf(building, reading.town.projectedLevels[building] + 1)
-  return next?.building === building
-    ? nextLevelViewOf(next, reading, catalog, buildPercent)
-    : ok(null)
+  return next?.building === building ? nextLevelViewOf(next, reading, catalog) : ok(null)
 }
 
 export const gatherBuildingsView = (
@@ -75,9 +71,8 @@ export const gatherBuildingsView = (
     school: { level: levels.school, nextLevel: null },
     office: { level: levels.office, nextLevel: null },
   }
-  const buildPercent = buildPercentAt(reading.at, catalog.townSettings())
   for (const building of buildingKinds) {
-    const nextLevel = nextLevelOf(building, reading, catalog, buildPercent)
+    const nextLevel = nextLevelOf(building, reading, catalog)
     if (!nextLevel.ok) {
       return nextLevel
     }
