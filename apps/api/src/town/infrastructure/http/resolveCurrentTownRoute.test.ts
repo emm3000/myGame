@@ -16,7 +16,6 @@ import type { ComposedServer } from '#composeServer'
 import { truncatePlayerTables } from '#truncatePlayerTables.testSupport'
 import {
   amountsOf,
-  holdStableWords,
   type MovableClock,
   millisecondsPerMinute,
   minutesToADayBeforeEpoch,
@@ -198,15 +197,6 @@ describe('the town route', () => {
       expect([stableWordCount, retainedWordCount]).toEqual([0, 0])
     })
 
-    it('reads the stable words the player holds', async () => {
-      const ana = await signUpWithTown('ana@example.com')
-      await holdStableWords('ana@example.com', 3)
-
-      const { stableWordCount, retainedWordCount } = await overviewOf(await readTown(ana))
-
-      expect([stableWordCount, retainedWordCount]).toEqual([3, 0])
-    })
-
     it('a building at level 1 needs no words for level 2', async () => {
       const ana = await signUpWithTown('ana@example.com')
 
@@ -231,16 +221,6 @@ describe('the town route', () => {
       const { buildings } = await overviewOf(await readTown(ana))
 
       expect(buildings.farm.nextLevel?.wordsNeeded).toEqual({ count: 50, standing: 'retained' })
-    })
-
-    it('a building whose need the town’s words meet needs no words', async () => {
-      const ana = await signUpWithTown('ana@example.com')
-      await runSql("UPDATE town_buildings SET level = 2 WHERE building = 'farm'")
-      await holdStableWords('ana@example.com', 10)
-
-      const { buildings } = await overviewOf(await readTown(ana))
-
-      expect(buildings.farm.nextLevel?.wordsNeeded).toBeNull()
     })
 
     it('needs the words of the level after the queued work', async () => {

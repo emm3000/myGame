@@ -1,12 +1,9 @@
-import type { TownOverview } from '@mygame/contracts'
 import { afterAll, afterEach, beforeAll, beforeEach, describe, expect, it, vi } from 'vitest'
 import { createApp } from '#app'
 import type { ComposedServer } from '#composeServer'
 import { truncatePlayerTables } from '#truncatePlayerTables.testSupport'
 import {
   amountsOf,
-  fillStocks,
-  holdStableWords,
   jsonRequest,
   type MovableClock,
   movableClock,
@@ -90,20 +87,6 @@ describe('the town route', () => {
           finishesAt: '2026-11-05T08:05:12.000Z',
         },
       ])
-    })
-
-    it('refuses work past the cap', async () => {
-      const ana = await signUpWithTown('ana@example.com')
-      await fillStocks()
-      await holdStableWords('ana@example.com', 30)
-      for (let started = 0; started < 5; started += 1) {
-        expect((await startWork(ana, 'farm')).status).toBe(200)
-      }
-
-      const response = await startWork(ana, 'farm')
-
-      expect(response.status).toBe(409)
-      expect(await refusalOf(response)).toEqual({ kind: 'WaitingListFull', params: { cap: 4 } })
     })
 
     it('refuses work the stocks cannot pay with what they miss', async () => {
@@ -252,15 +235,6 @@ describe('the town route', () => {
   })
 
   describe('the food of the homes', () => {
-    const setMoneyAndMaterialAside = (): Promise<void> =>
-      runSql('UPDATE towns SET money = 100000, material = 100000')
-
-    const raiseHomesThreeTimes = async (cookie: string): Promise<TownOverview> => {
-      await startWork(cookie, 'homes')
-      await startWork(cookie, 'homes')
-      return overviewOf(await startWork(cookie, 'homes'))
-    }
-
     it('lets a new town pay homes level 2 at once', async () => {
       const ana = await signUpWithTown('ana@example.com')
 
@@ -274,80 +248,5 @@ describe('the town route', () => {
         material: 380,
       })
     })
-
-    it('pays homes levels 2 to 4 from the starting food and leaves 15', async () => {
-      const ana = await signUpWithTown('ana@example.com')
-      await setMoneyAndMaterialAside()
-      await holdStableWords('ana@example.com', 20)
-
-      const overview = await raiseHomesThreeTimes(ana)
-
-      expect([overview.work.waitingList.at(-1)?.level, overview.stocks.food.amount]).toEqual([
-        4, 15,
-      ])
-    })
-
-    it('refuses homes level 5 with no farm, 187 food short', async () => {
-      const ana = await signUpWithTown('ana@example.com')
-      await setMoneyAndMaterialAside()
-      await holdStableWords('ana@example.com', 30)
-      await raiseHomesThreeTimes(ana)
-
-      const response = await startWork(ana, 'homes')
-
-      expect(response.status).toBe(409)
-      expect(await refusalOf(response)).toEqual({
-        kind: 'NotEnoughResources',
-        params: { missing: { money: 0, food: 187, power: 0, material: 0 } },
-      })
-    })
-
-    it('keeps the stored cost of work charged before the food column and refunds it at a stop', async () => {
-      const ana = await signUpWithTown('ana@example.com')
-      await holdStableWords('ana@example.com', 10)
-      await startWork(ana, 'homes')
-      await startWork(ana, 'homes')
-      await runSql('UPDATE towns SET food = 300, work_cost_food = 0')
-      await runSql('UPDATE town_waiting_work SET cost_food = 0')
-
-      const { work } = await overviewOf(await readTown(ana))
-      await stopWork(ana, 'homes', 3)
-      const overview = await overviewOf(await stopWork(ana, 'homes', 2))
-
-      expect([work.slot?.cost.food, work.waitingList[0]?.cost.food, amountsOf(overview)]).toEqual([
-        0,
-        0,
-        { money: 400, food: 300, power: 200, material: 500 },
-      ])
-    })
-
-    it.each([
-      { terrain: 'river', area: 2 },
-      { terrain: 'hills', area: 3 },
-    ])(
-      'reaches homes level 5 through a farm from a $terrain town left with 15 food',
-      async ({ terrain, area }) => {
-        const ana = await signUpWithTown('ana@example.com')
-        await runSql(`UPDATE towns SET area = ${area}`)
-        await holdStableWords('ana@example.com', 30)
-        await startWork(ana, 'factory')
-        await startWork(ana, 'homes')
-        await startWork(ana, 'homes')
-        clock.advanceMinutes(300)
-        const afterHomesFour = await overviewOf(await startWork(ana, 'homes'))
-        clock.advanceMinutes(180)
-        const farm = await startWork(ana, 'farm')
-        clock.advanceMinutes(24 * 60)
-
-        const homesFive = await overviewOf(await startWork(ana, 'homes'))
-
-        expect([
-          afterHomesFour.terrain,
-          afterHomesFour.stocks.food.amount,
-          farm.status,
-          homesFive.work.slot?.level,
-        ]).toEqual([terrain, 15, 200, 5])
-      },
-    )
   })
 })

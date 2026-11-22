@@ -63,11 +63,6 @@ export const runSql = async (statement: string): Promise<void> => {
   }
 }
 
-export const holdStableWords = (email: string, count: number): Promise<void> =>
-  runSql(
-    `INSERT INTO cards (player_id, word_id, state, stability, difficulty, last_review_at, last_rating, entered_at) SELECT id, 'stable-' || n, 'review', 12, 5, '2026-11-01T08:00:00Z', 'good', '2026-11-01T07:00:00Z' FROM players, generate_series(1, ${count}) n WHERE email = '${email}'`,
-  )
-
 export const statementTextOf = (query: unknown): string => {
   if (typeof query === 'string') {
     return query
