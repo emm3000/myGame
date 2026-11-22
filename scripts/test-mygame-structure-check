@@ -197,6 +197,20 @@ passes_a_synchronous_const_named_of_and_an_async_one_in_a_test() {
   expect_pass "${FUNCNAME[0]}"
 }
 
+passes_a_synchronous_reading_named_of_whose_name_contains_promise() {
+  fresh_tree
+  plant packages/domain/src/town/domain/brokenPromiseOf.ts "export const brokenPromiseOf = (promises: number): number => promises - 1\nexport function keptPromiseOf(promises: number): number {\n  return promises\n}\n"
+  check
+  expect_pass "${FUNCNAME[0]}"
+}
+
+passes_a_synchronous_reading_split_over_lines_that_takes_a_promise_callback() {
+  fresh_tree
+  plant packages/domain/src/town/application/sendJob.ts "export function retriesOf(\n  task: () => Promise<void>,\n  count: number,\n): number {\n  return count\n}\nexport const retriesAt = (\n  task: () => Promise<void>,\n  from: number,\n): number => from\n"
+  check
+  expect_pass "${FUNCNAME[0]}"
+}
+
 fails_a_subpath_import_inside_its_own_folder() {
   fresh_tree
   plant apps/api/src/town/jobs/infrastructure/http/sendJobRoute.ts "import { mutateTown } from '#town/application/mutateTown'\n"
@@ -638,6 +652,8 @@ run fails_an_async_const_named_for
 run passes_a_synchronous_reading_that_takes_a_promise_callback
 run passes_a_synchronous_reading_that_returns_a_promise_like_in_a_union
 run passes_a_synchronous_const_named_of_and_an_async_one_in_a_test
+run passes_a_synchronous_reading_named_of_whose_name_contains_promise
+run passes_a_synchronous_reading_split_over_lines_that_takes_a_promise_callback
 run fails_a_subpath_import_inside_its_own_folder
 run fails_a_domain_test_importing_its_own_folder_by_subpath
 run passes_a_subpath_import_that_leaves_its_folder_or_the_root
