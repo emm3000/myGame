@@ -12,10 +12,10 @@ import { saveResolvedTown } from '../../application/saveResolvedTown'
 import type { TownCatalog } from '../../domain/TownCatalog'
 import type { TownNews } from '../../domain/TownNews'
 import type { TownRepository } from '../../domain/TownRepository'
-import { idleLessonSlot } from '../LessonSlot'
-import type { LessonSlotRepository } from '../ports/LessonSlotRepository'
-import { readSettledSchool } from '../services/readSettledSchool'
-import { saveLessonSlot } from '../services/saveLessonSlot'
+import { readSettledSchool } from '../application/readSettledSchool'
+import { saveLessonSlot } from '../application/saveLessonSlot'
+import { idleLessonSlot } from '../domain/LessonSlot'
+import type { LessonSlotRepository } from '../domain/LessonSlotRepository'
 
 export type StopSchoolLessonCommand = {
   readonly playerId: PlayerId

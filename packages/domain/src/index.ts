@@ -380,14 +380,18 @@ export type { ResourceKind } from '#town/resources/ResourceKind'
 export { rebaseFullSince } from '#town/resources/rebaseFullSince'
 export { resourceKinds } from '#town/resources/resourceKinds'
 export type { Stocks } from '#town/resources/Stocks'
-export { isLessonFinishedBy } from '#town/school/isLessonFinishedBy'
-export { isLessonUnderStudy } from '#town/school/isLessonUnderStudy'
-export { type BusyLessonSlot, idleLessonSlot, type LessonSlot } from '#town/school/LessonSlot'
-export { lessonDurationSecondsAt } from '#town/school/lessonDurationSecondsAt'
-export type { LessonSlotRepository } from '#town/school/ports/LessonSlotRepository'
-export type { SchoolLesson } from '#town/school/SchoolLesson'
-export type { SchoolLevel } from '#town/school/SchoolLevel'
-export { schoolLevelOf } from '#town/school/schoolLevelOf'
+export { isLessonFinishedBy } from '#town/school/domain/isLessonFinishedBy'
+export { isLessonUnderStudy } from '#town/school/domain/isLessonUnderStudy'
+export {
+  type BusyLessonSlot,
+  idleLessonSlot,
+  type LessonSlot,
+} from '#town/school/domain/LessonSlot'
+export type { LessonSlotRepository } from '#town/school/domain/LessonSlotRepository'
+export { lessonDurationSecondsAt } from '#town/school/domain/lessonDurationSecondsAt'
+export type { SchoolLesson } from '#town/school/domain/SchoolLesson'
+export type { SchoolLevel } from '#town/school/domain/SchoolLevel'
+export { schoolLevelOf } from '#town/school/domain/schoolLevelOf'
 export {
   type SettleSchoolLessonDependencies,
   settleSchoolLesson,

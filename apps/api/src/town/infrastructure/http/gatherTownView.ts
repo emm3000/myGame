@@ -31,7 +31,10 @@ import {
   type GuidanceView,
   gatherGuidanceView,
 } from '../../guidance/application/gatherGuidanceView'
-import { gatherSchoolView, type SchoolView } from '../../school/application/gatherSchoolView'
+import {
+  gatherSchoolView,
+  type SchoolView,
+} from '../../school/infrastructure/http/gatherSchoolView'
 
 export type StockView = {
   readonly amount: number

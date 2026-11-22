@@ -11,7 +11,7 @@ import type { Instant } from '#time/Instant'
 import type { TownReader, TownWithSchool } from '../domain/TownReader'
 import type { TownRepository } from '../domain/TownRepository'
 import type { TipKind } from '../guidance/TipKind'
-import type { LessonSlotRepository } from '../school/ports/LessonSlotRepository'
+import type { LessonSlotRepository } from '../school/domain/LessonSlotRepository'
 
 export type TownReaderStores = {
   readonly accounts: Pick<Accounts, 'playerOf'>

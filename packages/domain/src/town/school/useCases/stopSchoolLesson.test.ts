@@ -12,7 +12,7 @@ import { inMemoryTownNews } from '../../testing/inMemoryTownNews'
 import { inMemoryTowns } from '../../testing/inMemoryTowns'
 import { plainTownSettings, townCatalogOf } from '../../testing/townCatalogOf'
 import { type TownShape, townOf } from '../../testing/townFixtures'
-import type { LessonSlot } from '../LessonSlot'
+import type { LessonSlot } from '../domain/LessonSlot'
 import { inMemoryLessonSlots } from '../testing/inMemoryLessonSlots'
 import { stopSchoolLesson } from './stopSchoolLesson'
 

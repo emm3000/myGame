@@ -4,7 +4,7 @@ import { type ChromePhase, chromePhaseOf } from '#learning/scaffold/chromePhaseO
 import type { Clock } from '#platform/domain/Clock'
 import type { Refusal } from '#platform/domain/Refusal'
 import { err, ok, type Result } from '#Result'
-import { isLessonFinishedBy } from '#town/school/isLessonFinishedBy'
+import { isLessonFinishedBy } from '#town/school/domain/isLessonFinishedBy'
 import type { StoredPlayer } from '../domain/Accounts'
 import type { ChromeProgress, ChromeProgressReader } from '../domain/ChromeProgressReader'
 
