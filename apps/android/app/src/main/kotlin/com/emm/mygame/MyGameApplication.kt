@@ -71,7 +71,7 @@ class MyGameApplication : Application(), AppDependencies {
     private val studyAnswers: StudyAnswers by lazy {
         StudyAnswers(
             tokenStore = tokenStore,
-            sink = StudyReminderFeed(store = reminderStore, towns = { towns }, scope = applicationScope),
+            sink = StudyReminderSink(store = reminderStore, towns = { towns }, scope = applicationScope),
         )
     }
 

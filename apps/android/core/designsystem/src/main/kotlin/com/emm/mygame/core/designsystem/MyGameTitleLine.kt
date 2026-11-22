@@ -46,7 +46,6 @@ private object TitleBesideStatus : MeasurePolicy {
         val titleShare: Int = titleShareOf(
             room = room,
             titleWidest = titleWidest,
-            statusWidest = statusWidest,
             statusLongestWord = status.minIntrinsicWidth(constraints.maxHeight),
         )
         val titlePlaced: Placeable = title.measure(
@@ -59,10 +58,8 @@ private object TitleBesideStatus : MeasurePolicy {
     }
 }
 
-private fun titleShareOf(room: Int, titleWidest: Int, statusWidest: Int, statusLongestWord: Int): Int {
-    if (titleWidest + statusWidest <= room) return titleWidest
-    return minOf(titleWidest, maxOf(room - statusLongestWord, room / 2)).coerceAtLeast(0)
-}
+private fun titleShareOf(room: Int, titleWidest: Int, statusLongestWord: Int): Int =
+    minOf(titleWidest, maxOf(room - statusLongestWord, room / 2)).coerceAtLeast(0)
 
 private fun MeasureScope.placeAlone(title: Placeable): MeasureResult =
     layout(title.width, title.height) { title.placeRelative(0, 0) }

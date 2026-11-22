@@ -26,7 +26,7 @@ internal fun TownSnapshot.contentAt(
     val lessonCards: List<SchoolUiState.LessonCard> = lessons.map { lesson: TownSnapshot.Lesson -> lesson.cardIn(this) }
     return SchoolUiState.Content(
         schoolLevel = schoolLevel(),
-        learning = learningLineAt(now, gap, startable = lessonCards.startableWith(selected)),
+        learning = learningLineAt(now, gap, startable = lessonCards.nextOpenWith(selected)),
         slot = lessonSlot?.lineIn(this, now) ?: SchoolUiState.SlotLine.Idle,
         skills = skills.mapIndexed { index: Int, skill: TownSnapshot.EarnedSkill -> skill.lineAt(index, skills) },
         lessons = lessonCards,
@@ -78,7 +78,7 @@ private fun TownSnapshot.learningLineAt(
     opening = capOpeningAt(now, gap),
 )
 
-private fun List<SchoolUiState.LessonCard>.startableWith(selected: LessonId?): SchoolUiState.LessonCard? =
+private fun List<SchoolUiState.LessonCard>.nextOpenWith(selected: LessonId?): SchoolUiState.LessonCard? =
     featuredWith(selected)?.takeIf(::isOpen) ?: firstOrNull(::isOpen)
 
 private fun isOpen(card: SchoolUiState.LessonCard): Boolean = card.state is SchoolUiState.LessonState.Open
