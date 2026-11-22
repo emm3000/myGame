@@ -9,7 +9,7 @@ import okhttp3.OkHttpClient
 import retrofit2.Retrofit
 import retrofit2.converter.kotlinx.serialization.asConverterFactory
 
-internal val okHttpDefaults: () -> OkHttpClient.Builder = { OkHttpClient.Builder() }
+internal val okHttpDefaults: () -> OkHttpClient.Builder = OkHttpClient::Builder
 
 internal fun signedInApi(endpoint: ApiEndpoint, tokenStore: TokenStore, sessionEnds: SessionEnds): DefaultApi {
     val bearer: BearerInterceptor = BearerInterceptor(tokenStore = tokenStore) { refusedToken: String ->
@@ -26,10 +26,10 @@ internal fun signOutApi(endpoint: ApiEndpoint, tokenStore: TokenStore, callTimeo
 }
 
 internal fun accountApi(endpoint: ApiEndpoint): DefaultApi =
-    defaultApi(endpoint = endpoint, client = endpoint.newHttpClient().build())
+    defaultApi(endpoint = endpoint, client = endpoint.newHttpClientBuilder().build())
 
 private fun bearerClient(endpoint: ApiEndpoint, bearer: BearerInterceptor, callTimeout: Duration): OkHttpClient =
-    endpoint.newHttpClient()
+    endpoint.newHttpClientBuilder()
         .addInterceptor(bearer)
         .callTimeout(callTimeout.toJavaDuration())
         .build()

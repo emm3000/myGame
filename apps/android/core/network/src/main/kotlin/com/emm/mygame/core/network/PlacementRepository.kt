@@ -20,7 +20,7 @@ fun PlacementRepository(
     ioDispatcher: CoroutineDispatcher,
 ): PlacementRepository =
     PlacementRepository(
-        endpoint = ApiEndpoint(baseUrl = baseUrl, newHttpClient = okHttpDefaults),
+        endpoint = ApiEndpoint(baseUrl = baseUrl, newHttpClientBuilder = okHttpDefaults),
         tokenStore = tokenStore,
         sessionEnds = sessionEnds,
         ioDispatcher = ioDispatcher,

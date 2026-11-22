@@ -14,7 +14,7 @@ fun TownTextRepository(
     ioDispatcher: CoroutineDispatcher,
 ): TownTextRepository =
     TownTextRepository(
-        endpoint = ApiEndpoint(baseUrl = baseUrl, newHttpClient = okHttpDefaults),
+        endpoint = ApiEndpoint(baseUrl = baseUrl, newHttpClientBuilder = okHttpDefaults),
         tokenStore = tokenStore,
         sessionEnds = sessionEnds,
         ioDispatcher = ioDispatcher,

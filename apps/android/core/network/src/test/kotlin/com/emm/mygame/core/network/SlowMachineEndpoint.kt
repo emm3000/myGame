@@ -8,7 +8,7 @@ import okhttp3.OkHttpClient
 private val slowMachinePatience: Duration = 60.seconds
 
 internal fun slowMachineEndpoint(baseUrl: String): ApiEndpoint =
-    ApiEndpoint(baseUrl = baseUrl, newHttpClient = ::slowMachineHttpClient)
+    ApiEndpoint(baseUrl = baseUrl, newHttpClientBuilder = ::slowMachineHttpClient)
 
 private fun slowMachineHttpClient(): OkHttpClient.Builder =
     OkHttpClient.Builder()

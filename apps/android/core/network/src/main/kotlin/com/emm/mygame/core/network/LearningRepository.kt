@@ -19,7 +19,7 @@ fun LearningRepository(
     ioDispatcher: CoroutineDispatcher,
 ): LearningRepository =
     LearningRepository(
-        endpoint = ApiEndpoint(baseUrl = baseUrl, newHttpClient = okHttpDefaults),
+        endpoint = ApiEndpoint(baseUrl = baseUrl, newHttpClientBuilder = okHttpDefaults),
         tokenStore = tokenStore,
         sessionEnds = sessionEnds,
         studyAnswers = studyAnswers,

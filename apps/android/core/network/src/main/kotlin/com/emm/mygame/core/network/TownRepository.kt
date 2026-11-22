@@ -43,7 +43,7 @@ fun TownRepository(
     clock: Clock,
 ): TownRepository =
     TownRepository(
-        endpoint = ApiEndpoint(baseUrl = baseUrl, newHttpClient = okHttpDefaults),
+        endpoint = ApiEndpoint(baseUrl = baseUrl, newHttpClientBuilder = okHttpDefaults),
         tokenStore = tokenStore,
         languages = languages,
         sessionEnds = sessionEnds,

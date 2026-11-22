@@ -33,7 +33,7 @@ fun SessionRepository(
     ioDispatcher: CoroutineDispatcher,
 ): SessionRepository =
     SessionRepository(
-        endpoint = ApiEndpoint(baseUrl = baseUrl, newHttpClient = okHttpDefaults),
+        endpoint = ApiEndpoint(baseUrl = baseUrl, newHttpClientBuilder = okHttpDefaults),
         tokenStore = tokenStore,
         languages = languages,
         sessionEnds = sessionEnds,
