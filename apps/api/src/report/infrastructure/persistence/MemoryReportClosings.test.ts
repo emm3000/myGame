@@ -1,4 +1,4 @@
-import { MemoryReportClosings } from './MemoryReportClosings'
+import { MemoryReportClosings } from '@mygame/domain/testing'
 import { reportClosingsContract } from './reportClosingsContract.testSupport'
 
 reportClosingsContract('MemoryReportClosings', async () => {

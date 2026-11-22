@@ -4,6 +4,7 @@ import type {
   CardReader,
   LessonLibrary,
   ReadOnlyTowns,
+  ReportClosings,
   TownNewsReader,
   TownReader,
 } from '@mygame/domain'
@@ -45,7 +46,6 @@ import { CryptoIdGenerator } from '#platform/infrastructure/system/CryptoIdGener
 import { CryptoRandomSource } from '#platform/infrastructure/system/CryptoRandomSource'
 import { SystemClock } from '#platform/infrastructure/system/SystemClock'
 import { VercelAfterResponse } from '#platform/infrastructure/vercel/VercelAfterResponse'
-import type { ReportClosings } from '#report/application/ports/ReportClosings'
 import { DrizzleReportClosings } from '#report/infrastructure/persistence/DrizzleReportClosings'
 import { DrizzleCleanUpRepository } from '#town/infrastructure/persistence/DrizzleCleanUpRepository'
 import { DrizzleRegionMapReader } from '#town/infrastructure/persistence/DrizzleRegionMapReader'

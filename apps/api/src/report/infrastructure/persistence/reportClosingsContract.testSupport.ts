@@ -1,6 +1,5 @@
-import { Instant, type PlayerId } from '@mygame/domain'
+import { Instant, type PlayerId, type ReportClosings } from '@mygame/domain'
 import { describe, expect, it } from 'vitest'
-import type { ReportClosings } from '../../application/ports/ReportClosings'
 
 export type ReportClosingsFixture = {
   readonly closings: ReportClosings

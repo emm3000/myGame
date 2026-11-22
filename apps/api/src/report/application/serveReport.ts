@@ -1,4 +1,4 @@
-import type { TownNewsReader } from '@mygame/domain'
+import type { ReportClosings, TownNewsReader } from '@mygame/domain'
 import {
   type Clock,
   type DomainError,
@@ -15,7 +15,6 @@ import {
   type TownEvent,
   type TownId,
 } from '@mygame/domain'
-import type { ReportClosings } from './ports/ReportClosings'
 
 export type ServeReportDependencies = ResolveTownReadingDependencies &
   ReviewTerms & {
