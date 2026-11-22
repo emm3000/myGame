@@ -44,14 +44,29 @@ A ticket that adds or changes behavior writes each new rule's test first (`mattp
 A ticket that draws a screen shoots once, at the head the PR opens with, on its emulator against the real api, the flow exercised (`.claude/rules/verification.md`, the `apps/android` row): `android screen capture --device=emulator-<port> --no-metrics -o <file>.png`. A Robolectric capture stands in only for a state the emulator cannot reach against the real api, and the PR body names that state and why it cannot be reached. A ticket's shots are:
 
 - each changed composable at the default scale, and again at 360×640, font scale 2.0, in es;
-- published on the branch `assets/<N>-visual-check`, that head's short SHA in every file name, linked in the PR body with `raw.githubusercontent.com` URLs. Add the image files by name: `git checkout --orphan` leaves the previous branch's files on disk, and `git add -A` would publish them. The assets branch outlives the merge: `scripts/mygame-wave-close` deletes only its local copy, so the links stay the PR's evidence.
+- published under the folder `<n>/`, the issue number, on the one orphan branch `assets`, that head's short SHA in every file name, linked in the PR body as `https://raw.githubusercontent.com/emm3000/myGame/assets/<n>/<file>`.
+
+`assets` is append-only: each round adds one commit on top of `origin/assets` with a plain push. Never `--force` or `--force-with-lease` on it, never delete or rewrite it, locally or on origin; no script does either, so the links stay the PR's evidence after the merge. Build the commit from a temporary index, which checks out no other ticket's files, creates no local branch, and publishes only the files you name. `$shots` is a scratchpad folder holding only this round's images:
+
+```bash
+git fetch origin assets
+GIT_INDEX_FILE="$shots.index" git read-tree origin/assets
+for file in "$shots"/*.png; do
+  GIT_INDEX_FILE="$shots.index" git update-index --add --cacheinfo "100644,$(git hash-object -w "$file"),<n>/${file##*/}"
+done
+commit=$(git commit-tree "$(GIT_INDEX_FILE="$shots.index" git write-tree)" -p origin/assets -m "chore(assets): <n> visual check at <short sha>")
+rm "$shots.index"
+git push origin "$commit:refs/heads/assets"
+```
+
+A rejected push means another peer appended first: run the block again, which fetches and rebuilds your commit on the new `origin/assets`.
 
 A fix round reshoots only the composables it redraws.
 
 ## The PR
 
 - Open it in the turn `pnpm gate` goes green: push the branch, `gh pr create` with `Closes #<n>`. `pr-reviewer` reviews it; CI and the merge are the orchestrator's.
-- Your ticket branch, your assets branch and a `--force-with-lease` after a rebase are yours to push without asking. `trunk` is never yours.
+- Your ticket branch and a `--force-with-lease` on it after a rebase are yours to push without asking, and so is your plain-push append to `assets`. `trunk` is never yours.
 - Evidence a criterion turns on goes in the PR body in full; for a measurement, the measured lines.
 - A deleted test is listed in the PR body with the rule it covered and the test that still covers it, or the reason the rule is gone.
 

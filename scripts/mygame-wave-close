@@ -170,10 +170,14 @@ merged_count() {
   gh pr list -R "$origin_url" --head "$1" --state merged --json number --jq length
 }
 
+is_permanent() {
+  [ "$1" = trunk ] || [ "$1" = assets ]
+}
+
 merged_earlier() {
   local name count
   while read -r name; do
-    [ "$name" != trunk ] || continue
+    ! is_permanent "$name" || continue
     awk -v name="$name" '$0 == name { found = 1 } END { exit found }' <<<"$held" || continue
     git -C "$repo" show-ref --verify --quiet "refs/heads/$name" || continue
     count=$(merged_count "$name") ||
@@ -184,7 +188,7 @@ merged_earlier() {
 }
 
 peer_branches=$(
-  if [ -n "$branch" ] && [ "$branch" != trunk ]; then
+  if [ -n "$branch" ] && ! is_permanent "$branch"; then
     merged=$(merged_count "$branch") ||
       { echo "gh pr list failed: branch $branch kept" >&2; merged=failed; }
     case $merged in
@@ -196,24 +200,13 @@ peer_branches=$(
   merged_earlier
 )
 if [ -n "$peer_branches" ]; then
-  branches=""
-  for name in $peer_branches; do
-    branches="$branches $name"
-    ticket=${name#*/}
-    ticket=${ticket%%-*}
-    case $ticket in
-      '' | *[!0-9]*) ;;
-      *) branches="$branches assets/$ticket-visual-check" ;;
-    esac
-  done
   remote_heads=$(git -C "$repo" ls-remote --heads origin 2>/dev/null | awk '{ print substr($2, 12) }' || true)
   pushed=()
-  for name in $branches; do
+  for name in $peer_branches; do
     if git -C "$repo" show-ref --verify --quiet "refs/heads/$name"; then
       git -C "$repo" branch -q -D "$name"
       echo "deleted branch $name"
     fi
-    [[ $name != assets/* ]] || continue
     if awk -v name="$name" '$0 == name { found = 1 } END { exit !found }' <<<"$remote_heads"; then
       pushed+=("$name")
     fi

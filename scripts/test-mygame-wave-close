@@ -50,6 +50,7 @@ cycle_python_pid=900000026
 failures=0
 case_dir=""
 repo=""
+assets_sha=""
 
 mkdir -p "$sandbox/bin"
 write_stub() {
@@ -170,6 +171,7 @@ build_a_live_peer() {
   git -C "$repo" worktree add -q -b chore/9-live "$case_dir/mygame-live" trunk
   git -C "$repo" push -q -u origin trunk chore/9-live
   git -C "$repo" remote set-head origin trunk >/dev/null
+  add_the_assets_branch_on_origin
   {
     printf '%s\tclaude\t%s\tclaude -n probex --model opus\n' "$neighbor_pid" "$case_dir/mygame-probex"
     printf '%s\tclaude\t%s\tclaude -n probe --model opus\n' "$stranger_pid" "$case_dir/pichanga-probe"
@@ -188,6 +190,19 @@ build_a_live_peer() {
   add_an_emulator "$picantea_emulator_pid" picantea-x 5590 "$case_dir/pichanga-probe"
   add_an_emulator "$medium_phone_emulator_pid" Medium_Phone_5560 5560 "$case_dir"
   add_an_emulator "$live_emulator_pid" mygame-live 5562 "$case_dir/mygame-live"
+}
+
+add_the_assets_branch_on_origin() {
+  local blob folder tree
+  blob=$(echo shot | git -C "$repo" hash-object -w --stdin)
+  folder=$(printf '100644 blob %s\tshot-abc1234.png\n' "$blob" | git -C "$repo" mktree)
+  tree=$(printf '040000 tree %s\t7\n' "$folder" | git -C "$repo" mktree)
+  assets_sha=$(git -C "$repo" commit-tree "$tree" -m "chore(assets): 7 visual check")
+  git -C "$repo" push -q origin "$assets_sha:refs/heads/assets"
+}
+
+origin_assets() {
+  git --git-dir="$case_dir/origin.git" rev-parse --verify -q refs/heads/assets || echo missing
 }
 
 add_an_avd() {
@@ -215,8 +230,7 @@ add_a_script_tree_that_left_the_worktree() {
 build_a_merged_ticket_beside_a_live_peer() {
   build_a_live_peer "$1"
   git -C "$repo" worktree add -q -b chore/7-probe "$case_dir/mygame-probe" trunk
-  git -C "$repo" branch assets/7-visual-check
-  git -C "$repo" push -q origin chore/7-probe assets/7-visual-check
+  git -C "$repo" push -q origin chore/7-probe
   mkdir -p "$case_dir/mygame-probe/apps/api"
   {
     printf '%s\tclaude\t%s\tclaude -n probe --model opus\n' "$claude_pid" "$case_dir/mygame-probe"
@@ -236,11 +250,7 @@ build_a_peer_with_two_earlier_merged_tickets_and_an_open_one() {
   git -C "$probe" switch -q -c fix/8-open trunk
   git -C "$probe" checkout -q --ignore-other-worktrees chore/9-live
   git -C "$probe" switch -q -c chore/7-probe trunk
-  for name in 5 6 7 8; do
-    git -C "$repo" branch "assets/$name-visual-check"
-  done
-  git -C "$repo" push -q origin fix/5-first fix/6-second fix/8-open chore/7-probe \
-    assets/5-visual-check assets/6-visual-check assets/7-visual-check assets/8-visual-check
+  git -C "$repo" push -q origin fix/5-first fix/6-second fix/8-open chore/7-probe
   printf '%s\n' fix/5-first fix/6-second chore/7-probe chore/9-live >"$case_dir/state/merged"
 }
 
@@ -249,16 +259,12 @@ closing_deletes_the_branches_of_the_peer_earlier_merged_tickets() {
   local output
   output=$(with_stubs scripts/mygame-wave-close probe) || fail "${FUNCNAME[0]}" "$output" || return 1
   local name
-  for name in fix/5-first fix/6-second chore/7-probe assets/5-visual-check assets/6-visual-check assets/7-visual-check; do
+  for name in fix/5-first fix/6-second chore/7-probe; do
     ! git -C "$repo" show-ref --verify --quiet "refs/heads/$name" || fail "${FUNCNAME[0]}" "local $name kept: $output" || return 1
   done
   for name in fix/5-first fix/6-second chore/7-probe; do
     ! git --git-dir="$case_dir/origin.git" show-ref --verify --quiet "refs/heads/$name" ||
       fail "${FUNCNAME[0]}" "origin kept $name: $output" || return 1
-  done
-  for name in 5 6 7; do
-    git --git-dir="$case_dir/origin.git" show-ref --verify --quiet "refs/heads/assets/$name-visual-check" ||
-      fail "${FUNCNAME[0]}" "origin lost assets/$name-visual-check: $output" || return 1
   done
 }
 
@@ -267,8 +273,6 @@ closing_keeps_a_branch_of_the_peer_whose_pr_is_open() {
   local output
   output=$(with_stubs scripts/mygame-wave-close probe) || fail "${FUNCNAME[0]}" "$output" || return 1
   git -C "$repo" show-ref --verify --quiet refs/heads/fix/8-open || fail "${FUNCNAME[0]}" "local fix/8-open deleted: $output" || return 1
-  git -C "$repo" show-ref --verify --quiet refs/heads/assets/8-visual-check ||
-    fail "${FUNCNAME[0]}" "local assets/8-visual-check deleted: $output" || return 1
   git --git-dir="$case_dir/origin.git" show-ref --verify --quiet refs/heads/fix/8-open || fail "${FUNCNAME[0]}" "origin fix/8-open deleted: $output"
 }
 
@@ -278,8 +282,6 @@ closing_keeps_the_peer_current_branch_whose_pr_is_open() {
   local output
   output=$(with_stubs scripts/mygame-wave-close probe) || fail "${FUNCNAME[0]}" "$output" || return 1
   git -C "$repo" show-ref --verify --quiet refs/heads/chore/7-probe || fail "${FUNCNAME[0]}" "local chore/7-probe deleted: $output" || return 1
-  git -C "$repo" show-ref --verify --quiet refs/heads/assets/7-visual-check ||
-    fail "${FUNCNAME[0]}" "local assets/7-visual-check deleted: $output" || return 1
   git --git-dir="$case_dir/origin.git" show-ref --verify --quiet refs/heads/chore/7-probe ||
     fail "${FUNCNAME[0]}" "origin chore/7-probe deleted: $output" || return 1
   [ "$(rg -F 'kept branch' <<<"$output")" = "kept branch chore/7-probe: no merged PR" ] || fail "${FUNCNAME[0]}" "$output"
@@ -460,37 +462,49 @@ closes_an_already_closed_session_quietly() {
   [ "$second" = "orphans: none" ] || fail "${FUNCNAME[0]}" "second run printed $second" || return 1
   [ ! -e "$case_dir/mygame-probe" ] || fail "${FUNCNAME[0]}" "worktree left behind" || return 1
   [ "$(refs refs/heads)" = "refs/heads/chore/9-live refs/heads/trunk " ] || fail "${FUNCNAME[0]}" "local $(refs refs/heads)" || return 1
-  [ "$(git --git-dir="$case_dir/origin.git" for-each-ref --format='%(refname)' | sort | tr '\n' ' ')" = "refs/heads/assets/7-visual-check refs/heads/chore/9-live refs/heads/trunk " ] ||
+  [ "$(git --git-dir="$case_dir/origin.git" for-each-ref --format='%(refname)' | sort | tr '\n' ' ')" = "refs/heads/assets refs/heads/chore/9-live refs/heads/trunk " ] ||
     fail "${FUNCNAME[0]}" "origin kept $(git --git-dir="$case_dir/origin.git" for-each-ref --format='%(refname)')" || return 1
   [ "$(sort "$case_dir/state/containers" | tr '\n' ' ')" = "mygame-live-pg mygame-orch-pg " ] || fail "${FUNCNAME[0]}" "containers $(tr '\n' ' ' <"$case_dir/state/containers")" || return 1
   [ "$(cut -f 1 "$case_dir/state/volumes" | sort | tr '\n' ' ')" = "mygame-live-pgdata " ] || fail "${FUNCNAME[0]}" "volumes $(cut -f 1 "$case_dir/state/volumes" | tr '\n' ' ')"
 }
 
-closing_a_merged_ticket_keeps_its_screenshot_branch_on_origin() {
+closing_a_ticket_leaves_the_assets_branch_on_origin_at_the_same_sha() {
   build_a_merged_ticket_beside_a_live_peer assets-kept
+  git -C "$repo" branch assets "$assets_sha"
   local output
   output=$(with_stubs scripts/mygame-wave-close probe) || fail "${FUNCNAME[0]}" "$output" || return 1
-  git --git-dir="$case_dir/origin.git" show-ref --verify --quiet refs/heads/assets/7-visual-check ||
-    fail "${FUNCNAME[0]}" "origin lost assets/7-visual-check: $output" || return 1
+  [ "$(origin_assets)" = "$assets_sha" ] || fail "${FUNCNAME[0]}" "origin assets at $(origin_assets), not $assets_sha: $output" || return 1
+  [ "$(git -C "$repo" rev-parse --verify -q refs/heads/assets)" = "$assets_sha" ] ||
+    fail "${FUNCNAME[0]}" "local assets moved or deleted: $output" || return 1
   ! git --git-dir="$case_dir/origin.git" show-ref --verify --quiet refs/heads/chore/7-probe ||
     fail "${FUNCNAME[0]}" "origin kept chore/7-probe: $output" || return 1
-  ! git -C "$repo" show-ref --verify --quiet refs/heads/assets/7-visual-check ||
-    fail "${FUNCNAME[0]}" "local assets/7-visual-check kept: $output" || return 1
-  [ "$(rg -F 'on origin' <<<"$output")" = "deleted chore/7-probe on origin" ] || fail "${FUNCNAME[0]}" "$output"
+  [ "$(rg -F 'on origin' <<<"$output")" = "deleted chore/7-probe on origin" ] || fail "${FUNCNAME[0]}" "$output" || return 1
+  [ "$(tail -n 1 <<<"$output")" = "orphans: none" ] || fail "${FUNCNAME[0]}" "$output"
 }
 
-orphans_never_reports_a_screenshot_branch_on_origin_with_or_without_a_live_peer() {
+closing_never_deletes_assets_even_when_gh_calls_it_merged() {
+  build_a_merged_ticket_beside_a_live_peer assets-merged
+  git -C "$case_dir/mygame-probe" switch -q -c assets "$assets_sha"
+  git -C "$case_dir/mygame-probe" switch -q chore/7-probe
+  echo assets >>"$case_dir/state/merged"
+  local output
+  output=$(with_stubs scripts/mygame-wave-close probe) || fail "${FUNCNAME[0]}" "$output" || return 1
+  [ "$(origin_assets)" = "$assets_sha" ] || fail "${FUNCNAME[0]}" "origin assets at $(origin_assets), not $assets_sha: $output" || return 1
+  [ "$(git -C "$repo" rev-parse --verify -q refs/heads/assets)" = "$assets_sha" ] ||
+    fail "${FUNCNAME[0]}" "local assets moved or deleted: $output" || return 1
+  case $output in
+    *"branch assets"* | *" assets "*"on origin"*) fail "${FUNCNAME[0]}" "$output" ;;
+  esac
+}
+
+orphans_never_reports_the_assets_branch_local_or_on_origin() {
   build_a_live_peer assets-orphans
-  local ticket
-  for ticket in 9 5; do
-    git -C "$repo" branch "assets/$ticket-visual-check"
-    git -C "$repo" push -q origin "assets/$ticket-visual-check"
-    git -C "$repo" branch -q -D "assets/$ticket-visual-check"
-  done
+  git -C "$repo" branch assets "$assets_sha"
   git -C "$repo" push -q origin trunk:refs/heads/chore/5-gone
   local output status=0
   output=$(with_stubs scripts/mygame-orphans) || status=$?
-  [ "$status" -ne 0 ] && [ "$output" = "orphan: remote ref refs/remotes/origin/chore/5-gone" ] || fail "${FUNCNAME[0]}" "exit $status: $output"
+  [ "$status" -ne 0 ] && [ "$output" = "orphan: remote ref refs/remotes/origin/chore/5-gone" ] || fail "${FUNCNAME[0]}" "exit $status: $output" || return 1
+  [ "$(origin_assets)" = "$assets_sha" ] || fail "${FUNCNAME[0]}" "origin assets at $(origin_assets), not $assets_sha"
 }
 
 orphans_names_a_stray_branch_and_fails() {
@@ -777,8 +791,9 @@ run() {
 run spares_the_emulator_under_keep_emulator_and_kills_node
 run kills_the_emulator_without_keep_emulator
 run closes_an_already_closed_session_quietly
-run closing_a_merged_ticket_keeps_its_screenshot_branch_on_origin
-run orphans_never_reports_a_screenshot_branch_on_origin_with_or_without_a_live_peer
+run closing_a_ticket_leaves_the_assets_branch_on_origin_at_the_same_sha
+run closing_never_deletes_assets_even_when_gh_calls_it_merged
+run orphans_never_reports_the_assets_branch_local_or_on_origin
 run orphans_names_a_stray_branch_and_fails
 run orphans_keeps_a_spared_emulator_only_under_keep_emulator
 run orphans_reports_only_mygame_dangling_volumes

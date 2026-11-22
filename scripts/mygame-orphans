@@ -58,11 +58,7 @@ while IFS="$(printf '\t')" read -r path branch; do
   name=${folder#mygame-}
   if [ "$name" != "$folder" ] && [ -d "$path" ] && is_live "$name" "$path"; then
     live_peers="$live_peers$name"$'\n'
-    if [ -n "$branch" ]; then
-      ticket=${branch#*/}
-      ticket=${ticket%%-*}
-      kept_refs="$kept_refs$branch"$'\n'"assets/$ticket-visual-check"$'\n'
-    fi
+    [ -z "$branch" ] || kept_refs="$kept_refs$branch"$'\n'
   else
     report "worktree $path"
   fi
@@ -73,13 +69,16 @@ done < <(git -C "$repo" worktree list --porcelain | awk '
 
 while read -r ref; do
   branch=${ref#refs/heads/}
-  [ -z "$branch" ] || [ "$branch" = trunk ] || contains "$kept_refs" "$branch" || report "branch $branch"
+  case $branch in
+    '' | trunk | assets) continue ;;
+  esac
+  contains "$kept_refs" "$branch" || report "branch $branch"
 done < <(git -C "$repo" for-each-ref --format='%(refname)' refs/heads)
 
 git -C "$repo" fetch -q --prune origin 2>/dev/null || echo "orphans: git fetch failed, remote refs may be stale" >&2
 while read -r ref; do
   case $ref in
-    '' | refs/remotes/origin/trunk | refs/remotes/origin/HEAD | refs/remotes/origin/assets/*) continue ;;
+    '' | refs/remotes/origin/trunk | refs/remotes/origin/HEAD | refs/remotes/origin/assets) continue ;;
     refs/remotes/origin/*) ! contains "$kept_refs" "${ref#refs/remotes/origin/}" || continue ;;
   esac
   report "remote ref $ref"
