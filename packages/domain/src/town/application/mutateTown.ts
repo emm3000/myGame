@@ -5,7 +5,7 @@ import type { Clock } from '#platform/domain/Clock'
 import type { UnitOfWork } from '#platform/domain/UnitOfWork'
 import type { PlayerId } from '#player/PlayerId'
 import type { Result } from '#Result'
-import { laterOf } from '#time/laterOf'
+import { readInstantOf } from '../domain/readInstantOf'
 import type { TownStores } from '../domain/TownStores'
 import { settleSchoolLesson } from '../school/application/settleSchoolLesson'
 
@@ -30,7 +30,7 @@ export const mutateTown = <T>(
       return locked
     }
     const now = clock.now()
-    const mutatedAt = locked.value === undefined ? now : laterOf(now, locked.value.storedAt)
+    const mutatedAt = readInstantOf(now, locked.value?.storedAt)
     const mutationClock: Clock = { now: () => mutatedAt }
     const settled = await settleSchoolLesson(playerId, {
       towns: stores.towns,

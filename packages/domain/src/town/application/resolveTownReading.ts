@@ -3,8 +3,8 @@ import type { Clock } from '#platform/domain/Clock'
 import type { PlayerId } from '#player/PlayerId'
 import { err, ok, type Result } from '#Result'
 import type { Instant } from '#time/Instant'
-import { laterOf } from '#time/laterOf'
 import type { ReadOnlyTowns } from '../domain/ReadOnlyTowns'
+import { readInstantOf } from '../domain/readInstantOf'
 import type { Town } from '../domain/Town'
 import type { TownCatalog } from '../domain/TownCatalog'
 import type { TownNews } from '../domain/TownNews'
@@ -62,7 +62,7 @@ export const resolveTownReading = async (
     return stored
   }
   const now = dependencies.clock.now()
-  const readAt = stored.value === undefined ? now : laterOf(now, stored.value.town.storedAt)
+  const readAt = readInstantOf(now, stored.value?.town.storedAt)
   const readClock: Clock = { now: () => readAt }
   const dryRun = await resolveTown(playerId, {
     towns: alreadyRead(stored.value?.town, dependencies.towns),
