@@ -26,7 +26,10 @@ export class SignIn {
     const read = await unitOfWork.transact(async ({ accounts }) =>
       ok(await accounts.credentialsOf(request.email)),
     )
-    const credentials = read.ok ? read.value : undefined
+    if (!read.ok) {
+      return read
+    }
+    const credentials = read.value
     const isMatch = await passwords.matches(credentials?.passwordHash, request.password)
     if (credentials === undefined || !isMatch) {
       return err({ kind: 'InvalidCredentials' })

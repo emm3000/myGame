@@ -12,7 +12,7 @@ The rules: `.claude/rules/architecture.md`, `typescript-style.md`, `principles.m
 
 ## Gotchas
 
-- Nothing throws, tests included: a test narrows a `Result` with Vitest's `assert(result.ok)`. The one `throw` in `src` is `platform/testing/firstItemsRandom.ts`, which refuses an oversized sample as the api's `CryptoRandomSource` does.
+- Nothing throws, tests included: a test narrows a `Result` with Vitest's `assert(result.ok)`. Two files of `src` throw: `platform/testing/firstItemsRandom.ts`, which refuses an oversized sample as the api's `CryptoRandomSource` does, and `account/application/readScaffold.ts`, until ADR 054 steps 12 to 14 (#1821, #1822, #1823) give its ten callers in placement, holdout and learning a `Result`.
 - Randomness comes only through the `RandomSource` port, never `Math.random()`. `sampleOf(items, count)` takes a count no larger than `items`, so every caller caps it.
 - `memory/domain/` is a port of py-fsrs 6.3.2 at commit `9446cb06`, with no fuzz, and keeps its arithmetic: whole days floored, a review interval rounded half to even as Python's `round` (2.5 days is 2, 3.5 is 4), every `e ** x` written `Math.E ** x`, never `Math.exp`.
 - `reviewMemoryCard` never checks the due instant: a use case that rates a card first refuses one not yet due, through `admitDueReview`.

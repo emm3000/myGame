@@ -2,6 +2,8 @@ import type { LessonCatalog } from '#learning/curriculum/ports/LessonCatalog'
 import type { Lesson } from '#learning/Lesson'
 import { type ChromePhase, chromePhaseOf } from '#learning/scaffold/chromePhaseOf'
 import type { Clock } from '#platform/domain/Clock'
+import type { Refusal } from '#platform/domain/Refusal'
+import { err, ok, type Result } from '#Result'
 import { isLessonFinishedBy } from '#town/school/isLessonFinishedBy'
 import type { StoredPlayer } from '../domain/Accounts'
 import type { ChromeProgress, ChromeProgressReader } from '../domain/ChromeProgressReader'
@@ -28,17 +30,14 @@ const finishedLessonCardsOf = (
 export class ReadChromePhase {
   constructor(private readonly dependencies: ReadChromePhaseDependencies) {}
 
-  async execute({ id, scaffold }: StoredPlayer): Promise<ChromePhase> {
+  async execute({ id, scaffold }: StoredPlayer): Promise<Result<ChromePhase, Refusal>> {
     const progress = await this.dependencies.chromeProgress.chromeProgressOf(id)
     if (progress === undefined) {
-      throw new Error(`Player ${id} holds no account`)
+      return err({ kind: 'SignedOut' })
     }
     const cards = [...progress.cards, ...finishedLessonCardsOf(progress, this.dependencies)]
-    return chromePhaseOf(
-      scaffold,
-      this.dependencies.lessons.chromeLessons(),
-      cards,
-      progress.skills,
+    return ok(
+      chromePhaseOf(scaffold, this.dependencies.lessons.chromeLessons(), cards, progress.skills),
     )
   }
 }

@@ -23,14 +23,12 @@ export const respondSignedIn = async (
   if (!signedIn.ok) {
     return respondRefusal(c, signedIn.error)
   }
+  const chromePhase = await dependencies.readChromePhase.execute(signedIn.value.player)
+  if (!chromePhase.ok) {
+    return respondRefusal(c, chromePhase.error)
+  }
   writeSessionCookie(c, signedIn.value.session, dependencies.isSessionCookieSecure)
-  return c.json(
-    presentPlayer(
-      signedIn.value.player,
-      await dependencies.readChromePhase.execute(signedIn.value.player),
-    ),
-    status,
-  )
+  return c.json(presentPlayer(signedIn.value.player, chromePhase.value), status)
 }
 
 export const respondNativeSession = async (
@@ -42,12 +40,13 @@ export const respondNativeSession = async (
   if (!signedIn.ok) {
     return respondRefusal(c, signedIn.error)
   }
+  const chromePhase = await dependencies.readChromePhase.execute(signedIn.value.player)
+  if (!chromePhase.ok) {
+    return respondRefusal(c, chromePhase.error)
+  }
   const nativeSession: NativeSession = {
     token: signedIn.value.session.token,
-    player: presentPlayer(
-      signedIn.value.player,
-      await dependencies.readChromePhase.execute(signedIn.value.player),
-    ),
+    player: presentPlayer(signedIn.value.player, chromePhase.value),
   }
   return c.json(nativeSession, status)
 }
