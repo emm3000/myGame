@@ -249,8 +249,6 @@ const signal = (): { readonly promise: Promise<void>; readonly resolve: () => vo
 
 const townCatalog = JsonTownCatalog.fromDirectory(join(contentDirectory, 'town'))
 
-const lockedTownReadQuery = 'select "id", "player_id", "region", %'
-
 const foundAnasTown = async (server: ComposedServer): Promise<void> => {
   await registerAna()
   const founded = await new FoundTown({
@@ -276,7 +274,7 @@ const pausingTownRead = (
   },
 })
 
-const untilTownBlockedOrRead = async (secondRead: Promise<unknown>): Promise<void> => {
+const untilPlayerLockBlocksOrRead = async (secondRead: Promise<unknown>): Promise<void> => {
   let hasRead = false
   void secondRead.then(() => {
     hasRead = true
@@ -285,14 +283,11 @@ const untilTownBlockedOrRead = async (secondRead: Promise<unknown>): Promise<voi
   await observer.connect()
   try {
     for (let probes = 0; probes < lockProbeLimit; probes += 1) {
-      if (
-        hasRead ||
-        (await isWaitingOnALock(observer, [lockedPlayerReadQuery, lockedTownReadQuery]))
-      ) {
+      if (hasRead || (await isWaitingOnALock(observer, [lockedPlayerReadQuery]))) {
         return
       }
     }
-    throw new Error('The second read neither waited on the town lock nor finished')
+    throw new Error('The second start neither waited on the player lock nor read the town')
   } finally {
     await observer.end()
   }
@@ -322,7 +317,7 @@ const startFarmWork = (
 const raceTwoStarts = async (server: ComposedServer): Promise<ReadonlyArray<Outcome>> => {
   const firstHasRead = signal()
   const secondHasRead = signal()
-  const secondIsBlockedOrHasRead = untilTownBlockedOrRead(secondHasRead.promise)
+  const secondIsBlockedOrHasRead = untilPlayerLockBlocksOrRead(secondHasRead.promise)
   const first = startFarmWork(server, async () => {
     firstHasRead.resolve()
     await secondIsBlockedOrHasRead

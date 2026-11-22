@@ -1,18 +1,23 @@
 import { assert, describe, expect, it } from 'vitest'
+import { signedUpAccountsOf } from '#account/testing/signedUpAccountsOf'
+import { inMemoryBands } from '#learning/curriculum/testing/inMemoryBands'
+import { inMemoryLessons } from '#learning/curriculum/testing/inMemoryLessons'
 import type { Clock } from '#platform/domain/Clock'
+import { inMemoryUnitOfWork } from '#platform/testing/inMemoryUnitOfWork'
 import { Instant } from '#time/Instant'
 import type { BuildingLevel } from '../../building/domain/BuildingLevel'
 import { derivePeople } from '../../domain/derivePeople'
 import type { TownCatalog } from '../../domain/TownCatalog'
 import type { TownSettings } from '../../domain/TownSettings'
 import { inMemoryEarnedSkills } from '../../testing/inMemoryEarnedSkills'
-import { inMemoryTownNews } from '../../testing/inMemoryTownNews'
+import { type InMemoryTownNews, inMemoryTownNews } from '../../testing/inMemoryTownNews'
+import { inMemoryTownStores, townNewsOver } from '../../testing/inMemoryTownStores'
 import { inMemoryTowns } from '../../testing/inMemoryTowns'
 import { plainTownLevels, plainTownSettings, townCatalogOf } from '../../testing/townCatalogOf'
 import { type TownShape, townOf } from '../../testing/townFixtures'
 import type { HireKind } from '../domain/HireKind'
 import type { HiringOrder } from '../domain/HiringOrder'
-import { placeHiringOrder } from './placeHiringOrder'
+import { PlaceHiringOrder, type PlaceHiringOrderCommand } from './PlaceHiringOrder'
 
 const MILLISECONDS_PER_MINUTE = 60_000
 
@@ -46,13 +51,39 @@ const officeTown = (shape: Partial<TownShape> = {}): ReturnType<typeof townOf> =
     ...shape,
   })
 
+const noLessons = { ...inMemoryLessons([], []), ...inMemoryBands([]) }
+
+type PlaceFixture = {
+  readonly towns: ReturnType<typeof inMemoryTowns>
+  readonly news: InMemoryTownNews
+  readonly catalog: TownCatalog
+  readonly clock: Clock
+}
+
+const placeOrder = (
+  command: PlaceHiringOrderCommand,
+  { towns, news, catalog, clock }: PlaceFixture,
+): ReturnType<PlaceHiringOrder['execute']> =>
+  new PlaceHiringOrder({
+    unitOfWork: inMemoryUnitOfWork(
+      inMemoryTownStores({
+        accounts: signedUpAccountsOf(['player-1']),
+        towns,
+        townNews: townNewsOver(news),
+      }),
+    ),
+    townCatalog: catalog,
+    lessons: noLessons,
+    clock,
+  }).execute(command)
+
 const placeIn = (
   town: ReturnType<typeof townOf>,
   hire: HireKind,
   count: number,
   catalog: TownCatalog = plainCatalog,
-): ReturnType<typeof placeHiringOrder> =>
-  placeHiringOrder(
+): ReturnType<PlaceHiringOrder['execute']> =>
+  placeOrder(
     { playerId: town.playerId, hire, count },
     {
       towns: inMemoryTowns([town], inMemoryEarnedSkills([])),
@@ -71,7 +102,7 @@ const busyWorkers: HiringOrder = {
   startedAt: storedAt,
 }
 
-describe('placeHiringOrder', () => {
+describe('PlaceHiringOrder', () => {
   it('places one hiring order at a time', async () => {
     const placed = await placeIn(officeTown({ hiringSlot: busyWorkers }), 'worker', 1)
 
@@ -83,12 +114,16 @@ describe('placeHiringOrder', () => {
 
     assert(placed.ok)
     const people = derivePeople(
-      placed.value.buildingLevels,
-      placed.value.staffedHires,
+      placed.value.town.buildingLevels,
+      placed.value.town.staffedHires,
       plainCatalog,
     )
     assert(people.ok)
-    expect([placed.value.stocks, placed.value.hiresAt(storedAt), people.value.occupied]).toEqual([
+    expect([
+      placed.value.town.stocks,
+      placed.value.town.hiresAt(storedAt),
+      people.value.occupied,
+    ]).toEqual([
       { money: 940, food: 970, power: 1000, material: 1000 },
       { worker: 0, truck: 0 },
       12,
@@ -127,7 +162,7 @@ describe('placeHiringOrder', () => {
     const placed = await placeIn(officeTown(), 'worker', 4, catalog)
 
     assert(placed.ok)
-    expect(placed.value.hiringSlot).toEqual({
+    expect(placed.value.town.hiringSlot).toEqual({
       kind: 'busy',
       hire: 'worker',
       count: 4,
@@ -144,8 +179,8 @@ describe('placeHiringOrder', () => {
       1,
     )
 
-    assert(placed.ok && placed.value.hiringSlot.kind === 'busy')
-    expect(placed.value.hiringSlot.secondsPerHire).toBe(40)
+    assert(placed.ok && placed.value.town.hiringSlot.kind === 'busy')
+    expect(placed.value.town.hiringSlot.secondsPerHire).toBe(40)
   })
 
   it('refuses a count that is not a whole number from 1', async () => {
@@ -217,7 +252,7 @@ describe('placeHiringOrder', () => {
     const town = officeTown()
     const towns = inMemoryTowns([town], inMemoryEarnedSkills([]))
 
-    await placeHiringOrder(
+    await placeOrder(
       { playerId: town.playerId, hire: 'worker', count: 2 },
       { towns, news: inMemoryTownNews(), catalog: plainCatalog, clock: frozenClock(storedAt) },
     )

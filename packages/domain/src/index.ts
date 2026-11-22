@@ -308,6 +308,16 @@ export type { TipKind } from '#town/guidance/TipKind'
 export type { TownGoal } from '#town/guidance/TownGoal'
 export { tipKinds } from '#town/guidance/tipKinds'
 export { type TipReading, tipOf } from '#town/guidance/tipOf'
+export {
+  PlaceHiringOrder,
+  type PlaceHiringOrderCommand,
+  type PlaceHiringOrderDependencies,
+} from '#town/hiring/application/PlaceHiringOrder'
+export {
+  StopHiringOrder,
+  type StopHiringOrderCommand,
+  type StopHiringOrderDependencies,
+} from '#town/hiring/application/StopHiringOrder'
 export { deliveredHiresOf } from '#town/hiring/domain/deliveredHiresOf'
 export { deriveHireDurationSeconds } from '#town/hiring/domain/deriveHireDurationSeconds'
 export type { HireKind } from '#town/hiring/domain/HireKind'
@@ -325,16 +335,6 @@ export { hiringEndsAt } from '#town/hiring/domain/hiringEndsAt'
 export { lowestFreePeopleOf } from '#town/hiring/domain/lowestFreePeopleOf'
 export type { OfficeLevel } from '#town/hiring/domain/OfficeLevel'
 export { requiredOfficeLevelOf } from '#town/hiring/domain/requiredOfficeLevelOf'
-export {
-  type PlaceHiringOrderCommand,
-  type PlaceHiringOrderDependencies,
-  placeHiringOrder,
-} from '#town/hiring/useCases/placeHiringOrder'
-export {
-  type StopHiringOrderCommand,
-  type StopHiringOrderDependencies,
-  stopHiringOrder,
-} from '#town/hiring/useCases/stopHiringOrder'
 export {
   CallJobBack,
   type CallJobBackCommand,

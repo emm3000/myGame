@@ -20,8 +20,8 @@ import {
   type HiringRouteDependencies,
   hiringRoutes,
 } from '../../hiring/infrastructure/http/hiringRoutes'
-import { placeHiringOrderDeclaration } from '../../hiring/infrastructure/http/placeHiringOrderRoute'
-import { stopHiringOrderDeclaration } from '../../hiring/infrastructure/http/stopHiringOrderRoute'
+import { placeHiringOrderDeclaration } from '../../hiring/infrastructure/http/PlaceHiringOrderController'
+import { stopHiringOrderDeclaration } from '../../hiring/infrastructure/http/StopHiringOrderController'
 import { callJobBackDeclaration } from '../../jobs/infrastructure/http/CallJobBackController'
 import { type JobsRouteDependencies, jobsRoutes } from '../../jobs/infrastructure/http/jobsRoutes'
 import { quoteCleanUpDeclaration } from '../../jobs/infrastructure/http/QuoteCleanUpController'
