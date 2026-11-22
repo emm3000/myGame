@@ -93,6 +93,7 @@ export type DomainError =
       readonly level: number
     }
   | { readonly kind: 'TownNotFound'; readonly playerId: PlayerId }
+  | { readonly kind: 'AccountNotFound'; readonly playerId: PlayerId }
   | { readonly kind: 'WaitingListFull'; readonly cap: number }
   | {
       readonly kind: 'TopLevelReached'

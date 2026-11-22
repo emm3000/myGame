@@ -1,23 +1,28 @@
-import type { LessonLibrary } from '@mygame/domain'
-import {
-  answerReview,
-  type CardRepository,
-  type DomainError,
-  err,
-  mutateTown,
-  ok,
-  type PlayerId,
-  type Result,
-  readScaffold,
-  type TownSkill,
-  type WordId,
-} from '@mygame/domain'
-import {
-  gatherReviewVerdict,
-  type ReviewOutcome,
-  type ReviewVerdictView,
-} from './gatherReviewVerdict'
-import type { LearningDependencies } from './LearningDependencies'
+import { readScaffold } from '#account/application/readScaffold'
+import type { LessonLibrary } from '#content/domain/LessonLibrary'
+import type { DomainError } from '#DomainError'
+import type { MemoryTerms } from '#memory/domain/MemoryTerms'
+import type { PlayerId } from '#player/PlayerId'
+import { err, ok, type Result } from '#Result'
+import { type MutateTownDependencies, mutateTown } from '#town/application/mutateTown'
+import type { TownCatalog } from '#town/domain/TownCatalog'
+import type { TownSkill } from '#town/domain/TownSkill'
+import type { CardRepository } from '../../domain/CardRepository'
+import type { WordId } from '../../domain/Lesson'
+import type { ReviewOutcome } from '../domain/ReviewOutcome'
+import { answerReview } from './answerReview'
+
+export type SubmitReviewAnswerCommand = {
+  readonly playerId: PlayerId
+  readonly wordId: WordId
+  readonly answer: string
+}
+
+export type SubmitReviewAnswerDependencies = MutateTownDependencies & {
+  readonly lessons: LessonLibrary
+  readonly memoryTerms: MemoryTerms
+  readonly townCatalog: TownCatalog
+}
 
 const readHeldWords = async (
   playerId: PlayerId,
@@ -42,10 +47,8 @@ const readHeldWords = async (
 }
 
 const recordReviewAnswer = (
-  playerId: PlayerId,
-  wordId: WordId,
-  answer: string,
-  dependencies: LearningDependencies,
+  { playerId, wordId, answer }: SubmitReviewAnswerCommand,
+  dependencies: SubmitReviewAnswerDependencies,
 ): Promise<Result<ReviewOutcome, DomainError>> =>
   mutateTown(
     playerId,
@@ -88,10 +91,14 @@ const recordReviewAnswer = (
       if (!skillWords.ok) {
         return skillWords
       }
+      const scaffold = await readScaffold(playerId, stores.accounts)
+      if (!scaffold.ok) {
+        return scaffold
+      }
       return ok({
         answered: answered.value,
         word,
-        scaffold: await readScaffold(playerId, stores.accounts),
+        scaffold: scaffold.value,
         skills: skills.value,
         town: town.value,
         skillWords: skillWords.value,
@@ -100,14 +107,10 @@ const recordReviewAnswer = (
     dependencies,
   )
 
-export const submitReviewAnswer = async (
-  playerId: PlayerId,
-  wordId: WordId,
-  answer: string,
-  dependencies: LearningDependencies,
-): Promise<Result<ReviewVerdictView, DomainError>> => {
-  const outcome = await recordReviewAnswer(playerId, wordId, answer, dependencies)
-  return outcome.ok
-    ? gatherReviewVerdict(outcome.value, dependencies.townCatalog, dependencies.memoryTerms)
-    : outcome
+export class SubmitReviewAnswer {
+  constructor(private readonly dependencies: SubmitReviewAnswerDependencies) {}
+
+  async execute(command: SubmitReviewAnswerCommand): Promise<Result<ReviewOutcome, DomainError>> {
+    return recordReviewAnswer(command, this.dependencies)
+  }
 }

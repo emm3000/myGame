@@ -2,21 +2,19 @@ import type { TownNewsReader } from '@mygame/domain'
 import {
   type Clock,
   type DomainError,
+  type DueReviews,
   err,
   type Instant,
   ok,
   type PlayerId,
   type ResolveTownReadingDependencies,
   type Result,
+  type ReviewTerms,
+  readDueReviews,
   resolveTownReading,
   type TownEvent,
   type TownId,
 } from '@mygame/domain'
-import {
-  type DueReviews,
-  type ReviewTerms,
-  serveDueReviews,
-} from '#learning/application/serveDueReviews'
 import type { ReportClosings } from './ports/ReportClosings'
 
 export type ServeReportDependencies = ResolveTownReadingDependencies &
@@ -70,7 +68,7 @@ const showReport = (
   const readClock: Clock = { now: () => town.at }
   return dependencies.unitOfWork.transact(async (stores) => {
     await stores.accounts.lockPlayer(playerId)
-    const reviews = await serveDueReviews(playerId, stores, readClock, dependencies)
+    const reviews = await readDueReviews(playerId, stores, readClock, dependencies)
     if (!reviews.ok) {
       return reviews
     }

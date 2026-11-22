@@ -75,17 +75,22 @@ export class AnswerHoldoutCheck {
     const { lessons } = this.dependencies
     return mutateHoldoutCheck(
       command,
-      async (stores, { band, week }, at) =>
-        answerHoldoutCheckIn(
+      async (stores, { band, week }, at) => {
+        const scaffold = await readScaffold(command.playerId, stores.accounts)
+        if (!scaffold.ok) {
+          return scaffold
+        }
+        return answerHoldoutCheckIn(
           {
             playerId: command.playerId,
             band,
             week,
             answers: command.answers,
-            scaffold: await readScaffold(command.playerId, stores.accounts),
+            scaffold: scaffold.value,
           },
           { bandStarts: stores.bandStarts, words: lessons, clock: at },
-        ),
+        )
+      },
       this.dependencies,
     )
   }

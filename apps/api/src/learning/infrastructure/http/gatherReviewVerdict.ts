@@ -1,29 +1,18 @@
 import {
-  type AnsweredReview,
   type DomainError,
   deriveResourceRates,
   dueInstantOf,
   glossOf,
   type Instant,
-  type LessonWord,
   type MemoryTerms,
   ok,
   type Result,
-  type Scaffold,
+  type ReviewOutcome,
   skillLevelOf,
   type Town,
   type TownCatalog,
   type TownSkill,
 } from '@mygame/domain'
-
-export type ReviewOutcome = {
-  readonly answered: AnsweredReview
-  readonly word: LessonWord
-  readonly scaffold: Scaffold
-  readonly skills: ReadonlyArray<TownSkill>
-  readonly town: Town | undefined
-  readonly skillWords: ReadonlyArray<string>
-}
 
 type RatesAtEarn = {
   readonly ratePerHourBefore: number | null

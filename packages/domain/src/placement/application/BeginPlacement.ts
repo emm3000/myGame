@@ -70,9 +70,12 @@ export class BeginPlacement {
           },
         )
         const scaffold = await readScaffold(playerId, stores.accounts)
+        if (!scaffold.ok) {
+          return scaffold
+        }
         return begun.ok
           ? readPlacementView(
-              { playerId, scaffold },
+              { playerId, scaffold: scaffold.value },
               {
                 placements: stores.placements,
                 bandStarts: stores.bandStarts,

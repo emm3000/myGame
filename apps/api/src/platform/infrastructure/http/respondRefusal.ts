@@ -36,6 +36,7 @@ const answers: Readonly<Record<SlotlessRefusalKind, RefusalAnswer>> = {
   MalformedRequest: { status: 400 },
   StudySlotBusy: { status: 409, kind: 'StudySlotBusy' },
   UnknownBand: internalFailure,
+  AccountNotFound: internalFailure,
   PlacementNotOffered: { status: 409 },
   PlacementAlreadyTaken: { status: 409 },
   PlacementBandNotAsked: { status: 409 },
