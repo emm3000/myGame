@@ -1,10 +1,14 @@
 import { assert, describe, expect, it } from 'vitest'
+import { signedUpAccountsOf } from '#account/testing/signedUpAccountsOf'
 import type { DomainError } from '#DomainError'
+import { inMemoryBands } from '#learning/curriculum/testing/inMemoryBands'
+import { inMemoryLessons } from '#learning/curriculum/testing/inMemoryLessons'
 import type { Clock } from '#platform/domain/Clock'
+import { inMemoryUnitOfWork } from '#platform/testing/inMemoryUnitOfWork'
 import { Instant } from '#time/Instant'
 import type { Town } from '../../domain/Town'
 import { inMemoryEarnedSkills } from '../../testing/inMemoryEarnedSkills'
-import { inMemoryTownNews } from '../../testing/inMemoryTownNews'
+import { type HeldTownStores, inMemoryTownStores } from '../../testing/inMemoryTownStores'
 import { inMemoryTowns } from '../../testing/inMemoryTowns'
 import { plainTownSettings, townCatalogOf } from '../../testing/townCatalogOf'
 import { townOf } from '../../testing/townFixtures'
@@ -12,8 +16,8 @@ import type { CleanUp } from '../domain/CleanUp'
 import type { CleanUpOrder } from '../domain/CleanUpOrder'
 import { inMemoryCleanUps } from '../testing/inMemoryCleanUps'
 import { inMemoryRegionMap } from '../testing/inMemoryRegionMap'
-import { quoteCleanUp } from './quoteCleanUp'
-import { sendCleanUp } from './sendCleanUp'
+import { QuoteCleanUp } from './QuoteCleanUp'
+import { SendCleanUp } from './SendCleanUp'
 
 const MILLISECONDS_PER_MINUTE = 60_000
 
@@ -62,32 +66,49 @@ const quoteFrom = (
   towns: ReturnType<typeof inMemoryTowns>,
   change: Partial<CleanUpOrder> = {},
   cleanUps: ReadonlyArray<CleanUp> = [],
-): ReturnType<typeof quoteCleanUp> =>
-  quoteCleanUp(order(change), {
+): ReturnType<QuoteCleanUp['execute']> =>
+  new QuoteCleanUp({
     towns,
-    map: inMemoryRegionMap([homeTown, neighborTown]),
+    regionMap: inMemoryRegionMap([homeTown, neighborTown]),
     cleanUps: inMemoryCleanUps(cleanUps),
-    catalog,
+    townCatalog: catalog,
     clock: frozenClock,
-  })
+  }).execute(order(change))
+
+const sendCleanUpOver = (
+  held: HeldTownStores,
+  change: Partial<CleanUpOrder>,
+): ReturnType<SendCleanUp['execute']> =>
+  new SendCleanUp({
+    unitOfWork: inMemoryUnitOfWork(
+      inMemoryTownStores({ accounts: signedUpAccountsOf(['player-1']), ...held }),
+    ),
+    townCatalog: catalog,
+    lessons: { ...inMemoryLessons([], []), ...inMemoryBands([]) },
+    clock: frozenClock,
+  }).execute(order(change))
 
 const sentCleanUpOf = async (town: Town, change: Partial<CleanUpOrder>): Promise<unknown> => {
   const cleanUps = inMemoryCleanUps()
-  const sent = await sendCleanUp(order(change), {
-    towns: inMemoryTowns([town], inMemoryEarnedSkills([])),
-    map: inMemoryRegionMap([town]),
-    cleanUps,
-    news: inMemoryTownNews(),
-    catalog,
-    clock: frozenClock,
-  })
-  assert(sent.ok && sent.value.jobSlot.kind === 'out' && sent.value.jobSlot.cleanUp !== undefined)
-  const { pay, cleanUp, site } = sent.value.jobSlot
+  const sent = await sendCleanUpOver(
+    {
+      towns: inMemoryTowns([town], inMemoryEarnedSkills([])),
+      regionMap: inMemoryRegionMap([town]),
+      cleanUps,
+    },
+    change,
+  )
+  assert(
+    sent.ok &&
+      sent.value.town.jobSlot.kind === 'out' &&
+      sent.value.town.jobSlot.cleanUp !== undefined,
+  )
+  const { pay, cleanUp, site } = sent.value.town.jobSlot
   const recordedAt = await cleanUps.lastCleanedAt(site, dayAfter(quotedAt))
   return { strength: cleanUp.strength, waste: cleanUp.waste, pay, covers: recordedAt !== undefined }
 }
 
-describe('quoteCleanUp', () => {
+describe('QuoteCleanUp', () => {
   it("answers the team's strength, the site's waste and the pay", async () => {
     const quoted = await quoteFrom(inMemoryTowns([homeTown], inMemoryEarnedSkills([])))
 
@@ -137,14 +158,10 @@ describe('quoteCleanUp', () => {
 
   const townWithTeamOut = async (): Promise<ReturnType<typeof inMemoryTowns>> => {
     const towns = inMemoryTowns([homeTown], inMemoryEarnedSkills([]))
-    await sendCleanUp(order({ team: { worker: 1, truck: 0 } }), {
-      towns,
-      map: inMemoryRegionMap([homeTown]),
-      cleanUps: inMemoryCleanUps(),
-      news: inMemoryTownNews(),
-      catalog,
-      clock: frozenClock,
-    })
+    await sendCleanUpOver(
+      { towns, regionMap: inMemoryRegionMap([homeTown]), cleanUps: inMemoryCleanUps() },
+      { team: { worker: 1, truck: 0 } },
+    )
     return towns
   }
 

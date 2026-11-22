@@ -1,16 +1,21 @@
 import { assert, describe, expect, it } from 'vitest'
+import { signedUpAccountsOf } from '#account/testing/signedUpAccountsOf'
+import { inMemoryBands } from '#learning/curriculum/testing/inMemoryBands'
+import { inMemoryLessons } from '#learning/curriculum/testing/inMemoryLessons'
 import type { Clock } from '#platform/domain/Clock'
+import { inMemoryUnitOfWork } from '#platform/testing/inMemoryUnitOfWork'
 import { Instant } from '#time/Instant'
 import type { Town } from '../../domain/Town'
 import { inMemoryEarnedSkills } from '../../testing/inMemoryEarnedSkills'
 import { inMemoryTownNews } from '../../testing/inMemoryTownNews'
+import { inMemoryTownStores, townNewsOver } from '../../testing/inMemoryTownStores'
 import { inMemoryTowns } from '../../testing/inMemoryTowns'
 import { plainTownSettings, townCatalogOf } from '../../testing/townCatalogOf'
 import { townOf } from '../../testing/townFixtures'
 import type { Job, JobSlot } from '../domain/Job'
 import { jobInstantsOf } from '../domain/jobInstantsOf'
 import { inMemoryCleanUps } from '../testing/inMemoryCleanUps'
-import { callJobBack } from './callJobBack'
+import { CallJobBack } from './CallJobBack'
 
 const MILLISECONDS_PER_SECOND = 1_000
 
@@ -44,24 +49,33 @@ const callBack = async (
   at: Instant,
   named: Instant = sentAt,
 ): Promise<{
-  readonly called: Awaited<ReturnType<typeof callJobBack>>
+  readonly called: Awaited<ReturnType<CallJobBack['execute']>>
   readonly towns: ReturnType<typeof inMemoryTowns>
   readonly news: ReturnType<typeof inMemoryTownNews>
 }> => {
   const frozenClock: Clock = { now: () => at }
   const towns = inMemoryTowns([town], inMemoryEarnedSkills([]))
   const news = inMemoryTownNews()
-  const called = await callJobBack(
-    { playerId: 'player-1', sentAt: named },
-    { towns, news, cleanUps: inMemoryCleanUps(), catalog: townCatalogOf(), clock: frozenClock },
-  )
+  const called = await new CallJobBack({
+    unitOfWork: inMemoryUnitOfWork(
+      inMemoryTownStores({
+        accounts: signedUpAccountsOf(['player-1']),
+        towns,
+        townNews: townNewsOver(news),
+        cleanUps: inMemoryCleanUps(),
+      }),
+    ),
+    townCatalog: townCatalogOf(),
+    lessons: { ...inMemoryLessons([], []), ...inMemoryBands([]) },
+    clock: frozenClock,
+  }).execute({ playerId: 'player-1', sentAt: named })
   return { called, towns, news }
 }
 
 const outcomeOf = ({ called }: Awaited<ReturnType<typeof callBack>>): unknown =>
   called.ok ? 'called back' : called.error
 
-describe('callJobBack', () => {
+describe('CallJobBack', () => {
   it('calls a job back with the partial pay of ADR 019', async () => {
     const calledBackAt = secondsAfterSent(600 + 1_800)
 
@@ -84,11 +98,11 @@ describe('callJobBack', () => {
 
     const { called } = await callBack(townWith(fieldsJob), calledBackAt)
 
-    assert(called.ok && called.value.jobSlot.kind === 'out')
-    expect([called.value.jobSlot.pay, jobInstantsOf(called.value.jobSlot).returnsAt]).toEqual([
-      { money: 0, food: 0, power: 0, material: 0 },
-      secondsAfterSent(600),
-    ])
+    assert(called.ok && called.value.town.jobSlot.kind === 'out')
+    expect([
+      called.value.town.jobSlot.pay,
+      jobInstantsOf(called.value.town.jobSlot).returnsAt,
+    ]).toEqual([{ money: 0, food: 0, power: 0, material: 0 }, secondsAfterSent(600)])
   })
 
   it("keeps the dispatch's pay percent whatever the season at the call back", async () => {
@@ -99,8 +113,8 @@ describe('callJobBack', () => {
 
     const { called } = await callBack(townWith(halfFood), secondsAfterSent(600 + 1_800))
 
-    assert(called.ok && called.value.jobSlot.kind === 'out')
-    expect(called.value.jobSlot.pay).toEqual({ money: 0, food: 3, power: 0, material: 7 })
+    assert(called.ok && called.value.town.jobSlot.kind === 'out')
+    expect(called.value.town.jobSlot.pay).toEqual({ money: 0, food: 3, power: 0, material: 7 })
   })
 
   it('moves no stock and writes no event at the call back', async () => {

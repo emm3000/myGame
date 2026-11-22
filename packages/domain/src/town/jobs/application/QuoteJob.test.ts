@@ -1,16 +1,20 @@
 import { assert, describe, expect, it } from 'vitest'
+import { signedUpAccountsOf } from '#account/testing/signedUpAccountsOf'
+import { inMemoryBands } from '#learning/curriculum/testing/inMemoryBands'
+import { inMemoryLessons } from '#learning/curriculum/testing/inMemoryLessons'
 import type { Clock } from '#platform/domain/Clock'
+import { inMemoryUnitOfWork } from '#platform/testing/inMemoryUnitOfWork'
 import { Instant } from '#time/Instant'
 import type { Town } from '../../domain/Town'
 import { inMemoryEarnedSkills } from '../../testing/inMemoryEarnedSkills'
-import { inMemoryTownNews } from '../../testing/inMemoryTownNews'
+import { inMemoryTownStores } from '../../testing/inMemoryTownStores'
 import { inMemoryTowns } from '../../testing/inMemoryTowns'
 import { plainTownSettings, townCatalogOf } from '../../testing/townCatalogOf'
 import { townOf } from '../../testing/townFixtures'
 import type { JobOrder } from '../domain/JobOrder'
 import { inMemoryRegionMap } from '../testing/inMemoryRegionMap'
-import { quoteJob } from './quoteJob'
-import { sendJob } from './sendJob'
+import { QuoteJob } from './QuoteJob'
+import { SendJob } from './SendJob'
 
 const MILLISECONDS_PER_DAY = 86_400_000
 
@@ -44,27 +48,32 @@ const order = (change: Partial<JobOrder> = {}): JobOrder => ({
 const quoteFrom = (
   towns: ReturnType<typeof inMemoryTowns>,
   change: Partial<JobOrder> = {},
-): ReturnType<typeof quoteJob> =>
-  quoteJob(order(change), {
+): ReturnType<QuoteJob['execute']> =>
+  new QuoteJob({
     towns,
-    map: inMemoryRegionMap([homeTown]),
-    catalog,
+    regionMap: inMemoryRegionMap([homeTown]),
+    townCatalog: catalog,
     clock: frozenClock,
-  })
+  }).execute(order(change))
 
 const sentPayOf = async (town: Town): Promise<unknown> => {
-  const sent = await sendJob(order(), {
-    towns: inMemoryTowns([town], inMemoryEarnedSkills([])),
-    map: inMemoryRegionMap([town]),
-    news: inMemoryTownNews(),
-    catalog,
+  const sent = await new SendJob({
+    unitOfWork: inMemoryUnitOfWork(
+      inMemoryTownStores({
+        accounts: signedUpAccountsOf(['player-1']),
+        towns: inMemoryTowns([town], inMemoryEarnedSkills([])),
+        regionMap: inMemoryRegionMap([town]),
+      }),
+    ),
+    townCatalog: catalog,
+    lessons: { ...inMemoryLessons([], []), ...inMemoryBands([]) },
     clock: frozenClock,
-  })
-  assert(sent.ok && sent.value.jobSlot.kind === 'out')
-  return sent.value.jobSlot.pay
+  }).execute(order())
+  assert(sent.ok && sent.value.town.jobSlot.kind === 'out')
+  return sent.value.town.jobSlot.pay
 }
 
-describe('quoteJob', () => {
+describe('QuoteJob', () => {
   it('answers the pay the send then fixes', async () => {
     const quoted = await quoteFrom(inMemoryTowns([homeTown], inMemoryEarnedSkills([])))
 

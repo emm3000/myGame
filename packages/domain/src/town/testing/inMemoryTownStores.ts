@@ -11,7 +11,7 @@ import { inMemoryCleanUps } from '../jobs/testing/inMemoryCleanUps'
 import { inMemoryRegionMap } from '../jobs/testing/inMemoryRegionMap'
 import { inMemoryLessonSlots } from '../school/testing/inMemoryLessonSlots'
 import { inMemoryEarnedSkills } from './inMemoryEarnedSkills'
-import { inMemoryTownNews } from './inMemoryTownNews'
+import { type InMemoryTownNews, inMemoryTownNews } from './inMemoryTownNews'
 import { inMemoryTownReader } from './inMemoryTownReader'
 import { inMemoryTowns } from './inMemoryTowns'
 import { MemoryTownNewsReader } from './MemoryTownNewsReader'
@@ -21,8 +21,7 @@ export type HeldTownStores = Partial<Omit<TownStores, 'seenTips' | 'guidanceDism
   readonly guidanceDismissals?: MemoryGuidanceDismissals
 }
 
-const townNewsOf = (): TownStores['townNews'] => {
-  const news = inMemoryTownNews()
+export const townNewsOver = (news: InMemoryTownNews): TownStores['townNews'] => {
   const reader = new MemoryTownNewsReader((townId) => news.recordedEventsOf(townId))
   return {
     record: (townId, events) => news.record(townId, events),
@@ -56,7 +55,7 @@ export const inMemoryTownStores = (held: HeldTownStores): TownStores => {
         guidanceDismissals,
         seenTips,
       }),
-    townNews: held.townNews ?? townNewsOf(),
+    townNews: held.townNews ?? townNewsOver(inMemoryTownNews()),
     lessonSlots,
     cards,
     pendingReviews: held.pendingReviews ?? inMemoryPendingReviews(),

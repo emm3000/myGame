@@ -36,7 +36,7 @@ None. No JSDoc, no `//`, no `/* */`, no commented-out code, no section banners. 
 
 - ESM only, `verbatimModuleSyntax`, `import type` for type-only imports.
 - A package exposes one entry (`src/index.ts`) and consumers import only from it. `@mygame/domain` has a second entry, `@mygame/domain/testing` (`src/testing.ts`), the in-memory port of each domain port that has a Drizzle adapter: a domain test reads the fake from its `testing/` folder, the api's contract suite proves it through that entry, and only tests and contract suites import either (`production_imports_fakes`).
-- In `apps/api` and `packages/domain`, an import that leaves its top-level folder under `src/` (a feature, or a kernel folder such as `platform` or `time`) is a Node subpath import named from the package root: `#town/useCases/sendJob`, `#DomainError`. So is an import from a file at the `src/` root that reaches a folder. The one mapping is `"imports": { "#*": "./src/*.ts" }` in the package's `package.json`. An import inside one top-level folder stays relative, `./` or `../`, never a subpath import, and so does an import between two root files (`./composeServer`).
+- In `apps/api` and `packages/domain`, an import that leaves its top-level folder under `src/` (a feature, or a kernel folder such as `platform` or `time`) is a Node subpath import named from the package root: `#town/jobs/application/SendJob`, `#DomainError`. So is an import from a file at the `src/` root that reaches a folder. The one mapping is `"imports": { "#*": "./src/*.ts" }` in the package's `package.json`. An import inside one top-level folder stays relative, `./` or `../`, never a subpath import, and so does an import between two root files (`./composeServer`).
 - No barrel files inside a package beyond its entries.
 
 ## Naming by layer
@@ -49,7 +49,7 @@ None. No JSDoc, no `//`, no `/* */`, no commented-out code, no section banners. 
 | Api use case | verb phrase, never a domain export's name | `serveReport` |
 | Use case | verb phrase in PascalCase, a class in `packages/domain/src/<feature>/application/` with one `dependencies` constructor parameter and one `execute` | `SignUp`, `RequestPasswordReset` |
 | Step | verb phrase, a function in `<feature>/application/` that a use case calls with the ports it reads; never exported from `index.ts` | `issueAccountToken`, `openSession` |
-| Endpoint | use case + `Route` | `sendJobRoute` |
+| Endpoint | use case + `Route` | `answerHoldoutCheckRoute` |
 | Controller | use case + `Controller`, a class | `HealthController` |
 | Route list | area + `Routes` | `jobsRoutes` |
 | Responder | `respond` + what it turns into a response | `respondTownChange` |

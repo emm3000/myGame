@@ -1,20 +1,14 @@
-import { createRoute, type OpenAPIHono } from '@hono/zod-openapi'
+import { createRoute } from '@hono/zod-openapi'
 import { type CleanUpQuote, CleanUpQuoteSchema, SendCleanUpSchema } from '@mygame/contracts'
-import {
-  type RequirePlayerDependencies,
-  requirePlayer,
-} from '#account/infrastructure/http/requirePlayer'
-import { honoPathOf } from '#platform/infrastructure/http/honoPath'
+import type { QuoteCleanUp } from '@mygame/domain'
+import type { Context } from 'hono'
+import type { SignedInPlayer } from '#account/infrastructure/http/requirePlayer'
 import { readJsonBody } from '#platform/infrastructure/http/readJsonBody'
 import { refusalResponse } from '#platform/infrastructure/http/refusalResponse'
 import { respondRefusal } from '#platform/infrastructure/http/respondRefusal'
 import { jsonBody, jsonResponse } from '#platform/infrastructure/http/responseDeclarations'
 import { signedInDeclaration } from '#platform/infrastructure/http/signedInDeclaration'
 import { townNotFoundResponse } from '../../../infrastructure/http/townComponents'
-import {
-  type QuoteCleanUpNowDependencies,
-  quoteCleanUpNow,
-} from '../../application/quoteCleanUpNow'
 
 export const quoteCleanUpDeclaration = createRoute(
   signedInDeclaration({
@@ -37,31 +31,26 @@ export const quoteCleanUpDeclaration = createRoute(
   }),
 )
 
-export type QuoteCleanUpRouteDependencies = RequirePlayerDependencies & QuoteCleanUpNowDependencies
+export type QuoteCleanUpControllerDependencies = {
+  readonly quoteCleanUp: QuoteCleanUp
+}
 
-export const quoteCleanUpRoute = (
-  routes: OpenAPIHono,
-  dependencies: QuoteCleanUpRouteDependencies,
-): void => {
-  routes.openAPIRegistry.registerPath(quoteCleanUpDeclaration)
-  routes.on(
-    quoteCleanUpDeclaration.method,
-    honoPathOf(quoteCleanUpDeclaration),
-    requirePlayer(dependencies),
-    async (c) => {
-      const request = SendCleanUpSchema.safeParse(await readJsonBody(c))
-      if (!request.success) {
-        return respondRefusal(c, { kind: 'MalformedRequest' })
-      }
-      const quote = await quoteCleanUpNow(
-        { playerId: c.var.playerId, ...request.data },
-        dependencies,
-      )
-      if (!quote.ok) {
-        return respondRefusal(c, quote.error)
-      }
-      const body: CleanUpQuote = quote.value
-      return c.json(body)
-    },
-  )
+export class QuoteCleanUpController {
+  constructor(private readonly dependencies: QuoteCleanUpControllerDependencies) {}
+
+  async handle(c: Context<SignedInPlayer>): Promise<Response> {
+    const request = SendCleanUpSchema.safeParse(await readJsonBody(c))
+    if (!request.success) {
+      return respondRefusal(c, { kind: 'MalformedRequest' })
+    }
+    const quote = await this.dependencies.quoteCleanUp.execute({
+      playerId: c.var.playerId,
+      ...request.data,
+    })
+    if (!quote.ok) {
+      return respondRefusal(c, quote.error)
+    }
+    const body: CleanUpQuote = quote.value
+    return c.json(body)
+  }
 }
