@@ -30,7 +30,7 @@ import { gatherWorkView, type WorkView } from '../../building/infrastructure/htt
 import {
   type GuidanceView,
   gatherGuidanceView,
-} from '../../guidance/application/gatherGuidanceView'
+} from '../../guidance/infrastructure/http/gatherGuidanceView'
 import {
   gatherSchoolView,
   type SchoolView,

@@ -10,7 +10,7 @@ import { ok, type Result } from '#Result'
 import type { Instant } from '#time/Instant'
 import type { TownReader, TownWithSchool } from '../domain/TownReader'
 import type { TownRepository } from '../domain/TownRepository'
-import type { TipKind } from '../guidance/TipKind'
+import type { TipKind } from '../guidance/domain/TipKind'
 import type { LessonSlotRepository } from '../school/domain/LessonSlotRepository'
 
 export type TownReaderStores = {

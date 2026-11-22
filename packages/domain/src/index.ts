@@ -298,15 +298,23 @@ export { terrainOf } from '#town/domain/terrainOf'
 export { townLabelOf } from '#town/domain/townLabelOf'
 export { type TownSeason, townSeasonAt } from '#town/domain/townSeasonAt'
 export type { GuidanceDismissals } from '#town/guidance/domain/GuidanceDismissals'
+export type { NextStep } from '#town/guidance/domain/NextStep'
+export { type GoalShortfall, type NextGoal, nextGoalOf } from '#town/guidance/domain/nextGoalOf'
+export {
+  type NextStepReading,
+  type NextStepTerms,
+  nextStepOf,
+} from '#town/guidance/domain/nextStepOf'
+export {
+  type ReadyStock,
+  type ResourceNeed,
+  readyMinuteOf,
+} from '#town/guidance/domain/readyMinuteOf'
 export type { SeenTips } from '#town/guidance/domain/SeenTips'
-export type { NextStep } from '#town/guidance/NextStep'
-export { type GoalShortfall, type NextGoal, nextGoalOf } from '#town/guidance/nextGoalOf'
-export { type NextStepReading, type NextStepTerms, nextStepOf } from '#town/guidance/nextStepOf'
-export { type ReadyStock, type ResourceNeed, readyMinuteOf } from '#town/guidance/readyMinuteOf'
-export type { TipKind } from '#town/guidance/TipKind'
-export type { TownGoal } from '#town/guidance/TownGoal'
-export { tipKinds } from '#town/guidance/tipKinds'
-export { type TipReading, tipOf } from '#town/guidance/tipOf'
+export type { TipKind } from '#town/guidance/domain/TipKind'
+export type { TownGoal } from '#town/guidance/domain/TownGoal'
+export { tipKinds } from '#town/guidance/domain/tipKinds'
+export { type TipReading, tipOf } from '#town/guidance/domain/tipOf'
 export {
   PlaceHiringOrder,
   type PlaceHiringOrderCommand,
@@ -370,15 +378,15 @@ export { type JobSeason, jobSeasonAt } from '#town/jobs/domain/jobSeasonAt'
 export type { RegionMap, RegionSite, SiteWaste } from '#town/jobs/domain/RegionMap'
 export type { RegionMapReader, SiteHolder } from '#town/jobs/domain/RegionMapReader'
 export type { WasteSize } from '#town/jobs/domain/WasteSize'
-export { type Accrual, accrueTown } from '#town/resources/accrueTown'
-export { deriveFullAt, type FullAt } from '#town/resources/deriveFullAt'
-export { deriveResourceRates, type ResourceRates } from '#town/resources/deriveResourceRates'
-export { deriveStorageCapacity } from '#town/resources/deriveStorageCapacity'
-export { type FullSince, noStoreFull } from '#town/resources/FullSince'
-export type { ResourceKind } from '#town/resources/ResourceKind'
-export { rebaseFullSince } from '#town/resources/rebaseFullSince'
-export { resourceKinds } from '#town/resources/resourceKinds'
-export type { Stocks } from '#town/resources/Stocks'
+export { type Accrual, accrueTown } from '#town/resources/domain/accrueTown'
+export { deriveFullAt, type FullAt } from '#town/resources/domain/deriveFullAt'
+export { deriveResourceRates, type ResourceRates } from '#town/resources/domain/deriveResourceRates'
+export { deriveStorageCapacity } from '#town/resources/domain/deriveStorageCapacity'
+export { type FullSince, noStoreFull } from '#town/resources/domain/FullSince'
+export type { ResourceKind } from '#town/resources/domain/ResourceKind'
+export { rebaseFullSince } from '#town/resources/domain/rebaseFullSince'
+export { resourceKinds } from '#town/resources/domain/resourceKinds'
+export type { Stocks } from '#town/resources/domain/Stocks'
 export {
   StartSchoolLesson,
   type StartSchoolLessonCommand,

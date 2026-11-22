@@ -1,5 +1,5 @@
 import { Instant } from '#time/Instant'
-import { storeAfterSegment } from '../resources/storeAfterSegment'
+import { storeAfterSegment } from '../../resources/domain/storeAfterSegment'
 
 export interface ReadyStock {
   readonly amount: number

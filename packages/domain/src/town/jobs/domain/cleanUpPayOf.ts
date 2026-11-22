@@ -1,6 +1,6 @@
 import type { TownCatalog } from '../../domain/TownCatalog'
 import type { Hires } from '../../hiring/domain/Hires'
-import type { Stocks } from '../../resources/Stocks'
+import type { Stocks } from '../../resources/domain/Stocks'
 import { carryOf } from './carryOf'
 
 const PAID_RESOURCES = 2

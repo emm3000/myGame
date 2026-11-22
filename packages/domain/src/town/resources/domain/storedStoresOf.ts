@@ -1,4 +1,4 @@
-import type { Town } from '../domain/Town'
+import type { Town } from '../../domain/Town'
 import type { ResourceKind } from './ResourceKind'
 import type { Stores } from './Stores'
 import type { Store } from './storeAfterSegment'

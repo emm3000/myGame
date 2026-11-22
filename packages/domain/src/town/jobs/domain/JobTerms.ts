@@ -1,5 +1,5 @@
 import type { Terrain } from '../../domain/Terrain'
-import type { ResourceKind } from '../../resources/ResourceKind'
+import type { ResourceKind } from '../../resources/domain/ResourceKind'
 
 export type JobPayPerHour = Readonly<Record<ResourceKind, number>>
 

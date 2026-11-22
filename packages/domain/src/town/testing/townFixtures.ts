@@ -12,8 +12,8 @@ import type { StoredTown } from '../domain/TownState'
 import { type Hires, noHires } from '../hiring/domain/Hires'
 import { type HiringSlot, idleHiringSlot } from '../hiring/domain/HiringOrder'
 import { idleJobSlot, type JobSlot } from '../jobs/domain/Job'
-import { noStoreFull } from '../resources/FullSince'
-import type { Stocks } from '../resources/Stocks'
+import { noStoreFull } from '../resources/domain/FullSince'
+import type { Stocks } from '../resources/domain/Stocks'
 
 export type TownShape = {
   readonly id?: string

@@ -1,6 +1,6 @@
 import { assert, describe, expect, it } from 'vitest'
 import { Instant } from '#time/Instant'
-import { accrueTown } from '../resources/accrueTown'
+import { accrueTown } from '../resources/domain/accrueTown'
 import { plainTownSettings, townCatalogOf } from '../testing/townCatalogOf'
 import { townOf } from '../testing/townFixtures'
 import { earnTownSkill } from './earnTownSkill'

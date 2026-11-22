@@ -1,6 +1,6 @@
 import type { LessonId } from '#learning/Lesson'
 import type { Instant } from '#time/Instant'
-import type { ResourceKind } from '../resources/ResourceKind'
+import type { ResourceKind } from '../resources/domain/ResourceKind'
 
 export type TownSkill = {
   readonly lessonId: LessonId

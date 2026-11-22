@@ -5,8 +5,8 @@ import type { ChangedTown, Town } from '../../domain/Town'
 import type { TownCatalog } from '../../domain/TownCatalog'
 import type { TownEvent } from '../../domain/TownEvent'
 import { townLabelOf } from '../../domain/townLabelOf'
-import { accrueTown } from '../../resources/accrueTown'
-import { rebaseFullSince } from '../../resources/rebaseFullSince'
+import { accrueTown } from '../../resources/domain/accrueTown'
+import { rebaseFullSince } from '../../resources/domain/rebaseFullSince'
 import type { BusyWorkSlot } from './BuildingWork'
 
 const finishedSlotOf = (town: Town, now: Instant): BusyWorkSlot | undefined => {

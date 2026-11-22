@@ -1,7 +1,6 @@
 api_holds_layer apps/api/src/holdout/application
 api_holds_layer apps/api/src/learning/application
 api_holds_layer apps/api/src/report/application
-api_holds_layer apps/api/src/town/guidance/application
 api_holds_layer apps/api/src/town/news/application
 file_outside_layer packages/domain/src/holdout
 file_outside_layer packages/domain/src/holdout/ports
@@ -22,8 +21,6 @@ file_outside_layer packages/domain/src/placement
 file_outside_layer packages/domain/src/placement/ports
 file_outside_layer packages/domain/src/placement/services
 file_outside_layer packages/domain/src/placement/useCases
-file_outside_layer packages/domain/src/town/guidance
-file_outside_layer packages/domain/src/town/resources
 role_folder apps/api/src/holdout/infrastructure/memory
 role_folder apps/api/src/learning/infrastructure/memory
 role_folder apps/api/src/placement/infrastructure/memory
