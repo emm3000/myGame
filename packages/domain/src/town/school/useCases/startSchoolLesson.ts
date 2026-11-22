@@ -80,7 +80,7 @@ type AdmittedLesson = {
   readonly drawn: BandStart | undefined
 }
 
-const bandStartDrawnFor = async (
+const readDrawnBandStart = async (
   playerId: PlayerId,
   lesson: SchoolLesson,
   { bandStarts: started, held }: SettledSchool,
@@ -119,7 +119,7 @@ const admitLesson = async (
   if (lesson === undefined) {
     return err({ kind: 'LessonNotFound', lessonId })
   }
-  const drawn = await bandStartDrawnFor(playerId, lesson, settled.value, dependencies, now)
+  const drawn = await readDrawnBandStart(playerId, lesson, settled.value, dependencies, now)
   if (!drawn.ok) {
     return drawn
   }
