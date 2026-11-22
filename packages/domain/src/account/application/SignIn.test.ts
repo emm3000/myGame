@@ -20,7 +20,7 @@ const recordingPasswords = (checks: Array<HashCheck>): PasswordHasher => ({
   },
 })
 
-const closedSessions: Sessions = {
+const inertSessions: Sessions = {
   openSession: async () => {},
   renewSession: async () => undefined,
   closeSession: async () => {},
@@ -32,7 +32,7 @@ const signInWith = (passwords: PasswordHasher): SignIn =>
     unitOfWork: inMemoryUnitOfWork({
       accounts: signedUpAccountsOf(['player-1']),
       accountTokens: new MemoryAccountTokens(),
-      sessions: closedSessions,
+      sessions: inertSessions,
     }),
     clock: { now: () => Instant.fromEpochMilliseconds(0) },
     passwords,
