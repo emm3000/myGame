@@ -5,7 +5,7 @@ import {
   type TownOverview,
   TownOverviewSchema,
 } from '@mygame/contracts'
-import { type Clock, Instant, ok, type PlayerId } from '@mygame/domain'
+import { Instant, ok, type PlayerId } from '@mygame/domain'
 import { Client } from 'pg'
 import {
   afterAll,
@@ -23,22 +23,11 @@ import { createApp } from '#app'
 import { type ComposedServer, composeServer } from '#composeServer'
 import { mailEnvironment } from '#composeServer.testSupport'
 import { isWaitingOnALock, lockedPlayerReadQuery, lockProbeLimit } from '#lockWaitProbe.testSupport'
+import { type SettableClock, settableClock } from '#settableClock.testSupport'
 import { mutateTown } from '#town/application/mutateTown'
 import { truncatePlayerTables } from '#truncatePlayerTables.testSupport'
 
 const contentDirectory = apiPackagePath('content/')
-
-type SettableClock = Clock & { readonly setTo: (iso: string) => void }
-
-const settableClock = (iso: string): SettableClock => {
-  let current = Instant.fromEpochMilliseconds(Date.parse(iso))
-  return {
-    now: () => current,
-    setTo: (next) => {
-      current = Instant.fromEpochMilliseconds(Date.parse(next))
-    },
-  }
-}
 
 function databaseUrl(): string {
   const url = process.env.DATABASE_URL

@@ -8,7 +8,7 @@ import {
   type TownOverview,
   TownOverviewSchema,
 } from '@mygame/contracts'
-import { type CardRepository, type Clock, Instant } from '@mygame/domain'
+import type { CardRepository } from '@mygame/domain'
 import { Client } from 'pg'
 import { afterAll, assert, beforeAll, beforeEach, expect } from 'vitest'
 import { apiPackagePath } from '#apiPackagePath.testSupport'
@@ -18,21 +18,10 @@ import { mailEnvironment } from '#composeServer.testSupport'
 import type { ComposedStores } from '#composeStores'
 import { isWaitingOnALock, lockedPlayerReadQuery, lockProbeLimit } from '#lockWaitProbe.testSupport'
 import type { Transaction } from '#platform/application/ports/Transaction'
+import { type SettableClock, settableClock } from '#settableClock.testSupport'
 import { truncatePlayerTables } from '#truncatePlayerTables.testSupport'
 
 const contentDirectory = apiPackagePath('content/')
-
-type SettableClock = Clock & { readonly setTo: (iso: string) => void }
-
-const settableClock = (iso: string): SettableClock => {
-  let current = Instant.fromEpochMilliseconds(Date.parse(iso))
-  return {
-    now: () => current,
-    setTo: (next) => {
-      current = Instant.fromEpochMilliseconds(Date.parse(next))
-    },
-  }
-}
 
 export function databaseUrl(): string {
   const url = process.env.DATABASE_URL
