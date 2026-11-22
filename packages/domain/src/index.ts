@@ -121,11 +121,10 @@ export {
   type RequestReviewHintCommand,
   type RequestReviewHintDependencies,
 } from '#learning/reviews/application/RequestReviewHint'
-export {
-  type DueReviews,
-  type PromptedReview,
-  type ReviewTerms,
-  readDueReviews,
+export type {
+  DueReviews,
+  PromptedReview,
+  ReviewTerms,
 } from '#learning/reviews/application/readDueReviews'
 export {
   ServeDueReviews,
@@ -224,6 +223,13 @@ export type { Refusal } from '#platform/domain/Refusal'
 export { thrownCauseOf } from '#platform/domain/thrownCauseOf'
 export type { UnitOfWork } from '#platform/domain/UnitOfWork'
 export type { PlayerId } from '#player/PlayerId'
+export {
+  type ReportNotServed,
+  type ServedReport,
+  ServeReport,
+  type ServeReportDependencies,
+  type ServeReportQuery,
+} from '#report/application/ServeReport'
 export type { ReportClosings } from '#report/domain/ReportClosings'
 export type { SeasonKind } from '#season/domain/SeasonKind'
 export { type Season, seasonAt } from '#season/domain/seasonAt'

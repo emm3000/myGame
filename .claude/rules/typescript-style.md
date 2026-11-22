@@ -45,10 +45,8 @@ None. No JSDoc, no `//`, no `/* */`, no commented-out code, no section banners. 
 |---|---|---|
 | Entity | noun | `Town`, `BuildingWork` |
 | Value object | noun, immutable | `Duration`, `SiteAddress`, `TownName` |
-| Api use case | verb phrase, never a domain export's name | `serveReport` |
 | Use case | verb phrase in PascalCase, a class in `packages/domain/src/<feature>/application/` with one `dependencies` constructor parameter and one `execute` | `SignUp`, `RequestPasswordReset` |
 | Step | verb phrase, a function in `<feature>/application/` that a use case calls with the ports it reads; never exported from `index.ts` | `issueAccountToken`, `openSession` |
-| Endpoint | use case + `Route` | `serveReportRoute` |
 | Controller | use case + `Controller`, a class | `HealthController` |
 | Route list | area + `Routes` | `jobsRoutes` |
 | Responder | `respond` + what it turns into a response | `respondTownReading` |
