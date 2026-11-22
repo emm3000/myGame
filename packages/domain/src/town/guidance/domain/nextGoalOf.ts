@@ -1,14 +1,14 @@
 import type { DomainError } from '#DomainError'
 import { err, ok, type Result } from '#Result'
 import type { Instant } from '#time/Instant'
-import type { BuildingKind } from '../building/domain/BuildingKind'
-import type { BuildingLevel } from '../building/domain/BuildingLevel'
-import { derivePeopleForWork } from '../building/domain/derivePeopleForWork'
-import type { Town } from '../domain/Town'
-import type { TownCatalog } from '../domain/TownCatalog'
-import { accrueTown } from '../resources/accrueTown'
-import { resourceKinds } from '../resources/resourceKinds'
-import type { Stocks } from '../resources/Stocks'
+import type { BuildingKind } from '../../building/domain/BuildingKind'
+import type { BuildingLevel } from '../../building/domain/BuildingLevel'
+import { derivePeopleForWork } from '../../building/domain/derivePeopleForWork'
+import type { Town } from '../../domain/Town'
+import type { TownCatalog } from '../../domain/TownCatalog'
+import { accrueTown } from '../../resources/domain/accrueTown'
+import { resourceKinds } from '../../resources/domain/resourceKinds'
+import type { Stocks } from '../../resources/domain/Stocks'
 
 export type GoalShortfall = {
   readonly resources: Stocks

@@ -1,4 +1,4 @@
-import type { Stocks } from '../../resources/Stocks'
+import type { Stocks } from '../../resources/domain/Stocks'
 
 export type LevelTerms = {
   readonly level: number

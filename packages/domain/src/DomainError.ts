@@ -8,8 +8,8 @@ import type { NeededWordKind } from '#town/building/domain/NeededWordKind'
 import type { SiteAddress } from '#town/domain/SiteAddress'
 import type { HireKind } from '#town/hiring/domain/HireKind'
 import type { Hires } from '#town/hiring/domain/Hires'
-import type { ResourceKind } from '#town/resources/ResourceKind'
-import type { Stocks } from '#town/resources/Stocks'
+import type { ResourceKind } from '#town/resources/domain/ResourceKind'
+import type { Stocks } from '#town/resources/domain/Stocks'
 
 export type DomainError =
   | DurationError

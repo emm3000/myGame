@@ -1,7 +1,7 @@
 import type { TownOverview } from '@mygame/contracts'
 import type { NextGoal } from '@mygame/domain'
 import { isoOf } from '#platform/infrastructure/http/isoOf'
-import type { GuidanceView, GuidedStep } from '../../application/gatherGuidanceView'
+import type { GuidanceView, GuidedStep } from './gatherGuidanceView'
 
 type Goal = Extract<TownOverview['nextStep'], { kind: 'caughtUp' }>['goal']
 

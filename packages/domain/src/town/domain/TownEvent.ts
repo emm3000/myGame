@@ -2,8 +2,8 @@ import type { LessonId } from '#learning/Lesson'
 import type { Instant } from '#time/Instant'
 import type { BuildingKind } from '../building/domain/BuildingKind'
 import type { HireKind } from '../hiring/domain/HireKind'
-import type { ResourceKind } from '../resources/ResourceKind'
-import type { Stocks } from '../resources/Stocks'
+import type { ResourceKind } from '../resources/domain/ResourceKind'
+import type { Stocks } from '../resources/domain/Stocks'
 import type { SiteAddress } from './SiteAddress'
 
 type Occurred = { readonly occurredAt: Instant }

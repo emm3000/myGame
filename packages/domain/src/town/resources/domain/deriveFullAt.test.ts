@@ -1,9 +1,9 @@
 import { assert, describe, expect, it } from 'vitest'
 import { Instant } from '#time/Instant'
-import type { Town } from '../domain/Town'
-import type { TownSettings } from '../domain/TownSettings'
-import { plainTownSettings, townCatalogOf } from '../testing/townCatalogOf'
-import { townOf } from '../testing/townFixtures'
+import type { Town } from '../../domain/Town'
+import type { TownSettings } from '../../domain/TownSettings'
+import { plainTownSettings, townCatalogOf } from '../../testing/townCatalogOf'
+import { townOf } from '../../testing/townFixtures'
 import { accrueTown } from './accrueTown'
 import { deriveFullAt } from './deriveFullAt'
 

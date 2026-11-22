@@ -1,7 +1,7 @@
 import type { PlayerId } from '#player/PlayerId'
 import type { SeenTips } from '../domain/SeenTips'
-import type { TipKind } from '../TipKind'
-import { tipKinds } from '../tipKinds'
+import type { TipKind } from '../domain/TipKind'
+import { tipKinds } from '../domain/tipKinds'
 
 export class MemorySeenTips implements SeenTips {
   private readonly seen = new Map<PlayerId, ReadonlySet<TipKind>>()

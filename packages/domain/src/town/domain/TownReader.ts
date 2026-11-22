@@ -6,7 +6,7 @@ import type { PlacementScore } from '#placement/Placement'
 import type { PlayerId } from '#player/PlayerId'
 import type { Result } from '#Result'
 import type { Instant } from '#time/Instant'
-import type { TipKind } from '../guidance/TipKind'
+import type { TipKind } from '../guidance/domain/TipKind'
 import type { LessonSlot } from '../school/domain/LessonSlot'
 import type { Town } from './Town'
 

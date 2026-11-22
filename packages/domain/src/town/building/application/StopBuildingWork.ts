@@ -7,8 +7,8 @@ import { resolveStoredTown } from '../../application/resolveStoredTown'
 import { saveChangedTown } from '../../application/saveChangedTown'
 import type { TownCatalog } from '../../domain/TownCatalog'
 import type { TownReading } from '../../domain/TownReading'
-import { accrueTown } from '../../resources/accrueTown'
-import { rebaseFullSince } from '../../resources/rebaseFullSince'
+import { accrueTown } from '../../resources/domain/accrueTown'
+import { rebaseFullSince } from '../../resources/domain/rebaseFullSince'
 import type { WorkTarget } from '../domain/BuildingWork'
 
 export type StopBuildingWorkCommand = WorkTarget & {
