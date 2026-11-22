@@ -78,11 +78,11 @@ const learnerOf = ({
 
 const lessonViewsOf = (
   reading: TownReading,
+  learner: SchoolLearner,
   school: SchoolLevel,
   catalog: TownCatalog,
   lessons: LessonLibrary,
 ): Pick<SchoolView, 'lessons' | 'releasedLessons'> => {
-  const learner = learnerOf(reading)
   const settings = catalog.townSettings()
   const lessonViewOf = <Shelf extends SchoolLesson>(lesson: Shelf): LessonView<Shelf> => ({
     lesson,
@@ -105,7 +105,7 @@ export const gatherSchoolView = (
   lessons: LessonLibrary,
   memoryTerms: MemoryTerms,
 ): Result<SchoolView, DomainError> => {
-  const { town, at, lessonSlot, cards, bandStarts, placementScores, scaffold } = reading
+  const { town, at, lessonSlot, cards, bandStarts, scaffold } = reading
   const school = schoolLevelOf(town.buildingLevels.school, catalog)
   if (!school.ok) {
     return school
@@ -114,12 +114,13 @@ export const gatherSchoolView = (
   if (!nextInLearningDueAt.ok) {
     return nextInLearningDueAt
   }
+  const learner = learnerOf(reading)
   return ok({
-    ...lessonViewsOf(reading, school.value, catalog, lessons),
+    ...lessonViewsOf(reading, learner, school.value, catalog, lessons),
     texts: openTextsOf(lessons.texts(), {
       curriculum: lessons.lessons(),
       cards,
-      placedOutBands: placedOutBandsOf(placementScores),
+      placedOutBands: learner.placedOutBands,
       bands: lessons,
     }),
     hasBandStarted: hasBandStartedAt(bandStarts, at),
