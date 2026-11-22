@@ -25,7 +25,8 @@ export GIT_CONFIG_GLOBAL="$sandbox/no-gitconfig"
 github_url=https://github.com/emm3000/myGame.git
 raw=https://raw.githubusercontent.com/emm3000/myGame
 web=https://github.com/emm3000/myGame
-old_link='myGame/(raw/|blob/|tree/)?(refs/heads/)?assets/[0-9]+-visual-check'
+old_link='myGame/(raw/|blob/|tree/)?(refs/heads/)?assets/(12|34)-visual-check'
+dead_link=https://raw.githubusercontent.com/emm3000/myGame/assets/99-visual-check/gone.png
 failures=0
 case_dir=""
 repo=""
@@ -128,11 +129,12 @@ build_an_origin_with_two_asset_branches() {
   : >"$case_dir/state/patched"
   : >"$case_dir/state/events"
   : >"$case_dir/state/sticky"
-  jq -n --arg raw "$raw" --arg web "$web" '[
-    {number: 20, pull_request: {}, body: "Shots:\n![a](\($raw)/assets/12-visual-check/shot-abc.png)\n[b](\($web)/blob/assets/34-visual-check/home%20screen.png)\nseen on origin/assets/12-visual-check"},
+  jq -n --arg raw "$raw" --arg web "$web" --arg dead "$dead_link" '[
+    {number: 20, pull_request: {}, body: "Shots:\n![a](\($raw)/assets/12-visual-check/shot-abc.png)\n[b](\($web)/blob/assets/34-visual-check/home%20screen.png)\nseen on origin/assets/12-visual-check\nold: \($dead)"},
     {number: 21, body: "No link here."},
     {number: 22, body: "Other repo: https://raw.githubusercontent.com/emm3000/otherRepo/assets/12-visual-check/x.png"},
-    {number: 23, body: null}
+    {number: 23, body: null},
+    {number: 24, pull_request: {}, body: "Dead ticket: \($dead)"}
   ]' >"$case_dir/state/issues.json"
   jq -n --arg raw "$raw" '[
     {id: 501, issue_url: "https://api.github.com/repos/emm3000/myGame/issues/21", body: "es: <\($raw)/refs/heads/assets/34-visual-check/es/x.png>"},
@@ -270,7 +272,7 @@ apply_moves_every_asset_file_under_its_ticket_folder_and_rewrites_every_link() {
     fail "${FUNCNAME[0]}" "patched: $(tr '\n' ' ' <"$case_dir/state/patched")" || return 1
   local body
   body=$(jq -r '.[] | select(.number == 20) | .body' "$case_dir/state/issues.json")
-  [ "$body" = "Shots:"$'\n'"![a]($raw/assets/12/shot-abc.png)"$'\n'"[b]($web/blob/assets/34/home%20screen.png)"$'\n'"seen on origin/assets/12-visual-check" ] ||
+  [ "$body" = "Shots:"$'\n'"![a]($raw/assets/12/shot-abc.png)"$'\n'"[b]($web/blob/assets/34/home%20screen.png)"$'\n'"seen on origin/assets/12-visual-check"$'\n'"old: $dead_link" ] ||
     fail "${FUNCNAME[0]}" "body of #20: $body" || return 1
   [ "$(jq -r '.[] | select(.number == 22) | .body' "$case_dir/state/issues.json")" = "Other repo: https://raw.githubusercontent.com/emm3000/otherRepo/assets/12-visual-check/x.png" ] ||
     fail "${FUNCNAME[0]}" "the other repo's link was edited" || return 1
@@ -281,6 +283,23 @@ apply_moves_every_asset_file_under_its_ticket_folder_and_rewrites_every_link() {
   local left
   left="$(entries_in "$case_dir/tmp")$(entries_in "$(kept_dir)")"
   [ -z "$left" ] || fail "${FUNCNAME[0]}" "scratch clone left: $left"
+}
+
+a_link_to_a_ticket_with_no_branch_stays_as_it_is() {
+  build_an_origin_with_two_asset_branches dead-ticket
+  local output
+  output=$(with_stubs scripts/mygame-assets-consolidate) || fail "${FUNCNAME[0]}" "dry run: $output" || return 1
+  if awk '/99-visual-check|#24/ { found = 1 } END { exit !found }' <<<"$output"; then
+    fail "${FUNCNAME[0]}" "the dry run plans the dead link:"$'\n'"$output" || return 1
+  fi
+  output=$(with_stubs scripts/mygame-assets-consolidate --apply) || fail "${FUNCNAME[0]}" "$output" || return 1
+  [ "$(jq -r '.[] | select(.number == 24) | .body' "$case_dir/state/issues.json")" = "Dead ticket: $dead_link" ] ||
+    fail "${FUNCNAME[0]}" "the body of #24 changed" || return 1
+  jq -r '.[] | select(.number == 20) | .body' "$case_dir/state/issues.json" | awk -v dead="old: $dead_link" '$0 == dead { found = 1 } END { exit !found }' ||
+    fail "${FUNCNAME[0]}" "the dead link in #20 changed" || return 1
+  if awk '$0 == "repos/emm3000/myGame/issues/24" { found = 1 } END { exit !found }' "$case_dir/state/patched"; then
+    fail "${FUNCNAME[0]}" "#24 was patched"
+  fi
 }
 
 apply_refuses_to_delete_while_a_link_still_names_an_old_branch() {
@@ -382,6 +401,7 @@ run() {
 
 run a_dry_run_lists_every_ref_and_link_and_changes_nothing
 run apply_moves_every_asset_file_under_its_ticket_folder_and_rewrites_every_link
+run a_link_to_a_ticket_with_no_branch_stays_as_it_is
 run apply_refuses_to_delete_while_a_link_still_names_an_old_branch
 run apply_falls_back_to_two_pushes_when_origin_refuses_the_atomic_one
 run a_failed_create_keeps_the_clone_outside_tmpdir_and_prints_the_push_that_recovers
