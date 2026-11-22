@@ -5,7 +5,7 @@ import {
   type AccountToken,
   type DomainError,
   err,
-  foundTown,
+  FoundTown,
   Instant,
   MemoryCard,
   ok,
@@ -247,12 +247,12 @@ const lockedTownReadQuery = 'select "id", "player_id", "region", %'
 
 const foundAnasTown = async (server: ComposedServer): Promise<void> => {
   await registerAna()
-  const founded = await server.unitOfWork.transact(({ towns, earnedSkills }) =>
-    foundTown(
-      { playerId: ana, name: 'Maple Falls' },
-      { towns, skills: earnedSkills, catalog: townCatalog, clock: frozenClock, ids: server.ids },
-    ),
-  )
+  const founded = await new FoundTown({
+    unitOfWork: server.unitOfWork,
+    townCatalog,
+    clock: frozenClock,
+    ids: server.ids,
+  }).execute({ playerId: ana, name: 'Maple Falls' })
   assert(founded.ok)
 }
 

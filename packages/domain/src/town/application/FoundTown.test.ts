@@ -1,17 +1,22 @@
 import { assert, describe, expect, it } from 'vitest'
 import type { Clock } from '#platform/domain/Clock'
+import { inMemoryUnitOfWork } from '#platform/testing/inMemoryUnitOfWork'
 import { sequentialIds } from '#platform/testing/sequentialIds'
 import { Instant } from '#time/Instant'
+import type { EarnedSkillRepository } from '../domain/EarnedSkillRepository'
 import { Town } from '../domain/Town'
 import { TownAddress } from '../domain/TownAddress'
+import type { TownCatalog } from '../domain/TownCatalog'
 import { TownName } from '../domain/TownName'
+import type { TownRepository } from '../domain/TownRepository'
 import type { TownSkill } from '../domain/TownSkill'
 import { accrueTown } from '../resources/accrueTown'
 import { noStoreFull } from '../resources/FullSince'
 import { inMemoryEarnedSkills } from '../testing/inMemoryEarnedSkills'
+import { inMemoryTownStores } from '../testing/inMemoryTownStores'
 import { inMemoryTowns } from '../testing/inMemoryTowns'
 import { plainTownSettings, townCatalogOf } from '../testing/townCatalogOf'
-import { foundTown } from './foundTown'
+import { FoundTown } from './FoundTown'
 
 const foundingInstant = Instant.fromEpochMilliseconds(1_791_244_800_000)
 
@@ -37,6 +42,18 @@ const sitesPerAreaOf = (sitesPerArea: number): ReturnType<typeof townCatalogOf> 
 
 const noSkills = inMemoryEarnedSkills([])
 
+const foundingIn = (
+  towns: TownRepository,
+  earnedSkills: EarnedSkillRepository,
+  townCatalog: TownCatalog,
+): FoundTown =>
+  new FoundTown({
+    unitOfWork: inMemoryUnitOfWork(inMemoryTownStores({ towns, earnedSkills })),
+    townCatalog,
+    clock: frozenClock,
+    ids: sequentialIds('town'),
+  })
+
 const foodSkillAtTwentyPercent: TownSkill = {
   lessonId: 'lesson-1',
   resource: 'food',
@@ -48,18 +65,18 @@ const tenHoursAfterFounding = Instant.fromEpochMilliseconds(
   foundingInstant.epochMilliseconds + 36_000_000,
 )
 
-describe('foundTown', () => {
+describe('FoundTown', () => {
   it("raises the new town's production by the skills the player earned before", async () => {
     const skills = inMemoryEarnedSkills([{ playerId: 'learner', skill: foodSkillAtTwentyPercent }])
     const towns = inMemoryTowns([], skills)
 
-    const founded = await foundTown(
-      { playerId: 'learner', name: 'Maple Hill' },
-      { towns, catalog: townCatalogOf(), clock: frozenClock, ids: sequentialIds('town'), skills },
-    )
+    const founded = await foundingIn(towns, skills, townCatalogOf()).execute({
+      playerId: 'learner',
+      name: 'Maple Hill',
+    })
 
     assert(founded.ok)
-    const accrual = accrueTown(founded.value, townCatalogOf(), tenHoursAfterFounding)
+    const accrual = accrueTown(founded.value.town, townCatalogOf(), tenHoursAfterFounding)
     assert(accrual.ok)
     expect(accrual.value.stocks.food).toBe(300 + 60)
   })
@@ -67,16 +84,10 @@ describe('foundTown', () => {
   it("starts a town with homes and the school at level 1 and the content's stocks", async () => {
     const towns = inMemoryTowns([], noSkills)
 
-    const founded = await foundTown(
-      { playerId: 'newcomer', name: '  Maple Hill ' },
-      {
-        towns,
-        catalog: townCatalogOf(),
-        clock: frozenClock,
-        ids: sequentialIds('town'),
-        skills: noSkills,
-      },
-    )
+    const founded = await foundingIn(towns, noSkills, townCatalogOf()).execute({
+      playerId: 'newcomer',
+      name: '  Maple Hill ',
+    })
 
     assert(founded.ok)
     expect(towns.storedTownOf('newcomer')).toMatchObject({
@@ -103,34 +114,22 @@ describe('foundTown', () => {
       noSkills,
     )
 
-    const founded = await foundTown(
-      { playerId: 'newcomer', name: 'Maple Hill' },
-      {
-        towns,
-        catalog: sitesPerAreaOf(2),
-        clock: frozenClock,
-        ids: sequentialIds('town'),
-        skills: noSkills,
-      },
-    )
+    const founded = await foundingIn(towns, noSkills, sitesPerAreaOf(2)).execute({
+      playerId: 'newcomer',
+      name: 'Maple Hill',
+    })
 
     assert(founded.ok)
-    expect(founded.value.address).toEqual({ region: 1, area: 2, site: 2 })
+    expect(founded.value.town.address).toEqual({ region: 1, area: 2, site: 2 })
   })
 
   it('refuses a second town with PlayerAlreadyHoldsTown', async () => {
     const towns = inMemoryTowns([townAt('ana', 1, 1)], noSkills)
 
-    const founded = await foundTown(
-      { playerId: 'ana', name: 'Second Town' },
-      {
-        towns,
-        catalog: townCatalogOf(),
-        clock: frozenClock,
-        ids: sequentialIds('town'),
-        skills: noSkills,
-      },
-    )
+    const founded = await foundingIn(towns, noSkills, townCatalogOf()).execute({
+      playerId: 'ana',
+      name: 'Second Town',
+    })
 
     expect(founded).toEqual({
       ok: false,
@@ -139,16 +138,11 @@ describe('foundTown', () => {
   })
 
   it('refuses a blank name with BlankTownName', async () => {
-    const founded = await foundTown(
-      { playerId: 'newcomer', name: '   ' },
-      {
-        towns: inMemoryTowns([], noSkills),
-        catalog: townCatalogOf(),
-        clock: frozenClock,
-        ids: sequentialIds('town'),
-        skills: noSkills,
-      },
-    )
+    const founded = await foundingIn(
+      inMemoryTowns([], noSkills),
+      noSkills,
+      townCatalogOf(),
+    ).execute({ playerId: 'newcomer', name: '   ' })
 
     expect(founded).toEqual({ ok: false, error: { kind: 'BlankTownName' } })
   })
@@ -158,16 +152,10 @@ describe('foundTown', () => {
     const racingTowns = { ...towns, occupiedSites: async () => [] }
     await towns.save(townAt('ana', 1, 1))
 
-    const founded = await foundTown(
-      { playerId: 'newcomer', name: 'Maple Hill' },
-      {
-        towns: racingTowns,
-        catalog: townCatalogOf(),
-        clock: frozenClock,
-        ids: sequentialIds('town'),
-        skills: noSkills,
-      },
-    )
+    const founded = await foundingIn(racingTowns, noSkills, townCatalogOf()).execute({
+      playerId: 'newcomer',
+      name: 'Maple Hill',
+    })
 
     expect(founded).toEqual({
       ok: false,

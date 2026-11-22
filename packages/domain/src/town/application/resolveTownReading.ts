@@ -1,26 +1,23 @@
-import type { ReadOnlyTowns, TownReader, TownReading } from '@mygame/domain'
-import {
-  type Clock,
-  type DomainError,
-  err,
-  type Instant,
-  isLessonFinishedBy,
-  type LessonSlot,
-  laterOf,
-  type MutateTownDependencies,
-  mutateTown,
-  ok,
-  type PlayerId,
-  type Result,
-  readTownReading,
-  resolveTown,
-  type Town,
-  type TownCatalog,
-  type TownNews,
-  type TownRepository,
-} from '@mygame/domain'
+import type { DomainError } from '#DomainError'
+import type { Clock } from '#platform/domain/Clock'
+import type { PlayerId } from '#player/PlayerId'
+import { err, ok, type Result } from '#Result'
+import type { Instant } from '#time/Instant'
+import { laterOf } from '#time/laterOf'
+import type { ReadOnlyTowns } from '../domain/ReadOnlyTowns'
+import type { Town } from '../domain/Town'
+import type { TownCatalog } from '../domain/TownCatalog'
+import type { TownNews } from '../domain/TownNews'
+import type { TownReader } from '../domain/TownReader'
+import type { TownReading } from '../domain/TownReading'
+import type { TownRepository } from '../domain/TownRepository'
+import { isLessonFinishedBy } from '../school/isLessonFinishedBy'
+import type { LessonSlot } from '../school/LessonSlot'
+import { type MutateTownDependencies, mutateTown } from './mutateTown'
+import { readTownReading } from './readTownReading'
+import { resolveTown } from './resolveTown'
 
-export type ResolveCurrentTownDependencies = MutateTownDependencies & {
+export type ResolveTownReadingDependencies = MutateTownDependencies & {
   readonly towns: ReadOnlyTowns
   readonly townsWithSchool: TownReader
   readonly townCatalog: TownCatalog
@@ -40,7 +37,7 @@ const isSlotFinishedBy = (slot: LessonSlot, readAt: Instant): boolean =>
 
 const persistResolvedTown = (
   playerId: PlayerId,
-  dependencies: ResolveCurrentTownDependencies,
+  dependencies: ResolveTownReadingDependencies,
 ): Promise<Result<TownReading, DomainError>> =>
   mutateTown(
     playerId,
@@ -56,9 +53,9 @@ const persistResolvedTown = (
     dependencies,
   )
 
-export const resolveCurrentTown = async (
+export const resolveTownReading = async (
   playerId: PlayerId,
-  dependencies: ResolveCurrentTownDependencies,
+  dependencies: ResolveTownReadingDependencies,
 ): Promise<Result<TownReading, DomainError>> => {
   const stored = await dependencies.townsWithSchool.townWithSchoolOf(playerId)
   if (!stored.ok) {

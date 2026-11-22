@@ -1,11 +1,14 @@
 import {
   type Accounts,
   type DomainError,
+  FoundTown,
   Instant,
   type PlayerId,
   type Result,
-  type Town,
+  type TownReading,
   type TownRepository,
+  type TownStores,
+  type UnitOfWork,
 } from '@mygame/domain'
 import { Client } from 'pg'
 import { afterAll, beforeAll, describe, expect, it } from 'vitest'
@@ -13,7 +16,6 @@ import { apiPackagePath } from '#apiPackagePath.testSupport'
 import { type ComposedServer, composeServer } from '#composeServer'
 import { mailEnvironment } from '#composeServer.testSupport'
 import { truncatePlayerTables } from '#truncatePlayerTables.testSupport'
-import { foundTownOnFreeSite } from './foundTownOnFreeSite'
 
 const contentDirectory = apiPackagePath('content/')
 
@@ -67,7 +69,7 @@ const townRowCount = async (): Promise<number> => {
 
 type Outcome = 'founded' | DomainError['kind']
 
-const outcomeOf = (founded: Result<Town, DomainError>): Outcome =>
+const outcomeOf = (founded: Result<TownReading, DomainError>): Outcome =>
   founded.ok ? 'founded' : founded.error.kind
 
 const meetingOfTwo = (): (() => Promise<void>) => {
@@ -110,25 +112,24 @@ const raceTwoFoundings = (
   playerIds: readonly [PlayerId, PlayerId],
 ): Promise<ReadonlyArray<Outcome>> => {
   const meet = meetingOfTwo()
+  const unitOfWork: UnitOfWork<TownStores> = {
+    transact: (work) =>
+      server.unitOfWork.transact((stores) =>
+        work({ ...stores, towns: waitingAfterFirstSiteRead(stores.towns, meet) }),
+      ),
+  }
+  const foundTown = new FoundTown({
+    unitOfWork,
+    townCatalog: server.townCatalog,
+    clock: frozenClock,
+    ids: server.ids,
+  })
   const found = (playerId: PlayerId): Promise<Outcome> =>
-    server.unitOfWork
-      .transact(({ towns, earnedSkills }) =>
-        foundTownOnFreeSite(
-          { playerId, name: 'Maple Falls' },
-          {
-            towns: waitingAfterFirstSiteRead(towns, meet),
-            skills: earnedSkills,
-            catalog: server.townCatalog,
-            clock: frozenClock,
-            ids: server.ids,
-          },
-        ),
-      )
-      .then(outcomeOf)
+    foundTown.execute({ playerId, name: 'Maple Falls' }).then(outcomeOf)
   return Promise.all(playerIds.map(found))
 }
 
-describe('foundTownOnFreeSite', () => {
+describe('FoundTown', () => {
   let server: ComposedServer
 
   beforeAll(() => {

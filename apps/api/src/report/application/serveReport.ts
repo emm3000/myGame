@@ -6,7 +6,9 @@ import {
   type Instant,
   ok,
   type PlayerId,
+  type ResolveTownReadingDependencies,
   type Result,
+  resolveTownReading,
   type TownEvent,
   type TownId,
 } from '@mygame/domain'
@@ -15,13 +17,9 @@ import {
   type ReviewTerms,
   serveDueReviews,
 } from '#learning/application/serveDueReviews'
-import {
-  type ResolveCurrentTownDependencies,
-  resolveCurrentTown,
-} from '#town/application/resolveCurrentTown'
 import type { ReportClosings } from './ports/ReportClosings'
 
-export type ServeReportDependencies = ResolveCurrentTownDependencies &
+export type ServeReportDependencies = ResolveTownReadingDependencies &
   ReviewTerms & {
     readonly reportClosings: ReportClosings
   }
@@ -42,7 +40,7 @@ const readReportTown = async (
   playerId: PlayerId,
   dependencies: ServeReportDependencies,
 ): Promise<Result<ReportTown, DomainError>> => {
-  const reading = await resolveCurrentTown(playerId, dependencies)
+  const reading = await resolveTownReading(playerId, dependencies)
   if (!reading.ok) {
     return reading.error.kind === 'TownNotFound'
       ? ok({ at: dependencies.clock.now(), townId: undefined })
