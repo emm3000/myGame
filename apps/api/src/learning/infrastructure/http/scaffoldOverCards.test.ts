@@ -1,7 +1,8 @@
-import { type ChromePhase, PlayerSchema } from '@mygame/contracts'
+import { PlayerSchema } from '@mygame/contracts'
 import { Instant } from '@mygame/domain'
 import { afterAll, beforeAll, beforeEach, describe, expect, it } from 'vitest'
 import {
+  accountRequests,
   contentDirectory,
   databaseUrl,
   rowsOf,
@@ -63,11 +64,7 @@ describe('the scaffold and the chrome over held cards', () => {
     expect(await rowsOf('SELECT * FROM cards ORDER BY word_id')).toEqual(cardsBefore)
   })
 
-  const chromePhaseOfSession = async (cookie: string): Promise<ChromePhase> => {
-    const session = await app.request('/auth/session', { headers: { cookie } })
-    expect(session.status).toBe(200)
-    return PlayerSchema.parse(await session.json()).chromePhase
-  }
+  const { chromePhaseOfSession } = accountRequests(() => app)
 
   it('answers the chrome English on the session of a player with no town who earned every chrome skill', async () => {
     const ana = await signUpInSpanish()

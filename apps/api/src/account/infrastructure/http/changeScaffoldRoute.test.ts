@@ -1,11 +1,17 @@
-import { type ChromePhase, type Player, PlayerSchema } from '@mygame/contracts'
+import { type Player, PlayerSchema } from '@mygame/contracts'
 import { Instant } from '@mygame/domain'
 import { afterAll, beforeAll, beforeEach, describe, expect, it } from 'vitest'
 import { createApp } from '#app'
 import { type ComposedServer, composeServer } from '#composeServer'
 import { mailEnvironment } from '#composeServer.testSupport'
 import { truncatePlayerTables } from '#truncatePlayerTables.testSupport'
-import { contentDirectory, databaseUrl, rowsOf, sessionCookieOf } from './accountRoutes.testSupport'
+import {
+  accountRequests,
+  contentDirectory,
+  databaseUrl,
+  rowsOf,
+  sessionCookieOf,
+} from './accountRoutes.testSupport'
 
 const fixedClock = {
   now: (): Instant => Instant.fromEpochMilliseconds(Date.parse('2026-11-12T08:00:00Z')),
@@ -121,11 +127,7 @@ describe('the player routes', () => {
     })
   })
 
-  const chromePhaseOfSession = async (cookie: string): Promise<ChromePhase> => {
-    const session = await app.request('/auth/session', { headers: { cookie } })
-    expect(session.status).toBe(200)
-    return PlayerSchema.parse(await session.json()).chromePhase
-  }
+  const { chromePhaseOfSession } = accountRequests(() => app)
 
   it('answers the chrome Spanish on the session of a new player under es', async () => {
     const ana = await signUpInSpanish()
