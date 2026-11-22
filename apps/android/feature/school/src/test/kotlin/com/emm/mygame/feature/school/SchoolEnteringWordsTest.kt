@@ -118,4 +118,19 @@ class SchoolEnteringWordsTest {
 
             assertEquals(3, contentOf(viewModel).learning.pastCapWords)
         }
+
+    @Test
+    fun `hides the past-cap line while the featured lesson is running and no other lesson is open`() = runTest {
+        val viewModel: SchoolViewModel = schoolReading(
+            townOf(
+                lessons = listOf(studied, lessonOf(id = secondLesson, wordCount = 6, enteringWordCount = 3)),
+                learning = twoWordsFree,
+                lessonSlot = slotOf(lesson = secondLesson),
+            ),
+        )
+
+        viewModel.onIntent(SchoolIntent.LessonSelected(secondLesson))
+
+        assertEquals(null, contentOf(viewModel).learning.pastCapWords)
+    }
 }

@@ -47,9 +47,10 @@ class ReportViewModelTest {
         gap: Duration = Duration.ZERO,
         lesson: LessonId = firstLesson,
         startedAt: Instant = readInstant,
+        readAt: Instant = readInstant,
     ) {
         val slot: TownSnapshot.LessonSlot = TownSnapshot.LessonSlot(lesson, startedAt, finishesAt)
-        towns.hold(HeldTown(townOf(readAt = readInstant, lessonSlot = slot), gap))
+        towns.hold(HeldTown(townOf(readAt = readAt, lessonSlot = slot), gap))
     }
 
     private fun TestScope.signedInReport(report: TownReport = reportOf(dueCount = 1)): ReportViewModel {
@@ -736,6 +737,7 @@ class ReportViewModelTest {
             finishesAt = readInstant + 10.minutes,
             lesson = secondLesson,
             startedAt = readInstant + 4.minutes,
+            readAt = readInstant + 4.minutes,
         )
         runCurrent()
         advanceTimeBy(1.hours)
