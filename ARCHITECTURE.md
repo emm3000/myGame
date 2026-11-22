@@ -47,7 +47,7 @@ One row for each folder directly under `apps/api/src` or `packages/domain/src`: 
 
 ```
 Town.ts  TownAddress.ts           PascalCase: an entity, a value object or a type
-jobPayOf.ts  isLessonRetained.ts  camelCase: a pure, synchronous function
+heldOutCountOf.ts  keyInstantOf.ts  camelCase: a pure, synchronous function
 useCases/     one file per thing a player or the clock can ask: reads ports, returns a Promise of Result
 services/     a port-reading step two or more use cases share; never exported from index.ts
 ports/        the interfaces the outside implements
@@ -84,14 +84,14 @@ listenPortOf.ts  writeOpenApiDocument.ts                          the api's own 
 
 | Role | Folder | Name | Example |
 |---|---|---|---|
-| Entity, value object, type | domain feature root | noun, PascalCase | `Job.ts` |
-| Pure rule | domain feature root | `derive*`, `*Of`, `*At`, `*For`, `*Between`, `*After`, a unit suffix (`*Days`, `*Seconds`, `*Milliseconds`), `is*`, `has*`, `covers*`, `holds*`, `refuse*` | `jobPayOf.ts`, `wholeDaysBetween.ts` |
+| Entity, value object, type | domain feature root | noun, PascalCase | `HeldCard.ts` |
+| Pure rule | domain feature root | `derive*`, `*Of`, `*At`, `*For`, `*Between`, `*After`, a unit suffix (`*Days`, `*Seconds`, `*Milliseconds`), `is*`, `has*`, `covers*`, `holds*`, `refuse*` | `heldOutCountOf.ts`, `wholeDaysBetween.ts` |
 | Constant list | domain feature root | plural noun | `buildingKinds.ts` |
 | Draw | domain feature root | noun + `Drawn` | `bandStartDrawn.ts` |
 | Pure change | domain feature root, sub-area | verb phrase, returns the changed value, no port | `accrueTown.ts` |
 | Domain use case | `useCases/` | verb phrase | `sendJob.ts` |
-| Domain service | `services/` | verb phrase | `dispatchJob.ts` |
-| Port | `ports/`, `application/ports/` | noun + role | `RegionMapReader.ts` |
+| Domain service | `services/` | verb phrase | `resolveDueBandStart.ts` |
+| Port | `ports/`, `application/ports/` | noun + role | `BandStartRepository.ts` |
 | Api use case | `application/` | verb phrase, never a domain export's name | `serveReport.ts` |
 | Api type or pure rule | `application/` | noun, or `*From`, `is*` | `LearningDependencies.ts` |
 | View or verdict gatherer | `application/` | `gather` + view or verdict | `gatherWorkView.ts` |
