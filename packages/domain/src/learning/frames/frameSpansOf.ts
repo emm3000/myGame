@@ -2,7 +2,7 @@ import { isLessonPlacedOut } from '../curriculum/isLessonPlacedOut'
 import { supportLevelOf } from '../scaffold/supportLevelOf'
 import { type SupportText, supportTextOf } from '../scaffold/supportTextOf'
 import type { WordSupport } from '../scaffold/WordSupport'
-import type { FrameReader } from './FrameReader'
+import type { FrameReader } from './FrameLearner'
 import type { FrameSpan, FrameSpans } from './FrameSpan'
 import type { FrameToken } from './FrameToken'
 
