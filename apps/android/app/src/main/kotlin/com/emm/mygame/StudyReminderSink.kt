@@ -13,7 +13,7 @@ import kotlin.time.Instant
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
 
-class StudyReminderFeed(
+class StudyReminderSink(
     private val store: Lazy<StudyReminderStore>,
     private val towns: () -> TownRepository,
     private val scope: CoroutineScope,

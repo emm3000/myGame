@@ -16,8 +16,8 @@ import com.emm.mygame.core.designsystem.MyGameOutlinedButton
 import com.emm.mygame.core.designsystem.MyGameSectionTitle
 import com.emm.mygame.core.designsystem.MyGameSpacing
 import com.emm.mygame.core.designsystem.MyGameText
-import com.emm.mygame.core.designsystem.MyGameTitleLine
 import com.emm.mygame.core.designsystem.MyGameTheme
+import com.emm.mygame.core.designsystem.MyGameTitleLine
 import com.emm.mygame.core.designsystem.MyGameTypography
 import com.emm.mygame.core.designsystem.englishTextOf
 import com.emm.mygame.core.network.LessonId
@@ -98,7 +98,7 @@ private fun ReleasedLessonRow(
         ) {
             MyGameTitleLine(
                 title = copy.lessonTitleOf(card.name),
-                status = statusOf(card.state)?.let { status: Int -> copy.chrome(status) },
+                status = copy.statusLabelOf(card.state),
             )
             MyGameText(
                 label = copy.chrome(R.string.school_lesson_words, "count" to card.wordCount),
@@ -194,7 +194,7 @@ private fun LessonTarget(
     val copy: PlayerCopy = rememberPlayerCopy()
     MyGameNavRow(
         title = copy.chrome(R.string.school_lesson_title, "number" to card.number.toString()),
-        status = statusOf(card.state)?.let { status: Int -> copy.chrome(status) },
+        status = copy.statusLabelOf(card.state),
         body = englishTextOf(card.theme),
         caption = copy.chrome { lessonSummaryOf(card) },
         captionTag = LESSON_SIZE_LABEL,
@@ -215,7 +215,7 @@ private fun StudiedLesson(card: SchoolUiState.LessonCard, modifier: Modifier = M
     ) {
         MyGameTitleLine(
             title = copy.chrome(R.string.school_lesson_title, "number" to card.number.toString()),
-            status = statusOf(card.state)?.let { status: Int -> copy.chrome(status) },
+            status = copy.statusLabelOf(card.state),
         )
         MyGameText(text = englishTextOf(card.theme), style = MyGameTypography.body, color = MyGameTheme.colors.ink)
         MyGameText(
@@ -227,9 +227,8 @@ private fun StudiedLesson(card: SchoolUiState.LessonCard, modifier: Modifier = M
     }
 }
 
-@StringRes
-private fun statusOf(state: SchoolUiState.LessonState): Int? = when (state) {
-    SchoolUiState.LessonState.Studied -> R.string.school_lesson_studied
-    SchoolUiState.LessonState.Studying -> R.string.school_lesson_studying
+private fun PlayerCopy.statusLabelOf(state: SchoolUiState.LessonState): MyGameLabel? = when (state) {
+    SchoolUiState.LessonState.Studied -> chrome(R.string.school_lesson_studied)
+    SchoolUiState.LessonState.Studying -> chrome(R.string.school_lesson_studying)
     is SchoolUiState.LessonState.Open -> null
 }

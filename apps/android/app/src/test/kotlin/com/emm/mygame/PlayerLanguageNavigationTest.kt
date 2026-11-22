@@ -1,6 +1,7 @@
 package com.emm.mygame
 
 import androidx.activity.ComponentActivity
+import androidx.compose.ui.test.ExperimentalTestApi
 import androidx.compose.ui.test.SemanticsNodeInteraction
 import androidx.compose.ui.test.assertCountEquals
 import androidx.compose.ui.test.hasContentDescription
@@ -177,6 +178,7 @@ class PlayerLanguageNavigationTest {
     }
 
     @Test
+    @OptIn(ExperimentalTestApi::class)
     fun `draws the next player's banner in the phone's English before any language read answers`() {
         val unverifiedEnglishPlayer: SignedInPlayer =
             SignedInPlayer("noah@example.com", isEmailVerified = false, scaffold = PlayerScaffold.None)
@@ -189,11 +191,7 @@ class PlayerLanguageNavigationTest {
         waitForLine("Sign in to your town")
         composeRule.waitForIdle()
         sessions.answerRestore(RestoreResult.SignedOut)
-        composeRule.waitUntil(WAIT_MILLIS) {
-            composeRule.onAllNodes(hasSetTextAction() and hasContentDescription("Email"))
-                .fetchSemanticsNodes()
-                .isNotEmpty()
-        }
+        composeRule.waitUntilAtLeastOneExists(hasSetTextAction() and hasContentDescription("Email"), WAIT_MILLIS)
         sessions.answerSignIn(SignInResult.SignedIn(unverifiedEnglishPlayer))
         sessions.answerRestore(RestoreResult.SignedIn(unverifiedEnglishPlayer))
         textField("Email").performTextInput("noah@example.com")

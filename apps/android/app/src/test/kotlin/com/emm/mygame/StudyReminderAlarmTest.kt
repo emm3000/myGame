@@ -203,7 +203,7 @@ class StudyReminderAlarmTest {
         store.fold { wordsWaiting }
         firingAlarm.fire(store.choice.value, store.facts.value, englishOnly)
 
-        StudyReminderFeed(store = lazyOf(store), towns = { FakeTownRepository() }, scope = backgroundScope)
+        StudyReminderSink(store = lazyOf(store), towns = { FakeTownRepository() }, scope = backgroundScope)
             .sessionChanged()
 
         assertEquals(
