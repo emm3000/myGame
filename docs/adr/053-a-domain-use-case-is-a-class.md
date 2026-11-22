@@ -199,7 +199,7 @@ The cost is four letters and one difference from Codely's file.
 
 The class keeps the use case's verb phrase and takes a capital:
 `sendJob` becomes `SendJob`, in `useCases/SendJob.ts`, tested by
-`SendJob.test.ts`. `typescript-style.md:56` already asks for it:
+`SendJob.test.ts`. `typescript-style.md:68` already asks for it:
 "PascalCase for files that export a type, class or component".
 
 Codely names by agent noun, `CourseCreator`. It is refused here:
@@ -358,7 +358,7 @@ and after, in `SendJob.test.ts`:
 ```
 
 - A type taken from the function is taken from the method:
-  `Awaited<ReturnType<typeof sendJob>>` (`sendJob.test.ts:66`)
+  `Awaited<ReturnType<typeof sendJob>>` (`sendJob.test.ts:67`)
   becomes `Awaited<ReturnType<SendJob['execute']>>`, and
   `Parameters<typeof stopBuildingWork>[1]` becomes
   `StopBuildingWorkDependencies`.
@@ -459,7 +459,7 @@ merge one at a time, each rebased on the one before.
 | 1 | `placement` | `AnswerPlacement`, `BeginPlacement`, `ReadPlacement`, `SkipPlacement` | 6, in 4 routes | the smallest surface, no `application/`: it proves the shape |
 | 2 | `holdout` | `AnswerHoldoutCheck`, `BeginHoldoutCheck`, `ReadHoldoutChecks`, `SkipHoldoutCheck` | 5: 4 routes, `mutateHoldoutCheck.ts` | |
 | 3 | `learning/reviews` | `AnswerReview`, `RequestHint`, `ShowDueReviews` | 3, in `learning/application/` | `answerReviewFixtures.ts` and the three test files of `answerReview` |
-| 4 | `town` (root) | `FoundTown`, `ResolveTown` | 3: `foundTownOnFreeSite.ts`, `resolveCurrentTown.ts` twice | `foundTownRoute.ts` builds the object; `composeServer.test.ts:251`; the `resolveTown` calls of `stopHiringOrder.test.ts` and `sendCleanUp.test.ts` |
+| 4 | `town` (root) | `FoundTown`, `ResolveTown` | 3: `foundTownOnFreeSite.ts`, `resolveCurrentTown.ts` twice | `foundTownRoute.ts` builds the object, and so does `foundTownOnFreeSite.test.ts:116`, which hands a `FoundTownDependencies` today; `composeServer.test.ts:251`; the `resolveTown` calls of `stopHiringOrder.test.ts` and `sendCleanUp.test.ts` |
 | 5 | `town/building` | `StartBuildingWork`, `StopBuildingWork` | 2 routes | `composeServer.test.ts:297`; `docs/agents/peer.md:29` |
 | 6 | `town/hiring` | `PlaceHiringOrder`, `StopHiringOrder` | 2 routes | |
 | 7 | `town/jobs` | `CallJobBack`, `QuoteCleanUp`, `QuoteJob`, `ReadRegionMap`, `SendCleanUp`, `SendJob` | 6: 3 routes, `respondRegionMap.ts`, `quoteJobNow.ts`, `quoteCleanUpNow.ts` | `ARCHITECTURE.md:15` and `:118` |
