@@ -6,8 +6,8 @@ import { inMemoryTownNews } from '../../testing/inMemoryTownNews'
 import { inMemoryTowns } from '../../testing/inMemoryTowns'
 import { plainTownSettings, townCatalogOf } from '../../testing/townCatalogOf'
 import { type TownShape, townOf } from '../../testing/townFixtures'
-import type { WorkSlot } from '../BuildingWork'
-import type { WaitingWork } from '../WaitingList'
+import type { WorkSlot } from '../domain/BuildingWork'
+import type { WaitingWork } from '../domain/WaitingList'
 import { stopBuildingWork } from './stopBuildingWork'
 
 const MILLISECONDS_PER_MINUTE = 60_000

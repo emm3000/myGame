@@ -1,7 +1,7 @@
 import { assert, describe, expect, it } from 'vitest'
 import type { Clock } from '#platform/domain/Clock'
 import { Instant } from '#time/Instant'
-import type { BuildingLevel } from '../../building/BuildingLevel'
+import type { BuildingLevel } from '../../building/domain/BuildingLevel'
 import { derivePeople } from '../../domain/derivePeople'
 import type { TownCatalog } from '../../domain/TownCatalog'
 import type { TownSettings } from '../../domain/TownSettings'

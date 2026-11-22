@@ -1,7 +1,7 @@
 import type { TownOverview } from '@mygame/contracts'
 import type { BusyWorkSlot } from '@mygame/domain'
 import { isoOf } from '#platform/infrastructure/http/isoOf'
-import type { WorkView } from '../../application/gatherWorkView'
+import type { WorkView } from './gatherWorkView'
 
 type BuildingWork = TownOverview['work']['waitingList'][number]
 

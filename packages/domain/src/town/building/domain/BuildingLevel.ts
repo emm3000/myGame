@@ -1,5 +1,5 @@
-import type { OfficeLevel } from '../hiring/OfficeLevel'
-import type { SchoolLevel } from '../school/SchoolLevel'
+import type { OfficeLevel } from '../../hiring/OfficeLevel'
+import type { SchoolLevel } from '../../school/SchoolLevel'
 import type { LevelTerms } from './LevelTerms'
 
 export type HomesLevel = LevelTerms & {

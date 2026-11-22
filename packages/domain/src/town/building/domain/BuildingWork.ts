@@ -1,5 +1,5 @@
 import type { Instant } from '#time/Instant'
-import type { Stocks } from '../resources/Stocks'
+import type { Stocks } from '../../resources/Stocks'
 import type { BuildingKind } from './BuildingKind'
 
 export type WorkTarget = {

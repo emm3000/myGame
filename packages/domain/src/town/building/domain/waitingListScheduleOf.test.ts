@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest'
 import { Instant } from '#time/Instant'
-import { stocksOf } from '../resources/Stocks'
+import { stocksOf } from '../../resources/Stocks'
 import type { BusyWorkSlot } from './BuildingWork'
 import type { WaitingWork } from './WaitingList'
 import { waitingListScheduleOf } from './waitingListScheduleOf'

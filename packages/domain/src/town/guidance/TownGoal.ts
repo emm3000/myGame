@@ -1,4 +1,4 @@
-import type { BuildingKind } from '../building/BuildingKind'
+import type { BuildingKind } from '../building/domain/BuildingKind'
 
 export type TownGoal = {
   readonly building: BuildingKind

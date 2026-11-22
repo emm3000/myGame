@@ -14,12 +14,12 @@ import type { TownRepository } from '../../domain/TownRepository'
 import type { Hires } from '../../hiring/Hires'
 import { accrueTown } from '../../resources/accrueTown'
 import { rebaseFullSince } from '../../resources/rebaseFullSince'
-import type { BuildingKind } from '../BuildingKind'
-import type { BuildingLevel } from '../BuildingLevel'
-import type { BuildingLevels } from '../BuildingLevels'
-import { derivePeopleForWork } from '../derivePeopleForWork'
-import { levelWorkAt } from '../levelWorkAt'
-import { wordShortfallOf } from '../wordShortfallOf'
+import type { BuildingKind } from '../domain/BuildingKind'
+import type { BuildingLevel } from '../domain/BuildingLevel'
+import type { BuildingLevels } from '../domain/BuildingLevels'
+import { derivePeopleForWork } from '../domain/derivePeopleForWork'
+import { levelWorkAt } from '../domain/levelWorkAt'
+import { wordShortfallOf } from '../domain/wordShortfallOf'
 
 export type StartBuildingWorkCommand = {
   readonly playerId: PlayerId

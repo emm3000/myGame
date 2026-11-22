@@ -10,7 +10,7 @@ import type { TownNews } from '../../domain/TownNews'
 import type { TownRepository } from '../../domain/TownRepository'
 import { accrueTown } from '../../resources/accrueTown'
 import { rebaseFullSince } from '../../resources/rebaseFullSince'
-import type { WorkTarget } from '../BuildingWork'
+import type { WorkTarget } from '../domain/BuildingWork'
 
 export type StopBuildingWorkCommand = WorkTarget & {
   readonly playerId: PlayerId

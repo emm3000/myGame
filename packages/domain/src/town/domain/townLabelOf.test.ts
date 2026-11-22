@@ -1,5 +1,5 @@
 import { assert, describe, expect, it } from 'vitest'
-import type { BuildingLevels } from '../building/BuildingLevels'
+import type { BuildingLevels } from '../building/domain/BuildingLevels'
 import { townCatalogOf } from '../testing/townCatalogOf'
 import { townLabelOf } from './townLabelOf'
 
