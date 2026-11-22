@@ -98,7 +98,7 @@ index.ts  listen.ts  app.ts  composeServer.ts  composeStores.ts    the compositi
 
 `*Of` is a pure, synchronous derivation and nothing else: a function that returns a promise is named by a verb, and a function that writes is never named as a reading.
 
-A route's cases sit in one test beside its area's route list, `<area>Routes.test.ts`; an area with no list of its own, or whose list's test would pass the 600 lines of a test file, has one test per route, `<endpoint>Route.test.ts`. A case that needs a feature to the right of the route's own lives in the rightmost feature it needs, the one `feature_graph` lets import both, in a test named for the behavior it proves (`learning/infrastructure/http/lessonFinish.test.ts`), never for a route of another feature.
+A route's cases sit in one test beside its area's route list, `<area>Routes.test.ts`; an area with no list of its own, or whose list's test would pass the 600 lines of a test file, has one test per route, `<endpoint>Route.test.ts`. A case that seeds or reads the state of a feature to the right of the route's own, its tables or its endpoints, lives in the rightmost feature whose state it seeds or reads, the one `feature_graph` lets import every other, in a test named for the behavior it proves (`learning/infrastructure/http/lessonFinish.test.ts`), never for a route of another feature.
 
 ## One request, end to end
 
