@@ -5,7 +5,7 @@ import {
   type TownOverview,
   TownOverviewSchema,
 } from '@mygame/contracts'
-import { Instant, mutateTown, ok, type PlayerId } from '@mygame/domain'
+import { Instant, ok, type PlayerId } from '@mygame/domain'
 import { Client } from 'pg'
 import {
   afterAll,
@@ -332,23 +332,20 @@ describe('the Report routes', () => {
     hasRecorded: Signal,
     release: Signal,
   ): Promise<void> => {
-    const held = await mutateTown(
-      playerId,
-      async (stores) => {
-        const town = await stores.towns.townOf(playerId)
-        assert(town.ok && town.value !== undefined)
-        const studied = {
-          kind: 'lessonStudied',
-          lessonId: 'lesson-1',
-          occurredAt: Instant.fromEpochMilliseconds(Date.parse(occurredAt)),
-        } as const
-        await stores.townNews.record(town.value.id, [studied])
-        hasRecorded.resolve()
-        await release.promise
-        return ok(undefined)
-      },
-      { ...server, clock },
-    )
+    const held = await server.unitOfWork.transact(async (stores) => {
+      await stores.accounts.lockPlayer(playerId)
+      const town = await stores.towns.townOf(playerId)
+      assert(town.ok && town.value !== undefined)
+      const studied = {
+        kind: 'lessonStudied',
+        lessonId: 'lesson-1',
+        occurredAt: Instant.fromEpochMilliseconds(Date.parse(occurredAt)),
+      } as const
+      await stores.townNews.record(town.value.id, [studied])
+      hasRecorded.resolve()
+      await release.promise
+      return ok(undefined)
+    })
     assert(held.ok)
   }
 

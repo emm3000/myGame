@@ -395,42 +395,6 @@
       }
     },
     {
-      "includes": ["apps/api/src/content/**/infrastructure/persistence/**"],
-      "linter": {
-        "rules": {
-          "style": {
-            "noRestrictedImports": {
-              "level": "error",
-              "options": {
-                "patterns": [
-                  {
-                    "group": [
-                      "**/account/**",
-                      "#account/**",
-                      "**/town/**",
-                      "#town/**",
-                      "**/learning/**",
-                      "#learning/**",
-                      "**/placement/**",
-                      "#placement/**",
-                      "**/holdout/**",
-                      "#holdout/**",
-                      "**/report/**",
-                      "#report/**",
-                      "!**/infrastructure/persistence/*Tables",
-                      "!**/infrastructure/persistence/*FromRow",
-                      "!**/infrastructure/persistence/*Columns"
-                    ],
-                    "message": "ADR 052: content imports only from a feature to its left: platform <- content <- account <- town <- learning <- placement, holdout, report."
-                  }
-                ]
-              }
-            }
-          }
-        }
-      }
-    },
-    {
       "includes": ["apps/api/src/account/**/infrastructure/persistence/**"],
       "linter": {
         "rules": {

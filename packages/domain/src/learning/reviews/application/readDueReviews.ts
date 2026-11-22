@@ -4,36 +4,21 @@ import type { MemoryTerms } from '#memory/domain/MemoryTerms'
 import type { Clock } from '#platform/domain/Clock'
 import type { PlayerId } from '#player/PlayerId'
 import { ok, type Result } from '#Result'
-import type { Instant } from '#time/Instant'
 import { stageOf } from '../../curriculum/domain/stageOf'
 import { heldCardsOf } from '../../domain/HeldCards'
 import type { LearnerStores } from '../../domain/LearnerStores'
-import type { LessonId, WordId } from '../../domain/Lesson'
 import type { FrameLearner } from '../../frames/domain/FrameLearner'
+import type { DueReviews, PromptedReview } from '../domain/DueReviews'
 import { nextDueAtOf } from '../domain/nextDueAtOf'
 import type { PendingReviewRepository } from '../domain/PendingReviewRepository'
 import { readFirstOf } from '../domain/readFirstOf'
-import { type ReviewPrompt, reviewPromptOf } from '../domain/reviewPromptOf'
+import { reviewPromptOf } from '../domain/reviewPromptOf'
 import { readLearner } from './readLearner'
 import { type ShownReview, showDueReviews } from './showDueReviews'
 
 export type ReviewTerms = {
   readonly lessons: LessonLibrary
   readonly memoryTerms: MemoryTerms
-}
-
-export type PromptedReview = {
-  readonly wordId: WordId
-  readonly lessonId: LessonId
-  readonly dueAt: Instant
-  readonly prompt: ReviewPrompt
-}
-
-export type DueReviews = {
-  readonly due: ReadonlyArray<PromptedReview>
-  readonly readFirst: ReadonlyArray<LessonId>
-  readonly nextDueAt: Instant | null
-  readonly readAt: Instant
 }
 
 const promptedReviewOf = (

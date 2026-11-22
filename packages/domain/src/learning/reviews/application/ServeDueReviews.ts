@@ -2,7 +2,8 @@ import type { DomainError } from '#DomainError'
 import type { PlayerId } from '#player/PlayerId'
 import type { Result } from '#Result'
 import { type MutateTownDependencies, mutateTown } from '#town/application/mutateTown'
-import { type DueReviews, type ReviewTerms, readDueReviews } from './readDueReviews'
+import type { DueReviews } from '../domain/DueReviews'
+import { type ReviewTerms, readDueReviews } from './readDueReviews'
 
 export type ServeDueReviewsQuery = {
   readonly playerId: PlayerId

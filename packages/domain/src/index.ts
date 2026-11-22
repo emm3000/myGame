@@ -121,11 +121,6 @@ export {
   type RequestReviewHintCommand,
   type RequestReviewHintDependencies,
 } from '#learning/reviews/application/RequestReviewHint'
-export type {
-  DueReviews,
-  PromptedReview,
-  ReviewTerms,
-} from '#learning/reviews/application/readDueReviews'
 export {
   ServeDueReviews,
   type ServeDueReviewsDependencies,
@@ -138,6 +133,7 @@ export {
 } from '#learning/reviews/application/SubmitReviewAnswer'
 export type { AnsweredReview } from '#learning/reviews/domain/AnsweredReview'
 export type { AnswerReviewCommand } from '#learning/reviews/domain/AnswerReviewCommand'
+export type { DueReviews, PromptedReview } from '#learning/reviews/domain/DueReviews'
 export type { DueCard } from '#learning/reviews/domain/dueCardsAt'
 export { gradeTypedAnswer, type TypedAnswerGrade } from '#learning/reviews/domain/gradeTypedAnswer'
 export { nextDueAtOf } from '#learning/reviews/domain/nextDueAtOf'
@@ -242,19 +238,9 @@ export {
   type FoundTownDependencies,
 } from '#town/application/FoundTown'
 export {
-  type MutateTownDependencies,
-  mutateTown,
-  type TownMutation,
-} from '#town/application/mutateTown'
-export {
   ResolveCurrentTown,
   type ResolveCurrentTownDependencies,
 } from '#town/application/ResolveCurrentTown'
-export { readTownReading } from '#town/application/readTownReading'
-export {
-  type ResolveTownReadingDependencies,
-  resolveTownReading,
-} from '#town/application/resolveTownReading'
 export {
   StartBuildingWork,
   type StartBuildingWorkCommand,

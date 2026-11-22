@@ -46,71 +46,69 @@ const readHeldWords = async (
   )
 }
 
-const recordReviewAnswer = (
-  { playerId, wordId, answer }: SubmitReviewAnswerCommand,
-  dependencies: SubmitReviewAnswerDependencies,
-): Promise<Result<ReviewOutcome, DomainError>> =>
-  mutateTown(
-    playerId,
-    async (stores, clock) => {
-      const { lessons, memoryTerms, townCatalog } = dependencies
-      const answered = await answerReview(
-        { playerId, wordId, answer },
-        {
-          cards: stores.cards,
-          pendingReviews: stores.pendingReviews,
-          reviewLog: stores.reviewLog,
-          lessons,
-          bands: lessons,
-          bandStarts: stores.bandStarts,
-          clock,
-          terms: memoryTerms,
-          skills: stores.earnedSkills,
-          towns: stores.towns,
-          news: stores.townNews,
-          catalog: townCatalog,
-        },
-      )
-      if (!answered.ok) {
-        return answered
-      }
-      const word = lessons.lessonOfWord(wordId)?.words.find(({ id }) => id === wordId)
-      if (word === undefined) {
-        return err({ kind: 'UnknownWord', wordId })
-      }
-      const skills = await stores.earnedSkills.skillsOf(playerId)
-      if (!skills.ok) {
-        return skills
-      }
-      const town = await stores.towns.townOf(playerId)
-      if (!town.ok) {
-        return town
-      }
-      const earnedSkill = answered.value.kind === 'rated' ? answered.value.earnedSkill : undefined
-      const skillWords = await readHeldWords(playerId, earnedSkill, stores.cards, lessons)
-      if (!skillWords.ok) {
-        return skillWords
-      }
-      const scaffold = await readScaffold(playerId, stores.accounts)
-      if (!scaffold.ok) {
-        return scaffold
-      }
-      return ok({
-        answered: answered.value,
-        word,
-        scaffold: scaffold.value,
-        skills: skills.value,
-        town: town.value,
-        skillWords: skillWords.value,
-      })
-    },
-    dependencies,
-  )
-
 export class SubmitReviewAnswer {
   constructor(private readonly dependencies: SubmitReviewAnswerDependencies) {}
 
-  async execute(command: SubmitReviewAnswerCommand): Promise<Result<ReviewOutcome, DomainError>> {
-    return recordReviewAnswer(command, this.dependencies)
+  async execute({
+    playerId,
+    wordId,
+    answer,
+  }: SubmitReviewAnswerCommand): Promise<Result<ReviewOutcome, DomainError>> {
+    const { lessons, memoryTerms, townCatalog } = this.dependencies
+    return mutateTown(
+      playerId,
+      async (stores, clock) => {
+        const answered = await answerReview(
+          { playerId, wordId, answer },
+          {
+            cards: stores.cards,
+            pendingReviews: stores.pendingReviews,
+            reviewLog: stores.reviewLog,
+            lessons,
+            bands: lessons,
+            bandStarts: stores.bandStarts,
+            clock,
+            terms: memoryTerms,
+            skills: stores.earnedSkills,
+            towns: stores.towns,
+            news: stores.townNews,
+            catalog: townCatalog,
+          },
+        )
+        if (!answered.ok) {
+          return answered
+        }
+        const word = lessons.lessonOfWord(wordId)?.words.find(({ id }) => id === wordId)
+        if (word === undefined) {
+          return err({ kind: 'UnknownWord', wordId })
+        }
+        const skills = await stores.earnedSkills.skillsOf(playerId)
+        if (!skills.ok) {
+          return skills
+        }
+        const town = await stores.towns.townOf(playerId)
+        if (!town.ok) {
+          return town
+        }
+        const earnedSkill = answered.value.kind === 'rated' ? answered.value.earnedSkill : undefined
+        const skillWords = await readHeldWords(playerId, earnedSkill, stores.cards, lessons)
+        if (!skillWords.ok) {
+          return skillWords
+        }
+        const scaffold = await readScaffold(playerId, stores.accounts)
+        if (!scaffold.ok) {
+          return scaffold
+        }
+        return ok({
+          answered: answered.value,
+          word,
+          scaffold: scaffold.value,
+          skills: skills.value,
+          town: town.value,
+          skillWords: skillWords.value,
+        })
+      },
+      this.dependencies,
+    )
   }
 }
