@@ -1,7 +1,7 @@
 import type { Accounts } from '#account/domain/Accounts'
 import type { DomainError } from '#DomainError'
 import type { BandStartRepository } from '#holdout/domain/BandStartRepository'
-import type { CardRepository } from '#learning/ports/CardRepository'
+import type { CardRepository } from '#learning/domain/CardRepository'
 import type { PlacementScore } from '#placement/domain/Placement'
 import type { PlacementRepository } from '#placement/domain/PlacementRepository'
 import { placementScoresOf } from '#placement/domain/placementScoresOf'

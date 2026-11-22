@@ -1,4 +1,4 @@
-import type { Scaffold } from '#learning/scaffold/Scaffold'
+import type { Scaffold } from '#learning/scaffold/domain/Scaffold'
 import type { Clock } from '#platform/domain/Clock'
 import type { IdGenerator } from '#platform/domain/IdGenerator'
 import type { Refusal } from '#platform/domain/Refusal'

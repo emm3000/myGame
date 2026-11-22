@@ -1,5 +1,5 @@
-import type { Band } from '#learning/curriculum/Band'
-import type { Headword } from '#learning/curriculum/Headword'
+import type { Band } from '#learning/curriculum/domain/Band'
+import type { Headword } from '#learning/curriculum/domain/Headword'
 import type { Instant } from '#time/Instant'
 import type { HoldoutCheck } from './HoldoutCheck'
 

@@ -1,5 +1,5 @@
 import { lessonOne } from '#learning/curriculum/testing/lessonOne'
-import type { Lesson } from '#learning/Lesson'
+import type { Lesson } from '#learning/domain/Lesson'
 import type { OwnedCard } from '#learning/testing/inMemoryCards'
 import { MemoryCard } from '#memory/domain/MemoryCard'
 import { placementWordsOfBand } from '#placement/testing/placementWords'

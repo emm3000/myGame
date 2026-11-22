@@ -1,4 +1,4 @@
-import type { Scaffold } from '#learning/scaffold/Scaffold'
+import type { Scaffold } from '#learning/scaffold/domain/Scaffold'
 import type { Mail } from './Mailer'
 
 export type MailWording = Pick<Mail, 'subject' | 'text'>

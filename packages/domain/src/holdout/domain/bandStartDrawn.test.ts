@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest'
-import type { BandWord } from '#learning/curriculum/BandWord'
-import type { Headword } from '#learning/curriculum/Headword'
+import type { BandWord } from '#learning/curriculum/domain/BandWord'
+import type { Headword } from '#learning/curriculum/domain/Headword'
 import { firstItemsRandom } from '#platform/testing/firstItemsRandom'
 import { Instant } from '#time/Instant'
 import { bandStartDrawn } from './bandStartDrawn'

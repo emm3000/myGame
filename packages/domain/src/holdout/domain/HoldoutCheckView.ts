@@ -1,4 +1,4 @@
-import type { Band } from '#learning/curriculum/Band'
+import type { Band } from '#learning/curriculum/domain/Band'
 import type { PlacementItem } from '#placement/domain/PlacementView'
 import type { HoldoutCheckWeek } from './HoldoutCheckWeek'
 

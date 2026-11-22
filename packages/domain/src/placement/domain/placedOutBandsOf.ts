@@ -1,4 +1,4 @@
-import type { Band } from '#learning/curriculum/Band'
+import type { Band } from '#learning/curriculum/domain/Band'
 import { PLACEMENT_PASSING_SCORE } from './askedSampleOf'
 import type { PlacementScore } from './Placement'
 

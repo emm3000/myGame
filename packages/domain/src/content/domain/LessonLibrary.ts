@@ -1,8 +1,8 @@
-import type { BandCatalog } from '#learning/curriculum/ports/BandCatalog'
-import type { LessonCatalog } from '#learning/curriculum/ports/LessonCatalog'
-import type { FrameCatalog } from '#learning/frames/ports/FrameCatalog'
-import type { TextCatalog } from '#learning/frames/ports/TextCatalog'
-import type { Lesson } from '#learning/Lesson'
+import type { BandCatalog } from '#learning/curriculum/domain/BandCatalog'
+import type { LessonCatalog } from '#learning/curriculum/domain/LessonCatalog'
+import type { Lesson } from '#learning/domain/Lesson'
+import type { FrameCatalog } from '#learning/frames/domain/FrameCatalog'
+import type { TextCatalog } from '#learning/frames/domain/TextCatalog'
 import type { PlacementWordCatalog } from '#placement/domain/PlacementWordCatalog'
 
 export type ShelvedLesson = Lesson & {

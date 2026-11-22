@@ -1,4 +1,4 @@
-import type { BandWord } from '#learning/curriculum/BandWord'
+import type { BandWord } from '#learning/curriculum/domain/BandWord'
 import { drawableHeadwordsOf } from './drawableHeadwordsOf'
 
 const HELD_OUT_DIVISOR = 10

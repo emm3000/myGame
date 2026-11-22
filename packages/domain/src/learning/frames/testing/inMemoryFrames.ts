@@ -1,6 +1,6 @@
-import type { WordId } from '../../Lesson'
-import type { FrameToken } from '../FrameToken'
-import type { FrameCatalog } from '../ports/FrameCatalog'
+import type { WordId } from '../../domain/Lesson'
+import type { FrameCatalog } from '../domain/FrameCatalog'
+import type { FrameToken } from '../domain/FrameToken'
 
 export type ResolvedFrame = {
   readonly wordId: WordId

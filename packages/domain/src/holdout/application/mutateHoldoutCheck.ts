@@ -1,6 +1,6 @@
 import { readScaffold } from '#account/application/readScaffold'
 import type { DomainError } from '#DomainError'
-import type { Band } from '#learning/curriculum/Band'
+import type { Band } from '#learning/curriculum/domain/Band'
 import type { PlacementWordCatalog } from '#placement/domain/PlacementWordCatalog'
 import type { Clock } from '#platform/domain/Clock'
 import type { PlayerId } from '#player/PlayerId'

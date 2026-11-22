@@ -1,8 +1,8 @@
 import type { PlayerId } from '#player/PlayerId'
 import { ok } from '#Result'
-import type { HeldCard } from '../HeldCard'
-import type { WordId } from '../Lesson'
-import type { CardRepository } from '../ports/CardRepository'
+import type { CardRepository } from '../domain/CardRepository'
+import type { HeldCard } from '../domain/HeldCard'
+import type { WordId } from '../domain/Lesson'
 
 export type InMemoryCards = CardRepository & {
   heldCardOf(playerId: PlayerId, wordId: WordId): HeldCard | undefined

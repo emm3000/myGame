@@ -1,5 +1,5 @@
 import type { BandStart } from '#holdout/domain/BandStart'
-import type { Scaffold } from '#learning/scaffold/Scaffold'
+import type { Scaffold } from '#learning/scaffold/domain/Scaffold'
 import { askedSampleOf } from './askedSampleOf'
 import type { Placement } from './Placement'
 import type { PlacementView } from './PlacementView'

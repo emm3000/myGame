@@ -1,4 +1,4 @@
-import type { WordId } from '#learning/Lesson'
+import type { WordId } from '#learning/domain/Lesson'
 import type { Instant } from '#time/Instant'
 import type { HoldoutCheckWeek } from './HoldoutCheckWeek'
 

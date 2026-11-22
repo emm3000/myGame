@@ -1,7 +1,7 @@
 import type { DueHoldoutCheck } from '#holdout/domain/DueHoldoutCheck'
-import type { Band } from '#learning/curriculum/Band'
-import type { Text } from '#learning/frames/Text'
-import type { LessonId } from '#learning/Lesson'
+import type { Band } from '#learning/curriculum/domain/Band'
+import type { LessonId } from '#learning/domain/Lesson'
+import type { Text } from '#learning/frames/domain/Text'
 
 export type NextStep =
   | {

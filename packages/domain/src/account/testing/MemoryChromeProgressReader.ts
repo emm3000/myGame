@@ -1,4 +1,4 @@
-import type { LessonId, WordId } from '#learning/Lesson'
+import type { LessonId, WordId } from '#learning/domain/Lesson'
 import type { PlayerId } from '#player/PlayerId'
 import type { Instant } from '#time/Instant'
 import type { ChromeProgress, ChromeProgressReader } from '../domain/ChromeProgressReader'

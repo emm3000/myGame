@@ -1,5 +1,5 @@
-import type { Lesson } from '../../Lesson'
-import type { LessonCatalog } from '../ports/LessonCatalog'
+import type { Lesson } from '../../domain/Lesson'
+import type { LessonCatalog } from '../domain/LessonCatalog'
 
 export const inMemoryLessons = (
   lessons: ReadonlyArray<Lesson>,

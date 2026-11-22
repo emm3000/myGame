@@ -1,4 +1,4 @@
-import type { Scaffold } from '#learning/scaffold/Scaffold'
+import type { Scaffold } from '#learning/scaffold/domain/Scaffold'
 import type { PlayerId } from '#player/PlayerId'
 import type { Instant } from '#time/Instant'
 import type { StoredScaffold } from './StoredScaffold'

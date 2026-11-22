@@ -1,5 +1,5 @@
 import type { DomainError } from '#DomainError'
-import type { Scaffold } from '#learning/scaffold/Scaffold'
+import type { Scaffold } from '#learning/scaffold/domain/Scaffold'
 import type { PlacementWordCatalog } from '#placement/domain/PlacementWordCatalog'
 import type { Clock } from '#platform/domain/Clock'
 import type { PlayerId } from '#player/PlayerId'

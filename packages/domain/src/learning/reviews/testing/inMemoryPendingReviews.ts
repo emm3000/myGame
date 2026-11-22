@@ -1,8 +1,8 @@
 import type { PlayerId } from '#player/PlayerId'
 import { ok } from '#Result'
-import type { WordId } from '../../Lesson'
-import type { PendingReview } from '../PendingReview'
-import type { PendingReviewRepository } from '../ports/PendingReviewRepository'
+import type { WordId } from '../../domain/Lesson'
+import type { PendingReview } from '../domain/PendingReview'
+import type { PendingReviewRepository } from '../domain/PendingReviewRepository'
 
 export const inMemoryPendingReviews = (): PendingReviewRepository => {
   const pendingByPlayer = new Map<PlayerId, Map<WordId, PendingReview>>()

@@ -1,6 +1,12 @@
 import { join } from 'node:path'
 import type { OpenAPIHono } from '@hono/zod-openapi'
-import type { LessonLibrary, ReadOnlyTowns, TownNewsReader, TownReader } from '@mygame/domain'
+import type {
+  CardReader,
+  LessonLibrary,
+  ReadOnlyTowns,
+  TownNewsReader,
+  TownReader,
+} from '@mygame/domain'
 import {
   type Accounts,
   type AfterResponse,
@@ -32,7 +38,6 @@ import { Argon2PasswordHasher } from '#account/infrastructure/system/Argon2Passw
 import { CryptoSessionTokens } from '#account/infrastructure/system/CryptoSessionTokens'
 import { JsonTownCatalog } from '#content/infrastructure/json/JsonTownCatalog'
 import { readJsonLessonLibrary } from '#content/infrastructure/json/readJsonLessonLibrary'
-import type { CardReader } from '#learning/application/ports/CardReader'
 import { DrizzleCardRepository } from '#learning/infrastructure/persistence/DrizzleCardRepository'
 import { connectPostgres } from '#platform/infrastructure/persistence/connectPostgres'
 import { DrizzleUnitOfWork } from '#platform/infrastructure/persistence/DrizzleUnitOfWork'

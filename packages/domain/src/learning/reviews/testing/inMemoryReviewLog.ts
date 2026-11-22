@@ -1,6 +1,6 @@
 import { ok } from '#Result'
-import type { ReviewLog } from '../ports/ReviewLog'
-import type { ReviewLogEntry } from '../ReviewLogEntry'
+import type { ReviewLog } from '../domain/ReviewLog'
+import type { ReviewLogEntry } from '../domain/ReviewLogEntry'
 
 export type InMemoryReviewLog = ReviewLog & {
   entries(): ReadonlyArray<ReviewLogEntry>

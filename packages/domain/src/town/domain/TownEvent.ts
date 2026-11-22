@@ -1,4 +1,4 @@
-import type { LessonId } from '#learning/Lesson'
+import type { LessonId } from '#learning/domain/Lesson'
 import type { Instant } from '#time/Instant'
 import type { BuildingKind } from '../building/domain/BuildingKind'
 import type { HireKind } from '../hiring/domain/HireKind'
