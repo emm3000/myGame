@@ -378,7 +378,12 @@ class ReportRepositoryTest {
         assertEquals(TownNewsReadResult.Unreachable, repository.news())
     }
 
-    private suspend fun TestScope.read(): TownReport = (reports().read() as ReportReadResult.Read).report
+    private suspend fun TestScope.read(): TownReport =
+        when (val answer: ReportReadResult = reports().read()) {
+            is ReportReadResult.Read -> answer.report
+            ReportReadResult.Unreachable ->
+                throw AssertionError("expected ReportReadResult.Read, the repository answered $answer")
+        }
 
     private fun TestScope.reports(): ReportRepository {
         val store: TokenStore = TokenStore(file = File(folder.root, "session"), cipher = FakeTokenCipher())
