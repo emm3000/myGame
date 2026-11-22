@@ -10,7 +10,9 @@ import {
 import { drizzle } from 'drizzle-orm/node-postgres'
 import { afterAll, assert, beforeAll, describe, expect, it } from 'vitest'
 import { DrizzleAccounts } from '#account/infrastructure/persistence/DrizzleAccounts'
+import { DrizzleGuidanceDismissals } from './DrizzleGuidanceDismissals'
 import { DrizzleLessonSlotRepository } from './DrizzleLessonSlotRepository'
+import { DrizzleSeenTips } from './DrizzleSeenTips'
 import { DrizzleTownReader } from './DrizzleTownReader'
 import { DrizzleTownRepository } from './DrizzleTownRepository'
 import { townReaderContract } from './townReaderContract.testSupport'
@@ -187,8 +189,23 @@ townReaderContract('DrizzleTownReader', async () => {
   const session = drizzle(pool())
   return {
     reader: new DrizzleTownReader(session),
+    accounts: new DrizzleAccounts(session),
     towns: new DrizzleTownRepository(session, 'lockFree'),
     lessonSlots: new DrizzleLessonSlotRepository(session),
+    recordPlacementScores: async (playerId, scores) => {
+      await pool().query(
+        "INSERT INTO placements (player_id, kind, decided_at) VALUES ($1, 'taken', '2026-11-10T08:10:00Z')",
+        [playerId],
+      )
+      for (const { band, score, takenAt } of scores) {
+        await pool().query(
+          'INSERT INTO placement_scores (player_id, band, score, taken_at) VALUES ($1, $2, $3, $4)',
+          [playerId, band, score, new Date(takenAt.epochMilliseconds).toISOString()],
+        )
+      }
+    },
+    guidanceDismissals: new DrizzleGuidanceDismissals(session),
+    seenTips: new DrizzleSeenTips(session),
     registerPlayers,
   }
 })
