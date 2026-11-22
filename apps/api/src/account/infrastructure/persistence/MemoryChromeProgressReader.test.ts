@@ -1,5 +1,5 @@
+import { MemoryChromeProgressReader } from '@mygame/domain/testing'
 import { chromeProgressReaderContract } from './chromeProgressReaderContract.testSupport'
-import { MemoryChromeProgressReader } from './MemoryChromeProgressReader'
 
 chromeProgressReaderContract('MemoryChromeProgressReader', async () => {
   const progress = new MemoryChromeProgressReader()

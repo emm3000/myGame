@@ -1,4 +1,4 @@
-import { MemoryMailer } from './MemoryMailer'
+import { MemoryMailer } from '@mygame/domain/testing'
 import { mailerContract } from './mailerContract.testSupport'
 
 mailerContract('MemoryMailer', async () => {

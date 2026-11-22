@@ -1,5 +1,5 @@
-import { Instant } from '@mygame/domain'
-import type { AccountTokenKind } from './ports/AccountTokens'
+import { Instant } from '#time/Instant'
+import type { AccountTokenKind } from './AccountTokens'
 
 const millisecondsPerHour = 60 * 60 * 1_000
 

@@ -1,4 +1,4 @@
-import type { Mail, MailDelivery, Mailer } from '../../application/ports/Mailer'
+import type { Mail, MailDelivery, Mailer } from '../domain/Mailer'
 
 export class MemoryMailer implements Mailer {
   private readonly sent: Array<Mail> = []

@@ -1,6 +1,13 @@
-import { type Clock, err, ok, type Refusal, type Result, type UnitOfWork } from '@mygame/domain'
-import type { AccountStores } from './ports/AccountStores'
-import type { PasswordHasher } from './ports/PasswordHasher'
+import {
+  type AccountStores,
+  type Clock,
+  err,
+  ok,
+  type PasswordHasher,
+  type Refusal,
+  type Result,
+  type UnitOfWork,
+} from '@mygame/domain'
 
 export type ResetPasswordDependencies = {
   readonly unitOfWork: UnitOfWork<AccountStores>

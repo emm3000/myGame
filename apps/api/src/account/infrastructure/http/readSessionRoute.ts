@@ -1,7 +1,7 @@
 import { createRoute, type OpenAPIHono } from '@hono/zod-openapi'
+import type { Accounts } from '@mygame/domain'
 import { respondRefusal } from '#platform/infrastructure/http/respondRefusal'
 import { signedInDeclaration } from '#platform/infrastructure/http/signedInDeclaration'
-import type { Accounts } from '../../application/ports/Accounts'
 import {
   type ReadChromePhaseDependencies,
   readChromePhase,

@@ -1,4 +1,4 @@
-import type { Mail } from '../../application/ports/Mailer'
+import type { Mail } from '@mygame/domain'
 
 type MailpitAddress = {
   readonly Address: string

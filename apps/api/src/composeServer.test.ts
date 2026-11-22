@@ -2,6 +2,7 @@ import { cpSync, mkdtempSync, readFileSync, rmSync, writeFileSync } from 'node:f
 import { tmpdir } from 'node:os'
 import { join } from 'node:path'
 import {
+  type AccountToken,
   type DomainError,
   err,
   foundTown,
@@ -16,7 +17,6 @@ import {
 } from '@mygame/domain'
 import { Client } from 'pg'
 import { afterAll, assert, beforeAll, describe, expect, it } from 'vitest'
-import type { AccountToken } from '#account/application/ports/AccountTokens'
 import { JsonTownCatalog } from '#content/infrastructure/json/JsonTownCatalog'
 import { apiPackagePath } from './apiPackagePath.testSupport'
 import { type ComposedServer, composeServer } from './composeServer'

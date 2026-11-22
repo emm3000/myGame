@@ -1,6 +1,6 @@
 import { createRoute, type OpenAPIHono } from '@hono/zod-openapi'
+import type { Sessions } from '@mygame/domain'
 import { signedInDeclaration } from '#platform/infrastructure/http/signedInDeclaration'
-import type { Sessions } from '../../application/ports/Sessions'
 import { type RequirePlayerDependencies, requirePlayer } from './requirePlayer'
 import { clearSessionCookie } from './sessionCookie'
 

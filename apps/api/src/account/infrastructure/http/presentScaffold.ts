@@ -1,5 +1,5 @@
 import type { Player } from '@mygame/contracts'
-import type { StoredScaffold } from '../../application/ports/StoredScaffold'
+import type { StoredScaffold } from '@mygame/domain'
 
 export const presentScaffold = ({
   scaffold,

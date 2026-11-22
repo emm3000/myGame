@@ -2,7 +2,7 @@ import { drizzle } from 'drizzle-orm/node-postgres'
 import { Pool } from 'pg'
 import { afterAll, beforeAll } from 'vitest'
 import { truncatePlayerTables } from '#truncatePlayerTables.testSupport'
-import { chromeProgressReaderContract } from '../memory/chromeProgressReaderContract.testSupport'
+import { chromeProgressReaderContract } from './chromeProgressReaderContract.testSupport'
 import { DrizzleChromeProgressReader } from './DrizzleChromeProgressReader'
 
 function databaseUrl(): string {

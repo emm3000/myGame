@@ -1,6 +1,6 @@
+import type { Mail, MailDelivery, Mailer } from '@mygame/domain'
 import { createTransport } from 'nodemailer'
 import SMTPTransport from 'nodemailer/lib/smtp-transport'
-import type { Mail, MailDelivery, Mailer } from '../../application/ports/Mailer'
 
 const timeoutMilliseconds = {
   connectionTimeout: 3000,

@@ -1,13 +1,14 @@
 import {
   type ChromePhase,
+  type ChromeProgress,
+  type ChromeProgressReader,
   type Clock,
   chromePhaseOf,
   isLessonFinishedBy,
   type Lesson,
   type LessonCatalog,
+  type StoredPlayer,
 } from '@mygame/domain'
-import type { StoredPlayer } from './ports/Accounts'
-import type { ChromeProgress, ChromeProgressReader } from './ports/ChromeProgressReader'
 
 export type ReadChromePhaseDependencies = {
   readonly chromeProgress: ChromeProgressReader

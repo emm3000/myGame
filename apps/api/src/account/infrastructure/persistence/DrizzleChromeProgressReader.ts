@@ -1,13 +1,14 @@
-import { Instant, type PlayerId } from '@mygame/domain'
+import {
+  type ChromeProgress,
+  type ChromeProgressReader,
+  Instant,
+  type PlayerId,
+} from '@mygame/domain'
 import { eq, sql } from 'drizzle-orm'
 import { cards } from '#learning/infrastructure/persistence/learningTables'
 import type { PostgresSession } from '#platform/infrastructure/persistence/connectPostgres'
 import { earnedSkills, townLessonSlots } from '#town/infrastructure/persistence/schoolTables'
 import { towns } from '#town/infrastructure/persistence/townTables'
-import type {
-  ChromeProgress,
-  ChromeProgressReader,
-} from '../../application/ports/ChromeProgressReader'
 import { players } from './accountTables'
 
 export class DrizzleChromeProgressReader implements ChromeProgressReader {

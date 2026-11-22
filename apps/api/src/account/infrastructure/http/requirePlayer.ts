@@ -1,10 +1,8 @@
-import type { Clock, PlayerId } from '@mygame/domain'
+import { type Clock, type PlayerId, type Sessions, sessionExpiryFrom } from '@mygame/domain'
 import { createMiddleware } from 'hono/factory'
 import type { MiddlewareHandler } from 'hono/types'
 import { readBearerToken } from '#platform/infrastructure/http/bearerToken'
 import { respondRefusal } from '#platform/infrastructure/http/respondRefusal'
-import type { Sessions } from '../../application/ports/Sessions'
-import { sessionExpiryFrom } from '../../application/sessionExpiryFrom'
 import { readSessionCookie, writeSessionCookie } from './sessionCookie'
 
 export type SignedInPlayer = {

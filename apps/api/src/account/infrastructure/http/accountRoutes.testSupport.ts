@@ -1,5 +1,6 @@
 import { type ChromePhase, PlayerSchema } from '@mygame/contracts'
-import { type Clock, Instant } from '@mygame/domain'
+import { type Clock, Instant, type Mail } from '@mygame/domain'
+import type { MemoryMailer } from '@mygame/domain/testing'
 import { Client } from 'pg'
 import { expect } from 'vitest'
 import { apiPackagePath } from '#apiPackagePath.testSupport'
@@ -7,8 +8,6 @@ import type { createApp } from '#app'
 import type { ComposedServer } from '#composeServer'
 import { mailEnvironment } from '#composeServer.testSupport'
 import { truncatePlayerTables } from '#truncatePlayerTables.testSupport'
-import type { Mail } from '../../application/ports/Mailer'
-import type { MemoryMailer } from '../memory/MemoryMailer'
 
 export const contentDirectory = apiPackagePath('content/')
 

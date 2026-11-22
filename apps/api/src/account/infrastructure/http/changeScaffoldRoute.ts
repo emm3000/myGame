@@ -1,5 +1,6 @@
 import { createRoute, type OpenAPIHono } from '@hono/zod-openapi'
 import { ScaffoldChangeSchema } from '@mygame/contracts'
+import type { Accounts } from '@mygame/domain'
 import { readJsonBody } from '#platform/infrastructure/http/readJsonBody'
 import { respondRefusal } from '#platform/infrastructure/http/respondRefusal'
 import {
@@ -8,7 +9,6 @@ import {
   malformedResponse,
 } from '#platform/infrastructure/http/responseDeclarations'
 import { signedInDeclaration } from '#platform/infrastructure/http/signedInDeclaration'
-import type { Accounts } from '../../application/ports/Accounts'
 import {
   type ReadChromePhaseDependencies,
   readChromePhase,

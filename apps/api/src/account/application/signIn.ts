@@ -1,10 +1,16 @@
-import { type Clock, err, ok, type Refusal, type Result } from '@mygame/domain'
+import {
+  type Accounts,
+  type Clock,
+  err,
+  ok,
+  type PasswordHasher,
+  type Refusal,
+  type Result,
+  type Sessions,
+  type SessionTokens,
+  type SignedIn,
+} from '@mygame/domain'
 import { openSession } from './openSession'
-import type { Accounts } from './ports/Accounts'
-import type { PasswordHasher } from './ports/PasswordHasher'
-import type { Sessions } from './ports/Sessions'
-import type { SessionTokens } from './ports/SessionTokens'
-import type { SignedIn } from './SignedIn'
 
 export type SignInDependencies = {
   readonly accounts: Accounts

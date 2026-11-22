@@ -1,10 +1,7 @@
-import type { Instant, PlayerId } from '@mygame/domain'
-import { isRedeemableAgain } from '../../application/isRedeemableAgain'
-import type {
-  AccountToken,
-  AccountTokenKind,
-  AccountTokens,
-} from '../../application/ports/AccountTokens'
+import type { PlayerId } from '#player/PlayerId'
+import type { Instant } from '#time/Instant'
+import type { AccountToken, AccountTokenKind, AccountTokens } from '../domain/AccountTokens'
+import { isRedeemableAgain } from '../domain/isRedeemableAgain'
 
 type StoredToken = {
   readonly playerId: PlayerId

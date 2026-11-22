@@ -1,6 +1,6 @@
 import { randomBytes } from 'node:crypto'
+import type { PasswordHasher } from '@mygame/domain'
 import { hash, type Options, verify } from '@node-rs/argon2'
-import type { PasswordHasher } from '../../application/ports/PasswordHasher'
 
 const decoyPasswordBytes = 32
 

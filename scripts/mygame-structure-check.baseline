@@ -46,7 +46,6 @@ file_outside_layer packages/domain/src/town/school/services
 file_outside_layer packages/domain/src/town/school/useCases
 file_outside_layer packages/domain/src/town/services
 file_outside_layer packages/domain/src/town/useCases
-role_folder apps/api/src/account/infrastructure/memory
 role_folder apps/api/src/holdout/infrastructure/memory
 role_folder apps/api/src/learning/infrastructure/memory
 role_folder apps/api/src/placement/infrastructure/memory

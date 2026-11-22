@@ -1,16 +1,16 @@
 import {
+  type AccountStores,
   type Clock,
   err,
+  type MailRecipient,
   ok,
   type PlayerId,
   type Refusal,
   type Result,
+  type SessionTokens,
   type UnitOfWork,
 } from '@mygame/domain'
 import { issueAccountToken } from './issueAccountToken'
-import type { MailRecipient } from './MailRecipient'
-import type { AccountStores } from './ports/AccountStores'
-import type { SessionTokens } from './ports/SessionTokens'
 import { type SendVerificationMailDependencies, sendVerificationMail } from './sendVerificationMail'
 
 export type ResendVerificationMailDependencies = SendVerificationMailDependencies & {

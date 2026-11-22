@@ -1,7 +1,7 @@
 import { createServer, type IncomingMessage } from 'node:http'
 import type { AddressInfo } from 'node:net'
+import type { Mail } from '@mygame/domain'
 import { beforeEach, describe, expect, it } from 'vitest'
-import type { Mail } from '../../application/ports/Mailer'
 import { deleteMailTo, deliveredTo } from './mailpit.testSupport'
 import { SmtpMailer } from './SmtpMailer'
 
