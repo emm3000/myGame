@@ -10,7 +10,7 @@ import type {
 } from '../../application/ports/ChromeProgressReader'
 import { players } from './accountTables'
 
-export class DrizzleChromeProgress implements ChromeProgressReader {
+export class DrizzleChromeProgressReader implements ChromeProgressReader {
   constructor(private readonly database: PostgresSession) {}
 
   async chromeProgressOf(playerId: PlayerId): Promise<ChromeProgress | undefined> {

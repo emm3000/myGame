@@ -3,7 +3,7 @@ import { Pool } from 'pg'
 import { afterAll, beforeAll } from 'vitest'
 import { truncatePlayerTables } from '#truncatePlayerTables.testSupport'
 import { lessonSlotRepositoryContract } from '../memory/lessonSlotRepositoryContract.testSupport'
-import { DrizzleLessonSlots } from './DrizzleLessonSlotRepository'
+import { DrizzleLessonSlotRepository } from './DrizzleLessonSlotRepository'
 
 function databaseUrl(): string {
   const url = process.env.DATABASE_URL
@@ -39,7 +39,7 @@ const registerTowns = async (townIds: ReadonlyArray<string>): Promise<void> => {
   }
 }
 
-lessonSlotRepositoryContract('DrizzleLessonSlots', async () => {
+lessonSlotRepositoryContract('DrizzleLessonSlotRepository', async () => {
   await pool.query(truncatePlayerTables)
-  return { lessonSlots: new DrizzleLessonSlots(drizzle(pool)), registerTowns }
+  return { lessonSlots: new DrizzleLessonSlotRepository(drizzle(pool)), registerTowns }
 })

@@ -3,7 +3,7 @@ import { and, asc, eq, max } from 'drizzle-orm'
 import type { PostgresSession } from '#platform/infrastructure/postgres/connectPostgres'
 import { towns } from './townTables'
 
-export class DrizzleRegionMap implements RegionMapReader {
+export class DrizzleRegionMapReader implements RegionMapReader {
   constructor(private readonly database: PostgresSession) {}
 
   async addressOf(playerId: PlayerId): Promise<SiteAddress | undefined> {

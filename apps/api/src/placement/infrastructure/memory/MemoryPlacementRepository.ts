@@ -17,7 +17,7 @@ const withNewScores = (stored: Placement, saved: Placement): Placement => {
   return { ...stored, scores: [...stored.scores, ...newScores] }
 }
 
-export class MemoryPlacements implements PlacementRepository {
+export class MemoryPlacementRepository implements PlacementRepository {
   private readonly placements = new Map<PlayerId, Placement>()
 
   async placementOf(playerId: PlayerId): Promise<Result<Placement | undefined, DomainError>> {

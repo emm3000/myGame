@@ -11,7 +11,7 @@ import { asc, eq, sql } from 'drizzle-orm'
 import type { PostgresSession } from '#platform/infrastructure/postgres/connectPostgres'
 import { earnedSkills } from './schoolTables'
 
-export class DrizzleEarnedSkills implements EarnedSkillRepository {
+export class DrizzleEarnedSkillRepository implements EarnedSkillRepository {
   constructor(private readonly database: PostgresSession) {}
 
   async skillsOf(playerId: PlayerId): Promise<Result<ReadonlyArray<TownSkill>, DomainError>> {

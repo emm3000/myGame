@@ -1,7 +1,7 @@
 import { drizzle } from 'drizzle-orm/node-postgres'
 import { afterAll, beforeAll } from 'vitest'
 import { townRepositoryContract } from '../memory/townRepositoryContract.testSupport'
-import { DrizzleEarnedSkills } from './DrizzleEarnedSkillRepository'
+import { DrizzleEarnedSkillRepository } from './DrizzleEarnedSkillRepository'
 import { DrizzleTownRepository } from './DrizzleTownRepository'
 import { townTestDatabase } from './townTestDatabase.testSupport'
 
@@ -15,7 +15,7 @@ townRepositoryContract('DrizzleTownRepository', async () => {
   await truncateAll()
   return {
     towns: new DrizzleTownRepository(drizzle(pool()), 'lockFree'),
-    skills: new DrizzleEarnedSkills(drizzle(pool())),
+    skills: new DrizzleEarnedSkillRepository(drizzle(pool())),
     registerPlayers,
   }
 })

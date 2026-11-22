@@ -1,4 +1,7 @@
-import { MemoryRegionMap } from './MemoryRegionMapReader'
-import { regionMapContract } from './regionMapReaderContract.testSupport'
+import { MemoryRegionMapReader } from './MemoryRegionMapReader'
+import { regionMapReaderContract } from './regionMapReaderContract.testSupport'
 
-regionMapContract('MemoryRegionMap', async (heldTowns) => new MemoryRegionMap(heldTowns))
+regionMapReaderContract(
+  'MemoryRegionMapReader',
+  async (heldTowns) => new MemoryRegionMapReader(heldTowns),
+)

@@ -16,7 +16,7 @@ const bruno = '00000000-0000-4000-8000-000000000002'
 
 const finishesAt = Instant.fromEpochMilliseconds(Date.parse('2026-11-12T09:00:00Z'))
 
-export const chromeProgressContract = (
+export const chromeProgressReaderContract = (
   adapter: string,
   arrange: () => Promise<ChromeProgressFixture>,
 ): void => {

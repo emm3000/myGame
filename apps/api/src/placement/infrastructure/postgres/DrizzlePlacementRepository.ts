@@ -28,7 +28,7 @@ const samplesOf = (rows: ReadonlyArray<WordRow>): ReadonlyArray<PlacementSample>
   }))
 }
 
-export class DrizzlePlacements implements PlacementRepository {
+export class DrizzlePlacementRepository implements PlacementRepository {
   constructor(private readonly database: PostgresSession) {}
 
   async placementOf(playerId: PlayerId): Promise<Result<Placement | undefined, DomainError>> {

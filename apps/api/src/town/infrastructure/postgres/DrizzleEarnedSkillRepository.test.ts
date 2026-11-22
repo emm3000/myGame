@@ -4,7 +4,7 @@ import { afterAll, beforeAll } from 'vitest'
 import { players } from '#account/infrastructure/postgres/accountTables'
 import { truncatePlayerTables } from '#truncatePlayerTables.testSupport'
 import { earnedSkillRepositoryContract } from '../memory/earnedSkillRepositoryContract.testSupport'
-import { DrizzleEarnedSkills } from './DrizzleEarnedSkillRepository'
+import { DrizzleEarnedSkillRepository } from './DrizzleEarnedSkillRepository'
 
 function databaseUrl(): string {
   const url = process.env.DATABASE_URL
@@ -43,7 +43,7 @@ const registerPlayers = async (playerIds: ReadonlyArray<string>): Promise<void> 
     )
 }
 
-earnedSkillRepositoryContract('DrizzleEarnedSkills', async () => {
+earnedSkillRepositoryContract('DrizzleEarnedSkillRepository', async () => {
   await pool.query(truncatePlayerTables)
-  return { skills: new DrizzleEarnedSkills(drizzle(pool)), registerPlayers }
+  return { skills: new DrizzleEarnedSkillRepository(drizzle(pool)), registerPlayers }
 })

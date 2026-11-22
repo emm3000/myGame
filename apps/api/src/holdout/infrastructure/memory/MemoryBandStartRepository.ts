@@ -9,7 +9,7 @@ import {
   type Result,
 } from '@mygame/domain'
 
-export class MemoryBandStarts implements BandStartRepository {
+export class MemoryBandStartRepository implements BandStartRepository {
   private readonly starts = new Map<PlayerId, ReadonlyArray<BandStart>>()
 
   async bandStartsOf(playerId: PlayerId): Promise<Result<ReadonlyArray<BandStart>, DomainError>> {

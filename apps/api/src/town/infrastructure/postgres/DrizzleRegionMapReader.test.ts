@@ -3,8 +3,8 @@ import { Pool } from 'pg'
 import { afterAll, assert, beforeAll } from 'vitest'
 import { players } from '#account/infrastructure/postgres/accountTables'
 import { truncatePlayerTables } from '#truncatePlayerTables.testSupport'
-import { regionMapContract } from '../memory/regionMapReaderContract.testSupport'
-import { DrizzleRegionMap } from './DrizzleRegionMapReader'
+import { regionMapReaderContract } from '../memory/regionMapReaderContract.testSupport'
+import { DrizzleRegionMapReader } from './DrizzleRegionMapReader'
 import { DrizzleTownRepository } from './DrizzleTownRepository'
 
 function databaseUrl(): string {
@@ -29,7 +29,7 @@ const emptyDatabase = async (): Promise<void> => {
   await pool.query(truncatePlayerTables)
 }
 
-regionMapContract('DrizzleRegionMap', async (heldTowns) => {
+regionMapReaderContract('DrizzleRegionMapReader', async (heldTowns) => {
   await emptyDatabase()
   const database = drizzle(pool)
   const townRepository = new DrizzleTownRepository(database, 'lockFree')
@@ -44,5 +44,5 @@ regionMapContract('DrizzleRegionMap', async (heldTowns) => {
     })
     assert((await townRepository.save(town)).ok)
   }
-  return new DrizzleRegionMap(database)
+  return new DrizzleRegionMapReader(database)
 })

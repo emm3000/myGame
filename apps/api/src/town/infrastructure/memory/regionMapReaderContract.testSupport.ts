@@ -40,7 +40,7 @@ const oakRidge = townAt('00000000-0000-4000-8000-00000000000d', dario, 'Oak Ridg
 
 const regionTowns = [mapleFalls, cedarBend, pineHollow, oakRidge]
 
-export const regionMapContract = (
+export const regionMapReaderContract = (
   adapterName: string,
   arrange: (heldTowns: ReadonlyArray<Town>) => Promise<RegionMapReader>,
 ): void => {

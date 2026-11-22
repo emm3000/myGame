@@ -4,7 +4,7 @@ import { afterAll, beforeAll } from 'vitest'
 import { players } from '#account/infrastructure/postgres/accountTables'
 import { truncatePlayerTables } from '#truncatePlayerTables.testSupport'
 import { placementRepositoryContract } from '../memory/placementRepositoryContract.testSupport'
-import { DrizzlePlacements } from './DrizzlePlacementRepository'
+import { DrizzlePlacementRepository } from './DrizzlePlacementRepository'
 
 function databaseUrl(): string {
   const url = process.env.DATABASE_URL
@@ -43,7 +43,7 @@ const registerPlayers = async (playerIds: ReadonlyArray<string>): Promise<void> 
     )
 }
 
-placementRepositoryContract('DrizzlePlacements', async () => {
+placementRepositoryContract('DrizzlePlacementRepository', async () => {
   await pool.query(truncatePlayerTables)
-  return { placements: new DrizzlePlacements(drizzle(pool)), registerPlayers }
+  return { placements: new DrizzlePlacementRepository(drizzle(pool)), registerPlayers }
 })
