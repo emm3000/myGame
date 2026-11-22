@@ -11,9 +11,8 @@ import { Instant } from '#time/Instant'
 import type { BuildingLevel } from '#town/building/BuildingLevel'
 import type { WorkSlot } from '#town/building/BuildingWork'
 import type { EarnedSkillRepository } from '#town/ports/EarnedSkillRepository'
-import type { TownRepository } from '#town/ports/TownRepository'
 import { accrueTown } from '#town/resources/accrueTown'
-import { Town } from '#town/Town'
+import type { Town } from '#town/Town'
 import type { TownSkill } from '#town/TownSkill'
 import { inMemoryEarnedSkills } from '#town/testing/inMemoryEarnedSkills'
 import { type InMemoryTownNews, inMemoryTownNews } from '#town/testing/inMemoryTownNews'
@@ -234,35 +233,6 @@ export const foodAt = (town: Town | undefined, at: Instant): number => {
   assert(accrual.ok)
   return accrual.value.stocks.food
 }
-
-export const townsLoadingSkillsFrom = (
-  towns: InMemoryTowns,
-  skills: EarnedSkillRepository,
-): TownRepository => ({
-  ...towns,
-  townOf: async (playerId) => {
-    const stored = towns.storedTownOf(playerId)
-    const earned = await skills.skillsOf(playerId)
-    assert(stored !== undefined && earned.ok)
-    const { id, name, address, stocks, storedAt, fullSince, buildingLevels } = stored
-    return Town.restore({
-      id,
-      playerId,
-      name,
-      address,
-      stocks,
-      storedAt,
-      fullSince,
-      buildingLevels,
-      workSlot: stored.workSlot,
-      waitingList: stored.waitingList,
-      skills: earned.value,
-      hires: stored.hires,
-      hiringSlot: stored.hiringSlot,
-      jobSlot: stored.jobSlot,
-    })
-  },
-})
 
 export const factoryFinishedAt = (finishesAt: Instant, startedAt: Instant): WorkSlot => ({
   kind: 'busy',

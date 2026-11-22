@@ -21,7 +21,6 @@ import {
   retainedExceptSchool,
   schoolReleasedAt,
   skillsOf,
-  townsLoadingSkillsFrom,
 } from '../testing/answerReviewFixtures'
 import { answerReview } from './answerReview'
 
@@ -254,16 +253,13 @@ describe('answerReview', () => {
   })
 
   it('re-bases a town whose store loads the earned skills with it', async () => {
-    const { towns, skills, dependencies } = arrange(
+    const { towns, dependencies } = arrange(
       retainedExceptSchool(firstRecallDoneCard),
       lastRecallAt,
       [farmingTownStoredAt(hoursAfter(lastRecallAt, -5))],
     )
 
-    await answerReview(
-      { playerId: learner, wordId: 'school', answer: 'school' },
-      { ...dependencies, towns: townsLoadingSkillsFrom(towns, skills) },
-    )
+    await answerReview({ playerId: learner, wordId: 'school', answer: 'school' }, dependencies)
 
     const earnedTown = towns.storedTownOf(learner)
     expect(earnedTown?.skills).toEqual([earnedFoodSkill])
