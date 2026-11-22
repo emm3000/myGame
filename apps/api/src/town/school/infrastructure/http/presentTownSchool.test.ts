@@ -14,7 +14,7 @@ import { apiPackagePath } from '#apiPackagePath.testSupport'
 import { JsonTownCatalog } from '#content/infrastructure/json/JsonTownCatalog'
 import { readJsonLessonLibrary } from '#content/infrastructure/json/readJsonLessonLibrary'
 import type { TownReading } from '../../../application/TownReading'
-import { presentTownSchool } from './presentTownSchool'
+import { gatherSchoolView } from '../../application/gatherSchoolView'
 
 const contentDirectory = apiPackagePath('content/')
 
@@ -67,19 +67,13 @@ const readingWith = (cards: ReadonlyArray<HeldCard>): TownReading => ({
   scaffoldVersion: 1,
 })
 
-describe('presentTownSchool', () => {
+describe('gatherSchoolView', () => {
   it('passes up the refusal of the next instant a card in learning is due', () => {
     const strayStepReading = readingWith([learningCardAtStrayStep()])
 
-    const overview = presentTownSchool(
-      strayStepReading,
-      townCatalog,
-      lessons,
-      [],
-      defaultMemoryTerms,
-    )
+    const view = gatherSchoolView(strayStepReading, townCatalog, lessons, defaultMemoryTerms)
 
-    expect(overview).toEqual({
+    expect(view).toEqual({
       ok: false,
       error: { kind: 'UnknownMemoryStep', state: 'learning', step: 9 },
     })

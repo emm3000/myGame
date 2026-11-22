@@ -21,7 +21,7 @@ export const respondTownReading = (
   if (!reading.ok) {
     return respondRefusal(c, reading.error)
   }
-  const view = gatherTownView(reading.value, townCatalog)
+  const view = gatherTownView(reading.value, townCatalog, lessons, memoryTerms)
   if (!view.ok) {
     return respondRefusal(c, view.error)
   }

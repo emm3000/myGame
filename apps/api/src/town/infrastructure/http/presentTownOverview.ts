@@ -72,10 +72,6 @@ export const presentTownOverview = (
     lessons,
     bands: lessons,
   })
-  const school = presentTownSchool(reading, catalog, lessons, released, memoryTerms)
-  if (!school.ok) {
-    return school
-  }
   const guidance = presentTownGuidance(reading, released, catalog, lessons, memoryTerms)
   if (!guidance.ok) {
     return guidance
@@ -97,7 +93,7 @@ export const presentTownOverview = (
     work: presentTownWork(view.work),
     hiring: presentTownHiring(reading, catalog),
     job: presentTownJob(town, at),
-    ...school.value,
+    ...presentTownSchool(view.school),
     dueHoldoutChecks: dueHoldoutChecksOf(reading.bandStarts, at).map(({ band, week }) => ({
       band,
       week,
