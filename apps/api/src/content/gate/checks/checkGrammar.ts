@@ -1,56 +1,19 @@
-import { headwordOf } from '@mygame/domain'
 import { readingOf } from '../../infrastructure/json/readingOf'
-import { type ReadingTerms, readingTermsOf } from '../../infrastructure/json/readingTermsOf'
 import type { LexiconEntry } from '../../infrastructure/json/readLessonContentFiles'
-import type { HaveBefore, IrregularForms } from '../CardWordFormContext'
+import type { HaveBefore } from '../CardWordFormContext'
 import { cardWordFormOf } from '../cardWordFormOf'
-import { clauseLinkingStructures } from '../clauseLinkingStructures'
-import { frameWordAdmissionsOf } from '../frameWordAdmissionsOf'
 import type { GateContent } from '../GateContent'
 import { type GrammarPassage, grammarPassagesOf } from '../grammarPassagesOf'
+import { type GrammarTerms, grammarTermsOf } from '../grammarTermsOf'
 import { haveBeforeOf, type SubjectWords } from '../haveBeforeOf'
 import { inventoryFailuresOf } from '../inventoryFailuresOf'
-import { lessonPositionOf } from '../lessonPositionOf'
 import { subjectPronouns } from '../subjectPronouns'
-
-type GrammarTerms = {
-  readonly reading: ReadingTerms
-  readonly frameWordsAdmittedAt: ReadonlyMap<string, number>
-  readonly clauseLinkingWords: ReadonlySet<string>
-  readonly inflectionsAdmittedAt: ReadonlyMap<string, number>
-  readonly cardWords: ReadonlyMap<string, LexiconEntry>
-  readonly irregularVerbs: ReadonlyMap<string, IrregularForms>
-}
 
 type PassageToken = {
   readonly token: string
   readonly previous: string | undefined
   readonly next: string | undefined
   readonly haveBefore: HaveBefore
-}
-
-const termsOf = (content: GateContent): GrammarTerms => {
-  const positionOf = (lessonId: string): number => lessonPositionOf(content.curriculum, lessonId)
-  return {
-    reading: readingTermsOf(content),
-    frameWordsAdmittedAt: frameWordAdmissionsOf(content),
-    clauseLinkingWords: new Set(
-      content.grammar.structures
-        .filter(({ name }) => clauseLinkingStructures.has(name))
-        .flatMap(({ frameWords }) => frameWords.map((word) => headwordOf(word))),
-    ),
-    inflectionsAdmittedAt: new Map(
-      content.grammar.structures.flatMap(({ inflections, admittingLessonId }) =>
-        inflections.map((inflection) => [inflection, positionOf(admittingLessonId)] as const),
-      ),
-    ),
-    cardWords: new Map(content.lexicon.map((entry) => [entry.lemma, entry])),
-    irregularVerbs: new Map(
-      content.grammar.irregularVerbs.map(
-        ({ lemma, past, pastParticiple }) => [lemma, { past, pastParticiple }] as const,
-      ),
-    ),
-  }
 }
 
 const isAdmittedBy = (admittedAt: number | undefined, { position }: GrammarPassage): boolean =>
@@ -131,25 +94,39 @@ const cardEntryOf = (
   return word === undefined ? undefined : terms.cardWords.get(word)
 }
 
+const isFrameWordToken = (
+  token: string | undefined,
+  passage: GrammarPassage,
+  terms: GrammarTerms,
+): boolean => {
+  const word = wordOf(token, passage, terms)
+  return word !== undefined && terms.frameWordsAdmittedAt.has(word)
+}
+
 const isBeHost = (
   previous: string | undefined,
   passage: GrammarPassage,
   terms: GrammarTerms,
-): boolean => {
-  const word = wordOf(previous, passage, terms)
-  return (
-    word !== undefined &&
-    (terms.frameWordsAdmittedAt.has(word) || terms.cardWords.get(word)?.partOfSpeech === 'adverb')
-  )
-}
+): boolean =>
+  isFrameWordToken(previous, passage, terms) ||
+  cardEntryOf(previous, passage, terms)?.partOfSpeech === 'adverb'
 
-const isVerbForm = (
+const pastInflections: ReadonlySet<string> = new Set(['-ed', 'irregular past', 'past participle'])
+
+const isPastForm = (
   token: string | undefined,
   passage: GrammarPassage,
   terms: GrammarTerms,
 ): boolean => {
   const entry = cardEntryOf(token, passage, terms)
-  return entry?.partOfSpeech === 'verb' && token !== entry.lemma
+  if (token === undefined || entry?.partOfSpeech !== 'verb') {
+    return false
+  }
+  const form = cardWordFormOf(token, entry, {
+    irregularVerbs: terms.irregularVerbs,
+    haveBefore: "'s",
+  })
+  return form.kind === 'inflected' && pastInflections.has(form.inflection)
 }
 
 const pieceFailures = (
@@ -158,7 +135,7 @@ const pieceFailures = (
   terms: GrammarTerms,
 ): ReadonlyArray<string> => {
   const isPossessive =
-    token === "'s" && !isBeHost(previous, passage, terms) && !isVerbForm(next, passage, terms)
+    token === "'s" && !isBeHost(previous, passage, terms) && !isPastForm(next, passage, terms)
   return inflectionFailures(token, isPossessive ? "possessive 's" : token, passage, terms)
 }
 
@@ -207,10 +184,7 @@ const tokenFailures = (
 
 const subjectWordsOf = (passage: GrammarPassage, terms: GrammarTerms): SubjectWords => ({
   isNoun: (token) => cardEntryOf(token, passage, terms)?.partOfSpeech === 'noun',
-  isFrameWord: (token) => {
-    const word = wordOf(token, passage, terms)
-    return word !== undefined && terms.frameWordsAdmittedAt.has(word)
-  },
+  isFrameWord: (token) => isFrameWordToken(token, passage, terms),
 })
 
 const passageTokensOf = (
@@ -225,7 +199,7 @@ const passageTokensOf = (
   }))
 
 const passageFailures = (content: GateContent): ReadonlyArray<string> => {
-  const terms = termsOf(content)
+  const terms = grammarTermsOf(content)
   return grammarPassagesOf(content).flatMap((passage) =>
     passage.sentences.flatMap((sentence) =>
       passageTokensOf(sentence, subjectWordsOf(passage, terms)).flatMap((passageToken) =>

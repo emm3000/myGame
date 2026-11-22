@@ -36,7 +36,9 @@ const subjectSkipped = (
     return latestFirst
   }
   const [beforeNoun, ...earlierStill] = earlier
-  return beforeNoun !== undefined && isDeterminer(beforeNoun, subjectWords) ? earlierStill : earlier
+  return beforeNoun !== undefined && isDeterminer(beforeNoun, subjectWords)
+    ? earlierStill
+    : latestFirst
 }
 
 export const haveBeforeOf = (
