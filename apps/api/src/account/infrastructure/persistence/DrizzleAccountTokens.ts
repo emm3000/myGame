@@ -7,8 +7,8 @@ import type {
   AccountTokenKind,
   AccountTokens,
 } from '../../application/ports/AccountTokens'
-import { tokenDigest } from '../../application/tokenDigest'
 import { accountTokens, players } from './accountTables'
+import { tokenDigest } from './tokenDigest'
 
 const dateOf = (instant: Instant): Date => new Date(instant.epochMilliseconds)
 
