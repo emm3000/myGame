@@ -1,5 +1,5 @@
+import type { LessonLibrary, ShelvedLesson } from '@mygame/domain'
 import { assert } from 'vitest'
-import type { LessonLibrary, ShelvedLesson } from '#content/application/ports/LessonLibrary'
 import type { LearningWorld } from './learningRoutes.testSupport'
 
 export type BandLessonFixtures = {

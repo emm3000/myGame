@@ -1,4 +1,5 @@
 import type { CurriculumContent } from '@mygame/contracts'
+import type { ShelvedLesson } from '@mygame/domain'
 import {
   type Band,
   headwordOf,
@@ -6,7 +7,6 @@ import {
   type LessonWord,
   type PlacementWord,
 } from '@mygame/domain'
-import type { ShelvedLesson } from '../../application/ports/LessonLibrary'
 import { bandOfListedRank } from './bandOfListedRank'
 import { bandWordsOf } from './bandWordsOf'
 import { frameWordsOf } from './frameWordsOf'

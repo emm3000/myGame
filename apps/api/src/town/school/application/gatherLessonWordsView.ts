@@ -1,3 +1,4 @@
+import type { LessonLibrary } from '@mygame/domain'
 import {
   type Band,
   type FrameLearner,
@@ -23,7 +24,6 @@ import {
   wordStandingOf,
   wordsEnteringOf,
 } from '@mygame/domain'
-import type { LessonLibrary } from '#content/application/ports/LessonLibrary'
 
 export type LessonWordView = {
   readonly wordId: WordId

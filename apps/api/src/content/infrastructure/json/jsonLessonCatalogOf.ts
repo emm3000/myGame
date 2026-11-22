@@ -1,5 +1,4 @@
-import type { LessonCatalog } from '@mygame/domain'
-import type { LessonLibrary } from '../../application/ports/LessonLibrary'
+import type { LessonCatalog, LessonLibrary } from '@mygame/domain'
 import type { LessonShelf } from './LessonShelf'
 
 export const jsonLessonCatalogOf = ({

@@ -1,4 +1,3 @@
-api_holds_layer apps/api/src/content/application
 api_holds_layer apps/api/src/holdout/application
 api_holds_layer apps/api/src/learning/application
 api_holds_layer apps/api/src/report/application

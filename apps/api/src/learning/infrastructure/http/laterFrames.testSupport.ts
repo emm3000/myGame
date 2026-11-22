@@ -1,6 +1,6 @@
 import type { DueReview } from '@mygame/contracts'
+import type { LessonLibrary, ShelvedLesson } from '@mygame/domain'
 import { assert } from 'vitest'
-import type { LessonLibrary, ShelvedLesson } from '#content/application/ports/LessonLibrary'
 import type { LearningWorld, Player } from './learningRoutes.testSupport'
 
 export type LaterFrameFixtures = {

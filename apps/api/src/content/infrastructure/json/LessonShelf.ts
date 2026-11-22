@@ -1,5 +1,4 @@
-import type { Band, BandWord, LessonId, PlacementWord, Text } from '@mygame/domain'
-import type { ShelvedLesson } from '../../application/ports/LessonLibrary'
+import type { Band, BandWord, LessonId, PlacementWord, ShelvedLesson, Text } from '@mygame/domain'
 import type { ResolvedFrames } from './resolvedFramesOf'
 
 export type LessonShelf = {

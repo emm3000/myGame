@@ -1,6 +1,7 @@
 import { cpSync, mkdtempSync, readFileSync, rmSync, writeFileSync } from 'node:fs'
 import { tmpdir } from 'node:os'
 import { join } from 'node:path'
+import type { LessonLibrary } from '@mygame/domain'
 import {
   type FrameLearner,
   type FrameSpans,
@@ -15,7 +16,6 @@ import {
 } from '@mygame/domain'
 import { afterEach, assert, describe, expect, it } from 'vitest'
 import { apiPackagePath } from '#apiPackagePath.testSupport'
-import type { LessonLibrary } from '../../application/ports/LessonLibrary'
 import { readJsonLessonLibrary } from './readJsonLessonLibrary'
 
 const shippedContent = apiPackagePath('content/')

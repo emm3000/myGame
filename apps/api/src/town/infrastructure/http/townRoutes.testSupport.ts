@@ -4,7 +4,7 @@ import {
   type TownOverview,
   TownOverviewSchema,
 } from '@mygame/contracts'
-import { type Clock, Instant, type UnitOfWork } from '@mygame/domain'
+import { type Clock, Instant, type LessonLibrary, type UnitOfWork } from '@mygame/domain'
 import { Client } from 'pg'
 import { assert, expect } from 'vitest'
 import { apiPackagePath } from '#apiPackagePath.testSupport'
@@ -12,7 +12,6 @@ import type { createApp } from '#app'
 import { type ComposedServer, composeServer } from '#composeServer'
 import { mailEnvironment } from '#composeServer.testSupport'
 import type { ComposedStores } from '#composeStores'
-import type { LessonLibrary } from '#content/application/ports/LessonLibrary'
 import { isWaitingOnALock, lockedPlayerReadQuery, lockProbeLimit } from '#lockWaitProbe.testSupport'
 
 export const contentDirectory = apiPackagePath('content/')

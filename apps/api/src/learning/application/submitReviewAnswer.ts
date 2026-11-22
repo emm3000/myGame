@@ -1,3 +1,4 @@
+import type { LessonLibrary } from '@mygame/domain'
 import {
   answerReview,
   type CardRepository,
@@ -11,7 +12,6 @@ import {
   type TownSkill,
   type WordId,
 } from '@mygame/domain'
-import type { LessonLibrary } from '#content/application/ports/LessonLibrary'
 import {
   gatherReviewVerdict,
   type ReviewOutcome,
