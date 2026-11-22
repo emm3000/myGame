@@ -7,7 +7,7 @@ import type { PlayerId } from '#player/PlayerId'
 import type { Result } from '#Result'
 import { laterOf } from '#time/laterOf'
 import type { TownStores } from '../domain/TownStores'
-import { settleSchoolLesson } from '../school/useCases/settleSchoolLesson'
+import { settleSchoolLesson } from '../school/application/settleSchoolLesson'
 
 export type TownMutation<T> = (stores: TownStores, clock: Clock) => Promise<Result<T, DomainError>>
 

@@ -31,10 +31,14 @@ import {
   type SignUpDependencies,
   StartBuildingWork,
   type StartBuildingWorkDependencies,
+  StartSchoolLesson,
+  type StartSchoolLessonDependencies,
   StopBuildingWork,
   type StopBuildingWorkDependencies,
   StopHiringOrder,
   type StopHiringOrderDependencies,
+  StopSchoolLesson,
+  type StopSchoolLessonDependencies,
   VerifyEmail,
   type VerifyEmailDependencies,
 } from '@mygame/domain'
@@ -57,7 +61,9 @@ export type UseCaseDependencies = SignUpDependencies &
   StartBuildingWorkDependencies &
   StopBuildingWorkDependencies &
   PlaceHiringOrderDependencies &
-  StopHiringOrderDependencies
+  StopHiringOrderDependencies &
+  StartSchoolLessonDependencies &
+  StopSchoolLessonDependencies
 
 export type UseCases = {
   readonly signUp: SignUp
@@ -79,6 +85,8 @@ export type UseCases = {
   readonly stopBuildingWork: StopBuildingWork
   readonly placeHiringOrder: PlaceHiringOrder
   readonly stopHiringOrder: StopHiringOrder
+  readonly startSchoolLesson: StartSchoolLesson
+  readonly stopSchoolLesson: StopSchoolLesson
 }
 
 export const composeUseCases = (adapters: UseCaseDependencies): UseCases => ({
@@ -101,4 +109,6 @@ export const composeUseCases = (adapters: UseCaseDependencies): UseCases => ({
   stopBuildingWork: new StopBuildingWork(adapters),
   placeHiringOrder: new PlaceHiringOrder(adapters),
   stopHiringOrder: new StopHiringOrder(adapters),
+  startSchoolLesson: new StartSchoolLesson(adapters),
+  stopSchoolLesson: new StopSchoolLesson(adapters),
 })

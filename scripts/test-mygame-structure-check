@@ -383,9 +383,10 @@ fails_a_use_case_function_importing_a_use_case_class() {
 
 passes_an_application_file_importing_a_step_and_an_unmoved_use_case() {
   fresh_tree
-  plant packages/domain/src/town/application/mutateTown.ts "import { settleSchoolLesson } from '../school/useCases/settleSchoolLesson'\nimport { changeTown } from './changeTown'\nimport { dispatchJob } from '../jobs/application/dispatchJob'\n"
-  plant packages/domain/src/town/school/useCases/settleSchoolLesson.ts "export const settleSchoolLesson = (id: string): string => id\n"
-  printf 'file_outside_layer packages/domain/src/town/school/useCases\nrole_folder packages/domain/src/town/school/useCases\n' >"$baseline"
+  plant packages/domain/src/town/application/mutateTown.ts "import { answerHoldoutCheck } from '#holdout/useCases/answerHoldoutCheck'\nimport { changeTown } from './changeTown'\nimport { dispatchJob } from '../jobs/application/dispatchJob'\n"
+  plant packages/domain/src/holdout/useCases/answerHoldoutCheck.ts "export const answerHoldoutCheck = (id: string): string => id\n"
+  plant ARCHITECTURE.md "| Folder | What |\n|---|---|\n| \`town\` | the holding |\n| \`holdout\` | the band starts |\n"
+  printf 'file_outside_layer packages/domain/src/holdout/useCases\nrole_folder packages/domain/src/holdout/useCases\n' >"$baseline"
   check
   expect_pass "${FUNCNAME[0]}"
 }

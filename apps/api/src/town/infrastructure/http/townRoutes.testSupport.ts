@@ -61,6 +61,19 @@ export const runSql = async (statement: string): Promise<void> => {
   }
 }
 
+export const rowCountOf = async (table: string): Promise<number> => {
+  const client = new Client({ connectionString: databaseUrl() })
+  await client.connect()
+  try {
+    const counted = await client.query<{ count: number }>(
+      `SELECT count(*)::int AS count FROM ${table}`,
+    )
+    return counted.rows[0]?.count ?? 0
+  } finally {
+    await client.end()
+  }
+}
+
 export const statementTextOf = (query: unknown): string => {
   if (typeof query === 'string') {
     return query

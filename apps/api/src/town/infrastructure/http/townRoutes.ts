@@ -33,12 +33,12 @@ import {
   resolveTownNewsDeclaration,
   resolveTownNewsRoute,
 } from '../../news/infrastructure/http/resolveTownNewsRoute'
+import { startSchoolLessonDeclaration } from '../../school/infrastructure/http/StartSchoolLessonController'
+import { stopSchoolLessonDeclaration } from '../../school/infrastructure/http/StopSchoolLessonController'
 import {
   type SchoolRouteDependencies,
   schoolRoutes,
 } from '../../school/infrastructure/http/schoolRoutes'
-import { startSchoolLessonDeclaration } from '../../school/infrastructure/http/startSchoolLessonRoute'
-import { stopSchoolLessonDeclaration } from '../../school/infrastructure/http/stopSchoolLessonRoute'
 import {
   FoundTownController,
   type FoundTownControllerDependencies,

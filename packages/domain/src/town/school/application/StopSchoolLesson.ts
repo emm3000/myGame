@@ -6,23 +6,30 @@ import type { LessonId } from '#learning/Lesson'
 import type { CardRepository } from '#learning/ports/CardRepository'
 import type { Clock } from '#platform/domain/Clock'
 import type { PlayerId } from '#player/PlayerId'
-import { err, type Result } from '#Result'
+import { err, ok, type Result } from '#Result'
+import { changeTown } from '../../application/changeTown'
+import type { MutateTownDependencies } from '../../application/mutateTown'
 import { resolveStoredTown } from '../../application/resolveStoredTown'
 import { saveResolvedTown } from '../../application/saveResolvedTown'
 import type { TownCatalog } from '../../domain/TownCatalog'
 import type { TownNews } from '../../domain/TownNews'
+import type { TownReading } from '../../domain/TownReading'
 import type { TownRepository } from '../../domain/TownRepository'
-import { readSettledSchool } from '../application/readSettledSchool'
-import { saveLessonSlot } from '../application/saveLessonSlot'
 import { idleLessonSlot } from '../domain/LessonSlot'
 import type { LessonSlotRepository } from '../domain/LessonSlotRepository'
+import { readSettledSchool } from './readSettledSchool'
+import { saveLessonSlot } from './saveLessonSlot'
 
 export type StopSchoolLessonCommand = {
   readonly playerId: PlayerId
   readonly lessonId: LessonId
 }
 
-export type StopSchoolLessonDependencies = {
+export type StopSchoolLessonDependencies = MutateTownDependencies & {
+  readonly townCatalog: TownCatalog
+}
+
+type StopLessonPorts = {
   readonly towns: TownRepository
   readonly lessonSlots: LessonSlotRepository
   readonly cards: CardRepository
@@ -34,9 +41,9 @@ export type StopSchoolLessonDependencies = {
   readonly clock: Clock
 }
 
-export const stopSchoolLesson = async (
+const stopLessonIn = async (
   { playerId, lessonId }: StopSchoolLessonCommand,
-  dependencies: StopSchoolLessonDependencies,
+  dependencies: StopLessonPorts,
 ): Promise<Result<void, DomainError>> => {
   const { towns, news, catalog, clock } = dependencies
   const now = clock.now()
@@ -67,4 +74,27 @@ export const stopSchoolLesson = async (
     },
     dependencies,
   )
+}
+
+export class StopSchoolLesson {
+  constructor(private readonly dependencies: StopSchoolLessonDependencies) {}
+
+  async execute(command: StopSchoolLessonCommand): Promise<Result<TownReading, DomainError>> {
+    const { lessons, townCatalog } = this.dependencies
+    return changeTown(
+      command.playerId,
+      async (stores, clock) => {
+        const change = await stopLessonIn(command, {
+          ...stores,
+          news: stores.townNews,
+          lessons,
+          bands: lessons,
+          catalog: townCatalog,
+          clock,
+        })
+        return change.ok ? ok(clock.now()) : change
+      },
+      this.dependencies,
+    )
+  }
 }

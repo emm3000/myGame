@@ -1,17 +1,40 @@
 import type { OpenAPIHono } from '@hono/zod-openapi'
 import {
-  type StartSchoolLessonRouteDependencies,
-  startSchoolLessonRoute,
-} from './startSchoolLessonRoute'
+  type RequirePlayerDependencies,
+  requirePlayer,
+} from '#account/infrastructure/http/requirePlayer'
+import { honoPathOf } from '#platform/infrastructure/http/honoPath'
 import {
-  type StopSchoolLessonRouteDependencies,
-  stopSchoolLessonRoute,
-} from './stopSchoolLessonRoute'
+  StartSchoolLessonController,
+  type StartSchoolLessonControllerDependencies,
+  startSchoolLessonDeclaration,
+} from './StartSchoolLessonController'
+import {
+  StopSchoolLessonController,
+  type StopSchoolLessonControllerDependencies,
+  stopSchoolLessonDeclaration,
+} from './StopSchoolLessonController'
 
-export type SchoolRouteDependencies = StartSchoolLessonRouteDependencies &
-  StopSchoolLessonRouteDependencies
+export type SchoolRouteDependencies = RequirePlayerDependencies &
+  StartSchoolLessonControllerDependencies &
+  StopSchoolLessonControllerDependencies
 
 export const schoolRoutes = (routes: OpenAPIHono, dependencies: SchoolRouteDependencies): void => {
-  startSchoolLessonRoute(routes, dependencies)
-  stopSchoolLessonRoute(routes, dependencies)
+  const signedIn = requirePlayer(dependencies)
+  const startSchoolLessonController = new StartSchoolLessonController(dependencies)
+  const stopSchoolLessonController = new StopSchoolLessonController(dependencies)
+  routes.openAPIRegistry.registerPath(startSchoolLessonDeclaration)
+  routes.on(
+    startSchoolLessonDeclaration.method,
+    honoPathOf(startSchoolLessonDeclaration),
+    signedIn,
+    (c) => startSchoolLessonController.handle(c),
+  )
+  routes.openAPIRegistry.registerPath(stopSchoolLessonDeclaration)
+  routes.on(
+    stopSchoolLessonDeclaration.method,
+    honoPathOf(stopSchoolLessonDeclaration),
+    signedIn,
+    (c) => stopSchoolLessonController.handle(c),
+  )
 }

@@ -1,6 +1,6 @@
 import { PlayerSchema } from '@mygame/contracts'
 import { describe, expect, it } from 'vitest'
-import { overviewOf, runSql } from '../../../infrastructure/http/townRoutes.testSupport'
+import { overviewOf, rowCountOf, runSql } from '../../../infrastructure/http/townRoutes.testSupport'
 import {
   lessonFinishesAt,
   lessonStartsAt,
@@ -174,6 +174,21 @@ describe('the school routes', () => {
         status: 409,
         body: { kind: 'LessonAlreadyStudied' },
       })
+    })
+
+    it('writes nothing when a start refuses', async () => {
+      const player = await studyLessonOne()
+      world.clock.setTo(lessonFinishesAt)
+      const eventsBefore = await rowCountOf('town_events')
+
+      const refused = await refusalWithStatusOf(await startLesson(player))
+
+      expect([
+        refused,
+        await rowCountOf('cards'),
+        await rowCountOf('town_lesson_slots'),
+        await rowCountOf('town_events'),
+      ]).toEqual([{ status: 409, body: { kind: 'LessonAlreadyStudied' } }, 0, 1, eventsBefore])
     })
 
     it('refuses a lesson without a town as TownNotFound', async () => {
