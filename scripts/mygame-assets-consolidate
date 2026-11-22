@@ -26,7 +26,6 @@ slug=$(awk '{
 }' <<<"$origin")
 [ -n "$slug" ] || refuse "origin $origin is no GitHub repository"
 slug_pattern=${slug//./\\.}
-link='(?<pre>\b'"$slug_pattern"'/(?:(?:raw|blob|tree)/)?(?:refs/heads/)?assets/)(?<n>[0-9]+)-visual-check(?![A-Za-z0-9_-])'
 url_text='[^\s()<>\[\]"'"'"'`]*'
 
 remote_assets() {
@@ -68,6 +67,8 @@ scan() {
 assets=$(remote_assets)
 [ -n "$assets" ] || refuse "origin holds no refs/heads/assets/*-visual-check branch"
 check_refs "$assets"
+moving=$(awk -F '\t' '{ ticket = substr($1, 8); sub(/-visual-check$/, "", ticket); printf "%s%s", (NR > 1 ? "|" : ""), ticket }' <<<"$assets")
+link='(?<pre>\b'"$slug_pattern"'/(?:(?:raw|blob|tree)/)?(?:refs/heads/)?assets/)(?<n>'"$moving"')-visual-check(?![A-Za-z0-9_-])'
 
 if [ "$apply" -eq 1 ]; then
   scratch_base=${XDG_STATE_HOME:-$HOME/.local/state}/mygame-assets-consolidate
