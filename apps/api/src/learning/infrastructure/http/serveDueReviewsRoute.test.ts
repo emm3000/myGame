@@ -7,7 +7,7 @@ import {
   learningWorld,
   lemmaOf,
   lessonFinishesAt,
-  pausingFirstTransaction,
+  pausingFirstUnitOfWork,
   pendingFramesOf,
   runSql,
   secondLearningStepAt,
@@ -165,7 +165,7 @@ describe('the learning routes', () => {
       const racingApp = createApp({
         ...world.server,
         clock: world.clock,
-        inTransaction: pausingFirstTransaction(world.server.inTransaction, async () => {
+        unitOfWork: pausingFirstUnitOfWork(world.server.unitOfWork, async () => {
           firstHasRead.resolve()
           await secondIsBlockedOrHasAnswered
         }),

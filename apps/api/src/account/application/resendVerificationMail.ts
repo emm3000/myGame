@@ -1,5 +1,12 @@
-import { type Clock, err, ok, type PlayerId, type Refusal, type Result } from '@mygame/domain'
-import type { Transaction } from '#platform/application/ports/Transaction'
+import {
+  type Clock,
+  err,
+  ok,
+  type PlayerId,
+  type Refusal,
+  type Result,
+  type UnitOfWork,
+} from '@mygame/domain'
 import { issueAccountToken } from './issueAccountToken'
 import type { MailRecipient } from './MailRecipient'
 import type { AccountStores } from './ports/AccountStores'
@@ -7,7 +14,7 @@ import type { SessionTokens } from './ports/SessionTokens'
 import { type SendVerificationMailDependencies, sendVerificationMail } from './sendVerificationMail'
 
 export type ResendVerificationMailDependencies = SendVerificationMailDependencies & {
-  readonly inTransaction: Transaction<AccountStores>
+  readonly unitOfWork: UnitOfWork<AccountStores>
   readonly clock: Clock
   readonly sessionTokens: SessionTokens
 }
@@ -19,9 +26,9 @@ type VerifyLink = {
 
 export const resendVerificationMail = async (
   playerId: PlayerId,
-  { inTransaction, clock, sessionTokens, mailer, webUrl }: ResendVerificationMailDependencies,
+  { unitOfWork, clock, sessionTokens, mailer, webUrl }: ResendVerificationMailDependencies,
 ): Promise<Result<void, Refusal>> => {
-  const issued = await inTransaction<VerifyLink | undefined, Refusal>(
+  const issued = await unitOfWork.transact<VerifyLink | undefined, Refusal>(
     async ({ accounts, accountTokens }) => {
       const player = await accounts.playerOf(playerId)
       if (player === undefined) {

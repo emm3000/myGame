@@ -12,6 +12,7 @@ import {
   type RandomSource,
   type RegionMapReader,
   type TownCatalog,
+  type UnitOfWork,
 } from '@mygame/domain'
 import { waitUntil } from '@vercel/functions'
 import type { Accounts } from '#account/application/ports/Accounts'
@@ -31,9 +32,8 @@ import { JsonTownCatalog } from '#content/infrastructure/json/JsonTownCatalog'
 import { readJsonLessonLibrary } from '#content/infrastructure/json/readJsonLessonLibrary'
 import type { CardReader } from '#learning/application/ports/CardReader'
 import { DrizzleCardRepository } from '#learning/infrastructure/persistence/DrizzleCardRepository'
-import type { Transaction } from '#platform/application/ports/Transaction'
 import { connectPostgres } from '#platform/infrastructure/persistence/connectPostgres'
-import { postgresTransaction } from '#platform/infrastructure/persistence/postgresTransaction'
+import { DrizzleUnitOfWork } from '#platform/infrastructure/persistence/DrizzleUnitOfWork'
 import { CryptoIdGenerator } from '#platform/infrastructure/system/CryptoIdGenerator'
 import { CryptoRandomSource } from '#platform/infrastructure/system/CryptoRandomSource'
 import { SystemClock } from '#platform/infrastructure/system/SystemClock'
@@ -118,7 +118,7 @@ export type ComposedServer = MailSettings & {
   readonly reportClosings: ReportClosings
   readonly passwords: PasswordHasher
   readonly sessionTokens: SessionTokens
-  readonly inTransaction: Transaction<ComposedStores>
+  readonly unitOfWork: UnitOfWork<ComposedStores>
   readonly isSessionCookieSecure: boolean
   readonly failureSink: FailureSink
   readonly afterResponse: AfterResponse & AfterResponseDrain
@@ -150,7 +150,7 @@ export function composeServer(
     reportClosings: new DrizzleReportClosings(database),
     passwords: new Argon2PasswordHasher(),
     sessionTokens: new CryptoSessionTokens(),
-    inTransaction: postgresTransaction(database, composeStores),
+    unitOfWork: new DrizzleUnitOfWork(database, composeStores),
     towns: new DrizzleTownRepository(database, 'lockFree'),
     townsWithSchool: new DrizzleTownReader(database),
     townNews: new DrizzleTownNews(database),

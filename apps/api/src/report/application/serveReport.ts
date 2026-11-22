@@ -70,7 +70,7 @@ const showReport = (
   dependencies: ServeReportDependencies,
 ): Promise<Result<ServedReport, DomainError>> => {
   const readClock: Clock = { now: () => town.at }
-  return dependencies.inTransaction(async (stores) => {
+  return dependencies.unitOfWork.transact(async (stores) => {
     await stores.accounts.lockPlayer(playerId)
     const reviews = await serveDueReviews(playerId, stores, readClock, dependencies)
     if (!reviews.ok) {

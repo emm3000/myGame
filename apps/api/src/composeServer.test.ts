@@ -247,7 +247,7 @@ const lockedTownReadQuery = 'select "id", "player_id", "region", %'
 
 const foundAnasTown = async (server: ComposedServer): Promise<void> => {
   await registerAna()
-  const founded = await server.inTransaction(({ towns, earnedSkills }) =>
+  const founded = await server.unitOfWork.transact(({ towns, earnedSkills }) =>
     foundTown(
       { playerId: ana, name: 'Maple Falls' },
       { towns, skills: earnedSkills, catalog: townCatalog, clock: frozenClock, ids: server.ids },
@@ -293,7 +293,7 @@ const startFarmWork = (
   server: ComposedServer,
   afterRead: () => Promise<void>,
 ): Promise<Result<Town, DomainError>> =>
-  server.inTransaction(({ towns, townNews, cards }) =>
+  server.unitOfWork.transact(({ towns, townNews, cards }) =>
     startBuildingWork(
       { playerId: ana, building: 'farm' },
       {
@@ -337,7 +337,7 @@ describe('a town transaction from the composed server', () => {
 
     const outcomes = await raceTwoStarts(server)
 
-    const stored = await server.inTransaction(({ towns }) => towns.townOf(ana))
+    const stored = await server.unitOfWork.transact(({ towns }) => towns.townOf(ana))
     assert(stored.ok && stored.value !== undefined)
     expect([
       outcomes,
@@ -355,7 +355,7 @@ describe('a town transaction from the composed server', () => {
 
     await raceTwoStarts(server)
 
-    const stored = await server.inTransaction(({ towns }) => towns.townOf(ana))
+    const stored = await server.unitOfWork.transact(({ towns }) => towns.townOf(ana))
     expect(stored.ok && stored.value?.stocks).toEqual({
       money: 275,
       food: 300,
@@ -385,12 +385,12 @@ describe('an account transaction from the composed server', () => {
       expiresAt: Instant.fromEpochMilliseconds(Date.parse('2026-09-23T08:00:00Z')),
     }
 
-    await server.inTransaction(async ({ accountTokens }) => {
+    await server.unitOfWork.transact(async ({ accountTokens }) => {
       await accountTokens.issue(verifyLink, foundedAt)
       return err('refused')
     })
 
-    const redeemed = await server.inTransaction(async ({ accountTokens }) =>
+    const redeemed = await server.unitOfWork.transact(async ({ accountTokens }) =>
       ok(await accountTokens.redeem(verifyLink.token, 'verify', foundedAt)),
     )
     expect(redeemed).toEqual(ok(undefined))
@@ -411,7 +411,7 @@ describe('a review transaction from the composed server', () => {
   it('forgets the card and the pending review a refused transaction wrote', async () => {
     await registerAna()
 
-    await server.inTransaction(async ({ cards, pendingReviews }) => {
+    await server.unitOfWork.transact(async ({ cards, pendingReviews }) => {
       await cards.save(ana, { wordId: 'school', card: MemoryCard.entered(foundedAt) })
       await pendingReviews.save(ana, 'school', {
         hintShown: true,
@@ -421,7 +421,7 @@ describe('a review transaction from the composed server', () => {
       return err('refused')
     })
 
-    const kept = await server.inTransaction(async ({ cards, pendingReviews }) =>
+    const kept = await server.unitOfWork.transact(async ({ cards, pendingReviews }) =>
       ok({
         cards: await cards.cardsOf(ana),
         pending: await pendingReviews.pendingReviewOf(ana, 'school'),

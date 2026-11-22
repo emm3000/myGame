@@ -48,6 +48,7 @@ None. No JSDoc, no `//`, no `/* */`, no commented-out code, no section banners. 
 | Domain use case | verb phrase | `startBuildingWork`, `settleSchoolLesson` |
 | Api use case | verb phrase, never a domain export's name | `resolveCurrentTown`, `serveReport` |
 | Endpoint | use case + `Route` | `sendJobRoute` |
+| Controller | use case + `Controller`, a class | `HealthController` |
 | Route list | area + `Routes` | `jobsRoutes` |
 | Responder | `respond` + what it turns into a response | `respondTownChange` |
 | Presenter | `present` + wire noun | `presentTownOverview` |

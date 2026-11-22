@@ -94,7 +94,7 @@ describe('the verify-email route', () => {
   it('refuses a reset token as a verify link', async () => {
     const player = PlayerSchema.parse(await (await signUpAna()).json())
     const resetToken = 'a-reset-token-that-no-verify-link-carries'
-    await server.inTransaction(async ({ accountTokens }) => {
+    await server.unitOfWork.transact(async ({ accountTokens }) => {
       await accountTokens.issue(
         {
           token: resetToken,

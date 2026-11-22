@@ -1,5 +1,11 @@
-import { type AfterResponse, type Clock, type FailureSink, ok, thrownCauseOf } from '@mygame/domain'
-import type { Transaction } from '#platform/application/ports/Transaction'
+import {
+  type AfterResponse,
+  type Clock,
+  type FailureSink,
+  ok,
+  thrownCauseOf,
+  type UnitOfWork,
+} from '@mygame/domain'
 import { issueAccountToken } from './issueAccountToken'
 import type { MailRecipient } from './MailRecipient'
 import { pickFixedCopy } from './pickFixedCopy'
@@ -8,7 +14,7 @@ import type { MailDelivery, Mailer } from './ports/Mailer'
 import type { SessionTokens } from './ports/SessionTokens'
 
 export type RequestPasswordResetDependencies = {
-  readonly inTransaction: Transaction<AccountStores>
+  readonly unitOfWork: UnitOfWork<AccountStores>
   readonly clock: Clock
   readonly sessionTokens: SessionTokens
   readonly mailer: Mailer
@@ -26,9 +32,9 @@ const resetRequestLine = (cause: string): string => `reset request ${cause}`
 
 const sendResetMail = async (
   request: { readonly email: string },
-  { inTransaction, clock, sessionTokens, mailer, webUrl }: RequestPasswordResetDependencies,
+  { unitOfWork, clock, sessionTokens, mailer, webUrl }: RequestPasswordResetDependencies,
 ): Promise<MailDelivery | undefined> => {
-  const issued = await inTransaction<ResetLink | undefined, never>(
+  const issued = await unitOfWork.transact<ResetLink | undefined, never>(
     async ({ accounts, accountTokens }) => {
       const player = await accounts.credentialsOf(request.email)
       if (player === undefined || !player.emailVerified) {

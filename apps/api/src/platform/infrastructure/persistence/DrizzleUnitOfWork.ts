@@ -1,19 +1,19 @@
-import type { Result } from '@mygame/domain'
+import type { Result, UnitOfWork } from '@mygame/domain'
 import { TransactionRollbackError } from 'drizzle-orm'
 import type { NodePgDatabase } from 'drizzle-orm/node-postgres'
-import type { Transaction } from '../../application/ports/Transaction'
 import type { PostgresSession } from './connectPostgres'
 
-export const postgresTransaction =
-  <Stores>(
-    database: NodePgDatabase,
-    composeStores: (transaction: PostgresSession) => Stores,
-  ): Transaction<Stores> =>
-  async <T, E>(work: (stores: Stores) => Promise<Result<T, E>>): Promise<Result<T, E>> => {
+export class DrizzleUnitOfWork<Stores> implements UnitOfWork<Stores> {
+  constructor(
+    private readonly database: NodePgDatabase,
+    private readonly composeStores: (transaction: PostgresSession) => Stores,
+  ) {}
+
+  async transact<T, E>(work: (stores: Stores) => Promise<Result<T, E>>): Promise<Result<T, E>> {
     let refused: Result<T, E> | undefined
     try {
-      return await database.transaction(async (transaction) => {
-        const outcome = await work(composeStores(transaction))
+      return await this.database.transaction(async (transaction) => {
+        const outcome = await work(this.composeStores(transaction))
         if (!outcome.ok) {
           refused = outcome
           transaction.rollback()
@@ -27,3 +27,4 @@ export const postgresTransaction =
       throw failure
     }
   }
+}

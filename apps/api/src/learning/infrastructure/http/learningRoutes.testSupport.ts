@@ -8,7 +8,7 @@ import {
   type TownOverview,
   TownOverviewSchema,
 } from '@mygame/contracts'
-import type { CardRepository } from '@mygame/domain'
+import type { CardRepository, UnitOfWork } from '@mygame/domain'
 import { Client } from 'pg'
 import { afterAll, assert, beforeAll, beforeEach, expect } from 'vitest'
 import { apiPackagePath } from '#apiPackagePath.testSupport'
@@ -17,7 +17,6 @@ import { type ComposedServer, composeServer } from '#composeServer'
 import { mailEnvironment } from '#composeServer.testSupport'
 import type { ComposedStores } from '#composeStores'
 import { isWaitingOnALock, lockedPlayerReadQuery, lockProbeLimit } from '#lockWaitProbe.testSupport'
-import type { Transaction } from '#platform/application/ports/Transaction'
 import { type SettableClock, settableClock } from '#settableClock.testSupport'
 import { truncatePlayerTables } from '#truncatePlayerTables.testSupport'
 
@@ -95,21 +94,23 @@ const pausingFirstCardRead = (
   }
 }
 
-export const pausingFirstTransaction = (
-  inTransaction: Transaction<ComposedStores>,
+export const pausingFirstUnitOfWork = (
+  unitOfWork: UnitOfWork<ComposedStores>,
   afterFirstCardRead: () => Promise<void>,
-): Transaction<ComposedStores> => {
+): UnitOfWork<ComposedStores> => {
   let transactions = 0
-  return (work) => {
-    transactions += 1
-    const isFirst = transactions === 1
-    return inTransaction((stores) =>
-      work(
-        isFirst
-          ? { ...stores, cards: pausingFirstCardRead(stores.cards, afterFirstCardRead) }
-          : stores,
-      ),
-    )
+  return {
+    transact: (work) => {
+      transactions += 1
+      const isFirst = transactions === 1
+      return unitOfWork.transact((stores) =>
+        work(
+          isFirst
+            ? { ...stores, cards: pausingFirstCardRead(stores.cards, afterFirstCardRead) }
+            : stores,
+        ),
+      )
+    },
   }
 }
 

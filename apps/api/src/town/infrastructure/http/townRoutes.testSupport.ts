@@ -4,7 +4,7 @@ import {
   type TownOverview,
   TownOverviewSchema,
 } from '@mygame/contracts'
-import { type Clock, Instant } from '@mygame/domain'
+import { type Clock, Instant, type UnitOfWork } from '@mygame/domain'
 import { Client } from 'pg'
 import { assert, expect } from 'vitest'
 import { apiPackagePath } from '#apiPackagePath.testSupport'
@@ -14,7 +14,6 @@ import { mailEnvironment } from '#composeServer.testSupport'
 import type { ComposedStores } from '#composeStores'
 import type { LessonLibrary } from '#content/application/ports/LessonLibrary'
 import { isWaitingOnALock, lockedPlayerReadQuery, lockProbeLimit } from '#lockWaitProbe.testSupport'
-import type { Transaction } from '#platform/application/ports/Transaction'
 
 export const contentDirectory = apiPackagePath('content/')
 
@@ -145,17 +144,21 @@ export const pausingFirstRead = (
   }
 }
 
-export const pausingFirstTransaction = (
-  inTransaction: Transaction<ComposedStores>,
+export const pausingFirstUnitOfWork = (
+  unitOfWork: UnitOfWork<ComposedStores>,
   afterFirstRead: () => Promise<void>,
-): Transaction<ComposedStores> => {
+): UnitOfWork<ComposedStores> => {
   let transactions = 0
-  return (work) => {
-    transactions += 1
-    const isFirst = transactions === 1
-    return inTransaction((stores) =>
-      work(isFirst ? { ...stores, towns: pausingFirstRead(stores.towns, afterFirstRead) } : stores),
-    )
+  return {
+    transact: (work) => {
+      transactions += 1
+      const isFirst = transactions === 1
+      return unitOfWork.transact((stores) =>
+        work(
+          isFirst ? { ...stores, towns: pausingFirstRead(stores.towns, afterFirstRead) } : stores,
+        ),
+      )
+    },
   }
 }
 
