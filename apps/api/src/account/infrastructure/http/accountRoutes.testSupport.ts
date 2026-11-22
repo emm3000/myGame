@@ -43,7 +43,7 @@ export function databaseUrl(): string {
   return url
 }
 
-export const rowsOf = async (
+export const readRows = async (
   statement: string,
   parameters: ReadonlyArray<unknown> = [],
 ): Promise<ReadonlyArray<unknown>> => {
