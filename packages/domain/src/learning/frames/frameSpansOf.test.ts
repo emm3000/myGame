@@ -48,7 +48,7 @@ type Learner = {
   readonly scaffold?: Scaffold
 }
 
-const readerOf = ({ cards, placedOutBands = [], scaffold = 'es' }: Learner): FrameLearner => ({
+const learnerOf = ({ cards, placedOutBands = [], scaffold = 'es' }: Learner): FrameLearner => ({
   cards: heldCardsOf(cards),
   placedOutBands,
   scaffold,
@@ -60,7 +60,7 @@ const readerOf = ({ cards, placedOutBands = [], scaffold = 'es' }: Learner): Fra
 })
 
 const townSupportOf = (learner: Learner): unknown =>
-  frameSpansOf(homeFrame, homeTokens, readerOf(learner), withholdingNothing)[3]?.support
+  frameSpansOf(homeFrame, homeTokens, learnerOf(learner), withholdingNothing)[3]?.support
 
 describe('frameSpansOf', () => {
   it('supports a word under 7 days beside it', () => {
@@ -112,7 +112,7 @@ describe('frameSpansOf', () => {
   })
 
   it('never supports a token that names no card word', () => {
-    const spans = frameSpansOf(homeFrame, homeTokens, readerOf({ cards: [] }), withholdingNothing)
+    const spans = frameSpansOf(homeFrame, homeTokens, learnerOf({ cards: [] }), withholdingNothing)
 
     expect(spans.filter(({ support }) => support !== null).map(({ text }) => text)).toEqual([
       'town',
@@ -125,14 +125,16 @@ describe('frameSpansOf', () => {
       { text: 'river', wordId: 'river' },
     ]
 
-    expect(frameSpansOf('Our river', tokens, readerOf({ cards: [] }), withholdingNothing)).toEqual([
-      { text: 'Our ', support: null },
-      { text: 'river', support: null },
-    ])
+    expect(frameSpansOf('Our river', tokens, learnerOf({ cards: [] }), withholdingNothing)).toEqual(
+      [
+        { text: 'Our ', support: null },
+        { text: 'river', support: null },
+      ],
+    )
   })
 
   it("joins the spans' text into the frame shown", () => {
-    const spans = frameSpansOf(homeFrame, homeTokens, readerOf({ cards: [] }), withholdingNothing)
+    const spans = frameSpansOf(homeFrame, homeTokens, learnerOf({ cards: [] }), withholdingNothing)
 
     expect(spans.map(({ text }) => text).join('')).toBe('We have a new home in this town.')
   })
@@ -141,7 +143,7 @@ describe('frameSpansOf', () => {
     const spans = frameSpansOf(
       homeFrame,
       homeTokens,
-      readerOf({ cards: [] }),
+      learnerOf({ cards: [] }),
       ({ text }) => text === 'pueblo',
     )
 
@@ -150,7 +152,7 @@ describe('frameSpansOf', () => {
 
   it('answers an unmatched stored frame as one span', () => {
     expect(
-      frameSpansOf('We have a home here.', undefined, readerOf({ cards: [] }), withholdingNothing),
+      frameSpansOf('We have a home here.', undefined, learnerOf({ cards: [] }), withholdingNothing),
     ).toEqual([{ text: 'We have a home here.', support: null }])
   })
 })

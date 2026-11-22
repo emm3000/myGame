@@ -78,7 +78,7 @@ const cardInReview = (): MemoryCard => {
   return card.value
 }
 
-const readerOf = (scaffold: Scaffold, lessons: LessonLibrary = shipped): FrameLearner => ({
+const learnerOf = (scaffold: Scaffold, lessons: LessonLibrary = shipped): FrameLearner => ({
   cards: new Map(),
   placedOutBands: [],
   scaffold,
@@ -102,7 +102,7 @@ const supportOf = (spans: FrameSpans, text: string): unknown => {
 }
 
 const readingOf = (wordId: string, lessons: LessonLibrary = shipped): FrameSpans =>
-  readingFrameOf(taughtOf(wordId, lessons).word, readerOf('es', lessons))
+  readingFrameOf(taughtOf(wordId, lessons).word, learnerOf('es', lessons))
 
 const recallOf = (
   wordId: string,
@@ -111,7 +111,7 @@ const recallOf = (
 ): FrameSpans => {
   const prompt = reviewPromptOf(
     { ...taughtOf(wordId, lessons), card: cardInReview(), shownFrame: gappedFrame },
-    readerOf('none', lessons),
+    learnerOf('none', lessons),
   )
   assert(prompt.mode === 'recall')
   return prompt.gappedFrame
@@ -125,7 +125,7 @@ const recognitionOf = (wordId: string): FrameSpans => {
       card: MemoryCard.entered(enteredAt),
       shownFrame: taught.word.frames[0].frame,
     },
-    readerOf('es'),
+    learnerOf('es'),
   )
   assert(prompt.mode === 'recognition')
   return prompt.frame

@@ -7,7 +7,7 @@ import type { FrameLearner } from './FrameLearner'
 import { readingFrameOf } from './readingFrameOf'
 import { inMemoryFrames } from './testing/inMemoryFrames'
 
-const readerOf = (frames: FrameLearner['lessons']['frameTokensOf']): FrameLearner => ({
+const learnerOf = (frames: FrameLearner['lessons']['frameTokensOf']): FrameLearner => ({
   cards: new Map(),
   placedOutBands: [],
   scaffold: 'es',
@@ -23,7 +23,7 @@ describe('readingFrameOf', () => {
   it("reads a word's anchor frame with its card words supported", () => {
     const home = lessonOne.words[0]
     assert(home !== undefined)
-    const reader = readerOf((wordId, frame) =>
+    const reader = learnerOf((wordId, frame) =>
       wordId === 'home' && frame === 'We have a new home in this town.'
         ? [
             { text: 'We have a new home in this ', wordId: null },
