@@ -8,7 +8,7 @@ import { respondRefusal } from '#platform/infrastructure/http/respondRefusal'
 import { jsonBody, jsonResponse } from '#platform/infrastructure/http/responseDeclarations'
 import { NativeSessionComponent, SignUpRequestComponent, signUpRefusals } from './accountComponents'
 import { accountIssues } from './accountIssues'
-import { type RespondNativeSessionDependencies, respondNativeSession } from './respondSignedIn'
+import { type RespondNativeSessionDependencies, respondNativeSession } from './respondNativeSession'
 
 export const nativeSignUpDeclaration = createRoute({
   method: 'post',

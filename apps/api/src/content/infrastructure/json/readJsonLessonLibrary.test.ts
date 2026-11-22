@@ -540,7 +540,7 @@ describe('readJsonLessonLibrary', () => {
     writeFileSync(listFile, `${readFileSync(listFile, 'utf8')}zeppelin,3001,1.00,1\r\n`)
 
     expect(() => readJsonLessonLibrary(directory)).toThrow(
-      'Headword zeppelin ranks 3001, past the last band',
+      'Headword zeppelin ranks 3001, past the last band of ngsl-1.2.csv',
     )
   })
 })
