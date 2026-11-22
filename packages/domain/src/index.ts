@@ -210,12 +210,26 @@ export { type Season, seasonAt } from '#season/domain/seasonAt'
 export { Duration } from '#time/Duration'
 export { Instant } from '#time/Instant'
 export { laterOf } from '#time/laterOf'
+export { changeTown, type TownChange } from '#town/application/changeTown'
+export {
+  FoundTown,
+  type FoundTownCommand,
+  type FoundTownDependencies,
+} from '#town/application/FoundTown'
 export {
   type MutateTownDependencies,
   mutateTown,
   type TownMutation,
 } from '#town/application/mutateTown'
+export {
+  ResolveCurrentTown,
+  type ResolveCurrentTownDependencies,
+} from '#town/application/ResolveCurrentTown'
 export { readTownReading } from '#town/application/readTownReading'
+export {
+  type ResolveTownReadingDependencies,
+  resolveTownReading,
+} from '#town/application/resolveTownReading'
 export type { BuildingKind } from '#town/building/BuildingKind'
 export type {
   BuildingLevel,
@@ -387,11 +401,5 @@ export {
   type StopSchoolLessonDependencies,
   stopSchoolLesson,
 } from '#town/school/useCases/stopSchoolLesson'
-export {
-  type FoundTownCommand,
-  type FoundTownDependencies,
-  foundTown,
-} from '#town/useCases/foundTown'
-export { type ResolveTownDependencies, resolveTown } from '#town/useCases/resolveTown'
 export type { DomainError } from './DomainError'
 export { allOk, err, ok, type Result } from './Result'

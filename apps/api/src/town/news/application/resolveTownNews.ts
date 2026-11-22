@@ -1,11 +1,15 @@
 import type { TownNewsReader } from '@mygame/domain'
-import { type DomainError, ok, type PlayerId, type Result, type TownEvent } from '@mygame/domain'
 import {
-  type ResolveCurrentTownDependencies,
-  resolveCurrentTown,
-} from '../../application/resolveCurrentTown'
+  type DomainError,
+  ok,
+  type PlayerId,
+  type ResolveTownReadingDependencies,
+  type Result,
+  resolveTownReading,
+  type TownEvent,
+} from '@mygame/domain'
 
-export type ResolveTownNewsDependencies = ResolveCurrentTownDependencies & {
+export type ResolveTownNewsDependencies = ResolveTownReadingDependencies & {
   readonly townNews: TownNewsReader
 }
 
@@ -13,7 +17,7 @@ export const resolveTownNews = async (
   playerId: PlayerId,
   dependencies: ResolveTownNewsDependencies,
 ): Promise<Result<ReadonlyArray<TownEvent>, DomainError>> => {
-  const reading = await resolveCurrentTown(playerId, dependencies)
+  const reading = await resolveTownReading(playerId, dependencies)
   if (!reading.ok) {
     return reading
   }

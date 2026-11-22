@@ -1,5 +1,10 @@
 import { OpenAPIHono } from '@hono/zod-openapi'
 import {
+  type RequirePlayerDependencies,
+  requirePlayer,
+} from '#account/infrastructure/http/requirePlayer'
+import { honoPathOf } from '#platform/infrastructure/http/honoPath'
+import {
   type BuildingRouteDependencies,
   buildingRoutes,
 } from '../../building/infrastructure/http/buildingRoutes'
@@ -35,21 +40,26 @@ import {
 import { startSchoolLessonDeclaration } from '../../school/infrastructure/http/startSchoolLessonRoute'
 import { stopSchoolLessonDeclaration } from '../../school/infrastructure/http/stopSchoolLessonRoute'
 import {
-  type FoundTownRouteDependencies,
+  FoundTownController,
+  type FoundTownControllerDependencies,
   foundTownDeclaration,
-  foundTownRoute,
-} from './foundTownRoute'
-import { type OpenTextRouteDependencies, openTextDeclaration, openTextRoute } from './openTextRoute'
+} from './FoundTownController'
 import {
-  type ResolveCurrentTownRouteDependencies,
+  OpenTextController,
+  type OpenTextControllerDependencies,
+  openTextDeclaration,
+} from './OpenTextController'
+import {
+  ResolveCurrentTownController,
+  type ResolveCurrentTownControllerDependencies,
   resolveCurrentTownDeclaration,
-  resolveCurrentTownRoute,
-} from './resolveCurrentTownRoute'
+} from './ResolveCurrentTownController'
 
-export type TownRouteDependencies = ResolveCurrentTownRouteDependencies &
+export type TownRouteDependencies = RequirePlayerDependencies &
+  ResolveCurrentTownControllerDependencies &
   ResolveTownNewsRouteDependencies &
-  OpenTextRouteDependencies &
-  FoundTownRouteDependencies &
+  OpenTextControllerDependencies &
+  FoundTownControllerDependencies &
   BuildingRouteDependencies &
   HiringRouteDependencies &
   JobsRouteDependencies &
@@ -78,10 +88,26 @@ export const townDeclarations = {
 
 export const townRoutes = (dependencies: TownRouteDependencies): OpenAPIHono => {
   const routes = new OpenAPIHono()
-  resolveCurrentTownRoute(routes, dependencies)
+  const signedIn = requirePlayer(dependencies)
+  const resolveCurrentTownController = new ResolveCurrentTownController(dependencies)
+  const openTextController = new OpenTextController(dependencies)
+  const foundTownController = new FoundTownController(dependencies)
+  routes.openAPIRegistry.registerPath(resolveCurrentTownDeclaration)
+  routes.on(
+    resolveCurrentTownDeclaration.method,
+    honoPathOf(resolveCurrentTownDeclaration),
+    signedIn,
+    (c) => resolveCurrentTownController.handle(c),
+  )
   resolveTownNewsRoute(routes, dependencies)
-  openTextRoute(routes, dependencies)
-  foundTownRoute(routes, dependencies)
+  routes.openAPIRegistry.registerPath(openTextDeclaration)
+  routes.on(openTextDeclaration.method, honoPathOf(openTextDeclaration), signedIn, (c) =>
+    openTextController.handle(c),
+  )
+  routes.openAPIRegistry.registerPath(foundTownDeclaration)
+  routes.on(foundTownDeclaration.method, honoPathOf(foundTownDeclaration), signedIn, (c) =>
+    foundTownController.handle(c),
+  )
   buildingRoutes(routes, dependencies)
   hiringRoutes(routes, dependencies)
   jobsRoutes(routes, dependencies)

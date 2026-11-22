@@ -1,4 +1,6 @@
 import {
+  FoundTown,
+  type FoundTownDependencies,
   ReadChromePhase,
   type ReadChromePhaseDependencies,
   RequestPasswordReset,
@@ -7,6 +9,8 @@ import {
   type ResendVerificationMailDependencies,
   ResetPassword,
   type ResetPasswordDependencies,
+  ResolveCurrentTown,
+  type ResolveCurrentTownDependencies,
   SignIn,
   type SignInDependencies,
   SignUp,
@@ -21,7 +25,9 @@ export type UseCaseDependencies = SignUpDependencies &
   ResendVerificationMailDependencies &
   RequestPasswordResetDependencies &
   ResetPasswordDependencies &
-  ReadChromePhaseDependencies
+  ReadChromePhaseDependencies &
+  FoundTownDependencies &
+  ResolveCurrentTownDependencies
 
 export type UseCases = {
   readonly signUp: SignUp
@@ -31,6 +37,8 @@ export type UseCases = {
   readonly requestPasswordReset: RequestPasswordReset
   readonly resetPassword: ResetPassword
   readonly readChromePhase: ReadChromePhase
+  readonly foundTown: FoundTown
+  readonly resolveCurrentTown: ResolveCurrentTown
 }
 
 export const composeUseCases = (adapters: UseCaseDependencies): UseCases => ({
@@ -41,4 +49,6 @@ export const composeUseCases = (adapters: UseCaseDependencies): UseCases => ({
   requestPasswordReset: new RequestPasswordReset(adapters),
   resetPassword: new ResetPassword(adapters),
   readChromePhase: new ReadChromePhase(adapters),
+  foundTown: new FoundTown(adapters),
+  resolveCurrentTown: new ResolveCurrentTown(adapters),
 })

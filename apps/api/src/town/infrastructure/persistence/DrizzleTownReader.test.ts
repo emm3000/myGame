@@ -13,6 +13,7 @@ import { DrizzleAccounts } from '#account/infrastructure/persistence/DrizzleAcco
 import { DrizzleLessonSlotRepository } from './DrizzleLessonSlotRepository'
 import { DrizzleTownReader } from './DrizzleTownReader'
 import { DrizzleTownRepository } from './DrizzleTownRepository'
+import { townReaderContract } from './townReaderContract.testSupport'
 import { townTestDatabase } from './townTestDatabase.testSupport'
 
 const { open, close, pool, registerPlayers, truncateAll } = townTestDatabase()
@@ -179,4 +180,15 @@ describe('DrizzleTownReader', () => {
 
     expect(read.ok && read.value?.lessonSlot).toEqual({ kind: 'idle' })
   })
+})
+
+townReaderContract('DrizzleTownReader', async () => {
+  await truncateAll()
+  const session = drizzle(pool())
+  return {
+    reader: new DrizzleTownReader(session),
+    towns: new DrizzleTownRepository(session, 'lockFree'),
+    lessonSlots: new DrizzleLessonSlotRepository(session),
+    registerPlayers,
+  }
 })
