@@ -47,6 +47,8 @@ import {
   type SendJobDependencies,
   ServeDueReviews,
   type ServeDueReviewsDependencies,
+  ServeReport,
+  type ServeReportDependencies,
   SignIn,
   type SignInDependencies,
   SignUp,
@@ -105,7 +107,8 @@ export type UseCaseDependencies = SignUpDependencies &
   SkipHoldoutCheckDependencies &
   ServeDueReviewsDependencies &
   RequestReviewHintDependencies &
-  SubmitReviewAnswerDependencies
+  SubmitReviewAnswerDependencies &
+  ServeReportDependencies
 
 export type UseCases = {
   readonly signUp: SignUp
@@ -143,6 +146,7 @@ export type UseCases = {
   readonly serveDueReviews: ServeDueReviews
   readonly requestReviewHint: RequestReviewHint
   readonly submitReviewAnswer: SubmitReviewAnswer
+  readonly serveReport: ServeReport
 }
 
 export const composeUseCases = (adapters: UseCaseDependencies): UseCases => ({
@@ -181,4 +185,5 @@ export const composeUseCases = (adapters: UseCaseDependencies): UseCases => ({
   serveDueReviews: new ServeDueReviews(adapters),
   requestReviewHint: new RequestReviewHint(adapters),
   submitReviewAnswer: new SubmitReviewAnswer(adapters),
+  serveReport: new ServeReport(adapters),
 })

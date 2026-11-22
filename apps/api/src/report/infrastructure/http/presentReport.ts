@@ -1,7 +1,7 @@
 import type { Report } from '@mygame/contracts'
+import type { ServedReport } from '@mygame/domain'
 import { presentReviews } from '#learning/infrastructure/http/presentReviews'
 import { presentTownNewsItem } from '#town/news/infrastructure/http/presentTownNewsItem'
-import type { ServedReport } from '../../application/serveReport'
 
 export const presentReport = ({ reviews, news }: ServedReport): Report => {
   const { due, readFirst, nextDueAt, readAt } = presentReviews(reviews)

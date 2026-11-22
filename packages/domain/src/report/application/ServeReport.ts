@@ -1,20 +1,25 @@
-import type { ReportClosings, TownNewsReader } from '@mygame/domain'
+import type { DomainError } from '#DomainError'
 import {
-  type Clock,
-  type DomainError,
   type DueReviews,
-  err,
-  type Instant,
-  ok,
-  type PlayerId,
-  type ResolveTownReadingDependencies,
-  type Result,
   type ReviewTerms,
   readDueReviews,
+} from '#learning/reviews/application/readDueReviews'
+import type { Clock } from '#platform/domain/Clock'
+import type { PlayerId } from '#player/PlayerId'
+import { err, ok, type Result } from '#Result'
+import type { Instant } from '#time/Instant'
+import {
+  type ResolveTownReadingDependencies,
   resolveTownReading,
-  type TownEvent,
-  type TownId,
-} from '@mygame/domain'
+} from '#town/application/resolveTownReading'
+import type { TownEvent } from '#town/domain/TownEvent'
+import type { TownId } from '#town/domain/TownId'
+import type { TownNewsReader } from '#town/domain/TownNewsReader'
+import type { ReportClosings } from '../domain/ReportClosings'
+
+export type ServeReportQuery = {
+  readonly playerId: PlayerId
+}
 
 export type ServeReportDependencies = ResolveTownReadingDependencies &
   ReviewTerms & {
@@ -76,22 +81,23 @@ const showReport = (
   })
 }
 
-export const serveReport = async (
-  playerId: PlayerId,
-  dependencies: ServeReportDependencies,
-): Promise<Result<ServedReport, ReportNotServed>> => {
-  const closedAt = await dependencies.reportClosings.closedAt(playerId)
-  if (closedAt === undefined) {
-    return err({ kind: 'SignedOut' })
-  }
-  const town = await readReportTown(playerId, dependencies)
-  if (!town.ok) {
-    return town
-  }
-  const shown = await showReport(playerId, closedAt, town.value, dependencies)
-  if (!shown.ok) {
+export class ServeReport {
+  constructor(private readonly dependencies: ServeReportDependencies) {}
+
+  async execute({ playerId }: ServeReportQuery): Promise<Result<ServedReport, ReportNotServed>> {
+    const closedAt = await this.dependencies.reportClosings.closedAt(playerId)
+    if (closedAt === undefined) {
+      return err({ kind: 'SignedOut' })
+    }
+    const town = await readReportTown(playerId, this.dependencies)
+    if (!town.ok) {
+      return town
+    }
+    const shown = await showReport(playerId, closedAt, town.value, this.dependencies)
+    if (!shown.ok) {
+      return shown
+    }
+    await this.dependencies.reportClosings.serve(playerId, town.value.at)
     return shown
   }
-  await dependencies.reportClosings.serve(playerId, town.value.at)
-  return shown
 }
