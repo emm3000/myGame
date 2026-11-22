@@ -29,6 +29,7 @@ import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.style.TextDecoration
+import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.tooling.preview.PreviewParameter
 import androidx.compose.ui.tooling.preview.PreviewParameterProvider
 import androidx.compose.ui.unit.dp
@@ -40,7 +41,7 @@ internal sealed interface FrameRun {
 
     data class Word(val pieceIndex: Int, val text: String) : FrameRun
 
-    data class Beside(val support: MyGameWordSupport) : FrameRun
+    data class Beside(val support: MyGameWordSupport, val closing: String) : FrameRun
 }
 
 internal data class FrameChunk(val runs: List<FrameRun>)
@@ -94,9 +95,18 @@ internal fun frameChunksOf(frame: MyGameFrame): List<FrameChunk> {
         .flatMapIndexed { index: Int, piece: MyGameFramePiece -> slicesOf(piece, index, offsets[index], starts) }
         .forEach { slice: FrameSlice ->
             if (slice.startsChunk || chunks.isEmpty()) chunks.add(mutableListOf())
-            chunks.last().add(slice.run)
+            chunks.last().addRun(slice.run)
         }
     return chunks.map { runs: List<FrameRun> -> FrameChunk(runs.toList()) }
+}
+
+private fun MutableList<FrameRun>.addRun(run: FrameRun) {
+    val beside: FrameRun.Beside? = lastOrNull() as? FrameRun.Beside
+    if (beside == null || run !is FrameRun.Plain) {
+        add(run)
+        return
+    }
+    set(lastIndex, beside.copy(closing = beside.closing + run.text))
 }
 
 private fun slicesOf(piece: MyGameFramePiece, index: Int, offset: Int, starts: Set<Int>): List<FrameSlice> {
@@ -106,7 +116,8 @@ private fun slicesOf(piece: MyGameFramePiece, index: Int, offset: Int, starts: S
     val plains: List<FrameSlice> = (cuts + piece.text.length).zipWithNext { from: Int, until: Int ->
         FrameSlice(offset + from in starts, FrameRun.Plain(piece.text.substring(from, until)))
     }
-    return if (support == null) plains else plains + FrameSlice(startsChunk = true, run = FrameRun.Beside(support))
+    if (support == null) return plains
+    return plains + FrameSlice(startsChunk = true, run = FrameRun.Beside(support, closing = ""))
 }
 
 @Composable
@@ -119,7 +130,7 @@ private fun FrameRunText(run: FrameRun, openPiece: Int?, ink: TextStyle, onPiece
             ink = ink,
             onTap = { onPieceTap(run.pieceIndex) },
         )
-        is FrameRun.Beside -> BesideSupport(support = run.support)
+        is FrameRun.Beside -> BesideSupport(beside = run, ink = ink)
     }
 }
 
@@ -134,9 +145,12 @@ private fun PlainText(text: String, ink: TextStyle) {
 }
 
 @Composable
-private fun BesideSupport(support: MyGameWordSupport) {
+private fun BesideSupport(beside: FrameRun.Beside, ink: TextStyle) {
     MyGameText(
-        text = support.spokenText(),
+        text = buildAnnotatedString {
+            append(beside.support.spokenText())
+            withStyle(ink.toSpanStyle()) { append(beside.closing) }
+        },
         style = MyGameTypography.gloss,
         color = MyGameTheme.colors.onBlockMuted,
         modifier = Modifier

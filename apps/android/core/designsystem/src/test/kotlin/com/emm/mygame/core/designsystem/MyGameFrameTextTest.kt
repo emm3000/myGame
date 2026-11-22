@@ -43,6 +43,7 @@ import androidx.compose.ui.test.performTouchInput
 import androidx.compose.ui.test.requestFocus
 import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.text.SpanStyle
+import androidx.compose.ui.text.TextMeasurer
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.intl.LocaleList
 import androidx.compose.ui.text.rememberTextMeasurer
@@ -335,6 +336,40 @@ class MyGameFrameTextTest {
     }
 
     @Test
+    @GraphicsMode(GraphicsMode.Mode.NATIVE)
+    fun `draws the closing period right after the last line of a wrapped support beside its word`() {
+        var lastLineEnd: Dp = 0.dp
+        show {
+            val measurer: TextMeasurer = rememberTextMeasurer()
+            val firstSupportLine: Dp = with(LocalDensity.current) {
+                lastLineEnd = measurer.measure(LAST_SUPPORT_LINE, MyGameTypography.gloss).size.width.toDp()
+                measurer.measure(FIRST_SUPPORT_LINE, MyGameTypography.gloss).size.width.toDp()
+            }
+            Box(modifier = Modifier.fillMaxSize()) {
+                MyGameFrameText(
+                    frame = MyGameFrame(foodFrame),
+                    openPiece = null,
+                    style = MyGameTypography.reading,
+                    onPieceTap = {},
+                    modifier = Modifier.width(firstSupportLine + MyGameSpacing.step1 + 1.dp),
+                )
+            }
+        }
+
+        val support: Rect = composeRule.onNodeWithTag(BESIDE_SUPPORT, useUnmergedTree = true)
+            .fetchSemanticsNode().boundsInRoot
+        val pixels: PixelMap = composeRule.onRoot().captureToImage().toPixelMap()
+        val ground: Color = pixels[pixels.width - 1, pixels.height - 1]
+        val periodFrom: Int = with(composeRule.density) { (support.left + lastLineEnd.toPx()).toInt() + 1 }
+        val periodReach: Int = with(composeRule.density) { MyGameSpacing.step1.roundToPx() }
+        val lastLine: IntRange = (support.center.y.toInt() until support.bottom.toInt())
+        val inkAfterLastLine: Boolean = (periodFrom..periodFrom + periodReach).any { x: Int ->
+            lastLine.any { y: Int -> x < pixels.width && pixels[x, y] != ground }
+        }
+        assertTrue("no ink right of $LAST_SUPPORT_LINE in $support", inkAfterLastLine)
+    }
+
+    @Test
     fun `announces a word on tap as a button`() {
         showFrame(walkFrame(onTap))
 
@@ -440,9 +475,21 @@ class MyGameFrameTextTest {
             when (run) {
                 is FrameRun.Plain -> run.text
                 is FrameRun.Word -> run.text
-                is FrameRun.Beside -> run.support.spokenText().text
+                is FrameRun.Beside -> run.support.spokenText().text + run.closing
             }
         }
+
+        const val FIRST_SUPPORT_LINE: String = "what people and"
+        const val LAST_SUPPORT_LINE: String = "animals eat"
+
+        val foodFrame: List<MyGameFramePiece> = listOf(
+            MyGameFramePiece(text = "We need ", support = null),
+            MyGameFramePiece(
+                text = "food",
+                support = MyGameWordSupport(isOnTap = false, text = "what people and animals eat", languageTag = "en"),
+            ),
+            MyGameFramePiece(text = ".", support = null),
+        )
 
         val dayFrame: List<MyGameFramePiece> = listOf(
             MyGameFramePiece(text = "The ", support = null),
