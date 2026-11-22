@@ -4,7 +4,7 @@ import {
   accountRequests,
   contentDirectory,
   databaseUrl,
-  rowsOf,
+  readRows,
   sessionCookieOf,
 } from '#account/infrastructure/http/accountRoutes.testSupport'
 import { createApp } from '#app'
@@ -26,7 +26,7 @@ describe('the scaffold and the chrome over held cards', () => {
   })
 
   beforeEach(async () => {
-    await rowsOf(truncatePlayerTables)
+    await readRows(truncatePlayerTables)
     app = createApp({ ...server, clock: fixedClock('2026-11-12T08:00:00Z') })
   })
 
@@ -48,16 +48,16 @@ describe('the scaffold and the chrome over held cards', () => {
 
   it('changes the scaffold language without touching a card', async () => {
     const ana = await signUpInSpanish()
-    await rowsOf(
+    await readRows(
       `INSERT INTO cards (player_id, word_id, state, step, stability, difficulty, last_review_at, last_rating, entered_at)
        VALUES ($1, 'lesson-1-1', 'review', NULL, 9.5, 4.2, '2026-11-11T08:00:00Z', 'good', '2026-11-10T08:00:00Z'),
               ($1, 'lesson-1-2', 'learning', 0, NULL, NULL, NULL, NULL, '2026-11-10T08:00:00Z')`,
       [ana.id],
     )
-    const cardsBefore = await rowsOf('SELECT * FROM cards ORDER BY word_id')
+    const cardsBefore = await readRows('SELECT * FROM cards ORDER BY word_id')
 
     expect((await changeScaffold(ana.cookie, { scaffold: 'none' })).status).toBe(200)
-    expect(await rowsOf('SELECT * FROM cards ORDER BY word_id')).toEqual(cardsBefore)
+    expect(await readRows('SELECT * FROM cards ORDER BY word_id')).toEqual(cardsBefore)
   })
 
   const { chromePhaseOfSession } = accountRequests(() => app)
@@ -65,13 +65,13 @@ describe('the scaffold and the chrome over held cards', () => {
   it('answers the chrome English on the session of a player with no town who earned every chrome skill', async () => {
     const ana = await signUpInSpanish()
     const chromeLessons = server.lessons.chromeLessons()
-    await rowsOf(
+    await readRows(
       `INSERT INTO cards (player_id, word_id, state, step, stability, difficulty, last_review_at, last_rating, entered_at)
        SELECT $1, word_id, 'review', NULL, 9.5, 4.2, '2026-11-11T08:00:00Z', 'good', '2026-11-10T08:00:00Z'
        FROM unnest($2::text[]) AS word_id`,
       [ana.id, chromeLessons.flatMap(({ words }) => words.slice(0, 1).map(({ id }) => id))],
     )
-    await rowsOf(
+    await readRows(
       `INSERT INTO earned_skills (player_id, lesson_id, resource, rate_percent, earned_at)
        SELECT $1, lesson_id, 'food', 5, '2026-11-11T08:00:00Z' FROM unnest($2::text[]) AS lesson_id`,
       [ana.id, chromeLessons.map(({ id }) => id)],

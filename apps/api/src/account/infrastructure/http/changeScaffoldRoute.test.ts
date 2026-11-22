@@ -9,7 +9,7 @@ import {
   accountRequests,
   contentDirectory,
   databaseUrl,
-  rowsOf,
+  readRows,
   sessionCookieOf,
 } from './accountRoutes.testSupport'
 
@@ -26,7 +26,7 @@ describe('the player routes', () => {
   })
 
   beforeEach(async () => {
-    await rowsOf(truncatePlayerTables)
+    await readRows(truncatePlayerTables)
     app = createApp({ ...server, clock: fixedClock('2026-11-12T08:00:00Z') })
   })
 
@@ -113,7 +113,7 @@ describe('the player routes', () => {
 
   it('answers a player whose account is gone as signed out', async () => {
     const ana = await signUpInSpanish()
-    await rowsOf('DELETE FROM players WHERE id = $1', [ana.id])
+    await readRows('DELETE FROM players WHERE id = $1', [ana.id])
 
     const response = await changeScaffold(ana.cookie, { scaffold: 'none' })
 
@@ -153,6 +153,6 @@ describe('the player routes', () => {
     const ana = await signUpInSpanish()
     await changeScaffold(ana.cookie, { scaffold: 'fr' })
 
-    expect(await rowsOf('SELECT scaffold FROM players')).toEqual([{ scaffold: 'es' }])
+    expect(await readRows('SELECT scaffold FROM players')).toEqual([{ scaffold: 'es' }])
   })
 })
