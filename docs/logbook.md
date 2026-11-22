@@ -109,6 +109,27 @@ This one list replaces the scattered per-PR lines above. Tick each item when it 
 
 
 
+## 2026-11-22: ADR 053 and ADR 054, the backend in three layers with classes
+
+### Advanced
+- #1804: ADR 053, a domain use case is a class with its ports in the constructor and one `execute`. ADR 054 (#1806) superseded it and absorbed it.
+- #1806: ADR 054, each feature reads `domain/`, `application/` and `infrastructure/` (the owner chose Codely's shape). It covers use cases and controllers as classes, the `UnitOfWork` port and one grammar in both packages.
+- #1826–#1856: all 19 migration tickets, #1807–#1825, merged as 28 PRs. Every feature is moved: platform, content, memory, season, account, town and its sub-areas, placement, holdout, learning and report. `apps/api/src` holds only `infrastructure/` and the composition root.
+- `scripts/mygame-structure-check` runs on an empty baseline with the new checks: `role_folder`, `file_outside_layer`, `use_case_shape`, `controller_shape`, `use_case_built_outside_root`, `controller_built_outside_route_list` and `route_file`.
+- New contract suites prove fakes that had none: `accountsContract` and `townReaderContract` (#1836). `DrizzleUnitOfWork` has rollback tests (#1830). `readScaffold` answers a `Result`, and no domain use case throws (#1852).
+- 31 PRs in all.
+
+### Not proven
+- The town row lock (`'lockedForUpdate'` in `DrizzleTownRepository`) has no test that fails without it, because every town change takes the player lock first (#1840, noted on #1685).
+- `MailCopy` was not prototyped before #1832. The mail copy was compared byte for byte in review, not on a live mail.
+- The answer for a player with no account (`AccountNotFound`, an empty 500) was checked by reading the code, not by a live request (#1852).
+- Feature order inside the domain package is not checked. 118 import lines cross the api's order (#1855).
+
+### Next
+- Batch #1685: the review minors of this sprint and the last (shared town store builder, quote duplication, town lock test, the unknown-email hash test, the `step_is_public` granularity).
+- #1855: an ADR on feature order inside the domain package.
+- Asset branches #1747 then #1748, with the owner at the computer. Audits #1744 (Android) and #1745 (web, parked).
+
 ## 2026-11-21: ADR 052 migration, audit and readability follow-ups
 
 ### Advanced

@@ -15,34 +15,34 @@ Totals of the rows folded out of Recent. Until #1207 they were also split by the
 
 | Model:effort | PRs | MERGE | FIX FIRST checklist | FIX FIRST judgment | FIX FIRST spec |
 |---|---|---|---|---|---|
-| sonnet:low | 56 | 47 | 0 | 2 | 7 |
+| sonnet:low | 58 | 48 | 1 | 2 | 7 |
 | sonnet:medium | 7 | 5 | 0 | 2 | 0 |
 | sonnet:high | 3 | 0 | 0 | 2 | 1 |
 | opus:medium | 103 | 77 | 11 | 12 | 3 |
-| opus:high | 567 | 386 | 81 | 64 | 35 |
-| fable:high | 80 | 60 | 2 | 12 | 6 |
+| opus:high | 595 | 406 | 83 | 69 | 36 |
+| fable:high | 82 | 62 | 2 | 12 | 6 |
 
 ## Recent
 
 | PR | Model:effort | First review | Cause | Rounds | Lines +/- |
 |---|---|---|---|---|---|
-| #1770 | opus:high | MERGE |  | 1 | +4518/-3489 |
-| #1772 | opus:high | MERGE |  | 1 | +629/-562 |
-| #1773 | opus:high | FIX FIRST | checklist | 2 | +576/-514 |
-| #1775 | opus:high | MERGE |  | 1 | +650/-602 |
-| #1778 | opus:high | MERGE |  | 1 | +125/-124 |
-| #1776 | opus:high | FIX FIRST | judgment | 2 | +169/-121 |
-| #1779 | opus:high | MERGE |  | 1 | +1692/-1671 |
-| #1788 | opus:high | MERGE |  | 1 | +139/-118 |
-| #1789 | opus:high | FIX FIRST | checklist | 2 | +321/-309 |
-| #1790 | opus:high | MERGE |  | 1 | +52/-52 |
-| #1791 | opus:high | FIX FIRST | judgment | 2 | +677/-504 |
-| #1794 | opus:high | MERGE |  | 1 | +239/-162 |
-| #1793 | opus:high | FIX FIRST | judgment | 2 | +737/-397 |
-| #1798 | opus:high | MERGE |  | 1 | +414/-114 |
-| #1797 | opus:high | FIX FIRST | judgment | 2 | +455/-239 |
-| #1796 | opus:high | FIX FIRST | judgment | 2 | +386/-671 |
-| #1799 | opus:high | FIX FIRST | spec | 2 | +2573/-1784 |
-| #1800 | opus:high | MERGE |  | 1 | +107/-44 |
-| #1801 | opus:high | MERGE |  | 1 | +270/-186 |
-| #1802 | sonnet:low | FIX FIRST | checklist | 2 | +19/-8 |
+| #1831 | sonnet:low | MERGE |  | 1 | +55/-57 |
+| #1837 | opus:high | MERGE |  | 2 | +172/-177 |
+| #1838 | opus:high | MERGE |  | 1 | +916/-908 |
+| #1839 | opus:high | MERGE |  | 1 | +117/-123 |
+| #1840 | opus:high | MERGE |  | 1 | +412/-332 |
+| #1841 | opus:high | MERGE |  | 1 | +88/-89 |
+| #1842 | opus:high | MERGE |  | 1 | +358/-293 |
+| #1843 | opus:high | MERGE |  | 1 | +69/-68 |
+| #1844 | opus:high | MERGE |  | 1 | +377/-261 |
+| #1845 | opus:high | MERGE |  | 1 | +157/-152 |
+| #1846 | opus:high | MERGE |  | 1 | +398/-213 |
+| #1847 | opus:high | MERGE |  | 1 | +70/-76 |
+| #1848 | opus:high | MERGE |  | 1 | +627/-414 |
+| #1849 | opus:high | MERGE |  | 1 | +117/-128 |
+| #1850 | opus:high | MERGE |  | 1 | +586/-399 |
+| #1851 | opus:high | MERGE |  | 2 | +497/-507 |
+| #1852 | opus:high | MERGE |  | 1 | +524/-417 |
+| #1853 | opus:high | MERGE |  | 1 | +16/-16 |
+| #1854 | opus:high | MERGE |  | 1 | +153/-147 |
+| #1856 | opus:high | MERGE |  | 2 | +188/-281 |
