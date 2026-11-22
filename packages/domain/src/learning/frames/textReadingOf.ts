@@ -1,4 +1,4 @@
-import type { FrameReader } from './FrameLearner'
+import type { FrameLearner } from './FrameLearner'
 import type { FrameSpans } from './FrameSpan'
 import { frameSpansOf, withholdingNothing } from './frameSpansOf'
 import type { TextCatalog } from './ports/TextCatalog'
@@ -12,12 +12,12 @@ export type TextReading = {
 
 export const textReadingOf = (
   { id, title, sentences }: Text,
-  reader: FrameReader,
+  learner: FrameLearner,
   texts: Pick<TextCatalog, 'textTokensOf'>,
 ): TextReading => ({
   id,
   title,
   sentences: sentences.map((sentence) =>
-    frameSpansOf(sentence, texts.textTokensOf(id, sentence), reader, withholdingNothing),
+    frameSpansOf(sentence, texts.textTokensOf(id, sentence), learner, withholdingNothing),
   ),
 })

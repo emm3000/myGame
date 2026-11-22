@@ -1,7 +1,7 @@
 import {
   type Clock,
   type DomainError,
-  type FrameReader,
+  type FrameLearner,
   heldCardsOf,
   type Instant,
   type LessonId,
@@ -44,12 +44,12 @@ export type DueReviews = {
 
 const promptedReviewOf = (
   { lesson, word, due, shownFrame }: ShownReview,
-  reader: FrameReader,
+  learner: FrameLearner,
 ): PromptedReview => ({
   wordId: word.id,
   lessonId: lesson.id,
   dueAt: due.dueAt,
-  prompt: reviewPromptOf({ lesson, word, card: due.card, shownFrame }, reader),
+  prompt: reviewPromptOf({ lesson, word, card: due.card, shownFrame }, learner),
 })
 
 export const serveDueReviews = async (
@@ -75,9 +75,9 @@ export const serveDueReviews = async (
   if (!nextDueAt.ok) {
     return nextDueAt
   }
-  const reader = { cards: heldCardsOf(cards), placedOutBands, scaffold, lessons }
+  const frameLearner = { cards: heldCardsOf(cards), placedOutBands, scaffold, lessons }
   return ok({
-    due: shown.value.map((review) => promptedReviewOf(review, reader)),
+    due: shown.value.map((review) => promptedReviewOf(review, frameLearner)),
     readFirst: readFirstOf(
       lessons.lessons(),
       shown.value.map(({ due }) => due),

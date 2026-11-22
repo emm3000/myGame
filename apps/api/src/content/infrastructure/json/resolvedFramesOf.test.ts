@@ -2,7 +2,7 @@ import { cpSync, mkdtempSync, readFileSync, rmSync, writeFileSync } from 'node:f
 import { tmpdir } from 'node:os'
 import { join } from 'node:path'
 import {
-  type FrameReader,
+  type FrameLearner,
   type FrameSpans,
   Instant,
   type Lesson,
@@ -78,7 +78,7 @@ const cardInReview = (): MemoryCard => {
   return card.value
 }
 
-const readerOf = (scaffold: Scaffold, lessons: LessonLibrary = shipped): FrameReader => ({
+const readerOf = (scaffold: Scaffold, lessons: LessonLibrary = shipped): FrameLearner => ({
   cards: new Map(),
   placedOutBands: [],
   scaffold,

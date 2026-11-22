@@ -1,5 +1,5 @@
 import type { MemoryCard } from '#memory/MemoryCard'
-import type { FrameReader } from '../frames/FrameLearner'
+import type { FrameLearner } from '../frames/FrameLearner'
 import type { FrameSpans } from '../frames/FrameSpan'
 import { frameSpansOf } from '../frames/frameSpansOf'
 import { glossOf } from '../scaffold/glossOf'
@@ -27,15 +27,15 @@ export type ReviewPrompt =
 const holdsAnyForm = ({ text }: SupportText, forms: ReadonlySet<string>): boolean =>
   (text.toLowerCase().match(/[a-z]+/g) ?? []).some((token) => forms.has(token))
 
-const recallOf = ({ word, shownFrame }: ShownWord, reader: FrameReader): ReviewPrompt => {
-  const forms = reader.lessons.answerFormsOf(word.id)
+const recallOf = ({ word, shownFrame }: ShownWord, learner: FrameLearner): ReviewPrompt => {
+  const forms = learner.lessons.answerFormsOf(word.id)
   return {
     mode: 'recall',
-    gloss: glossOf(word, reader.scaffold),
+    gloss: glossOf(word, learner.scaffold),
     gappedFrame: frameSpansOf(
       shownFrame,
-      reader.lessons.frameTokensOf(word.id, shownFrame),
-      reader,
+      learner.lessons.frameTokensOf(word.id, shownFrame),
+      learner,
       (support) => holdsAnyForm(support, forms),
     ),
   }
@@ -43,26 +43,26 @@ const recallOf = ({ word, shownFrame }: ShownWord, reader: FrameReader): ReviewP
 
 const recognitionOf = (
   { lesson, word, card, shownFrame }: ShownWord,
-  reader: FrameReader,
+  learner: FrameLearner,
 ): ReviewPrompt => {
-  const choices = recognitionChoicesOf(word.id, lesson, card, reader.cards).flatMap(
+  const choices = recognitionChoicesOf(word.id, lesson, card, learner.cards).flatMap(
     ({ choiceId, wordId }) =>
       lesson.words
         .filter(({ id }) => id === wordId)
-        .map((offered) => ({ choiceId, gloss: glossOf(offered, reader.scaffold) })),
+        .map((offered) => ({ choiceId, gloss: glossOf(offered, learner.scaffold) })),
   )
   return {
     mode: 'recognition',
     word: word.acceptedForms[0],
     frame: frameSpansOf(
       shownFrame,
-      reader.lessons.frameTokensOf(word.id, shownFrame),
-      reader,
+      learner.lessons.frameTokensOf(word.id, shownFrame),
+      learner,
       ({ text }) => choices.some(({ gloss }) => gloss === text),
     ),
     choices,
   }
 }
 
-export const reviewPromptOf = (shown: ShownWord, reader: FrameReader): ReviewPrompt =>
-  reviewFormatOf(shown.card) === 'recall' ? recallOf(shown, reader) : recognitionOf(shown, reader)
+export const reviewPromptOf = (shown: ShownWord, learner: FrameLearner): ReviewPrompt =>
+  reviewFormatOf(shown.card) === 'recall' ? recallOf(shown, learner) : recognitionOf(shown, learner)

@@ -1,15 +1,15 @@
 import type { LessonWord } from '../Lesson'
 import { anchorFrameOf } from './anchorFrameOf'
-import type { FrameReader } from './FrameLearner'
+import type { FrameLearner } from './FrameLearner'
 import type { FrameSpans } from './FrameSpan'
 import { frameSpansOf, withholdingNothing } from './frameSpansOf'
 
-export const readingFrameOf = (word: LessonWord, reader: FrameReader): FrameSpans => {
+export const readingFrameOf = (word: LessonWord, learner: FrameLearner): FrameSpans => {
   const { frame } = anchorFrameOf(word)
   return frameSpansOf(
     frame,
-    reader.lessons.frameTokensOf(word.id, frame),
-    reader,
+    learner.lessons.frameTokensOf(word.id, frame),
+    learner,
     withholdingNothing,
   )
 }

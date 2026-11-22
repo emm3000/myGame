@@ -3,11 +3,11 @@ import { inMemoryBands } from '../curriculum/testing/inMemoryBands'
 import { inMemoryLessons } from '../curriculum/testing/inMemoryLessons'
 import { lessonOne } from '../curriculum/testing/lessonOne'
 import { townLessonTwo } from '../curriculum/testing/townLessonTwo'
-import type { FrameReader } from './FrameLearner'
+import type { FrameLearner } from './FrameLearner'
 import { readingFrameOf } from './readingFrameOf'
 import { inMemoryFrames } from './testing/inMemoryFrames'
 
-const readerOf = (frames: FrameReader['lessons']['frameTokensOf']): FrameReader => ({
+const readerOf = (frames: FrameLearner['lessons']['frameTokensOf']): FrameLearner => ({
   cards: new Map(),
   placedOutBands: [],
   scaffold: 'es',

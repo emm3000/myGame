@@ -5,7 +5,7 @@ import type { HeldCards } from '../HeldCards'
 import type { Scaffold } from '../scaffold/Scaffold'
 import type { FrameCatalog } from './ports/FrameCatalog'
 
-export type FrameReader = {
+export type FrameLearner = {
   readonly cards: HeldCards
   readonly placedOutBands: ReadonlyArray<Band>
   readonly scaffold: Scaffold
