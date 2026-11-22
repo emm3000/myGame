@@ -1,7 +1,7 @@
 import type { LessonId } from '#learning/Lesson'
 import type { Instant } from '#time/Instant'
 import type { BuildingKind } from '../building/domain/BuildingKind'
-import type { HireKind } from '../hiring/HireKind'
+import type { HireKind } from '../hiring/domain/HireKind'
 import type { ResourceKind } from '../resources/ResourceKind'
 import type { Stocks } from '../resources/Stocks'
 import type { SiteAddress } from './SiteAddress'

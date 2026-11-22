@@ -3,8 +3,8 @@ import type { BuildingKind } from '../building/domain/BuildingKind'
 import type { BuildingLevel } from '../building/domain/BuildingLevel'
 import type { TownCatalog } from '../domain/TownCatalog'
 import type { ProductionPercent, TownSettings } from '../domain/TownSettings'
-import type { HireKind } from '../hiring/HireKind'
-import type { HireTerms } from '../hiring/HireTerms'
+import type { HireKind } from '../hiring/domain/HireKind'
+import type { HireTerms } from '../hiring/domain/HireTerms'
 
 const unscaled: ProductionPercent = { money: 100, food: 100, power: 100, material: 100 }
 

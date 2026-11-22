@@ -24,7 +24,6 @@ file_outside_layer packages/domain/src/placement/ports
 file_outside_layer packages/domain/src/placement/services
 file_outside_layer packages/domain/src/placement/useCases
 file_outside_layer packages/domain/src/town/guidance
-file_outside_layer packages/domain/src/town/hiring
 file_outside_layer packages/domain/src/town/hiring/useCases
 file_outside_layer packages/domain/src/town/resources
 file_outside_layer packages/domain/src/town/school
