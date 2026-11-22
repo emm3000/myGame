@@ -35,7 +35,7 @@ type AskedPlacement = {
   readonly starts: ReadonlyArray<BandStart>
 }
 
-const askedPlacementOf = async (
+const readAskedPlacement = async (
   { playerId, band }: AnswerPlacementCommand,
   { placements, bandStarts }: AnswerPlacementDependencies,
 ): Promise<Result<AskedPlacement, DomainError>> => {
@@ -59,7 +59,7 @@ export const answerPlacement = async (
   command: AnswerPlacementCommand,
   dependencies: AnswerPlacementDependencies,
 ): Promise<Result<PlacementView, DomainError>> => {
-  const asked = await askedPlacementOf(command, dependencies)
+  const asked = await readAskedPlacement(command, dependencies)
   if (!asked.ok) {
     return asked
   }

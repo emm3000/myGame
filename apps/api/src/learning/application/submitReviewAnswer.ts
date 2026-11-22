@@ -27,7 +27,7 @@ export type ReviewOutcome = {
   readonly skillWords: ReadonlyArray<string>
 }
 
-const heldWordsOf = async (
+const readHeldWords = async (
   playerId: PlayerId,
   earnedSkill: TownSkill | undefined,
   cards: CardRepository,
@@ -92,7 +92,7 @@ export const submitReviewAnswer = (
         return town
       }
       const earnedSkill = answered.value.kind === 'rated' ? answered.value.earnedSkill : undefined
-      const skillWords = await heldWordsOf(playerId, earnedSkill, stores.cards, lessons)
+      const skillWords = await readHeldWords(playerId, earnedSkill, stores.cards, lessons)
       if (!skillWords.ok) {
         return skillWords
       }

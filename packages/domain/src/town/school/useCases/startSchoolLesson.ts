@@ -108,7 +108,7 @@ const bandStartDrawnFor = async (
   )
 }
 
-const admittedLessonOf = async (
+const admitLesson = async (
   playerId: PlayerId,
   resolved: ChangedTown,
   lessonId: LessonId,
@@ -180,7 +180,7 @@ export const startSchoolLesson = async (
   if (!resolved.ok) {
     return resolved
   }
-  const admitted = await admittedLessonOf(playerId, resolved.value, lessonId, dependencies, now)
+  const admitted = await admitLesson(playerId, resolved.value, lessonId, dependencies, now)
   if (!admitted.ok) {
     return admitted
   }
