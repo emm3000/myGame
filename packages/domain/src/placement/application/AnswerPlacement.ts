@@ -1,11 +1,14 @@
+import { readScaffold } from '#account/application/readScaffold'
 import type { DomainError } from '#DomainError'
 import type { BandStart } from '#holdout/BandStart'
 import type { BandStartRepository } from '#holdout/ports/BandStartRepository'
 import type { Band } from '#learning/curriculum/Band'
+import type { BandCatalog } from '#learning/curriculum/ports/BandCatalog'
 import type { Scaffold } from '#learning/scaffold/Scaffold'
 import type { Clock } from '#platform/domain/Clock'
 import type { PlayerId } from '#player/PlayerId'
 import { err, ok, type Result } from '#Result'
+import { type MutateTownDependencies, mutateTown } from '#town/application/mutateTown'
 import { askedSampleOf } from '../domain/askedSampleOf'
 import type { PlacementSample, TakenPlacement } from '../domain/Placement'
 import type { PlacementRepository } from '../domain/PlacementRepository'
@@ -19,10 +22,13 @@ export type AnswerPlacementCommand = {
   readonly playerId: PlayerId
   readonly band: Band
   readonly answers: ReadonlyArray<PlacementAnswer>
+}
+
+type ScaffoldedAnswers = AnswerPlacementCommand & {
   readonly scaffold: Scaffold
 }
 
-export type AnswerPlacementDependencies = {
+type AnswerPorts = {
   readonly placements: PlacementRepository
   readonly bandStarts: Pick<BandStartRepository, 'bandStartsOf'>
   readonly words: PlacementWordCatalog
@@ -37,7 +43,7 @@ type AskedPlacement = {
 
 const readAskedPlacement = async (
   { playerId, band }: AnswerPlacementCommand,
-  { placements, bandStarts }: AnswerPlacementDependencies,
+  { placements, bandStarts }: AnswerPorts,
 ): Promise<Result<AskedPlacement, DomainError>> => {
   const stored = await placements.placementOf(playerId)
   if (!stored.ok) {
@@ -55,9 +61,9 @@ const readAskedPlacement = async (
   return ok({ placement, sample, starts: starts.value })
 }
 
-export const answerPlacement = async (
-  command: AnswerPlacementCommand,
-  dependencies: AnswerPlacementDependencies,
+const answerPlacementIn = async (
+  command: ScaffoldedAnswers,
+  dependencies: AnswerPorts,
 ): Promise<Result<PlacementView, DomainError>> => {
   const asked = await readAskedPlacement(command, dependencies)
   if (!asked.ok) {
@@ -83,4 +89,25 @@ export const answerPlacement = async (
     return saved
   }
   return ok(placementViewOf(scored, starts, dependencies.words, command.scaffold))
+}
+
+export type AnswerPlacementDependencies = MutateTownDependencies & {
+  readonly lessons: PlacementWordCatalog & Pick<BandCatalog, 'wordsOfBand' | 'hasLessons'>
+}
+
+export class AnswerPlacement {
+  constructor(private readonly dependencies: AnswerPlacementDependencies) {}
+
+  async execute(command: AnswerPlacementCommand): Promise<Result<PlacementView, DomainError>> {
+    const { lessons } = this.dependencies
+    return mutateTown(
+      command.playerId,
+      async (stores, clock) =>
+        answerPlacementIn(
+          { ...command, scaffold: await readScaffold(command.playerId, stores.accounts) },
+          { placements: stores.placements, bandStarts: stores.bandStarts, words: lessons, clock },
+        ),
+      this.dependencies,
+    )
+  }
 }

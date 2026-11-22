@@ -1,21 +1,47 @@
 import { assert, describe, expect, it } from 'vitest'
+import { signedUpAccountsOf } from '#account/testing/signedUpAccountsOf'
 import { inMemoryBandStarts, type OwnedBandStart } from '#holdout/testing/inMemoryBandStarts'
+import { inMemoryLessons } from '#learning/curriculum/testing/inMemoryLessons'
 import type { Clock } from '#platform/domain/Clock'
+import type { RandomSource } from '#platform/domain/RandomSource'
 import { firstItemsRandom } from '#platform/testing/firstItemsRandom'
+import { inMemoryUnitOfWork } from '#platform/testing/inMemoryUnitOfWork'
 import { Instant } from '#time/Instant'
+import { inMemoryTownStores } from '#town/testing/inMemoryTownStores'
+import type { PlacementContent } from '../domain/placementSamplesDrawn'
 import { inMemoryPlacements, type OwnedPlacement } from '../testing/inMemoryPlacements'
 import {
   type PlacementShelf,
   placementContentOf,
   placementWordsOfBand,
 } from '../testing/placementWords'
-import { beginPlacement } from './beginPlacement'
+import { BeginPlacement, type BeginPlacementCommand } from './BeginPlacement'
 
 const ana = 'player-ana'
 
 const firstSignInAt = Instant.fromEpochMilliseconds(Date.parse('2026-11-12T09:00:00Z'))
 
 const frozenClock: Clock = { now: () => firstSignInAt }
+
+type PlacementFixture = PlacementContent & {
+  readonly placements: ReturnType<typeof inMemoryPlacements>
+  readonly bandStarts: ReturnType<typeof inMemoryBandStarts>
+  readonly random: RandomSource
+  readonly clock: Clock
+}
+
+const beginPlacement = (
+  command: BeginPlacementCommand,
+  { placements, bandStarts, words, bands, random, clock }: PlacementFixture,
+): ReturnType<BeginPlacement['execute']> =>
+  new BeginPlacement({
+    unitOfWork: inMemoryUnitOfWork(
+      inMemoryTownStores({ placements, bandStarts, accounts: signedUpAccountsOf([ana]) }),
+    ),
+    lessons: { ...inMemoryLessons([], []), ...words, ...bands },
+    random,
+    clock,
+  }).execute(command)
 
 const bandOneWords = [...placementWordsOfBand(1, 5, true), ...placementWordsOfBand(1, 31)]
 
@@ -51,7 +77,7 @@ const sampledWordIdsOf = async (
   return stored.value.samples.map(({ wordIds }) => wordIds)
 }
 
-describe('beginPlacement', () => {
+describe('BeginPlacement', () => {
   it('never samples a word a chrome lesson teaches', async () => {
     const { placements, dependencies } = placementOf({})
 

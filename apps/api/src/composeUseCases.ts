@@ -1,4 +1,8 @@
 import {
+  AnswerPlacement,
+  type AnswerPlacementDependencies,
+  BeginPlacement,
+  type BeginPlacementDependencies,
   CallJobBack,
   type CallJobBackDependencies,
   DismissGuidance,
@@ -15,6 +19,8 @@ import {
   type QuoteJobDependencies,
   ReadChromePhase,
   type ReadChromePhaseDependencies,
+  ReadPlacement,
+  type ReadPlacementDependencies,
   ReadRegionMap,
   type ReadRegionMapDependencies,
   RequestPasswordReset,
@@ -35,6 +41,8 @@ import {
   type SignInDependencies,
   SignUp,
   type SignUpDependencies,
+  SkipPlacement,
+  type SkipPlacementDependencies,
   StartBuildingWork,
   type StartBuildingWorkDependencies,
   StartSchoolLesson,
@@ -72,7 +80,11 @@ export type UseCaseDependencies = SignUpDependencies &
   StopSchoolLessonDependencies &
   ResolveTownNewsDependencies &
   MarkTipSeenDependencies &
-  DismissGuidanceDependencies
+  DismissGuidanceDependencies &
+  ReadPlacementDependencies &
+  BeginPlacementDependencies &
+  SkipPlacementDependencies &
+  AnswerPlacementDependencies
 
 export type UseCases = {
   readonly signUp: SignUp
@@ -99,6 +111,10 @@ export type UseCases = {
   readonly resolveTownNews: ResolveTownNews
   readonly markTipSeen: MarkTipSeen
   readonly dismissGuidance: DismissGuidance
+  readonly readPlacement: ReadPlacement
+  readonly beginPlacement: BeginPlacement
+  readonly skipPlacement: SkipPlacement
+  readonly answerPlacement: AnswerPlacement
 }
 
 export const composeUseCases = (adapters: UseCaseDependencies): UseCases => ({
@@ -126,4 +142,8 @@ export const composeUseCases = (adapters: UseCaseDependencies): UseCases => ({
   resolveTownNews: new ResolveTownNews(adapters),
   markTipSeen: new MarkTipSeen(adapters),
   dismissGuidance: new DismissGuidance(adapters),
+  readPlacement: new ReadPlacement(adapters),
+  beginPlacement: new BeginPlacement(adapters),
+  skipPlacement: new SkipPlacement(adapters),
+  answerPlacement: new AnswerPlacement(adapters),
 })

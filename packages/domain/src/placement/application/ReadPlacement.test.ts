@@ -1,7 +1,11 @@
 import { assert, describe, expect, it } from 'vitest'
+import { signedUpAccountsOf } from '#account/testing/signedUpAccountsOf'
 import type { BandStart } from '#holdout/BandStart'
 import { inMemoryBandStarts, type OwnedBandStart } from '#holdout/testing/inMemoryBandStarts'
+import { inMemoryLessons } from '#learning/curriculum/testing/inMemoryLessons'
+import { inMemoryUnitOfWork } from '#platform/testing/inMemoryUnitOfWork'
 import { Instant } from '#time/Instant'
+import { inMemoryTownStores } from '#town/testing/inMemoryTownStores'
 import type { PlacementScore, TakenPlacement } from '../domain/Placement'
 import { inMemoryPlacements, type OwnedPlacement } from '../testing/inMemoryPlacements'
 import {
@@ -9,7 +13,7 @@ import {
   placementContentOf,
   placementWordsOfBand,
 } from '../testing/placementWords'
-import { readPlacement } from './readPlacement'
+import { ReadPlacement } from './ReadPlacement'
 
 const ana = 'player-ana'
 
@@ -40,21 +44,30 @@ type ReadShape = {
   readonly shelves?: ReadonlyArray<PlacementShelf>
 }
 
-const read = ({ stored = [], starts = [], shelves = draftedBands }: ReadShape) =>
-  readPlacement(
-    { playerId: ana, scaffold: 'es' },
-    {
-      placements: inMemoryPlacements(stored),
-      bandStarts: inMemoryBandStarts(starts),
-      ...placementContentOf(shelves),
-    },
-  )
+const read = ({
+  stored = [],
+  starts = [],
+  shelves = draftedBands,
+}: ReadShape): ReturnType<ReadPlacement['execute']> => {
+  const { words, bands } = placementContentOf(shelves)
+  return new ReadPlacement({
+    unitOfWork: inMemoryUnitOfWork(
+      inMemoryTownStores({
+        placements: inMemoryPlacements(stored),
+        bandStarts: inMemoryBandStarts(starts),
+        accounts: signedUpAccountsOf([ana]),
+      }),
+    ),
+    lessons: { ...inMemoryLessons([], []), ...words, ...bands },
+    clock: { now: () => firstSignInAt },
+  }).execute({ playerId: ana })
+}
 
 const begun = (placement: TakenPlacement = begunPlacement): ReadonlyArray<OwnedPlacement> => [
   { playerId: ana, placement },
 ]
 
-describe('readPlacement', () => {
+describe('ReadPlacement', () => {
   it('offers a placement to a player who has neither taken nor skipped one', async () => {
     expect(await read({})).toEqual({ ok: true, value: { kind: 'offered' } })
   })
