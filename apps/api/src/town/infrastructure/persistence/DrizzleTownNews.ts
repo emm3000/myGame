@@ -1,6 +1,7 @@
 import {
   type DomainError,
   type Instant,
+  keptEventsPerTown,
   ok,
   type Result,
   type SiteAddress,
@@ -8,10 +9,10 @@ import {
   type TownEvent,
   type TownId,
   type TownNews,
+  type TownNewsReader,
 } from '@mygame/domain'
 import { and, desc, eq, gt, notInArray } from 'drizzle-orm'
 import type { PostgresSession } from '#platform/infrastructure/persistence/connectPostgres'
-import { keptEventsPerTown, type TownNewsReader } from '../../application/ports/TownNewsReader'
 import { townEvents } from './newsTables'
 import { storedBuildings } from './townColumns'
 import { townEventFromRow } from './townEventFromRow'

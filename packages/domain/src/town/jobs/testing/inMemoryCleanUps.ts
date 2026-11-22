@@ -1,6 +1,6 @@
 import { ok } from '#Result'
 import type { Instant } from '#time/Instant'
-import type { SiteAddress } from '../../SiteAddress'
+import type { SiteAddress } from '../../domain/SiteAddress'
 import type { CleanUp } from '../CleanUp'
 import type { CleanUpRepository } from '../ports/CleanUpRepository'
 

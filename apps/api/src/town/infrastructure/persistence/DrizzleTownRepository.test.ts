@@ -1,8 +1,8 @@
 import { drizzle } from 'drizzle-orm/node-postgres'
 import { afterAll, beforeAll } from 'vitest'
-import { townRepositoryContract } from '../memory/townRepositoryContract.testSupport'
 import { DrizzleEarnedSkillRepository } from './DrizzleEarnedSkillRepository'
 import { DrizzleTownRepository } from './DrizzleTownRepository'
+import { townRepositoryContract } from './townRepositoryContract.testSupport'
 import { townTestDatabase } from './townTestDatabase.testSupport'
 
 const { open, close, pool, registerPlayers, truncateAll } = townTestDatabase()

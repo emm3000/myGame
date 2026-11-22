@@ -1,12 +1,12 @@
 import {
   type DomainError,
   type Hint,
+  mutateTown,
   type PlayerId,
   type Result,
   requestHint,
   type WordId,
 } from '@mygame/domain'
-import { mutateTown } from '#town/application/mutateTown'
 import type { LearningDependencies } from './LearningDependencies'
 
 export const requestReviewHint = (

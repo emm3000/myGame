@@ -1,15 +1,14 @@
 import type { TownOverview } from '@mygame/contracts'
-import type { Instant, ResourceKind, TownCatalog, TownSeason } from '@mygame/domain'
+import type { Instant, ResourceKind, TownCatalog, TownReading, TownSeason } from '@mygame/domain'
 import { presentScaffold } from '#account/infrastructure/http/presentScaffold'
 import { isoOf } from '#platform/infrastructure/http/isoOf'
-import type { StockView, TownView } from '../../application/gatherTownView'
-import type { TownReading } from '../../application/TownReading'
 import { presentTownBuildings } from '../../building/infrastructure/http/presentTownBuildings'
 import { presentTownWork } from '../../building/infrastructure/http/presentTownWork'
 import { presentTownGuidance } from '../../guidance/infrastructure/http/presentTownGuidance'
 import { presentTownHiring } from '../../hiring/infrastructure/http/presentTownHiring'
 import { presentTownJob } from '../../jobs/infrastructure/http/presentTownJob'
 import { presentTownSchool } from '../../school/infrastructure/http/presentTownSchool'
+import type { StockView, TownView } from './gatherTownView'
 
 const isoOrNullOf = (instant: Instant | null): string | null =>
   instant === null ? null : isoOf(instant)

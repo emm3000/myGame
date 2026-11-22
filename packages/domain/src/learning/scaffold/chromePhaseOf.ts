@@ -1,4 +1,4 @@
-import type { TownSkill } from '#town/TownSkill'
+import type { TownSkill } from '#town/domain/TownSkill'
 import type { HeldCard } from '../HeldCard'
 import { holdsLessonCards } from '../holdsLessonCards'
 import type { Lesson } from '../Lesson'

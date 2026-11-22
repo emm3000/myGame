@@ -1,4 +1,4 @@
-import type { AccountStores } from '@mygame/domain'
+import type { AccountStores, TownStores } from '@mygame/domain'
 import { DrizzleAccounts } from '#account/infrastructure/persistence/DrizzleAccounts'
 import { DrizzleAccountTokens } from '#account/infrastructure/persistence/DrizzleAccountTokens'
 import { DrizzleSessions } from '#account/infrastructure/persistence/DrizzleSessions'
@@ -8,7 +8,6 @@ import { DrizzlePendingReviewRepository } from '#learning/infrastructure/persist
 import { DrizzleReviewLog } from '#learning/infrastructure/persistence/DrizzleReviewLog'
 import { DrizzlePlacementRepository } from '#placement/infrastructure/persistence/DrizzlePlacementRepository'
 import type { PostgresSession } from '#platform/infrastructure/persistence/connectPostgres'
-import type { TownStores } from '#town/application/ports/TownStores'
 import { DrizzleCleanUpRepository } from '#town/infrastructure/persistence/DrizzleCleanUpRepository'
 import { DrizzleEarnedSkillRepository } from '#town/infrastructure/persistence/DrizzleEarnedSkillRepository'
 import { DrizzleGuidanceDismissals } from '#town/infrastructure/persistence/DrizzleGuidanceDismissals'

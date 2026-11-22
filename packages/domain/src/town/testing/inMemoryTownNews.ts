@@ -1,7 +1,7 @@
 import { ok } from '#Result'
-import type { TownNews } from '../ports/TownNews'
-import type { TownEvent } from '../TownEvent'
-import type { TownId } from '../TownId'
+import type { TownEvent } from '../domain/TownEvent'
+import type { TownId } from '../domain/TownId'
+import type { TownNews } from '../domain/TownNews'
 
 export type InMemoryTownNews = TownNews & {
   recordedEventsOf(townId: TownId): ReadonlyArray<TownEvent>

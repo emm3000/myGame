@@ -1,8 +1,8 @@
 import { assert, describe, expect, it } from 'vitest'
 import { Instant } from '#time/Instant'
 import type { BuildingLevels } from '../building/BuildingLevels'
-import type { TownSettings } from '../TownSettings'
-import type { TownSkill } from '../TownSkill'
+import type { TownSettings } from '../domain/TownSettings'
+import type { TownSkill } from '../domain/TownSkill'
 import { plainTownSettings, townCatalogOf } from '../testing/townCatalogOf'
 import { deriveResourceRates } from './deriveResourceRates'
 

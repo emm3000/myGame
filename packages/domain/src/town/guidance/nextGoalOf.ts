@@ -4,11 +4,11 @@ import type { Instant } from '#time/Instant'
 import type { BuildingKind } from '../building/BuildingKind'
 import type { BuildingLevel } from '../building/BuildingLevel'
 import { derivePeopleForWork } from '../building/derivePeopleForWork'
-import type { TownCatalog } from '../ports/TownCatalog'
+import type { Town } from '../domain/Town'
+import type { TownCatalog } from '../domain/TownCatalog'
 import { accrueTown } from '../resources/accrueTown'
 import { resourceKinds } from '../resources/resourceKinds'
 import type { Stocks } from '../resources/Stocks'
-import type { Town } from '../Town'
 
 export type GoalShortfall = {
   readonly resources: Stocks

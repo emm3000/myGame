@@ -5,11 +5,11 @@ import type { DurationError } from '#time/DurationError'
 import type { Instant } from '#time/Instant'
 import type { BuildingKind } from '#town/building/BuildingKind'
 import type { NeededWordKind } from '#town/building/NeededWordKind'
+import type { SiteAddress } from '#town/domain/SiteAddress'
 import type { HireKind } from '#town/hiring/HireKind'
 import type { Hires } from '#town/hiring/Hires'
 import type { ResourceKind } from '#town/resources/ResourceKind'
 import type { Stocks } from '#town/resources/Stocks'
-import type { SiteAddress } from '#town/SiteAddress'
 
 export type DomainError =
   | DurationError

@@ -1,6 +1,7 @@
 import { createRoute, type OpenAPIHono } from '@hono/zod-openapi'
 import { FoundTownSchema } from '@mygame/contracts'
-import type { IdGenerator, UnitOfWork } from '@mygame/domain'
+import type { IdGenerator, TownStores, UnitOfWork } from '@mygame/domain'
+import { readTownReading } from '@mygame/domain'
 import {
   type RequirePlayerDependencies,
   requirePlayer,
@@ -13,8 +14,6 @@ import { respondRefusal } from '#platform/infrastructure/http/respondRefusal'
 import { jsonBody } from '#platform/infrastructure/http/responseDeclarations'
 import { signedInDeclaration } from '#platform/infrastructure/http/signedInDeclaration'
 import { foundTownOnFreeSite } from '../../application/foundTownOnFreeSite'
-import type { TownStores } from '../../application/ports/TownStores'
-import { readTownReading } from '../../application/readTownReading'
 import { type RespondTownReadingDependencies, respondTownReading } from './respondTownReading'
 import { overviewResponse } from './townComponents'
 

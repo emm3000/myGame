@@ -1,3 +1,4 @@
+import type { ReadOnlyTowns, TownReader, TownReading } from '@mygame/domain'
 import {
   type Clock,
   type DomainError,
@@ -6,20 +7,18 @@ import {
   isLessonFinishedBy,
   type LessonSlot,
   laterOf,
+  type MutateTownDependencies,
+  mutateTown,
   ok,
   type PlayerId,
   type Result,
+  readTownReading,
   resolveTown,
   type Town,
   type TownCatalog,
   type TownNews,
   type TownRepository,
 } from '@mygame/domain'
-import { type MutateTownDependencies, mutateTown } from './mutateTown'
-import type { ReadOnlyTowns } from './ports/ReadOnlyTowns'
-import type { TownReader } from './ports/TownReader'
-import { readTownReading } from './readTownReading'
-import type { TownReading } from './TownReading'
 
 export type ResolveCurrentTownDependencies = MutateTownDependencies & {
   readonly towns: ReadOnlyTowns

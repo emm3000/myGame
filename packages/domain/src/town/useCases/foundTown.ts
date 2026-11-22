@@ -4,12 +4,12 @@ import type { Clock } from '#platform/domain/Clock'
 import type { IdGenerator } from '#platform/domain/IdGenerator'
 import type { PlayerId } from '#player/PlayerId'
 import { err, ok, type Result } from '#Result'
-import type { EarnedSkillRepository } from '../ports/EarnedSkillRepository'
-import type { TownCatalog } from '../ports/TownCatalog'
-import type { TownRepository } from '../ports/TownRepository'
-import { Town } from '../Town'
-import { TownAddress } from '../TownAddress'
-import { TownName } from '../TownName'
+import type { EarnedSkillRepository } from '../domain/EarnedSkillRepository'
+import { Town } from '../domain/Town'
+import { TownAddress } from '../domain/TownAddress'
+import type { TownCatalog } from '../domain/TownCatalog'
+import { TownName } from '../domain/TownName'
+import type { TownRepository } from '../domain/TownRepository'
 
 const FIRST_REGION = 1
 

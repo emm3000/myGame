@@ -1,6 +1,6 @@
 import { createRoute, type OpenAPIHono } from '@hono/zod-openapi'
 import { PlacementAnswersSchema } from '@mygame/contracts'
-import { answerPlacement, readScaffold } from '@mygame/domain'
+import { answerPlacement, mutateTown, readScaffold } from '@mygame/domain'
 import {
   type RequirePlayerDependencies,
   requirePlayer,
@@ -11,7 +11,6 @@ import { readJsonBody } from '#platform/infrastructure/http/readJsonBody'
 import { respondRefusal } from '#platform/infrastructure/http/respondRefusal'
 import { jsonBody } from '#platform/infrastructure/http/responseDeclarations'
 import { signedInDeclaration } from '#platform/infrastructure/http/signedInDeclaration'
-import { mutateTown } from '#town/application/mutateTown'
 import { placementResponse } from './placementComponents'
 import { respondPlacementView } from './respondPlacementView'
 

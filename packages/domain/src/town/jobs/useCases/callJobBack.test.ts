@@ -1,7 +1,7 @@
 import { assert, describe, expect, it } from 'vitest'
 import type { Clock } from '#platform/domain/Clock'
 import { Instant } from '#time/Instant'
-import type { Town } from '../../Town'
+import type { Town } from '../../domain/Town'
 import { inMemoryEarnedSkills } from '../../testing/inMemoryEarnedSkills'
 import { inMemoryTownNews } from '../../testing/inMemoryTownNews'
 import { inMemoryTowns } from '../../testing/inMemoryTowns'

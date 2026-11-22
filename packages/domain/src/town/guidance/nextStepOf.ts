@@ -17,11 +17,11 @@ import { readFirstOf } from '#learning/reviews/readFirstOf'
 import type { MemoryTerms } from '#memory/domain/MemoryTerms'
 import { err, ok, type Result } from '#Result'
 import type { Instant } from '#time/Instant'
-import type { TownCatalog } from '../ports/TownCatalog'
+import type { Town } from '../domain/Town'
+import type { TownCatalog } from '../domain/TownCatalog'
 import { admitSchoolLesson, type SchoolLessonRefusal } from '../school/admitSchoolLesson'
 import type { LessonSlot } from '../school/LessonSlot'
 import type { SchoolLesson } from '../school/SchoolLesson'
-import type { Town } from '../Town'
 import type { CaughtUpReason, NextStep, NextStepText } from './NextStep'
 
 export type NextStepReading = {

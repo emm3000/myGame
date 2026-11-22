@@ -5,7 +5,7 @@ import {
   type TownOverview,
   TownOverviewSchema,
 } from '@mygame/contracts'
-import { Instant, ok, type PlayerId } from '@mygame/domain'
+import { Instant, mutateTown, ok, type PlayerId } from '@mygame/domain'
 import { Client } from 'pg'
 import {
   afterAll,
@@ -24,7 +24,6 @@ import { type ComposedServer, composeServer } from '#composeServer'
 import { mailEnvironment } from '#composeServer.testSupport'
 import { isWaitingOnALock, lockedPlayerReadQuery, lockProbeLimit } from '#lockWaitProbe.testSupport'
 import { type SettableClock, settableClock } from '#settableClock.testSupport'
-import { mutateTown } from '#town/application/mutateTown'
 import { truncatePlayerTables } from '#truncatePlayerTables.testSupport'
 
 const contentDirectory = apiPackagePath('content/')

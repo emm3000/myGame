@@ -1,3 +1,4 @@
+import type { TownReading } from '@mygame/domain'
 import {
   type BandLine,
   bandLinesOf,
@@ -29,7 +30,6 @@ import {
   type TownSkill,
 } from '@mygame/domain'
 import type { LessonLibrary, ShelvedLesson } from '#content/application/ports/LessonLibrary'
-import type { TownReading } from '../../application/TownReading'
 import {
   gatherLessonWordsView,
   type LessonWordsView,

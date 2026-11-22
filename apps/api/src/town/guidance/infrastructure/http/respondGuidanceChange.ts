@@ -1,8 +1,7 @@
-import type { Clock, DomainError, PlayerId, Result } from '@mygame/domain'
+import type { Clock, DomainError, PlayerId, Result, TownStores } from '@mygame/domain'
+import { type MutateTownDependencies, mutateTown } from '@mygame/domain'
 import type { Context } from 'hono'
 import { respondRefusal } from '#platform/infrastructure/http/respondRefusal'
-import { type MutateTownDependencies, mutateTown } from '../../../application/mutateTown'
-import type { TownStores } from '../../../application/ports/TownStores'
 
 export type GuidanceChange = (
   stores: TownStores,

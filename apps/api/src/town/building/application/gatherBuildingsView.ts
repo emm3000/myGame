@@ -1,3 +1,4 @@
+import type { TownReading } from '@mygame/domain'
 import {
   type BuildingKind,
   type BuildingLevel,
@@ -12,7 +13,6 @@ import {
   type WordShortfall,
   wordShortfallOf,
 } from '@mygame/domain'
-import type { TownReading } from '../../application/TownReading'
 
 export type NextLevelView = {
   readonly level: number

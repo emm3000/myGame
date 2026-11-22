@@ -44,7 +44,7 @@ export WEB_URL=http://localhost:3233
 
 ## Gotchas
 
-- Every town mutation runs through `mutateTown` (`src/town/application/mutateTown.ts`), which locks the player's row, then the town's. A new lock taken in another order can deadlock.
+- Every town mutation runs through `mutateTown` (`packages/domain/src/town/application/mutateTown.ts`), which locks the player's row, then the town's. A new lock taken in another order can deadlock.
 - Inside `unitOfWork.transact`, every store comes from the unit's stores (`src/composeStores.ts`): a write through an outside store that touches a row referencing `towns` blocks on the town's `FOR UPDATE` lock, since the foreign key takes `FOR KEY SHARE`.
 - Drizzle's `insert` lists every column of its table in the current `*Tables.ts` file, so it fails on a database at an older migration: a migration test seeds the previous version's rows with `client.query` and plain SQL.
 - A new table that references `players` or `towns` joins `truncatePlayerTables` (`src/truncatePlayerTables.testSupport.ts`), the one list every api test empties the database with.

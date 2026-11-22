@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest'
 import { Instant } from '#time/Instant'
-import type { TownSettings } from '../TownSettings'
+import type { TownSettings } from '../domain/TownSettings'
 import { plainTownSettings } from '../testing/townCatalogOf'
 import type { BuildingLevel } from './BuildingLevel'
 import { levelWorkAt } from './levelWorkAt'

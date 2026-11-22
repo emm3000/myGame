@@ -2,8 +2,8 @@ import { drizzle } from 'drizzle-orm/node-postgres'
 import { Pool } from 'pg'
 import { afterAll, beforeAll } from 'vitest'
 import { truncatePlayerTables } from '#truncatePlayerTables.testSupport'
-import { lessonSlotRepositoryContract } from '../memory/lessonSlotRepositoryContract.testSupport'
 import { DrizzleLessonSlotRepository } from './DrizzleLessonSlotRepository'
+import { lessonSlotRepositoryContract } from './lessonSlotRepositoryContract.testSupport'
 
 function databaseUrl(): string {
   const url = process.env.DATABASE_URL
