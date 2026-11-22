@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import type { BandStart } from '#holdout/BandStart'
+import type { BandStart } from '#holdout/domain/BandStart'
 import { MemoryCard } from '#memory/domain/MemoryCard'
 import { Instant } from '#time/Instant'
 import type { HeldCard } from '../HeldCard'

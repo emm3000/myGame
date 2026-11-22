@@ -1,5 +1,5 @@
 import type { Accounts } from '#account/domain/Accounts'
-import type { BandStartRepository } from '#holdout/ports/BandStartRepository'
+import type { BandStartRepository } from '#holdout/domain/BandStartRepository'
 import type { CardRepository } from '#learning/ports/CardRepository'
 import type { PendingReviewRepository } from '#learning/reviews/ports/PendingReviewRepository'
 import type { ReviewLog } from '#learning/reviews/ports/ReviewLog'

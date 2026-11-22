@@ -1,5 +1,5 @@
 import type { DomainError } from '#DomainError'
-import type { BandStartRepository } from '#holdout/ports/BandStartRepository'
+import type { BandStartRepository } from '#holdout/domain/BandStartRepository'
 import type { BandCatalog } from '#learning/curriculum/ports/BandCatalog'
 import type { LessonCatalog } from '#learning/curriculum/ports/LessonCatalog'
 import type { CardRepository } from '#learning/ports/CardRepository'

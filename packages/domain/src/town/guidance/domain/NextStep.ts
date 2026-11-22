@@ -1,4 +1,4 @@
-import type { DueHoldoutCheck } from '#holdout/DueHoldoutCheck'
+import type { DueHoldoutCheck } from '#holdout/domain/DueHoldoutCheck'
 import type { Band } from '#learning/curriculum/Band'
 import type { Text } from '#learning/frames/Text'
 import type { LessonId } from '#learning/Lesson'

@@ -1,8 +1,8 @@
 import { assert, describe, expect, it } from 'vitest'
 import { inMemoryPlacementWords, placementWordsOfBand } from '#placement/testing/placementWords'
 import { Instant } from '#time/Instant'
-import type { BandStart } from '../BandStart'
-import type { HoldoutCheck } from '../HoldoutCheck'
+import type { BandStart } from '../domain/BandStart'
+import type { HoldoutCheck } from '../domain/HoldoutCheck'
 import { inMemoryBandStarts } from '../testing/inMemoryBandStarts'
 import { readHoldoutChecks } from './readHoldoutChecks'
 

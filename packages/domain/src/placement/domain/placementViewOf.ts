@@ -1,4 +1,4 @@
-import type { BandStart } from '#holdout/BandStart'
+import type { BandStart } from '#holdout/domain/BandStart'
 import type { Scaffold } from '#learning/scaffold/Scaffold'
 import { askedSampleOf } from './askedSampleOf'
 import type { Placement } from './Placement'

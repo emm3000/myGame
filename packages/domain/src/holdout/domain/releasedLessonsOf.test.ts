@@ -21,10 +21,10 @@ import { inMemoryTownStores, townNewsOver } from '#town/testing/inMemoryTownStor
 import { inMemoryTowns } from '#town/testing/inMemoryTowns'
 import { plainTownSettings, townCatalogOf } from '#town/testing/townCatalogOf'
 import { townOf } from '#town/testing/townFixtures'
+import { inMemoryBandStarts } from '../testing/inMemoryBandStarts'
 import type { BandStart } from './BandStart'
 import type { HoldoutCheck } from './HoldoutCheck'
 import { releasedLessonsOf } from './releasedLessonsOf'
-import { inMemoryBandStarts } from './testing/inMemoryBandStarts'
 
 const MILLISECONDS_PER_WEEK = 7 * 24 * 3_600_000
 

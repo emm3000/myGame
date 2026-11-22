@@ -3,10 +3,10 @@ import type { Band } from '#learning/curriculum/Band'
 import type { Clock } from '#platform/domain/Clock'
 import type { PlayerId } from '#player/PlayerId'
 import { ok, type Result } from '#Result'
-import type { SkippedHoldoutCheck } from '../HoldoutCheck'
-import type { HoldoutCheckWeek } from '../HoldoutCheckWeek'
-import type { BandStartRepository } from '../ports/BandStartRepository'
-import { resolveDueBandStart } from '../services/resolveDueBandStart'
+import { resolveDueBandStart } from '../application/resolveDueBandStart'
+import type { BandStartRepository } from '../domain/BandStartRepository'
+import type { SkippedHoldoutCheck } from '../domain/HoldoutCheck'
+import type { HoldoutCheckWeek } from '../domain/HoldoutCheckWeek'
 
 export type SkipHoldoutCheckCommand = {
   readonly playerId: PlayerId

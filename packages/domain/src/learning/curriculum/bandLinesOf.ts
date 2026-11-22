@@ -1,4 +1,4 @@
-import type { BandStart } from '#holdout/BandStart'
+import type { BandStart } from '#holdout/domain/BandStart'
 import type { HeldCard } from '../HeldCard'
 import type { Band } from './Band'
 import type { Headword } from './Headword'

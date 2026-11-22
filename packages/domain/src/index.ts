@@ -37,25 +37,25 @@ export type { SignedIn } from '#account/domain/SignedIn'
 export type { StoredScaffold } from '#account/domain/StoredScaffold'
 export { sessionExpiryFrom, sessionLifetimeSeconds } from '#account/domain/sessionExpiryFrom'
 export type { LessonLibrary, ShelvedLesson } from '#content/domain/LessonLibrary'
-export type { BandStart } from '#holdout/BandStart'
-export type { DueHoldoutCheck } from '#holdout/DueHoldoutCheck'
-export { dueHoldoutChecksOf } from '#holdout/dueHoldoutChecksOf'
+export type { BandStart } from '#holdout/domain/BandStart'
+export type { BandStartRepository } from '#holdout/domain/BandStartRepository'
+export type { DueHoldoutCheck } from '#holdout/domain/DueHoldoutCheck'
+export { dueHoldoutChecksOf } from '#holdout/domain/dueHoldoutChecksOf'
 export type {
   BegunHoldoutCheck,
   HoldoutCheck,
   HoldoutCheckSample,
   SkippedHoldoutCheck,
   TakenHoldoutCheck,
-} from '#holdout/HoldoutCheck'
-export type { HoldoutCheckView } from '#holdout/HoldoutCheckView'
-export type { HoldoutCheckWeek } from '#holdout/HoldoutCheckWeek'
-export { hasBandStartedAt } from '#holdout/hasBandStartedAt'
-export { heldOutCountOf } from '#holdout/heldOutCountOf'
-export { heldOutWordsAt } from '#holdout/heldOutWordsAt'
-export { HOLDOUT_CHECK_WEEKS, RELEASING_WEEK } from '#holdout/holdoutCheckWeeks'
-export type { BandStartRepository } from '#holdout/ports/BandStartRepository'
-export type { ReleasedLesson } from '#holdout/ReleasedLesson'
-export { type ReleaseContent, releasedLessonsOf } from '#holdout/releasedLessonsOf'
+} from '#holdout/domain/HoldoutCheck'
+export type { HoldoutCheckView } from '#holdout/domain/HoldoutCheckView'
+export type { HoldoutCheckWeek } from '#holdout/domain/HoldoutCheckWeek'
+export { hasBandStartedAt } from '#holdout/domain/hasBandStartedAt'
+export { heldOutCountOf } from '#holdout/domain/heldOutCountOf'
+export { heldOutWordsAt } from '#holdout/domain/heldOutWordsAt'
+export { HOLDOUT_CHECK_WEEKS, RELEASING_WEEK } from '#holdout/domain/holdoutCheckWeeks'
+export type { ReleasedLesson } from '#holdout/domain/ReleasedLesson'
+export { type ReleaseContent, releasedLessonsOf } from '#holdout/domain/releasedLessonsOf'
 export {
   type AnswerHoldoutCheckCommand,
   type AnswerHoldoutCheckDependencies,

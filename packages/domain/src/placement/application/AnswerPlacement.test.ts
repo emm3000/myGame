@@ -1,6 +1,6 @@
 import { assert, describe, expect, it } from 'vitest'
 import { inMemoryAccounts } from '#account/testing/inMemoryAccounts'
-import type { BandStart } from '#holdout/BandStart'
+import type { BandStart } from '#holdout/domain/BandStart'
 import { inMemoryBandStarts, type OwnedBandStart } from '#holdout/testing/inMemoryBandStarts'
 import type { Band } from '#learning/curriculum/Band'
 import { inMemoryLessons } from '#learning/curriculum/testing/inMemoryLessons'

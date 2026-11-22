@@ -4,8 +4,8 @@ import type { OwnedCard } from '#learning/testing/inMemoryCards'
 import { MemoryCard } from '#memory/domain/MemoryCard'
 import { placementWordsOfBand } from '#placement/testing/placementWords'
 import { Instant } from '#time/Instant'
-import type { BandStart } from '../BandStart'
-import type { HoldoutCheck } from '../HoldoutCheck'
+import type { BandStart } from '../domain/BandStart'
+import type { HoldoutCheck } from '../domain/HoldoutCheck'
 
 const MILLISECONDS_PER_WEEK = 7 * 24 * 3_600_000
 

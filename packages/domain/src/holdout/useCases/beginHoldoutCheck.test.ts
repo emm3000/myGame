@@ -6,8 +6,8 @@ import { inMemoryPlacementWords } from '#placement/testing/placementWords'
 import type { RandomSource } from '#platform/domain/RandomSource'
 import { firstItemsRandom } from '#platform/testing/firstItemsRandom'
 import type { Instant } from '#time/Instant'
-import type { HoldoutCheck } from '../HoldoutCheck'
-import type { HoldoutCheckWeek } from '../HoldoutCheckWeek'
+import type { HoldoutCheck } from '../domain/HoldoutCheck'
+import type { HoldoutCheckWeek } from '../domain/HoldoutCheckWeek'
 import {
   ana,
   bandOneStart,

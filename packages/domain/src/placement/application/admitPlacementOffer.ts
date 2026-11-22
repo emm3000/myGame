@@ -1,5 +1,5 @@
 import type { DomainError } from '#DomainError'
-import type { BandStartRepository } from '#holdout/ports/BandStartRepository'
+import type { BandStartRepository } from '#holdout/domain/BandStartRepository'
 import type { PlayerId } from '#player/PlayerId'
 import { err, ok, type Result } from '#Result'
 import { isPlacementOffered } from '../domain/isPlacementOffered'

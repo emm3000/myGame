@@ -5,14 +5,11 @@ import type { Clock } from '#platform/domain/Clock'
 import type { PlayerId } from '#player/PlayerId'
 import { ok, type Result } from '#Result'
 import { type MutateTownDependencies, mutateTown } from '#town/application/mutateTown'
-import {
-  admitPlacementOffer,
-  type PlacementOfferDependencies,
-} from '../application/admitPlacementOffer'
 import type { SkippedPlacement } from '../domain/Placement'
 import type { PlacementRepository } from '../domain/PlacementRepository'
 import type { PlacementView } from '../domain/PlacementView'
 import type { PlacementWordCatalog } from '../domain/PlacementWordCatalog'
+import { admitPlacementOffer, type PlacementOfferDependencies } from './admitPlacementOffer'
 import { readPlacementView } from './readPlacementView'
 
 export type SkipPlacementCommand = {

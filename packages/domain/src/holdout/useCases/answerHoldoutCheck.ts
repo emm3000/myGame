@@ -7,11 +7,11 @@ import { type PlacementAnswer, rightWordIdsOf } from '#placement/domain/rightWor
 import type { Clock } from '#platform/domain/Clock'
 import type { PlayerId } from '#player/PlayerId'
 import { err, ok, type Result } from '#Result'
-import { checkOfWeek } from '../checkOfWeek'
-import type { TakenHoldoutCheck } from '../HoldoutCheck'
-import type { HoldoutCheckWeek } from '../HoldoutCheckWeek'
-import type { BandStartRepository } from '../ports/BandStartRepository'
-import { resolveDueBandStart } from '../services/resolveDueBandStart'
+import { resolveDueBandStart } from '../application/resolveDueBandStart'
+import type { BandStartRepository } from '../domain/BandStartRepository'
+import { checkOfWeek } from '../domain/checkOfWeek'
+import type { TakenHoldoutCheck } from '../domain/HoldoutCheck'
+import type { HoldoutCheckWeek } from '../domain/HoldoutCheckWeek'
 
 export type AnswerHoldoutCheckCommand = {
   readonly playerId: PlayerId

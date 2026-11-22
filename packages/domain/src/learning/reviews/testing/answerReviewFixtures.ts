@@ -1,5 +1,5 @@
 import { assert } from 'vitest'
-import type { BandStart } from '#holdout/BandStart'
+import type { BandStart } from '#holdout/domain/BandStart'
 import { inMemoryBandStarts } from '#holdout/testing/inMemoryBandStarts'
 import { dueInstantOf } from '#memory/domain/dueInstantOf'
 import { MemoryCard } from '#memory/domain/MemoryCard'

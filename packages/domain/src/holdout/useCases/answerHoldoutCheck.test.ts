@@ -2,7 +2,7 @@ import { assert, describe, expect, it } from 'vitest'
 import type { PlacementItem } from '#placement/domain/PlacementView'
 import { inMemoryPlacementWords } from '#placement/testing/placementWords'
 import type { Instant } from '#time/Instant'
-import type { HoldoutCheck } from '../HoldoutCheck'
+import type { HoldoutCheck } from '../domain/HoldoutCheck'
 import {
   ana,
   bandOneStart,
