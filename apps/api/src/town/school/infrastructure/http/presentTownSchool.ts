@@ -13,6 +13,7 @@ import {
   hasBandStartedAt,
   heldCardsOf,
   heldOutWordsAt,
+  holdsLessonCards,
   isLessonPlacedOut,
   isLessonUnderStudy,
   type LessonSlot,
@@ -115,14 +116,14 @@ const lessonWordsOf = (
   learner: LearnerState,
   lessons: LessonLibrary,
 ): Pick<LessonState, 'isStudied' | 'words' | 'enteringWordCount'> => {
-  const { heldCards, heldOutWords, lessonSlot, placedOutBands, scaffold } = learner
+  const { cards, heldCards, heldOutWords, lessonSlot, placedOutBands, scaffold } = learner
   const isRunning = isLessonUnderStudy(lesson, lessonSlot)
   const readable = readableWordsOf(lesson, heldOutWords, heldCards, isRunning)
   const entering = wordsEnteringOf(lesson, heldOutWords)
   const isPlacedOut = isLessonPlacedOut(lesson, placedOutBands, lessons)
   const words = lesson.words.map((word) => ({ word, held: heldCards.get(word.id) }))
   return {
-    isStudied: words.some(({ held }) => held !== undefined),
+    isStudied: holdsLessonCards(lesson, cards),
     words: words.map(({ word, held }) =>
       wordStateOf(
         word,
