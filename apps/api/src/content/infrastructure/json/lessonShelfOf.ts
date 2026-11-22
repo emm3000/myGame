@@ -7,7 +7,7 @@ import {
   type PlacementWord,
 } from '@mygame/domain'
 import type { ShelvedLesson } from '../../application/ports/LessonLibrary'
-import { bandOfRank } from './bandOfRank'
+import { bandOfListedRank } from './bandOfListedRank'
 import { bandWordsOf } from './bandWordsOf'
 import { frameWordsOf } from './frameWordsOf'
 import type { LessonShelf } from './LessonShelf'
@@ -56,7 +56,7 @@ const placementWordsOf = (
     const es = gloss.es
     const isPlaceable = es !== undefined && definition !== undefined && !frameWords.has(headword)
     if (rank !== undefined && isPlaceable) {
-      const band = bandOfRank(rank)
+      const band = bandOfListedRank(headword, rank)
       const word = {
         id,
         headword,

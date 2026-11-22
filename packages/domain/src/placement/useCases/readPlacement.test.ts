@@ -2,7 +2,7 @@ import { assert, describe, expect, it } from 'vitest'
 import type { BandStart } from '#holdout/BandStart'
 import { inMemoryBandStarts, type OwnedBandStart } from '#holdout/testing/inMemoryBandStarts'
 import { Instant } from '#time/Instant'
-import type { TakenPlacement } from '../Placement'
+import type { PlacementScore, TakenPlacement } from '../Placement'
 import { inMemoryPlacements, type OwnedPlacement } from '../testing/inMemoryPlacements'
 import {
   type PlacementShelf,
@@ -165,7 +165,7 @@ describe('readPlacement', () => {
   })
 
   it('asks the next band once a band is passed', async () => {
-    const passedBandOne = {
+    const passedBandOne: TakenPlacement = {
       ...begunPlacement,
       scores: [{ band: 1, score: 29, takenAt: firstSignInAt }],
     }
@@ -177,7 +177,7 @@ describe('readPlacement', () => {
   })
 
   it('stops at the first band failed', async () => {
-    const failedBandOne = {
+    const failedBandOne: TakenPlacement = {
       ...begunPlacement,
       scores: [{ band: 1, score: 28, takenAt: firstSignInAt }],
     }
@@ -189,7 +189,7 @@ describe('readPlacement', () => {
   })
 
   it('closes once every sampled band is scored', async () => {
-    const scores = [
+    const scores: ReadonlyArray<PlacementScore> = [
       { band: 1, score: 30, takenAt: firstSignInAt },
       { band: 2, score: 29, takenAt: firstSignInAt },
     ]

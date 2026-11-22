@@ -1,6 +1,7 @@
-import { Instant, type PlacementScore } from '@mygame/domain'
+import { allOk, type DomainError, type PlacementScore, type Result } from '@mygame/domain'
 import { asc, type Column, eq, type SQL } from 'drizzle-orm'
 import { z } from 'zod'
+import { placementScoreFromRow } from '#placement/infrastructure/postgres/placementScoreFromRow'
 import { placementScores } from '#placement/infrastructure/postgres/placementTables'
 import { jsonAggregateOf } from '#platform/infrastructure/postgres/jsonAggregateOf'
 
@@ -20,9 +21,11 @@ export const aggregatedPlacementScoresOf = (playerId: Column): SQL<unknown> =>
     asc(placementScores.band),
   )
 
-export const placementScoresFrom = (aggregate: unknown): ReadonlyArray<PlacementScore> =>
-  AggregatedPlacementScoresSchema.parse(aggregate).map(({ band, score, takenAt }) => ({
-    band,
-    score,
-    takenAt: Instant.fromEpochMilliseconds(Date.parse(takenAt)),
-  }))
+export const placementScoresFrom = (
+  aggregate: unknown,
+): Result<ReadonlyArray<PlacementScore>, DomainError> =>
+  allOk(
+    AggregatedPlacementScoresSchema.parse(aggregate).map(({ band, score, takenAt }) =>
+      placementScoreFromRow({ band, score, takenAt: new Date(takenAt) }),
+    ),
+  )

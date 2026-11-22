@@ -1,10 +1,10 @@
 import {
+  allOk,
   type DomainError,
   Instant,
   ok,
   type Placement,
   type PlacementRepository,
-  type PlacementSample,
   type PlacementScore,
   type PlayerId,
   type Result,
@@ -12,21 +12,13 @@ import {
 } from '@mygame/domain'
 import { asc, eq } from 'drizzle-orm'
 import type { PostgresSession } from '#platform/infrastructure/postgres/connectPostgres'
+import { placementSamplesFromRows, type StoredPlacementWord } from './placementSamplesFromRows'
+import { placementScoreFromRow } from './placementScoreFromRow'
 import { placementScores, placements, placementWords } from './placementTables'
 
 const instantOf = (date: Date): Instant => Instant.fromEpochMilliseconds(date.getTime())
 
 const dateOf = (instant: Instant): Date => new Date(instant.epochMilliseconds)
-
-type WordRow = { readonly band: number; readonly wordId: string }
-
-const samplesOf = (rows: ReadonlyArray<WordRow>): ReadonlyArray<PlacementSample> => {
-  const bands = [...new Set(rows.map(({ band }) => band))]
-  return bands.map((band) => ({
-    band,
-    wordIds: rows.filter((row) => row.band === band).map(({ wordId }) => wordId),
-  }))
-}
 
 export class DrizzlePlacementRepository implements PlacementRepository {
   constructor(private readonly database: PostgresSession) {}
@@ -42,11 +34,19 @@ export class DrizzlePlacementRepository implements PlacementRepository {
     if (stored.kind === 'skipped') {
       return ok({ kind: 'skipped', skippedAt: instantOf(stored.decidedAt) })
     }
+    const samples = placementSamplesFromRows(await this.wordRowsOf(playerId))
+    if (!samples.ok) {
+      return samples
+    }
+    const scores = await this.scoresOf(playerId)
+    if (!scores.ok) {
+      return scores
+    }
     return ok({
       kind: 'taken',
       begunAt: instantOf(stored.decidedAt),
-      samples: samplesOf(await this.wordRowsOf(playerId)),
-      scores: await this.scoresOf(playerId),
+      samples: samples.value,
+      scores: scores.value,
     })
   }
 
@@ -108,7 +108,7 @@ export class DrizzlePlacementRepository implements PlacementRepository {
       .onConflictDoNothing({ target: [placementScores.playerId, placementScores.band] })
   }
 
-  private async wordRowsOf(playerId: PlayerId): Promise<ReadonlyArray<WordRow>> {
+  private async wordRowsOf(playerId: PlayerId): Promise<ReadonlyArray<StoredPlacementWord>> {
     return this.database
       .select({ band: placementWords.band, wordId: placementWords.wordId })
       .from(placementWords)
@@ -116,7 +116,9 @@ export class DrizzlePlacementRepository implements PlacementRepository {
       .orderBy(asc(placementWords.band), asc(placementWords.position))
   }
 
-  private async scoresOf(playerId: PlayerId): Promise<ReadonlyArray<PlacementScore>> {
+  private async scoresOf(
+    playerId: PlayerId,
+  ): Promise<Result<ReadonlyArray<PlacementScore>, DomainError>> {
     const rows = await this.database
       .select({
         band: placementScores.band,
@@ -126,6 +128,6 @@ export class DrizzlePlacementRepository implements PlacementRepository {
       .from(placementScores)
       .where(eq(placementScores.playerId, playerId))
       .orderBy(asc(placementScores.band))
-    return rows.map(({ band, score, takenAt }) => ({ band, score, takenAt: instantOf(takenAt) }))
+    return allOk(rows.map(placementScoreFromRow))
   }
 }

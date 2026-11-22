@@ -1,5 +1,5 @@
 import { lemmaWordsOf } from '@mygame/domain'
-import { bandOfRank } from '../../infrastructure/json/bandOfRank'
+import { isRankOfBand } from '../../infrastructure/json/bandOfRank'
 import { frameWordsOf } from '../../infrastructure/json/frameWordsOf'
 import type { LexiconEntry } from '../../infrastructure/json/readLessonContentFiles'
 import type { GateContent } from '../GateContent'
@@ -30,7 +30,7 @@ const isDefiningToken = (
 ): boolean =>
   [...(forms.get(token) ?? [])].some((headword) => {
     const rank = ranks.get(headword)
-    return frameWords.has(headword) || (rank !== undefined && bandOfRank(rank) === definingBand)
+    return frameWords.has(headword) || (rank !== undefined && isRankOfBand(rank, definingBand))
   })
 
 const vocabularyFailures = (

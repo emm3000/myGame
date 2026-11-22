@@ -1,5 +1,5 @@
-import { lemmaWordsOf } from '@mygame/domain'
-import { bandOfRank } from '../../infrastructure/json/bandOfRank'
+import { BANDS, lemmaWordsOf } from '@mygame/domain'
+import { isRankOfBand } from '../../infrastructure/json/bandOfRank'
 import { frameWordsOf } from '../../infrastructure/json/frameWordsOf'
 import { isUnit } from '../../infrastructure/json/isUnit'
 import { isUnitLesson } from '../../infrastructure/json/isUnitLesson'
@@ -26,9 +26,8 @@ const bandsOf = ({ ranks, grammar }: GateContent): ReadonlyArray<ReadonlyArray<s
   const cardWords = [...ranks]
     .filter(([lemma]) => !frameWords.has(lemma))
     .sort(([, a], [, b]) => a - b)
-  const bandCount = Math.max(0, ...cardWords.map(([, rank]) => bandOfRank(rank)))
-  return Array.from({ length: bandCount }, (_, index) =>
-    cardWords.filter(([, rank]) => bandOfRank(rank) === index + 1).map(([lemma]) => lemma),
+  return BANDS.map((band) =>
+    cardWords.filter(([, rank]) => isRankOfBand(rank, band)).map(([lemma]) => lemma),
   )
 }
 

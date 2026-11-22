@@ -35,6 +35,7 @@ export type DomainError =
   | { readonly kind: 'HintOnRecognition'; readonly wordId: WordId }
   | { readonly kind: 'UnknownChoice'; readonly wordId: WordId }
   | { readonly kind: 'LessonNotFound'; readonly lessonId: LessonId }
+  | { readonly kind: 'UnknownBand'; readonly band: number }
   | { readonly kind: 'PlacementNotOffered' }
   | { readonly kind: 'PlacementAlreadyTaken' }
   | { readonly kind: 'PlacementBandNotAsked'; readonly band: number }

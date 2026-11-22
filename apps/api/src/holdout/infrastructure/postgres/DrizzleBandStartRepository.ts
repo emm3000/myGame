@@ -1,22 +1,22 @@
 import {
+  allOk,
   type Band,
   type BandStart,
   type BandStartRepository,
   type DomainError,
   type HoldoutCheck,
-  Instant,
+  type Instant,
   ok,
   type PlayerId,
   type Result,
 } from '@mygame/domain'
 import { and, asc, eq, sql } from 'drizzle-orm'
 import type { PostgresSession } from '#platform/infrastructure/postgres/connectPostgres'
+import { bandStartFromRow } from './bandStartFromRow'
 import { holdoutCheckFromRow } from './holdoutCheckFromRow'
 import { bandStarts, heldOutWords, holdoutChecks, holdoutCheckWords } from './holdoutTables'
 
 type CheckRow = typeof holdoutChecks.$inferSelect
-
-const instantOf = (date: Date): Instant => Instant.fromEpochMilliseconds(date.getTime())
 
 const dateOf = (instant: Instant): Date => new Date(instant.epochMilliseconds)
 
@@ -80,20 +80,22 @@ export class DrizzleBandStartRepository implements BandStartRepository {
       .from(holdoutCheckWords)
       .where(eq(holdoutCheckWords.playerId, playerId))
       .orderBy(asc(holdoutCheckWords.position))
-    return ok(
-      starts.map(({ band, startedAt }) => ({
-        band,
-        startedAt: instantOf(startedAt),
-        heldOutWords: words.filter((word) => word.band === band).map(({ headword }) => headword),
-        checks: checks
-          .filter((check) => check.band === band)
-          .map((row) =>
-            holdoutCheckFromRow(
-              row,
-              checkWords.filter((word) => word.band === row.band && word.week === row.week),
+    return allOk(
+      starts.map(({ band, startedAt }) =>
+        bandStartFromRow({
+          band,
+          startedAt,
+          heldOutWords: words.filter((word) => word.band === band).map(({ headword }) => headword),
+          checks: checks
+            .filter((check) => check.band === band)
+            .map((row) =>
+              holdoutCheckFromRow(
+                row,
+                checkWords.filter((word) => word.band === row.band && word.week === row.week),
+              ),
             ),
-          ),
-      })),
+        }),
+      ),
     )
   }
 

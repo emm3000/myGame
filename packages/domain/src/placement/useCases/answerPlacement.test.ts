@@ -1,9 +1,10 @@
 import { assert, describe, expect, it } from 'vitest'
 import type { BandStart } from '#holdout/BandStart'
 import { inMemoryBandStarts, type OwnedBandStart } from '#holdout/testing/inMemoryBandStarts'
+import type { Band } from '#learning/curriculum/Band'
 import type { Clock } from '#ports/Clock'
 import { Instant } from '#time/Instant'
-import type { Placement, TakenPlacement } from '../Placement'
+import type { Placement, PlacementSample, TakenPlacement } from '../Placement'
 import type { PlacementItem } from '../PlacementView'
 import type { PlacementAnswer } from '../rightWordIdsOf'
 import { inMemoryPlacements } from '../testing/inMemoryPlacements'
@@ -24,7 +25,7 @@ const content = placementContentOf([
   { band: 2, words: placementWordsOfBand(2, 30) },
 ])
 
-const sampleOf = (band: number) => ({
+const sampleOf = (band: Band): PlacementSample => ({
   band,
   wordIds: placementWordsOfBand(band, 30).map(({ id }) => id),
 })

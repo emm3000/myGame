@@ -46,12 +46,20 @@ export class DrizzleTownReader implements TownReader {
     if (!cards.ok) {
       return cards
     }
+    const bandStarts = bandStartsFrom(row.bandStarts)
+    if (!bandStarts.ok) {
+      return bandStarts
+    }
+    const placementScores = placementScoresFrom(row.placementScores)
+    if (!placementScores.ok) {
+      return placementScores
+    }
     return ok({
       town: town.value,
       lessonSlot: lessonSlotFromRow(row.lessonSlot),
       cards: cards.value,
-      bandStarts: bandStartsFrom(row.bandStarts),
-      placementScores: placementScoresFrom(row.placementScores),
+      bandStarts: bandStarts.value,
+      placementScores: placementScores.value,
       guidanceDismissedAt: instantFromColumn(row.town.guidanceDismissedAt) ?? undefined,
       seenTips: seenTipsFrom(row.seenTips),
       scaffold: row.scaffold,
