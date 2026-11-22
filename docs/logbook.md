@@ -109,6 +109,31 @@ This one list replaces the scattered per-PR lines above. Tick each item when it 
 
 
 
+## 2026-11-21: ADR 052 migration, audit and readability follow-ups
+
+### Advanced
+- #1739: the plain-pool statement timeout (#1694), deployed; `/api/health` answers 200.
+- #1752–#1779: ADR 052 steps A1–A10, D1, D2 and C1. The api, domain and contracts read by feature then by role. The baselines are empty and the checks are hard. `noImportCycles` now really runs and checks type-only imports in the backend (#1774). `town/resources` exists (#1777). Imports across top-level folders are `#` subpath imports (#1751).
+- #1738: the adversarial readability audit. It found nothing structural and filed eight tickets.
+- #1788–#1802: those tickets, plus #1792 and #1795 from their reviews:
+  - presenters only map (#1781, in four PRs);
+  - responders are `respond*`;
+  - adapters are named technology plus port;
+  - one in-memory fake per port, through `@mygame/domain/testing`;
+  - route tests live in the rightmost feature they seed;
+  - reading names are checked in every async form;
+  - `ARCHITECTURE.md` names every role (#1787).
+- 40 PRs in all.
+
+### Not proven
+- Five fakes had broken their ports' promises (#1796). The review found no domain test that had asserted the wrong behavior, but there is no proof that every earlier fake-backed test was sound.
+- Gates at a load average above 40 failed on 5 s test timeouts in files the PRs did not touch. Each later passed at a lower load. These are load-sensitive tests, not fixed.
+
+### Next
+- Batch #1685 holds the minors from this sprint's reviews.
+- Asset branches: #1747, then #1748, when the owner is at the computer.
+- Audits: #1744 (Android) and #1745 (web, parked).
+
 ## 2026-11-21: Android close-out and ADR 052 step 0
 
 ### Advanced
