@@ -1,7 +1,5 @@
-api_holds_layer apps/api/src/holdout/application
 api_holds_layer apps/api/src/learning/application
 api_holds_layer apps/api/src/report/application
-file_outside_layer packages/domain/src/holdout/useCases
 file_outside_layer packages/domain/src/learning
 file_outside_layer packages/domain/src/learning/curriculum
 file_outside_layer packages/domain/src/learning/curriculum/ports
@@ -15,16 +13,11 @@ file_outside_layer packages/domain/src/learning/reviews/useCases
 file_outside_layer packages/domain/src/learning/scaffold
 role_folder apps/api/src/learning/infrastructure/memory
 role_folder apps/api/src/report/infrastructure/memory
-role_folder packages/domain/src/holdout/useCases
 role_folder packages/domain/src/learning/curriculum/ports
 role_folder packages/domain/src/learning/frames/ports
 role_folder packages/domain/src/learning/ports
 role_folder packages/domain/src/learning/reviews/ports
 role_folder packages/domain/src/learning/reviews/useCases
-route_file apps/api/src/holdout/infrastructure/http/answerHoldoutCheckRoute.ts
-route_file apps/api/src/holdout/infrastructure/http/beginHoldoutCheckRoute.ts
-route_file apps/api/src/holdout/infrastructure/http/readHoldoutChecksRoute.ts
-route_file apps/api/src/holdout/infrastructure/http/skipHoldoutCheckRoute.ts
 route_file apps/api/src/learning/infrastructure/http/requestReviewHintRoute.test.ts
 route_file apps/api/src/learning/infrastructure/http/requestReviewHintRoute.ts
 route_file apps/api/src/learning/infrastructure/http/serveDueReviewsRoute.test.ts

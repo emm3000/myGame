@@ -1,6 +1,10 @@
 import {
+  AnswerHoldoutCheck,
+  type AnswerHoldoutCheckDependencies,
   AnswerPlacement,
   type AnswerPlacementDependencies,
+  BeginHoldoutCheck,
+  type BeginHoldoutCheckDependencies,
   BeginPlacement,
   type BeginPlacementDependencies,
   CallJobBack,
@@ -19,6 +23,8 @@ import {
   type QuoteJobDependencies,
   ReadChromePhase,
   type ReadChromePhaseDependencies,
+  ReadHoldoutChecks,
+  type ReadHoldoutChecksDependencies,
   ReadPlacement,
   type ReadPlacementDependencies,
   ReadRegionMap,
@@ -41,6 +47,8 @@ import {
   type SignInDependencies,
   SignUp,
   type SignUpDependencies,
+  SkipHoldoutCheck,
+  type SkipHoldoutCheckDependencies,
   SkipPlacement,
   type SkipPlacementDependencies,
   StartBuildingWork,
@@ -84,7 +92,11 @@ export type UseCaseDependencies = SignUpDependencies &
   ReadPlacementDependencies &
   BeginPlacementDependencies &
   SkipPlacementDependencies &
-  AnswerPlacementDependencies
+  AnswerPlacementDependencies &
+  ReadHoldoutChecksDependencies &
+  BeginHoldoutCheckDependencies &
+  AnswerHoldoutCheckDependencies &
+  SkipHoldoutCheckDependencies
 
 export type UseCases = {
   readonly signUp: SignUp
@@ -115,6 +127,10 @@ export type UseCases = {
   readonly beginPlacement: BeginPlacement
   readonly skipPlacement: SkipPlacement
   readonly answerPlacement: AnswerPlacement
+  readonly readHoldoutChecks: ReadHoldoutChecks
+  readonly beginHoldoutCheck: BeginHoldoutCheck
+  readonly answerHoldoutCheck: AnswerHoldoutCheck
+  readonly skipHoldoutCheck: SkipHoldoutCheck
 }
 
 export const composeUseCases = (adapters: UseCaseDependencies): UseCases => ({
@@ -146,4 +162,8 @@ export const composeUseCases = (adapters: UseCaseDependencies): UseCases => ({
   beginPlacement: new BeginPlacement(adapters),
   skipPlacement: new SkipPlacement(adapters),
   answerPlacement: new AnswerPlacement(adapters),
+  readHoldoutChecks: new ReadHoldoutChecks(adapters),
+  beginHoldoutCheck: new BeginHoldoutCheck(adapters),
+  answerHoldoutCheck: new AnswerHoldoutCheck(adapters),
+  skipHoldoutCheck: new SkipHoldoutCheck(adapters),
 })

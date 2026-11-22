@@ -37,6 +37,26 @@ export type { SignedIn } from '#account/domain/SignedIn'
 export type { StoredScaffold } from '#account/domain/StoredScaffold'
 export { sessionExpiryFrom, sessionLifetimeSeconds } from '#account/domain/sessionExpiryFrom'
 export type { LessonLibrary, ShelvedLesson } from '#content/domain/LessonLibrary'
+export {
+  AnswerHoldoutCheck,
+  type AnswerHoldoutCheckCommand,
+  type AnswerHoldoutCheckDependencies,
+} from '#holdout/application/AnswerHoldoutCheck'
+export {
+  BeginHoldoutCheck,
+  type BeginHoldoutCheckCommand,
+  type BeginHoldoutCheckDependencies,
+} from '#holdout/application/BeginHoldoutCheck'
+export {
+  ReadHoldoutChecks,
+  type ReadHoldoutChecksDependencies,
+  type ReadHoldoutChecksQuery,
+} from '#holdout/application/ReadHoldoutChecks'
+export {
+  SkipHoldoutCheck,
+  type SkipHoldoutCheckCommand,
+  type SkipHoldoutCheckDependencies,
+} from '#holdout/application/SkipHoldoutCheck'
 export type { BandStart } from '#holdout/domain/BandStart'
 export type { BandStartRepository } from '#holdout/domain/BandStartRepository'
 export type { DueHoldoutCheck } from '#holdout/domain/DueHoldoutCheck'
@@ -56,24 +76,6 @@ export { heldOutWordsAt } from '#holdout/domain/heldOutWordsAt'
 export { HOLDOUT_CHECK_WEEKS, RELEASING_WEEK } from '#holdout/domain/holdoutCheckWeeks'
 export type { ReleasedLesson } from '#holdout/domain/ReleasedLesson'
 export { type ReleaseContent, releasedLessonsOf } from '#holdout/domain/releasedLessonsOf'
-export {
-  type AnswerHoldoutCheckCommand,
-  type AnswerHoldoutCheckDependencies,
-  answerHoldoutCheck,
-} from '#holdout/useCases/answerHoldoutCheck'
-export {
-  type BeginHoldoutCheckCommand,
-  type BeginHoldoutCheckDependencies,
-  beginHoldoutCheck,
-} from '#holdout/useCases/beginHoldoutCheck'
-export {
-  type ReadHoldoutChecksDependencies,
-  readHoldoutChecks,
-} from '#holdout/useCases/readHoldoutChecks'
-export {
-  type SkipHoldoutCheckDependencies,
-  skipHoldoutCheck,
-} from '#holdout/useCases/skipHoldoutCheck'
 export type { Band } from '#learning/curriculum/Band'
 export type { BandWord } from '#learning/curriculum/BandWord'
 export { type BandLine, bandLinesOf } from '#learning/curriculum/bandLinesOf'

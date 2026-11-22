@@ -1,11 +1,15 @@
 import { assert, describe, expect, it } from 'vitest'
+import { signedUpAccountsOf } from '#account/testing/signedUpAccountsOf'
+import { inMemoryBands } from '#learning/curriculum/testing/inMemoryBands'
 import { inMemoryLessons } from '#learning/curriculum/testing/inMemoryLessons'
 import { inMemoryCards, type OwnedCard } from '#learning/testing/inMemoryCards'
 import type { PlacementWord } from '#placement/domain/PlacementWord'
 import { inMemoryPlacementWords } from '#placement/testing/placementWords'
 import type { RandomSource } from '#platform/domain/RandomSource'
 import { firstItemsRandom } from '#platform/testing/firstItemsRandom'
+import { inMemoryUnitOfWork } from '#platform/testing/inMemoryUnitOfWork'
 import type { Instant } from '#time/Instant'
+import { inMemoryTownStores } from '#town/testing/inMemoryTownStores'
 import type { HoldoutCheck } from '../domain/HoldoutCheck'
 import type { HoldoutCheckWeek } from '../domain/HoldoutCheckWeek'
 import {
@@ -20,7 +24,7 @@ import {
   weeksAfterStart,
 } from '../testing/holdoutFixtures'
 import { inMemoryBandStarts } from '../testing/inMemoryBandStarts'
-import { beginHoldoutCheck } from './beginHoldoutCheck'
+import { BeginHoldoutCheck } from './BeginHoldoutCheck'
 
 type BeginShape = {
   readonly now?: Instant
@@ -40,17 +44,22 @@ const begin = async ({
   words = bandOneWords,
 }: BeginShape) => {
   const bandStarts = inMemoryBandStarts([{ playerId: ana, start: bandOneStart(checks) }])
-  const begun = await beginHoldoutCheck(
-    { playerId: ana, scaffold: 'es', band: 1, week },
-    {
-      bandStarts,
-      cards: inMemoryCards(cards),
-      lessons: inMemoryLessons([studiedLesson, unstudiedLesson], []),
-      words: inMemoryPlacementWords([{ band: 1, words }]),
-      random,
-      clock: { now: () => now },
+  const begun = await new BeginHoldoutCheck({
+    unitOfWork: inMemoryUnitOfWork(
+      inMemoryTownStores({
+        bandStarts,
+        cards: inMemoryCards(cards),
+        accounts: signedUpAccountsOf([ana]),
+      }),
+    ),
+    lessons: {
+      ...inMemoryLessons([studiedLesson, unstudiedLesson], []),
+      ...inMemoryBands([]),
+      ...inMemoryPlacementWords([{ band: 1, words }]),
     },
-  )
+    random,
+    clock: { now: () => now },
+  }).execute({ playerId: ana, band: 1, week })
   const stored = await bandStarts.bandStartsOf(ana)
   assert(stored.ok)
   return { begun, check: stored.value[0]?.checks.find((check) => check.week === week) }
@@ -59,7 +68,7 @@ const begin = async ({
 const idsOf = (words: ReadonlyArray<{ readonly id: string }>): ReadonlyArray<string> =>
   words.map(({ id }) => id)
 
-describe('beginHoldoutCheck', () => {
+describe('BeginHoldoutCheck', () => {
   it('holds the held-out words of studied lessons', async () => {
     const { check } = await begin({})
     assert(check?.kind === 'begun')
@@ -98,8 +107,9 @@ describe('beginHoldoutCheck', () => {
       sampleOf: (items, count) => [...items].reverse().slice(0, count),
     }
     const { begun, check } = await begin({ random: reversed })
-    assert(begun.ok && begun.value.kind === 'asking' && check?.kind === 'begun')
-    expect(begun.value.items.map(({ wordId }) => wordId)).toEqual(check.sample.wordIds)
+    const [asking] = begun.ok ? begun.value : []
+    assert(asking?.kind === 'asking' && check?.kind === 'begun')
+    expect(asking.items.map(({ wordId }) => wordId)).toEqual(check.sample.wordIds)
     expect(check.sample.wordIds[0]).toBe(practisedOfStudied[1]?.id)
   })
 

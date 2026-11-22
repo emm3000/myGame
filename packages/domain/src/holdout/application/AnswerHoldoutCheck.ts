@@ -1,3 +1,4 @@
+import { readScaffold } from '#account/application/readScaffold'
 import type { DomainError } from '#DomainError'
 import type { Band } from '#learning/curriculum/Band'
 import type { Scaffold } from '#learning/scaffold/Scaffold'
@@ -11,25 +12,30 @@ import { resolveDueBandStart } from '../application/resolveDueBandStart'
 import type { BandStartRepository } from '../domain/BandStartRepository'
 import { checkOfWeek } from '../domain/checkOfWeek'
 import type { TakenHoldoutCheck } from '../domain/HoldoutCheck'
+import type { HoldoutCheckView } from '../domain/HoldoutCheckView'
 import type { HoldoutCheckWeek } from '../domain/HoldoutCheckWeek'
+import { type MutateHoldoutCheckDependencies, mutateHoldoutCheck } from './mutateHoldoutCheck'
 
 export type AnswerHoldoutCheckCommand = {
   readonly playerId: PlayerId
   readonly band: Band
   readonly week: HoldoutCheckWeek
   readonly answers: ReadonlyArray<PlacementAnswer>
+}
+
+type ScaffoldedAnswers = AnswerHoldoutCheckCommand & {
   readonly scaffold: Scaffold
 }
 
-export type AnswerHoldoutCheckDependencies = {
+type AnswerPorts = {
   readonly bandStarts: BandStartRepository
   readonly words: PlacementWordCatalog
   readonly clock: Clock
 }
 
-export const answerHoldoutCheck = async (
-  { playerId, band, week, answers, scaffold }: AnswerHoldoutCheckCommand,
-  { bandStarts, words, clock }: AnswerHoldoutCheckDependencies,
+const answerHoldoutCheckIn = async (
+  { playerId, band, week, answers, scaffold }: ScaffoldedAnswers,
+  { bandStarts, words, clock }: AnswerPorts,
 ): Promise<Result<TakenHoldoutCheck, DomainError>> => {
   const now = clock.now()
   const due = await resolveDueBandStart(playerId, band, week, bandStarts, now)
@@ -56,4 +62,31 @@ export const answerHoldoutCheck = async (
   }
   const saved = await bandStarts.saveCheck(playerId, band, taken)
   return saved.ok ? ok(taken) : saved
+}
+
+export type AnswerHoldoutCheckDependencies = MutateHoldoutCheckDependencies
+
+export class AnswerHoldoutCheck {
+  constructor(private readonly dependencies: AnswerHoldoutCheckDependencies) {}
+
+  async execute(
+    command: AnswerHoldoutCheckCommand,
+  ): Promise<Result<ReadonlyArray<HoldoutCheckView>, DomainError>> {
+    const { lessons } = this.dependencies
+    return mutateHoldoutCheck(
+      command,
+      async (stores, { band, week }, at) =>
+        answerHoldoutCheckIn(
+          {
+            playerId: command.playerId,
+            band,
+            week,
+            answers: command.answers,
+            scaffold: await readScaffold(command.playerId, stores.accounts),
+          },
+          { bandStarts: stores.bandStarts, words: lessons, clock: at },
+        ),
+      this.dependencies,
+    )
+  }
 }
