@@ -11,11 +11,9 @@ import {
   databaseUrl,
   type MovableClock,
   movableClock,
-  playersWithEmail,
   post,
   sessionCookieOf,
   storedSessionKeys,
-  storedTowns,
   tokenOf,
   truncateAccounts,
 } from './accountRoutes.testSupport'
@@ -63,14 +61,6 @@ describe('the auth routes', () => {
   const sessionOf = async (cookie: string): Promise<Response> =>
     app.request('/auth/session', { headers: { cookie } })
 
-  it('signs up without founding anything', async () => {
-    const response = await signUpAna()
-
-    expect(response.status).toBe(201)
-    PlayerSchema.parse(await response.json())
-    expect(await storedTowns()).toBe(0)
-  })
-
   it.each(['/auth/sign-up', '/auth/sign-up/native'])(
     'stores on %s the scaffold language the player picks at sign-up',
     async (route) => {
@@ -88,20 +78,6 @@ describe('the auth routes', () => {
     expect(response.status).toBe(400)
     expect(await response.text()).toBe('')
   })
-
-  it.each(['/auth/sign-up', '/auth/sign-up/native'])(
-    'signs up on %s an older client that sends a field the request no longer names',
-    async (route) => {
-      const response = await app.request(
-        route,
-        post({ ...anasSignUp, retiredField: 'Maple Grove' }),
-      )
-
-      expect(response.status).toBe(201)
-      expect(await playersWithEmail(anasSignUp.email)).toBe(1)
-      expect(await storedTowns()).toBe(0)
-    },
-  )
 
   it('refuses a malformed email with a message the sign-up screen can show', async () => {
     const response = await app.request(

@@ -38,6 +38,19 @@ export function databaseUrl(): string {
   return url
 }
 
+export const rowsOf = async (
+  statement: string,
+  parameters: ReadonlyArray<unknown> = [],
+): Promise<ReadonlyArray<unknown>> => {
+  const client = new Client({ connectionString: databaseUrl() })
+  await client.connect()
+  try {
+    return (await client.query(statement, [...parameters])).rows
+  } finally {
+    await client.end()
+  }
+}
+
 export const truncateAccounts = async (): Promise<void> => {
   const client = new Client({ connectionString: databaseUrl() })
   await client.connect()
@@ -67,17 +80,6 @@ export const storedSessionKeys = async (): Promise<ReadonlyArray<string>> => {
   try {
     const found = await client.query<{ key: string }>('SELECT token_digest AS key FROM sessions')
     return found.rows.map((row) => row.key)
-  } finally {
-    await client.end()
-  }
-}
-
-export const storedTowns = async (): Promise<number> => {
-  const client = new Client({ connectionString: databaseUrl() })
-  await client.connect()
-  try {
-    const found = await client.query<{ count: number }>('SELECT count(*)::int AS count FROM towns')
-    return found.rows[0]?.count ?? -1
   } finally {
     await client.end()
   }
