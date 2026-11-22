@@ -191,6 +191,40 @@ passes_a_subpath_import_that_leaves_its_folder_or_the_root() {
   expect_pass "${FUNCNAME[0]}"
 }
 
+fails_an_api_file_importing_the_domain_fakes() {
+  fresh_tree
+  plant apps/api/src/town/infrastructure/postgres/DrizzleTownRepository.ts "import { inMemoryTowns } from '@mygame/domain/testing'\n"
+  check
+  expect_failure "${FUNCNAME[0]}" "structure check production_imports_fakes apps/api/src/town/infrastructure/postgres/DrizzleTownRepository.ts 1:import"
+}
+
+fails_a_domain_file_importing_a_fake() {
+  fresh_tree
+  plant packages/domain/src/town/useCases/sendJob.ts "import { inMemoryTowns } from '../testing/inMemoryTowns'\n"
+  check
+  expect_failure "${FUNCNAME[0]}" "structure check production_imports_fakes packages/domain/src/town/useCases/sendJob.ts 1:import"
+}
+
+fails_a_web_file_importing_the_domain_fakes() {
+  fresh_tree
+  plant apps/web/src/town/TownScreen.tsx "import { inMemoryTowns } from '@mygame/domain/testing'\n"
+  check
+  expect_failure "${FUNCNAME[0]}" "structure check production_imports_fakes apps/web/src/town/TownScreen.tsx 1:import"
+}
+
+passes_the_fakes_in_tests_contract_suites_and_the_testing_entry() {
+  local exports="export const a = 1\nexport const b = 2\nexport const c = 3\nexport const d = 4\nexport const e = 5\nexport { inMemoryTowns } from '#town/testing/inMemoryTowns'\n"
+  fresh_tree
+  plant apps/api/src/town/infrastructure/memory/inMemoryTowns.test.ts "import { inMemoryTowns } from '@mygame/domain/testing'\n"
+  plant apps/api/src/town/infrastructure/memory/townRepositoryContract.testSupport.ts "import { inMemoryTowns } from '@mygame/domain/testing'\n"
+  plant packages/domain/src/town/useCases/sendJob.test.ts "import { inMemoryTowns } from '../testing/inMemoryTowns'\n"
+  plant packages/domain/src/town/testing/inMemoryTowns.ts "import { inMemoryEarnedSkills } from './inMemoryEarnedSkills'\n"
+  plant packages/domain/src/testing.ts "$exports"
+  plant apps/web/src/town/TownScreen.test.tsx "import { inMemoryTowns } from '@mygame/domain/testing'\n"
+  check
+  expect_pass "${FUNCNAME[0]}"
+}
+
 fails_a_use_case_named_of() {
   fresh_tree
   plant packages/domain/src/town/useCases/townOf.ts "export const townOf = (id: string): string => id\n"
@@ -371,6 +405,10 @@ run passes_a_synchronous_const_named_of_and_an_async_one_in_a_test
 run fails_a_subpath_import_inside_its_own_folder
 run fails_a_domain_test_importing_its_own_folder_by_subpath
 run passes_a_subpath_import_that_leaves_its_folder_or_the_root
+run fails_an_api_file_importing_the_domain_fakes
+run fails_a_domain_file_importing_a_fake
+run fails_a_web_file_importing_the_domain_fakes
+run passes_the_fakes_in_tests_contract_suites_and_the_testing_entry
 run fails_a_use_case_named_of
 run fails_a_domain_promise_outside_its_roles
 run passes_a_domain_promise_in_a_port
