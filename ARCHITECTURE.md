@@ -124,9 +124,10 @@ A pass-through earns no file: the route calls the store. A port lives with its u
 - `noImportCycles` (Biome): no import cycle between two files, and in the backend no type-only one either.
 - `map`: the folders above and the folders on disk are the same list, and a missing `ARCHITECTURE.md` fails.
 - `application_imports_infrastructure`, `application_knows_wire`: the application reads no adapter, no wire type and no HTTP or database library.
+- `subpath_import_inside_folder`: no file imports its own top-level folder by a `#` subpath.
 - `contracts_outside_adapters`: `@mygame/contracts` stays in `infrastructure/http/`, `infrastructure/json/` and `content/gate/`.
 - `persistence_knows_http`, `http_knows_database`: each technology stays in its folder.
 - `adapter_built_outside_root`: only the composition root constructs an adapter.
-- `reading_named_of_is_async`, `use_case_named_of`, `domain_promise_outside_its_roles`: a name says whether it reads a port.
+- `reading_named_of_is_async`, `reading_const_is_async`, `use_case_named_of`, `domain_promise_outside_its_roles`: a name says whether it reads a port, and no `const` named `*Of` or `*At` is `async` or returns a `Promise`.
 - `use_case_imports_use_case`, `service_is_public`: use cases share a service, and a service stays inside the domain.
 - `folder_over_limit`, `file_over_export_cap`, `type_over_method_cap`, and Biome's line limits: no folder, file, type or function grows past its wall.

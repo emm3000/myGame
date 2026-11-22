@@ -57,6 +57,26 @@ reading_named_of_is_async() {
   search -l "Promise<|\basync\b" "$api" "$domain" -g '*Of.ts' -g '!*.test.ts' | by_file
 }
 
+reading_const_is_async() {
+  search -n -U -o "^[ \t]*(?:export )?const (\w+(?:Of|At))\b = (?:async\b|(?:<[^>]*>)?\((?:[^()]|\((?:[^()]|\([^()]*\))*\))*\)\s*:\s*Promise<)" -r "const \$1" "$api" "$domain" -g '*.ts' -g '!*.test.ts' -g '!*.testSupport.ts' -g '!**/testing/**' | by_line
+}
+
+subpath_import_inside_folder() {
+  search -n "(from |import\()'#\w+[/']" "$api" "$domain" -g '*.ts' | awk -v q="'" -v api="$api/" -v domain="$domain/" '
+    {
+      path = $0
+      sub(/:.*/, "", path)
+      inner = path
+      if (index(inner, api) == 1) inner = substr(inner, length(api) + 1)
+      else if (index(inner, domain) == 1) inner = substr(inner, length(domain) + 1)
+      if (index(inner, "/") == 0) next
+      top = inner
+      sub(/\/.*/, "", top)
+      if (!match($0, q "#[A-Za-z0-9_]+")) next
+      if (substr($0, RSTART + 2, RLENGTH - 2) == top) print path "\t" substr($0, length(path) + 2)
+    }'
+}
+
 use_case_named_of() {
   search --files "$api" "$domain" -g '*Of.ts' -g '!*.test.ts' | { search '/(application|useCases|services)/'; } | by_file
 }
@@ -105,11 +125,13 @@ type_over_method_cap() {
 checks=(
   application_imports_infrastructure
   application_knows_wire
+  subpath_import_inside_folder
   contracts_outside_adapters
   persistence_knows_http
   http_knows_database
   adapter_built_outside_root
   reading_named_of_is_async
+  reading_const_is_async
   use_case_named_of
   domain_promise_outside_its_roles
   use_case_imports_use_case
