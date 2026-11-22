@@ -1,4 +1,4 @@
-import { PlacementBandSchema, type TownOverview } from '@mygame/contracts'
+import type { TownOverview } from '@mygame/contracts'
 import {
   type DomainError,
   dueHoldoutChecksOf,
@@ -99,7 +99,7 @@ export const presentTownOverview = (
     job: presentTownJob(town, at),
     ...school.value,
     dueHoldoutChecks: dueHoldoutChecksOf(reading.bandStarts, at).map(({ band, week }) => ({
-      band: PlacementBandSchema.parse(band),
+      band,
       week,
     })),
     stableWordCount: stableWordCountOf(reading.cards),

@@ -1,4 +1,4 @@
-import { PlacementBandSchema, type TownOverview } from '@mygame/contracts'
+import type { TownOverview } from '@mygame/contracts'
 import {
   type DomainError,
   type MemoryTerms,
@@ -64,7 +64,6 @@ const nextStepOfReading = (
       return ok({ ...step.value, readFirst: [...step.value.readFirst] })
     case 'holdoutCheck':
     case 'releasedLesson':
-      return ok({ ...step.value, band: PlacementBandSchema.parse(step.value.band) })
     case 'lessonToStudy':
       return ok(step.value)
     case 'lessonRunning':

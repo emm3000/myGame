@@ -1,17 +1,16 @@
-import { type HoldoutChecks, PlacementBandSchema } from '@mygame/contracts'
+import type { HoldoutChecks } from '@mygame/contracts'
 import type { HoldoutCheckView } from '@mygame/domain'
 
 type HoldoutCheckState = HoldoutChecks['checks'][number]
 
 const checkStateOf = (view: HoldoutCheckView): HoldoutCheckState => {
-  const band = PlacementBandSchema.parse(view.band)
   switch (view.kind) {
     case 'due':
-      return { kind: 'due', band, week: view.week }
+      return { kind: 'due', band: view.band, week: view.week }
     case 'asking':
       return {
         kind: 'asking',
-        band,
+        band: view.band,
         week: view.week,
         items: view.items.map(({ wordId, word, choices }) => ({
           wordId,
