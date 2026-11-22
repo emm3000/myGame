@@ -1,5 +1,4 @@
 import { assert, describe, expect, it } from 'vitest'
-import { signedUpAccountsOf } from '#account/testing/signedUpAccountsOf'
 import { inMemoryBands } from '#learning/curriculum/testing/inMemoryBands'
 import { inMemoryLessons } from '#learning/curriculum/testing/inMemoryLessons'
 import type { Clock } from '#platform/domain/Clock'
@@ -11,8 +10,8 @@ import type { TownCatalog } from '../../domain/TownCatalog'
 import type { TownStores } from '../../domain/TownStores'
 import { inMemoryEarnedSkills } from '../../testing/inMemoryEarnedSkills'
 import { type InMemoryTownNews, inMemoryTownNews } from '../../testing/inMemoryTownNews'
-import { inMemoryTownStores, townNewsOver } from '../../testing/inMemoryTownStores'
 import { inMemoryTowns } from '../../testing/inMemoryTowns'
+import { signedUpTownStoresOf } from '../../testing/signedUpTownStoresOf'
 import { plainTownSettings, townCatalogOf } from '../../testing/townCatalogOf'
 import { townOf } from '../../testing/townFixtures'
 import type { HiringOrder } from '../domain/HiringOrder'
@@ -62,10 +61,9 @@ type HiringFixture = {
 }
 
 const storesOf = ({ towns, news }: HiringFixture): TownStores =>
-  inMemoryTownStores({
-    accounts: signedUpAccountsOf(['player-1']),
+  signedUpTownStoresOf({
     towns,
-    townNews: townNewsOver(news),
+    news,
   })
 
 const stopOrder = (

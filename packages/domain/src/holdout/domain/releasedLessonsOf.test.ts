@@ -1,5 +1,4 @@
 import { assert, describe, expect, it } from 'vitest'
-import { signedUpAccountsOf } from '#account/testing/signedUpAccountsOf'
 import type { Band } from '#learning/curriculum/domain/Band'
 import { inMemoryBands } from '#learning/curriculum/testing/inMemoryBands'
 import { inMemoryLessons } from '#learning/curriculum/testing/inMemoryLessons'
@@ -17,8 +16,8 @@ import type { LessonSlot } from '#town/school/domain/LessonSlot'
 import { inMemoryLessonSlots } from '#town/school/testing/inMemoryLessonSlots'
 import { inMemoryEarnedSkills } from '#town/testing/inMemoryEarnedSkills'
 import { inMemoryTownNews } from '#town/testing/inMemoryTownNews'
-import { inMemoryTownStores, townNewsOver } from '#town/testing/inMemoryTownStores'
 import { inMemoryTowns } from '#town/testing/inMemoryTowns'
+import { signedUpTownStoresOf } from '#town/testing/signedUpTownStoresOf'
 import { plainTownSettings, townCatalogOf } from '#town/testing/townCatalogOf'
 import { townOf } from '#town/testing/townFixtures'
 import { inMemoryBandStarts } from '../testing/inMemoryBandStarts'
@@ -120,10 +119,9 @@ const schoolOf = ({
   const { lessons, bands, news, catalog, random, clock, ...stores } = dependencies
   const startSchoolLesson = new StartSchoolLesson({
     unitOfWork: inMemoryUnitOfWork(
-      inMemoryTownStores({
+      signedUpTownStoresOf({
         ...stores,
-        accounts: signedUpAccountsOf(['player-1']),
-        townNews: townNewsOver(news),
+        news,
       }),
     ),
     townCatalog: catalog,

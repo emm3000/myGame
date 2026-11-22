@@ -1,5 +1,4 @@
 import { assert, describe, expect, it } from 'vitest'
-import { signedUpAccountsOf } from '#account/testing/signedUpAccountsOf'
 import { inMemoryBands } from '#learning/curriculum/testing/inMemoryBands'
 import { inMemoryLessons } from '#learning/curriculum/testing/inMemoryLessons'
 import type { Clock } from '#platform/domain/Clock'
@@ -13,8 +12,8 @@ import { accrueTown } from '../../resources/domain/accrueTown'
 import type { Stocks } from '../../resources/domain/Stocks'
 import { inMemoryEarnedSkills } from '../../testing/inMemoryEarnedSkills'
 import { inMemoryTownNews } from '../../testing/inMemoryTownNews'
-import { inMemoryTownStores, townNewsOver } from '../../testing/inMemoryTownStores'
 import { inMemoryTowns } from '../../testing/inMemoryTowns'
+import { signedUpTownStoresOf } from '../../testing/signedUpTownStoresOf'
 import { plainTownSettings, townCatalogOf } from '../../testing/townCatalogOf'
 import { type TownShape, townOf } from '../../testing/townFixtures'
 import type { CleanUpOrder } from '../domain/CleanUpOrder'
@@ -96,10 +95,9 @@ const changesIn = (
   townCatalog: TownCatalog = catalog,
 ): SendCleanUpDependencies => ({
   unitOfWork: inMemoryUnitOfWork(
-    inMemoryTownStores({
-      accounts: signedUpAccountsOf(['player-1']),
+    signedUpTownStoresOf({
       towns: world.towns,
-      townNews: townNewsOver(world.news),
+      news: world.news,
       cleanUps: world.cleanUps,
       regionMap: inMemoryRegionMap([homeTown(), neighborTown]),
     }),

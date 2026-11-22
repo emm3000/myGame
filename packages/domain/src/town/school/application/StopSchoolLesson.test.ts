@@ -1,5 +1,4 @@
 import { describe, expect, it } from 'vitest'
-import { signedUpAccountsOf } from '#account/testing/signedUpAccountsOf'
 import { inMemoryBandStarts } from '#holdout/testing/inMemoryBandStarts'
 import { inMemoryBands } from '#learning/curriculum/testing/inMemoryBands'
 import { inMemoryLessons } from '#learning/curriculum/testing/inMemoryLessons'
@@ -11,8 +10,8 @@ import { Instant } from '#time/Instant'
 import type { WorkSlot } from '../../building/domain/BuildingWork'
 import { inMemoryEarnedSkills } from '../../testing/inMemoryEarnedSkills'
 import { type InMemoryTownNews, inMemoryTownNews } from '../../testing/inMemoryTownNews'
-import { inMemoryTownStores, townNewsOver } from '../../testing/inMemoryTownStores'
 import { inMemoryTowns } from '../../testing/inMemoryTowns'
+import { signedUpTownStoresOf } from '../../testing/signedUpTownStoresOf'
 import { plainTownSettings, townCatalogOf } from '../../testing/townCatalogOf'
 import { type TownShape, townOf } from '../../testing/townFixtures'
 import type { LessonSlot } from '../domain/LessonSlot'
@@ -69,10 +68,9 @@ const stopWith = (
 ): ReturnType<StopSchoolLesson['execute']> =>
   new StopSchoolLesson({
     unitOfWork: inMemoryUnitOfWork(
-      inMemoryTownStores({
+      signedUpTownStoresOf({
         ...held,
-        accounts: signedUpAccountsOf(['player-1']),
-        townNews: townNewsOver(news),
+        news,
       }),
     ),
     townCatalog: catalog,

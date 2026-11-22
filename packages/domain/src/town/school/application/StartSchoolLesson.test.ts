@@ -1,5 +1,4 @@
 import { assert, describe, expect, it } from 'vitest'
-import { signedUpAccountsOf } from '#account/testing/signedUpAccountsOf'
 import type { BandStart } from '#holdout/domain/BandStart'
 import { inMemoryBandStarts, type OwnedBandStart } from '#holdout/testing/inMemoryBandStarts'
 import type { Band } from '#learning/curriculum/domain/Band'
@@ -20,8 +19,8 @@ import type { WorkSlot } from '../../building/domain/BuildingWork'
 import type { TownCatalog } from '../../domain/TownCatalog'
 import { inMemoryEarnedSkills } from '../../testing/inMemoryEarnedSkills'
 import { type InMemoryTownNews, inMemoryTownNews } from '../../testing/inMemoryTownNews'
-import { inMemoryTownStores, townNewsOver } from '../../testing/inMemoryTownStores'
 import { inMemoryTowns } from '../../testing/inMemoryTowns'
+import { signedUpTownStoresOf } from '../../testing/signedUpTownStoresOf'
 import { plainTownSettings, townCatalogOf } from '../../testing/townCatalogOf'
 import { type TownShape, townOf } from '../../testing/townFixtures'
 import type { LessonSlot } from '../domain/LessonSlot'
@@ -149,10 +148,9 @@ const startWith = (
 ): ReturnType<StartSchoolLesson['execute']> =>
   new StartSchoolLesson({
     unitOfWork: inMemoryUnitOfWork(
-      inMemoryTownStores({
+      signedUpTownStoresOf({
         ...held,
-        accounts: signedUpAccountsOf(['player-1']),
-        townNews: townNewsOver(news),
+        news,
       }),
     ),
     townCatalog: catalog,
