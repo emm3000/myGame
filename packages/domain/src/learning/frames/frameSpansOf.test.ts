@@ -9,7 +9,7 @@ import { townLessonTwo } from '../curriculum/testing/townLessonTwo'
 import type { HeldCard } from '../HeldCard'
 import { heldCardsOf } from '../HeldCards'
 import type { Scaffold } from '../scaffold/Scaffold'
-import type { FrameReader } from './FrameLearner'
+import type { FrameLearner } from './FrameLearner'
 import type { FrameToken } from './FrameToken'
 import { frameSpansOf, withholdingNothing } from './frameSpansOf'
 import { inMemoryFrames } from './testing/inMemoryFrames'
@@ -48,7 +48,7 @@ type Learner = {
   readonly scaffold?: Scaffold
 }
 
-const readerOf = ({ cards, placedOutBands = [], scaffold = 'es' }: Learner): FrameReader => ({
+const readerOf = ({ cards, placedOutBands = [], scaffold = 'es' }: Learner): FrameLearner => ({
   cards: heldCardsOf(cards),
   placedOutBands,
   scaffold,

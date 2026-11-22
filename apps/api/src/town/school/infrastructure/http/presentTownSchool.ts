@@ -6,7 +6,7 @@ import {
   chromePhaseOf,
   type DomainError,
   deriveLessonDurationSeconds,
-  type FrameReader,
+  type FrameLearner,
   type Headword,
   type HeldCard,
   type HeldCards,
@@ -93,7 +93,7 @@ const wordStateOf = (
   word: LessonWord,
   held: HeldCard | undefined,
   view: WordView,
-  reader: FrameReader,
+  learner: FrameLearner,
 ): LessonWordState => {
   const { isReadable } = view
   return {
@@ -102,10 +102,10 @@ const wordStateOf = (
     reading: isReadable
       ? {
           word: word.acceptedForms[0],
-          frame: [...readingFrameOf(word, reader)],
+          frame: [...readingFrameOf(word, learner)],
         }
       : null,
-    support: supportStateOf(word, held, view, reader.scaffold),
+    support: supportStateOf(word, held, view, learner.scaffold),
   }
 }
 

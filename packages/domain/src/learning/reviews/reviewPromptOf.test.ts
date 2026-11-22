@@ -6,7 +6,7 @@ import { inMemoryLessons } from '../curriculum/testing/inMemoryLessons'
 import { lessonOne } from '../curriculum/testing/lessonOne'
 import { townLessonTwo } from '../curriculum/testing/townLessonTwo'
 import { unitLessonOne } from '../curriculum/testing/unitLessonOne'
-import type { FrameReader } from '../frames/FrameLearner'
+import type { FrameLearner } from '../frames/FrameLearner'
 import { inMemoryFrames, type ResolvedFrame } from '../frames/testing/inMemoryFrames'
 import type { HeldCard } from '../HeldCard'
 import { heldCardsOf } from '../HeldCards'
@@ -85,7 +85,7 @@ const answerForms = new Map([
 const readerOf = (
   scaffold: Scaffold,
   cards: ReadonlyArray<HeldCard> = lessonCards,
-): FrameReader => ({
+): FrameLearner => ({
   cards: heldCardsOf(cards),
   placedOutBands: [],
   scaffold,

@@ -5,7 +5,7 @@ import type { HeldCard } from '../HeldCard'
 import type { Lesson } from '../Lesson'
 import type { Text } from './Text'
 
-export type TextReader = {
+export type TextLearner = {
   readonly curriculum: ReadonlyArray<Lesson>
   readonly cards: ReadonlyArray<HeldCard>
   readonly placedOutBands: ReadonlyArray<Band>
@@ -14,7 +14,7 @@ export type TextReader = {
 
 export const openTextsOf = (
   texts: ReadonlyArray<Text>,
-  { curriculum, cards, placedOutBands, bands }: TextReader,
+  { curriculum, cards, placedOutBands, bands }: TextLearner,
 ): ReadonlyArray<Text> => {
   const stage = stageOf(curriculum, cards, placedOutBands, bands)
   return stage

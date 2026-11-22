@@ -2,7 +2,7 @@ import { isLessonPlacedOut } from '../curriculum/isLessonPlacedOut'
 import { supportLevelOf } from '../scaffold/supportLevelOf'
 import { type SupportText, supportTextOf } from '../scaffold/supportTextOf'
 import type { WordSupport } from '../scaffold/WordSupport'
-import type { FrameReader } from './FrameLearner'
+import type { FrameLearner } from './FrameLearner'
 import type { FrameSpan, FrameSpans } from './FrameSpan'
 import type { FrameToken } from './FrameToken'
 
@@ -12,7 +12,7 @@ export const withholdingNothing: Withholding = () => false
 
 const supportOf = (
   { wordId }: FrameToken,
-  { cards, placedOutBands, scaffold, lessons }: FrameReader,
+  { cards, placedOutBands, scaffold, lessons }: FrameLearner,
 ): WordSupport | null => {
   if (wordId === null) {
     return null
@@ -27,15 +27,15 @@ const supportOf = (
   return { shown: level.shown, ...supportTextOf(word, level) }
 }
 
-const spanOf = (token: FrameToken, reader: FrameReader, isWithheld: Withholding): FrameSpan => {
-  const support = supportOf(token, reader)
+const spanOf = (token: FrameToken, learner: FrameLearner, isWithheld: Withholding): FrameSpan => {
+  const support = supportOf(token, learner)
   return { text: token.text, support: support === null || isWithheld(support) ? null : support }
 }
 
 export const frameSpansOf = (
   frame: string,
   tokens: ReadonlyArray<FrameToken> | undefined,
-  reader: FrameReader,
+  learner: FrameLearner,
   isWithheld: Withholding,
 ): FrameSpans => {
   const [first, ...rest] = tokens ?? []
@@ -43,7 +43,7 @@ export const frameSpansOf = (
     return [{ text: frame, support: null }]
   }
   return [
-    spanOf(first, reader, isWithheld),
-    ...rest.map((token) => spanOf(token, reader, isWithheld)),
+    spanOf(first, learner, isWithheld),
+    ...rest.map((token) => spanOf(token, learner, isWithheld)),
   ]
 }
