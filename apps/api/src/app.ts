@@ -4,7 +4,10 @@ import {
   type AccountRouteDependencies,
   accountRoutes,
 } from '#account/infrastructure/http/accountRoutes'
-import { holdoutCheckRoutes } from '#holdout/infrastructure/http/holdoutCheckRoutes'
+import {
+  type HoldoutCheckRouteDependencies,
+  holdoutCheckRoutes,
+} from '#holdout/infrastructure/http/holdoutCheckRoutes'
 import {
   type LearningRouteDependencies,
   learningRoutes,
@@ -33,6 +36,7 @@ import { composeUseCases, type UseCaseDependencies, type UseCases } from './comp
 type RouteDependencies = AccountRouteDependencies &
   LearningRouteDependencies &
   PlacementRouteDependencies &
+  HoldoutCheckRouteDependencies &
   ReportRouteDependencies &
   TownRouteDependencies &
   RegionMapRouteDependencies & {

@@ -1,16 +1,23 @@
 import { assert, describe, expect, it } from 'vitest'
+import { inMemoryAccounts } from '#account/testing/inMemoryAccounts'
 import type { BandStart } from '#holdout/BandStart'
 import { inMemoryBandStarts, type OwnedBandStart } from '#holdout/testing/inMemoryBandStarts'
 import type { Band } from '#learning/curriculum/Band'
+import { inMemoryLessons } from '#learning/curriculum/testing/inMemoryLessons'
+import type { Scaffold } from '#learning/scaffold/Scaffold'
 import type { Clock } from '#platform/domain/Clock'
+import { inMemoryUnitOfWork } from '#platform/testing/inMemoryUnitOfWork'
+import type { PlayerId } from '#player/PlayerId'
 import { Instant } from '#time/Instant'
+import { inMemoryTownStores } from '#town/testing/inMemoryTownStores'
 import type { Placement, PlacementSample, TakenPlacement } from '../domain/Placement'
 import type { PlacementItem } from '../domain/PlacementView'
+import type { PlacementContent } from '../domain/placementSamplesDrawn'
 import type { PlacementAnswer } from '../domain/rightWordIdsOf'
 import { inMemoryPlacements } from '../testing/inMemoryPlacements'
 import { placementContentOf, placementWordsOfBand } from '../testing/placementWords'
-import { answerPlacement } from './answerPlacement'
-import { readPlacement } from './readPlacement'
+import { AnswerPlacement, type AnswerPlacementCommand } from './AnswerPlacement'
+import { ReadPlacement } from './ReadPlacement'
 
 const ana = 'player-ana'
 
@@ -19,6 +26,48 @@ const begunAt = Instant.fromEpochMilliseconds(Date.parse('2026-11-12T09:00:00Z')
 const answeredAt = Instant.fromEpochMilliseconds(Date.parse('2026-11-12T09:12:00Z'))
 
 const frozenClock: Clock = { now: () => answeredAt }
+
+type PlacementFixture = PlacementContent & {
+  readonly placements: ReturnType<typeof inMemoryPlacements>
+  readonly bandStarts: ReturnType<typeof inMemoryBandStarts>
+  readonly clock: Clock
+}
+
+const useCaseDependenciesOf = (
+  { placements, bandStarts, words, bands, clock }: PlacementFixture,
+  scaffold: Scaffold,
+) => ({
+  unitOfWork: inMemoryUnitOfWork(
+    inMemoryTownStores({
+      placements,
+      bandStarts,
+      accounts: inMemoryAccounts([
+        {
+          id: ana,
+          email: `${ana}@example.com`,
+          passwordHash: 'argon2id-hash',
+          emailVerified: true,
+          scaffold,
+          scaffoldVersion: 0,
+        },
+      ]),
+    }),
+  ),
+  lessons: { ...inMemoryLessons([], []), ...words, ...bands },
+  clock,
+})
+
+const answerPlacement = (
+  { scaffold, ...command }: AnswerPlacementCommand & { readonly scaffold: Scaffold },
+  fixture: PlacementFixture,
+): ReturnType<AnswerPlacement['execute']> =>
+  new AnswerPlacement(useCaseDependenciesOf(fixture, scaffold)).execute(command)
+
+const readPlacement = (
+  { playerId, scaffold }: { readonly playerId: PlayerId; readonly scaffold: Scaffold },
+  fixture: PlacementFixture,
+): ReturnType<ReadPlacement['execute']> =>
+  new ReadPlacement(useCaseDependenciesOf(fixture, scaffold)).execute({ playerId })
 
 const content = placementContentOf([
   { band: 1, words: placementWordsOfBand(1, 30) },
@@ -79,7 +128,7 @@ const storedScoresOf = async (
   return stored.value.scores
 }
 
-describe('answerPlacement', () => {
+describe('AnswerPlacement', () => {
   it('passes a band at 29 of 30', async () => {
     const { dependencies } = placementOf({})
     const answers = await answersWithRight(dependencies, 29)

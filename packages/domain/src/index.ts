@@ -171,6 +171,26 @@ export {
 } from '#memory/domain/MemoryTerms'
 export { retrievabilityOf } from '#memory/domain/retrievabilityOf'
 export { reviewMemoryCard } from '#memory/domain/reviewMemoryCard'
+export {
+  AnswerPlacement,
+  type AnswerPlacementCommand,
+  type AnswerPlacementDependencies,
+} from '#placement/application/AnswerPlacement'
+export {
+  BeginPlacement,
+  type BeginPlacementCommand,
+  type BeginPlacementDependencies,
+} from '#placement/application/BeginPlacement'
+export {
+  ReadPlacement,
+  type ReadPlacementDependencies,
+  type ReadPlacementQuery,
+} from '#placement/application/ReadPlacement'
+export {
+  SkipPlacement,
+  type SkipPlacementCommand,
+  type SkipPlacementDependencies,
+} from '#placement/application/SkipPlacement'
 export type {
   Placement,
   PlacementSample,
@@ -185,17 +205,6 @@ export type { PlacementWordCatalog } from '#placement/domain/PlacementWordCatalo
 export { placedOutBandsOf } from '#placement/domain/placedOutBandsOf'
 export { placementScoresOf } from '#placement/domain/placementScoresOf'
 export type { PlacementAnswer } from '#placement/domain/rightWordIdsOf'
-export {
-  type AnswerPlacementCommand,
-  type AnswerPlacementDependencies,
-  answerPlacement,
-} from '#placement/useCases/answerPlacement'
-export {
-  type BeginPlacementDependencies,
-  beginPlacement,
-} from '#placement/useCases/beginPlacement'
-export { readPlacement } from '#placement/useCases/readPlacement'
-export { type SkipPlacementDependencies, skipPlacement } from '#placement/useCases/skipPlacement'
 export type { AfterResponse } from '#platform/domain/AfterResponse'
 export type { AfterResponseDrain } from '#platform/domain/AfterResponseDrain'
 export type { Clock } from '#platform/domain/Clock'

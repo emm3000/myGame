@@ -7,13 +7,13 @@ import { isPlacementOffered } from '../domain/isPlacementOffered'
 import type { PlacementView } from '../domain/PlacementView'
 import { placementViewOf } from '../domain/placementViewOf'
 
-export type ReadPlacementQuery = {
+export type ReadPlacementViewQuery = {
   readonly playerId: PlayerId
   readonly scaffold: Scaffold
 }
 
-export const readPlacement = async (
-  { playerId, scaffold }: ReadPlacementQuery,
+export const readPlacementView = async (
+  { playerId, scaffold }: ReadPlacementViewQuery,
   dependencies: PlacementOfferDependencies,
 ): Promise<Result<PlacementView, DomainError>> => {
   const stored = await dependencies.placements.placementOf(playerId)
