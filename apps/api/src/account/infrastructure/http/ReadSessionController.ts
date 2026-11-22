@@ -30,6 +30,10 @@ export class ReadSessionController {
     if (player === undefined) {
       return respondRefusal(c, { kind: 'SignedOut' })
     }
-    return c.json(presentPlayer(player, await this.dependencies.readChromePhase.execute(player)))
+    const chromePhase = await this.dependencies.readChromePhase.execute(player)
+    if (!chromePhase.ok) {
+      return respondRefusal(c, chromePhase.error)
+    }
+    return c.json(presentPlayer(player, chromePhase.value))
   }
 }

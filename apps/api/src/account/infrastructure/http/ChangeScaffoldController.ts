@@ -46,6 +46,10 @@ export class ChangeScaffoldController {
     }
     const { accounts, readChromePhase } = this.dependencies
     const stored = await accounts.storeScaffold(c.var.playerId, change.data.scaffold)
-    return c.json(presentPlayer(stored, await readChromePhase.execute(stored)))
+    const chromePhase = await readChromePhase.execute(stored)
+    if (!chromePhase.ok) {
+      return respondRefusal(c, chromePhase.error)
+    }
+    return c.json(presentPlayer(stored, chromePhase.value))
   }
 }
