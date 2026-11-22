@@ -90,7 +90,6 @@ listenPortOf.ts  writeOpenApiDocument.ts                          the api's own 
 | Port | `ports/`, `application/ports/` | noun + role | `TownRepository.ts` |
 | Api use case | `application/` | verb phrase, never a domain export's name | `serveReport.ts` |
 | Api type or pure rule | `application/` | noun, or `*From`, `is*`, `*Digest` | `TownReading.ts`, `accountTokenExpiryFrom.ts`, `tokenDigest.ts` |
-| Fixed-copy picker | `application/` | `pick` + what it picks | `pickFixedCopy.ts` |
 | View or verdict gatherer | `application/` | `gather` + view or verdict | `gatherTownView.ts` |
 | Endpoint | `infrastructure/http/` | use case + `Route` | `sendJobRoute.ts` |
 | Route list | `infrastructure/http/` | area + `Routes` | `jobsRoutes.ts` |

@@ -17,10 +17,12 @@ import {
 import { waitUntil } from '@vercel/functions'
 import type { Accounts } from '#account/application/ports/Accounts'
 import type { ChromeProgressReader } from '#account/application/ports/ChromeProgressReader'
+import type { MailCopy } from '#account/application/ports/MailCopy'
 import type { Mailer } from '#account/application/ports/Mailer'
 import type { PasswordHasher } from '#account/application/ports/PasswordHasher'
 import type { Sessions } from '#account/application/ports/Sessions'
 import type { SessionTokens } from '#account/application/ports/SessionTokens'
+import { CatalogMailCopy } from '#account/infrastructure/catalog/CatalogMailCopy'
 import { DrizzleAccounts } from '#account/infrastructure/persistence/DrizzleAccounts'
 import { DrizzleChromeProgressReader } from '#account/infrastructure/persistence/DrizzleChromeProgressReader'
 import { DrizzleSessions } from '#account/infrastructure/persistence/DrizzleSessions'
@@ -83,6 +85,7 @@ const standardErrorSink: FailureSink = {
 
 type MailSettings = {
   readonly mailer: Mailer
+  readonly mailCopy: MailCopy
   readonly webUrl: string
 }
 
@@ -94,6 +97,7 @@ const mailSettingsFrom = (environment: NodeJS.ProcessEnv): MailSettings => {
   }
   return {
     mailer: new SmtpMailer(smtpUrl, sender),
+    mailCopy: new CatalogMailCopy(),
     webUrl: urlWithProtocol('WEB_URL', environment.WEB_URL, ['http:', 'https:']).replace(/\/$/, ''),
   }
 }

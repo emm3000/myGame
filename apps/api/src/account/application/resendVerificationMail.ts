@@ -26,7 +26,14 @@ type VerifyLink = {
 
 export const resendVerificationMail = async (
   playerId: PlayerId,
-  { unitOfWork, clock, sessionTokens, mailer, webUrl }: ResendVerificationMailDependencies,
+  {
+    unitOfWork,
+    clock,
+    sessionTokens,
+    mailer,
+    mailCopy,
+    webUrl,
+  }: ResendVerificationMailDependencies,
 ): Promise<Result<void, Refusal>> => {
   const issued = await unitOfWork.transact<VerifyLink | undefined, Refusal>(
     async ({ accounts, accountTokens }) => {
@@ -53,6 +60,7 @@ export const resendVerificationMail = async (
   }
   const delivery = await sendVerificationMail(issued.value.recipient, issued.value.token, {
     mailer,
+    mailCopy,
     webUrl,
   })
   return delivery === 'sent' ? ok(undefined) : err({ kind: 'MailNotSent' })
