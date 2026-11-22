@@ -6,15 +6,12 @@ import type { RandomSource } from '#platform/domain/RandomSource'
 import type { PlayerId } from '#player/PlayerId'
 import { ok, type Result } from '#Result'
 import { type MutateTownDependencies, mutateTown } from '#town/application/mutateTown'
-import {
-  admitPlacementOffer,
-  type PlacementOfferDependencies,
-} from '../application/admitPlacementOffer'
 import type { TakenPlacement } from '../domain/Placement'
 import type { PlacementRepository } from '../domain/PlacementRepository'
 import type { PlacementView } from '../domain/PlacementView'
 import type { PlacementWordCatalog } from '../domain/PlacementWordCatalog'
 import { placementSamplesDrawn } from '../domain/placementSamplesDrawn'
+import { admitPlacementOffer, type PlacementOfferDependencies } from './admitPlacementOffer'
 import { readPlacementView } from './readPlacementView'
 
 export type BeginPlacementCommand = {

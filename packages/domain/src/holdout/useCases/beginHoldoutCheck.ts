@@ -6,14 +6,17 @@ import type { Clock } from '#platform/domain/Clock'
 import type { RandomSource } from '#platform/domain/RandomSource'
 import type { PlayerId } from '#player/PlayerId'
 import { ok, type Result } from '#Result'
-import { askingViewOf } from '../askingViewOf'
-import { checkOfWeek } from '../checkOfWeek'
-import type { BegunHoldoutCheck } from '../HoldoutCheck'
-import type { HoldoutCheckView } from '../HoldoutCheckView'
-import type { HoldoutCheckWeek } from '../HoldoutCheckWeek'
-import { type HoldoutCheckContent, holdoutCheckSampleDrawn } from '../holdoutCheckSampleDrawn'
-import type { BandStartRepository } from '../ports/BandStartRepository'
-import { resolveDueBandStart } from '../services/resolveDueBandStart'
+import { resolveDueBandStart } from '../application/resolveDueBandStart'
+import { askingViewOf } from '../domain/askingViewOf'
+import type { BandStartRepository } from '../domain/BandStartRepository'
+import { checkOfWeek } from '../domain/checkOfWeek'
+import type { BegunHoldoutCheck } from '../domain/HoldoutCheck'
+import type { HoldoutCheckView } from '../domain/HoldoutCheckView'
+import type { HoldoutCheckWeek } from '../domain/HoldoutCheckWeek'
+import {
+  type HoldoutCheckContent,
+  holdoutCheckSampleDrawn,
+} from '../domain/holdoutCheckSampleDrawn'
 
 export type BeginHoldoutCheckCommand = {
   readonly playerId: PlayerId

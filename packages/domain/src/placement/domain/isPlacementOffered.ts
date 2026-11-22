@@ -1,4 +1,4 @@
-import type { BandStart } from '#holdout/BandStart'
+import type { BandStart } from '#holdout/domain/BandStart'
 import { isPlacementDrawable, type PlacementContent } from './placementSamplesDrawn'
 
 export const isPlacementOffered = (

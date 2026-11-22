@@ -1,6 +1,6 @@
 import type { DomainError } from '#DomainError'
-import type { BandStartRepository } from '#holdout/ports/BandStartRepository'
-import { type ReleaseContent, releasedLessonsOf } from '#holdout/releasedLessonsOf'
+import type { BandStartRepository } from '#holdout/domain/BandStartRepository'
+import { type ReleaseContent, releasedLessonsOf } from '#holdout/domain/releasedLessonsOf'
 import type { MemoryCard } from '#memory/domain/MemoryCard'
 import type { MemoryTerms } from '#memory/domain/MemoryTerms'
 import { reviewMemoryCard } from '#memory/domain/reviewMemoryCard'

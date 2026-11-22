@@ -1,6 +1,6 @@
 import type { StoredScaffold } from '#account/domain/StoredScaffold'
 import type { DomainError } from '#DomainError'
-import type { BandStart } from '#holdout/BandStart'
+import type { BandStart } from '#holdout/domain/BandStart'
 import type { HeldCard } from '#learning/HeldCard'
 import type { PlacementScore } from '#placement/domain/Placement'
 import type { PlayerId } from '#player/PlayerId'

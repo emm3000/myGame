@@ -6,7 +6,6 @@ import type { Instant } from '#time/Instant'
 import type { SiteAddress } from '../../domain/SiteAddress'
 import type { TownCatalog } from '../../domain/TownCatalog'
 import { terrainOf } from '../../domain/terrainOf'
-import { readLastArea } from '../application/readLastArea'
 import type { CleanUpReader } from '../domain/CleanUpReader'
 import { isWholeFromOneTo } from '../domain/isWholeFromOneTo'
 import type { RegionMap, RegionSite, SiteWaste } from '../domain/RegionMap'
@@ -14,6 +13,7 @@ import type { RegionMapReader, SiteHolder } from '../domain/RegionMapReader'
 import type { WasteTerms } from '../domain/WasteTerms'
 import { wasteAt } from '../domain/wasteAt'
 import { wasteSizeOf } from '../domain/wasteSizeOf'
+import { readLastArea } from './readLastArea'
 
 export type ReadRegionMapCommand = {
   readonly playerId: PlayerId

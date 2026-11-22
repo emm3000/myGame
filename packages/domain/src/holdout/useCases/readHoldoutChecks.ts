@@ -4,9 +4,9 @@ import type { PlacementWordCatalog } from '#placement/domain/PlacementWordCatalo
 import type { Clock } from '#platform/domain/Clock'
 import type { PlayerId } from '#player/PlayerId'
 import { ok, type Result } from '#Result'
-import type { HoldoutCheckView } from '../HoldoutCheckView'
-import { holdoutCheckViewsOf } from '../holdoutCheckViewsOf'
-import type { BandStartRepository } from '../ports/BandStartRepository'
+import type { BandStartRepository } from '../domain/BandStartRepository'
+import type { HoldoutCheckView } from '../domain/HoldoutCheckView'
+import { holdoutCheckViewsOf } from '../domain/holdoutCheckViewsOf'
 
 export type ReadHoldoutChecksQuery = {
   readonly playerId: PlayerId

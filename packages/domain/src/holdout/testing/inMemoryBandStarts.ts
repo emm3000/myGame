@@ -1,7 +1,7 @@
 import type { PlayerId } from '#player/PlayerId'
 import { ok } from '#Result'
-import type { BandStart } from '../BandStart'
-import type { BandStartRepository } from '../ports/BandStartRepository'
+import type { BandStart } from '../domain/BandStart'
+import type { BandStartRepository } from '../domain/BandStartRepository'
 
 export type OwnedBandStart = {
   readonly playerId: PlayerId

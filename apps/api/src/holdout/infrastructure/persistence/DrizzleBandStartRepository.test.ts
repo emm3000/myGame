@@ -3,7 +3,7 @@ import { Pool } from 'pg'
 import { afterAll, beforeAll } from 'vitest'
 import { players } from '#account/infrastructure/persistence/accountTables'
 import { truncatePlayerTables } from '#truncatePlayerTables.testSupport'
-import { bandStartRepositoryContract } from '../memory/bandStartRepositoryContract.testSupport'
+import { bandStartRepositoryContract } from './bandStartRepositoryContract.testSupport'
 import { DrizzleBandStartRepository } from './DrizzleBandStartRepository'
 
 function databaseUrl(): string {

@@ -1,9 +1,6 @@
 api_holds_layer apps/api/src/holdout/application
 api_holds_layer apps/api/src/learning/application
 api_holds_layer apps/api/src/report/application
-file_outside_layer packages/domain/src/holdout
-file_outside_layer packages/domain/src/holdout/ports
-file_outside_layer packages/domain/src/holdout/services
 file_outside_layer packages/domain/src/holdout/useCases
 file_outside_layer packages/domain/src/learning
 file_outside_layer packages/domain/src/learning/curriculum
@@ -16,11 +13,8 @@ file_outside_layer packages/domain/src/learning/reviews
 file_outside_layer packages/domain/src/learning/reviews/ports
 file_outside_layer packages/domain/src/learning/reviews/useCases
 file_outside_layer packages/domain/src/learning/scaffold
-role_folder apps/api/src/holdout/infrastructure/memory
 role_folder apps/api/src/learning/infrastructure/memory
 role_folder apps/api/src/report/infrastructure/memory
-role_folder packages/domain/src/holdout/ports
-role_folder packages/domain/src/holdout/services
 role_folder packages/domain/src/holdout/useCases
 role_folder packages/domain/src/learning/curriculum/ports
 role_folder packages/domain/src/learning/frames/ports

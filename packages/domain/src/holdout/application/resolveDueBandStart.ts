@@ -3,10 +3,10 @@ import type { Band } from '#learning/curriculum/Band'
 import type { PlayerId } from '#player/PlayerId'
 import { err, ok, type Result } from '#Result'
 import type { Instant } from '#time/Instant'
-import type { BandStart } from '../BandStart'
-import type { HoldoutCheckWeek } from '../HoldoutCheckWeek'
-import { isHoldoutCheckDue } from '../holdoutCheckWeeks'
-import type { BandStartRepository } from '../ports/BandStartRepository'
+import type { BandStart } from '../domain/BandStart'
+import type { BandStartRepository } from '../domain/BandStartRepository'
+import type { HoldoutCheckWeek } from '../domain/HoldoutCheckWeek'
+import { isHoldoutCheckDue } from '../domain/holdoutCheckWeeks'
 
 export const resolveDueBandStart = async (
   playerId: PlayerId,

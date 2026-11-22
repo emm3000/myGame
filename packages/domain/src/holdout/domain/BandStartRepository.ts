@@ -2,8 +2,8 @@ import type { DomainError } from '#DomainError'
 import type { Band } from '#learning/curriculum/Band'
 import type { PlayerId } from '#player/PlayerId'
 import type { Result } from '#Result'
-import type { BandStart } from '../BandStart'
-import type { HoldoutCheck } from '../HoldoutCheck'
+import type { BandStart } from './BandStart'
+import type { HoldoutCheck } from './HoldoutCheck'
 
 export interface BandStartRepository {
   bandStartsOf(playerId: PlayerId): Promise<Result<ReadonlyArray<BandStart>, DomainError>>
