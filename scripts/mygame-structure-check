@@ -77,7 +77,7 @@ application_knows_wire() {
 }
 
 persistence_knows_http() {
-  search -n "from '@?hono" "$api" -g '**/infrastructure/{postgres,memory,json,smtp,system}/**' -g '!*.test.ts' | by_line
+  search -n "from '@?hono" "$api" -g '**/infrastructure/{persistence,catalog,memory,json,smtp,system}/**' -g '!*.test.ts' | by_line
 }
 
 api_holds_layer() {

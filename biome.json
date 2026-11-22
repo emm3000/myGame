@@ -357,7 +357,7 @@
       }
     },
     {
-      "includes": ["apps/api/src/platform/**/infrastructure/postgres/**"],
+      "includes": ["apps/api/src/platform/**/infrastructure/persistence/**"],
       "linter": {
         "rules": {
           "style": {
@@ -381,9 +381,9 @@
                       "#holdout/**",
                       "**/report/**",
                       "#report/**",
-                      "!**/infrastructure/postgres/*Tables",
-                      "!**/infrastructure/postgres/*FromRow",
-                      "!**/infrastructure/postgres/*Columns"
+                      "!**/infrastructure/persistence/*Tables",
+                      "!**/infrastructure/persistence/*FromRow",
+                      "!**/infrastructure/persistence/*Columns"
                     ],
                     "message": "ADR 052: platform imports only from a feature to its left: platform <- content <- account <- town <- learning <- placement, holdout, report."
                   }
@@ -395,7 +395,7 @@
       }
     },
     {
-      "includes": ["apps/api/src/content/**/infrastructure/postgres/**"],
+      "includes": ["apps/api/src/content/**/infrastructure/persistence/**"],
       "linter": {
         "rules": {
           "style": {
@@ -417,9 +417,9 @@
                       "#holdout/**",
                       "**/report/**",
                       "#report/**",
-                      "!**/infrastructure/postgres/*Tables",
-                      "!**/infrastructure/postgres/*FromRow",
-                      "!**/infrastructure/postgres/*Columns"
+                      "!**/infrastructure/persistence/*Tables",
+                      "!**/infrastructure/persistence/*FromRow",
+                      "!**/infrastructure/persistence/*Columns"
                     ],
                     "message": "ADR 052: content imports only from a feature to its left: platform <- content <- account <- town <- learning <- placement, holdout, report."
                   }
@@ -431,7 +431,7 @@
       }
     },
     {
-      "includes": ["apps/api/src/account/**/infrastructure/postgres/**"],
+      "includes": ["apps/api/src/account/**/infrastructure/persistence/**"],
       "linter": {
         "rules": {
           "style": {
@@ -451,9 +451,9 @@
                       "#holdout/**",
                       "**/report/**",
                       "#report/**",
-                      "!**/infrastructure/postgres/*Tables",
-                      "!**/infrastructure/postgres/*FromRow",
-                      "!**/infrastructure/postgres/*Columns"
+                      "!**/infrastructure/persistence/*Tables",
+                      "!**/infrastructure/persistence/*FromRow",
+                      "!**/infrastructure/persistence/*Columns"
                     ],
                     "message": "ADR 052: account imports only from a feature to its left: platform <- content <- account <- town <- learning <- placement, holdout, report."
                   }
@@ -465,7 +465,7 @@
       }
     },
     {
-      "includes": ["apps/api/src/town/**/infrastructure/postgres/**"],
+      "includes": ["apps/api/src/town/**/infrastructure/persistence/**"],
       "linter": {
         "rules": {
           "style": {
@@ -483,9 +483,9 @@
                       "#holdout/**",
                       "**/report/**",
                       "#report/**",
-                      "!**/infrastructure/postgres/*Tables",
-                      "!**/infrastructure/postgres/*FromRow",
-                      "!**/infrastructure/postgres/*Columns"
+                      "!**/infrastructure/persistence/*Tables",
+                      "!**/infrastructure/persistence/*FromRow",
+                      "!**/infrastructure/persistence/*Columns"
                     ],
                     "message": "ADR 052: town imports only from a feature to its left: platform <- content <- account <- town <- learning <- placement, holdout, report."
                   }
@@ -497,7 +497,7 @@
       }
     },
     {
-      "includes": ["apps/api/src/learning/**/infrastructure/postgres/**"],
+      "includes": ["apps/api/src/learning/**/infrastructure/persistence/**"],
       "linter": {
         "rules": {
           "style": {
@@ -513,9 +513,9 @@
                       "#holdout/**",
                       "**/report/**",
                       "#report/**",
-                      "!**/infrastructure/postgres/*Tables",
-                      "!**/infrastructure/postgres/*FromRow",
-                      "!**/infrastructure/postgres/*Columns"
+                      "!**/infrastructure/persistence/*Tables",
+                      "!**/infrastructure/persistence/*FromRow",
+                      "!**/infrastructure/persistence/*Columns"
                     ],
                     "message": "ADR 052: learning imports only from a feature to its left: platform <- content <- account <- town <- learning <- placement, holdout, report."
                   }
@@ -527,7 +527,7 @@
       }
     },
     {
-      "includes": ["apps/api/src/placement/**/infrastructure/postgres/**"],
+      "includes": ["apps/api/src/placement/**/infrastructure/persistence/**"],
       "linter": {
         "rules": {
           "style": {
@@ -541,9 +541,9 @@
                       "#holdout/**",
                       "**/report/**",
                       "#report/**",
-                      "!**/infrastructure/postgres/*Tables",
-                      "!**/infrastructure/postgres/*FromRow",
-                      "!**/infrastructure/postgres/*Columns"
+                      "!**/infrastructure/persistence/*Tables",
+                      "!**/infrastructure/persistence/*FromRow",
+                      "!**/infrastructure/persistence/*Columns"
                     ],
                     "message": "ADR 052: placement imports only from a feature to its left: platform <- content <- account <- town <- learning <- placement, holdout, report."
                   }
@@ -555,7 +555,7 @@
       }
     },
     {
-      "includes": ["apps/api/src/holdout/**/infrastructure/postgres/**"],
+      "includes": ["apps/api/src/holdout/**/infrastructure/persistence/**"],
       "linter": {
         "rules": {
           "style": {
@@ -569,9 +569,9 @@
                       "#placement/**",
                       "**/report/**",
                       "#report/**",
-                      "!**/infrastructure/postgres/*Tables",
-                      "!**/infrastructure/postgres/*FromRow",
-                      "!**/infrastructure/postgres/*Columns"
+                      "!**/infrastructure/persistence/*Tables",
+                      "!**/infrastructure/persistence/*FromRow",
+                      "!**/infrastructure/persistence/*Columns"
                     ],
                     "message": "ADR 052: holdout imports only from a feature to its left: platform <- content <- account <- town <- learning <- placement, holdout, report."
                   }
@@ -583,7 +583,7 @@
       }
     },
     {
-      "includes": ["apps/api/src/report/**/infrastructure/postgres/**"],
+      "includes": ["apps/api/src/report/**/infrastructure/persistence/**"],
       "linter": {
         "rules": {
           "style": {
@@ -597,9 +597,9 @@
                       "#placement/**",
                       "**/holdout/**",
                       "#holdout/**",
-                      "!**/infrastructure/postgres/*Tables",
-                      "!**/infrastructure/postgres/*FromRow",
-                      "!**/infrastructure/postgres/*Columns"
+                      "!**/infrastructure/persistence/*Tables",
+                      "!**/infrastructure/persistence/*FromRow",
+                      "!**/infrastructure/persistence/*Columns"
                     ],
                     "message": "ADR 052: report imports only from a feature to its left: platform <- content <- account <- town <- learning <- placement, holdout, report."
                   }
