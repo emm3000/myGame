@@ -128,6 +128,6 @@ A pass-through earns no file: the route calls the store. A port lives with its u
 - `contracts_outside_adapters`: `@mygame/contracts` stays in `infrastructure/http/`, `infrastructure/json/` and `content/gate/`.
 - `persistence_knows_http`, `http_knows_database`: each technology stays in its folder.
 - `adapter_built_outside_root`: only the composition root constructs an adapter.
-- `reading_named_of_is_async`, `reading_const_is_async`, `use_case_named_of`, `domain_promise_outside_its_roles`: a name says whether it reads a port, and no `const` named `*Of` or `*At` is `async` or returns a `Promise`.
+- `reading_named_of_is_async`, `reading_is_async`, `use_case_named_of`, `domain_promise_outside_its_roles`: a name says whether it reads a port, and no `function` or `const` named `*Of`, `*At`, `*For` or `*Between` is `async` or returns a `Promise`.
 - `use_case_imports_use_case`, `service_is_public`: use cases share a service, and a service stays inside the domain.
 - `folder_over_limit`, `file_over_export_cap`, `type_over_method_cap`, and Biome's line limits: no folder, file, type or function grows past its wall.

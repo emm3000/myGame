@@ -151,14 +151,63 @@ fails_an_async_const_named_of() {
   fresh_tree
   plant packages/domain/src/town/useCases/sendJob.ts "const askedJobOf = async (id: string): Promise<string> => id\n"
   check
-  expect_failure "${FUNCNAME[0]}" "structure check reading_const_is_async packages/domain/src/town/useCases/sendJob.ts 1:const askedJobOf"
+  expect_failure "${FUNCNAME[0]}" "structure check reading_is_async packages/domain/src/town/useCases/sendJob.ts 1:const askedJobOf"
 }
 
 fails_a_const_named_at_that_declares_a_promise() {
   fresh_tree
   plant apps/api/src/town/application/serveReport.ts "export const serveReport = (): number => 1\n\nexport const shownAt = (\n  playerId: string,\n  read: (at: number) => number,\n): Promise<number> => Promise.resolve(read(1))\n"
   check
-  expect_failure "${FUNCNAME[0]}" "structure check reading_const_is_async apps/api/src/town/application/serveReport.ts 3:const shownAt"
+  expect_failure "${FUNCNAME[0]}" "structure check reading_is_async apps/api/src/town/application/serveReport.ts 3:const shownAt"
+}
+
+fails_an_exported_async_function_named_for() {
+  fresh_tree
+  plant apps/api/src/town/application/sendJob.ts "export async function jobSiteFor(id: string): Promise<string> {\n  return id\n}\n"
+  check
+  expect_failure "${FUNCNAME[0]}" "structure check reading_is_async apps/api/src/town/application/sendJob.ts 1:function jobSiteFor"
+}
+
+fails_a_function_named_at_that_declares_a_promise() {
+  fresh_tree
+  plant packages/domain/src/town/useCases/sendJob.ts "export const sendJob = (): number => 1\n\nfunction jobDueAt(\n  read: (at: number) => number,\n): Promise<number> {\n  return Promise.resolve(read(1))\n}\n"
+  check
+  expect_failure "${FUNCNAME[0]}" "structure check reading_is_async packages/domain/src/town/useCases/sendJob.ts 3:function jobDueAt"
+}
+
+fails_a_typed_const_named_between_that_returns_a_promise() {
+  fresh_tree
+  plant apps/api/src/town/application/serveReport.ts "const newsBetween: (from: number, to: number) => Promise<number> = (from, to) =>\n  Promise.resolve(to - from)\n"
+  check
+  expect_failure "${FUNCNAME[0]}" "structure check reading_is_async apps/api/src/town/application/serveReport.ts 1:const newsBetween"
+}
+
+fails_a_typed_const_named_of_assigned_an_async_arrow() {
+  fresh_tree
+  plant apps/api/src/town/application/serveReport.ts "const reportOf: Reporter = async (id) => id\n"
+  check
+  expect_failure "${FUNCNAME[0]}" "structure check reading_is_async apps/api/src/town/application/serveReport.ts 1:const reportOf"
+}
+
+fails_an_async_const_named_for() {
+  fresh_tree
+  plant packages/domain/src/town/useCases/sendJob.ts "const bandStartFor = async (id: string): Promise<string> => id\n"
+  check
+  expect_failure "${FUNCNAME[0]}" "structure check reading_is_async packages/domain/src/town/useCases/sendJob.ts 1:const bandStartFor"
+}
+
+passes_a_synchronous_reading_that_takes_a_promise_callback() {
+  fresh_tree
+  plant apps/api/src/town/application/sendJob.ts "export function retriesFor(task: () => Promise<void>): number {\n  return task.length\n}\nexport const retriesBetween = (task: () => Promise<void>, from: number): number => from\nconst attemptsAt: (task: () => Promise<void>) => number = (task) => task.length\n"
+  check
+  expect_pass "${FUNCNAME[0]}"
+}
+
+passes_a_synchronous_reading_that_returns_a_promise_like_in_a_union() {
+  fresh_tree
+  plant apps/api/src/town/application/sendJob.ts "export function settledAt(at: number): number | PromiseLike<number> {\n  return at\n}\nconst settledFor = (at: number): PromiseLike<number> | number => at\n"
+  check
+  expect_pass "${FUNCNAME[0]}"
 }
 
 passes_a_synchronous_const_named_of_and_an_async_one_in_a_test() {
@@ -415,6 +464,13 @@ run passes_an_adapter_built_in_the_composition_root
 run fails_an_async_reading_named_of
 run fails_an_async_const_named_of
 run fails_a_const_named_at_that_declares_a_promise
+run fails_an_exported_async_function_named_for
+run fails_a_function_named_at_that_declares_a_promise
+run fails_a_typed_const_named_between_that_returns_a_promise
+run fails_a_typed_const_named_of_assigned_an_async_arrow
+run fails_an_async_const_named_for
+run passes_a_synchronous_reading_that_takes_a_promise_callback
+run passes_a_synchronous_reading_that_returns_a_promise_like_in_a_union
 run passes_a_synchronous_const_named_of_and_an_async_one_in_a_test
 run fails_a_subpath_import_inside_its_own_folder
 run fails_a_domain_test_importing_its_own_folder_by_subpath
