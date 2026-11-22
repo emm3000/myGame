@@ -1,4 +1,4 @@
-import { type Season, seasonAt } from '#season/seasonAt'
+import { type Season, seasonAt } from '#season/domain/seasonAt'
 import type { Instant } from '#time/Instant'
 import type { ProductionPercent, TownDurationPercent, TownSettings } from './TownSettings'
 

@@ -1,6 +1,6 @@
 import type { DomainError } from '#DomainError'
 import { ok, type Result } from '#Result'
-import { nextSeasonBoundaryAfter } from '#season/nextSeasonBoundaryAfter'
+import { nextSeasonBoundaryAfter } from '#season/domain/nextSeasonBoundaryAfter'
 import type { Instant } from '#time/Instant'
 import type { TownCatalog } from '../ports/TownCatalog'
 import type { Town } from '../Town'

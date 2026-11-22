@@ -1,6 +1,6 @@
 import type { DomainError } from '#DomainError'
-import { dueInstantOf } from '#memory/dueInstantOf'
-import type { MemoryTerms } from '#memory/MemoryTerms'
+import { dueInstantOf } from '#memory/domain/dueInstantOf'
+import type { MemoryTerms } from '#memory/domain/MemoryTerms'
 import { ok, type Result } from '#Result'
 import type { Instant } from '#time/Instant'
 import type { HeldCard } from '../HeldCard'

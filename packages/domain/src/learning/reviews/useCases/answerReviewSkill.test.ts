@@ -1,5 +1,5 @@
 import { assert, describe, expect, it } from 'vitest'
-import { MemoryCard } from '#memory/MemoryCard'
+import { MemoryCard } from '#memory/domain/MemoryCard'
 import type { Job } from '#town/jobs/Job'
 import { lessonOne } from '../../curriculum/testing/lessonOne'
 import {

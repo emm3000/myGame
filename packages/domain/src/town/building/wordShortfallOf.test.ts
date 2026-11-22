@@ -1,6 +1,6 @@
 import { assert, describe, expect, it } from 'vitest'
 import type { HeldCard } from '#learning/HeldCard'
-import { MemoryCard } from '#memory/MemoryCard'
+import { MemoryCard } from '#memory/domain/MemoryCard'
 import { Instant } from '#time/Instant'
 import type { WordNeed } from './WordNeed'
 import { wordShortfallOf } from './wordShortfallOf'

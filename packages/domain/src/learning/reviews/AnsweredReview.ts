@@ -1,5 +1,5 @@
-import type { MemoryCard } from '#memory/MemoryCard'
-import type { MemoryRating } from '#memory/MemoryRating'
+import type { MemoryCard } from '#memory/domain/MemoryCard'
+import type { MemoryRating } from '#memory/domain/MemoryRating'
 import { openedLevelOf } from '#town/building/openedLevelOf'
 import type { TownCatalog } from '#town/ports/TownCatalog'
 import type { TownSkill } from '#town/TownSkill'

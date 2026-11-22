@@ -1,5 +1,5 @@
 import { assert, describe, expect, it } from 'vitest'
-import { MemoryCard, type StoredMemoryCard } from '#memory/MemoryCard'
+import { MemoryCard, type StoredMemoryCard } from '#memory/domain/MemoryCard'
 import { Instant } from '#time/Instant'
 import { isWordRetained } from './isWordRetained'
 

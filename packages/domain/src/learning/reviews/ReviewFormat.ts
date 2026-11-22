@@ -1,4 +1,4 @@
-import type { MemoryCard } from '#memory/MemoryCard'
+import type { MemoryCard } from '#memory/domain/MemoryCard'
 
 export type ReviewFormat = 'recognition' | 'recall'
 

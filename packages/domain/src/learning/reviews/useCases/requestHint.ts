@@ -1,5 +1,5 @@
 import type { DomainError } from '#DomainError'
-import type { MemoryTerms } from '#memory/MemoryTerms'
+import type { MemoryTerms } from '#memory/domain/MemoryTerms'
 import type { Clock } from '#platform/domain/Clock'
 import type { PlayerId } from '#player/PlayerId'
 import { err, ok, type Result } from '#Result'

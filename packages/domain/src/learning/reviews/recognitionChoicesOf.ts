@@ -1,6 +1,6 @@
 import { choiceIdsOf } from '#hash/choiceIdsOf'
 import { keyedTextHashOf } from '#hash/keyedTextHashOf'
-import type { MemoryCard } from '#memory/MemoryCard'
+import type { MemoryCard } from '#memory/domain/MemoryCard'
 import { compareWordIds } from '../compareWordIds'
 import type { HeldCards } from '../HeldCards'
 import { keyInstantOf } from '../keyInstantOf'

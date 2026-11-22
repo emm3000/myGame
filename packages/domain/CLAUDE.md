@@ -14,7 +14,7 @@ The rules: `.claude/rules/architecture.md`, `typescript-style.md`, `principles.m
 
 - Nothing throws, tests included: a test narrows a `Result` with Vitest's `assert(result.ok)`. The one `throw` in `src` is `platform/testing/firstItemsRandom.ts`, which refuses an oversized sample as the api's `CryptoRandomSource` does.
 - Randomness comes only through the `RandomSource` port, never `Math.random()`. `sampleOf(items, count)` takes a count no larger than `items`, so every caller caps it.
-- `memory/` is a port of py-fsrs 6.3.2 at commit `9446cb06`, with no fuzz, and keeps its arithmetic: whole days floored, a review interval rounded half to even as Python's `round` (2.5 days is 2, 3.5 is 4), every `e ** x` written `Math.E ** x`, never `Math.exp`.
+- `memory/domain/` is a port of py-fsrs 6.3.2 at commit `9446cb06`, with no fuzz, and keeps its arithmetic: whole days floored, a review interval rounded half to even as Python's `round` (2.5 days is 2, 3.5 is 4), every `e ** x` written `Math.E ** x`, never `Math.exp`.
 - `reviewMemoryCard` never checks the due instant: a use case that rates a card first refuses one not yet due, through `admitDueReview`.
 - `answerReview` copies the pending review's `shownFrame` and never recomputes the frame: the stage can grow between a read and its answer.
 - `answerReview` reads the player's town before it saves the earned skill: a store that loads the skills with the town would otherwise earn the skill twice.
