@@ -1,3 +1,4 @@
+import type { ReadOnlyTowns } from '@mygame/domain'
 import {
   type CleanUpOrder,
   type CleanUpQuote,
@@ -10,7 +11,6 @@ import {
   type Result,
   type TownCatalog,
 } from '@mygame/domain'
-import type { ReadOnlyTowns } from '../../application/ports/ReadOnlyTowns'
 
 export type QuoteCleanUpNowDependencies = {
   readonly towns: ReadOnlyTowns

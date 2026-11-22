@@ -1,7 +1,7 @@
 import type { PlayerId } from '#player/PlayerId'
 import { ok } from '#Result'
-import type { EarnedSkillRepository } from '../ports/EarnedSkillRepository'
-import type { TownSkill } from '../TownSkill'
+import type { EarnedSkillRepository } from '../domain/EarnedSkillRepository'
+import type { TownSkill } from '../domain/TownSkill'
 
 export type PlayerSkill = {
   readonly playerId: PlayerId

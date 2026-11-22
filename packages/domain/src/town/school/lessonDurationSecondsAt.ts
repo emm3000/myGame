@@ -1,5 +1,5 @@
 import type { Instant } from '#time/Instant'
-import type { TownSettings } from '../TownSettings'
+import type { TownSettings } from '../domain/TownSettings'
 import type { SchoolLesson } from './SchoolLesson'
 import type { SchoolLevel } from './SchoolLevel'
 import { studyPercentAt } from './studyPercentAt'

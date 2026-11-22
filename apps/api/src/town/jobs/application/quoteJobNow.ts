@@ -1,3 +1,4 @@
+import type { ReadOnlyTowns } from '@mygame/domain'
 import {
   type Clock,
   type DomainError,
@@ -9,7 +10,6 @@ import {
   type Stocks,
   type TownCatalog,
 } from '@mygame/domain'
-import type { ReadOnlyTowns } from '../../application/ports/ReadOnlyTowns'
 
 export type QuoteJobNowDependencies = {
   readonly towns: ReadOnlyTowns

@@ -1,6 +1,6 @@
+import type { SiteAddress } from '../domain/SiteAddress'
+import type { TownCatalog } from '../domain/TownCatalog'
 import type { Hires } from '../hiring/Hires'
-import type { TownCatalog } from '../ports/TownCatalog'
-import type { SiteAddress } from '../SiteAddress'
 import { kindsInTeamOf } from './kindsInTeamOf'
 
 export const jobOneWaySeconds = (

@@ -1,5 +1,11 @@
 import { createRoute, type OpenAPIHono } from '@hono/zod-openapi'
-import { beginPlacement, type RandomSource, readPlacement, readScaffold } from '@mygame/domain'
+import {
+  beginPlacement,
+  mutateTown,
+  type RandomSource,
+  readPlacement,
+  readScaffold,
+} from '@mygame/domain'
 import {
   type RequirePlayerDependencies,
   requirePlayer,
@@ -7,7 +13,6 @@ import {
 import type { LearningDependencies } from '#learning/application/LearningDependencies'
 import { honoPathOf } from '#platform/infrastructure/http/honoPath'
 import { signedInDeclaration } from '#platform/infrastructure/http/signedInDeclaration'
-import { mutateTown } from '#town/application/mutateTown'
 import { offerRefused, placementResponse } from './placementComponents'
 import { respondPlacementView } from './respondPlacementView'
 

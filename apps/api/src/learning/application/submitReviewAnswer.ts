@@ -3,6 +3,7 @@ import {
   type CardRepository,
   type DomainError,
   err,
+  mutateTown,
   ok,
   type PlayerId,
   type Result,
@@ -11,7 +12,6 @@ import {
   type WordId,
 } from '@mygame/domain'
 import type { LessonLibrary } from '#content/application/ports/LessonLibrary'
-import { mutateTown } from '#town/application/mutateTown'
 import {
   gatherReviewVerdict,
   type ReviewOutcome,

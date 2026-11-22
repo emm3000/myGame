@@ -1,4 +1,5 @@
 import type { OpenText } from '@mygame/contracts'
+import type { TownReading } from '@mygame/domain'
 import {
   heldCardsOf,
   openTextsOf,
@@ -7,7 +8,6 @@ import {
   textReadingOf,
 } from '@mygame/domain'
 import type { LessonLibrary } from '#content/application/ports/LessonLibrary'
-import type { TownReading } from '../../application/TownReading'
 
 export const presentOpenText = (
   textId: TextId,

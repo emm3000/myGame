@@ -1,5 +1,5 @@
+import type { TownNewsReader } from '@mygame/domain'
 import { type DomainError, ok, type PlayerId, type Result, type TownEvent } from '@mygame/domain'
-import type { TownNewsReader } from '../../application/ports/TownNewsReader'
 import {
   type ResolveCurrentTownDependencies,
   resolveCurrentTown,

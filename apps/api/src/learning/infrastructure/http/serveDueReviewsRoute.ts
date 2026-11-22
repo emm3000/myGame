@@ -1,5 +1,6 @@
 import { createRoute, type OpenAPIHono } from '@hono/zod-openapi'
 import { type Reviews, ReviewsSchema } from '@mygame/contracts'
+import { mutateTown } from '@mygame/domain'
 import {
   type RequirePlayerDependencies,
   requirePlayer,
@@ -8,7 +9,6 @@ import { honoPathOf } from '#platform/infrastructure/http/honoPath'
 import { respondRefusal } from '#platform/infrastructure/http/respondRefusal'
 import { jsonResponse } from '#platform/infrastructure/http/responseDeclarations'
 import { signedInDeclaration } from '#platform/infrastructure/http/signedInDeclaration'
-import { mutateTown } from '#town/application/mutateTown'
 import type { LearningDependencies } from '../../application/LearningDependencies'
 import { serveDueReviews } from '../../application/serveDueReviews'
 import { presentReviews } from './presentReviews'

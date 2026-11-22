@@ -1,5 +1,6 @@
 import { createRoute, type OpenAPIHono } from '@hono/zod-openapi'
 import { MarkTipSeenSchema } from '@mygame/contracts'
+import type { MutateTownDependencies } from '@mygame/domain'
 import { ok } from '@mygame/domain'
 import {
   type RequirePlayerDependencies,
@@ -9,7 +10,6 @@ import { honoPathOf } from '#platform/infrastructure/http/honoPath'
 import { respondRefusal } from '#platform/infrastructure/http/respondRefusal'
 import { malformedResponse } from '#platform/infrastructure/http/responseDeclarations'
 import { signedInDeclaration } from '#platform/infrastructure/http/signedInDeclaration'
-import type { MutateTownDependencies } from '../../../application/mutateTown'
 import { respondGuidanceChange } from './respondGuidanceChange'
 
 export const markTipSeenDeclaration = createRoute(

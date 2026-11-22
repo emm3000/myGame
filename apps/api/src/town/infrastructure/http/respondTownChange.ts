@@ -1,8 +1,6 @@
-import type { Clock, DomainError, Instant, PlayerId, Result } from '@mygame/domain'
+import type { Clock, DomainError, Instant, PlayerId, Result, TownStores } from '@mygame/domain'
+import { type MutateTownDependencies, mutateTown, readTownReading } from '@mygame/domain'
 import type { Context } from 'hono'
-import { type MutateTownDependencies, mutateTown } from '../../application/mutateTown'
-import type { TownStores } from '../../application/ports/TownStores'
-import { readTownReading } from '../../application/readTownReading'
 import { type RespondTownReadingDependencies, respondTownReading } from './respondTownReading'
 
 export type TownChange = (stores: TownStores, clock: Clock) => Promise<Result<Instant, DomainError>>

@@ -1,4 +1,4 @@
-import type { Town } from '../../Town'
+import type { Town } from '../../domain/Town'
 import type { RegionMapReader } from '../ports/RegionMapReader'
 
 export const inMemoryRegionMap = (towns: ReadonlyArray<Town>): RegionMapReader => ({

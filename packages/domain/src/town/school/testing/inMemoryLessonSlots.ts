@@ -1,5 +1,5 @@
 import { ok } from '#Result'
-import type { TownId } from '../../TownId'
+import type { TownId } from '../../domain/TownId'
 import { idleLessonSlot, type LessonSlot } from '../LessonSlot'
 import type { LessonSlotRepository } from '../ports/LessonSlotRepository'
 

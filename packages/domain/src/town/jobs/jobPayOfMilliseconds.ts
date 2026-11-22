@@ -1,10 +1,10 @@
+import type { Terrain } from '../domain/Terrain'
+import type { TownCatalog } from '../domain/TownCatalog'
+import type { ProductionPercent } from '../domain/TownSettings'
 import type { Hires } from '../hiring/Hires'
-import type { TownCatalog } from '../ports/TownCatalog'
 import type { ResourceKind } from '../resources/ResourceKind'
 import { resourceKinds } from '../resources/resourceKinds'
 import type { Stocks } from '../resources/Stocks'
-import type { Terrain } from '../Terrain'
-import type { ProductionPercent } from '../TownSettings'
 import { carryOf } from './carryOf'
 import { headsOf } from './headsOf'
 

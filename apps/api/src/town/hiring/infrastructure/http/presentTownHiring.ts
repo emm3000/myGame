@@ -1,4 +1,5 @@
 import type { TownOverview } from '@mygame/contracts'
+import type { TownReading } from '@mygame/domain'
 import {
   deliveredHiresOf,
   deriveHireDurationSeconds,
@@ -11,7 +12,6 @@ import {
   type TownCatalog,
 } from '@mygame/domain'
 import { isoOf } from '#platform/infrastructure/http/isoOf'
-import type { TownReading } from '../../../application/TownReading'
 
 type HireTermsState = TownOverview['hiring']['terms'][HireKind]
 

@@ -1,7 +1,7 @@
 import { assert, describe, expect, it } from 'vitest'
 import { Instant } from '#time/Instant'
 import type { BusyWorkSlot } from '../building/BuildingWork'
-import type { TownSettings } from '../TownSettings'
+import type { TownSettings } from '../domain/TownSettings'
 import { plainTownSettings, townCatalogOf } from '../testing/townCatalogOf'
 import { type TownShape, townOf } from '../testing/townFixtures'
 import type { TipKind } from './TipKind'

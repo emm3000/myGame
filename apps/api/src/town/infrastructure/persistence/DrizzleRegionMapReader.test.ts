@@ -3,9 +3,9 @@ import { Pool } from 'pg'
 import { afterAll, assert, beforeAll } from 'vitest'
 import { players } from '#account/infrastructure/persistence/accountTables'
 import { truncatePlayerTables } from '#truncatePlayerTables.testSupport'
-import { regionMapReaderContract } from '../memory/regionMapReaderContract.testSupport'
 import { DrizzleRegionMapReader } from './DrizzleRegionMapReader'
 import { DrizzleTownRepository } from './DrizzleTownRepository'
+import { regionMapReaderContract } from './regionMapReaderContract.testSupport'
 
 function databaseUrl(): string {
   const url = process.env.DATABASE_URL

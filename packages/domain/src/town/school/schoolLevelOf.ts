@@ -1,6 +1,6 @@
 import type { DomainError } from '#DomainError'
 import { err, ok, type Result } from '#Result'
-import type { TownCatalog } from '../ports/TownCatalog'
+import type { TownCatalog } from '../domain/TownCatalog'
 import type { SchoolLevel } from './SchoolLevel'
 
 export const schoolLevelOf = (

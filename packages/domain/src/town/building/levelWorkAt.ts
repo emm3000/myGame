@@ -1,5 +1,5 @@
 import type { Instant } from '#time/Instant'
-import type { TownSettings } from '../TownSettings'
+import type { TownSettings } from '../domain/TownSettings'
 import type { BuildingLevel } from './BuildingLevel'
 import { buildPercentAt } from './buildPercentAt'
 import type { WaitingWork } from './WaitingList'

@@ -210,6 +210,12 @@ export { type Season, seasonAt } from '#season/domain/seasonAt'
 export { Duration } from '#time/Duration'
 export { Instant } from '#time/Instant'
 export { laterOf } from '#time/laterOf'
+export {
+  type MutateTownDependencies,
+  mutateTown,
+  type TownMutation,
+} from '#town/application/mutateTown'
+export { readTownReading } from '#town/application/readTownReading'
 export type { BuildingKind } from '#town/building/BuildingKind'
 export type {
   BuildingLevel,
@@ -246,8 +252,39 @@ export type { WaitingList, WaitingWork } from '#town/building/WaitingList'
 export type { WordNeed } from '#town/building/WordNeed'
 export { waitingListScheduleOf } from '#town/building/waitingListScheduleOf'
 export { type WordShortfall, wordShortfallOf } from '#town/building/wordShortfallOf'
-export { derivePeople } from '#town/derivePeople'
-export { earnTownSkill } from '#town/earnTownSkill'
+export { derivePeople } from '#town/domain/derivePeople'
+export type { EarnedSkillRepository } from '#town/domain/EarnedSkillRepository'
+export { earnTownSkill } from '#town/domain/earnTownSkill'
+export type { People } from '#town/domain/People'
+export type { ReadOnlyTowns } from '#town/domain/ReadOnlyTowns'
+export type { SiteAddress } from '#town/domain/SiteAddress'
+export type { Terrain } from '#town/domain/Terrain'
+export { type ChangedTown, Town, type TownFounding } from '#town/domain/Town'
+export { TownAddress } from '#town/domain/TownAddress'
+export type { TownCatalog } from '#town/domain/TownCatalog'
+export type { TownEvent, TownEventKind } from '#town/domain/TownEvent'
+export type { TownId } from '#town/domain/TownId'
+export type { TownLabel } from '#town/domain/TownLabel'
+export { TownName } from '#town/domain/TownName'
+export type { TownNews } from '#town/domain/TownNews'
+export { keptEventsPerTown, type TownNewsReader } from '#town/domain/TownNewsReader'
+export type { TownReader, TownWithSchool } from '#town/domain/TownReader'
+export type { TownReading } from '#town/domain/TownReading'
+export type { TownRepository } from '#town/domain/TownRepository'
+export type {
+  ProductionPercent,
+  TownDurationPercent,
+  TownSeasons,
+  TownSettings,
+} from '#town/domain/TownSettings'
+export type { TownSkill } from '#town/domain/TownSkill'
+export type { StoredTown } from '#town/domain/TownState'
+export type { TownStores } from '#town/domain/TownStores'
+export { terrainOf } from '#town/domain/terrainOf'
+export { townLabelOf } from '#town/domain/townLabelOf'
+export { type TownSeason, townSeasonAt } from '#town/domain/townSeasonAt'
+export type { GuidanceDismissals } from '#town/guidance/domain/GuidanceDismissals'
+export type { SeenTips } from '#town/guidance/domain/SeenTips'
 export type { NextStep } from '#town/guidance/NextStep'
 export { type GoalShortfall, type NextGoal, nextGoalOf } from '#town/guidance/nextGoalOf'
 export { type NextStepReading, type NextStepTerms, nextStepOf } from '#town/guidance/nextStepOf'
@@ -319,11 +356,6 @@ export {
 export { type SendCleanUpDependencies, sendCleanUp } from '#town/jobs/useCases/sendCleanUp'
 export { type SendJobDependencies, sendJob } from '#town/jobs/useCases/sendJob'
 export type { WasteSize } from '#town/jobs/WasteSize'
-export type { People } from '#town/People'
-export type { EarnedSkillRepository } from '#town/ports/EarnedSkillRepository'
-export type { TownCatalog } from '#town/ports/TownCatalog'
-export type { TownNews } from '#town/ports/TownNews'
-export type { TownRepository } from '#town/ports/TownRepository'
 export { type Accrual, accrueTown } from '#town/resources/accrueTown'
 export { deriveFullAt, type FullAt } from '#town/resources/deriveFullAt'
 export { deriveResourceRates, type ResourceRates } from '#town/resources/deriveResourceRates'
@@ -333,7 +365,6 @@ export type { ResourceKind } from '#town/resources/ResourceKind'
 export { rebaseFullSince } from '#town/resources/rebaseFullSince'
 export { resourceKinds } from '#town/resources/resourceKinds'
 export type { Stocks } from '#town/resources/Stocks'
-export type { SiteAddress } from '#town/SiteAddress'
 export { isLessonFinishedBy } from '#town/school/isLessonFinishedBy'
 export { isLessonUnderStudy } from '#town/school/isLessonUnderStudy'
 export { type BusyLessonSlot, idleLessonSlot, type LessonSlot } from '#town/school/LessonSlot'
@@ -356,24 +387,6 @@ export {
   type StopSchoolLessonDependencies,
   stopSchoolLesson,
 } from '#town/school/useCases/stopSchoolLesson'
-export type { Terrain } from '#town/Terrain'
-export { type ChangedTown, Town, type TownFounding } from '#town/Town'
-export { TownAddress } from '#town/TownAddress'
-export type { TownEvent, TownEventKind } from '#town/TownEvent'
-export type { TownId } from '#town/TownId'
-export type { TownLabel } from '#town/TownLabel'
-export { TownName } from '#town/TownName'
-export type {
-  ProductionPercent,
-  TownDurationPercent,
-  TownSeasons,
-  TownSettings,
-} from '#town/TownSettings'
-export type { TownSkill } from '#town/TownSkill'
-export type { StoredTown } from '#town/TownState'
-export { terrainOf } from '#town/terrainOf'
-export { townLabelOf } from '#town/townLabelOf'
-export { type TownSeason, townSeasonAt } from '#town/townSeasonAt'
 export {
   type FoundTownCommand,
   type FoundTownDependencies,

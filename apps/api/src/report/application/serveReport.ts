@@ -1,3 +1,4 @@
+import type { TownNewsReader } from '@mygame/domain'
 import {
   type Clock,
   type DomainError,
@@ -14,7 +15,6 @@ import {
   type ReviewTerms,
   serveDueReviews,
 } from '#learning/application/serveDueReviews'
-import type { TownNewsReader } from '#town/application/ports/TownNewsReader'
 import {
   type ResolveCurrentTownDependencies,
   resolveCurrentTown,

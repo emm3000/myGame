@@ -1,8 +1,8 @@
 import type { DomainError } from '#DomainError'
 import { ok, type Result } from '#Result'
-import { derivePeople } from '../derivePeople'
+import { derivePeople } from '../domain/derivePeople'
+import type { TownCatalog } from '../domain/TownCatalog'
 import type { Hires } from '../hiring/Hires'
-import type { TownCatalog } from '../ports/TownCatalog'
 import type { BuildingLevel } from './BuildingLevel'
 import type { BuildingLevels } from './BuildingLevels'
 

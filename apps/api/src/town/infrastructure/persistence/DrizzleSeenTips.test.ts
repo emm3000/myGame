@@ -3,10 +3,10 @@ import { drizzle } from 'drizzle-orm/node-postgres'
 import { Pool } from 'pg'
 import { afterAll, assert, beforeAll } from 'vitest'
 import { truncatePlayerTables } from '#truncatePlayerTables.testSupport'
-import { seenTipsContract } from '../memory/seenTipsContract.testSupport'
 import { DrizzleSeenTips } from './DrizzleSeenTips'
 import { DrizzleTownReader } from './DrizzleTownReader'
 import { DrizzleTownRepository } from './DrizzleTownRepository'
+import { seenTipsContract } from './seenTipsContract.testSupport'
 
 function databaseUrl(): string {
   const url = process.env.DATABASE_URL

@@ -1,7 +1,7 @@
 import { assert, describe, expect, it } from 'vitest'
 import type { Clock } from '#platform/domain/Clock'
 import { Instant } from '#time/Instant'
-import type { Town } from '../../Town'
+import type { Town } from '../../domain/Town'
 import { plainTownSettings, townCatalogOf } from '../../testing/townCatalogOf'
 import { townOf } from '../../testing/townFixtures'
 import type { CleanUp } from '../CleanUp'

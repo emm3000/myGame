@@ -1,10 +1,9 @@
 import type { TownOverview } from '@mygame/contracts'
-import type { DomainError, MemoryTerms, Result, TownCatalog } from '@mygame/domain'
+import type { DomainError, MemoryTerms, Result, TownCatalog, TownReading } from '@mygame/domain'
 import type { Context } from 'hono'
 import type { LessonLibrary } from '#content/application/ports/LessonLibrary'
 import { respondRefusal } from '#platform/infrastructure/http/respondRefusal'
-import { gatherTownView } from '../../application/gatherTownView'
-import type { TownReading } from '../../application/TownReading'
+import { gatherTownView } from './gatherTownView'
 import { presentTownOverview } from './presentTownOverview'
 
 export type RespondTownReadingDependencies = {

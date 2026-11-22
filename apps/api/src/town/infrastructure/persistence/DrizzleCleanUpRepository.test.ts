@@ -3,7 +3,7 @@ import { Pool } from 'pg'
 import { afterAll, assert, beforeAll } from 'vitest'
 import { players } from '#account/infrastructure/persistence/accountTables'
 import { truncatePlayerTables } from '#truncatePlayerTables.testSupport'
-import { cleanUpRepositoryContract } from '../memory/cleanUpRepositoryContract.testSupport'
+import { cleanUpRepositoryContract } from './cleanUpRepositoryContract.testSupport'
 import { DrizzleCleanUpRepository } from './DrizzleCleanUpRepository'
 import { DrizzleTownRepository } from './DrizzleTownRepository'
 

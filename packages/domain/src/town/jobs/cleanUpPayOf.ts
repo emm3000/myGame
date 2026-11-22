@@ -1,5 +1,5 @@
+import type { TownCatalog } from '../domain/TownCatalog'
 import type { Hires } from '../hiring/Hires'
-import type { TownCatalog } from '../ports/TownCatalog'
 import type { Stocks } from '../resources/Stocks'
 import { carryOf } from './carryOf'
 

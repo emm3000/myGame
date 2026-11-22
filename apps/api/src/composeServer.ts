@@ -1,5 +1,6 @@
 import { join } from 'node:path'
 import type { OpenAPIHono } from '@hono/zod-openapi'
+import type { ReadOnlyTowns, TownNewsReader, TownReader } from '@mygame/domain'
 import {
   type Accounts,
   type AfterResponse,
@@ -42,9 +43,6 @@ import { SystemClock } from '#platform/infrastructure/system/SystemClock'
 import { VercelAfterResponse } from '#platform/infrastructure/vercel/VercelAfterResponse'
 import type { ReportClosings } from '#report/application/ports/ReportClosings'
 import { DrizzleReportClosings } from '#report/infrastructure/persistence/DrizzleReportClosings'
-import type { ReadOnlyTowns } from '#town/application/ports/ReadOnlyTowns'
-import type { TownNewsReader } from '#town/application/ports/TownNewsReader'
-import type { TownReader } from '#town/application/ports/TownReader'
 import { DrizzleCleanUpRepository } from '#town/infrastructure/persistence/DrizzleCleanUpRepository'
 import { DrizzleRegionMapReader } from '#town/infrastructure/persistence/DrizzleRegionMapReader'
 import { DrizzleTownNews } from '#town/infrastructure/persistence/DrizzleTownNews'

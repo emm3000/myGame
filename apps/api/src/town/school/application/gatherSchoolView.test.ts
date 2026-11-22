@@ -1,4 +1,5 @@
 import { join } from 'node:path'
+import type { TownReading } from '@mygame/domain'
 import {
   defaultMemoryTerms,
   type HeldCard,
@@ -14,7 +15,6 @@ import { assert, describe, expect, it } from 'vitest'
 import { apiPackagePath } from '#apiPackagePath.testSupport'
 import { JsonTownCatalog } from '#content/infrastructure/json/JsonTownCatalog'
 import { readJsonLessonLibrary } from '#content/infrastructure/json/readJsonLessonLibrary'
-import type { TownReading } from '../../application/TownReading'
 import { gatherSchoolView } from './gatherSchoolView'
 
 const contentDirectory = apiPackagePath('content/')

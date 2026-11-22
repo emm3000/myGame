@@ -2,9 +2,9 @@ import type { DomainError } from '#DomainError'
 import { ok, type Result } from '#Result'
 import type { BuildingLevels } from '../building/BuildingLevels'
 import type { WorkTarget } from '../building/BuildingWork'
-import { derivePeople } from '../derivePeople'
-import type { TownCatalog } from '../ports/TownCatalog'
-import type { Town } from '../Town'
+import { derivePeople } from '../domain/derivePeople'
+import type { Town } from '../domain/Town'
+import type { TownCatalog } from '../domain/TownCatalog'
 
 const scheduleOf = (town: Town): ReadonlyArray<BuildingLevels> => {
   const slot = town.workSlot

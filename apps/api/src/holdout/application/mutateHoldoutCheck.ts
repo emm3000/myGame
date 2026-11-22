@@ -1,17 +1,17 @@
+import type { TownStores } from '@mygame/domain'
 import {
   type Band,
   type Clock,
   type DomainError,
   type HoldoutCheckView,
   type HoldoutCheckWeek,
+  mutateTown,
   type PlayerId,
   type Result,
   readHoldoutChecks,
   readScaffold,
 } from '@mygame/domain'
 import type { LearningDependencies } from '#learning/application/LearningDependencies'
-import { mutateTown } from '#town/application/mutateTown'
-import type { TownStores } from '#town/application/ports/TownStores'
 
 export type HoldoutCheckCommand = {
   readonly playerId: PlayerId

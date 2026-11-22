@@ -2,12 +2,12 @@ import type { DomainError } from '#DomainError'
 import type { Clock } from '#platform/domain/Clock'
 import type { PlayerId } from '#player/PlayerId'
 import { ok, type Result } from '#Result'
-import type { TownCatalog } from '../ports/TownCatalog'
-import type { TownNews } from '../ports/TownNews'
-import type { TownRepository } from '../ports/TownRepository'
-import { resolveStoredTown } from '../services/resolveStoredTown'
-import { saveResolvedTown } from '../services/saveResolvedTown'
-import type { ChangedTown } from '../Town'
+import { resolveStoredTown } from '../application/resolveStoredTown'
+import { saveResolvedTown } from '../application/saveResolvedTown'
+import type { ChangedTown } from '../domain/Town'
+import type { TownCatalog } from '../domain/TownCatalog'
+import type { TownNews } from '../domain/TownNews'
+import type { TownRepository } from '../domain/TownRepository'
 
 export type ResolveTownDependencies = {
   readonly towns: TownRepository
