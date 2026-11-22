@@ -70,6 +70,16 @@ describe('content gate check 6, grammar, the forms of a card verb', () => {
       ).toEqual(['word-3: frame holds made, a past participle inflection no structure admits'])
     })
 
+    it('reads a past form after the object of has as an irregular past', () => {
+      const thatHasMoneyMade = newHomeHolding('The school that has money made it.')
+
+      expect(
+        checkGrammar(
+          afterLessonOne(pastFrom('lesson-1', 'irregular past', 'has'), go, make, thatHasMoneyMade),
+        ),
+      ).toEqual([])
+    })
+
     it('reads a past form after have and an adverb as a past participle', () => {
       const haveNeverGone = newHomeHolding('We have never gone to my new home.')
 
@@ -202,6 +212,23 @@ describe('content gate check 6, grammar, the forms of a card verb', () => {
       }
 
       expect(checkGrammar(booksListed)).toEqual([
+        "word-1: frame holds 's, a possessive 's inflection no structure admits",
+      ])
+    })
+
+    it("keeps reading 's after a noun host and before a verb's -s form as possessive", () => {
+      const content = afterLessonOne(
+        [structureOf('lesson-1', [], ['-s']), ...edBeforeThePerfect],
+        close,
+        entryOf('word-1', 'new', "The school's works are new.", { partOfSpeech: 'adjective' }),
+        make,
+      )
+      const worksListed = {
+        ...content,
+        forms: new Map([...content.forms, ['works', new Set(['work'])]]),
+      }
+
+      expect(checkGrammar(worksListed)).toEqual([
         "word-1: frame holds 's, a possessive 's inflection no structure admits",
       ])
     })
