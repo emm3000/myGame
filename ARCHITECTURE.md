@@ -128,7 +128,7 @@ A new refusal adds, in order: its member of `DomainError` (`packages/domain/src/
 
 ## The checks
 
-`pnpm gate` runs them, and each fails on any hit: `scripts/mygame-structure-check.baseline` is empty.
+`pnpm gate` runs them, and each fails on any hit that `scripts/mygame-structure-check.baseline` does not list. The baseline lists only what the features ADR 054 has yet to move still hold.
 
 - `feature_graph` (Biome): a feature imports only from its left.
 - `noImportCycles` (Biome): no import cycle between two files, and in the backend no type-only one either.
@@ -139,5 +139,8 @@ A new refusal adds, in order: its member of `DomainError` (`packages/domain/src/
 - `persistence_knows_http`, `http_knows_database`: each technology stays in its folder.
 - `adapter_built_outside_root`: only the composition root constructs an adapter.
 - `reading_named_of_is_async`, `reading_is_async`, `use_case_named_of`, `domain_promise_outside_its_roles`: a name says whether it reads a port, and no `function` or `const` named `*Of`, `*At`, `*For` or `*Between` is `async` or returns a `Promise`.
-- `use_case_imports_use_case`, `service_is_public`: use cases share a service, and a service stays inside the domain.
+- `use_case_imports_use_case`, `step_is_public`: use cases share a step, and a step stays inside the domain.
+- `api_holds_layer`, `role_folder`, `file_outside_layer`: the api holds no `application/` or `domain/` folder, no feature keeps a `useCases/`, `services/`, `ports/`, `postgres/` or `memory/` folder, and every file of a domain feature sits in `domain/`, `application/` or `testing/`.
+- `route_file`, `use_case_shape`, `controller_shape`: an endpoint is a controller class with one `async handle(`, and a use case a class of `application/` with one `async execute(`.
+- `use_case_built_outside_root`, `controller_built_outside_route_list`: only the composition root builds a use case, and only a route list builds a controller.
 - `folder_over_limit`, `file_over_export_cap`, `type_over_method_cap`, and Biome's line limits: no folder, file, type or function grows past its wall.

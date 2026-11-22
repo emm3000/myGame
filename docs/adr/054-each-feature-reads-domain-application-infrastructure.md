@@ -1,5 +1,5 @@
 ---
-status: proposed
+status: accepted
 date: 2026-11-22
 ---
 # Each feature reads domain, application, infrastructure
@@ -1068,7 +1068,7 @@ names exists at every merge (`verification.md`, the `.claude/**` row).
 | 053 | 7 and 8, the check and the rule edits | superseded by sections 12 and 13 |
 | 053 | the migration | superseded by the one below; no ticket of ADR 053 is filed |
 
-ADR 053 stays proposed and is closed by this ADR's acceptance.
+ADR 053 is superseded by this ADR's acceptance.
 
 ## The migration
 
