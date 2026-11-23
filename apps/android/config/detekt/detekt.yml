@@ -23,6 +23,9 @@ complexity:
   ComplexCondition:
     active: true
     threshold: 4
+  CognitiveComplexMethod:
+    active: true
+    threshold: 15
   CyclomaticComplexMethod:
     active: true
     threshold: 10
