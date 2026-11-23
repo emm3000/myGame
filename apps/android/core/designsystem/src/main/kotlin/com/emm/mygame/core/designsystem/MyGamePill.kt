@@ -96,20 +96,25 @@ internal fun MyGamePill(
             .padding(horizontal = look.sidePadding, vertical = MyGameSpacing.step2),
     ) {
         if (isBusy) MyGameIcon(icon = MyGameIcons.hourglass, tint = ink)
-        val text: @Composable () -> Unit = {
-            MyGameText(
-                label = label,
-                style = look.style.copy(textAlign = TextAlign.Center),
-                color = ink,
-                modifier = if (accessibleName == null) Modifier else Modifier.clearAndSetSemantics { },
-            )
-        }
-        if (badge == null) {
-            text()
-        } else {
-            Layout(contents = listOf(text, { PillBadge(figure = badge, look = look) }), measurePolicy = LabelAndCount)
-        }
+        PillLabel(look = look, label = label, ink = ink, accessibleName = accessibleName, badge = badge)
     }
+}
+
+@Composable
+private fun PillLabel(look: MyGamePillLook, label: MyGameLabel, ink: Color, accessibleName: String?, badge: String?) {
+    val text: @Composable () -> Unit = {
+        MyGameText(
+            label = label,
+            style = look.style.copy(textAlign = TextAlign.Center),
+            color = ink,
+            modifier = if (accessibleName == null) Modifier else Modifier.clearAndSetSemantics { },
+        )
+    }
+    if (badge == null) {
+        text()
+        return
+    }
+    Layout(contents = listOf(text, { PillBadge(figure = badge, look = look) }), measurePolicy = LabelAndCount)
 }
 
 private object LabelAndCount : MultiContentMeasurePolicy {

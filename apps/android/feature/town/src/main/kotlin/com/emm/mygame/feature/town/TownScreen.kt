@@ -112,18 +112,23 @@ fun TownScreen(
                     slots = slots,
                     top = TownPageTop(
                         foldedDock = {
-                            if (drawnHeaders.intValue > 0) placedFoldedDock()
+                            DrawnWhen(isDrawn = drawnHeaders.intValue > 0, content = placedFoldedDock)
                             DisposableEffect(Unit) {
                                 drawnHeaders.intValue += 1
                                 onDispose { drawnHeaders.intValue -= 1 }
                             }
                         },
-                        reportRow = { if (drawnHeaders.intValue > 0) placedReportRow() },
+                        reportRow = { DrawnWhen(isDrawn = drawnHeaders.intValue > 0, content = placedReportRow) },
                     ),
                 )
             }
         }
     }
+}
+
+@Composable
+private fun DrawnWhen(isDrawn: Boolean, content: @Composable () -> Unit) {
+    if (isDrawn) content()
 }
 
 @Composable

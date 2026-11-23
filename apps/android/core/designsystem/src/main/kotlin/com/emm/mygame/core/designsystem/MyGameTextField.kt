@@ -71,7 +71,6 @@ fun MyGameTextField(
     isEnabled: Boolean = true,
 ) {
     val colors: MyGameColors = MyGameTheme.colors
-    val shape: Shape = RoundedCornerShape(MyGameRadii.md)
     val hiddenWhenTranslated: Modifier = if (label.translation == null) Modifier else Modifier.clearAndSetSemantics { }
     Column(verticalArrangement = Arrangement.spacedBy(MyGameSpacing.step1), modifier = modifier.fillMaxWidth()) {
         MyGameText(
@@ -98,24 +97,31 @@ fun MyGameTextField(
                     if (contentType != null) this.contentType = contentType
                 },
             decorationBox = { field ->
-                Column(verticalArrangement = Arrangement.spacedBy(MyGameSpacing.step1)) {
-                    Box(
-                        contentAlignment = Alignment.CenterStart,
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .defaultMinSize(minHeight = MyGameSizes.control)
-                            .background(if (isEnabled) colors.surfaceRaised else colors.surfaceSunken, shape)
-                            .border(MyGameStrokeWidths.hairline, colors.lineStrong, shape)
-                            .padding(horizontal = MyGameSpacing.step3),
-                    ) {
-                        field()
-                    }
-                    if (supportingText != null) {
-                        MyGameText(label = supportingText, style = MyGameTypography.body, color = colors.inkMuted)
-                    }
-                }
+                TextFieldFrame(isEnabled = isEnabled, supportingText = supportingText, field = field)
             },
         )
+    }
+}
+
+@Composable
+private fun TextFieldFrame(isEnabled: Boolean, supportingText: MyGameLabel?, field: @Composable () -> Unit) {
+    val colors: MyGameColors = MyGameTheme.colors
+    val shape: Shape = RoundedCornerShape(MyGameRadii.md)
+    Column(verticalArrangement = Arrangement.spacedBy(MyGameSpacing.step1)) {
+        Box(
+            contentAlignment = Alignment.CenterStart,
+            modifier = Modifier
+                .fillMaxWidth()
+                .defaultMinSize(minHeight = MyGameSizes.control)
+                .background(if (isEnabled) colors.surfaceRaised else colors.surfaceSunken, shape)
+                .border(MyGameStrokeWidths.hairline, colors.lineStrong, shape)
+                .padding(horizontal = MyGameSpacing.step3),
+        ) {
+            field()
+        }
+        if (supportingText != null) {
+            MyGameText(label = supportingText, style = MyGameTypography.body, color = colors.inkMuted)
+        }
     }
 }
 
