@@ -101,8 +101,8 @@ The game is Townword, a present-day town the player grows into a city (ADR 035).
 
 ## The screens
 
-- **Shell** — what the signed-in screens share around their own content: the banner an unverified email shows (ADR 015) and, on Android, the frame every signed-in screen is drawn in, with the dock pinned at its foot carrying the go (ADR 047, ADR 051). The api holds no part of it (ADR 056).
-- **Theme** — the look a player picks on the phone: the system's, light or dark. It is kept on the phone, and the api never learns it (ADR 056).
+- **Shell** — on Android, what every signed-in screen shares around its own content: the bar pinned at the screen's foot that shows the player's next task. It holds no game rule, and the api holds no part of it (ADR 047, ADR 051).
+- **Picked theme** — the look a player picks on the phone: the system's, light or dark. It is kept on the phone, and the api never learns it. Not the lesson's theme, which groups its words.
 
 ## Society
 

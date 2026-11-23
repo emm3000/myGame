@@ -95,7 +95,9 @@ git archive origin/trunk apps/android .claude/rules docs/adr CONTEXT.md ARCHITEC
 ```
 
 Unless a row says otherwise its command runs from `snapshot/`. The
-pull request that files this ADR lists each command with its output.
+two counts that no one-line command gives are the programs `commits.py`
+and `unnamed.py` at the end of this section; each runs in a checkout of
+the repository and reads trunk at `c5c3bf37`, not the working tree.
 Four definitions hold throughout:
 
 - **A production file** is a `.kt` file under a `src/main/` directory,
@@ -139,12 +141,12 @@ Four definitions hold throughout:
 | 50 production files in 10 modules mention the dock | `rg -l -i 'dock' P apps/android \| wc -l`; the same piped to `rg -o 'android/(app\|feature/\w+\|core/\w+)' -r '$1' \| sort -u \| wc -l` |
 | `app` builds `TownViewModel` at `:226` and `SchoolViewModel` at `:268` | `rg -n '(TownViewModel\|SchoolViewModel)\(' P apps/android` |
 | 11 import lines of a feature's ViewModel, `UiState` or `Intent` in `app` | the second check of section 7 |
-| 237 commits, 5 on 7 modules, three of them the dock (`f69f96a8`, `92efcef8`, `2eb2d256`) | on the repository, not the snapshot: `git log origin/trunk -400 --format='@%h %s' --name-only -- apps/android`, grouped per commit by module over production `.kt` paths, subjects that start with `feat` or `fix`; the pull request holds the `awk` program |
-| 67 files that declare nothing of their own name, 15 of them `*Mapping.kt` | the script `unnamed.py` in the pull request: a production file with no `class`, `interface`, `object`, `typealias`, `fun`, `val` or `var` named as the file |
+| 237 commits, 5 on 7 modules, three of them the dock (`f69f96a8`, `92efcef8`, `2eb2d256`) | on the repository, not the snapshot: `git log origin/trunk -400 --format='@%h %s' --name-only -- apps/android`, grouped per commit by module over production `.kt` paths, subjects that start with `feat` or `fix`; the program `commits.py` below |
+| 67 files that declare nothing of their own name, 15 of them `*Mapping.kt` | the program `unnamed.py` below: a production file with no `class`, `interface`, `object`, `typealias`, `fun`, `val` or `var` named as the file |
 | 15 `*Mapping.kt`, all in `core:network` | `fd -p -g '**/src/main/**/*Mapping.kt' apps/android \| wc -l`; the same on `apps/android/core/network` |
 | 7 `*Labels.kt`, 10 `*Dock.kt` | `fd -p -g '**/src/main/**/*Labels.kt' apps/android`; the same for `*Dock.kt` |
 | 19 files over 250 lines, 5,948 lines | `fd -e kt -p '/src/main/' apps/android -x wc -l \| awk '$1 > 250 { n++; s += $1 } END { print n, s }'` |
-| 2,181 lines of previews at the foot of 63 files, 1,154 of them in 17 `*Screen.kt` files; 223 of 530 in `SchoolScreen.kt`, 152 of 379 in `TownScreen.kt`, 130 of 315 in `MapScreen.kt`, 129 of 299 in `ReviewScreen.kt`, 109 of 392 in `LessonWordsScreen.kt`, 67 of 285 in `ReportScreen.kt` | per production file, from its first top-level declaration named `preview…` or `…Preview…`, or its first `@Preview…` line, to its last line: `fd -e kt -p '/src/main/' apps/android -E build-logic -x awk 'FNR==1{s=0} s==0 && /^(@Preview\|(private \|internal )?(val\|fun\|class\|object) (preview[A-Z]\|[A-Za-z]*Preview))/{s=FNR} END{ if (s>0) print FNR-s+1, FNR, FILENAME }' {}`, summed; the same lines filtered by `rg 'Screen\.kt$'` |
+| 2,181 lines of previews at the foot of 63 files, 1,154 of them in 17 `*Screen.kt` files; 223 of 530 in `SchoolScreen.kt`, 152 of 379 in `TownScreen.kt`, 130 of 315 in `MapScreen.kt`, 129 of 299 in `ReviewScreen.kt`, 109 of 392 in `LessonWordsScreen.kt`, 67 of 285 in `ReportScreen.kt` | per production file, from its first top-level declaration named `preview...` or `...Preview...`, or its first `@Preview...` line, to its last line: `fd -e kt -p '/src/main/' apps/android -E build-logic -x awk 'FNR==1{s=0} s==0 && /^(@Preview\|(private \|internal )?(val\|fun\|class\|object) (preview[A-Z]\|[A-Za-z]*Preview))/{s=FNR} END{ if (s>0) print FNR-s+1, FNR, FILENAME }' {}`, summed; the same lines filtered by `rg 'Screen\.kt$'` |
 | Private `var`s per ViewModel: 12, 11, 7, 6, 6, 6, 5 | `rg -c '^\s+private var ' -g '*ViewModel.kt' apps/android` |
 | The gap in 7 files | `rg -l 'readAt - clock\.now\(\)\|fun serverNow' P apps/android \| wc -l` |
 | `failedReadRetry` declared 5 times; the season's icon 3 times | `rg -n 'val failedReadRetry' P apps/android`; `rg -n 'fun seasonIconOf' P apps/android` |
@@ -152,12 +154,45 @@ Four definitions hold throughout:
 | 18 test files over 500 lines, 12 over 600, 7 over 800 | `fd -e kt -p '/src/test/' apps/android -x wc -l \| awk '$1>500{a++} $1>600{b++} $1>800{c++} END {print a,b,c}'` |
 | `core:ui` imports nothing of `core.network` | `rg -n '^import com\.emm\.mygame\.core\.network' apps/android/core/ui/src/main` prints nothing |
 | 7 factory functions named as the interface they return | `rg -n '^fun [A-Z]\w+\(' apps/android/core/network/src/main` |
-| 16 destinations; 10 `*Entry` functions and 16 `entry<…>` calls in the 515 lines of `app/AppNavigation.kt` | `rg -c 'data (object\|class) '` on `app/Destination.kt`; `rg -c 'EntryProviderScope<NavKey>\.\w+Entry\('` and `rg -c 'entry<Destination'` on `app/AppNavigation.kt`, `wc -l` for its lines |
+| 16 destinations; 10 `*Entry` functions and 16 `entry<...>` calls in the 515 lines of `app/AppNavigation.kt` | `rg -c 'data (object\|class) '` on `app/Destination.kt`; `rg -c 'EntryProviderScope<NavKey>\.\w+Entry\('` and `rg -c 'entry<Destination'` on `app/AppNavigation.kt`, `wc -l` for its lines |
 | 30 files in `app`, 4 of them `RetainedWords*` | `fd -e kt -p '/src/main/' apps/android/app -x basename`; `fd -p -g '**/src/main/**/RetainedWords*.kt' apps/android/app \| wc -l` |
 | 13 modules | `rg -c '^include\(' apps/android/settings.gradle.kts` |
 | The api's features and the town's six sub-areas | `fd -t d -d 1 . apps/api/src -x basename`; the same on `apps/api/src/town`, `infrastructure` left out |
 | The Android leg's command is written in 4 files | on the repository: `git grep -l 'checkComposeFreeViewModels testDebugUnitTest' origin/trunk -- . ':!docs'` |
 | 522 Android keys: `town` 156, `signin` 82, `school` 74, `map` 70, `report` 49, `review` 45, `placement` 36, `app` 10 | `rg -o '"android\.(\w+)\.' -r '$1' packages/catalog/en.json \| sort \| uniq -c` |
+
+`commits.py`, from a checkout of the repository (237 and 5):
+
+```
+import re, subprocess
+log = subprocess.run(["git","log","c5c3bf37","-400","--format=@%h %s","--name-only","--","apps/android"],capture_output=True,text=True,check=True).stdout
+mods = {}
+for block in log.split("@")[1:]:
+    head, *paths = block.splitlines()
+    if not re.match(r"\w+ (feat|fix)", head):
+        continue
+    found = {m.group(1) for p in paths if (m := re.match(r"apps/android/(app|(?:core|feature)/\w+)/src/main/.*\.kt$", p))}
+    if found:
+        mods[head.split()[0]] = found
+wide = [h for h, m in mods.items() if len(m) >= 7]
+print(len(mods), len(wide), sorted({len(m) for m in mods.values()})[-3:], wide)
+```
+
+`unnamed.py`, from a checkout of the repository (67 and 15):
+
+```
+import re, subprocess
+files = subprocess.run(["git","ls-tree","-r","--name-only","c5c3bf37","apps/android"],capture_output=True,text=True,check=True).stdout.split()
+unnamed = []
+for p in files:
+    if not (p.endswith(".kt") and "/src/main/" in p and "/build-logic/" not in p):
+        continue
+    name = p.rsplit("/", 1)[1][:-3]
+    text = subprocess.run(["git","show",f"c5c3bf37:{p}"],capture_output=True,text=True,check=True).stdout
+    if not re.search(rf"^\s*(?:[\w ]+ )?(?:class|interface|object|typealias|fun|val|var) (?:<[^>]*> )?(?:[\w.]+\.)?{re.escape(name)}\b", text, re.M):
+        unnamed.append(p)
+print(len(unnamed), sum(p.endswith("Mapping.kt") for p in unnamed))
+```
 | 213 Android keys of fixed copy | `rg -c 'android\.' packages/catalog/src/fixedCopyKeys.ts` |
 | 15 keys with `holdout` in their name, 12 in `placement` and 3 in `school` | `rg -o '"android\.(placement\|school)\.(\w*holdout\w*)"' -r '$1' packages/catalog/en.json \| sort \| uniq -c` |
 | 23 string names read by the ten status and dock files | the ten files of the row above, piped to `xargs rg -o --no-filename 'R\.string\.\w+' \| sort -u \| wc -l` |
@@ -572,7 +607,7 @@ ADR. Each edit lands with the step its row names.
 |---|---|---|
 | This ADR | `status: accepted` | 0 |
 | `.claude/rules/android-architecture.md` | "`feature:<name>`: one game screen" becomes "one feature, its screens in packages"; the `app` row names the frame, the ring and the study reminder it holds until they move; "every navigation route" becomes "every destination" | 0 |
-| `.claude/rules/kotlin-style.md` | Previews: a screen's previews live in `<Screen>ScreenPreview.kt`, not at the foot of the screen's file | 0 |
+| `.claude/rules/kotlin-style.md` | Previews: a screen's previews live in `<Screen>ScreenPreview.kt`, not at the foot of the screen's file; the stateless screen composable becomes `internal` so that the preview file reads it, and the previews stay `private` in that file | 0 |
 | `CLAUDE.md`, `apps/android/CLAUDE.md`, `.claude/rules/verification.md`, `.github/workflows/ci.yml` | The Android leg's command gains `checkStructure`, in the four files that write it | 0 |
 | `.claude/rules/android-architecture.md` | The Modules table and its arrows gain or rename a row with the step that adds or renames the module, so that every row names a module of `apps/android/settings.gradle.kts` at every commit: `core:model` and the arrows of section 1 with Track M, a renamed feature with its step of Track N, `feature:shell` with Track X | M, N, X |
 | `.claude/rules/android-architecture.md`, `ARCHITECTURE.md` | A link to `apps/android/ARCHITECTURE.md`, in place of the rule's description of modules and as one line of the root map | Z |
