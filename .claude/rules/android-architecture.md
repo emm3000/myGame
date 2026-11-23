@@ -69,7 +69,7 @@ rg -e 'stringResource|painterResource' -e '\bR\.' -e 'BuildConfig' -e '@Preview'
 ```
 
 - `<Feature>Route` obtains the ViewModel, collects state and effects, and hands `onIntent` to `<Feature>Screen`, which is stateless and never touches a repository.
-- Every destination is `@Serializable`, fields included: the back stack restores destinations by serializer after process death, and an unserializable one crashes only there. `DestinationTest` pins each destination's serial name as a literal, so a move or a rename that changes one fails.
+- Every destination is `@Serializable`, fields included. The back stack (`rememberNavBackStack`, whose `NavKeySerializer` writes `value::class.java.name`) saves each destination's JVM class name, `com.emm.mygame.Destination$Map`, and after process death restores it by `Class.forName` and that class's serializer, so an unserializable destination, or a class moved or renamed since the save, crashes only there; an `@SerialName` does not keep it. `DestinationTest` pins each destination's class name and serial name as literals, so a move or a rename that changes either fails.
 
 ## Copy
 
