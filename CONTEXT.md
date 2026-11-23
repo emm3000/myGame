@@ -99,6 +99,11 @@ The game is Townword, a present-day town the player grows into a city (ADR 035).
 - **Tip** — one dismissible line shown the first time a concept matters, seen tips stored per player (ADR 027, ADR 040).
 - **Study reminder** — an opt-in notification on the player's phone, at most once a day at a time the player picks, posted when the phone's last reads show words due, a lesson finishing, a holdout check due or a lesson ready to start by then, whichever comes first. It carries no count, no streak and no days away, and it is never pushed by the server (ADR 046).
 
+## The screens
+
+- **Shell** — what the signed-in screens share around their own content: the banner an unverified email shows (ADR 015) and, on Android, the frame every signed-in screen is drawn in, with the dock pinned at its foot carrying the go (ADR 047, ADR 051). The api holds no part of it (ADR 056).
+- **Theme** — the look a player picks on the phone: the system's, light or dark. It is kept on the phone, and the api never learns it (ADR 056).
+
 ## Society
 
 - **House** — a group of players under one banner. Replaces *alliance*. Not in this phase (W2).
