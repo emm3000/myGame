@@ -2,7 +2,7 @@ package com.emm.mygame.buildlogic
 
 data class SourceFile(val path: String, val text: String) {
 
-    val isProduction: Boolean get() = "/src/main/" in path
+    val isProduction: Boolean get() = "/src/main/" in path && !path.startsWith("build-logic/")
 
     val isTest: Boolean get() = "/src/test/" in path
 

@@ -57,6 +57,45 @@ class StructureFindingsTest {
     }
 
     @Test
+    fun `flags a second copy of a violation the baseline holds once`() {
+        val navigation = SourceFile(
+            "app/src/main/kotlin/AppNavigation.kt",
+            "import com.emm.mygame.feature.town.TownUiState\nimport com.emm.mygame.feature.town.TownViewModel\n" +
+                "fun appNavigation() {}\n",
+        )
+
+        assertEquals(
+            listOf("app-feature-state app/src/main/kotlin/AppNavigation.kt: import com.emm.mygame.feature.town.TownViewModel"),
+            findingsOf(navigation, baseline = listOf("app-feature-state app/src/main/kotlin/AppNavigation.kt")),
+        )
+    }
+
+    @Test
+    fun `flags a third baseline copy of a violation that occurs twice`() {
+        val navigation = SourceFile(
+            "app/src/main/kotlin/AppNavigation.kt",
+            "import com.emm.mygame.feature.town.TownUiState\nimport com.emm.mygame.feature.town.TownViewModel\n" +
+                "fun appNavigation() {}\n",
+        )
+        val threeCopies: List<String> = List(3) { "app-feature-state app/src/main/kotlin/AppNavigation.kt" }
+
+        assertEquals(
+            listOf(
+                "app-feature-state app/src/main/kotlin/AppNavigation.kt: " +
+                    "in the baseline but no longer a violation; delete the line",
+            ),
+            findingsOf(navigation, baseline = threeCopies),
+        )
+    }
+
+    @Test
+    fun `leaves build-logic out of the production files`() {
+        val conventionFile = SourceFile("build-logic/convention/src/main/kotlin/KotlinJvm.kt", linesOf(7))
+
+        assertEquals(emptyList<String>(), findingsOf(conventionFile))
+    }
+
+    @Test
     fun `flags a package over the file limit without counting its previews`() {
         val crowdedPackage: List<SourceFile> = listOf("Gate", "Well", "Mill").map { SourceFile("$townMain/$it.kt", "class $it\n") }
         val preview = SourceFile("$townMain/GatePreview.kt", "private fun gatePreview() {}\n")

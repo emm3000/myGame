@@ -15,7 +15,7 @@ private fun List<SourceFile>.linesOver(limit: Int, check: String): List<Structur
 
 private fun packageFiles(sources: List<SourceFile>, limits: StructureLimits): List<StructureViolation> =
     sources
-        .filter { it.isProduction && !it.path.startsWith("build-logic/") && !it.fileName.endsWith("Preview.kt") }
+        .filter { it.isProduction && !it.fileName.endsWith("Preview.kt") }
         .groupBy(SourceFile::directory)
         .filter { (_, files) -> files.size > limits.productionFilesPerPackage }
         .map { (directory, files) ->
