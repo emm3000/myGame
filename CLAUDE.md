@@ -81,7 +81,7 @@ pnpm refuses a package younger than its minimum release age: pin the newest vers
 - While iterating, run only the tests the change touches; the full gate and the emulator flows only before the PR. The one-file and one-module commands: `docs/agents/peer.md`, Inner loop.
 - `pnpm lint`, `pnpm format` — Biome check and write.
 - `pnpm install --frozen-lockfile` — what CI runs; a lockfile drift fails there, not locally.
-- `taskpolicy -c utility ./gradlew detekt checkModuleBoundaries checkComposeFreeViewModels testDebugUnitTest assembleDebug`, run in `apps/android` — the Android leg of the gate, CI's `android` job (`apps/android/CLAUDE.md`). The `taskpolicy` prefix keeps other work at priority, and a Gradle daemon keeps the priority it started with, so every run carries it; CI runs plain `./gradlew`, since Linux has no `taskpolicy`.
+- `taskpolicy -c utility ./gradlew detekt checkModuleBoundaries checkComposeFreeViewModels checkStructure testDebugUnitTest assembleDebug`, run in `apps/android` — the Android leg of the gate, CI's `android` job (`apps/android/CLAUDE.md`). The `taskpolicy` prefix keeps other work at priority, and a Gradle daemon keeps the priority it started with, so every run carries it; CI runs plain `./gradlew`, since Linux has no `taskpolicy`.
 - CI's `vercel` job, on every pull request: `vercel pull --environment=preview` and `vercel build` for `mygame-api` and `mygame-web`, never a deploy. It catches what the gate misses: the api's Hono detection, Vercel's type check of a TypeScript entry, the web's Nitro output (ADR 031, `.claude/rules/github-workflows.md`).
 
 ## Test stack
