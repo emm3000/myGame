@@ -35,7 +35,7 @@ class DestinationTest {
     }
 
     @Test
-    fun `pins the serial name every saved back stack holds`() {
+    fun `pins the serial name of every destination`() {
         val pinned: Set<String> = setOf(
             "com.emm.mygame.Destination.SignIn",
             "com.emm.mygame.Destination.SignUp",
@@ -55,8 +55,38 @@ class DestinationTest {
             "com.emm.mygame.Destination.SchoolText",
         )
 
-        val serialNames: Set<String> = Destination.serializer().descriptor.getElementDescriptor(1).elementNames.toSet()
-
-        assertEquals(pinned, serialNames)
+        assertEquals(pinned, destinationSerialNames().toSet())
     }
+
+    @Test
+    fun `pins the class name every saved back stack holds`() {
+        val pinned: Set<String> = setOf(
+            "com.emm.mygame.Destination\$SignIn",
+            "com.emm.mygame.Destination\$SignUp",
+            "com.emm.mygame.Destination\$ForgotPassword",
+            "com.emm.mygame.Destination\$ResetPassword",
+            "com.emm.mygame.Destination\$VerifyEmail",
+            "com.emm.mygame.Destination\$Town",
+            "com.emm.mygame.Destination\$School",
+            "com.emm.mygame.Destination\$Report",
+            "com.emm.mygame.Destination\$News",
+            "com.emm.mygame.Destination\$Settings",
+            "com.emm.mygame.Destination\$Map",
+            "com.emm.mygame.Destination\$Review",
+            "com.emm.mygame.Destination\$Placement",
+            "com.emm.mygame.Destination\$HoldoutCheck",
+            "com.emm.mygame.Destination\$LessonWords",
+            "com.emm.mygame.Destination\$SchoolText",
+        )
+
+        val notDestinations: List<String> = pinned.filterNot { className: String ->
+            Destination::class.java.isAssignableFrom(Class.forName(className))
+        }
+
+        assertEquals(emptyList<String>(), notDestinations)
+        assertEquals(destinationSerialNames().size, pinned.size)
+    }
+
+    private fun destinationSerialNames(): List<String> =
+        Destination.serializer().descriptor.getElementDescriptor(1).elementNames.toList()
 }
