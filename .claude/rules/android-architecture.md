@@ -16,8 +16,8 @@ paths:
 
 | Module | Holds |
 |---|---|
-| `app` | `MainActivity`, navigation, the one place that binds implementations to interfaces |
-| `feature:<name>` | One game screen: its ViewModel, `UiState`, `Intent`, `Effect`, route and screen |
+| `app` | `MainActivity`, navigation, the one place that binds implementations to interfaces, and, until they move (ADR 056), the signed-in frame (`FramedScreen`), the retained-words ring (`RetainedWords*`) and the study reminder (`StudyReminder*`) |
+| `feature:<name>` | One module, one feature, its screens in packages: each screen's ViewModel, `UiState`, `Intent`, `Effect`, route and screen |
 | `core:network` | The generated OpenAPI client, one interface per api resource (`TownRepository`) implemented over it, the bearer, the token store |
 | `core:projection` | Pure Kotlin, JVM only: the lazy projection and the value types it reads |
 | `core:designsystem` | The design-system tokens and components (`ui-components.md`) |
@@ -69,7 +69,7 @@ rg -e 'stringResource|painterResource' -e '\bR\.' -e 'BuildConfig' -e '@Preview'
 ```
 
 - `<Feature>Route` obtains the ViewModel, collects state and effects, and hands `onIntent` to `<Feature>Screen`, which is stateless and never touches a repository.
-- Every navigation route is `@Serializable`, fields included: the back stack restores routes by serializer after process death, and an unserializable one crashes only there.
+- Every destination is `@Serializable`, fields included: the back stack restores destinations by serializer after process death, and an unserializable one crashes only there. `DestinationTest` pins each destination's serial name as a literal, so a move or a rename that changes one fails.
 
 ## Copy
 
