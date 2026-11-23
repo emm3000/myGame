@@ -3,7 +3,7 @@ package com.emm.mygame.buildlogic
 private val featureStateImport: Regex =
     Regex("""^import com\.emm\.mygame\.feature\.[\w.]+(ViewModel|UiState|Intent|Effect)$""", RegexOption.MULTILINE)
 
-private val projectionGap: Regex = Regex("""readAt - clock\.now\(\)|fun\s+serverNow""")
+private val projectionGap: Regex = Regex("""readAt - clock\.now\(\)|fun serverNow""")
 
 val boundaryChecks: List<StructureCheck> = listOf(
     { sources, _ -> appFeatureStates(sources) },

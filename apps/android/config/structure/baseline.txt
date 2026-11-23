@@ -42,12 +42,6 @@ file-name app/src/main/kotlin/com/emm/mygame/DockMove.kt
 file-name app/src/main/kotlin/com/emm/mygame/MailedLink.kt
 file-name app/src/main/kotlin/com/emm/mygame/PlayerLanguageFrame.kt
 file-name app/src/main/kotlin/com/emm/mygame/ReminderNotificationAsk.kt
-file-name build-logic/convention/src/main/kotlin/com/emm/mygame/buildlogic/AndroidCompose.kt
-file-name build-logic/convention/src/main/kotlin/com/emm/mygame/buildlogic/KotlinAndroid.kt
-file-name build-logic/convention/src/main/kotlin/com/emm/mygame/buildlogic/KotlinJvm.kt
-file-name build-logic/convention/src/main/kotlin/com/emm/mygame/buildlogic/ProjectDefaults.kt
-file-name build-logic/convention/src/main/kotlin/com/emm/mygame/buildlogic/ProjectExtensions.kt
-file-name build-logic/convention/src/main/kotlin/com/emm/mygame/buildlogic/UnitTests.kt
 file-name core/designsystem/src/main/kotlin/com/emm/mygame/core/designsystem/EnglishText.kt
 file-name core/designsystem/src/main/kotlin/com/emm/mygame/core/designsystem/TabularFigures.kt
 file-name core/network/src/main/kotlin/com/emm/mygame/core/network/ApiClient.kt
