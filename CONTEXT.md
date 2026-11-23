@@ -99,9 +99,20 @@ The game is Townword, a present-day town the player grows into a city (ADR 035).
 - **Tip** — one dismissible line shown the first time a concept matters, seen tips stored per player (ADR 027, ADR 040).
 - **Study reminder** — an opt-in notification on the player's phone, at most once a day at a time the player picks, posted when the phone's last reads show words due, a lesson finishing, a holdout check due or a lesson ready to start by then, whichever comes first. It carries no count, no streak and no days away, and it is never pushed by the server (ADR 046).
 
-## The screens
+## The Android client
 
-- **Shell** — on Android, what every signed-in screen shares around its own content: the strip pinned at the screen's foot that shows the player's next step. It holds no game rule, and the api holds no part of it (ADR 047, ADR 051).
+The client's own words: each names how the phone draws or holds what the api answered, never a game rule (ADR 034, ADR 056).
+
+- **Shell** — what every signed-in screen shares around its own content: the screen frame, the dock and the ring. It holds no game rule (ADR 047, ADR 051, ADR 056).
+- **Screen frame** (**frame** in the client's code) — what wraps a signed-in screen: a header with the back link to the town and the ring, the verification banner under it, the screen's content, and the dock at the foot. A screen is framed as the town home, which draws its own header, a place screen or a **task screen** (a review, the placement, a holdout check, a lesson's words). Not a word's frame, which is a sentence (ADR 047, ADR 051).
+- **Place** — one of the seven buildings as the town home draws it: a page of its own with the building's art, its level, the words its next level needs and its work. A **place screen** is a signed-in screen that is neither the town home nor a task screen: the school and its texts, the Report, Town News, the region map and the settings (ADR 047, ADR 051).
+- **Street** — the town home's seven places side by side, drawn under the page as the **street strip**, one silhouette per place, each a tab that opens its place's page (ADR 047, ADR 050).
+- **Dock** — the sheet pinned at the foot of every signed-in screen but the town's naming, holding one control, the **go**: the button of the player's next step, or on a task screen the task's way on. Above the go it draws, only while there is one, the **notice**: the refusal of the go's last tap or a task's verdict (ADR 047, ADR 051).
+- **Fold** — what the dock does when it would stand taller than half the window's height divided by the font scale, a scale under 1.0 counting as 1.0: the go stays, and the notice moves to the top of the scroll on the town home or a place screen, to the end of the content on a task screen (ADR 047, ADR 051).
+- **Ring** — the figure in the screen frame's header and on every page of the town home: for the first lesson whose skill is not earned, its retained words out of its words the player holds a card for. Hidden while that lesson holds no card and once every skill is earned (ADR 047).
+- **Snapshot** — the town as one answer of the api states it, to a read or a mutation, at that answer's `readAt`. The client draws from it and the projection starts from it; it is never sent back (ADR 005, ADR 034).
+- **Held town** — the latest snapshot the client holds, with its gap, shared by the signed-in screens. An answer to a request sent before the held one's never replaces it, and a change of session forgets it.
+- **Gap** — the server's clock less the phone's, taken when a read arrives as its `readAt` less the phone's clock. The projection runs at the phone's clock plus the gap, so a skewed phone neither overdraws nor reads again in a loop; a mutation's answer keeps the gap of the last read (ADR 005).
 - **Picked theme** — the look a player picks on the phone: the system's, light or dark. It is kept on the phone, and the api never learns it. Not the lesson's theme, which groups its words.
 
 ## Society

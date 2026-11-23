@@ -1,5 +1,5 @@
 ---
-status: proposed
+status: accepted
 date: 2026-11-22
 ---
 # The Android client reads by feature, then by role
@@ -480,7 +480,7 @@ Rules the check of section 7 reads:
 | Limit | Value | Enforced by | Over it on trunk |
 |---|---|---|---|
 | Lines in a production file | 250 | `checkStructure` | 19 |
-| Lines in a function | 50 | detekt `LongMethod`, 60 today | counted by detekt in its step, not here |
+| Lines in a function, composables included | 50 | detekt `LongMethod`, 60 today | counted by detekt in its step, not here |
 | Cognitive complexity | 15 | detekt `CognitiveComplexMethod`, off today | counted by the rule in step 0 |
 | Production files in one package, previews not counted | 30 | `checkStructure` | 5: `core:network` 158, `core:designsystem` 71, `feature:signin` 51, `feature:town` 42, `feature:school` 40; `app` and `feature:placement` are at 30 |
 | Lines in a test file | 600 | `checkStructure` | 12, seven of them over 800 |
@@ -588,11 +588,11 @@ Each fact keeps one home. The map owns the layout.
 `android-architecture.md` owns the laws and links to the map instead
 of describing modules. `apps/android/CLAUDE.md` keeps commands and
 traps. `CONTEXT.md` is the one glossary: the client's own words, which
-today are defined only inside ADR 047 and ADR 051 (dock, frame,
+were defined only inside ADR 047, ADR 051 and the code (dock, frame,
 street, place, ring, snapshot, held town, gap, fold), enter it under a
-heading of their own, since a second glossary would drift. This ADR
-adds the two that name a feature, **Shell** and **Picked theme**; the rest
-wait for the owner's answer to question 6.
+heading of their own, *The Android client*, since a second glossary
+would drift. They join the two that name a feature, **Shell** and
+**Picked theme**, under the same heading.
 
 No per-module `README.md`, for the backend's reason (ADR 052, section
 8).
@@ -605,7 +605,7 @@ ADR. Each edit lands with the step its row names.
 
 | File | Edit | Step |
 |---|---|---|
-| This ADR | `status: accepted` | 0 |
+| This ADR | `status: accepted` | #1889, before step 0 |
 | `.claude/rules/android-architecture.md` | "`feature:<name>`: one game screen" becomes "one feature, its screens in packages"; the `app` row names the frame, the ring and the study reminder it holds until they move; "every navigation route" becomes "every destination" | 0 |
 | `.claude/rules/kotlin-style.md` | Previews: a screen's previews live in `<Screen>ScreenPreview.kt`, not at the foot of the screen's file; the stateless screen composable becomes `internal` so that the preview file reads it, and the previews stay `private` in that file | 0 |
 | `CLAUDE.md`, `apps/android/CLAUDE.md`, `.claude/rules/verification.md`, `.github/workflows/ci.yml` | The Android leg's command gains `checkStructure`, in the four files that write it | 0 |
@@ -667,9 +667,9 @@ Traps every move step meets, found by reading and not by running:
 Each of these rewrites import lines across the client, so nothing else
 is open while one is.
 
-**Step 0, the rails.** Done when:
+**Step 0, the rails.** This ADR is accepted before it starts (#1889).
+Done when:
 
-- this ADR is accepted;
 - `checkStructure` exists with its baseline, joins the gate leg and
   CI, and the pull request shows it failing on a planted file of 251
   lines;
@@ -715,7 +715,7 @@ four edit the same catalog and build files:
   `feature:school` (15 keys carry `holdout` in their name; the ticket
   counts the ones its files read).
 
-### Phase 2, side by side: one track per module
+### Phase 2, one track per module
 
 After Phase 1 a track writes its own module and its own
 `<Feature>Entries.kt`, and nothing else. Each track runs its steps in
@@ -776,9 +776,10 @@ order:
 
 ### Peers at once
 
-Phase 1 and Phase 3 are one peer. Phase 2 allows seven tracks; the
-machine allows fewer, since each peer runs its own Gradle daemon. Two
-at once is the proposal, each with the `taskpolicy` prefix
+One Android peer at a time, in every phase. Phase 2's seven tracks
+could run side by side, but each peer runs its own Gradle daemon, and
+the owner's peer cap allows one Android peer at a time; it runs with
+the `taskpolicy` prefix
 `apps/android/CLAUDE.md` asks for. The migration starts with no
 Android pull request open: every step before Phase 2 conflicts with
 any other Android change.
@@ -820,12 +821,13 @@ developer.
 Everything in sections 4 to 8, without `core:model` and without the
 renames.
 
-Refused as the whole answer, kept as its first half. It leaves 69
-files that draw importing `core.network`, leaves `core:ui` unable to
-read the model, so the copies of the season's icon and the frame
-pieces stay, and leaves `signin`, `review` and `map` as words the
-backend does not use. It is the cheapest stopping point if the owner
-wants one: step 0, step 1 and Phase 2 stand without Track M.
+Refused as the whole answer and as a stopping point, kept as the first
+half of option A. It leaves 69 files that draw importing
+`core.network`, leaves `core:ui` unable to read the model, so the
+copies of the season's icon and the frame pieces stay, and leaves
+`signin`, `review` and `map` as words the backend does not use. Step 0,
+step 1 and Phase 2 would stand without Track M, but the migration runs
+to its end, `core:model` included.
 
 ### D. One module per screen, as the rule's row says
 
@@ -876,28 +878,30 @@ a human.
 - Whoever has a build on a phone loses nothing: no stored name
   changes, and step 0 pins the ones that could.
 
-### Open for the owner
+### Answered by the owner
 
-Each is open until the owner answers it; the text above is the
-proposal, not the answer.
+The owner settled the eleven open questions on 2026-11-23 (#1889),
+taking this ADR's proposal on each, with the tenth set by the owner's
+peer cap. The text above states each choice.
 
-1. `feature:map` to `feature:jobs`: the backend's word, at 70 renamed
-   keys, or keep `map`, the word on the screen.
-2. The shell: `feature:shell`, or a package of `app` with no new
-   catalog module.
-3. `core:model` as the name, with the ports inside it, or `core:game`.
-4. `core:designsystem`: cut into packages (step D, 815 import lines),
-   or exempt from the package limit as a flat list of `MyGame*`
-   components.
-5. The map: `apps/android/ARCHITECTURE.md`, or a section of the root
-   file with its limit raised.
-6. The client's words: into `CONTEXT.md`, or into the map.
-7. The private `var` limit, which the backend has no twin of.
-8. The function limit at 50 for composables too, or 60 as today.
-9. A move pull request owing no emulator flow: confirm the reading of
+1. `feature:map` becomes `feature:jobs`, the backend's word, at 70
+   renamed keys.
+2. The shell is its own module, `feature:shell`.
+3. The model module is `core:model`, with the ports inside it.
+4. `core:designsystem` is cut into packages (step D); no standing
+   exemption.
+5. The human map is `apps/android/ARCHITECTURE.md`, at most 150 lines.
+6. The client's own words (dock, frame, street, place, ring, snapshot,
+   held town, gap, fold) enter `CONTEXT.md` under a heading of their
+   own.
+7. The private `var` limit stays at 5 per class.
+8. The function limit is 50 lines, composables included (detekt
+   `LongMethod`).
+9. A move pull request owes no emulator flow, by this ADR's reading of
    `verification.md`.
-10. Two Android peers at once in Phase 2, or one.
-11. Stopping after option C's half if the model module is not wanted.
+10. One Android peer at a time in Phase 2.
+11. The full migration, `core:model` included; no stop after option C's
+    half.
 
 ## References
 
