@@ -20,6 +20,7 @@ import com.emm.mygame.core.network.SignedInPlayer
 import com.emm.mygame.core.network.TownReadResult
 import com.emm.mygame.core.testing.FakeSessionRepository
 import com.emm.mygame.core.testing.FakeTownRepository
+import com.emm.mygame.navigation.AppNavigation
 import kotlinx.coroutines.flow.emptyFlow
 import org.junit.Rule
 import org.junit.Test

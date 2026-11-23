@@ -61,6 +61,7 @@ import com.emm.mygame.core.testing.lessonsDone
 import com.emm.mygame.core.testing.townOf
 import com.emm.mygame.feature.town.TOWN_DOCK
 import com.emm.mygame.feature.town.TOWN_STATUS
+import com.emm.mygame.navigation.AppNavigation
 import java.util.concurrent.TimeUnit
 import kotlin.time.Clock
 import kotlin.time.Duration

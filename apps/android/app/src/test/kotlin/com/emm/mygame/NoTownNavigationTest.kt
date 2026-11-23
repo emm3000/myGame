@@ -9,6 +9,7 @@ import androidx.test.ext.junit.rules.ActivityScenarioRule
 import com.emm.mygame.core.designsystem.MyGameTheme
 import com.emm.mygame.core.network.TownReadResult
 import com.emm.mygame.core.testing.FakeTownRepository
+import com.emm.mygame.navigation.AppNavigation
 import kotlin.time.Clock
 import kotlin.time.Instant
 import kotlinx.coroutines.flow.emptyFlow

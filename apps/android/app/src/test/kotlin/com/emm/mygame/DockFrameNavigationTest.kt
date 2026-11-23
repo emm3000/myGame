@@ -78,6 +78,7 @@ import com.emm.mygame.core.testing.FakeTownRepository
 import com.emm.mygame.core.testing.lessonsDone
 import com.emm.mygame.core.testing.townOf
 import com.emm.mygame.feature.town.TOWN_DOCK
+import com.emm.mygame.navigation.AppNavigation
 import kotlin.time.Clock
 import kotlin.time.Duration.Companion.hours
 import kotlin.time.Duration.Companion.minutes

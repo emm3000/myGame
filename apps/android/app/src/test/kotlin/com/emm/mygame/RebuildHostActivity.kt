@@ -7,6 +7,7 @@ import androidx.navigation3.runtime.NavBackStack
 import androidx.navigation3.runtime.NavKey
 import androidx.navigation3.runtime.rememberNavBackStack
 import com.emm.mygame.core.designsystem.MyGameTheme
+import com.emm.mygame.navigation.AppNavigation
 import kotlinx.coroutines.flow.emptyFlow
 
 class RebuildHostActivity : ComponentActivity() {

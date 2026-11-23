@@ -34,6 +34,7 @@ import com.emm.mygame.core.testing.FakeSessionRepository
 import com.emm.mygame.core.testing.FakeTownRepository
 import com.emm.mygame.core.testing.townOf
 import com.emm.mygame.feature.town.TOWN_DOCK
+import com.emm.mygame.navigation.AppNavigation
 import kotlin.time.Instant
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.emptyFlow
