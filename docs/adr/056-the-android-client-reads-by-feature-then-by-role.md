@@ -160,6 +160,14 @@ Four definitions hold throughout:
 | The api's features and the town's six sub-areas | `fd -t d -d 1 . apps/api/src -x basename`; the same on `apps/api/src/town`, `infrastructure` left out |
 | The Android leg's command is written in 4 files | on the repository: `git grep -l 'checkComposeFreeViewModels testDebugUnitTest' origin/trunk -- . ':!docs'` |
 | 522 Android keys: `town` 156, `signin` 82, `school` 74, `map` 70, `report` 49, `review` 45, `placement` 36, `app` 10 | `rg -o '"android\.(\w+)\.' -r '$1' packages/catalog/en.json \| sort \| uniq -c` |
+| 213 Android keys of fixed copy | `rg -c 'android\.' packages/catalog/src/fixedCopyKeys.ts` |
+| 15 keys with `holdout` in their name, 12 in `placement` and 3 in `school` | `rg -o '"android\.(placement\|school)\.(\w*holdout\w*)"' -r '$1' packages/catalog/en.json \| sort \| uniq -c` |
+| 23 string names read by the ten status and dock files | the ten files of the row above, piped to `xargs rg -o --no-filename 'R\.string\.\w+' \| sort -u \| wc -l` |
+| 70 feature files read `R.`; no wildcard import | `rg -l '\bR\.(string\|drawable)\b' apps/android/feature P \| wc -l`; `rg -n '^import .*\.\*$' apps/android -g '*.kt' \| wc -l` |
+| 1,052 lines naming `core.network.` in the features and `core:ui`, 466 of them production | `rg -n 'core\.network\.' apps/android/feature apps/android/core/ui -g '*.kt' \| wc -l`; the same with `P` |
+| 594 production and 221 test import lines of the design system | `rg -n '^import com\.emm\.mygame\.core\.designsystem\.' apps/android P \| wc -l`; the same with `-g '**/src/test/**'` |
+| detekt 1.23.8: `LargeClass` 600, `CognitiveComplexMethod` off at 15, `InvalidPackageDeclaration` on, no rule named for a file's length | `apps/android/gradle/libs.versions.toml:6`; in the Gradle cache, `unzip -p detekt-core-1.23.8.jar default-detekt-config.yml` |
+| `LongMethod` 60, `TooManyFunctions` 20 a file and 10 an interface | `apps/android/config/detekt/detekt.yml` |
 
 `commits.py`, from a checkout of the repository (237 and 5):
 
@@ -193,14 +201,6 @@ for p in files:
         unnamed.append(p)
 print(len(unnamed), sum(p.endswith("Mapping.kt") for p in unnamed))
 ```
-| 213 Android keys of fixed copy | `rg -c 'android\.' packages/catalog/src/fixedCopyKeys.ts` |
-| 15 keys with `holdout` in their name, 12 in `placement` and 3 in `school` | `rg -o '"android\.(placement\|school)\.(\w*holdout\w*)"' -r '$1' packages/catalog/en.json \| sort \| uniq -c` |
-| 23 string names read by the ten status and dock files | the ten files of the row above, piped to `xargs rg -o --no-filename 'R\.string\.\w+' \| sort -u \| wc -l` |
-| 70 feature files read `R.`; no wildcard import | `rg -l '\bR\.(string\|drawable)\b' apps/android/feature P \| wc -l`; `rg -n '^import .*\.\*$' apps/android -g '*.kt' \| wc -l` |
-| 1,052 lines naming `core.network.` in the features and `core:ui`, 466 of them production | `rg -n 'core\.network\.' apps/android/feature apps/android/core/ui -g '*.kt' \| wc -l`; the same with `P` |
-| 594 production and 221 test import lines of the design system | `rg -n '^import com\.emm\.mygame\.core\.designsystem\.' apps/android P \| wc -l`; the same with `-g '**/src/test/**'` |
-| detekt 1.23.8: `LargeClass` 600, `CognitiveComplexMethod` off at 15, `InvalidPackageDeclaration` on, no rule named for a file's length | `apps/android/gradle/libs.versions.toml:6`; in the Gradle cache, `unzip -p detekt-core-1.23.8.jar default-detekt-config.yml` |
-| `LongMethod` 60, `TooManyFunctions` 20 a file and 10 an interface | `apps/android/config/detekt/detekt.yml` |
 
 ## Decision
 
@@ -320,7 +320,7 @@ Where a name is not the api's directory, and why:
   screens are drawn in. The study reminder "is never pushed by the
   server" (`CONTEXT.md`, Study reminder; ADR 046). The theme is a
   choice kept on the phone (`app/ThemeStore.kt`). `CONTEXT.md` gains
-  **Shell** and **Theme** with this ADR, so that every feature word of
+  **Shell** and **Picked theme** with this ADR, so that every feature word of
   the table is a word of the glossary.
 - **`content` has no package in the client.** It is the api's JSON
   catalogs and the content gate; the client holds neither.
@@ -591,7 +591,7 @@ traps. `CONTEXT.md` is the one glossary: the client's own words, which
 today are defined only inside ADR 047 and ADR 051 (dock, frame,
 street, place, ring, snapshot, held town, gap, fold), enter it under a
 heading of their own, since a second glossary would drift. This ADR
-adds the two that name a feature, **Shell** and **Theme**; the rest
+adds the two that name a feature, **Shell** and **Picked theme**; the rest
 wait for the owner's answer to question 6.
 
 No per-module `README.md`, for the backend's reason (ADR 052, section
