@@ -22,6 +22,7 @@ import com.emm.mygame.core.network.TownTextResult
 import com.emm.mygame.core.testing.FakeTownRepository
 import com.emm.mygame.core.testing.FakeTownTextRepository
 import com.emm.mygame.core.testing.townOf
+import com.emm.mygame.navigation.AppNavigation
 import kotlin.time.Clock
 import kotlin.time.Instant
 import kotlinx.coroutines.flow.emptyFlow

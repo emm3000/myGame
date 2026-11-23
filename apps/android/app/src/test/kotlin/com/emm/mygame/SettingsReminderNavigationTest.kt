@@ -28,6 +28,7 @@ import com.emm.mygame.core.network.SignedInPlayer
 import com.emm.mygame.core.network.StudyReminderChoice
 import com.emm.mygame.core.projection.StudyReminderFacts
 import com.emm.mygame.core.testing.FakeSessionRepository
+import com.emm.mygame.navigation.AppNavigation
 import java.time.LocalTime
 import java.time.ZoneOffset
 import kotlin.time.Instant

@@ -20,6 +20,7 @@ import com.emm.mygame.core.testing.FakeTownRepository
 import com.emm.mygame.core.testing.townOf
 import com.emm.mygame.feature.town.TOWN_STATUS
 import com.emm.mygame.feature.town.TownStatusViewModel
+import com.emm.mygame.navigation.AppNavigation
 import kotlin.time.Clock
 import kotlin.time.Duration.Companion.minutes
 import kotlin.time.Duration.Companion.seconds

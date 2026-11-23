@@ -27,6 +27,7 @@ import com.emm.mygame.core.network.SignedInPlayer
 import com.emm.mygame.core.network.TownReport
 import com.emm.mygame.core.testing.FakeReportRepository
 import com.emm.mygame.core.testing.FakeSessionRepository
+import com.emm.mygame.navigation.AppNavigation
 import kotlin.time.Instant
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.emptyFlow

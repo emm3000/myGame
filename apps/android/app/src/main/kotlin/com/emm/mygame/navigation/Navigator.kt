@@ -1,6 +1,8 @@
-package com.emm.mygame
+package com.emm.mygame.navigation
 
 import androidx.navigation3.runtime.NavKey
+import com.emm.mygame.Destination
+import com.emm.mygame.NavigationLinks
 import com.emm.mygame.core.network.HoldoutCheckWeek
 import com.emm.mygame.core.network.LessonId
 import com.emm.mygame.core.network.PlacementBand

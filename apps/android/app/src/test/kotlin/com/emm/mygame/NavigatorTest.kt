@@ -5,6 +5,7 @@ import com.emm.mygame.core.network.HoldoutCheckWeek
 import com.emm.mygame.core.network.LessonId
 import com.emm.mygame.core.network.PlacementBand
 import com.emm.mygame.core.projection.StudyReminderLine
+import com.emm.mygame.navigation.Navigator
 import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.test.runTest
 import org.junit.Assert.assertEquals
