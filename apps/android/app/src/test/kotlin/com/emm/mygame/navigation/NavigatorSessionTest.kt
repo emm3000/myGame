@@ -1,0 +1,237 @@
+package com.emm.mygame.navigation
+
+import androidx.navigation3.runtime.NavKey
+import com.emm.mygame.Destination
+import com.emm.mygame.NavigationLinks
+import kotlinx.coroutines.flow.flowOf
+import kotlinx.coroutines.test.runTest
+import org.junit.Assert.assertEquals
+import org.junit.Assert.assertFalse
+import org.junit.Assert.assertSame
+import org.junit.Test
+
+class NavigatorSessionTest : NavigatorFixture() {
+
+    @Test
+    fun `opens sign-up above sign-in`() {
+        val backStack: MutableList<NavKey> = mutableListOf(signIn)
+
+        Navigator(backStack, NavigationLinks()).openSignUp()
+
+        assertEquals(listOf(signIn, Destination.SignUp), backStack)
+    }
+
+    @Test
+    fun `returns to sign-in on back from sign-up`() {
+        val backStack: MutableList<NavKey> = mutableListOf(signIn, Destination.SignUp)
+
+        Navigator(backStack, NavigationLinks()).back()
+
+        assertEquals(listOf(signIn), backStack)
+    }
+
+    @Test
+    fun `returns to the sign-in below when sign-up links to it`() {
+        val backStack: MutableList<NavKey> = mutableListOf(signIn, Destination.SignUp)
+
+        Navigator(backStack, NavigationLinks()).openSignIn()
+
+        assertEquals(listOf(signIn), backStack)
+    }
+
+    @Test
+    fun `opens the reset request above sign-in`() {
+        val backStack: MutableList<NavKey> = mutableListOf(signIn)
+
+        Navigator(backStack, NavigationLinks()).openForgotPassword()
+
+        assertEquals(listOf(signIn, Destination.ForgotPassword), backStack)
+    }
+
+    @Test
+    fun `returns to sign-in on back from the reset request`() {
+        val backStack: MutableList<NavKey> = mutableListOf(signIn, Destination.ForgotPassword)
+
+        Navigator(backStack, NavigationLinks()).back()
+
+        assertEquals(listOf(signIn), backStack)
+    }
+
+    @Test
+    fun `returns to the sign-in below when the reset request links to it`() {
+        val backStack: MutableList<NavKey> = mutableListOf(signIn, Destination.ForgotPassword)
+
+        Navigator(backStack, NavigationLinks()).openSignIn()
+
+        assertEquals(listOf(signIn), backStack)
+    }
+
+    @Test
+    fun `opens no reset request above sign-up`() {
+        val backStack: MutableList<NavKey> = mutableListOf(signIn, Destination.SignUp)
+
+        Navigator(backStack, NavigationLinks()).openForgotPassword()
+
+        assertEquals(listOf(signIn, Destination.SignUp), backStack)
+    }
+
+    @Test
+    fun `leaves the last screen to the system on back`() {
+        val backStack: MutableList<NavKey> = mutableListOf(signIn)
+
+        Navigator(backStack, NavigationLinks()).back()
+
+        assertEquals(listOf(signIn), backStack)
+    }
+
+    @Test
+    fun `opens the town alone once signed up`() {
+        val backStack: MutableList<NavKey> = mutableListOf(signIn, Destination.SignUp)
+
+        Navigator(backStack, NavigationLinks()).signedIn()
+
+        assertEquals(listOf(Destination.Town), backStack)
+    }
+
+    @Test
+    fun `opens the town alone once signed in`() {
+        val backStack: MutableList<NavKey> = mutableListOf(signIn)
+
+        Navigator(backStack, NavigationLinks()).signedIn()
+
+        assertEquals(listOf(Destination.Town), backStack)
+    }
+
+    @Test
+    fun `opens the school above the town`() {
+        val backStack: MutableList<NavKey> = mutableListOf(Destination.Town)
+
+        Navigator(backStack, NavigationLinks()).openSchool()
+
+        assertEquals(listOf(Destination.Town, Destination.School), backStack)
+    }
+
+    @Test
+    fun `keeps one school when it is opened twice`() {
+        val backStack: MutableList<NavKey> = mutableListOf(Destination.Town, Destination.School)
+
+        Navigator(backStack, NavigationLinks()).openSchool()
+
+        assertEquals(listOf(Destination.Town, Destination.School), backStack)
+    }
+
+    @Test
+    fun `opens no school above sign-in`() {
+        val backStack: MutableList<NavKey> = mutableListOf(signIn)
+
+        Navigator(backStack, NavigationLinks()).openSchool()
+
+        assertEquals(listOf<NavKey>(signIn), backStack)
+    }
+
+    @Test
+    fun `stays on the Report on a back gesture while signing out`() {
+        val backStack: MutableList<NavKey> = mutableListOf(Destination.Town, Destination.Report)
+        val navigator: Navigator = Navigator(backStack, NavigationLinks())
+        navigator.signingOut()
+
+        navigator.back()
+
+        assertEquals(listOf<NavKey>(Destination.Town, Destination.Report), backStack)
+    }
+
+    @Test
+    fun `opens no school while signing out`() {
+        val backStack: MutableList<NavKey> = mutableListOf(Destination.Town)
+        val navigator: Navigator = Navigator(backStack, NavigationLinks())
+        navigator.signingOut()
+
+        navigator.openSchool()
+
+        assertEquals(listOf<NavKey>(Destination.Town), backStack)
+    }
+
+    @Test
+    fun `returns to the town on back from the school`() {
+        val backStack: MutableList<NavKey> = mutableListOf(Destination.Town, Destination.School)
+
+        Navigator(backStack, NavigationLinks()).back()
+
+        assertEquals(listOf<NavKey>(Destination.Town), backStack)
+    }
+
+    @Test
+    fun `returns to the town below the school from the town tab`() {
+        val backStack: MutableList<NavKey> = mutableListOf(Destination.Town, Destination.School)
+
+        Navigator(backStack, NavigationLinks()).openTown()
+
+        assertEquals(listOf<NavKey>(Destination.Town), backStack)
+    }
+
+    @Test
+    fun `returns to sign-in alone once signed out`() {
+        val backStack: MutableList<NavKey> = mutableListOf(Destination.Town, Destination.Report)
+
+        Navigator(backStack, NavigationLinks()).signedOut(isSessionEnded = false)
+
+        assertEquals(listOf(signIn), backStack)
+    }
+
+    @Test
+    fun `disables the tabs while signing out`() {
+        val navigator: Navigator = Navigator(mutableListOf(Destination.Town), NavigationLinks())
+
+        navigator.signingOut()
+
+        assertFalse(navigator.areLinksEnabled)
+    }
+
+    @Test
+    fun `enables the tabs again for the next session`() {
+        val backStack: MutableList<NavKey> = mutableListOf(Destination.Town)
+        val navigator: Navigator = Navigator(backStack, NavigationLinks())
+        navigator.signingOut()
+        navigator.signedOut(isSessionEnded = false)
+
+        navigator.signedIn()
+        navigator.openReport()
+
+        assertEquals(true to listOf(Destination.Town, Destination.Report), navigator.areLinksEnabled to backStack)
+    }
+
+    @Test
+    fun `leaves sign-in alone with the session-ended line when the session ends above the town`() = runTest {
+        val signedInStacks: List<MutableList<NavKey>> = listOf(
+            mutableListOf(Destination.Town),
+            mutableListOf(Destination.Town),
+            mutableListOf(Destination.Town, Destination.Report),
+            mutableListOf(Destination.Town, Destination.School),
+        )
+
+        signedInStacks.forEach { backStack: MutableList<NavKey> ->
+            Navigator(backStack, NavigationLinks()).followSessionEnds(flowOf(Unit))
+
+            assertEquals(listOf(sessionEndedSignIn), backStack)
+        }
+    }
+
+    @Test
+    fun `shows the session-ended line when the session ends on a plain sign-in`() = runTest {
+        val backStack: MutableList<NavKey> = mutableListOf(signIn)
+
+        Navigator(backStack, NavigationLinks()).followSessionEnds(flowOf(Unit))
+
+        assertEquals(listOf(sessionEndedSignIn), backStack)
+    }
+
+    @Test
+    fun `keeps the sign-in it shows when the session ends again`() = runTest {
+        val shown: Destination.SignIn = Destination.SignIn(isSessionEnded = true)
+        val backStack: MutableList<NavKey> = mutableListOf(shown)
+
+        Navigator(backStack, NavigationLinks()).followSessionEnds(flowOf(Unit, Unit))
+
+        assertSame(shown, backStack.single())
+    }
+}

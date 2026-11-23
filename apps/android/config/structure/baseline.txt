@@ -97,9 +97,7 @@ projection-gap feature/school/src/main/kotlin/com/emm/mygame/feature/school/Scho
 projection-gap feature/town/src/main/kotlin/com/emm/mygame/feature/town/TownStatusViewModel.kt
 projection-gap feature/town/src/main/kotlin/com/emm/mygame/feature/town/TownViewModel.kt
 screen-file feature/town/src/main/kotlin/com/emm/mygame/feature/town/TownStatusScreen.kt
-test-lines app/src/test/kotlin/com/emm/mygame/AppNavigationTest.kt
 test-lines app/src/test/kotlin/com/emm/mygame/DockFrameNavigationTest.kt
-test-lines app/src/test/kotlin/com/emm/mygame/NavigatorTest.kt
 test-lines core/network/src/test/kotlin/com/emm/mygame/core/network/SessionRepositoryTest.kt
 test-lines core/network/src/test/kotlin/com/emm/mygame/core/network/TownRepositoryTest.kt
 test-lines feature/report/src/test/kotlin/com/emm/mygame/feature/report/ReportViewModelTest.kt
