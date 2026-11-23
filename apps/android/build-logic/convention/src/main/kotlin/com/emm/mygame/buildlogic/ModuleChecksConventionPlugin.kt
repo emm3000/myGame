@@ -38,6 +38,20 @@ class ModuleChecksConventionPlugin : Plugin<Project> {
                     description = "Fails when a *ViewModel.kt or *UiState.kt file references androidx.compose."
                 }
 
+            tasks.register<CheckStructureTask>("checkStructure") {
+                group = "verification"
+                description = "Fails on an ADR 056 limit the baseline does not hold, and on a stale baseline line."
+                sourceFiles.setFrom(
+                    fileTree(rootDir) {
+                        include("**/*.kt")
+                        exclude("**/build/**", "**/.gradle/**", "**/.kotlin/**")
+                    },
+                )
+                baseline.set(layout.projectDirectory.file("config/structure/baseline.txt"))
+                androidRoot.set(layout.projectDirectory)
+                dependsOn(gradle.includedBuild("build-logic").task(":convention:test"))
+            }
+
             gradle.projectsEvaluated {
                 checkModuleBoundaries.configure {
                     edgesByModule.set(moduleEdges())

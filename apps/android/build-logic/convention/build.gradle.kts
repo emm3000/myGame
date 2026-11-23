@@ -19,6 +19,7 @@ dependencies {
     implementation(libs.android.gradle.plugin)
     implementation(libs.kotlin.gradle.plugin)
     implementation(libs.compose.compiler.gradle.plugin)
+    testImplementation(libs.junit)
 }
 
 gradlePlugin {
