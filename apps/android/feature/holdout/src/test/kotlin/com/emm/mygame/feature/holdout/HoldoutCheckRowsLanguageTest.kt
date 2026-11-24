@@ -40,7 +40,7 @@ class HoldoutCheckRowsLanguageTest {
     private val dueCheck: HoldoutCheckRowsUiState =
         HoldoutCheckRowsUiState(listOf(HoldoutCheckRow(PlacementBand.First, HoldoutCheckWeek.Eighth)))
 
-    private fun show() {
+    private fun showInPhoneLanguage() {
         composeRule.setContent {
             MyGameTheme {
                 HoldoutCheckRows(state = dueCheck, onHoldoutCheckOpen = {})
@@ -77,7 +77,7 @@ class HoldoutCheckRowsLanguageTest {
     @Test
     @Config(qualifiers = "es")
     fun `draws the due check in the phone's Spanish`() {
-        show()
+        showInPhoneLanguage()
 
         showing("Tienes pendiente una prueba de palabras de la banda 1, semana 8.")
     }

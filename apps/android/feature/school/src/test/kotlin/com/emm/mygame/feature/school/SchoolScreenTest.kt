@@ -139,10 +139,10 @@ class SchoolScreenTest {
     private fun refusedStart(refusal: TownLessonRefusal): SchoolUiState.Content =
         idleSchool.copy(start = SchoolUiState.LessonRequest.Refused(firstLesson, refusal))
 
-    private val handedChecks: String = "The checks app hands the school"
+    private val handedSlot: String = "Handed slot"
 
     @Test
-    fun `draws the due checks the school is handed`() {
+    fun `draws the holdout checks slot it is handed`() {
         composeRule.setContent {
             MyGameTheme {
                 SchoolScreen(
@@ -150,12 +150,12 @@ class SchoolScreenTest {
                     onIntent = {},
                     onLessonOpen = {},
                     onTextOpen = {},
-                    holdoutChecks = { BasicText(handedChecks) },
+                    holdoutChecks = { BasicText(handedSlot) },
                 )
             }
         }
 
-        showing(handedChecks)
+        showing(handedSlot)
     }
 
     @Test
