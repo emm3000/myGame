@@ -9,7 +9,7 @@ import org.gradle.kotlin.dsl.register
 
 private val androidPluginIds: Set<String> = setOf("com.android.application", "com.android.library")
 
-private val jvmOnlyModules: Set<String> = setOf(":core:model", ":core:projection")
+private val jvmOnlyModules: Set<String> = setOf(":core:model", ":core:projection", ":core:testing")
 
 private val allowedCoreEdges: Map<String, Set<String>> = mapOf(
     ":core:model" to emptySet(),

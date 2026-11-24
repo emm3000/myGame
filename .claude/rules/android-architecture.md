@@ -19,11 +19,11 @@ paths:
 | `app` | `MainActivity`, navigation, the one place that binds implementations to interfaces, and, until they move (ADR 056), the signed-in frame (`FramedScreen`), the retained-words ring (`RetainedWords*`) and the study reminder (`StudyReminderAlarm`, `StudyReminderStore`, `StudyReminderSink`, `StudyReminderReceiver`) |
 | `feature:<name>` | One module, one feature, its screens in packages: each screen's ViewModel, `UiState`, `Intent`, `Effect`, route and screen |
 | `core:model` | Pure Kotlin, JVM only, one package per feature (`account`, `holdout`, `learning`, `placement`, `reminder`, `report`, `theme`, `town` with `town.building`, `town.guidance`, `town.hiring`, `town.jobs`, `town.news` and `town.school`): the feature's types, the `*Result` and `*Refusal` an api answer is read into, and its ports (`SessionRepository`, `HoldoutCheckRepository`, `LearningRepository`, `PlacementRepository`, `ReminderNotifications`, `StudyAnswerSink`, `StudyReminderSettings`, `ReportRepository`, `ThemeSettings`, `TownRepository`, `TownTextRepository`, `TownGuidanceRepository`, `RegionReader`, `RegionRepository`) |
-| `core:network` | The generated OpenAPI client, in its build directory; one package per feature, named as `core:model`'s (`account`, `town.jobs`), holding the `Api*` adapters that implement that feature's ports and their `*Mapping` files; and `platform`, holding what names no game word: the endpoint, the bearer, the token store |
+| `core:network` | The generated OpenAPI client, in its build directory; one package per feature, named as `core:model`'s (`account`, `town.jobs`), holding the `Api*` adapters that implement that feature's ports and their `*Mapping` files; and `platform`, holding what names no game word: the endpoint and the HTTP client builder it carries, the bearer, the token store, and `ApiRepositories`, which builds every `Api*` adapter |
 | `core:projection` | Pure Kotlin, JVM only: the lazy projection and the value types it reads |
 | `core:designsystem` | The design-system tokens and components (`ui-components.md`) |
 | `core:ui` | Composables shared by features that read the game's models (a resource row, a countdown) |
-| `core:testing` | Fakes of the `core:model` interfaces, the test clock |
+| `core:testing` | Pure Kotlin, JVM only: fakes of the `core:model` interfaces, the test clock |
 
 ```
 app               -> feature:*, core:*

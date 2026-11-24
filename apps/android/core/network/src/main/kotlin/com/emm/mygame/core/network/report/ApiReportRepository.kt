@@ -10,6 +10,7 @@ import com.emm.mygame.core.network.generated.models.Report
 import com.emm.mygame.core.network.generated.models.TownNewsItems
 import com.emm.mygame.core.network.reminder.StudyAnswers
 import com.emm.mygame.core.network.reminder.StudyRequest
+import com.emm.mygame.core.network.town.news.toTownNews
 import java.io.IOException
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.withContext

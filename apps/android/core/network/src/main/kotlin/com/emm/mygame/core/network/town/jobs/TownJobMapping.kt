@@ -27,7 +27,7 @@ import com.emm.mygame.core.network.generated.models.TownOverview
 import com.emm.mygame.core.network.platform.WireRefusal
 import com.emm.mygame.core.network.platform.toKotlinInstant
 import com.emm.mygame.core.network.platform.wireRefusal
-import com.emm.mygame.core.network.report.toTownSite
+import com.emm.mygame.core.network.town.toTownSite
 import retrofit2.Response
 
 internal fun TownJob.toJob(): TownSnapshot.Job? = when (this) {
