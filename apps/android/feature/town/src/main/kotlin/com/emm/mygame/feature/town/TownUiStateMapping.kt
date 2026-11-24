@@ -13,7 +13,20 @@ import com.emm.mygame.core.projection.ResourceNeed
 import com.emm.mygame.core.projection.ResourceStock
 import com.emm.mygame.core.projection.countdownTo
 import com.emm.mygame.core.projection.readyMinuteOf
+import com.emm.mygame.feature.town.building.BlockReason
+import com.emm.mygame.feature.town.building.CostLine
+import com.emm.mygame.feature.town.building.FillTime
 import com.emm.mygame.feature.town.building.NextLevel
+import com.emm.mygame.feature.town.building.NextLevelLine
+import com.emm.mygame.feature.town.building.PeopleLine
+import com.emm.mygame.feature.town.building.PlaceCard
+import com.emm.mygame.feature.town.building.ReadyTime
+import com.emm.mygame.feature.town.building.Shortfall
+import com.emm.mygame.feature.town.building.SlotLine
+import com.emm.mygame.feature.town.building.StockLine
+import com.emm.mygame.feature.town.building.WaitingLine
+import com.emm.mygame.feature.town.building.WordNeedLine
+import com.emm.mygame.feature.town.building.WordsLine
 import com.emm.mygame.feature.town.guidance.ClosedGuidance
 import com.emm.mygame.feature.town.hiring.hiringLineAt
 import kotlin.time.Duration
@@ -30,20 +43,20 @@ internal fun TownSnapshot.contentAt(
     hiringEntries: Map<TownHireKind, String>,
     closed: ClosedGuidance,
 ): TownUiState.Content {
-    val lines: List<TownUiState.StockLine> = stocks
+    val lines: List<StockLine> = stocks
         .sortedBy { stock: TownSnapshot.Stock -> stock.kind.ordinal }
         .map { stock: TownSnapshot.Stock -> stock.lineAt(readAt, now, gap, skillLevelOf(stock.kind)) }
-    val drawn: Map<TownResourceKind, Long> = lines.associate { line: TownUiState.StockLine -> line.kind to line.amount }
+    val drawn: Map<TownResourceKind, Long> = lines.associate { line: StockLine -> line.kind to line.amount }
     val goal: TownGoal? = nextStep.carriedGoal()?.takeUnless { closed.isGoalClosed }
     return TownUiState.Content(
         name = name,
         label = label,
         stocks = lines,
-        people = TownUiState.PeopleLine(free = people.free, atWork = people.atWork),
-        words = TownUiState.WordsLine(stable = stableWordCount, retained = retainedWordCount),
+        people = PeopleLine(free = people.free, atWork = people.atWork),
+        words = WordsLine(stable = stableWordCount, retained = retainedWordCount),
         season = seasonLineAt(now),
         buildMark = seasonInForce?.buildMark(),
-        slot = work.slot?.slotLineAt(now, gap) ?: TownUiState.SlotLine.Idle,
+        slot = work.slot?.slotLineAt(now, gap) ?: SlotLine.Idle,
         waitingList = work.waitingList.map { item: TownSnapshot.WorkItem -> item.waitingLineAt(now, gap) },
         places = buildings
             .sortedBy { place: TownSnapshot.Building -> streetOrder.indexOf(place.kind) }
@@ -90,23 +103,23 @@ private fun NextStep.placeWith(goal: TownGoal?): TownBuildingKind = when (this) 
 private fun TownSnapshot.changesOnTheirOwn(): List<Instant> =
     listOfNotNull(work.slot?.finishesAt, lessonSlot?.finishesAt, hiring.order?.endsAt, seasonEndsAt, nextDueAt)
 
-internal fun List<TownUiState.CostLine>.shortfallsAgainst(
+internal fun List<CostLine>.shortfallsAgainst(
     drawn: Map<TownResourceKind, Long>,
-): List<TownUiState.Shortfall> =
-    map { cost: TownUiState.CostLine -> TownUiState.Shortfall(cost.kind, cost.amount - drawn.getValue(cost.kind)) }
-        .filter { shortfall: TownUiState.Shortfall -> shortfall.amount > 0 }
+): List<Shortfall> =
+    map { cost: CostLine -> Shortfall(cost.kind, cost.amount - drawn.getValue(cost.kind)) }
+        .filter { shortfall: Shortfall -> shortfall.amount > 0 }
 
 internal fun TownSnapshot.readyTimeOf(
-    costs: List<TownUiState.CostLine>,
+    costs: List<CostLine>,
     now: Instant,
     gap: Duration,
-): TownUiState.ReadyTime? {
-    val needs: List<ResourceNeed> = costs.map { cost: TownUiState.CostLine ->
+): ReadyTime? {
+    val needs: List<ResourceNeed> = costs.map { cost: CostLine ->
         val stock: TownSnapshot.Stock = stocks.first { held: TownSnapshot.Stock -> held.kind == cost.kind }
         ResourceNeed(stock = stock.projected(), cost = cost.amount)
     }
     val ready: Instant = readyMinuteOf(needs, readAt) ?: return null
-    return TownUiState.ReadyTime(remaining = countdownTo(finishesAt = ready, now = now), readyAt = ready - gap)
+    return ReadyTime(remaining = countdownTo(finishesAt = ready, now = now), readyAt = ready - gap)
 }
 
 private fun TownSnapshot.Stock.projected(): ResourceStock = ResourceStock(amount, ratePerHour, capacity)
@@ -116,9 +129,9 @@ private fun TownSnapshot.Stock.lineAt(
     now: Instant,
     gap: Duration,
     skillLevel: Int,
-): TownUiState.StockLine {
+): StockLine {
     val amount: Long = projected().amountAt(readAt = readAt, now = now)
-    return TownUiState.StockLine(
+    return StockLine(
         kind = kind,
         amount = amount,
         capacity = capacity,
@@ -128,19 +141,19 @@ private fun TownSnapshot.Stock.lineAt(
     )
 }
 
-private fun TownSnapshot.Stock.fillTimeAt(readAt: Instant, now: Instant, gap: Duration): TownUiState.FillTime? {
+private fun TownSnapshot.Stock.fillTimeAt(readAt: Instant, now: Instant, gap: Duration): FillTime? {
     val fillsAt: Instant = fullAt ?: return null
     if (fillsAt - readAt > fillHourWindow) return null
-    return TownUiState.FillTime(remaining = countdownTo(finishesAt = fillsAt, now = now), fullAt = fillsAt - gap)
+    return FillTime(remaining = countdownTo(finishesAt = fillsAt, now = now), fullAt = fillsAt - gap)
 }
 
 private fun TownSnapshot.skillLevelOf(kind: TownResourceKind): Int =
     skills.count { skill: TownSnapshot.EarnedSkill -> skill.resource == kind }
 
-private fun TownSnapshot.WorkItem.slotLineAt(now: Instant, gap: Duration): TownUiState.SlotLine {
+private fun TownSnapshot.WorkItem.slotLineAt(now: Instant, gap: Duration): SlotLine {
     val remaining: Duration = countdownTo(finishesAt = finishesAt, now = now)
-    if (remaining == Duration.ZERO) return TownUiState.SlotLine.Done(building, level)
-    return TownUiState.SlotLine.Busy(
+    if (remaining == Duration.ZERO) return SlotLine.Done(building, level)
+    return SlotLine.Busy(
         building = building,
         level = level,
         remaining = remaining,
@@ -149,8 +162,8 @@ private fun TownSnapshot.WorkItem.slotLineAt(now: Instant, gap: Duration): TownU
     )
 }
 
-private fun TownSnapshot.WorkItem.waitingLineAt(now: Instant, gap: Duration): TownUiState.WaitingLine =
-    TownUiState.WaitingLine(
+private fun TownSnapshot.WorkItem.waitingLineAt(now: Instant, gap: Duration): WaitingLine =
+    WaitingLine(
         building = building,
         level = level,
         remaining = countdownTo(finishesAt = finishesAt, now = now),
@@ -163,9 +176,9 @@ private fun TownSnapshot.Building.cardWith(
     registered: TownRegistered,
     now: Instant,
     gap: Duration,
-): TownUiState.PlaceCard {
-    val line: TownUiState.NextLevelLine? = next?.lineWith(drawn)
-    return TownUiState.PlaceCard(
+): PlaceCard {
+    val line: NextLevelLine? = next?.lineWith(drawn)
+    return PlaceCard(
         kind = kind,
         level = level,
         raisedFrom = registered.raisedPlaces
@@ -180,34 +193,34 @@ private fun TownSnapshot.Building.cardWith(
 private fun TownSnapshot.isWorkingOn(kind: TownBuildingKind): Boolean =
     (listOfNotNull(work.slot) + work.waitingList).any { item: TownSnapshot.WorkItem -> item.building == kind }
 
-private fun TownSnapshot.NextLevel.lineWith(drawn: Map<TownResourceKind, Long>): TownUiState.NextLevelLine =
-    TownUiState.NextLevelLine(
+private fun TownSnapshot.NextLevel.lineWith(drawn: Map<TownResourceKind, Long>): NextLevelLine =
+    NextLevelLine(
         level = level,
         costs = costs.map { cost: TownSnapshot.Cost ->
-            TownUiState.CostLine(cost.kind, cost.amount, isShort = cost.amount > drawn.getValue(cost.kind))
+            CostLine(cost.kind, cost.amount, isShort = cost.amount > drawn.getValue(cost.kind))
         },
         duration = duration,
         people = people,
         wordsNeeded = wordsNeeded?.let { need: TownSnapshot.WordsNeeded ->
-            TownUiState.WordNeedLine(needed = need.count, held = need.held, standing = need.standing)
+            WordNeedLine(needed = need.count, held = need.held, standing = need.standing)
         },
     )
 
-private fun TownUiState.NextLevelLine.blockIn(
+private fun NextLevelLine.blockIn(
     town: TownSnapshot,
     drawn: Map<TownResourceKind, Long>,
     now: Instant,
     gap: Duration,
-): TownUiState.BlockReason? {
+): BlockReason? {
     val work: TownSnapshot.Work = town.work
-    if (work.slot != null && work.waitingList.size >= work.cap) return TownUiState.BlockReason.WaitingListFull(work.cap)
+    if (work.slot != null && work.waitingList.size >= work.cap) return BlockReason.WaitingListFull(work.cap)
     if (work.slot == null && work.waitingList.isEmpty() && people > town.people.free) {
-        return TownUiState.BlockReason.PeopleShort(needed = people, free = town.people.free)
+        return BlockReason.PeopleShort(needed = people, free = town.people.free)
     }
-    val shortfalls: List<TownUiState.Shortfall> = costs.shortfallsAgainst(drawn)
+    val shortfalls: List<Shortfall> = costs.shortfallsAgainst(drawn)
     return if (shortfalls.isEmpty()) {
         null
     } else {
-        TownUiState.BlockReason.Resources(shortfalls, ready = town.readyTimeOf(costs, now, gap))
+        BlockReason.Resources(shortfalls, ready = town.readyTimeOf(costs, now, gap))
     }
 }

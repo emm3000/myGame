@@ -21,7 +21,16 @@ import com.emm.mygame.core.testing.FakeSessionRepository
 import com.emm.mygame.core.testing.FakeTownRepository
 import com.emm.mygame.core.testing.TestClock
 import com.emm.mygame.core.testing.hiringOf
+import com.emm.mygame.feature.town.building.BlockReason
 import com.emm.mygame.feature.town.building.NextLevel
+import com.emm.mygame.feature.town.building.PlaceCard
+import com.emm.mygame.feature.town.building.Shortfall
+import com.emm.mygame.feature.town.building.StockLine
+import com.emm.mygame.feature.town.hiring.HiringLine
+import com.emm.mygame.feature.town.hiring.HiringOrderLine
+import com.emm.mygame.feature.town.hiring.HiringPlaceStatus
+import com.emm.mygame.feature.town.hiring.HiringStopStatus
+import com.emm.mygame.feature.town.naming.NamingStatus
 import kotlinx.coroutines.CoroutineStart
 import kotlinx.coroutines.awaitCancellation
 import kotlinx.coroutines.cancel
@@ -33,8 +42,8 @@ import kotlin.time.Instant
 
 internal val isTab: SemanticsMatcher = SemanticsMatcher.expectValue(SemanticsProperties.Role, Role.Tab)
 
-internal fun List<TownUiState.PlaceCard>.leveled(kind: TownBuildingKind, level: Int): List<TownUiState.PlaceCard> =
-    map { place: TownUiState.PlaceCard -> if (place.kind == kind) place.copy(level = level) else place }
+internal fun List<PlaceCard>.leveled(kind: TownBuildingKind, level: Int): List<PlaceCard> =
+    map { place: PlaceCard -> if (place.kind == kind) place.copy(level = level) else place }
 
 internal val readInstant: Instant = Instant.parse("2026-11-05T10:00:00Z")
 
@@ -84,7 +93,7 @@ internal fun openingOn(place: TownBuildingKind): NextStep = NextStep.CaughtUp(
     text = null,
 )
 
-internal fun emptyNaming(): TownUiState.Naming = TownUiState.Naming("", TownUiState.NamingStatus.Idle)
+internal fun emptyNaming(): TownUiState.Naming = TownUiState.Naming("", NamingStatus.Idle)
 
 internal val unscaledProduction: SeasonProductionPercent =
     SeasonProductionPercent(money = 100, food = 100, power = 100, material = 100)
@@ -150,15 +159,15 @@ internal fun townOf(
     readAt = readAt,
 )
 
-internal val idleHiringLine: TownUiState.HiringLine = TownUiState.HiringLine(
-    order = TownUiState.HiringOrderLine.Idle,
+internal val idleHiringLine: HiringLine = HiringLine(
+    order = HiringOrderLine.Idle,
     hires = emptyList(),
     hireMark = null,
-    place = TownUiState.HiringPlaceStatus.Idle,
-    stop = TownUiState.HiringStopStatus.Idle,
+    place = HiringPlaceStatus.Idle,
+    stop = HiringStopStatus.Idle,
 )
 
-internal val bareOffice: TownUiState.PlaceCard = TownUiState.PlaceCard(
+internal val bareOffice: PlaceCard = PlaceCard(
     kind = TownBuildingKind.Office,
     level = 1,
     raisedFrom = null,
@@ -167,16 +176,16 @@ internal val bareOffice: TownUiState.PlaceCard = TownUiState.PlaceCard(
     block = null,
 )
 
-internal fun shortOf(kind: TownResourceKind, amount: Long): TownUiState.BlockReason.Resources =
-    TownUiState.BlockReason.Resources(listOf(TownUiState.Shortfall(kind, amount)), ready = null)
+internal fun shortOf(kind: TownResourceKind, amount: Long): BlockReason.Resources =
+    BlockReason.Resources(listOf(Shortfall(kind, amount)), ready = null)
 
 internal fun contentOf(viewModel: TownViewModel): TownUiState.Content = viewModel.state.value as TownUiState.Content
 
-internal fun moneyOf(viewModel: TownViewModel): TownUiState.StockLine =
-    contentOf(viewModel).stocks.first { stock: TownUiState.StockLine -> stock.kind == TownResourceKind.Money }
+internal fun moneyOf(viewModel: TownViewModel): StockLine =
+    contentOf(viewModel).stocks.first { stock: StockLine -> stock.kind == TownResourceKind.Money }
 
-internal fun placeOf(viewModel: TownViewModel, kind: TownBuildingKind): TownUiState.PlaceCard =
-    contentOf(viewModel).places.first { place: TownUiState.PlaceCard -> place.kind == kind }
+internal fun placeOf(viewModel: TownViewModel, kind: TownBuildingKind): PlaceCard =
+    contentOf(viewModel).places.first { place: PlaceCard -> place.kind == kind }
 
 internal fun TestScope.townViewModelOf(
     towns: FakeTownRepository,

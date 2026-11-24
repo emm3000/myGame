@@ -7,7 +7,6 @@ import com.emm.mygame.core.model.town.guidance.NextStepCard
 import com.emm.mygame.core.model.town.guidance.TownGoal
 import com.emm.mygame.core.model.town.guidance.nextStepCard
 import com.emm.mygame.core.projection.countdownTo
-import com.emm.mygame.feature.town.TownUiState
 import kotlin.time.Duration
 import kotlin.time.Instant
 
@@ -15,7 +14,7 @@ internal fun TownSnapshot.dockOn(
     screen: TownStatusScreen,
     now: Instant,
     gap: Duration,
-    lessonStart: TownUiState.LessonStartStatus,
+    lessonStart: LessonStartStatus,
 ): TownStatusUiState.Dock.Step {
     val card: NextStepCard = nextStepCard()
     return TownStatusUiState.Dock.Step(
@@ -34,7 +33,7 @@ private fun TownSnapshot.caughtUpGoal(): TownGoal? = (nextStep as? NextStep.Caug
 
 private fun NextStepCard.goOn(
     screen: TownStatusScreen,
-    lessonStart: TownUiState.LessonStartStatus,
+    lessonStart: LessonStartStatus,
 ): TownStatusUiState.Go {
     val cardAction: NextStepCard.Action = action
     return when {
@@ -48,8 +47,8 @@ private fun NextStepCard.goOn(
     }
 }
 
-private fun NextStepCard.Action.isWaitingOn(lessonStart: TownUiState.LessonStartStatus): Boolean =
-    this is NextStepCard.Action.StudyReleased && lessonStart == TownUiState.LessonStartStatus.Waiting
+private fun NextStepCard.Action.isWaitingOn(lessonStart: LessonStartStatus): Boolean =
+    this is NextStepCard.Action.StudyReleased && lessonStart == LessonStartStatus.Waiting
 
 private fun NextStepCard.reportWait(): TownStatusUiState.GoBlock =
     if (countdown is NextStepCard.Countdown.NextReview) {

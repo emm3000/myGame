@@ -11,7 +11,17 @@ import com.emm.mygame.core.model.town.TownLabel
 import com.emm.mygame.core.model.town.TownResourceKind
 import com.emm.mygame.core.model.town.building.NeededWordKind
 import com.emm.mygame.core.model.town.building.TownBuildingKind
+import com.emm.mygame.feature.town.building.CostLine
+import com.emm.mygame.feature.town.building.NextLevelLine
+import com.emm.mygame.feature.town.building.PeopleLine
+import com.emm.mygame.feature.town.building.PlaceCard
 import com.emm.mygame.feature.town.building.PlaceStocks
+import com.emm.mygame.feature.town.building.SlotLine
+import com.emm.mygame.feature.town.building.StartStatus
+import com.emm.mygame.feature.town.building.StockLine
+import com.emm.mygame.feature.town.building.StopStatus
+import com.emm.mygame.feature.town.building.WordNeedLine
+import com.emm.mygame.feature.town.building.WordsLine
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -24,14 +34,14 @@ class TownWordsScreenTest {
     @get:Rule
     val composeRule: ComposeContentTestRule = createComposeRule()
 
-    private val farmOffer: TownUiState.PlaceCard = TownUiState.PlaceCard(
+    private val farmOffer: PlaceCard = PlaceCard(
         kind = TownBuildingKind.Farm,
         level = 1,
         raisedFrom = null,
         isInWork = false,
-        next = TownUiState.NextLevelLine(
+        next = NextLevelLine(
             level = 2,
-            costs = listOf(TownUiState.CostLine(TownResourceKind.Money, 150, isShort = false)),
+            costs = listOf(CostLine(TownResourceKind.Money, 150, isShort = false)),
             duration = 90.seconds,
             people = 3,
             wordsNeeded = null,
@@ -43,7 +53,7 @@ class TownWordsScreenTest {
         name = "Riverton",
         label = TownLabel.Town,
         stocks = listOf(
-            TownUiState.StockLine(
+            StockLine(
                 TownResourceKind.Money,
                 130,
                 capacity = 900,
@@ -52,11 +62,11 @@ class TownWordsScreenTest {
                 fill = null,
             ),
         ),
-        people = TownUiState.PeopleLine(free = 24, atWork = 96),
-        words = TownUiState.WordsLine(stable = 0, retained = 0),
+        people = PeopleLine(free = 24, atWork = 96),
+        words = WordsLine(stable = 0, retained = 0),
         season = null,
         buildMark = null,
-        slot = TownUiState.SlotLine.Idle,
+        slot = SlotLine.Idle,
         waitingList = emptyList(),
         places = listOf(farmOffer),
         nextStepPlace = TownBuildingKind.Farm,
@@ -64,21 +74,21 @@ class TownWordsScreenTest {
         caughtUpGoal = null,
         newestText = null,
         tip = null,
-        start = TownUiState.StartStatus.Idle,
-        stop = TownUiState.StopStatus.Idle,
+        start = StartStatus.Idle,
+        stop = StopStatus.Idle,
         hiring = idleHiringLine,
     )
 
     @Test
     fun `draws a stable need with its count`() {
-        showPlaces(riverton.copy(places = listOf(farmNeeding(TownUiState.WordNeedLine(10, 4, NeededWordKind.Stable)))))
+        showPlaces(riverton.copy(places = listOf(farmNeeding(WordNeedLine(10, 4, NeededWordKind.Stable)))))
 
         composeRule.onNodeWithText("Necesita 10 palabras fuera de aprendizaje: 4 de 10").assertIsDisplayed()
     }
 
     @Test
     fun `draws a retained need with its count`() {
-        val need: TownUiState.WordNeedLine = TownUiState.WordNeedLine(50, held = 3, NeededWordKind.Retained)
+        val need: WordNeedLine = WordNeedLine(50, held = 3, NeededWordKind.Retained)
 
         showPlaces(riverton.copy(places = listOf(farmNeeding(need))))
 
@@ -94,13 +104,13 @@ class TownWordsScreenTest {
 
     @Test
     fun `draws the town's reviewed and learned words`() {
-        showStocks(riverton.copy(words = TownUiState.WordsLine(stable = 14, retained = 3)))
+        showStocks(riverton.copy(words = WordsLine(stable = 14, retained = 3)))
 
         composeRule.onNodeWithText("Palabras fuera de aprendizaje: 14").assertIsDisplayed()
         composeRule.onNodeWithText("Palabras aprendidas: 3").assertIsDisplayed()
     }
 
-    private fun farmNeeding(need: TownUiState.WordNeedLine): TownUiState.PlaceCard =
+    private fun farmNeeding(need: WordNeedLine): PlaceCard =
         farmOffer.copy(level = 2, next = farmOffer.next?.copy(level = 3, wordsNeeded = need))
 
     private fun showPlaces(content: TownUiState.Content) {

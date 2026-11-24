@@ -28,7 +28,20 @@ import com.emm.mygame.core.ui.ChromePhase
 import com.emm.mygame.core.ui.CopyLanguage
 import com.emm.mygame.core.ui.ProvideCopyLanguage
 import com.emm.mygame.core.ui.ScaffoldLanguage
+import com.emm.mygame.feature.town.building.BlockReason
+import com.emm.mygame.feature.town.building.PlaceCard
+import com.emm.mygame.feature.town.building.SlotLine
+import com.emm.mygame.feature.town.building.StartStatus
+import com.emm.mygame.feature.town.building.StopStatus
+import com.emm.mygame.feature.town.building.WorkTarget
 import com.emm.mygame.feature.town.guidance.ClosedGuidance
+import com.emm.mygame.feature.town.hiring.HiringCard
+import com.emm.mygame.feature.town.hiring.HiringForm
+import com.emm.mygame.feature.town.hiring.HiringOrderLine
+import com.emm.mygame.feature.town.hiring.HiringPlaceStatus
+import com.emm.mygame.feature.town.hiring.HiringStopStatus
+import com.emm.mygame.feature.town.hiring.HiringTarget
+import com.emm.mygame.feature.town.naming.NamingStatus
 import com.emm.mygame.feature.town.status.TownStatus
 import com.emm.mygame.feature.town.status.TownStatusUiState
 import org.junit.After
@@ -89,9 +102,9 @@ class TownLanguageTest {
     private val homeBuildingForThreeDays: TownUiState.Content =
         townOf(slot = workOf(TownBuildingKind.Farm, lasting = 3.days)).readContent().onFarm()
 
-    private val farmAtLevelTwo: TownUiState.WorkTarget = TownUiState.WorkTarget(TownBuildingKind.Farm, level = 2)
+    private val farmAtLevelTwo: WorkTarget = WorkTarget(TownBuildingKind.Farm, level = 2)
 
-    private val busyFarm: TownUiState.SlotLine.Busy = TownUiState.SlotLine.Busy(
+    private val busyFarm: SlotLine.Busy = SlotLine.Busy(
         building = TownBuildingKind.Farm,
         level = 2,
         remaining = 5.minutes,
@@ -101,19 +114,19 @@ class TownLanguageTest {
 
     private val homeBuildingTheFarm: TownUiState.Content = home.copy(slot = busyFarm)
 
-    private val listFull: TownUiState.BlockReason = TownUiState.BlockReason.WaitingListFull(cap = 2)
+    private val listFull: BlockReason = BlockReason.WaitingListFull(cap = 2)
 
-    private val workers: TownUiState.HiringCard = TownUiState.HiringCard(
+    private val workers: HiringCard = HiringCard(
         kind = TownHireKind.Worker,
         team = 2,
         requiredOfficeLevel = 1,
-        form = TownUiState.HiringForm(entry = "3", isEntryDisabled = false, offer = null, block = null),
+        form = HiringForm(entry = "3", isEntryDisabled = false, offer = null, block = null),
     )
 
     private val homeWithWorkers: TownUiState.Content = home.copy(hiring = home.hiring.copy(hires = listOf(workers)))
 
-    private val hiringWorkers: TownUiState.HiringOrderLine.Busy = TownUiState.HiringOrderLine.Busy(
-        target = TownUiState.HiringTarget(TownHireKind.Worker, readInstant),
+    private val hiringWorkers: HiringOrderLine.Busy = HiringOrderLine.Busy(
+        target = HiringTarget(TownHireKind.Worker, readInstant),
         count = 3,
         delivered = 1,
         remaining = 2.minutes,
@@ -125,7 +138,7 @@ class TownLanguageTest {
         homeWithWorkers.copy(hiring = homeWithWorkers.hiring.copy(order = hiringWorkers))
 
     private val blankNameRefused: TownUiState.Naming =
-        TownUiState.Naming(name = "", status = TownUiState.NamingStatus.Refused(TownFoundRefusal.BlankTownName))
+        TownUiState.Naming(name = "", status = NamingStatus.Refused(TownFoundRefusal.BlankTownName))
 
     private val phoneZone: TimeZone = TimeZone.getDefault()
 
@@ -315,7 +328,7 @@ class TownLanguageTest {
     @Test
     fun `draws a refused stop of building work in Spanish for an es player in the English phase`() {
         val refused: TownUiState.Content = homeBuildingTheFarm.copy(
-            stop = TownUiState.StopStatus.Refused(farmAtLevelTwo, TownWorkRefusal.BuildingWorkNotFound(level = 2)),
+            stop = StopStatus.Refused(farmAtLevelTwo, TownWorkRefusal.BuildingWorkNotFound(level = 2)),
         )
 
         show(englishPhase, refused)
@@ -327,7 +340,7 @@ class TownLanguageTest {
     @Test
     fun `draws a full waiting list in Spanish for an es player in the English phase`() {
         val full: TownUiState.Content = home.copy(
-            places = home.places.map { place: TownUiState.PlaceCard ->
+            places = home.places.map { place: PlaceCard ->
                 if (place.kind == TownBuildingKind.Farm) place.copy(block = listFull) else place
             },
         )
@@ -342,7 +355,7 @@ class TownLanguageTest {
     fun `draws a refused hire in Spanish for an es player in the English phase`() {
         val refused: TownUiState.Content = homeWithWorkers.copy(
             hiring = homeWithWorkers.hiring.copy(
-                place = TownUiState.HiringPlaceStatus.Refused(TownHireKind.Worker, TownHiringRefusal.HiringSlotBusy),
+                place = HiringPlaceStatus.Refused(TownHireKind.Worker, TownHiringRefusal.HiringSlotBusy),
             ),
         )
 
@@ -356,7 +369,7 @@ class TownLanguageTest {
     fun `draws a refused stop of hiring in Spanish for an es player in the English phase`() {
         val refused: TownUiState.Content = homeHiringWorkers.copy(
             hiring = homeHiringWorkers.hiring.copy(
-                stop = TownUiState.HiringStopStatus.Refused(TownHiringRefusal.HiringSlotBusy),
+                stop = HiringStopStatus.Refused(TownHiringRefusal.HiringSlotBusy),
             ),
         )
 
@@ -370,11 +383,11 @@ class TownLanguageTest {
     fun `draws every unreachable answer in Spanish for an es player in the English phase`() {
         val unreachable: TownUiState.Content = homeHiringWorkers.copy(
             slot = busyFarm,
-            start = TownUiState.StartStatus.Unreachable(TownBuildingKind.Farm),
-            stop = TownUiState.StopStatus.Unreachable(farmAtLevelTwo),
+            start = StartStatus.Unreachable(TownBuildingKind.Farm),
+            stop = StopStatus.Unreachable(farmAtLevelTwo),
             hiring = homeHiringWorkers.hiring.copy(
-                place = TownUiState.HiringPlaceStatus.Unreachable(TownHireKind.Worker),
-                stop = TownUiState.HiringStopStatus.Unreachable,
+                place = HiringPlaceStatus.Unreachable(TownHireKind.Worker),
+                stop = HiringStopStatus.Unreachable,
             ),
         )
 
@@ -391,7 +404,7 @@ class TownLanguageTest {
     @Test
     fun `draws a refused start in Spanish for an es player in the English phase`() {
         val refused: TownUiState.Content = home.copy(
-            start = TownUiState.StartStatus.Refused(TownBuildingKind.Farm, TownWorkRefusal.TopLevelReached(level = 5)),
+            start = StartStatus.Refused(TownBuildingKind.Farm, TownWorkRefusal.TopLevelReached(level = 5)),
         )
 
         show(englishPhase, refused)

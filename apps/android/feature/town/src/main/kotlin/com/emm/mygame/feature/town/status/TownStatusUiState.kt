@@ -3,7 +3,6 @@ package com.emm.mygame.feature.town.status
 import com.emm.mygame.core.model.town.LessonName
 import com.emm.mygame.core.model.town.guidance.NextStepCard
 import com.emm.mygame.core.model.town.guidance.TownGoal
-import com.emm.mygame.feature.town.TownUiState
 import kotlin.time.Duration
 import kotlin.time.Instant
 
@@ -24,7 +23,7 @@ data class TownStatusUiState(val running: RunningLesson?, val notice: FinishNoti
             val detail: StepDetail?,
             val countdown: StepCountdown?,
             val go: Go,
-            val lessonStart: TownUiState.LessonStartStatus,
+            val lessonStart: LessonStartStatus,
             val capWait: CapWait?,
         ) : Dock
     }

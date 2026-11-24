@@ -8,6 +8,7 @@ import com.emm.mygame.core.ui.DurationCopy
 import com.emm.mygame.core.ui.finishClockLabelOf
 import com.emm.mygame.core.ui.timeLeftLabelOf
 import com.emm.mygame.core.ui.wholeSecondsOf
+import com.emm.mygame.feature.town.building.ReadyTime
 import java.time.ZoneId
 import kotlin.time.Duration.Companion.hours
 import kotlin.time.Duration.Companion.seconds
@@ -25,16 +26,16 @@ internal fun placeNameOf(kind: TownBuildingKind): Int = when (kind) {
 internal fun CopyReader.shortMarked(spoken: String, isShort: Boolean): String =
     if (isShort) spoken + text(R.string.town_short_mark) else spoken
 
-internal fun CopyReader.readyWordsOf(ready: TownUiState.ReadyTime): String =
+internal fun CopyReader.readyWordsOf(ready: ReadyTime): String =
     if (ready.isWithinTheHour) text(R.string.town_ready_in) else text(R.string.town_ready_at)
 
-internal fun CopyReader.readyTimeLabelOf(ready: TownUiState.ReadyTime): String {
+internal fun CopyReader.readyTimeLabelOf(ready: ReadyTime): String {
     if (ready.isWithinTheHour) return timeLeftLabelOf(ready.remaining, townDurationCopy)
     val finish: FinishClock = finishClockOf(ready.readyAt, ready.remaining, ZoneId.systemDefault())
     return finishClockLabelOf(finish, townDurationCopy)
 }
 
-private val TownUiState.ReadyTime.isWithinTheHour: Boolean
+private val ReadyTime.isWithinTheHour: Boolean
     get() = wholeSecondsOf(remaining).seconds < 1.hours
 
 internal val townDurationCopy: DurationCopy = DurationCopy(

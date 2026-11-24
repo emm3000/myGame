@@ -29,7 +29,7 @@ class TownSeasonMarkViewModelTest {
             homeViewModel(seasonOf(SeasonKind.Summer, production = unscaledProduction.copy(food = 125)))
 
         assertEquals(
-            listOf(TownUiState.ProductionMark(TownResourceKind.Food, percent = 125)),
+            listOf(ProductionMark(TownResourceKind.Food, percent = 125)),
             contentOf(viewModel).season?.productionMarks,
         )
     }
@@ -40,7 +40,7 @@ class TownSeasonMarkViewModelTest {
             homeViewModel(seasonOf(SeasonKind.Winter, production = unscaledProduction.copy(power = 75)))
 
         assertEquals(
-            listOf(TownUiState.ProductionMark(TownResourceKind.Power, percent = 75)),
+            listOf(ProductionMark(TownResourceKind.Power, percent = 75)),
             contentOf(viewModel).season?.productionMarks,
         )
     }
@@ -53,10 +53,10 @@ class TownSeasonMarkViewModelTest {
 
         assertEquals(
             listOf(
-                TownUiState.ProductionMark(TownResourceKind.Money, percent = 110),
-                TownUiState.ProductionMark(TownResourceKind.Food, percent = 125),
-                TownUiState.ProductionMark(TownResourceKind.Power, percent = 75),
-                TownUiState.ProductionMark(TownResourceKind.Material, percent = 90),
+                ProductionMark(TownResourceKind.Money, percent = 110),
+                ProductionMark(TownResourceKind.Food, percent = 125),
+                ProductionMark(TownResourceKind.Power, percent = 75),
+                ProductionMark(TownResourceKind.Material, percent = 90),
             ),
             contentOf(viewModel).season?.productionMarks,
         )
@@ -66,21 +66,21 @@ class TownSeasonMarkViewModelTest {
     fun `marks building work in summer`() = runTest {
         val viewModel: TownViewModel = homeViewModel(seasonOf(SeasonKind.Summer, build = 75))
 
-        assertEquals(TownUiState.DurationMark(SeasonKind.Summer, percent = 75), contentOf(viewModel).buildMark)
+        assertEquals(DurationMark(SeasonKind.Summer, percent = 75), contentOf(viewModel).buildMark)
     }
 
     @Test
     fun `marks building work that a season lengthens with the percent as sent`() = runTest {
         val viewModel: TownViewModel = homeViewModel(seasonOf(SeasonKind.Winter, build = 125))
 
-        assertEquals(TownUiState.DurationMark(SeasonKind.Winter, percent = 125), contentOf(viewModel).buildMark)
+        assertEquals(DurationMark(SeasonKind.Winter, percent = 125), contentOf(viewModel).buildMark)
     }
 
     @Test
     fun `marks nothing at 100`() = runTest {
         val viewModel: TownViewModel = homeViewModel(seasonOf(SeasonKind.Spring))
 
-        assertEquals(emptyList<TownUiState.ProductionMark>(), contentOf(viewModel).season?.productionMarks)
+        assertEquals(emptyList<ProductionMark>(), contentOf(viewModel).season?.productionMarks)
     }
 
     @Test

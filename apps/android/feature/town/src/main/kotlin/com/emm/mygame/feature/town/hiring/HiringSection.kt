@@ -27,11 +27,11 @@ import com.emm.mygame.core.ui.SeasonMark
 import com.emm.mygame.core.ui.chromeResource
 import com.emm.mygame.core.ui.finishLabelOf
 import com.emm.mygame.core.ui.rememberPlayerCopy
+import com.emm.mygame.feature.town.DurationMark
 import com.emm.mygame.feature.town.FiguredCaption
 import com.emm.mygame.feature.town.R
 import com.emm.mygame.feature.town.RevealedAlert
 import com.emm.mygame.feature.town.TownIntent
-import com.emm.mygame.feature.town.TownUiState
 import com.emm.mygame.feature.town.building.RunningCountdown
 import com.emm.mygame.feature.town.hireMark
 import com.emm.mygame.feature.town.placeNameOf
@@ -41,7 +41,7 @@ import com.emm.mygame.feature.town.townDurationCopy
 
 @Composable
 internal fun HiringSection(
-    hiring: TownUiState.HiringLine,
+    hiring: HiringLine,
     onIntent: (TownIntent) -> Unit,
     modifier: Modifier = Modifier,
 ) {
@@ -58,21 +58,21 @@ internal fun HiringSection(
                 modifier = Modifier.padding(vertical = MyGameSpacing.step4),
             ) {
                 HiringHeading()
-                hiring.hireMark?.let { mark: TownUiState.DurationMark -> HiringMarkRow(mark = mark) }
-                when (val order: TownUiState.HiringOrderLine = hiring.order) {
-                    TownUiState.HiringOrderLine.Idle -> MyGameText(
+                hiring.hireMark?.let { mark: DurationMark -> HiringMarkRow(mark = mark) }
+                when (val order: HiringOrderLine = hiring.order) {
+                    HiringOrderLine.Idle -> MyGameText(
                         label = chromeResource(R.string.town_office_idle),
                         style = MyGameTypography.caption,
                         color = MyGameTheme.colors.inkMuted,
                     )
-                    is TownUiState.HiringOrderLine.Done -> DoneHiring(hiring = order)
-                    is TownUiState.HiringOrderLine.Busy ->
+                    is HiringOrderLine.Done -> DoneHiring(hiring = order)
+                    is HiringOrderLine.Busy ->
                         BusyHiring(hiring = order, stop = hiring.stop, onIntent = onIntent)
                 }
             }
         }
         Column(verticalArrangement = Arrangement.spacedBy(MyGameSpacing.step1)) {
-            hiring.hires.forEachIndexed { index: Int, card: TownUiState.HiringCard ->
+            hiring.hires.forEachIndexed { index: Int, card: HiringCard ->
                 if (index > 0) MyGameHairline()
                 HiringItem(card = card, place = hiring.place, onIntent = onIntent)
             }
@@ -98,7 +98,7 @@ private fun HiringHeading(modifier: Modifier = Modifier) {
 }
 
 @Composable
-private fun HiringMarkRow(mark: TownUiState.DurationMark, modifier: Modifier = Modifier) {
+private fun HiringMarkRow(mark: DurationMark, modifier: Modifier = Modifier) {
     SeasonMark(
         icon = seasonIconOf(mark.season),
         label = chromeResource(
@@ -135,7 +135,7 @@ private fun HiringTitle(hire: TownHireKind, count: Int, delivered: Int, modifier
 }
 
 @Composable
-private fun DoneHiring(hiring: TownUiState.HiringOrderLine.Done, modifier: Modifier = Modifier) {
+private fun DoneHiring(hiring: HiringOrderLine.Done, modifier: Modifier = Modifier) {
     Column(verticalArrangement = Arrangement.spacedBy(MyGameSpacing.step2), modifier = modifier) {
         HiringTitle(hire = hiring.hire, count = hiring.count, delivered = hiring.delivered)
         Row(
@@ -154,8 +154,8 @@ private fun DoneHiring(hiring: TownUiState.HiringOrderLine.Done, modifier: Modif
 
 @Composable
 private fun BusyHiring(
-    hiring: TownUiState.HiringOrderLine.Busy,
-    stop: TownUiState.HiringStopStatus,
+    hiring: HiringOrderLine.Busy,
+    stop: HiringStopStatus,
     onIntent: (TownIntent) -> Unit,
     modifier: Modifier = Modifier,
 ) {
@@ -174,7 +174,7 @@ private fun BusyHiring(
         )
         MyGameOutlinedButton(
             label = copy.chrome(R.string.town_office_stop),
-            isBusy = stop == TownUiState.HiringStopStatus.Waiting,
+            isBusy = stop == HiringStopStatus.Waiting,
             busyDescription = copy.chrome(R.string.town_waiting).spoken,
             onClick = { onIntent(TownIntent.StopHiringTapped(hiring.target)) },
             accessibleName = copy.chrome(stopOfHireOf(hiring.target.hire)).spoken,
@@ -184,12 +184,12 @@ private fun BusyHiring(
 }
 
 @Composable
-private fun StopHiringAnswer(stop: TownUiState.HiringStopStatus, modifier: Modifier = Modifier) {
+private fun StopHiringAnswer(stop: HiringStopStatus, modifier: Modifier = Modifier) {
     val copy: PlayerCopy = rememberPlayerCopy()
     val message: String? = when (stop) {
-        is TownUiState.HiringStopStatus.Refused -> copy.fixedCopy { hiringRefusalLineOf(stop.refusal) }
-        TownUiState.HiringStopStatus.Unreachable -> copy.fixedCopy(R.string.town_refusal_unexpected)
-        TownUiState.HiringStopStatus.Idle, TownUiState.HiringStopStatus.Waiting -> null
+        is HiringStopStatus.Refused -> copy.fixedCopy { hiringRefusalLineOf(stop.refusal) }
+        HiringStopStatus.Unreachable -> copy.fixedCopy(R.string.town_refusal_unexpected)
+        HiringStopStatus.Idle, HiringStopStatus.Waiting -> null
     }
     if (message != null) RevealedAlert(message = message, modifier = modifier)
 }

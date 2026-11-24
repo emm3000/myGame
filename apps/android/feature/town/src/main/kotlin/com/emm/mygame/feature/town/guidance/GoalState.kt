@@ -21,7 +21,8 @@ import com.emm.mygame.core.model.town.guidance.TownGoal
 import com.emm.mygame.core.ui.PlayerCopy
 import com.emm.mygame.core.ui.rememberPlayerCopy
 import com.emm.mygame.feature.town.R
-import com.emm.mygame.feature.town.TownUiState
+import com.emm.mygame.feature.town.building.BlockReason
+import com.emm.mygame.feature.town.building.Shortfall
 import com.emm.mygame.feature.town.building.shortfallLineOf
 
 @Composable
@@ -49,9 +50,9 @@ private fun PlayerCopy.pendingLinesOf(pending: TownGoal.State.Pending): List<MyG
     return listOfNotNull(resources, people)
 }
 
-private fun List<TownSnapshot.Cost>.toShortfalls(): TownUiState.BlockReason.Resources =
-    TownUiState.BlockReason.Resources(
-        shortfalls = map { cost: TownSnapshot.Cost -> TownUiState.Shortfall(cost.kind, cost.amount) },
+private fun List<TownSnapshot.Cost>.toShortfalls(): BlockReason.Resources =
+    BlockReason.Resources(
+        shortfalls = map { cost: TownSnapshot.Cost -> Shortfall(cost.kind, cost.amount) },
         ready = null,
     )
 

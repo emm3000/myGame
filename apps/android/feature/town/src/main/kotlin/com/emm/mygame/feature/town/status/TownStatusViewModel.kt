@@ -13,7 +13,6 @@ import com.emm.mygame.core.model.town.registeredBetween
 import com.emm.mygame.core.model.town.school.TownLessonResult
 import com.emm.mygame.core.projection.countdownTo
 import com.emm.mygame.core.projection.repaintDelay
-import com.emm.mygame.feature.town.TownUiState
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -46,7 +45,7 @@ class TownStatusViewModel(private val towns: TownRepository, private val clock: 
 
     private var reading: Job? = null
 
-    private var lessonStart: TownUiState.LessonStartStatus = TownUiState.LessonStartStatus.Idle
+    private var lessonStart: LessonStartStatus = LessonStartStatus.Idle
 
     private var starting: Job? = null
 
@@ -89,7 +88,7 @@ class TownStatusViewModel(private val towns: TownRepository, private val clock: 
         reading?.cancel()
         starting?.cancel()
         townRead = TownRead.NotAsked
-        lessonStart = TownUiState.LessonStartStatus.Idle
+        lessonStart = LessonStartStatus.Idle
     }
 
     private fun hide() {
@@ -117,14 +116,14 @@ class TownStatusViewModel(private val towns: TownRepository, private val clock: 
     }
 
     private fun startReleased(lesson: LessonId) {
-        if (held == null || lessonStart == TownUiState.LessonStartStatus.Waiting) return
-        lessonStart = TownUiState.LessonStartStatus.Waiting
+        if (held == null || lessonStart == LessonStartStatus.Waiting) return
+        lessonStart = LessonStartStatus.Waiting
         draw()
         starting = viewModelScope.launch {
             lessonStart = when (val answer: TownLessonResult = towns.startLesson(lesson)) {
-                is TownLessonResult.Answered -> TownUiState.LessonStartStatus.Idle
-                is TownLessonResult.Refused -> TownUiState.LessonStartStatus.Refused(answer.refusal)
-                TownLessonResult.Unreachable -> TownUiState.LessonStartStatus.Unreachable
+                is TownLessonResult.Answered -> LessonStartStatus.Idle
+                is TownLessonResult.Refused -> LessonStartStatus.Refused(answer.refusal)
+                TownLessonResult.Unreachable -> LessonStartStatus.Unreachable
             }
             draw()
         }
@@ -140,7 +139,7 @@ class TownStatusViewModel(private val towns: TownRepository, private val clock: 
     private fun heldAnew(next: TownSnapshot, previous: TownSnapshot?) {
         gap = next.readAt - clock.now()
         townRead = TownRead.NotAsked
-        if (lessonStart != TownUiState.LessonStartStatus.Waiting) lessonStart = TownUiState.LessonStartStatus.Idle
+        if (lessonStart != LessonStartStatus.Waiting) lessonStart = LessonStartStatus.Idle
         if (previous != null) finished = registeredBetween(previous, next).finishedLesson ?: finished
     }
 

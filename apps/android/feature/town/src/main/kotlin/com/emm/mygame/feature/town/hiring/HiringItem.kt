@@ -39,20 +39,22 @@ import com.emm.mygame.feature.town.R
 import com.emm.mygame.feature.town.ReadyLine
 import com.emm.mygame.feature.town.RevealedAlert
 import com.emm.mygame.feature.town.TownIntent
-import com.emm.mygame.feature.town.TownUiState
+import com.emm.mygame.feature.town.building.BlockReason
 import com.emm.mygame.feature.town.building.CostItem
+import com.emm.mygame.feature.town.building.CostLine
+import com.emm.mygame.feature.town.building.ReadyTime
 import com.emm.mygame.feature.town.building.shortfallLineOf
 import com.emm.mygame.feature.town.shortMarked
 import com.emm.mygame.feature.town.townDurationCopy
 
 @Composable
 internal fun HiringItem(
-    card: TownUiState.HiringCard,
-    place: TownUiState.HiringPlaceStatus,
+    card: HiringCard,
+    place: HiringPlaceStatus,
     onIntent: (TownIntent) -> Unit,
     modifier: Modifier = Modifier,
 ) {
-    val form: TownUiState.HiringForm? = card.form
+    val form: HiringForm? = card.form
     Column(
         verticalArrangement = Arrangement.spacedBy(MyGameSpacing.step2),
         modifier = modifier.padding(vertical = MyGameSpacing.step4),
@@ -76,10 +78,10 @@ internal fun HiringItem(
             color = if (form == null) MyGameTheme.colors.warningInk else MyGameTheme.colors.inkMuted,
         )
         if (form != null) {
-            HiringForm(
+            HiringFormFields(
                 kind = card.kind,
                 form = form,
-                isWaiting = place == TownUiState.HiringPlaceStatus.Waiting(card.kind),
+                isWaiting = place == HiringPlaceStatus.Waiting(card.kind),
                 isAnswered = place.isAnsweredFor(card.kind),
                 onIntent = onIntent,
             )
@@ -89,17 +91,17 @@ internal fun HiringItem(
 }
 
 @Composable
-private fun HiringForm(
+private fun HiringFormFields(
     kind: TownHireKind,
-    form: TownUiState.HiringForm,
+    form: HiringForm,
     isWaiting: Boolean,
     isAnswered: Boolean,
     onIntent: (TownIntent) -> Unit,
     modifier: Modifier = Modifier,
 ) {
     val copy: PlayerCopy = rememberPlayerCopy()
-    val reason: MyGameLabel? = form.block?.let { blocked: TownUiState.HiringBlock -> copy.hiringBlockLineOf(blocked) }
-    val offer: TownUiState.HiringOffer? = form.offer
+    val reason: MyGameLabel? = form.block?.let { blocked: HiringBlock -> copy.hiringBlockLineOf(blocked) }
+    val offer: HiringOffer? = form.offer
     Column(verticalArrangement = Arrangement.spacedBy(MyGameSpacing.step2), modifier = modifier) {
         MyGameTextField(
             value = form.entry,
@@ -126,19 +128,19 @@ private fun HiringForm(
                 modifier = Modifier.semantics { hideFromAccessibility() },
             )
         }
-        val ready: TownUiState.ReadyTime? = (form.block as? TownUiState.HiringBlock.Resources)?.ready
+        val ready: ReadyTime? = (form.block as? HiringBlock.Resources)?.ready
         if (ready != null && !isAnswered) ReadyLine(ready = ready)
     }
 }
 
 @Composable
-private fun HiringCosts(offer: TownUiState.HiringOffer, modifier: Modifier = Modifier) {
+private fun HiringCosts(offer: HiringOffer, modifier: Modifier = Modifier) {
     FlowRow(
         horizontalArrangement = Arrangement.spacedBy(MyGameSpacing.step3),
         verticalArrangement = Arrangement.spacedBy(MyGameSpacing.step2),
         modifier = modifier,
     ) {
-        offer.costs.forEach { cost: TownUiState.CostLine -> CostItem(cost = cost) }
+        offer.costs.forEach { cost: CostLine -> CostItem(cost = cost) }
         PeopleCost(people = offer.people, isShort = offer.isPeopleShort)
     }
 }
@@ -167,37 +169,37 @@ private fun PeopleCost(people: Long, isShort: Boolean, modifier: Modifier = Modi
 }
 
 @Composable
-private fun HiringAnswer(kind: TownHireKind, place: TownUiState.HiringPlaceStatus, modifier: Modifier = Modifier) {
+private fun HiringAnswer(kind: TownHireKind, place: HiringPlaceStatus, modifier: Modifier = Modifier) {
     val copy: PlayerCopy = rememberPlayerCopy()
     val message: String? = when (place) {
-        is TownUiState.HiringPlaceStatus.Refused ->
+        is HiringPlaceStatus.Refused ->
             if (place.hire == kind) copy.fixedCopy { hiringRefusalLineOf(place.refusal) } else null
-        is TownUiState.HiringPlaceStatus.Unreachable ->
+        is HiringPlaceStatus.Unreachable ->
             if (place.hire == kind) copy.fixedCopy(R.string.town_refusal_unexpected) else null
-        TownUiState.HiringPlaceStatus.Idle, is TownUiState.HiringPlaceStatus.Waiting -> null
+        HiringPlaceStatus.Idle, is HiringPlaceStatus.Waiting -> null
     }
     if (message != null) RevealedAlert(message = message, modifier = modifier)
 }
 
-private fun TownUiState.HiringPlaceStatus.isAnsweredFor(kind: TownHireKind): Boolean = when (this) {
-    is TownUiState.HiringPlaceStatus.Refused -> hire == kind
-    is TownUiState.HiringPlaceStatus.Unreachable -> hire == kind
-    TownUiState.HiringPlaceStatus.Idle, is TownUiState.HiringPlaceStatus.Waiting -> false
+private fun HiringPlaceStatus.isAnsweredFor(kind: TownHireKind): Boolean = when (this) {
+    is HiringPlaceStatus.Refused -> hire == kind
+    is HiringPlaceStatus.Unreachable -> hire == kind
+    HiringPlaceStatus.Idle, is HiringPlaceStatus.Waiting -> false
 }
 
-private fun CopyReader.hireLabelOf(kind: TownHireKind, offer: TownUiState.HiringOffer): String = text(
+private fun CopyReader.hireLabelOf(kind: TownHireKind, offer: HiringOffer): String = text(
     R.string.town_build_with_duration,
     "action" to text(hireOf(kind), "count" to offer.count),
     "duration" to durationLabelOf(offer.duration, townDurationCopy),
 )
 
-private fun PlayerCopy.hiringBlockLineOf(block: TownUiState.HiringBlock): MyGameLabel = when (block) {
-    TownUiState.HiringBlock.CountNeeded -> chrome(R.string.town_office_count_needed)
-    TownUiState.HiringBlock.Busy -> chrome(R.string.town_office_busy)
-    is TownUiState.HiringBlock.PeopleShort ->
+private fun PlayerCopy.hiringBlockLineOf(block: HiringBlock): MyGameLabel = when (block) {
+    HiringBlock.CountNeeded -> chrome(R.string.town_office_count_needed)
+    HiringBlock.Busy -> chrome(R.string.town_office_busy)
+    is HiringBlock.PeopleShort ->
         chrome(R.string.town_people_short, "needed" to block.needed.toString(), "free" to block.free)
-    is TownUiState.HiringBlock.Resources ->
-        chrome { shortfallLineOf(TownUiState.BlockReason.Resources(block.shortfalls, ready = null)) }
+    is HiringBlock.Resources ->
+        chrome { shortfallLineOf(BlockReason.Resources(block.shortfalls, ready = null)) }
 }
 
 internal fun hireNameOf(kind: TownHireKind): Int = when (kind) {

@@ -4,6 +4,8 @@ import com.emm.mygame.core.model.town.HeldTown
 import com.emm.mygame.core.model.town.TownReadResult
 import com.emm.mygame.core.testing.FakeTownRepository
 import com.emm.mygame.core.testing.MainDispatcherRule
+import com.emm.mygame.feature.town.building.SlotLine
+import com.emm.mygame.feature.town.naming.NamingStatus
 import kotlinx.coroutines.test.runCurrent
 import kotlinx.coroutines.test.runTest
 import org.junit.Assert.assertEquals
@@ -69,7 +71,7 @@ class TownHeldTownTest {
         towns.answerRead(TownReadResult.NoTown)
         runCurrent()
 
-        assertEquals(TownUiState.Naming(name = "", status = TownUiState.NamingStatus.Idle), viewModel.state.value)
+        assertEquals(TownUiState.Naming(name = "", status = NamingStatus.Idle), viewModel.state.value)
     }
 
     @Test
@@ -78,6 +80,6 @@ class TownHeldTownTest {
 
         val viewModel: TownViewModel = townViewModelOf(towns, start = readInstant + 60.seconds)
 
-        assertEquals(9.minutes, (contentOf(viewModel).slot as TownUiState.SlotLine.Busy).remaining)
+        assertEquals(9.minutes, (contentOf(viewModel).slot as SlotLine.Busy).remaining)
     }
 }

@@ -139,7 +139,7 @@ class TownReportRowTest {
         detail = null,
         countdown = null,
         go = TownStatusUiState.Go.Acts(action, isBusy = false),
-        lessonStart = TownUiState.LessonStartStatus.Idle,
+        lessonStart = LessonStartStatus.Idle,
         capWait = null,
     )
 

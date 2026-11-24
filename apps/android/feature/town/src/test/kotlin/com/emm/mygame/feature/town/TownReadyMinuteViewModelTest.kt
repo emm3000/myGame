@@ -7,6 +7,12 @@ import com.emm.mygame.core.model.town.building.TownBuildingKind
 import com.emm.mygame.core.model.town.hiring.TownHireKind
 import com.emm.mygame.core.testing.FakeTownRepository
 import com.emm.mygame.core.testing.MainDispatcherRule
+import com.emm.mygame.feature.town.building.BlockReason
+import com.emm.mygame.feature.town.building.ReadyTime
+import com.emm.mygame.feature.town.building.Shortfall
+import com.emm.mygame.feature.town.hiring.HiringBlock
+import com.emm.mygame.feature.town.hiring.HiringCard
+import com.emm.mygame.feature.town.hiring.HiringForm
 import kotlinx.coroutines.test.TestScope
 import kotlinx.coroutines.test.advanceTimeBy
 import kotlinx.coroutines.test.runCurrent
@@ -34,9 +40,9 @@ class TownReadyMinuteViewModelTest {
         next = nextLevelOf(costs = listOf(TownSnapshot.Cost(TownResourceKind.Money, 60)), people = 3),
     )
 
-    private val shortFarmReason: TownUiState.BlockReason.Resources = TownUiState.BlockReason.Resources(
-        shortfalls = listOf(TownUiState.Shortfall(TownResourceKind.Money, 20)),
-        ready = TownUiState.ReadyTime(remaining = 20.minutes, readyAt = readInstant + 20.minutes),
+    private val shortFarmReason: BlockReason.Resources = BlockReason.Resources(
+        shortfalls = listOf(Shortfall(TownResourceKind.Money, 20)),
+        ready = ReadyTime(remaining = 20.minutes, readyAt = readInstant + 20.minutes),
     )
 
     @Test
@@ -57,7 +63,7 @@ class TownReadyMinuteViewModelTest {
         )
 
         assertEquals(
-            TownUiState.BlockReason.PeopleShort(needed = 3, free = 2),
+            BlockReason.PeopleShort(needed = 3, free = 2),
             placeOf(viewModel, TownBuildingKind.Farm).block,
         )
     }
@@ -70,8 +76,8 @@ class TownReadyMinuteViewModelTest {
         runCurrent()
 
         assertEquals(
-            TownUiState.ReadyTime(remaining = 19.minutes, readyAt = readInstant + 20.minutes),
-            (placeOf(viewModel, TownBuildingKind.Farm).block as TownUiState.BlockReason.Resources).ready,
+            ReadyTime(remaining = 19.minutes, readyAt = readInstant + 20.minutes),
+            (placeOf(viewModel, TownBuildingKind.Farm).block as BlockReason.Resources).ready,
         )
         assertEquals(1, towns.readCount)
     }
@@ -82,7 +88,7 @@ class TownReadyMinuteViewModelTest {
 
         advanceTimeBy(19.minutes + 1.seconds)
         runCurrent()
-        val first: TownUiState.ReadyTime? = placeReadyOf(viewModel)
+        val first: ReadyTime? = placeReadyOf(viewModel)
         advanceTimeBy(1.seconds)
         runCurrent()
 
@@ -99,7 +105,7 @@ class TownReadyMinuteViewModelTest {
 
         advanceTimeBy(19.minutes + 1.seconds)
         runCurrent()
-        val first: TownUiState.ReadyTime? = hireReadyOf(viewModel)
+        val first: ReadyTime? = hireReadyOf(viewModel)
         advanceTimeBy(1.seconds)
         runCurrent()
 
@@ -115,8 +121,8 @@ class TownReadyMinuteViewModelTest {
         )
 
         assertEquals(
-            TownUiState.ReadyTime(remaining = 20.minutes, readyAt = readInstant + 15.minutes),
-            (placeOf(viewModel, TownBuildingKind.Farm).block as TownUiState.BlockReason.Resources).ready,
+            ReadyTime(remaining = 20.minutes, readyAt = readInstant + 15.minutes),
+            (placeOf(viewModel, TownBuildingKind.Farm).block as BlockReason.Resources).ready,
         )
     }
 
@@ -129,23 +135,23 @@ class TownReadyMinuteViewModelTest {
         viewModel.onIntent(TownIntent.HiringEntryChanged(TownHireKind.Worker, "3"))
 
         assertEquals(
-            TownUiState.HiringBlock.Resources(
-                shortfalls = listOf(TownUiState.Shortfall(TownResourceKind.Money, 20)),
-                ready = TownUiState.ReadyTime(remaining = 20.minutes, readyAt = readInstant + 20.minutes),
+            HiringBlock.Resources(
+                shortfalls = listOf(Shortfall(TownResourceKind.Money, 20)),
+                ready = ReadyTime(remaining = 20.minutes, readyAt = readInstant + 20.minutes),
             ),
             formOf(viewModel).block,
         )
     }
 
-    private fun placeReadyOf(viewModel: TownViewModel): TownUiState.ReadyTime? =
-        (placeOf(viewModel, TownBuildingKind.Farm).block as? TownUiState.BlockReason.Resources)?.ready
+    private fun placeReadyOf(viewModel: TownViewModel): ReadyTime? =
+        (placeOf(viewModel, TownBuildingKind.Farm).block as? BlockReason.Resources)?.ready
 
-    private fun hireReadyOf(viewModel: TownViewModel): TownUiState.ReadyTime? =
-        (formOf(viewModel).block as? TownUiState.HiringBlock.Resources)?.ready
+    private fun hireReadyOf(viewModel: TownViewModel): ReadyTime? =
+        (formOf(viewModel).block as? HiringBlock.Resources)?.ready
 
-    private fun formOf(viewModel: TownViewModel): TownUiState.HiringForm = requireNotNull(
+    private fun formOf(viewModel: TownViewModel): HiringForm = requireNotNull(
         contentOf(viewModel).hiring.hires
-            .first { card: TownUiState.HiringCard -> card.kind == TownHireKind.Worker }
+            .first { card: HiringCard -> card.kind == TownHireKind.Worker }
             .form,
     )
 

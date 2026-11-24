@@ -5,7 +5,6 @@ import androidx.compose.runtime.Immutable
 import com.emm.mygame.core.ui.PlayerCopy
 import com.emm.mygame.core.ui.rememberPlayerCopy
 import com.emm.mygame.feature.town.R
-import com.emm.mygame.feature.town.TownUiState
 
 @Immutable
 data class TownNotice(val message: String, val key: Any)
@@ -22,10 +21,10 @@ fun TownStatusUiState.Dock.shownNotice(): TownNotice? {
 }
 
 private fun PlayerCopy.lessonStartNoticeOf(step: TownStatusUiState.Dock.Step): TownNotice? =
-    when (val start: TownUiState.LessonStartStatus = step.lessonStart) {
-        is TownUiState.LessonStartStatus.Refused ->
+    when (val start: LessonStartStatus = step.lessonStart) {
+        is LessonStartStatus.Refused ->
             TownNotice(message = fixedCopy { lessonRefusalLineOf(start.refusal, step.capWait) }, key = start)
-        TownUiState.LessonStartStatus.Unreachable ->
+        LessonStartStatus.Unreachable ->
             TownNotice(message = fixedCopy(R.string.town_refusal_unexpected), key = start)
-        TownUiState.LessonStartStatus.Idle, TownUiState.LessonStartStatus.Waiting -> null
+        LessonStartStatus.Idle, LessonStartStatus.Waiting -> null
     }

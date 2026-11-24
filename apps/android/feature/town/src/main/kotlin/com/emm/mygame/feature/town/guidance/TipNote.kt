@@ -24,6 +24,7 @@ import com.emm.mygame.core.ui.chromeResource
 import com.emm.mygame.feature.town.R
 import com.emm.mygame.feature.town.TownIntent
 import com.emm.mygame.feature.town.TownUiState
+import com.emm.mygame.feature.town.building.SlotLine
 
 @Composable
 internal fun TipNote(tip: TipKind, onIntent: (TownIntent) -> Unit, modifier: Modifier = Modifier) {
@@ -57,10 +58,10 @@ internal fun TownUiState.Content.tipPlaceOf(tip: TipKind): TownBuildingKind = wh
     TipKind.WaitingList -> placeInWork() ?: nextStepPlace
 }
 
-private fun TownUiState.Content.placeInWork(): TownBuildingKind? = when (val inSlot: TownUiState.SlotLine = slot) {
-    is TownUiState.SlotLine.Busy -> inSlot.building
-    is TownUiState.SlotLine.Done -> inSlot.building
-    TownUiState.SlotLine.Idle -> waitingList.firstOrNull()?.building
+private fun TownUiState.Content.placeInWork(): TownBuildingKind? = when (val inSlot: SlotLine = slot) {
+    is SlotLine.Busy -> inSlot.building
+    is SlotLine.Done -> inSlot.building
+    SlotLine.Idle -> waitingList.firstOrNull()?.building
 }
 
 private fun lineOf(tip: TipKind): Int = when (tip) {

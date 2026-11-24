@@ -31,10 +31,14 @@ import com.emm.mygame.core.ui.chromeResource
 import com.emm.mygame.core.ui.frameHeaderTurn
 import com.emm.mygame.core.ui.rememberPlayerCopy
 import com.emm.mygame.feature.town.building.NextLevel
+import com.emm.mygame.feature.town.building.NextLevelLine
 import com.emm.mygame.feature.town.building.PlaceBuildingWork
+import com.emm.mygame.feature.town.building.PlaceCard
 import com.emm.mygame.feature.town.building.PlaceStocks
 import com.emm.mygame.feature.town.building.SeasonRow
 import com.emm.mygame.feature.town.building.StartAnswer
+import com.emm.mygame.feature.town.building.StartStatus
+import com.emm.mygame.feature.town.building.WordNeedLine
 import com.emm.mygame.feature.town.building.placeArtOf
 import com.emm.mygame.feature.town.guidance.GoalState
 import com.emm.mygame.feature.town.guidance.TipNote
@@ -45,7 +49,7 @@ import com.emm.mygame.feature.town.hiring.HiringSection
 @Composable
 internal fun TownPage(
     content: TownUiState.Content,
-    place: TownUiState.PlaceCard,
+    place: PlaceCard,
     onIntent: (TownIntent) -> Unit,
     slots: TownPageSlots,
     top: TownPageTop,
@@ -58,7 +62,7 @@ internal fun TownPage(
         isRiseSpoken = place.raisedFrom != null,
         name = copy.chrome(placeNameOf(place.kind)),
         level = copy.chrome { levelLineOf(place) },
-        words = place.next?.wordsNeeded?.let { need: TownUiState.WordNeedLine -> copy.wordsOf(need) },
+        words = place.next?.wordsNeeded?.let { need: WordNeedLine -> copy.wordsOf(need) },
         header = { PageHeader(content = content, place = place, slots = slots, top = top) },
         work = { PageWork(content = content, place = place, onIntent = onIntent, slots = slots) },
         modifier = modifier,
@@ -68,7 +72,7 @@ internal fun TownPage(
 @Composable
 private fun PageHeader(
     content: TownUiState.Content,
-    place: TownUiState.PlaceCard,
+    place: PlaceCard,
     slots: TownPageSlots,
     top: TownPageTop,
 ) {
@@ -89,20 +93,20 @@ private fun PageHeader(
         }
         slots.status()
         top.foldedDock()
-        content.season?.let { season: TownUiState.SeasonLine -> SeasonRow(season = season) }
+        content.season?.let { season: SeasonLine -> SeasonRow(season = season) }
         content.caughtUpGoal?.takeIf { goal: TownGoal -> goal.building != place.kind }?.let { goal: TownGoal ->
             GoalLine(goal = goal)
         }
         content.newestText?.let { text: NextStepText -> NewestTextLine(text = text, onTextOpen = slots.onTextOpen) }
         top.reportRow()
-        if (place.isInWork) content.buildMark?.let { mark: TownUiState.DurationMark -> BuildMarkRow(mark = mark) }
+        if (place.isInWork) content.buildMark?.let { mark: DurationMark -> BuildMarkRow(mark = mark) }
     }
 }
 
 @Composable
 private fun PageWork(
     content: TownUiState.Content,
-    place: TownUiState.PlaceCard,
+    place: PlaceCard,
     onIntent: (TownIntent) -> Unit,
     slots: TownPageSlots,
 ) {
@@ -110,12 +114,12 @@ private fun PageWork(
         content.goal?.takeIf { goal: TownGoal -> goal.building == place.kind }?.let { goal: TownGoal ->
             GoalOnPage(goal = goal, onIntent = onIntent)
         }
-        place.next?.let { next: TownUiState.NextLevelLine ->
+        place.next?.let { next: NextLevelLine ->
             NextLevel(
                 building = place.kind,
                 next = next,
                 block = place.block,
-                isWaiting = content.start is TownUiState.StartStatus.Waiting,
+                isWaiting = content.start is StartStatus.Waiting,
                 onIntent = onIntent,
             )
         }
@@ -186,7 +190,7 @@ private fun GoalOnPage(goal: TownGoal, onIntent: (TownIntent) -> Unit) {
 }
 
 @Composable
-private fun BuildMarkRow(mark: TownUiState.DurationMark, modifier: Modifier = Modifier) {
+private fun BuildMarkRow(mark: DurationMark, modifier: Modifier = Modifier) {
     SeasonMark(
         icon = seasonIconOf(mark.season),
         label = chromeResource(
@@ -215,7 +219,7 @@ private fun labelOf(label: TownLabel): Int = when (label) {
     TownLabel.City -> R.string.town_label_city
 }
 
-private fun PlayerCopy.wordsOf(need: TownUiState.WordNeedLine): MyGamePlaceWords = MyGamePlaceWords(
+private fun PlayerCopy.wordsOf(need: WordNeedLine): MyGamePlaceWords = MyGamePlaceWords(
     line = chrome(
         R.string.town_words_needed,
         "standing" to neededWordSelectorOf(need.standing),
@@ -226,7 +230,7 @@ private fun PlayerCopy.wordsOf(need: TownUiState.WordNeedLine): MyGamePlaceWords
     held = need.held,
 )
 
-internal fun CopyReader.levelLineOf(place: TownUiState.PlaceCard): String {
+internal fun CopyReader.levelLineOf(place: PlaceCard): String {
     if (place.next == null) return text(R.string.town_top_level)
     val inWork: String = text(R.string.town_in_work)
     if (place.level == 0) return if (place.isInWork) inWork else text(R.string.town_not_built)

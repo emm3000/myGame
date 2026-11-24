@@ -6,7 +6,6 @@ import com.emm.mygame.core.model.town.guidance.CaughtUpReason
 import com.emm.mygame.core.model.town.guidance.NextStep
 import com.emm.mygame.core.model.town.guidance.NextStepCard
 import com.emm.mygame.core.model.town.guidance.TownGoal
-import com.emm.mygame.feature.town.TownUiState
 import com.emm.mygame.feature.town.readInstant
 import com.emm.mygame.feature.town.townOf
 import org.junit.Assert.assertEquals
@@ -42,7 +41,7 @@ class TownStatusDockTest {
             screen = TownStatusScreen.ReadsTown,
             now = readInstant,
             gap = Duration.ZERO,
-            lessonStart = TownUiState.LessonStartStatus.Idle,
+            lessonStart = LessonStartStatus.Idle,
         )
 
         assertEquals(
@@ -65,7 +64,7 @@ class TownStatusDockTest {
         screen = TownStatusScreen.ReadsTown,
         now = readInstant,
         gap = gap,
-        lessonStart = TownUiState.LessonStartStatus.Idle,
+        lessonStart = LessonStartStatus.Idle,
     )
 
     @Test

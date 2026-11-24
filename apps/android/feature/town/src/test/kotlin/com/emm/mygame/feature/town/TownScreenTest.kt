@@ -55,7 +55,21 @@ import com.emm.mygame.core.model.town.guidance.NextStep
 import com.emm.mygame.core.model.town.guidance.TipKind
 import com.emm.mygame.core.model.town.guidance.TownGoal
 import com.emm.mygame.core.ui.navRowOf
+import com.emm.mygame.feature.town.building.BlockReason
+import com.emm.mygame.feature.town.building.CostLine
+import com.emm.mygame.feature.town.building.NextLevelLine
+import com.emm.mygame.feature.town.building.PeopleLine
+import com.emm.mygame.feature.town.building.PlaceCard
+import com.emm.mygame.feature.town.building.SlotLine
+import com.emm.mygame.feature.town.building.StartStatus
+import com.emm.mygame.feature.town.building.StockLine
+import com.emm.mygame.feature.town.building.StopStatus
+import com.emm.mygame.feature.town.building.WaitingLine
+import com.emm.mygame.feature.town.building.WordNeedLine
+import com.emm.mygame.feature.town.building.WordsLine
+import com.emm.mygame.feature.town.building.WorkTarget
 import com.emm.mygame.feature.town.guidance.ClosedGuidance
+import com.emm.mygame.feature.town.naming.NamingStatus
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertTrue
 import org.junit.Rule
@@ -79,15 +93,15 @@ class TownScreenTest {
 
     private var mapOpens: Int = 0
 
-    private val levelTwo: TownUiState.NextLevelLine = TownUiState.NextLevelLine(
+    private val levelTwo: NextLevelLine = NextLevelLine(
         level = 2,
-        costs = listOf(TownUiState.CostLine(TownResourceKind.Money, 150, isShort = false)),
+        costs = listOf(CostLine(TownResourceKind.Money, 150, isShort = false)),
         duration = 90.seconds,
         people = 3,
         wordsNeeded = null,
     )
 
-    private fun placeOf(kind: TownBuildingKind): TownUiState.PlaceCard = TownUiState.PlaceCard(
+    private fun placeOf(kind: TownBuildingKind): PlaceCard = PlaceCard(
         kind = kind,
         level = 1,
         raisedFrom = null,
@@ -96,19 +110,19 @@ class TownScreenTest {
         block = null,
     )
 
-    private val street: List<TownUiState.PlaceCard> = streetOrder.map(::placeOf)
+    private val street: List<PlaceCard> = streetOrder.map(::placeOf)
 
     private val riverton: TownUiState.Content = TownUiState.Content(
         name = "Riverton",
         label = TownLabel.Town,
         stocks = TownResourceKind.entries.map { kind: TownResourceKind ->
-            TownUiState.StockLine(kind, 120, capacity = 900, ratePerHour = 30, skillLevel = 0, fill = null)
+            StockLine(kind, 120, capacity = 900, ratePerHour = 30, skillLevel = 0, fill = null)
         },
-        people = TownUiState.PeopleLine(free = 24, atWork = 96),
-        words = TownUiState.WordsLine(stable = 3, retained = 1),
+        people = PeopleLine(free = 24, atWork = 96),
+        words = WordsLine(stable = 3, retained = 1),
         season = null,
         buildMark = null,
-        slot = TownUiState.SlotLine.Idle,
+        slot = SlotLine.Idle,
         waitingList = emptyList(),
         places = street,
         nextStepPlace = TownBuildingKind.School,
@@ -116,8 +130,8 @@ class TownScreenTest {
         caughtUpGoal = null,
         newestText = null,
         tip = null,
-        start = TownUiState.StartStatus.Idle,
-        stop = TownUiState.StopStatus.Idle,
+        start = StartStatus.Idle,
+        stop = StopStatus.Idle,
         hiring = idleHiringLine,
     )
 
@@ -129,7 +143,7 @@ class TownScreenTest {
         state = TownGoal.State.Underway,
     )
 
-    private val busyFarm: TownUiState.SlotLine.Busy = TownUiState.SlotLine.Busy(
+    private val busyFarm: SlotLine.Busy = SlotLine.Busy(
         building = TownBuildingKind.Farm,
         level = 2,
         remaining = 12.minutes,
@@ -137,14 +151,14 @@ class TownScreenTest {
         finishesAt = readInstant,
     )
 
-    private val waitingSchool: TownUiState.WaitingLine = TownUiState.WaitingLine(
+    private val waitingSchool: WaitingLine = WaitingLine(
         building = TownBuildingKind.School,
         level = 2,
         remaining = 20.minutes,
         finishesAt = readInstant,
     )
 
-    private val summer: TownUiState.SeasonLine = TownUiState.SeasonLine(
+    private val summer: SeasonLine = SeasonLine(
         kind = SeasonKind.Summer,
         year = 2,
         remaining = 3.days,
@@ -372,7 +386,7 @@ class TownScreenTest {
 
     @Test
     fun `keeps a blocked level tappable`() {
-        show(onSchool(placeOf(TownBuildingKind.School).copy(block = TownUiState.BlockReason.PeopleShort(5, 2))))
+        show(onSchool(placeOf(TownBuildingKind.School).copy(block = BlockReason.PeopleShort(5, 2))))
 
         composeRule.onNodeWithText("Construir nivel 2 · 1:30").performScrollTo().performClick()
 
@@ -381,8 +395,8 @@ class TownScreenTest {
 
     @Test
     fun `draws the words a level needs over a segmented track`() {
-        val need: TownUiState.WordNeedLine =
-            TownUiState.WordNeedLine(needed = 10, held = 4, standing = NeededWordKind.Stable)
+        val need: WordNeedLine =
+            WordNeedLine(needed = 10, held = 4, standing = NeededWordKind.Stable)
         show(onSchool(placeOf(TownBuildingKind.School).copy(next = levelTwo.copy(wordsNeeded = need))))
 
         composeRule
@@ -410,8 +424,8 @@ class TownScreenTest {
 
     @Test
     fun `draws a start refusal on the page of its place`() {
-        val refused: TownUiState.StartStatus =
-            TownUiState.StartStatus.Refused(TownBuildingKind.School, TownWorkRefusal.NotEnoughPeople(5, 2))
+        val refused: StartStatus =
+            StartStatus.Refused(TownBuildingKind.School, TownWorkRefusal.NotEnoughPeople(5, 2))
 
         show(riverton.copy(start = refused))
 
@@ -428,7 +442,7 @@ class TownScreenTest {
         composeRule.onNodeWithText("Construir nivel 2 · 1:30").performClick()
 
         shown.value = riverton.copy(
-            start = TownUiState.StartStatus.Refused(TownBuildingKind.School, TownWorkRefusal.NotEnoughResources),
+            start = StartStatus.Refused(TownBuildingKind.School, TownWorkRefusal.NotEnoughResources),
         )
         composeRule.waitForIdle()
 
@@ -445,7 +459,7 @@ class TownScreenTest {
         showState(shown, window = phoneWindow)
 
         shown.value = (shown.value as TownUiState.Content).copy(
-            stop = TownUiState.StopStatus.Unreachable(TownUiState.WorkTarget(TownBuildingKind.School, 2)),
+            stop = StopStatus.Unreachable(WorkTarget(TownBuildingKind.School, 2)),
         )
         composeRule.waitForIdle()
 
@@ -705,14 +719,14 @@ class TownScreenTest {
 
     @Test
     fun `draws a blank name refusal`() {
-        show(TownUiState.Naming("", TownUiState.NamingStatus.Refused(TownFoundRefusal.BlankTownName)))
+        show(TownUiState.Naming("", NamingStatus.Refused(TownFoundRefusal.BlankTownName)))
 
         composeRule.onNodeWithText("Escribe un nombre para tu pueblo.").assertIsDisplayed()
     }
 
     @Test
     fun `offers the town a player already holds`() {
-        show(TownUiState.Naming("R", TownUiState.NamingStatus.Refused(TownFoundRefusal.PlayerAlreadyHoldsTown)))
+        show(TownUiState.Naming("R", NamingStatus.Refused(TownFoundRefusal.PlayerAlreadyHoldsTown)))
 
         composeRule.onNodeWithText("Ir a tu pueblo").performClick()
 
@@ -721,7 +735,7 @@ class TownScreenTest {
 
     @Test
     fun `draws a failed founding beside its button`() {
-        show(TownUiState.Naming("R", TownUiState.NamingStatus.Unreachable))
+        show(TownUiState.Naming("R", NamingStatus.Unreachable))
 
         composeRule.onNodeWithText(UNEXPECTED).assertIsDisplayed()
     }
@@ -783,16 +797,16 @@ class TownScreenTest {
 
     private fun inWork(content: TownUiState.Content, vararg kinds: TownBuildingKind): TownUiState.Content =
         content.copy(
-            places = content.places.map { place: TownUiState.PlaceCard ->
+            places = content.places.map { place: PlaceCard ->
                 if (place.kind in kinds) place.copy(isInWork = true) else place
             },
         )
 
-    private fun onSchool(school: TownUiState.PlaceCard): TownUiState.Content = riverton.copy(
-        places = street.map { place: TownUiState.PlaceCard -> if (place.kind == school.kind) school else place },
+    private fun onSchool(school: PlaceCard): TownUiState.Content = riverton.copy(
+        places = street.map { place: PlaceCard -> if (place.kind == school.kind) school else place },
     )
 
-    private val summerBuild: TownUiState.DurationMark = TownUiState.DurationMark(SeasonKind.Summer, percent = 75)
+    private val summerBuild: DurationMark = DurationMark(SeasonKind.Summer, percent = 75)
 
     private val phoneWindow: DpSize = DpSize(360.dp, 640.dp)
 

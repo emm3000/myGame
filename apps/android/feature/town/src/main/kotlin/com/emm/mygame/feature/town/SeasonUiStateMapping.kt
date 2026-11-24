@@ -7,10 +7,10 @@ import com.emm.mygame.core.model.town.UNSCALED_PERCENT
 import com.emm.mygame.core.projection.countdownTo
 import kotlin.time.Instant
 
-internal fun TownSnapshot.seasonLineAt(now: Instant): TownUiState.SeasonLine? {
+internal fun TownSnapshot.seasonLineAt(now: Instant): SeasonLine? {
     val inForce: SeasonInForce = seasonInForce ?: return null
     val endsAt: Instant = seasonEndsAt ?: return null
-    return TownUiState.SeasonLine(
+    return SeasonLine(
         kind = inForce.kind,
         year = inForce.year,
         remaining = countdownTo(finishesAt = endsAt, now = now),
@@ -18,16 +18,16 @@ internal fun TownSnapshot.seasonLineAt(now: Instant): TownUiState.SeasonLine? {
     )
 }
 
-private fun SeasonInForce.productionMarks(): List<TownUiState.ProductionMark> =
+private fun SeasonInForce.productionMarks(): List<ProductionMark> =
     TownResourceKind.entries
         .map { resource: TownResourceKind ->
-            TownUiState.ProductionMark(resource, percent = productionPercent.of(resource))
+            ProductionMark(resource, percent = productionPercent.of(resource))
         }
-        .filter { mark: TownUiState.ProductionMark -> mark.percent != UNSCALED_PERCENT }
+        .filter { mark: ProductionMark -> mark.percent != UNSCALED_PERCENT }
 
-internal fun SeasonInForce.buildMark(): TownUiState.DurationMark? = markAt(durationPercent.build)
+internal fun SeasonInForce.buildMark(): DurationMark? = markAt(durationPercent.build)
 
-internal fun SeasonInForce.hireMark(): TownUiState.DurationMark? = markAt(durationPercent.hire)
+internal fun SeasonInForce.hireMark(): DurationMark? = markAt(durationPercent.hire)
 
-private fun SeasonInForce.markAt(percent: Int): TownUiState.DurationMark? =
-    if (percent == UNSCALED_PERCENT) null else TownUiState.DurationMark(kind, percent)
+private fun SeasonInForce.markAt(percent: Int): DurationMark? =
+    if (percent == UNSCALED_PERCENT) null else DurationMark(kind, percent)

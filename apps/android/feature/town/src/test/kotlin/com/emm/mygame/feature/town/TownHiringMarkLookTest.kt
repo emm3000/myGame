@@ -22,6 +22,13 @@ import com.emm.mygame.core.model.town.SeasonKind
 import com.emm.mygame.core.model.town.TownLabel
 import com.emm.mygame.core.model.town.building.TownBuildingKind
 import com.emm.mygame.core.model.town.hiring.TownHireKind
+import com.emm.mygame.feature.town.building.PeopleLine
+import com.emm.mygame.feature.town.building.SlotLine
+import com.emm.mygame.feature.town.building.StartStatus
+import com.emm.mygame.feature.town.building.StopStatus
+import com.emm.mygame.feature.town.building.WordsLine
+import com.emm.mygame.feature.town.hiring.HiringCard
+import com.emm.mygame.feature.town.hiring.HiringLine
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertTrue
 import org.junit.Rule
@@ -35,12 +42,12 @@ class TownHiringMarkLookTest {
     @get:Rule
     val composeRule: ComposeContentTestRule = createComposeRule()
 
-    private val lockedWorkers: TownUiState.HiringCard =
-        TownUiState.HiringCard(TownHireKind.Worker, team = 4, requiredOfficeLevel = 3, form = null)
+    private val lockedWorkers: HiringCard =
+        HiringCard(TownHireKind.Worker, team = 4, requiredOfficeLevel = 3, form = null)
 
-    private val hiring: TownUiState.HiringLine = idleHiringLine.copy(hires = listOf(lockedWorkers))
+    private val hiring: HiringLine = idleHiringLine.copy(hires = listOf(lockedWorkers))
 
-    private val springHire: TownUiState.DurationMark = TownUiState.DurationMark(SeasonKind.Spring, percent = 75)
+    private val springHire: DurationMark = DurationMark(SeasonKind.Spring, percent = 75)
 
     @Test
     fun `draws the hire mark directly under the hiring heading`() {
@@ -90,7 +97,7 @@ class TownHiringMarkLookTest {
         composeRule.setContent { MyGameTheme { TownHome(home.value) } }
 
         seasonWords.forEach { (season: SeasonKind, word: String) ->
-            home.value = homeWith(hiring.copy(hireMark = TownUiState.DurationMark(season, percent = 75)))
+            home.value = homeWith(hiring.copy(hireMark = DurationMark(season, percent = 75)))
             composeRule.waitForIdle()
 
             composeRule.onNodeWithText("$word: las contrataciones tardan el 75 % del tiempo").assertExists()
@@ -103,7 +110,7 @@ class TownHiringMarkLookTest {
         composeRule.setContent { MyGameTheme { TownHome(home.value) } }
 
         seasonIcons.forEach { (season: SeasonKind, icon: ImageVector) ->
-            home.value = homeWith(hiring.copy(hireMark = TownUiState.DurationMark(season, percent = 75)))
+            home.value = homeWith(hiring.copy(hireMark = DurationMark(season, percent = 75)))
             composeRule.waitForIdle()
 
             composeRule.onNode(seasonMarkOf(icon, text = "las contrataciones tardan el 75 % del tiempo")).assertExists()
@@ -112,7 +119,7 @@ class TownHiringMarkLookTest {
 
     @Test
     fun `prints the hire percent as sent`() {
-        show(hiring.copy(hireMark = TownUiState.DurationMark(SeasonKind.Winter, percent = 125)))
+        show(hiring.copy(hireMark = DurationMark(SeasonKind.Winter, percent = 125)))
 
         composeRule.onNodeWithText("Invierno: las contrataciones tardan el 125 % del tiempo").assertExists()
     }
@@ -126,7 +133,7 @@ class TownHiringMarkLookTest {
 
     private fun topOf(text: String): Dp = composeRule.onAllNodesWithText(text).onLast().getUnclippedBoundsInRoot().top
 
-    private fun show(shown: TownUiState.HiringLine) {
+    private fun show(shown: HiringLine) {
         composeRule.setContent { MyGameTheme { TownHome(homeWith(shown)) } }
     }
 
@@ -141,15 +148,15 @@ class TownHiringMarkLookTest {
         )
     }
 
-    private fun homeWith(shown: TownUiState.HiringLine): TownUiState.Content = TownUiState.Content(
+    private fun homeWith(shown: HiringLine): TownUiState.Content = TownUiState.Content(
         name = "Riverton",
         label = TownLabel.Town,
         stocks = emptyList(),
-        people = TownUiState.PeopleLine(free = 24, atWork = 96),
-        words = TownUiState.WordsLine(stable = 0, retained = 0),
+        people = PeopleLine(free = 24, atWork = 96),
+        words = WordsLine(stable = 0, retained = 0),
         season = null,
         buildMark = null,
-        slot = TownUiState.SlotLine.Idle,
+        slot = SlotLine.Idle,
         waitingList = emptyList(),
         places = listOf(bareOffice),
         nextStepPlace = TownBuildingKind.Office,
@@ -157,8 +164,8 @@ class TownHiringMarkLookTest {
         caughtUpGoal = null,
         newestText = null,
         tip = null,
-        start = TownUiState.StartStatus.Idle,
-        stop = TownUiState.StopStatus.Idle,
+        start = StartStatus.Idle,
+        stop = StopStatus.Idle,
         hiring = shown,
     )
 

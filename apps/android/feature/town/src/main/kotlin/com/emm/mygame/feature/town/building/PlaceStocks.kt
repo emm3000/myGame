@@ -31,7 +31,9 @@ import com.emm.mygame.core.ui.chromeResource
 import com.emm.mygame.core.ui.rememberPlayerCopy
 import com.emm.mygame.core.ui.timeLeftLabelOf
 import com.emm.mygame.feature.town.FiguredCaption
+import com.emm.mygame.feature.town.ProductionMark
 import com.emm.mygame.feature.town.R
+import com.emm.mygame.feature.town.SeasonLine
 import com.emm.mygame.feature.town.TownUiState
 import com.emm.mygame.feature.town.seasonIconOf
 import com.emm.mygame.feature.town.seasonSelectorOf
@@ -43,17 +45,17 @@ import kotlin.time.Instant
 
 @Composable
 internal fun PlaceStocks(place: TownBuildingKind, content: TownUiState.Content, modifier: Modifier = Modifier) {
-    val shown: List<TownUiState.StockLine> = content.stocks.filter { stock: TownUiState.StockLine ->
+    val shown: List<StockLine> = content.stocks.filter { stock: StockLine ->
         stock.kind in stocksOf(place)
     }
     Column(verticalArrangement = Arrangement.spacedBy(MyGameSpacing.step4), modifier = modifier) {
-        shown.forEach { stock: TownUiState.StockLine ->
+        shown.forEach { stock: StockLine ->
             Column(verticalArrangement = Arrangement.spacedBy(MyGameSpacing.step1)) {
                 StockItem(stock = stock)
-                content.season?.let { season: TownUiState.SeasonLine ->
+                content.season?.let { season: SeasonLine ->
                     season.productionMarks
-                        .filter { mark: TownUiState.ProductionMark -> mark.resource == stock.kind }
-                        .forEach { mark: TownUiState.ProductionMark ->
+                        .filter { mark: ProductionMark -> mark.resource == stock.kind }
+                        .forEach { mark: ProductionMark ->
                             ProductionMarkRow(season = season.kind, mark = mark)
                         }
                 }
@@ -73,7 +75,7 @@ private fun stocksOf(place: TownBuildingKind): Set<TownResourceKind> = when (pla
 }
 
 @Composable
-private fun StockItem(stock: TownUiState.StockLine, modifier: Modifier = Modifier) {
+private fun StockItem(stock: StockLine, modifier: Modifier = Modifier) {
     val copy: PlayerCopy = rememberPlayerCopy()
     val capacity: String = formatQuantity(stock.capacity)
     Column(verticalArrangement = Arrangement.spacedBy(MyGameSpacing.step1), modifier = modifier) {
@@ -106,7 +108,7 @@ private fun StockItem(stock: TownUiState.StockLine, modifier: Modifier = Modifie
             )
             FiguredCaption(
                 label = copy.chrome {
-                    stock.fill?.let { fill: TownUiState.FillTime -> fillLabelOf(fill) }
+                    stock.fill?.let { fill: FillTime -> fillLabelOf(fill) }
                         ?: text(R.string.town_rate, "rate" to formatQuantity(stock.ratePerHour))
                 },
                 color = MyGameTheme.colors.inkMuted,
@@ -118,7 +120,7 @@ private fun StockItem(stock: TownUiState.StockLine, modifier: Modifier = Modifie
 }
 
 @Composable
-private fun SkillMark(stock: TownUiState.StockLine, modifier: Modifier = Modifier) {
+private fun SkillMark(stock: StockLine, modifier: Modifier = Modifier) {
     if (stock.skillLevel == 0) return
     MyGameText(
         label = rememberPlayerCopy().chrome {
@@ -135,7 +137,7 @@ private fun SkillMark(stock: TownUiState.StockLine, modifier: Modifier = Modifie
 }
 
 @Composable
-private fun PeopleRow(people: TownUiState.PeopleLine, modifier: Modifier = Modifier) {
+private fun PeopleRow(people: PeopleLine, modifier: Modifier = Modifier) {
     Row(
         verticalAlignment = Alignment.CenterVertically,
         horizontalArrangement = Arrangement.spacedBy(MyGameSpacing.step2),
@@ -155,7 +157,7 @@ private fun PeopleRow(people: TownUiState.PeopleLine, modifier: Modifier = Modif
 }
 
 @Composable
-private fun WordsRows(words: TownUiState.WordsLine, modifier: Modifier = Modifier) {
+private fun WordsRows(words: WordsLine, modifier: Modifier = Modifier) {
     Column(verticalArrangement = Arrangement.spacedBy(MyGameSpacing.step1), modifier = modifier) {
         MyGameText(
             label = chromeResource(R.string.town_words_reviewed, "count" to words.stable.toString()),
@@ -171,7 +173,7 @@ private fun WordsRows(words: TownUiState.WordsLine, modifier: Modifier = Modifie
 }
 
 @Composable
-internal fun SeasonRow(season: TownUiState.SeasonLine, modifier: Modifier = Modifier) {
+internal fun SeasonRow(season: SeasonLine, modifier: Modifier = Modifier) {
     val copy: PlayerCopy = rememberPlayerCopy()
     FlowRow(
         horizontalArrangement = Arrangement.spacedBy(MyGameSpacing.step2),
@@ -210,7 +212,7 @@ internal fun SeasonRow(season: TownUiState.SeasonLine, modifier: Modifier = Modi
 }
 
 @Composable
-private fun ProductionMarkRow(season: SeasonKind, mark: TownUiState.ProductionMark, modifier: Modifier = Modifier) {
+private fun ProductionMarkRow(season: SeasonKind, mark: ProductionMark, modifier: Modifier = Modifier) {
     SeasonMark(
         icon = seasonIconOf(season),
         label = rememberPlayerCopy().chrome {
@@ -225,10 +227,10 @@ private fun ProductionMarkRow(season: SeasonKind, mark: TownUiState.ProductionMa
     )
 }
 
-private fun CopyReader.seasonLabelOf(season: TownUiState.SeasonLine): String =
+private fun CopyReader.seasonLabelOf(season: SeasonLine): String =
     capitalized(text(seasonNameOf(season.kind)))
 
-private fun CopyReader.seasonTimeLeftOf(season: TownUiState.SeasonLine): String {
+private fun CopyReader.seasonTimeLeftOf(season: SeasonLine): String {
     val days: Long = season.remaining.inWholeDays
     if (days < 1) return timeLeftLabelOf(season.remaining, townDurationCopy)
     return text(R.string.town_season_days, "days" to days.toInt())
@@ -237,21 +239,21 @@ private fun CopyReader.seasonTimeLeftOf(season: TownUiState.SeasonLine): String 
 private fun previewLocalInstantOf(local: LocalDateTime): Instant =
     Instant.fromEpochMilliseconds(local.atZone(ZoneId.systemDefault()).toInstant().toEpochMilli())
 
-private fun previewStockOf(kind: TownResourceKind, amount: Long, fill: TownUiState.FillTime?): TownUiState.StockLine =
-    TownUiState.StockLine(kind, amount, capacity = 900, ratePerHour = 30, skillLevel = 0, fill = fill)
+private fun previewStockOf(kind: TownResourceKind, amount: Long, fill: FillTime?): StockLine =
+    StockLine(kind, amount, capacity = 900, ratePerHour = 30, skillLevel = 0, fill = fill)
 
-private class StockItemStates : PreviewParameterProvider<TownUiState.StockLine> {
+private class StockItemStates : PreviewParameterProvider<StockLine> {
 
-    override val values: Sequence<TownUiState.StockLine> = sequenceOf(
+    override val values: Sequence<StockLine> = sequenceOf(
         previewStockOf(
             TownResourceKind.Money,
             amount = 810,
-            fill = TownUiState.FillTime(3.hours, previewLocalInstantOf(LocalDateTime.of(2026, 11, 12, 19, 0))),
+            fill = FillTime(3.hours, previewLocalInstantOf(LocalDateTime.of(2026, 11, 12, 19, 0))),
         ),
         previewStockOf(
             TownResourceKind.Food,
             amount = 750,
-            fill = TownUiState.FillTime(5.hours, previewLocalInstantOf(LocalDateTime.of(2026, 11, 13, 3, 0))),
+            fill = FillTime(5.hours, previewLocalInstantOf(LocalDateTime.of(2026, 11, 13, 3, 0))),
         ),
         previewStockOf(TownResourceKind.Power, amount = 120, fill = null),
         previewStockOf(TownResourceKind.Material, amount = 900, fill = null),
@@ -260,7 +262,7 @@ private class StockItemStates : PreviewParameterProvider<TownUiState.StockLine> 
 
 @PreviewMyGame
 @Composable
-private fun StockItemPreview(@PreviewParameter(StockItemStates::class) stock: TownUiState.StockLine) {
+private fun StockItemPreview(@PreviewParameter(StockItemStates::class) stock: StockLine) {
     MyGamePreviewSurface {
         StockItem(stock = stock)
     }

@@ -33,7 +33,6 @@ import com.emm.mygame.core.ui.ChromePhase
 import com.emm.mygame.core.ui.CopyLanguage
 import com.emm.mygame.core.ui.ProvideCopyLanguage
 import com.emm.mygame.core.ui.ScaffoldLanguage
-import com.emm.mygame.feature.town.TownUiState
 import com.emm.mygame.feature.town.readInstant
 import com.emm.mygame.feature.town.townOf
 import org.junit.Assert.assertEquals
@@ -77,7 +76,7 @@ class TownDockTest {
         line: NextStepCard.Line,
         go: TownStatusUiState.Go,
         countdown: TownStatusUiState.StepCountdown? = null,
-        lessonStart: TownUiState.LessonStartStatus = TownUiState.LessonStartStatus.Idle,
+        lessonStart: LessonStartStatus = LessonStartStatus.Idle,
     ): TownStatusUiState.Dock.Step = TownStatusUiState.Dock.Step(
         line = line,
         detail = null,
@@ -192,7 +191,7 @@ class TownDockTest {
             TownStatusUiState.Dock.Loading,
             TownStatusUiState.Dock.Refused,
             fullCapWithGoal,
-            releasedStep.copy(lessonStart = TownUiState.LessonStartStatus.Unreachable),
+            releasedStep.copy(lessonStart = LessonStartStatus.Unreachable),
         )
         showInEnglish {
             Column {
@@ -250,7 +249,7 @@ class TownDockTest {
     @Test
     fun `draws a refused released lesson start above the go button`() {
         show(
-            releasedStep.copy(lessonStart = TownUiState.LessonStartStatus.Refused(TownLessonRefusal.StudySlotBusy)),
+            releasedStep.copy(lessonStart = LessonStartStatus.Refused(TownLessonRefusal.StudySlotBusy)),
         )
 
         composeRule.onNode(hasText(STUDY_SLOT_BUSY) and isPlaced, useUnmergedTree = true).assertExists()
@@ -259,7 +258,7 @@ class TownDockTest {
     @Test
     @Config(qualifiers = PHONE)
     fun `draws an unreachable lesson start as the unexpected refusal above the go button`() {
-        show(releasedStep.copy(lessonStart = TownUiState.LessonStartStatus.Unreachable))
+        show(releasedStep.copy(lessonStart = LessonStartStatus.Unreachable))
 
         val notice: DpRect = composeRule
             .onNode(hasText(TOWN_UNREACHABLE) and isPlaced, useUnmergedTree = true)
@@ -268,8 +267,8 @@ class TownDockTest {
         assertTrue("the notice sits above the go button", notice.bottom <= study.top)
     }
 
-    private val capRefusal: TownUiState.LessonStartStatus =
-        TownUiState.LessonStartStatus.Refused(TownLessonRefusal.LearningCapReached(cap = 15, inLearning = 15))
+    private val capRefusal: LessonStartStatus =
+        LessonStartStatus.Refused(TownLessonRefusal.LearningCapReached(cap = 15, inLearning = 15))
 
     private fun refusedOnAFullCap(nextStep: NextStep): TownStatusUiState.Dock.Step =
         townOf(nextStep = nextStep, nextDueAt = readInstant + 1.hours).copy(

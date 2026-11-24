@@ -17,11 +17,10 @@ import com.emm.mygame.core.designsystem.MyGameTypography
 import com.emm.mygame.core.designsystem.formatQuantity
 import com.emm.mygame.core.designsystem.withTabularFigures
 import com.emm.mygame.core.ui.rememberPlayerCopy
-import com.emm.mygame.feature.town.TownUiState
 import com.emm.mygame.feature.town.shortMarked
 
 @Composable
-internal fun CostItem(cost: TownUiState.CostLine, modifier: Modifier = Modifier) {
+internal fun CostItem(cost: CostLine, modifier: Modifier = Modifier) {
     val description: String = rememberPlayerCopy().chrome {
         shortMarked(amountLineOf(cost.kind, cost.amount), cost.isShort)
     }.spoken

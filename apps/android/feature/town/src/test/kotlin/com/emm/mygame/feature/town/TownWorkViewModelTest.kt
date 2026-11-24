@@ -8,6 +8,14 @@ import com.emm.mygame.core.model.town.building.TownWorkRefusal
 import com.emm.mygame.core.model.town.building.TownWorkResult
 import com.emm.mygame.core.testing.FakeTownRepository
 import com.emm.mygame.core.testing.MainDispatcherRule
+import com.emm.mygame.feature.town.building.BlockReason
+import com.emm.mygame.feature.town.building.CostLine
+import com.emm.mygame.feature.town.building.NextLevelLine
+import com.emm.mygame.feature.town.building.PlaceCard
+import com.emm.mygame.feature.town.building.SlotLine
+import com.emm.mygame.feature.town.building.StartStatus
+import com.emm.mygame.feature.town.building.StopStatus
+import com.emm.mygame.feature.town.building.WorkTarget
 import kotlinx.coroutines.test.TestScope
 import kotlinx.coroutines.test.advanceTimeBy
 import kotlinx.coroutines.test.runCurrent
@@ -45,14 +53,14 @@ class TownWorkViewModelTest {
         val viewModel: TownViewModel = homeViewModel(townOf(places = placesOf(farm)))
 
         assertEquals(
-            TownUiState.PlaceCard(
+            PlaceCard(
                 kind = TownBuildingKind.Farm,
                 level = 1,
                 raisedFrom = null,
                 isInWork = false,
-                next = TownUiState.NextLevelLine(
+                next = NextLevelLine(
                     level = 2,
-                    costs = listOf(TownUiState.CostLine(TownResourceKind.Food, 50, isShort = false)),
+                    costs = listOf(CostLine(TownResourceKind.Food, 50, isShort = false)),
                     duration = 90.seconds,
                     people = 3,
                     wordsNeeded = null,
@@ -124,7 +132,7 @@ class TownWorkViewModelTest {
         )
 
         assertEquals(
-            TownUiState.BlockReason.PeopleShort(needed = 5, free = 2),
+            BlockReason.PeopleShort(needed = 5, free = 2),
             placeOf(viewModel, TownBuildingKind.Farm).block,
         )
     }
@@ -167,7 +175,7 @@ class TownWorkViewModelTest {
         val viewModel: TownViewModel =
             homeViewModel(townOf(slot = workOf(), waitingList = listOf(workOf(), workOf()), cap = 2))
 
-        assertEquals(TownUiState.BlockReason.WaitingListFull(cap = 2), placeOf(viewModel, TownBuildingKind.Homes).block)
+        assertEquals(BlockReason.WaitingListFull(cap = 2), placeOf(viewModel, TownBuildingKind.Homes).block)
     }
 
     @Test
@@ -199,7 +207,7 @@ class TownWorkViewModelTest {
 
         viewModel.onIntent(TownIntent.BuildTapped(TownBuildingKind.Farm))
 
-        assertEquals(TownUiState.StartStatus.Waiting(TownBuildingKind.Farm), contentOf(viewModel).start)
+        assertEquals(StartStatus.Waiting(TownBuildingKind.Farm), contentOf(viewModel).start)
     }
 
     @Test
@@ -219,7 +227,7 @@ class TownWorkViewModelTest {
 
         viewModel.onIntent(TownIntent.BuildTapped(TownBuildingKind.Farm))
 
-        assertEquals(TownBuildingKind.Farm, (contentOf(viewModel).slot as TownUiState.SlotLine.Busy).building)
+        assertEquals(TownBuildingKind.Farm, (contentOf(viewModel).slot as SlotLine.Busy).building)
     }
 
     @Test
@@ -229,7 +237,7 @@ class TownWorkViewModelTest {
 
         viewModel.onIntent(TownIntent.BuildTapped(TownBuildingKind.Farm))
 
-        assertEquals(TownUiState.StartStatus.Idle, contentOf(viewModel).start)
+        assertEquals(StartStatus.Idle, contentOf(viewModel).start)
     }
 
     @Test
@@ -240,7 +248,7 @@ class TownWorkViewModelTest {
 
         viewModel.onIntent(TownIntent.BuildTapped(TownBuildingKind.Farm))
 
-        assertEquals(TownUiState.StartStatus.Refused(TownBuildingKind.Farm, refusal), contentOf(viewModel).start)
+        assertEquals(StartStatus.Refused(TownBuildingKind.Farm, refusal), contentOf(viewModel).start)
     }
 
     @Test
@@ -250,7 +258,7 @@ class TownWorkViewModelTest {
 
         viewModel.onIntent(TownIntent.BuildTapped(TownBuildingKind.Farm))
 
-        assertEquals(TownUiState.StartStatus.Unreachable(TownBuildingKind.Farm), contentOf(viewModel).start)
+        assertEquals(StartStatus.Unreachable(TownBuildingKind.Farm), contentOf(viewModel).start)
     }
 
     @Test
@@ -263,7 +271,7 @@ class TownWorkViewModelTest {
         advanceTimeBy(1.minutes)
         runCurrent()
 
-        assertEquals(TownUiState.StartStatus.Idle, contentOf(viewModel).start)
+        assertEquals(StartStatus.Idle, contentOf(viewModel).start)
     }
 
     @Test
@@ -276,7 +284,7 @@ class TownWorkViewModelTest {
         advanceTimeBy(2.minutes)
         runCurrent()
 
-        assertEquals(TownUiState.StartStatus.Refused(TownBuildingKind.Farm, refusal), contentOf(viewModel).start)
+        assertEquals(StartStatus.Refused(TownBuildingKind.Farm, refusal), contentOf(viewModel).start)
     }
 
     @Test
@@ -305,7 +313,7 @@ class TownWorkViewModelTest {
         viewModel.onIntent(TownIntent.StopTapped(TownBuildingKind.Farm, level = 2))
 
         assertEquals(
-            TownUiState.StopStatus.Waiting(TownUiState.WorkTarget(TownBuildingKind.Farm, 2)),
+            StopStatus.Waiting(WorkTarget(TownBuildingKind.Farm, 2)),
             contentOf(viewModel).stop,
         )
     }
@@ -330,7 +338,7 @@ class TownWorkViewModelTest {
         viewModel.onIntent(TownIntent.StopTapped(TownBuildingKind.Farm, level = 2))
 
         assertEquals(
-            TownUiState.StopStatus.Refused(TownUiState.WorkTarget(TownBuildingKind.Farm, 2), refusal),
+            StopStatus.Refused(WorkTarget(TownBuildingKind.Farm, 2), refusal),
             contentOf(viewModel).stop,
         )
     }
@@ -343,7 +351,7 @@ class TownWorkViewModelTest {
         viewModel.onIntent(TownIntent.StopTapped(TownBuildingKind.Farm, level = 2))
 
         assertEquals(
-            TownUiState.StopStatus.Unreachable(TownUiState.WorkTarget(TownBuildingKind.Farm, 2)),
+            StopStatus.Unreachable(WorkTarget(TownBuildingKind.Farm, 2)),
             contentOf(viewModel).stop,
         )
     }
@@ -402,7 +410,7 @@ class TownWorkViewModelTest {
         advanceTimeBy(1.minutes)
         runCurrent()
 
-        assertEquals(TownUiState.StopStatus.Idle, contentOf(viewModel).stop)
+        assertEquals(StopStatus.Idle, contentOf(viewModel).stop)
     }
 
     @Test
@@ -415,7 +423,7 @@ class TownWorkViewModelTest {
 
         viewModel.onIntent(TownIntent.ScreenShown)
 
-        assertEquals(TownUiState.StartStatus.Idle, contentOf(viewModel).start)
+        assertEquals(StartStatus.Idle, contentOf(viewModel).start)
     }
 
     @Test
@@ -439,7 +447,7 @@ class TownWorkViewModelTest {
             ),
         )
 
-        val farm: TownUiState.PlaceCard = placeOf(viewModel, TownBuildingKind.Farm)
+        val farm: PlaceCard = placeOf(viewModel, TownBuildingKind.Farm)
         assertEquals(false to null, farm.next?.costs?.single()?.isShort to farm.block)
     }
 

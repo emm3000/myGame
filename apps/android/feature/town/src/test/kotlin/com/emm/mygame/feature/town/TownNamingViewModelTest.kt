@@ -7,6 +7,7 @@ import com.emm.mygame.core.model.town.TownResourceKind
 import com.emm.mygame.core.model.town.TownSnapshot
 import com.emm.mygame.core.testing.FakeTownRepository
 import com.emm.mygame.core.testing.MainDispatcherRule
+import com.emm.mygame.feature.town.naming.NamingStatus
 import kotlinx.coroutines.test.TestScope
 import kotlinx.coroutines.test.runTest
 import org.junit.Assert.assertEquals
@@ -26,7 +27,7 @@ class TownNamingViewModelTest {
     fun `shows Name your town to a player with no town`() = runTest {
         towns.answerRead(TownReadResult.NoTown)
 
-        assertEquals(TownUiState.Naming(name = "", status = TownUiState.NamingStatus.Idle), viewModelOf().state.value)
+        assertEquals(TownUiState.Naming(name = "", status = NamingStatus.Idle), viewModelOf().state.value)
     }
 
     @Test
@@ -54,7 +55,7 @@ class TownNamingViewModelTest {
 
         viewModel.onIntent(TownIntent.NameSubmitted)
 
-        assertEquals(TownUiState.NamingStatus.Submitting, (viewModel.state.value as TownUiState.Naming).status)
+        assertEquals(NamingStatus.Submitting, (viewModel.state.value as TownUiState.Naming).status)
     }
 
     @Test
@@ -98,7 +99,7 @@ class TownNamingViewModelTest {
         viewModel.onIntent(TownIntent.NameSubmitted)
 
         assertEquals(
-            TownUiState.NamingStatus.Refused(TownFoundRefusal.BlankTownName),
+            NamingStatus.Refused(TownFoundRefusal.BlankTownName),
             (viewModel.state.value as TownUiState.Naming).status,
         )
     }
@@ -121,7 +122,7 @@ class TownNamingViewModelTest {
 
         viewModel.onIntent(TownIntent.NameSubmitted)
 
-        assertEquals(TownUiState.NamingStatus.Unreachable, (viewModel.state.value as TownUiState.Naming).status)
+        assertEquals(NamingStatus.Unreachable, (viewModel.state.value as TownUiState.Naming).status)
     }
 
     @Test

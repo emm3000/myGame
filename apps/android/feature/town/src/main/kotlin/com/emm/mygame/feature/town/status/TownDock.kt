@@ -15,7 +15,6 @@ import com.emm.mygame.core.ui.PlayerCopy
 import com.emm.mygame.core.ui.finishLabelOf
 import com.emm.mygame.core.ui.rememberPlayerCopy
 import com.emm.mygame.feature.town.R
-import com.emm.mygame.feature.town.TownUiState
 import com.emm.mygame.feature.town.guidance.goalLineOf
 import com.emm.mygame.feature.town.townDurationCopy
 import kotlin.time.Duration.Companion.minutes
@@ -192,7 +191,7 @@ private val previewStep: TownStatusUiState.Dock.Step = TownStatusUiState.Dock.St
         finishesAt = previewDueAt,
     ),
     go = TownStatusUiState.Go.Acts(NextStepCard.Action.StartReviews, isBusy = false),
-    lessonStart = TownUiState.LessonStartStatus.Idle,
+    lessonStart = LessonStartStatus.Idle,
     capWait = null,
 )
 
