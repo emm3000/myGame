@@ -2,11 +2,6 @@ package com.emm.mygame.buildlogic
 
 const val TEST_FIXTURES: String = "(test-fixtures)"
 
-data class ModuleBoundaries(
-    val coreEdges: Map<String, Set<String>>,
-    val featureEdges: Set<String>,
-)
-
 fun moduleBoundaryViolationsOf(
     edgesByModule: Map<String, List<String>>,
     boundaries: ModuleBoundaries,
@@ -34,15 +29,18 @@ private fun ModuleBoundaries.allowedEdgesOf(module: String): Set<String>? = when
 
 private fun edgeViolation(module: String, configuration: String, target: String, allowed: Set<String>): String? {
     val isTestConfiguration: Boolean = configuration.startsWith("test") || configuration.startsWith("androidTest")
-    val fixturesOf: String? = target.removeSuffix(TEST_FIXTURES).takeIf { target.endsWith(TEST_FIXTURES) }
+    val path: String = target.substringBefore('(')
+    val capability: String = target.removePrefix(path)
     return when {
-        fixturesOf != null && !isTestConfiguration ->
-            "$module depends on $fixturesOf's test fixtures through $configuration; only a test configuration may"
-        target == ":core:testing" && !isTestConfiguration ->
+        capability.isNotEmpty() && capability != TEST_FIXTURES ->
+            "$module depends on $target through $configuration; no capability but test fixtures is allowed"
+        capability == TEST_FIXTURES && !isTestConfiguration ->
+            "$module depends on $path's test fixtures through $configuration; only a test configuration may"
+        path == ":core:testing" && !isTestConfiguration ->
             "$module depends on :core:testing through $configuration; only a test configuration may"
-        target == ":core:testing" -> null
-        module == ":app" && (target.startsWith(":feature:") || target.startsWith(":core:")) -> null
-        (fixturesOf ?: target) in allowed -> null
+        path == ":core:testing" -> null
+        module == ":app" && (path.startsWith(":feature:") || path.startsWith(":core:")) -> null
+        path in allowed -> null
         else -> "$module depends on $target through $configuration; the Modules table does not allow that edge"
     }
 }

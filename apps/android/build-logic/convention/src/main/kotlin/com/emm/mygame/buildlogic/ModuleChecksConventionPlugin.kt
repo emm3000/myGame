@@ -71,7 +71,7 @@ class ModuleChecksConventionPlugin : Plugin<Project> {
 private fun Project.moduleEdges(): Map<String, List<String>> =
     subprojects.filter { it.buildFile.exists() }.associate { module -> module.path to module.projectEdges() }
 
-private fun Project.projectEdges(): List<String> =
+internal fun Project.projectEdges(): List<String> =
     configurations
         .flatMap { configuration ->
             configuration.dependencies
