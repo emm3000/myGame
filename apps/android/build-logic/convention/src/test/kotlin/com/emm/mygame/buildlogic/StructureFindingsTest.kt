@@ -161,14 +161,14 @@ class StructureFindingsTest {
     @Test
     fun `flags two production files that share a name`() {
         val schoolPieces = SourceFile("feature/school/src/main/kotlin/FramePieces.kt", "val framePieces: Int = 1\n")
-        val reviewPieces = SourceFile("feature/review/src/main/kotlin/FramePieces.kt", "val framePieces: Int = 2\n")
+        val reviewPieces = SourceFile("feature/learning/src/main/kotlin/FramePieces.kt", "val framePieces: Int = 2\n")
 
         assertEquals(
             listOf(
-                "duplicate-name feature/review/src/main/kotlin/FramePieces.kt: FramePieces.kt is also " +
+                "duplicate-name feature/learning/src/main/kotlin/FramePieces.kt: FramePieces.kt is also " +
                     "feature/school/src/main/kotlin/FramePieces.kt",
                 "duplicate-name feature/school/src/main/kotlin/FramePieces.kt: FramePieces.kt is also " +
-                    "feature/review/src/main/kotlin/FramePieces.kt",
+                    "feature/learning/src/main/kotlin/FramePieces.kt",
             ),
             findingsOf(schoolPieces, reviewPieces),
         )

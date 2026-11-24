@@ -292,7 +292,7 @@ Source: ADR 036, *The rules*, rules 2 and 5; PRD S22
 Setup: SMK-03's account, with its 5 reviews due
 
 1. Start the reviews and answer each recognition with its right meaning.
-2. Verify each verdict reads `android.review.review_correct`, *Correct.*
+2. Verify each verdict reads `android.learning.review_correct`, *Correct.*
 3. Go back to the Report. Verify `android.report.report_no_reviews_due`, *No reviews due now.*, with a next review within 10 minutes (the learning step).
 
 #### REV-01 The recall's field takes the real keyboard as typed · P1 · full
@@ -303,7 +303,7 @@ Setup: a `none` account with one stable card due for its recall whose word has 4
 1. Open the review on the recall and tap the answer field.
 2. Verify the keyboard opens with its shift off, so the first letter would be lowercase.
 3. Type the word with two adjacent letters swapped, a string that is not itself an English word, using the keyboard's own keys, and submit with its *Done* key.
-4. Verify the field still holds exactly what was typed, and the verdict is `android.review.review_near_miss`, *Almost. Check the spelling and try again.*
+4. Verify the field still holds exactly what was typed, and the verdict is `android.learning.review_near_miss`, *Almost. Check the spelling and try again.*
 
 ### Words open the town
 
@@ -329,7 +329,7 @@ Setup: a fresh `none` account; homes at 2; 9 stable cards not due, and 1 card du
 1. Verify the homes' next level reads *Needs 10 words out of learning: 9 of 10*.
 2. Start homes 3. Verify the refusal says *…needs 10 words out of learning and you have 9…*.
 3. Answer the due recall with its word, unaided.
-4. Verify `android.review.review_correct`, *Correct.*, then `android.review.review_level_open`, *You have the words for level 3 now.*
+4. Verify `android.learning.review_correct`, *Correct.*, then `android.learning.review_level_open`, *You have the words for level 3 now.*
 5. Go to the town. Verify *Words out of learning: 10*, and no `android.town.town_words_needed` line on the homes' next level.
 6. Start homes 3. Verify it is admitted.
 
@@ -342,7 +342,7 @@ Setup: a fresh `none` account; homes at 6; 49 retained cards not due, and 1 stab
 2. Verify the town reads *Words out of learning: 50* and *Learned words: 49*.
 3. Start homes 7. Verify the refusal *This level needs 50 learned words and you have 49. Study new lessons and review the words that are due.*
 4. Answer the due recall with its word, unaided.
-5. Verify `android.review.review_correct`, then `android.review.review_level_open`, *You have the words for level 7 now.*
+5. Verify `android.learning.review_correct`, then `android.learning.review_level_open`, *You have the words for level 7 now.*
 6. Go to the town. Verify *Learned words: 50*. Start homes 7. Verify it is admitted.
 
 #### WRD-03 A hint keeps the 50th word from being retained · P1 · full
@@ -350,9 +350,9 @@ Setup: a fresh `none` account; homes at 6; 49 retained cards not due, and 1 stab
 Source: ADR 045, *Considered options* (*The decision, together*); ADR 036, *The rules*, rule 5
 Setup: WRD-02's setup, on a fresh account
 
-1. On the due recall, ask for a hint. Verify `android.review.review_hint_line`, *It starts with “{first}” and has {letters} letters.*
+1. On the due recall, ask for a hint. Verify `android.learning.review_hint_line`, *It starts with “{first}” and has {letters} letters.*
 2. Answer with the word.
-3. Verify `android.review.review_correct` and no `android.review.review_level_open` line.
+3. Verify `android.learning.review_correct` and no `android.learning.review_level_open` line.
 4. Go to the town. Verify *Learned words: 49* and the homes' next level still reading *Needs 50 learned words: 49 of 50*.
 
 #### WRD-04 A lapse takes a word out of the count and keeps the level · P1 · full
@@ -362,7 +362,7 @@ Setup: a fresh `none` account; homes at 7; 49 retained cards not due, and 1 reta
 
 1. Verify *Learned words: 50*.
 2. Answer the due recall with a wrong word.
-3. Verify `android.review.review_wrong`, *That is not correct.*, the typed answer, the right answer and `android.review.review_returns`, *This word will come back in a few minutes.*
+3. Verify `android.learning.review_wrong`, *That is not correct.*, the typed answer, the right answer and `android.learning.review_returns`, *This word will come back in a few minutes.*
 4. Go to the town. Verify *Learned words: 49*, the homes still at level 7, and the card reading *Needs 60 learned words: 49 of 60*.
 
 ### The study reminder

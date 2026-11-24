@@ -58,7 +58,7 @@ describe('androidResourcesOf', () => {
   })
 
   it('escapes what XML and Android resources read as markup', () => {
-    const marked = { en: { 'android.review.review_note': `@A & <b> l'"x"\\\nfin` }, es: {} }
+    const marked = { en: { 'android.learning.review_note': `@A & <b> l'"x"\\\nfin` }, es: {} }
 
     expect(androidResourcesOf(marked)[0]?.contents).toContain(
       `<string name="review_note">\\@A &amp; &lt;b> l\\'\\"x\\"\\\\\\nfin</string>`,
@@ -74,7 +74,7 @@ describe('androidResourcesOf', () => {
   })
 
   it('marks a string holding a percent sign as not formatted', () => {
-    const percent = { en: { 'android.review.review_rate': '{rate} %' }, es: {} }
+    const percent = { en: { 'android.learning.review_rate': '{rate} %' }, es: {} }
 
     expect(androidResourcesOf(percent)[0]?.contents).toContain(
       '<string name="review_rate" formatted="false">{rate} %</string>',
