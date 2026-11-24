@@ -1,5 +1,7 @@
 package com.emm.mygame.feature.town.building
 
+import com.emm.mygame.feature.town.ReadyTime
+
 sealed interface BlockReason {
 
     data class WaitingListFull(val cap: Int) : BlockReason

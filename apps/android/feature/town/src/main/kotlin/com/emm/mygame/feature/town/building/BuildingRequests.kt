@@ -8,7 +8,7 @@ import com.emm.mygame.feature.town.TownRequests
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
 
-internal class BuildingWorkRequests(
+internal class BuildingRequests(
     private val towns: TownRepository,
     private val scope: CoroutineScope,
     private val requests: () -> TownRequests,
@@ -30,8 +30,7 @@ internal class BuildingWorkRequests(
         }
     }
 
-    fun stop(building: TownBuildingKind, level: Int) {
-        val target: WorkTarget = WorkTarget(building, level)
+    fun stop(target: WorkTarget) {
         if (requests().stop is StopStatus.Waiting) return
         onDrawn(requests().copy(stop = StopStatus.Waiting(target)))
         scope.launch {

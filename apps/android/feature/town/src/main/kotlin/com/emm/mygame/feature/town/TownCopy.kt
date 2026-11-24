@@ -8,7 +8,6 @@ import com.emm.mygame.core.ui.DurationCopy
 import com.emm.mygame.core.ui.finishClockLabelOf
 import com.emm.mygame.core.ui.timeLeftLabelOf
 import com.emm.mygame.core.ui.wholeSecondsOf
-import com.emm.mygame.feature.town.building.ReadyTime
 import java.time.ZoneId
 import kotlin.time.Duration.Companion.hours
 import kotlin.time.Duration.Companion.seconds

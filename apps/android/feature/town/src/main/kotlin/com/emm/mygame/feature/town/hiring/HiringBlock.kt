@@ -1,6 +1,6 @@
 package com.emm.mygame.feature.town.hiring
 
-import com.emm.mygame.feature.town.building.ReadyTime
+import com.emm.mygame.feature.town.ReadyTime
 import com.emm.mygame.feature.town.building.Shortfall
 
 sealed interface HiringBlock {

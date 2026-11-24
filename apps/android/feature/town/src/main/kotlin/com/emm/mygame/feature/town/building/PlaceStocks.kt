@@ -8,7 +8,6 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.semantics.clearAndSetSemantics
 import androidx.compose.ui.tooling.preview.PreviewParameter
 import androidx.compose.ui.tooling.preview.PreviewParameterProvider
 import com.emm.mygame.core.designsystem.MyGameIcon
@@ -24,12 +23,10 @@ import com.emm.mygame.core.designsystem.formatQuantity
 import com.emm.mygame.core.model.town.SeasonKind
 import com.emm.mygame.core.model.town.TownResourceKind
 import com.emm.mygame.core.model.town.building.TownBuildingKind
-import com.emm.mygame.core.ui.CopyReader
 import com.emm.mygame.core.ui.PlayerCopy
 import com.emm.mygame.core.ui.SeasonMark
 import com.emm.mygame.core.ui.chromeResource
 import com.emm.mygame.core.ui.rememberPlayerCopy
-import com.emm.mygame.core.ui.timeLeftLabelOf
 import com.emm.mygame.feature.town.FiguredCaption
 import com.emm.mygame.feature.town.ProductionMark
 import com.emm.mygame.feature.town.R
@@ -37,7 +34,6 @@ import com.emm.mygame.feature.town.SeasonLine
 import com.emm.mygame.feature.town.TownUiState
 import com.emm.mygame.feature.town.seasonIconOf
 import com.emm.mygame.feature.town.seasonSelectorOf
-import com.emm.mygame.feature.town.townDurationCopy
 import java.time.LocalDateTime
 import java.time.ZoneId
 import kotlin.time.Duration.Companion.hours
@@ -173,45 +169,6 @@ private fun WordsRows(words: WordsLine, modifier: Modifier = Modifier) {
 }
 
 @Composable
-internal fun SeasonRow(season: SeasonLine, modifier: Modifier = Modifier) {
-    val copy: PlayerCopy = rememberPlayerCopy()
-    FlowRow(
-        horizontalArrangement = Arrangement.spacedBy(MyGameSpacing.step2),
-        verticalArrangement = Arrangement.spacedBy(MyGameSpacing.step1),
-        modifier = modifier,
-    ) {
-        MyGameIcon(
-            icon = seasonIconOf(season.kind),
-            tint = MyGameTheme.colors.inkMuted,
-            modifier = Modifier.align(Alignment.CenterVertically),
-        )
-        MyGameText(
-            label = copy.chrome {
-                text(R.string.town_season_line, "season" to seasonLabelOf(season), "year" to season.year.toString())
-            },
-            style = MyGameTypography.caption,
-            color = MyGameTheme.colors.ink,
-        )
-        MyGameText(
-            label = copy.chrome(R.string.town_season_separator),
-            style = MyGameTypography.caption,
-            color = MyGameTheme.colors.inkMuted,
-            modifier = Modifier.clearAndSetSemantics { },
-        )
-        FiguredCaption(
-            label = copy.chrome {
-                text(
-                    R.string.town_season_ends_in,
-                    "season" to seasonLabelOf(season),
-                    "timeLeft" to seasonTimeLeftOf(season),
-                )
-            },
-            color = MyGameTheme.colors.inkMuted,
-        )
-    }
-}
-
-@Composable
 private fun ProductionMarkRow(season: SeasonKind, mark: ProductionMark, modifier: Modifier = Modifier) {
     SeasonMark(
         icon = seasonIconOf(season),
@@ -225,15 +182,6 @@ private fun ProductionMarkRow(season: SeasonKind, mark: ProductionMark, modifier
         },
         modifier = modifier,
     )
-}
-
-private fun CopyReader.seasonLabelOf(season: SeasonLine): String =
-    capitalized(text(seasonNameOf(season.kind)))
-
-private fun CopyReader.seasonTimeLeftOf(season: SeasonLine): String {
-    val days: Long = season.remaining.inWholeDays
-    if (days < 1) return timeLeftLabelOf(season.remaining, townDurationCopy)
-    return text(R.string.town_season_days, "days" to days.toInt())
 }
 
 private fun previewLocalInstantOf(local: LocalDateTime): Instant =

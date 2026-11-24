@@ -11,7 +11,6 @@ import com.emm.mygame.core.model.town.building.TownBuildingKind
 import com.emm.mygame.core.model.town.hiring.TownHireKind
 import com.emm.mygame.feature.town.building.PlaceBuildingWork
 import com.emm.mygame.feature.town.building.PlaceStocks
-import com.emm.mygame.feature.town.building.SeasonRow
 import com.emm.mygame.feature.town.building.SlotLine
 import com.emm.mygame.feature.town.guidance.ClosedGuidance
 import com.emm.mygame.feature.town.hiring.HiringLine

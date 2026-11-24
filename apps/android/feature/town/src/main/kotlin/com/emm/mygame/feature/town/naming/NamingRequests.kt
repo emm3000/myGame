@@ -10,20 +10,20 @@ import kotlinx.coroutines.launch
 internal class NamingRequests(
     private val towns: TownRepository,
     private val scope: CoroutineScope,
-    private val naming: () -> TownUiState.Naming?,
-    private val onAnswered: (NamingStatus) -> Unit,
+    private val asked: () -> TownUiState.Naming?,
+    private val onStatus: (NamingStatus) -> Unit,
     private val onFounded: (TownSnapshot) -> Unit,
 ) {
 
     fun found() {
-        val asked: TownUiState.Naming = naming() ?: return
-        if (asked.status == NamingStatus.Submitting) return
-        onAnswered(NamingStatus.Submitting)
+        val current: TownUiState.Naming = asked() ?: return
+        if (current.status == NamingStatus.Submitting) return
+        onStatus(NamingStatus.Submitting)
         scope.launch {
-            when (val answer: TownFoundResult = towns.found(asked.name)) {
+            when (val answer: TownFoundResult = towns.found(current.name)) {
                 is TownFoundResult.Founded -> onFounded(answer.town)
-                is TownFoundResult.Refused -> onAnswered(NamingStatus.Refused(answer.refusal))
-                TownFoundResult.Unreachable -> onAnswered(NamingStatus.Unreachable)
+                is TownFoundResult.Refused -> onStatus(NamingStatus.Refused(answer.refusal))
+                TownFoundResult.Unreachable -> onStatus(NamingStatus.Unreachable)
             }
         }
     }

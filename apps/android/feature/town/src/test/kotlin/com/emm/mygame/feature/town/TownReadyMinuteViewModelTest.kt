@@ -8,7 +8,6 @@ import com.emm.mygame.core.model.town.hiring.TownHireKind
 import com.emm.mygame.core.testing.FakeTownRepository
 import com.emm.mygame.core.testing.MainDispatcherRule
 import com.emm.mygame.feature.town.building.BlockReason
-import com.emm.mygame.feature.town.building.ReadyTime
 import com.emm.mygame.feature.town.building.Shortfall
 import com.emm.mygame.feature.town.hiring.HiringBlock
 import com.emm.mygame.feature.town.hiring.HiringCard

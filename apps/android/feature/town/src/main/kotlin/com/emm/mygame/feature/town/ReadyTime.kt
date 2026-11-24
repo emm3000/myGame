@@ -1,4 +1,4 @@
-package com.emm.mygame.feature.town.building
+package com.emm.mygame.feature.town
 
 import kotlin.time.Duration
 import kotlin.time.Instant

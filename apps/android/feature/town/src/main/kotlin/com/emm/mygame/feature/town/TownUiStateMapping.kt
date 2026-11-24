@@ -20,7 +20,6 @@ import com.emm.mygame.feature.town.building.NextLevel
 import com.emm.mygame.feature.town.building.NextLevelLine
 import com.emm.mygame.feature.town.building.PeopleLine
 import com.emm.mygame.feature.town.building.PlaceCard
-import com.emm.mygame.feature.town.building.ReadyTime
 import com.emm.mygame.feature.town.building.Shortfall
 import com.emm.mygame.feature.town.building.SlotLine
 import com.emm.mygame.feature.town.building.StockLine
