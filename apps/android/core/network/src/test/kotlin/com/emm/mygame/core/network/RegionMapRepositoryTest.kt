@@ -1,5 +1,10 @@
 package com.emm.mygame.core.network
 
+import com.emm.mygame.core.model.town.TownRepository
+import com.emm.mygame.core.model.town.jobs.RegionMap
+import com.emm.mygame.core.model.town.jobs.RegionMapResult
+import com.emm.mygame.core.model.town.jobs.Terrain
+import com.emm.mygame.core.model.town.jobs.WasteSize
 import com.emm.mygame.core.testing.FakeTokenCipher
 import com.emm.mygame.core.testing.TestClock
 import java.io.File

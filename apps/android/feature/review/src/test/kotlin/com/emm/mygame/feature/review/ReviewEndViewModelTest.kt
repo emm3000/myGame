@@ -3,12 +3,14 @@ package com.emm.mygame.feature.review
 import app.cash.turbine.test
 import com.emm.mygame.core.model.learning.ReviewAnswerResult
 import com.emm.mygame.core.model.learning.ReviewVerdict
-import com.emm.mygame.core.network.TownReadResult
-import com.emm.mygame.core.network.WordStanding
-import com.emm.mygame.core.network.schoolPathCountsOf
+import com.emm.mygame.core.model.town.TownReadResult
+import com.emm.mygame.core.model.town.school.WordStanding
+import com.emm.mygame.core.model.town.school.schoolPathCountsOf
 import com.emm.mygame.core.testing.FakeLearningRepository
 import com.emm.mygame.core.testing.FakeTownRepository
 import com.emm.mygame.core.testing.MainDispatcherRule
+import kotlin.time.Duration.Companion.minutes
+import kotlin.time.Duration.Companion.seconds
 import kotlinx.coroutines.test.TestScope
 import kotlinx.coroutines.test.advanceTimeBy
 import kotlinx.coroutines.test.runCurrent
@@ -17,8 +19,6 @@ import org.junit.Assert.assertEquals
 import org.junit.Assert.assertNull
 import org.junit.Rule
 import org.junit.Test
-import kotlin.time.Duration.Companion.minutes
-import kotlin.time.Duration.Companion.seconds
 
 class ReviewEndViewModelTest {
 

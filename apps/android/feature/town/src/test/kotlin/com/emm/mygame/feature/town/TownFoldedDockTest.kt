@@ -16,7 +16,7 @@ import androidx.compose.ui.test.performScrollTo
 import com.emm.mygame.core.designsystem.MyGameTheme
 import com.emm.mygame.core.designsystem.MyGameTransitions
 import com.emm.mygame.core.designsystem.SKELETON_BLOCK
-import com.emm.mygame.core.network.TownRegistered
+import com.emm.mygame.core.model.town.TownRegistered
 import kotlin.time.Duration
 import org.junit.Assert.assertTrue
 import org.junit.Rule

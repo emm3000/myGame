@@ -12,9 +12,9 @@ import com.emm.mygame.core.model.reminder.StudyReminderSettings
 import com.emm.mygame.core.model.report.ReportRepository
 import com.emm.mygame.core.model.theme.ThemePick
 import com.emm.mygame.core.model.theme.ThemeSettings
+import com.emm.mygame.core.model.town.TownRepository
+import com.emm.mygame.core.model.town.TownTextRepository
 import com.emm.mygame.core.network.SessionEnds
-import com.emm.mygame.core.network.TownRepository
-import com.emm.mygame.core.network.TownTextRepository
 import com.emm.mygame.core.testing.FakeHoldoutCheckRepository
 import com.emm.mygame.core.testing.FakeLearningRepository
 import com.emm.mygame.core.testing.FakePlacementRepository
@@ -25,9 +25,9 @@ import com.emm.mygame.core.testing.FakeStudyReminderSettings
 import com.emm.mygame.core.testing.FakeThemeSettings
 import com.emm.mygame.core.testing.FakeTownRepository
 import com.emm.mygame.core.testing.FakeTownTextRepository
+import kotlin.time.Clock
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
-import kotlin.time.Clock
 
 fun dependenciesOf(
     clock: Clock = Clock.System,

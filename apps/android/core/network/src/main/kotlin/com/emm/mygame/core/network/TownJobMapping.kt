@@ -1,7 +1,14 @@
 package com.emm.mygame.core.network
 
 import com.emm.mygame.core.model.town.TownResourceKind
+import com.emm.mygame.core.model.town.TownSnapshot
 import com.emm.mygame.core.model.town.hiring.TownHireKind
+import com.emm.mygame.core.model.town.jobs.CleanUpQuoteResult
+import com.emm.mygame.core.model.town.jobs.JobQuoteResult
+import com.emm.mygame.core.model.town.jobs.JobTarget
+import com.emm.mygame.core.model.town.jobs.TownJobRefusal
+import com.emm.mygame.core.model.town.jobs.TownJobResult
+import com.emm.mygame.core.model.town.jobs.WasteSize
 import com.emm.mygame.core.network.generated.models.ApiError
 import com.emm.mygame.core.network.generated.models.BareApiError
 import com.emm.mygame.core.network.generated.models.CleanUpJob

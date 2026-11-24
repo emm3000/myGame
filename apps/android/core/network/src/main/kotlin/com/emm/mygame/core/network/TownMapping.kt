@@ -2,8 +2,15 @@ package com.emm.mygame.core.network
 
 import com.emm.mygame.core.model.holdout.HoldoutCheckWeek
 import com.emm.mygame.core.model.placement.PlacementBand
+import com.emm.mygame.core.model.town.SeasonDurationPercent
+import com.emm.mygame.core.model.town.SeasonInForce
+import com.emm.mygame.core.model.town.SeasonKind
+import com.emm.mygame.core.model.town.SeasonProductionPercent
+import com.emm.mygame.core.model.town.TownLabel
 import com.emm.mygame.core.model.town.TownResourceKind
+import com.emm.mygame.core.model.town.TownSnapshot
 import com.emm.mygame.core.model.town.building.TownBuildingKind
+import com.emm.mygame.core.model.town.guidance.NextStep
 import com.emm.mygame.core.model.town.hiring.TownHireKind
 import com.emm.mygame.core.network.generated.models.BuildingWork
 import com.emm.mygame.core.network.generated.models.PlaceHiringOrder

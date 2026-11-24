@@ -1,7 +1,7 @@
 package com.emm.mygame.feature.school
 
 import com.emm.mygame.core.model.learning.LessonId
-import com.emm.mygame.core.network.TownSnapshot
+import com.emm.mygame.core.model.town.TownSnapshot
 import com.emm.mygame.core.testing.FakeTownRepository
 import com.emm.mygame.core.testing.MainDispatcherRule
 import kotlinx.coroutines.test.TestScope

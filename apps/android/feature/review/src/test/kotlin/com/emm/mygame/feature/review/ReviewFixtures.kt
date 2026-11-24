@@ -12,24 +12,24 @@ import com.emm.mygame.core.model.learning.ReviewChoice
 import com.emm.mygame.core.model.learning.ReviewsReadResult
 import com.emm.mygame.core.model.learning.WordId
 import com.emm.mygame.core.model.placement.ChoiceId
+import com.emm.mygame.core.model.town.TownLabel
+import com.emm.mygame.core.model.town.TownReadResult
 import com.emm.mygame.core.model.town.TownResourceKind
-import com.emm.mygame.core.network.CaughtUpReason
-import com.emm.mygame.core.network.NextStep
-import com.emm.mygame.core.network.TownLabel
-import com.emm.mygame.core.network.TownReadResult
-import com.emm.mygame.core.network.TownSnapshot
-import com.emm.mygame.core.network.WordStanding
+import com.emm.mygame.core.model.town.TownSnapshot
+import com.emm.mygame.core.model.town.guidance.CaughtUpReason
+import com.emm.mygame.core.model.town.guidance.NextStep
+import com.emm.mygame.core.model.town.school.WordStanding
 import com.emm.mygame.core.testing.FakeLearningRepository
 import com.emm.mygame.core.testing.FakeTownRepository
 import com.emm.mygame.core.testing.TestClock
 import com.emm.mygame.core.testing.hiringOf
+import kotlin.time.Duration.Companion.minutes
+import kotlin.time.Instant
 import kotlinx.coroutines.CoroutineStart
 import kotlinx.coroutines.awaitCancellation
 import kotlinx.coroutines.cancel
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.test.TestScope
-import kotlin.time.Duration.Companion.minutes
-import kotlin.time.Instant
 
 internal val isPlaced: SemanticsMatcher = SemanticsMatcher("is placed") { node -> node.layoutInfo.isPlaced }
 

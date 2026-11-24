@@ -3,7 +3,7 @@ package com.emm.mygame.feature.town
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import com.emm.mygame.core.designsystem.MyGameNavRow
-import com.emm.mygame.core.network.NextStepCard
+import com.emm.mygame.core.model.town.guidance.NextStepCard
 import com.emm.mygame.core.ui.chromeResource
 
 @Composable

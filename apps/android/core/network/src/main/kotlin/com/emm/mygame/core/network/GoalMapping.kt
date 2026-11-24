@@ -1,6 +1,8 @@
 package com.emm.mygame.core.network
 
 import com.emm.mygame.core.model.town.building.TownBuildingKind
+import com.emm.mygame.core.model.town.guidance.TipKind
+import com.emm.mygame.core.model.town.guidance.TownGoal
 import com.emm.mygame.core.network.generated.models.Goal
 import com.emm.mygame.core.network.generated.models.PendingGoal
 import com.emm.mygame.core.network.generated.models.TownOverview

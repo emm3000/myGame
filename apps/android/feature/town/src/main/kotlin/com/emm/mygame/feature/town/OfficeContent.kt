@@ -1,9 +1,9 @@
 package com.emm.mygame.feature.town
 
 import com.emm.mygame.core.model.town.TownResourceKind
+import com.emm.mygame.core.model.town.TownSnapshot
 import com.emm.mygame.core.model.town.building.TownBuildingKind
 import com.emm.mygame.core.model.town.hiring.TownHireKind
-import com.emm.mygame.core.network.TownSnapshot
 import com.emm.mygame.core.projection.countdownTo
 import kotlin.time.Duration
 import kotlin.time.Duration.Companion.seconds

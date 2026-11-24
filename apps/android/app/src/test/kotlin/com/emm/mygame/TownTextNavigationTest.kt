@@ -12,24 +12,24 @@ import androidx.test.ext.junit.rules.ActivityScenarioRule
 import com.emm.mygame.core.designsystem.MyGameTheme
 import com.emm.mygame.core.model.learning.FrameSpan
 import com.emm.mygame.core.model.learning.TextId
-import com.emm.mygame.core.network.CaughtUpReason
-import com.emm.mygame.core.network.NextStep
-import com.emm.mygame.core.network.NextStepText
-import com.emm.mygame.core.network.OpenText
-import com.emm.mygame.core.network.TownReadResult
-import com.emm.mygame.core.network.TownSnapshot
-import com.emm.mygame.core.network.TownTextResult
+import com.emm.mygame.core.model.town.OpenText
+import com.emm.mygame.core.model.town.TownReadResult
+import com.emm.mygame.core.model.town.TownSnapshot
+import com.emm.mygame.core.model.town.TownTextResult
+import com.emm.mygame.core.model.town.guidance.CaughtUpReason
+import com.emm.mygame.core.model.town.guidance.NextStep
+import com.emm.mygame.core.model.town.guidance.NextStepText
 import com.emm.mygame.core.testing.FakeTownRepository
 import com.emm.mygame.core.testing.FakeTownTextRepository
 import com.emm.mygame.core.testing.townOf
 import com.emm.mygame.navigation.AppNavigation
+import kotlin.time.Clock
+import kotlin.time.Instant
 import kotlinx.coroutines.flow.emptyFlow
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.robolectric.RobolectricTestRunner
-import kotlin.time.Clock
-import kotlin.time.Instant
 
 @RunWith(RobolectricTestRunner::class)
 class TownTextNavigationTest {

@@ -1,8 +1,8 @@
 package com.emm.mygame.feature.town
 
 import app.cash.turbine.test
-import com.emm.mygame.core.network.TownFoundResult
-import com.emm.mygame.core.network.TownReadResult
+import com.emm.mygame.core.model.town.TownFoundResult
+import com.emm.mygame.core.model.town.TownReadResult
 import com.emm.mygame.core.testing.FakeSessionRepository
 import com.emm.mygame.core.testing.FakeTownRepository
 import com.emm.mygame.core.testing.MainDispatcherRule

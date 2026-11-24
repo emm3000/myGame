@@ -12,8 +12,8 @@ import com.emm.mygame.Destination
 import com.emm.mygame.core.designsystem.MyGameTheme
 import com.emm.mygame.core.model.account.RestoreResult
 import com.emm.mygame.core.model.report.ReportReadResult
-import com.emm.mygame.core.network.NextStep
-import com.emm.mygame.core.network.TownReadResult
+import com.emm.mygame.core.model.town.TownReadResult
+import com.emm.mygame.core.model.town.guidance.NextStep
 import kotlinx.coroutines.flow.emptyFlow
 import org.junit.Assert.assertEquals
 import org.junit.Test

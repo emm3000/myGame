@@ -1,11 +1,11 @@
 package com.emm.mygame.feature.town
 
-import com.emm.mygame.core.network.NextStep
-import com.emm.mygame.core.network.NextStepCard
-import com.emm.mygame.core.network.TownGoal
-import com.emm.mygame.core.network.TownSnapshot
-import com.emm.mygame.core.network.capWaitsUntil
-import com.emm.mygame.core.network.nextStepCard
+import com.emm.mygame.core.model.town.TownSnapshot
+import com.emm.mygame.core.model.town.capWaitsUntil
+import com.emm.mygame.core.model.town.guidance.NextStep
+import com.emm.mygame.core.model.town.guidance.NextStepCard
+import com.emm.mygame.core.model.town.guidance.TownGoal
+import com.emm.mygame.core.model.town.guidance.nextStepCard
 import com.emm.mygame.core.projection.countdownTo
 import kotlin.time.Duration
 import kotlin.time.Instant

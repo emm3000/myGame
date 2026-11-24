@@ -2,7 +2,7 @@ package com.emm.mygame.feature.school
 
 import com.emm.mygame.core.designsystem.MyGameLabel
 import com.emm.mygame.core.model.placement.PlacementBand
-import com.emm.mygame.core.network.LessonName
+import com.emm.mygame.core.model.town.school.LessonName
 import com.emm.mygame.core.ui.CopyReader
 import com.emm.mygame.core.ui.PlayerCopy
 

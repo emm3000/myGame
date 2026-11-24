@@ -1,8 +1,8 @@
 package com.emm.mygame.core.testing
 
 import com.emm.mygame.core.model.learning.TextId
-import com.emm.mygame.core.network.TownTextRepository
-import com.emm.mygame.core.network.TownTextResult
+import com.emm.mygame.core.model.town.TownTextRepository
+import com.emm.mygame.core.model.town.TownTextResult
 import kotlinx.coroutines.channels.Channel
 
 class FakeTownTextRepository : TownTextRepository {

@@ -32,11 +32,11 @@ import com.emm.mygame.core.model.learning.ReviewsReadResult
 import com.emm.mygame.core.model.learning.WordSupport
 import com.emm.mygame.core.model.report.ReportReadResult
 import com.emm.mygame.core.model.report.TownReport
+import com.emm.mygame.core.model.town.TownReadResult
 import com.emm.mygame.core.model.town.TownResourceKind
-import com.emm.mygame.core.network.NextStep
-import com.emm.mygame.core.network.RetainedWords
-import com.emm.mygame.core.network.TownReadResult
-import com.emm.mygame.core.network.TownSnapshot
+import com.emm.mygame.core.model.town.TownSnapshot
+import com.emm.mygame.core.model.town.guidance.NextStep
+import com.emm.mygame.core.model.town.school.RetainedWords
 import com.emm.mygame.core.testing.FakeLearningRepository
 import com.emm.mygame.core.testing.FakePlacementRepository
 import com.emm.mygame.core.testing.FakeReportRepository
@@ -47,16 +47,16 @@ import com.emm.mygame.core.testing.townOf
 import com.emm.mygame.dependenciesOf
 import com.emm.mygame.feature.town.TOWN_DOCK
 import com.emm.mygame.feature.town.TOWN_STATUS
-import kotlinx.coroutines.flow.emptyFlow
-import kotlinx.coroutines.runBlocking
-import org.junit.Rule
-import org.robolectric.shadows.ShadowLooper
 import java.util.concurrent.TimeUnit
 import kotlin.time.Clock
 import kotlin.time.Duration
 import kotlin.time.Duration.Companion.minutes
 import kotlin.time.Duration.Companion.seconds
 import kotlin.time.Instant
+import kotlinx.coroutines.flow.emptyFlow
+import kotlinx.coroutines.runBlocking
+import org.junit.Rule
+import org.robolectric.shadows.ShadowLooper
 
 internal const val TOWN_HEADER: String = "Riverton · Pueblo"
 internal const val LESSON_ONE_READY: String = "Lección 1 lista en"

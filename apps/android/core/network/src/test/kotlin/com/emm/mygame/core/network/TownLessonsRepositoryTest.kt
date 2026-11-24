@@ -4,9 +4,18 @@ import com.emm.mygame.core.model.learning.FrameSpan
 import com.emm.mygame.core.model.learning.LessonId
 import com.emm.mygame.core.model.learning.WordSupport
 import com.emm.mygame.core.model.placement.PlacementBand
+import com.emm.mygame.core.model.town.TownReadResult
+import com.emm.mygame.core.model.town.TownRepository
 import com.emm.mygame.core.model.town.TownResourceKind
+import com.emm.mygame.core.model.town.TownSnapshot
+import com.emm.mygame.core.model.town.school.TownLessonRefusal
+import com.emm.mygame.core.model.town.school.TownLessonResult
+import com.emm.mygame.core.model.town.school.WordStanding
 import com.emm.mygame.core.testing.FakeTokenCipher
 import com.emm.mygame.core.testing.TestClock
+import java.io.File
+import kotlin.time.Duration.Companion.seconds
+import kotlin.time.Instant
 import kotlinx.coroutines.test.TestScope
 import kotlinx.coroutines.test.runTest
 import mockwebserver3.MockResponse
@@ -18,9 +27,6 @@ import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
 import org.junit.rules.TemporaryFolder
-import java.io.File
-import kotlin.time.Duration.Companion.seconds
-import kotlin.time.Instant
 
 class TownLessonsRepositoryTest {
 

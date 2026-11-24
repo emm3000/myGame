@@ -2,12 +2,12 @@ package com.emm.mygame
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.emm.mygame.core.network.HeldTown
-import com.emm.mygame.core.network.RetainedWords
-import com.emm.mygame.core.network.TownRegistered
-import com.emm.mygame.core.network.TownRepository
-import com.emm.mygame.core.network.TownSnapshot
-import com.emm.mygame.core.network.registeredBetween
+import com.emm.mygame.core.model.town.HeldTown
+import com.emm.mygame.core.model.town.TownRegistered
+import com.emm.mygame.core.model.town.TownRepository
+import com.emm.mygame.core.model.town.TownSnapshot
+import com.emm.mygame.core.model.town.registeredBetween
+import com.emm.mygame.core.model.town.school.RetainedWords
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow

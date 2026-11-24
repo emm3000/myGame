@@ -12,7 +12,7 @@ import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.DpRect
 import com.emm.mygame.core.designsystem.MyGameSpacing
 import com.emm.mygame.core.designsystem.MyGameTheme
-import com.emm.mygame.core.network.TownRegistered
+import com.emm.mygame.core.model.town.TownRegistered
 import kotlin.time.Duration
 import org.junit.Assert.assertEquals
 import org.junit.Rule

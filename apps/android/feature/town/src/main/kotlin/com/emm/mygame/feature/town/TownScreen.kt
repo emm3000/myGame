@@ -32,15 +32,15 @@ import com.emm.mygame.core.designsystem.MyGameTextLink
 import com.emm.mygame.core.designsystem.MyGameTheme
 import com.emm.mygame.core.designsystem.PreviewMyGame
 import com.emm.mygame.core.model.learning.TextId
+import com.emm.mygame.core.model.town.SeasonKind
+import com.emm.mygame.core.model.town.TownLabel
 import com.emm.mygame.core.model.town.TownResourceKind
+import com.emm.mygame.core.model.town.TownSnapshot
 import com.emm.mygame.core.model.town.building.TownBuildingKind
+import com.emm.mygame.core.model.town.guidance.NextStepText
+import com.emm.mygame.core.model.town.guidance.TipKind
+import com.emm.mygame.core.model.town.guidance.TownGoal
 import com.emm.mygame.core.model.town.hiring.TownHireKind
-import com.emm.mygame.core.network.NextStepText
-import com.emm.mygame.core.network.SeasonKind
-import com.emm.mygame.core.network.TipKind
-import com.emm.mygame.core.network.TownGoal
-import com.emm.mygame.core.network.TownLabel
-import com.emm.mygame.core.network.TownSnapshot
 import com.emm.mygame.core.ui.ChromePhase
 import com.emm.mygame.core.ui.CopyLanguage
 import com.emm.mygame.core.ui.ProvideCopyLanguage
@@ -48,10 +48,10 @@ import com.emm.mygame.core.ui.ScaffoldLanguage
 import com.emm.mygame.core.ui.chromeResource
 import com.emm.mygame.core.ui.fixedCopyResource
 import com.emm.mygame.core.ui.joinsFrameTraversal
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.launch
 import kotlin.time.Duration.Companion.days
 import kotlin.time.Duration.Companion.minutes
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.launch
 
 @Composable
 fun TownScreen(

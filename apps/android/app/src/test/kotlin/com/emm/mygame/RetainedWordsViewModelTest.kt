@@ -1,8 +1,8 @@
 package com.emm.mygame
 
-import com.emm.mygame.core.network.RetainedWords
-import com.emm.mygame.core.network.TownReadResult
-import com.emm.mygame.core.network.TownSnapshot
+import com.emm.mygame.core.model.town.TownReadResult
+import com.emm.mygame.core.model.town.TownSnapshot
+import com.emm.mygame.core.model.town.school.RetainedWords
 import com.emm.mygame.core.testing.FakeTownRepository
 import com.emm.mygame.core.testing.MainDispatcherRule
 import com.emm.mygame.core.testing.townOf

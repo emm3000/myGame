@@ -1,8 +1,25 @@
 package com.emm.mygame.core.network
 
 import com.emm.mygame.core.model.learning.LessonId
+import com.emm.mygame.core.model.town.HeldTown
+import com.emm.mygame.core.model.town.TownFoundRefusal
+import com.emm.mygame.core.model.town.TownFoundResult
+import com.emm.mygame.core.model.town.TownReadResult
+import com.emm.mygame.core.model.town.TownRepository
+import com.emm.mygame.core.model.town.TownSnapshot
+import com.emm.mygame.core.model.town.building.NeededWordKind
 import com.emm.mygame.core.model.town.building.TownBuildingKind
+import com.emm.mygame.core.model.town.building.TownWorkRefusal
+import com.emm.mygame.core.model.town.building.TownWorkResult
+import com.emm.mygame.core.model.town.guidance.TownGuidanceRepository
 import com.emm.mygame.core.model.town.hiring.TownHireKind
+import com.emm.mygame.core.model.town.hiring.TownHiringRefusal
+import com.emm.mygame.core.model.town.hiring.TownHiringResult
+import com.emm.mygame.core.model.town.jobs.JobTarget
+import com.emm.mygame.core.model.town.jobs.RegionReader
+import com.emm.mygame.core.model.town.jobs.TownJobResult
+import com.emm.mygame.core.model.town.school.TownLessonRefusal
+import com.emm.mygame.core.model.town.school.TownLessonResult
 import com.emm.mygame.core.network.generated.apis.DefaultApi
 import com.emm.mygame.core.network.generated.models.ApiError
 import com.emm.mygame.core.network.generated.models.BareApiError
@@ -12,6 +29,9 @@ import com.emm.mygame.core.network.generated.models.PlaceHiringOrder
 import com.emm.mygame.core.network.generated.models.StartBuildingWork
 import com.emm.mygame.core.network.generated.models.StartLessonRequest
 import com.emm.mygame.core.network.generated.models.TownOverview
+import java.io.IOException
+import kotlin.time.Clock
+import kotlin.time.Instant
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -19,9 +39,6 @@ import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.withContext
 import kotlinx.serialization.SerializationException
 import retrofit2.Response
-import java.io.IOException
-import kotlin.time.Clock
-import kotlin.time.Instant
 
 internal class ApiTownRepository(
     private val api: DefaultApi,

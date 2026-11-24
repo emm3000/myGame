@@ -1,10 +1,10 @@
 package com.emm.mygame.feature.school
 
 import com.emm.mygame.core.model.learning.LessonId
-import com.emm.mygame.core.network.NextStepCard
-import com.emm.mygame.core.network.TownSnapshot
-import com.emm.mygame.core.network.nameOf
-import com.emm.mygame.core.network.nextStepCard
+import com.emm.mygame.core.model.town.TownSnapshot
+import com.emm.mygame.core.model.town.guidance.NextStepCard
+import com.emm.mygame.core.model.town.guidance.nextStepCard
+import com.emm.mygame.core.model.town.school.nameOf
 import com.emm.mygame.core.projection.countdownTo
 import kotlin.time.Duration
 import kotlin.time.Instant

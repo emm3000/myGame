@@ -17,7 +17,7 @@ import com.emm.mygame.core.model.account.PlayerScaffold
 import com.emm.mygame.core.model.account.RestoreResult
 import com.emm.mygame.core.model.account.SignUpResult
 import com.emm.mygame.core.model.account.SignedInPlayer
-import com.emm.mygame.core.network.TownReadResult
+import com.emm.mygame.core.model.town.TownReadResult
 import com.emm.mygame.core.testing.FakeSessionRepository
 import com.emm.mygame.core.testing.FakeTownRepository
 import com.emm.mygame.navigation.AppNavigation

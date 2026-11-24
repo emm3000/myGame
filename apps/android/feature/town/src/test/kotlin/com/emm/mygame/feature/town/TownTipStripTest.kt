@@ -14,8 +14,8 @@ import androidx.compose.ui.test.performClick
 import androidx.compose.ui.test.performScrollTo
 import androidx.compose.ui.unit.Dp
 import com.emm.mygame.core.designsystem.MyGameTheme
-import com.emm.mygame.core.network.TipKind
-import com.emm.mygame.core.network.TownRegistered
+import com.emm.mygame.core.model.town.TownRegistered
+import com.emm.mygame.core.model.town.guidance.TipKind
 import kotlin.time.Duration
 import org.junit.Assert.assertTrue
 import org.junit.Rule

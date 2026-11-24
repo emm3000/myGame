@@ -1,5 +1,8 @@
 package com.emm.mygame.core.network
 
+import com.emm.mygame.core.model.town.guidance.TipKind
+import com.emm.mygame.core.model.town.guidance.TownGuidanceRepository
+import com.emm.mygame.core.model.town.guidance.TownGuidanceResult
 import com.emm.mygame.core.network.generated.apis.DefaultApi
 import java.io.IOException
 import kotlinx.coroutines.CoroutineDispatcher

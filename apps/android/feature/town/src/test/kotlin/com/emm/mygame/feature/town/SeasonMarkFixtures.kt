@@ -5,7 +5,7 @@ import androidx.compose.ui.test.SemanticsMatcher
 import androidx.compose.ui.test.hasAnyDescendant
 import androidx.compose.ui.test.hasText
 import com.emm.mygame.core.designsystem.MyGameIcons
-import com.emm.mygame.core.network.SeasonKind
+import com.emm.mygame.core.model.town.SeasonKind
 import com.emm.mygame.core.ui.SEASON_MARK_ICON
 
 internal val seasonWords: Map<SeasonKind, String> = mapOf(

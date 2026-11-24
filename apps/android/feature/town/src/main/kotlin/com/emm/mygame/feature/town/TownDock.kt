@@ -10,7 +10,7 @@ import com.emm.mygame.core.designsystem.MyGameLabel
 import com.emm.mygame.core.designsystem.MyGamePreviewSurface
 import com.emm.mygame.core.designsystem.PreviewMyGame
 import com.emm.mygame.core.designsystem.formatQuantity
-import com.emm.mygame.core.network.NextStepCard
+import com.emm.mygame.core.model.town.guidance.NextStepCard
 import com.emm.mygame.core.ui.PlayerCopy
 import com.emm.mygame.core.ui.finishLabelOf
 import com.emm.mygame.core.ui.rememberPlayerCopy

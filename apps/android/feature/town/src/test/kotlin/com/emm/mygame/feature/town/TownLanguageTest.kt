@@ -15,19 +15,23 @@ import androidx.compose.ui.test.performClick
 import androidx.compose.ui.test.performScrollTo
 import androidx.compose.ui.unit.DpRect
 import com.emm.mygame.core.designsystem.MyGameTheme
+import com.emm.mygame.core.model.town.TownFoundRefusal
+import com.emm.mygame.core.model.town.TownRegistered
 import com.emm.mygame.core.model.town.TownResourceKind
+import com.emm.mygame.core.model.town.TownSnapshot
 import com.emm.mygame.core.model.town.building.TownBuildingKind
+import com.emm.mygame.core.model.town.building.TownWorkRefusal
 import com.emm.mygame.core.model.town.hiring.TownHireKind
-import com.emm.mygame.core.network.LessonName
-import com.emm.mygame.core.network.TownFoundRefusal
-import com.emm.mygame.core.network.TownHiringRefusal
-import com.emm.mygame.core.network.TownRegistered
-import com.emm.mygame.core.network.TownSnapshot
-import com.emm.mygame.core.network.TownWorkRefusal
+import com.emm.mygame.core.model.town.hiring.TownHiringRefusal
+import com.emm.mygame.core.model.town.school.LessonName
 import com.emm.mygame.core.ui.ChromePhase
 import com.emm.mygame.core.ui.CopyLanguage
 import com.emm.mygame.core.ui.ProvideCopyLanguage
 import com.emm.mygame.core.ui.ScaffoldLanguage
+import java.util.TimeZone
+import kotlin.time.Duration
+import kotlin.time.Duration.Companion.days
+import kotlin.time.Duration.Companion.minutes
 import org.junit.After
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertTrue
@@ -37,10 +41,6 @@ import org.junit.Test
 import org.junit.runner.RunWith
 import org.robolectric.RobolectricTestRunner
 import org.robolectric.annotation.Config
-import java.util.TimeZone
-import kotlin.time.Duration
-import kotlin.time.Duration.Companion.days
-import kotlin.time.Duration.Companion.minutes
 
 @RunWith(RobolectricTestRunner::class)
 @Config(qualifiers = "en")

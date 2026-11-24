@@ -2,13 +2,13 @@ package com.emm.mygame.feature.map
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.emm.mygame.core.network.HeldTown
-import com.emm.mygame.core.network.RegionMap
-import com.emm.mygame.core.network.RegionMapResult
-import com.emm.mygame.core.network.TownJobResult
-import com.emm.mygame.core.network.TownReadResult
-import com.emm.mygame.core.network.TownRepository
-import com.emm.mygame.core.network.TownSnapshot
+import com.emm.mygame.core.model.town.HeldTown
+import com.emm.mygame.core.model.town.TownReadResult
+import com.emm.mygame.core.model.town.TownRepository
+import com.emm.mygame.core.model.town.TownSnapshot
+import com.emm.mygame.core.model.town.jobs.RegionMap
+import com.emm.mygame.core.model.town.jobs.RegionMapResult
+import com.emm.mygame.core.model.town.jobs.TownJobResult
 import com.emm.mygame.core.projection.countdownTo
 import com.emm.mygame.core.projection.repaintDelay
 import kotlin.time.Clock

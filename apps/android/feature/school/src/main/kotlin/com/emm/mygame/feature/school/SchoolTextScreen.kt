@@ -33,7 +33,7 @@ import com.emm.mygame.core.designsystem.englishTextOf
 import com.emm.mygame.core.model.learning.FrameSpan
 import com.emm.mygame.core.model.learning.TextId
 import com.emm.mygame.core.model.learning.WordSupport
-import com.emm.mygame.core.network.OpenText
+import com.emm.mygame.core.model.town.OpenText
 import com.emm.mygame.core.ui.chromeResource
 import com.emm.mygame.core.ui.fixedCopyResource
 import com.emm.mygame.core.ui.joinsFrameTraversal

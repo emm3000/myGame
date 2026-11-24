@@ -12,21 +12,21 @@ import com.emm.mygame.core.model.reminder.ReminderNotifications
 import com.emm.mygame.core.model.reminder.StudyReminderSettings
 import com.emm.mygame.core.model.report.ReportRepository
 import com.emm.mygame.core.model.theme.ThemeSettings
+import com.emm.mygame.core.model.town.TownRepository
+import com.emm.mygame.core.model.town.TownTextRepository
 import com.emm.mygame.core.network.ApiRepositories
 import com.emm.mygame.core.network.KeystoreTokenCipher
 import com.emm.mygame.core.network.PlayerLanguages
 import com.emm.mygame.core.network.SessionEnds
 import com.emm.mygame.core.network.StudyAnswers
 import com.emm.mygame.core.network.TokenStore
-import com.emm.mygame.core.network.TownRepository
-import com.emm.mygame.core.network.TownTextRepository
+import java.io.File
+import java.time.ZoneId
+import kotlin.time.Clock
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.flow.StateFlow
-import java.io.File
-import java.time.ZoneId
-import kotlin.time.Clock
 
 class MyGameApplication : Application(), AppDependencies {
 

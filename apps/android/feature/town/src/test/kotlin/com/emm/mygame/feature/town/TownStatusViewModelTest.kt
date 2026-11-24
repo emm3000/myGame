@@ -3,23 +3,28 @@ package com.emm.mygame.feature.town
 import androidx.lifecycle.viewModelScope
 import com.emm.mygame.core.model.learning.LessonId
 import com.emm.mygame.core.model.placement.PlacementBand
+import com.emm.mygame.core.model.town.HeldTown
+import com.emm.mygame.core.model.town.TownLabel
+import com.emm.mygame.core.model.town.TownReadResult
 import com.emm.mygame.core.model.town.TownResourceKind
+import com.emm.mygame.core.model.town.TownSnapshot
 import com.emm.mygame.core.model.town.building.TownBuildingKind
-import com.emm.mygame.core.network.CaughtUpReason
-import com.emm.mygame.core.network.HeldTown
-import com.emm.mygame.core.network.LessonName
-import com.emm.mygame.core.network.NextStep
-import com.emm.mygame.core.network.NextStepCard
-import com.emm.mygame.core.network.TownGoal
-import com.emm.mygame.core.network.TownLabel
-import com.emm.mygame.core.network.TownLessonRefusal
-import com.emm.mygame.core.network.TownLessonResult
-import com.emm.mygame.core.network.TownReadResult
-import com.emm.mygame.core.network.TownSnapshot
+import com.emm.mygame.core.model.town.guidance.CaughtUpReason
+import com.emm.mygame.core.model.town.guidance.NextStep
+import com.emm.mygame.core.model.town.guidance.NextStepCard
+import com.emm.mygame.core.model.town.guidance.TownGoal
+import com.emm.mygame.core.model.town.school.LessonName
+import com.emm.mygame.core.model.town.school.TownLessonRefusal
+import com.emm.mygame.core.model.town.school.TownLessonResult
 import com.emm.mygame.core.testing.FakeTownRepository
 import com.emm.mygame.core.testing.MainDispatcherRule
 import com.emm.mygame.core.testing.TestClock
 import com.emm.mygame.core.testing.hiringOf
+import kotlin.time.Duration
+import kotlin.time.Duration.Companion.hours
+import kotlin.time.Duration.Companion.minutes
+import kotlin.time.Duration.Companion.seconds
+import kotlin.time.Instant
 import kotlinx.coroutines.CoroutineStart
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
@@ -37,11 +42,6 @@ import org.junit.Assert.assertEquals
 import org.junit.Assert.assertNull
 import org.junit.Rule
 import org.junit.Test
-import kotlin.time.Duration
-import kotlin.time.Duration.Companion.hours
-import kotlin.time.Duration.Companion.minutes
-import kotlin.time.Duration.Companion.seconds
-import kotlin.time.Instant
 
 @OptIn(ExperimentalCoroutinesApi::class)
 class TownStatusViewModelTest {

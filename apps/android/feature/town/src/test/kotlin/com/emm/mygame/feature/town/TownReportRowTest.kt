@@ -18,9 +18,9 @@ import com.emm.mygame.core.designsystem.MyGameTheme
 import com.emm.mygame.core.designsystem.MyGameTransitions
 import com.emm.mygame.core.designsystem.NAV_ROW_CHEVRON
 import com.emm.mygame.core.designsystem.SKELETON_BLOCK
-import com.emm.mygame.core.network.NextStepCard
-import com.emm.mygame.core.network.SeasonKind
-import com.emm.mygame.core.network.TownRegistered
+import com.emm.mygame.core.model.town.SeasonKind
+import com.emm.mygame.core.model.town.TownRegistered
+import com.emm.mygame.core.model.town.guidance.NextStepCard
 import kotlin.time.Duration
 import kotlin.time.Duration.Companion.days
 import org.junit.Assert.assertEquals

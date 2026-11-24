@@ -5,9 +5,9 @@ import androidx.compose.ui.test.junit4.ComposeContentTestRule
 import com.emm.mygame.core.designsystem.MyGameRegistering
 import com.emm.mygame.core.designsystem.MyGameTheme
 import com.emm.mygame.core.designsystem.REGISTERING
-import com.emm.mygame.core.network.TownRegistered
-import com.emm.mygame.core.network.TownSnapshot
-import com.emm.mygame.core.network.registeredBetween
+import com.emm.mygame.core.model.town.TownRegistered
+import com.emm.mygame.core.model.town.TownSnapshot
+import com.emm.mygame.core.model.town.registeredBetween
 import kotlin.time.Duration
 
 internal fun showBetween(composeRule: ComposeContentTestRule, previous: TownSnapshot, next: TownSnapshot) {

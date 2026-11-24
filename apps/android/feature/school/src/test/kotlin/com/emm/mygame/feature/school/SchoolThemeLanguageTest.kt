@@ -7,7 +7,7 @@ import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.text.intl.LocaleList
 import com.emm.mygame.core.designsystem.MyGameTheme
-import com.emm.mygame.core.network.TownSnapshot
+import com.emm.mygame.core.model.town.TownSnapshot
 import kotlin.time.Duration
 import org.junit.Assert.assertEquals
 import org.junit.Rule

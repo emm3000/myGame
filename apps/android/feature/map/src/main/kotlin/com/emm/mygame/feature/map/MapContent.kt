@@ -1,11 +1,11 @@
 package com.emm.mygame.feature.map
 
+import com.emm.mygame.core.model.town.SeasonInForce
 import com.emm.mygame.core.model.town.TownResourceKind
+import com.emm.mygame.core.model.town.TownSnapshot
+import com.emm.mygame.core.model.town.UNSCALED_PERCENT
 import com.emm.mygame.core.model.town.hiring.TownHireKind
-import com.emm.mygame.core.network.RegionMap
-import com.emm.mygame.core.network.SeasonInForce
-import com.emm.mygame.core.network.TownSnapshot
-import com.emm.mygame.core.network.UNSCALED_PERCENT
+import com.emm.mygame.core.model.town.jobs.RegionMap
 import com.emm.mygame.core.projection.countdownTo
 import kotlin.time.Duration
 import kotlin.time.Instant

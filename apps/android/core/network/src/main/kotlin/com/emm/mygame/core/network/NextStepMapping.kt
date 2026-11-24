@@ -5,13 +5,17 @@ import com.emm.mygame.core.model.holdout.HoldoutCheckWeek
 import com.emm.mygame.core.model.learning.LessonId
 import com.emm.mygame.core.model.learning.TextId
 import com.emm.mygame.core.model.placement.PlacementBand
+import com.emm.mygame.core.model.town.guidance.CaughtUpReason
+import com.emm.mygame.core.model.town.guidance.NextStep
+import com.emm.mygame.core.model.town.guidance.NextStepText
+import com.emm.mygame.core.model.town.guidance.TownGoal
 import com.emm.mygame.core.network.generated.models.CaughtUpStep
 import com.emm.mygame.core.network.generated.models.Goal
 import com.emm.mygame.core.network.generated.models.HoldoutCheckStep
 import com.emm.mygame.core.network.generated.models.LessonRunningStep
-import com.emm.mygame.core.network.generated.models.ReleasedLessonStep
 import com.emm.mygame.core.network.generated.models.NextStep as WireNextStep
 import com.emm.mygame.core.network.generated.models.NextStepText as WireNextStepText
+import com.emm.mygame.core.network.generated.models.ReleasedLessonStep
 
 internal fun WireNextStep.toNextStep(): NextStep? = when (this) {
     is WireNextStep.ReviewsWrapper -> NextStep.Reviews(value.count, value.readFirst.map(::LessonId))

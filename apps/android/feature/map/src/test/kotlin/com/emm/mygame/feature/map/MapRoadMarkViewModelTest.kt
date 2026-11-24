@@ -1,11 +1,11 @@
 package com.emm.mygame.feature.map
 
-import com.emm.mygame.core.network.RegionMap
-import com.emm.mygame.core.network.SeasonDurationPercent
-import com.emm.mygame.core.network.SeasonInForce
-import com.emm.mygame.core.network.SeasonKind
-import com.emm.mygame.core.network.SeasonProductionPercent
-import com.emm.mygame.core.network.TownSnapshot
+import com.emm.mygame.core.model.town.SeasonDurationPercent
+import com.emm.mygame.core.model.town.SeasonInForce
+import com.emm.mygame.core.model.town.SeasonKind
+import com.emm.mygame.core.model.town.SeasonProductionPercent
+import com.emm.mygame.core.model.town.TownSnapshot
+import com.emm.mygame.core.model.town.jobs.RegionMap
 import com.emm.mygame.core.testing.FakeTownRepository
 import com.emm.mygame.core.testing.MainDispatcherRule
 import kotlin.time.Duration.Companion.days

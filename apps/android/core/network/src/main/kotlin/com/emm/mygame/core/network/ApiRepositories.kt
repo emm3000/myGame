@@ -5,13 +5,15 @@ import com.emm.mygame.core.model.holdout.HoldoutCheckRepository
 import com.emm.mygame.core.model.learning.LearningRepository
 import com.emm.mygame.core.model.placement.PlacementRepository
 import com.emm.mygame.core.model.report.ReportRepository
+import com.emm.mygame.core.model.town.TownRepository
+import com.emm.mygame.core.model.town.TownTextRepository
 import com.emm.mygame.core.network.generated.apis.DefaultApi
-import kotlinx.coroutines.CoroutineDispatcher
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.SupervisorJob
 import kotlin.time.Clock
 import kotlin.time.Duration
 import kotlin.time.Duration.Companion.seconds
+import kotlinx.coroutines.CoroutineDispatcher
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.SupervisorJob
 
 class ApiRepositories internal constructor(
     private val endpoint: ApiEndpoint,

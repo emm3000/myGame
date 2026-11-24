@@ -50,8 +50,8 @@ import com.emm.mygame.core.designsystem.wordStyle
 import com.emm.mygame.core.model.learning.FrameSpan
 import com.emm.mygame.core.model.learning.WordSupport
 import com.emm.mygame.core.model.placement.PlacementBand
-import com.emm.mygame.core.network.LessonName
-import com.emm.mygame.core.network.TownSnapshot
+import com.emm.mygame.core.model.town.TownSnapshot
+import com.emm.mygame.core.model.town.school.LessonName
 import com.emm.mygame.core.ui.ChromePhase
 import com.emm.mygame.core.ui.CopyLanguage
 import com.emm.mygame.core.ui.FoldedTaskEnd

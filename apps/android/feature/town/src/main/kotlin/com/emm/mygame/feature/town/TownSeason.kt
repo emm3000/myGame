@@ -1,9 +1,9 @@
 package com.emm.mygame.feature.town
 
+import com.emm.mygame.core.model.town.SeasonInForce
 import com.emm.mygame.core.model.town.TownResourceKind
-import com.emm.mygame.core.network.SeasonInForce
-import com.emm.mygame.core.network.TownSnapshot
-import com.emm.mygame.core.network.UNSCALED_PERCENT
+import com.emm.mygame.core.model.town.TownSnapshot
+import com.emm.mygame.core.model.town.UNSCALED_PERCENT
 import com.emm.mygame.core.projection.countdownTo
 import kotlin.time.Instant
 

@@ -1,13 +1,13 @@
 package com.emm.mygame.feature.town
 
+import com.emm.mygame.core.model.town.TownReadResult
+import com.emm.mygame.core.model.town.TownSnapshot
 import com.emm.mygame.core.model.town.building.TownBuildingKind
-import com.emm.mygame.core.network.CaughtUpReason
-import com.emm.mygame.core.network.NextStep
-import com.emm.mygame.core.network.TipKind
-import com.emm.mygame.core.network.TownGoal
-import com.emm.mygame.core.network.TownGuidanceResult
-import com.emm.mygame.core.network.TownReadResult
-import com.emm.mygame.core.network.TownSnapshot
+import com.emm.mygame.core.model.town.guidance.CaughtUpReason
+import com.emm.mygame.core.model.town.guidance.NextStep
+import com.emm.mygame.core.model.town.guidance.TipKind
+import com.emm.mygame.core.model.town.guidance.TownGoal
+import com.emm.mygame.core.model.town.guidance.TownGuidanceResult
 import com.emm.mygame.core.testing.FakeTownRepository
 import com.emm.mygame.core.testing.MainDispatcherRule
 import kotlinx.coroutines.test.TestScope

@@ -1,7 +1,7 @@
 package com.emm.mygame.feature.school
 
-import com.emm.mygame.core.network.HeldTown
-import com.emm.mygame.core.network.TownReadResult
+import com.emm.mygame.core.model.town.HeldTown
+import com.emm.mygame.core.model.town.TownReadResult
 import com.emm.mygame.core.testing.FakeTownRepository
 import com.emm.mygame.core.testing.MainDispatcherRule
 import kotlin.time.Duration

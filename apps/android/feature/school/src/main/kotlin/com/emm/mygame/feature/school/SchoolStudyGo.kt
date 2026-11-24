@@ -2,7 +2,7 @@ package com.emm.mygame.feature.school
 
 import androidx.compose.runtime.Composable
 import com.emm.mygame.core.designsystem.MyGameDockGo
-import com.emm.mygame.core.network.TownSnapshot
+import com.emm.mygame.core.model.town.TownSnapshot
 import com.emm.mygame.core.ui.PlayerCopy
 import com.emm.mygame.core.ui.rememberPlayerCopy
 

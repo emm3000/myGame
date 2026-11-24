@@ -8,7 +8,7 @@ import com.emm.mygame.core.model.learning.ReviewRefusal
 import com.emm.mygame.core.model.learning.WordId
 import com.emm.mygame.core.model.placement.ChoiceId
 import com.emm.mygame.core.model.town.TownResourceKind
-import com.emm.mygame.core.network.SchoolPathCounts
+import com.emm.mygame.core.model.town.school.SchoolPathCounts
 import kotlin.time.Instant
 
 sealed interface ReviewUiState {

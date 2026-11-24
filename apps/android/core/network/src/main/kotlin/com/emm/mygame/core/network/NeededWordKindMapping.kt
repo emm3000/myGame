@@ -1,5 +1,6 @@
 package com.emm.mygame.core.network
 
+import com.emm.mygame.core.model.town.building.NeededWordKind
 import com.emm.mygame.core.network.generated.models.NeededWordKind as WireNeededWordKind
 
 internal fun WireNeededWordKind.toNeededWordKind(): NeededWordKind? = when (this) {

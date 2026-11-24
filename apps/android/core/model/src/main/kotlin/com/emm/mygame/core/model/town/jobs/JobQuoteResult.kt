@@ -1,0 +1,12 @@
+package com.emm.mygame.core.model.town.jobs
+
+import com.emm.mygame.core.model.town.TownResourceKind
+
+sealed interface JobQuoteResult {
+
+    data class Quoted(val pay: Map<TownResourceKind, Long>) : JobQuoteResult
+
+    data class Refused(val refusal: TownJobRefusal) : JobQuoteResult
+
+    data object Unreachable : JobQuoteResult
+}
