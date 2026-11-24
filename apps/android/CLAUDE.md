@@ -11,7 +11,7 @@ Run from `apps/android`. Every Gradle command runs as `taskpolicy -c utility ./g
 - `taskpolicy -c utility ./gradlew checkModuleBoundaries` — the Modules table of `android-architecture.md`, held as `allowedCoreEdges` and `allowedFeatureEdges` in `build-logic/convention/.../ModuleChecksConventionPlugin.kt`. A new `core:` module is a new entry there and in the rule; a new `feature:` module needs only `settings.gradle.kts`.
 - `taskpolicy -c utility ./gradlew checkComposeFreeViewModels` — fails on any `*ViewModel.kt` or `*UiState.kt` line that names `androidx.compose`.
 - `taskpolicy -c utility ./gradlew checkStructure` — the limits and checks of ADR 056, sections 6 and 7, their numbers held only in `build-logic/convention/.../StructureLimits.kt`, after `build-logic`'s own tests. Fails on a violation `config/structure/baseline.txt` does not hold and on a baseline line that no longer violates: the step that fixes a file deletes its line.
-- `taskpolicy -c utility ./gradlew testDebugUnitTest` — every module's unit tests; on the JVM module `:core:projection` it is an alias of `test`.
+- `taskpolicy -c utility ./gradlew testDebugUnitTest` — every module's unit tests; on the JVM modules `:core:model` and `:core:projection` it is an alias of `test`.
 - The peer's own emulator, the AVD `mygame-<name>` (`docs/agents/peer.md`, Isolation):
   - create: `$ANDROID_HOME/cmdline-tools/latest/bin/avdmanager create avd -n mygame-<name> -k "system-images;android-36;google_apis_playstore;arm64-v8a" -d medium_phone`;
   - set `hw.gpu.enabled=yes`, `hw.gpu.mode=host` and `hw.ramSize=4G` in `${ANDROID_AVD_HOME:-$HOME/.android/avd}/mygame-<name>.avd/config.ini`, since `avdmanager` leaves the GPU off and software rendering takes about 5 cores;

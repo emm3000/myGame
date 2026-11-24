@@ -16,10 +16,10 @@ paths:
 
 | Module | Holds |
 |---|---|
-| `app` | `MainActivity`, navigation, the one place that binds implementations to interfaces, and, until they move (ADR 056), the signed-in frame (`FramedScreen`), the retained-words ring (`RetainedWords*`) and the study reminder (`StudyReminder*`) |
+| `app` | `MainActivity`, navigation, the one place that binds implementations to interfaces, and, until they move (ADR 056), the signed-in frame (`FramedScreen`), the retained-words ring (`RetainedWords*`) and the study reminder (`StudyReminderAlarm`, `StudyReminderStore`, `StudyReminderSink`, `StudyReminderReceiver`) |
 | `feature:<name>` | One module, one feature, its screens in packages: each screen's ViewModel, `UiState`, `Intent`, `Effect`, route and screen |
-| `core:model` | Pure Kotlin, JVM only: per feature package (`account`, `reminder`, `theme`), the types an api answer is read into, its `*Result` and `*Refusal`, and the ports beside them (`SessionRepository`, `ThemeSettings`) |
-| `core:network` | The generated OpenAPI client, one interface per api resource (`TownRepository`) implemented over it, the bearer, the token store |
+| `core:model` | Pure Kotlin, JVM only, one package per feature (`account`, `reminder`, `theme`): the feature's types, the `*Result` and `*Refusal` an api answer is read into, and its ports (`SessionRepository`, `StudyReminderSettings`, `ThemeSettings`) |
+| `core:network` | The generated OpenAPI client, the `Api*` adapters that implement the `core:model` ports, the interfaces not yet moved (`TownRepository`), the bearer, the token store |
 | `core:projection` | Pure Kotlin, JVM only: the lazy projection and the value types it reads |
 | `core:designsystem` | The design-system tokens and components (`ui-components.md`) |
 | `core:ui` | Composables shared by features that read the game's models (a resource row, a countdown) |
@@ -41,8 +41,8 @@ core:designsystem -> nothing in the project
 ## The contract
 
 - The api's OpenAPI spec generates the Kotlin types and client into `core:network`'s build directory. They are the only wire shapes: no hand-written DTO, no edit to a generated file, no raw HTTP call beside the client.
-- A generated type stops at `core:network`'s interfaces or the ViewModel's mapper; it never reaches a `UiState`, and a `UiState` never reaches the wire.
-- A use case exists only where there is client-side logic, which here means the projection and, beside it, the study reminder's rule (ADR 046). A read goes from the ViewModel to the `core:network` interface.
+- A generated type stops at the `core:network` adapter that implements a port, or at the ViewModel's mapper; it never reaches a `UiState`, and a `UiState` never reaches the wire.
+- A use case exists only where there is client-side logic, which here means the projection and, beside it, the study reminder's rule (ADR 046). A read goes from the ViewModel to the port.
 
 ## Session
 
