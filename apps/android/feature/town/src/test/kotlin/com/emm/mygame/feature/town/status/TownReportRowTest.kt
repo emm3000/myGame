@@ -21,7 +21,7 @@ import com.emm.mygame.core.designsystem.SKELETON_BLOCK
 import com.emm.mygame.core.model.town.SeasonKind
 import com.emm.mygame.core.model.town.TownRegistered
 import com.emm.mygame.core.model.town.guidance.NextStepCard
-import com.emm.mygame.feature.town.TownMutations
+import com.emm.mygame.feature.town.TownRequests
 import com.emm.mygame.feature.town.TownScreen
 import com.emm.mygame.feature.town.TownUiState
 import com.emm.mygame.feature.town.contentAt
@@ -50,7 +50,7 @@ class TownReportRowTest {
     ).contentAt(
         now = readInstant,
         gap = Duration.ZERO,
-        mutations = TownMutations.none,
+        requests = TownRequests.none,
         registered = TownRegistered.nothing,
         hireEntries = emptyMap(),
         closed = ClosedGuidance.none,

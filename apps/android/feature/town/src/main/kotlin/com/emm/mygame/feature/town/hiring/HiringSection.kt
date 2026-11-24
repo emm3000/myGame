@@ -34,15 +34,14 @@ import com.emm.mygame.feature.town.TownIntent
 import com.emm.mygame.feature.town.TownUiState
 import com.emm.mygame.feature.town.building.RunningCountdown
 import com.emm.mygame.feature.town.hireMark
-import com.emm.mygame.feature.town.hiringRefusalLineOf
 import com.emm.mygame.feature.town.placeNameOf
 import com.emm.mygame.feature.town.seasonIconOf
 import com.emm.mygame.feature.town.seasonSelectorOf
 import com.emm.mygame.feature.town.townDurationCopy
 
 @Composable
-internal fun OfficeSection(
-    office: TownUiState.OfficeLine,
+internal fun HiringSection(
+    hiring: TownUiState.Hiring,
     onIntent: (TownIntent) -> Unit,
     modifier: Modifier = Modifier,
 ) {
@@ -59,23 +58,23 @@ internal fun OfficeSection(
                 modifier = Modifier.padding(vertical = MyGameSpacing.step4),
             ) {
                 HiringHeading()
-                office.hireMark?.let { mark: TownUiState.DurationMark -> HireMarkRow(mark = mark) }
-                when (val hiring: TownUiState.HiringLine = office.hiring) {
+                hiring.hireMark?.let { mark: TownUiState.DurationMark -> HiringMarkRow(mark = mark) }
+                when (val order: TownUiState.HiringLine = hiring.order) {
                     TownUiState.HiringLine.Idle -> MyGameText(
                         label = chromeResource(R.string.town_office_idle),
                         style = MyGameTypography.caption,
                         color = MyGameTheme.colors.inkMuted,
                     )
-                    is TownUiState.HiringLine.Done -> DoneHiring(hiring = hiring)
+                    is TownUiState.HiringLine.Done -> DoneHiring(hiring = order)
                     is TownUiState.HiringLine.Busy ->
-                        BusyHiring(hiring = hiring, stop = office.stop, onIntent = onIntent)
+                        BusyHiring(hiring = order, stop = hiring.stop, onIntent = onIntent)
                 }
             }
         }
         Column(verticalArrangement = Arrangement.spacedBy(MyGameSpacing.step1)) {
-            office.hires.forEachIndexed { index: Int, card: TownUiState.HireCard ->
+            hiring.hires.forEachIndexed { index: Int, card: TownUiState.HiringCard ->
                 if (index > 0) MyGameHairline()
-                HireItem(card = card, place = office.place, onIntent = onIntent)
+                HiringItem(card = card, place = hiring.place, onIntent = onIntent)
             }
         }
     }
@@ -99,7 +98,7 @@ private fun HiringHeading(modifier: Modifier = Modifier) {
 }
 
 @Composable
-private fun HireMarkRow(mark: TownUiState.DurationMark, modifier: Modifier = Modifier) {
+private fun HiringMarkRow(mark: TownUiState.DurationMark, modifier: Modifier = Modifier) {
     SeasonMark(
         icon = seasonIconOf(mark.season),
         label = chromeResource(
@@ -156,7 +155,7 @@ private fun DoneHiring(hiring: TownUiState.HiringLine.Done, modifier: Modifier =
 @Composable
 private fun BusyHiring(
     hiring: TownUiState.HiringLine.Busy,
-    stop: TownUiState.HireStopStatus,
+    stop: TownUiState.HiringStopStatus,
     onIntent: (TownIntent) -> Unit,
     modifier: Modifier = Modifier,
 ) {
@@ -175,7 +174,7 @@ private fun BusyHiring(
         )
         MyGameOutlinedButton(
             label = copy.chrome(R.string.town_office_stop),
-            isBusy = stop == TownUiState.HireStopStatus.Waiting,
+            isBusy = stop == TownUiState.HiringStopStatus.Waiting,
             busyDescription = copy.chrome(R.string.town_waiting).spoken,
             onClick = { onIntent(TownIntent.StopHiringTapped(hiring.target)) },
             accessibleName = copy.chrome(stopOfHireOf(hiring.target.hire)).spoken,
@@ -185,12 +184,12 @@ private fun BusyHiring(
 }
 
 @Composable
-private fun StopHiringAnswer(stop: TownUiState.HireStopStatus, modifier: Modifier = Modifier) {
+private fun StopHiringAnswer(stop: TownUiState.HiringStopStatus, modifier: Modifier = Modifier) {
     val copy: PlayerCopy = rememberPlayerCopy()
     val message: String? = when (stop) {
-        is TownUiState.HireStopStatus.Refused -> copy.fixedCopy { hiringRefusalLineOf(stop.refusal) }
-        TownUiState.HireStopStatus.Unreachable -> copy.fixedCopy(R.string.town_refusal_unexpected)
-        TownUiState.HireStopStatus.Idle, TownUiState.HireStopStatus.Waiting -> null
+        is TownUiState.HiringStopStatus.Refused -> copy.fixedCopy { hiringRefusalLineOf(stop.refusal) }
+        TownUiState.HiringStopStatus.Unreachable -> copy.fixedCopy(R.string.town_refusal_unexpected)
+        TownUiState.HiringStopStatus.Idle, TownUiState.HiringStopStatus.Waiting -> null
     }
     if (message != null) RevealedAlert(message = message, modifier = modifier)
 }

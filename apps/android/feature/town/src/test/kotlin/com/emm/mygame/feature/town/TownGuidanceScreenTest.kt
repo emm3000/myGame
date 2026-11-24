@@ -221,7 +221,7 @@ class TownGuidanceScreenTest {
         .contentAt(
             now = readInstant,
             gap = Duration.ZERO,
-            mutations = TownMutations.none,
+            requests = TownRequests.none,
             registered = TownRegistered.nothing,
             hireEntries = emptyMap(),
             closed = closed,

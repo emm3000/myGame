@@ -59,14 +59,6 @@ file-name feature/school/src/main/kotlin/com/emm/mygame/feature/school/SchoolCon
 file-name feature/school/src/main/kotlin/com/emm/mygame/feature/school/SchoolLabels.kt
 file-name feature/school/src/main/kotlin/com/emm/mygame/feature/school/SeasonLabels.kt
 file-name feature/school/src/main/kotlin/com/emm/mygame/feature/school/WordArt.kt
-file-name feature/town/src/main/kotlin/com/emm/mygame/feature/town/TownContent.kt
-file-name feature/town/src/main/kotlin/com/emm/mygame/feature/town/TownLabels.kt
-file-name feature/town/src/main/kotlin/com/emm/mygame/feature/town/TownSeason.kt
-file-name feature/town/src/main/kotlin/com/emm/mygame/feature/town/TownStreet.kt
-file-name feature/town/src/main/kotlin/com/emm/mygame/feature/town/building/PlaceArt.kt
-file-name feature/town/src/main/kotlin/com/emm/mygame/feature/town/building/PlaceOffer.kt
-file-name feature/town/src/main/kotlin/com/emm/mygame/feature/town/guidance/GoalLines.kt
-file-name feature/town/src/main/kotlin/com/emm/mygame/feature/town/hiring/OfficeContent.kt
 file-name feature/town/src/main/kotlin/com/emm/mygame/feature/town/status/LessonRefusalLine.kt
 file-name feature/town/src/main/kotlin/com/emm/mygame/feature/town/status/TownStatusDock.kt
 package-files core/designsystem/src/main/kotlin/com/emm/mygame/core/designsystem

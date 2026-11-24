@@ -7,8 +7,8 @@ internal fun TownUiState.nearestReadyLeft(): Duration? {
     val places: List<TownUiState.ReadyTime> = places.mapNotNull { place: TownUiState.PlaceCard ->
         (place.block as? TownUiState.BlockReason.Resources)?.ready
     }
-    val hires: List<TownUiState.ReadyTime> = office.hires.mapNotNull { card: TownUiState.HireCard ->
-        (card.form?.block as? TownUiState.HireBlock.Resources)?.ready
+    val hires: List<TownUiState.ReadyTime> = hiring.hires.mapNotNull { card: TownUiState.HiringCard ->
+        (card.form?.block as? TownUiState.HiringBlock.Resources)?.ready
     }
     return (places + hires)
         .map(TownUiState.ReadyTime::remaining)

@@ -34,7 +34,7 @@ class TownTipStripTest {
     private val homeWithTheTip: TownUiState.Content = townOf().contentAt(
         now = readInstant,
         gap = Duration.ZERO,
-        mutations = TownMutations.none,
+        requests = TownRequests.none,
         registered = TownRegistered.nothing,
         hireEntries = emptyMap(),
         closed = ClosedGuidance.none,

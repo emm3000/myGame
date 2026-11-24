@@ -40,7 +40,7 @@ import com.emm.mygame.feature.town.guidance.GoalState
 import com.emm.mygame.feature.town.guidance.TipNote
 import com.emm.mygame.feature.town.guidance.goalLineOf
 import com.emm.mygame.feature.town.guidance.tipPlaceOf
-import com.emm.mygame.feature.town.hiring.OfficeSection
+import com.emm.mygame.feature.town.hiring.HiringSection
 
 @Composable
 internal fun TownPage(
@@ -142,7 +142,7 @@ private fun PlaceOwnParts(
             slots.placement()
         }
         TownBuildingKind.Office -> {
-            OfficeSection(office = content.office, onIntent = onIntent)
+            HiringSection(hiring = content.hiring, onIntent = onIntent)
             MyGameHairline()
             MyGameNavRow(title = chromeResource(R.string.town_map_link), onClick = slots.onMapOpen)
         }

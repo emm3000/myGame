@@ -19,7 +19,7 @@ internal fun showBetween(composeRule: ComposeContentTestRule, previous: TownSnap
                 state = next.contentAt(
                     now = readInstant,
                     gap = Duration.ZERO,
-                    mutations = TownMutations.none,
+                    requests = TownRequests.none,
                     registered = registered,
                     hireEntries = emptyMap(),
                     closed = ClosedGuidance.none,

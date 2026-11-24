@@ -76,12 +76,12 @@ private val previewHome: TownUiState.Content = TownUiState.Content(
     tip = TipKind.Seasons,
     start = TownUiState.StartStatus.Idle,
     stop = TownUiState.StopStatus.Idle,
-    office = TownUiState.OfficeLine(
-        hiring = TownUiState.HiringLine.Idle,
+    hiring = TownUiState.Hiring(
+        order = TownUiState.HiringLine.Idle,
         hires = emptyList(),
         hireMark = null,
-        place = TownUiState.HireStatus.Idle,
-        stop = TownUiState.HireStopStatus.Idle,
+        place = TownUiState.HiringStatus.Idle,
+        stop = TownUiState.HiringStopStatus.Idle,
     ),
 )
 
@@ -109,9 +109,9 @@ private class TownScreenStates : PreviewParameterProvider<TownUiState> {
                 productionMarks = emptyList(),
             ),
             buildMark = null,
-            office = previewHome.office.copy(
+            hiring = previewHome.hiring.copy(
                 hires = listOf(
-                    TownUiState.HireCard(TownHireKind.Truck, team = 0, requiredOfficeLevel = 3, form = null),
+                    TownUiState.HiringCard(TownHireKind.Truck, team = 0, requiredOfficeLevel = 3, form = null),
                 ),
                 hireMark = TownUiState.DurationMark(SeasonKind.Spring, percent = 75),
             ),

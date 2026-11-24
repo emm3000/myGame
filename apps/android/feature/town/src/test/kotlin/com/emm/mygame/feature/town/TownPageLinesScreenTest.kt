@@ -56,7 +56,7 @@ class TownPageLinesScreenTest {
     private val home: TownUiState.Content = townOf().contentAt(
         now = readInstant,
         gap = Duration.ZERO,
-        mutations = TownMutations.none,
+        requests = TownRequests.none,
         registered = TownRegistered.nothing,
         hireEntries = emptyMap(),
         closed = ClosedGuidance.none,
@@ -280,7 +280,7 @@ class TownPageLinesScreenTest {
     ).contentAt(
         now = readInstant,
         gap = Duration.ZERO,
-        mutations = TownMutations.none,
+        requests = TownRequests.none,
         registered = TownRegistered.nothing,
         hireEntries = emptyMap(),
         closed = closed,

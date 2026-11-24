@@ -66,7 +66,7 @@ class TownWordsScreenTest {
         tip = null,
         start = TownUiState.StartStatus.Idle,
         stop = TownUiState.StopStatus.Idle,
-        office = idleOffice,
+        hiring = idleHiring,
     )
 
     @Test

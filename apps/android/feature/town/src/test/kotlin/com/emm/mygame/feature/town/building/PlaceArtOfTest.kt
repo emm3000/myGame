@@ -41,7 +41,7 @@ private val drawableWords: Map<TownBuildingKind, String> = mapOf(
 )
 
 @RunWith(RobolectricTestRunner::class)
-class PlaceArtTest {
+class PlaceArtOfTest {
 
     @get:Rule
     val composeRule: ComposeContentTestRule = createComposeRule()

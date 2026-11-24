@@ -5,7 +5,7 @@ import com.emm.mygame.core.model.town.TownSnapshot
 import com.emm.mygame.core.model.town.building.TownBuildingKind
 import com.emm.mygame.core.model.town.hiring.TownHireKind
 import com.emm.mygame.core.projection.countdownTo
-import com.emm.mygame.feature.town.TownMutations
+import com.emm.mygame.feature.town.TownRequests
 import com.emm.mygame.feature.town.TownUiState
 import com.emm.mygame.feature.town.hireMark
 import com.emm.mygame.feature.town.readyTimeOf
@@ -23,20 +23,20 @@ internal fun hireCountOf(entry: String): Int? {
     return entry.toIntOrNull()?.takeIf { count: Int -> count >= 1 }
 }
 
-internal fun TownSnapshot.officeLineAt(
+internal fun TownSnapshot.hiringAt(
     now: Instant,
     gap: Duration,
     drawn: Map<TownResourceKind, Long>,
     entries: Map<TownHireKind, String>,
-    mutations: TownMutations,
-): TownUiState.OfficeLine = TownUiState.OfficeLine(
-    hiring = hiring.order?.hiringLineAt(now, gap) ?: TownUiState.HiringLine.Idle,
+    requests: TownRequests,
+): TownUiState.Hiring = TownUiState.Hiring(
+    order = hiring.order?.hiringLineAt(now, gap) ?: TownUiState.HiringLine.Idle,
     hires = TownHireKind.entries.map { kind: TownHireKind ->
-        hireCardOf(kind, entries[kind] ?: FIRST_HIRE_ENTRY, drawn, now, gap)
+        hiringCardOf(kind, entries[kind] ?: FIRST_HIRE_ENTRY, drawn, now, gap)
     },
     hireMark = seasonInForce?.hireMark(),
-    place = mutations.hire,
-    stop = mutations.hireStop,
+    place = requests.hiring,
+    stop = requests.hiringStop,
 )
 
 private fun TownSnapshot.HiringOrder.hiringLineAt(now: Instant, gap: Duration): TownUiState.HiringLine {
@@ -52,35 +52,35 @@ private fun TownSnapshot.HiringOrder.hiringLineAt(now: Instant, gap: Duration): 
     )
 }
 
-private fun TownSnapshot.hireCardOf(
+private fun TownSnapshot.hiringCardOf(
     kind: TownHireKind,
     entry: String,
     drawn: Map<TownResourceKind, Long>,
     now: Instant,
     gap: Duration,
-): TownUiState.HireCard {
+): TownUiState.HiringCard {
     val terms: TownSnapshot.HireTerms = hiring.terms.getValue(kind)
     val officeLevel: Int = buildings
         .first { place: TownSnapshot.Building -> place.kind == TownBuildingKind.Office }
         .level
-    return TownUiState.HireCard(
+    return TownUiState.HiringCard(
         kind = kind,
         team = hiring.hires.getValue(kind),
         requiredOfficeLevel = terms.requiredOfficeLevel,
-        form = if (officeLevel < terms.requiredOfficeLevel) null else hireFormOf(terms, entry, drawn, now, gap),
+        form = if (officeLevel < terms.requiredOfficeLevel) null else hiringFormOf(terms, entry, drawn, now, gap),
     )
 }
 
-private fun TownSnapshot.hireFormOf(
+private fun TownSnapshot.hiringFormOf(
     terms: TownSnapshot.HireTerms,
     entry: String,
     drawn: Map<TownResourceKind, Long>,
     now: Instant,
     gap: Duration,
-): TownUiState.HireForm {
+): TownUiState.HiringForm {
     val count: Int? = hireCountOf(entry)
-    val offer: TownUiState.HireOffer? = count?.let { counted: Int -> offerOf(terms, counted, drawn) }
-    return TownUiState.HireForm(
+    val offer: TownUiState.HiringOffer? = count?.let { counted: Int -> offerOf(terms, counted, drawn) }
+    return TownUiState.HiringForm(
         entry = entry,
         isEntryDisabled = hiring.order != null,
         offer = offer,
@@ -92,10 +92,10 @@ private fun TownSnapshot.offerOf(
     terms: TownSnapshot.HireTerms,
     count: Int,
     drawn: Map<TownResourceKind, Long>,
-): TownUiState.HireOffer {
+): TownUiState.HiringOffer {
     val needed: Long = terms.people.toLong() * count
     val free: Int? = freePeople()
-    return TownUiState.HireOffer(
+    return TownUiState.HiringOffer(
         count = count,
         costs = terms.costs.map { cost: TownSnapshot.Cost ->
             val amount: Long = cost.amount * count
@@ -108,22 +108,22 @@ private fun TownSnapshot.offerOf(
 }
 
 private fun TownSnapshot.blockOf(
-    offer: TownUiState.HireOffer?,
+    offer: TownUiState.HiringOffer?,
     drawn: Map<TownResourceKind, Long>,
     now: Instant,
     gap: Duration,
-): TownUiState.HireBlock? {
-    if (offer == null) return TownUiState.HireBlock.CountNeeded
-    if (hiring.order != null) return TownUiState.HireBlock.Busy
+): TownUiState.HiringBlock? {
+    if (offer == null) return TownUiState.HiringBlock.CountNeeded
+    if (hiring.order != null) return TownUiState.HiringBlock.Busy
     val free: Int? = freePeople()
     if (free != null && offer.people > free) {
-        return TownUiState.HireBlock.PeopleShort(needed = offer.people, free = free)
+        return TownUiState.HiringBlock.PeopleShort(needed = offer.people, free = free)
     }
     val shortfalls: List<TownUiState.Shortfall> = offer.costs.shortfallsAgainst(drawn)
     return if (shortfalls.isEmpty()) {
         null
     } else {
-        TownUiState.HireBlock.Resources(shortfalls, ready = readyTimeOf(offer.costs, now, gap))
+        TownUiState.HiringBlock.Resources(shortfalls, ready = readyTimeOf(offer.costs, now, gap))
     }
 }
 

@@ -77,7 +77,7 @@ class TownPageFocusRingTest {
         tip = null,
         start = TownUiState.StartStatus.Idle,
         stop = TownUiState.StopStatus.Idle,
-        office = idleOffice,
+        hiring = idleHiring,
     )
 
     @OptIn(ExperimentalComposeUiApi::class)

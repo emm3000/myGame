@@ -18,21 +18,11 @@ import com.emm.mygame.core.model.town.TownResourceKind
 import com.emm.mygame.core.model.town.TownSnapshot
 import com.emm.mygame.core.model.town.building.TownBuildingKind
 import com.emm.mygame.core.model.town.guidance.TownGoal
-import com.emm.mygame.core.ui.CopyReader
 import com.emm.mygame.core.ui.PlayerCopy
 import com.emm.mygame.core.ui.rememberPlayerCopy
 import com.emm.mygame.feature.town.R
 import com.emm.mygame.feature.town.TownUiState
 import com.emm.mygame.feature.town.building.shortfallLineOf
-import com.emm.mygame.feature.town.placeNameOf
-
-internal fun CopyReader.goalLineOf(goal: TownGoal): String = text(
-    R.string.town_goal_line,
-    "position" to goal.position.toString(),
-    "count" to goal.count.toString(),
-    "place" to text(placeNameOf(goal.building)),
-    "level" to goal.level.toString(),
-)
 
 @Composable
 internal fun GoalState(goal: TownGoal, modifier: Modifier = Modifier) {

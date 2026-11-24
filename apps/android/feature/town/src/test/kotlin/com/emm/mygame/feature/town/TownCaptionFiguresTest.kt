@@ -13,7 +13,7 @@ import com.emm.mygame.feature.town.building.PlaceBuildingWork
 import com.emm.mygame.feature.town.building.PlaceStocks
 import com.emm.mygame.feature.town.building.SeasonRow
 import com.emm.mygame.feature.town.guidance.ClosedGuidance
-import com.emm.mygame.feature.town.hiring.OfficeSection
+import com.emm.mygame.feature.town.hiring.HiringSection
 import org.junit.Assert.assertEquals
 import org.junit.Rule
 import org.junit.Test
@@ -38,7 +38,7 @@ class TownCaptionFiguresTest {
 
     @Test
     fun `sets tabular figures on the hired counts and never on their words`() {
-        showOffice(TownUiState.HiringLine.Done(TownHireKind.Worker, count = 3, delivered = 1))
+        showHiring(TownUiState.HiringLine.Done(TownHireKind.Worker, count = 3, delivered = 1))
 
         assertEquals(listOf("1", "3"), composeRule.tabularRunsOf("de 3 contratados"))
     }
@@ -95,22 +95,22 @@ class TownCaptionFiguresTest {
         assertEquals(listOf("2"), composeRule.tabularRunsOf("Nivel"))
     }
 
-    private fun showOffice(hiring: TownUiState.HiringLine) {
-        val office = TownUiState.OfficeLine(
-            hiring = hiring,
+    private fun showHiring(order: TownUiState.HiringLine) {
+        val hiring = TownUiState.Hiring(
+            order = order,
             hires = emptyList(),
             hireMark = null,
-            place = TownUiState.HireStatus.Idle,
-            stop = TownUiState.HireStopStatus.Idle,
+            place = TownUiState.HiringStatus.Idle,
+            stop = TownUiState.HiringStopStatus.Idle,
         )
-        composeRule.setContent { MyGameTheme { OfficeSection(office = office, onIntent = {}) } }
+        composeRule.setContent { MyGameTheme { HiringSection(hiring = hiring, onIntent = {}) } }
     }
 
     private fun showStock(money: TownSnapshot.Stock) {
         val content: TownUiState.Content = townOf(stocks = listOf(money), readAt = localRead).contentAt(
             now = localRead,
             gap = Duration.ZERO,
-            mutations = TownMutations.none,
+            requests = TownRequests.none,
             registered = TownRegistered.nothing,
             hireEntries = emptyMap(),
             closed = ClosedGuidance.none,
@@ -122,7 +122,7 @@ class TownCaptionFiguresTest {
         val content: TownUiState.Content = townOf(readAt = localRead).contentAt(
             now = localRead,
             gap = Duration.ZERO,
-            mutations = TownMutations.none,
+            requests = TownRequests.none,
             registered = TownRegistered.nothing,
             hireEntries = emptyMap(),
             closed = ClosedGuidance.none,
