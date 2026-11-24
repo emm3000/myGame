@@ -77,9 +77,9 @@ rg -e 'stringResource|painterResource' -e '\bR\.' -e 'BuildConfig' -e '@Preview'
 
 UI copy lives in `res/values/strings.xml`, never as a literal in Kotlin. Every `strings.xml` is generated from `packages/catalog`, `values/` from `en.json` and `values-es/` from `es.json`, and never edited by hand; its strings are ICU MessageFormat with named arguments (`apps/android/CLAUDE.md`, Gotchas).
 
-- Every screen outside `feature:signin` reads every string through `core:ui`'s `PlayerCopy` (`rememberPlayerCopy()`), which holds a `CopyReader` in American English and one in the scaffold language, the phone's language until the api names the player's. `CopyReader` is the one formatter: `text` formats a string's MessageFormat in the reader's own locale, as its days, times and lists are.
+- Every screen outside `feature:account` reads every string through `core:ui`'s `PlayerCopy` (`rememberPlayerCopy()`), which holds a `CopyReader` in American English and one in the scaffold language, the phone's language until the api names the player's. `CopyReader` is the one formatter: `text` formats a string's MessageFormat in the reader's own locale, as its days, times and lists are.
 - A key `packages/catalog/src/fixedCopyKeys.ts` lists is fixed copy: `fixedCopy` or `fixedCopyResource` reads it in the scaffold language as a `String`.
 - Every other key is chrome: `chrome` or `chromeResource` reads it by the `ChromePhase` as a `MyGameLabel`, the scaffold line alone, then English over the scaffold line in the both phase, then English alone. A component draws a chrome line through its `MyGameLabel` overload, which styles the scaffold line as the translation; a `String` slot, an accessible name or a busy description, takes the label's `spoken`.
-- `feature:signin` reads `stringResource` in the context `app` wraps around it: the phone's language before sign-in, the scaffold language in the settings. Its `VerificationBannerScreen`, drawn under every signed-in screen, reads `fixedCopyResource`.
+- `feature:account` reads `stringResource` in the context `app` wraps around it: the phone's language before sign-in, the scaffold language in the settings. Its `VerificationBannerScreen`, drawn under every signed-in screen, reads `fixedCopyResource`.
 
 A preview's sample text is a fixture, not UI copy, and stays in the preview (`kotlin-style.md`, Previews).

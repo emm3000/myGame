@@ -11,31 +11,31 @@ describe('androidResourcesOf', () => {
   it('writes one strings.xml per module holding keys, with its resources sorted', () => {
     const twoModules = {
       en: {
-        'android.signin.sign_in_title': 'Sign in to your town',
+        'android.account.sign_in_title': 'Sign in to your town',
         'android.app.app_name': 'Townword',
-        'android.signin.sign_in_email': 'Email',
+        'android.account.sign_in_email': 'Email',
       },
       es: {},
     }
 
     expect(androidResourcesOf(twoModules)).toEqual([
       {
-        path: 'apps/android/app/src/main/res/values/strings.xml',
-        contents: [
-          '<?xml version="1.0" encoding="utf-8"?>',
-          '<resources>',
-          '    <string name="app_name">Townword</string>',
-          '</resources>',
-          '',
-        ].join('\n'),
-      },
-      {
-        path: 'apps/android/feature/signin/src/main/res/values/strings.xml',
+        path: 'apps/android/feature/account/src/main/res/values/strings.xml',
         contents: [
           '<?xml version="1.0" encoding="utf-8"?>',
           '<resources>',
           '    <string name="sign_in_email">Email</string>',
           '    <string name="sign_in_title">Sign in to your town</string>',
+          '</resources>',
+          '',
+        ].join('\n'),
+      },
+      {
+        path: 'apps/android/app/src/main/res/values/strings.xml',
+        contents: [
+          '<?xml version="1.0" encoding="utf-8"?>',
+          '<resources>',
+          '    <string name="app_name">Townword</string>',
           '</resources>',
           '',
         ].join('\n'),

@@ -49,7 +49,7 @@ describe("content gate check 9, the chrome's words", () => {
       'review.recallPrompt': 'Leave home',
       'mail.reset.subject': 'Leave home',
       'shell.signOut': 'Leave',
-      'android.signin.forgot_password_email': 'Leave home',
+      'android.account.forgot_password_email': 'Leave home',
     }
 
     expect(checkChrome(withEnglish(fixedCopy))).toEqual([])

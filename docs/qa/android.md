@@ -210,7 +210,7 @@ Source: PRD M1; ADR 046, *What the reminder is*
 Setup: SMK-01's account, the reminder on (REM-01)
 
 1. Open the Report and sign out from its foot.
-2. Verify the sign-in screen shows, with no `android.signin.sign_in_session_ended` line.
+2. Verify the sign-in screen shows, with no `android.account.sign_in_session_ended` line.
 3. Verify `dumpsys alarm` holds no alarm for `com.emm.mygame`.
 4. Sign in with the same email and password.
 5. Verify the town home opens on the same town, with its levels kept.
@@ -222,10 +222,10 @@ Source: ADR 038, *The setting*; PRD N6
 Setup: a `none` account with lesson 1 studied
 
 1. Open Settings from the Report and choose Spanish as the help language.
-2. Verify `android.signin.settings_saved`, *Guardado.*, and `android.signin.settings_cards_kept`, *Tus palabras y tu progreso no cambian.*, both in Spanish.
+2. Verify `android.account.settings_saved`, *Guardado.*, and `android.account.settings_cards_kept`, *Tus palabras y tu progreso no cambian.*, both in Spanish.
 3. Go back to the town. Verify its frame is drawn in Spanish.
 4. Verify `players.scaffold_version` went up by 1 and the player's card count did not change.
-5. Choose None again. Verify `android.signin.settings_saved`, *Saved.*, and the frame back in English.
+5. Choose None again. Verify `android.account.settings_saved`, *Saved.*, and the frame back in English.
 
 #### SES-03 Process death returns to the same screen, signed in · P1 · full
 
@@ -373,7 +373,7 @@ Source: ADR 046, *What the reminder is*
 Setup: SMK-01's `es` account, notifications never asked
 
 1. Open the Report while nothing is due. Verify the row `android.report.report_reminder_offer`, *Activa un recordatorio de estudio*.
-2. Open Settings. Verify the study reminder, `android.signin.settings_reminder_title`, *Recordatorio de estudio*, is off, and no permission dialog showed before this step.
+2. Open Settings. Verify the study reminder, `android.account.settings_reminder_title`, *Recordatorio de estudio*, is off, and no permission dialog showed before this step.
 3. Turn the reminder on. Verify the system dialog asks for permission to send notifications.
 4. Allow it. Verify the switch is on and the time reads *19:00*. On a `none` account it reads *7:00 PM*.
 5. Go back to the Report. Verify the offer row is gone.
@@ -385,7 +385,7 @@ Setup: a fresh `es` account, notifications never asked
 
 1. Open Settings from the Report and turn the reminder on.
 2. Deny the permission.
-3. Verify the switch is off, with `android.signin.settings_reminder_denied`, *Las notificaciones de Townword están desactivadas en los ajustes del teléfono.*, and the link `android.signin.settings_reminder_open_settings`, *Abrir los ajustes de notificaciones*.
+3. Verify the switch is off, with `android.account.settings_reminder_denied`, *Las notificaciones de Townword están desactivadas en los ajustes del teléfono.*, and the link `android.account.settings_reminder_open_settings`, *Abrir los ajustes de notificaciones*.
 4. Follow the link. Verify the phone's notification settings for Townword open.
 5. Allow notifications there and come back. Verify the denied line is gone.
 6. Turn the reminder on. Verify it turns on with no dialog.
@@ -467,7 +467,7 @@ Source: ADR 046, *How Android schedules it*, *What the reminder is*
 Setup: SMK-07's account, the reminder on, reviews due
 
 1. Revoke the permission: `adb shell pm revoke com.emm.mygame android.permission.POST_NOTIFICATIONS`.
-2. Open the app, then Settings. Verify the switch is off, with `android.signin.settings_reminder_denied` and its link.
+2. Open the app, then Settings. Verify the switch is off, with `android.account.settings_reminder_denied` and its link.
 3. Set the device clock 90 seconds before the alarm and wait for it to fire.
 4. Verify no notification is posted.
 5. Put the clock back (*Recipe: the device clock and the alarm*).
