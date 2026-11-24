@@ -41,11 +41,11 @@ import com.emm.mygame.core.designsystem.MyGameDockGo
 import com.emm.mygame.core.designsystem.MyGameTheme
 import com.emm.mygame.core.projection.StudyReminderLine
 import com.emm.mygame.feature.account.verification.VerificationBannerRoute
-import com.emm.mygame.feature.town.TownStatus
-import com.emm.mygame.feature.town.TownStatusIntent
-import com.emm.mygame.feature.town.TownStatusScreen
-import com.emm.mygame.feature.town.TownStatusUiState
-import com.emm.mygame.feature.town.TownStatusViewModel
+import com.emm.mygame.feature.town.status.TownStatus
+import com.emm.mygame.feature.town.status.TownStatusIntent
+import com.emm.mygame.feature.town.status.TownStatusScreen
+import com.emm.mygame.feature.town.status.TownStatusUiState
+import com.emm.mygame.feature.town.status.TownStatusViewModel
 import kotlinx.coroutines.flow.Flow
 
 @Composable

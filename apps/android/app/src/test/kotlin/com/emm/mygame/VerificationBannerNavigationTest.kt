@@ -33,9 +33,8 @@ import com.emm.mygame.core.testing.FakeReportRepository
 import com.emm.mygame.core.testing.FakeSessionRepository
 import com.emm.mygame.core.testing.FakeTownRepository
 import com.emm.mygame.core.testing.townOf
-import com.emm.mygame.feature.town.TOWN_DOCK
+import com.emm.mygame.feature.town.status.TOWN_DOCK
 import com.emm.mygame.navigation.AppNavigation
-import kotlin.time.Instant
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.emptyFlow
 import org.junit.Assert.assertEquals
@@ -45,6 +44,7 @@ import org.junit.Test
 import org.junit.runner.RunWith
 import org.robolectric.RobolectricTestRunner
 import org.robolectric.annotation.Config
+import kotlin.time.Instant
 
 @RunWith(RobolectricTestRunner::class)
 class VerificationBannerNavigationTest {

@@ -13,6 +13,9 @@ import com.emm.mygame.core.projection.ResourceNeed
 import com.emm.mygame.core.projection.ResourceStock
 import com.emm.mygame.core.projection.countdownTo
 import com.emm.mygame.core.projection.readyMinuteOf
+import com.emm.mygame.feature.town.building.NextLevel
+import com.emm.mygame.feature.town.guidance.ClosedGuidance
+import com.emm.mygame.feature.town.hiring.officeLineAt
 import kotlin.time.Duration
 import kotlin.time.Duration.Companion.hours
 import kotlin.time.Instant

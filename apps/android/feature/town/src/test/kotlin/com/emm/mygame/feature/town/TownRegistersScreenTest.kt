@@ -9,13 +9,13 @@ import com.emm.mygame.core.designsystem.MyGameRegisteredRow
 import com.emm.mygame.core.designsystem.MyGameRegistering
 import com.emm.mygame.core.model.town.TownSnapshot
 import com.emm.mygame.core.model.town.building.TownBuildingKind
-import kotlin.time.Duration.Companion.minutes
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertTrue
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.robolectric.RobolectricTestRunner
+import kotlin.time.Duration.Companion.minutes
 
 private val farmAtTwo: TownSnapshot = townOf(
     places = placesOf(placeAt(TownBuildingKind.Farm, level = 2)),

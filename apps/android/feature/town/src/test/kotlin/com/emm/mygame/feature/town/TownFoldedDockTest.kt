@@ -17,12 +17,13 @@ import com.emm.mygame.core.designsystem.MyGameTheme
 import com.emm.mygame.core.designsystem.MyGameTransitions
 import com.emm.mygame.core.designsystem.SKELETON_BLOCK
 import com.emm.mygame.core.model.town.TownRegistered
-import kotlin.time.Duration
+import com.emm.mygame.feature.town.guidance.ClosedGuidance
 import org.junit.Assert.assertTrue
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.robolectric.RobolectricTestRunner
+import kotlin.time.Duration
 
 @RunWith(RobolectricTestRunner::class)
 class TownFoldedDockTest {

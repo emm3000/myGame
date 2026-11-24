@@ -45,8 +45,8 @@ import com.emm.mygame.core.ui.FoldedTaskEnd
 import com.emm.mygame.core.ui.FollowTownDock
 import com.emm.mygame.core.ui.TaskDock
 import com.emm.mygame.core.ui.TaskDockHook
-import com.emm.mygame.feature.town.TownStatusIntent
-import com.emm.mygame.feature.town.TownStatusUiState
+import com.emm.mygame.feature.town.status.TownStatusIntent
+import com.emm.mygame.feature.town.status.TownStatusUiState
 import com.emm.mygame.navigation.Navigator
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertTrue

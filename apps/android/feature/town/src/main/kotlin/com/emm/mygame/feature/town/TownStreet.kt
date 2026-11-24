@@ -10,6 +10,7 @@ import com.emm.mygame.core.model.town.building.TownBuildingKind
 import com.emm.mygame.core.ui.CopyReader
 import com.emm.mygame.core.ui.PlayerCopy
 import com.emm.mygame.core.ui.rememberPlayerCopy
+import com.emm.mygame.feature.town.building.placeArtOf
 
 internal val streetOrder: List<TownBuildingKind> = listOf(
     TownBuildingKind.Homes,

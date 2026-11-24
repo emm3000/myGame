@@ -3,6 +3,7 @@ package com.emm.mygame.feature.town
 import com.emm.mygame.core.model.town.school.TownLessonRefusal
 import com.emm.mygame.core.ui.CopyReader
 import com.emm.mygame.core.ui.finishLabelOf
+import com.emm.mygame.feature.town.status.TownStatusUiState
 
 internal fun CopyReader.lessonRefusalLineOf(refusal: TownLessonRefusal, capWait: TownStatusUiState.CapWait?): String =
     when (refusal) {

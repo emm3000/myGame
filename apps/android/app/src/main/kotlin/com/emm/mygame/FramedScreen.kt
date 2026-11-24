@@ -46,14 +46,14 @@ import com.emm.mygame.core.ui.TaskDockHook
 import com.emm.mygame.core.ui.TownFollow
 import com.emm.mygame.core.ui.chromeResource
 import com.emm.mygame.core.ui.frameHeaderTurn
-import com.emm.mygame.feature.town.TownDock
-import com.emm.mygame.feature.town.TownDockActions
-import com.emm.mygame.feature.town.TownDockNotice
-import com.emm.mygame.feature.town.TownNotice
-import com.emm.mygame.feature.town.TownReportRow
-import com.emm.mygame.feature.town.TownStatusIntent
-import com.emm.mygame.feature.town.TownStatusUiState
-import com.emm.mygame.feature.town.shownNotice
+import com.emm.mygame.feature.town.status.TownDock
+import com.emm.mygame.feature.town.status.TownDockActions
+import com.emm.mygame.feature.town.status.TownDockNotice
+import com.emm.mygame.feature.town.status.TownNotice
+import com.emm.mygame.feature.town.status.TownReportRow
+import com.emm.mygame.feature.town.status.TownStatusIntent
+import com.emm.mygame.feature.town.status.TownStatusUiState
+import com.emm.mygame.feature.town.status.shownNotice
 
 private const val TASK_DOCK_TURN: Float = 1f
 
