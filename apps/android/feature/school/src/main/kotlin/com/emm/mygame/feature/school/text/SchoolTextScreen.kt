@@ -12,14 +12,11 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.semantics.heading
 import androidx.compose.ui.semantics.semantics
-import androidx.compose.ui.tooling.preview.PreviewParameter
-import androidx.compose.ui.tooling.preview.PreviewParameterProvider
 import com.emm.mygame.core.designsystem.MyGameBlock
 import com.emm.mygame.core.designsystem.MyGameBlockHue
 import com.emm.mygame.core.designsystem.MyGameErrorBanner
 import com.emm.mygame.core.designsystem.MyGameFrameText
 import com.emm.mygame.core.designsystem.MyGameNavRow
-import com.emm.mygame.core.designsystem.MyGamePreviewSurface
 import com.emm.mygame.core.designsystem.MyGameSizes
 import com.emm.mygame.core.designsystem.MyGameSkeleton
 import com.emm.mygame.core.designsystem.MyGameSkeletonBlocks
@@ -28,12 +25,8 @@ import com.emm.mygame.core.designsystem.MyGameSupportLine
 import com.emm.mygame.core.designsystem.MyGameText
 import com.emm.mygame.core.designsystem.MyGameTheme
 import com.emm.mygame.core.designsystem.MyGameTypography
-import com.emm.mygame.core.designsystem.PreviewMyGame
 import com.emm.mygame.core.designsystem.englishTextOf
-import com.emm.mygame.core.model.learning.FrameSpan
-import com.emm.mygame.core.model.learning.TextId
 import com.emm.mygame.core.model.learning.WordSupport
-import com.emm.mygame.core.model.town.OpenText
 import com.emm.mygame.core.ui.chromeResource
 import com.emm.mygame.core.ui.fixedCopyResource
 import com.emm.mygame.core.ui.joinsFrameTraversal
@@ -42,7 +35,7 @@ import com.emm.mygame.feature.school.toMyGameFrame
 import com.emm.mygame.feature.school.toMyGameSupport
 
 @Composable
-fun SchoolTextScreen(
+internal fun SchoolTextScreen(
     state: SchoolTextUiState,
     onIntent: (SchoolTextIntent) -> Unit,
     onSchoolOpen: () -> Unit,
@@ -147,58 +140,4 @@ private fun SchoolLink(onSchoolOpen: () -> Unit, modifier: Modifier = Modifier) 
         onClick = onSchoolOpen,
         modifier = modifier,
     )
-}
-
-private fun previewSupport(shown: WordSupport.Shown, text: String, language: WordSupport.Language): WordSupport =
-    WordSupport(shown = shown, text = text, language = language)
-
-private val previewText: OpenText = OpenText(
-    id = TextId("text-1"),
-    title = "A New Course",
-    sentences = listOf(
-        listOf(
-            FrameSpan(text = "I live in a little old ", support = null),
-            FrameSpan(
-                text = "house",
-                support = previewSupport(WordSupport.Shown.Beside, "casa", WordSupport.Language.Spanish),
-            ),
-            FrameSpan(text = " by the river.", support = null),
-        ),
-        listOf(
-            FrameSpan(text = "This fall I started a ", support = null),
-            FrameSpan(
-                text = "course",
-                support = previewSupport(WordSupport.Shown.OnTap, "curso", WordSupport.Language.Spanish),
-            ),
-            FrameSpan(text = " at the school.", support = null),
-        ),
-        listOf(
-            FrameSpan(text = "I went through the ", support = null),
-            FrameSpan(
-                text = "field",
-                support = previewSupport(WordSupport.Shown.OnTap, "open land", WordSupport.Language.English),
-            ),
-            FrameSpan(text = ".", support = null),
-        ),
-    ),
-)
-
-private class SchoolTextUiStates : PreviewParameterProvider<SchoolTextUiState> {
-
-    override val values: Sequence<SchoolTextUiState> = sequenceOf(
-        SchoolTextUiState.Reading(previewText, tapped = null),
-        SchoolTextUiState.Reading(previewText, tapped = SchoolTextUiState.SpanAt(sentence = 1, span = 1)),
-        SchoolTextUiState.Reading(previewText, tapped = SchoolTextUiState.SpanAt(sentence = 2, span = 1)),
-        SchoolTextUiState.NotOpen,
-        SchoolTextUiState.Loading,
-        SchoolTextUiState.Failed,
-    )
-}
-
-@PreviewMyGame
-@Composable
-private fun SchoolTextScreenPreview(@PreviewParameter(SchoolTextUiStates::class) state: SchoolTextUiState) {
-    MyGamePreviewSurface {
-        SchoolTextScreen(state = state, onIntent = {}, onSchoolOpen = {})
-    }
 }
