@@ -9,10 +9,10 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.SupervisorJob
 
 class ApiRepositories internal constructor(
-    endpoint: ApiEndpoint,
-    tokenStore: TokenStore,
+    private val endpoint: ApiEndpoint,
+    private val tokenStore: TokenStore,
     languages: PlayerLanguages,
-    sessionEnds: SessionEnds,
+    private val sessionEnds: SessionEnds,
     studyAnswers: StudyAnswers,
     ioDispatcher: CoroutineDispatcher,
     clock: Clock,
@@ -38,7 +38,7 @@ class ApiRepositories internal constructor(
 
     val sessions: SessionRepository by lazy {
         ApiSessionRepository(
-            api = signedInApi(endpoint = endpoint, tokenStore = tokenStore, sessionEnds = sessionEnds),
+            api = newSignedInApi(),
             openingApi = accountApi(endpoint = endpoint),
             signOutApi = signOutApi(endpoint = endpoint, tokenStore = tokenStore, callTimeout = signOutTimeout),
             tokenStore = tokenStore,
@@ -48,7 +48,7 @@ class ApiRepositories internal constructor(
     }
 
     val towns: TownRepository by lazy {
-        val api: DefaultApi = signedInApi(endpoint = endpoint, tokenStore = tokenStore, sessionEnds = sessionEnds)
+        val api: DefaultApi = newSignedInApi()
         val answers = TownAnswers(tokenStore = tokenStore, languages = languages, studyAnswers = studyAnswers)
         ApiTownRepository(
             api = api,
@@ -63,14 +63,14 @@ class ApiRepositories internal constructor(
 
     val texts: TownTextRepository by lazy {
         ApiTownTextRepository(
-            api = signedInApi(endpoint = endpoint, tokenStore = tokenStore, sessionEnds = sessionEnds),
+            api = newSignedInApi(),
             ioDispatcher = ioDispatcher,
         )
     }
 
     val learning: LearningRepository by lazy {
         ApiLearningRepository(
-            api = signedInApi(endpoint = endpoint, tokenStore = tokenStore, sessionEnds = sessionEnds),
+            api = newSignedInApi(),
             studyAnswers = studyAnswers,
             ioDispatcher = ioDispatcher,
         )
@@ -78,7 +78,7 @@ class ApiRepositories internal constructor(
 
     val reports: ReportRepository by lazy {
         ApiReportRepository(
-            api = signedInApi(endpoint = endpoint, tokenStore = tokenStore, sessionEnds = sessionEnds),
+            api = newSignedInApi(),
             studyAnswers = studyAnswers,
             ioDispatcher = ioDispatcher,
         )
@@ -86,18 +86,21 @@ class ApiRepositories internal constructor(
 
     val placements: PlacementRepository by lazy {
         ApiPlacementRepository(
-            api = signedInApi(endpoint = endpoint, tokenStore = tokenStore, sessionEnds = sessionEnds),
+            api = newSignedInApi(),
             ioDispatcher = ioDispatcher,
         )
     }
 
     val holdoutChecks: HoldoutCheckRepository by lazy {
         ApiHoldoutCheckRepository(
-            api = signedInApi(endpoint = endpoint, tokenStore = tokenStore, sessionEnds = sessionEnds),
+            api = newSignedInApi(),
             studyAnswers = studyAnswers,
             ioDispatcher = ioDispatcher,
         )
     }
+
+    private fun newSignedInApi(): DefaultApi =
+        signedInApi(endpoint = endpoint, tokenStore = tokenStore, sessionEnds = sessionEnds)
 }
 
 private val signOutTimeout: Duration = 5.seconds

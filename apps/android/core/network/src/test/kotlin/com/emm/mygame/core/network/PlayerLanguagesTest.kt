@@ -10,7 +10,6 @@ import kotlinx.coroutines.CoroutineStart
 import kotlinx.coroutines.Deferred
 import kotlinx.coroutines.async
 import kotlinx.coroutines.test.TestScope
-import kotlinx.coroutines.test.UnconfinedTestDispatcher
 import kotlinx.coroutines.test.runTest
 import mockwebserver3.MockResponse
 import mockwebserver3.MockWebServer
@@ -267,23 +266,18 @@ class PlayerLanguagesTest {
         assertNull(languages.language.value)
     }
 
-    private fun TestScope.sessions(): SessionRepository = ApiRepositories(
+    private fun TestScope.sessions(): SessionRepository = apiRepositories(
         endpoint = slowMachineEndpoint(api.url("/api/").toString()),
         tokenStore = store,
         languages = languages,
         sessionEnds = sessionEnds,
-        studyAnswers = discardedStudyAnswers(store),
-        ioDispatcher = UnconfinedTestDispatcher(testScheduler),
-        clock = TestClock(testScheduler, Instant.parse("2026-11-05T10:00:00Z")),
     ).sessions
 
-    private fun TestScope.town(): TownRepository = ApiRepositories(
+    private fun TestScope.town(): TownRepository = apiRepositories(
         endpoint = slowMachineEndpoint(api.url("/api/").toString()),
         tokenStore = store,
         languages = languages,
         sessionEnds = sessionEnds,
-        studyAnswers = discardedStudyAnswers(store),
-        ioDispatcher = UnconfinedTestDispatcher(testScheduler),
         clock = TestClock(testScheduler, Instant.parse("2026-11-05T10:04:00Z")),
     ).towns
 

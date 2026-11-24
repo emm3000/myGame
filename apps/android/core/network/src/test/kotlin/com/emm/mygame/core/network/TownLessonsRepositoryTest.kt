@@ -6,7 +6,6 @@ import java.io.File
 import kotlin.time.Duration.Companion.seconds
 import kotlin.time.Instant
 import kotlinx.coroutines.test.TestScope
-import kotlinx.coroutines.test.UnconfinedTestDispatcher
 import kotlinx.coroutines.test.runTest
 import mockwebserver3.MockResponse
 import mockwebserver3.MockWebServer
@@ -309,13 +308,9 @@ class TownLessonsRepositoryTest {
     private fun TestScope.town(): TownRepository {
         val store: TokenStore =
             TokenStore(File(folder.root, "session"), FakeTokenCipher()).apply { write("opaque-session") }
-        return ApiRepositories(
+        return apiRepositories(
             endpoint = slowMachineEndpoint(api.url("/api/").toString()),
             tokenStore = store,
-            languages = PlayerLanguages(store, onNamed = {}),
-            sessionEnds = SessionEnds(),
-            studyAnswers = discardedStudyAnswers(store),
-            ioDispatcher = UnconfinedTestDispatcher(testScheduler),
             clock = TestClock(testScheduler, Instant.parse("2026-11-05T10:00:00Z")),
         ).towns
     }

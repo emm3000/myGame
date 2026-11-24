@@ -11,7 +11,6 @@ import kotlinx.coroutines.CoroutineStart
 import kotlinx.coroutines.Deferred
 import kotlinx.coroutines.async
 import kotlinx.coroutines.test.TestScope
-import kotlinx.coroutines.test.UnconfinedTestDispatcher
 import kotlinx.coroutines.test.runTest
 import mockwebserver3.Dispatcher
 import mockwebserver3.MockResponse
@@ -168,24 +167,15 @@ class TownReadFlightTest {
         assertEquals(NEXT_TOWN_NAME, towns.town.value?.town?.name)
     }
 
-    private fun TestScope.town(): TownRepository = ApiRepositories(
+    private fun TestScope.town(): TownRepository = apiRepositories(
         endpoint = slowMachineEndpoint(api.url("/api/").toString()),
         tokenStore = store,
-        languages = PlayerLanguages(store, onNamed = {}),
-        sessionEnds = SessionEnds(),
-        studyAnswers = discardedStudyAnswers(store),
-        ioDispatcher = UnconfinedTestDispatcher(testScheduler),
         clock = TestClock(testScheduler, Instant.parse("2026-11-13T10:00:00Z")),
     ).towns
 
-    private fun TestScope.sessions(): SessionRepository = ApiRepositories(
+    private fun TestScope.sessions(): SessionRepository = apiRepositories(
         endpoint = slowMachineEndpoint(api.url("/api/").toString()),
         tokenStore = store,
-        languages = PlayerLanguages(store, onNamed = {}),
-        sessionEnds = SessionEnds(),
-        studyAnswers = discardedStudyAnswers(store),
-        ioDispatcher = UnconfinedTestDispatcher(testScheduler),
-        clock = TestClock(testScheduler, Instant.parse("2026-11-05T10:00:00Z")),
     ).sessions
 
     private class SessionTowns(private val beforeBearer: String) : Dispatcher() {

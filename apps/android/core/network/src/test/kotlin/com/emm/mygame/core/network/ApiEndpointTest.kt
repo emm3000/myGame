@@ -9,7 +9,6 @@ import kotlin.time.Duration.Companion.milliseconds
 import kotlin.time.Instant
 import kotlin.time.toJavaDuration
 import kotlinx.coroutines.test.TestScope
-import kotlinx.coroutines.test.UnconfinedTestDispatcher
 import kotlinx.coroutines.test.runTest
 import mockwebserver3.MockResponse
 import mockwebserver3.MockWebServer
@@ -58,27 +57,20 @@ class ApiEndpointTest {
 
     private fun TestScope.town(): TownRepository {
         val store: TokenStore = signedIn()
-        return ApiRepositories(
+        return apiRepositories(
             endpoint = impatientEndpoint(),
             tokenStore = store,
-            languages = PlayerLanguages(store, onNamed = {}),
             sessionEnds = sessionEnds,
-            studyAnswers = discardedStudyAnswers(store),
-            ioDispatcher = UnconfinedTestDispatcher(testScheduler),
             clock = TestClock(testScheduler, Instant.parse("2026-11-05T10:00:00Z")),
         ).towns
     }
 
     private fun TestScope.sessions(): SessionRepository {
         val store: TokenStore = TokenStore(File(folder.root, "session"), FakeTokenCipher())
-        return ApiRepositories(
+        return apiRepositories(
             endpoint = impatientEndpoint(),
             tokenStore = store,
-            languages = PlayerLanguages(store, onNamed = {}),
             sessionEnds = sessionEnds,
-            studyAnswers = discardedStudyAnswers(store),
-            ioDispatcher = UnconfinedTestDispatcher(testScheduler),
-            clock = TestClock(testScheduler, Instant.parse("2026-11-05T10:00:00Z")),
         ).sessions
     }
 
