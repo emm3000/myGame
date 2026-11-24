@@ -18,6 +18,7 @@ allprojects {
         buildUponDefaultConfig = true
         parallel = true
         basePath = rootDir.absolutePath
+        source.from("src/testFixtures/kotlin")
     }
 
     tasks.withType<io.gitlab.arturbosch.detekt.Detekt>().configureEach {

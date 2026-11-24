@@ -36,6 +36,7 @@ import com.emm.mygame.core.model.town.guidance.CaughtUpReason
 import com.emm.mygame.core.model.town.guidance.NextStep
 import com.emm.mygame.core.model.town.school.SchoolPathCounts
 import com.emm.mygame.core.model.town.school.TownLessonRefusal
+import com.emm.mygame.core.ui.navRowOf
 import kotlin.time.Duration
 import kotlin.time.Duration.Companion.hours
 import kotlin.time.Duration.Companion.minutes

@@ -7,11 +7,16 @@ import androidx.compose.ui.test.junit4.createComposeRule
 import androidx.compose.ui.test.onFirst
 import com.emm.mygame.core.designsystem.MyGameTheme
 import com.emm.mygame.core.model.placement.PlacementBand
+import com.emm.mygame.core.testing.house
+import com.emm.mygame.core.testing.walk
+import com.emm.mygame.core.testing.walkMeaning
 import com.emm.mygame.core.ui.ChromePhase
 import com.emm.mygame.core.ui.CopyLanguage
 import com.emm.mygame.core.ui.ProvideCopyLanguage
 import com.emm.mygame.core.ui.ScaffoldLanguage
 import com.emm.mygame.core.ui.TaskDockHook
+import com.emm.mygame.core.ui.TaskFrameStandIn
+import com.emm.mygame.core.ui.hasCopy
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith

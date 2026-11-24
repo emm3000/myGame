@@ -41,6 +41,7 @@ import com.emm.mygame.core.model.town.TownAmount
 import com.emm.mygame.core.model.town.TownResourceKind
 import com.emm.mygame.core.model.town.TownSite
 import com.emm.mygame.core.model.town.news.TownNews
+import com.emm.mygame.core.ui.navRowOf
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertFalse
 import org.junit.Assert.assertTrue

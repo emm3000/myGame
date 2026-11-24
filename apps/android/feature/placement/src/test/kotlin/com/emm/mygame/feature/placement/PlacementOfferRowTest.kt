@@ -8,6 +8,7 @@ import androidx.compose.ui.test.onAllNodesWithText
 import androidx.compose.ui.test.performClick
 import com.emm.mygame.core.designsystem.HAIRLINE
 import com.emm.mygame.core.designsystem.MyGameTheme
+import com.emm.mygame.core.ui.navRowOf
 import org.junit.Assert.assertEquals
 import org.junit.Rule
 import org.junit.Test

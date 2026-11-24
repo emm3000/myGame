@@ -16,6 +16,7 @@ import androidx.compose.ui.text.AnnotatedString
 import com.emm.mygame.core.designsystem.MyGameTheme
 import com.emm.mygame.core.model.holdout.HoldoutCheckWeek
 import com.emm.mygame.core.model.placement.PlacementBand
+import com.emm.mygame.core.ui.navRowOf
 import org.junit.Assert.assertEquals
 import org.junit.Rule
 import org.junit.Test
