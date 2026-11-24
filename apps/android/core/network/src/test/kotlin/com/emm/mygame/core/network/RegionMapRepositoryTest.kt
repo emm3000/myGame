@@ -183,7 +183,7 @@ class RegionMapRepositoryTest {
     private fun TestScope.town(): TownRepository {
         val store: TokenStore =
             TokenStore(File(folder.root, "session"), FakeTokenCipher()).apply { write("opaque-session") }
-        return TownRepository(
+        return ApiRepositories(
             endpoint = slowMachineEndpoint(api.url("/api/").toString()),
             tokenStore = store,
             languages = PlayerLanguages(store, onNamed = {}),
@@ -191,7 +191,7 @@ class RegionMapRepositoryTest {
             studyAnswers = discardedStudyAnswers(store),
             ioDispatcher = UnconfinedTestDispatcher(testScheduler),
             clock = TestClock(testScheduler, Instant.parse("2026-11-05T10:00:00Z")),
-        )
+        ).towns
     }
 
     private fun json(code: Int, body: String): MockResponse =

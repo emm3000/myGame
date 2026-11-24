@@ -664,16 +664,18 @@ class SessionRepositoryTest {
         store: TokenStore,
         languages: PlayerLanguages = PlayerLanguages(store, onNamed = {}),
     ): SessionRepository =
-        SessionRepository(
+        ApiRepositories(
             endpoint = slowMachineEndpoint(api.url("/api/").toString()),
             tokenStore = store,
             languages = languages,
             sessionEnds = sessionEnds,
+            studyAnswers = discardedStudyAnswers(store),
             ioDispatcher = UnconfinedTestDispatcher(testScheduler),
-        )
+            clock = TestClock(testScheduler, Instant.parse("2026-11-05T10:00:00Z")),
+        ).sessions
 
     private fun TestScope.townRepository(store: TokenStore): TownRepository =
-        TownRepository(
+        ApiRepositories(
             endpoint = slowMachineEndpoint(api.url("/api/").toString()),
             tokenStore = store,
             languages = PlayerLanguages(store, onNamed = {}),
@@ -681,7 +683,7 @@ class SessionRepositoryTest {
             studyAnswers = discardedStudyAnswers(store),
             ioDispatcher = UnconfinedTestDispatcher(testScheduler),
             clock = TestClock(testScheduler, Instant.parse("2026-11-05T10:00:00Z")),
-        )
+        ).towns
 
     private fun tokenStore(): TokenStore = tokenStore(FakeTokenCipher())
 

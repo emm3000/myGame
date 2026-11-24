@@ -168,7 +168,7 @@ class TownReadFlightTest {
         assertEquals(NEXT_TOWN_NAME, towns.town.value?.town?.name)
     }
 
-    private fun TestScope.town(): TownRepository = TownRepository(
+    private fun TestScope.town(): TownRepository = ApiRepositories(
         endpoint = slowMachineEndpoint(api.url("/api/").toString()),
         tokenStore = store,
         languages = PlayerLanguages(store, onNamed = {}),
@@ -176,15 +176,17 @@ class TownReadFlightTest {
         studyAnswers = discardedStudyAnswers(store),
         ioDispatcher = UnconfinedTestDispatcher(testScheduler),
         clock = TestClock(testScheduler, Instant.parse("2026-11-13T10:00:00Z")),
-    )
+    ).towns
 
-    private fun TestScope.sessions(): SessionRepository = SessionRepository(
+    private fun TestScope.sessions(): SessionRepository = ApiRepositories(
         endpoint = slowMachineEndpoint(api.url("/api/").toString()),
         tokenStore = store,
         languages = PlayerLanguages(store, onNamed = {}),
         sessionEnds = SessionEnds(),
+        studyAnswers = discardedStudyAnswers(store),
         ioDispatcher = UnconfinedTestDispatcher(testScheduler),
-    )
+        clock = TestClock(testScheduler, Instant.parse("2026-11-05T10:00:00Z")),
+    ).sessions
 
     private class SessionTowns(private val beforeBearer: String) : Dispatcher() {
         val answer: CountDownLatch = CountDownLatch(1)

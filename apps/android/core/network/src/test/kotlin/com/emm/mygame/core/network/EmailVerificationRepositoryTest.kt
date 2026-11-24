@@ -1,7 +1,9 @@
 package com.emm.mygame.core.network
 
 import com.emm.mygame.core.testing.FakeTokenCipher
+import com.emm.mygame.core.testing.TestClock
 import java.io.File
+import kotlin.time.Instant
 import kotlinx.coroutines.test.TestScope
 import kotlinx.coroutines.test.UnconfinedTestDispatcher
 import kotlinx.coroutines.test.runTest
@@ -114,13 +116,15 @@ class EmailVerificationRepositoryTest {
     }
 
     private fun TestScope.repository(store: TokenStore): SessionRepository =
-        SessionRepository(
+        ApiRepositories(
             endpoint = slowMachineEndpoint(api.url("/api/").toString()),
             tokenStore = store,
             languages = PlayerLanguages(store, onNamed = {}),
             sessionEnds = SessionEnds(),
+            studyAnswers = discardedStudyAnswers(store),
             ioDispatcher = UnconfinedTestDispatcher(testScheduler),
-        )
+            clock = TestClock(testScheduler, Instant.parse("2026-11-05T10:00:00Z")),
+        ).sessions
 
     private fun tokenStore(): TokenStore = TokenStore(File(folder.root, "session"), FakeTokenCipher())
 

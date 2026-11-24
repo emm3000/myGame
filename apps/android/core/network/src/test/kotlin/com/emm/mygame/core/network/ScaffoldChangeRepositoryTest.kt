@@ -2,9 +2,11 @@ package com.emm.mygame.core.network
 
 import app.cash.turbine.test
 import com.emm.mygame.core.testing.FakeTokenCipher
+import com.emm.mygame.core.testing.TestClock
 import java.io.File
 import java.util.concurrent.CountDownLatch
 import java.util.concurrent.TimeUnit
+import kotlin.time.Instant
 import kotlinx.coroutines.CoroutineStart
 import kotlinx.coroutines.Deferred
 import kotlinx.coroutines.Job
@@ -208,13 +210,15 @@ class ScaffoldChangeRepositoryTest {
         )
     }
 
-    private fun TestScope.sessions(): SessionRepository = SessionRepository(
+    private fun TestScope.sessions(): SessionRepository = ApiRepositories(
         endpoint = slowMachineEndpoint(api.url("/api/").toString()),
         tokenStore = store,
         languages = languages,
         sessionEnds = sessionEnds,
+        studyAnswers = discardedStudyAnswers(store),
         ioDispatcher = UnconfinedTestDispatcher(testScheduler),
-    )
+        clock = TestClock(testScheduler, Instant.parse("2026-11-05T10:00:00Z")),
+    ).sessions
 
     private fun player(scaffold: String, chromePhase: String): MockResponse =
         MockResponse.Builder()

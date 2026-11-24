@@ -267,15 +267,17 @@ class PlayerLanguagesTest {
         assertNull(languages.language.value)
     }
 
-    private fun TestScope.sessions(): SessionRepository = SessionRepository(
+    private fun TestScope.sessions(): SessionRepository = ApiRepositories(
         endpoint = slowMachineEndpoint(api.url("/api/").toString()),
         tokenStore = store,
         languages = languages,
         sessionEnds = sessionEnds,
+        studyAnswers = discardedStudyAnswers(store),
         ioDispatcher = UnconfinedTestDispatcher(testScheduler),
-    )
+        clock = TestClock(testScheduler, Instant.parse("2026-11-05T10:00:00Z")),
+    ).sessions
 
-    private fun TestScope.town(): TownRepository = TownRepository(
+    private fun TestScope.town(): TownRepository = ApiRepositories(
         endpoint = slowMachineEndpoint(api.url("/api/").toString()),
         tokenStore = store,
         languages = languages,
@@ -283,7 +285,7 @@ class PlayerLanguagesTest {
         studyAnswers = discardedStudyAnswers(store),
         ioDispatcher = UnconfinedTestDispatcher(testScheduler),
         clock = TestClock(testScheduler, Instant.parse("2026-11-05T10:04:00Z")),
-    )
+    ).towns
 
     private fun session(code: Int, scaffold: String, chromePhase: String, scaffoldVersion: Int): MockResponse =
         json(code, """{"token":"opaque-session","player":${playerJson(scaffold, chromePhase, scaffoldVersion)}}""")
