@@ -42,28 +42,28 @@ import com.emm.mygame.core.designsystem.OUTLINED_PILL
 import com.emm.mygame.core.designsystem.PLACE_ART
 import com.emm.mygame.core.designsystem.SKELETON_BLOCK
 import com.emm.mygame.core.model.learning.LessonId
+import com.emm.mygame.core.model.town.SeasonKind
+import com.emm.mygame.core.model.town.TownFoundRefusal
+import com.emm.mygame.core.model.town.TownLabel
+import com.emm.mygame.core.model.town.TownRegistered
 import com.emm.mygame.core.model.town.TownResourceKind
+import com.emm.mygame.core.model.town.building.NeededWordKind
 import com.emm.mygame.core.model.town.building.TownBuildingKind
-import com.emm.mygame.core.network.CaughtUpReason
-import com.emm.mygame.core.network.NeededWordKind
-import com.emm.mygame.core.network.NextStep
-import com.emm.mygame.core.network.SeasonKind
-import com.emm.mygame.core.network.TipKind
-import com.emm.mygame.core.network.TownFoundRefusal
-import com.emm.mygame.core.network.TownGoal
-import com.emm.mygame.core.network.TownLabel
-import com.emm.mygame.core.network.TownRegistered
-import com.emm.mygame.core.network.TownWorkRefusal
+import com.emm.mygame.core.model.town.building.TownWorkRefusal
+import com.emm.mygame.core.model.town.guidance.CaughtUpReason
+import com.emm.mygame.core.model.town.guidance.NextStep
+import com.emm.mygame.core.model.town.guidance.TipKind
+import com.emm.mygame.core.model.town.guidance.TownGoal
+import kotlin.time.Duration
+import kotlin.time.Duration.Companion.days
+import kotlin.time.Duration.Companion.minutes
+import kotlin.time.Duration.Companion.seconds
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertTrue
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.robolectric.RobolectricTestRunner
-import kotlin.time.Duration
-import kotlin.time.Duration.Companion.days
-import kotlin.time.Duration.Companion.minutes
-import kotlin.time.Duration.Companion.seconds
 
 @RunWith(RobolectricTestRunner::class)
 class TownScreenTest {

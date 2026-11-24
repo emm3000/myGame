@@ -1,7 +1,7 @@
 package com.emm.mygame.feature.school
 
 import com.emm.mygame.core.model.learning.WordSupport
-import com.emm.mygame.core.network.OpenText
+import com.emm.mygame.core.model.town.OpenText
 
 sealed interface SchoolTextUiState {
 

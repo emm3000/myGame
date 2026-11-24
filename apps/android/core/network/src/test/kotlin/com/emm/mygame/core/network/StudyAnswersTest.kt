@@ -9,15 +9,29 @@ import com.emm.mygame.core.model.learning.LearningRepository
 import com.emm.mygame.core.model.learning.LessonId
 import com.emm.mygame.core.model.learning.ReviewsReadResult
 import com.emm.mygame.core.model.placement.PlacementBand
+import com.emm.mygame.core.model.reminder.TownAnswerFreshness
 import com.emm.mygame.core.model.report.ReportReadResult
 import com.emm.mygame.core.model.report.ReportRepository
 import com.emm.mygame.core.model.report.TownReport
+import com.emm.mygame.core.model.town.TownFoundResult
+import com.emm.mygame.core.model.town.TownReadResult
+import com.emm.mygame.core.model.town.TownRepository
+import com.emm.mygame.core.model.town.TownSnapshot
 import com.emm.mygame.core.model.town.building.TownBuildingKind
+import com.emm.mygame.core.model.town.building.TownWorkResult
+import com.emm.mygame.core.model.town.guidance.TipKind
 import com.emm.mygame.core.model.town.hiring.TownHireKind
+import com.emm.mygame.core.model.town.hiring.TownHiringResult
+import com.emm.mygame.core.model.town.jobs.JobTarget
+import com.emm.mygame.core.model.town.jobs.TownJobResult
+import com.emm.mygame.core.model.town.school.TownLessonResult
 import com.emm.mygame.core.testing.FakeStudyAnswerSink
 import com.emm.mygame.core.testing.FakeTokenCipher
 import com.emm.mygame.core.testing.StudyAnswer
 import com.emm.mygame.core.testing.TestClock
+import java.io.File
+import java.util.concurrent.CountDownLatch
+import kotlin.time.Instant
 import kotlinx.coroutines.CoroutineStart
 import kotlinx.coroutines.Deferred
 import kotlinx.coroutines.async
@@ -31,9 +45,6 @@ import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
 import org.junit.rules.TemporaryFolder
-import java.io.File
-import java.util.concurrent.CountDownLatch
-import kotlin.time.Instant
 
 class StudyAnswersTest {
 

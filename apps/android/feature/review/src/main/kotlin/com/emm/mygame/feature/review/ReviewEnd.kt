@@ -16,7 +16,7 @@ import com.emm.mygame.core.designsystem.MyGameText
 import com.emm.mygame.core.designsystem.MyGameTheme
 import com.emm.mygame.core.designsystem.MyGameTypography
 import com.emm.mygame.core.designsystem.blockHueOf
-import com.emm.mygame.core.network.SchoolPathCounts
+import com.emm.mygame.core.model.town.school.SchoolPathCounts
 import com.emm.mygame.core.ui.SchoolPath
 import com.emm.mygame.core.ui.SchoolPathSteps
 import com.emm.mygame.core.ui.chromeResource

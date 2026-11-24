@@ -10,17 +10,17 @@ import androidx.compose.ui.test.onNodeWithText
 import com.emm.mygame.core.designsystem.MyGameTheme
 import com.emm.mygame.core.model.learning.LessonId
 import com.emm.mygame.core.model.placement.PlacementBand
-import com.emm.mygame.core.network.LessonName
-import com.emm.mygame.core.network.NextStep
-import com.emm.mygame.core.network.TownSnapshot
+import com.emm.mygame.core.model.town.TownSnapshot
+import com.emm.mygame.core.model.town.guidance.NextStep
+import com.emm.mygame.core.model.town.school.LessonName
+import kotlin.time.Duration
+import kotlin.time.Duration.Companion.seconds
+import kotlin.time.Instant
 import org.junit.Assert.assertEquals
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.robolectric.RobolectricTestRunner
-import kotlin.time.Duration
-import kotlin.time.Duration.Companion.seconds
-import kotlin.time.Instant
 
 @RunWith(RobolectricTestRunner::class)
 class SchoolReleasedSlotTest {

@@ -2,11 +2,33 @@ package com.emm.mygame.core.network
 
 import com.emm.mygame.core.model.account.SessionRepository
 import com.emm.mygame.core.model.learning.LessonId
+import com.emm.mygame.core.model.town.SeasonDurationPercent
+import com.emm.mygame.core.model.town.SeasonInForce
+import com.emm.mygame.core.model.town.SeasonKind
+import com.emm.mygame.core.model.town.SeasonProductionPercent
+import com.emm.mygame.core.model.town.TownFoundRefusal
+import com.emm.mygame.core.model.town.TownFoundResult
+import com.emm.mygame.core.model.town.TownReadResult
+import com.emm.mygame.core.model.town.TownRepository
 import com.emm.mygame.core.model.town.TownResourceKind
+import com.emm.mygame.core.model.town.TownSnapshot
+import com.emm.mygame.core.model.town.building.NeededWordKind
 import com.emm.mygame.core.model.town.building.TownBuildingKind
+import com.emm.mygame.core.model.town.building.TownWorkRefusal
+import com.emm.mygame.core.model.town.building.TownWorkResult
+import com.emm.mygame.core.model.town.guidance.CaughtUpReason
+import com.emm.mygame.core.model.town.guidance.NextStep
+import com.emm.mygame.core.model.town.guidance.TownGoal
 import com.emm.mygame.core.model.town.hiring.TownHireKind
+import com.emm.mygame.core.model.town.hiring.TownHiringRefusal
+import com.emm.mygame.core.model.town.hiring.TownHiringResult
+import com.emm.mygame.core.model.town.school.RetainedWords
 import com.emm.mygame.core.testing.FakeTokenCipher
 import com.emm.mygame.core.testing.TestClock
+import java.io.File
+import kotlin.time.Duration.Companion.minutes
+import kotlin.time.Duration.Companion.seconds
+import kotlin.time.Instant
 import kotlinx.coroutines.test.TestScope
 import kotlinx.coroutines.test.runTest
 import mockwebserver3.Dispatcher
@@ -19,10 +41,6 @@ import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
 import org.junit.rules.TemporaryFolder
-import java.io.File
-import kotlin.time.Duration.Companion.minutes
-import kotlin.time.Duration.Companion.seconds
-import kotlin.time.Instant
 
 class TownRepositoryTest {
 

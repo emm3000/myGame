@@ -1,7 +1,7 @@
 package com.emm.mygame.feature.school
 
 import app.cash.turbine.test
-import com.emm.mygame.core.network.TownTextResult
+import com.emm.mygame.core.model.town.TownTextResult
 import com.emm.mygame.core.testing.FakeTownTextRepository
 import com.emm.mygame.core.testing.MainDispatcherRule
 import kotlinx.coroutines.test.runCurrent

@@ -26,9 +26,12 @@ import com.emm.mygame.core.designsystem.MyGameTheme
 import com.emm.mygame.core.model.holdout.HoldoutCheckWeek
 import com.emm.mygame.core.model.learning.LessonId
 import com.emm.mygame.core.model.placement.PlacementBand
-import com.emm.mygame.core.network.NextStep
-import com.emm.mygame.core.network.TownLessonRefusal
-import com.emm.mygame.core.network.TownSnapshot
+import com.emm.mygame.core.model.town.TownSnapshot
+import com.emm.mygame.core.model.town.guidance.NextStep
+import com.emm.mygame.core.model.town.school.TownLessonRefusal
+import kotlin.time.Duration
+import kotlin.time.Duration.Companion.hours
+import kotlin.time.Duration.Companion.seconds
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertTrue
 import org.junit.Rule
@@ -37,9 +40,6 @@ import org.junit.runner.RunWith
 import org.robolectric.RobolectricTestRunner
 import org.robolectric.annotation.Config
 import org.robolectric.annotation.GraphicsMode
-import kotlin.time.Duration
-import kotlin.time.Duration.Companion.hours
-import kotlin.time.Duration.Companion.seconds
 
 @RunWith(RobolectricTestRunner::class)
 class SchoolReleasedLessonsTest {

@@ -30,6 +30,7 @@ import androidx.compose.ui.test.performTextInput
 import androidx.compose.ui.test.performTouchInput
 import androidx.compose.ui.test.swipeUp
 import androidx.compose.ui.unit.Dp
+import androidx.compose.ui.unit.DpRect as Rect
 import androidx.compose.ui.unit.dp
 import androidx.navigation3.runtime.NavBackStack
 import androidx.navigation3.runtime.NavKey
@@ -59,15 +60,15 @@ import com.emm.mygame.core.model.placement.PlacementReadResult
 import com.emm.mygame.core.model.report.ReportCloseResult
 import com.emm.mygame.core.model.report.ReportReadResult
 import com.emm.mygame.core.model.report.TownReport
+import com.emm.mygame.core.model.town.TownReadResult
 import com.emm.mygame.core.model.town.TownResourceKind
+import com.emm.mygame.core.model.town.TownSnapshot
+import com.emm.mygame.core.model.town.guidance.CaughtUpReason
+import com.emm.mygame.core.model.town.guidance.NextStep
 import com.emm.mygame.core.model.town.news.TownNews
-import com.emm.mygame.core.network.CaughtUpReason
-import com.emm.mygame.core.network.NextStep
-import com.emm.mygame.core.network.RetainedWords
-import com.emm.mygame.core.network.TownLessonRefusal
-import com.emm.mygame.core.network.TownLessonResult
-import com.emm.mygame.core.network.TownReadResult
-import com.emm.mygame.core.network.TownSnapshot
+import com.emm.mygame.core.model.town.school.RetainedWords
+import com.emm.mygame.core.model.town.school.TownLessonRefusal
+import com.emm.mygame.core.model.town.school.TownLessonResult
 import com.emm.mygame.core.testing.FakeHoldoutCheckRepository
 import com.emm.mygame.core.testing.FakeLearningRepository
 import com.emm.mygame.core.testing.FakePlacementRepository
@@ -78,6 +79,10 @@ import com.emm.mygame.core.testing.lessonsDone
 import com.emm.mygame.core.testing.townOf
 import com.emm.mygame.feature.town.TOWN_DOCK
 import com.emm.mygame.navigation.AppNavigation
+import kotlin.time.Clock
+import kotlin.time.Duration.Companion.hours
+import kotlin.time.Duration.Companion.minutes
+import kotlin.time.Instant
 import kotlinx.coroutines.flow.emptyFlow
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertTrue
@@ -88,11 +93,6 @@ import org.junit.runner.RunWith
 import org.robolectric.RobolectricTestRunner
 import org.robolectric.annotation.Config
 import org.robolectric.annotation.GraphicsMode
-import androidx.compose.ui.unit.DpRect as Rect
-import kotlin.time.Clock
-import kotlin.time.Duration.Companion.hours
-import kotlin.time.Duration.Companion.minutes
-import kotlin.time.Instant
 
 @RunWith(RobolectricTestRunner::class)
 class DockFrameNavigationTest {

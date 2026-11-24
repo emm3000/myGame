@@ -25,17 +25,19 @@ import androidx.compose.ui.test.performClick
 import androidx.compose.ui.test.performScrollTo
 import com.emm.mygame.core.designsystem.MyGameTheme
 import com.emm.mygame.core.model.learning.TextId
+import com.emm.mygame.core.model.town.SeasonInForce
+import com.emm.mygame.core.model.town.SeasonKind
+import com.emm.mygame.core.model.town.TownRegistered
 import com.emm.mygame.core.model.town.TownResourceKind
+import com.emm.mygame.core.model.town.building.NeededWordKind
 import com.emm.mygame.core.model.town.building.TownBuildingKind
-import com.emm.mygame.core.network.CaughtUpReason
-import com.emm.mygame.core.network.NeededWordKind
-import com.emm.mygame.core.network.NextStep
-import com.emm.mygame.core.network.NextStepText
-import com.emm.mygame.core.network.SeasonInForce
-import com.emm.mygame.core.network.SeasonKind
-import com.emm.mygame.core.network.TownGoal
-import com.emm.mygame.core.network.TownRegistered
-import com.emm.mygame.core.network.TownWorkRefusal
+import com.emm.mygame.core.model.town.building.TownWorkRefusal
+import com.emm.mygame.core.model.town.guidance.CaughtUpReason
+import com.emm.mygame.core.model.town.guidance.NextStep
+import com.emm.mygame.core.model.town.guidance.NextStepText
+import com.emm.mygame.core.model.town.guidance.TownGoal
+import kotlin.time.Duration
+import kotlin.time.Duration.Companion.days
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertTrue
 import org.junit.Rule
@@ -43,8 +45,6 @@ import org.junit.Test
 import org.junit.runner.RunWith
 import org.robolectric.RobolectricTestRunner
 import org.robolectric.annotation.GraphicsMode
-import kotlin.time.Duration
-import kotlin.time.Duration.Companion.days
 
 @RunWith(RobolectricTestRunner::class)
 class TownPageLinesScreenTest {

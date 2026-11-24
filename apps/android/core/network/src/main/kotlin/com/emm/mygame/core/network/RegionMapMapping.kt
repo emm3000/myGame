@@ -1,12 +1,16 @@
 package com.emm.mygame.core.network
 
+import com.emm.mygame.core.model.town.jobs.RegionMap
+import com.emm.mygame.core.model.town.jobs.RegionMapResult
+import com.emm.mygame.core.model.town.jobs.Terrain
+import com.emm.mygame.core.model.town.jobs.WasteSize
 import com.emm.mygame.core.network.generated.models.BareApiError
+import com.emm.mygame.core.network.generated.models.RegionMap as WireRegionMap
 import com.emm.mygame.core.network.generated.models.RegionMapSitesInner
 import com.emm.mygame.core.network.generated.models.RegionMapSitesInnerTown
 import com.emm.mygame.core.network.generated.models.RegionMapSitesInnerWaste
-import retrofit2.Response
-import com.emm.mygame.core.network.generated.models.RegionMap as WireRegionMap
 import com.emm.mygame.core.network.generated.models.WasteSize as WireWasteSize
+import retrofit2.Response
 
 private const val MALFORMED_PATH: Int = 400
 

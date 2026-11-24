@@ -6,14 +6,19 @@ import com.emm.mygame.core.model.reminder.StudyReminderChoice
 import com.emm.mygame.core.model.report.ReportCloseResult
 import com.emm.mygame.core.model.report.ReportReadResult
 import com.emm.mygame.core.model.report.TownReport
-import com.emm.mygame.core.network.HeldTown
-import com.emm.mygame.core.network.TownSnapshot
+import com.emm.mygame.core.model.town.HeldTown
+import com.emm.mygame.core.model.town.TownSnapshot
 import com.emm.mygame.core.testing.FakeReportRepository
 import com.emm.mygame.core.testing.FakeSessionRepository
 import com.emm.mygame.core.testing.FakeStudyReminderSettings
 import com.emm.mygame.core.testing.FakeTownRepository
 import com.emm.mygame.core.testing.MainDispatcherRule
 import com.emm.mygame.core.testing.townOf
+import kotlin.time.Duration
+import kotlin.time.Duration.Companion.hours
+import kotlin.time.Duration.Companion.minutes
+import kotlin.time.Duration.Companion.seconds
+import kotlin.time.Instant
 import kotlinx.coroutines.test.TestScope
 import kotlinx.coroutines.test.advanceTimeBy
 import kotlinx.coroutines.test.runCurrent
@@ -21,11 +26,6 @@ import kotlinx.coroutines.test.runTest
 import org.junit.Assert.assertEquals
 import org.junit.Rule
 import org.junit.Test
-import kotlin.time.Duration
-import kotlin.time.Duration.Companion.hours
-import kotlin.time.Duration.Companion.minutes
-import kotlin.time.Duration.Companion.seconds
-import kotlin.time.Instant
 
 class ReportViewModelTest {
 

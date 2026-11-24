@@ -3,8 +3,8 @@ package com.emm.mygame.feature.school
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.emm.mygame.core.model.learning.TextId
-import com.emm.mygame.core.network.TownTextRepository
-import com.emm.mygame.core.network.TownTextResult
+import com.emm.mygame.core.model.town.TownTextRepository
+import com.emm.mygame.core.model.town.TownTextResult
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow

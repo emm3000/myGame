@@ -15,9 +15,9 @@ import com.emm.mygame.core.designsystem.MyGameTheme
 import com.emm.mygame.core.designsystem.MyGameTypography
 import com.emm.mygame.core.designsystem.PreviewMyGame
 import com.emm.mygame.core.model.town.TownResourceKind
+import com.emm.mygame.core.model.town.TownSnapshot
 import com.emm.mygame.core.model.town.building.TownBuildingKind
-import com.emm.mygame.core.network.TownGoal
-import com.emm.mygame.core.network.TownSnapshot
+import com.emm.mygame.core.model.town.guidance.TownGoal
 import com.emm.mygame.core.ui.CopyReader
 import com.emm.mygame.core.ui.PlayerCopy
 import com.emm.mygame.core.ui.rememberPlayerCopy

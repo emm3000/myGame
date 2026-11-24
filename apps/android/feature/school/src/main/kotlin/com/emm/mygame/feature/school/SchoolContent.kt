@@ -1,17 +1,17 @@
 package com.emm.mygame.feature.school
 
 import com.emm.mygame.core.model.learning.LessonId
+import com.emm.mygame.core.model.town.SeasonInForce
+import com.emm.mygame.core.model.town.TownSnapshot
+import com.emm.mygame.core.model.town.UNSCALED_PERCENT
 import com.emm.mygame.core.model.town.building.TownBuildingKind
-import com.emm.mygame.core.network.LessonName
-import com.emm.mygame.core.network.NextStepCard
-import com.emm.mygame.core.network.SeasonInForce
-import com.emm.mygame.core.network.TownSnapshot
-import com.emm.mygame.core.network.UNSCALED_PERCENT
-import com.emm.mygame.core.network.capWaitsUntil
-import com.emm.mygame.core.network.nameOf
-import com.emm.mygame.core.network.nextStepCard
-import com.emm.mygame.core.network.numberOf
-import com.emm.mygame.core.network.schoolPathCountsOf
+import com.emm.mygame.core.model.town.capWaitsUntil
+import com.emm.mygame.core.model.town.guidance.NextStepCard
+import com.emm.mygame.core.model.town.guidance.nextStepCard
+import com.emm.mygame.core.model.town.guidance.numberOf
+import com.emm.mygame.core.model.town.school.LessonName
+import com.emm.mygame.core.model.town.school.nameOf
+import com.emm.mygame.core.model.town.school.schoolPathCountsOf
 import com.emm.mygame.core.projection.countdownTo
 import kotlin.time.Duration
 import kotlin.time.Instant

@@ -1,20 +1,20 @@
 package com.emm.mygame.feature.town
 
+import com.emm.mygame.core.model.town.SeasonInForce
+import com.emm.mygame.core.model.town.SeasonKind
+import com.emm.mygame.core.model.town.SeasonProductionPercent
+import com.emm.mygame.core.model.town.TownReadResult
 import com.emm.mygame.core.model.town.TownResourceKind
-import com.emm.mygame.core.network.SeasonInForce
-import com.emm.mygame.core.network.SeasonKind
-import com.emm.mygame.core.network.SeasonProductionPercent
-import com.emm.mygame.core.network.TownReadResult
-import com.emm.mygame.core.network.TownSnapshot
+import com.emm.mygame.core.model.town.TownSnapshot
 import com.emm.mygame.core.testing.FakeTownRepository
 import com.emm.mygame.core.testing.MainDispatcherRule
+import kotlin.time.Duration.Companion.days
 import kotlinx.coroutines.test.TestScope
 import kotlinx.coroutines.test.runTest
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertNull
 import org.junit.Rule
 import org.junit.Test
-import kotlin.time.Duration.Companion.days
 
 class TownSeasonMarkViewModelTest {
 

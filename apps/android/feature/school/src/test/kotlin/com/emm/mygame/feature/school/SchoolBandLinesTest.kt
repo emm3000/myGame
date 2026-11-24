@@ -9,12 +9,12 @@ import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performScrollTo
 import com.emm.mygame.core.designsystem.MyGameTheme
 import com.emm.mygame.core.model.placement.PlacementBand
-import com.emm.mygame.core.network.TownSnapshot
+import com.emm.mygame.core.model.town.TownSnapshot
+import kotlin.time.Duration
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.robolectric.RobolectricTestRunner
-import kotlin.time.Duration
 
 @RunWith(RobolectricTestRunner::class)
 class SchoolBandLinesTest {

@@ -16,12 +16,12 @@ import com.emm.mygame.core.model.placement.Placement
 import com.emm.mygame.core.model.placement.PlacementReadResult
 import com.emm.mygame.core.model.report.ReportReadResult
 import com.emm.mygame.core.model.town.building.TownBuildingKind
+import com.emm.mygame.core.model.town.guidance.NextStep
+import com.emm.mygame.core.model.town.jobs.RegionMap
+import com.emm.mygame.core.model.town.jobs.RegionMapResult
+import com.emm.mygame.core.model.town.jobs.Terrain
 import com.emm.mygame.core.model.town.news.TownNews
 import com.emm.mygame.core.model.town.news.TownNewsReadResult
-import com.emm.mygame.core.network.NextStep
-import com.emm.mygame.core.network.RegionMap
-import com.emm.mygame.core.network.RegionMapResult
-import com.emm.mygame.core.network.Terrain
 import org.junit.Assert.assertEquals
 import org.junit.Test
 import org.junit.runner.RunWith

@@ -3,8 +3,8 @@ package com.emm.mygame.feature.school
 import com.emm.mygame.core.model.learning.FrameSpan
 import com.emm.mygame.core.model.learning.TextId
 import com.emm.mygame.core.model.learning.WordSupport
-import com.emm.mygame.core.network.OpenText
-import com.emm.mygame.core.network.TownTextResult
+import com.emm.mygame.core.model.town.OpenText
+import com.emm.mygame.core.model.town.TownTextResult
 import com.emm.mygame.core.testing.FakeTownTextRepository
 import kotlinx.coroutines.test.TestScope
 import kotlinx.coroutines.test.runCurrent

@@ -1,9 +1,9 @@
 package com.emm.mygame.feature.town
 
+import com.emm.mygame.core.model.town.TownRepository
+import com.emm.mygame.core.model.town.TownSnapshot
 import com.emm.mygame.core.model.town.hiring.TownHireKind
-import com.emm.mygame.core.network.TownHiringResult
-import com.emm.mygame.core.network.TownRepository
-import com.emm.mygame.core.network.TownSnapshot
+import com.emm.mygame.core.model.town.hiring.TownHiringResult
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
 

@@ -1,10 +1,10 @@
 package com.emm.mygame.feature.map
 
-import com.emm.mygame.core.network.CleanUpQuoteResult
-import com.emm.mygame.core.network.JobQuoteResult
-import com.emm.mygame.core.network.RegionMap
-import com.emm.mygame.core.network.RegionReader
-import com.emm.mygame.core.network.TownSnapshot
+import com.emm.mygame.core.model.town.TownSnapshot
+import com.emm.mygame.core.model.town.jobs.CleanUpQuoteResult
+import com.emm.mygame.core.model.town.jobs.JobQuoteResult
+import com.emm.mygame.core.model.town.jobs.RegionMap
+import com.emm.mygame.core.model.town.jobs.RegionReader
 import kotlin.time.Instant
 
 internal data class QuoteAsk(val send: SiteSend, val seasonEndsAt: Instant?)

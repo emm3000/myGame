@@ -22,7 +22,7 @@ import com.emm.mygame.core.designsystem.MyGameTheme
 import com.emm.mygame.core.designsystem.MyGameTypography
 import com.emm.mygame.core.designsystem.PreviewMyGame
 import com.emm.mygame.core.model.placement.PlacementBand
-import com.emm.mygame.core.network.LessonName
+import com.emm.mygame.core.model.town.school.LessonName
 import com.emm.mygame.core.ui.ChromePhase
 import com.emm.mygame.core.ui.CopyLanguage
 import com.emm.mygame.core.ui.PlayerCopy

@@ -2,14 +2,21 @@ package com.emm.mygame.core.network
 
 import com.emm.mygame.core.model.learning.LessonId
 import com.emm.mygame.core.model.placement.PlacementBand
+import com.emm.mygame.core.model.town.TownLabel
+import com.emm.mygame.core.model.town.TownRegistered
 import com.emm.mygame.core.model.town.TownResourceKind
+import com.emm.mygame.core.model.town.TownSnapshot
 import com.emm.mygame.core.model.town.building.TownBuildingKind
+import com.emm.mygame.core.model.town.guidance.CaughtUpReason
+import com.emm.mygame.core.model.town.guidance.NextStep
+import com.emm.mygame.core.model.town.registeredBetween
+import com.emm.mygame.core.model.town.school.RetainedWords
 import com.emm.mygame.core.testing.hiringOf
+import kotlin.time.Duration.Companion.minutes
+import kotlin.time.Instant
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertNull
 import org.junit.Test
-import kotlin.time.Duration.Companion.minutes
-import kotlin.time.Instant
 
 class TownRegisteredTest {
 

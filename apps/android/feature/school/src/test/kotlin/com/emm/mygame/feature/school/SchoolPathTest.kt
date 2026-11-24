@@ -21,9 +21,10 @@ import androidx.compose.ui.unit.Dp
 import com.emm.mygame.core.designsystem.MyGameTheme
 import com.emm.mygame.core.designsystem.OUTLINED_PILL
 import com.emm.mygame.core.model.town.TownResourceKind
-import com.emm.mygame.core.network.NextStep
-import com.emm.mygame.core.network.TownSnapshot
-import com.emm.mygame.core.network.WordStanding
+import com.emm.mygame.core.model.town.TownSnapshot
+import com.emm.mygame.core.model.town.guidance.NextStep
+import com.emm.mygame.core.model.town.school.WordStanding
+import kotlin.time.Duration
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertFalse
 import org.junit.Assert.assertTrue
@@ -33,7 +34,6 @@ import org.junit.runner.RunWith
 import org.robolectric.RobolectricTestRunner
 import org.robolectric.annotation.Config
 import org.robolectric.annotation.GraphicsMode
-import kotlin.time.Duration
 
 @RunWith(RobolectricTestRunner::class)
 class SchoolPathTest {

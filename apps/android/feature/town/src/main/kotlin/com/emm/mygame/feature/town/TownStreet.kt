@@ -5,8 +5,8 @@ import androidx.compose.ui.Modifier
 import com.emm.mygame.core.designsystem.MyGameStreet
 import com.emm.mygame.core.designsystem.MyGameStreetStrip
 import com.emm.mygame.core.designsystem.MyGameStreetTab
+import com.emm.mygame.core.model.town.TownLabel
 import com.emm.mygame.core.model.town.building.TownBuildingKind
-import com.emm.mygame.core.network.TownLabel
 import com.emm.mygame.core.ui.CopyReader
 import com.emm.mygame.core.ui.PlayerCopy
 import com.emm.mygame.core.ui.rememberPlayerCopy

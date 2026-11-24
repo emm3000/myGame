@@ -21,7 +21,7 @@ import com.emm.mygame.core.designsystem.MyGameTitleLine
 import com.emm.mygame.core.designsystem.MyGameTypography
 import com.emm.mygame.core.designsystem.englishTextOf
 import com.emm.mygame.core.model.learning.LessonId
-import com.emm.mygame.core.network.SchoolPathCounts
+import com.emm.mygame.core.model.town.school.SchoolPathCounts
 import com.emm.mygame.core.ui.CopyReader
 import com.emm.mygame.core.ui.PlayerCopy
 import com.emm.mygame.core.ui.SchoolPath

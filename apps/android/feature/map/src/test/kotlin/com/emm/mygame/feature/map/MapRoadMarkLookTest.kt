@@ -21,10 +21,10 @@ import androidx.compose.ui.unit.Dp
 import com.emm.mygame.core.designsystem.MyGameIcons
 import com.emm.mygame.core.designsystem.MyGameTheme
 import com.emm.mygame.core.designsystem.MyGameTypography
+import com.emm.mygame.core.model.town.SeasonKind
 import com.emm.mygame.core.model.town.TownResourceKind
-import com.emm.mygame.core.network.SeasonKind
-import com.emm.mygame.core.network.Terrain
-import com.emm.mygame.core.network.WasteSize
+import com.emm.mygame.core.model.town.jobs.Terrain
+import com.emm.mygame.core.model.town.jobs.WasteSize
 import com.emm.mygame.core.ui.SEASON_MARK_ICON
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertTrue

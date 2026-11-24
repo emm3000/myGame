@@ -1,5 +1,6 @@
 package com.emm.mygame.core.network
 
+import com.emm.mygame.core.model.town.TownReadResult
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.CoroutineStart
 import kotlinx.coroutines.Deferred

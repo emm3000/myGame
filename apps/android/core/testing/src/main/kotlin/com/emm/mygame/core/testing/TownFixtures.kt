@@ -1,11 +1,11 @@
 package com.emm.mygame.core.testing
 
+import com.emm.mygame.core.model.town.TownLabel
+import com.emm.mygame.core.model.town.TownSnapshot
 import com.emm.mygame.core.model.town.building.TownBuildingKind
-import com.emm.mygame.core.network.CaughtUpReason
-import com.emm.mygame.core.network.NextStep
-import com.emm.mygame.core.network.RetainedWords
-import com.emm.mygame.core.network.TownLabel
-import com.emm.mygame.core.network.TownSnapshot
+import com.emm.mygame.core.model.town.guidance.CaughtUpReason
+import com.emm.mygame.core.model.town.guidance.NextStep
+import com.emm.mygame.core.model.town.school.RetainedWords
 import kotlin.time.Instant
 
 private val schoolOnly: List<TownSnapshot.Building> =

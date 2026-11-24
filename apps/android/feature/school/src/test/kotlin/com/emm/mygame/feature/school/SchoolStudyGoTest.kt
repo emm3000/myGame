@@ -4,7 +4,7 @@ import androidx.compose.ui.test.junit4.ComposeContentTestRule
 import androidx.compose.ui.test.junit4.createComposeRule
 import com.emm.mygame.core.designsystem.MyGameDockGo
 import com.emm.mygame.core.designsystem.MyGameTheme
-import com.emm.mygame.core.network.TownSnapshot
+import com.emm.mygame.core.model.town.TownSnapshot
 import kotlin.time.Duration
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertTrue

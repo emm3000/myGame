@@ -1,27 +1,27 @@
 package com.emm.mygame.core.testing
 
 import com.emm.mygame.core.model.learning.LessonId
+import com.emm.mygame.core.model.town.HeldTown
+import com.emm.mygame.core.model.town.TownFoundResult
+import com.emm.mygame.core.model.town.TownReadResult
+import com.emm.mygame.core.model.town.TownRepository
+import com.emm.mygame.core.model.town.TownSnapshot
 import com.emm.mygame.core.model.town.building.TownBuildingKind
+import com.emm.mygame.core.model.town.building.TownWorkResult
+import com.emm.mygame.core.model.town.guidance.TipKind
+import com.emm.mygame.core.model.town.guidance.TownGuidanceResult
 import com.emm.mygame.core.model.town.hiring.TownHireKind
-import com.emm.mygame.core.network.HeldTown
-import com.emm.mygame.core.network.RegionRepository
-import com.emm.mygame.core.network.TipKind
-import com.emm.mygame.core.network.TownFoundResult
-import com.emm.mygame.core.network.TownGuidanceResult
-import com.emm.mygame.core.network.TownHiringResult
-import com.emm.mygame.core.network.TownJobResult
-import com.emm.mygame.core.network.TownLessonResult
-import com.emm.mygame.core.network.TownReadResult
-import com.emm.mygame.core.network.TownRepository
-import com.emm.mygame.core.network.TownSnapshot
-import com.emm.mygame.core.network.TownWorkResult
+import com.emm.mygame.core.model.town.hiring.TownHiringResult
+import com.emm.mygame.core.model.town.jobs.RegionRepository
+import com.emm.mygame.core.model.town.jobs.TownJobResult
+import com.emm.mygame.core.model.town.school.TownLessonResult
+import kotlin.time.Duration
+import kotlin.time.Instant
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.yield
-import kotlin.time.Duration
-import kotlin.time.Instant
 
 class FakeTownRepository private constructor(
     private val heldTown: MutableStateFlow<HeldTown?>,

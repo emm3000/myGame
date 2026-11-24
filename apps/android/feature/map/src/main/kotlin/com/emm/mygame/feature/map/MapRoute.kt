@@ -8,7 +8,7 @@ import androidx.compose.ui.Modifier
 import androidx.lifecycle.compose.LifecycleStartEffect
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
-import com.emm.mygame.core.network.TownRepository
+import com.emm.mygame.core.model.town.TownRepository
 import kotlin.time.Clock
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext

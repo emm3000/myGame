@@ -37,18 +37,18 @@ import com.emm.mygame.core.designsystem.NAV_ROW_CHEVRON
 import com.emm.mygame.core.designsystem.OUTLINED_PILL
 import com.emm.mygame.core.model.learning.LessonId
 import com.emm.mygame.core.model.placement.PlacementBand
+import com.emm.mygame.core.model.town.SeasonKind
 import com.emm.mygame.core.model.town.TownResourceKind
-import com.emm.mygame.core.network.LessonName
-import com.emm.mygame.core.network.SchoolPathCounts
-import com.emm.mygame.core.network.SeasonKind
+import com.emm.mygame.core.model.town.school.LessonName
+import com.emm.mygame.core.model.town.school.SchoolPathCounts
 import com.emm.mygame.core.ui.SEASON_MARK_ICON
+import kotlin.time.Duration.Companion.seconds
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertTrue
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.robolectric.RobolectricTestRunner
-import kotlin.time.Duration.Companion.seconds
 
 @RunWith(RobolectricTestRunner::class)
 class SchoolLookTest {

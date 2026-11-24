@@ -1,8 +1,8 @@
 package com.emm.mygame.feature.town
 
-import com.emm.mygame.core.network.TipKind
-import com.emm.mygame.core.network.TownGuidanceResult
-import com.emm.mygame.core.network.TownRepository
+import com.emm.mygame.core.model.town.TownRepository
+import com.emm.mygame.core.model.town.guidance.TipKind
+import com.emm.mygame.core.model.town.guidance.TownGuidanceResult
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
 

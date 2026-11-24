@@ -2,16 +2,19 @@ package com.emm.mygame.feature.school
 
 import app.cash.turbine.test
 import com.emm.mygame.core.model.placement.PlacementBand
+import com.emm.mygame.core.model.town.TownReadResult
 import com.emm.mygame.core.model.town.TownResourceKind
-import com.emm.mygame.core.network.CaughtUpReason
-import com.emm.mygame.core.network.NextStep
-import com.emm.mygame.core.network.SchoolPathCounts
-import com.emm.mygame.core.network.TownLessonRefusal
-import com.emm.mygame.core.network.TownLessonResult
-import com.emm.mygame.core.network.TownReadResult
-import com.emm.mygame.core.network.TownSnapshot
+import com.emm.mygame.core.model.town.TownSnapshot
+import com.emm.mygame.core.model.town.guidance.CaughtUpReason
+import com.emm.mygame.core.model.town.guidance.NextStep
+import com.emm.mygame.core.model.town.school.SchoolPathCounts
+import com.emm.mygame.core.model.town.school.TownLessonRefusal
+import com.emm.mygame.core.model.town.school.TownLessonResult
 import com.emm.mygame.core.testing.FakeTownRepository
 import com.emm.mygame.core.testing.MainDispatcherRule
+import kotlin.time.Duration.Companion.hours
+import kotlin.time.Duration.Companion.minutes
+import kotlin.time.Duration.Companion.seconds
 import kotlinx.coroutines.test.TestScope
 import kotlinx.coroutines.test.advanceTimeBy
 import kotlinx.coroutines.test.runCurrent
@@ -19,9 +22,6 @@ import kotlinx.coroutines.test.runTest
 import org.junit.Assert.assertEquals
 import org.junit.Rule
 import org.junit.Test
-import kotlin.time.Duration.Companion.hours
-import kotlin.time.Duration.Companion.minutes
-import kotlin.time.Duration.Companion.seconds
 
 class SchoolViewModelTest {
 

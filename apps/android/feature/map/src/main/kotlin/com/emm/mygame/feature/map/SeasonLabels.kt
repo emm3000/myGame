@@ -2,7 +2,7 @@ package com.emm.mygame.feature.map
 
 import androidx.compose.ui.graphics.vector.ImageVector
 import com.emm.mygame.core.designsystem.MyGameIcons
-import com.emm.mygame.core.network.SeasonKind
+import com.emm.mygame.core.model.town.SeasonKind
 
 internal fun seasonIconOf(kind: SeasonKind): ImageVector = when (kind) {
     SeasonKind.Spring -> MyGameIcons.spring

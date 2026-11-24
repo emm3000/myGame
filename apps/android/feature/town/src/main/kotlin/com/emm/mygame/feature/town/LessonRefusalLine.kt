@@ -1,6 +1,6 @@
 package com.emm.mygame.feature.town
 
-import com.emm.mygame.core.network.TownLessonRefusal
+import com.emm.mygame.core.model.town.school.TownLessonRefusal
 import com.emm.mygame.core.ui.CopyReader
 import com.emm.mygame.core.ui.finishLabelOf
 

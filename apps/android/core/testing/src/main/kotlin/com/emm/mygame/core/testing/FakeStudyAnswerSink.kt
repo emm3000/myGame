@@ -2,10 +2,10 @@ package com.emm.mygame.core.testing
 
 import com.emm.mygame.core.model.holdout.HoldoutCheck
 import com.emm.mygame.core.model.learning.DueReviews
+import com.emm.mygame.core.model.reminder.StudyAnswerSink
+import com.emm.mygame.core.model.reminder.TownAnswerFreshness
 import com.emm.mygame.core.model.report.TownReport
-import com.emm.mygame.core.network.StudyAnswerSink
-import com.emm.mygame.core.network.TownAnswerFreshness
-import com.emm.mygame.core.network.TownSnapshot
+import com.emm.mygame.core.model.town.TownSnapshot
 import java.util.concurrent.CopyOnWriteArrayList
 
 class FakeStudyAnswerSink : StudyAnswerSink {

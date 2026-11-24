@@ -1,15 +1,15 @@
 package com.emm.mygame.core.testing
 
 import com.emm.mygame.core.model.town.hiring.TownHireKind
-import com.emm.mygame.core.network.CleanUpQuoteResult
-import com.emm.mygame.core.network.JobQuoteResult
-import com.emm.mygame.core.network.JobTarget
-import com.emm.mygame.core.network.RegionMapResult
-import com.emm.mygame.core.network.RegionRepository
-import com.emm.mygame.core.network.TownJobResult
+import com.emm.mygame.core.model.town.jobs.CleanUpQuoteResult
+import com.emm.mygame.core.model.town.jobs.JobQuoteResult
+import com.emm.mygame.core.model.town.jobs.JobTarget
+import com.emm.mygame.core.model.town.jobs.RegionMapResult
+import com.emm.mygame.core.model.town.jobs.RegionRepository
+import com.emm.mygame.core.model.town.jobs.TownJobResult
+import kotlin.time.Instant
 import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.channels.Channel
-import kotlin.time.Instant
 
 class FakeRegionRepository(private val onAnswered: (TownJobResult.Answered) -> Unit) : RegionRepository {
 

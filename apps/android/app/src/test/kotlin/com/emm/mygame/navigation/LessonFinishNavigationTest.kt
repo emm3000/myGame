@@ -11,7 +11,7 @@ import com.emm.mygame.core.model.learning.TextId
 import com.emm.mygame.core.model.placement.Placement
 import com.emm.mygame.core.model.placement.PlacementBand
 import com.emm.mygame.core.model.report.ReportReadResult
-import com.emm.mygame.core.network.TownReadResult
+import com.emm.mygame.core.model.town.TownReadResult
 import org.junit.Assert.assertEquals
 import org.junit.Test
 import org.junit.runner.RunWith

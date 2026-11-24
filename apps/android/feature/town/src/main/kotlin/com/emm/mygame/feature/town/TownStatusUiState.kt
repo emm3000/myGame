@@ -1,8 +1,8 @@
 package com.emm.mygame.feature.town
 
-import com.emm.mygame.core.network.LessonName
-import com.emm.mygame.core.network.NextStepCard
-import com.emm.mygame.core.network.TownGoal
+import com.emm.mygame.core.model.town.guidance.NextStepCard
+import com.emm.mygame.core.model.town.guidance.TownGoal
+import com.emm.mygame.core.model.town.school.LessonName
 import kotlin.time.Duration
 import kotlin.time.Instant
 

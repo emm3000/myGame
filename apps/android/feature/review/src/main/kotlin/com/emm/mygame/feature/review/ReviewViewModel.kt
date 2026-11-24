@@ -12,14 +12,18 @@ import com.emm.mygame.core.model.learning.ReviewHint
 import com.emm.mygame.core.model.learning.ReviewHintResult
 import com.emm.mygame.core.model.learning.ReviewVerdict
 import com.emm.mygame.core.model.learning.ReviewsReadResult
-import com.emm.mygame.core.network.HeldTown
-import com.emm.mygame.core.network.TownRepository
-import com.emm.mygame.core.network.TownSnapshot
-import com.emm.mygame.core.network.WordStanding
-import com.emm.mygame.core.network.numberOf
-import com.emm.mygame.core.network.schoolPathCountsOf
+import com.emm.mygame.core.model.town.HeldTown
+import com.emm.mygame.core.model.town.TownRepository
+import com.emm.mygame.core.model.town.TownSnapshot
+import com.emm.mygame.core.model.town.guidance.numberOf
+import com.emm.mygame.core.model.town.school.WordStanding
+import com.emm.mygame.core.model.town.school.schoolPathCountsOf
 import com.emm.mygame.core.projection.countdownTo
 import com.emm.mygame.core.projection.repaintDelay
+import kotlin.math.floor
+import kotlin.time.Clock
+import kotlin.time.Duration
+import kotlin.time.Instant
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.delay
@@ -29,10 +33,6 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.launch
-import kotlin.math.floor
-import kotlin.time.Clock
-import kotlin.time.Duration
-import kotlin.time.Instant
 
 class ReviewViewModel(
     private val learning: LearningRepository,

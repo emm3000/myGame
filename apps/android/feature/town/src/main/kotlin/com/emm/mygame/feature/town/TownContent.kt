@@ -1,14 +1,14 @@
 package com.emm.mygame.feature.town
 
+import com.emm.mygame.core.model.town.TownRegistered
 import com.emm.mygame.core.model.town.TownResourceKind
+import com.emm.mygame.core.model.town.TownSnapshot
 import com.emm.mygame.core.model.town.building.TownBuildingKind
+import com.emm.mygame.core.model.town.guidance.NextStep
+import com.emm.mygame.core.model.town.guidance.NextStepText
+import com.emm.mygame.core.model.town.guidance.TipKind
+import com.emm.mygame.core.model.town.guidance.TownGoal
 import com.emm.mygame.core.model.town.hiring.TownHireKind
-import com.emm.mygame.core.network.NextStep
-import com.emm.mygame.core.network.NextStepText
-import com.emm.mygame.core.network.TipKind
-import com.emm.mygame.core.network.TownGoal
-import com.emm.mygame.core.network.TownRegistered
-import com.emm.mygame.core.network.TownSnapshot
 import com.emm.mygame.core.projection.ResourceNeed
 import com.emm.mygame.core.projection.ResourceStock
 import com.emm.mygame.core.projection.countdownTo

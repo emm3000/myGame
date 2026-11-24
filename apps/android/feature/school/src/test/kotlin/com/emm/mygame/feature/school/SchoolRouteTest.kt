@@ -1,17 +1,17 @@
 package com.emm.mygame.feature.school
 
 import androidx.compose.runtime.CompositionLocalProvider
+import androidx.compose.ui.test.assertIsDisplayed
+import androidx.compose.ui.test.hasText
 import androidx.compose.ui.test.junit4.ComposeContentTestRule
 import androidx.compose.ui.test.junit4.createComposeRule
 import androidx.compose.ui.test.onNodeWithText
-import androidx.compose.ui.test.assertIsDisplayed
-import androidx.compose.ui.test.hasText
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleOwner
 import androidx.lifecycle.LifecycleRegistry
 import androidx.lifecycle.compose.LocalLifecycleOwner
 import com.emm.mygame.core.designsystem.MyGameTheme
-import com.emm.mygame.core.network.TownReadResult
+import com.emm.mygame.core.model.town.TownReadResult
 import com.emm.mygame.core.testing.FakeTownRepository
 import kotlin.time.Clock
 import org.junit.Assert.assertEquals

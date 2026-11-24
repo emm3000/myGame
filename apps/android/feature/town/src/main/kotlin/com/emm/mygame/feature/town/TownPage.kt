@@ -19,11 +19,11 @@ import com.emm.mygame.core.designsystem.MyGameTextLink
 import com.emm.mygame.core.designsystem.MyGameTheme
 import com.emm.mygame.core.designsystem.MyGameTypography
 import com.emm.mygame.core.model.learning.TextId
+import com.emm.mygame.core.model.town.TownLabel
 import com.emm.mygame.core.model.town.building.TownBuildingKind
-import com.emm.mygame.core.network.NextStepText
-import com.emm.mygame.core.network.TipKind
-import com.emm.mygame.core.network.TownGoal
-import com.emm.mygame.core.network.TownLabel
+import com.emm.mygame.core.model.town.guidance.NextStepText
+import com.emm.mygame.core.model.town.guidance.TipKind
+import com.emm.mygame.core.model.town.guidance.TownGoal
 import com.emm.mygame.core.ui.CopyReader
 import com.emm.mygame.core.ui.PlayerCopy
 import com.emm.mygame.core.ui.SeasonMark

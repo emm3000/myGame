@@ -1,9 +1,19 @@
 package com.emm.mygame.core.network
 
+import com.emm.mygame.core.model.town.TownReadResult
+import com.emm.mygame.core.model.town.TownRepository
 import com.emm.mygame.core.model.town.TownResourceKind
+import com.emm.mygame.core.model.town.TownSnapshot
 import com.emm.mygame.core.model.town.building.TownBuildingKind
+import com.emm.mygame.core.model.town.guidance.CaughtUpReason
+import com.emm.mygame.core.model.town.guidance.NextStep
+import com.emm.mygame.core.model.town.guidance.TipKind
+import com.emm.mygame.core.model.town.guidance.TownGoal
+import com.emm.mygame.core.model.town.guidance.TownGuidanceResult
 import com.emm.mygame.core.testing.FakeTokenCipher
 import com.emm.mygame.core.testing.TestClock
+import java.io.File
+import kotlin.time.Instant
 import kotlinx.coroutines.test.TestScope
 import kotlinx.coroutines.test.runTest
 import mockwebserver3.MockResponse
@@ -15,8 +25,6 @@ import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
 import org.junit.rules.TemporaryFolder
-import java.io.File
-import kotlin.time.Instant
 
 class TownGuidanceRepositoryTest {
 

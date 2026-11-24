@@ -1,8 +1,8 @@
 package com.emm.mygame.core.testing
 
 import com.emm.mygame.core.model.town.TownResourceKind
+import com.emm.mygame.core.model.town.TownSnapshot
 import com.emm.mygame.core.model.town.hiring.TownHireKind
-import com.emm.mygame.core.network.TownSnapshot
 
 val workerTerms: TownSnapshot.HireTerms = TownSnapshot.HireTerms(
     costs = listOf(TownSnapshot.Cost(TownResourceKind.Money, 40)),
