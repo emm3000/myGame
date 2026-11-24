@@ -10,7 +10,6 @@ import kotlin.time.Duration.Companion.seconds
 import kotlin.time.Instant
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.test.TestScope
-import kotlinx.coroutines.test.UnconfinedTestDispatcher
 import kotlinx.coroutines.test.runTest
 import mockwebserver3.MockResponse
 import mockwebserver3.MockWebServer
@@ -664,24 +663,18 @@ class SessionRepositoryTest {
         store: TokenStore,
         languages: PlayerLanguages = PlayerLanguages(store, onNamed = {}),
     ): SessionRepository =
-        ApiRepositories(
+        apiRepositories(
             endpoint = slowMachineEndpoint(api.url("/api/").toString()),
             tokenStore = store,
             languages = languages,
             sessionEnds = sessionEnds,
-            studyAnswers = discardedStudyAnswers(store),
-            ioDispatcher = UnconfinedTestDispatcher(testScheduler),
-            clock = TestClock(testScheduler, Instant.parse("2026-11-05T10:00:00Z")),
         ).sessions
 
     private fun TestScope.townRepository(store: TokenStore): TownRepository =
-        ApiRepositories(
+        apiRepositories(
             endpoint = slowMachineEndpoint(api.url("/api/").toString()),
             tokenStore = store,
-            languages = PlayerLanguages(store, onNamed = {}),
             sessionEnds = sessionEnds,
-            studyAnswers = discardedStudyAnswers(store),
-            ioDispatcher = UnconfinedTestDispatcher(testScheduler),
             clock = TestClock(testScheduler, Instant.parse("2026-11-05T10:00:00Z")),
         ).towns
 

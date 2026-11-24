@@ -1,11 +1,8 @@
 package com.emm.mygame.core.network
 
 import com.emm.mygame.core.testing.FakeTokenCipher
-import com.emm.mygame.core.testing.TestClock
 import java.io.File
-import kotlin.time.Instant
 import kotlinx.coroutines.test.TestScope
-import kotlinx.coroutines.test.UnconfinedTestDispatcher
 import kotlinx.coroutines.test.runTest
 import mockwebserver3.MockResponse
 import mockwebserver3.MockWebServer
@@ -232,14 +229,9 @@ class PlacementRepositoryTest {
     private fun TestScope.placements(): PlacementRepository {
         val store: TokenStore = TokenStore(file = File(folder.root, "session"), cipher = FakeTokenCipher())
         store.write("opaque-token")
-        return ApiRepositories(
+        return apiRepositories(
             endpoint = slowMachineEndpoint(api.url("/").toString()),
             tokenStore = store,
-            languages = PlayerLanguages(store, onNamed = {}),
-            sessionEnds = SessionEnds(),
-            studyAnswers = discardedStudyAnswers(store),
-            ioDispatcher = UnconfinedTestDispatcher(testScheduler),
-            clock = TestClock(testScheduler, Instant.parse("2026-11-05T10:00:00Z")),
         ).placements
     }
 

@@ -7,7 +7,6 @@ import kotlin.time.Duration.Companion.minutes
 import kotlin.time.Duration.Companion.seconds
 import kotlin.time.Instant
 import kotlinx.coroutines.test.TestScope
-import kotlinx.coroutines.test.UnconfinedTestDispatcher
 import kotlinx.coroutines.test.runTest
 import mockwebserver3.Dispatcher
 import mockwebserver3.MockResponse
@@ -747,24 +746,17 @@ class TownRepositoryTest {
         assertEquals(TownWorkResult.Unreachable, town().stopWork(TownBuildingKind.Farm, level = 2))
     }
 
-    private fun TestScope.town(store: TokenStore = signedIn()): TownRepository = ApiRepositories(
+    private fun TestScope.town(store: TokenStore = signedIn()): TownRepository = apiRepositories(
         endpoint = slowMachineEndpoint(api.url("/api/").toString()),
         tokenStore = store,
-        languages = PlayerLanguages(store, onNamed = {}),
         sessionEnds = sessionEnds,
-        studyAnswers = discardedStudyAnswers(store),
-        ioDispatcher = UnconfinedTestDispatcher(testScheduler),
         clock = TestClock(testScheduler, aMinuteBeforeTheRead),
     ).towns
 
-    private fun TestScope.sessions(store: TokenStore): SessionRepository = ApiRepositories(
+    private fun TestScope.sessions(store: TokenStore): SessionRepository = apiRepositories(
         endpoint = slowMachineEndpoint(api.url("/api/").toString()),
         tokenStore = store,
-        languages = PlayerLanguages(store, onNamed = {}),
         sessionEnds = sessionEnds,
-        studyAnswers = discardedStudyAnswers(store),
-        ioDispatcher = UnconfinedTestDispatcher(testScheduler),
-        clock = TestClock(testScheduler, Instant.parse("2026-11-05T10:00:00Z")),
     ).sessions
 
     private fun signedIn(): TokenStore =

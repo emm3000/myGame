@@ -11,7 +11,6 @@ import kotlinx.coroutines.CoroutineStart
 import kotlinx.coroutines.Deferred
 import kotlinx.coroutines.async
 import kotlinx.coroutines.test.TestScope
-import kotlinx.coroutines.test.UnconfinedTestDispatcher
 import kotlinx.coroutines.test.runTest
 import mockwebserver3.MockResponse
 import mockwebserver3.MockWebServer
@@ -343,44 +342,29 @@ class StudyAnswersTest {
     private fun studyAnswers(): StudyAnswers =
         answers ?: StudyAnswers(store, sink).also { created: StudyAnswers -> answers = created }
 
-    private fun TestScope.town(): TownRepository = ApiRepositories(
+    private fun TestScope.town(): TownRepository = apiRepositories(
         endpoint = slowMachineEndpoint(api.url("/api/").toString()),
         tokenStore = store,
-        languages = PlayerLanguages(store, onNamed = {}),
-        sessionEnds = SessionEnds(),
         studyAnswers = studyAnswers(),
-        ioDispatcher = UnconfinedTestDispatcher(testScheduler),
         clock = TestClock(testScheduler, Instant.parse("2026-11-05T10:00:00Z")),
     ).towns
 
-    private fun TestScope.learning(): LearningRepository = ApiRepositories(
+    private fun TestScope.learning(): LearningRepository = apiRepositories(
         endpoint = slowMachineEndpoint(api.url("/api/").toString()),
         tokenStore = store,
-        languages = PlayerLanguages(store, onNamed = {}),
-        sessionEnds = SessionEnds(),
         studyAnswers = studyAnswers(),
-        ioDispatcher = UnconfinedTestDispatcher(testScheduler),
-        clock = TestClock(testScheduler, Instant.parse("2026-11-05T10:00:00Z")),
     ).learning
 
-    private fun TestScope.reports(): ReportRepository = ApiRepositories(
+    private fun TestScope.reports(): ReportRepository = apiRepositories(
         endpoint = slowMachineEndpoint(api.url("/api/").toString()),
         tokenStore = store,
-        languages = PlayerLanguages(store, onNamed = {}),
-        sessionEnds = SessionEnds(),
         studyAnswers = studyAnswers(),
-        ioDispatcher = UnconfinedTestDispatcher(testScheduler),
-        clock = TestClock(testScheduler, Instant.parse("2026-11-05T10:00:00Z")),
     ).reports
 
-    private fun TestScope.holdoutChecks(): HoldoutCheckRepository = ApiRepositories(
+    private fun TestScope.holdoutChecks(): HoldoutCheckRepository = apiRepositories(
         endpoint = slowMachineEndpoint(api.url("/api/").toString()),
         tokenStore = store,
-        languages = PlayerLanguages(store, onNamed = {}),
-        sessionEnds = SessionEnds(),
         studyAnswers = studyAnswers(),
-        ioDispatcher = UnconfinedTestDispatcher(testScheduler),
-        clock = TestClock(testScheduler, Instant.parse("2026-11-05T10:00:00Z")),
     ).holdoutChecks
 
     private fun json(code: Int, body: String): MockResponse =
