@@ -28,7 +28,6 @@ file-lines feature/learning/src/main/kotlin/com/emm/mygame/feature/learning/Revi
 file-lines feature/report/src/main/kotlin/com/emm/mygame/feature/report/ReportScreen.kt
 file-lines feature/school/src/main/kotlin/com/emm/mygame/feature/school/LessonWordsScreen.kt
 file-lines feature/school/src/main/kotlin/com/emm/mygame/feature/school/SchoolScreen.kt
-file-lines feature/town/src/main/kotlin/com/emm/mygame/feature/town/building/PlaceBuildingWork.kt
 file-name app/src/main/kotlin/com/emm/mygame/DockMove.kt
 file-name app/src/main/kotlin/com/emm/mygame/MailedLink.kt
 file-name app/src/main/kotlin/com/emm/mygame/PlayerLanguageFrame.kt
@@ -77,6 +76,4 @@ test-lines feature/learning/src/test/kotlin/com/emm/mygame/feature/learning/Revi
 test-lines feature/report/src/test/kotlin/com/emm/mygame/feature/report/ReportViewModelTest.kt
 test-lines feature/school/src/test/kotlin/com/emm/mygame/feature/school/SchoolScreenTest.kt
 test-lines feature/school/src/test/kotlin/com/emm/mygame/feature/school/SchoolViewModelTest.kt
-test-lines feature/town/src/test/kotlin/com/emm/mygame/feature/town/TownScreenTest.kt
-test-lines feature/town/src/test/kotlin/com/emm/mygame/feature/town/TownViewModelTest.kt
 test-lines feature/town/src/test/kotlin/com/emm/mygame/feature/town/status/TownStatusViewModelTest.kt
