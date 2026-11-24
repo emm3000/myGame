@@ -6,7 +6,6 @@ import com.emm.mygame.core.ui.PlayerCopy
 import com.emm.mygame.core.ui.rememberPlayerCopy
 import com.emm.mygame.feature.town.R
 import com.emm.mygame.feature.town.TownUiState
-import com.emm.mygame.feature.town.lessonRefusalLineOf
 
 @Immutable
 data class TownNotice(val message: String, val key: Any)

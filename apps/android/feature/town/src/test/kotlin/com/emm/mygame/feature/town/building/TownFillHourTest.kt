@@ -1,4 +1,4 @@
-package com.emm.mygame.feature.town
+package com.emm.mygame.feature.town.building
 
 import androidx.compose.ui.test.assertIsDisplayed
 import androidx.compose.ui.test.junit4.ComposeContentTestRule
@@ -9,8 +9,12 @@ import com.emm.mygame.core.model.town.TownRegistered
 import com.emm.mygame.core.model.town.TownResourceKind
 import com.emm.mygame.core.model.town.TownSnapshot
 import com.emm.mygame.core.model.town.building.TownBuildingKind
-import com.emm.mygame.feature.town.building.PlaceStocks
+import com.emm.mygame.feature.town.TownMutations
+import com.emm.mygame.feature.town.TownUiState
+import com.emm.mygame.feature.town.contentAt
 import com.emm.mygame.feature.town.guidance.ClosedGuidance
+import com.emm.mygame.feature.town.stockOf
+import com.emm.mygame.feature.town.townOf
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
