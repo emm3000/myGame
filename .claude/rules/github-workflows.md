@@ -16,7 +16,7 @@ The YAML under `.github/workflows/` holds every trigger, step and flag; this rul
 ## `ci.yml`
 
 - `gate` runs exactly `pnpm gate`, the script in the root `package.json`, never the gate's steps by hand. Two steps sit outside it: the api build-and-probe, which needs a built bundle, and the gate job's tool setup, the pinned `ripgrep` download checked against its sha256, which `scripts/mygame-structure-check` needs (ADR 052). A new service joins the `gate` job, never a second workflow.
-- `android` is the Android leg of the gate (ADR 034): the command in `verification.md`'s `apps/android` row. It runs only when `changes` prints `true`.
+- `android` is the Android leg of the gate (ADR 034): the command in `verification.md`'s `apps/android` row. It runs only when `changes` prints `true`. Robolectric downloads its `android-all-instrumented` jars into `~/.m2/repository/org/robolectric` at test time, outside the Gradle cache `setup-gradle` restores, and a failed download kills every suite (#1940): the job restores that folder by the Robolectric version and saves it under a key that also hashes the jars it holds, so a new SDK level saves a new entry instead of downloading on every run.
 - `vercel` runs on `pull_request` only and catches what the gate cannot see: Vercel's Hono detection, which needs the plain `Hono` value import in `apps/api/src/index.ts`, its type check of a TypeScript entry, and Nitro's Vercel output (ADR 031). It pulls and builds, never deploys, never `--prod`, and holds no `environment`. A fork gets no secrets, so its `vercel` job fails.
 
 ## `deploy.yml`
