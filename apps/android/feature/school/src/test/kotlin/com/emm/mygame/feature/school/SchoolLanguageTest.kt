@@ -12,9 +12,7 @@ import androidx.compose.ui.test.onAllNodesWithText
 import androidx.compose.ui.test.onFirst
 import androidx.compose.ui.unit.DpRect
 import com.emm.mygame.core.designsystem.MyGameTheme
-import com.emm.mygame.core.model.holdout.HoldoutCheckWeek
 import com.emm.mygame.core.model.learning.LessonId
-import com.emm.mygame.core.model.placement.PlacementBand
 import com.emm.mygame.core.model.town.TownSnapshot
 import com.emm.mygame.core.model.town.guidance.NextStep
 import com.emm.mygame.core.model.town.school.TownLessonRefusal
@@ -54,10 +52,6 @@ class SchoolLanguageTest {
 
     private val spanishReleasedStudy: String = "$spanishReleasedTitle · Estudiar las palabras que vuelven · 2:30"
 
-    private val spanishHoldoutRow: String = "Tienes pendiente una prueba de palabras de la banda 1, semana 8."
-
-    private val englishHoldoutRow: String = "A word check for band 1, week 8 is due."
-
     private val shelvedAndReleased: TownSnapshot = townOf(
         lessons = listOf(lessonOf()),
         releasedLessons = listOf(releasedLessonOf(secondSet, position = 2)),
@@ -72,9 +66,6 @@ class SchoolLanguageTest {
         lessonSlot = slotOf(lesson = secondSet),
         nextStep = NextStep.LessonRunning(goal = null, text = null),
     )
-
-    private val dueCheck: HoldoutCheckRowsUiState =
-        HoldoutCheckRowsUiState(listOf(HoldoutCheckRow(PlacementBand.First, HoldoutCheckWeek.Eighth)))
 
     private val refusedStart: SchoolUiState.Content = contentOf(shelvedAndReleased).copy(
         start = SchoolUiState.LessonRequest.Refused(firstLesson, TownLessonRefusal.StudySlotBusy),
@@ -96,7 +87,6 @@ class SchoolLanguageTest {
                         onIntent = {},
                         onLessonOpen = {},
                         onTextOpen = {},
-                        holdoutChecks = { HoldoutCheckRows(state = dueCheck, onHoldoutCheckOpen = {}) },
                     )
                 }
             }
@@ -186,20 +176,19 @@ class SchoolLanguageTest {
     fun `draws the school in English under none`() {
         show(noScaffold)
 
-        assertDrawn("School", "Lesson 1", "Lessons", "Your skills", englishReleasedTitle, englishHoldoutRow)
-        assertDrawn("Open the check")
+        assertDrawn("School", "Lesson 1", "Lessons", "Your skills", englishReleasedTitle)
         assertDescribed("$englishReleasedTitle · Study the returning words · 2:30")
-        assertNotDrawn("Escuela", "Lección 1", "Lecciones", spanishReleasedTitle, spanishHoldoutRow, "Abrir la prueba")
+        assertNotDrawn("Escuela", "Lección 1", "Lecciones", spanishReleasedTitle)
     }
 
     @Test
     fun `draws the fixed copy in Spanish for an es player in the English phase`() {
         show(englishPhase, refusedStart)
 
-        assertDrawn(spanishReleasedTitle, spanishHoldoutRow)
+        assertDrawn(spanishReleasedTitle)
         assertDescribed(spanishReleasedStudy)
-        assertDrawn("Abrir la prueba", "La escuela ya tiene un estudio en marcha. Espera a que termine.")
-        assertNotDrawn(englishReleasedTitle, englishHoldoutRow, "Open the check")
+        assertDrawn("La escuela ya tiene un estudio en marcha. Espera a que termine.")
+        assertNotDrawn(englishReleasedTitle)
         assertNotDrawn("The school is already studying a lesson. Wait for it to finish.")
     }
 
@@ -207,9 +196,9 @@ class SchoolLanguageTest {
     fun `draws the fixed copy in Spanish alone in the both phase`() {
         show(bothPhase, refusedStart)
 
-        assertDrawn(spanishReleasedTitle, spanishHoldoutRow, "Abrir la prueba")
+        assertDrawn(spanishReleasedTitle)
         assertDrawn("La escuela ya tiene un estudio en marcha. Espera a que termine.")
-        assertNotDrawn(englishReleasedTitle, englishHoldoutRow, "Open the check")
+        assertNotDrawn(englishReleasedTitle)
         assertNotDrawn("The school is already studying a lesson. Wait for it to finish.")
     }
 

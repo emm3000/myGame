@@ -5,21 +5,15 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.selection.selectableGroup
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.semantics.LiveRegionMode
-import androidx.compose.ui.semantics.heading
-import androidx.compose.ui.semantics.liveRegion
-import androidx.compose.ui.semantics.semantics
-import com.emm.mygame.core.designsystem.MyGameBlock
 import com.emm.mygame.core.designsystem.MyGameChoiceRow
 import com.emm.mygame.core.designsystem.MyGameSpacing
 import com.emm.mygame.core.designsystem.MyGameText
 import com.emm.mygame.core.designsystem.MyGameTheme
 import com.emm.mygame.core.designsystem.MyGameTypography
-import com.emm.mygame.core.designsystem.blockHueOf
-import com.emm.mygame.core.designsystem.wordStyle
 import com.emm.mygame.core.model.placement.PlacementChoice
-import com.emm.mygame.core.model.placement.PlacementItem
 import com.emm.mygame.core.model.placement.PlacementScore
+import com.emm.mygame.core.ui.AskingProgress
+import com.emm.mygame.core.ui.WordBlock
 import com.emm.mygame.core.ui.fixedCopyResource
 
 @Composable
@@ -31,7 +25,16 @@ internal fun PlacementAsking(
     val isWaiting: Boolean = asking.request is PlacementRequest.Waiting
     Column(verticalArrangement = Arrangement.spacedBy(MyGameSpacing.step4), modifier = modifier) {
         asking.scores.forEach { score: PlacementScore -> BandScore(score = score) }
-        AskingProgress(band = asking.band, shownIndex = asking.shownIndex, total = asking.items.size)
+        AskingProgress(
+            band = fixedCopyResource(R.string.placement_band, "band" to asking.band.number.toString()),
+            progress = fixedCopyResource(
+                R.string.placement_progress,
+                "number" to (asking.shownIndex + 1).toString(),
+                "total" to asking.items.size.toString(),
+            ),
+            shownIndex = asking.shownIndex,
+            total = asking.items.size,
+        )
         WordBlock(item = asking.shown, index = asking.shownIndex)
         Column(verticalArrangement = Arrangement.spacedBy(MyGameSpacing.step2)) {
             MyGameText(
@@ -53,20 +56,5 @@ internal fun PlacementAsking(
                 }
             }
         }
-    }
-}
-
-@Composable
-internal fun WordBlock(item: PlacementItem, index: Int, modifier: Modifier = Modifier) {
-    MyGameBlock(
-        hue = blockHueOf(index),
-        modifier = modifier.semantics(mergeDescendants = true) { liveRegion = LiveRegionMode.Polite },
-    ) {
-        MyGameText(
-            text = item.text,
-            style = wordStyle(),
-            color = MyGameTheme.colors.onBlock,
-            modifier = Modifier.semantics { heading() },
-        )
     }
 }

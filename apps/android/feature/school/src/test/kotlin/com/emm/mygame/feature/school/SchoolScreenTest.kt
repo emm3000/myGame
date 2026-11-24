@@ -1,5 +1,6 @@
 package com.emm.mygame.feature.school
 
+import androidx.compose.foundation.text.BasicText
 import androidx.compose.ui.semantics.LiveRegionMode
 import androidx.compose.ui.semantics.ProgressBarRangeInfo
 import androidx.compose.ui.semantics.SemanticsActions
@@ -28,9 +29,7 @@ import com.emm.mygame.core.designsystem.MyGameTheme
 import com.emm.mygame.core.designsystem.MyGameTransitions
 import com.emm.mygame.core.designsystem.OUTLINED_PILL
 import com.emm.mygame.core.designsystem.SKELETON_BLOCK
-import com.emm.mygame.core.model.holdout.HoldoutCheckWeek
 import com.emm.mygame.core.model.learning.LessonId
-import com.emm.mygame.core.model.placement.PlacementBand
 import com.emm.mygame.core.model.town.TownResourceKind
 import com.emm.mygame.core.model.town.TownSnapshot
 import com.emm.mygame.core.model.town.guidance.CaughtUpReason
@@ -140,9 +139,10 @@ class SchoolScreenTest {
     private fun refusedStart(refusal: TownLessonRefusal): SchoolUiState.Content =
         idleSchool.copy(start = SchoolUiState.LessonRequest.Refused(firstLesson, refusal))
 
+    private val handedChecks: String = "The checks app hands the school"
+
     @Test
     fun `draws the due checks the school is handed`() {
-        val firstBandDue: HoldoutCheckRow = HoldoutCheckRow(PlacementBand.First, HoldoutCheckWeek.Eighth)
         composeRule.setContent {
             MyGameTheme {
                 SchoolScreen(
@@ -150,14 +150,12 @@ class SchoolScreenTest {
                     onIntent = {},
                     onLessonOpen = {},
                     onTextOpen = {},
-                    holdoutChecks = {
-                        HoldoutCheckRows(HoldoutCheckRowsUiState(listOf(firstBandDue)), onHoldoutCheckOpen = {})
-                    },
+                    holdoutChecks = { BasicText(handedChecks) },
                 )
             }
         }
 
-        showing("Tienes pendiente una prueba de palabras de la banda 1, semana 8.")
+        showing(handedChecks)
     }
 
     @Test

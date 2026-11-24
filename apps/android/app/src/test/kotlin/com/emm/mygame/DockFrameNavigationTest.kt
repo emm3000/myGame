@@ -666,6 +666,15 @@ class DockFrameNavigationTest {
     }
 
     @Test
+    fun `the school draws the holdout checks that are due`() {
+        val due: HoldoutCheck = HoldoutCheck.Due(PlacementBand.First, HoldoutCheckWeek.Eighth)
+        holdoutChecks.answerRead(HoldoutChecksReadResult.Read(listOf(due)))
+        showing(Destination.Town, Destination.School)
+
+        waitFor(hasText("Tienes pendiente una prueba de palabras de la banda 1, semana 8."))
+    }
+
+    @Test
     fun `starting a lesson reads the town again`() {
         val studying: TownSnapshot = playedTown(nextStep = NextStep.LessonRunning(goal = null, text = null))
         towns.answerLesson(TownLessonResult.Answered(studying))
