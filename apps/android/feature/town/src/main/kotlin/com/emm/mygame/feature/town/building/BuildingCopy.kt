@@ -28,9 +28,6 @@ internal fun seasonNameOf(kind: SeasonKind): Int = when (kind) {
     SeasonKind.Winter -> R.string.town_season_winter
 }
 
-internal fun CopyReader.capitalized(name: String): String =
-    name.replaceFirstChar { first: Char -> first.titlecase(locale) }
-
 internal fun CopyReader.workRefusalLineOf(refusal: TownWorkRefusal): String = when (refusal) {
     is TownWorkRefusal.WaitingListFull -> text(R.string.town_refusal_waiting_list_full, "cap" to refusal.cap)
     is TownWorkRefusal.TopLevelReached ->

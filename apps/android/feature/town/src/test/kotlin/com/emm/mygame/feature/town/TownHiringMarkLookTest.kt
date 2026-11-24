@@ -38,7 +38,7 @@ class TownHiringMarkLookTest {
     private val lockedWorkers: TownUiState.HiringCard =
         TownUiState.HiringCard(TownHireKind.Worker, team = 4, requiredOfficeLevel = 3, form = null)
 
-    private val hiring: TownUiState.Hiring = idleHiring.copy(hires = listOf(lockedWorkers))
+    private val hiring: TownUiState.HiringLine = idleHiringLine.copy(hires = listOf(lockedWorkers))
 
     private val springHire: TownUiState.DurationMark = TownUiState.DurationMark(SeasonKind.Spring, percent = 75)
 
@@ -126,7 +126,7 @@ class TownHiringMarkLookTest {
 
     private fun topOf(text: String): Dp = composeRule.onAllNodesWithText(text).onLast().getUnclippedBoundsInRoot().top
 
-    private fun show(shown: TownUiState.Hiring) {
+    private fun show(shown: TownUiState.HiringLine) {
         composeRule.setContent { MyGameTheme { TownHome(homeWith(shown)) } }
     }
 
@@ -141,7 +141,7 @@ class TownHiringMarkLookTest {
         )
     }
 
-    private fun homeWith(shown: TownUiState.Hiring): TownUiState.Content = TownUiState.Content(
+    private fun homeWith(shown: TownUiState.HiringLine): TownUiState.Content = TownUiState.Content(
         name = "Riverton",
         label = TownLabel.Town,
         stocks = emptyList(),

@@ -150,11 +150,11 @@ internal fun townOf(
     readAt = readAt,
 )
 
-internal val idleHiring: TownUiState.Hiring = TownUiState.Hiring(
-    order = TownUiState.HiringLine.Idle,
+internal val idleHiringLine: TownUiState.HiringLine = TownUiState.HiringLine(
+    order = TownUiState.HiringOrderLine.Idle,
     hires = emptyList(),
     hireMark = null,
-    place = TownUiState.HiringStatus.Idle,
+    place = TownUiState.HiringPlaceStatus.Idle,
     stop = TownUiState.HiringStopStatus.Idle,
 )
 

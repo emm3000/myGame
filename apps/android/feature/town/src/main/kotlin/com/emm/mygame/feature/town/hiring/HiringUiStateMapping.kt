@@ -14,7 +14,7 @@ import kotlin.time.Duration
 import kotlin.time.Duration.Companion.seconds
 import kotlin.time.Instant
 
-internal const val FIRST_HIRE_ENTRY: String = "1"
+internal const val FIRST_HIRING_ENTRY: String = "1"
 
 private val wholeCount: Regex = Regex("^[0-9]+$")
 
@@ -23,26 +23,26 @@ internal fun hireCountOf(entry: String): Int? {
     return entry.toIntOrNull()?.takeIf { count: Int -> count >= 1 }
 }
 
-internal fun TownSnapshot.hiringAt(
+internal fun TownSnapshot.hiringLineAt(
     now: Instant,
     gap: Duration,
     drawn: Map<TownResourceKind, Long>,
     entries: Map<TownHireKind, String>,
     requests: TownRequests,
-): TownUiState.Hiring = TownUiState.Hiring(
-    order = hiring.order?.hiringLineAt(now, gap) ?: TownUiState.HiringLine.Idle,
+): TownUiState.HiringLine = TownUiState.HiringLine(
+    order = hiring.order?.hiringOrderLineAt(now, gap) ?: TownUiState.HiringOrderLine.Idle,
     hires = TownHireKind.entries.map { kind: TownHireKind ->
-        hiringCardOf(kind, entries[kind] ?: FIRST_HIRE_ENTRY, drawn, now, gap)
+        hiringCardOf(kind, entries[kind] ?: FIRST_HIRING_ENTRY, drawn, now, gap)
     },
     hireMark = seasonInForce?.hireMark(),
-    place = requests.hiring,
+    place = requests.hiringPlace,
     stop = requests.hiringStop,
 )
 
-private fun TownSnapshot.HiringOrder.hiringLineAt(now: Instant, gap: Duration): TownUiState.HiringLine {
+private fun TownSnapshot.HiringOrder.hiringOrderLineAt(now: Instant, gap: Duration): TownUiState.HiringOrderLine {
     val remaining: Duration = countdownTo(finishesAt = endsAt, now = now)
-    if (remaining == Duration.ZERO) return TownUiState.HiringLine.Done(hire, count, delivered)
-    return TownUiState.HiringLine.Busy(
+    if (remaining == Duration.ZERO) return TownUiState.HiringOrderLine.Done(hire, count, delivered)
+    return TownUiState.HiringOrderLine.Busy(
         target = TownUiState.HiringTarget(hire, startedAt),
         count = count,
         delivered = delivered,

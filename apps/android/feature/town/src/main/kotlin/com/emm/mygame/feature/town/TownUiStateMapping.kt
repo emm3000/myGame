@@ -15,7 +15,7 @@ import com.emm.mygame.core.projection.countdownTo
 import com.emm.mygame.core.projection.readyMinuteOf
 import com.emm.mygame.feature.town.building.NextLevel
 import com.emm.mygame.feature.town.guidance.ClosedGuidance
-import com.emm.mygame.feature.town.hiring.hiringAt
+import com.emm.mygame.feature.town.hiring.hiringLineAt
 import kotlin.time.Duration
 import kotlin.time.Duration.Companion.hours
 import kotlin.time.Instant
@@ -27,7 +27,7 @@ internal fun TownSnapshot.contentAt(
     gap: Duration,
     requests: TownRequests,
     registered: TownRegistered,
-    hireEntries: Map<TownHireKind, String>,
+    hiringEntries: Map<TownHireKind, String>,
     closed: ClosedGuidance,
 ): TownUiState.Content {
     val lines: List<TownUiState.StockLine> = stocks
@@ -55,7 +55,7 @@ internal fun TownSnapshot.contentAt(
         tip = tip?.takeUnless { shown: TipKind -> shown in closed.tips },
         start = requests.start,
         stop = requests.stop,
-        hiring = hiringAt(now = now, gap = gap, drawn = drawn, entries = hireEntries, requests = requests),
+        hiring = hiringLineAt(now = now, gap = gap, drawn = drawn, entries = hiringEntries, requests = requests),
     )
 }
 

@@ -64,7 +64,7 @@ class TownStreetScreenTest {
         tip = null,
         start = TownUiState.StartStatus.Idle,
         stop = TownUiState.StopStatus.Idle,
-        hiring = idleHiring,
+        hiring = idleHiringLine,
     )
 
     @Test

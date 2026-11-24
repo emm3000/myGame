@@ -118,7 +118,7 @@ class TownScreenTest {
         tip = null,
         start = TownUiState.StartStatus.Idle,
         stop = TownUiState.StopStatus.Idle,
-        hiring = idleHiring,
+        hiring = idleHiringLine,
     )
 
     private val factoryGoal: TownGoal = TownGoal(
@@ -777,7 +777,7 @@ class TownScreenTest {
         gap = Duration.ZERO,
         requests = TownRequests.none,
         registered = TownRegistered.nothing,
-        hireEntries = emptyMap(),
+        hiringEntries = emptyMap(),
         closed = ClosedGuidance.none,
     )
 

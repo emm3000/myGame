@@ -36,7 +36,7 @@ class TownFoldedDockTest {
         gap = Duration.ZERO,
         requests = TownRequests.none,
         registered = TownRegistered.nothing,
-        hireEntries = emptyMap(),
+        hiringEntries = emptyMap(),
         closed = ClosedGuidance.none,
     )
 

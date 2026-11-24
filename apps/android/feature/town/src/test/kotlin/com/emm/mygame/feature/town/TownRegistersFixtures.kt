@@ -21,7 +21,7 @@ internal fun showBetween(composeRule: ComposeContentTestRule, previous: TownSnap
                     gap = Duration.ZERO,
                     requests = TownRequests.none,
                     registered = registered,
-                    hireEntries = emptyMap(),
+                    hiringEntries = emptyMap(),
                     closed = ClosedGuidance.none,
                 ),
                 onIntent = { },
