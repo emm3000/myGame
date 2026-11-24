@@ -1,8 +1,8 @@
 package com.emm.mygame.feature.report
 
 import androidx.lifecycle.viewModelScope
+import com.emm.mygame.core.model.reminder.StudyReminderChoice
 import com.emm.mygame.core.network.ReportReadResult
-import com.emm.mygame.core.network.StudyReminderChoice
 import com.emm.mygame.core.network.TownBuildingKind
 import com.emm.mygame.core.network.TownNews
 import com.emm.mygame.core.network.TownReport

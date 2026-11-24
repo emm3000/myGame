@@ -2,8 +2,8 @@ package com.emm.mygame.feature.town
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.emm.mygame.core.model.account.SessionRepository
 import com.emm.mygame.core.network.HeldTown
-import com.emm.mygame.core.network.SessionRepository
 import com.emm.mygame.core.network.TownBuildingKind
 import com.emm.mygame.core.network.TownFoundResult
 import com.emm.mygame.core.network.TownReadResult

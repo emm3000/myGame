@@ -9,18 +9,19 @@ import org.gradle.kotlin.dsl.register
 
 private val androidPluginIds: Set<String> = setOf("com.android.application", "com.android.library")
 
-private val jvmOnlyModules: Set<String> = setOf(":core:projection")
+private val jvmOnlyModules: Set<String> = setOf(":core:model", ":core:projection")
 
 private val allowedCoreEdges: Map<String, Set<String>> = mapOf(
-    ":core:network" to emptySet(),
+    ":core:model" to emptySet(),
+    ":core:network" to setOf(":core:model"),
     ":core:projection" to emptySet(),
     ":core:designsystem" to emptySet(),
-    ":core:ui" to setOf(":core:projection", ":core:designsystem"),
-    ":core:testing" to setOf(":core:network", ":core:projection"),
+    ":core:ui" to setOf(":core:model", ":core:projection", ":core:designsystem"),
+    ":core:testing" to setOf(":core:model", ":core:network", ":core:projection"),
 )
 
 private val allowedFeatureEdges: Set<String> =
-    setOf(":core:network", ":core:projection", ":core:ui", ":core:designsystem")
+    setOf(":core:model", ":core:network", ":core:projection", ":core:ui", ":core:designsystem")
 
 class ModuleChecksConventionPlugin : Plugin<Project> {
 

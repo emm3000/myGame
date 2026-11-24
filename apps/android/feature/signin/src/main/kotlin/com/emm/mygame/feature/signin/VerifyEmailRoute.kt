@@ -6,8 +6,8 @@ import androidx.compose.ui.Modifier
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.createSavedStateHandle
 import androidx.lifecycle.viewmodel.compose.viewModel
-import com.emm.mygame.core.network.EmailVerificationToken
-import com.emm.mygame.core.network.SessionRepository
+import com.emm.mygame.core.model.account.EmailVerificationToken
+import com.emm.mygame.core.model.account.SessionRepository
 
 @Composable
 fun VerifyEmailRoute(

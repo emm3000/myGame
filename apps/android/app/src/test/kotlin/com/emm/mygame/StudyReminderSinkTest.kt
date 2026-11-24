@@ -2,6 +2,7 @@ package com.emm.mygame
 
 import android.content.Context
 import android.content.SharedPreferences
+import com.emm.mygame.core.model.reminder.StudyReminderChoice
 import com.emm.mygame.core.network.DueReview
 import com.emm.mygame.core.network.DueReviews
 import com.emm.mygame.core.network.HoldoutCheck
@@ -9,7 +10,6 @@ import com.emm.mygame.core.network.HoldoutCheckWeek
 import com.emm.mygame.core.network.LessonId
 import com.emm.mygame.core.network.NextStep
 import com.emm.mygame.core.network.PlacementBand
-import com.emm.mygame.core.network.StudyReminderChoice
 import com.emm.mygame.core.network.TownAnswerFreshness
 import com.emm.mygame.core.network.TownReport
 import com.emm.mygame.core.network.TownSnapshot

@@ -1,4 +1,4 @@
-package com.emm.mygame.core.network
+package com.emm.mygame.core.model.theme
 
 enum class ThemePick {
     System,

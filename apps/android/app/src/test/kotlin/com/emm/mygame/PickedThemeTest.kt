@@ -12,7 +12,7 @@ import androidx.core.view.WindowCompat
 import androidx.core.view.WindowInsetsControllerCompat
 import androidx.test.ext.junit.rules.ActivityScenarioRule
 import com.emm.mygame.core.designsystem.MyGameTheme
-import com.emm.mygame.core.network.ThemePick
+import com.emm.mygame.core.model.theme.ThemePick
 import org.junit.Assert.assertEquals
 import org.junit.Rule
 import org.junit.Test

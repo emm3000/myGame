@@ -1,10 +1,10 @@
 package com.emm.mygame
 
 import androidx.navigation3.runtime.NavKey
-import com.emm.mygame.core.network.EmailVerificationToken
+import com.emm.mygame.core.model.account.EmailVerificationToken
+import com.emm.mygame.core.model.account.PasswordResetToken
 import com.emm.mygame.core.network.HoldoutCheckWeek
 import com.emm.mygame.core.network.LessonId
-import com.emm.mygame.core.network.PasswordResetToken
 import com.emm.mygame.core.network.PlacementBand
 import com.emm.mygame.core.network.TextId
 import kotlinx.serialization.Serializable

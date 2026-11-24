@@ -1,6 +1,6 @@
 package com.emm.mygame.feature.signin
 
-import com.emm.mygame.core.network.PlayerScaffold
+import com.emm.mygame.core.model.account.PlayerScaffold
 import java.util.Locale
 
 internal fun phoneScaffoldOf(phoneLocale: Locale): PlayerScaffold =

@@ -1,8 +1,8 @@
 package com.emm.mygame.feature.signin
 
 import app.cash.turbine.test
-import com.emm.mygame.core.network.PasswordResetResult
-import com.emm.mygame.core.network.PasswordResetToken
+import com.emm.mygame.core.model.account.PasswordResetResult
+import com.emm.mygame.core.model.account.PasswordResetToken
 import com.emm.mygame.core.testing.FakeSessionRepository
 import com.emm.mygame.core.testing.MainDispatcherRule
 import kotlinx.coroutines.test.runTest

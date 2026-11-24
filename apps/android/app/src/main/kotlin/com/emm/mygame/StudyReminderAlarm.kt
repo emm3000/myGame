@@ -10,8 +10,8 @@ import android.content.Context
 import android.content.Intent
 import android.content.pm.PackageManager
 import androidx.annotation.StringRes
-import com.emm.mygame.core.network.PlayerLanguage
-import com.emm.mygame.core.network.StudyReminderChoice
+import com.emm.mygame.core.model.account.PlayerLanguage
+import com.emm.mygame.core.model.reminder.StudyReminderChoice
 import com.emm.mygame.core.projection.StudyReminderFacts
 import com.emm.mygame.core.projection.StudyReminderLine
 import com.emm.mygame.core.projection.studyReminderAt

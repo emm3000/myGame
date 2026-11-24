@@ -2,9 +2,9 @@ package com.emm.mygame.feature.signin
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.emm.mygame.core.network.RestoreResult
-import com.emm.mygame.core.network.SessionRepository
-import com.emm.mygame.core.network.SignInResult
+import com.emm.mygame.core.model.account.RestoreResult
+import com.emm.mygame.core.model.account.SessionRepository
+import com.emm.mygame.core.model.account.SignInResult
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow

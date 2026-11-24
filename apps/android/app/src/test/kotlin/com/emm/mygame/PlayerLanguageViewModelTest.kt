@@ -1,8 +1,8 @@
 package com.emm.mygame
 
-import com.emm.mygame.core.network.PlayerChromePhase
-import com.emm.mygame.core.network.PlayerLanguage
-import com.emm.mygame.core.network.PlayerScaffold
+import com.emm.mygame.core.model.account.PlayerChromePhase
+import com.emm.mygame.core.model.account.PlayerLanguage
+import com.emm.mygame.core.model.account.PlayerScaffold
 import com.emm.mygame.core.testing.MainDispatcherRule
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.test.runCurrent

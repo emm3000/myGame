@@ -1,17 +1,17 @@
 package com.emm.mygame.core.testing
 
-import com.emm.mygame.core.network.EmailVerificationResult
-import com.emm.mygame.core.network.EmailVerificationToken
-import com.emm.mygame.core.network.PasswordResetRequestResult
-import com.emm.mygame.core.network.PasswordResetResult
-import com.emm.mygame.core.network.PasswordResetToken
-import com.emm.mygame.core.network.PlayerScaffold
-import com.emm.mygame.core.network.RestoreResult
-import com.emm.mygame.core.network.ScaffoldChangeResult
-import com.emm.mygame.core.network.SessionRepository
-import com.emm.mygame.core.network.SignInResult
-import com.emm.mygame.core.network.SignUpResult
-import com.emm.mygame.core.network.VerificationResendResult
+import com.emm.mygame.core.model.account.EmailVerificationResult
+import com.emm.mygame.core.model.account.EmailVerificationToken
+import com.emm.mygame.core.model.account.PasswordResetRequestResult
+import com.emm.mygame.core.model.account.PasswordResetResult
+import com.emm.mygame.core.model.account.PasswordResetToken
+import com.emm.mygame.core.model.account.PlayerScaffold
+import com.emm.mygame.core.model.account.RestoreResult
+import com.emm.mygame.core.model.account.ScaffoldChangeResult
+import com.emm.mygame.core.model.account.SessionRepository
+import com.emm.mygame.core.model.account.SignInResult
+import com.emm.mygame.core.model.account.SignUpResult
+import com.emm.mygame.core.model.account.VerificationResendResult
 import kotlinx.coroutines.channels.Channel
 
 class FakeSessionRepository : SessionRepository {

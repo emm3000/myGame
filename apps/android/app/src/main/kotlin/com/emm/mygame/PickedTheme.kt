@@ -10,7 +10,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.graphics.toArgb
 import com.emm.mygame.core.designsystem.MyGameTheme
-import com.emm.mygame.core.network.ThemePick
+import com.emm.mygame.core.model.theme.ThemePick
 
 @Composable
 fun PickedTheme(pick: ThemePick, content: @Composable () -> Unit) {

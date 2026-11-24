@@ -1,16 +1,16 @@
 package com.emm.mygame
 
 import android.app.Application
+import com.emm.mygame.core.model.account.PlayerLanguage
+import com.emm.mygame.core.model.account.PlayerScaffold
+import com.emm.mygame.core.model.reminder.ReminderNotifications
+import com.emm.mygame.core.model.reminder.StudyReminderChoice
+import com.emm.mygame.core.model.reminder.StudyReminderSettings
+import com.emm.mygame.core.model.theme.ThemePick
 import com.emm.mygame.core.network.HoldoutCheckRepository
 import com.emm.mygame.core.network.LearningRepository
 import com.emm.mygame.core.network.PlacementRepository
-import com.emm.mygame.core.network.PlayerLanguage
-import com.emm.mygame.core.network.PlayerScaffold
-import com.emm.mygame.core.network.ReminderNotifications
 import com.emm.mygame.core.network.SessionEnds
-import com.emm.mygame.core.network.StudyReminderChoice
-import com.emm.mygame.core.network.StudyReminderSettings
-import com.emm.mygame.core.network.ThemePick
 import com.emm.mygame.core.network.TownRepository
 import com.emm.mygame.core.network.TownTextRepository
 import com.emm.mygame.core.testing.FakeHoldoutCheckRepository

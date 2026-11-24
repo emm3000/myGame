@@ -2,8 +2,8 @@ package com.emm.mygame.feature.signin
 
 import androidx.lifecycle.SavedStateHandle
 import app.cash.turbine.test
-import com.emm.mygame.core.network.EmailVerificationResult
-import com.emm.mygame.core.network.EmailVerificationToken
+import com.emm.mygame.core.model.account.EmailVerificationResult
+import com.emm.mygame.core.model.account.EmailVerificationToken
 import com.emm.mygame.core.testing.FakeSessionRepository
 import com.emm.mygame.core.testing.MainDispatcherRule
 import kotlinx.coroutines.test.runTest

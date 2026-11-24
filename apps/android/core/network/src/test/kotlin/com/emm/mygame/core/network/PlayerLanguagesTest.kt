@@ -1,5 +1,11 @@
 package com.emm.mygame.core.network
 
+import com.emm.mygame.core.model.account.PlayerChromePhase
+import com.emm.mygame.core.model.account.PlayerLanguage
+import com.emm.mygame.core.model.account.PlayerScaffold
+import com.emm.mygame.core.model.account.RestoreResult
+import com.emm.mygame.core.model.account.ScaffoldChangeResult
+import com.emm.mygame.core.model.account.SessionRepository
 import com.emm.mygame.core.testing.FakeTokenCipher
 import com.emm.mygame.core.testing.TestClock
 import java.io.File

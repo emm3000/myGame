@@ -2,7 +2,7 @@ package com.emm.mygame
 
 import android.content.Context
 import android.content.SharedPreferences
-import com.emm.mygame.core.network.ThemePick
+import com.emm.mygame.core.model.theme.ThemePick
 import org.junit.Assert.assertEquals
 import org.junit.Test
 import org.junit.runner.RunWith

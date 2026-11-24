@@ -8,8 +8,8 @@ import androidx.compose.ui.test.junit4.createEmptyComposeRule
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
 import androidx.compose.ui.test.performScrollTo
+import com.emm.mygame.core.model.account.RestoreResult
 import com.emm.mygame.core.network.ReportReadResult
-import com.emm.mygame.core.network.RestoreResult
 import com.emm.mygame.core.network.TownReport
 import com.emm.mygame.core.testing.FakeReportRepository
 import com.emm.mygame.core.testing.FakeSessionRepository

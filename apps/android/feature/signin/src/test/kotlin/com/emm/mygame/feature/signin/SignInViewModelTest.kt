@@ -2,11 +2,11 @@ package com.emm.mygame.feature.signin
 
 import app.cash.turbine.ReceiveTurbine
 import app.cash.turbine.test
-import com.emm.mygame.core.network.PlayerScaffold
-import com.emm.mygame.core.network.RefusalKind
-import com.emm.mygame.core.network.RestoreResult
-import com.emm.mygame.core.network.SignInResult
-import com.emm.mygame.core.network.SignedInPlayer
+import com.emm.mygame.core.model.account.PlayerScaffold
+import com.emm.mygame.core.model.account.RefusalKind
+import com.emm.mygame.core.model.account.RestoreResult
+import com.emm.mygame.core.model.account.SignInResult
+import com.emm.mygame.core.model.account.SignedInPlayer
 import com.emm.mygame.core.testing.FakeSessionRepository
 import com.emm.mygame.core.testing.MainDispatcherRule
 import kotlinx.coroutines.test.runTest

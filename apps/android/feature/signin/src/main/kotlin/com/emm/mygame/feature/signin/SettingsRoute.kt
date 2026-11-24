@@ -8,11 +8,11 @@ import androidx.compose.ui.Modifier
 import androidx.lifecycle.compose.LifecycleResumeEffect
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
-import com.emm.mygame.core.network.PlayerScaffold
-import com.emm.mygame.core.network.ReminderNotifications
-import com.emm.mygame.core.network.SessionRepository
-import com.emm.mygame.core.network.StudyReminderSettings
-import com.emm.mygame.core.network.ThemeSettings
+import com.emm.mygame.core.model.account.PlayerScaffold
+import com.emm.mygame.core.model.account.SessionRepository
+import com.emm.mygame.core.model.reminder.ReminderNotifications
+import com.emm.mygame.core.model.reminder.StudyReminderSettings
+import com.emm.mygame.core.model.theme.ThemeSettings
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.withContext

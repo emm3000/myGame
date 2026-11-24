@@ -5,8 +5,8 @@ import androidx.compose.ui.test.junit4.ComposeTestRule
 import androidx.compose.ui.test.junit4.createEmptyComposeRule
 import androidx.core.view.WindowCompat
 import androidx.core.view.WindowInsetsControllerCompat
-import com.emm.mygame.core.network.RestoreResult
-import com.emm.mygame.core.network.ThemePick
+import com.emm.mygame.core.model.account.RestoreResult
+import com.emm.mygame.core.model.theme.ThemePick
 import org.junit.Assert.assertEquals
 import org.junit.Before
 import org.junit.Rule

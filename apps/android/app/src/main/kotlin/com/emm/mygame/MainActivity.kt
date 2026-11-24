@@ -10,7 +10,7 @@ import androidx.activity.enableEdgeToEdge
 import androidx.compose.runtime.getValue
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.lifecycleScope
-import com.emm.mygame.core.network.ThemePick
+import com.emm.mygame.core.model.theme.ThemePick
 import com.emm.mygame.core.projection.StudyReminderLine
 import com.emm.mygame.navigation.AppNavigation
 import kotlinx.coroutines.channels.Channel

@@ -4,10 +4,10 @@ import android.app.AlarmManager
 import android.app.Notification
 import android.app.NotificationManager
 import android.content.Intent
-import com.emm.mygame.core.network.PlayerChromePhase
-import com.emm.mygame.core.network.PlayerLanguage
-import com.emm.mygame.core.network.PlayerScaffold
-import com.emm.mygame.core.network.StudyReminderChoice
+import com.emm.mygame.core.model.account.PlayerChromePhase
+import com.emm.mygame.core.model.account.PlayerLanguage
+import com.emm.mygame.core.model.account.PlayerScaffold
+import com.emm.mygame.core.model.reminder.StudyReminderChoice
 import com.emm.mygame.core.projection.StudyReminderFacts
 import java.time.LocalTime
 import java.util.TimeZone
