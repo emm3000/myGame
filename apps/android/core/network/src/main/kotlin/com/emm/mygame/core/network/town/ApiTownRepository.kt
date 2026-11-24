@@ -2,41 +2,35 @@ package com.emm.mygame.core.network.town
 
 import com.emm.mygame.core.model.learning.LessonId
 import com.emm.mygame.core.model.town.HeldTown
-import com.emm.mygame.core.model.town.TownFoundRefusal
 import com.emm.mygame.core.model.town.TownFoundResult
 import com.emm.mygame.core.model.town.TownReadResult
 import com.emm.mygame.core.model.town.TownRepository
 import com.emm.mygame.core.model.town.TownSnapshot
-import com.emm.mygame.core.model.town.building.NeededWordKind
 import com.emm.mygame.core.model.town.building.TownBuildingKind
-import com.emm.mygame.core.model.town.building.TownWorkRefusal
 import com.emm.mygame.core.model.town.building.TownWorkResult
 import com.emm.mygame.core.model.town.guidance.TownGuidanceRepository
 import com.emm.mygame.core.model.town.hiring.TownHireKind
-import com.emm.mygame.core.model.town.hiring.TownHiringRefusal
 import com.emm.mygame.core.model.town.hiring.TownHiringResult
 import com.emm.mygame.core.model.town.jobs.JobTarget
 import com.emm.mygame.core.model.town.jobs.RegionReader
 import com.emm.mygame.core.model.town.jobs.TownJobResult
-import com.emm.mygame.core.model.town.school.TownLessonRefusal
 import com.emm.mygame.core.model.town.school.TownLessonResult
 import com.emm.mygame.core.network.generated.apis.DefaultApi
-import com.emm.mygame.core.network.generated.models.ApiError
 import com.emm.mygame.core.network.generated.models.BareApiError
 import com.emm.mygame.core.network.generated.models.FoundTown
-import com.emm.mygame.core.network.generated.models.NotEnoughWordsErrorParams
 import com.emm.mygame.core.network.generated.models.PlaceHiringOrder
 import com.emm.mygame.core.network.generated.models.StartBuildingWork
 import com.emm.mygame.core.network.generated.models.StartLessonRequest
 import com.emm.mygame.core.network.generated.models.TownOverview
-import com.emm.mygame.core.network.platform.WireRefusal
 import com.emm.mygame.core.network.platform.bareKind
 import com.emm.mygame.core.network.platform.toOffsetDateTime
 import com.emm.mygame.core.network.platform.wireRefusal
-import com.emm.mygame.core.network.town.building.toNeededWordKind
+import com.emm.mygame.core.network.town.building.workResultOf
+import com.emm.mygame.core.network.town.hiring.hiringResultOf
 import com.emm.mygame.core.network.town.jobs.jobResultOf
 import com.emm.mygame.core.network.town.jobs.sendCleanUpOf
 import com.emm.mygame.core.network.town.jobs.sendJobOf
+import com.emm.mygame.core.network.town.school.lessonResultOf
 import java.io.IOException
 import kotlin.time.Clock
 import kotlin.time.Instant
@@ -184,103 +178,4 @@ internal class ApiTownRepository(
         hold(request) { null }
         return TownReadResult.NoTown
     }
-}
-
-private fun foundResultOf(response: Response<TownOverview>, snapshot: TownSnapshot?): TownFoundResult {
-    if (response.isSuccessful) {
-        return if (snapshot == null) TownFoundResult.Unreachable else TownFoundResult.Founded(snapshot)
-    }
-    val refusal: WireRefusal = response.wireRefusal() ?: return TownFoundResult.Unreachable
-    return TownFoundResult.Refused(refusal.toFoundRefusal())
-}
-
-private fun workResultOf(response: Response<TownOverview>, snapshot: TownSnapshot?): TownWorkResult {
-    if (response.isSuccessful) {
-        return if (snapshot == null) TownWorkResult.Unreachable else TownWorkResult.Answered(snapshot)
-    }
-    val refusal: WireRefusal = response.wireRefusal() ?: return TownWorkResult.Unreachable
-    return TownWorkResult.Refused(refusal.toWorkRefusal())
-}
-
-private fun lessonResultOf(response: Response<TownOverview>, snapshot: TownSnapshot?): TownLessonResult {
-    if (response.isSuccessful) {
-        return if (snapshot == null) TownLessonResult.Unreachable else TownLessonResult.Answered(snapshot)
-    }
-    val refusal: WireRefusal = response.wireRefusal() ?: return TownLessonResult.Unreachable
-    return TownLessonResult.Refused(refusal.toLessonRefusal())
-}
-
-private fun hiringResultOf(response: Response<TownOverview>, snapshot: TownSnapshot?): TownHiringResult {
-    if (response.isSuccessful) {
-        return if (snapshot == null) TownHiringResult.Unreachable else TownHiringResult.Answered(snapshot)
-    }
-    val refusal: WireRefusal = response.wireRefusal() ?: return TownHiringResult.Unreachable
-    return TownHiringResult.Refused(refusal.toHiringRefusal())
-}
-
-private fun WireRefusal.toFoundRefusal(): TownFoundRefusal = when (bareKind()) {
-    BareApiError.Kind.BlankTownName -> TownFoundRefusal.BlankTownName
-    BareApiError.Kind.PlayerAlreadyHoldsTown -> TownFoundRefusal.PlayerAlreadyHoldsTown
-    else -> TownFoundRefusal.Unrecognized
-}
-
-private fun WireRefusal.toWorkRefusal(): TownWorkRefusal = when (this) {
-    is WireRefusal.Bare ->
-        if (kind == BareApiError.Kind.TownNotFound) TownWorkRefusal.TownNotFound else TownWorkRefusal.Unrecognized
-    is WireRefusal.WithParams -> error.toWorkRefusal()
-}
-
-private fun ApiError.toWorkRefusal(): TownWorkRefusal = when (this) {
-    is ApiError.WaitinglistfullWrapper -> TownWorkRefusal.WaitingListFull(value.params.cap)
-    is ApiError.ToplevelreachedWrapper -> TownWorkRefusal.TopLevelReached(value.params.level)
-    is ApiError.NotenoughpeopleWrapper ->
-        TownWorkRefusal.NotEnoughPeople(required = value.params.requiredPeople, free = value.params.freePeople)
-    is ApiError.NotenoughwordsWrapper -> value.params.toWorkRefusal()
-    is ApiError.NotenoughresourcesWrapper -> TownWorkRefusal.NotEnoughResources
-    is ApiError.BuildingworknotfoundWrapper -> TownWorkRefusal.BuildingWorkNotFound(value.params.level)
-    else -> TownWorkRefusal.Unrecognized
-}
-
-private fun NotEnoughWordsErrorParams.toWorkRefusal(): TownWorkRefusal {
-    val kind: NeededWordKind = standing.toNeededWordKind() ?: return TownWorkRefusal.Unrecognized
-    return TownWorkRefusal.NotEnoughWords(needed, held, kind)
-}
-
-private val lessonRefusals: Map<BareApiError.Kind, TownLessonRefusal> = mapOf(
-    BareApiError.Kind.StudySlotBusy to TownLessonRefusal.StudySlotBusy,
-    BareApiError.Kind.LessonSchoolTooLow to TownLessonRefusal.LessonSchoolTooLow,
-    BareApiError.Kind.LessonAlreadyStudied to TownLessonRefusal.LessonAlreadyStudied,
-    BareApiError.Kind.LessonUnderStudy to TownLessonRefusal.LessonUnderStudy,
-    BareApiError.Kind.LessonStudyNotFound to TownLessonRefusal.LessonStudyNotFound,
-    BareApiError.Kind.TownNotFound to TownLessonRefusal.TownNotFound,
-)
-
-private fun WireRefusal.toLessonRefusal(): TownLessonRefusal = when (this) {
-    is WireRefusal.Bare -> lessonRefusals[kind] ?: TownLessonRefusal.Unrecognized
-    is WireRefusal.WithParams -> error.toLessonRefusal()
-}
-
-private fun ApiError.toLessonRefusal(): TownLessonRefusal = when (this) {
-    is ApiError.LearningcapreachedWrapper ->
-        TownLessonRefusal.LearningCapReached(cap = value.params.learningCap, inLearning = value.params.cardsInLearning)
-    else -> TownLessonRefusal.Unrecognized
-}
-
-private fun WireRefusal.toHiringRefusal(): TownHiringRefusal = when (this) {
-    is WireRefusal.Bare ->
-        if (kind == BareApiError.Kind.TownNotFound) TownHiringRefusal.TownNotFound else TownHiringRefusal.Unrecognized
-    is WireRefusal.WithParams -> error.toHiringRefusal()
-}
-
-private fun ApiError.toHiringRefusal(): TownHiringRefusal = when (this) {
-    is ApiError.OfficetoolowWrapper -> TownHiringRefusal.OfficeTooLow(
-        officeLevel = value.params.officeLevel,
-        requiredOfficeLevel = value.params.requiredOfficeLevel,
-    )
-    is ApiError.HiringslotbusyWrapper -> TownHiringRefusal.HiringSlotBusy
-    is ApiError.NotenoughpeopleWrapper ->
-        TownHiringRefusal.NotEnoughPeople(required = value.params.requiredPeople, free = value.params.freePeople)
-    is ApiError.NotenoughresourcesWrapper -> TownHiringRefusal.NotEnoughResources
-    is ApiError.HiringordernotfoundWrapper -> TownHiringRefusal.HiringOrderNotFound
-    else -> TownHiringRefusal.Unrecognized
 }

@@ -27,6 +27,7 @@ import kotlin.time.Duration.Companion.seconds
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.SupervisorJob
+import okhttp3.OkHttpClient
 
 class ApiRepositories internal constructor(
     private val endpoint: ApiEndpoint,
@@ -59,8 +60,8 @@ class ApiRepositories internal constructor(
     val sessions: SessionRepository by lazy {
         ApiSessionRepository(
             api = newSignedInApi(),
-            openingApi = accountApi(endpoint = endpoint),
-            signOutApi = signOutApi(endpoint = endpoint, tokenStore = tokenStore, callTimeout = signOutTimeout),
+            openingApi = endpoint.accountApi(),
+            signOutApi = endpoint.signOutApi(tokenStore = tokenStore, callTimeout = signOutTimeout),
             tokenStore = tokenStore,
             languages = languages,
             ioDispatcher = ioDispatcher,
@@ -120,7 +121,9 @@ class ApiRepositories internal constructor(
     }
 
     private fun newSignedInApi(): DefaultApi =
-        signedInApi(endpoint = endpoint, tokenStore = tokenStore, sessionEnds = sessionEnds)
+        endpoint.signedInApi(tokenStore = tokenStore, sessionEnds = sessionEnds)
 }
 
 private val signOutTimeout: Duration = 5.seconds
+
+private val okHttpDefaults: () -> OkHttpClient.Builder = OkHttpClient::Builder
