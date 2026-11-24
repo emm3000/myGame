@@ -21,7 +21,7 @@ import androidx.compose.ui.unit.DpRect
 import com.emm.mygame.core.designsystem.MyGameTheme
 import com.emm.mygame.core.designsystem.MyGameTypography
 import com.emm.mygame.core.model.placement.PlacementBand
-import com.emm.mygame.core.model.town.school.LessonName
+import com.emm.mygame.core.model.town.LessonName
 import kotlin.time.Duration.Companion.minutes
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertFalse

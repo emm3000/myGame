@@ -2,11 +2,11 @@ package com.emm.mygame.feature.school
 
 import com.emm.mygame.core.model.learning.LessonId
 import com.emm.mygame.core.model.learning.TextId
+import com.emm.mygame.core.model.town.LessonName
 import com.emm.mygame.core.model.town.SeasonKind
 import com.emm.mygame.core.model.town.TownResourceKind
 import com.emm.mygame.core.model.town.TownSnapshot
 import com.emm.mygame.core.model.town.guidance.NextStepCard
-import com.emm.mygame.core.model.town.school.LessonName
 import com.emm.mygame.core.model.town.school.SchoolPathCounts
 import com.emm.mygame.core.model.town.school.TownLessonRefusal
 import kotlin.time.Duration

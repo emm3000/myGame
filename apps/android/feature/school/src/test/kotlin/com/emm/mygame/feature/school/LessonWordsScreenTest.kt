@@ -35,7 +35,7 @@ import com.emm.mygame.core.designsystem.INK_PILL
 import com.emm.mygame.core.designsystem.MyGameBlockHue
 import com.emm.mygame.core.designsystem.MyGameSpacing
 import com.emm.mygame.core.designsystem.MyGameTheme
-import com.emm.mygame.core.model.town.school.LessonName
+import com.emm.mygame.core.model.town.LessonName
 import com.emm.mygame.core.ui.TaskDockHook
 import kotlin.time.Duration.Companion.minutes
 import org.junit.Assert.assertEquals

@@ -8,9 +8,9 @@ import com.emm.mygame.core.model.town.TownReadResult
 import com.emm.mygame.core.model.town.TownRepository
 import com.emm.mygame.core.model.town.TownSnapshot
 import com.emm.mygame.core.model.town.guidance.NextStep
+import com.emm.mygame.core.model.town.nameOf
 import com.emm.mygame.core.model.town.registeredBetween
 import com.emm.mygame.core.model.town.school.TownLessonResult
-import com.emm.mygame.core.model.town.school.nameOf
 import com.emm.mygame.core.projection.countdownTo
 import com.emm.mygame.core.projection.repaintDelay
 import kotlin.time.Clock

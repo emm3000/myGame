@@ -1,8 +1,7 @@
-package com.emm.mygame.core.model.town.school
+package com.emm.mygame.core.model.town
 
 import com.emm.mygame.core.model.learning.LessonId
 import com.emm.mygame.core.model.placement.PlacementBand
-import com.emm.mygame.core.model.town.TownSnapshot
 import com.emm.mygame.core.model.town.guidance.numberOf
 
 sealed interface LessonName {
