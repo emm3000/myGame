@@ -134,7 +134,7 @@ private fun EntryProviderScope<NavKey>.signedInEntries(chrome: SignedInChrome) {
     reportEntry(chrome)
     newsEntry(chrome)
     settingsEntry(chrome)
-    mapEntry(chrome)
+    jobsEntry(chrome)
     placementEntry(chrome)
     holdoutCheckEntry(chrome)
     lessonWordsEntry(chrome)
