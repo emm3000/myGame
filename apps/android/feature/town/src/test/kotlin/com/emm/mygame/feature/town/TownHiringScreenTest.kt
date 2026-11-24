@@ -35,7 +35,6 @@ import com.emm.mygame.core.model.town.hiring.TownHireKind
 import com.emm.mygame.core.model.town.hiring.TownHiringRefusal
 import com.emm.mygame.feature.town.building.CostLine
 import com.emm.mygame.feature.town.building.PeopleLine
-import com.emm.mygame.feature.town.building.ReadyTime
 import com.emm.mygame.feature.town.building.Shortfall
 import com.emm.mygame.feature.town.building.SlotLine
 import com.emm.mygame.feature.town.building.StartStatus

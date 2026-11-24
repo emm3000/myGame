@@ -2,7 +2,6 @@ package com.emm.mygame.feature.town
 
 import com.emm.mygame.feature.town.building.BlockReason
 import com.emm.mygame.feature.town.building.PlaceCard
-import com.emm.mygame.feature.town.building.ReadyTime
 import com.emm.mygame.feature.town.hiring.HiringBlock
 import com.emm.mygame.feature.town.hiring.HiringCard
 import kotlin.time.Duration

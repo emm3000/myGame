@@ -35,7 +35,6 @@ import com.emm.mygame.feature.town.building.NextLevelLine
 import com.emm.mygame.feature.town.building.PlaceBuildingWork
 import com.emm.mygame.feature.town.building.PlaceCard
 import com.emm.mygame.feature.town.building.PlaceStocks
-import com.emm.mygame.feature.town.building.SeasonRow
 import com.emm.mygame.feature.town.building.StartAnswer
 import com.emm.mygame.feature.town.building.StartStatus
 import com.emm.mygame.feature.town.building.WordNeedLine

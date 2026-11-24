@@ -7,7 +7,8 @@ import com.emm.mygame.core.model.town.HeldTown
 import com.emm.mygame.core.model.town.TownReadResult
 import com.emm.mygame.core.model.town.TownRepository
 import com.emm.mygame.core.model.town.TownSnapshot
-import com.emm.mygame.feature.town.building.BuildingWorkRequests
+import com.emm.mygame.feature.town.building.BuildingRequests
+import com.emm.mygame.feature.town.building.WorkTarget
 import com.emm.mygame.feature.town.guidance.GuidanceRequests
 import com.emm.mygame.feature.town.hiring.HiringRequests
 import com.emm.mygame.feature.town.naming.NamingRequests
@@ -52,19 +53,19 @@ class TownViewModel(
 
     private var gap: Duration = Duration.ZERO
 
-    private var isShown: Boolean = true
+    private var isOnScreen: Boolean = true
 
     private val naming: NamingRequests = NamingRequests(
         towns = towns,
         scope = viewModelScope,
-        naming = { _state.value as? TownUiState.Naming },
-        onAnswered = { status: NamingStatus ->
-            updateNaming { naming: TownUiState.Naming -> naming.copy(status = status) }
+        asked = { _state.value as? TownUiState.Naming },
+        onStatus = { status: NamingStatus ->
+            updateNaming { current: TownUiState.Naming -> current.copy(status = status) }
         },
         onFounded = { town: TownSnapshot -> restartFrom(measured(town), TownRequests.none) },
     )
 
-    private val work: BuildingWorkRequests = BuildingWorkRequests(
+    private val building: BuildingRequests = BuildingRequests(
         towns = towns,
         scope = viewModelScope,
         requests = { requests },
@@ -95,31 +96,32 @@ class TownViewModel(
         when (intent) {
             TownIntent.ScreenShown -> show()
             TownIntent.ScreenHidden -> {
-                isShown = false
+                isOnScreen = false
                 projection?.cancel()
             }
             TownIntent.RetryTapped -> if (_state.value == TownUiState.Failed) open()
             TownIntent.GoToTownTapped -> open()
-            is TownIntent.NameChanged -> updateNaming { naming: TownUiState.Naming -> naming.copy(name = intent.name) }
+            is TownIntent.NameChanged ->
+                updateNaming { current: TownUiState.Naming -> current.copy(name = intent.name) }
             TownIntent.NameSubmitted -> naming.found()
-            is TownIntent.BuildTapped -> withShownTown { work.start(intent.building) }
-            is TownIntent.StopTapped -> withShownTown { work.stop(intent.building, intent.level) }
+            is TownIntent.BuildTapped -> ifTownShown { building.start(intent.building) }
+            is TownIntent.StopTapped -> ifTownShown { building.stop(WorkTarget(intent.building, intent.level)) }
             is TownIntent.HiringEntryChanged -> hiring.enter(intent.hire, intent.entry)
-            is TownIntent.PlaceHiringTapped -> withShownTown { hiring.place(intent.hire) }
-            is TownIntent.StopHiringTapped -> withShownTown { hiring.stop(intent.target) }
-            is TownIntent.TipClosed -> withShownTown { guidance.closeTip(intent.tip) }
-            TownIntent.GoalClosed -> withShownTown { guidance.closeGoal() }
+            is TownIntent.PlaceHiringTapped -> ifTownShown { hiring.place(intent.hire) }
+            is TownIntent.StopHiringTapped -> ifTownShown { hiring.stop(intent.target) }
+            is TownIntent.TipClosed -> ifTownShown { guidance.closeTip(intent.tip) }
+            TownIntent.GoalClosed -> ifTownShown { guidance.closeGoal() }
             TownIntent.SignOutTapped -> signOut()
         }
     }
 
-    private inline fun withShownTown(act: () -> Unit) {
+    private inline fun ifTownShown(act: () -> Unit) {
         if (shown != null) act()
     }
 
     private fun show() {
-        if (isShown) return
-        isShown = true
+        if (isOnScreen) return
+        isOnScreen = true
         when (_state.value) {
             TownUiState.Loading -> open()
             is TownUiState.Content -> reread()
@@ -185,7 +187,7 @@ class TownViewModel(
         projection?.cancel()
         requests = kept
         draw(snapshot)
-        if (isShown) projection = viewModelScope.launch { project(snapshot) }
+        if (isOnScreen) projection = viewModelScope.launch { project(snapshot) }
     }
 
     private fun drawRequests(next: TownRequests) {

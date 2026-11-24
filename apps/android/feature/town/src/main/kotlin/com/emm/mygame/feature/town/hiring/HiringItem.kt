@@ -37,12 +37,12 @@ import com.emm.mygame.core.ui.durationLabelOf
 import com.emm.mygame.core.ui.rememberPlayerCopy
 import com.emm.mygame.feature.town.R
 import com.emm.mygame.feature.town.ReadyLine
+import com.emm.mygame.feature.town.ReadyTime
 import com.emm.mygame.feature.town.RevealedAlert
 import com.emm.mygame.feature.town.TownIntent
 import com.emm.mygame.feature.town.building.BlockReason
 import com.emm.mygame.feature.town.building.CostItem
 import com.emm.mygame.feature.town.building.CostLine
-import com.emm.mygame.feature.town.building.ReadyTime
 import com.emm.mygame.feature.town.building.shortfallLineOf
 import com.emm.mygame.feature.town.shortMarked
 import com.emm.mygame.feature.town.townDurationCopy
@@ -78,7 +78,7 @@ internal fun HiringItem(
             color = if (form == null) MyGameTheme.colors.warningInk else MyGameTheme.colors.inkMuted,
         )
         if (form != null) {
-            HiringFormFields(
+            HiringOrderForm(
                 kind = card.kind,
                 form = form,
                 isWaiting = place == HiringPlaceStatus.Waiting(card.kind),
@@ -91,7 +91,7 @@ internal fun HiringItem(
 }
 
 @Composable
-private fun HiringFormFields(
+private fun HiringOrderForm(
     kind: TownHireKind,
     form: HiringForm,
     isWaiting: Boolean,

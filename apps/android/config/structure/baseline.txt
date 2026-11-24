@@ -29,7 +29,6 @@ file-lines feature/report/src/main/kotlin/com/emm/mygame/feature/report/ReportSc
 file-lines feature/school/src/main/kotlin/com/emm/mygame/feature/school/LessonWordsScreen.kt
 file-lines feature/school/src/main/kotlin/com/emm/mygame/feature/school/SchoolScreen.kt
 file-lines feature/town/src/main/kotlin/com/emm/mygame/feature/town/building/PlaceBuildingWork.kt
-file-lines feature/town/src/main/kotlin/com/emm/mygame/feature/town/building/PlaceStocks.kt
 file-name app/src/main/kotlin/com/emm/mygame/DockMove.kt
 file-name app/src/main/kotlin/com/emm/mygame/MailedLink.kt
 file-name app/src/main/kotlin/com/emm/mygame/PlayerLanguageFrame.kt

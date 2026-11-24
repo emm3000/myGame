@@ -24,6 +24,7 @@ import com.emm.mygame.core.ui.durationLabelOf
 import com.emm.mygame.core.ui.rememberPlayerCopy
 import com.emm.mygame.feature.town.R
 import com.emm.mygame.feature.town.ReadyLine
+import com.emm.mygame.feature.town.ReadyTime
 import com.emm.mygame.feature.town.TownIntent
 import com.emm.mygame.feature.town.townDurationCopy
 import kotlin.time.Duration.Companion.hours

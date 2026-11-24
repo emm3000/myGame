@@ -13,7 +13,6 @@ import com.emm.mygame.feature.town.building.BlockReason
 import com.emm.mygame.feature.town.building.CostLine
 import com.emm.mygame.feature.town.building.NextLevel
 import com.emm.mygame.feature.town.building.NextLevelLine
-import com.emm.mygame.feature.town.building.ReadyTime
 import com.emm.mygame.feature.town.building.Shortfall
 import org.junit.Assert.assertEquals
 import org.junit.Rule
