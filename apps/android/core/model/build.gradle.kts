@@ -6,4 +6,6 @@ plugins {
 dependencies {
     implementation(libs.kotlinx.serialization.core)
     api(libs.kotlinx.coroutines.core)
+
+    testImplementation(project(":core:testing"))
 }

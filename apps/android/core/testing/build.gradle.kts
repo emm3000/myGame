@@ -1,5 +1,5 @@
 plugins {
-    id("mygame.android.library")
+    id("mygame.jvm.library")
 }
 
 dependencies {
