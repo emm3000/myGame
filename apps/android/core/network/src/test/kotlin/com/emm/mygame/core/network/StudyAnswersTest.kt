@@ -25,8 +25,9 @@ import com.emm.mygame.core.model.town.hiring.TownHiringResult
 import com.emm.mygame.core.model.town.jobs.JobTarget
 import com.emm.mygame.core.model.town.jobs.TownJobResult
 import com.emm.mygame.core.model.town.school.TownLessonResult
+import com.emm.mygame.core.network.platform.TokenStore
+import com.emm.mygame.core.network.reminder.StudyAnswers
 import com.emm.mygame.core.testing.FakeStudyAnswerSink
-import com.emm.mygame.core.testing.FakeTokenCipher
 import com.emm.mygame.core.testing.StudyAnswer
 import com.emm.mygame.core.testing.TestClock
 import java.io.File

@@ -8,7 +8,9 @@ import com.emm.mygame.core.model.account.RestoreResult
 import com.emm.mygame.core.model.account.ScaffoldChangeResult
 import com.emm.mygame.core.model.account.SessionRepository
 import com.emm.mygame.core.model.account.SignedInPlayer
-import com.emm.mygame.core.testing.FakeTokenCipher
+import com.emm.mygame.core.network.account.PlayerLanguages
+import com.emm.mygame.core.network.platform.SessionEnds
+import com.emm.mygame.core.network.platform.TokenStore
 import java.io.File
 import java.util.concurrent.CountDownLatch
 import java.util.concurrent.TimeUnit

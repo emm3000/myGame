@@ -10,7 +10,7 @@ import com.emm.mygame.core.model.town.jobs.JobTarget
 import com.emm.mygame.core.model.town.jobs.TownJobRefusal
 import com.emm.mygame.core.model.town.jobs.TownJobResult
 import com.emm.mygame.core.model.town.jobs.WasteSize
-import com.emm.mygame.core.testing.FakeTokenCipher
+import com.emm.mygame.core.network.platform.TokenStore
 import com.emm.mygame.core.testing.TestClock
 import java.io.File
 import kotlin.time.Duration.Companion.minutes

@@ -4,7 +4,9 @@ import com.emm.mygame.core.model.account.SessionRepository
 import com.emm.mygame.core.model.account.SignInResult
 import com.emm.mygame.core.model.town.TownReadResult
 import com.emm.mygame.core.model.town.TownRepository
-import com.emm.mygame.core.testing.FakeTokenCipher
+import com.emm.mygame.core.network.platform.ApiEndpoint
+import com.emm.mygame.core.network.platform.SessionEnds
+import com.emm.mygame.core.network.platform.TokenStore
 import com.emm.mygame.core.testing.TestClock
 import java.io.File
 import java.util.concurrent.TimeUnit

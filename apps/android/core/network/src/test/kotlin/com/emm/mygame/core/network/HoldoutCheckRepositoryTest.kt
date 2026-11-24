@@ -12,7 +12,8 @@ import com.emm.mygame.core.model.placement.PlacementAnswer
 import com.emm.mygame.core.model.placement.PlacementBand
 import com.emm.mygame.core.model.placement.PlacementChoice
 import com.emm.mygame.core.model.placement.PlacementItem
-import com.emm.mygame.core.testing.FakeTokenCipher
+import com.emm.mygame.core.network.platform.TokenStore
+import java.io.File
 import kotlinx.coroutines.test.TestScope
 import kotlinx.coroutines.test.runTest
 import mockwebserver3.MockResponse
@@ -24,7 +25,6 @@ import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
 import org.junit.rules.TemporaryFolder
-import java.io.File
 
 class HoldoutCheckRepositoryTest {
 

@@ -17,11 +17,11 @@ private val allowedCoreEdges: Map<String, Set<String>> = mapOf(
     ":core:projection" to emptySet(),
     ":core:designsystem" to emptySet(),
     ":core:ui" to setOf(":core:model", ":core:projection", ":core:designsystem"),
-    ":core:testing" to setOf(":core:model", ":core:network", ":core:projection"),
+    ":core:testing" to setOf(":core:model", ":core:projection"),
 )
 
 private val allowedFeatureEdges: Set<String> =
-    setOf(":core:model", ":core:network", ":core:projection", ":core:ui", ":core:designsystem")
+    setOf(":core:model", ":core:projection", ":core:ui", ":core:designsystem")
 
 class ModuleChecksConventionPlugin : Plugin<Project> {
 
