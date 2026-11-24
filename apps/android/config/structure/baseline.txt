@@ -11,9 +11,12 @@ app-feature-state app/src/main/kotlin/com/emm/mygame/navigation/SchoolEntries.kt
 app-feature-state app/src/main/kotlin/com/emm/mygame/navigation/TownEntries.kt
 app-feature-state app/src/main/kotlin/com/emm/mygame/navigation/TownEntries.kt
 duplicate-name feature/account/src/test/kotlin/com/emm/mygame/feature/account/TextStyleLookup.kt
+duplicate-name feature/holdout/src/test/kotlin/com/emm/mygame/feature/holdout/NavRowMatcher.kt
+duplicate-name feature/holdout/src/test/kotlin/com/emm/mygame/feature/holdout/TaskFrameStandIn.kt
 duplicate-name feature/jobs/src/main/kotlin/com/emm/mygame/feature/jobs/SeasonLabels.kt
 duplicate-name feature/learning/src/main/kotlin/com/emm/mygame/feature/learning/FramePieces.kt
 duplicate-name feature/placement/src/test/kotlin/com/emm/mygame/feature/placement/NavRowMatcher.kt
+duplicate-name feature/placement/src/test/kotlin/com/emm/mygame/feature/placement/TaskFrameStandIn.kt
 duplicate-name feature/report/src/test/kotlin/com/emm/mygame/feature/report/NavRowMatcher.kt
 duplicate-name feature/school/src/main/kotlin/com/emm/mygame/feature/school/FramePieces.kt
 duplicate-name feature/school/src/main/kotlin/com/emm/mygame/feature/school/SeasonLabels.kt

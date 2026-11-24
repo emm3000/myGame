@@ -25,6 +25,7 @@ import com.emm.mygame.core.ui.CopyLanguage
 import com.emm.mygame.core.ui.ProvideCopyLanguage
 import com.emm.mygame.core.ui.ScaffoldLanguage
 import com.emm.mygame.core.ui.fixedCopyResource
+import com.emm.mygame.core.ui.fixedLabel
 
 @Composable
 fun PlacementOfferRoute(

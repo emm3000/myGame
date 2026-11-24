@@ -8,6 +8,7 @@ import com.emm.mygame.core.ui.FollowTownDock
 import com.emm.mygame.core.ui.TaskDock
 import com.emm.mygame.core.ui.TaskDockHook
 import com.emm.mygame.core.ui.fixedCopyResource
+import com.emm.mygame.core.ui.fixedLabel
 
 @Composable
 internal fun PlacementDock(state: PlacementUiState, onIntent: (PlacementIntent) -> Unit, hook: TaskDockHook) {

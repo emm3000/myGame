@@ -90,6 +90,7 @@ dependencies {
     implementation(project(":core:designsystem"))
     implementation(project(":core:ui"))
     implementation(project(":feature:account"))
+    implementation(project(":feature:holdout"))
     implementation(project(":feature:jobs"))
     implementation(project(":feature:learning"))
     implementation(project(":feature:placement"))

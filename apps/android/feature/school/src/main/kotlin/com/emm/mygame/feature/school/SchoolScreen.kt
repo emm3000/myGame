@@ -495,8 +495,14 @@ internal class SchoolLanguages : PreviewParameterProvider<CopyLanguage> {
     )
 }
 
-private val previewDueCheck: HoldoutCheckRowsUiState =
-    HoldoutCheckRowsUiState(listOf(HoldoutCheckRow(PlacementBand.First, HoldoutCheckWeek.Eighth)))
+@Composable
+private fun PreviewDueCheck() {
+    MyGameText(
+        text = "Tienes pendiente una prueba de palabras de la banda 1, semana 8.",
+        style = MyGameTypography.body,
+        color = MyGameTheme.colors.ink,
+    )
+}
 
 @PreviewMyGame
 @Composable
@@ -508,7 +514,7 @@ private fun SchoolScreenLanguagePreview(@PreviewParameter(SchoolLanguages::class
                 onIntent = {},
                 onLessonOpen = {},
                 onTextOpen = {},
-                holdoutChecks = { HoldoutCheckRows(state = previewDueCheck, onHoldoutCheckOpen = {}) },
+                holdoutChecks = { PreviewDueCheck() },
             )
         }
     }

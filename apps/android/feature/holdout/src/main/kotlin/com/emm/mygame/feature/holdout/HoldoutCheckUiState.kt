@@ -1,0 +1,51 @@
+package com.emm.mygame.feature.holdout
+
+import com.emm.mygame.core.model.holdout.HoldoutCheckWeek
+import com.emm.mygame.core.model.learning.WordId
+import com.emm.mygame.core.model.placement.ChoiceId
+import com.emm.mygame.core.model.placement.PlacementBand
+import com.emm.mygame.core.model.placement.PlacementItem
+
+sealed interface HoldoutCheckUiState {
+
+    data object Loading : HoldoutCheckUiState
+
+    data object Failed : HoldoutCheckUiState
+
+    data object NotOpen : HoldoutCheckUiState
+
+    data class Due(
+        val band: PlacementBand,
+        val week: HoldoutCheckWeek,
+        val request: HoldoutCheckRequest,
+    ) : HoldoutCheckUiState
+
+    data class Asking(
+        val band: PlacementBand,
+        val week: HoldoutCheckWeek,
+        val items: List<PlacementItem>,
+        val shownIndex: Int,
+        val chosen: Map<WordId, ChoiceId>,
+        val request: HoldoutCheckRequest,
+    ) : HoldoutCheckUiState {
+
+        val shown: PlacementItem?
+            get() = items.getOrNull(shownIndex)
+
+        val chosenForShown: ChoiceId?
+            get() = shown?.let { item: PlacementItem -> chosen[item.word] }
+
+        val isLastShown: Boolean
+            get() = shownIndex >= items.lastIndex
+    }
+
+    data object Answered : HoldoutCheckUiState
+
+    data object Skipped : HoldoutCheckUiState
+
+    val isEnd: Boolean
+        get() = when (this) {
+            NotOpen, Answered, Skipped -> true
+            Loading, Failed, is Due, is Asking -> false
+        }
+}

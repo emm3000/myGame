@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="holdout_band">Band {band}</string>
+    <string name="holdout_choose">Choose a meaning to go on.</string>
+    <string name="holdout_done">Thanks. Your answers are saved.</string>
+    <string name="holdout_due_line">Band {band}, week {week}: a check of words you studied and words kept back. Your score does not change your lessons.</string>
+    <string name="holdout_failed">We couldn\'t read your check.</string>
+    <string name="holdout_loading">Reading your check…</string>
+    <string name="holdout_next">Next</string>
+    <string name="holdout_open">Open the check</string>
+    <string name="holdout_progress">Word {number} of {total}</string>
+    <string name="holdout_prompt">What does it mean?</string>
+    <string name="holdout_refusal_invalid">We could not save your answers.</string>
+    <string name="holdout_refused">This check is not open now.</string>
+    <string name="holdout_retry">Try again</string>
+    <string name="holdout_row">A word check for band {band}, week {week} is due.</string>
+    <string name="holdout_send">Send your answers</string>
+    <string name="holdout_sending">Sending…</string>
+    <string name="holdout_skip">Skip the check</string>
+    <string name="holdout_skip_line">Your lessons are the same whether you take it or skip it.</string>
+    <string name="holdout_skipped">You skipped this check.</string>
+    <string name="holdout_start">Start the check</string>
+    <string name="holdout_title">Word check</string>
+    <string name="holdout_unreachable">We couldn\'t reach the server. Try again in a moment.</string>
+</resources>
