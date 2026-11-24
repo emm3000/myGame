@@ -175,6 +175,22 @@ class StructureFindingsTest {
     }
 
     @Test
+    fun `flags a test fixture and a test file that share a name`() {
+        val fixture = SourceFile("core/ui/src/testFixtures/kotlin/NavRowMatcher.kt", "val navRow: Int = 1\n")
+        val copy = SourceFile("feature/town/src/test/kotlin/NavRowMatcher.kt", "val navRow: Int = 2\n")
+
+        assertEquals(
+            listOf(
+                "duplicate-name core/ui/src/testFixtures/kotlin/NavRowMatcher.kt: NavRowMatcher.kt is also " +
+                    "feature/town/src/test/kotlin/NavRowMatcher.kt",
+                "duplicate-name feature/town/src/test/kotlin/NavRowMatcher.kt: NavRowMatcher.kt is also " +
+                    "core/ui/src/testFixtures/kotlin/NavRowMatcher.kt",
+            ),
+            findingsOf(fixture, copy),
+        )
+    }
+
+    @Test
     fun `passes a production file and a test file that share a name`() {
         val production = SourceFile("feature/school/src/main/kotlin/Lookup.kt", "val lookup: Int = 1\n")
         val test = SourceFile("feature/school/src/test/kotlin/Lookup.kt", "val lookup: Int = 2\n")

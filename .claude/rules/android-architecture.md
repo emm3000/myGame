@@ -36,7 +36,7 @@ core:projection   -> nothing in the project
 core:designsystem -> nothing in the project
 ```
 
-`./gradlew checkModuleBoundaries` fails on any other edge, a feature-to-feature edge included, and `core:testing` on any configuration but a test one. Before adding an edge, check the table; if a `core` module needs to reach outward, invert it with an interface in that module.
+`./gradlew checkModuleBoundaries` fails on any other edge, a feature-to-feature edge included, and on `core:testing` or a module's `testFixtures(project(...))` through any configuration but a test one. Before adding an edge, check the table; if a `core` module needs to reach outward, invert it with an interface in that module.
 
 ## The contract
 

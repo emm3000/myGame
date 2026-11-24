@@ -77,9 +77,14 @@ private fun Project.projectEdges(): List<String> =
             configuration.dependencies
                 .filterIsInstance<ProjectDependency>()
                 .filter { it.path != path }
-                .map { "${configuration.name}=${it.path}" }
+                .map { "${configuration.name}=${it.path}${it.featureSuffix()}" }
         }
         .distinct()
+
+private fun ProjectDependency.featureSuffix(): String =
+    requestedCapabilities.joinToString(separator = "") { capability ->
+        if (capability.name.endsWith("-test-fixtures")) TEST_FIXTURES else "(${capability.name})"
+    }
 
 private fun Project.jvmOnlyModulesWithAndroidPlugin(): List<String> =
     subprojects
