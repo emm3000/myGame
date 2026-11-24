@@ -12,18 +12,18 @@ import androidx.lifecycle.LifecycleOwner
 import androidx.lifecycle.LifecycleRegistry
 import androidx.lifecycle.compose.LocalLifecycleOwner
 import com.emm.mygame.core.designsystem.MyGameTheme
-import com.emm.mygame.core.network.LessonId
+import com.emm.mygame.core.model.learning.LessonId
 import com.emm.mygame.core.network.TownReadResult
 import com.emm.mygame.core.network.TownSnapshot
-import com.emm.mygame.core.ui.TaskDockHook
 import com.emm.mygame.core.testing.FakeLearningRepository
 import com.emm.mygame.core.testing.FakeTownRepository
-import kotlin.time.Clock
+import com.emm.mygame.core.ui.TaskDockHook
 import org.junit.Assert.assertEquals
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.robolectric.RobolectricTestRunner
+import kotlin.time.Clock
 
 @RunWith(RobolectricTestRunner::class)
 class LessonWordsRouteTest {

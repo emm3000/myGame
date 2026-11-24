@@ -21,14 +21,13 @@ import com.emm.mygame.core.model.account.RestoreResult
 import com.emm.mygame.core.model.account.ScaffoldChangeResult
 import com.emm.mygame.core.model.account.SessionRepository
 import com.emm.mygame.core.model.account.SignedInPlayer
+import com.emm.mygame.core.model.report.ReportReadResult
+import com.emm.mygame.core.model.report.TownReport
 import com.emm.mygame.core.model.theme.ThemePick
-import com.emm.mygame.core.network.ReportReadResult
-import com.emm.mygame.core.network.TownReport
 import com.emm.mygame.core.testing.FakeReportRepository
 import com.emm.mygame.core.testing.FakeSessionRepository
 import com.emm.mygame.core.testing.FakeThemeSettings
 import com.emm.mygame.navigation.AppNavigation
-import kotlin.time.Instant
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.emptyFlow
 import org.junit.Assert.assertEquals
@@ -37,6 +36,7 @@ import org.junit.Test
 import org.junit.runner.RunWith
 import org.robolectric.RobolectricTestRunner
 import org.robolectric.annotation.Config
+import kotlin.time.Instant
 
 @RunWith(RobolectricTestRunner::class)
 @Config(qualifiers = "en")

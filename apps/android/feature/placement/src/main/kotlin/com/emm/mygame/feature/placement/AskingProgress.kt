@@ -13,7 +13,7 @@ import com.emm.mygame.core.designsystem.MyGameText
 import com.emm.mygame.core.designsystem.MyGameTheme
 import com.emm.mygame.core.designsystem.MyGameTrack
 import com.emm.mygame.core.designsystem.MyGameTypography
-import com.emm.mygame.core.network.PlacementBand
+import com.emm.mygame.core.model.placement.PlacementBand
 import com.emm.mygame.core.ui.fixedCopyResource
 
 @Composable

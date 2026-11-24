@@ -1,7 +1,10 @@
 package com.emm.mygame.core.network
 
-import kotlin.time.Instant
+import com.emm.mygame.core.model.learning.LessonId
+import com.emm.mygame.core.model.town.building.TownBuildingKind
+import com.emm.mygame.core.model.town.hiring.TownHireKind
 import kotlinx.coroutines.flow.StateFlow
+import kotlin.time.Instant
 
 interface TownRepository :
     RegionRepository,

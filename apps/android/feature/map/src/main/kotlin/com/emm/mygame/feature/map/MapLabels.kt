@@ -2,10 +2,10 @@ package com.emm.mygame.feature.map
 
 import com.emm.mygame.core.designsystem.MyGameLabel
 import com.emm.mygame.core.designsystem.formatQuantity
+import com.emm.mygame.core.model.town.TownResourceKind
+import com.emm.mygame.core.model.town.hiring.TownHireKind
 import com.emm.mygame.core.network.Terrain
-import com.emm.mygame.core.network.TownHireKind
 import com.emm.mygame.core.network.TownJobRefusal
-import com.emm.mygame.core.network.TownResourceKind
 import com.emm.mygame.core.network.TownSnapshot
 import com.emm.mygame.core.network.WasteSize
 import com.emm.mygame.core.ui.CopyReader

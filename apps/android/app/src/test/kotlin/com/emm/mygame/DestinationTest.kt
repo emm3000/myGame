@@ -1,9 +1,9 @@
 package com.emm.mygame
 
-import com.emm.mygame.core.network.HoldoutCheckWeek
-import com.emm.mygame.core.network.LessonId
-import com.emm.mygame.core.network.PlacementBand
-import com.emm.mygame.core.network.TextId
+import com.emm.mygame.core.model.holdout.HoldoutCheckWeek
+import com.emm.mygame.core.model.learning.LessonId
+import com.emm.mygame.core.model.learning.TextId
+import com.emm.mygame.core.model.placement.PlacementBand
 import kotlinx.serialization.descriptors.elementNames
 import kotlinx.serialization.json.Json
 import org.junit.Assert.assertEquals

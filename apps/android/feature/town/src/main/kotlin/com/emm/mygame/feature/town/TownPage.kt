@@ -18,10 +18,10 @@ import com.emm.mygame.core.designsystem.MyGameText
 import com.emm.mygame.core.designsystem.MyGameTextLink
 import com.emm.mygame.core.designsystem.MyGameTheme
 import com.emm.mygame.core.designsystem.MyGameTypography
+import com.emm.mygame.core.model.learning.TextId
+import com.emm.mygame.core.model.town.building.TownBuildingKind
 import com.emm.mygame.core.network.NextStepText
-import com.emm.mygame.core.network.TextId
 import com.emm.mygame.core.network.TipKind
-import com.emm.mygame.core.network.TownBuildingKind
 import com.emm.mygame.core.network.TownGoal
 import com.emm.mygame.core.network.TownLabel
 import com.emm.mygame.core.ui.CopyReader

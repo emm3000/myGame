@@ -1,23 +1,23 @@
 package com.emm.mygame.feature.school
 
 import androidx.lifecycle.viewModelScope
-import com.emm.mygame.core.network.DueReviews
-import com.emm.mygame.core.network.FrameSpan
-import com.emm.mygame.core.network.LessonId
-import com.emm.mygame.core.network.ReviewsReadResult
+import com.emm.mygame.core.model.learning.DueReviews
+import com.emm.mygame.core.model.learning.FrameSpan
+import com.emm.mygame.core.model.learning.LessonId
+import com.emm.mygame.core.model.learning.ReviewsReadResult
+import com.emm.mygame.core.model.learning.WordSupport
 import com.emm.mygame.core.network.TownReadResult
 import com.emm.mygame.core.network.TownSnapshot
-import com.emm.mygame.core.network.WordSupport
 import com.emm.mygame.core.testing.FakeLearningRepository
 import com.emm.mygame.core.testing.FakeTownRepository
 import com.emm.mygame.core.testing.TestClock
-import kotlin.time.Instant
 import kotlinx.coroutines.CoroutineStart
 import kotlinx.coroutines.awaitCancellation
 import kotlinx.coroutines.cancel
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.test.TestScope
 import kotlinx.coroutines.test.runCurrent
+import kotlin.time.Instant
 
 internal val homeWord: TownSnapshot.WordReading =
     wordReadingOf(word = "home", gloss = "hogar", frame = "This is my home.")

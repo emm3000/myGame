@@ -1,5 +1,8 @@
 package com.emm.mygame.core.network
 
+import com.emm.mygame.core.model.holdout.HoldoutCheck
+import com.emm.mygame.core.model.holdout.HoldoutCheckWeek
+import com.emm.mygame.core.model.placement.PlacementBand
 import com.emm.mygame.core.network.generated.models.HoldoutChecks
 import com.emm.mygame.core.network.generated.models.HoldoutCheckState as WireHoldoutCheck
 import com.emm.mygame.core.network.generated.models.HoldoutCheckWeek as WireHoldoutCheckWeek

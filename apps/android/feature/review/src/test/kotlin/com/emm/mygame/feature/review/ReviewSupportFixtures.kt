@@ -1,8 +1,8 @@
 package com.emm.mygame.feature.review
 
-import com.emm.mygame.core.network.DueReview
-import com.emm.mygame.core.network.FrameSpan
-import com.emm.mygame.core.network.WordSupport
+import com.emm.mygame.core.model.learning.DueReview
+import com.emm.mygame.core.model.learning.FrameSpan
+import com.emm.mygame.core.model.learning.WordSupport
 
 internal fun supportOf(shown: WordSupport.Shown, text: String, language: WordSupport.Language): WordSupport =
     WordSupport(shown = shown, text = text, language = language)

@@ -1,15 +1,16 @@
 package com.emm.mygame.core.network
 
+import com.emm.mygame.core.model.learning.TextId
 import com.emm.mygame.core.network.generated.apis.DefaultApi
 import com.emm.mygame.core.network.generated.models.BareApiError
-import com.emm.mygame.core.network.generated.models.FrameSpan as WireFrameSpan
-import com.emm.mygame.core.network.generated.models.OpenText as WireOpenText
-import java.io.IOException
-import java.net.HttpURLConnection
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.withContext
 import kotlinx.serialization.SerializationException
 import retrofit2.Response
+import java.io.IOException
+import java.net.HttpURLConnection
+import com.emm.mygame.core.network.generated.models.FrameSpan as WireFrameSpan
+import com.emm.mygame.core.network.generated.models.OpenText as WireOpenText
 
 internal class ApiTownTextRepository(
     private val api: DefaultApi,

@@ -1,13 +1,18 @@
 package com.emm.mygame.core.network
 
+import com.emm.mygame.core.model.report.ReportCloseResult
+import com.emm.mygame.core.model.report.ReportReadResult
+import com.emm.mygame.core.model.report.ReportRepository
+import com.emm.mygame.core.model.report.TownReport
+import com.emm.mygame.core.model.town.news.TownNewsReadResult
 import com.emm.mygame.core.network.generated.apis.DefaultApi
 import com.emm.mygame.core.network.generated.models.Report
 import com.emm.mygame.core.network.generated.models.TownNewsItems
-import java.io.IOException
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.withContext
 import kotlinx.serialization.SerializationException
 import retrofit2.Response
+import java.io.IOException
 
 internal class ApiReportRepository(
     private val api: DefaultApi,

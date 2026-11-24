@@ -1,14 +1,14 @@
 package com.emm.mygame.feature.review
 
-import com.emm.mygame.core.network.ChoiceId
-import com.emm.mygame.core.network.FrameSpan
-import com.emm.mygame.core.network.LessonId
-import com.emm.mygame.core.network.ReviewChoice
-import com.emm.mygame.core.network.ReviewHint
-import com.emm.mygame.core.network.ReviewRefusal
+import com.emm.mygame.core.model.learning.FrameSpan
+import com.emm.mygame.core.model.learning.LessonId
+import com.emm.mygame.core.model.learning.ReviewChoice
+import com.emm.mygame.core.model.learning.ReviewHint
+import com.emm.mygame.core.model.learning.ReviewRefusal
+import com.emm.mygame.core.model.learning.WordId
+import com.emm.mygame.core.model.placement.ChoiceId
+import com.emm.mygame.core.model.town.TownResourceKind
 import com.emm.mygame.core.network.SchoolPathCounts
-import com.emm.mygame.core.network.TownResourceKind
-import com.emm.mygame.core.network.WordId
 import kotlin.time.Instant
 
 sealed interface ReviewUiState {

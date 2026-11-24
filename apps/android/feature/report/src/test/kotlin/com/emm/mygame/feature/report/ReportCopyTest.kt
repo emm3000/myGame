@@ -1,24 +1,24 @@
 package com.emm.mygame.feature.report
 
-import com.emm.mygame.core.network.TownAmount
-import com.emm.mygame.core.network.TownBuildingKind
-import com.emm.mygame.core.network.TownHireKind
-import com.emm.mygame.core.network.TownNews
-import com.emm.mygame.core.network.TownResourceKind
-import com.emm.mygame.core.network.TownSite
+import com.emm.mygame.core.model.town.TownAmount
+import com.emm.mygame.core.model.town.TownResourceKind
+import com.emm.mygame.core.model.town.TownSite
+import com.emm.mygame.core.model.town.building.TownBuildingKind
+import com.emm.mygame.core.model.town.hiring.TownHireKind
+import com.emm.mygame.core.model.town.news.TownNews
 import com.emm.mygame.core.ui.ChromePhase
 import com.emm.mygame.core.ui.CopyLanguage
 import com.emm.mygame.core.ui.CopyReader
 import com.emm.mygame.core.ui.PlayerCopy
 import com.emm.mygame.core.ui.ScaffoldLanguage
-import java.time.ZoneId
-import kotlin.time.Instant
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertNull
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.robolectric.RobolectricTestRunner
 import org.robolectric.RuntimeEnvironment
+import java.time.ZoneId
+import kotlin.time.Instant
 
 @RunWith(RobolectricTestRunner::class)
 class ReportCopyTest {

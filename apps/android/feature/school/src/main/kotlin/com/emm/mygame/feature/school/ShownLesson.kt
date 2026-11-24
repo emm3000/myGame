@@ -21,7 +21,7 @@ import com.emm.mygame.core.designsystem.MyGameTheme
 import com.emm.mygame.core.designsystem.MyGameTypography
 import com.emm.mygame.core.designsystem.blockHueOf
 import com.emm.mygame.core.designsystem.englishTextOf
-import com.emm.mygame.core.network.LessonId
+import com.emm.mygame.core.model.learning.LessonId
 import com.emm.mygame.core.network.LessonName
 import com.emm.mygame.core.ui.PlayerCopy
 import com.emm.mygame.core.ui.durationLabelOf

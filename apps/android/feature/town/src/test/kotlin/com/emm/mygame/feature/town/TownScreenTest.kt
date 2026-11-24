@@ -12,6 +12,7 @@ import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.semantics.SemanticsProperties
 import androidx.compose.ui.test.SemanticsMatcher
 import androidx.compose.ui.test.SemanticsNodeInteraction
+import androidx.compose.ui.test.assert
 import androidx.compose.ui.test.assertCountEquals
 import androidx.compose.ui.test.assertIsDisplayed
 import androidx.compose.ui.test.assertIsSelected
@@ -21,7 +22,6 @@ import androidx.compose.ui.test.isHeading
 import androidx.compose.ui.test.junit4.ComposeContentTestRule
 import androidx.compose.ui.test.junit4.StateRestorationTester
 import androidx.compose.ui.test.junit4.createComposeRule
-import androidx.compose.ui.test.assert
 import androidx.compose.ui.test.onAllNodesWithContentDescription
 import androidx.compose.ui.test.onAllNodesWithTag
 import androidx.compose.ui.test.onAllNodesWithText
@@ -41,29 +41,29 @@ import com.emm.mygame.core.designsystem.MyGameTransitions
 import com.emm.mygame.core.designsystem.OUTLINED_PILL
 import com.emm.mygame.core.designsystem.PLACE_ART
 import com.emm.mygame.core.designsystem.SKELETON_BLOCK
+import com.emm.mygame.core.model.learning.LessonId
+import com.emm.mygame.core.model.town.TownResourceKind
+import com.emm.mygame.core.model.town.building.TownBuildingKind
 import com.emm.mygame.core.network.CaughtUpReason
-import com.emm.mygame.core.network.LessonId
 import com.emm.mygame.core.network.NeededWordKind
 import com.emm.mygame.core.network.NextStep
 import com.emm.mygame.core.network.SeasonKind
 import com.emm.mygame.core.network.TipKind
-import com.emm.mygame.core.network.TownBuildingKind
 import com.emm.mygame.core.network.TownFoundRefusal
 import com.emm.mygame.core.network.TownGoal
 import com.emm.mygame.core.network.TownLabel
 import com.emm.mygame.core.network.TownRegistered
-import com.emm.mygame.core.network.TownResourceKind
 import com.emm.mygame.core.network.TownWorkRefusal
-import kotlin.time.Duration
-import kotlin.time.Duration.Companion.days
-import kotlin.time.Duration.Companion.minutes
-import kotlin.time.Duration.Companion.seconds
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertTrue
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.robolectric.RobolectricTestRunner
+import kotlin.time.Duration
+import kotlin.time.Duration.Companion.days
+import kotlin.time.Duration.Companion.minutes
+import kotlin.time.Duration.Companion.seconds
 
 @RunWith(RobolectricTestRunner::class)
 class TownScreenTest {
@@ -181,10 +181,10 @@ class TownScreenTest {
     fun `the town home opens on the school on every other step of learning`() {
         val steps: List<NextStep> = listOf(
             NextStep.LessonToStudy(LessonId("lesson-1")),
-            NextStep.ReleasedLesson(LessonId("lesson-2"), com.emm.mygame.core.network.PlacementBand.First, 1),
+            NextStep.ReleasedLesson(LessonId("lesson-2"), com.emm.mygame.core.model.placement.PlacementBand.First, 1),
             NextStep.HoldoutCheck(
-                com.emm.mygame.core.network.PlacementBand.First,
-                com.emm.mygame.core.network.HoldoutCheckWeek.entries.first(),
+                com.emm.mygame.core.model.placement.PlacementBand.First,
+                com.emm.mygame.core.model.holdout.HoldoutCheckWeek.entries.first(),
             ),
         )
 

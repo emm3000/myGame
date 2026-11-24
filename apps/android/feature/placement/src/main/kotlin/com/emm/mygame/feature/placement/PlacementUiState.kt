@@ -1,10 +1,10 @@
 package com.emm.mygame.feature.placement
 
-import com.emm.mygame.core.network.ChoiceId
-import com.emm.mygame.core.network.PlacementBand
-import com.emm.mygame.core.network.PlacementItem
-import com.emm.mygame.core.network.PlacementScore
-import com.emm.mygame.core.network.WordId
+import com.emm.mygame.core.model.learning.WordId
+import com.emm.mygame.core.model.placement.ChoiceId
+import com.emm.mygame.core.model.placement.PlacementBand
+import com.emm.mygame.core.model.placement.PlacementItem
+import com.emm.mygame.core.model.placement.PlacementScore
 
 sealed interface PlacementUiState {
 

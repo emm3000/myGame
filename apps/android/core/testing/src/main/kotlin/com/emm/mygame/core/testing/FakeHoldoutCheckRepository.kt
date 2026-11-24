@@ -1,11 +1,11 @@
 package com.emm.mygame.core.testing
 
-import com.emm.mygame.core.network.HoldoutCheckChangeResult
-import com.emm.mygame.core.network.HoldoutCheckRepository
-import com.emm.mygame.core.network.HoldoutCheckWeek
-import com.emm.mygame.core.network.HoldoutChecksReadResult
-import com.emm.mygame.core.network.PlacementAnswer
-import com.emm.mygame.core.network.PlacementBand
+import com.emm.mygame.core.model.holdout.HoldoutCheckChangeResult
+import com.emm.mygame.core.model.holdout.HoldoutCheckRepository
+import com.emm.mygame.core.model.holdout.HoldoutCheckWeek
+import com.emm.mygame.core.model.holdout.HoldoutChecksReadResult
+import com.emm.mygame.core.model.placement.PlacementAnswer
+import com.emm.mygame.core.model.placement.PlacementBand
 import kotlinx.coroutines.channels.Channel
 
 class FakeHoldoutCheckRepository : HoldoutCheckRepository {

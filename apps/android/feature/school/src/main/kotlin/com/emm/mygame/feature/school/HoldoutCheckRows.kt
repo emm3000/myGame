@@ -16,9 +16,9 @@ import com.emm.mygame.core.designsystem.MyGameNavRow
 import com.emm.mygame.core.designsystem.MyGamePreviewSurface
 import com.emm.mygame.core.designsystem.MyGameSpacing
 import com.emm.mygame.core.designsystem.PreviewMyGame
-import com.emm.mygame.core.network.HoldoutCheckRepository
-import com.emm.mygame.core.network.HoldoutCheckWeek
-import com.emm.mygame.core.network.PlacementBand
+import com.emm.mygame.core.model.holdout.HoldoutCheckRepository
+import com.emm.mygame.core.model.holdout.HoldoutCheckWeek
+import com.emm.mygame.core.model.placement.PlacementBand
 import com.emm.mygame.core.ui.fixedCopyResource
 
 @Composable

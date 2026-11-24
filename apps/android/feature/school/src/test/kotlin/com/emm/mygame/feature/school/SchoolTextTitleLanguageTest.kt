@@ -7,14 +7,14 @@ import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.text.intl.LocaleList
 import com.emm.mygame.core.designsystem.MyGameTheme
-import com.emm.mygame.core.network.TextId
+import com.emm.mygame.core.model.learning.TextId
 import com.emm.mygame.core.network.TownSnapshot
-import kotlin.time.Duration
 import org.junit.Assert.assertEquals
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.robolectric.RobolectricTestRunner
+import kotlin.time.Duration
 
 @RunWith(RobolectricTestRunner::class)
 class SchoolTextTitleLanguageTest {

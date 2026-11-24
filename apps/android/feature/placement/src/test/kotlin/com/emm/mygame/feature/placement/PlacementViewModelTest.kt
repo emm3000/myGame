@@ -1,11 +1,11 @@
 package com.emm.mygame.feature.placement
 
 import app.cash.turbine.test
-import com.emm.mygame.core.network.Placement
-import com.emm.mygame.core.network.PlacementAnswer
-import com.emm.mygame.core.network.PlacementBand
-import com.emm.mygame.core.network.PlacementChangeResult
-import com.emm.mygame.core.network.PlacementReadResult
+import com.emm.mygame.core.model.placement.Placement
+import com.emm.mygame.core.model.placement.PlacementAnswer
+import com.emm.mygame.core.model.placement.PlacementBand
+import com.emm.mygame.core.model.placement.PlacementChangeResult
+import com.emm.mygame.core.model.placement.PlacementReadResult
 import com.emm.mygame.core.testing.FakePlacementRepository
 import com.emm.mygame.core.testing.MainDispatcherRule
 import com.emm.mygame.core.testing.PlacementChange

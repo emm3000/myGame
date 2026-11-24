@@ -2,13 +2,13 @@ package com.emm.mygame.feature.placement
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.emm.mygame.core.network.ChoiceId
-import com.emm.mygame.core.network.Placement
-import com.emm.mygame.core.network.PlacementAnswer
-import com.emm.mygame.core.network.PlacementChangeResult
-import com.emm.mygame.core.network.PlacementItem
-import com.emm.mygame.core.network.PlacementReadResult
-import com.emm.mygame.core.network.PlacementRepository
+import com.emm.mygame.core.model.placement.ChoiceId
+import com.emm.mygame.core.model.placement.Placement
+import com.emm.mygame.core.model.placement.PlacementAnswer
+import com.emm.mygame.core.model.placement.PlacementChangeResult
+import com.emm.mygame.core.model.placement.PlacementItem
+import com.emm.mygame.core.model.placement.PlacementReadResult
+import com.emm.mygame.core.model.placement.PlacementRepository
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow

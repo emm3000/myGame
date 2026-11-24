@@ -1,11 +1,11 @@
 package com.emm.mygame.feature.school
 
 import app.cash.turbine.test
-import com.emm.mygame.core.network.HoldoutCheckWeek
-import com.emm.mygame.core.network.LessonId
+import com.emm.mygame.core.model.holdout.HoldoutCheckWeek
+import com.emm.mygame.core.model.learning.LessonId
+import com.emm.mygame.core.model.placement.PlacementBand
 import com.emm.mygame.core.network.NextStep
 import com.emm.mygame.core.network.NextStepCard
-import com.emm.mygame.core.network.PlacementBand
 import com.emm.mygame.core.network.TownLessonRefusal
 import com.emm.mygame.core.network.TownLessonResult
 import com.emm.mygame.core.testing.FakeTownRepository

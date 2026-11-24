@@ -2,17 +2,17 @@ package com.emm.mygame.feature.review
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.emm.mygame.core.network.DueReview
-import com.emm.mygame.core.network.DueReviews
+import com.emm.mygame.core.model.learning.DueReview
+import com.emm.mygame.core.model.learning.DueReviews
+import com.emm.mygame.core.model.learning.LearningRepository
+import com.emm.mygame.core.model.learning.LessonId
+import com.emm.mygame.core.model.learning.RaisedSkill
+import com.emm.mygame.core.model.learning.ReviewAnswerResult
+import com.emm.mygame.core.model.learning.ReviewHint
+import com.emm.mygame.core.model.learning.ReviewHintResult
+import com.emm.mygame.core.model.learning.ReviewVerdict
+import com.emm.mygame.core.model.learning.ReviewsReadResult
 import com.emm.mygame.core.network.HeldTown
-import com.emm.mygame.core.network.LearningRepository
-import com.emm.mygame.core.network.LessonId
-import com.emm.mygame.core.network.RaisedSkill
-import com.emm.mygame.core.network.ReviewAnswerResult
-import com.emm.mygame.core.network.ReviewHint
-import com.emm.mygame.core.network.ReviewHintResult
-import com.emm.mygame.core.network.ReviewVerdict
-import com.emm.mygame.core.network.ReviewsReadResult
 import com.emm.mygame.core.network.TownRepository
 import com.emm.mygame.core.network.TownSnapshot
 import com.emm.mygame.core.network.WordStanding
@@ -20,19 +20,19 @@ import com.emm.mygame.core.network.numberOf
 import com.emm.mygame.core.network.schoolPathCountsOf
 import com.emm.mygame.core.projection.countdownTo
 import com.emm.mygame.core.projection.repaintDelay
-import kotlin.time.Clock
-import kotlin.time.Duration
-import kotlin.math.floor
-import kotlin.time.Instant
 import kotlinx.coroutines.Job
-import kotlinx.coroutines.delay
 import kotlinx.coroutines.channels.Channel
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.launch
+import kotlin.math.floor
+import kotlin.time.Clock
+import kotlin.time.Duration
+import kotlin.time.Instant
 
 class ReviewViewModel(
     private val learning: LearningRepository,

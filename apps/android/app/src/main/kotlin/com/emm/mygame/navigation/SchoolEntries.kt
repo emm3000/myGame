@@ -11,9 +11,9 @@ import com.emm.mygame.Destination
 import com.emm.mygame.FrameKind
 import com.emm.mygame.ScreenFrame
 import com.emm.mygame.SignedInChrome
+import com.emm.mygame.core.model.learning.LessonId
+import com.emm.mygame.core.model.learning.TextId
 import com.emm.mygame.core.network.HeldTown
-import com.emm.mygame.core.network.LessonId
-import com.emm.mygame.core.network.TextId
 import com.emm.mygame.feature.school.HoldoutCheckRow
 import com.emm.mygame.feature.school.HoldoutCheckRowsRoute
 import com.emm.mygame.feature.school.LessonWalk

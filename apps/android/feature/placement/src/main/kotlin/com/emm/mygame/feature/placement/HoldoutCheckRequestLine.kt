@@ -3,7 +3,7 @@ package com.emm.mygame.feature.placement
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import com.emm.mygame.core.designsystem.MyGameInlineAlert
-import com.emm.mygame.core.network.HoldoutCheckRefusal
+import com.emm.mygame.core.model.holdout.HoldoutCheckRefusal
 import com.emm.mygame.core.ui.fixedCopyResource
 
 @Composable

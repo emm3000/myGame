@@ -30,7 +30,6 @@ import androidx.compose.ui.test.performTextInput
 import androidx.compose.ui.test.performTouchInput
 import androidx.compose.ui.test.swipeUp
 import androidx.compose.ui.unit.Dp
-import androidx.compose.ui.unit.DpRect as Rect
 import androidx.compose.ui.unit.dp
 import androidx.navigation3.runtime.NavBackStack
 import androidx.navigation3.runtime.NavKey
@@ -41,34 +40,34 @@ import com.emm.mygame.core.designsystem.MyGameTheme
 import com.emm.mygame.core.model.account.PlayerScaffold
 import com.emm.mygame.core.model.account.RestoreResult
 import com.emm.mygame.core.model.account.SignedInPlayer
+import com.emm.mygame.core.model.holdout.HoldoutCheck
+import com.emm.mygame.core.model.holdout.HoldoutCheckChangeResult
+import com.emm.mygame.core.model.holdout.HoldoutCheckWeek
+import com.emm.mygame.core.model.holdout.HoldoutChecksReadResult
+import com.emm.mygame.core.model.learning.DueReview
+import com.emm.mygame.core.model.learning.DueReviews
+import com.emm.mygame.core.model.learning.FrameSpan
+import com.emm.mygame.core.model.learning.LessonId
+import com.emm.mygame.core.model.learning.ReviewAnswerResult
+import com.emm.mygame.core.model.learning.ReviewVerdict
+import com.emm.mygame.core.model.learning.ReviewsReadResult
+import com.emm.mygame.core.model.learning.WordId
+import com.emm.mygame.core.model.placement.Placement
+import com.emm.mygame.core.model.placement.PlacementBand
+import com.emm.mygame.core.model.placement.PlacementChangeResult
+import com.emm.mygame.core.model.placement.PlacementReadResult
+import com.emm.mygame.core.model.report.ReportCloseResult
+import com.emm.mygame.core.model.report.ReportReadResult
+import com.emm.mygame.core.model.report.TownReport
+import com.emm.mygame.core.model.town.TownResourceKind
+import com.emm.mygame.core.model.town.news.TownNews
 import com.emm.mygame.core.network.CaughtUpReason
-import com.emm.mygame.core.network.DueReview
-import com.emm.mygame.core.network.DueReviews
-import com.emm.mygame.core.network.FrameSpan
-import com.emm.mygame.core.network.HoldoutCheck
-import com.emm.mygame.core.network.HoldoutCheckChangeResult
-import com.emm.mygame.core.network.HoldoutCheckWeek
-import com.emm.mygame.core.network.HoldoutChecksReadResult
-import com.emm.mygame.core.network.LessonId
 import com.emm.mygame.core.network.NextStep
-import com.emm.mygame.core.network.Placement
-import com.emm.mygame.core.network.PlacementBand
-import com.emm.mygame.core.network.PlacementChangeResult
-import com.emm.mygame.core.network.PlacementReadResult
-import com.emm.mygame.core.network.ReportCloseResult
-import com.emm.mygame.core.network.ReportReadResult
 import com.emm.mygame.core.network.RetainedWords
-import com.emm.mygame.core.network.ReviewAnswerResult
-import com.emm.mygame.core.network.ReviewVerdict
-import com.emm.mygame.core.network.ReviewsReadResult
 import com.emm.mygame.core.network.TownLessonRefusal
 import com.emm.mygame.core.network.TownLessonResult
-import com.emm.mygame.core.network.TownNews
 import com.emm.mygame.core.network.TownReadResult
-import com.emm.mygame.core.network.TownReport
-import com.emm.mygame.core.network.TownResourceKind
 import com.emm.mygame.core.network.TownSnapshot
-import com.emm.mygame.core.network.WordId
 import com.emm.mygame.core.testing.FakeHoldoutCheckRepository
 import com.emm.mygame.core.testing.FakeLearningRepository
 import com.emm.mygame.core.testing.FakePlacementRepository
@@ -79,10 +78,6 @@ import com.emm.mygame.core.testing.lessonsDone
 import com.emm.mygame.core.testing.townOf
 import com.emm.mygame.feature.town.TOWN_DOCK
 import com.emm.mygame.navigation.AppNavigation
-import kotlin.time.Clock
-import kotlin.time.Duration.Companion.hours
-import kotlin.time.Duration.Companion.minutes
-import kotlin.time.Instant
 import kotlinx.coroutines.flow.emptyFlow
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertTrue
@@ -93,6 +88,11 @@ import org.junit.runner.RunWith
 import org.robolectric.RobolectricTestRunner
 import org.robolectric.annotation.Config
 import org.robolectric.annotation.GraphicsMode
+import androidx.compose.ui.unit.DpRect as Rect
+import kotlin.time.Clock
+import kotlin.time.Duration.Companion.hours
+import kotlin.time.Duration.Companion.minutes
+import kotlin.time.Instant
 
 @RunWith(RobolectricTestRunner::class)
 class DockFrameNavigationTest {

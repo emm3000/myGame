@@ -1,5 +1,7 @@
 package com.emm.mygame.core.network
 
+import com.emm.mygame.core.model.town.hiring.TownHireKind
+
 sealed interface TownJobRefusal {
 
     data object InvalidTeam : TownJobRefusal

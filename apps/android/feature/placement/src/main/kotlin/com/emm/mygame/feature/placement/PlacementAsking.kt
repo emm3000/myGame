@@ -17,9 +17,9 @@ import com.emm.mygame.core.designsystem.MyGameTheme
 import com.emm.mygame.core.designsystem.MyGameTypography
 import com.emm.mygame.core.designsystem.blockHueOf
 import com.emm.mygame.core.designsystem.wordStyle
-import com.emm.mygame.core.network.PlacementChoice
-import com.emm.mygame.core.network.PlacementItem
-import com.emm.mygame.core.network.PlacementScore
+import com.emm.mygame.core.model.placement.PlacementChoice
+import com.emm.mygame.core.model.placement.PlacementItem
+import com.emm.mygame.core.model.placement.PlacementScore
 import com.emm.mygame.core.ui.fixedCopyResource
 
 @Composable

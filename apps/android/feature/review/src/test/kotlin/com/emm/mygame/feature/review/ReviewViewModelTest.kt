@@ -1,28 +1,28 @@
 package com.emm.mygame.feature.review
 
 import app.cash.turbine.test
-import com.emm.mygame.core.network.ChoiceId
-import com.emm.mygame.core.network.RaisedSkill
-import com.emm.mygame.core.network.ReviewAnswerResult
-import com.emm.mygame.core.network.ReviewHint
-import com.emm.mygame.core.network.ReviewHintWord
-import com.emm.mygame.core.network.ReviewHintResult
-import com.emm.mygame.core.network.ReviewRefusal
-import com.emm.mygame.core.network.ReviewVerdict
-import com.emm.mygame.core.network.ReviewsReadResult
-import com.emm.mygame.core.network.TownResourceKind
-import com.emm.mygame.core.network.WordId
+import com.emm.mygame.core.model.learning.RaisedSkill
+import com.emm.mygame.core.model.learning.ReviewAnswerResult
+import com.emm.mygame.core.model.learning.ReviewHint
+import com.emm.mygame.core.model.learning.ReviewHintResult
+import com.emm.mygame.core.model.learning.ReviewHintWord
+import com.emm.mygame.core.model.learning.ReviewRefusal
+import com.emm.mygame.core.model.learning.ReviewVerdict
+import com.emm.mygame.core.model.learning.ReviewsReadResult
+import com.emm.mygame.core.model.learning.WordId
+import com.emm.mygame.core.model.placement.ChoiceId
+import com.emm.mygame.core.model.town.TownResourceKind
 import com.emm.mygame.core.testing.FakeLearningRepository
 import com.emm.mygame.core.testing.MainDispatcherRule
-import kotlin.time.Duration.Companion.minutes
-import kotlin.time.Duration.Companion.seconds
-import kotlin.time.Instant
 import kotlinx.coroutines.test.advanceTimeBy
 import kotlinx.coroutines.test.runCurrent
 import kotlinx.coroutines.test.runTest
 import org.junit.Assert.assertEquals
 import org.junit.Rule
 import org.junit.Test
+import kotlin.time.Duration.Companion.minutes
+import kotlin.time.Duration.Companion.seconds
+import kotlin.time.Instant
 
 class ReviewViewModelTest {
 

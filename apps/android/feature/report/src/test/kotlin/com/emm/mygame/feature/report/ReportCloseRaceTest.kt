@@ -2,10 +2,10 @@ package com.emm.mygame.feature.report
 
 import androidx.lifecycle.viewModelScope
 import com.emm.mygame.core.model.reminder.StudyReminderChoice
-import com.emm.mygame.core.network.ReportCloseResult
-import com.emm.mygame.core.network.ReportReadResult
-import com.emm.mygame.core.network.ReportRepository
-import com.emm.mygame.core.network.TownNewsReadResult
+import com.emm.mygame.core.model.report.ReportCloseResult
+import com.emm.mygame.core.model.report.ReportReadResult
+import com.emm.mygame.core.model.report.ReportRepository
+import com.emm.mygame.core.model.town.news.TownNewsReadResult
 import com.emm.mygame.core.testing.FakeSessionRepository
 import com.emm.mygame.core.testing.FakeStudyReminderSettings
 import com.emm.mygame.core.testing.FakeTownRepository

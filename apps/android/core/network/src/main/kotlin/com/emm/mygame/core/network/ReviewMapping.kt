@@ -1,5 +1,14 @@
 package com.emm.mygame.core.network
 
+import com.emm.mygame.core.model.learning.DueReview
+import com.emm.mygame.core.model.learning.DueReviews
+import com.emm.mygame.core.model.learning.LessonId
+import com.emm.mygame.core.model.learning.RaisedSkill
+import com.emm.mygame.core.model.learning.ReviewChoice
+import com.emm.mygame.core.model.learning.ReviewVerdict
+import com.emm.mygame.core.model.learning.WordId
+import com.emm.mygame.core.model.placement.ChoiceId
+import com.emm.mygame.core.model.town.TownResourceKind
 import com.emm.mygame.core.network.generated.models.CorrectVerdict
 import com.emm.mygame.core.network.generated.models.CorrectVerdictEarnedSkill
 import com.emm.mygame.core.network.generated.models.RecallReview

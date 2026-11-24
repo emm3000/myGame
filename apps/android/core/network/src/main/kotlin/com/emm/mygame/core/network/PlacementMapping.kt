@@ -1,5 +1,13 @@
 package com.emm.mygame.core.network
 
+import com.emm.mygame.core.model.learning.WordId
+import com.emm.mygame.core.model.placement.ChoiceId
+import com.emm.mygame.core.model.placement.Placement
+import com.emm.mygame.core.model.placement.PlacementAnswer
+import com.emm.mygame.core.model.placement.PlacementBand
+import com.emm.mygame.core.model.placement.PlacementChoice
+import com.emm.mygame.core.model.placement.PlacementItem
+import com.emm.mygame.core.model.placement.PlacementScore
 import com.emm.mygame.core.network.generated.models.PlacementAnswersAnswersInner
 import com.emm.mygame.core.network.generated.models.RecognitionReviewChoicesInner
 import com.emm.mygame.core.network.generated.models.AskingPlacement as WireAskingPlacement

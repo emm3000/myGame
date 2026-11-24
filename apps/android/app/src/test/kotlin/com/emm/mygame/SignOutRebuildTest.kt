@@ -9,11 +9,10 @@ import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
 import androidx.compose.ui.test.performScrollTo
 import com.emm.mygame.core.model.account.RestoreResult
-import com.emm.mygame.core.network.ReportReadResult
-import com.emm.mygame.core.network.TownReport
+import com.emm.mygame.core.model.report.ReportReadResult
+import com.emm.mygame.core.model.report.TownReport
 import com.emm.mygame.core.testing.FakeReportRepository
 import com.emm.mygame.core.testing.FakeSessionRepository
-import kotlin.time.Instant
 import org.junit.After
 import org.junit.Rule
 import org.junit.Test
@@ -21,6 +20,7 @@ import org.junit.runner.RunWith
 import org.robolectric.Robolectric
 import org.robolectric.RobolectricTestRunner
 import org.robolectric.android.controller.ActivityController
+import kotlin.time.Instant
 
 @RunWith(RobolectricTestRunner::class)
 class SignOutRebuildTest {

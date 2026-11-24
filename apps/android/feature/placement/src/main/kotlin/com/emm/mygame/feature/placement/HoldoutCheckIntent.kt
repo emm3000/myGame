@@ -1,6 +1,6 @@
 package com.emm.mygame.feature.placement
 
-import com.emm.mygame.core.network.ChoiceId
+import com.emm.mygame.core.model.placement.ChoiceId
 
 sealed interface HoldoutCheckIntent {
 

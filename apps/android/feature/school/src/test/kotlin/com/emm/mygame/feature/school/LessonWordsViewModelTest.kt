@@ -1,18 +1,16 @@
 package com.emm.mygame.feature.school
 
 import app.cash.turbine.test
-import com.emm.mygame.core.network.LessonId
+import com.emm.mygame.core.model.learning.LessonId
+import com.emm.mygame.core.model.learning.ReviewsReadResult
+import com.emm.mygame.core.model.placement.PlacementBand
 import com.emm.mygame.core.network.LessonName
 import com.emm.mygame.core.network.NextStep
-import com.emm.mygame.core.network.PlacementBand
-import com.emm.mygame.core.network.ReviewsReadResult
 import com.emm.mygame.core.network.TownReadResult
 import com.emm.mygame.core.network.TownSnapshot
 import com.emm.mygame.core.testing.FakeLearningRepository
 import com.emm.mygame.core.testing.FakeTownRepository
 import com.emm.mygame.core.testing.MainDispatcherRule
-import kotlin.time.Duration.Companion.minutes
-import kotlin.time.Duration.Companion.seconds
 import kotlinx.coroutines.test.TestScope
 import kotlinx.coroutines.test.advanceTimeBy
 import kotlinx.coroutines.test.runCurrent
@@ -23,6 +21,8 @@ import org.junit.Assert.assertNull
 import org.junit.Assert.assertTrue
 import org.junit.Rule
 import org.junit.Test
+import kotlin.time.Duration.Companion.minutes
+import kotlin.time.Duration.Companion.seconds
 
 class LessonWordsViewModelTest {
 

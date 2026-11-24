@@ -1,7 +1,7 @@
 package com.emm.mygame.feature.town
 
 import androidx.compose.runtime.Composable
-import com.emm.mygame.core.network.TextId
+import com.emm.mygame.core.model.learning.TextId
 
 internal class TownPageSlots(
     val ring: @Composable () -> Unit,

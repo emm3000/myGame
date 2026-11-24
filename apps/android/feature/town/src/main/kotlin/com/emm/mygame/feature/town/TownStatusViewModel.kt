@@ -2,8 +2,8 @@ package com.emm.mygame.feature.town
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.emm.mygame.core.model.learning.LessonId
 import com.emm.mygame.core.network.HeldTown
-import com.emm.mygame.core.network.LessonId
 import com.emm.mygame.core.network.NextStep
 import com.emm.mygame.core.network.TownLessonResult
 import com.emm.mygame.core.network.TownReadResult
@@ -13,15 +13,15 @@ import com.emm.mygame.core.network.nameOf
 import com.emm.mygame.core.network.registeredBetween
 import com.emm.mygame.core.projection.countdownTo
 import com.emm.mygame.core.projection.repaintDelay
-import kotlin.time.Clock
-import kotlin.time.Duration
-import kotlin.time.Instant
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
+import kotlin.time.Clock
+import kotlin.time.Duration
+import kotlin.time.Instant
 
 class TownStatusViewModel(private val towns: TownRepository, private val clock: Clock) : ViewModel() {
 

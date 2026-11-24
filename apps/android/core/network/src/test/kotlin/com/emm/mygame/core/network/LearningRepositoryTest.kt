@@ -1,8 +1,24 @@
 package com.emm.mygame.core.network
 
+import com.emm.mygame.core.model.learning.DueReview
+import com.emm.mygame.core.model.learning.DueReviews
+import com.emm.mygame.core.model.learning.FrameSpan
+import com.emm.mygame.core.model.learning.LearningRepository
+import com.emm.mygame.core.model.learning.LessonId
+import com.emm.mygame.core.model.learning.RaisedSkill
+import com.emm.mygame.core.model.learning.ReviewAnswerResult
+import com.emm.mygame.core.model.learning.ReviewChoice
+import com.emm.mygame.core.model.learning.ReviewHint
+import com.emm.mygame.core.model.learning.ReviewHintResult
+import com.emm.mygame.core.model.learning.ReviewHintWord
+import com.emm.mygame.core.model.learning.ReviewRefusal
+import com.emm.mygame.core.model.learning.ReviewVerdict
+import com.emm.mygame.core.model.learning.ReviewsReadResult
+import com.emm.mygame.core.model.learning.WordId
+import com.emm.mygame.core.model.learning.WordSupport
+import com.emm.mygame.core.model.placement.ChoiceId
+import com.emm.mygame.core.model.town.TownResourceKind
 import com.emm.mygame.core.testing.FakeTokenCipher
-import java.io.File
-import kotlin.time.Instant
 import kotlinx.coroutines.test.TestScope
 import kotlinx.coroutines.test.runTest
 import mockwebserver3.MockResponse
@@ -14,6 +30,8 @@ import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
 import org.junit.rules.TemporaryFolder
+import java.io.File
+import kotlin.time.Instant
 
 class LearningRepositoryTest {
 

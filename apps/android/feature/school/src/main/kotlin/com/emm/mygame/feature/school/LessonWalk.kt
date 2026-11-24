@@ -1,6 +1,6 @@
 package com.emm.mygame.feature.school
 
-import com.emm.mygame.core.network.LessonId
+import com.emm.mygame.core.model.learning.LessonId
 
 data class LessonWalk(val lesson: LessonId, val walked: List<LessonId>) {
 

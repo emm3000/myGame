@@ -2,13 +2,13 @@ package com.emm.mygame.feature.report
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.emm.mygame.core.network.ReportRepository
-import com.emm.mygame.core.network.TownNewsReadResult
-import kotlin.time.Clock
+import com.emm.mygame.core.model.report.ReportRepository
+import com.emm.mygame.core.model.town.news.TownNewsReadResult
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
+import kotlin.time.Clock
 
 class NewsViewModel(
     private val reports: ReportRepository,

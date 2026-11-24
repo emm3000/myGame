@@ -2,22 +2,22 @@ package com.emm.mygame.feature.report
 
 import androidx.lifecycle.viewModelScope
 import com.emm.mygame.core.model.reminder.StudyReminderChoice
-import com.emm.mygame.core.network.ReportReadResult
-import com.emm.mygame.core.network.TownBuildingKind
-import com.emm.mygame.core.network.TownNews
-import com.emm.mygame.core.network.TownReport
+import com.emm.mygame.core.model.report.ReportReadResult
+import com.emm.mygame.core.model.report.TownReport
+import com.emm.mygame.core.model.town.building.TownBuildingKind
+import com.emm.mygame.core.model.town.news.TownNews
 import com.emm.mygame.core.testing.FakeReportRepository
 import com.emm.mygame.core.testing.FakeSessionRepository
 import com.emm.mygame.core.testing.FakeStudyReminderSettings
 import com.emm.mygame.core.testing.FakeTownRepository
 import com.emm.mygame.core.testing.TestClock
-import kotlin.time.Instant
 import kotlinx.coroutines.CoroutineStart
 import kotlinx.coroutines.awaitCancellation
 import kotlinx.coroutines.cancel
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.test.TestScope
 import kotlinx.coroutines.test.runCurrent
+import kotlin.time.Instant
 
 internal val readInstant: Instant = Instant.parse("2026-11-05T09:10:00Z")
 

@@ -7,6 +7,7 @@ android {
 }
 
 dependencies {
+    implementation(project(":core:model"))
     implementation(project(":core:network"))
     implementation(project(":core:projection"))
     implementation(project(":core:designsystem"))

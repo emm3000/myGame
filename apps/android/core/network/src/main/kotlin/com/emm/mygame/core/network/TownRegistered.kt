@@ -1,5 +1,8 @@
 package com.emm.mygame.core.network
 
+import com.emm.mygame.core.model.learning.LessonId
+import com.emm.mygame.core.model.town.building.TownBuildingKind
+
 data class TownRegistered(
     val raisedPlaces: List<RaisedPlace>,
     val ringRise: RingRise?,

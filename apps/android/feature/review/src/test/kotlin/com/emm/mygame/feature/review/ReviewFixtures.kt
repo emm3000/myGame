@@ -4,32 +4,32 @@ import androidx.compose.ui.semantics.SemanticsProperties
 import androidx.compose.ui.test.SemanticsMatcher
 import androidx.lifecycle.viewModelScope
 import app.cash.turbine.ReceiveTurbine
+import com.emm.mygame.core.model.learning.DueReview
+import com.emm.mygame.core.model.learning.DueReviews
+import com.emm.mygame.core.model.learning.FrameSpan
+import com.emm.mygame.core.model.learning.LessonId
+import com.emm.mygame.core.model.learning.ReviewChoice
+import com.emm.mygame.core.model.learning.ReviewsReadResult
+import com.emm.mygame.core.model.learning.WordId
+import com.emm.mygame.core.model.placement.ChoiceId
+import com.emm.mygame.core.model.town.TownResourceKind
 import com.emm.mygame.core.network.CaughtUpReason
-import com.emm.mygame.core.network.ChoiceId
-import com.emm.mygame.core.network.DueReview
-import com.emm.mygame.core.network.DueReviews
-import com.emm.mygame.core.network.FrameSpan
-import com.emm.mygame.core.network.LessonId
 import com.emm.mygame.core.network.NextStep
-import com.emm.mygame.core.network.ReviewChoice
-import com.emm.mygame.core.network.ReviewsReadResult
 import com.emm.mygame.core.network.TownLabel
 import com.emm.mygame.core.network.TownReadResult
-import com.emm.mygame.core.network.TownResourceKind
 import com.emm.mygame.core.network.TownSnapshot
-import com.emm.mygame.core.network.WordId
 import com.emm.mygame.core.network.WordStanding
 import com.emm.mygame.core.testing.FakeLearningRepository
 import com.emm.mygame.core.testing.FakeTownRepository
 import com.emm.mygame.core.testing.TestClock
 import com.emm.mygame.core.testing.hiringOf
-import kotlin.time.Duration.Companion.minutes
-import kotlin.time.Instant
 import kotlinx.coroutines.CoroutineStart
 import kotlinx.coroutines.awaitCancellation
 import kotlinx.coroutines.cancel
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.test.TestScope
+import kotlin.time.Duration.Companion.minutes
+import kotlin.time.Instant
 
 internal val isPlaced: SemanticsMatcher = SemanticsMatcher("is placed") { node -> node.layoutInfo.isPlaced }
 

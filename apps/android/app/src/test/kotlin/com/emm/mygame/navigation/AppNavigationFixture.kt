@@ -25,18 +25,18 @@ import com.emm.mygame.core.designsystem.MyGameTheme
 import com.emm.mygame.core.model.account.PlayerScaffold
 import com.emm.mygame.core.model.account.RestoreResult
 import com.emm.mygame.core.model.account.SignedInPlayer
-import com.emm.mygame.core.network.DueReviews
-import com.emm.mygame.core.network.FrameSpan
-import com.emm.mygame.core.network.LessonId
+import com.emm.mygame.core.model.learning.DueReviews
+import com.emm.mygame.core.model.learning.FrameSpan
+import com.emm.mygame.core.model.learning.LessonId
+import com.emm.mygame.core.model.learning.ReviewsReadResult
+import com.emm.mygame.core.model.learning.WordSupport
+import com.emm.mygame.core.model.report.ReportReadResult
+import com.emm.mygame.core.model.report.TownReport
+import com.emm.mygame.core.model.town.TownResourceKind
 import com.emm.mygame.core.network.NextStep
-import com.emm.mygame.core.network.ReportReadResult
 import com.emm.mygame.core.network.RetainedWords
-import com.emm.mygame.core.network.ReviewsReadResult
 import com.emm.mygame.core.network.TownReadResult
-import com.emm.mygame.core.network.TownReport
-import com.emm.mygame.core.network.TownResourceKind
 import com.emm.mygame.core.network.TownSnapshot
-import com.emm.mygame.core.network.WordSupport
 import com.emm.mygame.core.testing.FakeLearningRepository
 import com.emm.mygame.core.testing.FakePlacementRepository
 import com.emm.mygame.core.testing.FakeReportRepository
@@ -47,16 +47,16 @@ import com.emm.mygame.core.testing.townOf
 import com.emm.mygame.dependenciesOf
 import com.emm.mygame.feature.town.TOWN_DOCK
 import com.emm.mygame.feature.town.TOWN_STATUS
+import kotlinx.coroutines.flow.emptyFlow
+import kotlinx.coroutines.runBlocking
+import org.junit.Rule
+import org.robolectric.shadows.ShadowLooper
 import java.util.concurrent.TimeUnit
 import kotlin.time.Clock
 import kotlin.time.Duration
 import kotlin.time.Duration.Companion.minutes
 import kotlin.time.Duration.Companion.seconds
 import kotlin.time.Instant
-import kotlinx.coroutines.flow.emptyFlow
-import kotlinx.coroutines.runBlocking
-import org.junit.Rule
-import org.robolectric.shadows.ShadowLooper
 
 internal const val TOWN_HEADER: String = "Riverton · Pueblo"
 internal const val LESSON_ONE_READY: String = "Lección 1 lista en"

@@ -1,8 +1,8 @@
 package com.emm.mygame.feature.school
 
-import com.emm.mygame.core.network.FrameSpan
+import com.emm.mygame.core.model.learning.FrameSpan
+import com.emm.mygame.core.model.learning.WordSupport
 import com.emm.mygame.core.network.TownSnapshot
-import com.emm.mygame.core.network.WordSupport
 
 internal val aguaOnTap: WordSupport =
     WordSupport(shown = WordSupport.Shown.OnTap, text = "agua", language = WordSupport.Language.Spanish)

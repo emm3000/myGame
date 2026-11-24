@@ -2,15 +2,15 @@ package com.emm.mygame.feature.placement
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.emm.mygame.core.network.ChoiceId
-import com.emm.mygame.core.network.HoldoutCheck
-import com.emm.mygame.core.network.HoldoutCheckChangeResult
-import com.emm.mygame.core.network.HoldoutCheckRepository
-import com.emm.mygame.core.network.HoldoutCheckWeek
-import com.emm.mygame.core.network.HoldoutChecksReadResult
-import com.emm.mygame.core.network.PlacementAnswer
-import com.emm.mygame.core.network.PlacementBand
-import com.emm.mygame.core.network.PlacementItem
+import com.emm.mygame.core.model.holdout.HoldoutCheck
+import com.emm.mygame.core.model.holdout.HoldoutCheckChangeResult
+import com.emm.mygame.core.model.holdout.HoldoutCheckRepository
+import com.emm.mygame.core.model.holdout.HoldoutCheckWeek
+import com.emm.mygame.core.model.holdout.HoldoutChecksReadResult
+import com.emm.mygame.core.model.placement.ChoiceId
+import com.emm.mygame.core.model.placement.PlacementAnswer
+import com.emm.mygame.core.model.placement.PlacementBand
+import com.emm.mygame.core.model.placement.PlacementItem
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow

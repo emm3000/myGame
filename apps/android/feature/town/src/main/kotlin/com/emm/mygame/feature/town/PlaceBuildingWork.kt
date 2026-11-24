@@ -20,7 +20,7 @@ import com.emm.mygame.core.designsystem.MyGameTheme
 import com.emm.mygame.core.designsystem.MyGameTrack
 import com.emm.mygame.core.designsystem.MyGameTypography
 import com.emm.mygame.core.designsystem.withTabularFigures
-import com.emm.mygame.core.network.TownBuildingKind
+import com.emm.mygame.core.model.town.building.TownBuildingKind
 import com.emm.mygame.core.ui.PlayerCopy
 import com.emm.mygame.core.ui.chromeResource
 import com.emm.mygame.core.ui.finishLabelOf

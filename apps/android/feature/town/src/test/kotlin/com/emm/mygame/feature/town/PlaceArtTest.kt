@@ -13,7 +13,7 @@ import com.emm.mygame.core.designsystem.MyGameArtTint
 import com.emm.mygame.core.designsystem.MyGamePlaceArt
 import com.emm.mygame.core.designsystem.MyGameSizes
 import com.emm.mygame.core.designsystem.MyGameTheme
-import com.emm.mygame.core.network.TownBuildingKind
+import com.emm.mygame.core.model.town.building.TownBuildingKind
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertTrue
 import org.junit.Rule

@@ -31,10 +31,10 @@ import com.emm.mygame.core.designsystem.MyGameColors
 import com.emm.mygame.core.designsystem.MyGameSizes
 import com.emm.mygame.core.designsystem.MyGameTheme
 import com.emm.mygame.core.designsystem.OUTLINED_PILL
-import com.emm.mygame.core.network.ReviewHint
-import com.emm.mygame.core.network.ReviewHintWord
-import com.emm.mygame.core.network.ReviewRefusal
-import com.emm.mygame.core.network.TownResourceKind
+import com.emm.mygame.core.model.learning.ReviewHint
+import com.emm.mygame.core.model.learning.ReviewHintWord
+import com.emm.mygame.core.model.learning.ReviewRefusal
+import com.emm.mygame.core.model.town.TownResourceKind
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertTrue
 import org.junit.Rule

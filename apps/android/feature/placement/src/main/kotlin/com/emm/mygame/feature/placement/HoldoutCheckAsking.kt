@@ -10,8 +10,8 @@ import com.emm.mygame.core.designsystem.MyGameSpacing
 import com.emm.mygame.core.designsystem.MyGameText
 import com.emm.mygame.core.designsystem.MyGameTheme
 import com.emm.mygame.core.designsystem.MyGameTypography
-import com.emm.mygame.core.network.PlacementChoice
-import com.emm.mygame.core.network.PlacementItem
+import com.emm.mygame.core.model.placement.PlacementChoice
+import com.emm.mygame.core.model.placement.PlacementItem
 import com.emm.mygame.core.ui.fixedCopyResource
 
 @Composable

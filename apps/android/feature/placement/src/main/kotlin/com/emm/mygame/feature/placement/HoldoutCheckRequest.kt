@@ -1,6 +1,6 @@
 package com.emm.mygame.feature.placement
 
-import com.emm.mygame.core.network.HoldoutCheckRefusal
+import com.emm.mygame.core.model.holdout.HoldoutCheckRefusal
 
 sealed interface HoldoutCheckRequest {
 

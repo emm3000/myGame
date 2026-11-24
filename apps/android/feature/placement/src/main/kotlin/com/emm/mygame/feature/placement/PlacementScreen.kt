@@ -24,17 +24,17 @@ import com.emm.mygame.core.designsystem.MyGameText
 import com.emm.mygame.core.designsystem.MyGameTheme
 import com.emm.mygame.core.designsystem.MyGameTypography
 import com.emm.mygame.core.designsystem.PreviewMyGame
-import com.emm.mygame.core.network.ChoiceId
-import com.emm.mygame.core.network.PlacementBand
-import com.emm.mygame.core.network.PlacementChoice
-import com.emm.mygame.core.network.PlacementItem
-import com.emm.mygame.core.network.PlacementScore
-import com.emm.mygame.core.network.WordId
+import com.emm.mygame.core.model.learning.WordId
+import com.emm.mygame.core.model.placement.ChoiceId
+import com.emm.mygame.core.model.placement.PlacementBand
+import com.emm.mygame.core.model.placement.PlacementChoice
+import com.emm.mygame.core.model.placement.PlacementItem
+import com.emm.mygame.core.model.placement.PlacementScore
 import com.emm.mygame.core.ui.ChromePhase
 import com.emm.mygame.core.ui.CopyLanguage
+import com.emm.mygame.core.ui.FoldedTaskEnd
 import com.emm.mygame.core.ui.ProvideCopyLanguage
 import com.emm.mygame.core.ui.ScaffoldLanguage
-import com.emm.mygame.core.ui.FoldedTaskEnd
 import com.emm.mygame.core.ui.TaskDockHook
 import com.emm.mygame.core.ui.fixedCopyResource
 

@@ -1,9 +1,9 @@
 package com.emm.mygame.feature.map
 
+import com.emm.mygame.core.model.town.hiring.TownHireKind
 import com.emm.mygame.core.network.JobTarget
 import com.emm.mygame.core.network.RegionMap
 import com.emm.mygame.core.network.RegionRepository
-import com.emm.mygame.core.network.TownHireKind
 import com.emm.mygame.core.network.TownJobResult
 
 internal sealed interface SiteSend {

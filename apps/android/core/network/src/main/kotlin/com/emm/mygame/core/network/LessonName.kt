@@ -1,5 +1,8 @@
 package com.emm.mygame.core.network
 
+import com.emm.mygame.core.model.learning.LessonId
+import com.emm.mygame.core.model.placement.PlacementBand
+
 sealed interface LessonName {
 
     data class Shelved(val number: Int) : LessonName
