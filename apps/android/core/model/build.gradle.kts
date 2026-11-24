@@ -5,5 +5,5 @@ plugins {
 
 dependencies {
     implementation(libs.kotlinx.serialization.core)
-    implementation(libs.kotlinx.coroutines.core)
+    api(libs.kotlinx.coroutines.core)
 }
