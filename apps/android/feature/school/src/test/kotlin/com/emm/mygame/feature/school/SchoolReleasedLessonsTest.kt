@@ -322,7 +322,7 @@ class SchoolReleasedLessonsTest {
     private fun contentOf(town: TownSnapshot): SchoolUiState.Content = town.contentAt(
         now = readInstant + 30.seconds,
         gap = Duration.ZERO,
-        mutations = SchoolMutations.none,
+        requests = SchoolRequests.none,
         selected = null,
     )
 

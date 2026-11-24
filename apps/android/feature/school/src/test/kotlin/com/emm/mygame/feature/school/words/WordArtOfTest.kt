@@ -16,7 +16,7 @@ private const val ANDROID_NAMESPACE: String = "http://schemas.android.com/apk/re
 private const val ON_BLOCK: Int = 0xFF15141A.toInt()
 
 @RunWith(RobolectricTestRunner::class)
-class WordArtTest {
+class WordArtOfTest {
 
     @Test
     fun `draws a word's silhouette in on-block with no windows`() {

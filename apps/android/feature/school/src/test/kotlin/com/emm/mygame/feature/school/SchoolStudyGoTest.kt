@@ -49,7 +49,7 @@ class SchoolStudyGoTest {
         val older: SchoolUiState = townOf(lessons = listOf(lessonOf())).contentAt(
             now = readInstant,
             gap = Duration.ZERO,
-            mutations = SchoolMutations.none,
+            requests = SchoolRequests.none,
             selected = null,
         )
 

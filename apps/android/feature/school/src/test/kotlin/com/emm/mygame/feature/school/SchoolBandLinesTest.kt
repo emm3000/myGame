@@ -24,7 +24,7 @@ class SchoolBandLinesTest {
 
     private fun show(town: TownSnapshot) {
         val content: SchoolUiState.Content =
-            town.contentAt(readInstant, Duration.ZERO, SchoolMutations.none, selected = null)
+            town.contentAt(readInstant, Duration.ZERO, SchoolRequests.none, selected = null)
         composeRule.setContent {
             MyGameTheme {
                 SchoolScreen(state = content, onIntent = {}, onLessonOpen = {}, onTextOpen = {})

@@ -58,7 +58,7 @@ class SchoolTextsTest {
     }
 
     private fun showSchoolOf(town: TownSnapshot) {
-        val state: SchoolUiState = town.contentAt(readInstant, Duration.ZERO, SchoolMutations.none, selected = null)
+        val state: SchoolUiState = town.contentAt(readInstant, Duration.ZERO, SchoolRequests.none, selected = null)
         composeRule.setContent {
             MyGameTheme {
                 SchoolScreen(

@@ -143,7 +143,7 @@ private fun ReleasedStudyAction(
             accessibleName = copy.lessonLineOf(card.name) { title: String -> "$title · ${studyLine()}" }.spoken,
         )
         reason?.let { line: MyGameLabel -> BlockLine(line = line) }
-        StartAnswer(lesson = card.lesson, start = start, opening = opening)
+        LessonStartAnswer(lesson = card.lesson, start = start, opening = opening)
     }
 }
 
