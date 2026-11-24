@@ -140,7 +140,7 @@ describe('typeScriptOf', () => {
   })
 
   it('leaves the android keys out', () => {
-    const androidOnly = { 'android.signin.sign_in_title': 'Entra en tu feudo' }
+    const androidOnly = { 'android.account.sign_in_title': 'Entra en tu feudo' }
 
     expect(typeScriptOf(androidOnly, 'es')).not.toContain('Entra en tu feudo')
   })

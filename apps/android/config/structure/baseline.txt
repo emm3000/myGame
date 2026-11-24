@@ -18,7 +18,7 @@ duplicate-name feature/school/src/main/kotlin/com/emm/mygame/feature/school/Fram
 duplicate-name feature/school/src/main/kotlin/com/emm/mygame/feature/school/SeasonLabels.kt
 duplicate-name feature/school/src/test/kotlin/com/emm/mygame/feature/school/NavRowMatcher.kt
 duplicate-name feature/school/src/test/kotlin/com/emm/mygame/feature/school/TextStyleLookup.kt
-duplicate-name feature/signin/src/test/kotlin/com/emm/mygame/feature/signin/TextStyleLookup.kt
+duplicate-name feature/account/src/test/kotlin/com/emm/mygame/feature/account/TextStyleLookup.kt
 duplicate-name feature/town/src/test/kotlin/com/emm/mygame/feature/town/NavRowMatcher.kt
 file-lines core/designsystem/src/main/kotlin/com/emm/mygame/core/designsystem/MyGameDock.kt
 file-lines core/designsystem/src/main/kotlin/com/emm/mygame/core/designsystem/MyGameFrameText.kt
@@ -64,8 +64,8 @@ file-name feature/school/src/main/kotlin/com/emm/mygame/feature/school/SchoolCon
 file-name feature/school/src/main/kotlin/com/emm/mygame/feature/school/SchoolLabels.kt
 file-name feature/school/src/main/kotlin/com/emm/mygame/feature/school/SeasonLabels.kt
 file-name feature/school/src/main/kotlin/com/emm/mygame/feature/school/WordArt.kt
-file-name feature/signin/src/main/kotlin/com/emm/mygame/feature/signin/PhoneScaffold.kt
-file-name feature/signin/src/main/kotlin/com/emm/mygame/feature/signin/ReminderTimeSteps.kt
+file-name feature/account/src/main/kotlin/com/emm/mygame/feature/account/PhoneScaffold.kt
+file-name feature/account/src/main/kotlin/com/emm/mygame/feature/account/ReminderTimeSteps.kt
 file-name feature/town/src/main/kotlin/com/emm/mygame/feature/town/GoalLines.kt
 file-name feature/town/src/main/kotlin/com/emm/mygame/feature/town/LessonRefusalLine.kt
 file-name feature/town/src/main/kotlin/com/emm/mygame/feature/town/OfficeContent.kt
@@ -78,7 +78,7 @@ file-name feature/town/src/main/kotlin/com/emm/mygame/feature/town/TownStatusDoc
 file-name feature/town/src/main/kotlin/com/emm/mygame/feature/town/TownStreet.kt
 package-files core/designsystem/src/main/kotlin/com/emm/mygame/core/designsystem
 package-files feature/school/src/main/kotlin/com/emm/mygame/feature/school
-package-files feature/signin/src/main/kotlin/com/emm/mygame/feature/signin
+package-files feature/account/src/main/kotlin/com/emm/mygame/feature/account
 package-files feature/town/src/main/kotlin/com/emm/mygame/feature/town
 private-vars feature/map/src/main/kotlin/com/emm/mygame/feature/map/MapViewModel.kt
 private-vars feature/review/src/main/kotlin/com/emm/mygame/feature/review/ReviewViewModel.kt

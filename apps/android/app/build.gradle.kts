@@ -94,7 +94,7 @@ dependencies {
     implementation(project(":feature:report"))
     implementation(project(":feature:review"))
     implementation(project(":feature:school"))
-    implementation(project(":feature:signin"))
+    implementation(project(":feature:account"))
     implementation(project(":feature:town"))
 
     implementation(libs.androidx.activity.compose)

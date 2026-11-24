@@ -1,0 +1,34 @@
+package com.emm.mygame.feature.account
+
+import com.emm.mygame.core.model.account.RefusalKind
+
+sealed interface SignInUiState {
+
+    val canSwitchToSignUp: Boolean
+        get() = this is Form && status != FormStatus.Submitting
+
+    data object CheckingSession : SignInUiState
+
+    data class Form(
+        val email: String,
+        val password: String,
+        val status: FormStatus,
+        val isSessionEnded: Boolean,
+    ) : SignInUiState
+
+    sealed interface FormStatus {
+
+        data object Idle : FormStatus
+
+        data object Submitting : FormStatus
+
+        data class Refused(val kind: RefusalKind) : FormStatus
+
+        data class Unreachable(val failedAttempt: Attempt) : FormStatus
+    }
+
+    enum class Attempt {
+        SessionCheck,
+        SignIn,
+    }
+}
