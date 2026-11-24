@@ -395,7 +395,11 @@ words/                                            or another screen of the featu
 ```
 
 `feature:account` and `feature:learning` are named for no single
-screen, so their root package is empty and every screen has a package. A piece drawn by two or more screens of one feature lives in a sub-area package named for what it draws (`account/auth/`, `account/scaffold/`), never in a `common` or `shared` package and never in another screen's package.
+screen, so their root package is empty and every screen has a package.
+A piece drawn by two or more screens of one feature lives in a
+sub-area package named for what it draws (`account/auth/`,
+`account/scaffold/`), never in a `common` or `shared` package and
+never in another screen's package.
 
 `core/model/.../core/model/<feature>/` holds the types, the answers
 (`*Result`, `*Refusal`) and the ports (`*Repository`, `*Settings`) of
