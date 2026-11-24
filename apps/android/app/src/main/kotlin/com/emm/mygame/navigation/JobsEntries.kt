@@ -9,7 +9,7 @@ import com.emm.mygame.ScreenFrame
 import com.emm.mygame.SignedInChrome
 import com.emm.mygame.feature.jobs.MapRoute
 
-internal fun EntryProviderScope<NavKey>.mapEntry(chrome: SignedInChrome) {
+internal fun EntryProviderScope<NavKey>.jobsEntry(chrome: SignedInChrome) {
     val dependencies: AppDependencies = chrome.dependencies
     val navigator: Navigator = chrome.navigator
     entry<Destination.Map> {
