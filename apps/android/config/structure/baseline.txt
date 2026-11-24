@@ -10,7 +10,7 @@ app-feature-state app/src/main/kotlin/com/emm/mygame/navigation/SchoolEntries.kt
 app-feature-state app/src/main/kotlin/com/emm/mygame/navigation/SchoolEntries.kt
 app-feature-state app/src/main/kotlin/com/emm/mygame/navigation/TownEntries.kt
 app-feature-state app/src/main/kotlin/com/emm/mygame/navigation/TownEntries.kt
-duplicate-name feature/account/src/test/kotlin/com/emm/mygame/feature/account/TextStyleLookup.kt
+duplicate-name feature/account/src/test/kotlin/com/emm/mygame/feature/account/settings/TextStyleLookup.kt
 duplicate-name feature/jobs/src/main/kotlin/com/emm/mygame/feature/jobs/SeasonLabels.kt
 duplicate-name feature/learning/src/main/kotlin/com/emm/mygame/feature/learning/FramePieces.kt
 duplicate-name feature/school/src/main/kotlin/com/emm/mygame/feature/school/FramePieces.kt
@@ -46,8 +46,8 @@ file-name core/ui/src/main/kotlin/com/emm/mygame/core/ui/DurationLabels.kt
 file-name core/ui/src/main/kotlin/com/emm/mygame/core/ui/FrameTraversal.kt
 file-name core/ui/src/main/kotlin/com/emm/mygame/core/ui/RevealOnce.kt
 file-name core/ui/src/main/kotlin/com/emm/mygame/core/ui/ScaffoldContext.kt
-file-name feature/account/src/main/kotlin/com/emm/mygame/feature/account/PhoneScaffold.kt
-file-name feature/account/src/main/kotlin/com/emm/mygame/feature/account/ReminderTimeSteps.kt
+file-name feature/account/src/main/kotlin/com/emm/mygame/feature/account/signup/PhoneScaffold.kt
+file-name feature/account/src/main/kotlin/com/emm/mygame/feature/account/settings/ReminderTimeSteps.kt
 file-name feature/jobs/src/main/kotlin/com/emm/mygame/feature/jobs/MapContent.kt
 file-name feature/jobs/src/main/kotlin/com/emm/mygame/feature/jobs/MapLabels.kt
 file-name feature/jobs/src/main/kotlin/com/emm/mygame/feature/jobs/SeasonLabels.kt
@@ -73,7 +73,6 @@ file-name feature/town/src/main/kotlin/com/emm/mygame/feature/town/TownSeason.kt
 file-name feature/town/src/main/kotlin/com/emm/mygame/feature/town/TownStatusDock.kt
 file-name feature/town/src/main/kotlin/com/emm/mygame/feature/town/TownStreet.kt
 package-files core/designsystem/src/main/kotlin/com/emm/mygame/core/designsystem
-package-files feature/account/src/main/kotlin/com/emm/mygame/feature/account
 package-files feature/school/src/main/kotlin/com/emm/mygame/feature/school
 package-files feature/town/src/main/kotlin/com/emm/mygame/feature/town
 private-vars feature/jobs/src/main/kotlin/com/emm/mygame/feature/jobs/MapViewModel.kt

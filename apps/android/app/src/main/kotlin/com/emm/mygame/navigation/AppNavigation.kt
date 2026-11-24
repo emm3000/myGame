@@ -40,7 +40,7 @@ import com.emm.mygame.SignedInChrome
 import com.emm.mygame.core.designsystem.MyGameDockGo
 import com.emm.mygame.core.designsystem.MyGameTheme
 import com.emm.mygame.core.projection.StudyReminderLine
-import com.emm.mygame.feature.account.VerificationBannerRoute
+import com.emm.mygame.feature.account.verification.VerificationBannerRoute
 import com.emm.mygame.feature.town.TownStatus
 import com.emm.mygame.feature.town.TownStatusIntent
 import com.emm.mygame.feature.town.TownStatusScreen

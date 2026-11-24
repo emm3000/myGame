@@ -10,13 +10,13 @@ import com.emm.mygame.Destination
 import com.emm.mygame.FrameKind
 import com.emm.mygame.ScreenFrame
 import com.emm.mygame.SignedInChrome
-import com.emm.mygame.feature.account.ForgotPasswordRoute
-import com.emm.mygame.feature.account.ResetPasswordRoute
-import com.emm.mygame.feature.account.SettingsNavigation
-import com.emm.mygame.feature.account.SettingsRoute
-import com.emm.mygame.feature.account.SignInRoute
-import com.emm.mygame.feature.account.SignUpRoute
-import com.emm.mygame.feature.account.VerifyEmailRoute
+import com.emm.mygame.feature.account.password.ForgotPasswordRoute
+import com.emm.mygame.feature.account.password.ResetPasswordRoute
+import com.emm.mygame.feature.account.settings.SettingsNavigation
+import com.emm.mygame.feature.account.settings.SettingsRoute
+import com.emm.mygame.feature.account.signin.SignInRoute
+import com.emm.mygame.feature.account.signup.SignUpRoute
+import com.emm.mygame.feature.account.verification.VerifyEmailRoute
 import com.emm.mygame.openNotificationSettings
 import com.emm.mygame.rememberNotificationAsk
 
