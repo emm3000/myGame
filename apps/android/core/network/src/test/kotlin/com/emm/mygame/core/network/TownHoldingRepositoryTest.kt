@@ -1,11 +1,13 @@
 package com.emm.mygame.core.network
 
+import com.emm.mygame.core.model.account.SessionRepository
 import com.emm.mygame.core.model.learning.LessonId
 import com.emm.mygame.core.model.town.TownRepository
 import com.emm.mygame.core.model.town.building.TownBuildingKind
 import com.emm.mygame.core.model.town.school.RetainedWords
 import com.emm.mygame.core.network.platform.TokenStore
 import kotlin.time.Duration.Companion.minutes
+import kotlinx.coroutines.test.TestScope
 import kotlinx.coroutines.test.runTest
 import mockwebserver3.Dispatcher
 import mockwebserver3.MockResponse
@@ -158,5 +160,16 @@ class TownHoldingRepositoryTest : TownRepositoryFixture() {
         towns.startWork(TownBuildingKind.Farm)
 
         assertEquals(RetainedWords(count = 3, total = 5), towns.town.value?.town?.learning?.retainedWords)
+    }
+
+    private fun TestScope.sessions(store: TokenStore): SessionRepository = apiRepositories(
+        endpoint = slowMachineEndpoint(api.url("/api/").toString()),
+        tokenStore = store,
+        sessionEnds = sessionEnds,
+    ).sessions
+
+    private companion object {
+        val TOWN_WITH_RETAINED_WORDS: String =
+            TOWN.replace(""""retainedWords":null""", """"retainedWords":{"count":3,"total":5}""")
     }
 }

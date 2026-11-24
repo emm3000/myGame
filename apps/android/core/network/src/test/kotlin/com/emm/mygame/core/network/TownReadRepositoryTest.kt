@@ -340,4 +340,14 @@ class TownReadRepositoryTest : TownRepositoryFixture() {
 
         assertEquals(TownReadResult.Unreachable, town().read())
     }
+
+    private fun townWithNextStep(step: String): String =
+        TOWN.replace("""{"kind":"caughtUp","reason":"lessonsDone","goal":null,"text":null}""", step)
+
+    private companion object {
+        val moneyFullAt: Instant = Instant.parse("2026-11-06T14:51:09Z")
+        const val OPEN_ORDER: String =
+            """"order":{"hire":"truck","count":3,"delivered":1,"secondsPerHire":180,""" +
+                """"startedAt":"2026-11-05T10:00:00.000Z","endsAt":"2026-11-05T10:09:00.000Z"}"""
+    }
 }

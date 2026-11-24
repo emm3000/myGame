@@ -25,8 +25,10 @@ import com.emm.mygame.core.network.generated.models.TownOverview
 import com.emm.mygame.core.network.platform.bareKind
 import com.emm.mygame.core.network.platform.toOffsetDateTime
 import com.emm.mygame.core.network.platform.wireRefusal
+import com.emm.mygame.core.network.town.building.toWireBuilding
 import com.emm.mygame.core.network.town.building.workResultOf
 import com.emm.mygame.core.network.town.hiring.hiringResultOf
+import com.emm.mygame.core.network.town.hiring.toWireHire
 import com.emm.mygame.core.network.town.jobs.jobResultOf
 import com.emm.mygame.core.network.town.jobs.sendCleanUpOf
 import com.emm.mygame.core.network.town.jobs.sendJobOf

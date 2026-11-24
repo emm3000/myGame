@@ -2,15 +2,59 @@ package com.emm.mygame.core.network.town.building
 
 import com.emm.mygame.core.model.town.TownSnapshot
 import com.emm.mygame.core.model.town.building.NeededWordKind
+import com.emm.mygame.core.model.town.building.TownBuildingKind
 import com.emm.mygame.core.model.town.building.TownWorkRefusal
 import com.emm.mygame.core.model.town.building.TownWorkResult
 import com.emm.mygame.core.network.generated.models.ApiError
 import com.emm.mygame.core.network.generated.models.BareApiError
+import com.emm.mygame.core.network.generated.models.BuildingWork
 import com.emm.mygame.core.network.generated.models.NotEnoughWordsErrorParams
+import com.emm.mygame.core.network.generated.models.StartBuildingWork
 import com.emm.mygame.core.network.generated.models.TownOverview
+import com.emm.mygame.core.network.generated.models.TownOverviewWork
 import com.emm.mygame.core.network.platform.WireRefusal
+import com.emm.mygame.core.network.platform.toKotlinInstant
 import com.emm.mygame.core.network.platform.wireRefusal
 import retrofit2.Response
+
+internal fun TownOverviewWork.toWork(): TownSnapshot.Work? {
+    val waitingItems: List<TownSnapshot.WorkItem> = waitingList.map { item: BuildingWork ->
+        item.toWorkItem() ?: return null
+    }
+    val slotItem: TownSnapshot.WorkItem? = slot?.let { item: BuildingWork -> item.toWorkItem() ?: return null }
+    return TownSnapshot.Work(slot = slotItem, waitingList = waitingItems, cap = cap)
+}
+
+private fun BuildingWork.toWorkItem(): TownSnapshot.WorkItem? {
+    val kind: TownBuildingKind = building.toTownBuildingKind() ?: return null
+    return TownSnapshot.WorkItem(
+        building = kind,
+        level = level,
+        startsAt = startsAt.toKotlinInstant(),
+        finishesAt = finishesAt.toKotlinInstant(),
+    )
+}
+
+private fun BuildingWork.Building.toTownBuildingKind(): TownBuildingKind? = when (this) {
+    BuildingWork.Building.homes -> TownBuildingKind.Homes
+    BuildingWork.Building.farm -> TownBuildingKind.Farm
+    BuildingWork.Building.factory -> TownBuildingKind.Factory
+    BuildingWork.Building.powerStation -> TownBuildingKind.PowerStation
+    BuildingWork.Building.storage -> TownBuildingKind.Storage
+    BuildingWork.Building.school -> TownBuildingKind.School
+    BuildingWork.Building.office -> TownBuildingKind.Office
+    BuildingWork.Building.unknown_default_open_api -> null
+}
+
+internal fun TownBuildingKind.toWireBuilding(): StartBuildingWork.Building = when (this) {
+    TownBuildingKind.Homes -> StartBuildingWork.Building.homes
+    TownBuildingKind.Farm -> StartBuildingWork.Building.farm
+    TownBuildingKind.Factory -> StartBuildingWork.Building.factory
+    TownBuildingKind.PowerStation -> StartBuildingWork.Building.powerStation
+    TownBuildingKind.Storage -> StartBuildingWork.Building.storage
+    TownBuildingKind.School -> StartBuildingWork.Building.school
+    TownBuildingKind.Office -> StartBuildingWork.Building.office
+}
 
 internal fun workResultOf(response: Response<TownOverview>, snapshot: TownSnapshot?): TownWorkResult {
     if (response.isSuccessful) {

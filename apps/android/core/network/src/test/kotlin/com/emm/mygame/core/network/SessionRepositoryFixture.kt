@@ -63,9 +63,6 @@ abstract class SessionRepositoryFixture {
     protected fun nativeSession(token: String, email: String): MockResponse =
         json(200, """{"token":"$token","player":${playerJson(email, isEmailVerified = true)}}""")
 
-    protected fun createdSession(token: String, email: String): MockResponse =
-        json(201, """{"token":"$token","player":${playerJson(email, isEmailVerified = true)}}""")
-
     protected fun player(email: String): MockResponse = json(200, playerJson(email, isEmailVerified = true))
 
     protected fun refusal(kind: String): MockResponse = json(401, refusalJson(kind))

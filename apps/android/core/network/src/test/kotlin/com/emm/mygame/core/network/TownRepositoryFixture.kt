@@ -1,6 +1,5 @@
 package com.emm.mygame.core.network
 
-import com.emm.mygame.core.model.account.SessionRepository
 import com.emm.mygame.core.model.town.TownRepository
 import com.emm.mygame.core.network.platform.SessionEnds
 import com.emm.mygame.core.network.platform.TokenStore
@@ -41,31 +40,17 @@ abstract class TownRepositoryFixture {
         clock = TestClock(testScheduler, aMinuteBeforeTheRead),
     ).towns
 
-    protected fun TestScope.sessions(store: TokenStore): SessionRepository = apiRepositories(
-        endpoint = slowMachineEndpoint(api.url("/api/").toString()),
-        tokenStore = store,
-        sessionEnds = sessionEnds,
-    ).sessions
-
     protected fun signedIn(): TokenStore =
         TokenStore(File(folder.root, "session"), FakeTokenCipher()).apply { write("opaque-session") }
-
-    protected fun townWithNextStep(step: String): String =
-        TOWN.replace("""{"kind":"caughtUp","reason":"lessonsDone","goal":null,"text":null}""", step)
 
     protected fun json(code: Int, body: String): MockResponse =
         MockResponse.Builder().code(code).addHeader("Content-Type", "application/json").body(body).build()
 
     protected companion object {
         val aMinuteBeforeTheRead: Instant = Instant.parse("2026-11-05T10:04:00Z")
-        val moneyFullAt: Instant = Instant.parse("2026-11-06T14:51:09Z")
         const val NOTHING: String = """{"money":0,"food":0,"power":0,"material":0}"""
         const val HOMES_COST: String = """{"money":60,"food":0,"power":0,"material":30}"""
         const val FLAT: String = """{"level":1,"nextLevel":null}"""
-        const val OPEN_ORDER: String =
-            """"order":{"hire":"truck","count":3,"delivered":1,"secondsPerHire":180,""" +
-                """"startedAt":"2026-11-05T10:00:00.000Z","endsAt":"2026-11-05T10:09:00.000Z"}"""
-        const val ORDER_START: String = "2026-11-05T10:00:00.000Z"
         const val HIRING: String =
             """{"order":null,"hires":{"worker":0,"truck":0},"terms":{""" +
                 """"worker":{"cost":{"money":40,"food":0,"power":0,"material":0},"secondsPerHire":60,""" +
@@ -101,8 +86,5 @@ abstract class TownRepositoryFixture {
                 """"nextStep":{"kind":"caughtUp","reason":"lessonsDone","goal":null,"text":null},"tip":null,""" +
                 """"chromePhase":"scaffold","scaffold":"es","scaffoldVersion":0,"nextDueAt":null,""" +
                 """"readAt":"2026-11-05T10:05:00.000Z"}"""
-
-        val TOWN_WITH_RETAINED_WORDS: String =
-            TOWN.replace(""""retainedWords":null""", """"retainedWords":{"count":3,"total":5}""")
     }
 }

@@ -140,4 +140,7 @@ class SignUpRepositoryTest : SessionRepositoryFixture() {
         assertEquals(SignUpResult.Unreachable, result)
         assertNull(store.read())
     }
+
+    private fun createdSession(token: String, email: String): MockResponse =
+        json(201, """{"token":"$token","player":${playerJson(email, isEmailVerified = true)}}""")
 }
