@@ -11,7 +11,7 @@ import org.junit.Test
 import kotlin.time.Duration.Companion.hours
 import kotlin.time.Duration.Companion.minutes
 
-class TownReturnViewModelTest : TownViewModelFixtures() {
+class TownReturnViewModelTest : TownViewModelFixture() {
 
     @Test
     fun `waits a minute after a failed read on return before reading again`() = runTest {

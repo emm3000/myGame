@@ -30,10 +30,10 @@ import com.emm.mygame.core.ui.ProvideCopyLanguage
 import com.emm.mygame.core.ui.ScaffoldLanguage
 import com.emm.mygame.feature.town.building.BlockReason
 import com.emm.mygame.feature.town.building.PlaceCard
-import com.emm.mygame.feature.town.building.SlotLine
 import com.emm.mygame.feature.town.building.StartStatus
-import com.emm.mygame.feature.town.building.StopStatus
-import com.emm.mygame.feature.town.building.WorkTarget
+import com.emm.mygame.feature.town.building.work.SlotLine
+import com.emm.mygame.feature.town.building.work.StopStatus
+import com.emm.mygame.feature.town.building.work.WorkTarget
 import com.emm.mygame.feature.town.guidance.ClosedGuidance
 import com.emm.mygame.feature.town.hiring.HiringCard
 import com.emm.mygame.feature.town.hiring.HiringForm

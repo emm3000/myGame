@@ -12,7 +12,7 @@ import androidx.compose.ui.test.performScrollTo
 import com.emm.mygame.core.model.town.building.TownBuildingKind
 import com.emm.mygame.core.model.town.guidance.TipKind
 import com.emm.mygame.feature.town.TownIntent
-import com.emm.mygame.feature.town.TownScreenFixtures
+import com.emm.mygame.feature.town.TownScreenFixture
 import com.emm.mygame.feature.town.TownUiState
 import org.junit.Assert.assertEquals
 import org.junit.Test
@@ -20,7 +20,7 @@ import org.junit.runner.RunWith
 import org.robolectric.RobolectricTestRunner
 
 @RunWith(RobolectricTestRunner::class)
-class PlaceGuidanceScreenTest : TownScreenFixtures() {
+class PlaceGuidanceScreenTest : TownScreenFixture() {
 
     @Test
     fun `draws the goal's state on the goal building's page`() {

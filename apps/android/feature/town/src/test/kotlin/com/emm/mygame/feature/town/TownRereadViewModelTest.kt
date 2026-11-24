@@ -14,7 +14,7 @@ import kotlin.time.Duration.Companion.minutes
 import kotlin.time.Duration.Companion.seconds
 import kotlin.time.Instant
 
-class TownRereadViewModelTest : TownViewModelFixtures() {
+class TownRereadViewModelTest : TownViewModelFixture() {
 
     @Test
     fun `reads the town when the slot finishes`() = runTest {

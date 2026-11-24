@@ -1,4 +1,4 @@
-package com.emm.mygame.feature.town
+package com.emm.mygame.feature.town.guidance
 
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.mutableStateOf
@@ -21,7 +21,14 @@ import com.emm.mygame.core.model.town.guidance.CaughtUpReason
 import com.emm.mygame.core.model.town.guidance.NextStep
 import com.emm.mygame.core.model.town.guidance.TipKind
 import com.emm.mygame.core.model.town.guidance.TownGoal
-import com.emm.mygame.feature.town.guidance.ClosedGuidance
+import com.emm.mygame.feature.town.TownIntent
+import com.emm.mygame.feature.town.TownRequests
+import com.emm.mygame.feature.town.TownScreen
+import com.emm.mygame.feature.town.TownUiState
+import com.emm.mygame.feature.town.contentAt
+import com.emm.mygame.feature.town.isTab
+import com.emm.mygame.feature.town.readInstant
+import com.emm.mygame.feature.town.townOf
 import org.junit.Assert.assertEquals
 import org.junit.Rule
 import org.junit.Test

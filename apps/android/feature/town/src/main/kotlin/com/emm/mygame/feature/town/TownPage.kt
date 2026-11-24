@@ -32,13 +32,13 @@ import com.emm.mygame.core.ui.frameHeaderTurn
 import com.emm.mygame.core.ui.rememberPlayerCopy
 import com.emm.mygame.feature.town.building.NextLevel
 import com.emm.mygame.feature.town.building.NextLevelLine
-import com.emm.mygame.feature.town.building.PlaceBuildingWork
 import com.emm.mygame.feature.town.building.PlaceCard
 import com.emm.mygame.feature.town.building.PlaceStocks
 import com.emm.mygame.feature.town.building.StartAnswer
 import com.emm.mygame.feature.town.building.StartStatus
 import com.emm.mygame.feature.town.building.WordNeedLine
 import com.emm.mygame.feature.town.building.placeArtOf
+import com.emm.mygame.feature.town.building.work.PlaceBuildingWork
 import com.emm.mygame.feature.town.guidance.GoalState
 import com.emm.mygame.feature.town.guidance.TipNote
 import com.emm.mygame.feature.town.guidance.goalLineOf

@@ -32,7 +32,7 @@ import com.emm.mygame.feature.town.FiguredCaption
 import com.emm.mygame.feature.town.R
 import com.emm.mygame.feature.town.RevealedAlert
 import com.emm.mygame.feature.town.TownIntent
-import com.emm.mygame.feature.town.building.RunningCountdown
+import com.emm.mygame.feature.town.building.work.RunningCountdown
 import com.emm.mygame.feature.town.hireMark
 import com.emm.mygame.feature.town.placeNameOf
 import com.emm.mygame.feature.town.seasonIconOf

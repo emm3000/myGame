@@ -1,4 +1,4 @@
-package com.emm.mygame.feature.town
+package com.emm.mygame.feature.town.hiring
 
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.size
@@ -33,22 +33,19 @@ import com.emm.mygame.core.model.town.TownResourceKind
 import com.emm.mygame.core.model.town.building.TownBuildingKind
 import com.emm.mygame.core.model.town.hiring.TownHireKind
 import com.emm.mygame.core.model.town.hiring.TownHiringRefusal
+import com.emm.mygame.feature.town.ReadyTime
+import com.emm.mygame.feature.town.TownIntent
+import com.emm.mygame.feature.town.TownScreen
+import com.emm.mygame.feature.town.TownUiState
+import com.emm.mygame.feature.town.bareOffice
 import com.emm.mygame.feature.town.building.CostLine
 import com.emm.mygame.feature.town.building.PeopleLine
 import com.emm.mygame.feature.town.building.Shortfall
-import com.emm.mygame.feature.town.building.SlotLine
 import com.emm.mygame.feature.town.building.StartStatus
-import com.emm.mygame.feature.town.building.StopStatus
 import com.emm.mygame.feature.town.building.WordsLine
-import com.emm.mygame.feature.town.hiring.HiringBlock
-import com.emm.mygame.feature.town.hiring.HiringCard
-import com.emm.mygame.feature.town.hiring.HiringForm
-import com.emm.mygame.feature.town.hiring.HiringLine
-import com.emm.mygame.feature.town.hiring.HiringOffer
-import com.emm.mygame.feature.town.hiring.HiringOrderLine
-import com.emm.mygame.feature.town.hiring.HiringPlaceStatus
-import com.emm.mygame.feature.town.hiring.HiringStopStatus
-import com.emm.mygame.feature.town.hiring.HiringTarget
+import com.emm.mygame.feature.town.building.work.SlotLine
+import com.emm.mygame.feature.town.building.work.StopStatus
+import com.emm.mygame.feature.town.readInstant
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertTrue
 import org.junit.Rule

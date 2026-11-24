@@ -23,10 +23,10 @@ import com.emm.mygame.core.model.town.TownLabel
 import com.emm.mygame.core.model.town.building.TownBuildingKind
 import com.emm.mygame.core.model.town.hiring.TownHireKind
 import com.emm.mygame.feature.town.building.PeopleLine
-import com.emm.mygame.feature.town.building.SlotLine
 import com.emm.mygame.feature.town.building.StartStatus
-import com.emm.mygame.feature.town.building.StopStatus
 import com.emm.mygame.feature.town.building.WordsLine
+import com.emm.mygame.feature.town.building.work.SlotLine
+import com.emm.mygame.feature.town.building.work.StopStatus
 import com.emm.mygame.feature.town.hiring.HiringCard
 import com.emm.mygame.feature.town.hiring.HiringLine
 import org.junit.Assert.assertEquals

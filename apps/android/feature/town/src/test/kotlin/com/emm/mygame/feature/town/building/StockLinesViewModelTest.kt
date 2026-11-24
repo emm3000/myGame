@@ -4,7 +4,7 @@ import com.emm.mygame.core.model.learning.LessonId
 import com.emm.mygame.core.model.town.TownResourceKind
 import com.emm.mygame.core.model.town.TownSnapshot
 import com.emm.mygame.feature.town.TownViewModel
-import com.emm.mygame.feature.town.TownViewModelFixtures
+import com.emm.mygame.feature.town.TownViewModelFixture
 import com.emm.mygame.feature.town.contentOf
 import com.emm.mygame.feature.town.moneyOf
 import com.emm.mygame.feature.town.readInstant
@@ -20,7 +20,7 @@ import org.junit.Test
 import kotlin.time.Duration.Companion.hours
 import kotlin.time.Duration.Companion.minutes
 
-class StockLinesViewModelTest : TownViewModelFixtures() {
+class StockLinesViewModelTest : TownViewModelFixture() {
 
     @Test
     fun `draws the four stocks in the order the api gave them`() = runTest {

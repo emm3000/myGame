@@ -9,7 +9,7 @@ import kotlinx.coroutines.test.TestScope
 import org.junit.Rule
 import kotlin.time.Instant
 
-abstract class TownViewModelFixtures {
+abstract class TownViewModelFixture {
 
     @get:Rule
     val mainDispatcher: MainDispatcherRule = MainDispatcherRule()

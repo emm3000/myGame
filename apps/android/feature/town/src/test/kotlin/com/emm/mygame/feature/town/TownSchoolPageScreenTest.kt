@@ -14,7 +14,7 @@ import org.junit.runner.RunWith
 import org.robolectric.RobolectricTestRunner
 
 @RunWith(RobolectricTestRunner::class)
-class TownSchoolPageScreenTest : TownScreenFixtures() {
+class TownSchoolPageScreenTest : TownScreenFixture() {
 
     @Test
     fun `draws the placement offer on the school's page`() {
@@ -40,5 +40,9 @@ class TownSchoolPageScreenTest : TownScreenFixtures() {
         show(riverton)
 
         composeRule.onNodeWithText("Palabras fuera de aprendizaje: 3").performScrollTo().assertIsDisplayed()
+    }
+
+    private companion object {
+        const val PLACEMENT: String = "Placement offer"
     }
 }

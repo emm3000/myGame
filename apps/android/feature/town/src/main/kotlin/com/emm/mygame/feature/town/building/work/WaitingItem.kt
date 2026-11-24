@@ -1,4 +1,4 @@
-package com.emm.mygame.feature.town.building
+package com.emm.mygame.feature.town.building.work
 
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column

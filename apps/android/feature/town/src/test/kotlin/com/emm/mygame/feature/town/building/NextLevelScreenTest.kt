@@ -24,7 +24,7 @@ import com.emm.mygame.core.model.town.building.NeededWordKind
 import com.emm.mygame.core.model.town.building.TownBuildingKind
 import com.emm.mygame.core.model.town.building.TownWorkRefusal
 import com.emm.mygame.feature.town.TownIntent
-import com.emm.mygame.feature.town.TownScreenFixtures
+import com.emm.mygame.feature.town.TownScreenFixture
 import com.emm.mygame.feature.town.TownUiState
 import com.emm.mygame.feature.town.placeOf
 import com.emm.mygame.feature.town.shortOf
@@ -35,7 +35,7 @@ import org.junit.runner.RunWith
 import org.robolectric.RobolectricTestRunner
 
 @RunWith(RobolectricTestRunner::class)
-class PlaceNextLevelScreenTest : TownScreenFixtures() {
+class NextLevelScreenTest : TownScreenFixture() {
 
     @Test
     fun `offers the place's next level on its own page`() {
@@ -138,5 +138,14 @@ class PlaceNextLevelScreenTest : TownScreenFixtures() {
         val streetTop: Dp = composeRule.onNode(hasContentDescription(STREET)).getUnclippedBoundsInRoot().top
         assertTrue("refusal ends at ${refusal.bottom}, street starts at $streetTop", refusal.bottom <= streetTop)
         assertTrue("refusal starts at ${refusal.top}", refusal.top >= 0.dp)
+    }
+
+    private fun onSchool(school: PlaceCard): TownUiState.Content = riverton.copy(
+        places = street.map { place: PlaceCard -> if (place.kind == school.kind) school else place },
+    )
+
+    private companion object {
+        const val NOT_ENOUGH: String =
+            "No tienes recursos suficientes para esta obra. Espera a que crezcan tus reservas."
     }
 }

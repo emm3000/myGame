@@ -17,7 +17,7 @@ import org.junit.runner.RunWith
 import org.robolectric.RobolectricTestRunner
 
 @RunWith(RobolectricTestRunner::class)
-class TownReadStatesScreenTest : TownScreenFixtures() {
+class TownReadStatesScreenTest : TownScreenFixture() {
 
     @Test
     fun `draws the skeleton's blocks while a slow read loads`() {

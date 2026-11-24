@@ -24,7 +24,7 @@ import com.emm.mygame.core.ui.chromeResource
 import com.emm.mygame.feature.town.R
 import com.emm.mygame.feature.town.TownIntent
 import com.emm.mygame.feature.town.TownUiState
-import com.emm.mygame.feature.town.building.SlotLine
+import com.emm.mygame.feature.town.building.work.SlotLine
 
 @Composable
 internal fun TipNote(tip: TipKind, onIntent: (TownIntent) -> Unit, modifier: Modifier = Modifier) {

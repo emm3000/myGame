@@ -29,11 +29,11 @@ import com.emm.mygame.feature.town.building.CostLine
 import com.emm.mygame.feature.town.building.NextLevelLine
 import com.emm.mygame.feature.town.building.PeopleLine
 import com.emm.mygame.feature.town.building.PlaceCard
-import com.emm.mygame.feature.town.building.SlotLine
 import com.emm.mygame.feature.town.building.StartStatus
 import com.emm.mygame.feature.town.building.StockLine
-import com.emm.mygame.feature.town.building.StopStatus
 import com.emm.mygame.feature.town.building.WordsLine
+import com.emm.mygame.feature.town.building.work.SlotLine
+import com.emm.mygame.feature.town.building.work.StopStatus
 import org.junit.Assert.assertEquals
 import org.junit.Rule
 import org.junit.Test

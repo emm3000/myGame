@@ -9,12 +9,14 @@ import androidx.compose.ui.test.onAllNodesWithText
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
 import androidx.compose.ui.test.performScrollTo
+import com.emm.mygame.core.model.town.SeasonKind
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.robolectric.RobolectricTestRunner
+import kotlin.time.Duration.Companion.days
 
 @RunWith(RobolectricTestRunner::class)
-class TownPageHeaderScreenTest : TownScreenFixtures() {
+class TownPageHeaderScreenTest : TownScreenFixture() {
 
     @Test
     fun `heads every page with the town's name and label in title`() {
@@ -67,5 +69,17 @@ class TownPageHeaderScreenTest : TownScreenFixtures() {
         show(riverton)
 
         composeRule.onAllNodesWithText("Salir").assertCountEquals(0)
+    }
+
+    private val summer: SeasonLine = SeasonLine(
+        kind = SeasonKind.Summer,
+        year = 2,
+        remaining = 3.days,
+        productionMarks = emptyList(),
+    )
+
+    private companion object {
+        const val RING: String = "Ring"
+        const val RUNNING: String = "Running lesson"
     }
 }
