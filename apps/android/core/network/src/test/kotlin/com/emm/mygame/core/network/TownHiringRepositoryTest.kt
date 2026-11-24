@@ -68,4 +68,8 @@ class TownHiringRepositoryTest : TownRepositoryFixture() {
             town().stopHiring(TownHireKind.Worker, startedAt = Instant.parse(ORDER_START)),
         )
     }
+
+    private companion object {
+        const val ORDER_START: String = "2026-11-05T10:00:00.000Z"
+    }
 }

@@ -9,33 +9,26 @@ import com.emm.mygame.core.model.town.SeasonProductionPercent
 import com.emm.mygame.core.model.town.TownLabel
 import com.emm.mygame.core.model.town.TownResourceKind
 import com.emm.mygame.core.model.town.TownSnapshot
-import com.emm.mygame.core.model.town.building.TownBuildingKind
 import com.emm.mygame.core.model.town.guidance.NextStep
-import com.emm.mygame.core.model.town.hiring.TownHireKind
-import com.emm.mygame.core.network.generated.models.BuildingWork
-import com.emm.mygame.core.network.generated.models.PlaceHiringOrder
 import com.emm.mygame.core.network.generated.models.ResourceAmounts
-import com.emm.mygame.core.network.generated.models.StartBuildingWork
 import com.emm.mygame.core.network.generated.models.TownJob
 import com.emm.mygame.core.network.generated.models.TownOverview
 import com.emm.mygame.core.network.generated.models.TownOverviewBandLinesInner
 import com.emm.mygame.core.network.generated.models.TownOverviewDueHoldoutChecksInner
-import com.emm.mygame.core.network.generated.models.TownOverviewHiring
-import com.emm.mygame.core.network.generated.models.TownOverviewHiringOrder
-import com.emm.mygame.core.network.generated.models.TownOverviewHiringTermsWorker
 import com.emm.mygame.core.network.generated.models.TownOverviewLessonsInner
 import com.emm.mygame.core.network.generated.models.TownOverviewReleasedLessonsInner
 import com.emm.mygame.core.network.generated.models.TownOverviewSeason
 import com.emm.mygame.core.network.generated.models.TownOverviewSkillsInner
 import com.emm.mygame.core.network.generated.models.TownOverviewStocksMoney
 import com.emm.mygame.core.network.generated.models.TownOverviewTextsInner
-import com.emm.mygame.core.network.generated.models.TownOverviewWork
 import com.emm.mygame.core.network.holdout.toWeek
 import com.emm.mygame.core.network.placement.toBand
 import com.emm.mygame.core.network.platform.toKotlinInstant
 import com.emm.mygame.core.network.town.building.toBuildings
+import com.emm.mygame.core.network.town.building.toWork
 import com.emm.mygame.core.network.town.guidance.toNextStep
 import com.emm.mygame.core.network.town.guidance.toTipKind
+import com.emm.mygame.core.network.town.hiring.toHiring
 import com.emm.mygame.core.network.town.jobs.toJob
 import com.emm.mygame.core.network.town.school.toEarnedSkill
 import com.emm.mygame.core.network.town.school.toLearning
@@ -97,21 +90,6 @@ private fun TownOverviewBandLinesInner.toBandLine(): TownSnapshot.BandLine? {
     return TownSnapshot.BandLine(lineBand, count, total)
 }
 
-internal fun TownBuildingKind.toWireBuilding(): StartBuildingWork.Building = when (this) {
-    TownBuildingKind.Homes -> StartBuildingWork.Building.homes
-    TownBuildingKind.Farm -> StartBuildingWork.Building.farm
-    TownBuildingKind.Factory -> StartBuildingWork.Building.factory
-    TownBuildingKind.PowerStation -> StartBuildingWork.Building.powerStation
-    TownBuildingKind.Storage -> StartBuildingWork.Building.storage
-    TownBuildingKind.School -> StartBuildingWork.Building.school
-    TownBuildingKind.Office -> StartBuildingWork.Building.office
-}
-
-internal fun TownHireKind.toWireHire(): PlaceHiringOrder.Hire = when (this) {
-    TownHireKind.Worker -> PlaceHiringOrder.Hire.worker
-    TownHireKind.Truck -> PlaceHiringOrder.Hire.truck
-}
-
 private class TownSchool(
     val shelved: List<TownSnapshot.Lesson>,
     val released: List<TownSnapshot.ReleasedLesson>,
@@ -130,53 +108,6 @@ private fun TownOverview.toTownSchool(): TownSchool? {
     }
     return TownSchool(shelved, released, earned)
 }
-
-private fun TownOverviewWork.toWork(): TownSnapshot.Work? {
-    val waitingItems: List<TownSnapshot.WorkItem> = waitingList.map { item: BuildingWork ->
-        item.toWorkItem() ?: return null
-    }
-    val slotItem: TownSnapshot.WorkItem? = slot?.let { item: BuildingWork -> item.toWorkItem() ?: return null }
-    return TownSnapshot.Work(slot = slotItem, waitingList = waitingItems, cap = cap)
-}
-
-private fun TownOverviewHiring.toHiring(): TownSnapshot.Hiring? {
-    val open: TownSnapshot.HiringOrder? = order?.let { placed: TownOverviewHiringOrder ->
-        placed.toHiringOrder() ?: return null
-    }
-    return TownSnapshot.Hiring(
-        order = open,
-        hires = mapOf(TownHireKind.Worker to hires.worker, TownHireKind.Truck to hires.truck),
-        terms = mapOf(
-            TownHireKind.Worker to terms.worker.toHireTerms(),
-            TownHireKind.Truck to terms.truck.toHireTerms(),
-        ),
-    )
-}
-
-private fun TownOverviewHiringOrder.toHiringOrder(): TownSnapshot.HiringOrder? {
-    val kind: TownHireKind = hire.toTownHireKind() ?: return null
-    return TownSnapshot.HiringOrder(
-        hire = kind,
-        count = count,
-        delivered = delivered,
-        secondsPerHire = secondsPerHire,
-        startedAt = startedAt.toKotlinInstant(),
-        endsAt = endsAt.toKotlinInstant(),
-    )
-}
-
-private fun TownOverviewHiringOrder.Hire.toTownHireKind(): TownHireKind? = when (this) {
-    TownOverviewHiringOrder.Hire.worker -> TownHireKind.Worker
-    TownOverviewHiringOrder.Hire.truck -> TownHireKind.Truck
-    TownOverviewHiringOrder.Hire.unknown_default_open_api -> null
-}
-
-private fun TownOverviewHiringTermsWorker.toHireTerms(): TownSnapshot.HireTerms = TownSnapshot.HireTerms(
-    costs = cost.toCosts(),
-    secondsPerHire = secondsPerHire,
-    people = people,
-    requiredOfficeLevel = requiredOfficeLevel,
-)
 
 private fun TownOverviewSeason.toSeasonInForce(): SeasonInForce? {
     val seasonKind: SeasonKind = kind.toSeasonKind() ?: return null
@@ -226,24 +157,3 @@ internal fun ResourceAmounts.toCosts(): List<TownSnapshot.Cost> = listOf(
     TownSnapshot.Cost(TownResourceKind.Power, power.toLong()),
     TownSnapshot.Cost(TownResourceKind.Material, material.toLong()),
 ).filter { cost: TownSnapshot.Cost -> cost.amount > 0 }
-
-private fun BuildingWork.toWorkItem(): TownSnapshot.WorkItem? {
-    val kind: TownBuildingKind = building.toTownBuildingKind() ?: return null
-    return TownSnapshot.WorkItem(
-        building = kind,
-        level = level,
-        startsAt = startsAt.toKotlinInstant(),
-        finishesAt = finishesAt.toKotlinInstant(),
-    )
-}
-
-private fun BuildingWork.Building.toTownBuildingKind(): TownBuildingKind? = when (this) {
-    BuildingWork.Building.homes -> TownBuildingKind.Homes
-    BuildingWork.Building.farm -> TownBuildingKind.Farm
-    BuildingWork.Building.factory -> TownBuildingKind.Factory
-    BuildingWork.Building.powerStation -> TownBuildingKind.PowerStation
-    BuildingWork.Building.storage -> TownBuildingKind.Storage
-    BuildingWork.Building.school -> TownBuildingKind.School
-    BuildingWork.Building.office -> TownBuildingKind.Office
-    BuildingWork.Building.unknown_default_open_api -> null
-}
