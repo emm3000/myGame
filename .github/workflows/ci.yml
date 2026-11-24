@@ -256,11 +256,16 @@ jobs:
         env:
           PREFIX: ${{ steps.robolectric.outputs.prefix }}
         run: |
-          jars="$(cd "$HOME/.m2/repository/org/robolectric" && find . -name '*.jar' | sort)"
+          root="$HOME/.m2/repository/org/robolectric"
+          if [ ! -d "$root" ]; then
+            echo "Robolectric downloaded nothing: every suite came from the Gradle build cache"
+            exit 0
+          fi
+          jars="$(cd "$root" && find . -name '*.jar' | sort)"
           echo "$jars"
           echo "key=$PREFIX-$(printf '%s\n' "$jars" | sha256sum | cut -c1-16)" >> "$GITHUB_OUTPUT"
       - name: save the jars Robolectric downloaded
-        if: steps.robolectric-jars.outputs.key != steps.robolectric-restore.outputs.cache-matched-key
+        if: steps.robolectric-jars.outputs.key != '' && steps.robolectric-jars.outputs.key != steps.robolectric-restore.outputs.cache-matched-key
         uses: actions/cache/save@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
         with:
           path: ~/.m2/repository/org/robolectric
