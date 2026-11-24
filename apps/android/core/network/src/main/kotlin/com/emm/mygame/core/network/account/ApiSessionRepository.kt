@@ -28,7 +28,6 @@ import com.emm.mygame.core.network.generated.models.VerifyEmailRequest
 import com.emm.mygame.core.network.platform.TokenStore
 import com.emm.mygame.core.network.platform.WireRefusal
 import com.emm.mygame.core.network.platform.bareKind
-import com.emm.mygame.core.network.platform.signOutApi
 import com.emm.mygame.core.network.platform.wireRefusal
 import java.io.IOException
 import java.net.HttpURLConnection

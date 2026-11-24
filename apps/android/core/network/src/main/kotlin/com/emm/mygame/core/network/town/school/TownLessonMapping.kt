@@ -6,7 +6,12 @@ import com.emm.mygame.core.model.placement.PlacementBand
 import com.emm.mygame.core.model.town.TownResourceKind
 import com.emm.mygame.core.model.town.TownSnapshot
 import com.emm.mygame.core.model.town.school.RetainedWords
+import com.emm.mygame.core.model.town.school.TownLessonRefusal
+import com.emm.mygame.core.model.town.school.TownLessonResult
 import com.emm.mygame.core.model.town.school.WordStanding
+import com.emm.mygame.core.network.generated.models.ApiError
+import com.emm.mygame.core.network.generated.models.BareApiError
+import com.emm.mygame.core.network.generated.models.TownOverview
 import com.emm.mygame.core.network.generated.models.TownOverviewLearning
 import com.emm.mygame.core.network.generated.models.TownOverviewLearningRetainedWords
 import com.emm.mygame.core.network.generated.models.TownOverviewLessonSlot
@@ -20,8 +25,11 @@ import com.emm.mygame.core.network.generated.models.TownOverviewTextsInner
 import com.emm.mygame.core.network.learning.toFrameSpans
 import com.emm.mygame.core.network.learning.toWordSupport
 import com.emm.mygame.core.network.placement.toBand
+import com.emm.mygame.core.network.platform.WireRefusal
 import com.emm.mygame.core.network.platform.toKotlinInstant
+import com.emm.mygame.core.network.platform.wireRefusal
 import kotlin.time.Duration.Companion.seconds
+import retrofit2.Response
 
 internal fun TownOverviewLessonsInner.toLesson(): TownSnapshot.Lesson? {
     val resource: TownResourceKind = skill.resource.toTownResourceKind() ?: return null
@@ -111,4 +119,32 @@ private fun TownOverviewSkillsInner.Resource.toTownResourceKind(): TownResourceK
     TownOverviewSkillsInner.Resource.power -> TownResourceKind.Power
     TownOverviewSkillsInner.Resource.material -> TownResourceKind.Material
     TownOverviewSkillsInner.Resource.unknown_default_open_api -> null
+}
+
+internal fun lessonResultOf(response: Response<TownOverview>, snapshot: TownSnapshot?): TownLessonResult {
+    if (response.isSuccessful) {
+        return if (snapshot == null) TownLessonResult.Unreachable else TownLessonResult.Answered(snapshot)
+    }
+    val refusal: WireRefusal = response.wireRefusal() ?: return TownLessonResult.Unreachable
+    return TownLessonResult.Refused(refusal.toLessonRefusal())
+}
+
+private val lessonRefusals: Map<BareApiError.Kind, TownLessonRefusal> = mapOf(
+    BareApiError.Kind.StudySlotBusy to TownLessonRefusal.StudySlotBusy,
+    BareApiError.Kind.LessonSchoolTooLow to TownLessonRefusal.LessonSchoolTooLow,
+    BareApiError.Kind.LessonAlreadyStudied to TownLessonRefusal.LessonAlreadyStudied,
+    BareApiError.Kind.LessonUnderStudy to TownLessonRefusal.LessonUnderStudy,
+    BareApiError.Kind.LessonStudyNotFound to TownLessonRefusal.LessonStudyNotFound,
+    BareApiError.Kind.TownNotFound to TownLessonRefusal.TownNotFound,
+)
+
+private fun WireRefusal.toLessonRefusal(): TownLessonRefusal = when (this) {
+    is WireRefusal.Bare -> lessonRefusals[kind] ?: TownLessonRefusal.Unrecognized
+    is WireRefusal.WithParams -> error.toLessonRefusal()
+}
+
+private fun ApiError.toLessonRefusal(): TownLessonRefusal = when (this) {
+    is ApiError.LearningcapreachedWrapper ->
+        TownLessonRefusal.LearningCapReached(cap = value.params.learningCap, inLearning = value.params.cardsInLearning)
+    else -> TownLessonRefusal.Unrecognized
 }

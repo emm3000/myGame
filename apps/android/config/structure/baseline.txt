@@ -24,7 +24,6 @@ file-lines core/designsystem/src/main/kotlin/com/emm/mygame/core/designsystem/My
 file-lines core/designsystem/src/main/kotlin/com/emm/mygame/core/designsystem/MyGameFrameText.kt
 file-lines core/designsystem/src/main/kotlin/com/emm/mygame/core/designsystem/MyGamePill.kt
 file-lines core/designsystem/src/main/kotlin/com/emm/mygame/core/designsystem/MyGameStreetStrip.kt
-file-lines core/network/src/main/kotlin/com/emm/mygame/core/network/town/ApiTownRepository.kt
 file-lines feature/map/src/main/kotlin/com/emm/mygame/feature/map/MapScreen.kt
 file-lines feature/map/src/main/kotlin/com/emm/mygame/feature/map/MapViewModel.kt
 file-lines feature/report/src/main/kotlin/com/emm/mygame/feature/report/ReportScreen.kt
@@ -44,8 +43,6 @@ file-name app/src/main/kotlin/com/emm/mygame/PlayerLanguageFrame.kt
 file-name app/src/main/kotlin/com/emm/mygame/ReminderNotificationAsk.kt
 file-name core/designsystem/src/main/kotlin/com/emm/mygame/core/designsystem/EnglishText.kt
 file-name core/designsystem/src/main/kotlin/com/emm/mygame/core/designsystem/TabularFigures.kt
-file-name core/network/src/main/kotlin/com/emm/mygame/core/network/platform/ApiClient.kt
-file-name core/model/src/main/kotlin/com/emm/mygame/core/model/learning/ReviewAnswerMaxLength.kt
 file-name core/projection/src/main/kotlin/com/emm/mygame/core/projection/Countdown.kt
 file-name core/projection/src/main/kotlin/com/emm/mygame/core/projection/ReadyMinute.kt
 file-name core/projection/src/main/kotlin/com/emm/mygame/core/projection/RepaintCadence.kt
@@ -97,8 +94,6 @@ projection-gap feature/town/src/main/kotlin/com/emm/mygame/feature/town/TownStat
 projection-gap feature/town/src/main/kotlin/com/emm/mygame/feature/town/TownViewModel.kt
 screen-file feature/town/src/main/kotlin/com/emm/mygame/feature/town/TownStatusScreen.kt
 test-lines app/src/test/kotlin/com/emm/mygame/DockFrameNavigationTest.kt
-test-lines core/network/src/test/kotlin/com/emm/mygame/core/network/SessionRepositoryTest.kt
-test-lines core/network/src/test/kotlin/com/emm/mygame/core/network/TownRepositoryTest.kt
 test-lines feature/report/src/test/kotlin/com/emm/mygame/feature/report/ReportViewModelTest.kt
 test-lines feature/review/src/test/kotlin/com/emm/mygame/feature/review/ReviewViewModelTest.kt
 test-lines feature/school/src/test/kotlin/com/emm/mygame/feature/school/SchoolScreenTest.kt
