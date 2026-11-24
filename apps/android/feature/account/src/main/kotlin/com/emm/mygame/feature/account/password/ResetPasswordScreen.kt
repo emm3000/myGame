@@ -18,23 +18,19 @@ import androidx.compose.ui.semantics.liveRegion
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardType
-import androidx.compose.ui.tooling.preview.PreviewParameter
-import androidx.compose.ui.tooling.preview.PreviewParameterProvider
 import com.emm.mygame.core.designsystem.MyGameButton
 import com.emm.mygame.core.designsystem.MyGameInlineAlert
-import com.emm.mygame.core.designsystem.MyGamePreviewSurface
 import com.emm.mygame.core.designsystem.MyGameSpacing
 import com.emm.mygame.core.designsystem.MyGameText
 import com.emm.mygame.core.designsystem.MyGameTextField
 import com.emm.mygame.core.designsystem.MyGameTextLink
 import com.emm.mygame.core.designsystem.MyGameTheme
 import com.emm.mygame.core.designsystem.MyGameTypography
-import com.emm.mygame.core.designsystem.PreviewMyGame
 import com.emm.mygame.feature.account.R
 import com.emm.mygame.feature.account.auth.AuthHeader
 
 @Composable
-fun ResetPasswordScreen(
+internal fun ResetPasswordScreen(
     state: ResetPasswordUiState,
     onIntent: (ResetPasswordIntent) -> Unit,
     onSignInOpen: () -> Unit,
@@ -119,33 +115,5 @@ private fun LinkRefused(onForgotPasswordOpen: () -> Unit, modifier: Modifier = M
     Column(verticalArrangement = Arrangement.spacedBy(MyGameSpacing.step4), modifier = modifier) {
         MyGameInlineAlert(message = stringResource(R.string.reset_password_link_refused))
         MyGameTextLink(label = stringResource(R.string.reset_password_new_link), onClick = onForgotPasswordOpen)
-    }
-}
-
-private val previewNewPasswordForm: ResetPasswordUiState.Form = ResetPasswordUiState.Form(
-    password = "hierro-y-lana",
-    status = ResetPasswordUiState.FormStatus.Idle,
-)
-
-private class ResetPasswordUiStates : PreviewParameterProvider<ResetPasswordUiState> {
-
-    override val values: Sequence<ResetPasswordUiState> = sequenceOf(
-        previewNewPasswordForm.copy(password = ""),
-        previewNewPasswordForm,
-        previewNewPasswordForm.copy(status = ResetPasswordUiState.FormStatus.Sending),
-        previewNewPasswordForm.copy(password = "corta", status = ResetPasswordUiState.FormStatus.WeakPassword),
-        previewNewPasswordForm.copy(status = ResetPasswordUiState.FormStatus.Unexpected),
-        ResetPasswordUiState.Changed,
-        ResetPasswordUiState.LinkRefused,
-    )
-}
-
-@PreviewMyGame
-@Composable
-private fun ResetPasswordScreenPreview(
-    @PreviewParameter(ResetPasswordUiStates::class) state: ResetPasswordUiState,
-) {
-    MyGamePreviewSurface {
-        ResetPasswordScreen(state = state, onIntent = {}, onSignInOpen = {}, onForgotPasswordOpen = {})
     }
 }

@@ -17,26 +17,18 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.semantics.LiveRegionMode
 import androidx.compose.ui.semantics.liveRegion
 import androidx.compose.ui.semantics.semantics
-import androidx.compose.ui.tooling.preview.PreviewParameter
-import androidx.compose.ui.tooling.preview.PreviewParameterProvider
 import com.emm.mygame.core.designsystem.MyGameHairline
 import com.emm.mygame.core.designsystem.MyGameInlineAlert
-import com.emm.mygame.core.designsystem.MyGamePreviewSurface
 import com.emm.mygame.core.designsystem.MyGameSpacing
 import com.emm.mygame.core.designsystem.MyGameText
 import com.emm.mygame.core.designsystem.MyGameTextLink
 import com.emm.mygame.core.designsystem.MyGameTheme
 import com.emm.mygame.core.designsystem.MyGameTypography
-import com.emm.mygame.core.designsystem.PreviewMyGame
-import com.emm.mygame.core.ui.ChromePhase
-import com.emm.mygame.core.ui.CopyLanguage
-import com.emm.mygame.core.ui.ProvideCopyLanguage
-import com.emm.mygame.core.ui.ScaffoldLanguage
 import com.emm.mygame.core.ui.fixedCopyResource
 import com.emm.mygame.feature.account.R
 
 @Composable
-fun VerificationBannerScreen(
+internal fun VerificationBannerScreen(
     state: VerificationBannerUiState,
     onIntent: (VerificationBannerIntent) -> Unit,
     modifier: Modifier = Modifier,
@@ -102,38 +94,5 @@ private fun ResendOutcome(resend: VerificationBannerUiState.Resend, modifier: Mo
             message = fixedCopyResource(R.string.verification_banner_unreachable),
             modifier = modifier,
         )
-    }
-}
-
-private class VerificationBannerUiStates : PreviewParameterProvider<VerificationBannerUiState> {
-
-    override val values: Sequence<VerificationBannerUiState> = sequenceOf(
-        VerificationBannerUiState.Unverified(VerificationBannerUiState.Resend.Idle),
-        VerificationBannerUiState.Unverified(VerificationBannerUiState.Resend.Sending),
-        VerificationBannerUiState.Unverified(VerificationBannerUiState.Resend.Sent),
-        VerificationBannerUiState.Unverified(VerificationBannerUiState.Resend.MailNotSent),
-        VerificationBannerUiState.Unverified(VerificationBannerUiState.Resend.Unreachable),
-    )
-}
-
-@PreviewMyGame
-@Composable
-private fun VerificationBannerScreenPreview(
-    @PreviewParameter(VerificationBannerUiStates::class) state: VerificationBannerUiState,
-) {
-    MyGamePreviewSurface {
-        VerificationBannerScreen(state = state, onIntent = {})
-    }
-}
-
-@PreviewMyGame
-@Composable
-private fun VerificationBannerScreenBothPhasePreview(
-    @PreviewParameter(VerificationBannerUiStates::class) state: VerificationBannerUiState,
-) {
-    ProvideCopyLanguage(language = CopyLanguage(ScaffoldLanguage.Spanish, ChromePhase.Both)) {
-        MyGamePreviewSurface {
-            VerificationBannerScreen(state = state, onIntent = {})
-        }
     }
 }

@@ -15,18 +15,14 @@ import androidx.compose.ui.autofill.ContentType
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardType
-import androidx.compose.ui.tooling.preview.PreviewParameter
-import androidx.compose.ui.tooling.preview.PreviewParameterProvider
 import com.emm.mygame.core.designsystem.MyGameButton
 import com.emm.mygame.core.designsystem.MyGameErrorBanner
 import com.emm.mygame.core.designsystem.MyGameInlineAlert
-import com.emm.mygame.core.designsystem.MyGamePreviewSurface
 import com.emm.mygame.core.designsystem.MyGameSpacing
 import com.emm.mygame.core.designsystem.MyGameText
 import com.emm.mygame.core.designsystem.MyGameTextField
 import com.emm.mygame.core.designsystem.MyGameTheme
 import com.emm.mygame.core.designsystem.MyGameTypography
-import com.emm.mygame.core.designsystem.PreviewMyGame
 import com.emm.mygame.core.model.account.PlayerScaffold
 import com.emm.mygame.core.model.account.SignUpRefusal
 import com.emm.mygame.feature.account.R
@@ -35,7 +31,7 @@ import com.emm.mygame.feature.account.auth.AuthSwitch
 import com.emm.mygame.feature.account.scaffold.ScaffoldChoice
 
 @Composable
-fun SignUpScreen(
+internal fun SignUpScreen(
     state: SignUpUiState,
     onIntent: (SignUpIntent) -> Unit,
     onSignInOpen: () -> Unit,
@@ -140,31 +136,4 @@ private fun refusalMessageOf(refusal: SignUpRefusal): Int = when (refusal) {
     SignUpRefusal.EmailTaken -> R.string.sign_up_refused_email_taken
     SignUpRefusal.MalformedEmail -> R.string.sign_up_refused_malformed_email
     SignUpRefusal.Unrecognized -> R.string.sign_up_refused_unrecognized
-}
-
-private val previewSignUpForm: SignUpUiState.Form = SignUpUiState.Form(
-    scaffold = PlayerScaffold.Spanish,
-    email = "ana@example.com",
-    password = "maple-hollow",
-    status = SignUpUiState.FormStatus.Idle,
-)
-
-private class SignUpUiStates : PreviewParameterProvider<SignUpUiState> {
-
-    override val values: Sequence<SignUpUiState> = sequenceOf(
-        previewSignUpForm.copy(email = "", password = ""),
-        previewSignUpForm.copy(scaffold = PlayerScaffold.None, email = "", password = ""),
-        previewSignUpForm.copy(scaffold = PlayerScaffold.None),
-        previewSignUpForm.copy(status = SignUpUiState.FormStatus.Submitting),
-        previewSignUpForm.copy(status = SignUpUiState.FormStatus.Refused(SignUpRefusal.EmailTaken)),
-        previewSignUpForm.copy(status = SignUpUiState.FormStatus.Unreachable),
-    )
-}
-
-@PreviewMyGame
-@Composable
-private fun SignUpScreenPreview(@PreviewParameter(SignUpUiStates::class) state: SignUpUiState) {
-    MyGamePreviewSurface {
-        SignUpScreen(state = state, onIntent = {}, onSignInOpen = {})
-    }
 }

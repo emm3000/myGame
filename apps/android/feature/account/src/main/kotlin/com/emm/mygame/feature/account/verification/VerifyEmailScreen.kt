@@ -14,22 +14,18 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.LiveRegionMode
 import androidx.compose.ui.semantics.liveRegion
 import androidx.compose.ui.semantics.semantics
-import androidx.compose.ui.tooling.preview.PreviewParameter
-import androidx.compose.ui.tooling.preview.PreviewParameterProvider
 import com.emm.mygame.core.designsystem.MyGameErrorBanner
 import com.emm.mygame.core.designsystem.MyGameInlineAlert
-import com.emm.mygame.core.designsystem.MyGamePreviewSurface
 import com.emm.mygame.core.designsystem.MyGameSpacing
 import com.emm.mygame.core.designsystem.MyGameText
 import com.emm.mygame.core.designsystem.MyGameTextLink
 import com.emm.mygame.core.designsystem.MyGameTheme
 import com.emm.mygame.core.designsystem.MyGameTypography
-import com.emm.mygame.core.designsystem.PreviewMyGame
 import com.emm.mygame.feature.account.R
 import com.emm.mygame.feature.account.auth.AuthHeader
 
 @Composable
-fun VerifyEmailScreen(
+internal fun VerifyEmailScreen(
     state: VerifyEmailUiState,
     onIntent: (VerifyEmailIntent) -> Unit,
     onTownOpen: () -> Unit,
@@ -90,23 +86,5 @@ private fun LinkRefused(onSignInOpen: () -> Unit, modifier: Modifier = Modifier)
     Column(verticalArrangement = Arrangement.spacedBy(MyGameSpacing.step4), modifier = modifier) {
         MyGameInlineAlert(message = stringResource(R.string.verify_email_link_refused))
         MyGameTextLink(label = stringResource(R.string.verify_email_to_sign_in), onClick = onSignInOpen)
-    }
-}
-
-private class VerifyEmailUiStates : PreviewParameterProvider<VerifyEmailUiState> {
-
-    override val values: Sequence<VerifyEmailUiState> = sequenceOf(
-        VerifyEmailUiState.Verifying,
-        VerifyEmailUiState.Verified,
-        VerifyEmailUiState.LinkRefused,
-        VerifyEmailUiState.Unexpected,
-    )
-}
-
-@PreviewMyGame
-@Composable
-private fun VerifyEmailScreenPreview(@PreviewParameter(VerifyEmailUiStates::class) state: VerifyEmailUiState) {
-    MyGamePreviewSurface {
-        VerifyEmailScreen(state = state, onIntent = {}, onTownOpen = {}, onSignInOpen = {})
     }
 }

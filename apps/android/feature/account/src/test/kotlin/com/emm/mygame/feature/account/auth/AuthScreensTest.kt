@@ -32,7 +32,7 @@ private const val TAGLINE: String = "Aprende inglés mientras tu pueblo crece."
 private val medievalWord: Regex = Regex("feudo|vadoalto|señor|reino", RegexOption.IGNORE_CASE)
 
 @RunWith(RobolectricTestRunner::class)
-class AccountScreensTest {
+class AuthScreensTest {
 
     @get:Rule
     val composeRule: ComposeContentTestRule = createComposeRule()
