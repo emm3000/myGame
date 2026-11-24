@@ -26,8 +26,6 @@ file-lines feature/learning/src/main/kotlin/com/emm/mygame/feature/learning/Revi
 file-lines feature/learning/src/main/kotlin/com/emm/mygame/feature/learning/ReviewStepLine.kt
 file-lines feature/learning/src/main/kotlin/com/emm/mygame/feature/learning/ReviewViewModel.kt
 file-lines feature/report/src/main/kotlin/com/emm/mygame/feature/report/ReportScreen.kt
-file-lines feature/school/src/main/kotlin/com/emm/mygame/feature/school/SchoolScreen.kt
-file-lines feature/school/src/main/kotlin/com/emm/mygame/feature/school/words/LessonWordsScreen.kt
 file-name app/src/main/kotlin/com/emm/mygame/DockMove.kt
 file-name app/src/main/kotlin/com/emm/mygame/MailedLink.kt
 file-name app/src/main/kotlin/com/emm/mygame/PlayerLanguageFrame.kt
