@@ -13,10 +13,8 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.semantics.LiveRegionMode
-import androidx.compose.ui.semantics.ProgressBarRangeInfo
 import androidx.compose.ui.semantics.heading
 import androidx.compose.ui.semantics.liveRegion
-import androidx.compose.ui.semantics.progressBarRangeInfo
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.semantics.testTag
 import com.emm.mygame.core.designsystem.MyGameArt
@@ -36,7 +34,6 @@ import com.emm.mygame.core.designsystem.MyGameSpacing
 import com.emm.mygame.core.designsystem.MyGameSupportLine
 import com.emm.mygame.core.designsystem.MyGameText
 import com.emm.mygame.core.designsystem.MyGameTheme
-import com.emm.mygame.core.designsystem.MyGameTrack
 import com.emm.mygame.core.designsystem.MyGameTypography
 import com.emm.mygame.core.designsystem.MyGameWordArt
 import com.emm.mygame.core.designsystem.blockHueOf
@@ -178,27 +175,6 @@ private fun RunningTime(remaining: Duration, modifier: Modifier = Modifier) {
 }
 
 @Composable
-private fun WordProgress(reading: LessonWordsUiState.Reading, modifier: Modifier = Modifier) {
-    val filled: Float = (reading.index + 1).toFloat() / reading.words.size
-    Column(verticalArrangement = Arrangement.spacedBy(MyGameSpacing.step2), modifier = modifier) {
-        MyGameText(
-            label = chromeResource(
-                R.string.school_lesson_word_position,
-                "number" to (reading.index + 1).toString(),
-                "count" to reading.words.size.toString(),
-            ),
-            style = MyGameTypography.caption,
-            color = MyGameTheme.colors.inkMuted,
-        )
-        MyGameTrack(
-            filled = filled,
-            color = MyGameTheme.colors.ink,
-            modifier = Modifier.semantics { progressBarRangeInfo = ProgressBarRangeInfo(filled, 0f..1f) },
-        )
-    }
-}
-
-@Composable
 private fun WordBlock(
     reading: LessonWordsUiState.Reading,
     onIntent: (LessonWordsIntent) -> Unit,
@@ -243,33 +219,4 @@ private fun WordHeading(
         onPieceTap = { onIntent(LessonWordsIntent.SupportTapped(LessonWordsUiState.ShownSupport.Word)) },
         modifier = modifier.semantics { heading() },
     )
-}
-
-@Composable
-private fun WordActions(
-    reading: LessonWordsUiState.Reading,
-    onWayOn: (LessonWordsUiState.WayOn) -> Unit,
-    onSchoolOpen: () -> Unit,
-    modifier: Modifier = Modifier,
-) {
-    val wayOn: LessonWordsUiState.WayOn? = reading.wayOn
-    when {
-        !reading.isLastWord -> wayOn?.let { shown: LessonWordsUiState.WayOn ->
-            MyGameNavRow(title = wayOnLabelOf(shown), onClick = { onWayOn(shown) }, modifier = modifier)
-        }
-        wayOn != null -> Unit
-        else -> ReviewsFollow(onSchoolOpen = onSchoolOpen, modifier = modifier)
-    }
-}
-
-@Composable
-private fun ReviewsFollow(onSchoolOpen: () -> Unit, modifier: Modifier = Modifier) {
-    Column(verticalArrangement = Arrangement.spacedBy(MyGameSpacing.step2), modifier = modifier) {
-        MyGameText(
-            label = chromeResource(R.string.school_lesson_word_then),
-            style = MyGameTypography.body,
-            color = MyGameTheme.colors.ink,
-        )
-        MyGameNavRow(title = chromeResource(R.string.school_go_to_school), onClick = onSchoolOpen)
-    }
 }
