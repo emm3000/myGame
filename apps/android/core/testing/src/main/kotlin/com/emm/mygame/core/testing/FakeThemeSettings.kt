@@ -1,7 +1,7 @@
 package com.emm.mygame.core.testing
 
-import com.emm.mygame.core.network.ThemePick
-import com.emm.mygame.core.network.ThemeSettings
+import com.emm.mygame.core.model.theme.ThemePick
+import com.emm.mygame.core.model.theme.ThemeSettings
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow

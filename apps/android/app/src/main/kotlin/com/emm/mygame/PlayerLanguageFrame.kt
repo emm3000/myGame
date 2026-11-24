@@ -9,9 +9,9 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalResources
-import com.emm.mygame.core.network.PlayerChromePhase
-import com.emm.mygame.core.network.PlayerLanguage
-import com.emm.mygame.core.network.PlayerScaffold
+import com.emm.mygame.core.model.account.PlayerChromePhase
+import com.emm.mygame.core.model.account.PlayerLanguage
+import com.emm.mygame.core.model.account.PlayerScaffold
 import com.emm.mygame.core.ui.ChromePhase
 import com.emm.mygame.core.ui.CopyLanguage
 import com.emm.mygame.core.ui.ProvideCopyLanguage

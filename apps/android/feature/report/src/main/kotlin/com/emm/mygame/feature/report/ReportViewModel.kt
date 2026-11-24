@@ -2,13 +2,13 @@ package com.emm.mygame.feature.report
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.emm.mygame.core.model.account.SessionRepository
+import com.emm.mygame.core.model.reminder.StudyReminderChoice
+import com.emm.mygame.core.model.reminder.StudyReminderSettings
 import com.emm.mygame.core.network.HeldTown
 import com.emm.mygame.core.network.ReportCloseResult
 import com.emm.mygame.core.network.ReportReadResult
 import com.emm.mygame.core.network.ReportRepository
-import com.emm.mygame.core.network.SessionRepository
-import com.emm.mygame.core.network.StudyReminderChoice
-import com.emm.mygame.core.network.StudyReminderSettings
 import com.emm.mygame.core.network.TownReport
 import com.emm.mygame.core.network.TownRepository
 import kotlin.time.Clock

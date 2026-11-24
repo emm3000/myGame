@@ -1,6 +1,6 @@
 package com.emm.mygame.feature.signin
 
-import com.emm.mygame.core.network.ThemePick
+import com.emm.mygame.core.model.theme.ThemePick
 import com.emm.mygame.core.testing.FakeThemeSettings
 import com.emm.mygame.core.testing.MainDispatcherRule
 import kotlinx.coroutines.test.runTest

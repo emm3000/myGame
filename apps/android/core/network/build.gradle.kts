@@ -44,6 +44,7 @@ androidComponents {
 }
 
 dependencies {
+    implementation(project(":core:model"))
     implementation(libs.okhttp)
     implementation(libs.retrofit)
     implementation(libs.retrofit.converter.kotlinx.serialization)

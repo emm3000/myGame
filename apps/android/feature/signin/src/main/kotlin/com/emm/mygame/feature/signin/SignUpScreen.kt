@@ -27,8 +27,8 @@ import com.emm.mygame.core.designsystem.MyGameTextField
 import com.emm.mygame.core.designsystem.MyGameTheme
 import com.emm.mygame.core.designsystem.MyGameTypography
 import com.emm.mygame.core.designsystem.PreviewMyGame
-import com.emm.mygame.core.network.PlayerScaffold
-import com.emm.mygame.core.network.SignUpRefusal
+import com.emm.mygame.core.model.account.PlayerScaffold
+import com.emm.mygame.core.model.account.SignUpRefusal
 
 @Composable
 fun SignUpScreen(

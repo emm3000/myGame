@@ -1,5 +1,7 @@
 package com.emm.mygame.core.network
 
+import com.emm.mygame.core.model.account.PlayerChromePhase
+import com.emm.mygame.core.model.account.PlayerScaffold
 import com.emm.mygame.core.network.generated.models.ChromePhase
 import com.emm.mygame.core.network.generated.models.Scaffold
 

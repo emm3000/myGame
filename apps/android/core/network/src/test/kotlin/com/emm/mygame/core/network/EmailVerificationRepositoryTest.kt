@@ -1,5 +1,8 @@
 package com.emm.mygame.core.network
 
+import com.emm.mygame.core.model.account.EmailVerificationResult
+import com.emm.mygame.core.model.account.EmailVerificationToken
+import com.emm.mygame.core.model.account.SessionRepository
 import com.emm.mygame.core.testing.FakeTokenCipher
 import java.io.File
 import kotlinx.coroutines.test.TestScope

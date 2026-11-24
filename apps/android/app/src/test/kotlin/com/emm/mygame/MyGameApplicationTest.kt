@@ -3,8 +3,8 @@ package com.emm.mygame
 import android.app.AlarmManager
 import android.app.Application
 import android.content.Context
-import com.emm.mygame.core.network.StudyReminderChoice
-import com.emm.mygame.core.network.ThemePick
+import com.emm.mygame.core.model.reminder.StudyReminderChoice
+import com.emm.mygame.core.model.theme.ThemePick
 import com.emm.mygame.core.projection.StudyReminderFacts
 import java.time.LocalTime
 import java.util.TimeZone

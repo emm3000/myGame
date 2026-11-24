@@ -2,21 +2,21 @@ package com.emm.mygame
 
 import android.app.Application
 import android.content.Context
+import com.emm.mygame.core.model.account.PlayerLanguage
+import com.emm.mygame.core.model.account.PlayerScaffold
+import com.emm.mygame.core.model.account.SessionRepository
+import com.emm.mygame.core.model.reminder.ReminderNotifications
+import com.emm.mygame.core.model.reminder.StudyReminderSettings
+import com.emm.mygame.core.model.theme.ThemeSettings
 import com.emm.mygame.core.network.ApiRepositories
 import com.emm.mygame.core.network.HoldoutCheckRepository
 import com.emm.mygame.core.network.KeystoreTokenCipher
 import com.emm.mygame.core.network.LearningRepository
 import com.emm.mygame.core.network.PlacementRepository
-import com.emm.mygame.core.network.PlayerLanguage
 import com.emm.mygame.core.network.PlayerLanguages
-import com.emm.mygame.core.network.PlayerScaffold
-import com.emm.mygame.core.network.ReminderNotifications
 import com.emm.mygame.core.network.ReportRepository
 import com.emm.mygame.core.network.SessionEnds
-import com.emm.mygame.core.network.SessionRepository
 import com.emm.mygame.core.network.StudyAnswers
-import com.emm.mygame.core.network.StudyReminderSettings
-import com.emm.mygame.core.network.ThemeSettings
 import com.emm.mygame.core.network.TokenStore
 import com.emm.mygame.core.network.TownRepository
 import com.emm.mygame.core.network.TownTextRepository

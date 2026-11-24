@@ -23,6 +23,7 @@ dependencyResolutionManagement {
 
 rootProject.name = "myGame"
 include(":app")
+include(":core:model")
 include(":core:network")
 include(":core:projection")
 include(":core:designsystem")

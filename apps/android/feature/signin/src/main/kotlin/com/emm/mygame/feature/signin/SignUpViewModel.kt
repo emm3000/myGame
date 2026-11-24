@@ -3,9 +3,9 @@ package com.emm.mygame.feature.signin
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.emm.mygame.core.network.PlayerScaffold
-import com.emm.mygame.core.network.SessionRepository
-import com.emm.mygame.core.network.SignUpResult
+import com.emm.mygame.core.model.account.PlayerScaffold
+import com.emm.mygame.core.model.account.SessionRepository
+import com.emm.mygame.core.model.account.SignUpResult
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow

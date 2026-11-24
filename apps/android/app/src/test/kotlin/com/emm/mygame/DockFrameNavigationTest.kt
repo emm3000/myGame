@@ -38,6 +38,9 @@ import androidx.navigation3.runtime.rememberNavBackStack
 import androidx.test.ext.junit.rules.ActivityScenarioRule
 import com.emm.mygame.core.designsystem.INK_PILL
 import com.emm.mygame.core.designsystem.MyGameTheme
+import com.emm.mygame.core.model.account.PlayerScaffold
+import com.emm.mygame.core.model.account.RestoreResult
+import com.emm.mygame.core.model.account.SignedInPlayer
 import com.emm.mygame.core.network.CaughtUpReason
 import com.emm.mygame.core.network.DueReview
 import com.emm.mygame.core.network.DueReviews
@@ -52,15 +55,12 @@ import com.emm.mygame.core.network.Placement
 import com.emm.mygame.core.network.PlacementBand
 import com.emm.mygame.core.network.PlacementChangeResult
 import com.emm.mygame.core.network.PlacementReadResult
-import com.emm.mygame.core.network.PlayerScaffold
 import com.emm.mygame.core.network.ReportCloseResult
 import com.emm.mygame.core.network.ReportReadResult
-import com.emm.mygame.core.network.RestoreResult
 import com.emm.mygame.core.network.RetainedWords
 import com.emm.mygame.core.network.ReviewAnswerResult
 import com.emm.mygame.core.network.ReviewVerdict
 import com.emm.mygame.core.network.ReviewsReadResult
-import com.emm.mygame.core.network.SignedInPlayer
 import com.emm.mygame.core.network.TownLessonRefusal
 import com.emm.mygame.core.network.TownLessonResult
 import com.emm.mygame.core.network.TownNews

@@ -13,9 +13,9 @@ import androidx.compose.ui.test.junit4.createComposeRule
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.text.AnnotatedString
 import com.emm.mygame.core.designsystem.MyGameTheme
-import com.emm.mygame.core.network.PlayerScaffold
-import com.emm.mygame.core.network.RefusalKind
-import com.emm.mygame.core.network.SignUpRefusal
+import com.emm.mygame.core.model.account.PlayerScaffold
+import com.emm.mygame.core.model.account.RefusalKind
+import com.emm.mygame.core.model.account.SignUpRefusal
 import org.junit.Assert.assertEquals
 import org.junit.Rule
 import org.junit.Test

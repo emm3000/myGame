@@ -1,11 +1,11 @@
 package com.emm.mygame.feature.report
 
 import app.cash.turbine.test
+import com.emm.mygame.core.model.reminder.StudyReminderChoice
 import com.emm.mygame.core.network.ReportCloseResult
 import com.emm.mygame.core.network.HeldTown
 import com.emm.mygame.core.network.LessonId
 import com.emm.mygame.core.network.ReportReadResult
-import com.emm.mygame.core.network.StudyReminderChoice
 import com.emm.mygame.core.network.TownReport
 import com.emm.mygame.core.network.TownSnapshot
 import com.emm.mygame.core.testing.FakeReportRepository

@@ -21,7 +21,7 @@ import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.unit.dp
 import com.emm.mygame.core.designsystem.MyGameTheme
 import com.emm.mygame.core.designsystem.MyGameTypography
-import com.emm.mygame.core.network.ThemePick
+import com.emm.mygame.core.model.theme.ThemePick
 import org.junit.Assert.assertEquals
 import org.junit.Rule
 import org.junit.Test

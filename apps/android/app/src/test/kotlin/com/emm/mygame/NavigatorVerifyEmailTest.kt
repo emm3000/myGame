@@ -1,8 +1,8 @@
 package com.emm.mygame
 
 import androidx.navigation3.runtime.NavKey
-import com.emm.mygame.core.network.EmailVerificationToken
-import com.emm.mygame.core.network.PasswordResetToken
+import com.emm.mygame.core.model.account.EmailVerificationToken
+import com.emm.mygame.core.model.account.PasswordResetToken
 import com.emm.mygame.navigation.Navigator
 import org.junit.Assert.assertEquals
 import org.junit.Test

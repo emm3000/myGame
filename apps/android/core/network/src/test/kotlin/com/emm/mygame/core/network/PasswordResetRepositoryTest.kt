@@ -1,5 +1,8 @@
 package com.emm.mygame.core.network
 
+import com.emm.mygame.core.model.account.PasswordResetResult
+import com.emm.mygame.core.model.account.PasswordResetToken
+import com.emm.mygame.core.model.account.SessionRepository
 import com.emm.mygame.core.testing.FakeTokenCipher
 import java.io.File
 import kotlinx.coroutines.test.TestScope

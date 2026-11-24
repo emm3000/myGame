@@ -7,7 +7,7 @@ import androidx.compose.ui.test.junit4.ComposeContentTestRule
 import androidx.compose.ui.test.junit4.createComposeRule
 import androidx.compose.ui.text.TextLayoutResult
 import com.emm.mygame.core.designsystem.MyGameTheme
-import com.emm.mygame.core.network.PlayerScaffold
+import com.emm.mygame.core.model.account.PlayerScaffold
 import org.junit.Assert.assertTrue
 import org.junit.Rule
 import org.junit.Test

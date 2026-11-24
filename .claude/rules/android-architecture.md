@@ -18,18 +18,20 @@ paths:
 |---|---|
 | `app` | `MainActivity`, navigation, the one place that binds implementations to interfaces, and, until they move (ADR 056), the signed-in frame (`FramedScreen`), the retained-words ring (`RetainedWords*`) and the study reminder (`StudyReminder*`) |
 | `feature:<name>` | One module, one feature, its screens in packages: each screen's ViewModel, `UiState`, `Intent`, `Effect`, route and screen |
+| `core:model` | Pure Kotlin, JVM only: per feature package (`account`, `reminder`, `theme`), the types an api answer is read into, its `*Result` and `*Refusal`, and the ports beside them (`SessionRepository`, `ThemeSettings`) |
 | `core:network` | The generated OpenAPI client, one interface per api resource (`TownRepository`) implemented over it, the bearer, the token store |
 | `core:projection` | Pure Kotlin, JVM only: the lazy projection and the value types it reads |
 | `core:designsystem` | The design-system tokens and components (`ui-components.md`) |
 | `core:ui` | Composables shared by features that read the game's models (a resource row, a countdown) |
-| `core:testing` | Fakes of the `core:network` interfaces, the test clock |
+| `core:testing` | Fakes of the `core:model` and `core:network` interfaces, the test clock |
 
 ```
 app               -> feature:*, core:*
-feature:*         -> core:network, core:projection, core:ui, core:designsystem
-core:ui           -> core:projection, core:designsystem
-core:testing      -> core:network, core:projection
-core:network      -> nothing in the project
+feature:*         -> core:model, core:network, core:projection, core:ui, core:designsystem
+core:ui           -> core:model, core:projection, core:designsystem
+core:testing      -> core:model, core:network, core:projection
+core:network      -> core:model
+core:model        -> nothing in the project
 core:projection   -> nothing in the project
 core:designsystem -> nothing in the project
 ```

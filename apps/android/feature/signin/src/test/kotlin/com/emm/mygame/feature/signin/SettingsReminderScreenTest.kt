@@ -16,7 +16,7 @@ import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
 import androidx.compose.ui.test.performScrollTo
 import com.emm.mygame.core.designsystem.MyGameTheme
-import com.emm.mygame.core.network.PlayerScaffold
+import com.emm.mygame.core.model.account.PlayerScaffold
 import java.time.LocalTime
 import org.junit.Assert.assertEquals
 import org.junit.Rule

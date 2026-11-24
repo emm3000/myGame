@@ -2,9 +2,9 @@ package com.emm.mygame.feature.signin
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.emm.mygame.core.network.PasswordResetResult
-import com.emm.mygame.core.network.PasswordResetToken
-import com.emm.mygame.core.network.SessionRepository
+import com.emm.mygame.core.model.account.PasswordResetResult
+import com.emm.mygame.core.model.account.PasswordResetToken
+import com.emm.mygame.core.model.account.SessionRepository
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow

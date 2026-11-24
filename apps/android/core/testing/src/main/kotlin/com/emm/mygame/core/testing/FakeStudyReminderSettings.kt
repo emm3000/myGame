@@ -1,7 +1,7 @@
 package com.emm.mygame.core.testing
 
-import com.emm.mygame.core.network.StudyReminderChoice
-import com.emm.mygame.core.network.StudyReminderSettings
+import com.emm.mygame.core.model.reminder.StudyReminderChoice
+import com.emm.mygame.core.model.reminder.StudyReminderSettings
 import java.util.concurrent.CopyOnWriteArrayList
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow

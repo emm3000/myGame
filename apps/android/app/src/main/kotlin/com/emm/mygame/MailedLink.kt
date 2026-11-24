@@ -2,8 +2,8 @@ package com.emm.mygame
 
 import android.content.Intent
 import android.net.Uri
-import com.emm.mygame.core.network.EmailVerificationToken
-import com.emm.mygame.core.network.PasswordResetToken
+import com.emm.mygame.core.model.account.EmailVerificationToken
+import com.emm.mygame.core.model.account.PasswordResetToken
 
 internal fun mailedLinkOf(intent: Intent): Destination.MailedLink? {
     if (intent.action != Intent.ACTION_VIEW) return null

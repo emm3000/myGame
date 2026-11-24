@@ -13,10 +13,10 @@ import androidx.compose.ui.test.performScrollTo
 import androidx.compose.ui.test.performTextInput
 import androidx.test.ext.junit.rules.ActivityScenarioRule
 import com.emm.mygame.core.designsystem.MyGameTheme
-import com.emm.mygame.core.network.PlayerScaffold
-import com.emm.mygame.core.network.RestoreResult
-import com.emm.mygame.core.network.SignUpResult
-import com.emm.mygame.core.network.SignedInPlayer
+import com.emm.mygame.core.model.account.PlayerScaffold
+import com.emm.mygame.core.model.account.RestoreResult
+import com.emm.mygame.core.model.account.SignUpResult
+import com.emm.mygame.core.model.account.SignedInPlayer
 import com.emm.mygame.core.network.TownReadResult
 import com.emm.mygame.core.testing.FakeSessionRepository
 import com.emm.mygame.core.testing.FakeTownRepository
