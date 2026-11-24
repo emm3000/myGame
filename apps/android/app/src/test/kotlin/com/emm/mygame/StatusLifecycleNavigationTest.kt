@@ -23,13 +23,8 @@ import com.emm.mygame.core.model.town.guidance.NextStep
 import com.emm.mygame.core.testing.FakeReportRepository
 import com.emm.mygame.core.testing.FakeTownRepository
 import com.emm.mygame.core.testing.townOf
-import com.emm.mygame.feature.town.TOWN_STATUS
+import com.emm.mygame.feature.town.status.TOWN_STATUS
 import com.emm.mygame.navigation.AppNavigation
-import java.util.concurrent.TimeUnit
-import kotlin.time.Clock
-import kotlin.time.Duration
-import kotlin.time.Duration.Companion.seconds
-import kotlin.time.Instant
 import kotlinx.coroutines.flow.emptyFlow
 import org.junit.Assert.assertEquals
 import org.junit.Rule
@@ -37,6 +32,11 @@ import org.junit.Test
 import org.junit.runner.RunWith
 import org.robolectric.RobolectricTestRunner
 import org.robolectric.shadows.ShadowLooper
+import java.util.concurrent.TimeUnit
+import kotlin.time.Clock
+import kotlin.time.Duration
+import kotlin.time.Duration.Companion.seconds
+import kotlin.time.Instant
 
 @RunWith(RobolectricTestRunner::class)
 class StatusLifecycleNavigationTest {

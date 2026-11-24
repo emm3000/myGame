@@ -13,12 +13,13 @@ import androidx.compose.ui.unit.DpRect
 import com.emm.mygame.core.designsystem.MyGameSpacing
 import com.emm.mygame.core.designsystem.MyGameTheme
 import com.emm.mygame.core.model.town.TownRegistered
-import kotlin.time.Duration
+import com.emm.mygame.feature.town.guidance.ClosedGuidance
 import org.junit.Assert.assertEquals
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.robolectric.RobolectricTestRunner
+import kotlin.time.Duration
 
 @RunWith(RobolectricTestRunner::class)
 class TownHomeGutterTest {

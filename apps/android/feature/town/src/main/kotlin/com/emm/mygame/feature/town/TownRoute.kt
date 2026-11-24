@@ -10,9 +10,9 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.emm.mygame.core.model.account.SessionRepository
 import com.emm.mygame.core.model.town.TownRepository
-import kotlin.time.Clock
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
+import kotlin.time.Clock
 
 @Composable
 fun TownRoute(

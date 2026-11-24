@@ -30,7 +30,6 @@ import androidx.compose.ui.test.performTextInput
 import androidx.compose.ui.test.performTouchInput
 import androidx.compose.ui.test.swipeUp
 import androidx.compose.ui.unit.Dp
-import androidx.compose.ui.unit.DpRect as Rect
 import androidx.compose.ui.unit.dp
 import androidx.navigation3.runtime.NavBackStack
 import androidx.navigation3.runtime.NavKey
@@ -77,12 +76,8 @@ import com.emm.mygame.core.testing.FakeSessionRepository
 import com.emm.mygame.core.testing.FakeTownRepository
 import com.emm.mygame.core.testing.lessonsDone
 import com.emm.mygame.core.testing.townOf
-import com.emm.mygame.feature.town.TOWN_DOCK
+import com.emm.mygame.feature.town.status.TOWN_DOCK
 import com.emm.mygame.navigation.AppNavigation
-import kotlin.time.Clock
-import kotlin.time.Duration.Companion.hours
-import kotlin.time.Duration.Companion.minutes
-import kotlin.time.Instant
 import kotlinx.coroutines.flow.emptyFlow
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertTrue
@@ -93,6 +88,11 @@ import org.junit.runner.RunWith
 import org.robolectric.RobolectricTestRunner
 import org.robolectric.annotation.Config
 import org.robolectric.annotation.GraphicsMode
+import kotlin.time.Clock
+import kotlin.time.Duration.Companion.hours
+import kotlin.time.Duration.Companion.minutes
+import kotlin.time.Instant
+import androidx.compose.ui.unit.DpRect as Rect
 
 @RunWith(RobolectricTestRunner::class)
 class DockFrameNavigationTest {

@@ -9,17 +9,22 @@ import com.emm.mygame.core.model.town.TownResourceKind
 import com.emm.mygame.core.model.town.TownSnapshot
 import com.emm.mygame.core.model.town.building.TownBuildingKind
 import com.emm.mygame.core.model.town.hiring.TownHireKind
+import com.emm.mygame.feature.town.building.PlaceBuildingWork
+import com.emm.mygame.feature.town.building.PlaceStocks
+import com.emm.mygame.feature.town.building.SeasonRow
+import com.emm.mygame.feature.town.guidance.ClosedGuidance
+import com.emm.mygame.feature.town.hiring.OfficeSection
+import org.junit.Assert.assertEquals
+import org.junit.Rule
+import org.junit.Test
+import org.junit.runner.RunWith
+import org.robolectric.RobolectricTestRunner
 import java.time.LocalDateTime
 import java.time.ZoneId
 import kotlin.time.Duration
 import kotlin.time.Duration.Companion.days
 import kotlin.time.Duration.Companion.hours
 import kotlin.time.Instant
-import org.junit.Assert.assertEquals
-import org.junit.Rule
-import org.junit.Test
-import org.junit.runner.RunWith
-import org.robolectric.RobolectricTestRunner
 
 @RunWith(RobolectricTestRunner::class)
 class TownCaptionFiguresTest {

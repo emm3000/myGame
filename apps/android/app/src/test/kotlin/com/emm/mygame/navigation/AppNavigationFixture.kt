@@ -45,18 +45,18 @@ import com.emm.mygame.core.testing.FakeTownRepository
 import com.emm.mygame.core.testing.lessonsDone
 import com.emm.mygame.core.testing.townOf
 import com.emm.mygame.dependenciesOf
-import com.emm.mygame.feature.town.TOWN_DOCK
-import com.emm.mygame.feature.town.TOWN_STATUS
+import com.emm.mygame.feature.town.status.TOWN_DOCK
+import com.emm.mygame.feature.town.status.TOWN_STATUS
+import kotlinx.coroutines.flow.emptyFlow
+import kotlinx.coroutines.runBlocking
+import org.junit.Rule
+import org.robolectric.shadows.ShadowLooper
 import java.util.concurrent.TimeUnit
 import kotlin.time.Clock
 import kotlin.time.Duration
 import kotlin.time.Duration.Companion.minutes
 import kotlin.time.Duration.Companion.seconds
 import kotlin.time.Instant
-import kotlinx.coroutines.flow.emptyFlow
-import kotlinx.coroutines.runBlocking
-import org.junit.Rule
-import org.robolectric.shadows.ShadowLooper
 
 internal const val TOWN_HEADER: String = "Riverton · Pueblo"
 internal const val LESSON_ONE_READY: String = "Lección 1 lista en"

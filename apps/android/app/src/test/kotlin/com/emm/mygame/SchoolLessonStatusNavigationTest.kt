@@ -18,19 +18,19 @@ import com.emm.mygame.core.model.town.TownSnapshot
 import com.emm.mygame.core.model.town.guidance.NextStep
 import com.emm.mygame.core.testing.FakeTownRepository
 import com.emm.mygame.core.testing.townOf
-import com.emm.mygame.feature.town.TOWN_STATUS
-import com.emm.mygame.feature.town.TownStatusViewModel
+import com.emm.mygame.feature.town.status.TOWN_STATUS
+import com.emm.mygame.feature.town.status.TownStatusViewModel
 import com.emm.mygame.navigation.AppNavigation
-import kotlin.time.Clock
-import kotlin.time.Duration.Companion.minutes
-import kotlin.time.Duration.Companion.seconds
-import kotlin.time.Instant
 import kotlinx.coroutines.flow.emptyFlow
 import kotlinx.coroutines.runBlocking
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.robolectric.RobolectricTestRunner
+import kotlin.time.Clock
+import kotlin.time.Duration.Companion.minutes
+import kotlin.time.Duration.Companion.seconds
+import kotlin.time.Instant
 
 @RunWith(RobolectricTestRunner::class)
 class SchoolLessonStatusNavigationTest {

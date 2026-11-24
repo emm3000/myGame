@@ -16,13 +16,14 @@ import androidx.compose.ui.unit.Dp
 import com.emm.mygame.core.designsystem.MyGameTheme
 import com.emm.mygame.core.model.town.TownRegistered
 import com.emm.mygame.core.model.town.guidance.TipKind
-import kotlin.time.Duration
+import com.emm.mygame.feature.town.guidance.ClosedGuidance
 import org.junit.Assert.assertTrue
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.robolectric.RobolectricTestRunner
 import org.robolectric.annotation.Config
+import kotlin.time.Duration
 
 @RunWith(RobolectricTestRunner::class)
 class TownTipStripTest {

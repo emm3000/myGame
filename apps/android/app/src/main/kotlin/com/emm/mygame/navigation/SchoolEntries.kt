@@ -24,7 +24,7 @@ import com.emm.mygame.feature.school.SchoolTextRoute
 import com.emm.mygame.feature.school.SchoolUiState
 import com.emm.mygame.feature.school.SchoolViewModel
 import com.emm.mygame.feature.school.schoolStudyGo
-import com.emm.mygame.feature.town.TownStatusIntent
+import com.emm.mygame.feature.town.status.TownStatusIntent
 
 internal fun EntryProviderScope<NavKey>.schoolEntry(chrome: SignedInChrome) {
     val dependencies: AppDependencies = chrome.dependencies

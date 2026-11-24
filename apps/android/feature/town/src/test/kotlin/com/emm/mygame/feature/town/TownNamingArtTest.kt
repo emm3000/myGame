@@ -12,6 +12,7 @@ import com.emm.mygame.core.designsystem.MyGameArt
 import com.emm.mygame.core.designsystem.MyGameTheme
 import com.emm.mygame.core.designsystem.PLACE_ART
 import com.emm.mygame.core.model.town.building.TownBuildingKind
+import com.emm.mygame.feature.town.building.placeArtOf
 import org.junit.Assert.assertEquals
 import org.junit.Rule
 import org.junit.Test

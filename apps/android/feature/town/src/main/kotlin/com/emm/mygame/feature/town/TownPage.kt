@@ -30,6 +30,17 @@ import com.emm.mygame.core.ui.SeasonMark
 import com.emm.mygame.core.ui.chromeResource
 import com.emm.mygame.core.ui.frameHeaderTurn
 import com.emm.mygame.core.ui.rememberPlayerCopy
+import com.emm.mygame.feature.town.building.NextLevel
+import com.emm.mygame.feature.town.building.PlaceBuildingWork
+import com.emm.mygame.feature.town.building.PlaceStocks
+import com.emm.mygame.feature.town.building.SeasonRow
+import com.emm.mygame.feature.town.building.StartAnswer
+import com.emm.mygame.feature.town.building.placeArtOf
+import com.emm.mygame.feature.town.guidance.GoalState
+import com.emm.mygame.feature.town.guidance.TipNote
+import com.emm.mygame.feature.town.guidance.goalLineOf
+import com.emm.mygame.feature.town.guidance.tipPlaceOf
+import com.emm.mygame.feature.town.hiring.OfficeSection
 
 @Composable
 internal fun TownPage(

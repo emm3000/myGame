@@ -36,8 +36,7 @@ import com.emm.mygame.core.model.town.guidance.CaughtUpReason
 import com.emm.mygame.core.model.town.guidance.NextStep
 import com.emm.mygame.core.model.town.guidance.NextStepText
 import com.emm.mygame.core.model.town.guidance.TownGoal
-import kotlin.time.Duration
-import kotlin.time.Duration.Companion.days
+import com.emm.mygame.feature.town.guidance.ClosedGuidance
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertTrue
 import org.junit.Rule
@@ -45,6 +44,8 @@ import org.junit.Test
 import org.junit.runner.RunWith
 import org.robolectric.RobolectricTestRunner
 import org.robolectric.annotation.GraphicsMode
+import kotlin.time.Duration
+import kotlin.time.Duration.Companion.days
 
 @RunWith(RobolectricTestRunner::class)
 class TownPageLinesScreenTest {

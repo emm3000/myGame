@@ -2,8 +2,8 @@ package com.emm.mygame
 
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.State
-import com.emm.mygame.feature.town.TownStatusIntent
-import com.emm.mygame.feature.town.TownStatusUiState
+import com.emm.mygame.feature.town.status.TownStatusIntent
+import com.emm.mygame.feature.town.status.TownStatusUiState
 import com.emm.mygame.navigation.Navigator
 
 internal class SignedInChrome(

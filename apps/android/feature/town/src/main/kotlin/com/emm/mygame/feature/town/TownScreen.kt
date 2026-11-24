@@ -48,10 +48,11 @@ import com.emm.mygame.core.ui.ScaffoldLanguage
 import com.emm.mygame.core.ui.chromeResource
 import com.emm.mygame.core.ui.fixedCopyResource
 import com.emm.mygame.core.ui.joinsFrameTraversal
-import kotlin.time.Duration.Companion.days
-import kotlin.time.Duration.Companion.minutes
+import com.emm.mygame.feature.town.naming.NamingSection
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
+import kotlin.time.Duration.Companion.days
+import kotlin.time.Duration.Companion.minutes
 
 @Composable
 fun TownScreen(

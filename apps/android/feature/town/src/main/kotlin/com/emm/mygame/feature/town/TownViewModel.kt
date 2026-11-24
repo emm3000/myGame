@@ -13,10 +13,8 @@ import com.emm.mygame.core.model.town.building.TownBuildingKind
 import com.emm.mygame.core.model.town.building.TownWorkResult
 import com.emm.mygame.core.model.town.registeredBetween
 import com.emm.mygame.core.projection.repaintDelay
-import kotlin.time.Clock
-import kotlin.time.Duration
-import kotlin.time.Duration.Companion.minutes
-import kotlin.time.Instant
+import com.emm.mygame.feature.town.guidance.TownGuidance
+import com.emm.mygame.feature.town.hiring.TownHiring
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.cancelChildren
 import kotlinx.coroutines.channels.Channel
@@ -28,6 +26,10 @@ import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
+import kotlin.time.Clock
+import kotlin.time.Duration
+import kotlin.time.Duration.Companion.minutes
+import kotlin.time.Instant
 
 private val failedReadRetry: Duration = 1.minutes
 

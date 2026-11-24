@@ -9,6 +9,7 @@ import androidx.compose.ui.test.onNodeWithText
 import com.emm.mygame.core.designsystem.MyGameTheme
 import com.emm.mygame.core.model.town.TownResourceKind
 import com.emm.mygame.core.model.town.building.TownBuildingKind
+import com.emm.mygame.feature.town.building.NextLevel
 import org.junit.Assert.assertEquals
 import org.junit.Rule
 import org.junit.Test
