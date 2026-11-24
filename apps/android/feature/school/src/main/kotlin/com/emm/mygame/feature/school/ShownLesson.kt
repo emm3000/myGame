@@ -10,7 +10,6 @@ import androidx.compose.ui.semantics.liveRegion
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.semantics.testTag
 import com.emm.mygame.core.designsystem.MyGameBlock
-import com.emm.mygame.core.designsystem.MyGameInlineAlert
 import com.emm.mygame.core.designsystem.MyGameLabel
 import com.emm.mygame.core.designsystem.MyGameMetaText
 import com.emm.mygame.core.designsystem.MyGameNavRow
@@ -24,7 +23,6 @@ import com.emm.mygame.core.designsystem.englishTextOf
 import com.emm.mygame.core.model.learning.LessonId
 import com.emm.mygame.core.model.town.LessonName
 import com.emm.mygame.core.ui.PlayerCopy
-import com.emm.mygame.core.ui.durationLabelOf
 import com.emm.mygame.core.ui.rememberPlayerCopy
 
 @Composable
@@ -51,7 +49,7 @@ internal fun ShownLesson(
         running?.let { slot: SchoolUiState.SlotLine.Running ->
             ReadWordsRow(running = slot.lesson, name = slot.name, shown = card.lesson, onLessonOpen = onLessonOpen)
         }
-        StartAnswer(lesson = card.lesson, start = content.start, opening = content.learning.opening)
+        LessonStartAnswer(lesson = card.lesson, start = content.start, opening = content.learning.opening)
     }
 }
 
@@ -114,14 +112,6 @@ private fun StudyAction(
     }
 }
 
-internal fun PlayerCopy.studyLabelOf(card: SchoolUiState.LessonCard): MyGameLabel = chrome {
-    text(
-        R.string.school_study_with_duration,
-        "action" to text(R.string.school_lesson_study, "number" to card.number.toString()),
-        "duration" to durationLabelOf(card.duration, schoolDurationCopy),
-    )
-}
-
 @Composable
 private fun ReadWordsRow(
     running: LessonId,
@@ -136,21 +126,4 @@ private fun ReadWordsRow(
         onClick = { onLessonOpen(running) },
         modifier = modifier,
     )
-}
-
-@Composable
-internal fun StartAnswer(
-    lesson: LessonId,
-    start: SchoolUiState.LessonRequest,
-    opening: SchoolUiState.CapOpening,
-    modifier: Modifier = Modifier,
-) {
-    val copy: PlayerCopy = rememberPlayerCopy()
-    val asked: LessonId? = when (start) {
-        is SchoolUiState.LessonRequest.Refused -> start.lesson
-        is SchoolUiState.LessonRequest.Unreachable -> start.lesson
-        SchoolUiState.LessonRequest.Idle, SchoolUiState.LessonRequest.Waiting -> null
-    }
-    if (asked != lesson) return
-    copy.requestAnswerOf(start, opening)?.let { line: String -> MyGameInlineAlert(message = line, modifier = modifier) }
 }

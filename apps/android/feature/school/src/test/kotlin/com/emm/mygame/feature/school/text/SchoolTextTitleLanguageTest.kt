@@ -9,7 +9,7 @@ import androidx.compose.ui.text.intl.LocaleList
 import com.emm.mygame.core.designsystem.MyGameTheme
 import com.emm.mygame.core.model.learning.TextId
 import com.emm.mygame.core.model.town.TownSnapshot
-import com.emm.mygame.feature.school.SchoolMutations
+import com.emm.mygame.feature.school.SchoolRequests
 import com.emm.mygame.feature.school.SchoolScreen
 import com.emm.mygame.feature.school.SchoolUiState
 import com.emm.mygame.feature.school.contentAt
@@ -43,7 +43,7 @@ class SchoolTextTitleLanguageTest {
     @Test
     fun `reads a text row's title in English`() {
         val state: SchoolUiState = townOf(texts = listOf(openText))
-            .contentAt(readInstant, Duration.ZERO, SchoolMutations.none, selected = null)
+            .contentAt(readInstant, Duration.ZERO, SchoolRequests.none, selected = null)
         composeRule.setContent {
             MyGameTheme {
                 SchoolScreen(state = state, onIntent = {}, onLessonOpen = {}, onTextOpen = {})

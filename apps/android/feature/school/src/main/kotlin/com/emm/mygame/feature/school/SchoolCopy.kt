@@ -8,9 +8,8 @@ import com.emm.mygame.core.model.town.school.TownLessonRefusal
 import com.emm.mygame.core.ui.CopyReader
 import com.emm.mygame.core.ui.DurationCopy
 import com.emm.mygame.core.ui.PlayerCopy
+import com.emm.mygame.core.ui.durationLabelOf
 import com.emm.mygame.core.ui.finishLabelOf
-
-internal fun fixedLabelOf(text: String): MyGameLabel = MyGameLabel(text = text, translation = null)
 
 internal fun resourceNameOf(kind: TownResourceKind): Int = when (kind) {
     TownResourceKind.Money -> R.string.school_resource_money
@@ -93,3 +92,18 @@ internal val schoolDurationCopy: DurationCopy = DurationCopy(
     finishTomorrow = R.string.school_finish_tomorrow,
     finishDay = R.string.school_finish_day,
 )
+
+internal fun PlayerCopy.blockLineOf(block: SchoolUiState.LessonBlock): MyGameLabel = when (block) {
+    is SchoolUiState.LessonBlock.SlotBusy -> slotBusyLineOf(block.name)
+    is SchoolUiState.LessonBlock.SchoolTooLow ->
+        chrome(R.string.school_lesson_needs_school, "level" to block.requiredLevel.toString())
+    SchoolUiState.LessonBlock.CapReached -> chrome(R.string.school_lesson_cap_reached)
+}
+
+internal fun PlayerCopy.studyLabelOf(card: SchoolUiState.LessonCard): MyGameLabel = chrome {
+    text(
+        R.string.school_study_with_duration,
+        "action" to text(R.string.school_lesson_study, "number" to card.number.toString()),
+        "duration" to durationLabelOf(card.duration, schoolDurationCopy),
+    )
+}

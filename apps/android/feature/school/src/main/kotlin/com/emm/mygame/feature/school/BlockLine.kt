@@ -9,7 +9,6 @@ import com.emm.mygame.core.designsystem.MyGameLabel
 import com.emm.mygame.core.designsystem.MyGameText
 import com.emm.mygame.core.designsystem.MyGameTheme
 import com.emm.mygame.core.designsystem.MyGameTypography
-import com.emm.mygame.core.ui.PlayerCopy
 
 internal const val LESSON_BLOCK_LINE: String = "lesson_block_line"
 
@@ -24,11 +23,4 @@ internal fun BlockLine(line: MyGameLabel, modifier: Modifier = Modifier) {
             testTag = LESSON_BLOCK_LINE
         },
     )
-}
-
-internal fun PlayerCopy.blockLineOf(block: SchoolUiState.LessonBlock): MyGameLabel = when (block) {
-    is SchoolUiState.LessonBlock.SlotBusy -> slotBusyLineOf(block.name)
-    is SchoolUiState.LessonBlock.SchoolTooLow ->
-        chrome(R.string.school_lesson_needs_school, "level" to block.requiredLevel.toString())
-    SchoolUiState.LessonBlock.CapReached -> chrome(R.string.school_lesson_cap_reached)
 }

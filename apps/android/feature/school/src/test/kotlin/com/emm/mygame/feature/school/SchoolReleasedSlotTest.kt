@@ -117,7 +117,7 @@ class SchoolReleasedSlotTest {
     }
 
     private fun contentAt(now: Instant): SchoolUiState.Content =
-        releasedRunning.contentAt(now = now, gap = Duration.ZERO, mutations = SchoolMutations.none, selected = null)
+        releasedRunning.contentAt(now = now, gap = Duration.ZERO, requests = SchoolRequests.none, selected = null)
 
     private fun show(state: SchoolUiState) {
         composeRule.setContent {

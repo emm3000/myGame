@@ -84,7 +84,7 @@ class SchoolPathTest {
     private fun topOf(text: String): Dp = composeRule.onNodeWithText(text).getUnclippedBoundsInRoot().top
 
     private fun show(town: TownSnapshot) {
-        val state: SchoolUiState = town.contentAt(readInstant, Duration.ZERO, SchoolMutations.none, selected = null)
+        val state: SchoolUiState = town.contentAt(readInstant, Duration.ZERO, SchoolRequests.none, selected = null)
         composeRule.setContent {
             MyGameTheme {
                 SchoolScreen(

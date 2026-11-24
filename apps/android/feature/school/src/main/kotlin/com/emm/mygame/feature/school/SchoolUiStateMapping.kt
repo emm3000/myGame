@@ -19,7 +19,7 @@ import kotlin.time.Instant
 internal fun TownSnapshot.contentAt(
     now: Instant,
     gap: Duration,
-    mutations: SchoolMutations,
+    requests: SchoolRequests,
     selected: LessonId?,
 ): SchoolUiState.Content {
     val card: NextStepCard = nextStepCard()
@@ -34,8 +34,8 @@ internal fun TownSnapshot.contentAt(
         texts = texts.map(::textCardOf),
         studyMark = seasonInForce?.studyMark(),
         nextStep = card,
-        start = mutations.start,
-        stop = mutations.stop,
+        start = requests.start,
+        stop = requests.stop,
         isHoldoutNoteShown = hasBandStarted,
         bandLines = bandLines,
         selected = selected,

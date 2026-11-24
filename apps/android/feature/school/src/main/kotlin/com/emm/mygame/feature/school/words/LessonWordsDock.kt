@@ -70,12 +70,6 @@ private fun readingGoOf(
 }
 
 @Composable
-internal fun wayOnLabelOf(wayOn: LessonWordsUiState.WayOn): MyGameLabel = when (wayOn) {
-    is LessonWordsUiState.WayOn.Lesson -> chromeResource(R.string.school_lesson_next)
-    LessonWordsUiState.WayOn.Reviews -> chromeResource(R.string.school_start_reviews)
-}
-
-@Composable
 private fun goOf(label: MyGameLabel, blockedReason: String? = null, onClick: () -> Unit): MyGameDockGo = MyGameDockGo(
     label = label,
     isBusy = false,

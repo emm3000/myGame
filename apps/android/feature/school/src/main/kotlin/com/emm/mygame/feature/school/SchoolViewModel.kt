@@ -40,7 +40,7 @@ class SchoolViewModel(private val towns: TownRepository, private val clock: Cloc
 
     private var shown: TownSnapshot? = null
 
-    private var mutations: SchoolMutations = SchoolMutations.none
+    private var requests: SchoolRequests = SchoolRequests.none
 
     private var selected: LessonId? = null
 
@@ -110,7 +110,7 @@ class SchoolViewModel(private val towns: TownRepository, private val clock: Cloc
         val last: TownSnapshot = shown ?: return
         if (held.town == last) return
         gap = held.gap
-        restartFrom(held.town, mutations.keptAfterRead())
+        restartFrom(held.town, requests.keptAfterRead())
     }
 
     private fun openHeld(held: HeldTown) {
@@ -125,48 +125,48 @@ class SchoolViewModel(private val towns: TownRepository, private val clock: Cloc
     }
 
     private fun start(lesson: LessonId) {
-        if (mutations.start == SchoolUiState.LessonRequest.Waiting) return
-        drawMutations(mutations.copy(start = SchoolUiState.LessonRequest.Waiting))
+        if (requests.start == SchoolUiState.LessonRequest.Waiting) return
+        drawRequests(requests.copy(start = SchoolUiState.LessonRequest.Waiting))
         viewModelScope.launch {
             when (val answer: TownLessonResult = towns.startLesson(lesson)) {
                 is TownLessonResult.Answered -> {
-                    restartFrom(answer.town, mutations.keptAfterRead().copy(start = SchoolUiState.LessonRequest.Idle))
+                    restartFrom(answer.town, requests.keptAfterRead().copy(start = SchoolUiState.LessonRequest.Idle))
                     _effects.send(SchoolEffect.LessonStarted)
                 }
                 is TownLessonResult.Refused ->
-                    drawMutations(mutations.copy(start = SchoolUiState.LessonRequest.Refused(lesson, answer.refusal)))
+                    drawRequests(requests.copy(start = SchoolUiState.LessonRequest.Refused(lesson, answer.refusal)))
                 TownLessonResult.Unreachable ->
-                    drawMutations(mutations.copy(start = SchoolUiState.LessonRequest.Unreachable(lesson)))
+                    drawRequests(requests.copy(start = SchoolUiState.LessonRequest.Unreachable(lesson)))
             }
         }
     }
 
     private fun stop(lesson: LessonId) {
-        if (mutations.stop == SchoolUiState.LessonRequest.Waiting) return
-        drawMutations(mutations.copy(stop = SchoolUiState.LessonRequest.Waiting))
+        if (requests.stop == SchoolUiState.LessonRequest.Waiting) return
+        drawRequests(requests.copy(stop = SchoolUiState.LessonRequest.Waiting))
         viewModelScope.launch {
             when (val answer: TownLessonResult = towns.stopLesson(lesson)) {
                 is TownLessonResult.Answered ->
-                    restartFrom(answer.town, mutations.keptAfterRead().copy(stop = SchoolUiState.LessonRequest.Idle))
+                    restartFrom(answer.town, requests.keptAfterRead().copy(stop = SchoolUiState.LessonRequest.Idle))
                 is TownLessonResult.Refused ->
-                    drawMutations(mutations.copy(stop = SchoolUiState.LessonRequest.Refused(lesson, answer.refusal)))
+                    drawRequests(requests.copy(stop = SchoolUiState.LessonRequest.Refused(lesson, answer.refusal)))
                 TownLessonResult.Unreachable ->
-                    drawMutations(mutations.copy(stop = SchoolUiState.LessonRequest.Unreachable(lesson)))
+                    drawRequests(requests.copy(stop = SchoolUiState.LessonRequest.Unreachable(lesson)))
             }
         }
     }
 
-    private fun restartFrom(town: TownSnapshot, kept: SchoolMutations) {
+    private fun restartFrom(town: TownSnapshot, kept: SchoolRequests) {
         projection?.cancel()
-        mutations = kept
+        requests = kept
         draw(town)
         if (isShown) {
             projection = viewModelScope.launch { project(town, firstReadAt = town.nextChangeAfter(serverNow())) }
         }
     }
 
-    private fun drawMutations(next: SchoolMutations) {
-        mutations = next
+    private fun drawRequests(next: SchoolRequests) {
+        requests = next
         _state.update { current: SchoolUiState ->
             if (current is SchoolUiState.Content) current.copy(start = next.start, stop = next.stop) else current
         }
@@ -174,7 +174,7 @@ class SchoolViewModel(private val towns: TownRepository, private val clock: Cloc
 
     private fun draw(town: TownSnapshot) {
         shown = town
-        _state.value = town.contentAt(now = serverNow(), gap = gap, mutations = mutations, selected = selected)
+        _state.value = town.contentAt(now = serverNow(), gap = gap, requests = requests, selected = selected)
     }
 
     private suspend fun project(first: TownSnapshot, firstReadAt: Instant?) {
@@ -186,7 +186,7 @@ class SchoolViewModel(private val towns: TownRepository, private val clock: Cloc
                 when (val answer: TownReadResult = towns.read()) {
                     is TownReadResult.Read -> {
                         town = measured(answer.town)
-                        mutations = mutations.keptAfterRead()
+                        requests = requests.keptAfterRead()
                         nextReadAt = town.nextChangeAfter(serverNow())
                         continue
                     }

@@ -27,7 +27,7 @@ class SchoolThemeLanguageTest {
 
     private fun show(town: TownSnapshot) {
         val state: SchoolUiState =
-            town.contentAt(readInstant, Duration.ZERO, SchoolMutations.none, selected = firstLesson)
+            town.contentAt(readInstant, Duration.ZERO, SchoolRequests.none, selected = firstLesson)
         composeRule.setContent {
             MyGameTheme {
                 SchoolScreen(state = state, onIntent = {}, onLessonOpen = {}, onTextOpen = {})
