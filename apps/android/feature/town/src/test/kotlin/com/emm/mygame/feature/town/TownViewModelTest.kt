@@ -10,6 +10,14 @@ import com.emm.mygame.core.model.town.building.NeededWordKind
 import com.emm.mygame.core.model.town.building.TownBuildingKind
 import com.emm.mygame.core.testing.FakeTownRepository
 import com.emm.mygame.core.testing.MainDispatcherRule
+import com.emm.mygame.feature.town.building.PeopleLine
+import com.emm.mygame.feature.town.building.PlaceCard
+import com.emm.mygame.feature.town.building.SlotLine
+import com.emm.mygame.feature.town.building.StockLine
+import com.emm.mygame.feature.town.building.WaitingLine
+import com.emm.mygame.feature.town.building.WordNeedLine
+import com.emm.mygame.feature.town.building.WordsLine
+import com.emm.mygame.feature.town.naming.NamingStatus
 import kotlinx.coroutines.test.TestScope
 import kotlinx.coroutines.test.advanceTimeBy
 import kotlinx.coroutines.test.runCurrent
@@ -66,7 +74,7 @@ class TownViewModelTest {
                 TownResourceKind.Power,
                 TownResourceKind.Material,
             ),
-            contentOf(viewModel).stocks.map { stock: TownUiState.StockLine -> stock.kind },
+            contentOf(viewModel).stocks.map { stock: StockLine -> stock.kind },
         )
     }
 
@@ -83,14 +91,14 @@ class TownViewModelTest {
         val viewModel: TownViewModel =
             homeViewModel(townOf(people = TownSnapshot.People(supplied = 30, free = 24, atWork = 6)))
 
-        assertEquals(TownUiState.PeopleLine(free = 24, atWork = 6), contentOf(viewModel).people)
+        assertEquals(PeopleLine(free = 24, atWork = 6), contentOf(viewModel).people)
     }
 
     @Test
     fun `draws the town's reviewed and learned words`() = runTest {
         val viewModel: TownViewModel = homeViewModel(townOf(stableWordCount = 14, retainedWordCount = 3))
 
-        assertEquals(TownUiState.WordsLine(stable = 14, retained = 3), contentOf(viewModel).words)
+        assertEquals(WordsLine(stable = 14, retained = 3), contentOf(viewModel).words)
     }
 
     @Test
@@ -101,7 +109,7 @@ class TownViewModelTest {
         val viewModel: TownViewModel = homeViewModel(townOf(places = placesOf(farm)))
 
         assertEquals(
-            TownUiState.WordNeedLine(needed = 10, held = 4, standing = NeededWordKind.Stable),
+            WordNeedLine(needed = 10, held = 4, standing = NeededWordKind.Stable),
             placeOf(viewModel, TownBuildingKind.Farm).next?.wordsNeeded,
         )
     }
@@ -130,7 +138,7 @@ class TownViewModelTest {
                 TownBuildingKind.PowerStation,
                 TownBuildingKind.Storage,
             ),
-            contentOf(viewModel).places.map { place: TownUiState.PlaceCard -> place.kind },
+            contentOf(viewModel).places.map { place: PlaceCard -> place.kind },
         )
     }
 
@@ -156,7 +164,7 @@ class TownViewModelTest {
 
         assertEquals(
             listOf(102L, 1000L),
-            contentOf(viewModel).stocks.take(2).map { stock: TownUiState.StockLine -> stock.amount },
+            contentOf(viewModel).stocks.take(2).map { stock: StockLine -> stock.amount },
         )
     }
 
@@ -197,7 +205,7 @@ class TownViewModelTest {
 
     @Test
     fun `draws an idle slot when no work runs`() = runTest {
-        assertEquals(TownUiState.SlotLine.Idle, contentOf(homeViewModel(townOf())).slot)
+        assertEquals(SlotLine.Idle, contentOf(homeViewModel(townOf())).slot)
     }
 
     @Test
@@ -209,7 +217,7 @@ class TownViewModelTest {
         runCurrent()
 
         assertEquals(
-            TownUiState.SlotLine.Busy(
+            SlotLine.Busy(
                 building = TownBuildingKind.Farm,
                 level = 2,
                 remaining = 4.minutes,
@@ -227,7 +235,7 @@ class TownViewModelTest {
         advanceTimeBy(32.seconds)
         runCurrent()
 
-        assertEquals(58.seconds, (contentOf(viewModel).slot as TownUiState.SlotLine.Busy).remaining)
+        assertEquals(58.seconds, (contentOf(viewModel).slot as SlotLine.Busy).remaining)
     }
 
     @Test
@@ -238,7 +246,7 @@ class TownViewModelTest {
 
         assertEquals(
             listOf(
-                TownUiState.WaitingLine(
+                WaitingLine(
                     building = TownBuildingKind.School,
                     level = 3,
                     remaining = 20.minutes,
@@ -256,7 +264,7 @@ class TownViewModelTest {
 
         assertEquals(
             readInstant - 3.hours + 10.minutes,
-            (contentOf(viewModel).slot as TownUiState.SlotLine.Busy).finishesAt,
+            (contentOf(viewModel).slot as SlotLine.Busy).finishesAt,
         )
     }
 
@@ -268,7 +276,7 @@ class TownViewModelTest {
         advanceTimeBy(1.minutes)
         runCurrent()
 
-        assertEquals(TownUiState.SlotLine.Done(TownBuildingKind.Farm, level = 2), contentOf(viewModel).slot)
+        assertEquals(SlotLine.Done(TownBuildingKind.Farm, level = 2), contentOf(viewModel).slot)
     }
 
     @Test
@@ -453,7 +461,7 @@ class TownViewModelTest {
         advanceTimeBy(1.minutes)
         runCurrent()
 
-        assertEquals(TownUiState.Naming("", TownUiState.NamingStatus.Idle), viewModel.state.value)
+        assertEquals(TownUiState.Naming("", NamingStatus.Idle), viewModel.state.value)
     }
 
     @Test
@@ -560,7 +568,7 @@ class TownViewModelTest {
 
         viewModel.onIntent(TownIntent.ScreenShown)
 
-        assertEquals(TownUiState.Naming("", TownUiState.NamingStatus.Idle), viewModel.state.value)
+        assertEquals(TownUiState.Naming("", NamingStatus.Idle), viewModel.state.value)
     }
 
     @Test

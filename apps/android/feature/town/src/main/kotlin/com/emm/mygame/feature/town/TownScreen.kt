@@ -31,6 +31,7 @@ import com.emm.mygame.core.model.learning.TextId
 import com.emm.mygame.core.ui.chromeResource
 import com.emm.mygame.core.ui.fixedCopyResource
 import com.emm.mygame.core.ui.joinsFrameTraversal
+import com.emm.mygame.feature.town.building.PlaceCard
 import com.emm.mygame.feature.town.naming.NamingSection
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
@@ -210,4 +211,4 @@ private fun TownHome(
 }
 
 private fun TownUiState.Content.openingPage(): Int =
-    places.indexOfFirst { place: TownUiState.PlaceCard -> place.kind == nextStepPlace }.coerceAtLeast(0)
+    places.indexOfFirst { place: PlaceCard -> place.kind == nextStepPlace }.coerceAtLeast(0)

@@ -36,6 +36,9 @@ import com.emm.mygame.core.model.town.guidance.CaughtUpReason
 import com.emm.mygame.core.model.town.guidance.NextStep
 import com.emm.mygame.core.model.town.guidance.NextStepText
 import com.emm.mygame.core.model.town.guidance.TownGoal
+import com.emm.mygame.feature.town.building.SlotLine
+import com.emm.mygame.feature.town.building.StartStatus
+import com.emm.mygame.feature.town.building.StockLine
 import com.emm.mygame.feature.town.guidance.ClosedGuidance
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertTrue
@@ -205,7 +208,7 @@ class TownPageLinesScreenTest {
 
     @Test
     fun `shows the earned skill beside its resource on storage's page`() {
-        val skilled: List<TownUiState.StockLine> = home.stocks.map { stock: TownUiState.StockLine ->
+        val skilled: List<StockLine> = home.stocks.map { stock: StockLine ->
             if (stock.kind == TownResourceKind.Money) stock.copy(skillLevel = 2) else stock
         }
         show(home.copy(stocks = skilled))
@@ -217,7 +220,7 @@ class TownPageLinesScreenTest {
 
     @Test
     fun `draws the stable word refusal on the page of its place`() {
-        val refused: TownUiState.StartStatus = TownUiState.StartStatus.Refused(
+        val refused: StartStatus = StartStatus.Refused(
             TownBuildingKind.Farm,
             TownWorkRefusal.NotEnoughWords(needed = 10, held = 9, standing = NeededWordKind.Stable),
         )
@@ -236,7 +239,7 @@ class TownPageLinesScreenTest {
 
     @Test
     fun `draws the retained word refusal on the page of its place`() {
-        val refused: TownUiState.StartStatus = TownUiState.StartStatus.Refused(
+        val refused: StartStatus = StartStatus.Refused(
             TownBuildingKind.Farm,
             TownWorkRefusal.NotEnoughWords(needed = 50, held = 49, standing = NeededWordKind.Retained),
         )
@@ -255,7 +258,7 @@ class TownPageLinesScreenTest {
 
     @Test
     fun `tells a finished work on its place's page until the next read`() {
-        show(home.copy(slot = TownUiState.SlotLine.Done(TownBuildingKind.Farm, 2)))
+        show(home.copy(slot = SlotLine.Done(TownBuildingKind.Farm, 2)))
 
         tab("Granja").performScrollTo().performClick()
 

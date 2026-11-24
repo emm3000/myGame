@@ -25,14 +25,14 @@ class TownHiringMarkViewModelTest {
     fun `marks hiring in spring`() = runTest {
         val viewModel: TownViewModel = homeViewModel(seasonOf(SeasonKind.Spring, hire = 75))
 
-        assertEquals(TownUiState.DurationMark(SeasonKind.Spring, percent = 75), contentOf(viewModel).hiring.hireMark)
+        assertEquals(DurationMark(SeasonKind.Spring, percent = 75), contentOf(viewModel).hiring.hireMark)
     }
 
     @Test
     fun `marks hiring that a season lengthens with the percent as sent`() = runTest {
         val viewModel: TownViewModel = homeViewModel(seasonOf(SeasonKind.Winter, hire = 125))
 
-        assertEquals(TownUiState.DurationMark(SeasonKind.Winter, percent = 125), contentOf(viewModel).hiring.hireMark)
+        assertEquals(DurationMark(SeasonKind.Winter, percent = 125), contentOf(viewModel).hiring.hireMark)
     }
 
     @Test

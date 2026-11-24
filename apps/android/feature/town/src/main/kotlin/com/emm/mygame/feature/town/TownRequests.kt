@@ -1,41 +1,46 @@
 package com.emm.mygame.feature.town
 
+import com.emm.mygame.feature.town.building.StartStatus
+import com.emm.mygame.feature.town.building.StopStatus
+import com.emm.mygame.feature.town.hiring.HiringPlaceStatus
+import com.emm.mygame.feature.town.hiring.HiringStopStatus
+
 internal data class TownRequests(
-    val start: TownUiState.StartStatus,
-    val stop: TownUiState.StopStatus,
-    val hiringPlace: TownUiState.HiringPlaceStatus,
-    val hiringStop: TownUiState.HiringStopStatus,
+    val start: StartStatus,
+    val stop: StopStatus,
+    val hiringPlace: HiringPlaceStatus,
+    val hiringStop: HiringStopStatus,
 ) {
 
     fun keptAfterRead(): TownRequests = TownRequests(
-        start = if (start is TownUiState.StartStatus.Waiting) start else TownUiState.StartStatus.Idle,
-        stop = if (stop is TownUiState.StopStatus.Waiting) stop else TownUiState.StopStatus.Idle,
-        hiringPlace = if (hiringPlace is TownUiState.HiringPlaceStatus.Waiting) {
+        start = if (start is StartStatus.Waiting) start else StartStatus.Idle,
+        stop = if (stop is StopStatus.Waiting) stop else StopStatus.Idle,
+        hiringPlace = if (hiringPlace is HiringPlaceStatus.Waiting) {
             hiringPlace
         } else {
-            TownUiState.HiringPlaceStatus.Idle
+            HiringPlaceStatus.Idle
         },
-        hiringStop = if (hiringStop == TownUiState.HiringStopStatus.Waiting) {
+        hiringStop = if (hiringStop == HiringStopStatus.Waiting) {
             hiringStop
         } else {
-            TownUiState.HiringStopStatus.Idle
+            HiringStopStatus.Idle
         },
     )
 
-    fun startAnswered(): TownRequests = keptAfterRead().copy(start = TownUiState.StartStatus.Idle)
+    fun startAnswered(): TownRequests = keptAfterRead().copy(start = StartStatus.Idle)
 
-    fun stopAnswered(): TownRequests = keptAfterRead().copy(stop = TownUiState.StopStatus.Idle)
+    fun stopAnswered(): TownRequests = keptAfterRead().copy(stop = StopStatus.Idle)
 
-    fun hiringPlaceAnswered(): TownRequests = keptAfterRead().copy(hiringPlace = TownUiState.HiringPlaceStatus.Idle)
+    fun hiringPlaceAnswered(): TownRequests = keptAfterRead().copy(hiringPlace = HiringPlaceStatus.Idle)
 
-    fun hiringStopAnswered(): TownRequests = keptAfterRead().copy(hiringStop = TownUiState.HiringStopStatus.Idle)
+    fun hiringStopAnswered(): TownRequests = keptAfterRead().copy(hiringStop = HiringStopStatus.Idle)
 
     companion object {
         val none: TownRequests = TownRequests(
-            start = TownUiState.StartStatus.Idle,
-            stop = TownUiState.StopStatus.Idle,
-            hiringPlace = TownUiState.HiringPlaceStatus.Idle,
-            hiringStop = TownUiState.HiringStopStatus.Idle,
+            start = StartStatus.Idle,
+            stop = StopStatus.Idle,
+            hiringPlace = HiringPlaceStatus.Idle,
+            hiringStop = HiringStopStatus.Idle,
         )
     }
 }

@@ -34,7 +34,7 @@ private val placesToName: List<TownBuildingKind> = listOf(TownBuildingKind.Homes
 
 @Composable
 internal fun NamingSection(naming: TownUiState.Naming, onIntent: (TownIntent) -> Unit, modifier: Modifier = Modifier) {
-    val isSubmitting: Boolean = naming.status == TownUiState.NamingStatus.Submitting
+    val isSubmitting: Boolean = naming.status == NamingStatus.Submitting
     MyGameCard(modifier = modifier) {
         Column(
             verticalArrangement = Arrangement.spacedBy(MyGameSpacing.step4),
@@ -83,11 +83,11 @@ private fun NamingArt(modifier: Modifier = Modifier) {
 
 @Composable
 private fun NamingAction(
-    status: TownUiState.NamingStatus,
+    status: NamingStatus,
     onIntent: (TownIntent) -> Unit,
     modifier: Modifier = Modifier,
 ) {
-    if (status == TownUiState.NamingStatus.Refused(TownFoundRefusal.PlayerAlreadyHoldsTown)) {
+    if (status == NamingStatus.Refused(TownFoundRefusal.PlayerAlreadyHoldsTown)) {
         MyGameButton(
             label = chromeResource(R.string.town_naming_go_to_town),
             isBusy = false,
@@ -98,7 +98,7 @@ private fun NamingAction(
     } else {
         MyGameButton(
             label = chromeResource(R.string.town_naming_submit),
-            isBusy = status == TownUiState.NamingStatus.Submitting,
+            isBusy = status == NamingStatus.Submitting,
             busyDescription = chromeResource(R.string.town_waiting).spoken,
             onClick = { onIntent(TownIntent.NameSubmitted) },
             modifier = modifier,
@@ -106,10 +106,10 @@ private fun NamingAction(
     }
 }
 
-private fun namingAlertOf(status: TownUiState.NamingStatus): Int? = when (status) {
-    TownUiState.NamingStatus.Idle, TownUiState.NamingStatus.Submitting -> null
-    TownUiState.NamingStatus.Unreachable -> R.string.town_refusal_unexpected
-    is TownUiState.NamingStatus.Refused -> when (status.refusal) {
+private fun namingAlertOf(status: NamingStatus): Int? = when (status) {
+    NamingStatus.Idle, NamingStatus.Submitting -> null
+    NamingStatus.Unreachable -> R.string.town_refusal_unexpected
+    is NamingStatus.Refused -> when (status.refusal) {
         TownFoundRefusal.BlankTownName -> R.string.town_refusal_blank_town_name
         TownFoundRefusal.PlayerAlreadyHoldsTown -> R.string.town_refusal_player_already_holds_town
         TownFoundRefusal.Unrecognized -> R.string.town_refusal_unexpected

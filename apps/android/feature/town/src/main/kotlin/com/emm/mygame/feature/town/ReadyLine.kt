@@ -12,9 +12,10 @@ import com.emm.mygame.core.designsystem.MyGameTheme
 import com.emm.mygame.core.designsystem.MyGameTypography
 import com.emm.mygame.core.ui.PlayerCopy
 import com.emm.mygame.core.ui.rememberPlayerCopy
+import com.emm.mygame.feature.town.building.ReadyTime
 
 @Composable
-internal fun ReadyLine(ready: TownUiState.ReadyTime, modifier: Modifier = Modifier) {
+internal fun ReadyLine(ready: ReadyTime, modifier: Modifier = Modifier) {
     val copy: PlayerCopy = rememberPlayerCopy()
     val color: Color = MyGameTheme.colors.inkMuted
     FlowRow(

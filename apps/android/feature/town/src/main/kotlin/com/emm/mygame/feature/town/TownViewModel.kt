@@ -4,17 +4,14 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.emm.mygame.core.model.account.SessionRepository
 import com.emm.mygame.core.model.town.HeldTown
-import com.emm.mygame.core.model.town.TownFoundResult
 import com.emm.mygame.core.model.town.TownReadResult
-import com.emm.mygame.core.model.town.TownRegistered
 import com.emm.mygame.core.model.town.TownRepository
 import com.emm.mygame.core.model.town.TownSnapshot
-import com.emm.mygame.core.model.town.building.TownBuildingKind
-import com.emm.mygame.core.model.town.building.TownWorkResult
-import com.emm.mygame.core.model.town.registeredBetween
-import com.emm.mygame.core.projection.repaintDelay
+import com.emm.mygame.feature.town.building.BuildingWorkRequests
 import com.emm.mygame.feature.town.guidance.GuidanceRequests
 import com.emm.mygame.feature.town.hiring.HiringRequests
+import com.emm.mygame.feature.town.naming.NamingRequests
+import com.emm.mygame.feature.town.naming.NamingStatus
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.cancelChildren
 import kotlinx.coroutines.channels.Channel
@@ -49,15 +46,31 @@ class TownViewModel(
 
     private var projection: Job? = null
 
-    private var shown: TownSnapshot? = null
+    private var shown: ShownTown? = null
 
     private var requests: TownRequests = TownRequests.none
-
-    private var registered: TownRegistered = TownRegistered.nothing
 
     private var gap: Duration = Duration.ZERO
 
     private var isShown: Boolean = true
+
+    private val naming: NamingRequests = NamingRequests(
+        towns = towns,
+        scope = viewModelScope,
+        naming = { _state.value as? TownUiState.Naming },
+        onAnswered = { status: NamingStatus ->
+            updateNaming { naming: TownUiState.Naming -> naming.copy(status = status) }
+        },
+        onFounded = { town: TownSnapshot -> restartFrom(measured(town), TownRequests.none) },
+    )
+
+    private val work: BuildingWorkRequests = BuildingWorkRequests(
+        towns = towns,
+        scope = viewModelScope,
+        requests = { requests },
+        onDrawn = ::drawRequests,
+        onAnswered = ::restartFrom,
+    )
 
     private val hiring: HiringRequests = HiringRequests(
         towns = towns,
@@ -87,17 +100,21 @@ class TownViewModel(
             }
             TownIntent.RetryTapped -> if (_state.value == TownUiState.Failed) open()
             TownIntent.GoToTownTapped -> open()
-            is TownIntent.NameChanged -> rename(intent.name)
-            TownIntent.NameSubmitted -> found()
-            is TownIntent.BuildTapped -> start(intent.building)
-            is TownIntent.StopTapped -> stop(TownUiState.WorkTarget(intent.building, intent.level))
+            is TownIntent.NameChanged -> updateNaming { naming: TownUiState.Naming -> naming.copy(name = intent.name) }
+            TownIntent.NameSubmitted -> naming.found()
+            is TownIntent.BuildTapped -> withShownTown { work.start(intent.building) }
+            is TownIntent.StopTapped -> withShownTown { work.stop(intent.building, intent.level) }
             is TownIntent.HiringEntryChanged -> hiring.enter(intent.hire, intent.entry)
-            is TownIntent.PlaceHiringTapped -> if (shown != null) hiring.place(intent.hire)
-            is TownIntent.StopHiringTapped -> if (shown != null) hiring.stop(intent.target)
-            is TownIntent.TipClosed -> if (shown != null) guidance.closeTip(intent.tip)
-            TownIntent.GoalClosed -> if (shown != null) guidance.closeGoal()
+            is TownIntent.PlaceHiringTapped -> withShownTown { hiring.place(intent.hire) }
+            is TownIntent.StopHiringTapped -> withShownTown { hiring.stop(intent.target) }
+            is TownIntent.TipClosed -> withShownTown { guidance.closeTip(intent.tip) }
+            TownIntent.GoalClosed -> withShownTown { guidance.closeGoal() }
             TownIntent.SignOutTapped -> signOut()
         }
+    }
+
+    private inline fun withShownTown(act: () -> Unit) {
+        if (shown != null) act()
     }
 
     private fun show() {
@@ -132,7 +149,7 @@ class TownViewModel(
     }
 
     private fun reread() {
-        val last: TownSnapshot = shown ?: return
+        val last: TownSnapshot = shown?.snapshot ?: return
         projection = viewModelScope.launch {
             when (val answer: TownReadResult = towns.read()) {
                 is TownReadResult.Read -> {
@@ -147,60 +164,11 @@ class TownViewModel(
 
     private fun askName() {
         shown = null
-        _state.value = TownUiState.Naming(name = "", status = TownUiState.NamingStatus.Idle)
+        _state.value = TownUiState.Naming(name = "", status = NamingStatus.Idle)
     }
 
-    private fun rename(name: String) {
-        _state.update { current: TownUiState ->
-            if (current is TownUiState.Naming) current.copy(name = name) else current
-        }
-    }
-
-    private fun found() {
-        val naming: TownUiState.Naming = _state.value as? TownUiState.Naming ?: return
-        if (naming.status == TownUiState.NamingStatus.Submitting) return
-        answerNaming(TownUiState.NamingStatus.Submitting)
-        viewModelScope.launch {
-            when (val answer: TownFoundResult = towns.found(naming.name)) {
-                is TownFoundResult.Founded -> restartFrom(measured(answer.town), TownRequests.none)
-                is TownFoundResult.Refused -> answerNaming(TownUiState.NamingStatus.Refused(answer.refusal))
-                TownFoundResult.Unreachable -> answerNaming(TownUiState.NamingStatus.Unreachable)
-            }
-        }
-    }
-
-    private fun answerNaming(status: TownUiState.NamingStatus) {
-        _state.update { current: TownUiState ->
-            if (current is TownUiState.Naming) current.copy(status = status) else current
-        }
-    }
-
-    private fun start(building: TownBuildingKind) {
-        if (shown == null || requests.start is TownUiState.StartStatus.Waiting) return
-        drawRequests(requests.copy(start = TownUiState.StartStatus.Waiting(building)))
-        viewModelScope.launch {
-            when (val answer: TownWorkResult = towns.startWork(building)) {
-                is TownWorkResult.Answered -> restartFrom(answer.town, requests.startAnswered())
-                is TownWorkResult.Refused ->
-                    drawRequests(requests.copy(start = TownUiState.StartStatus.Refused(building, answer.refusal)))
-                TownWorkResult.Unreachable ->
-                    drawRequests(requests.copy(start = TownUiState.StartStatus.Unreachable(building)))
-            }
-        }
-    }
-
-    private fun stop(target: TownUiState.WorkTarget) {
-        if (shown == null || requests.stop is TownUiState.StopStatus.Waiting) return
-        drawRequests(requests.copy(stop = TownUiState.StopStatus.Waiting(target)))
-        viewModelScope.launch {
-            when (val answer: TownWorkResult = towns.stopWork(target.building, target.level)) {
-                is TownWorkResult.Answered -> restartFrom(answer.town, requests.stopAnswered())
-                is TownWorkResult.Refused ->
-                    drawRequests(requests.copy(stop = TownUiState.StopStatus.Refused(target, answer.refusal)))
-                TownWorkResult.Unreachable ->
-                    drawRequests(requests.copy(stop = TownUiState.StopStatus.Unreachable(target)))
-            }
-        }
+    private fun updateNaming(change: (TownUiState.Naming) -> TownUiState.Naming) {
+        _state.update { current: TownUiState -> if (current is TownUiState.Naming) change(current) else current }
     }
 
     private fun signOut() {
@@ -222,26 +190,27 @@ class TownViewModel(
 
     private fun drawRequests(next: TownRequests) {
         requests = next
-        val last: TownSnapshot = shown ?: return
+        val last: TownSnapshot = shown?.snapshot ?: return
         if (_state.value is TownUiState.Content) draw(last)
     }
 
     private fun draw(snapshot: TownSnapshot) {
-        if (snapshot !== shown) registerRead(snapshot)
+        val drawn: ShownTown = shown?.takeIf { held: ShownTown -> held.snapshot === snapshot } ?: registerRead(snapshot)
         _state.value = snapshot.contentAt(
             now = serverNow(),
             gap = gap,
             requests = requests,
-            registered = registered,
+            registered = drawn.registered,
             hiringEntries = hiring.entries,
             closed = guidance.closed,
         )
     }
 
-    private fun registerRead(read: TownSnapshot) {
-        registered = shown?.let { held: TownSnapshot -> registeredBetween(held, read) } ?: TownRegistered.nothing
-        shown = read
+    private fun registerRead(read: TownSnapshot): ShownTown {
+        val next: ShownTown = shown?.followedBy(read) ?: ShownTown.firstOf(read)
+        shown = next
         guidance.resendUnsent()
+        return next
     }
 
     private suspend fun project(first: TownSnapshot, firstReadAt: Instant? = null) {
@@ -273,9 +242,4 @@ class TownViewModel(
         gap = read.readAt - clock.now()
         return read
     }
-}
-
-private fun TownSnapshot.nextWakeFrom(now: Instant, nextReadAt: Instant?, readyLeft: Duration?): Duration {
-    val repaint: Duration = repaintDelay(listOfNotNull(nearestCountdownAt(now), readyLeft).minOrNull())
-    return if (nextReadAt == null) repaint else minOf(repaint, nextReadAt - now)
 }

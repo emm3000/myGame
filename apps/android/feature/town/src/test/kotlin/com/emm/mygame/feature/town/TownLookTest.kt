@@ -36,7 +36,17 @@ import com.emm.mygame.core.model.town.TownRegistered
 import com.emm.mygame.core.model.town.TownResourceKind
 import com.emm.mygame.core.model.town.TownSnapshot
 import com.emm.mygame.core.model.town.building.TownBuildingKind
+import com.emm.mygame.feature.town.building.CostLine
+import com.emm.mygame.feature.town.building.NextLevelLine
+import com.emm.mygame.feature.town.building.PeopleLine
+import com.emm.mygame.feature.town.building.PlaceCard
+import com.emm.mygame.feature.town.building.SlotLine
+import com.emm.mygame.feature.town.building.StartStatus
+import com.emm.mygame.feature.town.building.StockLine
+import com.emm.mygame.feature.town.building.StopStatus
 import com.emm.mygame.feature.town.building.WORK_DONE_ICON
+import com.emm.mygame.feature.town.building.WaitingLine
+import com.emm.mygame.feature.town.building.WordsLine
 import com.emm.mygame.feature.town.guidance.ClosedGuidance
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertTrue
@@ -57,14 +67,14 @@ class TownLookTest {
 
     private val idleRequests: TownRequests = TownRequests.none
 
-    private val farmOffer: TownUiState.PlaceCard = TownUiState.PlaceCard(
+    private val farmOffer: PlaceCard = PlaceCard(
         kind = TownBuildingKind.Farm,
         level = 1,
         raisedFrom = null,
         isInWork = false,
-        next = TownUiState.NextLevelLine(
+        next = NextLevelLine(
             level = 2,
-            costs = listOf(TownUiState.CostLine(TownResourceKind.Money, 150, isShort = false)),
+            costs = listOf(CostLine(TownResourceKind.Money, 150, isShort = false)),
             duration = 90.seconds,
             people = 3,
             wordsNeeded = null,
@@ -76,7 +86,7 @@ class TownLookTest {
         name = "Riverton",
         label = TownLabel.Town,
         stocks = listOf(
-            TownUiState.StockLine(
+            StockLine(
                 TownResourceKind.Money,
                 120,
                 capacity = 900,
@@ -85,11 +95,11 @@ class TownLookTest {
                 fill = null,
             ),
         ),
-        people = TownUiState.PeopleLine(free = 24, atWork = 96),
-        words = TownUiState.WordsLine(stable = 0, retained = 0),
+        people = PeopleLine(free = 24, atWork = 96),
+        words = WordsLine(stable = 0, retained = 0),
         season = null,
         buildMark = null,
-        slot = TownUiState.SlotLine.Idle,
+        slot = SlotLine.Idle,
         waitingList = emptyList(),
         places = listOf(farmOffer),
         nextStepPlace = TownBuildingKind.Farm,
@@ -97,23 +107,23 @@ class TownLookTest {
         caughtUpGoal = null,
         newestText = null,
         tip = null,
-        start = TownUiState.StartStatus.Idle,
-        stop = TownUiState.StopStatus.Idle,
+        start = StartStatus.Idle,
+        stop = StopStatus.Idle,
         hiring = idleHiringLine,
     )
 
-    private val everyStock: List<TownUiState.StockLine> = TownResourceKind.entries.map { kind: TownResourceKind ->
-        TownUiState.StockLine(kind, 120, capacity = 900, ratePerHour = 30, skillLevel = 0, fill = null)
+    private val everyStock: List<StockLine> = TownResourceKind.entries.map { kind: TownResourceKind ->
+        StockLine(kind, 120, capacity = 900, ratePerHour = 30, skillLevel = 0, fill = null)
     }
 
-    private val storageOffer: TownUiState.PlaceCard = farmOffer.copy(kind = TownBuildingKind.Storage)
+    private val storageOffer: PlaceCard = farmOffer.copy(kind = TownBuildingKind.Storage)
 
     private val farmInWork: TownUiState.Content = riverton.copy(places = listOf(farmOffer.copy(isInWork = true)))
 
     private val onStorage: TownUiState.Content =
         riverton.copy(stocks = everyStock, places = listOf(storageOffer), nextStepPlace = TownBuildingKind.Storage)
 
-    private val busySlot: TownUiState.SlotLine.Busy = TownUiState.SlotLine.Busy(
+    private val busySlot: SlotLine.Busy = SlotLine.Busy(
         building = TownBuildingKind.Farm,
         level = 2,
         remaining = 12.minutes,
@@ -121,7 +131,7 @@ class TownLookTest {
         finishesAt = readInstant,
     )
 
-    private val waitingSchool: TownUiState.WaitingLine = TownUiState.WaitingLine(
+    private val waitingSchool: WaitingLine = WaitingLine(
         building = TownBuildingKind.School,
         level = 3,
         remaining = 20.minutes,
@@ -142,14 +152,14 @@ class TownLookTest {
                 )
             }
         }
-        val shortOffer: TownUiState.PlaceCard = farmOffer.copy(
+        val shortOffer: PlaceCard = farmOffer.copy(
             block = shortOf(TownResourceKind.Money, 30),
         )
         val offers: TownUiState.Content = riverton.copy(places = listOf(farmOffer, storageOffer))
         val homes: List<TownUiState> = listOf(
             offers,
             offers.copy(slot = busySlot, waitingList = listOf(waitingSchool)),
-            offers.copy(slot = TownUiState.SlotLine.Done(TownBuildingKind.Farm, 2)),
+            offers.copy(slot = SlotLine.Done(TownBuildingKind.Farm, 2)),
             offers.copy(places = listOf(shortOffer, storageOffer, farmOffer.copy(next = null))),
         )
 
@@ -163,8 +173,8 @@ class TownLookTest {
 
     @Test
     fun `writes the level on every place's page`() {
-        val top: TownUiState.PlaceCard = farmOffer.copy(kind = TownBuildingKind.Homes, level = 10, next = null)
-        val places: List<TownUiState.PlaceCard> = listOf(
+        val top: PlaceCard = farmOffer.copy(kind = TownBuildingKind.Homes, level = 10, next = null)
+        val places: List<PlaceCard> = listOf(
             top,
             farmOffer.copy(kind = TownBuildingKind.School, level = 3),
             farmOffer.copy(kind = TownBuildingKind.Office, level = 0),
@@ -225,15 +235,15 @@ class TownLookTest {
 
         val inWork: List<TownBuildingKind> = town
             .readContent()
-            .places.filter { place: TownUiState.PlaceCard -> place.isInWork }
-            .map { place: TownUiState.PlaceCard -> place.kind }
+            .places.filter { place: PlaceCard -> place.isInWork }
+            .map { place: PlaceCard -> place.kind }
 
         assertEquals(listOf(TownBuildingKind.Farm, TownBuildingKind.Storage), inWork)
     }
 
     @Test
     fun `says a shortfall in words`() {
-        val short: TownUiState.PlaceCard = farmOffer.copy(
+        val short: PlaceCard = farmOffer.copy(
             block = shortOf(TownResourceKind.Money, 30),
         )
 
@@ -274,7 +284,7 @@ class TownLookTest {
 
     @Test
     fun `sets a waiting work's countdown in title with tabular figures`() {
-        val school: TownUiState.PlaceCard = farmOffer.copy(kind = TownBuildingKind.School, isInWork = true)
+        val school: PlaceCard = farmOffer.copy(kind = TownBuildingKind.School, isInWork = true)
         show(riverton.copy(slot = busySlot, waitingList = listOf(waitingSchool), places = listOf(farmOffer, school)))
         tab("Escuela").performScrollTo().performClick()
 
@@ -293,7 +303,7 @@ class TownLookTest {
 
     @Test
     fun `draws the done work's heading as one section title`() {
-        show(riverton.copy(slot = TownUiState.SlotLine.Done(TownBuildingKind.Farm, 2)))
+        show(riverton.copy(slot = SlotLine.Done(TownBuildingKind.Farm, 2)))
 
         assertWorkHeadingIsOneSectionTitle()
     }
@@ -307,7 +317,7 @@ class TownLookTest {
 
     @Test
     fun `carries its icon on a done line`() {
-        show(riverton.copy(slot = TownUiState.SlotLine.Done(TownBuildingKind.Farm, 2)))
+        show(riverton.copy(slot = SlotLine.Done(TownBuildingKind.Farm, 2)))
 
         composeRule.onNodeWithTag(WORK_DONE_ICON, useUnmergedTree = true).assertExists()
     }
@@ -321,7 +331,7 @@ class TownLookTest {
 
     @Test
     fun `counts the season in force down in days`() {
-        val season = TownUiState.SeasonLine(
+        val season = SeasonLine(
             SeasonKind.Fall,
             year = 2,
             remaining = 49.hours,
@@ -336,7 +346,7 @@ class TownLookTest {
 
     @Test
     fun `counts the last day of a season down by the clock`() {
-        val season = TownUiState.SeasonLine(
+        val season = SeasonLine(
             SeasonKind.Spring,
             year = 1,
             remaining = 30.minutes,
@@ -350,13 +360,13 @@ class TownLookTest {
 
     @Test
     fun `draws a production mark under its stock`() {
-        val season: TownUiState.SeasonLine = TownUiState.SeasonLine(
+        val season: SeasonLine = SeasonLine(
             SeasonKind.Summer,
             year = 2,
             remaining = 24.hours,
             productionMarks = listOf(
-                TownUiState.ProductionMark(TownResourceKind.Food, percent = 125),
-                TownUiState.ProductionMark(TownResourceKind.Power, percent = 75),
+                ProductionMark(TownResourceKind.Food, percent = 125),
+                ProductionMark(TownResourceKind.Power, percent = 75),
             ),
         )
 
@@ -377,7 +387,7 @@ class TownLookTest {
 
     @Test
     fun `sets a season mark in caption`() {
-        show(farmInWork.copy(buildMark = TownUiState.DurationMark(SeasonKind.Summer, percent = 75)))
+        show(farmInWork.copy(buildMark = DurationMark(SeasonKind.Summer, percent = 75)))
 
         assertEquals(MyGameTypography.caption.fontSize, textStyleOf(SUMMER_BUILD).fontSize)
     }
@@ -388,7 +398,7 @@ class TownLookTest {
         composeRule.setContent {
             MyGameTheme {
                 inkMuted = MyGameTheme.colors.inkMuted
-                Home(farmInWork.copy(buildMark = TownUiState.DurationMark(SeasonKind.Summer, percent = 75)))
+                Home(farmInWork.copy(buildMark = DurationMark(SeasonKind.Summer, percent = 75)))
             }
         }
 
@@ -401,7 +411,7 @@ class TownLookTest {
         composeRule.setContent { MyGameTheme { Home(home.value) } }
 
         seasonWords.forEach { (season: SeasonKind, word: String) ->
-            home.value = farmInWork.copy(buildMark = TownUiState.DurationMark(season, percent = 75))
+            home.value = farmInWork.copy(buildMark = DurationMark(season, percent = 75))
             composeRule.waitForIdle()
 
             composeRule.onNodeWithText("$word: las obras tardan el 75 % del tiempo").assertExists()
@@ -414,7 +424,7 @@ class TownLookTest {
         composeRule.setContent { MyGameTheme { Home(home.value) } }
 
         seasonIcons.forEach { (season: SeasonKind, icon: ImageVector) ->
-            home.value = farmInWork.copy(buildMark = TownUiState.DurationMark(season, percent = 75))
+            home.value = farmInWork.copy(buildMark = DurationMark(season, percent = 75))
             composeRule.waitForIdle()
 
             composeRule.onNode(seasonMarkOf(icon, text = "las obras tardan el 75 % del tiempo")).assertExists()
@@ -423,11 +433,11 @@ class TownLookTest {
 
     @Test
     fun `draws the season's icon beside a production mark`() {
-        val season: TownUiState.SeasonLine = TownUiState.SeasonLine(
+        val season: SeasonLine = SeasonLine(
             SeasonKind.Winter,
             year = 2,
             remaining = 24.hours,
-            productionMarks = listOf(TownUiState.ProductionMark(TownResourceKind.Power, percent = 75)),
+            productionMarks = listOf(ProductionMark(TownResourceKind.Power, percent = 75)),
         )
 
         show(onStorage.copy(season = season))
@@ -453,7 +463,7 @@ class TownLookTest {
         )
 
         assertEquals(
-            TownUiState.SeasonLine(SeasonKind.Winter, year = 3, remaining = 1.hours, productionMarks = emptyList()),
+            SeasonLine(SeasonKind.Winter, year = 3, remaining = 1.hours, productionMarks = emptyList()),
             town.readContent().season,
         )
     }

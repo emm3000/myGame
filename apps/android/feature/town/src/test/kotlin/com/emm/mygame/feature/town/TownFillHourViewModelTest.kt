@@ -5,6 +5,7 @@ import com.emm.mygame.core.model.town.TownResourceKind
 import com.emm.mygame.core.model.town.TownSnapshot
 import com.emm.mygame.core.testing.FakeTownRepository
 import com.emm.mygame.core.testing.MainDispatcherRule
+import com.emm.mygame.feature.town.building.FillTime
 import kotlinx.coroutines.test.advanceTimeBy
 import kotlinx.coroutines.test.runCurrent
 import kotlinx.coroutines.test.runTest
@@ -32,7 +33,7 @@ class TownFillHourViewModelTest {
         runCurrent()
 
         assertEquals(
-            TownUiState.FillTime(remaining = 3.hours - 1.minutes, fullAt = readInstant + 3.hours),
+            FillTime(remaining = 3.hours - 1.minutes, fullAt = readInstant + 3.hours),
             moneyOf(viewModel).fill,
         )
         assertEquals(1, towns.readCount)

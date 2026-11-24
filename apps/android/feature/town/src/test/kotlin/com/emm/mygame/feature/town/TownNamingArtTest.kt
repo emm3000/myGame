@@ -13,6 +13,7 @@ import com.emm.mygame.core.designsystem.MyGameTheme
 import com.emm.mygame.core.designsystem.PLACE_ART
 import com.emm.mygame.core.model.town.building.TownBuildingKind
 import com.emm.mygame.feature.town.building.placeArtOf
+import com.emm.mygame.feature.town.naming.NamingStatus
 import org.junit.Assert.assertEquals
 import org.junit.Rule
 import org.junit.Test
@@ -60,7 +61,7 @@ class TownNamingArtTest {
                 silhouette = MyGameTheme.colors.surfaceSunken
                 ground = MyGameTheme.colors.surfaceRaised
                 TownScreen(
-                    state = TownUiState.Naming("", TownUiState.NamingStatus.Idle),
+                    state = TownUiState.Naming("", NamingStatus.Idle),
                     onIntent = {},
                     onSchoolOpen = {},
                     onMapOpen = {},

@@ -20,7 +20,6 @@ import com.emm.mygame.core.testing.FakeTownRepository
 import com.emm.mygame.core.testing.MainDispatcherRule
 import com.emm.mygame.core.testing.TestClock
 import com.emm.mygame.core.testing.hiringOf
-import com.emm.mygame.feature.town.TownUiState
 import com.emm.mygame.feature.town.townOf
 import kotlinx.coroutines.CoroutineStart
 import kotlinx.coroutines.Dispatchers
@@ -464,7 +463,7 @@ class TownStatusViewModelTest {
                 detail = null,
                 countdown = null,
                 go = TownStatusUiState.Go.Acts(NextStepCard.Action.Study(number = 1), isBusy = false),
-                lessonStart = TownUiState.LessonStartStatus.Idle,
+                lessonStart = LessonStartStatus.Idle,
                 capWait = null,
             ),
             viewModel.state.value.dock,
@@ -657,7 +656,7 @@ class TownStatusViewModelTest {
         runCurrent()
 
         assertEquals(
-            TownUiState.LessonStartStatus.Refused(TownLessonRefusal.StudySlotBusy),
+            LessonStartStatus.Refused(TownLessonRefusal.StudySlotBusy),
             (viewModel.state.value.dock as? TownStatusUiState.Dock.Step)?.lessonStart,
         )
     }

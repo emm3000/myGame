@@ -12,8 +12,13 @@ import com.emm.mygame.core.model.town.hiring.TownHireKind
 import com.emm.mygame.feature.town.building.PlaceBuildingWork
 import com.emm.mygame.feature.town.building.PlaceStocks
 import com.emm.mygame.feature.town.building.SeasonRow
+import com.emm.mygame.feature.town.building.SlotLine
 import com.emm.mygame.feature.town.guidance.ClosedGuidance
+import com.emm.mygame.feature.town.hiring.HiringLine
+import com.emm.mygame.feature.town.hiring.HiringOrderLine
+import com.emm.mygame.feature.town.hiring.HiringPlaceStatus
 import com.emm.mygame.feature.town.hiring.HiringSection
+import com.emm.mygame.feature.town.hiring.HiringStopStatus
 import org.junit.Assert.assertEquals
 import org.junit.Rule
 import org.junit.Test
@@ -38,7 +43,7 @@ class TownCaptionFiguresTest {
 
     @Test
     fun `sets tabular figures on the hired counts and never on their words`() {
-        showHiring(TownUiState.HiringOrderLine.Done(TownHireKind.Worker, count = 3, delivered = 1))
+        showHiring(HiringOrderLine.Done(TownHireKind.Worker, count = 3, delivered = 1))
 
         assertEquals(listOf("1", "3"), composeRule.tabularRunsOf("de 3 contratados"))
     }
@@ -82,7 +87,7 @@ class TownCaptionFiguresTest {
     @Test
     fun `sets tabular figures on the season's time left and never on its words`() {
         showSeason(
-            TownUiState.SeasonLine(SeasonKind.Winter, year = 2, remaining = 3.days, productionMarks = emptyList()),
+            SeasonLine(SeasonKind.Winter, year = 2, remaining = 3.days, productionMarks = emptyList()),
         )
 
         assertEquals(listOf("3"), composeRule.tabularRunsOf("termina en"))
@@ -90,18 +95,18 @@ class TownCaptionFiguresTest {
 
     @Test
     fun `sets tabular figures on the work's level and never on its word`() {
-        showWork(TownUiState.SlotLine.Done(TownBuildingKind.Farm, level = 2))
+        showWork(SlotLine.Done(TownBuildingKind.Farm, level = 2))
 
         assertEquals(listOf("2"), composeRule.tabularRunsOf("Nivel"))
     }
 
-    private fun showHiring(order: TownUiState.HiringOrderLine) {
-        val hiring = TownUiState.HiringLine(
+    private fun showHiring(order: HiringOrderLine) {
+        val hiring = HiringLine(
             order = order,
             hires = emptyList(),
             hireMark = null,
-            place = TownUiState.HiringPlaceStatus.Idle,
-            stop = TownUiState.HiringStopStatus.Idle,
+            place = HiringPlaceStatus.Idle,
+            stop = HiringStopStatus.Idle,
         )
         composeRule.setContent { MyGameTheme { HiringSection(hiring = hiring, onIntent = {}) } }
     }
@@ -118,7 +123,7 @@ class TownCaptionFiguresTest {
         composeRule.setContent { MyGameTheme { PlaceStocks(place = TownBuildingKind.Storage, content = content) } }
     }
 
-    private fun showWork(slot: TownUiState.SlotLine) {
+    private fun showWork(slot: SlotLine) {
         val content: TownUiState.Content = townOf(readAt = localRead).contentAt(
             now = localRead,
             gap = Duration.ZERO,
@@ -132,7 +137,7 @@ class TownCaptionFiguresTest {
         }
     }
 
-    private fun showSeason(season: TownUiState.SeasonLine) {
+    private fun showSeason(season: SeasonLine) {
         composeRule.setContent { MyGameTheme { SeasonRow(season = season) } }
     }
 }

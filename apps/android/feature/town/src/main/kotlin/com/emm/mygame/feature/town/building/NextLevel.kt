@@ -25,7 +25,6 @@ import com.emm.mygame.core.ui.rememberPlayerCopy
 import com.emm.mygame.feature.town.R
 import com.emm.mygame.feature.town.ReadyLine
 import com.emm.mygame.feature.town.TownIntent
-import com.emm.mygame.feature.town.TownUiState
 import com.emm.mygame.feature.town.townDurationCopy
 import kotlin.time.Duration.Companion.hours
 import kotlin.time.Duration.Companion.minutes
@@ -34,14 +33,14 @@ import kotlin.time.Instant
 @Composable
 internal fun NextLevel(
     building: TownBuildingKind,
-    next: TownUiState.NextLevelLine,
-    block: TownUiState.BlockReason?,
+    next: NextLevelLine,
+    block: BlockReason?,
     isWaiting: Boolean,
     onIntent: (TownIntent) -> Unit,
     modifier: Modifier = Modifier,
 ) {
     val copy: PlayerCopy = rememberPlayerCopy()
-    val reason: MyGameLabel? = block?.let { blocked: TownUiState.BlockReason -> copy.blockLineOf(blocked) }
+    val reason: MyGameLabel? = block?.let { blocked: BlockReason -> copy.blockLineOf(blocked) }
     Column(verticalArrangement = Arrangement.spacedBy(MyGameSpacing.step2), modifier = modifier) {
         MyGameText(
             label = copy.chrome(R.string.town_people_at_work, "people" to next.people.toString()),
@@ -70,57 +69,57 @@ internal fun NextLevel(
                 modifier = Modifier.semantics { hideFromAccessibility() },
             )
         }
-        (block as? TownUiState.BlockReason.Resources)?.ready?.let { ready: TownUiState.ReadyTime ->
+        (block as? BlockReason.Resources)?.ready?.let { ready: ReadyTime ->
             ReadyLine(ready = ready)
         }
     }
 }
 
 @Composable
-private fun Costs(next: TownUiState.NextLevelLine, modifier: Modifier = Modifier) {
+private fun Costs(next: NextLevelLine, modifier: Modifier = Modifier) {
     FlowRow(
         horizontalArrangement = Arrangement.spacedBy(MyGameSpacing.step3),
         verticalArrangement = Arrangement.spacedBy(MyGameSpacing.step2),
         modifier = modifier,
     ) {
-        next.costs.forEach { cost: TownUiState.CostLine -> CostItem(cost = cost) }
+        next.costs.forEach { cost: CostLine -> CostItem(cost = cost) }
     }
 }
 
-private fun PlayerCopy.blockLineOf(block: TownUiState.BlockReason): MyGameLabel = when (block) {
-    is TownUiState.BlockReason.WaitingListFull -> MyGameLabel(
+private fun PlayerCopy.blockLineOf(block: BlockReason): MyGameLabel = when (block) {
+    is BlockReason.WaitingListFull -> MyGameLabel(
         text = fixedCopy(R.string.town_refusal_waiting_list_full, "cap" to block.cap),
         translation = null,
     )
-    is TownUiState.BlockReason.PeopleShort ->
+    is BlockReason.PeopleShort ->
         chrome(R.string.town_people_short, "needed" to block.needed.toString(), "free" to block.free)
-    is TownUiState.BlockReason.Resources -> chrome { shortfallLineOf(block) }
+    is BlockReason.Resources -> chrome { shortfallLineOf(block) }
 }
 
-private val previewNextLevel: TownUiState.NextLevelLine = TownUiState.NextLevelLine(
+private val previewNextLevel: NextLevelLine = NextLevelLine(
     level = 2,
-    costs = listOf(TownUiState.CostLine(TownResourceKind.Food, amount = 120, isShort = true)),
+    costs = listOf(CostLine(TownResourceKind.Food, amount = 120, isShort = true)),
     duration = 3.minutes,
     people = 2,
     wordsNeeded = null,
 )
 
-private fun shortOfFoodUntil(ready: TownUiState.ReadyTime): TownUiState.BlockReason =
-    TownUiState.BlockReason.Resources(listOf(TownUiState.Shortfall(TownResourceKind.Food, amount = 40)), ready = ready)
+private fun shortOfFoodUntil(ready: ReadyTime): BlockReason =
+    BlockReason.Resources(listOf(Shortfall(TownResourceKind.Food, amount = 40)), ready = ready)
 
-private class ReadyLineStates : PreviewParameterProvider<TownUiState.BlockReason> {
+private class ReadyLineStates : PreviewParameterProvider<BlockReason> {
 
-    override val values: Sequence<TownUiState.BlockReason> = sequenceOf(
-        shortOfFoodUntil(TownUiState.ReadyTime(24.minutes, Instant.parse("2026-11-12T15:24:00Z"))),
-        shortOfFoodUntil(TownUiState.ReadyTime(2.hours, Instant.parse("2026-11-12T13:00:00Z"))),
-        shortOfFoodUntil(TownUiState.ReadyTime(23.hours, Instant.parse("2026-11-13T11:00:00Z"))),
-        TownUiState.BlockReason.PeopleShort(needed = 2, free = 0),
+    override val values: Sequence<BlockReason> = sequenceOf(
+        shortOfFoodUntil(ReadyTime(24.minutes, Instant.parse("2026-11-12T15:24:00Z"))),
+        shortOfFoodUntil(ReadyTime(2.hours, Instant.parse("2026-11-12T13:00:00Z"))),
+        shortOfFoodUntil(ReadyTime(23.hours, Instant.parse("2026-11-13T11:00:00Z"))),
+        BlockReason.PeopleShort(needed = 2, free = 0),
     )
 }
 
 @PreviewMyGame
 @Composable
-private fun NextLevelReadyPreview(@PreviewParameter(ReadyLineStates::class) block: TownUiState.BlockReason) {
+private fun NextLevelReadyPreview(@PreviewParameter(ReadyLineStates::class) block: BlockReason) {
     MyGamePreviewSurface {
         NextLevel(
             building = TownBuildingKind.Farm,

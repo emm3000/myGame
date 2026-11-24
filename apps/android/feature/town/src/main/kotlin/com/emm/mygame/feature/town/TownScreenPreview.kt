@@ -19,6 +19,21 @@ import com.emm.mygame.core.ui.ChromePhase
 import com.emm.mygame.core.ui.CopyLanguage
 import com.emm.mygame.core.ui.ProvideCopyLanguage
 import com.emm.mygame.core.ui.ScaffoldLanguage
+import com.emm.mygame.feature.town.building.CostLine
+import com.emm.mygame.feature.town.building.NextLevelLine
+import com.emm.mygame.feature.town.building.PeopleLine
+import com.emm.mygame.feature.town.building.PlaceCard
+import com.emm.mygame.feature.town.building.SlotLine
+import com.emm.mygame.feature.town.building.StartStatus
+import com.emm.mygame.feature.town.building.StockLine
+import com.emm.mygame.feature.town.building.StopStatus
+import com.emm.mygame.feature.town.building.WordsLine
+import com.emm.mygame.feature.town.hiring.HiringCard
+import com.emm.mygame.feature.town.hiring.HiringLine
+import com.emm.mygame.feature.town.hiring.HiringOrderLine
+import com.emm.mygame.feature.town.hiring.HiringPlaceStatus
+import com.emm.mygame.feature.town.hiring.HiringStopStatus
+import com.emm.mygame.feature.town.naming.NamingStatus
 import kotlin.time.Duration.Companion.days
 import kotlin.time.Duration.Companion.minutes
 
@@ -37,30 +52,30 @@ private val previewHome: TownUiState.Content = TownUiState.Content(
     name = "Riverton",
     label = TownLabel.Town,
     stocks = TownResourceKind.entries.map { kind: TownResourceKind ->
-        TownUiState.StockLine(kind = kind, amount = 350, capacity = 1000, ratePerHour = 20, skillLevel = 0, fill = null)
+        StockLine(kind = kind, amount = 350, capacity = 1000, ratePerHour = 20, skillLevel = 0, fill = null)
     },
-    people = TownUiState.PeopleLine(free = 19, atWork = 1),
-    words = TownUiState.WordsLine(stable = 0, retained = 0),
-    season = TownUiState.SeasonLine(
+    people = PeopleLine(free = 19, atWork = 1),
+    words = WordsLine(stable = 0, retained = 0),
+    season = SeasonLine(
         kind = SeasonKind.Summer,
         year = 2,
         remaining = 3.days,
-        productionMarks = listOf(TownUiState.ProductionMark(TownResourceKind.Food, percent = 125)),
+        productionMarks = listOf(ProductionMark(TownResourceKind.Food, percent = 125)),
     ),
-    buildMark = TownUiState.DurationMark(SeasonKind.Summer, percent = 75),
-    slot = TownUiState.SlotLine.Idle,
+    buildMark = DurationMark(SeasonKind.Summer, percent = 75),
+    slot = SlotLine.Idle,
     waitingList = emptyList(),
     places = streetOrder.map { kind: TownBuildingKind ->
-        TownUiState.PlaceCard(
+        PlaceCard(
             kind = kind,
             level = 0,
             raisedFrom = null,
             isInWork = false,
-            next = TownUiState.NextLevelLine(
+            next = NextLevelLine(
                 level = 1,
                 costs = listOf(
-                    TownUiState.CostLine(TownResourceKind.Money, amount = 400, isShort = true),
-                    TownUiState.CostLine(TownResourceKind.Material, amount = 120, isShort = false),
+                    CostLine(TownResourceKind.Money, amount = 400, isShort = true),
+                    CostLine(TownResourceKind.Material, amount = 120, isShort = false),
                 ),
                 duration = 2.minutes,
                 people = 1,
@@ -74,14 +89,14 @@ private val previewHome: TownUiState.Content = TownUiState.Content(
     caughtUpGoal = previewGoal,
     newestText = NextStepText(TextId("text-31"), "The New Shop"),
     tip = TipKind.Seasons,
-    start = TownUiState.StartStatus.Idle,
-    stop = TownUiState.StopStatus.Idle,
-    hiring = TownUiState.HiringLine(
-        order = TownUiState.HiringOrderLine.Idle,
+    start = StartStatus.Idle,
+    stop = StopStatus.Idle,
+    hiring = HiringLine(
+        order = HiringOrderLine.Idle,
         hires = emptyList(),
         hireMark = null,
-        place = TownUiState.HiringPlaceStatus.Idle,
-        stop = TownUiState.HiringStopStatus.Idle,
+        place = HiringPlaceStatus.Idle,
+        stop = HiringStopStatus.Idle,
     ),
 )
 
@@ -90,19 +105,19 @@ private class TownScreenStates : PreviewParameterProvider<TownUiState> {
     override val values: Sequence<TownUiState> = sequenceOf(
         TownUiState.Loading,
         TownUiState.Failed,
-        TownUiState.Naming(name = "Riverton", status = TownUiState.NamingStatus.Idle),
+        TownUiState.Naming(name = "Riverton", status = NamingStatus.Idle),
         previewHome,
         previewHome.copy(
-            season = TownUiState.SeasonLine(
+            season = SeasonLine(
                 kind = SeasonKind.Winter,
                 year = 2,
                 remaining = 2.days,
-                productionMarks = listOf(TownUiState.ProductionMark(TownResourceKind.Power, percent = 75)),
+                productionMarks = listOf(ProductionMark(TownResourceKind.Power, percent = 75)),
             ),
             buildMark = null,
         ),
         previewHome.copy(
-            season = TownUiState.SeasonLine(
+            season = SeasonLine(
                 kind = SeasonKind.Spring,
                 year = 2,
                 remaining = 4.days,
@@ -111,9 +126,9 @@ private class TownScreenStates : PreviewParameterProvider<TownUiState> {
             buildMark = null,
             hiring = previewHome.hiring.copy(
                 hires = listOf(
-                    TownUiState.HiringCard(TownHireKind.Truck, team = 0, requiredOfficeLevel = 3, form = null),
+                    HiringCard(TownHireKind.Truck, team = 0, requiredOfficeLevel = 3, form = null),
                 ),
-                hireMark = TownUiState.DurationMark(SeasonKind.Spring, percent = 75),
+                hireMark = DurationMark(SeasonKind.Spring, percent = 75),
             ),
         ),
     )
@@ -151,7 +166,7 @@ private fun TownScreenNamingBothPreview() {
     ProvideCopyLanguage(language = CopyLanguage(ScaffoldLanguage.Spanish, ChromePhase.Both)) {
         MyGamePreviewSurface {
             TownScreen(
-                state = TownUiState.Naming(name = "Riverton", status = TownUiState.NamingStatus.Idle),
+                state = TownUiState.Naming(name = "Riverton", status = NamingStatus.Idle),
                 onIntent = {},
                 onSchoolOpen = {},
                 onMapOpen = {},

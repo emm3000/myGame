@@ -9,7 +9,6 @@ import com.emm.mygame.core.projection.finishClockOf
 import com.emm.mygame.core.ui.CopyReader
 import com.emm.mygame.core.ui.finishClockLabelOf
 import com.emm.mygame.feature.town.R
-import com.emm.mygame.feature.town.TownUiState
 import com.emm.mygame.feature.town.neededWordSelectorOf
 import com.emm.mygame.feature.town.townDurationCopy
 import java.time.ZoneId
@@ -50,7 +49,7 @@ internal fun CopyReader.workRefusalLineOf(refusal: TownWorkRefusal): String = wh
     TownWorkRefusal.Unrecognized -> text(R.string.town_refusal_unexpected)
 }
 
-internal fun CopyReader.fillLabelOf(fill: TownUiState.FillTime): String {
+internal fun CopyReader.fillLabelOf(fill: FillTime): String {
     val finish: FinishClock = finishClockOf(fill.fullAt, fill.remaining, ZoneId.systemDefault())
     return text(R.string.town_full_at, "clock" to finishClockLabelOf(finish, townDurationCopy))
 }

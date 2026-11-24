@@ -6,6 +6,7 @@ import com.emm.mygame.core.model.town.TownSnapshot
 import com.emm.mygame.core.model.town.building.TownBuildingKind
 import com.emm.mygame.core.testing.FakeTownRepository
 import com.emm.mygame.core.testing.MainDispatcherRule
+import com.emm.mygame.feature.town.building.PlaceCard
 import kotlinx.coroutines.test.TestScope
 import kotlinx.coroutines.test.advanceTimeBy
 import kotlinx.coroutines.test.runCurrent
@@ -119,7 +120,7 @@ class TownRegistersTest {
     }
 
     private fun raisedOf(viewModel: TownViewModel): Map<TownBuildingKind, Int> = contentOf(viewModel).places
-        .mapNotNull { place: TownUiState.PlaceCard ->
+        .mapNotNull { place: PlaceCard ->
             place.raisedFrom?.let { levelBefore: Int -> place.kind to levelBefore }
         }
         .toMap()

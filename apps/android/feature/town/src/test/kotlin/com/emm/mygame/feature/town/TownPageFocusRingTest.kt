@@ -25,6 +25,15 @@ import com.emm.mygame.core.designsystem.OUTLINED_PILL
 import com.emm.mygame.core.model.town.TownLabel
 import com.emm.mygame.core.model.town.TownResourceKind
 import com.emm.mygame.core.model.town.building.TownBuildingKind
+import com.emm.mygame.feature.town.building.CostLine
+import com.emm.mygame.feature.town.building.NextLevelLine
+import com.emm.mygame.feature.town.building.PeopleLine
+import com.emm.mygame.feature.town.building.PlaceCard
+import com.emm.mygame.feature.town.building.SlotLine
+import com.emm.mygame.feature.town.building.StartStatus
+import com.emm.mygame.feature.town.building.StockLine
+import com.emm.mygame.feature.town.building.StopStatus
+import com.emm.mygame.feature.town.building.WordsLine
 import org.junit.Assert.assertEquals
 import org.junit.Rule
 import org.junit.Test
@@ -40,9 +49,9 @@ class TownPageFocusRingTest {
     @get:Rule
     val composeRule: ComposeContentTestRule = createComposeRule()
 
-    private val levelTwo: TownUiState.NextLevelLine = TownUiState.NextLevelLine(
+    private val levelTwo: NextLevelLine = NextLevelLine(
         level = 2,
-        costs = listOf(TownUiState.CostLine(TownResourceKind.Money, 150, isShort = false)),
+        costs = listOf(CostLine(TownResourceKind.Money, 150, isShort = false)),
         duration = 90.seconds,
         people = 3,
         wordsNeeded = null,
@@ -52,16 +61,16 @@ class TownPageFocusRingTest {
         name = "Riverton",
         label = TownLabel.Town,
         stocks = TownResourceKind.entries.map { kind: TownResourceKind ->
-            TownUiState.StockLine(kind, 120, capacity = 900, ratePerHour = 30, skillLevel = 0, fill = null)
+            StockLine(kind, 120, capacity = 900, ratePerHour = 30, skillLevel = 0, fill = null)
         },
-        people = TownUiState.PeopleLine(free = 24, atWork = 96),
-        words = TownUiState.WordsLine(stable = 3, retained = 1),
+        people = PeopleLine(free = 24, atWork = 96),
+        words = WordsLine(stable = 3, retained = 1),
         season = null,
         buildMark = null,
-        slot = TownUiState.SlotLine.Idle,
+        slot = SlotLine.Idle,
         waitingList = emptyList(),
         places = streetOrder.map { kind: TownBuildingKind ->
-            TownUiState.PlaceCard(
+            PlaceCard(
                 kind = kind,
                 level = 1,
                 raisedFrom = null,
@@ -75,8 +84,8 @@ class TownPageFocusRingTest {
         caughtUpGoal = null,
         newestText = null,
         tip = null,
-        start = TownUiState.StartStatus.Idle,
-        stop = TownUiState.StopStatus.Idle,
+        start = StartStatus.Idle,
+        stop = StopStatus.Idle,
         hiring = idleHiringLine,
     )
 
