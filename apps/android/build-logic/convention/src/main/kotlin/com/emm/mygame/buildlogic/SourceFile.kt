@@ -4,7 +4,7 @@ data class SourceFile(val path: String, val text: String) {
 
     val isProduction: Boolean get() = "/src/main/" in path && !path.startsWith("build-logic/")
 
-    val isTest: Boolean get() = "/src/test/" in path
+    val isTest: Boolean get() = "/src/test/" in path || "/src/testFixtures/" in path
 
     val fileName: String get() = path.substringAfterLast('/')
 
