@@ -91,7 +91,7 @@ dependencies {
     implementation(project(":core:ui"))
     implementation(project(":feature:account"))
     implementation(project(":feature:learning"))
-    implementation(project(":feature:map"))
+    implementation(project(":feature:jobs"))
     implementation(project(":feature:placement"))
     implementation(project(":feature:report"))
     implementation(project(":feature:school"))
