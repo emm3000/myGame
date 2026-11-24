@@ -13,7 +13,7 @@ import com.emm.mygame.core.model.town.guidance.CaughtUpReason
 import com.emm.mygame.core.model.town.guidance.NextStep
 import com.emm.mygame.core.model.town.guidance.NextStepText
 import com.emm.mygame.core.model.town.school.WordStanding
-import com.emm.mygame.core.testing.FakeTokenCipher
+import com.emm.mygame.core.network.platform.TokenStore
 import com.emm.mygame.core.testing.TestClock
 import java.io.File
 import kotlin.time.Duration.Companion.minutes

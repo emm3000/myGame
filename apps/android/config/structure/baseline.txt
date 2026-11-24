@@ -24,7 +24,7 @@ file-lines core/designsystem/src/main/kotlin/com/emm/mygame/core/designsystem/My
 file-lines core/designsystem/src/main/kotlin/com/emm/mygame/core/designsystem/MyGameFrameText.kt
 file-lines core/designsystem/src/main/kotlin/com/emm/mygame/core/designsystem/MyGamePill.kt
 file-lines core/designsystem/src/main/kotlin/com/emm/mygame/core/designsystem/MyGameStreetStrip.kt
-file-lines core/network/src/main/kotlin/com/emm/mygame/core/network/ApiTownRepository.kt
+file-lines core/network/src/main/kotlin/com/emm/mygame/core/network/town/ApiTownRepository.kt
 file-lines feature/map/src/main/kotlin/com/emm/mygame/feature/map/MapScreen.kt
 file-lines feature/map/src/main/kotlin/com/emm/mygame/feature/map/MapViewModel.kt
 file-lines feature/report/src/main/kotlin/com/emm/mygame/feature/report/ReportScreen.kt
@@ -44,7 +44,7 @@ file-name app/src/main/kotlin/com/emm/mygame/PlayerLanguageFrame.kt
 file-name app/src/main/kotlin/com/emm/mygame/ReminderNotificationAsk.kt
 file-name core/designsystem/src/main/kotlin/com/emm/mygame/core/designsystem/EnglishText.kt
 file-name core/designsystem/src/main/kotlin/com/emm/mygame/core/designsystem/TabularFigures.kt
-file-name core/network/src/main/kotlin/com/emm/mygame/core/network/ApiClient.kt
+file-name core/network/src/main/kotlin/com/emm/mygame/core/network/platform/ApiClient.kt
 file-name core/model/src/main/kotlin/com/emm/mygame/core/model/learning/ReviewAnswerMaxLength.kt
 file-name core/projection/src/main/kotlin/com/emm/mygame/core/projection/Countdown.kt
 file-name core/projection/src/main/kotlin/com/emm/mygame/core/projection/ReadyMinute.kt
@@ -80,7 +80,6 @@ file-name feature/town/src/main/kotlin/com/emm/mygame/feature/town/TownSeason.kt
 file-name feature/town/src/main/kotlin/com/emm/mygame/feature/town/TownStatusDock.kt
 file-name feature/town/src/main/kotlin/com/emm/mygame/feature/town/TownStreet.kt
 package-files core/designsystem/src/main/kotlin/com/emm/mygame/core/designsystem
-package-files core/network/src/main/kotlin/com/emm/mygame/core/network
 package-files feature/school/src/main/kotlin/com/emm/mygame/feature/school
 package-files feature/signin/src/main/kotlin/com/emm/mygame/feature/signin
 package-files feature/town/src/main/kotlin/com/emm/mygame/feature/town

@@ -9,7 +9,7 @@ import com.emm.mygame.core.model.town.TownRepository
 import com.emm.mygame.core.model.town.TownSnapshot
 import com.emm.mygame.core.model.town.TownTextRepository
 import com.emm.mygame.core.model.town.TownTextResult
-import com.emm.mygame.core.testing.FakeTokenCipher
+import com.emm.mygame.core.network.platform.TokenStore
 import com.emm.mygame.core.testing.TestClock
 import java.io.File
 import kotlin.time.Instant

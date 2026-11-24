@@ -6,7 +6,7 @@ import com.emm.mygame.core.model.town.hiring.TownHireKind
 import com.emm.mygame.core.model.town.jobs.JobQuoteResult
 import com.emm.mygame.core.model.town.jobs.JobTarget
 import com.emm.mygame.core.model.town.jobs.TownJobRefusal
-import com.emm.mygame.core.testing.FakeTokenCipher
+import com.emm.mygame.core.network.platform.TokenStore
 import com.emm.mygame.core.testing.TestClock
 import java.io.File
 import kotlin.time.Instant

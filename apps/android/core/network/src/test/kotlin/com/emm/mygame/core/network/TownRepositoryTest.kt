@@ -23,7 +23,8 @@ import com.emm.mygame.core.model.town.hiring.TownHireKind
 import com.emm.mygame.core.model.town.hiring.TownHiringRefusal
 import com.emm.mygame.core.model.town.hiring.TownHiringResult
 import com.emm.mygame.core.model.town.school.RetainedWords
-import com.emm.mygame.core.testing.FakeTokenCipher
+import com.emm.mygame.core.network.platform.SessionEnds
+import com.emm.mygame.core.network.platform.TokenStore
 import com.emm.mygame.core.testing.TestClock
 import java.io.File
 import kotlin.time.Duration.Companion.minutes

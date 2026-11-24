@@ -1,0 +1,286 @@
+package com.emm.mygame.core.network.town
+
+import com.emm.mygame.core.model.learning.LessonId
+import com.emm.mygame.core.model.town.HeldTown
+import com.emm.mygame.core.model.town.TownFoundRefusal
+import com.emm.mygame.core.model.town.TownFoundResult
+import com.emm.mygame.core.model.town.TownReadResult
+import com.emm.mygame.core.model.town.TownRepository
+import com.emm.mygame.core.model.town.TownSnapshot
+import com.emm.mygame.core.model.town.building.NeededWordKind
+import com.emm.mygame.core.model.town.building.TownBuildingKind
+import com.emm.mygame.core.model.town.building.TownWorkRefusal
+import com.emm.mygame.core.model.town.building.TownWorkResult
+import com.emm.mygame.core.model.town.guidance.TownGuidanceRepository
+import com.emm.mygame.core.model.town.hiring.TownHireKind
+import com.emm.mygame.core.model.town.hiring.TownHiringRefusal
+import com.emm.mygame.core.model.town.hiring.TownHiringResult
+import com.emm.mygame.core.model.town.jobs.JobTarget
+import com.emm.mygame.core.model.town.jobs.RegionReader
+import com.emm.mygame.core.model.town.jobs.TownJobResult
+import com.emm.mygame.core.model.town.school.TownLessonRefusal
+import com.emm.mygame.core.model.town.school.TownLessonResult
+import com.emm.mygame.core.network.generated.apis.DefaultApi
+import com.emm.mygame.core.network.generated.models.ApiError
+import com.emm.mygame.core.network.generated.models.BareApiError
+import com.emm.mygame.core.network.generated.models.FoundTown
+import com.emm.mygame.core.network.generated.models.NotEnoughWordsErrorParams
+import com.emm.mygame.core.network.generated.models.PlaceHiringOrder
+import com.emm.mygame.core.network.generated.models.StartBuildingWork
+import com.emm.mygame.core.network.generated.models.StartLessonRequest
+import com.emm.mygame.core.network.generated.models.TownOverview
+import com.emm.mygame.core.network.platform.WireRefusal
+import com.emm.mygame.core.network.platform.bareKind
+import com.emm.mygame.core.network.platform.toOffsetDateTime
+import com.emm.mygame.core.network.platform.wireRefusal
+import com.emm.mygame.core.network.town.building.toNeededWordKind
+import com.emm.mygame.core.network.town.jobs.jobResultOf
+import com.emm.mygame.core.network.town.jobs.sendCleanUpOf
+import com.emm.mygame.core.network.town.jobs.sendJobOf
+import java.io.IOException
+import kotlin.time.Clock
+import kotlin.time.Instant
+import kotlinx.coroutines.CoroutineDispatcher
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.withContext
+import kotlinx.serialization.SerializationException
+import retrofit2.Response
+
+internal class ApiTownRepository(
+    private val api: DefaultApi,
+    private val ioDispatcher: CoroutineDispatcher,
+    private val clock: Clock,
+    private val answers: TownAnswers,
+    private val reads: TownReadFlight,
+    regionReader: RegionReader,
+    guidance: TownGuidanceRepository,
+) : TownRepository,
+    RegionReader by regionReader,
+    TownGuidanceRepository by guidance {
+
+    private val _town: MutableStateFlow<HeldTown?> = MutableStateFlow(null)
+
+    override val town: StateFlow<HeldTown?> = _town.asStateFlow()
+
+    private val holding: Any = Any()
+
+    private var lastHeldSend: Long = 0L
+
+    init {
+        answers.onSessionChange(::forget)
+    }
+
+    override suspend fun read(): TownReadResult = reads.read(::sentRead)
+
+    override suspend fun readSentAfterNow(): TownReadResult = reads.readSentNow(::sentRead)
+
+    override suspend fun found(name: String): TownFoundResult =
+        answering(TownFoundResult.Unreachable, ::foundResultOf) { api.townPost(FoundTown(name = name)) }
+
+    override suspend fun startWork(building: TownBuildingKind): TownWorkResult =
+        answering(TownWorkResult.Unreachable, ::workResultOf) {
+            api.townWorkPost(StartBuildingWork(building = building.toWireBuilding()))
+        }
+
+    override suspend fun stopWork(building: TownBuildingKind, level: Int): TownWorkResult =
+        answering(TownWorkResult.Unreachable, ::workResultOf) {
+            api.townWorkBuildingLevelDelete(building = building.toWireBuilding().value, level = level.toString())
+        }
+
+    override suspend fun startLesson(lesson: LessonId): TownLessonResult =
+        answering(TownLessonResult.Unreachable, ::lessonResultOf) {
+            api.townLessonsPost(StartLessonRequest(lessonId = lesson.value))
+        }
+
+    override suspend fun stopLesson(lesson: LessonId): TownLessonResult =
+        answering(TownLessonResult.Unreachable, ::lessonResultOf) {
+            api.townLessonsLessonIdDelete(lessonId = lesson.value)
+        }
+
+    override suspend fun placeHiring(hire: TownHireKind, count: Int): TownHiringResult =
+        answering(TownHiringResult.Unreachable, ::hiringResultOf) {
+            api.townHiringPost(PlaceHiringOrder(hire = hire.toWireHire(), count = count))
+        }
+
+    override suspend fun stopHiring(hire: TownHireKind, startedAt: Instant): TownHiringResult =
+        answering(TownHiringResult.Unreachable, ::hiringResultOf) {
+            api.townHiringHireStartedAtDelete(hire = hire.toWireHire().value, startedAt = startedAt.toOffsetDateTime())
+        }
+
+    override suspend fun sendJob(target: JobTarget, team: Map<TownHireKind, Int>, hours: Int): TownJobResult =
+        answering(TownJobResult.Unreachable, ::jobResultOf) { api.townJobsPost(sendJobOf(target, team, hours)) }
+
+    override suspend fun sendCleanUp(target: JobTarget, team: Map<TownHireKind, Int>): TownJobResult =
+        answering(TownJobResult.Unreachable, ::jobResultOf) { api.townCleanUpsPost(sendCleanUpOf(target, team)) }
+
+    override suspend fun callJobBack(sentAt: Instant): TownJobResult =
+        answering(TownJobResult.Unreachable, ::jobResultOf) {
+            api.townJobsSentAtCallBackPost(sentAt = sentAt.toOffsetDateTime())
+        }
+
+    private suspend fun <Answer> answering(
+        unreachable: Answer,
+        resultOf: (Response<TownOverview>, TownSnapshot?) -> Answer,
+        call: suspend () -> Response<TownOverview>,
+    ): Answer = withContext(ioDispatcher) {
+        try {
+            val request: TownRequest = answers.sending()
+            val response: Response<TownOverview> = call()
+            answers.languageAnswered(request, response)
+            resultOf(response, answeredTown(response, request))
+        } catch (expectedOutage: IOException) {
+            unreachable
+        } catch (expectedMalformedBody: SerializationException) {
+            unreachable
+        }
+    }
+
+    private suspend fun sentRead(request: TownRequest): TownReadResult =
+        try {
+            val response: Response<TownOverview> = api.townGet()
+            answers.languageAnswered(request, response)
+            readOrNoTown(response, request)
+        } catch (expectedOutage: IOException) {
+            TownReadResult.Unreachable
+        } catch (expectedMalformedBody: SerializationException) {
+            TownReadResult.Unreachable
+        }
+
+    private fun readTown(response: Response<TownOverview>, request: TownRequest): TownSnapshot? =
+        response.body()?.toSnapshot()?.also { town: TownSnapshot ->
+            hold(request) { HeldTown(town, gap = town.readAt - clock.now()) }
+            answers.townAnswered(request, town)
+        }
+
+    private fun answeredTown(response: Response<TownOverview>, request: TownRequest): TownSnapshot? =
+        response.body()?.toSnapshot()?.also { town: TownSnapshot ->
+            hold(request) { last: HeldTown? -> HeldTown(town, gap = last?.gap ?: (town.readAt - clock.now())) }
+            answers.townAnswered(request, town)
+        }
+
+    private fun hold(request: TownRequest, next: (HeldTown?) -> HeldTown?) {
+        synchronized(holding) {
+            if (!answers.isCurrent(request) || request.study.wasSentBefore(lastHeldSend)) return
+            lastHeldSend = request.study.order
+            _town.value = next(_town.value)
+        }
+    }
+
+    private fun forget() {
+        synchronized(holding) {
+            _town.value = null
+        }
+    }
+
+    private fun readOrNoTown(response: Response<TownOverview>, request: TownRequest): TownReadResult {
+        val snapshot: TownSnapshot? = readTown(response, request)
+        if (response.isSuccessful) {
+            return if (snapshot == null) TownReadResult.Unreachable else TownReadResult.Read(snapshot)
+        }
+        val isNoTown: Boolean = response.wireRefusal()?.bareKind() == BareApiError.Kind.TownNotFound
+        if (!isNoTown) return TownReadResult.Unreachable
+        hold(request) { null }
+        return TownReadResult.NoTown
+    }
+}
+
+private fun foundResultOf(response: Response<TownOverview>, snapshot: TownSnapshot?): TownFoundResult {
+    if (response.isSuccessful) {
+        return if (snapshot == null) TownFoundResult.Unreachable else TownFoundResult.Founded(snapshot)
+    }
+    val refusal: WireRefusal = response.wireRefusal() ?: return TownFoundResult.Unreachable
+    return TownFoundResult.Refused(refusal.toFoundRefusal())
+}
+
+private fun workResultOf(response: Response<TownOverview>, snapshot: TownSnapshot?): TownWorkResult {
+    if (response.isSuccessful) {
+        return if (snapshot == null) TownWorkResult.Unreachable else TownWorkResult.Answered(snapshot)
+    }
+    val refusal: WireRefusal = response.wireRefusal() ?: return TownWorkResult.Unreachable
+    return TownWorkResult.Refused(refusal.toWorkRefusal())
+}
+
+private fun lessonResultOf(response: Response<TownOverview>, snapshot: TownSnapshot?): TownLessonResult {
+    if (response.isSuccessful) {
+        return if (snapshot == null) TownLessonResult.Unreachable else TownLessonResult.Answered(snapshot)
+    }
+    val refusal: WireRefusal = response.wireRefusal() ?: return TownLessonResult.Unreachable
+    return TownLessonResult.Refused(refusal.toLessonRefusal())
+}
+
+private fun hiringResultOf(response: Response<TownOverview>, snapshot: TownSnapshot?): TownHiringResult {
+    if (response.isSuccessful) {
+        return if (snapshot == null) TownHiringResult.Unreachable else TownHiringResult.Answered(snapshot)
+    }
+    val refusal: WireRefusal = response.wireRefusal() ?: return TownHiringResult.Unreachable
+    return TownHiringResult.Refused(refusal.toHiringRefusal())
+}
+
+private fun WireRefusal.toFoundRefusal(): TownFoundRefusal = when (bareKind()) {
+    BareApiError.Kind.BlankTownName -> TownFoundRefusal.BlankTownName
+    BareApiError.Kind.PlayerAlreadyHoldsTown -> TownFoundRefusal.PlayerAlreadyHoldsTown
+    else -> TownFoundRefusal.Unrecognized
+}
+
+private fun WireRefusal.toWorkRefusal(): TownWorkRefusal = when (this) {
+    is WireRefusal.Bare ->
+        if (kind == BareApiError.Kind.TownNotFound) TownWorkRefusal.TownNotFound else TownWorkRefusal.Unrecognized
+    is WireRefusal.WithParams -> error.toWorkRefusal()
+}
+
+private fun ApiError.toWorkRefusal(): TownWorkRefusal = when (this) {
+    is ApiError.WaitinglistfullWrapper -> TownWorkRefusal.WaitingListFull(value.params.cap)
+    is ApiError.ToplevelreachedWrapper -> TownWorkRefusal.TopLevelReached(value.params.level)
+    is ApiError.NotenoughpeopleWrapper ->
+        TownWorkRefusal.NotEnoughPeople(required = value.params.requiredPeople, free = value.params.freePeople)
+    is ApiError.NotenoughwordsWrapper -> value.params.toWorkRefusal()
+    is ApiError.NotenoughresourcesWrapper -> TownWorkRefusal.NotEnoughResources
+    is ApiError.BuildingworknotfoundWrapper -> TownWorkRefusal.BuildingWorkNotFound(value.params.level)
+    else -> TownWorkRefusal.Unrecognized
+}
+
+private fun NotEnoughWordsErrorParams.toWorkRefusal(): TownWorkRefusal {
+    val kind: NeededWordKind = standing.toNeededWordKind() ?: return TownWorkRefusal.Unrecognized
+    return TownWorkRefusal.NotEnoughWords(needed, held, kind)
+}
+
+private val lessonRefusals: Map<BareApiError.Kind, TownLessonRefusal> = mapOf(
+    BareApiError.Kind.StudySlotBusy to TownLessonRefusal.StudySlotBusy,
+    BareApiError.Kind.LessonSchoolTooLow to TownLessonRefusal.LessonSchoolTooLow,
+    BareApiError.Kind.LessonAlreadyStudied to TownLessonRefusal.LessonAlreadyStudied,
+    BareApiError.Kind.LessonUnderStudy to TownLessonRefusal.LessonUnderStudy,
+    BareApiError.Kind.LessonStudyNotFound to TownLessonRefusal.LessonStudyNotFound,
+    BareApiError.Kind.TownNotFound to TownLessonRefusal.TownNotFound,
+)
+
+private fun WireRefusal.toLessonRefusal(): TownLessonRefusal = when (this) {
+    is WireRefusal.Bare -> lessonRefusals[kind] ?: TownLessonRefusal.Unrecognized
+    is WireRefusal.WithParams -> error.toLessonRefusal()
+}
+
+private fun ApiError.toLessonRefusal(): TownLessonRefusal = when (this) {
+    is ApiError.LearningcapreachedWrapper ->
+        TownLessonRefusal.LearningCapReached(cap = value.params.learningCap, inLearning = value.params.cardsInLearning)
+    else -> TownLessonRefusal.Unrecognized
+}
+
+private fun WireRefusal.toHiringRefusal(): TownHiringRefusal = when (this) {
+    is WireRefusal.Bare ->
+        if (kind == BareApiError.Kind.TownNotFound) TownHiringRefusal.TownNotFound else TownHiringRefusal.Unrecognized
+    is WireRefusal.WithParams -> error.toHiringRefusal()
+}
+
+private fun ApiError.toHiringRefusal(): TownHiringRefusal = when (this) {
+    is ApiError.OfficetoolowWrapper -> TownHiringRefusal.OfficeTooLow(
+        officeLevel = value.params.officeLevel,
+        requiredOfficeLevel = value.params.requiredOfficeLevel,
+    )
+    is ApiError.HiringslotbusyWrapper -> TownHiringRefusal.HiringSlotBusy
+    is ApiError.NotenoughpeopleWrapper ->
+        TownHiringRefusal.NotEnoughPeople(required = value.params.requiredPeople, free = value.params.freePeople)
+    is ApiError.NotenoughresourcesWrapper -> TownHiringRefusal.NotEnoughResources
+    is ApiError.HiringordernotfoundWrapper -> TownHiringRefusal.HiringOrderNotFound
+    else -> TownHiringRefusal.Unrecognized
+}

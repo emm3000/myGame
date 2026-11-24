@@ -11,7 +11,7 @@ import com.emm.mygame.core.model.town.TownSnapshot
 import com.emm.mygame.core.model.town.school.TownLessonRefusal
 import com.emm.mygame.core.model.town.school.TownLessonResult
 import com.emm.mygame.core.model.town.school.WordStanding
-import com.emm.mygame.core.testing.FakeTokenCipher
+import com.emm.mygame.core.network.platform.TokenStore
 import com.emm.mygame.core.testing.TestClock
 import java.io.File
 import kotlin.time.Duration.Companion.seconds

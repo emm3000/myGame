@@ -12,7 +12,7 @@ import com.emm.mygame.core.model.report.ReportRepository
 import com.emm.mygame.core.model.theme.ThemeSettings
 import com.emm.mygame.core.model.town.TownRepository
 import com.emm.mygame.core.model.town.TownTextRepository
-import com.emm.mygame.core.network.SessionEnds
+import com.emm.mygame.core.network.platform.SessionEnds
 import kotlin.time.Clock
 import kotlinx.coroutines.flow.StateFlow
 

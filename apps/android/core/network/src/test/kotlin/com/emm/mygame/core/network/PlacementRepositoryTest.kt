@@ -11,7 +11,8 @@ import com.emm.mygame.core.model.placement.PlacementItem
 import com.emm.mygame.core.model.placement.PlacementReadResult
 import com.emm.mygame.core.model.placement.PlacementRepository
 import com.emm.mygame.core.model.placement.PlacementScore
-import com.emm.mygame.core.testing.FakeTokenCipher
+import com.emm.mygame.core.network.platform.TokenStore
+import java.io.File
 import kotlinx.coroutines.test.TestScope
 import kotlinx.coroutines.test.runTest
 import mockwebserver3.MockResponse
@@ -23,7 +24,6 @@ import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
 import org.junit.rules.TemporaryFolder
-import java.io.File
 
 class PlacementRepositoryTest {
 

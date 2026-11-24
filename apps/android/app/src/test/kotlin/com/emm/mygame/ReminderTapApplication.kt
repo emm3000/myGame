@@ -12,7 +12,7 @@ import com.emm.mygame.core.model.reminder.StudyReminderSettings
 import com.emm.mygame.core.model.theme.ThemePick
 import com.emm.mygame.core.model.town.TownRepository
 import com.emm.mygame.core.model.town.TownTextRepository
-import com.emm.mygame.core.network.SessionEnds
+import com.emm.mygame.core.network.platform.SessionEnds
 import com.emm.mygame.core.testing.FakeHoldoutCheckRepository
 import com.emm.mygame.core.testing.FakeLearningRepository
 import com.emm.mygame.core.testing.FakePlacementRepository
