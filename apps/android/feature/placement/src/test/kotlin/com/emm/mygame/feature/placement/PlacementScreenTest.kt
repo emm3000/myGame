@@ -21,7 +21,16 @@ import com.emm.mygame.core.model.learning.WordId
 import com.emm.mygame.core.model.placement.ChoiceId
 import com.emm.mygame.core.model.placement.PlacementBand
 import com.emm.mygame.core.model.placement.PlacementScore
+import com.emm.mygame.core.testing.dogMeaning
+import com.emm.mygame.core.testing.house
+import com.emm.mygame.core.testing.houseMeaning
+import com.emm.mygame.core.testing.walk
+import com.emm.mygame.core.testing.walkMeaning
 import com.emm.mygame.core.ui.TaskDockHook
+import com.emm.mygame.core.ui.TaskFrameStandIn
+import com.emm.mygame.core.ui.assertAskingProgressDrawnOnce
+import com.emm.mygame.core.ui.dockGo
+import com.emm.mygame.core.ui.inTaskDock
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertNotNull
 import org.junit.Assert.assertNull

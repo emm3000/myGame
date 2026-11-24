@@ -12,6 +12,11 @@ import com.emm.mygame.core.model.placement.PlacementChoice
 import com.emm.mygame.core.testing.FakeHoldoutCheckRepository
 import com.emm.mygame.core.testing.HoldoutCheckChange
 import com.emm.mygame.core.testing.MainDispatcherRule
+import com.emm.mygame.core.testing.house
+import com.emm.mygame.core.testing.houseMeaning
+import com.emm.mygame.core.testing.runMeaning
+import com.emm.mygame.core.testing.walk
+import com.emm.mygame.core.testing.walkMeaning
 import kotlinx.coroutines.test.TestScope
 import kotlinx.coroutines.test.runCurrent
 import kotlinx.coroutines.test.runTest
