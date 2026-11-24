@@ -5,7 +5,7 @@ import java.time.temporal.ChronoUnit
 
 private const val MINUTE_STEP: Int = 5
 
-internal fun LocalTime.stepped(step: ReminderStep): LocalTime {
+internal fun LocalTime.afterReminderStep(step: ReminderStep): LocalTime {
     val minute: LocalTime = truncatedTo(ChronoUnit.MINUTES)
     val offGrid: Int = minute.minute % MINUTE_STEP
     return when (step) {
