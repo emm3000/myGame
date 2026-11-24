@@ -1,12 +1,18 @@
 package com.emm.mygame.core.network
 
+import com.emm.mygame.core.model.placement.Placement
+import com.emm.mygame.core.model.placement.PlacementAnswer
+import com.emm.mygame.core.model.placement.PlacementBand
+import com.emm.mygame.core.model.placement.PlacementChangeResult
+import com.emm.mygame.core.model.placement.PlacementReadResult
+import com.emm.mygame.core.model.placement.PlacementRepository
 import com.emm.mygame.core.network.generated.apis.DefaultApi
 import com.emm.mygame.core.network.generated.models.PlacementAnswers
-import java.io.IOException
-import java.net.HttpURLConnection
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.withContext
 import retrofit2.Response
+import java.io.IOException
+import java.net.HttpURLConnection
 import com.emm.mygame.core.network.generated.models.Placement as WirePlacement
 
 internal class ApiPlacementRepository(

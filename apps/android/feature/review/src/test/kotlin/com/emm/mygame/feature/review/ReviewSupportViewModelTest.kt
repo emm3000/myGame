@@ -1,18 +1,18 @@
 package com.emm.mygame.feature.review
 
 import app.cash.turbine.test
-import com.emm.mygame.core.network.ReviewAnswerResult
-import com.emm.mygame.core.network.ReviewHint
-import com.emm.mygame.core.network.ReviewHintResult
-import com.emm.mygame.core.network.ReviewHintWord
-import com.emm.mygame.core.network.ReviewVerdict
+import com.emm.mygame.core.model.learning.ReviewAnswerResult
+import com.emm.mygame.core.model.learning.ReviewHint
+import com.emm.mygame.core.model.learning.ReviewHintResult
+import com.emm.mygame.core.model.learning.ReviewHintWord
+import com.emm.mygame.core.model.learning.ReviewVerdict
 import com.emm.mygame.core.testing.FakeLearningRepository
 import com.emm.mygame.core.testing.MainDispatcherRule
-import kotlin.time.Duration.Companion.minutes
 import kotlinx.coroutines.test.runTest
 import org.junit.Assert.assertEquals
 import org.junit.Rule
 import org.junit.Test
+import kotlin.time.Duration.Companion.minutes
 
 class ReviewSupportViewModelTest {
 

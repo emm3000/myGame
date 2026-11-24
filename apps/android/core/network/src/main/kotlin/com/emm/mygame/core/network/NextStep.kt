@@ -1,5 +1,9 @@
 package com.emm.mygame.core.network
 
+import com.emm.mygame.core.model.holdout.HoldoutCheckWeek
+import com.emm.mygame.core.model.learning.LessonId
+import com.emm.mygame.core.model.placement.PlacementBand
+
 sealed interface NextStep {
 
     data class Reviews(val count: Int, val readFirst: List<LessonId>) : NextStep

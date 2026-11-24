@@ -15,20 +15,20 @@ import androidx.compose.ui.test.performScrollTo
 import com.emm.mygame.core.designsystem.HAIRLINE
 import com.emm.mygame.core.designsystem.MyGameTheme
 import com.emm.mygame.core.designsystem.MyGameTransitions
-import com.emm.mygame.core.network.TownAmount
-import com.emm.mygame.core.network.TownBuildingKind
-import com.emm.mygame.core.network.TownHireKind
-import com.emm.mygame.core.network.TownNews
-import com.emm.mygame.core.network.TownResourceKind
-import com.emm.mygame.core.network.TownSite
-import java.time.LocalDateTime
-import java.time.ZoneId
-import kotlin.time.Instant
+import com.emm.mygame.core.model.town.TownAmount
+import com.emm.mygame.core.model.town.TownResourceKind
+import com.emm.mygame.core.model.town.TownSite
+import com.emm.mygame.core.model.town.building.TownBuildingKind
+import com.emm.mygame.core.model.town.hiring.TownHireKind
+import com.emm.mygame.core.model.town.news.TownNews
 import org.junit.Assert.assertEquals
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.robolectric.RobolectricTestRunner
+import java.time.LocalDateTime
+import java.time.ZoneId
+import kotlin.time.Instant
 
 @RunWith(RobolectricTestRunner::class)
 class NewsScreenTest {

@@ -1,5 +1,9 @@
 package com.emm.mygame.core.network
 
+import com.emm.mygame.core.model.learning.LessonId
+import com.emm.mygame.core.model.learning.TextId
+import com.emm.mygame.core.model.placement.PlacementBand
+import com.emm.mygame.core.model.town.TownResourceKind
 import com.emm.mygame.core.network.generated.models.TownOverviewLearning
 import com.emm.mygame.core.network.generated.models.TownOverviewLearningRetainedWords
 import com.emm.mygame.core.network.generated.models.TownOverviewLessonSlot

@@ -1,8 +1,8 @@
 package com.emm.mygame.feature.town
 
-import com.emm.mygame.core.network.HoldoutCheckWeek
-import com.emm.mygame.core.network.LessonId
-import com.emm.mygame.core.network.PlacementBand
+import com.emm.mygame.core.model.holdout.HoldoutCheckWeek
+import com.emm.mygame.core.model.learning.LessonId
+import com.emm.mygame.core.model.placement.PlacementBand
 
 data class TownDockActions(
     val onIntent: (TownStatusIntent) -> Unit,

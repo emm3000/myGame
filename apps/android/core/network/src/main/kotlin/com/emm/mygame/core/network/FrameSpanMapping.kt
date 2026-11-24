@@ -1,5 +1,7 @@
 package com.emm.mygame.core.network
 
+import com.emm.mygame.core.model.learning.FrameSpan
+import com.emm.mygame.core.model.learning.WordSupport
 import com.emm.mygame.core.network.generated.models.FrameSpan as WireFrameSpan
 import com.emm.mygame.core.network.generated.models.WordSupport as WireWordSupport
 

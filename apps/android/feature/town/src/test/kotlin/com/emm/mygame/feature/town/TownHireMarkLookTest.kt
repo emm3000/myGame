@@ -18,9 +18,9 @@ import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.unit.Dp
 import com.emm.mygame.core.designsystem.MyGameTheme
 import com.emm.mygame.core.designsystem.MyGameTypography
+import com.emm.mygame.core.model.town.building.TownBuildingKind
+import com.emm.mygame.core.model.town.hiring.TownHireKind
 import com.emm.mygame.core.network.SeasonKind
-import com.emm.mygame.core.network.TownBuildingKind
-import com.emm.mygame.core.network.TownHireKind
 import com.emm.mygame.core.network.TownLabel
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertTrue

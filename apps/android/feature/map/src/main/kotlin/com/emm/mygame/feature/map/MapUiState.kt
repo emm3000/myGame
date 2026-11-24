@@ -1,10 +1,10 @@
 package com.emm.mygame.feature.map
 
+import com.emm.mygame.core.model.town.TownResourceKind
+import com.emm.mygame.core.model.town.TownSite
 import com.emm.mygame.core.network.SeasonKind
 import com.emm.mygame.core.network.Terrain
 import com.emm.mygame.core.network.TownJobRefusal
-import com.emm.mygame.core.network.TownResourceKind
-import com.emm.mygame.core.network.TownSite
 import com.emm.mygame.core.network.TownSnapshot
 import com.emm.mygame.core.network.WasteSize
 import kotlin.time.Duration

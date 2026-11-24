@@ -4,31 +4,31 @@ import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.semantics.SemanticsProperties
 import androidx.compose.ui.test.SemanticsMatcher
 import androidx.lifecycle.viewModelScope
+import com.emm.mygame.core.model.learning.LessonId
+import com.emm.mygame.core.model.town.TownResourceKind
+import com.emm.mygame.core.model.town.building.TownBuildingKind
 import com.emm.mygame.core.network.CaughtUpReason
-import com.emm.mygame.core.network.LessonId
 import com.emm.mygame.core.network.NextStep
 import com.emm.mygame.core.network.SeasonDurationPercent
 import com.emm.mygame.core.network.SeasonInForce
 import com.emm.mygame.core.network.SeasonKind
 import com.emm.mygame.core.network.SeasonProductionPercent
 import com.emm.mygame.core.network.TipKind
-import com.emm.mygame.core.network.TownBuildingKind
 import com.emm.mygame.core.network.TownGoal
 import com.emm.mygame.core.network.TownLabel
-import com.emm.mygame.core.network.TownResourceKind
 import com.emm.mygame.core.network.TownSnapshot
 import com.emm.mygame.core.testing.FakeSessionRepository
 import com.emm.mygame.core.testing.FakeTownRepository
 import com.emm.mygame.core.testing.TestClock
 import com.emm.mygame.core.testing.hiringOf
-import kotlin.time.Duration
-import kotlin.time.Duration.Companion.minutes
-import kotlin.time.Instant
 import kotlinx.coroutines.CoroutineStart
 import kotlinx.coroutines.awaitCancellation
 import kotlinx.coroutines.cancel
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.test.TestScope
+import kotlin.time.Duration
+import kotlin.time.Duration.Companion.minutes
+import kotlin.time.Instant
 
 internal val isTab: SemanticsMatcher = SemanticsMatcher.expectValue(SemanticsProperties.Role, Role.Tab)
 

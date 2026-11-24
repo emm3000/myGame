@@ -1,17 +1,13 @@
 package com.emm.mygame.feature.town
 
-import com.emm.mygame.core.network.TownBuildingKind
+import com.emm.mygame.core.model.town.TownResourceKind
+import com.emm.mygame.core.model.town.building.TownBuildingKind
 import com.emm.mygame.core.network.TownReadResult
-import com.emm.mygame.core.network.TownResourceKind
 import com.emm.mygame.core.network.TownSnapshot
 import com.emm.mygame.core.network.TownWorkRefusal
 import com.emm.mygame.core.network.TownWorkResult
 import com.emm.mygame.core.testing.FakeTownRepository
 import com.emm.mygame.core.testing.MainDispatcherRule
-import kotlin.time.Duration.Companion.hours
-import kotlin.time.Duration.Companion.minutes
-import kotlin.time.Duration.Companion.seconds
-import kotlin.time.Instant
 import kotlinx.coroutines.test.TestScope
 import kotlinx.coroutines.test.advanceTimeBy
 import kotlinx.coroutines.test.runCurrent
@@ -21,6 +17,10 @@ import org.junit.Assert.assertNull
 import org.junit.Assert.assertTrue
 import org.junit.Rule
 import org.junit.Test
+import kotlin.time.Duration.Companion.hours
+import kotlin.time.Duration.Companion.minutes
+import kotlin.time.Duration.Companion.seconds
+import kotlin.time.Instant
 
 class TownWorkViewModelTest {
 

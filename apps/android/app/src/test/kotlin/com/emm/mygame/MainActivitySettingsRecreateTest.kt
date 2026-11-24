@@ -12,10 +12,9 @@ import androidx.compose.ui.test.performScrollTo
 import com.emm.mygame.core.model.account.PlayerScaffold
 import com.emm.mygame.core.model.account.RestoreResult
 import com.emm.mygame.core.model.account.SignedInPlayer
-import com.emm.mygame.core.network.ReportReadResult
-import com.emm.mygame.core.network.TownReport
+import com.emm.mygame.core.model.report.ReportReadResult
+import com.emm.mygame.core.model.report.TownReport
 import com.emm.mygame.core.projection.StudyReminderLine
-import kotlin.time.Instant
 import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
@@ -25,6 +24,7 @@ import org.robolectric.RobolectricTestRunner
 import org.robolectric.RuntimeEnvironment
 import org.robolectric.android.controller.ActivityController
 import org.robolectric.annotation.Config
+import kotlin.time.Instant
 
 @RunWith(RobolectricTestRunner::class)
 @Config(application = ReminderTapApplication::class)

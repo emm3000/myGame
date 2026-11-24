@@ -1,10 +1,11 @@
 package com.emm.mygame.core.network
 
+import com.emm.mygame.core.model.town.hiring.TownHireKind
 import com.emm.mygame.core.network.generated.apis.DefaultApi
-import java.io.IOException
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.withContext
 import kotlinx.serialization.SerializationException
+import java.io.IOException
 
 internal class ApiRegionReader(
     private val api: DefaultApi,

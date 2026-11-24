@@ -1,5 +1,6 @@
 package com.emm.mygame.core.network
 
+import com.emm.mygame.core.model.town.hiring.TownHireKind
 import kotlin.time.Instant
 
 interface RegionRepository : RegionReader {

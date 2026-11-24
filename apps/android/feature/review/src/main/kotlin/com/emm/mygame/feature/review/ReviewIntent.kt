@@ -1,6 +1,6 @@
 package com.emm.mygame.feature.review
 
-import com.emm.mygame.core.network.ChoiceId
+import com.emm.mygame.core.model.placement.ChoiceId
 
 sealed interface ReviewIntent {
 

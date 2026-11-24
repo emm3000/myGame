@@ -2,9 +2,9 @@ package com.emm.mygame.feature.placement
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.emm.mygame.core.network.Placement
-import com.emm.mygame.core.network.PlacementReadResult
-import com.emm.mygame.core.network.PlacementRepository
+import com.emm.mygame.core.model.placement.Placement
+import com.emm.mygame.core.model.placement.PlacementReadResult
+import com.emm.mygame.core.model.placement.PlacementRepository
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow

@@ -5,7 +5,7 @@ import androidx.compose.ui.test.junit4.ComposeContentTestRule
 import com.emm.mygame.core.designsystem.MyGameRegistering
 import com.emm.mygame.core.designsystem.MyGameTheme
 import com.emm.mygame.core.designsystem.REGISTERING
-import com.emm.mygame.core.network.TownResourceKind
+import com.emm.mygame.core.model.town.TownResourceKind
 
 internal val dealtSchool: ReviewUiState.Reviewing = ReviewUiState.Reviewing(
     walked = 1,

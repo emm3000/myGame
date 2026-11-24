@@ -1,35 +1,35 @@
 package com.emm.mygame.feature.school
 
 import androidx.lifecycle.viewModelScope
+import com.emm.mygame.core.model.learning.LessonId
+import com.emm.mygame.core.model.placement.PlacementBand
+import com.emm.mygame.core.model.town.TownResourceKind
+import com.emm.mygame.core.model.town.building.TownBuildingKind
 import com.emm.mygame.core.network.CaughtUpReason
-import com.emm.mygame.core.network.LessonId
 import com.emm.mygame.core.network.LessonName
 import com.emm.mygame.core.network.NextStep
 import com.emm.mygame.core.network.NextStepCard
-import com.emm.mygame.core.network.PlacementBand
 import com.emm.mygame.core.network.SeasonDurationPercent
 import com.emm.mygame.core.network.SeasonInForce
 import com.emm.mygame.core.network.SeasonKind
 import com.emm.mygame.core.network.SeasonProductionPercent
-import com.emm.mygame.core.network.TownBuildingKind
 import com.emm.mygame.core.network.TownLabel
 import com.emm.mygame.core.network.TownReadResult
-import com.emm.mygame.core.network.TownResourceKind
 import com.emm.mygame.core.network.TownSnapshot
 import com.emm.mygame.core.network.WordStanding
 import com.emm.mygame.core.network.nextStepCard
 import com.emm.mygame.core.testing.FakeTownRepository
 import com.emm.mygame.core.testing.TestClock
 import com.emm.mygame.core.testing.hiringOf
-import kotlin.time.Duration
-import kotlin.time.Duration.Companion.seconds
-import kotlin.time.Instant
 import kotlinx.coroutines.CoroutineStart
 import kotlinx.coroutines.awaitCancellation
 import kotlinx.coroutines.cancel
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.test.TestScope
 import kotlinx.coroutines.test.runCurrent
+import kotlin.time.Duration
+import kotlin.time.Duration.Companion.seconds
+import kotlin.time.Instant
 
 internal val readInstant: Instant = Instant.parse("2026-11-05T10:00:00Z")
 

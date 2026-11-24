@@ -1,10 +1,10 @@
 package com.emm.mygame.core.testing
 
-import com.emm.mygame.core.network.PlacementAnswer
-import com.emm.mygame.core.network.PlacementBand
-import com.emm.mygame.core.network.PlacementChangeResult
-import com.emm.mygame.core.network.PlacementReadResult
-import com.emm.mygame.core.network.PlacementRepository
+import com.emm.mygame.core.model.placement.PlacementAnswer
+import com.emm.mygame.core.model.placement.PlacementBand
+import com.emm.mygame.core.model.placement.PlacementChangeResult
+import com.emm.mygame.core.model.placement.PlacementReadResult
+import com.emm.mygame.core.model.placement.PlacementRepository
 import kotlinx.coroutines.channels.Channel
 
 class FakePlacementRepository : PlacementRepository {

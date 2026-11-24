@@ -1,6 +1,6 @@
 package com.emm.mygame.feature.school
 
-import com.emm.mygame.core.network.LessonId
+import com.emm.mygame.core.model.learning.LessonId
 import org.junit.Assert.assertEquals
 import org.junit.Test
 

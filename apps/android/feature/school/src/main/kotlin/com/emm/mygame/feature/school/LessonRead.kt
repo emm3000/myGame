@@ -1,6 +1,6 @@
 package com.emm.mygame.feature.school
 
-import com.emm.mygame.core.network.LessonId
+import com.emm.mygame.core.model.learning.LessonId
 import com.emm.mygame.core.network.NextStepCard
 import com.emm.mygame.core.network.TownSnapshot
 import com.emm.mygame.core.network.nameOf

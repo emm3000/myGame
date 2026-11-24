@@ -18,8 +18,8 @@ import com.emm.mygame.core.designsystem.MyGameTextLink
 import com.emm.mygame.core.designsystem.MyGameTheme
 import com.emm.mygame.core.designsystem.MyGameTypography
 import com.emm.mygame.core.designsystem.PreviewMyGame
+import com.emm.mygame.core.model.town.building.TownBuildingKind
 import com.emm.mygame.core.network.TipKind
-import com.emm.mygame.core.network.TownBuildingKind
 import com.emm.mygame.core.ui.chromeResource
 
 @Composable

@@ -1,6 +1,6 @@
 package com.emm.mygame.feature.report
 
-import com.emm.mygame.core.network.TownNews
+import com.emm.mygame.core.model.town.news.TownNews
 import kotlin.time.Instant
 
 sealed interface ReportUiState {

@@ -2,11 +2,11 @@ package com.emm.mygame.feature.town
 
 import androidx.compose.ui.graphics.vector.ImageVector
 import com.emm.mygame.core.designsystem.MyGameIcons
+import com.emm.mygame.core.model.town.TownResourceKind
+import com.emm.mygame.core.model.town.building.TownBuildingKind
 import com.emm.mygame.core.network.NeededWordKind
 import com.emm.mygame.core.network.SeasonKind
-import com.emm.mygame.core.network.TownBuildingKind
 import com.emm.mygame.core.network.TownHiringRefusal
-import com.emm.mygame.core.network.TownResourceKind
 import com.emm.mygame.core.network.TownWorkRefusal
 import com.emm.mygame.core.projection.FinishClock
 import com.emm.mygame.core.projection.finishClockOf

@@ -29,10 +29,10 @@ import com.emm.mygame.core.designsystem.MyGameTypography
 import com.emm.mygame.core.designsystem.MyGameWordSupport
 import com.emm.mygame.core.designsystem.blockHueOf
 import com.emm.mygame.core.designsystem.wordStyle
-import com.emm.mygame.core.network.REVIEW_ANSWER_MAX_LENGTH
-import com.emm.mygame.core.network.ReviewChoice
-import com.emm.mygame.core.network.ReviewHint
-import com.emm.mygame.core.network.ReviewHintWord
+import com.emm.mygame.core.model.learning.REVIEW_ANSWER_MAX_LENGTH
+import com.emm.mygame.core.model.learning.ReviewChoice
+import com.emm.mygame.core.model.learning.ReviewHint
+import com.emm.mygame.core.model.learning.ReviewHintWord
 import com.emm.mygame.core.ui.chromeResource
 import com.emm.mygame.core.ui.fixedCopyResource
 

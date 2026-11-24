@@ -6,11 +6,11 @@ import androidx.compose.ui.test.onAllNodesWithText
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
 import com.emm.mygame.Destination
-import com.emm.mygame.core.network.HoldoutCheckWeek
-import com.emm.mygame.core.network.Placement
-import com.emm.mygame.core.network.PlacementBand
-import com.emm.mygame.core.network.ReportReadResult
-import com.emm.mygame.core.network.TextId
+import com.emm.mygame.core.model.holdout.HoldoutCheckWeek
+import com.emm.mygame.core.model.learning.TextId
+import com.emm.mygame.core.model.placement.Placement
+import com.emm.mygame.core.model.placement.PlacementBand
+import com.emm.mygame.core.model.report.ReportReadResult
 import com.emm.mygame.core.network.TownReadResult
 import org.junit.Assert.assertEquals
 import org.junit.Test

@@ -1,6 +1,6 @@
 package com.emm.mygame.feature.town
 
-import com.emm.mygame.core.network.TextId
+import com.emm.mygame.core.model.learning.TextId
 
 data class TownNavigation(
     val onSchoolOpen: () -> Unit,

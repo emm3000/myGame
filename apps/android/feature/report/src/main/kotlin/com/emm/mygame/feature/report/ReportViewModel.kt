@@ -5,16 +5,12 @@ import androidx.lifecycle.viewModelScope
 import com.emm.mygame.core.model.account.SessionRepository
 import com.emm.mygame.core.model.reminder.StudyReminderChoice
 import com.emm.mygame.core.model.reminder.StudyReminderSettings
+import com.emm.mygame.core.model.report.ReportCloseResult
+import com.emm.mygame.core.model.report.ReportReadResult
+import com.emm.mygame.core.model.report.ReportRepository
+import com.emm.mygame.core.model.report.TownReport
 import com.emm.mygame.core.network.HeldTown
-import com.emm.mygame.core.network.ReportCloseResult
-import com.emm.mygame.core.network.ReportReadResult
-import com.emm.mygame.core.network.ReportRepository
-import com.emm.mygame.core.network.TownReport
 import com.emm.mygame.core.network.TownRepository
-import kotlin.time.Clock
-import kotlin.time.Duration
-import kotlin.time.Duration.Companion.minutes
-import kotlin.time.Instant
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.cancelChildren
 import kotlinx.coroutines.channels.Channel
@@ -26,6 +22,10 @@ import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
+import kotlin.time.Clock
+import kotlin.time.Duration
+import kotlin.time.Duration.Companion.minutes
+import kotlin.time.Instant
 
 private val failedReadRetry: Duration = 1.minutes
 

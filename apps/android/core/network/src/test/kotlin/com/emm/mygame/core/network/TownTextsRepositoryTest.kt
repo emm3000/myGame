@@ -1,9 +1,10 @@
 package com.emm.mygame.core.network
 
+import com.emm.mygame.core.model.learning.FrameSpan
+import com.emm.mygame.core.model.learning.TextId
+import com.emm.mygame.core.model.learning.WordSupport
 import com.emm.mygame.core.testing.FakeTokenCipher
 import com.emm.mygame.core.testing.TestClock
-import java.io.File
-import kotlin.time.Instant
 import kotlinx.coroutines.test.TestScope
 import kotlinx.coroutines.test.runTest
 import mockwebserver3.MockResponse
@@ -14,6 +15,8 @@ import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
 import org.junit.rules.TemporaryFolder
+import java.io.File
+import kotlin.time.Instant
 
 class TownTextsRepositoryTest {
 

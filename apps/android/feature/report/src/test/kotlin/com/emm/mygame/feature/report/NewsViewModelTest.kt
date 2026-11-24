@@ -1,17 +1,17 @@
 package com.emm.mygame.feature.report
 
-import com.emm.mygame.core.network.TownNews
-import com.emm.mygame.core.network.TownNewsReadResult
+import com.emm.mygame.core.model.town.news.TownNews
+import com.emm.mygame.core.model.town.news.TownNewsReadResult
 import com.emm.mygame.core.testing.FakeReportRepository
 import com.emm.mygame.core.testing.MainDispatcherRule
 import com.emm.mygame.core.testing.TestClock
-import kotlin.time.Duration.Companion.hours
 import kotlinx.coroutines.test.TestScope
 import kotlinx.coroutines.test.runCurrent
 import kotlinx.coroutines.test.runTest
 import org.junit.Assert.assertEquals
 import org.junit.Rule
 import org.junit.Test
+import kotlin.time.Duration.Companion.hours
 
 class NewsViewModelTest {
 

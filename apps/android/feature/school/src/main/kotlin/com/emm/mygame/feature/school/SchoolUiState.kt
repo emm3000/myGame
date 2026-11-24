@@ -1,13 +1,13 @@
 package com.emm.mygame.feature.school
 
-import com.emm.mygame.core.network.LessonId
+import com.emm.mygame.core.model.learning.LessonId
+import com.emm.mygame.core.model.learning.TextId
+import com.emm.mygame.core.model.town.TownResourceKind
 import com.emm.mygame.core.network.LessonName
 import com.emm.mygame.core.network.NextStepCard
 import com.emm.mygame.core.network.SchoolPathCounts
 import com.emm.mygame.core.network.SeasonKind
-import com.emm.mygame.core.network.TextId
 import com.emm.mygame.core.network.TownLessonRefusal
-import com.emm.mygame.core.network.TownResourceKind
 import com.emm.mygame.core.network.TownSnapshot
 import kotlin.time.Duration
 import kotlin.time.Instant

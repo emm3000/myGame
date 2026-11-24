@@ -2,7 +2,7 @@ package com.emm.mygame.feature.school
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.emm.mygame.core.network.TextId
+import com.emm.mygame.core.model.learning.TextId
 import com.emm.mygame.core.network.TownTextRepository
 import com.emm.mygame.core.network.TownTextResult
 import kotlinx.coroutines.channels.Channel

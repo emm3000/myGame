@@ -3,8 +3,8 @@ package com.emm.mygame.feature.town
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.emm.mygame.core.model.account.SessionRepository
+import com.emm.mygame.core.model.town.building.TownBuildingKind
 import com.emm.mygame.core.network.HeldTown
-import com.emm.mygame.core.network.TownBuildingKind
 import com.emm.mygame.core.network.TownFoundResult
 import com.emm.mygame.core.network.TownReadResult
 import com.emm.mygame.core.network.TownRegistered
@@ -13,10 +13,6 @@ import com.emm.mygame.core.network.TownSnapshot
 import com.emm.mygame.core.network.TownWorkResult
 import com.emm.mygame.core.network.registeredBetween
 import com.emm.mygame.core.projection.repaintDelay
-import kotlin.time.Clock
-import kotlin.time.Duration
-import kotlin.time.Duration.Companion.minutes
-import kotlin.time.Instant
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.cancelChildren
 import kotlinx.coroutines.channels.Channel
@@ -28,6 +24,10 @@ import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
+import kotlin.time.Clock
+import kotlin.time.Duration
+import kotlin.time.Duration.Companion.minutes
+import kotlin.time.Instant
 
 private val failedReadRetry: Duration = 1.minutes
 

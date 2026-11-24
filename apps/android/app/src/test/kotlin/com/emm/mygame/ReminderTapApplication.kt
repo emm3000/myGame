@@ -3,13 +3,13 @@ package com.emm.mygame
 import android.app.Application
 import com.emm.mygame.core.model.account.PlayerLanguage
 import com.emm.mygame.core.model.account.PlayerScaffold
+import com.emm.mygame.core.model.holdout.HoldoutCheckRepository
+import com.emm.mygame.core.model.learning.LearningRepository
+import com.emm.mygame.core.model.placement.PlacementRepository
 import com.emm.mygame.core.model.reminder.ReminderNotifications
 import com.emm.mygame.core.model.reminder.StudyReminderChoice
 import com.emm.mygame.core.model.reminder.StudyReminderSettings
 import com.emm.mygame.core.model.theme.ThemePick
-import com.emm.mygame.core.network.HoldoutCheckRepository
-import com.emm.mygame.core.network.LearningRepository
-import com.emm.mygame.core.network.PlacementRepository
 import com.emm.mygame.core.network.SessionEnds
 import com.emm.mygame.core.network.TownRepository
 import com.emm.mygame.core.network.TownTextRepository
@@ -23,9 +23,9 @@ import com.emm.mygame.core.testing.FakeStudyReminderSettings
 import com.emm.mygame.core.testing.FakeThemeSettings
 import com.emm.mygame.core.testing.FakeTownRepository
 import com.emm.mygame.core.testing.FakeTownTextRepository
-import kotlin.time.Clock
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
+import kotlin.time.Clock
 
 class ReminderTapApplication : Application(), AppDependencies {
 

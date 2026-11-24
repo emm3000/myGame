@@ -1,5 +1,7 @@
 package com.emm.mygame.core.network
 
+import com.emm.mygame.core.model.town.TownResourceKind
+import com.emm.mygame.core.model.town.hiring.TownHireKind
 import com.emm.mygame.core.network.generated.models.ApiError
 import com.emm.mygame.core.network.generated.models.BareApiError
 import com.emm.mygame.core.network.generated.models.CleanUpJob

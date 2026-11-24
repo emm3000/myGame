@@ -1,9 +1,9 @@
 package com.emm.mygame.core.testing
 
+import com.emm.mygame.core.model.town.building.TownBuildingKind
 import com.emm.mygame.core.network.CaughtUpReason
 import com.emm.mygame.core.network.NextStep
 import com.emm.mygame.core.network.RetainedWords
-import com.emm.mygame.core.network.TownBuildingKind
 import com.emm.mygame.core.network.TownLabel
 import com.emm.mygame.core.network.TownSnapshot
 import kotlin.time.Instant

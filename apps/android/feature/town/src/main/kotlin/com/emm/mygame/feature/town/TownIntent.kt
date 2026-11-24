@@ -1,8 +1,8 @@
 package com.emm.mygame.feature.town
 
+import com.emm.mygame.core.model.town.building.TownBuildingKind
+import com.emm.mygame.core.model.town.hiring.TownHireKind
 import com.emm.mygame.core.network.TipKind
-import com.emm.mygame.core.network.TownBuildingKind
-import com.emm.mygame.core.network.TownHireKind
 
 sealed interface TownIntent {
 

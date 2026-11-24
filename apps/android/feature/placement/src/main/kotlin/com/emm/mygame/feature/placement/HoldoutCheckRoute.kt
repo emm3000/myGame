@@ -7,9 +7,9 @@ import androidx.compose.runtime.rememberUpdatedState
 import androidx.compose.ui.Modifier
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
-import com.emm.mygame.core.network.HoldoutCheckRepository
-import com.emm.mygame.core.network.HoldoutCheckWeek
-import com.emm.mygame.core.network.PlacementBand
+import com.emm.mygame.core.model.holdout.HoldoutCheckRepository
+import com.emm.mygame.core.model.holdout.HoldoutCheckWeek
+import com.emm.mygame.core.model.placement.PlacementBand
 import com.emm.mygame.core.ui.TaskDockHook
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext

@@ -11,7 +11,7 @@ import com.emm.mygame.FrameKind
 import com.emm.mygame.RetainedWordsRing
 import com.emm.mygame.ScreenFrame
 import com.emm.mygame.SignedInChrome
-import com.emm.mygame.core.network.TextId
+import com.emm.mygame.core.model.learning.TextId
 import com.emm.mygame.feature.placement.PlacementOfferRoute
 import com.emm.mygame.feature.town.TownNavigation
 import com.emm.mygame.feature.town.TownRoute

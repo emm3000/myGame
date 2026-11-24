@@ -1,6 +1,6 @@
 package com.emm.mygame.core.network
 
-import java.io.File
+import com.emm.mygame.core.model.learning.REVIEW_ANSWER_MAX_LENGTH
 import kotlinx.serialization.json.Json
 import kotlinx.serialization.json.JsonObject
 import kotlinx.serialization.json.int
@@ -8,6 +8,7 @@ import kotlinx.serialization.json.jsonObject
 import kotlinx.serialization.json.jsonPrimitive
 import org.junit.Assert.assertEquals
 import org.junit.Test
+import java.io.File
 
 class ReviewAnswerMaxLengthTest {
 

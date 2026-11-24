@@ -1,13 +1,21 @@
 package com.emm.mygame.core.network
 
+import com.emm.mygame.core.model.holdout.HoldoutCheck
+import com.emm.mygame.core.model.holdout.HoldoutCheckChangeResult
+import com.emm.mygame.core.model.holdout.HoldoutCheckRefusal
+import com.emm.mygame.core.model.holdout.HoldoutCheckRepository
+import com.emm.mygame.core.model.holdout.HoldoutCheckWeek
+import com.emm.mygame.core.model.holdout.HoldoutChecksReadResult
+import com.emm.mygame.core.model.placement.PlacementAnswer
+import com.emm.mygame.core.model.placement.PlacementBand
 import com.emm.mygame.core.network.generated.apis.DefaultApi
 import com.emm.mygame.core.network.generated.models.HoldoutCheckAnswers
 import com.emm.mygame.core.network.generated.models.HoldoutChecks
-import java.io.IOException
-import java.net.HttpURLConnection
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.withContext
 import retrofit2.Response
+import java.io.IOException
+import java.net.HttpURLConnection
 
 internal class ApiHoldoutCheckRepository(
     private val api: DefaultApi,

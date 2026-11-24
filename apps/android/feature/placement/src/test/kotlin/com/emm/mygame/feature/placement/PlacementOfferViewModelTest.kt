@@ -1,7 +1,7 @@
 package com.emm.mygame.feature.placement
 
-import com.emm.mygame.core.network.Placement
-import com.emm.mygame.core.network.PlacementReadResult
+import com.emm.mygame.core.model.placement.Placement
+import com.emm.mygame.core.model.placement.PlacementReadResult
 import com.emm.mygame.core.testing.FakePlacementRepository
 import com.emm.mygame.core.testing.MainDispatcherRule
 import kotlinx.coroutines.test.TestScope

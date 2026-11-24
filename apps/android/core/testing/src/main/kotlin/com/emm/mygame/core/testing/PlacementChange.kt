@@ -1,7 +1,7 @@
 package com.emm.mygame.core.testing
 
-import com.emm.mygame.core.network.PlacementAnswer
-import com.emm.mygame.core.network.PlacementBand
+import com.emm.mygame.core.model.placement.PlacementAnswer
+import com.emm.mygame.core.model.placement.PlacementBand
 
 sealed interface PlacementChange {
 

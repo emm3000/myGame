@@ -1,9 +1,9 @@
 package com.emm.mygame.feature.school
 
-import com.emm.mygame.core.network.HoldoutCheck
-import com.emm.mygame.core.network.HoldoutCheckWeek
-import com.emm.mygame.core.network.HoldoutChecksReadResult
-import com.emm.mygame.core.network.PlacementBand
+import com.emm.mygame.core.model.holdout.HoldoutCheck
+import com.emm.mygame.core.model.holdout.HoldoutCheckWeek
+import com.emm.mygame.core.model.holdout.HoldoutChecksReadResult
+import com.emm.mygame.core.model.placement.PlacementBand
 import com.emm.mygame.core.testing.FakeHoldoutCheckRepository
 import com.emm.mygame.core.testing.MainDispatcherRule
 import kotlinx.coroutines.test.TestScope

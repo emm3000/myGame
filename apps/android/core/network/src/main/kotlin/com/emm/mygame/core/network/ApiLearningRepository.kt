@@ -1,15 +1,24 @@
 package com.emm.mygame.core.network
 
+import com.emm.mygame.core.model.learning.DueReviews
+import com.emm.mygame.core.model.learning.LearningRepository
+import com.emm.mygame.core.model.learning.ReviewAnswerResult
+import com.emm.mygame.core.model.learning.ReviewHint
+import com.emm.mygame.core.model.learning.ReviewHintResult
+import com.emm.mygame.core.model.learning.ReviewHintWord
+import com.emm.mygame.core.model.learning.ReviewRefusal
+import com.emm.mygame.core.model.learning.ReviewsReadResult
+import com.emm.mygame.core.model.learning.WordId
 import com.emm.mygame.core.network.generated.apis.DefaultApi
 import com.emm.mygame.core.network.generated.models.BareApiError
 import com.emm.mygame.core.network.generated.models.ReviewAnswer
 import com.emm.mygame.core.network.generated.models.ReviewAnswerRequest
 import com.emm.mygame.core.network.generated.models.Reviews
-import java.io.IOException
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.withContext
 import kotlinx.serialization.SerializationException
 import retrofit2.Response
+import java.io.IOException
 import com.emm.mygame.core.network.generated.models.ReviewHint as WireReviewHint
 import com.emm.mygame.core.network.generated.models.ReviewHintWord as WireReviewHintWord
 

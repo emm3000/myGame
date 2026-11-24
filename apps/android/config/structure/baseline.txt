@@ -45,7 +45,7 @@ file-name app/src/main/kotlin/com/emm/mygame/ReminderNotificationAsk.kt
 file-name core/designsystem/src/main/kotlin/com/emm/mygame/core/designsystem/EnglishText.kt
 file-name core/designsystem/src/main/kotlin/com/emm/mygame/core/designsystem/TabularFigures.kt
 file-name core/network/src/main/kotlin/com/emm/mygame/core/network/ApiClient.kt
-file-name core/network/src/main/kotlin/com/emm/mygame/core/network/ReviewAnswerMaxLength.kt
+file-name core/model/src/main/kotlin/com/emm/mygame/core/model/learning/ReviewAnswerMaxLength.kt
 file-name core/projection/src/main/kotlin/com/emm/mygame/core/projection/Countdown.kt
 file-name core/projection/src/main/kotlin/com/emm/mygame/core/projection/ReadyMinute.kt
 file-name core/projection/src/main/kotlin/com/emm/mygame/core/projection/RepaintCadence.kt

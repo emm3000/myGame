@@ -1,10 +1,10 @@
 package com.emm.mygame.core.testing
 
-import com.emm.mygame.core.network.LearningRepository
-import com.emm.mygame.core.network.ReviewAnswerResult
-import com.emm.mygame.core.network.ReviewHintResult
-import com.emm.mygame.core.network.ReviewsReadResult
-import com.emm.mygame.core.network.WordId
+import com.emm.mygame.core.model.learning.LearningRepository
+import com.emm.mygame.core.model.learning.ReviewAnswerResult
+import com.emm.mygame.core.model.learning.ReviewHintResult
+import com.emm.mygame.core.model.learning.ReviewsReadResult
+import com.emm.mygame.core.model.learning.WordId
 import kotlinx.coroutines.channels.Channel
 
 class FakeLearningRepository : LearningRepository {

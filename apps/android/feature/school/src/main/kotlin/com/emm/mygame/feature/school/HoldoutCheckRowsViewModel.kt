@@ -2,9 +2,9 @@ package com.emm.mygame.feature.school
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.emm.mygame.core.network.HoldoutCheck
-import com.emm.mygame.core.network.HoldoutCheckRepository
-import com.emm.mygame.core.network.HoldoutChecksReadResult
+import com.emm.mygame.core.model.holdout.HoldoutCheck
+import com.emm.mygame.core.model.holdout.HoldoutCheckRepository
+import com.emm.mygame.core.model.holdout.HoldoutChecksReadResult
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow

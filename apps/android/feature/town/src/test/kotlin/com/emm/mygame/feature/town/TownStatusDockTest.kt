@@ -1,17 +1,17 @@
 package com.emm.mygame.feature.town
 
+import com.emm.mygame.core.model.town.building.TownBuildingKind
 import com.emm.mygame.core.network.CaughtUpReason
 import com.emm.mygame.core.network.NextStep
 import com.emm.mygame.core.network.NextStepCard
-import com.emm.mygame.core.network.TownBuildingKind
 import com.emm.mygame.core.network.TownGoal
 import com.emm.mygame.core.network.TownSnapshot
+import org.junit.Assert.assertEquals
+import org.junit.Test
 import kotlin.time.Duration
 import kotlin.time.Duration.Companion.hours
 import kotlin.time.Duration.Companion.minutes
 import kotlin.time.Instant
-import org.junit.Assert.assertEquals
-import org.junit.Test
 
 class TownStatusDockTest {
 

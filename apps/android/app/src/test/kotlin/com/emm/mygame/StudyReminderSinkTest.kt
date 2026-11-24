@@ -2,24 +2,22 @@ package com.emm.mygame
 
 import android.content.Context
 import android.content.SharedPreferences
+import com.emm.mygame.core.model.holdout.HoldoutCheck
+import com.emm.mygame.core.model.holdout.HoldoutCheckWeek
+import com.emm.mygame.core.model.learning.DueReview
+import com.emm.mygame.core.model.learning.DueReviews
+import com.emm.mygame.core.model.learning.LessonId
+import com.emm.mygame.core.model.learning.WordId
+import com.emm.mygame.core.model.placement.PlacementBand
 import com.emm.mygame.core.model.reminder.StudyReminderChoice
-import com.emm.mygame.core.network.DueReview
-import com.emm.mygame.core.network.DueReviews
-import com.emm.mygame.core.network.HoldoutCheck
-import com.emm.mygame.core.network.HoldoutCheckWeek
-import com.emm.mygame.core.network.LessonId
+import com.emm.mygame.core.model.report.TownReport
 import com.emm.mygame.core.network.NextStep
-import com.emm.mygame.core.network.PlacementBand
 import com.emm.mygame.core.network.TownAnswerFreshness
-import com.emm.mygame.core.network.TownReport
 import com.emm.mygame.core.network.TownSnapshot
-import com.emm.mygame.core.network.WordId
 import com.emm.mygame.core.projection.StudyReminderFacts
 import com.emm.mygame.core.testing.FakeTownRepository
 import com.emm.mygame.core.testing.lessonsDone
 import com.emm.mygame.core.testing.townOf
-import java.time.LocalTime
-import kotlin.time.Instant
 import kotlinx.coroutines.test.TestScope
 import kotlinx.coroutines.test.runCurrent
 import kotlinx.coroutines.test.runTest
@@ -28,6 +26,8 @@ import org.junit.Test
 import org.junit.runner.RunWith
 import org.robolectric.RobolectricTestRunner
 import org.robolectric.RuntimeEnvironment
+import java.time.LocalTime
+import kotlin.time.Instant
 
 @RunWith(RobolectricTestRunner::class)
 class StudyReminderSinkTest {

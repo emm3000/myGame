@@ -1,32 +1,32 @@
 package com.emm.mygame.feature.map
 
 import androidx.lifecycle.viewModelScope
+import com.emm.mygame.core.model.town.TownResourceKind
+import com.emm.mygame.core.model.town.TownSite
+import com.emm.mygame.core.model.town.building.TownBuildingKind
+import com.emm.mygame.core.model.town.hiring.TownHireKind
 import com.emm.mygame.core.network.CaughtUpReason
 import com.emm.mygame.core.network.NextStep
 import com.emm.mygame.core.network.RegionMap
 import com.emm.mygame.core.network.RegionMapResult
 import com.emm.mygame.core.network.SeasonInForce
 import com.emm.mygame.core.network.Terrain
-import com.emm.mygame.core.network.TownBuildingKind
-import com.emm.mygame.core.network.TownHireKind
 import com.emm.mygame.core.network.TownLabel
 import com.emm.mygame.core.network.TownReadResult
-import com.emm.mygame.core.network.TownResourceKind
-import com.emm.mygame.core.network.TownSite
 import com.emm.mygame.core.network.TownSnapshot
 import com.emm.mygame.core.network.WasteSize
 import com.emm.mygame.core.testing.FakeTownRepository
 import com.emm.mygame.core.testing.TestClock
 import com.emm.mygame.core.testing.hiringOf
-import kotlin.time.Duration.Companion.hours
-import kotlin.time.Duration.Companion.minutes
-import kotlin.time.Instant
 import kotlinx.coroutines.CoroutineStart
 import kotlinx.coroutines.awaitCancellation
 import kotlinx.coroutines.cancel
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.test.TestScope
 import kotlinx.coroutines.test.runCurrent
+import kotlin.time.Duration.Companion.hours
+import kotlin.time.Duration.Companion.minutes
+import kotlin.time.Instant
 
 internal val readInstant: Instant = Instant.parse("2026-11-05T10:00:00Z")
 

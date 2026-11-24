@@ -1,7 +1,7 @@
 package com.emm.mygame.core.testing
 
-import com.emm.mygame.core.network.TownHireKind
-import com.emm.mygame.core.network.TownResourceKind
+import com.emm.mygame.core.model.town.TownResourceKind
+import com.emm.mygame.core.model.town.hiring.TownHireKind
 import com.emm.mygame.core.network.TownSnapshot
 
 val workerTerms: TownSnapshot.HireTerms = TownSnapshot.HireTerms(

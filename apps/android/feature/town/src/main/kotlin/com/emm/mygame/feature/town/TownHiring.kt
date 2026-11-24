@@ -1,6 +1,6 @@
 package com.emm.mygame.feature.town
 
-import com.emm.mygame.core.network.TownHireKind
+import com.emm.mygame.core.model.town.hiring.TownHireKind
 import com.emm.mygame.core.network.TownHiringResult
 import com.emm.mygame.core.network.TownRepository
 import com.emm.mygame.core.network.TownSnapshot

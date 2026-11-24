@@ -1,19 +1,17 @@
 package com.emm.mygame.feature.map
 
+import com.emm.mygame.core.model.town.TownResourceKind
+import com.emm.mygame.core.model.town.hiring.TownHireKind
 import com.emm.mygame.core.network.CleanUpQuoteResult
 import com.emm.mygame.core.network.JobTarget
 import com.emm.mygame.core.network.RegionMap
-import com.emm.mygame.core.network.TownHireKind
 import com.emm.mygame.core.network.TownJobRefusal
 import com.emm.mygame.core.network.TownJobResult
-import com.emm.mygame.core.network.TownResourceKind
 import com.emm.mygame.core.network.TownSnapshot
 import com.emm.mygame.core.network.WasteSize
 import com.emm.mygame.core.testing.FakeRegionRepository
 import com.emm.mygame.core.testing.FakeTownRepository
 import com.emm.mygame.core.testing.MainDispatcherRule
-import kotlin.time.Duration.Companion.minutes
-import kotlin.time.Duration.Companion.seconds
 import kotlinx.coroutines.test.TestScope
 import kotlinx.coroutines.test.advanceTimeBy
 import kotlinx.coroutines.test.runCurrent
@@ -22,6 +20,8 @@ import org.junit.Assert.assertEquals
 import org.junit.Assert.assertNull
 import org.junit.Rule
 import org.junit.Test
+import kotlin.time.Duration.Companion.minutes
+import kotlin.time.Duration.Companion.seconds
 
 class MapCleanUpViewModelTest {
 

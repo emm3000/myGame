@@ -11,7 +11,7 @@ import androidx.compose.ui.test.performScrollTo
 import androidx.navigation3.runtime.rememberNavBackStack
 import com.emm.mygame.Destination
 import com.emm.mygame.core.designsystem.MyGameTheme
-import com.emm.mygame.core.network.ReportReadResult
+import com.emm.mygame.core.model.report.ReportReadResult
 import com.emm.mygame.core.network.RetainedWords
 import com.emm.mygame.core.network.TownReadResult
 import kotlinx.coroutines.flow.emptyFlow

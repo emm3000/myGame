@@ -1,5 +1,9 @@
 package com.emm.mygame.core.network
 
+import com.emm.mygame.core.model.holdout.HoldoutCheck
+import com.emm.mygame.core.model.holdout.HoldoutCheckWeek
+import com.emm.mygame.core.model.learning.LessonId
+import com.emm.mygame.core.model.placement.PlacementBand
 import kotlin.time.Instant
 
 data class NextStepCard(val line: Line, val detail: Detail?, val countdown: Countdown?, val action: Action) {

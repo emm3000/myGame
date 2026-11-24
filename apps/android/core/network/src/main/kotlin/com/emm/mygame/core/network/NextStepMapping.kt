@@ -1,5 +1,10 @@
 package com.emm.mygame.core.network
 
+import com.emm.mygame.core.model.holdout.HoldoutCheck
+import com.emm.mygame.core.model.holdout.HoldoutCheckWeek
+import com.emm.mygame.core.model.learning.LessonId
+import com.emm.mygame.core.model.learning.TextId
+import com.emm.mygame.core.model.placement.PlacementBand
 import com.emm.mygame.core.network.generated.models.CaughtUpStep
 import com.emm.mygame.core.network.generated.models.Goal
 import com.emm.mygame.core.network.generated.models.HoldoutCheckStep

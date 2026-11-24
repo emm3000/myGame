@@ -1,17 +1,17 @@
 package com.emm.mygame
 
-import com.emm.mygame.core.network.DueReviews
-import com.emm.mygame.core.network.HoldoutCheck
+import com.emm.mygame.core.model.holdout.HoldoutCheck
+import com.emm.mygame.core.model.learning.DueReviews
+import com.emm.mygame.core.model.report.TownReport
 import com.emm.mygame.core.network.NextStep
 import com.emm.mygame.core.network.StudyAnswerSink
 import com.emm.mygame.core.network.TownAnswerFreshness
-import com.emm.mygame.core.network.TownReport
 import com.emm.mygame.core.network.TownRepository
 import com.emm.mygame.core.network.TownSnapshot
 import com.emm.mygame.core.projection.StudyReminderFacts
-import kotlin.time.Instant
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
+import kotlin.time.Instant
 
 class StudyReminderSink(
     private val store: Lazy<StudyReminderStore>,

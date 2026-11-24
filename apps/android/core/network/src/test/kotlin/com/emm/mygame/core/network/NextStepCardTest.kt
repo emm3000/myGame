@@ -1,11 +1,16 @@
 package com.emm.mygame.core.network
 
+import com.emm.mygame.core.model.holdout.HoldoutCheck
+import com.emm.mygame.core.model.holdout.HoldoutCheckWeek
+import com.emm.mygame.core.model.learning.LessonId
+import com.emm.mygame.core.model.placement.PlacementBand
+import com.emm.mygame.core.model.town.TownResourceKind
 import com.emm.mygame.core.testing.hiringOf
-import kotlin.time.Duration.Companion.minutes
-import kotlin.time.Instant
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertNull
 import org.junit.Test
+import kotlin.time.Duration.Companion.minutes
+import kotlin.time.Instant
 
 class NextStepCardTest {
 

@@ -37,14 +37,10 @@ import com.emm.mygame.core.designsystem.INK_PILL
 import com.emm.mygame.core.designsystem.MyGameBlockHue
 import com.emm.mygame.core.designsystem.MyGameTheme
 import com.emm.mygame.core.designsystem.OUTLINED_PILL
-import com.emm.mygame.core.network.TownAmount
-import com.emm.mygame.core.network.TownNews
-import com.emm.mygame.core.network.TownResourceKind
-import com.emm.mygame.core.network.TownSite
-import java.time.LocalDateTime
-import java.time.ZoneId
-import kotlin.time.Duration.Companion.hours
-import kotlin.time.Instant
+import com.emm.mygame.core.model.town.TownAmount
+import com.emm.mygame.core.model.town.TownResourceKind
+import com.emm.mygame.core.model.town.TownSite
+import com.emm.mygame.core.model.town.news.TownNews
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertFalse
 import org.junit.Assert.assertTrue
@@ -54,6 +50,10 @@ import org.junit.runner.RunWith
 import org.robolectric.RobolectricTestRunner
 import org.robolectric.annotation.Config
 import org.robolectric.annotation.GraphicsMode
+import java.time.LocalDateTime
+import java.time.ZoneId
+import kotlin.time.Duration.Companion.hours
+import kotlin.time.Instant
 
 @RunWith(RobolectricTestRunner::class)
 class ReportScreenTest {

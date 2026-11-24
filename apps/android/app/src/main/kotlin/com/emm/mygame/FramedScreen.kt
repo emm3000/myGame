@@ -35,12 +35,12 @@ import com.emm.mygame.core.designsystem.MyGameDockGo
 import com.emm.mygame.core.designsystem.MyGameHeader
 import com.emm.mygame.core.designsystem.MyGameSpacing
 import com.emm.mygame.core.designsystem.MyGameTheme
-import com.emm.mygame.core.network.HoldoutCheckWeek
-import com.emm.mygame.core.network.LessonId
-import com.emm.mygame.core.network.PlacementBand
-import com.emm.mygame.core.ui.NoticeInView
+import com.emm.mygame.core.model.holdout.HoldoutCheckWeek
+import com.emm.mygame.core.model.learning.LessonId
+import com.emm.mygame.core.model.placement.PlacementBand
 import com.emm.mygame.core.ui.FRAME_DOCK_TURN
 import com.emm.mygame.core.ui.FRAME_FOLDED_TOP_TURN
+import com.emm.mygame.core.ui.NoticeInView
 import com.emm.mygame.core.ui.TaskDock
 import com.emm.mygame.core.ui.TaskDockHook
 import com.emm.mygame.core.ui.TownFollow

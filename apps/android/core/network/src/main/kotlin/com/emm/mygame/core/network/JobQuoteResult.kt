@@ -1,5 +1,7 @@
 package com.emm.mygame.core.network
 
+import com.emm.mygame.core.model.town.TownResourceKind
+
 sealed interface JobQuoteResult {
 
     data class Quoted(val pay: Map<TownResourceKind, Long>) : JobQuoteResult

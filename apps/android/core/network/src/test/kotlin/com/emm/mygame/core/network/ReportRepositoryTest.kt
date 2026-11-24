@@ -1,8 +1,18 @@
 package com.emm.mygame.core.network
 
+import com.emm.mygame.core.model.learning.LessonId
+import com.emm.mygame.core.model.report.ReportCloseResult
+import com.emm.mygame.core.model.report.ReportReadResult
+import com.emm.mygame.core.model.report.ReportRepository
+import com.emm.mygame.core.model.report.TownReport
+import com.emm.mygame.core.model.town.TownAmount
+import com.emm.mygame.core.model.town.TownResourceKind
+import com.emm.mygame.core.model.town.TownSite
+import com.emm.mygame.core.model.town.building.TownBuildingKind
+import com.emm.mygame.core.model.town.hiring.TownHireKind
+import com.emm.mygame.core.model.town.news.TownNews
+import com.emm.mygame.core.model.town.news.TownNewsReadResult
 import com.emm.mygame.core.testing.FakeTokenCipher
-import java.io.File
-import kotlin.time.Instant
 import kotlinx.coroutines.test.TestScope
 import kotlinx.coroutines.test.runTest
 import mockwebserver3.MockResponse
@@ -14,6 +24,8 @@ import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
 import org.junit.rules.TemporaryFolder
+import java.io.File
+import kotlin.time.Instant
 
 class ReportRepositoryTest {
 

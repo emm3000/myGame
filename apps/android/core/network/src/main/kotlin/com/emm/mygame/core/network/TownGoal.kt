@@ -1,5 +1,7 @@
 package com.emm.mygame.core.network
 
+import com.emm.mygame.core.model.town.building.TownBuildingKind
+
 data class TownGoal(
     val position: Int,
     val count: Int,

@@ -14,19 +14,19 @@ import com.emm.mygame.core.designsystem.MyGameArt
 import com.emm.mygame.core.designsystem.MyGameArtTint
 import com.emm.mygame.core.designsystem.MyGameTheme
 import com.emm.mygame.core.designsystem.PLACE_ART
+import com.emm.mygame.core.model.town.TownResourceKind
+import com.emm.mygame.core.model.town.TownSite
 import com.emm.mygame.core.network.Terrain
 import com.emm.mygame.core.network.TownJobRefusal
-import com.emm.mygame.core.network.TownResourceKind
-import com.emm.mygame.core.network.TownSite
 import com.emm.mygame.core.network.TownSnapshot
 import com.emm.mygame.core.network.WasteSize
-import kotlin.time.Duration.Companion.minutes
 import org.junit.Assert.assertEquals
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.robolectric.RobolectricTestRunner
 import com.emm.mygame.core.designsystem.R as DesignSystemR
+import kotlin.time.Duration.Companion.minutes
 
 @RunWith(RobolectricTestRunner::class)
 class MapCleanUpScreenTest {

@@ -31,11 +31,11 @@ import com.emm.mygame.core.designsystem.MyGameTextLink
 import com.emm.mygame.core.designsystem.MyGameTheme
 import com.emm.mygame.core.designsystem.MyGameTypography
 import com.emm.mygame.core.designsystem.PreviewMyGame
+import com.emm.mygame.core.model.town.TownResourceKind
+import com.emm.mygame.core.model.town.TownSite
 import com.emm.mygame.core.network.SeasonKind
 import com.emm.mygame.core.network.Terrain
 import com.emm.mygame.core.network.TownJobRefusal
-import com.emm.mygame.core.network.TownResourceKind
-import com.emm.mygame.core.network.TownSite
 import com.emm.mygame.core.network.TownSnapshot
 import com.emm.mygame.core.network.WasteSize
 import com.emm.mygame.core.ui.ChromePhase

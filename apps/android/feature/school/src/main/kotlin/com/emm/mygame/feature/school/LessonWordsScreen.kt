@@ -47,11 +47,11 @@ import com.emm.mygame.core.designsystem.blockHueOf
 import com.emm.mygame.core.designsystem.englishTextOf
 import com.emm.mygame.core.designsystem.withTabularFigures
 import com.emm.mygame.core.designsystem.wordStyle
-import com.emm.mygame.core.network.FrameSpan
+import com.emm.mygame.core.model.learning.FrameSpan
+import com.emm.mygame.core.model.learning.WordSupport
+import com.emm.mygame.core.model.placement.PlacementBand
 import com.emm.mygame.core.network.LessonName
-import com.emm.mygame.core.network.PlacementBand
 import com.emm.mygame.core.network.TownSnapshot
-import com.emm.mygame.core.network.WordSupport
 import com.emm.mygame.core.ui.ChromePhase
 import com.emm.mygame.core.ui.CopyLanguage
 import com.emm.mygame.core.ui.FoldedTaskEnd

@@ -1,5 +1,6 @@
 package com.emm.mygame.core.network
 
+import com.emm.mygame.core.model.town.building.TownBuildingKind
 import com.emm.mygame.core.network.generated.models.TownOverview
 import com.emm.mygame.core.network.generated.models.TownOverviewBuildingsHomes
 import com.emm.mygame.core.network.generated.models.TownOverviewBuildingsHomesNextLevel
