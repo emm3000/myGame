@@ -496,9 +496,9 @@ internal class SchoolLanguages : PreviewParameterProvider<CopyLanguage> {
 }
 
 @Composable
-private fun PreviewDueCheck() {
+private fun PreviewHoldoutChecksSlot() {
     MyGameText(
-        text = "Tienes pendiente una prueba de palabras de la banda 1, semana 8.",
+        text = "Holdout checks slot",
         style = MyGameTypography.body,
         color = MyGameTheme.colors.ink,
     )
@@ -514,7 +514,7 @@ private fun SchoolScreenLanguagePreview(@PreviewParameter(SchoolLanguages::class
                 onIntent = {},
                 onLessonOpen = {},
                 onTextOpen = {},
-                holdoutChecks = { PreviewDueCheck() },
+                holdoutChecks = { PreviewHoldoutChecksSlot() },
             )
         }
     }
