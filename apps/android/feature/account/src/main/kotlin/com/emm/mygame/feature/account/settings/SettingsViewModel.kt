@@ -105,7 +105,7 @@ class SettingsViewModel(
     private fun stepReminder(step: ReminderStep) {
         val choice: StudyReminderChoice = reminders.choice.value
         if (!choice.isOn) return
-        reminders.choose(choice.copy(time = choice.time.stepped(step)))
+        reminders.choose(choice.copy(time = choice.time.afterReminderStep(step)))
     }
 
     private fun chooseReminder(isOn: Boolean) {
