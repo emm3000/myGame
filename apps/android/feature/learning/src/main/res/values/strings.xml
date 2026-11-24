@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="review_answer_label">Your answer in English</string>
+    <string name="review_check">Check</string>
+    <string name="review_check_empty">Enter your answer to check it.</string>
+    <string name="review_check_no_choice">Choose a meaning to check your answer.</string>
+    <string name="review_checking">Checking…</string>
+    <string name="review_correct">Correct.</string>
+    <string name="review_correct_form">The right answer: {answer}</string>
+    <string name="review_due_count">Reviews due: {count}</string>
+    <string name="review_failed">We could not read your reviews.</string>
+    <string name="review_hint">Ask for a hint</string>
+    <string name="review_hint_line">{letters, plural, =1 {It starts with “{first}” and has {letters, number,0} letter.} other {It starts with “{first}” and has {letters, number,0} letters.}}</string>
+    <string name="review_lesson_ready">Lesson {number} is ready</string>
+    <string name="review_lesson_title">Lesson {number}</string>
+    <string name="review_level_open">You have the words for level {level} now.</string>
+    <string name="review_loading">Reading your reviews…</string>
+    <string name="review_near_miss">Almost. Check the spelling and try again.</string>
+    <string name="review_next_card">Next</string>
+    <string name="review_no_cards">You have no words to review.</string>
+    <string name="review_nothing_due">No reviews due now.</string>
+    <string name="review_path_count">{count} of {total}</string>
+    <string name="review_path_learned">Learned</string>
+    <string name="review_path_read">Can read</string>
+    <string name="review_path_reviewed">Reviewed</string>
+    <string name="review_path_studied">Studied</string>
+    <string name="review_recall_prompt">How do you say it in English?</string>
+    <string name="review_recognition_prompt">What does it mean?</string>
+    <string name="review_refusal_hint_on_recognition">You choose this word from a list, so it has no hint. The hint comes when you have to write it.</string>
+    <string name="review_refusal_not_due">That word is not due yet. Go back to your reviews to see the ones that are.</string>
+    <string name="review_refusal_unknown_choice">That choice is no longer on the card. Go back to your reviews to see it again.</string>
+    <string name="review_refusal_word_not_held">That word is not in your lessons. Go back to your reviews.</string>
+    <string name="review_retry">Try again</string>
+    <string name="review_returns">This word will come back in a few minutes.</string>
+    <string name="review_skill_earned">Skill earned: {resource}, level {level}.</string>
+    <string name="review_skill_rate" formatted="false">+{percent} % {resource} / h.</string>
+    <string name="review_skill_rates">{resource}: +{before} / h, now +{after} / h</string>
+    <string name="review_skill_resource_food">food</string>
+    <string name="review_skill_resource_material">material</string>
+    <string name="review_skill_resource_money">money</string>
+    <string name="review_skill_resource_power">power</string>
+    <string name="review_skill_words">Words:</string>
+    <string name="review_title">Reviews</string>
+    <string name="review_unreachable">We could not reach the server. Try again in a moment.</string>
+    <string name="review_waiting">Waiting</string>
+    <string name="review_wrong">That is not correct.</string>
+    <string name="review_yours">Your answer: {answer}</string>
+</resources>
