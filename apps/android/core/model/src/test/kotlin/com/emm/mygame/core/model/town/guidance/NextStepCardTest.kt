@@ -5,24 +5,14 @@ import com.emm.mygame.core.model.holdout.HoldoutCheckWeek
 import com.emm.mygame.core.model.learning.LessonId
 import com.emm.mygame.core.model.placement.PlacementBand
 import com.emm.mygame.core.model.town.LessonName
-import com.emm.mygame.core.model.town.TownLabel
-import com.emm.mygame.core.model.town.TownResourceKind
+import com.emm.mygame.core.model.town.LessonTownFixture
 import com.emm.mygame.core.model.town.TownSnapshot
-import com.emm.mygame.core.model.town.nameOf
-import com.emm.mygame.core.testing.hiringOf
 import kotlin.time.Duration.Companion.minutes
-import kotlin.time.Instant
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertNull
 import org.junit.Test
 
-class NextStepCardTest {
-
-    private val readAt: Instant = Instant.parse("2026-11-13T10:00:00Z")
-
-    private val shelvedLesson: LessonId = LessonId("lesson-1")
-
-    private val releasedLesson: LessonId = LessonId("released-2-3")
+class NextStepCardTest : LessonTownFixture() {
 
     private val dueCheck: NextStep = NextStep.HoldoutCheck(PlacementBand.Second, HoldoutCheckWeek.TwentyFourth)
 
@@ -139,75 +129,4 @@ class NextStepCardTest {
 
         assertEquals(listOf(NextStepCard.Line.NoReviewsDue, NextStepCard.Line.NoReviewsDue), lines)
     }
-
-    @Test
-    fun `names a released lesson by its band and set`() {
-        assertEquals(
-            LessonName.Released(PlacementBand.Second, set = 3),
-            townOf(NextStep.CaughtUp(CaughtUpReason.LessonsDone, goal = null, text = null)).nameOf(releasedLesson),
-        )
-    }
-
-    @Test
-    fun `names a shelved lesson by its place among the lessons`() {
-        val caughtUp: NextStep = NextStep.CaughtUp(CaughtUpReason.LessonsDone, goal = null, text = null)
-
-        assertEquals(LessonName.Shelved(number = 1), townOf(caughtUp).nameOf(shelvedLesson))
-    }
-
-    private fun townOf(step: NextStep, running: LessonId? = null): TownSnapshot = TownSnapshot(
-        name = "Maple",
-        label = TownLabel.Town,
-        seasonInForce = null,
-        seasonEndsAt = null,
-        stocks = emptyList(),
-        people = TownSnapshot.People(supplied = 4, free = 4, atWork = 0),
-        buildings = emptyList(),
-        work = TownSnapshot.Work(slot = null, waitingList = emptyList(), cap = 2),
-        lessons = listOf(shelvedLessonOf()),
-        releasedLessons = listOf(releasedLessonOf()),
-        texts = emptyList(),
-        dueHoldoutChecks = emptyList(),
-        hasBandStarted = false,
-        bandLines = emptyList(),
-        skills = emptyList(),
-        learning = TownSnapshot.Learning(cap = 10, inLearning = 0, retainedWords = null, nextInLearningDueAt = null),
-        stableWordCount = 0,
-        retainedWordCount = 0,
-        lessonSlot = running?.let { lesson: LessonId ->
-            TownSnapshot.LessonSlot(lesson, startedAt = readAt, finishesAt = readAt + 5.minutes)
-        },
-        hiring = hiringOf(),
-        job = null,
-        nextStep = step,
-        tip = null,
-        nextDueAt = null,
-        readAt = readAt,
-    )
-
-    private fun shelvedLessonOf(): TownSnapshot.Lesson = TownSnapshot.Lesson(
-        id = shelvedLesson,
-        theme = "Home",
-        duration = 5.minutes,
-        requiredSchoolLevel = 1,
-        skill = TownSnapshot.LessonSkill(TownResourceKind.Food, ratePercent = 5),
-        isStudied = false,
-        wordCount = 5,
-        enteringWordCount = 5,
-        readings = emptyList(),
-        standings = emptyList(),
-    )
-
-    private fun releasedLessonOf(): TownSnapshot.ReleasedLesson = TownSnapshot.ReleasedLesson(
-        id = releasedLesson,
-        band = PlacementBand.Second,
-        position = 3,
-        duration = 5.minutes,
-        requiredSchoolLevel = 1,
-        isStudied = false,
-        wordCount = 4,
-        enteringWordCount = 4,
-        readings = emptyList(),
-        standings = emptyList(),
-    )
 }

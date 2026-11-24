@@ -13,7 +13,7 @@ import kotlin.time.Instant
 import kotlinx.coroutines.test.TestScope
 import kotlinx.coroutines.test.UnconfinedTestDispatcher
 
-fun discardedStudyAnswers(store: TokenStore): StudyAnswers = StudyAnswers(store, FakeStudyAnswerSink())
+private fun discardedStudyAnswers(store: TokenStore): StudyAnswers = StudyAnswers(store, FakeStudyAnswerSink())
 
 internal fun TestScope.apiRepositories(
     endpoint: ApiEndpoint,
