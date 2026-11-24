@@ -140,6 +140,25 @@ This one list replaces the scattered per-PR lines above. Tick each item when it 
 
 
 
+## 2026-11-23 and 2026-11-24: ADR 056, the Android client by feature then by role
+
+### Advanced
+- ADR 056 accepted (#1889); its chain is #1892–#1935, one peer at a time, with the owner's bar: Android legible to a human with no AI.
+- Track M (core:model, core:network packages) and Track N closed: `feature:account`, `feature:learning`, `feature:jobs` renamed (#1952–#1954); `feature:holdout` born (#1956).
+- #1955: the Compose test helpers live once in `core:ui`'s `testFixtures`; `checkModuleBoundaries` refuses a test-fixtures edge outside a test configuration, and `checkStructure` reads the fixtures (#1957).
+- Track A closed (#1958, #1959): account in `auth`, `password`, `scaffold`, `settings`, `signin`, `signup`, `verification`. ADR 056 section 4 gained the rule for a piece several screens draw.
+- Track T closed (#1960–#1964): town in `building` (with `building/work`), `guidance`, `hiring`, `naming`, `status`; previews, names, sizes and test suites under the limits.
+- Track S: S1–S4 merged (#1965–#1968); S5 (#1917) is next.
+- Follow-ups gathered on #1891; U1 (#1927), U2 (#1928) and S5 (#1917) carry the review findings that belong to them.
+
+### Not proven
+- No emulator flow ran: ADR 056 answer 9 says a move owes none; the Robolectric suites and `assembleDebug` are the evidence.
+- `TownWorkRepositoryTest` › `carries the cap of a full waiting list` flaked once at load 38 (#1891).
+
+### Next
+- #1917 (S5), then the rest of the chain through #1935.
+- Track X (the shell) is grilled with the owner and ticketed before #1931.
+
 ## 2026-11-22 (afternoon): ADR 055, the #1685 minors and the validation pass
 
 ### Advanced
