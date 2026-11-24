@@ -4,6 +4,7 @@ import com.emm.mygame.core.model.holdout.HoldoutCheck
 import com.emm.mygame.core.model.holdout.HoldoutCheckWeek
 import com.emm.mygame.core.model.learning.LessonId
 import com.emm.mygame.core.model.placement.PlacementBand
+import com.emm.mygame.core.model.town.LessonName
 import com.emm.mygame.core.model.town.TownLabel
 import com.emm.mygame.core.model.town.TownResourceKind
 import com.emm.mygame.core.model.town.TownSnapshot
@@ -11,8 +12,7 @@ import com.emm.mygame.core.model.town.guidance.CaughtUpReason
 import com.emm.mygame.core.model.town.guidance.NextStep
 import com.emm.mygame.core.model.town.guidance.NextStepCard
 import com.emm.mygame.core.model.town.guidance.nextStepCard
-import com.emm.mygame.core.model.town.school.LessonName
-import com.emm.mygame.core.model.town.school.nameOf
+import com.emm.mygame.core.model.town.nameOf
 import com.emm.mygame.core.testing.hiringOf
 import kotlin.time.Duration.Companion.minutes
 import kotlin.time.Instant

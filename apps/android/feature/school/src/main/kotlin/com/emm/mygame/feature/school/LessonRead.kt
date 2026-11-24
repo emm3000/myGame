@@ -4,7 +4,7 @@ import com.emm.mygame.core.model.learning.LessonId
 import com.emm.mygame.core.model.town.TownSnapshot
 import com.emm.mygame.core.model.town.guidance.NextStepCard
 import com.emm.mygame.core.model.town.guidance.nextStepCard
-import com.emm.mygame.core.model.town.school.nameOf
+import com.emm.mygame.core.model.town.nameOf
 import com.emm.mygame.core.projection.countdownTo
 import kotlin.time.Duration
 import kotlin.time.Instant

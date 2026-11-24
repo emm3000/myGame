@@ -4,10 +4,10 @@ import app.cash.turbine.test
 import com.emm.mygame.core.model.learning.LessonId
 import com.emm.mygame.core.model.learning.ReviewsReadResult
 import com.emm.mygame.core.model.placement.PlacementBand
+import com.emm.mygame.core.model.town.LessonName
 import com.emm.mygame.core.model.town.TownReadResult
 import com.emm.mygame.core.model.town.TownSnapshot
 import com.emm.mygame.core.model.town.guidance.NextStep
-import com.emm.mygame.core.model.town.school.LessonName
 import com.emm.mygame.core.testing.FakeLearningRepository
 import com.emm.mygame.core.testing.FakeTownRepository
 import com.emm.mygame.core.testing.MainDispatcherRule

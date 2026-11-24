@@ -2,8 +2,8 @@ package com.emm.mygame.feature.school
 
 import com.emm.mygame.core.designsystem.MyGameLabel
 import com.emm.mygame.core.model.learning.LessonId
+import com.emm.mygame.core.model.town.LessonName
 import com.emm.mygame.core.model.town.TownResourceKind
-import com.emm.mygame.core.model.town.school.LessonName
 import com.emm.mygame.core.model.town.school.TownLessonRefusal
 import com.emm.mygame.core.ui.CopyReader
 import com.emm.mygame.core.ui.DurationCopy

@@ -4,9 +4,9 @@ import com.emm.mygame.core.model.holdout.HoldoutCheck
 import com.emm.mygame.core.model.holdout.HoldoutCheckWeek
 import com.emm.mygame.core.model.learning.LessonId
 import com.emm.mygame.core.model.placement.PlacementBand
+import com.emm.mygame.core.model.town.LessonName
 import com.emm.mygame.core.model.town.TownSnapshot
-import com.emm.mygame.core.model.town.school.LessonName
-import com.emm.mygame.core.model.town.school.nameOf
+import com.emm.mygame.core.model.town.nameOf
 import kotlin.time.Instant
 
 data class NextStepCard(val line: Line, val detail: Detail?, val countdown: Countdown?, val action: Action) {

@@ -3,6 +3,7 @@ package com.emm.mygame.feature.school
 import androidx.lifecycle.viewModelScope
 import com.emm.mygame.core.model.learning.LessonId
 import com.emm.mygame.core.model.placement.PlacementBand
+import com.emm.mygame.core.model.town.LessonName
 import com.emm.mygame.core.model.town.SeasonDurationPercent
 import com.emm.mygame.core.model.town.SeasonInForce
 import com.emm.mygame.core.model.town.SeasonKind
@@ -16,7 +17,6 @@ import com.emm.mygame.core.model.town.guidance.CaughtUpReason
 import com.emm.mygame.core.model.town.guidance.NextStep
 import com.emm.mygame.core.model.town.guidance.NextStepCard
 import com.emm.mygame.core.model.town.guidance.nextStepCard
-import com.emm.mygame.core.model.town.school.LessonName
 import com.emm.mygame.core.model.town.school.WordStanding
 import com.emm.mygame.core.testing.FakeTownRepository
 import com.emm.mygame.core.testing.TestClock

@@ -1,6 +1,7 @@
 package com.emm.mygame.feature.school
 
 import com.emm.mygame.core.model.learning.LessonId
+import com.emm.mygame.core.model.town.LessonName
 import com.emm.mygame.core.model.town.SeasonInForce
 import com.emm.mygame.core.model.town.TownSnapshot
 import com.emm.mygame.core.model.town.UNSCALED_PERCENT
@@ -9,8 +10,7 @@ import com.emm.mygame.core.model.town.capWaitsUntil
 import com.emm.mygame.core.model.town.guidance.NextStepCard
 import com.emm.mygame.core.model.town.guidance.nextStepCard
 import com.emm.mygame.core.model.town.guidance.numberOf
-import com.emm.mygame.core.model.town.school.LessonName
-import com.emm.mygame.core.model.town.school.nameOf
+import com.emm.mygame.core.model.town.nameOf
 import com.emm.mygame.core.model.town.school.schoolPathCountsOf
 import com.emm.mygame.core.projection.countdownTo
 import kotlin.time.Duration

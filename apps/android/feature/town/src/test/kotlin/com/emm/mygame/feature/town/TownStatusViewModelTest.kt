@@ -4,6 +4,7 @@ import androidx.lifecycle.viewModelScope
 import com.emm.mygame.core.model.learning.LessonId
 import com.emm.mygame.core.model.placement.PlacementBand
 import com.emm.mygame.core.model.town.HeldTown
+import com.emm.mygame.core.model.town.LessonName
 import com.emm.mygame.core.model.town.TownLabel
 import com.emm.mygame.core.model.town.TownReadResult
 import com.emm.mygame.core.model.town.TownResourceKind
@@ -13,7 +14,6 @@ import com.emm.mygame.core.model.town.guidance.CaughtUpReason
 import com.emm.mygame.core.model.town.guidance.NextStep
 import com.emm.mygame.core.model.town.guidance.NextStepCard
 import com.emm.mygame.core.model.town.guidance.TownGoal
-import com.emm.mygame.core.model.town.school.LessonName
 import com.emm.mygame.core.model.town.school.TownLessonRefusal
 import com.emm.mygame.core.model.town.school.TownLessonResult
 import com.emm.mygame.core.testing.FakeTownRepository
