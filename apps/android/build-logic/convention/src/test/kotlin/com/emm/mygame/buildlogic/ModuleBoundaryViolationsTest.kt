@@ -28,4 +28,15 @@ class ModuleBoundaryViolationsTest {
     fun `passes a feature's test configuration that reads core ui's test fixtures`() {
         assertEquals(emptyList<String>(), violationsOf(":feature:town", "testImplementation=:core:ui(test-fixtures)"))
     }
+
+    @Test
+    fun `flags app's edge to a capability other than test fixtures`() {
+        assertEquals(
+            listOf(
+                ":app depends on :core:ui(other) through implementation; " +
+                    "no capability but test fixtures is allowed",
+            ),
+            violationsOf(":app", "implementation=:core:ui(other)"),
+        )
+    }
 }
