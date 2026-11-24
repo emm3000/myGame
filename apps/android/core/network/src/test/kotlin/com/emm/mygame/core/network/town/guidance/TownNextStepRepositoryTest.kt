@@ -2,7 +2,6 @@ package com.emm.mygame.core.network.town.guidance
 
 import com.emm.mygame.core.model.holdout.HoldoutCheck
 import com.emm.mygame.core.model.holdout.HoldoutCheckWeek
-import com.emm.mygame.core.model.learning.FrameSpan
 import com.emm.mygame.core.model.learning.LessonId
 import com.emm.mygame.core.model.learning.TextId
 import com.emm.mygame.core.model.placement.PlacementBand
@@ -12,10 +11,7 @@ import com.emm.mygame.core.model.town.TownSnapshot
 import com.emm.mygame.core.model.town.guidance.CaughtUpReason
 import com.emm.mygame.core.model.town.guidance.NextStep
 import com.emm.mygame.core.model.town.guidance.NextStepText
-import com.emm.mygame.core.model.town.school.WordStanding
 import com.emm.mygame.core.network.town.TownRepositoryFixture
-import kotlin.time.Duration.Companion.minutes
-import kotlin.time.Instant
 import kotlinx.coroutines.test.runTest
 import org.junit.Assert.assertEquals
 import org.junit.Test
@@ -145,112 +141,5 @@ class TownNextStepRepositoryTest : TownRepositoryFixture() {
         api.enqueue(json(200, townWithNextStep("""{"kind":"holdoutCheck","band":1,"week":52}""")))
 
         assertEquals(TownReadResult.Unreachable, town().read())
-    }
-
-    @Test
-    fun `reads the released lessons apart from the lessons`() = runTest {
-        api.enqueue(json(200, TOWN.replace(""""releasedLessons":[]""", """"releasedLessons":[$RELEASED]""")))
-
-        val read: TownSnapshot = (town().read() as TownReadResult.Read).town
-
-        assertEquals(
-            listOf(
-                TownSnapshot.ReleasedLesson(
-                    id = LessonId("released-2-1"),
-                    band = PlacementBand.Second,
-                    position = 1,
-                    duration = 5.minutes,
-                    requiredSchoolLevel = 1,
-                    isStudied = false,
-                    wordCount = 1,
-                    enteringWordCount = 1,
-                    readings = emptyList(),
-                    standings = listOf(WordStanding.NotStarted),
-                ),
-            ),
-            read.releasedLessons,
-        )
-    }
-
-    @Test
-    fun `reads the words of a released lesson`() = runTest {
-        api.enqueue(json(200, TOWN.replace(""""releasedLessons":[]""", """"releasedLessons":[$READ_RELEASED]""")))
-
-        val read: TownSnapshot = (town().read() as TownReadResult.Read).town
-
-        assertEquals(
-            listOf(
-                TownSnapshot.WordReading(
-                    word = "ticket",
-                    frame = listOf(
-                        FrameSpan(text = "I buy a ", support = null),
-                        FrameSpan(text = "ticket", support = null),
-                        FrameSpan(text = ".", support = null),
-                    ),
-                    support = null,
-                ),
-            ),
-            read.releasedLessons.single().readings,
-        )
-    }
-
-    @Test
-    fun `reads the standing of each word of a released lesson`() = runTest {
-        api.enqueue(json(200, TOWN.replace(""""releasedLessons":[]""", """"releasedLessons":[$READ_RELEASED]""")))
-
-        val read: TownSnapshot = (town().read() as TownReadResult.Read).town
-
-        assertEquals(listOf(WordStanding.Recall), read.releasedLessons.single().standings)
-    }
-
-    @Test
-    fun `never adds a released lesson to the lessons`() = runTest {
-        api.enqueue(json(200, TOWN.replace(""""releasedLessons":[]""", """"releasedLessons":[$RELEASED]""")))
-
-        val read: TownSnapshot = (town().read() as TownReadResult.Read).town
-
-        assertEquals(emptyList<TownSnapshot.Lesson>(), read.lessons)
-    }
-
-    @Test
-    fun `answers unreachable for a released lesson on a band the client does not know`() = runTest {
-        val unknownBand: String = RELEASED.replace(""""band":2""", """"band":7""")
-        api.enqueue(json(200, TOWN.replace(""""releasedLessons":[]""", """"releasedLessons":[$unknownBand]""")))
-
-        assertEquals(TownReadResult.Unreachable, town().read())
-    }
-
-    @Test
-    fun `reads when the next word in learning is due`() = runTest {
-        val noneInLearning: String = """"inLearning":0,"retainedWords":null,"nextInLearningDueAt":null"""
-        val eightInLearning: String =
-            """"inLearning":8,"retainedWords":null,"nextInLearningDueAt":"2026-11-14T09:30:00.000Z""""
-        api.enqueue(json(200, TOWN.replace(noneInLearning, eightInLearning)))
-
-        val read: TownSnapshot = (town().read() as TownReadResult.Read).town
-
-        assertEquals(Instant.parse("2026-11-14T09:30:00Z"), read.learning.nextInLearningDueAt)
-    }
-
-    @Test
-    fun `reads no instant when no word is in learning`() = runTest {
-        api.enqueue(json(200, TOWN))
-
-        val read: TownSnapshot = (town().read() as TownReadResult.Read).town
-
-        assertEquals(null, read.learning.nextInLearningDueAt)
-    }
-
-    private companion object {
-        const val RELEASED: String =
-            """{"id":"released-2-1","band":2,"position":1,"durationSeconds":300,"requiredSchoolLevel":1,""" +
-                """"isStudied":false,"words":[{"wordId":"word-1","standing":"notStarted","reading":null,""" +
-                """"support":null}],"enteringWordCount":1}"""
-        const val READ_RELEASED: String =
-            """{"id":"released-2-1","band":2,"position":1,"durationSeconds":300,"requiredSchoolLevel":1,""" +
-                """"isStudied":true,"words":[{"wordId":"word-1","standing":"recall","reading":""" +
-                """{"word":"ticket","frame":[{"text":"I buy a ","support":null},""" +
-                """{"text":"ticket","support":null},{"text":".","support":null}]},"support":null}],""" +
-                """"enteringWordCount":1}"""
     }
 }

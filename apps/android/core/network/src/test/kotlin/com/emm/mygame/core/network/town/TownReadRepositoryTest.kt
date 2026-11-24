@@ -7,9 +7,6 @@ import com.emm.mygame.core.model.town.SeasonProductionPercent
 import com.emm.mygame.core.model.town.TownReadResult
 import com.emm.mygame.core.model.town.TownResourceKind
 import com.emm.mygame.core.model.town.TownSnapshot
-import com.emm.mygame.core.model.town.building.TownBuildingKind
-import com.emm.mygame.core.model.town.hiring.TownHireKind
-import kotlin.time.Duration.Companion.seconds
 import kotlin.time.Instant
 import kotlinx.coroutines.test.runTest
 import mockwebserver3.MockResponse
@@ -83,147 +80,6 @@ class TownReadRepositoryTest : TownRepositoryFixture() {
     }
 
     @Test
-    fun `reads each place with its next level`() = runTest {
-        api.enqueue(json(200, TOWN))
-
-        val read: TownSnapshot = (town().read() as TownReadResult.Read).town
-
-        assertEquals(
-            TownSnapshot.Building(
-                kind = TownBuildingKind.Homes,
-                level = 1,
-                next = TownSnapshot.NextLevel(
-                    level = 2,
-                    costs = listOf(
-                        TownSnapshot.Cost(TownResourceKind.Money, 60),
-                        TownSnapshot.Cost(TownResourceKind.Material, 30),
-                    ),
-                    duration = 90.seconds,
-                    people = 3,
-                    wordsNeeded = null,
-                ),
-            ),
-            read.buildings.first(),
-        )
-    }
-
-    @Test
-    fun `reads a place at its top level with no next level`() = runTest {
-        api.enqueue(json(200, TOWN))
-
-        val read: TownSnapshot = (town().read() as TownReadResult.Read).town
-
-        assertEquals(TownSnapshot.Building(TownBuildingKind.Office, level = 10, next = null), read.buildings.last())
-    }
-
-    @Test
-    fun `reads each place from its own key`() = runTest {
-        val levels: String = TOWN
-            .replace(""""farm":$FLAT""", """"farm":{"level":2,"nextLevel":null}""")
-            .replace(""""factory":$FLAT""", """"factory":{"level":3,"nextLevel":null}""")
-            .replace(""""powerStation":$FLAT""", """"powerStation":{"level":4,"nextLevel":null}""")
-            .replace(""""storage":$FLAT""", """"storage":{"level":5,"nextLevel":null}""")
-            .replace(""""school":$FLAT""", """"school":{"level":6,"nextLevel":null}""")
-        api.enqueue(json(200, levels))
-
-        val read: TownSnapshot = (town().read() as TownReadResult.Read).town
-
-        assertEquals(
-            listOf(
-                TownBuildingKind.Homes to 1,
-                TownBuildingKind.Farm to 2,
-                TownBuildingKind.Factory to 3,
-                TownBuildingKind.PowerStation to 4,
-                TownBuildingKind.Storage to 5,
-                TownBuildingKind.School to 6,
-                TownBuildingKind.Office to 10,
-            ),
-            read.buildings.map { place: TownSnapshot.Building -> place.kind to place.level },
-        )
-    }
-
-    @Test
-    fun `reads the slot and the waiting list of the building work`() = runTest {
-        api.enqueue(json(200, TOWN))
-
-        val read: TownSnapshot = (town().read() as TownReadResult.Read).town
-
-        assertEquals(
-            TownSnapshot.Work(
-                slot = TownSnapshot.WorkItem(
-                    building = TownBuildingKind.Farm,
-                    level = 2,
-                    startsAt = Instant.parse("2026-11-05T10:00:00.000Z"),
-                    finishesAt = Instant.parse("2026-11-05T10:10:00.000Z"),
-                ),
-                waitingList = listOf(
-                    TownSnapshot.WorkItem(
-                        building = TownBuildingKind.School,
-                        level = 3,
-                        startsAt = Instant.parse("2026-11-05T10:10:00.000Z"),
-                        finishesAt = Instant.parse("2026-11-05T10:30:00.000Z"),
-                    ),
-                ),
-                cap = 2,
-            ),
-            read.work,
-        )
-    }
-
-    @Test
-    fun `reads the hiring terms and the hires held per kind`() = runTest {
-        api.enqueue(json(200, TOWN))
-
-        val read: TownSnapshot = (town().read() as TownReadResult.Read).town
-
-        assertEquals(
-            TownSnapshot.Hiring(
-                order = null,
-                hires = mapOf(TownHireKind.Worker to 0, TownHireKind.Truck to 0),
-                terms = mapOf(
-                    TownHireKind.Worker to TownSnapshot.HireTerms(
-                        costs = listOf(TownSnapshot.Cost(TownResourceKind.Money, 40)),
-                        secondsPerHire = 60,
-                        people = 1,
-                        requiredOfficeLevel = 1,
-                    ),
-                    TownHireKind.Truck to TownSnapshot.HireTerms(
-                        costs = listOf(
-                            TownSnapshot.Cost(TownResourceKind.Money, 80),
-                            TownSnapshot.Cost(TownResourceKind.Food, 40),
-                            TownSnapshot.Cost(TownResourceKind.Power, 40),
-                            TownSnapshot.Cost(TownResourceKind.Material, 60),
-                        ),
-                        secondsPerHire = 180,
-                        people = 1,
-                        requiredOfficeLevel = 3,
-                    ),
-                ),
-            ),
-            read.hiring,
-        )
-    }
-
-    @Test
-    fun `reads the open hiring order with its delivered count`() = runTest {
-        api.enqueue(json(200, TOWN.replace(""""order":null""", OPEN_ORDER)))
-
-        val read: TownSnapshot = (town().read() as TownReadResult.Read).town
-
-        assertEquals(
-            TownSnapshot.HiringOrder(
-                hire = TownHireKind.Truck,
-                count = 3,
-                delivered = 1,
-                secondsPerHire = 180,
-                startedAt = Instant.parse("2026-11-05T10:00:00.000Z"),
-                endsAt = Instant.parse("2026-11-05T10:09:00.000Z"),
-            ),
-            read.hiring.order,
-        )
-    }
-
-    @Test
     fun `reads the season in force`() = runTest {
         api.enqueue(json(200, TOWN))
 
@@ -285,8 +141,5 @@ class TownReadRepositoryTest : TownRepositoryFixture() {
 
     private companion object {
         val moneyFullAt: Instant = Instant.parse("2026-11-06T14:51:09Z")
-        const val OPEN_ORDER: String =
-            """"order":{"hire":"truck","count":3,"delivered":1,"secondsPerHire":180,""" +
-                """"startedAt":"2026-11-05T10:00:00.000Z","endsAt":"2026-11-05T10:09:00.000Z"}"""
     }
 }

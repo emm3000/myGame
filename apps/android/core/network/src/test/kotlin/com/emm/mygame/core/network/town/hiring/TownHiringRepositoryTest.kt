@@ -1,5 +1,8 @@
 package com.emm.mygame.core.network.town.hiring
 
+import com.emm.mygame.core.model.town.TownReadResult
+import com.emm.mygame.core.model.town.TownResourceKind
+import com.emm.mygame.core.model.town.TownSnapshot
 import com.emm.mygame.core.model.town.hiring.TownHireKind
 import com.emm.mygame.core.model.town.hiring.TownHiringRefusal
 import com.emm.mygame.core.model.town.hiring.TownHiringResult
@@ -71,7 +74,63 @@ class TownHiringRepositoryTest : TownRepositoryFixture() {
         )
     }
 
+    @Test
+    fun `reads the hiring terms and the hires held per kind`() = runTest {
+        api.enqueue(json(200, TOWN))
+
+        val read: TownSnapshot = (town().read() as TownReadResult.Read).town
+
+        assertEquals(
+            TownSnapshot.Hiring(
+                order = null,
+                hires = mapOf(TownHireKind.Worker to 0, TownHireKind.Truck to 0),
+                terms = mapOf(
+                    TownHireKind.Worker to TownSnapshot.HireTerms(
+                        costs = listOf(TownSnapshot.Cost(TownResourceKind.Money, 40)),
+                        secondsPerHire = 60,
+                        people = 1,
+                        requiredOfficeLevel = 1,
+                    ),
+                    TownHireKind.Truck to TownSnapshot.HireTerms(
+                        costs = listOf(
+                            TownSnapshot.Cost(TownResourceKind.Money, 80),
+                            TownSnapshot.Cost(TownResourceKind.Food, 40),
+                            TownSnapshot.Cost(TownResourceKind.Power, 40),
+                            TownSnapshot.Cost(TownResourceKind.Material, 60),
+                        ),
+                        secondsPerHire = 180,
+                        people = 1,
+                        requiredOfficeLevel = 3,
+                    ),
+                ),
+            ),
+            read.hiring,
+        )
+    }
+
+    @Test
+    fun `reads the open hiring order with its delivered count`() = runTest {
+        api.enqueue(json(200, TOWN.replace(""""order":null""", OPEN_ORDER)))
+
+        val read: TownSnapshot = (town().read() as TownReadResult.Read).town
+
+        assertEquals(
+            TownSnapshot.HiringOrder(
+                hire = TownHireKind.Truck,
+                count = 3,
+                delivered = 1,
+                secondsPerHire = 180,
+                startedAt = Instant.parse("2026-11-05T10:00:00.000Z"),
+                endsAt = Instant.parse("2026-11-05T10:09:00.000Z"),
+            ),
+            read.hiring.order,
+        )
+    }
+
     private companion object {
+        const val OPEN_ORDER: String =
+            """"order":{"hire":"truck","count":3,"delivered":1,"secondsPerHire":180,""" +
+                """"startedAt":"2026-11-05T10:00:00.000Z","endsAt":"2026-11-05T10:09:00.000Z"}"""
         const val ORDER_START: String = "2026-11-05T10:00:00.000Z"
     }
 }

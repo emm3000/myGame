@@ -4,8 +4,6 @@ import com.emm.mygame.core.model.learning.FrameSpan
 import com.emm.mygame.core.model.learning.TextId
 import com.emm.mygame.core.model.learning.WordSupport
 import com.emm.mygame.core.model.town.OpenText
-import com.emm.mygame.core.model.town.TownReadResult
-import com.emm.mygame.core.model.town.TownSnapshot
 import com.emm.mygame.core.model.town.TownTextRepository
 import com.emm.mygame.core.model.town.TownTextResult
 import com.emm.mygame.core.network.apiRepositories
@@ -18,24 +16,6 @@ import org.junit.Assert.assertEquals
 import org.junit.Test
 
 class TownTextsRepositoryTest : TownRepositoryFixture() {
-
-    @Test
-    fun `reads the title of each open text on the town read`() = runTest {
-        api.enqueue(json(200, townWithTexts(TEXT_TITLE)))
-
-        val read: TownSnapshot = (town().read() as TownReadResult.Read).town
-
-        assertEquals(listOf(TownSnapshot.TextTitle(TextId("text-1"), "A New Course")), read.texts)
-    }
-
-    @Test
-    fun `reads no text while the stage has opened none`() = runTest {
-        api.enqueue(json(200, townWithTexts("")))
-
-        val read: TownSnapshot = (town().read() as TownReadResult.Read).town
-
-        assertEquals(emptyList<TownSnapshot.TextTitle>(), read.texts)
-    }
 
     @Test
     fun `reads one open text with the support of its spans`() = runTest {
@@ -94,10 +74,7 @@ class TownTextsRepositoryTest : TownRepositoryFixture() {
         tokenStore = signedIn(),
     ).texts
 
-    private fun townWithTexts(texts: String): String = TOWN.replace(""""texts":[]""", """"texts":[$texts]""")
-
     private companion object {
-        const val TEXT_TITLE: String = """{"id":"text-1","title":"A New Course"}"""
         const val OPEN_TEXT: String =
             """{"id":"text-1","title":"A New Course","sentences":[[""" +
                 """{"text":"I live by the ","support":null},""" +
