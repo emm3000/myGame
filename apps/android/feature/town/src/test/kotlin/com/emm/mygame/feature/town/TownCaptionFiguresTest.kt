@@ -9,9 +9,9 @@ import com.emm.mygame.core.model.town.TownResourceKind
 import com.emm.mygame.core.model.town.TownSnapshot
 import com.emm.mygame.core.model.town.building.TownBuildingKind
 import com.emm.mygame.core.model.town.hiring.TownHireKind
-import com.emm.mygame.feature.town.building.PlaceBuildingWork
 import com.emm.mygame.feature.town.building.PlaceStocks
-import com.emm.mygame.feature.town.building.SlotLine
+import com.emm.mygame.feature.town.building.work.PlaceBuildingWork
+import com.emm.mygame.feature.town.building.work.SlotLine
 import com.emm.mygame.feature.town.guidance.ClosedGuidance
 import com.emm.mygame.feature.town.hiring.HiringLine
 import com.emm.mygame.feature.town.hiring.HiringOrderLine

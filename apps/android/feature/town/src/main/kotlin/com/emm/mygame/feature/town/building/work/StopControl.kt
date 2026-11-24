@@ -1,4 +1,4 @@
-package com.emm.mygame.feature.town.building
+package com.emm.mygame.feature.town.building.work
 
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -14,6 +14,7 @@ import com.emm.mygame.core.ui.rememberPlayerCopy
 import com.emm.mygame.feature.town.R
 import com.emm.mygame.feature.town.RevealedAlert
 import com.emm.mygame.feature.town.TownIntent
+import com.emm.mygame.feature.town.building.workRefusalLineOf
 import com.emm.mygame.feature.town.placeNameOf
 
 @Composable

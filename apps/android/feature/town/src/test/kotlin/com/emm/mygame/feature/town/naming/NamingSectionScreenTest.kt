@@ -7,7 +7,7 @@ import androidx.compose.ui.test.performClick
 import androidx.compose.ui.test.performTextInput
 import com.emm.mygame.core.model.town.TownFoundRefusal
 import com.emm.mygame.feature.town.TownIntent
-import com.emm.mygame.feature.town.TownScreenFixtures
+import com.emm.mygame.feature.town.TownScreenFixture
 import com.emm.mygame.feature.town.TownUiState
 import com.emm.mygame.feature.town.emptyNaming
 import org.junit.Assert.assertEquals
@@ -16,7 +16,7 @@ import org.junit.runner.RunWith
 import org.robolectric.RobolectricTestRunner
 
 @RunWith(RobolectricTestRunner::class)
-class NamingSectionScreenTest : TownScreenFixtures() {
+class NamingSectionScreenTest : TownScreenFixture() {
 
     @Test
     fun `asks for the town's name`() {

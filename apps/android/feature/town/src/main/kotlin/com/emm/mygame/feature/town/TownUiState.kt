@@ -7,12 +7,12 @@ import com.emm.mygame.core.model.town.guidance.TipKind
 import com.emm.mygame.core.model.town.guidance.TownGoal
 import com.emm.mygame.feature.town.building.PeopleLine
 import com.emm.mygame.feature.town.building.PlaceCard
-import com.emm.mygame.feature.town.building.SlotLine
 import com.emm.mygame.feature.town.building.StartStatus
 import com.emm.mygame.feature.town.building.StockLine
-import com.emm.mygame.feature.town.building.StopStatus
-import com.emm.mygame.feature.town.building.WaitingLine
 import com.emm.mygame.feature.town.building.WordsLine
+import com.emm.mygame.feature.town.building.work.SlotLine
+import com.emm.mygame.feature.town.building.work.StopStatus
+import com.emm.mygame.feature.town.building.work.WaitingLine
 import com.emm.mygame.feature.town.hiring.HiringLine
 import com.emm.mygame.feature.town.naming.NamingStatus
 

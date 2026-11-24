@@ -5,6 +5,8 @@ import com.emm.mygame.core.model.town.TownSnapshot
 import com.emm.mygame.core.model.town.building.TownBuildingKind
 import com.emm.mygame.core.model.town.building.TownWorkResult
 import com.emm.mygame.feature.town.TownRequests
+import com.emm.mygame.feature.town.building.work.StopStatus
+import com.emm.mygame.feature.town.building.work.WorkTarget
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
 

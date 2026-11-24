@@ -9,7 +9,7 @@ import kotlinx.coroutines.test.runTest
 import org.junit.Assert.assertEquals
 import org.junit.Test
 
-class TownReadViewModelTest : TownViewModelFixtures() {
+class TownReadViewModelTest : TownViewModelFixture() {
 
     @Test
     fun `draws the loading state while the api reads the town`() = runTest {

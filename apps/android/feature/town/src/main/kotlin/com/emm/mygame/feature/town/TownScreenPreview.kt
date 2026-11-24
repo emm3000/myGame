@@ -23,11 +23,11 @@ import com.emm.mygame.feature.town.building.CostLine
 import com.emm.mygame.feature.town.building.NextLevelLine
 import com.emm.mygame.feature.town.building.PeopleLine
 import com.emm.mygame.feature.town.building.PlaceCard
-import com.emm.mygame.feature.town.building.SlotLine
 import com.emm.mygame.feature.town.building.StartStatus
 import com.emm.mygame.feature.town.building.StockLine
-import com.emm.mygame.feature.town.building.StopStatus
 import com.emm.mygame.feature.town.building.WordsLine
+import com.emm.mygame.feature.town.building.work.SlotLine
+import com.emm.mygame.feature.town.building.work.StopStatus
 import com.emm.mygame.feature.town.hiring.HiringCard
 import com.emm.mygame.feature.town.hiring.HiringLine
 import com.emm.mygame.feature.town.hiring.HiringOrderLine

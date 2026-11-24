@@ -1,4 +1,4 @@
-package com.emm.mygame.feature.town.building
+package com.emm.mygame.feature.town.building.work
 
 import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.mutableStateOf
@@ -14,18 +14,22 @@ import androidx.compose.ui.test.performClick
 import androidx.compose.ui.test.performScrollTo
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.DpRect
+import com.emm.mygame.core.model.town.SeasonKind
 import com.emm.mygame.core.model.town.building.TownBuildingKind
+import com.emm.mygame.feature.town.DurationMark
 import com.emm.mygame.feature.town.TownIntent
-import com.emm.mygame.feature.town.TownScreenFixtures
+import com.emm.mygame.feature.town.TownScreenFixture
 import com.emm.mygame.feature.town.TownUiState
+import com.emm.mygame.feature.town.readInstant
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertTrue
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.robolectric.RobolectricTestRunner
+import kotlin.time.Duration.Companion.minutes
 
 @RunWith(RobolectricTestRunner::class)
-class PlaceBuildingWorkScreenTest : TownScreenFixtures() {
+class PlaceBuildingWorkScreenTest : TownScreenFixture() {
 
     @Test
     fun `draws the build mark on the page of the place in work`() {
@@ -88,5 +92,19 @@ class PlaceBuildingWorkScreenTest : TownScreenFixtures() {
         val refusal: DpRect = composeRule.onNodeWithText(UNEXPECTED).getUnclippedBoundsInRoot()
         val streetTop: Dp = composeRule.onNode(hasContentDescription(STREET)).getUnclippedBoundsInRoot().top
         assertTrue("refusal ends at ${refusal.bottom}, street starts at $streetTop", refusal.bottom <= streetTop)
+    }
+
+    private val waitingSchool: WaitingLine = WaitingLine(
+        building = TownBuildingKind.School,
+        level = 2,
+        remaining = 20.minutes,
+        finishesAt = readInstant,
+    )
+
+    private val summerBuild: DurationMark = DurationMark(SeasonKind.Summer, percent = 75)
+
+    private companion object {
+        const val BUILD_MARK: String = "Verano: las obras tardan el 75 % del tiempo"
+        const val STOP_FARM: String = "Parar la obra: Granja, nivel 2"
     }
 }

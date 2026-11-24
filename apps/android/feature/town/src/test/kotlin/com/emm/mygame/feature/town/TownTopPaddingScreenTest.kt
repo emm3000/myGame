@@ -2,6 +2,7 @@ package com.emm.mygame.feature.town
 
 import androidx.compose.ui.test.SemanticsMatcher
 import androidx.compose.ui.test.getUnclippedBoundsInRoot
+import androidx.compose.ui.test.onAllNodesWithText
 import androidx.compose.ui.test.onFirst
 import androidx.compose.ui.test.onNodeWithContentDescription
 import androidx.compose.ui.test.onNodeWithText
@@ -15,7 +16,7 @@ import org.junit.runner.RunWith
 import org.robolectric.RobolectricTestRunner
 
 @RunWith(RobolectricTestRunner::class)
-class TownTopPaddingScreenTest : TownScreenFixtures() {
+class TownTopPaddingScreenTest : TownScreenFixture() {
 
     @Test
     fun `keeps the smaller top padding to the town home`() {
@@ -62,5 +63,12 @@ class TownTopPaddingScreenTest : TownScreenFixtures() {
         show(TownUiState.SigningOut(isLeavingNaming = false))
 
         assertEquals(MyGameSpacing.step8.value, topOf("Salir").value, PIXEL_TOLERANCE)
+    }
+
+    private fun topOf(text: String): Dp =
+        composeRule.onAllNodesWithText(text).onFirst().getUnclippedBoundsInRoot().top
+
+    private companion object {
+        const val PIXEL_TOLERANCE: Float = 0.5f
     }
 }

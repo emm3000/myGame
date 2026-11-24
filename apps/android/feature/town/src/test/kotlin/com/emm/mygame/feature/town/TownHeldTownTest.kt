@@ -4,7 +4,7 @@ import com.emm.mygame.core.model.town.HeldTown
 import com.emm.mygame.core.model.town.TownReadResult
 import com.emm.mygame.core.testing.FakeTownRepository
 import com.emm.mygame.core.testing.MainDispatcherRule
-import com.emm.mygame.feature.town.building.SlotLine
+import com.emm.mygame.feature.town.building.work.SlotLine
 import com.emm.mygame.feature.town.naming.NamingStatus
 import kotlinx.coroutines.test.runCurrent
 import kotlinx.coroutines.test.runTest

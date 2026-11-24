@@ -1,4 +1,4 @@
-package com.emm.mygame.feature.town.building
+package com.emm.mygame.feature.town.building.work
 
 import com.emm.mygame.core.model.town.building.TownBuildingKind
 import kotlin.time.Duration

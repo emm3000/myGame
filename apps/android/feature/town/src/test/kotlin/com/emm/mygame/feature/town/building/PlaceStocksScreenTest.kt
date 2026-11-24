@@ -8,14 +8,14 @@ import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
 import androidx.compose.ui.test.performScrollTo
 import com.emm.mygame.core.model.town.TownResourceKind
-import com.emm.mygame.feature.town.TownScreenFixtures
+import com.emm.mygame.feature.town.TownScreenFixture
 import org.junit.Assert.assertEquals
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.robolectric.RobolectricTestRunner
 
 @RunWith(RobolectricTestRunner::class)
-class PlaceStocksScreenTest : TownScreenFixtures() {
+class PlaceStocksScreenTest : TownScreenFixture() {
 
     @Test
     fun `shows each producer's stock on its own page`() {

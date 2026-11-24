@@ -7,16 +7,19 @@ import androidx.compose.ui.test.junit4.StateRestorationTester
 import androidx.compose.ui.test.performClick
 import androidx.compose.ui.test.performScrollTo
 import com.emm.mygame.core.model.learning.LessonId
+import com.emm.mygame.core.model.town.TownRegistered
 import com.emm.mygame.core.model.town.building.TownBuildingKind
 import com.emm.mygame.core.model.town.guidance.CaughtUpReason
 import com.emm.mygame.core.model.town.guidance.NextStep
+import com.emm.mygame.feature.town.guidance.ClosedGuidance
 import org.junit.Assert.assertEquals
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.robolectric.RobolectricTestRunner
+import kotlin.time.Duration
 
 @RunWith(RobolectricTestRunner::class)
-class TownHomePageScreenTest : TownScreenFixtures() {
+class TownHomePageScreenTest : TownScreenFixture() {
 
     @Test
     fun `the town home opens on the goal's building`() {
@@ -85,4 +88,13 @@ class TownHomePageScreenTest : TownScreenFixtures() {
 
         tab("Granja").assertIsSelected()
     }
+
+    private fun homeOn(step: NextStep): TownUiState.Content = townOf(nextStep = step).contentAt(
+        now = readInstant,
+        gap = Duration.ZERO,
+        requests = TownRequests.none,
+        registered = TownRegistered.nothing,
+        hiringEntries = emptyMap(),
+        closed = ClosedGuidance.none,
+    )
 }

@@ -4,7 +4,7 @@ import com.emm.mygame.core.model.town.TownSnapshot
 import com.emm.mygame.core.model.town.building.NeededWordKind
 import com.emm.mygame.core.model.town.building.TownBuildingKind
 import com.emm.mygame.feature.town.TownViewModel
-import com.emm.mygame.feature.town.TownViewModelFixtures
+import com.emm.mygame.feature.town.TownViewModelFixture
 import com.emm.mygame.feature.town.contentOf
 import com.emm.mygame.feature.town.nextLevelOf
 import com.emm.mygame.feature.town.placeOf
@@ -14,7 +14,7 @@ import kotlinx.coroutines.test.runTest
 import org.junit.Assert.assertEquals
 import org.junit.Test
 
-class PlaceCardsViewModelTest : TownViewModelFixtures() {
+class PlaceCardsViewModelTest : TownViewModelFixture() {
 
     @Test
     fun `draws a place's word need with the words held toward it`() = runTest {

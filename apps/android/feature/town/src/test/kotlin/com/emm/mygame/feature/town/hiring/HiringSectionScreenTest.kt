@@ -7,14 +7,14 @@ import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
 import androidx.compose.ui.test.performScrollTo
 import com.emm.mygame.core.ui.navRowOf
-import com.emm.mygame.feature.town.TownScreenFixtures
+import com.emm.mygame.feature.town.TownScreenFixture
 import org.junit.Assert.assertEquals
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.robolectric.RobolectricTestRunner
 
 @RunWith(RobolectricTestRunner::class)
-class HiringPageScreenTest : TownScreenFixtures() {
+class HiringSectionScreenTest : TownScreenFixture() {
 
     @Test
     fun `draws the office on the office's page`() {
@@ -34,5 +34,9 @@ class HiringPageScreenTest : TownScreenFixtures() {
         composeRule.onNode(navRowOf("Ir al mapa"), useUnmergedTree = true).performScrollTo().performClick()
 
         assertEquals(1, mapOpens)
+    }
+
+    private companion object {
+        const val OFFICE_IDLE: String = "Ahora no hay ninguna contratación."
     }
 }

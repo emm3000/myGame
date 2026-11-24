@@ -6,42 +6,31 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.MutableState
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.test.SemanticsNodeInteraction
-import androidx.compose.ui.test.getUnclippedBoundsInRoot
 import androidx.compose.ui.test.hasContentDescription
 import androidx.compose.ui.test.junit4.ComposeContentTestRule
 import androidx.compose.ui.test.junit4.createComposeRule
-import androidx.compose.ui.test.onAllNodesWithText
-import androidx.compose.ui.test.onFirst
-import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.DpSize
 import androidx.compose.ui.unit.dp
 import com.emm.mygame.core.designsystem.MyGameTheme
 import com.emm.mygame.core.designsystem.MyGameTransitions
-import com.emm.mygame.core.model.town.SeasonKind
 import com.emm.mygame.core.model.town.TownLabel
-import com.emm.mygame.core.model.town.TownRegistered
 import com.emm.mygame.core.model.town.TownResourceKind
 import com.emm.mygame.core.model.town.building.TownBuildingKind
-import com.emm.mygame.core.model.town.guidance.NextStep
 import com.emm.mygame.core.model.town.guidance.TownGoal
 import com.emm.mygame.feature.town.building.CostLine
 import com.emm.mygame.feature.town.building.NextLevelLine
 import com.emm.mygame.feature.town.building.PeopleLine
 import com.emm.mygame.feature.town.building.PlaceCard
-import com.emm.mygame.feature.town.building.SlotLine
 import com.emm.mygame.feature.town.building.StartStatus
 import com.emm.mygame.feature.town.building.StockLine
-import com.emm.mygame.feature.town.building.StopStatus
-import com.emm.mygame.feature.town.building.WaitingLine
 import com.emm.mygame.feature.town.building.WordsLine
-import com.emm.mygame.feature.town.guidance.ClosedGuidance
+import com.emm.mygame.feature.town.building.work.SlotLine
+import com.emm.mygame.feature.town.building.work.StopStatus
 import org.junit.Rule
-import kotlin.time.Duration
-import kotlin.time.Duration.Companion.days
 import kotlin.time.Duration.Companion.minutes
 import kotlin.time.Duration.Companion.seconds
 
-abstract class TownScreenFixtures {
+abstract class TownScreenFixture {
 
     @get:Rule
     val composeRule: ComposeContentTestRule = createComposeRule()
@@ -110,34 +99,8 @@ abstract class TownScreenFixtures {
         finishesAt = readInstant,
     )
 
-    protected val waitingSchool: WaitingLine = WaitingLine(
-        building = TownBuildingKind.School,
-        level = 2,
-        remaining = 20.minutes,
-        finishesAt = readInstant,
-    )
-
-    protected val summer: SeasonLine = SeasonLine(
-        kind = SeasonKind.Summer,
-        year = 2,
-        remaining = 3.days,
-        productionMarks = emptyList(),
-    )
-
-    protected fun topOf(text: String): Dp =
-        composeRule.onAllNodesWithText(text).onFirst().getUnclippedBoundsInRoot().top
-
     protected fun tab(place: String): SemanticsNodeInteraction = composeRule.onNode(
         isTab and hasContentDescription(place, substring = true),
-    )
-
-    protected fun homeOn(step: NextStep): TownUiState.Content = townOf(nextStep = step).contentAt(
-        now = readInstant,
-        gap = Duration.ZERO,
-        requests = TownRequests.none,
-        registered = TownRegistered.nothing,
-        hiringEntries = emptyMap(),
-        closed = ClosedGuidance.none,
     )
 
     protected fun inWork(content: TownUiState.Content, vararg kinds: TownBuildingKind): TownUiState.Content =
@@ -146,12 +109,6 @@ abstract class TownScreenFixtures {
                 if (place.kind in kinds) place.copy(isInWork = true) else place
             },
         )
-
-    protected fun onSchool(school: PlaceCard): TownUiState.Content = riverton.copy(
-        places = street.map { place: PlaceCard -> if (place.kind == school.kind) school else place },
-    )
-
-    protected val summerBuild: DurationMark = DurationMark(SeasonKind.Summer, percent = 75)
 
     protected val phoneWindow: DpSize = DpSize(360.dp, 640.dp)
 
@@ -199,18 +156,9 @@ abstract class TownScreenFixtures {
     }
 
     protected companion object {
-        const val PIXEL_TOLERANCE: Float = 0.5f
         const val READING_LINE: String = "Estamos leyendo tu pueblo…"
         const val REVEAL_MARGIN_MILLIS: Long = 50
         const val UNEXPECTED: String = "No hemos podido hablar con el servidor. Vuelve a intentarlo en un momento."
-        const val NOT_ENOUGH: String =
-            "No tienes recursos suficientes para esta obra. Espera a que crezcan tus reservas."
         const val STREET: String = "Tu pueblo: 7 de 7 construidos"
-        const val OFFICE_IDLE: String = "Ahora no hay ninguna contratación."
-        const val BUILD_MARK: String = "Verano: las obras tardan el 75 % del tiempo"
-        const val STOP_FARM: String = "Parar la obra: Granja, nivel 2"
-        const val RING: String = "Ring"
-        const val RUNNING: String = "Running lesson"
-        const val PLACEMENT: String = "Placement offer"
     }
 }

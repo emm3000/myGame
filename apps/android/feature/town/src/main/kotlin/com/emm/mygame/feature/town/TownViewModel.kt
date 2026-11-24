@@ -8,7 +8,7 @@ import com.emm.mygame.core.model.town.TownReadResult
 import com.emm.mygame.core.model.town.TownRepository
 import com.emm.mygame.core.model.town.TownSnapshot
 import com.emm.mygame.feature.town.building.BuildingRequests
-import com.emm.mygame.feature.town.building.WorkTarget
+import com.emm.mygame.feature.town.building.work.WorkTarget
 import com.emm.mygame.feature.town.guidance.GuidanceRequests
 import com.emm.mygame.feature.town.hiring.HiringRequests
 import com.emm.mygame.feature.town.naming.NamingRequests
