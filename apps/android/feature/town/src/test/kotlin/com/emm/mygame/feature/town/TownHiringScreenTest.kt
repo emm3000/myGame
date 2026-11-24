@@ -70,7 +70,7 @@ class TownHiringScreenTest {
 
     private val workerTarget: TownUiState.HiringTarget = TownUiState.HiringTarget(TownHireKind.Worker, readInstant)
 
-    private val busyHiring: TownUiState.HiringLine.Busy = TownUiState.HiringLine.Busy(
+    private val busyHiring: TownUiState.HiringOrderLine.Busy = TownUiState.HiringOrderLine.Busy(
         target = workerTarget,
         count = 3,
         delivered = 1,
@@ -79,11 +79,11 @@ class TownHiringScreenTest {
         finishesAt = readInstant,
     )
 
-    private val hiring: TownUiState.Hiring = TownUiState.Hiring(
-        order = TownUiState.HiringLine.Idle,
+    private val hiring: TownUiState.HiringLine = TownUiState.HiringLine(
+        order = TownUiState.HiringOrderLine.Idle,
         hires = listOf(workers, lockedTrucks),
         hireMark = null,
-        place = TownUiState.HiringStatus.Idle,
+        place = TownUiState.HiringPlaceStatus.Idle,
         stop = TownUiState.HiringStopStatus.Idle,
     )
 
@@ -98,7 +98,7 @@ class TownHiringScreenTest {
 
         composeRule.onNodeWithText("Contratar 3 trabajadores · 3:00").performScrollTo().performClick()
 
-        assertEquals(listOf<TownIntent>(TownIntent.StartHiringTapped(TownHireKind.Worker)), intents)
+        assertEquals(listOf<TownIntent>(TownIntent.PlaceHiringTapped(TownHireKind.Worker)), intents)
     }
 
     @Test
@@ -162,8 +162,8 @@ class TownHiringScreenTest {
 
     @Test
     fun `drops the ready minute once the api refused the hire`() {
-        val refused: TownUiState.HiringStatus =
-            TownUiState.HiringStatus.Refused(TownHireKind.Worker, TownHiringRefusal.NotEnoughResources)
+        val refused: TownUiState.HiringPlaceStatus =
+            TownUiState.HiringPlaceStatus.Refused(TownHireKind.Worker, TownHiringRefusal.NotEnoughResources)
         val ready: TownUiState.ReadyTime = TownUiState.ReadyTime(remaining = 24.minutes, readyAt = readInstant)
 
         show(blocked(shortOfMoneyUntil(ready)).copy(place = refused))
@@ -215,7 +215,7 @@ class TownHiringScreenTest {
 
     @Test
     fun `tells an order that reached its end`() {
-        show(hiring.copy(order = TownUiState.HiringLine.Done(TownHireKind.Worker, count = 3, delivered = 3)))
+        show(hiring.copy(order = TownUiState.HiringOrderLine.Done(TownHireKind.Worker, count = 3, delivered = 3)))
 
         composeRule
             .onNodeWithText("La contratación terminó. Estamos leyendo tu pueblo otra vez…")
@@ -225,8 +225,8 @@ class TownHiringScreenTest {
 
     @Test
     fun `draws a hiring refusal with its message`() {
-        val refused: TownUiState.HiringStatus =
-            TownUiState.HiringStatus.Refused(TownHireKind.Worker, TownHiringRefusal.OfficeTooLow(1, 3))
+        val refused: TownUiState.HiringPlaceStatus =
+            TownUiState.HiringPlaceStatus.Refused(TownHireKind.Worker, TownHiringRefusal.OfficeTooLow(1, 3))
 
         show(hiring.copy(place = refused))
 
@@ -246,7 +246,7 @@ class TownHiringScreenTest {
     @Test
     fun `names the hire in a refusal for too few free people`() {
         val tooFew: TownHiringRefusal = TownHiringRefusal.NotEnoughPeople(required = 3, free = 2)
-        val refused: TownUiState.HiringStatus = TownUiState.HiringStatus.Refused(TownHireKind.Worker, tooFew)
+        val refused: TownUiState.HiringPlaceStatus = TownUiState.HiringPlaceStatus.Refused(TownHireKind.Worker, tooFew)
 
         show(hiring.copy(place = refused))
 
@@ -258,8 +258,8 @@ class TownHiringScreenTest {
 
     @Test
     fun `names the hire in a refusal for resources the town lacks`() {
-        val refused: TownUiState.HiringStatus =
-            TownUiState.HiringStatus.Refused(TownHireKind.Worker, TownHiringRefusal.NotEnoughResources)
+        val refused: TownUiState.HiringPlaceStatus =
+            TownUiState.HiringPlaceStatus.Refused(TownHireKind.Worker, TownHiringRefusal.NotEnoughResources)
 
         show(hiring.copy(place = refused))
 
@@ -278,8 +278,8 @@ class TownHiringScreenTest {
 
     @Test
     fun `drops the block reason once the api refused the hire`() {
-        val refused: TownUiState.HiringStatus =
-            TownUiState.HiringStatus.Refused(TownHireKind.Worker, TownHiringRefusal.NotEnoughResources)
+        val refused: TownUiState.HiringPlaceStatus =
+            TownUiState.HiringPlaceStatus.Refused(TownHireKind.Worker, TownHiringRefusal.NotEnoughResources)
 
         show(blocked(shortOfMoney).copy(place = refused))
 
@@ -288,7 +288,7 @@ class TownHiringScreenTest {
 
     @Test
     fun `drops the block reason once the server could not be reached`() {
-        show(blocked(shortOfMoney).copy(place = TownUiState.HiringStatus.Unreachable(TownHireKind.Worker)))
+        show(blocked(shortOfMoney).copy(place = TownUiState.HiringPlaceStatus.Unreachable(TownHireKind.Worker)))
 
         composeRule.onNodeWithText(shortOfMoneyLine, useUnmergedTree = true).assertDoesNotExist()
     }
@@ -307,11 +307,11 @@ class TownHiringScreenTest {
 
     @Test
     fun `brings a hire refusal at the end of the page fully into view above the street`() {
-        val shown: MutableState<TownUiState.Hiring> = mutableStateOf(hiring)
+        val shown: MutableState<TownUiState.HiringLine> = mutableStateOf(hiring)
         showOnAPhone(shown)
 
         shown.value = hiring.copy(
-            place = TownUiState.HiringStatus.Refused(TownHireKind.Worker, TownHiringRefusal.NotEnoughResources),
+            place = TownUiState.HiringPlaceStatus.Refused(TownHireKind.Worker, TownHiringRefusal.NotEnoughResources),
         )
         composeRule.waitForIdle()
 
@@ -320,8 +320,8 @@ class TownHiringScreenTest {
 
     @Test
     fun `brings a refused hiring stop at the end of the page fully into view above the street`() {
-        val busy: TownUiState.Hiring = hiring.copy(order = busyHiring)
-        val shown: MutableState<TownUiState.Hiring> = mutableStateOf(busy)
+        val busy: TownUiState.HiringLine = hiring.copy(order = busyHiring)
+        val shown: MutableState<TownUiState.HiringLine> = mutableStateOf(busy)
         showOnAPhone(shown)
 
         shown.value = busy.copy(stop = TownUiState.HiringStopStatus.Refused(TownHiringRefusal.HiringOrderNotFound))
@@ -333,7 +333,7 @@ class TownHiringScreenTest {
     private fun shortOfMoneyUntil(ready: TownUiState.ReadyTime): TownUiState.HiringBlock =
         TownUiState.HiringBlock.Resources(listOf(TownUiState.Shortfall(TownResourceKind.Money, 20)), ready = ready)
 
-    private fun blocked(block: TownUiState.HiringBlock): TownUiState.Hiring =
+    private fun blocked(block: TownUiState.HiringBlock): TownUiState.HiringLine =
         hiring.copy(hires = listOf(workers.copy(form = workerForm.copy(block = block)), lockedTrucks))
 
     private fun assertBlockedBy(reason: String) {
@@ -343,7 +343,7 @@ class TownHiringScreenTest {
             .assertIsDisplayed()
     }
 
-    private fun showOnAPhone(shown: MutableState<TownUiState.Hiring>) {
+    private fun showOnAPhone(shown: MutableState<TownUiState.HiringLine>) {
         composeRule.setContent {
             MyGameTheme {
                 Box(modifier = Modifier.size(DpSize(360.dp, 640.dp))) {
@@ -384,7 +384,7 @@ class TownHiringScreenTest {
         }
     }
 
-    private fun show(shown: TownUiState.Hiring) {
+    private fun show(shown: TownUiState.HiringLine) {
         composeRule.setContent {
             MyGameTheme {
                 TownScreen(
@@ -398,7 +398,7 @@ class TownHiringScreenTest {
         }
     }
 
-    private fun homeWith(shown: TownUiState.Hiring): TownUiState.Content = TownUiState.Content(
+    private fun homeWith(shown: TownUiState.HiringLine): TownUiState.Content = TownUiState.Content(
         name = "Riverton",
         label = TownLabel.Town,
         stocks = emptyList(),

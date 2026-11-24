@@ -92,7 +92,7 @@ class TownViewModel(
             is TownIntent.BuildTapped -> start(intent.building)
             is TownIntent.StopTapped -> stop(TownUiState.WorkTarget(intent.building, intent.level))
             is TownIntent.HiringEntryChanged -> hiring.enter(intent.hire, intent.entry)
-            is TownIntent.StartHiringTapped -> if (shown != null) hiring.place(intent.hire)
+            is TownIntent.PlaceHiringTapped -> if (shown != null) hiring.place(intent.hire)
             is TownIntent.StopHiringTapped -> if (shown != null) hiring.stop(intent.target)
             is TownIntent.TipClosed -> if (shown != null) guidance.closeTip(intent.tip)
             TownIntent.GoalClosed -> if (shown != null) guidance.closeGoal()
@@ -233,7 +233,7 @@ class TownViewModel(
             gap = gap,
             requests = requests,
             registered = registered,
-            hireEntries = hiring.entries,
+            hiringEntries = hiring.entries,
             closed = guidance.closed,
         )
     }

@@ -41,7 +41,7 @@ import com.emm.mygame.feature.town.townDurationCopy
 
 @Composable
 internal fun HiringSection(
-    hiring: TownUiState.Hiring,
+    hiring: TownUiState.HiringLine,
     onIntent: (TownIntent) -> Unit,
     modifier: Modifier = Modifier,
 ) {
@@ -59,14 +59,14 @@ internal fun HiringSection(
             ) {
                 HiringHeading()
                 hiring.hireMark?.let { mark: TownUiState.DurationMark -> HiringMarkRow(mark = mark) }
-                when (val order: TownUiState.HiringLine = hiring.order) {
-                    TownUiState.HiringLine.Idle -> MyGameText(
+                when (val order: TownUiState.HiringOrderLine = hiring.order) {
+                    TownUiState.HiringOrderLine.Idle -> MyGameText(
                         label = chromeResource(R.string.town_office_idle),
                         style = MyGameTypography.caption,
                         color = MyGameTheme.colors.inkMuted,
                     )
-                    is TownUiState.HiringLine.Done -> DoneHiring(hiring = order)
-                    is TownUiState.HiringLine.Busy ->
+                    is TownUiState.HiringOrderLine.Done -> DoneHiring(hiring = order)
+                    is TownUiState.HiringOrderLine.Busy ->
                         BusyHiring(hiring = order, stop = hiring.stop, onIntent = onIntent)
                 }
             }
@@ -135,7 +135,7 @@ private fun HiringTitle(hire: TownHireKind, count: Int, delivered: Int, modifier
 }
 
 @Composable
-private fun DoneHiring(hiring: TownUiState.HiringLine.Done, modifier: Modifier = Modifier) {
+private fun DoneHiring(hiring: TownUiState.HiringOrderLine.Done, modifier: Modifier = Modifier) {
     Column(verticalArrangement = Arrangement.spacedBy(MyGameSpacing.step2), modifier = modifier) {
         HiringTitle(hire = hiring.hire, count = hiring.count, delivered = hiring.delivered)
         Row(
@@ -154,7 +154,7 @@ private fun DoneHiring(hiring: TownUiState.HiringLine.Done, modifier: Modifier =
 
 @Composable
 private fun BusyHiring(
-    hiring: TownUiState.HiringLine.Busy,
+    hiring: TownUiState.HiringOrderLine.Busy,
     stop: TownUiState.HiringStopStatus,
     onIntent: (TownIntent) -> Unit,
     modifier: Modifier = Modifier,

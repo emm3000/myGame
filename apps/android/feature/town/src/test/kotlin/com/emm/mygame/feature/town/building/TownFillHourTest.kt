@@ -129,7 +129,7 @@ class TownFillHourTest {
             gap = gap,
             requests = TownRequests.none,
             registered = TownRegistered.nothing,
-            hireEntries = emptyMap(),
+            hiringEntries = emptyMap(),
             closed = ClosedGuidance.none,
         )
         composeRule.setContent { MyGameTheme { PlaceStocks(place = TownBuildingKind.Storage, content = content) } }

@@ -3,29 +3,20 @@ package com.emm.mygame.feature.town.building
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.FlowRow
-import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.size
 import androidx.compose.runtime.Composable
-import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.semantics.clearAndSetSemantics
-import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.hideFromAccessibility
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.tooling.preview.PreviewParameter
 import androidx.compose.ui.tooling.preview.PreviewParameterProvider
-import com.emm.mygame.core.designsystem.MyGameIcon
 import com.emm.mygame.core.designsystem.MyGameLabel
 import com.emm.mygame.core.designsystem.MyGameOutlinedButton
 import com.emm.mygame.core.designsystem.MyGamePreviewSurface
-import com.emm.mygame.core.designsystem.MyGameSizes
 import com.emm.mygame.core.designsystem.MyGameSpacing
 import com.emm.mygame.core.designsystem.MyGameText
 import com.emm.mygame.core.designsystem.MyGameTheme
 import com.emm.mygame.core.designsystem.MyGameTypography
 import com.emm.mygame.core.designsystem.PreviewMyGame
-import com.emm.mygame.core.designsystem.formatQuantity
-import com.emm.mygame.core.designsystem.withTabularFigures
 import com.emm.mygame.core.model.town.TownResourceKind
 import com.emm.mygame.core.model.town.building.TownBuildingKind
 import com.emm.mygame.core.ui.PlayerCopy
@@ -33,10 +24,8 @@ import com.emm.mygame.core.ui.durationLabelOf
 import com.emm.mygame.core.ui.rememberPlayerCopy
 import com.emm.mygame.feature.town.R
 import com.emm.mygame.feature.town.ReadyLine
-import com.emm.mygame.feature.town.RevealedAlert
 import com.emm.mygame.feature.town.TownIntent
 import com.emm.mygame.feature.town.TownUiState
-import com.emm.mygame.feature.town.shortMarked
 import com.emm.mygame.feature.town.townDurationCopy
 import kotlin.time.Duration.Companion.hours
 import kotlin.time.Duration.Companion.minutes
@@ -96,42 +85,6 @@ private fun Costs(next: TownUiState.NextLevelLine, modifier: Modifier = Modifier
     ) {
         next.costs.forEach { cost: TownUiState.CostLine -> CostItem(cost = cost) }
     }
-}
-
-@Composable
-internal fun CostItem(cost: TownUiState.CostLine, modifier: Modifier = Modifier) {
-    val description: String = rememberPlayerCopy().chrome {
-        shortMarked(amountLineOf(cost.kind, cost.amount), cost.isShort)
-    }.spoken
-    Row(
-        verticalAlignment = Alignment.CenterVertically,
-        horizontalArrangement = Arrangement.spacedBy(MyGameSpacing.step1),
-        modifier = modifier.clearAndSetSemantics { contentDescription = description },
-    ) {
-        MyGameIcon(
-            icon = resourceIconOf(cost.kind),
-            tint = MyGameTheme.colors.ink,
-            modifier = Modifier.size(MyGameSizes.iconSmall),
-        )
-        MyGameText(
-            text = formatQuantity(cost.amount),
-            style = MyGameTypography.caption.withTabularFigures(),
-            color = if (cost.isShort) MyGameTheme.colors.warningInk else MyGameTheme.colors.ink,
-        )
-    }
-}
-
-@Composable
-internal fun StartAnswer(building: TownBuildingKind, start: TownUiState.StartStatus, modifier: Modifier = Modifier) {
-    val copy: PlayerCopy = rememberPlayerCopy()
-    val message: String? = when (start) {
-        is TownUiState.StartStatus.Refused ->
-            if (start.building == building) copy.fixedCopy { workRefusalLineOf(start.refusal) } else null
-        is TownUiState.StartStatus.Unreachable ->
-            if (start.building == building) copy.fixedCopy(R.string.town_refusal_unexpected) else null
-        TownUiState.StartStatus.Idle, is TownUiState.StartStatus.Waiting -> null
-    }
-    if (message != null) RevealedAlert(message = message, modifier = modifier)
 }
 
 private fun PlayerCopy.blockLineOf(block: TownUiState.BlockReason): MyGameLabel = when (block) {

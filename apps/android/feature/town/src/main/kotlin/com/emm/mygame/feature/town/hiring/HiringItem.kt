@@ -48,7 +48,7 @@ import com.emm.mygame.feature.town.townDurationCopy
 @Composable
 internal fun HiringItem(
     card: TownUiState.HiringCard,
-    place: TownUiState.HiringStatus,
+    place: TownUiState.HiringPlaceStatus,
     onIntent: (TownIntent) -> Unit,
     modifier: Modifier = Modifier,
 ) {
@@ -79,7 +79,7 @@ internal fun HiringItem(
             HiringForm(
                 kind = card.kind,
                 form = form,
-                isWaiting = place == TownUiState.HiringStatus.Waiting(card.kind),
+                isWaiting = place == TownUiState.HiringPlaceStatus.Waiting(card.kind),
                 isAnswered = place.isAnsweredFor(card.kind),
                 onIntent = onIntent,
             )
@@ -115,7 +115,7 @@ private fun HiringForm(
             label = if (offer == null) copy.chrome(hireAnyOf(kind)) else copy.chrome { hireLabelOf(kind, offer) },
             isBusy = isWaiting,
             busyDescription = copy.chrome(R.string.town_waiting).spoken,
-            onClick = { onIntent(TownIntent.StartHiringTapped(kind)) },
+            onClick = { onIntent(TownIntent.PlaceHiringTapped(kind)) },
             blockedReason = reason?.spoken,
         )
         reason?.takeUnless { isAnswered }?.let { line: MyGameLabel ->
@@ -167,22 +167,22 @@ private fun PeopleCost(people: Long, isShort: Boolean, modifier: Modifier = Modi
 }
 
 @Composable
-private fun HiringAnswer(kind: TownHireKind, place: TownUiState.HiringStatus, modifier: Modifier = Modifier) {
+private fun HiringAnswer(kind: TownHireKind, place: TownUiState.HiringPlaceStatus, modifier: Modifier = Modifier) {
     val copy: PlayerCopy = rememberPlayerCopy()
     val message: String? = when (place) {
-        is TownUiState.HiringStatus.Refused ->
+        is TownUiState.HiringPlaceStatus.Refused ->
             if (place.hire == kind) copy.fixedCopy { hiringRefusalLineOf(place.refusal) } else null
-        is TownUiState.HiringStatus.Unreachable ->
+        is TownUiState.HiringPlaceStatus.Unreachable ->
             if (place.hire == kind) copy.fixedCopy(R.string.town_refusal_unexpected) else null
-        TownUiState.HiringStatus.Idle, is TownUiState.HiringStatus.Waiting -> null
+        TownUiState.HiringPlaceStatus.Idle, is TownUiState.HiringPlaceStatus.Waiting -> null
     }
     if (message != null) RevealedAlert(message = message, modifier = modifier)
 }
 
-private fun TownUiState.HiringStatus.isAnsweredFor(kind: TownHireKind): Boolean = when (this) {
-    is TownUiState.HiringStatus.Refused -> hire == kind
-    is TownUiState.HiringStatus.Unreachable -> hire == kind
-    TownUiState.HiringStatus.Idle, is TownUiState.HiringStatus.Waiting -> false
+private fun TownUiState.HiringPlaceStatus.isAnsweredFor(kind: TownHireKind): Boolean = when (this) {
+    is TownUiState.HiringPlaceStatus.Refused -> hire == kind
+    is TownUiState.HiringPlaceStatus.Unreachable -> hire == kind
+    TownUiState.HiringPlaceStatus.Idle, is TownUiState.HiringPlaceStatus.Waiting -> false
 }
 
 private fun CopyReader.hireLabelOf(kind: TownHireKind, offer: TownUiState.HiringOffer): String = text(

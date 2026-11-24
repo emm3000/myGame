@@ -223,7 +223,7 @@ class TownGuidanceScreenTest {
             gap = Duration.ZERO,
             requests = TownRequests.none,
             registered = TownRegistered.nothing,
-            hireEntries = emptyMap(),
+            hiringEntries = emptyMap(),
             closed = closed,
         )
 

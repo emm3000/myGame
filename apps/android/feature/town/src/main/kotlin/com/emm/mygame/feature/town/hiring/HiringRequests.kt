@@ -26,16 +26,16 @@ internal class HiringRequests(
     }
 
     fun place(hire: TownHireKind) {
-        if (requests().hiring is TownUiState.HiringStatus.Waiting) return
-        val count: Int = hireCountOf(entries[hire] ?: FIRST_HIRE_ENTRY) ?: return
-        onDrawn(requests().copy(hiring = TownUiState.HiringStatus.Waiting(hire)))
+        if (requests().hiringPlace is TownUiState.HiringPlaceStatus.Waiting) return
+        val count: Int = hireCountOf(entries[hire] ?: FIRST_HIRING_ENTRY) ?: return
+        onDrawn(requests().copy(hiringPlace = TownUiState.HiringPlaceStatus.Waiting(hire)))
         scope.launch {
             when (val answer: TownHiringResult = towns.placeHiring(hire, count)) {
-                is TownHiringResult.Answered -> onAnswered(answer.town, requests().hiringAnswered())
+                is TownHiringResult.Answered -> onAnswered(answer.town, requests().hiringPlaceAnswered())
                 is TownHiringResult.Refused ->
-                    onDrawn(requests().copy(hiring = TownUiState.HiringStatus.Refused(hire, answer.refusal)))
+                    onDrawn(requests().copy(hiringPlace = TownUiState.HiringPlaceStatus.Refused(hire, answer.refusal)))
                 TownHiringResult.Unreachable ->
-                    onDrawn(requests().copy(hiring = TownUiState.HiringStatus.Unreachable(hire)))
+                    onDrawn(requests().copy(hiringPlace = TownUiState.HiringPlaceStatus.Unreachable(hire)))
             }
         }
     }

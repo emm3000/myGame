@@ -51,7 +51,7 @@ sealed interface TownUiState {
         val tip: TipKind?,
         val start: StartStatus,
         val stop: StopStatus,
-        val hiring: Hiring,
+        val hiring: HiringLine,
     ) : TownUiState
 
     sealed interface NamingStatus {
@@ -186,17 +186,17 @@ sealed interface TownUiState {
         data class Unreachable(val target: WorkTarget) : StopStatus
     }
 
-    data class Hiring(
-        val order: HiringLine,
+    data class HiringLine(
+        val order: HiringOrderLine,
         val hires: List<HiringCard>,
         val hireMark: DurationMark?,
-        val place: HiringStatus,
+        val place: HiringPlaceStatus,
         val stop: HiringStopStatus,
     )
 
-    sealed interface HiringLine {
+    sealed interface HiringOrderLine {
 
-        data object Idle : HiringLine
+        data object Idle : HiringOrderLine
 
         data class Busy(
             val target: HiringTarget,
@@ -205,9 +205,9 @@ sealed interface TownUiState {
             val remaining: Duration,
             val total: Duration,
             val finishesAt: Instant,
-        ) : HiringLine
+        ) : HiringOrderLine
 
-        data class Done(val hire: TownHireKind, val count: Int, val delivered: Int) : HiringLine
+        data class Done(val hire: TownHireKind, val count: Int, val delivered: Int) : HiringOrderLine
     }
 
     data class HiringTarget(val hire: TownHireKind, val startedAt: Instant)
@@ -240,15 +240,15 @@ sealed interface TownUiState {
         data class Resources(val shortfalls: List<Shortfall>, val ready: ReadyTime?) : HiringBlock
     }
 
-    sealed interface HiringStatus {
+    sealed interface HiringPlaceStatus {
 
-        data object Idle : HiringStatus
+        data object Idle : HiringPlaceStatus
 
-        data class Waiting(val hire: TownHireKind) : HiringStatus
+        data class Waiting(val hire: TownHireKind) : HiringPlaceStatus
 
-        data class Refused(val hire: TownHireKind, val refusal: TownHiringRefusal) : HiringStatus
+        data class Refused(val hire: TownHireKind, val refusal: TownHiringRefusal) : HiringPlaceStatus
 
-        data class Unreachable(val hire: TownHireKind) : HiringStatus
+        data class Unreachable(val hire: TownHireKind) : HiringPlaceStatus
     }
 
     sealed interface HiringStopStatus {

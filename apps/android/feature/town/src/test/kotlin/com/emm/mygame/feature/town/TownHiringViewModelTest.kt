@@ -48,7 +48,7 @@ class TownHiringViewModelTest {
         val viewModel: TownViewModel = homeViewModel(townOf())
 
         viewModel.onIntent(TownIntent.HiringEntryChanged(TownHireKind.Worker, "3"))
-        viewModel.onIntent(TownIntent.StartHiringTapped(TownHireKind.Worker))
+        viewModel.onIntent(TownIntent.PlaceHiringTapped(TownHireKind.Worker))
 
         assertEquals(listOf(FakeTownRepository.HiringRequest(TownHireKind.Worker, 3)), towns.hirings)
     }
@@ -116,7 +116,7 @@ class TownHiringViewModelTest {
         val viewModel: TownViewModel = homeViewModel(townOf())
 
         viewModel.onIntent(TownIntent.HiringEntryChanged(TownHireKind.Worker, "two"))
-        viewModel.onIntent(TownIntent.StartHiringTapped(TownHireKind.Worker))
+        viewModel.onIntent(TownIntent.PlaceHiringTapped(TownHireKind.Worker))
 
         assertEquals(emptyList<FakeTownRepository.HiringRequest>(), towns.hirings)
     }
@@ -185,7 +185,7 @@ class TownHiringViewModelTest {
             townOf(stocks = stocksOf(stockOf(TownResourceKind.Money, amount = 0))),
         )
 
-        viewModel.onIntent(TownIntent.StartHiringTapped(TownHireKind.Worker))
+        viewModel.onIntent(TownIntent.PlaceHiringTapped(TownHireKind.Worker))
 
         assertEquals(listOf(FakeTownRepository.HiringRequest(TownHireKind.Worker, 1)), towns.hirings)
     }
@@ -194,8 +194,8 @@ class TownHiringViewModelTest {
     fun `places an order once on a double tap`() = runTest {
         val viewModel: TownViewModel = homeViewModel(townOf())
 
-        viewModel.onIntent(TownIntent.StartHiringTapped(TownHireKind.Worker))
-        viewModel.onIntent(TownIntent.StartHiringTapped(TownHireKind.Worker))
+        viewModel.onIntent(TownIntent.PlaceHiringTapped(TownHireKind.Worker))
+        viewModel.onIntent(TownIntent.PlaceHiringTapped(TownHireKind.Worker))
 
         assertEquals(1, towns.hirings.size)
     }
@@ -204,9 +204,9 @@ class TownHiringViewModelTest {
     fun `draws only the kind being placed as waiting`() = runTest {
         val viewModel: TownViewModel = homeViewModel(townOf())
 
-        viewModel.onIntent(TownIntent.StartHiringTapped(TownHireKind.Worker))
+        viewModel.onIntent(TownIntent.PlaceHiringTapped(TownHireKind.Worker))
 
-        assertEquals(TownUiState.HiringStatus.Waiting(TownHireKind.Worker), contentOf(viewModel).hiring.place)
+        assertEquals(TownUiState.HiringPlaceStatus.Waiting(TownHireKind.Worker), contentOf(viewModel).hiring.place)
     }
 
     @Test
@@ -214,10 +214,10 @@ class TownHiringViewModelTest {
         val viewModel: TownViewModel = homeViewModel(townOf())
         towns.answerHiring(TownHiringResult.Refused(TownHiringRefusal.HiringSlotBusy))
 
-        viewModel.onIntent(TownIntent.StartHiringTapped(TownHireKind.Truck))
+        viewModel.onIntent(TownIntent.PlaceHiringTapped(TownHireKind.Truck))
 
         assertEquals(
-            TownUiState.HiringStatus.Refused(TownHireKind.Truck, TownHiringRefusal.HiringSlotBusy),
+            TownUiState.HiringPlaceStatus.Refused(TownHireKind.Truck, TownHiringRefusal.HiringSlotBusy),
             contentOf(viewModel).hiring.place,
         )
     }
@@ -227,9 +227,9 @@ class TownHiringViewModelTest {
         val viewModel: TownViewModel = homeViewModel(townOf())
         towns.answerHiring(TownHiringResult.Answered(hiringTown))
 
-        viewModel.onIntent(TownIntent.StartHiringTapped(TownHireKind.Worker))
+        viewModel.onIntent(TownIntent.PlaceHiringTapped(TownHireKind.Worker))
 
-        assertEquals(workerTarget, (contentOf(viewModel).hiring.order as TownUiState.HiringLine.Busy).target)
+        assertEquals(workerTarget, (contentOf(viewModel).hiring.order as TownUiState.HiringOrderLine.Busy).target)
     }
 
     @Test
@@ -243,7 +243,7 @@ class TownHiringViewModelTest {
         viewModel.onIntent(TownIntent.ScreenShown)
         runCurrent()
 
-        assertEquals(2, (contentOf(viewModel).hiring.order as TownUiState.HiringLine.Busy).delivered)
+        assertEquals(2, (contentOf(viewModel).hiring.order as TownUiState.HiringOrderLine.Busy).delivered)
     }
 
     @Test
@@ -253,7 +253,7 @@ class TownHiringViewModelTest {
         advanceTimeBy(150.seconds)
         runCurrent()
 
-        assertEquals(1, (contentOf(viewModel).hiring.order as TownUiState.HiringLine.Busy).delivered)
+        assertEquals(1, (contentOf(viewModel).hiring.order as TownUiState.HiringOrderLine.Busy).delivered)
     }
 
     @Test

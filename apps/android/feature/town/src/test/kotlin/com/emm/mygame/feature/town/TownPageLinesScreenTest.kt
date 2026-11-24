@@ -58,7 +58,7 @@ class TownPageLinesScreenTest {
         gap = Duration.ZERO,
         requests = TownRequests.none,
         registered = TownRegistered.nothing,
-        hireEntries = emptyMap(),
+        hiringEntries = emptyMap(),
         closed = ClosedGuidance.none,
     )
 
@@ -282,7 +282,7 @@ class TownPageLinesScreenTest {
         gap = Duration.ZERO,
         requests = TownRequests.none,
         registered = TownRegistered.nothing,
-        hireEntries = emptyMap(),
+        hiringEntries = emptyMap(),
         closed = closed,
     )
 

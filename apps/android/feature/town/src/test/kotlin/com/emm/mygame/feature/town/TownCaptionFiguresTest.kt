@@ -38,7 +38,7 @@ class TownCaptionFiguresTest {
 
     @Test
     fun `sets tabular figures on the hired counts and never on their words`() {
-        showHiring(TownUiState.HiringLine.Done(TownHireKind.Worker, count = 3, delivered = 1))
+        showHiring(TownUiState.HiringOrderLine.Done(TownHireKind.Worker, count = 3, delivered = 1))
 
         assertEquals(listOf("1", "3"), composeRule.tabularRunsOf("de 3 contratados"))
     }
@@ -95,12 +95,12 @@ class TownCaptionFiguresTest {
         assertEquals(listOf("2"), composeRule.tabularRunsOf("Nivel"))
     }
 
-    private fun showHiring(order: TownUiState.HiringLine) {
-        val hiring = TownUiState.Hiring(
+    private fun showHiring(order: TownUiState.HiringOrderLine) {
+        val hiring = TownUiState.HiringLine(
             order = order,
             hires = emptyList(),
             hireMark = null,
-            place = TownUiState.HiringStatus.Idle,
+            place = TownUiState.HiringPlaceStatus.Idle,
             stop = TownUiState.HiringStopStatus.Idle,
         )
         composeRule.setContent { MyGameTheme { HiringSection(hiring = hiring, onIntent = {}) } }
@@ -112,7 +112,7 @@ class TownCaptionFiguresTest {
             gap = Duration.ZERO,
             requests = TownRequests.none,
             registered = TownRegistered.nothing,
-            hireEntries = emptyMap(),
+            hiringEntries = emptyMap(),
             closed = ClosedGuidance.none,
         )
         composeRule.setContent { MyGameTheme { PlaceStocks(place = TownBuildingKind.Storage, content = content) } }
@@ -124,7 +124,7 @@ class TownCaptionFiguresTest {
             gap = Duration.ZERO,
             requests = TownRequests.none,
             registered = TownRegistered.nothing,
-            hireEntries = emptyMap(),
+            hiringEntries = emptyMap(),
             closed = ClosedGuidance.none,
         ).copy(slot = slot)
         composeRule.setContent {

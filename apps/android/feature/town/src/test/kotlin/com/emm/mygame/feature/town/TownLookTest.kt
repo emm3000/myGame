@@ -99,7 +99,7 @@ class TownLookTest {
         tip = null,
         start = TownUiState.StartStatus.Idle,
         stop = TownUiState.StopStatus.Idle,
-        hiring = idleHiring,
+        hiring = idleHiringLine,
     )
 
     private val everyStock: List<TownUiState.StockLine> = TownResourceKind.entries.map { kind: TownResourceKind ->
@@ -499,7 +499,7 @@ class TownLookTest {
         gap = Duration.ZERO,
         requests = idleRequests,
         registered = TownRegistered.nothing,
-        hireEntries = emptyMap(),
+        hiringEntries = emptyMap(),
         closed = ClosedGuidance.none,
     )
 }

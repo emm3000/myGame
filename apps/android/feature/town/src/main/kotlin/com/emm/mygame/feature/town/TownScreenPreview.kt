@@ -76,11 +76,11 @@ private val previewHome: TownUiState.Content = TownUiState.Content(
     tip = TipKind.Seasons,
     start = TownUiState.StartStatus.Idle,
     stop = TownUiState.StopStatus.Idle,
-    hiring = TownUiState.Hiring(
-        order = TownUiState.HiringLine.Idle,
+    hiring = TownUiState.HiringLine(
+        order = TownUiState.HiringOrderLine.Idle,
         hires = emptyList(),
         hireMark = null,
-        place = TownUiState.HiringStatus.Idle,
+        place = TownUiState.HiringPlaceStatus.Idle,
         stop = TownUiState.HiringStopStatus.Idle,
     ),
 )
