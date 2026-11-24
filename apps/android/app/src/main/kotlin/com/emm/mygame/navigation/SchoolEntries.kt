@@ -16,11 +16,11 @@ import com.emm.mygame.core.model.learning.TextId
 import com.emm.mygame.core.model.town.HeldTown
 import com.emm.mygame.feature.holdout.HoldoutCheckRow
 import com.emm.mygame.feature.holdout.HoldoutCheckRowsRoute
-import com.emm.mygame.feature.school.LessonWalk
-import com.emm.mygame.feature.school.LessonWordsNavigation
-import com.emm.mygame.feature.school.LessonWordsRoute
+import com.emm.mygame.feature.school.words.LessonWalk
+import com.emm.mygame.feature.school.words.LessonWordsNavigation
+import com.emm.mygame.feature.school.words.LessonWordsRoute
 import com.emm.mygame.feature.school.SchoolRoute
-import com.emm.mygame.feature.school.SchoolTextRoute
+import com.emm.mygame.feature.school.text.SchoolTextRoute
 import com.emm.mygame.feature.school.SchoolUiState
 import com.emm.mygame.feature.school.SchoolViewModel
 import com.emm.mygame.feature.school.schoolStudyGo
