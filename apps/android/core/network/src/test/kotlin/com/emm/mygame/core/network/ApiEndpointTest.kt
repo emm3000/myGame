@@ -58,7 +58,7 @@ class ApiEndpointTest {
 
     private fun TestScope.town(): TownRepository {
         val store: TokenStore = signedIn()
-        return TownRepository(
+        return ApiRepositories(
             endpoint = impatientEndpoint(),
             tokenStore = store,
             languages = PlayerLanguages(store, onNamed = {}),
@@ -66,18 +66,20 @@ class ApiEndpointTest {
             studyAnswers = discardedStudyAnswers(store),
             ioDispatcher = UnconfinedTestDispatcher(testScheduler),
             clock = TestClock(testScheduler, Instant.parse("2026-11-05T10:00:00Z")),
-        )
+        ).towns
     }
 
     private fun TestScope.sessions(): SessionRepository {
         val store: TokenStore = TokenStore(File(folder.root, "session"), FakeTokenCipher())
-        return SessionRepository(
+        return ApiRepositories(
             endpoint = impatientEndpoint(),
             tokenStore = store,
             languages = PlayerLanguages(store, onNamed = {}),
             sessionEnds = sessionEnds,
+            studyAnswers = discardedStudyAnswers(store),
             ioDispatcher = UnconfinedTestDispatcher(testScheduler),
-        )
+            clock = TestClock(testScheduler, Instant.parse("2026-11-05T10:00:00Z")),
+        ).sessions
     }
 
     private fun impatientEndpoint(): ApiEndpoint =

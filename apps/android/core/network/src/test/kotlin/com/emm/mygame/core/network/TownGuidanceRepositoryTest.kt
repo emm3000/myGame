@@ -181,7 +181,7 @@ class TownGuidanceRepositoryTest {
     private fun TestScope.town(): TownRepository {
         val store: TokenStore =
             TokenStore(File(folder.root, "session"), FakeTokenCipher()).apply { write("opaque-session") }
-        return TownRepository(
+        return ApiRepositories(
             endpoint = slowMachineEndpoint(api.url("/api/").toString()),
             tokenStore = store,
             languages = PlayerLanguages(store, onNamed = {}),
@@ -189,7 +189,7 @@ class TownGuidanceRepositoryTest {
             studyAnswers = discardedStudyAnswers(store),
             ioDispatcher = UnconfinedTestDispatcher(testScheduler),
             clock = TestClock(testScheduler, aMinuteBeforeTheRead),
-        )
+        ).towns
     }
 
     private fun townWithGoal(goal: String): String = TOWN.replace(""""goal":null""", """"goal":$goal""")

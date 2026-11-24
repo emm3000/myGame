@@ -79,7 +79,7 @@ class TownWordsRepositoryTest {
     private fun TestScope.town(): TownRepository {
         val store: TokenStore =
             TokenStore(File(folder.root, "session"), FakeTokenCipher()).apply { write("opaque-session") }
-        return TownRepository(
+        return ApiRepositories(
             endpoint = slowMachineEndpoint(api.url("/api/").toString()),
             tokenStore = store,
             languages = PlayerLanguages(store, onNamed = {}),
@@ -87,7 +87,7 @@ class TownWordsRepositoryTest {
             studyAnswers = discardedStudyAnswers(store),
             ioDispatcher = UnconfinedTestDispatcher(testScheduler),
             clock = TestClock(testScheduler, Instant.parse("2026-11-13T10:00:00Z")),
-        )
+        ).towns
     }
 
     private fun townWithWords(stable: Int, retained: Int): String = TOWN.replace(

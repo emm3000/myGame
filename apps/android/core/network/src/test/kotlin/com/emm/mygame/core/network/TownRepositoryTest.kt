@@ -747,7 +747,7 @@ class TownRepositoryTest {
         assertEquals(TownWorkResult.Unreachable, town().stopWork(TownBuildingKind.Farm, level = 2))
     }
 
-    private fun TestScope.town(store: TokenStore = signedIn()): TownRepository = TownRepository(
+    private fun TestScope.town(store: TokenStore = signedIn()): TownRepository = ApiRepositories(
         endpoint = slowMachineEndpoint(api.url("/api/").toString()),
         tokenStore = store,
         languages = PlayerLanguages(store, onNamed = {}),
@@ -755,15 +755,17 @@ class TownRepositoryTest {
         studyAnswers = discardedStudyAnswers(store),
         ioDispatcher = UnconfinedTestDispatcher(testScheduler),
         clock = TestClock(testScheduler, aMinuteBeforeTheRead),
-    )
+    ).towns
 
-    private fun TestScope.sessions(store: TokenStore): SessionRepository = SessionRepository(
+    private fun TestScope.sessions(store: TokenStore): SessionRepository = ApiRepositories(
         endpoint = slowMachineEndpoint(api.url("/api/").toString()),
         tokenStore = store,
         languages = PlayerLanguages(store, onNamed = {}),
         sessionEnds = sessionEnds,
+        studyAnswers = discardedStudyAnswers(store),
         ioDispatcher = UnconfinedTestDispatcher(testScheduler),
-    )
+        clock = TestClock(testScheduler, Instant.parse("2026-11-05T10:00:00Z")),
+    ).sessions
 
     private fun signedIn(): TokenStore =
         TokenStore(File(folder.root, "session"), FakeTokenCipher()).apply { write("opaque-session") }

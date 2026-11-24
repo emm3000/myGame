@@ -2,6 +2,7 @@ package com.emm.mygame
 
 import android.app.Application
 import android.content.Context
+import com.emm.mygame.core.network.ApiRepositories
 import com.emm.mygame.core.network.HoldoutCheckRepository
 import com.emm.mygame.core.network.KeystoreTokenCipher
 import com.emm.mygame.core.network.LearningRepository
@@ -85,18 +86,8 @@ class MyGameApplication : Application(), AppDependencies {
 
     override val playerScaffold: StateFlow<PlayerScaffold?> by lazy { languages.scaffold }
 
-    override val sessions: SessionRepository by lazy {
-        SessionRepository(
-            baseUrl = BuildConfig.API_BASE_URL,
-            tokenStore = tokenStore,
-            languages = languages,
-            sessionEnds = sessionEnds,
-            ioDispatcher = Dispatchers.IO,
-        )
-    }
-
-    override val towns: TownRepository by lazy {
-        TownRepository(
+    private val repositories: ApiRepositories by lazy {
+        ApiRepositories(
             baseUrl = BuildConfig.API_BASE_URL,
             tokenStore = tokenStore,
             languages = languages,
@@ -107,53 +98,26 @@ class MyGameApplication : Application(), AppDependencies {
         )
     }
 
-    override val texts: TownTextRepository by lazy {
-        TownTextRepository(
-            baseUrl = BuildConfig.API_BASE_URL,
-            tokenStore = tokenStore,
-            sessionEnds = sessionEnds,
-            ioDispatcher = Dispatchers.IO,
-        )
-    }
+    override val sessions: SessionRepository
+        get() = repositories.sessions
 
-    override val learning: LearningRepository by lazy {
-        LearningRepository(
-            baseUrl = BuildConfig.API_BASE_URL,
-            tokenStore = tokenStore,
-            sessionEnds = sessionEnds,
-            studyAnswers = studyAnswers,
-            ioDispatcher = Dispatchers.IO,
-        )
-    }
+    override val towns: TownRepository
+        get() = repositories.towns
 
-    override val reports: ReportRepository by lazy {
-        ReportRepository(
-            baseUrl = BuildConfig.API_BASE_URL,
-            tokenStore = tokenStore,
-            sessionEnds = sessionEnds,
-            studyAnswers = studyAnswers,
-            ioDispatcher = Dispatchers.IO,
-        )
-    }
+    override val texts: TownTextRepository
+        get() = repositories.texts
 
-    override val placements: PlacementRepository by lazy {
-        PlacementRepository(
-            baseUrl = BuildConfig.API_BASE_URL,
-            tokenStore = tokenStore,
-            sessionEnds = sessionEnds,
-            ioDispatcher = Dispatchers.IO,
-        )
-    }
+    override val learning: LearningRepository
+        get() = repositories.learning
 
-    override val holdoutChecks: HoldoutCheckRepository by lazy {
-        HoldoutCheckRepository(
-            baseUrl = BuildConfig.API_BASE_URL,
-            tokenStore = tokenStore,
-            sessionEnds = sessionEnds,
-            studyAnswers = studyAnswers,
-            ioDispatcher = Dispatchers.IO,
-        )
-    }
+    override val reports: ReportRepository
+        get() = repositories.reports
+
+    override val placements: PlacementRepository
+        get() = repositories.placements
+
+    override val holdoutChecks: HoldoutCheckRepository
+        get() = repositories.holdoutChecks
 
     private companion object {
         const val SESSION_FILE_NAME: String = "session"

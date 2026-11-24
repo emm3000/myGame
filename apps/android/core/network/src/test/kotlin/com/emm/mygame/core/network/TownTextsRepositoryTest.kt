@@ -103,17 +103,10 @@ class TownTextsRepositoryTest {
         ),
     )
 
-    private fun TestScope.texts(): TownTextRepository = TownTextRepository(
-        endpoint = slowMachineEndpoint(api.url("/api/").toString()),
-        tokenStore = TokenStore(File(folder.root, "session"), FakeTokenCipher()).apply { write("opaque-session") },
-        sessionEnds = SessionEnds(),
-        ioDispatcher = UnconfinedTestDispatcher(testScheduler),
-    )
-
-    private fun TestScope.town(): TownRepository {
+    private fun TestScope.texts(): TownTextRepository {
         val store: TokenStore =
             TokenStore(File(folder.root, "session"), FakeTokenCipher()).apply { write("opaque-session") }
-        return TownRepository(
+        return ApiRepositories(
             endpoint = slowMachineEndpoint(api.url("/api/").toString()),
             tokenStore = store,
             languages = PlayerLanguages(store, onNamed = {}),
@@ -121,7 +114,21 @@ class TownTextsRepositoryTest {
             studyAnswers = discardedStudyAnswers(store),
             ioDispatcher = UnconfinedTestDispatcher(testScheduler),
             clock = TestClock(testScheduler, Instant.parse("2026-11-13T10:00:00Z")),
-        )
+        ).texts
+    }
+
+    private fun TestScope.town(): TownRepository {
+        val store: TokenStore =
+            TokenStore(File(folder.root, "session"), FakeTokenCipher()).apply { write("opaque-session") }
+        return ApiRepositories(
+            endpoint = slowMachineEndpoint(api.url("/api/").toString()),
+            tokenStore = store,
+            languages = PlayerLanguages(store, onNamed = {}),
+            sessionEnds = SessionEnds(),
+            studyAnswers = discardedStudyAnswers(store),
+            ioDispatcher = UnconfinedTestDispatcher(testScheduler),
+            clock = TestClock(testScheduler, Instant.parse("2026-11-13T10:00:00Z")),
+        ).towns
     }
 
     private fun townWithTexts(texts: String): String = TOWN.replace(""""texts":[]""", """"texts":[$texts]""")
