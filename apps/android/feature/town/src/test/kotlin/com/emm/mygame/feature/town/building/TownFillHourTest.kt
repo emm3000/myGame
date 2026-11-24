@@ -9,7 +9,7 @@ import com.emm.mygame.core.model.town.TownRegistered
 import com.emm.mygame.core.model.town.TownResourceKind
 import com.emm.mygame.core.model.town.TownSnapshot
 import com.emm.mygame.core.model.town.building.TownBuildingKind
-import com.emm.mygame.feature.town.TownMutations
+import com.emm.mygame.feature.town.TownRequests
 import com.emm.mygame.feature.town.TownUiState
 import com.emm.mygame.feature.town.contentAt
 import com.emm.mygame.feature.town.guidance.ClosedGuidance
@@ -127,7 +127,7 @@ class TownFillHourTest {
         val content: TownUiState.Content = townOf(stocks = listOf(money), readAt = readAt).contentAt(
             now = now,
             gap = gap,
-            mutations = TownMutations.none,
+            requests = TownRequests.none,
             registered = TownRegistered.nothing,
             hireEntries = emptyMap(),
             closed = ClosedGuidance.none,

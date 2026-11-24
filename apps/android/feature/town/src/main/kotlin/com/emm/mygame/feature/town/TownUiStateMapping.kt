@@ -15,7 +15,7 @@ import com.emm.mygame.core.projection.countdownTo
 import com.emm.mygame.core.projection.readyMinuteOf
 import com.emm.mygame.feature.town.building.NextLevel
 import com.emm.mygame.feature.town.guidance.ClosedGuidance
-import com.emm.mygame.feature.town.hiring.officeLineAt
+import com.emm.mygame.feature.town.hiring.hiringAt
 import kotlin.time.Duration
 import kotlin.time.Duration.Companion.hours
 import kotlin.time.Instant
@@ -25,7 +25,7 @@ private val fillHourWindow: Duration = 8.hours
 internal fun TownSnapshot.contentAt(
     now: Instant,
     gap: Duration,
-    mutations: TownMutations,
+    requests: TownRequests,
     registered: TownRegistered,
     hireEntries: Map<TownHireKind, String>,
     closed: ClosedGuidance,
@@ -53,9 +53,9 @@ internal fun TownSnapshot.contentAt(
         caughtUpGoal = goal.takeIf { nextStep is NextStep.CaughtUp },
         newestText = nextStep.carriedText(),
         tip = tip?.takeUnless { shown: TipKind -> shown in closed.tips },
-        start = mutations.start,
-        stop = mutations.stop,
-        office = officeLineAt(now = now, gap = gap, drawn = drawn, entries = hireEntries, mutations = mutations),
+        start = requests.start,
+        stop = requests.stop,
+        hiring = hiringAt(now = now, gap = gap, drawn = drawn, entries = hireEntries, requests = requests),
     )
 }
 

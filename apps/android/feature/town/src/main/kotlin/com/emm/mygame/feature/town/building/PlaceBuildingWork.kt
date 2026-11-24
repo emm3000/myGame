@@ -32,7 +32,6 @@ import com.emm.mygame.feature.town.TownIntent
 import com.emm.mygame.feature.town.TownUiState
 import com.emm.mygame.feature.town.placeNameOf
 import com.emm.mygame.feature.town.townDurationCopy
-import com.emm.mygame.feature.town.workRefusalLineOf
 
 internal const val WORK_DONE_ICON: String = "work_done_icon"
 

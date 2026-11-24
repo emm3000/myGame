@@ -28,7 +28,6 @@ import com.emm.mygame.core.designsystem.formatQuantity
 import com.emm.mygame.core.designsystem.withTabularFigures
 import com.emm.mygame.core.model.town.TownResourceKind
 import com.emm.mygame.core.model.town.building.TownBuildingKind
-import com.emm.mygame.core.ui.CopyReader
 import com.emm.mygame.core.ui.PlayerCopy
 import com.emm.mygame.core.ui.durationLabelOf
 import com.emm.mygame.core.ui.rememberPlayerCopy
@@ -37,11 +36,8 @@ import com.emm.mygame.feature.town.ReadyLine
 import com.emm.mygame.feature.town.RevealedAlert
 import com.emm.mygame.feature.town.TownIntent
 import com.emm.mygame.feature.town.TownUiState
-import com.emm.mygame.feature.town.resourceIconOf
-import com.emm.mygame.feature.town.resourceNameOf
 import com.emm.mygame.feature.town.shortMarked
 import com.emm.mygame.feature.town.townDurationCopy
-import com.emm.mygame.feature.town.workRefusalLineOf
 import kotlin.time.Duration.Companion.hours
 import kotlin.time.Duration.Companion.minutes
 import kotlin.time.Instant
@@ -147,19 +143,6 @@ private fun PlayerCopy.blockLineOf(block: TownUiState.BlockReason): MyGameLabel 
         chrome(R.string.town_people_short, "needed" to block.needed.toString(), "free" to block.free)
     is TownUiState.BlockReason.Resources -> chrome { shortfallLineOf(block) }
 }
-
-internal fun CopyReader.shortfallLineOf(block: TownUiState.BlockReason.Resources): String {
-    val amounts: List<String> = block.shortfalls.map { shortfall: TownUiState.Shortfall ->
-        amountLineOf(shortfall.kind, shortfall.amount)
-    }
-    return text(R.string.town_shortfall, "missing" to listPhraseOf(amounts))
-}
-
-private fun CopyReader.amountLineOf(kind: TownResourceKind, amount: Long): String = text(
-    R.string.town_amount,
-    "amount" to formatQuantity(amount),
-    "resource" to text(resourceNameOf(kind)),
-)
 
 private val previewNextLevel: TownUiState.NextLevelLine = TownUiState.NextLevelLine(
     level = 2,

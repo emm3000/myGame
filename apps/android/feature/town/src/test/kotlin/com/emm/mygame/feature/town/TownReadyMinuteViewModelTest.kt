@@ -95,7 +95,7 @@ class TownReadyMinuteViewModelTest {
         val viewModel: TownViewModel = homeViewModel(
             townOf(stocks = stocksOf(stockOf(TownResourceKind.Money, amount = 100, ratePerHour = 60.0))),
         )
-        viewModel.onIntent(TownIntent.HireEntryChanged(TownHireKind.Worker, "3"))
+        viewModel.onIntent(TownIntent.HiringEntryChanged(TownHireKind.Worker, "3"))
 
         advanceTimeBy(19.minutes + 1.seconds)
         runCurrent()
@@ -126,10 +126,10 @@ class TownReadyMinuteViewModelTest {
             townOf(stocks = stocksOf(stockOf(TownResourceKind.Money, amount = 100, ratePerHour = 60.0))),
         )
 
-        viewModel.onIntent(TownIntent.HireEntryChanged(TownHireKind.Worker, "3"))
+        viewModel.onIntent(TownIntent.HiringEntryChanged(TownHireKind.Worker, "3"))
 
         assertEquals(
-            TownUiState.HireBlock.Resources(
+            TownUiState.HiringBlock.Resources(
                 shortfalls = listOf(TownUiState.Shortfall(TownResourceKind.Money, 20)),
                 ready = TownUiState.ReadyTime(remaining = 20.minutes, readyAt = readInstant + 20.minutes),
             ),
@@ -141,10 +141,12 @@ class TownReadyMinuteViewModelTest {
         (placeOf(viewModel, TownBuildingKind.Farm).block as? TownUiState.BlockReason.Resources)?.ready
 
     private fun hireReadyOf(viewModel: TownViewModel): TownUiState.ReadyTime? =
-        (formOf(viewModel).block as? TownUiState.HireBlock.Resources)?.ready
+        (formOf(viewModel).block as? TownUiState.HiringBlock.Resources)?.ready
 
-    private fun formOf(viewModel: TownViewModel): TownUiState.HireForm = requireNotNull(
-        contentOf(viewModel).office.hires.first { card: TownUiState.HireCard -> card.kind == TownHireKind.Worker }.form,
+    private fun formOf(viewModel: TownViewModel): TownUiState.HiringForm = requireNotNull(
+        contentOf(viewModel).hiring.hires
+            .first { card: TownUiState.HiringCard -> card.kind == TownHireKind.Worker }
+            .form,
     )
 
     private fun TestScope.homeViewModel(town: TownSnapshot, start: Instant = readInstant): TownViewModel {

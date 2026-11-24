@@ -103,14 +103,14 @@ class TownLanguageTest {
 
     private val listFull: TownUiState.BlockReason = TownUiState.BlockReason.WaitingListFull(cap = 2)
 
-    private val workers: TownUiState.HireCard = TownUiState.HireCard(
+    private val workers: TownUiState.HiringCard = TownUiState.HiringCard(
         kind = TownHireKind.Worker,
         team = 2,
         requiredOfficeLevel = 1,
-        form = TownUiState.HireForm(entry = "3", isEntryDisabled = false, offer = null, block = null),
+        form = TownUiState.HiringForm(entry = "3", isEntryDisabled = false, offer = null, block = null),
     )
 
-    private val homeWithWorkers: TownUiState.Content = home.copy(office = home.office.copy(hires = listOf(workers)))
+    private val homeWithWorkers: TownUiState.Content = home.copy(hiring = home.hiring.copy(hires = listOf(workers)))
 
     private val hiringWorkers: TownUiState.HiringLine.Busy = TownUiState.HiringLine.Busy(
         target = TownUiState.HiringTarget(TownHireKind.Worker, readInstant),
@@ -122,7 +122,7 @@ class TownLanguageTest {
     )
 
     private val homeHiringWorkers: TownUiState.Content =
-        homeWithWorkers.copy(office = homeWithWorkers.office.copy(hiring = hiringWorkers))
+        homeWithWorkers.copy(hiring = homeWithWorkers.hiring.copy(order = hiringWorkers))
 
     private val blankNameRefused: TownUiState.Naming =
         TownUiState.Naming(name = "", status = TownUiState.NamingStatus.Refused(TownFoundRefusal.BlankTownName))
@@ -341,8 +341,8 @@ class TownLanguageTest {
     @Test
     fun `draws a refused hire in Spanish for an es player in the English phase`() {
         val refused: TownUiState.Content = homeWithWorkers.copy(
-            office = homeWithWorkers.office.copy(
-                place = TownUiState.HireStatus.Refused(TownHireKind.Worker, TownHiringRefusal.HiringSlotBusy),
+            hiring = homeWithWorkers.hiring.copy(
+                place = TownUiState.HiringStatus.Refused(TownHireKind.Worker, TownHiringRefusal.HiringSlotBusy),
             ),
         )
 
@@ -355,8 +355,8 @@ class TownLanguageTest {
     @Test
     fun `draws a refused stop of hiring in Spanish for an es player in the English phase`() {
         val refused: TownUiState.Content = homeHiringWorkers.copy(
-            office = homeHiringWorkers.office.copy(
-                stop = TownUiState.HireStopStatus.Refused(TownHiringRefusal.HiringSlotBusy),
+            hiring = homeHiringWorkers.hiring.copy(
+                stop = TownUiState.HiringStopStatus.Refused(TownHiringRefusal.HiringSlotBusy),
             ),
         )
 
@@ -372,9 +372,9 @@ class TownLanguageTest {
             slot = busyFarm,
             start = TownUiState.StartStatus.Unreachable(TownBuildingKind.Farm),
             stop = TownUiState.StopStatus.Unreachable(farmAtLevelTwo),
-            office = homeHiringWorkers.office.copy(
-                place = TownUiState.HireStatus.Unreachable(TownHireKind.Worker),
-                stop = TownUiState.HireStopStatus.Unreachable,
+            hiring = homeHiringWorkers.hiring.copy(
+                place = TownUiState.HiringStatus.Unreachable(TownHireKind.Worker),
+                stop = TownUiState.HiringStopStatus.Unreachable,
             ),
         )
 
@@ -449,7 +449,7 @@ class TownLanguageTest {
     private fun TownSnapshot.readContent(): TownUiState.Content = contentAt(
         now = readInstant,
         gap = Duration.ZERO,
-        mutations = TownMutations.none,
+        requests = TownRequests.none,
         registered = TownRegistered.nothing,
         hireEntries = emptyMap(),
         closed = ClosedGuidance.none,

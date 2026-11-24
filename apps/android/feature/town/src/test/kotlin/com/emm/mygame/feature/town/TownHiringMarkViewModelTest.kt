@@ -14,7 +14,7 @@ import org.junit.Rule
 import org.junit.Test
 import kotlin.time.Duration.Companion.days
 
-class TownHireMarkViewModelTest {
+class TownHiringMarkViewModelTest {
 
     @get:Rule
     val mainDispatcher: MainDispatcherRule = MainDispatcherRule()
@@ -25,21 +25,21 @@ class TownHireMarkViewModelTest {
     fun `marks hiring in spring`() = runTest {
         val viewModel: TownViewModel = homeViewModel(seasonOf(SeasonKind.Spring, hire = 75))
 
-        assertEquals(TownUiState.DurationMark(SeasonKind.Spring, percent = 75), contentOf(viewModel).office.hireMark)
+        assertEquals(TownUiState.DurationMark(SeasonKind.Spring, percent = 75), contentOf(viewModel).hiring.hireMark)
     }
 
     @Test
     fun `marks hiring that a season lengthens with the percent as sent`() = runTest {
         val viewModel: TownViewModel = homeViewModel(seasonOf(SeasonKind.Winter, hire = 125))
 
-        assertEquals(TownUiState.DurationMark(SeasonKind.Winter, percent = 125), contentOf(viewModel).office.hireMark)
+        assertEquals(TownUiState.DurationMark(SeasonKind.Winter, percent = 125), contentOf(viewModel).hiring.hireMark)
     }
 
     @Test
     fun `marks nothing at 100`() = runTest {
         val viewModel: TownViewModel = homeViewModel(seasonOf(SeasonKind.Summer, hire = 100))
 
-        assertNull(contentOf(viewModel).office.hireMark)
+        assertNull(contentOf(viewModel).hiring.hireMark)
     }
 
     @Test
@@ -48,7 +48,7 @@ class TownHireMarkViewModelTest {
 
         val viewModel: TownViewModel = townViewModelOf(towns, readInstant)
 
-        assertNull(contentOf(viewModel).office.hireMark)
+        assertNull(contentOf(viewModel).hiring.hireMark)
     }
 
     private fun TestScope.homeViewModel(season: SeasonInForce): TownViewModel {

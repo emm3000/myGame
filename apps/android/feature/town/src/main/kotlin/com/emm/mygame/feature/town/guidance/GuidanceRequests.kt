@@ -6,7 +6,7 @@ import com.emm.mygame.core.model.town.guidance.TownGuidanceResult
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
 
-internal class TownGuidance(
+internal class GuidanceRequests(
     private val towns: TownRepository,
     private val scope: CoroutineScope,
     private val onClosed: () -> Unit,

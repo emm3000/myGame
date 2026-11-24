@@ -23,7 +23,7 @@ import kotlin.time.Duration.Companion.minutes
 import kotlin.time.Duration.Companion.seconds
 import kotlin.time.Instant
 
-class TownOfficeViewModelTest {
+class TownHiringViewModelTest {
 
     @get:Rule
     val mainDispatcher: MainDispatcherRule = MainDispatcherRule()
@@ -47,8 +47,8 @@ class TownOfficeViewModelTest {
     fun `hires workers from the office`() = runTest {
         val viewModel: TownViewModel = homeViewModel(townOf())
 
-        viewModel.onIntent(TownIntent.HireEntryChanged(TownHireKind.Worker, "3"))
-        viewModel.onIntent(TownIntent.HireTapped(TownHireKind.Worker))
+        viewModel.onIntent(TownIntent.HiringEntryChanged(TownHireKind.Worker, "3"))
+        viewModel.onIntent(TownIntent.StartHiringTapped(TownHireKind.Worker))
 
         assertEquals(listOf(FakeTownRepository.HiringRequest(TownHireKind.Worker, 3)), towns.hirings)
     }
@@ -78,14 +78,14 @@ class TownOfficeViewModelTest {
     fun `counts the hires the town holds per kind`() = runTest {
         val viewModel: TownViewModel = homeViewModel(townOf(hiring = hiringOf(workers = 4, trucks = 2)))
 
-        assertEquals(listOf(4, 2), contentOf(viewModel).office.hires.map { card: TownUiState.HireCard -> card.team })
+        assertEquals(listOf(4, 2), contentOf(viewModel).hiring.hires.map { card: TownUiState.HiringCard -> card.team })
     }
 
     @Test
     fun `costs the count times each hire's cost`() = runTest {
         val viewModel: TownViewModel = homeViewModel(townOf())
 
-        viewModel.onIntent(TownIntent.HireEntryChanged(TownHireKind.Worker, "2"))
+        viewModel.onIntent(TownIntent.HiringEntryChanged(TownHireKind.Worker, "2"))
 
         assertEquals(
             listOf(TownUiState.CostLine(TownResourceKind.Money, 80, isShort = false)),
@@ -97,7 +97,7 @@ class TownOfficeViewModelTest {
     fun `times the order at the count times each hire's duration`() = runTest {
         val viewModel: TownViewModel = homeViewModel(townOf())
 
-        viewModel.onIntent(TownIntent.HireEntryChanged(TownHireKind.Worker, "5"))
+        viewModel.onIntent(TownIntent.HiringEntryChanged(TownHireKind.Worker, "5"))
 
         assertEquals(5.minutes, offerOf(viewModel, TownHireKind.Worker).duration)
     }
@@ -106,17 +106,17 @@ class TownOfficeViewModelTest {
     fun `asks for a count of one or more`() = runTest {
         val viewModel: TownViewModel = homeViewModel(townOf())
 
-        viewModel.onIntent(TownIntent.HireEntryChanged(TownHireKind.Worker, "0"))
+        viewModel.onIntent(TownIntent.HiringEntryChanged(TownHireKind.Worker, "0"))
 
-        assertEquals(TownUiState.HireBlock.CountNeeded, formOf(viewModel, TownHireKind.Worker).block)
+        assertEquals(TownUiState.HiringBlock.CountNeeded, formOf(viewModel, TownHireKind.Worker).block)
     }
 
     @Test
     fun `sends no order without a count`() = runTest {
         val viewModel: TownViewModel = homeViewModel(townOf())
 
-        viewModel.onIntent(TownIntent.HireEntryChanged(TownHireKind.Worker, "two"))
-        viewModel.onIntent(TownIntent.HireTapped(TownHireKind.Worker))
+        viewModel.onIntent(TownIntent.HiringEntryChanged(TownHireKind.Worker, "two"))
+        viewModel.onIntent(TownIntent.StartHiringTapped(TownHireKind.Worker))
 
         assertEquals(emptyList<FakeTownRepository.HiringRequest>(), towns.hirings)
     }
@@ -125,7 +125,7 @@ class TownOfficeViewModelTest {
     fun `blocks a hire while an order runs`() = runTest {
         val viewModel: TownViewModel = homeViewModel(hiringTown)
 
-        assertEquals(TownUiState.HireBlock.Busy, formOf(viewModel, TownHireKind.Worker).block)
+        assertEquals(TownUiState.HiringBlock.Busy, formOf(viewModel, TownHireKind.Worker).block)
     }
 
     @Test
@@ -146,10 +146,10 @@ class TownOfficeViewModelTest {
     fun `names too few free people for the hires`() = runTest {
         val viewModel: TownViewModel = homeViewModel(townOf(people = TownSnapshot.People(10, free = 2, atWork = 8)))
 
-        viewModel.onIntent(TownIntent.HireEntryChanged(TownHireKind.Worker, "3"))
+        viewModel.onIntent(TownIntent.HiringEntryChanged(TownHireKind.Worker, "3"))
 
         assertEquals(
-            TownUiState.HireBlock.PeopleShort(needed = 3, free = 2),
+            TownUiState.HiringBlock.PeopleShort(needed = 3, free = 2),
             formOf(viewModel, TownHireKind.Worker).block,
         )
     }
@@ -160,7 +160,7 @@ class TownOfficeViewModelTest {
             townOf(people = TownSnapshot.People(10, free = 1, atWork = 9), slot = workOf()),
         )
 
-        viewModel.onIntent(TownIntent.HireEntryChanged(TownHireKind.Worker, "2"))
+        viewModel.onIntent(TownIntent.HiringEntryChanged(TownHireKind.Worker, "2"))
 
         assertNull(formOf(viewModel, TownHireKind.Worker).block)
     }
@@ -171,10 +171,10 @@ class TownOfficeViewModelTest {
             townOf(stocks = stocksOf(stockOf(TownResourceKind.Money, amount = 100))),
         )
 
-        viewModel.onIntent(TownIntent.HireEntryChanged(TownHireKind.Worker, "3"))
+        viewModel.onIntent(TownIntent.HiringEntryChanged(TownHireKind.Worker, "3"))
 
         assertEquals(
-            TownUiState.HireBlock.Resources(listOf(TownUiState.Shortfall(TownResourceKind.Money, 20)), ready = null),
+            TownUiState.HiringBlock.Resources(listOf(TownUiState.Shortfall(TownResourceKind.Money, 20)), ready = null),
             formOf(viewModel, TownHireKind.Worker).block,
         )
     }
@@ -185,7 +185,7 @@ class TownOfficeViewModelTest {
             townOf(stocks = stocksOf(stockOf(TownResourceKind.Money, amount = 0))),
         )
 
-        viewModel.onIntent(TownIntent.HireTapped(TownHireKind.Worker))
+        viewModel.onIntent(TownIntent.StartHiringTapped(TownHireKind.Worker))
 
         assertEquals(listOf(FakeTownRepository.HiringRequest(TownHireKind.Worker, 1)), towns.hirings)
     }
@@ -194,8 +194,8 @@ class TownOfficeViewModelTest {
     fun `places an order once on a double tap`() = runTest {
         val viewModel: TownViewModel = homeViewModel(townOf())
 
-        viewModel.onIntent(TownIntent.HireTapped(TownHireKind.Worker))
-        viewModel.onIntent(TownIntent.HireTapped(TownHireKind.Worker))
+        viewModel.onIntent(TownIntent.StartHiringTapped(TownHireKind.Worker))
+        viewModel.onIntent(TownIntent.StartHiringTapped(TownHireKind.Worker))
 
         assertEquals(1, towns.hirings.size)
     }
@@ -204,9 +204,9 @@ class TownOfficeViewModelTest {
     fun `draws only the kind being placed as waiting`() = runTest {
         val viewModel: TownViewModel = homeViewModel(townOf())
 
-        viewModel.onIntent(TownIntent.HireTapped(TownHireKind.Worker))
+        viewModel.onIntent(TownIntent.StartHiringTapped(TownHireKind.Worker))
 
-        assertEquals(TownUiState.HireStatus.Waiting(TownHireKind.Worker), contentOf(viewModel).office.place)
+        assertEquals(TownUiState.HiringStatus.Waiting(TownHireKind.Worker), contentOf(viewModel).hiring.place)
     }
 
     @Test
@@ -214,11 +214,11 @@ class TownOfficeViewModelTest {
         val viewModel: TownViewModel = homeViewModel(townOf())
         towns.answerHiring(TownHiringResult.Refused(TownHiringRefusal.HiringSlotBusy))
 
-        viewModel.onIntent(TownIntent.HireTapped(TownHireKind.Truck))
+        viewModel.onIntent(TownIntent.StartHiringTapped(TownHireKind.Truck))
 
         assertEquals(
-            TownUiState.HireStatus.Refused(TownHireKind.Truck, TownHiringRefusal.HiringSlotBusy),
-            contentOf(viewModel).office.place,
+            TownUiState.HiringStatus.Refused(TownHireKind.Truck, TownHiringRefusal.HiringSlotBusy),
+            contentOf(viewModel).hiring.place,
         )
     }
 
@@ -227,9 +227,9 @@ class TownOfficeViewModelTest {
         val viewModel: TownViewModel = homeViewModel(townOf())
         towns.answerHiring(TownHiringResult.Answered(hiringTown))
 
-        viewModel.onIntent(TownIntent.HireTapped(TownHireKind.Worker))
+        viewModel.onIntent(TownIntent.StartHiringTapped(TownHireKind.Worker))
 
-        assertEquals(workerTarget, (contentOf(viewModel).office.hiring as TownUiState.HiringLine.Busy).target)
+        assertEquals(workerTarget, (contentOf(viewModel).hiring.order as TownUiState.HiringLine.Busy).target)
     }
 
     @Test
@@ -243,7 +243,7 @@ class TownOfficeViewModelTest {
         viewModel.onIntent(TownIntent.ScreenShown)
         runCurrent()
 
-        assertEquals(2, (contentOf(viewModel).office.hiring as TownUiState.HiringLine.Busy).delivered)
+        assertEquals(2, (contentOf(viewModel).hiring.order as TownUiState.HiringLine.Busy).delivered)
     }
 
     @Test
@@ -253,7 +253,7 @@ class TownOfficeViewModelTest {
         advanceTimeBy(150.seconds)
         runCurrent()
 
-        assertEquals(1, (contentOf(viewModel).office.hiring as TownUiState.HiringLine.Busy).delivered)
+        assertEquals(1, (contentOf(viewModel).hiring.order as TownUiState.HiringLine.Busy).delivered)
     }
 
     @Test
@@ -294,18 +294,18 @@ class TownOfficeViewModelTest {
         viewModel.onIntent(TownIntent.StopHiringTapped(workerTarget))
 
         assertEquals(
-            TownUiState.HireStopStatus.Refused(TownHiringRefusal.HiringOrderNotFound),
-            contentOf(viewModel).office.stop,
+            TownUiState.HiringStopStatus.Refused(TownHiringRefusal.HiringOrderNotFound),
+            contentOf(viewModel).hiring.stop,
         )
     }
 
-    private fun hireOf(viewModel: TownViewModel, kind: TownHireKind): TownUiState.HireCard =
-        contentOf(viewModel).office.hires.first { card: TownUiState.HireCard -> card.kind == kind }
+    private fun hireOf(viewModel: TownViewModel, kind: TownHireKind): TownUiState.HiringCard =
+        contentOf(viewModel).hiring.hires.first { card: TownUiState.HiringCard -> card.kind == kind }
 
-    private fun formOf(viewModel: TownViewModel, kind: TownHireKind): TownUiState.HireForm =
+    private fun formOf(viewModel: TownViewModel, kind: TownHireKind): TownUiState.HiringForm =
         requireNotNull(hireOf(viewModel, kind).form)
 
-    private fun offerOf(viewModel: TownViewModel, kind: TownHireKind): TownUiState.HireOffer =
+    private fun offerOf(viewModel: TownViewModel, kind: TownHireKind): TownUiState.HiringOffer =
         requireNotNull(formOf(viewModel, kind).offer)
 
     private fun TestScope.homeViewModel(town: TownSnapshot, start: Instant = readInstant): TownViewModel {

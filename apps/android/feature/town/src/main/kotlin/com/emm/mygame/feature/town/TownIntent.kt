@@ -22,9 +22,9 @@ sealed interface TownIntent {
 
     data class StopTapped(val building: TownBuildingKind, val level: Int) : TownIntent
 
-    data class HireEntryChanged(val hire: TownHireKind, val entry: String) : TownIntent
+    data class HiringEntryChanged(val hire: TownHireKind, val entry: String) : TownIntent
 
-    data class HireTapped(val hire: TownHireKind) : TownIntent
+    data class StartHiringTapped(val hire: TownHireKind) : TownIntent
 
     data class StopHiringTapped(val target: TownUiState.HiringTarget) : TownIntent
 

@@ -118,7 +118,7 @@ class TownScreenTest {
         tip = null,
         start = TownUiState.StartStatus.Idle,
         stop = TownUiState.StopStatus.Idle,
-        office = idleOffice,
+        hiring = idleHiring,
     )
 
     private val factoryGoal: TownGoal = TownGoal(
@@ -775,7 +775,7 @@ class TownScreenTest {
     private fun homeOn(step: NextStep): TownUiState.Content = townOf(nextStep = step).contentAt(
         now = readInstant,
         gap = Duration.ZERO,
-        mutations = TownMutations.none,
+        requests = TownRequests.none,
         registered = TownRegistered.nothing,
         hireEntries = emptyMap(),
         closed = ClosedGuidance.none,

@@ -33,12 +33,7 @@ import com.emm.mygame.core.ui.timeLeftLabelOf
 import com.emm.mygame.feature.town.FiguredCaption
 import com.emm.mygame.feature.town.R
 import com.emm.mygame.feature.town.TownUiState
-import com.emm.mygame.feature.town.capitalized
-import com.emm.mygame.feature.town.fillLabelOf
-import com.emm.mygame.feature.town.resourceIconOf
-import com.emm.mygame.feature.town.resourceNameOf
 import com.emm.mygame.feature.town.seasonIconOf
-import com.emm.mygame.feature.town.seasonNameOf
 import com.emm.mygame.feature.town.seasonSelectorOf
 import com.emm.mygame.feature.town.townDurationCopy
 import java.time.LocalDateTime

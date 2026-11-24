@@ -55,7 +55,7 @@ class TownLookTest {
     @get:Rule
     val composeRule: ComposeContentTestRule = createComposeRule()
 
-    private val idleMutations: TownMutations = TownMutations.none
+    private val idleRequests: TownRequests = TownRequests.none
 
     private val farmOffer: TownUiState.PlaceCard = TownUiState.PlaceCard(
         kind = TownBuildingKind.Farm,
@@ -99,7 +99,7 @@ class TownLookTest {
         tip = null,
         start = TownUiState.StartStatus.Idle,
         stop = TownUiState.StopStatus.Idle,
-        office = idleOffice,
+        hiring = idleHiring,
     )
 
     private val everyStock: List<TownUiState.StockLine> = TownResourceKind.entries.map { kind: TownResourceKind ->
@@ -497,7 +497,7 @@ class TownLookTest {
     private fun TownSnapshot.readContent(): TownUiState.Content = contentAt(
         now = readInstant,
         gap = Duration.ZERO,
-        mutations = idleMutations,
+        requests = idleRequests,
         registered = TownRegistered.nothing,
         hireEntries = emptyMap(),
         closed = ClosedGuidance.none,

@@ -51,7 +51,7 @@ sealed interface TownUiState {
         val tip: TipKind?,
         val start: StartStatus,
         val stop: StopStatus,
-        val office: OfficeLine,
+        val hiring: Hiring,
     ) : TownUiState
 
     sealed interface NamingStatus {
@@ -186,12 +186,12 @@ sealed interface TownUiState {
         data class Unreachable(val target: WorkTarget) : StopStatus
     }
 
-    data class OfficeLine(
-        val hiring: HiringLine,
-        val hires: List<HireCard>,
+    data class Hiring(
+        val order: HiringLine,
+        val hires: List<HiringCard>,
         val hireMark: DurationMark?,
-        val place: HireStatus,
-        val stop: HireStopStatus,
+        val place: HiringStatus,
+        val stop: HiringStopStatus,
     )
 
     sealed interface HiringLine {
@@ -212,11 +212,16 @@ sealed interface TownUiState {
 
     data class HiringTarget(val hire: TownHireKind, val startedAt: Instant)
 
-    data class HireCard(val kind: TownHireKind, val team: Int, val requiredOfficeLevel: Int, val form: HireForm?)
+    data class HiringCard(val kind: TownHireKind, val team: Int, val requiredOfficeLevel: Int, val form: HiringForm?)
 
-    data class HireForm(val entry: String, val isEntryDisabled: Boolean, val offer: HireOffer?, val block: HireBlock?)
+    data class HiringForm(
+        val entry: String,
+        val isEntryDisabled: Boolean,
+        val offer: HiringOffer?,
+        val block: HiringBlock?,
+    )
 
-    data class HireOffer(
+    data class HiringOffer(
         val count: Int,
         val costs: List<CostLine>,
         val people: Long,
@@ -224,36 +229,36 @@ sealed interface TownUiState {
         val duration: Duration,
     )
 
-    sealed interface HireBlock {
+    sealed interface HiringBlock {
 
-        data object CountNeeded : HireBlock
+        data object CountNeeded : HiringBlock
 
-        data object Busy : HireBlock
+        data object Busy : HiringBlock
 
-        data class PeopleShort(val needed: Long, val free: Int) : HireBlock
+        data class PeopleShort(val needed: Long, val free: Int) : HiringBlock
 
-        data class Resources(val shortfalls: List<Shortfall>, val ready: ReadyTime?) : HireBlock
+        data class Resources(val shortfalls: List<Shortfall>, val ready: ReadyTime?) : HiringBlock
     }
 
-    sealed interface HireStatus {
+    sealed interface HiringStatus {
 
-        data object Idle : HireStatus
+        data object Idle : HiringStatus
 
-        data class Waiting(val hire: TownHireKind) : HireStatus
+        data class Waiting(val hire: TownHireKind) : HiringStatus
 
-        data class Refused(val hire: TownHireKind, val refusal: TownHiringRefusal) : HireStatus
+        data class Refused(val hire: TownHireKind, val refusal: TownHiringRefusal) : HiringStatus
 
-        data class Unreachable(val hire: TownHireKind) : HireStatus
+        data class Unreachable(val hire: TownHireKind) : HiringStatus
     }
 
-    sealed interface HireStopStatus {
+    sealed interface HiringStopStatus {
 
-        data object Idle : HireStopStatus
+        data object Idle : HiringStopStatus
 
-        data object Waiting : HireStopStatus
+        data object Waiting : HiringStopStatus
 
-        data class Refused(val refusal: TownHiringRefusal) : HireStopStatus
+        data class Refused(val refusal: TownHiringRefusal) : HiringStopStatus
 
-        data object Unreachable : HireStopStatus
+        data object Unreachable : HiringStopStatus
     }
 }
