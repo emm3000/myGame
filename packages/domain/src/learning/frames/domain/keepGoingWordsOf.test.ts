@@ -71,6 +71,33 @@ const lessonWithLaterFrames: Lesson = { ...lessonOne, words: [homeWithLaterFrame
 
 const textOf = (spans: FrameSpans): string => spans.map(({ text }) => text).join('')
 
+const fixtureDayStart = Instant.fromEpochMilliseconds(Date.parse('2026-11-12T00:00:00Z'))
+
+const fixtureDayEnd = Instant.fromEpochMilliseconds(Date.parse('2026-11-12T23:59:59.999Z'))
+
+const cardsDueInDueOrder = ['home', 'school', 'work', 'money', 'food'].map((wordId, index) =>
+  reviewedCard(wordId, hoursBeforeRead(24), 10 * (index + 1)),
+)
+
+const aDayAfterRead = hoursBeforeRead(-24)
+
+const lowerOfEqualHash = 'word-121498'
+
+const higherOfEqualHash = 'word-376770'
+
+const wordWithId = (id: string): LessonWord => ({
+  id,
+  acceptedForms: [id],
+  gloss: id,
+  definition: id,
+  frames: [{ frame: `We read ${id} today.`, gappedFrame: 'We read ____ today.' }],
+})
+
+const lessonOfEqualHash: Lesson = {
+  ...lessonOne,
+  words: [wordWithId(lowerOfEqualHash), wordWithId(higherOfEqualHash)],
+}
+
 const keepGoingTerms: KeepGoingTerms = { wordsPerRead: 10, secondsBeforeDue: 86_400 }
 
 type Read = {
@@ -78,6 +105,7 @@ type Read = {
   readonly lessons?: ReadonlyArray<Lesson>
   readonly stage?: Stage
   readonly terms?: KeepGoingTerms
+  readonly at?: Instant
 }
 
 const keepGoingOf = ({
@@ -85,6 +113,7 @@ const keepGoingOf = ({
   lessons = [lessonOne],
   stage = ['lesson-1'],
   terms = keepGoingTerms,
+  at = readAt,
 }: Read): ReadonlyArray<KeepGoingWord> => {
   const read = keepGoingWordsOf(
     {
@@ -98,7 +127,7 @@ const keepGoingOf = ({
         ...inMemoryFrames([], new Map()),
       },
     },
-    readAt,
+    at,
     { memory: defaultMemoryTerms, keepGoing: terms },
   )
   assert(read.ok)
@@ -141,15 +170,40 @@ describe('keepGoingWordsOf', () => {
     expect(offered?.frames.map(textOf)).toEqual([anchorOfHome.frame])
   })
 
-  it('answers at most the cap of words, the soonest due first', () => {
-    const cards = [
-      dueInThreeDays('home'),
-      reviewedCard('school', readAt, 1),
-      reviewedCard('work', readAt, 2),
-    ]
+  it('answers the same words in the same order all day for the same cards', () => {
+    const reversed = cardsDueInDueOrder.toReversed()
+
+    const atDayStart = offeredWordIdsOf({ cards: cardsDueInDueOrder, at: fixtureDayStart })
+    const atDayEnd = offeredWordIdsOf({ cards: reversed, at: fixtureDayEnd })
+
+    expect(atDayEnd).toEqual(atDayStart)
+    expect(atDayStart).toEqual(['school', 'money', 'work', 'food', 'home'])
+  })
+
+  it('answers the same readable words in another order on another day', () => {
+    const today = offeredWordIdsOf({ cards: cardsDueInDueOrder })
+    const tomorrow = offeredWordIdsOf({ cards: cardsDueInDueOrder, at: aDayAfterRead })
+
+    expect(tomorrow.toSorted()).toEqual(today.toSorted())
+    expect(tomorrow).not.toEqual(today)
+  })
+
+  it("answers at most the content's cap of words, the first of the day's order", () => {
     const terms = { ...keepGoingTerms, wordsPerRead: 2 }
 
-    expect(offeredWordIdsOf({ cards, terms })).toEqual(['school', 'work'])
+    expect(offeredWordIdsOf({ cards: cardsDueInDueOrder, terms })).toEqual(['school', 'money'])
+  })
+
+  it('answers the lower word id first between two words of an equal hash on the day', () => {
+    const cards = [
+      reviewedCard(higherOfEqualHash, hoursBeforeRead(24), 10),
+      reviewedCard(lowerOfEqualHash, hoursBeforeRead(24), 20),
+    ]
+
+    expect(offeredWordIdsOf({ cards, lessons: [lessonOfEqualHash] })).toEqual([
+      lowerOfEqualHash,
+      higherOfEqualHash,
+    ])
   })
 
   it('never offers a word with no card, so never a held-out word', () => {

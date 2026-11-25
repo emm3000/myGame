@@ -220,6 +220,18 @@ otherwise the frames of the words the player holds.**
   is already on `caughtUp`. The slice names the path beside
   `GET /town/texts/{textId}`, and the content caps how many words one read
   answers.
+- The cap takes the readable words in an order fixed per UTC day of the
+  read: each word id hashed with that day, the lower word id first on an
+  equal hash. Soonest due first would read nearly every word one to two
+  days before its recall, so the read would prime the recall and FSRS
+  would credit an aided Good as unaided, and every read of a day would
+  answer the same words. The daily order spreads the reads across the
+  interval, as spaced restudy does (Soderstrom, Kerr & Bjork 2016,
+  *Psychological Science* 27(2)). The day turns at 00:00 UTC, not at the
+  player's midnight.
+- `wordsPerRead: 10` is a session length of about one to two minutes,
+  not a number a study fixes: sets of 4, 10 and 20 words differ little
+  (Nakata & Webb 2016, *Studies in Second Language Acquisition* 38(3)).
 
 One day is the line FSRS draws between a same-day review and a later
 one (ADR 036). No study gives the number; it is the content's to tune.

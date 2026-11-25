@@ -1,4 +1,5 @@
 import type { DomainError } from '#DomainError'
+import { keyedTextHashOf } from '#hash/keyedTextHashOf'
 import { dueInstantOf } from '#memory/domain/dueInstantOf'
 import type { MemoryTerms } from '#memory/domain/MemoryTerms'
 import { ok, type Result } from '#Result'
@@ -7,7 +8,6 @@ import type { Stage } from '../../curriculum/domain/stageOf'
 import { compareWordIds } from '../../domain/compareWordIds'
 import type { HeldCard } from '../../domain/HeldCard'
 import type { LessonWord, WordId } from '../../domain/Lesson'
-import type { DueCard } from '../../reviews/domain/dueCardsAt'
 import type { FrameLearner } from './FrameLearner'
 import type { FrameSpans } from './FrameSpan'
 import { frameSpansOf, withholdingNothing } from './frameSpansOf'
@@ -16,6 +16,8 @@ import { recallFrameOf } from './recallFrameOf'
 import type { WordFrame } from './WordFrame'
 
 const MILLISECONDS_PER_SECOND = 1_000
+
+const MILLISECONDS_PER_DAY = 86_400_000
 
 export type KeepGoingLearner = FrameLearner & {
   readonly stage: Stage
@@ -65,18 +67,31 @@ const keepGoingWordOf = (
   }
 }
 
-const byDueThenWord = (left: DueCard, right: DueCard): number =>
-  left.dueAt.epochMilliseconds - right.dueAt.epochMilliseconds ||
-  compareWordIds(left.wordId, right.wordId)
+type HashedCard = {
+  readonly held: HeldCard
+  readonly hash: number
+}
+
+const byHashThenWord = (left: HashedCard, right: HashedCard): number =>
+  left.hash - right.hash || compareWordIds(left.held.wordId, right.held.wordId)
+
+const inDayOrder = (cards: ReadonlyArray<HeldCard>, readAt: Instant): ReadonlyArray<HeldCard> => {
+  const dayStartMilliseconds =
+    Math.floor(readAt.epochMilliseconds / MILLISECONDS_PER_DAY) * MILLISECONDS_PER_DAY
+  return cards
+    .map((held) => ({ held, hash: keyedTextHashOf(held.wordId, dayStartMilliseconds) }))
+    .sort(byHashThenWord)
+    .map(({ held }) => held)
+}
 
 const readableCardsOf = (
   cards: Iterable<HeldCard>,
   readAt: Instant,
   terms: KeepGoingReadTerms,
-): Result<ReadonlyArray<DueCard>, DomainError> => {
+): Result<ReadonlyArray<HeldCard>, DomainError> => {
   const lineMilliseconds =
     readAt.epochMilliseconds + terms.keepGoing.secondsBeforeDue * MILLISECONDS_PER_SECOND
-  const readable: Array<DueCard> = []
+  const readable: Array<HeldCard> = []
   for (const held of cards) {
     const dueAt = dueInstantOf(held.card, terms.memory)
     if (!dueAt.ok) {
@@ -84,10 +99,10 @@ const readableCardsOf = (
     }
     const isReviewed = held.card.stored.lastReviewAt !== null
     if (isReviewed && dueAt.value.epochMilliseconds >= lineMilliseconds) {
-      readable.push({ ...held, dueAt: dueAt.value })
+      readable.push(held)
     }
   }
-  return ok(readable.sort(byDueThenWord))
+  return ok(inDayOrder(readable, readAt))
 }
 
 export const keepGoingWordsOf = (
