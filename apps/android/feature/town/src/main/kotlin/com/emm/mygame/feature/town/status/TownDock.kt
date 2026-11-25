@@ -13,6 +13,7 @@ import com.emm.mygame.core.designsystem.formatQuantity
 import com.emm.mygame.core.model.town.guidance.NextStepCard
 import com.emm.mygame.core.ui.PlayerCopy
 import com.emm.mygame.core.ui.finishLabelOf
+import com.emm.mygame.core.ui.fixedLabel
 import com.emm.mygame.core.ui.rememberPlayerCopy
 import com.emm.mygame.feature.town.R
 import com.emm.mygame.feature.town.guidance.goalLineOf
@@ -156,8 +157,6 @@ private fun PlayerCopy.lineOf(line: NextStepCard.Line): MyGameLabel = when (line
         "cap" to line.cap.toString(),
     )
 }
-
-private fun fixedLabel(text: String): MyGameLabel = MyGameLabel(text = text, translation = null)
 
 private fun PlayerCopy.reviewLineOf(shown: TownStatusUiState.StepCountdown): String = chrome {
     "${text(R.string.town_next_review)} ${finishLabelOf(shown.remaining, shown.finishesAt, townDurationCopy)}"

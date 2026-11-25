@@ -36,6 +36,7 @@ import com.emm.mygame.core.model.town.TownRegistered
 import com.emm.mygame.core.model.town.TownResourceKind
 import com.emm.mygame.core.model.town.TownSnapshot
 import com.emm.mygame.core.model.town.building.TownBuildingKind
+import com.emm.mygame.core.ui.DurationMark
 import com.emm.mygame.feature.town.building.CostLine
 import com.emm.mygame.feature.town.building.NextLevelLine
 import com.emm.mygame.feature.town.building.PeopleLine

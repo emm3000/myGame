@@ -30,9 +30,9 @@ import com.emm.mygame.core.model.learning.WordSupport
 import com.emm.mygame.core.ui.chromeResource
 import com.emm.mygame.core.ui.fixedCopyResource
 import com.emm.mygame.core.ui.joinsFrameTraversal
+import com.emm.mygame.core.ui.toMyGameFrame
+import com.emm.mygame.core.ui.toMyGameSupport
 import com.emm.mygame.feature.school.R
-import com.emm.mygame.feature.school.toMyGameFrame
-import com.emm.mygame.feature.school.toMyGameSupport
 
 @Composable
 internal fun SchoolTextScreen(

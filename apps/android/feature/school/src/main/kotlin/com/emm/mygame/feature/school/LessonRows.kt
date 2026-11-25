@@ -23,6 +23,7 @@ import com.emm.mygame.core.designsystem.englishTextOf
 import com.emm.mygame.core.model.learning.LessonId
 import com.emm.mygame.core.model.town.school.SchoolPathCounts
 import com.emm.mygame.core.ui.CopyReader
+import com.emm.mygame.core.ui.DurationMark
 import com.emm.mygame.core.ui.PlayerCopy
 import com.emm.mygame.core.ui.SchoolPath
 import com.emm.mygame.core.ui.SchoolPathSteps
@@ -30,6 +31,8 @@ import com.emm.mygame.core.ui.SeasonMark
 import com.emm.mygame.core.ui.chromeResource
 import com.emm.mygame.core.ui.durationLabelOf
 import com.emm.mygame.core.ui.rememberPlayerCopy
+import com.emm.mygame.core.ui.seasonIconOf
+import com.emm.mygame.core.ui.seasonSelectorOf
 
 internal const val LESSON_ROW: String = "lesson_row"
 
@@ -50,7 +53,7 @@ internal fun LessonRows(
     if (cards.isEmpty() && releasedCards.isEmpty()) return
     Column(verticalArrangement = Arrangement.spacedBy(MyGameSpacing.step1), modifier = modifier) {
         MyGameSectionTitle(label = chromeResource(R.string.school_lessons))
-        content.studyMark?.let { mark: SchoolUiState.DurationMark -> StudyMarkRow(mark = mark) }
+        content.studyMark?.let { mark: DurationMark -> StudyMarkRow(mark = mark) }
         cards.forEach { card: SchoolUiState.LessonCard -> LessonRow(card = card, onIntent = onIntent) }
         releasedCards.forEachIndexed { index: Int, card: SchoolUiState.ReleasedLessonCard ->
             if (index > 0) MyGameHairline()
@@ -65,7 +68,7 @@ internal fun LessonRows(
 }
 
 @Composable
-private fun StudyMarkRow(mark: SchoolUiState.DurationMark, modifier: Modifier = Modifier) {
+private fun StudyMarkRow(mark: DurationMark, modifier: Modifier = Modifier) {
     SeasonMark(
         icon = seasonIconOf(mark.season),
         label = chromeResource(

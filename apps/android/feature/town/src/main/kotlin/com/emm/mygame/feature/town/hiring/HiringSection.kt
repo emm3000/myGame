@@ -22,12 +22,14 @@ import com.emm.mygame.core.designsystem.MyGameTrack
 import com.emm.mygame.core.designsystem.MyGameTypography
 import com.emm.mygame.core.model.town.building.TownBuildingKind
 import com.emm.mygame.core.model.town.hiring.TownHireKind
+import com.emm.mygame.core.ui.DurationMark
 import com.emm.mygame.core.ui.PlayerCopy
 import com.emm.mygame.core.ui.SeasonMark
 import com.emm.mygame.core.ui.chromeResource
 import com.emm.mygame.core.ui.finishLabelOf
 import com.emm.mygame.core.ui.rememberPlayerCopy
-import com.emm.mygame.feature.town.DurationMark
+import com.emm.mygame.core.ui.seasonIconOf
+import com.emm.mygame.core.ui.seasonSelectorOf
 import com.emm.mygame.feature.town.FiguredCaption
 import com.emm.mygame.feature.town.R
 import com.emm.mygame.feature.town.RevealedAlert
@@ -35,8 +37,6 @@ import com.emm.mygame.feature.town.TownIntent
 import com.emm.mygame.feature.town.building.work.RunningCountdown
 import com.emm.mygame.feature.town.hireMark
 import com.emm.mygame.feature.town.placeNameOf
-import com.emm.mygame.feature.town.seasonIconOf
-import com.emm.mygame.feature.town.seasonSelectorOf
 import com.emm.mygame.feature.town.townDurationCopy
 
 @Composable

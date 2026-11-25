@@ -22,6 +22,7 @@ import com.emm.mygame.core.model.town.SeasonKind
 import com.emm.mygame.core.model.town.TownLabel
 import com.emm.mygame.core.model.town.building.TownBuildingKind
 import com.emm.mygame.core.model.town.hiring.TownHireKind
+import com.emm.mygame.core.ui.DurationMark
 import com.emm.mygame.feature.town.building.PeopleLine
 import com.emm.mygame.feature.town.building.StartStatus
 import com.emm.mygame.feature.town.building.WordsLine

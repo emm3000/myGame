@@ -14,6 +14,7 @@ import com.emm.mygame.core.designsystem.MyGameTypography
 import com.emm.mygame.core.ui.CopyReader
 import com.emm.mygame.core.ui.PlayerCopy
 import com.emm.mygame.core.ui.rememberPlayerCopy
+import com.emm.mygame.core.ui.seasonIconOf
 import com.emm.mygame.core.ui.timeLeftLabelOf
 import com.emm.mygame.feature.town.building.capitalized
 import com.emm.mygame.feature.town.building.seasonNameOf

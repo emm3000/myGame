@@ -15,5 +15,3 @@ fun Modifier.frameHeaderTurn(): Modifier = semantics {
     isTraversalGroup = true
     traversalIndex = FRAME_HEADER_TURN
 }
-
-fun Modifier.joinsFrameTraversal(): Modifier = semantics { isTraversalGroup = false }

@@ -7,3 +7,5 @@ import com.emm.mygame.core.designsystem.MyGameLabel
 @Composable
 fun fixedLabel(@StringRes id: Int, vararg arguments: Pair<String, Any>): MyGameLabel =
     MyGameLabel(text = fixedCopyResource(id, *arguments), translation = null)
+
+fun fixedLabel(text: String): MyGameLabel = MyGameLabel(text = text, translation = null)

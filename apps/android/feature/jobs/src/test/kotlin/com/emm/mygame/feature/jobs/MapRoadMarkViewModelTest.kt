@@ -8,6 +8,7 @@ import com.emm.mygame.core.model.town.TownSnapshot
 import com.emm.mygame.core.model.town.jobs.RegionMap
 import com.emm.mygame.core.testing.FakeTownRepository
 import com.emm.mygame.core.testing.MainDispatcherRule
+import com.emm.mygame.core.ui.DurationMark
 import kotlin.time.Duration.Companion.days
 import kotlinx.coroutines.test.TestScope
 import kotlinx.coroutines.test.runTest
@@ -31,21 +32,21 @@ class MapRoadMarkViewModelTest {
     fun `marks the way in fall on a job`() = runTest {
         val viewModel: MapViewModel = viewModelWithFormAt(seasonOf(SeasonKind.Fall, road = 75), site = 1)
 
-        assertEquals(MapUiState.DurationMark(SeasonKind.Fall, percent = 75), contentOf(viewModel).form?.roadMark)
+        assertEquals(DurationMark(SeasonKind.Fall, percent = 75), contentOf(viewModel).form?.roadMark)
     }
 
     @Test
     fun `marks the way in fall on a clean-up`() = runTest {
         val viewModel: MapViewModel = viewModelWithFormAt(seasonOf(SeasonKind.Fall, road = 75), site = 4)
 
-        assertEquals(MapUiState.DurationMark(SeasonKind.Fall, percent = 75), contentOf(viewModel).form?.roadMark)
+        assertEquals(DurationMark(SeasonKind.Fall, percent = 75), contentOf(viewModel).form?.roadMark)
     }
 
     @Test
     fun `marks a way that a season lengthens with the percent as sent`() = runTest {
         val viewModel: MapViewModel = viewModelWithFormAt(seasonOf(SeasonKind.Winter, road = 125), site = 1)
 
-        assertEquals(MapUiState.DurationMark(SeasonKind.Winter, percent = 125), contentOf(viewModel).form?.roadMark)
+        assertEquals(DurationMark(SeasonKind.Winter, percent = 125), contentOf(viewModel).form?.roadMark)
     }
 
     @Test

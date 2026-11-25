@@ -16,7 +16,7 @@ import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.DpRect
 import com.emm.mygame.core.model.town.SeasonKind
 import com.emm.mygame.core.model.town.building.TownBuildingKind
-import com.emm.mygame.feature.town.DurationMark
+import com.emm.mygame.core.ui.DurationMark
 import com.emm.mygame.feature.town.TownIntent
 import com.emm.mygame.feature.town.TownScreenFixture
 import com.emm.mygame.feature.town.TownUiState

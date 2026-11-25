@@ -21,6 +21,7 @@ import com.emm.mygame.core.model.town.school.SchoolPathCounts
 import com.emm.mygame.core.model.town.school.TownLessonRefusal
 import com.emm.mygame.core.ui.ChromePhase
 import com.emm.mygame.core.ui.CopyLanguage
+import com.emm.mygame.core.ui.DurationMark
 import com.emm.mygame.core.ui.ProvideCopyLanguage
 import com.emm.mygame.core.ui.ScaffoldLanguage
 import kotlin.time.Duration.Companion.minutes
@@ -89,7 +90,7 @@ private val previewContent: SchoolUiState.Content = SchoolUiState.Content(
     lessons = listOf(previewOpenLesson, previewBlockedLesson),
     releasedLessons = listOf(previewReleasedOpen, previewReleasedNext),
     texts = listOf(SchoolUiState.TextCard(text = TextId("text-1"), title = "A New Course")),
-    studyMark = SchoolUiState.DurationMark(SeasonKind.Winter, percent = 75),
+    studyMark = DurationMark(SeasonKind.Winter, percent = 75),
     nextStep = NextStepCard(
         line = NextStepCard.Line.Lesson(number = 1),
         detail = NextStepCard.Detail.Words(count = 5),
@@ -159,7 +160,7 @@ private class SchoolUiStates : PreviewParameterProvider<SchoolUiState> {
 
     override val values: Sequence<SchoolUiState> = sequenceOf(
         previewContent,
-        previewContent.copy(studyMark = SchoolUiState.DurationMark(SeasonKind.Summer, percent = 125)),
+        previewContent.copy(studyMark = DurationMark(SeasonKind.Summer, percent = 125)),
         previewStudying,
         previewReleasedStudying,
         previewReleasedStudied,
@@ -211,11 +212,7 @@ private fun SchoolScreenPreview(@PreviewParameter(SchoolUiStates::class) state: 
 
 @Composable
 private fun PreviewHoldoutChecksSlot() {
-    MyGameText(
-        text = "Holdout checks slot",
-        style = MyGameTypography.body,
-        color = MyGameTheme.colors.ink,
-    )
+    MyGameText(text = "Holdout checks slot", style = MyGameTypography.body, color = MyGameTheme.colors.ink)
 }
 
 @PreviewMyGame

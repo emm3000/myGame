@@ -13,6 +13,7 @@ import com.emm.mygame.core.model.town.guidance.numberOf
 import com.emm.mygame.core.model.town.nameOf
 import com.emm.mygame.core.model.town.school.schoolPathCountsOf
 import com.emm.mygame.core.projection.countdownTo
+import com.emm.mygame.core.ui.DurationMark
 import kotlin.time.Duration
 import kotlin.time.Instant
 
@@ -45,8 +46,8 @@ internal fun TownSnapshot.contentAt(
 private fun textCardOf(text: TownSnapshot.TextTitle): SchoolUiState.TextCard =
     SchoolUiState.TextCard(text = text.id, title = text.title)
 
-private fun SeasonInForce.studyMark(): SchoolUiState.DurationMark? =
-    SchoolUiState.DurationMark(kind, durationPercent.study).takeUnless { mark: SchoolUiState.DurationMark ->
+private fun SeasonInForce.studyMark(): DurationMark? =
+    DurationMark(kind, durationPercent.study).takeUnless { mark: DurationMark ->
         mark.percent == UNSCALED_PERCENT
     }
 

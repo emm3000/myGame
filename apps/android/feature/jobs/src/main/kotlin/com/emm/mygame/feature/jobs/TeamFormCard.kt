@@ -16,10 +16,13 @@ import com.emm.mygame.core.designsystem.MyGameText
 import com.emm.mygame.core.designsystem.MyGameTheme
 import com.emm.mygame.core.designsystem.MyGameTypography
 import com.emm.mygame.core.model.town.jobs.TownJobRefusal
+import com.emm.mygame.core.ui.DurationMark
 import com.emm.mygame.core.ui.PlayerCopy
 import com.emm.mygame.core.ui.SeasonMark
 import com.emm.mygame.core.ui.chromeResource
 import com.emm.mygame.core.ui.rememberPlayerCopy
+import com.emm.mygame.core.ui.seasonIconOf
+import com.emm.mygame.core.ui.seasonSelectorOf
 
 @Composable
 internal fun TeamFormCard(
@@ -66,7 +69,7 @@ internal fun TeamFormCard(
             )
             extraFields()
             quote(isSendAnswered)
-            form.roadMark?.let { mark: MapUiState.DurationMark -> RoadMarkRow(mark = mark) }
+            form.roadMark?.let { mark: DurationMark -> RoadMarkRow(mark = mark) }
             MyGameOutlinedButton(
                 label = copy.chrome(R.string.map_job_send),
                 isBusy = send == MapUiState.SendRequest.Waiting,
@@ -88,7 +91,7 @@ internal fun TeamFormCard(
 }
 
 @Composable
-private fun RoadMarkRow(mark: MapUiState.DurationMark, modifier: Modifier = Modifier) {
+private fun RoadMarkRow(mark: DurationMark, modifier: Modifier = Modifier) {
     SeasonMark(
         icon = seasonIconOf(mark.season),
         label = chromeResource(

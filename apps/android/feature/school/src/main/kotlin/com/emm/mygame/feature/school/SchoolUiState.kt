@@ -3,12 +3,12 @@ package com.emm.mygame.feature.school
 import com.emm.mygame.core.model.learning.LessonId
 import com.emm.mygame.core.model.learning.TextId
 import com.emm.mygame.core.model.town.LessonName
-import com.emm.mygame.core.model.town.SeasonKind
 import com.emm.mygame.core.model.town.TownResourceKind
 import com.emm.mygame.core.model.town.TownSnapshot
 import com.emm.mygame.core.model.town.guidance.NextStepCard
 import com.emm.mygame.core.model.town.school.SchoolPathCounts
 import com.emm.mygame.core.model.town.school.TownLessonRefusal
+import com.emm.mygame.core.ui.DurationMark
 import kotlin.time.Duration
 import kotlin.time.Instant
 
@@ -52,8 +52,6 @@ sealed interface SchoolUiState {
     }
 
     data class TextCard(val text: TextId, val title: String)
-
-    data class DurationMark(val season: SeasonKind, val percent: Int)
 
     data class LearningLine(val inLearning: Int, val cap: Int, val pastCapWords: Int?, val opening: CapOpening)
 
