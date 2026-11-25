@@ -39,6 +39,25 @@ A path is relative to its package; the Gradle rows run in `apps/android`; an api
 
 A ticket that adds or changes behavior writes each new rule's test first (`mattpocock-skills:tdd`). The PR body quotes, per rule, the test's name and the failing assertion line its red step printed. Mutations are `pr-reviewer`'s: it runs the few a risky change needs.
 
+## Content
+
+A content review (ADR 037, check 7) blocks a frame for one of five causes:
+
+1. **Gap fit**: another word of the word's lesson fits the gap.
+2. **Card sense**: the frame, the gloss and the definition do not name one sense.
+3. **Unadmitted structure**: the frame leans on a structure `grammar.json` admits only after the frame's lesson.
+4. **Anchor copy**: a later frame copies its word's anchor.
+5. **Not speech**: an uncontracted pronoun form where speech contracts (*I am* for *I'm*), a narrated sentence instead of something said to someone, or a written connector where talk uses *like*, *a lot of* or *but*.
+
+A ticket that adds or changes a frame prints its worksheet once the gate is green, with `$scratch` a scratchpad folder:
+
+```bash
+git show origin/trunk:apps/api/content/lessons/words.json >"$scratch/base-words.json"
+pnpm --filter @mygame/api content:worksheet "$scratch/base-words.json"
+```
+
+Each row is a frame absent from trunk, beside its word's gloss, definition and anchor, its gap filled with each other word of the word's lesson. Before the PR opens, the drafter spawns a fresh subagent, one that drafted nothing, which marks every row `ok` or with the cause it blocks on and a rewrite. The drafter fixes each blocked row, and the PR body carries the marked sheet.
+
 ## Screenshots
 
 A ticket that draws a screen shoots once, at the head the PR opens with, on its emulator against the real api, the flow exercised (`.claude/rules/verification.md`, the `apps/android` row): `android screen capture --device=emulator-<port> --no-metrics -o <file>.png`. A Robolectric capture stands in only for a state the emulator cannot reach against the real api, and the PR body names that state and why it cannot be reached. A ticket's shots are:
