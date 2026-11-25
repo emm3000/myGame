@@ -15,7 +15,6 @@ import com.emm.mygame.core.ui.ChromePhase
 import com.emm.mygame.core.ui.CopyLanguage
 import com.emm.mygame.core.ui.ProvideCopyLanguage
 import com.emm.mygame.core.ui.ScaffoldLanguage
-import com.emm.mygame.core.ui.TaskDockHook
 
 private val previewHouse: PlacementItem = PlacementItem(
     word = WordId("word-24"),
@@ -53,7 +52,7 @@ private class PlacementScreenStates : PreviewParameterProvider<PlacementUiState>
 @Composable
 private fun PlacementScreenPreview(@PreviewParameter(PlacementScreenStates::class) state: PlacementUiState) {
     MyGamePreviewSurface {
-        PlacementScreen(state = state, onIntent = {}, hook = TaskDockHook(onAnswered = {}), foldedDock = {})
+        PlacementScreen(state = state, onIntent = {}, onDone = {})
     }
 }
 
@@ -62,7 +61,7 @@ private fun PlacementScreenPreview(@PreviewParameter(PlacementScreenStates::clas
 private fun PlacementScreenBothPreview(@PreviewParameter(PlacementScreenStates::class) state: PlacementUiState) {
     ProvideCopyLanguage(language = CopyLanguage(ScaffoldLanguage.Spanish, ChromePhase.Both)) {
         MyGamePreviewSurface {
-            PlacementScreen(state = state, onIntent = {}, hook = TaskDockHook(onAnswered = {}), foldedDock = {})
+            PlacementScreen(state = state, onIntent = {}, onDone = {})
         }
     }
 }

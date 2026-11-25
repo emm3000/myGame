@@ -6,6 +6,7 @@ import androidx.compose.ui.test.SemanticsMatcher
 import androidx.compose.ui.test.assertCountEquals
 import androidx.compose.ui.test.assertIsDisplayed
 import androidx.compose.ui.test.hasContentDescription
+import androidx.compose.ui.test.hasText
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
 import androidx.compose.ui.test.performScrollTo
@@ -82,7 +83,7 @@ class ScreenOpeningNavigationTest : AppNavigationFixture() {
         composeRule.onNodeWithText("Hacer la prueba de nivel").performScrollTo().performClick()
 
         composeRule.waitUntil(WAIT_MILLIS) {
-            composeRule.onAllNodes(hasContentDescription("Empezar la prueba", substring = true))
+            composeRule.onAllNodes(hasText("Empezar la prueba"))
                 .fetchSemanticsNodes().isNotEmpty()
         }
     }

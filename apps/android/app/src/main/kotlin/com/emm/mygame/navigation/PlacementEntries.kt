@@ -19,8 +19,8 @@ internal fun EntryProviderScope<NavKey>.placementEntry(chrome: SignedInChrome) {
         ) { frame: ScreenFrame ->
             PlacementRoute(
                 placements = dependencies.placements,
-                hook = frame.task,
-                foldedDock = frame.foldedDock,
+                onEnd = frame.onAnswered,
+                onDone = chrome.navigator::back,
             )
         }
     }

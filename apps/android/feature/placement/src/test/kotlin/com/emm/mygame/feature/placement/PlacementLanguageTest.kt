@@ -1,6 +1,5 @@
 package com.emm.mygame.feature.placement
 
-import androidx.compose.runtime.remember
 import androidx.compose.ui.test.assertCountEquals
 import androidx.compose.ui.test.junit4.ComposeContentTestRule
 import androidx.compose.ui.test.junit4.createComposeRule
@@ -14,8 +13,6 @@ import com.emm.mygame.core.ui.ChromePhase
 import com.emm.mygame.core.ui.CopyLanguage
 import com.emm.mygame.core.ui.ProvideCopyLanguage
 import com.emm.mygame.core.ui.ScaffoldLanguage
-import com.emm.mygame.core.ui.TaskDockHook
-import com.emm.mygame.core.ui.TaskFrameStandIn
 import com.emm.mygame.core.ui.hasCopy
 import org.junit.Rule
 import org.junit.Test
@@ -54,9 +51,8 @@ class PlacementLanguageTest {
     private fun show(language: CopyLanguage, state: PlacementUiState) {
         composeRule.setContent {
             ProvideCopyLanguage(language = language) {
-                val hook: TaskDockHook = remember { TaskDockHook(onAnswered = {}) }
-                TaskFrameStandIn(hook = hook) {
-                    PlacementScreen(state = state, onIntent = {}, hook = hook, foldedDock = {})
+                MyGameTheme {
+                    PlacementScreen(state = state, onIntent = {}, onDone = {})
                 }
             }
         }

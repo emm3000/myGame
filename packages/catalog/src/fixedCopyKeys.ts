@@ -152,6 +152,7 @@ const fixedCopyKeyList = [
   'android.placement.placement_band',
   'android.placement.placement_choose',
   'android.placement.placement_closed_none',
+  'android.placement.placement_done',
   'android.placement.placement_failed',
   'android.placement.placement_loading',
   'android.placement.placement_next',
