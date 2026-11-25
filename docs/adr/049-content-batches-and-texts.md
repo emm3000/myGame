@@ -1,5 +1,5 @@
 ---
-status: accepted
+status: accepted, texts moved to their own read by the amendment of 2026-11-20, a batch landed in chained parts by the amendment of 2026-11-25
 date: 2026-11-18
 ---
 # Content batches and texts
@@ -419,3 +419,32 @@ school lists every text the stage has reached, newest first, and every
 reached text stays readable (*Texts*); the newest alone would empty the
 list of the older ones, or send the list on its own read and the newest
 text twice.
+
+## Amendment (2026-11-25): a batch lands in parts
+
+Settled for #2040. The first batch (#1285) landed as one pull request of
+100 cards and 155 frames, and two pull requests after its merge
+corrected rows its review had passed: four frames (#1506) and its
+glosses and definitions (#1508). A full read is the bound (*Who
+validates a batch*), and a read of that size missed rows.
+
+- **A batch may land as chained parts**, each one pull request that a
+  reviewer reads in full. Batch 2, lessons 48 to 67, is four parts,
+  #2040 to #2043: each part appends 4 band lessons, the unit lesson
+  after them and the text for its fourth band lesson, so at most 25 new
+  cards and one text.
+- **The parts run one at a time**, for the reasons one batch is open at
+  a time: each lesson's window is what the lessons before it left
+  (check 2), each frame holds only earlier words (check 3), and every
+  part writes `words.json` and `curriculum.json`.
+- **The later frames a batch owes go in the first part that can hold
+  them.** A later frame names one of this batch's band lessons, so the
+  first part, whose band lessons are 48 to 51, can hold every one. On
+  trunk at `2dde0a3d5`, the 70 entries of lessons 28 to 41 already hold
+  three frames each, and the 30 of lessons 42 to 47, `word-201` to
+  `word-230`, hold their anchor only; the first part gives each of
+  those 30 one later frame.
+- **Everything else of a batch stands**: 16 band lessons in ADR 037's
+  order, a unit lesson after every 4, a text for every fourth band
+  lesson, and the content review of every row (check 7), now part by
+  part.

@@ -1,5 +1,5 @@
 ---
-status: accepted
+status: accepted, the order among ready PHRASE units amended 2026-11-25: Spoken general stars first, never one rare in speech
 date: 2026-11-12
 ---
 # Multi-word units and later frames
@@ -165,6 +165,28 @@ The evidence (`docs/research/multi-word-units.md`):
   ready phrase comes first is the drafter's call, judged by the owner. The gate checks only what the shipped
   content holds: readiness, the lesson's size, the shared verb and the
   spacing below.
+  *Amended 2026-11-25:* from lesson 52, the drafter orders the ready
+  PHRASE units by the list's Spoken general column first, `* * *`
+  before `* *` before `*`, then by the fewest Written general stars, an
+  `X` counting as none, then by the list's Integrated List Rank. It
+  never takes a unit the list marks `X` (rare or non-existent) in
+  speech, such as *those who* or *the following*, and it still leaves
+  out a unit only British in use. The player learns the English of
+  daily speech in the USA, and the integrated rank also counts written
+  and academic use, so it would put *rather than* and *in order to*
+  ahead of *each other* and *look for*. PHaVE units keep the PHaVE
+  List's frequency rank, since that list counts American English
+  across genres (COCA). On the content of lesson 52 (#2040), the ready
+  untaught units marked `* * *` in speech and `X` in writing are, in
+  integrated rank, *sort of*, *you see*, *something like that*, *and
+  all that* and *that sort of thing*; *sort of* is already taught by
+  *sort*'s anchor frame (lesson 49), so lesson 52 takes *you see* and
+  *something like that*, beside PHaVE's three most frequent ready
+  phrasal verbs, *end up* (18), *get back* (19) and *look up* (20).
+  Known gap: the stars, like the ranks, are read outside the
+  repository, so the gate checks none of this order; the pull request
+  body lists each PHRASE unit's Spoken general and Written general
+  stars, and the content review (check 7) reads them.
 - **From the curriculum's first unit lesson on, a unit lesson comes
   after every 4 band lessons while ready units remain untaught**, so
   one lesson in 5 teaches units. The gate checks the lower bound, at

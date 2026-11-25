@@ -648,6 +648,78 @@ A later frame puts its word in new company: no two frames of one entry share the
 | in fact | phrase | adverb | It isn't a small town; in fact, it is a city. | It isn't a small town; ____ ____, it is a city. | de hecho | a way to say that something is true, often more than you think |
 | at all | phrase | adverb | I don't like it at all. | I don't like it ____ ____. | para nada | in any way |
 
+## Lessons 48 to 52
+
+Part 1 of the second content batch (ADR 049, its amendment of 2026-11-25, #2040), drafted by Claude Opus 5.5. It has 4 band 1 lessons and 1 unit lesson. **From lesson 48, band lessons follow NGSL-Spoken 1.2 order** (ADR 037, amended 2026-11-25): each holds the untaught card word of band 1 with the lowest NGSL-Spoken 1.2 rank, plus four more from the 30 untaught ones of lowest spoken rank, under one theme. Band membership stays the NGSL's. The first of them holds *yes* (spoken 56). Lesson 52 is a unit lesson. It teaches PHaVE's three most frequent ready phrasal verbs (Garnier and Schmitt 2015) and the two first ready PHRASE units in ADR 044's order of 2026-11-25: Spoken general stars first, then the fewest Written general stars. Every lesson asks for school level 1 and takes 300 s. Its skill follows from its position in `curriculum.json`.
+
+The part also gives each of the 30 entries of lessons 42 to 47, `word-201` to `word-230`, one later frame, written for one of lessons 48 to 51 (ADR 044).
+
+- **Readiness.** *end*, *get*, *look*, *see* and *like* are taught by lessons 13, 18, 19, 22 and 20, and *something* by lesson 34. *back* is taught by lesson 11. *up*, *you* and *that* are frame words admitted at lesson 1.
+- **Order of the units.** Among the ready untaught PHRASE units marked `* * *` in speech and `X` in writing, *sort of* comes first, and *sort*'s anchor frame already teaches it (lesson 49). So lesson 52 takes the next two, *you see* and *something like that*.
+- **Senses.** *end up* is taught in its PHaVE sense, 'finally be in a place or state', *get back* as 'return to a place', and *look up* as 'raise one's eyes', each its list's sense of the highest share. *sort* is taught in *sort of*, the spoken hedge, and *bit* in *a bit of*, 'a small amount'. *quite* is taught with *not*, 'completely'.
+- **Part of speech.** *yes*, *yeah*, *sort*, *actually*, *probably*, *quite*, *maybe* and *else* are filed as adverbs. *okay* and *sure* are filed as adjectives, and *anything* as a noun, as *something* is. The PHRASE units are filed as `phrase`, as `word-204` and `word-205` are.
+- **Shared glosses.** *bit* shares *un poco* with *a little* (lesson 37). *bit*'s gap holds one word, so *a little* cannot fill it. *okay* shares *bien* with *well* (lesson 23), and *okay*'s frame, *Is it okay if I come in?*, leaves a gap that *well* cannot fill. *yeah* is glossed *ajá*, so it shares no gloss with *yes* (*sí*).
+
+### Lesson 48
+
+**Theme:** *A school day*, es *Un día de escuela*. **Skill:** money, 5 %.
+
+| Lemma | Part of speech | NGSL 1.2 rank | NGSL-Spoken 1.2 rank | Frame | Gapped form | es gloss | Definition |
+|---|---|---|---|---|---|---|---|
+| yes | adverb | 228 | 56 | Yes, I'm ready to go. | ____, I'm ready to go. | sí | a word you say when you agree, or when something is true |
+| kid | noun | 529 | 180 | How old is your kid? | How old is your ____? | chico o chica | a child |
+| remember | verb | 351 | 169 | Do you remember my name? | Do you ____ my name? | recordar | to have something in your mind from before, or to bring it back into your mind |
+| bit | noun | 352 | 108 | It'll take a bit of time. | It'll take a ____ of time. | un poco | a small amount |
+| probably | adverb | 328 | 125 | She'll probably be late. | She'll ____ be late. | probablemente | almost sure to happen or to be true |
+
+### Lesson 49
+
+**Theme:** *A night out*, es *Una salida de noche*. **Skill:** money, 5 %.
+
+| Lemma | Part of speech | NGSL 1.2 rank | NGSL-Spoken 1.2 rank | Frame | Gapped form | es gloss | Definition |
+|---|---|---|---|---|---|---|---|
+| yeah | adverb | 976 | 68 | Yeah, I know what you mean. | ____, I know what you mean. | ajá | yes, in the way people say it when they talk |
+| sort | adverb | 316 | 94 | I sort of like it. | I ____ of like it. | más o menos | used before of: in some way, but not completely |
+| anything | noun | 318 | 130 | You can ask me anything. | You can ask me ____. | cualquier cosa | any thing at all, when it does not matter which one |
+| nice | adjective | 506 | 152 | It's nice to meet you. | It's ____ to meet you. | agradable | good, in a way that you like |
+| night | noun | 270 | 199 | Where did you go last night? | Where did you go last ____? | noche | the time when it is dark, between the evening and the morning |
+
+### Lesson 50
+
+**Theme:** *Test day*, es *Día de examen*. **Skill:** money, 5 %.
+
+| Lemma | Part of speech | NGSL 1.2 rank | NGSL-Spoken 1.2 rank | Frame | Gapped form | es gloss | Definition |
+|---|---|---|---|---|---|---|---|
+| actually | adverb | 291 | 97 | I actually like the new job. | I ____ like the new job. | en realidad | in fact; used when something is not what people think |
+| okay | adjective | 925 | 111 | Is it okay if I come in? | Is it ____ if I come in? | bien | good enough, or not a problem |
+| stuff | noun | 752 | 160 | I have a lot of stuff to do today. | I have a lot of ____ to do today. | cosas | things, when you do not say which ones |
+| test | noun | 332 | 172 | We have a test tomorrow. | We have a ____ tomorrow. | examen | a set of questions to see how much someone knows |
+| half | noun | 365 | 205 | Do you want half of it? | Do you want ____ of it? | mitad | one of 2 parts of something that are the same size |
+
+### Lesson 51
+
+**Theme:** *Making plans*, es *Hacer planes*. **Skill:** money, 5 %.
+
+| Lemma | Part of speech | NGSL 1.2 rank | NGSL-Spoken 1.2 rank | Frame | Gapped form | es gloss | Definition |
+|---|---|---|---|---|---|---|---|
+| quite | adverb | 277 | 122 | The house isn't quite ready. | The house isn't ____ ready. | del todo | in every way; all the way |
+| sure | adjective | 279 | 144 | I'm not sure what time it is. | I'm not ____ what time it is. | seguro | knowing that something is true |
+| thank | verb | 244 | 158 | Thank you for your help. | ____ you for your help. | dar las gracias | to tell someone that you are happy about what they did for you |
+| maybe | adverb | 464 | 170 | I don't know, maybe tomorrow. | I don't know, ____ tomorrow. | quizás | it is possible; it might be true or might happen |
+| else | adverb | 466 | 189 | What else do you need? | What ____ do you need? | más | other, or more than what you said |
+
+### Lesson 52
+
+**Theme:** *How was your day?*, es *¿Qué tal tu día?*. **Skill:** money, 5 %. A unit lesson.
+
+| Unit | Source | Part of speech | Frame | Gapped form | es gloss | Definition |
+|---|---|---|---|---|---|---|
+| end up | phave | verb | We'll probably end up at the market. | We'll probably ____ ____ at the market. | acabar | to be in a place or a state after other things happen, often when you did not plan it |
+| get back | phave | verb | What time did you get back last night? | What time did you ____ ____ last night? | estar de vuelta | to return to a place, often your home |
+| look up | phave | verb | Can you look up from your book? | Can you ____ ____ from your book? | levantar la vista | to raise your eyes from what you are doing |
+| you see | phrase | phrase | It's my first day, you see. | It's my first day, ____ ____. | verás | said when explaining something to someone |
+| something like that | phrase | phrase | She works at the station, or something like that. | She works at the station, or ____ ____ ____. | algo así | or a thing close to it, when you are not sure |
+
 ## Texts
 
 One text closes every four band lessons, from lesson 31 on (ADR 049, #1273, #1276). It holds every card word of its four band lessons, the band lessons up to and including its `fromLessonId` with unit lessons skipped, in any form the grammar admits, and no token unknown at its lesson. The gate checks both. Its length, 80 to 150 tokens in band 1 as `tokensOf` counts the title and the sentences, is checked by the review of check 7. Each text is told in the first person by someone who lives in the town and names no one.
@@ -675,3 +747,9 @@ One text closes every four band lessons, from lesson 31 on (ADR 049, #1273, #127
 **Title:** *At the Market*. **Band lessons:** 43 to 46. **Tokens:** 147. **In no card sense:** *get*.
 
 > This spring, the town began a new market by the river. The government set a goal for it: good food from the farms for every home. I love the market, and I go there every week. You can buy many kinds of food there. To get there, follow the river down the hill and turn at the old factory. The children run to the river while we buy food. I always have a list in my hand. The market seems small, but the fact is, it has a lot of food. The office by the market has information about each farm. The pay for each worker includes some food. The mayor is away this week, but the workers know the plan. What will happen in the winter? Some people believe the market will close. In that case, we will buy food at the farms.
+
+### text-5, lesson 51
+
+**Title:** *Study Night*. **Band lessons:** 48 to 51. **Tokens:** 137.
+
+> My kids have a big test at school tomorrow, so we studied at home last night. They have to remember a lot of words, about half the book. One of them knows most of the words, but the other one isn't quite ready. After an hour, the other one asked if it was okay to stop for a bit. I said yes, and I asked if she needed anything else. She wasn't sure, so we just talked. After that, we got all our stuff and started again. It was sort of late when we stopped, but the kids said thank you. At the end of the night, I asked if they were ready, and they both said yeah. It was actually a nice night. They'll probably do well tomorrow. Maybe they'll even like the test.

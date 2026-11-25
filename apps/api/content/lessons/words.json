@@ -4929,6 +4929,11 @@
       {
         "frame": "You can come in now.",
         "gappedFrame": "You can ____ ____ now."
+      },
+      {
+        "frame": "Do you want to come in for a bit?",
+        "gappedFrame": "Do you want to ____ ____ for a bit?",
+        "fromLessonId": "lesson-49"
       }
     ],
     "gloss": {
@@ -4945,6 +4950,11 @@
       {
         "frame": "I want to take on a bigger job.",
         "gappedFrame": "I want to ____ ____ a bigger job."
+      },
+      {
+        "frame": "She's probably going to take on more work.",
+        "gappedFrame": "She's probably going to ____ ____ more work.",
+        "fromLessonId": "lesson-49"
       }
     ],
     "gloss": {
@@ -4961,6 +4971,11 @@
       {
         "frame": "She doesn't want to give up her job.",
         "gappedFrame": "She doesn't want to ____ ____ her job."
+      },
+      {
+        "frame": "Don't give up the house, you love it.",
+        "gappedFrame": "Don't ____ ____ the house, you love it.",
+        "fromLessonId": "lesson-48"
       }
     ],
     "gloss": {
@@ -4977,6 +4992,11 @@
       {
         "frame": "I have a few friends in town.",
         "gappedFrame": "I have ____ ____ friends in town."
+      },
+      {
+        "frame": "I'll be back in a few days.",
+        "gappedFrame": "I'll be back in ____ ____ days.",
+        "fromLessonId": "lesson-48"
       }
     ],
     "gloss": {
@@ -4993,6 +5013,11 @@
       {
         "frame": "A number of workers came to the office.",
         "gappedFrame": "____ ____ ____ workers came to the office."
+      },
+      {
+        "frame": "We had a number of problems with the truck.",
+        "gappedFrame": "We had ____ ____ ____ problems with the truck.",
+        "fromLessonId": "lesson-48"
       }
     ],
     "gloss": {
@@ -5008,6 +5033,11 @@
       {
         "frame": "The pay doesn't include food.",
         "gappedFrame": "The pay doesn't ____ food."
+      },
+      {
+        "frame": "Does that include the kids?",
+        "gappedFrame": "Does that ____ the kids?",
+        "fromLessonId": "lesson-49"
       }
     ],
     "gloss": {
@@ -5023,6 +5053,11 @@
       {
         "frame": "When does the course begin?",
         "gappedFrame": "When does the course ____?"
+      },
+      {
+        "frame": "Okay, it's time to begin.",
+        "gappedFrame": "Okay, it's time to ____.",
+        "fromLessonId": "lesson-51"
       }
     ],
     "gloss": {
@@ -5038,6 +5073,11 @@
       {
         "frame": "Follow me to the office.",
         "gappedFrame": "____ me to the office."
+      },
+      {
+        "frame": "Just follow the river and you'll see the farm.",
+        "gappedFrame": "Just ____ the river and you'll see the farm.",
+        "fromLessonId": "lesson-48"
       }
     ],
     "gloss": {
@@ -5053,6 +5093,11 @@
       {
         "frame": "I have a map in my hand.",
         "gappedFrame": "I have a map in my ____."
+      },
+      {
+        "frame": "What's that in your hand?",
+        "gappedFrame": "What's that in your ____?",
+        "fromLessonId": "lesson-48"
       }
     ],
     "gloss": {
@@ -5068,6 +5113,11 @@
       {
         "frame": "We set a new goal for the year.",
         "gappedFrame": "We ____ a new goal for the year."
+      },
+      {
+        "frame": "Can we set a time to meet tomorrow?",
+        "gappedFrame": "Can we ____ a time to meet tomorrow?",
+        "fromLessonId": "lesson-48"
       }
     ],
     "gloss": {
@@ -5083,6 +5133,11 @@
       {
         "frame": "In that case, we will wait.",
         "gappedFrame": "In that ____, we will wait."
+      },
+      {
+        "frame": "Bring a map, just in case.",
+        "gappedFrame": "Bring a map, just in ____.",
+        "fromLessonId": "lesson-48"
       }
     ],
     "gloss": {
@@ -5098,6 +5153,11 @@
       {
         "frame": "The children run to school.",
         "gappedFrame": "The children ____ to school."
+      },
+      {
+        "frame": "Run, or you'll be late!",
+        "gappedFrame": "____, or you'll be late!",
+        "fromLessonId": "lesson-48"
       }
     ],
     "gloss": {
@@ -5113,6 +5173,11 @@
       {
         "frame": "The government will build a new station.",
         "gappedFrame": "The ____ will build a new station."
+      },
+      {
+        "frame": "I think the government should do more.",
+        "gappedFrame": "I think the ____ should do more.",
+        "fromLessonId": "lesson-48"
       }
     ],
     "gloss": {
@@ -5128,6 +5193,11 @@
       {
         "frame": "What is the plan for today?",
         "gappedFrame": "What is the ____ for today?"
+      },
+      {
+        "frame": "Do you have a plan for the summer?",
+        "gappedFrame": "Do you have a ____ for the summer?",
+        "fromLessonId": "lesson-48"
       }
     ],
     "gloss": {
@@ -5143,6 +5213,11 @@
       {
         "frame": "Turn here for the farm.",
         "gappedFrame": "____ here for the farm."
+      },
+      {
+        "frame": "Okay, now turn at the river.",
+        "gappedFrame": "Okay, now ____ at the river.",
+        "fromLessonId": "lesson-51"
       }
     ],
     "gloss": {
@@ -5158,6 +5233,11 @@
       {
         "frame": "It doesn't seem right.",
         "gappedFrame": "It doesn't ____ right."
+      },
+      {
+        "frame": "Your friends seem nice.",
+        "gappedFrame": "Your friends ____ nice.",
+        "fromLessonId": "lesson-50"
       }
     ],
     "gloss": {
@@ -5173,6 +5253,11 @@
       {
         "frame": "The fact is, we need more workers.",
         "gappedFrame": "The ____ is, we need more workers."
+      },
+      {
+        "frame": "I know for a fact that she's right.",
+        "gappedFrame": "I know for a ____ that she's right.",
+        "fromLessonId": "lesson-48"
       }
     ],
     "gloss": {
@@ -5188,6 +5273,11 @@
       {
         "frame": "We need more information about the job.",
         "gappedFrame": "We need more ____ about the job."
+      },
+      {
+        "frame": "Where can I get information about the test?",
+        "gappedFrame": "Where can I get ____ about the test?",
+        "fromLessonId": "lesson-51"
       }
     ],
     "gloss": {
@@ -5203,6 +5293,11 @@
       {
         "frame": "What will happen to the farm?",
         "gappedFrame": "What will ____ to the farm?"
+      },
+      {
+        "frame": "What's going to happen now?",
+        "gappedFrame": "What's going to ____ now?",
+        "fromLessonId": "lesson-48"
       }
     ],
     "gloss": {
@@ -5218,6 +5313,11 @@
       {
         "frame": "I believe you.",
         "gappedFrame": "I ____ you."
+      },
+      {
+        "frame": "I can't believe you remember that.",
+        "gappedFrame": "I can't ____ you remember that.",
+        "fromLessonId": "lesson-49"
       }
     ],
     "gloss": {
@@ -5233,6 +5333,11 @@
       {
         "frame": "What kind of food do you like?",
         "gappedFrame": "What ____ of food do you like?"
+      },
+      {
+        "frame": "That's the kind of job I want.",
+        "gappedFrame": "That's the ____ of job I want.",
+        "fromLessonId": "lesson-48"
       }
     ],
     "gloss": {
@@ -5248,6 +5353,11 @@
       {
         "frame": "We go to the market every week.",
         "gappedFrame": "We go to the ____ every week."
+      },
+      {
+        "frame": "Is the market open today?",
+        "gappedFrame": "Is the ____ open today?",
+        "fromLessonId": "lesson-48"
       }
     ],
     "gloss": {
@@ -5263,6 +5373,11 @@
       {
         "frame": "I want to buy a house.",
         "gappedFrame": "I want to ____ a house."
+      },
+      {
+        "frame": "Did you buy anything for the kids?",
+        "gappedFrame": "Did you ____ anything for the kids?",
+        "fromLessonId": "lesson-50"
       }
     ],
     "gloss": {
@@ -5278,6 +5393,11 @@
       {
         "frame": "I love this town.",
         "gappedFrame": "I ____ this town."
+      },
+      {
+        "frame": "Yeah, I love going to the market.",
+        "gappedFrame": "Yeah, I ____ going to the market.",
+        "fromLessonId": "lesson-50"
       }
     ],
     "gloss": {
@@ -5293,6 +5413,11 @@
       {
         "frame": "She is away this week.",
         "gappedFrame": "She is ____ this week."
+      },
+      {
+        "frame": "Will you be away for long?",
+        "gappedFrame": "Will you be ____ for long?",
+        "fromLessonId": "lesson-48"
       }
     ],
     "gloss": {
@@ -5309,6 +5434,11 @@
       {
         "frame": "We want to set up a business in town.",
         "gappedFrame": "We want to ____ ____ a business in town."
+      },
+      {
+        "frame": "Who set up the market?",
+        "gappedFrame": "Who ____ ____ the market?",
+        "fromLessonId": "lesson-48"
       }
     ],
     "gloss": {
@@ -5325,6 +5455,11 @@
       {
         "frame": "It might turn out to be a problem.",
         "gappedFrame": "It might ____ ____ to be a problem."
+      },
+      {
+        "frame": "It'll probably turn out okay.",
+        "gappedFrame": "It'll probably ____ ____ okay.",
+        "fromLessonId": "lesson-51"
       }
     ],
     "gloss": {
@@ -5341,6 +5476,11 @@
       {
         "frame": "Workers from the city make up most of the team.",
         "gappedFrame": "Workers from the city ____ ____ most of the team."
+      },
+      {
+        "frame": "Kids make up about half the town.",
+        "gappedFrame": "Kids ____ ____ about half the town.",
+        "fromLessonId": "lesson-51"
       }
     ],
     "gloss": {
@@ -5357,6 +5497,11 @@
       {
         "frame": "It isn't a small town; in fact, it is a city.",
         "gappedFrame": "It isn't a small town; ____ ____, it is a city."
+      },
+      {
+        "frame": "In fact, I remember that night really well.",
+        "gappedFrame": "____ ____, I remember that night really well.",
+        "fromLessonId": "lesson-50"
       }
     ],
     "gloss": {
@@ -5373,11 +5518,396 @@
       {
         "frame": "I don't like it at all.",
         "gappedFrame": "I don't like it ____ ____."
+      },
+      {
+        "frame": "That's not a problem at all.",
+        "gappedFrame": "That's not a problem ____ ____.",
+        "fromLessonId": "lesson-48"
       }
     ],
     "gloss": {
       "es": "para nada"
     },
     "definition": "in any way"
+  },
+  {
+    "id": "word-231",
+    "lemma": "yes",
+    "partOfSpeech": "adverb",
+    "frames": [
+      {
+        "frame": "Yes, I'm ready to go.",
+        "gappedFrame": "____, I'm ready to go."
+      }
+    ],
+    "gloss": {
+      "es": "sí"
+    },
+    "definition": "a word you say when you agree, or when something is true"
+  },
+  {
+    "id": "word-232",
+    "lemma": "kid",
+    "partOfSpeech": "noun",
+    "frames": [
+      {
+        "frame": "How old is your kid?",
+        "gappedFrame": "How old is your ____?"
+      }
+    ],
+    "gloss": {
+      "es": "chico o chica"
+    },
+    "definition": "a child"
+  },
+  {
+    "id": "word-233",
+    "lemma": "remember",
+    "partOfSpeech": "verb",
+    "frames": [
+      {
+        "frame": "Do you remember my name?",
+        "gappedFrame": "Do you ____ my name?"
+      }
+    ],
+    "gloss": {
+      "es": "recordar"
+    },
+    "definition": "to have something in your mind from before, or to bring it back into your mind"
+  },
+  {
+    "id": "word-234",
+    "lemma": "bit",
+    "partOfSpeech": "noun",
+    "frames": [
+      {
+        "frame": "It'll take a bit of time.",
+        "gappedFrame": "It'll take a ____ of time."
+      }
+    ],
+    "gloss": {
+      "es": "un poco"
+    },
+    "definition": "a small amount"
+  },
+  {
+    "id": "word-235",
+    "lemma": "probably",
+    "partOfSpeech": "adverb",
+    "frames": [
+      {
+        "frame": "She'll probably be late.",
+        "gappedFrame": "She'll ____ be late."
+      }
+    ],
+    "gloss": {
+      "es": "probablemente"
+    },
+    "definition": "almost sure to happen or to be true"
+  },
+  {
+    "id": "word-236",
+    "lemma": "yeah",
+    "partOfSpeech": "adverb",
+    "frames": [
+      {
+        "frame": "Yeah, I know what you mean.",
+        "gappedFrame": "____, I know what you mean."
+      }
+    ],
+    "gloss": {
+      "es": "ajá"
+    },
+    "definition": "yes, in the way people say it when they talk"
+  },
+  {
+    "id": "word-237",
+    "lemma": "sort",
+    "partOfSpeech": "adverb",
+    "frames": [
+      {
+        "frame": "I sort of like it.",
+        "gappedFrame": "I ____ of like it."
+      }
+    ],
+    "gloss": {
+      "es": "más o menos"
+    },
+    "definition": "used before of: in some way, but not completely"
+  },
+  {
+    "id": "word-238",
+    "lemma": "anything",
+    "partOfSpeech": "noun",
+    "frames": [
+      {
+        "frame": "You can ask me anything.",
+        "gappedFrame": "You can ask me ____."
+      }
+    ],
+    "gloss": {
+      "es": "cualquier cosa"
+    },
+    "definition": "any thing at all, when it does not matter which one"
+  },
+  {
+    "id": "word-239",
+    "lemma": "nice",
+    "partOfSpeech": "adjective",
+    "frames": [
+      {
+        "frame": "It's nice to meet you.",
+        "gappedFrame": "It's ____ to meet you."
+      }
+    ],
+    "gloss": {
+      "es": "agradable"
+    },
+    "definition": "good, in a way that you like"
+  },
+  {
+    "id": "word-240",
+    "lemma": "night",
+    "partOfSpeech": "noun",
+    "frames": [
+      {
+        "frame": "Where did you go last night?",
+        "gappedFrame": "Where did you go last ____?"
+      }
+    ],
+    "gloss": {
+      "es": "noche"
+    },
+    "definition": "the time when it is dark, between the evening and the morning"
+  },
+  {
+    "id": "word-241",
+    "lemma": "actually",
+    "partOfSpeech": "adverb",
+    "frames": [
+      {
+        "frame": "I actually like the new job.",
+        "gappedFrame": "I ____ like the new job."
+      }
+    ],
+    "gloss": {
+      "es": "en realidad"
+    },
+    "definition": "in fact; used when something is not what people think"
+  },
+  {
+    "id": "word-242",
+    "lemma": "okay",
+    "partOfSpeech": "adjective",
+    "frames": [
+      {
+        "frame": "Is it okay if I come in?",
+        "gappedFrame": "Is it ____ if I come in?"
+      }
+    ],
+    "gloss": {
+      "es": "bien"
+    },
+    "definition": "good enough, or not a problem"
+  },
+  {
+    "id": "word-243",
+    "lemma": "stuff",
+    "partOfSpeech": "noun",
+    "frames": [
+      {
+        "frame": "I have a lot of stuff to do today.",
+        "gappedFrame": "I have a lot of ____ to do today."
+      }
+    ],
+    "gloss": {
+      "es": "cosas"
+    },
+    "definition": "things, when you do not say which ones"
+  },
+  {
+    "id": "word-244",
+    "lemma": "test",
+    "partOfSpeech": "noun",
+    "frames": [
+      {
+        "frame": "We have a test tomorrow.",
+        "gappedFrame": "We have a ____ tomorrow."
+      }
+    ],
+    "gloss": {
+      "es": "examen"
+    },
+    "definition": "a set of questions to see how much someone knows"
+  },
+  {
+    "id": "word-245",
+    "lemma": "half",
+    "partOfSpeech": "noun",
+    "frames": [
+      {
+        "frame": "Do you want half of it?",
+        "gappedFrame": "Do you want ____ of it?"
+      }
+    ],
+    "gloss": {
+      "es": "mitad"
+    },
+    "definition": "one of 2 parts of something that are the same size"
+  },
+  {
+    "id": "word-246",
+    "lemma": "quite",
+    "partOfSpeech": "adverb",
+    "frames": [
+      {
+        "frame": "The house isn't quite ready.",
+        "gappedFrame": "The house isn't ____ ready."
+      }
+    ],
+    "gloss": {
+      "es": "del todo"
+    },
+    "definition": "in every way; all the way"
+  },
+  {
+    "id": "word-247",
+    "lemma": "sure",
+    "partOfSpeech": "adjective",
+    "frames": [
+      {
+        "frame": "I'm not sure what time it is.",
+        "gappedFrame": "I'm not ____ what time it is."
+      }
+    ],
+    "gloss": {
+      "es": "seguro"
+    },
+    "definition": "knowing that something is true"
+  },
+  {
+    "id": "word-248",
+    "lemma": "thank",
+    "partOfSpeech": "verb",
+    "frames": [
+      {
+        "frame": "Thank you for your help.",
+        "gappedFrame": "____ you for your help."
+      }
+    ],
+    "gloss": {
+      "es": "dar las gracias"
+    },
+    "definition": "to tell someone that you are happy about what they did for you"
+  },
+  {
+    "id": "word-249",
+    "lemma": "maybe",
+    "partOfSpeech": "adverb",
+    "frames": [
+      {
+        "frame": "I don't know, maybe tomorrow.",
+        "gappedFrame": "I don't know, ____ tomorrow."
+      }
+    ],
+    "gloss": {
+      "es": "quizás"
+    },
+    "definition": "it is possible; it might be true or might happen"
+  },
+  {
+    "id": "word-250",
+    "lemma": "else",
+    "partOfSpeech": "adverb",
+    "frames": [
+      {
+        "frame": "What else do you need?",
+        "gappedFrame": "What ____ do you need?"
+      }
+    ],
+    "gloss": {
+      "es": "más"
+    },
+    "definition": "other, or more than what you said"
+  },
+  {
+    "id": "word-251",
+    "lemma": "end up",
+    "partOfSpeech": "verb",
+    "source": "phave",
+    "frames": [
+      {
+        "frame": "We'll probably end up at the market.",
+        "gappedFrame": "We'll probably ____ ____ at the market."
+      }
+    ],
+    "gloss": {
+      "es": "acabar"
+    },
+    "definition": "to be in a place or a state after other things happen, often when you did not plan it"
+  },
+  {
+    "id": "word-252",
+    "lemma": "get back",
+    "partOfSpeech": "verb",
+    "source": "phave",
+    "frames": [
+      {
+        "frame": "What time did you get back last night?",
+        "gappedFrame": "What time did you ____ ____ last night?"
+      }
+    ],
+    "gloss": {
+      "es": "estar de vuelta"
+    },
+    "definition": "to return to a place, often your home"
+  },
+  {
+    "id": "word-253",
+    "lemma": "look up",
+    "partOfSpeech": "verb",
+    "source": "phave",
+    "frames": [
+      {
+        "frame": "Can you look up from your book?",
+        "gappedFrame": "Can you ____ ____ from your book?"
+      }
+    ],
+    "gloss": {
+      "es": "levantar la vista"
+    },
+    "definition": "to raise your eyes from what you are doing"
+  },
+  {
+    "id": "word-254",
+    "lemma": "you see",
+    "partOfSpeech": "phrase",
+    "source": "phrase",
+    "frames": [
+      {
+        "frame": "It's my first day, you see.",
+        "gappedFrame": "It's my first day, ____ ____."
+      }
+    ],
+    "gloss": {
+      "es": "verás"
+    },
+    "definition": "said when explaining something to someone"
+  },
+  {
+    "id": "word-255",
+    "lemma": "something like that",
+    "partOfSpeech": "phrase",
+    "source": "phrase",
+    "frames": [
+      {
+        "frame": "She works at the station, or something like that.",
+        "gappedFrame": "She works at the station, or ____ ____ ____."
+      }
+    ],
+    "gloss": {
+      "es": "algo así"
+    },
+    "definition": "or a thing close to it, when you are not sure"
   }
 ]
