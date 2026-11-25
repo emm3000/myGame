@@ -56,7 +56,7 @@ export const lessonOneLexicon: ReadonlyArray<LexiconEntry> = [
     partOfSpeech: 'verb',
     definition: 'you do this for money',
   }),
-  entryOf('lesson-1-4', 'money', 'I do not have much money.', {
+  entryOf('lesson-1-4', 'money', 'Do you have much money?', {
     definition: 'you have this for food',
   }),
   entryOf('lesson-1-5', 'food', 'We have food for you.', { definition: 'we have this at home' }),
@@ -133,7 +133,8 @@ const fixtureRanks: ReadonlyArray<readonly [string, number]> = [
 ]
 
 const fixtureInflections: ReadonlyArray<readonly [string, ReadonlyArray<string>]> = [
-  ['be', ['is', 'are', 'am', 'was']],
+  ['be', ['is', 'are', 'am', 'was', 'isn']],
+  ['do', ['don']],
   ['have', ['has']],
   ['i', ['me', 'my']],
   ['we', ['us', 'our']],

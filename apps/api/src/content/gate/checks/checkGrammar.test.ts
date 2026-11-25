@@ -295,7 +295,6 @@ describe('content gate check 6, grammar', () => {
       ["n't", "We don't work at my new home.", "n't, an inflection"],
       ["'ll", "We'll work at my new home.", "'ll, an inflection"],
       ["possessive 's", "The school's food is new.", "'s, a possessive 's inflection"],
-      ['cannot', 'We cannot work at my new home.', 'cannot, an inflection'],
     ])('fails %s one lesson before the structure that admits it', (piece, frame, holding) => {
       expect(
         checkGrammar(afterLessonOne(pieceFrom('lesson-3', piece), newHomeHolding(frame), later)),
@@ -309,7 +308,6 @@ describe('content gate check 6, grammar', () => {
       ["'ll", "We'll work at my new home."],
       ["n't", "We don't work at my new home."],
       ["possessive 's", "The school's food is new."],
-      ['cannot', 'We cannot work at my new home.'],
     ])('passes %s from the lesson of the structure that admits it', (piece, frame) => {
       expect(
         checkGrammar(afterLessonOne(pieceFrom('lesson-2', piece), newHomeHolding(frame))),
@@ -374,6 +372,26 @@ describe('content gate check 6, grammar', () => {
       expect(checkGrammar(afterLessonOne(pieceFrom('lesson-3', "'ll"), defined, later))).toEqual([
         "word-1: definition holds 'll, an inflection admitted after lesson-2",
       ])
+    })
+
+    it('fails cannot in a definition one lesson before the structure that admits it', () => {
+      const defined = entryOf('word-1', 'new', 'My home is new.', {
+        partOfSpeech: 'adjective',
+        definition: 'we cannot have this at home',
+      })
+
+      expect(checkGrammar(afterLessonOne(pieceFrom('lesson-3', 'cannot'), defined, later))).toEqual(
+        ['word-1: definition holds cannot, an inflection admitted after lesson-2'],
+      )
+    })
+
+    it('passes cannot in a definition from the lesson of the structure that admits it', () => {
+      const defined = entryOf('word-1', 'new', 'My home is new.', {
+        partOfSpeech: 'adjective',
+        definition: 'we cannot have this at home',
+      })
+
+      expect(checkGrammar(afterLessonOne(pieceFrom('lesson-2', 'cannot'), defined))).toEqual([])
     })
 
     it('fails a lesson theme holding a piece admitted after the lesson', () => {

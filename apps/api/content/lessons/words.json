@@ -81,8 +81,8 @@
     "partOfSpeech": "noun",
     "frames": [
       {
-        "frame": "I do not have much money.",
-        "gappedFrame": "I do not have much ____."
+        "frame": "I don't have much money.",
+        "gappedFrame": "I don't have much ____."
       },
       {
         "frame": "We need money to build a school.",
@@ -161,8 +161,8 @@
         "gappedFrame": "Many ____ work at the school."
       },
       {
-        "frame": "Some people do not like the city.",
-        "gappedFrame": "Some ____ do not like the city.",
+        "frame": "Some people don't like the city.",
+        "gappedFrame": "Some ____ don't like the city.",
         "fromLessonId": "lesson-21"
       },
       {
@@ -2058,8 +2058,8 @@
         "gappedFrame": "Do you ____ this word?"
       },
       {
-        "frame": "I do not know where the station is.",
-        "gappedFrame": "I do not ____ where the station is.",
+        "frame": "I don't know where the station is.",
+        "gappedFrame": "I don't ____ where the station is.",
         "fromLessonId": "lesson-28"
       }
     ],
@@ -2361,8 +2361,8 @@
         "gappedFrame": "The school is ____ full."
       },
       {
-        "frame": "The pay is not very good.",
-        "gappedFrame": "The pay is not ____ good.",
+        "frame": "The pay isn't very good.",
+        "gappedFrame": "The pay isn't ____ good.",
         "fromLessonId": "lesson-35"
       }
     ],
@@ -2643,8 +2643,8 @@
         "gappedFrame": "She works ____."
       },
       {
-        "frame": "I do not feel well today.",
-        "gappedFrame": "I do not feel ____ today.",
+        "frame": "I don't feel well today.",
+        "gappedFrame": "I don't feel ____ today.",
         "fromLessonId": "lesson-44"
       }
     ],
@@ -3486,8 +3486,8 @@
         "gappedFrame": "Where do you ____?"
       },
       {
-        "frame": "I do not want to live in the city.",
-        "gappedFrame": "I do not want to ____ in the city.",
+        "frame": "I don't want to live in the city.",
+        "gappedFrame": "I don't want to ____ in the city.",
         "fromLessonId": "lesson-31"
       },
       {
@@ -3568,8 +3568,8 @@
         "fromLessonId": "lesson-33"
       },
       {
-        "frame": "Do not point at people.",
-        "gappedFrame": "Do not ____ at people.",
+        "frame": "Don't point at people.",
+        "gappedFrame": "Don't ____ at people.",
         "fromLessonId": "lesson-33"
       }
     ],
@@ -3722,8 +3722,8 @@
         "fromLessonId": "lesson-33"
       },
       {
-        "frame": "I have to point out that this number is not right.",
-        "gappedFrame": "I have to ____ ____ that this number is not right.",
+        "frame": "I have to point out that this number isn't right.",
+        "gappedFrame": "I have to ____ ____ that this number isn't right.",
         "fromLessonId": "lesson-33"
       }
     ],
@@ -3928,8 +3928,8 @@
         "fromLessonId": "lesson-35"
       },
       {
-        "frame": "Something is not right with the truck.",
-        "gappedFrame": "____ is not right with the truck.",
+        "frame": "Something isn't right with the truck.",
+        "gappedFrame": "____ isn't right with the truck.",
         "fromLessonId": "lesson-35"
       }
     ],
@@ -4249,13 +4249,13 @@
         "gappedFrame": "Can you ____ me?"
       },
       {
-        "frame": "I did not hear what she said.",
-        "gappedFrame": "I did not ____ what she said.",
+        "frame": "I didn't hear what she said.",
+        "gappedFrame": "I didn't ____ what she said.",
         "fromLessonId": "lesson-38"
       },
       {
-        "frame": "I can hear the children, but I cannot see them.",
-        "gappedFrame": "I can ____ the children, but I cannot see them.",
+        "frame": "I can hear the children, but I can't see them.",
+        "gappedFrame": "I can ____ the children, but I can't see them.",
         "fromLessonId": "lesson-38"
       }
     ],
@@ -4331,8 +4331,8 @@
         "fromLessonId": "lesson-38"
       },
       {
-        "frame": "We do not have the money to go out.",
-        "gappedFrame": "We do not have the money to ____ ____.",
+        "frame": "We don't have the money to go out.",
+        "gappedFrame": "We don't have the money to ____ ____.",
         "fromLessonId": "lesson-38"
       }
     ],
@@ -4529,8 +4529,8 @@
         "gappedFrame": "You can ____ the map."
       },
       {
-        "frame": "Keep it, I do not need it.",
-        "gappedFrame": "____ it, I do not need it.",
+        "frame": "Keep it, I don't need it.",
+        "gappedFrame": "____ it, I don't need it.",
         "fromLessonId": "lesson-39"
       },
       {
@@ -4554,8 +4554,8 @@
         "gappedFrame": "The hill is very ____."
       },
       {
-        "frame": "Put it up high, where the children cannot find it.",
-        "gappedFrame": "Put it up ____, where the children cannot find it.",
+        "frame": "Put it up high, where the children can't find it.",
+        "gappedFrame": "Put it up ____, where the children can't find it.",
         "fromLessonId": "lesson-40"
       },
       {
@@ -4634,8 +4634,8 @@
         "fromLessonId": "lesson-40"
       },
       {
-        "frame": "Every other team has a map, but we do not.",
-        "gappedFrame": "____ other team has a map, but we do not.",
+        "frame": "Every other team has a map, but we don't.",
+        "gappedFrame": "____ other team has a map, but we don't.",
         "fromLessonId": "lesson-40"
       }
     ],
@@ -4659,8 +4659,8 @@
         "fromLessonId": "lesson-40"
       },
       {
-        "frame": "They will not let us build on that site.",
-        "gappedFrame": "They will not ____ us build on that site.",
+        "frame": "They won't let us build on that site.",
+        "gappedFrame": "They won't ____ us build on that site.",
         "fromLessonId": "lesson-40"
       }
     ],
@@ -4679,8 +4679,8 @@
         "gappedFrame": "I read ____ I wait."
       },
       {
-        "frame": "Do not talk while I am talking.",
-        "gappedFrame": "Do not talk ____ I am talking.",
+        "frame": "Don't talk while I am talking.",
+        "gappedFrame": "Don't talk ____ I am talking.",
         "fromLessonId": "lesson-41"
       },
       {
@@ -4809,8 +4809,8 @@
         "fromLessonId": "lesson-43"
       },
       {
-        "frame": "I do not know, I might work late.",
-        "gappedFrame": "I do not know, I ____ work late.",
+        "frame": "I don't know, I might work late.",
+        "gappedFrame": "I don't know, I ____ work late.",
         "fromLessonId": "lesson-43"
       }
     ],
@@ -4959,8 +4959,8 @@
     "source": "phave",
     "frames": [
       {
-        "frame": "She does not want to give up her job.",
-        "gappedFrame": "She does not want to ____ ____ her job."
+        "frame": "She doesn't want to give up her job.",
+        "gappedFrame": "She doesn't want to ____ ____ her job."
       }
     ],
     "gloss": {
@@ -5006,8 +5006,8 @@
     "partOfSpeech": "verb",
     "frames": [
       {
-        "frame": "The pay does not include food.",
-        "gappedFrame": "The pay does not ____ food."
+        "frame": "The pay doesn't include food.",
+        "gappedFrame": "The pay doesn't ____ food."
       }
     ],
     "gloss": {
@@ -5156,8 +5156,8 @@
     "partOfSpeech": "verb",
     "frames": [
       {
-        "frame": "It does not seem right.",
-        "gappedFrame": "It does not ____ right."
+        "frame": "It doesn't seem right.",
+        "gappedFrame": "It doesn't ____ right."
       }
     ],
     "gloss": {
@@ -5355,8 +5355,8 @@
     "source": "phrase",
     "frames": [
       {
-        "frame": "It is not a small town; in fact, it is a city.",
-        "gappedFrame": "It is not a small town; ____ ____, it is a city."
+        "frame": "It isn't a small town; in fact, it is a city.",
+        "gappedFrame": "It isn't a small town; ____ ____, it is a city."
       }
     ],
     "gloss": {
@@ -5371,8 +5371,8 @@
     "source": "phrase",
     "frames": [
       {
-        "frame": "I do not like it at all.",
-        "gappedFrame": "I do not like it ____ ____."
+        "frame": "I don't like it at all.",
+        "gappedFrame": "I don't like it ____ ____."
       }
     ],
     "gloss": {

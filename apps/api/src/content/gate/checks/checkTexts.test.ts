@@ -67,6 +67,12 @@ describe('content gate check 4, coverage of a running text', () => {
     expect(checkTexts(withTexts(text))).toEqual([])
   })
 
+  it('passes a text holding a contraction, its clitic left to the grammar check', () => {
+    const text = textOf('lesson-2', ["We don't leave home."])
+
+    expect(checkTexts(withTexts(text))).toEqual([])
+  })
+
   it('fails a text holding a token unknown at its lesson', () => {
     const text = textOf('lesson-2', ['We leave my new home.'])
 
