@@ -30,7 +30,7 @@ import org.junit.runner.RunWith
 import org.robolectric.RobolectricTestRunner
 
 @RunWith(RobolectricTestRunner::class)
-class SchoolLearningTest {
+class SchoolLearningCapTest {
 
     @get:Rule
     val composeRule: ComposeContentTestRule = createComposeRule()
@@ -49,6 +49,9 @@ class SchoolLearningTest {
         path = SchoolPathCounts(held = 0, read = 0, reviewed = 0, learned = 0),
         state = SchoolUiState.LessonState.Open(block = null),
     )
+
+    private val secondCard: SchoolUiState.LessonCard =
+        readyLesson.copy(lesson = secondLesson, number = 2, theme = "Work and money")
 
     private val idleSchool: SchoolUiState.Content = SchoolUiState.Content(
         schoolLevel = 1,
@@ -228,5 +231,19 @@ class SchoolLearningTest {
             .performScrollTo()
             .assertIsDisplayed()
         composeRule.onAllNodesWithText("Repásalas", substring = true).assertCountEquals(0)
+    }
+
+    @Test
+    fun `states the cap's figure once, in the learning card, with 8 of 10 words`() {
+        val capBlock = SchoolUiState.LessonState.Open(SchoolUiState.LessonBlock.CapReached)
+        show(
+            idleSchool.copy(
+                learning = idleSchool.learning.copy(inLearning = 8),
+                lessons = listOf(readyLesson.copy(state = capBlock), secondCard.copy(state = capBlock)),
+            ),
+        )
+
+        composeRule.onAllNodesWithText("8 de 10", substring = true, useUnmergedTree = true).assertCountEquals(1)
+        showing("Palabras en aprendizaje: 8 de 10")
     }
 }

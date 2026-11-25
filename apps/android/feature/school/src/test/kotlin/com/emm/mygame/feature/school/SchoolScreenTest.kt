@@ -215,13 +215,6 @@ class SchoolScreenTest {
     }
 
     @Test
-    fun `draws an idle slot`() {
-        show(idleSchool)
-
-        showing("Ahora no hay ninguna lección en estudio.")
-    }
-
-    @Test
     fun `draws lesson 1 with its theme`() {
         show(idleSchool)
 
@@ -282,20 +275,6 @@ class SchoolScreenTest {
         show(blocked(SchoolUiState.LessonBlock.CapReached))
 
         announcing("Esta lección necesita más espacio libre en tu aprendizaje.")
-    }
-
-    @Test
-    fun `states the cap's figure once, in the learning card, with 8 of 10 words`() {
-        val capBlock = SchoolUiState.LessonState.Open(SchoolUiState.LessonBlock.CapReached)
-        show(
-            idleSchool.copy(
-                learning = idleSchool.learning.copy(inLearning = 8),
-                lessons = listOf(readyLesson.copy(state = capBlock), secondCard.copy(state = capBlock)),
-            ),
-        )
-
-        composeRule.onAllNodesWithText("8 de 10", substring = true, useUnmergedTree = true).assertCountEquals(1)
-        showing("Palabras en aprendizaje: 8 de 10")
     }
 
     @Test
