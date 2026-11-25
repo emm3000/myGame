@@ -1,4 +1,4 @@
-package com.emm.mygame.feature.learning
+package com.emm.mygame.feature.learning.reviews
 
 import androidx.compose.ui.semantics.SemanticsActions
 import androidx.compose.ui.test.SemanticsMatcher

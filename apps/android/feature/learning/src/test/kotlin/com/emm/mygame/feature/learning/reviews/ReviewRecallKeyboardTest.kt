@@ -1,4 +1,4 @@
-package com.emm.mygame.feature.learning
+package com.emm.mygame.feature.learning.reviews
 
 import android.text.InputType
 import android.view.View

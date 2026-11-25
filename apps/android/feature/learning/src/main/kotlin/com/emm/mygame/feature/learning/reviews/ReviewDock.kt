@@ -1,4 +1,4 @@
-package com.emm.mygame.feature.learning
+package com.emm.mygame.feature.learning.reviews
 
 import androidx.annotation.StringRes
 import androidx.compose.runtime.Composable
@@ -13,6 +13,7 @@ import com.emm.mygame.core.ui.TaskDock
 import com.emm.mygame.core.ui.TaskDockHook
 import com.emm.mygame.core.ui.chromeResource
 import com.emm.mygame.core.ui.fixedCopyResource
+import com.emm.mygame.feature.learning.R
 
 @Composable
 internal fun ReviewDock(state: ReviewUiState, onIntent: (ReviewIntent) -> Unit, task: TaskDockHook) {

@@ -1,4 +1,4 @@
-package com.emm.mygame.feature.learning
+package com.emm.mygame.feature.learning.reviews
 
 import com.emm.mygame.core.model.learning.FrameSpan
 import com.emm.mygame.core.model.learning.LessonId
