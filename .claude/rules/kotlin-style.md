@@ -15,7 +15,7 @@ None. No KDoc, no `//`, no `/* */`, no commented-out code, no `// region` banner
 
 ## Types
 
-- Return type on every function, single-expression ones included: `fun capacityOf(level: Int): Int = ...`.
+- Return type on every function, single-expression ones included: `fun capacityOf(level: Int): Int = ...`. A block-bodied function that returns `Unit` omits it, as detekt's `NoUnitReturn` asks.
 - Type on every property and every local `val` / `var`: `val remaining: Int = queue.slotsLeft()`.
 - Declare the supertype the caller should depend on: `val state: StateFlow<TownUiState>`, never the `MutableStateFlow` behind it; `List` over `MutableList`.
 - Omit the type only where it is noise: a constructor call that already names it (`val request = EnqueueBuildingRequest(...)`), a delegated property (`by viewModels()`, `by remember`), a lambda parameter fixed by its receiver.
