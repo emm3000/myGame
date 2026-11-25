@@ -44,9 +44,7 @@ class LessonWordsViewModel(
 
     private var shown: LessonRead? = null
 
-    private var wordIndex: Int = 0
-
-    private var shownSupport: LessonWordsUiState.ShownSupport? = null
+    private var taps: LessonWordsTaps = LessonWordsTaps.none
 
     private var gap: Duration = Duration.ZERO
 
@@ -106,15 +104,14 @@ class LessonWordsViewModel(
 
     private fun showNextWord() {
         val reading: LessonWordsUiState.Reading = _state.value as? LessonWordsUiState.Reading ?: return
-        wordIndex = minOf(reading.index + 1, reading.words.lastIndex)
-        shownSupport = null
-        _state.value = reading.copy(index = wordIndex, shownSupport = shownSupport)
+        taps = LessonWordsTaps(wordIndex = minOf(reading.index + 1, reading.words.lastIndex), shownSupport = null)
+        _state.value = reading.copy(index = taps.wordIndex, shownSupport = taps.shownSupport)
     }
 
     private fun tapSupport(support: LessonWordsUiState.ShownSupport) {
         val reading: LessonWordsUiState.Reading = _state.value as? LessonWordsUiState.Reading ?: return
-        shownSupport = if (shownSupport == support) null else support
-        _state.value = reading.copy(shownSupport = shownSupport)
+        taps = taps.copy(shownSupport = if (taps.shownSupport == support) null else support)
+        _state.value = reading.copy(shownSupport = taps.shownSupport)
     }
 
     private suspend fun follow(first: LessonRead, firstReadAt: Instant?) {
@@ -147,9 +144,11 @@ class LessonWordsViewModel(
     private fun draw(read: LessonRead) {
         shown = read
         val drawnWord: TownSnapshot.WordReading? = (_state.value as? LessonWordsUiState.Reading)?.word
-        val next: LessonWordsUiState = read.stateOf(walk, wordIndex, shownSupport, serverNow())
-        if (next is LessonWordsUiState.Reading && drawnWord != null && next.word != drawnWord) shownSupport = null
-        _state.value = if (next is LessonWordsUiState.Reading) next.copy(shownSupport = shownSupport) else next
+        val next: LessonWordsUiState = read.stateOf(walk, taps.wordIndex, taps.shownSupport, serverNow())
+        if (next is LessonWordsUiState.Reading && drawnWord != null && next.word != drawnWord) {
+            taps = taps.copy(shownSupport = null)
+        }
+        _state.value = if (next is LessonWordsUiState.Reading) next.copy(shownSupport = taps.shownSupport) else next
     }
 
     private suspend fun read(): LessonAnswer {

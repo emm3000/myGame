@@ -67,14 +67,14 @@ class SchoolNextStepViewModelTest {
         val viewModel: SchoolViewModel = schoolReadingFrom(towns, townOf(nextStep = releasedStep))
 
         startsOf(viewModel).test {
-            assertEquals(SchoolUiState.LessonRequest.Idle, awaitItem())
+            assertEquals(SchoolUiState.LessonRequestStatus.Idle, awaitItem())
             viewModel.onIntent(SchoolIntent.StudyTapped(releasedLesson))
-            assertEquals(SchoolUiState.LessonRequest.Waiting, awaitItem())
+            assertEquals(SchoolUiState.LessonRequestStatus.Waiting, awaitItem())
 
             towns.answerLesson(TownLessonResult.Refused(TownLessonRefusal.StudySlotBusy))
 
             assertEquals(
-                SchoolUiState.LessonRequest.Refused(releasedLesson, TownLessonRefusal.StudySlotBusy),
+                SchoolUiState.LessonRequestStatus.Refused(releasedLesson, TownLessonRefusal.StudySlotBusy),
                 awaitItem(),
             )
         }
@@ -85,17 +85,17 @@ class SchoolNextStepViewModelTest {
         val viewModel: SchoolViewModel = schoolReadingFrom(towns, townOf(nextStep = releasedStep))
 
         startsOf(viewModel).test {
-            assertEquals(SchoolUiState.LessonRequest.Idle, awaitItem())
+            assertEquals(SchoolUiState.LessonRequestStatus.Idle, awaitItem())
             viewModel.onIntent(SchoolIntent.StudyTapped(releasedLesson))
-            assertEquals(SchoolUiState.LessonRequest.Waiting, awaitItem())
+            assertEquals(SchoolUiState.LessonRequestStatus.Waiting, awaitItem())
 
             towns.answerLesson(TownLessonResult.Answered(townOf()))
 
-            assertEquals(SchoolUiState.LessonRequest.Idle, awaitItem())
+            assertEquals(SchoolUiState.LessonRequestStatus.Idle, awaitItem())
         }
     }
 
-    private fun startsOf(viewModel: SchoolViewModel): Flow<SchoolUiState.LessonRequest?> = viewModel.state
+    private fun startsOf(viewModel: SchoolViewModel): Flow<SchoolUiState.LessonRequestStatus?> = viewModel.state
         .map { state: SchoolUiState -> (state as? SchoolUiState.Content)?.start }
         .distinctUntilChanged()
 }

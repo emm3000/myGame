@@ -109,8 +109,8 @@ class SchoolLookTest {
         texts = emptyList(),
         studyMark = null,
         nextStep = caughtUpCard,
-        start = SchoolUiState.LessonRequest.Idle,
-        stop = SchoolUiState.LessonRequest.Idle,
+        start = SchoolUiState.LessonRequestStatus.Idle,
+        stop = SchoolUiState.LessonRequestStatus.Idle,
         isHoldoutNoteShown = false,
         bandLines = emptyList(),
     )

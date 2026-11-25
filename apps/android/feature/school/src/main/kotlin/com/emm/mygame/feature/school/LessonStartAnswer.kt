@@ -10,15 +10,15 @@ import com.emm.mygame.core.ui.rememberPlayerCopy
 @Composable
 internal fun LessonStartAnswer(
     lesson: LessonId,
-    start: SchoolUiState.LessonRequest,
+    start: SchoolUiState.LessonRequestStatus,
     opening: SchoolUiState.CapOpening,
     modifier: Modifier = Modifier,
 ) {
     val copy: PlayerCopy = rememberPlayerCopy()
     val asked: LessonId? = when (start) {
-        is SchoolUiState.LessonRequest.Refused -> start.lesson
-        is SchoolUiState.LessonRequest.Unreachable -> start.lesson
-        SchoolUiState.LessonRequest.Idle, SchoolUiState.LessonRequest.Waiting -> null
+        is SchoolUiState.LessonRequestStatus.Refused -> start.lesson
+        is SchoolUiState.LessonRequestStatus.Unreachable -> start.lesson
+        SchoolUiState.LessonRequestStatus.Idle, SchoolUiState.LessonRequestStatus.Waiting -> null
     }
     if (asked != lesson) return
     copy.requestAnswerOf(start, opening)?.let { line: String -> MyGameInlineAlert(message = line, modifier = modifier) }

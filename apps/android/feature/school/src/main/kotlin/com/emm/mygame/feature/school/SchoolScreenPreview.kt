@@ -96,8 +96,8 @@ private val previewContent: SchoolUiState.Content = SchoolUiState.Content(
         countdown = null,
         action = NextStepCard.Action.Study(number = 1),
     ),
-    start = SchoolUiState.LessonRequest.Idle,
-    stop = SchoolUiState.LessonRequest.Idle,
+    start = SchoolUiState.LessonRequestStatus.Idle,
+    stop = SchoolUiState.LessonRequestStatus.Idle,
     isHoldoutNoteShown = true,
     bandLines = listOf(TownSnapshot.BandLine(PlacementBand.First, count = 12, total = 875)),
 )
@@ -164,13 +164,16 @@ private class SchoolUiStates : PreviewParameterProvider<SchoolUiState> {
         previewReleasedStudying,
         previewReleasedStudied,
         previewContent.copy(
-            start = SchoolUiState.LessonRequest.Refused(previewNextReleasedLesson, TownLessonRefusal.StudySlotBusy),
+            start = SchoolUiState.LessonRequestStatus.Refused(
+                previewNextReleasedLesson,
+                TownLessonRefusal.StudySlotBusy,
+            ),
         ),
         previewContent.copy(lessons = emptyList(), releasedLessons = emptyList(), skills = emptyList()),
         previewContent.copy(
-            start = SchoolUiState.LessonRequest.Refused(previewFirstLesson, TownLessonRefusal.StudySlotBusy),
+            start = SchoolUiState.LessonRequestStatus.Refused(previewFirstLesson, TownLessonRefusal.StudySlotBusy),
         ),
-        previewContent.copy(start = SchoolUiState.LessonRequest.Unreachable(previewFirstLesson)),
+        previewContent.copy(start = SchoolUiState.LessonRequestStatus.Unreachable(previewFirstLesson)),
         previewContent.copy(
             nextStep = NextStepCard(
                 line = NextStepCard.Line.HoldoutCheck(PlacementBand.First),
@@ -186,7 +189,7 @@ private class SchoolUiStates : PreviewParameterProvider<SchoolUiState> {
                 countdown = null,
                 action = NextStepCard.Action.StudyReleased(previewReleasedLesson),
             ),
-            start = SchoolUiState.LessonRequest.Refused(previewReleasedLesson, TownLessonRefusal.StudySlotBusy),
+            start = SchoolUiState.LessonRequestStatus.Refused(previewReleasedLesson, TownLessonRefusal.StudySlotBusy),
         ),
         SchoolUiState.Loading,
         SchoolUiState.Failed,

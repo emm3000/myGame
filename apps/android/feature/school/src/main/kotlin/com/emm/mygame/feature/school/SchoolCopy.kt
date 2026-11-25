@@ -48,12 +48,12 @@ private fun CopyReader.capRefusalLineOf(
 }
 
 internal fun PlayerCopy.requestAnswerOf(
-    request: SchoolUiState.LessonRequest,
+    request: SchoolUiState.LessonRequestStatus,
     opening: SchoolUiState.CapOpening,
 ): String? = when (request) {
-    is SchoolUiState.LessonRequest.Refused -> fixedCopy { refusalLineOf(request.refusal, opening) }
-    is SchoolUiState.LessonRequest.Unreachable -> fixedCopy(R.string.school_refusal_unexpected)
-    SchoolUiState.LessonRequest.Idle, SchoolUiState.LessonRequest.Waiting -> null
+    is SchoolUiState.LessonRequestStatus.Refused -> fixedCopy { refusalLineOf(request.refusal, opening) }
+    is SchoolUiState.LessonRequestStatus.Unreachable -> fixedCopy(R.string.school_refusal_unexpected)
+    SchoolUiState.LessonRequestStatus.Idle, SchoolUiState.LessonRequestStatus.Waiting -> null
 }
 
 internal fun CopyReader.lessonSummaryOf(card: SchoolUiState.LessonCard): String = text(

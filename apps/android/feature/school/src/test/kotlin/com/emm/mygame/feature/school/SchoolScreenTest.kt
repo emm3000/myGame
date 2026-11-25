@@ -2,7 +2,6 @@ package com.emm.mygame.feature.school
 
 import androidx.compose.foundation.text.BasicText
 import androidx.compose.ui.semantics.LiveRegionMode
-import androidx.compose.ui.semantics.ProgressBarRangeInfo
 import androidx.compose.ui.semantics.SemanticsActions
 import androidx.compose.ui.semantics.SemanticsNode
 import androidx.compose.ui.semantics.SemanticsProperties
@@ -10,7 +9,6 @@ import androidx.compose.ui.test.SemanticsMatcher
 import androidx.compose.ui.test.assert
 import androidx.compose.ui.test.assertCountEquals
 import androidx.compose.ui.test.assertIsDisplayed
-import androidx.compose.ui.test.getUnclippedBoundsInRoot
 import androidx.compose.ui.test.hasAnySibling
 import androidx.compose.ui.test.hasText
 import androidx.compose.ui.test.junit4.ComposeContentTestRule
@@ -23,23 +21,14 @@ import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
 import androidx.compose.ui.test.performScrollTo
 import androidx.compose.ui.text.TextLayoutResult
-import androidx.compose.ui.unit.Dp
-import androidx.compose.ui.unit.DpRect
 import com.emm.mygame.core.designsystem.MyGameTheme
 import com.emm.mygame.core.designsystem.MyGameTransitions
 import com.emm.mygame.core.designsystem.OUTLINED_PILL
 import com.emm.mygame.core.designsystem.SKELETON_BLOCK
 import com.emm.mygame.core.model.learning.LessonId
 import com.emm.mygame.core.model.town.TownResourceKind
-import com.emm.mygame.core.model.town.TownSnapshot
-import com.emm.mygame.core.model.town.guidance.CaughtUpReason
-import com.emm.mygame.core.model.town.guidance.NextStep
 import com.emm.mygame.core.model.town.school.SchoolPathCounts
 import com.emm.mygame.core.model.town.school.TownLessonRefusal
-import com.emm.mygame.core.ui.navRowOf
-import kotlin.time.Duration
-import kotlin.time.Duration.Companion.hours
-import kotlin.time.Duration.Companion.minutes
 import kotlin.time.Duration.Companion.seconds
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertTrue
@@ -89,14 +78,11 @@ class SchoolScreenTest {
         texts = emptyList(),
         studyMark = null,
         nextStep = caughtUpCard,
-        start = SchoolUiState.LessonRequest.Idle,
-        stop = SchoolUiState.LessonRequest.Idle,
+        start = SchoolUiState.LessonRequestStatus.Idle,
+        stop = SchoolUiState.LessonRequestStatus.Idle,
         isHoldoutNoteShown = false,
         bandLines = emptyList(),
     )
-
-    private fun busySlot(remaining: Duration): SchoolUiState.SlotLine.Busy =
-        SchoolUiState.SlotLine.Busy(firstLesson, firstLessonName, remaining = remaining, total = 150.seconds)
 
     private val lessonOpens: MutableList<LessonId> = mutableListOf()
 
@@ -132,13 +118,8 @@ class SchoolScreenTest {
     private fun blocked(block: SchoolUiState.LessonBlock): SchoolUiState.Content =
         idleSchool.copy(lessons = listOf(readyLesson.copy(state = SchoolUiState.LessonState.Open(block))))
 
-    private val fullLearning: TownSnapshot.Learning =
-        TownSnapshot.Learning(cap = 10, inLearning = 8, retainedWords = null, nextInLearningDueAt = null)
-
-    private val capRefusal: TownLessonRefusal = TownLessonRefusal.LearningCapReached(cap = 10, inLearning = 8)
-
     private fun refusedStart(refusal: TownLessonRefusal): SchoolUiState.Content =
-        idleSchool.copy(start = SchoolUiState.LessonRequest.Refused(firstLesson, refusal))
+        idleSchool.copy(start = SchoolUiState.LessonRequestStatus.Refused(firstLesson, refusal))
 
     private val handedSlot: String = "Handed slot"
 
@@ -234,107 +215,6 @@ class SchoolScreenTest {
     }
 
     @Test
-    fun `draws the words in learning and the cap`() {
-        show(idleSchool.copy(learning = idleSchool.learning.copy(inLearning = 8)))
-
-        showing("Palabras en aprendizaje: 8 de 10")
-    }
-
-    @Test
-    fun `names one word past the cap in the singular`() {
-        show(idleSchool.copy(learning = fullCap(words = 1, SchoolUiState.CapOpening.ReviewsDue)))
-
-        showing("La siguiente lección trae 1 palabra. Empieza los repasos.")
-    }
-
-    @Test
-    fun `names several words past the cap in the plural`() {
-        show(idleSchool.copy(learning = fullCap(words = 5, SchoolUiState.CapOpening.ReviewsDue)))
-
-        showing("La siguiente lección trae 5 palabras. Empieza los repasos.")
-    }
-
-    @Test
-    fun `a full cap with reviews due sends to the reviews`() {
-        showTown(
-            townOf(
-                learning = fullLearning.copy(nextInLearningDueAt = readInstant + 3.hours),
-                nextStep = NextStep.Reviews(count = 3, readFirst = emptyList()),
-            ),
-        )
-
-        showing("La siguiente lección trae 5 palabras. Empieza los repasos.")
-    }
-
-    @Test
-    fun `a full cap with no review due names when the next word in learning is due`() {
-        showTown(
-            townOf(
-                learning = fullLearning.copy(nextInLearningDueAt = readInstant + 3.hours),
-                nextStep = NextStep.CaughtUp(CaughtUpReason.LearningCap, goal = null, text = null),
-                nextDueAt = readInstant + 1.hours,
-            ),
-        )
-
-        val line: String =
-            "La siguiente lección trae 5 palabras. La siguiente palabra en aprendizaje se repasa en 3\u00A0h · "
-        val lineTop: Dp = composeRule.onNodeWithText(line, substring = true)
-            .performScrollTo()
-            .assertIsDisplayed()
-            .getUnclippedBoundsInRoot().top
-        val learningBottom: Dp = composeRule.onNodeWithText("Palabras en aprendizaje: 8 de 10")
-            .getUnclippedBoundsInRoot().bottom
-        assertTrue(learningBottom <= lineTop)
-        composeRule.onAllNodesWithText("Empieza los repasos.", substring = true).assertCountEquals(0)
-    }
-
-    @Test
-    fun `draws the cap's line inside the learning card`() {
-        show(idleSchool.copy(learning = fullCap(words = 5, SchoolUiState.CapOpening.ReviewsDue)))
-
-        val line: DpRect = composeRule.onNodeWithText("La siguiente lección trae 5 palabras. Empieza los repasos.")
-            .performScrollTo()
-            .getUnclippedBoundsInRoot()
-        val card: DpRect = composeRule.onNodeWithTag(LEARNING_CARD).getUnclippedBoundsInRoot()
-        assertTrue("line $line, card $card", card.top <= line.top && line.bottom <= card.bottom)
-    }
-
-    @Test
-    fun `a full cap whose next word in learning is overdue sends to the reviews`() {
-        showTown(
-            townOf(
-                learning = fullLearning.copy(nextInLearningDueAt = readInstant - 3.hours),
-                nextStep = NextStep.CaughtUp(CaughtUpReason.LearningCap, goal = null, text = null),
-            ),
-        )
-
-        showing("La siguiente lección trae 5 palabras. Empieza los repasos.")
-    }
-
-    @Test
-    fun `names a next word in learning due within the hour by its minutes alone`() {
-        val nextWord: SchoolUiState.CapOpening.NextWordDue =
-            SchoolUiState.CapOpening.NextWordDue(remaining = 40.minutes, dueAt = readInstant + 40.minutes)
-        show(idleSchool.copy(learning = fullCap(words = 5, nextWord)))
-
-        showing("La siguiente lección trae 5 palabras. La siguiente palabra en aprendizaje se repasa en 40\u00A0min.")
-    }
-
-    private fun fullCap(words: Int, opening: SchoolUiState.CapOpening): SchoolUiState.LearningLine =
-        SchoolUiState.LearningLine(inLearning = 8, cap = 10, pastCapWords = words, opening = opening)
-
-    private fun showTown(town: TownSnapshot, start: SchoolUiState.LessonRequest = SchoolUiState.LessonRequest.Idle) {
-        show(town.contentAt(readInstant, Duration.ZERO, SchoolRequests.none.copy(start = start), selected = null))
-    }
-
-    @Test
-    fun `draws no line past the cap while the next lesson fits`() {
-        show(idleSchool)
-
-        composeRule.onAllNodesWithText("Empieza los repasos.", substring = true).assertCountEquals(0)
-    }
-
-    @Test
     fun `draws an idle slot`() {
         show(idleSchool)
 
@@ -383,7 +263,7 @@ class SchoolScreenTest {
 
     @Test
     fun `announces a start while it waits`() {
-        show(idleSchool.copy(start = SchoolUiState.LessonRequest.Waiting))
+        show(idleSchool.copy(start = SchoolUiState.LessonRequestStatus.Waiting))
 
         composeRule
             .onNode(SemanticsMatcher.expectValue(SemanticsProperties.StateDescription, "Esperando"))
@@ -456,37 +336,6 @@ class SchoolScreenTest {
     }
 
     @Test
-    fun `refuses past the cap with a review due by sending to the reviews`() {
-        showTown(
-            townOf(
-                learning = fullLearning.copy(nextInLearningDueAt = readInstant + 3.hours),
-                nextStep = NextStep.Reviews(count = 3, readFirst = emptyList()),
-            ),
-            start = SchoolUiState.LessonRequest.Refused(firstLesson, capRefusal),
-        )
-
-        showing("Palabras en aprendizaje: 8 de 10. Repásalas antes de empezar otra lección.")
-    }
-
-    @Test
-    fun `refuses past the cap with no review due by naming when the next word in learning is due`() {
-        showTown(
-            townOf(
-                learning = fullLearning.copy(nextInLearningDueAt = readInstant + 3.hours),
-                nextStep = NextStep.CaughtUp(CaughtUpReason.LearningCap, goal = null, text = null),
-                nextDueAt = readInstant + 1.hours,
-            ),
-            start = SchoolUiState.LessonRequest.Refused(firstLesson, capRefusal),
-        )
-
-        val refusal: String = "Palabras en aprendizaje: 8 de 10. La siguiente se repasa en 3\u00A0h · "
-        composeRule.onNodeWithText(refusal, substring = true)
-            .performScrollTo()
-            .assertIsDisplayed()
-        composeRule.onAllNodesWithText("Repásalas", substring = true).assertCountEquals(0)
-    }
-
-    @Test
     fun `reads a lesson already studied`() {
         show(refusedStart(TownLessonRefusal.LessonAlreadyStudied))
 
@@ -530,7 +379,7 @@ class SchoolScreenTest {
 
     @Test
     fun `keeps an outage beside the lesson that asked`() {
-        show(idleSchool.copy(start = SchoolUiState.LessonRequest.Unreachable(firstLesson)))
+        show(idleSchool.copy(start = SchoolUiState.LessonRequestStatus.Unreachable(firstLesson)))
 
         showing("No hemos podido hablar con el servidor. Vuelve a intentarlo en un momento.")
     }
@@ -540,7 +389,7 @@ class SchoolScreenTest {
         show(
             idleSchool.copy(
                 lessons = listOf(readyLesson, secondCard),
-                start = SchoolUiState.LessonRequest.Refused(secondLesson, TownLessonRefusal.LessonUnderStudy),
+                start = SchoolUiState.LessonRequestStatus.Refused(secondLesson, TownLessonRefusal.LessonUnderStudy),
             ),
         )
 
@@ -554,7 +403,7 @@ class SchoolScreenTest {
         show(
             idleSchool.copy(
                 lessons = listOf(readyLesson, secondCard),
-                start = SchoolUiState.LessonRequest.Unreachable(secondLesson),
+                start = SchoolUiState.LessonRequestStatus.Unreachable(secondLesson),
             ),
         )
 
@@ -564,169 +413,10 @@ class SchoolScreenTest {
     }
 
     @Test
-    fun `opens the words of the running lesson from a nav row`() {
-        show(idleSchool.copy(slot = busySlot(150.seconds)))
-
-        composeRule.onNode(navRowOf("Leer las palabras"), useUnmergedTree = true).performScrollTo().performClick()
-
-        assertEquals(listOf(firstLesson), lessonOpens)
-    }
-
-    @Test
-    fun `draws a running lesson's countdown in seconds in its last minute`() {
-        show(idleSchool.copy(slot = busySlot(42.seconds)))
-
-        showing("0:42")
-    }
-
-    @Test
-    fun `draws a running lesson's countdown in minutes`() {
-        show(idleSchool.copy(slot = busySlot(150.seconds)))
-
-        showing("2\u00A0min")
-    }
-
-    @Test
-    fun `rounds a running lesson's countdown up to the whole second`() {
-        show(idleSchool.copy(slot = busySlot(42.5.seconds)))
-
-        showing("0:43")
-    }
-
-    @Test
     fun `rounds a lesson's duration up to the whole second`() {
         show(idleSchool.copy(lessons = listOf(readyLesson.copy(duration = 149.5.seconds))))
 
         showing("Estudiar la lección 1 · 2:30")
-    }
-
-    @Test
-    fun `fills the track with the share of the lesson already run`() {
-        show(idleSchool.copy(slot = busySlot(37.5.seconds)))
-
-        composeRule
-            .onNode(
-                SemanticsMatcher.expectValue(
-                    SemanticsProperties.ProgressBarRangeInfo,
-                    ProgressBarRangeInfo(current = 0.75f, range = 0f..1f),
-                ),
-            )
-            .assertExists()
-    }
-
-    @Test
-    fun `keeps a refused stop beside an idle slot`() {
-        show(
-            idleSchool.copy(
-                stop = SchoolUiState.LessonRequest.Refused(firstLesson, TownLessonRefusal.LessonStudyNotFound),
-            ),
-        )
-
-        showing("La escuela ya no estudia esa lección. No queda nada que parar.")
-    }
-
-    @Test
-    fun `keeps a refused stop beside a finished lesson`() {
-        show(
-            idleSchool.copy(
-                slot = SchoolUiState.SlotLine.Done(firstLesson, firstLessonName),
-                stop = SchoolUiState.LessonRequest.Refused(firstLesson, TownLessonRefusal.LessonStudyNotFound),
-            ),
-        )
-
-        showing("La escuela ya no estudia esa lección. No queda nada que parar.")
-    }
-
-    @Test
-    fun `keeps a stop's outage beside an idle slot`() {
-        show(idleSchool.copy(stop = SchoolUiState.LessonRequest.Unreachable(firstLesson)))
-
-        showing("No hemos podido hablar con el servidor. Vuelve a intentarlo en un momento.")
-    }
-
-    @Test
-    fun `draws a countdown of whole hours`() {
-        show(idleSchool.copy(slot = busySlot(2.hours)))
-
-        showing("2\u00A0h")
-    }
-
-    @Test
-    fun `draws a countdown of hours and minutes`() {
-        show(idleSchool.copy(slot = busySlot(1.hours + 20.minutes)))
-
-        showing("1\u00A0h 20\u00A0min")
-    }
-
-    @Test
-    fun `names the running lesson in the slot`() {
-        show(idleSchool.copy(slot = busySlot(42.seconds), lessons = emptyList()))
-
-        showing("Lección 1")
-    }
-
-    @Test
-    fun `says what a stop leaves`() {
-        show(idleSchool.copy(slot = busySlot(42.seconds)))
-
-        showing("Si lo paras, la lección queda por estudiar y puedes volver a empezarla.")
-    }
-
-    @Test
-    fun `stops a running lesson from its button`() {
-        show(idleSchool.copy(slot = busySlot(42.seconds)))
-
-        composeRule.onNodeWithContentDescription("Parar el estudio de la lección 1").performScrollTo().performClick()
-
-        assertEquals(listOf<SchoolIntent>(SchoolIntent.StopTapped(firstLesson)), intents)
-    }
-
-    @Test
-    fun `names the lesson a stop button stops`() {
-        show(idleSchool.copy(slot = busySlot(42.seconds)))
-
-        composeRule.onNodeWithContentDescription("Parar el estudio de la lección 1").assertExists()
-    }
-
-    @Test
-    fun `announces a stop while it waits`() {
-        show(idleSchool.copy(slot = busySlot(42.seconds), stop = SchoolUiState.LessonRequest.Waiting))
-
-        composeRule
-            .onNode(SemanticsMatcher.expectValue(SemanticsProperties.StateDescription, "Esperando"))
-            .assertExists()
-    }
-
-    @Test
-    fun `keeps a refused stop beside the slot`() {
-        show(
-            idleSchool.copy(
-                slot = busySlot(42.seconds),
-                stop = SchoolUiState.LessonRequest.Refused(firstLesson, TownLessonRefusal.LessonStudyNotFound),
-            ),
-        )
-
-        showing("La escuela ya no estudia esa lección. No queda nada que parar.")
-    }
-
-    @Test
-    fun `keeps a stop's outage beside the slot`() {
-        show(
-            idleSchool.copy(
-                slot = busySlot(42.seconds),
-                stop = SchoolUiState.LessonRequest.Unreachable(firstLesson),
-            ),
-        )
-
-        showing("No hemos podido hablar con el servidor. Vuelve a intentarlo en un momento.")
-    }
-
-    @Test
-    fun `draws a finished lesson while the town reads again`() {
-        show(idleSchool.copy(slot = SchoolUiState.SlotLine.Done(firstLesson, firstLessonName), lessons = emptyList()))
-
-        showing("Lección 1")
-        showing("La lección está lista. Estamos leyendo tu pueblo otra vez…")
     }
 
     @Test

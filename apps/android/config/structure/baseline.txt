@@ -54,8 +54,6 @@ file-name feature/town/src/main/kotlin/com/emm/mygame/feature/town/status/TownSt
 package-files core/designsystem/src/main/kotlin/com/emm/mygame/core/designsystem
 private-vars feature/jobs/src/main/kotlin/com/emm/mygame/feature/jobs/MapViewModel.kt
 private-vars feature/learning/src/main/kotlin/com/emm/mygame/feature/learning/ReviewViewModel.kt
-private-vars feature/school/src/main/kotlin/com/emm/mygame/feature/school/SchoolViewModel.kt
-private-vars feature/school/src/main/kotlin/com/emm/mygame/feature/school/words/LessonWordsViewModel.kt
 private-vars feature/town/src/main/kotlin/com/emm/mygame/feature/town/status/TownStatusViewModel.kt
 projection-gap feature/jobs/src/main/kotlin/com/emm/mygame/feature/jobs/MapViewModel.kt
 projection-gap feature/learning/src/main/kotlin/com/emm/mygame/feature/learning/ReviewViewModel.kt
@@ -67,6 +65,4 @@ screen-file feature/town/src/main/kotlin/com/emm/mygame/feature/town/status/Town
 test-lines app/src/test/kotlin/com/emm/mygame/DockFrameNavigationTest.kt
 test-lines feature/learning/src/test/kotlin/com/emm/mygame/feature/learning/ReviewViewModelTest.kt
 test-lines feature/report/src/test/kotlin/com/emm/mygame/feature/report/ReportViewModelTest.kt
-test-lines feature/school/src/test/kotlin/com/emm/mygame/feature/school/SchoolScreenTest.kt
-test-lines feature/school/src/test/kotlin/com/emm/mygame/feature/school/SchoolViewModelTest.kt
 test-lines feature/town/src/test/kotlin/com/emm/mygame/feature/town/status/TownStatusViewModelTest.kt

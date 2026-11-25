@@ -28,8 +28,8 @@ sealed interface SchoolUiState {
         val texts: List<TextCard>,
         val studyMark: DurationMark?,
         val nextStep: NextStepCard,
-        val start: LessonRequest,
-        val stop: LessonRequest,
+        val start: LessonRequestStatus,
+        val stop: LessonRequestStatus,
         val isHoldoutNoteShown: Boolean,
         val bandLines: List<TownSnapshot.BandLine>,
         val selected: LessonId? = null,
@@ -132,15 +132,15 @@ sealed interface SchoolUiState {
         data object CapReached : LessonBlock
     }
 
-    sealed interface LessonRequest {
+    sealed interface LessonRequestStatus {
 
-        data object Idle : LessonRequest
+        data object Idle : LessonRequestStatus
 
-        data object Waiting : LessonRequest
+        data object Waiting : LessonRequestStatus
 
-        data class Refused(val lesson: LessonId, val refusal: TownLessonRefusal) : LessonRequest
+        data class Refused(val lesson: LessonId, val refusal: TownLessonRefusal) : LessonRequestStatus
 
-        data class Unreachable(val lesson: LessonId) : LessonRequest
+        data class Unreachable(val lesson: LessonId) : LessonRequestStatus
     }
 }
 

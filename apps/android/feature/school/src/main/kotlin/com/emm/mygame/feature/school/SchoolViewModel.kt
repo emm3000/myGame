@@ -40,9 +40,7 @@ class SchoolViewModel(private val towns: TownRepository, private val clock: Cloc
 
     private var shown: TownSnapshot? = null
 
-    private var requests: SchoolRequests = SchoolRequests.none
-
-    private var selected: LessonId? = null
+    private var taps: SchoolTaps = SchoolTaps.none
 
     private var gap: Duration = Duration.ZERO
 
@@ -110,7 +108,7 @@ class SchoolViewModel(private val towns: TownRepository, private val clock: Cloc
         val last: TownSnapshot = shown ?: return
         if (held.town == last) return
         gap = held.gap
-        restartFrom(held.town, requests.keptAfterRead())
+        restartFrom(held.town, taps.requests.keptAfterRead())
     }
 
     private fun openHeld(held: HeldTown) {
@@ -120,45 +118,55 @@ class SchoolViewModel(private val towns: TownRepository, private val clock: Cloc
     }
 
     private fun select(lesson: LessonId) {
-        selected = lesson
+        taps = taps.copy(selected = lesson)
         shown?.let(::draw)
     }
 
     private fun start(lesson: LessonId) {
-        if (requests.start == SchoolUiState.LessonRequest.Waiting) return
-        drawRequests(requests.copy(start = SchoolUiState.LessonRequest.Waiting))
+        if (taps.requests.start == SchoolUiState.LessonRequestStatus.Waiting) return
+        drawRequests(taps.requests.copy(start = SchoolUiState.LessonRequestStatus.Waiting))
         viewModelScope.launch {
             when (val answer: TownLessonResult = towns.startLesson(lesson)) {
                 is TownLessonResult.Answered -> {
-                    restartFrom(answer.town, requests.keptAfterRead().copy(start = SchoolUiState.LessonRequest.Idle))
+                    restartFrom(
+                        answer.town,
+                        taps.requests.keptAfterRead().copy(start = SchoolUiState.LessonRequestStatus.Idle),
+                    )
                     _effects.send(SchoolEffect.LessonStarted)
                 }
                 is TownLessonResult.Refused ->
-                    drawRequests(requests.copy(start = SchoolUiState.LessonRequest.Refused(lesson, answer.refusal)))
+                    drawRequests(
+                        taps.requests.copy(start = SchoolUiState.LessonRequestStatus.Refused(lesson, answer.refusal)),
+                    )
                 TownLessonResult.Unreachable ->
-                    drawRequests(requests.copy(start = SchoolUiState.LessonRequest.Unreachable(lesson)))
+                    drawRequests(taps.requests.copy(start = SchoolUiState.LessonRequestStatus.Unreachable(lesson)))
             }
         }
     }
 
     private fun stop(lesson: LessonId) {
-        if (requests.stop == SchoolUiState.LessonRequest.Waiting) return
-        drawRequests(requests.copy(stop = SchoolUiState.LessonRequest.Waiting))
+        if (taps.requests.stop == SchoolUiState.LessonRequestStatus.Waiting) return
+        drawRequests(taps.requests.copy(stop = SchoolUiState.LessonRequestStatus.Waiting))
         viewModelScope.launch {
             when (val answer: TownLessonResult = towns.stopLesson(lesson)) {
                 is TownLessonResult.Answered ->
-                    restartFrom(answer.town, requests.keptAfterRead().copy(stop = SchoolUiState.LessonRequest.Idle))
+                    restartFrom(
+                        answer.town,
+                        taps.requests.keptAfterRead().copy(stop = SchoolUiState.LessonRequestStatus.Idle),
+                    )
                 is TownLessonResult.Refused ->
-                    drawRequests(requests.copy(stop = SchoolUiState.LessonRequest.Refused(lesson, answer.refusal)))
+                    drawRequests(
+                        taps.requests.copy(stop = SchoolUiState.LessonRequestStatus.Refused(lesson, answer.refusal)),
+                    )
                 TownLessonResult.Unreachable ->
-                    drawRequests(requests.copy(stop = SchoolUiState.LessonRequest.Unreachable(lesson)))
+                    drawRequests(taps.requests.copy(stop = SchoolUiState.LessonRequestStatus.Unreachable(lesson)))
             }
         }
     }
 
     private fun restartFrom(town: TownSnapshot, kept: SchoolRequests) {
         projection?.cancel()
-        requests = kept
+        taps = taps.copy(requests = kept)
         draw(town)
         if (isShown) {
             projection = viewModelScope.launch { project(town, firstReadAt = town.nextChangeAfter(serverNow())) }
@@ -166,7 +174,7 @@ class SchoolViewModel(private val towns: TownRepository, private val clock: Cloc
     }
 
     private fun drawRequests(next: SchoolRequests) {
-        requests = next
+        taps = taps.copy(requests = next)
         _state.update { current: SchoolUiState ->
             if (current is SchoolUiState.Content) current.copy(start = next.start, stop = next.stop) else current
         }
@@ -174,7 +182,7 @@ class SchoolViewModel(private val towns: TownRepository, private val clock: Cloc
 
     private fun draw(town: TownSnapshot) {
         shown = town
-        _state.value = town.contentAt(now = serverNow(), gap = gap, requests = requests, selected = selected)
+        _state.value = town.contentAt(now = serverNow(), gap = gap, requests = taps.requests, selected = taps.selected)
     }
 
     private suspend fun project(first: TownSnapshot, firstReadAt: Instant?) {
@@ -186,7 +194,7 @@ class SchoolViewModel(private val towns: TownRepository, private val clock: Cloc
                 when (val answer: TownReadResult = towns.read()) {
                     is TownReadResult.Read -> {
                         town = measured(answer.town)
-                        requests = requests.keptAfterRead()
+                        taps = taps.keptAfterRead()
                         nextReadAt = town.nextChangeAfter(serverNow())
                         continue
                     }

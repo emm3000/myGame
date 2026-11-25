@@ -121,7 +121,7 @@ class SchoolReleasedLessonsTest {
 
     @Test
     fun `draws the api's refusal under the released lesson it answers`() {
-        val refused: SchoolUiState.LessonRequest = SchoolUiState.LessonRequest.Refused(
+        val refused: SchoolUiState.LessonRequestStatus = SchoolUiState.LessonRequestStatus.Refused(
             secondSet,
             TownLessonRefusal.StudySlotBusy,
         )
@@ -135,7 +135,7 @@ class SchoolReleasedLessonsTest {
 
     @Test
     fun `draws when the cap opens under a released lesson refused past the cap`() {
-        val pastTheCap: SchoolUiState.LessonRequest = SchoolUiState.LessonRequest.Refused(
+        val pastTheCap: SchoolUiState.LessonRequestStatus = SchoolUiState.LessonRequestStatus.Refused(
             secondSet,
             TownLessonRefusal.LearningCapReached(cap = 10, inLearning = 10),
         )
