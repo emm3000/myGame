@@ -140,6 +140,24 @@ This one list replaces the scattered per-PR lines above. Tick each item when it 
 
 
 
+## 2026-11-24 and 2026-11-25: ADR 056, Tracks S, J, L, P and R closed
+
+### Advanced
+- Track S closed with S5 (#1969): the school ViewModels fold their state into `SchoolTaps` and `LessonWordsTaps`.
+- Track J closed (#1970–#1972): the map's previews, file names and `MapViewModel` under the limits, which folded into `MapReads`, `MapQuote` and `MapServerView`.
+- Track L closed (#1973–#1975): `feature:learning` in `reviews`, its previews and card pieces filed by name, and `ReviewViewModel` folded into `ReviewReads` and `ReviewServerView`.
+- Track P closed (#1976): the placement and holdout previews and routes are in files named for them.
+- Track R closed (#1977, #1978): `feature:report` is split into its root and `news`, with its previews, news rows and ViewModel tests filed by name.
+- The owner trialled opus:medium in place of opus:high on row 2 for this session only. Five PRs ran on it: three were MERGE at first review and two were FIX FIRST, both for legibility (a second spelling of one act, a declaration in a file named for another). None was a behavior finding.
+
+### Not proven
+- No emulator flow ran: ADR 056 answer 9 says a move owes none, so the Robolectric suites and `assembleDebug` are the evidence.
+- Some Done when criteria were stale. `fd 'ReviewDock|ReviewCardContent'` matches `FillReviewDock.kt` as a substring, and the `NavRowMatcher.kt` baseline line named by #1924 and #1926 is no longer on trunk.
+
+### Next
+- U1–U4 (#1927–#1930), then #1933, Z1 and Z2. Track X (the shell) is grilled with the owner and ticketed before D1 (#1931).
+- #1891 holds two new follow-ups: the school screen-test fixtures copied into three files, and three test names that appear twice in `feature:learning`.
+
 ## 2026-11-23 and 2026-11-24: ADR 056, the Android client by feature then by role
 
 ### Advanced
