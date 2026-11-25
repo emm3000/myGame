@@ -59,10 +59,10 @@ fun MyGameText(
     }
 }
 
-// Private helper: both callers pass the modifier, so a default would never be used.
+// Module helper: every caller passes the modifier, so a default would never be used.
 @Suppress("ModifierWithoutDefault")
 @Composable
-private fun MyGameTranslatedLines(
+internal fun MyGameTranslatedLines(
     text: String,
     translation: String,
     style: TextStyle,

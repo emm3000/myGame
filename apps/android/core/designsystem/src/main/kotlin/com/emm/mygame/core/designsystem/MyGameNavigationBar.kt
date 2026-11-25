@@ -1,6 +1,8 @@
 package com.emm.mygame.core.designsystem
 
 import androidx.compose.foundation.background
+import androidx.compose.foundation.text.BasicText
+import androidx.compose.foundation.text.TextAutoSize
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -24,6 +26,7 @@ import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.semantics.clearAndSetSemantics
 import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.semantics
+import androidx.compose.ui.text.TextStyle
 
 const val NAVIGATION_BAR: String = "navigation_bar"
 
@@ -72,13 +75,38 @@ private fun RowScope.NavigationTab(item: MyGameNavigationItem) {
             MyGameIcon(icon = item.icon, tint = color)
             item.count?.let { count: String -> TabCount(count = count, modifier = Modifier.align(Alignment.TopEnd)) }
         }
-        MyGameText(
+        TabLabel(
             label = item.label,
-            style = if (item.isOpen) MyGameTypography.label else MyGameTypography.caption,
-            color = color,
+            style = (if (item.isOpen) MyGameTypography.label else MyGameTypography.caption).copy(color = color),
             modifier = Modifier.padding(bottom = MyGameSpacing.step1).clearAndSetSemantics {},
         )
     }
+}
+
+@Composable
+private fun TabLabel(label: MyGameLabel, style: TextStyle, modifier: Modifier = Modifier) {
+    val translation: String? = label.translation
+    if (translation == null) {
+        OneLine(line = label.text, style = style, modifier = modifier)
+        return
+    }
+    MyGameTranslatedLines(text = label.text, translation = translation, style = style, modifier = modifier) {
+            line: String,
+            lineStyle: TextStyle,
+        ->
+        OneLine(line = line, style = lineStyle.copy(color = style.color))
+    }
+}
+
+@Composable
+private fun OneLine(line: String, style: TextStyle, modifier: Modifier = Modifier) {
+    BasicText(
+        text = line,
+        style = style,
+        maxLines = 1,
+        autoSize = TextAutoSize.StepBased(maxFontSize = style.fontSize),
+        modifier = modifier,
+    )
 }
 
 @Composable
