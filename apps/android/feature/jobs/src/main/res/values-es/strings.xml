@@ -66,7 +66,7 @@
     <string name="map_terrain_river">Río</string>
     <string name="map_title">Mapa</string>
     <string name="map_try_again">Volver a intentarlo</string>
-    <string name="map_waiting">Esperando</string>
+    <string name="map_waiting">Enviando…</string>
     <string name="map_waste">Residuos: {waste}</string>
     <string name="map_waste_site">Sitio con residuos</string>
     <string name="map_waste_size">Tamaño {size}</string>
