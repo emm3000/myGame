@@ -13,6 +13,8 @@ import com.emm.mygame.core.model.learning.ReviewsReadResult
 import com.emm.mygame.core.model.town.HeldTown
 import com.emm.mygame.core.model.town.TownRepository
 import com.emm.mygame.core.model.town.TownSnapshot
+import com.emm.mygame.core.model.town.gapOf
+import com.emm.mygame.core.model.town.serverNow
 import com.emm.mygame.core.projection.countdownTo
 import com.emm.mygame.core.projection.repaintDelay
 import kotlin.time.Clock
@@ -150,7 +152,7 @@ class ReviewViewModel(
 
     private suspend fun rereadWhenDue(nextDueAt: Instant) {
         _state.value = endAt(nextDueAt)
-        delay(countdownTo(finishesAt = nextDueAt, now = clock.now() + server.gap))
+        delay(countdownTo(finishesAt = nextDueAt, now = serverNow(clock, server.gap)))
         var answer: ReviewsReadResult = learning.reviews()
         while (answer !is ReviewsReadResult.Read) {
             delay(repaintDelay(null))
@@ -241,7 +243,7 @@ class ReviewViewModel(
     }
 
     private fun measured(read: DueReviews): DueReviews {
-        server = server.copy(gap = read.readAt - clock.now())
+        server = server.copy(gap = gapOf(read.readAt, clock))
         return read
     }
 }

@@ -3,17 +3,20 @@ package com.emm.mygame.feature.jobs
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.emm.mygame.core.model.town.HeldTown
+import com.emm.mygame.core.model.town.ReadAnswer
+import com.emm.mygame.core.model.town.ReadFollower
 import com.emm.mygame.core.model.town.TownReadResult
 import com.emm.mygame.core.model.town.TownRepository
 import com.emm.mygame.core.model.town.TownSnapshot
+import com.emm.mygame.core.model.town.gapOf
 import com.emm.mygame.core.model.town.jobs.RegionMap
 import com.emm.mygame.core.model.town.jobs.RegionMapResult
 import com.emm.mygame.core.model.town.jobs.TownJobResult
+import com.emm.mygame.core.model.town.serverNow
 import com.emm.mygame.core.projection.countdownTo
 import com.emm.mygame.core.projection.repaintDelay
 import kotlin.time.Clock
 import kotlin.time.Duration
-import kotlin.time.Duration.Companion.minutes
 import kotlin.time.Duration.Companion.seconds
 import kotlin.time.Instant
 import kotlinx.coroutines.Job
@@ -25,8 +28,6 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.launch
-
-private val failedReadRetry: Duration = 1.minutes
 
 private val unreachableQuoteRetry: Duration = 5.seconds
 
@@ -49,6 +50,31 @@ class MapViewModel(private val towns: TownRepository, private val clock: Clock) 
     private var quote: MapQuote = MapQuote.none
 
     private var isShown: Boolean = true
+
+    private val follower: ReadFollower<TownSnapshot> = object : ReadFollower<TownSnapshot>() {
+        override fun now(): Instant = serverNow(clock, server.gap)
+
+        override fun draw(held: TownSnapshot): Unit = this@MapViewModel.draw()
+
+        override suspend fun read(): ReadAnswer<TownSnapshot> = when (val answer: TownReadResult = towns.read()) {
+            is TownReadResult.Read -> {
+                val town: TownSnapshot = measured(answer.town)
+                server = server.copy(town = town)
+                choices = choices.keptAfterRead()
+                ReadAnswer.Read(town)
+            }
+            TownReadResult.NoTown -> {
+                _effects.send(MapEffect.NoTown)
+                ReadAnswer.Ended
+            }
+            TownReadResult.Unreachable -> ReadAnswer.Unreachable
+        }
+
+        override fun nextReadAfter(held: TownSnapshot, now: Instant): Instant? = held.readInstantsAfter(now).minOrNull()
+
+        override fun repaintIn(held: TownSnapshot, now: Instant): Duration =
+            repaintDelay(held.job?.let { job: TownSnapshot.Job -> countdownTo(job.nextInstant(), now) })
+    }
 
     init {
         readArea(null)
@@ -74,7 +100,9 @@ class MapViewModel(private val towns: TownRepository, private val clock: Clock) 
         isShown = true
         quote = MapQuote.none
         val last: TownSnapshot = server.town ?: return
-        val projection: Job = viewModelScope.launch { project(last, firstReadAt = serverNow()) }
+        val projection: Job = viewModelScope.launch {
+            follower.follow(last, firstReadAt = serverNow(clock, server.gap))
+        }
         reads = reads.copy(projection = projection)
     }
 
@@ -167,7 +195,9 @@ class MapViewModel(private val towns: TownRepository, private val clock: Clock) 
         server = server.copy(town = town)
         draw()
         if (!isShown) return
-        val projection: Job = viewModelScope.launch { project(town, firstReadAt = town.readInstants().minOrNull()) }
+        val projection: Job = viewModelScope.launch {
+            follower.follow(town, firstReadAt = town.readInstants().minOrNull())
+        }
         reads = reads.copy(projection = projection)
     }
 
@@ -206,44 +236,13 @@ class MapViewModel(private val towns: TownRepository, private val clock: Clock) 
             AreaRead.Reading -> MapUiState.Loading
             is AreaRead.Read ->
                 server.town?.let { held: TownSnapshot ->
-                    mapContentOf(read.map, held, serverNow(), server.gap, choices, quote.drawn())
+                    mapContentOf(read.map, held, serverNow(clock, server.gap), server.gap, choices, quote.drawn())
                 } ?: MapUiState.Loading
         }
     }
 
-    private suspend fun project(first: TownSnapshot, firstReadAt: Instant?) {
-        var town: TownSnapshot = first
-        var nextReadAt: Instant? = firstReadAt
-        while (true) {
-            draw()
-            if (nextReadAt != null && nextReadAt <= serverNow()) {
-                when (val answer: TownReadResult = towns.read()) {
-                    is TownReadResult.Read -> {
-                        town = measured(answer.town)
-                        server = server.copy(town = town)
-                        choices = choices.keptAfterRead()
-                        nextReadAt = town.readInstantsAfter(serverNow()).minOrNull()
-                        continue
-                    }
-                    TownReadResult.NoTown -> return _effects.send(MapEffect.NoTown)
-                    TownReadResult.Unreachable -> nextReadAt = serverNow() + failedReadRetry
-                }
-            }
-            delay(nextWakeFrom(town, nextReadAt))
-        }
-    }
-
-    private fun nextWakeFrom(town: TownSnapshot, nextReadAt: Instant?): Duration {
-        val now: Instant = serverNow()
-        val remaining: Duration? = town.job?.let { job: TownSnapshot.Job -> countdownTo(job.nextInstant(), now) }
-        val repaint: Duration = repaintDelay(remaining)
-        return if (nextReadAt == null) repaint else minOf(repaint, nextReadAt - now)
-    }
-
-    private fun serverNow(): Instant = clock.now() + server.gap
-
     private fun measured(read: TownSnapshot): TownSnapshot {
-        server = server.copy(gap = read.readAt - clock.now())
+        server = server.copy(gap = gapOf(read.readAt, clock))
         return read
     }
 }

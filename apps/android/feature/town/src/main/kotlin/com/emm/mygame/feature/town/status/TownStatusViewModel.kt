@@ -7,10 +7,12 @@ import com.emm.mygame.core.model.town.HeldTown
 import com.emm.mygame.core.model.town.TownReadResult
 import com.emm.mygame.core.model.town.TownRepository
 import com.emm.mygame.core.model.town.TownSnapshot
+import com.emm.mygame.core.model.town.gapOf
 import com.emm.mygame.core.model.town.guidance.NextStep
 import com.emm.mygame.core.model.town.nameOf
 import com.emm.mygame.core.model.town.registeredBetween
 import com.emm.mygame.core.model.town.school.TownLessonResult
+import com.emm.mygame.core.model.town.serverNow
 import com.emm.mygame.core.projection.countdownTo
 import com.emm.mygame.core.projection.repaintDelay
 import kotlinx.coroutines.Job
@@ -137,7 +139,7 @@ class TownStatusViewModel(private val towns: TownRepository, private val clock: 
     }
 
     private fun heldAnew(next: TownSnapshot, previous: TownSnapshot?) {
-        gap = next.readAt - clock.now()
+        gap = gapOf(next.readAt, clock)
         townRead = TownRead.NotAsked
         if (lessonStart != LessonStartStatus.Waiting) lessonStart = LessonStartStatus.Idle
         if (previous != null) finished = registeredBetween(previous, next).finishedLesson ?: finished
@@ -160,21 +162,19 @@ class TownStatusViewModel(private val towns: TownRepository, private val clock: 
         _state.value = when {
             screen == TownStatusScreen.Outside -> TownStatusUiState.none
             town == null -> TownStatusUiState(running = null, notice = null, dock = townRead.dock())
-            else -> town.statusAt(serverNow(), gap, finished, statedLesson = lessonOnTheSchool())
-                .copy(dock = town.dockOn(screen, serverNow(), gap, lessonStart))
+            else -> town.statusAt(serverNow(clock, gap), gap, finished, statedLesson = lessonOnTheSchool())
+                .copy(dock = town.dockOn(screen, serverNow(clock, gap), gap, lessonStart))
         }
     }
 
     private suspend fun follow() {
         while (true) {
-            val now: Instant = serverNow()
+            val now: Instant = serverNow(clock, gap)
             delay(repaintDelay(held?.nextChangeAfter(now)?.minus(now)))
             draw()
-            if (!screen.readsTown() && held?.isLessonDueAt(serverNow()) == true) towns.read()
+            if (!screen.readsTown() && held?.isLessonDueAt(serverNow(clock, gap)) == true) towns.read()
         }
     }
-
-    private fun serverNow(): Instant = clock.now() + gap
 
     private fun lessonOnTheSchool(): LessonId? = schoolLesson.takeIf { screen == TownStatusScreen.School }
 }

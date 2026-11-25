@@ -8,6 +8,7 @@ import com.emm.mygame.core.model.town.TownRepository
 import com.emm.mygame.core.model.town.TownSnapshot
 import com.emm.mygame.core.model.town.building.TownBuildingKind
 import com.emm.mygame.core.model.town.building.TownWorkResult
+import com.emm.mygame.core.model.town.gapOf
 import com.emm.mygame.core.model.town.guidance.TownGuidanceRepository
 import com.emm.mygame.core.model.town.hiring.TownHireKind
 import com.emm.mygame.core.model.town.hiring.TownHiringResult
@@ -146,13 +147,13 @@ internal class ApiTownRepository(
 
     private fun readTown(response: Response<TownOverview>, request: TownRequest): TownSnapshot? =
         response.body()?.toSnapshot()?.also { town: TownSnapshot ->
-            hold(request) { HeldTown(town, gap = town.readAt - clock.now()) }
+            hold(request) { HeldTown(town, gap = gapOf(town.readAt, clock)) }
             answers.townAnswered(request, town)
         }
 
     private fun answeredTown(response: Response<TownOverview>, request: TownRequest): TownSnapshot? =
         response.body()?.toSnapshot()?.also { town: TownSnapshot ->
-            hold(request) { last: HeldTown? -> HeldTown(town, gap = last?.gap ?: (town.readAt - clock.now())) }
+            hold(request) { last: HeldTown? -> HeldTown(town, gap = last?.gap ?: gapOf(town.readAt, clock)) }
             answers.townAnswered(request, town)
         }
 

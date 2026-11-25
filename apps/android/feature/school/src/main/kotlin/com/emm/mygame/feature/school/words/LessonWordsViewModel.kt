@@ -5,25 +5,25 @@ import androidx.lifecycle.viewModelScope
 import com.emm.mygame.core.model.learning.LearningRepository
 import com.emm.mygame.core.model.learning.ReviewsReadResult
 import com.emm.mygame.core.model.town.HeldTown
+import com.emm.mygame.core.model.town.ReadAnswer
+import com.emm.mygame.core.model.town.ReadFollower
 import com.emm.mygame.core.model.town.TownReadResult
 import com.emm.mygame.core.model.town.TownRepository
 import com.emm.mygame.core.model.town.TownSnapshot
+import com.emm.mygame.core.model.town.gapOf
+import com.emm.mygame.core.model.town.serverNow
 import com.emm.mygame.core.projection.repaintDelay
 import kotlin.time.Clock
 import kotlin.time.Duration
-import kotlin.time.Duration.Companion.minutes
 import kotlin.time.Instant
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.channels.Channel
-import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.launch
-
-private val failedReadRetry: Duration = 1.minutes
 
 class LessonWordsViewModel(
     private val walk: LessonWalk,
@@ -50,6 +50,21 @@ class LessonWordsViewModel(
 
     private var isShown: Boolean = true
 
+    private val follower: ReadFollower<LessonRead> = object : ReadFollower<LessonRead>() {
+        override val isStoppedWithNoReadAhead: Boolean = true
+
+        override fun now(): Instant = serverNow(clock, gap)
+
+        override fun draw(held: LessonRead): Unit = this@LessonWordsViewModel.draw(held)
+
+        override suspend fun read(): ReadAnswer<LessonRead> = readLesson()
+
+        override fun nextReadAfter(held: LessonRead, now: Instant): Instant? = held.nextFinishAfter(now)
+
+        override fun repaintIn(held: LessonRead, now: Instant): Duration =
+            repaintDelay(held.remainingOf(walk.lesson, now))
+    }
+
     init {
         open()
     }
@@ -69,7 +84,8 @@ class LessonWordsViewModel(
         isShown = true
         val last: LessonRead? = shown
         when {
-            last != null -> following = viewModelScope.launch { follow(last, firstReadAt = serverNow()) }
+            last != null ->
+                following = viewModelScope.launch { follower.follow(last, firstReadAt = serverNow(clock, gap)) }
             _state.value == LessonWordsUiState.Loading -> open()
         }
     }
@@ -84,22 +100,23 @@ class LessonWordsViewModel(
         if (held != null) return openHeld(held)
         _state.value = LessonWordsUiState.Loading
         following = viewModelScope.launch {
-            when (val answer: LessonAnswer = read()) {
-                is LessonAnswer.Read -> follow(answer.read, answer.read.nextFinishAfter(serverNow()))
-                LessonAnswer.NoTown -> _effects.send(LessonWordsEffect.NoTown)
-                LessonAnswer.Unreachable -> _state.value = LessonWordsUiState.Failed
+            when (val answer: ReadAnswer<LessonRead> = readLesson()) {
+                is ReadAnswer.Read ->
+                    follower.follow(answer.read, answer.read.nextFinishAfter(serverNow(clock, gap)))
+                ReadAnswer.Ended -> Unit
+                ReadAnswer.Unreachable -> _state.value = LessonWordsUiState.Failed
             }
         }
     }
 
     private fun isDrawnAlone(held: HeldTown): Boolean =
-        LessonRead(held.town, readFirst = null).isDrawableWithoutReadFirst(walk.lesson, clock.now() + held.gap)
+        LessonRead(held.town, readFirst = null).isDrawableWithoutReadFirst(walk.lesson, serverNow(clock, held.gap))
 
     private fun openHeld(held: HeldTown) {
         gap = held.gap
         val read: LessonRead = LessonRead(held.town, readFirst = null)
         draw(read)
-        following = viewModelScope.launch { follow(read, firstReadAt = serverNow()) }
+        following = viewModelScope.launch { follower.follow(read, firstReadAt = serverNow(clock, gap)) }
     }
 
     private fun showNextWord() {
@@ -114,64 +131,29 @@ class LessonWordsViewModel(
         _state.value = reading.copy(shownSupport = taps.shownSupport)
     }
 
-    private suspend fun follow(first: LessonRead, firstReadAt: Instant?) {
-        var held: LessonRead = first
-        var nextReadAt: Instant? = firstReadAt
-        while (true) {
-            draw(held)
-            val readAt: Instant = nextReadAt ?: return
-            if (readAt <= serverNow()) {
-                when (val answer: LessonAnswer = read()) {
-                    is LessonAnswer.Read -> {
-                        held = answer.read
-                        nextReadAt = held.nextFinishAfter(serverNow())
-                        continue
-                    }
-                    LessonAnswer.NoTown -> return _effects.send(LessonWordsEffect.NoTown)
-                    LessonAnswer.Unreachable -> nextReadAt = serverNow() + failedReadRetry
-                }
-            }
-            delay(nextWakeFrom(held, nextReadAt))
-        }
-    }
-
-    private fun nextWakeFrom(held: LessonRead, nextReadAt: Instant?): Duration {
-        val now: Instant = serverNow()
-        val repaint: Duration = repaintDelay(held.remainingOf(walk.lesson, now))
-        return if (nextReadAt == null) repaint else minOf(repaint, nextReadAt - now)
-    }
-
     private fun draw(read: LessonRead) {
         shown = read
         val drawnWord: TownSnapshot.WordReading? = (_state.value as? LessonWordsUiState.Reading)?.word
-        val next: LessonWordsUiState = read.stateOf(walk, taps.wordIndex, taps.shownSupport, serverNow())
+        val next: LessonWordsUiState = read.stateOf(walk, taps.wordIndex, taps.shownSupport, serverNow(clock, gap))
         if (next is LessonWordsUiState.Reading && drawnWord != null && next.word != drawnWord) {
             taps = taps.copy(shownSupport = null)
         }
         _state.value = if (next is LessonWordsUiState.Reading) next.copy(shownSupport = taps.shownSupport) else next
     }
 
-    private suspend fun read(): LessonAnswer {
+    private suspend fun readLesson(): ReadAnswer<LessonRead> {
         val town: TownSnapshot = when (val answer: TownReadResult = towns.read()) {
             is TownReadResult.Read -> answer.town
-            TownReadResult.NoTown -> return LessonAnswer.NoTown
-            TownReadResult.Unreachable -> return LessonAnswer.Unreachable
+            TownReadResult.NoTown -> {
+                _effects.send(LessonWordsEffect.NoTown)
+                return ReadAnswer.Ended
+            }
+            TownReadResult.Unreachable -> return ReadAnswer.Unreachable
         }
-        gap = town.readAt - clock.now()
+        gap = gapOf(town.readAt, clock)
         return when (val answer: ReviewsReadResult = learning.reviews()) {
-            is ReviewsReadResult.Read -> LessonAnswer.Read(LessonRead(town, answer.reviews.readFirst))
-            ReviewsReadResult.Unreachable -> LessonAnswer.Unreachable
+            is ReviewsReadResult.Read -> ReadAnswer.Read(LessonRead(town, answer.reviews.readFirst))
+            ReviewsReadResult.Unreachable -> ReadAnswer.Unreachable
         }
-    }
-
-    private fun serverNow(): Instant = clock.now() + gap
-
-    private sealed interface LessonAnswer {
-
-        data class Read(val read: LessonRead) : LessonAnswer
-
-        data object NoTown : LessonAnswer
-
-        data object Unreachable : LessonAnswer
     }
 }

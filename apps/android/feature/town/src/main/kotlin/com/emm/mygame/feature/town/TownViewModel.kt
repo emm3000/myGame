@@ -4,9 +4,15 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.emm.mygame.core.model.account.SessionRepository
 import com.emm.mygame.core.model.town.HeldTown
+import com.emm.mygame.core.model.town.ReadAnswer
+import com.emm.mygame.core.model.town.ReadFollower
 import com.emm.mygame.core.model.town.TownReadResult
 import com.emm.mygame.core.model.town.TownRepository
 import com.emm.mygame.core.model.town.TownSnapshot
+import com.emm.mygame.core.model.town.failedReadRetry
+import com.emm.mygame.core.model.town.gapOf
+import com.emm.mygame.core.model.town.serverNow
+import com.emm.mygame.core.projection.repaintDelay
 import com.emm.mygame.feature.town.building.BuildingRequests
 import com.emm.mygame.feature.town.building.work.WorkTarget
 import com.emm.mygame.feature.town.guidance.GuidanceRequests
@@ -16,7 +22,6 @@ import com.emm.mygame.feature.town.naming.NamingStatus
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.cancelChildren
 import kotlinx.coroutines.channels.Channel
-import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -26,10 +31,7 @@ import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import kotlin.time.Clock
 import kotlin.time.Duration
-import kotlin.time.Duration.Companion.minutes
 import kotlin.time.Instant
-
-private val failedReadRetry: Duration = 1.minutes
 
 class TownViewModel(
     private val towns: TownRepository,
@@ -87,6 +89,32 @@ class TownViewModel(
         onClosed = { drawRequests(requests) },
     )
 
+    private val follower: ReadFollower<TownSnapshot> = object : ReadFollower<TownSnapshot>() {
+        override fun now(): Instant = serverNow(clock, gap)
+
+        override fun draw(held: TownSnapshot): Unit = this@TownViewModel.draw(held)
+
+        override suspend fun read(): ReadAnswer<TownSnapshot> = when (val answer: TownReadResult = towns.read()) {
+            is TownReadResult.Read -> {
+                requests = requests.keptAfterRead()
+                ReadAnswer.Read(measured(answer.town))
+            }
+            TownReadResult.NoTown -> {
+                askName()
+                ReadAnswer.Ended
+            }
+            TownReadResult.Unreachable -> ReadAnswer.Unreachable
+        }
+
+        override fun isReadDue(held: TownSnapshot, nextReadAt: Instant?, now: Instant): Boolean =
+            (nextReadAt == null || nextReadAt <= now) && held.isDueAt(now)
+
+        override fun nextReadAfter(held: TownSnapshot, now: Instant): Instant? = null
+
+        override fun repaintIn(held: TownSnapshot, now: Instant): Duration =
+            repaintDelay(listOfNotNull(held.nearestCountdownAt(now), _state.value.nearestReadyLeft()).minOrNull())
+    }
+
     init {
         open()
     }
@@ -137,7 +165,7 @@ class TownViewModel(
         _state.value = TownUiState.Loading
         projection = viewModelScope.launch {
             when (val answer: TownReadResult = towns.read()) {
-                is TownReadResult.Read -> project(measured(answer.town))
+                is TownReadResult.Read -> follower.follow(measured(answer.town), firstReadAt = null)
                 TownReadResult.NoTown -> askName()
                 TownReadResult.Unreachable -> _state.value = TownUiState.Failed
             }
@@ -156,10 +184,10 @@ class TownViewModel(
             when (val answer: TownReadResult = towns.read()) {
                 is TownReadResult.Read -> {
                     requests = requests.keptAfterRead()
-                    project(measured(answer.town))
+                    follower.follow(measured(answer.town), firstReadAt = null)
                 }
                 TownReadResult.NoTown -> askName()
-                TownReadResult.Unreachable -> project(last, firstReadAt = serverNow() + failedReadRetry)
+                TownReadResult.Unreachable -> follower.follow(last, serverNow(clock, gap) + failedReadRetry)
             }
         }
     }
@@ -187,7 +215,7 @@ class TownViewModel(
         projection?.cancel()
         requests = kept
         draw(snapshot)
-        if (isOnScreen) projection = viewModelScope.launch { project(snapshot) }
+        if (isOnScreen) projection = viewModelScope.launch { follower.follow(snapshot, firstReadAt = null) }
     }
 
     private fun drawRequests(next: TownRequests) {
@@ -199,7 +227,7 @@ class TownViewModel(
     private fun draw(snapshot: TownSnapshot) {
         val drawn: ShownTown = shown?.takeIf { held: ShownTown -> held.snapshot === snapshot } ?: registerRead(snapshot)
         _state.value = snapshot.contentAt(
-            now = serverNow(),
+            now = serverNow(clock, gap),
             gap = gap,
             requests = requests,
             registered = drawn.registered,
@@ -215,33 +243,8 @@ class TownViewModel(
         return next
     }
 
-    private suspend fun project(first: TownSnapshot, firstReadAt: Instant? = null) {
-        var snapshot: TownSnapshot = first
-        var nextReadAt: Instant? = firstReadAt
-        while (true) {
-            draw(snapshot)
-            val now: Instant = serverNow()
-            val isReadAllowed: Boolean = nextReadAt == null || nextReadAt <= now
-            if (isReadAllowed && snapshot.isDueAt(now)) {
-                when (val answer: TownReadResult = towns.read()) {
-                    is TownReadResult.Read -> {
-                        snapshot = measured(answer.town)
-                        requests = requests.keptAfterRead()
-                        nextReadAt = null
-                        draw(snapshot)
-                    }
-                    TownReadResult.NoTown -> return askName()
-                    TownReadResult.Unreachable -> nextReadAt = serverNow() + failedReadRetry
-                }
-            }
-            delay(snapshot.nextWakeFrom(serverNow(), nextReadAt, _state.value.nearestReadyLeft()))
-        }
-    }
-
-    private fun serverNow(): Instant = clock.now() + gap
-
     private fun measured(read: TownSnapshot): TownSnapshot {
-        gap = read.readAt - clock.now()
+        gap = gapOf(read.readAt, clock)
         return read
     }
 }
