@@ -103,7 +103,7 @@ class HoldoutCheckViewModel(
         when (answer) {
             is HoldoutCheckChangeResult.Changed -> drawChanged(changedStateOf(action, answer.checks))
             is HoldoutCheckChangeResult.Refused -> refused(HoldoutCheckRequest.Refused(action, answer.refusal))
-            HoldoutCheckChangeResult.Unreachable -> drawRequest(HoldoutCheckRequest.Unreachable)
+            HoldoutCheckChangeResult.Unreachable -> drawRequest(HoldoutCheckRequest.Unreachable(action))
         }
     }
 

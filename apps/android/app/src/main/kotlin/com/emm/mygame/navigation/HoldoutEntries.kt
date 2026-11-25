@@ -21,8 +21,8 @@ internal fun EntryProviderScope<NavKey>.holdoutCheckEntry(chrome: SignedInChrome
                 holdoutChecks = dependencies.holdoutChecks,
                 band = check.band,
                 week = check.week,
-                hook = frame.task,
-                foldedDock = frame.foldedDock,
+                onEnd = frame.onAnswered,
+                onDone = chrome.navigator::back,
             )
         }
     }

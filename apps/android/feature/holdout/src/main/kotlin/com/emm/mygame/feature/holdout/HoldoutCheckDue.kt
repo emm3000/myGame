@@ -33,7 +33,7 @@ internal fun HoldoutCheckDue(
             style = MyGameTypography.body,
             color = MyGameTheme.colors.inkMuted,
         )
-        HoldoutCheckRequestLine(request = due.request)
+        if (due.request.isSkipVerdict) HoldoutCheckRequestLine(request = due.request)
         MyGameOutlinedButton(
             label = fixedCopyResource(R.string.holdout_skip),
             isBusy = waiting == HoldoutCheckAction.Skip,

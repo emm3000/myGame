@@ -10,5 +10,12 @@ sealed interface HoldoutCheckRequest {
 
     data class Refused(val action: HoldoutCheckAction, val refusal: HoldoutCheckRefusal) : HoldoutCheckRequest
 
-    data object Unreachable : HoldoutCheckRequest
+    data class Unreachable(val action: HoldoutCheckAction) : HoldoutCheckRequest
+
+    val isSkipVerdict: Boolean
+        get() = when (this) {
+            Idle, is Waiting -> false
+            is Refused -> action == HoldoutCheckAction.Skip
+            is Unreachable -> action == HoldoutCheckAction.Skip
+        }
 }
