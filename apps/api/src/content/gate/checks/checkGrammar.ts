@@ -5,9 +5,11 @@ import { cardWordFormOf } from '../cardWordFormOf'
 import type { GateContent } from '../GateContent'
 import { type GrammarPassage, grammarPassagesOf } from '../grammarPassagesOf'
 import { type GrammarTerms, grammarTermsOf } from '../grammarTermsOf'
+import { grammarCardEntryOf, grammarWordOf } from '../grammarWordOf'
 import { haveBeforeOf, type SubjectWords } from '../haveBeforeOf'
 import { inventoryFailuresOf } from '../inventoryFailuresOf'
 import { negativeFailuresOf } from '../negativeFailuresOf'
+import { structureFailuresOf } from '../structureFailuresOf'
 import { subjectPronouns } from '../subjectPronouns'
 
 type PassageToken = {
@@ -77,30 +79,12 @@ const cardWordFailures = (
 
 const isContractionPiece = (token: string): boolean => token.startsWith("'") || token === "n't"
 
-const wordOf = (
-  token: string | undefined,
-  passage: GrammarPassage,
-  terms: GrammarTerms,
-): string | undefined => {
-  const reading = token === undefined ? undefined : readingOf(token, passage, terms.reading)
-  return reading?.kind === 'word' ? reading.word : undefined
-}
-
-const cardEntryOf = (
-  token: string | undefined,
-  passage: GrammarPassage,
-  terms: GrammarTerms,
-): LexiconEntry | undefined => {
-  const word = wordOf(token, passage, terms)
-  return word === undefined ? undefined : terms.cardWords.get(word)
-}
-
 const isFrameWordToken = (
   token: string | undefined,
   passage: GrammarPassage,
   terms: GrammarTerms,
 ): boolean => {
-  const word = wordOf(token, passage, terms)
+  const word = grammarWordOf(token, passage, terms)
   return word !== undefined && terms.frameWordsAdmittedAt.has(word)
 }
 
@@ -110,7 +94,7 @@ const isBeHost = (
   terms: GrammarTerms,
 ): boolean =>
   isFrameWordToken(previous, passage, terms) ||
-  cardEntryOf(previous, passage, terms)?.partOfSpeech === 'adverb'
+  grammarCardEntryOf(previous, passage, terms)?.partOfSpeech === 'adverb'
 
 const pastInflections: ReadonlySet<string> = new Set(['-ed', 'irregular past', 'past participle'])
 
@@ -119,7 +103,7 @@ const isPastForm = (
   passage: GrammarPassage,
   terms: GrammarTerms,
 ): boolean => {
-  const entry = cardEntryOf(token, passage, terms)
+  const entry = grammarCardEntryOf(token, passage, terms)
   if (token === undefined || entry?.partOfSpeech !== 'verb') {
     return false
   }
@@ -156,7 +140,7 @@ const isObjectRelative = (
   ) {
     return false
   }
-  const antecedent = wordOf(previous, passage, terms)
+  const antecedent = grammarWordOf(previous, passage, terms)
   return antecedent === undefined || isAntecedent(antecedent, terms)
 }
 
@@ -184,7 +168,7 @@ const tokenFailures = (
 }
 
 const subjectWordsOf = (passage: GrammarPassage, terms: GrammarTerms): SubjectWords => ({
-  isNoun: (token) => cardEntryOf(token, passage, terms)?.partOfSpeech === 'noun',
+  isNoun: (token) => grammarCardEntryOf(token, passage, terms)?.partOfSpeech === 'noun',
   isFrameWord: (token) => isFrameWordToken(token, passage, terms),
 })
 
@@ -213,5 +197,6 @@ export const checkGrammar = (content: GateContent): ReadonlyArray<string> => {
     ...inventoryFailuresOf(content),
     ...passages.flatMap((passage) => passageFailures(passage, terms)),
     ...negativeFailuresOf(passages),
+    ...structureFailuresOf(passages, terms),
   ]
 }
