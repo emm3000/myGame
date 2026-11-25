@@ -1,5 +1,5 @@
 ---
-status: proposed, the skill amended by ADR 039, chrome examples changed by ADR 040, the item data, the order, the frame rule, the stage and the holdout widened for units and later frames, and the next lesson after placement clarified, by ADR 044, check 7 delegated by its amendment of 2026-11-12, check 4 amended for a text by ADR 049, the holdout's comparison amended by ADR 057: a card, with its reviews and the reading it opens, against reading alone
+status: proposed, the skill amended by ADR 039, chrome examples changed by ADR 040, the item data, the order, the frame rule, the stage and the holdout widened for units and later frames, and the next lesson after placement clarified, by ADR 044, check 7 delegated by its amendment of 2026-11-12, check 4 amended for a text by ADR 049, the holdout's comparison amended by ADR 057: a card, with its reviews and the reading it opens, against reading alone, the order and check 2 amended 2026-11-25: band lessons from lesson 48 in NGSL-Spoken 1.2 order
 date: 2026-11-04
 ---
 # The NGSL curriculum and the content gate
@@ -108,6 +108,32 @@ the same licence (§3(b)).
   after it enters the window, and the theme still has 30 words to choose
   5 from. Every rank below 30 in the list is a frame word, so, unless a
   chrome lesson teaches it, the first band lesson holds *say* (30).
+  *Amended 2026-11-25:* from lesson 48, the rank that orders a band's
+  untaught card words is the `Rank` of NGSL-Spoken 1.2 (Browne and
+  Culligan, `ngsl-spoken-1.2.csv`), not the NGSL's `SFI Rank`: a band
+  lesson's head is the untaught card word of its band with the lowest
+  spoken rank, and its window the 30 untaught card words of lowest
+  spoken rank. The player learns the English of daily speech in the
+  USA, and the NGSL order would open lessons 48 to 51 on *system*,
+  *during*, *since*, *under*, *state*, *however*. Lessons 17 to 47, the
+  band lessons that shipped before, keep the NGSL order. Band
+  membership stays the NGSL's: a word enters its NGSL band's window,
+  whatever its spoken rank. A card word absent from the spoken list
+  follows every listed word, in NGSL order, and so does a word the
+  list holds only as a transcription tag (*pause*, *unclear*, *laugh*),
+  which the gate reads as absent. On the content of 2026-11-25, the
+  first 20 heads from lesson 48 are *yes, yeah, sort, actually, bit,
+  okay, quite, probably, anything, sure, nice, thank, stuff, remember,
+  maybe, test, though, kid, else, anyway*. Known gaps: the spoken list
+  mixes British and American speech (*pound*, 201, heads the window
+  after *night*), so the content review (check 7) keeps judging each
+  word; the file holds `TRUE,#N/A` for *true*, so it ships unchanged,
+  the gate skips that row and *true* reads as absent; every other
+  reader of the rank keeps the NGSL order: the band words and lesson
+  bands the measures read, the placement's shelf, the holdout's
+  release in rank order (The holdout), the lexicon (check 1) and the
+  defining vocabulary (check 5); each lesson's skill follows its
+  position (ADR 039).
 - **A lesson's frames use only what the player is taken to know at that
   lesson** (the frame rule, below). That ties the order to the text:
   each lesson widens what the next lesson's frames may say.
@@ -190,6 +216,11 @@ word it means in the content, or the gate fails it.
    the rest from that band's 30 lowest-ranked untaught card words; it
    teaches 5 card words, except that a lesson starting with fewer than
    10 of its band's card words untaught takes them all, 5 to 9.
+   *Amended 2026-11-25:* from lesson 48, "lowest-ranked" reads the
+   NGSL-Spoken 1.2 rank, a card word absent from the spoken list or
+   held there only as a transcription tag coming after every listed
+   word, in NGSL order; the band stays the NGSL's ("Lessons and their
+   order", above).
 3. **The frame rule.** A frame holds its lemma once, in the lemma's own
    form, and the gapped frame is that frame with the lemma replaced by
    `____`. Every other token is a frame word admitted at or before the
@@ -459,6 +490,9 @@ A frame such as *This is my home.* passes: *this*, *is* (*be*) and *my*
 - NGSL 1.2, Browne, Culligan and Phillips, CC BY-SA 4.0:
   https://www.newgeneralservicelist.com/new-general-service-list, and
   `NGSL_12_lemmatized_for_teaching.csv` there.
+- NGSL-Spoken 1.2, Browne and Culligan, CC BY-SA 4.0:
+  https://www.newgeneralservicelist.com/ngsl-spoken, and
+  `NGSL-Spoken_12_stats.csv` there.
 - CC BY-SA 4.0 legal code, §1, §3, §4:
   https://creativecommons.org/licenses/by-sa/4.0/legalcode.en
 - Webb, S., Sasao, Y., and Ballance, O. (2017). The updated Vocabulary

@@ -19,6 +19,10 @@ const mostUnits = 9
 
 const unitLessonSpacing = 4
 
+const firstSpokenOrderLesson = 48
+
+const unlistedSpokenRank = Number.MAX_SAFE_INTEGER
+
 type UntaughtBand = { readonly band: number; readonly untaught: ReadonlyArray<string> }
 
 const bandsOf = ({ ranks, grammar }: GateContent): ReadonlyArray<ReadonlyArray<string>> => {
@@ -41,6 +45,26 @@ const currentBand = (
       untaught: lemmas.filter((lemma) => !taught.has(lemma)),
     }))
     .find(({ untaught }) => untaught.length > 0)
+
+const inSpokenOrder = (
+  { band, untaught }: UntaughtBand,
+  spokenRanks: ReadonlyMap<string, number>,
+): UntaughtBand => {
+  const spokenRankOf = (lemma: string): number => spokenRanks.get(lemma) ?? unlistedSpokenRank
+  return { band, untaught: [...untaught].sort((a, b) => spokenRankOf(a) - spokenRankOf(b)) }
+}
+
+const windowOf = (
+  position: number,
+  bands: ReadonlyArray<ReadonlyArray<string>>,
+  taught: ReadonlySet<string>,
+  { spokenRanks = new Map<string, number>() }: GateContent,
+): UntaughtBand | undefined => {
+  const current = currentBand(bands, taught)
+  return current === undefined || position < firstSpokenOrderLesson
+    ? current
+    : inSpokenOrder(current, spokenRanks)
+}
 
 const wordFailures = (
   lessonId: string,
@@ -196,7 +220,7 @@ export const checkOrder = (content: GateContent): ReadonlyArray<string> => {
     const found = lessonFailures(
       lesson,
       index,
-      currentBand(bands, taught),
+      windowOf(index + 1, bands, taught, content),
       { taught, admittedAt },
       content,
     )

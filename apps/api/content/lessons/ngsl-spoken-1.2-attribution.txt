@@ -1,0 +1,10 @@
+ngsl-spoken-1.2.csv is the NGSL-Spoken 1.2 statistics file,
+NGSL-Spoken_12_stats.csv, shipped unchanged.
+
+Authors: Charles Browne and Brent Culligan.
+Licence: Creative Commons Attribution-ShareAlike 4.0 International (CC BY-SA 4.0),
+https://creativecommons.org/licenses/by-sa/4.0/
+Page: https://www.newgeneralservicelist.com/ngsl-spoken
+Source: https://www.newgeneralservicelist.com/s/NGSL-Spoken_12_stats.csv
+Downloaded: 2026-11-25
+SHA-256: 07708940c50a07cac4f507fd1e87bdd50081d7b87713a66a99beb3c8c4d11ac8
