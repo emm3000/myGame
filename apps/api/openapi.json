@@ -3604,6 +3604,41 @@
         "required": ["id", "title", "sentences"],
         "additionalProperties": false
       },
+      "KeepGoingFrames": {
+        "type": "object",
+        "properties": {
+          "words": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/KeepGoingWord"
+            }
+          }
+        },
+        "required": ["words"],
+        "additionalProperties": false
+      },
+      "KeepGoingWord": {
+        "type": "object",
+        "properties": {
+          "wordId": {
+            "type": "string",
+            "minLength": 1
+          },
+          "frames": {
+            "type": "array",
+            "items": {
+              "type": "array",
+              "items": {
+                "$ref": "#/components/schemas/FrameSpan"
+              },
+              "minItems": 1
+            },
+            "minItems": 1
+          }
+        },
+        "required": ["wordId", "frames"],
+        "additionalProperties": false
+      },
       "FoundTown": {
         "type": "object",
         "properties": {
@@ -4821,6 +4856,40 @@
           },
           "404": {
             "description": "TownNotFound; a text the stage has not reached, or the content lacks, answers an empty body.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/town/frames": {
+      "get": {
+        "security": [
+          {
+            "sessionBearer": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "The frames Keep going offers: each reviewed word whose next review is the content’s line or more away, soonest due first, at most the content’s cap, each frame as spans with its card words supported at the read. The read writes nothing.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/KeepGoingFrames"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "No live session: neither a session cookie nor, without one, an Authorization bearer token names one. Empty body."
+          },
+          "404": {
+            "description": "TownNotFound.",
             "content": {
               "application/json": {
                 "schema": {

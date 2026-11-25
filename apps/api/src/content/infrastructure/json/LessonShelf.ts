@@ -1,4 +1,12 @@
-import type { Band, BandWord, LessonId, PlacementWord, ShelvedLesson, Text } from '@mygame/domain'
+import type {
+  Band,
+  BandWord,
+  KeepGoingTerms,
+  LessonId,
+  PlacementWord,
+  ShelvedLesson,
+  Text,
+} from '@mygame/domain'
 import type { ResolvedFrames } from './resolvedFramesOf'
 
 export type LessonShelf = {
@@ -10,4 +18,5 @@ export type LessonShelf = {
   readonly placementWords: ReadonlyMap<Band, ReadonlyArray<PlacementWord>>
   readonly resolvedFrames: ResolvedFrames
   readonly texts: ReadonlyArray<Text>
+  readonly keepGoing: KeepGoingTerms
 }

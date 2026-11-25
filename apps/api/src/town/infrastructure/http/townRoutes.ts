@@ -50,6 +50,11 @@ import {
   openTextDeclaration,
 } from './OpenTextController'
 import {
+  ReadKeepGoingFramesController,
+  type ReadKeepGoingFramesControllerDependencies,
+  readKeepGoingFramesDeclaration,
+} from './ReadKeepGoingFramesController'
+import {
   ResolveCurrentTownController,
   type ResolveCurrentTownControllerDependencies,
   resolveCurrentTownDeclaration,
@@ -59,6 +64,7 @@ export type TownRouteDependencies = RequirePlayerDependencies &
   ResolveCurrentTownControllerDependencies &
   ResolveTownNewsControllerDependencies &
   OpenTextControllerDependencies &
+  ReadKeepGoingFramesControllerDependencies &
   FoundTownControllerDependencies &
   BuildingRouteDependencies &
   HiringRouteDependencies &
@@ -70,6 +76,7 @@ export const townDeclarations = {
   overview: resolveCurrentTownDeclaration,
   news: resolveTownNewsDeclaration,
   text: openTextDeclaration,
+  keepGoingFrames: readKeepGoingFramesDeclaration,
   found: foundTownDeclaration,
   startWork: startBuildingWorkDeclaration,
   stopWork: stopBuildingWorkDeclaration,
@@ -92,6 +99,7 @@ export const townRoutes = (dependencies: TownRouteDependencies): OpenAPIHono => 
   const resolveCurrentTownController = new ResolveCurrentTownController(dependencies)
   const resolveTownNewsController = new ResolveTownNewsController(dependencies)
   const openTextController = new OpenTextController(dependencies)
+  const readKeepGoingFramesController = new ReadKeepGoingFramesController(dependencies)
   const foundTownController = new FoundTownController(dependencies)
   routes.openAPIRegistry.registerPath(resolveCurrentTownDeclaration)
   routes.on(
@@ -110,6 +118,13 @@ export const townRoutes = (dependencies: TownRouteDependencies): OpenAPIHono => 
   routes.openAPIRegistry.registerPath(openTextDeclaration)
   routes.on(openTextDeclaration.method, honoPathOf(openTextDeclaration), signedIn, (c) =>
     openTextController.handle(c),
+  )
+  routes.openAPIRegistry.registerPath(readKeepGoingFramesDeclaration)
+  routes.on(
+    readKeepGoingFramesDeclaration.method,
+    honoPathOf(readKeepGoingFramesDeclaration),
+    signedIn,
+    (c) => readKeepGoingFramesController.handle(c),
   )
   routes.openAPIRegistry.registerPath(foundTownDeclaration)
   routes.on(foundTownDeclaration.method, honoPathOf(foundTownDeclaration), signedIn, (c) =>

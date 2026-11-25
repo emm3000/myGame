@@ -68,6 +68,7 @@ const contentOfLessons = (lessonIds: ReadonlyArray<string>): string => {
     chromeLessonCount: 1,
     lessonIds,
     skill: { resource: 'money', ratePercent: 5 },
+    keepGoing: { wordsPerRead: 10, secondsBeforeDue: 86_400 },
   })
   return directory
 }

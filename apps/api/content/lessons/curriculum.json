@@ -52,5 +52,9 @@
   "skill": {
     "resource": "money",
     "ratePercent": 5
+  },
+  "keepGoing": {
+    "wordsPerRead": 10,
+    "secondsBeforeDue": 86400
   }
 }

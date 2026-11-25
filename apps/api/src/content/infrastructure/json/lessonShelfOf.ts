@@ -88,5 +88,6 @@ export const lessonShelfOf = (files: LessonContentFiles): LessonShelf => {
       title,
       sentences,
     })),
+    keepGoing: files.curriculum.keepGoing,
   }
 }

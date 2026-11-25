@@ -28,6 +28,8 @@ export { type HoldoutChecks, HoldoutChecksSchema } from './holdout/HoldoutChecks
 export { type HoldoutCheckWeek, HoldoutCheckWeekSchema } from './holdout/HoldoutCheckWeek'
 export { type DueReview, DueReviewSchema } from './learning/DueReview'
 export { type FrameSpan, FrameSpanSchema } from './learning/FrameSpan'
+export { type KeepGoingFrames, KeepGoingFramesSchema } from './learning/KeepGoingFrames'
+export { type KeepGoingWord, KeepGoingWordSchema } from './learning/KeepGoingWord'
 export { type OpenText, OpenTextSchema } from './learning/OpenText'
 export { type ReadTextRequest, ReadTextRequestSchema } from './learning/ReadTextRequest'
 export { type ReviewAnswer, ReviewAnswerSchema } from './learning/ReviewAnswer'

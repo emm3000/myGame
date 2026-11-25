@@ -109,6 +109,7 @@ export const delegatingTo = (lessons: LessonLibrary): LessonLibrary => ({
   answerFormsOf: (wordId) => lessons.answerFormsOf(wordId),
   texts: () => lessons.texts(),
   textTokensOf: (textId, passage) => lessons.textTokensOf(textId, passage),
+  keepGoingTerms: () => lessons.keepGoingTerms(),
 })
 
 export const withNoLessons = (lessons: LessonLibrary): LessonLibrary => ({

@@ -102,6 +102,13 @@ export type { FrameCatalog } from '#learning/frames/domain/FrameCatalog'
 export type { FrameLearner } from '#learning/frames/domain/FrameLearner'
 export type { FrameSpan, FrameSpans } from '#learning/frames/domain/FrameSpan'
 export type { FrameToken } from '#learning/frames/domain/FrameToken'
+export type { KeepGoingTerms } from '#learning/frames/domain/KeepGoingTerms'
+export {
+  type KeepGoingLearner,
+  type KeepGoingReadTerms,
+  type KeepGoingWord,
+  keepGoingWordsOf,
+} from '#learning/frames/domain/keepGoingWordsOf'
 export { openTextsOf, type TextLearner } from '#learning/frames/domain/openTextsOf'
 export { readingFrameOf } from '#learning/frames/domain/readingFrameOf'
 export type { Text, TextId } from '#learning/frames/domain/Text'
@@ -242,9 +249,9 @@ export {
   type ResolveCurrentTownDependencies,
 } from '#town/application/ResolveCurrentTown'
 export {
-  ResolveTownForText,
-  type ResolveTownForTextDependencies,
-} from '#town/application/ResolveTownForText'
+  ResolveTownForReading,
+  type ResolveTownForReadingDependencies,
+} from '#town/application/ResolveTownForReading'
 export type { SeenTowns } from '#town/away/domain/SeenTowns'
 export type { TownOverviewReading } from '#town/away/domain/TownOverviewReading'
 export {

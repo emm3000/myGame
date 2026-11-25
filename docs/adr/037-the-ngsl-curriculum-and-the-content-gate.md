@@ -1,5 +1,5 @@
 ---
-status: proposed, the skill amended by ADR 039, chrome examples changed by ADR 040, the item data, the order, the frame rule, the stage and the holdout widened for units and later frames, and the next lesson after placement clarified, by ADR 044, check 7 delegated by its amendment of 2026-11-12, check 4 amended for a text by ADR 049
+status: proposed, the skill amended by ADR 039, chrome examples changed by ADR 040, the item data, the order, the frame rule, the stage and the holdout widened for units and later frames, and the next lesson after placement clarified, by ADR 044, check 7 delegated by its amendment of 2026-11-12, check 4 amended for a text by ADR 049, the holdout's comparison amended by ADR 057: a card, with its reviews and the reading it opens, against reading alone
 date: 2026-11-04
 ---
 # The NGSL curriculum and the content gate

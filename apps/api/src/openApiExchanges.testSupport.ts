@@ -129,6 +129,8 @@ export const exchanges: ReadonlyArray<Exchange> = [
     params: { textId: 'text-1' },
     status: 404,
   },
+  { operation: 'GET /town/frames', caller: 'signedOut', status: 401 },
+  { operation: 'GET /town/frames', caller: 'ana', status: 404 },
   {
     operation: 'POST /town/work',
     caller: 'signedOut',
@@ -467,6 +469,7 @@ export const exchanges: ReadonlyArray<Exchange> = [
     params: { textId: 'text-1' },
     status: 200,
   },
+  { operation: 'GET /town/frames', caller: 'ana', status: 200 },
   {
     operation: 'POST /auth/sign-up/native',
     caller: 'signedOut',

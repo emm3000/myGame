@@ -15,5 +15,6 @@ export const readJsonLessonLibrary = (directory: string): LessonLibrary => {
     ...jsonPlacementWordCatalogOf(shelf),
     ...jsonFrameCatalogOf(shelf),
     ...jsonTextCatalogOf(shelf),
+    keepGoingTerms: () => shelf.keepGoing,
   }
 }

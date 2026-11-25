@@ -1,6 +1,6 @@
 import { createRoute } from '@hono/zod-openapi'
 import { type OpenText, OpenTextSchema, ReadTextRequestSchema } from '@mygame/contracts'
-import type { LessonLibrary, ResolveTownForText } from '@mygame/domain'
+import type { LessonLibrary, ResolveTownForReading } from '@mygame/domain'
 import type { Context } from 'hono'
 import type { SignedInPlayer } from '#account/infrastructure/http/requirePlayer'
 import { refusalResponse } from '#platform/infrastructure/http/refusalResponse'
@@ -27,7 +27,7 @@ export const openTextDeclaration = createRoute(
 )
 
 export type OpenTextControllerDependencies = {
-  readonly resolveTownForText: ResolveTownForText
+  readonly resolveTownForReading: ResolveTownForReading
   readonly lessons: LessonLibrary
 }
 
@@ -39,7 +39,7 @@ export class OpenTextController {
     if (!request.success) {
       return respondRefusal(c, { kind: 'MalformedRequest' })
     }
-    const reading = await this.dependencies.resolveTownForText.execute(c.var.playerId)
+    const reading = await this.dependencies.resolveTownForReading.execute(c.var.playerId)
     if (!reading.ok) {
       return respondRefusal(c, reading.error)
     }

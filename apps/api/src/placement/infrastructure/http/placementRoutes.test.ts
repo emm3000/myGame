@@ -55,6 +55,7 @@ const draftedBandOneOf = (lessons: LessonLibrary): LessonLibrary => ({
   answerFormsOf: (wordId) => lessons.answerFormsOf(wordId),
   texts: () => lessons.texts(),
   textTokensOf: (textId, passage) => lessons.textTokensOf(textId, passage),
+  keepGoingTerms: () => lessons.keepGoingTerms(),
 })
 
 type AskingPlacement = Extract<Placement, { readonly kind: 'asking' }>
