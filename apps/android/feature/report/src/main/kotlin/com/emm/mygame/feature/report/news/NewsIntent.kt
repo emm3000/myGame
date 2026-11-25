@@ -1,4 +1,4 @@
-package com.emm.mygame.feature.report
+package com.emm.mygame.feature.report.news
 
 sealed interface NewsIntent {
 

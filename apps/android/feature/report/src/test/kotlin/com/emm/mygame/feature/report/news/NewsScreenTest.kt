@@ -1,4 +1,4 @@
-package com.emm.mygame.feature.report
+package com.emm.mygame.feature.report.news
 
 import androidx.compose.ui.test.assert
 import androidx.compose.ui.test.assertCountEquals

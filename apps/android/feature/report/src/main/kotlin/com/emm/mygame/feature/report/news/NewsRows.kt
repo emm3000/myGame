@@ -1,4 +1,4 @@
-package com.emm.mygame.feature.report
+package com.emm.mygame.feature.report.news
 
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -20,6 +20,11 @@ import com.emm.mygame.core.model.town.hiring.TownHireKind
 import com.emm.mygame.core.model.town.news.TownNews
 import com.emm.mygame.core.ui.PlayerCopy
 import com.emm.mygame.core.ui.rememberPlayerCopy
+import com.emm.mygame.feature.report.NewsAmounts
+import com.emm.mygame.feature.report.amountsLineOf
+import com.emm.mygame.feature.report.instantLabelOf
+import com.emm.mygame.feature.report.newsAmountsOf
+import com.emm.mygame.feature.report.newsLineOf
 import java.time.ZoneId
 import kotlin.time.Instant
 

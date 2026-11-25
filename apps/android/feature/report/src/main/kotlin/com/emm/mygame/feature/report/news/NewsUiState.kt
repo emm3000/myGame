@@ -1,4 +1,4 @@
-package com.emm.mygame.feature.report
+package com.emm.mygame.feature.report.news
 
 import com.emm.mygame.core.model.town.news.TownNews
 import kotlin.time.Instant
