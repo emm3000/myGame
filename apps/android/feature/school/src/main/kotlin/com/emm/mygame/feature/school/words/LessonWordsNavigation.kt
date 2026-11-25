@@ -6,5 +6,5 @@ data class LessonWordsNavigation(
     val onNoTown: () -> Unit,
     val onLessonOpen: (LessonId, List<LessonId>) -> Unit,
     val onReviewsOpen: () -> Unit,
-    val onSchoolOpen: () -> Unit,
+    val onDone: () -> Unit,
 )

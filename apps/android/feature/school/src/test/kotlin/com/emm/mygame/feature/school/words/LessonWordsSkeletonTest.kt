@@ -102,7 +102,7 @@ class LessonWordsSkeletonTest {
         composeRule.mainClock.autoAdvance = false
         composeRule.setContent {
             MyGameTheme {
-                LessonWordsWithDock(state = state)
+                LessonWordsScreen(state = state, onIntent = {}, onWayOn = {}, onDone = {})
             }
         }
     }

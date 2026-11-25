@@ -42,7 +42,6 @@ import com.emm.mygame.core.designsystem.MyGameTypography
 import com.emm.mygame.core.designsystem.OUTLINED_PILL
 import com.emm.mygame.core.ui.FillTaskDock
 import com.emm.mygame.core.ui.FoldedTaskEnd
-import com.emm.mygame.core.ui.FollowTownDock
 import com.emm.mygame.core.ui.TaskDock
 import com.emm.mygame.core.ui.TaskDockHook
 import com.emm.mygame.feature.town.status.TownStatusIntent
@@ -71,7 +70,6 @@ class TaskDockFrameTest {
     private fun showingFakeTask(
         kind: FrameKind = FrameKind.Task,
         isFilled: Boolean = true,
-        isFollowingTown: Boolean = false,
         status: TownStatusUiState = TownStatusUiState.none,
         cardHeight: Dp = 0.dp,
     ) {
@@ -97,7 +95,6 @@ class TaskDockFrameTest {
                     FakeTaskRoute(
                         frame = frame,
                         isFilled = isFilled,
-                        isFollowingTown = isFollowingTown,
                         cardHeight = cardHeight,
                     )
                 }
@@ -184,39 +181,6 @@ class TaskDockFrameTest {
     }
 
     @Test
-    fun `a task route that follows the town draws the town's step with no door`() {
-        showingFakeTask(isFilled = false, isFollowingTown = true, status = refusedTown)
-
-        composeRule.onNode(hasTestTag(INK_PILL)).performClick()
-
-        composeRule.waitForIdle()
-        composeRule.onAllNodesWithTag(OUTLINED_PILL).assertCountEquals(0)
-        assertEquals(listOf<TownStatusIntent>(TownStatusIntent.TryAgainTapped), sent)
-    }
-
-    @Test
-    fun `a task's town notice comes after its content for TalkBack`() {
-        showingFakeTask(isFilled = false, isFollowingTown = true, status = refusedTown)
-
-        val read: List<Int> = readInOrder(hasText(CARD), hasText(TOWN_UNREACHABLE))
-
-        assertEquals(listOf(idOf(hasText(CARD)), idOf(hasText(TOWN_UNREACHABLE))), read)
-    }
-
-    @Test
-    @Config(qualifiers = "+w360dp-h320dp", fontScale = 2.0f)
-    fun `a task's folded town notice reads after its content and before its go button`() {
-        showingFakeTask(isFilled = false, isFollowingTown = true, status = refusedTown)
-        val foldedNotice: SemanticsMatcher =
-            hasText(TOWN_UNREACHABLE) and isPlaced and hasAnyAncestor(hasScrollAction())
-        composeRule.onNode(foldedNotice, useUnmergedTree = true).assertExists()
-
-        val read: List<Int> = readInOrder(hasText(CARD), foldedNotice, placedGo)
-
-        assertEquals(listOf(idOf(hasText(CARD)), idOf(foldedNotice), idOf(placedGo)), read)
-    }
-
-    @Test
     @Config(qualifiers = "+w360dp-h480dp", fontScale = 2.0f)
     fun `a task's folded dock hands its notice to the content, read after the card and before the go button`() {
         showingFakeTask()
@@ -237,7 +201,7 @@ class TaskDockFrameTest {
     }
 
     @Test
-    fun `a task route that does not follow the town hides the town's step`() {
+    fun `a task screen hides the town's step`() {
         showingFakeTask(isFilled = false, status = refusedTown)
 
         composeRule.onAllNodes(hasTestTag(INK_PILL)).assertCountEquals(0)
@@ -258,8 +222,6 @@ class TaskDockFrameTest {
         val refusedTown: TownStatusUiState = TownStatusUiState.none.copy(dock = TownStatusUiState.Dock.Refused)
 
         const val CARD: String = "The card"
-        const val TOWN_UNREACHABLE: String =
-            "No hemos podido hablar con el servidor. Vuelve a intentarlo en un momento."
         const val CHECK: String = "Check"
         const val PROGRESS: String = "Card 2 of 5"
         const val VERDICT: String = "Correct."
@@ -276,14 +238,13 @@ private val placedGo: SemanticsMatcher = SemanticsMatcher("the placed go button"
 private val isPlaced: SemanticsMatcher = SemanticsMatcher("is placed") { node -> node.layoutInfo.isPlaced }
 
 @Composable
-private fun FakeTaskRoute(frame: ScreenFrame, isFilled: Boolean, isFollowingTown: Boolean, cardHeight: Dp) {
+private fun FakeTaskRoute(frame: ScreenFrame, isFilled: Boolean, cardHeight: Dp) {
     val hook: TaskDockHook = frame.task
     Column(modifier = Modifier.verticalScroll(rememberScrollState())) {
         MyGameText(text = "The card", style = MyGameTypography.body, color = MyGameTheme.colors.ink)
         Spacer(modifier = Modifier.height(cardHeight))
-        FoldedTaskEnd(hook = hook, foldedDock = frame.foldedDock, shownNotice = null)
+        FoldedTaskEnd(hook = hook, shownNotice = null)
     }
-    if (isFollowingTown) FollowTownDock(hook = hook)
     if (!isFilled) return
     FillTaskDock(
         hook = hook,

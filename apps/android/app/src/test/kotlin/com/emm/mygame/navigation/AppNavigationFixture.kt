@@ -9,6 +9,7 @@ import androidx.compose.ui.test.hasAnyAncestor
 import androidx.compose.ui.test.hasAnyDescendant
 import androidx.compose.ui.test.hasClickAction
 import androidx.compose.ui.test.hasContentDescription
+import androidx.compose.ui.test.hasScrollAction
 import androidx.compose.ui.test.hasTestTag
 import androidx.compose.ui.test.hasText
 import androidx.compose.ui.test.junit4.AndroidComposeTestRule
@@ -16,6 +17,7 @@ import androidx.compose.ui.test.junit4.createAndroidComposeRule
 import androidx.compose.ui.test.onAllNodesWithText
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
+import androidx.compose.ui.test.performScrollTo
 import androidx.navigation3.runtime.rememberNavBackStack
 import androidx.test.ext.junit.rules.ActivityScenarioRule
 import com.emm.mygame.AppDependencies
@@ -182,10 +184,10 @@ abstract class AppNavigationFixture {
     protected fun wayToTheReport(): SemanticsNodeInteraction =
         waitedFor(hasClickAction().and(hasText("Informe").or(hasContentDescription("Ir al informe", substring = true))))
 
-    protected fun taskGo(label: String): SemanticsNodeInteraction {
-        val go: SemanticsMatcher = hasTestTag(INK_PILL).and(hasContentDescription(label, substring = true))
+    protected fun wayOn(label: String): SemanticsNodeInteraction {
+        val go: SemanticsMatcher = hasTestTag(INK_PILL).and(hasText(label)).and(hasAnyAncestor(hasScrollAction()))
         composeRule.waitUntil(WAIT_MILLIS) { composeRule.onAllNodes(go).fetchSemanticsNodes().isNotEmpty() }
-        return composeRule.onNode(go)
+        return composeRule.onNode(go).performScrollTo()
     }
 
     protected fun dockGo(label: String): SemanticsNodeInteraction {

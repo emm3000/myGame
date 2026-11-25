@@ -74,7 +74,7 @@ internal fun EntryProviderScope<NavKey>.lessonWordsEntry(chrome: SignedInChrome)
             kind = FrameKind.Task,
             doesScreenReadTown = true,
             chrome = chrome,
-        ) { frame: ScreenFrame ->
+        ) {
             LessonWordsRoute(
                 walk = LessonWalk(shown.lesson, shown.walked),
                 towns = dependencies.towns,
@@ -84,10 +84,8 @@ internal fun EntryProviderScope<NavKey>.lessonWordsEntry(chrome: SignedInChrome)
                     onNoTown = navigator::townUnnamed,
                     onLessonOpen = navigator::openLesson,
                     onReviewsOpen = navigator::openReviews,
-                    onSchoolOpen = { navigator.openTab(Tab.Learn) },
+                    onDone = navigator::back,
                 ),
-                task = frame.task,
-                foldedDock = frame.foldedDock,
             )
         }
     }
