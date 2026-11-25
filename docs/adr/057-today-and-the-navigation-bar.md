@@ -1,5 +1,5 @@
 ---
-status: accepted, the open points owed to a grill before any ticket
+status: accepted
 date: 2026-11-25
 ---
 # Today and the navigation bar, the Android shell
@@ -70,24 +70,42 @@ What trunk holds, checked at `43c23eb1a`:
   button, `NextLevel.kt:65-71` in `warning-ink` and `LessonRows.kt:148`;
   the dock does not.
 - **A loading screen is blank for 400 ms.** `MyGameSkeleton` draws
-  nothing for `REVEAL_MILLIS`, then pulsing blocks
-  (`MyGameSkeleton.kt:56`, `MyGameTransitions.kt:11`).
+  nothing for `REVEAL_MILLIS`, then pulsing blocks for at least 250 ms
+  (`MyGameSkeleton.kt:56`, `MyGameTransitions.kt:11-12`). The owner
+  asked for a skeleton only on a slow cold read (#917), and the two
+  figures came with it (`3019fff83`, `1d61fecab`). No ADR records them.
 - **The server already answers the first card.** `TownOverview.nextStep`
   is one of `reviews`, `holdoutCheck`, `lessonRunning`, `releasedLesson`,
   `lessonToStudy` and `caughtUp` (`NextStep.ts:63-71`). `lessonRunning`
-  and `caughtUp` carry the goal and the newest text.
+  and `caughtUp` carry the goal and the newest text, and the overview
+  carries `nextDueAt` (`TownOverview.ts:154`).
 - **Countdowns need no new field.** The overview sends instants,
   `LessonUnderStudy.finishesAt` and `BuildingWork.finishesAt`, and the
   client's projection counts down from them. The time a resource
   shortfall is covered is computed on the device too
   (`TownSnapshot.readyTimeOf`, `TownUiStateMapping.kt:111`).
 - **Nothing says what a town gained while the player was away.** The
-  overview holds current stocks and `readAt`; Town News holds events,
-  with no totals.
-- **A new player has nothing to read.** The first text opens at lesson
-  31 (`texts.json`, PRD S25). A lesson's words can be read until their
-  first review and not after (ADR 042, lines 58-59), and no route serves
-  a lesson's frames again.
+  stocks are stored with one `stored_at` (`townTables.ts:48`) and
+  derived on read. Town News holds events and no production. ADR 042
+  ruled that a return visit shows *no greeting, no count of days away,
+  no streak* (lines 349-350).
+- **Some reads already write.** `GET /town` persists a settle that is
+  due (`resolveTownReading.ts:79-83`), and `GET /report` writes
+  `players.report_served_at` (`accountTables.ts:26`).
+- **A word is read only until its first review.** `readableWordsOf`
+  admits a word while its lesson runs or while its card has no
+  `lastReviewAt` (`readableWordsOf.ts:12-15`, ADR 042, lines 58-59). A
+  text, though, shows a card word with its gloss beside it under 7 days
+  of stability, at any time (ADR 049, lines 155-159). The first text
+  opens at lesson 31 (`texts.json`, PRD S25).
+- **The Report holds no fact the new screens lack.** It draws the
+  reviews due or the time of the next one, the Town News since its last
+  close, and rows to all the news, the reminder offer and Settings
+  (`ReportScreen.kt:124-210`).
+- **Blocks already carry color.** ADR 043's block is a flat card on one
+  of four hues with `on-block` text, and `block-peach` is one of them
+  (`tokens.ts:48`). `warning-soft` is drawn by nothing in either client:
+  a shortfall is words in `warning-ink`.
 - **The web has neither a dock nor a pager.** It stays parked (ADR 047,
   *One source while the web is parked*).
 
@@ -116,20 +134,31 @@ replaces the dock, the pager and the street strip.
 | **Today** | what the player can do now, what is in progress and what is locked |
 | **Town** | the stocks and the seven places |
 | **Learn** | the lessons, the reviews, the words and the texts: today's school screen without the building's level and work |
-| **Me** | today's settings screen |
+| **Me** | today's settings screen, the study reminder's offer and the sign-out |
+
+**One back stack, Today at its base.** A tab change cuts the stack to
+Today and adds the tab's root; the open tab's own button returns to its
+root. The system back button on a tab's root shows Today, and on Today
+it leaves the game. A task screen is pushed above whatever opened it and
+returns there. The bar is drawn by the shell outside the animated
+content. The open tab, and whether the bar is drawn, are read from the
+stack and never stored. A place page left open on Town is closed by a
+tab change: that is one tap to reopen, against four stacks that must
+agree after the process dies.
 
 ### Today
 
 **Today is the signed-in home.** It lists, top to bottom, each section
 drawn only while it holds something:
 
-1. **While you were away**, on the first read after an absence: what the
-   town gained.
+1. **While you were away**, on a return: what the town gained, and the
+   Town News not yet closed.
 2. **The first card**, the server's next step and the screen's one
    filled button at `action` height. Its eyebrow is *Start here* until
    the player's first lesson finishes, and *What is next* after.
-3. **In progress**: the running lesson and the building work, each with
-   its countdown. The running lesson's row opens its words.
+3. **In progress**: the running lesson, the building work and the job
+   out, each with its countdown. The lesson's row opens its words, the
+   job's row the region map.
 4. **You can do now**, titled *While you wait* while a lesson runs: every
    work the town can start, each row with its own button.
 5. **Keep going**, when the next step is `caughtUp`: something to read.
@@ -146,11 +175,69 @@ already derives for the place pages.
 | `reviews` | *Review N words*, through the unread words first (ADR 042) | |
 | `holdoutCheck` | the check | |
 | `lessonRunning` | none | the lesson in *In progress*; the goal's building first in *While you wait* |
-| `caughtUp` | what was done today, with the reason | the goal's building first in *You can do now*; the text in *Keep going* |
+| `caughtUp` | what was done today, with the reason and the time of the next review | the goal's building first in *You can do now*; the reading in *Keep going* |
+
+**Today is not a list of daily quests.** PRD W10 stands. Every row is
+derived from the town's state on read. No row pays a reward for being
+done, nothing resets at midnight, and the goal (ADR 028) is still the
+one thing the game asks for: it leads its section.
 
 **Today is never a wall.** While something runs, Today offers what else
-can be done. When nothing is left, *Keep going* offers reading. What it
-offers a player below lesson 31 is an open point.
+can be done. When nothing is left, *Keep going* offers reading, and the
+first card says when the next review is due.
+
+### What Keep going offers
+
+**The newest open text once the stage has reached one (ADR 049), and
+otherwise the frames of the words the player holds.**
+
+- A word is offered from its first review on, while its card's next
+  review is due a day or more away. A word due sooner is not offered:
+  a recall cued by a gloss the player read minutes before is
+  repetition, not retrieval.
+- A word with no card is not offered, so a held-out word never is
+  (ADR 037).
+- The frames offered are the word's anchor frame and the later frames
+  the stage admits, except the later frame its next recall would show
+  (ADR 044).
+- Each frame is drawn as a text is, every card-word token with its own
+  support (ADR 038).
+- The server answers the list on read from the cards and the clock.
+  Reading writes no rating, no card and no log row, and pays nothing
+  (ADR 042).
+
+One day is the line FSRS draws between a same-day review and a later
+one (ADR 036). No study gives the number; it is the content's to tune.
+
+A player in the day before the first recalls holds no word a day away,
+so *Keep going* is empty and the first card's time of the next review
+is all Today says. That day is the one gap left.
+
+### What While you were away says
+
+**`towns.seen_at` holds the instant of the town's last overview read,
+and every overview read moves it.** A read at least one hour after the
+later of `seen_at` and `stored_at` answers `away`: per resource, the
+amount the stock rose from that instant to `readAt`, derived by the
+settle the read already performs. Rates that changed while the player
+was away, capacities and seasons are exact, because both ends come from
+the settle.
+
+- **The card names no source and no time away.** The rise includes a
+  job's pay, so a figure cannot be laid on the tax or the farm. The
+  hours away are not drawn: ADR 042's *no count of days away, no streak*
+  stands.
+- **It collects nothing.** The stocks already hold what it reports (PRD
+  W10, click-to-collect).
+- **`away` is sent once.** The client holds it until the player leaves
+  Today. Under it Today draws the Town News not yet closed, closed by
+  `POST /report/close`, with a link to all the news.
+- The hour is the content's to tune, in the town's settings.
+
+```ts
+const AwaySchema = z.strictObject({ gained: ResourceAmountsSchema })
+away: AwaySchema.nullable(),
+```
 
 ### Town
 
@@ -159,7 +246,17 @@ states the place's name, its level and its state in words. A place with
 a work the town can start draws that work's button on its card, with
 its cost. The rest of the card is a door to the place's page, which
 keeps what ADR 047 gave a page: the art, the words its next level needs
-and its work.
+and its work. Town News is a door in Town's header. The region map is a
+door on the office's page, as today.
+
+### The Report is folded away
+
+**The Android client draws no Report screen.** Its reviews due are the
+first card and Learn's count. Its time of the next review is the
+caught-up card's. Its Town News is drawn under *While you were away*.
+Its reminder offer and its sign-out move to Me. A study reminder's tap
+opens Today, where the first card names the step. The api's Report
+routes stay, for the web.
 
 ### Every control says its state
 
@@ -175,21 +272,37 @@ grayscale screenshot keeps.**
 A refusal is drawn beside the control whose tap was refused. It no
 longer has a dock to sit in.
 
+**A loading screen draws the three dots at once and the skeleton after
+the reveal.** From the first frame the dots pulse at the top of the
+content in `ink-muted`, and the loading line is spoken. After 400 ms the
+skeleton's blocks join them and the loading line is drawn beside the
+dots; the blocks hold 250 ms. A read that answers inside the reveal
+shows the dots and no blocks. The dots are the mark a working button
+draws, so one mark means *working* everywhere.
+
 ### Color
 
-**ADR 043's tokens and type stand.** The prototype's two typefaces and
-its hex values are a drawing, not tokens. Three things change:
+**ADR 043's tokens and type stand, and no token enters.** The
+prototype's two typefaces and its hex values are a drawing, not tokens.
+Three things change:
 
 - **`go` means the player can act now.** ADR 047 gave it one job, the
   way on, and one button per screen. It now fills the first card's
   button and outlines every other button of an action the town can
   take. *One go per screen* becomes *one first card on Today*.
-- **A second tone marks what the player achieved**: a lesson finished,
-  the reviews done, a building built. It is a ground, never a control's
-  color. Its token pair is an open point, because the prototype's warm
-  ground sits beside `warning-soft`, which today means a shortfall.
-- **The surfaces stay neutral.** The places keep their hues in their art
-  (ADR 043), which is where color lives on Town.
+- **An achievement is a peach block.** A lesson finished, the reviews
+  done, a building built: each is drawn as ADR 043's block on
+  `block-peach`, with `on-block` text, radius `lg`, no frame and no
+  control. It opens with a seal, a check cut out of a solid `on-block`
+  disc, the cue a grayscale screenshot keeps. Its text pairs are ADR
+  043's: `on-block` 12.04 and `on-block-muted` 6.32 on `block-peach`,
+  the same in both themes. On Today, Town, Learn and Me peach means an
+  achievement and nothing else is a block.
+- **The first card is paper, not a block.** It is a `surface-raised`
+  card whose one color is its `go` button.
+
+The task screens keep ADR 043's blocks for the word and the review.
+They are not this ADR's.
 
 ### What the prototype drew that this ADR does not adopt
 
@@ -199,67 +312,47 @@ its hex values are a drawing, not tokens. Three things change:
 - **A hairline frame around a row that is not tappable.** ADR 050's rule
   stands: a closed frame means tappable. A row that only holds a button
   is a fill, and the frame belongs to its button.
+- **A gain laid on its source, and the hours away.** *What While you
+  were away says* gives the reasons.
 
 ### What this ADR amends
 
-| ADR 047 says | It becomes |
-|---|---|
-| *The dock* | no dock; the navigation bar |
-| *The pager*: seven pages and the street strip | Town's grid; a page is a place screen its card opens |
-| *Where the pager opens* | Today's first card |
-| `go` fills the one green button on a screen | `go` marks every action the town can take; the first card's is the filled one |
-
-| ADR 050 says | It becomes |
-|---|---|
-| The go is drawn in the dock | on Today's first card; in flow on a task screen |
-| One go per screen | one first card on Today |
-| A busy button draws the hairline with the hourglass | the three dots and its description in view |
-| A blocked button draws the dashed frame | unchanged, with the lock and its reason in view |
-
-| ADR 051 says | It becomes |
-|---|---|
-| The dock is the go, pinned at the foot | no dock |
-| The notice sits above the go and folds to the top of the scroll | a refusal beside its control, a task's verdict in the task's flow; nothing folds |
+| ADR | It says | It becomes |
+|---|---|---|
+| 005 | a read writes nothing | an overview read writes one instant, `seen_at`, and advances no stock |
+| 037 | the comparison is cards plus reading against reading alone | a card, with its reviews and the reading it opens, against reading alone |
+| 042 | after the first review a word cannot be read | it is read again only in *Keep going*, a day or more before its next review |
+| 042 | the Report stays | the Android client draws none; the api's routes stay |
+| 042 | a return visit shows the same card, no greeting | a return visit may say what the town gained; no count of days away and no streak, as before |
+| 043 | the next step on the town home is a block; hue is identity, never meaning | Today's first card is paper; on the four tabs peach means an achievement |
+| 046 | one offer, on the Report; a tap opens the Report | the offer is on Me; a tap opens Today |
+| 047 | the dock; the pager and the street strip; where the pager opens | the navigation bar; Town's grid and a place's page; Today's first card |
+| 047 | `go` fills the one green button on a screen | `go` marks every action the town can take; the first card's is the filled one |
+| 050 | the go is drawn in the dock; one go per screen | on Today's first card, in flow on a task screen; one first card on Today |
+| 050 | a busy button draws the hairline with the hourglass | the three dots and its description in view |
+| 051 | the dock is the go; the notice folds to the top of the scroll | no dock; a refusal beside its control, a task's verdict in the task's flow; nothing folds |
 
 ADR 042's next step and its rule that reviews go through the unread
-words stand. ADR 043's tokens, type and place art stand. ADR 050's five
-roles and its rule that shape says the role stand. ADR 056's order, by
-feature and then by role, and its limits stand; its Track X, #1983 to
-#1989, moves a frame and a dock this ADR removes, so those seven tickets
-are held until they are rewritten against this shell.
+words stand. ADR 043's tokens and type stand. ADR 050's five roles and
+its rule that shape says the role stand. ADR 056's order, by feature and
+then by role, and its limits stand; its Track X, #1983 to #1989, moves a
+frame and a dock this ADR removes, so those seven tickets are held until
+they are rewritten against this shell.
 
-The status lines of ADR 047, ADR 050 and ADR 051 name these amendments.
+The status lines of ADR 047, ADR 050 and ADR 051 name this ADR. Those of
+ADR 005, 037, 042, 043 and 046 are amended by the slice that ships each
+change, since nothing they describe has moved yet.
 
 No `CONTEXT.md` term changes in this commit. The slice that ships each
-piece writes its term: **Today** and **navigation bar** enter; **dock**,
-**fold** and the street strip leave; **shell**, **screen frame**, **next
-step** and **place** are reworded.
+piece writes its term: **Today**, **navigation bar** and **away** enter;
+**dock**, **fold** and the street strip leave; **shell**, **screen
+frame**, **next step**, **place** and **word reading** are reworded.
 
-### Open points
+### What the slices still owe
 
-A grill settles these before `to-tickets` splits the work.
-
-1. **What a caught-up player below lesson 31 reads.** The prototype
-   offers a lesson's frames again after its first review. ADR 042
-   forbids that, because a review must ask without the answer on the
-   page, and ADR 037 keeps held-out words unseen. Free reading of card
-   words may also change what the holdout check measures.
-2. **How the server answers *While you were away*.** It needs the
-   instant of the player's last read, which no table stores, and totals
-   derived by lazy evaluation (ADR 005). That is a migration.
-3. **Where the Report, Town News and the region map are reached.**
-   Proposed: the region map from the office's card, as its page does
-   today; Town News from Town's header; the Report from Learn.
-4. **The achievement tone's token pair**, light and dark, measured as
-   `tokens.test.ts` measures every pair, and told apart from
-   `warning-soft`.
-5. **The loading screen.** Whether the skeleton keeps its 400 ms of
-   nothing or the three dots stand in for it.
-6. **The back stack.** One stack per tab or one stack reset on a tab
-   change, on Navigation 3.
-7. **The measure.** The bar's height and Today's tallest state at 360 by
-   640 with font scale 2.0, in both languages, as ADR 051 measured the
-   dock.
+**The measure.** The bar's height and Today's tallest state at 360 by
+640 with font scale 2.0, in both languages, taken as ADR 051 took the
+dock's. The slice that draws each owes it before its screenshots.
 
 ## Considered options
 
@@ -277,22 +370,42 @@ A grill settles these before `to-tickets` splits the work.
   bet again, larger.
 - **Black and white alone.** The owner found it dead. A game owes the
   player a reward that a tool does not.
+- **One back stack per tab.** It keeps a place page open under its tab.
+  It also needs four saved lists and a saved tab that must agree after
+  the process dies, and a back button switched between tabs by hand.
+- **A new token pair for the achievement.** Two tokens the parked web
+  would never draw. `block-peach` is already measured in both themes.
+- **Frames read again with no guard,** as the prototype drew them. A
+  recall minutes after its answer was on screen measures nothing, and a
+  primed *Good* on the second day lifts a card past the cap's line and
+  the stable line at once (ADR 048).
+- **Texts opened before lesson 31.** Content alone, but one static text
+  where the frames give hundreds of sentences already written.
+- **The away card from Town News, with no migration.** It can list
+  events and never what the town produced, which is the point of it.
+- **The dots alone for a loading screen.** That loses the layout on a
+  cold read of one to six seconds and reverses #917.
 
 ## Consequences
 
 - The pager, the street strip, the dock, the fold and the three frame
   kinds' dock wiring are deleted, not adapted: 33 production files use a
   dock type today. Their tests go with them, among them the dock tests
-  ADR 051 rewrote.
-- The server's contract does not change for Today, Town or the three
-  states. *While you were away* and the caught-up reading may change it;
-  their open points say so.
+  ADR 051 rewrote. The Report's screen and its destination go too.
+- The server changes in two places. `towns.seen_at` is one nullable
+  column, one migration and one write per overview read, with `away` on
+  the overview. The frames of *Keep going* are one domain function, one
+  route and its contract. Both change the Android generated client.
+- A settle made by another request while the player is away, a review
+  answer that earns a skill, moves `stored_at`. The away card then
+  reports less than the town gained, never more.
 - The busy description and the blocked reason become visible text, so
   every one of them is player-facing copy in `packages/catalog`, read
   again for both languages.
-- A new token pair is written in `apps/web/src/design/tokens.ts`, the
-  one source, and generated into `core:designsystem`. That touches the
-  web's suite while the web stays parked.
+- A warm read with nothing held shows three dots for about 300 ms where
+  it showed nothing.
+- A later frame read in *Keep going* can become a later recall's
+  sentence, which ADR 049 already calls less of a new context.
 - ADR 056's remaining tickets are read against this ADR before any is
   dispatched. Track X is held. U4 #1930 and the `core:designsystem`
   tickets, #1931 and #1932, name code this ADR deletes in part.
@@ -303,9 +416,14 @@ A grill settles these before `to-tickets` splits the work.
 
 - The canvas and its prototype:
   https://claude.ai/artifact/QsoXLU92BPEX7cFGXa4VVp
-- ADR 042, the first session; ADR 043, the look; ADR 047, Main Street;
-  ADR 050, tappable roles; ADR 051, the compact dock; ADR 056, the
-  Android client reads by feature, then by role.
-- #1160, the canvas ADR 047 was picked from; #1294, the dock's size.
+- ADR 005, lazy evaluation; ADR 036 and ADR 037, the reviews and the
+  holdout; ADR 042, the first session; ADR 043, the look; ADR 044,
+  later frames; ADR 046, the study reminder; ADR 047, Main Street; ADR
+  048, the learning cap; ADR 049, texts; ADR 050, tappable roles; ADR
+  051, the compact dock; ADR 056, the Android client reads by feature,
+  then by role.
+- PRD W10, no streaks, daily quests or click-to-collect; PRD S25, texts.
+- #1160, the canvas ADR 047 was picked from; #1294, the dock's size;
+  #917, the skeleton.
 - `.claude/rules/ui-components.md`: touch targets, the four states of a
   screen that loads, reduced motion.
