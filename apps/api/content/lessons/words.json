@@ -3154,6 +3154,16 @@
       {
         "frame": "The truck goes through the city.",
         "gappedFrame": "The truck goes ____ the city."
+      },
+      {
+        "frame": "I worked all through the winter.",
+        "gappedFrame": "I worked all ____ the winter.",
+        "fromLessonId": "lesson-29"
+      },
+      {
+        "frame": "Can you look through my report before I send it?",
+        "gappedFrame": "Can you look ____ my report before I send it?",
+        "fromLessonId": "lesson-29"
       }
     ],
     "gloss": {
@@ -3169,6 +3179,17 @@
       {
         "frame": "Go down the hill to the river.",
         "gappedFrame": "Go ____ the hill to the river."
+      },
+      {
+        "frame": "Can you write that down for me?",
+        "gappedFrame": "Can you write that ____ for me?",
+        "fromLessonId": "lesson-29"
+      },
+      {
+        "frame": "The cost will go down next year.",
+        "gappedFrame": "The cost will go ____ next year.",
+        "noCardSense": ["go"],
+        "fromLessonId": "lesson-29"
       }
     ],
     "gloss": {
@@ -3184,6 +3205,16 @@
       {
         "frame": "The school is between the farm and the river.",
         "gappedFrame": "The school is ____ the farm and the river."
+      },
+      {
+        "frame": "I have some free time between lessons.",
+        "gappedFrame": "I have some free time ____ lessons.",
+        "fromLessonId": "lesson-29"
+      },
+      {
+        "frame": "This is between you and me.",
+        "gappedFrame": "This is ____ you and me.",
+        "fromLessonId": "lesson-29"
       }
     ],
     "gloss": {
@@ -3199,6 +3230,16 @@
       {
         "frame": "When do you leave the office?",
         "gappedFrame": "When do you ____ the office?"
+      },
+      {
+        "frame": "She is going to leave the city in the spring.",
+        "gappedFrame": "She is going to ____ the city in the spring.",
+        "fromLessonId": "lesson-29"
+      },
+      {
+        "frame": "I leave for the city tomorrow.",
+        "gappedFrame": "I ____ for the city tomorrow.",
+        "fromLessonId": "lesson-29"
       }
     ],
     "gloss": {
@@ -3214,6 +3255,17 @@
       {
         "frame": "The power is off at the factory.",
         "gappedFrame": "The power is ____ at the factory."
+      },
+      {
+        "frame": "I have the day off tomorrow.",
+        "gappedFrame": "I have the day ____ tomorrow.",
+        "fromLessonId": "lesson-29"
+      },
+      {
+        "frame": "Turn off the truck before you leave.",
+        "gappedFrame": "Turn ____ the truck before you leave.",
+        "noCardSense": ["turn"],
+        "fromLessonId": "lesson-45"
       }
     ],
     "gloss": {
@@ -3229,6 +3281,16 @@
       {
         "frame": "You did a great job today.",
         "gappedFrame": "You did a ____ job today."
+      },
+      {
+        "frame": "That is great news.",
+        "gappedFrame": "That is ____ news.",
+        "fromLessonId": "lesson-30"
+      },
+      {
+        "frame": "The food here is great.",
+        "gappedFrame": "The food here is ____.",
+        "fromLessonId": "lesson-30"
       }
     ],
     "gloss": {
@@ -3244,6 +3306,16 @@
       {
         "frame": "I want you to meet the mayor.",
         "gappedFrame": "I want you to ____ the mayor."
+      },
+      {
+        "frame": "It is good to meet you.",
+        "gappedFrame": "It is good to ____ you.",
+        "fromLessonId": "lesson-30"
+      },
+      {
+        "frame": "Where did you meet her?",
+        "gappedFrame": "Where did you ____ her?",
+        "fromLessonId": "lesson-30"
       }
     ],
     "gloss": {
@@ -3259,6 +3331,16 @@
       {
         "frame": "Can we talk after the lesson?",
         "gappedFrame": "Can we ____ after the lesson?"
+      },
+      {
+        "frame": "What do you want to talk about?",
+        "gappedFrame": "What do you want to ____ about?",
+        "fromLessonId": "lesson-30"
+      },
+      {
+        "frame": "You talk too much.",
+        "gappedFrame": "You ____ too much.",
+        "fromLessonId": "lesson-30"
       }
     ],
     "gloss": {
@@ -3274,6 +3356,16 @@
       {
         "frame": "Ask the mayor about the job.",
         "gappedFrame": "____ the mayor about the job."
+      },
+      {
+        "frame": "Can I ask for more time?",
+        "gappedFrame": "Can I ____ for more time?",
+        "fromLessonId": "lesson-30"
+      },
+      {
+        "frame": "Can I ask you something?",
+        "gappedFrame": "Can I ____ you something?",
+        "fromLessonId": "lesson-35"
       }
     ],
     "gloss": {
@@ -3289,6 +3381,16 @@
       {
         "frame": "Can you help me with this?",
         "gappedFrame": "Can you ____ me with this?"
+      },
+      {
+        "frame": "My children help on the farm in the summer.",
+        "gappedFrame": "My children ____ on the farm in the summer.",
+        "fromLessonId": "lesson-30"
+      },
+      {
+        "frame": "Can I help you find something?",
+        "gappedFrame": "Can I ____ you find something?",
+        "fromLessonId": "lesson-35"
       }
     ],
     "gloss": {
@@ -3304,6 +3406,17 @@
       {
         "frame": "What is the number on the truck?",
         "gappedFrame": "What is the ____ on the truck?"
+      },
+      {
+        "frame": "Can I have your number?",
+        "gappedFrame": "Can I have your ____?",
+        "fromLessonId": "lesson-31"
+      },
+      {
+        "frame": "The number of people in the town will go up.",
+        "gappedFrame": "The ____ of people in the town will go up.",
+        "noCardSense": ["go"],
+        "fromLessonId": "lesson-31"
       }
     ],
     "gloss": {
@@ -3319,6 +3432,16 @@
       {
         "frame": "I want my own home.",
         "gappedFrame": "I want my ____ home."
+      },
+      {
+        "frame": "She has her own company.",
+        "gappedFrame": "She has her ____ company.",
+        "fromLessonId": "lesson-31"
+      },
+      {
+        "frame": "Can you do this on your own?",
+        "gappedFrame": "Can you do this on your ____?",
+        "fromLessonId": "lesson-31"
       }
     ],
     "gloss": {
@@ -3334,6 +3457,17 @@
       {
         "frame": "Their house is by the river.",
         "gappedFrame": "Their ____ is by the river."
+      },
+      {
+        "frame": "Come over to my house after work.",
+        "gappedFrame": "Come over to my ____ after work.",
+        "noCardSense": ["work"],
+        "fromLessonId": "lesson-31"
+      },
+      {
+        "frame": "They are building a new house on the hill.",
+        "gappedFrame": "They are building a new ____ on the hill.",
+        "fromLessonId": "lesson-31"
       }
     ],
     "gloss": {
@@ -3349,6 +3483,17 @@
       {
         "frame": "Where do you live?",
         "gappedFrame": "Where do you ____?"
+      },
+      {
+        "frame": "I used to live in the city.",
+        "gappedFrame": "I used to ____ in the city.",
+        "noCardSense": ["used"],
+        "fromLessonId": "lesson-31"
+      },
+      {
+        "frame": "I live with my family.",
+        "gappedFrame": "I ____ with my family.",
+        "fromLessonId": "lesson-34"
       }
     ],
     "gloss": {
@@ -3364,6 +3509,17 @@
       {
         "frame": "This school is very old.",
         "gappedFrame": "This school is very ____."
+      },
+      {
+        "frame": "How old are you?",
+        "gappedFrame": "How ____ are you?",
+        "noCardSense": ["how"],
+        "fromLessonId": "lesson-31"
+      },
+      {
+        "frame": "We went back to our old house.",
+        "gappedFrame": "We went back to our ____ house.",
+        "fromLessonId": "lesson-33"
       }
     ],
     "gloss": {
@@ -3379,6 +3535,16 @@
       {
         "frame": "Both of my children go to school.",
         "gappedFrame": "____ of my children go to school."
+      },
+      {
+        "frame": "We both work at the factory.",
+        "gappedFrame": "We ____ work at the factory.",
+        "fromLessonId": "lesson-33"
+      },
+      {
+        "frame": "I like them both.",
+        "gappedFrame": "I like them ____.",
+        "fromLessonId": "lesson-33"
       }
     ],
     "gloss": {
@@ -3394,6 +3560,17 @@
       {
         "frame": "Point to the river on the map.",
         "gappedFrame": "____ to the river on the map."
+      },
+      {
+        "frame": "Point at the one you want.",
+        "gappedFrame": "____ at the one you want.",
+        "noCardSense": ["one"],
+        "fromLessonId": "lesson-33"
+      },
+      {
+        "frame": "Do not point at people.",
+        "gappedFrame": "Do not ____ at people.",
+        "fromLessonId": "lesson-33"
       }
     ],
     "gloss": {
@@ -3409,6 +3586,16 @@
       {
         "frame": "Put your name on the list.",
         "gappedFrame": "____ your name on the list."
+      },
+      {
+        "frame": "Where did you put the map?",
+        "gappedFrame": "Where did you ____ the map?",
+        "fromLessonId": "lesson-33"
+      },
+      {
+        "frame": "Can you put this back in storage?",
+        "gappedFrame": "Can you ____ this back in storage?",
+        "fromLessonId": "lesson-33"
       }
     ],
     "gloss": {
@@ -3424,6 +3611,16 @@
       {
         "frame": "The course starts in the fall.",
         "gappedFrame": "The ____ starts in the fall."
+      },
+      {
+        "frame": "Did you like the course?",
+        "gappedFrame": "Did you like the ____?",
+        "fromLessonId": "lesson-33"
+      },
+      {
+        "frame": "This course will help you find a job.",
+        "gappedFrame": "This ____ will help you find a job.",
+        "fromLessonId": "lesson-33"
       }
     ],
     "gloss": {
@@ -3439,6 +3636,17 @@
       {
         "frame": "They live in a little house by the river.",
         "gappedFrame": "They live in a ____ house by the river."
+      },
+      {
+        "frame": "When I was little, I lived on a farm.",
+        "gappedFrame": "When I was ____, I lived on a farm.",
+        "fromLessonId": "lesson-33"
+      },
+      {
+        "frame": "There is a little place by the river with good food.",
+        "gappedFrame": "There is a ____ place by the river with good food.",
+        "noCardSense": ["there"],
+        "fromLessonId": "lesson-33"
       }
     ],
     "gloss": {
