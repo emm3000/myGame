@@ -1,8 +1,6 @@
 package com.emm.mygame.feature.town
 
-import androidx.compose.ui.test.SemanticsMatcher
 import androidx.compose.ui.test.assertIsDisplayed
-import androidx.compose.ui.test.hasText
 import androidx.compose.ui.test.junit4.ComposeContentTestRule
 import androidx.compose.ui.test.junit4.createComposeRule
 import androidx.compose.ui.test.onNodeWithText
@@ -14,7 +12,7 @@ import com.emm.mygame.feature.town.building.CostLine
 import com.emm.mygame.feature.town.building.NextLevel
 import com.emm.mygame.feature.town.building.NextLevelLine
 import com.emm.mygame.feature.town.building.Shortfall
-import org.junit.Assert.assertEquals
+import com.emm.mygame.feature.town.building.StartStatus
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -26,8 +24,10 @@ import kotlin.time.Duration.Companion.minutes
 import kotlin.time.Duration.Companion.seconds
 import kotlin.time.Instant
 
+private const val SHORT_OF_FOOD: String = "Necesitas 20 de comida más."
+
 @RunWith(RobolectricTestRunner::class)
-class TownReadyLineScreenTest {
+class TownReadyReasonScreenTest {
 
     @get:Rule
     val composeRule: ComposeContentTestRule = createComposeRule()
@@ -48,68 +48,49 @@ class TownReadyLineScreenTest {
     fun `names the minute the resources arrive under an hour`() {
         show(shortOfFoodUntil(ReadyTime(remaining = 24.minutes, readyAt = localReady)))
 
-        composeRule.onNode(readyLine(words = "Lista en", time = "24 min")).assertIsDisplayed()
+        reasonEnding(words = "Lista en", time = "24 min")
     }
 
     @Test
     fun `names the minutes and seconds left under a minute`() {
         show(shortOfFoodUntil(ReadyTime(remaining = 30.seconds, readyAt = localReady)))
 
-        composeRule.onNode(readyLine(words = "Lista en", time = "0:30")).assertIsDisplayed()
+        reasonEnding(words = "Lista en", time = "0:30")
     }
 
     @Test
     fun `names the whole minutes left under an hour without the seconds`() {
         show(shortOfFoodUntil(ReadyTime(remaining = 30.minutes + 30.seconds, readyAt = localReady)))
 
-        composeRule.onNode(readyLine(words = "Lista en", time = "30 min")).assertIsDisplayed()
+        reasonEnding(words = "Lista en", time = "30 min")
     }
 
     @Test
     fun `names the clock the resources arrive at from an hour on`() {
         show(shortOfFoodUntil(ReadyTime(remaining = 1.hours, readyAt = localReady)))
 
-        composeRule.onNode(readyLine(words = "Lista", time = "09:30")).assertIsDisplayed()
+        reasonEnding(words = "Lista", time = "09:30")
     }
 
     @Test
     fun `names tomorrow when the resources arrive past midnight`() {
         show(shortOfFoodUntil(ReadyTime(remaining = 12.hours, readyAt = localReady)))
 
-        composeRule.onNode(readyLine(words = "Lista", time = "mañana 09:30")).assertIsDisplayed()
+        reasonEnding(words = "Lista", time = "mañana 09:30")
     }
 
     @Test
-    fun `sets tabular figures on the time left and never on its words`() {
-        show(shortOfFoodUntil(ReadyTime(remaining = 35.seconds, readyAt = localReady)))
-
-        assertEquals(emptyList<String>(), composeRule.tabularRunsOf("Lista en"))
-        assertEquals(listOf("0:35"), composeRule.tabularRunsOf("0:35"))
-    }
-
-    @Test
-    fun `sets tabular figures on the ready clock and never on its words`() {
-        show(shortOfFoodUntil(ReadyTime(remaining = 1.hours, readyAt = localReady)))
-
-        assertEquals(emptyList<String>(), composeRule.tabularRunsOf("Lista"))
-        assertEquals(listOf("09:30"), composeRule.tabularRunsOf("09:30"))
-    }
-
-    @Test
-    fun `sets tabular figures on tomorrow's ready clock and never on its word`() {
-        show(shortOfFoodUntil(ReadyTime(remaining = 12.hours, readyAt = localReady)))
-
-        assertEquals(listOf("09:30"), composeRule.tabularRunsOf("mañana"))
-    }
-
-    @Test
-    fun `draws no ready line when the resources never arrive`() {
+    fun `names no ready time when the resources never arrive`() {
         show(shortOfFoodUntil(ready = null))
 
-        composeRule.onNodeWithText("Lista", substring = true).assertDoesNotExist()
+        composeRule.onNodeWithText("Lista", substring = true, useUnmergedTree = true).assertDoesNotExist()
     }
 
-    private fun readyLine(words: String, time: String): SemanticsMatcher = hasText(words) and hasText(time)
+    private fun reasonEnding(words: String, time: String) {
+        composeRule
+            .onNodeWithText("$SHORT_OF_FOOD $words $time", useUnmergedTree = true)
+            .assertIsDisplayed()
+    }
 
     private fun shortOfFoodUntil(ready: ReadyTime?): BlockReason =
         BlockReason.Resources(listOf(Shortfall(TownResourceKind.Food, 20)), ready = ready)
@@ -121,7 +102,7 @@ class TownReadyLineScreenTest {
                     building = TownBuildingKind.Farm,
                     next = farmLevelTwo,
                     block = block,
-                    isWaiting = false,
+                    start = StartStatus.Idle,
                     onIntent = {},
                 )
             }

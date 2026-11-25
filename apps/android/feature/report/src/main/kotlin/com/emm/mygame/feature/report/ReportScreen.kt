@@ -204,7 +204,7 @@ private fun UnreadNews(
         MyGameOutlinedButton(
             label = chromeResource(R.string.report_news_close),
             isBusy = unread.close == ReportUiState.CloseRequest.Waiting,
-            busyDescription = chromeResource(R.string.report_waiting).spoken,
+            busyDescription = chromeResource(R.string.report_waiting),
             onClick = { onIntent(ReportIntent.CloseTapped) },
         )
     }

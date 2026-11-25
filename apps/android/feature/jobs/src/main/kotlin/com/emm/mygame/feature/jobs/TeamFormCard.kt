@@ -6,7 +6,6 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.semantics.heading
-import androidx.compose.ui.semantics.hideFromAccessibility
 import androidx.compose.ui.semantics.semantics
 import com.emm.mygame.core.designsystem.MyGameCard
 import com.emm.mygame.core.designsystem.MyGameLabel
@@ -36,12 +35,12 @@ internal fun TeamFormCard(
     quote: @Composable (isSendAnswered: Boolean) -> Unit,
 ) {
     val copy: PlayerCopy = rememberPlayerCopy()
-    val reason: MyGameLabel? = form.block?.let { block: MapUiState.JobBlock -> copy.jobBlockLabelOf(block) }
     val isSendAnswered: Boolean = send.isAnsweredFor(form.site)
-    val isApiAnswered: Boolean = isSendAnswered || quoteRefusal != null
-    val quoteReason: String? = quoteRefusal?.takeUnless { isSendAnswered }?.let { refusal: TownJobRefusal ->
-        copy.fixedCopy { jobRefusalLineOf(refusal) }
+    val quoteReason: MyGameLabel? = quoteRefusal?.let { refusal: TownJobRefusal ->
+        MyGameLabel(text = copy.fixedCopy { jobRefusalLineOf(refusal) }, translation = null)
     }
+    val blockReason: MyGameLabel? = form.block?.let { block: MapUiState.JobBlock -> copy.jobBlockLabelOf(block) }
+    val reason: MyGameLabel? = if (isSendAnswered) null else quoteReason ?: blockReason
     MyGameCard(modifier = modifier) {
         Column(
             verticalArrangement = Arrangement.spacedBy(MyGameSpacing.step3),
@@ -73,18 +72,10 @@ internal fun TeamFormCard(
             MyGameOutlinedButton(
                 label = copy.chrome(R.string.map_job_send),
                 isBusy = send == MapUiState.SendRequest.Waiting,
-                busyDescription = copy.chrome(R.string.map_waiting).spoken,
+                busyDescription = copy.chrome(R.string.map_waiting),
                 onClick = { onIntent(MapIntent.SendTapped) },
-                blockedReason = reason?.spoken ?: quoteReason,
+                blockedReason = reason,
             )
-            reason?.takeUnless { isApiAnswered }?.let { line: MyGameLabel ->
-                MyGameText(
-                    label = line,
-                    style = MyGameTypography.caption,
-                    color = MyGameTheme.colors.warningInk,
-                    modifier = Modifier.semantics { hideFromAccessibility() },
-                )
-            }
             SendAnswer(site = form.site, send = send)
         }
     }

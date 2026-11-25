@@ -64,7 +64,7 @@ private fun PlayerCopy.dockGoOf(
     actions: TownDockActions,
     inPlace: MyGameDockGo?,
 ): MyGameDockGo {
-    val waiting: String = chrome(R.string.town_waiting).spoken
+    val waiting: MyGameLabel = chrome(R.string.town_waiting)
     return when (dock) {
         TownStatusUiState.Dock.Loading -> MyGameDockGo(
             label = chrome(R.string.town_waiting),
@@ -86,7 +86,7 @@ private fun PlayerCopy.stepGoOf(
     step: TownStatusUiState.Dock.Step,
     actions: TownDockActions,
     inPlace: MyGameDockGo?,
-    waiting: String,
+    waiting: MyGameLabel,
 ): MyGameDockGo {
     val badge: String? = (step.line as? NextStepCard.Line.ReviewsDue)?.count?.let { count: Int ->
         formatQuantity(count.toLong())
@@ -127,14 +127,16 @@ private fun TownDockActions.act(action: NextStepCard.Action) {
     }
 }
 
-private fun PlayerCopy.blockOf(reason: TownStatusUiState.GoBlock, countdown: TownStatusUiState.StepCountdown?): String =
-    when (reason) {
-        TownStatusUiState.GoBlock.NextReview -> countdown?.let { shown: TownStatusUiState.StepCountdown ->
-            reviewLineOf(shown)
-        } ?: chrome(R.string.town_next_no_reviews_due).spoken
-        TownStatusUiState.GoBlock.NoReviewsDue -> chrome(R.string.town_next_no_reviews_due).spoken
-        TownStatusUiState.GoBlock.Studying -> chrome(R.string.town_next_studying).spoken
-    }
+private fun PlayerCopy.blockOf(
+    reason: TownStatusUiState.GoBlock,
+    countdown: TownStatusUiState.StepCountdown?,
+): MyGameLabel = when (reason) {
+    TownStatusUiState.GoBlock.NextReview -> countdown?.let { shown: TownStatusUiState.StepCountdown ->
+        reviewLineOf(shown)
+    } ?: chrome(R.string.town_next_no_reviews_due)
+    TownStatusUiState.GoBlock.NoReviewsDue -> chrome(R.string.town_next_no_reviews_due)
+    TownStatusUiState.GoBlock.Studying -> chrome(R.string.town_next_studying)
+}
 
 private fun PlayerCopy.lineOf(line: NextStepCard.Line): MyGameLabel = when (line) {
     is NextStepCard.Line.ReviewsDue ->
@@ -158,9 +160,9 @@ private fun PlayerCopy.lineOf(line: NextStepCard.Line): MyGameLabel = when (line
     )
 }
 
-private fun PlayerCopy.reviewLineOf(shown: TownStatusUiState.StepCountdown): String = chrome {
+private fun PlayerCopy.reviewLineOf(shown: TownStatusUiState.StepCountdown): MyGameLabel = chrome {
     "${text(R.string.town_next_review)} ${finishLabelOf(shown.remaining, shown.finishesAt, townDurationCopy)}"
-}.spoken
+}
 
 private fun PlayerCopy.actionLabelOf(action: NextStepCard.Action): MyGameLabel = when (action) {
     is NextStepCard.Action.ReadWords -> chrome(R.string.town_next_read_words)

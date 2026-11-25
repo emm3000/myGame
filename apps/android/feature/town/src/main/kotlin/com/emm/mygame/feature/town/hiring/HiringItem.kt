@@ -13,7 +13,6 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.semantics.clearAndSetSemantics
 import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.heading
-import androidx.compose.ui.semantics.hideFromAccessibility
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardType
@@ -36,8 +35,6 @@ import com.emm.mygame.core.ui.chromeResource
 import com.emm.mygame.core.ui.durationLabelOf
 import com.emm.mygame.core.ui.rememberPlayerCopy
 import com.emm.mygame.feature.town.R
-import com.emm.mygame.feature.town.ReadyLine
-import com.emm.mygame.feature.town.ReadyTime
 import com.emm.mygame.feature.town.RevealedAlert
 import com.emm.mygame.feature.town.TownIntent
 import com.emm.mygame.feature.town.building.BlockReason
@@ -100,7 +97,9 @@ private fun HiringOrderForm(
     modifier: Modifier = Modifier,
 ) {
     val copy: PlayerCopy = rememberPlayerCopy()
-    val reason: MyGameLabel? = form.block?.let { blocked: HiringBlock -> copy.hiringBlockLineOf(blocked) }
+    val reason: MyGameLabel? = form.block?.takeUnless { isAnswered }?.let { blocked: HiringBlock ->
+        copy.hiringBlockLineOf(blocked)
+    }
     val offer: HiringOffer? = form.offer
     Column(verticalArrangement = Arrangement.spacedBy(MyGameSpacing.step2), modifier = modifier) {
         MyGameTextField(
@@ -116,20 +115,10 @@ private fun HiringOrderForm(
         MyGameOutlinedButton(
             label = if (offer == null) copy.chrome(hireAnyOf(kind)) else copy.chrome { hireLabelOf(kind, offer) },
             isBusy = isWaiting,
-            busyDescription = copy.chrome(R.string.town_waiting).spoken,
+            busyDescription = copy.chrome(R.string.town_waiting),
             onClick = { onIntent(TownIntent.PlaceHiringTapped(kind)) },
-            blockedReason = reason?.spoken,
+            blockedReason = reason,
         )
-        reason?.takeUnless { isAnswered }?.let { line: MyGameLabel ->
-            MyGameText(
-                label = line,
-                style = MyGameTypography.caption,
-                color = MyGameTheme.colors.warningInk,
-                modifier = Modifier.semantics { hideFromAccessibility() },
-            )
-        }
-        val ready: ReadyTime? = (form.block as? HiringBlock.Resources)?.ready
-        if (ready != null && !isAnswered) ReadyLine(ready = ready)
     }
 }
 
@@ -199,7 +188,7 @@ private fun PlayerCopy.hiringBlockLineOf(block: HiringBlock): MyGameLabel = when
     is HiringBlock.PeopleShort ->
         chrome(R.string.town_people_short, "needed" to block.needed.toString(), "free" to block.free)
     is HiringBlock.Resources ->
-        chrome { shortfallLineOf(BlockReason.Resources(block.shortfalls, ready = null)) }
+        chrome { shortfallLineOf(BlockReason.Resources(block.shortfalls, block.ready)) }
 }
 
 internal fun hireNameOf(kind: TownHireKind): Int = when (kind) {

@@ -47,8 +47,12 @@ private fun plain(text: String): MyGameLabel = MyGameLabel(text = text, translat
 
 private val dueReviews: MyGameLabel = plain("Reviews due: 4")
 
-private fun startTheReviews(onClick: () -> Unit = {}): MyGameDockGo =
-    MyGameDockGo(label = plain("Start the reviews"), isBusy = false, busyDescription = MyGameLabel(text = "Waiting", translation = null), onClick = onClick)
+private fun startTheReviews(onClick: () -> Unit = {}): MyGameDockGo = MyGameDockGo(
+    label = plain("Start the reviews"),
+    isBusy = false,
+    busyDescription = plain("Waiting"),
+    onClick = onClick,
+)
 
 private fun studyTheReturningWords(): MyGameDockGo = MyGameDockGo(
     label = plain(STUDY_RETURNING),

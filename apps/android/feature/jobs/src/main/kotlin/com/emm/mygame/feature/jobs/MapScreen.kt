@@ -160,7 +160,7 @@ private fun AreaLink(label: MyGameLabel, onClick: () -> Unit, modifier: Modifier
     MyGameOutlinedButton(
         label = label,
         isBusy = false,
-        busyDescription = label.spoken,
+        busyDescription = label,
         onClick = onClick,
         modifier = modifier,
     )

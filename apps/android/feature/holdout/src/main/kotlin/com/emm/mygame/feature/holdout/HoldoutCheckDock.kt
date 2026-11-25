@@ -7,7 +7,6 @@ import com.emm.mygame.core.ui.FillTaskDock
 import com.emm.mygame.core.ui.FollowTownDock
 import com.emm.mygame.core.ui.TaskDock
 import com.emm.mygame.core.ui.TaskDockHook
-import com.emm.mygame.core.ui.fixedCopyResource
 import com.emm.mygame.core.ui.fixedLabel
 
 @Composable
@@ -31,7 +30,7 @@ private fun dueDock(due: HoldoutCheckUiState.Due, onIntent: (HoldoutCheckIntent)
         go = MyGameDockGo(
             label = fixedLabel(R.string.holdout_start),
             isBusy = waiting == HoldoutCheckAction.Begin,
-            busyDescription = fixedCopyResource(R.string.holdout_sending),
+            busyDescription = fixedLabel(R.string.holdout_sending),
             onClick = { onIntent(HoldoutCheckIntent.StartTapped) },
         ),
     )
@@ -54,8 +53,8 @@ private fun askingStep(asking: HoldoutCheckUiState.Asking): MyGameLabel {
 @Composable
 private fun askingGo(asking: HoldoutCheckUiState.Asking, onIntent: (HoldoutCheckIntent) -> Unit): MyGameDockGo {
     val isUnchosen: Boolean = asking.shown != null && asking.chosenForShown == null
-    val blockedReason: String? = if (isUnchosen) fixedCopyResource(R.string.holdout_choose) else null
-    val sending: String = fixedCopyResource(R.string.holdout_sending)
+    val blockedReason: MyGameLabel? = if (isUnchosen) fixedLabel(R.string.holdout_choose) else null
+    val sending: MyGameLabel = fixedLabel(R.string.holdout_sending)
     if (!asking.isLastShown) {
         return MyGameDockGo(
             label = fixedLabel(R.string.holdout_next),

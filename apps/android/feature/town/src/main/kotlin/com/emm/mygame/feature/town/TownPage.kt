@@ -37,8 +37,6 @@ import com.emm.mygame.feature.town.building.NextLevel
 import com.emm.mygame.feature.town.building.NextLevelLine
 import com.emm.mygame.feature.town.building.PlaceCard
 import com.emm.mygame.feature.town.building.PlaceStocks
-import com.emm.mygame.feature.town.building.StartAnswer
-import com.emm.mygame.feature.town.building.StartStatus
 import com.emm.mygame.feature.town.building.WordNeedLine
 import com.emm.mygame.feature.town.building.placeArtOf
 import com.emm.mygame.feature.town.building.work.PlaceBuildingWork
@@ -121,11 +119,10 @@ private fun PageWork(
                 building = place.kind,
                 next = next,
                 block = place.block,
-                isWaiting = content.start is StartStatus.Waiting,
+                start = content.start,
                 onIntent = onIntent,
             )
         }
-        StartAnswer(building = place.kind, start = content.start)
         PlaceBuildingWork(place = place.kind, content = content, onIntent = onIntent)
         PlaceStocks(place = place.kind, content = content)
         PlaceOwnParts(place = place.kind, content = content, onIntent = onIntent, slots = slots)

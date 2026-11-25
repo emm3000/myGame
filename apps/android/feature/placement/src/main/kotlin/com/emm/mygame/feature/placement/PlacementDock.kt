@@ -3,6 +3,7 @@ package com.emm.mygame.feature.placement
 import androidx.compose.runtime.Composable
 import com.emm.mygame.core.designsystem.MyGameDockGo
 import com.emm.mygame.core.designsystem.MyGameInlineAlert
+import com.emm.mygame.core.designsystem.MyGameLabel
 import com.emm.mygame.core.ui.FillTaskDock
 import com.emm.mygame.core.ui.FollowTownDock
 import com.emm.mygame.core.ui.TaskDock
@@ -28,7 +29,7 @@ private fun offeredDock(offered: PlacementUiState.Offered, onIntent: (PlacementI
         go = MyGameDockGo(
             label = fixedLabel(R.string.placement_start),
             isBusy = waiting == PlacementAction.Begin,
-            busyDescription = fixedCopyResource(R.string.placement_sending),
+            busyDescription = fixedLabel(R.string.placement_sending),
             onClick = { onIntent(PlacementIntent.StartTapped) },
         ),
     )
@@ -47,9 +48,9 @@ private fun askingDock(asking: PlacementUiState.Asking, onIntent: (PlacementInte
 
 @Composable
 private fun askingGo(asking: PlacementUiState.Asking, onIntent: (PlacementIntent) -> Unit): MyGameDockGo {
-    val blockedReason: String? =
-        if (asking.chosenForShown == null) fixedCopyResource(R.string.placement_choose) else null
-    val sending: String = fixedCopyResource(R.string.placement_sending)
+    val blockedReason: MyGameLabel? =
+        if (asking.chosenForShown == null) fixedLabel(R.string.placement_choose) else null
+    val sending: MyGameLabel = fixedLabel(R.string.placement_sending)
     if (!asking.isLastShown) {
         return MyGameDockGo(
             label = fixedLabel(R.string.placement_next),

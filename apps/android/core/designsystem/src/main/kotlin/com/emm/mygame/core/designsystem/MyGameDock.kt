@@ -245,7 +245,10 @@ private fun MyGameDockLoadingPreview() {
 private fun MyGameDockBlockedPreview() {
     MyGamePreviewSurface {
         MyGameDock(
-            go = previewGo.copy(blockedReason = MyGameLabel(text = "No reviews due now.", translation = null), badge = null),
+            go = previewGo.copy(
+                blockedReason = MyGameLabel(text = "No reviews due now.", translation = null),
+                badge = null,
+            ),
             step = MyGameLabel(text = "No reviews due now.", translation = null),
             onFoldChange = {},
         )

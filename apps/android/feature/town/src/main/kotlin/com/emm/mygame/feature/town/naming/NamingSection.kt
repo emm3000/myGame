@@ -91,7 +91,7 @@ private fun NamingAction(
         MyGameButton(
             label = chromeResource(R.string.town_naming_go_to_town),
             isBusy = false,
-            busyDescription = chromeResource(R.string.town_waiting).spoken,
+            busyDescription = chromeResource(R.string.town_waiting),
             onClick = { onIntent(TownIntent.GoToTownTapped) },
             modifier = modifier,
         )
@@ -99,7 +99,7 @@ private fun NamingAction(
         MyGameButton(
             label = chromeResource(R.string.town_naming_submit),
             isBusy = status == NamingStatus.Submitting,
-            busyDescription = chromeResource(R.string.town_waiting).spoken,
+            busyDescription = chromeResource(R.string.town_waiting),
             onClick = { onIntent(TownIntent.NameSubmitted) },
             modifier = modifier,
         )

@@ -78,7 +78,7 @@ private fun FinishNoticeRows(
     onClose: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
-    val waiting: String = chromeResource(R.string.town_waiting).spoken
+    val waiting: MyGameLabel = chromeResource(R.string.town_waiting)
     Column(verticalArrangement = Arrangement.spacedBy(MyGameSpacing.step2), modifier = modifier) {
         MyGameText(
             label = rememberPlayerCopy().finishLineOf(notice.name),

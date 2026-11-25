@@ -46,7 +46,7 @@ private fun reviewGoOf(reviewing: ReviewUiState.Reviewing, onIntent: (ReviewInte
         busyDescription = waitingLabel(),
         onClick = { onIntent(intent) },
         blockedReason = reviewing.card.blockOf()?.takeUnless { reviewing.isRated }?.let { reason: Int ->
-            fixedCopyResource(reason)
+            fixedLabel(reason)
         },
     )
 }
@@ -69,4 +69,4 @@ private fun fixedLabel(@StringRes key: Int): MyGameLabel =
     MyGameLabel(text = fixedCopyResource(key), translation = null)
 
 @Composable
-private fun waitingLabel(): String = chromeResource(R.string.review_waiting).spoken
+private fun waitingLabel(): MyGameLabel = chromeResource(R.string.review_waiting)

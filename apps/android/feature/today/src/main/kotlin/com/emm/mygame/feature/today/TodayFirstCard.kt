@@ -45,7 +45,7 @@ internal fun TodayFirstCard(
                 MyGameButton(
                     label = action,
                     isBusy = start == TodayUiState.StartStatus.Starting,
-                    busyDescription = copy.chrome(R.string.today_waiting).spoken,
+                    busyDescription = copy.chrome(R.string.today_waiting),
                     onClick = onAct,
                 )
             }

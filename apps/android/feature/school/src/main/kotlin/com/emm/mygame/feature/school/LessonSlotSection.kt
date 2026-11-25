@@ -141,7 +141,7 @@ private fun BusySlot(
         MyGameOutlinedButton(
             label = copy.chrome(R.string.school_slot_stop),
             isBusy = stop == SchoolUiState.LessonRequestStatus.Waiting,
-            busyDescription = copy.chrome(R.string.school_waiting).spoken,
+            busyDescription = copy.chrome(R.string.school_waiting),
             onClick = { onIntent(SchoolIntent.StopTapped(slot.lesson)) },
             accessibleName = copy.slotStopNameOf(slot.name),
         )
