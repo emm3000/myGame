@@ -68,7 +68,7 @@ class SchoolLanguageTest {
     )
 
     private val refusedStart: SchoolUiState.Content = contentOf(shelvedAndReleased).copy(
-        start = SchoolUiState.LessonRequest.Refused(firstLesson, TownLessonRefusal.StudySlotBusy),
+        start = SchoolUiState.LessonRequestStatus.Refused(firstLesson, TownLessonRefusal.StudySlotBusy),
     )
 
     private fun contentOf(town: TownSnapshot): SchoolUiState.Content = town.contentAt(

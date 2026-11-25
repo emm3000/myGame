@@ -34,7 +34,7 @@ internal const val LESSON_DONE_ICON: String = "lesson_done_icon"
 @Composable
 internal fun LessonSlotSection(
     slot: SchoolUiState.SlotLine,
-    stop: SchoolUiState.LessonRequest,
+    stop: SchoolUiState.LessonRequestStatus,
     opening: SchoolUiState.CapOpening,
     onIntent: (SchoolIntent) -> Unit,
     modifier: Modifier = Modifier,
@@ -109,7 +109,7 @@ private fun DoneSlot(slot: SchoolUiState.SlotLine.Done, modifier: Modifier = Mod
 @Composable
 private fun BusySlot(
     slot: SchoolUiState.SlotLine.Busy,
-    stop: SchoolUiState.LessonRequest,
+    stop: SchoolUiState.LessonRequestStatus,
     onIntent: (SchoolIntent) -> Unit,
     modifier: Modifier = Modifier,
 ) {
@@ -140,7 +140,7 @@ private fun BusySlot(
         )
         MyGameOutlinedButton(
             label = copy.chrome(R.string.school_slot_stop),
-            isBusy = stop == SchoolUiState.LessonRequest.Waiting,
+            isBusy = stop == SchoolUiState.LessonRequestStatus.Waiting,
             busyDescription = copy.chrome(R.string.school_waiting).spoken,
             onClick = { onIntent(SchoolIntent.StopTapped(slot.lesson)) },
             accessibleName = copy.slotStopNameOf(slot.name),

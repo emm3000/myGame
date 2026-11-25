@@ -42,7 +42,7 @@ internal fun ShownLesson(
             StudyAction(
                 card = card,
                 block = state.block,
-                isWaiting = content.start == SchoolUiState.LessonRequest.Waiting,
+                isWaiting = content.start == SchoolUiState.LessonRequestStatus.Waiting,
                 onIntent = onIntent,
             )
         }

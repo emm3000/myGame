@@ -1,13 +1,17 @@
 package com.emm.mygame.feature.school
 
-internal data class SchoolRequests(val start: SchoolUiState.LessonRequest, val stop: SchoolUiState.LessonRequest) {
+internal data class SchoolRequests(
+    val start: SchoolUiState.LessonRequestStatus,
+    val stop: SchoolUiState.LessonRequestStatus,
+) {
 
     fun keptAfterRead(): SchoolRequests = SchoolRequests(start.keptAfterRead(), stop.keptAfterRead())
 
-    private fun SchoolUiState.LessonRequest.keptAfterRead(): SchoolUiState.LessonRequest =
-        if (this == SchoolUiState.LessonRequest.Waiting) this else SchoolUiState.LessonRequest.Idle
+    private fun SchoolUiState.LessonRequestStatus.keptAfterRead(): SchoolUiState.LessonRequestStatus =
+        if (this == SchoolUiState.LessonRequestStatus.Waiting) this else SchoolUiState.LessonRequestStatus.Idle
 
     companion object {
-        val none: SchoolRequests = SchoolRequests(SchoolUiState.LessonRequest.Idle, SchoolUiState.LessonRequest.Idle)
+        val none: SchoolRequests =
+            SchoolRequests(SchoolUiState.LessonRequestStatus.Idle, SchoolUiState.LessonRequestStatus.Idle)
     }
 }

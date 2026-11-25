@@ -68,8 +68,8 @@ class SchoolStepLessonTest {
         texts = emptyList(),
         studyMark = null,
         nextStep = studyFirst,
-        start = SchoolUiState.LessonRequest.Idle,
-        stop = SchoolUiState.LessonRequest.Idle,
+        start = SchoolUiState.LessonRequestStatus.Idle,
+        stop = SchoolUiState.LessonRequestStatus.Idle,
         isHoldoutNoteShown = false,
         bandLines = emptyList(),
     )

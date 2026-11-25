@@ -80,7 +80,7 @@ private fun StudyMarkRow(mark: SchoolUiState.DurationMark, modifier: Modifier = 
 @Composable
 private fun ReleasedLessonRow(
     card: SchoolUiState.ReleasedLessonCard,
-    start: SchoolUiState.LessonRequest,
+    start: SchoolUiState.LessonRequestStatus,
     opening: SchoolUiState.CapOpening,
     onIntent: (SchoolIntent) -> Unit,
     modifier: Modifier = Modifier,
@@ -118,7 +118,7 @@ private fun ReleasedLessonRow(
 private fun ReleasedStudyAction(
     card: SchoolUiState.ReleasedLessonCard,
     block: SchoolUiState.LessonBlock?,
-    start: SchoolUiState.LessonRequest,
+    start: SchoolUiState.LessonRequestStatus,
     opening: SchoolUiState.CapOpening,
     onIntent: (SchoolIntent) -> Unit,
     modifier: Modifier = Modifier,
@@ -136,7 +136,7 @@ private fun ReleasedStudyAction(
     Column(verticalArrangement = Arrangement.spacedBy(MyGameSpacing.step2), modifier = modifier) {
         MyGameOutlinedButton(
             label = copy.chrome(studyLine),
-            isBusy = start == SchoolUiState.LessonRequest.Waiting,
+            isBusy = start == SchoolUiState.LessonRequestStatus.Waiting,
             busyDescription = copy.chrome(R.string.school_waiting).spoken,
             onClick = { onIntent(SchoolIntent.StudyTapped(card.lesson)) },
             blockedReason = reason?.spoken,

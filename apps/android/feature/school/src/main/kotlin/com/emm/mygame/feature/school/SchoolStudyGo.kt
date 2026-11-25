@@ -25,7 +25,7 @@ fun schoolStudyGo(
     val block: SchoolUiState.LessonBlock? = (card.state as? SchoolUiState.LessonState.Open)?.block
     return MyGameDockGo(
         label = copy.studyLabelOf(card),
-        isBusy = (state as? SchoolUiState.Content)?.start == SchoolUiState.LessonRequest.Waiting,
+        isBusy = (state as? SchoolUiState.Content)?.start == SchoolUiState.LessonRequestStatus.Waiting,
         busyDescription = waiting,
         onClick = { onIntent(SchoolIntent.StudyTapped(card.lesson)) },
         blockedReason = block?.let { blocked: SchoolUiState.LessonBlock -> copy.blockLineOf(blocked).spoken },

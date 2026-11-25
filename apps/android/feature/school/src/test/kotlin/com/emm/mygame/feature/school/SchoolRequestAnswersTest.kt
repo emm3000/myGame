@@ -67,7 +67,7 @@ class SchoolRequestAnswersTest {
         runCurrent()
 
         assertEquals(
-            SchoolUiState.LessonRequest.Refused(firstLesson, TownLessonRefusal.LessonStudyNotFound),
+            SchoolUiState.LessonRequestStatus.Refused(firstLesson, TownLessonRefusal.LessonStudyNotFound),
             contentOf(viewModel).stop,
         )
     }
@@ -80,7 +80,7 @@ class SchoolRequestAnswersTest {
         viewModel.onIntent(SchoolIntent.StopTapped(firstLesson))
         runCurrent()
 
-        assertEquals(SchoolUiState.LessonRequest.Unreachable(firstLesson), contentOf(viewModel).stop)
+        assertEquals(SchoolUiState.LessonRequestStatus.Unreachable(firstLesson), contentOf(viewModel).stop)
     }
 
     @Test
@@ -94,7 +94,7 @@ class SchoolRequestAnswersTest {
         advanceTimeBy(10.seconds)
         runCurrent()
 
-        assertEquals(SchoolUiState.LessonRequest.Idle, contentOf(viewModel).stop)
+        assertEquals(SchoolUiState.LessonRequestStatus.Idle, contentOf(viewModel).stop)
     }
 
     @Test
@@ -106,7 +106,7 @@ class SchoolRequestAnswersTest {
         advanceTimeBy(10.seconds)
         runCurrent()
 
-        assertEquals(SchoolUiState.LessonRequest.Waiting, contentOf(viewModel).start)
+        assertEquals(SchoolUiState.LessonRequestStatus.Waiting, contentOf(viewModel).start)
     }
 
     @Test
@@ -117,7 +117,7 @@ class SchoolRequestAnswersTest {
         viewModel.onIntent(SchoolIntent.StudyTapped(firstLesson))
         runCurrent()
 
-        assertEquals(SchoolUiState.LessonRequest.Idle, contentOf(viewModel).start)
+        assertEquals(SchoolUiState.LessonRequestStatus.Idle, contentOf(viewModel).start)
     }
 
     @Test
@@ -128,7 +128,7 @@ class SchoolRequestAnswersTest {
         viewModel.onIntent(SchoolIntent.StopTapped(firstLesson))
         runCurrent()
 
-        assertEquals(SchoolUiState.LessonRequest.Idle, contentOf(viewModel).stop)
+        assertEquals(SchoolUiState.LessonRequestStatus.Idle, contentOf(viewModel).stop)
     }
 
     @Test
@@ -142,7 +142,7 @@ class SchoolRequestAnswersTest {
         viewModel.onIntent(SchoolIntent.StudyTapped(firstLesson))
         runCurrent()
 
-        assertEquals(SchoolUiState.LessonRequest.Idle, contentOf(viewModel).stop)
+        assertEquals(SchoolUiState.LessonRequestStatus.Idle, contentOf(viewModel).stop)
     }
 
     @Test
@@ -156,7 +156,7 @@ class SchoolRequestAnswersTest {
         viewModel.onIntent(SchoolIntent.StopTapped(firstLesson))
         runCurrent()
 
-        assertEquals(SchoolUiState.LessonRequest.Idle, contentOf(viewModel).start)
+        assertEquals(SchoolUiState.LessonRequestStatus.Idle, contentOf(viewModel).start)
     }
 
     @Test
