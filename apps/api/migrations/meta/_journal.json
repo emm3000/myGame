@@ -330,6 +330,13 @@
       "when": 1795292328807,
       "tag": "0046_statement_timeout",
       "breakpoints": true
+    },
+    {
+      "idx": 47,
+      "version": "7",
+      "when": 1795629444381,
+      "tag": "0047_town_seen_at",
+      "breakpoints": true
     }
   ]
 }

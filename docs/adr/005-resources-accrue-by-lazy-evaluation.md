@@ -1,5 +1,5 @@
 ---
-status: accepted
+status: accepted, a read that writes nothing amended by ADR 057: an overview read writes one instant, the town's seen_at, and advances no stock
 date: 2026-09-21
 ---
 # Resources accrue by lazy evaluation, never by a ticking process

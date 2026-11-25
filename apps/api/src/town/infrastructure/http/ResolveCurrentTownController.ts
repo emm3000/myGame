@@ -3,7 +3,7 @@ import type { ResolveCurrentTown } from '@mygame/domain'
 import type { Context } from 'hono'
 import type { SignedInPlayer } from '#account/infrastructure/http/requirePlayer'
 import { signedInDeclaration } from '#platform/infrastructure/http/signedInDeclaration'
-import { type RespondTownReadingDependencies, respondTownReading } from './respondTownReading'
+import { type RespondTownReadingDependencies, respondTownOverview } from './respondTownReading'
 import { overviewResponse, townNotFoundResponse } from './townComponents'
 
 export const resolveCurrentTownDeclaration = createRoute(
@@ -28,6 +28,6 @@ export class ResolveCurrentTownController {
 
   async handle(c: Context<SignedInPlayer>): Promise<Response> {
     const reading = await this.dependencies.resolveCurrentTown.execute(c.var.playerId)
-    return respondTownReading(c, reading, this.dependencies)
+    return respondTownOverview(c, reading, this.dependencies)
   }
 }

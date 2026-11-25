@@ -68,6 +68,27 @@ describe('the town route', () => {
       })
     })
 
+    it('answers no away on a read under the hour after the last read', async () => {
+      const ana = await signUpWithTown('ana@example.com')
+      clock.advanceMinutes(120)
+      await readTown(ana)
+      clock.advanceMinutes(59)
+
+      const { away } = await overviewOf(await readTown(ana))
+
+      expect(away).toBeNull()
+    })
+
+    it('answers what each stock rose by since the last read', async () => {
+      const ana = await signUpWithTown('ana@example.com')
+      await readTown(ana)
+      clock.advanceMinutes(120)
+
+      const { away } = await overviewOf(await readTown(ana))
+
+      expect(away).toEqual({ gained: { money: 40, food: 10, power: 0, material: 0 } })
+    })
+
     it('answers summer’s build percent', async () => {
       const ana = await signUpWithTown('ana@example.com')
       clock.advanceMinutes(minutesToSummer)
@@ -250,7 +271,7 @@ describe('the town route', () => {
       expect([overview.buildings.farm.level, overview.work.slot]).toEqual([1, null])
     })
 
-    it('reads the town in one round trip', async () => {
+    it('answers a read with one select of the town and one write of its seen instant', async () => {
       const ana = await signUpWithTown('ana@example.com')
       const statements: Array<string> = []
       const query = Client.prototype.query
@@ -266,6 +287,7 @@ describe('the town route', () => {
 
       expect(statements.filter((statement) => !statement.includes('"sessions"'))).toEqual([
         expect.stringContaining('from "towns"'),
+        expect.stringContaining('update "towns" set "seen_at"'),
       ])
     })
 

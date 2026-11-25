@@ -5,7 +5,7 @@ import type { TownRow, townBuilding, townWaitingWork } from './townTables'
 
 type StoredTownBuilding = (typeof townBuilding.enumValues)[number]
 
-type SavedTownRow = Omit<TownRow, 'guidanceDismissedAt'>
+type SavedTownRow = Omit<TownRow, 'guidanceDismissedAt' | 'seenAt'>
 
 type WaitingRow = typeof townWaitingWork.$inferSelect
 

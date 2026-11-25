@@ -4,7 +4,9 @@ import type {
   LessonLibrary,
   MemoryTerms,
   Result,
+  Stocks,
   TownCatalog,
+  TownOverviewReading,
   TownReading,
 } from '@mygame/domain'
 import type { Context } from 'hono'
@@ -18,18 +20,34 @@ export type RespondTownReadingDependencies = {
   readonly memoryTerms: MemoryTerms
 }
 
-export const respondTownReading = (
+const respondOverview = (
   c: Context,
-  reading: Result<TownReading, DomainError>,
+  reading: TownReading,
+  away: Stocks | undefined,
   { townCatalog, lessons, memoryTerms }: RespondTownReadingDependencies,
 ): Response => {
-  if (!reading.ok) {
-    return respondRefusal(c, reading.error)
-  }
-  const view = gatherTownView(reading.value, townCatalog, lessons, memoryTerms)
+  const view = gatherTownView(reading, townCatalog, lessons, memoryTerms)
   if (!view.ok) {
     return respondRefusal(c, view.error)
   }
-  const body: TownOverview = presentTownOverview(reading.value, view.value, townCatalog)
+  const body: TownOverview = presentTownOverview(reading, view.value, away, townCatalog)
   return c.json(body)
 }
+
+export const respondTownReading = (
+  c: Context,
+  reading: Result<TownReading, DomainError>,
+  dependencies: RespondTownReadingDependencies,
+): Response =>
+  reading.ok
+    ? respondOverview(c, reading.value, undefined, dependencies)
+    : respondRefusal(c, reading.error)
+
+export const respondTownOverview = (
+  c: Context,
+  reading: Result<TownOverviewReading, DomainError>,
+  dependencies: RespondTownReadingDependencies,
+): Response =>
+  reading.ok
+    ? respondOverview(c, reading.value, reading.value.away, dependencies)
+    : respondRefusal(c, reading.error)
