@@ -69,6 +69,7 @@ class LessonWordsScreenTest {
         wayOn = LessonWordsUiState.WayOn.Reviews,
         shownSupport = null,
         isNextStepThisLesson = false,
+        nextStep = studyLessonTwo,
     )
 
     private val finishedLastWord: LessonWordsUiState.Reading = finishedFirstWord.copy(index = 1)
@@ -317,7 +318,7 @@ class LessonWordsScreenTest {
 
     @Test
     fun `returns to the opener from the way on when nothing can be read`() {
-        draw(LessonWordsUiState.NothingToRead)
+        draw(LessonWordsUiState.NothingToRead(studyLessonTwo))
 
         wayOn("Continuar").performScrollTo().performClick()
 
@@ -326,7 +327,7 @@ class LessonWordsScreenTest {
 
     @Test
     fun `says so when nothing can be read`() {
-        draw(LessonWordsUiState.NothingToRead)
+        draw(LessonWordsUiState.NothingToRead(studyLessonTwo))
 
         composeRule.onNodeWithText("Ahora no hay palabras para leer.").assertExists()
     }

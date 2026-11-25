@@ -10,12 +10,20 @@ import com.emm.mygame.core.model.learning.WordSupport
 import com.emm.mygame.core.model.placement.PlacementBand
 import com.emm.mygame.core.model.town.LessonName
 import com.emm.mygame.core.model.town.TownSnapshot
+import com.emm.mygame.core.model.town.guidance.NextStepCard
 import com.emm.mygame.core.ui.ChromePhase
 import com.emm.mygame.core.ui.CopyLanguage
 import com.emm.mygame.core.ui.ProvideCopyLanguage
 import com.emm.mygame.core.ui.ScaffoldLanguage
 import com.emm.mygame.feature.school.SchoolLanguages
 import kotlin.time.Duration.Companion.minutes
+
+private val previewNextStep: NextStepCard = NextStepCard(
+    line = NextStepCard.Line.Lesson(number = 2),
+    detail = null,
+    countdown = null,
+    action = NextStepCard.Action.Study(number = 2),
+)
 
 private val previewReading: LessonWordsUiState.Reading = LessonWordsUiState.Reading(
     name = LessonName.Shelved(number = 1),
@@ -45,6 +53,7 @@ private val previewReading: LessonWordsUiState.Reading = LessonWordsUiState.Read
     wayOn = null,
     shownSupport = null,
     isNextStepThisLesson = false,
+    nextStep = previewNextStep,
 )
 
 private fun previewSupport(shown: WordSupport.Shown, text: String): WordSupport =
@@ -70,7 +79,8 @@ private class LessonWordsUiStates : PreviewParameterProvider<LessonWordsUiState>
             shownSupport = LessonWordsUiState.ShownSupport.Word,
         ),
         previewReading.copy(name = LessonName.Released(PlacementBand.Second, set = 1), theme = null),
-        LessonWordsUiState.NothingToRead,
+        LessonWordsUiState.NothingToRead(previewNextStep),
+        previewReading.copy(index = 1),
         LessonWordsUiState.Loading,
         LessonWordsUiState.Failed,
     )

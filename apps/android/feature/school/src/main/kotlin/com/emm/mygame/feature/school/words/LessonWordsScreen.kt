@@ -76,7 +76,7 @@ private fun LessonWordsState(
             actionLabel = chromeResource(R.string.school_try_again),
             onAction = { onIntent(LessonWordsIntent.RetryTapped) },
         )
-        LessonWordsUiState.NothingToRead -> NothingToRead()
+        is LessonWordsUiState.NothingToRead -> NothingToRead()
         is LessonWordsUiState.Reading -> {
             LessonHeader(reading = state)
             state.remaining?.let { remaining: Duration -> RunningTime(remaining = remaining) }

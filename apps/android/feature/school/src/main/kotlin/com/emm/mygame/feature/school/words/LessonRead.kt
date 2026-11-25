@@ -29,7 +29,8 @@ internal data class LessonRead(val town: TownSnapshot, val readFirst: List<Lesso
         now: Instant,
     ): LessonWordsUiState {
         val readings: List<TownSnapshot.WordReading> = readingsOf(walk.lesson)
-        if (readings.isEmpty()) return LessonWordsUiState.NothingToRead
+        val nextStep: NextStepCard = town.nextStepCard()
+        if (readings.isEmpty()) return LessonWordsUiState.NothingToRead(nextStep)
         val remaining: Duration? = remainingOf(walk.lesson, now)
         return LessonWordsUiState.Reading(
             name = town.nameOf(walk.lesson),
@@ -39,7 +40,8 @@ internal data class LessonRead(val town: TownSnapshot, val readFirst: List<Lesso
             remaining = remaining,
             wayOn = if (remaining == null && readFirst != null) wayOnOf(readFirst, walk.opened) else null,
             shownSupport = shownSupport,
-            isNextStepThisLesson = town.nextStepCard().action == NextStepCard.Action.ReadWords(walk.lesson),
+            isNextStepThisLesson = nextStep.action == NextStepCard.Action.ReadWords(walk.lesson),
+            nextStep = nextStep,
         )
     }
 

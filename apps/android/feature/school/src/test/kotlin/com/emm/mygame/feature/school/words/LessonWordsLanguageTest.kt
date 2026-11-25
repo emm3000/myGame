@@ -50,6 +50,7 @@ class LessonWordsLanguageTest {
         wayOn = null,
         shownSupport = null,
         isNextStepThisLesson = false,
+        nextStep = studyLessonTwo,
     )
 
     private val lastWordOfAReleasedLesson: LessonWordsUiState.Reading = firstWordWhileStudying.copy(
@@ -144,7 +145,7 @@ class LessonWordsLanguageTest {
 
     @Test
     fun `draws nothing to read English over Spanish in the both phase`() {
-        show(bothPhase, LessonWordsUiState.NothingToRead)
+        show(bothPhase, LessonWordsUiState.NothingToRead(studyLessonTwo))
 
         assertEnglishOverSpanish("No words to read now.", "Ahora no hay palabras para leer.")
     }

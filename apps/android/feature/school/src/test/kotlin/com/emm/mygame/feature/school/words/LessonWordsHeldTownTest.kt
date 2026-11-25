@@ -20,6 +20,7 @@ import kotlinx.coroutines.test.runCurrent
 import kotlinx.coroutines.test.runTest
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertNull
+import org.junit.Assert.assertTrue
 import org.junit.Rule
 import org.junit.Test
 
@@ -162,7 +163,7 @@ class LessonWordsHeldTownTest {
 
         val viewModel: LessonWordsViewModel = lessonWordsViewModelOf(towns, learning)
 
-        assertEquals(LessonWordsUiState.NothingToRead, viewModel.state.value)
+        assertTrue(viewModel.state.value is LessonWordsUiState.NothingToRead)
     }
 
     @Test

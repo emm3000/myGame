@@ -4,6 +4,7 @@ import com.emm.mygame.core.model.learning.LessonId
 import com.emm.mygame.core.model.learning.WordSupport
 import com.emm.mygame.core.model.town.LessonName
 import com.emm.mygame.core.model.town.TownSnapshot
+import com.emm.mygame.core.model.town.guidance.NextStepCard
 import kotlin.time.Duration
 
 sealed interface LessonWordsUiState {
@@ -12,7 +13,7 @@ sealed interface LessonWordsUiState {
 
     data object Failed : LessonWordsUiState
 
-    data object NothingToRead : LessonWordsUiState
+    data class NothingToRead(val nextStep: NextStepCard) : LessonWordsUiState
 
     data class Reading(
         val name: LessonName,
@@ -23,6 +24,7 @@ sealed interface LessonWordsUiState {
         val wayOn: WayOn?,
         val shownSupport: ShownSupport?,
         val isNextStepThisLesson: Boolean,
+        val nextStep: NextStepCard,
     ) : LessonWordsUiState {
 
         val word: TownSnapshot.WordReading
