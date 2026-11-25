@@ -26,5 +26,4 @@ file-name feature/town/src/main/kotlin/com/emm/mygame/feature/town/status/TownSt
 package-files core/designsystem/src/main/kotlin/com/emm/mygame/core/designsystem
 private-vars feature/town/src/main/kotlin/com/emm/mygame/feature/town/status/TownStatusViewModel.kt
 screen-file feature/town/src/main/kotlin/com/emm/mygame/feature/town/status/TownStatusScreen.kt
-test-lines app/src/test/kotlin/com/emm/mygame/DockFrameNavigationTest.kt
 test-lines feature/town/src/test/kotlin/com/emm/mygame/feature/town/status/TownStatusViewModelTest.kt
