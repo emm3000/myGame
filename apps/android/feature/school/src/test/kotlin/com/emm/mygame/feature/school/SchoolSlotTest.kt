@@ -91,6 +91,13 @@ class SchoolSlotTest {
         SchoolUiState.SlotLine.Busy(firstLesson, firstLessonName, remaining = remaining, total = 150.seconds)
 
     @Test
+    fun `draws an idle slot`() {
+        show(idleSchool)
+
+        showing("Ahora no hay ninguna lección en estudio.")
+    }
+
+    @Test
     fun `opens the words of the running lesson from a nav row`() {
         show(idleSchool.copy(slot = busySlot(150.seconds)))
 

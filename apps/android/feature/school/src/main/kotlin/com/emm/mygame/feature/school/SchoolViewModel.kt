@@ -194,7 +194,7 @@ class SchoolViewModel(private val towns: TownRepository, private val clock: Cloc
                 when (val answer: TownReadResult = towns.read()) {
                     is TownReadResult.Read -> {
                         town = measured(answer.town)
-                        taps = taps.keptAfterRead()
+                        taps = taps.copy(requests = taps.requests.keptAfterRead())
                         nextReadAt = town.nextChangeAfter(serverNow())
                         continue
                     }
