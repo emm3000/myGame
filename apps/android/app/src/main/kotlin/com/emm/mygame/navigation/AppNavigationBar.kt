@@ -6,6 +6,7 @@ import androidx.compose.ui.graphics.vector.ImageVector
 import com.emm.mygame.core.designsystem.MyGameIcons
 import com.emm.mygame.core.designsystem.MyGameNavigationBar
 import com.emm.mygame.core.designsystem.MyGameNavigationItem
+import com.emm.mygame.core.designsystem.MyGameNavigationItems
 import com.emm.mygame.core.designsystem.formatQuantity
 import com.emm.mygame.core.model.town.TownSnapshot
 import com.emm.mygame.core.model.town.guidance.NextStep
@@ -24,15 +25,17 @@ internal fun AppNavigationBar(
         formatQuantity(count.toLong())
     }
     MyGameNavigationBar(
-        items = Tab.entries.map { tab: Tab ->
-            MyGameNavigationItem(
-                label = copy.chrome(tab.label),
-                icon = tab.icon,
-                isOpen = tab == open,
-                onClick = { onTabOpen(tab) },
-                count = reviewsDue.takeIf { tab == Tab.Learn },
-            )
-        },
+        items = MyGameNavigationItems(
+            Tab.entries.map { tab: Tab ->
+                MyGameNavigationItem(
+                    label = copy.chrome(tab.label),
+                    icon = tab.icon,
+                    isOpen = tab == open,
+                    onClick = { onTabOpen(tab) },
+                    count = reviewsDue.takeIf { tab == Tab.Learn },
+                )
+            },
+        ),
         modifier = modifier,
     )
 }

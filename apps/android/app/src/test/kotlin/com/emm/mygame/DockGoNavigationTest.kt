@@ -51,7 +51,12 @@ class DockGoNavigationTest : DockFrameFixture() {
     @Test
     fun `the school's study step studies that lesson in place`() {
         towns.answerLesson(TownLessonResult.Unreachable)
-        showing(Destination.Today, Destination.Town, Destination.School, town = playedTown(nextStep = NextStep.LessonToStudy(firstLesson)))
+        showing(
+            Destination.Today,
+            Destination.Town,
+            Destination.School,
+            town = playedTown(nextStep = NextStep.LessonToStudy(firstLesson)),
+        )
 
         dockGo("Estudiar la lección 1 · 5:00").performClick()
 

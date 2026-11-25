@@ -12,7 +12,7 @@ class NavigatorReviewsTest : NavigatorFixture() {
     fun `opens no Report from sign-in`() {
         val backStack: MutableList<NavKey> = mutableListOf(signIn)
 
-        Navigator(backStack, NavigationLinks()).openReport()
+        Navigator(backStack, NavigationLinks()).openOnTab(Destination.Report)
 
         assertEquals(listOf<NavKey>(signIn), backStack)
     }
@@ -57,7 +57,12 @@ class NavigatorReviewsTest : NavigatorFixture() {
 
     @Test
     fun `returns to the Report on back from the review`() {
-        val backStack: MutableList<NavKey> = mutableListOf(Destination.Today, Destination.Town, Destination.Report, Destination.Review)
+        val backStack: MutableList<NavKey> = mutableListOf(
+            Destination.Today,
+            Destination.Town,
+            Destination.Report,
+            Destination.Review,
+        )
 
         Navigator(backStack, NavigationLinks()).back()
 
@@ -66,7 +71,12 @@ class NavigatorReviewsTest : NavigatorFixture() {
 
     @Test
     fun `returns to the school on back from a review opened there`() {
-        val backStack: MutableList<NavKey> = mutableListOf(Destination.Today, Destination.Town, Destination.School, Destination.Review)
+        val backStack: MutableList<NavKey> = mutableListOf(
+            Destination.Today,
+            Destination.Town,
+            Destination.School,
+            Destination.Review,
+        )
 
         Navigator(backStack, NavigationLinks()).back()
 
@@ -84,7 +94,12 @@ class NavigatorReviewsTest : NavigatorFixture() {
 
     @Test
     fun `returns to the town on its tab from a review`() {
-        val backStack: MutableList<NavKey> = mutableListOf(Destination.Today, Destination.Town, Destination.Report, Destination.Review)
+        val backStack: MutableList<NavKey> = mutableListOf(
+            Destination.Today,
+            Destination.Town,
+            Destination.Report,
+            Destination.Review,
+        )
 
         Navigator(backStack, NavigationLinks()).openTown()
 
@@ -93,7 +108,12 @@ class NavigatorReviewsTest : NavigatorFixture() {
 
     @Test
     fun `leaves sign-in alone when the session ends on the Report`() {
-        val backStack: MutableList<NavKey> = mutableListOf(Destination.Today, Destination.Town, Destination.Report, Destination.Review)
+        val backStack: MutableList<NavKey> = mutableListOf(
+            Destination.Today,
+            Destination.Town,
+            Destination.Report,
+            Destination.Review,
+        )
 
         Navigator(backStack, NavigationLinks()).signedOut(isSessionEnded = true)
 
@@ -106,7 +126,7 @@ class NavigatorReviewsTest : NavigatorFixture() {
         val navigator: Navigator = Navigator(backStack, NavigationLinks())
         navigator.signingOut()
 
-        navigator.openReport()
+        navigator.openOnTab(Destination.Report)
 
         assertEquals(listOf(Destination.Today, Destination.Town), backStack)
     }

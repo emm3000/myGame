@@ -3,6 +3,7 @@ package com.emm.mygame
 import androidx.navigation3.runtime.NavKey
 import com.emm.mygame.core.model.learning.TextId
 import com.emm.mygame.navigation.Navigator
+import com.emm.mygame.navigation.Tab
 import org.junit.Assert.assertEquals
 import org.junit.Test
 
@@ -34,7 +35,7 @@ class NavigatorTextTest {
     fun `returns to the school from a text`() {
         val backStack: MutableList<NavKey> = mutableListOf(Destination.Today, Destination.School, courseText)
 
-        Navigator(backStack, NavigationLinks()).openSchool()
+        Navigator(backStack, NavigationLinks()).openTab(Tab.Learn)
 
         assertEquals(listOf(Destination.Today, Destination.School), backStack)
     }

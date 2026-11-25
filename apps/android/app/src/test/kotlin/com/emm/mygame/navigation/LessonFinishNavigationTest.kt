@@ -42,7 +42,12 @@ class LessonFinishNavigationTest : AppNavigationFixture() {
 
     @Test
     fun `reads the town at the lesson's finish on a text`() {
-        onLessonOneNearItsFinish(Destination.Today, Destination.Town, Destination.School, Destination.SchoolText(TextId("text-1")))
+        onLessonOneNearItsFinish(
+            Destination.Today,
+            Destination.Town,
+            Destination.School,
+            Destination.SchoolText(TextId("text-1")),
+        )
 
         passingTheFinish(readsOnArrival = READS_ON_ARRIVAL_ON_A_TEXT)
 
@@ -112,7 +117,12 @@ class LessonFinishNavigationTest : AppNavigationFixture() {
     @Test
     fun `draws no status on the Report with no lesson running`() {
         reports.answerRead(ReportReadResult.Read(nothingDue))
-        showingStack(Destination.Today, Destination.Town, Destination.Report, town = playedTown(retainedWords = threeOfFive))
+        showingStack(
+            Destination.Today,
+            Destination.Town,
+            Destination.Report,
+            town = playedTown(retainedWords = threeOfFive),
+        )
         waitForRing(THREE_OF_FIVE)
 
         assertNoStatus()

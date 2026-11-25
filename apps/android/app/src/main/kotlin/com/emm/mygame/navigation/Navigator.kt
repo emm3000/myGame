@@ -90,10 +90,6 @@ internal class Navigator(private val backStack: MutableList<NavKey>, private val
         if (backStack.lastOrNull() == Destination.Naming) backStack.showAlone(listOf(Destination.Today))
     }
 
-    fun openSchool() {
-        openTab(Tab.Learn)
-    }
-
     fun openLesson(lesson: LessonId, walked: List<LessonId>) {
         if (!areLinksEnabled) return
         val words: Destination.LessonWords = Destination.LessonWords(lesson, walked)
@@ -104,24 +100,12 @@ internal class Navigator(private val backStack: MutableList<NavKey>, private val
         }
     }
 
-    fun openReport() {
-        openOnTab(Destination.Report)
-    }
-
     fun openAbove(under: Destination, shown: Destination) {
         if (!areLinksEnabled) return
         if (backStack.lastOrNull() == under) backStack.add(shown)
     }
 
-    fun openMap() {
-        openOnTab(Destination.Map)
-    }
-
-    fun openPlacement() {
-        openOnTab(Destination.Placement)
-    }
-
-    private fun openOnTab(shownNext: Destination) {
+    fun openOnTab(shownNext: Destination) {
         if (!areLinksEnabled || !backStack.isSignedIn()) return
         backStack.showAlone(listOfNotNull(Destination.Today, backStack.tabUnder().rootAboveToday(), shownNext))
     }

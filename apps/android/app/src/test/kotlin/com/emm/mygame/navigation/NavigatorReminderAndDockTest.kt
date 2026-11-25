@@ -11,7 +11,12 @@ class NavigatorReminderAndDockTest : NavigatorFixture() {
 
     @Test
     fun `opens the Report above Today on a tap of the words reminder`() {
-        val backStack: MutableList<NavKey> = mutableListOf(Destination.Today, Destination.Town, Destination.School, firstWords)
+        val backStack: MutableList<NavKey> = mutableListOf(
+            Destination.Today,
+            Destination.Town,
+            Destination.School,
+            firstWords,
+        )
 
         Navigator(backStack, NavigationLinks()).openReminder(StudyReminderLine.Cards)
 
@@ -21,7 +26,12 @@ class NavigatorReminderAndDockTest : NavigatorFixture() {
     @Test
     fun `returns to Today on a tap of the check or the lesson reminder`() {
         listOf(StudyReminderLine.Check, StudyReminderLine.Lesson).forEach { line: StudyReminderLine ->
-            val backStack: MutableList<NavKey> = mutableListOf(Destination.Today, Destination.Town, Destination.Report, Destination.News)
+            val backStack: MutableList<NavKey> = mutableListOf(
+                Destination.Today,
+                Destination.Town,
+                Destination.Report,
+                Destination.News,
+            )
 
             Navigator(backStack, NavigationLinks()).openReminder(line)
 

@@ -148,7 +148,9 @@ class TodayViewModelTest {
         }
     }
 
-    private fun contentOf(viewModel: TodayViewModel): TodayUiState.Content = viewModel.state.value as TodayUiState.Content
+    private fun contentOf(
+        viewModel: TodayViewModel,
+    ): TodayUiState.Content = viewModel.state.value as TodayUiState.Content
 
     private fun runningTown(): TownSnapshot = newTown(
         nextStep = NextStep.LessonRunning(goal = null, text = null),
