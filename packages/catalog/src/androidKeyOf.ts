@@ -7,6 +7,7 @@ export type AndroidModule =
   | 'placement'
   | 'report'
   | 'school'
+  | 'today'
   | 'town'
 
 export type AndroidKey = {
@@ -23,6 +24,7 @@ export const androidModules: ReadonlyArray<AndroidModule> = [
   'placement',
   'report',
   'school',
+  'today',
   'town',
 ]
 

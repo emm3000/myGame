@@ -85,39 +85,39 @@ class NavigatorSessionTest : NavigatorFixture() {
     }
 
     @Test
-    fun `opens the town alone once signed up`() {
+    fun `opens Today alone once signed up`() {
         val backStack: MutableList<NavKey> = mutableListOf(signIn, Destination.SignUp)
 
         Navigator(backStack, NavigationLinks()).signedIn()
 
-        assertEquals(listOf(Destination.Town), backStack)
+        assertEquals(listOf<NavKey>(Destination.Today), backStack)
     }
 
     @Test
-    fun `opens the town alone once signed in`() {
+    fun `opens Today alone once signed in`() {
         val backStack: MutableList<NavKey> = mutableListOf(signIn)
 
         Navigator(backStack, NavigationLinks()).signedIn()
 
-        assertEquals(listOf(Destination.Town), backStack)
+        assertEquals(listOf<NavKey>(Destination.Today), backStack)
     }
 
     @Test
-    fun `opens the school above the town`() {
-        val backStack: MutableList<NavKey> = mutableListOf(Destination.Town)
+    fun `opens the school as the Learn tab`() {
+        val backStack: MutableList<NavKey> = mutableListOf(Destination.Today, Destination.Town)
 
         Navigator(backStack, NavigationLinks()).openSchool()
 
-        assertEquals(listOf(Destination.Town, Destination.School), backStack)
+        assertEquals(listOf(Destination.Today, Destination.School), backStack)
     }
 
     @Test
     fun `keeps one school when it is opened twice`() {
-        val backStack: MutableList<NavKey> = mutableListOf(Destination.Town, Destination.School)
+        val backStack: MutableList<NavKey> = mutableListOf(Destination.Today, Destination.Town, Destination.School)
 
         Navigator(backStack, NavigationLinks()).openSchool()
 
-        assertEquals(listOf(Destination.Town, Destination.School), backStack)
+        assertEquals(listOf(Destination.Today, Destination.School), backStack)
     }
 
     @Test
@@ -131,47 +131,47 @@ class NavigatorSessionTest : NavigatorFixture() {
 
     @Test
     fun `stays on the Report on a back gesture while signing out`() {
-        val backStack: MutableList<NavKey> = mutableListOf(Destination.Town, Destination.Report)
+        val backStack: MutableList<NavKey> = mutableListOf(Destination.Today, Destination.Town, Destination.Report)
         val navigator: Navigator = Navigator(backStack, NavigationLinks())
         navigator.signingOut()
 
         navigator.back()
 
-        assertEquals(listOf<NavKey>(Destination.Town, Destination.Report), backStack)
+        assertEquals(listOf(Destination.Today, Destination.Town, Destination.Report), backStack)
     }
 
     @Test
     fun `opens no school while signing out`() {
-        val backStack: MutableList<NavKey> = mutableListOf(Destination.Town)
+        val backStack: MutableList<NavKey> = mutableListOf(Destination.Today, Destination.Town)
         val navigator: Navigator = Navigator(backStack, NavigationLinks())
         navigator.signingOut()
 
         navigator.openSchool()
 
-        assertEquals(listOf<NavKey>(Destination.Town), backStack)
+        assertEquals(listOf(Destination.Today, Destination.Town), backStack)
     }
 
     @Test
     fun `returns to the town on back from the school`() {
-        val backStack: MutableList<NavKey> = mutableListOf(Destination.Town, Destination.School)
+        val backStack: MutableList<NavKey> = mutableListOf(Destination.Today, Destination.Town, Destination.School)
 
         Navigator(backStack, NavigationLinks()).back()
 
-        assertEquals(listOf<NavKey>(Destination.Town), backStack)
+        assertEquals(listOf(Destination.Today, Destination.Town), backStack)
     }
 
     @Test
     fun `returns to the town below the school from the town tab`() {
-        val backStack: MutableList<NavKey> = mutableListOf(Destination.Town, Destination.School)
+        val backStack: MutableList<NavKey> = mutableListOf(Destination.Today, Destination.Town, Destination.School)
 
         Navigator(backStack, NavigationLinks()).openTown()
 
-        assertEquals(listOf<NavKey>(Destination.Town), backStack)
+        assertEquals(listOf(Destination.Today, Destination.Town), backStack)
     }
 
     @Test
     fun `returns to sign-in alone once signed out`() {
-        val backStack: MutableList<NavKey> = mutableListOf(Destination.Town, Destination.Report)
+        val backStack: MutableList<NavKey> = mutableListOf(Destination.Today, Destination.Town, Destination.Report)
 
         Navigator(backStack, NavigationLinks()).signedOut(isSessionEnded = false)
 
@@ -180,7 +180,7 @@ class NavigatorSessionTest : NavigatorFixture() {
 
     @Test
     fun `disables the tabs while signing out`() {
-        val navigator: Navigator = Navigator(mutableListOf(Destination.Town), NavigationLinks())
+        val navigator: Navigator = Navigator(mutableListOf(Destination.Today, Destination.Town), NavigationLinks())
 
         navigator.signingOut()
 
@@ -189,7 +189,7 @@ class NavigatorSessionTest : NavigatorFixture() {
 
     @Test
     fun `enables the tabs again for the next session`() {
-        val backStack: MutableList<NavKey> = mutableListOf(Destination.Town)
+        val backStack: MutableList<NavKey> = mutableListOf(Destination.Today, Destination.Town)
         val navigator: Navigator = Navigator(backStack, NavigationLinks())
         navigator.signingOut()
         navigator.signedOut(isSessionEnded = false)
@@ -197,16 +197,16 @@ class NavigatorSessionTest : NavigatorFixture() {
         navigator.signedIn()
         navigator.openReport()
 
-        assertEquals(true to listOf(Destination.Town, Destination.Report), navigator.areLinksEnabled to backStack)
+        assertEquals(true to listOf(Destination.Today, Destination.Report), navigator.areLinksEnabled to backStack)
     }
 
     @Test
     fun `leaves sign-in alone with the session-ended line when the session ends above the town`() = runTest {
         val signedInStacks: List<MutableList<NavKey>> = listOf(
-            mutableListOf(Destination.Town),
-            mutableListOf(Destination.Town),
-            mutableListOf(Destination.Town, Destination.Report),
-            mutableListOf(Destination.Town, Destination.School),
+            mutableListOf(Destination.Today, Destination.Town),
+            mutableListOf(Destination.Today, Destination.Town),
+            mutableListOf(Destination.Today, Destination.Town, Destination.Report),
+            mutableListOf(Destination.Today, Destination.Town, Destination.School),
         )
 
         signedInStacks.forEach { backStack: MutableList<NavKey> ->

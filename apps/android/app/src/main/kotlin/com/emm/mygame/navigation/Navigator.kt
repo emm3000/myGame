@@ -53,9 +53,9 @@ internal class Navigator(private val backStack: MutableList<NavKey>, private val
 
     fun signedIn() {
         if (backStack.lastOrNull() is Destination.MailedLink) return
-        val shownAboveTown: Destination? = links.reminderLineOnSignIn?.shownAboveTown()
+        val shownAboveToday: Destination? = links.reminderLineOnSignIn?.shownAboveToday()
         links.reminderLineOnSignIn = null
-        backStack.showAlone(listOfNotNull(Destination.Town, shownAboveTown))
+        backStack.showAlone(listOfNotNull(Destination.Today, shownAboveToday))
     }
 
     fun signedOut(isSessionEnded: Boolean) {
@@ -68,30 +68,35 @@ internal class Navigator(private val backStack: MutableList<NavKey>, private val
         ended.collect { signedOut(isSessionEnded = true) }
     }
 
+    fun openTab(tab: Tab) {
+        if (!areLinksEnabled || !backStack.isSignedIn()) return
+        backStack.showAlone(listOfNotNull(Destination.Today, tab.root.takeIf { tab != Tab.Today }))
+    }
+
+    fun townUnnamed() {
+        if (backStack.isSignedIn()) backStack.showAlone(listOf(Destination.Naming))
+    }
+
+    fun townNamed() {
+        if (backStack.lastOrNull() == Destination.Naming) backStack.showAlone(listOf(Destination.Today))
+    }
+
     fun openSchool() {
-        if (!areLinksEnabled) return
-        when (backStack.lastOrNull()) {
-            Destination.Town -> backStack.add(Destination.School)
-            is Destination.LessonWords, is Destination.SchoolText -> {
-                backStack.backToTown()
-                backStack.add(Destination.School)
-            }
-            else -> Unit
-        }
+        openTab(Tab.Learn)
     }
 
     fun openLesson(lesson: LessonId, walked: List<LessonId>) {
         if (!areLinksEnabled) return
         val words: Destination.LessonWords = Destination.LessonWords(lesson, walked)
         when (backStack.lastOrNull()) {
-            Destination.Town, Destination.Report, Destination.School -> backStack.add(words)
+            Destination.Today, Destination.Town, Destination.Report, Destination.School -> backStack.add(words)
             is Destination.LessonWords, Destination.Review -> backStack[backStack.lastIndex] = words
             else -> Unit
         }
     }
 
     fun openReport() {
-        backStack.openAboveTown(Destination.Report, links)
+        openOnTab(Destination.Report)
     }
 
     fun openAbove(under: Destination, shown: Destination) {
@@ -100,17 +105,23 @@ internal class Navigator(private val backStack: MutableList<NavKey>, private val
     }
 
     fun openMap() {
-        backStack.openAboveTown(Destination.Map, links)
+        openOnTab(Destination.Map)
     }
 
     fun openPlacement() {
-        backStack.openAboveTown(Destination.Placement, links)
+        openOnTab(Destination.Placement)
+    }
+
+    private fun openOnTab(shownNext: Destination) {
+        if (!areLinksEnabled || !backStack.isSignedIn()) return
+        backStack.showAlone(listOfNotNull(Destination.Today, backStack.tabUnder().rootAboveToday(), shownNext))
     }
 
     fun openHoldoutCheck(band: PlacementBand, week: HoldoutCheckWeek) {
         if (!areLinksEnabled) return
         when (backStack.lastOrNull()) {
-            Destination.Town, Destination.School -> backStack.add(Destination.HoldoutCheck(band, week))
+            Destination.Today, Destination.Town, Destination.School ->
+                backStack.add(Destination.HoldoutCheck(band, week))
             else -> Unit
         }
     }
@@ -118,66 +129,42 @@ internal class Navigator(private val backStack: MutableList<NavKey>, private val
     fun openReviews() {
         if (!areLinksEnabled) return
         when (backStack.lastOrNull()) {
-            Destination.Town, Destination.Report, Destination.School, is Destination.LessonWords ->
+            Destination.Today, Destination.Town, Destination.Report, Destination.School, is Destination.LessonWords ->
                 backStack.add(Destination.Review)
             else -> Unit
         }
     }
 
     fun openReminder(line: StudyReminderLine) {
-        if (Destination.Town !in backStack) {
+        if (!backStack.isSignedIn()) {
             links.reminderLineOnSignIn = line
             return
         }
         if (!areLinksEnabled) return
-        backStack.backToTown()
-        line.shownAboveTown()?.let(backStack::add)
+        backStack.showAlone(listOfNotNull(Destination.Today, line.shownAboveToday()))
     }
 
     fun openTown() {
-        val shown: NavKey? = backStack.lastOrNull()
-        when {
-            shown is Destination.MailedLink -> backStack.showAlone(listOf(Destination.SignIn(isSessionEnded = false)))
-            shown.isAboveTown() -> backStack.backToTown()
+        if (backStack.lastOrNull() is Destination.MailedLink) {
+            backStack.showAlone(listOf(Destination.SignIn(isSessionEnded = false)))
+            return
         }
+        openTab(Tab.Town)
     }
 }
 
-private fun MutableList<NavKey>.openAboveTown(shownNext: Destination, links: NavigationLinks) {
-    if (!links.areEnabled) return
-    val shown: NavKey? = lastOrNull()
-    if (shown != Destination.Town && !shown.isAboveTown()) return
-    backToTown()
-    add(shownNext)
-}
+private fun Tab.rootAboveToday(): Destination? = root.takeIf { this != Tab.Today }
 
-private fun StudyReminderLine.shownAboveTown(): Destination? = when (this) {
+private fun StudyReminderLine.shownAboveToday(): Destination? = when (this) {
     StudyReminderLine.Cards -> Destination.Report
     StudyReminderLine.Check, StudyReminderLine.Lesson -> null
 }
 
-private fun MutableList<NavKey>.backToTown() {
-    subList(indexOf(Destination.Town) + 1, size).clear()
-}
+private fun List<NavKey>.isSignedIn(): Boolean = firstOrNull() == Destination.Today
 
 private fun MutableList<NavKey>.showAlone(destinations: List<Destination>) {
     if (this == destinations) return
     val replaced: Int = size
     addAll(destinations)
     repeat(replaced) { removeAt(0) }
-}
-
-private fun NavKey?.isAboveTown(): Boolean = when (this) {
-    Destination.School,
-    Destination.Report,
-    Destination.News,
-    Destination.Settings,
-    Destination.Map,
-    Destination.Review,
-    Destination.Placement,
-    is Destination.HoldoutCheck,
-    is Destination.LessonWords,
-    is Destination.SchoolText,
-    -> true
-    else -> false
 }
