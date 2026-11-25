@@ -63,7 +63,7 @@ class LessonWordsLanguageTest {
         composeRule.setContent {
             ProvideCopyLanguage(language = language) {
                 MyGameTheme {
-                    LessonWordsWithDock(state = state)
+                    LessonWordsScreen(state = state, onIntent = {}, onWayOn = {}, onDone = {})
                 }
             }
         }
@@ -122,15 +122,15 @@ class LessonWordsLanguageTest {
         show(noScaffold, lastWordOfAReleasedLesson)
 
         assertDrawn("Returning words: band 2, set\u00A01", "When the lesson ends, the reviews start.")
-        assertDrawn("Go to the school")
-        assertNotDrawn("Palabras que vuelven: banda 2, grupo\u00A01", "Palabra 2 de 2", "Ir a la escuela")
+        assertDrawn("Continue")
+        assertNotDrawn("Palabras que vuelven: banda 2, grupo\u00A01", "Palabra 2 de 2", "Continuar")
     }
 
     @Test
     fun `draws the fixed copy in Spanish for an es player in the English phase`() {
         show(englishPhase, lastWordOfAReleasedLesson)
 
-        assertDrawn("Palabras que vuelven: banda 2, grupo\u00A01", "Go to the school")
+        assertDrawn("Palabras que vuelven: banda 2, grupo\u00A01", "Continuar")
         assertNotDrawn("Returning words: band 2, set\u00A01")
     }
 
@@ -147,6 +147,5 @@ class LessonWordsLanguageTest {
         show(bothPhase, LessonWordsUiState.NothingToRead)
 
         assertEnglishOverSpanish("No words to read now.", "Ahora no hay palabras para leer.")
-        assertEnglishOverSpanish("Go to the school", "Ir a la escuela")
     }
 }

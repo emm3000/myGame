@@ -43,7 +43,6 @@ import com.emm.mygame.core.ui.FRAME_FOLDED_TOP_TURN
 import com.emm.mygame.core.ui.NoticeInView
 import com.emm.mygame.core.ui.TaskDock
 import com.emm.mygame.core.ui.TaskDockHook
-import com.emm.mygame.core.ui.TownFollow
 import com.emm.mygame.core.ui.chromeResource
 import com.emm.mygame.core.ui.frameHeaderTurn
 import com.emm.mygame.feature.town.status.TownDock
@@ -79,9 +78,7 @@ internal fun FramedScreen(
     val task: TaskDockHook = remember {
         TaskDockHook(onAnswered = { onStatusIntent.value(TownStatusIntent.ScreenAnswered) })
     }
-    val follow: TownFollow? = task.town.takeIf { kind == FrameKind.Task }
-    val dock: TownStatusUiState.Dock? =
-        chrome.status.value.dock.takeIf { isTownDockShown(kind, isDockWithheld, follow) }
+    val dock: TownStatusUiState.Dock? = chrome.status.value.dock.takeIf { !isDockWithheld && kind != FrameKind.Task }
     val frame = ScreenFrame(
         task = task,
         foldedDock = { FoldedDockTop(dock = dock, isFolded = isFolded.value, turn = foldedTurnOf(kind)) },
@@ -119,7 +116,6 @@ internal fun FramedScreen(
                     chrome = chrome,
                     studyInPlace = studyInPlace,
                     onFoldChange = { folded: Boolean -> isFolded.value = folded },
-                    follow = follow,
                 )
             }
         }
@@ -143,10 +139,7 @@ private fun FoldedDockTop(dock: TownStatusUiState.Dock?, isFolded: Boolean, turn
     }
 }
 
-private fun isTownDockShown(kind: FrameKind, isDockWithheld: Boolean, follow: TownFollow?): Boolean =
-    !isDockWithheld && (kind != FrameKind.Task || follow != null)
-
-private fun TaskDockHook.shownOn(kind: FrameKind): TaskDock? = dock.takeIf { kind == FrameKind.Task && town == null }
+private fun TaskDockHook.shownOn(kind: FrameKind): TaskDock? = dock.takeIf { kind == FrameKind.Task }
 
 @Composable
 private fun TaskFrameDock(shown: TaskDock, onFoldChange: (Boolean) -> Unit) {
@@ -185,7 +178,6 @@ private fun FrameDock(
     chrome: SignedInChrome,
     studyInPlace: @Composable (Int) -> MyGameDockGo?,
     onFoldChange: (Boolean) -> Unit,
-    follow: TownFollow?,
 ) {
     TownDock(
         dock = dock,
@@ -193,7 +185,7 @@ private fun FrameDock(
         onFoldChange = onFoldChange,
         modifier = Modifier
             .windowInsetsPadding(WindowInsets.safeDrawing.only(WindowInsetsSides.Horizontal))
-            .semantics { traversalIndex = if (follow == null) FRAME_DOCK_TURN else TASK_DOCK_TURN },
+            .semantics { traversalIndex = FRAME_DOCK_TURN },
         inPlace = dock.studiedInPlace()?.let { number: Int -> studyInPlace(number) },
     )
 }

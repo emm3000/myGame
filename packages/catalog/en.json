@@ -308,6 +308,7 @@
   "android.report.report_try_again": "Try again",
   "android.report.report_waiting": "Sending…",
   "android.school.school_band_line": "Band {band}: {count} of {total} words studied",
+  "android.school.school_continue": "Continue",
   "android.school.school_duration_hours": "{hours}\u00a0h",
   "android.school.school_duration_hours_minutes": "{hours}\u00a0h {minutes}\u00a0min",
   "android.school.school_duration_minutes": "{minutes}\u00a0min",

@@ -14,7 +14,6 @@ import com.emm.mygame.core.ui.ChromePhase
 import com.emm.mygame.core.ui.CopyLanguage
 import com.emm.mygame.core.ui.ProvideCopyLanguage
 import com.emm.mygame.core.ui.ScaffoldLanguage
-import com.emm.mygame.core.ui.TaskDockHook
 import com.emm.mygame.feature.school.SchoolLanguages
 import kotlin.time.Duration.Companion.minutes
 
@@ -85,9 +84,7 @@ private fun LessonWordsScreenPreview(@PreviewParameter(LessonWordsUiStates::clas
             state = state,
             onIntent = {},
             onWayOn = {},
-            onSchoolOpen = {},
-            task = TaskDockHook(onAnswered = {}),
-            foldedDock = {},
+            onDone = {},
         )
     }
 }
@@ -103,9 +100,7 @@ private fun LessonWordsScreenLanguagePreview(
                 state = previewReading,
                 onIntent = {},
                 onWayOn = {},
-                onSchoolOpen = {},
-                task = TaskDockHook(onAnswered = {}),
-                foldedDock = {},
+                onDone = {},
             )
         }
     }
@@ -120,9 +115,7 @@ private fun LessonWordsScreenReleasedBothPreview() {
                 state = previewReading.copy(name = LessonName.Released(PlacementBand.Second, set = 1), theme = null),
                 onIntent = {},
                 onWayOn = {},
-                onSchoolOpen = {},
-                task = TaskDockHook(onAnswered = {}),
-                foldedDock = {},
+                onDone = {},
             )
         }
     }

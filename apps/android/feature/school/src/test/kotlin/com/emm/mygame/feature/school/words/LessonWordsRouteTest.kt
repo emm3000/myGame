@@ -17,7 +17,6 @@ import com.emm.mygame.core.model.town.TownReadResult
 import com.emm.mygame.core.model.town.TownSnapshot
 import com.emm.mygame.core.testing.FakeLearningRepository
 import com.emm.mygame.core.testing.FakeTownRepository
-import com.emm.mygame.core.ui.TaskDockHook
 import com.emm.mygame.feature.school.firstLesson
 import com.emm.mygame.feature.school.lessonOf
 import com.emm.mygame.feature.school.secondLesson
@@ -64,10 +63,8 @@ class LessonWordsRouteTest {
                                 lessonOpenings += lesson to opened
                             },
                             onReviewsOpen = {},
-                            onSchoolOpen = {},
+                            onDone = {},
                         ),
-                        task = TaskDockHook(onAnswered = {}),
-                        foldedDock = {},
                     )
                 }
             }

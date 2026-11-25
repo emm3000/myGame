@@ -17,7 +17,7 @@ The gate already drives every screen on Robolectric (`apps/android/CLAUDE.md`). 
 - A case is admitted only if it cites a PRD row or an ADR section that exists on trunk, and only if it needs a device. A check a Robolectric test can make becomes a ticket for a gate test instead (`.claude/rules/android-testing.md`).
 - The plan holds at most 30 cases, and 6 to 8 of them are the smoke suite. It holds 30 today, 7 of them smoke. A new case replaces one.
 - Edge cases come from the numbers the ADRs already hold: the levels on each side of 3 and of 7 (ADR 045), the last minute of a countdown (PRD M8), and midnight for the reminder's time (ADR 046).
-- **Main Street.** ADR 047 rebuilds the town home as a pager (#1172) and moves the review's and the word reading's way on and verdict into the dock (#1170). A case outside *After Main Street* checks only what the server answers and the catalog line drawn for it, never where a control sits, so it survives those tickets. A case about the layout they move waits in *After Main Street*.
+- **Main Street.** ADR 047 rebuilds the town home as a pager (#1172); ADR 057 draws the review's and the word reading's way on and verdict in flow at the foot of their content, with no dock (#2003, #2004). A case outside *After Main Street* checks only what the server answers and the catalog line drawn for it, never where a control sits, so it survives those tickets. A case about the layout they move waits in *After Main Street*.
 - Every expected result below was checked against trunk's code, the catalog keys in `packages/catalog/en.json` and `es.json`, and the ADRs, never against a comment.
 
 ## The case format

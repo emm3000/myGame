@@ -151,7 +151,12 @@ class LessonWordsSupportScreenTest {
     private fun draw(state: LessonWordsUiState) {
         composeRule.setContent {
             MyGameTheme {
-                LessonWordsWithDock(state = state, onIntent = { intent: LessonWordsIntent -> intents += intent })
+                LessonWordsScreen(
+                    state = state,
+                    onIntent = { intent: LessonWordsIntent -> intents += intent },
+                    onWayOn = {},
+                    onDone = {},
+                )
             }
         }
     }

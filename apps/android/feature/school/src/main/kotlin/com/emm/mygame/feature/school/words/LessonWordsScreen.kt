@@ -16,7 +16,6 @@ import androidx.compose.ui.semantics.heading
 import androidx.compose.ui.semantics.semantics
 import com.emm.mygame.core.designsystem.MyGameCard
 import com.emm.mygame.core.designsystem.MyGameErrorBanner
-import com.emm.mygame.core.designsystem.MyGameNavRow
 import com.emm.mygame.core.designsystem.MyGameSizes
 import com.emm.mygame.core.designsystem.MyGameSkeleton
 import com.emm.mygame.core.designsystem.MyGameSkeletonBlocks
@@ -27,8 +26,6 @@ import com.emm.mygame.core.designsystem.MyGameTypography
 import com.emm.mygame.core.designsystem.MyGameWorkingDots
 import com.emm.mygame.core.designsystem.englishTextOf
 import com.emm.mygame.core.designsystem.withTabularFigures
-import com.emm.mygame.core.ui.FoldedTaskEnd
-import com.emm.mygame.core.ui.TaskDockHook
 import com.emm.mygame.core.ui.chromeResource
 import com.emm.mygame.core.ui.fixedCopyResource
 import com.emm.mygame.core.ui.rememberPlayerCopy
@@ -43,12 +40,9 @@ internal fun LessonWordsScreen(
     state: LessonWordsUiState,
     onIntent: (LessonWordsIntent) -> Unit,
     onWayOn: (LessonWordsUiState.WayOn) -> Unit,
-    onSchoolOpen: () -> Unit,
-    task: TaskDockHook,
-    foldedDock: @Composable () -> Unit,
+    onDone: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
-    LessonWordsDock(state = state, onIntent = onIntent, onWayOn = onWayOn, task = task)
     Column(
         verticalArrangement = Arrangement.spacedBy(MyGameSpacing.step4),
         modifier = modifier
@@ -63,13 +57,9 @@ internal fun LessonWordsScreen(
             loadingLabel = chromeResource(R.string.school_loading).spoken,
             blocks = lessonWordsBlocks,
         ) {
-            LessonWordsState(state = state, onIntent = onIntent, onWayOn = onWayOn, onSchoolOpen = onSchoolOpen)
+            LessonWordsState(state = state, onIntent = onIntent, onWayOn = onWayOn)
         }
-        FoldedTaskEnd(
-            hook = task,
-            foldedDock = foldedDock,
-            shownNotice = null,
-        )
+        LessonWordsWayOn(state = state, onIntent = onIntent, onWayOn = onWayOn, onDone = onDone)
     }
 }
 
@@ -78,7 +68,6 @@ private fun LessonWordsState(
     state: LessonWordsUiState,
     onIntent: (LessonWordsIntent) -> Unit,
     onWayOn: (LessonWordsUiState.WayOn) -> Unit,
-    onSchoolOpen: () -> Unit,
 ) {
     when (state) {
         LessonWordsUiState.Loading -> Unit
@@ -87,13 +76,13 @@ private fun LessonWordsState(
             actionLabel = chromeResource(R.string.school_try_again),
             onAction = { onIntent(LessonWordsIntent.RetryTapped) },
         )
-        LessonWordsUiState.NothingToRead -> NothingToRead(onSchoolOpen = onSchoolOpen)
+        LessonWordsUiState.NothingToRead -> NothingToRead()
         is LessonWordsUiState.Reading -> {
             LessonHeader(reading = state)
             state.remaining?.let { remaining: Duration -> RunningTime(remaining = remaining) }
             WordProgress(reading = state)
             ReadingWordBlock(reading = state, onIntent = onIntent)
-            WordActions(reading = state, onWayOn = onWayOn, onSchoolOpen = onSchoolOpen)
+            WordActions(reading = state, onWayOn = onWayOn)
         }
     }
 }
@@ -103,19 +92,14 @@ private val lessonWordsBlocks: MyGameSkeletonBlocks = MyGameSkeletonBlocks(
 )
 
 @Composable
-private fun NothingToRead(onSchoolOpen: () -> Unit, modifier: Modifier = Modifier) {
+private fun NothingToRead(modifier: Modifier = Modifier) {
     MyGameCard(modifier = modifier) {
-        Column(
-            verticalArrangement = Arrangement.spacedBy(MyGameSpacing.step3),
+        MyGameText(
+            label = chromeResource(R.string.school_lesson_nothing_to_read),
+            style = MyGameTypography.body,
+            color = MyGameTheme.colors.ink,
             modifier = Modifier.padding(vertical = MyGameSpacing.step4),
-        ) {
-            MyGameText(
-                label = chromeResource(R.string.school_lesson_nothing_to_read),
-                style = MyGameTypography.body,
-                color = MyGameTheme.colors.ink,
-            )
-            MyGameNavRow(title = chromeResource(R.string.school_go_to_school), onClick = onSchoolOpen)
-        }
+        )
     }
 }
 

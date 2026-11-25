@@ -181,6 +181,7 @@ const fixedCopyKeyList = [
   'android.report.report_settings',
   'android.report.report_sign_out',
   'android.school.school_band_line',
+  'android.school.school_continue',
   'android.school.school_holdout_note',
   'android.school.school_released_lesson',
   'android.school.school_released_lesson_study',

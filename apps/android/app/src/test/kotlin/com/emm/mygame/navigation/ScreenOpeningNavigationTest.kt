@@ -114,7 +114,7 @@ class ScreenOpeningNavigationTest : AppNavigationFixture() {
     fun `opens the next lesson of the walk`() {
         onTheFirstLessonOfTheWalk(secondReadings = listOf(townWord))
 
-        taskGo("Siguiente lección").performClick()
+        wayOn("Siguiente lección").performClick()
 
         waitForLine("We live in a town.")
     }
@@ -122,24 +122,24 @@ class ScreenOpeningNavigationTest : AppNavigationFixture() {
     @Test
     fun `opens the reviews at the end of the walk`() {
         onTheFirstLessonOfTheWalk(secondReadings = listOf(townWord))
-        taskGo("Siguiente lección").performClick()
+        wayOn("Siguiente lección").performClick()
         waitForLine("We live in a town.")
         learning.answerRead(noReviews)
 
-        taskGo("Empezar los repasos").performClick()
+        wayOn("Empezar los repasos").performClick()
 
         waitForLine("Aún no tienes palabras que repasar.")
     }
 
     @Test
-    fun `goes back to the school from a lesson with nothing to read`() {
+    fun `returns to the town from a walk's lesson with nothing to read`() {
         onTheFirstLessonOfTheWalk(secondReadings = emptyList())
-        taskGo("Siguiente lección").performClick()
+        wayOn("Siguiente lección").performClick()
         waitForLine("Ahora no hay palabras para leer.")
 
-        composeRule.onNodeWithText("Ir a la escuela").performScrollTo().performClick()
+        wayOn("Continuar").performClick()
 
-        waitForLine("Escuela")
+        waitForLine(TOWN_HEADER)
     }
 
     @Test
