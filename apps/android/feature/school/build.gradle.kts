@@ -16,7 +16,7 @@ dependencies {
     implementation(libs.androidx.lifecycle.runtime.compose)
 
     testImplementation(project(":core:testing"))
-    testImplementation(testFixtures(project(":core:ui")))
+    testImplementation(project(":core:uitesting"))
     testImplementation(libs.robolectric)
     testImplementation(libs.androidx.compose.ui.test.junit4)
     debugImplementation(libs.androidx.compose.ui.test.manifest)

@@ -22,21 +22,23 @@ paths:
 | `core:network` | The generated OpenAPI client, in its build directory; one package per feature, named as `core:model`'s (`account`, `town.jobs`), holding the `Api*` adapters that implement that feature's ports and their `*Mapping` files; and `platform`, holding what names no game word: the endpoint and the HTTP client builder it carries, the bearer, the token store, and `ApiRepositories`, which builds every `Api*` adapter |
 | `core:projection` | Pure Kotlin, JVM only: the lazy projection and the value types it reads |
 | `core:designsystem` | The design-system tokens and components (`ui-components.md`) |
-| `core:ui` | Composables shared by features that read the game's models (a resource row, a countdown); its `testFixtures` hold the Compose test helpers the features' tests share (`navRowOf`, `TaskFrameStandIn`) |
+| `core:ui` | Composables shared by features that read the game's models (a resource row, a countdown); its `testFixtures` hold the test stand-in of the task frame that reads its dock (`TaskFrameStandIn`) |
 | `core:testing` | Pure Kotlin, JVM only: fakes of the `core:model` interfaces, the test clock |
+| `core:uitesting` | Android, read only by a test configuration: the Compose test helpers the features' tests share (`navRowOf`, `textStyleOf`) |
 
 ```
 app               -> feature:*, core:*
 feature:*         -> core:model, core:projection, core:ui, core:designsystem
 core:ui           -> core:model, core:projection, core:designsystem
 core:testing      -> core:model, core:projection
+core:uitesting    -> core:designsystem
 core:network      -> core:model
 core:model        -> nothing in the project
 core:projection   -> nothing in the project
 core:designsystem -> nothing in the project
 ```
 
-`./gradlew checkModuleBoundaries` fails on any other edge, a feature-to-feature edge included, and on `core:testing` or a module's `testFixtures(project(...))` through any configuration but a test one. Before adding an edge, check the table; if a `core` module needs to reach outward, invert it with an interface in that module.
+`./gradlew checkModuleBoundaries` fails on any other edge, a feature-to-feature edge included, and on `core:testing`, `core:uitesting` or a module's `testFixtures(project(...))` through any configuration but a test one. Before adding an edge, check the table; if a `core` module needs to reach outward, invert it with an interface in that module.
 
 ## The contract
 

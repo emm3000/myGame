@@ -18,6 +18,7 @@ private val allowedCoreEdges: Map<String, Set<String>> = mapOf(
     ":core:designsystem" to emptySet(),
     ":core:ui" to setOf(":core:model", ":core:projection", ":core:designsystem"),
     ":core:testing" to setOf(":core:model", ":core:projection"),
+    ":core:uitesting" to setOf(":core:designsystem"),
 )
 
 private val allowedFeatureEdges: Set<String> =

@@ -7,7 +7,7 @@ import androidx.compose.ui.test.onAllNodesWithText
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
 import androidx.compose.ui.test.performScrollTo
-import com.emm.mygame.core.ui.navRowOf
+import com.emm.mygame.core.uitesting.navRowOf
 import org.junit.Assert.assertEquals
 import org.junit.Test
 import org.junit.runner.RunWith

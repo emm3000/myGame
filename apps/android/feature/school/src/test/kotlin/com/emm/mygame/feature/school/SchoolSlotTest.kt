@@ -15,7 +15,7 @@ import com.emm.mygame.core.model.learning.LessonId
 import com.emm.mygame.core.model.town.TownResourceKind
 import com.emm.mygame.core.model.town.school.SchoolPathCounts
 import com.emm.mygame.core.model.town.school.TownLessonRefusal
-import com.emm.mygame.core.ui.navRowOf
+import com.emm.mygame.core.uitesting.navRowOf
 import kotlin.time.Duration
 import kotlin.time.Duration.Companion.hours
 import kotlin.time.Duration.Companion.minutes
