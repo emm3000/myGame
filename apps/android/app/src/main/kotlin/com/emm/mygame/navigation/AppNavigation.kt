@@ -28,16 +28,12 @@ import androidx.navigation3.runtime.rememberSaveableStateHolderNavEntryDecorator
 import androidx.navigation3.ui.NavDisplay
 import com.emm.mygame.AppDependencies
 import com.emm.mygame.Destination
-import com.emm.mygame.FrameKind
-import com.emm.mygame.FramedScreen
 import com.emm.mygame.InPlayerLanguage
 import com.emm.mygame.NavigationLinks
 import com.emm.mygame.PlayerLanguageIntent
 import com.emm.mygame.PlayerLanguageUiState
 import com.emm.mygame.PlayerLanguageViewModel
-import com.emm.mygame.ScreenFrame
 import com.emm.mygame.SignedInChrome
-import com.emm.mygame.core.designsystem.MyGameDockGo
 import com.emm.mygame.core.designsystem.MyGameTheme
 import com.emm.mygame.core.projection.StudyReminderLine
 import com.emm.mygame.feature.account.verification.VerificationBannerRoute
@@ -140,31 +136,6 @@ private fun EntryProviderScope<NavKey>.signedInEntries(chrome: SignedInChrome) {
     lessonWordsEntry(chrome)
     schoolTextEntry(chrome)
     reviewEntry(chrome)
-}
-
-@Composable
-internal fun SignedInFrame(
-    kind: FrameKind,
-    doesScreenReadTown: Boolean,
-    chrome: SignedInChrome,
-    modifier: Modifier = Modifier,
-    isDockWithheld: Boolean = false,
-    studyInPlace: @Composable (Int) -> MyGameDockGo? = { null },
-    frameLanguage: PlayerLanguageViewModel = viewModel { PlayerLanguageViewModel(chrome.dependencies.playerLanguage) },
-    content: @Composable (ScreenFrame) -> Unit,
-) {
-    val framed: PlayerLanguageUiState by frameLanguage.state.collectAsStateWithLifecycle()
-    InPlayerLanguage(language = framed.language) {
-        FramedScreen(
-            kind = kind,
-            doesScreenReadTown = doesScreenReadTown,
-            chrome = chrome,
-            modifier = modifier,
-            isDockWithheld = isDockWithheld,
-            studyInPlace = studyInPlace,
-            content = content,
-        )
-    }
 }
 
 private fun NavKey?.statusScreen(): TownStatusScreen = when (val destination: Destination? = this as? Destination) {

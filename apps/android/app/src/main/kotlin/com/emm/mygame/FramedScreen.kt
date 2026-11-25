@@ -54,6 +54,7 @@ import com.emm.mygame.feature.town.status.TownReportRow
 import com.emm.mygame.feature.town.status.TownStatusIntent
 import com.emm.mygame.feature.town.status.TownStatusUiState
 import com.emm.mygame.feature.town.status.shownNotice
+import com.emm.mygame.navigation.openFromDock
 
 private const val TASK_DOCK_TURN: Float = 1f
 
