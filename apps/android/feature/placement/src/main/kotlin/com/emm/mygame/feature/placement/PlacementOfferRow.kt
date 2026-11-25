@@ -3,15 +3,11 @@ package com.emm.mygame.feature.placement
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.semantics.heading
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.tooling.preview.PreviewParameter
 import androidx.compose.ui.tooling.preview.PreviewParameterProvider
-import androidx.lifecycle.compose.LifecycleStartEffect
-import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import androidx.lifecycle.viewmodel.compose.viewModel
 import com.emm.mygame.core.designsystem.MyGameNavRow
 import com.emm.mygame.core.designsystem.MyGamePreviewSurface
 import com.emm.mygame.core.designsystem.MyGameSpacing
@@ -19,28 +15,12 @@ import com.emm.mygame.core.designsystem.MyGameText
 import com.emm.mygame.core.designsystem.MyGameTheme
 import com.emm.mygame.core.designsystem.MyGameTypography
 import com.emm.mygame.core.designsystem.PreviewMyGame
-import com.emm.mygame.core.model.placement.PlacementRepository
 import com.emm.mygame.core.ui.ChromePhase
 import com.emm.mygame.core.ui.CopyLanguage
 import com.emm.mygame.core.ui.ProvideCopyLanguage
 import com.emm.mygame.core.ui.ScaffoldLanguage
 import com.emm.mygame.core.ui.fixedCopyResource
 import com.emm.mygame.core.ui.fixedLabel
-
-@Composable
-fun PlacementOfferRoute(
-    placements: PlacementRepository,
-    onPlacementOpen: () -> Unit,
-    modifier: Modifier = Modifier,
-    viewModel: PlacementOfferViewModel = viewModel { PlacementOfferViewModel(placements) },
-) {
-    val state: PlacementOfferUiState by viewModel.state.collectAsStateWithLifecycle()
-    LifecycleStartEffect(viewModel) {
-        viewModel.onIntent(PlacementOfferIntent.ScreenShown)
-        onStopOrDispose { viewModel.onIntent(PlacementOfferIntent.ScreenHidden) }
-    }
-    PlacementOfferRow(state = state, onPlacementOpen = onPlacementOpen, modifier = modifier)
-}
 
 @Composable
 fun PlacementOfferRow(state: PlacementOfferUiState, onPlacementOpen: () -> Unit, modifier: Modifier = Modifier) {
