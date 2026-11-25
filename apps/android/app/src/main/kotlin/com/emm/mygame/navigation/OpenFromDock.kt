@@ -1,7 +1,6 @@
-package com.emm.mygame
+package com.emm.mygame.navigation
 
 import androidx.navigation3.runtime.NavKey
-import com.emm.mygame.navigation.Navigator
 
 internal fun Navigator.openFromDock(open: Navigator.() -> Unit) {
     if (!areLinksEnabled) return
