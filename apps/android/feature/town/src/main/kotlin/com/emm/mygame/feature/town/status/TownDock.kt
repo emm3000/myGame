@@ -64,21 +64,21 @@ private fun PlayerCopy.dockGoOf(
     actions: TownDockActions,
     inPlace: MyGameDockGo?,
 ): MyGameDockGo {
-    val waiting: MyGameLabel = chrome(R.string.town_waiting)
+    val sending: MyGameLabel = chrome(R.string.town_sending)
     return when (dock) {
         TownStatusUiState.Dock.Loading -> MyGameDockGo(
             label = chrome(R.string.town_waiting),
             isBusy = true,
-            busyDescription = waiting,
+            busyDescription = chrome(R.string.town_waiting),
             onClick = {},
         )
         TownStatusUiState.Dock.Refused -> MyGameDockGo(
             label = chrome(R.string.town_try_again),
             isBusy = false,
-            busyDescription = waiting,
+            busyDescription = sending,
             onClick = { actions.onIntent(TownStatusIntent.TryAgainTapped) },
         )
-        is TownStatusUiState.Dock.Step -> stepGoOf(dock, actions, inPlace, waiting)
+        is TownStatusUiState.Dock.Step -> stepGoOf(dock, actions, inPlace, sending)
     }
 }
 
@@ -86,7 +86,7 @@ private fun PlayerCopy.stepGoOf(
     step: TownStatusUiState.Dock.Step,
     actions: TownDockActions,
     inPlace: MyGameDockGo?,
-    waiting: MyGameLabel,
+    sending: MyGameLabel,
 ): MyGameDockGo {
     val badge: String? = (step.line as? NextStepCard.Line.ReviewsDue)?.count?.let { count: Int ->
         formatQuantity(count.toLong())
@@ -95,20 +95,20 @@ private fun PlayerCopy.stepGoOf(
         is TownStatusUiState.Go.Acts -> MyGameDockGo(
             label = actionLabelOf(go.action),
             isBusy = go.isBusy,
-            busyDescription = waiting,
+            busyDescription = sending,
             onClick = { actions.act(go.action) },
             badge = badge,
         )
         is TownStatusUiState.Go.ActsInPlace -> inPlace ?: MyGameDockGo(
             label = actionLabelOf(go.action),
             isBusy = true,
-            busyDescription = waiting,
+            busyDescription = chrome(R.string.town_waiting),
             onClick = {},
         )
         is TownStatusUiState.Go.Blocked -> MyGameDockGo(
             label = actionLabelOf(go.action),
             isBusy = false,
-            busyDescription = waiting,
+            busyDescription = sending,
             onClick = {},
             blockedReason = blockOf(go.reason, step.countdown),
             badge = badge,

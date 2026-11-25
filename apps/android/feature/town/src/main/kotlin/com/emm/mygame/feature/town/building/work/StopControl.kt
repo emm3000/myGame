@@ -34,7 +34,7 @@ internal fun StopControl(
         MyGameOutlinedButton(
             label = copy.chrome(R.string.town_work_stop),
             isBusy = stop is StopStatus.Waiting,
-            busyDescription = copy.chrome(R.string.town_waiting),
+            busyDescription = copy.chrome(R.string.town_sending),
             onClick = { onIntent(TownIntent.StopTapped(target.building, target.level)) },
             accessibleName = copy.chrome {
                 text(

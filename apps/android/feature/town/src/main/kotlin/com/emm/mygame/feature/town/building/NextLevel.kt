@@ -55,7 +55,7 @@ internal fun NextLevel(
                 )
             },
             isBusy = start is StartStatus.Waiting,
-            busyDescription = copy.chrome(R.string.town_waiting),
+            busyDescription = copy.chrome(R.string.town_sending),
             onClick = { onIntent(TownIntent.BuildTapped(building)) },
             blockedReason = reason,
         )

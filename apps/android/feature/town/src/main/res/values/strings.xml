@@ -120,6 +120,7 @@
     <string name="town_season_spring">spring</string>
     <string name="town_season_summer">summer</string>
     <string name="town_season_winter">winter</string>
+    <string name="town_sending">Sending…</string>
     <string name="town_short_mark">, you need more</string>
     <string name="town_shortfall">You need {missing} more.</string>
     <string name="town_sign_out">Sign out</string>
