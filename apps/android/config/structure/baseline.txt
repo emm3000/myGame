@@ -20,7 +20,6 @@ file-lines core/designsystem/src/main/kotlin/com/emm/mygame/core/designsystem/My
 file-lines core/designsystem/src/main/kotlin/com/emm/mygame/core/designsystem/MyGameFrameText.kt
 file-lines core/designsystem/src/main/kotlin/com/emm/mygame/core/designsystem/MyGamePill.kt
 file-lines core/designsystem/src/main/kotlin/com/emm/mygame/core/designsystem/MyGameStreetStrip.kt
-file-lines feature/report/src/main/kotlin/com/emm/mygame/feature/report/ReportScreen.kt
 file-name app/src/main/kotlin/com/emm/mygame/DockMove.kt
 file-name app/src/main/kotlin/com/emm/mygame/MailedLink.kt
 file-name app/src/main/kotlin/com/emm/mygame/PlayerLanguageFrame.kt
@@ -36,7 +35,6 @@ file-name core/ui/src/main/kotlin/com/emm/mygame/core/ui/RevealOnce.kt
 file-name core/ui/src/main/kotlin/com/emm/mygame/core/ui/ScaffoldContext.kt
 file-name feature/jobs/src/main/kotlin/com/emm/mygame/feature/jobs/SeasonLabels.kt
 file-name feature/learning/src/main/kotlin/com/emm/mygame/feature/learning/reviews/FramePieces.kt
-file-name feature/report/src/main/kotlin/com/emm/mygame/feature/report/news/NewsRows.kt
 file-name feature/school/src/main/kotlin/com/emm/mygame/feature/school/FramePieces.kt
 file-name feature/school/src/main/kotlin/com/emm/mygame/feature/school/SeasonLabels.kt
 file-name feature/town/src/main/kotlin/com/emm/mygame/feature/town/status/LessonRefusalLine.kt
@@ -51,5 +49,4 @@ projection-gap feature/town/src/main/kotlin/com/emm/mygame/feature/town/TownView
 projection-gap feature/town/src/main/kotlin/com/emm/mygame/feature/town/status/TownStatusViewModel.kt
 screen-file feature/town/src/main/kotlin/com/emm/mygame/feature/town/status/TownStatusScreen.kt
 test-lines app/src/test/kotlin/com/emm/mygame/DockFrameNavigationTest.kt
-test-lines feature/report/src/test/kotlin/com/emm/mygame/feature/report/ReportViewModelTest.kt
 test-lines feature/town/src/test/kotlin/com/emm/mygame/feature/town/status/TownStatusViewModelTest.kt

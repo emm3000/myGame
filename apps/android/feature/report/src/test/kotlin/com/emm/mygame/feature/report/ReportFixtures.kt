@@ -26,6 +26,8 @@ internal val finishedFarm: TownNews =
 
 internal val stoppedLesson: TownNews = TownNews.LessonStopped(readInstant)
 
+internal val newsToClose: TownReport = reportOf(dueCount = 2, news = listOf(finishedFarm))
+
 internal fun reportOf(
     dueCount: Int = 0,
     news: List<TownNews> = emptyList(),
