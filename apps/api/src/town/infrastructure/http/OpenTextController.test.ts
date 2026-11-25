@@ -5,6 +5,7 @@ import { truncatePlayerTables } from '#truncatePlayerTables.testSupport'
 import {
   type MovableClock,
   movableClock,
+  overviewOf,
   refusalOf,
   runSql,
   type TownApp,
@@ -35,7 +36,7 @@ describe('the town route', () => {
     vi.restoreAllMocks()
   })
 
-  const { signUp } = townRequests(() => app)
+  const { signUp, signUpWithTown, readTown } = townRequests(() => app)
 
   describe('the texts', () => {
     const readText = (cookie: string, textId: string): Promise<Response> =>
@@ -50,6 +51,17 @@ describe('the town route', () => {
         404,
         { kind: 'TownNotFound' },
       ])
+    })
+
+    it('leaves the town unseen, so the next overview still answers what the town gained', async () => {
+      const ana = await signUpWithTown('ana@example.com')
+      await readTown(ana)
+      clock.advanceMinutes(120)
+      await readText(ana, 'text-1')
+
+      const { away } = await overviewOf(await readTown(ana))
+
+      expect(away).toEqual({ gained: { money: 40, food: 10, power: 0, material: 0 } })
     })
   })
 })
