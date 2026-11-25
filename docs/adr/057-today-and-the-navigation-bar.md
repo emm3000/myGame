@@ -128,12 +128,20 @@ replaces the dock, the pager and the street strip.
   form does today.
 - **A tab is a place the player can always go.** No tab is hidden,
   disabled or reordered by the game's state.
+- **The town's naming comes before the bar.** A town with no name shows
+  the naming alone, with no bar, as it shows no dock today. Today
+  follows it.
+- **The ring keeps its header.** It is drawn in the header of each tab's
+  root and of a place's page, and hidden as ADR 047 hides it.
+- **The status line under a header is deleted.** A running lesson is a
+  row of *In progress* on Today and Learn's own row. Its finish is
+  Learn's count and Today's first card.
 
 | Tab | What it holds |
 |---|---|
 | **Today** | what the player can do now, what is in progress and what is locked |
 | **Town** | the stocks and the seven places |
-| **Learn** | the lessons, the reviews, the words and the texts: today's school screen without the building's level and work |
+| **Learn** | the lessons, the reviews, the texts and the learning card with its counts: today's school screen without the building's level and work. No screen lists the words held |
 | **Me** | today's settings screen, the study reminder's offer and the sign-out |
 
 **One back stack, Today at its base.** A tab change cuts the stack to
@@ -151,11 +159,11 @@ agree after the process dies.
 **Today is the signed-in home.** It lists, top to bottom, each section
 drawn only while it holds something:
 
-1. **While you were away**, on a return: what the town gained, and the
-   Town News not yet closed.
-2. **The first card**, the server's next step and the screen's one
+1. **The first card**, the server's next step and the screen's one
    filled button at `action` height. Its eyebrow is *Start here* until
    the player's first lesson finishes, and *What is next* after.
+2. **What happened**: the Town News not yet closed, and on a return
+   what the town gained, under the title *While you were away*.
 3. **In progress**: the running lesson, the building work and the job
    out, each with its countdown. The lesson's row opens its words, the
    job's row the region map.
@@ -167,7 +175,10 @@ drawn only while it holds something:
 The client decides nothing about the game here. The first card is
 `nextStep` as sent. The rows of *You can do now* and *Locked* are the
 buildings' next levels with the block reason the client's projection
-already derives for the place pages.
+already derives for the place pages, and nothing else: a hire, a job
+and a clean-up stay on the office's page and the region map. The
+placement's offer is one more row of *You can do now*, and of Learn,
+while the server offers it.
 
 | `nextStep` | The first card | Elsewhere on Today |
 |---|---|---|
@@ -205,6 +216,10 @@ otherwise the frames of the words the player holds.**
 - The server answers the list on read from the cards and the clock.
   Reading writes no rating, no card and no log row, and pays nothing
   (ADR 042).
+- The route answers the frames and nothing else. The newest open text
+  is already on `caughtUp`. The slice names the path beside
+  `GET /texts/{textId}`, and the content caps how many words one read
+  answers.
 
 One day is the line FSRS draws between a same-day review and a later
 one (ADR 036). No study gives the number; it is the content's to tune.
@@ -230,8 +245,12 @@ the settle.
 - **It collects nothing.** The stocks already hold what it reports (PRD
   W10, click-to-collect).
 - **`away` is sent once.** The client holds it until the player leaves
-  Today. Under it Today draws the Town News not yet closed, closed by
-  `POST /report/close`, with a link to all the news.
+  Today.
+- **It shares a section with the Town News not yet closed.** *What
+  happened* draws the gains, then at most three events and a link to
+  all the news. *Close* closes them with `POST /report/close`. The
+  section sits under the first card, so the next step is the first
+  thing on Today on every visit.
 - The hour is the content's to tune, in the town's settings.
 
 ```ts
@@ -253,7 +272,7 @@ door on the office's page, as today.
 
 **The Android client draws no Report screen.** Its reviews due are the
 first card and Learn's count. Its time of the next review is the
-caught-up card's. Its Town News is drawn under *While you were away*.
+caught-up card's. Its Town News is drawn in *What happened*.
 Its reminder offer and its sign-out move to Me. A study reminder's tap
 opens Today, where the first card names the step. The api's Report
 routes stay, for the web.
@@ -298,6 +317,11 @@ Three things change:
   043's: `on-block` 12.04 and `on-block-muted` 6.32 on `block-peach`,
   the same in both themes. On Today, Town, Learn and Me peach means an
   achievement and nothing else is a block.
+- **An achievement is drawn in two places.** The first card is one
+  while the next step is `caughtUp`. In *What happened*, the events
+  `buildingWorkFinished`, `lessonStudied`, `skillEarned` and
+  `becameCity` are achievements, and every other event is a plain row.
+  An achievement goes when the Town News is closed.
 - **The first card is paper, not a block.** It is a `surface-raised`
   card whose one color is its `go` button.
 
@@ -314,6 +338,8 @@ They are not this ADR's.
   is a fill, and the frame belongs to its button.
 - **A gain laid on its source, and the hours away.** *What While you
   were away says* gives the reasons.
+- **The gains above the first card.** The next step stays first on
+  Today.
 
 ### What this ADR amends
 
