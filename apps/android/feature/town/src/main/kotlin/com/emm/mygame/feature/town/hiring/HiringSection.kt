@@ -175,7 +175,7 @@ private fun BusyHiring(
         MyGameOutlinedButton(
             label = copy.chrome(R.string.town_office_stop),
             isBusy = stop == HiringStopStatus.Waiting,
-            busyDescription = copy.chrome(R.string.town_waiting),
+            busyDescription = copy.chrome(R.string.town_sending),
             onClick = { onIntent(TownIntent.StopHiringTapped(hiring.target)) },
             accessibleName = copy.chrome(stopOfHireOf(hiring.target.hire)).spoken,
         )

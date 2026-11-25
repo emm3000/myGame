@@ -115,7 +115,7 @@ private fun HiringOrderForm(
         MyGameOutlinedButton(
             label = if (offer == null) copy.chrome(hireAnyOf(kind)) else copy.chrome { hireLabelOf(kind, offer) },
             isBusy = isWaiting,
-            busyDescription = copy.chrome(R.string.town_waiting),
+            busyDescription = copy.chrome(R.string.town_sending),
             onClick = { onIntent(TownIntent.PlaceHiringTapped(kind)) },
             blockedReason = reason,
         )
