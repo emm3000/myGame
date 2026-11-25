@@ -112,14 +112,14 @@ class ReviewViewModel(
     }
 
     private fun wait(nextDueAt: Instant) {
-        val waiting: Job = viewModelScope.launch { waitFor(nextDueAt) }
-        reads = reads.copy(waiting = waiting)
+        val rereading: Job = viewModelScope.launch { rereadWhenDue(nextDueAt) }
+        reads = reads.copy(rereading = rereading)
     }
 
     private fun townChanged(town: TownSnapshot?) {
         when (val shown: ReviewUiState = _state.value) {
             is ReviewUiState.NothingDue -> _state.value = shown.copy(path = town?.let(::lessonPathOf))
-            is ReviewUiState.LessonReady -> _state.value = shown.copy(number = town?.shownNumberOf(shown.lesson))
+            is ReviewUiState.LessonReady -> _state.value = shown.copy(number = shownNumberOf(town, shown.lesson))
             else -> Unit
         }
     }
@@ -134,7 +134,7 @@ class ReviewViewModel(
             first != null && first.lesson in reviews.readFirst && first.lesson !in baseline ->
                 _state.value = ReviewUiState.LessonReady(
                     lesson = first.lesson,
-                    number = towns.town.value?.town?.shownNumberOf(first.lesson),
+                    number = shownNumberOf(towns.town.value?.town, first.lesson),
                 )
             first != null -> _state.value = ReviewUiState.Reviewing(
                 walked = walked,
@@ -148,7 +148,7 @@ class ReviewViewModel(
         }
     }
 
-    private suspend fun waitFor(nextDueAt: Instant) {
+    private suspend fun rereadWhenDue(nextDueAt: Instant) {
         _state.value = endAt(nextDueAt)
         delay(countdownTo(finishesAt = nextDueAt, now = clock.now() + server.gap))
         var answer: ReviewsReadResult = learning.reviews()
@@ -209,7 +209,7 @@ class ReviewViewModel(
                 skill = verdict.earnedSkill?.let(::skillLineOf),
                 openedLevel = verdict.openedLevel,
             )
-            is ReviewVerdict.Wrong -> ReviewUiState.ReviewStep.Wrong(correct = card.correctFormOf(verdict))
+            is ReviewVerdict.Wrong -> ReviewUiState.ReviewStep.Wrong(correct = correctFormOf(card, verdict))
         }
         _effects.send(ReviewEffect.Answered)
         val reread: DueReviews? = (learning.reviews() as? ReviewsReadResult.Read)?.reviews?.let(::measured)
