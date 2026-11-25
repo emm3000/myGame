@@ -2,6 +2,8 @@ package com.emm.mygame.buildlogic
 
 const val TEST_FIXTURES: String = "(test-fixtures)"
 
+private val testOnlyModules: Set<String> = setOf(":core:testing", ":core:uitesting")
+
 fun moduleBoundaryViolationsOf(
     edgesByModule: Map<String, List<String>>,
     boundaries: ModuleBoundaries,
@@ -36,9 +38,9 @@ private fun edgeViolation(module: String, configuration: String, target: String,
             "$module depends on $target through $configuration; no capability but test fixtures is allowed"
         capability == TEST_FIXTURES && !isTestConfiguration ->
             "$module depends on $path's test fixtures through $configuration; only a test configuration may"
-        path == ":core:testing" && !isTestConfiguration ->
-            "$module depends on :core:testing through $configuration; only a test configuration may"
-        path == ":core:testing" -> null
+        path in testOnlyModules && !isTestConfiguration ->
+            "$module depends on $path through $configuration; only a test configuration may"
+        path in testOnlyModules -> null
         module == ":app" && (path.startsWith(":feature:") || path.startsWith(":core:")) -> null
         path in allowed -> null
         else -> "$module depends on $target through $configuration; the Modules table does not allow that edge"

@@ -1,4 +1,4 @@
-package com.emm.mygame.core.ui
+package com.emm.mygame.core.uitesting
 
 import androidx.compose.ui.test.SemanticsMatcher
 import androidx.compose.ui.test.hasAnyDescendant

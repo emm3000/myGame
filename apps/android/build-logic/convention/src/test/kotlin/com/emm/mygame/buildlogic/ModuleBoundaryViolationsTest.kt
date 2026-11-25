@@ -30,6 +30,19 @@ class ModuleBoundaryViolationsTest {
     }
 
     @Test
+    fun `flags a feature's production configuration that reads core uitesting`() {
+        assertEquals(
+            listOf(":feature:town depends on :core:uitesting through implementation; only a test configuration may"),
+            violationsOf(":feature:town", "implementation=:core:uitesting"),
+        )
+    }
+
+    @Test
+    fun `passes a feature's test configuration that reads core uitesting`() {
+        assertEquals(emptyList<String>(), violationsOf(":feature:town", "testImplementation=:core:uitesting"))
+    }
+
+    @Test
     fun `flags app's edge to a capability other than test fixtures`() {
         assertEquals(
             listOf(

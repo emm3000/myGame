@@ -10,8 +10,6 @@ app-feature-state app/src/main/kotlin/com/emm/mygame/navigation/SchoolEntries.kt
 app-feature-state app/src/main/kotlin/com/emm/mygame/navigation/SchoolEntries.kt
 app-feature-state app/src/main/kotlin/com/emm/mygame/navigation/TownEntries.kt
 app-feature-state app/src/main/kotlin/com/emm/mygame/navigation/TownEntries.kt
-duplicate-name feature/account/src/test/kotlin/com/emm/mygame/feature/account/settings/TextStyleLookup.kt
-duplicate-name feature/school/src/test/kotlin/com/emm/mygame/feature/school/TextStyleLookup.kt
 file-lines core/designsystem/src/main/kotlin/com/emm/mygame/core/designsystem/MyGameDock.kt
 file-lines core/designsystem/src/main/kotlin/com/emm/mygame/core/designsystem/MyGameFrameText.kt
 file-lines core/designsystem/src/main/kotlin/com/emm/mygame/core/designsystem/MyGamePill.kt
@@ -25,6 +23,8 @@ file-name core/designsystem/src/main/kotlin/com/emm/mygame/core/designsystem/Tab
 file-name core/projection/src/main/kotlin/com/emm/mygame/core/projection/Countdown.kt
 file-name core/projection/src/main/kotlin/com/emm/mygame/core/projection/ReadyMinute.kt
 file-name core/projection/src/main/kotlin/com/emm/mygame/core/projection/RepaintCadence.kt
+file-name core/uitesting/src/main/kotlin/com/emm/mygame/core/uitesting/NavRowMatcher.kt
+file-name core/uitesting/src/main/kotlin/com/emm/mygame/core/uitesting/TextStyleLookup.kt
 file-name feature/town/src/main/kotlin/com/emm/mygame/feature/town/status/LessonRefusalLine.kt
 file-name feature/town/src/main/kotlin/com/emm/mygame/feature/town/status/TownStatusDock.kt
 package-files core/designsystem/src/main/kotlin/com/emm/mygame/core/designsystem

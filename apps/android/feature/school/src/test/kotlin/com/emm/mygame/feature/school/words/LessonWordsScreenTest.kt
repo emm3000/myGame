@@ -37,9 +37,9 @@ import com.emm.mygame.core.designsystem.MyGameSpacing
 import com.emm.mygame.core.designsystem.MyGameTheme
 import com.emm.mygame.core.model.town.LessonName
 import com.emm.mygame.core.ui.TaskDockHook
-import com.emm.mygame.core.ui.navRowOf
+import com.emm.mygame.core.uitesting.navRowOf
+import com.emm.mygame.core.uitesting.textStyleOf
 import com.emm.mygame.feature.school.secondLesson
-import com.emm.mygame.feature.school.textStyleOf
 import kotlin.time.Duration.Companion.minutes
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertNotNull
