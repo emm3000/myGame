@@ -56,7 +56,7 @@ for file in "$shots"/*.png; do
 done
 commit=$(git commit-tree "$(GIT_INDEX_FILE="$shots.index" git write-tree)" -p origin/assets -m "chore(assets): <n> visual check at <short sha>")
 rm "$shots.index"
-git push origin "$commit:refs/heads/assets"
+git push origin "${commit}:refs/heads/assets"
 ```
 
 A rejected push means another peer appended first: run the block again, which fetches and rebuilds your commit on the new `origin/assets`.
