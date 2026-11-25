@@ -111,7 +111,7 @@ class ReviewLanguageTest {
         composeRule.setContent {
             ProvideCopyLanguage(language = language) {
                 MyGameTheme {
-                    ReviewWithDock(state = state, onIntent = {})
+                    ReviewScreen(state = state, onIntent = {}, onDone = {})
                 }
             }
         }
@@ -119,19 +119,13 @@ class ReviewLanguageTest {
 
     private fun assertDrawn(vararg lines: String) {
         lines.forEach { line: String ->
-            composeRule.onAllNodes((hasText(line) or isGoNamed(line)) and isPlaced).assertCountEquals(1)
-        }
-    }
-
-    private fun assertDrawnOnce(vararg lines: String) {
-        lines.forEach { line: String ->
             composeRule.onAllNodes(hasText(line) and isPlaced).assertCountEquals(1)
         }
     }
 
     private fun assertNotDrawn(vararg lines: String) {
         lines.forEach { line: String ->
-            composeRule.onAllNodes((hasText(line) or isGoNamed(line)) and isPlaced).assertCountEquals(0)
+            composeRule.onAllNodes(hasText(line) and isPlaced).assertCountEquals(0)
         }
     }
 
@@ -149,7 +143,7 @@ class ReviewLanguageTest {
         show(spanishPhase, recognizing)
 
         assertDrawn("Repaso", "¿Qué significa?", "Comprobar")
-        assertDrawnOnce("Por repasar: 3")
+        assertDrawn("Por repasar: 3")
         assertNotDrawn("Reviews", "Reviews due: 3", "What does it mean?", "Check")
     }
 
@@ -158,7 +152,7 @@ class ReviewLanguageTest {
         show(bothPhase, recognizing)
 
         assertDrawn("Reviews", "Repaso")
-        assertDrawnOnce("Reviews due: 3", "Por repasar: 3")
+        assertDrawn("Reviews due: 3", "Por repasar: 3")
         assertTrue(lineOf("Reviews").bottom <= lineOf("Repaso").top)
         assertTrue(lineOf("Reviews due: 3").bottom <= lineOf("Por repasar: 3").top)
     }
@@ -176,7 +170,7 @@ class ReviewLanguageTest {
         show(englishPhase, recognizing)
 
         assertDrawn("Reviews")
-        assertDrawnOnce("Reviews due: 3")
+        assertDrawn("Reviews due: 3")
         assertNotDrawn("Repaso", "Por repasar: 3")
     }
 
@@ -249,7 +243,7 @@ class ReviewLanguageTest {
         show(noScaffold, recognizing)
 
         assertDrawn("Reviews", "What does it mean?", "Check")
-        assertDrawnOnce("Reviews due: 3")
+        assertDrawn("Reviews due: 3")
         assertNotDrawn("Repaso", "Por repasar: 3", "¿Qué significa?", "Comprobar")
     }
 
@@ -313,7 +307,7 @@ class ReviewLanguageTest {
     fun `draws the check in flight in Spanish beside its wait in English in the English phase`() {
         show(englishPhase, recognizing.copy(step = ReviewUiState.ReviewStep.Checking))
 
-        composeRule.onNode(isGoNamed("Comprobando…") and hasStateDescription("Sending…") and isPlaced).assertExists()
+        composeRule.onNode(wayOn("Comprobando…") and hasStateDescription("Sending…") and isPlaced).assertExists()
     }
 
     @Test
@@ -321,7 +315,7 @@ class ReviewLanguageTest {
         show(englishPhase, recalling)
 
         composeRule.onNode(
-            isGoNamed("Comprobar") and hasStateDescription("Escribe tu respuesta para comprobarla.") and isPlaced,
+            wayOn("Comprobar") and hasStateDescription("Escribe tu respuesta para comprobarla.") and isPlaced,
         ).assertExists()
     }
 

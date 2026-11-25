@@ -250,22 +250,6 @@ class ReviewViewModelTest {
     }
 
     @Test
-    fun `after the last card start the reviews reads them again in place`() = runTest {
-        val learning: FakeLearningRepository = FakeLearningRepository()
-        val viewModel: ReviewViewModel = openReview(learning)
-        learning.answerRead(dueNow())
-        learning.answerRead(dueNow(homeRecall))
-
-        viewModel.state.test {
-            var end: ReviewUiState = awaitItem()
-            while (end != ReviewUiState.NoCards) end = awaitItem()
-            viewModel.onIntent(ReviewIntent.ReviewsStartTapped)
-
-            assertEquals(homeRecall.wordId, awaitReviewing().card.wordId)
-        }
-    }
-
-    @Test
     fun `draws the percent of the skill earned while the player holds no town`() = runTest {
         val learning: FakeLearningRepository = FakeLearningRepository()
         val viewModel: ReviewViewModel = openReview(learning)
@@ -504,27 +488,6 @@ class ReviewViewModelTest {
             awaitStep { it is ReviewUiState.ReviewStep.Correct }
             viewModel.onIntent(ReviewIntent.NextTapped)
             assertEquals(1, awaitReviewing().walked)
-        }
-    }
-
-    @Test
-    fun `a new round of reviews starts its progress from none`() = runTest {
-        val learning: FakeLearningRepository = FakeLearningRepository()
-        val viewModel: ReviewViewModel = openReview(learning)
-        learning.answerRead(dueNow(homeRecall))
-        learning.answerReview(ReviewAnswerResult.Answered(correctHome(earnedSkill = null)))
-        learning.answerRead(dueNow())
-        learning.answerRead(dueNow(schoolRecognition))
-
-        viewModel.state.test {
-            awaitReviewing()
-            viewModel.onIntent(ReviewIntent.AnswerChanged("home"))
-            viewModel.onIntent(ReviewIntent.CheckTapped)
-            awaitStep { it is ReviewUiState.ReviewStep.Correct }
-            viewModel.onIntent(ReviewIntent.NextTapped)
-            assertEquals(ReviewUiState.NoCards, awaitItem())
-            viewModel.onIntent(ReviewIntent.ReviewsStartTapped)
-            assertEquals(0, awaitReviewing().walked)
         }
     }
 

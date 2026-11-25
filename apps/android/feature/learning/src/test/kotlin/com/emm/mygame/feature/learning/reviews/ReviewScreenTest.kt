@@ -2,7 +2,6 @@ package com.emm.mygame.feature.learning.reviews
 
 import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
 import androidx.compose.ui.semantics.SemanticsProperties
 import androidx.compose.ui.test.SemanticsMatcher
 import androidx.compose.ui.test.assertCountEquals
@@ -38,9 +37,7 @@ import com.emm.mygame.core.ui.ChromePhase
 import com.emm.mygame.core.ui.CopyLanguage
 import com.emm.mygame.core.ui.ProvideCopyLanguage
 import com.emm.mygame.core.ui.ScaffoldLanguage
-import com.emm.mygame.core.ui.TaskDockHook
 import org.junit.Assert.assertEquals
-import org.junit.Assert.assertFalse
 import org.junit.Assert.assertTrue
 import org.junit.Rule
 import org.junit.Test
@@ -93,7 +90,7 @@ class ReviewScreenTest {
     fun `blocks comprobar while the recall field is empty`() {
         draw(recalling(step = ReviewUiState.ReviewStep.Answering))
 
-        composeRule.onNode(isGoNamed("Comprobar") and hasStateDescription("Escribe tu respuesta para comprobarla."))
+        composeRule.onNode(wayOn("Comprobar") and hasStateDescription("Escribe tu respuesta para comprobarla."))
             .assertExists()
     }
 
@@ -101,7 +98,7 @@ class ReviewScreenTest {
     fun `offers comprobar once the recall field holds an answer`() {
         draw(recalling(step = ReviewUiState.ReviewStep.Answering, typed = "home"))
 
-        composeRule.onNode(isGoNamed("Comprobar") and hasStateDescription("Escribe tu respuesta para comprobarla."))
+        composeRule.onNode(wayOn("Comprobar") and hasStateDescription("Escribe tu respuesta para comprobarla."))
             .assertDoesNotExist()
     }
 
@@ -152,10 +149,15 @@ class ReviewScreenTest {
     }
 
     @Test
-    fun `a right answer that opens a level says so in the dock`() {
+    fun `a right answer that opens a level says so right above the way on`() {
         draw(recalling(step = ReviewUiState.ReviewStep.Correct(skill = null, openedLevel = 3), typed = "home"))
 
-        composeRule.onNode(hasText(LEVEL_THREE_OPEN) and hasAnyAncestor(hasTestTag(TASK_DOCK))).assertIsDisplayed()
+        val levelBottom: Dp = composeRule.onNode(hasText(LEVEL_THREE_OPEN) and inScroll, useUnmergedTree = true)
+            .getUnclippedBoundsInRoot()
+            .bottom
+        val wayOnTop: Dp = composeRule.onNode(wayOn("Siguiente") and inScroll).getUnclippedBoundsInRoot().top
+        assertTrue(levelBottom <= wayOnTop)
+        assertTrue(wayOnTop - levelBottom <= MyGameSpacing.step4)
     }
 
     @Test
@@ -191,16 +193,16 @@ class ReviewScreenTest {
     fun `a right answer that opens none adds no level line`() {
         draw(recalling(step = ReviewUiState.ReviewStep.Correct(skill = null, openedLevel = null), typed = "home"))
 
-        composeRule.onNode(hasText("Correcto.") and hasAnyAncestor(hasTestTag(TASK_DOCK))).assertExists()
+        composeRule.onNode(hasText("Correcto.") and inScroll).assertExists()
         composeRule.onNodeWithText(LEVEL_THREE_OPEN).assertDoesNotExist()
     }
 
     @Test
-    fun `draws one go button, in the dock, while reviewing`() {
+    fun `draws one way on, in the review's flow, while reviewing`() {
         draw(recognizing(chosen = null))
 
         composeRule.onAllNodes(hasTestTag(INK_PILL)).assertCountEquals(1)
-        composeRule.onNode(hasTestTag(INK_PILL) and hasAnyAncestor(hasTestTag(TASK_DOCK))).assertExists()
+        composeRule.onNode(hasTestTag(INK_PILL) and inScroll).assertExists()
     }
 
     @Test
@@ -208,51 +210,8 @@ class ReviewScreenTest {
         draw(recognizing(chosen = null))
 
         composeRule.onNode(
-            isGoNamed("Comprobar") and
-                hasStateDescription("Elige un significado para comprobar tu respuesta.") and
-                hasAnyAncestor(hasTestTag(TASK_DOCK)),
+            wayOn("Comprobar") and hasStateDescription("Elige un significado para comprobar tu respuesta."),
         ).assertExists()
-    }
-
-    @Test
-    @Config(qualifiers = "+w360dp-h320dp")
-    @GraphicsMode(GraphicsMode.Mode.NATIVE)
-    fun `a folded dock moves the verdict to the end of the card, in view`() {
-        val shown: MutableState<ReviewUiState> =
-            mutableStateOf(recalling(step = ReviewUiState.ReviewStep.Checking, typed = "house"))
-        composeRule.setContent {
-            MyGameTheme {
-                ReviewWithDock(state = shown.value)
-            }
-        }
-        composeRule.waitForIdle()
-
-        shown.value = recalling(step = ReviewUiState.ReviewStep.Wrong(correct = "home"), typed = "house")
-
-        composeRule.onNode(hasText("La correcta: home") and isPlaced and hasAnyAncestor(hasScrollAction()))
-            .assertIsDisplayed()
-    }
-
-    @Test
-    @Config(qualifiers = "+w360dp-h440dp")
-    fun `a verdict that folds the dock brings itself into view`() {
-        val hook: TaskDockHook = TaskDockHook(onAnswered = {})
-        val shown: MutableState<ReviewUiState> =
-            mutableStateOf(recalling(step = ReviewUiState.ReviewStep.Checking, typed = "house"))
-        composeRule.setContent {
-            MyGameTheme {
-                ReviewWithDock(state = shown.value, hook = hook)
-            }
-        }
-        composeRule.waitForIdle()
-        assertFalse(hook.isFolded)
-
-        shown.value = recalling(step = ReviewUiState.ReviewStep.Wrong(correct = "home"), typed = "house")
-
-        composeRule.waitForIdle()
-        assertTrue(hook.isFolded)
-        composeRule.onNode(hasText("La correcta: home") and isPlaced and hasAnyAncestor(hasScrollAction()))
-            .assertIsDisplayed()
     }
 
     @Test
@@ -263,7 +222,7 @@ class ReviewScreenTest {
             mutableStateOf(recalling(step = ReviewUiState.ReviewStep.Wrong(correct = "home"), typed = "house"))
         composeRule.setContent {
             MyGameTheme {
-                ReviewWithDock(state = shown.value)
+                ReviewScreen(state = shown.value, onIntent = {}, onDone = {})
             }
         }
         composeRule.onNode(hasScrollAction()).performTouchInput { swipeUp() }
@@ -283,7 +242,7 @@ class ReviewScreenTest {
         val shown: MutableState<ReviewUiState> = mutableStateOf(missed)
         composeRule.setContent {
             MyGameTheme {
-                ReviewWithDock(state = shown.value)
+                ReviewScreen(state = shown.value, onIntent = {}, onDone = {})
             }
         }
         composeRule.onNode(hasScrollAction()).performTouchInput { swipeUp() }
@@ -295,20 +254,13 @@ class ReviewScreenTest {
     }
 
     @Test
-    fun `the recall field's done action sends the step when the dock hides`() {
+    fun `the recall field's done action sends the step`() {
         val intents: MutableList<ReviewIntent> = mutableListOf()
-        composeRule.setContent {
-            MyGameTheme {
-                ReviewScreen(
-                    state = recalling(step = ReviewUiState.ReviewStep.Wrong(correct = "home"), typed = "house"),
-                    onIntent = { intent: ReviewIntent -> intents += intent },
-                    task = remember { TaskDockHook(onAnswered = {}) },
-                    foldedDock = {},
-                )
-            }
-        }
+        draw(
+            recalling(step = ReviewUiState.ReviewStep.Wrong(correct = "home"), typed = "house"),
+            onIntent = { intent: ReviewIntent -> intents += intent },
+        )
 
-        composeRule.onAllNodes(hasTestTag(INK_PILL)).assertCountEquals(0)
         composeRule.onNode(hasContentDescription("Tu respuesta en inglés")).performImeAction()
 
         assertEquals(listOf<ReviewIntent>(ReviewIntent.NextTapped), intents)
@@ -318,7 +270,7 @@ class ReviewScreenTest {
     fun `reads comprobando while the answer is on its way`() {
         draw(recalling(step = ReviewUiState.ReviewStep.Checking))
 
-        composeRule.onNode(isGoNamed("Comprobando…")).assertIsDisplayed()
+        composeRule.onNode(wayOn("Comprobando…")).performScrollTo().assertIsDisplayed()
     }
 
     @Test
@@ -393,7 +345,7 @@ class ReviewScreenTest {
     private fun draw(state: ReviewUiState, onIntent: (ReviewIntent) -> Unit = {}) {
         composeRule.setContent {
             MyGameTheme {
-                ReviewWithDock(state = state, onIntent = onIntent)
+                ReviewScreen(state = state, onIntent = onIntent, onDone = {})
             }
         }
     }
@@ -402,7 +354,7 @@ class ReviewScreenTest {
         composeRule.setContent {
             ProvideCopyLanguage(language = CopyLanguage(ScaffoldLanguage.None, ChromePhase.English)) {
                 MyGameTheme {
-                    ReviewWithDock(state = state, onIntent = {})
+                    ReviewScreen(state = state, onIntent = {}, onDone = {})
                 }
             }
         }

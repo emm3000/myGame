@@ -3,13 +3,13 @@ package com.emm.mygame.feature.learning.reviews
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.rememberUpdatedState
 import androidx.compose.ui.Modifier
 import androidx.lifecycle.compose.LifecycleStartEffect
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.emm.mygame.core.model.learning.LearningRepository
 import com.emm.mygame.core.model.town.TownReader
-import com.emm.mygame.core.ui.TaskDockHook
 import kotlin.time.Clock
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
@@ -19,17 +19,18 @@ fun ReviewRoute(
     learning: LearningRepository,
     towns: TownReader,
     clock: Clock,
-    task: TaskDockHook,
-    foldedDock: @Composable () -> Unit,
+    onAnswer: () -> Unit,
+    onDone: () -> Unit,
     modifier: Modifier = Modifier,
     viewModel: ReviewViewModel = viewModel { ReviewViewModel(learning, towns, clock) },
 ) {
     val state: ReviewUiState by viewModel.state.collectAsStateWithLifecycle()
-    LaunchedEffect(viewModel, task) {
+    val onReviewAnswered: () -> Unit by rememberUpdatedState(onAnswer)
+    LaunchedEffect(viewModel) {
         withContext(Dispatchers.Main.immediate) {
             viewModel.effects.collect { effect: ReviewEffect ->
                 when (effect) {
-                    ReviewEffect.Answered -> task.onAnswered()
+                    ReviewEffect.Answered -> onReviewAnswered()
                 }
             }
         }
@@ -41,8 +42,7 @@ fun ReviewRoute(
     ReviewScreen(
         state = state,
         onIntent = viewModel::onIntent,
-        task = task,
-        foldedDock = foldedDock,
+        onDone = onDone,
         modifier = modifier,
     )
 }

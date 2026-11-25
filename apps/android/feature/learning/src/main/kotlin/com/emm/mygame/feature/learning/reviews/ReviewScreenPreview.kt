@@ -19,7 +19,6 @@ import com.emm.mygame.core.ui.ChromePhase
 import com.emm.mygame.core.ui.CopyLanguage
 import com.emm.mygame.core.ui.ProvideCopyLanguage
 import com.emm.mygame.core.ui.ScaffoldLanguage
-import com.emm.mygame.core.ui.TaskDockHook
 import kotlin.time.Instant
 
 private val previewRecognition: ReviewUiState.ReviewCard.Recognition = ReviewUiState.ReviewCard.Recognition(
@@ -138,7 +137,7 @@ private class ReviewUiStates : PreviewParameterProvider<ReviewUiState> {
 @Composable
 private fun ReviewScreenPreview(@PreviewParameter(ReviewUiStates::class) state: ReviewUiState) {
     MyGamePreviewSurface {
-        ReviewScreen(state = state, onIntent = {}, task = TaskDockHook(onAnswered = {}), foldedDock = {})
+        ReviewScreen(state = state, onIntent = {}, onDone = {})
     }
 }
 
@@ -147,7 +146,7 @@ private fun ReviewScreenPreview(@PreviewParameter(ReviewUiStates::class) state: 
 private fun ReviewScreenBothPhasePreview(@PreviewParameter(ReviewUiStates::class) state: ReviewUiState) {
     ProvideCopyLanguage(language = CopyLanguage(ScaffoldLanguage.Spanish, ChromePhase.Both)) {
         MyGamePreviewSurface {
-            ReviewScreen(state = state, onIntent = {}, task = TaskDockHook(onAnswered = {}), foldedDock = {})
+            ReviewScreen(state = state, onIntent = {}, onDone = {})
         }
     }
 }

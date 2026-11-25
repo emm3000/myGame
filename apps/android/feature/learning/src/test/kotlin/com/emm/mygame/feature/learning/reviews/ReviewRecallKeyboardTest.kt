@@ -57,7 +57,7 @@ class ReviewRecallKeyboardTest {
         composeRule.setContent {
             hostView = LocalView.current
             MyGameTheme {
-                ReviewWithDock(state = answeringRecall(), onIntent = { })
+                ReviewScreen(state = answeringRecall(), onIntent = { }, onDone = {})
             }
         }
         composeRule.waitForIdle()

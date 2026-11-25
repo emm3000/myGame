@@ -12,7 +12,6 @@ import androidx.compose.ui.test.onAllNodesWithText
 import androidx.compose.ui.test.performClick
 import com.emm.mygame.core.designsystem.INK_PILL
 import com.emm.mygame.core.model.learning.LessonId
-import com.emm.mygame.core.model.learning.ReviewsReadResult
 import com.emm.mygame.core.model.report.ReportReadResult
 import com.emm.mygame.core.model.town.TownReadResult
 import com.emm.mygame.core.model.town.TownSnapshot
@@ -120,21 +119,6 @@ class DockGoNavigationTest : DockFrameFixture() {
     private fun assertOneGoButton() {
         dockGo("Ir al informe")
         composeRule.onAllNodes(hasTestTag(INK_PILL)).assertCountEquals(1)
-    }
-
-    @Test
-    fun `after the last card read the words opens that lesson`() {
-        learning.answerRead(ReviewsReadResult.Read(noCards))
-        showing(
-            Destination.Town,
-            Destination.Review,
-            town = playedTown(NextStep.Reviews(count = 0, readFirst = listOf(firstLesson))),
-        )
-
-        dockGo(READ_THE_WORDS).performClick()
-
-        composeRule.waitUntil(WAIT_MILLIS) { shownStack?.lastOrNull() is Destination.LessonWords }
-        assertEquals(Destination.LessonWords(firstLesson, walked = emptyList()), shownStack?.lastOrNull())
     }
 
     @Test

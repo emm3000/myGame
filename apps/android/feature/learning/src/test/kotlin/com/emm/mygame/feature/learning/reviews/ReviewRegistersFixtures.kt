@@ -39,7 +39,7 @@ internal val skillEarned: ReviewUiState.Reviewing = dealtSchool.copy(
 internal fun drawReview(composeRule: ComposeContentTestRule, state: ReviewUiState) {
     composeRule.setContent {
         MyGameTheme {
-            ReviewWithDock(state = state, onIntent = { })
+            ReviewScreen(state = state, onIntent = { }, onDone = {})
         }
     }
 }

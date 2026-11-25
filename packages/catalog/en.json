@@ -193,6 +193,7 @@
   "android.learning.review_check_empty": "Enter your answer to check it.",
   "android.learning.review_check_no_choice": "Choose a meaning to check your answer.",
   "android.learning.review_checking": "Checking…",
+  "android.learning.review_continue": "Continue",
   "android.learning.review_correct": "Correct.",
   "android.learning.review_correct_form": "The right answer: {answer}",
   "android.learning.review_due_count": "Reviews due: {count}",

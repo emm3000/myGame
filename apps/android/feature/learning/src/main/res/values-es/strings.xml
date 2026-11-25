@@ -5,6 +5,7 @@
     <string name="review_check_empty">Escribe tu respuesta para comprobarla.</string>
     <string name="review_check_no_choice">Elige un significado para comprobar tu respuesta.</string>
     <string name="review_checking">Comprobando…</string>
+    <string name="review_continue">Continuar</string>
     <string name="review_correct">Correcto.</string>
     <string name="review_correct_form">La correcta: {answer}</string>
     <string name="review_due_count">Por repasar: {count}</string>

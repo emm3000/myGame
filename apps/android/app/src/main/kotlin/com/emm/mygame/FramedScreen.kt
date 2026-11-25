@@ -189,7 +189,7 @@ private fun FrameDock(
 ) {
     TownDock(
         dock = dock,
-        actions = chrome.dockActions(onReviewsStart = follow?.onReviewsStart),
+        actions = chrome.dockActions(),
         onFoldChange = onFoldChange,
         modifier = Modifier
             .windowInsetsPadding(WindowInsets.safeDrawing.only(WindowInsetsSides.Horizontal))
@@ -201,11 +201,11 @@ private fun FrameDock(
 private fun TownStatusUiState.Dock.studiedInPlace(): Int? =
     ((this as? TownStatusUiState.Dock.Step)?.go as? TownStatusUiState.Go.ActsInPlace)?.action?.number
 
-private fun SignedInChrome.dockActions(onReviewsStart: (() -> Unit)?): TownDockActions = TownDockActions(
+private fun SignedInChrome.dockActions(): TownDockActions = TownDockActions(
     onIntent = onStatusIntent,
     onLessonOpen = { lesson: LessonId -> navigator.openFromDock { openLesson(lesson, walked = emptyList()) } },
     onSchoolOpen = { navigator.openFromDock { openTab(Tab.Learn) } },
-    onReviewsOpen = onReviewsStart ?: { navigator.openFromDock { openReviews() } },
+    onReviewsOpen = { navigator.openFromDock { openReviews() } },
     onReportOpen = { navigator.openFromDock { openOnTab(Destination.Report) } },
     onHoldoutCheckOpen = { band: PlacementBand, week: HoldoutCheckWeek ->
         navigator.openFromDock { openHoldoutCheck(band, week) }

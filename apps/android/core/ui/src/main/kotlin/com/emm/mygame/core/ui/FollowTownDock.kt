@@ -3,12 +3,10 @@ package com.emm.mygame.core.ui
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.SideEffect
-import androidx.compose.runtime.remember
 
 @Composable
-fun FollowTownDock(hook: TaskDockHook, onReviewsStart: (() -> Unit)? = null) {
-    val follow: TownFollow = remember(onReviewsStart) { TownFollow(onReviewsStart) }
-    SideEffect { hook.follow(follow) }
+fun FollowTownDock(hook: TaskDockHook) {
+    SideEffect { hook.follow(TownFollow) }
     DisposableEffect(hook) {
         onDispose { hook.follow(null) }
     }
