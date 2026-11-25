@@ -123,11 +123,11 @@ sealed interface SchoolUiState {
 
     sealed interface LessonBlock {
 
-        data class SlotBusy(val name: LessonName) : LessonBlock
+        data class SlotBusy(val name: LessonName, val remaining: Duration, val freesAt: Instant) : LessonBlock
 
         data class SchoolTooLow(val requiredLevel: Int) : LessonBlock
 
-        data object CapReached : LessonBlock
+        data class CapReached(val shortWords: Int) : LessonBlock
     }
 
     sealed interface LessonRequestStatus {

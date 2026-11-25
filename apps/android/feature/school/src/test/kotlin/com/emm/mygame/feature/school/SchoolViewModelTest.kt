@@ -12,6 +12,7 @@ import com.emm.mygame.core.testing.FakeTownRepository
 import com.emm.mygame.core.testing.MainDispatcherRule
 import kotlin.time.Duration.Companion.minutes
 import kotlin.time.Duration.Companion.seconds
+import kotlin.time.Instant
 import kotlinx.coroutines.test.TestScope
 import kotlinx.coroutines.test.advanceTimeBy
 import kotlinx.coroutines.test.runCurrent
@@ -264,7 +265,13 @@ class SchoolViewModelTest {
         )
 
         assertEquals(
-            SchoolUiState.LessonState.Open(SchoolUiState.LessonBlock.SlotBusy(name = firstLessonName)),
+            SchoolUiState.LessonState.Open(
+                SchoolUiState.LessonBlock.SlotBusy(
+                    name = firstLessonName,
+                    remaining = 150.seconds,
+                    freesAt = Instant.parse("2026-11-05T10:02:30Z"),
+                ),
+            ),
             lessonOfCard(viewModel, index = 1).state,
         )
     }

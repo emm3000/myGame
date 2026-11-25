@@ -26,6 +26,7 @@ import com.emm.mygame.core.ui.ProvideCopyLanguage
 import com.emm.mygame.core.ui.ScaffoldLanguage
 import kotlin.time.Duration.Companion.minutes
 import kotlin.time.Duration.Companion.seconds
+import kotlin.time.Instant
 
 private val previewFirstLesson: LessonId = LessonId("lesson-1")
 
@@ -119,6 +120,12 @@ private val previewStudying: SchoolUiState.Content = previewContent.copy(
     ),
 )
 
+private val previewReleasedBusy: SchoolUiState.LessonBlock = SchoolUiState.LessonBlock.SlotBusy(
+    name = previewReleasedOpen.name,
+    remaining = 2.minutes,
+    freesAt = Instant.parse("2026-11-12T15:02:00Z"),
+)
+
 private val previewReleasedStudying: SchoolUiState.Content = previewContent.copy(
     slot = SchoolUiState.SlotLine.Busy(
         lesson = previewReleasedLesson,
@@ -127,16 +134,12 @@ private val previewReleasedStudying: SchoolUiState.Content = previewContent.copy
         total = 150.seconds,
     ),
     lessons = listOf(
-        previewOpenLesson.copy(
-            state = SchoolUiState.LessonState.Open(SchoolUiState.LessonBlock.SlotBusy(previewReleasedOpen.name)),
-        ),
+        previewOpenLesson.copy(state = SchoolUiState.LessonState.Open(previewReleasedBusy)),
         previewBlockedLesson,
     ),
     releasedLessons = listOf(
         previewReleasedOpen.copy(state = SchoolUiState.LessonState.Studying),
-        previewReleasedNext.copy(
-            state = SchoolUiState.LessonState.Open(SchoolUiState.LessonBlock.SlotBusy(previewReleasedOpen.name)),
-        ),
+        previewReleasedNext.copy(state = SchoolUiState.LessonState.Open(previewReleasedBusy)),
     ),
     nextStep = NextStepCard(
         line = NextStepCard.Line.Studying,

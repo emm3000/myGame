@@ -94,10 +94,11 @@ internal val schoolDurationCopy: DurationCopy = DurationCopy(
 )
 
 internal fun PlayerCopy.blockLineOf(block: SchoolUiState.LessonBlock): MyGameLabel = when (block) {
-    is SchoolUiState.LessonBlock.SlotBusy -> slotBusyLineOf(block.name)
+    is SchoolUiState.LessonBlock.SlotBusy -> slotBusyLineOf(block)
     is SchoolUiState.LessonBlock.SchoolTooLow ->
         chrome(R.string.school_lesson_needs_school, "level" to block.requiredLevel.toString())
-    SchoolUiState.LessonBlock.CapReached -> chrome(R.string.school_lesson_cap_reached)
+    is SchoolUiState.LessonBlock.CapReached ->
+        chrome(R.string.school_lesson_cap_reached, "shortWords" to block.shortWords)
 }
 
 internal fun PlayerCopy.studyLabelOf(card: SchoolUiState.LessonCard): MyGameLabel = chrome {

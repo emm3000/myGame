@@ -30,7 +30,9 @@ import com.emm.mygame.core.model.learning.LessonId
 import com.emm.mygame.core.model.town.TownResourceKind
 import com.emm.mygame.core.model.town.school.SchoolPathCounts
 import com.emm.mygame.core.model.town.school.TownLessonRefusal
+import kotlin.time.Duration.Companion.minutes
 import kotlin.time.Duration.Companion.seconds
+import kotlin.time.Instant
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertTrue
 import org.junit.Rule
@@ -118,6 +120,12 @@ class SchoolScreenTest {
 
     private fun blocked(block: SchoolUiState.LessonBlock): SchoolUiState.Content =
         idleSchool.copy(lessons = listOf(readyLesson.copy(state = SchoolUiState.LessonState.Open(block))))
+
+    private val busyForAQuarter: SchoolUiState.LessonBlock = SchoolUiState.LessonBlock.SlotBusy(
+        name = firstLessonName,
+        remaining = 15.minutes,
+        freesAt = Instant.parse("2026-11-05T10:15:00Z"),
+    )
 
     private fun refusedStart(refusal: TownLessonRefusal): SchoolUiState.Content =
         idleSchool.copy(start = SchoolUiState.LessonRequestStatus.Refused(firstLesson, refusal))
@@ -272,17 +280,33 @@ class SchoolScreenTest {
     }
 
     @Test
-    fun `says what a lesson past the cap needs in learning`() {
-        show(blocked(SchoolUiState.LessonBlock.CapReached))
+    fun `says how many more words a lesson past the cap needs room for`() {
+        show(blocked(SchoolUiState.LessonBlock.CapReached(shortWords = 3)))
 
-        announcing("Esta lección necesita más espacio libre en tu aprendizaje.")
+        announcing("Necesita espacio para 3 palabras más en tu aprendizaje.")
     }
 
     @Test
-    fun `names the running lesson on a busy school`() {
-        show(blocked(SchoolUiState.LessonBlock.SlotBusy(name = firstLessonName)))
+    fun `says room for one more word in the singular`() {
+        show(blocked(SchoolUiState.LessonBlock.CapReached(shortWords = 1)))
 
-        announcing("La escuela está estudiando la lección 1.")
+        announcing("Necesita espacio para 1 palabra más en tu aprendizaje.")
+    }
+
+    @Test
+    fun `says when a busy school frees its slot`() {
+        show(blocked(busyForAQuarter))
+
+        announcing("La escuela está estudiando la lección 1. Queda libre en 15\u00A0min.")
+    }
+
+    @Test
+    fun `draws the time a busy school frees under the blocked button`() {
+        show(blocked(busyForAQuarter))
+
+        composeRule.onNodeWithText("Queda libre en 15\u00A0min.", substring = true, useUnmergedTree = true)
+            .performScrollTo()
+            .assertIsDisplayed()
     }
 
     @Test

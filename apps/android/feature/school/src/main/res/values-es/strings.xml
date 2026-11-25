@@ -13,14 +13,14 @@
     <string name="school_learning">Palabras en aprendizaje: {inLearning} de {cap}</string>
     <string name="school_learning_full">{count, plural, =1 {La siguiente lección trae 1 palabra.} other {La siguiente lección trae {count, number,0} palabras.}} Empieza los repasos.</string>
     <string name="school_learning_full_next_word_due">{count, plural, =1 {La siguiente lección trae 1 palabra.} other {La siguiente lección trae {count, number,0} palabras.}} La siguiente palabra en aprendizaje se repasa en {timeLeft}.</string>
-    <string name="school_lesson_cap_reached">Esta lección necesita más espacio libre en tu aprendizaje.</string>
+    <string name="school_lesson_cap_reached">{shortWords, plural, =1 {Necesita espacio para 1 palabra más en tu aprendizaje.} other {Necesita espacio para {shortWords, number,0} palabras más en tu aprendizaje.}}</string>
     <string name="school_lesson_needs_school">Necesita la escuela en nivel {level}</string>
     <string name="school_lesson_next">Siguiente lección</string>
     <string name="school_lesson_nothing_to_read">Ahora no hay palabras para leer.</string>
     <string name="school_lesson_read_words">Leer las palabras</string>
     <string name="school_lesson_reward" formatted="false">Habilidad: {resource} +{percent} %</string>
-    <string name="school_lesson_slot_busy">La escuela está estudiando la lección {number}.</string>
-    <string name="school_lesson_slot_busy_released">La escuela está estudiando las palabras que vuelven de la banda {band}, grupo {number}.</string>
+    <string name="school_lesson_slot_busy">La escuela está estudiando la lección {number}. Queda libre en {timeLeft}.</string>
+    <string name="school_lesson_slot_busy_released">La escuela está estudiando las palabras que vuelven de la banda {band}, grupo {number}. Queda libre en {timeLeft}.</string>
     <string name="school_lesson_studied">Estudiada</string>
     <string name="school_lesson_study">Estudiar la lección {number}</string>
     <string name="school_lesson_studying">En estudio</string>

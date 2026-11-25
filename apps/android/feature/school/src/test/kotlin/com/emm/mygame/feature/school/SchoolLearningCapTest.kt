@@ -235,7 +235,7 @@ class SchoolLearningCapTest {
 
     @Test
     fun `states the cap's figure once, in the learning card, with 8 of 10 words`() {
-        val capBlock = SchoolUiState.LessonState.Open(SchoolUiState.LessonBlock.CapReached)
+        val capBlock = SchoolUiState.LessonState.Open(SchoolUiState.LessonBlock.CapReached(shortWords = 3))
         show(
             idleSchool.copy(
                 learning = idleSchool.learning.copy(inLearning = 8),

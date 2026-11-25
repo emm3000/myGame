@@ -70,7 +70,13 @@ class SchoolReleasedSlotTest {
         val card: SchoolUiState.LessonCard? = contentAt(readInstant + 30.seconds).lessons.firstOrNull()
 
         assertEquals(
-            SchoolUiState.LessonState.Open(SchoolUiState.LessonBlock.SlotBusy(releasedName)),
+            SchoolUiState.LessonState.Open(
+                SchoolUiState.LessonBlock.SlotBusy(
+                    releasedName,
+                    remaining = 120.seconds,
+                    freesAt = Instant.parse("2026-11-05T10:02:30Z"),
+                ),
+            ),
             card?.state,
         )
     }
@@ -105,7 +111,10 @@ class SchoolReleasedSlotTest {
         show(contentAt(readInstant + 30.seconds))
 
         composeRule
-            .onNodeWithText("La escuela está estudiando las palabras que vuelven de la banda 2, grupo 3.")
+            .onNodeWithText(
+                "La escuela está estudiando las palabras que vuelven de la banda 2, grupo 3. " +
+                    "Queda libre en 2\u00A0min.",
+            )
             .assertExists()
     }
 
