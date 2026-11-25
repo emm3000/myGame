@@ -1,5 +1,5 @@
 ---
-status: accepted, the dock's door and line, the doors drawn as outlined buttons or text links, the street strip and the text link's color together amended by ADR 050, the dock, its door, its fold, its measure and its loading skeleton line by ADR 051
+status: accepted, the dock's door and line, the doors drawn as outlined buttons or text links, the street strip and the text link's color together amended by ADR 050, the dock, its door, its fold, its measure and its loading skeleton line by ADR 051, the dock, the pager, the street strip and the one green button by ADR 057
 date: 2026-11-17
 ---
 # Main Street, the Android look

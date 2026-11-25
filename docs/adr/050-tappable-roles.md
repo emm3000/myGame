@@ -1,5 +1,5 @@
 ---
-status: accepted, the dock's door, its countdown, its line and its folded door together amended by ADR 051
+status: accepted, the dock's door, its countdown, its line and its folded door together amended by ADR 051, the go's place, one go per screen and the busy button's look by ADR 057
 date: 2026-11-18
 ---
 # Tappable roles and the type hierarchy on Android

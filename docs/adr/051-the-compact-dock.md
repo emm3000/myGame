@@ -1,5 +1,5 @@
 ---
-status: accepted
+status: accepted, the dock, its notice and its fold removed by ADR 057
 date: 2026-11-19
 ---
 # The compact dock on Android
