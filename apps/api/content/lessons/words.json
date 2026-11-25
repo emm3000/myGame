@@ -4954,7 +4954,8 @@
       {
         "frame": "She's probably going to take on more work.",
         "gappedFrame": "She's probably going to ____ ____ more work.",
-        "fromLessonId": "lesson-49"
+        "fromLessonId": "lesson-49",
+        "noCardSense": ["work"]
       }
     ],
     "gloss": {
@@ -5057,7 +5058,8 @@
       {
         "frame": "Okay, it's time to begin.",
         "gappedFrame": "Okay, it's time to ____.",
-        "fromLessonId": "lesson-51"
+        "fromLessonId": "lesson-51",
+        "noCardSense": ["time"]
       }
     ],
     "gloss": {
@@ -5077,7 +5079,8 @@
       {
         "frame": "Just follow the river and you'll see the farm.",
         "gappedFrame": "Just ____ the river and you'll see the farm.",
-        "fromLessonId": "lesson-48"
+        "fromLessonId": "lesson-48",
+        "noCardSense": ["just"]
       }
     ],
     "gloss": {
@@ -5117,7 +5120,8 @@
       {
         "frame": "Can we set a time to meet tomorrow?",
         "gappedFrame": "Can we ____ a time to meet tomorrow?",
-        "fromLessonId": "lesson-48"
+        "fromLessonId": "lesson-48",
+        "noCardSense": ["time", "meet"]
       }
     ],
     "gloss": {
@@ -5137,7 +5141,8 @@
       {
         "frame": "Bring a map, just in case.",
         "gappedFrame": "Bring a map, just in ____.",
-        "fromLessonId": "lesson-48"
+        "fromLessonId": "lesson-48",
+        "noCardSense": ["just"]
       }
     ],
     "gloss": {
@@ -5417,7 +5422,8 @@
       {
         "frame": "Will you be away for long?",
         "gappedFrame": "Will you be ____ for long?",
-        "fromLessonId": "lesson-48"
+        "fromLessonId": "lesson-48",
+        "noCardSense": ["long"]
       }
     ],
     "gloss": {
@@ -5552,7 +5558,8 @@
     "frames": [
       {
         "frame": "How old is your kid?",
-        "gappedFrame": "How old is your ____?"
+        "gappedFrame": "How old is your ____?",
+        "noCardSense": ["how", "old"]
       }
     ],
     "gloss": {
@@ -5582,7 +5589,8 @@
     "frames": [
       {
         "frame": "It'll take a bit of time.",
-        "gappedFrame": "It'll take a ____ of time."
+        "gappedFrame": "It'll take a ____ of time.",
+        "noCardSense": ["take"]
       }
     ],
     "gloss": {
@@ -5672,7 +5680,8 @@
     "frames": [
       {
         "frame": "Where did you go last night?",
-        "gappedFrame": "Where did you go last ____?"
+        "gappedFrame": "Where did you go last ____?",
+        "noCardSense": ["last"]
       }
     ],
     "gloss": {
@@ -5777,7 +5786,8 @@
     "frames": [
       {
         "frame": "I'm not sure what time it is.",
-        "gappedFrame": "I'm not ____ what time it is."
+        "gappedFrame": "I'm not ____ what time it is.",
+        "noCardSense": ["time"]
       }
     ],
     "gloss": {
@@ -5792,7 +5802,8 @@
     "frames": [
       {
         "frame": "Thank you for your help.",
-        "gappedFrame": "____ you for your help."
+        "gappedFrame": "____ you for your help.",
+        "noCardSense": ["help"]
       }
     ],
     "gloss": {
@@ -5854,7 +5865,8 @@
     "frames": [
       {
         "frame": "What time did you get back last night?",
-        "gappedFrame": "What time did you ____ ____ last night?"
+        "gappedFrame": "What time did you ____ ____ last night?",
+        "noCardSense": ["time", "last"]
       }
     ],
     "gloss": {

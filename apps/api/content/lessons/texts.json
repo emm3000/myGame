@@ -94,6 +94,7 @@
       "It was actually a nice night.",
       "They'll probably do well tomorrow.",
       "Maybe they'll even like the test."
-    ]
+    ],
+    "noCardSense": ["one", "just", "got", "end", "last"]
   }
 ]

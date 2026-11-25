@@ -750,6 +750,6 @@ One text closes every four band lessons, from lesson 31 on (ADR 049, #1273, #127
 
 ### text-5, lesson 51
 
-**Title:** *Study Night*. **Band lessons:** 48 to 51. **Tokens:** 137.
+**Title:** *Study Night*. **Band lessons:** 48 to 51. **Tokens:** 137. **In no card sense:** *one*, *just*, *got*, *end*, *last*.
 
 > My kids have a big test at school tomorrow, so we studied at home last night. They have to remember a lot of words, about half the book. One of them knows most of the words, but the other one isn't quite ready. After an hour, the other one asked if it was okay to stop for a bit. I said yes, and I asked if she needed anything else. She wasn't sure, so we just talked. After that, we got all our stuff and started again. It was sort of late when we stopped, but the kids said thank you. At the end of the night, I asked if they were ready, and they both said yeah. It was actually a nice night. They'll probably do well tomorrow. Maybe they'll even like the test.
