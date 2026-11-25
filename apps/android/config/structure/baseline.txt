@@ -20,8 +20,6 @@ file-lines core/designsystem/src/main/kotlin/com/emm/mygame/core/designsystem/My
 file-lines core/designsystem/src/main/kotlin/com/emm/mygame/core/designsystem/MyGameFrameText.kt
 file-lines core/designsystem/src/main/kotlin/com/emm/mygame/core/designsystem/MyGamePill.kt
 file-lines core/designsystem/src/main/kotlin/com/emm/mygame/core/designsystem/MyGameStreetStrip.kt
-file-lines feature/learning/src/main/kotlin/com/emm/mygame/feature/learning/reviews/ReviewStepLine.kt
-file-lines feature/learning/src/main/kotlin/com/emm/mygame/feature/learning/reviews/ReviewViewModel.kt
 file-lines feature/report/src/main/kotlin/com/emm/mygame/feature/report/ReportScreen.kt
 file-name app/src/main/kotlin/com/emm/mygame/DockMove.kt
 file-name app/src/main/kotlin/com/emm/mygame/MailedLink.kt
@@ -45,7 +43,6 @@ file-name feature/school/src/main/kotlin/com/emm/mygame/feature/school/SeasonLab
 file-name feature/town/src/main/kotlin/com/emm/mygame/feature/town/status/LessonRefusalLine.kt
 file-name feature/town/src/main/kotlin/com/emm/mygame/feature/town/status/TownStatusDock.kt
 package-files core/designsystem/src/main/kotlin/com/emm/mygame/core/designsystem
-private-vars feature/learning/src/main/kotlin/com/emm/mygame/feature/learning/reviews/ReviewViewModel.kt
 private-vars feature/town/src/main/kotlin/com/emm/mygame/feature/town/status/TownStatusViewModel.kt
 projection-gap feature/jobs/src/main/kotlin/com/emm/mygame/feature/jobs/MapViewModel.kt
 projection-gap feature/learning/src/main/kotlin/com/emm/mygame/feature/learning/reviews/ReviewViewModel.kt
@@ -55,6 +52,5 @@ projection-gap feature/town/src/main/kotlin/com/emm/mygame/feature/town/TownView
 projection-gap feature/town/src/main/kotlin/com/emm/mygame/feature/town/status/TownStatusViewModel.kt
 screen-file feature/town/src/main/kotlin/com/emm/mygame/feature/town/status/TownStatusScreen.kt
 test-lines app/src/test/kotlin/com/emm/mygame/DockFrameNavigationTest.kt
-test-lines feature/learning/src/test/kotlin/com/emm/mygame/feature/learning/reviews/ReviewViewModelTest.kt
 test-lines feature/report/src/test/kotlin/com/emm/mygame/feature/report/ReportViewModelTest.kt
 test-lines feature/town/src/test/kotlin/com/emm/mygame/feature/town/status/TownStatusViewModelTest.kt
