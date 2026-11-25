@@ -4300,8 +4300,8 @@
         "gappedFrame": "When will she ____ ____ of the office?"
       },
       {
-        "frame": "Come out here and look at this.",
-        "gappedFrame": "____ ____ here and look at this.",
+        "frame": "It is only me, you can come out now.",
+        "gappedFrame": "It is only me, you can ____ ____ now.",
         "fromLessonId": "lesson-38"
       },
       {
@@ -4331,8 +4331,8 @@
         "fromLessonId": "lesson-38"
       },
       {
-        "frame": "I cannot go out today, I have to study.",
-        "gappedFrame": "I cannot ____ ____ today, I have to study.",
+        "frame": "We do not have the money to go out.",
+        "gappedFrame": "We do not have the money to ____ ____.",
         "fromLessonId": "lesson-38"
       }
     ],
@@ -4357,8 +4357,8 @@
         "fromLessonId": "lesson-38"
       },
       {
-        "frame": "Wait in the truck and do not get out.",
-        "gappedFrame": "Wait in the truck and do not ____ ____.",
+        "frame": "Stop, I need to get out.",
+        "gappedFrame": "Stop, I need to ____ ____.",
         "fromLessonId": "lesson-38"
       }
     ],
@@ -4429,8 +4429,8 @@
         "gappedFrame": "____ of the workers has a job."
       },
       {
-        "frame": "You can each take one book home.",
-        "gappedFrame": "You can ____ take one book home.",
+        "frame": "The children get one book each.",
+        "gappedFrame": "The children get one book ____.",
         "fromLessonId": "lesson-39"
       },
       {
@@ -4559,8 +4559,8 @@
         "fromLessonId": "lesson-40"
       },
       {
-        "frame": "From this high up, you can see the farms.",
-        "gappedFrame": "From this ____ up, you can see the farms.",
+        "frame": "It is too high for me, can you help?",
+        "gappedFrame": "It is too ____ for me, can you help?",
         "fromLessonId": "lesson-40"
       }
     ],
@@ -4629,13 +4629,13 @@
         "gappedFrame": "I go to school ____ day."
       },
       {
-        "frame": "I know every worker at the factory.",
-        "gappedFrame": "I know ____ worker at the factory.",
+        "frame": "Not every house in this town has power.",
+        "gappedFrame": "Not ____ house in this town has power.",
         "fromLessonId": "lesson-40"
       },
       {
-        "frame": "I have read every report she wrote.",
-        "gappedFrame": "I have read ____ report she wrote.",
+        "frame": "Every other team has a map, but we do not.",
+        "gappedFrame": "____ other team has a map, but we do not.",
         "fromLessonId": "lesson-40"
       }
     ],
@@ -4754,13 +4754,13 @@
         "gappedFrame": "We have farms all ____ the town."
       },
       {
-        "frame": "The river goes around the hill.",
-        "gappedFrame": "The river goes ____ the hill.",
+        "frame": "Look around you, the town has changed.",
+        "gappedFrame": "Look ____ you, the town has changed.",
         "fromLessonId": "lesson-41"
       },
       {
-        "frame": "Our house has fields around it.",
-        "gappedFrame": "Our house has fields ____ it.",
+        "frame": "She has her family around her now.",
+        "gappedFrame": "She has her family ____ her now.",
         "fromLessonId": "lesson-41"
       }
     ],
@@ -4829,8 +4829,8 @@
         "gappedFrame": "You ____ stop here."
       },
       {
-        "frame": "We must do something about this problem.",
-        "gappedFrame": "We ____ do something about this problem.",
+        "frame": "We must help them, they have no food.",
+        "gappedFrame": "We ____ help them, they have no food.",
         "fromLessonId": "lesson-43"
       },
       {
@@ -4854,8 +4854,8 @@
         "gappedFrame": "This is an ____ job."
       },
       {
-        "frame": "Your family is more important than your job.",
-        "gappedFrame": "Your family is more ____ than your job.",
+        "frame": "I have something important to tell you.",
+        "gappedFrame": "I have something ____ to tell you.",
         "fromLessonId": "lesson-43"
       },
       {
@@ -4881,6 +4881,7 @@
       {
         "frame": "Do you know a place that is open late?",
         "gappedFrame": "Do you know a place that is ____ late?",
+        "noCardSense": ["know"],
         "fromLessonId": "lesson-43"
       },
       {
