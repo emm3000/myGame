@@ -218,7 +218,7 @@ otherwise the frames of the words the player holds.**
   (ADR 042).
 - The route answers the frames and nothing else. The newest open text
   is already on `caughtUp`. The slice names the path beside
-  `GET /texts/{textId}`, and the content caps how many words one read
+  `GET /town/texts/{textId}`, and the content caps how many words one read
   answers.
 
 One day is the line FSRS draws between a same-day review and a later
@@ -357,6 +357,7 @@ They are not this ADR's.
 | 050 | the go is drawn in the dock; one go per screen | on Today's first card, in flow on a task screen; one first card on Today |
 | 050 | a busy button draws the hairline with the hourglass | the three dots and its description in view |
 | 051 | the dock is the go; the notice folds to the top of the scroll | no dock; a refusal beside its control, a task's verdict in the task's flow; nothing folds |
+| PRD S22 | the Report holds the reviews due and the Town News | Today holds them on Android; the row is reworded by the slice that folds the Report away |
 
 ADR 042's next step and its rule that reviews go through the unread
 words stand. ADR 043's tokens and type stand. ADR 050's five roles and
