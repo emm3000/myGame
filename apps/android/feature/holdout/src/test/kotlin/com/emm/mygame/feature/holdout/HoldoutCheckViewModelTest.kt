@@ -277,7 +277,10 @@ class HoldoutCheckViewModelTest {
         holdoutChecks.answerChange(HoldoutCheckChangeResult.Unreachable)
         runCurrent()
 
-        assertEquals(dueIdle.copy(request = HoldoutCheckRequest.Unreachable), viewModel.state.value)
+        assertEquals(
+            dueIdle.copy(request = HoldoutCheckRequest.Unreachable(HoldoutCheckAction.Skip)),
+            viewModel.state.value,
+        )
     }
 
     @Test
@@ -569,7 +572,7 @@ class HoldoutCheckViewModelTest {
         holdoutChecks.answerChange(HoldoutCheckChangeResult.Unreachable)
         runCurrent()
 
-        assertEquals(HoldoutCheckRequest.Unreachable, askingOf(viewModel).request)
+        assertEquals(HoldoutCheckRequest.Unreachable(HoldoutCheckAction.Answers), askingOf(viewModel).request)
     }
 
     @Test

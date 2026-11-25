@@ -11,7 +11,7 @@ internal fun HoldoutCheckRequestLine(request: HoldoutCheckRequest, modifier: Mod
     val line: Int = when (request) {
         HoldoutCheckRequest.Idle, is HoldoutCheckRequest.Waiting -> return
         is HoldoutCheckRequest.Refused -> refusalLineOf(request.action, request.refusal)
-        HoldoutCheckRequest.Unreachable -> R.string.holdout_unreachable
+        is HoldoutCheckRequest.Unreachable -> R.string.holdout_unreachable
     }
     MyGameInlineAlert(message = fixedCopyResource(line), modifier = modifier)
 }

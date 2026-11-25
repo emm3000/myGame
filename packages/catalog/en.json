@@ -96,6 +96,7 @@
   "android.app.shell_retained_words": "{count} of {total, plural, =1 {1 word} other {{total, number,0} words}} learned",
   "android.holdout.holdout_band": "Band {band}",
   "android.holdout.holdout_choose": "Choose a meaning to go on.",
+  "android.holdout.holdout_continue": "Continue",
   "android.holdout.holdout_done": "Thanks. Your answers are saved.",
   "android.holdout.holdout_due_line": "Band {band}, week {week}: a check of words you studied and words kept back. Your score does not change your lessons.",
   "android.holdout.holdout_failed": "We couldn't read your check.",

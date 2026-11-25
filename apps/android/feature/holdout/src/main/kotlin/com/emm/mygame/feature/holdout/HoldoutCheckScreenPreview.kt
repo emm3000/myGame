@@ -16,7 +16,6 @@ import com.emm.mygame.core.ui.ChromePhase
 import com.emm.mygame.core.ui.CopyLanguage
 import com.emm.mygame.core.ui.ProvideCopyLanguage
 import com.emm.mygame.core.ui.ScaffoldLanguage
-import com.emm.mygame.core.ui.TaskDockHook
 
 private val previewHouse: PlacementItem = PlacementItem(
     word = WordId("word-24"),
@@ -61,7 +60,7 @@ private class HoldoutCheckScreenStates : PreviewParameterProvider<HoldoutCheckUi
 @Composable
 private fun HoldoutCheckScreenPreview(@PreviewParameter(HoldoutCheckScreenStates::class) state: HoldoutCheckUiState) {
     MyGamePreviewSurface {
-        HoldoutCheckScreen(state = state, onIntent = {}, hook = TaskDockHook(onAnswered = {}), foldedDock = {})
+        HoldoutCheckScreen(state = state, onIntent = {}, onDone = {})
     }
 }
 
@@ -72,7 +71,7 @@ private fun HoldoutCheckScreenBothPreview(
 ) {
     ProvideCopyLanguage(language = CopyLanguage(ScaffoldLanguage.Spanish, ChromePhase.Both)) {
         MyGamePreviewSurface {
-            HoldoutCheckScreen(state = state, onIntent = {}, hook = TaskDockHook(onAnswered = {}), foldedDock = {})
+            HoldoutCheckScreen(state = state, onIntent = {}, onDone = {})
         }
     }
 }

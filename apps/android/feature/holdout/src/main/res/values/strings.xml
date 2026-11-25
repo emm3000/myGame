@@ -2,6 +2,7 @@
 <resources>
     <string name="holdout_band">Band {band}</string>
     <string name="holdout_choose">Choose a meaning to go on.</string>
+    <string name="holdout_continue">Continue</string>
     <string name="holdout_done">Thanks. Your answers are saved.</string>
     <string name="holdout_due_line">Band {band}, week {week}: a check of words you studied and words kept back. Your score does not change your lessons.</string>
     <string name="holdout_failed">We couldn\'t read your check.</string>

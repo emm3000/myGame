@@ -90,6 +90,7 @@ const fixedCopyKeyList = [
   'android.app.reminder_lesson_title',
   'android.holdout.holdout_band',
   'android.holdout.holdout_choose',
+  'android.holdout.holdout_continue',
   'android.holdout.holdout_done',
   'android.holdout.holdout_due_line',
   'android.holdout.holdout_failed',

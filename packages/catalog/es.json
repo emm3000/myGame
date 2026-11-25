@@ -96,6 +96,7 @@
   "android.app.shell_retained_words": "{count} de {total, plural, =1 {1 palabra aprendida} other {{total, number,0} palabras aprendidas}}",
   "android.holdout.holdout_band": "Banda {band}",
   "android.holdout.holdout_choose": "Elige un significado para seguir.",
+  "android.holdout.holdout_continue": "Continuar",
   "android.holdout.holdout_done": "Gracias. Tus respuestas están guardadas.",
   "android.holdout.holdout_due_line": "Banda {band}, semana {week}: una prueba con palabras que estudiaste y palabras que se apartaron. Tu resultado no cambia tus lecciones.",
   "android.holdout.holdout_failed": "No hemos podido leer tu prueba.",

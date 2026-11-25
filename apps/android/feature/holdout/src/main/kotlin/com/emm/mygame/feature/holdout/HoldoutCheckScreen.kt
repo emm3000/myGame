@@ -23,19 +23,15 @@ import com.emm.mygame.core.designsystem.MyGameSpacing
 import com.emm.mygame.core.designsystem.MyGameText
 import com.emm.mygame.core.designsystem.MyGameTheme
 import com.emm.mygame.core.designsystem.MyGameTypography
-import com.emm.mygame.core.ui.FoldedTaskEnd
-import com.emm.mygame.core.ui.TaskDockHook
 import com.emm.mygame.core.ui.fixedCopyResource
 
 @Composable
 internal fun HoldoutCheckScreen(
     state: HoldoutCheckUiState,
     onIntent: (HoldoutCheckIntent) -> Unit,
-    hook: TaskDockHook,
-    foldedDock: @Composable () -> Unit,
+    onDone: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
-    HoldoutCheckDock(state = state, onIntent = onIntent, hook = hook)
     Column(
         verticalArrangement = Arrangement.spacedBy(MyGameSpacing.step6),
         modifier = modifier
@@ -59,13 +55,7 @@ internal fun HoldoutCheckScreen(
         ) {
             HoldoutCheckState(state = state, onIntent = onIntent)
         }
-        FoldedTaskEnd(
-            hook = hook,
-            foldedDock = foldedDock,
-            shownNotice = (state as? HoldoutCheckUiState.Asking)?.request?.takeIf { request: HoldoutCheckRequest ->
-                request is HoldoutCheckRequest.Refused || request == HoldoutCheckRequest.Unreachable
-            },
-        )
+        HoldoutCheckWayOn(state = state, onIntent = onIntent, onDone = onDone)
     }
 }
 
