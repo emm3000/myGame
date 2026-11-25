@@ -15,7 +15,7 @@ export const readKeepGoingFramesDeclaration = createRoute(
     path: '/frames',
     responses: {
       200: jsonResponse(
-        'The frames Keep going offers: each reviewed word whose next review is the content’s line or more away, soonest due first, at most the content’s cap, each frame as spans with its card words supported at the read. The read writes nothing.',
+        'The frames Keep going offers: each reviewed word whose next review is the content’s line or more away, in an order fixed per UTC day of the read, at most the content’s cap, each frame as spans with its card words supported at the read. The read writes nothing.',
         KeepGoingFramesSchema,
       ),
       404: refusalResponse('TownNotFound.'),
