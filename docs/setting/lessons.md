@@ -17,15 +17,15 @@ Every rank on this page is the `SFI Rank` of `NGSL_12_stats.csv`, the NGSL 1.2 (
 | home | noun | 161 | This is my home. | This is my ____. | hogar |
 | school | noun | 146 | We are at school. | We are at ____. | escuela |
 | work | verb | 67 | They work for us. | They ____ for us. | trabajar |
-| money | noun | 201 | I do not have much money. | I do not have much ____. | dinero |
+| money | noun | 201 | I don't have much money. | I don't have much ____. | dinero |
 | food | noun | 367 | We have food for you. | We have ____ for you. | comida |
 
 All five lemmas lie within the first 1 000; the highest rank is *food*'s, 367.
 
-- **The frame** writes its lemma in the lemma's own form, never inflected, so the gapped form's answer is the lemma itself and the typed answer is compared against it alone (ADR 036, rule 4). No frame holds another word of the lesson, so neither a recognition nor a gapped frame gives a second answer away. Every other word of a frame is a frame word (`grammar.json`), since no lesson comes before lesson 1: this is ADR 037's frame rule, which the content gate checks. *I do not have much money.* is the one frame kept from the first draft; the other four held words no earlier lesson teaches (*new*, *town*, *walk*, *every*, *day*, *big*, *office*, *buy*, *week*) and were rewritten. The cards keep their word ids.
+- **The frame** writes its lemma in the lemma's own form, never inflected, so the gapped form's answer is the lemma itself and the typed answer is compared against it alone (ADR 036, rule 4). No frame holds another word of the lesson, so neither a recognition nor a gapped frame gives a second answer away. Every other word of a frame is a frame word (`grammar.json`), since no lesson comes before lesson 1: this is ADR 037's frame rule, which the content gate checks. *I don't have much money.* is the one frame kept from the first draft, its negative contracted since (#2038); the other four held words no earlier lesson teaches (*new*, *town*, *walk*, *every*, *day*, *big*, *office*, *buy*, *week*) and were rewritten. The cards keep their word ids.
 - **The gloss** of *home* is *hogar*, not *casa*: *casa* is the first gloss of *house* (NGSL 1.2 rank 165), and a recall cued by *casa* would ask for either. *Work* is glossed as the verb, *trabajar*, as its frame uses it.
 - **Recognition** shows the lemma and its frame, and offers the five glosses as its choices, ordered as rule 3 orders them. **Recall** shows the gloss and the gapped form, and the player types the lemma (ADR 036, rule 2).
-- Every frame has no contraction, no number and no proper name, so every token is a form of a headword as the NGSL teaching list lemmatizes it (*is* and *are* of *be*, *my* of *I*, *us* of *we*).
+- Every frame has no number and no proper name, so every token is a form of a headword as the NGSL teaching list lemmatizes it (*is* and *are* of *be*, *my* of *I*, *us* of *we*). A contraction is allowed, and a frame or a text contracts every negative that speech contracts (*don't*, *isn't*, *can't*, never *do not* or *cannot*), which the content gate checks: the contraction's stem is a form of its headword (*don* of *do*), its piece (*n't*, *'s*, *'ll*) is one the grammar admits, and a frame's own word is never contracted, since the frame holds it in its own form.
 
 ### Every word of every frame
 
@@ -59,7 +59,7 @@ Worked against ADR 036, rule 4, each with the NGSL 1.2 list above. *Wok* for *wo
 
 The other fifteen chrome lessons (ADR 037, #741) teach the rest of the closed list of `chrome.md`, 75 words, so the 16 chrome lessons teach its 80 words, lesson 1's five among them. Every lesson teaches 5 card words under one theme, and every theme, which the client shows, uses only frame words and words of the list, and no lesson is a semantic set: the four seasons go to lessons 3, 4, 6 and 8, *material* and *power* to lessons 5 and 7, and the three terrains (*field*, *river*, *hill*) to lessons 11, 9 and 14; the buildings, the three map units (*region*, *area*, *site*) and *start*, *stop* and *end* are spread the same way.
 
-Each frame follows the frame rule as lesson 1's does: its lemma once, in its own form, every other word a frame word or a card word of an earlier lesson (inflected forms included, *homes* in lesson 5, *works* in lesson 8). The order of the lessons is the order that rule allows: *people*, *need* and *go* come in lesson 2 so the later frames can say them. Every frame has no contraction, no number and no proper name. Every definition uses only frame words and band 1 words and never its own lemma (ADR 037, check 5). Every lesson lasts 300 content seconds and needs school level 1, as lesson 1 does, and its skill raises money by 5 %, as every lesson's does (ADR 045).
+Each frame follows the frame rule as lesson 1's does: its lemma once, in its own form, every other word a frame word or a card word of an earlier lesson (inflected forms included, *homes* in lesson 5, *works* in lesson 8). The order of the lessons is the order that rule allows: *people*, *need* and *go* come in lesson 2 so the later frames can say them. Every frame has no number and no proper name, and contracts its negatives, as lesson 1's does. Every definition uses only frame words and band 1 words and never its own lemma (ADR 037, check 5). Every lesson lasts 300 content seconds and needs school level 1, as lesson 1 does, and its skill raises money by 5 %, as every lesson's does (ADR 045).
 
 ### Lesson 2
 
@@ -582,7 +582,7 @@ The batch also gives each of the 55 entries of lessons 17 to 27 one later frame,
 |---|---|---|---|---|---|---|
 | come in | phave | verb | You can come in now. | You can ____ ____ now. | entrar | to go into a room or a building |
 | take on | phave | verb | I want to take on a bigger job. | I want to ____ ____ a bigger job. | asumir | to agree to do a job or to deal with a problem |
-| give up | phave | verb | She does not want to give up her job. | She does not want to ____ ____ her job. | abandonar | to stop doing or having something |
+| give up | phave | verb | She doesn't want to give up her job. | She doesn't want to ____ ____ her job. | abandonar | to stop doing or having something |
 | a few | phrase | adverb | I have a few friends in town. | I have ____ ____ friends in town. | unos cuantos | a small number of; some |
 | a number of | phrase | adverb | A number of workers came to the office. | ____ ____ ____ workers came to the office. | varios | some; more than 2 |
 
@@ -592,7 +592,7 @@ The batch also gives each of the 55 entries of lessons 17 to 27 one later frame,
 
 | Lemma | Part of speech | NGSL 1.2 rank | Frame | Gapped form | es gloss | Definition |
 |---|---|---|---|---|---|---|
-| include | verb | 163 | The pay does not include food. | The pay does not ____ food. | incluir | to have something as one part of the whole |
+| include | verb | 163 | The pay doesn't include food. | The pay doesn't ____ food. | incluir | to have something as one part of the whole |
 | begin | verb | 189 | When does the course begin? | When does the course ____? | comenzar | to start |
 | follow | verb | 188 | Follow me to the office. | ____ me to the office. | seguir | to go after someone |
 | hand | noun | 198 | I have a map in my hand. | I have a map in my ____. | mano | the part of the body at the end of your arm |
@@ -616,7 +616,7 @@ The batch also gives each of the 55 entries of lessons 17 to 27 one later frame,
 
 | Lemma | Part of speech | NGSL 1.2 rank | Frame | Gapped form | es gloss | Definition |
 |---|---|---|---|---|---|---|
-| seem | verb | 173 | It does not seem right. | It does not ____ right. | parecer | to look like something is true |
+| seem | verb | 173 | It doesn't seem right. | It doesn't ____ right. | parecer | to look like something is true |
 | fact | noun | 202 | The fact is, we need more workers. | The ____ is, we need more workers. | hecho | something that is true |
 | information | noun | 213 | We need more information about the job. | We need more ____ about the job. | información | facts about something |
 | happen | verb | 236 | What will happen to the farm? | What will ____ to the farm? | ocurrir | to take place |
@@ -643,8 +643,8 @@ The batch also gives each of the 55 entries of lessons 17 to 27 one later frame,
 | set up | phave | verb | We want to set up a business in town. | We want to ____ ____ a business in town. | crear | to start something new, such as a company |
 | turn out | phave | verb | It might turn out to be a problem. | It might ____ ____ to be a problem. | resultar | to be shown in the end to be something |
 | make up | phave | verb | Workers from the city make up most of the team. | Workers from the city ____ ____ most of the team. | formar | to be all the parts of a whole |
-| in fact | phrase | adverb | It is not a small town; in fact, it is a city. | It is not a small town; ____ ____, it is a city. | de hecho | a way to say that something is true, often more than you think |
-| at all | phrase | adverb | I do not like it at all. | I do not like it ____ ____. | para nada | in any way |
+| in fact | phrase | adverb | It isn't a small town; in fact, it is a city. | It isn't a small town; ____ ____, it is a city. | de hecho | a way to say that something is true, often more than you think |
+| at all | phrase | adverb | I don't like it at all. | I don't like it ____ ____. | para nada | in any way |
 
 ## Texts
 
@@ -652,9 +652,9 @@ One text closes every four band lessons, from lesson 31 on (ADR 049, #1273, #127
 
 ### text-1, lesson 31
 
-**Title:** *A New Course*. **Band lessons:** 28 to 31. **Tokens:** 138. **In no card sense:** *before*.
+**Title:** *A New Course*. **Band lessons:** 28 to 31. **Tokens:** 137. **In no card sense:** *before*.
 
-> I live in a little old house down by the river. Some days the power is off, but the house is my own. This fall I started a course at the school. On the first day, I asked a man at the power station where the school was. He pointed to number 4 on the map, between the farm and the factory. I went through the field, and there it was. In the course, we talk about the news. The people in the course come from many places, such as the city. Both of the people I study with help me with the words I do not know. Today the mayor came to meet us. Before I leave, I put my new words on a list. I think this town is a great place to live.
+> I live in a little old house down by the river. Some days the power is off, but the house is my own. This fall I started a course at the school. On the first day, I asked a man at the power station where the school was. He pointed to number 4 on the map, between the farm and the factory. I went through the field, and there it was. In the course, we talk about the news. The people in the course come from many places, such as the city. Both of the people I study with help me with the words I don't know. Today the mayor came to meet us. Before I leave, I put my new words on a list. I think this town is a great place to live.
 
 ### text-2, lesson 36
 

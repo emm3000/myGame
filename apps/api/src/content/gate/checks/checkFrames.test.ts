@@ -120,6 +120,14 @@ describe('content gate check 3, the frame rule', () => {
     ])
   })
 
+  it('passes a frame holding a contraction, its clitic left to the grammar check', () => {
+    expect(checkFrames(withHomeFrame("This isn't my home."))).toEqual([])
+  })
+
+  it('reads a curly apostrophe in a frame as a straight one', () => {
+    expect(checkFrames(withHomeFrame('This isn\u2019t my home.'))).toEqual([])
+  })
+
   it('passes a frame holding its off-list lemma', () => {
     const password = entryOf('word-1', 'password', 'This is my password.', { isOffList: true })
 

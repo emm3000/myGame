@@ -7,6 +7,7 @@ import { type GrammarPassage, grammarPassagesOf } from '../grammarPassagesOf'
 import { type GrammarTerms, grammarTermsOf } from '../grammarTermsOf'
 import { haveBeforeOf, type SubjectWords } from '../haveBeforeOf'
 import { inventoryFailuresOf } from '../inventoryFailuresOf'
+import { negativeFailuresOf } from '../negativeFailuresOf'
 import { subjectPronouns } from '../subjectPronouns'
 
 type PassageToken = {
@@ -198,18 +199,19 @@ const passageTokensOf = (
     haveBefore: haveBeforeOf(sentence.slice(0, index), subjectWords),
   }))
 
-const passageFailures = (content: GateContent): ReadonlyArray<string> => {
-  const terms = grammarTermsOf(content)
-  return grammarPassagesOf(content).flatMap((passage) =>
-    passage.sentences.flatMap((sentence) =>
-      passageTokensOf(sentence, subjectWordsOf(passage, terms)).flatMap((passageToken) =>
-        tokenFailures(passageToken, passage, terms),
-      ),
+const passageFailures = (passage: GrammarPassage, terms: GrammarTerms): ReadonlyArray<string> =>
+  passage.sentences.flatMap((sentence) =>
+    passageTokensOf(sentence, subjectWordsOf(passage, terms)).flatMap((passageToken) =>
+      tokenFailures(passageToken, passage, terms),
     ),
   )
-}
 
-export const checkGrammar = (content: GateContent): ReadonlyArray<string> => [
-  ...inventoryFailuresOf(content),
-  ...passageFailures(content),
-]
+export const checkGrammar = (content: GateContent): ReadonlyArray<string> => {
+  const terms = grammarTermsOf(content)
+  const passages = grammarPassagesOf(content)
+  return [
+    ...inventoryFailuresOf(content),
+    ...passages.flatMap((passage) => passageFailures(passage, terms)),
+    ...negativeFailuresOf(passages),
+  ]
+}
