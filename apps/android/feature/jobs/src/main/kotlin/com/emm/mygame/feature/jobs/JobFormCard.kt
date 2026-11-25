@@ -78,7 +78,7 @@ internal fun MapUiState.SendRequest.isAnsweredFor(site: Int): Boolean = when (th
 private fun QuoteLine(quote: MapUiState.PayQuote, modifier: Modifier = Modifier) {
     val copy: PlayerCopy = rememberPlayerCopy()
     when (quote) {
-        MapUiState.PayQuote.Asking -> Unit
+        MapUiState.PayQuote.Asking, is MapUiState.PayQuote.Refused -> Unit
         is MapUiState.PayQuote.Quoted -> if (quote.pay.isNotEmpty()) {
             MyGameText(
                 label = copy.chrome { text(R.string.map_job_pay, "amounts" to amountsOf(quote.pay)) },
@@ -87,8 +87,6 @@ private fun QuoteLine(quote: MapUiState.PayQuote, modifier: Modifier = Modifier)
                 modifier = modifier.semantics { liveRegion = LiveRegionMode.Polite },
             )
         }
-        is MapUiState.PayQuote.Refused ->
-            MyGameInlineAlert(message = copy.fixedCopy { jobRefusalLineOf(quote.refusal) }, modifier = modifier)
         MapUiState.PayQuote.Unreachable ->
             MyGameInlineAlert(message = copy.fixedCopy(R.string.map_refusal_unexpected), modifier = modifier)
     }

@@ -46,6 +46,8 @@ class MyGameLabelTest {
 
     private val startReviews: MyGameLabel = MyGameLabel(text = "Start reviews", translation = "Empezar a repasar")
 
+    private val waiting: MyGameLabel = MyGameLabel(text = "Waiting", translation = null)
+
     private fun show(content: @Composable () -> Unit) {
         composeRule.setContent {
             MyGameTheme {
@@ -56,7 +58,7 @@ class MyGameLabelTest {
 
     @Test
     fun `draws a translated ink pill as English over Spanish inside its action height`() {
-        show { MyGameButton(label = startReviews, isBusy = false, busyDescription = MyGameLabel(text = "Waiting", translation = null), onClick = {}) }
+        show { MyGameButton(label = startReviews, isBusy = false, busyDescription = waiting, onClick = {}) }
 
         assertEnglishOverSpanish(within = composeRule.onNodeWithTag(INK_PILL).getUnclippedBoundsInRoot())
         composeRule.onNodeWithTag(INK_PILL).assertHeightIsAtLeast(MyGameSizes.action)
@@ -64,7 +66,7 @@ class MyGameLabelTest {
 
     @Test
     fun `draws a translated outlined pill as English over Spanish inside its secondary height`() {
-        show { MyGameOutlinedButton(label = startReviews, isBusy = false, busyDescription = MyGameLabel(text = "Waiting", translation = null), onClick = {}) }
+        show { MyGameOutlinedButton(label = startReviews, isBusy = false, busyDescription = waiting, onClick = {}) }
 
         assertEnglishOverSpanish(within = composeRule.onNodeWithTag(OUTLINED_PILL).getUnclippedBoundsInRoot())
         composeRule.onNodeWithTag(OUTLINED_PILL).assertHeightIsAtLeast(MyGameSizes.secondary)

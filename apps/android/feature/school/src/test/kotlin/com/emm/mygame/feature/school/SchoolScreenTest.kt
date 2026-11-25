@@ -21,6 +21,7 @@ import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
 import androidx.compose.ui.test.performScrollTo
 import androidx.compose.ui.text.TextLayoutResult
+import com.emm.mygame.core.designsystem.BLOCKED_LOCK
 import com.emm.mygame.core.designsystem.MyGameTheme
 import com.emm.mygame.core.designsystem.MyGameTransitions
 import com.emm.mygame.core.designsystem.OUTLINED_PILL
@@ -288,14 +289,16 @@ class SchoolScreenTest {
     fun `draws the block of a lesson under its button`() {
         show(blocked(SchoolUiState.LessonBlock.SchoolTooLow(requiredLevel = 2)))
 
-        composeRule.onNodeWithTag(LESSON_BLOCK_LINE).performScrollTo().assertIsDisplayed()
+        composeRule.onNodeWithText("Necesita la escuela en nivel 2", useUnmergedTree = true)
+            .performScrollTo()
+            .assertIsDisplayed()
     }
 
     @Test
     fun `draws no block on a ready lesson`() {
         show(idleSchool)
 
-        composeRule.onNodeWithTag(LESSON_BLOCK_LINE).assertDoesNotExist()
+        composeRule.onNodeWithTag(BLOCKED_LOCK, useUnmergedTree = true).assertDoesNotExist()
     }
 
     @Test

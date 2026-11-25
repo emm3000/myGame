@@ -140,12 +140,11 @@ private fun ReleasedStudyAction(
         MyGameOutlinedButton(
             label = copy.chrome(studyLine),
             isBusy = start == SchoolUiState.LessonRequestStatus.Waiting,
-            busyDescription = copy.chrome(R.string.school_waiting).spoken,
+            busyDescription = copy.chrome(R.string.school_waiting),
             onClick = { onIntent(SchoolIntent.StudyTapped(card.lesson)) },
-            blockedReason = reason?.spoken,
+            blockedReason = reason,
             accessibleName = copy.lessonLineOf(card.name) { title: String -> "$title · ${studyLine()}" }.spoken,
         )
-        reason?.let { line: MyGameLabel -> BlockLine(line = line) }
         LessonStartAnswer(lesson = card.lesson, start = start, opening = opening)
     }
 }

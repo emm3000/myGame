@@ -36,20 +36,16 @@ internal fun ShownLesson(
     val running: SchoolUiState.SlotLine.Running? = content.slot as? SchoolUiState.SlotLine.Running
     val state: SchoolUiState.LessonState = card.state
     val isStep: Boolean = content.isStepLesson(card)
+    val open: SchoolUiState.LessonState.Open? = (state as? SchoolUiState.LessonState.Open)?.takeUnless { isStep }
     Column(verticalArrangement = Arrangement.spacedBy(MyGameSpacing.step5), modifier = modifier) {
         LessonBlock(card = card, isStep = isStep)
-        if (state is SchoolUiState.LessonState.Open && !isStep) {
-            StudyAction(
-                card = card,
-                block = state.block,
-                isWaiting = content.start == SchoolUiState.LessonRequestStatus.Waiting,
-                onIntent = onIntent,
-            )
-        }
+        if (open != null) StudyAction(card = card, block = open.block, content = content, onIntent = onIntent)
         running?.let { slot: SchoolUiState.SlotLine.Running ->
             ReadWordsRow(running = slot.lesson, name = slot.name, shown = card.lesson, onLessonOpen = onLessonOpen)
         }
-        LessonStartAnswer(lesson = card.lesson, start = content.start, opening = content.learning.opening)
+        if (open == null) {
+            LessonStartAnswer(lesson = card.lesson, start = content.start, opening = content.learning.opening)
+        }
     }
 }
 
@@ -94,7 +90,7 @@ private fun LessonBlock(card: SchoolUiState.LessonCard, isStep: Boolean, modifie
 private fun StudyAction(
     card: SchoolUiState.LessonCard,
     block: SchoolUiState.LessonBlock?,
-    isWaiting: Boolean,
+    content: SchoolUiState.Content,
     onIntent: (SchoolIntent) -> Unit,
     modifier: Modifier = Modifier,
 ) {
@@ -103,12 +99,12 @@ private fun StudyAction(
     Column(verticalArrangement = Arrangement.spacedBy(MyGameSpacing.step2), modifier = modifier) {
         MyGameOutlinedButton(
             label = copy.studyLabelOf(card),
-            isBusy = isWaiting,
-            busyDescription = copy.chrome(R.string.school_waiting).spoken,
+            isBusy = content.start == SchoolUiState.LessonRequestStatus.Waiting,
+            busyDescription = copy.chrome(R.string.school_waiting),
             onClick = { onIntent(SchoolIntent.StudyTapped(card.lesson)) },
-            blockedReason = reason?.spoken,
+            blockedReason = reason,
         )
-        reason?.let { line: MyGameLabel -> BlockLine(line = line) }
+        LessonStartAnswer(lesson = card.lesson, start = content.start, opening = content.learning.opening)
     }
 }
 

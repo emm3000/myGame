@@ -99,7 +99,7 @@ private fun SendTeamButton(site: Int, onIntent: (MapIntent) -> Unit, modifier: M
     MyGameOutlinedButton(
         label = copy.chrome(R.string.map_send_team),
         isBusy = false,
-        busyDescription = copy.chrome(R.string.map_waiting).spoken,
+        busyDescription = copy.chrome(R.string.map_waiting),
         onClick = { onIntent(MapIntent.SendTeamTapped(site)) },
         modifier = modifier,
         accessibleName = copy.chrome(R.string.map_send_team_to, "site" to site.toString()).spoken,

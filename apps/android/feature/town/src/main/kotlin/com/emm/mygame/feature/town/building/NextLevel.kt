@@ -5,8 +5,6 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.FlowRow
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.semantics.hideFromAccessibility
-import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.tooling.preview.PreviewParameter
 import androidx.compose.ui.tooling.preview.PreviewParameterProvider
 import com.emm.mygame.core.designsystem.MyGameLabel
@@ -23,7 +21,6 @@ import com.emm.mygame.core.ui.PlayerCopy
 import com.emm.mygame.core.ui.durationLabelOf
 import com.emm.mygame.core.ui.rememberPlayerCopy
 import com.emm.mygame.feature.town.R
-import com.emm.mygame.feature.town.ReadyLine
 import com.emm.mygame.feature.town.ReadyTime
 import com.emm.mygame.feature.town.TownIntent
 import com.emm.mygame.feature.town.townDurationCopy
@@ -36,7 +33,7 @@ internal fun NextLevel(
     building: TownBuildingKind,
     next: NextLevelLine,
     block: BlockReason?,
-    isWaiting: Boolean,
+    start: StartStatus,
     onIntent: (TownIntent) -> Unit,
     modifier: Modifier = Modifier,
 ) {
@@ -57,22 +54,12 @@ internal fun NextLevel(
                     "duration" to durationLabelOf(next.duration, townDurationCopy),
                 )
             },
-            isBusy = isWaiting,
-            busyDescription = copy.chrome(R.string.town_waiting).spoken,
+            isBusy = start is StartStatus.Waiting,
+            busyDescription = copy.chrome(R.string.town_waiting),
             onClick = { onIntent(TownIntent.BuildTapped(building)) },
-            blockedReason = reason?.spoken,
+            blockedReason = reason,
         )
-        reason?.let { line: MyGameLabel ->
-            MyGameText(
-                label = line,
-                style = MyGameTypography.caption,
-                color = MyGameTheme.colors.warningInk,
-                modifier = Modifier.semantics { hideFromAccessibility() },
-            )
-        }
-        (block as? BlockReason.Resources)?.ready?.let { ready: ReadyTime ->
-            ReadyLine(ready = ready)
-        }
+        StartAnswer(building = building, start = start)
     }
 }
 
@@ -108,7 +95,7 @@ private val previewNextLevel: NextLevelLine = NextLevelLine(
 private fun shortOfFoodUntil(ready: ReadyTime): BlockReason =
     BlockReason.Resources(listOf(Shortfall(TownResourceKind.Food, amount = 40)), ready = ready)
 
-private class ReadyLineStates : PreviewParameterProvider<BlockReason> {
+private class BlockedStates : PreviewParameterProvider<BlockReason> {
 
     override val values: Sequence<BlockReason> = sequenceOf(
         shortOfFoodUntil(ReadyTime(24.minutes, Instant.parse("2026-11-12T15:24:00Z"))),
@@ -120,13 +107,13 @@ private class ReadyLineStates : PreviewParameterProvider<BlockReason> {
 
 @PreviewMyGame
 @Composable
-private fun NextLevelReadyPreview(@PreviewParameter(ReadyLineStates::class) block: BlockReason) {
+private fun NextLevelBlockedPreview(@PreviewParameter(BlockedStates::class) block: BlockReason) {
     MyGamePreviewSurface {
         NextLevel(
             building = TownBuildingKind.Farm,
             next = previewNextLevel,
             block = block,
-            isWaiting = false,
+            start = StartStatus.Idle,
             onIntent = {},
         )
     }

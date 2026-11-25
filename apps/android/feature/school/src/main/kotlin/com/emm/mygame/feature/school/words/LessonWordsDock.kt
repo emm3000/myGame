@@ -64,13 +64,17 @@ private fun readingGoOf(
         wayOn != null -> goOf(wayOnLabelOf(wayOn)) { onWayOn(wayOn) }
         else -> goOf(
             label = chromeResource(R.string.school_start_reviews),
-            blockedReason = chromeResource(R.string.school_lesson_word_then).spoken,
+            blockedReason = chromeResource(R.string.school_lesson_word_then),
         ) {}
     }
 }
 
 @Composable
-private fun goOf(label: MyGameLabel, blockedReason: String? = null, onClick: () -> Unit): MyGameDockGo = MyGameDockGo(
+private fun goOf(
+    label: MyGameLabel,
+    blockedReason: MyGameLabel? = null,
+    onClick: () -> Unit,
+): MyGameDockGo = MyGameDockGo(
     label = label,
     isBusy = false,
     busyDescription = waitingLabel(),
@@ -79,4 +83,4 @@ private fun goOf(label: MyGameLabel, blockedReason: String? = null, onClick: () 
 )
 
 @Composable
-private fun waitingLabel(): String = chromeResource(R.string.school_waiting).spoken
+private fun waitingLabel(): MyGameLabel = chromeResource(R.string.school_waiting)

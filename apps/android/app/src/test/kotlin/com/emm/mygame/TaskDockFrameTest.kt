@@ -292,7 +292,7 @@ private fun FakeTaskRoute(frame: ScreenFrame, isFilled: Boolean, isFollowingTown
             go = MyGameDockGo(
                 label = MyGameLabel(text = "Check", translation = null),
                 isBusy = false,
-                busyDescription = "Checking",
+                busyDescription = MyGameLabel(text = "Checking", translation = null),
                 onClick = hook.onAnswered,
             ),
             notice = { MyGameText(text = "Correct.", style = MyGameTypography.body, color = MyGameTheme.colors.ink) },

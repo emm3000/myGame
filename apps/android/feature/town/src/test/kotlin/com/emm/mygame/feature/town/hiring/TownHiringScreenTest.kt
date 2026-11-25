@@ -13,7 +13,6 @@ import androidx.compose.ui.test.assertIsDisplayed
 import androidx.compose.ui.test.assertIsNotEnabled
 import androidx.compose.ui.test.getUnclippedBoundsInRoot
 import androidx.compose.ui.test.hasContentDescription
-import androidx.compose.ui.test.hasText
 import androidx.compose.ui.test.junit4.ComposeContentTestRule
 import androidx.compose.ui.test.junit4.createComposeRule
 import androidx.compose.ui.test.onAllNodesWithText
@@ -170,7 +169,9 @@ class TownHiringScreenTest {
     fun `names the minute the resources for the hires arrive`() {
         show(blocked(shortOfMoneyUntil(ReadyTime(remaining = 24.minutes, readyAt = readInstant))))
 
-        composeRule.onNode(hasText("Lista en") and hasText("24 min")).performScrollTo().assertIsDisplayed()
+        composeRule.onNodeWithText("Lista en 24 min", substring = true, useUnmergedTree = true)
+            .performScrollTo()
+            .assertIsDisplayed()
     }
 
     @Test
@@ -181,7 +182,7 @@ class TownHiringScreenTest {
 
         show(blocked(shortOfMoneyUntil(ready)).copy(place = refused))
 
-        composeRule.onNode(hasText("Lista en") and hasText("24 min")).assertDoesNotExist()
+        composeRule.onNodeWithText("Lista en 24 min", substring = true, useUnmergedTree = true).assertDoesNotExist()
     }
 
     @Test

@@ -32,6 +32,7 @@ import com.emm.mygame.core.designsystem.BLOCK_HUE
 import com.emm.mygame.core.designsystem.HAIRLINE
 import com.emm.mygame.core.designsystem.MyGameBlockHue
 import com.emm.mygame.core.designsystem.MyGameIcons
+import com.emm.mygame.core.designsystem.MyGameSpacing
 import com.emm.mygame.core.designsystem.MyGameTheme
 import com.emm.mygame.core.designsystem.NAV_ROW_CHEVRON
 import com.emm.mygame.core.designsystem.OUTLINED_PILL
@@ -41,6 +42,7 @@ import com.emm.mygame.core.model.town.LessonName
 import com.emm.mygame.core.model.town.SeasonKind
 import com.emm.mygame.core.model.town.TownResourceKind
 import com.emm.mygame.core.model.town.school.SchoolPathCounts
+import com.emm.mygame.core.model.town.school.TownLessonRefusal
 import com.emm.mygame.core.ui.DurationMark
 import com.emm.mygame.core.ui.SEASON_MARK_ICON
 import com.emm.mygame.core.uitesting.navRowOf
@@ -52,6 +54,8 @@ import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.robolectric.RobolectricTestRunner
+
+private const val SPACING_TOLERANCE_DP: Float = 0.5f
 
 @RunWith(RobolectricTestRunner::class)
 class SchoolLookTest {
@@ -436,6 +440,21 @@ class SchoolLookTest {
         show(secondWhileFirstRuns.copy(slot = SchoolUiState.SlotLine.Done(firstLesson, firstLessonName)))
 
         composeRule.onNode(navRowOf("Lección 1 · Leer las palabras"), useUnmergedTree = true).assertExists()
+    }
+
+    @Test
+    fun `draws a refused start right under the study button it refused`() {
+        show(
+            secondWhileFirstRuns.copy(
+                lessons = listOf(runningFirst, openSecond),
+                start = SchoolUiState.LessonRequestStatus.Refused(secondLesson, TownLessonRefusal.StudySlotBusy),
+            ),
+        )
+
+        val buttonBottom: Dp = composeRule.onNodeWithText("Estudiar la lección 2 · 2:30")
+            .getUnclippedBoundsInRoot().bottom
+        val refusalTop: Dp = topOf("La escuela ya tiene un estudio en marcha. Espera a que termine.")
+        assertEquals(MyGameSpacing.step2.value, (refusalTop - buttonBottom).value, SPACING_TOLERANCE_DP)
     }
 
     @Test

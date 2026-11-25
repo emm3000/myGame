@@ -43,10 +43,8 @@ internal fun CleanUpFormCard(
 private fun CleanUpQuoteLines(quote: MapUiState.CleanUpQuote, modifier: Modifier = Modifier) {
     val copy: PlayerCopy = rememberPlayerCopy()
     when (quote) {
-        MapUiState.CleanUpQuote.Asking -> Unit
+        MapUiState.CleanUpQuote.Asking, is MapUiState.CleanUpQuote.Refused -> Unit
         is MapUiState.CleanUpQuote.Quoted -> QuotedCleanUp(quote = quote, modifier = modifier)
-        is MapUiState.CleanUpQuote.Refused ->
-            MyGameInlineAlert(message = copy.fixedCopy { jobRefusalLineOf(quote.refusal) }, modifier = modifier)
         MapUiState.CleanUpQuote.Unreachable ->
             MyGameInlineAlert(message = copy.fixedCopy(R.string.map_refusal_unexpected), modifier = modifier)
     }

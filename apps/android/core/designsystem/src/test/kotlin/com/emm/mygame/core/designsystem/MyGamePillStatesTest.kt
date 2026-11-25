@@ -34,7 +34,9 @@ class MyGamePillStatesTest {
                     isBusy = isBusy,
                     busyDescription = MyGameLabel(text = SENDING, translation = null),
                     onClick = {},
-                    blockedReason = blockedReason?.let { reason: String -> MyGameLabel(text = reason, translation = null) },
+                    blockedReason = blockedReason?.let { reason: String ->
+                        MyGameLabel(text = reason, translation = null)
+                    },
                 )
             }
         }
@@ -49,7 +51,8 @@ class MyGamePillStatesTest {
     fun `a working button draws three dots inside its edge`() {
         show(isBusy = true, blockedReason = null)
 
-        composeRule.onNode(hasTestTag(WORKING_DOTS) and hasAnyAncestor(hasTestTag(OUTLINED_PILL)), useUnmergedTree = true)
+        composeRule
+            .onNode(hasTestTag(WORKING_DOTS) and hasAnyAncestor(hasTestTag(OUTLINED_PILL)), useUnmergedTree = true)
             .assertIsDisplayed()
         assertEquals(DOTS, dotAlphas().size)
     }
@@ -78,7 +81,8 @@ class MyGamePillStatesTest {
     fun `a blocked button draws a lock inside its edge`() {
         show(isBusy = false, blockedReason = SHORT_OF_FOOD)
 
-        composeRule.onNode(hasTestTag(BLOCKED_LOCK) and hasAnyAncestor(hasTestTag(OUTLINED_PILL)), useUnmergedTree = true)
+        composeRule
+            .onNode(hasTestTag(BLOCKED_LOCK) and hasAnyAncestor(hasTestTag(OUTLINED_PILL)), useUnmergedTree = true)
             .assertIsDisplayed()
     }
 

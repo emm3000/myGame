@@ -13,6 +13,7 @@ import com.emm.mygame.core.model.learning.ReviewHint
 import com.emm.mygame.core.model.learning.ReviewHintWord
 import com.emm.mygame.core.ui.chromeResource
 import com.emm.mygame.core.ui.fixedCopyResource
+import com.emm.mygame.core.ui.fixedLabel
 import com.emm.mygame.feature.learning.R
 
 @Composable
@@ -25,9 +26,9 @@ internal fun HintLine(
     val hint: ReviewHint? = card.hint
     if (hint == null) {
         MyGameOutlinedButton(
-            label = fixedCopyResource(R.string.review_hint),
+            label = fixedLabel(R.string.review_hint),
             isBusy = isBusy,
-            busyDescription = chromeResource(R.string.review_waiting).spoken,
+            busyDescription = chromeResource(R.string.review_waiting),
             onClick = { onIntent(ReviewIntent.HintTapped) },
             modifier = modifier,
         )

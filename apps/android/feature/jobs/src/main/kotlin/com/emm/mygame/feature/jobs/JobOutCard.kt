@@ -77,7 +77,7 @@ internal fun JobOutCard(
                 MyGameOutlinedButton(
                     label = chromeResource(R.string.map_job_out_call_back),
                     isBusy = callBack == MapUiState.CallBackRequest.Waiting,
-                    busyDescription = chromeResource(R.string.map_waiting).spoken,
+                    busyDescription = chromeResource(R.string.map_waiting),
                     onClick = { onIntent(MapIntent.CallBackTapped) },
                 )
             }
