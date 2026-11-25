@@ -117,6 +117,24 @@ class TodayViewModelTest {
     }
 
     @Test
+    fun `an unreachable read with no town held shows the error`() = runTest {
+        val viewModel: TodayViewModel = shownOnUnreachable()
+
+        assertEquals(TodayUiState.Failed, viewModel.state.value)
+    }
+
+    @Test
+    fun `retrying after the error reads the town again`() = runTest {
+        val viewModel: TodayViewModel = shownOnUnreachable()
+        towns.answerRead(TownReadResult.Read(newTown(nextStep = NextStep.LessonToStudy(firstLesson))))
+
+        viewModel.onIntent(TodayIntent.RetryTapped)
+        runCurrent()
+
+        assertEquals(TodayUiState.FirstCard.Study(firstLesson, number = 1), contentOf(viewModel).first)
+    }
+
+    @Test
     fun `a town with no name asks for the naming`() = runTest {
         towns.answerRead(TownReadResult.NoTown)
         val viewModel: TodayViewModel = TodayViewModel(towns, TestClock(testScheduler, readAt))
@@ -131,6 +149,15 @@ class TodayViewModelTest {
 
     private fun TestScope.shownOn(town: TownSnapshot): TodayViewModel {
         towns.answerRead(TownReadResult.Read(town))
+        val viewModel: TodayViewModel = TodayViewModel(towns, TestClock(testScheduler, readAt))
+        stopsWithTheTest(viewModel)
+        viewModel.onIntent(TodayIntent.ScreenShown)
+        runCurrent()
+        return viewModel
+    }
+
+    private fun TestScope.shownOnUnreachable(): TodayViewModel {
+        towns.answerRead(TownReadResult.Unreachable)
         val viewModel: TodayViewModel = TodayViewModel(towns, TestClock(testScheduler, readAt))
         stopsWithTheTest(viewModel)
         viewModel.onIntent(TodayIntent.ScreenShown)
