@@ -1,13 +1,13 @@
 package com.emm.mygame.feature.town.guidance
 
-import com.emm.mygame.core.model.town.TownRepository
 import com.emm.mygame.core.model.town.guidance.TipKind
+import com.emm.mygame.core.model.town.guidance.TownGuidanceRepository
 import com.emm.mygame.core.model.town.guidance.TownGuidanceResult
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
 
 internal class GuidanceRequests(
-    private val towns: TownRepository,
+    private val towns: TownGuidanceRepository,
     private val scope: CoroutineScope,
     private val onClosed: () -> Unit,
 ) {

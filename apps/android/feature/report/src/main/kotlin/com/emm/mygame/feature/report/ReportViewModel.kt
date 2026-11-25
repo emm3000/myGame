@@ -11,7 +11,7 @@ import com.emm.mygame.core.model.report.ReportRepository
 import com.emm.mygame.core.model.report.TownReport
 import com.emm.mygame.core.model.town.HeldTown
 import com.emm.mygame.core.model.town.ReadAnswer
-import com.emm.mygame.core.model.town.TownRepository
+import com.emm.mygame.core.model.town.TownReader
 import com.emm.mygame.core.model.town.readUntilReached
 import kotlin.time.Clock
 import kotlin.time.Duration
@@ -30,7 +30,7 @@ import kotlinx.coroutines.launch
 
 class ReportViewModel(
     private val reports: ReportRepository,
-    private val towns: TownRepository,
+    private val towns: TownReader,
     private val sessions: SessionRepository,
     private val reminders: StudyReminderSettings,
     private val clock: Clock,

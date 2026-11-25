@@ -8,7 +8,7 @@ import com.emm.mygame.core.model.town.HeldTown
 import com.emm.mygame.core.model.town.ReadAnswer
 import com.emm.mygame.core.model.town.ReadFollower
 import com.emm.mygame.core.model.town.TownReadResult
-import com.emm.mygame.core.model.town.TownRepository
+import com.emm.mygame.core.model.town.TownReader
 import com.emm.mygame.core.model.town.TownSnapshot
 import com.emm.mygame.core.model.town.gapOf
 import com.emm.mygame.core.model.town.serverNow
@@ -27,7 +27,7 @@ import kotlinx.coroutines.launch
 
 class LessonWordsViewModel(
     private val walk: LessonWalk,
-    private val towns: TownRepository,
+    private val towns: TownReader,
     private val learning: LearningRepository,
     private val clock: Clock,
 ) : ViewModel() {

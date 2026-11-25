@@ -6,12 +6,12 @@ import com.emm.mygame.core.model.town.HeldTown
 import com.emm.mygame.core.model.town.ReadAnswer
 import com.emm.mygame.core.model.town.ReadFollower
 import com.emm.mygame.core.model.town.TownReadResult
-import com.emm.mygame.core.model.town.TownRepository
 import com.emm.mygame.core.model.town.TownSnapshot
 import com.emm.mygame.core.model.town.gapOf
 import com.emm.mygame.core.model.town.jobs.RegionMap
 import com.emm.mygame.core.model.town.jobs.RegionMapResult
 import com.emm.mygame.core.model.town.jobs.TownJobResult
+import com.emm.mygame.core.model.town.jobs.TownRegionRepository
 import com.emm.mygame.core.model.town.serverNow
 import com.emm.mygame.core.projection.countdownTo
 import com.emm.mygame.core.projection.repaintDelay
@@ -31,7 +31,7 @@ import kotlinx.coroutines.launch
 
 private val unreachableQuoteRetry: Duration = 5.seconds
 
-class MapViewModel(private val towns: TownRepository, private val clock: Clock) : ViewModel() {
+class MapViewModel(private val towns: TownRegionRepository, private val clock: Clock) : ViewModel() {
 
     private val _state: MutableStateFlow<MapUiState> = MutableStateFlow(MapUiState.Loading)
 

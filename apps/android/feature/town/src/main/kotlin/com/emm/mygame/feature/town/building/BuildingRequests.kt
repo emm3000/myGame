@@ -1,8 +1,8 @@
 package com.emm.mygame.feature.town.building
 
-import com.emm.mygame.core.model.town.TownRepository
 import com.emm.mygame.core.model.town.TownSnapshot
 import com.emm.mygame.core.model.town.building.TownBuildingKind
+import com.emm.mygame.core.model.town.building.TownWorkRepository
 import com.emm.mygame.core.model.town.building.TownWorkResult
 import com.emm.mygame.feature.town.TownRequests
 import com.emm.mygame.feature.town.building.work.StopStatus
@@ -11,7 +11,7 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
 
 internal class BuildingRequests(
-    private val towns: TownRepository,
+    private val towns: TownWorkRepository,
     private val scope: CoroutineScope,
     private val requests: () -> TownRequests,
     private val onDrawn: (TownRequests) -> Unit,

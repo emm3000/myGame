@@ -3,8 +3,8 @@ package com.emm.mygame
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.emm.mygame.core.model.town.HeldTown
+import com.emm.mygame.core.model.town.TownReader
 import com.emm.mygame.core.model.town.TownRegistered
-import com.emm.mygame.core.model.town.TownRepository
 import com.emm.mygame.core.model.town.TownSnapshot
 import com.emm.mygame.core.model.town.registeredBetween
 import com.emm.mygame.core.model.town.school.RetainedWords
@@ -15,7 +15,7 @@ import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
 
 internal class RetainedWordsViewModel(
-    private val towns: TownRepository,
+    private val towns: TownReader,
     private val doesScreenReadTown: Boolean,
 ) : ViewModel() {
 
