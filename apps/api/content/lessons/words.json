@@ -3663,6 +3663,16 @@
       {
         "frame": "Can you come up with a name for the team?",
         "gappedFrame": "Can you ____ ____ with a name for the team?"
+      },
+      {
+        "frame": "Our team has to come up with something new for the town.",
+        "gappedFrame": "Our team has to ____ ____ with something new for the town.",
+        "fromLessonId": "lesson-35"
+      },
+      {
+        "frame": "Give me a day to come up with a plan.",
+        "gappedFrame": "Give me a day to ____ ____ with a plan.",
+        "fromLessonId": "lesson-45"
       }
     ],
     "gloss": {
@@ -3679,6 +3689,16 @@
       {
         "frame": "I want to go back to the city.",
         "gappedFrame": "I want to ____ ____ to the city."
+      },
+      {
+        "frame": "My map is at the station, so I have to go back for it.",
+        "gappedFrame": "My map is at the station, so I have to ____ ____ for it.",
+        "fromLessonId": "lesson-33"
+      },
+      {
+        "frame": "I never want to go back to that old house.",
+        "gappedFrame": "I never want to ____ ____ to that old house.",
+        "fromLessonId": "lesson-36"
       }
     ],
     "gloss": {
@@ -3695,6 +3715,16 @@
       {
         "frame": "Can you point out the problem?",
         "gappedFrame": "Can you ____ ____ the problem?"
+      },
+      {
+        "frame": "Can you point out your house on this map?",
+        "gappedFrame": "Can you ____ ____ your house on this map?",
+        "fromLessonId": "lesson-33"
+      },
+      {
+        "frame": "I have to point out that this number is not right.",
+        "gappedFrame": "I have to ____ ____ that this number is not right.",
+        "fromLessonId": "lesson-33"
       }
     ],
     "gloss": {
@@ -3711,6 +3741,16 @@
       {
         "frame": "Of course you can come with us.",
         "gappedFrame": "____ ____ you can come with us."
+      },
+      {
+        "frame": "Of course I know who you are.",
+        "gappedFrame": "____ ____ I know who you are.",
+        "fromLessonId": "lesson-33"
+      },
+      {
+        "frame": "She is my friend, so of course I will help her.",
+        "gappedFrame": "She is my friend, so ____ ____ I will help her.",
+        "fromLessonId": "lesson-40"
       }
     ],
     "gloss": {
@@ -3727,6 +3767,16 @@
       {
         "frame": "Tell the mayor so that she can help.",
         "gappedFrame": "Tell the mayor ____ ____ she can help."
+      },
+      {
+        "frame": "I study a lot so that I can find a good job.",
+        "gappedFrame": "I study a lot ____ ____ I can find a good job.",
+        "fromLessonId": "lesson-33"
+      },
+      {
+        "frame": "Put the map here so that we can all see it.",
+        "gappedFrame": "Put the map here ____ ____ we can all see it.",
+        "fromLessonId": "lesson-33"
       }
     ],
     "gloss": {
@@ -3742,6 +3792,16 @@
       {
         "frame": "This is the best part of the job.",
         "gappedFrame": "This is the best ____ of the job."
+      },
+      {
+        "frame": "I only read part of the report.",
+        "gappedFrame": "I only read ____ of the report.",
+        "fromLessonId": "lesson-34"
+      },
+      {
+        "frame": "Part of the town has no power.",
+        "gappedFrame": "____ of the town has no power.",
+        "fromLessonId": "lesson-34"
       }
     ],
     "gloss": {
@@ -3757,6 +3817,17 @@
       {
         "frame": "My family lives in the city.",
         "gappedFrame": "My ____ lives in the city."
+      },
+      {
+        "frame": "I work so that my family can have a good life.",
+        "gappedFrame": "I work so that my ____ can have a good life.",
+        "fromLessonId": "lesson-34"
+      },
+      {
+        "frame": "How big is your family?",
+        "gappedFrame": "How big is your ____?",
+        "noCardSense": ["how"],
+        "fromLessonId": "lesson-38"
       }
     ],
     "gloss": {
@@ -3775,6 +3846,16 @@
       {
         "frame": "That woman is the new mayor.",
         "gappedFrame": "That ____ is the new mayor."
+      },
+      {
+        "frame": "The woman at the office said she can help us.",
+        "gappedFrame": "The ____ at the office said she can help us.",
+        "fromLessonId": "lesson-34"
+      },
+      {
+        "frame": "A woman from the city wants to meet you.",
+        "gappedFrame": "A ____ from the city wants to meet you.",
+        "fromLessonId": "lesson-34"
       }
     ],
     "gloss": {
@@ -3790,6 +3871,16 @@
       {
         "frame": "We need another worker at the farm.",
         "gappedFrame": "We need ____ worker at the farm."
+      },
+      {
+        "frame": "Can we talk about this another day?",
+        "gappedFrame": "Can we talk about this ____ day?",
+        "fromLessonId": "lesson-34"
+      },
+      {
+        "frame": "I will wait another week.",
+        "gappedFrame": "I will wait ____ week.",
+        "fromLessonId": "lesson-35"
       }
     ],
     "gloss": {
@@ -3805,6 +3896,16 @@
       {
         "frame": "This is the best city in the world.",
         "gappedFrame": "This is the best city in the ____."
+      },
+      {
+        "frame": "My goal is to see the world.",
+        "gappedFrame": "My goal is to see the ____.",
+        "fromLessonId": "lesson-34"
+      },
+      {
+        "frame": "People from all over the world work at this company.",
+        "gappedFrame": "People from all over the ____ work at this company.",
+        "fromLessonId": "lesson-34"
       }
     ],
     "gloss": {
@@ -3820,6 +3921,16 @@
       {
         "frame": "I want to tell you something.",
         "gappedFrame": "I want to tell you ____."
+      },
+      {
+        "frame": "Do you need something from the city?",
+        "gappedFrame": "Do you need ____ from the city?",
+        "fromLessonId": "lesson-35"
+      },
+      {
+        "frame": "Something is not right with the truck.",
+        "gappedFrame": "____ is not right with the truck.",
+        "fromLessonId": "lesson-35"
       }
     ],
     "gloss": {
@@ -3835,6 +3946,16 @@
       {
         "frame": "I start a new job next week.",
         "gappedFrame": "I start a new job next ____."
+      },
+      {
+        "frame": "How was your week?",
+        "gappedFrame": "How was your ____?",
+        "fromLessonId": "lesson-35"
+      },
+      {
+        "frame": "The report is due this week.",
+        "gappedFrame": "The report is due this ____.",
+        "fromLessonId": "lesson-35"
       }
     ],
     "gloss": {
@@ -3850,6 +3971,16 @@
       {
         "frame": "It is late, so I will go home.",
         "gappedFrame": "It is ____, so I will go home."
+      },
+      {
+        "frame": "Why are you up so late?",
+        "gappedFrame": "Why are you up so ____?",
+        "fromLessonId": "lesson-35"
+      },
+      {
+        "frame": "We worked late at the factory.",
+        "gappedFrame": "We worked ____ at the factory.",
+        "fromLessonId": "lesson-35"
       }
     ],
     "gloss": {
@@ -3865,6 +3996,16 @@
       {
         "frame": "Why do you want this job?",
         "gappedFrame": "____ do you want this job?"
+      },
+      {
+        "frame": "Why is the truck still here?",
+        "gappedFrame": "____ is the truck still here?",
+        "fromLessonId": "lesson-35"
+      },
+      {
+        "frame": "Can you tell me why the power is off?",
+        "gappedFrame": "Can you tell me ____ the power is off?",
+        "fromLessonId": "lesson-35"
       }
     ],
     "gloss": {
@@ -3880,6 +4021,16 @@
       {
         "frame": "Can I ask you a question?",
         "gappedFrame": "Can I ask you a ____?"
+      },
+      {
+        "frame": "That is a good question.",
+        "gappedFrame": "That is a good ____.",
+        "fromLessonId": "lesson-35"
+      },
+      {
+        "frame": "If you have a question, come to my office.",
+        "gappedFrame": "If you have a ____, come to my office.",
+        "fromLessonId": "lesson-35"
       }
     ],
     "gloss": {
@@ -3895,6 +4046,16 @@
       {
         "frame": "He will become the next mayor.",
         "gappedFrame": "He will ____ the next mayor."
+      },
+      {
+        "frame": "This town could become a city.",
+        "gappedFrame": "This town could ____ a city.",
+        "fromLessonId": "lesson-36"
+      },
+      {
+        "frame": "The job can become too much for one worker.",
+        "gappedFrame": "The job can ____ too much for one worker.",
+        "fromLessonId": "lesson-36"
       }
     ],
     "gloss": {
@@ -3910,6 +4071,16 @@
       {
         "frame": "What country are you from?",
         "gappedFrame": "What ____ are you from?"
+      },
+      {
+        "frame": "I want to work in another country.",
+        "gappedFrame": "I want to work in another ____.",
+        "fromLessonId": "lesson-36"
+      },
+      {
+        "frame": "Our country has a new government.",
+        "gappedFrame": "Our ____ has a new government.",
+        "fromLessonId": "lesson-45"
       }
     ],
     "gloss": {
@@ -3925,6 +4096,17 @@
       {
         "frame": "This city is very different from my town.",
         "gappedFrame": "This city is very ____ from my town."
+      },
+      {
+        "frame": "I want to do something different this summer.",
+        "gappedFrame": "I want to do something ____ this summer.",
+        "fromLessonId": "lesson-36"
+      },
+      {
+        "frame": "You look different today.",
+        "gappedFrame": "You look ____ today.",
+        "noCardSense": ["look"],
+        "fromLessonId": "lesson-36"
       }
     ],
     "gloss": {
@@ -3940,6 +4122,16 @@
       {
         "frame": "I have never been to the city.",
         "gappedFrame": "I have ____ been to the city."
+      },
+      {
+        "frame": "He never says a word at the office.",
+        "gappedFrame": "He ____ says a word at the office.",
+        "fromLessonId": "lesson-36"
+      },
+      {
+        "frame": "You never ask me how my day was.",
+        "gappedFrame": "You ____ ask me how my day was.",
+        "fromLessonId": "lesson-36"
       }
     ],
     "gloss": {
@@ -3955,6 +4147,16 @@
       {
         "frame": "She is always at the office.",
         "gappedFrame": "She is ____ at the office."
+      },
+      {
+        "frame": "You can always come back if you want.",
+        "gappedFrame": "You can ____ come back if you want.",
+        "fromLessonId": "lesson-36"
+      },
+      {
+        "frame": "Ask her, because she always knows what to say.",
+        "gappedFrame": "Ask her, because she ____ knows what to say.",
+        "fromLessonId": "lesson-36"
       }
     ],
     "gloss": {
@@ -3970,6 +4172,16 @@
       {
         "frame": "She has no interest in the job.",
         "gappedFrame": "She has no ____ in the job."
+      },
+      {
+        "frame": "My interest in maps started when I was little.",
+        "gappedFrame": "My ____ in maps started when I was little.",
+        "fromLessonId": "lesson-38"
+      },
+      {
+        "frame": "Do you have any interest in the course?",
+        "gappedFrame": "Do you have any ____ in the course?",
+        "fromLessonId": "lesson-38"
       }
     ],
     "gloss": {
@@ -3985,6 +4197,16 @@
       {
         "frame": "The children play by the river.",
         "gappedFrame": "The children ____ by the river."
+      },
+      {
+        "frame": "I want to play on the school team.",
+        "gappedFrame": "I want to ____ on the school team.",
+        "fromLessonId": "lesson-38"
+      },
+      {
+        "frame": "Work first, then you can play.",
+        "gappedFrame": "Work first, then you can ____.",
+        "fromLessonId": "lesson-38"
       }
     ],
     "gloss": {
@@ -4000,6 +4222,16 @@
       {
         "frame": "I want to read this book.",
         "gappedFrame": "I want to read this ____."
+      },
+      {
+        "frame": "Can I take this book home?",
+        "gappedFrame": "Can I take this ____ home?",
+        "fromLessonId": "lesson-38"
+      },
+      {
+        "frame": "She wrote a book about the town.",
+        "gappedFrame": "She wrote a ____ about the town.",
+        "fromLessonId": "lesson-38"
       }
     ],
     "gloss": {
@@ -4015,6 +4247,16 @@
       {
         "frame": "Can you hear me?",
         "gappedFrame": "Can you ____ me?"
+      },
+      {
+        "frame": "I did not hear what she said.",
+        "gappedFrame": "I did not ____ what she said.",
+        "fromLessonId": "lesson-38"
+      },
+      {
+        "frame": "I can hear the children, but I cannot see them.",
+        "gappedFrame": "I can ____ the children, but I cannot see them.",
+        "fromLessonId": "lesson-38"
       }
     ],
     "gloss": {
@@ -4030,6 +4272,16 @@
       {
         "frame": "We need a big truck for this job.",
         "gappedFrame": "We need a ____ truck for this job."
+      },
+      {
+        "frame": "It is a big house for a small family.",
+        "gappedFrame": "It is a ____ house for a small family.",
+        "fromLessonId": "lesson-39"
+      },
+      {
+        "frame": "That is a big problem.",
+        "gappedFrame": "That is a ____ problem.",
+        "fromLessonId": "lesson-38"
       }
     ],
     "gloss": {
