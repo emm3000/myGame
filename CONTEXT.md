@@ -26,6 +26,7 @@ The game is Townword, a present-day town the player grows into a city (ADR 035).
 - **Storage** — the building that sets the capacity of all four stocks at once.
 - **Tax** — the money rate every town earns from founding, with no building.
 - **Accrual** — the amount a resource holds at a later instant, computed on read segment by segment: the span since the stored instant is split at every season boundary it crosses, and each segment accrues at the rates in force at its start as `max(amount, min(capacity, amount + rate × elapsed))`, floored on its own. A stock under the capacity fills up to it, a stock above it (after a refund) freezes, neither accruing nor clamped (ADR 005, ADR 016).
+- **Away** — what each stock rose by while the player was away, answered by an overview read an hour or more, the content's to tune, after the later of the town's **seen** instant and its stored instant, the instant of the last overview read and the last settle. It is derived from the settle that read performs, so it collects nothing and names no source and no time away; a settle made by another request in between moves the stored instant, so it reports less than the town gained, never more (ADR 057).
 
 ## Buildings
 

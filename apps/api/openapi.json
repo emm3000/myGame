@@ -3006,6 +3006,17 @@
             "nullable": true,
             "format": "date-time"
           },
+          "away": {
+            "type": "object",
+            "nullable": true,
+            "properties": {
+              "gained": {
+                "$ref": "#/components/schemas/ResourceAmounts"
+              }
+            },
+            "required": ["gained"],
+            "additionalProperties": false
+          },
           "readAt": {
             "type": "string",
             "format": "date-time"
@@ -3040,6 +3051,7 @@
           "scaffold",
           "scaffoldVersion",
           "nextDueAt",
+          "away",
           "readAt"
         ],
         "additionalProperties": false

@@ -104,6 +104,8 @@ const HireTermsStateSchema = z.strictObject({
   requiredOfficeLevel: WholeCountSchema.positive(),
 })
 
+const AwaySchema = z.strictObject({ gained: ResourceAmountsSchema })
+
 export const TownOverviewSchema = z
   .strictObject({
     name: z.string().min(1),
@@ -152,6 +154,7 @@ export const TownOverviewSchema = z
     scaffold: ScaffoldSchema,
     scaffoldVersion: ScaffoldVersionSchema,
     nextDueAt: InstantSchema.nullable(),
+    away: AwaySchema.nullable(),
     readAt: InstantSchema,
   })
   .meta({ id: 'TownOverview' })

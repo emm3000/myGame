@@ -59,6 +59,7 @@ export const towns = pgTable(
     workCostPower: doublePrecision('work_cost_power'),
     workCostMaterial: doublePrecision('work_cost_material'),
     guidanceDismissedAt: timestamp('guidance_dismissed_at', { withTimezone: true }),
+    seenAt: timestamp('seen_at', { withTimezone: true }),
   },
   (table) => [
     unique('towns_player_unique').on(table.playerId),

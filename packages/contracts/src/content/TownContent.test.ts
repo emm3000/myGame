@@ -45,6 +45,7 @@ const townContent = (overrides: Record<string, unknown> = {}): unknown => ({
   sitesPerArea: 15,
   terrainBonusPerHour: 5,
   waitingListCap: 4,
+  awayAfterSeconds: 3600,
   wordNeed: { fromLevel: 3, perLevel: 10, retainedFromLevel: 7 },
   job,
   waste,

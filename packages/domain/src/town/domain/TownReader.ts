@@ -17,6 +17,7 @@ export type TownWithSchool = StoredScaffold & {
   readonly bandStarts: ReadonlyArray<BandStart>
   readonly placementScores: ReadonlyArray<PlacementScore>
   readonly guidanceDismissedAt: Instant | undefined
+  readonly seenAt: Instant | undefined
   readonly seenTips: ReadonlyArray<TipKind>
 }
 

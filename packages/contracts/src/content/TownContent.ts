@@ -1,5 +1,10 @@
 import { z } from 'zod'
-import { InstantSchema, QuantitySchema, WholeCountSchema } from '../platform/Wire'
+import {
+  DurationSecondsSchema,
+  InstantSchema,
+  QuantitySchema,
+  WholeCountSchema,
+} from '../platform/Wire'
 import { BuildingKindSchema } from '../town/building/BuildingKind'
 import { TipKindSchema } from '../town/guidance/TipKind'
 import { ResourceAmountsSchema } from '../town/ResourceAmounts'
@@ -73,6 +78,7 @@ export const TownContentSchema = z.strictObject({
   sitesPerArea: WholeCountSchema.positive(),
   terrainBonusPerHour: QuantitySchema,
   waitingListCap: WholeCountSchema,
+  awayAfterSeconds: DurationSecondsSchema.positive(),
   wordNeed: WordNeedContentSchema,
   job: JobContentSchema,
   waste: WasteContentSchema,

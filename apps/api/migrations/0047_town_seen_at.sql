@@ -1,0 +1,1 @@
+ALTER TABLE "towns" ADD COLUMN "seen_at" timestamp with time zone;

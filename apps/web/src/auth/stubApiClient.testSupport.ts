@@ -80,6 +80,7 @@ export const knownTown: TownOverview = {
   scaffold: 'es',
   scaffoldVersion: 0,
   nextDueAt: null,
+  away: null,
   readAt: '2026-11-10T09:00:00.000Z',
 }
 

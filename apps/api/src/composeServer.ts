@@ -5,6 +5,7 @@ import type {
   LessonLibrary,
   ReadOnlyTowns,
   ReportClosings,
+  SeenTowns,
   TownNewsReader,
   TownReader,
 } from '@mygame/domain'
@@ -49,6 +50,7 @@ import { VercelAfterResponse } from '#platform/infrastructure/vercel/VercelAfter
 import { DrizzleReportClosings } from '#report/infrastructure/persistence/DrizzleReportClosings'
 import { DrizzleCleanUpRepository } from '#town/infrastructure/persistence/DrizzleCleanUpRepository'
 import { DrizzleRegionMapReader } from '#town/infrastructure/persistence/DrizzleRegionMapReader'
+import { DrizzleSeenTowns } from '#town/infrastructure/persistence/DrizzleSeenTowns'
 import { DrizzleTownNews } from '#town/infrastructure/persistence/DrizzleTownNews'
 import { DrizzleTownReader } from '#town/infrastructure/persistence/DrizzleTownReader'
 import { DrizzleTownRepository } from '#town/infrastructure/persistence/DrizzleTownRepository'
@@ -114,6 +116,7 @@ export type ComposedServer = MailSettings & {
   readonly random: RandomSource
   readonly towns: ReadOnlyTowns
   readonly townsWithSchool: TownReader
+  readonly seenTowns: SeenTowns
   readonly townNews: TownNewsReader
   readonly regionMap: RegionMapReader
   readonly cleanUps: CleanUpReader
@@ -159,6 +162,7 @@ export function composeServer(
     unitOfWork: new DrizzleUnitOfWork(database, composeStores),
     towns: new DrizzleTownRepository(database, 'lockFree'),
     townsWithSchool: new DrizzleTownReader(database),
+    seenTowns: new DrizzleSeenTowns(database),
     townNews: new DrizzleTownNews(database),
     regionMap: new DrizzleRegionMapReader(database),
     cleanUps: new DrizzleCleanUpRepository(database),

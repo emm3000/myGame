@@ -63,6 +63,7 @@ const readingWith = (cards: ReadonlyArray<HeldCard>): TownReading => ({
   bandStarts: [],
   placementScores: [],
   guidanceDismissedAt: undefined,
+  seenAt: undefined,
   seenTips: [],
   scaffold: 'es',
   scaffoldVersion: 1,

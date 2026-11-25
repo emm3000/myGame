@@ -14,6 +14,7 @@ import { DrizzleGuidanceDismissals } from '#town/infrastructure/persistence/Driz
 import { DrizzleLessonSlotRepository } from '#town/infrastructure/persistence/DrizzleLessonSlotRepository'
 import { DrizzleRegionMapReader } from '#town/infrastructure/persistence/DrizzleRegionMapReader'
 import { DrizzleSeenTips } from '#town/infrastructure/persistence/DrizzleSeenTips'
+import { DrizzleSeenTowns } from '#town/infrastructure/persistence/DrizzleSeenTowns'
 import { DrizzleTownNews } from '#town/infrastructure/persistence/DrizzleTownNews'
 import { DrizzleTownReader } from '#town/infrastructure/persistence/DrizzleTownReader'
 import { DrizzleTownRepository } from '#town/infrastructure/persistence/DrizzleTownRepository'
@@ -38,4 +39,5 @@ export const composeStores = (transaction: PostgresSession): ComposedStores => (
   cleanUps: new DrizzleCleanUpRepository(transaction),
   seenTips: new DrizzleSeenTips(transaction),
   guidanceDismissals: new DrizzleGuidanceDismissals(transaction),
+  seenTowns: new DrizzleSeenTowns(transaction),
 })

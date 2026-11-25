@@ -1,5 +1,12 @@
 import type { TownOverview } from '@mygame/contracts'
-import type { Instant, ResourceKind, TownCatalog, TownReading, TownSeason } from '@mygame/domain'
+import type {
+  Instant,
+  ResourceKind,
+  Stocks,
+  TownCatalog,
+  TownReading,
+  TownSeason,
+} from '@mygame/domain'
 import { presentScaffold } from '#account/infrastructure/http/presentScaffold'
 import { isoOf } from '#platform/infrastructure/http/isoOf'
 import { presentTownBuildings } from '../../building/infrastructure/http/presentTownBuildings'
@@ -43,9 +50,13 @@ const presentSeason = (season: TownSeason | null): TownOverview['season'] =>
         durationPercent: { ...season.durationPercent },
       }
 
+const presentAway = (away: Stocks | undefined): TownOverview['away'] =>
+  away === undefined ? null : { gained: { ...away } }
+
 export const presentTownOverview = (
   reading: TownReading,
   view: TownView,
+  away: Stocks | undefined,
   catalog: TownCatalog,
 ): TownOverview => {
   const { town, at } = reading
@@ -72,6 +83,7 @@ export const presentTownOverview = (
     retainedWordCount: view.retainedWordCount,
     ...presentTownGuidance(view.guidance),
     ...presentScaffold(reading),
+    away: presentAway(away),
     readAt: isoOf(at),
   }
 }

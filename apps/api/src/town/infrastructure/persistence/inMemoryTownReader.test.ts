@@ -10,6 +10,7 @@ import {
   inMemoryTowns,
   MemoryGuidanceDismissals,
   MemorySeenTips,
+  MemorySeenTowns,
 } from '@mygame/domain/testing'
 import { townReaderContract } from './townReaderContract.testSupport'
 
@@ -32,6 +33,7 @@ townReaderContract('inMemoryTownReader', async () => {
       placements,
       guidanceDismissals,
       seenTips,
+      seenTowns: new MemorySeenTowns(towns),
     }),
     accounts,
     towns,

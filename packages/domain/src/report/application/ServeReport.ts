@@ -5,10 +5,8 @@ import type { Clock } from '#platform/domain/Clock'
 import type { PlayerId } from '#player/PlayerId'
 import { err, ok, type Result } from '#Result'
 import type { Instant } from '#time/Instant'
-import {
-  type ResolveTownReadingDependencies,
-  resolveTownReading,
-} from '#town/application/resolveTownReading'
+import type { ResolveTownReadingDependencies } from '#town/application/resolveStoredTownReading'
+import { resolveTownReading } from '#town/application/resolveTownReading'
 import type { TownEvent } from '#town/domain/TownEvent'
 import type { TownId } from '#town/domain/TownId'
 import type { TownNewsReader } from '#town/domain/TownNewsReader'

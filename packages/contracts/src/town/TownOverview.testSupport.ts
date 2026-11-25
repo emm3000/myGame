@@ -99,6 +99,7 @@ export const overview = (overrides: Record<string, unknown> = {}): Record<string
   scaffold: 'es',
   scaffoldVersion: 3,
   nextDueAt: null,
+  away: null,
   readAt: '2026-11-10T08:58:00.000Z',
   ...overrides,
 })

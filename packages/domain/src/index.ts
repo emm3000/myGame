@@ -241,6 +241,8 @@ export {
   ResolveCurrentTown,
   type ResolveCurrentTownDependencies,
 } from '#town/application/ResolveCurrentTown'
+export type { SeenTowns } from '#town/away/domain/SeenTowns'
+export type { TownOverviewReading } from '#town/away/domain/TownOverviewReading'
 export {
   StartBuildingWork,
   type StartBuildingWorkCommand,

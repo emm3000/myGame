@@ -31,6 +31,7 @@ export type TownSettings = {
   readonly sitesPerArea: number
   readonly terrainBonusPerHour: number
   readonly waitingListCap: number
+  readonly awayAfterSeconds: number
   readonly wordNeed: WordNeed
   readonly job: JobTerms
   readonly waste: WasteTerms

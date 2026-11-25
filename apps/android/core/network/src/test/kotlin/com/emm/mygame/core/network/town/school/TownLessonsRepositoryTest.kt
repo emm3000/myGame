@@ -454,7 +454,7 @@ class TownLessonsRepositoryTest : TownRepositoryFixture() {
                 """"nextInLearningDueAt":"2026-11-14T09:30:00.000Z"},""" +
                 """"stableWordCount":0,"retainedWordCount":0,""" +
                 """"nextStep":{"kind":"caughtUp","reason":"lessonsDone","goal":null,"text":null},"tip":null,""" +
-                """"chromePhase":"scaffold","scaffold":"es","scaffoldVersion":0,"nextDueAt":null,""" +
+                """"chromePhase":"scaffold","scaffold":"es","scaffoldVersion":0,"nextDueAt":null,"away":null,""" +
                 """"readAt":"2026-11-05T10:05:00.000Z"}"""
     }
 }

@@ -4,6 +4,7 @@ import type { CardRepository } from '#learning/domain/CardRepository'
 import type { PendingReviewRepository } from '#learning/reviews/domain/PendingReviewRepository'
 import type { ReviewLog } from '#learning/reviews/domain/ReviewLog'
 import type { PlacementRepository } from '#placement/domain/PlacementRepository'
+import type { SeenTowns } from '../away/domain/SeenTowns'
 import type { GuidanceDismissals } from '../guidance/domain/GuidanceDismissals'
 import type { SeenTips } from '../guidance/domain/SeenTips'
 import type { CleanUpRepository } from '../jobs/domain/CleanUpRepository'
@@ -31,4 +32,5 @@ export type TownStores = {
   readonly cleanUps: CleanUpRepository
   readonly seenTips: SeenTips
   readonly guidanceDismissals: GuidanceDismissals
+  readonly seenTowns: SeenTowns
 }

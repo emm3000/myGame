@@ -1,10 +1,8 @@
 import type { DomainError } from '#DomainError'
 import type { PlayerId } from '#player/PlayerId'
 import { ok, type Result } from '#Result'
-import {
-  type ResolveTownReadingDependencies,
-  resolveTownReading,
-} from '../../application/resolveTownReading'
+import type { ResolveTownReadingDependencies } from '../../application/resolveStoredTownReading'
+import { resolveTownReading } from '../../application/resolveTownReading'
 import type { TownEvent } from '../../domain/TownEvent'
 import type { TownNewsReader } from '../../domain/TownNewsReader'
 

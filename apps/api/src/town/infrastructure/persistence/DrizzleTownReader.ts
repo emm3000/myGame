@@ -61,6 +61,7 @@ export class DrizzleTownReader implements TownReader {
       bandStarts: bandStarts.value,
       placementScores: placementScores.value,
       guidanceDismissedAt: instantFromColumn(row.town.guidanceDismissedAt) ?? undefined,
+      seenAt: instantFromColumn(row.town.seenAt) ?? undefined,
       seenTips: seenTipsFrom(row.seenTips),
       scaffold: row.scaffold,
       scaffoldVersion: row.scaffoldVersion,

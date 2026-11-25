@@ -92,6 +92,18 @@ describe('TownOverviewSchema', () => {
     ).toBe(false)
   })
 
+  it('parses what each stock gained while the player was away', () => {
+    const away = { gained: { money: 40, food: 10, power: 0, material: 0 } }
+
+    expect(TownOverviewSchema.parse(overview({ away })).away).toEqual(away)
+  })
+
+  it('rejects an away gain missing a resource', () => {
+    const away = { gained: { money: 40, food: 10, power: 0 } }
+
+    expect(TownOverviewSchema.safeParse(overview({ away })).success).toBe(false)
+  })
+
   it('parses a job out with its pay and its instants', () => {
     expect(TownOverviewSchema.parse(overview({ job: jobOut })).job).toEqual(jobOut)
   })

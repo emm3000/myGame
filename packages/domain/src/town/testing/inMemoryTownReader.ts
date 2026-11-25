@@ -24,6 +24,7 @@ export type TownReaderStores = {
     dismissedAt(playerId: PlayerId): Promise<Instant | undefined>
   }
   readonly seenTips: { seenTipsOf(playerId: PlayerId): Promise<ReadonlyArray<TipKind>> }
+  readonly seenTowns: { seenAtOf(playerId: PlayerId): Promise<Instant | undefined> }
 }
 
 type HeldSchool = Pick<TownWithSchool, 'cards' | 'bandStarts' | 'placementScores'>
@@ -79,6 +80,7 @@ export const inMemoryTownReader = (stores: TownReaderStores): TownReader => ({
       lessonSlot: lessonSlot.value,
       guidanceDismissedAt: await stores.guidanceDismissals.dismissedAt(playerId),
       seenTips: await stores.seenTips.seenTipsOf(playerId),
+      seenAt: await stores.seenTowns.seenAtOf(playerId),
     })
   },
 })
