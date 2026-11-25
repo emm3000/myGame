@@ -21,6 +21,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.semantics.clearAndSetSemantics
@@ -100,11 +101,12 @@ private fun TabLabel(label: MyGameLabel, style: TextStyle, modifier: Modifier = 
 
 @Composable
 private fun OneLine(line: String, style: TextStyle, modifier: Modifier = Modifier) {
+    val fontScale: Float = LocalDensity.current.fontScale.coerceAtLeast(1f)
     BasicText(
         text = line,
         style = style,
         maxLines = 1,
-        autoSize = TextAutoSize.StepBased(maxFontSize = style.fontSize),
+        autoSize = TextAutoSize.StepBased(minFontSize = style.fontSize / fontScale, maxFontSize = style.fontSize),
         modifier = modifier,
     )
 }
