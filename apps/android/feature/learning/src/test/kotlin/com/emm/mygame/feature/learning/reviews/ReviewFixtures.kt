@@ -1,9 +1,13 @@
 package com.emm.mygame.feature.learning.reviews
 
-import androidx.compose.ui.semantics.SemanticsProperties
 import androidx.compose.ui.test.SemanticsMatcher
+import androidx.compose.ui.test.hasAnyAncestor
+import androidx.compose.ui.test.hasScrollAction
+import androidx.compose.ui.test.hasTestTag
+import androidx.compose.ui.test.hasText
 import androidx.lifecycle.viewModelScope
 import app.cash.turbine.ReceiveTurbine
+import com.emm.mygame.core.designsystem.INK_PILL
 import com.emm.mygame.core.model.learning.DueReview
 import com.emm.mygame.core.model.learning.DueReviews
 import com.emm.mygame.core.model.learning.FrameSpan
@@ -33,10 +37,9 @@ import kotlinx.coroutines.test.TestScope
 
 internal val isPlaced: SemanticsMatcher = SemanticsMatcher("is placed") { node -> node.layoutInfo.isPlaced }
 
-internal fun isGoNamed(label: String): SemanticsMatcher = SemanticsMatcher("go button named $label") { node ->
-    node.config.getOrElseNullable(SemanticsProperties.ContentDescription) { null }.orEmpty()
-        .any { description: String -> description.startsWith("$label, ") }
-}
+internal fun wayOn(label: String): SemanticsMatcher = hasTestTag(INK_PILL) and hasText(label)
+
+internal val inScroll: SemanticsMatcher = hasAnyAncestor(hasScrollAction())
 
 internal fun TestScope.openReview(
     learning: FakeLearningRepository,

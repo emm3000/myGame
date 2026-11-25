@@ -21,8 +21,8 @@ internal fun EntryProviderScope<NavKey>.reviewEntry(chrome: SignedInChrome) {
                 learning = dependencies.learning,
                 towns = dependencies.towns,
                 clock = dependencies.clock,
-                task = frame.task,
-                foldedDock = frame.foldedDock,
+                onAnswer = frame.onAnswered,
+                onDone = chrome.navigator::back,
             )
         }
     }

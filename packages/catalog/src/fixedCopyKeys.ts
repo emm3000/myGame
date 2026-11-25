@@ -130,6 +130,7 @@ const fixedCopyKeyList = [
   'android.learning.review_check_empty',
   'android.learning.review_check_no_choice',
   'android.learning.review_checking',
+  'android.learning.review_continue',
   'android.learning.review_correct',
   'android.learning.review_correct_form',
   'android.learning.review_hint',

@@ -1,7 +1,6 @@
 package com.emm.mygame
 
 import androidx.compose.ui.test.assertCountEquals
-import androidx.compose.ui.test.hasContentDescription
 import androidx.compose.ui.test.hasSetTextAction
 import androidx.compose.ui.test.hasTestTag
 import androidx.compose.ui.test.hasText
@@ -54,8 +53,7 @@ class TownReadAgainNavigationTest : DockFrameFixture() {
         waitFor(hasSetTextAction())
 
         composeRule.onNode(hasSetTextAction()).performTextInput("house")
-        composeRule.onNode(hasTestTag(INK_PILL).and(hasContentDescription("Comprobar", substring = true)))
-            .performClick()
+        composeRule.onNode(hasTestTag(INK_PILL).and(hasText("Comprobar"))).performScrollTo().performClick()
 
         composeRule.waitUntil(WAIT_MILLIS) { towns.sentAfterNowCount == 1 }
     }

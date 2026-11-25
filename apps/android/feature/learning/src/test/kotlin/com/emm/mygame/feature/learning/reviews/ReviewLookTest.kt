@@ -351,7 +351,7 @@ class ReviewLookTest {
         composeRule.setContent {
             MyGameTheme {
                 colors = MyGameTheme.colors
-                ReviewWithDock(state = state, onIntent = { })
+                ReviewScreen(state = state, onIntent = { }, onDone = {})
             }
         }
     }

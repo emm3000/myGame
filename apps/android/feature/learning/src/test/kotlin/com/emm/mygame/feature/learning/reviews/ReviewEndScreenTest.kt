@@ -11,6 +11,7 @@ import androidx.compose.ui.test.junit4.createComposeRule
 import androidx.compose.ui.test.onAllNodesWithTag
 import androidx.compose.ui.test.onAllNodesWithText
 import androidx.compose.ui.test.onNodeWithText
+import androidx.compose.ui.test.performClick
 import androidx.compose.ui.test.performScrollTo
 import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.text.SpanStyle
@@ -26,10 +27,8 @@ import com.emm.mygame.core.ui.ChromePhase
 import com.emm.mygame.core.ui.CopyLanguage
 import com.emm.mygame.core.ui.ProvideCopyLanguage
 import com.emm.mygame.core.ui.ScaffoldLanguage
-import com.emm.mygame.core.ui.TaskDockHook
 import kotlin.time.Duration.Companion.minutes
 import org.junit.Assert.assertEquals
-import org.junit.Assert.assertNotNull
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -41,9 +40,7 @@ class ReviewEndScreenTest {
     @get:Rule
     val composeRule: ComposeContentTestRule = createComposeRule()
 
-    private val intents: MutableList<ReviewIntent> = mutableListOf()
-
-    private val hook: TaskDockHook = TaskDockHook(onAnswered = {})
+    private var doneTaps: Int = 0
 
     private val lessonTwoPath: ReviewUiState.LessonPath = ReviewUiState.LessonPath(
         number = 2,
@@ -53,26 +50,21 @@ class ReviewEndScreenTest {
     private val theBlock: SemanticsMatcher = SemanticsMatcher.keyIsDefined(BLOCK_HUE)
 
     @Test
-    fun `follows the town's step at the review's end`() {
+    fun `the way on returns to what opened the reviews at the review's end`() {
         draw(nothingDue(path = lessonTwoPath))
 
-        composeRule.runOnIdle { assertNotNull(hook.town) }
+        composeRule.onNode(wayOn(CONTINUE)).performScrollTo().performClick()
+
+        assertEquals(1, doneTaps)
     }
 
     @Test
-    fun `follows the town's step for a player with no cards`() {
+    fun `the way on returns to what opened the reviews for a player with no cards`() {
         draw(ReviewUiState.NoCards)
 
-        composeRule.runOnIdle { assertNotNull(hook.town) }
-    }
+        composeRule.onNode(wayOn(CONTINUE)).performScrollTo().performClick()
 
-    @Test
-    fun `starts the reviews of the town's step in place`() {
-        draw(ReviewUiState.NoCards)
-
-        composeRule.runOnIdle { hook.town?.onReviewsStart?.invoke() }
-
-        assertEquals(listOf<ReviewIntent>(ReviewIntent.ReviewsStartTapped), intents)
+        assertEquals(1, doneTaps)
     }
 
     @Test
@@ -80,10 +72,7 @@ class ReviewEndScreenTest {
         composeRule.setContent {
             MyGameTheme {
                 ProvideCopyLanguage(language = CopyLanguage(ScaffoldLanguage.Spanish, ChromePhase.English)) {
-                    ReviewWithDock(
-                        state = nothingDue(path = lessonTwoPath),
-                        hook = hook,
-                    )
+                    ReviewScreen(state = nothingDue(path = lessonTwoPath), onIntent = {}, onDone = {})
                 }
             }
         }
@@ -131,10 +120,11 @@ class ReviewEndScreenTest {
     }
 
     @Test
-    fun `draws no go button of its own at the review's end`() {
+    fun `draws one way on, in the review's flow, at the review's end`() {
         draw(nothingDue(path = lessonTwoPath))
 
-        composeRule.onAllNodesWithTag(INK_PILL).assertCountEquals(0)
+        composeRule.onAllNodesWithTag(INK_PILL).assertCountEquals(1)
+        composeRule.onNode(wayOn(CONTINUE) and inScroll).assertExists()
     }
 
     @Test
@@ -152,11 +142,12 @@ class ReviewEndScreenTest {
     }
 
     @Test
-    fun `follows the town's step once a lesson finishes during the reviews`() {
+    fun `the way on returns to what opened the reviews once a lesson finishes during them`() {
         draw(ReviewUiState.LessonReady(lesson = lessonTwo, number = 2))
 
-        composeRule.onAllNodesWithTag(INK_PILL).assertCountEquals(0)
-        composeRule.runOnIdle { assertNotNull(hook.town) }
+        composeRule.onNode(wayOn(CONTINUE)).performScrollTo().performClick()
+
+        assertEquals(1, doneTaps)
     }
 
     @Test
@@ -230,10 +221,14 @@ class ReviewEndScreenTest {
         return layouts.first()
     }
 
+    private companion object {
+        const val CONTINUE: String = "Continuar"
+    }
+
     private fun draw(state: ReviewUiState) {
         composeRule.setContent {
             MyGameTheme {
-                ReviewWithDock(state = state, onIntent = { intent: ReviewIntent -> intents += intent }, hook = hook)
+                ReviewScreen(state = state, onIntent = {}, onDone = { doneTaps += 1 })
             }
         }
     }

@@ -193,6 +193,7 @@
   "android.learning.review_check_empty": "Escribe tu respuesta para comprobarla.",
   "android.learning.review_check_no_choice": "Elige un significado para comprobar tu respuesta.",
   "android.learning.review_checking": "Comprobando…",
+  "android.learning.review_continue": "Continuar",
   "android.learning.review_correct": "Correcto.",
   "android.learning.review_correct_form": "La correcta: {answer}",
   "android.learning.review_due_count": "Por repasar: {count}",

@@ -24,9 +24,7 @@ import com.emm.mygame.core.designsystem.MyGameText
 import com.emm.mygame.core.designsystem.MyGameTheme
 import com.emm.mygame.core.designsystem.MyGameTrack
 import com.emm.mygame.core.designsystem.MyGameTypography
-import com.emm.mygame.core.ui.FoldedTaskEnd
 import com.emm.mygame.core.ui.PlayerCopy
-import com.emm.mygame.core.ui.TaskDockHook
 import com.emm.mygame.core.ui.chromeResource
 import com.emm.mygame.core.ui.rememberPlayerCopy
 import com.emm.mygame.feature.learning.R
@@ -35,11 +33,9 @@ import com.emm.mygame.feature.learning.R
 internal fun ReviewScreen(
     state: ReviewUiState,
     onIntent: (ReviewIntent) -> Unit,
-    task: TaskDockHook,
-    foldedDock: @Composable () -> Unit,
+    onDone: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
-    FillReviewDock(state = state, onIntent = onIntent, task = task)
     val shownCard: Any? = (state as? ReviewUiState.Reviewing)?.let { shown: ReviewUiState.Reviewing ->
         shown.card.wordId to shown.walked
     }
@@ -67,13 +63,7 @@ internal fun ReviewScreen(
         ) {
             ReviewState(state = state, onIntent = onIntent)
         }
-        FoldedTaskEnd(
-            hook = task,
-            foldedDock = foldedDock,
-            shownNotice = (state as? ReviewUiState.Reviewing)?.takeIf { shown: ReviewUiState.Reviewing ->
-                shown.step.hasNotice()
-            }?.let { shown: ReviewUiState.Reviewing -> shown.card.wordId to shown.step },
-        )
+        ReviewWayOn(state = state, onIntent = onIntent, onDone = onDone)
     }
 }
 
@@ -95,16 +85,6 @@ private fun ReviewState(
         is ReviewUiState.LessonReady -> LessonReady(ready = state)
         is ReviewUiState.Reviewing -> Reviewing(reviewing = state, onIntent = onIntent)
     }
-}
-
-private fun ReviewUiState.ReviewStep.hasNotice(): Boolean = when (this) {
-    ReviewUiState.ReviewStep.Answering, ReviewUiState.ReviewStep.Checking, ReviewUiState.ReviewStep.Hinting -> false
-    ReviewUiState.ReviewStep.NearMiss,
-    is ReviewUiState.ReviewStep.Refused,
-    ReviewUiState.ReviewStep.Unreachable,
-    is ReviewUiState.ReviewStep.Correct,
-    is ReviewUiState.ReviewStep.Wrong,
-    -> true
 }
 
 private val reviewBlocks: MyGameSkeletonBlocks = MyGameSkeletonBlocks(

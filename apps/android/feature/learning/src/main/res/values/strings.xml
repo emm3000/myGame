@@ -5,6 +5,7 @@
     <string name="review_check_empty">Enter your answer to check it.</string>
     <string name="review_check_no_choice">Choose a meaning to check your answer.</string>
     <string name="review_checking">Checking…</string>
+    <string name="review_continue">Continue</string>
     <string name="review_correct">Correct.</string>
     <string name="review_correct_form">The right answer: {answer}</string>
     <string name="review_due_count">Reviews due: {count}</string>
