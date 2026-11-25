@@ -6,6 +6,7 @@ import { framePlacementsOf, type LessonFrame } from '../framePlacementsOf'
 import { frameWordAdmissionsOf } from '../frameWordAdmissionsOf'
 import type { GateContent } from '../GateContent'
 import { readingFailuresOf } from '../readingFailuresOf'
+import { repeatedGapWordFailuresOf } from '../repeatedGapWordFailuresOf'
 import { tokensOf } from '../tokensOf'
 
 const gap = '____'
@@ -102,5 +103,9 @@ const frameFailures = (frame: LessonFrame, terms: FrameTerms): ReadonlyArray<str
 export const checkFrames = (content: GateContent): ReadonlyArray<string> => {
   const terms = termsOf(content)
   const { frames, failures } = framePlacementsOf(content)
-  return [...failures, ...frames.flatMap((frame) => frameFailures(frame, terms))]
+  return [
+    ...failures,
+    ...frames.flatMap((frame) => frameFailures(frame, terms)),
+    ...repeatedGapWordFailuresOf(frames),
+  ]
 }
