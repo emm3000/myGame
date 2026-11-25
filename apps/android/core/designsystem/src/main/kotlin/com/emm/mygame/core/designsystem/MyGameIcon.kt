@@ -23,7 +23,6 @@ fun MyGameIcon(icon: ImageVector, tint: Color, modifier: Modifier = Modifier) {
 private val previewIcons: List<ImageVector> = listOf(
     MyGameIcons.back,
     MyGameIcons.forward,
-    MyGameIcons.hourglass,
     MyGameIcons.alert,
     MyGameIcons.slot,
     MyGameIcons.march,

@@ -218,7 +218,7 @@ class LessonWordsScreenTest {
     }
 
     @Test
-    fun `sets the slot's title beside the hourglass in caption on the muted ink`() {
+    fun `sets the slot's title beside the working dots in caption on the muted ink`() {
         var muted: Color = Color.Unspecified
         composeRule.setContent {
             MyGameTheme {
