@@ -20,19 +20,15 @@ import com.emm.mygame.core.designsystem.MyGameSpacing
 import com.emm.mygame.core.designsystem.MyGameText
 import com.emm.mygame.core.designsystem.MyGameTheme
 import com.emm.mygame.core.designsystem.MyGameTypography
-import com.emm.mygame.core.ui.FoldedTaskEnd
-import com.emm.mygame.core.ui.TaskDockHook
 import com.emm.mygame.core.ui.fixedCopyResource
 
 @Composable
 internal fun PlacementScreen(
     state: PlacementUiState,
     onIntent: (PlacementIntent) -> Unit,
-    hook: TaskDockHook,
-    foldedDock: @Composable () -> Unit,
+    onDone: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
-    PlacementDock(state = state, onIntent = onIntent, hook = hook)
     Column(
         verticalArrangement = Arrangement.spacedBy(MyGameSpacing.step6),
         modifier = modifier
@@ -56,11 +52,7 @@ internal fun PlacementScreen(
         ) {
             PlacementState(state = state, onIntent = onIntent)
         }
-        FoldedTaskEnd(
-            hook = hook,
-            foldedDock = foldedDock,
-            shownNotice = (state as? PlacementUiState.Asking)?.request as? PlacementRequest.Unreachable,
-        )
+        PlacementWayOn(state = state, onIntent = onIntent, onDone = onDone)
     }
 }
 

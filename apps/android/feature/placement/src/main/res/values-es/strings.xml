@@ -3,6 +3,7 @@
     <string name="placement_band">Banda {band}</string>
     <string name="placement_choose">Elige un significado para seguir.</string>
     <string name="placement_closed_none">No tienes ninguna prueba de nivel pendiente. Tus lecciones te esperan en la escuela.</string>
+    <string name="placement_done">Continuar</string>
     <string name="placement_failed">No hemos podido leer tu prueba de nivel.</string>
     <string name="placement_loading">Estamos leyendo tu prueba de nivel…</string>
     <string name="placement_next">Siguiente</string>

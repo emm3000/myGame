@@ -2,9 +2,13 @@ package com.emm.mygame.feature.placement
 
 import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.mutableStateOf
+import androidx.compose.ui.test.SemanticsMatcher
+import androidx.compose.ui.test.assert
 import androidx.compose.ui.test.assertCountEquals
 import androidx.compose.ui.test.assertIsDisplayed
-import androidx.compose.ui.test.hasContentDescription
+import androidx.compose.ui.test.getUnclippedBoundsInRoot
+import androidx.compose.ui.test.hasAnyAncestor
+import androidx.compose.ui.test.hasScrollAction
 import androidx.compose.ui.test.hasStateDescription
 import androidx.compose.ui.test.hasTestTag
 import androidx.compose.ui.test.hasText
@@ -15,7 +19,10 @@ import androidx.compose.ui.test.onAllNodesWithText
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
 import androidx.compose.ui.test.performScrollTo
+import androidx.compose.ui.unit.Dp
 import com.emm.mygame.core.designsystem.INK_PILL
+import com.emm.mygame.core.designsystem.MyGameSpacing
+import com.emm.mygame.core.designsystem.MyGameTheme
 import com.emm.mygame.core.designsystem.OUTLINED_PILL
 import com.emm.mygame.core.model.learning.WordId
 import com.emm.mygame.core.model.placement.ChoiceId
@@ -26,14 +33,9 @@ import com.emm.mygame.core.testing.house
 import com.emm.mygame.core.testing.houseMeaning
 import com.emm.mygame.core.testing.walk
 import com.emm.mygame.core.testing.walkMeaning
-import com.emm.mygame.core.ui.TaskDockHook
-import com.emm.mygame.core.ui.TaskFrameStandIn
 import com.emm.mygame.core.ui.assertAskingProgressDrawnOnce
-import com.emm.mygame.core.ui.dockGo
-import com.emm.mygame.core.ui.inTaskDock
+import com.emm.mygame.core.ui.hasCopy
 import org.junit.Assert.assertEquals
-import org.junit.Assert.assertNotNull
-import org.junit.Assert.assertNull
 import org.junit.Assert.assertTrue
 import org.junit.Rule
 import org.junit.Test
@@ -50,7 +52,7 @@ class PlacementScreenTest {
 
     private val intents: MutableList<PlacementIntent> = mutableListOf()
 
-    private val hook: TaskDockHook = TaskDockHook(onAnswered = {})
+    private var doneTaps: Int = 0
 
     private val askingFirstBand: PlacementUiState.Asking = PlacementUiState.Asking(
         band = PlacementBand.First,
@@ -63,8 +65,8 @@ class PlacementScreenTest {
 
     private fun showing(state: PlacementUiState) {
         composeRule.setContent {
-            TaskFrameStandIn(hook = hook) {
-                PlacementScreen(state = state, onIntent = { intents += it }, hook = hook, foldedDock = {})
+            MyGameTheme {
+                PlacementScreen(state = state, onIntent = { intents += it }, onDone = { doneTaps += 1 })
             }
         }
     }
@@ -103,7 +105,7 @@ class PlacementScreenTest {
     fun `draws the shown word's place in the band`() {
         showing(askingFirstBand)
 
-        composeRule.onNode(hasText("Palabra 1 de 2").and(inTaskDock.not())).assertIsDisplayed()
+        composeRule.onNode(hasText("Palabra 1 de 2")).assertIsDisplayed()
     }
 
     @Test
@@ -120,9 +122,25 @@ class PlacementScreenTest {
         val everyWordChosen: Map<WordId, ChoiceId> = mapOf(house.word to houseMeaning, walk.word to walkMeaning)
         showing(askingFirstBand.copy(shownIndex = 1, chosen = everyWordChosen))
 
-        composeRule.onNode(dockGo("Enviar la banda 1")).performClick()
+        composeRule.onNode(wayOn(SEND_BAND)).performScrollTo().performClick()
 
         assertEquals(listOf(PlacementIntent.BandSent), intents)
+    }
+
+    @Test
+    fun `the placement's verdict is drawn in the task's flow, beside the control it answers`() {
+        val everyWordChosen: Map<WordId, ChoiceId> = mapOf(house.word to houseMeaning, walk.word to walkMeaning)
+        showing(askingFirstBand.copy(shownIndex = 1, chosen = everyWordChosen, request = PlacementRequest.Unreachable))
+        val inScroll: SemanticsMatcher = hasAnyAncestor(hasScrollAction())
+        val verdict: SemanticsMatcher = hasText(UNREACHABLE)
+        val send: SemanticsMatcher = wayOn(SEND_BAND)
+
+        composeRule.onNode(verdict).assert(inScroll)
+        composeRule.onNode(send).assert(inScroll)
+        val verdictBottom: Dp = composeRule.onNode(verdict).getUnclippedBoundsInRoot().bottom
+        val sendTop: Dp = composeRule.onNode(send).getUnclippedBoundsInRoot().top
+        assertTrue(verdictBottom <= sendTop)
+        assertTrue(sendTop - verdictBottom <= MyGameSpacing.step4)
     }
 
     @Test
@@ -154,10 +172,10 @@ class PlacementScreenTest {
     }
 
     @Test
-    fun `the placement's start is the dock's go button`() {
+    fun `the placement's start is its way on`() {
         showing(PlacementUiState.Offered(PlacementRequest.Idle))
 
-        composeRule.onNode(dockGo(START)).performClick()
+        composeRule.onNode(wayOn(START)).performScrollTo().performClick()
 
         assertEquals(listOf(PlacementIntent.StartTapped), intents)
     }
@@ -166,41 +184,33 @@ class PlacementScreenTest {
     fun `the placement's skip stays outlined in the content`() {
         showing(PlacementUiState.Offered(PlacementRequest.Idle))
 
-        composeRule.onNode(hasTestTag(OUTLINED_PILL).and(hasText(SKIP)).and(inTaskDock.not()))
+        composeRule.onNode(hasTestTag(OUTLINED_PILL).and(hasText(SKIP)))
             .assertExists()
     }
 
     @Test
-    fun `an unchosen meaning keeps the go button blocked with its reason`() {
+    fun `an unchosen meaning keeps the way on blocked with its reason`() {
         showing(askingFirstBand)
 
-        composeRule.onNode(dockGo("Siguiente").and(hasStateDescription(CHOOSE))).assertExists()
+        composeRule.onNode(wayOn(NEXT).and(hasStateDescription(CHOOSE))).assertExists()
     }
 
     @Test
-    fun `a chosen meaning makes the go button the next word`() {
+    fun `a chosen meaning makes the way on the next word`() {
         showing(askingFirstBand.copy(chosen = mapOf(house.word to houseMeaning)))
 
-        composeRule.onNode(dockGo("Siguiente")).performClick()
+        composeRule.onNode(wayOn(NEXT)).performScrollTo().performClick()
 
         assertEquals(listOf(PlacementIntent.NextTapped), intents)
     }
 
     @Test
-    fun `the go button's spoken name holds the shown word's place in the band`() {
-        showing(askingFirstBand)
-
-        composeRule.onNode(hasContentDescription("Palabra 1 de 2", substring = true).and(inTaskDock)).assertExists()
-    }
-
-    @Test
-    fun `after the placement the go button is the town's next step`() {
+    fun `after the placement its way on returns to what opened it`() {
         showing(PlacementUiState.Closed(placedAtSecondBand.scores))
 
-        composeRule.waitForIdle()
-        assertNotNull(hook.town)
-        assertNull(hook.dock)
-        composeRule.onAllNodesWithTag(INK_PILL).assertCountEquals(0)
+        composeRule.onNode(wayOn(DONE)).performScrollTo().performClick()
+
+        assertEquals(1, doneTaps)
     }
 
     @Test
@@ -215,8 +225,8 @@ class PlacementScreenTest {
         )
         val shown: MutableState<PlacementUiState> = mutableStateOf(states.first())
         composeRule.setContent {
-            TaskFrameStandIn(hook = hook) {
-                PlacementScreen(state = shown.value, onIntent = {}, hook = hook, foldedDock = {})
+            MyGameTheme {
+                PlacementScreen(state = shown.value, onIntent = {}, onDone = {})
             }
         }
 
@@ -228,9 +238,14 @@ class PlacementScreenTest {
         }
     }
 
+    private fun wayOn(label: String): SemanticsMatcher = hasTestTag(INK_PILL).and(hasCopy(label))
+
     private companion object {
         const val START: String = "Empezar la prueba"
         const val SKIP: String = "Saltar la prueba"
+        const val SEND_BAND: String = "Enviar la banda 1"
+        const val NEXT: String = "Siguiente"
+        const val DONE: String = "Continuar"
         const val CHOOSE: String = "Elige un significado para seguir."
         const val UNREACHABLE: String =
             "No hemos podido hablar con el servidor. Vuelve a intentarlo en un momento."
