@@ -7,6 +7,7 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.interaction.collectIsFocusedAsState
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.defaultMinSize
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -36,6 +37,7 @@ import androidx.compose.ui.semantics.SemanticsPropertyKey
 import androidx.compose.ui.semantics.SemanticsPropertyReceiver
 import androidx.compose.ui.semantics.clearAndSetSemantics
 import androidx.compose.ui.semantics.contentDescription
+import androidx.compose.ui.semantics.hideFromAccessibility
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.semantics.stateDescription
 import androidx.compose.ui.semantics.testTag
@@ -43,6 +45,8 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.PreviewParameterProvider
 import androidx.compose.ui.unit.Constraints
 import androidx.compose.ui.unit.Dp
+
+const val BLOCKED_LOCK: String = "BLOCKED_LOCK"
 
 val PILL_BADGE: SemanticsPropertyKey<String> = SemanticsPropertyKey("PILL_BADGE")
 
@@ -57,47 +61,95 @@ internal fun MyGamePill(
     look: MyGamePillLook,
     label: MyGameLabel,
     isBusy: Boolean,
-    busyDescription: String,
+    busyDescription: MyGameLabel,
     onClick: () -> Unit,
     modifier: Modifier = Modifier,
-    blockedReason: String? = null,
+    blockedReason: MyGameLabel? = null,
     accessibleName: String? = null,
     badge: String? = null,
 ) {
+    val state: PillState = when {
+        isBusy -> PillState.Working(busyDescription)
+        blockedReason != null -> PillState.Blocked(blockedReason)
+        else -> PillState.Can
+    }
+    Column(verticalArrangement = Arrangement.spacedBy(MyGameSpacing.step2), modifier = modifier.fillMaxWidth()) {
+        PillFace(
+            look = look,
+            label = label,
+            state = state,
+            onClick = onClick,
+            accessibleName = accessibleName,
+            badge = badge,
+        )
+        PillStateLine(state = state)
+    }
+}
+
+@Composable
+private fun PillFace(
+    look: MyGamePillLook,
+    label: MyGameLabel,
+    state: PillState,
+    onClick: () -> Unit,
+    accessibleName: String?,
+    badge: String?,
+) {
     val colors: MyGameColors = MyGameTheme.colors
     val shape: Shape = RoundedCornerShape(MyGameRadii.md)
-    val isBlocked: Boolean = blockedReason != null && !isBusy
-    val isQuiet: Boolean = isBusy || isBlocked
+    val isQuiet: Boolean = state != PillState.Can
     val ink: Color = if (isQuiet) colors.inkMuted else look.ink
     val interactions: MutableInteractionSource = remember { MutableInteractionSource() }
     val isFocused: Boolean by interactions.collectIsFocusedAsState()
     Row(
         horizontalArrangement = Arrangement.spacedBy(MyGameSpacing.step2, Alignment.CenterHorizontally),
         verticalAlignment = Alignment.CenterVertically,
-        modifier = modifier
+        modifier = Modifier
             .fillMaxWidth()
             .defaultMinSize(minHeight = look.height)
             .pillFocusRing(look = look, isFocused = isFocused, color = colors.focus)
             .clip(shape)
             .background(if (isQuiet) colors.surfaceSunken else look.ground)
-            .edge(isBlocked = isBlocked, isBusy = isBusy, look = look, colors = colors, shape = shape)
-            .pillSemantics(
-                tag = look.tag,
-                accessibleName = accessibleName,
-                state = if (isBusy) busyDescription else blockedReason,
-            )
+            .edge(state = state, look = look, colors = colors, shape = shape)
+            .pillSemantics(tag = look.tag, accessibleName = accessibleName, state = state.spoken)
             .clickable(
                 interactionSource = interactions,
                 indication = LocalIndication.current,
-                enabled = !isBusy,
+                enabled = state !is PillState.Working,
                 role = Role.Button,
                 onClick = onClick,
             )
             .padding(horizontal = look.sidePadding, vertical = MyGameSpacing.step2),
     ) {
-        if (isBusy) MyGameIcon(icon = MyGameIcons.hourglass, tint = ink)
+        StateMark(state = state, ink = ink)
         PillLabel(look = look, label = label, ink = ink, accessibleName = accessibleName, badge = badge)
     }
+}
+
+@Composable
+private fun StateMark(state: PillState, ink: Color) {
+    when (state) {
+        is PillState.Working -> MyGameWorkingDots(tint = ink)
+        is PillState.Blocked ->
+            MyGameIcon(icon = MyGameIcons.lock, tint = ink, modifier = Modifier.semantics { testTag = BLOCKED_LOCK })
+        PillState.Can -> Unit
+    }
+}
+
+@Composable
+private fun PillStateLine(state: PillState) {
+    val colors: MyGameColors = MyGameTheme.colors
+    val (line: MyGameLabel, color: Color) = when (state) {
+        is PillState.Working -> state.description to colors.inkMuted
+        is PillState.Blocked -> state.reason to colors.warningInk
+        PillState.Can -> return
+    }
+    MyGameText(
+        label = line,
+        style = MyGameTypography.caption,
+        color = color,
+        modifier = Modifier.semantics { hideFromAccessibility() },
+    )
 }
 
 @Composable
@@ -260,15 +312,14 @@ private fun Modifier.pillSemantics(tag: String, accessibleName: String?, state: 
     }
 
 private fun Modifier.edge(
-    isBlocked: Boolean,
-    isBusy: Boolean,
+    state: PillState,
     look: MyGamePillLook,
     colors: MyGameColors,
     shape: Shape,
-): Modifier = when {
-    isBlocked -> dashedFrame(colors.lineStrong)
-    isBusy -> border(MyGameStrokeWidths.hairline, colors.lineStrong, shape)
-    else -> border(look.edgeWidth, look.edge, shape)
+): Modifier = when (state) {
+    is PillState.Blocked -> dashedFrame(colors.lineStrong)
+    is PillState.Working -> border(MyGameStrokeWidths.hairline, colors.lineStrong, shape)
+    PillState.Can -> border(look.edgeWidth, look.edge, shape)
 }
 
 internal data class MyGamePillState(
@@ -296,4 +347,20 @@ internal class MyGamePillStates : PreviewParameterProvider<MyGamePillState> {
             blockedReason = null,
         ),
     )
+}
+
+private sealed interface PillState {
+    val spoken: String?
+
+    data object Can : PillState {
+        override val spoken: String? = null
+    }
+
+    data class Working(val description: MyGameLabel) : PillState {
+        override val spoken: String = description.spoken
+    }
+
+    data class Blocked(val reason: MyGameLabel) : PillState {
+        override val spoken: String = reason.spoken
+    }
 }

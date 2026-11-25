@@ -38,7 +38,7 @@ private fun spanish(text: String): MyGameLabel = MyGameLabel(text = text, transl
 private val studyReturningWords: MyGameDockGo = MyGameDockGo(
     label = spanish("Estudiar las palabras que vuelven"),
     isBusy = false,
-    busyDescription = "Esperando",
+    busyDescription = MyGameLabel(text = "Esperando", translation = null),
     onClick = {},
 )
 

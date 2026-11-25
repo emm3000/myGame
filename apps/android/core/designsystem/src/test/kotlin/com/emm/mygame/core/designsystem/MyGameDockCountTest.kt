@@ -67,7 +67,7 @@ class MyGameDockCountTest(private val case: Case) {
                         go = MyGameDockGo(
                             label = MyGameLabel(text = case.language.go, translation = null),
                             isBusy = false,
-                            busyDescription = "Waiting",
+                            busyDescription = MyGameLabel(text = "Waiting", translation = null),
                             onClick = {},
                             badge = case.count,
                         ),

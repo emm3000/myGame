@@ -183,7 +183,7 @@ private val previewStep: MyGameLabel = MyGameLabel(text = "Reviews due: 4", tran
 private val previewGo: MyGameDockGo = MyGameDockGo(
     label = MyGameLabel(text = "Start the reviews", translation = null),
     isBusy = false,
-    busyDescription = "Waiting",
+    busyDescription = MyGameLabel(text = "Waiting", translation = null),
     onClick = {},
     badge = "4",
 )
@@ -245,7 +245,7 @@ private fun MyGameDockLoadingPreview() {
 private fun MyGameDockBlockedPreview() {
     MyGamePreviewSurface {
         MyGameDock(
-            go = previewGo.copy(blockedReason = "No reviews due now.", badge = null),
+            go = previewGo.copy(blockedReason = MyGameLabel(text = "No reviews due now.", translation = null), badge = null),
             step = MyGameLabel(text = "No reviews due now.", translation = null),
             onFoldChange = {},
         )

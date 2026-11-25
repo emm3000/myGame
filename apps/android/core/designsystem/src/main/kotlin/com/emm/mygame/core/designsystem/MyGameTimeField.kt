@@ -47,7 +47,7 @@ private fun TimeStepButton(step: MyGameTimeStep, modifier: Modifier = Modifier) 
     MyGameOutlinedButton(
         label = step.label,
         isBusy = false,
-        busyDescription = step.accessibleName,
+        busyDescription = MyGameLabel(text = step.accessibleName, translation = null),
         onClick = step.onClick,
         modifier = modifier,
         accessibleName = step.accessibleName,
