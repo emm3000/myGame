@@ -282,6 +282,64 @@ describe('content gate check 3, the frame rule', () => {
     ])
   })
 
+  it('fails a later frame repeating the two words before the gap and the one after of its anchor', () => {
+    const content = homeWithLaterFrame(
+      laterFrameOf('home', 'They have food; this is my home.', 'lesson-3'),
+    )
+
+    expect(checkFrames(content)).toEqual([
+      'lesson-1-1, later frame for lesson-3: frame repeats is my ____, the words around the gap of lesson-1-1',
+    ])
+  })
+
+  it('fails a later frame repeating the words around the gap of an earlier later frame', () => {
+    const home = entryOf('lesson-1-1', 'home', 'This is my home.', {
+      laterFrames: [
+        laterFrameOf('home', 'We leave my home.', 'lesson-3'),
+        laterFrameOf('home', 'They leave my home.', 'lesson-3'),
+      ],
+    })
+    const content = contentOf({
+      lexicon: [home, ...lessonOneLexicon.slice(1), leave, newAtHome],
+      lessons: [
+        ['lesson-1', lessonOneIds],
+        ['lesson-2', [leave.id]],
+        ['lesson-3', [newAtHome.id]],
+      ],
+    })
+
+    expect(checkFrames(content)).toEqual([
+      'lesson-1-1, later frame for lesson-3: frame repeats leave my ____, the words around the gap of lesson-1-1, later frame for lesson-3',
+    ])
+  })
+
+  it('fails a later frame repeating the words around the gaps of its unit', () => {
+    const unit = entryOf('unit-1', 'work on', 'We work on the food.', {
+      partOfSpeech: 'verb',
+      source: 'phave',
+      gappedFrame: 'We ____ ____ the food.',
+      laterFrames: [
+        {
+          frame: 'We work on the school.',
+          gappedFrame: 'We ____ ____ the school.',
+          fromLessonId: 'lesson-3',
+        },
+      ],
+    })
+
+    expect(checkFrames(afterLessonOne(unit, leave))).toEqual([
+      'unit-1, later frame for lesson-3: frame repeats we ____ ____ the, the words around the gap of unit-1',
+    ])
+  })
+
+  it('passes a later frame that differs from its anchor in a word around the gap', () => {
+    const content = homeWithLaterFrame(
+      laterFrameOf('home', 'They have food at my home.', 'lesson-3'),
+    )
+
+    expect(checkFrames(content)).toEqual([])
+  })
+
   it('fails a later frame written for a unit lesson', () => {
     const unit = workOn('We work on the food.', 'We ____ ____ the food.')
     const content = homeWithLaterFrame(laterFrameOf('home', 'We have my home.', 'lesson-2'), unit)

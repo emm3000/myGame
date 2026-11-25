@@ -340,8 +340,8 @@
         "noCardSense": ["work"]
       },
       {
-        "frame": "We start work on the farm in the spring.",
-        "gappedFrame": "We start work on the farm in the ____.",
+        "frame": "This spring, we start work on the farm.",
+        "gappedFrame": "This ____, we start work on the farm.",
         "noCardSense": ["work"],
         "fromLessonId": "lesson-8"
       },
@@ -721,8 +721,8 @@
         "gappedFrame": "We have more food in the ____."
       },
       {
-        "frame": "School will start in the fall.",
-        "gappedFrame": "School will start in the ____.",
+        "frame": "School will start this fall.",
+        "gappedFrame": "School will start this ____.",
         "fromLessonId": "lesson-8"
       },
       {
@@ -2829,8 +2829,8 @@
         "gappedFrame": "We have a ____ of food."
       },
       {
-        "frame": "I have a lot of questions.",
-        "gappedFrame": "I have a ____ of questions.",
+        "frame": "They ask a lot of questions.",
+        "gappedFrame": "They ask a ____ of questions.",
         "fromLessonId": "lesson-36"
       }
     ],
@@ -2969,8 +2969,8 @@
         "gappedFrame": "____ the mayor works here."
       },
       {
-        "frame": "Even the children can help.",
-        "gappedFrame": "____ the children can help.",
+        "frame": "We can all help, even the children.",
+        "gappedFrame": "We can all help, ____ the children.",
         "fromLessonId": "lesson-34"
       }
     ],
@@ -3696,8 +3696,8 @@
         "fromLessonId": "lesson-33"
       },
       {
-        "frame": "I never want to go back to that old house.",
-        "gappedFrame": "I never want to ____ ____ to that old house.",
+        "frame": "I will never go back to that old house.",
+        "gappedFrame": "I will never ____ ____ to that old house.",
         "fromLessonId": "lesson-36"
       }
     ],
