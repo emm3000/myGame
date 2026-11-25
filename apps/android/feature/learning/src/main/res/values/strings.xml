@@ -42,7 +42,7 @@
     <string name="review_skill_words">Words:</string>
     <string name="review_title">Reviews</string>
     <string name="review_unreachable">We could not reach the server. Try again in a moment.</string>
-    <string name="review_waiting">Waiting</string>
+    <string name="review_waiting">Sending…</string>
     <string name="review_wrong">That is not correct.</string>
     <string name="review_yours">Your answer: {answer}</string>
 </resources>

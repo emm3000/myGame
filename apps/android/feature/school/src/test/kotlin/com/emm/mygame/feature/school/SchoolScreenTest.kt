@@ -260,7 +260,7 @@ class SchoolScreenTest {
         show(idleSchool.copy(start = SchoolUiState.LessonRequestStatus.Waiting))
 
         composeRule
-            .onNode(SemanticsMatcher.expectValue(SemanticsProperties.StateDescription, "Esperando"))
+            .onNode(SemanticsMatcher.expectValue(SemanticsProperties.StateDescription, "Enviando…"))
             .assertExists()
     }
 

@@ -313,7 +313,7 @@ class ReviewLanguageTest {
     fun `draws the check in flight in Spanish beside its wait in English in the English phase`() {
         show(englishPhase, recognizing.copy(step = ReviewUiState.ReviewStep.Checking))
 
-        composeRule.onNode(isGoNamed("Comprobando…") and hasStateDescription("Waiting") and isPlaced).assertExists()
+        composeRule.onNode(isGoNamed("Comprobando…") and hasStateDescription("Sending…") and isPlaced).assertExists()
     }
 
     @Test

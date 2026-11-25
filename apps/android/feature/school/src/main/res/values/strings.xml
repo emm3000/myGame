@@ -71,5 +71,5 @@
     <string name="school_texts">Read</string>
     <string name="school_title">School</string>
     <string name="school_try_again">Try again</string>
-    <string name="school_waiting">Waiting</string>
+    <string name="school_waiting">Sending…</string>
 </resources>

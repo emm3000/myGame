@@ -33,6 +33,6 @@
     <string name="today_study_released">Study the returning words</string>
     <string name="today_title">Today</string>
     <string name="today_try_again">Try again</string>
-    <string name="today_waiting">Waiting</string>
+    <string name="today_waiting">Sending…</string>
     <string name="today_what_is_next">What is next</string>
 </resources>

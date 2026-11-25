@@ -220,7 +220,7 @@ class SchoolSlotTest {
         show(idleSchool.copy(slot = busySlot(42.seconds), stop = SchoolUiState.LessonRequestStatus.Waiting))
 
         composeRule
-            .onNode(SemanticsMatcher.expectValue(SemanticsProperties.StateDescription, "Esperando"))
+            .onNode(SemanticsMatcher.expectValue(SemanticsProperties.StateDescription, "Enviando…"))
             .assertExists()
     }
 

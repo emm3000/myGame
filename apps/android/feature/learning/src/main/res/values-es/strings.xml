@@ -42,7 +42,7 @@
     <string name="review_skill_words">Palabras:</string>
     <string name="review_title">Repaso</string>
     <string name="review_unreachable">No hemos podido hablar con el servidor. Vuelve a intentarlo en un momento.</string>
-    <string name="review_waiting">Esperando</string>
+    <string name="review_waiting">Enviando…</string>
     <string name="review_wrong">No es correcto.</string>
     <string name="review_yours">Tu respuesta: {answer}</string>
 </resources>

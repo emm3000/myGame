@@ -33,6 +33,6 @@
     <string name="today_study_released">Estudiar las palabras que vuelven</string>
     <string name="today_title">Hoy</string>
     <string name="today_try_again">Volver a intentarlo</string>
-    <string name="today_waiting">Esperando</string>
+    <string name="today_waiting">Enviando…</string>
     <string name="today_what_is_next">Tu siguiente paso</string>
 </resources>

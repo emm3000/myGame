@@ -66,7 +66,7 @@
     <string name="map_terrain_river">River</string>
     <string name="map_title">Map</string>
     <string name="map_try_again">Try again</string>
-    <string name="map_waiting">Waiting</string>
+    <string name="map_waiting">Sending…</string>
     <string name="map_waste">Waste: {waste}</string>
     <string name="map_waste_site">Waste site</string>
     <string name="map_waste_size">Size {size}</string>
