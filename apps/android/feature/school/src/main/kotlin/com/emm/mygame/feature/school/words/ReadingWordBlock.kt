@@ -19,8 +19,8 @@ import com.emm.mygame.core.designsystem.blockHueOf
 import com.emm.mygame.core.designsystem.wordStyle
 import com.emm.mygame.core.model.learning.WordSupport
 import com.emm.mygame.core.model.town.TownSnapshot
-import com.emm.mygame.feature.school.toMyGameFrame
-import com.emm.mygame.feature.school.toMyGameSupport
+import com.emm.mygame.core.ui.toMyGameFrame
+import com.emm.mygame.core.ui.toMyGameSupport
 
 internal const val WORD_SILHOUETTE: String = "word_silhouette"
 

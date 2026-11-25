@@ -17,6 +17,7 @@ import com.emm.mygame.core.model.town.guidance.TownGoal
 import com.emm.mygame.core.model.town.hiring.TownHireKind
 import com.emm.mygame.core.ui.ChromePhase
 import com.emm.mygame.core.ui.CopyLanguage
+import com.emm.mygame.core.ui.DurationMark
 import com.emm.mygame.core.ui.ProvideCopyLanguage
 import com.emm.mygame.core.ui.ScaffoldLanguage
 import com.emm.mygame.feature.town.building.CostLine

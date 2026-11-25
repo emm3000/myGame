@@ -1,12 +1,12 @@
 package com.emm.mygame.feature.jobs
 
-import com.emm.mygame.core.model.town.SeasonKind
 import com.emm.mygame.core.model.town.TownResourceKind
 import com.emm.mygame.core.model.town.TownSite
 import com.emm.mygame.core.model.town.TownSnapshot
 import com.emm.mygame.core.model.town.jobs.Terrain
 import com.emm.mygame.core.model.town.jobs.TownJobRefusal
 import com.emm.mygame.core.model.town.jobs.WasteSize
+import com.emm.mygame.core.ui.DurationMark
 import kotlin.time.Duration
 import kotlin.time.Instant
 
@@ -162,8 +162,6 @@ sealed interface MapUiState {
         Cleaned,
         NotCleaned,
     }
-
-    data class DurationMark(val season: SeasonKind, val percent: Int)
 
     data class PayLine(val resource: TownResourceKind, val amount: Long)
 }

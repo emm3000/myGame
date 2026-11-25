@@ -1,4 +1,4 @@
-package com.emm.mygame.feature.town
+package com.emm.mygame.core.ui
 
 import com.emm.mygame.core.model.town.SeasonKind
 

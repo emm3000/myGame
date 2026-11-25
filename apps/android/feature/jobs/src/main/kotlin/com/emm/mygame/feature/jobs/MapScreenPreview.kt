@@ -14,6 +14,7 @@ import com.emm.mygame.core.model.town.jobs.TownJobRefusal
 import com.emm.mygame.core.model.town.jobs.WasteSize
 import com.emm.mygame.core.ui.ChromePhase
 import com.emm.mygame.core.ui.CopyLanguage
+import com.emm.mygame.core.ui.DurationMark
 import com.emm.mygame.core.ui.ProvideCopyLanguage
 import com.emm.mygame.core.ui.ScaffoldLanguage
 import kotlin.time.Duration.Companion.minutes
@@ -63,7 +64,7 @@ private val previewCleanUpForm: MapUiState.CleanUpForm = MapUiState.CleanUpForm(
     quote = MapUiState.CleanUpQuote.Quoted(strength = 12, waste = 12, pay = previewPay, isShort = false),
 )
 
-private val previewFallRoad: MapUiState.DurationMark = MapUiState.DurationMark(SeasonKind.Fall, percent = 75)
+private val previewFallRoad: DurationMark = DurationMark(SeasonKind.Fall, percent = 75)
 
 private val previewJobOut: MapUiState.JobOut = MapUiState.JobOut(
     kind = MapUiState.JobKind.Job,

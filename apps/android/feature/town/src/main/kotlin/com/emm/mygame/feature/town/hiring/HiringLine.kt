@@ -1,6 +1,6 @@
 package com.emm.mygame.feature.town.hiring
 
-import com.emm.mygame.feature.town.DurationMark
+import com.emm.mygame.core.ui.DurationMark
 
 data class HiringLine(
     val order: HiringOrderLine,

@@ -5,8 +5,9 @@ import com.emm.mygame.core.model.placement.PlacementBand
 import com.emm.mygame.core.model.town.LessonName
 import com.emm.mygame.core.ui.CopyReader
 import com.emm.mygame.core.ui.PlayerCopy
+import com.emm.mygame.core.ui.fixedLabel
 
-internal fun PlayerCopy.releasedTitleOf(band: PlacementBand, set: Int): MyGameLabel = fixedLabelOf(
+internal fun PlayerCopy.releasedTitleOf(band: PlacementBand, set: Int): MyGameLabel = fixedLabel(
     fixedCopy(R.string.school_released_lesson, "band" to band.number.toString(), "number" to set.toString()),
 )
 
@@ -28,7 +29,7 @@ internal fun PlayerCopy.lessonTitleOf(name: LessonName): MyGameLabel = lessonLin
 
 internal fun PlayerCopy.slotBusyLineOf(name: LessonName): MyGameLabel = when (name) {
     is LessonName.Shelved -> chrome(R.string.school_lesson_slot_busy, "number" to name.number.toString())
-    is LessonName.Released -> fixedLabelOf(
+    is LessonName.Released -> fixedLabel(
         fixedCopy(
             R.string.school_lesson_slot_busy_released,
             "band" to name.band.number.toString(),

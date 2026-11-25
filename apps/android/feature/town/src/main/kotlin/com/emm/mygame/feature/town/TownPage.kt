@@ -25,11 +25,14 @@ import com.emm.mygame.core.model.town.guidance.NextStepText
 import com.emm.mygame.core.model.town.guidance.TipKind
 import com.emm.mygame.core.model.town.guidance.TownGoal
 import com.emm.mygame.core.ui.CopyReader
+import com.emm.mygame.core.ui.DurationMark
 import com.emm.mygame.core.ui.PlayerCopy
 import com.emm.mygame.core.ui.SeasonMark
 import com.emm.mygame.core.ui.chromeResource
 import com.emm.mygame.core.ui.frameHeaderTurn
 import com.emm.mygame.core.ui.rememberPlayerCopy
+import com.emm.mygame.core.ui.seasonIconOf
+import com.emm.mygame.core.ui.seasonSelectorOf
 import com.emm.mygame.feature.town.building.NextLevel
 import com.emm.mygame.feature.town.building.NextLevelLine
 import com.emm.mygame.feature.town.building.PlaceCard

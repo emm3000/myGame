@@ -41,6 +41,7 @@ import com.emm.mygame.core.model.town.LessonName
 import com.emm.mygame.core.model.town.SeasonKind
 import com.emm.mygame.core.model.town.TownResourceKind
 import com.emm.mygame.core.model.town.school.SchoolPathCounts
+import com.emm.mygame.core.ui.DurationMark
 import com.emm.mygame.core.ui.SEASON_MARK_ICON
 import com.emm.mygame.core.ui.navRowOf
 import kotlin.time.Duration.Companion.seconds
@@ -151,7 +152,7 @@ class SchoolLookTest {
 
     @Test
     fun `draws the study mark directly above the lesson rows`() {
-        show(idleSchool.copy(studyMark = SchoolUiState.DurationMark(SeasonKind.Winter, percent = 75)))
+        show(idleSchool.copy(studyMark = DurationMark(SeasonKind.Winter, percent = 75)))
 
         val firstRowTop: Dp = composeRule.onAllNodesWithTag(LESSON_ROW).onFirst().getUnclippedBoundsInRoot().top
         assertTrue(topOf("Lecciones") < topOf(WINTER_STUDY))
@@ -164,7 +165,7 @@ class SchoolLookTest {
         showLive { shown }
 
         seasonWords.forEach { (season: SeasonKind, word: String) ->
-            shown = idleSchool.copy(studyMark = SchoolUiState.DurationMark(season, percent = 75))
+            shown = idleSchool.copy(studyMark = DurationMark(season, percent = 75))
             composeRule.waitForIdle()
 
             composeRule.onNodeWithText("$word: las lecciones tardan el 75 % del tiempo").assertExists()
@@ -177,7 +178,7 @@ class SchoolLookTest {
         showLive { shown }
 
         seasonIcons.forEach { (season: SeasonKind, icon: ImageVector) ->
-            shown = idleSchool.copy(studyMark = SchoolUiState.DurationMark(season, percent = 75))
+            shown = idleSchool.copy(studyMark = DurationMark(season, percent = 75))
             composeRule.waitForIdle()
 
             composeRule.onNode(

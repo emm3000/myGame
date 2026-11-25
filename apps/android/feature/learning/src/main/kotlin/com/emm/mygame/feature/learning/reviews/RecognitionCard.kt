@@ -9,6 +9,7 @@ import com.emm.mygame.core.designsystem.MyGameChoiceRow
 import com.emm.mygame.core.designsystem.MyGameSpacing
 import com.emm.mygame.core.model.learning.ReviewChoice
 import com.emm.mygame.core.ui.fixedCopyResource
+import com.emm.mygame.core.ui.toMyGameFrame
 import com.emm.mygame.feature.learning.R
 
 @Composable

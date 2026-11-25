@@ -25,6 +25,7 @@ import com.emm.mygame.core.model.town.SeasonKind
 import com.emm.mygame.core.model.town.TownResourceKind
 import com.emm.mygame.core.model.town.jobs.Terrain
 import com.emm.mygame.core.model.town.jobs.WasteSize
+import com.emm.mygame.core.ui.DurationMark
 import com.emm.mygame.core.ui.SEASON_MARK_ICON
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertTrue
@@ -44,7 +45,7 @@ class MapRoadMarkLookTest {
         MapUiState.PayLine(TownResourceKind.Material, 40L),
     )
 
-    private val fallRoad: MapUiState.DurationMark = MapUiState.DurationMark(SeasonKind.Fall, percent = 75)
+    private val fallRoad: DurationMark = DurationMark(SeasonKind.Fall, percent = 75)
 
     private val jobForm: MapUiState.JobForm = MapUiState.JobForm(
         site = 1,
@@ -125,7 +126,7 @@ class MapRoadMarkLookTest {
         composeRule.setContent { MyGameTheme { MapScreen(state = map.value, onIntent = { }) } }
 
         seasonWords.forEach { (season: SeasonKind, word: String) ->
-            map.value = mapWith(jobForm.copy(roadMark = MapUiState.DurationMark(season, percent = 75)))
+            map.value = mapWith(jobForm.copy(roadMark = DurationMark(season, percent = 75)))
             composeRule.waitForIdle()
 
             composeRule.onNodeWithText("$word: el camino tarda el 75 % del tiempo").assertExists()
@@ -138,7 +139,7 @@ class MapRoadMarkLookTest {
         composeRule.setContent { MyGameTheme { MapScreen(state = map.value, onIntent = { }) } }
 
         seasonIcons.forEach { (season: SeasonKind, icon: ImageVector) ->
-            map.value = mapWith(jobForm.copy(roadMark = MapUiState.DurationMark(season, percent = 75)))
+            map.value = mapWith(jobForm.copy(roadMark = DurationMark(season, percent = 75)))
             composeRule.waitForIdle()
 
             composeRule.onNode(markOf(icon, text = "el camino tarda el 75 % del tiempo")).assertExists()
@@ -147,7 +148,7 @@ class MapRoadMarkLookTest {
 
     @Test
     fun `prints the road percent as sent`() {
-        show(cleanUpForm.copy(roadMark = MapUiState.DurationMark(SeasonKind.Winter, percent = 125)))
+        show(cleanUpForm.copy(roadMark = DurationMark(SeasonKind.Winter, percent = 125)))
 
         composeRule.onNodeWithText("Invierno: el camino tarda el 125 % del tiempo").assertExists()
     }

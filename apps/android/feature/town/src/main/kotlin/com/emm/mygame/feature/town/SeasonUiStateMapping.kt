@@ -5,6 +5,7 @@ import com.emm.mygame.core.model.town.TownResourceKind
 import com.emm.mygame.core.model.town.TownSnapshot
 import com.emm.mygame.core.model.town.UNSCALED_PERCENT
 import com.emm.mygame.core.projection.countdownTo
+import com.emm.mygame.core.ui.DurationMark
 import kotlin.time.Instant
 
 internal fun TownSnapshot.seasonLineAt(now: Instant): SeasonLine? {

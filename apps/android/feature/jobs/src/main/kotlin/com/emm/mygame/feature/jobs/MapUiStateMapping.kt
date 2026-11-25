@@ -7,6 +7,7 @@ import com.emm.mygame.core.model.town.UNSCALED_PERCENT
 import com.emm.mygame.core.model.town.hiring.TownHireKind
 import com.emm.mygame.core.model.town.jobs.RegionMap
 import com.emm.mygame.core.projection.countdownTo
+import com.emm.mygame.core.ui.DurationMark
 import kotlin.time.Duration
 import kotlin.time.Instant
 
@@ -72,11 +73,11 @@ private fun TownSnapshot.jobFormOf(
     quote = quote,
 )
 
-private fun TownSnapshot.roadMark(): MapUiState.DurationMark? {
+private fun TownSnapshot.roadMark(): DurationMark? {
     val inForce: SeasonInForce = seasonInForce ?: return null
     val road: Int = inForce.durationPercent.road
     if (road == UNSCALED_PERCENT) return null
-    return MapUiState.DurationMark(inForce.kind, percent = road)
+    return DurationMark(inForce.kind, percent = road)
 }
 
 private fun JobFormEntries.jobBlock(): MapUiState.JobBlock? {

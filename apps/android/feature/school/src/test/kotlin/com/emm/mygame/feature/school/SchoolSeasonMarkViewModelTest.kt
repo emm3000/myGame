@@ -4,6 +4,7 @@ import com.emm.mygame.core.model.town.SeasonKind
 import com.emm.mygame.core.model.town.TownSnapshot
 import com.emm.mygame.core.testing.FakeTownRepository
 import com.emm.mygame.core.testing.MainDispatcherRule
+import com.emm.mygame.core.ui.DurationMark
 import kotlin.time.Duration.Companion.days
 import kotlinx.coroutines.test.TestScope
 import kotlinx.coroutines.test.runTest
@@ -27,7 +28,7 @@ class SchoolSeasonMarkViewModelTest {
             townOf(seasonInForce = seasonOf(SeasonKind.Winter, study = 75), seasonEndsAt = readInstant + 3.days),
         )
 
-        assertEquals(SchoolUiState.DurationMark(SeasonKind.Winter, percent = 75), contentOf(viewModel).studyMark)
+        assertEquals(DurationMark(SeasonKind.Winter, percent = 75), contentOf(viewModel).studyMark)
     }
 
     @Test
@@ -36,7 +37,7 @@ class SchoolSeasonMarkViewModelTest {
             townOf(seasonInForce = seasonOf(SeasonKind.Summer, study = 125), seasonEndsAt = readInstant + 3.days),
         )
 
-        assertEquals(SchoolUiState.DurationMark(SeasonKind.Summer, percent = 125), contentOf(viewModel).studyMark)
+        assertEquals(DurationMark(SeasonKind.Summer, percent = 125), contentOf(viewModel).studyMark)
     }
 
     @Test
