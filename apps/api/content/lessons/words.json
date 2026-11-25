@@ -4298,6 +4298,16 @@
       {
         "frame": "When will she come out of the office?",
         "gappedFrame": "When will she ____ ____ of the office?"
+      },
+      {
+        "frame": "Come out here and look at this.",
+        "gappedFrame": "____ ____ here and look at this.",
+        "fromLessonId": "lesson-38"
+      },
+      {
+        "frame": "Come out and let me see you.",
+        "gappedFrame": "____ ____ and let me see you.",
+        "fromLessonId": "lesson-40"
       }
     ],
     "gloss": {
@@ -4314,6 +4324,16 @@
       {
         "frame": "Do you want to go out after the lesson?",
         "gappedFrame": "Do you want to ____ ____ after the lesson?"
+      },
+      {
+        "frame": "Where do people go out in this town?",
+        "gappedFrame": "Where do people ____ ____ in this town?",
+        "fromLessonId": "lesson-38"
+      },
+      {
+        "frame": "I cannot go out today, I have to study.",
+        "gappedFrame": "I cannot ____ ____ today, I have to study.",
+        "fromLessonId": "lesson-38"
       }
     ],
     "gloss": {
@@ -4330,6 +4350,16 @@
       {
         "frame": "Get out of the truck here.",
         "gappedFrame": "____ ____ of the truck here."
+      },
+      {
+        "frame": "We are at the farm, so you can get out now.",
+        "gappedFrame": "We are at the farm, so you can ____ ____ now.",
+        "fromLessonId": "lesson-38"
+      },
+      {
+        "frame": "Wait in the truck and do not get out.",
+        "gappedFrame": "Wait in the truck and do not ____ ____.",
+        "fromLessonId": "lesson-38"
       }
     ],
     "gloss": {
@@ -4346,6 +4376,16 @@
       {
         "frame": "Can you wait a little longer?",
         "gappedFrame": "Can you wait ____ ____ longer?"
+      },
+      {
+        "frame": "I only know a little about the town.",
+        "gappedFrame": "I only know ____ ____ about the town.",
+        "fromLessonId": "lesson-38"
+      },
+      {
+        "frame": "My school is a little old, but I like it.",
+        "gappedFrame": "My school is ____ ____ old, but I like it.",
+        "fromLessonId": "lesson-38"
       }
     ],
     "gloss": {
@@ -4362,6 +4402,16 @@
       {
         "frame": "She works at the farm as well as the factory.",
         "gappedFrame": "She works at the farm ____ ____ ____ the factory."
+      },
+      {
+        "frame": "We need food as well as money.",
+        "gappedFrame": "We need food ____ ____ ____ money.",
+        "fromLessonId": "lesson-38"
+      },
+      {
+        "frame": "You can bring your family as well as your friends.",
+        "gappedFrame": "You can bring your family ____ ____ ____ your friends.",
+        "fromLessonId": "lesson-41"
       }
     ],
     "gloss": {
@@ -4377,6 +4427,16 @@
       {
         "frame": "Each of the workers has a job.",
         "gappedFrame": "____ of the workers has a job."
+      },
+      {
+        "frame": "You can each take one book home.",
+        "gappedFrame": "You can ____ take one book home.",
+        "fromLessonId": "lesson-39"
+      },
+      {
+        "frame": "We each have a lot to do.",
+        "gappedFrame": "We ____ have a lot to do.",
+        "fromLessonId": "lesson-39"
       }
     ],
     "gloss": {
@@ -4392,6 +4452,16 @@
       {
         "frame": "I want to go home early today.",
         "gappedFrame": "I want to go home ____ today."
+      },
+      {
+        "frame": "If you want to see the mayor, come early.",
+        "gappedFrame": "If you want to see the mayor, come ____.",
+        "fromLessonId": "lesson-39"
+      },
+      {
+        "frame": "We have to start early if we want to be ready.",
+        "gappedFrame": "We have to start ____ if we want to be ready.",
+        "fromLessonId": "lesson-39"
       }
     ],
     "gloss": {
@@ -4407,6 +4477,16 @@
       {
         "frame": "We have a small team.",
         "gappedFrame": "We have a ____ team."
+      },
+      {
+        "frame": "In a small town, people know your name.",
+        "gappedFrame": "In a ____ town, people know your name.",
+        "fromLessonId": "lesson-39"
+      },
+      {
+        "frame": "This office is too small for us now.",
+        "gappedFrame": "This office is too ____ for us now.",
+        "fromLessonId": "lesson-39"
       }
     ],
     "gloss": {
@@ -4422,6 +4502,16 @@
       {
         "frame": "A group of workers is at the station.",
         "gappedFrame": "A ____ of workers is at the station."
+      },
+      {
+        "frame": "We study in a group after school.",
+        "gappedFrame": "We study in a ____ after school.",
+        "fromLessonId": "lesson-39"
+      },
+      {
+        "frame": "Can I be in your group?",
+        "gappedFrame": "Can I be in your ____?",
+        "fromLessonId": "lesson-39"
       }
     ],
     "gloss": {
@@ -4437,6 +4527,16 @@
       {
         "frame": "You can keep the map.",
         "gappedFrame": "You can ____ the map."
+      },
+      {
+        "frame": "Keep it, I do not need it.",
+        "gappedFrame": "____ it, I do not need it.",
+        "fromLessonId": "lesson-39"
+      },
+      {
+        "frame": "Do you want to keep this, or should I send it back?",
+        "gappedFrame": "Do you want to ____ this, or should I send it back?",
+        "fromLessonId": "lesson-39"
       }
     ],
     "gloss": {
@@ -4452,6 +4552,16 @@
       {
         "frame": "The hill is very high.",
         "gappedFrame": "The hill is very ____."
+      },
+      {
+        "frame": "Put it up high, where the children cannot find it.",
+        "gappedFrame": "Put it up ____, where the children cannot find it.",
+        "fromLessonId": "lesson-40"
+      },
+      {
+        "frame": "From this high up, you can see the farms.",
+        "gappedFrame": "From this ____ up, you can see the farms.",
+        "fromLessonId": "lesson-40"
       }
     ],
     "gloss": {
@@ -4467,6 +4577,16 @@
       {
         "frame": "She is my best friend.",
         "gappedFrame": "She is my best ____."
+      },
+      {
+        "frame": "I have a friend who lives in the city.",
+        "gappedFrame": "I have a ____ who lives in the city.",
+        "fromLessonId": "lesson-40"
+      },
+      {
+        "frame": "Can I bring a friend?",
+        "gappedFrame": "Can I bring a ____?",
+        "fromLessonId": "lesson-41"
       }
     ],
     "gloss": {
@@ -4482,6 +4602,16 @@
       {
         "frame": "Few people live here.",
         "gappedFrame": "____ people live here."
+      },
+      {
+        "frame": "This town has few jobs, so people leave.",
+        "gappedFrame": "This town has ____ jobs, so people leave.",
+        "fromLessonId": "lesson-40"
+      },
+      {
+        "frame": "Very few of us know how to do this.",
+        "gappedFrame": "Very ____ of us know how to do this.",
+        "fromLessonId": "lesson-40"
       }
     ],
     "gloss": {
@@ -4497,6 +4627,16 @@
       {
         "frame": "I go to school every day.",
         "gappedFrame": "I go to school ____ day."
+      },
+      {
+        "frame": "I know every worker at the factory.",
+        "gappedFrame": "I know ____ worker at the factory.",
+        "fromLessonId": "lesson-40"
+      },
+      {
+        "frame": "I have read every report she wrote.",
+        "gappedFrame": "I have read ____ report she wrote.",
+        "fromLessonId": "lesson-40"
       }
     ],
     "gloss": {
@@ -4512,6 +4652,16 @@
       {
         "frame": "Let me help you.",
         "gappedFrame": "____ me help you."
+      },
+      {
+        "frame": "Do you let your children play by the river?",
+        "gappedFrame": "Do you ____ your children play by the river?",
+        "fromLessonId": "lesson-40"
+      },
+      {
+        "frame": "They will not let us build on that site.",
+        "gappedFrame": "They will not ____ us build on that site.",
+        "fromLessonId": "lesson-40"
       }
     ],
     "gloss": {
@@ -4527,6 +4677,16 @@
       {
         "frame": "I read while I wait.",
         "gappedFrame": "I read ____ I wait."
+      },
+      {
+        "frame": "Do not talk while I am talking.",
+        "gappedFrame": "Do not talk ____ I am talking.",
+        "fromLessonId": "lesson-41"
+      },
+      {
+        "frame": "While you are in the city, can you bring me something to read?",
+        "gappedFrame": "____ you are in the city, can you bring me something to read?",
+        "fromLessonId": "lesson-41"
       }
     ],
     "gloss": {
@@ -4542,6 +4702,16 @@
       {
         "frame": "We want to move to the city.",
         "gappedFrame": "We want to ____ to the city."
+      },
+      {
+        "frame": "When did you move here?",
+        "gappedFrame": "When did you ____ here?",
+        "fromLessonId": "lesson-41"
+      },
+      {
+        "frame": "We will move into a new house in the spring.",
+        "gappedFrame": "We will ____ into a new house in the spring.",
+        "fromLessonId": "lesson-41"
       }
     ],
     "gloss": {
@@ -4557,6 +4727,16 @@
       {
         "frame": "Can you bring food to the farm?",
         "gappedFrame": "Can you ____ food to the farm?"
+      },
+      {
+        "frame": "What should I bring?",
+        "gappedFrame": "What should I ____?",
+        "fromLessonId": "lesson-41"
+      },
+      {
+        "frame": "I will bring it back tomorrow.",
+        "gappedFrame": "I will ____ it back tomorrow.",
+        "fromLessonId": "lesson-41"
       }
     ],
     "gloss": {
@@ -4572,6 +4752,16 @@
       {
         "frame": "We have farms all around the town.",
         "gappedFrame": "We have farms all ____ the town."
+      },
+      {
+        "frame": "The river goes around the hill.",
+        "gappedFrame": "The river goes ____ the hill.",
+        "fromLessonId": "lesson-41"
+      },
+      {
+        "frame": "Our house has fields around it.",
+        "gappedFrame": "Our house has fields ____ it.",
+        "fromLessonId": "lesson-41"
       }
     ],
     "gloss": {
@@ -4587,6 +4777,16 @@
       {
         "frame": "I will be in the city for a month.",
         "gappedFrame": "I will be in the city for a ____."
+      },
+      {
+        "frame": "She starts her new job next month.",
+        "gappedFrame": "She starts her new job next ____.",
+        "fromLessonId": "lesson-41"
+      },
+      {
+        "frame": "I get my pay every month.",
+        "gappedFrame": "I get my pay every ____.",
+        "fromLessonId": "lesson-41"
       }
     ],
     "gloss": {
@@ -4602,6 +4802,16 @@
       {
         "frame": "The mayor might come today.",
         "gappedFrame": "The mayor ____ come today."
+      },
+      {
+        "frame": "Take this, you might need it.",
+        "gappedFrame": "Take this, you ____ need it.",
+        "fromLessonId": "lesson-43"
+      },
+      {
+        "frame": "I do not know, I might work late.",
+        "gappedFrame": "I do not know, I ____ work late.",
+        "fromLessonId": "lesson-43"
       }
     ],
     "gloss": {
@@ -4617,6 +4827,16 @@
       {
         "frame": "You must stop here.",
         "gappedFrame": "You ____ stop here."
+      },
+      {
+        "frame": "We must do something about this problem.",
+        "gappedFrame": "We ____ do something about this problem.",
+        "fromLessonId": "lesson-43"
+      },
+      {
+        "frame": "I must go now, my team is waiting.",
+        "gappedFrame": "I ____ go now, my team is waiting.",
+        "fromLessonId": "lesson-43"
       }
     ],
     "gloss": {
@@ -4632,6 +4852,16 @@
       {
         "frame": "This is an important job.",
         "gappedFrame": "This is an ____ job."
+      },
+      {
+        "frame": "Your family is more important than your job.",
+        "gappedFrame": "Your family is more ____ than your job.",
+        "fromLessonId": "lesson-43"
+      },
+      {
+        "frame": "Is this important, or can it wait?",
+        "gappedFrame": "Is this ____, or can it wait?",
+        "fromLessonId": "lesson-43"
       }
     ],
     "gloss": {
@@ -4647,6 +4877,16 @@
       {
         "frame": "The office is open today.",
         "gappedFrame": "The office is ____ today."
+      },
+      {
+        "frame": "Do you know a place that is open late?",
+        "gappedFrame": "Do you know a place that is ____ late?",
+        "fromLessonId": "lesson-43"
+      },
+      {
+        "frame": "When will the new school be open?",
+        "gappedFrame": "When will the new school be ____?",
+        "fromLessonId": "lesson-43"
       }
     ],
     "gloss": {
@@ -4662,6 +4902,16 @@
       {
         "frame": "She has her own business in town.",
         "gappedFrame": "She has her own ____ in town."
+      },
+      {
+        "frame": "How is the business doing?",
+        "gappedFrame": "How is the ____ doing?",
+        "fromLessonId": "lesson-43"
+      },
+      {
+        "frame": "This business has been in my family for a long time.",
+        "gappedFrame": "This ____ has been in my family for a long time.",
+        "fromLessonId": "lesson-43"
       }
     ],
     "gloss": {
