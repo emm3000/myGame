@@ -5,6 +5,8 @@ import androidx.compose.ui.test.SemanticsMatcher
 import androidx.compose.ui.test.assertCountEquals
 import androidx.compose.ui.test.hasContentDescription
 import androidx.compose.ui.test.hasText
+import androidx.compose.ui.test.isHeading
+import androidx.compose.ui.test.hasClickAction
 import androidx.compose.ui.test.junit4.ComposeTestRule
 import androidx.compose.ui.test.junit4.createEmptyComposeRule
 import androidx.compose.ui.test.onNodeWithText
@@ -44,10 +46,10 @@ class MainActivityReminderTapTest {
     }
 
     @Test
-    fun `a tap of the words reminder opens the Report above the town`() {
+    fun `a tap of the words reminder opens the Report above Today`() {
         Robolectric.buildActivity(MainActivity::class.java, tapOf(StudyReminderLine.Cards)).setup()
 
-        waitForLine(TOWN_LINK)
+        waitForLine(TODAY_LINK)
     }
 
     @Test
@@ -57,7 +59,7 @@ class MainActivityReminderTapTest {
 
         activity.newIntent(tapOf(StudyReminderLine.Cards))
 
-        waitForLine(TOWN_LINK)
+        waitForLine(TODAY_LINK)
     }
 
     @Test
@@ -66,20 +68,20 @@ class MainActivityReminderTapTest {
 
         Robolectric.buildActivity(MainActivity::class.java, replayed).setup()
 
-        assertOnTheTownAlone()
+        assertOnTodayAlone()
     }
 
     @Test
     fun `a recreated activity opens no reminder line again`() {
         val activity: ActivityController<MainActivity> =
             Robolectric.buildActivity(MainActivity::class.java, tapOf(StudyReminderLine.Cards)).setup()
-        waitForLine(TOWN_LINK)
-        composeRule.onNodeWithText(TOWN_LINK).performClick()
+        waitFor(hasText(TODAY_LINK).and(hasClickAction()))
+        composeRule.onNode(hasText(TODAY_LINK).and(hasClickAction())).performClick()
         waitFor(townLoading)
 
         composeRule.runOnIdle { activity.recreate() }
 
-        assertOnTheTownAlone()
+        assertOnTodayAlone()
     }
 
     private fun tapOf(line: StudyReminderLine): Intent =
@@ -95,18 +97,18 @@ class MainActivityReminderTapTest {
         }
     }
 
-    private fun assertOnTheTownAlone() {
+    private fun assertOnTodayAlone() {
         composeRule.waitUntil(WAIT_MILLIS) {
-            listOf(townLoading, hasText(TOWN_LINK)).any { matcher: SemanticsMatcher ->
+            listOf(townLoading, hasText(TODAY_LINK).and(isHeading())).any { matcher: SemanticsMatcher ->
                 composeRule.onAllNodes(matcher).fetchSemanticsNodes().isNotEmpty()
             }
         }
-        composeRule.onAllNodes(hasText(TOWN_LINK)).assertCountEquals(0)
+        composeRule.onAllNodes(hasText(TODAY_LINK).and(hasClickAction())).assertCountEquals(0)
     }
 
     private companion object {
         const val WAIT_MILLIS: Long = 5_000
-        const val TOWN_LINK: String = "Pueblo"
+        const val TODAY_LINK: String = "Hoy"
         const val TOWN_LOADING: String = "Estamos leyendo tu pueblo…"
     }
 }

@@ -80,7 +80,7 @@ class DockFrameNavigationTest : DockFrameFixture() {
 
     @Test
     fun `the dock comes right after the header for TalkBack`() {
-        showing(Destination.Town, Destination.School, town = playedTown().copy(learning = learningWithRing))
+        showing(Destination.Today, Destination.Town, Destination.School, town = playedTown().copy(learning = learningWithRing))
         dockGo("Ir al informe")
         waitFor(hasText(THREE_OF_FIVE))
 
@@ -94,7 +94,7 @@ class DockFrameNavigationTest : DockFrameFixture() {
 
     @Test
     fun `the town home's dock comes right after the home's header for TalkBack`() {
-        showing(Destination.Town, town = playedTown().copy(learning = learningWithRing))
+        showing(Destination.Today, Destination.Town, town = playedTown().copy(learning = learningWithRing))
         dockGo("Ir al informe")
         waitFor(hasText(THREE_OF_FIVE))
 

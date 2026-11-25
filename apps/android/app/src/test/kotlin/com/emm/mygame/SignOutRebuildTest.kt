@@ -52,7 +52,7 @@ class SignOutRebuildTest {
             ),
         )
         RebuildHostActivity.shown =
-            RebuildHostActivity.Shown(dependencies, listOf(Destination.Town, Destination.Report))
+            RebuildHostActivity.Shown(dependencies, listOf(Destination.Today, Destination.Town, Destination.Report))
         val host: ActivityController<RebuildHostActivity> =
             Robolectric.buildActivity(RebuildHostActivity::class.java).setup()
         waitForLine("Salir")

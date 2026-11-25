@@ -36,7 +36,7 @@ class DockLayoutNavigationTest : DockFrameFixture() {
     @Config(qualifiers = "+w411dp-h914dp-420dpi")
     @GraphicsMode(GraphicsMode.Mode.NATIVE)
     fun `a loading dock stays above the navigation bar`() {
-        showing(Destination.Town, townReads = 0)
+        showing(Destination.Today, Destination.Town, townReads = 0)
         composeRule.systemBars(height = NAVIGATION_BAR)
         waitFor(hasTestTag(INK_PILL).and(hasStateDescription(WAITING)).and(hasAnyAncestor(hasTestTag(TOWN_DOCK))))
         composeRule.waitForIdle()
@@ -49,7 +49,7 @@ class DockLayoutNavigationTest : DockFrameFixture() {
     @Test
     @Config(qualifiers = "+w891dp-h411dp-land")
     fun `the dock keeps its go button clear of a side navigation bar and a cutout`() {
-        showing(Destination.Town, Destination.School, town = playedTown(nextStep = releasedLesson))
+        showing(Destination.Today, Destination.Town, Destination.School, town = playedTown(nextStep = releasedLesson))
         composeRule.sideBars(navigationBar = SIDE_BAR, cutout = CUTOUT)
         val go: Rect = dockGo(STUDY_RELEASED).getBoundsInRoot()
         val window: Dp = composeRule.onRoot().getBoundsInRoot().right
@@ -59,7 +59,7 @@ class DockLayoutNavigationTest : DockFrameFixture() {
 
     @Test
     fun `the dock hides while the keyboard is open`() {
-        showing(Destination.Town, Destination.School)
+        showing(Destination.Today, Destination.Town, Destination.School)
         dockGo("Ir al informe")
 
         composeRule.keyboard(isOpen = true)
@@ -74,7 +74,7 @@ class DockLayoutNavigationTest : DockFrameFixture() {
     @GraphicsMode(GraphicsMode.Mode.NATIVE)
     fun `a refusal is drawn above the go button at font scale 1 on a 411 by 915 window`() {
         towns.answerLesson(TownLessonResult.Refused(TownLessonRefusal.StudySlotBusy))
-        showing(Destination.Town, Destination.School, town = playedTown(nextStep = releasedLesson))
+        showing(Destination.Today, Destination.Town, Destination.School, town = playedTown(nextStep = releasedLesson))
 
         dockGo(STUDY_RELEASED).performClick()
         waitFor(inTheDock(STUDY_SLOT_BUSY))
@@ -90,7 +90,7 @@ class DockLayoutNavigationTest : DockFrameFixture() {
     @GraphicsMode(GraphicsMode.Mode.NATIVE)
     fun `a refusal folds to the top of the scrolling area, in view, at font scale 2 on a 360 by 640 window`() {
         towns.answerLesson(TownLessonResult.Refused(TownLessonRefusal.StudySlotBusy))
-        showing(Destination.Town, Destination.School, town = playedTown(nextStep = releasedLesson))
+        showing(Destination.Today, Destination.Town, Destination.School, town = playedTown(nextStep = releasedLesson))
         waitFor(hasText("Escuela").and(isHeading()))
         composeRule.onAllNodes(hasScrollAction()).onFirst().performTouchInput { swipeUp() }
 
@@ -107,7 +107,7 @@ class DockLayoutNavigationTest : DockFrameFixture() {
     @Config(qualifiers = "+w360dp-h640dp", fontScale = 2.0f)
     @GraphicsMode(GraphicsMode.Mode.NATIVE)
     fun `the go button keeps its whole label on screen at font scale 2 on a 360 by 640 window`() {
-        showing(Destination.Town, Destination.School, town = playedTown(nextStep = releasedLesson))
+        showing(Destination.Today, Destination.Town, Destination.School, town = playedTown(nextStep = releasedLesson))
 
         val go: Rect = dockGo(STUDY_RELEASED).getBoundsInRoot()
         val window: Rect = composeRule.onRoot().getBoundsInRoot()

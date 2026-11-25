@@ -33,7 +33,7 @@ class TownExitNavigationTest : AppNavigationFixture() {
                     dependencies = dependencies,
                     reminderTaps = emptyFlow(),
                     mailedLinks = emptyFlow(),
-                    backStack = rememberNavBackStack(Destination.Town, Destination.Report),
+                    backStack = rememberNavBackStack(Destination.Today, Destination.Town, Destination.Report),
                 )
             }
         }
@@ -94,6 +94,7 @@ class TownExitNavigationTest : AppNavigationFixture() {
     @Test
     fun `signs out from a failed town read`() {
         signedInReading(TownReadResult.Unreachable)
+        tab("Pueblo").performClick()
         waitForLine("Volver a intentarlo")
         sessions.answerSignOut()
         sessions.answerRestore(RestoreResult.SignedOut)

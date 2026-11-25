@@ -8,4 +8,6 @@ data class TownNavigation(
     val onTextOpen: (TextId) -> Unit,
     val onSigningOut: () -> Unit,
     val onSignedOut: () -> Unit,
+    val onUnnamed: () -> Unit,
+    val onNamed: () -> Unit,
 )

@@ -65,6 +65,22 @@ object MyGameIcons {
         "M14.5 9a2.5 2.5 0 1 0 5 0a2.5 2.5 0 1 0-5 0z",
         "M16.5 14c2.6.3 4.5 2.6 4.5 5.5",
     )
+    val today: ImageVector = strokedIcon(
+        name = "today",
+        "M12 2.5v2M12 19.5v2M2.5 12h2M19.5 12h2M5.3 5.3l1.4 1.4M17.3 17.3l1.4 1.4M5.3 18.7l1.4-1.4M17.3 6.7l1.4-1.4",
+        "M8 12a4 4 0 1 0 8 0 4 4 0 1 0-8 0",
+    )
+    val town: ImageVector = strokedIcon(name = "town", "M3.5 11 12 4l8.5 7", "M6 9.5V20h12V9.5", "M10 20v-5h4v5")
+    val learn: ImageVector = strokedIcon(
+        name = "learn",
+        "M3.5 5.5c3-1 6-1 8.5.5 2.5-1.5 5.5-1.5 8.5-.5V19c-3-1-6-1-8.5.5-2.5-1.5-5.5-1.5-8.5-.5z",
+        "M12 6v13.5",
+    )
+    val me: ImageVector = strokedIcon(
+        name = "me",
+        "M8 8a4 4 0 1 0 8 0 4 4 0 1 0-8 0",
+        "M4.5 20.5c1-3.5 4-5.5 7.5-5.5s6.5 2 7.5 5.5",
+    )
     val check: ImageVector = strokedIcon(name = "check", "m5 12.5 4.5 4.5L19 7")
     val cross: ImageVector = strokedIcon(name = "cross", "m6 6 12 12M18 6 6 18")
     val spring: ImageVector = strokedIcon(

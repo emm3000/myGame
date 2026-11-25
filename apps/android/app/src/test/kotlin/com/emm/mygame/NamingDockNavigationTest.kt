@@ -27,8 +27,8 @@ class NamingDockNavigationTest : DockFrameFixture() {
 
     @Test
     fun `the naming screen draws no dock while the status read waits`() {
-        showing(Destination.Town, townReads = 0)
-        towns.answerRead(TownReadResult.NoTown)
+        showing(Destination.Today, Destination.Town, townReads = 0)
+        repeat(NO_TOWN_READS) { towns.answerRead(TownReadResult.NoTown) }
         waitFor(hasText(NAMING_TITLE))
 
         composeRule.onAllNodes(hasTestTag(TOWN_DOCK)).assertCountEquals(0)
@@ -36,8 +36,8 @@ class NamingDockNavigationTest : DockFrameFixture() {
 
     @Test
     fun `the naming screen draws no Report row`() {
-        showing(Destination.Town, townReads = 0)
-        towns.answerRead(TownReadResult.NoTown)
+        showing(Destination.Today, Destination.Town, townReads = 0)
+        repeat(NO_TOWN_READS) { towns.answerRead(TownReadResult.NoTown) }
         waitFor(hasText(NAMING_TITLE))
 
         composeRule.onAllNodes(reportRow).assertCountEquals(0)
@@ -45,11 +45,11 @@ class NamingDockNavigationTest : DockFrameFixture() {
 
     @Test
     fun `the naming screen draws no dock on its first frame`() {
-        showing(Destination.Town, townReads = 0)
+        showing(Destination.Today, Destination.Town, townReads = 0)
         waitFor(hasTestTag(TOWN_DOCK))
         composeRule.mainClock.autoAdvance = false
 
-        towns.answerRead(TownReadResult.NoTown)
+        repeat(NO_TOWN_READS) { towns.answerRead(TownReadResult.NoTown) }
         firstFrameShowing(hasText(NAMING_TITLE))
 
         composeRule.onAllNodes(hasTestTag(TOWN_DOCK)).assertCountEquals(0)
@@ -57,8 +57,8 @@ class NamingDockNavigationTest : DockFrameFixture() {
 
     @Test
     fun `the naming screen draws no dock while it signs out`() {
-        showing(Destination.Town, townReads = 0)
-        towns.answerRead(TownReadResult.NoTown)
+        showing(Destination.Today, Destination.Town, townReads = 0)
+        repeat(NO_TOWN_READS) { towns.answerRead(TownReadResult.NoTown) }
         waitFor(hasText(NAMING_TITLE))
 
         composeRule.onNodeWithText(SIGN_OUT).performScrollTo().performClick()
@@ -70,8 +70,8 @@ class NamingDockNavigationTest : DockFrameFixture() {
 
     @Test
     fun `the naming screen draws no dock once the status read is refused`() {
-        showing(Destination.Town, townReads = 0)
-        towns.answerRead(TownReadResult.NoTown)
+        showing(Destination.Today, Destination.Town, townReads = 0)
+        repeat(NO_TOWN_READS) { towns.answerRead(TownReadResult.NoTown) }
         repeat(STATUS_AND_RING_READS) { towns.answerRead(TownReadResult.Unreachable) }
         waitFor(hasText(NAMING_TITLE))
         composeRule.waitForIdle()
@@ -81,6 +81,7 @@ class NamingDockNavigationTest : DockFrameFixture() {
 
     private companion object {
         const val FRAME_LIMIT: Int = 60
+        const val NO_TOWN_READS: Int = 4
         const val SIGN_OUT: String = "Salir"
         const val NAMING_TITLE: String = "Ponle nombre a tu pueblo"
     }

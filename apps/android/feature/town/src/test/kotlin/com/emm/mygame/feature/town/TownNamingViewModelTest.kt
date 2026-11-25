@@ -1,5 +1,6 @@
 package com.emm.mygame.feature.town
 
+import app.cash.turbine.test
 import com.emm.mygame.core.model.town.TownFoundRefusal
 import com.emm.mygame.core.model.town.TownFoundResult
 import com.emm.mygame.core.model.town.TownReadResult
@@ -77,6 +78,26 @@ class TownNamingViewModelTest {
         viewModel.onIntent(TownIntent.NameSubmitted)
 
         assertEquals("Riverton", contentOf(viewModel).name)
+    }
+
+    @Test
+    fun `a town with no name asks the shell for the naming`() = runTest {
+        val viewModel: TownViewModel = namingViewModel()
+
+        viewModel.effects.test { assertEquals(TownEffect.Unnamed, awaitItem()) }
+    }
+
+    @Test
+    fun `a founded town tells the shell it is named`() = runTest {
+        val viewModel: TownViewModel = namingViewModel()
+        towns.answerFound(TownFoundResult.Founded(townOf(name = "Riverton")))
+
+        viewModel.effects.test {
+            skipItems(1)
+            viewModel.onIntent(TownIntent.NameSubmitted)
+
+            assertEquals(TownEffect.Named, awaitItem())
+        }
     }
 
     @Test

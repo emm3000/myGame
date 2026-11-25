@@ -21,7 +21,7 @@ internal fun EntryProviderScope<NavKey>.jobsEntry(chrome: SignedInChrome) {
             MapRoute(
                 towns = dependencies.towns,
                 clock = dependencies.clock,
-                onNoTown = navigator::openTown,
+                onNoTown = navigator::townUnnamed,
                 foldedDock = frame.foldedDock,
             )
         }

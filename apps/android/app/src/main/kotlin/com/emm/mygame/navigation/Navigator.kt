@@ -17,6 +17,15 @@ internal class Navigator(private val backStack: MutableList<NavKey>, private val
     val shown: NavKey?
         get() = backStack.lastOrNull()
 
+    val isOnTabRoot: Boolean
+        get() = backStack.isOnTabRoot()
+
+    val tabUnder: Tab
+        get() = backStack.tabUnder()
+
+    val openTab: Tab?
+        get() = backStack.openTab()
+
     fun signingOut() {
         links.areEnabled = false
     }

@@ -175,7 +175,7 @@ class ScreenOpeningNavigationTest : AppNavigationFixture() {
 
         composeRule.onNodeWithText("Ir a la escuela").performScrollTo().performClick()
         assertStudyingShownWithoutStatus()
-        link("Pueblo").performClick()
+        tab("Pueblo").performClick()
         wayToTheReport().performScrollTo()
 
         openReport(threeDue)

@@ -169,10 +169,11 @@ private fun FrameHeader(doesScreenReadTown: Boolean, chrome: SignedInChrome) {
             .frameHeaderTurn(),
         end = { RetainedWordsRing(towns = chrome.dependencies.towns, doesScreenReadTown = doesScreenReadTown) },
     ) {
+        if (chrome.navigator.isOnTabRoot) return@MyGameHeader
         MyGameBackLink(
-            label = chromeResource(R.string.navigation_town),
+            label = chromeResource(chrome.navigator.tabUnder.label),
             isEnabled = chrome.navigator.areLinksEnabled,
-            onClick = chrome.navigator::openTown,
+            onClick = { chrome.navigator.openTab(chrome.navigator.tabUnder) },
         )
     }
 }

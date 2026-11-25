@@ -69,7 +69,7 @@ class OpenAboveNavigationTest {
     fun `opens the news above the Report`() {
         reports.answerRead(ReportReadResult.Read(nothingDue))
         reports.answerNews(TownNewsReadResult.Read(emptyList()))
-        showing(Destination.Town, Destination.Report)
+        showing(Destination.Today, Destination.Town, Destination.Report)
 
         waitedForLink("Leer todas las noticias").performScrollTo().performClick()
 
@@ -78,7 +78,7 @@ class OpenAboveNavigationTest {
 
     @Test
     fun `opens a text above the school from its row`() {
-        showing(Destination.Town, Destination.School)
+        showing(Destination.Today, Destination.Town, Destination.School)
 
         waitedForLink(newestText.title).performScrollTo().performClick()
 

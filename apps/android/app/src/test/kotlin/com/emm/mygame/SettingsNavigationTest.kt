@@ -119,18 +119,18 @@ class SettingsNavigationTest {
 
     @Test
     fun `opens the settings from the Report`() {
-        show(Destination.Town, Destination.Report)
+        show(Destination.Today, Destination.Town, Destination.Report)
         waitForLine("Ajustes")
 
         composeRule.onNodeWithText("Ajustes").performScrollTo().performClick()
 
         waitForLine("Idioma de ayuda")
-        assertEquals(listOf(Destination.Town, Destination.Report, Destination.Settings), shownBackStack)
+        assertEquals(listOf(Destination.Today, Destination.Town, Destination.Report, Destination.Settings), shownBackStack)
     }
 
     @Test
     fun `stores the theme tapped in the settings`() {
-        show(Destination.Town, Destination.Report, Destination.Settings)
+        show(Destination.Today, Destination.Town, Destination.Report, Destination.Settings)
         waitForLine("Oscuro")
 
         composeRule.onNodeWithText("Oscuro").performScrollTo().performClick()
@@ -153,7 +153,7 @@ class SettingsNavigationTest {
 
     @Test
     fun `keeps the old language while the change waits`() {
-        show(Destination.Town, Destination.Report, Destination.Settings)
+        show(Destination.Today, Destination.Town, Destination.Report, Destination.Settings)
         waitForLine(NONE_OPTION_IN_SPANISH)
 
         composeRule.onNodeWithText(NONE_OPTION_IN_SPANISH).performScrollTo().performClick()
@@ -165,7 +165,7 @@ class SettingsNavigationTest {
 
     @Test
     fun `draws the new scaffold's language after a change`() {
-        show(Destination.Town, Destination.Report, Destination.Settings)
+        show(Destination.Today, Destination.Town, Destination.Report, Destination.Settings)
         waitForLine(NONE_OPTION_IN_SPANISH)
 
         composeRule.onNodeWithText(NONE_OPTION_IN_SPANISH).performScrollTo().performClick()
@@ -179,7 +179,7 @@ class SettingsNavigationTest {
 
     @Test
     fun `draws the Report in English on the way back from a change to none`() {
-        show(Destination.Town, Destination.Report, Destination.Settings)
+        show(Destination.Today, Destination.Town, Destination.Report, Destination.Settings)
         waitForLine(NONE_OPTION_IN_SPANISH)
         composeRule.onNodeWithText(NONE_OPTION_IN_SPANISH).performScrollTo().performClick()
         sessions.answerScaffoldChange(ScaffoldChangeResult.Changed(playerWith(PlayerScaffold.None)))

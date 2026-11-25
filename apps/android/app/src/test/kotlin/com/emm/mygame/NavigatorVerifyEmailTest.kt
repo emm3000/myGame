@@ -16,7 +16,7 @@ class NavigatorVerifyEmailTest {
 
     @Test
     fun `opens a mailed verification link alone in place of the town`() {
-        val backStack: MutableList<NavKey> = mutableListOf(Destination.Town, Destination.School)
+        val backStack: MutableList<NavKey> = mutableListOf(Destination.Today, Destination.Town, Destination.School)
 
         Navigator(backStack, NavigationLinks()).openMailedLink(mailedLink)
 

@@ -27,7 +27,7 @@ class NavigatorResetPasswordTest {
 
     @Test
     fun `opens a mailed link alone in place of the town`() {
-        val backStack: MutableList<NavKey> = mutableListOf(Destination.Town, Destination.Report)
+        val backStack: MutableList<NavKey> = mutableListOf(Destination.Today, Destination.Town, Destination.Report)
 
         Navigator(backStack, NavigationLinks()).openMailedLink(mailedLink)
 

@@ -55,7 +55,7 @@ class SchoolHoldoutChecksNavigationTest {
     fun `the school draws the holdout checks that are due`() {
         val due: HoldoutCheck = HoldoutCheck.Due(PlacementBand.First, HoldoutCheckWeek.Eighth)
         holdoutChecks.answerRead(HoldoutChecksReadResult.Read(listOf(due)))
-        showing(Destination.Town, Destination.School)
+        showing(Destination.Today, Destination.Town, Destination.School)
 
         waitFor(hasText("Tienes pendiente una prueba de palabras de la banda 1, semana 8."))
     }

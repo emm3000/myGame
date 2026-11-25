@@ -14,6 +14,8 @@ class DestinationTest {
     @Test
     fun `keeps every signed-in destination through a serializer round trip`() {
         val signedIn: List<Destination> = listOf(
+            Destination.Naming,
+            Destination.Today,
             Destination.Town,
             Destination.School,
             Destination.Report,
@@ -42,6 +44,8 @@ class DestinationTest {
             "com.emm.mygame.Destination.ForgotPassword",
             "com.emm.mygame.Destination.ResetPassword",
             "com.emm.mygame.Destination.VerifyEmail",
+            "com.emm.mygame.Destination.Naming",
+            "com.emm.mygame.Destination.Today",
             "com.emm.mygame.Destination.Town",
             "com.emm.mygame.Destination.School",
             "com.emm.mygame.Destination.Report",
@@ -66,6 +70,8 @@ class DestinationTest {
             "com.emm.mygame.Destination\$ForgotPassword",
             "com.emm.mygame.Destination\$ResetPassword",
             "com.emm.mygame.Destination\$VerifyEmail",
+            "com.emm.mygame.Destination\$Naming",
+            "com.emm.mygame.Destination\$Today",
             "com.emm.mygame.Destination\$Town",
             "com.emm.mygame.Destination\$School",
             "com.emm.mygame.Destination\$Report",

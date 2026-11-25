@@ -22,6 +22,7 @@ import com.emm.mygame.AppDependencies
 import com.emm.mygame.Destination
 import com.emm.mygame.core.designsystem.INK_PILL
 import com.emm.mygame.core.designsystem.MyGameTheme
+import com.emm.mygame.core.designsystem.NAVIGATION_BAR
 import com.emm.mygame.core.model.account.PlayerScaffold
 import com.emm.mygame.core.model.account.RestoreResult
 import com.emm.mygame.core.model.account.SignedInPlayer
@@ -146,8 +147,12 @@ abstract class AppNavigationFixture {
 
     protected fun signedInAtTown(town: TownSnapshot = playedTown()) {
         signedInReading(TownReadResult.Read(town))
+        tab("Pueblo").performClick()
         waitForLine(TOWN_HEADER)
     }
+
+    protected fun tab(label: String): SemanticsNodeInteraction =
+        waitedFor(hasContentDescription(label).and(hasAnyAncestor(hasTestTag(NAVIGATION_BAR))).and(hasClickAction()))
 
     protected fun signedInReading(answer: TownReadResult) {
         repeat(SESSION_READS) { sessions.answerRestore(verifiedSession) }
@@ -324,7 +329,7 @@ class MovableClock : Clock {
     override fun now(): Instant = Clock.System.now() + passed
 }
 
-internal val onTheReport: Array<Destination> = arrayOf(Destination.Town, Destination.Report)
+internal val onTheReport: Array<Destination> = arrayOf(Destination.Today, Destination.Town, Destination.Report)
 
 internal fun wordReadingOf(word: String, gloss: String, frame: String): TownSnapshot.WordReading =
     TownSnapshot.WordReading(

@@ -2,9 +2,11 @@ package com.emm.mygame
 
 import androidx.activity.ComponentActivity
 import androidx.compose.ui.geometry.Rect
+import androidx.compose.ui.test.SemanticsMatcher
 import androidx.compose.ui.test.SemanticsNodeInteraction
 import androidx.compose.ui.test.assertCountEquals
 import androidx.compose.ui.test.assertIsDisplayed
+import androidx.compose.ui.test.hasAnyAncestor
 import androidx.compose.ui.test.hasClickAction
 import androidx.compose.ui.test.hasContentDescription
 import androidx.compose.ui.test.hasTestTag
@@ -19,6 +21,7 @@ import androidx.compose.ui.test.performScrollTo
 import androidx.lifecycle.Lifecycle
 import androidx.test.ext.junit.rules.ActivityScenarioRule
 import com.emm.mygame.core.designsystem.MyGameTheme
+import com.emm.mygame.core.designsystem.NAVIGATION_BAR
 import com.emm.mygame.core.model.account.PlayerChromePhase
 import com.emm.mygame.core.model.account.PlayerLanguage
 import com.emm.mygame.core.model.account.PlayerScaffold
@@ -35,6 +38,7 @@ import com.emm.mygame.core.testing.FakeTownRepository
 import com.emm.mygame.core.testing.townOf
 import com.emm.mygame.feature.town.status.TOWN_DOCK
 import com.emm.mygame.navigation.AppNavigation
+import kotlin.time.Instant
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.emptyFlow
 import org.junit.Assert.assertEquals
@@ -44,7 +48,6 @@ import org.junit.Test
 import org.junit.runner.RunWith
 import org.robolectric.RobolectricTestRunner
 import org.robolectric.annotation.Config
-import kotlin.time.Instant
 
 @RunWith(RobolectricTestRunner::class)
 class VerificationBannerNavigationTest {
@@ -199,6 +202,14 @@ class VerificationBannerNavigationTest {
                 AppNavigation(dependencies = dependencies, reminderTaps = emptyFlow(), mailedLinks = emptyFlow())
             }
         }
+        if (town is TownReadResult.Read) openTheTownTab()
+    }
+
+    private fun openTheTownTab() {
+        val townTab: SemanticsMatcher =
+            hasContentDescription("Pueblo").and(hasAnyAncestor(hasTestTag(NAVIGATION_BAR))).and(hasClickAction())
+        composeRule.waitUntil(WAIT_MILLIS) { composeRule.onAllNodes(townTab).fetchSemanticsNodes().isNotEmpty() }
+        composeRule.onNode(townTab).performClick()
     }
 
     private fun waitForLine(line: String) {
