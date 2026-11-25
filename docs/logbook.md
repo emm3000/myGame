@@ -140,6 +140,25 @@ This one list replaces the scattered per-PR lines above. Tick each item when it 
 
 
 
+## 2026-11-25: ADR 056, U1–U3, XA and Track X ticketed
+
+### Advanced
+- U1 (#1979): the season labels, `DurationMark` and `FramePieces` copies became one each in `core:ui`.
+- U2 (#1992): `NavRowMatcher` and `TextStyleLookup` moved to the new test-only module `core:uitesting`.
+- U3 (#1994): the server gap, `serverNow()` and the read loop are written once, in `core:model` `town/` (`ReadFollower`, `readUntilReached`).
+- XA (#1993): `SignedInFrame` and `openFromDock` are now in files of their own name. `kotlin-style.md` now says a block-bodied `Unit` function omits its return type, matching detekt's `NoUnitReturn` and about 385 functions. The owner approved that line.
+- Track X (the shell) was grilled by Fable, as the owner delegated, and cut into XA, XB and X1 to X7 (#1981–#1989). ADR 056 records the decisions (#1991).
+- The Android peer limit is now two at a time, on disjoint Gradle modules, at most one of them with an emulator. The wave skill's cap is three peers.
+- Every PR was MERGE at first review.
+
+### Not proven
+- No emulator flow ran, since none of these PRs changes how a screen is built.
+- #1990 is in needs-triage: two sources disagree on which screens read the town (Review, SchoolText).
+
+### Next
+- U4 #1930 and XB #1982 can run side by side, then X1 to X7, D1 and D2, #1933, Z1 and Z2.
+- #1891 has new minors from #1979, #1991, #1992 and #1994. The `core:uitesting` file renames must land before Z2.
+
 ## 2026-11-24 and 2026-11-25: ADR 056, Tracks S, J, L, P and R closed
 
 ### Advanced
