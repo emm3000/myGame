@@ -10,14 +10,13 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.semantics.heading
 import androidx.compose.ui.semantics.semantics
 import com.emm.mygame.core.designsystem.MyGameCard
-import com.emm.mygame.core.designsystem.MyGameIcon
-import com.emm.mygame.core.designsystem.MyGameIcons
 import com.emm.mygame.core.designsystem.MyGameInlineAlert
 import com.emm.mygame.core.designsystem.MyGameOutlinedButton
 import com.emm.mygame.core.designsystem.MyGameSpacing
 import com.emm.mygame.core.designsystem.MyGameText
 import com.emm.mygame.core.designsystem.MyGameTheme
 import com.emm.mygame.core.designsystem.MyGameTypography
+import com.emm.mygame.core.designsystem.MyGameWorkingDots
 import com.emm.mygame.core.ui.PlayerCopy
 import com.emm.mygame.core.ui.chromeResource
 import com.emm.mygame.core.ui.finishLabelOf
@@ -94,7 +93,7 @@ private fun JobCountdown(jobOut: MapUiState.JobOut, modifier: Modifier = Modifie
         horizontalArrangement = Arrangement.spacedBy(MyGameSpacing.step2),
         modifier = modifier,
     ) {
-        MyGameIcon(icon = MyGameIcons.hourglass, tint = MyGameTheme.colors.inkMuted)
+        MyGameWorkingDots(tint = MyGameTheme.colors.inkMuted)
         MyGameText(
             label = copy.chrome(phaseWordsOf(jobOut.phase)),
             style = MyGameTypography.body,

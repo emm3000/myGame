@@ -8,8 +8,6 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import com.emm.mygame.core.designsystem.MyGameIcon
-import com.emm.mygame.core.designsystem.MyGameIcons
 import com.emm.mygame.core.designsystem.MyGameSpacing
 import com.emm.mygame.core.designsystem.MyGameText
 import com.emm.mygame.core.designsystem.MyGameTheme
@@ -63,16 +61,10 @@ internal fun WaitingItem(
 
 @Composable
 private fun FinishedCountdown(modifier: Modifier = Modifier) {
-    Row(
-        verticalAlignment = Alignment.CenterVertically,
-        horizontalArrangement = Arrangement.spacedBy(MyGameSpacing.step2),
+    MyGameText(
+        label = chromeResource(R.string.town_work_ready),
+        style = MyGameTypography.caption,
+        color = MyGameTheme.colors.ink,
         modifier = modifier,
-    ) {
-        MyGameIcon(icon = MyGameIcons.hourglass, tint = MyGameTheme.colors.ink)
-        MyGameText(
-            label = chromeResource(R.string.town_work_ready),
-            style = MyGameTypography.caption,
-            color = MyGameTheme.colors.ink,
-        )
-    }
+    )
 }

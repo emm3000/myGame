@@ -22,6 +22,7 @@ import com.emm.mygame.core.designsystem.MyGameText
 import com.emm.mygame.core.designsystem.MyGameTheme
 import com.emm.mygame.core.designsystem.MyGameTrack
 import com.emm.mygame.core.designsystem.MyGameTypography
+import com.emm.mygame.core.designsystem.MyGameWorkingDots
 import com.emm.mygame.core.designsystem.withTabularFigures
 import com.emm.mygame.core.model.town.LessonName
 import com.emm.mygame.core.ui.PlayerCopy
@@ -120,7 +121,7 @@ private fun BusySlot(
             verticalAlignment = Alignment.CenterVertically,
             horizontalArrangement = Arrangement.spacedBy(MyGameSpacing.step2),
         ) {
-            MyGameIcon(icon = MyGameIcons.hourglass, tint = MyGameTheme.colors.inkMuted)
+            MyGameWorkingDots(tint = MyGameTheme.colors.inkMuted)
             MyGameText(
                 label = copy.chrome { timeLeftLabelOf(slot.remaining, schoolDurationCopy) },
                 style = MyGameTypography.heading.withTabularFigures(),
