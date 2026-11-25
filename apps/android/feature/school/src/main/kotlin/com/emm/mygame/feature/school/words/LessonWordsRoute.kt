@@ -9,7 +9,7 @@ import androidx.lifecycle.compose.LifecycleStartEffect
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.emm.mygame.core.model.learning.LearningRepository
-import com.emm.mygame.core.model.town.TownRepository
+import com.emm.mygame.core.model.town.TownReader
 import com.emm.mygame.core.ui.TaskDockHook
 import kotlin.time.Clock
 import kotlinx.coroutines.Dispatchers
@@ -18,7 +18,7 @@ import kotlinx.coroutines.withContext
 @Composable
 fun LessonWordsRoute(
     walk: LessonWalk,
-    towns: TownRepository,
+    towns: TownReader,
     learning: LearningRepository,
     clock: Clock,
     navigation: LessonWordsNavigation,

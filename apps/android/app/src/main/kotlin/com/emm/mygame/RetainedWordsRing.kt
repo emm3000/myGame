@@ -7,12 +7,12 @@ import androidx.lifecycle.compose.LifecycleStartEffect
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.emm.mygame.core.designsystem.MyGameRing
-import com.emm.mygame.core.model.town.TownRepository
+import com.emm.mygame.core.model.town.TownReader
 import com.emm.mygame.core.ui.chromeResource
 
 @Composable
 internal fun RetainedWordsRing(
-    towns: TownRepository,
+    towns: TownReader,
     doesScreenReadTown: Boolean,
     modifier: Modifier = Modifier,
     viewModel: RetainedWordsViewModel = viewModel { RetainedWordsViewModel(towns, doesScreenReadTown) },

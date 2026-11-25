@@ -1,15 +1,15 @@
 package com.emm.mygame.feature.town.hiring
 
-import com.emm.mygame.core.model.town.TownRepository
 import com.emm.mygame.core.model.town.TownSnapshot
 import com.emm.mygame.core.model.town.hiring.TownHireKind
+import com.emm.mygame.core.model.town.hiring.TownHiringRepository
 import com.emm.mygame.core.model.town.hiring.TownHiringResult
 import com.emm.mygame.feature.town.TownRequests
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
 
 internal class HiringRequests(
-    private val towns: TownRepository,
+    private val towns: TownHiringRepository,
     private val scope: CoroutineScope,
     private val requests: () -> TownRequests,
     private val onDrawn: (TownRequests) -> Unit,

@@ -11,7 +11,7 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import com.emm.mygame.core.model.account.SessionRepository
 import com.emm.mygame.core.model.reminder.StudyReminderSettings
 import com.emm.mygame.core.model.report.ReportRepository
-import com.emm.mygame.core.model.town.TownRepository
+import com.emm.mygame.core.model.town.TownReader
 import kotlin.time.Clock
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
@@ -19,7 +19,7 @@ import kotlinx.coroutines.withContext
 @Composable
 fun ReportRoute(
     reports: ReportRepository,
-    towns: TownRepository,
+    towns: TownReader,
     sessions: SessionRepository,
     reminders: StudyReminderSettings,
     clock: Clock,

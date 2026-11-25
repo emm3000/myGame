@@ -5,7 +5,7 @@ import com.emm.mygame.core.model.learning.DueReviews
 import com.emm.mygame.core.model.reminder.StudyAnswerSink
 import com.emm.mygame.core.model.reminder.TownAnswerFreshness
 import com.emm.mygame.core.model.report.TownReport
-import com.emm.mygame.core.model.town.TownRepository
+import com.emm.mygame.core.model.town.TownReader
 import com.emm.mygame.core.model.town.TownSnapshot
 import com.emm.mygame.core.model.town.guidance.NextStep
 import com.emm.mygame.core.projection.StudyReminderFacts
@@ -15,7 +15,7 @@ import kotlinx.coroutines.launch
 
 class StudyReminderSink(
     private val store: Lazy<StudyReminderStore>,
-    private val towns: () -> TownRepository,
+    private val towns: () -> TownReader,
     private val scope: CoroutineScope,
 ) : StudyAnswerSink {
 

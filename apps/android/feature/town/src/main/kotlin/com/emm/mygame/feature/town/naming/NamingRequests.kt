@@ -1,14 +1,14 @@
 package com.emm.mygame.feature.town.naming
 
 import com.emm.mygame.core.model.town.TownFoundResult
-import com.emm.mygame.core.model.town.TownRepository
+import com.emm.mygame.core.model.town.TownFoundingRepository
 import com.emm.mygame.core.model.town.TownSnapshot
 import com.emm.mygame.feature.town.TownUiState
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
 
 internal class NamingRequests(
-    private val towns: TownRepository,
+    private val towns: TownFoundingRepository,
     private val scope: CoroutineScope,
     private val asked: () -> TownUiState.Naming?,
     private val onStatus: (NamingStatus) -> Unit,
