@@ -42,7 +42,7 @@ class MapViewModel(private val towns: TownRepository, private val clock: Clock) 
 
     private var reads: MapReads = MapReads.none
 
-    private var answers: MapAnswers = MapAnswers.none
+    private var server: MapServerView = MapServerView.none
 
     private var choices: MapChoices = MapChoices.none
 
@@ -73,7 +73,7 @@ class MapViewModel(private val towns: TownRepository, private val clock: Clock) 
         if (isShown) return
         isShown = true
         quote = MapQuote.none
-        val last: TownSnapshot = answers.town ?: return
+        val last: TownSnapshot = server.town ?: return
         val projection: Job = viewModelScope.launch { project(last, firstReadAt = serverNow()) }
         reads = reads.copy(projection = projection)
     }
@@ -81,46 +81,46 @@ class MapViewModel(private val towns: TownRepository, private val clock: Clock) 
     private fun hide() {
         isShown = false
         reads.projection?.cancel()
-        reads.quoteRead?.cancel()
+        reads.quoteReading?.cancel()
     }
 
     private fun retry() {
         if (_state.value != MapUiState.Failed) return
-        if (answers.area == AreaRead.Failed) readArea(answers.askedArea)
-        if (answers.isTownFailed) openTown()
+        if (server.area == AreaRead.Failed) readArea(server.askedArea)
+        if (server.isTownFailed) openTown()
     }
 
     private fun readArea(chosenArea: Int?) {
-        answers = answers.copy(askedArea = chosenArea, area = AreaRead.Reading)
+        server = server.copy(askedArea = chosenArea, area = AreaRead.Reading)
         drawChoices(choices.closed())
-        reads.areaRead?.cancel()
-        val areaRead: Job = viewModelScope.launch {
+        reads.areaReading?.cancel()
+        val areaReading: Job = viewModelScope.launch {
             val area: AreaRead = when (val answer: RegionMapResult = towns.readMap(chosenArea)) {
                 is RegionMapResult.Read -> AreaRead.Read(answer.map)
                 RegionMapResult.AreaNotFound -> AreaRead.NotFound
                 RegionMapResult.NoTown -> return@launch _effects.send(MapEffect.NoTown)
                 RegionMapResult.Unreachable -> AreaRead.Failed
             }
-            answers = answers.copy(area = area)
+            server = server.copy(area = area)
             draw()
         }
-        reads = reads.copy(areaRead = areaRead)
+        reads = reads.copy(areaReading = areaReading)
     }
 
     private fun openTown() {
         val held: HeldTown? = towns.town.value
         if (held != null) {
-            answers = answers.copy(gap = held.gap)
+            server = server.copy(gap = held.gap)
             return restartFrom(held.town, choices)
         }
-        answers = answers.copy(isTownFailed = false)
+        server = server.copy(isTownFailed = false)
         draw()
         viewModelScope.launch {
             when (val answer: TownReadResult = towns.read()) {
                 is TownReadResult.Read -> restartFrom(measured(answer.town), choices)
                 TownReadResult.NoTown -> _effects.send(MapEffect.NoTown)
                 TownReadResult.Unreachable -> {
-                    answers = answers.copy(isTownFailed = true)
+                    server = server.copy(isTownFailed = true)
                     draw()
                 }
             }
@@ -130,7 +130,7 @@ class MapViewModel(private val towns: TownRepository, private val clock: Clock) 
     private fun send() {
         if (choices.send == MapUiState.SendRequest.Waiting) return
         val site: Int = choices.chosen ?: return
-        val map: RegionMap = answers.map ?: return
+        val map: RegionMap = server.map ?: return
         val request: SiteSend = siteSendOf(map, site, choices.entries) ?: return
         drawChoices(choices.copy(send = MapUiState.SendRequest.Waiting))
         viewModelScope.launch {
@@ -147,7 +147,7 @@ class MapViewModel(private val towns: TownRepository, private val clock: Clock) 
 
     private fun callBack() {
         if (choices.callBack == MapUiState.CallBackRequest.Waiting) return
-        val job: TownSnapshot.Job = answers.town?.job ?: return
+        val job: TownSnapshot.Job = server.town?.job ?: return
         drawChoices(choices.copy(callBack = MapUiState.CallBackRequest.Waiting))
         viewModelScope.launch {
             when (val answer: TownJobResult = towns.callJobBack(job.sentAt)) {
@@ -164,7 +164,7 @@ class MapViewModel(private val towns: TownRepository, private val clock: Clock) 
     private fun restartFrom(town: TownSnapshot, kept: MapChoices) {
         reads.projection?.cancel()
         choices = kept
-        answers = answers.copy(town = town)
+        server = server.copy(town = town)
         draw()
         if (!isShown) return
         val projection: Job = viewModelScope.launch { project(town, firstReadAt = town.readInstants().minOrNull()) }
@@ -182,12 +182,12 @@ class MapViewModel(private val towns: TownRepository, private val clock: Clock) 
     }
 
     private fun askQuote() {
-        val ask: QuoteAsk? = answers.quoteAsk(choices)
+        val ask: QuoteAsk? = server.quoteAsk(choices)
         if (ask == quote.ask) return
         quote = MapQuote(ask, answer = null)
-        reads.quoteRead?.cancel()
+        reads.quoteReading?.cancel()
         if (ask == null) return
-        val quoteRead: Job = viewModelScope.launch {
+        val quoteReading: Job = viewModelScope.launch {
             do {
                 val answer: QuoteAnswer = towns.quoted(ask.send)
                 quote = quote.copy(answer = answer)
@@ -195,18 +195,18 @@ class MapViewModel(private val towns: TownRepository, private val clock: Clock) 
                 if (answer.isUnreachable) delay(unreachableQuoteRetry)
             } while (answer.isUnreachable)
         }
-        reads = reads.copy(quoteRead = quoteRead)
+        reads = reads.copy(quoteReading = quoteReading)
     }
 
     private fun currentState(): MapUiState {
-        if (answers.isTownFailed) return MapUiState.Failed
-        return when (val read: AreaRead = answers.area) {
+        if (server.isTownFailed) return MapUiState.Failed
+        return when (val read: AreaRead = server.area) {
             AreaRead.Failed -> MapUiState.Failed
             AreaRead.NotFound -> MapUiState.AreaNotFound
             AreaRead.Reading -> MapUiState.Loading
             is AreaRead.Read ->
-                answers.town?.let { held: TownSnapshot ->
-                    mapContentOf(read.map, held, serverNow(), answers.gap, choices, quote.drawn())
+                server.town?.let { held: TownSnapshot ->
+                    mapContentOf(read.map, held, serverNow(), server.gap, choices, quote.drawn())
                 } ?: MapUiState.Loading
         }
     }
@@ -220,7 +220,7 @@ class MapViewModel(private val towns: TownRepository, private val clock: Clock) 
                 when (val answer: TownReadResult = towns.read()) {
                     is TownReadResult.Read -> {
                         town = measured(answer.town)
-                        answers = answers.copy(town = town)
+                        server = server.copy(town = town)
                         choices = choices.keptAfterRead()
                         nextReadAt = town.readInstantsAfter(serverNow()).minOrNull()
                         continue
@@ -240,10 +240,10 @@ class MapViewModel(private val towns: TownRepository, private val clock: Clock) 
         return if (nextReadAt == null) repaint else minOf(repaint, nextReadAt - now)
     }
 
-    private fun serverNow(): Instant = clock.now() + answers.gap
+    private fun serverNow(): Instant = clock.now() + server.gap
 
     private fun measured(read: TownSnapshot): TownSnapshot {
-        answers = answers.copy(gap = read.readAt - clock.now())
+        server = server.copy(gap = read.readAt - clock.now())
         return read
     }
 }

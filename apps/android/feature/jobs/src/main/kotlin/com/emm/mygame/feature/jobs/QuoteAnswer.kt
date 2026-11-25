@@ -2,6 +2,7 @@ package com.emm.mygame.feature.jobs
 
 import com.emm.mygame.core.model.town.jobs.CleanUpQuoteResult
 import com.emm.mygame.core.model.town.jobs.JobQuoteResult
+import com.emm.mygame.core.model.town.jobs.RegionReader
 
 internal sealed interface QuoteAnswer {
 
@@ -36,3 +37,8 @@ internal fun cleanUpQuoteOf(result: CleanUpQuoteResult): QuoteAnswer = QuoteAnsw
         CleanUpQuoteResult.Unreachable -> MapUiState.CleanUpQuote.Unreachable
     },
 )
+
+internal suspend fun RegionReader.quoted(request: SiteSend): QuoteAnswer = when (request) {
+    is SiteSend.Job -> payQuoteOf(quoteJob(request.target, request.team, request.hours))
+    is SiteSend.CleanUp -> cleanUpQuoteOf(quoteCleanUp(request.target, request.team))
+}

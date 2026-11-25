@@ -4,7 +4,7 @@ import com.emm.mygame.core.model.town.TownSnapshot
 import com.emm.mygame.core.model.town.jobs.RegionMap
 import kotlin.time.Duration
 
-internal data class MapAnswers(
+internal data class MapServerView(
     val askedArea: Int?,
     val area: AreaRead,
     val town: TownSnapshot?,
@@ -17,11 +17,14 @@ internal data class MapAnswers(
     fun quoteAsk(choices: MapChoices): QuoteAsk? {
         val readMap: RegionMap = map ?: return null
         val shownTown: TownSnapshot = town ?: return null
-        return quoteAskOf(readMap, shownTown, choices)
+        val site: Int = choices.chosen ?: return null
+        val send: SiteSend = siteSendOf(readMap, site, choices.entries) ?: return null
+        if (send.team.values.sum() == 0) return null
+        return QuoteAsk(send, shownTown.seasonEndsAt)
     }
 
     companion object {
-        val none: MapAnswers = MapAnswers(
+        val none: MapServerView = MapServerView(
             askedArea = null,
             area = AreaRead.Reading,
             town = null,
