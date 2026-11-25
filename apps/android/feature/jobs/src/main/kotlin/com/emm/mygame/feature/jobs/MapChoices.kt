@@ -2,7 +2,7 @@ package com.emm.mygame.feature.jobs
 
 internal data class MapChoices(
     val chosen: Int?,
-    val entries: JobEntries,
+    val entries: JobFormEntries,
     val send: MapUiState.SendRequest,
     val callBack: MapUiState.CallBackRequest,
 ) {
@@ -12,11 +12,11 @@ internal data class MapChoices(
         callBack = if (callBack == MapUiState.CallBackRequest.Waiting) callBack else MapUiState.CallBackRequest.Idle,
     )
 
-    fun closed(): MapChoices = keptAfterRead().copy(chosen = null, entries = JobEntries.first)
+    fun closed(): MapChoices = keptAfterRead().copy(chosen = null, entries = JobFormEntries.first)
 
     fun choosing(site: Int): MapChoices = copy(
         chosen = if (chosen == site) null else site,
-        entries = JobEntries.first,
+        entries = JobFormEntries.first,
         send = unansweredSend(),
     )
 
@@ -29,7 +29,7 @@ internal data class MapChoices(
     companion object {
         val none: MapChoices = MapChoices(
             chosen = null,
-            entries = JobEntries.first,
+            entries = JobFormEntries.first,
             send = MapUiState.SendRequest.Idle,
             callBack = MapUiState.CallBackRequest.Idle,
         )

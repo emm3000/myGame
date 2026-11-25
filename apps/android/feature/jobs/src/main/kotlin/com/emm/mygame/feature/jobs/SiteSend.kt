@@ -24,7 +24,7 @@ internal sealed interface SiteSend {
 internal fun RegionMap.isWasteSite(site: Int): Boolean =
     sites.any { held: RegionMap.Site -> held.site == site && held.waste != null }
 
-internal fun siteSendOf(map: RegionMap, site: Int, entries: JobEntries): SiteSend? {
+internal fun siteSendOf(map: RegionMap, site: Int, entries: JobFormEntries): SiteSend? {
     val target: JobTarget = JobTarget(map.area, site)
     val team: Map<TownHireKind, Int> = entries.team() ?: return null
     if (map.isWasteSite(site)) return SiteSend.CleanUp(target, team)

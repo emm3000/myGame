@@ -40,7 +40,7 @@ private fun freeSiteRowOf(site: Int, waste: RegionMap.SiteWaste?): MapUiState.Si
 private fun TownSnapshot.siteFormOf(
     map: RegionMap,
     site: Int,
-    entries: JobEntries,
+    entries: JobFormEntries,
     quote: QuoteAnswer?,
 ): MapUiState.SiteForm {
     if (!map.isWasteSite(site)) return jobFormOf(site, entries, (quote as? QuoteAnswer.Job)?.quote)
@@ -58,7 +58,7 @@ private fun TownSnapshot.siteFormOf(
 
 private fun TownSnapshot.jobFormOf(
     site: Int,
-    entries: JobEntries,
+    entries: JobFormEntries,
     quote: MapUiState.PayQuote?,
 ): MapUiState.JobForm = MapUiState.JobForm(
     site = site,
@@ -79,13 +79,13 @@ private fun TownSnapshot.roadMark(): MapUiState.DurationMark? {
     return MapUiState.DurationMark(inForce.kind, percent = road)
 }
 
-private fun JobEntries.jobBlock(): MapUiState.JobBlock? {
+private fun JobFormEntries.jobBlock(): MapUiState.JobBlock? {
     teamBlock()?.let { block: MapUiState.JobBlock -> return block }
     if (hoursCount() == null) return MapUiState.JobBlock.HoursNeeded
     return null
 }
 
-private fun JobEntries.teamBlock(): MapUiState.JobBlock? {
+private fun JobFormEntries.teamBlock(): MapUiState.JobBlock? {
     val team: Map<TownHireKind, Int> = team() ?: return MapUiState.JobBlock.CountNeeded
     if (team.values.sum() == 0) return MapUiState.JobBlock.InvalidTeam
     return null
