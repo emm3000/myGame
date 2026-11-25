@@ -241,6 +241,10 @@ export {
   ResolveCurrentTown,
   type ResolveCurrentTownDependencies,
 } from '#town/application/ResolveCurrentTown'
+export {
+  ResolveTownForText,
+  type ResolveTownForTextDependencies,
+} from '#town/application/ResolveTownForText'
 export type { SeenTowns } from '#town/away/domain/SeenTowns'
 export type { TownOverviewReading } from '#town/away/domain/TownOverviewReading'
 export {
