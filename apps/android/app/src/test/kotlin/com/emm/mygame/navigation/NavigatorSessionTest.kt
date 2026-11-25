@@ -106,7 +106,7 @@ class NavigatorSessionTest : NavigatorFixture() {
     fun `opens the school as the Learn tab`() {
         val backStack: MutableList<NavKey> = mutableListOf(Destination.Today, Destination.Town)
 
-        Navigator(backStack, NavigationLinks()).openSchool()
+        Navigator(backStack, NavigationLinks()).openTab(Tab.Learn)
 
         assertEquals(listOf(Destination.Today, Destination.School), backStack)
     }
@@ -115,7 +115,7 @@ class NavigatorSessionTest : NavigatorFixture() {
     fun `keeps one school when it is opened twice`() {
         val backStack: MutableList<NavKey> = mutableListOf(Destination.Today, Destination.Town, Destination.School)
 
-        Navigator(backStack, NavigationLinks()).openSchool()
+        Navigator(backStack, NavigationLinks()).openTab(Tab.Learn)
 
         assertEquals(listOf(Destination.Today, Destination.School), backStack)
     }
@@ -124,7 +124,7 @@ class NavigatorSessionTest : NavigatorFixture() {
     fun `opens no school above sign-in`() {
         val backStack: MutableList<NavKey> = mutableListOf(signIn)
 
-        Navigator(backStack, NavigationLinks()).openSchool()
+        Navigator(backStack, NavigationLinks()).openTab(Tab.Learn)
 
         assertEquals(listOf<NavKey>(signIn), backStack)
     }
@@ -146,7 +146,7 @@ class NavigatorSessionTest : NavigatorFixture() {
         val navigator: Navigator = Navigator(backStack, NavigationLinks())
         navigator.signingOut()
 
-        navigator.openSchool()
+        navigator.openTab(Tab.Learn)
 
         assertEquals(listOf(Destination.Today, Destination.Town), backStack)
     }
@@ -195,7 +195,7 @@ class NavigatorSessionTest : NavigatorFixture() {
         navigator.signedOut(isSessionEnded = false)
 
         navigator.signedIn()
-        navigator.openReport()
+        navigator.openOnTab(Destination.Report)
 
         assertEquals(true to listOf(Destination.Today, Destination.Report), navigator.areLinksEnabled to backStack)
     }

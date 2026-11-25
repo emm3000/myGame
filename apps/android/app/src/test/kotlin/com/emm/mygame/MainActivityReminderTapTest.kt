@@ -9,7 +9,6 @@ import androidx.compose.ui.test.isHeading
 import androidx.compose.ui.test.hasClickAction
 import androidx.compose.ui.test.junit4.ComposeTestRule
 import androidx.compose.ui.test.junit4.createEmptyComposeRule
-import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
 import com.emm.mygame.core.model.account.PlayerScaffold
 import com.emm.mygame.core.model.account.RestoreResult

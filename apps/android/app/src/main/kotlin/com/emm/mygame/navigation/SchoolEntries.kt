@@ -84,7 +84,7 @@ internal fun EntryProviderScope<NavKey>.lessonWordsEntry(chrome: SignedInChrome)
                     onNoTown = navigator::townUnnamed,
                     onLessonOpen = navigator::openLesson,
                     onReviewsOpen = navigator::openReviews,
-                    onSchoolOpen = navigator::openSchool,
+                    onSchoolOpen = { navigator.openTab(Tab.Learn) },
                 ),
                 task = frame.task,
                 foldedDock = frame.foldedDock,
@@ -106,7 +106,7 @@ internal fun EntryProviderScope<NavKey>.schoolTextEntry(chrome: SignedInChrome) 
                 text = shown.text,
                 texts = dependencies.texts,
                 onNoTown = navigator::townUnnamed,
-                onSchoolOpen = navigator::openSchool,
+                onSchoolOpen = { navigator.openTab(Tab.Learn) },
                 foldedDock = frame.foldedDock,
             )
         }

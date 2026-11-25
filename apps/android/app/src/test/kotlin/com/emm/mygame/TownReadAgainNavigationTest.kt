@@ -94,7 +94,11 @@ class TownReadAgainNavigationTest : DockFrameFixture() {
         val due: HoldoutCheck = HoldoutCheck.Due(PlacementBand.First, HoldoutCheckWeek.Eighth)
         holdoutChecks.answerRead(HoldoutChecksReadResult.Read(listOf(due)))
         holdoutChecks.answerChange(HoldoutCheckChangeResult.Changed(emptyList()))
-        showing(Destination.Today, Destination.Town, Destination.HoldoutCheck(PlacementBand.First, HoldoutCheckWeek.Eighth))
+        showing(
+            Destination.Today,
+            Destination.Town,
+            Destination.HoldoutCheck(PlacementBand.First, HoldoutCheckWeek.Eighth),
+        )
         waitFor(hasText(SKIP_PLACEMENT))
 
         composeRule.onNode(hasText(SKIP_PLACEMENT)).performScrollTo().performClick()
@@ -106,7 +110,12 @@ class TownReadAgainNavigationTest : DockFrameFixture() {
     fun `starting a lesson reads the town again`() {
         val studying: TownSnapshot = playedTown(nextStep = NextStep.LessonRunning(goal = null, text = null))
         towns.answerLesson(TownLessonResult.Answered(studying))
-        showing(Destination.Today, Destination.Town, Destination.School, town = playedTown(nextStep = NextStep.LessonToStudy(firstLesson)))
+        showing(
+            Destination.Today,
+            Destination.Town,
+            Destination.School,
+            town = playedTown(nextStep = NextStep.LessonToStudy(firstLesson)),
+        )
 
         dockGo("Estudiar la lección 1 · 5:00").performClick()
 

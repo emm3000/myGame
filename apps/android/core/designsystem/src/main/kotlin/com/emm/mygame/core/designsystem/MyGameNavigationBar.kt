@@ -14,6 +14,7 @@ import androidx.compose.foundation.selection.selectable
 import androidx.compose.foundation.selection.selectableGroup
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.Immutable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -26,6 +27,10 @@ import androidx.compose.ui.semantics.semantics
 
 const val NAVIGATION_BAR: String = "navigation_bar"
 
+@Immutable
+data class MyGameNavigationItems(val tabs: List<MyGameNavigationItem>)
+
+@Immutable
 data class MyGameNavigationItem(
     val label: MyGameLabel,
     val icon: ImageVector,
@@ -35,11 +40,11 @@ data class MyGameNavigationItem(
 )
 
 @Composable
-fun MyGameNavigationBar(items: List<MyGameNavigationItem>, modifier: Modifier = Modifier) {
+fun MyGameNavigationBar(items: MyGameNavigationItems, modifier: Modifier = Modifier) {
     Column(modifier = modifier.fillMaxWidth().background(MyGameTheme.colors.surfaceRaised).testTag(NAVIGATION_BAR)) {
         MyGameHairline()
         Row(modifier = Modifier.fillMaxWidth().selectableGroup()) {
-            items.forEach { item: MyGameNavigationItem -> NavigationTab(item = item) }
+            items.tabs.forEach { item: MyGameNavigationItem -> NavigationTab(item = item) }
         }
     }
 }
@@ -96,17 +101,19 @@ private fun TabCount(count: String, modifier: Modifier = Modifier) {
 private fun MyGameNavigationBarPreview() {
     MyGamePreviewSurface {
         MyGameNavigationBar(
-            items = listOf(
-                MyGameNavigationItem(MyGameLabel("Today", "Hoy"), MyGameIcons.today, isOpen = true, onClick = {}),
-                MyGameNavigationItem(MyGameLabel("Town", "Pueblo"), MyGameIcons.town, isOpen = false, onClick = {}),
-                MyGameNavigationItem(
-                    MyGameLabel("Learn", "Aprender"),
-                    MyGameIcons.learn,
-                    isOpen = false,
-                    onClick = {},
-                    count = "3",
+            items = MyGameNavigationItems(
+                listOf(
+                    MyGameNavigationItem(MyGameLabel("Today", "Hoy"), MyGameIcons.today, isOpen = true, onClick = {}),
+                    MyGameNavigationItem(MyGameLabel("Town", "Pueblo"), MyGameIcons.town, isOpen = false, onClick = {}),
+                    MyGameNavigationItem(
+                        MyGameLabel("Learn", "Aprender"),
+                        MyGameIcons.learn,
+                        isOpen = false,
+                        onClick = {},
+                        count = "3",
+                    ),
+                    MyGameNavigationItem(MyGameLabel("Me", "Yo"), MyGameIcons.me, isOpen = false, onClick = {}),
                 ),
-                MyGameNavigationItem(MyGameLabel("Me", "Yo"), MyGameIcons.me, isOpen = false, onClick = {}),
             ),
         )
     }

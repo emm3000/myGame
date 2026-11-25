@@ -1,5 +1,5 @@
 ---
-status: proposed
+status: proposed, the next step on the home amended by ADR 057: on Android it is Today's first card, paper, not a block
 date: 2026-11-06
 ---
 # The look

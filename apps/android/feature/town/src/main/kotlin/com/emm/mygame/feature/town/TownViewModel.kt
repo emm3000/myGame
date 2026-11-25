@@ -19,6 +19,7 @@ import com.emm.mygame.feature.town.guidance.GuidanceRequests
 import com.emm.mygame.feature.town.hiring.HiringRequests
 import com.emm.mygame.feature.town.naming.NamingRequests
 import com.emm.mygame.feature.town.naming.NamingStatus
+import com.emm.mygame.feature.town.naming.updateNaming
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.cancelChildren
 import kotlinx.coroutines.channels.Channel
@@ -27,7 +28,6 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.receiveAsFlow
-import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import kotlin.time.Clock
 import kotlin.time.Duration
@@ -62,7 +62,7 @@ class TownViewModel(
         scope = viewModelScope,
         asked = { _state.value as? TownUiState.Naming },
         onStatus = { status: NamingStatus ->
-            updateNaming { current: TownUiState.Naming -> current.copy(status = status) }
+            _state.updateNaming { current: TownUiState.Naming -> current.copy(status = status) }
         },
         onFounded = { town: TownSnapshot ->
             restartFrom(measured(town), TownRequests.none)
@@ -131,12 +131,9 @@ class TownViewModel(
                 projection?.cancel()
             }
             TownIntent.RetryTapped -> if (_state.value == TownUiState.Failed) open()
-            TownIntent.GoToTownTapped -> {
-                open()
-                _effects.trySend(TownEffect.Named)
-            }
+            TownIntent.GoToTownTapped -> open().also { _effects.trySend(TownEffect.Named) }
             is TownIntent.NameChanged ->
-                updateNaming { current: TownUiState.Naming -> current.copy(name = intent.name) }
+                _state.updateNaming { current: TownUiState.Naming -> current.copy(name = intent.name) }
             TownIntent.NameSubmitted -> naming.found()
             is TownIntent.BuildTapped -> ifTownShown { building.start(intent.building) }
             is TownIntent.StopTapped -> ifTownShown { building.stop(WorkTarget(intent.building, intent.level)) }
@@ -202,10 +199,6 @@ class TownViewModel(
         shown = null
         _state.value = TownUiState.Naming(name = "", status = NamingStatus.Idle)
         _effects.trySend(TownEffect.Unnamed)
-    }
-
-    private fun updateNaming(change: (TownUiState.Naming) -> TownUiState.Naming) {
-        _state.update { current: TownUiState -> if (current is TownUiState.Naming) change(current) else current }
     }
 
     private fun signOut() {

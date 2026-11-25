@@ -54,6 +54,7 @@ import com.emm.mygame.feature.town.status.TownReportRow
 import com.emm.mygame.feature.town.status.TownStatusIntent
 import com.emm.mygame.feature.town.status.TownStatusUiState
 import com.emm.mygame.feature.town.status.shownNotice
+import com.emm.mygame.navigation.Tab
 import com.emm.mygame.navigation.openFromDock
 
 private const val TASK_DOCK_TURN: Float = 1f
@@ -86,7 +87,7 @@ internal fun FramedScreen(
         foldedDock = { FoldedDockTop(dock = dock, isFolded = isFolded.value, turn = foldedTurnOf(kind)) },
         reportRow = {
             dock?.let { shown: TownStatusUiState.Dock ->
-                TownReportRow(dock = shown, onClick = chrome.navigator::openReport)
+                TownReportRow(dock = shown, onClick = { chrome.navigator.openOnTab(Destination.Report) })
             }
         },
         status = chrome.banner,
@@ -203,9 +204,9 @@ private fun TownStatusUiState.Dock.studiedInPlace(): Int? =
 private fun SignedInChrome.dockActions(onReviewsStart: (() -> Unit)?): TownDockActions = TownDockActions(
     onIntent = onStatusIntent,
     onLessonOpen = { lesson: LessonId -> navigator.openFromDock { openLesson(lesson, walked = emptyList()) } },
-    onSchoolOpen = { navigator.openFromDock { openSchool() } },
+    onSchoolOpen = { navigator.openFromDock { openTab(Tab.Learn) } },
     onReviewsOpen = onReviewsStart ?: { navigator.openFromDock { openReviews() } },
-    onReportOpen = { navigator.openFromDock { openReport() } },
+    onReportOpen = { navigator.openFromDock { openOnTab(Destination.Report) } },
     onHoldoutCheckOpen = { band: PlacementBand, week: HoldoutCheckWeek ->
         navigator.openFromDock { openHoldoutCheck(band, week) }
     },

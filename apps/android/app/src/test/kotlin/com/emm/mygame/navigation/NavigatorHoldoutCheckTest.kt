@@ -21,7 +21,12 @@ class NavigatorHoldoutCheckTest : NavigatorFixture() {
 
     @Test
     fun `returns to the school on back from the holdout check`() {
-        val backStack: MutableList<NavKey> = mutableListOf(Destination.Today, Destination.Town, Destination.School, firstBandEighthWeek)
+        val backStack: MutableList<NavKey> = mutableListOf(
+            Destination.Today,
+            Destination.Town,
+            Destination.School,
+            firstBandEighthWeek,
+        )
 
         Navigator(backStack, NavigationLinks()).back()
 
@@ -30,7 +35,12 @@ class NavigatorHoldoutCheckTest : NavigatorFixture() {
 
     @Test
     fun `returns to the town from the holdout check`() {
-        val backStack: MutableList<NavKey> = mutableListOf(Destination.Today, Destination.Town, Destination.School, firstBandEighthWeek)
+        val backStack: MutableList<NavKey> = mutableListOf(
+            Destination.Today,
+            Destination.Town,
+            Destination.School,
+            firstBandEighthWeek,
+        )
 
         Navigator(backStack, NavigationLinks()).openTown()
 

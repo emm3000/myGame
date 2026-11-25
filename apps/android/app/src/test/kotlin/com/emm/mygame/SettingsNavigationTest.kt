@@ -125,7 +125,10 @@ class SettingsNavigationTest {
         composeRule.onNodeWithText("Ajustes").performScrollTo().performClick()
 
         waitForLine("Idioma de ayuda")
-        assertEquals(listOf(Destination.Today, Destination.Town, Destination.Report, Destination.Settings), shownBackStack)
+        assertEquals(
+            listOf(Destination.Today, Destination.Town, Destination.Report, Destination.Settings),
+            shownBackStack,
+        )
     }
 
     @Test

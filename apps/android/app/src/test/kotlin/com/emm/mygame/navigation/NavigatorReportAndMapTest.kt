@@ -21,7 +21,7 @@ class NavigatorReportAndMapTest : NavigatorFixture() {
     fun `opens the Report above the town`() {
         val backStack: MutableList<NavKey> = mutableListOf(Destination.Today, Destination.Town)
 
-        Navigator(backStack, NavigationLinks()).openReport()
+        Navigator(backStack, NavigationLinks()).openOnTab(Destination.Report)
 
         assertEquals(listOf(Destination.Today, Destination.Town, Destination.Report), backStack)
     }
@@ -30,7 +30,7 @@ class NavigatorReportAndMapTest : NavigatorFixture() {
     fun `keeps one Report on a second tap of its tab`() {
         val backStack: MutableList<NavKey> = mutableListOf(Destination.Today, Destination.Town, Destination.Report)
 
-        Navigator(backStack, NavigationLinks()).openReport()
+        Navigator(backStack, NavigationLinks()).openOnTab(Destination.Report)
 
         assertEquals(listOf(Destination.Today, Destination.Town, Destination.Report), backStack)
     }
@@ -39,25 +39,35 @@ class NavigatorReportAndMapTest : NavigatorFixture() {
     fun `replaces the school with the Report`() {
         val backStack: MutableList<NavKey> = mutableListOf(Destination.Today, Destination.Town, Destination.School)
 
-        Navigator(backStack, NavigationLinks()).openReport()
+        Navigator(backStack, NavigationLinks()).openOnTab(Destination.Report)
 
         assertEquals(listOf(Destination.Today, Destination.Town, Destination.Report), backStack)
     }
 
     @Test
     fun `returns to the Report from the review on its tab`() {
-        val backStack: MutableList<NavKey> = mutableListOf(Destination.Today, Destination.Town, Destination.Report, Destination.Review)
+        val backStack: MutableList<NavKey> = mutableListOf(
+            Destination.Today,
+            Destination.Town,
+            Destination.Report,
+            Destination.Review,
+        )
 
-        Navigator(backStack, NavigationLinks()).openReport()
+        Navigator(backStack, NavigationLinks()).openOnTab(Destination.Report)
 
         assertEquals(listOf(Destination.Today, Destination.Town, Destination.Report), backStack)
     }
 
     @Test
     fun `leaves the school behind on the Report tab from a review opened there`() {
-        val backStack: MutableList<NavKey> = mutableListOf(Destination.Today, Destination.Town, Destination.School, Destination.Review)
+        val backStack: MutableList<NavKey> = mutableListOf(
+            Destination.Today,
+            Destination.Town,
+            Destination.School,
+            Destination.Review,
+        )
 
-        Navigator(backStack, NavigationLinks()).openReport()
+        Navigator(backStack, NavigationLinks()).openOnTab(Destination.Report)
 
         assertEquals(listOf(Destination.Today, Destination.Town, Destination.Report), backStack)
     }
@@ -73,7 +83,12 @@ class NavigatorReportAndMapTest : NavigatorFixture() {
 
     @Test
     fun `returns to the Report on back from the news`() {
-        val backStack: MutableList<NavKey> = mutableListOf(Destination.Today, Destination.Town, Destination.Report, Destination.News)
+        val backStack: MutableList<NavKey> = mutableListOf(
+            Destination.Today,
+            Destination.Town,
+            Destination.Report,
+            Destination.News,
+        )
 
         Navigator(backStack, NavigationLinks()).back()
 
@@ -82,7 +97,12 @@ class NavigatorReportAndMapTest : NavigatorFixture() {
 
     @Test
     fun `returns to the town on its tab from the news`() {
-        val backStack: MutableList<NavKey> = mutableListOf(Destination.Today, Destination.Town, Destination.Report, Destination.News)
+        val backStack: MutableList<NavKey> = mutableListOf(
+            Destination.Today,
+            Destination.Town,
+            Destination.Report,
+            Destination.News,
+        )
 
         Navigator(backStack, NavigationLinks()).openTown()
 
@@ -120,7 +140,12 @@ class NavigatorReportAndMapTest : NavigatorFixture() {
 
     @Test
     fun `returns to the Report on back from the settings`() {
-        val backStack: MutableList<NavKey> = mutableListOf(Destination.Today, Destination.Town, Destination.Report, Destination.Settings)
+        val backStack: MutableList<NavKey> = mutableListOf(
+            Destination.Today,
+            Destination.Town,
+            Destination.Report,
+            Destination.Settings,
+        )
 
         Navigator(backStack, NavigationLinks()).back()
 
@@ -129,7 +154,12 @@ class NavigatorReportAndMapTest : NavigatorFixture() {
 
     @Test
     fun `returns to the town from the settings`() {
-        val backStack: MutableList<NavKey> = mutableListOf(Destination.Today, Destination.Town, Destination.Report, Destination.Settings)
+        val backStack: MutableList<NavKey> = mutableListOf(
+            Destination.Today,
+            Destination.Town,
+            Destination.Report,
+            Destination.Settings,
+        )
 
         Navigator(backStack, NavigationLinks()).openTown()
 
@@ -160,7 +190,7 @@ class NavigatorReportAndMapTest : NavigatorFixture() {
     fun `opens the map above the town`() {
         val backStack: MutableList<NavKey> = mutableListOf(Destination.Today, Destination.Town)
 
-        Navigator(backStack, NavigationLinks()).openMap()
+        Navigator(backStack, NavigationLinks()).openOnTab(Destination.Map)
 
         assertEquals(listOf(Destination.Today, Destination.Town, Destination.Map), backStack)
     }
@@ -178,7 +208,7 @@ class NavigatorReportAndMapTest : NavigatorFixture() {
     fun `opens the placement above the town`() {
         val backStack: MutableList<NavKey> = mutableListOf(Destination.Today, Destination.Town)
 
-        Navigator(backStack, NavigationLinks()).openPlacement()
+        Navigator(backStack, NavigationLinks()).openOnTab(Destination.Placement)
 
         assertEquals(listOf(Destination.Today, Destination.Town, Destination.Placement), backStack)
     }
@@ -196,7 +226,7 @@ class NavigatorReportAndMapTest : NavigatorFixture() {
     fun `opens no placement from sign-in`() {
         val backStack: MutableList<NavKey> = mutableListOf(signIn)
 
-        Navigator(backStack, NavigationLinks()).openPlacement()
+        Navigator(backStack, NavigationLinks()).openOnTab(Destination.Placement)
 
         assertEquals(listOf<NavKey>(signIn), backStack)
     }
@@ -207,7 +237,7 @@ class NavigatorReportAndMapTest : NavigatorFixture() {
         val navigator: Navigator = Navigator(backStack, NavigationLinks())
         navigator.signingOut()
 
-        navigator.openPlacement()
+        navigator.openOnTab(Destination.Placement)
 
         assertEquals(listOf(Destination.Today, Destination.Town), backStack)
     }

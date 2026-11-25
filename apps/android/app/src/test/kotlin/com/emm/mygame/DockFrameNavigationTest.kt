@@ -80,7 +80,12 @@ class DockFrameNavigationTest : DockFrameFixture() {
 
     @Test
     fun `the dock comes right after the header for TalkBack`() {
-        showing(Destination.Today, Destination.Town, Destination.School, town = playedTown().copy(learning = learningWithRing))
+        showing(
+            Destination.Today,
+            Destination.Town,
+            Destination.School,
+            town = playedTown().copy(learning = learningWithRing),
+        )
         dockGo("Ir al informe")
         waitFor(hasText(THREE_OF_FIVE))
 

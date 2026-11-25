@@ -5,6 +5,8 @@ import com.emm.mygame.core.model.town.TownFoundingRepository
 import com.emm.mygame.core.model.town.TownSnapshot
 import com.emm.mygame.feature.town.TownUiState
 import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 
 internal class NamingRequests(
@@ -27,4 +29,8 @@ internal class NamingRequests(
             }
         }
     }
+}
+
+internal fun MutableStateFlow<TownUiState>.updateNaming(change: (TownUiState.Naming) -> TownUiState.Naming) {
+    update { current: TownUiState -> if (current is TownUiState.Naming) change(current) else current }
 }

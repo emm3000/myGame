@@ -34,7 +34,11 @@ internal fun TodayFirstCard(
             MyGameMetaText(label = eyebrow, color = MyGameTheme.colors.inkMuted)
             MyGameText(label = copy.lineOf(card), style = MyGameTypography.title, color = MyGameTheme.colors.ink)
             (card as? TodayUiState.FirstCard.CaughtUp)?.nextReview?.let { time: TodayUiState.TimeAt ->
-                MyGameText(label = copy.nextReviewOf(time), style = MyGameTypography.body, color = MyGameTheme.colors.ink)
+                MyGameText(
+                    label = copy.nextReviewOf(time),
+                    style = MyGameTypography.body,
+                    color = MyGameTheme.colors.ink,
+                )
             }
             copy.startRefusalOf(start)?.let { refusal: String -> MyGameInlineAlert(message = refusal) }
             copy.actionOf(card)?.let { action: MyGameLabel ->
