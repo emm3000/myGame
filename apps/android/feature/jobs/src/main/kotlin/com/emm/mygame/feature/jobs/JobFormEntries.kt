@@ -4,9 +4,9 @@ import com.emm.mygame.core.model.town.hiring.TownHireKind
 
 private val wholeCount: Regex = Regex("^[0-9]+$")
 
-internal data class JobEntries(val workers: String, val trucks: String, val hours: String) {
+internal data class JobFormEntries(val workers: String, val trucks: String, val hours: String) {
 
-    fun with(field: MapIntent.JobField, entry: String): JobEntries = when (field) {
+    fun with(field: MapIntent.JobField, entry: String): JobFormEntries = when (field) {
         MapIntent.JobField.Workers -> copy(workers = entry)
         MapIntent.JobField.Trucks -> copy(trucks = entry)
         MapIntent.JobField.Hours -> copy(hours = entry)
@@ -21,7 +21,7 @@ internal data class JobEntries(val workers: String, val trucks: String, val hour
     fun hoursCount(): Int? = wholeCountFrom(least = 1, entry = hours)
 
     companion object {
-        val first: JobEntries = JobEntries(workers = "0", trucks = "0", hours = "1")
+        val first: JobFormEntries = JobFormEntries(workers = "0", trucks = "0", hours = "1")
     }
 }
 

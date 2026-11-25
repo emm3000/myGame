@@ -7,9 +7,3 @@ internal fun TownSnapshot.readInstants(): List<Instant> = listOfNotNull(job?.nex
 
 internal fun TownSnapshot.readInstantsAfter(now: Instant): List<Instant> =
     readInstants().filter { instant: Instant -> instant > now }
-
-internal fun TownSnapshot.Job.nextInstant(): Instant = when (phase) {
-    TownSnapshot.JobPhase.Outbound -> arrivesAt
-    TownSnapshot.JobPhase.Working -> leavesAt
-    TownSnapshot.JobPhase.Returning -> returnsAt
-}
