@@ -3161,8 +3161,9 @@
         "fromLessonId": "lesson-29"
       },
       {
-        "frame": "Can you look through my report before I send it?",
-        "gappedFrame": "Can you look ____ my report before I send it?",
+        "frame": "Is there a way through the hills?",
+        "gappedFrame": "Is there a way ____ the hills?",
+        "noCardSense": ["there"],
         "fromLessonId": "lesson-29"
       }
     ],
@@ -3257,8 +3258,8 @@
         "gappedFrame": "The power is ____ at the factory."
       },
       {
-        "frame": "I have the day off tomorrow.",
-        "gappedFrame": "I have the day ____ tomorrow.",
+        "frame": "The station is off, so we have no power.",
+        "gappedFrame": "The station is ____, so we have no power.",
         "fromLessonId": "lesson-29"
       },
       {
@@ -3358,8 +3359,8 @@
         "gappedFrame": "____ the mayor about the job."
       },
       {
-        "frame": "Can I ask for more time?",
-        "gappedFrame": "Can I ____ for more time?",
+        "frame": "Ask her when the lesson starts.",
+        "gappedFrame": "____ her when the lesson starts.",
         "fromLessonId": "lesson-30"
       },
       {
@@ -3439,8 +3440,8 @@
         "fromLessonId": "lesson-31"
       },
       {
-        "frame": "Can you do this on your own?",
-        "gappedFrame": "Can you do this on your ____?",
+        "frame": "Do you have your own truck?",
+        "gappedFrame": "Do you have your ____ truck?",
         "fromLessonId": "lesson-31"
       }
     ],
@@ -3485,9 +3486,8 @@
         "gappedFrame": "Where do you ____?"
       },
       {
-        "frame": "I used to live in the city.",
-        "gappedFrame": "I used to ____ in the city.",
-        "noCardSense": ["used"],
+        "frame": "I do not want to live in the city.",
+        "gappedFrame": "I do not want to ____ in the city.",
         "fromLessonId": "lesson-31"
       },
       {
