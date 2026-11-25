@@ -1,6 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="app_name">Townword</string>
+    <string name="navigation_learn">Aprender</string>
+    <string name="navigation_me">Yo</string>
+    <string name="navigation_today">Hoy</string>
     <string name="navigation_town">Pueblo</string>
     <string name="reminder_cards_text">Abre el informe para estudiarlas.</string>
     <string name="reminder_cards_title">Tus palabras están listas.</string>

@@ -31,6 +31,12 @@ sealed interface Destination : NavKey {
     data class VerifyEmail(val token: EmailVerificationToken?) : MailedLink
 
     @Serializable
+    data object Naming : Destination
+
+    @Serializable
+    data object Today : Destination
+
+    @Serializable
     data object Town : Destination
 
     @Serializable

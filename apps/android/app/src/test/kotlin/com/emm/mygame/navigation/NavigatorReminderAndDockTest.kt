@@ -10,22 +10,22 @@ import org.junit.Test
 class NavigatorReminderAndDockTest : NavigatorFixture() {
 
     @Test
-    fun `opens the Report above the town on a tap of the words reminder`() {
-        val backStack: MutableList<NavKey> = mutableListOf(Destination.Town, Destination.School, firstWords)
+    fun `opens the Report above Today on a tap of the words reminder`() {
+        val backStack: MutableList<NavKey> = mutableListOf(Destination.Today, Destination.Town, Destination.School, firstWords)
 
         Navigator(backStack, NavigationLinks()).openReminder(StudyReminderLine.Cards)
 
-        assertEquals(listOf(Destination.Town, Destination.Report), backStack)
+        assertEquals(listOf(Destination.Today, Destination.Report), backStack)
     }
 
     @Test
-    fun `returns to the town on a tap of the check or the lesson reminder`() {
+    fun `returns to Today on a tap of the check or the lesson reminder`() {
         listOf(StudyReminderLine.Check, StudyReminderLine.Lesson).forEach { line: StudyReminderLine ->
-            val backStack: MutableList<NavKey> = mutableListOf(Destination.Town, Destination.Report, Destination.News)
+            val backStack: MutableList<NavKey> = mutableListOf(Destination.Today, Destination.Town, Destination.Report, Destination.News)
 
             Navigator(backStack, NavigationLinks()).openReminder(line)
 
-            assertEquals(listOf<NavKey>(Destination.Town), backStack)
+            assertEquals(listOf<NavKey>(Destination.Today), backStack)
         }
     }
 
@@ -37,7 +37,7 @@ class NavigatorReminderAndDockTest : NavigatorFixture() {
 
         navigator.signedIn()
 
-        assertEquals(listOf(Destination.Town, Destination.Report), backStack)
+        assertEquals(listOf(Destination.Today, Destination.Report), backStack)
     }
 
     @Test
@@ -48,7 +48,7 @@ class NavigatorReminderAndDockTest : NavigatorFixture() {
 
         Navigator(backStack, links).signedIn()
 
-        assertEquals(listOf(Destination.Town, Destination.Report), backStack)
+        assertEquals(listOf(Destination.Today, Destination.Report), backStack)
     }
 
     @Test
@@ -60,7 +60,7 @@ class NavigatorReminderAndDockTest : NavigatorFixture() {
 
         navigator.signedIn()
 
-        assertEquals(listOf<NavKey>(Destination.Town), backStack)
+        assertEquals(listOf<NavKey>(Destination.Today), backStack)
     }
 
     @Test
@@ -74,52 +74,52 @@ class NavigatorReminderAndDockTest : NavigatorFixture() {
 
     @Test
     fun `opens no reminder screen while signing out`() {
-        val backStack: MutableList<NavKey> = mutableListOf(Destination.Town, Destination.School)
+        val backStack: MutableList<NavKey> = mutableListOf(Destination.Today, Destination.Town, Destination.School)
         val navigator: Navigator = Navigator(backStack, NavigationLinks())
         navigator.signingOut()
 
         navigator.openReminder(StudyReminderLine.Cards)
 
-        assertEquals(listOf(Destination.Town, Destination.School), backStack)
+        assertEquals(listOf(Destination.Today, Destination.Town, Destination.School), backStack)
     }
 
     @Test
     fun `opens a dock move above the Report it was made from`() {
-        val backStack: MutableList<NavKey> = mutableListOf(Destination.Town, Destination.Report)
+        val backStack: MutableList<NavKey> = mutableListOf(Destination.Today, Destination.Town, Destination.Report)
 
         Navigator(backStack, NavigationLinks()).openFromDock { openReviews() }
 
-        assertEquals(listOf(Destination.Town, Destination.Report, Destination.Review), backStack)
+        assertEquals(listOf(Destination.Today, Destination.Town, Destination.Report, Destination.Review), backStack)
     }
 
     @Test
     fun `opens a dock move through the town from a screen that cannot open it`() {
-        val backStack: MutableList<NavKey> = mutableListOf(Destination.Town, Destination.Map)
+        val backStack: MutableList<NavKey> = mutableListOf(Destination.Today, Destination.Town, Destination.Map)
 
         Navigator(backStack, NavigationLinks()).openFromDock { openReviews() }
 
-        assertEquals(listOf(Destination.Town, Destination.Review), backStack)
+        assertEquals(listOf(Destination.Today, Destination.Town, Destination.Review), backStack)
     }
 
     @Test
     fun `makes no dock move while signing out`() {
-        val backStack: MutableList<NavKey> = mutableListOf(Destination.Town, Destination.Map)
+        val backStack: MutableList<NavKey> = mutableListOf(Destination.Today, Destination.Town, Destination.Map)
         val navigator = Navigator(backStack, NavigationLinks())
         navigator.signingOut()
 
         navigator.openFromDock { openReviews() }
 
-        assertEquals(listOf(Destination.Town, Destination.Map), backStack)
+        assertEquals(listOf(Destination.Today, Destination.Town, Destination.Map), backStack)
     }
 
     @Test
     fun `leaves the screen alone on a town door tap while signing out`() {
-        val backStack: MutableList<NavKey> = mutableListOf(Destination.Town, Destination.Map)
+        val backStack: MutableList<NavKey> = mutableListOf(Destination.Today, Destination.Town, Destination.Map)
         val navigator = Navigator(backStack, NavigationLinks())
         navigator.signingOut()
 
         navigator.openFromDock { openTown() }
 
-        assertEquals(listOf(Destination.Town, Destination.Map), backStack)
+        assertEquals(listOf(Destination.Today, Destination.Town, Destination.Map), backStack)
     }
 }

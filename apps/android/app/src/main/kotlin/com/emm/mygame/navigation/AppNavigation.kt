@@ -145,6 +145,8 @@ private fun NavKey?.statusScreen(): TownStatusScreen = when (val destination: De
     Destination.ForgotPassword,
     is Destination.MailedLink,
     -> TownStatusScreen.Outside
+    Destination.Naming -> TownStatusScreen.ReadsNoTown
+    Destination.Today -> TownStatusScreen.ReadsTown
     Destination.Town -> TownStatusScreen.ReadsTown
     Destination.School -> TownStatusScreen.School
     Destination.Map -> TownStatusScreen.ReadsTown
