@@ -9,6 +9,7 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -20,6 +21,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.runtime.snapshotFlow
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.MotionDurationScale
 import androidx.compose.ui.graphics.Color
@@ -29,6 +31,7 @@ import androidx.compose.ui.semantics.LiveRegionMode
 import androidx.compose.ui.semantics.SemanticsPropertyKey
 import androidx.compose.ui.semantics.SemanticsPropertyReceiver
 import androidx.compose.ui.semantics.contentDescription
+import androidx.compose.ui.semantics.hideFromAccessibility
 import androidx.compose.ui.semantics.liveRegion
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.unit.Dp
@@ -66,22 +69,21 @@ fun MyGameSkeleton(
         delay(MyGameTransitions.HOLD_MILLIS.toLong())
         isHeld = false
     }
-    when {
-        isRevealed && (isLoading || isHeld) -> SkeletonBlocks(
-            loadingLabel = loadingLabel,
-            blocks = blocks,
-            modifier = modifier,
-        )
-        isLoading -> Unit
-        else -> content()
+    val isSkeletonDrawn: Boolean = isRevealed && (isLoading || isHeld)
+    if (!isLoading && !isSkeletonDrawn) {
+        content()
+        return
     }
+    LoadingScreen(loadingLabel = loadingLabel, blocks = blocks, isRevealed = isSkeletonDrawn, modifier = modifier)
 }
 
 @Composable
-private fun SkeletonBlocks(loadingLabel: String, blocks: MyGameSkeletonBlocks, modifier: Modifier = Modifier) {
-    val pulse: Float = rememberPulse()
-    val colors: MyGameColors = MyGameTheme.colors
-    val ground: Color = lerp(colors.surfaceSunken, colors.surface, pulse)
+private fun LoadingScreen(
+    loadingLabel: String,
+    blocks: MyGameSkeletonBlocks,
+    isRevealed: Boolean,
+    modifier: Modifier = Modifier,
+) {
     Column(
         verticalArrangement = Arrangement.spacedBy(MyGameSpacing.step6),
         modifier = modifier
@@ -89,8 +91,41 @@ private fun SkeletonBlocks(loadingLabel: String, blocks: MyGameSkeletonBlocks, m
             .semantics {
                 contentDescription = loadingLabel
                 liveRegion = LiveRegionMode.Polite
-                skeletonPulse = pulse
             },
+    ) {
+        LoadingLine(loadingLabel = loadingLabel, isDrawn = isRevealed)
+        if (isRevealed) SkeletonBlocks(blocks = blocks)
+    }
+}
+
+@Composable
+private fun LoadingLine(loadingLabel: String, isDrawn: Boolean) {
+    val inkMuted: Color = MyGameTheme.colors.inkMuted
+    Row(
+        horizontalArrangement = Arrangement.spacedBy(MyGameSpacing.step2),
+        verticalAlignment = Alignment.Top,
+    ) {
+        MyGameWorkingDots(tint = inkMuted)
+        if (!isDrawn) return@Row
+        MyGameText(
+            text = loadingLabel,
+            style = MyGameTypography.caption,
+            color = inkMuted,
+            modifier = Modifier.semantics { hideFromAccessibility() },
+        )
+    }
+}
+
+@Composable
+private fun SkeletonBlocks(blocks: MyGameSkeletonBlocks) {
+    val pulse: Float = rememberPulse()
+    val colors: MyGameColors = MyGameTheme.colors
+    val ground: Color = lerp(colors.surfaceSunken, colors.surface, pulse)
+    Column(
+        verticalArrangement = Arrangement.spacedBy(MyGameSpacing.step6),
+        modifier = Modifier
+            .fillMaxWidth()
+            .semantics { skeletonPulse = pulse },
     ) {
         blocks.heights.forEach { height: Dp ->
             Box(
@@ -129,7 +164,8 @@ private val previewBlocks: MyGameSkeletonBlocks =
 @Composable
 private fun MyGameSkeletonPreview() {
     MyGamePreviewSurface {
-        SkeletonBlocks(loadingLabel = "Loading your town", blocks = previewBlocks)
+        LoadingScreen(loadingLabel = "Loading your town", blocks = previewBlocks, isRevealed = false)
+        LoadingScreen(loadingLabel = "Loading your town", blocks = previewBlocks, isRevealed = true)
         MyGameSkeleton(isLoading = false, loadingLabel = "Loading your town", blocks = previewBlocks) {
             MyGameText(text = "Maple Hollow", style = MyGameTypography.title, color = MyGameTheme.colors.ink)
         }
