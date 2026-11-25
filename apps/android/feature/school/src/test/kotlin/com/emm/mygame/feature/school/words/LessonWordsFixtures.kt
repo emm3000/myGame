@@ -8,6 +8,7 @@ import com.emm.mygame.core.model.learning.ReviewsReadResult
 import com.emm.mygame.core.model.learning.WordSupport
 import com.emm.mygame.core.model.town.TownReadResult
 import com.emm.mygame.core.model.town.TownSnapshot
+import com.emm.mygame.core.model.town.guidance.NextStepCard
 import com.emm.mygame.core.testing.FakeLearningRepository
 import com.emm.mygame.core.testing.FakeTownRepository
 import com.emm.mygame.core.testing.TestClock
@@ -75,3 +76,10 @@ internal fun TestScope.lessonWordsReadingFrom(
     runCurrent()
     return viewModel
 }
+
+internal val studyLessonTwo: NextStepCard = NextStepCard(
+    line = NextStepCard.Line.Lesson(number = 2),
+    detail = null,
+    countdown = null,
+    action = NextStepCard.Action.Study(number = 2),
+)

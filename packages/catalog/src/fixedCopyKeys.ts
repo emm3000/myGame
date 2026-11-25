@@ -183,6 +183,7 @@ const fixedCopyKeyList = [
   'android.school.school_band_line',
   'android.school.school_continue',
   'android.school.school_holdout_note',
+  'android.school.school_next_holdout_check',
   'android.school.school_released_lesson',
   'android.school.school_released_lesson_study',
   'android.school.school_lesson_slot_busy_released',

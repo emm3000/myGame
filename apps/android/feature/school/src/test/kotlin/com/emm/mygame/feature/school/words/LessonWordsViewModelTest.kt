@@ -319,7 +319,7 @@ class LessonWordsViewModelTest {
 
         val viewModel: LessonWordsViewModel = lessonWordsReadingFrom(towns, learning, town)
 
-        assertEquals(LessonWordsUiState.NothingToRead, viewModel.state.value)
+        assertTrue(viewModel.state.value is LessonWordsUiState.NothingToRead)
     }
 
     @Test
@@ -328,7 +328,7 @@ class LessonWordsViewModelTest {
 
         val viewModel: LessonWordsViewModel = lessonWordsReadingFrom(towns, learning, town)
 
-        assertEquals(LessonWordsUiState.NothingToRead, viewModel.state.value)
+        assertTrue(viewModel.state.value is LessonWordsUiState.NothingToRead)
     }
 
     @Test

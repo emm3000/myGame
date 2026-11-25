@@ -146,6 +146,7 @@ class LessonWordsSupportScreenTest {
         wayOn = LessonWordsUiState.WayOn.Reviews,
         shownSupport = shownSupport,
         isNextStepThisLesson = false,
+        nextStep = studyLessonTwo,
     )
 
     private fun draw(state: LessonWordsUiState) {

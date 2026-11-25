@@ -41,6 +41,7 @@ class LessonWordsSkeletonTest {
         wayOn = LessonWordsUiState.WayOn.Reviews,
         shownSupport = null,
         isNextStepThisLesson = false,
+        nextStep = studyLessonTwo,
     )
 
     @Test

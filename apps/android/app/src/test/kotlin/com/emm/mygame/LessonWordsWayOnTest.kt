@@ -4,6 +4,7 @@ import androidx.compose.ui.test.SemanticsMatcher
 import androidx.compose.ui.test.assert
 import androidx.compose.ui.test.assertCountEquals
 import androidx.compose.ui.test.assertIsDisplayed
+import androidx.compose.ui.test.getUnclippedBoundsInRoot
 import androidx.compose.ui.test.hasAnyAncestor
 import androidx.compose.ui.test.hasContentDescription
 import androidx.compose.ui.test.hasScrollAction
@@ -11,6 +12,7 @@ import androidx.compose.ui.test.hasTestTag
 import androidx.compose.ui.test.hasText
 import androidx.compose.ui.test.performClick
 import androidx.compose.ui.test.performScrollTo
+import androidx.compose.ui.unit.Dp
 import com.emm.mygame.core.designsystem.INK_PILL
 import com.emm.mygame.core.model.learning.ReviewsReadResult
 import com.emm.mygame.core.model.town.TownSnapshot
@@ -20,6 +22,7 @@ import com.emm.mygame.core.testing.townOf
 import com.emm.mygame.navigation.wordReadingOf
 import kotlin.time.Duration.Companion.minutes
 import org.junit.Assert.assertEquals
+import org.junit.Assert.assertTrue
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.robolectric.RobolectricTestRunner
@@ -103,8 +106,48 @@ class LessonWordsWayOnTest : DockFrameFixture() {
         assertEquals(listOf(Destination.Today), shownStack?.toList())
     }
 
+    @Test
+    fun `the spent page names the town's next step right above its way on`() {
+        repeat(READS) { learning.answerRead(ReviewsReadResult.Read(noCards)) }
+        showing(
+            Destination.Today,
+            Destination.LessonWords(firstLesson, walked = emptyList()),
+            town = townReading(readings = emptyList(), nextStep = NextStep.LessonToStudy(firstLesson)),
+        )
+        waitFor(hasText(NOTHING_TO_READ))
+
+        assertNamedAboveContinue(STUDY_LESSON_ONE)
+    }
+
+    @Test
+    fun `the last word's way back names the town's next step right above it`() {
+        repeat(READS) { learning.answerRead(ReviewsReadResult.Read(noCards)) }
+        showing(
+            Destination.Today,
+            Destination.LessonWords(firstLesson, walked = emptyList()),
+            town = townReading(
+                readings = listOf(waterWord),
+                nextStep = NextStep.Reviews(count = 2, readFirst = emptyList()),
+                lessonSlot = TownSnapshot.LessonSlot(firstLesson, readAt, readAt + 10.minutes),
+            ),
+        )
+        waitFor(hasText(WATER_FRAME))
+
+        assertNamedAboveContinue(START_REVIEWS)
+    }
+
+    private fun assertNamedAboveContinue(step: String) {
+        val named: SemanticsMatcher = hasText(step).and(inScroll).and(hasTestTag(INK_PILL).not())
+        composeRule.onNode(hasText(NEXT_STEP_TITLE, ignoreCase = true).and(inScroll)).assertExists()
+        composeRule.onNode(named).assertExists()
+        val stepBottom: Dp = composeRule.onNode(named).getUnclippedBoundsInRoot().bottom
+        assertTrue(stepBottom <= composeRule.onNode(wayOn(CONTINUE)).getUnclippedBoundsInRoot().top)
+    }
+
     private companion object {
         const val READS: Int = 3
+        const val NEXT_STEP_TITLE: String = "Tu siguiente paso"
+        const val STUDY_LESSON_ONE: String = "Estudiar la lección 1"
         const val HOME_FRAME: String = "This is my home."
         const val WATER_FRAME: String = "I drink water."
         const val NEXT_WORD: String = "Siguiente palabra"
