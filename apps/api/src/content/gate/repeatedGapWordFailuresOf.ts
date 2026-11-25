@@ -12,7 +12,8 @@ type GapWords = {
 }
 
 const gapWordsOf = (frame: LessonFrame): GapWords => {
-  const tokens = frame.gappedFrame.toLowerCase().match(/_{4}|[a-z]+(?:['’][a-z]+)?/g) ?? []
+  const tokens: ReadonlyArray<string> =
+    frame.gappedFrame.toLowerCase().match(/_{4}|[a-z]+(?:['’][a-z]+)?/g) ?? []
   const first = tokens.indexOf(gap)
   const last = tokens.lastIndexOf(gap) + 1
   const words =
