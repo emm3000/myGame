@@ -94,6 +94,9 @@ class SchoolScreenTest {
         composeRule.mainClock.advanceTimeBy(MyGameTransitions.REVEAL_MILLIS + REVEAL_MARGIN_MILLIS)
     }
 
+    private fun drawnReadingLines(): Int =
+        composeRule.onAllNodesWithText(READING_LINE, useUnmergedTree = true).fetchSemanticsNodes().size
+
     private fun show(state: SchoolUiState) {
         composeRule.setContent {
             MyGameTheme {
@@ -183,10 +186,15 @@ class SchoolScreenTest {
     }
 
     @Test
-    fun `never draws the reading line`() {
-        showSlowRead()
+    fun `draws the reading line once the read is slower than the reveal delay`() {
+        composeRule.mainClock.autoAdvance = false
+        show(SchoolUiState.Loading)
+        composeRule.mainClock.advanceTimeBy(MyGameTransitions.REVEAL_MILLIS - REVEAL_MARGIN_MILLIS)
+        val drawnBeforeTheReveal: Int = drawnReadingLines()
 
-        composeRule.onAllNodesWithText(READING_LINE).assertCountEquals(0)
+        composeRule.mainClock.advanceTimeBy(2 * REVEAL_MARGIN_MILLIS)
+
+        assertEquals(listOf(0, 1), listOf(drawnBeforeTheReveal, drawnReadingLines()))
     }
 
     @Test

@@ -27,6 +27,10 @@ val WORKING_DOT_ALPHAS: SemanticsPropertyKey<List<Float>> = SemanticsPropertyKey
 
 private var SemanticsPropertyReceiver.workingDotAlphas: List<Float> by WORKING_DOT_ALPHAS
 
+val WORKING_DOT_TINT: SemanticsPropertyKey<Color> = SemanticsPropertyKey("WORKING_DOT_TINT")
+
+private var SemanticsPropertyReceiver.workingDotTint: Color by WORKING_DOT_TINT
+
 private const val DOT_COUNT: Int = 3
 
 private const val VIEWPORT: Float = 24f
@@ -54,6 +58,7 @@ fun MyGameWorkingDots(tint: Color, modifier: Modifier = Modifier) {
             .clearAndSetSemantics {
                 testTag = WORKING_DOTS
                 workingDotAlphas = alphas
+                workingDotTint = tint
             },
     ) {
         val scale: Float = size.width / VIEWPORT

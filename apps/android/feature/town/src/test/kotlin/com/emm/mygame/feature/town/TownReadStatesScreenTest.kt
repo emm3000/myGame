@@ -10,6 +10,7 @@ import androidx.compose.ui.test.onAllNodesWithText
 import androidx.compose.ui.test.onNodeWithContentDescription
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
+import com.emm.mygame.core.designsystem.MyGameTransitions
 import com.emm.mygame.core.designsystem.SKELETON_BLOCK
 import org.junit.Assert.assertEquals
 import org.junit.Test
@@ -27,11 +28,19 @@ class TownReadStatesScreenTest : TownScreenFixture() {
     }
 
     @Test
-    fun `never draws the reading line`() {
-        showSlowRead()
+    fun `draws the reading line once the read is slower than the reveal delay`() {
+        composeRule.mainClock.autoAdvance = false
+        show(TownUiState.Loading)
+        composeRule.mainClock.advanceTimeBy(MyGameTransitions.REVEAL_MILLIS - REVEAL_MARGIN_MILLIS)
+        val drawnBeforeTheReveal: Int = drawnReadingLines()
 
-        composeRule.onAllNodesWithText(READING_LINE).assertCountEquals(0)
+        composeRule.mainClock.advanceTimeBy(2 * REVEAL_MARGIN_MILLIS)
+
+        assertEquals(listOf(0, 1), listOf(drawnBeforeTheReveal, drawnReadingLines()))
     }
+
+    private fun drawnReadingLines(): Int =
+        composeRule.onAllNodesWithText(READING_LINE, useUnmergedTree = true).fetchSemanticsNodes().size
 
     @Test
     fun `speaks the reading line in a polite live region`() {

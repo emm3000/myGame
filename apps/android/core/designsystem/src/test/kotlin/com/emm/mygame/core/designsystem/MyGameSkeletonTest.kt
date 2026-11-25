@@ -3,15 +3,22 @@ package com.emm.mygame.core.designsystem
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.geometry.Rect
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.semantics.LiveRegionMode
+import androidx.compose.ui.semantics.SemanticsNode
 import androidx.compose.ui.semantics.SemanticsProperties
+import androidx.compose.ui.semantics.getOrNull
 import androidx.compose.ui.test.SemanticsMatcher
 import androidx.compose.ui.test.assertCountEquals
+import androidx.compose.ui.test.hasContentDescription
+import androidx.compose.ui.test.hasText
 import androidx.compose.ui.test.junit4.ComposeContentTestRule
 import androidx.compose.ui.test.junit4.createComposeRule
 import androidx.compose.ui.test.onAllNodesWithTag
 import androidx.compose.ui.test.onAllNodesWithText
-import androidx.compose.ui.test.onNodeWithContentDescription
 import androidx.compose.ui.test.onNodeWithText
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertNotEquals
@@ -29,35 +36,101 @@ class MyGameSkeletonTest {
 
     private var isLoading: Boolean by mutableStateOf(true)
 
+    private var inkMuted: Color = Color.Unspecified
+
     @Test
-    fun `draws no skeleton before the reveal delay`() {
+    fun `draws the working dots on the first frame of a load`() {
+        drawContent()
+        val dotsBefore: Int = drawnDots()
+
+        load()
+
+        assertEquals(listOf(0, 1), listOf(dotsBefore, drawnDots()))
+    }
+
+    @Test
+    fun `draws the loading dots at the top of the content`() {
+        drawLoading()
+        composeRule.mainClock.advanceTimeByFrame()
+        val topAtTheFirstFrame: Float? = dotsBounds()?.top
+        composeRule.mainClock.advanceTimeBy(pastReveal)
+
+        val blocksTop: Float = blockBounds().minOf { block: Rect -> block.top }
+        assertEquals(listOf(screenTop(), screenTop()), listOf(topAtTheFirstFrame, dotsBounds()?.top))
+        assertTrue("the dots end above the blocks", (dotsBounds()?.bottom ?: Float.MAX_VALUE) <= blocksTop)
+    }
+
+    @Test
+    fun `tints the loading dots in ink-muted`() {
         drawLoading()
 
-        composeRule.mainClock.advanceTimeBy(beforeReveal)
+        composeRule.mainClock.advanceTimeByFrame()
 
-        composeRule.onAllNodesWithTag(SKELETON_BLOCK, useUnmergedTree = true).assertCountEquals(0)
+        assertEquals(inkMuted, dotsNode()?.config?.getOrNull(WORKING_DOT_TINT))
+    }
+
+    @Test
+    fun `pulses the loading dots before the reveal delay`() {
+        drawLoading()
+        composeRule.mainClock.advanceTimeByFrame()
+        val first: List<Float>? = dotAlphas()
+
+        composeRule.mainClock.advanceTimeBy(MyGameTransitions.CALM_MILLIS.toLong())
+
+        assertTrue("the dots are drawn", first != null)
+        assertNotEquals(first, dotAlphas())
+    }
+
+    @Test
+    fun `speaks the loading line in a polite live region from the first frame of a load`() {
+        drawContent()
+        val spokenBefore: LiveRegionMode? = spokenLiveRegion()
+
+        load()
+
+        assertEquals(listOf(null, LiveRegionMode.Polite), listOf(spokenBefore, spokenLiveRegion()))
     }
 
     @Test
     fun `draws a block per screen block once the read is slower than the reveal delay`() {
         drawLoading()
+        composeRule.mainClock.advanceTimeBy(beforeReveal)
+        val drawnBeforeTheReveal: Int = drawnBlocks()
 
-        composeRule.mainClock.advanceTimeBy(pastReveal)
+        composeRule.mainClock.advanceTimeBy(pastReveal - beforeReveal)
 
-        composeRule.onAllNodesWithTag(SKELETON_BLOCK, useUnmergedTree = true).assertCountEquals(screenBlockCount)
+        assertEquals(listOf(0, screenBlockCount), listOf(drawnBeforeTheReveal, drawnBlocks()))
     }
 
     @Test
-    fun `draws no skeleton when the read answers inside the reveal delay`() {
+    fun `draws the loading line beside the dots once the read is slower than the reveal delay`() {
         drawLoading()
         composeRule.mainClock.advanceTimeBy(beforeReveal)
+        val drawnBeforeTheReveal: Int = drawnLines()
 
-        answer()
-        val drawnAtTheAnswer: Int = drawnBlocks()
+        composeRule.mainClock.advanceTimeBy(pastReveal - beforeReveal)
+
+        assertEquals(listOf(0, 1), listOf(drawnBeforeTheReveal, drawnLines()))
+        val dots: Rect? = dotsBounds()
+        val line: Rect = composeRule.onNodeWithText(LOADING_LINE, useUnmergedTree = true)
+            .fetchSemanticsNode()
+            .boundsInRoot
+        assertTrue("the line starts after the dots", dots != null && line.left >= dots.right)
+        assertTrue("the line shares the dots' row", dots != null && line.top < dots.bottom && dots.top < line.bottom)
+    }
+
+    @Test
+    fun `speaks the drawn loading line once`() {
+        drawLoading()
+
         composeRule.mainClock.advanceTimeBy(pastReveal)
 
-        assertEquals(listOf(0, 0), listOf(drawnAtTheAnswer, drawnBlocks()))
-        composeRule.onNodeWithText(CONTENT).assertExists()
+        val spoken: List<SemanticsNode> = composeRule.onAllNodes(
+            (hasContentDescription(LOADING_LINE) or hasText(LOADING_LINE)) and
+                SemanticsMatcher.keyNotDefined(SemanticsProperties.HideFromAccessibility),
+            useUnmergedTree = true,
+        ).fetchSemanticsNodes()
+        assertEquals(1, spoken.size)
     }
 
     @Test
@@ -80,29 +153,25 @@ class MyGameSkeletonTest {
         answer()
         composeRule.mainClock.advanceTimeBy(pastHold)
 
-        composeRule.onAllNodesWithTag(SKELETON_BLOCK, useUnmergedTree = true).assertCountEquals(0)
+        assertEquals(listOf(0, 0), listOf(drawnBlocks(), drawnDots()))
         composeRule.onNodeWithText(CONTENT).assertExists()
     }
 
     @Test
-    fun `speaks the loading line in a polite live region`() {
+    fun `shows the dots and no blocks when the read answers inside the reveal delay`() {
         drawLoading()
+        composeRule.mainClock.advanceTimeBy(beforeReveal)
+        val drawnWhileReading: List<Int> = listOf(drawnDots(), drawnBlocks())
 
+        answer()
+        val drawnAtTheAnswer: List<Int> = listOf(drawnDots(), drawnBlocks())
         composeRule.mainClock.advanceTimeBy(pastReveal)
 
-        val spoken: LiveRegionMode = composeRule.onNodeWithContentDescription(LOADING_LINE)
-            .fetchSemanticsNode()
-            .config[SemanticsProperties.LiveRegion]
-        assertEquals(LiveRegionMode.Polite, spoken)
-    }
-
-    @Test
-    fun `never draws the loading line as text`() {
-        drawLoading()
-
-        composeRule.mainClock.advanceTimeBy(pastReveal)
-
-        composeRule.onAllNodesWithText(LOADING_LINE).assertCountEquals(0)
+        assertEquals(
+            listOf(listOf(1, 0), listOf(0, 0), listOf(0, 0)),
+            listOf(drawnWhileReading, drawnAtTheAnswer, listOf(drawnDots(), drawnBlocks())),
+        )
+        composeRule.onNodeWithText(CONTENT).assertExists()
     }
 
     @Test
@@ -129,15 +198,33 @@ class MyGameSkeletonTest {
         assertTrue(pulses.max() < BACKGROUND)
     }
 
+    private fun drawContent() {
+        isLoading = false
+        drawLoading()
+        composeRule.mainClock.advanceTimeByFrame()
+    }
+
     private fun drawLoading() {
         composeRule.mainClock.autoAdvance = false
         composeRule.setContent {
             MyGameTheme {
-                MyGameSkeleton(isLoading = isLoading, loadingLabel = LOADING_LINE, blocks = screenBlocks) {
+                inkMuted = MyGameTheme.colors.inkMuted
+                MyGameSkeleton(
+                    isLoading = isLoading,
+                    loadingLabel = LOADING_LINE,
+                    blocks = screenBlocks,
+                    modifier = Modifier.testTag(SCREEN),
+                ) {
                     MyGameText(text = CONTENT, style = MyGameTypography.body, color = MyGameTheme.colors.ink)
                 }
             }
         }
+    }
+
+    private fun load() {
+        isLoading = true
+        composeRule.waitForIdle()
+        composeRule.mainClock.advanceTimeByFrame()
     }
 
     private fun answer() {
@@ -148,6 +235,38 @@ class MyGameSkeletonTest {
     private fun drawnBlocks(): Int =
         composeRule.onAllNodesWithTag(SKELETON_BLOCK, useUnmergedTree = true).fetchSemanticsNodes().size
 
+    private fun drawnDots(): Int =
+        composeRule.onAllNodesWithTag(WORKING_DOTS, useUnmergedTree = true).fetchSemanticsNodes().size
+
+    private fun drawnLines(): Int =
+        composeRule.onAllNodesWithText(LOADING_LINE, useUnmergedTree = true).fetchSemanticsNodes().size
+
+    private fun dotsNode(): SemanticsNode? =
+        composeRule.onAllNodesWithTag(WORKING_DOTS, useUnmergedTree = true).fetchSemanticsNodes().firstOrNull()
+
+    private fun dotsBounds(): Rect? = dotsNode()?.boundsInRoot
+
+    private fun dotAlphas(): List<Float>? = dotsNode()?.config?.getOrNull(WORKING_DOT_ALPHAS)
+
+    private fun blockBounds(): List<Rect> =
+        composeRule.onAllNodesWithTag(SKELETON_BLOCK, useUnmergedTree = true)
+            .fetchSemanticsNodes()
+            .map { block: SemanticsNode -> block.boundsInRoot }
+
+    private fun screenTop(): Float? =
+        composeRule.onAllNodesWithTag(SCREEN, useUnmergedTree = true)
+            .fetchSemanticsNodes()
+            .firstOrNull()
+            ?.boundsInRoot
+            ?.top
+
+    private fun spokenLiveRegion(): LiveRegionMode? =
+        composeRule.onAllNodes(hasContentDescription(LOADING_LINE), useUnmergedTree = true)
+            .fetchSemanticsNodes()
+            .firstOrNull()
+            ?.config
+            ?.getOrNull(SemanticsProperties.LiveRegion)
+
     private fun pulse(): Float =
         composeRule.onNode(SemanticsMatcher.keyIsDefined(SKELETON_PULSE), useUnmergedTree = true)
             .fetchSemanticsNode()
@@ -156,6 +275,7 @@ class MyGameSkeletonTest {
     private companion object {
         const val LOADING_LINE: String = "Reading your town…"
         const val CONTENT: String = "Maple"
+        const val SCREEN: String = "SCREEN"
         const val FRAME_MARGIN: Long = 50
         const val PULSE_SAMPLES: Int = 40
         const val BACKGROUND: Float = 1f

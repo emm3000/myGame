@@ -66,12 +66,14 @@ class ReviewSkeletonTest {
     }
 
     @Test
-    fun `never draws the reading line`() {
+    fun `draws the reading line once the read is slower than the reveal delay`() {
         drawLoading()
+        composeRule.mainClock.advanceTimeBy(beforeReveal)
+        val drawnBeforeTheReveal: Int = drawnReadingLines()
 
-        composeRule.mainClock.advanceTimeBy(pastReveal)
+        composeRule.mainClock.advanceTimeBy(pastReveal - beforeReveal)
 
-        composeRule.onAllNodesWithText(READING_LINE).assertCountEquals(0)
+        assertEquals(listOf(0, 1), listOf(drawnBeforeTheReveal, drawnReadingLines()))
     }
 
     @Test
@@ -97,6 +99,9 @@ class ReviewSkeletonTest {
         state = ReviewUiState.NoCards
         composeRule.mainClock.advanceTimeByFrame()
     }
+
+    private fun drawnReadingLines(): Int =
+        composeRule.onAllNodesWithText(READING_LINE, useUnmergedTree = true).fetchSemanticsNodes().size
 
     private fun drawnBlocks(): Int =
         composeRule.onAllNodesWithTag(SKELETON_BLOCK, useUnmergedTree = true).fetchSemanticsNodes().size
