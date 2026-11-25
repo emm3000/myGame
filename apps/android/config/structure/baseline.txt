@@ -20,7 +20,6 @@ file-lines core/designsystem/src/main/kotlin/com/emm/mygame/core/designsystem/My
 file-lines core/designsystem/src/main/kotlin/com/emm/mygame/core/designsystem/MyGameFrameText.kt
 file-lines core/designsystem/src/main/kotlin/com/emm/mygame/core/designsystem/MyGamePill.kt
 file-lines core/designsystem/src/main/kotlin/com/emm/mygame/core/designsystem/MyGameStreetStrip.kt
-file-lines feature/learning/src/main/kotlin/com/emm/mygame/feature/learning/reviews/ReviewScreen.kt
 file-lines feature/learning/src/main/kotlin/com/emm/mygame/feature/learning/reviews/ReviewStepLine.kt
 file-lines feature/learning/src/main/kotlin/com/emm/mygame/feature/learning/reviews/ReviewViewModel.kt
 file-lines feature/report/src/main/kotlin/com/emm/mygame/feature/report/ReportScreen.kt
@@ -39,7 +38,6 @@ file-name core/ui/src/main/kotlin/com/emm/mygame/core/ui/RevealOnce.kt
 file-name core/ui/src/main/kotlin/com/emm/mygame/core/ui/ScaffoldContext.kt
 file-name feature/jobs/src/main/kotlin/com/emm/mygame/feature/jobs/SeasonLabels.kt
 file-name feature/learning/src/main/kotlin/com/emm/mygame/feature/learning/reviews/FramePieces.kt
-file-name feature/learning/src/main/kotlin/com/emm/mygame/feature/learning/reviews/ReviewCardContent.kt
 file-name feature/placement/src/main/kotlin/com/emm/mygame/feature/placement/PlacementOffer.kt
 file-name feature/report/src/main/kotlin/com/emm/mygame/feature/report/NewsRows.kt
 file-name feature/school/src/main/kotlin/com/emm/mygame/feature/school/FramePieces.kt
