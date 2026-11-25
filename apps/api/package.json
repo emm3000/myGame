@@ -13,7 +13,8 @@
     "test": "vitest run",
     "db:generate": "drizzle-kit generate",
     "db:migrate": "drizzle-kit migrate",
-    "openapi:write": "tsx src/writeOpenApiDocument.ts && biome format --write openapi.json"
+    "openapi:write": "tsx src/writeOpenApiDocument.ts && biome format --write openapi.json",
+    "content:worksheet": "tsx src/printFrameWorksheet.ts"
   },
   "dependencies": {
     "@hono/zod-openapi": "1.6.3",

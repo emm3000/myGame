@@ -115,9 +115,12 @@ const formsOfTeachingList = (directory: string): ReadonlyMap<string, ReadonlySet
   return forms
 }
 
+export const readLexiconFile = (path: string): LexiconContent =>
+  parsedFile(path, LexiconContentSchema)
+
 export const readLessonContentFiles = (directory: string): LessonContentFiles => {
   const curriculum = parsedFile(lessonsFile(directory, 'curriculum.json'), CurriculumContentSchema)
-  const lexicon = parsedFile(lessonsFile(directory, 'words.json'), LexiconContentSchema)
+  const lexicon = readLexiconFile(lessonsFile(directory, 'words.json'))
   return {
     curriculum,
     grammar: parsedFile(lessonsFile(directory, 'grammar.json'), GrammarContentSchema),
