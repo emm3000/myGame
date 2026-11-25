@@ -7,7 +7,6 @@ import com.emm.mygame.core.model.town.TownSnapshot
 import com.emm.mygame.core.model.town.hiring.TownHireKind
 import com.emm.mygame.core.model.town.jobs.Terrain
 import com.emm.mygame.core.model.town.jobs.TownJobRefusal
-import com.emm.mygame.core.model.town.jobs.WasteSize
 import com.emm.mygame.core.ui.CopyReader
 import com.emm.mygame.core.ui.DurationCopy
 import com.emm.mygame.core.ui.PlayerCopy
@@ -16,18 +15,6 @@ internal fun terrainNameOf(terrain: Terrain): Int = when (terrain) {
     Terrain.Fields -> R.string.map_terrain_fields
     Terrain.River -> R.string.map_terrain_river
     Terrain.Hills -> R.string.map_terrain_hills
-}
-
-private const val SMALL_SIZE_NUMBER: Int = 1
-
-private const val MEDIUM_SIZE_NUMBER: Int = 2
-
-private const val LARGE_SIZE_NUMBER: Int = 3
-
-internal fun sizeNumberOf(size: WasteSize): Int = when (size) {
-    WasteSize.Small -> SMALL_SIZE_NUMBER
-    WasteSize.Medium -> MEDIUM_SIZE_NUMBER
-    WasteSize.Large -> LARGE_SIZE_NUMBER
 }
 
 internal fun phaseWordsOf(phase: TownSnapshot.JobPhase): Int = when (phase) {

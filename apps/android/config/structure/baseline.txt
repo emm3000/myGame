@@ -38,10 +38,7 @@ file-name core/ui/src/main/kotlin/com/emm/mygame/core/ui/DurationLabels.kt
 file-name core/ui/src/main/kotlin/com/emm/mygame/core/ui/FrameTraversal.kt
 file-name core/ui/src/main/kotlin/com/emm/mygame/core/ui/RevealOnce.kt
 file-name core/ui/src/main/kotlin/com/emm/mygame/core/ui/ScaffoldContext.kt
-file-name feature/jobs/src/main/kotlin/com/emm/mygame/feature/jobs/MapContent.kt
-file-name feature/jobs/src/main/kotlin/com/emm/mygame/feature/jobs/MapLabels.kt
 file-name feature/jobs/src/main/kotlin/com/emm/mygame/feature/jobs/SeasonLabels.kt
-file-name feature/jobs/src/main/kotlin/com/emm/mygame/feature/jobs/WasteArt.kt
 file-name feature/learning/src/main/kotlin/com/emm/mygame/feature/learning/FramePieces.kt
 file-name feature/learning/src/main/kotlin/com/emm/mygame/feature/learning/ReviewCardContent.kt
 file-name feature/placement/src/main/kotlin/com/emm/mygame/feature/placement/PlacementOffer.kt
