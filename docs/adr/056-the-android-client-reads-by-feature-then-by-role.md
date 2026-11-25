@@ -366,11 +366,12 @@ What moves:
 - **`feature:holdout` is born** from the 12 `HoldoutCheck*` files of
   `feature:placement` and the 5 `HoldoutCheckRow*` files of
   `feature:school`, which `app` already hands to the school as a slot.
-- **`feature:shell` is born** from the frame in `app` (6 files:
-  `FramedScreen`, `ScreenFrame`, `SignedInChrome`, `FrameKind`,
-  `AboveKeyboard`, `DockMove`), the ring in `app` (the 4
-  `RetainedWords*` files) and the status line and the dock in
-  `feature:town` (10 files, 833 lines).
+- **`feature:shell` is born** from the frame in `app` (4 files:
+  `FramedScreen`, `ScreenFrame`, `FrameKind`, `AboveKeyboard`;
+  `SignedInChrome` is deleted, and `DockMove`, an extension of
+  `Navigator`, stays in `app`'s `navigation` as `OpenFromDock.kt`),
+  the ring in `app` (the 4 `RetainedWords*` files) and the status line
+  and the dock in `feature:town` (12 files, 892 lines).
 
 A town sub-area that is a screen of its own (`jobs`, `school`) is a
 module, because a module is what keeps a screen's ViewModel out of
@@ -744,7 +745,7 @@ order:
 | P | `feature:placement`, `feature:holdout` | flat | none on the list |
 | R | `feature:report` | `news` | none on the list |
 
-### Phase 3, one peer at a time: what crosses modules
+### Phase 3: what crosses modules
 
 - **U1. Shared drawing to `core:ui`**: `seasonIconOf`,
   `seasonSelectorOf`, `DurationMark`, `FramePieces`, two or three
@@ -764,11 +765,34 @@ order:
   building `TownViewModel` and `SchoolViewModel`; the school reaches
   the dock through the same channel in `core:ui` every task screen
   uses, in place of the intent `app` sends for it
-  (`app/AppNavigation.kt:272`). Done when the second check of section
-  7 is empty and `rg -l -i dock apps/android/feature/town` lists only
-  what the town itself draws. It changes how every signed-in screen is
-  built, so it owes the emulator flow of each. It is a design ticket,
-  not a move: it is grilled before it is cut into steps.
+  (`app/navigation/SchoolEntries.kt:37`); the town withholds the dock
+  through a slot of `TownRoute`, since the channel lands one frame
+  late. Done when the second check of section 7 is empty and
+  `rg -l -i dock apps/android/feature/town` lists `TownRoute.kt`,
+  `TownScreen.kt`, `TownPage.kt`, `TownPageTop.kt` and their two
+  tests. It changes how every signed-in screen is built, so it owes
+  the emulator flow of each. It is a design ticket, not a move:
+  grilled on 2026-11-25 and cut into XA, XB and X1 to X7.
+
+  The shell owns the frame (`FramedScreen`, `ScreenFrame`,
+  `FrameKind`, `AboveKeyboard`), `ring/` with the 4 `RetainedWords*`
+  files and `status/` with the 12 files of `feature/town/status`; the
+  dock stays in `status/`. Its edges are `core:model`,
+  `core:projection`, `core:ui` and `core:designsystem`, and only `app`
+  depends on it. `DockMove` stays in `app` as
+  `navigation/OpenFromDock.kt`. `SignedInChrome` is deleted, and the
+  shell takes a `ShellNavigation` of callbacks. It exposes
+  `rememberShell(towns, clock, shown: ShownScreen): Shell`, which
+  obtains `TownStatusViewModel` and runs the shown/hidden effect;
+  `FramedScreen(shell, kind, doesScreenReadTown, navigation, ...)`
+  draws the rest. `ShownScreen` replaces `TownStatusScreen`, the
+  `Destination -> ShownScreen` map stays in `app`, and the status MVI
+  types become internal. `TaskDockHook` becomes `DockHook`. The school
+  reaches the dock through it: `core:ui` gains `StudyInPlace` and the
+  effect `FillStudyInPlace`. The town goes through a slot of
+  `TownRoute`, since an effect-filled hook lands one frame late.
+  `TownStatusViewModel` keeps its name. The catalog module segment is
+  `shell`, with 47 keys, 19 of them copies of town keys.
 - **D. `core:designsystem` in packages** (`theme`, `text`, `control`,
   `street`, `dock`, `frame`, `art`), one pull request that rewrites
   594 production and 221 test import lines. The module's four files
@@ -780,10 +804,9 @@ order:
 
 ### Peers at once
 
-One Android peer at a time, in every phase. Phase 2's seven tracks
-could run side by side, but each peer runs its own Gradle daemon, and
-the owner's peer cap allows one Android peer at a time; it runs with
-the `taskpolicy` prefix
+At most two Android peers at a time, on disjoint Gradle modules, at
+most one of them with a running emulator: each peer runs its own
+Gradle daemon of up to 4 GB; it runs with the `taskpolicy` prefix
 `apps/android/CLAUDE.md` asks for. The migration starts with no
 Android pull request open: every step before Phase 2 conflicts with
 any other Android change.
@@ -802,8 +825,8 @@ existing module check carries the new arrows; every step but the
 shell's is a move a diff can prove.
 
 Bad: about 235 of the catalog's 522 Android keys change their module
-segment (197 for the three renames, the holdout's 15 and the 23 the
-status and dock files read); every import of `core.network` is
+segment (197 for the three renames, the holdout's 15 and the shell's
+47, 19 of them copies of town keys); every import of `core.network` is
 rewritten; `git blame` needs `--follow`.
 
 ### B. Layer first: `domain`, `data`, `presentation`
@@ -846,7 +869,8 @@ cost.
 A `shell` package in `app` needs no new catalog module. It is refused
 because `app` would then hold three MVI sets and the dock's 833 lines,
 and its row says it binds and navigates. `feature:shell` costs one
-catalog module and the keys its files read.
+catalog module and the keys its files read, and the copies of the
+town's duration, goal and place copy.
 
 ### The checks: a Gradle task or the backend's script
 
@@ -903,7 +927,8 @@ peer cap. The text above states each choice.
    `LongMethod`).
 9. A move pull request owes no emulator flow, by this ADR's reading of
    `verification.md`.
-10. One Android peer at a time in Phase 2.
+10. At most two Android peers at a time, on disjoint Gradle modules
+    (amended 2026-11-25).
 11. The full migration, `core:model` included; no stop after option C's
     half.
 

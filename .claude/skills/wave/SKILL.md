@@ -16,7 +16,7 @@ Run when the owner invokes `/wave` with one or more issue numbers, or when the o
 ## Hard Rules
 
 - Read `docs/agents/multi-session.md` first. Its Slicing, Dispatch, Isolation and Review cycle sections bind every dispatch.
-- At most 3 peers at a time. One peer may carry up to 3 row 1 tickets, one PR each, in sequence; every other ticket gets its own peer.
+- At most 3 peers at a time. At most 2 of them are Android peers, on disjoint Gradle modules, at most one with a running emulator; the third slot goes to non-Android work, since each Gradle daemon takes up to 4 GB (`apps/android/gradle.properties`) and an AVD 4 GB more. One peer may carry up to 3 row 1 tickets, one PR each, in sequence; every other ticket gets its own peer.
 - Take every model and effort from the tables below: one explicit model and one explicit effort per ticket, stated to the owner before booting.
 
 ## Decision Gates
