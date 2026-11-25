@@ -1,4 +1,4 @@
-package com.emm.mygame.feature.learning
+package com.emm.mygame.feature.learning.reviews
 
 import androidx.annotation.StringRes
 import androidx.compose.foundation.layout.Arrangement
@@ -20,6 +20,7 @@ import com.emm.mygame.core.model.town.school.SchoolPathCounts
 import com.emm.mygame.core.ui.SchoolPath
 import com.emm.mygame.core.ui.SchoolPathSteps
 import com.emm.mygame.core.ui.chromeResource
+import com.emm.mygame.feature.learning.R
 
 @Composable
 internal fun LessonReady(ready: ReviewUiState.LessonReady, modifier: Modifier = Modifier) {

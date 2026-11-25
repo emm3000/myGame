@@ -1,4 +1,4 @@
-package com.emm.mygame.feature.learning
+package com.emm.mygame.feature.learning.reviews
 
 import com.emm.mygame.core.designsystem.MyGameFrame
 import com.emm.mygame.core.designsystem.MyGameFramePiece

@@ -1,4 +1,4 @@
-package com.emm.mygame.feature.learning
+package com.emm.mygame.feature.learning.reviews
 
 import app.cash.turbine.test
 import com.emm.mygame.core.model.learning.RaisedSkill

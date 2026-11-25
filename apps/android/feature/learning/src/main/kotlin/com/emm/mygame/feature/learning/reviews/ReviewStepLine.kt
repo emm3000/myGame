@@ -1,4 +1,4 @@
-package com.emm.mygame.feature.learning
+package com.emm.mygame.feature.learning.reviews
 
 import androidx.annotation.StringRes
 import androidx.compose.foundation.background
@@ -44,6 +44,7 @@ import com.emm.mygame.core.ui.PlayerCopy
 import com.emm.mygame.core.ui.chromeResource
 import com.emm.mygame.core.ui.fixedCopyResource
 import com.emm.mygame.core.ui.rememberPlayerCopy
+import com.emm.mygame.feature.learning.R
 
 internal const val RIGHT_ICON: String = "review_right_icon"
 

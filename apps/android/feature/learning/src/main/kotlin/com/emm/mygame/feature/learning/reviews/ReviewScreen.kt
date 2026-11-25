@@ -1,4 +1,4 @@
-package com.emm.mygame.feature.learning
+package com.emm.mygame.feature.learning.reviews
 
 import androidx.compose.foundation.ScrollState
 import androidx.compose.foundation.background
@@ -47,6 +47,7 @@ import com.emm.mygame.core.ui.ScaffoldLanguage
 import com.emm.mygame.core.ui.TaskDockHook
 import com.emm.mygame.core.ui.chromeResource
 import com.emm.mygame.core.ui.rememberPlayerCopy
+import com.emm.mygame.feature.learning.R
 import kotlin.time.Instant
 
 @Composable

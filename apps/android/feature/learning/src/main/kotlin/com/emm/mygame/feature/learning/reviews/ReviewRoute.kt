@@ -1,4 +1,4 @@
-package com.emm.mygame.feature.learning
+package com.emm.mygame.feature.learning.reviews
 
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect

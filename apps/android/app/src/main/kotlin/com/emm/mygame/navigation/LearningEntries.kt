@@ -7,7 +7,7 @@ import com.emm.mygame.Destination
 import com.emm.mygame.FrameKind
 import com.emm.mygame.ScreenFrame
 import com.emm.mygame.SignedInChrome
-import com.emm.mygame.feature.learning.ReviewRoute
+import com.emm.mygame.feature.learning.reviews.ReviewRoute
 
 internal fun EntryProviderScope<NavKey>.reviewEntry(chrome: SignedInChrome) {
     val dependencies: AppDependencies = chrome.dependencies

@@ -1,4 +1,4 @@
-package com.emm.mygame.feature.learning
+package com.emm.mygame.feature.learning.reviews
 
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -35,6 +35,7 @@ import com.emm.mygame.core.model.learning.ReviewHint
 import com.emm.mygame.core.model.learning.ReviewHintWord
 import com.emm.mygame.core.ui.chromeResource
 import com.emm.mygame.core.ui.fixedCopyResource
+import com.emm.mygame.feature.learning.R
 
 @Composable
 internal fun RecognitionCard(
