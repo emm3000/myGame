@@ -3717,8 +3717,8 @@
         "gappedFrame": "Can you ____ ____ the problem?"
       },
       {
-        "frame": "Can you point out your house on this map?",
-        "gappedFrame": "Can you ____ ____ your house on this map?",
+        "frame": "I want to point out one more thing.",
+        "gappedFrame": "I want to ____ ____ one more thing.",
         "fromLessonId": "lesson-33"
       },
       {
@@ -3973,8 +3973,8 @@
         "gappedFrame": "It is ____, so I will go home."
       },
       {
-        "frame": "Why are you up so late?",
-        "gappedFrame": "Why are you up so ____?",
+        "frame": "I came home late from the office.",
+        "gappedFrame": "I came home ____ from the office.",
         "fromLessonId": "lesson-35"
       },
       {
@@ -4078,9 +4078,9 @@
         "fromLessonId": "lesson-36"
       },
       {
-        "frame": "Our country has a new government.",
-        "gappedFrame": "Our ____ has a new government.",
-        "fromLessonId": "lesson-45"
+        "frame": "What is the biggest city in your country?",
+        "gappedFrame": "What is the biggest city in your ____?",
+        "fromLessonId": "lesson-38"
       }
     ],
     "gloss": {
@@ -4179,8 +4179,8 @@
         "fromLessonId": "lesson-38"
       },
       {
-        "frame": "Do you have any interest in the course?",
-        "gappedFrame": "Do you have any ____ in the course?",
+        "frame": "The children show a lot of interest in the new school.",
+        "gappedFrame": "The children show a lot of ____ in the new school.",
         "fromLessonId": "lesson-38"
       }
     ],
