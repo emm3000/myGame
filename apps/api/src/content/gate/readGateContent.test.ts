@@ -60,6 +60,40 @@ describe('readGateContent', () => {
     ).toBe(true)
   })
 
+  it('ships the NGSL-Spoken 1.2 statistics unchanged from their source', () => {
+    expect(sha256Of('ngsl-spoken-1.2.csv')).toBe(
+      '07708940c50a07cac4f507fd1e87bdd50081d7b87713a66a99beb3c8c4d11ac8',
+    )
+  })
+
+  it('names the source, date and SHA-256 of the spoken statistics in the attribution file', () => {
+    const attribution = shippedFile('ngsl-spoken-1.2-attribution.txt').toString('utf8')
+
+    expect(
+      [
+        'Source: https://www.newgeneralservicelist.com/s/NGSL-Spoken_12_stats.csv',
+        'Downloaded: 2026-11-25',
+        `SHA-256: ${sha256Of('ngsl-spoken-1.2.csv')}`,
+      ].every((line) => attribution.includes(line)),
+    ).toBe(true)
+  })
+
+  it('reads each spoken headword as its NGSL-Spoken rank', () => {
+    const { spokenRanks } = readGateContent(shippedContent)
+
+    expect(['be', 'i', 'yes', 'yeah', 'pound'].map((lemma) => spokenRanks?.get(lemma))).toEqual([
+      1, 25, 56, 68, 201,
+    ])
+  })
+
+  it('reads no spoken rank for a transcription tag or for the unranked row of true', () => {
+    const { spokenRanks } = readGateContent(shippedContent)
+
+    expect(
+      ['pause', 'unclear', 'laugh', 'true'].filter((lemma) => spokenRanks?.has(lemma) !== false),
+    ).toEqual([])
+  })
+
   it('reads each form of the teaching list as the headwords it belongs to', () => {
     const { forms } = readGateContent(shippedContent)
 

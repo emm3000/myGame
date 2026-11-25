@@ -1,2 +1,3 @@
 ngsl-1.2.csv -text
 ngsl-1.2-lemmatized-for-teaching.csv -text
+ngsl-spoken-1.2.csv -text

@@ -9,13 +9,17 @@ The curriculum is built on the New General Service List 1.2 (NGSL 1.2) by Charle
 - `ngsl-1.2.csv`, the statistics file `NGSL_12_stats.csv`.
 - `ngsl-1.2-lemmatized-for-teaching.csv`, the list lemmatized for teaching.
 
+From lesson 48, the card words of a band are ordered by the New General Service List-Spoken 1.2 (NGSL-Spoken 1.2) by Charles Browne and Brent Culligan, https://www.newgeneralservicelist.com/ngsl-spoken, licensed CC BY-SA 4.0. Its statistics file ships here unchanged, with its source, download date and SHA-256 in `ngsl-spoken-1.2-attribution.txt`:
+
+- `ngsl-spoken-1.2.csv`, the statistics file `NGSL-Spoken_12_stats.csv`.
+
 ## What Townword changed
 
 The lexicon, the lessons, the curriculum and the grammar inventory hold a substantial part of the NGSL's headwords, so they are Adapted Material of the NGSL under §4(b) of the licence. Townword:
 
 - splits the headwords into frame words (`grammar.json`, closed-class words among the first 100 ranks, each in the one grammar structure that admits it) and card words (`words.json`), and adds a few words outside the list;
 - orders the frame words and their inflections into grammar structures (`grammar.json`), each with its CEFR-J level and the lesson that admits it;
-- orders the card words into lessons of five (`lesson-<n>.json`, `curriculum.json`);
+- orders the card words into lessons of five (`lesson-<n>.json`, `curriculum.json`), by NGSL rank through lesson 47 and by NGSL-Spoken rank from lesson 48;
 - adds to each card word its part of speech, an example frame and its gapped form, a gloss per scaffold language and an English definition, all written by Townword.
 
 These additions are shared under the same licence: anyone may reuse them with attribution to the NGSL's authors and to Townword.

@@ -260,3 +260,74 @@ describe('content gate check 2, the order holds', () => {
     expect(checkOrder(bandLessons(40, 0, lessons, readyUnits))).toEqual([])
   })
 })
+
+const spokenLessons = (
+  lessons: ReadonlyArray<ReadonlyArray<string>>,
+  spokenRanks: ReadonlyArray<readonly [string, number]>,
+) => ({ ...bandLessons(300, 10, lessons), spokenRanks: new Map(spokenRanks) })
+
+const lessonFortyEightOf = (lemmas: ReadonlyArray<string>) => [...bandLessonRun(1, 46), lemmas]
+
+describe('content gate check 2, band lessons in NGSL-Spoken order from lesson 48', () => {
+  it('keeps the NGSL order through lesson 47', () => {
+    const lessons = [...bandLessonRun(1, 45), ['b226', 'b227', 'b228', 'b229', 'b230']]
+
+    expect(checkOrder(spokenLessons(lessons, [['b290', 1]]))).toEqual([])
+  })
+
+  it('fails a lesson from 48 without the untaught card word of lowest NGSL-Spoken rank', () => {
+    const lessons = lessonFortyEightOf(['b231', 'b232', 'b233', 'b234', 'b235'])
+
+    expect(
+      checkOrder(
+        spokenLessons(lessons, [
+          ['b290', 1],
+          ['b231', 2],
+        ]),
+      ),
+    ).toEqual(['lesson-48: does not hold b290, the lowest-ranked untaught card word of band 1'])
+  })
+
+  it('passes a lesson from 48 holding its head and window by NGSL-Spoken rank', () => {
+    const lessons = lessonFortyEightOf(['b290', 'b231', 'b232', 'b233', 'b234'])
+
+    expect(
+      checkOrder(
+        spokenLessons(lessons, [
+          ['b290', 1],
+          ['b231', 2],
+        ]),
+      ),
+    ).toEqual([])
+  })
+
+  it('draws a card word absent from the spoken list after every listed word, in NGSL order', () => {
+    const lastOfWindow = lessonFortyEightOf(['b300', 'b231', 'b232', 'b233', 'b259'])
+    const pastWindow = lessonFortyEightOf(['b300', 'b231', 'b232', 'b233', 'b260'])
+
+    expect(
+      [lastOfWindow, pastWindow].map((lessons) =>
+        checkOrder(spokenLessons(lessons, [['b300', 1]])),
+      ),
+    ).toEqual([
+      [],
+      ['lesson-48: b260 is not among the 30 lowest-ranked untaught card words of band 1'],
+    ])
+  })
+
+  it('keeps a word in its NGSL band whatever its spoken rank', () => {
+    const lessons = lessonFortyEightOf(['d1', 'b231', 'b232', 'b233', 'b234'])
+
+    expect(
+      checkOrder(
+        spokenLessons(lessons, [
+          ['d1', 1],
+          ['b240', 2],
+        ]),
+      ),
+    ).toEqual([
+      'lesson-48: does not hold b240, the lowest-ranked untaught card word of band 1',
+      'lesson-48: d1 is not among the 30 lowest-ranked untaught card words of band 1',
+    ])
+  })
+})
