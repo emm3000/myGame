@@ -7,9 +7,9 @@ import com.emm.mygame.Destination
 import com.emm.mygame.FrameKind
 import com.emm.mygame.ScreenFrame
 import com.emm.mygame.SignedInChrome
-import com.emm.mygame.feature.report.NewsRoute
 import com.emm.mygame.feature.report.ReportNavigation
 import com.emm.mygame.feature.report.ReportRoute
+import com.emm.mygame.feature.report.news.NewsRoute
 
 internal fun EntryProviderScope<NavKey>.reportEntry(chrome: SignedInChrome) {
     val dependencies: AppDependencies = chrome.dependencies

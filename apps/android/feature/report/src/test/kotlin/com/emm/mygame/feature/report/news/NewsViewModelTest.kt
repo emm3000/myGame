@@ -1,10 +1,13 @@
-package com.emm.mygame.feature.report
+package com.emm.mygame.feature.report.news
 
 import com.emm.mygame.core.model.town.news.TownNews
 import com.emm.mygame.core.model.town.news.TownNewsReadResult
 import com.emm.mygame.core.testing.FakeReportRepository
 import com.emm.mygame.core.testing.MainDispatcherRule
 import com.emm.mygame.core.testing.TestClock
+import com.emm.mygame.feature.report.finishedFarm
+import com.emm.mygame.feature.report.readInstant
+import com.emm.mygame.feature.report.stoppedLesson
 import kotlinx.coroutines.test.TestScope
 import kotlinx.coroutines.test.runCurrent
 import kotlinx.coroutines.test.runTest

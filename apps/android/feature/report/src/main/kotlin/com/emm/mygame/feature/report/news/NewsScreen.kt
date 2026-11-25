@@ -1,4 +1,4 @@
-package com.emm.mygame.feature.report
+package com.emm.mygame.feature.report.news
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
@@ -28,6 +28,7 @@ import com.emm.mygame.core.model.town.news.TownNews
 import com.emm.mygame.core.ui.chromeResource
 import com.emm.mygame.core.ui.fixedCopyResource
 import com.emm.mygame.core.ui.joinsFrameTraversal
+import com.emm.mygame.feature.report.R
 
 @Composable
 fun NewsScreen(

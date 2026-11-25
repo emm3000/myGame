@@ -46,6 +46,10 @@ import com.emm.mygame.core.ui.chromeResource
 import com.emm.mygame.core.ui.fixedCopyResource
 import com.emm.mygame.core.ui.joinsFrameTraversal
 import com.emm.mygame.core.ui.rememberPlayerCopy
+import com.emm.mygame.feature.report.news.NewsNote
+import com.emm.mygame.feature.report.news.NewsRow
+import com.emm.mygame.feature.report.news.previewReceivedAt
+import com.emm.mygame.feature.report.news.previewTownNews
 import java.time.ZoneId
 import kotlin.time.Instant
 

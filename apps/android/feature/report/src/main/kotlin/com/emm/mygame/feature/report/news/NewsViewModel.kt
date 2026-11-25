@@ -1,4 +1,4 @@
-package com.emm.mygame.feature.report
+package com.emm.mygame.feature.report.news
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
