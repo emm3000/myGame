@@ -3,38 +3,18 @@ package com.emm.mygame.feature.holdout
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.tooling.preview.PreviewParameter
 import androidx.compose.ui.tooling.preview.PreviewParameterProvider
-import androidx.lifecycle.compose.LifecycleStartEffect
-import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import androidx.lifecycle.viewmodel.compose.viewModel
 import com.emm.mygame.core.designsystem.MyGameLabel
 import com.emm.mygame.core.designsystem.MyGameNavRow
 import com.emm.mygame.core.designsystem.MyGamePreviewSurface
 import com.emm.mygame.core.designsystem.MyGameSpacing
 import com.emm.mygame.core.designsystem.PreviewMyGame
-import com.emm.mygame.core.model.holdout.HoldoutCheckRepository
 import com.emm.mygame.core.model.holdout.HoldoutCheckWeek
 import com.emm.mygame.core.model.placement.PlacementBand
 import com.emm.mygame.core.ui.fixedCopyResource
-
-@Composable
-fun HoldoutCheckRowsRoute(
-    holdoutChecks: HoldoutCheckRepository,
-    onHoldoutCheckOpen: (HoldoutCheckRow) -> Unit,
-    modifier: Modifier = Modifier,
-    viewModel: HoldoutCheckRowsViewModel = viewModel { HoldoutCheckRowsViewModel(holdoutChecks) },
-) {
-    val state: HoldoutCheckRowsUiState by viewModel.state.collectAsStateWithLifecycle()
-    LifecycleStartEffect(viewModel) {
-        viewModel.onIntent(HoldoutCheckRowsIntent.ScreenShown)
-        onStopOrDispose { viewModel.onIntent(HoldoutCheckRowsIntent.ScreenHidden) }
-    }
-    HoldoutCheckRows(state = state, onHoldoutCheckOpen = onHoldoutCheckOpen, modifier = modifier)
-}
 
 @Composable
 fun HoldoutCheckRows(
