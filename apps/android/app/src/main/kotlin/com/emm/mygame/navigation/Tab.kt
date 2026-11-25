@@ -1,13 +1,15 @@
 package com.emm.mygame.navigation
 
+import androidx.annotation.StringRes
 import androidx.navigation3.runtime.NavKey
 import com.emm.mygame.Destination
+import com.emm.mygame.R
 
-internal enum class Tab(val root: Destination) {
-    Today(Destination.Today),
-    Town(Destination.Town),
-    Learn(Destination.School),
-    Me(Destination.Settings),
+internal enum class Tab(val root: Destination, @StringRes val label: Int) {
+    Today(Destination.Today, R.string.navigation_today),
+    Town(Destination.Town, R.string.navigation_town),
+    Learn(Destination.School, R.string.navigation_learn),
+    Me(Destination.Settings, R.string.navigation_me),
 }
 
 internal fun List<NavKey>.openTab(): Tab? {

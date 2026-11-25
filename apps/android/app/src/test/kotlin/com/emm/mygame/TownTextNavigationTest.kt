@@ -76,7 +76,7 @@ class TownTextNavigationTest {
                     dependencies = dependencies,
                     reminderTaps = emptyFlow(),
                     mailedLinks = emptyFlow(),
-                    backStack = rememberNavBackStack(Destination.Town),
+                    backStack = rememberNavBackStack(Destination.Today, Destination.Town),
                 )
             }
         }

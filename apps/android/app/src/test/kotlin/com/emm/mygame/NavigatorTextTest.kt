@@ -12,39 +12,39 @@ class NavigatorTextTest {
 
     @Test
     fun `opens a text above the school`() {
-        val backStack: MutableList<NavKey> = mutableListOf(Destination.Town, Destination.School)
+        val backStack: MutableList<NavKey> = mutableListOf(Destination.Today, Destination.School)
 
         Navigator(backStack, NavigationLinks()).openAbove(Destination.School, courseText)
 
-        assertEquals(listOf(Destination.Town, Destination.School, courseText), backStack)
+        assertEquals(listOf(Destination.Today, Destination.School, courseText), backStack)
     }
 
     @Test
     fun `keeps one text on a double tap`() {
-        val backStack: MutableList<NavKey> = mutableListOf(Destination.Town, Destination.School)
+        val backStack: MutableList<NavKey> = mutableListOf(Destination.Today, Destination.School)
         val navigator: Navigator = Navigator(backStack, NavigationLinks())
 
         navigator.openAbove(Destination.School, courseText)
         navigator.openAbove(Destination.School, courseText)
 
-        assertEquals(listOf(Destination.Town, Destination.School, courseText), backStack)
+        assertEquals(listOf(Destination.Today, Destination.School, courseText), backStack)
     }
 
     @Test
     fun `returns to the school from a text`() {
-        val backStack: MutableList<NavKey> = mutableListOf(Destination.Town, Destination.School, courseText)
+        val backStack: MutableList<NavKey> = mutableListOf(Destination.Today, Destination.School, courseText)
 
         Navigator(backStack, NavigationLinks()).openSchool()
 
-        assertEquals(listOf(Destination.Town, Destination.School), backStack)
+        assertEquals(listOf(Destination.Today, Destination.School), backStack)
     }
 
     @Test
     fun `returns to the town from a text`() {
-        val backStack: MutableList<NavKey> = mutableListOf(Destination.Town, Destination.School, courseText)
+        val backStack: MutableList<NavKey> = mutableListOf(Destination.Today, Destination.School, courseText)
 
         Navigator(backStack, NavigationLinks()).openTown()
 
-        assertEquals(listOf<NavKey>(Destination.Town), backStack)
+        assertEquals(listOf(Destination.Today, Destination.Town), backStack)
     }
 }

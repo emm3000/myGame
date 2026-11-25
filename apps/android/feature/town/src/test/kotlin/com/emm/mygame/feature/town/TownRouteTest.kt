@@ -59,6 +59,8 @@ class TownRouteTest {
                             onTextOpen = {},
                             onSigningOut = {},
                             onSignedOut = {},
+                            onUnnamed = {},
+                            onNamed = {},
                         ),
                     )
                 }
@@ -118,6 +120,8 @@ class TownRouteTest {
                         onTextOpen = {},
                         onSigningOut = { signingOuts += 1 },
                         onSignedOut = { signedOuts += 1 },
+                        onUnnamed = {},
+                        onNamed = {},
                     ),
                     viewModel = viewModel,
                 )

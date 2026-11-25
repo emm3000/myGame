@@ -64,7 +64,10 @@ class TownViewModel(
         onStatus = { status: NamingStatus ->
             updateNaming { current: TownUiState.Naming -> current.copy(status = status) }
         },
-        onFounded = { town: TownSnapshot -> restartFrom(measured(town), TownRequests.none) },
+        onFounded = { town: TownSnapshot ->
+            restartFrom(measured(town), TownRequests.none)
+            _effects.trySend(TownEffect.Named)
+        },
     )
 
     private val building: BuildingRequests = BuildingRequests(
@@ -128,7 +131,10 @@ class TownViewModel(
                 projection?.cancel()
             }
             TownIntent.RetryTapped -> if (_state.value == TownUiState.Failed) open()
-            TownIntent.GoToTownTapped -> open()
+            TownIntent.GoToTownTapped -> {
+                open()
+                _effects.trySend(TownEffect.Named)
+            }
             is TownIntent.NameChanged ->
                 updateNaming { current: TownUiState.Naming -> current.copy(name = intent.name) }
             TownIntent.NameSubmitted -> naming.found()
@@ -195,6 +201,7 @@ class TownViewModel(
     private fun askName() {
         shown = null
         _state.value = TownUiState.Naming(name = "", status = NamingStatus.Idle)
+        _effects.trySend(TownEffect.Unnamed)
     }
 
     private fun updateNaming(change: (TownUiState.Naming) -> TownUiState.Naming) {

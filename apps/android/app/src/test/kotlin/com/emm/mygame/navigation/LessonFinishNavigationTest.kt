@@ -23,7 +23,7 @@ class LessonFinishNavigationTest : AppNavigationFixture() {
     @Test
     fun `reads the town at the lesson's finish on the Report`() {
         reports.answerRead(ReportReadResult.Read(nothingDue))
-        onLessonOneNearItsFinish(Destination.Town, Destination.Report)
+        onLessonOneNearItsFinish(Destination.Today, Destination.Town, Destination.Report)
 
         passingTheFinish()
 
@@ -33,7 +33,7 @@ class LessonFinishNavigationTest : AppNavigationFixture() {
     @Test
     fun `reads the town at the lesson's finish on the reviews`() {
         learning.answerRead(noReviews)
-        onLessonOneNearItsFinish(Destination.Town, Destination.Review)
+        onLessonOneNearItsFinish(Destination.Today, Destination.Town, Destination.Review)
 
         passingTheFinish()
 
@@ -42,7 +42,7 @@ class LessonFinishNavigationTest : AppNavigationFixture() {
 
     @Test
     fun `reads the town at the lesson's finish on a text`() {
-        onLessonOneNearItsFinish(Destination.Town, Destination.School, Destination.SchoolText(TextId("text-1")))
+        onLessonOneNearItsFinish(Destination.Today, Destination.Town, Destination.School, Destination.SchoolText(TextId("text-1")))
 
         passingTheFinish(readsOnArrival = READS_ON_ARRIVAL_ON_A_TEXT)
 
@@ -51,7 +51,7 @@ class LessonFinishNavigationTest : AppNavigationFixture() {
 
     @Test
     fun `leaves the read at the lesson's finish to the town home`() {
-        onLessonOneNearItsFinish(Destination.Town)
+        onLessonOneNearItsFinish(Destination.Today, Destination.Town)
 
         passingTheFinish()
 
@@ -60,7 +60,7 @@ class LessonFinishNavigationTest : AppNavigationFixture() {
 
     @Test
     fun `leaves the read at the lesson's finish to the school`() {
-        showLessonOneNearItsFinish(Destination.Town, Destination.School)
+        showLessonOneNearItsFinish(Destination.Today, Destination.Town, Destination.School)
         waitForLine(STUDYING_REFUND)
 
         passingTheFinish()
@@ -71,7 +71,7 @@ class LessonFinishNavigationTest : AppNavigationFixture() {
     @Test
     fun `leaves the read at the lesson's finish to the lesson's words`() {
         repeat(2) { learning.answerRead(walkReviews) }
-        onLessonOneNearItsFinish(Destination.Town, Destination.LessonWords(firstLesson, emptyList()))
+        onLessonOneNearItsFinish(Destination.Today, Destination.Town, Destination.LessonWords(firstLesson, emptyList()))
 
         passingTheFinish()
 
@@ -112,7 +112,7 @@ class LessonFinishNavigationTest : AppNavigationFixture() {
     @Test
     fun `draws no status on the Report with no lesson running`() {
         reports.answerRead(ReportReadResult.Read(nothingDue))
-        showingStack(Destination.Town, Destination.Report, town = playedTown(retainedWords = threeOfFive))
+        showingStack(Destination.Today, Destination.Town, Destination.Report, town = playedTown(retainedWords = threeOfFive))
         waitForRing(THREE_OF_FIVE)
 
         assertNoStatus()

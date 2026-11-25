@@ -33,7 +33,7 @@ class FrameLinkNavigationTest : DockFrameFixture() {
 
     private fun assertHeaderLinkOpensTown(vararg place: NavKey) {
         reports.answerRead(ReportReadResult.Read(nothingDue))
-        showing(Destination.Town, *place)
+        showing(Destination.Today, Destination.Town, *place)
         headerLink()
         composeRule.onAllNodes(hasText("Pueblo", ignoreCase = true).and(hasAnyAncestor(hasTestTag(TOWN_DOCK))))
             .assertCountEquals(0)
@@ -41,12 +41,12 @@ class FrameLinkNavigationTest : DockFrameFixture() {
         headerLink().performClick()
 
         waitFor(hasText(TOWN_HEADER))
-        assertEquals(listOf<NavKey>(Destination.Town), shownStack?.toList())
+        assertEquals(listOf<NavKey>(Destination.Today, Destination.Town), shownStack?.toList())
     }
 
     @Test
     fun `the town home's Report row opens the Report`() {
-        showing(Destination.Town, town = playedTown(nextStep = releasedLesson))
+        showing(Destination.Today, Destination.Town, town = playedTown(nextStep = releasedLesson))
         reports.answerRead(ReportReadResult.Read(nothingDue))
         waitFor(reportRow)
         composeRule.onAllNodes(inTheDock(REPORT_ROW)).assertCountEquals(0)
@@ -83,18 +83,18 @@ class FrameLinkNavigationTest : DockFrameFixture() {
 
     @Test
     fun `the system back button still pops one entry from a place screen`() {
-        showing(Destination.Town, Destination.Report, Destination.News)
+        showing(Destination.Today, Destination.Town, Destination.Report, Destination.News)
         headerLink()
 
         composeRule.runOnUiThread { composeRule.activity.onBackPressedDispatcher.onBackPressed() }
         composeRule.waitForIdle()
 
-        assertEquals(listOf<NavKey>(Destination.Town, Destination.Report), shownStack?.toList())
+        assertEquals(listOf<NavKey>(Destination.Today, Destination.Town, Destination.Report), shownStack?.toList())
     }
 
     @Test
     fun `a loading dock waits and the header's link still opens the town`() {
-        showing(Destination.Town, Destination.Report, townReads = 0)
+        showing(Destination.Today, Destination.Town, Destination.Report, townReads = 0)
         waitFor(hasTestTag(INK_PILL).and(hasStateDescription(WAITING)).and(hasAnyAncestor(hasTestTag(TOWN_DOCK))))
 
         headerLink().performClick()
@@ -106,7 +106,7 @@ class FrameLinkNavigationTest : DockFrameFixture() {
     @Test
     fun `a refused dock leaves the Report row at the top of the town home that could not be read`() {
         repeat(TOWN_STATUS_AND_RING_READS) { towns.answerRead(TownReadResult.Unreachable) }
-        showing(Destination.Town, townReads = 0)
+        showing(Destination.Today, Destination.Town, townReads = 0)
         dockGo(TRY_AGAIN)
 
         waitFor(reportRow.and(hasAnyAncestor(hasScrollAction())))
@@ -115,7 +115,7 @@ class FrameLinkNavigationTest : DockFrameFixture() {
     @Test
     fun `a refused dock offers the retry and the header's link still opens the town`() {
         repeat(STATUS_AND_RING_READS) { towns.answerRead(TownReadResult.Unreachable) }
-        showing(Destination.Town, Destination.Report, townReads = 0)
+        showing(Destination.Today, Destination.Town, Destination.Report, townReads = 0)
         dockGo(TRY_AGAIN)
 
         headerLink().performClick()

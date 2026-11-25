@@ -46,7 +46,7 @@ internal fun EntryProviderScope<NavKey>.schoolEntry(chrome: SignedInChrome) {
             SchoolRoute(
                 towns = dependencies.towns,
                 clock = dependencies.clock,
-                onNoTown = navigator::openTown,
+                onNoTown = navigator::townUnnamed,
                 onLessonOpen = { lesson: LessonId -> navigator.openLesson(lesson, walked = emptyList()) },
                 onLessonStart = frame.onAnswered,
                 onTextOpen = { text: TextId -> navigator.openAbove(Destination.School, Destination.SchoolText(text)) },
@@ -81,7 +81,7 @@ internal fun EntryProviderScope<NavKey>.lessonWordsEntry(chrome: SignedInChrome)
                 learning = dependencies.learning,
                 clock = dependencies.clock,
                 navigation = LessonWordsNavigation(
-                    onNoTown = navigator::openTown,
+                    onNoTown = navigator::townUnnamed,
                     onLessonOpen = navigator::openLesson,
                     onReviewsOpen = navigator::openReviews,
                     onSchoolOpen = navigator::openSchool,
@@ -105,7 +105,7 @@ internal fun EntryProviderScope<NavKey>.schoolTextEntry(chrome: SignedInChrome) 
             SchoolTextRoute(
                 text = shown.text,
                 texts = dependencies.texts,
-                onNoTown = navigator::openTown,
+                onNoTown = navigator::townUnnamed,
                 onSchoolOpen = navigator::openSchool,
                 foldedDock = frame.foldedDock,
             )

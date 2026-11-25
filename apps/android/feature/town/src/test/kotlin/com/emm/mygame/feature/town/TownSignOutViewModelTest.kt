@@ -35,6 +35,7 @@ class TownSignOutViewModelTest {
         sessions.answerSignOut()
 
         viewModel.effects.test {
+            assertEquals(TownEffect.Unnamed, awaitItem())
             viewModel.onIntent(TownIntent.SignOutTapped)
 
             assertEquals(TownEffect.SigningOut, awaitItem())
@@ -48,6 +49,7 @@ class TownSignOutViewModelTest {
         val viewModel: TownViewModel = townAnswering(TownReadResult.NoTown)
 
         viewModel.effects.test {
+            assertEquals(TownEffect.Unnamed, awaitItem())
             viewModel.onIntent(TownIntent.SignOutTapped)
             viewModel.onIntent(TownIntent.SignOutTapped)
             runCurrent()
@@ -94,6 +96,7 @@ class TownSignOutViewModelTest {
         val viewModel: TownViewModel = townAnswering(TownReadResult.NoTown)
 
         viewModel.effects.test {
+            assertEquals(TownEffect.Unnamed, awaitItem())
             viewModel.onIntent(TownIntent.SignOutTapped)
             runCurrent()
 

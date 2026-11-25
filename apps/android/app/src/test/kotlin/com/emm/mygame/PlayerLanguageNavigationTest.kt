@@ -74,7 +74,7 @@ class PlayerLanguageNavigationTest {
                     dependencies = dependencies,
                     reminderTaps = emptyFlow(),
                     mailedLinks = emptyFlow(),
-                    backStack = rememberNavBackStack(Destination.Town, Destination.Report),
+                    backStack = rememberNavBackStack(Destination.Today, Destination.Town, Destination.Report),
                 )
             }
         }

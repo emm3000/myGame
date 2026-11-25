@@ -36,6 +36,8 @@ fun TownRoute(
                 when (effect) {
                     TownEffect.SigningOut -> currentNavigation.onSigningOut()
                     TownEffect.SignedOut -> currentNavigation.onSignedOut()
+                    TownEffect.Unnamed -> currentNavigation.onUnnamed()
+                    TownEffect.Named -> currentNavigation.onNamed()
                 }
             }
         }

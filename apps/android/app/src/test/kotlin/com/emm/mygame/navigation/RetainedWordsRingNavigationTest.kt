@@ -73,12 +73,12 @@ class RetainedWordsRingNavigationTest : AppNavigationFixture() {
     fun `adds no ring read to a screen that reads the town`() {
         signedInAtTown(town = playedTown(retainedWords = threeOfFive))
         composeRule.waitForIdle()
-        assertEquals(READS_ON_ARRIVAL, towns.readCount)
+        val readsOnTheTown: Int = towns.readCount
 
         composeRule.onNodeWithText("Ir a la escuela").performScrollTo().performClick()
         waitForLine("Ahora no hay ninguna lección en estudio.")
 
-        assertEquals(READS_ON_ARRIVAL + 1, towns.readCount)
+        assertEquals(readsOnTheTown + 1, towns.readCount)
     }
 
     @Test
@@ -92,7 +92,7 @@ class RetainedWordsRingNavigationTest : AppNavigationFixture() {
                     dependencies = dependencies,
                     reminderTaps = emptyFlow(),
                     mailedLinks = emptyFlow(),
-                    backStack = rememberNavBackStack(Destination.Town, Destination.Report),
+                    backStack = rememberNavBackStack(Destination.Today, Destination.Town, Destination.Report),
                 )
             }
         }
@@ -111,6 +111,8 @@ class RetainedWordsRingNavigationTest : AppNavigationFixture() {
             }
         }
         waitForRing(THREE_OF_FIVE)
+        tab("Pueblo").performClick()
+        waitForLine(TOWN_HEADER)
         towns.answerRead(TownReadResult.Read(playedTown(retainedWords = RetainedWords(count = 2, total = 5))))
 
         openReport(threeDue)

@@ -35,6 +35,7 @@ import com.emm.mygame.PlayerLanguageUiState
 import com.emm.mygame.PlayerLanguageViewModel
 import com.emm.mygame.SignedInChrome
 import com.emm.mygame.core.designsystem.MyGameTheme
+import com.emm.mygame.core.model.town.HeldTown
 import com.emm.mygame.core.projection.StudyReminderLine
 import com.emm.mygame.feature.account.verification.VerificationBannerRoute
 import com.emm.mygame.feature.town.status.TownStatus
@@ -95,7 +96,11 @@ internal fun AppNavigation(
             bannerLanguage.onIntent(PlayerLanguageIntent.SessionClosed)
         }
         val banner: PlayerLanguageUiState by bannerLanguage.state.collectAsStateWithLifecycle()
+        val held: State<HeldTown?> = dependencies.towns.town.collectAsStateWithLifecycle()
         InPlayerLanguage(language = banner.language.takeIf { isSessionOpen }) {
+            navigator.openTab?.let { open: Tab ->
+                AppNavigationBar(open = open, town = held.value?.town, onTabOpen = navigator::openTab)
+            }
             VerificationBannerRoute(sessions = dependencies.sessions, isSessionOpen = isSessionOpen)
         }
     }
@@ -125,6 +130,8 @@ private fun AppScreens(
 }
 
 private fun EntryProviderScope<NavKey>.signedInEntries(chrome: SignedInChrome) {
+    todayEntry(chrome)
+    namingEntry(chrome)
     townEntry(chrome)
     schoolEntry(chrome)
     reportEntry(chrome)

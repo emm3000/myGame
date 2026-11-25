@@ -77,7 +77,7 @@ class TaskDockFrameTest {
     ) {
         composeRule.setContent {
             MyGameTheme {
-                val backStack: NavBackStack<NavKey> = rememberNavBackStack(Destination.Town, Destination.Review)
+                val backStack: NavBackStack<NavKey> = rememberNavBackStack(Destination.Today, Destination.Town, Destination.Review)
                 FramedScreen(
                     kind = kind,
                     doesScreenReadTown = false,

@@ -35,7 +35,7 @@ class DockGoNavigationTest : DockFrameFixture() {
     @Test
     fun `the Report's own step waits and sends nothing`() {
         reports.answerRead(ReportReadResult.Read(nothingDue))
-        showing(Destination.Town, Destination.Report)
+        showing(Destination.Today, Destination.Town, Destination.Report)
         val go: SemanticsNodeInteraction = dockGo("Ir al informe")
         composeRule.waitForIdle()
         val townReads: Int = towns.readCount
@@ -51,7 +51,7 @@ class DockGoNavigationTest : DockFrameFixture() {
     @Test
     fun `the school's study step studies that lesson in place`() {
         towns.answerLesson(TownLessonResult.Unreachable)
-        showing(Destination.Town, Destination.School, town = playedTown(nextStep = NextStep.LessonToStudy(firstLesson)))
+        showing(Destination.Today, Destination.Town, Destination.School, town = playedTown(nextStep = NextStep.LessonToStudy(firstLesson)))
 
         dockGo("Estudiar la lección 1 · 5:00").performClick()
 
@@ -64,7 +64,7 @@ class DockGoNavigationTest : DockFrameFixture() {
         val older: TownSnapshot = playedTown()
         val newer: TownSnapshot = playedTown(nextStep = NextStep.LessonToStudy(secondLesson))
             .copy(lessons = listOf(lessonOf(firstLesson).copy(isStudied = true), lessonOf(secondLesson)))
-        showing(Destination.Town, Destination.School, townReads = 0)
+        showing(Destination.Today, Destination.Town, Destination.School, townReads = 0)
         towns.answerRead(TownReadResult.Read(older))
         towns.answerRead(TownReadResult.Read(newer))
 
@@ -79,7 +79,7 @@ class DockGoNavigationTest : DockFrameFixture() {
         val newer: TownSnapshot = playedTown(nextStep = NextStep.LessonToStudy(secondLesson))
             .copy(lessons = listOf(lessonOf(firstLesson).copy(isStudied = true), lessonOf(secondLesson)))
         towns.answerLesson(TownLessonResult.Refused(TownLessonRefusal.StudySlotBusy))
-        showing(Destination.Town, Destination.School, townReads = 0)
+        showing(Destination.Today, Destination.Town, Destination.School, townReads = 0)
         towns.answerRead(TownReadResult.Read(older))
         towns.answerRead(TownReadResult.Read(newer))
 
@@ -102,7 +102,7 @@ class DockGoNavigationTest : DockFrameFixture() {
 
     @Test
     fun `the school's dock draws neither the cap's line nor the time the next word is due`() {
-        showing(Destination.Town, Destination.School, town = fullCapTown)
+        showing(Destination.Today, Destination.Town, Destination.School, town = fullCapTown)
         waitFor(hasText(NEXT_WORD_DUE, substring = true).and(!hasAnyAncestor(hasTestTag(TOWN_DOCK))))
         dockGo(REPORT_GO)
 
@@ -149,14 +149,14 @@ class DockGoNavigationTest : DockFrameFixture() {
 
     @Test
     fun `the town home draws one go button`() {
-        showing(Destination.Town)
+        showing(Destination.Today, Destination.Town)
 
         assertOneGoButton()
     }
 
     @Test
     fun `the school draws one go button`() {
-        showing(Destination.Town, Destination.School)
+        showing(Destination.Today, Destination.Town, Destination.School)
 
         assertOneGoButton()
     }
@@ -165,28 +165,28 @@ class DockGoNavigationTest : DockFrameFixture() {
     fun `the Report draws one go button`() {
         reports.answerRead(ReportReadResult.Read(nothingDue.copy(dueCount = 3)))
         val reviewsDue: TownSnapshot = playedTown(NextStep.Reviews(count = 3, readFirst = emptyList()))
-        showing(Destination.Town, Destination.Report, town = reviewsDue)
+        showing(Destination.Today, Destination.Town, Destination.Report, town = reviewsDue)
         dockGo("Empezar los repasos")
         composeRule.onAllNodes(hasTestTag(INK_PILL)).assertCountEquals(1)
     }
 
     @Test
     fun `the news draws one go button`() {
-        showing(Destination.Town, Destination.Report, Destination.News)
+        showing(Destination.Today, Destination.Town, Destination.Report, Destination.News)
 
         assertOneGoButton()
     }
 
     @Test
     fun `the map draws one go button`() {
-        showing(Destination.Town, Destination.Map)
+        showing(Destination.Today, Destination.Town, Destination.Map)
 
         assertOneGoButton()
     }
 
     @Test
     fun `the settings draw one go button`() {
-        showing(Destination.Town, Destination.Report, Destination.Settings)
+        showing(Destination.Today, Destination.Town, Destination.Report, Destination.Settings)
 
         assertOneGoButton()
     }
