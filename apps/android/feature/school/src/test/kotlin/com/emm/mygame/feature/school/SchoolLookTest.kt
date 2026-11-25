@@ -95,7 +95,13 @@ class SchoolLookTest {
     private val runningFirst: SchoolUiState.LessonCard = openFirst.copy(state = SchoolUiState.LessonState.Studying)
 
     private val busyOnFirst: SchoolUiState.LessonState.Open =
-        SchoolUiState.LessonState.Open(SchoolUiState.LessonBlock.SlotBusy(name = firstLessonName))
+        SchoolUiState.LessonState.Open(
+            SchoolUiState.LessonBlock.SlotBusy(
+                name = firstLessonName,
+                remaining = 90.seconds,
+                freesAt = readInstant + 90.seconds,
+            ),
+        )
 
     private val firstRunning: SchoolUiState.SlotLine.Busy =
         SchoolUiState.SlotLine.Busy(firstLesson, firstLessonName, remaining = 90.seconds, total = 150.seconds)

@@ -24,14 +24,16 @@ internal fun TownSnapshot.contentAt(
     selected: LessonId?,
 ): SchoolUiState.Content {
     val card: NextStepCard = nextStepCard()
-    val lessonCards: List<SchoolUiState.LessonCard> = lessons.map { lesson: TownSnapshot.Lesson -> lesson.cardIn(this) }
+    val busy: SchoolUiState.LessonBlock.SlotBusy? = slotBusyAt(now, gap)
+    val lessonCards: List<SchoolUiState.LessonCard> =
+        lessons.map { lesson: TownSnapshot.Lesson -> lesson.cardIn(this, busy) }
     return SchoolUiState.Content(
         schoolLevel = schoolLevel(),
         learning = learningLineAt(now, gap, startable = lessonCards.nextOpenWith(selected)),
         slot = lessonSlot?.lineIn(this, now) ?: SchoolUiState.SlotLine.Idle,
         skills = skills.mapIndexed { index: Int, skill: TownSnapshot.EarnedSkill -> skill.lineAt(index, skills) },
         lessons = lessonCards,
-        releasedLessons = releasedLessons.map { lesson: TownSnapshot.ReleasedLesson -> lesson.cardIn(this) },
+        releasedLessons = releasedLessons.map { lesson: TownSnapshot.ReleasedLesson -> lesson.cardIn(this, busy) },
         texts = texts.map(::textCardOf),
         studyMark = seasonInForce?.studyMark(),
         nextStep = card,
@@ -65,8 +67,10 @@ internal fun TownSnapshot.nearestCountdownAt(now: Instant): Duration? =
 private fun TownSnapshot.schoolLevel(): Int =
     buildings.first { building: TownSnapshot.Building -> building.kind == TownBuildingKind.School }.level
 
-private fun TownSnapshot.isPastCap(enteringWordCount: Int): Boolean =
-    learning.inLearning + enteringWordCount > learning.cap
+private fun TownSnapshot.wordsPastCapWith(enteringWordCount: Int): Int =
+    learning.inLearning + enteringWordCount - learning.cap
+
+private fun TownSnapshot.isPastCap(enteringWordCount: Int): Boolean = wordsPastCapWith(enteringWordCount) > 0
 
 private fun TownSnapshot.learningLineAt(
     now: Instant,
@@ -106,7 +110,19 @@ private fun TownSnapshot.EarnedSkill.lineAt(
     ratePercent = ratePercent,
 )
 
-internal fun TownSnapshot.Lesson.cardIn(town: TownSnapshot): SchoolUiState.LessonCard = SchoolUiState.LessonCard(
+internal fun TownSnapshot.slotBusyAt(now: Instant, gap: Duration): SchoolUiState.LessonBlock.SlotBusy? {
+    val running: TownSnapshot.LessonSlot = lessonSlot ?: return null
+    return SchoolUiState.LessonBlock.SlotBusy(
+        name = nameOf(running.lesson),
+        remaining = countdownTo(finishesAt = running.finishesAt, now = now),
+        freesAt = running.finishesAt - gap,
+    )
+}
+
+internal fun TownSnapshot.Lesson.cardIn(
+    town: TownSnapshot,
+    busy: SchoolUiState.LessonBlock.SlotBusy?,
+): SchoolUiState.LessonCard = SchoolUiState.LessonCard(
     lesson = id,
     number = town.numberOf(id),
     theme = theme,
@@ -116,17 +132,20 @@ internal fun TownSnapshot.Lesson.cardIn(town: TownSnapshot): SchoolUiState.Lesso
     ratePercent = skill.ratePercent,
     duration = duration,
     path = schoolPathCountsOf(standings),
-    state = town.lessonStateOf(id, isStudied, requiredSchoolLevel, enteringWordCount),
+    state = town.lessonStateOf(id, isStudied, requiredSchoolLevel, enteringWordCount, busy),
 )
 
-private fun TownSnapshot.ReleasedLesson.cardIn(town: TownSnapshot): SchoolUiState.ReleasedLessonCard =
+private fun TownSnapshot.ReleasedLesson.cardIn(
+    town: TownSnapshot,
+    busy: SchoolUiState.LessonBlock.SlotBusy?,
+): SchoolUiState.ReleasedLessonCard =
     SchoolUiState.ReleasedLessonCard(
         lesson = id,
         name = LessonName.Released(band, position),
         wordCount = wordCount,
         duration = duration,
         path = schoolPathCountsOf(standings),
-        state = town.lessonStateOf(id, isStudied, requiredSchoolLevel, enteringWordCount),
+        state = town.lessonStateOf(id, isStudied, requiredSchoolLevel, enteringWordCount, busy),
     )
 
 private fun TownSnapshot.lessonStateOf(
@@ -134,18 +153,19 @@ private fun TownSnapshot.lessonStateOf(
     isStudied: Boolean,
     requiredSchoolLevel: Int,
     enteringWordCount: Int,
+    busy: SchoolUiState.LessonBlock.SlotBusy?,
 ): SchoolUiState.LessonState = when {
     isStudied -> SchoolUiState.LessonState.Studied
     lessonSlot?.lesson == lesson -> SchoolUiState.LessonState.Studying
-    else -> SchoolUiState.LessonState.Open(blockOf(requiredSchoolLevel, enteringWordCount))
+    else -> SchoolUiState.LessonState.Open(busy ?: blockOf(requiredSchoolLevel, enteringWordCount))
 }
 
-private fun TownSnapshot.blockOf(requiredSchoolLevel: Int, enteringWordCount: Int): SchoolUiState.LessonBlock? {
-    val running: TownSnapshot.LessonSlot? = lessonSlot
-    return when {
-        running != null -> SchoolUiState.LessonBlock.SlotBusy(nameOf(running.lesson))
-        schoolLevel() < requiredSchoolLevel -> SchoolUiState.LessonBlock.SchoolTooLow(requiredSchoolLevel)
-        isPastCap(enteringWordCount) -> SchoolUiState.LessonBlock.CapReached
-        else -> null
-    }
+private fun TownSnapshot.blockOf(
+    requiredSchoolLevel: Int,
+    enteringWordCount: Int,
+): SchoolUiState.LessonBlock? = when {
+    schoolLevel() < requiredSchoolLevel -> SchoolUiState.LessonBlock.SchoolTooLow(requiredSchoolLevel)
+    isPastCap(enteringWordCount) ->
+        SchoolUiState.LessonBlock.CapReached(shortWords = wordsPastCapWith(enteringWordCount))
+    else -> null
 }

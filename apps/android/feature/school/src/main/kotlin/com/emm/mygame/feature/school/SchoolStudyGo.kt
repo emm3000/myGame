@@ -6,6 +6,7 @@ import com.emm.mygame.core.designsystem.MyGameLabel
 import com.emm.mygame.core.model.town.TownSnapshot
 import com.emm.mygame.core.ui.PlayerCopy
 import com.emm.mygame.core.ui.rememberPlayerCopy
+import kotlin.time.Duration
 
 @Composable
 fun schoolStudyGo(
@@ -16,7 +17,7 @@ fun schoolStudyGo(
 ): MyGameDockGo {
     val copy: PlayerCopy = rememberPlayerCopy()
     val waiting: MyGameLabel = copy.chrome(R.string.school_waiting)
-    val card: SchoolUiState.LessonCard = held?.cardOf(number)
+    val card: SchoolUiState.LessonCard = held?.cardOf(number, drawn = state)
         ?: return MyGameDockGo(
             label = copy.chrome(R.string.school_lesson_study, "number" to number.toString()),
             isBusy = true,
@@ -33,5 +34,9 @@ fun schoolStudyGo(
     )
 }
 
-private fun TownSnapshot.cardOf(number: Int): SchoolUiState.LessonCard? =
-    lessons.getOrNull(number - 1)?.cardIn(this)
+private fun TownSnapshot.cardOf(number: Int, drawn: SchoolUiState): SchoolUiState.LessonCard? {
+    val lesson: TownSnapshot.Lesson = lessons.getOrNull(number - 1) ?: return null
+    val drawnCard: SchoolUiState.LessonCard? = (drawn as? SchoolUiState.Content)?.lessons
+        ?.firstOrNull { card: SchoolUiState.LessonCard -> card.lesson == lesson.id }
+    return drawnCard ?: lesson.cardIn(this, slotBusyAt(now = readAt, gap = Duration.ZERO))
+}

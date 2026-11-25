@@ -6,6 +6,7 @@ import com.emm.mygame.core.designsystem.MyGameDockGo
 import com.emm.mygame.core.designsystem.MyGameTheme
 import com.emm.mygame.core.model.town.TownSnapshot
 import kotlin.time.Duration
+import kotlin.time.Duration.Companion.seconds
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertTrue
 import org.junit.Rule
@@ -56,5 +57,21 @@ class SchoolStudyGoTest {
         goOf(older, held = twoLessons)?.onClick?.invoke()
 
         assertEquals(listOf<SchoolIntent>(SchoolIntent.StudyTapped(secondLesson)), asked)
+    }
+
+    @Test
+    fun `blocks the go with the time the school last drew for a busy slot`() {
+        val busySchool: TownSnapshot = twoLessons.copy(lessonSlot = slotOf())
+        val drawn: SchoolUiState = busySchool.contentAt(
+            now = readInstant + 100.seconds,
+            gap = Duration.ZERO,
+            requests = SchoolRequests.none,
+            selected = null,
+        )
+
+        assertEquals(
+            "La escuela está estudiando la lección 1. Queda libre en 0:50.",
+            goOf(drawn, held = busySchool)?.blockedReason?.text,
+        )
     }
 }

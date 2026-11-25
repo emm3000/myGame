@@ -206,9 +206,13 @@ class SchoolLanguageTest {
     fun `draws the released lesson under study in Spanish for an es player in the English phase`() {
         show(englishPhase, contentOf(releasedUnderStudy))
 
-        assertDrawn("La escuela está estudiando las palabras que vuelven de la banda 2, grupo 2.")
+        assertDrawn(
+            "La escuela está estudiando las palabras que vuelven de la banda 2, grupo 2. Queda libre en 2\u00A0min.",
+        )
         assertDescribed("Parar el estudio de las palabras que vuelven de la banda 2, grupo 2")
-        assertNotDrawn("The school is studying the returning words of band 2, set 2.")
+        assertNotDrawn(
+            "The school is studying the returning words of band 2, set 2. It frees up in 2\u00A0min.",
+        )
     }
 
     @Test

@@ -5,6 +5,7 @@ import com.emm.mygame.core.model.placement.PlacementBand
 import com.emm.mygame.core.model.town.LessonName
 import com.emm.mygame.core.ui.CopyReader
 import com.emm.mygame.core.ui.PlayerCopy
+import com.emm.mygame.core.ui.finishLabelOf
 import com.emm.mygame.core.ui.fixedLabel
 
 internal fun PlayerCopy.releasedTitleOf(band: PlacementBand, set: Int): MyGameLabel = fixedLabel(
@@ -27,16 +28,29 @@ internal fun PlayerCopy.lessonLineOf(name: LessonName, line: CopyReader.(title: 
 
 internal fun PlayerCopy.lessonTitleOf(name: LessonName): MyGameLabel = lessonLineOf(name) { title: String -> title }
 
-internal fun PlayerCopy.slotBusyLineOf(name: LessonName): MyGameLabel = when (name) {
-    is LessonName.Shelved -> chrome(R.string.school_lesson_slot_busy, "number" to name.number.toString())
-    is LessonName.Released -> fixedLabel(
-        fixedCopy(
-            R.string.school_lesson_slot_busy_released,
-            "band" to name.band.number.toString(),
-            "number" to name.set.toString(),
-        ),
-    )
-}
+internal fun PlayerCopy.slotBusyLineOf(busy: SchoolUiState.LessonBlock.SlotBusy): MyGameLabel =
+    when (val name: LessonName = busy.name) {
+        is LessonName.Shelved -> chrome {
+            text(
+                R.string.school_lesson_slot_busy,
+                "number" to name.number.toString(),
+                "timeLeft" to freeTimeOf(busy),
+            )
+        }
+        is LessonName.Released -> fixedLabel(
+            fixedCopy {
+                text(
+                    R.string.school_lesson_slot_busy_released,
+                    "band" to name.band.number.toString(),
+                    "number" to name.set.toString(),
+                    "timeLeft" to freeTimeOf(busy),
+                )
+            },
+        )
+    }
+
+private fun CopyReader.freeTimeOf(busy: SchoolUiState.LessonBlock.SlotBusy): String =
+    finishLabelOf(busy.remaining, busy.freesAt, schoolDurationCopy)
 
 internal fun PlayerCopy.slotStopNameOf(name: LessonName): String = when (name) {
     is LessonName.Shelved -> chrome(R.string.school_slot_stop_of, "number" to name.number.toString()).spoken
