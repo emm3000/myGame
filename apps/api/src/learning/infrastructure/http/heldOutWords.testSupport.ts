@@ -44,6 +44,7 @@ export const bandLessonFixtures = (world: LearningWorld): BandLessonFixtures => 
       answerFormsOf: (wordId) => lessons.answerFormsOf(wordId),
       texts: () => lessons.texts(),
       textTokensOf: (textId, passage) => lessons.textTokensOf(textId, passage),
+      keepGoingTerms: () => lessons.keepGoingTerms(),
     }
   }
 

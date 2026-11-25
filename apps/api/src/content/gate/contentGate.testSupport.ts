@@ -211,6 +211,7 @@ export const contentOf = (overrides: Partial<ContentParts> = {}): GateContent =>
       chromeLessonCount: parts.chromeLessonCount,
       lessonIds: parts.lessons.map(([id]) => id),
       skill: parts.skill,
+      keepGoing: { wordsPerRead: 10, secondsBeforeDue: 86_400 },
     },
     lessons: parts.lessons.map(([id, wordIds]) => ({
       content: {

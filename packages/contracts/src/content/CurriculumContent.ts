@@ -1,5 +1,5 @@
 import { z } from 'zod'
-import { WholeCountSchema } from '../platform/Wire'
+import { DurationSecondsSchema, WholeCountSchema } from '../platform/Wire'
 import { ResourceKindSchema } from '../town/ResourceKind'
 
 export const CurriculumContentSchema = z.strictObject({
@@ -8,6 +8,10 @@ export const CurriculumContentSchema = z.strictObject({
   skill: z.strictObject({
     resource: ResourceKindSchema,
     ratePercent: WholeCountSchema.positive(),
+  }),
+  keepGoing: z.strictObject({
+    wordsPerRead: WholeCountSchema.positive(),
+    secondsBeforeDue: DurationSecondsSchema.positive(),
   }),
 })
 

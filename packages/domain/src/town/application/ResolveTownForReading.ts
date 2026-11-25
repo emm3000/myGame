@@ -5,10 +5,10 @@ import type { TownReading } from '../domain/TownReading'
 import type { ResolveTownReadingDependencies } from './resolveStoredTownReading'
 import { resolveTownReading } from './resolveTownReading'
 
-export type ResolveTownForTextDependencies = ResolveTownReadingDependencies
+export type ResolveTownForReadingDependencies = ResolveTownReadingDependencies
 
-export class ResolveTownForText {
-  constructor(private readonly dependencies: ResolveTownForTextDependencies) {}
+export class ResolveTownForReading {
+  constructor(private readonly dependencies: ResolveTownForReadingDependencies) {}
 
   async execute(playerId: PlayerId): Promise<Result<TownReading, DomainError>> {
     return resolveTownReading(playerId, this.dependencies)

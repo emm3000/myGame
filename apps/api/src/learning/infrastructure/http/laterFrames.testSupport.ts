@@ -56,6 +56,7 @@ export const laterFrameFixtures = (world: LearningWorld): LaterFrameFixtures => 
       answerFormsOf: (wordId) => lessons.answerFormsOf(wordId),
       texts: () => lessons.texts(),
       textTokensOf: (textId, passage) => lessons.textTokensOf(textId, passage),
+      keepGoingTerms: () => lessons.keepGoingTerms(),
     }
   }
 

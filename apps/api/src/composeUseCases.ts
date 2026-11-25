@@ -39,8 +39,8 @@ import {
   type ResetPasswordDependencies,
   ResolveCurrentTown,
   type ResolveCurrentTownDependencies,
-  ResolveTownForText,
-  type ResolveTownForTextDependencies,
+  ResolveTownForReading,
+  type ResolveTownForReadingDependencies,
   ResolveTownNews,
   type ResolveTownNewsDependencies,
   SendCleanUp,
@@ -84,7 +84,7 @@ export type UseCaseDependencies = SignUpDependencies &
   ReadChromePhaseDependencies &
   FoundTownDependencies &
   ResolveCurrentTownDependencies &
-  ResolveTownForTextDependencies &
+  ResolveTownForReadingDependencies &
   SendJobDependencies &
   QuoteJobDependencies &
   SendCleanUpDependencies &
@@ -123,7 +123,7 @@ export type UseCases = {
   readonly readChromePhase: ReadChromePhase
   readonly foundTown: FoundTown
   readonly resolveCurrentTown: ResolveCurrentTown
-  readonly resolveTownForText: ResolveTownForText
+  readonly resolveTownForReading: ResolveTownForReading
   readonly sendJob: SendJob
   readonly quoteJob: QuoteJob
   readonly sendCleanUp: SendCleanUp
@@ -163,7 +163,7 @@ export const composeUseCases = (adapters: UseCaseDependencies): UseCases => ({
   readChromePhase: new ReadChromePhase(adapters),
   foundTown: new FoundTown(adapters),
   resolveCurrentTown: new ResolveCurrentTown(adapters),
-  resolveTownForText: new ResolveTownForText(adapters),
+  resolveTownForReading: new ResolveTownForReading(adapters),
   sendJob: new SendJob(adapters),
   quoteJob: new QuoteJob(adapters),
   sendCleanUp: new SendCleanUp(adapters),

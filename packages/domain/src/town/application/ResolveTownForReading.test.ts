@@ -10,14 +10,14 @@ import { inMemoryTownStores } from '../testing/inMemoryTownStores'
 import { inMemoryTowns } from '../testing/inMemoryTowns'
 import { townCatalogOf } from '../testing/townCatalogOf'
 import { townOf } from '../testing/townFixtures'
-import { ResolveTownForText } from './ResolveTownForText'
+import { ResolveTownForReading } from './ResolveTownForReading'
 
 const storedAt = Instant.fromEpochMilliseconds(Date.parse('2026-11-10T08:00:00Z'))
 
 const readAt = Instant.fromEpochMilliseconds(Date.parse('2026-11-10T09:00:00Z'))
 
-const resolveTownForTextOver = (stores: TownStores): ResolveTownForText =>
-  new ResolveTownForText({
+const resolveTownForReadingOver = (stores: TownStores): ResolveTownForReading =>
+  new ResolveTownForReading({
     unitOfWork: inMemoryUnitOfWork(stores),
     clock: { now: () => readAt },
     lessons: { ...inMemoryLessons([], []), ...inMemoryBands([]) },
@@ -32,9 +32,9 @@ const anasStores = (): TownStores =>
     towns: inMemoryTowns([townOf({ playerId: 'ana', storedAt })], inMemoryEarnedSkills([])),
   })
 
-describe('ResolveTownForText', () => {
+describe('ResolveTownForReading', () => {
   it('reads the town at the read instant', async () => {
-    const reading = await resolveTownForTextOver(anasStores()).execute('ana')
+    const reading = await resolveTownForReadingOver(anasStores()).execute('ana')
 
     assert(reading.ok)
     expect(reading.value.at).toEqual(readAt)
@@ -43,7 +43,7 @@ describe('ResolveTownForText', () => {
   it('leaves the town unseen', async () => {
     const stores = anasStores()
 
-    await resolveTownForTextOver(stores).execute('ana')
+    await resolveTownForReadingOver(stores).execute('ana')
 
     const read = await stores.townsWithSchool.townWithSchoolOf('ana')
     assert(read.ok)
@@ -51,7 +51,7 @@ describe('ResolveTownForText', () => {
   })
 
   it('refuses a player who holds no town with TownNotFound', async () => {
-    const reading = await resolveTownForTextOver(inMemoryTownStores({})).execute('ana')
+    const reading = await resolveTownForReadingOver(inMemoryTownStores({})).execute('ana')
 
     expect(reading).toEqual({ ok: false, error: { kind: 'TownNotFound', playerId: 'ana' } })
   })
