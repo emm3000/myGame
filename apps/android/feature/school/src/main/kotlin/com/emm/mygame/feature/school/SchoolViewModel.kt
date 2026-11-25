@@ -4,18 +4,21 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.emm.mygame.core.model.learning.LessonId
 import com.emm.mygame.core.model.town.HeldTown
+import com.emm.mygame.core.model.town.ReadAnswer
+import com.emm.mygame.core.model.town.ReadFollower
 import com.emm.mygame.core.model.town.TownReadResult
 import com.emm.mygame.core.model.town.TownRepository
 import com.emm.mygame.core.model.town.TownSnapshot
+import com.emm.mygame.core.model.town.gapOf
+import com.emm.mygame.core.model.town.readUntilReached
 import com.emm.mygame.core.model.town.school.TownLessonResult
+import com.emm.mygame.core.model.town.serverNow
 import com.emm.mygame.core.projection.repaintDelay
 import kotlin.time.Clock
 import kotlin.time.Duration
-import kotlin.time.Duration.Companion.minutes
 import kotlin.time.Instant
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.channels.Channel
-import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -23,8 +26,6 @@ import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
-
-private val failedReadRetry: Duration = 1.minutes
 
 class SchoolViewModel(private val towns: TownRepository, private val clock: Clock) : ViewModel() {
 
@@ -45,6 +46,22 @@ class SchoolViewModel(private val towns: TownRepository, private val clock: Cloc
     private var gap: Duration = Duration.ZERO
 
     private var isShown: Boolean = true
+
+    private val follower: ReadFollower<TownSnapshot> = object : ReadFollower<TownSnapshot>() {
+        override fun now(): Instant = serverNow(clock, gap)
+
+        override fun draw(held: TownSnapshot): Unit = this@SchoolViewModel.draw(held)
+
+        override suspend fun read(): ReadAnswer<TownSnapshot> {
+            val answer: ReadAnswer<TownSnapshot> = readTown()
+            if (answer is ReadAnswer.Read) taps = taps.copy(requests = taps.requests.keptAfterRead())
+            return answer
+        }
+
+        override fun nextReadAfter(held: TownSnapshot, now: Instant): Instant? = held.nextChangeAfter(now)
+
+        override fun repaintIn(held: TownSnapshot, now: Instant): Duration = repaintDelay(held.nearestCountdownAt(now))
+    }
 
     init {
         open()
@@ -67,7 +84,8 @@ class SchoolViewModel(private val towns: TownRepository, private val clock: Cloc
         isShown = true
         val last: TownSnapshot? = shown
         when {
-            last != null -> projection = viewModelScope.launch { project(last, firstReadAt = serverNow()) }
+            last != null ->
+                projection = viewModelScope.launch { follower.follow(last, firstReadAt = serverNow(clock, gap)) }
             _state.value == SchoolUiState.Loading -> open()
             _state.value == SchoolUiState.Failed -> readFirst()
         }
@@ -88,20 +106,19 @@ class SchoolViewModel(private val towns: TownRepository, private val clock: Cloc
     private fun readFirst() {
         projection?.cancel()
         projection = viewModelScope.launch {
-            while (true) {
-                when (val answer: TownReadResult = towns.read()) {
-                    is TownReadResult.Read -> {
-                        val town: TownSnapshot = measured(answer.town)
-                        return@launch project(town, firstReadAt = town.nextChangeAfter(serverNow()))
-                    }
-                    TownReadResult.NoTown -> return@launch _effects.send(SchoolEffect.NoTown)
-                    TownReadResult.Unreachable -> {
-                        _state.value = SchoolUiState.Failed
-                        delay(failedReadRetry)
-                    }
-                }
-            }
+            val town: TownSnapshot =
+                readUntilReached(::readTown, onUnreachable = { _state.value = SchoolUiState.Failed }) ?: return@launch
+            follower.follow(town, firstReadAt = town.nextChangeAfter(serverNow(clock, gap)))
         }
+    }
+
+    private suspend fun readTown(): ReadAnswer<TownSnapshot> = when (val answer: TownReadResult = towns.read()) {
+        is TownReadResult.Read -> ReadAnswer.Read(measured(answer.town))
+        TownReadResult.NoTown -> {
+            _effects.send(SchoolEffect.NoTown)
+            ReadAnswer.Ended
+        }
+        TownReadResult.Unreachable -> ReadAnswer.Unreachable
     }
 
     private fun adopt(held: HeldTown) {
@@ -114,7 +131,7 @@ class SchoolViewModel(private val towns: TownRepository, private val clock: Cloc
     private fun openHeld(held: HeldTown) {
         gap = held.gap
         draw(held.town)
-        projection = viewModelScope.launch { project(held.town, firstReadAt = serverNow()) }
+        projection = viewModelScope.launch { follower.follow(held.town, firstReadAt = serverNow(clock, gap)) }
     }
 
     private fun select(lesson: LessonId) {
@@ -169,7 +186,9 @@ class SchoolViewModel(private val towns: TownRepository, private val clock: Cloc
         taps = taps.copy(requests = kept)
         draw(town)
         if (isShown) {
-            projection = viewModelScope.launch { project(town, firstReadAt = town.nextChangeAfter(serverNow())) }
+            projection = viewModelScope.launch {
+                follower.follow(town, firstReadAt = town.nextChangeAfter(serverNow(clock, gap)))
+            }
         }
     }
 
@@ -182,40 +201,12 @@ class SchoolViewModel(private val towns: TownRepository, private val clock: Cloc
 
     private fun draw(town: TownSnapshot) {
         shown = town
-        _state.value = town.contentAt(now = serverNow(), gap = gap, requests = taps.requests, selected = taps.selected)
+        val now: Instant = serverNow(clock, gap)
+        _state.value = town.contentAt(now = now, gap = gap, requests = taps.requests, selected = taps.selected)
     }
-
-    private suspend fun project(first: TownSnapshot, firstReadAt: Instant?) {
-        var town: TownSnapshot = first
-        var nextReadAt: Instant? = firstReadAt
-        while (true) {
-            draw(town)
-            if (nextReadAt != null && nextReadAt <= serverNow()) {
-                when (val answer: TownReadResult = towns.read()) {
-                    is TownReadResult.Read -> {
-                        town = measured(answer.town)
-                        taps = taps.copy(requests = taps.requests.keptAfterRead())
-                        nextReadAt = town.nextChangeAfter(serverNow())
-                        continue
-                    }
-                    TownReadResult.NoTown -> return _effects.send(SchoolEffect.NoTown)
-                    TownReadResult.Unreachable -> nextReadAt = serverNow() + failedReadRetry
-                }
-            }
-            delay(nextWakeFrom(town, nextReadAt))
-        }
-    }
-
-    private fun nextWakeFrom(town: TownSnapshot, nextReadAt: Instant?): Duration {
-        val now: Instant = serverNow()
-        val repaint: Duration = repaintDelay(town.nearestCountdownAt(now))
-        return if (nextReadAt == null) repaint else minOf(repaint, nextReadAt - now)
-    }
-
-    private fun serverNow(): Instant = clock.now() + gap
 
     private fun measured(read: TownSnapshot): TownSnapshot {
-        gap = read.readAt - clock.now()
+        gap = gapOf(read.readAt, clock)
         return read
     }
 }

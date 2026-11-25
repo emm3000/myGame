@@ -10,10 +10,11 @@ import com.emm.mygame.core.model.report.ReportReadResult
 import com.emm.mygame.core.model.report.ReportRepository
 import com.emm.mygame.core.model.report.TownReport
 import com.emm.mygame.core.model.town.HeldTown
+import com.emm.mygame.core.model.town.ReadAnswer
 import com.emm.mygame.core.model.town.TownRepository
+import com.emm.mygame.core.model.town.readUntilReached
 import kotlin.time.Clock
 import kotlin.time.Duration
-import kotlin.time.Duration.Companion.minutes
 import kotlin.time.Instant
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.cancelChildren
@@ -26,8 +27,6 @@ import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
-
-private val failedReadRetry: Duration = 1.minutes
 
 class ReportViewModel(
     private val reports: ReportRepository,
@@ -115,17 +114,19 @@ class ReportViewModel(
     private fun readAgain() {
         reading?.cancel()
         reading = viewModelScope.launch {
-            while (true) {
-                when (val answer: ReportReadResult = reports.read()) {
-                    is ReportReadResult.Read -> return@launch draw(answer.report)
-                    ReportReadResult.Unreachable -> {
-                        _state.update { current: ReportUiState ->
-                            if (current == ReportUiState.Loading) ReportUiState.Failed else current
-                        }
-                        delay(failedReadRetry)
-                    }
-                }
-            }
+            val report: TownReport = readUntilReached(::readReport, onUnreachable = ::drawFailed) ?: return@launch
+            draw(report)
+        }
+    }
+
+    private suspend fun readReport(): ReadAnswer<TownReport> = when (val answer: ReportReadResult = reports.read()) {
+        is ReportReadResult.Read -> ReadAnswer.Read(answer.report)
+        ReportReadResult.Unreachable -> ReadAnswer.Unreachable
+    }
+
+    private fun drawFailed() {
+        _state.update { current: ReportUiState ->
+            if (current == ReportUiState.Loading) ReportUiState.Failed else current
         }
     }
 
