@@ -12,6 +12,9 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Rect
 import androidx.compose.ui.semantics.LiveRegionMode
+import androidx.compose.ui.test.assertCountEquals
+import androidx.compose.ui.test.hasAnyDescendant
+import androidx.compose.ui.test.hasTestTag
 import androidx.compose.ui.semantics.SemanticsNode
 import androidx.compose.ui.semantics.SemanticsProperties
 import androidx.compose.ui.semantics.semantics
@@ -45,12 +48,12 @@ private fun plain(text: String): MyGameLabel = MyGameLabel(text = text, translat
 private val dueReviews: MyGameLabel = plain("Reviews due: 4")
 
 private fun startTheReviews(onClick: () -> Unit = {}): MyGameDockGo =
-    MyGameDockGo(label = plain("Start the reviews"), isBusy = false, busyDescription = "Waiting", onClick = onClick)
+    MyGameDockGo(label = plain("Start the reviews"), isBusy = false, busyDescription = MyGameLabel(text = "Waiting", translation = null), onClick = onClick)
 
 private fun studyTheReturningWords(): MyGameDockGo = MyGameDockGo(
     label = plain(STUDY_RETURNING),
     isBusy = false,
-    busyDescription = "Esperando",
+    busyDescription = MyGameLabel(text = "Esperando", translation = null),
     onClick = {},
 )
 
@@ -64,7 +67,7 @@ private val tallNotice: Dp = 300.dp
 
 private val smallWindowHeight: Dp = 640.dp
 
-private val isSilent: SemanticsMatcher = SemanticsMatcher.keyNotDefined(SemanticsProperties.LiveRegion)
+private val isLive: SemanticsMatcher = SemanticsMatcher.keyIsDefined(SemanticsProperties.LiveRegion)
 
 private val speaksPolitely: SemanticsMatcher =
     SemanticsMatcher.expectValue(SemanticsProperties.LiveRegion, LiveRegionMode.Polite)
@@ -184,12 +187,12 @@ class MyGameDockTest {
         var step: MyGameLabel by mutableStateOf(dueReviews)
         show { MyGameDock(go = startTheReviews(), step = step, onFoldChange = {}) }
 
-        composeRule.onNodeWithTag(INK_PILL).assert(isSilent)
+        composeRule.onAllNodes(isLive).assertCountEquals(0)
         step = plain("Reviews due: 4")
-        composeRule.onNodeWithTag(INK_PILL).assert(isSilent)
+        composeRule.onAllNodes(isLive).assertCountEquals(0)
         step = plain("Reviews due: 3")
 
-        composeRule.onNodeWithTag(INK_PILL).assert(speaksPolitely)
+        composeRule.onNode(hasAnyDescendant(hasTestTag(INK_PILL)) and speaksPolitely).assertExists()
     }
 
     @Test
@@ -199,7 +202,7 @@ class MyGameDockTest {
 
         step = dueReviews
 
-        composeRule.onNodeWithTag(INK_PILL).assert(isSilent)
+        composeRule.onAllNodes(isLive).assertCountEquals(0)
     }
 
     @Test

@@ -56,7 +56,7 @@ class MyGameLabelTest {
 
     @Test
     fun `draws a translated ink pill as English over Spanish inside its action height`() {
-        show { MyGameButton(label = startReviews, isBusy = false, busyDescription = "Waiting", onClick = {}) }
+        show { MyGameButton(label = startReviews, isBusy = false, busyDescription = MyGameLabel(text = "Waiting", translation = null), onClick = {}) }
 
         assertEnglishOverSpanish(within = composeRule.onNodeWithTag(INK_PILL).getUnclippedBoundsInRoot())
         composeRule.onNodeWithTag(INK_PILL).assertHeightIsAtLeast(MyGameSizes.action)
@@ -64,7 +64,7 @@ class MyGameLabelTest {
 
     @Test
     fun `draws a translated outlined pill as English over Spanish inside its secondary height`() {
-        show { MyGameOutlinedButton(label = startReviews, isBusy = false, busyDescription = "Waiting", onClick = {}) }
+        show { MyGameOutlinedButton(label = startReviews, isBusy = false, busyDescription = MyGameLabel(text = "Waiting", translation = null), onClick = {}) }
 
         assertEnglishOverSpanish(within = composeRule.onNodeWithTag(OUTLINED_PILL).getUnclippedBoundsInRoot())
         composeRule.onNodeWithTag(OUTLINED_PILL).assertHeightIsAtLeast(MyGameSizes.secondary)
@@ -94,7 +94,7 @@ class MyGameLabelTest {
             MyGameButton(
                 label = MyGameLabel(text = "Start reviews", translation = null),
                 isBusy = false,
-                busyDescription = "Waiting",
+                busyDescription = MyGameLabel(text = "Waiting", translation = null),
                 onClick = {},
             )
         }

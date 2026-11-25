@@ -20,10 +20,10 @@ fun MyGameButton(
     MyGameButton(
         label = MyGameLabel(text = label, translation = null),
         isBusy = isBusy,
-        busyDescription = busyDescription,
+        busyDescription = MyGameLabel(text = busyDescription, translation = null),
         onClick = onClick,
         modifier = modifier,
-        blockedReason = blockedReason,
+        blockedReason = blockedReason?.let { reason: String -> MyGameLabel(text = reason, translation = null) },
         accessibleName = accessibleName,
         badge = badge,
     )
@@ -33,10 +33,10 @@ fun MyGameButton(
 fun MyGameButton(
     label: MyGameLabel,
     isBusy: Boolean,
-    busyDescription: String,
+    busyDescription: MyGameLabel,
     onClick: () -> Unit,
     modifier: Modifier = Modifier,
-    blockedReason: String? = null,
+    blockedReason: MyGameLabel? = null,
     accessibleName: String? = null,
     badge: String? = null,
 ) {

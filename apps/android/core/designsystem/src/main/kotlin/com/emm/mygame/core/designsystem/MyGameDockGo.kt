@@ -6,8 +6,8 @@ import androidx.compose.runtime.Immutable
 data class MyGameDockGo(
     val label: MyGameLabel,
     val isBusy: Boolean,
-    val busyDescription: String,
+    val busyDescription: MyGameLabel,
     val onClick: () -> Unit,
-    val blockedReason: String? = null,
+    val blockedReason: MyGameLabel? = null,
     val badge: String? = null,
 )

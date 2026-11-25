@@ -96,13 +96,13 @@ private fun MyGameLabelPreview() {
         MyGameButton(
             label = MyGameLabel(text = "Start reviews", translation = "Empezar a repasar"),
             isBusy = false,
-            busyDescription = "Waiting",
+            busyDescription = MyGameLabel(text = "Waiting", translation = null),
             onClick = {},
         )
         MyGameOutlinedButton(
             label = MyGameLabel(text = "Close the news", translation = "Cerrar las noticias"),
             isBusy = false,
-            busyDescription = "Waiting",
+            busyDescription = MyGameLabel(text = "Waiting", translation = null),
             onClick = {},
         )
         MyGameTextLink(label = MyGameLabel(text = "All the news", translation = "Todas las noticias"), onClick = {})
