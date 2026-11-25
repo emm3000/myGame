@@ -16,7 +16,7 @@ import com.emm.mygame.core.ui.fixedCopyResource
 import com.emm.mygame.feature.learning.R
 
 @Composable
-internal fun ReviewDock(state: ReviewUiState, onIntent: (ReviewIntent) -> Unit, task: TaskDockHook) {
+internal fun FillReviewDock(state: ReviewUiState, onIntent: (ReviewIntent) -> Unit, task: TaskDockHook) {
     val currentIntent: State<(ReviewIntent) -> Unit> = rememberUpdatedState(onIntent)
     val startReviews: () -> Unit = remember { { currentIntent.value(ReviewIntent.ReviewsStartTapped) } }
     when (state) {
@@ -29,9 +29,6 @@ internal fun ReviewDock(state: ReviewUiState, onIntent: (ReviewIntent) -> Unit, 
         -> FollowTownDock(hook = task, onReviewsStart = startReviews)
     }
 }
-
-internal fun ReviewUiState.Reviewing.goIntent(): ReviewIntent =
-    if (isRated) ReviewIntent.NextTapped else ReviewIntent.CheckTapped
 
 @Composable
 private fun reviewingDock(reviewing: ReviewUiState.Reviewing, onIntent: (ReviewIntent) -> Unit): TaskDock = TaskDock(
