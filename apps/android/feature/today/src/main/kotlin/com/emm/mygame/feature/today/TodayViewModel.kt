@@ -48,7 +48,7 @@ class TodayViewModel(
 
     private var requests: TodayRequests = TodayRequests()
 
-    private var visit: TodayVisit? = null
+    private var visit: TodayVisit = TodayVisit()
 
     private var reading: Job? = null
 
@@ -62,6 +62,7 @@ class TodayViewModel(
         when (intent) {
             TodayIntent.ScreenShown -> show()
             TodayIntent.ScreenHidden -> hide()
+            TodayIntent.ScreenLeft -> leave()
             TodayIntent.RetryTapped -> if (_state.value == TodayUiState.Failed) read()
             is TodayIntent.StudyTapped -> study(intent.lesson)
             is TodayIntent.BuildTapped -> build(intent.building)
@@ -70,15 +71,19 @@ class TodayViewModel(
     }
 
     private fun show() {
-        visit = visit ?: TodayVisit()
+        visit = visit.copy(isShown = true)
         read()
         news.read()
         follow()
     }
 
     private fun hide() {
-        visit = null
+        visit = visit.copy(isShown = false)
         following?.cancel()
+    }
+
+    private fun leave() {
+        visit = visit.copy(away = null)
         draw()
     }
 
@@ -97,7 +102,7 @@ class TodayViewModel(
     private suspend fun readTown(): TownReadResult {
         val answer: TownReadResult = towns.read()
         val gone: TownSnapshot.Away = (answer as? TownReadResult.Read)?.town?.away ?: return answer
-        visit = visit?.copy(away = gone)
+        visit = visit.copy(away = gone)
         draw()
         return answer
     }
@@ -148,7 +153,7 @@ class TodayViewModel(
 
     private fun follow() {
         following?.cancel()
-        if (visit == null || held == null) return
+        if (!visit.isShown || held == null) return
         following = viewModelScope.launch {
             while (true) {
                 val town: TownSnapshot = held?.town ?: return@launch
@@ -174,7 +179,7 @@ class TodayViewModel(
 
     private fun draw() {
         val shown: HeldTown = held ?: return
-        val gained: List<TownSnapshot.Cost> = visit?.away?.gained.orEmpty()
+        val gained: List<TownSnapshot.Cost> = visit.away?.gained.orEmpty()
         _state.value = shown.town.todayAt(now(), shown.gap, requests, gained, news.whatHappened)
     }
 
