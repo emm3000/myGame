@@ -331,11 +331,11 @@ class LearningRepositoryTest {
 
     @Test
     fun `sends an answer once when a pooled connection drops before the api answers`() = runTest {
-        api.enqueue(reviews(NO_REVIEWS))
+        api.enqueue(json(200, answerOf(NEAR_MISS)))
         api.enqueue(MockResponse.Builder().onResponseStart(SocketEffect.CloseSocket()).build())
         api.enqueue(json(200, answerOf(NEAR_MISS)))
         val learning: LearningRepository = learning()
-        learning.reviews()
+        learning.answer(WordId("lesson-1-2"), "scool")
 
         val result: ReviewAnswerResult = learning.answer(WordId("lesson-1-2"), "school")
 
