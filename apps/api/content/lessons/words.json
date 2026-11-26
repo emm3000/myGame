@@ -6763,8 +6763,8 @@
     "source": "phave",
     "frames": [
       {
-        "frame": "When I get up, I eat and go to the farm.",
-        "gappedFrame": "When I ____ ____, I eat and go to the farm."
+        "frame": "Come on, get up, or you'll be late for school!",
+        "gappedFrame": "Come on, ____ ____, or you'll be late for school!"
       }
     ],
     "gloss": {
@@ -6774,19 +6774,19 @@
   },
   {
     "id": "word-302",
-    "lemma": "go down",
+    "lemma": "work out",
     "partOfSpeech": "verb",
     "source": "phave",
     "frames": [
       {
-        "frame": "Go down the hill to the river.",
-        "gappedFrame": "____ ____ the hill to the river."
+        "frame": "We can sit down and work out a plan.",
+        "gappedFrame": "We can sit down and ____ ____ a plan."
       }
     ],
     "gloss": {
-      "es": "bajar"
+      "es": "elaborar"
     },
-    "definition": "to move to a lower place"
+    "definition": "to think about something with care and decide how to do it, such as a plan"
   },
   {
     "id": "word-303",
@@ -6795,9 +6795,8 @@
     "source": "phave",
     "frames": [
       {
-        "frame": "You can't just show up at my house!",
-        "gappedFrame": "You can't just ____ ____ at my house!",
-        "noCardSense": ["just"]
+        "frame": "We waited for her, but she didn't show up at the office.",
+        "gappedFrame": "We waited for her, but she didn't ____ ____ at the office."
       }
     ],
     "gloss": {
@@ -6812,8 +6811,8 @@
     "source": "phrase",
     "frames": [
       {
-        "frame": "We can eat, watch the news, or whatever.",
-        "gappedFrame": "We can eat, watch the news, ____ ____."
+        "frame": "You can bring some food or whatever.",
+        "gappedFrame": "You can bring some food ____ ____."
       }
     ],
     "gloss": {
