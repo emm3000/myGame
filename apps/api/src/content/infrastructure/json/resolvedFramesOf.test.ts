@@ -196,9 +196,7 @@ describe('the frames the content resolves', () => {
   })
 
   it('never supports right in right now', () => {
-    expect(supportedTexts(recallOf('word-15', 'I am at the office right ____.'))).toEqual([
-      'office',
-    ])
+    expect(supportedTexts(recallOf('word-15', "I'm at the office right ____."))).toEqual(['office'])
   })
 
   it('never supports find on the find out reading', () => {

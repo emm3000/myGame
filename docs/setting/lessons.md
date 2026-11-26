@@ -15,7 +15,7 @@ Every rank on this page is the `SFI Rank` of `NGSL_12_stats.csv`, the NGSL 1.2 (
 | Lemma | Part of speech | NGSL 1.2 rank | Frame | Gapped form | es gloss |
 |---|---|---|---|---|---|
 | home | noun | 161 | This is my home. | This is my ____. | hogar |
-| school | noun | 146 | We are at school. | We are at ____. | escuela |
+| school | noun | 146 | We're at school. | We're at ____. | escuela |
 | work | verb | 67 | They work for us. | They ____ for us. | trabajar |
 | money | noun | 201 | I don't have much money. | I don't have much ____. | dinero |
 | food | noun | 367 | We have food for you. | We have ____ for you. | comida |
@@ -71,7 +71,7 @@ Each frame follows the frame rule as lesson 1's does: its lemma once, in its own
 | people | noun | 57 | Many people work at the school. | Many ____ work at the school. | gente |
 | need | verb | 90 | We need more food. | We ____ more food. | necesitar |
 | go | verb | 31 | Do you go to school? | Do you ____ to school? | ir |
-| name | noun | 206 | What is your name? | What is your ____? | nombre |
+| name | noun | 206 | What's your name? | What's your ____? | nombre |
 
 ### Lesson 3
 
@@ -94,7 +94,7 @@ Each frame follows the frame rule as lesson 1's does: its lemma once, in its own
 | farm | noun | 1083 | We have food from the farm. | We have food from the ____. | granja |
 | summer | noun | 654 | We have no school in the summer. | We have no school in the ____. | verano |
 | come | verb | 65 | Come to my home. | ____ to my home. | venir |
-| worker | noun | 673 | She is a worker at the school. | She is a ____ at the school. | trabajador |
+| worker | noun | 673 | She's a worker at the school. | She's a ____ at the school. | trabajador |
 | now | adverb | 70 | I need food now. | I need food ____. | ahora |
 
 ### Lesson 5
@@ -103,9 +103,9 @@ Each frame follows the frame rule as lesson 1's does: its lemma once, in its own
 
 | Lemma | Part of speech | NGSL 1.2 rank | Frame | Gapped form | es gloss |
 |---|---|---|---|---|---|
-| build | verb | 221 | They will build homes for the people. | They will ____ homes for the people. | construir |
+| build | verb | 221 | They'll build homes for the people. | They'll ____ homes for the people. | construir |
 | material | noun | 571 | We need material for our homes. | We need ____ for our homes. | material |
-| cost | noun | 252 | What is the cost of a home? | What is the ____ of a home? | costo |
+| cost | noun | 252 | What's the cost of a home? | What's the ____ of a home? | costo |
 | wait | verb | 403 | Wait for me at the farm. | ____ for me at the farm. | esperar |
 | year | noun | 58 | I go to school all year. | I go to school all ____. | año |
 
@@ -129,7 +129,7 @@ Each frame follows the frame rule as lesson 1's does: its lemma once, in its own
 |---|---|---|---|---|---|
 | power | noun | 331 | We have no power at home. | We have no ____ at home. | energía |
 | start | verb | 136 | When do you start work? | When do you ____ work? | empezar |
-| team | noun | 407 | We are a team. | We are a ____. | equipo |
+| team | noun | 407 | We're a team. | We're a ____. | equipo |
 | map | noun | 1212 | Do you have a map of the city? | Do you have a ____ of the city? | mapa |
 | today | adverb | 246 | We have no school today. | We have no school ____. | hoy |
 
@@ -142,7 +142,7 @@ Each frame follows the frame rule as lesson 1's does: its lemma once, in its own
 | office | noun | 343 | She works at an office in the city. | She works at an ____ in the city. | oficina |
 | hire | verb | 1514 | The farm will hire more people. | The farm will ____ more people. | contratar |
 | list | noun | 523 | Is my name on the list? | Is my name on the ____? | lista |
-| mayor | noun | 2779 | She is the mayor of our city. | She is the ____ of our city. | alcalde o alcaldesa |
+| mayor | noun | 2779 | She's the mayor of our city. | She's the ____ of our city. | alcalde o alcaldesa |
 | winter | noun | 1328 | The farm has no work in winter. | The farm has no work in ____. | invierno |
 
 ### Lesson 9
@@ -178,7 +178,7 @@ Each frame follows the frame rule as lesson 1's does: its lemma once, in its own
 | region | noun | 677 | This region has many farms. | This ____ has many farms. | región |
 | field | noun | 540 | People work in the field all day. | People work in the ____ all day. | campo |
 | way | noun | 80 | Is this the way to the river? | Is this the ____ to the river? | camino |
-| back | adverb | 94 | She is back from the city. | She is ____ from the city. | de vuelta |
+| back | adverb | 94 | She's back from the city. | She's ____ from the city. | de vuelta |
 | stop | verb | 347 | When do you stop work? | When do you ____ work? | parar |
 
 ### Lesson 12
@@ -188,7 +188,7 @@ Each frame follows the frame rule as lesson 1's does: its lemma once, in its own
 | Lemma | Part of speech | NGSL 1.2 rank | Frame | Gapped form | es gloss |
 |---|---|---|---|---|---|
 | study | verb | 187 | I study at home after school. | I ____ at home after school. | estudiar |
-| word | noun | 217 | What is this word? | What is this ____? | palabra |
+| word | noun | 217 | What's this word? | What's this ____? | palabra |
 | top | adjective | 375 | This is the top level. | This is the ____ level. | máximo |
 | send | verb | 323 | Send the truck to the farm. | ____ the truck to the farm. | enviar |
 | size | noun | 705 | What size is your home? | What ____ is your home? | tamaño |
@@ -215,7 +215,7 @@ Each frame follows the frame rule as lesson 1's does: its lemma once, in its own
 | hill | noun | 1670 | Our home is on a hill. | Our home is on a ____. | colina |
 | storage | noun | 2707 | Our storage is full of food. | Our ____ is full of food. | almacén |
 | due | adjective | 574 | The pay is due today. | The pay is ____ today. | pendiente |
-| try | verb | 125 | I will try to read the map. | I will ____ to read the map. | intentar |
+| try | verb | 125 | I'll try to read the map. | I'll ____ to read the map. | intentar |
 
 ### Lesson 15
 
@@ -225,7 +225,7 @@ Each frame follows the frame rule as lesson 1's does: its lemma once, in its own
 |---|---|---|---|---|---|
 | area | noun | 204 | We have no farms in this area. | We have no farms in this ____. | zona |
 | review | noun | 730 | We do a review of the lesson after school. | We do a ____ of the lesson after school. | repaso |
-| next | adjective | 151 | What is the next lesson? | What is the ____ lesson? | siguiente |
+| next | adjective | 151 | What's the next lesson? | What's the ____ lesson? | siguiente |
 | tip | noun | 1659 | Do you have a tip for me? | Do you have a ____ for me? | consejo |
 | free | adjective | 395 | Are you free today? | Are you ____ today? | libre |
 
@@ -235,8 +235,8 @@ Each frame follows the frame rule as lesson 1's does: its lemma once, in its own
 
 | Lemma | Part of speech | NGSL 1.2 rank | Frame | Gapped form | es gloss |
 |---|---|---|---|---|---|
-| report | noun | 166 | I will read the report at home. | I will read the ____ at home. | informe |
-| site | noun | 494 | We will build a factory on this site. | We will build a factory on this ____. | sitio |
+| report | noun | 166 | I'll read the report at home. | I'll read the ____ at home. | informe |
+| site | noun | 494 | We'll build a factory on this site. | We'll build a factory on this ____. | sitio |
 | previous | adjective | 922 | My previous home was on a hill. | My ____ home was on a hill. | anterior |
 | close | verb | 239 | We close the office at the end of the day. | We ____ the office at the end of the day. | cerrar |
 | again | adverb | 175 | Try it again. | Try it ____. | otra vez |
@@ -277,7 +277,7 @@ The first band 1 batch (ADR 037, #742), drafted by Claude Sonnet 5.5. Each lesso
 | get | verb | 43 | You get food at the school. | You ____ food at the school. | recibir |
 | take | verb | 59 | Take the truck to the farm. | ____ the truck to the farm. | llevar |
 | first | adjective | 78 | This is my first job. | This is my ____ job. | primero |
-| thing | noun | 87 | What is this thing? | What is this ____? | cosa |
+| thing | noun | 87 | What's this thing? | What's this ____? | cosa |
 
 ### Lesson 19
 
@@ -389,7 +389,7 @@ A **unit lesson** teaches 5 multi-word units under one theme, never a semantic s
 | come back | phave | verb | When will the mayor come back from the city? | When will the mayor ____ ____ from the city? | volver | to return to a place |
 | find out | phave | verb | Can you find out what time the office closes? | Can you ____ ____ what time the office closes? | averiguar | to learn something that you did not know |
 | such as | phrase | adverb | The town needs workers for places such as the farm and the factory. | The town needs workers for places ____ ____ the farm and the factory. | como por ejemplo | for example |
-| I mean | phrase | adverb | She is at the school, I mean, at the office. | She is at the school, ____ ____, at the office. | quiero decir | said when you change what you just said, or say it in a clearer way |
+| I mean | phrase | adverb | She's at the school, I mean, at the office. | She's at the school, ____ ____, at the office. | quiero decir | said when you change what you just said, or say it in a clearer way |
 
 - **Readiness.** *go* is taught by lesson 2, *come* by lesson 4, *back* by lesson 11, *find* by lesson 22 and *mean* by lesson 23; *on*, *out* and *I* are frame words admitted at lesson 1, *such* and *as* at lesson 16.
 - **Senses.** *go on* is taught as 'happen', *come back* as 'return to a place' and *find out* as 'learn a fact', each its list's most frequent sense. *I mean* is taught as the marker that corrects or restates what was just said, glossed *quiero decir*, which covers both.
@@ -438,7 +438,7 @@ A later frame puts its word in new company: no two frames of one entry share the
 
 | Lemma | Part of speech | NGSL 1.2 rank | Frame | Gapped form | es gloss | Definition |
 |---|---|---|---|---|---|---|
-| number | noun | 127 | What is the number on the truck? | What is the ____ on the truck? | número | a sign such as 1, 2 or 3 that says how many |
+| number | noun | 127 | What's the number on the truck? | What's the ____ on the truck? | número | a sign such as 1, 2 or 3 that says how many |
 | own | adjective | 129 | I want my own home. | I want my ____ home. | propio | that is yours and not other people's |
 | house | noun | 165 | Their house is by the river. | Their ____ is by the river. | casa | a building where a family lives |
 | live | verb | 153 | Where do you live? | Where do you ____? | vivir | to have your home in a place |
@@ -463,7 +463,7 @@ A later frame puts its word in new company: no two frames of one entry share the
 | Unit | Source | Part of speech | Frame | Gapped form | es gloss | Definition |
 |---|---|---|---|---|---|---|
 | come up | phave | verb | Can you come up with a name for the team? | Can you ____ ____ with a name for the team? | idear | used before with: to think of something new, such as a plan |
-| go back | phave | verb | I want to go back to my old job. | I want to ____ ____ to my old job. | regresar | to return to a place where you were before |
+| go back | phave | verb | I want to go back to the city. | I want to ____ ____ to the city. | regresar | to return to a place where you were before |
 | point out | phave | verb | Can you point out the problem? | Can you ____ ____ the problem? | hacer notar | to tell someone about something they did not see |
 | of course | phrase | adverb | Of course you can come with us. | ____ ____ you can come with us. | por supuesto | a way to say yes, or to say that something is clear |
 | so that | phrase | adverb | Tell the mayor so that she can help. | Tell the mayor ____ ____ she can help. | para que | a way to say what you want to happen because of what you do |
@@ -488,7 +488,7 @@ A later frame puts its word in new company: no two frames of one entry share the
 |---|---|---|---|---|---|---|
 | something | noun | 138 | I want to tell you something. | I want to tell you ____. | algo | a thing, when you do not say which one |
 | week | noun | 157 | I start a new job next week. | I start a new job next ____. | semana | a time of 7 days |
-| late | adjective | 147 | It is late, so I will go home. | It is ____, so I will go home. | tarde | near the end of the day or the night |
+| late | adjective | 147 | It's late, so I'll go home. | It's ____, so I'll go home. | tarde | near the end of the day or the night |
 | why | adverb | 154 | Why do you want this job? | ____ do you want this job? | por qué | for what reason |
 | question | noun | 181 | Can I ask you a question? | Can I ask you a ____? | pregunta | what you say when you want to know something |
 
@@ -498,11 +498,11 @@ A later frame puts its word in new company: no two frames of one entry share the
 
 | Lemma | Part of speech | NGSL 1.2 rank | Frame | Gapped form | es gloss | Definition |
 |---|---|---|---|---|---|---|
-| become | verb | 141 | He will become the next mayor. | He will ____ the next mayor. | llegar a ser | to start to be |
+| become | verb | 141 | He'll become the next mayor. | He'll ____ the next mayor. | llegar a ser | to start to be |
 | country | noun | 143 | What country are you from? | What ____ are you from? | país | a land with its own people and government |
 | different | adjective | 149 | This city is very different from my town. | This city is very ____ from my town. | diferente | not the same |
 | never | adverb | 162 | I have never been to the city. | I have ____ been to the city. | nunca | not at any time |
-| always | adverb | 183 | She is always at the office. | She is ____ at the office. | siempre | at all times; every time |
+| always | adverb | 183 | She's always at the office. | She's ____ at the office. | siempre | at all times; every time |
 
 ### Lesson 36
 
@@ -547,7 +547,7 @@ A later frame puts its word in new company: no two frames of one entry share the
 | Lemma | Part of speech | NGSL 1.2 rank | Frame | Gapped form | es gloss | Definition |
 |---|---|---|---|---|---|---|
 | high | adjective | 148 | The hill is very high. | The hill is very ____. | alto | far up from the ground |
-| friend | noun | 208 | She is my best friend. | She is my best ____. | amigo o amiga | a person you know well and like |
+| friend | noun | 208 | She's my best friend. | She's my best ____. | amigo o amiga | a person you know well and like |
 | few | adjective | 195 | Few people live here. | ____ people live here. | pocos | not many |
 | every | adjective | 180 | I go to school every day. | I go to school ____ day. | cada | each one of all |
 | let | verb | 174 | Let me help you. | ____ me help you. | dejar | to say that someone can do something |
@@ -562,7 +562,7 @@ A later frame puts its word in new company: no two frames of one entry share the
 | move | verb | 200 | We want to move to the city. | We want to ____ to the city. | mudarse | to go to live in a new place |
 | bring | verb | 196 | Can you bring food to the farm? | Can you ____ food to the farm? | traer | to come to a place with something |
 | around | adverb | 170 | We have farms all around the town. | We have farms all ____ the town. | alrededor de | on every side of something |
-| month | noun | 209 | I will be in the city for a month. | I will be in the city for a ____. | mes | one of the 12 parts of a year |
+| month | noun | 209 | I'll be in the city for a month. | I'll be in the city for a ____. | mes | one of the 12 parts of a year |
 
 ### Lesson 41
 
@@ -606,10 +606,10 @@ A later frame puts its word in new company: no two frames of one entry share the
 
 | Lemma | Part of speech | NGSL 1.2 rank | Frame | Gapped form | es gloss | Definition |
 |---|---|---|---|---|---|---|
-| case | noun | 168 | In that case, we will wait. | In that ____, we will wait. | caso | a time when something happens |
+| case | noun | 168 | In that case, we'll wait. | In that ____, we'll wait. | caso | a time when something happens |
 | run | verb | 192 | The children run to school. | The children ____ to school. | correr | to move fast on your feet |
 | government | noun | 216 | The government will build a new station. | The ____ will build a new station. | gobierno | the people who control a country |
-| plan | noun | 232 | What is the plan for today? | What is the ____ for today? | plan | an idea of what you will do |
+| plan | noun | 232 | What's the plan for today? | What's the ____ for today? | plan | an idea of what you will do |
 | turn | verb | 194 | Turn here for the farm. | ____ here for the farm. | girar | to change the way you are going |
 
 ### Lesson 45
@@ -634,7 +634,7 @@ A later frame puts its word in new company: no two frames of one entry share the
 | market | noun | 219 | We go to the market every week. | We go to the ____ every week. | mercado | a place where people buy and sell things |
 | buy | verb | 242 | I want to buy a house. | I want to ____ a house. | comprar | to get something by paying money for it |
 | love | verb | 229 | I love this town. | I ____ this town. | encantar | to like something very much |
-| away | adverb | 234 | She is away this week. | She is ____ this week. | fuera | not here; in another place |
+| away | adverb | 234 | She's away this week. | She's ____ this week. | fuera | not here; in another place |
 
 ### Lesson 47
 
@@ -645,7 +645,7 @@ A later frame puts its word in new company: no two frames of one entry share the
 | set up | phave | verb | We want to set up a business in town. | We want to ____ ____ a business in town. | crear | to start something new, such as a company |
 | turn out | phave | verb | It might turn out to be a problem. | It might ____ ____ to be a problem. | resultar | to be shown in the end to be something |
 | make up | phave | verb | Workers from the city make up most of the team. | Workers from the city ____ ____ most of the team. | formar | to be all the parts of a whole |
-| in fact | phrase | adverb | It isn't a small town; in fact, it is a city. | It isn't a small town; ____ ____, it is a city. | de hecho | a way to say that something is true, often more than you think |
+| in fact | phrase | adverb | It isn't a small town; in fact, it's a city. | It isn't a small town; ____ ____, it's a city. | de hecho | a way to say that something is true, often more than you think |
 | at all | phrase | adverb | I don't like it at all. | I don't like it ____ ____. | para nada | in any way |
 
 ## Lessons 48 to 52

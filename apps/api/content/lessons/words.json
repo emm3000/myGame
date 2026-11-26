@@ -30,8 +30,8 @@
     "partOfSpeech": "noun",
     "frames": [
       {
-        "frame": "We are at school.",
-        "gappedFrame": "We are at ____."
+        "frame": "We're at school.",
+        "gappedFrame": "We're at ____."
       },
       {
         "frame": "What time does school start?",
@@ -141,8 +141,8 @@
         "fromLessonId": "lesson-12"
       },
       {
-        "frame": "She is new in town.",
-        "gappedFrame": "She is new in ____.",
+        "frame": "She's new in town.",
+        "gappedFrame": "She's new in ____.",
         "fromLessonId": "lesson-18"
       }
     ],
@@ -233,12 +233,12 @@
     "partOfSpeech": "noun",
     "frames": [
       {
-        "frame": "What is your name?",
-        "gappedFrame": "What is your ____?"
+        "frame": "What's your name?",
+        "gappedFrame": "What's your ____?"
       },
       {
-        "frame": "What is the name of this river?",
-        "gappedFrame": "What is the ____ of this river?",
+        "frame": "What's the name of this river?",
+        "gappedFrame": "What's the ____ of this river?",
         "fromLessonId": "lesson-10"
       },
       {
@@ -267,8 +267,8 @@
         "fromLessonId": "lesson-18"
       },
       {
-        "frame": "She is looking for a job.",
-        "gappedFrame": "She is looking for a ____.",
+        "frame": "She's looking for a job.",
+        "gappedFrame": "She's looking for a ____.",
         "noCardSense": ["looking"],
         "fromLessonId": "lesson-20"
       }
@@ -416,8 +416,8 @@
         "gappedFrame": "We have no school in the ____."
       },
       {
-        "frame": "We will go to the river this summer.",
-        "gappedFrame": "We will go to the river this ____.",
+        "frame": "We'll go to the river this summer.",
+        "gappedFrame": "We'll go to the river this ____.",
         "fromLessonId": "lesson-10"
       },
       {
@@ -463,12 +463,12 @@
     "partOfSpeech": "noun",
     "frames": [
       {
-        "frame": "She is a worker at the school.",
-        "gappedFrame": "She is a ____ at the school."
+        "frame": "She's a worker at the school.",
+        "gappedFrame": "She's a ____ at the school."
       },
       {
-        "frame": "He is a good worker.",
-        "gappedFrame": "He is a good ____.",
+        "frame": "He's a good worker.",
+        "gappedFrame": "He's a good ____.",
         "fromLessonId": "lesson-18"
       },
       {
@@ -497,8 +497,8 @@
         "fromLessonId": "lesson-5"
       },
       {
-        "frame": "I am at the office right now.",
-        "gappedFrame": "I am at the office right ____.",
+        "frame": "I'm at the office right now.",
+        "gappedFrame": "I'm at the office right ____.",
         "noCardSense": ["right"],
         "fromLessonId": "lesson-23"
       }
@@ -514,8 +514,8 @@
     "partOfSpeech": "verb",
     "frames": [
       {
-        "frame": "They will build homes for the people.",
-        "gappedFrame": "They will ____ homes for the people."
+        "frame": "They'll build homes for the people.",
+        "gappedFrame": "They'll ____ homes for the people."
       },
       {
         "frame": "Who will build the station?",
@@ -564,8 +564,8 @@
     "partOfSpeech": "noun",
     "frames": [
       {
-        "frame": "What is the cost of a home?",
-        "gappedFrame": "What is the ____ of a home?"
+        "frame": "What's the cost of a home?",
+        "gappedFrame": "What's the ____ of a home?"
       },
       {
         "frame": "The cost of food is up this year.",
@@ -619,8 +619,8 @@
         "gappedFrame": "I go to school all ____."
       },
       {
-        "frame": "I am in my first year at this school.",
-        "gappedFrame": "I am in my first ____ at this school.",
+        "frame": "I'm in my first year at this school.",
+        "gappedFrame": "I'm in my first ____ at this school.",
         "fromLessonId": "lesson-19"
       },
       {
@@ -726,8 +726,8 @@
         "fromLessonId": "lesson-8"
       },
       {
-        "frame": "I will see you this fall.",
-        "gappedFrame": "I will see you this ____.",
+        "frame": "I'll see you this fall.",
+        "gappedFrame": "I'll see you this ____.",
         "fromLessonId": "lesson-23"
       }
     ],
@@ -818,12 +818,12 @@
     "partOfSpeech": "noun",
     "frames": [
       {
-        "frame": "We are a team.",
-        "gappedFrame": "We are a ____."
+        "frame": "We're a team.",
+        "gappedFrame": "We're a ____."
       },
       {
-        "frame": "Who is on your team?",
-        "gappedFrame": "Who is on your ____?",
+        "frame": "Who's on your team?",
+        "gappedFrame": "Who's on your ____?",
         "fromLessonId": "lesson-11"
       },
       {
@@ -947,13 +947,13 @@
         "gappedFrame": "Is my name on the ____?"
       },
       {
-        "frame": "I will make a list.",
-        "gappedFrame": "I will make a ____.",
+        "frame": "I'll make a list.",
+        "gappedFrame": "I'll make a ____.",
         "fromLessonId": "lesson-21"
       },
       {
-        "frame": "Here is a list of the words.",
-        "gappedFrame": "Here is a ____ of the words.",
+        "frame": "Here's a list of the words.",
+        "gappedFrame": "Here's a ____ of the words.",
         "fromLessonId": "lesson-25"
       }
     ],
@@ -968,8 +968,8 @@
     "partOfSpeech": "noun",
     "frames": [
       {
-        "frame": "She is the mayor of our city.",
-        "gappedFrame": "She is the ____ of our city."
+        "frame": "She's the mayor of our city.",
+        "gappedFrame": "She's the ____ of our city."
       },
       {
         "frame": "The mayor will read the report today.",
@@ -998,8 +998,8 @@
         "noCardSense": ["work"]
       },
       {
-        "frame": "We are ready for winter.",
-        "gappedFrame": "We are ready for ____.",
+        "frame": "We're ready for winter.",
+        "gappedFrame": "We're ready for ____.",
         "fromLessonId": "lesson-10"
       },
       {
@@ -1049,8 +1049,8 @@
         "gappedFrame": "I ____ money at the farm."
       },
       {
-        "frame": "She will earn more at the factory.",
-        "gappedFrame": "She will ____ more at the factory.",
+        "frame": "She'll earn more at the factory.",
+        "gappedFrame": "She'll ____ more at the factory.",
         "fromLessonId": "lesson-14"
       },
       {
@@ -1125,8 +1125,8 @@
         "gappedFrame": "She works at the power ____."
       },
       {
-        "frame": "We will build a new station on the hill.",
-        "gappedFrame": "We will build a new ____ on the hill.",
+        "frame": "We'll build a new station on the hill.",
+        "gappedFrame": "We'll build a new ____ on the hill.",
         "fromLessonId": "lesson-18"
       },
       {
@@ -1176,8 +1176,8 @@
         "gappedFrame": "What do you do with your food ____?"
       },
       {
-        "frame": "There is waste in the river.",
-        "gappedFrame": "There is ____ in the river.",
+        "frame": "There's waste in the river.",
+        "gappedFrame": "There's ____ in the river.",
         "noCardSense": ["there"],
         "fromLessonId": "lesson-20"
       },
@@ -1233,8 +1233,8 @@
         "fromLessonId": "lesson-11"
       },
       {
-        "frame": "You are ready for the next level.",
-        "gappedFrame": "You are ready for the next ____.",
+        "frame": "You're ready for the next level.",
+        "gappedFrame": "You're ready for the next ____.",
         "fromLessonId": "lesson-16"
       }
     ],
@@ -1303,8 +1303,8 @@
         "gappedFrame": "People work in the ____ all day."
       },
       {
-        "frame": "We will build homes on this field.",
-        "gappedFrame": "We will build homes on this ____.",
+        "frame": "We'll build homes on this field.",
+        "gappedFrame": "We'll build homes on this ____.",
         "fromLessonId": "lesson-12"
       },
       {
@@ -1328,8 +1328,8 @@
         "gappedFrame": "Is this the ____ to the river?"
       },
       {
-        "frame": "I am on my way.",
-        "gappedFrame": "I am on my ____.",
+        "frame": "I'm on my way.",
+        "gappedFrame": "I'm on my ____.",
         "fromLessonId": "lesson-12"
       },
       {
@@ -1349,8 +1349,8 @@
     "partOfSpeech": "adverb",
     "frames": [
       {
-        "frame": "She is back from the city.",
-        "gappedFrame": "She is ____ from the city."
+        "frame": "She's back from the city.",
+        "gappedFrame": "She's ____ from the city."
       },
       {
         "frame": "We went back to the farm.",
@@ -1426,8 +1426,8 @@
     "partOfSpeech": "noun",
     "frames": [
       {
-        "frame": "What is this word?",
-        "gappedFrame": "What is this ____?"
+        "frame": "What's this word?",
+        "gappedFrame": "What's this ____?"
       },
       {
         "frame": "I learn one new word a day.",
@@ -1460,8 +1460,8 @@
         "fromLessonId": "lesson-14"
       },
       {
-        "frame": "He is one of the top workers in town.",
-        "gappedFrame": "He is one of the ____ workers in town.",
+        "frame": "He's one of the top workers in town.",
+        "gappedFrame": "He's one of the ____ workers in town.",
         "fromLessonId": "lesson-19"
       }
     ],
@@ -1480,8 +1480,8 @@
         "gappedFrame": "____ the truck to the farm."
       },
       {
-        "frame": "We will send you the list tomorrow.",
-        "gappedFrame": "We will ____ you the list tomorrow.",
+        "frame": "We'll send you the list tomorrow.",
+        "gappedFrame": "We'll ____ you the list tomorrow.",
         "fromLessonId": "lesson-13"
       },
       {
@@ -1530,8 +1530,8 @@
         "gappedFrame": "My ____ is to work at the office."
       },
       {
-        "frame": "What is your goal for this year?",
-        "gappedFrame": "What is your ____ for this year?",
+        "frame": "What's your goal for this year?",
+        "gappedFrame": "What's your ____ for this year?",
         "fromLessonId": "lesson-14"
       },
       {
@@ -1711,8 +1711,8 @@
         "fromLessonId": "lesson-15"
       },
       {
-        "frame": "There is no storage in this office.",
-        "gappedFrame": "There is no ____ in this office.",
+        "frame": "There's no storage in this office.",
+        "gappedFrame": "There's no ____ in this office.",
         "noCardSense": ["there"],
         "fromLessonId": "lesson-20"
       }
@@ -1754,8 +1754,8 @@
     "partOfSpeech": "verb",
     "frames": [
       {
-        "frame": "I will try to read the map.",
-        "gappedFrame": "I will ____ to read the map."
+        "frame": "I'll try to read the map.",
+        "gappedFrame": "I'll ____ to read the map."
       },
       {
         "frame": "Can I try this?",
@@ -1831,17 +1831,17 @@
     "partOfSpeech": "adjective",
     "frames": [
       {
-        "frame": "What is the next lesson?",
-        "gappedFrame": "What is the ____ lesson?"
+        "frame": "What's the next lesson?",
+        "gappedFrame": "What's the ____ lesson?"
       },
       {
-        "frame": "Who is next?",
-        "gappedFrame": "Who is ____?",
+        "frame": "Who's next?",
+        "gappedFrame": "Who's ____?",
         "fromLessonId": "lesson-16"
       },
       {
-        "frame": "I will see you next year.",
-        "gappedFrame": "I will see you ____ year.",
+        "frame": "I'll see you next year.",
+        "gappedFrame": "I'll see you ____ year.",
         "fromLessonId": "lesson-23"
       }
     ],
@@ -1865,8 +1865,8 @@
         "fromLessonId": "lesson-21"
       },
       {
-        "frame": "Here is a good tip for the review.",
-        "gappedFrame": "Here is a good ____ for the review.",
+        "frame": "Here's a good tip for the review.",
+        "gappedFrame": "Here's a good ____ for the review.",
         "fromLessonId": "lesson-25"
       }
     ],
@@ -1906,8 +1906,8 @@
     "partOfSpeech": "noun",
     "frames": [
       {
-        "frame": "I will read the report at home.",
-        "gappedFrame": "I will read the ____ at home."
+        "frame": "I'll read the report at home.",
+        "gappedFrame": "I'll read the ____ at home."
       },
       {
         "frame": "The report says we need more power.",
@@ -1931,17 +1931,17 @@
     "partOfSpeech": "noun",
     "frames": [
       {
-        "frame": "We will build a factory on this site.",
-        "gappedFrame": "We will build a factory on this ____."
+        "frame": "We'll build a factory on this site.",
+        "gappedFrame": "We'll build a factory on this ____."
       },
       {
-        "frame": "We will send a team to the site.",
-        "gappedFrame": "We will send a team to the ____.",
+        "frame": "We'll send a team to the site.",
+        "gappedFrame": "We'll send a team to the ____.",
         "fromLessonId": "lesson-17"
       },
       {
-        "frame": "There is waste on the site.",
-        "gappedFrame": "There is waste on the ____.",
+        "frame": "There's waste on the site.",
+        "gappedFrame": "There's waste on the ____.",
         "noCardSense": ["there"],
         "fromLessonId": "lesson-20"
       }
@@ -2018,8 +2018,8 @@
         "fromLessonId": "lesson-18"
       },
       {
-        "frame": "It is good to see you again.",
-        "gappedFrame": "It is good to see you ____.",
+        "frame": "It's good to see you again.",
+        "gappedFrame": "It's good to see you ____.",
         "fromLessonId": "lesson-23"
       }
     ],
@@ -2215,12 +2215,12 @@
     "partOfSpeech": "noun",
     "frames": [
       {
-        "frame": "What is this thing?",
-        "gappedFrame": "What is this ____?"
+        "frame": "What's this thing?",
+        "gappedFrame": "What's this ____?"
       },
       {
-        "frame": "There is one more thing I need to tell you.",
-        "gappedFrame": "There is one more ____ I need to tell you.",
+        "frame": "There's one more thing I need to tell you.",
+        "gappedFrame": "There's one more ____ I need to tell you.",
         "fromLessonId": "lesson-33",
         "noCardSense": ["there"]
       }
@@ -2240,8 +2240,8 @@
         "gappedFrame": "The farm is over ____."
       },
       {
-        "frame": "I will meet you there.",
-        "gappedFrame": "I will meet you ____.",
+        "frame": "I'll meet you there.",
+        "gappedFrame": "I'll meet you ____.",
         "fromLessonId": "lesson-30",
         "noCardSense": ["meet"]
       }
@@ -2401,8 +2401,8 @@
         "gappedFrame": "That ____ is the mayor."
       },
       {
-        "frame": "Who is the old man by the river?",
-        "gappedFrame": "Who is the old ____ by the river?",
+        "frame": "Who's the old man by the river?",
+        "gappedFrame": "Who's the old ____ by the river?",
         "fromLessonId": "lesson-36"
       }
     ],
@@ -2623,8 +2623,8 @@
         "gappedFrame": "Is this the ____ way?"
       },
       {
-        "frame": "I think you are right.",
-        "gappedFrame": "I think you are ____.",
+        "frame": "I think you're right.",
+        "gappedFrame": "I think you're ____.",
         "fromLessonId": "lesson-43"
       }
     ],
@@ -2703,8 +2703,8 @@
         "gappedFrame": "____ your name on the list."
       },
       {
-        "frame": "I will write to you every week.",
-        "gappedFrame": "I will ____ to you every week.",
+        "frame": "I'll write to you every week.",
+        "gappedFrame": "I'll ____ to you every week.",
         "fromLessonId": "lesson-45"
       }
     ],
@@ -3132,8 +3132,8 @@
     "source": "phrase",
     "frames": [
       {
-        "frame": "She is at the school, I mean, at the office.",
-        "gappedFrame": "She is at the school, ____ ____, at the office."
+        "frame": "She's at the school, I mean, at the office.",
+        "gappedFrame": "She's at the school, ____ ____, at the office."
       },
       {
         "frame": "The town is big, I mean, really big.",
@@ -3233,8 +3233,8 @@
         "gappedFrame": "When do you ____ the office?"
       },
       {
-        "frame": "She is going to leave the city in the spring.",
-        "gappedFrame": "She is going to ____ the city in the spring.",
+        "frame": "She's going to leave the city in the spring.",
+        "gappedFrame": "She's going to ____ the city in the spring.",
         "fromLessonId": "lesson-29"
       },
       {
@@ -3284,8 +3284,8 @@
         "gappedFrame": "You did a ____ job today."
       },
       {
-        "frame": "That is great news.",
-        "gappedFrame": "That is ____ news.",
+        "frame": "That's great news.",
+        "gappedFrame": "That's ____ news.",
         "fromLessonId": "lesson-30"
       },
       {
@@ -3309,8 +3309,8 @@
         "gappedFrame": "I want you to ____ the mayor."
       },
       {
-        "frame": "It is good to meet you.",
-        "gappedFrame": "It is good to ____ you.",
+        "frame": "It's good to meet you.",
+        "gappedFrame": "It's good to ____ you.",
         "fromLessonId": "lesson-30"
       },
       {
@@ -3405,8 +3405,8 @@
     "partOfSpeech": "noun",
     "frames": [
       {
-        "frame": "What is the number on the truck?",
-        "gappedFrame": "What is the ____ on the truck?"
+        "frame": "What's the number on the truck?",
+        "gappedFrame": "What's the ____ on the truck?"
       },
       {
         "frame": "Can I have your number?",
@@ -3466,8 +3466,8 @@
         "fromLessonId": "lesson-31"
       },
       {
-        "frame": "They are building a new house on the hill.",
-        "gappedFrame": "They are building a new ____ on the hill.",
+        "frame": "They're building a new house on the hill.",
+        "gappedFrame": "They're building a new ____ on the hill.",
         "fromLessonId": "lesson-31"
       }
     ],
@@ -3643,8 +3643,8 @@
         "fromLessonId": "lesson-33"
       },
       {
-        "frame": "There is a little place by the river with good food.",
-        "gappedFrame": "There is a ____ place by the river with good food.",
+        "frame": "There's a little place by the river with good food.",
+        "gappedFrame": "There's a ____ place by the river with good food.",
         "noCardSense": ["there"],
         "fromLessonId": "lesson-33"
       }
@@ -3696,8 +3696,8 @@
         "fromLessonId": "lesson-33"
       },
       {
-        "frame": "I will never go back to that old house.",
-        "gappedFrame": "I will never ____ ____ to that old house.",
+        "frame": "I'll never go back to that old house.",
+        "gappedFrame": "I'll never ____ ____ to that old house.",
         "fromLessonId": "lesson-36"
       }
     ],
@@ -3748,8 +3748,8 @@
         "fromLessonId": "lesson-33"
       },
       {
-        "frame": "She is my friend, so of course I will help her.",
-        "gappedFrame": "She is my friend, so ____ ____ I will help her.",
+        "frame": "She's my friend, so of course I'll help her.",
+        "gappedFrame": "She's my friend, so ____ ____ I'll help her.",
         "fromLessonId": "lesson-40"
       }
     ],
@@ -3878,8 +3878,8 @@
         "fromLessonId": "lesson-34"
       },
       {
-        "frame": "I will wait another week.",
-        "gappedFrame": "I will wait ____ week.",
+        "frame": "I'll wait another week.",
+        "gappedFrame": "I'll wait ____ week.",
         "fromLessonId": "lesson-35"
       }
     ],
@@ -3969,8 +3969,8 @@
     "partOfSpeech": "adjective",
     "frames": [
       {
-        "frame": "It is late, so I will go home.",
-        "gappedFrame": "It is ____, so I will go home."
+        "frame": "It's late, so I'll go home.",
+        "gappedFrame": "It's ____, so I'll go home."
       },
       {
         "frame": "I came home late from the office.",
@@ -4023,8 +4023,8 @@
         "gappedFrame": "Can I ask you a ____?"
       },
       {
-        "frame": "That is a good question.",
-        "gappedFrame": "That is a good ____.",
+        "frame": "That's a good question.",
+        "gappedFrame": "That's a good ____.",
         "fromLessonId": "lesson-35"
       },
       {
@@ -4044,8 +4044,8 @@
     "partOfSpeech": "verb",
     "frames": [
       {
-        "frame": "He will become the next mayor.",
-        "gappedFrame": "He will ____ the next mayor."
+        "frame": "He'll become the next mayor.",
+        "gappedFrame": "He'll ____ the next mayor."
       },
       {
         "frame": "This town could become a city.",
@@ -4078,8 +4078,8 @@
         "fromLessonId": "lesson-36"
       },
       {
-        "frame": "What is the biggest city in your country?",
-        "gappedFrame": "What is the biggest city in your ____?",
+        "frame": "What's the biggest city in your country?",
+        "gappedFrame": "What's the biggest city in your ____?",
         "fromLessonId": "lesson-38"
       }
     ],
@@ -4145,8 +4145,8 @@
     "partOfSpeech": "adverb",
     "frames": [
       {
-        "frame": "She is always at the office.",
-        "gappedFrame": "She is ____ at the office."
+        "frame": "She's always at the office.",
+        "gappedFrame": "She's ____ at the office."
       },
       {
         "frame": "You can always come back if you want.",
@@ -4274,13 +4274,13 @@
         "gappedFrame": "We need a ____ truck for this job."
       },
       {
-        "frame": "It is a big house for a small family.",
-        "gappedFrame": "It is a ____ house for a small family.",
+        "frame": "It's a big house for a small family.",
+        "gappedFrame": "It's a ____ house for a small family.",
         "fromLessonId": "lesson-39"
       },
       {
-        "frame": "That is a big problem.",
-        "gappedFrame": "That is a ____ problem.",
+        "frame": "That's a big problem.",
+        "gappedFrame": "That's a ____ problem.",
         "fromLessonId": "lesson-38"
       }
     ],
@@ -4300,8 +4300,8 @@
         "gappedFrame": "When will she ____ ____ of the office?"
       },
       {
-        "frame": "It is only me, you can come out now.",
-        "gappedFrame": "It is only me, you can ____ ____ now.",
+        "frame": "It's only me, you can come out now.",
+        "gappedFrame": "It's only me, you can ____ ____ now.",
         "fromLessonId": "lesson-38"
       },
       {
@@ -4352,8 +4352,8 @@
         "gappedFrame": "____ ____ of the truck here."
       },
       {
-        "frame": "We are at the farm, so you can get out now.",
-        "gappedFrame": "We are at the farm, so you can ____ ____ now.",
+        "frame": "We're at the farm, so you can get out now.",
+        "gappedFrame": "We're at the farm, so you can ____ ____ now.",
         "fromLessonId": "lesson-38"
       },
       {
@@ -4559,8 +4559,8 @@
         "fromLessonId": "lesson-40"
       },
       {
-        "frame": "It is too high for me, can you help?",
-        "gappedFrame": "It is too ____ for me, can you help?",
+        "frame": "It's too high for me, can you help?",
+        "gappedFrame": "It's too ____ for me, can you help?",
         "fromLessonId": "lesson-40"
       }
     ],
@@ -4575,8 +4575,8 @@
     "partOfSpeech": "noun",
     "frames": [
       {
-        "frame": "She is my best friend.",
-        "gappedFrame": "She is my best ____."
+        "frame": "She's my best friend.",
+        "gappedFrame": "She's my best ____."
       },
       {
         "frame": "I have a friend who lives in the city.",
@@ -4679,13 +4679,13 @@
         "gappedFrame": "I read ____ I wait."
       },
       {
-        "frame": "Don't talk while I am talking.",
-        "gappedFrame": "Don't talk ____ I am talking.",
+        "frame": "Don't talk while I'm talking.",
+        "gappedFrame": "Don't talk ____ I'm talking.",
         "fromLessonId": "lesson-41"
       },
       {
-        "frame": "While you are in the city, can you bring me something to read?",
-        "gappedFrame": "____ you are in the city, can you bring me something to read?",
+        "frame": "While you're in the city, can you bring me something to read?",
+        "gappedFrame": "____ you're in the city, can you bring me something to read?",
         "fromLessonId": "lesson-41"
       }
     ],
@@ -4709,8 +4709,8 @@
         "fromLessonId": "lesson-41"
       },
       {
-        "frame": "We will move into a new house in the spring.",
-        "gappedFrame": "We will ____ into a new house in the spring.",
+        "frame": "We'll move into a new house in the spring.",
+        "gappedFrame": "We'll ____ into a new house in the spring.",
         "fromLessonId": "lesson-41"
       }
     ],
@@ -4734,8 +4734,8 @@
         "fromLessonId": "lesson-41"
       },
       {
-        "frame": "I will bring it back tomorrow.",
-        "gappedFrame": "I will ____ it back tomorrow.",
+        "frame": "I'll bring it back tomorrow.",
+        "gappedFrame": "I'll ____ it back tomorrow.",
         "fromLessonId": "lesson-41"
       }
     ],
@@ -4775,8 +4775,8 @@
     "partOfSpeech": "noun",
     "frames": [
       {
-        "frame": "I will be in the city for a month.",
-        "gappedFrame": "I will be in the city for a ____."
+        "frame": "I'll be in the city for a month.",
+        "gappedFrame": "I'll be in the city for a ____."
       },
       {
         "frame": "She starts her new job next month.",
@@ -4879,8 +4879,8 @@
         "gappedFrame": "The office is ____ today."
       },
       {
-        "frame": "Do you know a place that is open late?",
-        "gappedFrame": "Do you know a place that is ____ late?",
+        "frame": "Do you know a place that's open late?",
+        "gappedFrame": "Do you know a place that's ____ late?",
         "noCardSense": ["know"],
         "fromLessonId": "lesson-43"
       },
@@ -4905,8 +4905,8 @@
         "gappedFrame": "She has her own ____ in town."
       },
       {
-        "frame": "How is the business doing?",
-        "gappedFrame": "How is the ____ doing?",
+        "frame": "How's the business doing?",
+        "gappedFrame": "How's the ____ doing?",
         "fromLessonId": "lesson-43"
       },
       {
@@ -5185,8 +5185,8 @@
     "partOfSpeech": "noun",
     "frames": [
       {
-        "frame": "In that case, we will wait.",
-        "gappedFrame": "In that ____, we will wait."
+        "frame": "In that case, we'll wait.",
+        "gappedFrame": "In that ____, we'll wait."
       },
       {
         "frame": "Bring a map, just in case.",
@@ -5261,8 +5261,8 @@
     "partOfSpeech": "noun",
     "frames": [
       {
-        "frame": "What is the plan for today?",
-        "gappedFrame": "What is the ____ for today?"
+        "frame": "What's the plan for today?",
+        "gappedFrame": "What's the ____ for today?"
       },
       {
         "frame": "Do you have a plan for the summer?",
@@ -5538,8 +5538,8 @@
     "partOfSpeech": "adverb",
     "frames": [
       {
-        "frame": "She is away this week.",
-        "gappedFrame": "She is ____ this week."
+        "frame": "She's away this week.",
+        "gappedFrame": "She's ____ this week."
       },
       {
         "frame": "Will you be away for long?",
@@ -5644,8 +5644,8 @@
     "source": "phrase",
     "frames": [
       {
-        "frame": "It isn't a small town; in fact, it is a city.",
-        "gappedFrame": "It isn't a small town; ____ ____, it is a city."
+        "frame": "It isn't a small town; in fact, it's a city.",
+        "gappedFrame": "It isn't a small town; ____ ____, it's a city."
       },
       {
         "frame": "In fact, I remember that night really well.",

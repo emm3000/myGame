@@ -47,7 +47,7 @@ describe('the later frames of a placed-out band', () => {
     await placeOutOfBandOne()
 
     expect(await recallOfSchool(player)).toMatchObject({
-      gappedFrame: [{ text: 'We are at ____.', support: null }],
+      gappedFrame: [{ text: "We're at ____.", support: null }],
     })
   })
 
@@ -58,7 +58,7 @@ describe('the later frames of a placed-out band', () => {
 
     await answered(player, 'lesson-1-2', 'school')
 
-    expect(await loggedFramesOf('lesson-1-2')).toEqual(['We are at ____.'])
+    expect(await loggedFramesOf('lesson-1-2')).toEqual(["We're at ____."])
   })
 
   it('logs the later frame a recall showed', async () => {
@@ -80,7 +80,7 @@ describe('the later frames of a placed-out band', () => {
 
     await answered(player, 'lesson-1-2', 'school')
 
-    expect(await loggedFramesOf('lesson-1-2')).toEqual(['We are at ____.'])
+    expect(await loggedFramesOf('lesson-1-2')).toEqual(["We're at ____."])
   })
 
   it('chooses the recall frame anew once the review is rated', async () => {
@@ -102,7 +102,7 @@ describe('the later frames of a placed-out band', () => {
 
     expect(await dueReviewOf(player, 'lesson-1-2')).toMatchObject({
       mode: 'recognition',
-      frame: [{ text: 'We are at school.', support: null }],
+      frame: [{ text: "We're at school.", support: null }],
     })
   })
 
@@ -115,7 +115,7 @@ describe('the later frames of a placed-out band', () => {
 
     expect(lessons[0]?.words[1]?.reading).toEqual({
       word: 'school',
-      frame: [{ text: 'We are at school.', support: null }],
+      frame: [{ text: "We're at school.", support: null }],
     })
   })
 })

@@ -20,14 +20,14 @@ describe('the later frames', () => {
     const player = await seedTheFirstRecall()
 
     expect(await recallOfSchool(player)).toMatchObject({
-      gappedFrame: [{ text: 'We are at ____.', support: null }],
+      gappedFrame: [{ text: "We're at ____.", support: null }],
     })
   })
 
   it('logs the full anchor each recognition showed', async () => {
     await studyToTheFirstRecall()
 
-    expect(await loggedFramesOf('lesson-1-2')).toEqual(['We are at school.', 'We are at school.'])
+    expect(await loggedFramesOf('lesson-1-2')).toEqual(["We're at school.", "We're at school."])
   })
 
   it('logs no frame for an answer no read showed', async () => {
