@@ -12,6 +12,7 @@ import com.emm.mygame.core.designsystem.englishTextOf
 import com.emm.mygame.core.model.learning.TextId
 import com.emm.mygame.core.ui.ReadingBlock
 import com.emm.mygame.core.ui.ReadingSentences
+import com.emm.mygame.core.ui.ReadingSpan
 import com.emm.mygame.core.ui.chromeResource
 
 @Composable
@@ -31,12 +32,8 @@ internal fun TodayKeepGoing(
             )
             is TodayUiState.KeepGoing.Frames -> ReadingBlock(
                 sentences = ReadingSentences(keepGoing.sentences),
-                openSentence = keepGoing.tapped?.sentence,
-                openSpan = keepGoing.tapped?.span,
-                openSupport = keepGoing.openSupport,
-                onSpanTap = { sentence: Int, span: Int ->
-                    onIntent(TodayIntent.FrameWordTapped(TodayUiState.SpanAt(sentence, span)))
-                },
+                tapped = keepGoing.tapped,
+                onSpanTap = { at: ReadingSpan -> onIntent(TodayIntent.FrameWordTapped(at)) },
             )
         }
     }

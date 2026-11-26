@@ -2,6 +2,7 @@ package com.emm.mygame.feature.today
 
 import com.emm.mygame.core.model.learning.LessonId
 import com.emm.mygame.core.model.town.building.TownBuildingKind
+import com.emm.mygame.core.ui.ReadingSpan
 
 sealed interface TodayIntent {
 
@@ -19,5 +20,5 @@ sealed interface TodayIntent {
 
     data class BuildTapped(val building: TownBuildingKind) : TodayIntent
 
-    data class FrameWordTapped(val at: TodayUiState.SpanAt) : TodayIntent
+    data class FrameWordTapped(val at: ReadingSpan) : TodayIntent
 }

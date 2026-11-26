@@ -17,17 +17,18 @@ import com.emm.mygame.core.testing.FakeReportRepository
 import com.emm.mygame.core.testing.FakeTownRepository
 import com.emm.mygame.core.testing.MainDispatcherRule
 import com.emm.mygame.core.testing.TestClock
+import com.emm.mygame.core.ui.ReadingSpan
+import org.junit.Assert.assertEquals
+import org.junit.Assert.assertNull
+import org.junit.Rule
+import org.junit.Test
+import kotlin.time.Duration.Companion.hours
 import kotlinx.coroutines.CoroutineStart
 import kotlinx.coroutines.awaitCancellation
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.test.TestScope
 import kotlinx.coroutines.test.runCurrent
 import kotlinx.coroutines.test.runTest
-import org.junit.Assert.assertEquals
-import org.junit.Assert.assertNull
-import org.junit.Rule
-import org.junit.Test
-import kotlin.time.Duration.Companion.hours
 
 class TodayKeepGoingViewModelTest {
 
@@ -91,10 +92,21 @@ class TodayKeepGoingViewModelTest {
         frames.answerFrames(KeepGoingResult.Read(listOf(riverWord)))
         val viewModel: TodayViewModel = shownOn(newTown(nextStep = caughtUpWith(text = null)))
 
-        viewModel.onIntent(TodayIntent.FrameWordTapped(TodayUiState.SpanAt(sentence = 0, span = 1)))
+        viewModel.onIntent(TodayIntent.FrameWordTapped(ReadingSpan(sentence = 0, span = 1)))
         runCurrent()
 
         assertEquals(riverOnTap, (contentOf(viewModel).keepGoing as TodayUiState.KeepGoing.Frames).openSupport)
+    }
+
+    @Test
+    fun `a second tap of a frame word closes its support`() = runTest {
+        frames.answerFrames(KeepGoingResult.Read(listOf(riverWord)))
+        val viewModel: TodayViewModel = shownOn(newTown(nextStep = caughtUpWith(text = null)))
+
+        repeat(2) { viewModel.onIntent(TodayIntent.FrameWordTapped(ReadingSpan(sentence = 0, span = 1))) }
+        runCurrent()
+
+        assertNull((contentOf(viewModel).keepGoing as TodayUiState.KeepGoing.Frames).openSupport)
     }
 
     @Test
@@ -102,7 +114,7 @@ class TodayKeepGoingViewModelTest {
         frames.answerFrames(KeepGoingResult.Read(listOf(riverWord)))
         val viewModel: TodayViewModel = shownOn(newTown(nextStep = caughtUpWith(text = null)))
 
-        viewModel.onIntent(TodayIntent.FrameWordTapped(TodayUiState.SpanAt(sentence = 0, span = 1)))
+        viewModel.onIntent(TodayIntent.FrameWordTapped(ReadingSpan(sentence = 0, span = 1)))
         runCurrent()
 
         assertEquals(1 to 1, frames.reads to towns.readCount)

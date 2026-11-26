@@ -6,6 +6,7 @@ import com.emm.mygame.core.model.learning.WordSupport
 import com.emm.mygame.core.model.town.OpenText
 import com.emm.mygame.core.model.town.TownTextResult
 import com.emm.mygame.core.testing.FakeTownTextRepository
+import com.emm.mygame.core.ui.ReadingSpan
 import kotlinx.coroutines.test.TestScope
 import kotlinx.coroutines.test.runCurrent
 
@@ -30,9 +31,9 @@ internal val courseText: OpenText = OpenText(
     ),
 )
 
-internal val houseTap: SchoolTextUiState.SpanAt = SchoolTextUiState.SpanAt(sentence = 1, span = 1)
+internal val houseTap: ReadingSpan = ReadingSpan(sentence = 1, span = 1)
 
-internal val fieldTap: SchoolTextUiState.SpanAt = SchoolTextUiState.SpanAt(sentence = 2, span = 1)
+internal val fieldTap: ReadingSpan = ReadingSpan(sentence = 2, span = 1)
 
 internal fun TestScope.schoolTextViewModelOf(texts: FakeTownTextRepository): SchoolTextViewModel {
     val viewModel: SchoolTextViewModel = SchoolTextViewModel(courseTextId, texts)

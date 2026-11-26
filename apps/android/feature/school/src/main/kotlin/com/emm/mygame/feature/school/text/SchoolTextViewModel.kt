@@ -5,6 +5,8 @@ import androidx.lifecycle.viewModelScope
 import com.emm.mygame.core.model.learning.TextId
 import com.emm.mygame.core.model.town.TownTextRepository
 import com.emm.mygame.core.model.town.TownTextResult
+import com.emm.mygame.core.ui.ReadingSpan
+import com.emm.mygame.core.ui.afterTapOn
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -46,8 +48,8 @@ class SchoolTextViewModel(private val text: TextId, private val texts: TownTextR
         }
     }
 
-    private fun tap(at: SchoolTextUiState.SpanAt) {
+    private fun tap(at: ReadingSpan) {
         val reading: SchoolTextUiState.Reading = _state.value as? SchoolTextUiState.Reading ?: return
-        _state.value = reading.copy(tapped = if (reading.tapped == at) null else at)
+        _state.value = reading.copy(tapped = reading.tapped.afterTapOn(at))
     }
 }
