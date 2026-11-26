@@ -862,6 +862,76 @@ Part 3 of the second content batch (ADR 049, its amendment of 2026-11-25, #2042)
 | or whatever | phrase | phrase | You can bring some food or whatever. | You can bring some food ____ ____. | o lo que sea | or something like that, when it does not matter what |
 | to do with | phrase | phrase | What does that have to do with me? | What does that have ____ ____ ____ me? | que ver con | used after have, to say that one thing is about another thing or is part of it |
 
+## Lessons 63 to 67
+
+Part 4 of the second content batch (ADR 049, its amendment of 2026-11-25, #2043), drafted by Claude Opus 5.5. It has 4 band 1 lessons in NGSL-Spoken 1.2 order and 1 unit lesson, as parts 1 to 3 have, and closes batch 2. The heads are *suppose* (spoken 227), *item* (238), *side* (240) and *term* (249). Lesson 67 teaches PHaVE's ready phrasal verbs *pick up* (2), *come down* (31) and *look back* (34), and the PHRASE units *that sort of thing* and *go for*, in ADR 044's order of 2026-11-25. Every lesson asks for school level 1 and takes 300 s. Its skill follows from its position in `curriculum.json`. No later frame is added: batch 2's own words take theirs in batch 3.
+
+- **Readiness.** *pick* is taught by lesson 64, *come* by lesson 4, *down* by lesson 28, *look* by lesson 19, *back* by lesson 11, *sort* by lesson 49, *thing* by lesson 18 and *go* by lesson 2. *up*, *that*, *of* and *for* are frame words admitted at lesson 1.
+- **Order of the units.** *pick up* (2) became ready when lesson 64 taught *pick*. *go down* (26) is already taught by *down*'s anchor frame (lesson 28). *take off* (28) still waits for a word for clothes. *go up* (33) waits: *come down* fills any gap its sense of the highest share, 'increase', leaves (*the number will come down*), so the two in one lesson would be a pair of opposites. Among the ready untaught PHRASE units marked `* * *` in speech, *sort of* and *last night* are taught by anchor frames (lesson 49), and *kind of* waits: shipped frames use it in *kind*'s sense, 'type of' (*What kind of food do you like?*), not the list's hedge. So lesson 67 takes *that sort of thing* (`X` written), which waited in lesson 62 beside *or whatever*, and *go for* (`*` written).
+- **Senses.** *able* is glossed *poder*, the sense of *be able to*, and *once* is taught as 'one time' (*once a year*). *second* is taught as part of a minute (*Wait a second*), *line* as people waiting (*wait in line*), *either* as *tampoco*, *term* as a word that names a thing, and *answer* and *example* as nouns. *pick up*, *come down* and *look back* are each taught in their PHaVE sense of the highest share: 'get or take someone or something from a place' (70.5 %), 'move from a higher place to a lower one' (32.5 %) and 'think of something past again' (49.5 %). *go for* is taught as 'want', the sense of the list's own example.
+- **Part of speech.** *either*, *once*, *until* and *sometimes* are filed as adverbs, as *whether* is. *able* and *clear* are filed as adjectives, and *everybody* as a noun, as *somebody* is. *that sort of thing* and *go for* are filed as `phrase`.
+- **Shared glosses.** *suppose* shares *suponer* with *guess* (lesson 54), and *speak* shares *hablar* with *talk* (lesson 29). Neither pair is in one lesson.
+
+### Lesson 63
+
+**Theme:** *At the mayor's office*, es *En la oficina de la alcaldía*. **Skill:** money, 5 %.
+
+| Lemma | Part of speech | NGSL 1.2 rank | NGSL-Spoken 1.2 rank | Frame | Gapped form | es gloss | Definition |
+|---|---|---|---|---|---|---|---|
+| suppose | verb | 610 | 227 | I suppose I can come back tomorrow. | I ____ I can come back tomorrow. | suponer | to think something is probably true, or to agree when you are not happy about it |
+| able | adjective | 271 | 237 | The mayor won't be able to talk to you today. | The mayor won't be ____ to talk to you today. | poder | used after be and before to: to have what you need to do something |
+| speak | verb | 284 | 268 | Can I speak to the mayor, please? | Can I ____ to the mayor, please? | hablar | to say words to someone; used when you ask to talk with a person |
+| second | noun | 226 | 260 | Wait a second, she's on her way. | Wait a ____, she's on her way. | segundo | one of the 60 parts of a minute, or a very short time |
+| answer | noun | 355 | 302 | I still don't have an answer. | I still don't have an ____. | respuesta | what you say back when someone asks you something |
+
+### Lesson 64
+
+**Theme:** *At the market*, es *En el mercado*. **Skill:** money, 5 %.
+
+| Lemma | Part of speech | NGSL 1.2 rank | NGSL-Spoken 1.2 rank | Frame | Gapped form | es gloss | Definition |
+|---|---|---|---|---|---|---|---|
+| item | noun | 747 | 238 | Is this item on the list? | Is this ____ on the list? | artículo | one thing in a group or on a list, such as one thing you buy |
+| spend | verb | 258 | 303 | How much money did you spend? | How much money did you ____? | gastar | to give money to buy things |
+| pick | verb | 583 | 315 | You can pick the one you like. | You can ____ the one you like. | elegir | to take one thing from a group because you want it more than the others |
+| line | noun | 274 | 323 | We have to wait in line. | We have to wait in ____. | fila | people who wait one behind another to get or do something |
+| either | adverb | 371 | 284 | I don't have any money either. | I don't have any money ____. | tampoco | used after not, to say that the same is true of another person or thing |
+
+### Lesson 65
+
+**Theme:** *Lost on the way*, es *Perdido en el camino*. **Skill:** money, 5 %.
+
+| Lemma | Part of speech | NGSL 1.2 rank | NGSL-Spoken 1.2 rank | Frame | Gapped form | es gloss | Definition |
+|---|---|---|---|---|---|---|---|
+| side | noun | 276 | 240 | My house is on the other side of the river. | My house is on the other ____ of the river. | lado | one of the 2 parts of a place, such as the land on each part of a road |
+| once | adverb | 265 | 289 | I only come this way once a year. | I only come this way ____ a year. | una vez | one time |
+| until | adverb | 255 | 319 | Wait here until I come back. | Wait here ____ I come back. | hasta que | up to the time when something happens |
+| phone | noun | 479 | 325 | I can't find my phone. | I can't find my ____. | teléfono | a small thing you use to talk to people who are far away |
+| sometimes | adverb | 444 | 332 | Sometimes the map isn't right. | ____ the map isn't right. | a veces | at some times, but not always |
+
+### Lesson 66
+
+**Theme:** *In class*, es *En clase*. **Skill:** money, 5 %.
+
+| Lemma | Part of speech | NGSL 1.2 rank | NGSL-Spoken 1.2 rank | Frame | Gapped form | es gloss | Definition |
+|---|---|---|---|---|---|---|---|
+| term | noun | 280 | 249 | What's the term for a man who works on a farm? | What's the ____ for a man who works on a farm? | término | a word or a group of words that is the name of a thing |
+| example | noun | 235 | 295 | Can you give me an example? | Can you give me an ____? | ejemplo | one thing that shows what the others of its kind are like, or how something works |
+| clear | adjective | 369 | 310 | The lesson wasn't clear to me. | The lesson wasn't ____ to me. | claro | easy to understand |
+| everybody | noun | 933 | 309 | Everybody, sit down, please. | ____, sit down, please. | todos | all the people in a group or a place |
+| person | noun | 263 | 287 | She's the best person to ask. | She's the best ____ to ask. | persona | a man, a woman or a child |
+
+### Lesson 67
+
+**Theme:** *A day with the family*, es *Un día en familia*. **Skill:** money, 5 %. A unit lesson.
+
+| Unit | Source | Part of speech | Frame | Gapped form | es gloss | Definition |
+|---|---|---|---|---|---|---|
+| pick up | phave | verb | Can you pick up the kids from school? | Can you ____ ____ the kids from school? | recoger | to go to a place and take someone or something from there |
+| come down | phave | verb | Come down here and help me. | ____ ____ here and help me. | bajar | to move from a higher place to a lower one |
+| look back | phave | verb | When I look back, I think we had a good life here. | When I ____ ____, I think we had a good life here. | mirar atrás | to think about a time in the past |
+| that sort of thing | phrase | phrase | We talked about money, school, that sort of thing. | We talked about money, school, ____ ____ ____ ____. | ese tipo de cosas | and others like those; used after a list |
+| go for | phrase | phrase | A day at the river? Yeah, I could go for that. | A day at the river? Yeah, I could ____ ____ that. | tener ganas de | to want something, such as food or a thing to do |
+
 ## Texts
 
 One text closes every four band lessons, from lesson 31 on (ADR 049, #1273, #1276). It holds every card word of its four band lessons, the band lessons up to and including its `fromLessonId` with unit lessons skipped, in any form the grammar admits, and no token unknown at its lesson. The gate checks both. Its length, 80 to 150 tokens in band 1 as `tokensOf` counts the title and the sentences, is checked by the review of check 7. Each text is told in the first person by someone who lives in the town and names no one.
@@ -907,3 +977,9 @@ One text closes every four band lessons, from lesson 31 on (ADR 049, #1273, #127
 **Title:** *A New Home*. **Band lessons:** 58 to 61. **Tokens:** 147.
 
 > A couple of weeks ago, I came to this town to work on a farm. I didn't have a room, and I had nothing to do at night. A guy from the farm said I could stay with his family. His house isn't far from the farm, so I walk there every morning. I wasn't sure whether I had enough money for a room, but he had an idea. Now we have a deal. I help his family, and I can eat whatever I want. Every night, we eat together and watch the news. Their kid's team is in the next round, so the whole family will go and watch. The kid always says please and thank you. I don't mind working on the farm. I already love it here. It's the best home I have ever had, and it's exactly what I needed.
+
+### text-8, lesson 66
+
+**Title:** *A Day in the City*. **Band lessons:** 63 to 66. **Tokens:** 146.
+
+> Once a week, I go to the city, on the other side of the river, for a course. In today's lesson, there was a term I didn't understand, so I asked about it. The answer was clear when I saw an example. After that, everybody was able to use it. Then I went to the market. There were a lot of people in line, so I waited until I was next. It was hard to pick what to buy, but I didn't spend much money. They didn't have an item I needed, and the next market didn't either. A person from the course wanted to speak with me on the phone. We only talked for a second, but she said I could start a new course. Sometimes the city is hard for me, but I suppose it was a good day.

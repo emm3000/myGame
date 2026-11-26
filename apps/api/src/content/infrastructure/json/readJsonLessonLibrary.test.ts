@@ -392,6 +392,11 @@ describe('readJsonLessonLibrary', () => {
       { id: 'lesson-60', theme: 'A room for the night' },
       { id: 'lesson-61', theme: 'Dinner at home' },
       { id: 'lesson-62', theme: 'An early start' },
+      { id: 'lesson-63', theme: "At the mayor's office" },
+      { id: 'lesson-64', theme: 'At the market' },
+      { id: 'lesson-65', theme: 'Lost on the way' },
+      { id: 'lesson-66', theme: 'In class' },
+      { id: 'lesson-67', theme: 'A day with the family' },
     ])
   })
 
