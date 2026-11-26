@@ -56,7 +56,7 @@ class StudyReminderReceiverTest {
             listOf(Intent.ACTION_BOOT_COMPLETED, Intent.ACTION_TIME_CHANGED, Intent.ACTION_TIMEZONE_CHANGED)
 
         val rescheduled: List<List<SeenAlarm>> = clockChanges.map { action: String ->
-            alarms.scheduledAlarms.mapNotNull { scheduled -> scheduled.operation }.forEach(alarmManager::cancel)
+            alarmManager.cancelAll()
             StudyReminderReceiver().onReceive(application, Intent(action))
             alarms.scheduledAlarms.map(::seenAlarmOf)
         }

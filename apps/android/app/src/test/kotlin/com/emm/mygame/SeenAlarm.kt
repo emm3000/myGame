@@ -11,7 +11,7 @@ internal fun wakeUpAt(at: String): SeenAlarm =
     SeenAlarm(type = AlarmManager.RTC_WAKEUP, at = Instant.parse(at), isAllowedWhileIdle = true)
 
 internal fun seenAlarmOf(alarm: ShadowAlarmManager.ScheduledAlarm): SeenAlarm = SeenAlarm(
-    type = alarm.type,
+    type = alarm.getType(),
     at = Instant.fromEpochMilliseconds(alarm.triggerAtMs),
     isAllowedWhileIdle = alarm.isAllowWhileIdle,
 )
