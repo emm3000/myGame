@@ -137,6 +137,7 @@ class TodayNewsScreenTest {
     ): TodayUiState.Content = TodayUiState.Content(
         eyebrow = TodayUiState.Eyebrow.WhatIsNext,
         first = first,
+        gained = emptyList(),
         whatHappened = events?.let { drawn: List<TodayUiState.NewsEvent> ->
             TodayUiState.WhatHappened(drawn, receivedAt, TodayUiState.NewsClose.Idle)
         },

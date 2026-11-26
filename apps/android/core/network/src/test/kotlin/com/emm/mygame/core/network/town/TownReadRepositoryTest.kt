@@ -80,6 +80,25 @@ class TownReadRepositoryTest : TownRepositoryFixture() {
     }
 
     @Test
+    fun `reads what the town gained while the player was away, each resource that rose`() = runTest {
+        val gained: String = """"away":{"gained":{"money":120,"food":0,"power":15,"material":40}}"""
+        api.enqueue(json(200, TOWN.replace(""""away":null""", gained)))
+
+        val read: TownSnapshot = (town().read() as TownReadResult.Read).town
+
+        assertEquals(
+            TownSnapshot.Away(
+                listOf(
+                    TownSnapshot.Cost(TownResourceKind.Money, 120),
+                    TownSnapshot.Cost(TownResourceKind.Power, 15),
+                    TownSnapshot.Cost(TownResourceKind.Material, 40),
+                ),
+            ),
+            read.away,
+        )
+    }
+
+    @Test
     fun `reads the season in force`() = runTest {
         api.enqueue(json(200, TOWN))
 

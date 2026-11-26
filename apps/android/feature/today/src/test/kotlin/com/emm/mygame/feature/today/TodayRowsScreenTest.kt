@@ -161,6 +161,7 @@ class TodayRowsScreenTest {
     ): TodayUiState.Content = TodayUiState.Content(
         eyebrow = TodayUiState.Eyebrow.StartHere,
         first = first,
+        gained = emptyList(),
         whatHappened = null,
         lesson = lesson,
         work = null,

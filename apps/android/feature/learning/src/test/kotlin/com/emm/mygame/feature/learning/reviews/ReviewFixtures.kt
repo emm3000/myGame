@@ -137,6 +137,7 @@ internal fun townOf(
         nextStep = NextStep.CaughtUp(CaughtUpReason.LessonsDone, goal = null, text = null),
         tip = null,
         nextDueAt = null,
+        away = null,
         readAt = firstReadAt,
     ),
 )

@@ -48,7 +48,7 @@ class TodayViewModel(
 
     private var requests: TodayRequests = TodayRequests()
 
-    private var isShown: Boolean = false
+    private var visit: TodayVisit? = null
 
     private var reading: Job? = null
 
@@ -70,27 +70,36 @@ class TodayViewModel(
     }
 
     private fun show() {
-        isShown = true
+        visit = visit ?: TodayVisit()
         read()
         news.read()
         follow()
     }
 
     private fun hide() {
-        isShown = false
+        visit = null
         following?.cancel()
+        draw()
     }
 
     private fun read() {
         if (reading?.isActive == true) return
         if (held == null) _state.value = TodayUiState.Loading
         reading = viewModelScope.launch {
-            when (towns.read()) {
+            when (readTown()) {
                 is TownReadResult.Read -> Unit
                 TownReadResult.NoTown -> _effects.send(TodayEffect.NoTown)
                 TownReadResult.Unreachable -> if (held == null) _state.value = TodayUiState.Failed
             }
         }
+    }
+
+    private suspend fun readTown(): TownReadResult {
+        val answer: TownReadResult = towns.read()
+        val gone: TownSnapshot.Away = (answer as? TownReadResult.Read)?.town?.away ?: return answer
+        visit = visit?.copy(away = gone)
+        draw()
+        return answer
     }
 
     private fun study(lesson: LessonId) {
@@ -139,7 +148,7 @@ class TodayViewModel(
 
     private fun follow() {
         following?.cancel()
-        if (!isShown || held == null) return
+        if (visit == null || held == null) return
         following = viewModelScope.launch {
             while (true) {
                 val town: TownSnapshot = held?.town ?: return@launch
@@ -147,7 +156,7 @@ class TodayViewModel(
                 val countdown: Instant? = town.countdownsAt().minOrNull()
                 if (countdown != null && countdown <= now) {
                     news.read()
-                    towns.read()
+                    readTown()
                     return@launch
                 }
                 val left: Duration =
@@ -165,7 +174,8 @@ class TodayViewModel(
 
     private fun draw() {
         val shown: HeldTown = held ?: return
-        _state.value = shown.town.todayAt(now(), shown.gap, requests, news.whatHappened)
+        val gained: List<TownSnapshot.Cost> = visit?.away?.gained.orEmpty()
+        _state.value = shown.town.todayAt(now(), shown.gap, requests, gained, news.whatHappened)
     }
 
     private fun now(): Instant = serverNow(clock, held?.gap ?: Duration.ZERO)

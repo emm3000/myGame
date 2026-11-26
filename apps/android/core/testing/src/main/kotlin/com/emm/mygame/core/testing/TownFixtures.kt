@@ -57,5 +57,6 @@ fun townOf(
     nextStep = nextStep,
     tip = null,
     nextDueAt = nextDueAt,
+    away = null,
     readAt = readAt,
 )

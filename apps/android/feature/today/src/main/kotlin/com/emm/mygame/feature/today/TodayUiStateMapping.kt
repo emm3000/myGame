@@ -21,12 +21,14 @@ internal fun TownSnapshot.todayAt(
     now: Instant,
     gap: Duration,
     requests: TodayRequests,
+    gained: List<TownSnapshot.Cost>,
     whatHappened: TodayUiState.WhatHappened?,
 ): TodayUiState.Content {
     val reaches: List<Reach> = reachesAt(now, gap)
     return TodayUiState.Content(
         eyebrow = if (hasStudiedALesson()) TodayUiState.Eyebrow.WhatIsNext else TodayUiState.Eyebrow.StartHere,
         first = firstCardAt(now, gap),
+        gained = gained,
         whatHappened = whatHappened,
         lesson = runningLessonAt(now, gap),
         work = work.slot?.runningAt(now, gap),

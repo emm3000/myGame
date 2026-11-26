@@ -10,6 +10,7 @@
     <string name="today_finish_day">{day} {time}</string>
     <string name="today_finish_tomorrow">tomorrow {time}</string>
     <string name="today_finish_with_clock">{timeLeft} · {clock}</string>
+    <string name="today_gained_title">What your town earned</string>
     <string name="today_holdout_check">Word check for band {band}</string>
     <string name="today_holdout_open">Open the check</string>
     <string name="today_in_progress">In progress</string>

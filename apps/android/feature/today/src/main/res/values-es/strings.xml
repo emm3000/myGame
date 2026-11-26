@@ -10,6 +10,7 @@
     <string name="today_finish_day">{day} {time}</string>
     <string name="today_finish_tomorrow">mañana {time}</string>
     <string name="today_finish_with_clock">{timeLeft} · {clock}</string>
+    <string name="today_gained_title">Lo que ganó tu pueblo</string>
     <string name="today_holdout_check">Prueba de palabras de la banda {band}</string>
     <string name="today_holdout_open">Abrir la prueba</string>
     <string name="today_in_progress">En curso</string>

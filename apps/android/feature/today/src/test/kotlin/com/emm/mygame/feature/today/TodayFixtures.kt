@@ -25,6 +25,7 @@ internal fun newTown(
     job: TownSnapshot.Job? = null,
     buildings: List<TownSnapshot.Building>? = null,
     stocks: List<TownSnapshot.Stock> = emptyList(),
+    away: TownSnapshot.Away? = null,
 ): TownSnapshot = townOf(
     readAt,
     nextStep = nextStep,
@@ -37,6 +38,7 @@ internal fun newTown(
         job = job,
         buildings = buildings ?: town.buildings,
         stocks = stocks,
+        away = away,
     )
 }
 

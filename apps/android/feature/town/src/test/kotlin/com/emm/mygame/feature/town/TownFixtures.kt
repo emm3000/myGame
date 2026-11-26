@@ -139,6 +139,7 @@ internal fun townOf(
     nextStep = nextStep,
     tip = tip,
     nextDueAt = nextDueAt,
+    away = null,
     readAt = readAt,
 )
 
