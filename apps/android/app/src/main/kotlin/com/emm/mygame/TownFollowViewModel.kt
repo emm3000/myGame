@@ -66,10 +66,7 @@ internal class TownFollowViewModel(private val towns: TownRepository, private va
             val shown: HeldTown = held ?: return
             val finishesAt: Instant = shown.lessonFinishAfterRead() ?: return
             val now: Instant = serverNow(clock, shown.gap)
-            if (finishesAt <= now) {
-                readAtFinish()
-                return
-            }
+            if (finishesAt <= now) readAtFinish()
             delay(repaintDelay(finishesAt - now))
         }
     }
