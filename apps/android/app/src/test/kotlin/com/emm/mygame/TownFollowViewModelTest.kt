@@ -11,7 +11,6 @@ import com.emm.mygame.core.testing.MainDispatcherRule
 import com.emm.mygame.core.testing.TestClock
 import com.emm.mygame.core.testing.townOf
 import kotlinx.coroutines.CoroutineStart
-import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.awaitCancellation
 import kotlinx.coroutines.cancel
 import kotlinx.coroutines.launch
@@ -27,7 +26,6 @@ import kotlin.time.Duration.Companion.minutes
 import kotlin.time.Duration.Companion.seconds
 import kotlin.time.Instant
 
-@OptIn(ExperimentalCoroutinesApi::class)
 class TownFollowViewModelTest {
 
     @get:Rule
