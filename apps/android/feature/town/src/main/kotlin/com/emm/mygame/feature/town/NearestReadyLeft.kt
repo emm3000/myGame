@@ -1,6 +1,7 @@
 package com.emm.mygame.feature.town
 
-import com.emm.mygame.feature.town.building.BlockReason
+import com.emm.mygame.core.projection.town.ReadyTime
+import com.emm.mygame.core.projection.town.building.BlockReason
 import com.emm.mygame.feature.town.building.PlaceCard
 import com.emm.mygame.feature.town.hiring.HiringBlock
 import com.emm.mygame.feature.town.hiring.HiringCard

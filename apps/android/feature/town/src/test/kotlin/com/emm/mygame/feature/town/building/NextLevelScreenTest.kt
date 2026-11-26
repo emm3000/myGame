@@ -23,6 +23,9 @@ import com.emm.mygame.core.model.town.TownResourceKind
 import com.emm.mygame.core.model.town.building.NeededWordKind
 import com.emm.mygame.core.model.town.building.TownBuildingKind
 import com.emm.mygame.core.model.town.building.TownWorkRefusal
+import com.emm.mygame.core.projection.town.building.BlockReason
+import com.emm.mygame.core.projection.town.building.StartStatus
+import com.emm.mygame.core.projection.town.building.WordNeedLine
 import com.emm.mygame.feature.town.TownIntent
 import com.emm.mygame.feature.town.TownScreenFixture
 import com.emm.mygame.feature.town.TownUiState

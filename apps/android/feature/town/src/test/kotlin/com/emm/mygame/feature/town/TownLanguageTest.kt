@@ -20,13 +20,13 @@ import com.emm.mygame.core.model.town.building.TownBuildingKind
 import com.emm.mygame.core.model.town.building.TownWorkRefusal
 import com.emm.mygame.core.model.town.hiring.TownHireKind
 import com.emm.mygame.core.model.town.hiring.TownHiringRefusal
+import com.emm.mygame.core.projection.town.building.BlockReason
+import com.emm.mygame.core.projection.town.building.StartStatus
 import com.emm.mygame.core.ui.ChromePhase
 import com.emm.mygame.core.ui.CopyLanguage
 import com.emm.mygame.core.ui.ProvideCopyLanguage
 import com.emm.mygame.core.ui.ScaffoldLanguage
-import com.emm.mygame.feature.town.building.BlockReason
 import com.emm.mygame.feature.town.building.PlaceCard
-import com.emm.mygame.feature.town.building.StartStatus
 import com.emm.mygame.feature.town.building.work.SlotLine
 import com.emm.mygame.feature.town.building.work.StopStatus
 import com.emm.mygame.feature.town.building.work.WorkTarget
@@ -38,6 +38,10 @@ import com.emm.mygame.feature.town.hiring.HiringPlaceStatus
 import com.emm.mygame.feature.town.hiring.HiringStopStatus
 import com.emm.mygame.feature.town.hiring.HiringTarget
 import com.emm.mygame.feature.town.naming.NamingStatus
+import java.util.TimeZone
+import kotlin.time.Duration
+import kotlin.time.Duration.Companion.days
+import kotlin.time.Duration.Companion.minutes
 import org.junit.After
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertTrue
@@ -47,10 +51,6 @@ import org.junit.Test
 import org.junit.runner.RunWith
 import org.robolectric.RobolectricTestRunner
 import org.robolectric.annotation.Config
-import java.util.TimeZone
-import kotlin.time.Duration
-import kotlin.time.Duration.Companion.days
-import kotlin.time.Duration.Companion.minutes
 
 @RunWith(RobolectricTestRunner::class)
 @Config(qualifiers = "en")

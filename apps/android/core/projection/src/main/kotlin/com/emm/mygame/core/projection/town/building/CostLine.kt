@@ -1,4 +1,4 @@
-package com.emm.mygame.feature.town.building
+package com.emm.mygame.core.projection.town.building
 
 import com.emm.mygame.core.model.town.TownResourceKind
 

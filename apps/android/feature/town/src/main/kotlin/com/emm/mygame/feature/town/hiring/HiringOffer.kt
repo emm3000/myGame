@@ -1,6 +1,6 @@
 package com.emm.mygame.feature.town.hiring
 
-import com.emm.mygame.feature.town.building.CostLine
+import com.emm.mygame.core.projection.town.building.CostLine
 import kotlin.time.Duration
 
 data class HiringOffer(

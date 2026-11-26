@@ -17,27 +17,27 @@ import com.emm.mygame.core.model.town.guidance.CaughtUpReason
 import com.emm.mygame.core.model.town.guidance.NextStep
 import com.emm.mygame.core.model.town.guidance.TipKind
 import com.emm.mygame.core.model.town.guidance.TownGoal
+import com.emm.mygame.core.projection.town.building.BlockReason
+import com.emm.mygame.core.projection.town.building.Shortfall
 import com.emm.mygame.core.testing.FakeTownRepository
 import com.emm.mygame.core.testing.TestClock
 import com.emm.mygame.core.testing.hiringOf
-import com.emm.mygame.feature.town.building.BlockReason
 import com.emm.mygame.feature.town.building.NextLevel
 import com.emm.mygame.feature.town.building.PlaceCard
-import com.emm.mygame.feature.town.building.Shortfall
 import com.emm.mygame.feature.town.building.StockLine
 import com.emm.mygame.feature.town.hiring.HiringLine
 import com.emm.mygame.feature.town.hiring.HiringOrderLine
 import com.emm.mygame.feature.town.hiring.HiringPlaceStatus
 import com.emm.mygame.feature.town.hiring.HiringStopStatus
 import com.emm.mygame.feature.town.naming.NamingStatus
+import kotlin.time.Duration
+import kotlin.time.Duration.Companion.minutes
+import kotlin.time.Instant
 import kotlinx.coroutines.CoroutineStart
 import kotlinx.coroutines.awaitCancellation
 import kotlinx.coroutines.cancel
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.test.TestScope
-import kotlin.time.Duration
-import kotlin.time.Duration.Companion.minutes
-import kotlin.time.Instant
 
 internal val isTab: SemanticsMatcher = SemanticsMatcher.expectValue(SemanticsProperties.Role, Role.Tab)
 

@@ -6,16 +6,20 @@ import com.emm.mygame.core.model.town.TownSnapshot
 import com.emm.mygame.core.model.town.building.TownBuildingKind
 import com.emm.mygame.core.model.town.building.TownWorkRefusal
 import com.emm.mygame.core.model.town.building.TownWorkResult
+import com.emm.mygame.core.projection.town.building.BlockReason
+import com.emm.mygame.core.projection.town.building.CostLine
+import com.emm.mygame.core.projection.town.building.NextLevelLine
+import com.emm.mygame.core.projection.town.building.StartStatus
 import com.emm.mygame.core.testing.FakeTownRepository
 import com.emm.mygame.core.testing.MainDispatcherRule
-import com.emm.mygame.feature.town.building.BlockReason
-import com.emm.mygame.feature.town.building.CostLine
-import com.emm.mygame.feature.town.building.NextLevelLine
 import com.emm.mygame.feature.town.building.PlaceCard
-import com.emm.mygame.feature.town.building.StartStatus
 import com.emm.mygame.feature.town.building.work.SlotLine
 import com.emm.mygame.feature.town.building.work.StopStatus
 import com.emm.mygame.feature.town.building.work.WorkTarget
+import kotlin.time.Duration.Companion.hours
+import kotlin.time.Duration.Companion.minutes
+import kotlin.time.Duration.Companion.seconds
+import kotlin.time.Instant
 import kotlinx.coroutines.test.TestScope
 import kotlinx.coroutines.test.advanceTimeBy
 import kotlinx.coroutines.test.runCurrent
@@ -25,10 +29,6 @@ import org.junit.Assert.assertNull
 import org.junit.Assert.assertTrue
 import org.junit.Rule
 import org.junit.Test
-import kotlin.time.Duration.Companion.hours
-import kotlin.time.Duration.Companion.minutes
-import kotlin.time.Duration.Companion.seconds
-import kotlin.time.Instant
 
 class TownWorkViewModelTest {
 

@@ -3,6 +3,7 @@ package com.emm.mygame.feature.town
 import com.emm.mygame.core.model.town.building.TownBuildingKind
 import com.emm.mygame.core.projection.FinishClock
 import com.emm.mygame.core.projection.finishClockOf
+import com.emm.mygame.core.projection.town.ReadyTime
 import com.emm.mygame.core.ui.CopyReader
 import com.emm.mygame.core.ui.DurationCopy
 import com.emm.mygame.core.ui.finishClockLabelOf

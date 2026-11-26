@@ -3,6 +3,7 @@ package com.emm.mygame.feature.town.building
 import com.emm.mygame.core.model.town.TownSnapshot
 import com.emm.mygame.core.model.town.building.NeededWordKind
 import com.emm.mygame.core.model.town.building.TownBuildingKind
+import com.emm.mygame.core.projection.town.building.WordNeedLine
 import com.emm.mygame.feature.town.TownViewModel
 import com.emm.mygame.feature.town.TownViewModelFixture
 import com.emm.mygame.feature.town.contentOf

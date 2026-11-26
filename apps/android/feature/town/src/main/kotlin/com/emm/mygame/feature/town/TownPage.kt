@@ -24,6 +24,8 @@ import com.emm.mygame.core.model.town.building.TownBuildingKind
 import com.emm.mygame.core.model.town.guidance.NextStepText
 import com.emm.mygame.core.model.town.guidance.TipKind
 import com.emm.mygame.core.model.town.guidance.TownGoal
+import com.emm.mygame.core.projection.town.building.NextLevelLine
+import com.emm.mygame.core.projection.town.building.WordNeedLine
 import com.emm.mygame.core.ui.CopyReader
 import com.emm.mygame.core.ui.DurationMark
 import com.emm.mygame.core.ui.PlayerCopy
@@ -34,10 +36,8 @@ import com.emm.mygame.core.ui.rememberPlayerCopy
 import com.emm.mygame.core.ui.seasonIconOf
 import com.emm.mygame.core.ui.seasonSelectorOf
 import com.emm.mygame.feature.town.building.NextLevel
-import com.emm.mygame.feature.town.building.NextLevelLine
 import com.emm.mygame.feature.town.building.PlaceCard
 import com.emm.mygame.feature.town.building.PlaceStocks
-import com.emm.mygame.feature.town.building.WordNeedLine
 import com.emm.mygame.feature.town.building.placeArtOf
 import com.emm.mygame.feature.town.building.work.PlaceBuildingWork
 import com.emm.mygame.feature.town.guidance.GoalState

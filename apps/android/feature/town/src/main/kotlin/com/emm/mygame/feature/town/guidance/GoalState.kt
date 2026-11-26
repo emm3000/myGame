@@ -18,11 +18,11 @@ import com.emm.mygame.core.model.town.TownResourceKind
 import com.emm.mygame.core.model.town.TownSnapshot
 import com.emm.mygame.core.model.town.building.TownBuildingKind
 import com.emm.mygame.core.model.town.guidance.TownGoal
+import com.emm.mygame.core.projection.town.building.BlockReason
+import com.emm.mygame.core.projection.town.building.Shortfall
 import com.emm.mygame.core.ui.PlayerCopy
 import com.emm.mygame.core.ui.rememberPlayerCopy
 import com.emm.mygame.feature.town.R
-import com.emm.mygame.feature.town.building.BlockReason
-import com.emm.mygame.feature.town.building.Shortfall
 import com.emm.mygame.feature.town.building.shortfallLineOf
 
 @Composable

@@ -3,6 +3,7 @@ package com.emm.mygame.feature.town.building
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import com.emm.mygame.core.model.town.building.TownBuildingKind
+import com.emm.mygame.core.projection.town.building.StartStatus
 import com.emm.mygame.core.ui.PlayerCopy
 import com.emm.mygame.core.ui.rememberPlayerCopy
 import com.emm.mygame.feature.town.R

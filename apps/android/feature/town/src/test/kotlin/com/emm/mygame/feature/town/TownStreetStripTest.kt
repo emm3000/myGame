@@ -16,7 +16,7 @@ import androidx.compose.ui.unit.Dp
 import com.emm.mygame.core.model.town.TownLabel
 import com.emm.mygame.core.model.town.building.TownBuildingKind
 import com.emm.mygame.core.model.town.building.TownWorkRefusal
-import com.emm.mygame.feature.town.building.StartStatus
+import com.emm.mygame.core.projection.town.building.StartStatus
 import org.junit.Assert.assertEquals
 import org.junit.Test
 import org.junit.runner.RunWith

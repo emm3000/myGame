@@ -16,6 +16,7 @@ import com.emm.mygame.core.designsystem.MyGameTheme
 import com.emm.mygame.core.designsystem.MyGameTypography
 import com.emm.mygame.core.designsystem.formatQuantity
 import com.emm.mygame.core.designsystem.withTabularFigures
+import com.emm.mygame.core.projection.town.building.CostLine
 import com.emm.mygame.core.ui.rememberPlayerCopy
 import com.emm.mygame.feature.town.shortMarked
 

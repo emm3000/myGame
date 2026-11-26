@@ -36,12 +36,12 @@ import com.emm.mygame.core.model.town.TownRegistered
 import com.emm.mygame.core.model.town.TownResourceKind
 import com.emm.mygame.core.model.town.TownSnapshot
 import com.emm.mygame.core.model.town.building.TownBuildingKind
+import com.emm.mygame.core.projection.town.building.CostLine
+import com.emm.mygame.core.projection.town.building.NextLevelLine
+import com.emm.mygame.core.projection.town.building.StartStatus
 import com.emm.mygame.core.ui.DurationMark
-import com.emm.mygame.feature.town.building.CostLine
-import com.emm.mygame.feature.town.building.NextLevelLine
 import com.emm.mygame.feature.town.building.PeopleLine
 import com.emm.mygame.feature.town.building.PlaceCard
-import com.emm.mygame.feature.town.building.StartStatus
 import com.emm.mygame.feature.town.building.StockLine
 import com.emm.mygame.feature.town.building.WordsLine
 import com.emm.mygame.feature.town.building.work.SlotLine
@@ -49,16 +49,16 @@ import com.emm.mygame.feature.town.building.work.StopStatus
 import com.emm.mygame.feature.town.building.work.WORK_DONE_ICON
 import com.emm.mygame.feature.town.building.work.WaitingLine
 import com.emm.mygame.feature.town.guidance.ClosedGuidance
+import kotlin.time.Duration
+import kotlin.time.Duration.Companion.hours
+import kotlin.time.Duration.Companion.minutes
+import kotlin.time.Duration.Companion.seconds
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertTrue
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.robolectric.RobolectricTestRunner
-import kotlin.time.Duration
-import kotlin.time.Duration.Companion.hours
-import kotlin.time.Duration.Companion.minutes
-import kotlin.time.Duration.Companion.seconds
 
 @RunWith(RobolectricTestRunner::class)
 class TownLookTest {

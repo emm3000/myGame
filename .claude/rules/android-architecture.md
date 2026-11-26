@@ -20,7 +20,7 @@ paths:
 | `feature:<name>` | One module, one feature, its screens in packages: each screen's ViewModel, `UiState`, `Intent`, `Effect`, route and screen |
 | `core:model` | Pure Kotlin, JVM only, one package per feature (`account`, `holdout`, `learning`, `placement`, `reminder`, `report`, `theme`, `town` with `town.building`, `town.guidance`, `town.hiring`, `town.jobs`, `town.news` and `town.school`): the feature's types, the `*Result` and `*Refusal` an api answer is read into, and its ports (`SessionRepository`, `HoldoutCheckRepository`, `LearningRepository`, `PlacementRepository`, `ReminderNotifications`, `StudyAnswerSink`, `StudyReminderSettings`, `ReportRepository`, `ThemeSettings`, `TownRepository`, `TownTextRepository`, `TownGuidanceRepository`, `RegionReader`, `RegionRepository`) |
 | `core:network` | The generated OpenAPI client, in its build directory; one package per feature, named as `core:model`'s (`account`, `town.jobs`), holding the `Api*` adapters that implement that feature's ports and their `*Mapping` files; and `platform`, holding what names no game word: the endpoint and the HTTP client builder it carries, the bearer, the token store, and `ApiRepositories`, which builds every `Api*` adapter |
-| `core:projection` | Pure Kotlin, JVM only: the lazy projection and the value types it reads |
+| `core:projection` | Pure Kotlin, JVM only: the lazy projection and the value types it reads, and the next level's block reason derived from a town read |
 | `core:designsystem` | The design-system tokens and components (`ui-components.md`) |
 | `core:ui` | Composables shared by features that read the game's models (a resource row, a countdown); its `testFixtures` hold the matchers the task screens' tests share (`hasCopy`, `assertAskingProgressDrawnOnce`) |
 | `core:testing` | Pure Kotlin, JVM only: fakes of the `core:model` interfaces, the test clock |
@@ -34,7 +34,7 @@ core:testing      -> core:model, core:projection
 core:uitesting    -> core:designsystem
 core:network      -> core:model
 core:model        -> nothing in the project
-core:projection   -> nothing in the project
+core:projection   -> core:model
 core:designsystem -> nothing in the project
 ```
 

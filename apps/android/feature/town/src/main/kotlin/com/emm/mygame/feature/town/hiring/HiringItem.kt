@@ -29,6 +29,8 @@ import com.emm.mygame.core.designsystem.MyGameTypography
 import com.emm.mygame.core.designsystem.formatQuantity
 import com.emm.mygame.core.designsystem.withTabularFigures
 import com.emm.mygame.core.model.town.hiring.TownHireKind
+import com.emm.mygame.core.projection.town.building.BlockReason
+import com.emm.mygame.core.projection.town.building.CostLine
 import com.emm.mygame.core.ui.CopyReader
 import com.emm.mygame.core.ui.PlayerCopy
 import com.emm.mygame.core.ui.chromeResource
@@ -37,9 +39,7 @@ import com.emm.mygame.core.ui.rememberPlayerCopy
 import com.emm.mygame.feature.town.R
 import com.emm.mygame.feature.town.RevealedAlert
 import com.emm.mygame.feature.town.TownIntent
-import com.emm.mygame.feature.town.building.BlockReason
 import com.emm.mygame.feature.town.building.CostItem
-import com.emm.mygame.feature.town.building.CostLine
 import com.emm.mygame.feature.town.building.shortfallLineOf
 import com.emm.mygame.feature.town.shortMarked
 import com.emm.mygame.feature.town.townDurationCopy
