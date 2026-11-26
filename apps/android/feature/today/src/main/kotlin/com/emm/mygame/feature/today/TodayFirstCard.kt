@@ -5,6 +5,7 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.padding
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
+import com.emm.mygame.core.designsystem.MyGameAchievement
 import com.emm.mygame.core.designsystem.MyGameButton
 import com.emm.mygame.core.designsystem.MyGameCard
 import com.emm.mygame.core.designsystem.MyGameInlineAlert
@@ -25,6 +26,10 @@ internal fun TodayFirstCard(
     onAct: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
+    if (card is TodayUiState.FirstCard.CaughtUp) {
+        CaughtUpCard(card = card, eyebrow = eyebrow, modifier = modifier)
+        return
+    }
     val copy: PlayerCopy = rememberPlayerCopy()
     MyGameCard(modifier = modifier) {
         Column(
@@ -33,13 +38,6 @@ internal fun TodayFirstCard(
         ) {
             MyGameMetaText(label = eyebrow, color = MyGameTheme.colors.inkMuted)
             MyGameText(label = copy.lineOf(card), style = MyGameTypography.title, color = MyGameTheme.colors.ink)
-            (card as? TodayUiState.FirstCard.CaughtUp)?.nextReview?.let { time: TodayUiState.TimeAt ->
-                MyGameText(
-                    label = copy.nextReviewOf(time),
-                    style = MyGameTypography.body,
-                    color = MyGameTheme.colors.ink,
-                )
-            }
             copy.startRefusalOf(start)?.let { refusal: String -> MyGameInlineAlert(message = refusal) }
             copy.actionOf(card)?.let { action: MyGameLabel ->
                 MyGameButton(
@@ -49,6 +47,22 @@ internal fun TodayFirstCard(
                     onClick = onAct,
                 )
             }
+        }
+    }
+}
+
+@Composable
+private fun CaughtUpCard(card: TodayUiState.FirstCard.CaughtUp, eyebrow: MyGameLabel, modifier: Modifier = Modifier) {
+    val copy: PlayerCopy = rememberPlayerCopy()
+    MyGameAchievement(modifier = modifier) {
+        MyGameMetaText(label = eyebrow, color = MyGameTheme.colors.onBlockMuted)
+        MyGameText(label = copy.lineOf(card), style = MyGameTypography.title, color = MyGameTheme.colors.onBlock)
+        card.nextReview?.let { time: TodayUiState.TimeAt ->
+            MyGameText(
+                label = copy.nextReviewOf(time),
+                style = MyGameTypography.body,
+                color = MyGameTheme.colors.onBlock,
+            )
         }
     }
 }

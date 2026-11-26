@@ -21,6 +21,7 @@ internal fun EntryProviderScope<NavKey>.todayEntry(chrome: SignedInChrome) {
         SignedInFrame(kind = FrameKind.Home, doesScreenReadTown = true, chrome = chrome) {
             TodayRoute(
                 towns = dependencies.towns,
+                reports = dependencies.reports,
                 clock = dependencies.clock,
                 navigation = TodayNavigation(
                     onLessonOpen = { lesson: LessonId -> navigator.openLesson(lesson, walked = emptyList()) },
@@ -29,6 +30,7 @@ internal fun EntryProviderScope<NavKey>.todayEntry(chrome: SignedInChrome) {
                         navigator.openHoldoutCheck(band, week)
                     },
                     onMapOpen = { navigator.openOnTab(Destination.Map) },
+                    onNewsOpen = { navigator.openAbove(Destination.Today, Destination.News) },
                     onNoTown = navigator::townUnnamed,
                 ),
                 ring = { RetainedWordsRing(towns = dependencies.towns, doesScreenReadTown = true) },

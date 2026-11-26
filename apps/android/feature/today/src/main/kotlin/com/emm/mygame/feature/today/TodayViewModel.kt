@@ -3,6 +3,7 @@ package com.emm.mygame.feature.today
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.emm.mygame.core.model.learning.LessonId
+import com.emm.mygame.core.model.report.ReportRepository
 import com.emm.mygame.core.model.town.HeldTown
 import com.emm.mygame.core.model.town.TownReadResult
 import com.emm.mygame.core.model.town.TownRepository
@@ -27,7 +28,11 @@ import kotlin.time.Clock
 import kotlin.time.Duration
 import kotlin.time.Instant
 
-class TodayViewModel(private val towns: TownRepository, private val clock: Clock) : ViewModel() {
+class TodayViewModel(
+    private val towns: TownRepository,
+    private val reports: ReportRepository,
+    private val clock: Clock,
+) : ViewModel() {
 
     private val _state: MutableStateFlow<TodayUiState> = MutableStateFlow(TodayUiState.Loading)
 
@@ -36,6 +41,8 @@ class TodayViewModel(private val towns: TownRepository, private val clock: Clock
     private val _effects: Channel<TodayEffect> = Channel(Channel.BUFFERED)
 
     val effects: Flow<TodayEffect> = _effects.receiveAsFlow()
+
+    private val news: TodayNews = TodayNews(reports, viewModelScope, clock, ::draw)
 
     private var held: HeldTown? = null
 
@@ -58,12 +65,14 @@ class TodayViewModel(private val towns: TownRepository, private val clock: Clock
             TodayIntent.RetryTapped -> if (_state.value == TodayUiState.Failed) read()
             is TodayIntent.StudyTapped -> study(intent.lesson)
             is TodayIntent.BuildTapped -> build(intent.building)
+            TodayIntent.NewsCloseTapped -> news.close()
         }
     }
 
     private fun show() {
         isShown = true
         read()
+        news.read()
         follow()
     }
 
@@ -137,6 +146,7 @@ class TodayViewModel(private val towns: TownRepository, private val clock: Clock
                 val now: Instant = now()
                 val countdown: Instant? = town.countdownsAt().minOrNull()
                 if (countdown != null && countdown <= now) {
+                    news.read()
                     towns.read()
                     return@launch
                 }
@@ -155,7 +165,7 @@ class TodayViewModel(private val towns: TownRepository, private val clock: Clock
 
     private fun draw() {
         val shown: HeldTown = held ?: return
-        _state.value = shown.town.todayAt(now(), shown.gap, requests)
+        _state.value = shown.town.todayAt(now(), shown.gap, requests, news.whatHappened)
     }
 
     private fun now(): Instant = serverNow(clock, held?.gap ?: Duration.ZERO)

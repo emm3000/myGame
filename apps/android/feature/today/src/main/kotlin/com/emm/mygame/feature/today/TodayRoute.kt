@@ -8,6 +8,7 @@ import androidx.compose.ui.Modifier
 import androidx.lifecycle.compose.LifecycleStartEffect
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
+import com.emm.mygame.core.model.report.ReportRepository
 import com.emm.mygame.core.model.town.TownRepository
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
@@ -16,10 +17,11 @@ import kotlin.time.Clock
 @Composable
 fun TodayRoute(
     towns: TownRepository,
+    reports: ReportRepository,
     clock: Clock,
     navigation: TodayNavigation,
     modifier: Modifier = Modifier,
-    viewModel: TodayViewModel = viewModel { TodayViewModel(towns, clock) },
+    viewModel: TodayViewModel = viewModel { TodayViewModel(towns, reports, clock) },
     ring: @Composable () -> Unit = {},
     placement: @Composable () -> Unit = {},
 ) {

@@ -1,5 +1,5 @@
 ---
-status: proposed, the next step on the home amended by ADR 057: on Android it is Today's first card, paper, not a block
+status: proposed, the next step on the home amended by ADR 057: on Android it is Today's first card, paper, not a block, and on the four tabs peach means an achievement, the achievement block
 date: 2026-11-06
 ---
 # The look

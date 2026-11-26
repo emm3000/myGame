@@ -8,6 +8,7 @@ import com.emm.mygame.core.model.town.TownSnapshot
 import com.emm.mygame.core.model.town.building.TownBuildingKind
 import com.emm.mygame.core.model.town.guidance.NextStep
 import com.emm.mygame.core.model.town.school.TownLessonResult
+import com.emm.mygame.core.testing.FakeReportRepository
 import com.emm.mygame.core.testing.FakeTownRepository
 import com.emm.mygame.core.testing.MainDispatcherRule
 import com.emm.mygame.core.testing.TestClock
@@ -198,7 +199,7 @@ class TodayViewModelTest {
     @Test
     fun `a town with no name asks for the naming`() = runTest {
         towns.answerRead(TownReadResult.NoTown)
-        val viewModel: TodayViewModel = TodayViewModel(towns, TestClock(testScheduler, readAt))
+        val viewModel: TodayViewModel = TodayViewModel(towns, FakeReportRepository(), TestClock(testScheduler, readAt))
         stopsWithTheTest(viewModel)
 
         viewModel.effects.test {
@@ -210,7 +211,7 @@ class TodayViewModelTest {
 
     private fun TestScope.shownOn(town: TownSnapshot): TodayViewModel {
         towns.answerRead(TownReadResult.Read(town))
-        val viewModel: TodayViewModel = TodayViewModel(towns, TestClock(testScheduler, readAt))
+        val viewModel: TodayViewModel = TodayViewModel(towns, FakeReportRepository(), TestClock(testScheduler, readAt))
         stopsWithTheTest(viewModel)
         viewModel.onIntent(TodayIntent.ScreenShown)
         runCurrent()
@@ -219,7 +220,7 @@ class TodayViewModelTest {
 
     private fun TestScope.shownOnUnreachable(): TodayViewModel {
         towns.answerRead(TownReadResult.Unreachable)
-        val viewModel: TodayViewModel = TodayViewModel(towns, TestClock(testScheduler, readAt))
+        val viewModel: TodayViewModel = TodayViewModel(towns, FakeReportRepository(), TestClock(testScheduler, readAt))
         stopsWithTheTest(viewModel)
         viewModel.onIntent(TodayIntent.ScreenShown)
         runCurrent()
