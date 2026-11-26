@@ -4,24 +4,15 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.semantics.heading
-import androidx.compose.ui.semantics.semantics
 import com.emm.mygame.core.designsystem.MyGameBlock
 import com.emm.mygame.core.designsystem.MyGameBlockHue
 import com.emm.mygame.core.designsystem.MyGameHairline
-import com.emm.mygame.core.designsystem.MyGameHeader
 import com.emm.mygame.core.designsystem.MyGameNavRow
 import com.emm.mygame.core.designsystem.MyGamePlacePage
 import com.emm.mygame.core.designsystem.MyGamePlaceWords
 import com.emm.mygame.core.designsystem.MyGameSpacing
-import com.emm.mygame.core.designsystem.MyGameText
 import com.emm.mygame.core.designsystem.MyGameTextLink
-import com.emm.mygame.core.designsystem.MyGameTheme
-import com.emm.mygame.core.designsystem.MyGameTypography
-import com.emm.mygame.core.model.learning.TextId
-import com.emm.mygame.core.model.town.TownLabel
 import com.emm.mygame.core.model.town.building.TownBuildingKind
-import com.emm.mygame.core.model.town.guidance.NextStepText
 import com.emm.mygame.core.model.town.guidance.TipKind
 import com.emm.mygame.core.model.town.guidance.TownGoal
 import com.emm.mygame.core.projection.town.building.NextLevelLine
@@ -31,7 +22,6 @@ import com.emm.mygame.core.ui.DurationMark
 import com.emm.mygame.core.ui.PlayerCopy
 import com.emm.mygame.core.ui.SeasonMark
 import com.emm.mygame.core.ui.chromeResource
-import com.emm.mygame.core.ui.frameHeaderTurn
 import com.emm.mygame.core.ui.rememberPlayerCopy
 import com.emm.mygame.core.ui.seasonIconOf
 import com.emm.mygame.core.ui.seasonSelectorOf
@@ -42,7 +32,6 @@ import com.emm.mygame.feature.town.building.placeArtOf
 import com.emm.mygame.feature.town.building.work.PlaceBuildingWork
 import com.emm.mygame.feature.town.guidance.GoalState
 import com.emm.mygame.feature.town.guidance.TipNote
-import com.emm.mygame.feature.town.guidance.goalLineOf
 import com.emm.mygame.feature.town.guidance.tipPlaceOf
 import com.emm.mygame.feature.town.hiring.HiringSection
 
@@ -51,7 +40,8 @@ internal fun TownPage(
     content: TownUiState.Content,
     place: PlaceCard,
     onIntent: (TownIntent) -> Unit,
-    slots: TownPageSlots,
+    onSchoolOpen: () -> Unit,
+    onMapOpen: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
     val copy: PlayerCopy = rememberPlayerCopy()
@@ -62,40 +52,20 @@ internal fun TownPage(
         name = copy.chrome(placeNameOf(place.kind)),
         level = copy.chrome { levelLineOf(place) },
         words = place.next?.wordsNeeded?.let { need: WordNeedLine -> copy.wordsOf(need) },
-        header = { PageHeader(content = content, place = place, slots = slots) },
-        work = { PageWork(content = content, place = place, onIntent = onIntent, slots = slots) },
+        header = {
+            if (place.isInWork) content.buildMark?.let { mark: DurationMark -> BuildMarkRow(mark = mark) }
+        },
+        work = {
+            PageWork(
+                content = content,
+                place = place,
+                onIntent = onIntent,
+                onSchoolOpen = onSchoolOpen,
+                onMapOpen = onMapOpen,
+            )
+        },
         modifier = modifier,
     )
-}
-
-@Composable
-private fun PageHeader(
-    content: TownUiState.Content,
-    place: PlaceCard,
-    slots: TownPageSlots,
-) {
-    Column(verticalArrangement = Arrangement.spacedBy(MyGameSpacing.step3)) {
-        MyGameHeader(modifier = Modifier.frameHeaderTurn(), end = slots.ring) {
-            Column {
-                TownTitle(name = content.name, label = content.label)
-                MyGameText(
-                    label = chromeResource(
-                        R.string.town_page_position,
-                        "number" to (content.places.indexOf(place) + 1).toString(),
-                        "count" to content.places.size.toString(),
-                    ),
-                    style = MyGameTypography.caption,
-                    color = MyGameTheme.colors.inkMuted,
-                )
-            }
-        }
-        content.season?.let { season: SeasonLine -> SeasonRow(season = season) }
-        content.caughtUpGoal?.takeIf { goal: TownGoal -> goal.building != place.kind }?.let { goal: TownGoal ->
-            GoalLine(goal = goal)
-        }
-        content.newestText?.let { text: NextStepText -> NewestTextLine(text = text, onTextOpen = slots.onTextOpen) }
-        if (place.isInWork) content.buildMark?.let { mark: DurationMark -> BuildMarkRow(mark = mark) }
-    }
 }
 
 @Composable
@@ -103,7 +73,8 @@ private fun PageWork(
     content: TownUiState.Content,
     place: PlaceCard,
     onIntent: (TownIntent) -> Unit,
-    slots: TownPageSlots,
+    onSchoolOpen: () -> Unit,
+    onMapOpen: () -> Unit,
 ) {
     Column(verticalArrangement = Arrangement.spacedBy(MyGameSpacing.step4)) {
         content.goal?.takeIf { goal: TownGoal -> goal.building == place.kind }?.let { goal: TownGoal ->
@@ -120,7 +91,13 @@ private fun PageWork(
         }
         PlaceBuildingWork(place = place.kind, content = content, onIntent = onIntent)
         PlaceStocks(place = place.kind, content = content)
-        PlaceOwnParts(place = place.kind, content = content, onIntent = onIntent, slots = slots)
+        PlaceOwnParts(
+            place = place.kind,
+            content = content,
+            onIntent = onIntent,
+            onSchoolOpen = onSchoolOpen,
+            onMapOpen = onMapOpen,
+        )
         content.tip?.takeIf { shown: TipKind -> content.tipPlaceOf(shown) == place.kind }?.let { tip: TipKind ->
             TipNote(tip = tip, onIntent = onIntent)
         }
@@ -132,41 +109,22 @@ private fun PlaceOwnParts(
     place: TownBuildingKind,
     content: TownUiState.Content,
     onIntent: (TownIntent) -> Unit,
-    slots: TownPageSlots,
+    onSchoolOpen: () -> Unit,
+    onMapOpen: () -> Unit,
 ) {
     when (place) {
         TownBuildingKind.School -> {
-            MyGameNavRow(title = chromeResource(R.string.town_go_to_school), onClick = slots.onSchoolOpen)
-            slots.placement()
+            MyGameNavRow(title = chromeResource(R.string.town_go_to_school), onClick = onSchoolOpen)
         }
         TownBuildingKind.Office -> {
             HiringSection(hiring = content.hiring, onIntent = onIntent)
             MyGameHairline()
-            MyGameNavRow(title = chromeResource(R.string.town_map_link), onClick = slots.onMapOpen)
+            MyGameNavRow(title = chromeResource(R.string.town_map_link), onClick = onMapOpen)
         }
         TownBuildingKind.Homes, TownBuildingKind.Farm, TownBuildingKind.Factory, TownBuildingKind.PowerStation,
         TownBuildingKind.Storage,
         -> Unit
     }
-}
-
-@Composable
-private fun GoalLine(goal: TownGoal, modifier: Modifier = Modifier) {
-    MyGameText(
-        label = rememberPlayerCopy().chrome { goalLineOf(goal) },
-        style = MyGameTypography.body,
-        color = MyGameTheme.colors.inkMuted,
-        modifier = modifier,
-    )
-}
-
-@Composable
-private fun NewestTextLine(text: NextStepText, onTextOpen: (TextId) -> Unit, modifier: Modifier = Modifier) {
-    MyGameTextLink(
-        label = chromeResource(R.string.town_next_text, "title" to text.title),
-        onClick = { onTextOpen(text.id) },
-        modifier = modifier,
-    )
 }
 
 @Composable
@@ -194,23 +152,6 @@ private fun BuildMarkRow(mark: DurationMark, modifier: Modifier = Modifier) {
         ),
         modifier = modifier,
     )
-}
-
-@Composable
-private fun TownTitle(name: String, label: TownLabel, modifier: Modifier = Modifier) {
-    MyGameText(
-        label = rememberPlayerCopy().chrome {
-            text(R.string.town_title, "name" to name, "label" to text(labelOf(label)))
-        },
-        style = MyGameTypography.title,
-        color = MyGameTheme.colors.ink,
-        modifier = modifier.semantics { heading() },
-    )
-}
-
-private fun labelOf(label: TownLabel): Int = when (label) {
-    TownLabel.Town -> R.string.town_label_town
-    TownLabel.City -> R.string.town_label_city
 }
 
 private fun PlayerCopy.wordsOf(need: WordNeedLine): MyGamePlaceWords = MyGamePlaceWords(

@@ -5,8 +5,6 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.MutableState
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.test.SemanticsNodeInteraction
-import androidx.compose.ui.test.hasContentDescription
 import androidx.compose.ui.test.junit4.ComposeContentTestRule
 import androidx.compose.ui.test.junit4.createComposeRule
 import androidx.compose.ui.unit.DpSize
@@ -41,6 +39,10 @@ abstract class TownScreenFixture {
 
     protected var mapOpens: Int = 0
 
+    protected val placeOpens: MutableList<TownBuildingKind> = mutableListOf()
+
+    protected var newsOpens: Int = 0
+
     protected val levelTwo: NextLevelLine = NextLevelLine(
         level = 2,
         costs = listOf(CostLine(TownResourceKind.Money, 150, isShort = false)),
@@ -58,7 +60,7 @@ abstract class TownScreenFixture {
         block = null,
     )
 
-    protected val street: List<PlaceCard> = streetOrder.map(::placeOf)
+    protected val placeCards: List<PlaceCard> = placeOrder.map(::placeOf)
 
     protected val riverton: TownUiState.Content = TownUiState.Content(
         name = "Riverton",
@@ -72,11 +74,9 @@ abstract class TownScreenFixture {
         buildMark = null,
         slot = SlotLine.Idle,
         waitingList = emptyList(),
-        places = street,
+        places = placeCards,
         nextStepPlace = TownBuildingKind.School,
         goal = null,
-        caughtUpGoal = null,
-        newestText = null,
         tip = null,
         start = StartStatus.Idle,
         stop = StopStatus.Idle,
@@ -99,10 +99,6 @@ abstract class TownScreenFixture {
         finishesAt = readInstant,
     )
 
-    protected fun tab(place: String): SemanticsNodeInteraction = composeRule.onNode(
-        isTab and hasContentDescription(place, substring = true),
-    )
-
     protected fun inWork(content: TownUiState.Content, vararg kinds: TownBuildingKind): TownUiState.Content =
         content.copy(
             places = content.places.map { place: PlaceCard ->
@@ -120,15 +116,19 @@ abstract class TownScreenFixture {
     protected fun show(
         state: TownUiState,
         ring: @Composable () -> Unit = {},
-        placement: @Composable () -> Unit = {},
+        place: TownBuildingKind? = null,
     ) {
-        composeRule.setContent { Screen(state = state, ring = ring, placement = placement) }
+        composeRule.setContent { Screen(state = state, ring = ring, place = place) }
     }
 
-    protected fun showState(shown: MutableState<TownUiState>, window: DpSize? = null) {
+    protected fun showState(
+        shown: MutableState<TownUiState>,
+        window: DpSize? = null,
+        place: TownBuildingKind? = null,
+    ) {
         composeRule.setContent {
             Box(modifier = if (window == null) Modifier else Modifier.size(window)) {
-                Screen(state = shown.value)
+                Screen(state = shown.value, place = place)
             }
         }
     }
@@ -137,17 +137,18 @@ abstract class TownScreenFixture {
     protected fun Screen(
         state: TownUiState,
         ring: @Composable () -> Unit = {},
-        placement: @Composable () -> Unit = {},
+        place: TownBuildingKind? = null,
     ) {
         MyGameTheme {
             TownScreen(
                 state = state,
+                place = place,
                 onIntent = { intent: TownIntent -> intents += intent },
+                onPlaceOpen = { opened: TownBuildingKind -> placeOpens += opened },
+                onNewsOpen = { newsOpens += 1 },
                 onSchoolOpen = { schoolOpens += 1 },
                 onMapOpen = { mapOpens += 1 },
-                onTextOpen = {},
                 ring = ring,
-                placement = placement,
             )
         }
     }
@@ -156,6 +157,5 @@ abstract class TownScreenFixture {
         const val READING_LINE: String = "Estamos leyendo tu pueblo…"
         const val REVEAL_MARGIN_MILLIS: Long = 50
         const val UNEXPECTED: String = "No hemos podido hablar con el servidor. Vuelve a intentarlo en un momento."
-        const val STREET: String = "Tu pueblo: 7 de 7 construidos"
     }
 }

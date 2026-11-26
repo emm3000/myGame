@@ -2,19 +2,18 @@ package com.emm.mygame.feature.town
 
 import androidx.compose.ui.semantics.SemanticsProperties
 import androidx.compose.ui.test.SemanticsMatcher
-import androidx.compose.ui.test.SemanticsNodeInteraction
 import androidx.compose.ui.test.getUnclippedBoundsInRoot
 import androidx.compose.ui.test.hasAnyDescendant
-import androidx.compose.ui.test.hasContentDescription
 import androidx.compose.ui.test.hasText
 import androidx.compose.ui.test.junit4.ComposeContentTestRule
 import androidx.compose.ui.test.junit4.createComposeRule
 import androidx.compose.ui.test.onLast
-import androidx.compose.ui.test.performClick
+import androidx.compose.ui.test.onRoot
 import androidx.compose.ui.test.performScrollTo
 import androidx.compose.ui.unit.Dp
 import com.emm.mygame.core.designsystem.MyGameTheme
 import com.emm.mygame.core.model.town.TownRegistered
+import com.emm.mygame.core.model.town.building.TownBuildingKind
 import com.emm.mygame.core.model.town.guidance.TipKind
 import com.emm.mygame.feature.town.guidance.ClosedGuidance
 import org.junit.Assert.assertTrue
@@ -45,27 +44,25 @@ class TownTipStripTest {
 
     @Test
     @Config(qualifiers = "+w360dp-h640dp", fontScale = 2.0f)
-    fun `keeps the tip card's bottom edge above the street strip at font scale 2 on a 360 by 640 window`() {
+    fun `brings the tip card's bottom edge into view at font scale 2 on a 360 by 640 window`() {
         composeRule.setContent {
             MyGameTheme {
                 TownScreen(
+                    place = TownBuildingKind.Homes,
+                    onPlaceOpen = {},
+                    onNewsOpen = {},
                     state = homeWithTheTip,
                     onIntent = {},
                     onSchoolOpen = {},
                     onMapOpen = {},
-                    onTextOpen = {},
                 )
             }
         }
-        homesTab().performScrollTo().performClick()
 
         val card: Dp = composeRule.onAllNodes(tipCard, useUnmergedTree = true).onLast().performScrollTo()
             .getUnclippedBoundsInRoot().bottom
-        val strip: Dp = homesTab().getUnclippedBoundsInRoot().top
+        val window: Dp = composeRule.onRoot().getUnclippedBoundsInRoot().bottom
 
-        assertTrue("the card ending at $card is above the strip at $strip", card <= strip)
+        assertTrue("the card ending at $card is inside the window ending at $window", card <= window)
     }
-
-    private fun homesTab(): SemanticsNodeInteraction =
-        composeRule.onNode(isTab and hasContentDescription("Hogares", substring = true))
 }

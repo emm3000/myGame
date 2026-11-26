@@ -35,10 +35,10 @@ class TownRegistersAtScaleZeroTest {
 
     private fun showRaised(place: TownBuildingKind, from: Int, to: Int) {
         composeRule.mainClock.autoAdvance = false
-        val before: TownSnapshot = townOf(places = placesOf(placeAt(place, level = from)), nextStep = openingOn(place))
+        val before: TownSnapshot = townOf(places = placesOf(placeAt(place, level = from)))
         val after: TownSnapshot =
             before.copy(buildings = placesOf(placeAt(place, level = to)), readAt = readInstant + 1.minutes)
-        showBetween(composeRule, before, after)
+        showBetween(composeRule, before, after, place)
     }
 
     private fun landedRows(): List<Pair<MyGameRegisteredRow, Float>> =

@@ -5,13 +5,11 @@ import androidx.compose.ui.tooling.preview.PreviewParameter
 import androidx.compose.ui.tooling.preview.PreviewParameterProvider
 import com.emm.mygame.core.designsystem.MyGamePreviewSurface
 import com.emm.mygame.core.designsystem.PreviewMyGame
-import com.emm.mygame.core.model.learning.TextId
 import com.emm.mygame.core.model.town.SeasonKind
 import com.emm.mygame.core.model.town.TownLabel
 import com.emm.mygame.core.model.town.TownResourceKind
 import com.emm.mygame.core.model.town.TownSnapshot
 import com.emm.mygame.core.model.town.building.TownBuildingKind
-import com.emm.mygame.core.model.town.guidance.NextStepText
 import com.emm.mygame.core.model.town.guidance.TipKind
 import com.emm.mygame.core.model.town.guidance.TownGoal
 import com.emm.mygame.core.model.town.hiring.TownHireKind
@@ -66,7 +64,7 @@ private val previewHome: TownUiState.Content = TownUiState.Content(
     buildMark = DurationMark(SeasonKind.Summer, percent = 75),
     slot = SlotLine.Idle,
     waitingList = emptyList(),
-    places = streetOrder.map { kind: TownBuildingKind ->
+    places = placeOrder.map { kind: TownBuildingKind ->
         PlaceCard(
             kind = kind,
             level = 0,
@@ -87,8 +85,6 @@ private val previewHome: TownUiState.Content = TownUiState.Content(
     },
     nextStepPlace = TownBuildingKind.Factory,
     goal = previewGoal,
-    caughtUpGoal = previewGoal,
-    newestText = NextStepText(TextId("text-31"), "The New Shop"),
     tip = TipKind.Seasons,
     start = StartStatus.Idle,
     stop = StopStatus.Idle,
@@ -151,11 +147,13 @@ private fun TownScreenLanguagePreview(@PreviewParameter(TownLanguages::class) la
     ProvideCopyLanguage(language = language) {
         MyGamePreviewSurface {
             TownScreen(
+                place = null,
+                onPlaceOpen = {},
+                onNewsOpen = {},
                 state = previewHome,
                 onIntent = {},
                 onSchoolOpen = {},
                 onMapOpen = {},
-                onTextOpen = {},
             )
         }
     }
@@ -167,11 +165,13 @@ private fun TownScreenNamingBothPreview() {
     ProvideCopyLanguage(language = CopyLanguage(ScaffoldLanguage.Spanish, ChromePhase.Both)) {
         MyGamePreviewSurface {
             TownScreen(
+                place = null,
+                onPlaceOpen = {},
+                onNewsOpen = {},
                 state = TownUiState.Naming(name = "Riverton", status = NamingStatus.Idle),
                 onIntent = {},
                 onSchoolOpen = {},
                 onMapOpen = {},
-                onTextOpen = {},
             )
         }
     }
@@ -182,11 +182,29 @@ private fun TownScreenNamingBothPreview() {
 private fun TownScreenPreview(@PreviewParameter(TownScreenStates::class) state: TownUiState) {
     MyGamePreviewSurface {
         TownScreen(
+            place = null,
+            onPlaceOpen = {},
+            onNewsOpen = {},
             state = state,
             onIntent = {},
             onSchoolOpen = {},
             onMapOpen = {},
-            onTextOpen = {},
+        )
+    }
+}
+
+@PreviewMyGame
+@Composable
+private fun TownScreenPlacePreview() {
+    MyGamePreviewSurface {
+        TownScreen(
+            state = previewHome,
+            place = TownBuildingKind.Factory,
+            onIntent = {},
+            onPlaceOpen = {},
+            onNewsOpen = {},
+            onSchoolOpen = {},
+            onMapOpen = {},
         )
     }
 }

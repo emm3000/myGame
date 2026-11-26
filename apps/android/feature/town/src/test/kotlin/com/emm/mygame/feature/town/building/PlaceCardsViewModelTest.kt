@@ -45,7 +45,7 @@ class PlaceCardsViewModelTest : TownViewModelFixture() {
     }
 
     @Test
-    fun `draws the seven places in the street's order`() = runTest {
+    fun `draws the seven places in Town's order`() = runTest {
         val viewModel: TownViewModel = homeViewModel(townOf(places = placesOf().reversed()))
 
         assertEquals(

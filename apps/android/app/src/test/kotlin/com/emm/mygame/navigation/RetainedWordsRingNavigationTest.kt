@@ -4,6 +4,9 @@ import androidx.compose.ui.semantics.SemanticsProperties
 import androidx.compose.ui.test.SemanticsMatcher
 import androidx.compose.ui.test.assertCountEquals
 import androidx.compose.ui.test.assertIsDisplayed
+import androidx.compose.ui.test.hasClickAction
+import androidx.compose.ui.test.hasText
+import androidx.compose.ui.test.isSelectable
 import androidx.compose.ui.test.onAllNodesWithText
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
@@ -48,7 +51,7 @@ class RetainedWordsRingNavigationTest : AppNavigationFixture() {
     @Test
     fun `shows the ring on a screen under the town home`() {
         signedInAtTown(town = playedTown(retainedWords = threeOfFive))
-
+        composeRule.onNode(hasText("Escuela") and hasClickAction() and !isSelectable()).performScrollTo().performClick()
         composeRule.onNodeWithText("Ir a la escuela").performScrollTo().performClick()
         waitForLine("Ahora no hay ninguna lección en estudio.")
 
@@ -72,6 +75,7 @@ class RetainedWordsRingNavigationTest : AppNavigationFixture() {
     @Test
     fun `adds no ring read to a screen that reads the town`() {
         signedInAtTown(town = playedTown(retainedWords = threeOfFive))
+        composeRule.onNode(hasText("Escuela") and hasClickAction() and !isSelectable()).performScrollTo().performClick()
         composeRule.waitForIdle()
         val readsOnTheTown: Int = towns.readCount
 

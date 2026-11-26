@@ -1,10 +1,9 @@
 package com.emm.mygame.feature.town.guidance
 
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.mutableStateOf
-import androidx.compose.ui.test.SemanticsNodeInteraction
 import androidx.compose.ui.test.assertCountEquals
-import androidx.compose.ui.test.hasContentDescription
 import androidx.compose.ui.test.junit4.ComposeContentTestRule
 import androidx.compose.ui.test.junit4.createComposeRule
 import androidx.compose.ui.test.onAllNodesWithText
@@ -26,7 +25,6 @@ import com.emm.mygame.feature.town.TownRequests
 import com.emm.mygame.feature.town.TownScreen
 import com.emm.mygame.feature.town.TownUiState
 import com.emm.mygame.feature.town.contentAt
-import com.emm.mygame.feature.town.isTab
 import com.emm.mygame.feature.town.readInstant
 import com.emm.mygame.feature.town.townOf
 import org.junit.Assert.assertEquals
@@ -65,7 +63,10 @@ class TownGuidanceScreenTest {
 
     @Test
     fun `shows no goal when none is left`() {
-        show(townOf(nextStep = NextStep.CaughtUp(CaughtUpReason.LessonsDone, goal = null, text = null)))
+        show(
+            townOf(nextStep = NextStep.CaughtUp(CaughtUpReason.LessonsDone, goal = null, text = null)),
+            place = TownBuildingKind.Factory,
+        )
 
         composeRule.onAllNodesWithText("En construcción").assertCountEquals(0)
     }
@@ -87,23 +88,28 @@ class TownGuidanceScreenTest {
 
     @Test
     fun `draws the goal under a running lesson`() {
-        show(townOf(nextStep = NextStep.LessonRunning(factoryGoal, text = null)))
-        tab("Fábrica").performScrollTo().performClick()
+        show(townOf(nextStep = NextStep.LessonRunning(factoryGoal, text = null)), place = TownBuildingKind.Factory)
 
         composeRule.onNodeWithText("En construcción").assertExists()
     }
 
     @Test
     fun `draws no goal under a running lesson once the goal is closed`() {
-        show(townOf(nextStep = NextStep.LessonRunning(factoryGoal, text = null)), closedGoal)
-        tab("Fábrica").performScrollTo().performClick()
+        show(
+            townOf(nextStep = NextStep.LessonRunning(factoryGoal, text = null)),
+            place = TownBuildingKind.Factory,
+            closed = closedGoal,
+        )
 
         composeRule.onAllNodesWithText("En construcción").assertCountEquals(0)
     }
 
     @Test
     fun `shows a goal underway as in work`() {
-        show(townOf(nextStep = NextStep.CaughtUp(CaughtUpReason.LessonsDone, factoryGoal, text = null)))
+        show(
+            townOf(nextStep = NextStep.CaughtUp(CaughtUpReason.LessonsDone, factoryGoal, text = null)),
+            place = TownBuildingKind.Factory,
+        )
 
         composeRule.onNodeWithText("En construcción").assertExists()
     }
@@ -114,28 +120,37 @@ class TownGuidanceScreenTest {
             TownSnapshot.Cost(TownResourceKind.Money, 40),
             TownSnapshot.Cost(TownResourceKind.Material, 15),
         )
-        show(townOf(nextStep = lessonsDoneWith(pendingGoal(missing, people = 0))))
+        show(townOf(nextStep = lessonsDoneWith(pendingGoal(missing, people = 0))), place = TownBuildingKind.Factory)
 
         composeRule.onNodeWithText("Necesitas 40 de dinero y 15 de material más.").assertExists()
     }
 
     @Test
     fun `shows the free people a pending goal misses`() {
-        show(townOf(nextStep = lessonsDoneWith(pendingGoal(resources = emptyList(), people = 3))))
+        show(
+            townOf(nextStep = lessonsDoneWith(pendingGoal(resources = emptyList(), people = 3))),
+            place = TownBuildingKind.Factory,
+        )
 
         composeRule.onNodeWithText("Gente libre necesaria: 3.").assertExists()
     }
 
     @Test
     fun `shows a pending goal with nothing missing as ready`() {
-        show(townOf(nextStep = lessonsDoneWith(pendingGoal(resources = emptyList(), people = 0))))
+        show(
+            townOf(nextStep = lessonsDoneWith(pendingGoal(resources = emptyList(), people = 0))),
+            place = TownBuildingKind.Factory,
+        )
 
         composeRule.onNodeWithText("Tienes lo que hace falta.").assertExists()
     }
 
     @Test
     fun `closes the goal`() {
-        show(townOf(nextStep = NextStep.CaughtUp(CaughtUpReason.LessonsDone, factoryGoal, text = null)))
+        show(
+            townOf(nextStep = NextStep.CaughtUp(CaughtUpReason.LessonsDone, factoryGoal, text = null)),
+            place = TownBuildingKind.Factory,
+        )
 
         composeRule.onNodeWithText("Cerrar la meta").performScrollTo().performClick()
 
@@ -144,15 +159,17 @@ class TownGuidanceScreenTest {
 
     @Test
     fun `offers no goal close with no goal`() {
-        show(townOf(nextStep = NextStep.CaughtUp(CaughtUpReason.LessonsDone, goal = null, text = null)))
+        show(
+            townOf(nextStep = NextStep.CaughtUp(CaughtUpReason.LessonsDone, goal = null, text = null)),
+            place = TownBuildingKind.Factory,
+        )
 
         composeRule.onAllNodesWithText("Cerrar la meta").assertCountEquals(0)
     }
 
     @Test
     fun `shows the tip under its heading`() {
-        show(townOf(tip = TipKind.Office))
-        tab("Oficina").performScrollTo().performClick()
+        show(townOf(tip = TipKind.Office), place = TownBuildingKind.Office)
 
         composeRule.onNodeWithText("CONSEJO").performScrollTo().assertExists()
         composeRule.onNodeWithText(
@@ -162,19 +179,21 @@ class TownGuidanceScreenTest {
 
     @Test
     fun `shows no tip when the api names none`() {
-        show(townOf(tip = null))
+        show(townOf(tip = null), place = TownBuildingKind.School)
 
         composeRule.onAllNodesWithText("CONSEJO").assertCountEquals(0)
     }
 
     @Test
     fun `shows each tip by its own line`() {
-        val home = mutableStateOf<TownUiState>(contentOf(townOf()))
-        composeRule.setContent { MyGameTheme { Screen(home.value) } }
+        val home: MutableState<TownUiState> = mutableStateOf(contentOf(townOf()))
+        val opened: MutableState<TownBuildingKind?> = mutableStateOf(null)
+        composeRule.setContent { MyGameTheme { Screen(home.value, opened.value) } }
 
         val lines: Set<String> = TipKind.entries.map { tip: TipKind ->
             home.value = contentOf(townOf(tip = tip))
-            tab(tipPageOf(tip)).performScrollTo().performClick()
+            opened.value = tipPageOf(tip)
+            composeRule.waitForIdle()
             composeRule.onAllNodesWithText("CONSEJO").assertCountEquals(1)
             tipLineOf(tip)
         }.toSet()
@@ -184,24 +203,19 @@ class TownGuidanceScreenTest {
 
     @Test
     fun `closes the tip it shows`() {
-        show(townOf(tip = TipKind.Jobs))
-        tab("Oficina").performScrollTo().performClick()
+        show(townOf(tip = TipKind.Jobs), place = TownBuildingKind.Office)
 
         composeRule.onNodeWithText("Cerrar el consejo").performScrollTo().performClick()
 
         assertEquals(listOf<TownIntent>(TownIntent.TipClosed(TipKind.Jobs)), intents)
     }
 
-    private fun tipPageOf(tip: TipKind): String = when (tip) {
-        TipKind.People -> "Hogares"
-        TipKind.Seasons, TipKind.FullStore -> "Almacén"
-        TipKind.Office, TipKind.Jobs -> "Oficina"
-        TipKind.WaitingList -> "Escuela"
+    private fun tipPageOf(tip: TipKind): TownBuildingKind = when (tip) {
+        TipKind.People -> TownBuildingKind.Homes
+        TipKind.Seasons, TipKind.FullStore -> TownBuildingKind.Storage
+        TipKind.Office, TipKind.Jobs -> TownBuildingKind.Office
+        TipKind.WaitingList -> TownBuildingKind.School
     }
-
-    private fun tab(place: String): SemanticsNodeInteraction = composeRule.onNode(
-        isTab and hasContentDescription(place, substring = true),
-    )
 
     private fun tipLineOf(tip: TipKind): String {
         val line: String = when (tip) {
@@ -234,18 +248,24 @@ class TownGuidanceScreenTest {
             closed = closed,
         )
 
-    private fun show(town: TownSnapshot, closed: ClosedGuidance = ClosedGuidance.none) {
-        composeRule.setContent { MyGameTheme { Screen(contentOf(town, closed)) } }
+    private fun show(
+        town: TownSnapshot,
+        place: TownBuildingKind,
+        closed: ClosedGuidance = ClosedGuidance.none,
+    ) {
+        composeRule.setContent { MyGameTheme { Screen(contentOf(town, closed), place) } }
     }
 
     @Composable
-    private fun Screen(state: TownUiState) {
+    private fun Screen(state: TownUiState, place: TownBuildingKind?) {
         TownScreen(
+            place = place,
+            onPlaceOpen = {},
+            onNewsOpen = {},
             state = state,
             onIntent = { intent: TownIntent -> intents += intent },
             onSchoolOpen = {},
             onMapOpen = {},
-            onTextOpen = {},
         )
     }
 

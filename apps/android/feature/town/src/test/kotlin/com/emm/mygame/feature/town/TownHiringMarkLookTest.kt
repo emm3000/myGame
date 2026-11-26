@@ -141,11 +141,13 @@ class TownHiringMarkLookTest {
     @Composable
     private fun TownHome(state: TownUiState) {
         TownScreen(
+            place = TownBuildingKind.Office,
+            onPlaceOpen = {},
+            onNewsOpen = {},
             state = state,
             onIntent = { },
             onSchoolOpen = { },
             onMapOpen = { },
-            onTextOpen = {},
         )
     }
 
@@ -162,8 +164,6 @@ class TownHiringMarkLookTest {
         places = listOf(bareOffice),
         nextStepPlace = TownBuildingKind.Office,
         goal = null,
-        caughtUpGoal = null,
-        newestText = null,
         tip = null,
         start = StartStatus.Idle,
         stop = StopStatus.Idle,

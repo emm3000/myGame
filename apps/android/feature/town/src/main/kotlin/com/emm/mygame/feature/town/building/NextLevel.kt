@@ -80,7 +80,7 @@ private fun Costs(next: NextLevelLine, modifier: Modifier = Modifier) {
     }
 }
 
-private fun PlayerCopy.blockLineOf(block: BlockReason): MyGameLabel = when (block) {
+internal fun PlayerCopy.blockLineOf(block: BlockReason): MyGameLabel = when (block) {
     is BlockReason.WaitingListFull -> MyGameLabel(
         text = fixedCopy(R.string.town_refusal_waiting_list_full, "cap" to block.cap),
         translation = null,

@@ -5,14 +5,12 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.ui.test.assertCountEquals
 import androidx.compose.ui.test.assertIsDisplayed
 import androidx.compose.ui.test.getUnclippedBoundsInRoot
-import androidx.compose.ui.test.hasContentDescription
 import androidx.compose.ui.test.onAllNodesWithContentDescription
 import androidx.compose.ui.test.onAllNodesWithText
 import androidx.compose.ui.test.onNodeWithContentDescription
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
 import androidx.compose.ui.test.performScrollTo
-import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.DpRect
 import com.emm.mygame.core.model.town.SeasonKind
 import com.emm.mygame.core.model.town.building.TownBuildingKind
@@ -33,34 +31,34 @@ class PlaceBuildingWorkScreenTest : TownScreenFixture() {
 
     @Test
     fun `draws the build mark on the page of the place in work`() {
-        show(inWork(riverton.copy(slot = busyFarm, buildMark = summerBuild), TownBuildingKind.Farm))
-
-        tab("Granja").performScrollTo().performClick()
+        show(
+            inWork(riverton.copy(slot = busyFarm, buildMark = summerBuild), TownBuildingKind.Farm),
+            place = TownBuildingKind.Farm,
+        )
 
         composeRule.onNodeWithText(BUILD_MARK).assertExists()
     }
 
     @Test
     fun `draws no build mark on a page with no work`() {
-        show(inWork(riverton.copy(slot = busyFarm, buildMark = summerBuild), TownBuildingKind.Farm))
+        show(
+            inWork(riverton.copy(slot = busyFarm, buildMark = summerBuild), TownBuildingKind.Farm),
+            place = TownBuildingKind.School,
+        )
 
         composeRule.onAllNodesWithText(BUILD_MARK).assertCountEquals(0)
     }
 
     @Test
     fun `draws the slot on the page of the place in work`() {
-        show(inWork(riverton.copy(slot = busyFarm), TownBuildingKind.Farm))
-        composeRule.onAllNodesWithContentDescription(STOP_FARM).assertCountEquals(0)
-
-        tab("Granja").performScrollTo().performClick()
+        show(inWork(riverton.copy(slot = busyFarm), TownBuildingKind.Farm), place = TownBuildingKind.Farm)
 
         composeRule.onNodeWithContentDescription(STOP_FARM).performScrollTo().assertIsDisplayed()
     }
 
     @Test
     fun `stops the slot from the page of the place in work`() {
-        show(inWork(riverton.copy(slot = busyFarm), TownBuildingKind.Farm))
-        tab("Granja").performScrollTo().performClick()
+        show(inWork(riverton.copy(slot = busyFarm), TownBuildingKind.Farm), place = TownBuildingKind.Farm)
 
         composeRule.onNodeWithContentDescription(STOP_FARM).performScrollTo().performClick()
 
@@ -70,7 +68,7 @@ class PlaceBuildingWorkScreenTest : TownScreenFixture() {
     @Test
     fun `draws each waiting entry with its stop on its own place's page`() {
         val busy: TownUiState.Content = riverton.copy(slot = busyFarm, waitingList = listOf(waitingSchool))
-        show(inWork(busy, TownBuildingKind.Farm, TownBuildingKind.School))
+        show(inWork(busy, TownBuildingKind.Farm, TownBuildingKind.School), place = TownBuildingKind.School)
 
         composeRule.onNodeWithText("Lista de espera").performScrollTo().assertIsDisplayed()
         composeRule.onNodeWithContentDescription("Parar la obra: Escuela, nivel 2").performScrollTo().performClick()
@@ -79,10 +77,17 @@ class PlaceBuildingWorkScreenTest : TownScreenFixture() {
     }
 
     @Test
-    fun `brings a refused stop at the end of the page fully into view above the street`() {
+    fun `draws no slot on another place's page`() {
+        show(inWork(riverton.copy(slot = busyFarm), TownBuildingKind.Farm), place = TownBuildingKind.School)
+
+        composeRule.onAllNodesWithContentDescription(STOP_FARM).assertCountEquals(0)
+    }
+
+    @Test
+    fun `brings a refused stop at the end of the page fully into view`() {
         val waiting: TownUiState = inWork(riverton.copy(waitingList = listOf(waitingSchool)), TownBuildingKind.School)
         val shown: MutableState<TownUiState> = mutableStateOf(waiting)
-        showState(shown, window = phoneWindow)
+        showState(shown, window = phoneWindow, place = TownBuildingKind.School)
 
         shown.value = (shown.value as TownUiState.Content).copy(
             stop = StopStatus.Unreachable(WorkTarget(TownBuildingKind.School, 2)),
@@ -90,8 +95,7 @@ class PlaceBuildingWorkScreenTest : TownScreenFixture() {
         composeRule.waitForIdle()
 
         val refusal: DpRect = composeRule.onNodeWithText(UNEXPECTED).getUnclippedBoundsInRoot()
-        val streetTop: Dp = composeRule.onNode(hasContentDescription(STREET)).getUnclippedBoundsInRoot().top
-        assertTrue("refusal ends at ${refusal.bottom}, street starts at $streetTop", refusal.bottom <= streetTop)
+        assertTrue("refusal ends at ${refusal.bottom}", refusal.bottom <= phoneWindow.height)
     }
 
     private val waitingSchool: WaitingLine = WaitingLine(

@@ -6,14 +6,9 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.safeDrawingPadding
-import androidx.compose.foundation.pager.HorizontalPager
-import androidx.compose.foundation.pager.PagerState
-import androidx.compose.foundation.pager.rememberPagerState
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.rememberCoroutineScope
-import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import com.emm.mygame.core.designsystem.MyGameErrorBanner
 import com.emm.mygame.core.designsystem.MyGameSizes
@@ -21,45 +16,35 @@ import com.emm.mygame.core.designsystem.MyGameSkeleton
 import com.emm.mygame.core.designsystem.MyGameSkeletonBlocks
 import com.emm.mygame.core.designsystem.MyGameSpacing
 import com.emm.mygame.core.designsystem.MyGameTheme
-import com.emm.mygame.core.model.learning.TextId
+import com.emm.mygame.core.model.town.building.TownBuildingKind
 import com.emm.mygame.core.ui.chromeResource
 import com.emm.mygame.core.ui.fixedCopyResource
 import com.emm.mygame.feature.town.building.PlaceCard
 import com.emm.mygame.feature.town.naming.NamingSection
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.launch
 
 @Composable
 internal fun TownScreen(
     state: TownUiState,
+    place: TownBuildingKind?,
     onIntent: (TownIntent) -> Unit,
+    onPlaceOpen: (TownBuildingKind) -> Unit,
+    onNewsOpen: () -> Unit,
     onSchoolOpen: () -> Unit,
     onMapOpen: () -> Unit,
-    onTextOpen: (TextId) -> Unit,
     modifier: Modifier = Modifier,
     ring: @Composable () -> Unit = {},
-    placement: @Composable () -> Unit = {},
 ) {
-    val slots: TownPageSlots = TownPageSlots(
-        ring = ring,
-        placement = placement,
-        onSchoolOpen = onSchoolOpen,
-        onMapOpen = onMapOpen,
-        onTextOpen = onTextOpen,
-    )
-    val isHome: Boolean = state is TownUiState.Content
+    val isContent: Boolean = state is TownUiState.Content
+    val isPage: Boolean = place != null && isContent
     Column(
         verticalArrangement = Arrangement.spacedBy(MyGameSpacing.step6),
         modifier = modifier
             .fillMaxSize()
             .background(MyGameTheme.colors.surface)
             .safeDrawingPadding()
-            .then(if (isHome) Modifier else Modifier.verticalScroll(rememberScrollState()))
-            .then(if (isHome) Modifier else Modifier.padding(horizontal = MyGameSpacing.step4))
-            .padding(
-                top = if (isHome) MyGameSpacing.step2 else MyGameSpacing.step8,
-                bottom = if (isHome) MyGameSpacing.step2 else MyGameSpacing.step8,
-            ),
+            .then(if (isPage) Modifier else Modifier.verticalScroll(rememberScrollState()))
+            .padding(horizontal = MyGameSpacing.step4)
+            .padding(vertical = if (isContent) MyGameSpacing.step2 else MyGameSpacing.step8),
     ) {
         MyGameSkeleton(
             isLoading = state == TownUiState.Loading,
@@ -67,7 +52,25 @@ internal fun TownScreen(
             blocks = townBlocks,
         ) {
             TownState(state = state, onIntent = onIntent) { content: TownUiState.Content ->
-                TownHome(content = content, onIntent = onIntent, slots = slots)
+                val shown: PlaceCard? = content.places.firstOrNull { card: PlaceCard -> card.kind == place }
+                if (shown == null) {
+                    TownGrid(
+                        content = content,
+                        onIntent = onIntent,
+                        onPlaceOpen = onPlaceOpen,
+                        onNewsOpen = onNewsOpen,
+                        ring = ring,
+                    )
+                } else {
+                    TownPage(
+                        content = content,
+                        place = shown,
+                        onIntent = onIntent,
+                        onSchoolOpen = onSchoolOpen,
+                        onMapOpen = onMapOpen,
+                        modifier = Modifier.fillMaxSize(),
+                    )
+                }
             }
         }
     }
@@ -96,45 +99,9 @@ private fun TownState(
 private val townBlocks: MyGameSkeletonBlocks = MyGameSkeletonBlocks(
     listOf(
         MyGameSizes.control,
-        MyGameSizes.placeCard,
         MyGameSizes.secondary,
         MyGameSizes.placeCard,
-        MyGameSizes.thumbnail,
+        MyGameSizes.placeCard,
+        MyGameSizes.placeCard,
     ),
 )
-
-@Composable
-private fun TownHome(
-    content: TownUiState.Content,
-    onIntent: (TownIntent) -> Unit,
-    slots: TownPageSlots,
-    modifier: Modifier = Modifier,
-) {
-    val pager: PagerState = rememberPagerState(initialPage = content.openingPage()) { content.places.size }
-    val scope: CoroutineScope = rememberCoroutineScope()
-    Column(verticalArrangement = Arrangement.spacedBy(MyGameSpacing.step2), modifier = modifier.fillMaxSize()) {
-        HorizontalPager(
-            state = pager,
-            key = { index: Int -> content.places[index].kind },
-            verticalAlignment = Alignment.Top,
-            modifier = Modifier.weight(1f),
-        ) { index: Int ->
-            TownPage(
-                content = content,
-                place = content.places[index],
-                onIntent = onIntent,
-                slots = slots,
-                modifier = Modifier.fillMaxSize().padding(horizontal = MyGameSpacing.step4),
-            )
-        }
-        TownStreetStrip(
-            content = content,
-            selected = pager.currentPage,
-            onSelect = { index: Int -> scope.launch { pager.animateScrollToPage(index) } },
-            modifier = Modifier.padding(horizontal = MyGameSpacing.step4),
-        )
-    }
-}
-
-private fun TownUiState.Content.openingPage(): Int =
-    places.indexOfFirst { place: PlaceCard -> place.kind == nextStepPlace }.coerceAtLeast(0)

@@ -2,7 +2,9 @@
 <resources>
     <string name="town_amount">{amount} de {resource}</string>
     <string name="town_build">Construir nivel {level}</string>
+    <string name="town_build_for">Construir por {cost}</string>
     <string name="town_build_with_duration">{action} · {duration}</string>
+    <string name="town_card_ready">Puedes construir el nivel {level}.</string>
     <string name="town_duration_hours">{hours} h</string>
     <string name="town_duration_hours_minutes">{hours} h {minutes} min</string>
     <string name="town_duration_minutes">{minutes} min</string>
@@ -14,7 +16,6 @@
     <string name="town_full_at">Lleno {clock}</string>
     <string name="town_go_to_school">Ir a la escuela</string>
     <string name="town_goal_close">Cerrar la meta</string>
-    <string name="town_goal_line">Meta {position} de {count}: {place}, nivel {level}</string>
     <string name="town_goal_people">Gente libre necesaria: {count}.</string>
     <string name="town_goal_ready">Tienes lo que hace falta.</string>
     <string name="town_in_work">En construcción</string>
@@ -29,7 +30,7 @@
     <string name="town_naming_mayor">Ahora diriges tu propio pueblo.</string>
     <string name="town_naming_submit">Empezar</string>
     <string name="town_naming_title">Ponle nombre a tu pueblo</string>
-    <string name="town_next_text">Lee: {title}</string>
+    <string name="town_news_link">Noticias del pueblo</string>
     <string name="town_next_title">Tu siguiente paso</string>
     <string name="town_not_built">Sin construir</string>
     <string name="town_office_busy">Espera a que termine esta contratación.</string>
@@ -54,7 +55,6 @@
     <string name="town_office_stop_of_worker">Parar la contratación de trabajadores</string>
     <string name="town_office_team_truck">Tu equipo: {count, plural, =1 {1 camión} other {{count, number,0} camiones}}</string>
     <string name="town_office_team_worker">Tu equipo: {count, plural, =1 {1 trabajador} other {{count, number,0} trabajadores}}</string>
-    <string name="town_page_position">Edificio {number} de {count}</string>
     <string name="town_people">Gente: {free, plural, =1 {1 libre} other {{free, number,0} libres}}, {atWork} trabajando</string>
     <string name="town_people_at_work">Gente trabajando: +{people}</string>
     <string name="town_people_short">Gente necesaria: {needed}. {free, plural, =1 {Libre: 1} other {Libres: {free, number,0}}}.</string>
@@ -103,11 +103,6 @@
     <string name="town_shortfall">Necesitas {missing} más.</string>
     <string name="town_skill_name">Habilidad de {resource}, nivel {level}</string>
     <string name="town_stock_of">de {capacity}</string>
-    <string name="town_street_built">Tu pueblo: {built} de {total} construidos</string>
-    <string name="town_street_built_city">Tu ciudad: {built} de {total} construidos</string>
-    <string name="town_tab_in_work">en construcción</string>
-    <string name="town_tab_name">{place}, {level}</string>
-    <string name="town_tab_next_step">tu siguiente paso</string>
     <string name="town_tip_close">Cerrar el consejo</string>
     <string name="town_tip_full_store">Cuando el dinero, la comida, la energía o el material están llenos, tu pueblo no gana más. Construye el almacén para guardar más.</string>
     <string name="town_tip_jobs">Tus trabajadores y camiones están libres. Envía un equipo a un trabajo en el mapa a cambio de un pago.</string>

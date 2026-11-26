@@ -19,7 +19,6 @@ import kotlin.time.Duration.Companion.minutes
 
 private val farmAtTwo: TownSnapshot = townOf(
     places = placesOf(placeAt(TownBuildingKind.Farm, level = 2)),
-    nextStep = openingOn(TownBuildingKind.Farm),
 )
 
 private val farmAtThree: TownSnapshot = farmAtTwo.copy(
@@ -29,7 +28,6 @@ private val farmAtThree: TownSnapshot = farmAtTwo.copy(
 
 private val factoryUnbuilt: TownSnapshot = townOf(
     places = placesOf(placeAt(TownBuildingKind.Factory, level = 0)),
-    nextStep = openingOn(TownBuildingKind.Factory),
 )
 
 private val factoryBuilt: TownSnapshot = factoryUnbuilt.copy(
@@ -45,42 +43,42 @@ class TownRegistersScreenTest {
 
     @Test
     fun `pops the new window when a level finishes`() {
-        showInFlight(farmAtTwo, farmAtThree)
+        showInFlight(farmAtTwo, farmAtThree, TownBuildingKind.Farm)
 
         assertInFlight(MyGameRegisteredRow.Window)
     }
 
     @Test
     fun `gives a place its hue when first built`() {
-        showInFlight(factoryUnbuilt, factoryBuilt)
+        showInFlight(factoryUnbuilt, factoryBuilt, TownBuildingKind.Factory)
 
         assertInFlight(MyGameRegisteredRow.Hue)
     }
 
     @Test
     fun `plays nothing when two reads agree`() {
-        showInFlight(farmAtThree, farmAtThree.copy(readAt = readInstant + 2.minutes))
+        showInFlight(farmAtThree, farmAtThree.copy(readAt = readInstant + 2.minutes), TownBuildingKind.Farm)
 
         assertEquals(0, registeringNodes().size)
     }
 
     @Test
     fun `speaks each row once`() {
-        showInFlight(farmAtTwo, farmAtThree)
+        showInFlight(farmAtTwo, farmAtThree, TownBuildingKind.Farm)
 
         assertEquals(listOf(listOf("Granja", "Nivel 3")), spokenTexts())
     }
 
     @Test
     fun `keeps every place silent when two reads agree`() {
-        showInFlight(farmAtThree, farmAtThree.copy(readAt = readInstant + 2.minutes))
+        showInFlight(farmAtThree, farmAtThree.copy(readAt = readInstant + 2.minutes), TownBuildingKind.Farm)
 
         assertEquals(emptyList<List<String>>(), spokenTexts())
     }
 
-    private fun showInFlight(previous: TownSnapshot, next: TownSnapshot) {
+    private fun showInFlight(previous: TownSnapshot, next: TownSnapshot, place: TownBuildingKind) {
         composeRule.mainClock.autoAdvance = false
-        showBetween(composeRule, previous, next)
+        showBetween(composeRule, previous, next, place)
         composeRule.mainClock.advanceTimeByFrame()
         composeRule.mainClock.advanceTimeByFrame()
     }

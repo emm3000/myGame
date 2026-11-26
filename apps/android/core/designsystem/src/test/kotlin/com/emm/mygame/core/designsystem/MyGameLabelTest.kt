@@ -142,31 +142,6 @@ class MyGameLabelTest {
     }
 
     @Test
-    fun `draws a translated next step as English over Spanish for its title, line and detail`() {
-        show {
-            MyGameNextStepBlock(
-                title = MyGameLabel(text = "Next step", translation = "Siguiente paso"),
-                line = startReviews,
-                detail = MyGameLabel(text = "Five words wait.", translation = "Te esperan cinco palabras."),
-            )
-        }
-
-        assertTrue(unmerged("NEXT STEP").bottom <= unmerged("SIGUIENTE PASO").top)
-        assertTrue(unmerged("Start reviews").bottom <= unmerged("Empezar a repasar").top)
-        assertTrue(unmerged("Five words wait.").bottom <= unmerged("Te esperan cinco palabras.").top)
-    }
-
-    @Test
-    fun `draws an untranslated next step with one line each for its title, line and detail`() {
-        show { MyGameNextStepBlock(title = "Next step", line = "Start reviews", detail = "Five words wait.") }
-
-        listOf("NEXT STEP", "Start reviews", "Five words wait.").forEach { line: String ->
-            composeRule.onAllNodesWithText(line, useUnmergedTree = true).assertCountEquals(1)
-        }
-        composeRule.onNode(isHeading() and hasText("NEXT STEP"), useUnmergedTree = true).assertExists()
-    }
-
-    @Test
     fun `reads a translated field's label once, English then Spanish`() {
         show { FieldLabelled(label = MyGameLabel(text = "Your answer", translation = "Tu respuesta")) }
 

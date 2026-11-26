@@ -9,6 +9,7 @@ import androidx.lifecycle.compose.LifecycleStartEffect
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.emm.mygame.core.model.town.TownRepository
+import com.emm.mygame.core.model.town.building.TownBuildingKind
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import kotlin.time.Clock
@@ -18,10 +19,10 @@ fun TownRoute(
     towns: TownRepository,
     clock: Clock,
     navigation: TownNavigation,
+    place: TownBuildingKind?,
     modifier: Modifier = Modifier,
     viewModel: TownViewModel = viewModel { TownViewModel(towns, clock) },
     ring: @Composable () -> Unit = {},
-    placement: @Composable () -> Unit = {},
 ) {
     val state: TownUiState by viewModel.state.collectAsStateWithLifecycle()
     val currentNavigation: TownNavigation by rememberUpdatedState(navigation)
@@ -41,12 +42,13 @@ fun TownRoute(
     }
     TownScreen(
         state = state,
+        place = place,
         onIntent = viewModel::onIntent,
+        onPlaceOpen = navigation.onPlaceOpen,
+        onNewsOpen = navigation.onNewsOpen,
         onSchoolOpen = navigation.onSchoolOpen,
         onMapOpen = navigation.onMapOpen,
-        onTextOpen = navigation.onTextOpen,
         modifier = modifier,
         ring = ring,
-        placement = placement,
     )
 }
