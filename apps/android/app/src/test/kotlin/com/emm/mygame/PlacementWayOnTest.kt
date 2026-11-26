@@ -24,7 +24,7 @@ import org.robolectric.annotation.Config
 
 @RunWith(RobolectricTestRunner::class)
 @Config(qualifiers = "+w360dp-h640dp", fontScale = 2f)
-class PlacementWayOnTest : DockFrameFixture() {
+class PlacementWayOnTest : SignedInScreenFixture() {
 
     private val start: SemanticsMatcher =
         hasTestTag(INK_PILL).and(hasContentDescription(START, substring = true).or(hasText(START)))

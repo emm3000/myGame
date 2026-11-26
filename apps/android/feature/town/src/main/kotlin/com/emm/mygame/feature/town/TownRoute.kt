@@ -23,9 +23,6 @@ fun TownRoute(
     modifier: Modifier = Modifier,
     viewModel: TownViewModel = viewModel { TownViewModel(towns, sessions, clock) },
     ring: @Composable () -> Unit = {},
-    status: @Composable () -> Unit = {},
-    foldedDock: @Composable () -> Unit = {},
-    reportRow: @Composable () -> Unit = {},
     placement: @Composable () -> Unit = {},
 ) {
     val state: TownUiState by viewModel.state.collectAsStateWithLifecycle()
@@ -54,9 +51,6 @@ fun TownRoute(
         onTextOpen = navigation.onTextOpen,
         modifier = modifier,
         ring = ring,
-        status = status,
-        foldedDock = foldedDock,
-        reportRow = reportRow,
         placement = placement,
     )
 }

@@ -203,7 +203,7 @@ class TownViewModel(
 
     private fun signOut() {
         viewModelScope.coroutineContext.cancelChildren()
-        _state.value = TownUiState.SigningOut(isLeavingNaming = _state.value is TownUiState.Naming)
+        _state.value = TownUiState.SigningOut
         viewModelScope.launch {
             _effects.send(TownEffect.SigningOut)
             sessions.signOut()

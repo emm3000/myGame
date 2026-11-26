@@ -1,6 +1,7 @@
 package com.emm.mygame
 
-import androidx.compose.ui.test.assertCountEquals
+import androidx.compose.ui.test.SemanticsMatcher
+import androidx.compose.ui.test.hasClickAction
 import androidx.compose.ui.test.hasSetTextAction
 import androidx.compose.ui.test.hasTestTag
 import androidx.compose.ui.test.hasText
@@ -28,13 +29,12 @@ import com.emm.mygame.core.model.town.TownSnapshot
 import com.emm.mygame.core.model.town.guidance.NextStep
 import com.emm.mygame.core.model.town.news.TownNews
 import com.emm.mygame.core.model.town.school.TownLessonResult
-import com.emm.mygame.feature.town.status.TOWN_DOCK
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.robolectric.RobolectricTestRunner
 
 @RunWith(RobolectricTestRunner::class)
-class TownReadAgainNavigationTest : DockFrameFixture() {
+class TownReadAgainNavigationTest : SignedInScreenFixture() {
 
     @Test
     fun `a review answer reads the town again`() {
@@ -75,7 +75,6 @@ class TownReadAgainNavigationTest : DockFrameFixture() {
         placements.answerChange(PlacementChangeResult.Changed(Placement.Closed(emptyList())))
         showing(Destination.Today, Destination.Town, Destination.Placement)
         waitFor(hasText(SKIP_PLACEMENT))
-        composeRule.onAllNodes(hasTestTag(TOWN_DOCK)).assertCountEquals(0)
 
         composeRule.onNode(hasText(SKIP_PLACEMENT)).performScrollTo().performClick()
     }
@@ -108,17 +107,17 @@ class TownReadAgainNavigationTest : DockFrameFixture() {
     fun `starting a lesson reads the town again`() {
         val studying: TownSnapshot = playedTown(nextStep = NextStep.LessonRunning(goal = null, text = null))
         towns.answerLesson(TownLessonResult.Answered(studying))
-        showing(
-            Destination.Today,
-            Destination.Town,
-            Destination.School,
-            town = playedTown(nextStep = NextStep.LessonToStudy(firstLesson)),
-        )
+        showing(Destination.Today, Destination.Town, Destination.School)
 
-        dockGo("Estudiar la lección 1 · 5:00").performClick()
+        waitFor(studyLessonOne)
+
+        composeRule.onNode(studyLessonOne).performScrollTo().performClick()
 
         composeRule.waitUntil(WAIT_MILLIS) { towns.sentAfterNowCount == 1 }
     }
+
+    private val studyLessonOne: SemanticsMatcher =
+        hasText("Estudiar la lección 1", substring = true).and(hasClickAction())
 
     private companion object {
         const val SKIP_PLACEMENT: String = "Saltar la prueba"

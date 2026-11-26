@@ -291,6 +291,18 @@ class SchoolReleasedLessonsTest {
     }
 
     @Test
+    fun `starts the next step's released lesson from its own row`() {
+        show(contentOf(shelvedAndReleased.copy(nextStep = NextStep.ReleasedLesson(secondSet, PlacementBand.Second, 2))))
+
+        composeRule
+            .onNodeWithContentDescription("$secondSetTitle · Estudiar", substring = true)
+            .performScrollTo()
+            .performClick()
+
+        assertEquals(listOf<SchoolIntent>(SchoolIntent.StudyTapped(secondSet)), intents)
+    }
+
+    @Test
     fun `keeps the released lesson's row while a chosen lesson takes the next step's place`() {
         val releasedNext: TownSnapshot =
             shelvedAndReleased.copy(nextStep = NextStep.ReleasedLesson(secondSet, PlacementBand.Second, 2))

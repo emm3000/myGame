@@ -40,8 +40,6 @@ Run from `apps/android`. Every Gradle command runs as `taskpolicy -c utility ./g
 - The configuration cache is on: a custom task reads only declared inputs, gathered in `gradle.projectsEvaluated` by `mygame.module.checks`, which lives in `build-logic/convention` because detekt never reads `.kts`.
 - The study reminder's tap is a `PendingIntent.getActivity` straight to `MainActivity` (`StudyReminderAlarm.tapping`): Android 12 forbids a receiver trampoline, and no test pins the target, since `MainActivityReminderTapTest` starts `MainActivity` itself.
 - A route collects its effects inside `withContext(Dispatchers.Main.immediate)`: on the composition's dispatcher an effect taken just before a recreation is lost.
-- `MyGameDock` measures an unplaced copy of itself: its `notice` slot composes twice, so it holds no effect, and a `useUnmergedTree` test keeps the node where `layoutInfo.isPlaced`.
-- A framed screen's scrolling column takes `joinsFrameTraversal` before `verticalScroll`, or TalkBack reads the folded dock top after the go button (`DockFrameNavigationTest`).
 - Debug and release share `com.emm.mygame` but not a signature: `adb install -r` of one over the other fails `INSTALL_FAILED_UPDATE_INCOMPATIBLE`; `adb uninstall com.emm.mygame` first, which signs the player out.
 - R8 is off for `release`: the APK goes only to the owner's phone, and a missed keep rule (kotlinx.serialization wrappers, Navigation 3 keys) crashes only on a minified build. Turning it on means walking the whole flow on a minified `localRelease`.
 

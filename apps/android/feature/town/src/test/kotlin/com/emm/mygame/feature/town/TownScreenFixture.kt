@@ -120,10 +120,9 @@ abstract class TownScreenFixture {
     protected fun show(
         state: TownUiState,
         ring: @Composable () -> Unit = {},
-        status: @Composable () -> Unit = {},
         placement: @Composable () -> Unit = {},
     ) {
-        composeRule.setContent { Screen(state = state, ring = ring, status = status, placement = placement) }
+        composeRule.setContent { Screen(state = state, ring = ring, placement = placement) }
     }
 
     protected fun showState(shown: MutableState<TownUiState>, window: DpSize? = null) {
@@ -138,7 +137,6 @@ abstract class TownScreenFixture {
     protected fun Screen(
         state: TownUiState,
         ring: @Composable () -> Unit = {},
-        status: @Composable () -> Unit = {},
         placement: @Composable () -> Unit = {},
     ) {
         MyGameTheme {
@@ -149,7 +147,6 @@ abstract class TownScreenFixture {
                 onMapOpen = { mapOpens += 1 },
                 onTextOpen = {},
                 ring = ring,
-                status = status,
                 placement = placement,
             )
         }

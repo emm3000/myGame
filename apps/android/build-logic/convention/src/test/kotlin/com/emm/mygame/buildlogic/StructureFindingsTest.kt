@@ -200,10 +200,10 @@ class StructureFindingsTest {
 
     @Test
     fun `flags a screen file that declares no composable of its name`() {
-        val shownScreen = SourceFile("$townMain/TownStatusScreen.kt", "sealed interface TownStatusScreen\n")
+        val shownScreen = SourceFile("$townMain/TownGuideScreen.kt", "sealed interface TownGuideScreen\n")
 
         assertEquals(
-            listOf("screen-file $townMain/TownStatusScreen.kt: declares no fun TownStatusScreen("),
+            listOf("screen-file $townMain/TownGuideScreen.kt: declares no fun TownGuideScreen("),
             findingsOf(shownScreen),
         )
     }

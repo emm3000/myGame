@@ -30,7 +30,6 @@ import com.emm.mygame.core.model.town.TownSnapshot
 import com.emm.mygame.core.ui.PlayerCopy
 import com.emm.mygame.core.ui.chromeResource
 import com.emm.mygame.core.ui.fixedCopyResource
-import com.emm.mygame.core.ui.joinsFrameTraversal
 import com.emm.mygame.core.ui.rememberPlayerCopy
 
 @Composable
@@ -41,7 +40,6 @@ internal fun SchoolScreen(
     onTextOpen: (TextId) -> Unit,
     modifier: Modifier = Modifier,
     holdoutChecks: @Composable () -> Unit = {},
-    foldedDock: @Composable () -> Unit = {},
 ) {
     val scroll: ScrollState = rememberScrollState()
     val selected: LessonId? = (state as? SchoolUiState.Content)?.selected
@@ -54,7 +52,6 @@ internal fun SchoolScreen(
             .fillMaxSize()
             .background(MyGameTheme.colors.surface)
             .safeDrawingPadding()
-            .joinsFrameTraversal()
             .verticalScroll(scroll)
             .padding(
                 start = MyGameSpacing.step4,
@@ -63,7 +60,6 @@ internal fun SchoolScreen(
                 bottom = MyGameSpacing.step8,
             ),
     ) {
-        foldedDock()
         MyGameSkeleton(
             isLoading = state == SchoolUiState.Loading,
             loadingLabel = chromeResource(R.string.school_loading).spoken,

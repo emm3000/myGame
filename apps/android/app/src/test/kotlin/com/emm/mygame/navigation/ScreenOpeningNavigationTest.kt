@@ -3,19 +3,16 @@ package com.emm.mygame.navigation
 import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.semantics.SemanticsProperties
 import androidx.compose.ui.test.SemanticsMatcher
-import androidx.compose.ui.test.assertCountEquals
-import androidx.compose.ui.test.assertIsDisplayed
 import androidx.compose.ui.test.hasContentDescription
 import androidx.compose.ui.test.hasText
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
 import androidx.compose.ui.test.performScrollTo
-import com.emm.mygame.core.designsystem.PILL_BADGE
 import com.emm.mygame.core.model.learning.DueReviews
 import com.emm.mygame.core.model.learning.ReviewsReadResult
 import com.emm.mygame.core.model.placement.Placement
 import com.emm.mygame.core.model.placement.PlacementReadResult
-import com.emm.mygame.core.model.report.ReportReadResult
+import com.emm.mygame.core.model.town.TownReadResult
 import com.emm.mygame.core.model.town.building.TownBuildingKind
 import com.emm.mygame.core.model.town.guidance.NextStep
 import com.emm.mygame.core.model.town.jobs.RegionMap
@@ -23,7 +20,6 @@ import com.emm.mygame.core.model.town.jobs.RegionMapResult
 import com.emm.mygame.core.model.town.jobs.Terrain
 import com.emm.mygame.core.model.town.news.TownNews
 import com.emm.mygame.core.model.town.news.TownNewsReadResult
-import org.junit.Assert.assertEquals
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.robolectric.RobolectricTestRunner
@@ -32,27 +28,17 @@ import org.robolectric.RobolectricTestRunner
 class ScreenOpeningNavigationTest : AppNavigationFixture() {
 
     @Test
-    fun `opens the unread lesson's words from the next step on the town home`() {
+    fun `opens the unread lesson's words from Today's first card`() {
         learning.answerRead(
             ReviewsReadResult.Read(
                 DueReviews(due = emptyList(), readFirst = listOf(firstLesson), nextDueAt = null, readAt = readAt),
             ),
         )
-        signedInAtTown(town = playedTown(nextStep = NextStep.Reviews(1, listOf(firstLesson))))
+        signedInReading(TownReadResult.Read(playedTown(nextStep = NextStep.Reviews(1, listOf(firstLesson)))))
 
-        dockGo("Leer las palabras").performClick()
+        link("Leer las palabras").performClick()
 
         waitForLine("I drink water.")
-    }
-
-    @Test
-    fun `opens the Report from the next step on the town home`() {
-        reports.answerRead(ReportReadResult.Read(nothingDue))
-        signedInAtTown()
-
-        dockGo("Ir al informe").performClick()
-
-        waitForLine("No tienes repasos pendientes ahora.")
     }
 
     @Test
@@ -89,18 +75,8 @@ class ScreenOpeningNavigationTest : AppNavigationFixture() {
     }
 
     @Test
-    fun `opens the Report from its row on the town home`() {
-        signedInAtTown()
-
-        openReport(threeDue)
-
-        composeRule.onNodeWithText("Repasos pendientes: 3").assertIsDisplayed()
-    }
-
-    @Test
     fun `opens the news from its row on the Report`() {
-        signedInAtTown()
-        openReport(nothingDue)
+        showingTheReport(nothingDue)
         reports.answerNews(
             TownNewsReadResult.Read(listOf(TownNews.BuildingWorkFinished(readAt, TownBuildingKind.Homes, level = 2))),
         )
@@ -140,73 +116,5 @@ class ScreenOpeningNavigationTest : AppNavigationFixture() {
         wayOn("Continuar").performClick()
 
         waitForLine(TOWN_HEADER)
-    }
-
-    @Test
-    fun `opens the reviews from the Report`() {
-        signedInAtTown(town = reviewsDueTown)
-        openReport(threeDue)
-        learning.answerRead(noReviews)
-
-        dockGo("Empezar los repasos").performClick()
-        waitForLine("Aún no tienes palabras que repasar.")
-
-        assertEquals(1, learning.readCount)
-    }
-
-    @Test
-    fun `opens the reviews from the school's dock past the learning cap`() {
-        signedInAtTown(
-            town = playedTown(inLearning = 8, nextStep = NextStep.Reviews(count = 3, readFirst = emptyList())),
-        )
-        composeRule.onNodeWithText("Ir a la escuela").performScrollTo().performClick()
-        waitForLine("La siguiente lección trae 5 palabras. Empieza los repasos.")
-        learning.answerRead(noReviews)
-
-        dockGo("Empezar los repasos").performClick()
-        waitForLine("Aún no tienes palabras que repasar.")
-
-        assertEquals(1, learning.readCount)
-    }
-
-    @Test
-    fun `shows a running lesson's time in the status strip on every signed-in screen but the school`() {
-        signedInAtTown(town = runningTown().copy(nextStep = NextStep.Reviews(count = 3, readFirst = emptyList())))
-        assertStatusShown()
-
-        composeRule.onNodeWithText("Ir a la escuela").performScrollTo().performClick()
-        assertStudyingShownWithoutStatus()
-        tab("Pueblo").performClick()
-        wayToTheReport().performScrollTo()
-
-        openReport(threeDue)
-        assertStatusShown()
-
-        learning.answerRead(noReviews)
-        dockGo("Empezar los repasos").performClick()
-        waitForLine("Aún no tienes palabras que repasar.")
-        assertStatusShown()
-    }
-
-    @Test
-    fun `draws the due count on the go button`() {
-        signedInAtTown(town = playedTown(nextStep = NextStep.Reviews(3, emptyList())))
-
-        composeRule.onNode(SemanticsMatcher.expectValue(PILL_BADGE, "3")).assertIsDisplayed()
-    }
-
-    @Test
-    fun `shows no count with nothing due`() {
-        signedInAtTown()
-
-        wayToTheReport().assertIsDisplayed()
-        composeRule.onAllNodes(hasContentDescription("Repasos pendientes", substring = true)).assertCountEquals(0)
-    }
-
-    @Test
-    fun `draws no count on the go button with nothing due`() {
-        signedInAtTown()
-
-        composeRule.onAllNodes(SemanticsMatcher.keyIsDefined(PILL_BADGE)).assertCountEquals(0)
     }
 }

@@ -29,7 +29,7 @@ import org.robolectric.annotation.Config
 
 @RunWith(RobolectricTestRunner::class)
 @Config(qualifiers = "+w360dp-h640dp", fontScale = 2f)
-class HoldoutCheckWayOnTest : DockFrameFixture() {
+class HoldoutCheckWayOnTest : SignedInScreenFixture() {
 
     private val due: HoldoutCheck = HoldoutCheck.Due(PlacementBand.First, HoldoutCheckWeek.Eighth)
 

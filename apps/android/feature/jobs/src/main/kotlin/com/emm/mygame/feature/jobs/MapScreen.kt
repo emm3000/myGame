@@ -29,14 +29,12 @@ import com.emm.mygame.core.designsystem.MyGameTheme
 import com.emm.mygame.core.designsystem.MyGameTypography
 import com.emm.mygame.core.ui.chromeResource
 import com.emm.mygame.core.ui.fixedCopyResource
-import com.emm.mygame.core.ui.joinsFrameTraversal
 
 @Composable
 internal fun MapScreen(
     state: MapUiState,
     onIntent: (MapIntent) -> Unit,
     modifier: Modifier = Modifier,
-    foldedDock: @Composable () -> Unit = {},
 ) {
     Column(
         verticalArrangement = Arrangement.spacedBy(MyGameSpacing.step6),
@@ -44,7 +42,6 @@ internal fun MapScreen(
             .fillMaxSize()
             .background(MyGameTheme.colors.surface)
             .safeDrawingPadding()
-            .joinsFrameTraversal()
             .verticalScroll(rememberScrollState())
             .padding(
                 start = MyGameSpacing.step4,
@@ -53,7 +50,6 @@ internal fun MapScreen(
                 bottom = MyGameSpacing.step8,
             ),
     ) {
-        foldedDock()
         MyGameText(
             label = chromeResource(R.string.map_title),
             style = MyGameTypography.display,

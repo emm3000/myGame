@@ -1,17 +1,8 @@
 package com.emm.mygame.navigation
 
-import androidx.compose.ui.test.assertCountEquals
-import androidx.compose.ui.test.assertIsDisplayed
-import androidx.compose.ui.test.onAllNodesWithText
-import androidx.compose.ui.test.onNodeWithText
-import androidx.compose.ui.test.performClick
 import com.emm.mygame.Destination
-import com.emm.mygame.core.model.holdout.HoldoutCheckWeek
 import com.emm.mygame.core.model.learning.TextId
-import com.emm.mygame.core.model.placement.Placement
-import com.emm.mygame.core.model.placement.PlacementBand
 import com.emm.mygame.core.model.report.ReportReadResult
-import com.emm.mygame.core.model.town.TownReadResult
 import org.junit.Assert.assertEquals
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -49,9 +40,9 @@ class LessonFinishNavigationTest : AppNavigationFixture() {
             Destination.SchoolText(TextId("text-1")),
         )
 
-        passingTheFinish(readsOnArrival = READS_ON_ARRIVAL_ON_A_TEXT)
+        passingTheFinish()
 
-        assertEquals(READS_ON_ARRIVAL_ON_A_TEXT + 1, towns.readCount)
+        assertEquals(READS_ON_ARRIVAL + 1, towns.readCount)
     }
 
     @Test
@@ -81,89 +72,5 @@ class LessonFinishNavigationTest : AppNavigationFixture() {
         passingTheFinish()
 
         assertEquals(READS_ON_ARRIVAL + 1, towns.readCount)
-    }
-
-    @Test
-    fun `closes the finish notice on the reviews`() {
-        asLessonOneFinishes(finishedTown(readFirst = emptyList()))
-        learning.answerRead(noReviews)
-        towns.answerRead(TownReadResult.Read(finishedTown(readFirst = emptyList())))
-
-        dockGo("Empezar los repasos").performClick()
-        waitForLine("Aún no tienes palabras que repasar.")
-
-        composeRule.onAllNodesWithText(LESSON_ONE_DONE).assertCountEquals(0)
-    }
-
-    @Test
-    fun `closes the finish notice on the unread words`() {
-        asLessonOneFinishes(finishedTown(readFirst = listOf(firstLesson)))
-        repeat(2) { towns.answerRead(TownReadResult.Read(finishedTown(listOf(firstLesson)))) }
-        learning.answerRead(walkReviews)
-
-        dockGo("Leer las palabras").performClick()
-        waitForLine("I drink water.")
-
-        composeRule.onAllNodesWithText(LESSON_ONE_DONE).assertCountEquals(0)
-    }
-
-    @Test
-    fun `draws no status on the town home with no lesson running`() {
-        signedInAtTown()
-
-        assertNoStatus()
-    }
-
-    @Test
-    fun `draws no status on the Report with no lesson running`() {
-        reports.answerRead(ReportReadResult.Read(nothingDue))
-        showingStack(
-            Destination.Today,
-            Destination.Town,
-            Destination.Report,
-            town = playedTown(retainedWords = threeOfFive),
-        )
-        waitForRing(THREE_OF_FIVE)
-
-        assertNoStatus()
-    }
-
-    @Test
-    fun `draws the finish notice's close as its only control on the placement`() {
-        asLessonOneFinishes(finishedTown(readFirst = listOf(firstLesson)), Destination.Town, Destination.Placement)
-
-        assertCloseIsTheNoticeOnlyControl()
-    }
-
-    @Test
-    fun `draws the finish notice's close as its only control on the holdout check`() {
-        asLessonOneFinishes(
-            finishedTown(readFirst = listOf(firstLesson)),
-            Destination.Town,
-            Destination.HoldoutCheck(PlacementBand.First, HoldoutCheckWeek.Eighth),
-        )
-
-        assertCloseIsTheNoticeOnlyControl()
-    }
-
-    @Test
-    fun `closes the finish notice`() {
-        asLessonOneFinishes(finishedTown(readFirst = listOf(firstLesson)))
-
-        composeRule.onNodeWithText("Cerrar").performClick()
-        composeRule.waitForIdle()
-
-        composeRule.onAllNodesWithText(LESSON_ONE_DONE).assertCountEquals(0)
-    }
-
-    @Test
-    fun `keeps the finish notice on the way home from the Report`() {
-        asLessonOneFinishes(finishedTown(readFirst = listOf(firstLesson)))
-        repeat(2) { towns.answerRead(TownReadResult.Read(finishedTown(listOf(firstLesson)))) }
-
-        link("Pueblo").performClick()
-        waitForLine(TOWN_HEADER)
-
-        composeRule.onNodeWithText(LESSON_ONE_DONE).assertIsDisplayed()
     }
 }

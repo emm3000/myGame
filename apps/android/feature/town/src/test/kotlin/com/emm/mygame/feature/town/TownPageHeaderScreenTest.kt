@@ -55,16 +55,6 @@ class TownPageHeaderScreenTest : TownScreenFixture() {
     }
 
     @Test
-    fun `draws the running lesson's time in the header of every page`() {
-        show(riverton, status = { BasicText(RUNNING) })
-        composeRule.onNodeWithText(RUNNING).assertIsDisplayed()
-
-        tab("Granja").performScrollTo().performClick()
-
-        composeRule.onNodeWithText(RUNNING).assertIsDisplayed()
-    }
-
-    @Test
     fun `offers no sign-out on the town home`() {
         show(riverton)
 
@@ -80,6 +70,5 @@ class TownPageHeaderScreenTest : TownScreenFixture() {
 
     private companion object {
         const val RING: String = "Ring"
-        const val RUNNING: String = "Running lesson"
     }
 }

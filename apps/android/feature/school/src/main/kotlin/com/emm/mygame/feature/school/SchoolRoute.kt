@@ -25,7 +25,6 @@ fun SchoolRoute(
     onTextOpen: (TextId) -> Unit,
     modifier: Modifier = Modifier,
     holdoutChecks: @Composable () -> Unit = {},
-    foldedDock: @Composable () -> Unit = {},
     viewModel: SchoolViewModel = viewModel { SchoolViewModel(towns, clock) },
 ) {
     val state: SchoolUiState by viewModel.state.collectAsStateWithLifecycle()
@@ -52,6 +51,5 @@ fun SchoolRoute(
         modifier = modifier,
         onTextOpen = onTextOpen,
         holdoutChecks = holdoutChecks,
-        foldedDock = foldedDock,
     )
 }

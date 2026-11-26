@@ -30,7 +30,7 @@ import org.robolectric.annotation.Config
 
 @RunWith(RobolectricTestRunner::class)
 @Config(qualifiers = "+w360dp-h640dp", fontScale = 2f)
-class LessonWordsWayOnTest : DockFrameFixture() {
+class LessonWordsWayOnTest : SignedInScreenFixture() {
 
     private val homeWord: TownSnapshot.WordReading =
         wordReadingOf(word = "home", gloss = "hogar", frame = "This is my home.")

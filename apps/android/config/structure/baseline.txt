@@ -1,16 +1,3 @@
-app-feature-state app/src/main/kotlin/com/emm/mygame/FramedScreen.kt
-app-feature-state app/src/main/kotlin/com/emm/mygame/FramedScreen.kt
-app-feature-state app/src/main/kotlin/com/emm/mygame/SignedInChrome.kt
-app-feature-state app/src/main/kotlin/com/emm/mygame/SignedInChrome.kt
-app-feature-state app/src/main/kotlin/com/emm/mygame/navigation/AppNavigation.kt
-app-feature-state app/src/main/kotlin/com/emm/mygame/navigation/AppNavigation.kt
-app-feature-state app/src/main/kotlin/com/emm/mygame/navigation/AppNavigation.kt
-app-feature-state app/src/main/kotlin/com/emm/mygame/navigation/SchoolEntries.kt
-app-feature-state app/src/main/kotlin/com/emm/mygame/navigation/SchoolEntries.kt
-app-feature-state app/src/main/kotlin/com/emm/mygame/navigation/SchoolEntries.kt
-app-feature-state app/src/main/kotlin/com/emm/mygame/navigation/TownEntries.kt
-app-feature-state app/src/main/kotlin/com/emm/mygame/navigation/TownEntries.kt
-file-lines core/designsystem/src/main/kotlin/com/emm/mygame/core/designsystem/MyGameDock.kt
 file-lines core/designsystem/src/main/kotlin/com/emm/mygame/core/designsystem/MyGameFrameText.kt
 file-lines core/designsystem/src/main/kotlin/com/emm/mygame/core/designsystem/MyGamePill.kt
 file-lines core/designsystem/src/main/kotlin/com/emm/mygame/core/designsystem/MyGameStreetStrip.kt
@@ -21,9 +8,4 @@ file-name core/designsystem/src/main/kotlin/com/emm/mygame/core/designsystem/Eng
 file-name core/designsystem/src/main/kotlin/com/emm/mygame/core/designsystem/TabularFigures.kt
 file-name core/uitesting/src/main/kotlin/com/emm/mygame/core/uitesting/NavRowMatcher.kt
 file-name core/uitesting/src/main/kotlin/com/emm/mygame/core/uitesting/TextStyleLookup.kt
-file-name feature/town/src/main/kotlin/com/emm/mygame/feature/town/status/LessonRefusalLine.kt
-file-name feature/town/src/main/kotlin/com/emm/mygame/feature/town/status/TownStatusDock.kt
 package-files core/designsystem/src/main/kotlin/com/emm/mygame/core/designsystem
-private-vars feature/town/src/main/kotlin/com/emm/mygame/feature/town/status/TownStatusViewModel.kt
-screen-file feature/town/src/main/kotlin/com/emm/mygame/feature/town/status/TownStatusScreen.kt
-test-lines feature/town/src/test/kotlin/com/emm/mygame/feature/town/status/TownStatusViewModelTest.kt
