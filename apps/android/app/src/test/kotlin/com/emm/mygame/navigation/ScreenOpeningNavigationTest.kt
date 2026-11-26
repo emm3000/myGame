@@ -62,7 +62,7 @@ class ScreenOpeningNavigationTest : AppNavigationFixture() {
 
     @Test
     fun `opens the placement from its row on the town home`() {
-        repeat(2) { placements.answerRead(PlacementReadResult.Read(Placement.Offered)) }
+        repeat(3) { placements.answerRead(PlacementReadResult.Read(Placement.Offered)) }
         signedInAtTown()
         waitForLine("Hacer la prueba de nivel")
 
