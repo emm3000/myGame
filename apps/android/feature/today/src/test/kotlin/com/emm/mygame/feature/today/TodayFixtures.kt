@@ -10,6 +10,7 @@ import com.emm.mygame.core.model.town.hiring.TownHireKind
 import com.emm.mygame.core.testing.townOf
 import kotlin.time.Duration
 import kotlin.time.Duration.Companion.hours
+import kotlin.time.Duration.Companion.minutes
 import kotlin.time.Duration.Companion.seconds
 import kotlin.time.Instant
 
@@ -22,13 +23,46 @@ internal fun newTown(
     lessonSlot: TownSnapshot.LessonSlot? = null,
     work: TownSnapshot.WorkItem? = null,
     job: TownSnapshot.Job? = null,
+    buildings: List<TownSnapshot.Building>? = null,
+    stocks: List<TownSnapshot.Stock> = emptyList(),
 ): TownSnapshot = townOf(
     readAt,
     nextStep = nextStep,
     lessons = listOf(lessonOf(LessonId("lesson-1"), isStudied = isFirstLessonStudied)),
     lessonSlot = lessonSlot,
     nextDueAt = nextDueAt,
-).let { town: TownSnapshot -> town.copy(work = town.work.copy(slot = work), job = job) }
+).let { town: TownSnapshot ->
+    town.copy(
+        work = town.work.copy(slot = work),
+        job = job,
+        buildings = buildings ?: town.buildings,
+        stocks = stocks,
+    )
+}
+
+internal fun nextLevelOf(
+    kind: TownBuildingKind,
+    money: Long,
+    people: Int = 1,
+): TownSnapshot.Building = TownSnapshot.Building(
+    kind = kind,
+    level = 1,
+    next = TownSnapshot.NextLevel(
+        level = 2,
+        costs = listOf(TownSnapshot.Cost(TownResourceKind.Money, money)),
+        duration = 3.minutes,
+        people = people,
+        wordsNeeded = null,
+    ),
+)
+
+internal fun moneyHeld(amount: Long, ratePerHour: Double = 0.0): TownSnapshot.Stock = TownSnapshot.Stock(
+    kind = TownResourceKind.Money,
+    amount = amount,
+    ratePerHour = ratePerHour,
+    capacity = 1_000,
+    fullAt = null,
+)
 
 internal fun farmWorkLasting(lasting: Duration): TownSnapshot.WorkItem = TownSnapshot.WorkItem(
     building = TownBuildingKind.Farm,

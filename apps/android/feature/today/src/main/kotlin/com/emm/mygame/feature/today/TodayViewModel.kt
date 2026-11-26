@@ -7,9 +7,13 @@ import com.emm.mygame.core.model.town.HeldTown
 import com.emm.mygame.core.model.town.TownReadResult
 import com.emm.mygame.core.model.town.TownRepository
 import com.emm.mygame.core.model.town.TownSnapshot
+import com.emm.mygame.core.model.town.building.TownBuildingKind
+import com.emm.mygame.core.model.town.building.TownWorkResult
 import com.emm.mygame.core.model.town.school.TownLessonResult
 import com.emm.mygame.core.model.town.serverNow
 import com.emm.mygame.core.projection.repaintDelay
+import com.emm.mygame.core.projection.town.building.BlockReason
+import com.emm.mygame.core.projection.town.building.StartStatus
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.delay
@@ -35,7 +39,7 @@ class TodayViewModel(private val towns: TownRepository, private val clock: Clock
 
     private var held: HeldTown? = null
 
-    private var start: TodayUiState.StartStatus = TodayUiState.StartStatus.Idle
+    private var requests: TodayRequests = TodayRequests()
 
     private var isShown: Boolean = false
 
@@ -53,6 +57,7 @@ class TodayViewModel(private val towns: TownRepository, private val clock: Clock
             TodayIntent.ScreenHidden -> hide()
             TodayIntent.RetryTapped -> if (_state.value == TodayUiState.Failed) read()
             is TodayIntent.StudyTapped -> study(intent.lesson)
+            is TodayIntent.BuildTapped -> build(intent.building)
         }
     }
 
@@ -80,47 +85,77 @@ class TodayViewModel(private val towns: TownRepository, private val clock: Clock
     }
 
     private fun study(lesson: LessonId) {
-        if (held == null || start == TodayUiState.StartStatus.Starting) return
-        start = TodayUiState.StartStatus.Starting
+        if (held == null || requests.lesson == TodayUiState.LessonStart.Starting) return
+        requests = requests.copy(lesson = TodayUiState.LessonStart.Starting)
         draw()
         viewModelScope.launch {
-            start = when (val answer: TownLessonResult = towns.startLesson(lesson)) {
-                is TownLessonResult.Answered -> TodayUiState.StartStatus.Idle
-                is TownLessonResult.Refused -> TodayUiState.StartStatus.Refused(answer.refusal)
-                TownLessonResult.Unreachable -> TodayUiState.StartStatus.Unreachable
+            val answered: TodayUiState.LessonStart = when (val answer: TownLessonResult = towns.startLesson(lesson)) {
+                is TownLessonResult.Answered -> TodayUiState.LessonStart.Idle
+                is TownLessonResult.Refused -> TodayUiState.LessonStart.Refused(answer.refusal)
+                TownLessonResult.Unreachable -> TodayUiState.LessonStart.Unreachable
             }
+            requests = requests.copy(lesson = answered)
+            draw()
+        }
+    }
+
+    private fun build(building: TownBuildingKind) {
+        if (held == null || requests.build is StartStatus.Waiting) return
+        requests = requests.copy(build = StartStatus.Waiting(building))
+        draw()
+        viewModelScope.launch {
+            val answered: StartStatus = when (val answer: TownWorkResult = towns.startWork(building)) {
+                is TownWorkResult.Answered -> StartStatus.Idle
+                is TownWorkResult.Refused -> StartStatus.Refused(building, answer.refusal)
+                TownWorkResult.Unreachable -> StartStatus.Unreachable(building)
+            }
+            requests = requests.copy(build = answered)
             draw()
         }
     }
 
     private fun hold(next: HeldTown?) {
         held = next
-        if (start != TodayUiState.StartStatus.Starting) start = TodayUiState.StartStatus.Idle
+        requests = TodayRequests(
+            lesson = if (requests.lesson == TodayUiState.LessonStart.Starting) {
+                TodayUiState.LessonStart.Starting
+            } else {
+                TodayUiState.LessonStart.Idle
+            },
+            build = requests.build.takeIf { build: StartStatus -> build is StartStatus.Waiting } ?: StartStatus.Idle,
+        )
         draw()
         follow()
     }
 
     private fun follow() {
         following?.cancel()
-        if (!isShown || held?.town?.countdownsAt().isNullOrEmpty()) return
+        if (!isShown || held == null) return
         following = viewModelScope.launch {
             while (true) {
                 val town: TownSnapshot = held?.town ?: return@launch
                 val now: Instant = now()
-                val nearest: Instant = town.countdownsAt().minOrNull() ?: return@launch
-                if (nearest <= now) {
+                val countdown: Instant? = town.countdownsAt().minOrNull()
+                if (countdown != null && countdown <= now) {
                     towns.read()
                     return@launch
                 }
-                delay(repaintDelay(nearest - now))
+                val left: Duration =
+                    listOfNotNull(countdown?.minus(now), nearestReadyLeft()).minOrNull() ?: return@launch
+                delay(repaintDelay(left))
                 draw()
             }
         }
     }
 
+    private fun nearestReadyLeft(): Duration? = (_state.value as? TodayUiState.Content)?.locked
+        ?.mapNotNull { row: TodayUiState.Locked -> (row.block as? BlockReason.Resources)?.ready?.remaining }
+        ?.filter { left: Duration -> left > Duration.ZERO }
+        ?.minOrNull()
+
     private fun draw() {
         val shown: HeldTown = held ?: return
-        _state.value = shown.town.todayAt(now(), shown.gap, start)
+        _state.value = shown.town.todayAt(now(), shown.gap, requests)
     }
 
     private fun now(): Instant = serverNow(clock, held?.gap ?: Duration.ZERO)

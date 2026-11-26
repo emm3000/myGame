@@ -92,7 +92,7 @@ internal fun PlayerCopy.jobTitleOf(job: TodayUiState.JobOut): MyGameLabel = when
 internal fun PlayerCopy.jobTimeOf(job: TodayUiState.JobOut): MyGameLabel =
     chrome { finishLabelOf(job.remaining, job.finishesAt, todayDurationCopy) }
 
-private fun placeNameOf(kind: TownBuildingKind): Int = when (kind) {
+internal fun placeNameOf(kind: TownBuildingKind): Int = when (kind) {
     TownBuildingKind.Homes -> R.string.today_place_homes
     TownBuildingKind.Farm -> R.string.today_place_farm
     TownBuildingKind.Factory -> R.string.today_place_factory
@@ -102,10 +102,10 @@ private fun placeNameOf(kind: TownBuildingKind): Int = when (kind) {
     TownBuildingKind.Office -> R.string.today_place_office
 }
 
-internal fun PlayerCopy.startRefusalOf(start: TodayUiState.StartStatus): String? = when (start) {
-    TodayUiState.StartStatus.Idle, TodayUiState.StartStatus.Starting -> null
-    TodayUiState.StartStatus.Unreachable -> fixedCopy(R.string.today_refusal_unexpected)
-    is TodayUiState.StartStatus.Refused -> refusalLineOf(start.refusal)
+internal fun PlayerCopy.startRefusalOf(start: TodayUiState.LessonStart): String? = when (start) {
+    TodayUiState.LessonStart.Idle, TodayUiState.LessonStart.Starting -> null
+    TodayUiState.LessonStart.Unreachable -> fixedCopy(R.string.today_refusal_unexpected)
+    is TodayUiState.LessonStart.Refused -> refusalLineOf(start.refusal)
 }
 
 private fun PlayerCopy.refusalLineOf(refusal: TownLessonRefusal): String = when (refusal) {

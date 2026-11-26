@@ -9,6 +9,11 @@ import com.emm.mygame.core.model.learning.LessonId
 import com.emm.mygame.core.model.town.LessonName
 import com.emm.mygame.core.model.town.TownSnapshot
 import com.emm.mygame.core.model.town.building.TownBuildingKind
+import com.emm.mygame.core.model.town.TownResourceKind
+import com.emm.mygame.core.projection.town.building.BlockReason
+import com.emm.mygame.core.projection.town.building.CostLine
+import com.emm.mygame.core.projection.town.building.NextLevelLine
+import com.emm.mygame.core.projection.town.building.StartStatus
 import kotlin.time.Duration.Companion.hours
 import kotlin.time.Duration.Companion.minutes
 import kotlin.time.Duration.Companion.seconds
@@ -17,6 +22,14 @@ import kotlin.time.Instant
 private val previewLesson: LessonId = LessonId("lesson-1")
 
 private val previewAt: Instant = Instant.parse("2026-11-18T23:15:00Z")
+
+private val previewNextLevel: NextLevelLine = NextLevelLine(
+    level = 2,
+    costs = listOf(CostLine(TownResourceKind.Money, amount = 50, isShort = false)),
+    duration = 3.minutes,
+    people = 1,
+    wordsNeeded = null,
+)
 
 private val previewNavigation: TodayNavigation = TodayNavigation(
     onLessonOpen = {},
@@ -36,7 +49,16 @@ private class TodayStates : PreviewParameterProvider<TodayUiState> {
             lesson = null,
             work = null,
             job = null,
-            start = TodayUiState.StartStatus.Idle,
+            canDo = listOf(TodayUiState.CanDo(TownBuildingKind.Farm, previewNextLevel)),
+            locked = listOf(
+                TodayUiState.Locked(
+                    building = TownBuildingKind.School,
+                    next = previewNextLevel,
+                    block = BlockReason.PeopleShort(needed = 5, free = 2),
+                ),
+            ),
+            start = TodayUiState.LessonStart.Idle,
+            build = StartStatus.Idle,
         ),
         TodayUiState.Content(
             eyebrow = TodayUiState.Eyebrow.StartHere,
@@ -44,7 +66,10 @@ private class TodayStates : PreviewParameterProvider<TodayUiState> {
             lesson = TodayUiState.RunningLesson(previewLesson, LessonName.Shelved(1), 8.minutes, previewAt),
             work = TodayUiState.RunningWork(TownBuildingKind.Farm, level = 2, remaining = 40.minutes, previewAt),
             job = TodayUiState.JobOut(TownSnapshot.JobPhase.Outbound, remaining = 45.seconds, previewAt),
-            start = TodayUiState.StartStatus.Idle,
+            canDo = emptyList(),
+            locked = emptyList(),
+            start = TodayUiState.LessonStart.Idle,
+            build = StartStatus.Idle,
         ),
         TodayUiState.Content(
             eyebrow = TodayUiState.Eyebrow.WhatIsNext,
@@ -55,7 +80,10 @@ private class TodayStates : PreviewParameterProvider<TodayUiState> {
             lesson = null,
             work = null,
             job = null,
-            start = TodayUiState.StartStatus.Idle,
+            canDo = emptyList(),
+            locked = emptyList(),
+            start = TodayUiState.LessonStart.Idle,
+            build = StartStatus.Idle,
         ),
     )
 }

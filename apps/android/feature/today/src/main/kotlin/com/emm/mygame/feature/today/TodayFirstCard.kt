@@ -21,7 +21,7 @@ import com.emm.mygame.core.ui.rememberPlayerCopy
 internal fun TodayFirstCard(
     card: TodayUiState.FirstCard,
     eyebrow: MyGameLabel,
-    start: TodayUiState.StartStatus,
+    start: TodayUiState.LessonStart,
     onAct: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
@@ -44,7 +44,7 @@ internal fun TodayFirstCard(
             copy.actionOf(card)?.let { action: MyGameLabel ->
                 MyGameButton(
                     label = action,
-                    isBusy = start == TodayUiState.StartStatus.Starting,
+                    isBusy = start == TodayUiState.LessonStart.Starting,
                     busyDescription = copy.chrome(R.string.today_waiting),
                     onClick = onAct,
                 )
