@@ -124,10 +124,10 @@ class SchoolLanguageTest {
 
         assertDrawn("Escuela", "Lección 1", "5 palabras · Habilidad: comida +5\u00A0%")
         assertDrawn("Estudiar la lección 1 · 2:30", "Palabras en aprendizaje: 0 de 10", "Lecciones", "5 palabras")
-        assertDrawn("En estudio", "Ahora no hay ninguna lección en estudio.", "Tus habilidades")
+        assertDrawn("Tus habilidades")
         assertDrawn("Aún no tienes habilidades.")
         assertNotDrawn("School", "Lesson 1", "Study lesson 1 · 2:30", "Lessons", "Your skills")
-        assertNotDrawn("Words in learning: 0 of 10", "No lesson now.", "You have no skills.", "5 words")
+        assertNotDrawn("Words in learning: 0 of 10", "You have no skills.", "5 words")
     }
 
     @Test
@@ -140,8 +140,6 @@ class SchoolLanguageTest {
         assertEnglishOverSpanish("Study lesson 1 · 2:30", "Estudiar la lección 1 · 2:30")
         assertEnglishOverSpanish("Words in learning: 0 of 10", "Palabras en aprendizaje: 0 de 10")
         assertEnglishOverSpanish("Lessons", "Lecciones")
-        assertEnglishOverSpanish("Studying", "En estudio")
-        assertEnglishOverSpanish("No lesson now.", "Ahora no hay ninguna lección en estudio.")
         assertEnglishOverSpanish("Your skills", "Tus habilidades")
         assertEnglishOverSpanish("You have no skills.", "Aún no tienes habilidades.")
     }
@@ -155,9 +153,10 @@ class SchoolLanguageTest {
 
     @Test
     fun `reads the studying section title as one heading, English then Spanish, in the both phase`() {
-        show(bothPhase)
+        show(bothPhase, contentOf(lessonUnderStudy))
 
-        composeRule.onNode(isHeading() and hasText("Studying")).assertTextEquals("Studying", "En estudio")
+        composeRule.onNode(isHeading() and hasText("Studying") and !hasText("Lesson 1"))
+            .assertTextEquals("Studying", "En estudio")
     }
 
     @Test
@@ -165,9 +164,9 @@ class SchoolLanguageTest {
         show(englishPhase)
 
         assertDrawn("School", "Lesson 1", "5 words · food skill: +5\u00A0%", "Study lesson 1 · 2:30")
-        assertDrawn("Words in learning: 0 of 10", "Lessons", "5 words", "Studying", "No lesson now.")
+        assertDrawn("Words in learning: 0 of 10", "Lessons", "5 words")
         assertDrawn("Your skills", "You have no skills.")
-        assertNotDrawn("Escuela", "Lección 1", "Lecciones", "En estudio", "Tus habilidades")
+        assertNotDrawn("Escuela", "Lección 1", "Lecciones", "Tus habilidades")
     }
 
     @Test

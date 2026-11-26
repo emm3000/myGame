@@ -40,26 +40,35 @@ internal fun LessonSlotSection(
     onIntent: (SchoolIntent) -> Unit,
     modifier: Modifier = Modifier,
 ) {
-    val copy: PlayerCopy = rememberPlayerCopy()
+    val answer: String? = rememberPlayerCopy().requestAnswerOf(stop, opening)
+    val running: SchoolUiState.SlotLine.Running? = slot as? SchoolUiState.SlotLine.Running
+    if (running == null && answer == null) return
     Column(verticalArrangement = Arrangement.spacedBy(MyGameSpacing.step3), modifier = modifier) {
-        MyGameCard {
-            Column(
-                verticalArrangement = Arrangement.spacedBy(MyGameSpacing.step3),
-                modifier = Modifier.padding(vertical = MyGameSpacing.step4),
-            ) {
-                SlotHeading()
-                when (slot) {
-                    SchoolUiState.SlotLine.Idle -> MyGameText(
-                        label = copy.chrome(R.string.school_slot_idle),
-                        style = MyGameTypography.caption,
-                        color = MyGameTheme.colors.inkMuted,
-                    )
-                    is SchoolUiState.SlotLine.Done -> DoneSlot(slot = slot)
-                    is SchoolUiState.SlotLine.Busy -> BusySlot(slot = slot, stop = stop, onIntent = onIntent)
-                }
+        running?.let { lesson: SchoolUiState.SlotLine.Running ->
+            RunningLesson(slot = lesson, stop = stop, onIntent = onIntent)
+        }
+        answer?.let { line: String -> MyGameInlineAlert(message = line) }
+    }
+}
+
+@Composable
+private fun RunningLesson(
+    slot: SchoolUiState.SlotLine.Running,
+    stop: SchoolUiState.LessonRequestStatus,
+    onIntent: (SchoolIntent) -> Unit,
+    modifier: Modifier = Modifier,
+) {
+    MyGameCard(modifier = modifier) {
+        Column(
+            verticalArrangement = Arrangement.spacedBy(MyGameSpacing.step3),
+            modifier = Modifier.padding(vertical = MyGameSpacing.step4),
+        ) {
+            SlotHeading()
+            when (slot) {
+                is SchoolUiState.SlotLine.Done -> DoneSlot(slot = slot)
+                is SchoolUiState.SlotLine.Busy -> BusySlot(slot = slot, stop = stop, onIntent = onIntent)
             }
         }
-        copy.requestAnswerOf(stop, opening)?.let { line: String -> MyGameInlineAlert(message = line) }
     }
 }
 

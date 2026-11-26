@@ -123,6 +123,12 @@ private fun SchoolContent(
     Column(verticalArrangement = Arrangement.spacedBy(MyGameSpacing.step6), modifier = modifier) {
         SchoolTitle()
         holdoutChecks()
+        LessonSlotSection(
+            slot = content.slot,
+            stop = content.stop,
+            opening = content.learning.opening,
+            onIntent = onIntent,
+        )
         shown?.let { card: SchoolUiState.LessonCard ->
             ShownLesson(card = card, content = content, onIntent = onIntent, onLessonOpen = onLessonOpen)
         }
@@ -131,12 +137,6 @@ private fun SchoolContent(
         TextRows(content = content, onTextOpen = onTextOpen)
         BandLines(content = content)
         if (content.isHoldoutNoteShown) HoldoutNote()
-        LessonSlotSection(
-            slot = content.slot,
-            stop = content.stop,
-            opening = content.learning.opening,
-            onIntent = onIntent,
-        )
         SkillsSection(content = content)
     }
 }

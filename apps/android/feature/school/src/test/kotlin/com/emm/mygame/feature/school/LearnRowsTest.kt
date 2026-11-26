@@ -5,11 +5,14 @@ import androidx.compose.ui.test.assertIsDisplayed
 import androidx.compose.ui.test.junit4.ComposeContentTestRule
 import androidx.compose.ui.test.junit4.createComposeRule
 import androidx.compose.ui.test.onAllNodesWithText
+import androidx.compose.ui.test.getUnclippedBoundsInRoot
 import androidx.compose.ui.test.onNodeWithText
 import com.emm.mygame.core.designsystem.MyGameTheme
 import com.emm.mygame.core.model.town.TownResourceKind
 import com.emm.mygame.core.model.town.school.SchoolPathCounts
+import androidx.compose.ui.unit.Dp
 import kotlin.time.Duration.Companion.seconds
+import org.junit.Assert.assertTrue
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -69,5 +72,28 @@ class LearnRowsTest {
         composeRule.onNodeWithText("Escuela").assertIsDisplayed()
         composeRule.onAllNodesWithText("Nivel", substring = true).assertCountEquals(0)
         composeRule.onAllNodesWithText("Obra", substring = true).assertCountEquals(0)
+    }
+
+    @Test
+    fun `a running lesson is Learn's own row above the lessons`() {
+        show(idleSchool.copy(slot = runningLesson))
+
+        val countdownTop: Dp = composeRule.onNodeWithText("2\u00A0min").getUnclippedBoundsInRoot().top
+        val lessonTop: Dp = composeRule.onNodeWithText(LESSON_SUMMARY).getUnclippedBoundsInRoot().top
+        assertTrue("countdown at $countdownTop, lesson at $lessonTop", countdownTop < lessonTop)
+    }
+
+    @Test
+    fun `Learn draws no running lesson row while no lesson runs`() {
+        show(idleSchool)
+
+        composeRule.onAllNodesWithText("En estudio").assertCountEquals(0)
+    }
+
+    private val runningLesson: SchoolUiState.SlotLine.Busy =
+        SchoolUiState.SlotLine.Busy(firstLesson, firstLessonName, remaining = 150.seconds, total = 150.seconds)
+
+    private companion object {
+        const val LESSON_SUMMARY: String = "5 palabras · Habilidad: comida +5\u00A0%"
     }
 }
