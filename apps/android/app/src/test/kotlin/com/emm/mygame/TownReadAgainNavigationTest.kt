@@ -23,11 +23,8 @@ import com.emm.mygame.core.model.placement.Placement
 import com.emm.mygame.core.model.placement.PlacementBand
 import com.emm.mygame.core.model.placement.PlacementChangeResult
 import com.emm.mygame.core.model.placement.PlacementReadResult
-import com.emm.mygame.core.model.report.ReportCloseResult
-import com.emm.mygame.core.model.report.ReportReadResult
 import com.emm.mygame.core.model.town.TownSnapshot
 import com.emm.mygame.core.model.town.guidance.NextStep
-import com.emm.mygame.core.model.town.news.TownNews
 import com.emm.mygame.core.model.town.school.TownLessonResult
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -54,18 +51,6 @@ class TownReadAgainNavigationTest : SignedInScreenFixture() {
 
         composeRule.onNode(hasSetTextAction()).performTextInput("house")
         composeRule.onNode(hasTestTag(INK_PILL).and(hasText("Comprobar"))).performScrollTo().performClick()
-
-        composeRule.waitUntil(WAIT_MILLIS) { towns.sentAfterNowCount == 1 }
-    }
-
-    @Test
-    fun `closing the news reads the town again`() {
-        reports.answerRead(ReportReadResult.Read(nothingDue.copy(news = listOf(TownNews.LessonStopped(readAt)))))
-        reports.answerClose(ReportCloseResult.Closed)
-        showing(Destination.Today, Destination.Town, Destination.Report)
-        waitFor(hasText(CLOSE_NEWS))
-
-        composeRule.onNode(hasText(CLOSE_NEWS)).performScrollTo().performClick()
 
         composeRule.waitUntil(WAIT_MILLIS) { towns.sentAfterNowCount == 1 }
     }

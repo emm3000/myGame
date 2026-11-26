@@ -1,5 +1,5 @@
 ---
-status: accepted
+status: accepted, the offer and the tap amended by ADR 057: the offer is on Me and a tap opens Today
 date: 2026-11-16
 ---
 # Study reminders on Android

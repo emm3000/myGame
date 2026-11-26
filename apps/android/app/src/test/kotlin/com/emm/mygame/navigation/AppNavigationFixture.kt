@@ -31,7 +31,6 @@ import com.emm.mygame.core.model.learning.FrameSpan
 import com.emm.mygame.core.model.learning.LessonId
 import com.emm.mygame.core.model.learning.ReviewsReadResult
 import com.emm.mygame.core.model.learning.WordSupport
-import com.emm.mygame.core.model.report.ReportReadResult
 import com.emm.mygame.core.model.report.TownReport
 import com.emm.mygame.core.model.town.TownReadResult
 import com.emm.mygame.core.model.town.TownResourceKind
@@ -200,13 +199,6 @@ abstract class AppNavigationFixture {
         }
     }
 
-    protected fun showingTheReport(report: TownReport, town: TownSnapshot = playedTown()) {
-        sessions.answerRestore(verifiedSession)
-        reports.answerRead(ReportReadResult.Read(report))
-        showingStack(*onTheReport, town = town)
-        waitForLine("NOTICIAS DEL PUEBLO")
-    }
-
     protected fun runningTown(lasting: Duration = 10.minutes): TownSnapshot =
         playedTown(nextStep = NextStep.LessonRunning(goal = null, text = null))
             .copy(lessonSlot = TownSnapshot.LessonSlot(firstLesson, readAt, readAt + lasting))
@@ -267,8 +259,6 @@ class MovableClock : Clock {
 
     override fun now(): Instant = Clock.System.now() + passed
 }
-
-internal val onTheReport: Array<Destination> = arrayOf(Destination.Today, Destination.Town, Destination.Report)
 
 internal fun wordReadingOf(word: String, gloss: String, frame: String): TownSnapshot.WordReading =
     TownSnapshot.WordReading(

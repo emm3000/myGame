@@ -19,6 +19,7 @@ import com.emm.mygame.core.model.report.ReportReadResult
 import com.emm.mygame.core.model.report.TownReport
 import com.emm.mygame.core.model.town.TownReadResult
 import com.emm.mygame.core.model.town.TownSnapshot
+import com.emm.mygame.core.model.town.news.TownNews
 import com.emm.mygame.core.model.town.news.TownNewsReadResult
 import com.emm.mygame.core.testing.FakeReportRepository
 import com.emm.mygame.core.testing.FakeTownRepository
@@ -66,14 +67,14 @@ class OpenAboveNavigationTest {
     private var shownStack: NavBackStack<NavKey>? = null
 
     @Test
-    fun `opens the news above the Report`() {
-        reports.answerRead(ReportReadResult.Read(nothingDue))
+    fun `opens the news above Today`() {
+        reports.answerRead(ReportReadResult.Read(nothingDue.copy(news = listOf(TownNews.LessonStopped(readAt)))))
         reports.answerNews(TownNewsReadResult.Read(emptyList()))
-        showing(Destination.Today, Destination.Town, Destination.Report)
+        showing(Destination.Today)
 
         waitedForLink("Leer todas las noticias").performScrollTo().performClick()
 
-        assertStackEndsWith(Destination.Report, Destination.News)
+        assertStackEndsWith(Destination.Today, Destination.News)
     }
 
     @Test

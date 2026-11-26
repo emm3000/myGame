@@ -77,12 +77,12 @@ class NavigatorHoldoutCheckTest : NavigatorFixture() {
     }
 
     @Test
-    fun `opens no holdout check from the Report`() {
-        val backStack: MutableList<NavKey> = mutableListOf(Destination.Today, Destination.Town, Destination.Report)
+    fun `opens no holdout check from a lesson's words`() {
+        val backStack: MutableList<NavKey> = mutableListOf(Destination.Today, Destination.School, firstWords)
 
         Navigator(backStack, NavigationLinks()).openHoldoutCheck(PlacementBand.First, HoldoutCheckWeek.Eighth)
 
-        assertEquals(listOf(Destination.Today, Destination.Town, Destination.Report), backStack)
+        assertEquals(listOf(Destination.Today, Destination.School, firstWords), backStack)
     }
 
     @Test

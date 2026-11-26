@@ -6,8 +6,10 @@ import androidx.compose.ui.test.isSelectable
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
 import androidx.compose.ui.test.performScrollTo
+import com.emm.mygame.Destination
 import com.emm.mygame.core.model.learning.DueReviews
 import com.emm.mygame.core.model.learning.ReviewsReadResult
+import com.emm.mygame.core.model.report.ReportReadResult
 import com.emm.mygame.core.model.town.TownReadResult
 import com.emm.mygame.core.model.town.building.TownBuildingKind
 import com.emm.mygame.core.model.town.guidance.NextStep
@@ -52,8 +54,11 @@ class ScreenOpeningNavigationTest : AppNavigationFixture() {
     }
 
     @Test
-    fun `opens the news from its row on the Report`() {
-        showingTheReport(nothingDue)
+    fun `opens the news from its row on Today`() {
+        sessions.answerRestore(verifiedSession)
+        reports.answerRead(ReportReadResult.Read(nothingDue.copy(news = listOf(TownNews.LessonStopped(readAt)))))
+        showingStack(Destination.Today)
+        waitForLine("Leer todas las noticias")
         reports.answerNews(
             TownNewsReadResult.Read(listOf(TownNews.BuildingWorkFinished(readAt, TownBuildingKind.Homes, level = 2))),
         )

@@ -2,7 +2,7 @@ package com.emm.mygame.navigation
 
 import com.emm.mygame.Destination
 import com.emm.mygame.core.model.learning.TextId
-import com.emm.mygame.core.model.report.ReportReadResult
+import com.emm.mygame.core.model.town.news.TownNewsReadResult
 import org.junit.Assert.assertEquals
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -12,9 +12,9 @@ import org.robolectric.RobolectricTestRunner
 class LessonFinishNavigationTest : AppNavigationFixture() {
 
     @Test
-    fun `reads the town at the lesson's finish on the Report`() {
-        reports.answerRead(ReportReadResult.Read(nothingDue))
-        onLessonOneNearItsFinish(Destination.Today, Destination.Town, Destination.Report)
+    fun `reads the town at the lesson's finish on the news`() {
+        reports.answerNews(TownNewsReadResult.Read(emptyList()))
+        onLessonOneNearItsFinish(Destination.Today, Destination.Town, Destination.News)
 
         passingTheFinish()
 
