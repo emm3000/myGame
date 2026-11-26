@@ -147,6 +147,26 @@ class TodayViewModelTest {
     }
 
     @Test
+    fun `beside a longer lesson, the work's row repaints each second in its last minute`() = runTest {
+        val viewModel: TodayViewModel = shownOn(workBesideALongerLesson())
+
+        val remainings: List<Duration?> = drawnDuring(viewModel, 62.seconds) { content -> content.work?.remaining }
+
+        assertEquals(listOf(2.minutes, 1.minutes, 59.seconds, 58.seconds), remainings)
+    }
+
+    @Test
+    fun `beside a longer lesson, the town is read again at the work's finish`() = runTest {
+        val viewModel: TodayViewModel = shownOn(workBesideALongerLesson())
+        towns.answerRead(TownReadResult.Read(runningTown()))
+
+        advanceTimeBy(2.minutes)
+        runCurrent()
+
+        assertNull(contentOf(viewModel).work)
+    }
+
+    @Test
     fun `studying the lesson asks the api to start it`() = runTest {
         val viewModel: TodayViewModel = shownOn(newTown(nextStep = NextStep.LessonToStudy(firstLesson)))
         towns.answerLesson(TownLessonResult.Answered(runningTown()))
@@ -237,6 +257,12 @@ class TodayViewModelTest {
     private fun runningTown(): TownSnapshot = newTown(
         nextStep = NextStep.LessonRunning(goal = null, text = null),
         lessonSlot = TownSnapshot.LessonSlot(firstLesson, startedAt = readAt, finishesAt = readAt + 10.minutes),
+    )
+
+    private fun workBesideALongerLesson(): TownSnapshot = newTown(
+        nextStep = NextStep.LessonRunning(goal = null, text = null),
+        lessonSlot = TownSnapshot.LessonSlot(firstLesson, startedAt = readAt, finishesAt = readAt + 10.minutes),
+        work = farmWorkLasting(2.minutes),
     )
 
     private companion object {
