@@ -67,10 +67,24 @@ class TodayAwayViewModelTest {
         reports.answerRead(ReportReadResult.Read(noNews))
 
         viewModel.onIntent(TodayIntent.ScreenHidden)
+        viewModel.onIntent(TodayIntent.ScreenLeft)
         viewModel.onIntent(TodayIntent.ScreenShown)
         runCurrent()
 
         assertEquals(emptyList<TownSnapshot.Cost>(), contentOf(viewModel).gained)
+    }
+
+    @Test
+    fun `keeps the gains while Today stops and starts again with no navigation between`() = runTest {
+        val viewModel: TodayViewModel = shownOn(newTown(nextStep = studyFirst, away = TownSnapshot.Away(gains)))
+        towns.answerRead(TownReadResult.Read(newTown(nextStep = studyFirst, away = null)))
+        reports.answerRead(ReportReadResult.Read(noNews))
+
+        viewModel.onIntent(TodayIntent.ScreenHidden)
+        viewModel.onIntent(TodayIntent.ScreenShown)
+        runCurrent()
+
+        assertEquals(gains, contentOf(viewModel).gained)
     }
 
     private fun TestScope.shownOn(town: TownSnapshot): TodayViewModel {

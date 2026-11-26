@@ -9,6 +9,8 @@ sealed interface TodayIntent {
 
     data object ScreenHidden : TodayIntent
 
+    data object ScreenLeft : TodayIntent
+
     data object RetryTapped : TodayIntent
 
     data class StudyTapped(val lesson: LessonId) : TodayIntent
